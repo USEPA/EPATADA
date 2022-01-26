@@ -1,6 +1,3 @@
-
-library(dplyr)
-
 #' TADA Profile Check
 #' 
 #' This function checks if the column names in a dataframe include the TADA
