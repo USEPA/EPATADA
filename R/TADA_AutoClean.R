@@ -3,12 +3,11 @@
 #' **Placeholder text for function description
 #'
 #' @param .data TADA dataset
-#' @param FlaggedData Boolean argument indicating whether output will have columns appended to flag data or the output will be a cleaned dataset.
+#' @param FlaggedData Boolean argument indicating whether output will have
+#' columns appended to flag data or the output will be a cleaned dataset.
 #'
 #' @return Full TADA dataset with duplicate records and continuous data
 #' @export
-#'
-#' @examples WQP.QCed <- TADAautoClean(WQP.raw)
 
 TADAautoClean <- function(.data, FlaggedData = TRUE){
   
@@ -30,7 +29,7 @@ TADAautoClean <- function(.data, FlaggedData = TRUE){
       # Remove type 2 duplicate
       clean.data <- clean.data[!duplicated(clean.data[dupe.fields]),]
       # Remove continuous data
-      clean.data <- filter(clean.data, 
+      clean.data <- dplyr::filter(clean.data, 
                            ResultDetectionConditionText != "Reported in Raw Data (attached)" |
                              is.na(ResultDetectionConditionText))
       
@@ -46,7 +45,7 @@ TADAautoClean <- function(.data, FlaggedData = TRUE){
                                                        fromLast = TRUE))
       # Flag continuous data
       # make cont.data data frame
-      cont.data <- filter(flag.data, 
+      cont.data <- dplyr::filter(flag.data, 
                           ResultDetectionConditionText == "Reported in Raw Data (attached)")
       # append ContDataFlag column
       cont.data$ContDataFlag <- 1
@@ -59,26 +58,3 @@ TADAautoClean <- function(.data, FlaggedData = TRUE){
     }
   }
 }
-
-
-#' TADA Remove Empty Columns
-#' 
-#' **Placeholder text for function description
-#'
-#' @param .data TADA dataset
-#'
-#' @return Full TADA dataset without columns containing only NA values
-#' @export
-#'
-#' @examples WQP.QCed <- TADAremoveEmptyColumns(WQP.raw)
-
-TADAremoveEmptyColumns <- function(.data){
-  # Remove columns with only NAs
-  .data %>%
-    select(where(~!all(is.na(.x))))
-  
-}
-
-# WQP.raw <- readWQPdata(organization = c("USGS-NJ", "21NJBCH"), Sitetype = c(
-#   "Lake, Reservoir, Impoundment", "Stream"), Samplemedia = c("water", "Water"),
-#   startDate = "01-01-2017", endDate = "01-01-2022")

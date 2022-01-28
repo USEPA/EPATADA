@@ -11,7 +11,6 @@
 #' @return Boolean result indicating whether or not the input dataframe contains
 #' all of the TADA profile fields.
 #'
-#' @examples TADAprofileCheck(df)
 
 TADAprofileCheck <- function(.data){
 
