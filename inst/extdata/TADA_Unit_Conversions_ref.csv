@@ -1,0 +1,10 @@
+﻿Domain?,Original Unit,Description,Target Unit,Conversion Factor,Conversion Coefficient?,Unique Identifier?
+Depth,cm,"Length Distance, Centimeters",m,100,0,135
+Depth,ft,"Length Distance, Feet",m,3.28084,0,140
+Depth,in,"Length Distance, Inches",m,39.3701,0,139
+Depth,km,"Length Distance, Kilometers",m,0.001,0,138
+Depth,m,"Length Distance, Meters",m,1,0,137
+Depth,mi,"Length Distance, Miles",m,0.000621371,0,142
+Depth,mm,"Length Distance, Millimeters",m,1000,0,134
+Depth,nm,"Length Distance, Nanometers",m,1.00E+09,0,133
+Depth,yd,"Length Distance, Yards",m,1.09361,0,141
