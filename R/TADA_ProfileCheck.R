@@ -47,14 +47,16 @@ TADA.fields <- c("OrganizationIdentifier", "OrganizationFormalName",
                  "DetectionQuantitationLimitMeasure.MeasureUnitCode", "PreparationStartDate",
                  "ProviderName", "ActivityStartDateTime", "ActivityEndDateTime")
 
-if(class(.data) != "data.frame") {
+`%!in%` <- Negate(`%in%`)
+
+if(("data.frame" %in% class(.data)) == FALSE) {
   stop("Input object must be of class 'data.frame'")
 }
 
 if(all(TADA.fields %in% colnames(.data)) == TRUE) {
   TRUE
 } else {
-  FALSE
+  stop("The dataframe does not contain the required fields to use TADA. Use either the full physical/chemical profile downloaded from WQP or download the TADA profile template available on the EPA TADA webpage.")
 }
 
 }

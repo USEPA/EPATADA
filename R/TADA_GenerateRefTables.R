@@ -12,9 +12,9 @@
 #' 
 
 TADAupdateInternalData <- function(..., list = character()) {
-  
+ 
   # check object inputs are of class data.frame
-  if(class(...) != "data.frame") {
+  if("data.frame" %in% class(...) == FALSE) {
     stop("Input object must be of class 'data.frame'")
   }
   # load existing sysdata.rda
@@ -24,27 +24,39 @@ TADAupdateInternalData <- function(..., list = character()) {
   # attribute data to each object in var.names
   for (var in var.names) assign(var, get(var, envir = parent.frame()))
   # save new object to sysdata.rda
-  save(list = unique(c(sysdata.prev, var.names)), file = "R/sysdata.rda")
+  save(list = unique(c(sysdata.prev, var.names), compress = "xz"), file = "R/sysdata.rda")
 }
 
-#' Sample Fraction Reference Table
+#' WQX QAQC Characteristic Validation Reference Table
 #' 
-#' This function should be run when package is loaded to library (how do we do
-#' this?)
+#' This function updates the raw WQX QAQC Characteristic Validation reference
+#' table, as well as the cleaned reference table (WQXcharVal.ref) in the 
+#' sysdata.rda file. The WQXcharVal.ref data frame contains information for four
+#' functions: InvalidFraction, InvalidResultUnit, InvalidSpeciation, and 
+#' UncommonAnalyticalMethodID. 
+#' This function is run when package is loaded to library (how?)
 #'
 #'
-#' @return sysdata.rda with updated frac.ref object (sample fraction
-#' reference table)
+#' @return Updated raw QAQCCharacteristicValidation.CSV and sysdata.rda with
+#'  updated WQXcharVal.ref object
 #' 
 
-TADAupdateFractionRef <- function(){
+UpdateWQXCharValRef <- function(){
   
-  # read in raw WQX QAQC Characteristic Validation csv
-  raw.data <- utils::read.csv("inst/extdata/QAQCCharacteristicValidation.CSV")
-  # filter data to include only valid characteristic-fraction pairs
-  frac.ref <- dplyr::filter(raw.data, Domain.1 == "CharacteristicFraction")
+  # read raw csv from url
+  raw.data <- utils::read.csv(url("https://cdx2.epa.gov/wqx/download/DomainValues/QAQCCharacteristicValidation.CSV"))
+  # filter data to include only accepted (valid) values and remove extraneous columns
+  WQXcharVal.ref <- raw.data %>%
+    dplyr::select(-c("Domain", "Unique.Identifier", "Note.Recommendation",
+                     "Last.Change.Date"))
+  # replace "Status" values with Valid, Invalid, Unknown
+  WQXcharVal.ref["Status"][WQXcharVal.ref["Status"] == "Accepted" |
+                             WQXcharVal.ref["Status"] == "InvalidChar" |
+                             WQXcharVal.ref["Status"] == "InvalidMediaUnit"] <- "Valid"
+  WQXcharVal.ref["Status"][WQXcharVal.ref["Status"] == "Rejected"] <- "Invalid"
+  WQXcharVal.ref["Status"][WQXcharVal.ref["Status"] == "MethodNeeded"] <- "Unknown" 
   # write reference table to sysdata.rda
-  TADAupdateInternalData(frac.ref) 
+  TADAupdateInternalData(WQXcharVal.ref)
 }
 
 #' Update Unit Conversion Reference Table
@@ -56,7 +68,7 @@ TADAupdateFractionRef <- function(){
 #' table)
 #' 
 
-TADAupdateUnitRef <- function(){
+UpdateUnitRef <- function(){
   
   # read in raw WQX QAQC Characteristic Validation csv
   unit.ref <- utils::read.csv("inst/extdata/TADA_Unit_Conversions_ref.csv")
