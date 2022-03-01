@@ -14,8 +14,11 @@ LazyData: true
 RoxygenNote: 7.1.2
 Imports:
     ape,
+    dataRetrieval,
     dplyr,
     magrittr,
+    stringr,
+    testthat,
     usethis,
     utils
 Depends: 
