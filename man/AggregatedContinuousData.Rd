@@ -13,7 +13,9 @@ AggregatedContinuousData(.data, clean = FALSE)
 the dataset when clean = TRUE. Default is clean = FALSE.}
 }
 \value{
-
+When clean = FALSE, a column flagging rows with aggregated continuous
+data is appended to the input data set. When clean = TRUE, aggregated 
+continuous data is removed from the dataset.
 }
 \description{
 The Water Quality Portal (WQP) is not designed to store high-frequency 
@@ -22,5 +24,5 @@ their continuous data and submit it to WQP as one value. This type of data
 may not be suitable for a water quality assessment, therefore, this function
 uses metadata submitted by data providers to flags rows with aggregated 
 continuous data. When clean = TRUE, rows with aggregated continuous data
-are removed from the dataset.
+are removed from the dataset and no column will be appended.
 }

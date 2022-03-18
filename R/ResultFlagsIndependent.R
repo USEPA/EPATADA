@@ -12,8 +12,8 @@
 #' @return When clean = FALSE, a column indicating the validity of the 
 #' combination of CharacteristicName, ResultAnalyticalMethod/MethodIdentifier, 
 #' and ResultAnalyticalMethod/MethodIdentifierContext values is appended to the
-#' input data set. When clean = FALSE, the column is appended, but "Invalid" 
-#' rows will be removed from the dataset.
+#' input data set. When clean = FALSE, "Invalid" rows will be removed from the 
+#' dataset and no column will be appended.
 #' 
 #' @export
 #' 
@@ -29,7 +29,9 @@ UncommonAnalyticalMethodID <- function(.data, clean = FALSE){
   # check .data has required columns
   if(all(c("CharacteristicName", "ResultAnalyticalMethod.MethodIdentifier", 
            "ResultAnalyticalMethod.MethodIdentifierContext") %in% colnames(.data)) == FALSE) {
-    stop("The dataframe does not contain the required fields to use TADA. Use either the full physical/chemical profile downloaded from WQP or download the TADA profile template available on the EPA TADA webpage.")
+    stop("The dataframe does not contain the required fields to use TADA. 
+         Use either the full physical/chemical profile downloaded from WQP or 
+         download the TADA profile template available on the EPA TADA webpage.")
   }
   # execute function after checks are passed
   if(all(c("CharacteristicName", "ResultAnalyticalMethod.MethodIdentifier", 
@@ -41,17 +43,20 @@ UncommonAnalyticalMethodID <- function(.data, clean = FALSE){
     # read in speciation reference table from sysdata.rda and filter
     meth.ref <- TADA:::WQXcharVal.ref %>%
       dplyr::filter(Type == "CharacteristicMethod")
-    # duplicate and capitalize CharName and result unit columns in .data
-    .data$Char.Upper <- toupper(.data$CharacteristicName)
+   
+    # define raw.data
+    raw.data <- .data
+     # duplicate and capitalize result unit column in raw.data
+    raw.data$Char.Upper <- toupper(raw.data$CharacteristicName)
+    
     # join "Status" column to .data by CharacteristicName, Source (Media), and Value (unit)
-    check.data <- merge(.data, unit.ref[, c("Characteristic", "Source", "Status", "Value")],
+    check.data <- merge(raw.data, meth.ref[, c("Characteristic", "Source", "Status", "Value")],
                         by.x = c("Char.Upper", "ResultAnalyticalMethod.MethodIdentifier", 
                                  "ResultAnalyticalMethod.MethodIdentifierContext"),
                         by.y = c("Characteristic", "Value", "Source"), all.x = TRUE)
     
-    # remove Char.Upper column and rename Status column
+    # rename Status column to UncommonAnalyticalMethod
     check.data <- check.data %>%
-      dplyr::select(-c("Char.Upper", "Unit.Upper")) %>%
       dplyr::rename(UncommonAnalyticalMethod = Status)
     # rename values in UncommonAnalyticalMethod
     check.data["UncommonAnalyticalMethod"][check.data["UncommonAnalyticalMethod"] == "Valid"] <- "N"
@@ -59,12 +64,30 @@ UncommonAnalyticalMethodID <- function(.data, clean = FALSE){
     # rename NA values to Unknown in UncommonAnalyticalMethod column 
     check.data["UncommonAnalyticalMethod"][is.na(check.data["UncommonAnalyticalMethod"])] <- "Unknown"
     
+    # remove extraneous columns, fix field names
+    check.data <- check.data %>%
+      dplyr::select(-c("Char.Upper"))
+    
+    # reorder column names to match .data
+      # get .data column names
+    col.order <- colnames(.data)
+      # add UncommonAnalyticalMethod column to the list
+    col.order <- append(col.order, "UncommonAnalyticalMethod")
+      # reorder columns in flag.data
+    check.data <- check.data[, col.order]
+    
+    # flagged output
     if(clean == FALSE) {
       return(check.data)
     }
+    
+    # clean output
     if(clean == TRUE) {
       # filter out invalid characteristic-unit-media combinations
       clean.data <- dplyr::filter(check.data, UncommonAnalyticalMethod != "Y")
+      
+      # remove UncommonAnalyticalMethod column
+      clean.data <- dplyr::select(clean.data, -UncommonAnalyticalMethod)
       
       return(clean.data)
     } else {
@@ -82,13 +105,16 @@ UncommonAnalyticalMethodID <- function(.data, clean = FALSE){
 #' may not be suitable for a water quality assessment, therefore, this function
 #' uses metadata submitted by data providers to flags rows with aggregated 
 #' continuous data. When clean = TRUE, rows with aggregated continuous data
-#' are removed from the dataset.
+#' are removed from the dataset and no column will be appended.
 #'
 #' @param .data TADA dataset
 #' @param clean Boolean argument; removes aggregated continuous data from 
 #' the dataset when clean = TRUE. Default is clean = FALSE.
 #'
-#' @return 
+#' @return When clean = FALSE, a column flagging rows with aggregated continuous
+#' data is appended to the input data set. When clean = TRUE, aggregated 
+#' continuous data is removed from the dataset.
+#' 
 #' @export
 
 AggregatedContinuousData <- function(.data, clean = FALSE){
@@ -100,7 +126,9 @@ AggregatedContinuousData <- function(.data, clean = FALSE){
   }
   # check .data has required columns
   if(all(c("ResultDetectionConditionText") %in% colnames(.data)) == FALSE) {
-    stop("The dataframe does not contain the required fields to use TADA. Use either the full physical/chemical profile downloaded from WQP or download the TADA profile template available on the EPA TADA webpage.")
+    stop("The dataframe does not contain the required fields to use TADA. 
+         Use either the full physical/chemical profile downloaded from WQP or 
+         download the TADA profile template available on the EPA TADA webpage.")
   }
   # execute function after checks are passed
   if(all(c("ResultDetectionConditionText") %in% colnames(.data)) == TRUE) {
@@ -109,17 +137,132 @@ AggregatedContinuousData <- function(.data, clean = FALSE){
       # make cont.data data frame
     cont.data <- dplyr::filter(.data, 
                                ResultDetectionConditionText == "Reported in Raw Data (attached)")
-      # append ContDataFlag column
-    cont.data$AggregatedContinuousData <- "Y"
-      # join cont.data to flag.data
-    flag.data <- merge(.data, cont.data, all.x = TRUE) 
     
+    # if there is aggregated continuous data is in the data set
+    if(nrow(cont.data) != 0){
+      # append ContDataFlag column
+      cont.data$AggregatedContinuousData <- "Y"
+      # join cont.data to flag.data
+      flag.data <- merge(.data, cont.data, all.x = TRUE)
+      
+      # flagged output
+      if(clean == FALSE) {
+        return(flag.data)
+      }
+      
+      # clean output
+      if(clean == TRUE) {
+        # filter out invalid characteristic-unit-media combinations
+        clean.data <- dplyr::filter(flag.data, !(AggregatedContinuousData %in% "Y"))
+        
+        # remove AggregatedContinuousData column
+        clean.data <- dplyr::select(clean.data, -AggregatedContinuousData)
+        
+        return(clean.data)
+      } else {
+        stop("clean argument must be Boolean (TRUE or FALSE)")
+      }
+    }  
+    
+    # if no aggregated continuous data is in the data set
+    if(nrow(cont.data) == 0){
+      warning("The dataset does not contain aggregated continuous data.")
+      
+      return(.data)
+    }   
+  }
+}
+
+
+#' Check for Potential Duplicates
+#' 
+#' **Placeholder text for function description
+#'
+#' @param .data TADA dataset
+#' @param clean Boolean argument; removes potential duplicate data from 
+#' the dataset when clean = TRUE. Default is clean = FALSE.
+#'
+#' @return When clean = FALSE, a column indicating potential duplicate rows with
+#' a unique number linking potential duplicate rows is appended to the
+#' input data set. When clean = FALSE the first of each group of potential 
+#' duplicate rows will be removed from the dataset and no column is appended.
+#' 
+#' @export
+
+PotentialDuplicateRowID <- function(.data, clean = FALSE){
+  
+  # check that .data object is compatible with TADA
+  # check .data is of class data.frame
+  if(("data.frame" %in% class(.data)) == FALSE) {
+    stop("Input object must be of class 'data.frame'")
+  }
+  # check .data has required columns
+  if(all(c("ActivityIdentifier", "ActivityConductingOrganizationText",
+           "OrganizationFormalName", "OrganizationIdentifier",
+           "ProjectIdentifier", "ResultCommentText", 
+           "ActivityCommentText") %in% colnames(.data)) == FALSE) {
+    stop("The dataframe does not contain the required fields to use TADA.
+         Use either the full physical/chemical profile downloaded from WQP or 
+         download the TADA profile template available on the EPA TADA webpage.")
+  }
+  # execute function after checks are passed
+  if(all(c("ActivityIdentifier", "ActivityConductingOrganizationText",
+           "OrganizationFormalName", "OrganizationIdentifier",
+           "ProjectIdentifier", "ResultCommentText", 
+           "ActivityCommentText") %in% colnames(.data)) == TRUE) {
+    
+    # get list of field names in .data
+    field.names <- colnames(.data)
+    # create list of fields to exclude when looking for duplicate rows
+    excluded.fields <- c("ActivityIdentifier", "ActivityConductingOrganizationText",
+                         "OrganizationFormalName", "OrganizationIdentifier",
+                         "ProjectIdentifier", "ResultCommentText", "ActivityCommentText")
+    # create list of fields to check for duplicates across
+    dupe.fields <- field.names[!field.names %in% excluded.fields] 
+    
+    # subset list of duplicate rows
+    dupe.data <- .data[duplicated(.data[dupe.fields]),]
+    
+    # flag potential duplicates
+    dupe.data$PotentialDupRowID <- as.integer(seq_len(nrow(dupe.data)))
+    
+    # merge flag column into .data
+    flag.data <- merge(.data, dupe.data, by = dupe.fields, all.x = TRUE)
+    
+    # remove extraneous columns, fix field names
+    flag.data <- flag.data %>%
+      # remove ".x" suffix from column names
+      dplyr::rename_at(dplyr::vars(dplyr::ends_with(".x")), 
+                       ~stringr::str_replace(., "\\..$","")) %>%
+      # remove columns with ".y" suffix
+      dplyr::select_at(dplyr::vars(-dplyr::ends_with(".y")))
+    
+    # reorder column names to match .data
+      # get .data column names
+    col.order <- colnames(.data)
+      # add PotentialDupRowID column to the list
+    col.order <- append(col.order, "PotentialDupRowID")
+      # reorder columns in flag.data
+    flag.data <- flag.data[, col.order]
+    
+    # flagged output
     if(clean == FALSE) {
       return(flag.data)
     }
+    
+    # clean output
     if(clean == TRUE) {
-      # filter out invalid characteristic-unit-media combinations
-      clean.data <- dplyr::filter(flag.data, !(AggregatedContinuousData %in% "Y"))
+      # remove duplicate rows
+        # seperate data into 2 dataframes by PotentialDupRowID (no NAs and NAs)
+      dup.data <- flag.data[!is.na(flag.data$PotentialDupRowID),]
+      NAdup.data <- flag.data[is.na(flag.data$PotentialDupRowID),] 
+      
+      nodup.data <- dup.data[!duplicated(dup.data$PotentialDupRowID),]
+      
+      clean.data <-rbind(nodup.data, NAdup.data)
+      
+      # remove PotentialDupRowID column
+      clean.data <- dplyr::select(clean.data, -PotentialDupRowID)
       
       return(clean.data)
     } else {
@@ -129,45 +272,106 @@ AggregatedContinuousData <- function(.data, clean = FALSE){
 }
 
 
-
-#' MediaNotWater
+#' Check Result Value Against WQX Upper Threshold
 #' 
-#' **Placeholder text for function description
+#' EPA's Water Quality Exchange (WQX) has generated statistics and data from 
+#' millions of water quality data points around the country. This functions 
+#' leverages that statistical data from WQX to flag any data that exceeds the 
+#' upper threshold of result values submitted to WQX for a given characteristic.
+#' When clean = TRUE, rows with values that exceed to WQX threshold are removed
+#' from the dataset and no column will be appended.
 #'
-#' @param data TADA dataset
-#' @param clean Clean argument indicates whether flag columns should be appended 
-#' to the data (clean = FALSE), or flagged data is transformed/filtered from the 
-#' dataset and no columns are appended (clean = TRUE).
+#' @param .data TADA dataset
+#' @param clean Boolean argument; removes data that exceeds the WQX threshold 
+#' from the dataset when clean = TRUE. Default is clean = FALSE.
 #'
-#' @return Full TADA dataset with flags or data removed
+#' @return When clean = FALSE, a column flagging rows with data that exceeds the
+#' WQX threshold is appended to the input data set. When clean = TRUE, data that
+#' exceeds the WQX threshold is removed from the dataset.
+#' 
 #' @export
 
-MediaNotWater <- function(data, clean = TRUE){
+AboveNationalWQXUpperThreshold <- function(.data, clean = FALSE){
   
-  field.names <- colnames(data)
-  
-  if(TADAprofileCheck(data) == FALSE) {
+  # check that .data object is compatible with TADA
+  # check .data is of class data.frame
+  if(("data.frame" %in% class(.data)) == FALSE) {
+    stop("Input object must be of class 'data.frame'")
+  }
+  # check .data has required columns
+  if(all(c("CharacteristicName", "ActivityMediaName", "ResultMeasureValue",
+           "ResultMeasure.MeasureUnitCode") %in% colnames(.data)) == FALSE) {
     stop("The dataframe does not contain the required fields to use TADA. 
          Use either the full physical/chemical profile downloaded from WQP or 
          download the TADA profile template available on the EPA TADA webpage.")
   }
+
   
-  if(TADAprofileCheck(data) == TRUE) {
+  # check ResultMeasureValue column is of class numeric
+  if(class(.data$ResultMeasureValue) != "numeric") {
+    stop("The ResultMeasureValue column must of class 'numeric'.")
+  }
+  
+  # execute function after checks are passed
+  if(all(c("CharacteristicName", "ActivityMediaName", "ResultMeasureValue",
+           "ResultMeasure.MeasureUnitCode") %in% colnames(.data)) == TRUE) {
     
-    if(clean == TRUE) {
-      # Remove all data where media name does NOT equal WATER (ignore punctuation)
-      cleandata <- dplyr::filter(data, ActivityMediaName == "Water")
-      
-      return(cleandata)
-    }
+    # filter WQXcharVal.ref to include only CharacteristicUnit
+    unit.ref <- TADA::WQXcharVal.ref %>%
+      dplyr::filter(Type == "CharacteristicUnit" & Source == "WATER")
+    
+    # define raw.data
+    raw.data <- .data
+    # duplicate and capitalize CharName, ActivityMediaName, and ResultMeasureUnitCode columns in .data
+    raw.data$Char.Upper <- toupper(raw.data$CharacteristicName)
+    raw.data$Media.Upper <- toupper(raw.data$ActivityMediaName)
+    raw.data$Unit.Upper <- toupper(raw.data$ResultMeasure.MeasureUnitCode)
+    
+    # join unit.ref to raw.data
+    check.data <- merge(raw.data, unit.ref[, c("Characteristic", "Source",
+                                            "Value", "Value.Unit", "Maximum",
+                                            "Conversion.Factor")],
+                        by.x = c("Char.Upper", "Media.Upper", "Unit.Upper"),
+                        by.y = c("Characteristic", "Source", "Value"), all.x = TRUE)
+    
+    # Convert result measure value to "Value.Unit" units
+    check.data$Converted.Value <- 
+      check.data[,"ResultMeasureValue"]/check.data[,"Conversion.Factor"]
+    
+    # Create flag column, flag rows where Converted.Value > Maximum
+    flag.data <- check.data %>%
+      # apply function row by row
+      dplyr::rowwise() %>%
+      # create flag column
+      dplyr::mutate(AboveWQXUpperThreshold = dplyr::case_when(
+        Converted.Value >= Maximum ~ as.character("Y"),
+        Converted.Value < Maximum ~ as.character("N")))
+    
+    # remove extraneous columns, fix field names
+    flag.data <- flag.data %>%
+      dplyr::select(-c("Char.Upper", "Media.Upper", "Unit.Upper", "Value.Unit",
+                       "Maximum", "Conversion.Factor", "Converted.Value"))
+    
+    # reorder column names to match .data
+      # get .data column names
+    col.order <- colnames(.data)
+      # add PotentialDupRowID column to the list
+    col.order <- append(col.order, "AboveWQXUpperThreshold")
+      # reorder columns in flag.data
+    flag.data <- flag.data[, col.order]
     
     if(clean == FALSE) {
-      # NEED TO EDIT TO ADD FLAGS, currently removes other water Water
-      flagdata <- dplyr::filter(data, ActivityMediaName == "water")   
+      return(flag.data)
+    }
+    if(clean == TRUE) {
+      # filter out rows where AboveWQXUpperThreshold = Y; remove AboveWQXUpperThreshold column
+      clean.data <- flag.data %>%
+        dplyr::filter(!(AboveWQXUpperThreshold %in% "Y")) %>%
+        dplyr::select(-AboveWQXUpperThreshold)
       
-      return(flagdata)
+      return(clean.data)
     } else {
-      stop("'clean' argument must be Boolean (TRUE or FALSE)")
+      stop("clean argument must be Boolean (TRUE or FALSE)")
     }
   }
 }
