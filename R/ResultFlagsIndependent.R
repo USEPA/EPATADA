@@ -375,3 +375,161 @@ AboveNationalWQXUpperThreshold <- function(.data, clean = FALSE){
     }
   }
 }
+
+
+#' Flag or remove result without an approved QAPP
+#' 
+#' Organizations that submit data to the Water Quality Portal (WQP) sometimes 
+#' include metadata with their results to indicate if the data produced has an
+#' approved Quality Assurance Project Plan (QAPP). This check reviews data
+#' submitted under the column "QAPPApprovedIndicator". When clean=false, 
+#' a column will be appended to flag results that do not have an approved QAPP.
+#' When clean = TRUE, rows with values that do not have an approved QAPP are 
+#' removed from the dataset and no column will be appended.This function should
+#' only be used to remove data if an approved QAPP is required to use data in 
+#' water quality assessments
+#'
+#' @param .data TADA dataset
+#' @param clean Boolean argument; removes data without an Approved QAPP from 
+#' the dataset when clean = TRUE. Default is clean = FALSE.
+#'
+#' @return When clean = FALSE, a column is appended to the input data set that
+#' flags rows without an Approved QAPP. When clean = TRUE, data without an  
+#' Approved QAPP is removed from the dataset.
+#' 
+#' @export
+
+QAPPapproved <- function(.data, clean = FALSE){
+  
+  # check that .data object is compatible with TADA
+  # check .data is of class data.frame
+  if(("data.frame" %in% class(.data)) == FALSE) {
+    stop("Input object must be of class 'data.frame'")
+  }
+  # check .data has required columns
+  if(all(c("QAPPApprovedIndicator") %in% colnames(.data)) == FALSE) {
+    stop("The dataframe does not contain the required fields to use TADA. 
+         Use either the full physical/chemical profile downloaded from WQP or 
+         download the TADA profile template available on the EPA TADA webpage.")
+  }
+  # execute function after checks are passed
+  if(all(c("QAPPApprovedIndicator") %in% colnames(.data)) == TRUE) {
+    
+    # flag data where QAPP was not approved
+    # make QAPPapproved.data data frame
+    QAPPapproved.data <- dplyr::filter(.data, 
+                              QAPPApprovedIndicator == "N")
+    
+    # if there is data without an approved QAPP in the data set
+    if(nrow(QAPPapproved.data) != 0){
+      # append flag column
+      QAPPapproved.data$QAPPapproved <- "N"
+      # join QAPPapproved.data to flag.data
+      flag.data <- merge(.data, QAPPapproved.data, all.x = TRUE)
+      
+      # flagged output
+      if(clean == FALSE) {
+        return(flag.data)
+      }
+      
+      # clean output
+      if(clean == TRUE) {
+        # remove data without an approved QAPP
+        clean.data <- dplyr::filter(flag.data, !(QAPPapproved %in% "N"))
+        
+        # remove QAPPapproved column
+        clean.data <- dplyr::select(clean.data, -QAPPapproved)
+        
+        return(clean.data)
+      } else {
+        stop("clean argument must be Boolean (TRUE or FALSE)")
+      }
+    }  
+    
+    # if no QAPP approved indicator data is in the data set
+    if(nrow(QAPPapproved.data) == 0){
+      warning("The dataset does not contain QAPP approval indicator data.")
+      
+      return(.data)
+    }   
+  }
+}
+
+
+#' Flag or remove result without an approved QAPP
+#' 
+#' Organizations that submit data to the Water Quality Portal (WQP) sometimes 
+#' include metadata with their results to indicate if the data produced has an
+#' associated Quality Assurance Project Plan (QAPP). This check reviews data
+#' submitted under the column "ProjectFileUrl" to determine if
+#' a QAPP document is available to review. When clean=false, 
+#' a column will be appended to flag results that do not have an associated 
+#' QAPP document url provided. When clean = TRUE, rows with values that do not
+#' have an associated QAPP document are removed from the dataset and no column
+#' will be appended. This function should only be used to remove data if an 
+#' accompanying QAPP document is required to use data in assessments
+#'
+#' @param .data TADA dataset
+#' @param clean Boolean argument; removes data without an associated QAPP
+#' document from the dataset when clean = TRUE. Default is clean = FALSE.
+#'
+#' @return When clean = FALSE, a column is appended to the input data set that
+#' flags rows without an associated QAPP document. When clean = TRUE, 
+#' data without an associated QAPP document is removed from the dataset.
+#' 
+#' @export
+#' 
+QAPPDocAvailable <- function(.data, clean = FALSE){
+  
+  # check that .data object is compatible with TADA
+  # check .data is of class data.frame
+  if(("data.frame" %in% class(.data)) == FALSE) {
+    stop("Input object must be of class 'data.frame'")
+  }
+  # check .data has required columns
+  if(all(c("ProjectFileUrl") %in% colnames(.data)) == FALSE) {
+    stop("The dataframe does not contain the required fields to use TADA. 
+         Use either the full physical/chemical profile downloaded from WQP or 
+         download the TADA profile template available on the EPA TADA webpage.")
+  }
+  # execute function after checks are passed
+  if(all(c("ProjectFileUrl") %in% colnames(.data)) == TRUE) {
+    
+    # flag data where QAPP document url is not provided
+    # make QAPPdoc.data data frame
+    QAPPdoc.data <- dplyr::filter(.data, ProjectFileUrl == c("null", "NA"))
+    
+    # if there is data without an associated QAPP url in the data set
+    if(nrow(QAPPdoc.data) != 0){
+      # append flag column
+      QAPPdoc.data$QAPPDocAvailable <- "N"
+      # join QAPPdoc.data to flag.data
+      flag.data <- merge(.data, QAPPdoc.data, all.x = TRUE)
+      
+      # flagged output
+      if(clean == FALSE) {
+        return(flag.data)
+      }
+      
+      # clean output
+      if(clean == TRUE) {
+        # remove data without an associated QAPP url
+        clean.data <- dplyr::filter(flag.data, !(QAPPDocAvailable %in% "N"))
+        
+        # remove QAPPDocAvailable column
+        clean.data <- dplyr::select(clean.data, -QAPPDocAvailable)
+        
+        return(clean.data)
+      } else {
+        stop("clean argument must be Boolean (TRUE or FALSE)")
+      }
+    }  
+    
+    # if no associated QAPP url data is in the data set
+    if(nrow(QAPPdoc.data) == 0){
+      warning("The dataset does not contain QAPP document url data.")
+      
+      return(.data)
+    }   
+  }
+}
