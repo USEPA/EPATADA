@@ -305,6 +305,8 @@ AboveNationalWQXUpperThreshold <- function(.data, clean = FALSE){
          Use either the full physical/chemical profile downloaded from WQP or 
          download the TADA profile template available on the EPA TADA webpage.")
   }
+
+  
   # check ResultMeasureValue column is of class numeric
   if(class(.data$ResultMeasureValue) != "numeric") {
     stop("The ResultMeasureValue column must of class 'numeric'.")
