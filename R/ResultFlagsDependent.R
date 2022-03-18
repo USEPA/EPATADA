@@ -26,9 +26,12 @@ InvalidFraction <- function(.data, clean = FALSE){
   }
     # check .data has required columns
   if(all(c("CharacteristicName", "ResultSampleFractionText") %in% colnames(.data)) == FALSE) {
-    stop("The dataframe does not contain the required fields to use TADA. Use either the full physical/chemical profile downloaded from WQP or download the TADA profile template available on the EPA TADA webpage.")
+    stop("The dataframe does not contain the required fields to use TADA. Use
+         either the full physical/chemical profile downloaded from WQP or
+         download the TADA profile template available on the EPA TADA webpage.")
   }
   
+  # execute function after checks are passed
   if(all(c("CharacteristicName", "ResultSampleFractionText") %in% colnames(.data)) == TRUE) {
     
     if(("SampleFractionValidity" %in% colnames(.data)) == TRUE) {
@@ -37,28 +40,51 @@ InvalidFraction <- function(.data, clean = FALSE){
     # read in sample fraction reference table from sysdata.rda and filter
     frac.ref <- TADA:::WQXcharVal.ref %>%
       dplyr::filter(Type == "CharacteristicFraction")
-    # duplicate and capitalize CharName and Fraction columns in .data
-    .data$Char.Upper <- toupper(.data$CharacteristicName)
-    .data$Frac.Upper <- toupper(.data$ResultSampleFractionText)
+    
+    # define raw.data
+    raw.data <- .data
+      # duplicate and capitalize CharName and Fraction columns in raw.data
+    raw.data$Char.Upper <- toupper(raw.data$CharacteristicName)
+    raw.data$Frac.Upper <- toupper(raw.data$ResultSampleFractionText)
+    
     # join "Status" column to .data by CharacteristicName and Value (SampleFraction)
-    check.data <- merge(.data, frac.ref[, c("Characteristic", "Status", "Value")],
+    check.data <- merge(raw.data, frac.ref[, c("Characteristic", "Status", "Value")],
                                         by.x = c("Char.Upper", "Frac.Upper"),
                                         by.y = c("Characteristic", "Value"), all.x = TRUE)
     
-    # remove Char.Upper and Frac.Upper columns and rename Status column
+    # rename Status column
     check.data <- check.data %>%
-      dplyr::select(-c("Char.Upper", "Frac.Upper")) %>%
       dplyr::rename(SampleFractionValidity = Status)
     # rename NA values to Unknown in SampleFractionValidity column
     check.data["SampleFractionValidity"][is.na(check.data["SampleFractionValidity"])] <- "Unknown"
     
+    # remove extraneous columns
+    check.data <- check.data %>%
+      dplyr::select(-c("Char.Upper", "Frac.Upper"))
+    
+    # reorder column names to match .data
+      # get .data column names
+    col.order <- colnames(.data)
+      # add SampleFractionValidity column to the list
+    col.order <- append(col.order, "SampleFractionValidity")
+      # reorder columns in flag.data
+    check.data <- check.data[, col.order]
+    
+    # flagged output
     if(clean == FALSE) {
       return(check.data)
-      warning("Metadata transformations may be adversely affected by choosing to retain 'Invalid' fraction. In order to ensure transformation functions will run properly, set clean = TRUE.")
+      warning("Metadata transformations may be adversely affected by choosing
+              to retain 'Invalid' fraction. In order to ensure transformation
+              functions will run properly, set clean = TRUE.")
     }
+    
+    # clean output
     if(clean == TRUE) {
      # filter out invalid characteristic-fraction combinations
       clean.data <- dplyr::filter(check.data, SampleFractionValidity != "Invalid")
+      
+      # remove SampleFractionValidity column
+      clean.data <- dplyr::select(clean.data, -SampleFractionValidity)
       
       return(clean.data)
     } else {
@@ -98,9 +124,12 @@ InvalidSpeciation <- function(.data, clean = FALSE){
   }
   # check .data has required columns
   if(all(c("CharacteristicName", "MethodSpecificationName") %in% colnames(.data)) == FALSE) {
-    stop("The dataframe does not contain the required fields to use TADA. Use either the full physical/chemical profile downloaded from WQP or download the TADA profile template available on the EPA TADA webpage.")
+    stop("The dataframe does not contain the required fields to use TADA. Use
+         either the full physical/chemical profile downloaded from WQP or
+         download the TADA profile template available on the EPA TADA webpage.")
   }
   
+  # execute function after checks are passed
   if(all(c("CharacteristicName", "MethodSpecificationName") %in% colnames(.data)) == TRUE) {
     
     if(("MethodSpeciationValidity" %in% colnames(.data)) == TRUE) {
@@ -109,28 +138,51 @@ InvalidSpeciation <- function(.data, clean = FALSE){
     # read in speciation reference table from sysdata.rda and filter
     spec.ref <- TADA:::WQXcharVal.ref %>%
       dplyr::filter(Type == "CharacteristicSpeciation")
-    # duplicate and capitalize CharName and Speciation columns in .data
-    .data$Char.Upper <- toupper(.data$CharacteristicName)
-    .data$Spec.Upper <- toupper(.data$MethodSpecificationName)
+    
+    # define raw.data
+    raw.data <- .data
+      # duplicate and capitalize CharName and Speciation columns in .data
+    raw.data$Char.Upper <- toupper(raw.data$CharacteristicName)
+    raw.data$Spec.Upper <- toupper(raw.data$MethodSpecificationName)
+    
     # join "Status" column to .data by CharacteristicName and Value (Speciation)
-    check.data <- merge(.data, spec.ref[, c("Characteristic", "Status", "Value")],
+    check.data <- merge(raw.data, spec.ref[, c("Characteristic", "Status", "Value")],
                         by.x = c("Char.Upper", "Spec.Upper"),
                         by.y = c("Characteristic", "Value"), all.x = TRUE)
     
-    # remove Char.Upper and Spec.Upper columns and rename Status column
+    # rename Status column
     check.data <- check.data %>%
-      dplyr::select(-c("Char.Upper", "Spec.Upper")) %>%
       dplyr::rename(MethodSpeciationValidity = Status)
     # rename NA values to Unknown in MethodSpeciationValidity column 
     check.data["MethodSpeciationValidity"][is.na(check.data["MethodSpeciationValidity"])] <- "Unknown"
     
+    # remove extraneous columns
+    check.data <- check.data %>%
+      dplyr::select(-c("Char.Upper", "Spec.Upper"))
+    
+    # reorder column names to match .data
+      # get .data column names
+    col.order <- colnames(.data)
+      # add MethodSpeciationValidity column to the list
+    col.order <- append(col.order, "MethodSpeciationValidity")
+      # reorder columns in flag.data
+    check.data <- check.data[, col.order]
+    
+    # flagged output
     if(clean == FALSE) {
       return(check.data)
-      warning("Metadata transformations may be adversely affected by choosing to retain 'Invalid' speciation. In order to ensure transformation functions will run properly, set clean = TRUE.")
+      warning("Metadata transformations may be adversely affected by choosing to
+              retain 'Invalid' speciation. In order to ensure transformation
+              functions will run properly, set clean = TRUE.")
     }
+    
+    # clean output
     if(clean == TRUE) {
       # filter out invalid characteristic-fraction combinations
       clean.data <- dplyr::filter(check.data, MethodSpeciationValidity != "Invalid")
+      
+      # remove MethodSpeciationValidity column
+      clean.data <- dplyr::select(clean.data, -MethodSpeciationValidity)
       
       return(clean.data)
     } else {
@@ -171,39 +223,64 @@ InvalidResultUnit <- function(.data, clean = FALSE){
   }
   # check .data has required columns
   if(all(c("CharacteristicName", "ResultMeasure.MeasureUnitCode", "ActivityMediaName") %in% colnames(.data)) == FALSE) {
-    stop("The dataframe does not contain the required fields to use TADA. Use either the full physical/chemical profile downloaded from WQP or download the TADA profile template available on the EPA TADA webpage.")
+    stop("The dataframe does not contain the required fields to use TADA. Use
+         either the full physical/chemical profile downloaded from WQP or
+         download the TADA profile template available on the EPA TADA webpage.")
   }
   
+  # execute function after checks are passed
   if(all(c("CharacteristicName", "ResultMeasure.MeasureUnitCode", "ActivityMediaName") %in% colnames(.data)) == TRUE) {
     
     if(("ResultUnitValidity" %in% colnames(.data)) == TRUE) {
       .data <- dplyr::select(.data, -ResultUnitValidity)
     }
-    # read in speciation reference table from sysdata.rda and filter
+    # read in unit reference table from sysdata.rda and filter
     unit.ref <- TADA:::WQXcharVal.ref %>%
       dplyr::filter(Type == "CharacteristicUnit")
+    
+    # define raw.data
+    raw.data <- .data
     # duplicate and capitalize CharName and result unit columns in .data
-    .data$Char.Upper <- toupper(.data$CharacteristicName)
-    .data$Unit.Upper <- toupper(.data$ResultMeasure.MeasureUnitCode)
+    raw.data$Char.Upper <- toupper(raw.data$CharacteristicName)
+    raw.data$Unit.Upper <- toupper(raw.data$ResultMeasure.MeasureUnitCode)
     # join "Status" column to .data by CharacteristicName, Source (Media), and Value (unit)
-    check.data <- merge(.data, unit.ref[, c("Characteristic", "Source", "Status", "Value")],
+    check.data <- merge(raw.data, unit.ref[, c("Characteristic", "Source", "Status", "Value")],
                         by.x = c("Char.Upper", "Unit.Upper", "ActivityMediaName"),
                         by.y = c("Characteristic", "Value", "Source"), all.x = TRUE)
     
-    # remove Char.Upper and Unit.Upper columns and rename Status column
+    # rename Status column
     check.data <- check.data %>%
-      dplyr::select(-c("Char.Upper", "Unit.Upper")) %>%
       dplyr::rename(ResultUnitValidity = Status)
     # rename NA values to Unknown in ResultUnitValidity column 
     check.data["ResultUnitValidity"][is.na(check.data["ResultUnitValidity"])] <- "Unknown"
     
+    # remove extraneous columns
+    check.data <- check.data %>%
+      dplyr::select(-c("Char.Upper", "Unit.Upper"))
+    
+    # reorder column names to match .data
+    # get .data column names
+    col.order <- colnames(.data)
+    # add ResultUnitValidity column to the list
+    col.order <- append(col.order, "ResultUnitValidity")
+    # reorder columns in flag.data
+    check.data <- check.data[, col.order]
+    
+    # flagged output
     if(clean == FALSE) {
       return(check.data)
-      warning("Metadata transformations may be adversely affected by choosing to retain 'Invalid' result units. In order to ensure transformation functions will run properly, set clean = TRUE.")
+      warning("Metadata transformations may be adversely affected by choosing to
+              retain 'Invalid' result units. In order to ensure transformation
+              functions will run properly, set clean = TRUE.")
     }
+    
+    # clean output
     if(clean == TRUE) {
       # filter out invalid characteristic-unit-media combinations
       clean.data <- dplyr::filter(check.data, ResultUnitValidity != "Invalid")
+      
+      # remove ResultUnitValidity column
+      clean.data <- dplyr::select(clean.data, -ResultUnitValidity)
       
       return(clean.data)
     } else {
@@ -234,7 +311,9 @@ DepthProfileData <- function(.data, convert = FALSE){
   
   # check that .data object is compatible with TADA
   if(TADAprofileCheck(.data) == FALSE) {
-    stop("The dataframe does not contain the required fields to use TADA. Use either the full physical/chemical profile downloaded from WQP or download the TADA profile template available on the EPA TADA webpage.")
+    stop("The dataframe does not contain the required fields to use TADA. Use 
+         either the full physical/chemical profile downloaded from WQP or 
+         download the TADA profile template available on the EPA TADA webpage.")
   }
   
   if(TADAprofileCheck(.data) == TRUE) {
@@ -306,6 +385,76 @@ MediaNotWater <- function(data, clean = TRUE){
       flagdata <- dplyr::filter(data, ActivityMediaName == "water")   
       
       return(flagdata)
+    } else {
+      stop("'clean' argument must be Boolean (TRUE or FALSE)")
+    }
+  }
+}
+
+
+#' Check for Special Characters in the Result Measure Value Field
+#' 
+#' **placeholder text for function description
+#'
+#' @param .data TADA dataset
+#' @param clean Boolean argument; removes special characters from the 
+#' ResultMeasureValue field when clean = TRUE. Appends "ResultValueSpecialChar"
+#' column which flags rows where ResultMeasureValue has special characters in
+#' the value when clean = FALSE. Default is clean = FALSE.
+#'
+#' @return Full dataset with column indicating presence of special characters in
+#' the ResultMeasureValue field. When clean = TRUE, the output is the full 
+#' dataset with special characters removed from the ResultMeasureValueField. 
+#' @export
+#' 
+
+
+ResultValueSpecialCharacters <- function(.data, clean = FALSE){
+  
+  # check that .data object is compatible with TADA
+  # check .data is of class data.frame
+  if(("data.frame" %in% class(.data)) == FALSE) {
+    stop("Input object must be of class 'data.frame'")
+  }
+  # check .data has required columns
+  if(("ResultMeasureValue" %in% colnames(.data)) == FALSE) {
+    stop("The dataframe does not contain the required fields to use TADA. Use 
+         either the full physical/chemical profile downloaded from WQP or 
+         download the TADA profile template available on the EPA TADA webpage.")
+  }
+  
+  # execute function after checks are passed
+  if(("ResultMeasureValue" %in% colnames(.data)) == TRUE) {
+    
+    if(("ResultValueSpecialChar" %in% colnames(.data)) == TRUE) {
+      .data <- dplyr::select(.data, -ResultValueSpecialChar)
+    }
+    
+    # flagged output
+    if(clean == FALSE) {
+      
+      # define flag.data
+      flag.data <- .data
+      # ID rows with special characters
+      lengths(sapply(strsplit(flag.data$ResultMeasureValue, ",\\s*"), 
+                     setdiff, c(matchvector1, matchvector2))) > 0
+      # append flag column
+      
+      return(flag.data)
+      warning("Data summaries and calculations may be affected by choosing to
+              retain special characters in the ResultValue field. In order to 
+              ensure transformation functions will run properly, set clean = 
+              TRUE.")
+    }
+    
+    # clean output
+    if(clean == TRUE) {
+      
+      #remove an special characters from ResultValue field
+      clean.data <- .data %>%
+        is.numeric(ResultMeasureValue)
+      
+      return(clean.data)
     } else {
       stop("'clean' argument must be Boolean (TRUE or FALSE)")
     }
