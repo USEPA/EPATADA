@@ -433,28 +433,30 @@ ResultValueSpecialCharacters <- function(.data, clean = FALSE){
     # flagged output
     if(clean == FALSE) {
       
-      # define flag.data
-      flag.data <- .data
-      # ID rows with special characters
-      lengths(sapply(strsplit(flag.data$ResultMeasureValue, ",\\s*"), 
-                     setdiff, c(matchvector1, matchvector2))) > 0
-      # append flag column
+      # # define flag.data
+      # flag.data <- .data
+      # # ID rows with special characters
+      # lengths(sapply(strsplit(flag.data$ResultMeasureValue, ",\\s*"), 
+      #                setdiff, c(matchvector1, matchvector2))) > 0
+      # # append flag column
       
-      return(flag.data)
-      warning("Data summaries and calculations may be affected by choosing to
-              retain special characters in the ResultValue field. In order to 
-              ensure transformation functions will run properly, set clean = 
-              TRUE.")
+      # placeholder output until we incorporate proper logic
+      
+      warning("'clean = FALSE' portion of the function is still under 
+              development. The input dataset was not changed.")
+      return(.data)
     }
     
     # clean output
     if(clean == TRUE) {
       
+      # define clean.data
+      clean.data <- .data
       #remove an special characters from ResultValue field
-      clean.data <- .data %>%
-        is.numeric(ResultMeasureValue)
+      clean.data$ResultMeasureValue <- as.numeric(.data$ResultMeasureValue)
       
       return(clean.data)
+      
     } else {
       stop("'clean' argument must be Boolean (TRUE or FALSE)")
     }
