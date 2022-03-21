@@ -2,6 +2,9 @@ library(dataRetrieval)
 library(dplyr)
 library(stringr)
 
+#WQP URL
+#https://www.waterqualitydata.us/data/Project/search?statecode=US%3A24&siteType=Lake%2C%20Reservoir%2C%20Impoundment&siteType=Stream&sampleMedia=water&sampleMedia=Water&startDateLo=01-01-2019&startDateHi=01-01-2022&mimeType=csv&zip=yes&providers=NWIS&providers=STEWARDS&providers=STORET
+
 # Set query parameters ####
 WQPquery <- list(statecode = "US:24", Sitetype = c(
   "Lake, Reservoir, Impoundment", "Stream"), Samplemedia = c("water", "Water"),
@@ -14,6 +17,8 @@ results.DR <- readWQPdata(WQPquery)
 narrow.DR <- readWQPdata(WQPquery, dataProfile = "narrowResult")
 
 sites.DR <- whatWQPsites(WQPquery)
+
+projects.DR <- readWQPdata(WQPquery, service = "Project")
 
 # Join station data to full phys/chem (results.DR) ####
 
