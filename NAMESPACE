@@ -3,6 +3,7 @@
 export(AboveNationalWQXUpperThreshold)
 export(AggregatedContinuousData)
 export(ApplyConversions)
+export(BelowNationalWQXUpperThreshold)
 export(DepthProfileData)
 export(InvalidFraction)
 export(InvalidResultUnit)

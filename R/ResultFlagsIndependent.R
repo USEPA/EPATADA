@@ -276,18 +276,18 @@ PotentialDuplicateRowID <- function(.data, clean = FALSE){
 #' 
 #' EPA's Water Quality Exchange (WQX) has generated statistics and data from 
 #' millions of water quality data points around the country. This functions 
-#' leverages that statistical data from WQX to flag any data that exceeds the 
+#' leverages that statistical data from WQX to flag any data that is above the 
 #' upper threshold of result values submitted to WQX for a given characteristic.
-#' When clean = TRUE, rows with values that exceed to WQX threshold are removed
-#' from the dataset and no column will be appended.
+#' When clean = TRUE, rows with values that are above the upper WQX threshold
+#' are removed from the dataset and no column will be appended.
 #'
 #' @param .data TADA dataset
-#' @param clean Boolean argument; removes data that exceeds the WQX threshold 
-#' from the dataset when clean = TRUE. Default is clean = FALSE.
+#' @param clean Boolean argument; removes data that is above the upper WQX
+#' threshold from the dataset when clean = TRUE. Default is clean = FALSE.
 #'
-#' @return When clean = FALSE, a column flagging rows with data that exceeds the
-#' WQX threshold is appended to the input data set. When clean = TRUE, data that
-#' exceeds the WQX threshold is removed from the dataset.
+#' @return When clean = FALSE, a column flagging rows with data that are above
+#' the upper WQX threshold is appended to the input data set. When clean = TRUE,
+#' data that is above the upper WQX threshold is removed from the dataset.
 #' 
 #' @export
 
@@ -316,9 +316,10 @@ AboveNationalWQXUpperThreshold <- function(.data, clean = FALSE){
   if(all(c("CharacteristicName", "ActivityMediaName", "ResultMeasureValue",
            "ResultMeasure.MeasureUnitCode") %in% colnames(.data)) == TRUE) {
     
-    # filter WQXcharVal.ref to include only CharacteristicUnit
+    # filter WQXcharVal.ref to include only valid CharacteristicUnit in water media
     unit.ref <- TADA::WQXcharVal.ref %>%
-      dplyr::filter(Type == "CharacteristicUnit" & Source == "WATER")
+      dplyr::filter(Type == "CharacteristicUnit" & Source == "WATER" & 
+                      Status == "Valid")
     
     # define raw.data
     raw.data <- .data
@@ -333,6 +334,8 @@ AboveNationalWQXUpperThreshold <- function(.data, clean = FALSE){
                                             "Conversion.Factor")],
                         by.x = c("Char.Upper", "Media.Upper", "Unit.Upper"),
                         by.y = c("Characteristic", "Source", "Value"), all.x = TRUE)
+      # Run ResultValueSpecialCharacter function to remove special characters and convert class to numeric
+      check.data <- ResultValueSpecialCharacters(check.data, clean = TRUE)
     
     # Convert result measure value to "Value.Unit" units
     check.data$Converted.Value <- 
@@ -377,6 +380,113 @@ AboveNationalWQXUpperThreshold <- function(.data, clean = FALSE){
 }
 
 
+
+#' Check Result Value Against WQX Lower Threshold
+#' 
+#' EPA's Water Quality Exchange (WQX) has generated statistics and data from 
+#' millions of water quality data points around the country. This functions 
+#' leverages that statistical data from WQX to flag any data that is below the 
+#' lower threshold of result values submitted to WQX for a given characteristic.
+#' When clean = TRUE, rows with values that are below the lower WQX threshold 
+#' are removed from the dataset and no column will be appended.
+#'
+#' @param .data TADA dataset
+#' @param clean Boolean argument; removes data that is below the lower  WQX
+#' threshold from the dataset when clean = TRUE. Default is clean = FALSE.
+#'
+#' @return When clean = FALSE, a column flagging rows with data that is below the
+#' lower WQX threshold is appended to the input data set. When clean = TRUE, 
+#' data that is below the lower WQX threshold is removed from the dataset.
+#' 
+#' @export
+
+BelowNationalWQXUpperThreshold <- function(.data, clean = FALSE){
+  
+  # check that .data object is compatible with TADA
+  # check .data is of class data.frame
+  if(("data.frame" %in% class(.data)) == FALSE) {
+    stop("Input object must be of class 'data.frame'")
+  }
+  # check .data has required columns
+  if(all(c("CharacteristicName", "ActivityMediaName", "ResultMeasureValue",
+           "ResultMeasure.MeasureUnitCode") %in% colnames(.data)) == FALSE) {
+    stop("The dataframe does not contain the required fields to use TADA. 
+         Use either the full physical/chemical profile downloaded from WQP or 
+         download the TADA profile template available on the EPA TADA webpage.")
+  }
+  
+  
+  # check ResultMeasureValue column is of class numeric
+  if(class(.data$ResultMeasureValue) != "numeric") {
+    stop("The ResultMeasureValue column must of class 'numeric'.")
+  }
+  
+  # execute function after checks are passed
+  if(all(c("CharacteristicName", "ActivityMediaName", "ResultMeasureValue",
+           "ResultMeasure.MeasureUnitCode") %in% colnames(.data)) == TRUE) {
+    
+    # filter WQXcharVal.ref to include only valid CharacteristicUnit in water media
+    unit.ref <- TADA::WQXcharVal.ref %>%
+      dplyr::filter(Type == "CharacteristicUnit" & Source == "WATER" & 
+                      Status == "Valid")
+    
+    # define raw.data
+    raw.data <- .data
+    # duplicate and capitalize CharName, ActivityMediaName, and ResultMeasureUnitCode columns in .data
+    raw.data$Char.Upper <- toupper(raw.data$CharacteristicName)
+    raw.data$Media.Upper <- toupper(raw.data$ActivityMediaName)
+    raw.data$Unit.Upper <- toupper(raw.data$ResultMeasure.MeasureUnitCode)
+    
+    # join unit.ref to raw.data
+    check.data <- merge(raw.data, unit.ref[, c("Characteristic", "Source",
+                                               "Value", "Value.Unit", "Minimum",
+                                               "Conversion.Factor")],
+                        by.x = c("Char.Upper", "Media.Upper", "Unit.Upper"),
+                        by.y = c("Characteristic", "Source", "Value"), all.x = TRUE)
+    # Run ResultValueSpecialCharacter function to remove special characters and convert class to numeric
+    check.data <- ResultValueSpecialCharacters(check.data, clean = TRUE)
+    
+    # Convert result measure value to "Value.Unit" units
+    check.data$Converted.Value <- 
+      check.data[,"ResultMeasureValue"]/check.data[,"Conversion.Factor"]
+    
+    # Create flag column, flag rows where Converted.Value < Minimum
+    flag.data <- check.data %>%
+      # apply function row by row
+      dplyr::rowwise() %>%
+      # create flag column
+      dplyr::mutate(BelowWQXUpperThreshold = dplyr::case_when(
+        Converted.Value <= Minimum ~ as.character("Y"),
+        Converted.Value > Minimum ~ as.character("N")))
+    
+    # remove extraneous columns, fix field names
+    flag.data <- flag.data %>%
+      dplyr::select(-c("Char.Upper", "Media.Upper", "Unit.Upper", "Value.Unit",
+                       "Minimum", "Conversion.Factor", "Converted.Value"))
+    
+    # reorder column names to match .data
+    # get .data column names
+    col.order <- colnames(.data)
+    # add PotentialDupRowID column to the list
+    col.order <- append(col.order, "BelowWQXUpperThreshold")
+    # reorder columns in flag.data
+    flag.data <- flag.data[, col.order]
+    
+    if(clean == FALSE) {
+      return(flag.data)
+    }
+    if(clean == TRUE) {
+      # filter out rows where BelowWQXUpperThreshold = Y; remove BelowWQXUpperThreshold column
+      clean.data <- flag.data %>%
+        dplyr::filter(!(BelowWQXUpperThreshold %in% "Y")) %>%
+        dplyr::select(-BelowWQXUpperThreshold)
+      
+      return(clean.data)
+    } else {
+      stop("clean argument must be Boolean (TRUE or FALSE)")
+    }
+  }
+}
 
 
 
