@@ -16,6 +16,7 @@ Imports:
     dataRetrieval,
     dplyr,
     magrittr,
+    plyr,
     stringr,
     testthat,
     usethis,
