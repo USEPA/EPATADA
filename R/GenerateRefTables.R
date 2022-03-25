@@ -59,19 +59,77 @@ UpdateWQXCharValRef <- function(){
   UpdateInternalData(WQXcharVal.ref)
 }
 
-#' Update Unit Conversion Reference Table
+#' Update Measure Unit Reference Table
 #' 
 #' This function should be run when package is loaded to library (how do we do
 #' this?)
+#' 
+#' This functions reads in the latest WQX MeasureUnit Domain table, adds 
+#' additional target unit information, and writes the data to sysdata.rda.
 #'
 #' @return sysdata.rda with updated unit.ref object (unit conversion reference
 #' table)
 #' 
 
-UpdateUnitRef <- function(){
+UpdateMeasureUnitRef <- function(){
   
   # read in raw WQX QAQC Characteristic Validation csv
-  unit.ref <- utils::read.csv("inst/extdata/TADA_Unit_Conversions_ref.csv")
+  unit.ref <- utils::read.csv(url("https://cdx2.epa.gov/wqx/download/DomainValues/MeasureUnit.CSV"))
+  # add m and ft as target units for "Length Distance" (Description field) rows
+    # target.unit = m
+  target.m <- data.frame(Domain = rep("Measurement Unit(MeasureUnitCode)", 13),
+                              Unique.Identifier = rep(NA, 13),
+                              Code = c("Angst", "cm", "dm", "feet", "ft", "in",
+                                       "km", "m", "mi", "mm", "nm", "nmi", "yd"),
+                              Description = c("Length Distance, Angstroms",
+                                              "Length Distance, Centimeters",
+                                              "Length Distance, Decimeters",
+                                              "Length Distance, Feet",
+                                              "Length Distance, Feet",
+                                              "Length Distance, Inches",
+                                              "Length Distance, Kilometers",
+                                              "Length Distance, Meters",
+                                              "Length Distance, Miles",
+                                              "Length Distance, Millimeters",
+                                              "Length Distance, Nanometers",
+                                              "Length Distance, Nautical miles",
+                                              "Length Distance, Yards"),
+                            Last.Change.Date = rep("3/24/2022 12:00:00 PM", 13),
+                            Target.Unit = rep("m", 13),
+                            Conversion.Factor = c(1e-10, 0.01, 0.1, 0.3048, 0.3048,
+                                                  0.0254, 1000, 1, 1609.34, 0.001,
+                                                  1e-9, 1825, 0.9144),
+                            Conversion.Coefficient = rep(0, 13)
+                            )
+    # target.unit = ft
+  target.ft <- data.frame(Domain = rep("Measurement Unit(MeasureUnitCode)", 13),
+                         Unique.Identifier = rep(NA, 13),
+                         Code = c("Angst", "cm", "dm", "feet", "ft", "in",
+                                  "km", "m", "mi", "mm", "nm", "nmi", "yd"),
+                         Description = c("Length Distance, Angstroms",
+                                         "Length Distance, Centimeters",
+                                         "Length Distance, Decimeters",
+                                         "Length Distance, Feet",
+                                         "Length Distance, Feet",
+                                         "Length Distance, Inches",
+                                         "Length Distance, Kilometers",
+                                         "Length Distance, Meters",
+                                         "Length Distance, Miles",
+                                         "Length Distance, Millimeters",
+                                         "Length Distance, Nanometers",
+                                         "Length Distance, Nautical miles",
+                                         "Length Distance, Yards"),
+                         Last.Change.Date = rep("3/24/2022 12:00:00 PM", 13),
+                         Target.Unit = rep("ft", 13),
+                         Conversion.Factor = c(3.28084e-10, 0.0328084, 0.328084,
+                                               1, 1, 0.08333, 3280.84, 3.28084,
+                                               5280, 0.00328084, 3.2808e-9,
+                                               6076.12, 3),
+                         Conversion.Coefficient = rep(0, 13)
+                         )
+     # add data to unit.ref
+  unit.ref <- plyr::rbind.fill(unit.ref, target.m, target.ft)
+    
   # write reference table to sysdata.rda
   UpdateInternalData(unit.ref) 
 }

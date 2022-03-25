@@ -292,54 +292,281 @@ InvalidResultUnit <- function(.data, clean = FALSE){
 
 #' Depth Profile Flag & Unit Conversion
 #' 
-#' **placeholder text for function description
+#' Function that checks a WQP or TADA dataset for depth profile data. Where depth 
+#' profile columns are populated, the function appends 'Conversion Factor' columns
+#' and populates those columns based on the original unit (MeasureUnitCode 
+#' columns) and the target unit, which is defined in the 'unit' argument. A 
+#' 'Depth Target Unit' column is also appended, indicating the unit all selected 
+#' depth data is converted to. When convert = FALSE, the output includes all
+#' 'Conversion Factor' columns and the 'Depth Target Unit' column. When convert
+#' = TRUE, the output includes converted depth data and the 'Depth Target
+#' Unit' column, which acts as a flag indicating which rows have been converted.
 #'
 #' @param .data TADA dataset
+#' @param unit Character string input indicating the uniform unit depth data is
+#' converted to. Allowable values for 'unit' are either 'm' (meter), 'ft' (feet),
+#'  or 'in' (inch). 'unit' accepts only one allowable value as an input. Default
+#'  is unit = "m".
+#' @param fields Character string input indicating the depth fields that will be
+#' checked for data.  Allowable values for 'fields' are
+#' 'ActivityDepthHeightMeasure,' 'ActivityTopDepthHeightMeasure,'
+#' 'ActivityBottomDepthHeightMeasure,' and 'ResultDepthHeightMeasure.'. Default
+#'  is to include all allowable values.
 #' @param convert Boolean input indicating if conversions should be executed. 
-#' The default is FALSE, where the output is .data with a TargetUnit and a 
-#' ConversionFactor column appended. If convert = TRUE, the output does not 
-#' append additional columns and applies the conversion to the 
-#' ActivityDepthHeightMeasure.MeasureUnitCode column.
+#' When convert = FALSE, the output includes all Conversion Factor' columns and 
+#' the 'Depth Target Unit' column. When convert = TRUE, the output includes 
+#' converted depth data and the 'Depth Target Unit' column, which acts as a flag
+#' indicating which rows have been converted.
 #'
-#' @return Full dataset with column indicating presence of depth data. When 
-#' convert = TRUE, the output is the full dataset with uniform depth units. 
+#' @return Full dataset with 'Conversion Factor' columns and a 'Depth Target Unit'
+#' column. When convert = TRUE, the output is the full dataset with converted
+#' uniform depth units and a 'Depth Target Unit' column, which acts as a flag indicating which
+#' rows have been converted. 
 #' @export
 #' 
 
 
-DepthProfileData <- function(.data, convert = FALSE){
+DepthProfileData <- function(.data, 
+                             unit = "m",
+                             fields = c("ActivityDepthHeightMeasure",
+                                               "ActivityTopDepthHeightMeasure",
+                                               "ActivityBottomDepthHeightMeasure",
+                                               "ResultDepthHeightMeasure"), 
+                             convert = FALSE){
   
   # check that .data object is compatible with TADA
-  if(TADAprofileCheck(.data) == FALSE) {
-    stop("The dataframe does not contain the required fields to use TADA. Use 
-         either the full physical/chemical profile downloaded from WQP or 
+  # check .data is of class data.frame
+  if(("data.frame" %in% class(.data)) == FALSE) {
+    stop("Input object must be of class 'data.frame'")
+  }
+  # check .data has required columns
+  if(all(c("ActivityDepthHeightMeasure.MeasureValue", "ActivityDepthHeightMeasure.MeasureUnitCode",
+           "ActivityTopDepthHeightMeasure.MeasureValue", "ActivityTopDepthHeightMeasure.MeasureUnitCode",
+           "ActivityBottomDepthHeightMeasure.MeasureValue", "ActivityBottomDepthHeightMeasure.MeasureUnitCode",
+           "ResultDepthHeightMeasure.MeasureValue", "ResultDepthHeightMeasure.MeasureUnitCode") 
+         %in% colnames(.data)) == FALSE) {
+    stop("The dataframe does not contain the required fields to use TADA. Use
+         either the full physical/chemical profile downloaded from WQP or
          download the TADA profile template available on the EPA TADA webpage.")
   }
+  # check unit argument for valid number of inputs
+  if(length(unit) != 1) {
+    stop("Invalid 'unit' argument. 'unit' accepts only one allowable value as an
+    input.'unit' must be one of either 'm' (meter), 'ft' (feet), or 'in' (inch).")
+  }
+  # check unit argument for valid inputs
+  if(all(is.na(match(c("m", "ft", "in"), unit))) == TRUE) {
+    stop("Invalid 'unit' argument. 'unit' must be either 'm' (meter), 'ft' (feet),
+         or 'in' (inch).")
+  } 
+  # check fields argument for valid inputs
+  if(all(is.na(match(c("ActivityDepthHeightMeasure",
+        "ActivityTopDepthHeightMeasure",
+        "ActivityBottomDepthHeightMeasure",
+        "ResultDepthHeightMeasure"), fields))) == TRUE) {
+    stop("Invalid 'fields' argument. 'fields' must include one or many of the
+    following: 'ActivityDepthHeightMeasure,' 'ActivityTopDepthHeightMeasure,'
+    'ActivityBottomDepthHeightMeasure,' and/or 'ResultDepthHeightMeasure.'")
+  }
   
-  if(TADAprofileCheck(.data) == TRUE) {
+  # execute function after checks are passed
+  if(all(c("ActivityDepthHeightMeasure.MeasureValue", "ActivityDepthHeightMeasure.MeasureUnitCode",
+           "ActivityTopDepthHeightMeasure.MeasureValue", "ActivityTopDepthHeightMeasure.MeasureUnitCode",
+           "ActivityBottomDepthHeightMeasure.MeasureValue", "ActivityBottomDepthHeightMeasure.MeasureUnitCode",
+           "ResultDepthHeightMeasure.MeasureValue", "ResultDepthHeightMeasure.MeasureUnitCode") 
+         %in% colnames(.data)) == TRUE) {
+    
     # read in unit conversion reference table from sysdata.rda
     unit.ref <- TADA:::unit.ref
-    # Join target unit and conversion factor from unit.ref to .data by ActivityDepthHeightMeasure.MeasureUnitCode
-    TADA.data <- merge(.data, unit.ref[, c("Original.Unit", "Target.Unit", "Conversion.Factor")],
+      #subset to include only "Length Distance" units; filter by target unit defined in 'unit' argument
+    unit.ref <- unit.ref %>%
+      dplyr::filter(stringr::str_detect(Description, 
+                                        stringr::regex("\\bLength Distance"))) %>%
+      dplyr::filter(Target.Unit == unit) %>%
+      dplyr::rename(Depth.TargetUnit = Target.Unit)
+    
+    # define check.data (to preserve .data and avoid mistakes with if statements below)
+    check.data <- .data
+      # add Depth.TargetUnit column
+    
+    # append data based on fields argument input
+      if(("ActivityDepthHeightMeasure" %in% fields) == TRUE) {
+        # proceed only if ActivityDepthHeightMeasure.MeasureUnitCode has values other than NA
+        if(sum(is.na(check.data$ActivityDepthHeightMeasure.MeasureUnitCode)) > 0) {
+          # Join target unit and conversion factor from unit.ref to .data by ActivityDepthHeightMeasure.MeasureUnitCode
+          check.data <- merge(check.data, unit.ref[, c("Code", "Depth.TargetUnit", "Conversion.Factor")],
                        by.x = "ActivityDepthHeightMeasure.MeasureUnitCode", 
-                       by.y = "Original.Unit", 
+                       by.y = "Code", 
                        all.x = TRUE)
-    # if execute = FALSE, output data
-    if(convert == FALSE) {
-      return(TADA.data)
+          # rename new columns
+          check.data <- check.data %>%
+            dplyr::rename(ActDepth.Conversion.Factor = Conversion.Factor)
+        }
+      }
+    
+      if(("ActivityTopDepthHeightMeasure" %in% fields) == TRUE) {
+        # proceed only if ActivityDepthHeightMeasure.MeasureUnitCode has values other than NA
+        if(sum(is.na(check.data$ActivityTopDepthHeightMeasure.MeasureUnitCode)) > 0) {
+          # Join target unit and conversion factor from unit.ref to .data by ActivityDepthHeightMeasure.MeasureUnitCode
+          check.data <- merge(check.data, unit.ref[, c("Code", "Depth.TargetUnit", "Conversion.Factor")],
+                              by.x = "ActivityTopDepthHeightMeasure.MeasureUnitCode", 
+                              by.y = "Code", 
+                              all.x = TRUE)
+          # rename new columns
+          check.data <- check.data %>%
+            dplyr::rename(ActTopDepth.Conversion.Factor = Conversion.Factor)
+          # check if Target Unit column already exists, if it does, combine columns
+          if(all(c("Depth.TargetUnit.x", "Depth.TargetUnit.y") %in% colnames(check.data)) == TRUE) {
+            # coalesce Depth.TargetUnit columns
+            check.data$Depth.TargetUnit <- dplyr::coalesce(check.data$Depth.TargetUnit.x, 
+                                                      check.data$Depth.TargetUnit.y)
+            # remove extra columns
+            check.data <- dplyr::select(check.data, -c("Depth.TargetUnit.x",
+                                                       "Depth.TargetUnit.y"))
+          }
+        }
+      }
+    
+      if(("ActivityBottomDepthHeightMeasure" %in% fields) == TRUE) {
+        # proceed only if ActivityDepthHeightMeasure.MeasureUnitCode has values other than NA
+        if(sum(is.na(check.data$ActivityBottomDepthHeightMeasure.MeasureUnitCode)) > 0) {
+          # Join target unit and conversion factor from unit.ref to .data by ActivityDepthHeightMeasure.MeasureUnitCode
+          check.data <- merge(check.data, unit.ref[, c("Code", "Depth.TargetUnit", "Conversion.Factor")],
+                            by.x = "ActivityBottomDepthHeightMeasure.MeasureUnitCode", 
+                            by.y = "Code", 
+                            all.x = TRUE)
+          # rename new columns
+          check.data <- check.data %>%
+            dplyr::rename(ActBottomDepth.Conversion.Factor = Conversion.Factor)
+          # check if Target Unit column already exists, if it does, combine columns
+          if(all(c("Depth.TargetUnit.x", "Depth.TargetUnit.y") %in% colnames(check.data)) == TRUE) {
+            # coalesce Depth.TargetUnit columns
+            check.data$Depth.TargetUnit <- dplyr::coalesce(check.data$Depth.TargetUnit.x, 
+                                                      check.data$Depth.TargetUnit.y)
+            # remove extra columns
+            check.data <- dplyr::select(check.data, -c("Depth.TargetUnit.x",
+                                                       "Depth.TargetUnit.y"))
+          }
+        }
+      }
+    
+      if(("ResultDepthHeightMeasure" %in% fields) == TRUE) {
+        # proceed only if ActivityDepthHeightMeasure.MeasureUnitCode has values other than NA
+        if(sum(is.na(check.data$ResultDepthHeightMeasure.MeasureUnitCode)) > 0) {
+          # Join target unit and conversion factor from unit.ref to .data by ActivityDepthHeightMeasure.MeasureUnitCode
+          check.data <- merge(check.data, unit.ref[, c("Code", "Depth.TargetUnit", "Conversion.Factor")],
+                              by.x = "ResultDepthHeightMeasure.MeasureUnitCode", 
+                              by.y = "Code", 
+                              all.x = TRUE)
+          # rename new columns
+          check.data <- check.data %>%
+            dplyr::rename(ResultDepth.Conversion.Factor = Conversion.Factor)
+          # check if Target Unit column already exists, if it does, combine columns
+          if(all(c("Depth.TargetUnit.x", "Depth.TargetUnit.y") %in% colnames(check.data)) == TRUE) {
+            # coalesce Depth.TargetUnit columns
+            check.data$Depth.TargetUnit <- dplyr::coalesce(check.data$Depth.TargetUnit.x, 
+                                                      check.data$Depth.TargetUnit.y)
+            # remove extra columns
+            check.data <- dplyr::select(check.data, -c("Depth.TargetUnit.x",
+                                                       "Depth.TargetUnit.y"))
+          }
+        }
+      }
+    if(all(is.na(match(c("ActDepth.Conversion.Factor", 
+                         "ActTopDepth.Conversion.Factor",
+                         "ActBottomDepth.Conversion.Factor", 
+                         "ResultDepth.Conversion.Factor"), colnames(check.data)))) == TRUE) {
+      stop("The dataset does not have any depth data.")
     }
-    # if execute = TRUE, apply conversion
-    if(convert == TRUE) {
-      # divide ActivityDepthHeightMeasure.MeasureValue by ConversionFactor
-      TADA.data$ActivityDepthHeightMeasure.MeasureValue = 
-        TADA.data$ActivityDepthHeightMeasure.MeasureValue/TADA.data$Conversion.Factor
-      # replace ActivityDepthHeightMeasure.MeasureUnitCode values with TargetUnit values
-      TADA.data$ActivityDepthHeightMeasure.MeasureUnitCode =
-        TADA.data$Target.Unit
-      # remove appended columns (target unit and conversion factor)
-      TADA.data <- dplyr::select(TADA.data, -c("Target.Unit", "Conversion.Factor"))
+    
+    # reorder column names to match .data
+    # get .data column names
+    col.order <- colnames(.data)
+    # add appended columns to the list
+    if(("ActivityDepthHeightMeasure" %in% fields) == TRUE) {
+      col.order <- append(col.order, "ActDepth.Conversion.Factor")
+    }
+    if(("ActivityTopDepthHeightMeasure" %in% fields) == TRUE) {
+      col.order <- append(col.order, "ActTopDepth.Conversion.Factor")
+    }
+    if(("ActivityBottomDepthHeightMeasure" %in% fields) == TRUE) {
+      col.order <- append(col.order, "ActBottomDepth.Conversion.Factor")
+    }
+    if(("ResultDepthHeightMeasure" %in% fields) == TRUE) {
+      col.order <- append(col.order, "ResultDepth.Conversion.Factor")
+    }
+    if(("Depth.TargetUnit" %in% colnames(check.data)) == TRUE) {
+      col.order <- append(col.order, "Depth.TargetUnit")
+    }
+    # reorder columns in flag.data
+    flag.data <- check.data[, col.order]
+    # if convert = FALSE, output data
+    if(convert == FALSE) {
       
-      return(TADA.data)
+      return(flag.data)
+    }
+    # if convert = TRUE, apply conversion
+    if(convert == TRUE) {
+      # define clean.data
+      clean.data <- flag.data
+      
+      # if ActDepth.Conversion.Factor exists...
+      if(("ActDepth.Conversion.Factor" %in% colnames(clean.data)) == TRUE) {
+        # multiply ActivityDepthHeightMeasure.MeasureValue by ActDepth.Conversion.Factor
+        suppressWarnings(
+          clean.data$ActivityDepthHeightMeasure.MeasureValue == 
+          as.numeric(clean.data$ActivityDepthHeightMeasure.MeasureValue)*
+            clean.data$ActDepth.Conversion.Factor)
+        # replace ActivityDepthHeightMeasure.MeasureUnitCode values with unit argument
+          clean.data$ActivityDepthHeightMeasure.MeasureUnitCode[which(
+            !is.na(clean.data$ActivityDepthHeightMeasure.MeasureUnitCode))] <- unit
+        # delete ActDepth.Conversion.Unit column
+        clean.data <- dplyr::select(clean.data, -"ActDepth.Conversion.Factor")
+      }
+      
+      # if ActTopDepth.Conversion.Factor exists...
+      if(("ActTopDepth.Conversion.Factor" %in% colnames(clean.data)) == TRUE) {
+        # multiply ActivityTopDepthHeightMeasure.MeasureValue by ActTopDepth.Conversion.Factor
+        suppressWarnings(
+        clean.data$ActivityTopDepthHeightMeasure.MeasureValue == 
+          as.numeric(clean.data$ActivityTopDepthHeightMeasure.MeasureValue)*
+          clean.data$ActTopDepth.Conversion.Factor)
+        # replace ActivityTopDepthHeightMeasure.MeasureUnitCode values with unit argument
+          clean.data$ActivityTopDepthHeightMeasure.MeasureUnitCode[which(
+            !is.na(clean.data$ActivityTopDepthHeightMeasure.MeasureUnitCode))] <- unit
+        # delete ActDepth.Conversion.Unit column
+        clean.data <- dplyr::select(clean.data, -"ActTopDepth.Conversion.Factor")
+      }
+      
+      # if ActBottomDepth.Conversion.Factor exists...
+      if(("ActBottomDepth.Conversion.Factor" %in% colnames(clean.data)) == TRUE) {
+        # multiply ActivityBottomDepthHeightMeasure.MeasureValue by ActBottomDepth.Conversion.Factor
+        suppressWarnings(
+          clean.data$ActivityBottomDepthHeightMeasure.MeasureValue == 
+            as.numeric(clean.data$ActivityBottomDepthHeightMeasure.MeasureValue)*
+            clean.data$ActBottomDepth.Conversion.Factor)
+        # replace ActivityBottomDepthHeightMeasure.MeasureUnitCode values with unit argument
+          clean.data$ActivityBottomDepthHeightMeasure.MeasureUnitCode[which(
+            !is.na(clean.data$ActivityBottomDepthHeightMeasure.MeasureUnitCode))] <- unit
+        # delete ActBottomDepth.Conversion.Unit column
+        clean.data <- dplyr::select(clean.data, -"ActBottomDepth.Conversion.Factor")
+      }
+      
+      # if ResultDepth.Conversion.Factor exists...
+      if(("ResultDepth.Conversion.Factor" %in% colnames(clean.data)) == TRUE) {
+        # multiply ResultDepthHeightMeasure.MeasureValue by ResultDepth.Conversion.Factor
+        suppressWarnings(
+          clean.data$ResultDepthHeightMeasure.MeasureValue == 
+            as.numeric(clean.data$ResultDepthHeightMeasure.MeasureValue)*
+            clean.data$ResultDepth.Conversion.Factor)
+        # replace ResultDepthHeightMeasure.MeasureUnitCode values with unit argument
+          clean.data$ResultDepthHeightMeasure.MeasureUnitCode[which(
+            !is.na(clean.data$ResultDepthHeightMeasure.MeasureUnitCode))] <- unit
+        # delete ResultDepth.Conversion.Unit column
+        clean.data <- dplyr::select(clean.data, -"ResultDepth.Conversion.Factor")
+      }
+      
+      return(clean.data)
     } else {
       stop("'convert' argument must be Boolean (TRUE or FALSE)")
     }
