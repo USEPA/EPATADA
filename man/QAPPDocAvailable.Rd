@@ -2,7 +2,7 @@
 % Please edit documentation in R/ResultFlagsIndependent.R
 \name{QAPPDocAvailable}
 \alias{QAPPDocAvailable}
-\title{Flag or remove result without an approved QAPP}
+\title{Flag or remove results without an approved QAPP document URL provided}
 \usage{
 QAPPDocAvailable(.data, clean = FALSE)
 }
@@ -14,18 +14,15 @@ document from the dataset when clean = TRUE. Default is clean = FALSE.}
 }
 \value{
 When clean = FALSE, a column is appended to the input data set that
-flags rows without an associated QAPP document. When clean = TRUE, 
+flags rows with an associated QAPP document. When clean = TRUE, 
 data without an associated QAPP document is removed from the dataset.
 }
 \description{
-Organizations that submit data to the Water Quality Portal (WQP) sometimes 
-include metadata with their results to indicate if the data produced has an
-associated Quality Assurance Project Plan (QAPP). This check reviews data
-submitted under the column "ProjectFileUrl" to determine if
-a QAPP document is available to review. When clean=false, 
-a column will be appended to flag results that do not have an associated 
-QAPP document url provided. When clean = TRUE, rows with values that do not
+This check reviews data submitted under the  "ProjectFileUrl" column
+to determine if a QAPP document is available to review. When clean=FALSE, 
+a column will be appended to flag results that have an associated 
+QAPP document url provided. When clean = TRUE, rows that do not
 have an associated QAPP document are removed from the dataset and no column
 will be appended. This function should only be used to remove data if an 
-accompanying QAPP document is required to use data in assessments
+accompanying QAPP document is required to use data in assessments.
 }
