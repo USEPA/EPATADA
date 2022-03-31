@@ -472,6 +472,7 @@ DepthProfileData <- function(.data,
           }
         }
       }
+    # check if any Conversion Factor columns were appended
     if(all(is.na(match(c("ActDepth.Conversion.Factor", 
                          "ActTopDepth.Conversion.Factor",
                          "ActBottomDepth.Conversion.Factor", 
@@ -689,3 +690,4 @@ ResultValueSpecialCharacters <- function(.data, clean = FALSE){
     }
   }
 }
+
