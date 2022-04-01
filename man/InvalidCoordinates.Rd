@@ -5,8 +5,6 @@
 \title{Invalid coordinates}
 \usage{
 InvalidCoordinates(.data, clean_outsideUSA = FALSE, clean_imprecise = FALSE)
-
-InvalidCoordinates(.data, clean_outsideUSA = FALSE, clean_imprecise = FALSE)
 }
 \arguments{
 \item{.data}{TADA dataset}
@@ -19,15 +17,11 @@ occur and data is removed from the dataset.}
 When clean = FALSE and imprecise = FALSE, data is flagged but
 not removed from the dataset.
 
-When clean = FALSE and imprecise = FALSE, data is flagged but
-not removed from the dataset.
 }
 \description{
 When clean = FALSE, a column will be appended titled "InvalidCoordinates"
 with the following flags (if relevant to dataset):
 
-When clean = FALSE, a column will be appended titled "InvalidCoordinates"
-with the following flags (if relevant to dataset):
 }
 \details{
 BELOW TBD 
@@ -42,15 +36,4 @@ is outside of the -180 to 180 range, the row is flagged as "Invalid";
 and LONG provided. If the LAT or LONG does not have any numbers to the right of the 
 decimal point, the row will be flagged as "Imprecise".
 
-BELOW TBD 
-
-1) If the LONG has a + sign, the function assumes this was a data
-submission error because it is outside of the US. + LONGS will be 
-changed to - 
-2) If the LAT or LONG includes the specific strings,
-000 or 999, or if the LAT is outside of the -90 to 90 range and LONG
-is outside of the -180 to 180 range, the row is flagged as "Invalid";
-3) Precision can be measured by the number of decimal places in the LAT 
-and LONG provided. If the LAT or LONG does not have any numbers to the right of the 
-decimal point, the row will be flagged as "Imprecise".
 }

@@ -18,7 +18,6 @@
 #' @export
 #' 
 
-
 UncommonAnalyticalMethodID <- function(.data, clean = FALSE){
   
   # check that .data object is compatible with TADA
@@ -516,6 +515,7 @@ BelowNationalWQXUpperThreshold <- function(.data, clean = FALSE){
 #' QAPPApprovedIndicator = "N"  when clean = TRUE; 2) remove data where the 
 #' QAPPApprovedIndicator = NA  when cleanNA = TRUE. Default is clean = TRUE and 
 #' cleanNA = FALSE.
+#' @param cleanNA 
 #'
 #' @return When clean = FALSE and cleanNA = FALSE, no data is removed from the 
 #' dataset.
@@ -637,85 +637,39 @@ QAPPDocAvailable <- function(.data, clean = FALSE){
 }
 
 
-
-#' Invalid coordinates
+#' decimalplaces
 #' 
-#' When clean = FALSE, a column will be appended titled "InvalidCoordinates"
-#' with the following flags (if relevant to dataset): 
-#' 
-#' BELOW TBD 
-#' 
-#' 1) If the LONG has a + sign, the function assumes this was a data
-#' submission error because it is outside of the US. + LONGS will be 
-#' changed to - 
-#' 2) If the LAT or LONG includes the specific strings,
-#' 000 or 999, or if the LAT is outside of the -90 to 90 range and LONG
-#' is outside of the -180 to 180 range, the row is flagged as "Invalid";
-#' 3) Precision can be measured by the number of decimal places in the LAT 
-#' and LONG provided. If the LAT or LONG does not have any numbers to the right of the 
-#' decimal point, the row will be flagged as "Imprecise". 
+#' for numeric data type
 #'
 #' @param .data TADA dataset
-#' @param clean Two boolean arguments. Default is clean = FALSE and 
-#' imprecise = FALSE. When clean = TRUE and imprecise = TRUE, data transformations
-#' occur and data is removed from the dataset.
-#'
-#' @return When clean = FALSE and imprecise = FALSE, data is flagged but
-#' not removed from the dataset.
+#' 
+#' @return 
 #' 
 #' @export
 #' 
 
-InvalidCoordinates <- function(.data, clean = FALSE, imprecise = FALSE) {
-  # check that .data object is compatible with InvalidCoordinates function
-  # check .data is of class data.frame
-  if(("data.frame" %in% class(.data)) == FALSE) {
-    stop("Input object must be of class 'data.frame'")
-  }
-  # check .data has required columns
-  if(all(c("LatitudeMeasure", "LongitudeMeasure") %in% colnames(.data)) == FALSE) {
-    stop("The dataframe does not contain the required fields. Use either the full physical/chemical profile downloaded from WQP or download the TADA profile template available on the EPA TADA webpage.")
-  }
-  # execute function after checks are passed
-  if(all(c("LatitudeMeasure", "LongitudeMeasure") %in% colnames(.data)) == TRUE) {
-    
-    # flag data, make data frame
-    # flagging data when LAT is less than 0 or LONG is greater than 0 and less than 145 (for western most point of ALASKA-Cape Wrangell)
-    InvalidCoordinates.data = dplyr::filter(.data, LatitudeMeasure < 0 | (LongitudeMeasure > 0 & LongitudeMeasure < 145))
-    
-    # if there is data that meets the above conditions
-    if(nrow(InvalidCoordinates.data) != 0){
-      
-      # append flag column
-      InvalidCoordinates.data$InvalidCoordinates <- "NotUSA"
-      
-      # join InvalidCoordinates.data to flag.data
-      flag.data <- merge(.data, InvalidCoordinates.data, all.x = TRUE)
-      
-      # flagged output
-      if(clean == FALSE) {
-        return(flag.data)
-      }
-      
-      #clean output, remove all data for stations outside of the US
-      if (clean==TRUE) {
-        clean.data = dplyr::filter(.data, LatitudeMeasure < 0 | (LongitudeMeasure > 0 & LongitudeMeasure < 145))
-        clean.data = dplyr::select(clean.data, -InvalidCoordinates)
-        return(clean.data)
-      } else {
-        stop("clean argument must be Boolean (TRUE or FALSE)")
-      }
-    }
-    
-    # if no associated QAPP url data is in the data set
-    if(nrow(InvalidCoordinates.data) == 0){
-      warning("Dataset does not contain monitoring stations with coordinates outside the US")
-      return(.data)
-    }
+decimalplaces <- function(x) {
+  if (abs(x - round(x)) > .Machine$double.eps^0.5) {
+    nchar(strsplit(sub('0+$', '', as.character(x)), ".", fixed = TRUE)[[1]][[2]])
+  } else {
+    return(0)
   }
 }
 
+#' decimalnumcount
+#' 
+#' for character data type
+#'
+#' @param .data TADA dataset
+#' 
+#' @return 
+#' 
+#' @export
+#' 
 
+decimalnumcount<-function(x){stopifnot(class(x)=="character")
+  x<-gsub("(.*)(\\.)|(*$)","",x)
+  nchar(x)}
 
 #' Invalid coordinates
 #' 
@@ -735,7 +689,10 @@ InvalidCoordinates <- function(.data, clean = FALSE, imprecise = FALSE) {
 #' decimal point, the row will be flagged as "Imprecise". 
 #'
 #' @param .data TADA dataset
-#' @param clean Two boolean arguments. Default is clean = FALSE and 
+#' @param clean_outsideUSA Two boolean arguments. Default is clean = FALSE and 
+#' imprecise = FALSE. When clean = TRUE and imprecise = TRUE, data transformations
+#' occur and data is removed from the dataset.
+#' @param clean_imprecise Two boolean arguments. Default is clean = FALSE and 
 #' imprecise = FALSE. When clean = TRUE and imprecise = TRUE, data transformations
 #' occur and data is removed from the dataset.
 #'
@@ -748,6 +705,7 @@ InvalidCoordinates <- function(.data, clean = FALSE, imprecise = FALSE) {
 InvalidCoordinates <- function(.data, clean_outsideUSA = FALSE, clean_imprecise = FALSE) {
   # check that .data object is compatible with InvalidCoordinates function
   # check .data is of class data.frame
+  
   if(("data.frame" %in% class(.data)) == FALSE) {
     stop("Input object must be of class 'data.frame'")
   }
@@ -764,33 +722,27 @@ InvalidCoordinates <- function(.data, clean_outsideUSA = FALSE, clean_imprecise 
         LongitudeMeasure > 0 & LongitudeMeasure < 145 ~ "LONG_OutsideUSA",
         grepl('999', LatitudeMeasure) ~ "Imprecise",
         grepl('999', LongitudeMeasure) ~ "Imprecise",
+        sapply(.data$LatitudeMeasure,decimalnumcount)<4 | sapply(.data$LongitudeMeasure,decimalnumcount)<4 ~ "Imprecise"
       ))
-    
+      
     #clean output, remove all data for stations outside of the US
-    if((clean_outsideUSA==TRUE) & (clean_imprecise==TRUE)){
-      clean.data = dplyr::filter(.data, InvalidCoordinates == "LAT_OutsideUSA" | InvalidCoordinates =="LONG_OutsideUSA"| InvalidCoordinates == "Imprecise")
-      clean.data = dplyr::select(clean.data, -InvalidCoordinates)
-      return(clean.data)
-    }
+    if((clean_outsideUSA==TRUE) & (clean_imprecise==TRUE))
+      {.data = dplyr::filter(.data, is.na(InvalidCoordinates)== TRUE)}
     
-    if((clean_outsideUSA==FALSE) & (clean_imprecise==TRUE)){
-      clean.data = dplyr::filter(.data, InvalidCoordinates == "Imprecise")
-      clean.data = dplyr::select(clean.data)
-      return(clean.data)
-    }
+    if((clean_outsideUSA==FALSE) & (clean_imprecise==TRUE)) 
+      {.data = dplyr::filter(.data, InvalidCoordinates != "Imprecise" | is.na(InvalidCoordinates)== TRUE)}
     
-    if((clean_outsideUSA==TRUE) & (clean_imprecise==FALSE)){
-      clean.data = dplyr::filter(.data, InvalidCoordinates == "LAT_OutsideUSA" | InvalidCoordinates =="LONG_OutsideUSA")
-      clean.data = dplyr::select(clean.data)
-      return(clean.data)
-    #}
-    #clean.data=.data 
-    
-    #if((is.na(clean.data$InvalidCoordinates)!=TRUE) | (is.na(.data$InvalidCoordinates)!=TRUE)){
-    #  warning("Dataset does not contain monitoring stations with invalid coordinates")
-    #  return(.data, -InvalidCoordinates)
-    } else {
-      stop("clean argument must be Boolean (TRUE or FALSE)")
+    if((clean_outsideUSA==TRUE) & (clean_imprecise==FALSE))
+      {.data = dplyr::filter(.data, InvalidCoordinates == "Imprecise" | is.na(InvalidCoordinates)== TRUE)}
+
+    if (all(is.na(.data$InvalidCoordinates)==TRUE)) {
+      print("All invalid coordinates were removed or your dataset does not contain monitoring stations with invalid coordinates")
+      return (dplyr::select(.data, -InvalidCoordinates))
+      } else {
+        return (.data)}
+
     }
+  else {
+        stop("clean argument must be Boolean (TRUE or FALSE)")
   }
 }
