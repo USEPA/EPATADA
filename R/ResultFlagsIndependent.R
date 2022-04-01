@@ -18,7 +18,6 @@
 #' @export
 #' 
 
-
 UncommonAnalyticalMethodID <- function(.data, clean = FALSE){
   
   # check that .data object is compatible with TADA
@@ -308,9 +307,9 @@ AboveNationalWQXUpperThreshold <- function(.data, clean = FALSE){
 
   
   # check ResultMeasureValue column is of class numeric
-  if(class(.data$ResultMeasureValue) != "numeric") {
-    stop("The ResultMeasureValue column must of class 'numeric'.")
-  }
+  # if(class(.data$ResultMeasureValue) != "numeric") {
+  #   stop("The ResultMeasureValue column must of class 'numeric'.")
+  # }
   
   # execute function after checks are passed
   if(all(c("CharacteristicName", "ActivityMediaName", "ResultMeasureValue",
@@ -330,30 +329,31 @@ AboveNationalWQXUpperThreshold <- function(.data, clean = FALSE){
     
     # join unit.ref to raw.data
     check.data <- merge(raw.data, unit.ref[, c("Characteristic", "Source",
-                                            "Value", "Value.Unit", "Maximum",
-                                            "Conversion.Factor")],
+                                            "Value", "Maximum")],
                         by.x = c("Char.Upper", "Media.Upper", "Unit.Upper"),
                         by.y = c("Characteristic", "Source", "Value"), all.x = TRUE)
-      # Run ResultValueSpecialCharacter function to remove special characters and convert class to numeric
-      check.data <- ResultValueSpecialCharacters(check.data, clean = TRUE)
+      # remove upper case columns
+      check.data <- select(check.data, -c("Char.Upper", "Media.Upper", "Unit.Upper"))
+      # Run WQXTargetUnits function to convert ResultMeasureValue class to numeric
+      check.data <- WQXTargetUnits(check.data, convert = TRUE)
     
-    # Convert result measure value to "Value.Unit" units
-    check.data$Converted.Value <- 
-      check.data[,"ResultMeasureValue"]/check.data[,"Conversion.Factor"]
-    
-    # Create flag column, flag rows where Converted.Value > Maximum
+    # Create flag column, flag rows where ResultMeasureValue > Maximum
     flag.data <- check.data %>%
       # apply function row by row
       dplyr::rowwise() %>%
       # create flag column
       dplyr::mutate(AboveWQXUpperThreshold = dplyr::case_when(
-        Converted.Value >= Maximum ~ as.character("Y"),
-        Converted.Value < Maximum ~ as.character("N")))
+        ResultMeasureValue >= Maximum ~ as.character("Y"),
+        ResultMeasureValue < Maximum ~ as.character("N")))
     
     # remove extraneous columns, fix field names
     flag.data <- flag.data %>%
-      dplyr::select(-c("Char.Upper", "Media.Upper", "Unit.Upper", "Value.Unit",
-                       "Maximum", "Conversion.Factor", "Converted.Value"))
+      dplyr::select(-c("Maximum", "ResultUnitConversion", "ResultMeasureValue", 
+                       "ResultMeasure.MeasureUnitCode"))
+      # rename ResultMeasureValue.Original and ResultMeasureUnitCode.Original
+      flag.data <- flag.data %>%
+        dplyr::rename(ResultMeasureValue = ResultMeasureValue.Original) %>%
+        dplyr::rename(ResultMeasure.MeasureUnitCode = ResultMeasureUnitCode.Original)
     
     # reorder column names to match .data
       # get .data column names
@@ -418,7 +418,7 @@ BelowNationalWQXUpperThreshold <- function(.data, clean = FALSE){
   
   # check ResultMeasureValue column is of class numeric
   if(class(.data$ResultMeasureValue) != "numeric") {
-    stop("The ResultMeasureValue column must of class 'numeric'.")
+    stop("The ResultMeasureValue column must be of class 'numeric'.")
   }
   
   # execute function after checks are passed
@@ -439,16 +439,13 @@ BelowNationalWQXUpperThreshold <- function(.data, clean = FALSE){
     
     # join unit.ref to raw.data
     check.data <- merge(raw.data, unit.ref[, c("Characteristic", "Source",
-                                               "Value", "Value.Unit", "Minimum",
-                                               "Conversion.Factor")],
+                                               "Value", "Minimum")],
                         by.x = c("Char.Upper", "Media.Upper", "Unit.Upper"),
                         by.y = c("Characteristic", "Source", "Value"), all.x = TRUE)
-    # Run ResultValueSpecialCharacter function to remove special characters and convert class to numeric
-    check.data <- ResultValueSpecialCharacters(check.data, clean = TRUE)
-    
-    # Convert result measure value to "Value.Unit" units
-    check.data$Converted.Value <- 
-      check.data[,"ResultMeasureValue"]/check.data[,"Conversion.Factor"]
+    # remove upper case columns
+    check.data <- select(check.data, -c("Char.Upper", "Media.Upper", "Unit.Upper"))
+    # Run WQXTargetUnits function to convert ResultMeasureValue class to numeric
+    check.data <- WQXTargetUnits(check.data, convert = TRUE)
     
     # Create flag column, flag rows where Converted.Value < Minimum
     flag.data <- check.data %>%
@@ -461,8 +458,12 @@ BelowNationalWQXUpperThreshold <- function(.data, clean = FALSE){
     
     # remove extraneous columns, fix field names
     flag.data <- flag.data %>%
-      dplyr::select(-c("Char.Upper", "Media.Upper", "Unit.Upper", "Value.Unit",
-                       "Minimum", "Conversion.Factor", "Converted.Value"))
+      dplyr::select(-c("Maximum", "ResultUnitConversion", "ResultMeasureValue", 
+                       "ResultMeasure.MeasureUnitCode"))
+    # rename ResultMeasureValue.Original and ResultMeasureUnitCode.Original
+    flag.data <- flag.data %>%
+      dplyr::rename(ResultMeasureValue = ResultMeasureValue.Original) %>%
+      dplyr::rename(ResultMeasure.MeasureUnitCode = ResultMeasureUnitCode.Original)
     
     # reorder column names to match .data
     # get .data column names
@@ -739,6 +740,7 @@ InvalidCoordinates <- function(.data, clean_outsideUSA = FALSE, clean_imprecise 
       return (dplyr::select(.data, -InvalidCoordinates))
       } else {
         return (.data)}
+
     }
   else {
         stop("clean argument must be Boolean (TRUE or FALSE)")
