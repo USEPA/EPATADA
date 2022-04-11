@@ -3,16 +3,21 @@
 #' *** placeholder text for function description
 #'
 #' @param .data TADA dataset
-#' @param clean Boolean argument; removes data that is above the upper WQX
-#' threshold from the dataset when clean = TRUE. Default is clean = FALSE.
+#' @param convert Boolean argument; changes ResultMeasure.MeasureUnitCode to WQX
+#' target unit and converts ResultMeasureValue to corresponding target unit when
+#' convert = TRUE. Default is convert = FALSE.
+#' @param flag Boolean argument; appends ResultMeasureValue.UnitConversion and
+#' DetectionLimitMeasureValue.UnitConversion columns, indicating if data can be
+#' converted. "Convert" means data can be converted, "NoResultValue" means data
+#' cannot be converted because there is no ResultMeasureValue, and "NoTargetUnit" 
+#' means data cannot be converted because the original unit is not associated 
+#' with a target unit in WQX. Default is flag = FALSE.
 #'
-#' @return When clean = FALSE, a column flagging rows with data that are above
-#' the upper WQX threshold is appended to the input data set. When clean = TRUE,
-#' data that is above the upper WQX threshold is removed from the dataset.
+#' @return 
 #' 
 #' @export
 
-WQXTargetUnits <- function(.data, convert = FALSE){
+WQXTargetUnits <- function(.data, convert = FALSE, flag = FALSE){
   
   # check that .data object is compatible with TADA
   # check .data is of class data.frame
@@ -26,10 +31,23 @@ WQXTargetUnits <- function(.data, convert = FALSE){
          Use either the full physical/chemical profile downloaded from WQP or 
          download the TADA profile template available on the EPA TADA webpage.")
   }
+  # check if convert is boolean
+  if(is.logical(convert) == FALSE){
+    stop("convert argument must be Boolean (TRUE or FALSE)")
+  }
+  # check if flag is boolean
+  if(is.logical(flag) == FALSE){
+    stop("flag argument must be Boolean (TRUE or FALSE)")
+  }
   
   # execute function after checks are passed
   if(all(c("CharacteristicName", "ActivityMediaName", "ResultMeasureValue",
            "ResultMeasure.MeasureUnitCode") %in% colnames(.data)) == TRUE) {
+    
+    # if class(ResultMeasureValue) != numeric, run special char function
+    if(class(.data$ResultMeasureValue) != "numeric") {
+      .data <- MeasureValueSpecialCharacters(.data)
+    }
     
     # filter WQXcharVal.ref to include only valid CharacteristicUnit in water media
     unit.ref <- TADA::WQXcharVal.ref %>%
@@ -58,35 +76,41 @@ WQXTargetUnits <- function(.data, convert = FALSE){
       if (all(is.na(match(c("deg F", "deg K"), 
                         check.data$ResultMeasure.MeasureUnitCode))) == FALSE) {
       
-        # create numeric result value column (for calculations)
-        check.data$ResultMeasureValue.Numeric <- suppressWarnings(
-          as.numeric(check.data$ResultMeasureValue))
-      
         # Calculate deg F and deg C, replace Conversion factor values
-        check.data <- check.data %>%
+        flag.data <- check.data %>%
           # apply function row by row
           dplyr::rowwise() %>%
           # create flag column
           dplyr::mutate(ConversionFactor = dplyr::case_when(
             ResultMeasure.MeasureUnitCode == "deg F" ~ 
-              as.numeric(((ResultMeasureValue.Numeric - 32)*(5/9))/ResultMeasureValue.Numeric),
+              as.numeric(((ResultMeasureValue - 32)*(5/9))/ResultMeasureValue),
             ResultMeasure.MeasureUnitCode == "deg K" ~ 
-              as.numeric((ResultMeasureValue.Numeric - 273.15)/ResultMeasureValue.Numeric),
+              as.numeric((ResultMeasureValue - 273.15)/ResultMeasureValue),
             TRUE ~ ConversionFactor))
-      
-        # remove numeric result column
-        check.data <- dplyr::select(check.data, -ResultMeasureValue.Numeric)
       }
     
-    # add ResultUnitConversion column
-    flag.data <- check.data %>%
+    # add flag column when flag = TRUE
+    if(flag == TRUE) {
+    # add ResultMeasureValue.UnitConversion column
+    flag.data <- flag.data %>%
       # apply function row by row
       dplyr::rowwise() %>%
       # create flag column
-      dplyr::mutate(ResultUnitConversion = dplyr::case_when(
-        !is.na(TargetUnit) ~ as.character("OK"),
-        (is.na(TargetUnit) & is.na(ResultMeasureValue)) ~ as.character("NoResultValue"),
+      dplyr::mutate(ResultMeasureValue.UnitConversion = dplyr::case_when(
+        !is.na(TargetUnit) ~ as.character("Convert"),
+        is.na(ResultMeasureValue) ~ as.character("NoResultValue"),
         is.na(TargetUnit) ~ as.character("NoTargetUnit")))
+    
+    # add DetectionLimitMeasureValue.UnitConversion column
+    flag.data <- flag.data %>%
+      # apply function row by row
+      dplyr::rowwise() %>%
+      # create flag column
+      dplyr::mutate(DetectionLimitMeasureValue.UnitConversion = dplyr::case_when(
+        !is.na(TargetUnit) ~ as.character("Convert"),
+        is.na(DetectionQuantitationLimitMeasure.MeasureValue) ~ as.character("NoDetectionLimitValue"),
+        is.na(TargetUnit) ~ as.character("NoTargetUnit")))
+    }
     
     # remove extraneous columns
     flag.data <- flag.data %>%
@@ -98,27 +122,23 @@ WQXTargetUnits <- function(.data, convert = FALSE){
       # get .data column names
       col.order <- colnames(.data)
       # add flag columns to the list
+      if(flag == TRUE) {
       col.order <- append(col.order, c("TargetUnit", 
-                                       "ConversionFactor", "ResultUnitConversion"))
+                                       "ConversionFactor", 
+                                       "ResultMeasureValue.UnitConversion",
+                                       "DetectionLimitMeasureValue.UnitConversion"))
+      } else if(flag == FALSE) {
+        col.order <- append(col.order, c("TargetUnit", 
+                                         "ConversionFactor"))  
+      }
       # reorder columns in flag.data
       flag.data <- flag.data[, col.order]
       
-      warning("Conversion required for range checks and TADATargetUnit conversions.
-      Unit conversions and data summaries and calculations may be affected")
+      warning("Conversions required for range checks and TADATargetUnit conversions -- Unit conversions, data summaries, and data calculations may be affected.")
       return(flag.data)
     }
     
     if(convert == TRUE) {
-      
-      # copy ResultMeasureValue to ResultMeasureValue.Original
-      flag.data$ResultMeasureValue.Original <- flag.data$ResultMeasureValue
-      
-      # convert original result measure value to numeric, if it's not already
-      if(class(flag.data$ResultMeasureValue.Original) != "numeric") {
-        # convert result measure value class to numeric
-        flag.data$ResultMeasureValue.Original <- suppressWarnings(
-          as.numeric(flag.data$ResultMeasureValue.Original))
-      }
       
       # Convert result measure value to Target Unit only if target unit exists
       flag.data <- flag.data %>%
@@ -127,32 +147,63 @@ WQXTargetUnits <- function(.data, convert = FALSE){
         # apply conversions where there is a target unit, use original value if no target unit
         dplyr::mutate(ResultMeasureValue = dplyr::case_when(
           !is.na(TargetUnit) ~ 
-            (ResultMeasureValue.Original * ConversionFactor),
-          is.na(TargetUnit) ~ ResultMeasureValue.Original))
-      
-      # rename ResultMeasure.MeasureUnitCode to ResultMeasureUnitCode.Original and Target Unit to ResultMeasure.MeasureUnitCode 
-      flag.data <- flag.data %>%
-        dplyr::rename(ResultMeasureUnitCode.Original = ResultMeasure.MeasureUnitCode) 
+            (ResultMeasureValue * ConversionFactor),
+          is.na(TargetUnit) ~ ResultMeasureValue))
       
       # populate ResultMeasure.MeasureUnitCode
-      flag.data <- flag.data %>%
+      clean.data <- flag.data %>%
         # apply function row by row
         dplyr::rowwise() %>%
         # use target unit where there is a target unit, use original unit if no target unit
         dplyr::mutate(ResultMeasure.MeasureUnitCode = dplyr::case_when(
           !is.na(TargetUnit) ~ TargetUnit,
-          is.na(TargetUnit) ~ ResultMeasureUnitCode.Original))
+          is.na(TargetUnit) ~ ResultMeasure.MeasureUnitCode))
       # capitalize ResultMeasure.MeasureUnitCode column for consistency 
       flag.data$ResultMeasure.MeasureUnitCode <- toupper(flag.data$ResultMeasure.MeasureUnitCode)
       
-      # edit ResultUnitConversion column
-      clean.data <- flag.data %>%
+      if(flag == TRUE) {
+      # edit ResultMeasureValue.UnitConversion column
+      clean.data <- clean.data %>%
       # apply function row by row
       dplyr::rowwise() %>%
       # create flag column
-      dplyr::mutate(ResultUnitConversion = dplyr::case_when(
-        !is.na(ResultMeasure.MeasureUnitCode) ~ as.character("Converted"),
-        TRUE ~ ResultUnitConversion))  
+      dplyr::mutate(ResultMeasureValue.UnitConversion = dplyr::case_when(
+        (!is.na(ResultMeasureValue) & !is.na(TargetUnit)) ~ as.character("Converted"),
+        TRUE ~ ResultMeasureValue.UnitConversion))  
+      }
+      
+      # Convert detection limit measure value to Target Unit only if target unit exists
+      clean.data <- clean.data %>%
+        # apply function row by row
+        dplyr::rowwise() %>%
+        # apply conversions where there is a target unit, use original value if no target unit
+        dplyr::mutate(DetectionQuantitationLimitMeasure.MeasureValue = dplyr::case_when(
+          !is.na(TargetUnit) ~ 
+            (DetectionQuantitationLimitMeasure.MeasureValue * ConversionFactor),
+          is.na(TargetUnit) ~ DetectionQuantitationLimitMeasure.MeasureValue))
+      
+      # populate DetectionQuantitationLimitMeasure.MeasureUnitCode
+      clean.data <- clean.data %>%
+        # apply function row by row
+        dplyr::rowwise() %>%
+        # use target unit where there is a target unit, use original unit if no target unit
+        dplyr::mutate(DetectionQuantitationLimitMeasure.MeasureUnitCode = dplyr::case_when(
+          !is.na(TargetUnit) ~ TargetUnit,
+          is.na(TargetUnit) ~ DetectionQuantitationLimitMeasure.MeasureUnitCode))
+      # capitalize DetectionQuantitationLimitMeasure.MeasureUnitCode column for consistency 
+      clean.data$DetectionQuantitationLimitMeasure.MeasureUnitCode <- 
+        toupper(clean.data$ResultMeasure.MeasureUnitCode)
+      
+      if(flag == TRUE) {
+      # edit DetectionLimitMeasureValue.UnitConversion column
+      clean.data <- clean.data %>%
+        # apply function row by row
+        dplyr::rowwise() %>%
+        # create flag column
+        dplyr::mutate(DetectionLimitMeasureValue.UnitConversion = dplyr::case_when(
+          (!is.na(DetectionQuantitationLimitMeasure.MeasureValue) & !is.na(TargetUnit)) ~ as.character("Converted"),
+          TRUE ~ DetectionLimitMeasureValue.UnitConversion))
+      }
       
       # remove extraneous columns, fix field names
       clean.data <- clean.data %>%
@@ -161,17 +212,16 @@ WQXTargetUnits <- function(.data, convert = FALSE){
       # reorder column names to match .data
       # get .data column names
       col.order <- colnames(.data)
-      # add PotentialDupRowID column to the list
-      col.order <- append(col.order, c("ResultMeasureValue.Original",
-                                       "ResultMeasureUnitCode.Original",
-                                       "ResultUnitConversion"))
+      if(flag == TRUE){
+      # add ResultUnitConversion column to the list
+      col.order <- append(col.order, c("ResultMeasureValue.UnitConversion",
+                                        "DetectionLimitMeasureValue.UnitConversion"))
+      }
       # reorder columns in clean.data
       clean.data <- clean.data[, col.order]
       
       return(clean.data)
       
-    } else {
-      stop("convert argument must be Boolean (TRUE or FALSE)")
     }
   }
 }
