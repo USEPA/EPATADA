@@ -9,19 +9,21 @@ InvalidCoordinates(.data, clean_outsideUSA = FALSE, clean_imprecise = FALSE)
 \arguments{
 \item{.data}{TADA dataset}
 
-\item{clean}{Two boolean arguments. Default is clean = FALSE and 
+\item{clean_outsideUSA}{Two boolean arguments. Default is clean = FALSE and 
+imprecise = FALSE. When clean = TRUE and imprecise = TRUE, data transformations
+occur and data is removed from the dataset.}
+
+\item{clean_imprecise}{Two boolean arguments. Default is clean = FALSE and 
 imprecise = FALSE. When clean = TRUE and imprecise = TRUE, data transformations
 occur and data is removed from the dataset.}
 }
 \value{
 When clean = FALSE and imprecise = FALSE, data is flagged but
 not removed from the dataset.
-
 }
 \description{
 When clean = FALSE, a column will be appended titled "InvalidCoordinates"
 with the following flags (if relevant to dataset):
-
 }
 \details{
 BELOW TBD 
@@ -35,5 +37,4 @@ is outside of the -180 to 180 range, the row is flagged as "Invalid";
 3) Precision can be measured by the number of decimal places in the LAT 
 and LONG provided. If the LAT or LONG does not have any numbers to the right of the 
 decimal point, the row will be flagged as "Imprecise".
-
 }

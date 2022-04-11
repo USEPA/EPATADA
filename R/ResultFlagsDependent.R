@@ -577,15 +577,11 @@ DepthProfileData <- function(.data,
 
 
 
-#' Check for Special Characters in the Result Measure Value Field
+#' Check for Special Characters in Measure Value Fields
 #' 
 #' **placeholder text for function description
 #'
 #' @param .data TADA dataset
-#' @param clean Boolean argument; removes special characters from the 
-#' ResultMeasureValue field when clean = TRUE. Appends "ResultValueSpecialChar"
-#' column which flags rows where ResultMeasureValue has special characters in
-#' the value when clean = FALSE. Default is clean = FALSE.
 #'
 #' @return Full dataset with column indicating presence of special characters in
 #' the ResultMeasureValue field. When clean = TRUE, the output is the full 
@@ -594,7 +590,7 @@ DepthProfileData <- function(.data,
 #' 
 
 
-ResultValueSpecialCharacters <- function(.data, clean = FALSE){
+MeasureValueSpecialCharacters <- function(.data){
   
   # check that .data object is compatible with TADA
   # check .data is of class data.frame
@@ -602,49 +598,71 @@ ResultValueSpecialCharacters <- function(.data, clean = FALSE){
     stop("Input object must be of class 'data.frame'")
   }
   # check .data has required columns
-  if(("ResultMeasureValue" %in% colnames(.data)) == FALSE) {
+  if(all(c("ResultMeasureValue", "DetectionQuantitationLimitMeasure.MeasureValue")
+          %in% colnames(.data)) == FALSE) {
     stop("The dataframe does not contain the required fields to use TADA. Use 
          either the full physical/chemical profile downloaded from WQP or 
          download the TADA profile template available on the EPA TADA webpage.")
   }
   
   # execute function after checks are passed
-  if(("ResultMeasureValue" %in% colnames(.data)) == TRUE) {
+  if(all(c("ResultMeasureValue", "DetectionQuantitationLimitMeasure.MeasureValue")
+         %in% colnames(.data)) == TRUE) {
     
-    if(("ResultValueSpecialChar" %in% colnames(.data)) == TRUE) {
-      .data <- dplyr::select(.data, -ResultValueSpecialChar)
-    }
+    # define check.data
+    check.data <- .data
     
-    # flagged output
-    if(clean == FALSE) {
-      
-      # # define flag.data
-      # flag.data <- .data
-      # # ID rows with special characters
-      # lengths(sapply(strsplit(flag.data$ResultMeasureValue, ",\\s*"), 
-      #                setdiff, c(matchvector1, matchvector2))) > 0
-      # # append flag column
-      
-      # placeholder output until we incorporate proper logic
-      
-      warning("'clean = FALSE' portion of the function is still under 
-              development. The input dataset was not changed.")
-      return(.data)
-    }
+    # copy MeasureValue columns to MeasureValue.Original
+    check.data$ResultMeasureValue.Original <- check.data$ResultMeasureValue
+    check.data$DetectionLimitMeasureValue.Original <- 
+      check.data$DetectionQuantitationLimitMeasure.MeasureValue
     
-    # clean output
-    if(clean == TRUE) {
+    # add ResultMeasureValue.Flag column
+    flag.data <- check.data %>%
+      # apply function row by row
+      dplyr::rowwise() %>%
+      # create flag column
+      dplyr::mutate(ResultMeasureValue.Flag = dplyr::case_when(
+        is.na(ResultMeasureValue.Original) ~ as.character("ND or NA"),
+        (grepl("<", ResultMeasureValue.Original) == TRUE) ~ as.character("Less Than"),
+        (grepl(">", ResultMeasureValue.Original) == TRUE) ~ as.character("Greater Than"),
+        (grepl("~", ResultMeasureValue.Original) == TRUE) ~ as.character("Approximate Value"),
+        (grepl("[A-Za-z]", ResultMeasureValue.Original) == TRUE) ~ as.character("Text"),
+        (grepl("\\d", ResultMeasureValue.Original) == TRUE) ~ as.character("Numeric"),
+        TRUE ~ "Coerced to NA"))
+    
+    # add DetectionLimitMeasureValue.Flag column
+    flag.data <- flag.data %>%
+      # apply function row by row
+      dplyr::rowwise() %>%
+      # create flag column
+      dplyr::mutate(DetectionLimitMeasureValue.Flag = dplyr::case_when(
+        is.na(DetectionLimitMeasureValue.Original) ~ as.character(NA),
+        (grepl("<", DetectionLimitMeasureValue.Original) == TRUE) ~ as.character("Less Than"),
+        (grepl(">", DetectionLimitMeasureValue.Original) == TRUE) ~ as.character("Greater Than"),
+        (grepl("~", DetectionLimitMeasureValue.Original) == TRUE) ~ as.character("Approximate Value"),
+        (grepl("[A-Za-z]", DetectionLimitMeasureValue.Original) == TRUE) ~ as.character("Text"),
+        (grepl("\\d", DetectionLimitMeasureValue.Original) == TRUE) ~ as.character("Numeric"),
+        TRUE ~ "Coerced to NA"))
       
-      # define clean.data
-      clean.data <- .data
-      #remove an special characters from ResultValue field
-      clean.data$ResultMeasureValue <- as.numeric(.data$ResultMeasureValue)
+    # remove special characters before converting to numeric
+    flag.data$ResultMeasureValue <- stringr::str_replace_all(flag.data$ResultMeasureValue, 
+                                          c("<" = "", ">" = "", "~" = "", "," = ""))
+    flag.data$DetectionQuantitationLimitMeasure.MeasureValue <- stringr::str_replace_all(
+      flag.data$DetectionQuantitationLimitMeasure.MeasureValue, 
+      c("<" = "", ">" = "", "~" = "", "," = ""))
+    
+    # change measure value columns to numeric
+      # rename df
+      clean.data <- flag.data
+      # ResultMeasureValue
+      clean.data$ResultMeasureValue <- suppressWarnings(
+        as.numeric(clean.data$ResultMeasureValue))
+      # DetectionQuantitationLimitMeasure.MeasureValue
+      clean.data$DetectionQuantitationLimitMeasure.MeasureValue <- 
+        suppressWarnings(as.numeric(clean.data$DetectionQuantitationLimitMeasure.MeasureValue))
       
-      return(clean.data)
-      
-    } else {
-      stop("'clean' argument must be Boolean (TRUE or FALSE)")
-    }
+    return(clean.data)
   }
 }
 

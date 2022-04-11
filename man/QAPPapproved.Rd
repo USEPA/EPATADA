@@ -13,6 +13,8 @@ QAPPapproved(.data, clean = TRUE, cleanNA = FALSE)
 QAPPApprovedIndicator = "N"  when clean = TRUE; 2) remove data where the 
 QAPPApprovedIndicator = NA  when cleanNA = TRUE. Default is clean = TRUE and 
 cleanNA = FALSE.}
+
+\item{cleanNA}{}
 }
 \value{
 When clean = FALSE and cleanNA = FALSE, no data is removed from the 

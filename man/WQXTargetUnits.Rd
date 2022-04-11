@@ -4,18 +4,24 @@
 \alias{WQXTargetUnits}
 \title{Convert Units to WQX Target Units}
 \usage{
-WQXTargetUnits(.data, convert = FALSE)
+WQXTargetUnits(.data, convert = FALSE, flag = FALSE)
 }
 \arguments{
 \item{.data}{TADA dataset}
 
-\item{clean}{Boolean argument; removes data that is above the upper WQX
-threshold from the dataset when clean = TRUE. Default is clean = FALSE.}
+\item{convert}{Boolean argument; changes ResultMeasure.MeasureUnitCode to WQX
+target unit and converts ResultMeasureValue to corresponding target unit when
+convert = TRUE. Default is convert = FALSE.}
+
+\item{flag}{Boolean argument; appends ResultMeasureValue.UnitConversion and
+DetectionLimitMeasureValue.UnitConversion columns, indicating if data can be
+converted. "Convert" means data can be converted, "NoResultValue" means data
+cannot be converted because there is no ResultMeasureValue, and "NoTargetUnit" 
+means data cannot be converted because the original unit is not associated 
+with a target unit in WQX. Default is flag = FALSE.}
 }
 \value{
-When clean = FALSE, a column flagging rows with data that are above
-the upper WQX threshold is appended to the input data set. When clean = TRUE,
-data that is above the upper WQX threshold is removed from the dataset.
+
 }
 \description{
 *** placeholder text for function description
