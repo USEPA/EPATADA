@@ -645,8 +645,7 @@ QAPPDocAvailable <- function(.data, clean = FALSE){
 #' 
 #' @return 
 #' 
-#' @export
-#' 
+#'  
 
 decimalplaces <- function(x) {
   if (abs(x - round(x)) > .Machine$double.eps^0.5) {
@@ -664,8 +663,7 @@ decimalplaces <- function(x) {
 #' 
 #' @return 
 #' 
-#' @export
-#' 
+#'  
 
 decimalnumcount<-function(x){stopifnot(class(x)=="character")
   x<-gsub("(.*)(\\.)|(*$)","",x)
@@ -717,7 +715,7 @@ InvalidCoordinates <- function(.data, clean_outsideUSA = FALSE, clean_imprecise 
   if(all(c("LatitudeMeasure", "LongitudeMeasure") %in% colnames(.data)) == TRUE) {
     
     .data = .data %>%
-      mutate(InvalidCoordinates = case_when(
+      dplyr::mutate(InvalidCoordinates = dplyr::case_when(
         LatitudeMeasure < 0 ~ "LAT_OutsideUSA",
         LongitudeMeasure > 0 & LongitudeMeasure < 145 ~ "LONG_OutsideUSA",
         grepl('999', LatitudeMeasure) ~ "Imprecise",
