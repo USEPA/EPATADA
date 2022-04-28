@@ -4,7 +4,7 @@
 \alias{WQXTargetUnits}
 \title{Convert Units to WQX Target Units}
 \usage{
-WQXTargetUnits(.data, convert = FALSE, flag = FALSE)
+WQXTargetUnits(.data, convert = FALSE, flag = TRUE)
 }
 \arguments{
 \item{.data}{TADA dataset}
@@ -18,7 +18,7 @@ DetectionLimitMeasureValue.UnitConversion columns, indicating if data can be
 converted. "Convert" means data can be converted, "NoResultValue" means data
 cannot be converted because there is no ResultMeasureValue, and "NoTargetUnit" 
 means data cannot be converted because the original unit is not associated 
-with a target unit in WQX. Default is flag = FALSE.}
+with a target unit in WQX. Default is flag = TRUE.}
 }
 \value{
 
