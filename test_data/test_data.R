@@ -9,7 +9,7 @@ library(stringr)
 WQPquery <- list(statecode = "US:24",
                  Sitetype = c("Lake, Reservoir, Impoundment", "Stream"), 
                  Samplemedia = c("water", "Water"),
-                 characteristicName = c("Dissolved oxygen (DO)", "pH", "Temperature, water"),
+                 characteristicName = c("Ammonia", "Nitrate", "Nitrogen"),
                  startDate = "01-01-2019", 
                  endDate = "01-01-2022")
 
@@ -42,4 +42,11 @@ TADAprofile <- join1 %>%
                    "CharacteristicName", "ResultMeasureValue"))
 
 # Remove duplicate rows
-TADAprofile <- TADAprofile[!duplicated(TADAprofile),]  
+TADAprofile <- TADAprofile[!duplicated(TADAprofile),]
+
+# capitalize fields (just those used w/ ref tables for now)
+TADAprofile$CharacteristicName <- toupper(TADAprofile$CharacteristicName)
+TADAprofile$ResultSampleFractionText <- toupper(TADAprofile$ResultSampleFractionText)
+TADAprofile$MethodSpecificationName <- toupper(TADAprofile$MethodSpecificationName)
+TADAprofile$ResultMeasure.MeasureUnitCode <- toupper(TADAprofile$ResultMeasure.MeasureUnitCode)
+TADAprofile$ActivityMediaName <- toupper(TADAprofile$ActivityMediaName)

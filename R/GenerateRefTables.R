@@ -133,3 +133,86 @@ UpdateMeasureUnitRef <- function(){
   # write reference table to sysdata.rda
   UpdateInternalData(unit.ref) 
 }
+
+
+#' Generate Unique Harmonization Reference Table
+#' 
+#' This function generates a harmonization reference table that is specific to
+#' the input dataset. Users can review how their input data relates to standard
+#' TADA values for CharacteristicName, ResultSampleFractionText, 
+#' MethodSpecicationName, and ResultMeasure.MeasureUnitCode and they can optionally
+#' edit the reference file to meet their needs.
+#'
+#' @param .data TADA dataset
+#' @param download download to working directory
+#'
+#' @return Harmonization Reference Table unique to the input dataset
+#' 
+#' @export
+
+HarmonizationRefTable <- function(.data, download = FALSE){
+  
+  # check that .data object is compatible with TADA
+  # check .data is of class data.frame
+  if(("data.frame" %in% class(.data)) == FALSE) {
+    stop("Input object must be of class 'data.frame'")
+  }
+  # check .data has any of the required columns
+  if(all(c("CharacteristicName", "ResultSampleFractionText",
+           "MethodSpecificationName",
+           "ResultMeasure.MeasureUnitCode") %in% 
+         colnames(.data)) == FALSE) {
+    stop("The dataframe does not contain the required fields to use TADA. 
+         Use either the full physical/chemical profile downloaded from WQP or 
+         download the TADA profile template available on the EPA TADA webpage.")
+  }
+  # check if download is boolean
+  if(is.logical(download) == FALSE){
+    stop("download argument must be Boolean (TRUE or FALSE)")
+  }
+  # execute function after checks are passed
+  if(all(c("CharacteristicName", "ResultSampleFractionText",
+           "MethodSpecificationName",
+           "ResultMeasure.MeasureUnitCode") %in% 
+         colnames(.data)) == TRUE) {
+    
+    # define raw harmonization table as an object
+    harm.raw <- read.csv(system.file("extdata", "HarmonizationTemplate.csv",
+                            package = "TADA"))
+
+    # join harmonization table to .data
+    join.data <- merge(.data[, c("CharacteristicName", "ResultSampleFractionText",
+                                 "MethodSpecificationName",
+                                 "ResultMeasure.MeasureUnitCode")],
+                       harm.raw, 
+                       by.x = c("CharacteristicName", "ResultSampleFractionText",
+                                "MethodSpecificationName",
+                                "ResultMeasure.MeasureUnitCode"),
+                       by.y = c("CharacteristicName", "ResultSampleFractionText",
+                                "ResultMethodSpeciationText",
+                                "ResultMeasure.MeasureUnitCode"), 
+                       all.x = TRUE)
+    
+      # trim join.data to include only unique combos of char-frac-spec-unit
+      unique.data <- join.data %>%
+        dplyr::filter(!duplicated(join.data[, c("CharacteristicName", 
+                                                "ResultSampleFractionText", 
+                                                "MethodSpecificationName",
+                                                "ResultMeasure.MeasureUnitCode")]))
+      
+      # rename fields to match harm.raw
+      unique.data <- unique.data %>%
+        dplyr::rename(ResultMethodSpeciationText = MethodSpecificationName)
+      
+      # reorder columns to match harm.raw
+      unique.data <- unique.data[, colnames(harm.raw)]
+      
+      # if download = TRUE, download unique.data as a csv to the working directory
+      if(download == TRUE){
+        utils::write.csv(unique.data, "HarmonizationRefTable.csv")
+      }
+      
+      # return unique.data
+      return(unique.data)
+  }
+}
