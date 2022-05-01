@@ -58,17 +58,32 @@ TADAprofileCheck <- function(.data){
   }
 }
 
-#' Read in WQP data
+#' Read in WQP data using WQP web services directly 
 #' 
-#' *placeholder for function description
+#' Go to the WQP website (https://www.waterqualitydata.us/) and fill out the 
+#' advanced query form. When finished, do not download the data. Then choose
+#' the Full Physical Chemical Data Profile, all data sources, and the file 
+#' format Comma-Separated. Do hit the download button. Instead, copy the 
+#' web service URL located at the bottom of the page (under result). Use that 
+#' Result web service URL as the input for this function to download data 
+#' directly into R.  
+#' 
+#' Note: It may be useful to save the Query URL as well as a comment within 
+#' your code. This URL let's you return to the WQP query page with all your 
+#' original data filters.
 #'
-#'
-#' @return 
+#' @return WQP Full Physical Chemical Results Data Profile 
 #' @export
 #' 
 
-readWQPdataTADA <- function() {
-  # change class of ResultMeasureValue to numeric (it's read into R as character)
+readWQPWebService <- function(WebService) {
+  #read in csv from WQP web service
+  if(grepl("zip=yes", WebService)){
+    WebService=str_replace(WebService, "zip=yes", "zip=no")
+    data.table::fread(toString(WebService))
+    } else {
+    data.table::fread(WebService)
+  }
 }
 
 

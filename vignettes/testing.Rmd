@@ -1,0 +1,22 @@
+---
+title: "Testing stuff"
+author: "Cristina Mullin, mullin.cristina@epa.gov"
+date: "May 1, 2022"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Testing stuff}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup}
+library(TADA)
+```
+
