@@ -1,14 +1,14 @@
 Package: TADA
 Type: Package
-Title: Tool for Automated Data Assessment (TADA)
+Title: Tools for Automated Data Assessment (TADA)
 Version: 0.0.1
 Author: U.S. Environmental Protection Agency
-Maintainer: Someone Lucky <tada@epa.gov>
+Maintainer: Cristina Mullin <mullin.cristina@epa.gov>
 Description: Assists data partners in performing automated assessments with
     data from the Water Quality Portal.
-License: CC0
+License: CC0 + MIT
 Copyright: This software is in the public domain because it contains materials
-    that originally came from the U.S. Environmental Protection Agency. 
+    that originally came from the U.S. Environmental Protection Agency.
 Encoding: UTF-8
 LazyData: true
 RoxygenNote: 7.1.2
@@ -23,3 +23,7 @@ Imports:
     utils
 Depends: 
     R (>= 2.10)
+Suggests: 
+    rmarkdown,
+    knitr
+VignetteBuilder: knitr
