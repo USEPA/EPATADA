@@ -20,3 +20,35 @@ knitr::opts_chunk$set(
 library(TADA)
 ```
 
+Read in WQP data using WQP web services directly 
+
+Go to the WQP website (https://www.waterqualitydata.us/) and fill out the 
+query form. Choose the Full Physical Chemical Data Profile, all data sources, 
+and the file format Comma-Separated. Do not hit the download button. Instead, 
+copy the web service URL located at the bottom of the page under "Result". 
+
+Use that "Result" web service URL as the input for this function to download data 
+directly into R.  
+
+Here are two "Result" web service examples: 
+
+CT Nutrient Group: https://www.waterqualitydata.us/data/Result/search?statecode=US%3A09&countycode=US%3A09%3A003&characteristicType=Nutrient&mimeType=csv&zip=yes&dataProfile=resultPhysChem&providers=NWIS&providers=STEWARDS&providers=STORET
+
+PA Nutrient Group: https://www.waterqualitydata.us/data/Result/search?statecode=US%3A42&characteristicType=Nutrient&mimeType=csv&zip=yes&dataProfile=resultPhysChem&providers=NWIS&providers=STEWARDS&providers=STORET
+
+Note: It may be useful to save the Query URL as well as a comment within 
+your code. This URL let's you return to the WQP query page with all your 
+original data filters, but it cannot be used to download the data.
+
+WQP query URL: https://www.waterqualitydata.us/#statecode=US%3A42&characteristicType=Nutrient&mimeType=csv&dataProfile=resultPhysChem&providers=NWIS&providers=STEWARDS&providers=STORET
+
+```{r}
+TADAProfileRaw=readWQPwebservice("https://www.waterqualitydata.us/data/Result/search?statecode=US%3A42&characteristicType=Nutrient&mimeType=csv&zip=yes&dataProfile=resultPhysChem&providers=NWIS&providers=STEWARDS&providers=STORET")
+```
+
+
+```{r}
+
+```
+
+
