@@ -34,41 +34,36 @@ InvalidFraction <- function(.data, clean = FALSE){
   # execute function after checks are passed
   if(all(c("CharacteristicName", "ResultSampleFractionText") %in% colnames(.data)) == TRUE) {
     
-    if(("SampleFractionValidity" %in% colnames(.data)) == TRUE) {
-      .data <- dplyr::select(.data, -SampleFractionValidity)
+    if(("WQX.SampleFractionValidity" %in% colnames(.data)) == TRUE) {
+      .data <- dplyr::select(.data, -WQX.SampleFractionValidity)
     }
     # read in sample fraction reference table from sysdata.rda and filter
     frac.ref <- TADA:::WQXcharVal.ref %>%
       dplyr::filter(Type == "CharacteristicFraction")
     
-    # define raw.data
-    raw.data <- .data
-      # duplicate and capitalize CharName and Fraction columns in raw.data
-    raw.data$Char.Upper <- toupper(raw.data$CharacteristicName)
-    raw.data$Frac.Upper <- toupper(raw.data$ResultSampleFractionText)
-    
     # join "Status" column to .data by CharacteristicName and Value (SampleFraction)
-    check.data <- merge(raw.data, frac.ref[, c("Characteristic", "Status", "Value")],
-                                        by.x = c("Char.Upper", "Frac.Upper"),
+    check.data <- merge(.data, frac.ref[, c("Characteristic", "Status", "Value")],
+                                        by.x = c("CharacteristicName", 
+                                                 "ResultSampleFractionText"),
                                         by.y = c("Characteristic", "Value"), all.x = TRUE)
     
     # rename Status column
     check.data <- check.data %>%
-      dplyr::rename(SampleFractionValidity = Status)
-    # rename NA values to Unknown in SampleFractionValidity column
-    check.data["SampleFractionValidity"][is.na(check.data["SampleFractionValidity"])] <- "Unknown"
-    
-    # remove extraneous columns
-    check.data <- check.data %>%
-      dplyr::select(-c("Char.Upper", "Frac.Upper"))
+      dplyr::rename(WQX.SampleFractionValidity = Status)
+    # rename NA values to Unknown in WQX.SampleFractionValidity column
+    check.data["WQX.SampleFractionValidity"][is.na(check.data["WQX.SampleFractionValidity"])] <- "Unknown"
     
     # reorder column names to match .data
       # get .data column names
     col.order <- colnames(.data)
-      # add SampleFractionValidity column to the list
-    col.order <- append(col.order, "SampleFractionValidity")
+      # add WQX.SampleFractionValidity column to the list
+    col.order <- append(col.order, "WQX.SampleFractionValidity")
       # reorder columns in flag.data
     check.data <- check.data[, col.order]
+      # place flag column next to relevant fields
+    check.data <- check.data %>%
+      dplyr::relocate("WQX.SampleFractionValidity", 
+                      .after = "ResultSampleFractionText")
     
     # flagged output
     if(clean == FALSE) {
@@ -81,10 +76,10 @@ InvalidFraction <- function(.data, clean = FALSE){
     # clean output
     if(clean == TRUE) {
      # filter out invalid characteristic-fraction combinations
-      clean.data <- dplyr::filter(check.data, SampleFractionValidity != "Invalid")
+      clean.data <- dplyr::filter(check.data, WQX.SampleFractionValidity != "Invalid")
       
-      # remove SampleFractionValidity column
-      clean.data <- dplyr::select(clean.data, -SampleFractionValidity)
+      # remove WQX.SampleFractionValidity column
+      clean.data <- dplyr::select(clean.data, -WQX.SampleFractionValidity)
       
       return(clean.data)
     } else {
@@ -132,41 +127,35 @@ InvalidSpeciation <- function(.data, clean = FALSE){
   # execute function after checks are passed
   if(all(c("CharacteristicName", "MethodSpecificationName") %in% colnames(.data)) == TRUE) {
     
-    if(("MethodSpeciationValidity" %in% colnames(.data)) == TRUE) {
-      .data <- dplyr::select(.data, -MethodSpeciationValidity)
+    if(("WQX.MethodSpeciationValidity" %in% colnames(.data)) == TRUE) {
+      .data <- dplyr::select(.data, -WQX.MethodSpeciationValidity)
     }
     # read in speciation reference table from sysdata.rda and filter
     spec.ref <- TADA:::WQXcharVal.ref %>%
       dplyr::filter(Type == "CharacteristicSpeciation")
     
-    # define raw.data
-    raw.data <- .data
-      # duplicate and capitalize CharName and Speciation columns in .data
-    raw.data$Char.Upper <- toupper(raw.data$CharacteristicName)
-    raw.data$Spec.Upper <- toupper(raw.data$MethodSpecificationName)
-    
     # join "Status" column to .data by CharacteristicName and Value (Speciation)
-    check.data <- merge(raw.data, spec.ref[, c("Characteristic", "Status", "Value")],
-                        by.x = c("Char.Upper", "Spec.Upper"),
+    check.data <- merge(.data, spec.ref[, c("Characteristic", "Status", "Value")],
+                        by.x = c("CharacteristicName", "MethodSpecificationName"),
                         by.y = c("Characteristic", "Value"), all.x = TRUE)
     
     # rename Status column
     check.data <- check.data %>%
-      dplyr::rename(MethodSpeciationValidity = Status)
-    # rename NA values to Unknown in MethodSpeciationValidity column 
-    check.data["MethodSpeciationValidity"][is.na(check.data["MethodSpeciationValidity"])] <- "Unknown"
-    
-    # remove extraneous columns
-    check.data <- check.data %>%
-      dplyr::select(-c("Char.Upper", "Spec.Upper"))
+      dplyr::rename(WQX.MethodSpeciationValidity = Status)
+    # rename NA values to Unknown in WQX.MethodSpeciationValidity column 
+    check.data["WQX.MethodSpeciationValidity"][is.na(check.data["WQX.MethodSpeciationValidity"])] <- "Unknown"
     
     # reorder column names to match .data
       # get .data column names
     col.order <- colnames(.data)
-      # add MethodSpeciationValidity column to the list
-    col.order <- append(col.order, "MethodSpeciationValidity")
+      # add WQX.MethodSpeciationValidity column to the list
+    col.order <- append(col.order, "WQX.MethodSpeciationValidity")
       # reorder columns in flag.data
     check.data <- check.data[, col.order]
+    # place flag columns next to relevant fields
+    check.data <- check.data %>%
+      dplyr::relocate("WQX.MethodSpeciationValidity", 
+                      .after = "MethodSpecificationName")
     
     # flagged output
     if(clean == FALSE) {
@@ -179,10 +168,10 @@ InvalidSpeciation <- function(.data, clean = FALSE){
     # clean output
     if(clean == TRUE) {
       # filter out invalid characteristic-fraction combinations
-      clean.data <- dplyr::filter(check.data, MethodSpeciationValidity != "Invalid")
+      clean.data <- dplyr::filter(check.data, WQX.MethodSpeciationValidity != "Invalid")
       
-      # remove MethodSpeciationValidity column
-      clean.data <- dplyr::select(clean.data, -MethodSpeciationValidity)
+      # remove WQX.MethodSpeciationValidity column
+      clean.data <- dplyr::select(clean.data, -WQX.MethodSpeciationValidity)
       
       return(clean.data)
     } else {
@@ -231,40 +220,35 @@ InvalidResultUnit <- function(.data, clean = FALSE){
   # execute function after checks are passed
   if(all(c("CharacteristicName", "ResultMeasure.MeasureUnitCode", "ActivityMediaName") %in% colnames(.data)) == TRUE) {
     
-    if(("ResultUnitValidity" %in% colnames(.data)) == TRUE) {
-      .data <- dplyr::select(.data, -ResultUnitValidity)
+    if(("WQX.ResultUnitValidity" %in% colnames(.data)) == TRUE) {
+      .data <- dplyr::select(.data, -WQX.ResultUnitValidity)
     }
     # read in unit reference table from sysdata.rda and filter
     unit.ref <- TADA:::WQXcharVal.ref %>%
       dplyr::filter(Type == "CharacteristicUnit")
     
-    # define raw.data
-    raw.data <- .data
-    # duplicate and capitalize CharName and result unit columns in .data
-    raw.data$Char.Upper <- toupper(raw.data$CharacteristicName)
-    raw.data$Unit.Upper <- toupper(raw.data$ResultMeasure.MeasureUnitCode)
     # join "Status" column to .data by CharacteristicName, Source (Media), and Value (unit)
-    check.data <- merge(raw.data, unit.ref[, c("Characteristic", "Source", "Status", "Value")],
-                        by.x = c("Char.Upper", "Unit.Upper", "ActivityMediaName"),
+    check.data <- merge(.data, unit.ref[, c("Characteristic", "Source", "Status", "Value")],
+                        by.x = c("CharacteristicName", "ResultMeasure.MeasureUnitCode", "ActivityMediaName"),
                         by.y = c("Characteristic", "Value", "Source"), all.x = TRUE)
     
     # rename Status column
     check.data <- check.data %>%
-      dplyr::rename(ResultUnitValidity = Status)
-    # rename NA values to Unknown in ResultUnitValidity column 
-    check.data["ResultUnitValidity"][is.na(check.data["ResultUnitValidity"])] <- "Unknown"
-    
-    # remove extraneous columns
-    check.data <- check.data %>%
-      dplyr::select(-c("Char.Upper", "Unit.Upper"))
+      dplyr::rename(WQX.ResultUnitValidity = Status)
+    # rename NA values to Unknown in WQX.ResultUnitValidity column 
+    check.data["WQX.ResultUnitValidity"][is.na(check.data["WQX.ResultUnitValidity"])] <- "Unknown"
     
     # reorder column names to match .data
     # get .data column names
     col.order <- colnames(.data)
-    # add ResultUnitValidity column to the list
-    col.order <- append(col.order, "ResultUnitValidity")
+    # add WQX.ResultUnitValidity column to the list
+    col.order <- append(col.order, "WQX.ResultUnitValidity")
     # reorder columns in flag.data
     check.data <- check.data[, col.order]
+    # place flag columns next to relevant fields
+    check.data <- check.data %>%
+      dplyr::relocate("WQX.ResultUnitValidity", 
+                      .after = "ResultMeasure.MeasureUnitCode")
     
     # flagged output
     if(clean == FALSE) {
@@ -277,10 +261,10 @@ InvalidResultUnit <- function(.data, clean = FALSE){
     # clean output
     if(clean == TRUE) {
       # filter out invalid characteristic-unit-media combinations
-      clean.data <- dplyr::filter(check.data, ResultUnitValidity != "Invalid")
+      clean.data <- dplyr::filter(check.data, WQX.ResultUnitValidity != "Invalid")
       
-      # remove ResultUnitValidity column
-      clean.data <- dplyr::select(clean.data, -ResultUnitValidity)
+      # remove WQX.ResultUnitValidity column
+      clean.data <- dplyr::select(clean.data, -WQX.ResultUnitValidity)
       
       return(clean.data)
     } else {
@@ -383,24 +367,24 @@ DepthProfileData <- function(.data,
       dplyr::filter(stringr::str_detect(Description, 
                                         stringr::regex("\\bLength Distance"))) %>%
       dplyr::filter(Target.Unit == unit) %>%
-      dplyr::rename(Depth.TargetUnit = Target.Unit)
+      dplyr::rename(WQX.Depth.TargetUnit = Target.Unit)
     
     # define check.data (to preserve .data and avoid mistakes with if statements below)
     check.data <- .data
-      # add Depth.TargetUnit column
+      # add WQX.Depth.TargetUnit column
     
     # append data based on fields argument input
       if(("ActivityDepthHeightMeasure" %in% fields) == TRUE) {
         # proceed only if ActivityDepthHeightMeasure.MeasureUnitCode has values other than NA
         if(sum(is.na(check.data$ActivityDepthHeightMeasure.MeasureUnitCode)) > 0) {
           # Join target unit and conversion factor from unit.ref to .data by ActivityDepthHeightMeasure.MeasureUnitCode
-          check.data <- merge(check.data, unit.ref[, c("Code", "Depth.TargetUnit", "Conversion.Factor")],
+          check.data <- merge(check.data, unit.ref[, c("Code", "WQX.Depth.TargetUnit", "Conversion.Factor")],
                        by.x = "ActivityDepthHeightMeasure.MeasureUnitCode", 
                        by.y = "Code", 
                        all.x = TRUE)
           # rename new columns
           check.data <- check.data %>%
-            dplyr::rename(ActDepth.Conversion.Factor = Conversion.Factor)
+            dplyr::rename(WQX.ActDepth.ConversionFactor = Conversion.Factor)
         }
       }
     
@@ -408,21 +392,21 @@ DepthProfileData <- function(.data,
         # proceed only if ActivityDepthHeightMeasure.MeasureUnitCode has values other than NA
         if(sum(is.na(check.data$ActivityTopDepthHeightMeasure.MeasureUnitCode)) > 0) {
           # Join target unit and conversion factor from unit.ref to .data by ActivityDepthHeightMeasure.MeasureUnitCode
-          check.data <- merge(check.data, unit.ref[, c("Code", "Depth.TargetUnit", "Conversion.Factor")],
+          check.data <- merge(check.data, unit.ref[, c("Code", "WQX.Depth.TargetUnit", "Conversion.Factor")],
                               by.x = "ActivityTopDepthHeightMeasure.MeasureUnitCode", 
                               by.y = "Code", 
                               all.x = TRUE)
           # rename new columns
           check.data <- check.data %>%
-            dplyr::rename(ActTopDepth.Conversion.Factor = Conversion.Factor)
+            dplyr::rename(WQX.ActTopDepth.ConversionFactor = Conversion.Factor)
           # check if Target Unit column already exists, if it does, combine columns
-          if(all(c("Depth.TargetUnit.x", "Depth.TargetUnit.y") %in% colnames(check.data)) == TRUE) {
-            # coalesce Depth.TargetUnit columns
-            check.data$Depth.TargetUnit <- dplyr::coalesce(check.data$Depth.TargetUnit.x, 
-                                                      check.data$Depth.TargetUnit.y)
+          if(all(c("WQX.Depth.TargetUnit.x", "WQX.Depth.TargetUnit.y") %in% colnames(check.data)) == TRUE) {
+            # coalesce WQX.Depth.TargetUnit columns
+            check.data$WQX.Depth.TargetUnit <- dplyr::coalesce(check.data$WQX.Depth.TargetUnit.x, 
+                                                      check.data$WQX.Depth.TargetUnit.y)
             # remove extra columns
-            check.data <- dplyr::select(check.data, -c("Depth.TargetUnit.x",
-                                                       "Depth.TargetUnit.y"))
+            check.data <- dplyr::select(check.data, -c("WQX.Depth.TargetUnit.x",
+                                                       "WQX.Depth.TargetUnit.y"))
           }
         }
       }
@@ -431,21 +415,21 @@ DepthProfileData <- function(.data,
         # proceed only if ActivityDepthHeightMeasure.MeasureUnitCode has values other than NA
         if(sum(is.na(check.data$ActivityBottomDepthHeightMeasure.MeasureUnitCode)) > 0) {
           # Join target unit and conversion factor from unit.ref to .data by ActivityDepthHeightMeasure.MeasureUnitCode
-          check.data <- merge(check.data, unit.ref[, c("Code", "Depth.TargetUnit", "Conversion.Factor")],
+          check.data <- merge(check.data, unit.ref[, c("Code", "WQX.Depth.TargetUnit", "Conversion.Factor")],
                             by.x = "ActivityBottomDepthHeightMeasure.MeasureUnitCode", 
                             by.y = "Code", 
                             all.x = TRUE)
           # rename new columns
           check.data <- check.data %>%
-            dplyr::rename(ActBottomDepth.Conversion.Factor = Conversion.Factor)
+            dplyr::rename(WQX.ActBottomDepth.ConversionFactor = Conversion.Factor)
           # check if Target Unit column already exists, if it does, combine columns
-          if(all(c("Depth.TargetUnit.x", "Depth.TargetUnit.y") %in% colnames(check.data)) == TRUE) {
-            # coalesce Depth.TargetUnit columns
-            check.data$Depth.TargetUnit <- dplyr::coalesce(check.data$Depth.TargetUnit.x, 
-                                                      check.data$Depth.TargetUnit.y)
+          if(all(c("WQX.Depth.TargetUnit.x", "WQX.Depth.TargetUnit.y") %in% colnames(check.data)) == TRUE) {
+            # coalesce WQX.Depth.TargetUnit columns
+            check.data$WQX.Depth.TargetUnit <- dplyr::coalesce(check.data$WQX.Depth.TargetUnit.x, 
+                                                      check.data$WQX.Depth.TargetUnit.y)
             # remove extra columns
-            check.data <- dplyr::select(check.data, -c("Depth.TargetUnit.x",
-                                                       "Depth.TargetUnit.y"))
+            check.data <- dplyr::select(check.data, -c("WQX.Depth.TargetUnit.x",
+                                                       "WQX.Depth.TargetUnit.y"))
           }
         }
       }
@@ -454,29 +438,29 @@ DepthProfileData <- function(.data,
         # proceed only if ActivityDepthHeightMeasure.MeasureUnitCode has values other than NA
         if(sum(is.na(check.data$ResultDepthHeightMeasure.MeasureUnitCode)) > 0) {
           # Join target unit and conversion factor from unit.ref to .data by ActivityDepthHeightMeasure.MeasureUnitCode
-          check.data <- merge(check.data, unit.ref[, c("Code", "Depth.TargetUnit", "Conversion.Factor")],
+          check.data <- merge(check.data, unit.ref[, c("Code", "WQX.Depth.TargetUnit", "Conversion.Factor")],
                               by.x = "ResultDepthHeightMeasure.MeasureUnitCode", 
                               by.y = "Code", 
                               all.x = TRUE)
           # rename new columns
           check.data <- check.data %>%
-            dplyr::rename(ResultDepth.Conversion.Factor = Conversion.Factor)
+            dplyr::rename(WQX.ResultDepth.ConversionFactor = Conversion.Factor)
           # check if Target Unit column already exists, if it does, combine columns
-          if(all(c("Depth.TargetUnit.x", "Depth.TargetUnit.y") %in% colnames(check.data)) == TRUE) {
-            # coalesce Depth.TargetUnit columns
-            check.data$Depth.TargetUnit <- dplyr::coalesce(check.data$Depth.TargetUnit.x, 
-                                                      check.data$Depth.TargetUnit.y)
+          if(all(c("WQX.Depth.TargetUnit.x", "WQX.Depth.TargetUnit.y") %in% colnames(check.data)) == TRUE) {
+            # coalesce WQX.Depth.TargetUnit columns
+            check.data$WQX.Depth.TargetUnit <- dplyr::coalesce(check.data$WQX.Depth.TargetUnit.x, 
+                                                      check.data$WQX.Depth.TargetUnit.y)
             # remove extra columns
-            check.data <- dplyr::select(check.data, -c("Depth.TargetUnit.x",
-                                                       "Depth.TargetUnit.y"))
+            check.data <- dplyr::select(check.data, -c("WQX.Depth.TargetUnit.x",
+                                                       "WQX.Depth.TargetUnit.y"))
           }
         }
       }
     # check if any Conversion Factor columns were appended
-    if(all(is.na(match(c("ActDepth.Conversion.Factor", 
-                         "ActTopDepth.Conversion.Factor",
-                         "ActBottomDepth.Conversion.Factor", 
-                         "ResultDepth.Conversion.Factor"), colnames(check.data)))) == TRUE) {
+    if(all(is.na(match(c("WQX.ActDepth.ConversionFactor", 
+                         "WQX.ActTopDepth.ConversionFactor",
+                         "WQX.ActBottomDepth.ConversionFactor", 
+                         "WQX.ResultDepth.ConversionFactor"), colnames(check.data)))) == TRUE) {
       stop("The dataset does not have any depth data.")
     }
     
@@ -485,22 +469,48 @@ DepthProfileData <- function(.data,
     col.order <- colnames(.data)
     # add appended columns to the list
     if(("ActivityDepthHeightMeasure" %in% fields) == TRUE) {
-      col.order <- append(col.order, "ActDepth.Conversion.Factor")
+      col.order <- append(col.order, "WQX.ActDepth.ConversionFactor")
     }
     if(("ActivityTopDepthHeightMeasure" %in% fields) == TRUE) {
-      col.order <- append(col.order, "ActTopDepth.Conversion.Factor")
+      col.order <- append(col.order, "WQX.ActTopDepth.ConversionFactor")
     }
     if(("ActivityBottomDepthHeightMeasure" %in% fields) == TRUE) {
-      col.order <- append(col.order, "ActBottomDepth.Conversion.Factor")
+      col.order <- append(col.order, "WQX.ActBottomDepth.ConversionFactor")
     }
     if(("ResultDepthHeightMeasure" %in% fields) == TRUE) {
-      col.order <- append(col.order, "ResultDepth.Conversion.Factor")
+      col.order <- append(col.order, "WQX.ResultDepth.ConversionFactor")
     }
-    if(("Depth.TargetUnit" %in% colnames(check.data)) == TRUE) {
-      col.order <- append(col.order, "Depth.TargetUnit")
+    if(("WQX.Depth.TargetUnit" %in% colnames(check.data)) == TRUE) {
+      col.order <- append(col.order, "WQX.Depth.TargetUnit")
     }
     # reorder columns in flag.data
     flag.data <- check.data[, col.order]
+    # place flag columns next to relevant fields
+    if(("ActivityDepthHeightMeasure" %in% fields) == TRUE) {
+      check.data <- check.data %>%
+        dplyr::relocate("WQX.ActDepth.ConversionFactor", 
+                        .after = "ActivityDepthHeightMeasure.MeasureValue")
+    }
+    if(("ActivityTopDepthHeightMeasure" %in% fields) == TRUE) {
+      check.data <- check.data %>%
+        dplyr::relocate("WQX.ActTopDepth.ConversionFactor", 
+                        .after = "ActivityTopDepthHeightMeasure.MeasureValue")
+    }
+    if(("ActivityBottomDepthHeightMeasure" %in% fields) == TRUE) {
+      check.data <- check.data %>%
+        dplyr::relocate("WQX.ActBottomDepth.ConversionFactor", 
+                        .after = "ActivityBottomDepthHeightMeasure.MeasureValue")
+    }
+    if(("ResultDepthHeightMeasure" %in% fields) == TRUE) {
+      check.data <- check.data %>%
+        dplyr::relocate("WQX.ResultDepth.ConversionFactor", 
+                        .after = "ResultDepthHeightMeasure.MeasureValue")
+    }
+    if(("WQX.Depth.TargetUnit" %in% colnames(check.data)) == TRUE) {
+      check.data <- check.data %>%
+        dplyr::relocate("WQX.Depth.TargetUnit", 
+                        .after = "ActivityEndTime.TimeZoneCode")
+    }
     # if convert = FALSE, output data
     if(convert == FALSE) {
       
@@ -511,60 +521,60 @@ DepthProfileData <- function(.data,
       # define clean.data
       clean.data <- flag.data
       
-      # if ActDepth.Conversion.Factor exists...
-      if(("ActDepth.Conversion.Factor" %in% colnames(clean.data)) == TRUE) {
-        # multiply ActivityDepthHeightMeasure.MeasureValue by ActDepth.Conversion.Factor
+      # if WQX.ActDepth.ConversionFactor exists...
+      if(("WQX.ActDepth.ConversionFactor" %in% colnames(clean.data)) == TRUE) {
+        # multiply ActivityDepthHeightMeasure.MeasureValue by WQX.ActDepth.ConversionFactor
         suppressWarnings(
           clean.data$ActivityDepthHeightMeasure.MeasureValue == 
           as.numeric(clean.data$ActivityDepthHeightMeasure.MeasureValue)*
-            clean.data$ActDepth.Conversion.Factor)
+            clean.data$WQX.ActDepth.ConversionFactor)
         # replace ActivityDepthHeightMeasure.MeasureUnitCode values with unit argument
           clean.data$ActivityDepthHeightMeasure.MeasureUnitCode[which(
             !is.na(clean.data$ActivityDepthHeightMeasure.MeasureUnitCode))] <- unit
         # delete ActDepth.Conversion.Unit column
-        clean.data <- dplyr::select(clean.data, -"ActDepth.Conversion.Factor")
+        clean.data <- dplyr::select(clean.data, -"WQX.ActDepth.ConversionFactor")
       }
       
-      # if ActTopDepth.Conversion.Factor exists...
-      if(("ActTopDepth.Conversion.Factor" %in% colnames(clean.data)) == TRUE) {
-        # multiply ActivityTopDepthHeightMeasure.MeasureValue by ActTopDepth.Conversion.Factor
+      # if WQX.ActTopDepth.ConversionFactor exists...
+      if(("WQX.ActTopDepth.ConversionFactor" %in% colnames(clean.data)) == TRUE) {
+        # multiply ActivityTopDepthHeightMeasure.MeasureValue by WQX.ActTopDepth.ConversionFactor
         suppressWarnings(
         clean.data$ActivityTopDepthHeightMeasure.MeasureValue == 
           as.numeric(clean.data$ActivityTopDepthHeightMeasure.MeasureValue)*
-          clean.data$ActTopDepth.Conversion.Factor)
+          clean.data$WQX.ActTopDepth.ConversionFactor)
         # replace ActivityTopDepthHeightMeasure.MeasureUnitCode values with unit argument
           clean.data$ActivityTopDepthHeightMeasure.MeasureUnitCode[which(
             !is.na(clean.data$ActivityTopDepthHeightMeasure.MeasureUnitCode))] <- unit
         # delete ActDepth.Conversion.Unit column
-        clean.data <- dplyr::select(clean.data, -"ActTopDepth.Conversion.Factor")
+        clean.data <- dplyr::select(clean.data, -"WQX.ActTopDepth.ConversionFactor")
       }
       
-      # if ActBottomDepth.Conversion.Factor exists...
-      if(("ActBottomDepth.Conversion.Factor" %in% colnames(clean.data)) == TRUE) {
-        # multiply ActivityBottomDepthHeightMeasure.MeasureValue by ActBottomDepth.Conversion.Factor
+      # if WQX.ActBottomDepth.ConversionFactor exists...
+      if(("WQX.ActBottomDepth.ConversionFactor" %in% colnames(clean.data)) == TRUE) {
+        # multiply ActivityBottomDepthHeightMeasure.MeasureValue by WQX.ActBottomDepth.ConversionFactor
         suppressWarnings(
           clean.data$ActivityBottomDepthHeightMeasure.MeasureValue == 
             as.numeric(clean.data$ActivityBottomDepthHeightMeasure.MeasureValue)*
-            clean.data$ActBottomDepth.Conversion.Factor)
+            clean.data$WQX.ActBottomDepth.ConversionFactor)
         # replace ActivityBottomDepthHeightMeasure.MeasureUnitCode values with unit argument
           clean.data$ActivityBottomDepthHeightMeasure.MeasureUnitCode[which(
             !is.na(clean.data$ActivityBottomDepthHeightMeasure.MeasureUnitCode))] <- unit
         # delete ActBottomDepth.Conversion.Unit column
-        clean.data <- dplyr::select(clean.data, -"ActBottomDepth.Conversion.Factor")
+        clean.data <- dplyr::select(clean.data, -"WQX.ActBottomDepth.ConversionFactor")
       }
       
-      # if ResultDepth.Conversion.Factor exists...
-      if(("ResultDepth.Conversion.Factor" %in% colnames(clean.data)) == TRUE) {
-        # multiply ResultDepthHeightMeasure.MeasureValue by ResultDepth.Conversion.Factor
+      # if WQX.ResultDepth.ConversionFactor exists...
+      if(("WQX.ResultDepth.ConversionFactor" %in% colnames(clean.data)) == TRUE) {
+        # multiply ResultDepthHeightMeasure.MeasureValue by WQX.ResultDepth.ConversionFactor
         suppressWarnings(
           clean.data$ResultDepthHeightMeasure.MeasureValue == 
             as.numeric(clean.data$ResultDepthHeightMeasure.MeasureValue)*
-            clean.data$ResultDepth.Conversion.Factor)
+            clean.data$WQX.ResultDepth.ConversionFactor)
         # replace ResultDepthHeightMeasure.MeasureUnitCode values with unit argument
           clean.data$ResultDepthHeightMeasure.MeasureUnitCode[which(
             !is.na(clean.data$ResultDepthHeightMeasure.MeasureUnitCode))] <- unit
         # delete ResultDepth.Conversion.Unit column
-        clean.data <- dplyr::select(clean.data, -"ResultDepth.Conversion.Factor")
+        clean.data <- dplyr::select(clean.data, -"WQX.ResultDepth.ConversionFactor")
       }
       
       return(clean.data)
