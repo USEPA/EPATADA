@@ -4,7 +4,7 @@
 \alias{HarmonizeData}
 \title{Transform Characteristic, Speciation, and Unit values to TADA Standards}
 \usage{
-HarmonizeData(.data, ref, clean = FALSE, flag = FALSE)
+HarmonizeData(.data, ref, transform = FALSE, flag = TRUE)
 }
 \arguments{
 \item{.data}{TADA dataset}
@@ -14,11 +14,9 @@ file. The primary use for this argument is when a user has generated a
 harmonization reference file unique to their data, and they made changes to 
 that file.}
 
-\item{clean}{Boolean argument; changes ResultMeasure.MeasureUnitCode to WQX
-target unit and converts ResultMeasureValue to corresponding target unit when
-convert = TRUE. Default is convert = FALSE.}
+\item{transform}{Boolean argument;}
 
-\item{flag}{Boolean argument; appends ResultMeasureValue.UnitConversion and
+\item{flag}{Boolean argument; appends WQX.ResultMeasureValue.UnitConversion and
 DetectionLimitMeasureValue.UnitConversion columns, indicating if data can be
 converted. "Convert" means data can be converted, "NoResultValue" means data
 cannot be converted because there is no ResultMeasureValue, and "NoTargetUnit" 

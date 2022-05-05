@@ -189,7 +189,7 @@ HarmonizationRefTable <- function(.data, download = FALSE){
                                 "MethodSpecificationName",
                                 "ResultMeasure.MeasureUnitCode"),
                        by.y = c("CharacteristicName", "ResultSampleFractionText",
-                                "ResultMethodSpeciationText",
+                                "MethodSpecificationName",
                                 "ResultMeasure.MeasureUnitCode"), 
                        all.x = TRUE)
     
@@ -200,12 +200,11 @@ HarmonizationRefTable <- function(.data, download = FALSE){
                                                 "MethodSpecificationName",
                                                 "ResultMeasure.MeasureUnitCode")]))
       
-      # rename fields to match harm.raw
-      unique.data <- unique.data %>%
-        dplyr::rename(ResultMethodSpeciationText = MethodSpecificationName)
-      
       # reorder columns to match harm.raw
       unique.data <- unique.data[, colnames(harm.raw)]
+      
+      # remove extraneous characters in first column
+      colnames(unique.data)[1] <- gsub('^...','',colnames(unique.data)[1])
       
       # if download = TRUE, download unique.data as a csv to the working directory
       if(download == TRUE){

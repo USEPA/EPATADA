@@ -50,3 +50,5 @@ TADAprofile$ResultSampleFractionText <- toupper(TADAprofile$ResultSampleFraction
 TADAprofile$MethodSpecificationName <- toupper(TADAprofile$MethodSpecificationName)
 TADAprofile$ResultMeasure.MeasureUnitCode <- toupper(TADAprofile$ResultMeasure.MeasureUnitCode)
 TADAprofile$ActivityMediaName <- toupper(TADAprofile$ActivityMediaName)
+TADAprofile$DetectionQuantitationLimitMeasure.MeasureUnitCode <- 
+  toupper(TADAprofile$DetectionQuantitationLimitMeasure.MeasureUnitCode)

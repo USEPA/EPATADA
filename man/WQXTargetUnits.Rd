@@ -13,8 +13,8 @@ WQXTargetUnits(.data, convert = FALSE, flag = TRUE)
 target unit and converts ResultMeasureValue to corresponding target unit when
 convert = TRUE. Default is convert = FALSE.}
 
-\item{flag}{Boolean argument; appends ResultMeasureValue.UnitConversion and
-DetectionLimitMeasureValue.UnitConversion columns, indicating if data can be
+\item{flag}{Boolean argument; appends WQX.ResultMeasureValue.UnitConversion and
+WQX.DetectionLimitMeasureValue.UnitConversion columns, indicating if data can be
 converted. "Convert" means data can be converted, "NoResultValue" means data
 cannot be converted because there is no ResultMeasureValue, and "NoTargetUnit" 
 means data cannot be converted because the original unit is not associated 

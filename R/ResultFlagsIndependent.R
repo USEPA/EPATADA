@@ -36,45 +36,39 @@ UncommonAnalyticalMethodID <- function(.data, clean = FALSE){
   if(all(c("CharacteristicName", "ResultAnalyticalMethod.MethodIdentifier", 
            "ResultAnalyticalMethod.MethodIdentifierContext") %in% colnames(.data)) == TRUE) {
     # delete existing flag column
-    if(("UncommonAnalyticalMethod" %in% colnames(.data)) == TRUE) {
-      .data <- dplyr::select(.data, -UncommonAnalyticalMethod)
+    if(("WQX.UncommonAnalyticalMethod" %in% colnames(.data)) == TRUE) {
+      .data <- dplyr::select(.data, -WQX.UncommonAnalyticalMethod)
     }
     # read in speciation reference table from sysdata.rda and filter
     meth.ref <- TADA:::WQXcharVal.ref %>%
       dplyr::filter(Type == "CharacteristicMethod")
-   
-    # define raw.data
-    raw.data <- .data
-     # duplicate and capitalize result unit column in raw.data
-    raw.data$Char.Upper <- toupper(raw.data$CharacteristicName)
     
     # join "Status" column to .data by CharacteristicName, Source (Media), and Value (unit)
-    check.data <- merge(raw.data, meth.ref[, c("Characteristic", "Source", "Status", "Value")],
-                        by.x = c("Char.Upper", "ResultAnalyticalMethod.MethodIdentifier", 
+    check.data <- merge(.data, meth.ref[, c("Characteristic", "Source", "Status", "Value")],
+                        by.x = c("CharacteristicName", "ResultAnalyticalMethod.MethodIdentifier", 
                                  "ResultAnalyticalMethod.MethodIdentifierContext"),
                         by.y = c("Characteristic", "Value", "Source"), all.x = TRUE)
     
-    # rename Status column to UncommonAnalyticalMethod
+    # rename Status column to WQX.UncommonAnalyticalMethod
     check.data <- check.data %>%
-      dplyr::rename(UncommonAnalyticalMethod = Status)
-    # rename values in UncommonAnalyticalMethod
-    check.data["UncommonAnalyticalMethod"][check.data["UncommonAnalyticalMethod"] == "Valid"] <- "N"
-    check.data["UncommonAnalyticalMethod"][check.data["UncommonAnalyticalMethod"] == "Invalid"] <- "Y"
-    # rename NA values to Unknown in UncommonAnalyticalMethod column 
-    check.data["UncommonAnalyticalMethod"][is.na(check.data["UncommonAnalyticalMethod"])] <- "Unknown"
-    
-    # remove extraneous columns, fix field names
-    check.data <- check.data %>%
-      dplyr::select(-c("Char.Upper"))
+      dplyr::rename(WQX.UncommonAnalyticalMethod = Status)
+    # rename values in WQX.UncommonAnalyticalMethod
+    check.data["WQX.UncommonAnalyticalMethod"][check.data["WQX.UncommonAnalyticalMethod"] == "Valid"] <- "N"
+    check.data["WQX.UncommonAnalyticalMethod"][check.data["WQX.UncommonAnalyticalMethod"] == "Invalid"] <- "Y"
+    # rename NA values to Unknown in WQX.UncommonAnalyticalMethod column 
+    check.data["WQX.UncommonAnalyticalMethod"][is.na(check.data["WQX.UncommonAnalyticalMethod"])] <- "Unknown"
     
     # reorder column names to match .data
       # get .data column names
     col.order <- colnames(.data)
-      # add UncommonAnalyticalMethod column to the list
-    col.order <- append(col.order, "UncommonAnalyticalMethod")
+      # add WQX.UncommonAnalyticalMethod column to the list
+    col.order <- append(col.order, "WQX.UncommonAnalyticalMethod")
       # reorder columns in flag.data
     check.data <- check.data[, col.order]
-    
+    # place flag columns next to relevant fields
+      check.data <- check.data %>%
+        dplyr::relocate("WQX.UncommonAnalyticalMethod", 
+                        .after = "ResultAnalyticalMethod.MethodName")
     # flagged output
     if(clean == FALSE) {
       return(check.data)
@@ -83,10 +77,10 @@ UncommonAnalyticalMethodID <- function(.data, clean = FALSE){
     # clean output
     if(clean == TRUE) {
       # filter out invalid characteristic-unit-media combinations
-      clean.data <- dplyr::filter(check.data, UncommonAnalyticalMethod != "Y")
+      clean.data <- dplyr::filter(check.data, WQX.UncommonAnalyticalMethod != "Y")
       
-      # remove UncommonAnalyticalMethod column
-      clean.data <- dplyr::select(clean.data, -UncommonAnalyticalMethod)
+      # remove WQX.UncommonAnalyticalMethod column
+      clean.data <- dplyr::select(clean.data, -WQX.UncommonAnalyticalMethod)
       
       return(clean.data)
     } else {
@@ -307,9 +301,9 @@ AboveNationalWQXUpperThreshold <- function(.data, clean = FALSE){
 
   
   # check ResultMeasureValue column is of class numeric
-  # if(class(.data$ResultMeasureValue) != "numeric") {
-  #   stop("The ResultMeasureValue column must of class 'numeric'.")
-  # }
+  if(class(.data$ResultMeasureValue) != "numeric") {
+    stop("The ResultMeasureValue column must of class 'numeric'.")
+  }
   
   # execute function after checks are passed
   if(all(c("CharacteristicName", "ActivityMediaName", "ResultMeasureValue",
@@ -320,20 +314,12 @@ AboveNationalWQXUpperThreshold <- function(.data, clean = FALSE){
       dplyr::filter(Type == "CharacteristicUnit" & Source == "WATER" & 
                       Status == "Valid")
     
-    # define raw.data
-    raw.data <- .data
-    # duplicate and capitalize CharName, ActivityMediaName, and ResultMeasureUnitCode columns in .data
-    raw.data$Char.Upper <- toupper(raw.data$CharacteristicName)
-    raw.data$Media.Upper <- toupper(raw.data$ActivityMediaName)
-    raw.data$Unit.Upper <- toupper(raw.data$ResultMeasure.MeasureUnitCode)
-    
     # join unit.ref to raw.data
-    check.data <- merge(raw.data, unit.ref[, c("Characteristic", "Source",
+    check.data <- merge(.data, unit.ref[, c("Characteristic", "Source",
                                             "Value", "Maximum")],
-                        by.x = c("Char.Upper", "Media.Upper", "Unit.Upper"),
+                        by.x = c("CharacteristicName", "ActivityMediaName", 
+                                 "ResultMeasure.MeasureUnitCode"),
                         by.y = c("Characteristic", "Source", "Value"), all.x = TRUE)
-      # remove upper case columns
-      check.data <- select(check.data, -c("Char.Upper", "Media.Upper", "Unit.Upper"))
       # Run WQXTargetUnits function to convert ResultMeasureValue class to numeric
       check.data <- WQXTargetUnits(check.data, convert = TRUE)
     
@@ -347,14 +333,9 @@ AboveNationalWQXUpperThreshold <- function(.data, clean = FALSE){
         ResultMeasureValue < Maximum ~ as.character("N")))
     
     # remove extraneous columns, fix field names
-    flag.data <- flag.data %>%
-      dplyr::select(-c("Maximum", "ResultUnitConversion", "ResultMeasureValue", 
-                       "ResultMeasure.MeasureUnitCode"))
-      # rename ResultMeasureValue.Original and ResultMeasureUnitCode.Original
       flag.data <- flag.data %>%
-        dplyr::rename(ResultMeasureValue = ResultMeasureValue.Original) %>%
-        dplyr::rename(ResultMeasure.MeasureUnitCode = ResultMeasureUnitCode.Original)
-    
+        dplyr::select(-"Maximum")
+      
     # reorder column names to match .data
       # get .data column names
     col.order <- colnames(.data)
@@ -430,20 +411,12 @@ BelowNationalWQXUpperThreshold <- function(.data, clean = FALSE){
       dplyr::filter(Type == "CharacteristicUnit" & Source == "WATER" & 
                       Status == "Valid")
     
-    # define raw.data
-    raw.data <- .data
-    # duplicate and capitalize CharName, ActivityMediaName, and ResultMeasureUnitCode columns in .data
-    raw.data$Char.Upper <- toupper(raw.data$CharacteristicName)
-    raw.data$Media.Upper <- toupper(raw.data$ActivityMediaName)
-    raw.data$Unit.Upper <- toupper(raw.data$ResultMeasure.MeasureUnitCode)
-    
     # join unit.ref to raw.data
-    check.data <- merge(raw.data, unit.ref[, c("Characteristic", "Source",
+    check.data <- merge(.data, unit.ref[, c("Characteristic", "Source",
                                                "Value", "Minimum")],
-                        by.x = c("Char.Upper", "Media.Upper", "Unit.Upper"),
+                        by.x = c("CharacteristicName", "ActivityMediaName", 
+                                 "ResultMeasure.MeasureUnitCode"),
                         by.y = c("Characteristic", "Source", "Value"), all.x = TRUE)
-    # remove upper case columns
-    check.data <- select(check.data, -c("Char.Upper", "Media.Upper", "Unit.Upper"))
     # Run WQXTargetUnits function to convert ResultMeasureValue class to numeric
     check.data <- WQXTargetUnits(check.data, convert = TRUE)
     
@@ -458,12 +431,7 @@ BelowNationalWQXUpperThreshold <- function(.data, clean = FALSE){
     
     # remove extraneous columns, fix field names
     flag.data <- flag.data %>%
-      dplyr::select(-c("Maximum", "ResultUnitConversion", "ResultMeasureValue", 
-                       "ResultMeasure.MeasureUnitCode"))
-    # rename ResultMeasureValue.Original and ResultMeasureUnitCode.Original
-    flag.data <- flag.data %>%
-      dplyr::rename(ResultMeasureValue = ResultMeasureValue.Original) %>%
-      dplyr::rename(ResultMeasure.MeasureUnitCode = ResultMeasureUnitCode.Original)
+      dplyr::select(-"Minimum")
     
     # reorder column names to match .data
     # get .data column names
