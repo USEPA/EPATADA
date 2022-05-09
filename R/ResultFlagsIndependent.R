@@ -134,7 +134,7 @@ AggregatedContinuousData <- function(.data, clean = FALSE){
     # if there is aggregated continuous data is in the data set
     if(nrow(cont.data) != 0){
       # append ContDataFlag column
-      cont.data$AggregatedContinuousData <- "Y"
+      cont.data$TADA.AggregatedContinuousData <- "Y"
       # join cont.data to flag.data
       flag.data <- merge(.data, cont.data, all.x = TRUE)
       
@@ -146,10 +146,10 @@ AggregatedContinuousData <- function(.data, clean = FALSE){
       # clean output
       if(clean == TRUE) {
         # filter out invalid characteristic-unit-media combinations
-        clean.data <- dplyr::filter(flag.data, !(AggregatedContinuousData %in% "Y"))
+        clean.data <- dplyr::filter(flag.data, !(TADA.AggregatedContinuousData %in% "Y"))
         
-        # remove AggregatedContinuousData column
-        clean.data <- dplyr::select(clean.data, -AggregatedContinuousData)
+        # remove TADA.AggregatedContinuousData column
+        clean.data <- dplyr::select(clean.data, -TADA.AggregatedContinuousData)
         
         return(clean.data)
       } else {
@@ -217,7 +217,7 @@ PotentialDuplicateRowID <- function(.data, clean = FALSE){
     dupe.data <- .data[duplicated(.data[dupe.fields]),]
     
     # flag potential duplicates
-    dupe.data$PotentialDupRowID <- as.integer(seq_len(nrow(dupe.data)))
+    dupe.data$TADA.PotentialDupRowID <- as.integer(seq_len(nrow(dupe.data)))
     
     # merge flag column into .data
     flag.data <- merge(.data, dupe.data, by = dupe.fields, all.x = TRUE)
@@ -233,8 +233,8 @@ PotentialDuplicateRowID <- function(.data, clean = FALSE){
     # reorder column names to match .data
       # get .data column names
     col.order <- colnames(.data)
-      # add PotentialDupRowID column to the list
-    col.order <- append(col.order, "PotentialDupRowID")
+      # add TADA.PotentialDupRowID column to the list
+    col.order <- append(col.order, "TADA.PotentialDupRowID")
       # reorder columns in flag.data
     flag.data <- flag.data[, col.order]
     
@@ -246,16 +246,16 @@ PotentialDuplicateRowID <- function(.data, clean = FALSE){
     # clean output
     if(clean == TRUE) {
       # remove duplicate rows
-        # seperate data into 2 dataframes by PotentialDupRowID (no NAs and NAs)
-      dup.data <- flag.data[!is.na(flag.data$PotentialDupRowID),]
-      NAdup.data <- flag.data[is.na(flag.data$PotentialDupRowID),] 
+        # seperate data into 2 dataframes by TADA.PotentialDupRowID (no NAs and NAs)
+      dup.data <- flag.data[!is.na(flag.data$TADA.PotentialDupRowID),]
+      NAdup.data <- flag.data[is.na(flag.data$TADA.PotentialDupRowID),] 
       
-      nodup.data <- dup.data[!duplicated(dup.data$PotentialDupRowID),]
+      nodup.data <- dup.data[!duplicated(dup.data$TADA.PotentialDupRowID),]
       
       clean.data <-rbind(nodup.data, NAdup.data)
       
-      # remove PotentialDupRowID column
-      clean.data <- dplyr::select(clean.data, -PotentialDupRowID)
+      # remove TADA.PotentialDupRowID column
+      clean.data <- dplyr::select(clean.data, -TADA.PotentialDupRowID)
       
       return(clean.data)
     } else {
@@ -339,7 +339,7 @@ AboveNationalWQXUpperThreshold <- function(.data, clean = FALSE){
     # reorder column names to match .data
       # get .data column names
     col.order <- colnames(.data)
-      # add PotentialDupRowID column to the list
+      # add TADA.PotentialDupRowID column to the list
     col.order <- append(col.order, "AboveWQXUpperThreshold")
       # reorder columns in flag.data
     flag.data <- flag.data[, col.order]
@@ -420,15 +420,15 @@ BelowNationalWQXUpperThreshold <- function(.data, clean = FALSE){
     # Run WQXTargetUnits function to convert ResultMeasureValue class to numeric
     check.data <- WQXTargetUnits(check.data, convert = TRUE)
     
-    # Create flag column, flag rows where Converted.Value < Minimum
+    # Create flag column, flag rows where ResultMeasureValue < Minimum
     flag.data <- check.data %>%
       # apply function row by row
       dplyr::rowwise() %>%
       # create flag column
       dplyr::mutate(BelowWQXUpperThreshold = dplyr::case_when(
-        Converted.Value <= Minimum ~ as.character("Y"),
-        Converted.Value > Minimum ~ as.character("N")))
-    
+        ResultMeasureValue <= Minimum ~ as.character("Y"),
+        ResultMeasureValue > Minimum ~ as.character("N")))
+ 
     # remove extraneous columns, fix field names
     flag.data <- flag.data %>%
       dplyr::select(-"Minimum")
@@ -436,7 +436,7 @@ BelowNationalWQXUpperThreshold <- function(.data, clean = FALSE){
     # reorder column names to match .data
     # get .data column names
     col.order <- colnames(.data)
-    # add PotentialDupRowID column to the list
+    # add TADA.PotentialDupRowID column to the list
     col.order <- append(col.order, "BelowWQXUpperThreshold")
     # reorder columns in flag.data
     flag.data <- flag.data[, col.order]
@@ -571,7 +571,7 @@ QAPPDocAvailable <- function(.data, clean = FALSE){
     if(nrow(QAPPdoc.data) != 0){
       
       # append flag column
-      QAPPdoc.data$QAPPDocAvailable <- "Y_ProjectFileUrlProvided"
+      QAPPdoc.data$TADA.QAPPDocAvailable <- "Y_ProjectFileUrlProvided"
       
       # join QAPPdoc.data to flag.data
       flag.data <- merge(.data, QAPPdoc.data, all.x = TRUE)
@@ -586,8 +586,8 @@ QAPPDocAvailable <- function(.data, clean = FALSE){
         # remove data without an associated QAPP url
         clean.data <- dplyr::filter(flag.data, grepl('/', ProjectFileUrl))
         
-        # remove QAPPDocAvailable column
-        clean.data <- dplyr::select(clean.data, -QAPPDocAvailable)
+        # remove TADA.QAPPDocAvailable column
+        clean.data <- dplyr::select(clean.data, -TADA.QAPPDocAvailable)
         
         return(clean.data)
       } else {
@@ -639,7 +639,7 @@ decimalnumcount<-function(x){stopifnot(class(x)=="character")
 
 #' Invalid coordinates
 #' 
-#' When clean = FALSE, a column will be appended titled "InvalidCoordinates"
+#' When clean = FALSE, a column will be appended titled "TADA.InvalidCoordinates"
 #' with the following flags (if relevant to dataset): 
 #' 
 #' BELOW TBD 
@@ -683,7 +683,7 @@ InvalidCoordinates <- function(.data, clean_outsideUSA = FALSE, clean_imprecise 
   if(all(c("LatitudeMeasure", "LongitudeMeasure") %in% colnames(.data)) == TRUE) {
     
     .data = .data %>%
-      dplyr::mutate(InvalidCoordinates = dplyr::case_when(
+      dplyr::mutate(TADA.InvalidCoordinates = dplyr::case_when(
         LatitudeMeasure < 0 ~ "LAT_OutsideUSA",
         LongitudeMeasure > 0 & LongitudeMeasure < 145 ~ "LONG_OutsideUSA",
         grepl('999', LatitudeMeasure) ~ "Imprecise",
@@ -693,17 +693,17 @@ InvalidCoordinates <- function(.data, clean_outsideUSA = FALSE, clean_imprecise 
       
     #clean output, remove all data for stations outside of the US
     if((clean_outsideUSA==TRUE) & (clean_imprecise==TRUE))
-      {.data = dplyr::filter(.data, is.na(InvalidCoordinates)== TRUE)}
+      {.data = dplyr::filter(.data, is.na(TADA.InvalidCoordinates)== TRUE)}
     
     if((clean_outsideUSA==FALSE) & (clean_imprecise==TRUE)) 
-      {.data = dplyr::filter(.data, InvalidCoordinates != "Imprecise" | is.na(InvalidCoordinates)== TRUE)}
+      {.data = dplyr::filter(.data, TADA.InvalidCoordinates != "Imprecise" | is.na(TADA.InvalidCoordinates)== TRUE)}
     
     if((clean_outsideUSA==TRUE) & (clean_imprecise==FALSE))
-      {.data = dplyr::filter(.data, InvalidCoordinates == "Imprecise" | is.na(InvalidCoordinates)== TRUE)}
+      {.data = dplyr::filter(.data, TADA.InvalidCoordinates == "Imprecise" | is.na(TADA.InvalidCoordinates)== TRUE)}
 
-    if (all(is.na(.data$InvalidCoordinates)==TRUE)) {
+    if (all(is.na(.data$TADA.InvalidCoordinates)==TRUE)) {
       print("All invalid coordinates were removed or your dataset does not contain monitoring stations with invalid coordinates")
-      return (dplyr::select(.data, -InvalidCoordinates))
+      return (dplyr::select(.data, -TADA.InvalidCoordinates))
       } else {
         return (.data)}
 

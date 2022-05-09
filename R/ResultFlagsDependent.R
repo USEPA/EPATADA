@@ -627,12 +627,12 @@ MeasureValueSpecialCharacters <- function(.data){
     check.data$DetectionLimitMeasureValue.Original <- 
       check.data$DetectionQuantitationLimitMeasure.MeasureValue
     
-    # add ResultMeasureValue.Flag column
+    # add TADA.ResultMeasureValue.Flag column
     flag.data <- check.data %>%
       # apply function row by row
       dplyr::rowwise() %>%
       # create flag column
-      dplyr::mutate(ResultMeasureValue.Flag = dplyr::case_when(
+      dplyr::mutate(TADA.ResultMeasureValue.Flag = dplyr::case_when(
         is.na(ResultMeasureValue.Original) ~ as.character("ND or NA"),
         (grepl("<", ResultMeasureValue.Original) == TRUE) ~ as.character("Less Than"),
         (grepl(">", ResultMeasureValue.Original) == TRUE) ~ as.character("Greater Than"),
@@ -641,12 +641,12 @@ MeasureValueSpecialCharacters <- function(.data){
         (grepl("\\d", ResultMeasureValue.Original) == TRUE) ~ as.character("Numeric"),
         TRUE ~ "Coerced to NA"))
     
-    # add DetectionLimitMeasureValue.Flag column
+    # add TADA.DetectionLimitMeasureValue.Flag column
     flag.data <- flag.data %>%
       # apply function row by row
       dplyr::rowwise() %>%
       # create flag column
-      dplyr::mutate(DetectionLimitMeasureValue.Flag = dplyr::case_when(
+      dplyr::mutate(TADA.DetectionLimitMeasureValue.Flag = dplyr::case_when(
         is.na(DetectionLimitMeasureValue.Original) ~ as.character(NA),
         (grepl("<", DetectionLimitMeasureValue.Original) == TRUE) ~ as.character("Less Than"),
         (grepl(">", DetectionLimitMeasureValue.Original) == TRUE) ~ as.character("Greater Than"),
@@ -671,7 +671,18 @@ MeasureValueSpecialCharacters <- function(.data){
       # DetectionQuantitationLimitMeasure.MeasureValue
       clean.data$DetectionQuantitationLimitMeasure.MeasureValue <- 
         suppressWarnings(as.numeric(clean.data$DetectionQuantitationLimitMeasure.MeasureValue))
-      
+    
+    # reorder columns
+      # place flag column next to relevant fields
+      clean.data <- clean.data %>%
+        dplyr::relocate("ResultMeasureValue.Original", 
+                        .after = "ResultMeasureValue") %>%
+        dplyr::relocate("TADA.ResultMeasureValue.Flag", 
+                        .after = "ResultMeasureValue.Original") %>%
+        dplyr::relocate("DetectionLimitMeasureValue.Original", 
+                        .after = "DetectionQuantitationLimitMeasure.MeasureValue") %>%
+        dplyr::relocate("TADA.DetectionLimitMeasureValue.Flag", 
+                        .after = "DetectionLimitMeasureValue.Original")
     return(clean.data)
   }
 }
