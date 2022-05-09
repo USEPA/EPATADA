@@ -78,7 +78,7 @@ WQXTargetUnits <- function(.data, convert = FALSE, flag = TRUE){
     # rename columns
     flag.data <- check.data %>%
       dplyr::rename(WQX.TargetUnit = Value.Unit) %>%
-      dplyr::rename(ConversionFactor = Conversion.Factor)
+      dplyr::rename(WQX.ConversionFactor = Conversion.Factor)
     
       # if temp data exists, calculate conversion factor
       if (all(is.na(match(c("deg F", "deg K"), 
@@ -89,12 +89,12 @@ WQXTargetUnits <- function(.data, convert = FALSE, flag = TRUE){
           # apply function row by row
           dplyr::rowwise() %>%
           # create flag column
-          dplyr::mutate(ConversionFactor = dplyr::case_when(
+          dplyr::mutate(WQX.ConversionFactor = dplyr::case_when(
             ResultMeasure.MeasureUnitCode == "deg F" ~ 
               as.numeric(((ResultMeasureValue - 32)*(5/9))/ResultMeasureValue),
             ResultMeasure.MeasureUnitCode == "deg K" ~ 
               as.numeric((ResultMeasureValue - 273.15)/ResultMeasureValue),
-            TRUE ~ ConversionFactor))
+            TRUE ~ WQX.ConversionFactor))
       }
     
     # add flag column when flag = TRUE
@@ -128,7 +128,7 @@ WQXTargetUnits <- function(.data, convert = FALSE, flag = TRUE){
       col.order <- colnames(.data)
         # add flag columns to the list
       col.order <- append(col.order, c("WQX.TargetUnit", 
-                                       "ConversionFactor", 
+                                       "WQX.ConversionFactor", 
                                        "WQX.ResultMeasureValue.UnitConversion",
                                        "WQX.DetectionLimitMeasureValue.UnitConversion"))
         # reorder columns in flag.data
@@ -136,7 +136,7 @@ WQXTargetUnits <- function(.data, convert = FALSE, flag = TRUE){
         # place flag columns next to relevant fields
       flag.data <- flag.data %>%
         dplyr::relocate(c("WQX.TargetUnit", 
-                        "ConversionFactor", 
+                        "WQX.ConversionFactor", 
                         "WQX.ResultMeasureValue.UnitConversion"), 
                         .after = "ResultMeasure.MeasureUnitCode") %>%
         dplyr::relocate("WQX.DetectionLimitMeasureValue.UnitConversion", 
@@ -156,7 +156,7 @@ WQXTargetUnits <- function(.data, convert = FALSE, flag = TRUE){
         # apply conversions where there is a target unit, use original value if no target unit
         dplyr::mutate(ResultMeasureValue = dplyr::case_when(
           !is.na(WQX.TargetUnit) ~ 
-            (ResultMeasureValue * ConversionFactor),
+            (ResultMeasureValue * WQX.ConversionFactor),
           is.na(WQX.TargetUnit) ~ ResultMeasureValue))
       
       # populate ResultMeasure.MeasureUnitCode
@@ -175,7 +175,7 @@ WQXTargetUnits <- function(.data, convert = FALSE, flag = TRUE){
         # apply conversions where there is a target unit, use original value if no target unit
         dplyr::mutate(DetectionQuantitationLimitMeasure.MeasureValue = dplyr::case_when(
           !is.na(WQX.TargetUnit) ~ 
-            (DetectionQuantitationLimitMeasure.MeasureValue * ConversionFactor),
+            (DetectionQuantitationLimitMeasure.MeasureValue * WQX.ConversionFactor),
           is.na(WQX.TargetUnit) ~ DetectionQuantitationLimitMeasure.MeasureValue))
       
       # populate DetectionQuantitationLimitMeasure.MeasureUnitCode
@@ -209,7 +209,7 @@ WQXTargetUnits <- function(.data, convert = FALSE, flag = TRUE){
       
       # remove extraneous columns, fix field names
       clean.data <- clean.data %>%
-      dplyr::select(-c("ConversionFactor", "WQX.TargetUnit"))
+      dplyr::select(-c("WQX.ConversionFactor", "WQX.TargetUnit"))
       
       # reorder column names to match .data
       # get .data column names

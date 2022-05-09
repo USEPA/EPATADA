@@ -22,7 +22,7 @@ When clean = FALSE and imprecise = FALSE, data is flagged but
 not removed from the dataset.
 }
 \description{
-When clean = FALSE, a column will be appended titled "InvalidCoordinates"
+When clean = FALSE, a column will be appended titled "TADA.InvalidCoordinates"
 with the following flags (if relevant to dataset):
 }
 \details{
