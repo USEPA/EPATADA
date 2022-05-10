@@ -16,8 +16,12 @@ knitr::opts_chunk$set(
 )
 ```
 
+Load TADA library and update internal TADA package validation and reference tables
 ```{r setup}
 library(TADA)
+UpdateWQXCharValRef()
+#UpdateMeasureUnitRef()
+#HarmonizationRefTable()
 ```
 
 Read in WQP data using WQP web services directly 
@@ -43,12 +47,44 @@ original data filters, but it cannot be used to download the data.
 WQP query URL: https://www.waterqualitydata.us/#statecode=US%3A42&characteristicType=Nutrient&mimeType=csv&dataProfile=resultPhysChem&providers=NWIS&providers=STEWARDS&providers=STORET
 
 ```{r}
+#get PA nutrient data
 TADAProfileRaw=readWQPwebservice("https://www.waterqualitydata.us/data/Result/search?statecode=US%3A42&characteristicType=Nutrient&mimeType=csv&zip=yes&dataProfile=resultPhysChem&providers=NWIS&providers=STEWARDS&providers=STORET")
 ```
 
 
+Clean raw data for TADA use case
 ```{r}
-
+#autoclean
+TADAProfileClean=AggregatedContinuousData(TADAProfileClean)
 ```
 
+Run result flag functions and address flagged data
+```{r}
+#TADAProfileClean=UncommonAnalyticalMethodID(TADAProfileClean)
+TADAProfileClean=PotentialDuplicateRowID(TADAProfileClean)
+TADAProfileClean=AboveNationalWQXUpperThreshold(TADAProfileClean)
+TADAProfileClean=BelowNationalWQXUpperThreshold(TADAProfileClean)
+TADAProfileClean=QAPPapproved(TADAProfileClean)
+TADAProfileClean=QAPPDocAvailable(TADAProfileClean)
+TADAProfileClean=InvalidCoordinates(TADAProfileClean)
+TADAProfileClean=InvalidFraction(TADAProfileClean)
+TADAProfileClean=InvalidSpeciation(TADAProfileClean)
+TADAProfileClean=InvalidResultUnit(TADAProfileClean)
+```
+
+Address result values with special characters
+```{r}
+MeasureValueSpecialCharacters
+```
+
+Apply unit conversions
+```{r}
+DepthProfileData
+WQXTargetUnits
+```
+
+Transform Characteristic, Speciation, and Unit values to TADA Standards
+```{r}
+HarmonizeData
+```
 

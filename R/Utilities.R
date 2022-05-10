@@ -1,26 +1,3 @@
-#' Apply Conversions
-#' 
-#' **placeholder text for function description
-#'
-#' @param .data TADA dataset
-#' @param Include Conversions to execute (should input be a column name? Or 
-#' groups of columns, which have their own group ID? Where would we put this
-#' group ID info, another reference table? within the function?)
-#' @param Exclude ibid, but conversions to not execute
-#'
-#' @return Full TADA dataset with data conversions executed. Function defaults 
-#' to convert the following: (**note all columns/type of data included in 
-#' conversions).
-#' Users can specify which conversions to exclude.
-#' @export
-#' 
-
-
-ApplyConversions <- function(.data, Include, Exclude){
-  
-}
-
-
 #' AutoFilter
 #' 
 #' This function can be used to autofilter and simplify a WQP dataset. 
@@ -37,7 +14,6 @@ ApplyConversions <- function(.data, Include, Exclude){
 #'
 #' @return Full TADA dataset with flags or data removed
 #' @export
-
 
 
 AutoFilter <- function(.data, clean = TRUE){
@@ -68,24 +44,6 @@ AutoFilter <- function(.data, clean = TRUE){
       stop("'clean' argument must be Boolean (TRUE or FALSE)")
     }
   }
-}
-
-
-#' Filter
-#' 
-#' @param .data TADA dataset
-#' 
-#' @return Full TADA dataset with data removed
-#' 
-#' @export
-
-
-Filter <- function(.data){
-
-# Remove all data where media name does NOT equal WATER (ignore punctuation)
-dplyr::filter(.data, ActivityMediaName == "Water")
-
-  return(.data)
 }
 
 
