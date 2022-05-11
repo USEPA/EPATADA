@@ -2,11 +2,9 @@
 
 export(AboveNationalWQXUpperThreshold)
 export(AggregatedContinuousData)
-export(ApplyConversions)
 export(AutoFilter)
 export(BelowNationalWQXUpperThreshold)
 export(DepthProfileData)
-export(Filter)
 export(HarmonizationRefTable)
 export(HarmonizeData)
 export(InvalidCoordinates)
