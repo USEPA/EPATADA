@@ -1,6 +1,7 @@
 #' Generate TADA-Compatible Dataset with WQP Data
 #' 
-#' Retrieve data from Water Quality Portal and output a TADA-compatible dataset.
+#' Retrieve data from Water Quality Portal (WQP) and output a TADA-compatible 
+#' dataset.
 #' 
 #' @param stateCode Code that identifies a state
 #' @param siteType Type of waterbody 
@@ -9,7 +10,7 @@
 #' @param startDate Start Date
 #' @param endDate End Date
 #' 
-#' @return TADA-compatible dataset
+#' @return TADA-compatible dataframe
 #' @export
 #' 
 
@@ -75,7 +76,9 @@ TADAdataRetrieval <- function(stateCode = "US:24",
 #' original data filters.
 #' 
 #' @param webservice WQP Web Service URL
+#' 
 #' @return WQP Full Physical Chemical Results Data Profile 
+#' 
 #' @export
 #' 
 
@@ -106,7 +109,8 @@ readWQPwebservice <- function(webservice) {
 #' immediate QA steps (removing true duplicates, converting result values to numeric,
 #' capitalizing letters, etc.) to this function, as well as the other retrieval functions.
 #' 
-#' @param .data TADA data profile
+#' @param .data TADA dataframe
+#' 
 #' @return autocleaned TADA data profile 
 #' 
 

@@ -11,10 +11,6 @@ sysdata.rda with updated unit.ref object (unit conversion reference
 table)
 }
 \description{
-This function should be run when package is loaded to library (how do we do
-this?)
-}
-\details{
-This functions reads in the latest WQX MeasureUnit Domain table, adds 
+Function reads in the latest WQX MeasureUnit Domain table, adds 
 additional target unit information, and writes the data to sysdata.rda.
 }

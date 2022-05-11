@@ -1,10 +1,10 @@
 #' Check Sample Fraction Validity
 #' 
-#' Function that checks the validity of each characteristic-fraction combination
+#' Function checks the validity of each characteristic-fraction combination
 #' in the dataset. When clean = TRUE, rows with invalid characteristic-fraction
-#' combinations are removed. 
+#' combinations are removed. Default is clean = FALSE.
 #'
-#' @param .data TADA dataset
+#' @param .data TADA dataframe
 #' @param clean Boolean argument; removes "Invalid" characteristic-fraction 
 #' combinations from the dataset when clean = TRUE. Default is clean = FALSE.
 #'
@@ -26,9 +26,7 @@ InvalidFraction <- function(.data, clean = FALSE){
   }
     # check .data has required columns
   if(all(c("CharacteristicName", "ResultSampleFractionText") %in% colnames(.data)) == FALSE) {
-    stop("The dataframe does not contain the required fields to use TADA. Use
-         either the full physical/chemical profile downloaded from WQP or
-         download the TADA profile template available on the EPA TADA webpage.")
+    stop("The dataframe does not contain the required fields to use TADA. Use either the full physical/chemical profile downloaded from WQP or download the TADA profile template available on the EPA TADA webpage.")
   }
   
   # execute function after checks are passed
@@ -68,9 +66,7 @@ InvalidFraction <- function(.data, clean = FALSE){
     # flagged output
     if(clean == FALSE) {
       return(check.data)
-      warning("Metadata transformations may be adversely affected by choosing
-              to retain 'Invalid' fraction. In order to ensure transformation
-              functions will run properly, set clean = TRUE.")
+      warning("Metadata transformations may be adversely affected by choosing to retain 'Invalid' fraction. In order to ensure transformation functions will run properly, set clean = TRUE.")
     }
     
     # clean output
@@ -92,11 +88,12 @@ InvalidFraction <- function(.data, clean = FALSE){
 
 #' Check Method Speciation Validity
 #' 
-#' Function that checks the validity of each characteristic-method 
+#' Function checks the validity of each characteristic-method 
 #' speciation combination in the dataset. When clean = TRUE, rows with invalid 
-#' characteristic-method speciation combinations are removed. 
+#' characteristic-method speciation combinations are removed. Default is 
+#' clean = FALSE.
 #'
-#' @param .data TADA dataset
+#' @param .data TADA dataframe
 #' @param clean Boolean argument; removes "Invalid" characteristic-method 
 #' speciation combinations from the dataset when clean = TRUE. Default is 
 #' clean = FALSE.
@@ -119,9 +116,7 @@ InvalidSpeciation <- function(.data, clean = FALSE){
   }
   # check .data has required columns
   if(all(c("CharacteristicName", "MethodSpecificationName") %in% colnames(.data)) == FALSE) {
-    stop("The dataframe does not contain the required fields to use TADA. Use
-         either the full physical/chemical profile downloaded from WQP or
-         download the TADA profile template available on the EPA TADA webpage.")
+    stop("The dataframe does not contain the required fields to use TADA. Use either the full physical/chemical profile downloaded from WQP or download the TADA profile template available on the EPA TADA webpage.")
   }
   
   # execute function after checks are passed
@@ -160,9 +155,7 @@ InvalidSpeciation <- function(.data, clean = FALSE){
     # flagged output
     if(clean == FALSE) {
       return(check.data)
-      warning("Metadata transformations may be adversely affected by choosing to
-              retain 'Invalid' speciation. In order to ensure transformation
-              functions will run properly, set clean = TRUE.")
+      warning("Metadata transformations may be adversely affected by choosing to retain 'Invalid' speciation. In order to ensure transformation functions will run properly, set clean = TRUE.")
     }
     
     # clean output
@@ -184,11 +177,12 @@ InvalidSpeciation <- function(.data, clean = FALSE){
 
 #' Check Result Unit Validity
 #' 
-#' Function that checks the validity of each characteristic-media-result unit 
+#' Function checks the validity of each characteristic-media-result unit 
 #' combination in the dataset. When clean = TRUE, rows with invalid 
-#' characteristic-media-result unit combinations are removed. 
+#' characteristic-media-result unit combinations are removed. Default is 
+#' clean = FALSE.
 #'
-#' @param .data TADA dataset
+#' @param .data TADA dataframe
 #' @param clean Boolean argument; removes "Invalid" characteristic-media-result 
 #' unit combinations from the dataset when clean = TRUE. Default is 
 #' clean = FALSE.
@@ -212,9 +206,7 @@ InvalidResultUnit <- function(.data, clean = FALSE){
   }
   # check .data has required columns
   if(all(c("CharacteristicName", "ResultMeasure.MeasureUnitCode", "ActivityMediaName") %in% colnames(.data)) == FALSE) {
-    stop("The dataframe does not contain the required fields to use TADA. Use
-         either the full physical/chemical profile downloaded from WQP or
-         download the TADA profile template available on the EPA TADA webpage.")
+    stop("The dataframe does not contain the required fields to use TADA. Use either the full physical/chemical profile downloaded from WQP or download the TADA profile template available on the EPA TADA webpage.")
   }
   
   # execute function after checks are passed
@@ -253,9 +245,7 @@ InvalidResultUnit <- function(.data, clean = FALSE){
     # flagged output
     if(clean == FALSE) {
       return(check.data)
-      warning("Metadata transformations may be adversely affected by choosing to
-              retain 'Invalid' result units. In order to ensure transformation
-              functions will run properly, set clean = TRUE.")
+      warning("Metadata transformations may be adversely affected by choosing to retain 'Invalid' result units. In order to ensure transformation functions will run properly, set clean = TRUE.")
     }
     
     # clean output
@@ -276,8 +266,8 @@ InvalidResultUnit <- function(.data, clean = FALSE){
 
 #' Depth Profile Flag & Unit Conversion
 #' 
-#' Function that checks a WQP or TADA dataset for depth profile data. Where depth 
-#' profile columns are populated, the function appends 'Conversion Factor' columns
+#' Function checks dataset for depth profile data. Where depth profile columns
+#' are populated, the function appends 'Conversion Factor' columns
 #' and populates those columns based on the original unit (MeasureUnitCode 
 #' columns) and the target unit, which is defined in the 'unit' argument. A 
 #' 'Depth Target Unit' column is also appended, indicating the unit all selected 
@@ -286,7 +276,7 @@ InvalidResultUnit <- function(.data, clean = FALSE){
 #' = TRUE, the output includes converted depth data and the 'Depth Target
 #' Unit' column, which acts as a flag indicating which rows have been converted.
 #'
-#' @param .data TADA dataset
+#' @param .data TADA dataframe
 #' @param unit Character string input indicating the uniform unit depth data is
 #' converted to. Allowable values for 'unit' are either 'm' (meter), 'ft' (feet),
 #'  or 'in' (inch). 'unit' accepts only one allowable value as an input. Default
@@ -296,16 +286,17 @@ InvalidResultUnit <- function(.data, clean = FALSE){
 #' 'ActivityDepthHeightMeasure,' 'ActivityTopDepthHeightMeasure,'
 #' 'ActivityBottomDepthHeightMeasure,' and 'ResultDepthHeightMeasure.'. Default
 #'  is to include all allowable values.
-#' @param convert Boolean input indicating if conversions should be executed. 
-#' When convert = FALSE, the output includes all Conversion Factor' columns and 
-#' the 'Depth Target Unit' column. When convert = TRUE, the output includes 
-#' converted depth data and the 'Depth Target Unit' column, which acts as a flag
-#' indicating which rows have been converted.
+#' @param convert Boolean argument; When convert = FALSE, the output includes 
+#' all Conversion Factor' columns and the 'Depth Target Unit' column. When 
+#' convert = TRUE, the output includes converted depth data and the 'Depth 
+#' Target Unit' column, which acts as a flag indicating which rows have been 
+#' converted. Default is convert = FALSE.
 #'
 #' @return Full dataset with 'Conversion Factor' columns and a 'Depth Target Unit'
 #' column. When convert = TRUE, the output is the full dataset with converted
 #' uniform depth units and a 'Depth Target Unit' column, which acts as a flag indicating which
 #' rows have been converted. 
+#' 
 #' @export
 #' 
 
@@ -329,19 +320,15 @@ DepthProfileData <- function(.data,
            "ActivityBottomDepthHeightMeasure.MeasureValue", "ActivityBottomDepthHeightMeasure.MeasureUnitCode",
            "ResultDepthHeightMeasure.MeasureValue", "ResultDepthHeightMeasure.MeasureUnitCode") 
          %in% colnames(.data)) == FALSE) {
-    stop("The dataframe does not contain the required fields to use TADA. Use
-         either the full physical/chemical profile downloaded from WQP or
-         download the TADA profile template available on the EPA TADA webpage.")
+    stop("The dataframe does not contain the required fields to use TADA. Use either the full physical/chemical profile downloaded from WQP or download the TADA profile template available on the EPA TADA webpage.")
   }
   # check unit argument for valid number of inputs
   if(length(unit) != 1) {
-    stop("Invalid 'unit' argument. 'unit' accepts only one allowable value as an
-    input.'unit' must be one of either 'm' (meter), 'ft' (feet), or 'in' (inch).")
+    stop("Invalid 'unit' argument. 'unit' accepts only one allowable value as an input.'unit' must be one of either 'm' (meter), 'ft' (feet), or 'in' (inch).")
   }
   # check unit argument for valid inputs
   if(all(is.na(match(c("m", "ft", "in"), unit))) == TRUE) {
-    stop("Invalid 'unit' argument. 'unit' must be either 'm' (meter), 'ft' (feet),
-         or 'in' (inch).")
+    stop("Invalid 'unit' argument. 'unit' must be either 'm' (meter), 'ft' (feet), or 'in' (inch).")
   } 
   # check fields argument for valid inputs
   if(all(is.na(match(c("ActivityDepthHeightMeasure",
@@ -589,13 +576,22 @@ DepthProfileData <- function(.data,
 
 #' Check for Special Characters in Measure Value Fields
 #' 
-#' **placeholder text for function description
+#' Function checks for special characters and non-numeric values in the 
+#' ResultMeasureValue and DetectionQuantitationLimitMeasure.MeasureValue 
+#' fields and appends flag columns indicating if special characters are included
+#' and if so, what the special characters are. The ResultMeasureValue and 
+#' DetectionQuantitationLimitMeasure.MeasureValue fields are also converted to 
+#' class numeric.
 #'
-#' @param .data TADA dataset
+#' @param .data TADA dataframe
 #'
 #' @return Full dataset with column indicating presence of special characters in
-#' the ResultMeasureValue field. When clean = TRUE, the output is the full 
-#' dataset with special characters removed from the ResultMeasureValueField. 
+#' the ResultMeasureValue and DetectionQuantitationLimitMeasure.MeasureValue 
+#' fields. Additionally, the ResultMeasureValue and 
+#' DetectionQuantitationLimitMeasure.MeasureValue fields are converted to class
+#' numeric, and copies of each column are created to preserve original 
+#' character values.
+#'  
 #' @export
 #' 
 
@@ -610,9 +606,7 @@ MeasureValueSpecialCharacters <- function(.data){
   # check .data has required columns
   if(all(c("ResultMeasureValue", "DetectionQuantitationLimitMeasure.MeasureValue")
           %in% colnames(.data)) == FALSE) {
-    stop("The dataframe does not contain the required fields to use TADA. Use 
-         either the full physical/chemical profile downloaded from WQP or 
-         download the TADA profile template available on the EPA TADA webpage.")
+    stop("The dataframe does not contain the required fields to use TADA. Use either the full physical/chemical profile downloaded from WQP or download the TADA profile template available on the EPA TADA webpage.")
   }
   
   # execute function after checks are passed

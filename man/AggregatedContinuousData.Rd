@@ -7,7 +7,7 @@
 AggregatedContinuousData(.data, clean = FALSE)
 }
 \arguments{
-\item{.data}{TADA dataset}
+\item{.data}{TADA dataframe}
 
 \item{clean}{Boolean argument; removes aggregated continuous data from 
 the dataset when clean = TRUE. Default is clean = FALSE.}
@@ -24,5 +24,6 @@ their continuous data and submit it to WQP as one value. This type of data
 may not be suitable for a water quality assessment, therefore, this function
 uses metadata submitted by data providers to flags rows with aggregated 
 continuous data. When clean = TRUE, rows with aggregated continuous data
-are removed from the dataset and no column will be appended.
+are removed from the dataset and no column will be appended. Default is 
+clean = FALSE.
 }

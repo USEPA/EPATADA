@@ -7,7 +7,7 @@
 InvalidSpeciation(.data, clean = FALSE)
 }
 \arguments{
-\item{.data}{TADA dataset}
+\item{.data}{TADA dataframe}
 
 \item{clean}{Boolean argument; removes "Invalid" characteristic-method 
 speciation combinations from the dataset when clean = TRUE. Default is 
@@ -20,7 +20,8 @@ appended to the input data set. When clean = FALSE, the column is appended,
 but "Invalid" rows will be removed from the dataset.
 }
 \description{
-Function that checks the validity of each characteristic-method 
+Function checks the validity of each characteristic-method 
 speciation combination in the dataset. When clean = TRUE, rows with invalid 
-characteristic-method speciation combinations are removed.
+characteristic-method speciation combinations are removed. Default is 
+clean = FALSE.
 }

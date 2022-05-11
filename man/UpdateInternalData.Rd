@@ -15,7 +15,7 @@ UpdateInternalData(..., list = character())
 Updated sysdata.rda file
 }
 \description{
-This function is for internal use only. It is used in other internal 
+Function is for internal use only. It is used in other internal 
 functions which are used to update internal data (e.g. reference tables). 
 This function was adapted from a stackoverflow.com thread, which can be
 accessed [here](https://stackoverflow.com/questions/11813096/updating-an-existing-rdata-file).

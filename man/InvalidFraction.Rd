@@ -7,7 +7,7 @@
 InvalidFraction(.data, clean = FALSE)
 }
 \arguments{
-\item{.data}{TADA dataset}
+\item{.data}{TADA dataframe}
 
 \item{clean}{Boolean argument; removes "Invalid" characteristic-fraction 
 combinations from the dataset when clean = TRUE. Default is clean = FALSE.}
@@ -19,7 +19,7 @@ appended to the input data set. When clean = FALSE, the column is appended,
 but "Invalid" rows will be removed from the dataset.
 }
 \description{
-Function that checks the validity of each characteristic-fraction combination
+Function checks the validity of each characteristic-fraction combination
 in the dataset. When clean = TRUE, rows with invalid characteristic-fraction
-combinations are removed.
+combinations are removed. Default is clean = FALSE.
 }

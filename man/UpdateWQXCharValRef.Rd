@@ -7,14 +7,12 @@
 UpdateWQXCharValRef()
 }
 \value{
-Updated raw QAQCCharacteristicValidation.CSV and sysdata.rda with
- updated WQXcharVal.ref object
+Updated sysdata.rda with updated WQXcharVal.ref object
 }
 \description{
-This function updates the raw WQX QAQC Characteristic Validation reference
-table, as well as the cleaned reference table (WQXcharVal.ref) in the 
-sysdata.rda file. The WQXcharVal.ref data frame contains information for four
-functions: InvalidFraction, InvalidResultUnit, InvalidSpeciation, and 
-UncommonAnalyticalMethodID. 
-This function is run when package is loaded to library (how?)
+Function updates the raw Water Quality Exchange (WQX) QAQC Characteristic 
+Validation reference table, as well as the cleaned reference table 
+(WQXcharVal.ref) in the sysdata.rda file. The WQXcharVal.ref data frame 
+contains information for four functions: InvalidFraction, InvalidResultUnit, 
+InvalidSpeciation, and UncommonAnalyticalMethodID.
 }

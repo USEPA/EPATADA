@@ -2,12 +2,12 @@
 % Please edit documentation in R/ResultFlagsIndependent.R
 \name{QAPPapproved}
 \alias{QAPPapproved}
-\title{Flag or remove result without an approved QAPP}
+\title{Check data for an approved QAPP}
 \usage{
 QAPPapproved(.data, clean = TRUE, cleanNA = FALSE)
 }
 \arguments{
-\item{.data}{TADA dataset}
+\item{.data}{TADA dataframe}
 
 \item{clean}{Two boolean arguments: 1) remove data where the 
 QAPPApprovedIndicator = "N"  when clean = TRUE; 2) remove data where the 
@@ -21,15 +21,15 @@ When clean = FALSE and cleanNA = FALSE, no data is removed from the
 dataset.
 }
 \description{
-This check reviews data submitted under the column "QAPPApprovedIndicator".
+Function checks data submitted under the column "QAPPApprovedIndicator".
 Some organizations submit data for this field to indicate if the data 
 produced has an approved Quality Assurance Project Plan (QAPP) or not. 
-Y indicates yes, N indicates no.  This function 
-has two default inputs: clean = TRUE, cleanNA = FALSE. The default will
-remove rows of data where the QAPPApprovedIndicator equals "N". Users could
-alternatively remove both N's and NA's using the inputs: 
-clean = TRUE, cleanNA = TRUE. If both clean = FALSE and cleanNA = FALSE, 
-the function will not make any changes to the dataset.
+Y indicates yes, N indicates no.  This function has two default inputs: 
+clean = TRUE, cleanNA = FALSE. The default removes rows of data where the 
+QAPPApprovedIndicator equals "N". Users could alternatively remove both N's
+and NA's using the inputs clean = TRUE, cleanNA = TRUE. If both 
+clean = FALSE and cleanNA = FALSE, the function will not make any changes to
+the dataset.
 }
 \details{
 Note: This is not a required field, so it is often left blank (NA) even if 

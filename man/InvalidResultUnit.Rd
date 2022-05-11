@@ -7,7 +7,7 @@
 InvalidResultUnit(.data, clean = FALSE)
 }
 \arguments{
-\item{.data}{TADA dataset}
+\item{.data}{TADA dataframe}
 
 \item{clean}{Boolean argument; removes "Invalid" characteristic-media-result 
 unit combinations from the dataset when clean = TRUE. Default is 
@@ -21,7 +21,8 @@ clean = FALSE, the column is appended, but "Invalid" rows will be removed
 from the dataset.
 }
 \description{
-Function that checks the validity of each characteristic-media-result unit 
+Function checks the validity of each characteristic-media-result unit 
 combination in the dataset. When clean = TRUE, rows with invalid 
-characteristic-media-result unit combinations are removed.
+characteristic-media-result unit combinations are removed. Default is 
+clean = FALSE.
 }

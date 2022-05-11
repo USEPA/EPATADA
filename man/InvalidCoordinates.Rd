@@ -7,29 +7,34 @@
 InvalidCoordinates(.data, clean_outsideUSA = FALSE, clean_imprecise = FALSE)
 }
 \arguments{
-\item{.data}{TADA dataset}
+\item{.data}{TADA dataframe}
 
-\item{clean_outsideUSA}{Two boolean arguments. Default is clean = FALSE and 
-imprecise = FALSE. When clean = TRUE and imprecise = TRUE, data transformations
-occur and data is removed from the dataset.}
+\item{clean_outsideUSA}{Boolean argument; removes data with coordinates outside
+of the United States when clean_outsideUSA = TRUE. Default is clean = FALSE.
 
-\item{clean_imprecise}{Two boolean arguments. Default is clean = FALSE and 
-imprecise = FALSE. When clean = TRUE and imprecise = TRUE, data transformations
-occur and data is removed from the dataset.}
+removes "Invalid" characteristic-analytical 
+method combinations from the dataset when clean = TRUE. Default is 
+clean = FALSE.}
+
+\item{clean_imprecise}{Boolean arguments; removes imprecise data when 
+clean_imprecise = TRUE. Default is clean_imprecise = FALSE.}
 }
 \value{
-When clean = FALSE and imprecise = FALSE, data is flagged but
-not removed from the dataset.
+When either the clean_outsideUSA or clean_imprecise argument is FALSE,
+a column flagging rows with the respective QA check is appended to the input
+dataset. When either argument is TRUE, "invalid" or "imprecise" data is
+removed, respectively.
 }
 \description{
-When clean = FALSE, a column will be appended titled "TADA.InvalidCoordinates"
-with the following flags (if relevant to dataset):
+Function identifies and flags invalid coordinate data. When clean = FALSE, 
+a column will be appended titled "TADA.InvalidCoordinates" with the following
+flags (if relevant to dataset):
 }
 \details{
 BELOW TBD 
 
 1) If the LONG has a + sign, the function assumes this was a data
-submission error because it is outside of the US. + LONGS will be 
+submission error because it is outside of the US. + LONGS will be automatically
 changed to - 
 2) If the LAT or LONG includes the specific strings,
 000 or 999, or if the LAT is outside of the -90 to 90 range and LONG
