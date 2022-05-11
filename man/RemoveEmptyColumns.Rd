@@ -7,11 +7,12 @@
 RemoveEmptyColumns(.data)
 }
 \arguments{
-\item{.data}{TADA dataset}
+\item{.data}{Dataframe}
 }
 \value{
-Full TADA dataset with empty data columns removed
+Full dataset with empty data columns removed
 }
 \description{
-RemoveEmptyColumns
+Removes any columns with only NA values. Used to quickly reduce the number of
+columns in a dataframe to improve management and readability of the dataset.
 }

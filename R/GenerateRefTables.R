@@ -1,6 +1,6 @@
 #' Update Existing Data in sysdata.rda
 #' 
-#' This function is for internal use only. It is used in other internal 
+#' Function is for internal use only. It is used in other internal 
 #' functions which are used to update internal data (e.g. reference tables). 
 #' This function was adapted from a stackoverflow.com thread, which can be
 #' accessed [here](https://stackoverflow.com/questions/11813096/updating-an-existing-rdata-file).
@@ -29,16 +29,13 @@ UpdateInternalData <- function(..., list = character()) {
 
 #' WQX QAQC Characteristic Validation Reference Table
 #' 
-#' This function updates the raw WQX QAQC Characteristic Validation reference
-#' table, as well as the cleaned reference table (WQXcharVal.ref) in the 
-#' sysdata.rda file. The WQXcharVal.ref data frame contains information for four
-#' functions: InvalidFraction, InvalidResultUnit, InvalidSpeciation, and 
-#' UncommonAnalyticalMethodID. 
-#' This function is run when package is loaded to library (how?)
+#' Function updates the raw Water Quality Exchange (WQX) QAQC Characteristic 
+#' Validation reference table, as well as the cleaned reference table 
+#' (WQXcharVal.ref) in the sysdata.rda file. The WQXcharVal.ref data frame 
+#' contains information for four functions: InvalidFraction, InvalidResultUnit, 
+#' InvalidSpeciation, and UncommonAnalyticalMethodID. 
 #'
-#'
-#' @return Updated raw QAQCCharacteristicValidation.CSV and sysdata.rda with
-#'  updated WQXcharVal.ref object
+#' @return Updated sysdata.rda with updated WQXcharVal.ref object
 #' 
 
 UpdateWQXCharValRef <- function(){
@@ -61,10 +58,7 @@ UpdateWQXCharValRef <- function(){
 
 #' Update Measure Unit Reference Table
 #' 
-#' This function should be run when package is loaded to library (how do we do
-#' this?)
-#' 
-#' This functions reads in the latest WQX MeasureUnit Domain table, adds 
+#' Function reads in the latest WQX MeasureUnit Domain table, adds 
 #' additional target unit information, and writes the data to sysdata.rda.
 #'
 #' @return sysdata.rda with updated unit.ref object (unit conversion reference
@@ -137,14 +131,15 @@ UpdateMeasureUnitRef <- function(){
 
 #' Generate Unique Harmonization Reference Table
 #' 
-#' This function generates a harmonization reference table that is specific to
+#' Function generates a harmonization reference table that is specific to
 #' the input dataset. Users can review how their input data relates to standard
 #' TADA values for CharacteristicName, ResultSampleFractionText, 
 #' MethodSpecicationName, and ResultMeasure.MeasureUnitCode and they can optionally
 #' edit the reference file to meet their needs.
 #'
-#' @param .data TADA dataset
-#' @param download download to working directory
+#' @param .data TADA dataframe
+#' @param download Boolean argument; when download = TRUE, the output is 
+#' downloaded to the current working directory.
 #'
 #' @return Harmonization Reference Table unique to the input dataset
 #' 
@@ -162,9 +157,7 @@ HarmonizationRefTable <- function(.data, download = FALSE){
            "MethodSpecificationName",
            "ResultMeasure.MeasureUnitCode") %in% 
          colnames(.data)) == FALSE) {
-    stop("The dataframe does not contain the required fields to use TADA. 
-         Use either the full physical/chemical profile downloaded from WQP or 
-         download the TADA profile template available on the EPA TADA webpage.")
+    stop("The dataframe does not contain the required fields to use TADA. Use either the full physical/chemical profile downloaded from WQP or download the TADA profile template available on the EPA TADA webpage.")
   }
   # check if download is boolean
   if(is.logical(download) == FALSE){

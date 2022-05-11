@@ -7,17 +7,25 @@
 PotentialDuplicateRowID(.data, clean = FALSE)
 }
 \arguments{
-\item{.data}{TADA dataset}
+\item{.data}{TADA dataframe}
 
 \item{clean}{Boolean argument; removes potential duplicate data from 
-the dataset when clean = TRUE. Default is clean = FALSE.}
+the dataset when clean = TRUE. When clean = FALSE, a column indicating 
+potential duplicate rows with a unique number linking rows is appended to the
+input data set. Default is clean = FALSE.}
 }
 \value{
 When clean = FALSE, a column indicating potential duplicate rows with
-a unique number linking potential duplicate rows is appended to the
-input data set. When clean = FALSE the first of each group of potential 
-duplicate rows will be removed from the dataset and no column is appended.
+a unique number linking rows is appended to the input data set. When 
+clean = FALSE the first of each group of potential duplicate rows will be 
+removed from the dataset and no column is appended.
 }
 \description{
-**Placeholder text for function description
+Sometimes multiple organizations submit the exact same data to Water Quality
+Portal (WQP), which can affect water quality analyses and assessments. This
+function checks for and identifies data that is identical in all fields
+excluding organization-specific and comment text fields. Each pair or group
+of potential duplicate rows is flagged with a unique ID. When clean = TRUE,
+the function retains the first occurrence of each potential duplicate in the
+dataset. Default is clean = FALSE.
 }

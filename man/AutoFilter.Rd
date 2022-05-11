@@ -7,17 +7,18 @@
 AutoFilter(.data, clean = TRUE)
 }
 \arguments{
-\item{clean}{Clean argument indicates whether flag columns should be appended 
-to the data (clean = FALSE), or flagged data is transformed/filtered from the 
-dataset and no columns are appended (clean = TRUE).}
+\item{.data}{TADA dataframe}
 
-\item{data}{TADA dataset}
+\item{clean}{Indicates whether flag columns should be appended to the data 
+(clean = FALSE), or flagged data is transformed/filtered from the 
+dataset and no columns are appended (clean = TRUE).}
 }
 \value{
-Full TADA dataset with flags or data removed
+When clean = FALSE, flag column is appended to the dataset. When 
+clean = TRUE, flag column is not appended and relevant rows are removed.
 }
 \description{
-This function can be used to autofilter and simplify a WQP dataset. 
+Function can be used to autofilter and simplify a WQP dataset. 
 After applying this function, the dataset will only contain result values for
 water media types or chemicals in tissue (e.g. mercury in fish tissue).
 More complex biological data (counts and macroinvertebrates) is removed. 

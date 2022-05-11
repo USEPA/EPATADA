@@ -27,8 +27,9 @@ TADAdataRetrieval(
 \item{endDate}{End Date}
 }
 \value{
-TADA-compatible dataset
+TADA-compatible dataframe
 }
 \description{
-Retrieve data from Water Quality Portal and output a TADA-compatible dataset.
+Retrieve data from Water Quality Portal (WQP) and output a TADA-compatible 
+dataset.
 }

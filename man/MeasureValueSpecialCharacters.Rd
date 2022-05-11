@@ -7,13 +7,21 @@
 MeasureValueSpecialCharacters(.data)
 }
 \arguments{
-\item{.data}{TADA dataset}
+\item{.data}{TADA dataframe}
 }
 \value{
 Full dataset with column indicating presence of special characters in
-the ResultMeasureValue field. When clean = TRUE, the output is the full 
-dataset with special characters removed from the ResultMeasureValueField.
+the ResultMeasureValue and DetectionQuantitationLimitMeasure.MeasureValue 
+fields. Additionally, the ResultMeasureValue and 
+DetectionQuantitationLimitMeasure.MeasureValue fields are converted to class
+numeric, and copies of each column are created to preserve original 
+character values.
 }
 \description{
-**placeholder text for function description
+Function checks for special characters and non-numeric values in the 
+ResultMeasureValue and DetectionQuantitationLimitMeasure.MeasureValue 
+fields and appends flag columns indicating if special characters are included
+and if so, what the special characters are. The ResultMeasureValue and 
+DetectionQuantitationLimitMeasure.MeasureValue fields are also converted to 
+class numeric.
 }

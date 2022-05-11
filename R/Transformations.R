@@ -1,11 +1,19 @@
 #' Transform Units to WQX Target Units
 #' 
-#' *** placeholder text for function description
+#' Function compares measure units in the input data to the Water Quality 
+#' Exchange (WQX) 3.0 QAQC Characteristic Validation table. Optional outputs 
+#' include: 1) the dataset with flag columns appended, indicating if data can be 
+#' converted, to which unit it can be converted, and the conversion factor
+#' required to convert measure values, 2) the datset with units and result values
+#' converted to the WQX target unit, or 3) converted result values and units with
+#' flag columns appended, specifying if data can be converted. Default is 
+#' convert = FALSE and flag = TRUE.
 #'
 #' @param .data TADA dataset
-#' @param transform Boolean argument; changes ResultMeasure.MeasureUnitCode to WQX
-#' target unit and converts ResultMeasureValue to corresponding target unit when
-#' transform = TRUE. Default is transform = FALSE.
+#' @param convert Boolean argument; changes ResultMeasure.MeasureUnitCode and 
+#' DetectionQuantitationLimitMeasure.MeasureUnitCode to WQX target unit and 
+#' converts ResultMeasureValue and DetectionQuantitationLimitMeasure.MeasureValue
+#' to corresponding target unit when convert = TRUE. Default is convert = TRUE.
 #' @param flag Boolean argument; appends WQX.ResultMeasureValue.UnitConversion and
 #' WQX.DetectionLimitMeasureValue.UnitConversion columns, indicating if data can be
 #' converted. "Transform" means data can be converted, "NoResultValue" means data
@@ -13,7 +21,12 @@
 #' means data cannot be converted because the original unit is not associated 
 #' with a target unit in WQX. Default is flag = TRUE.
 #'
-#' @return 
+#' @return When convert = FALSE and flag = TRUE, flag columns are appended to 
+#' the dataset only. When convert = TRUE and flag = TRUE, flag columns are 
+#' appended to the dataset and unit conversions are executed. When convert = TRUE
+#' and flag = FALSE, unit conversions are executed only. When convert = FALSE and
+#' flag = FALSE, an error is returned (function would return the input dataframe
+#' unchanged if input was allowed).
 #' 
 #' @export
 
@@ -30,9 +43,7 @@ WQXTargetUnits <- function(.data, transform = TRUE, flag = TRUE){
            "DetectionQuantitationLimitMeasure.MeasureValue",
            "DetectionQuantitationLimitMeasure.MeasureUnitCode") %in% 
          colnames(.data)) == FALSE) {
-    stop("The dataframe does not contain the required fields to use TADA. 
-         Use either the full physical/chemical profile downloaded from WQP or 
-         download the TADA profile template available on the EPA TADA webpage.")
+    stop("The dataframe does not contain the required fields to use TADA. Use either the full physical/chemical profile downloaded from WQP or download the TADA profile template available on the EPA TADA webpage.")
   }
   # check if transform is boolean
   if(is.logical(transform) == FALSE){
@@ -42,11 +53,9 @@ WQXTargetUnits <- function(.data, transform = TRUE, flag = TRUE){
   if(is.logical(flag) == FALSE){
     stop("flag argument must be Boolean (TRUE or FALSE)")
   }
-  # check that both transform and flag do NOT equal FALSE
+  # check that both convert and flag do NOT equal FALSE
   if(transform == FALSE & flag == FALSE){
-    stop("Both 'transform' and 'flag' arguments equal FALSE, which would return
-         the input dataset unchanged. One or both arguments must be equal to 
-         TRUE.")
+    stop("Both 'convert' and 'flag' arguments equal FALSE, which would return the input dataset unchanged. One or both arguments must be equal to TRUE.")
   }
   
   # execute function after checks are passed
@@ -236,24 +245,36 @@ WQXTargetUnits <- function(.data, transform = TRUE, flag = TRUE){
 }
 
 
-#' Transform Characteristic, Speciation, and Unit values to TADA Standards
+#' Transform Characteristic, Fraction, Speciation, and Unit values to TADA Standards
 #' 
-#' *** placeholder text for function description
+#' Function compares input dataset to the TADA Harmonization Reference Table. The
+#' purpose of the function is to make similar data consistent and therefore
+#' easier to compare and analyze. Optional outputs include: 1) the dataset with
+#' Harmonization columns appended, 2) the datset with CharacteristicName,
+#' ResultSampleFractionText, MethodSpecificationName, and 
+#' ResultMeasure.MeasureUnitCode converted to TADA standards or 3) the four fields
+#' converted with most Harmoinzation Referenve Table columns appended. Default is 
+#' transform = FALSE and flag = TRUE.
 #'
-#' @param .data TADA dataset
+#' @param .data TADA dataframe
 #' @param ref Optional argument to specify which dataframe to use as a reference
 #' file. The primary use for this argument is when a user has generated a
 #' harmonization reference file unique to their data, and they made changes to 
 #' that file.
-#' @param transform Boolean argument; 
-#' @param flag Boolean argument; appends WQX.ResultMeasureValue.UnitConversion and
-#' DetectionLimitMeasureValue.UnitConversion columns, indicating if data can be
-#' converted. "Transform" means data can be converted, "NoResultValue" means data
-#' cannot be converted because there is no ResultMeasureValue, and "NoTargetUnit" 
-#' means data cannot be converted because the original unit is not associated 
-#' with a target unit in WQX. Default is flag = FALSE.
+#' @param transform Boolean argument; transforms and/or converts original values
+#' in the dataset to the TADA Harmonization Reference Table values for the 
+#' following fields: CharacteristicName, ResultSampleFractionText, 
+#' MethodSpecificationName, and ResultMeasure.MeasureUnitCode. Default is 
+#' transform = TRUE.
+#' @param flag Boolean argument; appends all columns from the TADA Harmonization
+#' Reference Table to the dataframe. Default is flag = TRUE.
 #'
-#' @return 
+#' @return When transform = FALSE and flag = TRUE, Harmonization Reference Table
+#' columns are appended to the dataset only. When transform = TRUE and flag = TRUE,
+#' Harmoinzation columns are appended to the dataset and transformations are 
+#' executed. When transform = TRUE and flag = FALSE, transformations are executed
+#' only. When transform = FALSE and flag = FALSE, an error is returned (function
+#' would return the input dataframe unchanged if input was allowed).
 #' 
 #' @export
 
@@ -275,9 +296,7 @@ HarmonizeData <- function(.data, ref, transform = TRUE, flag = TRUE){
            "MethodSpecificationName",
            "ResultMeasure.MeasureUnitCode") %in% 
          colnames(.data)) == FALSE) {
-    stop("The dataframe does not contain the required fields to use TADA. 
-         Use either the full physical/chemical profile downloaded from WQP or 
-         download the TADA profile template available on the EPA TADA webpage.")
+    stop("The dataframe does not contain the required fields to use TADA. Use either the full physical/chemical profile downloaded from WQP or download the TADA profile template available on the EPA TADA webpage.")
   }
   # check ref has all of the required columns
   if(!missing(ref)) {
@@ -286,9 +305,7 @@ HarmonizeData <- function(.data, ref, transform = TRUE, flag = TRUE){
                  "TADA.Suggested.speciation",
                  "TADA.Suggested.result.unit") %in% 
                colnames(ref))) == FALSE) {
-      stop("The dataframe does not contain the required fields to use TADA. 
-         Use either the full physical/chemical profile downloaded from WQP or 
-         download the TADA profile template available on the EPA TADA webpage.")
+      stop("The dataframe does not contain the required fields to use TADA. Use either the full physical/chemical profile downloaded from WQP or download the TADA profile template available on the EPA TADA webpage.")
     }
   }
   # check if transform is boolean
@@ -301,9 +318,7 @@ HarmonizeData <- function(.data, ref, transform = TRUE, flag = TRUE){
   }
   # check that both transform and flag do NOT equal FALSE
   if(transform == FALSE & flag == FALSE){
-    stop("Both 'transform' and 'flag' arguments equal FALSE, which would return
-         the input dataset unchanged. One or both arguments must be equal to 
-         TRUE.")
+    stop("Both 'transform' and 'flag' arguments equal FALSE, which would return the input dataset unchanged. One or both arguments must be equal to TRUE.")
   }
   
   # execute function after checks are passed
