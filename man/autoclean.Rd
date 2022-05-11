@@ -7,7 +7,7 @@
 autoclean(.data, clean = TRUE)
 }
 \arguments{
-\item{.data}{TADA data profile}
+\item{.data}{TADA dataframe}
 }
 \value{
 autocleaned TADA data profile

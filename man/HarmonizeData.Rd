@@ -2,30 +2,42 @@
 % Please edit documentation in R/Transformations.R
 \name{HarmonizeData}
 \alias{HarmonizeData}
-\title{Transform Characteristic, Speciation, and Unit values to TADA Standards}
+\title{Transform Characteristic, Fraction, Speciation, and Unit values to TADA Standards}
 \usage{
 HarmonizeData(.data, ref, transform = FALSE, flag = TRUE)
 }
 \arguments{
-\item{.data}{TADA dataset}
+\item{.data}{TADA dataframe}
 
 \item{ref}{Optional argument to specify which dataframe to use as a reference
 file. The primary use for this argument is when a user has generated a
 harmonization reference file unique to their data, and they made changes to 
 that file.}
 
-\item{transform}{Boolean argument;}
+\item{transform}{Boolean argument; transforms and/or converts original values
+in the dataset to the TADA Harmonization Reference Table values for the 
+following fields: CharacteristicName, ResultSampleFractionText, 
+MethodSpecificationName, and ResultMeasure.MeasureUnitCode. Default is 
+transform = FALSE.}
 
-\item{flag}{Boolean argument; appends WQX.ResultMeasureValue.UnitConversion and
-DetectionLimitMeasureValue.UnitConversion columns, indicating if data can be
-converted. "Convert" means data can be converted, "NoResultValue" means data
-cannot be converted because there is no ResultMeasureValue, and "NoTargetUnit" 
-means data cannot be converted because the original unit is not associated 
-with a target unit in WQX. Default is flag = FALSE.}
+\item{flag}{Boolean argument; appends all columns from the TADA Harmonization
+Reference Table to the dataframe. Default is flag = TRUE.}
 }
 \value{
-
+When transform = FALSE and flag = TRUE, Harmonization Reference Table
+columns are appended to the dataset only. When transform = TRUE and flag = TRUE,
+Harmoinzation columns are appended to the dataset and transformations are 
+executed. When transform = TRUE and flag = FALSE, transformations are executed
+only. When transform = FALSE and flag = FALSE, an error is returned (function
+would return the input dataframe unchanged if input was allowed).
 }
 \description{
-*** placeholder text for function description
+Function compares input dataset to the TADA Harmonization Reference Table. The
+purpose of the function is to make similar data consistent and therefore
+easier to compare and analyze. Optional outputs include: 1) the dataset with
+Harmonization columns appended, 2) the datset with CharacteristicName,
+ResultSampleFractionText, MethodSpecificationName, and 
+ResultMeasure.MeasureUnitCode converted to TADA standards or 3) the four fields
+converted with most Harmoinzation Referenve Table columns appended. Default is 
+transform = FALSE and flag = TRUE.
 }

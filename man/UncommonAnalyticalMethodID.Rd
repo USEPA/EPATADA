@@ -7,7 +7,7 @@
 UncommonAnalyticalMethodID(.data, clean = FALSE)
 }
 \arguments{
-\item{.data}{TADA dataset}
+\item{.data}{TADA dataframe}
 
 \item{clean}{Boolean argument; removes "Invalid" characteristic-analytical 
 method combinations from the dataset when clean = TRUE. Default is 
@@ -17,11 +17,12 @@ clean = FALSE.}
 When clean = FALSE, a column indicating the validity of the 
 combination of CharacteristicName, ResultAnalyticalMethod/MethodIdentifier, 
 and ResultAnalyticalMethod/MethodIdentifierContext values is appended to the
-input data set. When clean = FALSE, "Invalid" rows will be removed from the 
+input dataset. When clean = FALSE, "Invalid" rows will be removed from the 
 dataset and no column will be appended.
 }
 \description{
-Function that checks the validity of each characteristic-analytical method 
+Function checks the validity of each characteristic-analytical method 
 combination in the dataset. When clean = TRUE, rows with invalid 
-characteristic-analytical method combinations are removed.
+characteristic-analytical method combinations are removed. Default is 
+clean = FALSE.
 }

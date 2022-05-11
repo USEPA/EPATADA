@@ -13,7 +13,7 @@ DepthProfileData(
 )
 }
 \arguments{
-\item{.data}{TADA dataset}
+\item{.data}{TADA dataframe}
 
 \item{unit}{Character string input indicating the uniform unit depth data is
 converted to. Allowable values for 'unit' are either 'm' (meter), 'ft' (feet),
@@ -26,11 +26,11 @@ checked for data.  Allowable values for 'fields' are
 'ActivityBottomDepthHeightMeasure,' and 'ResultDepthHeightMeasure.'. Default
  is to include all allowable values.}
 
-\item{convert}{Boolean input indicating if conversions should be executed. 
-When convert = FALSE, the output includes all Conversion Factor' columns and 
-the 'Depth Target Unit' column. When convert = TRUE, the output includes 
-converted depth data and the 'Depth Target Unit' column, which acts as a flag
-indicating which rows have been converted.}
+\item{convert}{Boolean argument; When convert = FALSE, the output includes 
+all Conversion Factor' columns and the 'Depth Target Unit' column. When 
+convert = TRUE, the output includes converted depth data and the 'Depth 
+Target Unit' column, which acts as a flag indicating which rows have been 
+converted. Default is convert = FALSE.}
 }
 \value{
 Full dataset with 'Conversion Factor' columns and a 'Depth Target Unit'
@@ -39,8 +39,8 @@ uniform depth units and a 'Depth Target Unit' column, which acts as a flag indic
 rows have been converted.
 }
 \description{
-Function that checks a WQP or TADA dataset for depth profile data. Where depth 
-profile columns are populated, the function appends 'Conversion Factor' columns
+Function checks dataset for depth profile data. Where depth profile columns
+are populated, the function appends 'Conversion Factor' columns
 and populates those columns based on the original unit (MeasureUnitCode 
 columns) and the target unit, which is defined in the 'unit' argument. A 
 'Depth Target Unit' column is also appended, indicating the unit all selected 

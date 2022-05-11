@@ -1,10 +1,11 @@
 #' Check for Uncommon Analytical Methods
 #' 
-#' Function that checks the validity of each characteristic-analytical method 
+#' Function checks the validity of each characteristic-analytical method 
 #' combination in the dataset. When clean = TRUE, rows with invalid 
-#' characteristic-analytical method combinations are removed. 
+#' characteristic-analytical method combinations are removed. Default is 
+#' clean = FALSE.
 #'
-#' @param .data TADA dataset
+#' @param .data TADA dataframe
 #' @param clean Boolean argument; removes "Invalid" characteristic-analytical 
 #' method combinations from the dataset when clean = TRUE. Default is 
 #' clean = FALSE.
@@ -12,7 +13,7 @@
 #' @return When clean = FALSE, a column indicating the validity of the 
 #' combination of CharacteristicName, ResultAnalyticalMethod/MethodIdentifier, 
 #' and ResultAnalyticalMethod/MethodIdentifierContext values is appended to the
-#' input data set. When clean = FALSE, "Invalid" rows will be removed from the 
+#' input dataset. When clean = FALSE, "Invalid" rows will be removed from the 
 #' dataset and no column will be appended.
 #' 
 #' @export
@@ -28,9 +29,7 @@ UncommonAnalyticalMethodID <- function(.data, clean = FALSE){
   # check .data has required columns
   if(all(c("CharacteristicName", "ResultAnalyticalMethod.MethodIdentifier", 
            "ResultAnalyticalMethod.MethodIdentifierContext") %in% colnames(.data)) == FALSE) {
-    stop("The dataframe does not contain the required fields to use TADA. 
-         Use either the full physical/chemical profile downloaded from WQP or 
-         download the TADA profile template available on the EPA TADA webpage.")
+    stop("The dataframe does not contain the required fields to use TADA. Use either the full physical/chemical profile downloaded from WQP or download the TADA profile template available on the EPA TADA webpage.")
   }
   # execute function after checks are passed
   if(all(c("CharacteristicName", "ResultAnalyticalMethod.MethodIdentifier", 
@@ -98,9 +97,10 @@ UncommonAnalyticalMethodID <- function(.data, clean = FALSE){
 #' may not be suitable for a water quality assessment, therefore, this function
 #' uses metadata submitted by data providers to flags rows with aggregated 
 #' continuous data. When clean = TRUE, rows with aggregated continuous data
-#' are removed from the dataset and no column will be appended.
+#' are removed from the dataset and no column will be appended. Default is 
+#' clean = FALSE.
 #'
-#' @param .data TADA dataset
+#' @param .data TADA dataframe
 #' @param clean Boolean argument; removes aggregated continuous data from 
 #' the dataset when clean = TRUE. Default is clean = FALSE.
 #'
@@ -119,9 +119,7 @@ AggregatedContinuousData <- function(.data, clean = FALSE){
   }
   # check .data has required columns
   if(all(c("ResultDetectionConditionText") %in% colnames(.data)) == FALSE) {
-    stop("The dataframe does not contain the required fields to use TADA. 
-         Use either the full physical/chemical profile downloaded from WQP or 
-         download the TADA profile template available on the EPA TADA webpage.")
+    stop("The dataframe does not contain the required fields to use TADA. Use either the full physical/chemical profile downloaded from WQP or download the TADA profile template available on the EPA TADA webpage.")
   }
   # execute function after checks are passed
   if(all(c("ResultDetectionConditionText") %in% colnames(.data)) == TRUE) {
@@ -169,16 +167,24 @@ AggregatedContinuousData <- function(.data, clean = FALSE){
 
 #' Check for Potential Duplicates
 #' 
-#' **Placeholder text for function description
+#' Sometimes multiple organizations submit the exact same data to Water Quality
+#' Portal (WQP), which can affect water quality analyses and assessments. This
+#' function checks for and identifies data that is identical in all fields
+#' excluding organization-specific and comment text fields. Each pair or group
+#' of potential duplicate rows is flagged with a unique ID. When clean = TRUE,
+#' the function retains the first occurrence of each potential duplicate in the
+#' dataset. Default is clean = FALSE.
 #'
-#' @param .data TADA dataset
+#' @param .data TADA dataframe
 #' @param clean Boolean argument; removes potential duplicate data from 
-#' the dataset when clean = TRUE. Default is clean = FALSE.
+#' the dataset when clean = TRUE. When clean = FALSE, a column indicating 
+#' potential duplicate rows with a unique number linking rows is appended to the
+#' input data set. Default is clean = FALSE.
 #'
 #' @return When clean = FALSE, a column indicating potential duplicate rows with
-#' a unique number linking potential duplicate rows is appended to the
-#' input data set. When clean = FALSE the first of each group of potential 
-#' duplicate rows will be removed from the dataset and no column is appended.
+#' a unique number linking rows is appended to the input data set. When 
+#' clean = FALSE the first of each group of potential duplicate rows will be 
+#' removed from the dataset and no column is appended.
 #' 
 #' @export
 
@@ -194,9 +200,7 @@ PotentialDuplicateRowID <- function(.data, clean = FALSE){
            "OrganizationFormalName", "OrganizationIdentifier",
            "ProjectIdentifier", "ResultCommentText", 
            "ActivityCommentText") %in% colnames(.data)) == FALSE) {
-    stop("The dataframe does not contain the required fields to use TADA.
-         Use either the full physical/chemical profile downloaded from WQP or 
-         download the TADA profile template available on the EPA TADA webpage.")
+    stop("The dataframe does not contain the required fields to use TADA. Use either the full physical/chemical profile downloaded from WQP or download the TADA profile template available on the EPA TADA webpage.")
   }
   # execute function after checks are passed
   if(all(c("ActivityIdentifier", "ActivityConductingOrganizationText",
@@ -272,9 +276,10 @@ PotentialDuplicateRowID <- function(.data, clean = FALSE){
 #' leverages that statistical data from WQX to flag any data that is above the 
 #' upper threshold of result values submitted to WQX for a given characteristic.
 #' When clean = TRUE, rows with values that are above the upper WQX threshold
-#' are removed from the dataset and no column will be appended.
+#' are removed from the dataset and no column will be appended. Default is
+#' clean = FALSE.
 #'
-#' @param .data TADA dataset
+#' @param .data TADA dataframe
 #' @param clean Boolean argument; removes data that is above the upper WQX
 #' threshold from the dataset when clean = TRUE. Default is clean = FALSE.
 #'
@@ -294,9 +299,7 @@ AboveNationalWQXUpperThreshold <- function(.data, clean = FALSE){
   # check .data has required columns
   if(all(c("CharacteristicName", "ActivityMediaName", "ResultMeasureValue",
            "ResultMeasure.MeasureUnitCode") %in% colnames(.data)) == FALSE) {
-    stop("The dataframe does not contain the required fields to use TADA. 
-         Use either the full physical/chemical profile downloaded from WQP or 
-         download the TADA profile template available on the EPA TADA webpage.")
+    stop("The dataframe does not contain the required fields to use TADA. Use either the full physical/chemical profile downloaded from WQP or download the TADA profile template available on the EPA TADA webpage.")
   }
 
   
@@ -369,10 +372,11 @@ AboveNationalWQXUpperThreshold <- function(.data, clean = FALSE){
 #' leverages that statistical data from WQX to flag any data that is below the 
 #' lower threshold of result values submitted to WQX for a given characteristic.
 #' When clean = TRUE, rows with values that are below the lower WQX threshold 
-#' are removed from the dataset and no column will be appended.
+#' are removed from the dataset and no column will be appended. Default is 
+#' clean = FALSE.
 #'
-#' @param .data TADA dataset
-#' @param clean Boolean argument; removes data that is below the lower  WQX
+#' @param .data TADA dataframe
+#' @param clean Boolean argument; removes data that is below the lower WQX
 #' threshold from the dataset when clean = TRUE. Default is clean = FALSE.
 #'
 #' @return When clean = FALSE, a column flagging rows with data that is below the
@@ -391,9 +395,7 @@ BelowNationalWQXUpperThreshold <- function(.data, clean = FALSE){
   # check .data has required columns
   if(all(c("CharacteristicName", "ActivityMediaName", "ResultMeasureValue",
            "ResultMeasure.MeasureUnitCode") %in% colnames(.data)) == FALSE) {
-    stop("The dataframe does not contain the required fields to use TADA. 
-         Use either the full physical/chemical profile downloaded from WQP or 
-         download the TADA profile template available on the EPA TADA webpage.")
+    stop("The dataframe does not contain the required fields to use TADA. Use either the full physical/chemical profile downloaded from WQP or download the TADA profile template available on the EPA TADA webpage.")
   }
   
   
@@ -459,17 +461,17 @@ BelowNationalWQXUpperThreshold <- function(.data, clean = FALSE){
 
 
 
-#' Flag or remove result without an approved QAPP
+#' Check data for an approved QAPP
 #' 
-#' This check reviews data submitted under the column "QAPPApprovedIndicator".
+#' Function checks data submitted under the column "QAPPApprovedIndicator".
 #' Some organizations submit data for this field to indicate if the data 
 #' produced has an approved Quality Assurance Project Plan (QAPP) or not. 
-#' Y indicates yes, N indicates no.  This function 
-#' has two default inputs: clean = TRUE, cleanNA = FALSE. The default will
-#' remove rows of data where the QAPPApprovedIndicator equals "N". Users could
-#' alternatively remove both N's and NA's using the inputs: 
-#' clean = TRUE, cleanNA = TRUE. If both clean = FALSE and cleanNA = FALSE, 
-#' the function will not make any changes to the dataset.
+#' Y indicates yes, N indicates no.  This function has two default inputs: 
+#' clean = TRUE, cleanNA = FALSE. The default removes rows of data where the 
+#' QAPPApprovedIndicator equals "N". Users could alternatively remove both N's
+#' and NA's using the inputs clean = TRUE, cleanNA = TRUE. If both 
+#' clean = FALSE and cleanNA = FALSE, the function will not make any changes to
+#' the dataset.
 #' 
 #' Note: This is not a required field, so it is often left blank (NA) even if 
 #' the data has an associated QAPP. All states and tribes that collect 
@@ -478,7 +480,7 @@ BelowNationalWQXUpperThreshold <- function(.data, clean = FALSE){
 #' most of these organizations data has an approved QAPP even if the data 
 #' submitted to WQP is NA.
 #'
-#' @param .data TADA dataset
+#' @param .data TADA dataframe
 #' @param clean Two boolean arguments: 1) remove data where the 
 #' QAPPApprovedIndicator = "N"  when clean = TRUE; 2) remove data where the 
 #' QAPPApprovedIndicator = NA  when cleanNA = TRUE. Default is clean = TRUE and 
@@ -527,17 +529,17 @@ QAPPapproved <- function(.data, clean = TRUE, cleanNA = FALSE) {
 
 
 
-#' Flag or remove results without an approved QAPP document URL provided
+#' Check if an approved QAPP document URL is provided
 #' 
-#' This check reviews data submitted under the  "ProjectFileUrl" column
-#' to determine if a QAPP document is available to review. When clean=FALSE, 
+#' Function checks data submitted under the "ProjectFileUrl" column
+#' to determine if a QAPP document is available to review. When clean = FALSE, 
 #' a column will be appended to flag results that have an associated 
-#' QAPP document url provided. When clean = TRUE, rows that do not
+#' QAPP document URL provided. When clean = TRUE, rows that do not
 #' have an associated QAPP document are removed from the dataset and no column
 #' will be appended. This function should only be used to remove data if an 
 #' accompanying QAPP document is required to use data in assessments.
 #'
-#' @param .data TADA dataset
+#' @param .data TADA dataframe
 #' @param clean Boolean argument; removes data without an associated QAPP
 #' document from the dataset when clean = TRUE. Default is clean = FALSE.
 #'
@@ -556,9 +558,7 @@ QAPPDocAvailable <- function(.data, clean = FALSE){
   }
   # check .data has required columns
   if(all(c("ProjectFileUrl") %in% colnames(.data)) == FALSE) {
-    stop("The dataframe does not contain the required fields to use TADA. 
-         Use either the full physical/chemical profile downloaded from WQP or 
-         download the TADA profile template available on the EPA TADA webpage.")
+    stop("The dataframe does not contain the required fields to use TADA. Use either the full physical/chemical profile downloaded from WQP or download the TADA profile template available on the EPA TADA webpage.")
   }
   # execute function after checks are passed
   if(all(c("ProjectFileUrl") %in% colnames(.data)) == TRUE) {
@@ -604,48 +604,16 @@ QAPPDocAvailable <- function(.data, clean = FALSE){
   }
 }
 
-
-#' decimalplaces
-#' 
-#' for numeric data type
-#'
-#' @param .data TADA dataset
-#' 
-#' @return 
-#' 
-#'  
-
-decimalplaces <- function(x) {
-  if (abs(x - round(x)) > .Machine$double.eps^0.5) {
-    nchar(strsplit(sub('0+$', '', as.character(x)), ".", fixed = TRUE)[[1]][[2]])
-  } else {
-    return(0)
-  }
-}
-
-#' decimalnumcount
-#' 
-#' for character data type
-#'
-#' @param .data TADA dataset
-#' 
-#' @return 
-#' 
-#'  
-
-decimalnumcount<-function(x){stopifnot(class(x)=="character")
-  x<-gsub("(.*)(\\.)|(*$)","",x)
-  nchar(x)}
-
 #' Invalid coordinates
 #' 
-#' When clean = FALSE, a column will be appended titled "TADA.InvalidCoordinates"
-#' with the following flags (if relevant to dataset): 
+#' Function identifies and flags invalid coordinate data. When clean = FALSE, 
+#' a column will be appended titled "TADA.InvalidCoordinates" with the following
+#' flags (if relevant to dataset): 
 #' 
 #' BELOW TBD 
 #' 
 #' 1) If the LONG has a + sign, the function assumes this was a data
-#' submission error because it is outside of the US. + LONGS will be 
+#' submission error because it is outside of the US. + LONGS will be automatically
 #' changed to - 
 #' 2) If the LAT or LONG includes the specific strings,
 #' 000 or 999, or if the LAT is outside of the -90 to 90 range and LONG
@@ -654,16 +622,20 @@ decimalnumcount<-function(x){stopifnot(class(x)=="character")
 #' and LONG provided. If the LAT or LONG does not have any numbers to the right of the 
 #' decimal point, the row will be flagged as "Imprecise". 
 #'
-#' @param .data TADA dataset
-#' @param clean_outsideUSA Two boolean arguments. Default is clean = FALSE and 
-#' imprecise = FALSE. When clean = TRUE and imprecise = TRUE, data transformations
-#' occur and data is removed from the dataset.
-#' @param clean_imprecise Two boolean arguments. Default is clean = FALSE and 
-#' imprecise = FALSE. When clean = TRUE and imprecise = TRUE, data transformations
-#' occur and data is removed from the dataset.
+#' @param .data TADA dataframe
+#' @param clean_outsideUSA Boolean argument; removes data with coordinates outside
+#' of the United States when clean_outsideUSA = TRUE. Default is clean = FALSE.
+#' 
+#' removes "Invalid" characteristic-analytical 
+#' method combinations from the dataset when clean = TRUE. Default is 
+#' clean = FALSE.
+#' @param clean_imprecise Boolean arguments; removes imprecise data when 
+#' clean_imprecise = TRUE. Default is clean_imprecise = FALSE.
 #'
-#' @return When clean = FALSE and imprecise = FALSE, data is flagged but
-#' not removed from the dataset.
+#' @return When either the clean_outsideUSA or clean_imprecise argument is FALSE,
+#' a column flagging rows with the respective QA check is appended to the input
+#' dataset. When either argument is TRUE, "invalid" or "imprecise" data is
+#' removed, respectively.
 #' 
 #' @export
 #' 
