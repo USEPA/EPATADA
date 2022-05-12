@@ -48,14 +48,14 @@ WQP query URL: https://www.waterqualitydata.us/#statecode=US%3A42&characteristic
 
 ```{r}
 #get PA nutrient data
-TADAProfileRaw=readWQPwebservice("https://www.waterqualitydata.us/data/Result/search?statecode=US%3A42&characteristicType=Nutrient&mimeType=csv&zip=yes&dataProfile=resultPhysChem&providers=NWIS&providers=STEWARDS&providers=STORET")
+TADAProfileRaw=readWQPwebservice("https://www.waterqualitydata.us/data/Result/search?statecode=US%3A09&countycode=US%3A09%3A003&characteristicType=Nutrient&mimeType=csv&zip=yes&dataProfile=resultPhysChem&providers=NWIS&providers=STEWARDS&providers=STORET")
 ```
 
 
 Clean raw data for TADA use case
 ```{r}
 #autoclean
-TADAProfileClean=AggregatedContinuousData(TADAProfileClean)
+TADAProfileClean=AggregatedContinuousData(TADAProfileRaw)
 ```
 
 Run result flag functions and address flagged data
@@ -74,17 +74,17 @@ TADAProfileClean=InvalidResultUnit(TADAProfileClean)
 
 Address result values with special characters
 ```{r}
-MeasureValueSpecialCharacters
+TADAProfileClean=MeasureValueSpecialCharacters(TADAProfileClean)
 ```
 
 Apply unit conversions
 ```{r}
-DepthProfileData
-WQXTargetUnits
+TADAProfileClean=DepthProfileData(TADAProfileClean)
+TADAProfileClean=WQXTargetUnits(TADAProfileClean)
 ```
 
 Transform Characteristic, Speciation, and Unit values to TADA Standards
 ```{r}
-HarmonizeData
+TADAProfileClean=HarmonizeData(TADAProfileClean)
 ```
 

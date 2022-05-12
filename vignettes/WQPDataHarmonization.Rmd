@@ -16,50 +16,70 @@ knitr::opts_chunk$set(
 )
 ```
 
-Vignettes are long form documentation commonly included in packages. Because they are part of the distribution of the package, they need to be as compact as possible. The `html_vignette` output type provides a custom style sheet (and tweaks some options) to ensure that the resulting html is as small as possible. The `html_vignette` format:
-
-- Never uses retina figures
-- Has a smaller default figure size
-- Uses a custom CSS stylesheet instead of the default Twitter Bootstrap style
-
-## Vignette Info
-
-Note the various macros within the `vignette` section of the metadata block above. These are required in order to instruct R how to build the vignette. Note that you should change the `title` field and the `\VignetteIndexEntry` to match the title of your vignette.
-
-## Styles
-
-The `html_vignette` template includes a basic CSS theme. To override this theme you can specify your own CSS in the document metadata as follows:
-
-    output: 
-      rmarkdown::html_vignette:
-        css: mystyles.css
-
-## Figures
-
-The figure sizes have been customized so that you can easily put two images side-by-side. 
-
-```{r, fig.show='hold'}
-plot(1:10)
-plot(10:1)
+Load TADA library and update internal TADA package validation and reference tables
+```{r}
+library(TADA)
+UpdateWQXCharValRef()
+UpdateMeasureUnitRef()
+HarmonizationRefTable()
 ```
 
-You can enable figure captions by `fig_caption: yes` in YAML:
+Read in WQP data using WQP web services directly 
 
-    output:
-      rmarkdown::html_vignette:
-        fig_caption: yes
+Go to the WQP website (https://www.waterqualitydata.us/) and fill out the 
+query form. Choose the Full Physical Chemical Data Profile, all data sources, 
+and the file format Comma-Separated. Do not hit the download button. Instead, 
+copy the web service URL located at the bottom of the page under "Result". 
 
-Then you can use the chunk option `fig.cap = "Your figure caption."` in **knitr**.
+Use that "Result" web service URL as the input for this function to download data 
+directly into R.  
 
-## More Examples
+Here are two "Result" web service examples: 
 
-You can write math expressions, e.g. $Y = X\beta + \epsilon$, footnotes^[A footnote here.], and tables, e.g. using `knitr::kable()`.
+CT Nutrient Group: https://www.waterqualitydata.us/data/Result/search?statecode=US%3A09&countycode=US%3A09%3A003&characteristicType=Nutrient&mimeType=csv&zip=yes&dataProfile=resultPhysChem&providers=NWIS&providers=STEWARDS&providers=STORET
 
-```{r, echo=FALSE, results='asis'}
-knitr::kable(head(mtcars, 10))
+PA Nutrient Group: https://www.waterqualitydata.us/data/Result/search?statecode=US%3A42&characteristicType=Nutrient&mimeType=csv&zip=yes&dataProfile=resultPhysChem&providers=NWIS&providers=STEWARDS&providers=STORET
+
+Note: It may be useful to save the Query URL as well as a comment within 
+your code. This URL let's you return to the WQP query page with all your 
+original data filters, but it cannot be used to download the data.
+
+WQP query URL: https://www.waterqualitydata.us/#statecode=US%3A42&characteristicType=Nutrient&mimeType=csv&dataProfile=resultPhysChem&providers=NWIS&providers=STEWARDS&providers=STORET
+
+Clean raw data for TADA use case
+```{r}
+#Get testing data
+  #stateCode = "US:24",
+  #siteType = c("Lake, Reservoir, Impoundment", "Stream")
+  #sampleMedia = c("water", "Water")
+  #characteristicName = c("Ammonia", "Nitrate", "Nitrogen")
+  #startDate = "01-01-2019"
+  #endDate = "01-01-2022"
+TADAProfileRaw=TADAdataRetrieval()
+
+#Run all dependencies
+TADAProfileClean=MeasureValueSpecialCharacters(TADAProfileRaw)
+TADAProfileClean1=autoclean(TADAProfileClean)
+TADAProfileClean2=DepthProfileData(TADAProfileClean)
+TADAProfileClean3=AggregatedContinuousData(TADAProfileClean2, clean=TRUE)
+TADAProfileClean4=WQXTargetUnits(TADAProfileClean3, convert=TRUE)
 ```
 
-Also a quote using `>`:
+Run result flag functions and address flagged data
+```{r}
+TADAProfileClean5=UncommonAnalyticalMethodID(TADAProfileClean4)
+TADAProfileClean6=PotentialDuplicateRowID(TADAProfileClean5, clean=TRUE)
+TADAProfileClean7=AboveNationalWQXUpperThreshold(TADAProfileClean6, clean=TRUE)
+TADAProfileClean8=BelowNationalWQXUpperThreshold(TADAProfileClean6, clean=TRUE)
+TADAProfileClean9=QAPPapproved(TADAProfileClean6)
+TADAProfileClean10=QAPPDocAvailable(TADAProfileClean6)
+TADAProfileClean11=InvalidCoordinates(TADAProfileClean6)
+TADAProfileClean12=InvalidFraction(TADAProfileClean11, clean=TRUE)
+TADAProfileClean13=InvalidSpeciation(TADAProfileClean12, clean=TRUE)
+TADAProfileClean14=InvalidResultUnit(TADAProfileClean13, clean=TRUE)
+```
 
-> "He who gives up [code] safety for [code] speed deserves neither."
-([via](https://twitter.com/hadleywickham/status/504368538874703872))
+Transform Characteristic, Speciation, and Unit values to TADA Standards
+```{r}
+TADAProfileClean15=HarmonizeData(TADAProfileClean14, transform=TRUE)
+```

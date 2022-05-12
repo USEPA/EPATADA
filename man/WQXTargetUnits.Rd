@@ -2,9 +2,9 @@
 % Please edit documentation in R/Transformations.R
 \name{WQXTargetUnits}
 \alias{WQXTargetUnits}
-\title{Convert Units to WQX Target Units}
+\title{Transform Units to WQX Target Units}
 \usage{
-WQXTargetUnits(.data, convert = FALSE, flag = TRUE)
+WQXTargetUnits(.data, transform = TRUE, flag = TRUE)
 }
 \arguments{
 \item{.data}{TADA dataframe}
@@ -12,11 +12,11 @@ WQXTargetUnits(.data, convert = FALSE, flag = TRUE)
 \item{convert}{Boolean argument; changes ResultMeasure.MeasureUnitCode and 
 DetectionQuantitationLimitMeasure.MeasureUnitCode to WQX target unit and 
 converts ResultMeasureValue and DetectionQuantitationLimitMeasure.MeasureValue
-to corresponding target unit when convert = TRUE. Default is convert = FALSE.}
+to corresponding target unit when transform = TRUE. Default is transform = TRUE.}
 
 \item{flag}{Boolean argument; appends WQX.ResultMeasureValue.UnitConversion and
 WQX.DetectionLimitMeasureValue.UnitConversion columns, indicating if data can be
-converted. "Convert" means data can be converted, "NoResultValue" means data
+converted. "Transform" means data can be converted, "NoResultValue" means data
 cannot be converted because there is no ResultMeasureValue, and "NoTargetUnit" 
 means data cannot be converted because the original unit is not associated 
 with a target unit in WQX. Default is flag = TRUE.}

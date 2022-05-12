@@ -4,7 +4,7 @@
 \alias{HarmonizeData}
 \title{Transform Characteristic, Fraction, Speciation, and Unit values to TADA Standards}
 \usage{
-HarmonizeData(.data, ref, transform = FALSE, flag = TRUE)
+HarmonizeData(.data, ref, transform = TRUE, flag = TRUE)
 }
 \arguments{
 \item{.data}{TADA dataframe}
@@ -22,6 +22,7 @@ transform = FALSE.}
 
 \item{flag}{Boolean argument; appends all columns from the TADA Harmonization
 Reference Table to the dataframe. Default is flag = TRUE.}
+
 }
 \value{
 When transform = FALSE and flag = TRUE, Harmonization Reference Table

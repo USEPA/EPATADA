@@ -157,7 +157,7 @@ AggregatedContinuousData <- function(.data, clean = FALSE){
     
     # if no aggregated continuous data is in the data set
     if(nrow(cont.data) == 0){
-      warning("The dataset does not contain aggregated continuous data.")
+      print("The dataset does not contain aggregated continuous data.")
       
       return(.data)
     }   

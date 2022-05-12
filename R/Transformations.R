@@ -1,4 +1,4 @@
-#' Convert Units to WQX Target Units
+#' Transform Units to WQX Target Units
 #' 
 #' Function compares measure units in the input data to the Water Quality 
 #' Exchange (WQX) 3.0 QAQC Characteristic Validation table. Optional outputs 
@@ -9,14 +9,14 @@
 #' flag columns appended, specifying if data can be converted. Default is 
 #' convert = FALSE and flag = TRUE.
 #'
-#' @param .data TADA dataframe
+#' @param .data TADA dataset
 #' @param convert Boolean argument; changes ResultMeasure.MeasureUnitCode and 
 #' DetectionQuantitationLimitMeasure.MeasureUnitCode to WQX target unit and 
 #' converts ResultMeasureValue and DetectionQuantitationLimitMeasure.MeasureValue
-#' to corresponding target unit when convert = TRUE. Default is convert = FALSE.
+#' to corresponding target unit when convert = TRUE. Default is convert = TRUE.
 #' @param flag Boolean argument; appends WQX.ResultMeasureValue.UnitConversion and
 #' WQX.DetectionLimitMeasureValue.UnitConversion columns, indicating if data can be
-#' converted. "Convert" means data can be converted, "NoResultValue" means data
+#' converted. "Transform" means data can be converted, "NoResultValue" means data
 #' cannot be converted because there is no ResultMeasureValue, and "NoTargetUnit" 
 #' means data cannot be converted because the original unit is not associated 
 #' with a target unit in WQX. Default is flag = TRUE.
@@ -30,7 +30,7 @@
 #' 
 #' @export
 
-WQXTargetUnits <- function(.data, convert = FALSE, flag = TRUE){
+WQXTargetUnits <- function(.data, transform = TRUE, flag = TRUE){
   
   # check that .data object is compatible with TADA
   # check .data is of class data.frame
@@ -45,16 +45,16 @@ WQXTargetUnits <- function(.data, convert = FALSE, flag = TRUE){
          colnames(.data)) == FALSE) {
     stop("The dataframe does not contain the required fields to use TADA. Use either the full physical/chemical profile downloaded from WQP or download the TADA profile template available on the EPA TADA webpage.")
   }
-  # check if convert is boolean
-  if(is.logical(convert) == FALSE){
-    stop("convert argument must be Boolean (TRUE or FALSE)")
+  # check if transform is boolean
+  if(is.logical(transform) == FALSE){
+    stop("transform argument must be Boolean (TRUE or FALSE)")
   }
   # check if flag is boolean
   if(is.logical(flag) == FALSE){
     stop("flag argument must be Boolean (TRUE or FALSE)")
   }
   # check that both convert and flag do NOT equal FALSE
-  if(convert == FALSE & flag == FALSE){
+  if(transform == FALSE & flag == FALSE){
     stop("Both 'convert' and 'flag' arguments equal FALSE, which would return the input dataset unchanged. One or both arguments must be equal to TRUE.")
   }
   
@@ -130,7 +130,7 @@ WQXTargetUnits <- function(.data, convert = FALSE, flag = TRUE){
         is.na(WQX.TargetUnit) ~ as.character("NoTargetUnit")))
     }
     
-    if(convert == FALSE) {
+    if(transform == FALSE) {
 
       # reorder column names to match .data
         # get .data column names
@@ -156,9 +156,9 @@ WQXTargetUnits <- function(.data, convert = FALSE, flag = TRUE){
       return(flag.data)
     }
     
-    if(convert == TRUE) {
+    if(transform == TRUE) {
       
-      # Convert result measure value to Target Unit only if target unit exists
+      # Transform result measure value to Target Unit only if target unit exists
       clean.data <- flag.data %>%
         # apply function row by row
         dplyr::rowwise() %>%
@@ -177,7 +177,7 @@ WQXTargetUnits <- function(.data, convert = FALSE, flag = TRUE){
           !is.na(WQX.TargetUnit) ~ WQX.TargetUnit,
           is.na(WQX.TargetUnit) ~ ResultMeasure.MeasureUnitCode))
       
-      # Convert detection limit measure value to Target Unit only if target unit exists
+      # Transform detection limit measure value to Target Unit only if target unit exists
       clean.data <- clean.data %>%
         # apply function row by row
         dplyr::rowwise() %>%
@@ -265,7 +265,7 @@ WQXTargetUnits <- function(.data, convert = FALSE, flag = TRUE){
 #' in the dataset to the TADA Harmonization Reference Table values for the 
 #' following fields: CharacteristicName, ResultSampleFractionText, 
 #' MethodSpecificationName, and ResultMeasure.MeasureUnitCode. Default is 
-#' transform = FALSE.
+#' transform = TRUE.
 #' @param flag Boolean argument; appends all columns from the TADA Harmonization
 #' Reference Table to the dataframe. Default is flag = TRUE.
 #'
@@ -278,7 +278,7 @@ WQXTargetUnits <- function(.data, convert = FALSE, flag = TRUE){
 #' 
 #' @export
 
-HarmonizeData <- function(.data, ref, transform = FALSE, flag = TRUE){
+HarmonizeData <- function(.data, ref, transform = TRUE, flag = TRUE){
   
   # check that .data object is compatible with TADA
   # check .data is of class data.frame
@@ -316,7 +316,7 @@ HarmonizeData <- function(.data, ref, transform = FALSE, flag = TRUE){
   if(is.logical(flag) == FALSE){
     stop("flag argument must be Boolean (TRUE or FALSE)")
   }
-  # check that both convert and flag do NOT equal FALSE
+  # check that both transform and flag do NOT equal FALSE
   if(transform == FALSE & flag == FALSE){
     stop("Both 'transform' and 'flag' arguments equal FALSE, which would return the input dataset unchanged. One or both arguments must be equal to TRUE.")
   }
