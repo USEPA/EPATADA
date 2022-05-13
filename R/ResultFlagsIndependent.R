@@ -317,6 +317,11 @@ AboveNationalWQXUpperThreshold <- function(.data, clean = TRUE){
   if(all(c("CharacteristicName", "ActivityMediaName", "ResultMeasureValue",
            "ResultMeasure.MeasureUnitCode") %in% colnames(.data)) == TRUE) {
     
+    # delete existing flag column
+    if(("AboveWQXUpperThreshold" %in% colnames(.data)) == TRUE) {
+      .data <- dplyr::select(.data, -AboveWQXUpperThreshold)
+    }
+    
     # filter WQXcharVal.ref to include only valid CharacteristicUnit in water media
     unit.ref <- TADA::WQXcharVal.ref %>%
       dplyr::filter(Type == "CharacteristicUnit" & Source == "WATER" & 
@@ -328,9 +333,12 @@ AboveNationalWQXUpperThreshold <- function(.data, clean = TRUE){
                         by.x = c("CharacteristicName", "ActivityMediaName", 
                                  "ResultMeasure.MeasureUnitCode"),
                         by.y = c("Characteristic", "Source", "Value"), all.x = TRUE)
-      # Run WQXTargetUnits function to convert ResultMeasureValue class to numeric
-      check.data <- WQXTargetUnits(check.data, transform = TRUE)
     
+    # If ResultMeasureValue is not numeric, run WQXTargetUnits function to convert class to numeric
+    if(is.numeric(check.data$ResultMeasureValue) == FALSE) {
+      check.data <- WQXTargetUnits(check.data, transform = TRUE)
+    } 
+
     # Create flag column, flag rows where ResultMeasureValue > Maximum
     flag.data <- check.data %>%
       # apply function row by row
@@ -413,6 +421,11 @@ BelowNationalWQXUpperThreshold <- function(.data, clean = TRUE){
   if(all(c("CharacteristicName", "ActivityMediaName", "ResultMeasureValue",
            "ResultMeasure.MeasureUnitCode") %in% colnames(.data)) == TRUE) {
     
+    # delete existing flag column
+    if(("BelowWQXUpperThreshold" %in% colnames(.data)) == TRUE) {
+      .data <- dplyr::select(.data, -BelowWQXUpperThreshold)
+    }
+    
     # filter WQXcharVal.ref to include only valid CharacteristicUnit in water media
     unit.ref <- TADA::WQXcharVal.ref %>%
       dplyr::filter(Type == "CharacteristicUnit" & Source == "WATER" & 
@@ -424,8 +437,11 @@ BelowNationalWQXUpperThreshold <- function(.data, clean = TRUE){
                         by.x = c("CharacteristicName", "ActivityMediaName", 
                                  "ResultMeasure.MeasureUnitCode"),
                         by.y = c("Characteristic", "Source", "Value"), all.x = TRUE)
-    # Run WQXTargetUnits function to convert ResultMeasureValue class to numeric
-    check.data <- WQXTargetUnits(check.data, transform = TRUE)
+    
+    # If ResultMeasureValue is not numeric, run WQXTargetUnits function to convert class to numeric
+    if(is.numeric(check.data$ResultMeasureValue) == FALSE) {
+      check.data <- WQXTargetUnits(check.data, transform = TRUE)
+    }
     
     # Create flag column, flag rows where ResultMeasureValue < Minimum
     flag.data <- check.data %>%

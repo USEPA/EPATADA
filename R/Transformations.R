@@ -300,12 +300,12 @@ HarmonizeData <- function(.data, ref, transform = TRUE, flag = TRUE){
   }
   # check ref has all of the required columns
   if(!missing(ref)) {
-    if((all(c("TADA.Suggested.CharacteristicName",
-                 "TADA.Suggested.sample.fraction",
-                 "TADA.Suggested.speciation",
-                 "TADA.Suggested.result.unit") %in% 
+    if((all(c("TADA.SuggestedCharacteristicName",
+                 "TADA.SuggestedSampleFraction",
+                 "TADA.SuggestedSpeciation",
+                 "TADA.SuggestedResultUnit") %in% 
                colnames(ref))) == FALSE) {
-      stop("The dataframe does not contain the required fields to use TADA. Use either the full physical/chemical profile downloaded from WQP or download the TADA profile template available on the EPA TADA webpage.")
+      stop("The 'ref' input dataframe does not contain the required fields to use TADA. Use either the full physical/chemical profile downloaded from WQP or download the TADA profile template available on the EPA TADA webpage.")
     }
   }
   # check if transform is boolean

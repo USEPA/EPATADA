@@ -19,7 +19,7 @@ knitr::opts_chunk$set(
 Load TADA library and update internal TADA package validation and reference tables
 ```{r setup}
 library(TADA)
-UpdateWQXCharValRef()
+#UpdateWQXCharValRef()
 #UpdateMeasureUnitRef()
 #HarmonizationRefTable()
 ```
