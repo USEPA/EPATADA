@@ -5,10 +5,11 @@ date: "May 1, 2022"
 output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{WQP Data Harmonization}
-  %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
+  %\VignetteEngine{knitr::rmarkdown}
+editor_options: 
+  chunk_output_type: console
 ---
-
 ```{r setup, include = FALSE}
 knitr::opts_chunk$set(
   collapse = TRUE,
@@ -16,14 +17,15 @@ knitr::opts_chunk$set(
 )
 ```
 
-Load TADA library and update internal TADA package validation and reference tables
+## Load TADA library and update internal TADA package validation and reference tables
 ```{r}
+# look into using install_github(); library() only works for CRAN packages
 library(TADA)
 UpdateWQXCharValRef()
 UpdateMeasureUnitRef()
 ```
 
-Read in WQP data using WQP web services directly 
+## Read in WQP data using WQP web services directly 
 
 Go to the WQP website (https://www.waterqualitydata.us/) and fill out the 
 query form. Choose the Full Physical Chemical Data Profile, all data sources, 
@@ -45,7 +47,7 @@ original data filters, but it cannot be used to download the data.
 
 WQP query URL: https://www.waterqualitydata.us/#statecode=US%3A42&characteristicType=Nutrient&mimeType=csv&dataProfile=resultPhysChem&providers=NWIS&providers=STEWARDS&providers=STORET
 
-Clean raw data for TADA use case
+## Clean raw data for TADA use case
 ```{r}
 #Get testing data
   #stateCode = "US:24",
@@ -60,26 +62,26 @@ TADAProfileRaw=TADAdataRetrieval()
 TADAProfileClean=MeasureValueSpecialCharacters(TADAProfileRaw)
 #runs as part of retrieval: TADAProfileClean1=autoclean(TADAProfileClean)
 TADAProfileClean2=DepthProfileData(TADAProfileClean)
-TADAProfileClean3=AggregatedContinuousData(TADAProfileClean2, clean=TRUE)
-TADAProfileClean4=WQXTargetUnits(TADAProfileClean3, transform=TRUE)
+TADAProfileClean3=AggregatedContinuousData(TADAProfileClean2)
+TADAProfileClean4=WQXTargetUnits(TADAProfileClean3)
 ```
 
-Run result flag functions and address flagged data
+## Run result flag functions and address flagged data
 ```{r}
-TADAProfileClean5=UncommonAnalyticalMethodID(TADAProfileClean4)
-TADAProfileClean6=PotentialDuplicateRowID(TADAProfileClean5, clean=TRUE)
-TADAProfileClean7=AboveNationalWQXUpperThreshold(TADAProfileClean6, transform=TRUE)
-TADAProfileClean8=BelowNationalWQXUpperThreshold(TADAProfileClean6, transform=TRUE)
-TADAProfileClean9=QAPPapproved(TADAProfileClean6)
-TADAProfileClean10=QAPPDocAvailable(TADAProfileClean6)
-TADAProfileClean11=InvalidCoordinates(TADAProfileClean6)
-TADAProfileClean12=InvalidFraction(TADAProfileClean11, clean=TRUE)
-TADAProfileClean13=InvalidSpeciation(TADAProfileClean12, clean=TRUE)
-TADAProfileClean14=InvalidResultUnit(TADAProfileClean13, clean=TRUE)
+TADAProfileClean5=InvalidMethod(TADAProfileClean4)
+TADAProfileClean6=PotentialDuplicateRowID(TADAProfileClean5)
+TADAProfileClean7=AboveNationalWQXUpperThreshold(TADAProfileClean6)
+TADAProfileClean8=BelowNationalWQXUpperThreshold(TADAProfileClean7)
+TADAProfileClean9=QAPPapproved(TADAProfileClean8)
+TADAProfileClean10=QAPPDocAvailable(TADAProfileClean8)
+TADAProfileClean11=InvalidCoordinates(TADAProfileClean8)
+TADAProfileClean12=InvalidFraction(TADAProfileClean8)
+TADAProfileClean13=InvalidSpeciation(TADAProfileClean12)
+TADAProfileClean14=InvalidResultUnit(TADAProfileClean13)
 ```
 
-Transform Characteristic, Speciation, and Unit values to TADA Standards
+## Transform Characteristic, Speciation, and Unit values to TADA Standards
 ```{r}
-TADAProfileClean15=HarmonizationRefTable(TADAProfileClean14)
-TADAProfileClean16=HarmonizeData(TADAProfileClean15, transform=TRUE)
+UniqueHarmonizationRef=HarmonizationRefTable(TADAProfileClean14)
+TADAProfileClean15=HarmonizeData(TADAProfileClean14, ref = UniqueHarmonizationRef)
 ```
