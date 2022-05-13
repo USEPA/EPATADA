@@ -21,7 +21,6 @@ Load TADA library and update internal TADA package validation and reference tabl
 library(TADA)
 UpdateWQXCharValRef()
 UpdateMeasureUnitRef()
-HarmonizationRefTable()
 ```
 
 Read in WQP data using WQP web services directly 
@@ -59,18 +58,18 @@ TADAProfileRaw=TADAdataRetrieval()
 
 #Run all dependencies
 TADAProfileClean=MeasureValueSpecialCharacters(TADAProfileRaw)
-TADAProfileClean1=autoclean(TADAProfileClean)
+#runs as part of retrieval: TADAProfileClean1=autoclean(TADAProfileClean)
 TADAProfileClean2=DepthProfileData(TADAProfileClean)
 TADAProfileClean3=AggregatedContinuousData(TADAProfileClean2, clean=TRUE)
-TADAProfileClean4=WQXTargetUnits(TADAProfileClean3, convert=TRUE)
+TADAProfileClean4=WQXTargetUnits(TADAProfileClean3, transform=TRUE)
 ```
 
 Run result flag functions and address flagged data
 ```{r}
 TADAProfileClean5=UncommonAnalyticalMethodID(TADAProfileClean4)
 TADAProfileClean6=PotentialDuplicateRowID(TADAProfileClean5, clean=TRUE)
-TADAProfileClean7=AboveNationalWQXUpperThreshold(TADAProfileClean6, clean=TRUE)
-TADAProfileClean8=BelowNationalWQXUpperThreshold(TADAProfileClean6, clean=TRUE)
+TADAProfileClean7=AboveNationalWQXUpperThreshold(TADAProfileClean6, transform=TRUE)
+TADAProfileClean8=BelowNationalWQXUpperThreshold(TADAProfileClean6, transform=TRUE)
 TADAProfileClean9=QAPPapproved(TADAProfileClean6)
 TADAProfileClean10=QAPPDocAvailable(TADAProfileClean6)
 TADAProfileClean11=InvalidCoordinates(TADAProfileClean6)
@@ -81,5 +80,6 @@ TADAProfileClean14=InvalidResultUnit(TADAProfileClean13, clean=TRUE)
 
 Transform Characteristic, Speciation, and Unit values to TADA Standards
 ```{r}
-TADAProfileClean15=HarmonizeData(TADAProfileClean14, transform=TRUE)
+TADAProfileClean15=HarmonizationRefTable(TADAProfileClean14)
+TADAProfileClean16=HarmonizeData(TADAProfileClean15, transform=TRUE)
 ```
