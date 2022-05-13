@@ -47,11 +47,12 @@ UpdateWQXCharValRef <- function(){
     dplyr::select(-c("Domain", "Unique.Identifier", "Note.Recommendation",
                      "Last.Change.Date"))
   # replace "Status" values with Valid, Invalid, Unknown
-  WQXcharVal.ref["Status"][WQXcharVal.ref["Status"] == "Accepted" |
-                             WQXcharVal.ref["Status"] == "InvalidChar" |
-                             WQXcharVal.ref["Status"] == "InvalidMediaUnit"] <- "Valid"
+  WQXcharVal.ref["Status"][WQXcharVal.ref["Status"] == "Accepted"] <- "Valid"
   WQXcharVal.ref["Status"][WQXcharVal.ref["Status"] == "Rejected"] <- "Invalid"
-  WQXcharVal.ref["Status"][WQXcharVal.ref["Status"] == "MethodNeeded"] <- "Unknown" 
+  WQXcharVal.ref["Status"][WQXcharVal.ref["Status"] == "Nonstandardized" |
+                             WQXcharVal.ref["Status"] == "InvalidMediaUnit" |
+                             WQXcharVal.ref["Status"] == "InvalidChar" |
+                             WQXcharVal.ref["Status"] == "MethodNeeded"] <- "Nonstandardized" 
   # write reference table to sysdata.rda
   UpdateInternalData(WQXcharVal.ref)
 }
@@ -174,37 +175,73 @@ HarmonizationRefTable <- function(.data, download = FALSE){
                             package = "TADA"))
 
     # join harmonization table to .data
-    join.data <- merge(.data[, c("CharacteristicName", "ResultSampleFractionText",
-                                 "MethodSpecificationName",
-                                 "ResultMeasure.MeasureUnitCode")],
-                       harm.raw, 
-                       by.x = c("CharacteristicName", "ResultSampleFractionText",
-                                "MethodSpecificationName",
-                                "ResultMeasure.MeasureUnitCode"),
-                       by.y = c("CharacteristicName", "ResultSampleFractionText",
-                                "MethodSpecificationName",
-                                "ResultMeasure.MeasureUnitCode"), 
-                       all.x = TRUE)
+      # if WQX QA Char Val flags are in .data, include them in the join
+    if(all(c("WQX.SampleFractionValidity", "WQX.MethodSpeciationValidity",
+             "WQX.ResultUnitValidity", "WQX.AnalyticalMethodValidity") %in% 
+           colnames(.data)) == TRUE) {
+      join.data <- merge(.data[, c("CharacteristicName", "ResultSampleFractionText",
+                                   "MethodSpecificationName",
+                                   "ResultMeasure.MeasureUnitCode", 
+                                   "WQX.SampleFractionValidity", "WQX.MethodSpeciationValidity",
+                                   "WQX.ResultUnitValidity", "WQX.AnalyticalMethodValidity")],
+                         harm.raw, 
+                         by.x = c("CharacteristicName", "ResultSampleFractionText",
+                                  "MethodSpecificationName",
+                                  "ResultMeasure.MeasureUnitCode"),
+                         by.y = c("CharacteristicName", "ResultSampleFractionText",
+                                  "MethodSpecificationName",
+                                  "ResultMeasure.MeasureUnitCode"), 
+                         all.x = TRUE)
+      # otherwise, execute the join with no additional columns
+    } else {
+      join.data <- merge(.data[, c("CharacteristicName", "ResultSampleFractionText",
+                                   "MethodSpecificationName",
+                                   "ResultMeasure.MeasureUnitCode")],
+                         harm.raw, 
+                         by.x = c("CharacteristicName", "ResultSampleFractionText",
+                                  "MethodSpecificationName",
+                                  "ResultMeasure.MeasureUnitCode"),
+                         by.y = c("CharacteristicName", "ResultSampleFractionText",
+                                  "MethodSpecificationName",
+                                  "ResultMeasure.MeasureUnitCode"), 
+                         all.x = TRUE)
+    }
     
-      # trim join.data to include only unique combos of char-frac-spec-unit
-      unique.data <- join.data %>%
-        dplyr::filter(!duplicated(join.data[, c("CharacteristicName", 
-                                                "ResultSampleFractionText", 
-                                                "MethodSpecificationName",
-                                                "ResultMeasure.MeasureUnitCode")]))
+    # trim join.data to include only unique combos of char-frac-spec-unit
+    unique.data <- join.data %>%
+      dplyr::filter(!duplicated(join.data[, c("CharacteristicName", 
+                                              "ResultSampleFractionText", 
+                                              "MethodSpecificationName",
+                                              "ResultMeasure.MeasureUnitCode")]))
       
-      # reorder columns to match harm.raw
+    # reorder columns to match harm.raw
+      # include WQX QA flag columns, if they exist
+    if(all(c("WQX.SampleFractionValidity", "WQX.MethodSpeciationValidity",
+             "WQX.ResultUnitValidity", "WQX.AnalyticalMethodValidity") %in% 
+           colnames(.data)) == TRUE) {
+      # get .data column names
+      col.order <- colnames(harm.raw)
+      # add WQX.SampleFractionValidity column to the list
+      col.order <- append(col.order, c("WQX.SampleFractionValidity", "WQX.MethodSpeciationValidity",
+                                       "WQX.ResultUnitValidity", "WQX.AnalyticalMethodValidity"))
+      # reorder columns in flag.data
+      unique.data <- unique.data[, col.order]
+    } else {
       unique.data <- unique.data[, colnames(harm.raw)]
+    }
+    
+    # remove extraneous characters in first column
+    colnames(unique.data)[1] <- gsub('^...','',colnames(unique.data)[1])
+    
+    # flag potential duplicates
+    unique.data$TADA.ComparableDataID <- as.integer(seq_len(nrow(unique.data)))
       
-      # remove extraneous characters in first column
-      colnames(unique.data)[1] <- gsub('^...','',colnames(unique.data)[1])
+    # if download = TRUE, download unique.data as a csv to the working directory
+    if(download == TRUE){
+      utils::write.csv(unique.data, "HarmonizationRefTable.csv")
+    }
       
-      # if download = TRUE, download unique.data as a csv to the working directory
-      if(download == TRUE){
-        utils::write.csv(unique.data, "HarmonizationRefTable.csv")
-      }
-      
-      # return unique.data
-      return(unique.data)
+    # return unique.data
+    return(unique.data)
   }
 }

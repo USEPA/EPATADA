@@ -10,11 +10,7 @@ InvalidCoordinates(.data, clean_outsideUSA = FALSE, clean_imprecise = FALSE)
 \item{.data}{TADA dataframe}
 
 \item{clean_outsideUSA}{Boolean argument; removes data with coordinates outside
-of the United States when clean_outsideUSA = TRUE. Default is clean = FALSE.
-
-removes "Invalid" characteristic-analytical 
-method combinations from the dataset when clean = TRUE. Default is 
-clean = FALSE.}
+of the United States when clean_outsideUSA = TRUE. Default is clean = FALSE.}
 
 \item{clean_imprecise}{Boolean arguments; removes imprecise data when 
 clean_imprecise = TRUE. Default is clean_imprecise = FALSE.}

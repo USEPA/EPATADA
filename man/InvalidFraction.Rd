@@ -4,22 +4,22 @@
 \alias{InvalidFraction}
 \title{Check Sample Fraction Validity}
 \usage{
-InvalidFraction(.data, clean = FALSE)
+InvalidFraction(.data, clean = TRUE)
 }
 \arguments{
 \item{.data}{TADA dataframe}
 
 \item{clean}{Boolean argument; removes "Invalid" characteristic-fraction 
-combinations from the dataset when clean = TRUE. Default is clean = FALSE.}
+combinations from the dataset when clean = TRUE. Default is clean = TRUE.}
 }
 \value{
 When clean = FALSE, a column indicating the validity of the 
 combination of CharacteristicName and ResultSampleFractionText values is 
-appended to the input data set. When clean = FALSE, the column is appended, 
-but "Invalid" rows will be removed from the dataset.
+appended to the input data set. When clean = TRUE, "Invalid" rows are removed
+from the dataset and no column will be appended.
 }
 \description{
 Function checks the validity of each characteristic-fraction combination
 in the dataset. When clean = TRUE, rows with invalid characteristic-fraction
-combinations are removed. Default is clean = FALSE.
+combinations are removed. Default is clean = TRUE.
 }

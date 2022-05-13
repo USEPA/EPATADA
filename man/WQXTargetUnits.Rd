@@ -7,9 +7,9 @@
 WQXTargetUnits(.data, transform = TRUE, flag = TRUE)
 }
 \arguments{
-\item{.data}{TADA dataframe}
+\item{.data}{TADA dataset}
 
-\item{convert}{Boolean argument; changes ResultMeasure.MeasureUnitCode and 
+\item{transform}{Boolean argument; changes ResultMeasure.MeasureUnitCode and 
 DetectionQuantitationLimitMeasure.MeasureUnitCode to WQX target unit and 
 converts ResultMeasureValue and DetectionQuantitationLimitMeasure.MeasureValue
 to corresponding target unit when transform = TRUE. Default is transform = TRUE.}
@@ -22,10 +22,10 @@ means data cannot be converted because the original unit is not associated
 with a target unit in WQX. Default is flag = TRUE.}
 }
 \value{
-When convert = FALSE and flag = TRUE, flag columns are appended to 
-the dataset only. When convert = TRUE and flag = TRUE, flag columns are 
-appended to the dataset and unit conversions are executed. When convert = TRUE
-and flag = FALSE, unit conversions are executed only. When convert = FALSE and
+When transform = FALSE and flag = TRUE, flag columns are appended to 
+the dataset only. When transform = TRUE and flag = TRUE, flag columns are 
+appended to the dataset and unit conversions are executed. When transform = TRUE
+and flag = FALSE, unit conversions are executed only. When transform = FALSE and
 flag = FALSE, an error is returned (function would return the input dataframe
 unchanged if input was allowed).
 }
@@ -37,5 +37,5 @@ converted, to which unit it can be converted, and the conversion factor
 required to convert measure values, 2) the datset with units and result values
 converted to the WQX target unit, or 3) converted result values and units with
 flag columns appended, specifying if data can be converted. Default is 
-convert = FALSE and flag = TRUE.
+transform = TRUE and flag = TRUE.
 }

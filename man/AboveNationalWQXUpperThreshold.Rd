@@ -4,13 +4,13 @@
 \alias{AboveNationalWQXUpperThreshold}
 \title{Check Result Value Against WQX Upper Threshold}
 \usage{
-AboveNationalWQXUpperThreshold(.data, clean = FALSE)
+AboveNationalWQXUpperThreshold(.data, clean = TRUE)
 }
 \arguments{
 \item{.data}{TADA dataframe}
 
 \item{clean}{Boolean argument; removes data that is above the upper WQX
-threshold from the dataset when clean = TRUE. Default is clean = FALSE.}
+threshold from the dataset when clean = TRUE. Default is clean = TRUE}
 }
 \value{
 When clean = FALSE, a column flagging rows with data that are above
@@ -24,5 +24,5 @@ leverages that statistical data from WQX to flag any data that is above the
 upper threshold of result values submitted to WQX for a given characteristic.
 When clean = TRUE, rows with values that are above the upper WQX threshold
 are removed from the dataset and no column will be appended. Default is
-clean = FALSE.
+clean = TRUE.
 }

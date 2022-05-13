@@ -4,13 +4,13 @@
 \alias{AggregatedContinuousData}
 \title{Check for Aggregated Continuous Data}
 \usage{
-AggregatedContinuousData(.data, clean = FALSE)
+AggregatedContinuousData(.data, clean = TRUE)
 }
 \arguments{
 \item{.data}{TADA dataframe}
 
 \item{clean}{Boolean argument; removes aggregated continuous data from 
-the dataset when clean = TRUE. Default is clean = FALSE.}
+the dataset when clean = TRUE. Default is clean = TRUE.}
 }
 \value{
 When clean = FALSE, a column flagging rows with aggregated continuous
@@ -25,5 +25,5 @@ may not be suitable for a water quality assessment, therefore, this function
 uses metadata submitted by data providers to flags rows with aggregated 
 continuous data. When clean = TRUE, rows with aggregated continuous data
 are removed from the dataset and no column will be appended. Default is 
-clean = FALSE.
+clean = TRUE.
 }

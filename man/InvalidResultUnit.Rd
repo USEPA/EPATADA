@@ -4,25 +4,25 @@
 \alias{InvalidResultUnit}
 \title{Check Result Unit Validity}
 \usage{
-InvalidResultUnit(.data, clean = FALSE)
+InvalidResultUnit(.data, clean = TRUE)
 }
 \arguments{
 \item{.data}{TADA dataframe}
 
 \item{clean}{Boolean argument; removes "Invalid" characteristic-media-result 
 unit combinations from the dataset when clean = TRUE. Default is 
-clean = FALSE.}
+clean = TRUE.}
 }
 \value{
 When clean = FALSE, a column indicating the validity of the 
 combination of CharacteristicName, ActivityMediaType, and
-ResultMeasure/MeasureUnitCode values is appended to the input data set. When
-clean = FALSE, the column is appended, but "Invalid" rows will be removed 
-from the dataset.
+ResultMeasure/MeasureUnitCode values is appended to the input data set. When 
+clean = TRUE, "Invalid" rows are removed from the dataset and no column will
+be appended.
 }
 \description{
 Function checks the validity of each characteristic-media-result unit 
 combination in the dataset. When clean = TRUE, rows with invalid 
 characteristic-media-result unit combinations are removed. Default is 
-clean = FALSE.
+clean = TRUE.
 }
