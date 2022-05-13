@@ -2,22 +2,22 @@
 #' 
 #' Function checks the validity of each characteristic-fraction combination
 #' in the dataset. When clean = TRUE, rows with invalid characteristic-fraction
-#' combinations are removed. Default is clean = FALSE.
+#' combinations are removed. Default is clean = TRUE.
 #'
 #' @param .data TADA dataframe
 #' @param clean Boolean argument; removes "Invalid" characteristic-fraction 
-#' combinations from the dataset when clean = TRUE. Default is clean = FALSE.
+#' combinations from the dataset when clean = TRUE. Default is clean = TRUE.
 #'
 #' @return When clean = FALSE, a column indicating the validity of the 
 #' combination of CharacteristicName and ResultSampleFractionText values is 
-#' appended to the input data set. When clean = FALSE, the column is appended, 
-#' but "Invalid" rows will be removed from the dataset.
+#' appended to the input data set. When clean = TRUE, "Invalid" rows are removed
+#' from the dataset and no column will be appended.
 #' 
 #' @export
 #' 
 
 
-InvalidFraction <- function(.data, clean = FALSE){
+InvalidFraction <- function(.data, clean = TRUE){
 
   # check that .data object is compatible with TADA
     # check .data is of class data.frame
@@ -48,8 +48,8 @@ InvalidFraction <- function(.data, clean = FALSE){
     # rename Status column
     check.data <- check.data %>%
       dplyr::rename(WQX.SampleFractionValidity = Status)
-    # rename NA values to Unknown in WQX.SampleFractionValidity column
-    check.data["WQX.SampleFractionValidity"][is.na(check.data["WQX.SampleFractionValidity"])] <- "Unknown"
+    # rename NA values to Nonstandardized in WQX.SampleFractionValidity column
+    check.data["WQX.SampleFractionValidity"][is.na(check.data["WQX.SampleFractionValidity"])] <- "Nonstandardized"
     
     # reorder column names to match .data
       # get .data column names
@@ -62,6 +62,13 @@ InvalidFraction <- function(.data, clean = FALSE){
     check.data <- check.data %>%
       dplyr::relocate("WQX.SampleFractionValidity", 
                       .after = "ResultSampleFractionText")
+    
+    # if all rows are "Valid", return input unchanged
+    if(any(c("Nonstandardized", "Invalid") %in% 
+           unique(check.data$WQX.SampleFractionValidity)) == FALSE) {
+      print("All data is valid, therefore the function cannot be applied.")
+      return(.data)
+    }
     
     # flagged output
     if(clean == FALSE) {
@@ -82,7 +89,6 @@ InvalidFraction <- function(.data, clean = FALSE){
       stop("'clean' argument must be Boolean (TRUE or FALSE)")
     }
   }
-  
 }
 
 
@@ -91,23 +97,23 @@ InvalidFraction <- function(.data, clean = FALSE){
 #' Function checks the validity of each characteristic-method 
 #' speciation combination in the dataset. When clean = TRUE, rows with invalid 
 #' characteristic-method speciation combinations are removed. Default is 
-#' clean = FALSE.
+#' clean = TRUE.
 #'
 #' @param .data TADA dataframe
 #' @param clean Boolean argument; removes "Invalid" characteristic-method 
 #' speciation combinations from the dataset when clean = TRUE. Default is 
-#' clean = FALSE.
+#' clean = TRUE.
 #'
 #' @return When clean = FALSE, a column indicating the validity of the 
 #' combination of CharacteristicName and MethodSpeciation values is 
-#' appended to the input data set. When clean = FALSE, the column is appended, 
-#' but "Invalid" rows will be removed from the dataset.
+#' appended to the input data set. When clean = TRUE, "Invalid" rows are removed
+#' from the dataset and no column will be appended.
 #' 
 #' @export
 #' 
 
 
-InvalidSpeciation <- function(.data, clean = FALSE){
+InvalidSpeciation <- function(.data, clean = TRUE){
   
   # check that .data object is compatible with TADA
   # check .data is of class data.frame
@@ -137,8 +143,8 @@ InvalidSpeciation <- function(.data, clean = FALSE){
     # rename Status column
     check.data <- check.data %>%
       dplyr::rename(WQX.MethodSpeciationValidity = Status)
-    # rename NA values to Unknown in WQX.MethodSpeciationValidity column 
-    check.data["WQX.MethodSpeciationValidity"][is.na(check.data["WQX.MethodSpeciationValidity"])] <- "Unknown"
+    # rename NA values to Nonstandardized in WQX.MethodSpeciationValidity column 
+    check.data["WQX.MethodSpeciationValidity"][is.na(check.data["WQX.MethodSpeciationValidity"])] <- "Nonstandardized"
     
     # reorder column names to match .data
       # get .data column names
@@ -151,6 +157,13 @@ InvalidSpeciation <- function(.data, clean = FALSE){
     check.data <- check.data %>%
       dplyr::relocate("WQX.MethodSpeciationValidity", 
                       .after = "MethodSpecificationName")
+    
+    # if all rows are "Valid", return input unchanged
+    if(any(c("Nonstandardized", "Invalid") %in% 
+           unique(check.data$WQX.MethodSpeciationValidity)) == FALSE) {
+      print("All data is valid, therefore the function cannot be applied.")
+      return(.data)
+    }
     
     # flagged output
     if(clean == FALSE) {
@@ -180,24 +193,24 @@ InvalidSpeciation <- function(.data, clean = FALSE){
 #' Function checks the validity of each characteristic-media-result unit 
 #' combination in the dataset. When clean = TRUE, rows with invalid 
 #' characteristic-media-result unit combinations are removed. Default is 
-#' clean = FALSE.
+#' clean = TRUE.
 #'
 #' @param .data TADA dataframe
 #' @param clean Boolean argument; removes "Invalid" characteristic-media-result 
 #' unit combinations from the dataset when clean = TRUE. Default is 
-#' clean = FALSE.
+#' clean = TRUE.
 #'
 #' @return When clean = FALSE, a column indicating the validity of the 
 #' combination of CharacteristicName, ActivityMediaType, and
-#' ResultMeasure/MeasureUnitCode values is appended to the input data set. When
-#' clean = FALSE, the column is appended, but "Invalid" rows will be removed 
-#' from the dataset.
+#' ResultMeasure/MeasureUnitCode values is appended to the input data set. When 
+#' clean = TRUE, "Invalid" rows are removed from the dataset and no column will
+#' be appended.
 #' 
 #' @export
 #' 
 
 
-InvalidResultUnit <- function(.data, clean = FALSE){
+InvalidResultUnit <- function(.data, clean = TRUE){
   
   # check that .data object is compatible with TADA
   # check .data is of class data.frame
@@ -227,8 +240,8 @@ InvalidResultUnit <- function(.data, clean = FALSE){
     # rename Status column
     check.data <- check.data %>%
       dplyr::rename(WQX.ResultUnitValidity = Status)
-    # rename NA values to Unknown in WQX.ResultUnitValidity column 
-    check.data["WQX.ResultUnitValidity"][is.na(check.data["WQX.ResultUnitValidity"])] <- "Unknown"
+    # rename NA values to Nonstandardized in WQX.ResultUnitValidity column 
+    check.data["WQX.ResultUnitValidity"][is.na(check.data["WQX.ResultUnitValidity"])] <- "Nonstandardized"
     
     # reorder column names to match .data
     # get .data column names
@@ -241,6 +254,13 @@ InvalidResultUnit <- function(.data, clean = FALSE){
     check.data <- check.data %>%
       dplyr::relocate("WQX.ResultUnitValidity", 
                       .after = "ResultMeasure.MeasureUnitCode")
+    
+    # if all rows are "Valid", return input unchanged
+    if(any(c("Nonstandardized", "Invalid") %in% 
+           unique(check.data$WQX.ResultUnitValidity)) == FALSE) {
+      print("All data is valid, therefore the function cannot be applied.")
+      return(.data)
+    }
     
     # flagged output
     if(clean == FALSE) {
@@ -271,10 +291,11 @@ InvalidResultUnit <- function(.data, clean = FALSE){
 #' and populates those columns based on the original unit (MeasureUnitCode 
 #' columns) and the target unit, which is defined in the 'unit' argument. A 
 #' 'Depth Target Unit' column is also appended, indicating the unit all selected 
-#' depth data is converted to. When convert = FALSE, the output includes all
-#' 'Conversion Factor' columns and the 'Depth Target Unit' column. When convert
+#' depth data is converted to. When transform = FALSE, the output includes all
+#' 'Conversion Factor' columns and the 'Depth Target Unit' column. When transform
 #' = TRUE, the output includes converted depth data and the 'Depth Target
 #' Unit' column, which acts as a flag indicating which rows have been converted.
+#' Default is transform = TRUE.
 #'
 #' @param .data TADA dataframe
 #' @param unit Character string input indicating the uniform unit depth data is
@@ -282,20 +303,20 @@ InvalidResultUnit <- function(.data, clean = FALSE){
 #'  or 'in' (inch). 'unit' accepts only one allowable value as an input. Default
 #'  is unit = "m".
 #' @param fields Character string input indicating the depth fields that will be
-#' checked for data.  Allowable values for 'fields' are
+#' checked for data. Allowable values for 'fields' are
 #' 'ActivityDepthHeightMeasure,' 'ActivityTopDepthHeightMeasure,'
 #' 'ActivityBottomDepthHeightMeasure,' and 'ResultDepthHeightMeasure.'. Default
 #'  is to include all allowable values.
-#' @param convert Boolean argument; When convert = FALSE, the output includes 
+#' @param transform Boolean argument; When transform = FALSE, the output includes 
 #' all Conversion Factor' columns and the 'Depth Target Unit' column. When 
-#' convert = TRUE, the output includes converted depth data and the 'Depth 
+#' transform = TRUE, the output includes converted depth data and the 'Depth 
 #' Target Unit' column, which acts as a flag indicating which rows have been 
-#' converted. Default is convert = FALSE.
+#' converted. Default is transform = TRUE.
 #'
-#' @return Full dataset with 'Conversion Factor' columns and a 'Depth Target Unit'
-#' column. When convert = TRUE, the output is the full dataset with converted
-#' uniform depth units and a 'Depth Target Unit' column, which acts as a flag indicating which
-#' rows have been converted. 
+#' @return Full dataset with converted uniform depth units and a 'Depth Target 
+#' Unit' column, which acts as a flag indicating which rows have been converted. 
+#' When transform = FALSE, the output is the full dataset with 'Conversion Factor'
+#' columns and a 'Depth Target Unit' column. 
 #' 
 #' @export
 #' 
@@ -307,7 +328,7 @@ DepthProfileData <- function(.data,
                                                "ActivityTopDepthHeightMeasure",
                                                "ActivityBottomDepthHeightMeasure",
                                                "ResultDepthHeightMeasure"), 
-                             convert = FALSE){
+                             transform = TRUE){
   
   # check that .data object is compatible with TADA
   # check .data is of class data.frame
@@ -498,13 +519,13 @@ DepthProfileData <- function(.data,
         dplyr::relocate("WQX.Depth.TargetUnit", 
                         .after = "ActivityEndTime.TimeZoneCode")
     }
-    # if convert = FALSE, output data
-    if(convert == FALSE) {
+    # if transform = FALSE, output data
+    if(transform == FALSE) {
       
       return(flag.data)
     }
-    # if convert = TRUE, apply conversion
-    if(convert == TRUE) {
+    # if transform = TRUE, apply conversion
+    if(transform == TRUE) {
       # define clean.data
       clean.data <- flag.data
       
@@ -564,9 +585,12 @@ DepthProfileData <- function(.data,
         clean.data <- dplyr::select(clean.data, -"WQX.ResultDepth.ConversionFactor")
       }
       
+      # delete WQX.Depth.TargetUnit column
+      clean.data <- dplyr::select(clean.data, -"WQX.Depth.TargetUnit")
+      
       return(clean.data)
     } else {
-      stop("'convert' argument must be Boolean (TRUE or FALSE)")
+      stop("'transform' argument must be Boolean (TRUE or FALSE)")
     }
   }
 }

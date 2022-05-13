@@ -18,11 +18,10 @@ that file.}
 in the dataset to the TADA Harmonization Reference Table values for the 
 following fields: CharacteristicName, ResultSampleFractionText, 
 MethodSpecificationName, and ResultMeasure.MeasureUnitCode. Default is 
-transform = FALSE.}
+transform = TRUE.}
 
 \item{flag}{Boolean argument; appends all columns from the TADA Harmonization
 Reference Table to the dataframe. Default is flag = TRUE.}
-
 }
 \value{
 When transform = FALSE and flag = TRUE, Harmonization Reference Table
@@ -40,5 +39,5 @@ Harmonization columns appended, 2) the datset with CharacteristicName,
 ResultSampleFractionText, MethodSpecificationName, and 
 ResultMeasure.MeasureUnitCode converted to TADA standards or 3) the four fields
 converted with most Harmoinzation Referenve Table columns appended. Default is 
-transform = FALSE and flag = TRUE.
+transform = TRUE and flag = TRUE.
 }

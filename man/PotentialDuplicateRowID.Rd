@@ -4,7 +4,7 @@
 \alias{PotentialDuplicateRowID}
 \title{Check for Potential Duplicates}
 \usage{
-PotentialDuplicateRowID(.data, clean = FALSE)
+PotentialDuplicateRowID(.data, clean = TRUE)
 }
 \arguments{
 \item{.data}{TADA dataframe}
@@ -12,7 +12,7 @@ PotentialDuplicateRowID(.data, clean = FALSE)
 \item{clean}{Boolean argument; removes potential duplicate data from 
 the dataset when clean = TRUE. When clean = FALSE, a column indicating 
 potential duplicate rows with a unique number linking rows is appended to the
-input data set. Default is clean = FALSE.}
+input data set. Default is clean = TRUE.}
 }
 \value{
 When clean = FALSE, a column indicating potential duplicate rows with
@@ -27,5 +27,5 @@ function checks for and identifies data that is identical in all fields
 excluding organization-specific and comment text fields. Each pair or group
 of potential duplicate rows is flagged with a unique ID. When clean = TRUE,
 the function retains the first occurrence of each potential duplicate in the
-dataset. Default is clean = FALSE.
+dataset. Default is clean = TRUE.
 }

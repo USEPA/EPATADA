@@ -7,13 +7,13 @@
 #' required to convert measure values, 2) the datset with units and result values
 #' converted to the WQX target unit, or 3) converted result values and units with
 #' flag columns appended, specifying if data can be converted. Default is 
-#' convert = FALSE and flag = TRUE.
+#' transform = TRUE and flag = TRUE.
 #'
 #' @param .data TADA dataset
-#' @param convert Boolean argument; changes ResultMeasure.MeasureUnitCode and 
+#' @param transform Boolean argument; changes ResultMeasure.MeasureUnitCode and 
 #' DetectionQuantitationLimitMeasure.MeasureUnitCode to WQX target unit and 
 #' converts ResultMeasureValue and DetectionQuantitationLimitMeasure.MeasureValue
-#' to corresponding target unit when convert = TRUE. Default is convert = TRUE.
+#' to corresponding target unit when transform = TRUE. Default is transform = TRUE.
 #' @param flag Boolean argument; appends WQX.ResultMeasureValue.UnitConversion and
 #' WQX.DetectionLimitMeasureValue.UnitConversion columns, indicating if data can be
 #' converted. "Transform" means data can be converted, "NoResultValue" means data
@@ -21,10 +21,10 @@
 #' means data cannot be converted because the original unit is not associated 
 #' with a target unit in WQX. Default is flag = TRUE.
 #'
-#' @return When convert = FALSE and flag = TRUE, flag columns are appended to 
-#' the dataset only. When convert = TRUE and flag = TRUE, flag columns are 
-#' appended to the dataset and unit conversions are executed. When convert = TRUE
-#' and flag = FALSE, unit conversions are executed only. When convert = FALSE and
+#' @return When transform = FALSE and flag = TRUE, flag columns are appended to 
+#' the dataset only. When transform = TRUE and flag = TRUE, flag columns are 
+#' appended to the dataset and unit conversions are executed. When transform = TRUE
+#' and flag = FALSE, unit conversions are executed only. When transform = FALSE and
 #' flag = FALSE, an error is returned (function would return the input dataframe
 #' unchanged if input was allowed).
 #' 
@@ -53,9 +53,9 @@ WQXTargetUnits <- function(.data, transform = TRUE, flag = TRUE){
   if(is.logical(flag) == FALSE){
     stop("flag argument must be Boolean (TRUE or FALSE)")
   }
-  # check that both convert and flag do NOT equal FALSE
+  # check that both transform and flag do NOT equal FALSE
   if(transform == FALSE & flag == FALSE){
-    stop("Both 'convert' and 'flag' arguments equal FALSE, which would return the input dataset unchanged. One or both arguments must be equal to TRUE.")
+    stop("Both 'transform' and 'flag' arguments equal FALSE, which would return the input dataset unchanged. One or both arguments must be equal to TRUE.")
   }
   
   # execute function after checks are passed
@@ -254,7 +254,7 @@ WQXTargetUnits <- function(.data, transform = TRUE, flag = TRUE){
 #' ResultSampleFractionText, MethodSpecificationName, and 
 #' ResultMeasure.MeasureUnitCode converted to TADA standards or 3) the four fields
 #' converted with most Harmoinzation Referenve Table columns appended. Default is 
-#' transform = FALSE and flag = TRUE.
+#' transform = TRUE and flag = TRUE.
 #'
 #' @param .data TADA dataframe
 #' @param ref Optional argument to specify which dataframe to use as a reference

@@ -1,25 +1,25 @@
-#' Check for Uncommon Analytical Methods
+#' Check for Invalid Analytical Methods
 #' 
 #' Function checks the validity of each characteristic-analytical method 
 #' combination in the dataset. When clean = TRUE, rows with invalid 
 #' characteristic-analytical method combinations are removed. Default is 
-#' clean = FALSE.
+#' clean = TRUE.
 #'
 #' @param .data TADA dataframe
 #' @param clean Boolean argument; removes "Invalid" characteristic-analytical 
 #' method combinations from the dataset when clean = TRUE. Default is 
-#' clean = FALSE.
+#' clean = TRUE.
 #'
 #' @return When clean = FALSE, a column indicating the validity of the 
 #' combination of CharacteristicName, ResultAnalyticalMethod/MethodIdentifier, 
 #' and ResultAnalyticalMethod/MethodIdentifierContext values is appended to the
-#' input dataset. When clean = FALSE, "Invalid" rows will be removed from the 
+#' input dataset. When clean = TRUE, "Invalid" rows are removed from the 
 #' dataset and no column will be appended.
 #' 
 #' @export
 #' 
 
-UncommonAnalyticalMethodID <- function(.data, clean = FALSE){
+InvalidMethod <- function(.data, clean = TRUE){
   
   # check that .data object is compatible with TADA
   # check .data is of class data.frame
@@ -35,8 +35,8 @@ UncommonAnalyticalMethodID <- function(.data, clean = FALSE){
   if(all(c("CharacteristicName", "ResultAnalyticalMethod.MethodIdentifier", 
            "ResultAnalyticalMethod.MethodIdentifierContext") %in% colnames(.data)) == TRUE) {
     # delete existing flag column
-    if(("WQX.UncommonAnalyticalMethod" %in% colnames(.data)) == TRUE) {
-      .data <- dplyr::select(.data, -WQX.UncommonAnalyticalMethod)
+    if(("WQX.AnalyticalMethodValidity" %in% colnames(.data)) == TRUE) {
+      .data <- dplyr::select(.data, -WQX.AnalyticalMethodValidity)
     }
     # read in speciation reference table from sysdata.rda and filter
     meth.ref <- TADA:::WQXcharVal.ref %>%
@@ -48,26 +48,31 @@ UncommonAnalyticalMethodID <- function(.data, clean = FALSE){
                                  "ResultAnalyticalMethod.MethodIdentifierContext"),
                         by.y = c("Characteristic", "Value", "Source"), all.x = TRUE)
     
-    # rename Status column to WQX.UncommonAnalyticalMethod
+    # rename Status column to WQX.AnalyticalMethodValidity
     check.data <- check.data %>%
-      dplyr::rename(WQX.UncommonAnalyticalMethod = Status)
-    # rename values in WQX.UncommonAnalyticalMethod
-    check.data["WQX.UncommonAnalyticalMethod"][check.data["WQX.UncommonAnalyticalMethod"] == "Valid"] <- "N"
-    check.data["WQX.UncommonAnalyticalMethod"][check.data["WQX.UncommonAnalyticalMethod"] == "Invalid"] <- "Y"
-    # rename NA values to Unknown in WQX.UncommonAnalyticalMethod column 
-    check.data["WQX.UncommonAnalyticalMethod"][is.na(check.data["WQX.UncommonAnalyticalMethod"])] <- "Unknown"
+      dplyr::rename(WQX.AnalyticalMethodValidity = Status)
+    # rename NA values to Nonstandardized in WQX.AnalyticalMethodValidity column 
+    check.data["WQX.AnalyticalMethodValidity"][is.na(check.data["WQX.AnalyticalMethodValidity"])] <- "Nonstandardized"
     
     # reorder column names to match .data
       # get .data column names
     col.order <- colnames(.data)
-      # add WQX.UncommonAnalyticalMethod column to the list
-    col.order <- append(col.order, "WQX.UncommonAnalyticalMethod")
+      # add WQX.AnalyticalMethodValidity column to the list
+    col.order <- append(col.order, "WQX.AnalyticalMethodValidity")
       # reorder columns in flag.data
     check.data <- check.data[, col.order]
     # place flag columns next to relevant fields
       check.data <- check.data %>%
-        dplyr::relocate("WQX.UncommonAnalyticalMethod", 
+        dplyr::relocate("WQX.AnalyticalMethodValidity", 
                         .after = "ResultAnalyticalMethod.MethodName")
+    
+    # if all rows are "Valid", return input unchanged
+    if(any(c("Nonstandardized", "Invalid") %in% 
+           unique(check.data$WQX.AnalyticalMethodValidity)) == FALSE) {
+      print("All data is valid, therefore the function cannot be applied.")
+      return(.data)
+    }  
+      
     # flagged output
     if(clean == FALSE) {
       return(check.data)
@@ -76,10 +81,10 @@ UncommonAnalyticalMethodID <- function(.data, clean = FALSE){
     # clean output
     if(clean == TRUE) {
       # filter out invalid characteristic-unit-media combinations
-      clean.data <- dplyr::filter(check.data, WQX.UncommonAnalyticalMethod != "Y")
+      clean.data <- dplyr::filter(check.data, WQX.AnalyticalMethodValidity != "Valid")
       
-      # remove WQX.UncommonAnalyticalMethod column
-      clean.data <- dplyr::select(clean.data, -WQX.UncommonAnalyticalMethod)
+      # remove WQX.AnalyticalMethodValidity column
+      clean.data <- dplyr::select(clean.data, -WQX.AnalyticalMethodValidity)
       
       return(clean.data)
     } else {
@@ -98,11 +103,11 @@ UncommonAnalyticalMethodID <- function(.data, clean = FALSE){
 #' uses metadata submitted by data providers to flags rows with aggregated 
 #' continuous data. When clean = TRUE, rows with aggregated continuous data
 #' are removed from the dataset and no column will be appended. Default is 
-#' clean = FALSE.
+#' clean = TRUE.
 #'
 #' @param .data TADA dataframe
 #' @param clean Boolean argument; removes aggregated continuous data from 
-#' the dataset when clean = TRUE. Default is clean = FALSE.
+#' the dataset when clean = TRUE. Default is clean = TRUE.
 #'
 #' @return When clean = FALSE, a column flagging rows with aggregated continuous
 #' data is appended to the input data set. When clean = TRUE, aggregated 
@@ -110,7 +115,7 @@ UncommonAnalyticalMethodID <- function(.data, clean = FALSE){
 #' 
 #' @export
 
-AggregatedContinuousData <- function(.data, clean = FALSE){
+AggregatedContinuousData <- function(.data, clean = TRUE){
   
   # check that .data object is compatible with TADA
   # check .data is of class data.frame
@@ -173,13 +178,13 @@ AggregatedContinuousData <- function(.data, clean = FALSE){
 #' excluding organization-specific and comment text fields. Each pair or group
 #' of potential duplicate rows is flagged with a unique ID. When clean = TRUE,
 #' the function retains the first occurrence of each potential duplicate in the
-#' dataset. Default is clean = FALSE.
+#' dataset. Default is clean = TRUE.
 #'
 #' @param .data TADA dataframe
 #' @param clean Boolean argument; removes potential duplicate data from 
 #' the dataset when clean = TRUE. When clean = FALSE, a column indicating 
 #' potential duplicate rows with a unique number linking rows is appended to the
-#' input data set. Default is clean = FALSE.
+#' input data set. Default is clean = TRUE.
 #'
 #' @return When clean = FALSE, a column indicating potential duplicate rows with
 #' a unique number linking rows is appended to the input data set. When 
@@ -188,7 +193,7 @@ AggregatedContinuousData <- function(.data, clean = FALSE){
 #' 
 #' @export
 
-PotentialDuplicateRowID <- function(.data, clean = FALSE){
+PotentialDuplicateRowID <- function(.data, clean = TRUE){
   
   # check that .data object is compatible with TADA
   # check .data is of class data.frame
@@ -277,11 +282,11 @@ PotentialDuplicateRowID <- function(.data, clean = FALSE){
 #' upper threshold of result values submitted to WQX for a given characteristic.
 #' When clean = TRUE, rows with values that are above the upper WQX threshold
 #' are removed from the dataset and no column will be appended. Default is
-#' clean = FALSE.
+#' clean = TRUE.
 #'
 #' @param .data TADA dataframe
 #' @param clean Boolean argument; removes data that is above the upper WQX
-#' threshold from the dataset when clean = TRUE. Default is clean = FALSE.
+#' threshold from the dataset when clean = TRUE. Default is clean = TRUE
 #'
 #' @return When clean = FALSE, a column flagging rows with data that are above
 #' the upper WQX threshold is appended to the input data set. When clean = TRUE,
@@ -289,7 +294,7 @@ PotentialDuplicateRowID <- function(.data, clean = FALSE){
 #' 
 #' @export
 
-AboveNationalWQXUpperThreshold <- function(.data, clean = FALSE){
+AboveNationalWQXUpperThreshold <- function(.data, clean = TRUE){
   
   # check that .data object is compatible with TADA
   # check .data is of class data.frame
@@ -324,7 +329,7 @@ AboveNationalWQXUpperThreshold <- function(.data, clean = FALSE){
                                  "ResultMeasure.MeasureUnitCode"),
                         by.y = c("Characteristic", "Source", "Value"), all.x = TRUE)
       # Run WQXTargetUnits function to convert ResultMeasureValue class to numeric
-      check.data <- WQXTargetUnits(check.data, convert = TRUE)
+      check.data <- WQXTargetUnits(check.data, transform = TRUE)
     
     # Create flag column, flag rows where ResultMeasureValue > Maximum
     flag.data <- check.data %>%
@@ -373,11 +378,11 @@ AboveNationalWQXUpperThreshold <- function(.data, clean = FALSE){
 #' lower threshold of result values submitted to WQX for a given characteristic.
 #' When clean = TRUE, rows with values that are below the lower WQX threshold 
 #' are removed from the dataset and no column will be appended. Default is 
-#' clean = FALSE.
+#' clean = TRUE.
 #'
 #' @param .data TADA dataframe
 #' @param clean Boolean argument; removes data that is below the lower WQX
-#' threshold from the dataset when clean = TRUE. Default is clean = FALSE.
+#' threshold from the dataset when clean = TRUE. Default is clean = TRUE.
 #'
 #' @return When clean = FALSE, a column flagging rows with data that is below the
 #' lower WQX threshold is appended to the input data set. When clean = TRUE, 
@@ -385,7 +390,7 @@ AboveNationalWQXUpperThreshold <- function(.data, clean = FALSE){
 #' 
 #' @export
 
-BelowNationalWQXUpperThreshold <- function(.data, clean = FALSE){
+BelowNationalWQXUpperThreshold <- function(.data, clean = TRUE){
   
   # check that .data object is compatible with TADA
   # check .data is of class data.frame
@@ -420,7 +425,7 @@ BelowNationalWQXUpperThreshold <- function(.data, clean = FALSE){
                                  "ResultMeasure.MeasureUnitCode"),
                         by.y = c("Characteristic", "Source", "Value"), all.x = TRUE)
     # Run WQXTargetUnits function to convert ResultMeasureValue class to numeric
-    check.data <- WQXTargetUnits(check.data, convert = TRUE)
+    check.data <- WQXTargetUnits(check.data, transform = TRUE)
     
     # Create flag column, flag rows where ResultMeasureValue < Minimum
     flag.data <- check.data %>%
@@ -625,10 +630,6 @@ QAPPDocAvailable <- function(.data, clean = FALSE){
 #' @param .data TADA dataframe
 #' @param clean_outsideUSA Boolean argument; removes data with coordinates outside
 #' of the United States when clean_outsideUSA = TRUE. Default is clean = FALSE.
-#' 
-#' removes "Invalid" characteristic-analytical 
-#' method combinations from the dataset when clean = TRUE. Default is 
-#' clean = FALSE.
 #' @param clean_imprecise Boolean arguments; removes imprecise data when 
 #' clean_imprecise = TRUE. Default is clean_imprecise = FALSE.
 #'
