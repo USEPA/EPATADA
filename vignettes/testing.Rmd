@@ -48,7 +48,7 @@ WQP query URL: https://www.waterqualitydata.us/#statecode=US%3A42&characteristic
 
 ```{r}
 #get PA nutrient data
-TADAProfileRaw=readWQPwebservice("https://www.waterqualitydata.us/data/Result/search?statecode=US%3A09&countycode=US%3A09%3A003&characteristicType=Nutrient&mimeType=csv&zip=yes&dataProfile=resultPhysChem&providers=NWIS&providers=STEWARDS&providers=STORET")
+TADAProfileRaw=readWQPwebservice("https://www.waterqualitydata.us/data/Result/search?statecode=US%3A42&siteType=Lake%2C%20Reservoir%2C%20Impoundment&sampleMedia=water&sampleMedia=Water&characteristicType=Nutrient&startDateLo=01-01-2019&startDateHi=01-01-2022&mimeType=csv&zip=yes&dataProfile=resultPhysChem&providers=NWIS&providers=STEWARDS&providers=STORET")
 ```
 
 
