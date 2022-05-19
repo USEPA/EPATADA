@@ -15,13 +15,17 @@ RoxygenNote: 7.1.2
 Imports:
     dataRetrieval,
     dplyr,
+    ggplot2,
+    grDevices,
     magrittr,
     plyr,
     stringr,
     testthat,
     usethis,
     utils, 
-    Rcpp
+    RColorBrewer,
+    Rcpp,
+    stats
 Depends: 
     R (>= 2.10)
 Suggests: 

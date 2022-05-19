@@ -74,12 +74,8 @@ WQXTargetUnits <- function(.data, transform = TRUE, flag = TRUE){
     unit.ref <- TADA::WQXcharVal.ref %>%
       dplyr::filter(Type == "CharacteristicUnit" & Source == "WATER" & 
                       Status == "Valid")
-    
-    # define raw.data
-    raw.data <- .data
-    
-    # join unit.ref to raw.data
-    check.data <- merge(raw.data, unit.ref[, c("Characteristic", "Source",
+    # join unit.ref to .data
+    check.data <- merge(.data, unit.ref[, c("Characteristic", "Source",
                                                "Value", "Value.Unit",
                                                "Conversion.Factor")],
                         by.x = c("CharacteristicName", "ActivityMediaName", "ResultMeasure.MeasureUnitCode"),
@@ -158,6 +154,14 @@ WQXTargetUnits <- function(.data, transform = TRUE, flag = TRUE){
     
     if(transform == TRUE) {
       
+      # Duplicate unit columns, rename with .Original suffix
+      if(("ResultMeasureUnitCode.Original" %in% colnames(flag.data)) == FALSE) {
+        flag.data$ResultMeasureUnitCode.Original <- flag.data$ResultMeasure.MeasureUnitCode
+      }
+      if(("DetectionLimitMeasureUnitCode.Original" %in% colnames(flag.data)) == FALSE) {
+        flag.data$DetectionLimitMeasureUnitCode.Original <- 
+          flag.data$DetectionQuantitationLimitMeasure.MeasureUnitCode
+      }
       # Transform result measure value to Target Unit only if target unit exists
       clean.data <- flag.data %>%
         # apply function row by row
@@ -228,14 +232,27 @@ WQXTargetUnits <- function(.data, transform = TRUE, flag = TRUE){
         col.order <- append(col.order, c("WQX.ResultMeasureValue.UnitConversion",
                                         "WQX.DetectionLimitMeasureValue.UnitConversion"))
       }
+      # add original units to list if transform = TRUE
+      if(transform == TRUE){
+        col.order <- append(col.order, c("ResultMeasureUnitCode.Original",
+                                         "DetectionLimitMeasureUnitCode.Original"))
+      }
       # reorder columns in clean.data
       clean.data <- clean.data[, col.order]
       # place flag columns next to relevant fields if flag = TRUE
       if(flag == TRUE){
         clean.data <- clean.data %>%
-          dplyr::relocate("WQX.ResultMeasureValue.UnitConversion", 
+          dplyr::relocate("ResultMeasureUnitCode.Original", 
                           .after = "ResultMeasure.MeasureUnitCode") %>%
           dplyr::relocate("WQX.DetectionLimitMeasureValue.UnitConversion", 
+                          .after = "DetectionQuantitationLimitMeasure.MeasureUnitCode")
+      }
+      # Place original unit columns next to original columns
+      if(transform == TRUE){
+        clean.data <- clean.data %>%
+          dplyr::relocate("WQX.ResultMeasureValue.UnitConversion", 
+                          .after = "ResultMeasure.MeasureUnitCode") %>%
+          dplyr::relocate("DetectionLimitMeasureUnitCode.Original", 
                           .after = "DetectionQuantitationLimitMeasure.MeasureUnitCode")
       }
       
