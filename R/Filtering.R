@@ -1,3 +1,5 @@
+TADA.env <- new.env()
+
 #' Generate list of field names
 #' 
 #' Function creates a list of the fields in the input dataframe as well as the
@@ -68,7 +70,7 @@ FilterFields <- function(.data){
                                    "DetectionQuantitationLimitTypeName",
                                    "SampleTissueAnatomyName", "LaboratoryName")]
   
-  .GlobalEnv$UniqueValList <- UniqueValList
+  TADA.env$UniqueValList <- UniqueValList
   print(col.names)
 }
 
@@ -77,21 +79,33 @@ FilterFields <- function(.data){
 #' Function creates a table and pie chart of unique values, and counts of those
 #' values for a chosen field in a dataframe.
 #'
-#' @param .data TADA dataframe
+#' @param field Field name 
+#' @param .data Optional argument; TADA dataframe
 #'
 #' @return A table and pie chart of unique values in the selected field.
 #' 
 #' @export
 #' 
 
-FilterFieldReview <- function(field){
+FilterFieldReview <- function(field, .data){
   
-  # check that input is in UniqueValList
-  if(exists(field, UniqueValList) == FALSE){
+  # check .data is of class data.frame
+  if(!missing(.data)) {
+    if(("data.frame" %in% class(.data)) == FALSE) {
+      stop(".data must be of class 'data.frame'")
+    }
+  }
+  # execute function after checks are passed
+  
+  # refresh UniqueValList
+  invisible(utils::capture.output(FilterFields(.data)))
+    # check that input is in UniqueValList
+  if(exists(field, TADA.env$UniqueValList) == FALSE){
     stop("Input does not exist as a field in the dataset.")
   }
+  
   # subset UniqueValList by input
-  df <- UniqueValList[[field]]
+  df <- TADA.env$UniqueValList[[field]]
   
   # define number of colors required for pie chart
   colorCount <- length(unique(df$FieldValue))
@@ -141,6 +155,7 @@ FilterParList <- function(.data){
 #' specific fields to explore further and filter subset by a parameter.
 #' 
 #' @param .data TADA dataframe
+#' @param parameter Characteristic name (parameter name) from the dataset.
 #'
 #' @return A table of fields and the count of unique values in each field, 
 #' subset by a parameter.
@@ -226,7 +241,7 @@ FilterParFields <- function(.data, parameter) {
                                          "AssemblageSampledName", "DetectionQuantitationLimitTypeName")]
   
   
-  .GlobalEnv$ParUniqueValList <- ParUniqueValList
+  TADA.env$ParUniqueValList <- ParUniqueValList
   print(col.names)
 }  
 
@@ -235,21 +250,40 @@ FilterParFields <- function(.data, parameter) {
 #' Function creates a table and pie chart of unique values, and counts of those
 #' values, for a chosen field in a dataframe subset by parameter.
 #'
-#' @param .data TADA dataframe
+#' @param field Field name 
+#' @param .data Optional argument; TADA dataframe
+#' @param parameter Characteristic name (parameter name) from the dataset.
 #'
 #' @return A table and pie chart of unique values in the selected field.
 #' 
 #' @export
 #' 
 
-FilterParFieldReview <- function(field){
+FilterParFieldReview <- function(field, .data, parameter){
   
-  # check that input is in ParUniqueValList
-  if(exists(field, ParUniqueValList) == FALSE){
+  # check .data is of class data.frame
+  if(!missing(.data)) {
+    if(("data.frame" %in% class(.data)) == FALSE) {
+      stop(".data must be of class 'data.frame'")
+    }
+  }
+  # check parameter is in .data
+  if(!missing(parameter)) {
+    if((parameter %in% .data$CharacteristicName) == FALSE) {
+      stop("Input parameter is not in the input dataset.")
+    }
+  }
+  # execute function after checks are passed
+  
+  # refresh UniqueValList
+  invisible(utils::capture.output(FilterParFields(.data, parameter)))
+    # check that input is in ParUniqueValList
+  if(exists(field, TADA.env$ParUniqueValList) == FALSE){
     stop("Input does not exist as a field in the dataset.")
   }
+  
   # subset UniqueValList by input
-  df <- ParUniqueValList[[field]]
+  df <- TADA.env$ParUniqueValList[[field]]
   
   # define number of colors required for pie chart
   colorCount <- length(unique(df$FieldValue))

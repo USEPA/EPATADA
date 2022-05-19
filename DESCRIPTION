@@ -25,7 +25,8 @@ Imports:
     utils, 
     RColorBrewer,
     Rcpp,
-    stats
+    stats,
+    usethis
 Depends: 
     R (>= 2.10)
 Suggests: 
