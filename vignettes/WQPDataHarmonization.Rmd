@@ -80,8 +80,63 @@ TADAProfileClean13=InvalidSpeciation(TADAProfileClean12)
 TADAProfileClean14=InvalidResultUnit(TADAProfileClean13)
 ```
 
+## Filter data by field
+In this section a TADA user will want to review the unique values in specific fields and choose to remove particular values. 
+
+To start, review the list of fields and the number of unique values in each field.
+```{r, echo=FALSE}
+FilterFields(TADAProfileClean14)
+```
+
+Next, choose a field from the list to see the unique values in that field, as well as the number of times each value appears in the dataset. We'll start with ActivityTypeCode.
+```{r, echo=FALSE}
+FilterFieldReview("ActivityTypeCode")
+```
+
+The ActivityTypeCode field has four unique values -- "Sample-Routine", "Quality Control Sample-Field Replicate", "Field Msr/Obs", and "Quality Control Sample-Field Blank." In this example we want to remove quality control values in the ActivityTypeCode field, therefore, we'll specify that we want to remove the "Quality Control Sample-Field Replicate" and "Quality Control Sample-Field Blank" values in the ActivityTypeCode field.
+```{r}
+TADAProfileClean15 <- dplyr::filter(TADAProfileClean14, !(ActivityTypeCode %in% c("Quality Control Sample-Field Replicate", "Quality Control Sample-Field Blank")))
+```
+
+We've completed our review of the ActivityTypeCode field. 
+
+Let's move on to a different field and see if there are any values that we want to remove -- we'll look at the values in the ResultStatusIdentifier field.
+```{r, echo=FALSE}
+FilterFieldReview("ActivityMediaSubdivisionName")
+```
+
+The ActivityMediaSubdivisionName field has two unique values, "Surface Water" and "Groundwater." In this example we want to remove the "Groundwater" values. 
+```{r}
+TADAProfileClean16 <- dplyr::filter(TADAProfileClean15, !(ActivityMediaSubdivisionName %in% "Groundwater"))
+```
+
+## Filter data by field, subset by parameter
+In this section a TADA user will want to select a parameter, review the unique values associated with that parameter in specific fields, and choose to remove particular values. 
+
+To start, review the list of parameters in the dataset. (The list is sorted from highest to lowest counts. Only the first few rows are displayed to save space on the page) 
+```{r, echo=FALSE}
+FilterParList(TADAProfileClean16)
+```
+
+Next, select a parameter. Let's explore the fields associated with Nitrogen:
+```{r, echo=FALSE}
+FilterParFields(TADAProfileClean16, "NITROGEN")
+```
+
+Selecting a parameter generates the list below, which is subset by the selected parameter, of fields and the number of unique values in each field.
+
+Then choose a field from the list. In this example we'll remove certain values from the HydrologicEvent field.
+```{r, echo=FALSE}
+FilterParFieldReview("HydrologicEvent")
+```
+
+The HydrologicEvent field has three unique values. In this example we want to remove samples collected during "Storm" events. Therefore, we'll specify that we want to remove rows where the CharacteristicName is "NITROGEN" and the HydrologicEvent field is "Storm." 
+```{r}
+TADAProfileClean17 <- dplyr::filter(TADAProfileClean16, !(CharacteristicName %in% "NITROGEN" & HydrologicEvent %in% "Storm"))
+```
+
 ## Transform Characteristic, Speciation, and Unit values to TADA Standards
 ```{r}
-UniqueHarmonizationRef=HarmonizationRefTable(TADAProfileClean14)
-TADAProfileClean15=HarmonizeData(TADAProfileClean14, ref = UniqueHarmonizationRef)
+UniqueHarmonizationRef=HarmonizationRefTable(TADAProfileClean17)
+TADAProfileClean18=HarmonizeData(TADAProfileClean17, ref = UniqueHarmonizationRef)
 ```
