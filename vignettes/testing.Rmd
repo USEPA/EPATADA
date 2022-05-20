@@ -16,6 +16,19 @@ knitr::opts_chunk$set(
 )
 ```
 
+
+For a first time package/R user
+Install dependency package(s) 'dataRetrieval','dplyr','ggplot2','plyr','RColorBrewer','Rcpp'
+```{r}
+install.packages("dataRetrieval")
+install.packages("dplyr")
+install.packages("ggplot2")
+install.packages("plyr")
+install.packages("RColorBrewer")
+install.packages("Rcpp")
+```
+
+
 Load TADA library and update internal TADA package validation and reference tables
 ```{r setup}
 library(TADA)
