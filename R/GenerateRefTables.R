@@ -31,11 +31,11 @@ UpdateInternalData <- function(..., list = character()) {
 #' 
 #' Function updates the raw Water Quality Exchange (WQX) QAQC Characteristic 
 #' Validation reference table, as well as the cleaned reference table 
-#' (WQXcharVal.ref) in the sysdata.rda file. The WQXcharVal.ref data frame 
+#' (WQXcharValRef) in the sysdata.rda file. The WQXcharValRef data frame 
 #' contains information for four functions: InvalidFraction, InvalidResultUnit, 
 #' InvalidSpeciation, and UncommonAnalyticalMethodID. 
 #'
-#' @return Updated sysdata.rda with updated WQXcharVal.ref object
+#' @return Updated sysdata.rda with updated WQXcharValRef object
 #' 
 
 UpdateWQXCharValRef <- function(){
@@ -43,18 +43,19 @@ UpdateWQXCharValRef <- function(){
   # read raw csv from url
   raw.data <- utils::read.csv(url("https://cdx2.epa.gov/wqx/download/DomainValues/QAQCCharacteristicValidation.CSV"))
   # filter data to include only accepted (valid) values and remove extraneous columns
-  WQXcharVal.ref <- raw.data %>%
+  WQXcharValRef <- raw.data %>%
     dplyr::select(-c("Domain", "Unique.Identifier", "Note.Recommendation",
                      "Last.Change.Date"))
   # replace "Status" values with Valid, Invalid, Unknown
-  WQXcharVal.ref["Status"][WQXcharVal.ref["Status"] == "Accepted"] <- "Valid"
-  WQXcharVal.ref["Status"][WQXcharVal.ref["Status"] == "Rejected"] <- "Invalid"
-  WQXcharVal.ref["Status"][WQXcharVal.ref["Status"] == "Nonstandardized" |
-                             WQXcharVal.ref["Status"] == "InvalidMediaUnit" |
-                             WQXcharVal.ref["Status"] == "InvalidChar" |
-                             WQXcharVal.ref["Status"] == "MethodNeeded"] <- "Nonstandardized" 
-  # write reference table to sysdata.rda
-  UpdateInternalData(WQXcharVal.ref)
+  WQXcharValRef["Status"][WQXcharValRef["Status"] == "Accepted"] <- "Valid"
+  WQXcharValRef["Status"][WQXcharValRef["Status"] == "Rejected"] <- "Invalid"
+  WQXcharValRef["Status"][WQXcharValRef["Status"] == "Nonstandardized" |
+                             WQXcharValRef["Status"] == "InvalidMediaUnit" |
+                             WQXcharValRef["Status"] == "InvalidChar" |
+                             WQXcharValRef["Status"] == "MethodNeeded"] <- "Nonstandardized" 
+  # write reference table to inst/extdata
+      # write to sysdata.rda: UpdateInternalData(WQXcharValRef)
+  utils::write.csv(WQXcharValRef, file = "inst/extdata/WQXcharValRef.csv", row.names = FALSE)
 }
 
 #' Update Measure Unit Reference Table
@@ -62,14 +63,14 @@ UpdateWQXCharValRef <- function(){
 #' Function reads in the latest WQX MeasureUnit Domain table, adds 
 #' additional target unit information, and writes the data to sysdata.rda.
 #'
-#' @return sysdata.rda with updated unit.ref object (unit conversion reference
+#' @return sysdata.rda with updated WQXunitRef object (unit conversion reference
 #' table)
 #' 
 
 UpdateMeasureUnitRef <- function(){
   
   # read in raw WQX QAQC Characteristic Validation csv
-  unit.ref <- utils::read.csv(url("https://cdx2.epa.gov/wqx/download/DomainValues/MeasureUnit.CSV"))
+  WQXunitRef <- utils::read.csv(url("https://cdx2.epa.gov/wqx/download/DomainValues/MeasureUnit.CSV"))
   # add m and ft as target units for "Length Distance" (Description field) rows
     # target.unit = m
   target.m <- data.frame(Domain = rep("Measurement Unit(MeasureUnitCode)", 13),
@@ -122,11 +123,12 @@ UpdateMeasureUnitRef <- function(){
                                                6076.12, 3),
                          Conversion.Coefficient = rep(0, 13)
                          )
-     # add data to unit.ref
-  unit.ref <- plyr::rbind.fill(unit.ref, target.m, target.ft)
+     # add data to WQXunitRef
+  WQXunitRef <- plyr::rbind.fill(WQXunitRef, target.m, target.ft)
     
   # write reference table to sysdata.rda
-  UpdateInternalData(unit.ref) 
+      #UpdateInternalData(WQXunitRef)
+  utils::write.csv(WQXunitRef, file = "inst/extdata/WQXunitRef.csv", row.names = FALSE)
 }
 
 

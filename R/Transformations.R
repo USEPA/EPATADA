@@ -70,8 +70,8 @@ WQXTargetUnits <- function(.data, transform = TRUE, flag = TRUE){
       .data <- MeasureValueSpecialCharacters(.data)
     }
     
-    # filter WQXcharVal.ref to include only valid CharacteristicUnit in water media
-    unit.ref <- TADA::WQXcharVal.ref %>%
+    # filter WQXcharValRef to include only valid CharacteristicUnit in water media
+    unit.ref <- utils::read.csv(system.file("extdata", "WQXcharValRef.csv", package = "TADA")) %>%
       dplyr::filter(Type == "CharacteristicUnit" & Source == "WATER" & 
                       Status == "Valid")
     # join unit.ref to .data

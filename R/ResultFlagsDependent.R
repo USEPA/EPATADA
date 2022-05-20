@@ -35,8 +35,8 @@ InvalidFraction <- function(.data, clean = TRUE){
     if(("WQX.SampleFractionValidity" %in% colnames(.data)) == TRUE) {
       .data <- dplyr::select(.data, -WQX.SampleFractionValidity)
     }
-    # read in sample fraction reference table from sysdata.rda and filter
-    frac.ref <- TADA:::WQXcharVal.ref %>%
+    # read in sample fraction reference table from extdata and filter
+    frac.ref <- utils::read.csv(system.file("extdata", "WQXcharValRef.csv", package = "TADA")) %>%
       dplyr::filter(Type == "CharacteristicFraction")
     
     # join "Status" column to .data by CharacteristicName and Value (SampleFraction)
@@ -131,8 +131,8 @@ InvalidSpeciation <- function(.data, clean = TRUE){
     if(("WQX.MethodSpeciationValidity" %in% colnames(.data)) == TRUE) {
       .data <- dplyr::select(.data, -WQX.MethodSpeciationValidity)
     }
-    # read in speciation reference table from sysdata.rda and filter
-    spec.ref <- TADA:::WQXcharVal.ref %>%
+    # read in speciation reference table from extdata and filter
+    spec.ref <- utils::read.csv(system.file("extdata", "WQXcharValRef.csv", package = "TADA")) %>%
       dplyr::filter(Type == "CharacteristicSpeciation")
     
     # join "Status" column to .data by CharacteristicName and Value (Speciation)
@@ -228,8 +228,8 @@ InvalidResultUnit <- function(.data, clean = TRUE){
     if(("WQX.ResultUnitValidity" %in% colnames(.data)) == TRUE) {
       .data <- dplyr::select(.data, -WQX.ResultUnitValidity)
     }
-    # read in unit reference table from sysdata.rda and filter
-    unit.ref <- TADA:::WQXcharVal.ref %>%
+    # read in unit reference table from extdata and filter
+    unit.ref <- utils::read.csv(system.file("extdata", "WQXcharValRef.csv", package = "TADA")) %>%
       dplyr::filter(Type == "CharacteristicUnit")
     
     # join "Status" column to .data by CharacteristicName, Source (Media), and Value (unit)
@@ -368,8 +368,8 @@ DepthProfileData <- function(.data,
            "ResultDepthHeightMeasure.MeasureValue", "ResultDepthHeightMeasure.MeasureUnitCode") 
          %in% colnames(.data)) == TRUE) {
     
-    # read in unit conversion reference table from sysdata.rda
-    unit.ref <- TADA:::unit.ref
+    # read in unit conversion reference table from extdata
+    unit.ref <- utils::read.csv(system.file("extdata", "WQXunitRef.csv", package = "TADA"))
       #subset to include only "Length Distance" units; filter by target unit defined in 'unit' argument
     unit.ref <- unit.ref %>%
       dplyr::filter(stringr::str_detect(Description, 
