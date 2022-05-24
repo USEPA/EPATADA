@@ -17,6 +17,44 @@ knitr::opts_chunk$set(
 )
 ```
 
+##Install packages 
+If needed (for example, if you are a new R user), install the following dependency package(s):
+```{r}
+#install.packages("dataRetrieval")
+remotes::install_github("USGS-R/dataRetrieval")
+install.packages("dplyr")
+install.packages("ggplot2")
+install.packages("plyr")
+install.packages("RColorBrewer")
+install.packages("Rcpp")
+install.packages("data.table")
+install.packages("grDevices")
+install.packages("magrittr")
+install.packages("stringr")
+install.packages("testthat")
+install.packages("usethis")
+install.packages("utils")
+install.packages("stats")
+```
+
+##Load packages
+```{r}
+library("dataRetrieval")
+library("dplyr")
+library("ggplot2")
+library("plyr")
+library("RColorBrewer")
+library("Rcpp")
+library("data.table")
+library("grDevices")
+library("magrittr")
+library("stringr")
+library("testthat")
+library("usethis")
+library("utils")
+library("stats")
+```
+
 ## Load TADA library and update internal TADA package validation and reference tables
 ```{r}
 # look into using install_github(); library() only works for CRAN packages
@@ -41,11 +79,32 @@ CT Nutrient Group: https://www.waterqualitydata.us/data/Result/search?statecode=
 
 PA Nutrient Group: https://www.waterqualitydata.us/data/Result/search?statecode=US%3A42&characteristicType=Nutrient&mimeType=csv&zip=yes&dataProfile=resultPhysChem&providers=NWIS&providers=STEWARDS&providers=STORET
 
+PA Lake Nutrient Data:
+https://www.waterqualitydata.us/data/Result/search?statecode=US%3A42&siteType=Lake%2C%20Reservoir%2C%20Impoundment&sampleMedia=water&sampleMedia=Water&characteristicType=Nutrient&startDateLo=01-01-2019&startDateHi=01-01-2022&mimeType=csv&zip=yes&dataProfile=resultPhysChem&providers=NWIS&providers=STEWARDS&providers=STORET
+
 Note: It may be useful to save the Query URL as well as a comment within 
 your code. This URL let's you return to the WQP query page with all your 
 original data filters, but it cannot be used to download the data.
 
 WQP query URL: https://www.waterqualitydata.us/#statecode=US%3A42&characteristicType=Nutrient&mimeType=csv&dataProfile=resultPhysChem&providers=NWIS&providers=STEWARDS&providers=STORET
+
+```{r}
+FullPhysChem=readWQPwebservice("https://www.waterqualitydata.us/data/Result/search?statecode=US%3A42&characteristicType=Nutrient&mimeType=csv&zip=yes&dataProfile=resultPhysChem&providers=NWIS&providers=STEWARDS&providers=STORET")
+
+# Transform data to uppercase where needed
+FullPhysChem$CharacteristicName = toupper(FullPhysChem$CharacteristicName)
+FullPhysChem$ResultSampleFractionText = toupper(FullPhysChem$ResultSampleFractionText)
+FullPhysChem$MethodSpecificationName = toupper(FullPhysChem$MethodSpecificationName)
+FullPhysChem$ResultMeasure.MeasureUnitCode = toupper(FullPhysChem$ResultMeasure.MeasureUnitCode)
+FullPhysChem$ActivityMediaName = toupper(FullPhysChem$ActivityMediaName)
+FullPhysChem$DetectionQuantitationLimitMeasure.MeasureUnitCode = toupper(FullPhysChem$DetectionQuantitationLimitMeasure.MeasureUnitCode)
+
+# Remove duplicate rows
+FullPhysChem=FullPhysChem[!duplicated(FullPhysChem),]
+
+# Remove non-water media 
+FullPhysChem=dplyr::filter(FullPhysChem, ActivityMediaName == "WATER")
+```
 
 ## Clean raw data for TADA use case
 ```{r}
@@ -56,11 +115,12 @@ WQP query URL: https://www.waterqualitydata.us/#statecode=US%3A42&characteristic
   #characteristicName = c("Ammonia", "Nitrate", "Nitrogen")
   #startDate = "01-01-2019"
   #endDate = "01-01-2022"
-TADAProfileRaw=TADAdataRetrieval()
+#autocleans results upon retrieval (makes certain data uppercase, removes true duplicates, removed non-water media)
+TADATesting=TADAdataRetrieval()
 
 #Run all dependencies
 TADAProfileClean=MeasureValueSpecialCharacters(TADAProfileRaw)
-#runs as part of retrieval: TADAProfileClean1=autoclean(TADAProfileClean)
+
 TADAProfileClean2=DepthProfileData(TADAProfileClean)
 TADAProfileClean3=AggregatedContinuousData(TADAProfileClean2)
 TADAProfileClean4=WQXTargetUnits(TADAProfileClean3)

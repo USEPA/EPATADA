@@ -145,6 +145,9 @@ autoclean <- function(.data, clean=TRUE){
     .data = dplyr::filter(.data, ActivityMediaName == "WATER")
     #.data = dplyr::filter(.data, BiologicalIntentName != "TISSUE" | "TOXICITY" | is.na(InvalidCoordinates)== TRUE)
     
+    #run MeasureValueSpecialCharacters function
+    .data = MeasureValueSpecialCharacters(.data)
+    
     return (.data)
 }
 

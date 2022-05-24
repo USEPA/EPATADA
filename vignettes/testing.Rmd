@@ -40,10 +40,9 @@ install.packages("stats")
 
 Load TADA library and update internal TADA package validation and reference tables
 ```{r setup}
-library(TADA)
-#UpdateWQXCharValRef()
-#UpdateMeasureUnitRef()
-#HarmonizationRefTable()
+remotes::install_github("USEPA/TADA")
+UpdateWQXCharValRef()
+UpdateMeasureUnitRef()
 ```
 
 Read in WQP data using WQP web services directly 
