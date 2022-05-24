@@ -1,6 +1,6 @@
 ---
 title: "WQP Data Harmonization"
-author: "Cristina Mullin"
+author: "Cristina Mullin and Jake Greif"
 date: "May 1, 2022"
 output: rmarkdown::html_vignette
 vignette: >
@@ -20,7 +20,7 @@ knitr::opts_chunk$set(
 ## Load TADA library and update internal TADA package validation and reference tables
 ```{r}
 # look into using install_github(); library() only works for CRAN packages
-library(TADA)
+remotes::install_github("USEPA/TADA")
 UpdateWQXCharValRef()
 UpdateMeasureUnitRef()
 ```

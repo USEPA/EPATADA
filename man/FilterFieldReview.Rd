@@ -4,10 +4,12 @@
 \alias{FilterFieldReview}
 \title{Generate list of unique values in a given field}
 \usage{
-FilterFieldReview(field)
+FilterFieldReview(field, .data)
 }
 \arguments{
-\item{.data}{TADA dataframe}
+\item{field}{Field name}
+
+\item{.data}{Optional argument; TADA dataframe}
 }
 \value{
 A table and pie chart of unique values in the selected field.

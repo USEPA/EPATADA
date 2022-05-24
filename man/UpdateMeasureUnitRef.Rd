@@ -7,7 +7,7 @@
 UpdateMeasureUnitRef()
 }
 \value{
-sysdata.rda with updated unit.ref object (unit conversion reference
+sysdata.rda with updated WQXunitRef object (unit conversion reference
 table)
 }
 \description{

@@ -20,12 +20,21 @@ knitr::opts_chunk$set(
 For a first time package/R user
 Install dependency package(s) 'dataRetrieval','dplyr','ggplot2','plyr','RColorBrewer','Rcpp'
 ```{r}
-install.packages("dataRetrieval")
+#install.packages("dataRetrieval")
+remotes::install_github("USGS-R/dataRetrieval")
 install.packages("dplyr")
 install.packages("ggplot2")
 install.packages("plyr")
 install.packages("RColorBrewer")
 install.packages("Rcpp")
+install.packages("data.table")
+install.packages("grDevices")
+install.packages("magrittr")
+install.packages("stringr")
+install.packages("testthat")
+install.packages("usethis")
+install.packages("utils")
+install.packages("stats")
 ```
 
 
@@ -62,6 +71,13 @@ WQP query URL: https://www.waterqualitydata.us/#statecode=US%3A42&characteristic
 ```{r}
 #get PA nutrient data
 TADAProfileRaw=readWQPwebservice("https://www.waterqualitydata.us/data/Result/search?statecode=US%3A42&siteType=Lake%2C%20Reservoir%2C%20Impoundment&sampleMedia=water&sampleMedia=Water&characteristicType=Nutrient&startDateLo=01-01-2019&startDateHi=01-01-2022&mimeType=csv&zip=yes&dataProfile=resultPhysChem&providers=NWIS&providers=STEWARDS&providers=STORET")
+TADAProfileClean = TADAProfileRaw %>%
+  (toupper(c("CharacteristicName", "ResultSampleFractionText", "MethodSpecificationName", "ResultMeasure.MeasureUnitCode", "ActivityMediaName", "DetectionQuantitationLimitMeasure.MeasureUnitCode")))
+    # Remove duplicate rows
+    TADAProfileRaw[!duplicated(TADAProfileRaw),]
+    # Remove complex biological data
+    dplyr::filter(TADAProfileRaw, ActivityMediaName == "WATER")
+   
 ```
 
 
