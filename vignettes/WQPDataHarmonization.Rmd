@@ -40,9 +40,9 @@ install.packages("stats")
 ##Load packages
 ```{r}
 library("dataRetrieval")
+library("plyr")
 library("dplyr")
 library("ggplot2")
-library("plyr")
 library("RColorBrewer")
 library("Rcpp")
 library("data.table")
@@ -59,6 +59,8 @@ library("stats")
 ```{r}
 # look into using install_github(); library() only works for CRAN packages
 remotes::install_github("USEPA/TADA")
+
+#only necessary ~ once a week
 UpdateWQXCharValRef()
 UpdateMeasureUnitRef()
 ```
@@ -89,7 +91,7 @@ original data filters, but it cannot be used to download the data.
 WQP query URL: https://www.waterqualitydata.us/#statecode=US%3A42&characteristicType=Nutrient&mimeType=csv&dataProfile=resultPhysChem&providers=NWIS&providers=STEWARDS&providers=STORET
 
 ```{r}
-FullPhysChem=readWQPwebservice("https://www.waterqualitydata.us/data/Result/search?statecode=US%3A42&characteristicType=Nutrient&mimeType=csv&zip=yes&dataProfile=resultPhysChem&providers=NWIS&providers=STEWARDS&providers=STORET")
+FullPhysChem=readWQPwebservice("https://www.waterqualitydata.us/data/Result/search?statecode=US%3A42&siteType=Lake%2C%20Reservoir%2C%20Impoundment&sampleMedia=water&sampleMedia=Water&characteristicType=Nutrient&startDateLo=01-01-2019&startDateHi=01-01-2022&mimeType=csv&zip=yes&dataProfile=resultPhysChem&providers=NWIS&providers=STEWARDS&providers=STORET")
 
 # Transform data to uppercase where needed
 FullPhysChem$CharacteristicName = toupper(FullPhysChem$CharacteristicName)
@@ -104,6 +106,9 @@ FullPhysChem=FullPhysChem[!duplicated(FullPhysChem),]
 
 # Remove non-water media 
 FullPhysChem=dplyr::filter(FullPhysChem, ActivityMediaName == "WATER")
+
+#result special characters from results
+FullPhysChem=MeasureValueSpecialCharacters(FullPhysChem)
 ```
 
 ## Clean raw data for TADA use case
@@ -115,14 +120,16 @@ FullPhysChem=dplyr::filter(FullPhysChem, ActivityMediaName == "WATER")
   #characteristicName = c("Ammonia", "Nitrate", "Nitrogen")
   #startDate = "01-01-2019"
   #endDate = "01-01-2022"
-#autocleans results upon retrieval (makes certain data uppercase, removes true duplicates, removed non-water media)
+#autocleans results upon retrieval (makes certain data uppercase, removes true duplicates, removes non-water media, cleans results with special characters)
 TADATesting=TADAdataRetrieval()
+```
 
-#Run all dependencies
-TADAProfileClean=MeasureValueSpecialCharacters(TADAProfileRaw)
-
-TADAProfileClean2=DepthProfileData(TADAProfileClean)
+```{r}
+#converts all depth profile data to meters
+TADAProfileClean2=DepthProfileData(TADATesting)
+#check for and removes aggregrated continuous data, if present
 TADAProfileClean3=AggregatedContinuousData(TADAProfileClean2)
+#Converts all data to WQX target units
 TADAProfileClean4=WQXTargetUnits(TADAProfileClean3)
 ```
 
@@ -132,10 +139,10 @@ TADAProfileClean5=InvalidMethod(TADAProfileClean4)
 TADAProfileClean6=PotentialDuplicateRowID(TADAProfileClean5)
 TADAProfileClean7=AboveNationalWQXUpperThreshold(TADAProfileClean6)
 TADAProfileClean8=BelowNationalWQXUpperThreshold(TADAProfileClean7)
-TADAProfileClean9=QAPPapproved(TADAProfileClean8)
-TADAProfileClean10=QAPPDocAvailable(TADAProfileClean8)
+#TADAProfileClean9=QAPPapproved(TADAProfileClean8)
+#TADAProfileClean10=QAPPDocAvailable(TADAProfileClean8)
 TADAProfileClean11=InvalidCoordinates(TADAProfileClean8)
-TADAProfileClean12=InvalidFraction(TADAProfileClean8)
+TADAProfileClean12=InvalidFraction(TADAProfileClean11)
 TADAProfileClean13=InvalidSpeciation(TADAProfileClean12)
 TADAProfileClean14=InvalidResultUnit(TADAProfileClean13)
 ```
@@ -150,7 +157,7 @@ FilterFields(TADAProfileClean14)
 
 Next, choose a field from the list to see the unique values in that field, as well as the number of times each value appears in the dataset. We'll start with ActivityTypeCode.
 ```{r, echo=FALSE}
-FilterFieldReview("ActivityTypeCode")
+FilterFieldReview("ActivityTypeCode", TADAProfileClean14)
 ```
 
 The ActivityTypeCode field has four unique values -- "Sample-Routine", "Quality Control Sample-Field Replicate", "Field Msr/Obs", and "Quality Control Sample-Field Blank." In this example we want to remove quality control values in the ActivityTypeCode field, therefore, we'll specify that we want to remove the "Quality Control Sample-Field Replicate" and "Quality Control Sample-Field Blank" values in the ActivityTypeCode field.
@@ -162,7 +169,7 @@ We've completed our review of the ActivityTypeCode field.
 
 Let's move on to a different field and see if there are any values that we want to remove -- we'll look at the values in the ResultStatusIdentifier field.
 ```{r, echo=FALSE}
-FilterFieldReview("ActivityMediaSubdivisionName")
+FilterFieldReview("ActivityMediaSubdivisionName", TADAProfileClean14)
 ```
 
 The ActivityMediaSubdivisionName field has two unique values, "Surface Water" and "Groundwater." In this example we want to remove the "Groundwater" values. 
@@ -187,7 +194,7 @@ Selecting a parameter generates the list below, which is subset by the selected 
 
 Then choose a field from the list. In this example we'll remove certain values from the HydrologicEvent field.
 ```{r, echo=FALSE}
-FilterParFieldReview("HydrologicEvent")
+FilterParFieldReview("HydrologicEvent", TADAProfileClean16, "NITROGEN")
 ```
 
 The HydrologicEvent field has three unique values. In this example we want to remove samples collected during "Storm" events. Therefore, we'll specify that we want to remove rows where the CharacteristicName is "NITROGEN" and the HydrologicEvent field is "Storm." 

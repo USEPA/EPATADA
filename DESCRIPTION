@@ -13,12 +13,13 @@ Encoding: UTF-8
 LazyData: true
 RoxygenNote: 7.2.0
 Imports:
+    plyr, 
+    data.table, 
     dataRetrieval,
     dplyr,
     ggplot2,
     grDevices,
     magrittr,
-    plyr,
     stringr,
     testthat,
     usethis,
@@ -26,8 +27,7 @@ Imports:
     RColorBrewer,
     Rcpp,
     stats,
-    usethis,
-    data.table
+    usethis
 Depends: 
     R (>= 2.10)
 Suggests: 

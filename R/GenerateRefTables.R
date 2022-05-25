@@ -233,7 +233,7 @@ HarmonizationRefTable <- function(.data, download = FALSE){
     }
     
     # remove extraneous characters in first column
-    colnames(unique.data)[1] <- gsub('^...','',colnames(unique.data)[1])
+    colnames(unique.data)[1] <- gsub('^','',colnames(unique.data)[1])
     
     # flag potential duplicates
     unique.data$TADA.ComparableDataID <- as.integer(seq_len(nrow(unique.data)))
