@@ -132,7 +132,7 @@ FilterFieldReview <- function(field, .data){
 #'
 #' @param .data TADA dataframe
 #'
-#' @return 
+#' @return A list of unique characteristics and their counts
 #' 
 #' @export
 #' 

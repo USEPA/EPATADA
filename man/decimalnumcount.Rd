@@ -10,7 +10,7 @@ decimalnumcount(x)
 \item{.data}{TADA dataset}
 }
 \value{
-
+Number of values to the right of the decimal point for character type data.
 }
 \description{
 for character data type

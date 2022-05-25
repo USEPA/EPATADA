@@ -10,7 +10,7 @@ decimalplaces(x)
 \item{.data}{TADA dataset}
 }
 \value{
-
+Number of values to the right of the decimal point for numeric type data.
 }
 \description{
 for numeric data type

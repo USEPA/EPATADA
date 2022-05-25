@@ -10,7 +10,7 @@ FilterParList(.data)
 \item{.data}{TADA dataframe}
 }
 \value{
-
+A list of unique characteristics and their counts
 }
 \description{
 Function generates list of characteristics in the input dataset, as well as 

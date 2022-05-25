@@ -4,10 +4,14 @@
 \alias{FilterParFieldReview}
 \title{Generate list of unique values in a given field subset by parameter}
 \usage{
-FilterParFieldReview(field)
+FilterParFieldReview(field, .data, parameter)
 }
 \arguments{
-\item{.data}{TADA dataframe}
+\item{field}{Field name}
+
+\item{.data}{Optional argument; TADA dataframe}
+
+\item{parameter}{Characteristic name (parameter name) from the dataset.}
 }
 \value{
 A table and pie chart of unique values in the selected field.
