@@ -18,9 +18,9 @@ knitr::opts_chunk$set(
 ```
 
 ##Install packages 
-If needed (for example, if you are a new R user), install the following dependency package(s):
+If needed, install the following dependency package(s):
 ```{r}
-#install.packages("dataRetrieval")
+install.packages("dataRetrieval")
 remotes::install_github("USGS-R/dataRetrieval")
 install.packages("dplyr")
 install.packages("ggplot2")
@@ -35,6 +35,7 @@ install.packages("testthat")
 install.packages("usethis")
 install.packages("utils")
 install.packages("stats")
+install.packages("remotes")
 ```
 
 ##Load packages
@@ -53,65 +54,16 @@ library("testthat")
 library("usethis")
 library("utils")
 library("stats")
+library("remotes")
 ```
 
-## Load TADA library and update internal TADA package validation and reference tables
+## Load TADA from GitHub
 ```{r}
-# look into using install_github(); library() only works for CRAN packages
+# Use remotes package to install TADA from GitHub; library() only works for CRAN packages
 remotes::install_github("USEPA/TADA")
-
-#only necessary ~ once a week
-UpdateWQXCharValRef()
-UpdateMeasureUnitRef()
 ```
 
-## Read in WQP data using WQP web services directly 
-
-Go to the WQP website (https://www.waterqualitydata.us/) and fill out the 
-query form. Choose the Full Physical Chemical Data Profile, all data sources, 
-and the file format Comma-Separated. Do not hit the download button. Instead, 
-copy the web service URL located at the bottom of the page under "Result". 
-
-Use that "Result" web service URL as the input for this function to download data 
-directly into R.  
-
-Here are two "Result" web service examples: 
-
-CT Nutrient Group: https://www.waterqualitydata.us/data/Result/search?statecode=US%3A09&countycode=US%3A09%3A003&characteristicType=Nutrient&mimeType=csv&zip=yes&dataProfile=resultPhysChem&providers=NWIS&providers=STEWARDS&providers=STORET
-
-PA Nutrient Group: https://www.waterqualitydata.us/data/Result/search?statecode=US%3A42&characteristicType=Nutrient&mimeType=csv&zip=yes&dataProfile=resultPhysChem&providers=NWIS&providers=STEWARDS&providers=STORET
-
-PA Lake Nutrient Data:
-https://www.waterqualitydata.us/data/Result/search?statecode=US%3A42&siteType=Lake%2C%20Reservoir%2C%20Impoundment&sampleMedia=water&sampleMedia=Water&characteristicType=Nutrient&startDateLo=01-01-2019&startDateHi=01-01-2022&mimeType=csv&zip=yes&dataProfile=resultPhysChem&providers=NWIS&providers=STEWARDS&providers=STORET
-
-Note: It may be useful to save the Query URL as well as a comment within 
-your code. This URL let's you return to the WQP query page with all your 
-original data filters, but it cannot be used to download the data.
-
-WQP query URL: https://www.waterqualitydata.us/#statecode=US%3A42&characteristicType=Nutrient&mimeType=csv&dataProfile=resultPhysChem&providers=NWIS&providers=STEWARDS&providers=STORET
-
-```{r}
-FullPhysChem=readWQPwebservice("https://www.waterqualitydata.us/data/Result/search?statecode=US%3A42&siteType=Lake%2C%20Reservoir%2C%20Impoundment&sampleMedia=water&sampleMedia=Water&characteristicType=Nutrient&startDateLo=01-01-2019&startDateHi=01-01-2022&mimeType=csv&zip=yes&dataProfile=resultPhysChem&providers=NWIS&providers=STEWARDS&providers=STORET")
-
-# Transform data to uppercase where needed
-FullPhysChem$CharacteristicName = toupper(FullPhysChem$CharacteristicName)
-FullPhysChem$ResultSampleFractionText = toupper(FullPhysChem$ResultSampleFractionText)
-FullPhysChem$MethodSpecificationName = toupper(FullPhysChem$MethodSpecificationName)
-FullPhysChem$ResultMeasure.MeasureUnitCode = toupper(FullPhysChem$ResultMeasure.MeasureUnitCode)
-FullPhysChem$ActivityMediaName = toupper(FullPhysChem$ActivityMediaName)
-FullPhysChem$DetectionQuantitationLimitMeasure.MeasureUnitCode = toupper(FullPhysChem$DetectionQuantitationLimitMeasure.MeasureUnitCode)
-
-# Remove duplicate rows
-FullPhysChem=FullPhysChem[!duplicated(FullPhysChem),]
-
-# Remove non-water media 
-FullPhysChem=dplyr::filter(FullPhysChem, ActivityMediaName == "WATER")
-
-#result special characters from results
-FullPhysChem=MeasureValueSpecialCharacters(FullPhysChem)
-```
-
-## Clean raw data for TADA use case
+## Retrieve WQP data and process it for compatibility with TADA
 ```{r}
 #Get testing data
   #stateCode = "US:24",
@@ -122,6 +74,15 @@ FullPhysChem=MeasureValueSpecialCharacters(FullPhysChem)
   #endDate = "01-01-2022"
 #autocleans results upon retrieval (makes certain data uppercase, removes true duplicates, removes non-water media, cleans results with special characters)
 TADATesting=TADAdataRetrieval()
+
+#Edit and define your own query inputs below
+#Enter ?TADAdataRetrieval in the console to read the documentation for this function
+TADATesting2=TADAdataRetrieval(stateCode = "US:30", 
+                              siteType = c("Lake, Reservoir, Impoundment", "Stream"),
+                              sampleMedia = c("water", "Water"),
+                              characteristicName = c("Ammonia", "Nitrate", "Nitrogen"),
+                              startDate = "01-01-2019",
+                              endDate = "01-01-2022")
 ```
 
 ```{r}
@@ -139,12 +100,10 @@ TADAProfileClean5=InvalidMethod(TADAProfileClean4)
 TADAProfileClean6=PotentialDuplicateRowID(TADAProfileClean5)
 TADAProfileClean7=AboveNationalWQXUpperThreshold(TADAProfileClean6)
 TADAProfileClean8=BelowNationalWQXUpperThreshold(TADAProfileClean7)
-#TADAProfileClean9=QAPPapproved(TADAProfileClean8)
-#TADAProfileClean10=QAPPDocAvailable(TADAProfileClean8)
-TADAProfileClean11=InvalidCoordinates(TADAProfileClean8)
-TADAProfileClean12=InvalidFraction(TADAProfileClean11)
-TADAProfileClean13=InvalidSpeciation(TADAProfileClean12)
-TADAProfileClean14=InvalidResultUnit(TADAProfileClean13)
+TADAProfileClean9=InvalidCoordinates(TADAProfileClean8)
+TADAProfileClean10=InvalidFraction(TADAProfileClean9)
+TADAProfileClean11=InvalidSpeciation(TADAProfileClean10)
+TADAProfileClean12=InvalidResultUnit(TADAProfileClean11)
 ```
 
 ## Filter data by field
@@ -152,29 +111,29 @@ In this section a TADA user will want to review the unique values in specific fi
 
 To start, review the list of fields and the number of unique values in each field.
 ```{r, echo=FALSE}
-FilterFields(TADAProfileClean14)
+FilterFields(TADAProfileClean12)
 ```
 
 Next, choose a field from the list to see the unique values in that field, as well as the number of times each value appears in the dataset. We'll start with ActivityTypeCode.
 ```{r, echo=FALSE}
-FilterFieldReview("ActivityTypeCode", TADAProfileClean14)
+FilterFieldReview("ActivityTypeCode", TADAProfileClean12)
 ```
 
 The ActivityTypeCode field has four unique values -- "Sample-Routine", "Quality Control Sample-Field Replicate", "Field Msr/Obs", and "Quality Control Sample-Field Blank." In this example we want to remove quality control values in the ActivityTypeCode field, therefore, we'll specify that we want to remove the "Quality Control Sample-Field Replicate" and "Quality Control Sample-Field Blank" values in the ActivityTypeCode field.
 ```{r}
-TADAProfileClean15 <- dplyr::filter(TADAProfileClean14, !(ActivityTypeCode %in% c("Quality Control Sample-Field Replicate", "Quality Control Sample-Field Blank")))
+TADAProfileClean13 <- dplyr::filter(TADAProfileClean12, !(ActivityTypeCode %in% c("Quality Control Sample-Field Replicate", "Quality Control Sample-Field Blank")))
 ```
 
 We've completed our review of the ActivityTypeCode field. 
 
 Let's move on to a different field and see if there are any values that we want to remove -- we'll look at the values in the ResultStatusIdentifier field.
 ```{r, echo=FALSE}
-FilterFieldReview("ActivityMediaSubdivisionName", TADAProfileClean14)
+FilterFieldReview("ActivityMediaSubdivisionName", TADAProfileClean13)
 ```
 
 The ActivityMediaSubdivisionName field has two unique values, "Surface Water" and "Groundwater." In this example we want to remove the "Groundwater" values. 
 ```{r}
-TADAProfileClean16 <- dplyr::filter(TADAProfileClean15, !(ActivityMediaSubdivisionName %in% "Groundwater"))
+TADAProfileClean14 <- dplyr::filter(TADAProfileClean13, !(ActivityMediaSubdivisionName %in% "Groundwater"))
 ```
 
 ## Filter data by field, subset by parameter
@@ -182,28 +141,22 @@ In this section a TADA user will want to select a parameter, review the unique v
 
 To start, review the list of parameters in the dataset. (The list is sorted from highest to lowest counts. Only the first few rows are displayed to save space on the page) 
 ```{r, echo=FALSE}
-FilterParList(TADAProfileClean16)
+FilterParList(TADAProfileClean14)
 ```
 
 Next, select a parameter. Let's explore the fields associated with Nitrogen:
 ```{r, echo=FALSE}
-FilterParFields(TADAProfileClean16, "NITROGEN")
+FilterParFields(TADAProfileClean14, "NITROGEN")
 ```
 
 Selecting a parameter generates the list below, which is subset by the selected parameter, of fields and the number of unique values in each field.
 
 Then choose a field from the list. In this example we'll remove certain values from the HydrologicEvent field.
 ```{r, echo=FALSE}
-FilterParFieldReview("HydrologicEvent", TADAProfileClean16, "NITROGEN")
+FilterParFieldReview("HydrologicEvent", TADAProfileClean14, "NITROGEN")
 ```
 
 The HydrologicEvent field has three unique values. In this example we want to remove samples collected during "Storm" events. Therefore, we'll specify that we want to remove rows where the CharacteristicName is "NITROGEN" and the HydrologicEvent field is "Storm." 
 ```{r}
-TADAProfileClean17 <- dplyr::filter(TADAProfileClean16, !(CharacteristicName %in% "NITROGEN" & HydrologicEvent %in% "Storm"))
-```
-
-## Transform Characteristic, Speciation, and Unit values to TADA Standards
-```{r}
-UniqueHarmonizationRef=HarmonizationRefTable(TADAProfileClean17)
-TADAProfileClean18=HarmonizeData(TADAProfileClean17, ref = UniqueHarmonizationRef)
+TADAProfileClean15 <- dplyr::filter(TADAProfileClean14, !(CharacteristicName %in% "NITROGEN" & HydrologicEvent %in% "Storm"))
 ```
