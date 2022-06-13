@@ -17,27 +17,6 @@ knitr::opts_chunk$set(
 )
 ```
 
-##Install packages 
-If needed, install the following dependency package(s):
-```{r}
-install.packages("dataRetrieval")
-remotes::install_github("USGS-R/dataRetrieval")
-install.packages("dplyr")
-install.packages("ggplot2")
-install.packages("plyr")
-install.packages("RColorBrewer")
-install.packages("Rcpp")
-install.packages("data.table")
-install.packages("grDevices")
-install.packages("magrittr")
-install.packages("stringr")
-install.packages("testthat")
-install.packages("usethis")
-install.packages("utils")
-install.packages("stats")
-install.packages("remotes")
-```
-
 ##Load packages
 ```{r}
 library("dataRetrieval")
@@ -55,12 +34,7 @@ library("usethis")
 library("utils")
 library("stats")
 library("remotes")
-```
-
-## Load TADA from GitHub
-```{r}
-# Use remotes package to install TADA from GitHub; library() only works for CRAN packages
-remotes::install_github("USEPA/TADA")
+library("TADA")
 ```
 
 ## Retrieve WQP data and process it for compatibility with TADA
