@@ -382,7 +382,7 @@ HarmonizeData <- function(.data, ref, transform = TRUE, flag = TRUE){
       # get .data column names
     col.order <- colnames(.data)
       # add flag columns to the list
-    col.order <- append(col.order, c("TADAPollutantGroup", 
+    col.order <- append(col.order, c("TADACharacteristicGroup", 
                                      "CharacteristicNameUserSupplied", 
                                      "TADA.SuggestedCharacteristicName",
                                      "TADA.CharacteristicNameAssumptions",
@@ -403,7 +403,7 @@ HarmonizeData <- function(.data, ref, transform = TRUE, flag = TRUE){
     flag.data <- flag.data[, col.order]
       # place flag columns next to relevant fields
     flag.data <- flag.data %>%
-      dplyr::relocate("TADAPollutantGroup", 
+      dplyr::relocate("TADACharacteristicGroup", 
                       .before = "CharacteristicName") %>%
       dplyr::relocate(c("CharacteristicNameUserSupplied", 
                         "TADA.SuggestedCharacteristicName",
@@ -501,7 +501,7 @@ HarmonizeData <- function(.data, ref, transform = TRUE, flag = TRUE){
       if(flag == FALSE) {
         # remove all appended columns
         clean.data <- clean.data %>%
-          dplyr::select(-c("TADAPollutantGroup",
+          dplyr::select(-c("TADACharacteristicGroup",
                            "CharacteristicNameUserSupplied",
                            "CombinationValidity",
                            "TADA.CharacteristicNameAssumptions",

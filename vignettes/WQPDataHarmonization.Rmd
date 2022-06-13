@@ -160,3 +160,10 @@ The HydrologicEvent field has three unique values. In this example we want to re
 ```{r}
 TADAProfileClean15 <- dplyr::filter(TADAProfileClean14, !(CharacteristicName %in% "NITROGEN" & HydrologicEvent %in% "Storm"))
 ```
+
+## Transform Characteristic, Speciation, and Unit values to TADA Standards
+```{r}
+UniqueHarmonizationRef=HarmonizationRefTable(TADAProfileClean15)
+TADAProfileClean16=HarmonizeData(TADAProfileClean15, ref = UniqueHarmonizationRef)
+```
+
