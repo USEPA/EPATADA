@@ -17,7 +17,7 @@ knitr::opts_chunk$set(
 )
 ```
 
-##Load packages
+##Load dependency packages
 ```{r}
 library("dataRetrieval")
 library("plyr")
@@ -34,10 +34,19 @@ library("usethis")
 library("utils")
 library("stats")
 library("remotes")
+library("rmarkdown")
+library("knitr")
+library("devtools")
 library("TADA")
 ```
 
-## Retrieve WQP data and process it for compatibility with TADA
+## Retrieve WQP data
+WQP is retrieved and processed for compatibility with TADA. This function
+joins three WQP profile (station, narrow, and phys/chem), changes all data in the 
+Characteristic, Speciation, Fraction, and Unit fields to uppercase, removes true duplicates, removes data for all non-water media types, and cleans results with special characters. 
+
+More details about this function  can be found in the function documentation 
+by entering the following code into the console: ?TADAdataRetrieval
 ```{r}
 #Get testing data
   #stateCode = "US:24",
@@ -46,11 +55,10 @@ library("TADA")
   #characteristicName = c("Ammonia", "Nitrate", "Nitrogen")
   #startDate = "01-01-2019"
   #endDate = "01-01-2022"
-#autocleans results upon retrieval (makes certain data uppercase, removes true duplicates, removes non-water media, cleans results with special characters)
 TADATesting=TADAdataRetrieval()
 
-#Edit and define your own query inputs below
-#Enter ?TADAdataRetrieval in the console to read the documentation for this function
+#OR ---Edit and define your own query inputs below. If you do this, you will also need to 
+#change TADATesting to TADATesting2 in row 72
 TADATesting2=TADAdataRetrieval(stateCode = "US:30", 
                               siteType = c("Lake, Reservoir, Impoundment", "Stream"),
                               sampleMedia = c("water", "Water"),
@@ -59,29 +67,92 @@ TADATesting2=TADAdataRetrieval(stateCode = "US:30",
                               endDate = "01-01-2022")
 ```
 
+## Depth unit conversions
+Converts depth units to a consistent unit. 
+
+Function checks dataset for depth profile data. Where depth profile columns are populated, the function appends 'Conversion Factor' columns and populates those columns based on the original unit (MeasureUnitCode columns) and the target unit, which is defined in the 'unit' argument. A 'Depth Target Unit' column is also appended, indicating the unit all selected depth data is converted to. When transform = FALSE, the output includes all 'Conversion Factor' columns and the 'Depth Target Unit' column. When transform = TRUE, the output includes converted depth data and the 'Depth Target Unit' column, which acts as a flag indicating which rows have been converted. Default is transform = TRUE.
+
+The depth profile function can harmonize the depth units across all the following fields
+(or only a specific one): "ActivityDepthHeightMeasure", "ActivityTopDepthHeightMeasure", 
+"ActivityBottomDepthHeightMeasure", "ResultDepthHeightMeasure"). The default is all.
+
+Allowable values for 'unit' are either 'm' (meter), 'ft' (feet), or 'in' (inch). 'unit' accepts only one allowable value as an input. Default is unit = "m".
+
+See additional function documentation for additional function options by entering the following 
+code in the console: 
+?DepthProfileData
+
 ```{r}
 #converts all depth profile data to meters
-TADAProfileClean2=DepthProfileData(TADATesting)
-#check for and removes aggregrated continuous data, if present
-TADAProfileClean3=AggregatedContinuousData(TADAProfileClean2)
-#Converts all data to WQX target units
-TADAProfileClean4=WQXTargetUnits(TADAProfileClean3)
+TADAProfileClean2=DepthProfileData(TADATesting, unit = "m", transform = TRUE)
 ```
 
-## Run result flag functions and address flagged data
+# Result unit conversions
+Converts all results to WQX target units. WQX target units are pulled from the MeasureUnit domain table: https://cdx2.epa.gov/wqx/download/DomainValues/MeasureUnit.CSV
+
+See additional function documentation for additional function options by entering the following 
+code in the console: 
+?WQXTargetUnits
+
 ```{r}
-TADAProfileClean5=InvalidMethod(TADAProfileClean4)
-TADAProfileClean6=PotentialDuplicateRowID(TADAProfileClean5)
-TADAProfileClean7=AboveNationalWQXUpperThreshold(TADAProfileClean6)
-TADAProfileClean8=BelowNationalWQXUpperThreshold(TADAProfileClean7)
-TADAProfileClean9=InvalidCoordinates(TADAProfileClean8)
-TADAProfileClean10=InvalidFraction(TADAProfileClean9)
-TADAProfileClean11=InvalidSpeciation(TADAProfileClean10)
-TADAProfileClean12=InvalidResultUnit(TADAProfileClean11)
+#Converts all results to WQX target units
+TADAProfileClean3=WQXTargetUnits(TADAProfileClean2, transform = TRUE, flag = TRUE)
+```
+
+##Continuous data
+Checks for and removes aggregated continuous data, if present. 
+
+The Water Quality Portal (WQP) is not designed to store high-frequency sensor data. However, sometimes data providers choose to aggregate their continuous data and submit it to WQP as one value. This type of data may not be suitable for integration with discrete water quality data for assessments. Therefore, this function uses metadata submitted by data providers to flags rows with aggregated continuous data. This is done by flagging results where the ResultDetectionConditionText = "Reported in Raw Data (attached)". When clean = TRUE, rows with aggregated continuous data are removed from the dataset and no column will be appended. Default is clean = TRUE.
+
+See function documentation for additional function options by entering the following 
+code in the console: 
+?DepthProfileData
+```{r}
+TADAProfileClean4=AggregatedContinuousData(TADAProfileClean3, clean=TRUE)
+```
+
+## WQX QAQC Service Result Flags
+Run the following result functions to address invalid method, fraction, speciation, and unit
+metadata by characteristic. The default is Clean=TRUE, which will remove invalid results. 
+You can change this to clean=FALSE to flag results, but not remove them. 
+
+See documentation for more details:
+?InvalidMethod
+?InvalidSpeciation
+?InvalidResultUnit
+?InvalidFraction
+```{r}
+TADAProfileClean5=InvalidMethod(TADAProfileClean4, clean=TRUE)
+TADAProfileClean6=InvalidFraction(TADAProfileClean5, clean=TRUE)
+TADAProfileClean7=InvalidSpeciation(TADAProfileClean6, clean=TRUE)
+TADAProfileClean8=InvalidResultUnit(TADAProfileClean7, clean=TRUE)
+```
+
+## WQX national upper and lower thresholds
+Run the following code to flag or remove results that are above or below the national
+upper and lower bound for each characteristic and unit combination. The default is 
+clean=TRUE, but you can change this to only flag results if desired. Results will be 
+flagged, but not removed, when clean=FALSE.
+```{r}
+TADAProfileClean9=AboveNationalWQXUpperThreshold(TADAProfileClean8, clean=TRUE)
+TADAProfileClean10=BelowNationalWQXUpperThreshold(TADAProfileClean9, clean=TRUE)
+```
+
+# Potential duplicates
+Sometimes multiple organizations submit the exact same data to Water Quality Portal (WQP), which can affect water quality analyses and assessments. This function checks for and identifies data that is identical in all fields excluding organization-specific and comment text fields. Each pair or group of potential duplicate rows is flagged with a unique ID. When clean = TRUE, the function retains the first occurrence of each potential duplicate in the dataset. Default is clean = TRUE.
+```{r}
+TADAProfileClean11=PotentialDuplicateRowID(TADAProfileClean10)
+```
+
+# Invalid coordinates
+Function identifies and flags invalid coordinate data. When clean_outsideUSA = FALSE and clean_imprecise = FALSE, a column will be appended titled "TADA.InvalidCoordinates" with the following flags (if relevant to dataset). If the latitude is less than zero, the row will be flagged with "LAT_OutsideUSA". If the longitude is greater than zero AND less than 145, the row will be flagged as "LONG_OutsideUSA". If the latitude or longitude contains the string, "999", the row will be flagged as invalid. Finally, precision can be measured by the number of decimal places in the latitude and longitude provided. If either does not have any numbers to the right of the decimal point, the row will be flagged as "Imprecise".
+
+```{r}
+TADAProfileClean12=InvalidCoordinates(TADAProfileClean11, clean_outsideUSA = FALSE, clean_imprecise = FALSE)
 ```
 
 ## Filter data by field
-In this section a TADA user will want to review the unique values in specific fields and choose to remove particular values. 
+In this section a TADA user will want to review the unique values in specific fields and may choose to remove data with particular values. 
 
 To start, review the list of fields and the number of unique values in each field.
 ```{r, echo=FALSE}
@@ -136,7 +207,12 @@ TADAProfileClean15 <- dplyr::filter(TADAProfileClean14, !(CharacteristicName %in
 ```
 
 ## Transform Characteristic, Speciation, and Unit values to TADA Standards
+The HarmonizeRefTable function generates a harmonization reference table that is specific to the input dataset. Users can review how their input data relates to standard TADA values for CharacteristicName, ResultSampleFractionText, MethodSpecicationName, and ResultMeasure.MeasureUnitCode and they can optionally edit the reference file to meet their needs. The download argument can be used to save the harmonization file to your 
+current working directory when download = TRUE, the default is download = FALSE. 
+
+The HarmonizeData function then compares the input dataset to the TADA Harmonization Reference Table. The purpose of the function is to make similar data consistent and therefore easier to compare and analyze. Optional outputs include: 1) the dataset with Harmonization columns appended, 2) the datset with CharacteristicName, ResultSampleFractionText, MethodSpecificationName, and ResultMeasure.MeasureUnitCode converted to TADA standards or 3) the four fields converted with most Harmonization Reference Table columns appended. Default is transform = TRUE and flag = TRUE.
+
 ```{r}
-UniqueHarmonizationRef=HarmonizationRefTable(TADAProfileClean15)
-TADAProfileClean16=HarmonizeData(TADAProfileClean15, ref = UniqueHarmonizationRef)
+UniqueHarmonizationRef=HarmonizationRefTable(TADAProfileClean15, download=FALSE)
+TADAProfileClean16=HarmonizeData(TADAProfileClean15, ref = UniqueHarmonizationRef, transform = TRUE, flag = TRUE)
 ```

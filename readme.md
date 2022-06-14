@@ -52,9 +52,10 @@ vignette("WQPDataHarmonization", "TADA")
 Make sure all of the packages below are installed before running the
 code:
 
-| plyr          |
+|               |
 |---------------|
 | data.table    |
+| plyr          |
 | dataRetrieval |
 | dplyr         |
 | ggplot2       |

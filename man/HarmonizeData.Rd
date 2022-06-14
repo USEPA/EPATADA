@@ -38,6 +38,6 @@ easier to compare and analyze. Optional outputs include: 1) the dataset with
 Harmonization columns appended, 2) the datset with CharacteristicName,
 ResultSampleFractionText, MethodSpecificationName, and 
 ResultMeasure.MeasureUnitCode converted to TADA standards or 3) the four fields
-converted with most Harmoinzation Referenve Table columns appended. Default is 
+converted with most Harmonization Reference Table columns appended. Default is 
 transform = TRUE and flag = TRUE.
 }
