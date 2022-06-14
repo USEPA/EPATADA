@@ -19,11 +19,12 @@ continuous data is removed from the dataset.
 }
 \description{
 The Water Quality Portal (WQP) is not designed to store high-frequency 
-(i.e. sensor) data. However, sometimes data providers choose to aggregate
+sensor data. However, sometimes data providers choose to aggregate
 their continuous data and submit it to WQP as one value. This type of data
-may not be suitable for a water quality assessment, therefore, this function
-uses metadata submitted by data providers to flags rows with aggregated 
-continuous data. When clean = TRUE, rows with aggregated continuous data
-are removed from the dataset and no column will be appended. Default is 
-clean = TRUE.
+may not be suitable for integration with discrete water quality data for 
+assessments. Therefore, this function uses metadata submitted by data providers
+to flags rows with aggregated continuous data. This is done by flagging results 
+where the ResultDetectionConditionText = "Reported in Raw Data (attached)". 
+When clean = TRUE, rows with aggregated continuous data are removed from the
+dataset and no column will be appended. Default is clean = TRUE.
 }

@@ -8,17 +8,21 @@
 "Measurement Unit(MeasureUnitCode)",339,"#/cm","Concentration Solution, Number per centimeter","2/19/2013 12:00:00 AM","#/cm",1,0
 "Measurement Unit(MeasureUnitCode)",154,"#/cm2","Concentration Solution, Number per square centimeter","7/26/2006 10:57:47 AM","#/m2",10000,0
 "Measurement Unit(MeasureUnitCode)",152,"#/cm3","Concentration Solution, Number per cubic centimeter","7/26/2006 10:57:47 AM","#/100ml",100,0
+"Measurement Unit(MeasureUnitCode)",380,"#/day","Concentration Solution, number per day","5/26/2022 12:00:00 AM","counts/sec",86400,0
 "Measurement Unit(MeasureUnitCode)",149,"#/dl","Concentration Solution, Number per deciliter","7/26/2006 10:57:47 AM","#/100ml",1,0
 "Measurement Unit(MeasureUnitCode)",210,"#/ft2","Concentration Solution, Number per square foot","7/26/2006 10:57:47 AM","#/m2",10.7639104167097,0
 "Measurement Unit(MeasureUnitCode)",699,"#/g","Concentration Solution, Number per gram","10/1/2019 12:32:30 PM","#/g",1,0
 "Measurement Unit(MeasureUnitCode)",208,"#/ha","Concentration Solution, Number per hectare","7/26/2006 10:57:47 AM","#/m2",1e-04,0
+"Measurement Unit(MeasureUnitCode)",381,"#/hr","Concentration Solution, number per hour","5/26/2022 12:00:00 AM","counts/sec",3600,0
 "Measurement Unit(MeasureUnitCode)",209,"#/in2","Concentration Solution, Number per square inch","7/26/2006 10:57:47 AM","#/m2",1550.0031000062,0
 "Measurement Unit(MeasureUnitCode)",207,"#/km2","Concentration Solution, Number per square kilometer","7/26/2006 10:57:47 AM","#/m2",1e-06,0
 "Measurement Unit(MeasureUnitCode)",150,"#/l","Concentration Solution, Number per liter","7/26/2006 10:57:47 AM","#/100ml",0.1,0
 "Measurement Unit(MeasureUnitCode)",206,"#/m2","Concentration Solution, Number per square meter","7/26/2006 10:57:47 AM","#/m2",1,0
 "Measurement Unit(MeasureUnitCode)",153,"#/m3","Concentration Solution, Number per cubic meter","7/26/2006 10:57:47 AM","#/100ml",1e-04,0
 "Measurement Unit(MeasureUnitCode)",213,"#/mi2","Concentration Solution, Number per square mile","7/26/2006 10:57:47 AM","#/m2",3.861022e-07,0
+"Measurement Unit(MeasureUnitCode)",382,"#/min","Concentration Solution, number per minute","5/26/2022 12:00:00 AM","counts/sec",60,0
 "Measurement Unit(MeasureUnitCode)",148,"#/ml","Concentration Solution, Number per milliliter","7/26/2006 10:57:47 AM","#/100ml",100,0
+"Measurement Unit(MeasureUnitCode)",379,"#/sec*******","Concentration Solution, number (Counts) per second ***retired***use counts/sec","5/31/2022 9:04:20 AM","counts/sec",1,0
 "Measurement Unit(MeasureUnitCode)",375,"#/um3","Concentration Solution, Number per cubic micrometer","5/9/2016 9:21:38 AM","#/um3",1,0
 "Measurement Unit(MeasureUnitCode)",211,"#/yd2","Concentration Solution, Number per square yard","7/26/2006 10:57:47 AM","#/m2",1.19599004630108,0
 "Measurement Unit(MeasureUnitCode)",223,"%","Concentration Percentage, Percent","7/26/2006 10:57:47 AM","%",1,0
@@ -375,6 +379,7 @@
 "Measurement Unit(MeasureUnitCode)",109,"uE/m2/sec","Viscosity, Photosynth. radiation,micro-Einsteins/sq.meter/sec","7/26/2006 10:57:47 AM","uE/m2/sec",1,0
 "Measurement Unit(MeasureUnitCode)",364,"uL","Volume, Microliters","4/9/2015 1:40:55 PM","m3",1e-09,0
 "Measurement Unit(MeasureUnitCode)",31,"uS/cm","Electric Resistivity, Micro-Siemens per Centimeter","7/26/2006 10:57:47 AM","uS/cm",1,0
+"Measurement Unit(MeasureUnitCode)",759,"uS/m","Electric Resistivity, Micro-Siemens per Meter","6/6/2022 8:33:29 AM","",0.01,0
 "Measurement Unit(MeasureUnitCode)",334,"uW/cm2","Power, Micro-watts per square centimeter","6/4/2012 10:57:47 AM","uW/cm2",1,0
 "Measurement Unit(MeasureUnitCode)",29,"ueq/L","Density, Micro-equivalents per Liter","7/26/2006 10:57:47 AM","meq/L",1000,0
 "Measurement Unit(MeasureUnitCode)",4,"ug","Weight Mass, Micrograms","7/26/2006 10:57:47 AM","g",1e-06,0

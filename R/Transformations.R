@@ -270,7 +270,7 @@ WQXTargetUnits <- function(.data, transform = TRUE, flag = TRUE){
 #' Harmonization columns appended, 2) the datset with CharacteristicName,
 #' ResultSampleFractionText, MethodSpecificationName, and 
 #' ResultMeasure.MeasureUnitCode converted to TADA standards or 3) the four fields
-#' converted with most Harmoinzation Referenve Table columns appended. Default is 
+#' converted with most Harmonization Reference Table columns appended. Default is 
 #' transform = TRUE and flag = TRUE.
 #'
 #' @param .data TADA dataframe
@@ -382,7 +382,7 @@ HarmonizeData <- function(.data, ref, transform = TRUE, flag = TRUE){
       # get .data column names
     col.order <- colnames(.data)
       # add flag columns to the list
-    col.order <- append(col.order, c("TADAPollutantGroup", 
+    col.order <- append(col.order, c("TADACharacteristicGroup", 
                                      "CharacteristicNameUserSupplied", 
                                      "TADA.SuggestedCharacteristicName",
                                      "TADA.CharacteristicNameAssumptions",
@@ -403,7 +403,7 @@ HarmonizeData <- function(.data, ref, transform = TRUE, flag = TRUE){
     flag.data <- flag.data[, col.order]
       # place flag columns next to relevant fields
     flag.data <- flag.data %>%
-      dplyr::relocate("TADAPollutantGroup", 
+      dplyr::relocate("TADACharacteristicGroup", 
                       .before = "CharacteristicName") %>%
       dplyr::relocate(c("CharacteristicNameUserSupplied", 
                         "TADA.SuggestedCharacteristicName",
@@ -501,7 +501,7 @@ HarmonizeData <- function(.data, ref, transform = TRUE, flag = TRUE){
       if(flag == FALSE) {
         # remove all appended columns
         clean.data <- clean.data %>%
-          dplyr::select(-c("TADAPollutantGroup",
+          dplyr::select(-c("TADACharacteristicGroup",
                            "CharacteristicNameUserSupplied",
                            "CombinationValidity",
                            "TADA.CharacteristicNameAssumptions",
