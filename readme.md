@@ -49,12 +49,11 @@ vignette("WQPDataHarmonization", "TADA")
 
 ## Dependencies
 
-Make sure all of the required packages below are installed before
-running the code:
+Make sure all of the packages below are installed before running the
+code:
 
-|               |
-|---------------|
 | plyr          |
+|---------------|
 | data.table    |
 | dataRetrieval |
 | dplyr         |
@@ -62,14 +61,16 @@ running the code:
 | grDevices     |
 | magrittr      |
 | stringr       |
-| testthat      |
-| usethis       |
 | utils         |
 | RColorBrewer  |
 | Rcpp          |
 | stats         |
-| usethis       |
 | remotes       |
+| rmarkdown     |
+| knitr         |
+| testthat      |
+| usethis       |
+| devtools      |
 
 ## Contact
 
