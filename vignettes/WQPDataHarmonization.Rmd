@@ -10,6 +10,46 @@ vignette: >
 editor_options: 
   chunk_output_type: console
 ---
+##Install dependency packages if needed
+```{r}
+list.of.packages <- c("plyr","dplyr","ggplot2","RColorBrewer","Rcpp","devtools",
+          "data.table","grDevices","magrittr","stringr","testthat","usethis","utils","stats","rmarkdown","knitr","remotes")
+new.packages <- list.of.packages[!(list.of.packages %in% installed.packages()[,"Package"])]
+if(length(new.packages)) install.packages(new.packages)
+```
+
+##Load dependency packages
+```{r}
+library(remotes)
+library(dplyr)
+library(ggplot2)
+library(plyr)
+library(RColorBrewer)
+library(Rcpp)
+library(data.table)
+library(grDevices)
+library(magrittr)
+library(stringr)
+library(testthat)
+library(usethis)
+library(utils)
+library(stats)
+library(rmarkdown)
+library(knitr)
+library(devtools)
+```
+
+#Load TADA and dataRetrieval
+You can install and load the most recent versions from GitHub by running:
+```{r}
+remotes::install_github("USGS-R/dataRetrieval")
+remotes::install_github("USEPA/TADA")
+library(dataRetrieval)
+library(TADA)
+```
+
+#Knit vignette
+This code is used to knit this code to build an HTML vignette
 ```{r setup, include = FALSE}
 knitr::opts_chunk$set(
   collapse = TRUE,
@@ -17,35 +57,12 @@ knitr::opts_chunk$set(
 )
 ```
 
-##Load dependency packages
-```{r}
-library("dataRetrieval")
-library("plyr")
-library("dplyr")
-library("ggplot2")
-library("RColorBrewer")
-library("Rcpp")
-library("data.table")
-library("grDevices")
-library("magrittr")
-library("stringr")
-library("testthat")
-library("usethis")
-library("utils")
-library("stats")
-library("remotes")
-library("rmarkdown")
-library("knitr")
-library("devtools")
-library("TADA")
-```
-
 ## Retrieve WQP data
-WQP is retrieved and processed for compatibility with TADA. This function
-joins three WQP profile (station, narrow, and phys/chem), changes all data in the 
+WQP data is retrieved and processed for compatibility with TADA. This function
+joins three WQP profiles (i.e., the station, narrow, and phys/chem), changes all data in the 
 Characteristic, Speciation, Fraction, and Unit fields to uppercase, removes true duplicates, removes data for all non-water media types, and cleans results with special characters. 
 
-More details about this function  can be found in the function documentation 
+More details about this functioncan be found in the function documentation 
 by entering the following code into the console: ?TADAdataRetrieval
 ```{r}
 #Get testing data
