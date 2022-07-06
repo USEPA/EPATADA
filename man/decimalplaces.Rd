@@ -7,7 +7,7 @@
 decimalplaces(x)
 }
 \arguments{
-\item{.data}{TADA dataset}
+\item{x}{Numeric data field from TADA profile}
 }
 \value{
 Number of values to the right of the decimal point for numeric type data.

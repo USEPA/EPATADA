@@ -4,7 +4,7 @@
 \alias{autoclean}
 \title{autoclean}
 \usage{
-autoclean(.data, clean = TRUE)
+autoclean(.data)
 }
 \arguments{
 \item{.data}{TADA dataframe}
