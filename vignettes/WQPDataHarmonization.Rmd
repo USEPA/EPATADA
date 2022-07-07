@@ -42,7 +42,7 @@ library(devtools)
 #Load TADA and dataRetrieval
 You can install and load the most recent versions from GitHub by running:
 ```{r}
-remotes::install_github("USGS-R/dataRetrieval")
+remotes::install_github("USGS-R/dataRetrieval", dependencies=TR)
 remotes::install_github("USEPA/TADA")
 library(dataRetrieval)
 library(TADA)
@@ -113,7 +113,7 @@ code in the console:
 
 ```{r}
 #Converts all results to WQX target units
-TADAProfileClean3=WQXTargetUnits(TADAProfileClean2, transform = TRUE, flag = TRUE)
+TADAProfileClean3=WQXTargetUnits(TADAProfileClean2, transform = TRUE)
 ```
 
 ##Continuous data

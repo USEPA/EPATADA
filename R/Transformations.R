@@ -1,36 +1,57 @@
 #' Transform Units to WQX Target Units
 #' 
-#' Function compares measure units in the input data to the Water Quality 
-#' Exchange (WQX) 3.0 QAQC Characteristic Validation table. Optional outputs 
-#' include: 1) the dataset with flag columns appended, indicating if data can be 
-#' converted, to which unit it can be converted, and the conversion factor
-#' required to convert measure values, 2) the datset with units and result values
-#' converted to the WQX target unit, or 3) converted result values and units with
-#' flag columns appended, specifying if data can be converted. Default is 
-#' transform = TRUE and flag = TRUE.
-#'
+#' This function compares measure units in the input data to the Water Quality 
+#' Exchange (WQX) 3.0 QAQC Characteristic Validation table. 
+#' 
+#' This function will ALWAYS add the following two columns to the input dataset:
+#' 1) "WQX.ResultMeasureValue.UnitConversion", 
+#' 2) "WQX.DetectionLimitMeasureValue.UnitConversion"
+#' These two fields indicate if data can be converted."NoResultValue" means data
+#' cannot be converted because there is no ResultMeasureValue, and "NoTargetUnit"
+#' means data cannot be converted because the original unit is not associated with a target unit in WQX. 
+#' "Convert" means the data can be transformed, and "Converted" means that this function 
+#' has been run with the input transform = TRUE, and the values were already converted.
+#' 
+#' It also uses the following six fields from the input dataset:
+#' 1) "CharacteristicName",
+#' 2) "ActivityMediaName",
+#' 3) "ResultMeasureValue",
+#' 4) "ResultMeasure.MeasureUnitCode",
+#' 5) "DetectionQuantitationLimitMeasure.MeasureValue",
+#' 6) "DetectionQuantitationLimitMeasure.MeasureUnitCode"
+#' 
+#' This function adds the following two fields and transforms values within the 
+#' following four fields ONLY when transform=TRUE:
+#' Adds: "ResultMeasureUnitCode.Original", and "DetectionLimitMeasureUnitCode.Original".
+#' Transforms: "ResultMeasureValue", "ResultMeasure.MeasureUnitCode", "DetectionQuantitationLimitMeasure.MeasureValue", and "DetectionQuantitationLimitMeasure.MeasureUnitCode".
+#' 
+#' This function adds the following two fields ONLY when transform=FALSE:
+#' Adds: "WQX.ConversionFactor" and "WQX.TargetUnit".
+#' 
 #' @param .data TADA dataset
-#' @param transform Boolean argument; changes ResultMeasure.MeasureUnitCode and 
-#' DetectionQuantitationLimitMeasure.MeasureUnitCode to WQX target unit and 
-#' converts ResultMeasureValue and DetectionQuantitationLimitMeasure.MeasureValue
-#' to corresponding target unit when transform = TRUE. Default is transform = TRUE.
-#' @param flag Boolean argument; appends WQX.ResultMeasureValue.UnitConversion and
-#' WQX.DetectionLimitMeasureValue.UnitConversion columns, indicating if data can be
-#' converted. "Transform" means data can be converted, "NoResultValue" means data
-#' cannot be converted because there is no ResultMeasureValue, and "NoTargetUnit" 
-#' means data cannot be converted because the original unit is not associated 
-#' with a target unit in WQX. Default is flag = TRUE.
+#' 
+#' @param transform Boolean argument with two possible values, “TRUE” and “FALSE”.
+#' Default is transform = TRUE.
 #'
-#' @return When transform = FALSE and flag = TRUE, flag columns are appended to 
-#' the dataset only. When transform = TRUE and flag = TRUE, flag columns are 
-#' appended to the dataset and unit conversions are executed. When transform = TRUE
-#' and flag = FALSE, unit conversions are executed only. When transform = FALSE and
-#' flag = FALSE, an error is returned (function would return the input dataframe
-#' unchanged if input was allowed).
+#' @return When transform=TRUE, result values and units are converted to WQX target units. 
+#' This function changes the values within the "ResultMeasure.MeasureUnitCode"
+#' and "DetectionQuantitationLimitMeasure.MeasureUnitCode" to the WQX target units and 
+#' converts respective values within the "ResultMeasureValue" and "DetectionQuantitationLimitMeasure.MeasureValue"
+#' fields. In addition to "WQX.ResultMeasureValue.UnitConversion"
+#' and "WQX.DetectionLimitMeasureValue.UnitConversion", transform=TRUE will add
+#' the following two fields to the input dataset, "ResultMeasureUnitCode.Original", 
+#' and "DetectionLimitMeasureUnitCode.Original", to retain the original result
+#' and unit values.
+#' 
+#' When transform = FALSE, result values and units are NOT converted to WQX target units, 
+#' but columns are appended to indicate what the target units and conversion factors are,
+#' and if the data can be converted. In addition to "WQX.ResultMeasureValue.UnitConversion"
+#' and "WQX.DetectionLimitMeasureValue.UnitConversion",  transform=FALSE will add the 
+#' following two fields to the input dataset: "WQX.ConversionFactor" and "WQX.TargetUnit".
 #' 
 #' @export
 
-WQXTargetUnits <- function(.data, transform = TRUE, flag = TRUE){
+WQXTargetUnits <- function(.data, transform = TRUE){
   
   # check that .data object is compatible with TADA
   # check .data is of class data.frame
@@ -48,14 +69,6 @@ WQXTargetUnits <- function(.data, transform = TRUE, flag = TRUE){
   # check if transform is boolean
   if(is.logical(transform) == FALSE){
     stop("transform argument must be Boolean (TRUE or FALSE)")
-  }
-  # check if flag is boolean
-  if(is.logical(flag) == FALSE){
-    stop("flag argument must be Boolean (TRUE or FALSE)")
-  }
-  # check that both transform and flag do NOT equal FALSE
-  if(transform == FALSE & flag == FALSE){
-    stop("Both 'transform' and 'flag' arguments equal FALSE, which would return the input dataset unchanged. One or both arguments must be equal to TRUE.")
   }
   
   # execute function after checks are passed
@@ -102,8 +115,7 @@ WQXTargetUnits <- function(.data, transform = TRUE, flag = TRUE){
             TRUE ~ WQX.ConversionFactor))
       }
     
-    # add flag column when flag = TRUE
-    if(flag == TRUE) {
+    
     # add WQX.ResultMeasureValue.UnitConversion column
     flag.data <- flag.data %>%
       # apply function row by row
@@ -124,7 +136,6 @@ WQXTargetUnits <- function(.data, transform = TRUE, flag = TRUE){
            !is.na(WQX.TargetUnit)) ~ as.character("Convert"),
         is.na(DetectionQuantitationLimitMeasure.MeasureValue) ~ as.character("NoDetectionLimitValue"),
         is.na(WQX.TargetUnit) ~ as.character("NoTargetUnit")))
-    }
     
     if(transform == FALSE) {
 
@@ -148,7 +159,7 @@ WQXTargetUnits <- function(.data, transform = TRUE, flag = TRUE){
                         .after = "DetectionQuantitationLimitMeasure.MeasureUnitCode")
       
       
-      warning("Conversions required for range checks and TADATargetUnit conversions -- Unit conversions, data summaries, and data calculations may be affected.")
+      print("Conversions required for range checks and TADATargetUnit conversions -- Unit conversions, data summaries, and data calculations may be affected.")
       return(flag.data)
     }
     
@@ -200,7 +211,7 @@ WQXTargetUnits <- function(.data, transform = TRUE, flag = TRUE){
           !is.na(WQX.TargetUnit) ~ WQX.TargetUnit,
           is.na(WQX.TargetUnit) ~ DetectionQuantitationLimitMeasure.MeasureUnitCode))
       
-      if(flag == TRUE) {
+      
       # edit WQX.ResultMeasureValue.UnitConversion column
       clean.data <- clean.data %>%
         # apply function row by row
@@ -218,7 +229,7 @@ WQXTargetUnits <- function(.data, transform = TRUE, flag = TRUE){
         dplyr::mutate(WQX.DetectionLimitMeasureValue.UnitConversion = dplyr::case_when(
           (!is.na(DetectionQuantitationLimitMeasure.MeasureValue) & !is.na(WQX.TargetUnit)) ~ as.character("Converted"),
           TRUE ~ WQX.DetectionLimitMeasureValue.UnitConversion))
-      }
+      
       
       # remove extraneous columns, fix field names
       clean.data <- clean.data %>%
@@ -228,27 +239,27 @@ WQXTargetUnits <- function(.data, transform = TRUE, flag = TRUE){
       # get .data column names
       col.order <- colnames(.data)
       # add ResultUnitConversion column to the list if flag = TRUE
-      if(flag == TRUE){
-        col.order <- append(col.order, c("WQX.ResultMeasureValue.UnitConversion",
+      
+      col.order <- append(col.order, c("WQX.ResultMeasureValue.UnitConversion",
                                         "WQX.DetectionLimitMeasureValue.UnitConversion"))
-      }
+      
       # add original units to list if transform = TRUE
       if(transform == TRUE){
         col.order <- append(col.order, c("ResultMeasureUnitCode.Original",
                                          "DetectionLimitMeasureUnitCode.Original"))
-      }
+      
       # reorder columns in clean.data
       clean.data <- clean.data[, col.order]
-      # place flag columns next to relevant fields if flag = TRUE
-      if(flag == TRUE){
+      
+      # place flag columns next to relevant fields
         clean.data <- clean.data %>%
           dplyr::relocate("ResultMeasureUnitCode.Original", 
                           .after = "ResultMeasure.MeasureUnitCode") %>%
           dplyr::relocate("WQX.DetectionLimitMeasureValue.UnitConversion", 
                           .after = "DetectionQuantitationLimitMeasure.MeasureUnitCode")
-      }
+      
       # Place original unit columns next to original columns
-      if(transform == TRUE){
+      
         clean.data <- clean.data %>%
           dplyr::relocate("WQX.ResultMeasureValue.UnitConversion", 
                           .after = "ResultMeasure.MeasureUnitCode") %>%

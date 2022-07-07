@@ -69,7 +69,7 @@ RemoveEmptyColumns <- function(.data){
 #' 
 #' for numeric data type
 #'
-#' @param .data TADA dataset
+#' @param x Numeric data field from TADA profile
 #' 
 #' @return Number of values to the right of the decimal point for numeric type data.
 #' 
@@ -87,7 +87,7 @@ decimalplaces <- function(x) {
 #' 
 #' for character data type
 #'
-#' @param .data TADA dataset
+#' @param x Numeric data field from TADA profile
 #' 
 #' @return Number of values to the right of the decimal point for character type data.
 #' 

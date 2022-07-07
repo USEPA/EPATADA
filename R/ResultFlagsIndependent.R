@@ -489,11 +489,11 @@ BelowNationalWQXUpperThreshold <- function(.data, clean = TRUE){
 #' Some organizations submit data for this field to indicate if the data 
 #' produced has an approved Quality Assurance Project Plan (QAPP) or not. 
 #' Y indicates yes, N indicates no.  This function has two default inputs: 
-#' clean = TRUE, cleanNA = FALSE. The default removes rows of data where the 
+#' clean = TRUE and cleanNA = FALSE. The default removes rows of data where the 
 #' QAPPApprovedIndicator equals "N". Users could alternatively remove both N's
-#' and NA's using the inputs clean = TRUE, cleanNA = TRUE. If both 
+#' and NA's using the inputs clean = TRUE and cleanNA = TRUE. If both 
 #' clean = FALSE and cleanNA = FALSE, the function will not make any changes to
-#' the dataset.
+#' the data.
 #' 
 #' Note: This is not a required field, so it is often left blank (NA) even if 
 #' the data has an associated QAPP. All states and tribes that collect 
@@ -503,12 +503,15 @@ BelowNationalWQXUpperThreshold <- function(.data, clean = TRUE){
 #' submitted to WQP is NA.
 #'
 #' @param .data TADA dataframe
-#' @param clean Two boolean arguments: 1) remove data where the 
-#' QAPPApprovedIndicator = "N"  when clean = TRUE; 2) remove data where the 
-#' QAPPApprovedIndicator = NA  when cleanNA = TRUE. Default is clean = TRUE and 
-#' cleanNA = FALSE.
-#' @param cleanNA 
-#'
+#' @param clean Boolean argument with two possible values called "TRUE" and 
+#' "FALSE". When clean=TRUE, rows of data where the QAPPApprovedIndicator equals
+#' "N" will be removed. When, clean=FALSE, rows of data where the 
+#' QAPPApprovedIndicator equals "N" will be retained.
+#' @param cleanNA Boolean argument with two possible values called "TRUE" and 
+#' "FALSE". When cleanNA=TRUE, rows of data where the QAPPApprovedIndicator 
+#' equals "NA" will be removed. When, cleanNA=FALSE, rows of data where the 
+#' the QAPPApprovedIndicator equals "NA" will be retained.
+#' 
 #' @return When clean = FALSE and cleanNA = FALSE, no data is removed from the 
 #' dataset.
 #' 

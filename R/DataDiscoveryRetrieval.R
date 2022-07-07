@@ -114,7 +114,7 @@ readWQPwebservice <- function(webservice) {
 #' @return autocleaned TADA data profile 
 #' 
 
-autoclean <- function(.data, clean=TRUE){
+autoclean <- function(.data){
   # check that .data object is compatible with TADA
   # check .data is of class data.frame
   if("data.frame" %in% class(.data) == FALSE) {
