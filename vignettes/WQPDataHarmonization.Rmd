@@ -72,11 +72,11 @@ by entering the following code into the console: ?TADAdataRetrieval
   #characteristicName = c("Ammonia", "Nitrate", "Nitrogen")
   #startDate = "01-01-2019"
   #endDate = "01-01-2022"
-TADATesting=TADAdataRetrieval()
+TADATesting <- TADAdataRetrieval()
 
 #OR ---Edit and define your own query inputs below. If you do this, you will also need to 
 #change TADATesting to TADATesting2 in row 72
-TADATesting2=TADAdataRetrieval(stateCode = "US:30", 
+TADATesting2 <- TADAdataRetrieval(stateCode = "US:30", 
                               siteType = c("Lake, Reservoir, Impoundment", "Stream"),
                               sampleMedia = c("water", "Water"),
                               characteristicName = c("Ammonia", "Nitrate", "Nitrogen"),
@@ -101,7 +101,7 @@ code in the console:
 
 ```{r}
 #converts all depth profile data to meters
-TADAProfileClean2=DepthProfileData(TADATesting, unit = "m", transform = TRUE)
+TADAProfileClean2 <- DepthProfileData(TADATesting, unit = "m", transform = TRUE)
 ```
 
 # Result unit conversions
@@ -113,7 +113,7 @@ code in the console:
 
 ```{r}
 #Converts all results to WQX target units
-TADAProfileClean3=WQXTargetUnits(TADAProfileClean2, transform = TRUE)
+TADAProfileClean3 <- WQXTargetUnits(TADAProfileClean2, transform = TRUE)
 ```
 
 ##Continuous data
@@ -125,7 +125,7 @@ See function documentation for additional function options by entering the follo
 code in the console: 
 ?DepthProfileData
 ```{r}
-TADAProfileClean4=AggregatedContinuousData(TADAProfileClean3, clean=TRUE)
+TADAProfileClean4 <- AggregatedContinuousData(TADAProfileClean3, clean = TRUE)
 ```
 
 ## WQX QAQC Service Result Flags
@@ -139,10 +139,10 @@ See documentation for more details:
 ?InvalidResultUnit
 ?InvalidFraction
 ```{r}
-TADAProfileClean5=InvalidMethod(TADAProfileClean4, clean=TRUE)
-TADAProfileClean6=InvalidFraction(TADAProfileClean5, clean=TRUE)
-TADAProfileClean7=InvalidSpeciation(TADAProfileClean6, clean=TRUE)
-TADAProfileClean8=InvalidResultUnit(TADAProfileClean7, clean=TRUE)
+TADAProfileClean5 <- InvalidMethod(TADAProfileClean4, clean = TRUE)
+TADAProfileClean6 <- InvalidFraction(TADAProfileClean5, clean = TRUE)
+TADAProfileClean7 <- InvalidSpeciation(TADAProfileClean6, clean = TRUE)
+TADAProfileClean8 <- InvalidResultUnit(TADAProfileClean7, clean = TRUE)
 ```
 
 ## WQX national upper and lower thresholds
@@ -151,21 +151,21 @@ upper and lower bound for each characteristic and unit combination. The default 
 clean=TRUE, but you can change this to only flag results if desired. Results will be 
 flagged, but not removed, when clean=FALSE.
 ```{r}
-TADAProfileClean9=AboveNationalWQXUpperThreshold(TADAProfileClean8, clean=TRUE)
-TADAProfileClean10=BelowNationalWQXUpperThreshold(TADAProfileClean9, clean=TRUE)
+TADAProfileClean9 <- AboveNationalWQXUpperThreshold(TADAProfileClean8, clean = TRUE)
+TADAProfileClean10 <- BelowNationalWQXUpperThreshold(TADAProfileClean9, clean = TRUE)
 ```
 
 # Potential duplicates
 Sometimes multiple organizations submit the exact same data to Water Quality Portal (WQP), which can affect water quality analyses and assessments. This function checks for and identifies data that is identical in all fields excluding organization-specific and comment text fields. Each pair or group of potential duplicate rows is flagged with a unique ID. When clean = TRUE, the function retains the first occurrence of each potential duplicate in the dataset. Default is clean = TRUE.
 ```{r}
-TADAProfileClean11=PotentialDuplicateRowID(TADAProfileClean10)
+TADAProfileClean11 <- PotentialDuplicateRowID(TADAProfileClean10)
 ```
 
 # Invalid coordinates
 Function identifies and flags invalid coordinate data. When clean_outsideUSA = FALSE and clean_imprecise = FALSE, a column will be appended titled "TADA.InvalidCoordinates" with the following flags (if relevant to dataset). If the latitude is less than zero, the row will be flagged with "LAT_OutsideUSA". If the longitude is greater than zero AND less than 145, the row will be flagged as "LONG_OutsideUSA". If the latitude or longitude contains the string, "999", the row will be flagged as invalid. Finally, precision can be measured by the number of decimal places in the latitude and longitude provided. If either does not have any numbers to the right of the decimal point, the row will be flagged as "Imprecise".
 
 ```{r}
-TADAProfileClean12=InvalidCoordinates(TADAProfileClean11, clean_outsideUSA = FALSE, clean_imprecise = FALSE)
+TADAProfileClean12 <- InvalidCoordinates(TADAProfileClean11, clean_outsideUSA = FALSE, clean_imprecise = FALSE)
 ```
 
 ## Filter data by field
@@ -230,6 +230,6 @@ current working directory when download = TRUE, the default is download = FALSE.
 The HarmonizeData function then compares the input dataset to the TADA Harmonization Reference Table. The purpose of the function is to make similar data consistent and therefore easier to compare and analyze. Optional outputs include: 1) the dataset with Harmonization columns appended, 2) the datset with CharacteristicName, ResultSampleFractionText, MethodSpecificationName, and ResultMeasure.MeasureUnitCode converted to TADA standards or 3) the four fields converted with most Harmonization Reference Table columns appended. Default is transform = TRUE and flag = TRUE.
 
 ```{r}
-UniqueHarmonizationRef=HarmonizationRefTable(TADAProfileClean15, download=FALSE)
-TADAProfileClean16=HarmonizeData(TADAProfileClean15, ref = UniqueHarmonizationRef, transform = TRUE, flag = TRUE)
+UniqueHarmonizationRef <- HarmonizationRefTable(TADAProfileClean15, download = FALSE)
+TADAProfileClean16 <- HarmonizeData(TADAProfileClean15, ref = UniqueHarmonizationRef, transform = TRUE, flag = TRUE)
 ```
