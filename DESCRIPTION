@@ -24,9 +24,7 @@ Imports:
     stringr,
     utils, 
     RColorBrewer,
-    Rcpp,
-    stats,
-    remotes
+    stats
 Depends: 
     R (>= 2.10)
 Suggests: 
@@ -35,5 +33,7 @@ Suggests:
     testthat,
     usethis, 
     devtools, 
-    pkgdown
+    pkgdown, 
+    remotes, 
+    Rcpp
 VignetteBuilder: knitr, rmarkdown
