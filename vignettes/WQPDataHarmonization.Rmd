@@ -42,7 +42,7 @@ library(devtools)
 #Load TADA and dataRetrieval
 You can install and load the most recent versions from GitHub by running:
 ```{r}
-remotes::install_github("USGS-R/dataRetrieval", dependencies=TR)
+remotes::install_github("USGS-R/dataRetrieval", dependencies=TRUE)
 remotes::install_github("USEPA/TADA")
 library(dataRetrieval)
 library(TADA)

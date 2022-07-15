@@ -1,6 +1,5 @@
-#Censored Data
+# Censored Data
 
-##Two objectives:
-  #TransformCensoredData
-  #GenerateCensoredDataStats
-
+## Two objectives:
+# TransformCensoredData
+# GenerateCensoredDataStats

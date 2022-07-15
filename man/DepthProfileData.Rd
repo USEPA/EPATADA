@@ -17,33 +17,33 @@ DepthProfileData(
 
 \item{unit}{Character string input indicating the uniform unit depth data is
 converted to. Allowable values for 'unit' are either 'm' (meter), 'ft' (feet),
- or 'in' (inch). 'unit' accepts only one allowable value as an input. Default
- is unit = "m".}
+or 'in' (inch). 'unit' accepts only one allowable value as an input. Default
+is unit = "m".}
 
 \item{fields}{Character string input indicating the depth fields that will be
 checked for data. Allowable values for 'fields' are
 'ActivityDepthHeightMeasure,' 'ActivityTopDepthHeightMeasure,'
 'ActivityBottomDepthHeightMeasure,' and 'ResultDepthHeightMeasure.'. Default
- is to include all allowable values.}
+is to include all allowable values.}
 
-\item{transform}{Boolean argument; When transform = FALSE, the output includes 
-all Conversion Factor' columns and the 'Depth Target Unit' column. When 
-transform = TRUE, the output includes converted depth data and the 'Depth 
-Target Unit' column, which acts as a flag indicating which rows have been 
+\item{transform}{Boolean argument; When transform = FALSE, the output includes
+all Conversion Factor' columns and the 'Depth Target Unit' column. When
+transform = TRUE, the output includes converted depth data and the 'Depth
+Target Unit' column, which acts as a flag indicating which rows have been
 converted. Default is transform = TRUE.}
 }
 \value{
-Full dataset with converted uniform depth units and a 'Depth Target 
-Unit' column, which acts as a flag indicating which rows have been converted. 
+Full dataset with converted uniform depth units and a 'Depth Target
+Unit' column, which acts as a flag indicating which rows have been converted.
 When transform = FALSE, the output is the full dataset with 'Conversion Factor'
 columns and a 'Depth Target Unit' column.
 }
 \description{
 Function checks dataset for depth profile data. Where depth profile columns
 are populated, the function appends 'Conversion Factor' columns
-and populates those columns based on the original unit (MeasureUnitCode 
-columns) and the target unit, which is defined in the 'unit' argument. A 
-'Depth Target Unit' column is also appended, indicating the unit all selected 
+and populates those columns based on the original unit (MeasureUnitCode
+columns) and the target unit, which is defined in the 'unit' argument. A
+'Depth Target Unit' column is also appended, indicating the unit all selected
 depth data is converted to. When transform = FALSE, the output includes all
 'Conversion Factor' columns and the 'Depth Target Unit' column. When transform
 = TRUE, the output includes converted depth data and the 'Depth Target

@@ -9,12 +9,12 @@ InvalidFraction(.data, clean = TRUE)
 \arguments{
 \item{.data}{TADA dataframe}
 
-\item{clean}{Boolean argument; removes "Invalid" characteristic-fraction 
+\item{clean}{Boolean argument; removes "Invalid" characteristic-fraction
 combinations from the dataset when clean = TRUE. Default is clean = TRUE.}
 }
 \value{
-When clean = FALSE, a column indicating the validity of the 
-combination of CharacteristicName and ResultSampleFractionText values is 
+When clean = FALSE, a column indicating the validity of the
+combination of CharacteristicName and ResultSampleFractionText values is
 appended to the input data set. When clean = TRUE, "Invalid" rows are removed
 from the dataset and no column will be appended.
 }

@@ -13,15 +13,15 @@ readWQPwebservice(webservice)
 WQP Full Physical Chemical Results Data Profile
 }
 \description{
-Go to the WQP website (https://www.waterqualitydata.us/) and fill out the 
+Go to the WQP website (https://www.waterqualitydata.us/) and fill out the
 advanced query form. Choose the Full Physical Chemical Data Profile, all data
-sources, and the file format Comma-Separated. When finished, do not hit the 
-download button. Instead, copy the web service URL located at the bottom of 
+sources, and the file format Comma-Separated. When finished, do not hit the
+download button. Instead, copy the web service URL located at the bottom of
 the page under the header "Result". Use that "Result" web service URL as the
 input for this function to download data directly into R.
 }
 \details{
-Note: It may be useful to save the Query URL as well as a comment within 
-your code. This URL let's you return to the WQP query page with all your 
+Note: It may be useful to save the Query URL as well as a comment within
+your code. This URL let's you return to the WQP query page with all your
 original data filters.
 }

@@ -9,15 +9,15 @@ PotentialDuplicateRowID(.data, clean = TRUE)
 \arguments{
 \item{.data}{TADA dataframe}
 
-\item{clean}{Boolean argument; removes potential duplicate data from 
-the dataset when clean = TRUE. When clean = FALSE, a column indicating 
+\item{clean}{Boolean argument; removes potential duplicate data from
+the dataset when clean = TRUE. When clean = FALSE, a column indicating
 potential duplicate rows with a unique number linking rows is appended to the
 input data set. Default is clean = TRUE.}
 }
 \value{
 When clean = FALSE, a column indicating potential duplicate rows with
-a unique number linking rows is appended to the input data set. When 
-clean = FALSE the first of each group of potential duplicate rows will be 
+a unique number linking rows is appended to the input data set. When
+clean = FALSE the first of each group of potential duplicate rows will be
 removed from the dataset and no column is appended.
 }
 \description{

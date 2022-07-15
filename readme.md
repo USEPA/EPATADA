@@ -1,8 +1,10 @@
-# Tools for Automated Data Assessment (TADA)
+# Welcome to TADA!
+
+We encourage you to read this project's [CONTRIBUTING](https://github.com/USEPA/TADA/blob/develop/CONTRIBUTING.md) policy, its [LICENSE](https://github.com/USEPA/TADA/blob/develop/LICENSE.md), and its [README](https://github.com/USEPA/TADA/blob/develop/readme.md) (you are here).
 
 TADA is a draft R package being developed to help states, tribal nations, and other stakeholders compile and evaluate Water Quality Portal (WQP) data collected from surface water monitoring sites on streams and lakes more efficiently. TADA is also being used to as building block to support development of the TADA R Shiny application.
 
-We encourage stakeholders to begin testing the functionality and providing feedback. Moreover, open source software provides an avenue for water quality program owners to develop and share code, and we welcome your contributions! We hope to build a collaborative community dedicated to this effort where contributors can discover, share and build the package functionality over time.
+We encourage stakeholders to begin testing the functionality and providing feedback. Moreover, open source software provides an avenue for water quality program owners to develop and share code, and we welcome your contributions! More information on how to contribute can be found in the [CONTRIBUTING.md file](https://github.com/USEPA/TADA/blob/develop/CONTRIBUTING.md). This file explains how users can contribute to the R package, for example by submitting an issue, requesting a change, or submitting an inquiry. We hope to build a collaborative community dedicated to this effort where contributors can discover, share and build the package functionality over time.
 
 ## Water Quality Portal
 
@@ -10,14 +12,14 @@ In 2012, the WQP was deployed by the U.S. Geological Survey (USGS), the U.S. Env
 
 ## Installation
 
-You can install and load the most recent version from GitHub by running:
+You can install and load the most recent version of the TADA R Package from GitHub by running:
 
 ``` r
 library (remotes)
 remotes::install_github("USEPA/TADA")
 ```
 
-Dependencies
+## Dependencies
 
 Make sure all of the packages below are installed before running the code:
 
@@ -44,7 +46,7 @@ Make sure all of the packages below are installed before running the code:
 
 ## Contact
 
-If you have any questions, please reach out to Cristina Mullin at mullin.cristina\@epa.gov
+If you have any questions, please reach out to Cristina Mullin at mullin.cristina@epa.gov
 
 ## Disclaimer
 

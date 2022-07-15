@@ -14,15 +14,15 @@ threshold from the dataset when clean = TRUE. Default is clean = TRUE.}
 }
 \value{
 When clean = FALSE, a column flagging rows with data that is below the
-lower WQX threshold is appended to the input data set. When clean = TRUE, 
+lower WQX threshold is appended to the input data set. When clean = TRUE,
 data that is below the lower WQX threshold is removed from the dataset.
 }
 \description{
-EPA's Water Quality Exchange (WQX) has generated statistics and data from 
-millions of water quality data points around the country. This functions 
-leverages that statistical data from WQX to flag any data that is below the 
+EPA's Water Quality Exchange (WQX) has generated statistics and data from
+millions of water quality data points around the country. This functions
+leverages that statistical data from WQX to flag any data that is below the
 lower threshold of result values submitted to WQX for a given characteristic.
-When clean = TRUE, rows with values that are below the lower WQX threshold 
-are removed from the dataset and no column will be appended. Default is 
+When clean = TRUE, rows with values that are below the lower WQX threshold
+are removed from the dataset and no column will be appended. Default is
 clean = TRUE.
 }

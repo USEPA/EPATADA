@@ -9,7 +9,7 @@ HarmonizationRefTable(.data, download = FALSE)
 \arguments{
 \item{.data}{TADA dataframe}
 
-\item{download}{Boolean argument; when download = TRUE, the output is 
+\item{download}{Boolean argument; when download = TRUE, the output is
 downloaded to the current working directory.}
 }
 \value{
@@ -18,7 +18,7 @@ Harmonization Reference Table unique to the input dataset
 \description{
 Function generates a harmonization reference table that is specific to
 the input dataset. Users can review how their input data relates to standard
-TADA values for CharacteristicName, ResultSampleFractionText, 
+TADA values for CharacteristicName, ResultSampleFractionText,
 MethodSpecicationName, and ResultMeasure.MeasureUnitCode and they can optionally
 edit the reference file to meet their needs.
 }

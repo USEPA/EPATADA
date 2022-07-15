@@ -30,6 +30,6 @@ TADAdataRetrieval(
 TADA-compatible dataframe
 }
 \description{
-Retrieve data from Water Quality Portal (WQP) and output a TADA-compatible 
+Retrieve data from Water Quality Portal (WQP) and output a TADA-compatible
 dataset.
 }

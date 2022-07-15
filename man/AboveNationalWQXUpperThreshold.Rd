@@ -18,9 +18,9 @@ the upper WQX threshold is appended to the input data set. When clean = TRUE,
 data that is above the upper WQX threshold is removed from the dataset.
 }
 \description{
-EPA's Water Quality Exchange (WQX) has generated statistics and data from 
-millions of water quality data points around the country. This functions 
-leverages that statistical data from WQX to flag any data that is above the 
+EPA's Water Quality Exchange (WQX) has generated statistics and data from
+millions of water quality data points around the country. This functions
+leverages that statistical data from WQX to flag any data that is above the
 upper threshold of result values submitted to WQX for a given characteristic.
 When clean = TRUE, rows with values that are above the upper WQX threshold
 are removed from the dataset and no column will be appended. Default is

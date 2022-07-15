@@ -13,7 +13,7 @@ FilterParList(.data)
 A list of unique characteristics and their counts
 }
 \description{
-Function generates list of characteristics in the input dataset, as well as 
+Function generates list of characteristics in the input dataset, as well as
 the number of records for each. The list is intended to inform users
 as to which parameters to explore further and filter.
 }

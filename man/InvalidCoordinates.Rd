@@ -12,7 +12,7 @@ InvalidCoordinates(.data, clean_outsideUSA = FALSE, clean_imprecise = FALSE)
 \item{clean_outsideUSA}{Boolean argument; removes data with coordinates outside
 of the United States when clean_outsideUSA = TRUE. Default is clean = FALSE.}
 
-\item{clean_imprecise}{Boolean arguments; removes imprecise data when 
+\item{clean_imprecise}{Boolean arguments; removes imprecise data when
 clean_imprecise = TRUE. Default is clean_imprecise = FALSE.}
 }
 \value{
@@ -22,14 +22,14 @@ dataset. When either argument is TRUE, "invalid" or "imprecise" data is
 removed, respectively.
 }
 \description{
-Function identifies and flags invalid coordinate data. When 
-clean_outsideUSA = FALSE and clean_imprecise = FALSE, 
+Function identifies and flags invalid coordinate data. When
+clean_outsideUSA = FALSE and clean_imprecise = FALSE,
 a column will be appended titled "TADA.InvalidCoordinates" with the following
 flags (if relevant to dataset). If the latitude is less than zero, the row will be
-flagged with "LAT_OutsideUSA". If the longitude is greater than zero AND less than 145, 
-the row will be flagged as "LONG_OutsideUSA". If the latitude or longitude 
-contains the string, "999", the row will be flagged as invalid. Finally, 
+flagged with "LAT_OutsideUSA". If the longitude is greater than zero AND less than 145,
+the row will be flagged as "LONG_OutsideUSA". If the latitude or longitude
+contains the string, "999", the row will be flagged as invalid. Finally,
 precision can be measured by the number of decimal places in the latitude and longitude
-provided. If either does not have any numbers to the right of the decimal point, 
+provided. If either does not have any numbers to the right of the decimal point,
 the row will be flagged as "Imprecise".
 }
