@@ -31,9 +31,11 @@ Suggests:
     rmarkdown,
     knitr,
     testthat,
-    usethis, 
-    devtools, 
-    pkgdown, 
-    remotes, 
-    Rcpp
+    usethis,
+    devtools,
+    pkgdown,
+    remotes,
+    Rcpp,
+    spelling
 VignetteBuilder: knitr, rmarkdown
+Language: en-US
