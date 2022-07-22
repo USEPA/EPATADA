@@ -13,45 +13,49 @@ WQXTargetUnits(.data, transform = TRUE)
 Default is transform = TRUE.}
 }
 \value{
-When transform=TRUE, result values and units are converted to WQX target units. 
+When transform=TRUE, result values and units are converted to WQX target units.
 This function changes the values within the "ResultMeasure.MeasureUnitCode"
-and "DetectionQuantitationLimitMeasure.MeasureUnitCode" to the WQX target units and 
+and "DetectionQuantitationLimitMeasure.MeasureUnitCode" to the WQX target units and
 converts respective values within the "ResultMeasureValue" and "DetectionQuantitationLimitMeasure.MeasureValue"
 fields. In addition to "WQX.ResultMeasureValue.UnitConversion"
 and "WQX.DetectionLimitMeasureValue.UnitConversion", transform=TRUE will add
-the following two fields to the input dataset, "ResultMeasureUnitCode.Original", 
+the following two fields to the input dataset, "ResultMeasureUnitCode.Original",
 and "DetectionLimitMeasureUnitCode.Original", to retain the original result
 and unit values.
 
-When transform = FALSE, result values and units are NOT converted to WQX target units, 
+When transform = FALSE, result values and units are NOT converted to WQX target units,
 but columns are appended to indicate what the target units and conversion factors are,
 and if the data can be converted. In addition to "WQX.ResultMeasureValue.UnitConversion"
-and "WQX.DetectionLimitMeasureValue.UnitConversion",  transform=FALSE will add the 
+and "WQX.DetectionLimitMeasureValue.UnitConversion",  transform=FALSE will add the
 following two fields to the input dataset: "WQX.ConversionFactor" and "WQX.TargetUnit".
 }
 \description{
-This function compares measure units in the input data to the Water Quality 
+This function compares measure units in the input data to the Water Quality
 Exchange (WQX) 3.0 QAQC Characteristic Validation table.
 }
 \details{
 This function will ALWAYS add the following two columns to the input dataset:
-1) "WQX.ResultMeasureValue.UnitConversion", 
-2) "WQX.DetectionLimitMeasureValue.UnitConversion"
+\enumerate{
+\item "WQX.ResultMeasureValue.UnitConversion",
+\item "WQX.DetectionLimitMeasureValue.UnitConversion"
 These two fields indicate if data can be converted."NoResultValue" means data
 cannot be converted because there is no ResultMeasureValue, and "NoTargetUnit"
-means data cannot be converted because the original unit is not associated with a target unit in WQX. 
-"Convert" means the data can be transformed, and "Converted" means that this function 
+means data cannot be converted because the original unit is not associated with a target unit in WQX.
+"Convert" means the data can be transformed, and "Converted" means that this function
 has been run with the input transform = TRUE, and the values were already converted.
+}
 
 It also uses the following six fields from the input dataset:
-1) "CharacteristicName",
-2) "ActivityMediaName",
-3) "ResultMeasureValue",
-4) "ResultMeasure.MeasureUnitCode",
-5) "DetectionQuantitationLimitMeasure.MeasureValue",
-6) "DetectionQuantitationLimitMeasure.MeasureUnitCode"
+\enumerate{
+\item "CharacteristicName",
+\item "ActivityMediaName",
+\item "ResultMeasureValue",
+\item "ResultMeasure.MeasureUnitCode",
+\item "DetectionQuantitationLimitMeasure.MeasureValue",
+\item "DetectionQuantitationLimitMeasure.MeasureUnitCode"
+}
 
-This function adds the following two fields and transforms values within the 
+This function adds the following two fields and transforms values within the
 following four fields ONLY when transform=TRUE:
 Adds: "ResultMeasureUnitCode.Original", and "DetectionLimitMeasureUnitCode.Original".
 Transforms: "ResultMeasureValue", "ResultMeasure.MeasureUnitCode", "DetectionQuantitationLimitMeasure.MeasureValue", and "DetectionQuantitationLimitMeasure.MeasureUnitCode".

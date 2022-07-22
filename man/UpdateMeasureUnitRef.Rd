@@ -11,6 +11,6 @@ sysdata.rda with updated WQXunitRef object (unit conversion reference
 table)
 }
 \description{
-Function reads in the latest WQX MeasureUnit Domain table, adds 
+Function reads in the latest WQX MeasureUnit Domain table, adds
 additional target unit information, and writes the data to sysdata.rda.
 }

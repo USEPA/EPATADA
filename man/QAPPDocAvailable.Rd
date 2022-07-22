@@ -14,15 +14,15 @@ document from the dataset when clean = TRUE. Default is clean = FALSE.}
 }
 \value{
 When clean = FALSE, a column is appended to the input data set that
-flags rows with an associated QAPP document. When clean = TRUE, 
+flags rows with an associated QAPP document. When clean = TRUE,
 data without an associated QAPP document is removed from the dataset.
 }
 \description{
 Function checks data submitted under the "ProjectFileUrl" column
-to determine if a QAPP document is available to review. When clean = FALSE, 
-a column will be appended to flag results that have an associated 
+to determine if a QAPP document is available to review. When clean = FALSE,
+a column will be appended to flag results that have an associated
 QAPP document URL provided. When clean = TRUE, rows that do not
 have an associated QAPP document are removed from the dataset and no column
-will be appended. This function should only be used to remove data if an 
+will be appended. This function should only be used to remove data if an
 accompanying QAPP document is required to use data in assessments.
 }

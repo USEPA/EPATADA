@@ -9,20 +9,20 @@ InvalidMethod(.data, clean = TRUE)
 \arguments{
 \item{.data}{TADA dataframe}
 
-\item{clean}{Boolean argument; removes "Invalid" characteristic-analytical 
-method combinations from the dataset when clean = TRUE. Default is 
+\item{clean}{Boolean argument; removes "Invalid" characteristic-analytical
+method combinations from the dataset when clean = TRUE. Default is
 clean = TRUE.}
 }
 \value{
-When clean = FALSE, a column indicating the validity of the 
-combination of CharacteristicName, ResultAnalyticalMethod/MethodIdentifier, 
+When clean = FALSE, a column indicating the validity of the
+combination of CharacteristicName, ResultAnalyticalMethod/MethodIdentifier,
 and ResultAnalyticalMethod/MethodIdentifierContext values is appended to the
-input dataset. When clean = TRUE, "Invalid" rows are removed from the 
+input dataset. When clean = TRUE, "Invalid" rows are removed from the
 dataset and no column will be appended.
 }
 \description{
-Function checks the validity of each characteristic-analytical method 
-combination in the dataset. When clean = TRUE, rows with invalid 
-characteristic-analytical method combinations are removed. Default is 
+Function checks the validity of each characteristic-analytical method
+combination in the dataset. When clean = TRUE, rows with invalid
+characteristic-analytical method combinations are removed. Default is
 clean = TRUE.
 }

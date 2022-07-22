@@ -9,36 +9,36 @@ QAPPapproved(.data, clean = TRUE, cleanNA = FALSE)
 \arguments{
 \item{.data}{TADA dataframe}
 
-\item{clean}{Boolean argument with two possible values called "TRUE" and 
+\item{clean}{Boolean argument with two possible values called "TRUE" and
 "FALSE". When clean=TRUE, rows of data where the QAPPApprovedIndicator equals
-"N" will be removed. When, clean=FALSE, rows of data where the 
+"N" will be removed. When, clean=FALSE, rows of data where the
 QAPPApprovedIndicator equals "N" will be retained.}
 
-\item{cleanNA}{Boolean argument with two possible values called "TRUE" and 
-"FALSE". When cleanNA=TRUE, rows of data where the QAPPApprovedIndicator 
-equals "NA" will be removed. When, cleanNA=FALSE, rows of data where the 
+\item{cleanNA}{Boolean argument with two possible values called "TRUE" and
+"FALSE". When cleanNA=TRUE, rows of data where the QAPPApprovedIndicator
+equals "NA" will be removed. When, cleanNA=FALSE, rows of data where the
 the QAPPApprovedIndicator equals "NA" will be retained.}
 }
 \value{
-When clean = FALSE and cleanNA = FALSE, no data is removed from the 
+When clean = FALSE and cleanNA = FALSE, no data is removed from the
 dataset.
 }
 \description{
 Function checks data submitted under the column "QAPPApprovedIndicator".
-Some organizations submit data for this field to indicate if the data 
-produced has an approved Quality Assurance Project Plan (QAPP) or not. 
-Y indicates yes, N indicates no.  This function has two default inputs: 
-clean = TRUE and cleanNA = FALSE. The default removes rows of data where the 
+Some organizations submit data for this field to indicate if the data
+produced has an approved Quality Assurance Project Plan (QAPP) or not.
+Y indicates yes, N indicates no.  This function has two default inputs:
+clean = TRUE and cleanNA = FALSE. The default removes rows of data where the
 QAPPApprovedIndicator equals "N". Users could alternatively remove both N's
-and NA's using the inputs clean = TRUE and cleanNA = TRUE. If both 
+and NA's using the inputs clean = TRUE and cleanNA = TRUE. If both
 clean = FALSE and cleanNA = FALSE, the function will not make any changes to
 the data.
 }
 \details{
-Note: This is not a required field, so it is often left blank (NA) even if 
-the data has an associated QAPP. All states and tribes that collect 
-monitoring data using 106 funding (almost all state and tribal data in WQX) 
+Note: This is not a required field, so it is often left blank (NA) even if
+the data has an associated QAPP. All states and tribes that collect
+monitoring data using 106 funding (almost all state and tribal data in WQX)
 are required to have an EPA approved QAPP to receive 106 funding. Therefore,
-most of these organizations data has an approved QAPP even if the data 
+most of these organizations data has an approved QAPP even if the data
 submitted to WQP is NA.
 }

@@ -11,17 +11,17 @@ MeasureValueSpecialCharacters(.data)
 }
 \value{
 Full dataset with column indicating presence of special characters in
-the ResultMeasureValue and DetectionQuantitationLimitMeasure.MeasureValue 
-fields. Additionally, the ResultMeasureValue and 
+the ResultMeasureValue and DetectionQuantitationLimitMeasure.MeasureValue
+fields. Additionally, the ResultMeasureValue and
 DetectionQuantitationLimitMeasure.MeasureValue fields are converted to class
-numeric, and copies of each column are created to preserve original 
+numeric, and copies of each column are created to preserve original
 character values.
 }
 \description{
-Function checks for special characters and non-numeric values in the 
-ResultMeasureValue and DetectionQuantitationLimitMeasure.MeasureValue 
+Function checks for special characters and non-numeric values in the
+ResultMeasureValue and DetectionQuantitationLimitMeasure.MeasureValue
 fields and appends flag columns indicating if special characters are included
-and if so, what the special characters are. The ResultMeasureValue and 
-DetectionQuantitationLimitMeasure.MeasureValue fields are also converted to 
+and if so, what the special characters are. The ResultMeasureValue and
+DetectionQuantitationLimitMeasure.MeasureValue fields are also converted to
 class numeric.
 }

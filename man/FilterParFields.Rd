@@ -12,12 +12,12 @@ FilterParFields(.data, parameter)
 \item{parameter}{Characteristic name (parameter name) from the dataset.}
 }
 \value{
-A table of fields and the count of unique values in each field, 
+A table of fields and the count of unique values in each field,
 subset by a parameter.
 }
 \description{
-Function subsets the input dataframe by the input parameter and creates a 
-list of the fields in the subset dataframe as well as the number of unique 
-values in each field. The list is intended to inform users as to which 
+Function subsets the input dataframe by the input parameter and creates a
+list of the fields in the subset dataframe as well as the number of unique
+values in each field. The list is intended to inform users as to which
 specific fields to explore further and filter subset by a parameter.
 }

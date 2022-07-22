@@ -1,6 +1,6 @@
 ---
 title: "WQP Data Harmonization"
-author: "Cristina Mullin and Jake Greif"
+author: "Cristina Mullin"
 date: "May 1, 2022"
 output: rmarkdown::html_vignette
 vignette: >
@@ -42,14 +42,14 @@ library(devtools)
 #Load TADA and dataRetrieval
 You can install and load the most recent versions from GitHub by running:
 ```{r}
-remotes::install_github("USGS-R/dataRetrieval", dependencies=TR)
+remotes::install_github("USGS-R/dataRetrieval", dependencies=TRUE)
 remotes::install_github("USEPA/TADA")
 library(dataRetrieval)
 library(TADA)
 ```
 
 #Knit vignette
-This code is used to knit this code to build an HTML vignette
+This code is used to build an HTML vignette
 ```{r setup, include = FALSE}
 knitr::opts_chunk$set(
   collapse = TRUE,
@@ -58,12 +58,21 @@ knitr::opts_chunk$set(
 ```
 
 ## Retrieve WQP data
-WQP data is retrieved and processed for compatibility with TADA. This function
-joins three WQP profiles (i.e., the station, narrow, and phys/chem), changes all data in the 
-Characteristic, Speciation, Fraction, and Unit fields to uppercase, removes true duplicates, removes data for all non-water media types, and cleans results with special characters. 
+WQP data is retrieved and processed for compatibility with TADA. This function, TADAdataRetrieval builds on the USGS dataRetrieval package functions. It joins three WQP profiles (i.e., the station, narrow, and phys/chem), changes all data in the Characteristic, Speciation, Fraction, and Unit fields to uppercase, removes true duplicates, removes data for all non-water media types, and cleans results with special characters.
 
-More details about this functioncan be found in the function documentation 
-by entering the following code into the console: ?TADAdataRetrieval
+This function uses the same inputs as the dataRetrieval `readWQPdata` function. `readWQPdata` does not restrict the characteristics pulled from WQP. You may specify the desired characteristics by using, for instance: 'characteristicName = "pH". 
+
+More details about this function can be found in the function documentation by entering the following code into the console: ?TADAdataRetrieval
+
+Here is more information on the dataRetrieval R Package:
+[Introduction to the dataRetrieval package](https://cran.r-project.org/web/packages/dataRetrieval/vignettes/dataRetrieval.html)
+[General Data Import from Water Quality Portal](https://rdrr.io/cran/dataRetrieval/man/readWQPdata.html)
+[Water Quality Portal Web Services Guide](https://www.waterqualitydata.us/webservices_documentation/)
+[dataRetrieval Tutorial](https://owi.usgs.gov/R/dataRetrieval.html
+
+Water Quality Portal downloads have the same columns each time, but be aware that data are uploaded to the Water Quality Portal by individual organizations, which may or may not follow the same conventions. Data and metadata quality are not guaranteed! Make sure to carefully explore any data and make conservative quality assurance decisions where information is limited. 
+
+In this vignette, we will walk through some of the things to look for when deciding to use different organizations data from the WQP.
 ```{r}
 #Get testing data
   #stateCode = "US:24",
@@ -87,6 +96,8 @@ TADATesting2 <- TADAdataRetrieval(stateCode = "US:30",
 ## Depth unit conversions
 Converts depth units to a consistent unit. 
 
+**ActivityDepthHeightMeasure.MeasureValue** provides depth information. This is a crucial column for lake data but less often for river data.
+
 Function checks dataset for depth profile data. Where depth profile columns are populated, the function appends 'Conversion Factor' columns and populates those columns based on the original unit (MeasureUnitCode columns) and the target unit, which is defined in the 'unit' argument. A 'Depth Target Unit' column is also appended, indicating the unit all selected depth data is converted to. When transform = FALSE, the output includes all 'Conversion Factor' columns and the 'Depth Target Unit' column. When transform = TRUE, the output includes converted depth data and the 'Depth Target Unit' column, which acts as a flag indicating which rows have been converted. Default is transform = TRUE.
 
 The depth profile function can harmonize the depth units across all the following fields
@@ -95,8 +106,7 @@ The depth profile function can harmonize the depth units across all the followin
 
 Allowable values for 'unit' are either 'm' (meter), 'ft' (feet), or 'in' (inch). 'unit' accepts only one allowable value as an input. Default is unit = "m".
 
-See additional function documentation for additional function options by entering the following 
-code in the console: 
+See additional function documentation for additional function options by entering the following code in the console: 
 ?DepthProfileData
 
 ```{r}
@@ -177,6 +187,11 @@ FilterFields(TADAProfileClean12)
 ```
 
 Next, choose a field from the list to see the unique values in that field, as well as the number of times each value appears in the dataset. We'll start with ActivityTypeCode.
+
+Here is a list of other fields to review:
+1. **ResultCommentText** often has details relating to additional QA.
+2. **MeasureQualifierCode** Contains information about data flags
+3. Other codes may designate suspect data or other flags which may be described in detail in **ResultLaboratoryCommentText** or another column
 ```{r, echo=FALSE}
 FilterFieldReview("ActivityTypeCode", TADAProfileClean12)
 ```
@@ -219,6 +234,7 @@ FilterParFieldReview("HydrologicEvent", TADAProfileClean14, "NITROGEN")
 ```
 
 The HydrologicEvent field has three unique values. In this example we want to remove samples collected during "Storm" events. Therefore, we'll specify that we want to remove rows where the CharacteristicName is "NITROGEN" and the HydrologicEvent field is "Storm." 
+
 ```{r}
 TADAProfileClean15 <- dplyr::filter(TADAProfileClean14, !(CharacteristicName %in% "NITROGEN" & HydrologicEvent %in% "Storm"))
 ```
@@ -228,6 +244,10 @@ The HarmonizeRefTable function generates a harmonization reference table that is
 current working directory when download = TRUE, the default is download = FALSE. 
 
 The HarmonizeData function then compares the input dataset to the TADA Harmonization Reference Table. The purpose of the function is to make similar data consistent and therefore easier to compare and analyze. Optional outputs include: 1) the dataset with Harmonization columns appended, 2) the datset with CharacteristicName, ResultSampleFractionText, MethodSpecificationName, and ResultMeasure.MeasureUnitCode converted to TADA standards or 3) the four fields converted with most Harmonization Reference Table columns appended. Default is transform = TRUE and flag = TRUE.
+
+Here are some examples of how the HarmonizeData function can be used:
+1. **ResultSampleFractionText** specifies forms of constituents. In some cases, a single **CharacteristicName** will have both "Total" and "Dissolved" forms specified, which should not be combined. In these cases, each CharacteristicName and ResultSampleFractionText combination is given a different identier. This identifer can be used later on to identify comparable data groups for calculating statistics and creating figures for each combination.
+2. Some variables have different names but represent the same constituent (e.g., "Total Kjeldahl nitrogen (Organic N & NH3)" and "Kjeldahl nitrogen"). The HarmonizeData function gives a consistent name (and identifier) to synonyms.
 
 ```{r}
 UniqueHarmonizationRef <- HarmonizationRefTable(TADAProfileClean15, download = FALSE)
