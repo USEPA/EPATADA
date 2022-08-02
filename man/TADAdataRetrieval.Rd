@@ -5,24 +5,27 @@
 \title{Generate TADA-Compatible Dataset with WQP Data}
 \usage{
 TADAdataRetrieval(
-  stateCode = "US:24",
-  siteType = c("Lake, Reservoir, Impoundment", "Stream"),
-  sampleMedia = c("water", "Water"),
-  characteristicName = c("Ammonia", "Nitrate", "Nitrogen"),
-  startDate = "01-01-2019",
-  endDate = "01-01-2022"
+  statecode = "null",
+  startDate = "null",
+  countycode = "null",
+  siteid = "null",
+  siteType = "null",
+  characteristicName = "null",
+  endDate = "null"
 )
 }
 \arguments{
-\item{stateCode}{Code that identifies a state}
+\item{statecode}{Code that identifies a state}
+
+\item{startDate}{Start Date}
+
+\item{countycode}{Code that identifies a county}
+
+\item{siteid}{Unique monitoring station identifier}
 
 \item{siteType}{Type of waterbody}
 
-\item{sampleMedia}{Type of media}
-
 \item{characteristicName}{Name of characteristic}
-
-\item{startDate}{Start Date}
 
 \item{endDate}{End Date}
 }
