@@ -74,23 +74,10 @@ Water Quality Portal downloads have the same columns each time, but be aware tha
 
 In this vignette, we will walk through some of the things to look for when deciding to use different organizations data from the WQP.
 ```{r}
-#Get testing data
-  #stateCode = "US:24",
-  #siteType = c("Lake, Reservoir, Impoundment", "Stream")
-  #sampleMedia = c("water", "Water")
-  #characteristicName = c("Ammonia", "Nitrate", "Nitrogen")
-  #startDate = "01-01-2019"
-  #endDate = "01-01-2022"
-TADATesting <- TADAdataRetrieval()
-
-#OR ---Edit and define your own query inputs below. If you do this, you will also need to 
-#change TADATesting to TADATesting2 in row 72
-TADATesting2 <- TADAdataRetrieval(stateCode = "US:30", 
-                              siteType = c("Lake, Reservoir, Impoundment", "Stream"),
-                              sampleMedia = c("water", "Water"),
+#You can edit this to define your own WQP query inputs below
+TADAProfile <- TADAdataRetrieval(statecode = "24", 
                               characteristicName = c("Ammonia", "Nitrate", "Nitrogen"),
-                              startDate = "01-01-2019",
-                              endDate = "01-01-2022")
+                              startDate = "01-01-2022")
 ```
 
 ## Depth unit conversions
@@ -111,7 +98,9 @@ See additional function documentation for additional function options by enterin
 
 ```{r}
 #converts all depth profile data to meters
-TADAProfileClean2 <- DepthProfileData(TADATesting, unit = "m", transform = TRUE)
+TADAProfileClean1 <- DepthProfileData(TADAProfile, unit = "m", transform = TRUE)
+
+colnames(TADAProfileClean1)
 ```
 
 # Result unit conversions
@@ -123,7 +112,7 @@ code in the console:
 
 ```{r}
 #Converts all results to WQX target units
-TADAProfileClean3 <- WQXTargetUnits(TADAProfileClean2, transform = TRUE)
+TADAProfileClean2 <- WQXTargetUnits(TADAProfileClean1, transform = TRUE)
 ```
 
 ##Continuous data
@@ -135,7 +124,7 @@ See function documentation for additional function options by entering the follo
 code in the console: 
 ?DepthProfileData
 ```{r}
-TADAProfileClean4 <- AggregatedContinuousData(TADAProfileClean3, clean = TRUE)
+TADAProfileClean3 <- AggregatedContinuousData(TADAProfileClean2, clean = TRUE)
 ```
 
 ## WQX QAQC Service Result Flags
@@ -149,10 +138,10 @@ See documentation for more details:
 ?InvalidResultUnit
 ?InvalidFraction
 ```{r}
-TADAProfileClean5 <- InvalidMethod(TADAProfileClean4, clean = TRUE)
-TADAProfileClean6 <- InvalidFraction(TADAProfileClean5, clean = TRUE)
-TADAProfileClean7 <- InvalidSpeciation(TADAProfileClean6, clean = TRUE)
-TADAProfileClean8 <- InvalidResultUnit(TADAProfileClean7, clean = TRUE)
+TADAProfileClean4 <- InvalidMethod(TADAProfileClean3, clean = TRUE)
+TADAProfileClean5 <- InvalidFraction(TADAProfileClean4, clean = TRUE)
+TADAProfileClean6 <- InvalidSpeciation(TADAProfileClean5, clean = TRUE)
+TADAProfileClean7 <- InvalidResultUnit(TADAProfileClean6, clean = TRUE)
 ```
 
 ## WQX national upper and lower thresholds
@@ -161,21 +150,42 @@ upper and lower bound for each characteristic and unit combination. The default 
 clean=TRUE, but you can change this to only flag results if desired. Results will be 
 flagged, but not removed, when clean=FALSE.
 ```{r}
-TADAProfileClean9 <- AboveNationalWQXUpperThreshold(TADAProfileClean8, clean = TRUE)
-TADAProfileClean10 <- BelowNationalWQXUpperThreshold(TADAProfileClean9, clean = TRUE)
+TADAProfileClean8 <- AboveNationalWQXUpperThreshold(TADAProfileClean7, clean = TRUE)
+TADAProfileClean9 <- BelowNationalWQXUpperThreshold(TADAProfileClean8, clean = TRUE)
 ```
 
 # Potential duplicates
 Sometimes multiple organizations submit the exact same data to Water Quality Portal (WQP), which can affect water quality analyses and assessments. This function checks for and identifies data that is identical in all fields excluding organization-specific and comment text fields. Each pair or group of potential duplicate rows is flagged with a unique ID. When clean = TRUE, the function retains the first occurrence of each potential duplicate in the dataset. Default is clean = TRUE.
 ```{r}
-TADAProfileClean11 <- PotentialDuplicateRowID(TADAProfileClean10)
+TADAProfileClean10 <- PotentialDuplicateRowID(TADAProfileClean9)
 ```
 
 # Invalid coordinates
 Function identifies and flags invalid coordinate data. When clean_outsideUSA = FALSE and clean_imprecise = FALSE, a column will be appended titled "TADA.InvalidCoordinates" with the following flags (if relevant to dataset). If the latitude is less than zero, the row will be flagged with "LAT_OutsideUSA". If the longitude is greater than zero AND less than 145, the row will be flagged as "LONG_OutsideUSA". If the latitude or longitude contains the string, "999", the row will be flagged as invalid. Finally, precision can be measured by the number of decimal places in the latitude and longitude provided. If either does not have any numbers to the right of the decimal point, the row will be flagged as "Imprecise".
 
 ```{r}
-TADAProfileClean12 <- InvalidCoordinates(TADAProfileClean11, clean_outsideUSA = FALSE, clean_imprecise = FALSE)
+TADAProfileClean11 <- InvalidCoordinates(TADAProfileClean10, clean_outsideUSA = FALSE, clean_imprecise = FALSE)
+```
+
+# QAPPapproved
+Check data for an approved QAPP
+
+This function checks to see if there is any information in the column "QAPPApprovedIndicator". Some organizations submit data for this field to indicate if the data produced has an approved Quality Assurance Project Plan (QAPP) or not. In this field, Y indicates yes, N indicates no. 
+
+This function has two default inputs: clean = TRUE and cleanNA = FALSE. These defaults remove rows of data where the QAPPApprovedIndicator equals "N". Users could alternatively remove both N's and NA's using the inputs clean = TRUE and cleanNA = TRUE. If both clean = FALSE and cleanNA = FALSE, the function will not do anything.
+```{r}
+TADAProfileClean12 <- QAPPapproved(TADAProfileClean11, clean = TRUE, cleanNA = FALSE)
+```
+
+# QAPPDocAvailable
+This function checks data submitted under the "ProjectFileUrl" column to determine if a QAPP document is available to review. When clean = FALSE,
+a column will be appended to flag results that do have an associated
+QAPP document URL provided. When clean = TRUE, rows that do not
+have an associated QAPP document are removed from the dataset and no column
+will be appended. This function should only be used to remove data if an
+accompanying QAPP document is required to use data in assessments.
+```{r}
+TADAProfileClean13 <- QAPPDocAvailable(TADAProfileClean12, clean = FALSE)
 ```
 
 ## Filter data by field
@@ -183,7 +193,7 @@ In this section a TADA user will want to review the unique values in specific fi
 
 To start, review the list of fields and the number of unique values in each field.
 ```{r, echo=FALSE}
-FilterFields(TADAProfileClean12)
+FilterFields(TADAProfileClean13)
 ```
 
 Next, choose a field from the list to see the unique values in that field, as well as the number of times each value appears in the dataset. We'll start with ActivityTypeCode.
@@ -193,24 +203,24 @@ Here is a list of other fields to review:
 2. **MeasureQualifierCode** Contains information about data flags
 3. Other codes may designate suspect data or other flags which may be described in detail in **ResultLaboratoryCommentText** or another column
 ```{r, echo=FALSE}
-FilterFieldReview("ActivityTypeCode", TADAProfileClean12)
+FilterFieldReview("ActivityTypeCode", TADAProfileClean13)
 ```
 
 The ActivityTypeCode field has four unique values -- "Sample-Routine", "Quality Control Sample-Field Replicate", "Field Msr/Obs", and "Quality Control Sample-Field Blank." In this example we want to remove quality control values in the ActivityTypeCode field, therefore, we'll specify that we want to remove the "Quality Control Sample-Field Replicate" and "Quality Control Sample-Field Blank" values in the ActivityTypeCode field.
 ```{r}
-TADAProfileClean13 <- dplyr::filter(TADAProfileClean12, !(ActivityTypeCode %in% c("Quality Control Sample-Field Replicate", "Quality Control Sample-Field Blank")))
+TADAProfileClean14 <- dplyr::filter(TADAProfileClean13, !(ActivityTypeCode %in% c("Quality Control Sample-Field Replicate", "Quality Control Sample-Field Blank")))
 ```
 
 We've completed our review of the ActivityTypeCode field. 
 
 Let's move on to a different field and see if there are any values that we want to remove -- we'll look at the values in the ResultStatusIdentifier field.
 ```{r, echo=FALSE}
-FilterFieldReview("ActivityMediaSubdivisionName", TADAProfileClean13)
+FilterFieldReview("ActivityMediaSubdivisionName", TADAProfileClean14)
 ```
 
 The ActivityMediaSubdivisionName field has two unique values, "Surface Water" and "Groundwater." In this example we want to remove the "Groundwater" values. 
 ```{r}
-TADAProfileClean14 <- dplyr::filter(TADAProfileClean13, !(ActivityMediaSubdivisionName %in% "Groundwater"))
+TADAProfileClean15 <- dplyr::filter(TADAProfileClean14, !(ActivityMediaSubdivisionName %in% "Groundwater"))
 ```
 
 ## Filter data by field, subset by parameter
@@ -218,25 +228,25 @@ In this section a TADA user will want to select a parameter, review the unique v
 
 To start, review the list of parameters in the dataset. (The list is sorted from highest to lowest counts. Only the first few rows are displayed to save space on the page) 
 ```{r, echo=FALSE}
-FilterParList(TADAProfileClean14)
+FilterParList(TADAProfileClean15)
 ```
 
 Next, select a parameter. Let's explore the fields associated with Nitrogen:
 ```{r, echo=FALSE}
-FilterParFields(TADAProfileClean14, "NITROGEN")
+FilterParFields(TADAProfileClean15, "NITROGEN")
 ```
 
 Selecting a parameter generates the list below, which is subset by the selected parameter, of fields and the number of unique values in each field.
 
 Then choose a field from the list. In this example we'll remove certain values from the HydrologicEvent field.
 ```{r, echo=FALSE}
-FilterParFieldReview("HydrologicEvent", TADAProfileClean14, "NITROGEN")
+FilterParFieldReview("HydrologicEvent", TADAProfileClean15, "NITROGEN")
 ```
 
 The HydrologicEvent field has three unique values. In this example we want to remove samples collected during "Storm" events. Therefore, we'll specify that we want to remove rows where the CharacteristicName is "NITROGEN" and the HydrologicEvent field is "Storm." 
 
 ```{r}
-TADAProfileClean15 <- dplyr::filter(TADAProfileClean14, !(CharacteristicName %in% "NITROGEN" & HydrologicEvent %in% "Storm"))
+TADAProfileClean16 <- dplyr::filter(TADAProfileClean15, !(CharacteristicName %in% "NITROGEN" & HydrologicEvent %in% "Storm"))
 ```
 
 ## Transform Characteristic, Speciation, and Unit values to TADA Standards
@@ -250,6 +260,6 @@ Here are some examples of how the HarmonizeData function can be used:
 2. Some variables have different names but represent the same constituent (e.g., "Total Kjeldahl nitrogen (Organic N & NH3)" and "Kjeldahl nitrogen"). The HarmonizeData function gives a consistent name (and identifier) to synonyms.
 
 ```{r}
-UniqueHarmonizationRef <- HarmonizationRefTable(TADAProfileClean15, download = FALSE)
-TADAProfileClean16 <- HarmonizeData(TADAProfileClean15, ref = UniqueHarmonizationRef, transform = TRUE, flag = TRUE)
+UniqueHarmonizationRef <- HarmonizationRefTable(TADAProfileClean16, download = FALSE)
+TADAProfileClean17 <- HarmonizeData(TADAProfileClean16, ref = UniqueHarmonizationRef, transform = TRUE, flag = TRUE)
 ```

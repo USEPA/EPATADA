@@ -3,33 +3,71 @@
 #' Retrieve data from Water Quality Portal (WQP) and output a TADA-compatible
 #' dataset.
 #'
-#' @param stateCode Code that identifies a state
-#' @param siteType Type of waterbody
-#' @param sampleMedia Type of media
-#' @param characteristicName Name of characteristic
+#' @param statecode Code that identifies a state
 #' @param startDate Start Date
+#' @param countycode Code that identifies a county 
+#' @param siteid Unique monitoring station identifier
+#' @param siteType Type of waterbody
+#' @param characteristicName Name of characteristic
 #' @param endDate End Date
 #'
 #' @return TADA-compatible dataframe
 #' @export
 #'
 
-TADAdataRetrieval <- function(stateCode = "US:24",
-                              siteType = c("Lake, Reservoir, Impoundment", "Stream"),
-                              sampleMedia = c("water", "Water"),
-                              characteristicName = c("Ammonia", "Nitrate", "Nitrogen"),
-                              startDate = "01-01-2019",
-                              endDate = "01-01-2022") {
+TADAdataRetrieval <- function(statecode = "null",
+                              startDate = "null",
+                              countycode = "null", 
+                              siteid = "null",
+                              siteType = "null",
+                              characteristicName = "null",
+                              endDate = "null"
+                              ) {
 
   # Set query parameters
-  WQPquery <- list(
-    statecode = stateCode,
-    Sitetype = siteType,
-    Samplemedia = sampleMedia,
-    characteristicName = characteristicName,
-    startDate = startDate,
-    endDate = endDate
-  )
+  WQPquery <- list()
+  if (length(statecode)>1) {
+        WQPquery <- c(WQPquery, statecode = list(statecode)) 
+  } else if (statecode != "null") {
+        WQPquery <- c(WQPquery, statecode = statecode)
+  }
+  
+  if (length(startDate)>1) {
+    WQPquery <- c(WQPquery, startDate = list(startDate)) 
+  } else if (startDate != "null") {
+    WQPquery <- c(WQPquery, startDate = startDate)
+  }
+  
+  if (length(countycode)>1) {
+    WQPquery <- c(WQPquery, countycode = list(countycode)) 
+  } else if (countycode != "null") {
+    WQPquery <- c(WQPquery, countycode = countycode)
+  }
+  
+  if (length(siteid)>1) {
+    WQPquery <- c(WQPquery, siteid = list(siteid)) 
+  } else if (siteid != "null") {
+    WQPquery <- c(WQPquery, siteid = siteid)
+  }
+  
+  if (length(siteType)>1) {
+    WQPquery <- c(WQPquery, siteType = list(siteType)) 
+  } else if (siteType != "null") {
+    WQPquery <- c(WQPquery, siteType = siteType)
+  }
+  
+  if (length(characteristicName)>1) {
+    WQPquery <- c(WQPquery, characteristicName = list(characteristicName))
+  } else if (characteristicName != "null") {
+    WQPquery <- c(WQPquery, characteristicName = characteristicName)
+  }
+  
+  if (length(endDate)>1) {
+    WQPquery <- c(WQPquery, endDate = list(endDate)) 
+  } else if (endDate != "null") {
+    WQPquery <- c(WQPquery, endDate = endDate)
+  }
+
   # Retrieve all 3 profiles
   results.DR <- dataRetrieval::readWQPdata(WQPquery)
 
@@ -37,7 +75,7 @@ TADAdataRetrieval <- function(stateCode = "US:24",
 
   sites.DR <- dataRetrieval::whatWQPsites(WQPquery)
 
-  # projects.DR <- dataRetrieval::readWQPdata(WQPquery, service = "Project")
+  projects.DR <- dataRetrieval::readWQPdata(WQPquery, service = "Project")
 
   # Join station data to full phys/chem (results.DR)
   join1 <- results.DR %>%
@@ -49,7 +87,7 @@ TADAdataRetrieval <- function(stateCode = "US:24",
     dplyr::select_at(dplyr::vars(-ends_with(".y")))
 
   # Join Speciation column from narrow to full profile
-  TADAprofile <- join1 %>%
+  join2 <- join1 %>%
     dplyr::left_join(dplyr::select(
       narrow.DR, ActivityIdentifier, MonitoringLocationIdentifier,
       CharacteristicName, ResultMeasureValue,
@@ -58,6 +96,20 @@ TADAdataRetrieval <- function(stateCode = "US:24",
     by = c(
       "ActivityIdentifier", "MonitoringLocationIdentifier",
       "CharacteristicName", "ResultMeasureValue"
+    )
+    )
+  
+  # Join QAPP columns from project to full profile
+  TADAprofile <- join2 %>%
+    dplyr::left_join(dplyr::select(
+      projects.DR, OrganizationIdentifier, OrganizationFormalName,
+      ProjectIdentifier, ProjectName, ProjectDescriptionText, 
+      SamplingDesignTypeCode, QAPPApprovedIndicator, QAPPApprovalAgencyName, 
+      ProjectFileUrl, ProjectMonitoringLocationWeightingUrl
+    ),
+    by = c(
+      "OrganizationIdentifier", "OrganizationFormalName",
+      "ProjectIdentifier"
     )
     )
 
