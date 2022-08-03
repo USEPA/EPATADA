@@ -75,9 +75,9 @@ Water Quality Portal downloads have the same columns each time, but be aware tha
 In this vignette, we will walk through some of the things to look for when deciding to use different organizations data from the WQP.
 ```{r}
 #You can edit this to define your own WQP query inputs below
-TADAProfile <- TADAdataRetrieval(statecode = "24", 
+TADAProfile <- TADAdataRetrieval(statecode = "UT", 
                               characteristicName = c("Ammonia", "Nitrate", "Nitrogen"),
-                              startDate = "01-01-2022")
+                              startDate = "01-01-2021")
 ```
 
 ## Depth unit conversions
