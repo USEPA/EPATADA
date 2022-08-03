@@ -30,7 +30,7 @@ Depends:
 Suggests: 
     rmarkdown,
     knitr,
-    testthat,
+    testthat (>= 3.0.0),
     usethis,
     devtools,
     pkgdown,
@@ -39,3 +39,4 @@ Suggests:
     spelling
 VignetteBuilder: knitr, rmarkdown
 Language: en-US
+Config/testthat/edition: 3
