@@ -142,6 +142,7 @@ TADAdataRetrieval <- function(statecode = "null",
 #'
 
 readWQPwebservice <- function(webservice) {
+  #consider function dataRetrieval::getWebServiceData
   # read in csv from WQP web service
   if (grepl("zip=yes", webservice)) {
     webservice <- stringr::str_replace(webservice, "zip=yes", "zip=no")
