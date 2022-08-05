@@ -15,24 +15,21 @@ editor_options:
 #This code is used to build (knit) an HTML vignette
 knitr::opts_chunk$set(
   collapse = TRUE,
-  comment = "#>"
+  comment = "#>", 
+  echo = TRUE
 )
 ```
 
 ## Install and load packages
 
-Install dependency packages if needed
+Install and load dependency packages. Current versions of TADA and dataRetrieval can be installed from GitHub instead of CRAN.
 
-```{r}
+```{r, echo = FALSE}
 list.of.packages <- c("plyr","dplyr","ggplot2","RColorBrewer","Rcpp","devtools",
           "data.table","grDevices","magrittr","stringr","testthat","usethis","utils","stats","rmarkdown","knitr","remotes")
 new.packages <- list.of.packages[!(list.of.packages %in% installed.packages()[,"Package"])]
 if(length(new.packages)) install.packages(new.packages)
-```
 
-Load dependency packages
-
-```{r}
 library(remotes)
 library(dplyr)
 library(ggplot2)
@@ -50,15 +47,12 @@ library(stats)
 library(rmarkdown)
 library(knitr)
 library(devtools)
-```
 
-Install TADA and dataRetrieval. You can install and load the most recent versions from GitHub by running:
-
-```{r}
 remotes::install_github("USGS-R/dataRetrieval", dependencies=TRUE)
 remotes::install_github("USEPA/TADA")
 library(dataRetrieval)
 library(TADA)
+
 ```
 
 ## Retrieve WQP data
@@ -79,7 +73,7 @@ Water Quality Portal downloads have the same columns each time, but be aware tha
 
 In this vignette, we will walk through some of the things to look for when deciding to use different organizations data from the WQP.
 
-```{r}
+```{r, echo = FALSE}
 #You can edit this to define your own WQP query inputs below
 TADAProfile <- TADAdataRetrieval(statecode = "UT", 
                               characteristicName = c("Ammonia", "Nitrate", "Nitrogen"),
@@ -218,7 +212,7 @@ In this section a TADA user will want to review the unique values in specific fi
 
 To start, review the list of fields and the number of unique values in each field.
 
-```{r, echo=FALSE}
+```{r}
 FilterFields(TADAProfileClean13)
 ```
 
@@ -229,7 +223,7 @@ Here is a list of other fields to review:
 2. **MeasureQualifierCode** Contains information about data flags
 3. Other codes may designate suspect data or other flags which may be described in detail in **ResultLaboratoryCommentText** or another column
 
-```{r, echo=FALSE}
+```{r}
 FilterFieldReview("ActivityTypeCode", TADAProfileClean13)
 ```
 
@@ -243,7 +237,7 @@ We've completed our review of the ActivityTypeCode field.
 
 Let's move on to a different field and see if there are any values that we want to remove -- we'll look at the values in the ResultStatusIdentifier field.
 
-```{r, echo=FALSE}
+```{r}
 FilterFieldReview("ActivityMediaSubdivisionName", TADAProfileClean14)
 ```
 
@@ -259,13 +253,13 @@ In this section a TADA user will want to select a parameter, review the unique v
 
 To start, review the list of parameters in the dataset. (The list is sorted from highest to lowest counts. Only the first few rows are displayed to save space on the page)
 
-```{r, echo=FALSE}
+```{r}
 FilterParList(TADAProfileClean15)
 ```
 
 Next, select a parameter. Let's explore the fields associated with Nitrogen:
 
-```{r, echo=FALSE}
+```{r}
 FilterParFields(TADAProfileClean15, "NITROGEN")
 ```
 
@@ -273,7 +267,7 @@ Selecting a parameter generates the list below, which is subset by the selected 
 
 Then choose a field from the list. In this example we'll remove certain values from the HydrologicEvent field.
 
-```{r, echo=FALSE}
+```{r}
 FilterParFieldReview("HydrologicEvent", TADAProfileClean15, "NITROGEN")
 ```
 
