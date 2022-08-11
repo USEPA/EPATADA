@@ -7,7 +7,7 @@
 readWQPwebservice(webservice)
 }
 \arguments{
-\item{webservice}{WQP Web Service URL}
+\item{webservice}{WQP Web Service URL, entered within quotes "url"}
 }
 \value{
 WQP Full Physical Chemical Results Data Profile

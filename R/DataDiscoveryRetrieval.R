@@ -134,7 +134,7 @@ TADAdataRetrieval <- function(statecode = "null",
 #' your code. This URL let's you return to the WQP query page with all your
 #' original data filters.
 #'
-#' @param webservice WQP Web Service URL
+#' @param webservice WQP Web Service URL, entered within quotes "url"
 #'
 #' @return WQP Full Physical Chemical Results Data Profile
 #'
@@ -142,12 +142,17 @@ TADAdataRetrieval <- function(statecode = "null",
 #'
 
 readWQPwebservice <- function(webservice) {
+  #consider function dataRetrieval::getWebServiceData
   # read in csv from WQP web service
   if (grepl("zip=yes", webservice)) {
     webservice <- stringr::str_replace(webservice, "zip=yes", "zip=no")
     return(data.table::fread(toString(webservice)))
+    #update when we switch to WQX 3.0
+    #return(autoclean(data.table::fread(toString(webservice))))
   } else {
     return(data.table::fread(webservice))
+    #update when we switch to WQX 3.0
+    #return(autoclean(data.table::fread(webservice)))
   }
 }
 
