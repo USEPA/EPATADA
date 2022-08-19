@@ -313,7 +313,6 @@ TADAprofileCheck <- function(.data) {
 #' @param endDate end date in YYYY-MM-DD format, for example, "2020-12-31"
 #' @param CharacteristicName Name of water quality parameter
 #' @param siteType Name of water body type (e.g., "Stream", "Lake, Reservoir, Impoundment")
-
 #' @return TADA-compatible dataframe
 #' 
 #' @export
