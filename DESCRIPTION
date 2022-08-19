@@ -24,7 +24,9 @@ Imports:
     stringr,
     utils, 
     RColorBrewer,
-    stats
+    stats, 
+    tidyverse, 
+    lubridate
 Depends: 
     R (>= 2.10)
 Suggests: 

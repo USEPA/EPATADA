@@ -10,7 +10,8 @@ TADAdataRetrieval(
   countycode = "null",
   siteid = "null",
   siteType = "null",
-  characteristicName = "null",
+  CharacteristicName = "null",
+  ActivityMediaName = "null",
   endDate = "null"
 )
 }
@@ -25,7 +26,9 @@ TADAdataRetrieval(
 
 \item{siteType}{Type of waterbody}
 
-\item{characteristicName}{Name of characteristic}
+\item{CharacteristicName}{Name of parameter}
+
+\item{ActivityMediaName}{Sampling substrate such as water, air, or sediment}
 
 \item{endDate}{End Date}
 }
@@ -35,4 +38,12 @@ TADA-compatible dataframe
 \description{
 Retrieve data from Water Quality Portal (WQP) and output a TADA-compatible
 dataset.
+}
+\details{
+Keep in mind that all the query filters for the WQP work as an AND
+but within the fields there are ORs. So for example,
+characteristics – if you choose pH & DO – it’s an OR. Similarly, if you
+choose VA and IL, it’s an OR. But the combo of fields are ANDs.
+Such as State/VA AND Characteristic/DO".
+"Characteristic" and "Characteristic Group" also work as an AND.
 }
