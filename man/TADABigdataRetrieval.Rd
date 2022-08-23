@@ -12,7 +12,7 @@ data processing.}
 TADABigdataRetrieval(
   startDate = "null",
   endDate = "null",
-  CharacteristicName = "null",
+  characteristicName = "null",
   siteType = "null"
 )
 }
@@ -21,7 +21,7 @@ TADABigdataRetrieval(
 
 \item{endDate}{end date in YYYY-MM-DD format, for example, "2020-12-31"}
 
-\item{CharacteristicName}{Name of water quality parameter}
+\item{characteristicName}{Name of water quality parameter}
 
 \item{siteType}{Name of water body type (e.g., "Stream", "Lake, Reservoir, Impoundment")}
 }

@@ -92,7 +92,8 @@ Tip 2) The "siteid" is a general term WQP uses to describe both Site IDs from US
 
 ```{r, echo = FALSE}
 #You can edit this to define your own WQP query inputs below
-TADAProfile <- TADAdataRetrieval(statecode = "UT", CharacteristicName = c("Ammonia", "Nitrate", "Nitrogen"), startDate = "01-01-2021")
+
+TADAProfile <- TADAdataRetrieval(statecode = "UT", characteristicName = c("Ammonia", "Nitrate", "Nitrogen"), startDate = "01-01-2021")
 
 #Alternatively, use the data.table::fread function to read in a web service call for any WQP profile. 
 new_fullphyschem <- data.table::fread("https://www.waterqualitydata.us/data/Result/search?countrycode=US&statecode=US%3A49&siteid=UTAHDWQ_WQX-4925610&startDateLo=01-01-2015&startDateHi=12-31-2016&mimeType=csv&zip=no&sorted=yes&dataProfile=fullPhysChem&providers=NWIS&providers=STEWARDS&providers=STORET")

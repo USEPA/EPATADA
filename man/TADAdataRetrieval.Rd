@@ -10,7 +10,7 @@ TADAdataRetrieval(
   countycode = "null",
   siteid = "null",
   siteType = "null",
-  CharacteristicName = "null",
+  characteristicName = "null",
   ActivityMediaName = "null",
   endDate = "null"
 )
@@ -26,7 +26,7 @@ TADAdataRetrieval(
 
 \item{siteType}{Type of waterbody}
 
-\item{CharacteristicName}{Name of parameter}
+\item{characteristicName}{Name of parameter}
 
 \item{ActivityMediaName}{Sampling substrate such as water, air, or sediment}
 
