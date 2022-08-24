@@ -5,18 +5,17 @@ date: "May 1, 2022"
 output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{WQP Data Harmonization}
-  %\VignetteEncoding{UTF-8}
   %\VignetteEngine{knitr::rmarkdown}
+  %\usepackage[utf8]{inputenc}
+
 editor_options: 
   chunk_output_type: console
 ---
 
 ```{r setup, include = FALSE}
-#This code is used to build (knit) an HTML vignette
 knitr::opts_chunk$set(
   collapse = TRUE,
-  comment = "#>", 
-  echo = TRUE
+  comment = "#>"
 )
 ```
 
@@ -24,7 +23,7 @@ knitr::opts_chunk$set(
 
 Install and load dependency packages. Current versions of TADA and dataRetrieval can be installed from GitHub instead of CRAN.
 
-```{r, echo = FALSE}
+```{r, results = 'hide', message = FALSE, warning = FALSE}
 list.of.packages <- c("plyr","dplyr","ggplot2","RColorBrewer","Rcpp","devtools",
           "data.table","grDevices","magrittr","stringr","testthat","usethis","utils","stats","rmarkdown","knitr","remotes", "tidyverse", "lubridate", "dplyr")
 new.packages <- list.of.packages[!(list.of.packages %in% installed.packages()[,"Package"])]
@@ -90,7 +89,7 @@ endDate
 Tip 1) All the query filters for the WQP work as an AND but within the fields there are ORs. So for example, characteristics – if you choose pH & DO – it’s an OR. Similarly, if you choose VA and IL, it’s an OR. But the combo of fields are ANDs, such as State/VA AND Characteristic/DO". "Characteristic" and "Characteristic Type" on the WQP also work as an AND.
 Tip 2) The "siteid" is a general term WQP uses to describe both Site IDs from USGS databases and Monitoring Location Identifiers (from the Water Quality Portal). Each monitoring location in the Water Quality Portal (WQP) has a unique Monitoring Location Identifier, regardless of the database from which it derives. The Monitoring Location Identifier from the WQP is the concatenated Organization Identifier plus the Site ID number. Site IDs that only include a number are only unique identifiers for monitoring locations within USGS NWIS or EPA's WQX databases separately.
 
-```{r, echo = FALSE}
+```{r}
 #You can edit this to define your own WQP query inputs below
 
 TADAProfile <- TADAdataRetrieval(statecode = "UT", characteristicName = c("Ammonia", "Nitrate", "Nitrogen"), startDate = "01-01-2021")
@@ -239,7 +238,7 @@ Here is a list of other fields to review:
 2. **MeasureQualifierCode** Contains information about data flags
 3. Other codes may designate suspect data or other flags which may be described in detail in **ResultLaboratoryCommentText** or another column
 
-```{r}
+```{r, fig.width=6, fig.height=2, fig.fullwidth=TRUE}
 FilterFieldReview("ActivityTypeCode", TADAProfileClean13)
 ```
 
@@ -253,7 +252,7 @@ We've completed our review of the ActivityTypeCode field.
 
 Let's move on to a different field and see if there are any values that we want to remove -- we'll look at the values in the ResultStatusIdentifier field.
 
-```{r}
+```{r, fig.width=6, fig.height=2, fig.fullwidth=TRUE}
 FilterFieldReview("ActivityMediaSubdivisionName", TADAProfileClean14)
 ```
 
@@ -283,7 +282,7 @@ Selecting a parameter generates the list below, which is subset by the selected 
 
 Then choose a field from the list. In this example we'll remove certain values from the HydrologicEvent field.
 
-```{r}
+```{r, fig.width=6, fig.height=2, fig.fullwidth=TRUE}
 FilterParFieldReview("HydrologicEvent", TADAProfileClean15, "NITROGEN")
 ```
 
