@@ -5,18 +5,17 @@ date: "May 1, 2022"
 output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{WQP Data Harmonization}
-  %\VignetteEncoding{UTF-8}
   %\VignetteEngine{knitr::rmarkdown}
+  %\usepackage[utf8]{inputenc}
+
 editor_options: 
   chunk_output_type: console
 ---
 
 ```{r setup, include = FALSE}
-#This code is used to build (knit) an HTML vignette
 knitr::opts_chunk$set(
   collapse = TRUE,
-  comment = "#>", 
-  echo = TRUE
+  comment = "#>"
 )
 ```
 
@@ -24,9 +23,9 @@ knitr::opts_chunk$set(
 
 Install and load dependency packages. Current versions of TADA and dataRetrieval can be installed from GitHub instead of CRAN.
 
-```{r, echo = FALSE}
+```{r, results = 'hide', message = FALSE, warning = FALSE}
 list.of.packages <- c("plyr","dplyr","ggplot2","RColorBrewer","Rcpp","devtools",
-          "data.table","grDevices","magrittr","stringr","testthat","usethis","utils","stats","rmarkdown","knitr","remotes")
+          "data.table","grDevices","magrittr","stringr","testthat","usethis","utils","stats","rmarkdown","knitr","remotes", "tidyverse", "lubridate", "dplyr")
 new.packages <- list.of.packages[!(list.of.packages %in% installed.packages()[,"Package"])]
 if(length(new.packages)) install.packages(new.packages)
 
@@ -47,9 +46,12 @@ library(stats)
 library(rmarkdown)
 library(knitr)
 library(devtools)
+library(tidyverse)
+library(lubridate)
+library(dplyr)
 
 remotes::install_github("USGS-R/dataRetrieval", dependencies=TRUE)
-remotes::install_github("USEPA/TADA")
+remotes::install_github("USEPA/TADA", dependencies=TRUE)
 library(dataRetrieval)
 library(TADA)
 
@@ -73,11 +75,24 @@ Water Quality Portal downloads have the same columns each time, but be aware tha
 
 In this vignette, we will walk through some of the things to look for when deciding to use different organizations data from the WQP.
 
-```{r, echo = FALSE}
+Tips on the WQP (https://www.waterqualitydata.us/) data retrieval filters:
+
+statecode
+startDatee
+countycode 
+siteid
+siteType
+CharacteristicName
+ActivityMediaName
+endDate
+
+Tip 1) All the query filters for the WQP work as an AND but within the fields there are ORs. So for example, characteristics – if you choose pH & DO – it’s an OR. Similarly, if you choose VA and IL, it’s an OR. But the combo of fields are ANDs, such as State/VA AND Characteristic/DO". "Characteristic" and "Characteristic Type" on the WQP also work as an AND.
+Tip 2) The "siteid" is a general term WQP uses to describe both Site IDs from USGS databases and Monitoring Location Identifiers (from the Water Quality Portal). Each monitoring location in the Water Quality Portal (WQP) has a unique Monitoring Location Identifier, regardless of the database from which it derives. The Monitoring Location Identifier from the WQP is the concatenated Organization Identifier plus the Site ID number. Site IDs that only include a number are only unique identifiers for monitoring locations within USGS NWIS or EPA's WQX databases separately.
+
+```{r}
 #You can edit this to define your own WQP query inputs below
-TADAProfile <- TADAdataRetrieval(statecode = "UT", 
-                              characteristicName = c("Ammonia", "Nitrate", "Nitrogen"),
-                              startDate = "01-01-2021")
+
+TADAProfile <- TADAdataRetrieval(statecode = "UT", characteristicName = c("Ammonia", "Nitrate", "Nitrogen"), startDate = "01-01-2021")
 
 #Alternatively, use the data.table::fread function to read in a web service call for any WQP profile. 
 new_fullphyschem <- data.table::fread("https://www.waterqualitydata.us/data/Result/search?countrycode=US&statecode=US%3A49&siteid=UTAHDWQ_WQX-4925610&startDateLo=01-01-2015&startDateHi=12-31-2016&mimeType=csv&zip=no&sorted=yes&dataProfile=fullPhysChem&providers=NWIS&providers=STEWARDS&providers=STORET")
@@ -86,7 +101,7 @@ new_fullphyschem <- data.table::fread("https://www.waterqualitydata.us/data/Resu
 Review all column names in the TADA Profile
 
 ```{r}
-colnames(new_fullphyschem)
+colnames(TADAProfile)
 ```
 
 ## Depth unit conversions
@@ -223,7 +238,7 @@ Here is a list of other fields to review:
 2. **MeasureQualifierCode** Contains information about data flags
 3. Other codes may designate suspect data or other flags which may be described in detail in **ResultLaboratoryCommentText** or another column
 
-```{r}
+```{r, fig.width=6, fig.height=2, fig.fullwidth=TRUE}
 FilterFieldReview("ActivityTypeCode", TADAProfileClean13)
 ```
 
@@ -237,7 +252,7 @@ We've completed our review of the ActivityTypeCode field.
 
 Let's move on to a different field and see if there are any values that we want to remove -- we'll look at the values in the ResultStatusIdentifier field.
 
-```{r}
+```{r, fig.width=6, fig.height=2, fig.fullwidth=TRUE}
 FilterFieldReview("ActivityMediaSubdivisionName", TADAProfileClean14)
 ```
 
@@ -267,7 +282,7 @@ Selecting a parameter generates the list below, which is subset by the selected 
 
 Then choose a field from the list. In this example we'll remove certain values from the HydrologicEvent field.
 
-```{r}
+```{r, fig.width=6, fig.height=2, fig.fullwidth=TRUE}
 FilterParFieldReview("HydrologicEvent", TADAProfileClean15, "NITROGEN")
 ```
 
@@ -285,7 +300,7 @@ current working directory when download = TRUE, the default is download = FALSE.
 The HarmonizeData function then compares the input dataset to the TADA Harmonization Reference Table. The purpose of the function is to make similar data consistent and therefore easier to compare and analyze. Optional outputs include: 1) the dataset with Harmonization columns appended, 2) the datset with CharacteristicName, ResultSampleFractionText, MethodSpecificationName, and ResultMeasure.MeasureUnitCode converted to TADA standards or 3) the four fields converted with most Harmonization Reference Table columns appended. Default is transform = TRUE and flag = TRUE.
 
 Here are some examples of how the HarmonizeData function can be used:
-1. **ResultSampleFractionText** specifies forms of constituents. In some cases, a single **CharacteristicName** will have both "Total" and "Dissolved" forms specified, which should not be combined. In these cases, each CharacteristicName and ResultSampleFractionText combination is given a different identier. This identifer can be used later on to identify comparable data groups for calculating statistics and creating figures for each combination.
+1. **ResultSampleFractionText** specifies forms of constituents. In some cases, a single **CharacteristicName** will have both "Total" and "Dissolved" forms specified, which should not be combined. In these cases, each CharacteristicName and ResultSampleFractionText combination is given a different identifier. This identifier can be used later on to identify comparable data groups for calculating statistics and creating figures for each combination.
 2. Some variables have different names but represent the same constituent (e.g., "Total Kjeldahl nitrogen (Organic N & NH3)" and "Kjeldahl nitrogen"). The HarmonizeData function gives a consistent name (and identifier) to synonyms.
 
 ```{r}

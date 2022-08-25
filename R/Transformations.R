@@ -331,7 +331,7 @@ WQXTargetUnits <- function(.data, transform = TRUE) {
 #'
 #' @return When transform = FALSE and flag = TRUE, Harmonization Reference Table
 #' columns are appended to the dataset only. When transform = TRUE and flag = TRUE,
-#' Harmoinzation columns are appended to the dataset and transformations are
+#' Harmonization columns are appended to the dataset and transformations are
 #' executed. When transform = TRUE and flag = FALSE, transformations are executed
 #' only. When transform = FALSE and flag = FALSE, an error is returned (function
 #' would return the input dataframe unchanged if input was allowed).

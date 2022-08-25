@@ -2,16 +2,25 @@
 #'
 #' Retrieve data from Water Quality Portal (WQP) and output a TADA-compatible
 #' dataset.
+#' 
+#' Keep in mind that all the query filters for the WQP work as an AND 
+#' but within the fields there are ORs. So for example, 
+#' characteristics – if you choose pH & DO – it’s an OR. Similarly, if you
+#' choose VA and IL, it’s an OR. But the combo of fields are ANDs. 
+#' Such as State/VA AND Characteristic/DO". 
+#' "Characteristic" and "Characteristic Group" also work as an AND. 
 #'
 #' @param statecode Code that identifies a state
 #' @param startDate Start Date
 #' @param countycode Code that identifies a county 
 #' @param siteid Unique monitoring station identifier
 #' @param siteType Type of waterbody
-#' @param characteristicName Name of characteristic
+#' @param characteristicName Name of parameter
+#' @param ActivityMediaName Sampling substrate such as water, air, or sediment
 #' @param endDate End Date
 #'
 #' @return TADA-compatible dataframe
+#' 
 #' @export
 #'
 
@@ -21,6 +30,7 @@ TADAdataRetrieval <- function(statecode = "null",
                               siteid = "null",
                               siteType = "null",
                               characteristicName = "null",
+                              ActivityMediaName = "null", 
                               endDate = "null"
                               ) {
 
@@ -60,6 +70,12 @@ TADAdataRetrieval <- function(statecode = "null",
     WQPquery <- c(WQPquery, characteristicName = list(characteristicName))
   } else if (characteristicName != "null") {
     WQPquery <- c(WQPquery, characteristicName = characteristicName)
+  }
+  
+  if (length(ActivityMediaName)>1) {
+    WQPquery <- c(WQPquery, ActivityMediaName = list(ActivityMediaName)) 
+  } else if (ActivityMediaName != "null") {
+    WQPquery <- c(WQPquery, ActivityMediaName = ActivityMediaName)
   }
   
   if (length(endDate)>1) {
@@ -280,4 +296,185 @@ TADAprofileCheck <- function(.data) {
   } else {
     stop("The dataframe does not contain the required fields to use TADA. Use either the full physical/chemical profile downloaded from WQP or download the TADA profile template available on the EPA TADA webpage.")
   }
+}
+
+
+
+#' Large WQP data pulls using dataRetrieval for all data from all sites in the contiguous United States.
+#'  
+#' This function uses the WQP summary service to limit the amount
+#' downloaded to only relevant data. For large data sets, that can 
+#' save a lot of time and ultimately reduce the complexity of subsequent
+#' data processing. 
+#' 
+#' This function will join data from multiple WQP profiles and output a 
+#' TADA-compatible dataset.
+#'
+#' @param startDate Start Date YYYY-MM-DD format, for example, "1995-01-01"
+#' @param endDate end date in YYYY-MM-DD format, for example, "2020-12-31"
+#' @param characteristicName Name of water quality parameter
+#' @param siteType Name of water body type (e.g., "Stream", "Lake, Reservoir, Impoundment")
+#' 
+#' @return TADA-compatible dataframe
+#' 
+#' @export
+#'
+
+TADABigdataRetrieval <- function(startDate = "null",
+                              endDate = "null",
+                              characteristicName = "null", 
+                              siteType = "null"
+) {
+  
+  startDate_Low = lubridate::ymd(startDate)
+  startYearLo = lubridate::year(startDate_Low)
+  
+  endDate_High = lubridate::ymd(endDate)
+  startYearHi = lubridate::year(endDate_High)
+  
+  if (length(characteristicName)>1) {
+    characteristicName = list(characteristicName) 
+  } else if (characteristicName != "null") {
+    characteristicName = characteristicName
+  }
+
+  if (length(siteType)>1) {
+    siteType = list(siteType)
+  } else if (siteType != "null") {
+    siteType = siteType
+  }
+  
+  state_cd_cont = utils::read.csv(file = "inst/extdata/statecode.csv")
+  
+  for(i in seq_len(nrow(state_cd_cont))){
+    
+    state_cd = as.numeric(state_cd_cont$STATE[i])
+    state_nm = state_cd_cont$STUSAB[i]
+    
+    df_summary = dataRetrieval::readWQPsummary(statecode = state_cd,
+                     characteristicName = characteristicName, 
+                     siteType = siteType, 
+                     startDate = startDate)
+    
+    sites = df_summary %>%
+      dplyr::filter(YearSummarized >= startYearLo,
+                    YearSummarized <= startYearHi)
+    
+    siteid_all = unique(sites$MonitoringLocationIdentifier)
+    
+    if(length(siteid_all) > 0) {
+      
+      l=length(siteid_all)  #len(sites)
+      g=250   #grouping size
+      nl=ceiling(l/g) #number of queries
+      
+      i=0
+      j=0
+      k=0
+      
+      while (i < nl) {
+        
+        j=i*g
+        k=j+g-1
+        
+        if (k>l){k=l}
+        sites=siteid_all[j:k]
+        
+        results.DR <- dataRetrieval::readWQPdata(siteid = sites,
+                                               characteristicName = characteristicName) 
+                                               #startDate = startDate)
+        
+        narrow.DR <- dataRetrieval::readWQPdata(siteid = sites,
+                                                characteristicName = characteristicName,
+                                                dataProfile = "narrowResult")
+        
+        sites.DR <- dataRetrieval::whatWQPsites(siteid = sites,
+                                                characteristicName = characteristicName)
+
+        #projects.DR <- dataRetrieval::readWQPdata(siteid = siteid,
+                                                  #characteristicName = characteristicName,
+                                                  #service = "Project")
+        
+        #})
+        
+        # Join station data to full phys/chem (results.DR)
+        join1 <- results.DR %>%
+        # join stations to results
+        dplyr::left_join(sites.DR, by = "MonitoringLocationIdentifier") %>%
+        # remove ".x" suffix from column names
+        dplyr::rename_at(dplyr::vars(ends_with(".x")), ~ stringr::str_replace(., "\\..$", "")) %>%
+        # remove columns with ".y" suffix
+        dplyr::select_at(dplyr::vars(-ends_with(".y")))
+    
+        # Join Speciation column from narrow to full profile
+        join2 <- join1 %>%
+        dplyr::left_join(dplyr::select(
+        narrow.DR, ActivityIdentifier, MonitoringLocationIdentifier,
+        CharacteristicName, ResultMeasureValue,
+        MethodSpecificationName
+        ),
+        by = c(
+          "ActivityIdentifier", "MonitoringLocationIdentifier",
+          "CharacteristicName", "ResultMeasureValue"
+        )
+        )
+        
+        join2$ResultMeasureValue = as.character(join2$ResultMeasureValue)
+        
+        if (i==0){
+          df = join2 }  
+        else {
+          join2 = rbind(df, join2)
+          }
+        print(j)
+        print(k)
+        
+        i = i+1
+      }
+    }
+    
+    if(nrow(join2) > 0){
+      
+      #####
+      #need to edit below if temporary rds files do not go away
+      #may be able to delete below
+      #https://stackoverflow.com/questions/47626331/saving-and-retrieving-temp-files-in-r-packages
+      #####
+      
+      #original
+      #saveRDS(df_state, file = paste0(state_nm, "_raw_data.rds"))
+      
+      tempfilename = paste0(state_nm, "_raw_data.rds")
+      file.path(tempdir(), saveRDS(join2, file = paste0("inst/tempdata/", tempfilename)))
+
+    }
+  }
+    all_data <- data.frame()
+    for(state in state_cd_cont$STUSAB){
+      allstates_df <- tryCatch({
+        #####
+        #need to edit line below if rds files do not go away
+        #####
+      
+        #original below
+       #readRDS(paste0(state, "_raw_data.rds"))
+      
+        readRDS(paste0("inst/tempdata/", tempfilename))
+      })
+    
+      if(nrow(allstates_df) > 0){
+        all_data <- bind_rows(all_data, allstates_df)
+      }
+    
+    } 
+    
+    finalprofile = all_data %>%
+      dplyr::filter(ActivityStartDate <= endDate, 
+                    ActivityStartDate >= startDate)
+    
+    finalprofile2 = autoclean(finalprofile)
+    #not sure if above is working correctly, thousands of "duplicated" rows are removed
+    # you will still need to filter on activity media subdivision now
+    
+  return(finalprofile2)
 }
