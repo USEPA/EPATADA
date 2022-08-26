@@ -22,13 +22,13 @@ GitHub is a third-party website that offers version-controlled repositories that
 
 -   To contribute a specific change or new code, outside contributors can create a new branch or fork this repo from the **develop** branch, then create a pull request for us to review.
 
-All new development currently happens in the **develop** branch. When the code is polished and ready for testing, it moves to the **staging** branch. The **main** branch is reserved for finalized code. To contribute a specific change or new code, outside contributors can create a new branch or fork this repo from the **develop** branch, then create a pull request for us to review.
+All new development currently happens in the **develop** branch. To contribute a specific change or new code, outside contributors can create a new branch or fork this repo from the **develop** branch, then create a pull request for us to review.
 
 Each contributor should work in a new, separate branch for each task. When the task is complete, the contributor can create a pull request for changes to be merged. We will review the contribution and delete the branch once the merge is complete. GitHub best practice is to not reuse branches after merge is requested via a pull request.
 
 Complete the pull request by detailing all fixes and contributions, and tagging TADA repo admins who should review the work. For this package, please tag cristinamullin (Cristina Mullin) and mthawley (Shelly Thawley).
 
-Repository Administrators will review code contributions from external collaborators and integrate code commits into source code. This is done to ensure code stability and consistency and prevent degradation of code performance. After review, the admin will either accept the submission, recommend specific improvements to the submission, or in some cases reject the submission. To avoid outright rejection, developers contributing code should contact the Repository Administrator early in the development process and maintain contact throughout to help ensure the submission is compatible with the code base and is a robust addition.
+Repository Administrators will review code contributions from external collaborators and integrate code commits into source code. This is done to ensure code stability and consistency and prevent degradation of code performance. After review, the admin will either accept the submission, recommend specific improvements to the submission, or in some cases reject the submission. To avoid issues, developers contributing code should contact the repository admins (Cristina or) early in the development process and maintain contact throughout to help ensure the submission is compatible with the code base and is a robust addition.
 
 ## More Information
 
@@ -46,4 +46,4 @@ The EPA specific implementation of OMB Mandate M-16-21 is addressed in the [Syst
 
 ## License
 
-All contributions to this project will be released under the CCO dedication. By submitting a pull request or issue, you are agreeing to comply with this waiver of copyright interest.
+All contributions to this project will be released under the MIT + CCO file license dedication. By submitting a pull request or issue, you are agreeing to comply with this waiver of copyright interest.
