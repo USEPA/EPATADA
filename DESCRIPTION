@@ -6,7 +6,7 @@ Author: U.S. Environmental Protection Agency
 Maintainer: Cristina Mullin <mullin.cristina@epa.gov>
 Description: Assists data partners in performing automated assessments with
     data from the Water Quality Portal.
-License: MIT + file LICENSE
+License: CC0
 Copyright: This software is in the public domain because it contains materials
     that originally came from the U.S. Environmental Protection Agency.
 Encoding: UTF-8
@@ -25,11 +25,11 @@ Imports:
     utils, 
     RColorBrewer,
     stats, 
-    tidyverse, 
     lubridate
 Depends: 
-    R (>= 2.10)
+    R (>= 3.5.0)
 Suggests: 
+    tidyverse,
     rmarkdown,
     knitr,
     testthat (>= 3.0.0),
