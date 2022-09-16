@@ -5,9 +5,8 @@ date: "May 1, 2022"
 output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{WQP Data Harmonization}
-  %\VignetteEngine{knitr::rmarkdown}
   %\usepackage[utf8]{inputenc}
-
+  %\VignetteEngine{knitr::rmarkdown}
 editor_options: 
   chunk_output_type: console
 ---
