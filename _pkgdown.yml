@@ -1,0 +1,4 @@
+url: "usepa.github.io/tada/"
+template:
+  bootstrap: 5
+  bootswatch: cerulean
