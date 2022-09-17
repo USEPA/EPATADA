@@ -2,7 +2,7 @@
 
 We encourage you to read this project's [CONTRIBUTING](https://github.com/USEPA/TADA/blob/develop/CONTRIBUTING.md) policy, its [LICENSE](https://github.com/USEPA/TADA/blob/develop/LICENSE.md), and its [README](https://github.com/USEPA/TADA/blob/develop/readme.md) (you are here).
 
-TADA is a draft R package being developed to help states, tribal nations, and other stakeholders compile and evaluate Water Quality Portal (WQP) data collected from surface water monitoring sites on streams and lakes more efficiently. TADA is also being used as building block to support development of the TADA R Shiny application.
+TADA is a draft R package being developed to help States, Tribes, Tribal Nations, Pueblos, and other stakeholders compile and evaluate Water Quality Portal (WQP) data collected from surface water monitoring sites on streams and lakes more efficiently. TADA is also being used as building block to support development of the TADA R Shiny application.
 
 We encourage stakeholders to begin testing the functionality and providing feedback. Moreover, open source software provides an avenue for water quality program owners to develop and share code, and we welcome your contributions! More information on how to contribute can be found in the [CONTRIBUTING.md file](https://github.com/USEPA/TADA/blob/develop/CONTRIBUTING.md). This file explains how users can contribute to the R package, for example by submitting an issue, requesting a change, or submitting an inquiry. We hope to build a collaborative community dedicated to this effort where contributors can discover, share and build the package functionality over time.
 
