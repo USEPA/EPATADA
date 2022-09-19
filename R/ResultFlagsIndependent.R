@@ -74,10 +74,11 @@ InvalidMethod <- function(.data, clean = TRUE) {
         .after = "ResultAnalyticalMethod.MethodName"
       )
 
-    # if all rows are "Valid", return input unchanged
-    if (any(c("Nonstandardized", "Invalid") %in%
+    # if all rows are "Valid" or NA "Nonstandardized", return input unchanged
+    ##note: Cristina edited this on 9/19/22 to keep Nonstandardized/NA data when clean = TRUE. Now only Invalid data is removed.
+    if (any("Invalid" %in%
       unique(check.data$WQX.AnalyticalMethodValidity)) == FALSE) {
-      print("All data is valid, therefore the function cannot be applied.")
+      print("No changes were made, because we did not find any invalid method/characteristic combinations in your dataset.")
       return(.data)
     }
 
@@ -88,7 +89,7 @@ InvalidMethod <- function(.data, clean = TRUE) {
 
     # clean output
     if (clean == TRUE) {
-      # filter out invalid characteristic-unit-media combinations
+      # filter out invalid characteristic-unit-method combinations
       clean.data <- dplyr::filter(check.data, WQX.AnalyticalMethodValidity != "Valid")
 
       # remove WQX.AnalyticalMethodValidity column

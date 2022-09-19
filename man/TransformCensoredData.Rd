@@ -2,7 +2,7 @@
 % Please edit documentation in R/CensoredData.R
 \name{TransformCensoredData}
 \alias{TransformCensoredData}
-\title{Generate list of unique values in a given field}
+\title{Function substitutes monitoring device/method detection limits (if available) as result values when applicable.}
 \usage{
 TransformCensoredData(transform, .data)
 }

@@ -1,7 +1,7 @@
 ---
 title: "WQP Data Harmonization"
 author: "Cristina Mullin"
-date: "May 1, 2022"
+date: "`r Sys.Date()`"
 output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{WQP Data Harmonization}
@@ -77,7 +77,7 @@ In this vignette, we will walk through some of the things to look for when decid
 Tips on the WQP (https://www.waterqualitydata.us/) data retrieval filters:
 
 statecode
-startDatee
+startDate
 countycode 
 siteid
 siteType
