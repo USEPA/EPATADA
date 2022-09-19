@@ -1,0 +1,857 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+
+<meta name="author" content="Cristina Mullin" />
+
+<meta name="date" content="2022-09-19" />
+
+<title>WQP Data Harmonization</title>
+
+<script>// Pandoc 2.9 adds attributes on both header and div. We remove the former (to
+// be compatible with the behavior of Pandoc < 2.8).
+document.addEventListener('DOMContentLoaded', function(e) {
+  var hs = document.querySelectorAll("div.section[class*='level'] > :first-child");
+  var i, h, a;
+  for (i = 0; i < hs.length; i++) {
+    h = hs[i];
+    if (!/^h[1-6]$/i.test(h.tagName)) continue;  // it should be a header h1-h6
+    a = h.attributes;
+    while (a.length > 0) h.removeAttribute(a[0].name);
+  }
+});
+</script>
+
+<style type="text/css">
+  code{white-space: pre-wrap;}
+  span.smallcaps{font-variant: small-caps;}
+  span.underline{text-decoration: underline;}
+  div.column{display: inline-block; vertical-align: top; width: 50%;}
+  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+  ul.task-list{list-style: none;}
+    </style>
+
+
+
+<style type="text/css">
+  code {
+    white-space: pre;
+  }
+  .sourceCode {
+    overflow: visible;
+  }
+</style>
+<style type="text/css" data-origin="pandoc">
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+
+</style>
+<script>
+// apply pandoc div.sourceCode style to pre.sourceCode instead
+(function() {
+  var sheets = document.styleSheets;
+  for (var i = 0; i < sheets.length; i++) {
+    if (sheets[i].ownerNode.dataset["origin"] !== "pandoc") continue;
+    try { var rules = sheets[i].cssRules; } catch (e) { continue; }
+    var j = 0;
+    while (j < rules.length) {
+      var rule = rules[j];
+      // check if there is a div.sourceCode rule
+      if (rule.type !== rule.STYLE_RULE || rule.selectorText !== "div.sourceCode") {
+        j++;
+        continue;
+      }
+      var style = rule.style.cssText;
+      // check if color or background-color is set
+      if (rule.style.color === '' && rule.style.backgroundColor === '') {
+        j++;
+        continue;
+      }
+      // replace div.sourceCode by a pre.sourceCode rule
+      sheets[i].deleteRule(j);
+      sheets[i].insertRule('pre.sourceCode{' + style + '}', j);
+    }
+  }
+})();
+</script>
+
+
+
+
+<style type="text/css">body {
+background-color: #fff;
+margin: 1em auto;
+max-width: 700px;
+overflow: visible;
+padding-left: 2em;
+padding-right: 2em;
+font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+font-size: 14px;
+line-height: 1.35;
+}
+#TOC {
+clear: both;
+margin: 0 0 10px 10px;
+padding: 4px;
+width: 400px;
+border: 1px solid #CCCCCC;
+border-radius: 5px;
+background-color: #f6f6f6;
+font-size: 13px;
+line-height: 1.3;
+}
+#TOC .toctitle {
+font-weight: bold;
+font-size: 15px;
+margin-left: 5px;
+}
+#TOC ul {
+padding-left: 40px;
+margin-left: -1.5em;
+margin-top: 5px;
+margin-bottom: 5px;
+}
+#TOC ul ul {
+margin-left: -2em;
+}
+#TOC li {
+line-height: 16px;
+}
+table {
+margin: 1em auto;
+border-width: 1px;
+border-color: #DDDDDD;
+border-style: outset;
+border-collapse: collapse;
+}
+table th {
+border-width: 2px;
+padding: 5px;
+border-style: inset;
+}
+table td {
+border-width: 1px;
+border-style: inset;
+line-height: 18px;
+padding: 5px 5px;
+}
+table, table th, table td {
+border-left-style: none;
+border-right-style: none;
+}
+table thead, table tr.even {
+background-color: #f7f7f7;
+}
+p {
+margin: 0.5em 0;
+}
+blockquote {
+background-color: #f6f6f6;
+padding: 0.25em 0.75em;
+}
+hr {
+border-style: solid;
+border: none;
+border-top: 1px solid #777;
+margin: 28px 0;
+}
+dl {
+margin-left: 0;
+}
+dl dd {
+margin-bottom: 13px;
+margin-left: 13px;
+}
+dl dt {
+font-weight: bold;
+}
+ul {
+margin-top: 0;
+}
+ul li {
+list-style: circle outside;
+}
+ul ul {
+margin-bottom: 0;
+}
+pre, code {
+background-color: #f7f7f7;
+border-radius: 3px;
+color: #333;
+white-space: pre-wrap; 
+}
+pre {
+border-radius: 3px;
+margin: 5px 0px 10px 0px;
+padding: 10px;
+}
+pre:not([class]) {
+background-color: #f7f7f7;
+}
+code {
+font-family: Consolas, Monaco, 'Courier New', monospace;
+font-size: 85%;
+}
+p > code, li > code {
+padding: 2px 0px;
+}
+div.figure {
+text-align: center;
+}
+img {
+background-color: #FFFFFF;
+padding: 2px;
+border: 1px solid #DDDDDD;
+border-radius: 3px;
+border: 1px solid #CCCCCC;
+margin: 0 5px;
+}
+h1 {
+margin-top: 0;
+font-size: 35px;
+line-height: 40px;
+}
+h2 {
+border-bottom: 4px solid #f7f7f7;
+padding-top: 10px;
+padding-bottom: 2px;
+font-size: 145%;
+}
+h3 {
+border-bottom: 2px solid #f7f7f7;
+padding-top: 10px;
+font-size: 120%;
+}
+h4 {
+border-bottom: 1px solid #f7f7f7;
+margin-left: 8px;
+font-size: 105%;
+}
+h5, h6 {
+border-bottom: 1px solid #ccc;
+font-size: 105%;
+}
+a {
+color: #0033dd;
+text-decoration: none;
+}
+a:hover {
+color: #6666ff; }
+a:visited {
+color: #800080; }
+a:visited:hover {
+color: #BB00BB; }
+a[href^="http:"] {
+text-decoration: underline; }
+a[href^="https:"] {
+text-decoration: underline; }
+
+code > span.kw { color: #555; font-weight: bold; } 
+code > span.dt { color: #902000; } 
+code > span.dv { color: #40a070; } 
+code > span.bn { color: #d14; } 
+code > span.fl { color: #d14; } 
+code > span.ch { color: #d14; } 
+code > span.st { color: #d14; } 
+code > span.co { color: #888888; font-style: italic; } 
+code > span.ot { color: #007020; } 
+code > span.al { color: #ff0000; font-weight: bold; } 
+code > span.fu { color: #900; font-weight: bold; } 
+code > span.er { color: #a61717; background-color: #e3d2d2; } 
+</style>
+
+
+
+
+</head>
+
+<body>
+
+
+
+
+<h1 class="title toc-ignore">WQP Data Harmonization</h1>
+<h4 class="author">Cristina Mullin</h4>
+<h4 class="date">2022-09-19</h4>
+
+
+
+<div id="install-and-load-packages" class="section level2">
+<h2>Install and load packages</h2>
+<p>Install and load dependency packages. Current versions of TADA and
+dataRetrieval can be installed from GitHub instead of CRAN.</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>list.of.packages <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">&quot;plyr&quot;</span>,<span class="st">&quot;dplyr&quot;</span>,<span class="st">&quot;ggplot2&quot;</span>,<span class="st">&quot;RColorBrewer&quot;</span>,<span class="st">&quot;Rcpp&quot;</span>,<span class="st">&quot;devtools&quot;</span>,</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>          <span class="st">&quot;data.table&quot;</span>,<span class="st">&quot;grDevices&quot;</span>,<span class="st">&quot;magrittr&quot;</span>,<span class="st">&quot;stringr&quot;</span>,<span class="st">&quot;testthat&quot;</span>,<span class="st">&quot;usethis&quot;</span>,<span class="st">&quot;utils&quot;</span>,<span class="st">&quot;stats&quot;</span>,<span class="st">&quot;rmarkdown&quot;</span>,<span class="st">&quot;knitr&quot;</span>,<span class="st">&quot;remotes&quot;</span>, <span class="st">&quot;tidyverse&quot;</span>, <span class="st">&quot;lubridate&quot;</span>, <span class="st">&quot;dplyr&quot;</span>)</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>new.packages <span class="ot">&lt;-</span> list.of.packages[<span class="sc">!</span>(list.of.packages <span class="sc">%in%</span> <span class="fu">installed.packages</span>()[,<span class="st">&quot;Package&quot;</span>])]</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span>(<span class="fu">length</span>(new.packages)) <span class="fu">install.packages</span>(new.packages)</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(remotes)</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(dplyr)</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(plyr)</span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(RColorBrewer)</span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(Rcpp)</span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(data.table)</span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(grDevices)</span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(magrittr)</span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(stringr)</span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(testthat)</span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(usethis)</span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(utils)</span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(stats)</span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(rmarkdown)</span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(knitr)</span>
+<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(devtools)</span>
+<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span>
+<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(lubridate)</span>
+<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(dplyr)</span>
+<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a>remotes<span class="sc">::</span><span class="fu">install_github</span>(<span class="st">&quot;USGS-R/dataRetrieval&quot;</span>, <span class="at">dependencies=</span><span class="cn">TRUE</span>)</span>
+<span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a>remotes<span class="sc">::</span><span class="fu">install_github</span>(<span class="st">&quot;USEPA/TADA&quot;</span>, <span class="at">dependencies=</span><span class="cn">TRUE</span>)</span>
+<span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(dataRetrieval)</span>
+<span id="cb1-30"><a href="#cb1-30" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(TADA)</span></code></pre></div>
+</div>
+<div id="retrieve-wqp-data" class="section level2">
+<h2>Retrieve WQP data</h2>
+<p>WQP data is retrieved and processed for compatibility with TADA. This
+function, TADAdataRetrieval builds on the USGS dataRetrieval package
+functions. It joins three WQP profiles (i.e., the station, narrow, and
+phys/chem), changes all data in the Characteristic, Speciation,
+Fraction, and Unit fields to uppercase, removes true duplicates, removes
+data for all non-water media types, and cleans results with special
+characters.</p>
+<p>This function uses the same inputs as the dataRetrieval
+<code>readWQPdata</code> function. <code>readWQPdata</code> does not
+restrict the characteristics pulled from WQP. You may specify the
+desired characteristics by using, for instance: ’characteristicName =
+“pH”.</p>
+<p>More details about this function can be found in the function
+documentation by entering the following code into the console:
+?TADAdataRetrieval</p>
+<p>Here is more information on the dataRetrieval R Package: <a href="https://cran.r-project.org/web/packages/dataRetrieval/vignettes/dataRetrieval.html">Introduction
+to the dataRetrieval package</a> <a href="https://rdrr.io/cran/dataRetrieval/man/readWQPdata.html">General
+Data Import from Water Quality Portal</a> <a href="https://www.waterqualitydata.us/webservices_documentation/">Water
+Quality Portal Web Services Guide</a> [dataRetrieval Tutorial](<a href="https://owi.usgs.gov/R/dataRetrieval.html" class="uri">https://owi.usgs.gov/R/dataRetrieval.html</a></p>
+<p>Water Quality Portal downloads have the same columns each time, but
+be aware that data are uploaded to the Water Quality Portal by
+individual organizations, which may or may not follow the same
+conventions. Data and metadata quality are not guaranteed! Make sure to
+carefully explore any data and make conservative quality assurance
+decisions where information is limited.</p>
+<p>In this vignette, we will walk through some of the things to look for
+when deciding to use different organizations data from the WQP.</p>
+<p>Tips on the WQP (<a href="https://www.waterqualitydata.us/" class="uri">https://www.waterqualitydata.us/</a>) data retrieval
+filters:</p>
+<p>statecode startDate countycode siteid siteType CharacteristicName
+ActivityMediaName endDate</p>
+<p>Tip 1) All the query filters for the WQP work as an AND but within
+the fields there are ORs. So for example, characteristics – if you
+choose pH &amp; DO – it’s an OR. Similarly, if you choose VA and IL,
+it’s an OR. But the combo of fields are ANDs, such as State/VA AND
+Characteristic/DO”. “Characteristic” and “Characteristic Type” on the
+WQP also work as an AND. Tip 2) The “siteid” is a general term WQP uses
+to describe both Site IDs from USGS databases and Monitoring Location
+Identifiers (from the Water Quality Portal). Each monitoring location in
+the Water Quality Portal (WQP) has a unique Monitoring Location
+Identifier, regardless of the database from which it derives. The
+Monitoring Location Identifier from the WQP is the concatenated
+Organization Identifier plus the Site ID number. Site IDs that only
+include a number are only unique identifiers for monitoring locations
+within USGS NWIS or EPA’s WQX databases separately.</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co">#You can edit this to define your own WQP query inputs below</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>TADAProfile <span class="ot">&lt;-</span> <span class="fu">TADAdataRetrieval</span>(<span class="at">statecode =</span> <span class="st">&quot;UT&quot;</span>, <span class="at">characteristicName =</span> <span class="fu">c</span>(<span class="st">&quot;Ammonia&quot;</span>, <span class="st">&quot;Nitrate&quot;</span>, <span class="st">&quot;Nitrogen&quot;</span>), <span class="at">startDate =</span> <span class="st">&quot;01-01-2021&quot;</span>)</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a><span class="co">#Alternatively, use the data.table::fread function to read in a web service call for any WQP profile. </span></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>new_fullphyschem <span class="ot">&lt;-</span> data.table<span class="sc">::</span><span class="fu">fread</span>(<span class="st">&quot;https://www.waterqualitydata.us/data/Result/search?countrycode=US&amp;statecode=US%3A49&amp;siteid=UTAHDWQ_WQX-4925610&amp;startDateLo=01-01-2015&amp;startDateHi=12-31-2016&amp;mimeType=csv&amp;zip=no&amp;sorted=yes&amp;dataProfile=fullPhysChem&amp;providers=NWIS&amp;providers=STEWARDS&amp;providers=STORET&quot;</span>)</span></code></pre></div>
+<p>Review all column names in the TADA Profile</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">colnames</span>(TADAProfile)</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   [1] &quot;OrganizationIdentifier&quot;                           </span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   [2] &quot;OrganizationFormalName&quot;                           </span></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   [3] &quot;ActivityIdentifier&quot;                               </span></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   [4] &quot;ActivityTypeCode&quot;                                 </span></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   [5] &quot;ActivityMediaName&quot;                                </span></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   [6] &quot;ActivityMediaSubdivisionName&quot;                     </span></span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   [7] &quot;ActivityStartDate&quot;                                </span></span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   [8] &quot;ActivityStartTime.Time&quot;                           </span></span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   [9] &quot;ActivityStartTime.TimeZoneCode&quot;                   </span></span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  [10] &quot;ActivityEndDate&quot;                                  </span></span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  [11] &quot;ActivityEndTime.Time&quot;                             </span></span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  [12] &quot;ActivityEndTime.TimeZoneCode&quot;                     </span></span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  [13] &quot;ActivityDepthHeightMeasure.MeasureValue&quot;          </span></span>
+<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  [14] &quot;ActivityDepthHeightMeasure.MeasureUnitCode&quot;       </span></span>
+<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  [15] &quot;ActivityDepthAltitudeReferencePointText&quot;          </span></span>
+<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  [16] &quot;ActivityTopDepthHeightMeasure.MeasureValue&quot;       </span></span>
+<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  [17] &quot;ActivityTopDepthHeightMeasure.MeasureUnitCode&quot;    </span></span>
+<span id="cb3-19"><a href="#cb3-19" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  [18] &quot;ActivityBottomDepthHeightMeasure.MeasureValue&quot;    </span></span>
+<span id="cb3-20"><a href="#cb3-20" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  [19] &quot;ActivityBottomDepthHeightMeasure.MeasureUnitCode&quot; </span></span>
+<span id="cb3-21"><a href="#cb3-21" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  [20] &quot;ProjectIdentifier&quot;                                </span></span>
+<span id="cb3-22"><a href="#cb3-22" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  [21] &quot;ActivityConductingOrganizationText&quot;               </span></span>
+<span id="cb3-23"><a href="#cb3-23" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  [22] &quot;MonitoringLocationIdentifier&quot;                     </span></span>
+<span id="cb3-24"><a href="#cb3-24" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  [23] &quot;ActivityCommentText&quot;                              </span></span>
+<span id="cb3-25"><a href="#cb3-25" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  [24] &quot;SampleAquifer&quot;                                    </span></span>
+<span id="cb3-26"><a href="#cb3-26" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  [25] &quot;HydrologicCondition&quot;                              </span></span>
+<span id="cb3-27"><a href="#cb3-27" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  [26] &quot;HydrologicEvent&quot;                                  </span></span>
+<span id="cb3-28"><a href="#cb3-28" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  [27] &quot;SampleCollectionMethod.MethodIdentifier&quot;          </span></span>
+<span id="cb3-29"><a href="#cb3-29" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  [28] &quot;SampleCollectionMethod.MethodIdentifierContext&quot;   </span></span>
+<span id="cb3-30"><a href="#cb3-30" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  [29] &quot;SampleCollectionMethod.MethodName&quot;                </span></span>
+<span id="cb3-31"><a href="#cb3-31" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  [30] &quot;SampleCollectionEquipmentName&quot;                    </span></span>
+<span id="cb3-32"><a href="#cb3-32" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  [31] &quot;ResultDetectionConditionText&quot;                     </span></span>
+<span id="cb3-33"><a href="#cb3-33" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  [32] &quot;CharacteristicName&quot;                               </span></span>
+<span id="cb3-34"><a href="#cb3-34" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  [33] &quot;ResultSampleFractionText&quot;                         </span></span>
+<span id="cb3-35"><a href="#cb3-35" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  [34] &quot;ResultMeasureValue&quot;                               </span></span>
+<span id="cb3-36"><a href="#cb3-36" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  [35] &quot;ResultMeasureValue.Original&quot;                      </span></span>
+<span id="cb3-37"><a href="#cb3-37" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  [36] &quot;TADA.ResultMeasureValue.Flag&quot;                     </span></span>
+<span id="cb3-38"><a href="#cb3-38" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  [37] &quot;ResultMeasure.MeasureUnitCode&quot;                    </span></span>
+<span id="cb3-39"><a href="#cb3-39" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  [38] &quot;MeasureQualifierCode&quot;                             </span></span>
+<span id="cb3-40"><a href="#cb3-40" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  [39] &quot;ResultStatusIdentifier&quot;                           </span></span>
+<span id="cb3-41"><a href="#cb3-41" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  [40] &quot;StatisticalBaseCode&quot;                              </span></span>
+<span id="cb3-42"><a href="#cb3-42" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  [41] &quot;ResultValueTypeName&quot;                              </span></span>
+<span id="cb3-43"><a href="#cb3-43" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  [42] &quot;ResultWeightBasisText&quot;                            </span></span>
+<span id="cb3-44"><a href="#cb3-44" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  [43] &quot;ResultTimeBasisText&quot;                              </span></span>
+<span id="cb3-45"><a href="#cb3-45" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  [44] &quot;ResultTemperatureBasisText&quot;                       </span></span>
+<span id="cb3-46"><a href="#cb3-46" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  [45] &quot;ResultParticleSizeBasisText&quot;                      </span></span>
+<span id="cb3-47"><a href="#cb3-47" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  [46] &quot;PrecisionValue&quot;                                   </span></span>
+<span id="cb3-48"><a href="#cb3-48" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  [47] &quot;ResultCommentText&quot;                                </span></span>
+<span id="cb3-49"><a href="#cb3-49" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  [48] &quot;USGSPCode&quot;                                        </span></span>
+<span id="cb3-50"><a href="#cb3-50" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  [49] &quot;ResultDepthHeightMeasure.MeasureValue&quot;            </span></span>
+<span id="cb3-51"><a href="#cb3-51" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  [50] &quot;ResultDepthHeightMeasure.MeasureUnitCode&quot;         </span></span>
+<span id="cb3-52"><a href="#cb3-52" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  [51] &quot;ResultDepthAltitudeReferencePointText&quot;            </span></span>
+<span id="cb3-53"><a href="#cb3-53" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  [52] &quot;SubjectTaxonomicName&quot;                             </span></span>
+<span id="cb3-54"><a href="#cb3-54" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  [53] &quot;SampleTissueAnatomyName&quot;                          </span></span>
+<span id="cb3-55"><a href="#cb3-55" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  [54] &quot;ResultAnalyticalMethod.MethodIdentifier&quot;          </span></span>
+<span id="cb3-56"><a href="#cb3-56" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  [55] &quot;ResultAnalyticalMethod.MethodIdentifierContext&quot;   </span></span>
+<span id="cb3-57"><a href="#cb3-57" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  [56] &quot;ResultAnalyticalMethod.MethodName&quot;                </span></span>
+<span id="cb3-58"><a href="#cb3-58" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  [57] &quot;MethodDescriptionText&quot;                            </span></span>
+<span id="cb3-59"><a href="#cb3-59" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  [58] &quot;LaboratoryName&quot;                                   </span></span>
+<span id="cb3-60"><a href="#cb3-60" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  [59] &quot;AnalysisStartDate&quot;                                </span></span>
+<span id="cb3-61"><a href="#cb3-61" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  [60] &quot;ResultLaboratoryCommentText&quot;                      </span></span>
+<span id="cb3-62"><a href="#cb3-62" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  [61] &quot;DetectionQuantitationLimitTypeName&quot;               </span></span>
+<span id="cb3-63"><a href="#cb3-63" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  [62] &quot;DetectionQuantitationLimitMeasure.MeasureValue&quot;   </span></span>
+<span id="cb3-64"><a href="#cb3-64" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  [63] &quot;DetectionLimitMeasureValue.Original&quot;              </span></span>
+<span id="cb3-65"><a href="#cb3-65" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  [64] &quot;TADA.DetectionLimitMeasureValue.Flag&quot;             </span></span>
+<span id="cb3-66"><a href="#cb3-66" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  [65] &quot;DetectionQuantitationLimitMeasure.MeasureUnitCode&quot;</span></span>
+<span id="cb3-67"><a href="#cb3-67" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  [66] &quot;PreparationStartDate&quot;                             </span></span>
+<span id="cb3-68"><a href="#cb3-68" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  [67] &quot;ProviderName&quot;                                     </span></span>
+<span id="cb3-69"><a href="#cb3-69" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  [68] &quot;ActivityStartDateTime&quot;                            </span></span>
+<span id="cb3-70"><a href="#cb3-70" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  [69] &quot;ActivityEndDateTime&quot;                              </span></span>
+<span id="cb3-71"><a href="#cb3-71" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  [70] &quot;MonitoringLocationName&quot;                           </span></span>
+<span id="cb3-72"><a href="#cb3-72" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  [71] &quot;MonitoringLocationTypeName&quot;                       </span></span>
+<span id="cb3-73"><a href="#cb3-73" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  [72] &quot;MonitoringLocationDescriptionText&quot;                </span></span>
+<span id="cb3-74"><a href="#cb3-74" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  [73] &quot;HUCEightDigitCode&quot;                                </span></span>
+<span id="cb3-75"><a href="#cb3-75" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  [74] &quot;DrainageAreaMeasure.MeasureValue&quot;                 </span></span>
+<span id="cb3-76"><a href="#cb3-76" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  [75] &quot;DrainageAreaMeasure.MeasureUnitCode&quot;              </span></span>
+<span id="cb3-77"><a href="#cb3-77" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  [76] &quot;ContributingDrainageAreaMeasure.MeasureValue&quot;     </span></span>
+<span id="cb3-78"><a href="#cb3-78" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  [77] &quot;ContributingDrainageAreaMeasure.MeasureUnitCode&quot;  </span></span>
+<span id="cb3-79"><a href="#cb3-79" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  [78] &quot;LatitudeMeasure&quot;                                  </span></span>
+<span id="cb3-80"><a href="#cb3-80" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  [79] &quot;LongitudeMeasure&quot;                                 </span></span>
+<span id="cb3-81"><a href="#cb3-81" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  [80] &quot;SourceMapScaleNumeric&quot;                            </span></span>
+<span id="cb3-82"><a href="#cb3-82" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  [81] &quot;HorizontalAccuracyMeasure.MeasureValue&quot;           </span></span>
+<span id="cb3-83"><a href="#cb3-83" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  [82] &quot;HorizontalAccuracyMeasure.MeasureUnitCode&quot;        </span></span>
+<span id="cb3-84"><a href="#cb3-84" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  [83] &quot;HorizontalCollectionMethodName&quot;                   </span></span>
+<span id="cb3-85"><a href="#cb3-85" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  [84] &quot;HorizontalCoordinateReferenceSystemDatumName&quot;     </span></span>
+<span id="cb3-86"><a href="#cb3-86" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  [85] &quot;VerticalMeasure.MeasureValue&quot;                     </span></span>
+<span id="cb3-87"><a href="#cb3-87" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  [86] &quot;VerticalMeasure.MeasureUnitCode&quot;                  </span></span>
+<span id="cb3-88"><a href="#cb3-88" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  [87] &quot;VerticalAccuracyMeasure.MeasureValue&quot;             </span></span>
+<span id="cb3-89"><a href="#cb3-89" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  [88] &quot;VerticalAccuracyMeasure.MeasureUnitCode&quot;          </span></span>
+<span id="cb3-90"><a href="#cb3-90" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  [89] &quot;VerticalCollectionMethodName&quot;                     </span></span>
+<span id="cb3-91"><a href="#cb3-91" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  [90] &quot;VerticalCoordinateReferenceSystemDatumName&quot;       </span></span>
+<span id="cb3-92"><a href="#cb3-92" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  [91] &quot;CountryCode&quot;                                      </span></span>
+<span id="cb3-93"><a href="#cb3-93" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  [92] &quot;StateCode&quot;                                        </span></span>
+<span id="cb3-94"><a href="#cb3-94" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  [93] &quot;CountyCode&quot;                                       </span></span>
+<span id="cb3-95"><a href="#cb3-95" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  [94] &quot;AquiferName&quot;                                      </span></span>
+<span id="cb3-96"><a href="#cb3-96" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  [95] &quot;LocalAqfrName&quot;                                    </span></span>
+<span id="cb3-97"><a href="#cb3-97" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  [96] &quot;FormationTypeText&quot;                                </span></span>
+<span id="cb3-98"><a href="#cb3-98" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  [97] &quot;AquiferTypeName&quot;                                  </span></span>
+<span id="cb3-99"><a href="#cb3-99" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  [98] &quot;ConstructionDateText&quot;                             </span></span>
+<span id="cb3-100"><a href="#cb3-100" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  [99] &quot;WellDepthMeasure.MeasureValue&quot;                    </span></span>
+<span id="cb3-101"><a href="#cb3-101" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [100] &quot;WellDepthMeasure.MeasureUnitCode&quot;                 </span></span>
+<span id="cb3-102"><a href="#cb3-102" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [101] &quot;WellHoleDepthMeasure.MeasureValue&quot;                </span></span>
+<span id="cb3-103"><a href="#cb3-103" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [102] &quot;WellHoleDepthMeasure.MeasureUnitCode&quot;             </span></span>
+<span id="cb3-104"><a href="#cb3-104" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [103] &quot;MethodSpecificationName&quot;                          </span></span>
+<span id="cb3-105"><a href="#cb3-105" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [104] &quot;ProjectName&quot;                                      </span></span>
+<span id="cb3-106"><a href="#cb3-106" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [105] &quot;ProjectDescriptionText&quot;                           </span></span>
+<span id="cb3-107"><a href="#cb3-107" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [106] &quot;SamplingDesignTypeCode&quot;                           </span></span>
+<span id="cb3-108"><a href="#cb3-108" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [107] &quot;QAPPApprovedIndicator&quot;                            </span></span>
+<span id="cb3-109"><a href="#cb3-109" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [108] &quot;QAPPApprovalAgencyName&quot;                           </span></span>
+<span id="cb3-110"><a href="#cb3-110" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [109] &quot;ProjectFileUrl&quot;                                   </span></span>
+<span id="cb3-111"><a href="#cb3-111" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [110] &quot;ProjectMonitoringLocationWeightingUrl&quot;</span></span></code></pre></div>
+</div>
+<div id="depth-unit-conversions" class="section level2">
+<h2>Depth unit conversions</h2>
+<p>Converts depth units to a consistent unit.</p>
+<p><strong>ActivityDepthHeightMeasure.MeasureValue</strong> provides
+depth information. This is a crucial column for lake data but less often
+for river data.</p>
+<p>Function checks dataset for depth profile data. Where depth profile
+columns are populated, the function appends ‘Conversion Factor’ columns
+and populates those columns based on the original unit (MeasureUnitCode
+columns) and the target unit, which is defined in the ‘unit’ argument. A
+‘Depth Target Unit’ column is also appended, indicating the unit all
+selected depth data is converted to. When transform = FALSE, the output
+includes all ‘Conversion Factor’ columns and the ‘Depth Target Unit’
+column. When transform = TRUE, the output includes converted depth data
+and the ‘Depth Target Unit’ column, which acts as a flag indicating
+which rows have been converted. Default is transform = TRUE.</p>
+<p>The depth profile function can harmonize the depth units across all
+the following fields (or only a specific one):
+“ActivityDepthHeightMeasure”, “ActivityTopDepthHeightMeasure”,
+“ActivityBottomDepthHeightMeasure”, “ResultDepthHeightMeasure”). The
+default is all.</p>
+<p>Allowable values for ‘unit’ are either ‘m’ (meter), ‘ft’ (feet), or
+‘in’ (inch). ‘unit’ accepts only one allowable value as an input.
+Default is unit = “m”.</p>
+<p>See additional function documentation for additional function options
+by entering the following code in the console: ?DepthProfileData</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co">#converts all depth profile data to meters</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>TADAProfileClean1 <span class="ot">&lt;-</span> <span class="fu">DepthProfileData</span>(TADAProfile, <span class="at">unit =</span> <span class="st">&quot;m&quot;</span>, <span class="at">transform =</span> <span class="cn">TRUE</span>)</span></code></pre></div>
+</div>
+<div id="result-unit-conversions" class="section level2">
+<h2>Result unit conversions</h2>
+<p>Converts all results to WQX target units. WQX target units are pulled
+from the MeasureUnit domain table: <a href="https://cdx2.epa.gov/wqx/download/DomainValues/MeasureUnit.CSV" class="uri">https://cdx2.epa.gov/wqx/download/DomainValues/MeasureUnit.CSV</a></p>
+<p>See additional function documentation for additional function options
+by entering the following code in the console: ?WQXTargetUnits</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co">#Converts all results to WQX target units</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>TADAProfileClean2 <span class="ot">&lt;-</span> <span class="fu">WQXTargetUnits</span>(TADAProfileClean1, <span class="at">transform =</span> <span class="cn">TRUE</span>)</span></code></pre></div>
+</div>
+<div id="statistically-aggregated-data" class="section level2">
+<h2>Statistically aggregated data</h2>
+<p>Checks for and removes statistically aggregated high freqeuncy (i.e.,
+continuous) data, if present.</p>
+<p>The Water Quality Portal (WQP) is not designed to store
+high-frequency sensor data. However, sometimes data providers choose to
+aggregate their continuous data and submit it to WQP as one value. This
+type of data may not be suitable for integration with discrete water
+quality data for assessments. Therefore, this function uses metadata
+submitted by data providers to flags rows with aggregated continuous
+data. This is done by flagging results where the
+ResultDetectionConditionText = “Reported in Raw Data (attached)”. When
+clean = TRUE, rows with aggregated continuous data are removed from the
+dataset and no column will be appended. Default is clean = TRUE.</p>
+<p>See function documentation for additional function options by
+entering the following code in the console: ?DepthProfileData</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>TADAProfileClean3 <span class="ot">&lt;-</span> <span class="fu">AggregatedContinuousData</span>(TADAProfileClean2, <span class="at">clean =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [1] &quot;The dataset does not contain aggregated continuous data.&quot;</span></span></code></pre></div>
+</div>
+<div id="wqx-qaqc-service-result-flags" class="section level2">
+<h2>WQX QAQC Service Result Flags</h2>
+<p>Run the following result functions to address invalid method,
+fraction, speciation, and unit metadata by characteristic. The default
+is Clean=TRUE, which will remove invalid results. You can change this to
+clean=FALSE to flag results, but not remove them.</p>
+<p>See documentation for more details: ?InvalidMethod ?InvalidSpeciation
+?InvalidResultUnit ?InvalidFraction</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>TADAProfileClean4 <span class="ot">&lt;-</span> <span class="fu">InvalidMethod</span>(TADAProfileClean3, <span class="at">clean =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>TADAProfileClean5 <span class="ot">&lt;-</span> <span class="fu">InvalidFraction</span>(TADAProfileClean4, <span class="at">clean =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [1] &quot;All data is valid, therefore the function cannot be applied.&quot;</span></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>TADAProfileClean6 <span class="ot">&lt;-</span> <span class="fu">InvalidSpeciation</span>(TADAProfileClean5, <span class="at">clean =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>TADAProfileClean7 <span class="ot">&lt;-</span> <span class="fu">InvalidResultUnit</span>(TADAProfileClean6, <span class="at">clean =</span> <span class="cn">TRUE</span>)</span></code></pre></div>
+</div>
+<div id="wqx-national-upper-and-lower-thresholds" class="section level2">
+<h2>WQX national upper and lower thresholds</h2>
+<p>Run the following code to flag or remove results that are above or
+below the national upper and lower bound for each characteristic and
+unit combination. The default is clean=TRUE, but you can change this to
+only flag results if desired. Results will be flagged, but not removed,
+when clean=FALSE.</p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>TADAProfileClean8 <span class="ot">&lt;-</span> <span class="fu">AboveNationalWQXUpperThreshold</span>(TADAProfileClean7, <span class="at">clean =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>TADAProfileClean9 <span class="ot">&lt;-</span> <span class="fu">BelowNationalWQXUpperThreshold</span>(TADAProfileClean8, <span class="at">clean =</span> <span class="cn">TRUE</span>)</span></code></pre></div>
+</div>
+<div id="potential-duplicates" class="section level2">
+<h2>Potential duplicates</h2>
+<p>Sometimes multiple organizations submit the exact same data to Water
+Quality Portal (WQP), which can affect water quality analyses and
+assessments. This function checks for and identifies data that is
+identical in all fields excluding organization-specific and comment text
+fields. Each pair or group of potential duplicate rows is flagged with a
+unique ID. When clean = TRUE, the function retains the first occurrence
+of each potential duplicate in the dataset. Default is clean = TRUE.</p>
+<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>TADAProfileClean10 <span class="ot">&lt;-</span> <span class="fu">PotentialDuplicateRowID</span>(TADAProfileClean9)</span></code></pre></div>
+</div>
+<div id="invalid-coordinates" class="section level2">
+<h2>Invalid coordinates</h2>
+<p>Function identifies and flags invalid coordinate data. When
+clean_outsideUSA = FALSE and clean_imprecise = FALSE, a column will be
+appended titled “TADA.InvalidCoordinates” with the following flags (if
+relevant to dataset). If the latitude is less than zero, the row will be
+flagged with “LAT_OutsideUSA”. If the longitude is greater than zero AND
+less than 145, the row will be flagged as “LONG_OutsideUSA”. If the
+latitude or longitude contains the string, “999”, the row will be
+flagged as invalid. Finally, precision can be measured by the number of
+decimal places in the latitude and longitude provided. If either does
+not have any numbers to the right of the decimal point, the row will be
+flagged as “Imprecise”.</p>
+<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>TADAProfileClean11 <span class="ot">&lt;-</span> <span class="fu">InvalidCoordinates</span>(TADAProfileClean10, <span class="at">clean_outsideUSA =</span> <span class="cn">FALSE</span>, <span class="at">clean_imprecise =</span> <span class="cn">FALSE</span>)</span></code></pre></div>
+</div>
+<div id="review-qapp-information" class="section level2">
+<h2>Review QAPP information</h2>
+<p>Check data for an approved QAPP</p>
+<p>This function checks to see if there is any information in the column
+“QAPPApprovedIndicator”. Some organizations submit data for this field
+to indicate if the data produced has an approved Quality Assurance
+Project Plan (QAPP) or not. In this field, Y indicates yes, N indicates
+no.</p>
+<p>This function has two default inputs: clean = TRUE and cleanNA =
+FALSE. These defaults remove rows of data where the
+QAPPApprovedIndicator equals “N”. Users could alternatively remove both
+N’s and NA’s using the inputs clean = TRUE and cleanNA = TRUE. If both
+clean = FALSE and cleanNA = FALSE, the function will not do
+anything.</p>
+<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>TADAProfileClean12 <span class="ot">&lt;-</span> <span class="fu">QAPPapproved</span>(TADAProfileClean11, <span class="at">clean =</span> <span class="cn">TRUE</span>, <span class="at">cleanNA =</span> <span class="cn">FALSE</span>)</span></code></pre></div>
+<p>Check to see if a QAPP Doc is Available</p>
+<p>This function checks data submitted under the “ProjectFileUrl” column
+to determine if a QAPP document is available to review. When clean =
+FALSE, a column will be appended to flag results that do have an
+associated QAPP document URL provided. When clean = TRUE, rows that do
+not have an associated QAPP document are removed from the dataset and no
+column will be appended. This function should only be used to remove
+data if an accompanying QAPP document is required to use data in
+assessments.</p>
+<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>TADAProfileClean13 <span class="ot">&lt;-</span> <span class="fu">QAPPDocAvailable</span>(TADAProfileClean12, <span class="at">clean =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Warning in QAPPDocAvailable(TADAProfileClean12, clean = FALSE): The dataset does</span></span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; not contain QAPP document url data.</span></span></code></pre></div>
+</div>
+<div id="filter-data-by-field" class="section level2">
+<h2>Filter data by field</h2>
+<p>In this section a TADA user will want to review the unique values in
+specific fields and may choose to remove data with particular
+values.</p>
+<p>To start, review the list of fields and the number of unique values
+in each field.</p>
+<div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="fu">FilterFields</span>(TADAProfileClean13)</span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;                             FieldName Count</span></span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 1              OrganizationFormalName     4</span></span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 2                    ActivityTypeCode     5</span></span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 3                   ActivityMediaName     1</span></span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 4        ActivityMediaSubdivisionName     4</span></span>
+<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 5                 ActivityCommentText     2</span></span>
+<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 6                 HydrologicCondition     8</span></span>
+<span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 7                     HydrologicEvent     4</span></span>
+<span id="cb13-10"><a href="#cb13-10" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 8                  CharacteristicName     2</span></span>
+<span id="cb13-11"><a href="#cb13-11" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 9                MeasureQualifierCode     1</span></span>
+<span id="cb13-12"><a href="#cb13-12" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 10            SampleTissueAnatomyName     1</span></span>
+<span id="cb13-13"><a href="#cb13-13" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 11                     LaboratoryName     8</span></span>
+<span id="cb13-14"><a href="#cb13-14" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 12 DetectionQuantitationLimitTypeName     4</span></span>
+<span id="cb13-15"><a href="#cb13-15" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 13         MonitoringLocationTypeName     6</span></span>
+<span id="cb13-16"><a href="#cb13-16" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 14                        ProjectName     3</span></span></code></pre></div>
+<p>Next, choose a field from the list to see the unique values in that
+field, as well as the number of times each value appears in the dataset.
+We’ll start with ActivityTypeCode.</p>
+<p>Here is a list of other fields to review: 1.
+<strong>ResultCommentText</strong> often has details relating to
+additional QA. 2. <strong>MeasureQualifierCode</strong> Contains
+information about data flags 3. Other codes may designate suspect data
+or other flags which may be described in detail in
+<strong>ResultLaboratoryCommentText</strong> or another column</p>
+<div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="fu">FilterFieldReview</span>(<span class="st">&quot;ActivityTypeCode&quot;</span>, TADAProfileClean13)</span></code></pre></div>
+<p><img src="data:image/png;base64,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" /><!-- --></p>
+<pre><code>#&gt;                               FieldValue Count
+#&gt; 5                         Sample-Routine   799
+#&gt; 3 Quality Control Sample-Field Replicate    50
+#&gt; 1                          Field Msr/Obs     4
+#&gt; 2     Quality Control Sample-Field Blank     1
+#&gt; 4   Quality Control Sample-Lab Duplicate     1</code></pre>
+<p>The ActivityTypeCode field has four unique values – “Sample-Routine”,
+“Quality Control Sample-Field Replicate”, “Field Msr/Obs”, and “Quality
+Control Sample-Field Blank.” In this example we want to remove quality
+control values in the ActivityTypeCode field, therefore, we’ll specify
+that we want to remove the “Quality Control Sample-Field Replicate” and
+“Quality Control Sample-Field Blank” values in the ActivityTypeCode
+field.</p>
+<div class="sourceCode" id="cb16"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>TADAProfileClean14 <span class="ot">&lt;-</span> dplyr<span class="sc">::</span><span class="fu">filter</span>(TADAProfileClean13, <span class="sc">!</span>(ActivityTypeCode <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">&quot;Quality Control Sample-Field Replicate&quot;</span>, <span class="st">&quot;Quality Control Sample-Field Blank&quot;</span>, <span class="st">&quot;Quality Control Sample-Lab Duplicate&quot;</span>, <span class="st">&quot;Quality Control Sample-Equipment Blank&quot;</span>)))</span></code></pre></div>
+<p>We’ve completed our review of the ActivityTypeCode field.</p>
+<p>Let’s move on to a different field and see if there are any values
+that we want to remove – we’ll look at the values in the
+ResultStatusIdentifier field.</p>
+<div class="sourceCode" id="cb17"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="fu">FilterFieldReview</span>(<span class="st">&quot;ActivityMediaSubdivisionName&quot;</span>, TADAProfileClean14)</span></code></pre></div>
+<p><img src="data:image/png;base64,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" /><!-- --></p>
+<pre><code>#&gt;        FieldValue Count
+#&gt; 3   Surface Water   677
+#&gt; 2     Groundwater   106
+#&gt; 1 Bulk deposition     1</code></pre>
+<p>The ActivityMediaSubdivisionName field has two unique values,
+“Surface Water” and “Groundwater.” In this example we want to remove the
+“Groundwater” values.</p>
+<div class="sourceCode" id="cb19"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>TADAProfileClean15 <span class="ot">&lt;-</span> dplyr<span class="sc">::</span><span class="fu">filter</span>(TADAProfileClean14, <span class="sc">!</span>(ActivityMediaSubdivisionName <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">&quot;Groundwater&quot;</span>, <span class="st">&quot;Bulk deposition&quot;</span>)))</span></code></pre></div>
+</div>
+<div id="filter-data-by-field-subset-by-parameter" class="section level2">
+<h2>Filter data by field, subset by parameter</h2>
+<p>In this section a TADA user will want to select a parameter, review
+the unique values associated with that parameter in specific fields, and
+choose to remove particular values.</p>
+<p>To start, review the list of parameters in the dataset. (The list is
+sorted from highest to lowest counts. Only the first few rows are
+displayed to save space on the page)</p>
+<div class="sourceCode" id="cb20"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="fu">FilterParList</span>(TADAProfileClean15)</span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   FieldValue Count</span></span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 1    NITRATE   639</span></span>
+<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 2   NITROGEN    57</span></span></code></pre></div>
+<p>Next, select a parameter. Let’s explore the fields associated with
+Nitrogen:</p>
+<div class="sourceCode" id="cb21"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="fu">FilterParFields</span>(TADAProfileClean15, <span class="st">&quot;NITROGEN&quot;</span>)</span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;                                         FieldName Count</span></span>
+<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 1                                ActivityTypeCode     1</span></span>
+<span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 2                               ActivityMediaName     1</span></span>
+<span id="cb21-5"><a href="#cb21-5" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 3                    ActivityMediaSubdivisionName     1</span></span>
+<span id="cb21-6"><a href="#cb21-6" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 4                             ActivityCommentText     1</span></span>
+<span id="cb21-7"><a href="#cb21-7" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 5                             HydrologicCondition     6</span></span>
+<span id="cb21-8"><a href="#cb21-8" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 6                                 HydrologicEvent     1</span></span>
+<span id="cb21-9"><a href="#cb21-9" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 7         SampleCollectionMethod.MethodIdentifier     5</span></span>
+<span id="cb21-10"><a href="#cb21-10" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 8  SampleCollectionMethod.MethodIdentifierContext     1</span></span>
+<span id="cb21-11"><a href="#cb21-11" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 9               SampleCollectionMethod.MethodName     5</span></span>
+<span id="cb21-12"><a href="#cb21-12" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 10                  SampleCollectionEquipmentName     5</span></span>
+<span id="cb21-13"><a href="#cb21-13" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 11                       ResultSampleFractionText     1</span></span>
+<span id="cb21-14"><a href="#cb21-14" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 12                  ResultMeasure.MeasureUnitCode     2</span></span>
+<span id="cb21-15"><a href="#cb21-15" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 13                           MeasureQualifierCode     1</span></span>
+<span id="cb21-16"><a href="#cb21-16" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 14                         ResultStatusIdentifier     2</span></span>
+<span id="cb21-17"><a href="#cb21-17" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 15                            ResultValueTypeName     1</span></span>
+<span id="cb21-18"><a href="#cb21-18" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 16                          ResultWeightBasisText     1</span></span>
+<span id="cb21-19"><a href="#cb21-19" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 17                     ResultTemperatureBasisText     1</span></span>
+<span id="cb21-20"><a href="#cb21-20" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 18                    ResultParticleSizeBasisText     1</span></span>
+<span id="cb21-21"><a href="#cb21-21" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 19                              ResultCommentText     2</span></span>
+<span id="cb21-22"><a href="#cb21-22" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 20        ResultAnalyticalMethod.MethodIdentifier     1</span></span>
+<span id="cb21-23"><a href="#cb21-23" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 21 ResultAnalyticalMethod.MethodIdentifierContext     1</span></span>
+<span id="cb21-24"><a href="#cb21-24" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 22              ResultAnalyticalMethod.MethodName     1</span></span>
+<span id="cb21-25"><a href="#cb21-25" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 23                          MethodDescriptionText     1</span></span>
+<span id="cb21-26"><a href="#cb21-26" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 24                                 LaboratoryName     1</span></span>
+<span id="cb21-27"><a href="#cb21-27" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 25                    ResultLaboratoryCommentText     5</span></span>
+<span id="cb21-28"><a href="#cb21-28" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 26             DetectionQuantitationLimitTypeName     1</span></span>
+<span id="cb21-29"><a href="#cb21-29" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 27                     MonitoringLocationTypeName     1</span></span></code></pre></div>
+<p>Selecting a parameter generates the list below, which is subset by
+the selected parameter, of fields and the number of unique values in
+each field.</p>
+<p>Then choose a field from the list. In this example we’ll remove
+certain values from the HydrologicEvent field.</p>
+<div class="sourceCode" id="cb22"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="fu">FilterParFieldReview</span>(<span class="st">&quot;HydrologicEvent&quot;</span>, TADAProfileClean15, <span class="st">&quot;NITROGEN&quot;</span>)</span></code></pre></div>
+<p><img src="data:image/png;base64,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" /><!-- --></p>
+<pre><code>#&gt;       FieldValue Count
+#&gt; 1 Routine sample    57</code></pre>
+<p>The HydrologicEvent field has three unique values. In this example we
+want to remove samples collected during “Storm” events. Therefore, we’ll
+specify that we want to remove rows where the CharacteristicName is
+“NITROGEN” and the HydrologicEvent field is “Storm.”</p>
+<div class="sourceCode" id="cb24"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a>TADAProfileClean16 <span class="ot">&lt;-</span> dplyr<span class="sc">::</span><span class="fu">filter</span>(TADAProfileClean15, <span class="sc">!</span>(CharacteristicName <span class="sc">%in%</span> <span class="st">&quot;NITROGEN&quot;</span> <span class="sc">&amp;</span> HydrologicEvent <span class="sc">%in%</span> <span class="st">&quot;Storm&quot;</span>))</span></code></pre></div>
+</div>
+<div id="transform-characteristic-speciation-and-unit-values-to-tada-standards" class="section level2">
+<h2>Transform Characteristic, Speciation, and Unit values to TADA
+Standards</h2>
+<p>The HarmonizeRefTable function generates a harmonization reference
+table that is specific to the input dataset. Users can review how their
+input data relates to standard TADA values for CharacteristicName,
+ResultSampleFractionText, MethodSpecicationName, and
+ResultMeasure.MeasureUnitCode and they can optionally edit the reference
+file to meet their needs. The download argument can be used to save the
+harmonization file to your current working directory when download =
+TRUE, the default is download = FALSE.</p>
+<p>The HarmonizeData function then compares the input dataset to the
+TADA Harmonization Reference Table. The purpose of the function is to
+make similar data consistent and therefore easier to compare and
+analyze. Optional outputs include: 1) the dataset with Harmonization
+columns appended, 2) the datset with CharacteristicName,
+ResultSampleFractionText, MethodSpecificationName, and
+ResultMeasure.MeasureUnitCode converted to TADA standards or 3) the four
+fields converted with most Harmonization Reference Table columns
+appended. Default is transform = TRUE and flag = TRUE.</p>
+<p>Here are some examples of how the HarmonizeData function can be used:
+1. <strong>ResultSampleFractionText</strong> specifies forms of
+constituents. In some cases, a single
+<strong>CharacteristicName</strong> will have both “Total” and
+“Dissolved” forms specified, which should not be combined. In these
+cases, each CharacteristicName and ResultSampleFractionText combination
+is given a different identifier. This identifier can be used later on to
+identify comparable data groups for calculating statistics and creating
+figures for each combination. 2. Some variables have different names but
+represent the same constituent (e.g., “Total Kjeldahl nitrogen (Organic
+N &amp; NH3)” and “Kjeldahl nitrogen”). The HarmonizeData function gives
+a consistent name (and identifier) to synonyms.</p>
+<div class="sourceCode" id="cb25"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a>UniqueHarmonizationRef <span class="ot">&lt;-</span> <span class="fu">HarmonizationRefTable</span>(TADAProfileClean16, <span class="at">download =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a>TADAProfileClean17 <span class="ot">&lt;-</span> <span class="fu">HarmonizeData</span>(TADAProfileClean16, <span class="at">ref =</span> UniqueHarmonizationRef, <span class="at">transform =</span> <span class="cn">TRUE</span>, <span class="at">flag =</span> <span class="cn">TRUE</span>)</span></code></pre></div>
+</div>
+
+
+
+<!-- code folding -->
+
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>
