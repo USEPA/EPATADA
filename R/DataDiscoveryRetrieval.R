@@ -125,6 +125,8 @@ TADAdataRetrieval <- function(statecode = "null",
         "CharacteristicName", "ResultMeasureValue"
       )
       )
+  } else {
+    join2 <- join1 
   }
   
   # Join QAPP columns from project to full profile
@@ -141,6 +143,8 @@ TADAdataRetrieval <- function(statecode = "null",
         "ProjectIdentifier"
       )
       )
+  } else {
+    TADAprofile <- join2
   }
   # run autoclean function
   TADAprofile.clean <- autoclean(TADAprofile)
