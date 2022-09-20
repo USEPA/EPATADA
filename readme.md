@@ -19,31 +19,6 @@ library (remotes)
 remotes::install_github("USEPA/TADA")
 ```
 
-## Dependencies
-
-Make sure all of the packages below are installed before running the code:
-
-|               |
-|---------------|
-| data.table    |
-| plyr          |
-| dataRetrieval |
-| dplyr         |
-| ggplot2       |
-| grDevices     |
-| magrittr      |
-| stringr       |
-| utils         |
-| RColorBrewer  |
-| Rcpp          |
-| stats         |
-| remotes       |
-| rmarkdown     |
-| knitr         |
-| testthat      |
-| usethis       |
-| devtools      |
-
 ## Contact
 
 If you have any questions, please reach out to Cristina Mullin at mullin.cristina@epa.gov
