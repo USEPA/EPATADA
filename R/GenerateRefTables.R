@@ -41,7 +41,7 @@ UpdateInternalData <- function(..., list = character()) {
 UpdateWQXCharValRef <- function() {
 
   # read raw csv from url
-  raw.data <- utils::read.csv(url("https://cdx2.epa.gov/wqx/download/DomainValues/QAQCCharacteristicValidation.CSV"))
+  raw.data <- utils::read.csv(url("https://cdx.epa.gov/wqx/download/DomainValues/QAQCCharacteristicValidation.CSV"))
   # filter data to include only accepted (valid) values and remove extraneous columns
   WQXcharValRef <- raw.data %>%
     dplyr::select(-c(
@@ -72,7 +72,7 @@ UpdateWQXCharValRef <- function() {
 UpdateMeasureUnitRef <- function() {
 
   # read in raw WQX QAQC Characteristic Validation csv
-  WQXunitRef <- utils::read.csv(url("https://cdx2.epa.gov/wqx/download/DomainValues/MeasureUnit.CSV"))
+  WQXunitRef <- utils::read.csv(url("https://cdx.epa.gov/wqx/download/DomainValues/MeasureUnit.CSV"))
   # add m and ft as target units for "Length Distance" (Description field) rows
   # target.unit = m
   target.m <- data.frame(
@@ -146,7 +146,6 @@ UpdateMeasureUnitRef <- function() {
   # UpdateInternalData(WQXunitRef)
   utils::write.csv(WQXunitRef, file = "inst/extdata/WQXunitRef.csv", row.names = FALSE)
 }
-
 
 #' Generate Unique Harmonization Reference Table
 #'
@@ -290,3 +289,4 @@ HarmonizationRefTable <- function(.data, download = FALSE) {
     return(unique.data)
   }
 }
+
