@@ -1,7 +1,7 @@
 ---
 title: "WQP Data Harmonization"
 author: "Cristina Mullin"
-date: "May 1, 2022"
+date: "`r Sys.Date()`"
 output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{WQP Data Harmonization}
@@ -77,7 +77,7 @@ In this vignette, we will walk through some of the things to look for when decid
 Tips on the WQP (https://www.waterqualitydata.us/) data retrieval filters:
 
 statecode
-startDatee
+startDate
 countycode 
 siteid
 siteType
@@ -244,7 +244,7 @@ FilterFieldReview("ActivityTypeCode", TADAProfileClean13)
 The ActivityTypeCode field has four unique values -- "Sample-Routine", "Quality Control Sample-Field Replicate", "Field Msr/Obs", and "Quality Control Sample-Field Blank." In this example we want to remove quality control values in the ActivityTypeCode field, therefore, we'll specify that we want to remove the "Quality Control Sample-Field Replicate" and "Quality Control Sample-Field Blank" values in the ActivityTypeCode field.
 
 ```{r}
-TADAProfileClean14 <- dplyr::filter(TADAProfileClean13, !(ActivityTypeCode %in% c("Quality Control Sample-Field Replicate", "Quality Control Sample-Field Blank")))
+TADAProfileClean14 <- dplyr::filter(TADAProfileClean13, !(ActivityTypeCode %in% c("Quality Control Sample-Field Replicate", "Quality Control Sample-Field Blank", "Quality Control Sample-Lab Duplicate", "Quality Control Sample-Equipment Blank")))
 ```
 
 We've completed our review of the ActivityTypeCode field. 
@@ -258,7 +258,7 @@ FilterFieldReview("ActivityMediaSubdivisionName", TADAProfileClean14)
 The ActivityMediaSubdivisionName field has two unique values, "Surface Water" and "Groundwater." In this example we want to remove the "Groundwater" values. 
 
 ```{r}
-TADAProfileClean15 <- dplyr::filter(TADAProfileClean14, !(ActivityMediaSubdivisionName %in% "Groundwater"))
+TADAProfileClean15 <- dplyr::filter(TADAProfileClean14, !(ActivityMediaSubdivisionName %in% c("Groundwater", "Bulk deposition")))
 ```
 
 ## Filter data by field, subset by parameter

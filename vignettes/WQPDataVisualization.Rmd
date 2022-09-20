@@ -1,0 +1,23 @@
+---
+title: "WQP Data Visualization"
+author: "Cristina Mullin"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{WQP Data Visualization}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+Load nutrient test data from Utah into R Environment
+```{r}
+#TestData_UT_Nutrients = utils::read.csv(file = "tests/testdata/TADAProfile_UT_Nutrients.csv")
+```
+

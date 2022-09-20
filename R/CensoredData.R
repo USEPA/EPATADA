@@ -1,10 +1,3 @@
-# Censored Data
-
-## Two objectives:
-# TransformCensoredData
-# GenerateCensoredDataStats
-
-#' Generate list of unique values in a given field
 #'
 #' Function substitutes monitoring device/method detection limits (if available) as result values when applicable.
 #'
@@ -35,4 +28,30 @@ TransformCensoredData <- function(transform, .data) {
   }
 }
 
+
+
+
+#'
+#' Function summarizes censored data in dataset, including any substitutions made. 
+#' 
+#' @param .data Optional argument; TADA dataframe
+#'
+#' @return Summary table
+#' 
+#' @export
+#'
+
+GenerateCensoredDataStats <- function(.data) {
+  
+  # check .data is of class data.frame
+  if (!missing(.data)) {
+    if (("data.frame" %in% class(.data)) == FALSE) {
+      stop(".data must be of class 'data.frame'")
+    }
+  }
+  # execute function after checks are passed 
+  {
+    
+  }
+}
     

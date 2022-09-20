@@ -119,6 +119,7 @@
 "Measurement Unit(MeasureUnitCode)",328,"cfu/gdw","Concentration Solution, Colony Forming Units per gram dryweight","1/11/2012 3:59:35 PM","cfu/gdw",1,0
 "Measurement Unit(MeasureUnitCode)",361,"cfu/ml","Concentration Solution, Colony Forming Units per Milliliters","12/17/2014 8:01:57 AM","cfu/ml",1,0
 "Measurement Unit(MeasureUnitCode)",135,"cm","Length Distance, Centimeters","7/26/2006 10:57:47 AM","in",0.393700787401575,0
+"Measurement Unit(MeasureUnitCode)",383,"cm-1","Concentration Solution, Inverse centimeters or per centimeters","9/9/2022 12:00:00 AM","per in",2.54,0
 "Measurement Unit(MeasureUnitCode)",191,"cm/sec","Speed Velocity, Centimeters per second","7/26/2006 10:57:47 AM","m/sec",0.01,0
 "Measurement Unit(MeasureUnitCode)",237,"cm2","Area, Square centimeters","7/26/2006 10:57:47 AM","m2",1e-04,0
 "Measurement Unit(MeasureUnitCode)",204,"cm3","Volume, Cubic centimeters","7/26/2006 10:57:47 AM","m3",1e-06,0
@@ -153,6 +154,7 @@
 "Measurement Unit(MeasureUnitCode)",105,"ft-candles","Light Intensity, foot candles","7/26/2006 10:57:47 AM","lm/m2",10.763910417,0
 "Measurement Unit(MeasureUnitCode)",71,"ft-lbs","Energy, foot pounds","7/26/2006 10:57:47 AM","kcal",0.0003238315531757,0
 "Measurement Unit(MeasureUnitCode)",199,"ft/day","Speed Velocity, Feet per day","7/26/2006 10:57:47 AM","m/sec",3.5277777778e-06,0
+"Measurement Unit(MeasureUnitCode)",779,"ft/mile","Slope, feet per mile","9/13/2022 12:21:58 PM","",NA,NA
 "Measurement Unit(MeasureUnitCode)",195,"ft/min","Speed Velocity, Feet per minute","7/26/2006 10:57:47 AM","m/sec",0.00508,0
 "Measurement Unit(MeasureUnitCode)",194,"ft/sec","Speed Velocity, Feet per second","7/26/2006 10:57:47 AM","m/sec",0.3048,0
 "Measurement Unit(MeasureUnitCode)",242,"ft2","Area, Square feet","7/26/2006 10:57:47 AM","m2",0.09290304,0
@@ -379,7 +381,7 @@
 "Measurement Unit(MeasureUnitCode)",109,"uE/m2/sec","Viscosity, Photosynth. radiation,micro-Einsteins/sq.meter/sec","7/26/2006 10:57:47 AM","uE/m2/sec",1,0
 "Measurement Unit(MeasureUnitCode)",364,"uL","Volume, Microliters","4/9/2015 1:40:55 PM","m3",1e-09,0
 "Measurement Unit(MeasureUnitCode)",31,"uS/cm","Electric Resistivity, Micro-Siemens per Centimeter","7/26/2006 10:57:47 AM","uS/cm",1,0
-"Measurement Unit(MeasureUnitCode)",759,"uS/m","Electric Resistivity, Micro-Siemens per Meter","6/6/2022 8:33:29 AM","",0.01,0
+"Measurement Unit(MeasureUnitCode)",759,"uS/m","Electric Resistivity, Micro-Siemens per Meter","6/6/2022 8:33:29 AM","uS/cm",0.01,0
 "Measurement Unit(MeasureUnitCode)",334,"uW/cm2","Power, Micro-watts per square centimeter","6/4/2012 10:57:47 AM","uW/cm2",1,0
 "Measurement Unit(MeasureUnitCode)",29,"ueq/L","Density, Micro-equivalents per Liter","7/26/2006 10:57:47 AM","meq/L",1000,0
 "Measurement Unit(MeasureUnitCode)",4,"ug","Weight Mass, Micrograms","7/26/2006 10:57:47 AM","g",1e-06,0
