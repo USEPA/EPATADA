@@ -10,7 +10,6 @@ License: CC0
 Copyright: This software is in the public domain because it contains materials
     that originally came from the U.S. Environmental Protection Agency.
 Encoding: UTF-8
-LazyData: true
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.2.1
 Imports:

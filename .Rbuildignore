@@ -4,3 +4,8 @@
 ^.*\.Rproj$
 ^\.Rproj\.user$
 ^\.github$
+LICENSE.md
+readme.md
+CONTRIBUTING.md
+.gitignore
+

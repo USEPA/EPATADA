@@ -23,7 +23,12 @@
 #' 
 #' @export
 #'
-
+#' @examples 
+#' \donttest{
+#' tada1 <- TADAdataRetrieval(statecode = "WI",
+#'                            countycode = "Dane",
+#'                            characteristicName = "Phosphorus")
+#' }
 TADAdataRetrieval <- function(statecode = "null",
                               startDate = "null",
                               countycode = "null", 
@@ -85,50 +90,58 @@ TADAdataRetrieval <- function(statecode = "null",
   }
 
   # Retrieve all 3 profiles
-  results.DR <- dataRetrieval::readWQPdata(WQPquery)
+  results.DR <- dataRetrieval::readWQPdata(WQPquery,
+                                           ignore_attributes = TRUE)
 
-  narrow.DR <- dataRetrieval::readWQPdata(WQPquery, dataProfile = "narrowResult")
+  narrow.DR <- dataRetrieval::readWQPdata(WQPquery, 
+                                          dataProfile = "narrowResult", 
+                                          ignore_attributes = TRUE)
 
   sites.DR <- dataRetrieval::whatWQPsites(WQPquery)
 
-  projects.DR <- dataRetrieval::readWQPdata(WQPquery, service = "Project")
+  projects.DR <- dataRetrieval::readWQPdata(WQPquery, 
+                                            ignore_attributes = TRUE, 
+                                            service = "Project")
 
   # Join station data to full phys/chem (results.DR)
   join1 <- results.DR %>%
     # join stations to results
     dplyr::left_join(sites.DR, by = "MonitoringLocationIdentifier") %>%
     # remove ".x" suffix from column names
-    dplyr::rename_at(dplyr::vars(ends_with(".x")), ~ stringr::str_replace(., "\\..$", "")) %>%
+    dplyr::rename_at(dplyr::vars(dplyr::ends_with(".x")), ~ stringr::str_replace(., "\\..$", "")) %>%
     # remove columns with ".y" suffix
-    dplyr::select_at(dplyr::vars(-ends_with(".y")))
+    dplyr::select_at(dplyr::vars(-dplyr::ends_with(".y")))
 
   # Join Speciation column from narrow to full profile
-  join2 <- join1 %>%
-    dplyr::left_join(dplyr::select(
-      narrow.DR, ActivityIdentifier, MonitoringLocationIdentifier,
-      CharacteristicName, ResultMeasureValue,
-      MethodSpecificationName
-    ),
-    by = c(
-      "ActivityIdentifier", "MonitoringLocationIdentifier",
-      "CharacteristicName", "ResultMeasureValue"
-    )
-    )
+  if(nrow(narrow.DR) > 0){
+    join2 <- join1 %>%
+      dplyr::left_join(dplyr::select(
+        narrow.DR, ActivityIdentifier, MonitoringLocationIdentifier,
+        CharacteristicName, ResultMeasureValue,
+        MethodSpecificationName
+      ),
+      by = c(
+        "ActivityIdentifier", "MonitoringLocationIdentifier",
+        "CharacteristicName", "ResultMeasureValue"
+      )
+      )
+  }
   
   # Join QAPP columns from project to full profile
-  TADAprofile <- join2 %>%
-    dplyr::left_join(dplyr::select(
-      projects.DR, OrganizationIdentifier, OrganizationFormalName,
-      ProjectIdentifier, ProjectName, ProjectDescriptionText, 
-      SamplingDesignTypeCode, QAPPApprovedIndicator, QAPPApprovalAgencyName, 
-      ProjectFileUrl, ProjectMonitoringLocationWeightingUrl
-    ),
-    by = c(
-      "OrganizationIdentifier", "OrganizationFormalName",
-      "ProjectIdentifier"
-    )
-    )
-
+  if(nrow(projects.DR) > 0){
+    TADAprofile <- join2 %>%
+      dplyr::left_join(dplyr::select(
+        projects.DR, OrganizationIdentifier, OrganizationFormalName,
+        ProjectIdentifier, ProjectName, ProjectDescriptionText, 
+        SamplingDesignTypeCode, QAPPApprovedIndicator, QAPPApprovalAgencyName, 
+        ProjectFileUrl, ProjectMonitoringLocationWeightingUrl
+      ),
+      by = c(
+        "OrganizationIdentifier", "OrganizationFormalName",
+        "ProjectIdentifier"
+      )
+      )
+  }
   # run autoclean function
   TADAprofile.clean <- autoclean(TADAprofile)
 
@@ -381,12 +394,14 @@ TADABigdataRetrieval <- function(startDate = "null",
         sites=siteid_all[j:k]
         
         results.DR <- dataRetrieval::readWQPdata(siteid = sites,
-                                               characteristicName = characteristicName) 
+                                               characteristicName = characteristicName, 
+                                               ignore_attributes = TRUE) 
                                                #startDate = startDate)
         
         narrow.DR <- dataRetrieval::readWQPdata(siteid = sites,
                                                 characteristicName = characteristicName,
-                                                dataProfile = "narrowResult")
+                                                dataProfile = "narrowResult", 
+                                                ignore_attributes = TRUE)
         
         sites.DR <- dataRetrieval::whatWQPsites(siteid = sites,
                                                 characteristicName = characteristicName)
@@ -402,9 +417,9 @@ TADABigdataRetrieval <- function(startDate = "null",
         # join stations to results
         dplyr::left_join(sites.DR, by = "MonitoringLocationIdentifier") %>%
         # remove ".x" suffix from column names
-        dplyr::rename_at(dplyr::vars(ends_with(".x")), ~ stringr::str_replace(., "\\..$", "")) %>%
+        dplyr::rename_at(dplyr::vars(dplyr::ends_with(".x")), ~ stringr::str_replace(., "\\..$", "")) %>%
         # remove columns with ".y" suffix
-        dplyr::select_at(dplyr::vars(-ends_with(".y")))
+        dplyr::select_at(dplyr::vars(-dplyr::ends_with(".y")))
     
         # Join Speciation column from narrow to full profile
         join2 <- join1 %>%
@@ -463,7 +478,7 @@ TADABigdataRetrieval <- function(startDate = "null",
       })
     
       if(nrow(allstates_df) > 0){
-        all_data <- bind_rows(all_data, allstates_df)
+        all_data <- dplyr::bind_rows(all_data, allstates_df)
       }
     
     } 

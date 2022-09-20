@@ -61,7 +61,7 @@ FilterFields <- function(.data) {
   })
 
   # Rename fields
-  UniqueValList <- lapply(UniqueValList, setNames, c("FieldValue", "Count"))
+  UniqueValList <- lapply(UniqueValList, stats::setNames, c("FieldValue", "Count"))
 
   # Filter list to include only fields for filtering
   UniqueValList <- UniqueValList[c(

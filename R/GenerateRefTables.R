@@ -193,7 +193,7 @@ HarmonizationRefTable <- function(.data, download = FALSE) {
     colnames(.data)) == TRUE) {
 
     # define raw harmonization table as an object
-    harm.raw <- read.csv(system.file("extdata", "HarmonizationTemplate.csv",
+    harm.raw <- utils::read.csv(system.file("extdata", "HarmonizationTemplate.csv",
       package = "TADA"
     ))
 
