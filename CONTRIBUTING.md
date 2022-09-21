@@ -10,9 +10,11 @@ No matter who you are, if you spot an error, omission, or bug, you're welcome to
 
 GitHub is a third-party website that offers version-controlled repositories that developers and scientists can use to collaborate on projects (e.g., software, text, manuscripts, etc.) in real-time. GitHub also provides social networking features that allow developers to follow open-source projects, share code and learn how code changes are made throughout the development process. GitHub is so named because it utilizes the open-source version control system (VCS) known as Git.
 
--   [Set Up Git](https://help.github.com/articles/set-up-git/)
+-   [Setting Up Git](https://help.github.com/articles/set-up-git/)
 
 -   [Git Basics](http://git-scm.com/book/ch1-3.html)
+
+-   [Comprehensive Guide: Happy Git and GitHub for the useR](https://happygitwithr.com/ "Great and comprehensive guide for Git with an R flair")
 
 ## Issues
 
@@ -20,15 +22,13 @@ GitHub is a third-party website that offers version-controlled repositories that
 
 ## Branches
 
--   To contribute a specific change or new code, outside contributors can create a new branch or fork this repo from the **develop** branch, then create a pull request for us to review.
+All new development currently happens in the **develop** branch.
 
-All new development currently happens in the **develop** branch. To contribute a specific change or new code, outside contributors can create a new branch or fork this repo from the **develop** branch, then create a pull request for us to review.
+To contribute a specific change or new code, outside contributors can fork this repo from the **develop** branch. Contributors should work from their personal fork and on one specific "task" at a time. When complete, they should submit a pull request to request their changes be merged into the TADA develop branch. Contributors should submit a separate pull request for each "task".
 
-Each contributor should work in a new, separate branch for each task. When the task is complete, the contributor can create a pull request for changes to be merged. We will review the contribution and delete the branch once the merge is complete. GitHub best practice is to not reuse branches after merge is requested via a pull request.
+"Tasks" should be small in scope. For example, they may pertain to a bug fix or update relevant to a single function. A single "task" may also encompass the same changes made across many functions if needed. Another example of a single "task" could be to make changes to all documentation to improve clarity, for example. Furthermore, a task may include developing a new function, or a series of related functions. In some cases, tasks can also be synonymous with issues, and the pull request can be directly linked to a specific issue (in that case, the Repository Administrators will review the pull request and issue and the same time, and the issue can be closed once the pull request is merged.
 
-Complete the pull request by detailing all fixes and contributions, and tagging TADA repo admins who should review the work. For this package, please tag cristinamullin (Cristina Mullin) and mthawley (Shelly Thawley).
-
-Repository Administrators will review code contributions from external collaborators and integrate code commits into source code. This is done to ensure code stability and consistency and prevent degradation of code performance. After review, the admin will either accept the submission, recommend specific improvements to the submission, or in some cases reject the submission. To avoid issues, developers contributing code should contact the repository admins (Cristina or) early in the development process and maintain contact throughout to help ensure the submission is compatible with the code base and is a robust addition.
+Complete the pull request by detailing all fixes and contributions, and tagging TADA repo admins who should review the work. For this package, please tag cristinamullin (Cristina Mullin) and mthawley (Shelly Thawley). Repository Administrators will review code contributions from external collaborators and integrate code commits into source code. This is done to ensure code stability and consistency and prevent degradation of code performance. After review, the admin will either accept the submission, recommend specific improvements to the submission, or in some cases reject the submission. To avoid issues, developers contributing code should contact the repository admins (Cristina or) early in the development process and maintain contact throughout to help ensure the submission is compatible with the code base and is a robust addition.
 
 ## More Information
 
@@ -46,4 +46,8 @@ The EPA specific implementation of OMB Mandate M-16-21 is addressed in the [Syst
 
 ## License
 
-All contributions to this project will be released under the MIT + CCO file license dedication. By submitting a pull request or issue, you are agreeing to comply with this waiver of copyright interest.
+All contributions to this project will be released under the CCO-1.0 license file dedication. By submitting a pull request or issue, you are agreeing to comply with this waiver of copyright interest.
+
+## Disclaimer
+
+This United States Environmental Protection Agency (EPA) GitHub project code is provided on an "as is" basis and the user assumes responsibility for its use. EPA has relinquished control of the information and no longer has responsibility to protect the integrity, confidentiality, or availability of the information. Any reference to specific commercial products, processes, or services by service mark, trademark, manufacturer, or otherwise, does not constitute or imply their endorsement, recommendation or favoring by EPA. The EPA seal and logo shall not be used in any manner to imply endorsement of any commercial product or activity by EPA or the United States Government.
