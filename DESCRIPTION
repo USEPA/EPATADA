@@ -2,7 +2,7 @@ Package: TADA
 Type: Package
 Title: Tools for Automated Data Assessment (TADA) R Package
 Version: 0.0.1
-Author: U.S. Environmental Protection Agency
+Author: Environmental Protection Agency
 Maintainer: Cristina Mullin <mullin.cristina@epa.gov>
 Description: Assists data partners in performing automated assessments with
     data from the Water Quality Portal.
