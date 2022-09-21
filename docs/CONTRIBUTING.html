@@ -25,6 +25,7 @@
   <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown" role="button" aria-expanded="false" aria-haspopup="true" id="dropdown-articles">Articles</a>
   <div class="dropdown-menu" aria-labelledby="dropdown-articles">
     <a class="dropdown-item" href="articles/WQPDataHarmonization.html">WQP Data Harmonization</a>
+    <a class="dropdown-item" href="articles/WQPDataVisualization.html">WQP Data Visualization</a>
   </div>
 </li>
       </ul><form class="form-inline my-2 my-lg-0" role="search">
@@ -48,46 +49,66 @@
     </div>
 
 
-<div class="section level2">
-<h2 id="contribute-to-tada">Contribute to TADA!<a class="anchor" aria-label="anchor" href="#contribute-to-tada"></a></h2>
 <p>We encourage you to read this project’s <a href="https://github.com/USEPA/TADA/blob/develop/CONTRIBUTING.md" class="external-link">CONTRIBUTING</a> policy (you are here), its <a href="https://github.com/USEPA/TADA/blob/develop/LICENSE.md" class="external-link">LICENSE</a>, and its <a href="https://github.com/USEPA/TADA/blob/develop/readme.md" class="external-link">README</a>.</p>
 <p>We’re so glad you’re thinking about contributing to an EPA open source project! If you’re unsure about anything, just ask — or submit your issue or pull request anyway. The worst that can happen is we’ll politely ask you to change something. We appreciate all friendly contributions.</p>
 <p>No matter who you are, if you spot an error, omission, or bug, you’re welcome to open an issue in this repo!</p>
+<div class="section level2">
+<h2 id="package-development">Package Development<a class="anchor" aria-label="anchor" href="#package-development"></a></h2>
+<p>This article will walk through how to contribute to the TADA package. It will use a git-forking workflow, but it is not a full git tutorial. This is also not a complete guide to R package development (a comprehensive guide is <a href="https://r-pkgs.org/" class="external-link">R Packages</a>), instead this is meant as more of a checklist for the general steps. Several references are included at the bottom for more information on <a href="https://r-pkgs.org/" class="external-link">R-package</a> development and <a href="https://happygitwithr.com/" class="external-link">git</a> workflows.</p>
 </div>
 <div class="section level2">
 <h2 id="what-is-github">What is GitHub?<a class="anchor" aria-label="anchor" href="#what-is-github"></a></h2>
 <p>GitHub is a third-party website that offers version-controlled repositories that developers and scientists can use to collaborate on projects (e.g., software, text, manuscripts, etc.) in real-time. GitHub also provides social networking features that allow developers to follow open-source projects, share code and learn how code changes are made throughout the development process. GitHub is so named because it utilizes the open-source version control system (VCS) known as Git.</p>
-<ul><li><p><a href="https://help.github.com/articles/set-up-git/" class="external-link">Set Up Git</a></p></li>
+<ul><li><p><a href="https://help.github.com/articles/set-up-git/" class="external-link">Setting Up Git</a></p></li>
 <li><p><a href="http://git-scm.com/book/ch1-3.html" class="external-link">Git Basics</a></p></li>
+<li><p><a href="https://happygitwithr.com/" title="Great and comprehensive guide for Git with an R flair" class="external-link">Comprehensive Guide: Happy Git and GitHub for the useR</a></p></li>
 </ul></div>
+<div class="section level2">
+<h2 id="required-installations">Required Installations<a class="anchor" aria-label="anchor" href="#required-installations"></a></h2>
+<p>There are several programs that are needed before any work can begin. With admin access to your computer, you can install all of these, otherwise create a ticket with your IT group with the following requests. The links provided assume a Windows computer. Adjustments might be needed for Mac or Linux OS:</p>
+<ul><li><p><a href="https://cran.r-project.org/bin/windows/base/" class="external-link">R</a></p></li>
+<li><p><a href="https://www.rstudio.com/products/rstudio/download/" class="external-link">RStudio</a></p></li>
+<li><p><a href="https://cran.r-project.org/bin/windows/Rtools/" class="external-link">Rtools</a></p></li>
+<li><p><a href="https://git-scm.com/downloads" class="external-link">Git</a></p></li>
+</ul><p>Once those have been installed, the following R packages will be needed for R-package development work:</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode R"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">install.packages</span>(<span class="fu">c</span>(<span class="st">"devtools"</span>, <span class="st">"rmarkdown"</span>))</span></code></pre></div>
+</div>
 <div class="section level2">
 <h2 id="issues">Issues<a class="anchor" aria-label="anchor" href="#issues"></a></h2>
 <ul><li>If you see an error or have feedback, the best way to let us know is to file an issue.</li>
+<li>Issues are labeled to help indicate what they are about. For example, we are using “Good First Issue” to indicate issues that be be good first pickings for your first contribution to this open-source project.</li>
+<li>Pull requests can be directly linked to a specific issue. If linked, the Repository Administrators can more easily review the pull request and issue at the same time once a contributor submits the pull request. The issue can then be closed once the pull request is merged.</li>
 </ul></div>
 <div class="section level2">
 <h2 id="branches">Branches<a class="anchor" aria-label="anchor" href="#branches"></a></h2>
-<ul><li>To contribute a specific change or new code, outside contributors can create a new branch or fork this repo from the <strong>develop</strong> branch, then create a pull request for us to review.</li>
-</ul><p>All new development currently happens in the <strong>develop</strong> branch. To contribute a specific change or new code, outside contributors can create a new branch or fork this repo from the <strong>develop</strong> branch, then create a pull request for us to review.</p>
-<p>Each contributor should work in a new, separate branch for each task. When the task is complete, the contributor can create a pull request for changes to be merged. We will review the contribution and delete the branch once the merge is complete. GitHub best practice is to not reuse branches after merge is requested via a pull request.</p>
-<p>Complete the pull request by detailing all fixes and contributions, and tagging TADA repo admins who should review the work. For this package, please tag cristinamullin (Cristina Mullin) and mthawley (Shelly Thawley).</p>
-<p>Repository Administrators will review code contributions from external collaborators and integrate code commits into source code. This is done to ensure code stability and consistency and prevent degradation of code performance. After review, the admin will either accept the submission, recommend specific improvements to the submission, or in some cases reject the submission. To avoid issues, developers contributing code should contact the repository admins (Cristina or) early in the development process and maintain contact throughout to help ensure the submission is compatible with the code base and is a robust addition.</p>
+<p>All new development currently happens in the <strong>develop</strong> branch.</p>
+<p>To contribute a specific change or new code, outside contributors can fork this repo from the <strong>develop</strong> branch. Contributors should work from their personal fork and on one specific “task” at a time. When complete, they should submit a pull request to request their changes be merged into the TADA develop branch. Contributors should submit a separate pull request for each “task”.</p>
+<p>“Tasks” should be small in scope. For example, they may pertain to a bug fix or update relevant to a single function. A single “task” may also encompass the same changes made across many functions if needed. Another example of a single “task” could be to make changes to all documentation to improve clarity, for example. Furthermore, a task may include developing a new function, or a series of related functions. In some cases, tasks can also be synonymous with issues, and the pull requests can be directly linked to a specific issue (in that case, the Repository Administrators will review the pull request and issue at the same time and the issue can be closed once the pull request is merged).</p>
+<p>Complete the pull request by detailing all fixes and contributions, and tagging TADA repo admins who should review the work. For this package, please tag cristinamullin (Cristina Mullin) and mthawley (Shelly Thawley). Repository Administrators will review code contributions from external collaborators and integrate code commits into source code. This is done to ensure code stability and consistency and prevent degradation of code performance. After review, the admin will either accept the submission, recommend specific improvements to the submission, or in some cases reject the submission. To avoid issues, developers contributing code should contact the repository admins (Cristina or) early in the development process and maintain contact throughout to help ensure the submission is compatible with the code base and is a robust addition.</p>
 </div>
 <div class="section level2">
-<h2 id="more-information">More Information<a class="anchor" aria-label="anchor" href="#more-information"></a></h2>
+<h2 id="additional-references">Additional References<a class="anchor" aria-label="anchor" href="#additional-references"></a></h2>
+<ul><li><p><a href="https://r-pkgs.org/" class="external-link">R Packages</a></p></li>
+<li><p><a href="https://testthat.r-lib.org/" class="external-link">testthat</a></p></li>
+<li><p><a href="https://r4ds.had.co.nz/r-markdown.html" class="external-link">R markdown</a></p></li>
+</ul></div>
+<div class="section level2">
+<h2 id="open-source-code-policy">Open-Source Code Policy<a class="anchor" aria-label="anchor" href="#open-source-code-policy"></a></h2>
+<p>Effective August 8, 2016, the <a href="https://sourcecode.cio.gov/" class="external-link">OMB Mandate: M-16-21; Federal Source Code Policy: Achieving Efficiency, Transparency, and Innovation through Reusable and Open Source Software</a> applies to new custom-developed code created or procured by EPA consistent with the scope and applicability requirements of Office of Management and Budget’s (OMB’s) Federal Source Code Policy. In general, it states that all new custom-developed code by Federal Agencies should be made available and reusable as open-source code.</p>
+<p>The EPA specific implementation of OMB Mandate M-16-21 is addressed in the <a href="https://www.epa.gov/irmpoli8/policy-procedures-and-guidance-system-life-cycle-management-slcm" class="external-link">System Life Cycle Management Procedure</a>. EPA has chosen to use GitHub as its version control system as well as its inventory of open-source code projects. EPA uses GitHub to inventory its custom-developed, open-source code and generate the necessary metadata file that is then posted to code.gov for broad reuse in compliance with OMB Mandate M-16-21.</p>
 <p>If you have any questions or want to read more, check out the <a href="https://github.com/USEPA/open-source-projects" class="external-link">EPA Open Source Project Repo</a> and <a href="https://developer.epa.gov/guide/open-source-code/" class="external-link">EPA’s Interim Open Source Code Guidance</a>.</p>
+</div>
+<div class="section level2">
+<h2 id="license">License<a class="anchor" aria-label="anchor" href="#license"></a></h2>
+<p>All contributions to this project will be released under the CCO-1.0 license file dedication. By submitting a pull request or issue, you are agreeing to comply with this waiver of copyright interest.</p>
+</div>
+<div class="section level2">
+<h2 id="disclaimer">Disclaimer<a class="anchor" aria-label="anchor" href="#disclaimer"></a></h2>
+<p>This United States Environmental Protection Agency (EPA) GitHub project code is provided on an “as is” basis and the user assumes responsibility for its use. EPA has relinquished control of the information and no longer has responsibility to protect the integrity, confidentiality, or availability of the information. Any reference to specific commercial products, processes, or services by service mark, trademark, manufacturer, or otherwise, does not constitute or imply their endorsement, recommendation or favoring by EPA. The EPA seal and logo shall not be used in any manner to imply endorsement of any commercial product or activity by EPA or the United States Government.</p>
 </div>
 <div class="section level2">
 <h2 id="contact">Contact<a class="anchor" aria-label="anchor" href="#contact"></a></h2>
 <p>If you have any questions, please reach out to Cristina Mullin (mullin.cristina@epa.gov).</p>
-</div>
-<div class="section level2">
-<h2 id="open-source-code-policy--">Open-Source Code Policy  <a class="anchor" aria-label="anchor" href="#open-source-code-policy--"></a></h2>
-<p>Effective August 8, 2016, the <a href="https://sourcecode.cio.gov/" class="external-link">OMB Mandate: M-16-21; Federal Source Code Policy: Achieving Efficiency, Transparency, and Innovation through Reusable and Open Source Software</a> applies to new custom-developed code created or procured by EPA consistent with the scope and applicability requirements of Office of Management and Budget’s (OMB’s) Federal Source Code Policy. In general, it states that all new custom-developed code by Federal Agencies should be made available and reusable as open-source code.</p>
-<p>The EPA specific implementation of OMB Mandate M-16-21 is addressed in the <a href="https://www.epa.gov/irmpoli8/policy-procedures-and-guidance-system-life-cycle-management-slcm" class="external-link">System Life Cycle Management Procedure</a>. EPA has chosen to use GitHub as its version control system as well as its inventory of open-source code projects. EPA uses GitHub to inventory its custom-developed, open-source code and generate the necessary metadata file that is then posted to code.gov for broad reuse in compliance with OMB Mandate M-16-21.</p>
-</div>
-<div class="section level2">
-<h2 id="license">License<a class="anchor" aria-label="anchor" href="#license"></a></h2>
-<p>All contributions to this project will be released under the MIT + CCO file license dedication. By submitting a pull request or issue, you are agreeing to comply with this waiver of copyright interest.</p>
 </div>
 
 
@@ -96,7 +117,7 @@
 
 
     <footer><div class="pkgdown-footer-left">
-  <p></p><p>Developed by Cristina Mullin.</p>
+  <p></p><p>Developed by Cristina Mullin, Jacob Greif.</p>
 </div>
 
 <div class="pkgdown-footer-right">
