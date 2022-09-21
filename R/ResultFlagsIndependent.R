@@ -129,7 +129,7 @@ AggregatedContinuousData <- function(.data, clean = TRUE) {
 
   # check that .data object is compatible with TADA
   # check .data is of class data.frame
-  if (("data.frame" %in% class(.data)) == FALSE) {
+  if (!is.data.frame(.data)) {
     stop("Input object must be of class 'data.frame'")
   }
   # check .data has required columns
@@ -209,7 +209,7 @@ PotentialDuplicateRowID <- function(.data, clean = TRUE) {
 
   # check that .data object is compatible with TADA
   # check .data is of class data.frame
-  if (("data.frame" %in% class(.data)) == FALSE) {
+  if (!is.data.frame(.data)) {
     stop("Input object must be of class 'data.frame'")
   }
   # check .data has required columns
@@ -318,7 +318,7 @@ AboveNationalWQXUpperThreshold <- function(.data, clean = TRUE) {
 
   # check that .data object is compatible with TADA
   # check .data is of class data.frame
-  if (("data.frame" %in% class(.data)) == FALSE) {
+  if (!is.data.frame(.data)) {
     stop("Input object must be of class 'data.frame'")
   }
   # check .data has required columns
@@ -331,7 +331,7 @@ AboveNationalWQXUpperThreshold <- function(.data, clean = TRUE) {
 
 
   # check ResultMeasureValue column is of class numeric
-  if (class(.data$ResultMeasureValue) != "numeric") {
+  if (!is.numeric(.data$ResultMeasureValue)) {
     stop("The ResultMeasureValue column must of class 'numeric'.")
   }
 
@@ -364,7 +364,7 @@ AboveNationalWQXUpperThreshold <- function(.data, clean = TRUE) {
     )
 
     # If ResultMeasureValue is not numeric, run WQXTargetUnits function to convert class to numeric
-    if (is.numeric(check.data$ResultMeasureValue) == FALSE) {
+    if (!is.numeric(check.data$ResultMeasureValue)) {
       check.data <- WQXTargetUnits(check.data, transform = TRUE)
     }
 
@@ -432,7 +432,7 @@ BelowNationalWQXUpperThreshold <- function(.data, clean = TRUE) {
 
   # check that .data object is compatible with TADA
   # check .data is of class data.frame
-  if (("data.frame" %in% class(.data)) == FALSE) {
+  if (!is.data.frame(.data)) {
     stop("Input object must be of class 'data.frame'")
   }
   # check .data has required columns
@@ -445,7 +445,7 @@ BelowNationalWQXUpperThreshold <- function(.data, clean = TRUE) {
 
 
   # check ResultMeasureValue column is of class numeric
-  if (class(.data$ResultMeasureValue) != "numeric") {
+  if (!is.numeric(.data$ResultMeasureValue)) {
     stop("The ResultMeasureValue column must be of class 'numeric'.")
   }
 
@@ -478,7 +478,7 @@ BelowNationalWQXUpperThreshold <- function(.data, clean = TRUE) {
     )
 
     # If ResultMeasureValue is not numeric, run WQXTargetUnits function to convert class to numeric
-    if (is.numeric(check.data$ResultMeasureValue) == FALSE) {
+    if (!is.numeric(check.data$ResultMeasureValue)) {
       check.data <- WQXTargetUnits(check.data, transform = TRUE)
     }
 
@@ -560,7 +560,7 @@ BelowNationalWQXUpperThreshold <- function(.data, clean = TRUE) {
 QAPPapproved <- function(.data, clean = TRUE, cleanNA = FALSE) {
   # check that .data object is compatible with TADA
   # check .data is of class data.frame
-  if (("data.frame" %in% class(.data)) == FALSE) {
+  if (!is.data.frame(.data)) {
     stop("Input object must be of class 'data.frame'")
   }
   # check .data has required columns
@@ -616,7 +616,7 @@ QAPPDocAvailable <- function(.data, clean = FALSE) {
 
   # check that .data object is compatible with TADA
   # check .data is of class data.frame
-  if (("data.frame" %in% class(.data)) == FALSE) {
+  if (!is.data.frame(.data)) {
     stop("Input object must be of class 'data.frame'")
   }
   # check .data has required columns

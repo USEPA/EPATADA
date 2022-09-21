@@ -47,3 +47,10 @@ choose VA and IL, it’s an OR. But the combo of fields are ANDs.
 Such as State/VA AND Characteristic/DO".
 "Characteristic" and "Characteristic Group" also work as an AND.
 }
+\examples{
+\donttest{
+tada1 <- TADAdataRetrieval(statecode = "WI",
+                           countycode = "Dane",
+                           characteristicName = "Phosphorus")
+}
+}

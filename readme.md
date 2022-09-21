@@ -1,5 +1,7 @@
 # Welcome to TADA!
 
+[![R-CMD-check](https://github.com/USEPA/TADA/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/USEPA/TADA/actions/workflows/R-CMD-check.yaml)
+
 We encourage you to read this project's [CONTRIBUTING](https://github.com/USEPA/TADA/blob/develop/CONTRIBUTING.md) policy, its [LICENSE](https://github.com/USEPA/TADA/blob/develop/LICENSE.md), and its [README](https://github.com/USEPA/TADA/blob/develop/readme.md) (you are here).
 
 TADA is a draft R package being developed to help States, Tribes, Tribal Nations, Pueblos, and other stakeholders compile and evaluate Water Quality Portal (WQP) data collected from surface water monitoring sites on streams and lakes more efficiently. TADA is also being used as building block to support development of the TADA R Shiny application.

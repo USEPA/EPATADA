@@ -83,7 +83,7 @@ WQXTargetUnits <- function(.data, transform = TRUE) {
     colnames(.data)) == TRUE) {
 
     # if class(ResultMeasureValue) != numeric, run special char function
-    if (class(.data$ResultMeasureValue) != "numeric") {
+    if (!is.numeric(.data$ResultMeasureValue)) {
       .data <- MeasureValueSpecialCharacters(.data)
     }
 
@@ -392,7 +392,7 @@ HarmonizeData <- function(.data, ref, transform = TRUE, flag = TRUE) {
   ) %in% colnames(.data)) == TRUE) {
 
     # if class(ResultMeasureValue) != numeric, run special char function
-    if (class(.data$ResultMeasureValue) != "numeric") {
+    if (!is.numeric(.data$ResultMeasureValue) ) {
       .data <- MeasureValueSpecialCharacters(.data)
     }
 
@@ -403,7 +403,7 @@ HarmonizeData <- function(.data, ref, transform = TRUE, flag = TRUE) {
     }
     # if input for ref does not exist, use raw harmonization template
     if (missing(ref)) {
-      harm.ref <- read.csv(system.file("extdata", "HarmonizationTemplate.csv",
+      harm.ref <- utils::read.csv(system.file("extdata", "HarmonizationTemplate.csv",
         package = "TADA"
       ))
       # remove extraneous characters in first column
@@ -647,7 +647,7 @@ HarmonizationRefTable <- function(.data, download = FALSE) {
   colnames(.data)) == TRUE) {
     
     # define raw harmonization table as an object
-    harm.raw <- read.csv(system.file("extdata", "HarmonizationTemplate.csv",
+    harm.raw <- utils::read.csv(system.file("extdata", "HarmonizationTemplate.csv",
                                      package = "TADA"
     ))
     

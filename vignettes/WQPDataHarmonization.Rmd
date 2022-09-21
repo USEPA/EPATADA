@@ -49,8 +49,8 @@ library(tidyverse)
 library(lubridate)
 library(dplyr)
 
-remotes::install_github("USGS-R/dataRetrieval", dependencies=TRUE)
-remotes::install_github("USEPA/TADA", dependencies=TRUE)
+# remotes::install_github("USGS-R/dataRetrieval", dependencies=TRUE)
+# remotes::install_github("USEPA/TADA", dependencies=TRUE)
 library(dataRetrieval)
 library(TADA)
 
@@ -85,7 +85,7 @@ CharacteristicName
 ActivityMediaName
 endDate
 
-Tip 1) All the query filters for the WQP work as an AND but within the fields there are ORs. So for example, characteristics – if you choose pH & DO – it’s an OR. Similarly, if you choose VA and IL, it’s an OR. But the combo of fields are ANDs, such as State/VA AND Characteristic/DO". "Characteristic" and "Characteristic Type" on the WQP also work as an AND.
+Tip 1) All the query filters for the WQP work as an AND but within the fields there are ORs. So for example, characteristics - if you choose pH & DO - it's an OR. Similarly, if you choose VA and IL, it's an OR. But the combo of fields are ANDs, such as State/VA AND Characteristic/DO". "Characteristic" and "Characteristic Type" on the WQP also work as an AND.
 Tip 2) The "siteid" is a general term WQP uses to describe both Site IDs from USGS databases and Monitoring Location Identifiers (from the Water Quality Portal). Each monitoring location in the Water Quality Portal (WQP) has a unique Monitoring Location Identifier, regardless of the database from which it derives. The Monitoring Location Identifier from the WQP is the concatenated Organization Identifier plus the Site ID number. Site IDs that only include a number are only unique identifiers for monitoring locations within USGS NWIS or EPA's WQX databases separately.
 
 ```{r}

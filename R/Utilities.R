@@ -29,14 +29,14 @@ AutoFilter <- function(.data, clean = TRUE) {
   if (TADAprofileCheck(.data) == TRUE) {
     if (clean == TRUE) {
       # Remove all data where media name does NOT equal WATER (ignore punctuation)
-      cleandata <- dplyr::filter(data, ActivityMediaName == "Water")
+      cleandata <- dplyr::filter(.data, ActivityMediaName == "Water")
 
       return(cleandata)
     }
 
     if (clean == FALSE) {
       # NEED TO EDIT TO ADD FLAGS, currently removes other water Water
-      flagdata <- dplyr::filter(data, ActivityMediaName == "water")
+      flagdata <- dplyr::filter(.data, ActivityMediaName == "water")
 
       return(flagdata)
     } else {
@@ -60,7 +60,7 @@ AutoFilter <- function(.data, clean = TRUE) {
 RemoveEmptyColumns <- function(.data) {
   # Remove columns with only NAs
   .data %>%
-    select(where(~ !all(is.na(.x))))
+    dplyr::select(where(~ !all(is.na(.x))))
 }
 
 #' decimalplaces
@@ -96,3 +96,20 @@ decimalnumcount <- function(x) {
   x <- gsub("(.*)(\\.)|(*$)", "", x)
   nchar(x)
 }
+
+
+# to get rid of global variable NOTE in check:
+utils::globalVariables(c("AboveWQXUpperThreshold", "ActivityIdentifier",  "ActivityMediaName",
+                         "ActivityStartDate", "BelowWQXUpperThreshold", "CharacteristicName",
+                         "Conversion.Factor", "Count", "Description", "FieldName", "FieldValue",
+                         "MethodSpecificationName", "MonitoringLocationIdentifier",
+                         "OrganizationFormalName", "OrganizationIdentifier", "ProjectDescriptionText",
+                         "ProjectFileUrl", "ProjectIdentifier",
+                         "ProjectMonitoringLocationWeightingUrl", "ProjectName",
+                         "QAPPApprovalAgencyName", "QAPPApprovedIndicator",
+                         "ResultDetectionConditionText", "ResultMeasureValue",
+                         "SamplingDesignTypeCode", "Source", "Status", "TADA.AggregatedContinuousData",
+                         "TADA.InvalidCoordinates", "TADA.PotentialDupRowID", "TADA.QAPPDocAvailable",
+                         "Target.Unit", "Type", "Value.Unit", "WQX.AnalyticalMethodValidity",
+                         "WQX.MethodSpeciationValidity", "WQX.ResultUnitValidity",
+                         "WQX.SampleFractionValidity", "YearSummarized", "where"))
