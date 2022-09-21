@@ -1,6 +1,27 @@
 ---
-title: "Contribute to TADA!"
+title: "Contributing"
+date: "`r Sys.Date()`"
+output: 
+  rmarkdown::html_vignette:
+    toc: true
+    number_sections: false
+vignette: >
+  %\VignetteIndexEntry{Contributing}
+  \usepackage[utf8]{inputenc}
+  %\VignetteEngine{knitr::rmarkdown}
+editor_options: 
+  chunk_output_type: console
 ---
+
+```{r setup, include=FALSE}
+library(knitr)
+
+knitr::opts_chunk$set(echo = TRUE,
+               warning = FALSE,
+               message = FALSE)
+```
+
+## Contribute to TADA!
 
 We encourage you to read this project's [CONTRIBUTING](https://github.com/USEPA/TADA/blob/develop/CONTRIBUTING.md) policy (you are here), its [LICENSE](https://github.com/USEPA/TADA/blob/develop/LICENSE.md), and its [README](https://github.com/USEPA/TADA/blob/develop/readme.md).
 
@@ -36,7 +57,9 @@ There are several programs that are needed before any work can begin. With admin
 
 Once those have been installed, the following R packages will be needed for R-package development work:
 
-    install.packages(c("devtools", "rmarkdown"))
+```{r eval=FALSE}
+install.packages(c("devtools", "rmarkdown"))
+```
 
 ## Issues
 

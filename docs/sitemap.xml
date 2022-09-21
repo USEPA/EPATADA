@@ -4,10 +4,16 @@
     <loc>usepa.github.io/tada/404.html</loc>
   </url>
   <url>
+    <loc>usepa.github.io/tada/articles/CONTRIBUTING.html</loc>
+  </url>
+  <url>
     <loc>usepa.github.io/tada/articles/index.html</loc>
   </url>
   <url>
     <loc>usepa.github.io/tada/articles/WQPDataHarmonization.html</loc>
+  </url>
+  <url>
+    <loc>usepa.github.io/tada/articles/WQPDataVisualization.html</loc>
   </url>
   <url>
     <loc>usepa.github.io/tada/authors.html</loc>
@@ -64,6 +70,9 @@
     <loc>usepa.github.io/tada/reference/FilterParList.html</loc>
   </url>
   <url>
+    <loc>usepa.github.io/tada/reference/GenerateCensoredDataStats.html</loc>
+  </url>
+  <url>
     <loc>usepa.github.io/tada/reference/HarmonizationRefTable.html</loc>
   </url>
   <url>
@@ -116,6 +125,9 @@
   </url>
   <url>
     <loc>usepa.github.io/tada/reference/TADAprofileCheck.html</loc>
+  </url>
+  <url>
+    <loc>usepa.github.io/tada/reference/TransformCensoredData.html</loc>
   </url>
   <url>
     <loc>usepa.github.io/tada/reference/UpdateInternalData.html</loc>
