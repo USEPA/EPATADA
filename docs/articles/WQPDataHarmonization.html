@@ -71,10 +71,10 @@
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
       <img src="" class="logo" alt=""><h1>WQP Data Harmonization</h1>
-                        <h4 data-toc-skip class="author">Cristina
+                        <h4 data-toc-skip class="author">Cristina A.
 Mullin</h4>
             
-            <h4 data-toc-skip class="date">2022-09-21</h4>
+            <h4 data-toc-skip class="date">2022-09-22</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/USEPA/TADA/blob/HEAD/vignettes/WQPDataHarmonization.Rmd" class="external-link"><code>vignettes/WQPDataHarmonization.Rmd</code></a></small>
       <div class="d-none name"><code>WQPDataHarmonization.Rmd</code></div>
@@ -83,15 +83,26 @@ Mullin</h4>
     
     
 <div class="section level2">
+<h2 id="overview">Overview<a class="anchor" aria-label="anchor" href="#overview"></a>
+</h2>
+<p>In this vignette, we will walk through how to discover, wrangle, and
+harmonize <a href="https://www.waterqualitydata.us/" class="external-link">Water Quality
+Portal (WQP)</a> data from multiple organizations.</p>
+</div>
+<div class="section level2">
 <h2 id="install-and-load-packages">Install and load packages<a class="anchor" aria-label="anchor" href="#install-and-load-packages"></a>
 </h2>
 <p>Install and load dependency packages. Current versions of TADA and
-dataRetrieval can be installed from GitHub instead of CRAN.</p>
+dataRetrieval can be installed from GitHub instead of CRAN if
+needed.</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">list.of.packages</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"plyr"</span>,<span class="st">"dplyr"</span>,<span class="st">"ggplot2"</span>,<span class="st">"RColorBrewer"</span>,<span class="st">"Rcpp"</span>,<span class="st">"devtools"</span>,</span>
-<span>          <span class="st">"data.table"</span>,<span class="st">"grDevices"</span>,<span class="st">"magrittr"</span>,<span class="st">"stringr"</span>,<span class="st">"testthat"</span>,<span class="st">"usethis"</span>,<span class="st">"utils"</span>,<span class="st">"stats"</span>,<span class="st">"rmarkdown"</span>,<span class="st">"knitr"</span>,<span class="st">"remotes"</span>, <span class="st">"tidyverse"</span>, <span class="st">"lubridate"</span>, <span class="st">"dplyr"</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="va">list.of.packages</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"plyr"</span>,<span class="st">"dplyr"</span>,<span class="st">"ggplot2"</span>,<span class="st">"RColorBrewer"</span>,<span class="st">"Rcpp"</span>,<span class="st">"devtools"</span>, <span class="st">"data.table"</span>,<span class="st">"grDevices"</span>,<span class="st">"magrittr"</span>,<span class="st">"stringr"</span>,<span class="st">"testthat"</span>,<span class="st">"usethis"</span>,<span class="st">"utils"</span>,<span class="st">"stats"</span>,<span class="st">"rmarkdown"</span>,<span class="st">"knitr"</span>,<span class="st">"remotes"</span>, <span class="st">"tidyverse"</span>, <span class="st">"lubridate"</span>, <span class="st">"dplyr"</span>, <span class="st">"dataRetrieval"</span><span class="op">)</span></span>
 <span><span class="va">new.packages</span> <span class="op">&lt;-</span> <span class="va">list.of.packages</span><span class="op">[</span><span class="op">!</span><span class="op">(</span><span class="va">list.of.packages</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="fu"><a href="https://rdrr.io/r/utils/installed.packages.html" class="external-link">installed.packages</a></span><span class="op">(</span><span class="op">)</span><span class="op">[</span>,<span class="st">"Package"</span><span class="op">]</span><span class="op">)</span><span class="op">]</span></span>
 <span><span class="kw">if</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">new.packages</span><span class="op">)</span><span class="op">)</span> <span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="va">new.packages</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># If needed, you can install TADA and dataRetrieval from GitHub directly using the following:</span></span>
+<span><span class="co"># remotes::install_github("USGS-R/dataRetrieval", dependencies=TRUE)</span></span>
+<span><span class="co"># remotes::install_github("USEPA/TADA", dependencies=TRUE)</span></span>
 <span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://remotes.r-lib.org" class="external-link">remotes</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://dplyr.tidyverse.org" class="external-link">dplyr</a></span><span class="op">)</span></span>
@@ -113,9 +124,6 @@ dataRetrieval can be installed from GitHub instead of CRAN.</p>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://tidyverse.tidyverse.org" class="external-link">tidyverse</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://lubridate.tidyverse.org" class="external-link">lubridate</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://dplyr.tidyverse.org" class="external-link">dplyr</a></span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># remotes::install_github("USGS-R/dataRetrieval", dependencies=TRUE)</span></span>
-<span><span class="co"># remotes::install_github("USEPA/TADA", dependencies=TRUE)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://pubs.usgs.gov/tm/04/a10/" class="external-link">dataRetrieval</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://usepa.github.io/TADA/" class="external-link">TADA</a></span><span class="op">)</span></span></code></pre></div>
 </div>
@@ -131,32 +139,32 @@ data for all non-water media types, and cleans results with special
 characters.</p>
 <p>This function uses the same inputs as the dataRetrieval
 <code>readWQPdata</code> function. <code>readWQPdata</code> does not
-restrict the characteristics pulled from WQP. You may specify the
-desired characteristics by using, for instance: ’characteristicName =
-“pH”.</p>
-<p>More details about this function can be found in the function
-documentation by entering the following code into the console:
-?TADAdataRetrieval</p>
-<p>Here is more information on the dataRetrieval R Package: <a href="https://cran.r-project.org/web/packages/dataRetrieval/vignettes/dataRetrieval.html" class="external-link">Introduction
-to the dataRetrieval package</a> <a href="https://rdrr.io/cran/dataRetrieval/man/readWQPdata.html" class="external-link">General
-Data Import from Water Quality Portal</a> <a href="https://www.waterqualitydata.us/webservices_documentation/" class="external-link">Water
-Quality Portal Web Services Guide</a> [dataRetrieval Tutorial](<a href="https://owi.usgs.gov/R/dataRetrieval.html" class="external-link uri">https://owi.usgs.gov/R/dataRetrieval.html</a></p>
+restrict the characteristics pulled from <a href="https://www.waterqualitydata.us/" class="external-link">Water Quality Portal (WQP)</a>.
+You may specify the desired characteristics by using, for instance:
+’characteristicName = “pH”.</p>
+<p>Data retrieval filters include:</p>
+<ul>
+<li><p>statecode</p></li>
+<li><p>endDate</p></li>
+<li><p>startDate</p></li>
+<li><p>countycode</p></li>
+<li><p>siteid</p></li>
+<li><p>siteType</p></li>
+<li><p>CharacteristicName</p></li>
+<li><p>ActivityMediaName</p></li>
+</ul>
 <p>Water Quality Portal downloads have the same columns each time, but
 be aware that data are uploaded to the Water Quality Portal by
 individual organizations, which may or may not follow the same
 conventions. Data and metadata quality are not guaranteed! Make sure to
 carefully explore any data and make conservative quality assurance
 decisions where information is limited.</p>
-<p>In this vignette, we will walk through some of the things to look for
-when deciding to use different organizations data from the WQP.</p>
-<p>Tips on the WQP (<a href="https://www.waterqualitydata.us/" class="external-link uri">https://www.waterqualitydata.us/</a>) data retrieval
-filters:</p>
-<p>statecode startDate countycode siteid siteType CharacteristicName
-ActivityMediaName endDate</p>
-<p>Tip 1) All the query filters for the WQP work as an AND but within
-the fields there are ORs. So for example, characteristics - if you
-choose pH &amp; DO - it’s an OR. Similarly, if you choose VA and IL,
-it’s an OR. But the combo of fields are ANDs, such as State/VA AND
+<p>Tip:</p>
+<ul>
+<li>All the query filters for the WQP work as an AND but within the
+fields there are ORs. So for example, characteristics - if you choose pH
+&amp; DO - it’s an OR. Similarly, if you choose VA and IL, it’s an OR.
+But the combo of fields are ANDs, such as State/VA AND
 Characteristic/DO”. “Characteristic” and “Characteristic Type” on the
 WQP also work as an AND. Tip 2) The “siteid” is a general term WQP uses
 to describe both Site IDs from USGS databases and Monitoring Location
@@ -166,10 +174,23 @@ Identifier, regardless of the database from which it derives. The
 Monitoring Location Identifier from the WQP is the concatenated
 Organization Identifier plus the Site ID number. Site IDs that only
 include a number are only unique identifiers for monitoring locations
-within USGS NWIS or EPA’s WQX databases separately.</p>
+within USGS NWIS or EPA’s WQX databases separately.</li>
+</ul>
+<p>Additional resources:</p>
+<ul>
+<li><p>Review function documentation by entering the following code into
+the console: ?TADAdataRetrieval</p></li>
+<li><p><a href="https://cran.r-project.org/web/packages/dataRetrieval/vignettes/dataRetrieval.html" class="external-link">Introduction
+to the dataRetrieval package</a></p></li>
+<li><p><a href="https://rdrr.io/cran/dataRetrieval/man/readWQPdata.html" class="external-link">General
+Data Import from Water Quality Portal</a></p></li>
+<li><p><a href="https://www.waterqualitydata.us/webservices_documentation/" class="external-link">Water
+Quality Portal Web Services Guide</a></p></li>
+<li><p><a href="https://owi.usgs.gov/R/dataRetrieval.html" class="external-link">dataRetrieval
+Tutorial</a></p></li>
+</ul>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">#You can edit this to define your own WQP query inputs below</span></span>
-<span></span>
 <span><span class="va">TADAProfile</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/TADAdataRetrieval.html">TADAdataRetrieval</a></span><span class="op">(</span>statecode <span class="op">=</span> <span class="st">"UT"</span>, characteristicName <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Ammonia"</span>, <span class="st">"Nitrate"</span>, <span class="st">"Nitrogen"</span><span class="op">)</span>, startDate <span class="op">=</span> <span class="st">"01-01-2021"</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co">#Alternatively, use the data.table::fread function to read in a web service call for any WQP profile. </span></span>
@@ -478,7 +499,7 @@ or other flags which may be described in detail in
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/FilterFieldReview.html">FilterFieldReview</a></span><span class="op">(</span><span class="st">"ActivityTypeCode"</span>, <span class="va">TADAProfileClean13</span><span class="op">)</span></span></code></pre></div>
 <p><img src="WQPDataHarmonization_files/figure-html/unnamed-chunk-14-1.png" width="576"></p>
 <pre><code><span><span class="co">#&gt;                               FieldValue Count</span></span>
-<span><span class="co">#&gt; 5                         Sample-Routine   799</span></span>
+<span><span class="co">#&gt; 5                         Sample-Routine   801</span></span>
 <span><span class="co">#&gt; 3 Quality Control Sample-Field Replicate    50</span></span>
 <span><span class="co">#&gt; 1                          Field Msr/Obs     4</span></span>
 <span><span class="co">#&gt; 2     Quality Control Sample-Field Blank     1</span></span>
@@ -500,7 +521,7 @@ ResultStatusIdentifier field.</p>
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/FilterFieldReview.html">FilterFieldReview</a></span><span class="op">(</span><span class="st">"ActivityMediaSubdivisionName"</span>, <span class="va">TADAProfileClean14</span><span class="op">)</span></span></code></pre></div>
 <p><img src="WQPDataHarmonization_files/figure-html/unnamed-chunk-16-1.png" width="576"></p>
 <pre><code><span><span class="co">#&gt;        FieldValue Count</span></span>
-<span><span class="co">#&gt; 3   Surface Water   677</span></span>
+<span><span class="co">#&gt; 3   Surface Water   679</span></span>
 <span><span class="co">#&gt; 2     Groundwater   106</span></span>
 <span><span class="co">#&gt; 1 Bulk deposition     1</span></span></code></pre>
 <p>The ActivityMediaSubdivisionName field has two unique values,
@@ -521,7 +542,7 @@ displayed to save space on the page)</p>
 <div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/FilterParList.html">FilterParList</a></span><span class="op">(</span><span class="va">TADAProfileClean15</span><span class="op">)</span></span>
 <span><span class="co">#&gt;   FieldValue Count</span></span>
-<span><span class="co">#&gt; 1    NITRATE   639</span></span>
+<span><span class="co">#&gt; 1    NITRATE   641</span></span>
 <span><span class="co">#&gt; 2   NITROGEN    57</span></span></code></pre></div>
 <p>Next, select a parameter. Let’s explore the fields associated with
 Nitrogen:</p>
@@ -617,7 +638,7 @@ a consistent name (and identifier) to synonyms.</p>
 
     <footer><div class="pkgdown-footer-left">
   <p></p>
-<p>Developed by Cristina Mullin, Laura Shumway, Michelle Thawley, Jacob Greif.</p>
+<p>Developed by Cristina Mullin, Jacob Greif, Michelle Thawley, Laura Shumway.</p>
 </div>
 
 <div class="pkgdown-footer-right">
