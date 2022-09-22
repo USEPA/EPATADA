@@ -1,0 +1,16 @@
+citHeader("To cite TADA, please use:")
+
+bibentry(bibtype = "Manual",
+ author = personList(
+              as.person("Cristina A. Mullin"),
+              as.person("Jacob Greif"),
+              as.person("Michelle Thawley"),
+              as.person("Laura Shumway")
+              ),
+  title = "TADA: R Tools for Automated Data Assessment",
+  address="Washington, DC",
+  institution = "U.S. Environmental Protection Agency",
+  year = 2022,
+  url = "https://github.com/USEPA/TADA",
+  textVersion = "Mullin, C.A., Greif, J., Thawley, M., Shumway, L., 2022, TADA: R Tools for Automated Data Assessment, U.S. Environmental Protection Agency, Washington, DC"
+)
