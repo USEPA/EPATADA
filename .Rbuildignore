@@ -6,6 +6,6 @@
 ^\.github$
 LICENSE.md
 readme.md
-CONTRIBUTING.md
+readme.html
 .gitignore
 

@@ -12,12 +12,12 @@ Authors@R:
     person(given = "Jacob",
            family = "Greif",
            role = "aut"),
-    person(given = "Laura",
-           family = "Shumway",
-           role = "ctb"), 
     person(given = "Michelle",
            family = "Thawley",
-           role = "ctb"))
+           role = "aut"),
+    person(given = "Laura",
+           family = "Shumway",
+           role = "aut"))
 Description: Assists data partners in performing automated assessments with
     data from the Water Quality Portal.
 License: CC0
