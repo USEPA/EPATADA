@@ -1,48 +1,44 @@
-#' Update Existing Data in sysdata.rda
-#'
-#' Function is for internal use only. It is used in other internal
-#' functions which are used to update internal data (e.g. reference tables).
-#' This function was adapted from a stackoverflow.com thread, which can be
-#' accessed [here](https://stackoverflow.com/questions/11813096/updating-an-existing-rdata-file).
-#'
-#' @param ... Objects to be updated in sysdata.rda.
-#' @param list Argument indicating the data class of the list.
-#'
-#' @return Updated sysdata.rda file
-#'
 
-UpdateInternalData <- function(..., list = character()) {
+#' Used to store cached WQX QAQC Characteristic Validation Reference Table
 
-  # check object inputs are of class data.frame
-  if ("data.frame" %in% class(...) == FALSE) {
-    stop("Input object must be of class 'data.frame'")
-  }
-  # load existing sysdata.rda
-  sysdata.prev <- load("R/sysdata.rda")
-  # create a list of input objects (objects to update in sysdata)
-  var.names <- c(list, as.character(substitute(list(...)))[-1L])
-  # attribute data to each object in var.names
-  for (var in var.names) assign(var, get(var, envir = parent.frame()))
-  # save new object to sysdata.rda
-  save(list = unique(c(sysdata.prev, var.names), compress = "xz"), file = "R/sysdata.rda")
-}
-
+WQXCharValRef_Cached <- NULL
 
 #' WQX QAQC Characteristic Validation Reference Table
 #'
-#' Function updates the raw Water Quality Exchange (WQX) QAQC Characteristic
-#' Validation reference table, as well as the cleaned reference table
-#' (WQXcharValRef) in the sysdata.rda file. The WQXcharValRef data frame
+#' Function downloads and returns the newest available (cleaned)
+#' raw Water Quality Exchange (WQX) QAQC Characteristic
+#' Validation reference table. The WQXcharValRef data frame
 #' contains information for four functions: InvalidFraction, InvalidResultUnit,
 #' InvalidSpeciation, and UncommonAnalyticalMethodID.
+#'
+#' This function caches the table after it has been called once
+#' so subsequent calls will be faster.
 #'
 #' @return Updated sysdata.rda with updated WQXcharValRef object
 #'
 
-UpdateWQXCharValRef <- function() {
+GetWQXCharValRef <- function() {
 
-  # read raw csv from url
-  raw.data <- utils::read.csv(url("https://cdx.epa.gov/wqx/download/DomainValues/QAQCCharacteristicValidation.CSV"))
+  # If there is a cached table available return it
+  if (!is.null(WQXCharValRef_Cached)) {
+    return(WQXCharValRef_Cached)
+  }
+
+  # Try to download up-to-date raw data
+  raw.data <- tryCatch({
+    # read raw csv from url
+    utils::read.csv(url("https://cdx.epa.gov/wqx/download/DomainValues/QAQCCharacteristicValidation.CSV"))
+  }, error = function(err) {
+    NULL
+  })
+
+  # If the download failed fall back to internal data (and report it)
+  if (is.null(raw.data)) {
+    message('Downloading latest Validation Reference Table failed!')
+    message('Falling back to (possibly outdated) internal file.')
+    return(utils::read.csv(system.file("extdata", "WQXcharValRef.csv", package = "TADA")))
+  }
+  
   # filter data to include only accepted (valid) values and remove extraneous columns
   WQXcharValRef <- raw.data %>%
     dplyr::select(-c(
@@ -56,24 +52,60 @@ UpdateWQXCharValRef <- function() {
     WQXcharValRef["Status"] == "InvalidMediaUnit" |
     WQXcharValRef["Status"] == "InvalidChar" |
     WQXcharValRef["Status"] == "MethodNeeded"] <- "Nonstandardized"
-  # write reference table to inst/extdata
-  # write to sysdata.rda: UpdateInternalData(WQXcharValRef)
-  utils::write.csv(WQXcharValRef, file = "inst/extdata/WQXcharValRef.csv", row.names = FALSE)
+
+  # Save updated table in cache
+  WQXCharValRef_Cached <- WQXcharValRef
+
+  WQXcharValRef
 }
+
+#' Update Characteristic Validation Reference Table internal file 
+#' (for internal use only)
+
+UpdateWQXCharValRef <- function() {
+  utils::write.csv(GetWQXCharValRef(), file = "inst/extdata/WQXcharValRef.csv", row.names = FALSE)
+}
+
+
+#' Used to store cached Measure Unit Reference Table
+
+WQXunitRef_Cached <- NULL
 
 #' Update Measure Unit Reference Table
 #'
-#' Function reads in the latest WQX MeasureUnit Domain table, adds
-#' additional target unit information, and writes the data to sysdata.rda.
+#' Function downloads and returns in the latest WQX MeasureUnit Domain table, 
+#' adds additional target unit information, and writes the data to sysdata.rda.
+#'
+#' This function caches the table after it has been called once
+#' so subsequent calls will be faster.
 #'
 #' @return sysdata.rda with updated WQXunitRef object (unit conversion reference
 #' table)
 #'
 
-UpdateMeasureUnitRef <- function() {
+GetMeasureUnitRef <- function() {
 
-  # read in raw WQX QAQC Characteristic Validation csv
-  WQXunitRef <- utils::read.csv(url("https://cdx.epa.gov/wqx/download/DomainValues/MeasureUnit.CSV"))
+  # If there is a cached table available return it
+  if (!is.null(WQXunitRef_Cached)) {
+    return(WQXunitRef_Cached)
+  }
+
+  # Try to download up-to-date raw data
+  raw.data <- tryCatch({
+    # read raw csv from url
+    utils::read.csv(url("https://cdx.epa.gov/wqx/download/DomainValues/MeasureUnit.CSV"))
+  }, error = function(err) {
+    NULL
+  })
+
+  # If the download failed fall back to internal data (and report it)
+  if (is.null(raw.data)) {
+    message('Downloading latest Measure Unit Reference Table failed!')
+    message('Falling back to (possibly outdated) internal file.')
+    return(utils::read.csv(system.file("extdata", "WQXunitRef.csv", package = "TADA")))
+  }
+
+  WQXunitRef <- raw.data
   # add m and ft as target units for "Length Distance" (Description field) rows
   # target.unit = m
   target.m <- data.frame(
@@ -143,7 +175,14 @@ UpdateMeasureUnitRef <- function() {
   # add data to WQXunitRef
   WQXunitRef <- plyr::rbind.fill(WQXunitRef, target.m, target.ft)
 
-  # write reference table to sysdata.rda
-  # UpdateInternalData(WQXunitRef)
-  utils::write.csv(WQXunitRef, file = "inst/extdata/WQXunitRef.csv", row.names = FALSE)
+  # Save updated table in cache
+  WQXunitRef_Cached <- WQXunitRef
+
+  WQXunitRef
+}
+
+#' Update Measure Unit Reference Table internal file (for internal use only)
+
+UpdateMeasureUnitRef <- function() {
+  utils::write.csv(GetMeasureUnitRef(), file = "inst/extdata/WQXunitRef.csv", row.names = FALSE)
 }

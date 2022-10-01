@@ -43,7 +43,7 @@ InvalidMethod <- function(.data, clean = TRUE) {
       .data <- dplyr::select(.data, -WQX.AnalyticalMethodValidity)
     }
     # read in speciation reference table from sysdata.rda and filter
-    meth.ref <- utils::read.csv(system.file("extdata", "WQXcharValRef.csv", package = "TADA")) %>%
+    meth.ref <- GetWQXCharValRef() %>%
       dplyr::filter(Type == "CharacteristicMethod")
 
     # join "Status" column to .data by CharacteristicName, Source (Media), and Value (unit)
@@ -347,7 +347,7 @@ AboveNationalWQXUpperThreshold <- function(.data, clean = TRUE) {
     }
 
     # filter WQXcharVal.ref to include only valid CharacteristicUnit in water media
-    unit.ref <- utils::read.csv(system.file("extdata", "WQXcharValRef.csv", package = "TADA")) %>%
+    unit.ref <- GetWQXCharValRef() %>%
       dplyr::filter(Type == "CharacteristicUnit" & Source == "WATER" &
         Status == "Valid")
 
@@ -461,7 +461,7 @@ BelowNationalWQXUpperThreshold <- function(.data, clean = TRUE) {
     }
 
     # filter WQXcharVal.ref to include only valid CharacteristicUnit in water media
-    unit.ref <- utils::read.csv(system.file("extdata", "WQXcharValRef.csv", package = "TADA")) %>%
+    unit.ref <- GetWQXCharValRef() %>%
       dplyr::filter(Type == "CharacteristicUnit" & Source == "WATER" &
         Status == "Valid")
 

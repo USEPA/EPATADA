@@ -2,17 +2,12 @@
 % Please edit documentation in R/GenerateRefTables.R
 \name{UpdateWQXCharValRef}
 \alias{UpdateWQXCharValRef}
-\title{WQX QAQC Characteristic Validation Reference Table}
+\title{Update Characteristic Validation Reference Table internal file
+(for internal use only)}
 \usage{
 UpdateWQXCharValRef()
 }
-\value{
-Updated sysdata.rda with updated WQXcharValRef object
-}
 \description{
-Function updates the raw Water Quality Exchange (WQX) QAQC Characteristic
-Validation reference table, as well as the cleaned reference table
-(WQXcharValRef) in the sysdata.rda file. The WQXcharValRef data frame
-contains information for four functions: InvalidFraction, InvalidResultUnit,
-InvalidSpeciation, and UncommonAnalyticalMethodID.
+Update Characteristic Validation Reference Table internal file
+(for internal use only)
 }

@@ -2,15 +2,10 @@
 % Please edit documentation in R/GenerateRefTables.R
 \name{UpdateMeasureUnitRef}
 \alias{UpdateMeasureUnitRef}
-\title{Update Measure Unit Reference Table}
+\title{Update Measure Unit Reference Table internal file (for internal use only)}
 \usage{
 UpdateMeasureUnitRef()
 }
-\value{
-sysdata.rda with updated WQXunitRef object (unit conversion reference
-table)
-}
 \description{
-Function reads in the latest WQX MeasureUnit Domain table, adds
-additional target unit information, and writes the data to sysdata.rda.
+Update Measure Unit Reference Table internal file (for internal use only)
 }
