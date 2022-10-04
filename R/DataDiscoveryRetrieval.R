@@ -24,7 +24,7 @@
 #' @export
 #'
 #' @examples 
-#' \donttest{
+#' {
 #' tada1 <- TADAdataRetrieval(statecode = "WI",
 #'                            countycode = "Dane",
 #'                            characteristicName = "Phosphorus")

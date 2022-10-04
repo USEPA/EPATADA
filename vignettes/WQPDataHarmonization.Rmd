@@ -439,17 +439,20 @@ ResultMeasure.MeasureUnitCode converted to TADA standards or 3) the four
 fields converted with most Harmonization Reference Table columns
 appended. Default is transform = TRUE and flag = TRUE.
 
-Here are some examples of how the HarmonizeData function can be used: 1.
-**ResultSampleFractionText** specifies forms of constituents. In some
-cases, a single **CharacteristicName** will have both "Total" and
+Here are some examples of how the HarmonizeData function can be used:
+
+1\. **ResultSampleFractionText** specifies forms of constituents. In
+some cases, a single **CharacteristicName** will have both "Total" and
 "Dissolved" forms specified, which should not be combined. In these
 cases, each CharacteristicName and ResultSampleFractionText combination
 is given a different identifier. This identifier can be used later on to
 identify comparable data groups for calculating statistics and creating
-figures for each combination. 2. Some variables have different names but
-represent the same constituent (e.g., "Total Kjeldahl nitrogen (Organic
-N & NH3)" and "Kjeldahl nitrogen"). The HarmonizeData function gives a
-consistent name (and identifier) to synonyms.
+figures for each combination.
+
+2\. Some variables have different names but represent the same
+constituent (e.g., "Total Kjeldahl nitrogen (Organic N & NH3)" and
+"Kjeldahl nitrogen"). The HarmonizeData function gives a consistent name
+(and identifier) to synonyms.
 
 ```{r}
 UniqueHarmonizationRef <- HarmonizationRefTable(TADAProfileClean16, download = FALSE)
