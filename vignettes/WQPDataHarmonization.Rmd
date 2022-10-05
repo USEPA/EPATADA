@@ -71,14 +71,14 @@ function, TADAdataRetrieval builds on the USGS dataRetrieval package
 functions. It joins three WQP profiles (i.e., the station, narrow, and
 phys/chem), changes all data in the Characteristic, Speciation,
 Fraction, and Unit fields to uppercase, removes true duplicates, removes
-data for all non-water media types, and cleans results with special
+data for all non-water media types, and cleans up results with special
 characters.
 
 This function uses the same inputs as the dataRetrieval `readWQPdata`
 function. `readWQPdata` does not restrict the characteristics pulled
 from [Water Quality Portal (WQP)](https://www.waterqualitydata.us/). You
 may specify the desired characteristics by using, for instance:
-'characteristicName = "pH".
+characteristicName = "pH".
 
 Data retrieval filters include:
 
@@ -94,7 +94,7 @@ Data retrieval filters include:
 
 -   siteType
 
--   CharacteristicName
+-   characteristicName
 
 -   ActivityMediaName
 
@@ -105,23 +105,35 @@ and metadata quality are not guaranteed! Make sure to carefully explore
 any data and make conservative quality assurance decisions where
 information is limited.
 
-Tip:
+Tips:
 
--   All the query filters for the WQP work as an AND but within the
-    fields there are ORs. So for example, characteristics - if you
-    choose pH & DO - it's an OR. Similarly, if you choose VA and IL,
-    it's an OR. But the combo of fields are ANDs, such as State/VA AND
-    Characteristic/DO". "Characteristic" and "Characteristic Type" on
-    the WQP also work as an AND. Tip 2) The "siteid" is a general term
-    WQP uses to describe both Site IDs from USGS databases and
-    Monitoring Location Identifiers (from the Water Quality Portal).
-    Each monitoring location in the Water Quality Portal (WQP) has a
-    unique Monitoring Location Identifier, regardless of the database
-    from which it derives. The Monitoring Location Identifier from the
-    WQP is the concatenated Organization Identifier plus the Site ID
-    number. Site IDs that only include a number are only unique
-    identifiers for monitoring locations within USGS NWIS or EPA's WQX
-    databases separately.
+1.  All the query filters for the WQP work as an AND but within the
+    fields there are ORs. For example:
+
+    -   Characteristics: If you choose pH & DO - it's an OR. This means
+        you will retrieve both pH OR DO data if available.
+
+    -   States: Similarly, if you choose VA and IL, it's an OR. This
+        means you will retrieve both VA OR IL data if available.
+
+    -   Combinations of fields are ANDs, such as State/VA AND
+        Characteristic/DO". This means you will receive all DO data
+        available in VA.
+
+    -   "Characteristic" and "Characteristic Type" also work as an AND.
+        This means that the Characteristic must fall within the
+        CharacteristicGroup if both filters are being used, if not you
+        will get an error.
+
+2.  The "siteid" is a general term WQP uses to describe both Site IDs
+    from USGS databases and Monitoring Location Identifiers (from the
+    Water Quality Portal). Each monitoring location in the Water Quality
+    Portal (WQP) has a unique Monitoring Location Identifier, regardless
+    of the database from which it derives. The Monitoring Location
+    Identifier from the WQP is the concatenated Organization Identifier
+    plus the Site ID number. Site IDs that only include a number are
+    only unique identifiers for monitoring locations within USGS NWIS or
+    EPA's WQX databases separately.
 
 Additional resources:
 
@@ -192,7 +204,8 @@ TADAProfileClean1 <- DepthProfileData(TADAProfile, unit = "m", transform = TRUE)
 
 Converts all results to WQX target units. WQX target units are pulled
 from the MeasureUnit domain table:
-<https://cdx.epa.gov/wqx/download/DomainValues/MeasureUnit.CSV>
+
+-   <https://cdx.epa.gov/wqx/download/DomainValues/MeasureUnit.CSV>
 
 See additional function documentation for additional function options by
 entering the following code in the console: ?WQXTargetUnits
@@ -204,7 +217,7 @@ TADAProfileClean2 <- WQXTargetUnits(TADAProfileClean1, transform = TRUE)
 
 ## Statistically aggregated data
 
-Checks for and removes statistically aggregated high freqeuncy (i.e.,
+Checks for and removes statistically aggregated high frequency (i.e.,
 continuous) data, if present.
 
 The Water Quality Portal (WQP) is not designed to store high-frequency
@@ -212,14 +225,18 @@ sensor data. However, sometimes data providers choose to aggregate their
 continuous data and submit it to WQP as one value. This type of data may
 not be suitable for integration with discrete water quality data for
 assessments. Therefore, this function uses metadata submitted by data
-providers to flags rows with aggregated continuous data. This is done by
-flagging results where the ResultDetectionConditionText = "Reported in
-Raw Data (attached)". When clean = TRUE, rows with aggregated continuous
-data are removed from the dataset and no column will be appended.
-Default is clean = TRUE.
+providers to flags rows with aggregated continuous data.
 
-See function documentation for additional function options by entering
-the following code in the console: ?DepthProfileData
+-   This is done by flagging results where the
+    ResultDetectionConditionText = "Reported in Raw Data (attached)"
+
+    -   When clean = TRUE, rows with aggregated continuous data are
+        removed from the dataset and no column will be appended
+
+    -   Default is clean = TRUE
+
+-   See function documentation for additional function options by
+    entering the following code in the console: ?DepthProfileData
 
 ```{r}
 TADAProfileClean3 <- AggregatedContinuousData(TADAProfileClean2, clean = TRUE)
@@ -232,8 +249,15 @@ speciation, and unit metadata by characteristic. The default is
 Clean=TRUE, which will remove invalid results. You can change this to
 clean=FALSE to flag results, but not remove them.
 
-See documentation for more details: ?InvalidMethod ?InvalidSpeciation
-?InvalidResultUnit ?InvalidFraction
+See documentation for more details:
+
+-   ?InvalidMethod
+
+-   ?InvalidSpeciation
+
+-   ?InvalidResultUnit
+
+-   ?InvalidFraction
 
 ```{r}
 TADAProfileClean4 <- InvalidMethod(TADAProfileClean3, clean = TRUE)
@@ -246,9 +270,10 @@ TADAProfileClean7 <- InvalidResultUnit(TADAProfileClean6, clean = TRUE)
 
 Run the following code to flag or remove results that are above or below
 the national upper and lower bound for each characteristic and unit
-combination. The default is clean=TRUE, but you can change this to only
-flag results if desired. Results will be flagged, but not removed, when
-clean=FALSE.
+combination.
+
+The default is clean=TRUE, but you can change this to only flag results
+if desired. Results will be flagged, but not removed, when clean=FALSE.
 
 ```{r}
 TADAProfileClean8 <- AboveNationalWQXUpperThreshold(TADAProfileClean7, clean = TRUE)
@@ -262,8 +287,10 @@ Quality Portal (WQP), which can affect water quality analyses and
 assessments. This function checks for and identifies data that is
 identical in all fields excluding organization-specific and comment text
 fields. Each pair or group of potential duplicate rows is flagged with a
-unique ID. When clean = TRUE, the function retains the first occurrence
-of each potential duplicate in the dataset. Default is clean = TRUE.
+unique ID.
+
+When clean = TRUE, the function retains the first occurrence of each
+potential duplicate in the dataset. Default is clean = TRUE.
 
 ```{r}
 TADAProfileClean10 <- PotentialDuplicateRowID(TADAProfileClean9)
@@ -271,17 +298,25 @@ TADAProfileClean10 <- PotentialDuplicateRowID(TADAProfileClean9)
 
 ## Invalid coordinates
 
-Function identifies and flags invalid coordinate data. When
-clean_outsideUSA = FALSE and clean_imprecise = FALSE, a column will be
-appended titled "TADA.InvalidCoordinates" with the following flags (if
-relevant to dataset). If the latitude is less than zero, the row will be
-flagged with "LAT_OutsideUSA". If the longitude is greater than zero AND
-less than 145, the row will be flagged as "LONG_OutsideUSA". If the
-latitude or longitude contains the string, "999", the row will be
-flagged as invalid. Finally, precision can be measured by the number of
-decimal places in the latitude and longitude provided. If either does
-not have any numbers to the right of the decimal point, the row will be
-flagged as "Imprecise".
+Function identifies and flags invalid coordinate data.
+
+When clean_outsideUSA = FALSE and clean_imprecise = FALSE, a column will
+be appended titled "TADA.InvalidCoordinates" with the following flags
+(if relevant to dataset).
+
+-   If the latitude is less than zero, the row will be flagged with
+    "LAT_OutsideUSA".
+
+-   If the longitude is greater than zero AND less than 145, the row
+    will be flagged as "LONG_OutsideUSA".
+
+-   If the latitude or longitude contains the string, "999", the row
+    will be flagged as invalid.
+
+-   Finally, precision can be measured by the number of decimal places
+    in the latitude and longitude provided. If either does not have any
+    numbers to the right of the decimal point, the row will be flagged
+    as "Imprecise".
 
 ```{r}
 TADAProfileClean11 <- InvalidCoordinates(TADAProfileClean10, clean_outsideUSA = FALSE, clean_imprecise = FALSE)
@@ -299,9 +334,13 @@ no.
 
 This function has two default inputs: clean = TRUE and cleanNA = FALSE.
 These defaults remove rows of data where the QAPPApprovedIndicator
-equals "N". Users could alternatively remove both N's and NA's using the
-inputs clean = TRUE and cleanNA = TRUE. If both clean = FALSE and
-cleanNA = FALSE, the function will not do anything.
+equals "N".
+
+Users could alternatively remove both N's and NA's using the inputs
+clean = TRUE and cleanNA = TRUE.
+
+If both clean = FALSE and cleanNA = FALSE, the function will not do
+anything.
 
 ```{r}
 TADAProfileClean12 <- QAPPapproved(TADAProfileClean11, clean = TRUE, cleanNA = FALSE)
@@ -337,11 +376,13 @@ Next, choose a field from the list to see the unique values in that
 field, as well as the number of times each value appears in the dataset.
 We'll start with ActivityTypeCode.
 
-Here is a list of other fields to review: 1. **ResultCommentText** often
-has details relating to additional QA. 2. **MeasureQualifierCode**
-Contains information about data flags 3. Other codes may designate
-suspect data or other flags which may be described in detail in
-**ResultLaboratoryCommentText** or another column
+Here is a list of other fields to review:
+
+1.  **ResultCommentText** often has details relating to additional QA.
+2.  **MeasureQualifierCode** Contains information about data flags 3.
+    Other codes may designate suspect data or other flags which may be
+    described in detail in **ResultLaboratoryCommentText** or another
+    column
 
 ```{r, fig.width=6, fig.height=2, fig.fullwidth=TRUE}
 FilterFieldReview("ActivityTypeCode", TADAProfileClean13)
@@ -422,37 +463,50 @@ TADAProfileClean16 <- dplyr::filter(TADAProfileClean15, !(CharacteristicName %in
 
 The HarmonizeRefTable function generates a harmonization reference table
 that is specific to the input dataset. Users can review how their input
-data relates to standard TADA values for CharacteristicName,
-ResultSampleFractionText, MethodSpecicationName, and
-ResultMeasure.MeasureUnitCode and they can optionally edit the reference
-file to meet their needs. The download argument can be used to save the
-harmonization file to your current working directory when download =
-TRUE, the default is download = FALSE.
+data relates to standard TADA values for the following elements:
+
+-   CharacteristicName
+
+-   ResultSampleFractionText
+
+-   MethodSpecicationName
+
+-   ResultMeasure.MeasureUnitCode
 
 The HarmonizeData function then compares the input dataset to the TADA
 Harmonization Reference Table. The purpose of the function is to make
 similar data consistent and therefore easier to compare and analyze.
-Optional outputs include: 1) the dataset with Harmonization columns
-appended, 2) the datset with CharacteristicName,
-ResultSampleFractionText, MethodSpecificationName, and
-ResultMeasure.MeasureUnitCode converted to TADA standards or 3) the four
-fields converted with most Harmonization Reference Table columns
-appended. Default is transform = TRUE and flag = TRUE.
+
+Users can also edit the reference file to meet their needs if desired.
+The download argument can be used to save the harmonization file to your
+current working directory when download = TRUE, the default is download
+= FALSE.
+
+Optional outputs include:
+
+1.  the dataset with Harmonization columns appended,
+
+2.  the datset with CharacteristicName, ResultSampleFractionText,
+    MethodSpecificationName, and ResultMeasure.MeasureUnitCode converted
+    to TADA standards or
+
+3.  the four fields converted with most Harmonization Reference Table
+    columns appended. Default is transform = TRUE and flag = TRUE.
 
 Here are some examples of how the HarmonizeData function can be used:
 
-1\. **ResultSampleFractionText** specifies forms of constituents. In
-some cases, a single **CharacteristicName** will have both "Total" and
-"Dissolved" forms specified, which should not be combined. In these
-cases, each CharacteristicName and ResultSampleFractionText combination
-is given a different identifier. This identifier can be used later on to
-identify comparable data groups for calculating statistics and creating
-figures for each combination.
+1.  **ResultSampleFractionText** specifies forms of constituents. In
+    some cases, a single **CharacteristicName** will have both "Total"
+    and "Dissolved" forms specified, which should not be combined. In
+    these cases, each CharacteristicName and ResultSampleFractionText
+    combination is given a different identifier. This identifier can be
+    used later on to identify comparable data groups for calculating
+    statistics and creating figures for each combination.
 
-2\. Some variables have different names but represent the same
-constituent (e.g., "Total Kjeldahl nitrogen (Organic N & NH3)" and
-"Kjeldahl nitrogen"). The HarmonizeData function gives a consistent name
-(and identifier) to synonyms.
+2.  Some variables have different names but represent the same
+    constituent (e.g., "Total Kjeldahl nitrogen (Organic N & NH3)" and
+    "Kjeldahl nitrogen"). The HarmonizeData function gives a consistent
+    name (and identifier) to synonyms.
 
 ```{r}
 UniqueHarmonizationRef <- HarmonizationRefTable(TADAProfileClean16, download = FALSE)
