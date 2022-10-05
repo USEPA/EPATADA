@@ -2,7 +2,7 @@ Package: TADA
 Type: Package
 Title: Tools for Automated Data Assessment R Package
 Version: 0.0.1
-Organization: US Environmental Protection Agency
+Organization: U.S. Environmental Protection Agency
 Authors@R: 
   c(person(given = "Cristina",
            family = "Mullin",

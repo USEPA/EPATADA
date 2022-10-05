@@ -74,7 +74,7 @@
                         <h4 data-toc-skip class="author">Cristina A.
 Mullin</h4>
             
-            <h4 data-toc-skip class="date">2022-09-22</h4>
+            <h4 data-toc-skip class="date">2022-10-04</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/USEPA/TADA/blob/HEAD/vignettes/WQPDataHarmonization.Rmd" class="external-link"><code>vignettes/WQPDataHarmonization.Rmd</code></a></small>
       <div class="d-none name"><code>WQPDataHarmonization.Rmd</code></div>
@@ -180,8 +180,8 @@ within USGS NWIS or EPA’s WQX databases separately.</li>
 <ul>
 <li><p>Review function documentation by entering the following code into
 the console: ?TADAdataRetrieval</p></li>
-<li><p><a href="https://cran.r-project.org/web/packages/dataRetrieval/vignettes/dataRetrieval.html" class="external-link">Introduction
-to the dataRetrieval package</a></p></li>
+<li><p><a href="https://CRAN.R-project.org/package=dataRetrieval" class="external-link">Introduction to
+the dataRetrieval package</a></p></li>
 <li><p><a href="https://rdrr.io/cran/dataRetrieval/man/readWQPdata.html" class="external-link">General
 Data Import from Water Quality Portal</a></p></li>
 <li><p><a href="https://www.waterqualitydata.us/webservices_documentation/" class="external-link">Water
@@ -344,7 +344,7 @@ by entering the following code in the console: ?DepthProfileData</p>
 <h2 id="result-unit-conversions">Result unit conversions<a class="anchor" aria-label="anchor" href="#result-unit-conversions"></a>
 </h2>
 <p>Converts all results to WQX target units. WQX target units are pulled
-from the MeasureUnit domain table: <a href="https://cdx2.epa.gov/wqx/download/DomainValues/MeasureUnit.CSV" class="external-link uri">https://cdx2.epa.gov/wqx/download/DomainValues/MeasureUnit.CSV</a></p>
+from the MeasureUnit domain table: <a href="https://cdx.epa.gov/wqx/download/DomainValues/MeasureUnit.CSV" class="external-link uri">https://cdx.epa.gov/wqx/download/DomainValues/MeasureUnit.CSV</a></p>
 <p>See additional function documentation for additional function options
 by entering the following code in the console: ?WQXTargetUnits</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
@@ -476,7 +476,7 @@ in each field.</p>
 <span><span class="co">#&gt; 2                    ActivityTypeCode     5</span></span>
 <span><span class="co">#&gt; 3                   ActivityMediaName     1</span></span>
 <span><span class="co">#&gt; 4        ActivityMediaSubdivisionName     4</span></span>
-<span><span class="co">#&gt; 5                 ActivityCommentText     2</span></span>
+<span><span class="co">#&gt; 5                 ActivityCommentText     3</span></span>
 <span><span class="co">#&gt; 6                 HydrologicCondition     8</span></span>
 <span><span class="co">#&gt; 7                     HydrologicEvent     4</span></span>
 <span><span class="co">#&gt; 8                  CharacteristicName     2</span></span>
@@ -499,7 +499,7 @@ or other flags which may be described in detail in
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/FilterFieldReview.html">FilterFieldReview</a></span><span class="op">(</span><span class="st">"ActivityTypeCode"</span>, <span class="va">TADAProfileClean13</span><span class="op">)</span></span></code></pre></div>
 <p><img src="WQPDataHarmonization_files/figure-html/unnamed-chunk-14-1.png" width="576"></p>
 <pre><code><span><span class="co">#&gt;                               FieldValue Count</span></span>
-<span><span class="co">#&gt; 5                         Sample-Routine   801</span></span>
+<span><span class="co">#&gt; 5                         Sample-Routine   807</span></span>
 <span><span class="co">#&gt; 3 Quality Control Sample-Field Replicate    50</span></span>
 <span><span class="co">#&gt; 1                          Field Msr/Obs     4</span></span>
 <span><span class="co">#&gt; 2     Quality Control Sample-Field Blank     1</span></span>
@@ -521,7 +521,7 @@ ResultStatusIdentifier field.</p>
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/FilterFieldReview.html">FilterFieldReview</a></span><span class="op">(</span><span class="st">"ActivityMediaSubdivisionName"</span>, <span class="va">TADAProfileClean14</span><span class="op">)</span></span></code></pre></div>
 <p><img src="WQPDataHarmonization_files/figure-html/unnamed-chunk-16-1.png" width="576"></p>
 <pre><code><span><span class="co">#&gt;        FieldValue Count</span></span>
-<span><span class="co">#&gt; 3   Surface Water   679</span></span>
+<span><span class="co">#&gt; 3   Surface Water   685</span></span>
 <span><span class="co">#&gt; 2     Groundwater   106</span></span>
 <span><span class="co">#&gt; 1 Bulk deposition     1</span></span></code></pre>
 <p>The ActivityMediaSubdivisionName field has two unique values,
@@ -542,8 +542,8 @@ displayed to save space on the page)</p>
 <div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/FilterParList.html">FilterParList</a></span><span class="op">(</span><span class="va">TADAProfileClean15</span><span class="op">)</span></span>
 <span><span class="co">#&gt;   FieldValue Count</span></span>
-<span><span class="co">#&gt; 1    NITRATE   641</span></span>
-<span><span class="co">#&gt; 2   NITROGEN    57</span></span></code></pre></div>
+<span><span class="co">#&gt; 1    NITRATE   645</span></span>
+<span><span class="co">#&gt; 2   NITROGEN    59</span></span></code></pre></div>
 <p>Next, select a parameter. Let’s explore the fields associated with
 Nitrogen:</p>
 <div class="sourceCode" id="cb21"><pre class="downlit sourceCode r">
@@ -552,7 +552,7 @@ Nitrogen:</p>
 <span><span class="co">#&gt; 1                                ActivityTypeCode     1</span></span>
 <span><span class="co">#&gt; 2                               ActivityMediaName     1</span></span>
 <span><span class="co">#&gt; 3                    ActivityMediaSubdivisionName     1</span></span>
-<span><span class="co">#&gt; 4                             ActivityCommentText     1</span></span>
+<span><span class="co">#&gt; 4                             ActivityCommentText     2</span></span>
 <span><span class="co">#&gt; 5                             HydrologicCondition     6</span></span>
 <span><span class="co">#&gt; 6                                 HydrologicEvent     1</span></span>
 <span><span class="co">#&gt; 7         SampleCollectionMethod.MethodIdentifier     5</span></span>
@@ -585,7 +585,7 @@ certain values from the HydrologicEvent field.</p>
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/FilterParFieldReview.html">FilterParFieldReview</a></span><span class="op">(</span><span class="st">"HydrologicEvent"</span>, <span class="va">TADAProfileClean15</span>, <span class="st">"NITROGEN"</span><span class="op">)</span></span></code></pre></div>
 <p><img src="WQPDataHarmonization_files/figure-html/unnamed-chunk-20-1.png" width="576"></p>
 <pre><code><span><span class="co">#&gt;       FieldValue Count</span></span>
-<span><span class="co">#&gt; 1 Routine sample    57</span></span></code></pre>
+<span><span class="co">#&gt; 1 Routine sample    59</span></span></code></pre>
 <p>The HydrologicEvent field has three unique values. In this example we
 want to remove samples collected during “Storm” events. Therefore, we’ll
 specify that we want to remove rows where the CharacteristicName is
@@ -614,18 +614,20 @@ ResultSampleFractionText, MethodSpecificationName, and
 ResultMeasure.MeasureUnitCode converted to TADA standards or 3) the four
 fields converted with most Harmonization Reference Table columns
 appended. Default is transform = TRUE and flag = TRUE.</p>
-<p>Here are some examples of how the HarmonizeData function can be used:
-1. <strong>ResultSampleFractionText</strong> specifies forms of
+<p>Here are some examples of how the HarmonizeData function can be
+used:</p>
+<p>1. <strong>ResultSampleFractionText</strong> specifies forms of
 constituents. In some cases, a single
 <strong>CharacteristicName</strong> will have both “Total” and
 “Dissolved” forms specified, which should not be combined. In these
 cases, each CharacteristicName and ResultSampleFractionText combination
 is given a different identifier. This identifier can be used later on to
 identify comparable data groups for calculating statistics and creating
-figures for each combination. 2. Some variables have different names but
-represent the same constituent (e.g., “Total Kjeldahl nitrogen (Organic
-N &amp; NH3)” and “Kjeldahl nitrogen”). The HarmonizeData function gives
-a consistent name (and identifier) to synonyms.</p>
+figures for each combination.</p>
+<p>2. Some variables have different names but represent the same
+constituent (e.g., “Total Kjeldahl nitrogen (Organic N &amp; NH3)” and
+“Kjeldahl nitrogen”). The HarmonizeData function gives a consistent name
+(and identifier) to synonyms.</p>
 <div class="sourceCode" id="cb25"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">UniqueHarmonizationRef</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/HarmonizationRefTable.html">HarmonizationRefTable</a></span><span class="op">(</span><span class="va">TADAProfileClean16</span>, download <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
 <span><span class="va">TADAProfileClean17</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/HarmonizeData.html">HarmonizeData</a></span><span class="op">(</span><span class="va">TADAProfileClean16</span>, ref <span class="op">=</span> <span class="va">UniqueHarmonizationRef</span>, transform <span class="op">=</span> <span class="cn">TRUE</span>, flag <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>

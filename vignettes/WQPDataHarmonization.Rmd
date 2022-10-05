@@ -129,7 +129,7 @@ Additional resources:
     the console: ?TADAdataRetrieval
 
 -   [Introduction to the dataRetrieval
-    package](https://cran.r-project.org/web/packages/dataRetrieval/vignettes/dataRetrieval.html)
+    package](https://CRAN.R-project.org/package=dataRetrieval)
 
 -   [General Data Import from Water Quality
     Portal](https://rdrr.io/cran/dataRetrieval/man/readWQPdata.html)
@@ -192,7 +192,7 @@ TADAProfileClean1 <- DepthProfileData(TADAProfile, unit = "m", transform = TRUE)
 
 Converts all results to WQX target units. WQX target units are pulled
 from the MeasureUnit domain table:
-<https://cdx2.epa.gov/wqx/download/DomainValues/MeasureUnit.CSV>
+<https://cdx.epa.gov/wqx/download/DomainValues/MeasureUnit.CSV>
 
 See additional function documentation for additional function options by
 entering the following code in the console: ?WQXTargetUnits
