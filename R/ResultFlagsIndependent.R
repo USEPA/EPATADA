@@ -9,15 +9,23 @@
 #' @param clean Boolean argument; removes "Invalid" characteristic-analytical
 #' method combinations from the dataset when clean = TRUE. Default is
 #' clean = TRUE.
-#'
+#' 
 #' @return When clean = FALSE, a column indicating the validity of the
 #' combination of CharacteristicName, ResultAnalyticalMethod/MethodIdentifier,
 #' and ResultAnalyticalMethod/MethodIdentifierContext values is appended to the
 #' input dataset. When clean = TRUE, "Invalid" rows are removed from the
 #' dataset and no column will be appended.
-#'
+#' 
 #' @export
 #'
+#' @examples
+#' { 
+#' InvalidMethod(.data, clean = TRUE)
+#' }
+#' { 
+#' InvalidMethod(.data, clean = FALSE)
+#' }
+#' 
 
 InvalidMethod <- function(.data, clean = TRUE) {
 

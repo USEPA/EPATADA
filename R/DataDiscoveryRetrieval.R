@@ -24,7 +24,7 @@
 #' @export
 #'
 #' @examples 
-#' {
+#' \dontrun{
 #' tada1 <- TADAdataRetrieval(statecode = "WI",
 #'                            countycode = "Dane",
 #'                            characteristicName = "Phosphorus")
@@ -317,15 +317,17 @@ TADAprofileCheck <- function(.data) {
 
 
 
-#' Large WQP data pulls using dataRetrieval for all data from all sites in the contiguous United States.
-#'  
-#' This function uses the WQP summary service to limit the amount
-#' downloaded to only relevant data. For large data sets, that can 
-#' save a lot of time and ultimately reduce the complexity of subsequent
-#' data processing. 
+#' Large WQP data pulls using dataRetrieval
 #' 
-#' This function will join data from multiple WQP profiles and output a 
-#' TADA-compatible dataset.
+#' This function does multiple synchronous data calls to the WQP 
+#' (waterqualitydata.us). It uses the WQP summary service to limit the amount 
+#' downloaded to only relevant data, and pulls back data from 250 stations at a 
+#' time and then joins the data back together and produces a single TADA 
+#' compatible dataframe as the output. For large data sets, that can save a lot 
+#' of time and ultimately reduce the complexity of subsequent data processing. 
+#' Using this function, you will be able to download all data available from all
+#' sites in the contiguous United States that is available for the time period,
+#' characteristicName, and siteType requested.
 #'
 #' @param startDate Start Date YYYY-MM-DD format, for example, "1995-01-01"
 #' @param endDate end date in YYYY-MM-DD format, for example, "2020-12-31"
@@ -336,6 +338,13 @@ TADAprofileCheck <- function(.data) {
 #' 
 #' @export
 #'
+#' @examples 
+#' \dontrun{
+#' tada2 <- TADABigdataRetrieval(startDate = "01-01-2021", 
+#'                               endDate = "01-01-2022", 
+#'                               characteristicName = "Nitrogen",
+#'                               siteType = "Stream")
+#' }
 
 TADABigdataRetrieval <- function(startDate = "null",
                               endDate = "null",
