@@ -98,12 +98,50 @@ Data retrieval filters include:
 
 -   ActivityMediaName
 
-Water Quality Portal downloads have the same columns each time, but be
-aware that data are uploaded to the Water Quality Portal by individual
-organizations, which may or may not follow the same conventions. Data
-and metadata quality are not guaranteed! Make sure to carefully explore
-any data and make conservative quality assurance decisions where
-information is limited.
+Please be aware that this TADAdataRetrieval function automatically runs
+the TADA autoclean and MeasureValueSpecialCharacters functions as well,
+which are both required for subsequent functions within the TADA R
+package to run. These functions alter and/or add the following WQP
+columns (enter *?MeasureValueSpecialCharacters* and *?autoclean* into
+the console for more details):
+
+-   Alters (e.g., ResultMeasureValue and
+    DetectionQuantitationLimitMeasure.MeasureValue fields are converted
+    to class numeric)
+
+    -   ResultMeasureValue
+
+    -   DetectionQuantitationLimitMeasure.MeasureValue
+
+-   Adds (All the data cleaning and transformations are done directly to
+    the "ResultMeasureValue" and "DetectionLimitMeasureValue" columns,
+    however the original "ResultMeasureValue" and
+    "DetectionLimitMeasureValue" columns and values from the WQP are
+    preserved in these new fields, "ResultMeasureValue.Original" and
+    "DetectionLimitMeasureValue.Original". Additionally,
+    "TADA.ResultMeasureValue.Flag" and
+    "TADA.DetectionLimitMeasureValue.Flag" are created to track and
+    changes made to the "ResultMeasureValue" and
+    "DetectionLimitMeasureValue" columns; and to provide information
+    about the result values that is needed to address censored data
+    later on (i.e., nondetections). Specifically, these new columns flag
+    if special characters that are included in result values, and
+    specifies what the special characters are.
+
+    -   ResultMeasureValue.Original
+
+    -   TADA.ResultMeasureValue.Flag
+
+    -   DetectionLimitMeasureValue.Original
+
+    -   TADA.DetectionLimitMeasureValue.Flag
+
+Downloads using TADAdataRetrieval will have the same columns each time,
+but be aware that data are uploaded to the Water Quality Portal by
+individual organizations, which may or may not follow the same
+conventions. Data and metadata quality are not guaranteed! Make sure to
+carefully explore any data and make conservative quality assurance
+decisions where information is limited.
 
 Tips:
 
@@ -253,11 +291,47 @@ See documentation for more details:
 
 -   ?InvalidMethod
 
+    -   When Clean = FALSE, this function adds the following column to
+        your dataframe: WQX.AnalyticalMethodValidity. This column flags
+        invalid CharacteristicName,
+        ResultAnalyticalMethod/MethodIdentifier, and
+        ResultAnalyticalMethod/MethodIdentifierContext combinations in
+        your dataset either "Nonstandardized", "Invalid", or "Valid".
+
+    -   When clean = TRUE, "Invalid" rows are removed from the dataset
+        and no column will be appended.
+
 -   ?InvalidSpeciation
+
+    -   When clean = FALSE, this function adds the following column to
+        your dataframe: WQX.MethodSpeciationValidity. This column flags
+        each CharacteristicName and MethodSpecificationName combination
+        in your dataset as either "Nonstandardized", "Invalid", or
+        "Valid".
+
+    -   When clean = TRUE, "Invalid" rows are removed from the dataset
+        and no column will be appended.
 
 -   ?InvalidResultUnit
 
+    -   When clean = FALSE, the following column will be added to your
+        dataset: WQX.ResultUnitValidity. This column flags each
+        CharacteristicName, ActivityMediaName, and
+        ResultMeasure/MeasureUnitCode combination in your dataset as
+        either "Nonstandardized", "Invalid", or "Valid".
+
+    -   When clean = TRUE, "Invalid" rows are removed from the dataset
+        and no column will be appended.
+
 -   ?InvalidFraction
+
+    -   When clean = FALSE, this function adds the following column to
+        your dataframe: WQX.SampleFractionValidity. This column flags
+        each CharacteristicName and ResultSampleFractionText combination
+        in your dataset as either "Nonstandardized", "Invalid", or
+        "Valid".
+    -   When clean = TRUE, "Invalid" rows are removed from the dataset
+        and no column will be appended.
 
 ```{r}
 TADAProfileClean4 <- InvalidMethod(TADAProfileClean3, clean = TRUE)
@@ -270,7 +344,25 @@ TADAProfileClean7 <- InvalidResultUnit(TADAProfileClean6, clean = TRUE)
 
 Run the following code to flag or remove results that are above or below
 the national upper and lower bound for each characteristic and unit
-combination.
+combination. See documentation for more details:
+
+-   ?AboveNationalWQXUpperThreshold
+
+    -   When clean = FALSE, the following column is added to your
+        dataset: AboveWQXUpperThreshold. This column flags rows with
+        data that are above the upper WQX threshold.
+
+    -   When clean = TRUE, data that is above the upper WQX threshold is
+        removed from the dataset.
+
+-   ?BelowNationalWQXUpperThreshold
+
+    -   When clean = FALSE, the following column is added to your
+        dataset: BelowWQXUpperThreshold. This column flags rows with
+        data that are below the lower WQX threshold.
+
+    -   When clean = TRUE, data that is below the lower WQX threshold is
+        removed from the dataset.
 
 The default is clean=TRUE, but you can change this to only flag results
 if desired. Results will be flagged, but not removed, when clean=FALSE.
@@ -287,7 +379,20 @@ Quality Portal (WQP), which can affect water quality analyses and
 assessments. This function checks for and identifies data that is
 identical in all fields excluding organization-specific and comment text
 fields. Each pair or group of potential duplicate rows is flagged with a
-unique ID.
+unique ID. For more information, review the documentation by entering
+the following into the console:
+
+-   ?PotentialDuplicateRowID
+
+    -   When clean = FALSE, the following column will be added to you
+        dataframe: TADA.PotentialDupRowID. This column flags potential
+        duplicate rows of data in your dataset, and assigns each
+        potential duplicate combination a unique number linking the two
+        potential duplication rows.
+
+    -   When clean = FALSE the first of each group of potential
+        duplicate rows will be removed from the dataset and no column is
+        appended.
 
 When clean = TRUE, the function retains the first occurrence of each
 potential duplicate in the dataset. Default is clean = TRUE.

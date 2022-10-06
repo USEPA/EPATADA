@@ -4,17 +4,18 @@
 #' combination in the dataset. When clean = TRUE, rows with invalid
 #' characteristic-analytical method combinations are removed. Default is
 #' clean = TRUE.
-#'
+#' 
 #' @param .data TADA dataframe
 #' @param clean Boolean argument; removes "Invalid" characteristic-analytical
 #' method combinations from the dataset when clean = TRUE. Default is
 #' clean = TRUE.
 #' 
-#' @return When clean = FALSE, a column indicating the validity of the
-#' combination of CharacteristicName, ResultAnalyticalMethod/MethodIdentifier,
-#' and ResultAnalyticalMethod/MethodIdentifierContext values is appended to the
-#' input dataset. When clean = TRUE, "Invalid" rows are removed from the
-#' dataset and no column will be appended.
+#' @return When clean = FALSE, this function adds the following column to your
+#' dataframe: WQX.AnalyticalMethodValidity. This column flags invalid 
+#' CharacteristicName, ResultAnalyticalMethod/MethodIdentifier,
+#' and ResultAnalyticalMethod/MethodIdentifierContext combinations in your dataset
+#' as either "Nonstandardized", "Invalid", or "Valid". When clean = TRUE, "Invalid" rows are removed from the dataset and no column 
+#' will be appended.
 #' 
 #' @export
 #'
@@ -206,10 +207,12 @@ AggregatedContinuousData <- function(.data, clean = TRUE) {
 #' potential duplicate rows with a unique number linking rows is appended to the
 #' input data set. Default is clean = TRUE.
 #'
-#' @return When clean = FALSE, a column indicating potential duplicate rows with
-#' a unique number linking rows is appended to the input data set. When
-#' clean = FALSE the first of each group of potential duplicate rows will be
-#' removed from the dataset and no column is appended.
+#' @return When clean = FALSE, the following column will be added to you dataframe: 
+#' TADA.PotentialDupRowID. This column flags potential duplicate rows of data 
+#' in your dataset, and assigns each potential duplicate combination a unique number
+#' linking the two potential duplication rows. When clean = FALSE the first of
+#' each group of potential duplicate rows will be removed from the dataset
+#' and no column is appended.
 #'
 #' @export
 
@@ -316,9 +319,10 @@ PotentialDuplicateRowID <- function(.data, clean = TRUE) {
 #' @param clean Boolean argument; removes data that is above the upper WQX
 #' threshold from the dataset when clean = TRUE. Default is clean = TRUE
 #'
-#' @return When clean = FALSE, a column flagging rows with data that are above
-#' the upper WQX threshold is appended to the input data set. When clean = TRUE,
-#' data that is above the upper WQX threshold is removed from the dataset.
+#' @return When clean = FALSE, the following column is added to your dataset: 
+#' AboveWQXUpperThreshold. This column flags rows with data that are above
+#' the upper WQX threshold. When clean = TRUE, data that is above the upper 
+#' WQX threshold is removed from the dataset.
 #'
 #' @export
 
@@ -430,10 +434,11 @@ AboveNationalWQXUpperThreshold <- function(.data, clean = TRUE) {
 #' @param clean Boolean argument; removes data that is below the lower WQX
 #' threshold from the dataset when clean = TRUE. Default is clean = TRUE.
 #'
-#' @return When clean = FALSE, a column flagging rows with data that is below the
-#' lower WQX threshold is appended to the input data set. When clean = TRUE,
-#' data that is below the lower WQX threshold is removed from the dataset.
-#'
+#' @return When clean = FALSE, the following column is added to your dataset: 
+#' BelowWQXUpperThreshold. This column flags rows with data that are below
+#' the lower WQX threshold. When clean = TRUE, data that is below the lower 
+#' WQX threshold is removed from the dataset.
+#' 
 #' @export
 
 BelowNationalWQXUpperThreshold <- function(.data, clean = TRUE) {
