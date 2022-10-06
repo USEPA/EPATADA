@@ -84,13 +84,27 @@ clean = TRUE.</p></dd>
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
     
 
-<p>When clean = FALSE, a column indicating the validity of the
-combination of CharacteristicName, ResultAnalyticalMethod/MethodIdentifier,
-and ResultAnalyticalMethod/MethodIdentifierContext values is appended to the
-input dataset. When clean = TRUE, "Invalid" rows are removed from the
-dataset and no column will be appended.</p>
+<p>When clean = FALSE, this function adds the following column to your
+dataframe: WQX.AnalyticalMethodValidity. This column flags invalid
+CharacteristicName, ResultAnalyticalMethod/MethodIdentifier,
+and ResultAnalyticalMethod/MethodIdentifierContext combinations in your dataset
+as either "Nonstandardized", "Invalid", or "Valid". When clean = TRUE, "Invalid" rows are removed from the dataset and no column
+will be appended.</p>
     </div>
 
+    <div class="section level2">
+    <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="op">{</span> </span></span>
+<span class="r-in"><span><span class="fu">InvalidMethod</span><span class="op">(</span><span class="va">.data</span>, clean <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="op">}</span></span></span>
+<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in "data.frame" %in% class(.data):</span> object '.data' not found</span>
+<span class="r-in"><span><span class="op">{</span> </span></span>
+<span class="r-in"><span><span class="fu">InvalidMethod</span><span class="op">(</span><span class="va">.data</span>, clean <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="op">}</span></span></span>
+<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in "data.frame" %in% class(.data):</span> object '.data' not found</span>
+<span class="r-in"><span></span></span>
+</code></pre></div>
+    </div>
   </main><aside class="col-md-3"><nav id="toc"><h2>On this page</h2>
     </nav></aside></div>
 
