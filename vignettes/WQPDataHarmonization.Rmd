@@ -33,7 +33,7 @@ or devtools. dataRetrieval will be downloaded from CRAN, but the development
 version can be downloaded directly from GitHub (un-comment).
 ```{r, results = 'hide', message = FALSE, warning = FALSE}
 # To install the latest version of TADA:
-install.packages("remotes")
+install.packages("remotes", repos = "http://cran.us.r-project.org")
 remotes::install_github("USEPA/TADA", dependencies=TRUE)
 
 # Optionally install latest version of dataRetrieval from github
