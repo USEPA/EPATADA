@@ -15,7 +15,8 @@ autocleaned TADA data profile
 \description{
 Removes complex biological data. Removes non-water media samples.
 Removes rows of data that are true duplicates. Capitalizes fields to harmonize
-data.
+data. This function includes and runs the TADA "MeasureValueSpecialCharacters"
+function as well.
 }
 \details{
 Within "BiologicalIntentName", only the allowable values "tissue", "toxicity",

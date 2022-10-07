@@ -2,12 +2,7 @@
 % Please edit documentation in R/DataDiscoveryRetrieval.R
 \name{TADABigdataRetrieval}
 \alias{TADABigdataRetrieval}
-\title{Large WQP data pulls using dataRetrieval for all data from all sites in the contiguous United States.
-
-This function uses the WQP summary service to limit the amount
-downloaded to only relevant data. For large data sets, that can
-save a lot of time and ultimately reduce the complexity of subsequent
-data processing.}
+\title{Large WQP data pulls using dataRetrieval}
 \usage{
 TADABigdataRetrieval(
   startDate = "null",
@@ -29,6 +24,44 @@ TADABigdataRetrieval(
 TADA-compatible dataframe
 }
 \description{
-This function will join data from multiple WQP profiles and output a
-TADA-compatible dataset.
+This function does multiple synchronous data calls to the WQP
+(waterqualitydata.us). It uses the WQP summary service to limit the amount
+downloaded to only relevant data, and pulls back data from 250 stations at a
+time and then joins the data back together and produces a single TADA
+compatible dataframe as the output. For large data sets, that can save a lot
+of time and ultimately reduce the complexity of subsequent data processing.
+Using this function, you will be able to download all data available from all
+sites in the contiguous United States that is available for the time period,
+characteristicName, and siteType requested.
+}
+\details{
+Similarly to the TADAdataRetrieval function, this function will create
+and/or edit the following columns:
+TADA.DetectionLimitMeasureValue.Flag
+DetectionQuantitationLimitMeasure.MeasureValue
+DetectionLimitMeasureValue.Original
+ResultMeasureValue.Original
+TADA.ResultMeasureValue.Flag
+ResultMeasureValue
+
+All data cleaning and transformations are done directly to the
+"ResultMeasureValue" and "DetectionLimitMeasureValue" columns,
+however the original "ResultMeasureValue" and "DetectionLimitMeasureValue"
+columns and values from the WQP are preserved in these new fields,
+"ResultMeasureValue.Original" and "DetectionLimitMeasureValue.Original".
+Additionally, "TADA.ResultMeasureValue.Flag" and
+"TADA.DetectionLimitMeasureValue.Flag" are created to track and changes made
+to the "ResultMeasureValue" and "DetectionLimitMeasureValue" columns;
+and to provide information about the result values that is needed to address
+censored data later on (i.e., nondetections)
+
+See ?MeasureValueSpecialCharacters and ?autoclean documentation for more information.
+}
+\examples{
+\dontrun{
+tada2 <- TADABigdataRetrieval(startDate = "01-01-2021", 
+                              endDate = "01-01-2022", 
+                              characteristicName = "Nitrogen",
+                              siteType = "Stream")
+}
 }

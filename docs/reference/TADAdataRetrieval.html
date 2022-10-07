@@ -28,7 +28,6 @@ dataset."><!-- mathjax --><script src="https://cdnjs.cloudflare.com/ajax/libs/ma
   <div class="dropdown-menu" aria-labelledby="dropdown-articles">
     <a class="dropdown-item" href="../articles/CONTRIBUTING.html">Contributing</a>
     <a class="dropdown-item" href="../articles/WQPDataHarmonization.html">WQP Data Harmonization</a>
-    <a class="dropdown-item" href="../articles/WQPDataVisualization.html">WQP Data Visualization</a>
   </div>
 </li>
       </ul><form class="form-inline my-2 my-lg-0" role="search">
@@ -119,15 +118,33 @@ characteristics – if you choose pH &amp; DO – it’s an OR. Similarly, if yo
 choose VA and IL, it’s an OR. But the combo of fields are ANDs.
 Such as State/VA AND Characteristic/DO".
 "Characteristic" and "Characteristic Group" also work as an AND.</p>
+<p>This function will create and/or edit the following columns:
+TADA.DetectionLimitMeasureValue.Flag
+DetectionQuantitationLimitMeasure.MeasureValue
+DetectionLimitMeasureValue.Original
+ResultMeasureValue.Original
+TADA.ResultMeasureValue.Flag
+ResultMeasureValue</p>
+<p>All data cleaning and transformations are done directly to the
+"ResultMeasureValue" and "DetectionLimitMeasureValue" columns,
+however the original "ResultMeasureValue" and "DetectionLimitMeasureValue"
+columns and values from the WQP are preserved in these new fields,
+"ResultMeasureValue.Original" and "DetectionLimitMeasureValue.Original".
+Additionally, "TADA.ResultMeasureValue.Flag" and
+"TADA.DetectionLimitMeasureValue.Flag" are created to track and changes made
+to the "ResultMeasureValue" and "DetectionLimitMeasureValue" columns;
+and to provide information about the result values that is needed to address
+censored data later on (i.e., nondetections)</p>
+<p>See ?MeasureValueSpecialCharacters and ?autoclean documentation for more information.</p>
     </div>
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># \donttest{</span></span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span></span></span>
 <span class="r-in"><span><span class="va">tada1</span> <span class="op">&lt;-</span> <span class="fu">TADAdataRetrieval</span><span class="op">(</span>statecode <span class="op">=</span> <span class="st">"WI"</span>,</span></span>
 <span class="r-in"><span>                           countycode <span class="op">=</span> <span class="st">"Dane"</span>,</span></span>
 <span class="r-in"><span>                           characteristicName <span class="op">=</span> <span class="st">"Phosphorus"</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="co"># }</span></span></span>
+<span class="r-in"><span><span class="op">}</span></span></span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc"><h2>On this page</h2>
@@ -135,7 +152,7 @@ Such as State/VA AND Characteristic/DO".
 
 
     <footer><div class="pkgdown-footer-left">
-  <p></p><p>Developed by Cristina Mullin, Jacob Greif, Michelle Thawley, Laura Shumway.</p>
+  <p></p><p>Developed by Cristina Mullin, Michelle Thawley, Laura Shumway, Jacob Greif.</p>
 </div>
 
 <div class="pkgdown-footer-right">

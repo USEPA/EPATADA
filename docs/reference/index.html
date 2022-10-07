@@ -26,7 +26,6 @@
   <div class="dropdown-menu" aria-labelledby="dropdown-articles">
     <a class="dropdown-item" href="../articles/CONTRIBUTING.html">Contributing</a>
     <a class="dropdown-item" href="../articles/WQPDataHarmonization.html">WQP Data Harmonization</a>
-    <a class="dropdown-item" href="../articles/WQPDataVisualization.html">WQP Data Visualization</a>
   </div>
 </li>
       </ul><form class="form-inline my-2 my-lg-0" role="search">
@@ -131,6 +130,16 @@
         <dd>Function summarizes censored data in dataset, including any substitutions made.</dd>
       </dl><dl><dt>
           
+          <code><a href="GetMeasureUnitRef.html">GetMeasureUnitRef()</a></code> 
+        </dt>
+        <dd>Update Measure Unit Reference Table</dd>
+      </dl><dl><dt>
+          
+          <code><a href="GetWQXCharValRef.html">GetWQXCharValRef()</a></code> 
+        </dt>
+        <dd>WQX QAQC Characteristic Validation Reference Table</dd>
+      </dl><dl><dt>
+          
           <code><a href="HarmonizationRefTable.html">HarmonizationRefTable()</a></code> 
         </dt>
         <dd>Generate Unique Harmonization Reference Table</dd>
@@ -198,12 +207,7 @@
           
           <code><a href="TADABigdataRetrieval.html">TADABigdataRetrieval()</a></code> 
         </dt>
-        <dd>Large WQP data pulls using dataRetrieval for all data from all sites in the contiguous United States.
-
-This function uses the WQP summary service to limit the amount
-downloaded to only relevant data. For large data sets, that can
-save a lot of time and ultimately reduce the complexity of subsequent
-data processing.</dd>
+        <dd>Large WQP data pulls using dataRetrieval</dd>
       </dl><dl><dt>
           
           <code><a href="TADAdataRetrieval.html">TADAdataRetrieval()</a></code> 
@@ -221,30 +225,36 @@ data processing.</dd>
         <dd>Function substitutes monitoring device/method detection limits (if available) as result values when applicable.</dd>
       </dl><dl><dt>
           
-          <code><a href="UpdateInternalData.html">UpdateInternalData()</a></code> 
-        </dt>
-        <dd>Update Existing Data in sysdata.rda</dd>
-      </dl><dl><dt>
-          
           <code><a href="UpdateMeasureUnitRef.html">UpdateMeasureUnitRef()</a></code> 
         </dt>
-        <dd>Update Measure Unit Reference Table</dd>
+        <dd>Update Measure Unit Reference Table internal file (for internal use only)</dd>
       </dl><dl><dt>
           
           <code><a href="UpdateWQXCharValRef.html">UpdateWQXCharValRef()</a></code> 
         </dt>
-        <dd>WQX QAQC Characteristic Validation Reference Table</dd>
+        <dd>Update Characteristic Validation Reference Table internal file
+(for internal use only)</dd>
+      </dl><dl><dt>
+          
+          <code><a href="WQXCharValRef_Cached.html">WQXCharValRef_Cached</a></code> 
+        </dt>
+        <dd>Used to store cached WQX QAQC Characteristic Validation Reference Table</dd>
       </dl><dl><dt>
           
           <code><a href="WQXTargetUnits.html">WQXTargetUnits()</a></code> 
         </dt>
         <dd>Transform Units to WQX Target Units</dd>
+      </dl><dl><dt>
+          
+          <code><a href="WQXunitRef_Cached.html">WQXunitRef_Cached</a></code> 
+        </dt>
+        <dd>Used to store cached Measure Unit Reference Table</dd>
       </dl></div>
   </main></div>
 
 
     <footer><div class="pkgdown-footer-left">
-  <p></p><p>Developed by Cristina Mullin, Jacob Greif, Michelle Thawley, Laura Shumway.</p>
+  <p></p><p>Developed by Cristina Mullin, Michelle Thawley, Laura Shumway, Jacob Greif.</p>
 </div>
 
 <div class="pkgdown-footer-right">

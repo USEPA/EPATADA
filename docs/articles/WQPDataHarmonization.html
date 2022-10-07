@@ -43,7 +43,6 @@
   <div class="dropdown-menu" aria-labelledby="dropdown-articles">
     <a class="dropdown-item" href="../articles/CONTRIBUTING.html">Contributing</a>
     <a class="dropdown-item" href="../articles/WQPDataHarmonization.html">WQP Data Harmonization</a>
-    <a class="dropdown-item" href="../articles/WQPDataVisualization.html">WQP Data Visualization</a>
   </div>
 </li>
       </ul>
@@ -74,7 +73,7 @@
                         <h4 data-toc-skip class="author">Cristina A.
 Mullin</h4>
             
-            <h4 data-toc-skip class="date">2022-09-22</h4>
+            <h4 data-toc-skip class="date">2022-10-07</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/USEPA/TADA/blob/HEAD/vignettes/WQPDataHarmonization.Rmd" class="external-link"><code>vignettes/WQPDataHarmonization.Rmd</code></a></small>
       <div class="d-none name"><code>WQPDataHarmonization.Rmd</code></div>
@@ -105,9 +104,9 @@ needed.</p>
 <span><span class="co"># remotes::install_github("USEPA/TADA", dependencies=TRUE)</span></span>
 <span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://remotes.r-lib.org" class="external-link">remotes</a></span><span class="op">)</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="http://had.co.nz/plyr" class="external-link">plyr</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://dplyr.tidyverse.org" class="external-link">dplyr</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://ggplot2.tidyverse.org" class="external-link">ggplot2</a></span><span class="op">)</span></span>
-<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="http://had.co.nz/plyr" class="external-link">plyr</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">RColorBrewer</span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://www.rcpp.org" class="external-link">Rcpp</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://r-datatable.com" class="external-link">data.table</a></span><span class="op">)</span></span>
@@ -135,13 +134,13 @@ function, TADAdataRetrieval builds on the USGS dataRetrieval package
 functions. It joins three WQP profiles (i.e., the station, narrow, and
 phys/chem), changes all data in the Characteristic, Speciation,
 Fraction, and Unit fields to uppercase, removes true duplicates, removes
-data for all non-water media types, and cleans results with special
+data for all non-water media types, and cleans up results with special
 characters.</p>
 <p>This function uses the same inputs as the dataRetrieval
 <code>readWQPdata</code> function. <code>readWQPdata</code> does not
 restrict the characteristics pulled from <a href="https://www.waterqualitydata.us/" class="external-link">Water Quality Portal (WQP)</a>.
 You may specify the desired characteristics by using, for instance:
-’characteristicName = “pH”.</p>
+characteristicName = “pH”.</p>
 <p>Data retrieval filters include:</p>
 <ul>
 <li><p>statecode</p></li>
@@ -150,38 +149,89 @@ You may specify the desired characteristics by using, for instance:
 <li><p>countycode</p></li>
 <li><p>siteid</p></li>
 <li><p>siteType</p></li>
-<li><p>CharacteristicName</p></li>
+<li><p>characteristicName</p></li>
 <li><p>ActivityMediaName</p></li>
 </ul>
-<p>Water Quality Portal downloads have the same columns each time, but
-be aware that data are uploaded to the Water Quality Portal by
+<p>Please be aware that this TADAdataRetrieval function automatically
+runs the TADA autoclean and MeasureValueSpecialCharacters functions as
+well, which are both required for subsequent functions within the TADA R
+package to run. These functions alter and/or add the following WQP
+columns (enter <em>?MeasureValueSpecialCharacters</em> and
+<em>?autoclean</em> into the console for more details):</p>
+<ul>
+<li>
+<p>Alters (e.g., ResultMeasureValue and
+DetectionQuantitationLimitMeasure.MeasureValue fields are converted to
+class numeric)</p>
+<ul>
+<li><p>ResultMeasureValue</p></li>
+<li><p>DetectionQuantitationLimitMeasure.MeasureValue</p></li>
+</ul>
+</li>
+<li>
+<p>Adds (All the data cleaning and transformations are done directly
+to the “ResultMeasureValue” and “DetectionLimitMeasureValue” columns,
+however the original “ResultMeasureValue” and
+“DetectionLimitMeasureValue” columns and values from the WQP are
+preserved in these new fields, “ResultMeasureValue.Original” and
+“DetectionLimitMeasureValue.Original”. Additionally,
+“TADA.ResultMeasureValue.Flag” and
+“TADA.DetectionLimitMeasureValue.Flag” are created to track and changes
+made to the “ResultMeasureValue” and “DetectionLimitMeasureValue”
+columns; and to provide information about the result values that is
+needed to address censored data later on (i.e., nondetections).
+Specifically, these new columns flag if special characters that are
+included in result values, and specifies what the special characters
+are.</p>
+<ul>
+<li><p>ResultMeasureValue.Original</p></li>
+<li><p>TADA.ResultMeasureValue.Flag</p></li>
+<li><p>DetectionLimitMeasureValue.Original</p></li>
+<li><p>TADA.DetectionLimitMeasureValue.Flag</p></li>
+</ul>
+</li>
+</ul>
+<p>Downloads using TADAdataRetrieval will have the same columns each
+time, but be aware that data are uploaded to the Water Quality Portal by
 individual organizations, which may or may not follow the same
 conventions. Data and metadata quality are not guaranteed! Make sure to
 carefully explore any data and make conservative quality assurance
 decisions where information is limited.</p>
-<p>Tip:</p>
+<p>Tips:</p>
+<ol style="list-style-type: decimal">
+<li>
+<p>All the query filters for the WQP work as an AND but within the
+fields there are ORs. For example:</p>
 <ul>
-<li>All the query filters for the WQP work as an AND but within the
-fields there are ORs. So for example, characteristics - if you choose pH
-&amp; DO - it’s an OR. Similarly, if you choose VA and IL, it’s an OR.
-But the combo of fields are ANDs, such as State/VA AND
-Characteristic/DO”. “Characteristic” and “Characteristic Type” on the
-WQP also work as an AND. Tip 2) The “siteid” is a general term WQP uses
-to describe both Site IDs from USGS databases and Monitoring Location
-Identifiers (from the Water Quality Portal). Each monitoring location in
-the Water Quality Portal (WQP) has a unique Monitoring Location
-Identifier, regardless of the database from which it derives. The
-Monitoring Location Identifier from the WQP is the concatenated
-Organization Identifier plus the Site ID number. Site IDs that only
-include a number are only unique identifiers for monitoring locations
-within USGS NWIS or EPA’s WQX databases separately.</li>
+<li><p>Characteristics: If you choose pH &amp; DO - it’s an OR. This
+means you will retrieve both pH OR DO data if available.</p></li>
+<li><p>States: Similarly, if you choose VA and IL, it’s an OR. This
+means you will retrieve both VA OR IL data if available.</p></li>
+<li><p>Combinations of fields are ANDs, such as State/VA AND
+Characteristic/DO”. This means you will receive all DO data available in
+VA.</p></li>
+<li><p>“Characteristic” and “Characteristic Type” also work as an AND.
+This means that the Characteristic must fall within the
+CharacteristicGroup if both filters are being used, if not you will get
+an error.</p></li>
 </ul>
+</li>
+<li><p>The “siteid” is a general term WQP uses to describe both Site IDs
+from USGS databases and Monitoring Location Identifiers (from the Water
+Quality Portal). Each monitoring location in the Water Quality Portal
+(WQP) has a unique Monitoring Location Identifier, regardless of the
+database from which it derives. The Monitoring Location Identifier from
+the WQP is the concatenated Organization Identifier plus the Site ID
+number. Site IDs that only include a number are only unique identifiers
+for monitoring locations within USGS NWIS or EPA’s WQX databases
+separately.</p></li>
+</ol>
 <p>Additional resources:</p>
 <ul>
 <li><p>Review function documentation by entering the following code into
 the console: ?TADAdataRetrieval</p></li>
-<li><p><a href="https://cran.r-project.org/web/packages/dataRetrieval/vignettes/dataRetrieval.html" class="external-link">Introduction
-to the dataRetrieval package</a></p></li>
+<li><p><a href="https://CRAN.R-project.org/package=dataRetrieval" class="external-link">Introduction to
+the dataRetrieval package</a></p></li>
 <li><p><a href="https://rdrr.io/cran/dataRetrieval/man/readWQPdata.html" class="external-link">General
 Data Import from Water Quality Portal</a></p></li>
 <li><p><a href="https://www.waterqualitydata.us/webservices_documentation/" class="external-link">Water
@@ -344,7 +394,10 @@ by entering the following code in the console: ?DepthProfileData</p>
 <h2 id="result-unit-conversions">Result unit conversions<a class="anchor" aria-label="anchor" href="#result-unit-conversions"></a>
 </h2>
 <p>Converts all results to WQX target units. WQX target units are pulled
-from the MeasureUnit domain table: <a href="https://cdx2.epa.gov/wqx/download/DomainValues/MeasureUnit.CSV" class="external-link uri">https://cdx2.epa.gov/wqx/download/DomainValues/MeasureUnit.CSV</a></p>
+from the MeasureUnit domain table:</p>
+<ul>
+<li><a href="https://cdx.epa.gov/wqx/download/DomainValues/MeasureUnit.CSV" class="external-link uri">https://cdx.epa.gov/wqx/download/DomainValues/MeasureUnit.CSV</a></li>
+</ul>
 <p>See additional function documentation for additional function options
 by entering the following code in the console: ?WQXTargetUnits</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
@@ -354,7 +407,7 @@ by entering the following code in the console: ?WQXTargetUnits</p>
 <div class="section level2">
 <h2 id="statistically-aggregated-data">Statistically aggregated data<a class="anchor" aria-label="anchor" href="#statistically-aggregated-data"></a>
 </h2>
-<p>Checks for and removes statistically aggregated high freqeuncy (i.e.,
+<p>Checks for and removes statistically aggregated high frequency (i.e.,
 continuous) data, if present.</p>
 <p>The Water Quality Portal (WQP) is not designed to store
 high-frequency sensor data. However, sometimes data providers choose to
@@ -362,12 +415,20 @@ aggregate their continuous data and submit it to WQP as one value. This
 type of data may not be suitable for integration with discrete water
 quality data for assessments. Therefore, this function uses metadata
 submitted by data providers to flags rows with aggregated continuous
-data. This is done by flagging results where the
-ResultDetectionConditionText = “Reported in Raw Data (attached)”. When
-clean = TRUE, rows with aggregated continuous data are removed from the
-dataset and no column will be appended. Default is clean = TRUE.</p>
-<p>See function documentation for additional function options by
-entering the following code in the console: ?DepthProfileData</p>
+data.</p>
+<ul>
+<li>
+<p>This is done by flagging results where the
+ResultDetectionConditionText = “Reported in Raw Data (attached)”</p>
+<ul>
+<li><p>When clean = TRUE, rows with aggregated continuous data are
+removed from the dataset and no column will be appended</p></li>
+<li><p>Default is clean = TRUE</p></li>
+</ul>
+</li>
+<li><p>See function documentation for additional function options by
+entering the following code in the console: ?DepthProfileData</p></li>
+</ul>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">TADAProfileClean3</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/AggregatedContinuousData.html">AggregatedContinuousData</a></span><span class="op">(</span><span class="va">TADAProfileClean2</span>, clean <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] "The dataset does not contain aggregated continuous data."</span></span></code></pre></div>
@@ -379,8 +440,55 @@ entering the following code in the console: ?DepthProfileData</p>
 fraction, speciation, and unit metadata by characteristic. The default
 is Clean=TRUE, which will remove invalid results. You can change this to
 clean=FALSE to flag results, but not remove them.</p>
-<p>See documentation for more details: ?InvalidMethod ?InvalidSpeciation
-?InvalidResultUnit ?InvalidFraction</p>
+<p>See documentation for more details:</p>
+<ul>
+<li>
+<p>?InvalidMethod</p>
+<ul>
+<li><p>When Clean = FALSE, this function adds the following column to
+your dataframe: WQX.AnalyticalMethodValidity. This column flags invalid
+CharacteristicName, ResultAnalyticalMethod/MethodIdentifier, and
+ResultAnalyticalMethod/MethodIdentifierContext combinations in your
+dataset either “Nonstandardized”, “Invalid”, or “Valid”.</p></li>
+<li><p>When clean = TRUE, “Invalid” rows are removed from the dataset
+and no column will be appended.</p></li>
+</ul>
+</li>
+<li>
+<p>?InvalidSpeciation</p>
+<ul>
+<li><p>When clean = FALSE, this function adds the following column to
+your dataframe: WQX.MethodSpeciationValidity. This column flags each
+CharacteristicName and MethodSpecificationName combination in your
+dataset as either “Nonstandardized”, “Invalid”, or “Valid”.</p></li>
+<li><p>When clean = TRUE, “Invalid” rows are removed from the dataset
+and no column will be appended.</p></li>
+</ul>
+</li>
+<li>
+<p>?InvalidResultUnit</p>
+<ul>
+<li><p>When clean = FALSE, the following column will be added to your
+dataset: WQX.ResultUnitValidity. This column flags each
+CharacteristicName, ActivityMediaName, and ResultMeasure/MeasureUnitCode
+combination in your dataset as either “Nonstandardized”, “Invalid”, or
+“Valid”.</p></li>
+<li><p>When clean = TRUE, “Invalid” rows are removed from the dataset
+and no column will be appended.</p></li>
+</ul>
+</li>
+<li>
+<p>?InvalidFraction</p>
+<ul>
+<li>When clean = FALSE, this function adds the following column to your
+dataframe: WQX.SampleFractionValidity. This column flags each
+CharacteristicName and ResultSampleFractionText combination in your
+dataset as either “Nonstandardized”, “Invalid”, or “Valid”.</li>
+<li>When clean = TRUE, “Invalid” rows are removed from the dataset and
+no column will be appended.</li>
+</ul>
+</li>
+</ul>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">TADAProfileClean4</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/InvalidMethod.html">InvalidMethod</a></span><span class="op">(</span><span class="va">TADAProfileClean3</span>, clean <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span><span class="va">TADAProfileClean5</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/InvalidFraction.html">InvalidFraction</a></span><span class="op">(</span><span class="va">TADAProfileClean4</span>, clean <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
@@ -393,9 +501,32 @@ clean=FALSE to flag results, but not remove them.</p>
 </h2>
 <p>Run the following code to flag or remove results that are above or
 below the national upper and lower bound for each characteristic and
-unit combination. The default is clean=TRUE, but you can change this to
-only flag results if desired. Results will be flagged, but not removed,
-when clean=FALSE.</p>
+unit combination. See documentation for more details:</p>
+<ul>
+<li>
+<p>?AboveNationalWQXUpperThreshold</p>
+<ul>
+<li><p>When clean = FALSE, the following column is added to your
+dataset: AboveWQXUpperThreshold. This column flags rows with data that
+are above the upper WQX threshold.</p></li>
+<li><p>When clean = TRUE, data that is above the upper WQX threshold is
+removed from the dataset.</p></li>
+</ul>
+</li>
+<li>
+<p>?BelowNationalWQXUpperThreshold</p>
+<ul>
+<li><p>When clean = FALSE, the following column is added to your
+dataset: BelowWQXUpperThreshold. This column flags rows with data that
+are below the lower WQX threshold.</p></li>
+<li><p>When clean = TRUE, data that is below the lower WQX threshold is
+removed from the dataset.</p></li>
+</ul>
+</li>
+</ul>
+<p>The default is clean=TRUE, but you can change this to only flag
+results if desired. Results will be flagged, but not removed, when
+clean=FALSE.</p>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">TADAProfileClean8</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/AboveNationalWQXUpperThreshold.html">AboveNationalWQXUpperThreshold</a></span><span class="op">(</span><span class="va">TADAProfileClean7</span>, clean <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span><span class="va">TADAProfileClean9</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/BelowNationalWQXUpperThreshold.html">BelowNationalWQXUpperThreshold</a></span><span class="op">(</span><span class="va">TADAProfileClean8</span>, clean <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
@@ -408,25 +539,47 @@ Quality Portal (WQP), which can affect water quality analyses and
 assessments. This function checks for and identifies data that is
 identical in all fields excluding organization-specific and comment text
 fields. Each pair or group of potential duplicate rows is flagged with a
-unique ID. When clean = TRUE, the function retains the first occurrence
-of each potential duplicate in the dataset. Default is clean = TRUE.</p>
+unique ID. For more information, review the documentation by entering
+the following into the console:</p>
+<ul>
+<li>
+<p>?PotentialDuplicateRowID</p>
+<ul>
+<li><p>When clean = FALSE, the following column will be added to you
+dataframe: TADA.PotentialDupRowID. This column flags potential duplicate
+rows of data in your dataset, and assigns each potential duplicate
+combination a unique number linking the two potential duplication
+rows.</p></li>
+<li><p>When clean = FALSE the first of each group of potential duplicate
+rows will be removed from the dataset and no column is
+appended.</p></li>
+</ul>
+</li>
+</ul>
+<p>When clean = TRUE, the function retains the first occurrence of each
+potential duplicate in the dataset. Default is clean = TRUE.</p>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">TADAProfileClean10</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/PotentialDuplicateRowID.html">PotentialDuplicateRowID</a></span><span class="op">(</span><span class="va">TADAProfileClean9</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="invalid-coordinates">Invalid coordinates<a class="anchor" aria-label="anchor" href="#invalid-coordinates"></a>
 </h2>
-<p>Function identifies and flags invalid coordinate data. When
-clean_outsideUSA = FALSE and clean_imprecise = FALSE, a column will be
-appended titled “TADA.InvalidCoordinates” with the following flags (if
-relevant to dataset). If the latitude is less than zero, the row will be
-flagged with “LAT_OutsideUSA”. If the longitude is greater than zero AND
-less than 145, the row will be flagged as “LONG_OutsideUSA”. If the
-latitude or longitude contains the string, “999”, the row will be
-flagged as invalid. Finally, precision can be measured by the number of
-decimal places in the latitude and longitude provided. If either does
-not have any numbers to the right of the decimal point, the row will be
-flagged as “Imprecise”.</p>
+<p>Function identifies and flags invalid coordinate data.</p>
+<p>When clean_outsideUSA = FALSE and clean_imprecise = FALSE, a column
+will be appended titled “TADA.InvalidCoordinates” with the following
+flags (if relevant to dataset).</p>
+<ul>
+<li><p>If the latitude is less than zero, the row will be flagged with
+“LAT_OutsideUSA”.</p></li>
+<li><p>If the longitude is greater than zero AND less than 145, the row
+will be flagged as “LONG_OutsideUSA”.</p></li>
+<li><p>If the latitude or longitude contains the string, “999”, the row
+will be flagged as invalid.</p></li>
+<li><p>Finally, precision can be measured by the number of decimal
+places in the latitude and longitude provided. If either does not have
+any numbers to the right of the decimal point, the row will be flagged
+as “Imprecise”.</p></li>
+</ul>
 <div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">TADAProfileClean11</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/InvalidCoordinates.html">InvalidCoordinates</a></span><span class="op">(</span><span class="va">TADAProfileClean10</span>, clean_outsideUSA <span class="op">=</span> <span class="cn">FALSE</span>, clean_imprecise <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
 </div>
@@ -441,9 +594,10 @@ Project Plan (QAPP) or not. In this field, Y indicates yes, N indicates
 no.</p>
 <p>This function has two default inputs: clean = TRUE and cleanNA =
 FALSE. These defaults remove rows of data where the
-QAPPApprovedIndicator equals “N”. Users could alternatively remove both
-N’s and NA’s using the inputs clean = TRUE and cleanNA = TRUE. If both
-clean = FALSE and cleanNA = FALSE, the function will not do
+QAPPApprovedIndicator equals “N”.</p>
+<p>Users could alternatively remove both N’s and NA’s using the inputs
+clean = TRUE and cleanNA = TRUE.</p>
+<p>If both clean = FALSE and cleanNA = FALSE, the function will not do
 anything.</p>
 <div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">TADAProfileClean12</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/QAPPapproved.html">QAPPapproved</a></span><span class="op">(</span><span class="va">TADAProfileClean11</span>, clean <span class="op">=</span> <span class="cn">TRUE</span>, cleanNA <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
@@ -476,7 +630,7 @@ in each field.</p>
 <span><span class="co">#&gt; 2                    ActivityTypeCode     5</span></span>
 <span><span class="co">#&gt; 3                   ActivityMediaName     1</span></span>
 <span><span class="co">#&gt; 4        ActivityMediaSubdivisionName     4</span></span>
-<span><span class="co">#&gt; 5                 ActivityCommentText     2</span></span>
+<span><span class="co">#&gt; 5                 ActivityCommentText     3</span></span>
 <span><span class="co">#&gt; 6                 HydrologicCondition     8</span></span>
 <span><span class="co">#&gt; 7                     HydrologicEvent     4</span></span>
 <span><span class="co">#&gt; 8                  CharacteristicName     2</span></span>
@@ -489,17 +643,22 @@ in each field.</p>
 <p>Next, choose a field from the list to see the unique values in that
 field, as well as the number of times each value appears in the dataset.
 We’ll start with ActivityTypeCode.</p>
-<p>Here is a list of other fields to review: 1.
+<p>Here is a list of other fields to review:</p>
+<ol style="list-style-type: decimal">
+<li>
 <strong>ResultCommentText</strong> often has details relating to
-additional QA. 2. <strong>MeasureQualifierCode</strong> Contains
-information about data flags 3. Other codes may designate suspect data
-or other flags which may be described in detail in
-<strong>ResultLaboratoryCommentText</strong> or another column</p>
+additional QA.</li>
+<li>
+<strong>MeasureQualifierCode</strong> Contains information about
+data flags 3. Other codes may designate suspect data or other flags
+which may be described in detail in
+<strong>ResultLaboratoryCommentText</strong> or another column</li>
+</ol>
 <div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/FilterFieldReview.html">FilterFieldReview</a></span><span class="op">(</span><span class="st">"ActivityTypeCode"</span>, <span class="va">TADAProfileClean13</span><span class="op">)</span></span></code></pre></div>
 <p><img src="WQPDataHarmonization_files/figure-html/unnamed-chunk-14-1.png" width="576"></p>
 <pre><code><span><span class="co">#&gt;                               FieldValue Count</span></span>
-<span><span class="co">#&gt; 5                         Sample-Routine   801</span></span>
+<span><span class="co">#&gt; 5                         Sample-Routine   809</span></span>
 <span><span class="co">#&gt; 3 Quality Control Sample-Field Replicate    50</span></span>
 <span><span class="co">#&gt; 1                          Field Msr/Obs     4</span></span>
 <span><span class="co">#&gt; 2     Quality Control Sample-Field Blank     1</span></span>
@@ -521,7 +680,7 @@ ResultStatusIdentifier field.</p>
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/FilterFieldReview.html">FilterFieldReview</a></span><span class="op">(</span><span class="st">"ActivityMediaSubdivisionName"</span>, <span class="va">TADAProfileClean14</span><span class="op">)</span></span></code></pre></div>
 <p><img src="WQPDataHarmonization_files/figure-html/unnamed-chunk-16-1.png" width="576"></p>
 <pre><code><span><span class="co">#&gt;        FieldValue Count</span></span>
-<span><span class="co">#&gt; 3   Surface Water   679</span></span>
+<span><span class="co">#&gt; 3   Surface Water   687</span></span>
 <span><span class="co">#&gt; 2     Groundwater   106</span></span>
 <span><span class="co">#&gt; 1 Bulk deposition     1</span></span></code></pre>
 <p>The ActivityMediaSubdivisionName field has two unique values,
@@ -542,8 +701,8 @@ displayed to save space on the page)</p>
 <div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/FilterParList.html">FilterParList</a></span><span class="op">(</span><span class="va">TADAProfileClean15</span><span class="op">)</span></span>
 <span><span class="co">#&gt;   FieldValue Count</span></span>
-<span><span class="co">#&gt; 1    NITRATE   641</span></span>
-<span><span class="co">#&gt; 2   NITROGEN    57</span></span></code></pre></div>
+<span><span class="co">#&gt; 1    NITRATE   647</span></span>
+<span><span class="co">#&gt; 2   NITROGEN    59</span></span></code></pre></div>
 <p>Next, select a parameter. Let’s explore the fields associated with
 Nitrogen:</p>
 <div class="sourceCode" id="cb21"><pre class="downlit sourceCode r">
@@ -552,7 +711,7 @@ Nitrogen:</p>
 <span><span class="co">#&gt; 1                                ActivityTypeCode     1</span></span>
 <span><span class="co">#&gt; 2                               ActivityMediaName     1</span></span>
 <span><span class="co">#&gt; 3                    ActivityMediaSubdivisionName     1</span></span>
-<span><span class="co">#&gt; 4                             ActivityCommentText     1</span></span>
+<span><span class="co">#&gt; 4                             ActivityCommentText     2</span></span>
 <span><span class="co">#&gt; 5                             HydrologicCondition     6</span></span>
 <span><span class="co">#&gt; 6                                 HydrologicEvent     1</span></span>
 <span><span class="co">#&gt; 7         SampleCollectionMethod.MethodIdentifier     5</span></span>
@@ -585,7 +744,7 @@ certain values from the HydrologicEvent field.</p>
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/FilterParFieldReview.html">FilterParFieldReview</a></span><span class="op">(</span><span class="st">"HydrologicEvent"</span>, <span class="va">TADAProfileClean15</span>, <span class="st">"NITROGEN"</span><span class="op">)</span></span></code></pre></div>
 <p><img src="WQPDataHarmonization_files/figure-html/unnamed-chunk-20-1.png" width="576"></p>
 <pre><code><span><span class="co">#&gt;       FieldValue Count</span></span>
-<span><span class="co">#&gt; 1 Routine sample    57</span></span></code></pre>
+<span><span class="co">#&gt; 1 Routine sample    59</span></span></code></pre>
 <p>The HydrologicEvent field has three unique values. In this example we
 want to remove samples collected during “Storm” events. Therefore, we’ll
 specify that we want to remove rows where the CharacteristicName is
@@ -599,33 +758,47 @@ Standards<a class="anchor" aria-label="anchor" href="#transform-characteristic-s
 </h2>
 <p>The HarmonizeRefTable function generates a harmonization reference
 table that is specific to the input dataset. Users can review how their
-input data relates to standard TADA values for CharacteristicName,
-ResultSampleFractionText, MethodSpecicationName, and
-ResultMeasure.MeasureUnitCode and they can optionally edit the reference
-file to meet their needs. The download argument can be used to save the
-harmonization file to your current working directory when download =
-TRUE, the default is download = FALSE.</p>
+input data relates to standard TADA values for the following
+elements:</p>
+<ul>
+<li><p>CharacteristicName</p></li>
+<li><p>ResultSampleFractionText</p></li>
+<li><p>MethodSpecicationName</p></li>
+<li><p>ResultMeasure.MeasureUnitCode</p></li>
+</ul>
 <p>The HarmonizeData function then compares the input dataset to the
 TADA Harmonization Reference Table. The purpose of the function is to
 make similar data consistent and therefore easier to compare and
-analyze. Optional outputs include: 1) the dataset with Harmonization
-columns appended, 2) the datset with CharacteristicName,
-ResultSampleFractionText, MethodSpecificationName, and
-ResultMeasure.MeasureUnitCode converted to TADA standards or 3) the four
-fields converted with most Harmonization Reference Table columns
-appended. Default is transform = TRUE and flag = TRUE.</p>
-<p>Here are some examples of how the HarmonizeData function can be used:
-1. <strong>ResultSampleFractionText</strong> specifies forms of
+analyze.</p>
+<p>Users can also edit the reference file to meet their needs if
+desired. The download argument can be used to save the harmonization
+file to your current working directory when download = TRUE, the default
+is download = FALSE.</p>
+<p>Optional outputs include:</p>
+<ol style="list-style-type: decimal">
+<li><p>the dataset with Harmonization columns appended,</p></li>
+<li><p>the datset with CharacteristicName, ResultSampleFractionText,
+MethodSpecificationName, and ResultMeasure.MeasureUnitCode converted to
+TADA standards or</p></li>
+<li><p>the four fields converted with most Harmonization Reference Table
+columns appended. Default is transform = TRUE and flag = TRUE.</p></li>
+</ol>
+<p>Here are some examples of how the HarmonizeData function can be
+used:</p>
+<ol style="list-style-type: decimal">
+<li><p><strong>ResultSampleFractionText</strong> specifies forms of
 constituents. In some cases, a single
 <strong>CharacteristicName</strong> will have both “Total” and
 “Dissolved” forms specified, which should not be combined. In these
 cases, each CharacteristicName and ResultSampleFractionText combination
 is given a different identifier. This identifier can be used later on to
 identify comparable data groups for calculating statistics and creating
-figures for each combination. 2. Some variables have different names but
-represent the same constituent (e.g., “Total Kjeldahl nitrogen (Organic
-N &amp; NH3)” and “Kjeldahl nitrogen”). The HarmonizeData function gives
-a consistent name (and identifier) to synonyms.</p>
+figures for each combination.</p></li>
+<li><p>Some variables have different names but represent the same
+constituent (e.g., “Total Kjeldahl nitrogen (Organic N &amp; NH3)” and
+“Kjeldahl nitrogen”). The HarmonizeData function gives a consistent name
+(and identifier) to synonyms.</p></li>
+</ol>
 <div class="sourceCode" id="cb25"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">UniqueHarmonizationRef</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/HarmonizationRefTable.html">HarmonizationRefTable</a></span><span class="op">(</span><span class="va">TADAProfileClean16</span>, download <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
 <span><span class="va">TADAProfileClean17</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/HarmonizeData.html">HarmonizeData</a></span><span class="op">(</span><span class="va">TADAProfileClean16</span>, ref <span class="op">=</span> <span class="va">UniqueHarmonizationRef</span>, transform <span class="op">=</span> <span class="cn">TRUE</span>, flag <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
@@ -638,7 +811,7 @@ a consistent name (and identifier) to synonyms.</p>
 
     <footer><div class="pkgdown-footer-left">
   <p></p>
-<p>Developed by Cristina Mullin, Jacob Greif, Michelle Thawley, Laura Shumway.</p>
+<p>Developed by Cristina Mullin, Michelle Thawley, Laura Shumway, Jacob Greif.</p>
 </div>
 
 <div class="pkgdown-footer-right">

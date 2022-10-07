@@ -14,10 +14,11 @@ speciation combinations from the dataset when clean = TRUE. Default is
 clean = TRUE.}
 }
 \value{
-When clean = FALSE, a column indicating the validity of the
-combination of CharacteristicName and MethodSpeciation values is
-appended to the input data set. When clean = TRUE, "Invalid" rows are removed
-from the dataset and no column will be appended.
+#'When clean = FALSE, this function adds the following column to your
+dataframe: WQX.MethodSpeciationValidity. This column flags each
+CharacteristicName and MethodSpecificationName combination in your dataset as
+either "Nonstandardized", "Invalid", or "Valid". When clean = TRUE, "Invalid"
+rows are removed from the dataset and no column will be appended.
 }
 \description{
 Function checks the validity of each characteristic-method
