@@ -19,13 +19,6 @@
 #' 
 #' @export
 #'
-#' @examples
-#' { 
-#' InvalidMethod(.data, clean = TRUE)
-#' }
-#' { 
-#' InvalidMethod(.data, clean = FALSE)
-#' }
 #' 
 
 InvalidMethod <- function(.data, clean = TRUE) {

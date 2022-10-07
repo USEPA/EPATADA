@@ -27,12 +27,3 @@ combination in the dataset. When clean = TRUE, rows with invalid
 characteristic-analytical method combinations are removed. Default is
 clean = TRUE.
 }
-\examples{
-{ 
-InvalidMethod(.data, clean = TRUE)
-}
-{ 
-InvalidMethod(.data, clean = FALSE)
-}
-
-}
