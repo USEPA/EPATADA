@@ -22,45 +22,26 @@ knitr::opts_chunk$set(
 
 ## Overview
 
-In this vignette, we will walk through how to discover, wrangle, and
+This vignette will walk through how to discover, wrangle, and
 harmonize [Water Quality Portal (WQP)](https://www.waterqualitydata.us/)
 data from multiple organizations.
 
 ## Install and load packages
 
-Install and load dependency packages. Current versions of TADA and
-dataRetrieval can be installed from GitHub instead of CRAN if needed.
-
+To install TADA, currently you need to install from GitHub using remotes (shown)
+or devtools. dataRetrieval will be downloaded from CRAN, but the development
+version can be downloaded directly from GitHub (un-comment).
 ```{r, results = 'hide', message = FALSE, warning = FALSE}
-list.of.packages <- c("plyr","dplyr","ggplot2","RColorBrewer","Rcpp","devtools", "data.table","grDevices","magrittr","stringr","testthat","usethis","utils","stats","rmarkdown","knitr","remotes", "tidyverse", "lubridate", "dplyr", "dataRetrieval")
-new.packages <- list.of.packages[!(list.of.packages %in% installed.packages()[,"Package"])]
-if(length(new.packages)) install.packages(new.packages)
+# To install the latest version of TADA:
+install.packages("remotes", repos = "http://cran.us.r-project.org")
+remotes::install_github("USEPA/TADA", dependencies=TRUE)
 
-# If needed, you can install TADA and dataRetrieval from GitHub directly using the following:
-# remotes::install_github("USGS-R/dataRetrieval", dependencies=TRUE)
-# remotes::install_github("USEPA/TADA", dependencies=TRUE)
+# Optionally install latest version of dataRetrieval from github
+#remotes::install_github("USGS-R/dataRetrieval", dependencies=TRUE)
+```
 
-library(remotes)
-library(plyr)
-library(dplyr)
-library(ggplot2)
-library(RColorBrewer)
-library(Rcpp)
-library(data.table)
-library(grDevices)
-library(magrittr)
-library(stringr)
-library(testthat)
-library(usethis)
-library(utils)
-library(stats)
-library(rmarkdown)
-library(knitr)
-library(devtools)
-library(tidyverse)
-library(lubridate)
-library(dplyr)
-library(dataRetrieval)
+Load package for this vignette
+```{r}
 library(TADA)
 ```
 
