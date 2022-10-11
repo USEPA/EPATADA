@@ -15,10 +15,12 @@ potential duplicate rows with a unique number linking rows is appended to the
 input data set. Default is clean = TRUE.}
 }
 \value{
-When clean = FALSE, a column indicating potential duplicate rows with
-a unique number linking rows is appended to the input data set. When
-clean = FALSE the first of each group of potential duplicate rows will be
-removed from the dataset and no column is appended.
+When clean = FALSE, the following column will be added to you dataframe:
+TADA.PotentialDupRowID. This column flags potential duplicate rows of data
+in your dataset, and assigns each potential duplicate combination a unique number
+linking the two potential duplication rows. When clean = FALSE the first of
+each group of potential duplicate rows will be removed from the dataset
+and no column is appended.
 }
 \description{
 Sometimes multiple organizations submit the exact same data to Water Quality

@@ -32,7 +32,6 @@ clean = TRUE."><!-- mathjax --><script src="https://cdnjs.cloudflare.com/ajax/li
   <div class="dropdown-menu" aria-labelledby="dropdown-articles">
     <a class="dropdown-item" href="../articles/CONTRIBUTING.html">Contributing</a>
     <a class="dropdown-item" href="../articles/WQPDataHarmonization.html">WQP Data Harmonization</a>
-    <a class="dropdown-item" href="../articles/WQPDataVisualization.html">WQP Data Visualization</a>
   </div>
 </li>
       </ul><form class="form-inline my-2 my-lg-0" role="search">
@@ -84,10 +83,11 @@ clean = TRUE.</p></dd>
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
     
 
-<p>When clean = FALSE, a column indicating the validity of the
-combination of CharacteristicName and MethodSpeciation values is
-appended to the input data set. When clean = TRUE, "Invalid" rows are removed
-from the dataset and no column will be appended.</p>
+<p>#'When clean = FALSE, this function adds the following column to your
+dataframe: WQX.MethodSpeciationValidity. This column flags each
+CharacteristicName and MethodSpecificationName combination in your dataset as
+either "Nonstandardized", "Invalid", or "Valid". When clean = TRUE, "Invalid"
+rows are removed from the dataset and no column will be appended.</p>
     </div>
 
   </main><aside class="col-md-3"><nav id="toc"><h2>On this page</h2>
@@ -95,7 +95,7 @@ from the dataset and no column will be appended.</p>
 
 
     <footer><div class="pkgdown-footer-left">
-  <p></p><p>Developed by Cristina Mullin, Jacob Greif, Michelle Thawley, Laura Shumway.</p>
+  <p></p><p>Developed by Cristina Mullin, Michelle Thawley, Laura Shumway, Jacob Greif.</p>
 </div>
 
 <div class="pkgdown-footer-right">

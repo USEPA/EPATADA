@@ -8,10 +8,11 @@
 #' @param clean Boolean argument; removes "Invalid" characteristic-fraction
 #' combinations from the dataset when clean = TRUE. Default is clean = TRUE.
 #'
-#' @return When clean = FALSE, a column indicating the validity of the
-#' combination of CharacteristicName and ResultSampleFractionText values is
-#' appended to the input data set. When clean = TRUE, "Invalid" rows are removed
-#' from the dataset and no column will be appended.
+#' @return When clean = FALSE, this function adds the following column to your
+#' dataframe: WQX.SampleFractionValidity. This column flags each 
+#' CharacteristicName and ResultSampleFractionText combination in your dataset 
+#' as either "Nonstandardized", "Invalid", or "Valid". When clean = TRUE, 
+#' "Invalid" rows are removed from the dataset and no column will be appended.
 #'
 #' @export
 #'
@@ -107,10 +108,11 @@ InvalidFraction <- function(.data, clean = TRUE) {
 #' speciation combinations from the dataset when clean = TRUE. Default is
 #' clean = TRUE.
 #'
-#' @return When clean = FALSE, a column indicating the validity of the
-#' combination of CharacteristicName and MethodSpeciation values is
-#' appended to the input data set. When clean = TRUE, "Invalid" rows are removed
-#' from the dataset and no column will be appended.
+#' @return #'When clean = FALSE, this function adds the following column to your
+#' dataframe: WQX.MethodSpeciationValidity. This column flags each 
+#' CharacteristicName and MethodSpecificationName combination in your dataset as 
+#' either "Nonstandardized", "Invalid", or "Valid". When clean = TRUE, "Invalid" 
+#' rows are removed from the dataset and no column will be appended.
 #'
 #' @export
 #'
@@ -203,9 +205,10 @@ InvalidSpeciation <- function(.data, clean = TRUE) {
 #' unit combinations from the dataset when clean = TRUE. Default is
 #' clean = TRUE.
 #'
-#' @return When clean = FALSE, a column indicating the validity of the
-#' combination of CharacteristicName, ActivityMediaType, and
-#' ResultMeasure/MeasureUnitCode values is appended to the input data set. When
+#' @return When clean = FALSE, the following column will be added to your dataset: 
+#' WQX.ResultUnitValidity. This column flags each CharacteristicName, 
+#' ActivityMediaName, and ResultMeasure/MeasureUnitCode combination in your 
+#' dataset as either "Nonstandardized", "Invalid", or "Valid". When
 #' clean = TRUE, "Invalid" rows are removed from the dataset and no column will
 #' be appended.
 #'

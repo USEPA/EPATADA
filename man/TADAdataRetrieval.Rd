@@ -46,9 +46,30 @@ characteristics – if you choose pH & DO – it’s an OR. Similarly, if you
 choose VA and IL, it’s an OR. But the combo of fields are ANDs.
 Such as State/VA AND Characteristic/DO".
 "Characteristic" and "Characteristic Group" also work as an AND.
+
+This function will create and/or edit the following columns:
+TADA.DetectionLimitMeasureValue.Flag
+DetectionQuantitationLimitMeasure.MeasureValue
+DetectionLimitMeasureValue.Original
+ResultMeasureValue.Original
+TADA.ResultMeasureValue.Flag
+ResultMeasureValue
+
+All data cleaning and transformations are done directly to the
+"ResultMeasureValue" and "DetectionLimitMeasureValue" columns,
+however the original "ResultMeasureValue" and "DetectionLimitMeasureValue"
+columns and values from the WQP are preserved in these new fields,
+"ResultMeasureValue.Original" and "DetectionLimitMeasureValue.Original".
+Additionally, "TADA.ResultMeasureValue.Flag" and
+"TADA.DetectionLimitMeasureValue.Flag" are created to track and changes made
+to the "ResultMeasureValue" and "DetectionLimitMeasureValue" columns;
+and to provide information about the result values that is needed to address
+censored data later on (i.e., nondetections)
+
+See ?MeasureValueSpecialCharacters and ?autoclean documentation for more information.
 }
 \examples{
-{
+\dontrun{
 tada1 <- TADAdataRetrieval(statecode = "WI",
                            countycode = "Dane",
                            characteristicName = "Phosphorus")

@@ -73,6 +73,12 @@
     <loc>usepa.github.io/tada/reference/GenerateCensoredDataStats.html</loc>
   </url>
   <url>
+    <loc>usepa.github.io/tada/reference/GetMeasureUnitRef.html</loc>
+  </url>
+  <url>
+    <loc>usepa.github.io/tada/reference/GetWQXCharValRef.html</loc>
+  </url>
+  <url>
     <loc>usepa.github.io/tada/reference/HarmonizationRefTable.html</loc>
   </url>
   <url>
@@ -139,6 +145,12 @@
     <loc>usepa.github.io/tada/reference/UpdateWQXCharValRef.html</loc>
   </url>
   <url>
+    <loc>usepa.github.io/tada/reference/WQXCharValRef_Cached.html</loc>
+  </url>
+  <url>
     <loc>usepa.github.io/tada/reference/WQXTargetUnits.html</loc>
+  </url>
+  <url>
+    <loc>usepa.github.io/tada/reference/WQXunitRef_Cached.html</loc>
   </url>
 </urlset>

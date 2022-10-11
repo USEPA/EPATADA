@@ -9,7 +9,28 @@
 #' choose VA and IL, it’s an OR. But the combo of fields are ANDs. 
 #' Such as State/VA AND Characteristic/DO". 
 #' "Characteristic" and "Characteristic Group" also work as an AND. 
-#'
+#' 
+#' This function will create and/or edit the following columns:
+#' TADA.DetectionLimitMeasureValue.Flag
+#' DetectionQuantitationLimitMeasure.MeasureValue
+#' DetectionLimitMeasureValue.Original
+#' ResultMeasureValue.Original
+#' TADA.ResultMeasureValue.Flag
+#' ResultMeasureValue
+#' 
+#' All data cleaning and transformations are done directly to the
+#' "ResultMeasureValue" and "DetectionLimitMeasureValue" columns, 
+#' however the original "ResultMeasureValue" and "DetectionLimitMeasureValue"
+#' columns and values from the WQP are preserved in these new fields, 
+#' "ResultMeasureValue.Original" and "DetectionLimitMeasureValue.Original". 
+#' Additionally, "TADA.ResultMeasureValue.Flag" and 
+#' "TADA.DetectionLimitMeasureValue.Flag" are created to track and changes made
+#' to the "ResultMeasureValue" and "DetectionLimitMeasureValue" columns; 
+#' and to provide information about the result values that is needed to address
+#'  censored data later on (i.e., nondetections)
+#'  
+#'  See ?MeasureValueSpecialCharacters and ?autoclean documentation for more information.
+#' 
 #' @param statecode Code that identifies a state
 #' @param startDate Start Date
 #' @param countycode Code that identifies a county 
@@ -24,7 +45,7 @@
 #' @export
 #'
 #' @examples 
-#' {
+#' \dontrun{
 #' tada1 <- TADAdataRetrieval(statecode = "WI",
 #'                            countycode = "Dane",
 #'                            characteristicName = "Phosphorus")
@@ -193,7 +214,8 @@ readWQPwebservice <- function(webservice) {
 #'
 #' Removes complex biological data. Removes non-water media samples.
 #' Removes rows of data that are true duplicates. Capitalizes fields to harmonize
-#' data.
+#' data. This function includes and runs the TADA "MeasureValueSpecialCharacters" 
+#' function as well. 
 #'
 #' Within "BiologicalIntentName", only the allowable values "tissue", "toxicity",
 #' and "NA" apply to non-biological data (the function removes all others).
@@ -317,15 +339,39 @@ TADAprofileCheck <- function(.data) {
 
 
 
-#' Large WQP data pulls using dataRetrieval for all data from all sites in the contiguous United States.
-#'  
-#' This function uses the WQP summary service to limit the amount
-#' downloaded to only relevant data. For large data sets, that can 
-#' save a lot of time and ultimately reduce the complexity of subsequent
-#' data processing. 
+#' Large WQP data pulls using dataRetrieval
 #' 
-#' This function will join data from multiple WQP profiles and output a 
-#' TADA-compatible dataset.
+#' This function does multiple synchronous data calls to the WQP 
+#' (waterqualitydata.us). It uses the WQP summary service to limit the amount 
+#' downloaded to only relevant data, and pulls back data from 250 stations at a 
+#' time and then joins the data back together and produces a single TADA 
+#' compatible dataframe as the output. For large data sets, that can save a lot 
+#' of time and ultimately reduce the complexity of subsequent data processing. 
+#' Using this function, you will be able to download all data available from all
+#' sites in the contiguous United States that is available for the time period,
+#' characteristicName, and siteType requested.
+#' 
+#' Similarly to the TADAdataRetrieval function, this function will create 
+#' and/or edit the following columns:
+#' TADA.DetectionLimitMeasureValue.Flag
+#' DetectionQuantitationLimitMeasure.MeasureValue
+#' DetectionLimitMeasureValue.Original
+#' ResultMeasureValue.Original
+#' TADA.ResultMeasureValue.Flag
+#' ResultMeasureValue
+#' 
+#' All data cleaning and transformations are done directly to the
+#' "ResultMeasureValue" and "DetectionLimitMeasureValue" columns, 
+#' however the original "ResultMeasureValue" and "DetectionLimitMeasureValue"
+#' columns and values from the WQP are preserved in these new fields, 
+#' "ResultMeasureValue.Original" and "DetectionLimitMeasureValue.Original". 
+#' Additionally, "TADA.ResultMeasureValue.Flag" and 
+#' "TADA.DetectionLimitMeasureValue.Flag" are created to track and changes made
+#' to the "ResultMeasureValue" and "DetectionLimitMeasureValue" columns; 
+#' and to provide information about the result values that is needed to address
+#'  censored data later on (i.e., nondetections)
+#'  
+#' See ?MeasureValueSpecialCharacters and ?autoclean documentation for more information.
 #'
 #' @param startDate Start Date YYYY-MM-DD format, for example, "1995-01-01"
 #' @param endDate end date in YYYY-MM-DD format, for example, "2020-12-31"
@@ -336,6 +382,13 @@ TADAprofileCheck <- function(.data) {
 #' 
 #' @export
 #'
+#' @examples 
+#' \dontrun{
+#' tada2 <- TADABigdataRetrieval(startDate = "01-01-2021", 
+#'                               endDate = "01-01-2022", 
+#'                               characteristicName = "Nitrogen",
+#'                               siteType = "Stream")
+#' }
 
 TADABigdataRetrieval <- function(startDate = "null",
                               endDate = "null",
