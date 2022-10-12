@@ -40,13 +40,13 @@ Imports:
     RColorBrewer,
     stats, 
     lubridate, 
-    rlang (>= 1.0.5),
-    remotes,
-    knitr,
-    tidyverse
+    remotes
 Depends: 
     R (>= 3.5.0)
 Suggests: 
+    tidyverse,
+    rlang,
+    knitr,
     rmarkdown,
     testthat (>= 3.0.0),
     usethis,

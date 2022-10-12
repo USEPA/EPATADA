@@ -30,25 +30,39 @@ data from multiple organizations.
 
 To install TADA, currently you need to install from GitHub using remotes (shown)
 or devtools. dataRetrieval will be downloaded from CRAN, but the development
-version can be downloaded directly from GitHub (un-comment).
+version can be downloaded directly from GitHub (un-comment). The following code will also install
+any packages you do not have, and load all packages required to run this vignette into 
+your R session.
 ```{r, results = 'hide', message = FALSE, warning = FALSE}
+list.of.packages <- c("plyr", "data.table", "dataRetrieval", "dplyr", "ggplot2", "grDevices", "magrittr", "stringr", "utils", "RColorBrewer", "stats", "lubridate", "remotes")
+new.packages <- list.of.packages[!(list.of.packages %in% installed.packages()[,"Package"])]
+if(length(new.packages)) install.packages(new.packages)
+
+library(plyr)
+library(data.table)
+library(dplyr)
+library(ggplot2)
+library(grDevices)
+library(magrittr)
+library(stringr)
+library(utils)
+library(RColorBrewer)
+library(stats)
+library(lubridate)
+
+# note that you must load the remotes library before installing TADA or dataRetrieval from GitHub
+library(remotes)
+# If needed, uncomment the line below to install the "remotes" package specifying the repo
+# install.packages("remotes", repos = "http://cran.us.r-project.org")
+
+library(dataRetrieval)
+# Uncomment the line below to optionally install latest version of dataRetrieval from github
+# remotes::install_github("USGS-R/dataRetrieval", dependencies=TRUE)
+
 # To install the latest version of TADA:
-
-#If needed, uncomment the line below to install the "remotes" package
-#install.packages("remotes", repos = "http://cran.us.r-project.org")
-
 remotes::install_github("USEPA/TADA", dependencies=TRUE)
-
-# Optionally install latest version of dataRetrieval from github
-#remotes::install_github("USGS-R/dataRetrieval", dependencies=TRUE)
-```
-
-Load package for this vignette
-```{r}
 library(TADA)
 
-#probably not needed
-#library(dataRetrieval)
 ```
 
 ## Retrieve WQP data
