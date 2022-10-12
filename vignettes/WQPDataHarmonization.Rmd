@@ -33,7 +33,9 @@ or devtools. dataRetrieval will be downloaded from CRAN, but the development
 version can be downloaded directly from GitHub (un-comment).
 ```{r, results = 'hide', message = FALSE, warning = FALSE}
 # To install the latest version of TADA:
-install.packages("remotes", repos = "http://cran.us.r-project.org")
+
+#If needed, uncomment the line below to install the "remotes" package
+#install.packages("remotes", repos = "http://cran.us.r-project.org")
 remotes::install_github("USEPA/TADA", dependencies=TRUE)
 
 # Optionally install latest version of dataRetrieval from github
@@ -170,16 +172,29 @@ Additional resources:
 
 -   [dataRetrieval Tutorial](https://owi.usgs.gov/R/dataRetrieval.html)
 
+
+Option 1: Use the TADAdataRetrieval function.
 ```{r}
 #You can edit this to define your own WQP query inputs below
 TADAProfile <- TADAdataRetrieval(statecode = "UT", characteristicName = c("Ammonia", "Nitrate", "Nitrogen"), startDate = "01-01-2021")
 
-#Alternatively, use the data.table::fread function to read in a web service call for any WQP profile. 
-new_fullphyschem <- data.table::fread("https://www.waterqualitydata.us/data/Result/search?countrycode=US&statecode=US%3A49&siteid=UTAHDWQ_WQX-4925610&startDateLo=01-01-2015&startDateHi=12-31-2016&mimeType=csv&zip=no&sorted=yes&dataProfile=fullPhysChem&providers=NWIS&providers=STEWARDS&providers=STORET")
+```
+
+Option 2: Alternatively, you can use the data.table::fread function to read in a web service call for any WQP profile (un-comment).
+```{r}
+# new_fullphyschem <- data.table::fread("https://www.waterqualitydata.us/data/Result/search?countrycode=US&statecode=US%3A49&siteid=UTAHDWQ_WQX-4925610&startDateLo=01-01-2015&startDateHi=12-31-2016&mimeType=csv&zip=no&sorted=yes&dataProfile=fullPhysChem&providers=NWIS&providers=STEWARDS&providers=STORET")
+```
+
+Option 3: If you need to download a large amount of data from across a large area, and the TADAdataRetrieval function is not working due to WQP timeout issues, then the TADABigdataRetrieval function may work better.
+
+This function does multiple synchronous data calls to the WQP (waterqualitydata.us). It uses the WQP summary service to limit the amount downloaded to only relevant data, and pulls back data from 100 stations at a time and then joins the data back together and produces a single TADA compatible dataframe as the output. For large data sets, that can save a lot of time and ultimately reduce the complexity of subsequent data processing. Using this function, you will be able to download all data available from all sites in the contiguous United States that is available for the time period, characteristicName, and siteType requested.
+
+See ?TADABigdataRetrieval for more details. WARNING, this can take multiple hours to run. The total run time depends on your query inputs.
+```{r}
+#AllWaterTempData <- TADABigdataRetrieval(startDate = "2019-01-01", endDate = "2021-12-31", characteristicName = "Temperature, water", siteType = "Stream")
 ```
 
 Review all column names in the TADA Profile
-
 ```{r}
 colnames(TADAProfile)
 ```
@@ -265,8 +280,8 @@ TADAProfileClean3 <- AggregatedContinuousData(TADAProfileClean2, clean = TRUE)
 
 Run the following result functions to address invalid method, fraction,
 speciation, and unit metadata by characteristic. The default is
-Clean=TRUE, which will remove invalid results. You can change this to
-clean=FALSE to flag results, but not remove them.
+clean = TRUE, which will remove invalid results. You can change this to
+clean = FALSE to flag results, but not remove them.
 
 See documentation for more details:
 
@@ -317,8 +332,8 @@ See documentation for more details:
 ```{r}
 TADAProfileClean4 <- InvalidMethod(TADAProfileClean3, clean = TRUE)
 TADAProfileClean5 <- InvalidFraction(TADAProfileClean4, clean = TRUE)
-TADAProfileClean6 <- InvalidSpeciation(TADAProfileClean5, clean = TRUE)
-TADAProfileClean7 <- InvalidResultUnit(TADAProfileClean6, clean = TRUE)
+TADAProfileClean6 <- InvalidSpeciation(TADAProfileClean5, clean = FALSE)
+TADAProfileClean7 <- InvalidResultUnit(TADAProfileClean6, clean = FALSE)
 ```
 
 ## WQX national upper and lower thresholds
@@ -596,5 +611,5 @@ Here are some examples of how the HarmonizeData function can be used:
 
 ```{r}
 UniqueHarmonizationRef <- HarmonizationRefTable(TADAProfileClean16, download = FALSE)
-TADAProfileClean17 <- HarmonizeData(TADAProfileClean16, ref = UniqueHarmonizationRef, transform = TRUE, flag = TRUE)
+TADAProfileClean17 <- HarmonizeData(TADAProfileClean16, ref = UniqueHarmonizationRef, transform = TRUE, flag = FALSE)
 ```

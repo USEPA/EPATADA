@@ -6,9 +6,60 @@ TADA.Rproj
 .Rhistory
 .Rapp.history
 
-# Session Data files
-.RData
-
 # Temporary files created by R markdown
 *.utf8.md
 *.knit.md
+
+# Session Data files
+.RData
+
+# tempdata folder files for TADABigdataRetrieval
+AL_raw_data.rds
+AR_raw_data.rds
+AZ_raw_data.rds
+CA_raw_data.rds
+CO_raw_data.rds
+CT_raw_data.rds
+DC_raw_data.rds
+DE_raw_data.rds
+FL_raw_data.rds
+GA_raw_data.rds
+ID_raw_data.rds
+IA_raw_data.rds
+IL_raw_data.rds
+IN_raw_data.rds
+KS_raw_data.rds
+KY_raw_data.rds
+LA_raw_data.rds
+ME_raw_data.rds
+MD_raw_data.rds
+MA_raw_data.rds
+MI_raw_data.rds
+MN_raw_data.rds
+MS_raw_data.rds
+MO_raw_data.rds
+MT_raw_data.rds
+NE_raw_data.rds
+NV_raw_data.rds
+NH_raw_data.rds
+NJ_raw_data.rds
+NM_raw_data.rds
+NY_raw_data.rds
+NC_raw_data.rds
+ND_raw_data.rds
+OH_raw_data.rds
+OK_raw_data.rds
+OR_raw_data.rds
+PA_raw_data.rds
+RI_raw_data.rds
+SC_raw_data.rds
+SD_raw_data.rds
+TN_raw_data.rds
+TX_raw_data.rds
+UT_raw_data.rds
+VT_raw_data.rds
+VA_raw_data.rds
+WA_raw_data.rds
+WV_raw_data.rds
+WI_raw_data.rds
+WY_raw_data.rds

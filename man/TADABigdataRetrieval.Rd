@@ -26,7 +26,7 @@ TADA-compatible dataframe
 \description{
 This function does multiple synchronous data calls to the WQP
 (waterqualitydata.us). It uses the WQP summary service to limit the amount
-downloaded to only relevant data, and pulls back data from 250 stations at a
+downloaded to only relevant data, and pulls back data from 100 stations at a
 time and then joins the data back together and produces a single TADA
 compatible dataframe as the output. For large data sets, that can save a lot
 of time and ultimately reduce the complexity of subsequent data processing.
