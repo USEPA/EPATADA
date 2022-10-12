@@ -39,18 +39,19 @@ Imports:
     utils, 
     RColorBrewer,
     stats, 
-    lubridate
+    lubridate, 
+    rlang (>= 1.0.5),
+    remotes,
+    knitr,
+    tidyverse
 Depends: 
     R (>= 3.5.0)
 Suggests: 
-    tidyverse,
     rmarkdown,
-    knitr,
     testthat (>= 3.0.0),
     usethis,
     devtools,
     pkgdown,
-    remotes,
     Rcpp,
     spelling
 VignetteBuilder: knitr, rmarkdown

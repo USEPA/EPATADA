@@ -36,6 +36,7 @@ version can be downloaded directly from GitHub (un-comment).
 
 #If needed, uncomment the line below to install the "remotes" package
 #install.packages("remotes", repos = "http://cran.us.r-project.org")
+
 remotes::install_github("USEPA/TADA", dependencies=TRUE)
 
 # Optionally install latest version of dataRetrieval from github
@@ -45,6 +46,9 @@ remotes::install_github("USEPA/TADA", dependencies=TRUE)
 Load package for this vignette
 ```{r}
 library(TADA)
+
+#probably not needed
+#library(dataRetrieval)
 ```
 
 ## Retrieve WQP data
@@ -611,5 +615,5 @@ Here are some examples of how the HarmonizeData function can be used:
 
 ```{r}
 UniqueHarmonizationRef <- HarmonizationRefTable(TADAProfileClean16, download = FALSE)
-TADAProfileClean17 <- HarmonizeData(TADAProfileClean16, ref = UniqueHarmonizationRef, transform = TRUE, flag = FALSE)
+TADAProfileClean17 <- HarmonizeData(TADAProfileClean16, transform = TRUE, flag = FALSE)
 ```
