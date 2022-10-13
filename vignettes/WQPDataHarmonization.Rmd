@@ -30,18 +30,54 @@ data from multiple organizations.
 
 To install TADA, currently you need to install from GitHub using remotes (shown)
 or devtools. dataRetrieval will be downloaded from CRAN, but the development
-version can be downloaded directly from GitHub (un-comment).
+version can be downloaded directly from GitHub (un-comment). The following code will also install
+any packages you do not have, and load all packages required to run this vignette into 
+your R session.
 ```{r, results = 'hide', message = FALSE, warning = FALSE}
-# To install the latest version of TADA:
-install.packages("remotes", repos = "http://cran.us.r-project.org")
-remotes::install_github("USEPA/TADA", dependencies=TRUE)
+list.of.packages <- c("plyr", "data.table", "dataRetrieval", "dplyr", "ggplot2", "grDevices", "magrittr", "stringr", "utils", "RColorBrewer", "stats", "lubridate", "remotes", "rlang", "tidyverse", "knitr", "rmarkdown", "testthat", "usethis", "devtools", "pkgdown", "Rcpp", "spelling")
 
-# Optionally install latest version of dataRetrieval from github
-#remotes::install_github("USGS-R/dataRetrieval", dependencies=TRUE)
+new.packages <- list.of.packages[!(list.of.packages %in% installed.packages()[,"Package"])]
+if(length(new.packages)) install.packages(new.packages)
 ```
 
-Load package for this vignette
+Load the remotes library before installing TADA or dataRetrieval from GitHub
 ```{r}
+# If you have any issues loading the remotes library, uncomment the line below to install the "remotes" package specifying the repo
+# install.packages("remotes", repos = "http://cran.us.r-project.org")
+
+library(remotes)
+```
+
+Uncomment the lines below to  install latest version of TADA and dataRetrieval from GitHub.
+```{r}
+# remotes::install_github("USGS-R/dataRetrieval", dependencies=TRUE)
+# remotes::install_github("USEPA/TADA", dependencies=TRUE)
+```
+
+Load the required libraries to run this vignette into your R session
+```{r}
+library(plyr)
+library(data.table)
+library(dplyr)
+library(ggplot2)
+library(grDevices)
+library(magrittr)
+library(stringr)
+library(utils)
+library(RColorBrewer)
+library(stats)
+library(lubridate)
+library(rlang)
+library(tidyverse)
+library(knitr)
+library(rmarkdown)
+library(testthat)
+library(usethis)
+library(devtools)
+library(pkgdown)
+library(Rcpp)
+library(spelling)
+library(dataRetrieval)
 library(TADA)
 ```
 
@@ -170,16 +206,29 @@ Additional resources:
 
 -   [dataRetrieval Tutorial](https://owi.usgs.gov/R/dataRetrieval.html)
 
+
+Option 1: Use the TADAdataRetrieval function.
 ```{r}
 #You can edit this to define your own WQP query inputs below
 TADAProfile <- TADAdataRetrieval(statecode = "UT", characteristicName = c("Ammonia", "Nitrate", "Nitrogen"), startDate = "01-01-2021")
 
-#Alternatively, use the data.table::fread function to read in a web service call for any WQP profile. 
-new_fullphyschem <- data.table::fread("https://www.waterqualitydata.us/data/Result/search?countrycode=US&statecode=US%3A49&siteid=UTAHDWQ_WQX-4925610&startDateLo=01-01-2015&startDateHi=12-31-2016&mimeType=csv&zip=no&sorted=yes&dataProfile=fullPhysChem&providers=NWIS&providers=STEWARDS&providers=STORET")
+```
+
+Option 2: Alternatively, you can use the data.table::fread function to read in a web service call for any WQP profile (un-comment).
+```{r}
+# new_fullphyschem <- data.table::fread("https://www.waterqualitydata.us/data/Result/search?countrycode=US&statecode=US%3A49&siteid=UTAHDWQ_WQX-4925610&startDateLo=01-01-2015&startDateHi=12-31-2016&mimeType=csv&zip=no&sorted=yes&dataProfile=fullPhysChem&providers=NWIS&providers=STEWARDS&providers=STORET")
+```
+
+Option 3: If you need to download a large amount of data from across a large area, and the TADAdataRetrieval function is not working due to WQP timeout issues, then the TADABigdataRetrieval function may work better.
+
+This function does multiple synchronous data calls to the WQP (waterqualitydata.us). It uses the WQP summary service to limit the amount downloaded to only relevant data, and pulls back data from 100 stations at a time and then joins the data back together and produces a single TADA compatible dataframe as the output. For large data sets, that can save a lot of time and ultimately reduce the complexity of subsequent data processing. Using this function, you will be able to download all data available from all sites in the contiguous United States that is available for the time period, characteristicName, and siteType requested.
+
+See ?TADABigdataRetrieval for more details. WARNING, this can take multiple hours to run. The total run time depends on your query inputs.
+```{r}
+#AllWaterTempData <- TADABigdataRetrieval(startDate = "2019-01-01", endDate = "2021-12-31", characteristicName = "Temperature, water", siteType = "Stream")
 ```
 
 Review all column names in the TADA Profile
-
 ```{r}
 colnames(TADAProfile)
 ```
@@ -265,8 +314,8 @@ TADAProfileClean3 <- AggregatedContinuousData(TADAProfileClean2, clean = TRUE)
 
 Run the following result functions to address invalid method, fraction,
 speciation, and unit metadata by characteristic. The default is
-Clean=TRUE, which will remove invalid results. You can change this to
-clean=FALSE to flag results, but not remove them.
+clean = TRUE, which will remove invalid results. You can change this to
+clean = FALSE to flag results, but not remove them.
 
 See documentation for more details:
 
@@ -317,8 +366,8 @@ See documentation for more details:
 ```{r}
 TADAProfileClean4 <- InvalidMethod(TADAProfileClean3, clean = TRUE)
 TADAProfileClean5 <- InvalidFraction(TADAProfileClean4, clean = TRUE)
-TADAProfileClean6 <- InvalidSpeciation(TADAProfileClean5, clean = TRUE)
-TADAProfileClean7 <- InvalidResultUnit(TADAProfileClean6, clean = TRUE)
+TADAProfileClean6 <- InvalidSpeciation(TADAProfileClean5, clean = FALSE)
+TADAProfileClean7 <- InvalidResultUnit(TADAProfileClean6, clean = FALSE)
 ```
 
 ## WQX national upper and lower thresholds

@@ -43,14 +43,15 @@ Imports:
 Depends: 
     R (>= 3.5.0)
 Suggests: 
+    remotes, 
+    rlang, 
     tidyverse,
-    rmarkdown,
     knitr,
+    rmarkdown,
     testthat (>= 3.0.0),
     usethis,
     devtools,
     pkgdown,
-    remotes,
     Rcpp,
     spelling
 VignetteBuilder: knitr, rmarkdown

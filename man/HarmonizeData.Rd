@@ -2,7 +2,8 @@
 % Please edit documentation in R/Transformations.R
 \name{HarmonizeData}
 \alias{HarmonizeData}
-\title{Transform Characteristic, Fraction, Speciation, and Unit values to TADA Standards}
+\title{Transform CharacteristicName, ResultSampleFractionText, MethodSpecificationName,
+and ResultMeasure.MeasureUnitCode values to TADA standards.}
 \usage{
 HarmonizeData(.data, ref, transform = TRUE, flag = TRUE)
 }
@@ -32,10 +33,10 @@ only. When transform = FALSE and flag = FALSE, an error is returned (function
 would return the input dataframe unchanged if input was allowed).
 }
 \description{
-Function compares input dataset to the TADA Harmonization Reference Table. The
-purpose of the function is to make similar data consistent and therefore
-easier to compare and analyze. Optional outputs include: 1) the dataset with
-Harmonization columns appended, 2) the datset with CharacteristicName,
+Function compares input dataset to the TADA Harmonization Reference Table, and makes
+synonymous data consistent.
+Optional outputs include: 1) the dataset with
+Harmonization columns appended, 2) the dataset with CharacteristicName,
 ResultSampleFractionText, MethodSpecificationName, and
 ResultMeasure.MeasureUnitCode converted to TADA standards or 3) the four fields
 converted with most Harmonization Reference Table columns appended. Default is

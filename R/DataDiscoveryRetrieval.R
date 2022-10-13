@@ -343,7 +343,7 @@ TADAprofileCheck <- function(.data) {
 #' 
 #' This function does multiple synchronous data calls to the WQP 
 #' (waterqualitydata.us). It uses the WQP summary service to limit the amount 
-#' downloaded to only relevant data, and pulls back data from 250 stations at a 
+#' downloaded to only relevant data, and pulls back data from 100 stations at a 
 #' time and then joins the data back together and produces a single TADA 
 #' compatible dataframe as the output. For large data sets, that can save a lot 
 #' of time and ultimately reduce the complexity of subsequent data processing. 
@@ -435,7 +435,7 @@ TADABigdataRetrieval <- function(startDate = "null",
     if(length(siteid_all) > 0) {
       
       l=length(siteid_all)  #len(sites)
-      g=250   #grouping size
+      g=100   #grouping size
       nl=ceiling(l/g) #number of queries
       
       i=0
