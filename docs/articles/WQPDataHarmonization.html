@@ -73,7 +73,7 @@
                         <h4 data-toc-skip class="author">Cristina A.
 Mullin</h4>
             
-            <h4 data-toc-skip class="date">2022-10-07</h4>
+            <h4 data-toc-skip class="date">2022-10-13</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/USEPA/TADA/blob/HEAD/vignettes/WQPDataHarmonization.Rmd" class="external-link"><code>vignettes/WQPDataHarmonization.Rmd</code></a></small>
       <div class="d-none name"><code>WQPDataHarmonization.Rmd</code></div>
@@ -84,45 +84,198 @@ Mullin</h4>
 <div class="section level2">
 <h2 id="overview">Overview<a class="anchor" aria-label="anchor" href="#overview"></a>
 </h2>
-<p>In this vignette, we will walk through how to discover, wrangle, and
+<p>This vignette will walk through how to discover, wrangle, and
 harmonize <a href="https://www.waterqualitydata.us/" class="external-link">Water Quality
 Portal (WQP)</a> data from multiple organizations.</p>
 </div>
 <div class="section level2">
 <h2 id="install-and-load-packages">Install and load packages<a class="anchor" aria-label="anchor" href="#install-and-load-packages"></a>
 </h2>
-<p>Install and load dependency packages. Current versions of TADA and
-dataRetrieval can be installed from GitHub instead of CRAN if
-needed.</p>
+<p>To install TADA, currently you need to install from GitHub using
+remotes (shown) or devtools. dataRetrieval will be downloaded from CRAN,
+but the development version can be downloaded directly from GitHub
+(un-comment). The following code will also install any packages you do
+not have, and load all packages required to run this vignette into your
+R session.</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">list.of.packages</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"plyr"</span>,<span class="st">"dplyr"</span>,<span class="st">"ggplot2"</span>,<span class="st">"RColorBrewer"</span>,<span class="st">"Rcpp"</span>,<span class="st">"devtools"</span>, <span class="st">"data.table"</span>,<span class="st">"grDevices"</span>,<span class="st">"magrittr"</span>,<span class="st">"stringr"</span>,<span class="st">"testthat"</span>,<span class="st">"usethis"</span>,<span class="st">"utils"</span>,<span class="st">"stats"</span>,<span class="st">"rmarkdown"</span>,<span class="st">"knitr"</span>,<span class="st">"remotes"</span>, <span class="st">"tidyverse"</span>, <span class="st">"lubridate"</span>, <span class="st">"dplyr"</span>, <span class="st">"dataRetrieval"</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="va">list.of.packages</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"plyr"</span>, <span class="st">"data.table"</span>, <span class="st">"dataRetrieval"</span>, <span class="st">"dplyr"</span>, <span class="st">"ggplot2"</span>, <span class="st">"grDevices"</span>, <span class="st">"magrittr"</span>, <span class="st">"stringr"</span>, <span class="st">"utils"</span>, <span class="st">"RColorBrewer"</span>, <span class="st">"stats"</span>, <span class="st">"lubridate"</span>, <span class="st">"remotes"</span>, <span class="st">"rlang"</span>, <span class="st">"tidyverse"</span>, <span class="st">"knitr"</span>, <span class="st">"rmarkdown"</span>, <span class="st">"testthat"</span>, <span class="st">"usethis"</span>, <span class="st">"devtools"</span>, <span class="st">"pkgdown"</span>, <span class="st">"Rcpp"</span>, <span class="st">"spelling"</span><span class="op">)</span></span>
+<span></span>
 <span><span class="va">new.packages</span> <span class="op">&lt;-</span> <span class="va">list.of.packages</span><span class="op">[</span><span class="op">!</span><span class="op">(</span><span class="va">list.of.packages</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="fu"><a href="https://rdrr.io/r/utils/installed.packages.html" class="external-link">installed.packages</a></span><span class="op">(</span><span class="op">)</span><span class="op">[</span>,<span class="st">"Package"</span><span class="op">]</span><span class="op">)</span><span class="op">]</span></span>
-<span><span class="kw">if</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">new.packages</span><span class="op">)</span><span class="op">)</span> <span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="va">new.packages</span><span class="op">)</span></span>
+<span><span class="kw">if</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">new.packages</span><span class="op">)</span><span class="op">)</span> <span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="va">new.packages</span><span class="op">)</span></span></code></pre></div>
+<p>Load the remotes library before installing TADA or dataRetrieval from
+GitHub</p>
+<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># If you have any issues loading the remotes library, uncomment the line below to install the "remotes" package specifying the repo</span></span>
+<span><span class="co"># install.packages("remotes", repos = "http://cran.us.r-project.org")</span></span>
 <span></span>
-<span><span class="co"># If needed, you can install TADA and dataRetrieval from GitHub directly using the following:</span></span>
-<span><span class="co"># remotes::install_github("USGS-R/dataRetrieval", dependencies=TRUE)</span></span>
-<span><span class="co"># remotes::install_github("USEPA/TADA", dependencies=TRUE)</span></span>
-<span></span>
-<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://remotes.r-lib.org" class="external-link">remotes</a></span><span class="op">)</span></span>
-<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="http://had.co.nz/plyr" class="external-link">plyr</a></span><span class="op">)</span></span>
-<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://dplyr.tidyverse.org" class="external-link">dplyr</a></span><span class="op">)</span></span>
-<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://ggplot2.tidyverse.org" class="external-link">ggplot2</a></span><span class="op">)</span></span>
-<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">RColorBrewer</span><span class="op">)</span></span>
-<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://www.rcpp.org" class="external-link">Rcpp</a></span><span class="op">)</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://remotes.r-lib.org" class="external-link">remotes</a></span><span class="op">)</span></span></code></pre></div>
+<p>Uncomment the lines below to install latest version of TADA and
+dataRetrieval from GitHub.</p>
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># remotes::install_github("USGS-R/dataRetrieval", dependencies=TRUE)</span></span>
+<span><span class="co"># remotes::install_github("USEPA/TADA", dependencies=TRUE)</span></span></code></pre></div>
+<p>Load the required libraries to run this vignette into your R
+session</p>
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="http://had.co.nz/plyr" class="external-link">plyr</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://r-datatable.com" class="external-link">data.table</a></span><span class="op">)</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://dplyr.tidyverse.org" class="external-link">dplyr</a></span><span class="op">)</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Attaching package: 'dplyr'</span></span>
+<span><span class="co">#&gt; The following objects are masked from 'package:data.table':</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;     between, first, last</span></span>
+<span><span class="co">#&gt; The following objects are masked from 'package:plyr':</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;     arrange, count, desc, failwith, id, mutate, rename, summarise,</span></span>
+<span><span class="co">#&gt;     summarize</span></span>
+<span><span class="co">#&gt; The following objects are masked from 'package:stats':</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;     filter, lag</span></span>
+<span><span class="co">#&gt; The following objects are masked from 'package:base':</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;     intersect, setdiff, setequal, union</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://ggplot2.tidyverse.org" class="external-link">ggplot2</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">grDevices</span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://magrittr.tidyverse.org" class="external-link">magrittr</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://stringr.tidyverse.org" class="external-link">stringr</a></span><span class="op">)</span></span>
-<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://testthat.r-lib.org" class="external-link">testthat</a></span><span class="op">)</span></span>
-<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://usethis.r-lib.org" class="external-link">usethis</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">utils</span><span class="op">)</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">RColorBrewer</span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">stats</span><span class="op">)</span></span>
-<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/rstudio/rmarkdown" class="external-link">rmarkdown</a></span><span class="op">)</span></span>
-<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://yihui.org/knitr/" class="external-link">knitr</a></span><span class="op">)</span></span>
-<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://devtools.r-lib.org/" class="external-link">devtools</a></span><span class="op">)</span></span>
-<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://tidyverse.tidyverse.org" class="external-link">tidyverse</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://lubridate.tidyverse.org" class="external-link">lubridate</a></span><span class="op">)</span></span>
-<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://dplyr.tidyverse.org" class="external-link">dplyr</a></span><span class="op">)</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Attaching package: 'lubridate'</span></span>
+<span><span class="co">#&gt; The following objects are masked from 'package:data.table':</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;     hour, isoweek, mday, minute, month, quarter, second, wday, week,</span></span>
+<span><span class="co">#&gt;     yday, year</span></span>
+<span><span class="co">#&gt; The following objects are masked from 'package:base':</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;     date, intersect, setdiff, union</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://rlang.r-lib.org" class="external-link">rlang</a></span><span class="op">)</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Attaching package: 'rlang'</span></span>
+<span><span class="co">#&gt; The following object is masked from 'package:magrittr':</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;     set_names</span></span>
+<span><span class="co">#&gt; The following object is masked from 'package:data.table':</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;     :=</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://tidyverse.tidyverse.org" class="external-link">tidyverse</a></span><span class="op">)</span></span>
+<span><span class="co">#&gt; ── <span style="font-weight: bold;">Attaching packages</span></span></span>
+<span><span class="co">#&gt; ───────────────────────────────────────</span></span>
+<span><span class="co">#&gt; tidyverse 1.3.2 ──</span></span>
+<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> <span style="color: #0000BB;">tibble </span> 3.1.8     <span style="color: #00BB00;">✔</span> <span style="color: #0000BB;">purrr  </span> 0.3.4</span></span>
+<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> <span style="color: #0000BB;">tidyr  </span> 1.2.1     <span style="color: #00BB00;">✔</span> <span style="color: #0000BB;">forcats</span> 0.5.2</span></span>
+<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> <span style="color: #0000BB;">readr  </span> 2.1.3     </span></span>
+<span><span class="co">#&gt; ── <span style="font-weight: bold;">Conflicts</span> ────────────────────────────────────────── tidyverse_conflicts() ──</span></span>
+<span><span class="co">#&gt; <span style="color: #BB0000;">✖</span> <span style="color: #0000BB;">purrr</span>::<span style="color: #00BB00;">%@%()</span>             masks <span style="color: #0000BB;">rlang</span>::%@%()</span></span>
+<span><span class="co">#&gt; <span style="color: #BB0000;">✖</span> <span style="color: #0000BB;">rlang</span>::<span style="color: #00BB00;">:=()</span>              masks <span style="color: #0000BB;">data.table</span>:::=()</span></span>
+<span><span class="co">#&gt; <span style="color: #BB0000;">✖</span> <span style="color: #0000BB;">dplyr</span>::<span style="color: #00BB00;">arrange()</span>         masks <span style="color: #0000BB;">plyr</span>::arrange()</span></span>
+<span><span class="co">#&gt; <span style="color: #BB0000;">✖</span> <span style="color: #0000BB;">lubridate</span>::<span style="color: #00BB00;">as.difftime()</span> masks <span style="color: #0000BB;">base</span>::as.difftime()</span></span>
+<span><span class="co">#&gt; <span style="color: #BB0000;">✖</span> <span style="color: #0000BB;">purrr</span>::<span style="color: #00BB00;">as_function()</span>     masks <span style="color: #0000BB;">rlang</span>::as_function()</span></span>
+<span><span class="co">#&gt; <span style="color: #BB0000;">✖</span> <span style="color: #0000BB;">dplyr</span>::<span style="color: #00BB00;">between()</span>         masks <span style="color: #0000BB;">data.table</span>::between()</span></span>
+<span><span class="co">#&gt; <span style="color: #BB0000;">✖</span> <span style="color: #0000BB;">purrr</span>::<span style="color: #00BB00;">compact()</span>         masks <span style="color: #0000BB;">plyr</span>::compact()</span></span>
+<span><span class="co">#&gt; <span style="color: #BB0000;">✖</span> <span style="color: #0000BB;">dplyr</span>::<span style="color: #00BB00;">count()</span>           masks <span style="color: #0000BB;">plyr</span>::count()</span></span>
+<span><span class="co">#&gt; <span style="color: #BB0000;">✖</span> <span style="color: #0000BB;">lubridate</span>::<span style="color: #00BB00;">date()</span>        masks <span style="color: #0000BB;">base</span>::date()</span></span>
+<span><span class="co">#&gt; <span style="color: #BB0000;">✖</span> <span style="color: #0000BB;">tidyr</span>::<span style="color: #00BB00;">extract()</span>         masks <span style="color: #0000BB;">magrittr</span>::extract()</span></span>
+<span><span class="co">#&gt; <span style="color: #BB0000;">✖</span> <span style="color: #0000BB;">dplyr</span>::<span style="color: #00BB00;">failwith()</span>        masks <span style="color: #0000BB;">plyr</span>::failwith()</span></span>
+<span><span class="co">#&gt; <span style="color: #BB0000;">✖</span> <span style="color: #0000BB;">dplyr</span>::<span style="color: #00BB00;">filter()</span>          masks <span style="color: #0000BB;">stats</span>::filter()</span></span>
+<span><span class="co">#&gt; <span style="color: #BB0000;">✖</span> <span style="color: #0000BB;">dplyr</span>::<span style="color: #00BB00;">first()</span>           masks <span style="color: #0000BB;">data.table</span>::first()</span></span>
+<span><span class="co">#&gt; <span style="color: #BB0000;">✖</span> <span style="color: #0000BB;">purrr</span>::<span style="color: #00BB00;">flatten()</span>         masks <span style="color: #0000BB;">rlang</span>::flatten()</span></span>
+<span><span class="co">#&gt; <span style="color: #BB0000;">✖</span> <span style="color: #0000BB;">purrr</span>::<span style="color: #00BB00;">flatten_chr()</span>     masks <span style="color: #0000BB;">rlang</span>::flatten_chr()</span></span>
+<span><span class="co">#&gt; <span style="color: #BB0000;">✖</span> <span style="color: #0000BB;">purrr</span>::<span style="color: #00BB00;">flatten_dbl()</span>     masks <span style="color: #0000BB;">rlang</span>::flatten_dbl()</span></span>
+<span><span class="co">#&gt; <span style="color: #BB0000;">✖</span> <span style="color: #0000BB;">purrr</span>::<span style="color: #00BB00;">flatten_int()</span>     masks <span style="color: #0000BB;">rlang</span>::flatten_int()</span></span>
+<span><span class="co">#&gt; <span style="color: #BB0000;">✖</span> <span style="color: #0000BB;">purrr</span>::<span style="color: #00BB00;">flatten_lgl()</span>     masks <span style="color: #0000BB;">rlang</span>::flatten_lgl()</span></span>
+<span><span class="co">#&gt; <span style="color: #BB0000;">✖</span> <span style="color: #0000BB;">purrr</span>::<span style="color: #00BB00;">flatten_raw()</span>     masks <span style="color: #0000BB;">rlang</span>::flatten_raw()</span></span>
+<span><span class="co">#&gt; <span style="color: #BB0000;">✖</span> <span style="color: #0000BB;">lubridate</span>::<span style="color: #00BB00;">hour()</span>        masks <span style="color: #0000BB;">data.table</span>::hour()</span></span>
+<span><span class="co">#&gt; <span style="color: #BB0000;">✖</span> <span style="color: #0000BB;">dplyr</span>::<span style="color: #00BB00;">id()</span>              masks <span style="color: #0000BB;">plyr</span>::id()</span></span>
+<span><span class="co">#&gt; <span style="color: #BB0000;">✖</span> <span style="color: #0000BB;">lubridate</span>::<span style="color: #00BB00;">intersect()</span>   masks <span style="color: #0000BB;">base</span>::intersect()</span></span>
+<span><span class="co">#&gt; <span style="color: #BB0000;">✖</span> <span style="color: #0000BB;">purrr</span>::<span style="color: #00BB00;">invoke()</span>          masks <span style="color: #0000BB;">rlang</span>::invoke()</span></span>
+<span><span class="co">#&gt; <span style="color: #BB0000;">✖</span> <span style="color: #0000BB;">lubridate</span>::<span style="color: #00BB00;">isoweek()</span>     masks <span style="color: #0000BB;">data.table</span>::isoweek()</span></span>
+<span><span class="co">#&gt; <span style="color: #BB0000;">✖</span> <span style="color: #0000BB;">dplyr</span>::<span style="color: #00BB00;">lag()</span>             masks <span style="color: #0000BB;">stats</span>::lag()</span></span>
+<span><span class="co">#&gt; <span style="color: #BB0000;">✖</span> <span style="color: #0000BB;">dplyr</span>::<span style="color: #00BB00;">last()</span>            masks <span style="color: #0000BB;">data.table</span>::last()</span></span>
+<span><span class="co">#&gt; <span style="color: #BB0000;">✖</span> <span style="color: #0000BB;">lubridate</span>::<span style="color: #00BB00;">mday()</span>        masks <span style="color: #0000BB;">data.table</span>::mday()</span></span>
+<span><span class="co">#&gt; <span style="color: #BB0000;">✖</span> <span style="color: #0000BB;">lubridate</span>::<span style="color: #00BB00;">minute()</span>      masks <span style="color: #0000BB;">data.table</span>::minute()</span></span>
+<span><span class="co">#&gt; <span style="color: #BB0000;">✖</span> <span style="color: #0000BB;">lubridate</span>::<span style="color: #00BB00;">month()</span>       masks <span style="color: #0000BB;">data.table</span>::month()</span></span>
+<span><span class="co">#&gt; <span style="color: #BB0000;">✖</span> <span style="color: #0000BB;">dplyr</span>::<span style="color: #00BB00;">mutate()</span>          masks <span style="color: #0000BB;">plyr</span>::mutate()</span></span>
+<span><span class="co">#&gt; <span style="color: #BB0000;">✖</span> <span style="color: #0000BB;">lubridate</span>::<span style="color: #00BB00;">quarter()</span>     masks <span style="color: #0000BB;">data.table</span>::quarter()</span></span>
+<span><span class="co">#&gt; <span style="color: #BB0000;">✖</span> <span style="color: #0000BB;">dplyr</span>::<span style="color: #00BB00;">rename()</span>          masks <span style="color: #0000BB;">plyr</span>::rename()</span></span>
+<span><span class="co">#&gt; <span style="color: #BB0000;">✖</span> <span style="color: #0000BB;">lubridate</span>::<span style="color: #00BB00;">second()</span>      masks <span style="color: #0000BB;">data.table</span>::second()</span></span>
+<span><span class="co">#&gt; <span style="color: #BB0000;">✖</span> <span style="color: #0000BB;">purrr</span>::<span style="color: #00BB00;">set_names()</span>       masks <span style="color: #0000BB;">rlang</span>::set_names(), <span style="color: #0000BB;">magrittr</span>::set_names()</span></span>
+<span><span class="co">#&gt; <span style="color: #BB0000;">✖</span> <span style="color: #0000BB;">lubridate</span>::<span style="color: #00BB00;">setdiff()</span>     masks <span style="color: #0000BB;">base</span>::setdiff()</span></span>
+<span><span class="co">#&gt; <span style="color: #BB0000;">✖</span> <span style="color: #0000BB;">purrr</span>::<span style="color: #00BB00;">splice()</span>          masks <span style="color: #0000BB;">rlang</span>::splice()</span></span>
+<span><span class="co">#&gt; <span style="color: #BB0000;">✖</span> <span style="color: #0000BB;">dplyr</span>::<span style="color: #00BB00;">summarise()</span>       masks <span style="color: #0000BB;">plyr</span>::summarise()</span></span>
+<span><span class="co">#&gt; <span style="color: #BB0000;">✖</span> <span style="color: #0000BB;">dplyr</span>::<span style="color: #00BB00;">summarize()</span>       masks <span style="color: #0000BB;">plyr</span>::summarize()</span></span>
+<span><span class="co">#&gt; <span style="color: #BB0000;">✖</span> <span style="color: #0000BB;">purrr</span>::<span style="color: #00BB00;">transpose()</span>       masks <span style="color: #0000BB;">data.table</span>::transpose()</span></span>
+<span><span class="co">#&gt; <span style="color: #BB0000;">✖</span> <span style="color: #0000BB;">lubridate</span>::<span style="color: #00BB00;">union()</span>       masks <span style="color: #0000BB;">base</span>::union()</span></span>
+<span><span class="co">#&gt; <span style="color: #BB0000;">✖</span> <span style="color: #0000BB;">lubridate</span>::<span style="color: #00BB00;">wday()</span>        masks <span style="color: #0000BB;">data.table</span>::wday()</span></span>
+<span><span class="co">#&gt; <span style="color: #BB0000;">✖</span> <span style="color: #0000BB;">lubridate</span>::<span style="color: #00BB00;">week()</span>        masks <span style="color: #0000BB;">data.table</span>::week()</span></span>
+<span><span class="co">#&gt; <span style="color: #BB0000;">✖</span> <span style="color: #0000BB;">lubridate</span>::<span style="color: #00BB00;">yday()</span>        masks <span style="color: #0000BB;">data.table</span>::yday()</span></span>
+<span><span class="co">#&gt; <span style="color: #BB0000;">✖</span> <span style="color: #0000BB;">lubridate</span>::<span style="color: #00BB00;">year()</span>        masks <span style="color: #0000BB;">data.table</span>::year()</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://yihui.org/knitr/" class="external-link">knitr</a></span><span class="op">)</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/rstudio/rmarkdown" class="external-link">rmarkdown</a></span><span class="op">)</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://testthat.r-lib.org" class="external-link">testthat</a></span><span class="op">)</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Attaching package: 'testthat'</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; The following object is masked from 'package:purrr':</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;     is_null</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; The following objects are masked from 'package:readr':</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;     edition_get, local_edition</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; The following object is masked from 'package:tidyr':</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;     matches</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; The following objects are masked from 'package:rlang':</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;     is_false, is_null, is_true</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; The following objects are masked from 'package:magrittr':</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;     equals, is_less_than, not</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; The following object is masked from 'package:dplyr':</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;     matches</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://usethis.r-lib.org" class="external-link">usethis</a></span><span class="op">)</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Attaching package: 'usethis'</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; The following object is masked from 'package:remotes':</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;     git_credentials</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://devtools.r-lib.org/" class="external-link">devtools</a></span><span class="op">)</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Attaching package: 'devtools'</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; The following object is masked from 'package:testthat':</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;     test_file</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; The following objects are masked from 'package:remotes':</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;     dev_package_deps, install_bioc, install_bitbucket, install_cran,</span></span>
+<span><span class="co">#&gt;     install_deps, install_dev, install_git, install_github,</span></span>
+<span><span class="co">#&gt;     install_gitlab, install_local, install_svn, install_url,</span></span>
+<span><span class="co">#&gt;     install_version, update_packages</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://pkgdown.r-lib.org" class="external-link">pkgdown</a></span><span class="op">)</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Attaching package: 'pkgdown'</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; The following object is masked from 'package:devtools':</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;     build_site</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; The following object is masked from 'package:rmarkdown':</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;     clean_site</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://www.rcpp.org" class="external-link">Rcpp</a></span><span class="op">)</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://docs.ropensci.org/spelling/" class="external-link">spelling</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://pubs.usgs.gov/tm/04/a10/" class="external-link">dataRetrieval</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://usepa.github.io/TADA/" class="external-link">TADA</a></span><span class="op">)</span></span></code></pre></div>
 </div>
@@ -239,14 +392,35 @@ Quality Portal Web Services Guide</a></p></li>
 <li><p><a href="https://owi.usgs.gov/R/dataRetrieval.html" class="external-link">dataRetrieval
 Tutorial</a></p></li>
 </ul>
-<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<p>Option 1: Use the TADAdataRetrieval function.</p>
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">#You can edit this to define your own WQP query inputs below</span></span>
-<span><span class="va">TADAProfile</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/TADAdataRetrieval.html">TADAdataRetrieval</a></span><span class="op">(</span>statecode <span class="op">=</span> <span class="st">"UT"</span>, characteristicName <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Ammonia"</span>, <span class="st">"Nitrate"</span>, <span class="st">"Nitrogen"</span><span class="op">)</span>, startDate <span class="op">=</span> <span class="st">"01-01-2021"</span><span class="op">)</span></span>
-<span></span>
-<span><span class="co">#Alternatively, use the data.table::fread function to read in a web service call for any WQP profile. </span></span>
-<span><span class="va">new_fullphyschem</span> <span class="op">&lt;-</span> <span class="fu">data.table</span><span class="fu">::</span><span class="fu"><a href="https://Rdatatable.gitlab.io/data.table/reference/fread.html" class="external-link">fread</a></span><span class="op">(</span><span class="st">"https://www.waterqualitydata.us/data/Result/search?countrycode=US&amp;statecode=US%3A49&amp;siteid=UTAHDWQ_WQX-4925610&amp;startDateLo=01-01-2015&amp;startDateHi=12-31-2016&amp;mimeType=csv&amp;zip=no&amp;sorted=yes&amp;dataProfile=fullPhysChem&amp;providers=NWIS&amp;providers=STEWARDS&amp;providers=STORET"</span><span class="op">)</span></span></code></pre></div>
+<span><span class="va">TADAProfile</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/TADAdataRetrieval.html">TADAdataRetrieval</a></span><span class="op">(</span>statecode <span class="op">=</span> <span class="st">"UT"</span>, characteristicName <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Ammonia"</span>, <span class="st">"Nitrate"</span>, <span class="st">"Nitrogen"</span><span class="op">)</span>, startDate <span class="op">=</span> <span class="st">"01-01-2021"</span><span class="op">)</span></span></code></pre></div>
+<p>Option 2: Alternatively, you can use the data.table::fread function
+to read in a web service call for any WQP profile (un-comment).</p>
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># new_fullphyschem &lt;- data.table::fread("https://www.waterqualitydata.us/data/Result/search?countrycode=US&amp;statecode=US%3A49&amp;siteid=UTAHDWQ_WQX-4925610&amp;startDateLo=01-01-2015&amp;startDateHi=12-31-2016&amp;mimeType=csv&amp;zip=no&amp;sorted=yes&amp;dataProfile=fullPhysChem&amp;providers=NWIS&amp;providers=STEWARDS&amp;providers=STORET")</span></span></code></pre></div>
+<p>Option 3: If you need to download a large amount of data from across
+a large area, and the TADAdataRetrieval function is not working due to
+WQP timeout issues, then the TADABigdataRetrieval function may work
+better.</p>
+<p>This function does multiple synchronous data calls to the WQP
+(waterqualitydata.us). It uses the WQP summary service to limit the
+amount downloaded to only relevant data, and pulls back data from 100
+stations at a time and then joins the data back together and produces a
+single TADA compatible dataframe as the output. For large data sets,
+that can save a lot of time and ultimately reduce the complexity of
+subsequent data processing. Using this function, you will be able to
+download all data available from all sites in the contiguous United
+States that is available for the time period, characteristicName, and
+siteType requested.</p>
+<p>See ?TADABigdataRetrieval for more details. WARNING, this can take
+multiple hours to run. The total run time depends on your query
+inputs.</p>
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co">#AllWaterTempData &lt;- TADABigdataRetrieval(startDate = "2019-01-01", endDate = "2021-12-31", characteristicName = "Temperature, water", siteType = "Stream")</span></span></code></pre></div>
 <p>Review all column names in the TADA Profile</p>
-<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="va">TADAProfile</span><span class="op">)</span></span>
 <span><span class="co">#&gt;   [1] "OrganizationIdentifier"                           </span></span>
 <span><span class="co">#&gt;   [2] "OrganizationFormalName"                           </span></span>
@@ -315,49 +489,51 @@ Tutorial</a></p></li>
 <span><span class="co">#&gt;  [65] "DetectionQuantitationLimitMeasure.MeasureUnitCode"</span></span>
 <span><span class="co">#&gt;  [66] "PreparationStartDate"                             </span></span>
 <span><span class="co">#&gt;  [67] "ProviderName"                                     </span></span>
-<span><span class="co">#&gt;  [68] "ActivityStartDateTime"                            </span></span>
-<span><span class="co">#&gt;  [69] "ActivityEndDateTime"                              </span></span>
-<span><span class="co">#&gt;  [70] "MonitoringLocationName"                           </span></span>
-<span><span class="co">#&gt;  [71] "MonitoringLocationTypeName"                       </span></span>
-<span><span class="co">#&gt;  [72] "MonitoringLocationDescriptionText"                </span></span>
-<span><span class="co">#&gt;  [73] "HUCEightDigitCode"                                </span></span>
-<span><span class="co">#&gt;  [74] "DrainageAreaMeasure.MeasureValue"                 </span></span>
-<span><span class="co">#&gt;  [75] "DrainageAreaMeasure.MeasureUnitCode"              </span></span>
-<span><span class="co">#&gt;  [76] "ContributingDrainageAreaMeasure.MeasureValue"     </span></span>
-<span><span class="co">#&gt;  [77] "ContributingDrainageAreaMeasure.MeasureUnitCode"  </span></span>
-<span><span class="co">#&gt;  [78] "LatitudeMeasure"                                  </span></span>
-<span><span class="co">#&gt;  [79] "LongitudeMeasure"                                 </span></span>
-<span><span class="co">#&gt;  [80] "SourceMapScaleNumeric"                            </span></span>
-<span><span class="co">#&gt;  [81] "HorizontalAccuracyMeasure.MeasureValue"           </span></span>
-<span><span class="co">#&gt;  [82] "HorizontalAccuracyMeasure.MeasureUnitCode"        </span></span>
-<span><span class="co">#&gt;  [83] "HorizontalCollectionMethodName"                   </span></span>
-<span><span class="co">#&gt;  [84] "HorizontalCoordinateReferenceSystemDatumName"     </span></span>
-<span><span class="co">#&gt;  [85] "VerticalMeasure.MeasureValue"                     </span></span>
-<span><span class="co">#&gt;  [86] "VerticalMeasure.MeasureUnitCode"                  </span></span>
-<span><span class="co">#&gt;  [87] "VerticalAccuracyMeasure.MeasureValue"             </span></span>
-<span><span class="co">#&gt;  [88] "VerticalAccuracyMeasure.MeasureUnitCode"          </span></span>
-<span><span class="co">#&gt;  [89] "VerticalCollectionMethodName"                     </span></span>
-<span><span class="co">#&gt;  [90] "VerticalCoordinateReferenceSystemDatumName"       </span></span>
-<span><span class="co">#&gt;  [91] "CountryCode"                                      </span></span>
-<span><span class="co">#&gt;  [92] "StateCode"                                        </span></span>
-<span><span class="co">#&gt;  [93] "CountyCode"                                       </span></span>
-<span><span class="co">#&gt;  [94] "AquiferName"                                      </span></span>
-<span><span class="co">#&gt;  [95] "LocalAqfrName"                                    </span></span>
-<span><span class="co">#&gt;  [96] "FormationTypeText"                                </span></span>
-<span><span class="co">#&gt;  [97] "AquiferTypeName"                                  </span></span>
-<span><span class="co">#&gt;  [98] "ConstructionDateText"                             </span></span>
-<span><span class="co">#&gt;  [99] "WellDepthMeasure.MeasureValue"                    </span></span>
-<span><span class="co">#&gt; [100] "WellDepthMeasure.MeasureUnitCode"                 </span></span>
-<span><span class="co">#&gt; [101] "WellHoleDepthMeasure.MeasureValue"                </span></span>
-<span><span class="co">#&gt; [102] "WellHoleDepthMeasure.MeasureUnitCode"             </span></span>
-<span><span class="co">#&gt; [103] "MethodSpecificationName"                          </span></span>
-<span><span class="co">#&gt; [104] "ProjectName"                                      </span></span>
-<span><span class="co">#&gt; [105] "ProjectDescriptionText"                           </span></span>
-<span><span class="co">#&gt; [106] "SamplingDesignTypeCode"                           </span></span>
-<span><span class="co">#&gt; [107] "QAPPApprovedIndicator"                            </span></span>
-<span><span class="co">#&gt; [108] "QAPPApprovalAgencyName"                           </span></span>
-<span><span class="co">#&gt; [109] "ProjectFileUrl"                                   </span></span>
-<span><span class="co">#&gt; [110] "ProjectMonitoringLocationWeightingUrl"</span></span></code></pre></div>
+<span><span class="co">#&gt;  [68] "timeZoneStart"                                    </span></span>
+<span><span class="co">#&gt;  [69] "timeZoneEnd"                                      </span></span>
+<span><span class="co">#&gt;  [70] "ActivityStartDateTime"                            </span></span>
+<span><span class="co">#&gt;  [71] "ActivityEndDateTime"                              </span></span>
+<span><span class="co">#&gt;  [72] "MonitoringLocationName"                           </span></span>
+<span><span class="co">#&gt;  [73] "MonitoringLocationTypeName"                       </span></span>
+<span><span class="co">#&gt;  [74] "MonitoringLocationDescriptionText"                </span></span>
+<span><span class="co">#&gt;  [75] "HUCEightDigitCode"                                </span></span>
+<span><span class="co">#&gt;  [76] "DrainageAreaMeasure.MeasureValue"                 </span></span>
+<span><span class="co">#&gt;  [77] "DrainageAreaMeasure.MeasureUnitCode"              </span></span>
+<span><span class="co">#&gt;  [78] "ContributingDrainageAreaMeasure.MeasureValue"     </span></span>
+<span><span class="co">#&gt;  [79] "ContributingDrainageAreaMeasure.MeasureUnitCode"  </span></span>
+<span><span class="co">#&gt;  [80] "LatitudeMeasure"                                  </span></span>
+<span><span class="co">#&gt;  [81] "LongitudeMeasure"                                 </span></span>
+<span><span class="co">#&gt;  [82] "SourceMapScaleNumeric"                            </span></span>
+<span><span class="co">#&gt;  [83] "HorizontalAccuracyMeasure.MeasureValue"           </span></span>
+<span><span class="co">#&gt;  [84] "HorizontalAccuracyMeasure.MeasureUnitCode"        </span></span>
+<span><span class="co">#&gt;  [85] "HorizontalCollectionMethodName"                   </span></span>
+<span><span class="co">#&gt;  [86] "HorizontalCoordinateReferenceSystemDatumName"     </span></span>
+<span><span class="co">#&gt;  [87] "VerticalMeasure.MeasureValue"                     </span></span>
+<span><span class="co">#&gt;  [88] "VerticalMeasure.MeasureUnitCode"                  </span></span>
+<span><span class="co">#&gt;  [89] "VerticalAccuracyMeasure.MeasureValue"             </span></span>
+<span><span class="co">#&gt;  [90] "VerticalAccuracyMeasure.MeasureUnitCode"          </span></span>
+<span><span class="co">#&gt;  [91] "VerticalCollectionMethodName"                     </span></span>
+<span><span class="co">#&gt;  [92] "VerticalCoordinateReferenceSystemDatumName"       </span></span>
+<span><span class="co">#&gt;  [93] "CountryCode"                                      </span></span>
+<span><span class="co">#&gt;  [94] "StateCode"                                        </span></span>
+<span><span class="co">#&gt;  [95] "CountyCode"                                       </span></span>
+<span><span class="co">#&gt;  [96] "AquiferName"                                      </span></span>
+<span><span class="co">#&gt;  [97] "LocalAqfrName"                                    </span></span>
+<span><span class="co">#&gt;  [98] "FormationTypeText"                                </span></span>
+<span><span class="co">#&gt;  [99] "AquiferTypeName"                                  </span></span>
+<span><span class="co">#&gt; [100] "ConstructionDateText"                             </span></span>
+<span><span class="co">#&gt; [101] "WellDepthMeasure.MeasureValue"                    </span></span>
+<span><span class="co">#&gt; [102] "WellDepthMeasure.MeasureUnitCode"                 </span></span>
+<span><span class="co">#&gt; [103] "WellHoleDepthMeasure.MeasureValue"                </span></span>
+<span><span class="co">#&gt; [104] "WellHoleDepthMeasure.MeasureUnitCode"             </span></span>
+<span><span class="co">#&gt; [105] "MethodSpecificationName"                          </span></span>
+<span><span class="co">#&gt; [106] "ProjectName"                                      </span></span>
+<span><span class="co">#&gt; [107] "ProjectDescriptionText"                           </span></span>
+<span><span class="co">#&gt; [108] "SamplingDesignTypeCode"                           </span></span>
+<span><span class="co">#&gt; [109] "QAPPApprovedIndicator"                            </span></span>
+<span><span class="co">#&gt; [110] "QAPPApprovalAgencyName"                           </span></span>
+<span><span class="co">#&gt; [111] "ProjectFileUrl"                                   </span></span>
+<span><span class="co">#&gt; [112] "ProjectMonitoringLocationWeightingUrl"</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="depth-unit-conversions">Depth unit conversions<a class="anchor" aria-label="anchor" href="#depth-unit-conversions"></a>
@@ -386,7 +562,7 @@ default is all.</p>
 Default is unit = “m”.</p>
 <p>See additional function documentation for additional function options
 by entering the following code in the console: ?DepthProfileData</p>
-<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">#converts all depth profile data to meters</span></span>
 <span><span class="va">TADAProfileClean1</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/DepthProfileData.html">DepthProfileData</a></span><span class="op">(</span><span class="va">TADAProfile</span>, unit <span class="op">=</span> <span class="st">"m"</span>, transform <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
 </div>
@@ -400,7 +576,7 @@ from the MeasureUnit domain table:</p>
 </ul>
 <p>See additional function documentation for additional function options
 by entering the following code in the console: ?WQXTargetUnits</p>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">#Converts all results to WQX target units</span></span>
 <span><span class="va">TADAProfileClean2</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/WQXTargetUnits.html">WQXTargetUnits</a></span><span class="op">(</span><span class="va">TADAProfileClean1</span>, transform <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
 </div>
@@ -429,7 +605,7 @@ removed from the dataset and no column will be appended</p></li>
 <li><p>See function documentation for additional function options by
 entering the following code in the console: ?DepthProfileData</p></li>
 </ul>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">TADAProfileClean3</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/AggregatedContinuousData.html">AggregatedContinuousData</a></span><span class="op">(</span><span class="va">TADAProfileClean2</span>, clean <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] "The dataset does not contain aggregated continuous data."</span></span></code></pre></div>
 </div>
@@ -438,8 +614,8 @@ entering the following code in the console: ?DepthProfileData</p></li>
 </h2>
 <p>Run the following result functions to address invalid method,
 fraction, speciation, and unit metadata by characteristic. The default
-is Clean=TRUE, which will remove invalid results. You can change this to
-clean=FALSE to flag results, but not remove them.</p>
+is clean = TRUE, which will remove invalid results. You can change this
+to clean = FALSE to flag results, but not remove them.</p>
 <p>See documentation for more details:</p>
 <ul>
 <li>
@@ -489,12 +665,13 @@ no column will be appended.</li>
 </ul>
 </li>
 </ul>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">TADAProfileClean4</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/InvalidMethod.html">InvalidMethod</a></span><span class="op">(</span><span class="va">TADAProfileClean3</span>, clean <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
+<span><span class="co">#&gt; [1] "No changes were made, because we did not find any invalid method/characteristic combinations in your dataset."</span></span>
 <span><span class="va">TADAProfileClean5</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/InvalidFraction.html">InvalidFraction</a></span><span class="op">(</span><span class="va">TADAProfileClean4</span>, clean <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] "All data is valid, therefore the function cannot be applied."</span></span>
-<span><span class="va">TADAProfileClean6</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/InvalidSpeciation.html">InvalidSpeciation</a></span><span class="op">(</span><span class="va">TADAProfileClean5</span>, clean <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
-<span><span class="va">TADAProfileClean7</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/InvalidResultUnit.html">InvalidResultUnit</a></span><span class="op">(</span><span class="va">TADAProfileClean6</span>, clean <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
+<span><span class="va">TADAProfileClean6</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/InvalidSpeciation.html">InvalidSpeciation</a></span><span class="op">(</span><span class="va">TADAProfileClean5</span>, clean <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
+<span><span class="va">TADAProfileClean7</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/InvalidResultUnit.html">InvalidResultUnit</a></span><span class="op">(</span><span class="va">TADAProfileClean6</span>, clean <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="wqx-national-upper-and-lower-thresholds">WQX national upper and lower thresholds<a class="anchor" aria-label="anchor" href="#wqx-national-upper-and-lower-thresholds"></a>
@@ -527,7 +704,7 @@ removed from the dataset.</p></li>
 <p>The default is clean=TRUE, but you can change this to only flag
 results if desired. Results will be flagged, but not removed, when
 clean=FALSE.</p>
-<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">TADAProfileClean8</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/AboveNationalWQXUpperThreshold.html">AboveNationalWQXUpperThreshold</a></span><span class="op">(</span><span class="va">TADAProfileClean7</span>, clean <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span><span class="va">TADAProfileClean9</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/BelowNationalWQXUpperThreshold.html">BelowNationalWQXUpperThreshold</a></span><span class="op">(</span><span class="va">TADAProfileClean8</span>, clean <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
 </div>
@@ -558,7 +735,7 @@ appended.</p></li>
 </ul>
 <p>When clean = TRUE, the function retains the first occurrence of each
 potential duplicate in the dataset. Default is clean = TRUE.</p>
-<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">TADAProfileClean10</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/PotentialDuplicateRowID.html">PotentialDuplicateRowID</a></span><span class="op">(</span><span class="va">TADAProfileClean9</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">
@@ -580,7 +757,7 @@ places in the latitude and longitude provided. If either does not have
 any numbers to the right of the decimal point, the row will be flagged
 as “Imprecise”.</p></li>
 </ul>
-<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">TADAProfileClean11</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/InvalidCoordinates.html">InvalidCoordinates</a></span><span class="op">(</span><span class="va">TADAProfileClean10</span>, clean_outsideUSA <span class="op">=</span> <span class="cn">FALSE</span>, clean_imprecise <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">
@@ -599,7 +776,7 @@ QAPPApprovedIndicator equals “N”.</p>
 clean = TRUE and cleanNA = TRUE.</p>
 <p>If both clean = FALSE and cleanNA = FALSE, the function will not do
 anything.</p>
-<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">TADAProfileClean12</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/QAPPapproved.html">QAPPapproved</a></span><span class="op">(</span><span class="va">TADAProfileClean11</span>, clean <span class="op">=</span> <span class="cn">TRUE</span>, cleanNA <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
 <p>Check to see if a QAPP Doc is Available</p>
 <p>This function checks data submitted under the “ProjectFileUrl” column
@@ -610,7 +787,7 @@ not have an associated QAPP document are removed from the dataset and no
 column will be appended. This function should only be used to remove
 data if an accompanying QAPP document is required to use data in
 assessments.</p>
-<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">TADAProfileClean13</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/QAPPDocAvailable.html">QAPPDocAvailable</a></span><span class="op">(</span><span class="va">TADAProfileClean12</span>, clean <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
 <span><span class="co">#&gt; Warning in QAPPDocAvailable(TADAProfileClean12, clean = FALSE): The dataset does</span></span>
 <span><span class="co">#&gt; not contain QAPP document url data.</span></span></code></pre></div>
@@ -623,23 +800,23 @@ specific fields and may choose to remove data with particular
 values.</p>
 <p>To start, review the list of fields and the number of unique values
 in each field.</p>
-<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/FilterFields.html">FilterFields</a></span><span class="op">(</span><span class="va">TADAProfileClean13</span><span class="op">)</span></span>
 <span><span class="co">#&gt;                             FieldName Count</span></span>
-<span><span class="co">#&gt; 1              OrganizationFormalName     4</span></span>
-<span><span class="co">#&gt; 2                    ActivityTypeCode     5</span></span>
+<span><span class="co">#&gt; 1              OrganizationFormalName     7</span></span>
+<span><span class="co">#&gt; 2                    ActivityTypeCode     7</span></span>
 <span><span class="co">#&gt; 3                   ActivityMediaName     1</span></span>
 <span><span class="co">#&gt; 4        ActivityMediaSubdivisionName     4</span></span>
 <span><span class="co">#&gt; 5                 ActivityCommentText     3</span></span>
 <span><span class="co">#&gt; 6                 HydrologicCondition     8</span></span>
 <span><span class="co">#&gt; 7                     HydrologicEvent     4</span></span>
-<span><span class="co">#&gt; 8                  CharacteristicName     2</span></span>
-<span><span class="co">#&gt; 9                MeasureQualifierCode     1</span></span>
+<span><span class="co">#&gt; 8                  CharacteristicName     3</span></span>
+<span><span class="co">#&gt; 9                MeasureQualifierCode     4</span></span>
 <span><span class="co">#&gt; 10            SampleTissueAnatomyName     1</span></span>
-<span><span class="co">#&gt; 11                     LaboratoryName     8</span></span>
-<span><span class="co">#&gt; 12 DetectionQuantitationLimitTypeName     4</span></span>
-<span><span class="co">#&gt; 13         MonitoringLocationTypeName     6</span></span>
-<span><span class="co">#&gt; 14                        ProjectName     3</span></span></code></pre></div>
+<span><span class="co">#&gt; 11                     LaboratoryName    11</span></span>
+<span><span class="co">#&gt; 12 DetectionQuantitationLimitTypeName     7</span></span>
+<span><span class="co">#&gt; 13         MonitoringLocationTypeName    14</span></span>
+<span><span class="co">#&gt; 14                        ProjectName     7</span></span></code></pre></div>
 <p>Next, choose a field from the list to see the unique values in that
 field, as well as the number of times each value appears in the dataset.
 We’ll start with ActivityTypeCode.</p>
@@ -654,15 +831,17 @@ data flags 3. Other codes may designate suspect data or other flags
 which may be described in detail in
 <strong>ResultLaboratoryCommentText</strong> or another column</li>
 </ol>
-<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/FilterFieldReview.html">FilterFieldReview</a></span><span class="op">(</span><span class="st">"ActivityTypeCode"</span>, <span class="va">TADAProfileClean13</span><span class="op">)</span></span></code></pre></div>
-<p><img src="WQPDataHarmonization_files/figure-html/unnamed-chunk-14-1.png" width="576"></p>
+<p><img src="WQPDataHarmonization_files/figure-html/unnamed-chunk-19-1.png" width="576"></p>
 <pre><code><span><span class="co">#&gt;                               FieldValue Count</span></span>
-<span><span class="co">#&gt; 5                         Sample-Routine   809</span></span>
-<span><span class="co">#&gt; 3 Quality Control Sample-Field Replicate    50</span></span>
+<span><span class="co">#&gt; 7                         Sample-Routine  4078</span></span>
+<span><span class="co">#&gt; 6     Sample-Integrated Vertical Profile   341</span></span>
+<span><span class="co">#&gt; 4 Quality Control Sample-Field Replicate   322</span></span>
+<span><span class="co">#&gt; 2 Quality Control Sample-Equipment Blank   174</span></span>
+<span><span class="co">#&gt; 3     Quality Control Sample-Field Blank    60</span></span>
 <span><span class="co">#&gt; 1                          Field Msr/Obs     4</span></span>
-<span><span class="co">#&gt; 2     Quality Control Sample-Field Blank     1</span></span>
-<span><span class="co">#&gt; 4   Quality Control Sample-Lab Duplicate     1</span></span></code></pre>
+<span><span class="co">#&gt; 5   Quality Control Sample-Lab Duplicate     2</span></span></code></pre>
 <p>The ActivityTypeCode field has four unique values – “Sample-Routine”,
 “Quality Control Sample-Field Replicate”, “Field Msr/Obs”, and “Quality
 Control Sample-Field Blank.” In this example we want to remove quality
@@ -670,15 +849,15 @@ control values in the ActivityTypeCode field, therefore, we’ll specify
 that we want to remove the “Quality Control Sample-Field Replicate” and
 “Quality Control Sample-Field Blank” values in the ActivityTypeCode
 field.</p>
-<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb21"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">TADAProfileClean14</span> <span class="op">&lt;-</span> <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">TADAProfileClean13</span>, <span class="op">!</span><span class="op">(</span><span class="va">ActivityTypeCode</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Quality Control Sample-Field Replicate"</span>, <span class="st">"Quality Control Sample-Field Blank"</span>, <span class="st">"Quality Control Sample-Lab Duplicate"</span>, <span class="st">"Quality Control Sample-Equipment Blank"</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <p>We’ve completed our review of the ActivityTypeCode field.</p>
 <p>Let’s move on to a different field and see if there are any values
 that we want to remove – we’ll look at the values in the
 ResultStatusIdentifier field.</p>
-<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb22"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/FilterFieldReview.html">FilterFieldReview</a></span><span class="op">(</span><span class="st">"ActivityMediaSubdivisionName"</span>, <span class="va">TADAProfileClean14</span><span class="op">)</span></span></code></pre></div>
-<p><img src="WQPDataHarmonization_files/figure-html/unnamed-chunk-16-1.png" width="576"></p>
+<p><img src="WQPDataHarmonization_files/figure-html/unnamed-chunk-21-1.png" width="576"></p>
 <pre><code><span><span class="co">#&gt;        FieldValue Count</span></span>
 <span><span class="co">#&gt; 3   Surface Water   687</span></span>
 <span><span class="co">#&gt; 2     Groundwater   106</span></span>
@@ -686,7 +865,7 @@ ResultStatusIdentifier field.</p>
 <p>The ActivityMediaSubdivisionName field has two unique values,
 “Surface Water” and “Groundwater.” In this example we want to remove the
 “Groundwater” values.</p>
-<div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb24"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">TADAProfileClean15</span> <span class="op">&lt;-</span> <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">TADAProfileClean14</span>, <span class="op">!</span><span class="op">(</span><span class="va">ActivityMediaSubdivisionName</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Groundwater"</span>, <span class="st">"Bulk deposition"</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">
@@ -698,58 +877,59 @@ choose to remove particular values.</p>
 <p>To start, review the list of parameters in the dataset. (The list is
 sorted from highest to lowest counts. Only the first few rows are
 displayed to save space on the page)</p>
-<div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb25"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/FilterParList.html">FilterParList</a></span><span class="op">(</span><span class="va">TADAProfileClean15</span><span class="op">)</span></span>
 <span><span class="co">#&gt;   FieldValue Count</span></span>
-<span><span class="co">#&gt; 1    NITRATE   647</span></span>
-<span><span class="co">#&gt; 2   NITROGEN    59</span></span></code></pre></div>
+<span><span class="co">#&gt; 3   NITROGEN  2807</span></span>
+<span><span class="co">#&gt; 2    NITRATE  1479</span></span>
+<span><span class="co">#&gt; 1    AMMONIA    30</span></span></code></pre></div>
 <p>Next, select a parameter. Let’s explore the fields associated with
 Nitrogen:</p>
-<div class="sourceCode" id="cb21"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb26"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/FilterParFields.html">FilterParFields</a></span><span class="op">(</span><span class="va">TADAProfileClean15</span>, <span class="st">"NITROGEN"</span><span class="op">)</span></span>
 <span><span class="co">#&gt;                                         FieldName Count</span></span>
-<span><span class="co">#&gt; 1                                ActivityTypeCode     1</span></span>
+<span><span class="co">#&gt; 1                                ActivityTypeCode     2</span></span>
 <span><span class="co">#&gt; 2                               ActivityMediaName     1</span></span>
-<span><span class="co">#&gt; 3                    ActivityMediaSubdivisionName     1</span></span>
+<span><span class="co">#&gt; 3                    ActivityMediaSubdivisionName     2</span></span>
 <span><span class="co">#&gt; 4                             ActivityCommentText     2</span></span>
-<span><span class="co">#&gt; 5                             HydrologicCondition     6</span></span>
-<span><span class="co">#&gt; 6                                 HydrologicEvent     1</span></span>
-<span><span class="co">#&gt; 7         SampleCollectionMethod.MethodIdentifier     5</span></span>
-<span><span class="co">#&gt; 8  SampleCollectionMethod.MethodIdentifierContext     1</span></span>
-<span><span class="co">#&gt; 9               SampleCollectionMethod.MethodName     5</span></span>
-<span><span class="co">#&gt; 10                  SampleCollectionEquipmentName     5</span></span>
-<span><span class="co">#&gt; 11                       ResultSampleFractionText     1</span></span>
+<span><span class="co">#&gt; 5                             HydrologicCondition     7</span></span>
+<span><span class="co">#&gt; 6                                 HydrologicEvent     2</span></span>
+<span><span class="co">#&gt; 7         SampleCollectionMethod.MethodIdentifier     6</span></span>
+<span><span class="co">#&gt; 8  SampleCollectionMethod.MethodIdentifierContext     2</span></span>
+<span><span class="co">#&gt; 9               SampleCollectionMethod.MethodName     6</span></span>
+<span><span class="co">#&gt; 10                  SampleCollectionEquipmentName     6</span></span>
+<span><span class="co">#&gt; 11                       ResultSampleFractionText     3</span></span>
 <span><span class="co">#&gt; 12                  ResultMeasure.MeasureUnitCode     2</span></span>
-<span><span class="co">#&gt; 13                           MeasureQualifierCode     1</span></span>
+<span><span class="co">#&gt; 13                           MeasureQualifierCode     3</span></span>
 <span><span class="co">#&gt; 14                         ResultStatusIdentifier     2</span></span>
 <span><span class="co">#&gt; 15                            ResultValueTypeName     1</span></span>
 <span><span class="co">#&gt; 16                          ResultWeightBasisText     1</span></span>
 <span><span class="co">#&gt; 17                     ResultTemperatureBasisText     1</span></span>
 <span><span class="co">#&gt; 18                    ResultParticleSizeBasisText     1</span></span>
-<span><span class="co">#&gt; 19                              ResultCommentText     2</span></span>
-<span><span class="co">#&gt; 20        ResultAnalyticalMethod.MethodIdentifier     1</span></span>
-<span><span class="co">#&gt; 21 ResultAnalyticalMethod.MethodIdentifierContext     1</span></span>
-<span><span class="co">#&gt; 22              ResultAnalyticalMethod.MethodName     1</span></span>
+<span><span class="co">#&gt; 19                              ResultCommentText     7</span></span>
+<span><span class="co">#&gt; 20        ResultAnalyticalMethod.MethodIdentifier     2</span></span>
+<span><span class="co">#&gt; 21 ResultAnalyticalMethod.MethodIdentifierContext     2</span></span>
+<span><span class="co">#&gt; 22              ResultAnalyticalMethod.MethodName     2</span></span>
 <span><span class="co">#&gt; 23                          MethodDescriptionText     1</span></span>
-<span><span class="co">#&gt; 24                                 LaboratoryName     1</span></span>
+<span><span class="co">#&gt; 24                                 LaboratoryName     2</span></span>
 <span><span class="co">#&gt; 25                    ResultLaboratoryCommentText     5</span></span>
-<span><span class="co">#&gt; 26             DetectionQuantitationLimitTypeName     1</span></span>
-<span><span class="co">#&gt; 27                     MonitoringLocationTypeName     1</span></span></code></pre></div>
+<span><span class="co">#&gt; 26             DetectionQuantitationLimitTypeName     2</span></span>
+<span><span class="co">#&gt; 27                     MonitoringLocationTypeName    11</span></span></code></pre></div>
 <p>Selecting a parameter generates the list below, which is subset by
 the selected parameter, of fields and the number of unique values in
 each field.</p>
 <p>Then choose a field from the list. In this example we’ll remove
 certain values from the HydrologicEvent field.</p>
-<div class="sourceCode" id="cb22"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb27"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/FilterParFieldReview.html">FilterParFieldReview</a></span><span class="op">(</span><span class="st">"HydrologicEvent"</span>, <span class="va">TADAProfileClean15</span>, <span class="st">"NITROGEN"</span><span class="op">)</span></span></code></pre></div>
-<p><img src="WQPDataHarmonization_files/figure-html/unnamed-chunk-20-1.png" width="576"></p>
+<p><img src="WQPDataHarmonization_files/figure-html/unnamed-chunk-25-1.png" width="576"></p>
 <pre><code><span><span class="co">#&gt;       FieldValue Count</span></span>
 <span><span class="co">#&gt; 1 Routine sample    59</span></span></code></pre>
 <p>The HydrologicEvent field has three unique values. In this example we
 want to remove samples collected during “Storm” events. Therefore, we’ll
 specify that we want to remove rows where the CharacteristicName is
 “NITROGEN” and the HydrologicEvent field is “Storm.”</p>
-<div class="sourceCode" id="cb24"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb29"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">TADAProfileClean16</span> <span class="op">&lt;-</span> <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">TADAProfileClean15</span>, <span class="op">!</span><span class="op">(</span><span class="va">CharacteristicName</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="st">"NITROGEN"</span> <span class="op">&amp;</span> <span class="va">HydrologicEvent</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="st">"Storm"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">
@@ -799,7 +979,7 @@ constituent (e.g., “Total Kjeldahl nitrogen (Organic N &amp; NH3)” and
 “Kjeldahl nitrogen”). The HarmonizeData function gives a consistent name
 (and identifier) to synonyms.</p></li>
 </ol>
-<div class="sourceCode" id="cb25"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb30"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">UniqueHarmonizationRef</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/HarmonizationRefTable.html">HarmonizationRefTable</a></span><span class="op">(</span><span class="va">TADAProfileClean16</span>, download <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
 <span><span class="va">TADAProfileClean17</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/HarmonizeData.html">HarmonizeData</a></span><span class="op">(</span><span class="va">TADAProfileClean16</span>, ref <span class="op">=</span> <span class="va">UniqueHarmonizationRef</span>, transform <span class="op">=</span> <span class="cn">TRUE</span>, flag <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
 </div>
