@@ -807,7 +807,7 @@ in each field.</p>
 <span><span class="co">#&gt; 2                    ActivityTypeCode     7</span></span>
 <span><span class="co">#&gt; 3                   ActivityMediaName     1</span></span>
 <span><span class="co">#&gt; 4        ActivityMediaSubdivisionName     4</span></span>
-<span><span class="co">#&gt; 5                 ActivityCommentText     3</span></span>
+<span><span class="co">#&gt; 5                 ActivityCommentText     4</span></span>
 <span><span class="co">#&gt; 6                 HydrologicCondition     8</span></span>
 <span><span class="co">#&gt; 7                     HydrologicEvent     4</span></span>
 <span><span class="co">#&gt; 8                  CharacteristicName     3</span></span>
@@ -816,7 +816,7 @@ in each field.</p>
 <span><span class="co">#&gt; 11                     LaboratoryName    11</span></span>
 <span><span class="co">#&gt; 12 DetectionQuantitationLimitTypeName     7</span></span>
 <span><span class="co">#&gt; 13         MonitoringLocationTypeName    14</span></span>
-<span><span class="co">#&gt; 14                        ProjectName     7</span></span></code></pre></div>
+<span><span class="co">#&gt; 14                        ProjectName     8</span></span></code></pre></div>
 <p>Next, choose a field from the list to see the unique values in that
 field, as well as the number of times each value appears in the dataset.
 We’ll start with ActivityTypeCode.</p>
@@ -835,10 +835,10 @@ which may be described in detail in
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/FilterFieldReview.html">FilterFieldReview</a></span><span class="op">(</span><span class="st">"ActivityTypeCode"</span>, <span class="va">TADAProfileClean13</span><span class="op">)</span></span></code></pre></div>
 <p><img src="WQPDataHarmonization_files/figure-html/unnamed-chunk-19-1.png" width="576"></p>
 <pre><code><span><span class="co">#&gt;                               FieldValue Count</span></span>
-<span><span class="co">#&gt; 7                         Sample-Routine  4078</span></span>
-<span><span class="co">#&gt; 6     Sample-Integrated Vertical Profile   341</span></span>
-<span><span class="co">#&gt; 4 Quality Control Sample-Field Replicate   322</span></span>
-<span><span class="co">#&gt; 2 Quality Control Sample-Equipment Blank   174</span></span>
+<span><span class="co">#&gt; 7                         Sample-Routine  5268</span></span>
+<span><span class="co">#&gt; 6     Sample-Integrated Vertical Profile   474</span></span>
+<span><span class="co">#&gt; 4 Quality Control Sample-Field Replicate   454</span></span>
+<span><span class="co">#&gt; 2 Quality Control Sample-Equipment Blank   276</span></span>
 <span><span class="co">#&gt; 3     Quality Control Sample-Field Blank    60</span></span>
 <span><span class="co">#&gt; 1                          Field Msr/Obs     4</span></span>
 <span><span class="co">#&gt; 5   Quality Control Sample-Lab Duplicate     2</span></span></code></pre>
@@ -880,7 +880,7 @@ displayed to save space on the page)</p>
 <div class="sourceCode" id="cb25"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/FilterParList.html">FilterParList</a></span><span class="op">(</span><span class="va">TADAProfileClean15</span><span class="op">)</span></span>
 <span><span class="co">#&gt;   FieldValue Count</span></span>
-<span><span class="co">#&gt; 3   NITROGEN  2807</span></span>
+<span><span class="co">#&gt; 3   NITROGEN  4130</span></span>
 <span><span class="co">#&gt; 2    NITRATE  1479</span></span>
 <span><span class="co">#&gt; 1    AMMONIA    30</span></span></code></pre></div>
 <p>Next, select a parameter. Let’s explore the fields associated with
@@ -891,7 +891,7 @@ Nitrogen:</p>
 <span><span class="co">#&gt; 1                                ActivityTypeCode     2</span></span>
 <span><span class="co">#&gt; 2                               ActivityMediaName     1</span></span>
 <span><span class="co">#&gt; 3                    ActivityMediaSubdivisionName     2</span></span>
-<span><span class="co">#&gt; 4                             ActivityCommentText     2</span></span>
+<span><span class="co">#&gt; 4                             ActivityCommentText     3</span></span>
 <span><span class="co">#&gt; 5                             HydrologicCondition     7</span></span>
 <span><span class="co">#&gt; 6                                 HydrologicEvent     2</span></span>
 <span><span class="co">#&gt; 7         SampleCollectionMethod.MethodIdentifier     6</span></span>
