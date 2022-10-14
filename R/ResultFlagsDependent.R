@@ -356,7 +356,7 @@ DepthProfileData <- function(.data,
   }
   # check unit argument for valid number of inputs
   if (length(unit) != 1) {
-    stop("Invalid 'unit' argument. 'unit' accepts only one allowable value as an input.'unit' must be one of either 'm' (meter), 'ft' (feet), or 'in' (inch).")
+    stop("Invalid 'unit' argument. 'unit' accepts only one allowable value as an input. 'unit' must be one of either 'm' (meter), 'ft' (feet), or 'in' (inch).")
   }
   # check unit argument for valid inputs
   if (all(is.na(match(c("m", "ft", "in"), unit))) == TRUE) {
