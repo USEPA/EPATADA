@@ -511,16 +511,16 @@ DepthProfileData <- function(.data,
     # get .data column names
     col.order <- colnames(.data)
     # add appended columns to the list
-    if (("ActivityDepthHeightMeasure" %in% fields) == TRUE) {
+    if (("WQX.ActDepth.ConversionFactor" %in% colnames(check.data)) == TRUE) {
       col.order <- append(col.order, "WQX.ActDepth.ConversionFactor")
     }
-    if (("ActivityTopDepthHeightMeasure" %in% fields) == TRUE) {
+    if (("WQX.ActTopDepth.ConversionFactor" %in% colnames(check.data)) == TRUE) {
       col.order <- append(col.order, "WQX.ActTopDepth.ConversionFactor")
     }
-    if (("ActivityBottomDepthHeightMeasure" %in% fields) == TRUE) {
+    if (("WQX.ActBottomDepth.ConversionFactor" %in% colnames(check.data)) == TRUE) {
       col.order <- append(col.order, "WQX.ActBottomDepth.ConversionFactor")
     }
-    if (("ResultDepthHeightMeasure" %in% fields) == TRUE) {
+    if (("WQX.ResultDepth.ConversionFactor" %in% colnames(check.data)) == TRUE) {
       col.order <- append(col.order, "WQX.ResultDepth.ConversionFactor")
     }
     if (("WQX.Depth.TargetUnit" %in% colnames(check.data)) == TRUE) {
@@ -529,25 +529,25 @@ DepthProfileData <- function(.data,
     # reorder columns in flag.data
     flag.data <- check.data[, col.order]
     # place flag columns next to relevant fields
-    if (("ActivityDepthHeightMeasure" %in% fields) == TRUE) {
+    if (("WQX.ActDepth.ConversionFactor" %in% colnames(check.data)) == TRUE) {
       check.data <- check.data %>%
         dplyr::relocate("WQX.ActDepth.ConversionFactor",
           .after = "ActivityDepthHeightMeasure.MeasureValue"
         )
     }
-    if (("ActivityTopDepthHeightMeasure" %in% fields) == TRUE) {
+    if (("WQX.ActTopDepth.ConversionFactor" %in% colnames(check.data)) == TRUE) {
       check.data <- check.data %>%
         dplyr::relocate("WQX.ActTopDepth.ConversionFactor",
           .after = "ActivityTopDepthHeightMeasure.MeasureValue"
         )
     }
-    if (("ActivityBottomDepthHeightMeasure" %in% fields) == TRUE) {
+    if (("WQX.ActBottomDepth.ConversionFactor" %in% colnames(check.data)) == TRUE) {
       check.data <- check.data %>%
         dplyr::relocate("WQX.ActBottomDepth.ConversionFactor",
           .after = "ActivityBottomDepthHeightMeasure.MeasureValue"
         )
     }
-    if (("ResultDepthHeightMeasure" %in% fields) == TRUE) {
+    if (("WQX.ResultDepth.ConversionFactor" %in% colnames(check.data)) == TRUE) {
       check.data <- check.data %>%
         dplyr::relocate("WQX.ResultDepth.ConversionFactor",
           .after = "ResultDepthHeightMeasure.MeasureValue"
