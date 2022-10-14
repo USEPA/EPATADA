@@ -498,12 +498,12 @@ DepthProfileData <- function(.data,
       }
     }
     # check if any Conversion Factor columns were appended
-    if (all(is.na(match(c(
-      "WQX.ActDepth.ConversionFactor",
-      "WQX.ActTopDepth.ConversionFactor",
-      "WQX.ActBottomDepth.ConversionFactor",
-      "WQX.ResultDepth.ConversionFactor"
-    ), colnames(check.data)))) == TRUE) {
+    appCols <- c("WQX.ActDepth.ConversionFactor",
+                 "WQX.ActTopDepth.ConversionFactor",
+                 "WQX.ActBottomDepth.ConversionFactor",
+                 "WQX.ResultDepth.ConversionFactor",
+                 "WQX.Depth.TargetUnit")
+    if (all(is.na(match(appCols, colnames(check.data)))) == TRUE) {
       stop("The dataset does not have any depth data.")
     }
 
@@ -511,51 +511,41 @@ DepthProfileData <- function(.data,
     # get .data column names
     col.order <- colnames(.data)
     # add appended columns to the list
-    if (("WQX.ActDepth.ConversionFactor" %in% colnames(check.data)) == TRUE) {
-      col.order <- append(col.order, "WQX.ActDepth.ConversionFactor")
-    }
-    if (("WQX.ActTopDepth.ConversionFactor" %in% colnames(check.data)) == TRUE) {
-      col.order <- append(col.order, "WQX.ActTopDepth.ConversionFactor")
-    }
-    if (("WQX.ActBottomDepth.ConversionFactor" %in% colnames(check.data)) == TRUE) {
-      col.order <- append(col.order, "WQX.ActBottomDepth.ConversionFactor")
-    }
-    if (("WQX.ResultDepth.ConversionFactor" %in% colnames(check.data)) == TRUE) {
-      col.order <- append(col.order, "WQX.ResultDepth.ConversionFactor")
-    }
-    if (("WQX.Depth.TargetUnit" %in% colnames(check.data)) == TRUE) {
-      col.order <- append(col.order, "WQX.Depth.TargetUnit")
+    for (appCol in appCols) {
+      if ((appCol %in% colnames(check.data)) == TRUE) {
+        col.order <- append(col.order, appCol)
+      }
     }
     # reorder columns in flag.data
     flag.data <- check.data[, col.order]
     # place flag columns next to relevant fields
-    if (("WQX.ActDepth.ConversionFactor" %in% colnames(check.data)) == TRUE) {
+    if ((appCols[1] %in% colnames(check.data)) == TRUE) {
       check.data <- check.data %>%
-        dplyr::relocate("WQX.ActDepth.ConversionFactor",
+        dplyr::relocate(appCols[1],
           .after = "ActivityDepthHeightMeasure.MeasureValue"
         )
     }
-    if (("WQX.ActTopDepth.ConversionFactor" %in% colnames(check.data)) == TRUE) {
+    if ((appCols[2] %in% colnames(check.data)) == TRUE) {
       check.data <- check.data %>%
-        dplyr::relocate("WQX.ActTopDepth.ConversionFactor",
+        dplyr::relocate(appCols[2],
           .after = "ActivityTopDepthHeightMeasure.MeasureValue"
         )
     }
-    if (("WQX.ActBottomDepth.ConversionFactor" %in% colnames(check.data)) == TRUE) {
+    if ((appCols[3] %in% colnames(check.data)) == TRUE) {
       check.data <- check.data %>%
-        dplyr::relocate("WQX.ActBottomDepth.ConversionFactor",
+        dplyr::relocate(appCols[3],
           .after = "ActivityBottomDepthHeightMeasure.MeasureValue"
         )
     }
-    if (("WQX.ResultDepth.ConversionFactor" %in% colnames(check.data)) == TRUE) {
+    if ((appCols[4] %in% colnames(check.data)) == TRUE) {
       check.data <- check.data %>%
-        dplyr::relocate("WQX.ResultDepth.ConversionFactor",
+        dplyr::relocate(appCols[4],
           .after = "ResultDepthHeightMeasure.MeasureValue"
         )
     }
-    if (("WQX.Depth.TargetUnit" %in% colnames(check.data)) == TRUE) {
+    if ((appCols[5] %in% colnames(check.data)) == TRUE) {
       check.data <- check.data %>%
-        dplyr::relocate("WQX.Depth.TargetUnit",
+        dplyr::relocate(appCols[5],
           .after = "ActivityEndTime.TimeZoneCode"
         )
     }
