@@ -401,7 +401,7 @@ DepthProfileData <- function(.data,
     # append data based on fields argument input
     if (("ActivityDepthHeightMeasure" %in% fields) == TRUE) {
       # proceed only if ActivityDepthHeightMeasure.MeasureUnitCode has values other than NA
-      if (sum(is.na(check.data$ActivityDepthHeightMeasure.MeasureUnitCode)) > 0) {
+      if (sum(!is.na(check.data$ActivityDepthHeightMeasure.MeasureUnitCode)) > 0) {
         # Join target unit and conversion factor from unit.ref to .data by ActivityDepthHeightMeasure.MeasureUnitCode
         check.data <- merge(check.data, unit.ref[, c("Code", "WQX.Depth.TargetUnit", "Conversion.Factor")],
           by.x = "ActivityDepthHeightMeasure.MeasureUnitCode",
@@ -416,7 +416,7 @@ DepthProfileData <- function(.data,
 
     if (("ActivityTopDepthHeightMeasure" %in% fields) == TRUE) {
       # proceed only if ActivityDepthHeightMeasure.MeasureUnitCode has values other than NA
-      if (sum(is.na(check.data$ActivityTopDepthHeightMeasure.MeasureUnitCode)) > 0) {
+      if (sum(!is.na(check.data$ActivityTopDepthHeightMeasure.MeasureUnitCode)) > 0) {
         # Join target unit and conversion factor from unit.ref to .data by ActivityDepthHeightMeasure.MeasureUnitCode
         check.data <- merge(check.data, unit.ref[, c("Code", "WQX.Depth.TargetUnit", "Conversion.Factor")],
           by.x = "ActivityTopDepthHeightMeasure.MeasureUnitCode",
@@ -444,7 +444,7 @@ DepthProfileData <- function(.data,
 
     if (("ActivityBottomDepthHeightMeasure" %in% fields) == TRUE) {
       # proceed only if ActivityDepthHeightMeasure.MeasureUnitCode has values other than NA
-      if (sum(is.na(check.data$ActivityBottomDepthHeightMeasure.MeasureUnitCode)) > 0) {
+      if (sum(!is.na(check.data$ActivityBottomDepthHeightMeasure.MeasureUnitCode)) > 0) {
         # Join target unit and conversion factor from unit.ref to .data by ActivityDepthHeightMeasure.MeasureUnitCode
         check.data <- merge(check.data, unit.ref[, c("Code", "WQX.Depth.TargetUnit", "Conversion.Factor")],
           by.x = "ActivityBottomDepthHeightMeasure.MeasureUnitCode",
@@ -472,7 +472,7 @@ DepthProfileData <- function(.data,
 
     if (("ResultDepthHeightMeasure" %in% fields) == TRUE) {
       # proceed only if ActivityDepthHeightMeasure.MeasureUnitCode has values other than NA
-      if (sum(is.na(check.data$ResultDepthHeightMeasure.MeasureUnitCode)) > 0) {
+      if (sum(!is.na(check.data$ResultDepthHeightMeasure.MeasureUnitCode)) > 0) {
         # Join target unit and conversion factor from unit.ref to .data by ActivityDepthHeightMeasure.MeasureUnitCode
         check.data <- merge(check.data, unit.ref[, c("Code", "WQX.Depth.TargetUnit", "Conversion.Factor")],
           by.x = "ResultDepthHeightMeasure.MeasureUnitCode",
