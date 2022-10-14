@@ -413,8 +413,9 @@ DepthProfileData <- function(.data,
         appCol <- appCols[i]
         # proceed only if unitCol has values other than NA
         if (sum(!is.na(check.data[unitCol])) > 0) {
-          # Join target unit and conversion factor from unit.ref to .data by unitCol
-          check.data <- merge(check.data, unit.ref[, c("Code", "WQX.Depth.TargetUnit", "Conversion.Factor")],
+          targetUnit <- "WQX.Depth.TargetUnit"
+          # Join targetUnit and conversion factor from unit.ref to .data by unitCol
+          check.data <- merge(check.data, unit.ref[, c("Code", targetUnit, "Conversion.Factor")],
                               by.x = unitCol,
                               by.y = "Code",
                               all.x = TRUE
@@ -422,18 +423,20 @@ DepthProfileData <- function(.data,
           # rename new columns
           check.data <- check.data %>%
             dplyr::rename(!!appCol := Conversion.Factor)
-          # check if Target Unit column already exists, if it does, combine columns
-          if (all(c("WQX.Depth.TargetUnit.x", "WQX.Depth.TargetUnit.y") %in% colnames(check.data)) == TRUE) {
+          
+          # If targetUnit column already exists combine columns
+          targetUnit.x <- paste(targetUnit, '.x', sep="")
+          targetUnit.y <- paste(targetUnit, '.y', sep="")
+          if (all(c(targetUnit.x, targetUnit.y) %in% colnames(check.data)) == TRUE) {
             # coalesce WQX.Depth.TargetUnit columns
-            check.data$WQX.Depth.TargetUnit <- dplyr::coalesce(
-              check.data$WQX.Depth.TargetUnit.x,
-              check.data$WQX.Depth.TargetUnit.y
+            check.data[targetUnit] <- dplyr::coalesce(
+              check.data[targetUnit.x],
+              check.data[targetUnit.y]
             )
             # remove extra columns
-            check.data <- dplyr::select(check.data, -c(
-              "WQX.Depth.TargetUnit.x",
-              "WQX.Depth.TargetUnit.y"
-            ))
+            check.data <- dplyr::select(check.data,
+                                        -c(targetUnit.x, targetUnit.y)
+                                        )
           }
         }
       }
