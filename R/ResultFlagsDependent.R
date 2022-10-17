@@ -356,19 +356,18 @@ DepthProfileData <- function(.data,
   }
   # check unit argument for valid number of inputs
   if (length(unit) != 1) {
-    stop("Invalid 'unit' argument. 'unit' accepts only one allowable value as an input.'unit' must be one of either 'm' (meter), 'ft' (feet), or 'in' (inch).")
+    stop("Invalid 'unit' argument. 'unit' accepts only one allowable value as an input. 'unit' must be one of either 'm' (meter), 'ft' (feet), or 'in' (inch).")
   }
   # check unit argument for valid inputs
   if (all(is.na(match(c("m", "ft", "in"), unit))) == TRUE) {
     stop("Invalid 'unit' argument. 'unit' must be either 'm' (meter), 'ft' (feet), or 'in' (inch).")
   }
   # check fields argument for valid inputs
-  if (all(is.na(match(c(
-    "ActivityDepthHeightMeasure",
-    "ActivityTopDepthHeightMeasure",
-    "ActivityBottomDepthHeightMeasure",
-    "ResultDepthHeightMeasure"
-  ), fields))) == TRUE) {
+  validFields <- c("ActivityDepthHeightMeasure",
+                   "ActivityTopDepthHeightMeasure",
+                   "ActivityBottomDepthHeightMeasure",
+                   "ResultDepthHeightMeasure")
+  if (all(is.na(match(validFields, fields))) == TRUE) {
     stop("Invalid 'fields' argument. 'fields' must include one or many of the
     following: 'ActivityDepthHeightMeasure,' 'ActivityTopDepthHeightMeasure,'
     'ActivityBottomDepthHeightMeasure,' and/or 'ResultDepthHeightMeasure.'")
@@ -399,111 +398,52 @@ DepthProfileData <- function(.data,
     # add WQX.Depth.TargetUnit column
 
     # append data based on fields argument input
-    if (("ActivityDepthHeightMeasure" %in% fields) == TRUE) {
-      # proceed only if ActivityDepthHeightMeasure.MeasureUnitCode has values other than NA
-      if (sum(is.na(check.data$ActivityDepthHeightMeasure.MeasureUnitCode)) > 0) {
-        # Join target unit and conversion factor from unit.ref to .data by ActivityDepthHeightMeasure.MeasureUnitCode
-        check.data <- merge(check.data, unit.ref[, c("Code", "WQX.Depth.TargetUnit", "Conversion.Factor")],
-          by.x = "ActivityDepthHeightMeasure.MeasureUnitCode",
-          by.y = "Code",
-          all.x = TRUE
-        )
-        # rename new columns
-        check.data <- check.data %>%
-          dplyr::rename(WQX.ActDepth.ConversionFactor = Conversion.Factor)
-      }
-    }
-
-    if (("ActivityTopDepthHeightMeasure" %in% fields) == TRUE) {
-      # proceed only if ActivityDepthHeightMeasure.MeasureUnitCode has values other than NA
-      if (sum(is.na(check.data$ActivityTopDepthHeightMeasure.MeasureUnitCode)) > 0) {
-        # Join target unit and conversion factor from unit.ref to .data by ActivityDepthHeightMeasure.MeasureUnitCode
-        check.data <- merge(check.data, unit.ref[, c("Code", "WQX.Depth.TargetUnit", "Conversion.Factor")],
-          by.x = "ActivityTopDepthHeightMeasure.MeasureUnitCode",
-          by.y = "Code",
-          all.x = TRUE
-        )
-        # rename new columns
-        check.data <- check.data %>%
-          dplyr::rename(WQX.ActTopDepth.ConversionFactor = Conversion.Factor)
-        # check if Target Unit column already exists, if it does, combine columns
-        if (all(c("WQX.Depth.TargetUnit.x", "WQX.Depth.TargetUnit.y") %in% colnames(check.data)) == TRUE) {
-          # coalesce WQX.Depth.TargetUnit columns
-          check.data$WQX.Depth.TargetUnit <- dplyr::coalesce(
-            check.data$WQX.Depth.TargetUnit.x,
-            check.data$WQX.Depth.TargetUnit.y
+    # Columns to append
+    appCols <- c("WQX.ActDepth.ConversionFactor",
+                 "WQX.ActTopDepth.ConversionFactor",
+                 "WQX.ActBottomDepth.ConversionFactor",
+                 "WQX.ResultDepth.ConversionFactor",
+                 "WQX.Depth.TargetUnit")
+    for (i in seq_along(validFields)) {
+      field <- validFields[i]
+      if ((field %in% fields) == TRUE) {
+        # Old unit column
+        unitCol <- paste(field, ".MeasureUnitCode", sep="")
+        # New column to append
+        appCol <- appCols[i]
+        # proceed only if unitCol has values other than NA
+        if (sum(!is.na(check.data[unitCol])) > 0) {
+          targetUnit <- "WQX.Depth.TargetUnit"
+          # Join targetUnit and conversion factor from unit.ref to .data by unitCol
+          check.data <- merge(check.data, unit.ref[, c("Code", targetUnit, "Conversion.Factor")],
+                              by.x = unitCol,
+                              by.y = "Code",
+                              all.x = TRUE
           )
-          # remove extra columns
-          check.data <- dplyr::select(check.data, -c(
-            "WQX.Depth.TargetUnit.x",
-            "WQX.Depth.TargetUnit.y"
-          ))
+          # rename new columns
+          check.data <- check.data %>%
+            dplyr::rename(!!appCol := Conversion.Factor)
+          
+          # If targetUnit column already exists combine columns
+          targetUnit.x <- paste(targetUnit, '.x', sep="")
+          targetUnit.y <- paste(targetUnit, '.y', sep="")
+          if (all(c(targetUnit.x, targetUnit.y) %in% colnames(check.data)) == TRUE) {
+            # coalesce WQX.Depth.TargetUnit columns
+            check.data[targetUnit] <- dplyr::coalesce(
+              check.data[targetUnit.x],
+              check.data[targetUnit.y]
+            )
+            # remove extra columns
+            check.data <- dplyr::select(check.data,
+                                        -c(targetUnit.x, targetUnit.y)
+                                        )
+          }
         }
       }
     }
 
-    if (("ActivityBottomDepthHeightMeasure" %in% fields) == TRUE) {
-      # proceed only if ActivityDepthHeightMeasure.MeasureUnitCode has values other than NA
-      if (sum(is.na(check.data$ActivityBottomDepthHeightMeasure.MeasureUnitCode)) > 0) {
-        # Join target unit and conversion factor from unit.ref to .data by ActivityDepthHeightMeasure.MeasureUnitCode
-        check.data <- merge(check.data, unit.ref[, c("Code", "WQX.Depth.TargetUnit", "Conversion.Factor")],
-          by.x = "ActivityBottomDepthHeightMeasure.MeasureUnitCode",
-          by.y = "Code",
-          all.x = TRUE
-        )
-        # rename new columns
-        check.data <- check.data %>%
-          dplyr::rename(WQX.ActBottomDepth.ConversionFactor = Conversion.Factor)
-        # check if Target Unit column already exists, if it does, combine columns
-        if (all(c("WQX.Depth.TargetUnit.x", "WQX.Depth.TargetUnit.y") %in% colnames(check.data)) == TRUE) {
-          # coalesce WQX.Depth.TargetUnit columns
-          check.data$WQX.Depth.TargetUnit <- dplyr::coalesce(
-            check.data$WQX.Depth.TargetUnit.x,
-            check.data$WQX.Depth.TargetUnit.y
-          )
-          # remove extra columns
-          check.data <- dplyr::select(check.data, -c(
-            "WQX.Depth.TargetUnit.x",
-            "WQX.Depth.TargetUnit.y"
-          ))
-        }
-      }
-    }
-
-    if (("ResultDepthHeightMeasure" %in% fields) == TRUE) {
-      # proceed only if ActivityDepthHeightMeasure.MeasureUnitCode has values other than NA
-      if (sum(is.na(check.data$ResultDepthHeightMeasure.MeasureUnitCode)) > 0) {
-        # Join target unit and conversion factor from unit.ref to .data by ActivityDepthHeightMeasure.MeasureUnitCode
-        check.data <- merge(check.data, unit.ref[, c("Code", "WQX.Depth.TargetUnit", "Conversion.Factor")],
-          by.x = "ResultDepthHeightMeasure.MeasureUnitCode",
-          by.y = "Code",
-          all.x = TRUE
-        )
-        # rename new columns
-        check.data <- check.data %>%
-          dplyr::rename(WQX.ResultDepth.ConversionFactor = Conversion.Factor)
-        # check if Target Unit column already exists, if it does, combine columns
-        if (all(c("WQX.Depth.TargetUnit.x", "WQX.Depth.TargetUnit.y") %in% colnames(check.data)) == TRUE) {
-          # coalesce WQX.Depth.TargetUnit columns
-          check.data$WQX.Depth.TargetUnit <- dplyr::coalesce(
-            check.data$WQX.Depth.TargetUnit.x,
-            check.data$WQX.Depth.TargetUnit.y
-          )
-          # remove extra columns
-          check.data <- dplyr::select(check.data, -c(
-            "WQX.Depth.TargetUnit.x",
-            "WQX.Depth.TargetUnit.y"
-          ))
-        }
-      }
-    }
     # check if any Conversion Factor columns were appended
-    if (all(is.na(match(c(
-      "WQX.ActDepth.ConversionFactor",
-      "WQX.ActTopDepth.ConversionFactor",
-      "WQX.ActBottomDepth.ConversionFactor",
-      "WQX.ResultDepth.ConversionFactor"
-    ), colnames(check.data)))) == TRUE) {
+    if (all(is.na(match(appCols, colnames(check.data)))) == TRUE) {
       stop("The dataset does not have any depth data.")
     }
 
@@ -511,51 +451,41 @@ DepthProfileData <- function(.data,
     # get .data column names
     col.order <- colnames(.data)
     # add appended columns to the list
-    if (("ActivityDepthHeightMeasure" %in% fields) == TRUE) {
-      col.order <- append(col.order, "WQX.ActDepth.ConversionFactor")
-    }
-    if (("ActivityTopDepthHeightMeasure" %in% fields) == TRUE) {
-      col.order <- append(col.order, "WQX.ActTopDepth.ConversionFactor")
-    }
-    if (("ActivityBottomDepthHeightMeasure" %in% fields) == TRUE) {
-      col.order <- append(col.order, "WQX.ActBottomDepth.ConversionFactor")
-    }
-    if (("ResultDepthHeightMeasure" %in% fields) == TRUE) {
-      col.order <- append(col.order, "WQX.ResultDepth.ConversionFactor")
-    }
-    if (("WQX.Depth.TargetUnit" %in% colnames(check.data)) == TRUE) {
-      col.order <- append(col.order, "WQX.Depth.TargetUnit")
+    for (appCol in appCols) {
+      if ((appCol %in% colnames(check.data)) == TRUE) {
+        col.order <- append(col.order, appCol)
+      }
     }
     # reorder columns in flag.data
     flag.data <- check.data[, col.order]
     # place flag columns next to relevant fields
-    if (("ActivityDepthHeightMeasure" %in% fields) == TRUE) {
+    if ((appCols[1] %in% colnames(check.data)) == TRUE) {
       check.data <- check.data %>%
-        dplyr::relocate("WQX.ActDepth.ConversionFactor",
+        dplyr::relocate(appCols[1],
           .after = "ActivityDepthHeightMeasure.MeasureValue"
         )
     }
-    if (("ActivityTopDepthHeightMeasure" %in% fields) == TRUE) {
+    if ((appCols[2] %in% colnames(check.data)) == TRUE) {
       check.data <- check.data %>%
-        dplyr::relocate("WQX.ActTopDepth.ConversionFactor",
+        dplyr::relocate(appCols[2],
           .after = "ActivityTopDepthHeightMeasure.MeasureValue"
         )
     }
-    if (("ActivityBottomDepthHeightMeasure" %in% fields) == TRUE) {
+    if ((appCols[3] %in% colnames(check.data)) == TRUE) {
       check.data <- check.data %>%
-        dplyr::relocate("WQX.ActBottomDepth.ConversionFactor",
+        dplyr::relocate(appCols[3],
           .after = "ActivityBottomDepthHeightMeasure.MeasureValue"
         )
     }
-    if (("ResultDepthHeightMeasure" %in% fields) == TRUE) {
+    if ((appCols[4] %in% colnames(check.data)) == TRUE) {
       check.data <- check.data %>%
-        dplyr::relocate("WQX.ResultDepth.ConversionFactor",
+        dplyr::relocate(appCols[4],
           .after = "ResultDepthHeightMeasure.MeasureValue"
         )
     }
-    if (("WQX.Depth.TargetUnit" %in% colnames(check.data)) == TRUE) {
+    if ((appCols[5] %in% colnames(check.data)) == TRUE) {
       check.data <- check.data %>%
-        dplyr::relocate("WQX.Depth.TargetUnit",
+        dplyr::relocate(appCols[5],
           .after = "ActivityEndTime.TimeZoneCode"
         )
     }
