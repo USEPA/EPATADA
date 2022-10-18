@@ -325,6 +325,8 @@ InvalidResultUnit <- function(.data, clean = TRUE) {
 #' When transform = FALSE, the output is the full dataset with 'Conversion Factor'
 #' columns and a 'Depth Target Unit' column.
 #'
+#' @importFrom rlang :=
+#'
 #' @export
 #'
 
