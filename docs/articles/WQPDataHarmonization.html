@@ -73,7 +73,7 @@
                         <h4 data-toc-skip class="author">Cristina A.
 Mullin</h4>
             
-            <h4 data-toc-skip class="date">2022-10-17</h4>
+            <h4 data-toc-skip class="date">2022-10-18</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/USEPA/TADA/blob/HEAD/vignettes/WQPDataHarmonization.Rmd" class="external-link"><code>vignettes/WQPDataHarmonization.Rmd</code></a></small>
       <div class="d-none name"><code>WQPDataHarmonization.Rmd</code></div>
@@ -113,28 +113,13 @@ GitHub</p>
 dataRetrieval from GitHub.</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># remotes::install_github("USGS-R/dataRetrieval", dependencies=TRUE)</span></span>
-<span><span class="co"># remotes::install_github("USEPA/TADA", dependencies=TRUE)</span></span></code></pre></div>
+<span><span class="fu">remotes</span><span class="fu">::</span><span class="fu"><a href="https://remotes.r-lib.org/reference/install_github.html" class="external-link">install_github</a></span><span class="op">(</span><span class="st">"USEPA/TADA"</span>, dependencies<span class="op">=</span><span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
 <p>Load the required libraries to run this vignette into your R
 session</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="http://had.co.nz/plyr" class="external-link">plyr</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://r-datatable.com" class="external-link">data.table</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://dplyr.tidyverse.org" class="external-link">dplyr</a></span><span class="op">)</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; Attaching package: 'dplyr'</span></span>
-<span><span class="co">#&gt; The following objects are masked from 'package:data.table':</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt;     between, first, last</span></span>
-<span><span class="co">#&gt; The following objects are masked from 'package:plyr':</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt;     arrange, count, desc, failwith, id, mutate, rename, summarise,</span></span>
-<span><span class="co">#&gt;     summarize</span></span>
-<span><span class="co">#&gt; The following objects are masked from 'package:stats':</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt;     filter, lag</span></span>
-<span><span class="co">#&gt; The following objects are masked from 'package:base':</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt;     intersect, setdiff, setequal, union</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://ggplot2.tidyverse.org" class="external-link">ggplot2</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">grDevices</span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://magrittr.tidyverse.org" class="external-link">magrittr</a></span><span class="op">)</span></span>
@@ -143,137 +128,14 @@ session</p>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">RColorBrewer</span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">stats</span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://lubridate.tidyverse.org" class="external-link">lubridate</a></span><span class="op">)</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; Attaching package: 'lubridate'</span></span>
-<span><span class="co">#&gt; The following objects are masked from 'package:data.table':</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt;     hour, isoweek, mday, minute, month, quarter, second, wday, week,</span></span>
-<span><span class="co">#&gt;     yday, year</span></span>
-<span><span class="co">#&gt; The following objects are masked from 'package:base':</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt;     date, intersect, setdiff, union</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://rlang.r-lib.org" class="external-link">rlang</a></span><span class="op">)</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; Attaching package: 'rlang'</span></span>
-<span><span class="co">#&gt; The following object is masked from 'package:magrittr':</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt;     set_names</span></span>
-<span><span class="co">#&gt; The following object is masked from 'package:data.table':</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt;     :=</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://tidyverse.tidyverse.org" class="external-link">tidyverse</a></span><span class="op">)</span></span>
-<span><span class="co">#&gt; ── <span style="font-weight: bold;">Attaching packages</span></span></span>
-<span><span class="co">#&gt; ───────────────────────────────────────</span></span>
-<span><span class="co">#&gt; tidyverse 1.3.2 ──</span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> <span style="color: #0000BB;">tibble </span> 3.1.8     <span style="color: #00BB00;">✔</span> <span style="color: #0000BB;">purrr  </span> 0.3.4</span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> <span style="color: #0000BB;">tidyr  </span> 1.2.1     <span style="color: #00BB00;">✔</span> <span style="color: #0000BB;">forcats</span> 0.5.2</span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> <span style="color: #0000BB;">readr  </span> 2.1.3     </span></span>
-<span><span class="co">#&gt; ── <span style="font-weight: bold;">Conflicts</span> ────────────────────────────────────────── tidyverse_conflicts() ──</span></span>
-<span><span class="co">#&gt; <span style="color: #BB0000;">✖</span> <span style="color: #0000BB;">purrr</span>::<span style="color: #00BB00;">%@%()</span>             masks <span style="color: #0000BB;">rlang</span>::%@%()</span></span>
-<span><span class="co">#&gt; <span style="color: #BB0000;">✖</span> <span style="color: #0000BB;">rlang</span>::<span style="color: #00BB00;">:=()</span>              masks <span style="color: #0000BB;">data.table</span>:::=()</span></span>
-<span><span class="co">#&gt; <span style="color: #BB0000;">✖</span> <span style="color: #0000BB;">dplyr</span>::<span style="color: #00BB00;">arrange()</span>         masks <span style="color: #0000BB;">plyr</span>::arrange()</span></span>
-<span><span class="co">#&gt; <span style="color: #BB0000;">✖</span> <span style="color: #0000BB;">lubridate</span>::<span style="color: #00BB00;">as.difftime()</span> masks <span style="color: #0000BB;">base</span>::as.difftime()</span></span>
-<span><span class="co">#&gt; <span style="color: #BB0000;">✖</span> <span style="color: #0000BB;">purrr</span>::<span style="color: #00BB00;">as_function()</span>     masks <span style="color: #0000BB;">rlang</span>::as_function()</span></span>
-<span><span class="co">#&gt; <span style="color: #BB0000;">✖</span> <span style="color: #0000BB;">dplyr</span>::<span style="color: #00BB00;">between()</span>         masks <span style="color: #0000BB;">data.table</span>::between()</span></span>
-<span><span class="co">#&gt; <span style="color: #BB0000;">✖</span> <span style="color: #0000BB;">purrr</span>::<span style="color: #00BB00;">compact()</span>         masks <span style="color: #0000BB;">plyr</span>::compact()</span></span>
-<span><span class="co">#&gt; <span style="color: #BB0000;">✖</span> <span style="color: #0000BB;">dplyr</span>::<span style="color: #00BB00;">count()</span>           masks <span style="color: #0000BB;">plyr</span>::count()</span></span>
-<span><span class="co">#&gt; <span style="color: #BB0000;">✖</span> <span style="color: #0000BB;">lubridate</span>::<span style="color: #00BB00;">date()</span>        masks <span style="color: #0000BB;">base</span>::date()</span></span>
-<span><span class="co">#&gt; <span style="color: #BB0000;">✖</span> <span style="color: #0000BB;">tidyr</span>::<span style="color: #00BB00;">extract()</span>         masks <span style="color: #0000BB;">magrittr</span>::extract()</span></span>
-<span><span class="co">#&gt; <span style="color: #BB0000;">✖</span> <span style="color: #0000BB;">dplyr</span>::<span style="color: #00BB00;">failwith()</span>        masks <span style="color: #0000BB;">plyr</span>::failwith()</span></span>
-<span><span class="co">#&gt; <span style="color: #BB0000;">✖</span> <span style="color: #0000BB;">dplyr</span>::<span style="color: #00BB00;">filter()</span>          masks <span style="color: #0000BB;">stats</span>::filter()</span></span>
-<span><span class="co">#&gt; <span style="color: #BB0000;">✖</span> <span style="color: #0000BB;">dplyr</span>::<span style="color: #00BB00;">first()</span>           masks <span style="color: #0000BB;">data.table</span>::first()</span></span>
-<span><span class="co">#&gt; <span style="color: #BB0000;">✖</span> <span style="color: #0000BB;">purrr</span>::<span style="color: #00BB00;">flatten()</span>         masks <span style="color: #0000BB;">rlang</span>::flatten()</span></span>
-<span><span class="co">#&gt; <span style="color: #BB0000;">✖</span> <span style="color: #0000BB;">purrr</span>::<span style="color: #00BB00;">flatten_chr()</span>     masks <span style="color: #0000BB;">rlang</span>::flatten_chr()</span></span>
-<span><span class="co">#&gt; <span style="color: #BB0000;">✖</span> <span style="color: #0000BB;">purrr</span>::<span style="color: #00BB00;">flatten_dbl()</span>     masks <span style="color: #0000BB;">rlang</span>::flatten_dbl()</span></span>
-<span><span class="co">#&gt; <span style="color: #BB0000;">✖</span> <span style="color: #0000BB;">purrr</span>::<span style="color: #00BB00;">flatten_int()</span>     masks <span style="color: #0000BB;">rlang</span>::flatten_int()</span></span>
-<span><span class="co">#&gt; <span style="color: #BB0000;">✖</span> <span style="color: #0000BB;">purrr</span>::<span style="color: #00BB00;">flatten_lgl()</span>     masks <span style="color: #0000BB;">rlang</span>::flatten_lgl()</span></span>
-<span><span class="co">#&gt; <span style="color: #BB0000;">✖</span> <span style="color: #0000BB;">purrr</span>::<span style="color: #00BB00;">flatten_raw()</span>     masks <span style="color: #0000BB;">rlang</span>::flatten_raw()</span></span>
-<span><span class="co">#&gt; <span style="color: #BB0000;">✖</span> <span style="color: #0000BB;">lubridate</span>::<span style="color: #00BB00;">hour()</span>        masks <span style="color: #0000BB;">data.table</span>::hour()</span></span>
-<span><span class="co">#&gt; <span style="color: #BB0000;">✖</span> <span style="color: #0000BB;">dplyr</span>::<span style="color: #00BB00;">id()</span>              masks <span style="color: #0000BB;">plyr</span>::id()</span></span>
-<span><span class="co">#&gt; <span style="color: #BB0000;">✖</span> <span style="color: #0000BB;">lubridate</span>::<span style="color: #00BB00;">intersect()</span>   masks <span style="color: #0000BB;">base</span>::intersect()</span></span>
-<span><span class="co">#&gt; <span style="color: #BB0000;">✖</span> <span style="color: #0000BB;">purrr</span>::<span style="color: #00BB00;">invoke()</span>          masks <span style="color: #0000BB;">rlang</span>::invoke()</span></span>
-<span><span class="co">#&gt; <span style="color: #BB0000;">✖</span> <span style="color: #0000BB;">lubridate</span>::<span style="color: #00BB00;">isoweek()</span>     masks <span style="color: #0000BB;">data.table</span>::isoweek()</span></span>
-<span><span class="co">#&gt; <span style="color: #BB0000;">✖</span> <span style="color: #0000BB;">dplyr</span>::<span style="color: #00BB00;">lag()</span>             masks <span style="color: #0000BB;">stats</span>::lag()</span></span>
-<span><span class="co">#&gt; <span style="color: #BB0000;">✖</span> <span style="color: #0000BB;">dplyr</span>::<span style="color: #00BB00;">last()</span>            masks <span style="color: #0000BB;">data.table</span>::last()</span></span>
-<span><span class="co">#&gt; <span style="color: #BB0000;">✖</span> <span style="color: #0000BB;">lubridate</span>::<span style="color: #00BB00;">mday()</span>        masks <span style="color: #0000BB;">data.table</span>::mday()</span></span>
-<span><span class="co">#&gt; <span style="color: #BB0000;">✖</span> <span style="color: #0000BB;">lubridate</span>::<span style="color: #00BB00;">minute()</span>      masks <span style="color: #0000BB;">data.table</span>::minute()</span></span>
-<span><span class="co">#&gt; <span style="color: #BB0000;">✖</span> <span style="color: #0000BB;">lubridate</span>::<span style="color: #00BB00;">month()</span>       masks <span style="color: #0000BB;">data.table</span>::month()</span></span>
-<span><span class="co">#&gt; <span style="color: #BB0000;">✖</span> <span style="color: #0000BB;">dplyr</span>::<span style="color: #00BB00;">mutate()</span>          masks <span style="color: #0000BB;">plyr</span>::mutate()</span></span>
-<span><span class="co">#&gt; <span style="color: #BB0000;">✖</span> <span style="color: #0000BB;">lubridate</span>::<span style="color: #00BB00;">quarter()</span>     masks <span style="color: #0000BB;">data.table</span>::quarter()</span></span>
-<span><span class="co">#&gt; <span style="color: #BB0000;">✖</span> <span style="color: #0000BB;">dplyr</span>::<span style="color: #00BB00;">rename()</span>          masks <span style="color: #0000BB;">plyr</span>::rename()</span></span>
-<span><span class="co">#&gt; <span style="color: #BB0000;">✖</span> <span style="color: #0000BB;">lubridate</span>::<span style="color: #00BB00;">second()</span>      masks <span style="color: #0000BB;">data.table</span>::second()</span></span>
-<span><span class="co">#&gt; <span style="color: #BB0000;">✖</span> <span style="color: #0000BB;">purrr</span>::<span style="color: #00BB00;">set_names()</span>       masks <span style="color: #0000BB;">rlang</span>::set_names(), <span style="color: #0000BB;">magrittr</span>::set_names()</span></span>
-<span><span class="co">#&gt; <span style="color: #BB0000;">✖</span> <span style="color: #0000BB;">lubridate</span>::<span style="color: #00BB00;">setdiff()</span>     masks <span style="color: #0000BB;">base</span>::setdiff()</span></span>
-<span><span class="co">#&gt; <span style="color: #BB0000;">✖</span> <span style="color: #0000BB;">purrr</span>::<span style="color: #00BB00;">splice()</span>          masks <span style="color: #0000BB;">rlang</span>::splice()</span></span>
-<span><span class="co">#&gt; <span style="color: #BB0000;">✖</span> <span style="color: #0000BB;">dplyr</span>::<span style="color: #00BB00;">summarise()</span>       masks <span style="color: #0000BB;">plyr</span>::summarise()</span></span>
-<span><span class="co">#&gt; <span style="color: #BB0000;">✖</span> <span style="color: #0000BB;">dplyr</span>::<span style="color: #00BB00;">summarize()</span>       masks <span style="color: #0000BB;">plyr</span>::summarize()</span></span>
-<span><span class="co">#&gt; <span style="color: #BB0000;">✖</span> <span style="color: #0000BB;">purrr</span>::<span style="color: #00BB00;">transpose()</span>       masks <span style="color: #0000BB;">data.table</span>::transpose()</span></span>
-<span><span class="co">#&gt; <span style="color: #BB0000;">✖</span> <span style="color: #0000BB;">lubridate</span>::<span style="color: #00BB00;">union()</span>       masks <span style="color: #0000BB;">base</span>::union()</span></span>
-<span><span class="co">#&gt; <span style="color: #BB0000;">✖</span> <span style="color: #0000BB;">lubridate</span>::<span style="color: #00BB00;">wday()</span>        masks <span style="color: #0000BB;">data.table</span>::wday()</span></span>
-<span><span class="co">#&gt; <span style="color: #BB0000;">✖</span> <span style="color: #0000BB;">lubridate</span>::<span style="color: #00BB00;">week()</span>        masks <span style="color: #0000BB;">data.table</span>::week()</span></span>
-<span><span class="co">#&gt; <span style="color: #BB0000;">✖</span> <span style="color: #0000BB;">lubridate</span>::<span style="color: #00BB00;">yday()</span>        masks <span style="color: #0000BB;">data.table</span>::yday()</span></span>
-<span><span class="co">#&gt; <span style="color: #BB0000;">✖</span> <span style="color: #0000BB;">lubridate</span>::<span style="color: #00BB00;">year()</span>        masks <span style="color: #0000BB;">data.table</span>::year()</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://yihui.org/knitr/" class="external-link">knitr</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/rstudio/rmarkdown" class="external-link">rmarkdown</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://testthat.r-lib.org" class="external-link">testthat</a></span><span class="op">)</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; Attaching package: 'testthat'</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; The following object is masked from 'package:purrr':</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt;     is_null</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; The following objects are masked from 'package:readr':</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt;     edition_get, local_edition</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; The following object is masked from 'package:tidyr':</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt;     matches</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; The following objects are masked from 'package:rlang':</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt;     is_false, is_null, is_true</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; The following objects are masked from 'package:magrittr':</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt;     equals, is_less_than, not</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; The following object is masked from 'package:dplyr':</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt;     matches</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://usethis.r-lib.org" class="external-link">usethis</a></span><span class="op">)</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; Attaching package: 'usethis'</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; The following object is masked from 'package:remotes':</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt;     git_credentials</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://devtools.r-lib.org/" class="external-link">devtools</a></span><span class="op">)</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; Attaching package: 'devtools'</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; The following object is masked from 'package:testthat':</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt;     test_file</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; The following objects are masked from 'package:remotes':</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt;     dev_package_deps, install_bioc, install_bitbucket, install_cran,</span></span>
-<span><span class="co">#&gt;     install_deps, install_dev, install_git, install_github,</span></span>
-<span><span class="co">#&gt;     install_gitlab, install_local, install_svn, install_url,</span></span>
-<span><span class="co">#&gt;     install_version, update_packages</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://pkgdown.r-lib.org" class="external-link">pkgdown</a></span><span class="op">)</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; Attaching package: 'pkgdown'</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; The following object is masked from 'package:devtools':</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt;     build_site</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; The following object is masked from 'package:rmarkdown':</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt;     clean_site</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://www.rcpp.org" class="external-link">Rcpp</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://docs.ropensci.org/spelling/" class="external-link">spelling</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://pubs.usgs.gov/tm/04/a10/" class="external-link">dataRetrieval</a></span><span class="op">)</span></span>
@@ -399,7 +261,7 @@ Tutorial</a></p></li>
 <p>Option 2: Alternatively, you can use the data.table::fread function
 to read in a web service call for any WQP profile (un-comment).</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># new_fullphyschem &lt;- data.table::fread("https://www.waterqualitydata.us/data/Result/search?countrycode=US&amp;statecode=US%3A49&amp;siteid=UTAHDWQ_WQX-4925610&amp;startDateLo=01-01-2015&amp;startDateHi=12-31-2016&amp;mimeType=csv&amp;zip=no&amp;sorted=yes&amp;dataProfile=fullPhysChem&amp;providers=NWIS&amp;providers=STEWARDS&amp;providers=STORET")</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="co"># New_Draft_fullphyschem &lt;- data.table::fread("https://www.waterqualitydata.us/data/Result/search?countrycode=US&amp;statecode=US%3A49&amp;siteid=UTAHDWQ_WQX-4925610&amp;startDateLo=01-01-2015&amp;startDateHi=12-31-2016&amp;mimeType=csv&amp;zip=no&amp;sorted=yes&amp;dataProfile=fullPhysChem&amp;providers=NWIS&amp;providers=STEWARDS&amp;providers=STORET")</span></span></code></pre></div>
 <p>Option 3: If you need to download a large amount of data from across
 a large area, and the TADAdataRetrieval function is not working due to
 WQP timeout issues, then the TADABigdataRetrieval function may work
@@ -564,7 +426,12 @@ Default is unit = “m”.</p>
 by entering the following code in the console: ?DepthProfileData</p>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">#converts all depth profile data to meters</span></span>
-<span><span class="va">TADAProfileClean1</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/DepthProfileData.html">DepthProfileData</a></span><span class="op">(</span><span class="va">TADAProfile</span>, unit <span class="op">=</span> <span class="st">"m"</span>, transform <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
+<span><span class="va">TADAProfileClean1</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/DepthProfileData.html">DepthProfileData</a></span><span class="op">(</span><span class="va">TADAProfile</span>, unit <span class="op">=</span> <span class="st">"m"</span>, transform <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
+<span><span class="co">#&gt; Warning in `[&lt;-.data.frame`(`*tmp*`, targetUnit, value = structure(list(:</span></span>
+<span><span class="co">#&gt; provided 2 variables to replace 1 variables</span></span>
+<span></span>
+<span><span class="co">#&gt; Warning in `[&lt;-.data.frame`(`*tmp*`, targetUnit, value = structure(list(:</span></span>
+<span><span class="co">#&gt; provided 2 variables to replace 1 variables</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="result-unit-conversions">Result unit conversions<a class="anchor" aria-label="anchor" href="#result-unit-conversions"></a>

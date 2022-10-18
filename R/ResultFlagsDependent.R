@@ -59,7 +59,7 @@ InvalidFraction <- function(.data, clean = TRUE) {
     col.order <- colnames(.data)
     # add WQX.SampleFractionValidity column to the list
     col.order <- append(col.order, "WQX.SampleFractionValidity")
-    # reorder columns in flag.data
+    # reorder columns in check.data
     check.data <- check.data[, col.order]
     # place flag column next to relevant fields
     check.data <- check.data %>%
@@ -156,7 +156,7 @@ InvalidSpeciation <- function(.data, clean = TRUE) {
     col.order <- colnames(.data)
     # add WQX.MethodSpeciationValidity column to the list
     col.order <- append(col.order, "WQX.MethodSpeciationValidity")
-    # reorder columns in flag.data
+    # reorder columns in check.data
     check.data <- check.data[, col.order]
     # place flag columns next to relevant fields
     check.data <- check.data %>%
@@ -254,7 +254,7 @@ InvalidResultUnit <- function(.data, clean = TRUE) {
     col.order <- colnames(.data)
     # add WQX.ResultUnitValidity column to the list
     col.order <- append(col.order, "WQX.ResultUnitValidity")
-    # reorder columns in flag.data
+    # reorder columns in check.data
     check.data <- check.data[, col.order]
     # place flag columns next to relevant fields
     check.data <- check.data %>%
@@ -294,14 +294,14 @@ InvalidResultUnit <- function(.data, clean = TRUE) {
 #' Depth Profile Flag & Unit Conversion
 #'
 #' Function checks dataset for depth profile data. Where depth profile columns
-#' are populated, the function appends 'Conversion Factor' columns
+#' are populated, the function appends 'Conversion.Factor' columns
 #' and populates those columns based on the original unit (MeasureUnitCode
 #' columns) and the target unit, which is defined in the 'unit' argument. A
-#' 'Depth Target Unit' column is also appended, indicating the unit all selected
+#' 'WQX.Depth.TargetUnit' column is also appended, indicating the unit all selected
 #' depth data is converted to. When transform = FALSE, the output includes all
-#' 'Conversion Factor' columns and the 'Depth Target Unit' column. When transform
-#' = TRUE, the output includes converted depth data and the 'Depth Target
-#' Unit' column, which acts as a flag indicating which rows have been converted.
+#' 'Conversion.Factor' columns and the 'WQX.Depth.TargetUnit' column. When transform
+#' = TRUE, the output includes converted depth data and the 'WQX.Depth.TargetUnit'
+#' column, which acts as a flag indicating which rows have been converted.
 #' Default is transform = TRUE.
 #'
 #' @param .data TADA dataframe
@@ -315,15 +315,15 @@ InvalidResultUnit <- function(.data, clean = TRUE) {
 #' 'ActivityBottomDepthHeightMeasure,' and 'ResultDepthHeightMeasure.'. Default
 #'  is to include all allowable values.
 #' @param transform Boolean argument; When transform = FALSE, the output includes
-#' all Conversion Factor' columns and the 'Depth Target Unit' column. When
+#' all 'Conversion.Factor' columns and the 'WQX.Depth.TargetUnit' column. When
 #' transform = TRUE, the output includes converted depth data and the 'Depth
 #' Target Unit' column, which acts as a flag indicating which rows have been
 #' converted. Default is transform = TRUE.
 #'
-#' @return Full dataset with converted uniform depth units and a 'Depth Target
-#' Unit' column, which acts as a flag indicating which rows have been converted.
-#' When transform = FALSE, the output is the full dataset with 'Conversion Factor'
-#' columns and a 'Depth Target Unit' column.
+#' @return Full dataset with converted uniform depth units and a 'WQX.Depth.TargetUnit'
+#' column, which acts as a flag indicating which rows have been converted.
+#' When transform = FALSE, the output is the full dataset with 'Conversion.Factor'
+#' columns and a 'WQX.Depth.TargetUnit' column.
 #'
 #' @importFrom rlang :=
 #'
@@ -351,7 +351,7 @@ DepthProfileData <- function(.data,
     "ActivityDepthHeightMeasure.MeasureValue", "ActivityDepthHeightMeasure.MeasureUnitCode",
     "ActivityTopDepthHeightMeasure.MeasureValue", "ActivityTopDepthHeightMeasure.MeasureUnitCode",
     "ActivityBottomDepthHeightMeasure.MeasureValue", "ActivityBottomDepthHeightMeasure.MeasureUnitCode",
-    "ResultDepthHeightMeasure.MeasureValue", "ResultDepthHeightMeasure.MeasureUnitCode"
+    "ResultDepthHeightMeasure.MeasureValue", "ResultDepthHeightMeasure.MeasureUnitCode", "ActivityEndTime.TimeZoneCode"
   )
   %in% colnames(.data)) == FALSE) {
     stop("The dataframe does not contain the required fields to use TADA. Use either the full physical/chemical profile downloaded from WQP or download the TADA profile template available on the EPA TADA webpage.")
@@ -458,8 +458,8 @@ DepthProfileData <- function(.data,
         col.order <- append(col.order, appCol)
       }
     }
-    # reorder columns in flag.data
-    flag.data <- check.data[, col.order]
+    # reorder columns in check.data
+    check.data <- check.data[, col.order]
     # place flag columns next to relevant fields
     if ((appCols[1] %in% colnames(check.data)) == TRUE) {
       check.data <- check.data %>%
@@ -491,89 +491,124 @@ DepthProfileData <- function(.data,
           .after = "ActivityEndTime.TimeZoneCode"
         )
     }
-    # if transform = FALSE, output data
-    if (transform == FALSE) {
-      return(flag.data)
-    }
+    
+    #function should always run all code above
+  }
+  
+  # if transform = FALSE, output data
+  if (transform == FALSE) {
+    return(check.data)
+  }
+    
     # if transform = TRUE, apply conversion
-    if (transform == TRUE) {
-      # define clean.data
-      clean.data <- flag.data
+  if (transform == TRUE) {
+    # define clean.data
+     clean.data <- check.data
 
       # if WQX.ActDepth.ConversionFactor exists...
       if (("WQX.ActDepth.ConversionFactor" %in% colnames(clean.data)) == TRUE) {
         # multiply ActivityDepthHeightMeasure.MeasureValue by WQX.ActDepth.ConversionFactor
-        suppressWarnings(
-          clean.data$ActivityDepthHeightMeasure.MeasureValue ==
-            as.numeric(clean.data$ActivityDepthHeightMeasure.MeasureValue) *
-              clean.data$WQX.ActDepth.ConversionFactor
-        )
+        clean.data$ActivityDepthHeightMeasure.MeasureValue <- ((clean.data$ActivityDepthHeightMeasure.MeasureValue) * (clean.data$WQX.ActDepth.ConversionFactor))
+
         # replace ActivityDepthHeightMeasure.MeasureUnitCode values with unit argument
+        clean.data$ActivityDepthHeightMeasure.MeasureUnitCode.Original <- clean.data$ActivityDepthHeightMeasure.MeasureUnitCode
+        clean.data <- clean.data %>%
+          dplyr::relocate("ActivityDepthHeightMeasure.MeasureUnitCode.Original",
+                          .after = "WQX.ActDepth.ConversionFactor"
+          )
+        
         clean.data$ActivityDepthHeightMeasure.MeasureUnitCode[which(
           !is.na(clean.data$ActivityDepthHeightMeasure.MeasureUnitCode)
         )] <- unit
-        # delete ActDepth.Conversion.Unit column
-        clean.data <- dplyr::select(clean.data, -"WQX.ActDepth.ConversionFactor")
+        
+        clean.data <- clean.data %>%
+          dplyr::relocate("ActivityDepthHeightMeasure.MeasureUnitCode",
+                          .after = "ActivityDepthHeightMeasure.MeasureValue"
+          )
+        # uncoment below to delete ActDepth.Conversion.Unit column
+        #clean.data <- dplyr::select(clean.data, -"WQX.ActDepth.ConversionFactor")
       }
 
-      # if WQX.ActTopDepth.ConversionFactor exists...
-      if (("WQX.ActTopDepth.ConversionFactor" %in% colnames(clean.data)) == TRUE) {
-        # multiply ActivityTopDepthHeightMeasure.MeasureValue by WQX.ActTopDepth.ConversionFactor
-        suppressWarnings(
-          clean.data$ActivityTopDepthHeightMeasure.MeasureValue ==
-            as.numeric(clean.data$ActivityTopDepthHeightMeasure.MeasureValue) *
-              clean.data$WQX.ActTopDepth.ConversionFactor
-        )
-        # replace ActivityTopDepthHeightMeasure.MeasureUnitCode values with unit argument
-        clean.data$ActivityTopDepthHeightMeasure.MeasureUnitCode[which(
-          !is.na(clean.data$ActivityTopDepthHeightMeasure.MeasureUnitCode)
-        )] <- unit
-        # delete ActDepth.Conversion.Unit column
-        clean.data <- dplyr::select(clean.data, -"WQX.ActTopDepth.ConversionFactor")
-      }
+     #WQX.ActTopDepth.ConversionFactor exists...
+     if (("WQX.ActTopDepth.ConversionFactor" %in% colnames(clean.data)) == TRUE) {
+       # multiply ActivityTopDepthHeightMeasure.MeasureValue by WQX.ActTopDepth.ConversionFactor
+       clean.data$ActivityTopDepthHeightMeasure.MeasureValue <- ((clean.data$ActivityTopDepthHeightMeasure.MeasureValue) * (clean.data$WQX.ActTopDepth.ConversionFactor))
+       
+       # replace ActivityTopDepthHeightMeasure.MeasureUnitCode values with unit argument
+       clean.data$ActivityTopDepthHeightMeasure.MeasureUnitCode.Original <- clean.data$ActivityTopDepthHeightMeasure.MeasureUnitCode
+       clean.data <- clean.data %>%
+         dplyr::relocate("ActivityTopDepthHeightMeasure.MeasureUnitCode.Original",
+                         .after = "WQX.ActTopDepth.ConversionFactor"
+         )
+       
+       clean.data$ActivityTopDepthHeightMeasure.MeasureUnitCode[which(
+         !is.na(clean.data$ActivityTopDepthHeightMeasure.MeasureUnitCode)
+       )] <- unit
+       
+       clean.data <- clean.data %>%
+         dplyr::relocate("ActivityTopDepthHeightMeasure.MeasureUnitCode",
+                         .after = "ActivityTopDepthHeightMeasure.MeasureValue"
+         )
+       # uncoment below to delete ActTopDepth.Conversion.Unit column
+       #clean.data <- dplyr::select(clean.data, -"WQX.ActTopDepth.ConversionFactor")
+     }
 
-      # if WQX.ActBottomDepth.ConversionFactor exists...
-      if (("WQX.ActBottomDepth.ConversionFactor" %in% colnames(clean.data)) == TRUE) {
-        # multiply ActivityBottomDepthHeightMeasure.MeasureValue by WQX.ActBottomDepth.ConversionFactor
-        suppressWarnings(
-          clean.data$ActivityBottomDepthHeightMeasure.MeasureValue ==
-            as.numeric(clean.data$ActivityBottomDepthHeightMeasure.MeasureValue) *
-              clean.data$WQX.ActBottomDepth.ConversionFactor
-        )
-        # replace ActivityBottomDepthHeightMeasure.MeasureUnitCode values with unit argument
-        clean.data$ActivityBottomDepthHeightMeasure.MeasureUnitCode[which(
-          !is.na(clean.data$ActivityBottomDepthHeightMeasure.MeasureUnitCode)
-        )] <- unit
-        # delete ActBottomDepth.Conversion.Unit column
-        clean.data <- dplyr::select(clean.data, -"WQX.ActBottomDepth.ConversionFactor")
-      }
+     #WQX.ActBottomDepth.ConversionFactor exists...
+     if (("WQX.ActBottomDepth.ConversionFactor" %in% colnames(clean.data)) == TRUE) {
+       # multiply ActivityBottomDepthHeightMeasure.MeasureValue by WQX.ActBottomDepth.ConversionFactor
+       clean.data$ActivityBottomDepthHeightMeasure.MeasureValue <- ((clean.data$ActivityBottomDepthHeightMeasure.MeasureValue) * (clean.data$WQX.ActBottomDepth.ConversionFactor))
+       
+       # replace ActivityTopDepthHeightMeasure.MeasureUnitCode values with unit argument
+       clean.data$ActivityBottomDepthHeightMeasure.MeasureUnitCode.Original <- clean.data$ActivityBottomDepthHeightMeasure.MeasureUnitCode
+       clean.data <- clean.data %>%
+         dplyr::relocate("ActivityBottomDepthHeightMeasure.MeasureUnitCode.Original",
+                         .after = "WQX.ActBottomDepth.ConversionFactor"
+         )
+       
+       clean.data$ActivityBottomDepthHeightMeasure.MeasureUnitCode[which(
+         !is.na(clean.data$ActivityBottomDepthHeightMeasure.MeasureUnitCode)
+       )] <- unit
+       
+       clean.data <- clean.data %>%
+         dplyr::relocate("ActivityBottomDepthHeightMeasure.MeasureUnitCode",
+                         .after = "ActivityBottomDepthHeightMeasure.MeasureValue"
+         )
+       # uncoment below to delete ActBottomDepth.Conversion.Unit column
+       #clean.data <- dplyr::select(clean.data, -"WQX.ActBottomDepth.ConversionFactor")
+     }
+    
+     #WQX.ResultDepth.ConversionFactor exists...
+     if (("WQX.ResultDepth.ConversionFactor" %in% colnames(clean.data)) == TRUE) {
+       # multiply ResultDepthHeightMeasure.MeasureValue by WQX.ResultDepth.ConversionFactor
+       clean.data$ResultDepthHeightMeasure.MeasureValue <- ((clean.data$ResultDepthHeightMeasure.MeasureValue) * (clean.data$WQX.ResultDepth.ConversionFactor))
+       
+       # replace ResultDepthHeightMeasure.MeasureUnitCode values with unit argument
+       clean.data$ResultDepthHeightMeasure.MeasureUnitCode.Original <- clean.data$ResultDepthHeightMeasure.MeasureUnitCode
+       clean.data <- clean.data %>%
+         dplyr::relocate("ResultDepthHeightMeasure.MeasureUnitCode.Original",
+                         .after = "WQX.ResultDepth.ConversionFactor"
+         )
+       
+       clean.data$ResultDepthHeightMeasure.MeasureUnitCode[which(
+         !is.na(clean.data$ResultDepthHeightMeasure.MeasureUnitCode)
+       )] <- unit
+       
+       clean.data <- clean.data %>%
+         dplyr::relocate("ResultDepthHeightMeasure.MeasureUnitCode",
+                         .after = "ResultDepthHeightMeasure.MeasureUnitCode"
+         )
+       # uncoment below to delete WQX.ResultDepth.ConversionFactor column
+       #clean.data <- dplyr::select(clean.data, -"WQX.ResultDepth.ConversionFactor")
+     }
 
-      # if WQX.ResultDepth.ConversionFactor exists...
-      if (("WQX.ResultDepth.ConversionFactor" %in% colnames(clean.data)) == TRUE) {
-        # multiply ResultDepthHeightMeasure.MeasureValue by WQX.ResultDepth.ConversionFactor
-        suppressWarnings(
-          clean.data$ResultDepthHeightMeasure.MeasureValue ==
-            as.numeric(clean.data$ResultDepthHeightMeasure.MeasureValue) *
-              clean.data$WQX.ResultDepth.ConversionFactor
-        )
-        # replace ResultDepthHeightMeasure.MeasureUnitCode values with unit argument
-        clean.data$ResultDepthHeightMeasure.MeasureUnitCode[which(
-          !is.na(clean.data$ResultDepthHeightMeasure.MeasureUnitCode)
-        )] <- unit
-        # delete ResultDepth.Conversion.Unit column
-        clean.data <- dplyr::select(clean.data, -"WQX.ResultDepth.ConversionFactor")
-      }
-
-      # delete WQX.Depth.TargetUnit column
-      clean.data <- dplyr::select(clean.data, -"WQX.Depth.TargetUnit")
+      # uncomment below to delete WQX.Depth.TargetUnit column
+      # clean.data <- dplyr::select(clean.data, -"WQX.Depth.TargetUnit")
 
       return(clean.data)
     } else {
       stop("'transform' argument must be Boolean (TRUE or FALSE)")
-    }
   }
 }
-
 
 
 

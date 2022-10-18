@@ -19,6 +19,6 @@ Harmonization Reference Table unique to the input dataset
 Function generates a harmonization reference table that is specific to
 the input dataset. Users can review how their input data relates to standard
 TADA values for CharacteristicName, ResultSampleFractionText,
-MethodSpecicationName, and ResultMeasure.MeasureUnitCode and they can optionally
+MethodSpecificationName, and ResultMeasure.MeasureUnitCode and they can optionally
 edit the reference file to meet their needs.
 }

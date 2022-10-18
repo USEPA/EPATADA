@@ -2,7 +2,7 @@
 % Please edit documentation in R/DataDiscoveryRetrieval.R
 \name{TADAprofileCheck}
 \alias{TADAprofileCheck}
-\title{TADA Profile Check}
+\title{autoclean}
 \usage{
 TADAprofileCheck(.data)
 }
@@ -10,13 +10,34 @@ TADAprofileCheck(.data)
 \item{.data}{A dataframe}
 }
 \value{
-Boolean result indicating whether or not the input dataframe contains
-all of the TADA profile fields.
-}
-\description{
+cleaned TADA data profile
+
+TADA Profile Check
+
 This function checks if the column names in a dataframe include the TADA
 profile fields. It is used at the beginning of TADA functions to ensure the
 input data frame is suitable (i.e. is either the full physical/chemical
 results profile downloaded from WQP or the TADA profile template downloaded
 from the EPA TADA webpage.)
+
+Boolean result indicating whether or not the input dataframe contains
+all of the TADA profile fields.
+}
+\description{
+Removes complex biological data. Removes non-water media samples.
+Removes rows of data that are true duplicates. Capitalizes fields to harmonize
+data. This function includes and runs the TADA "MeasureValueSpecialCharacters"
+function as well.
+}
+\details{
+Within "BiologicalIntentName", only the allowable values "tissue", "toxicity",
+and "NA" apply to non-biological data (the function removes all others).
+Toxicity and fish tissue data will be kept, but other types of biological
+monitoring data will not.
+
+We decided to make some fields uppercase that way they're more compatible
+with the WQX validation reference tables and to avoid any issues with
+case-sensitivity when joining data. Therefore, we might need to tack on any
+immediate QA steps (removing true duplicates, converting result values to numeric,
+capitalizing letters, etc.) to this function, as well as the other retrieval functions.
 }
