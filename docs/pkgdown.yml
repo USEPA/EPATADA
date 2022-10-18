@@ -4,7 +4,7 @@ pkgdown_sha: ~
 articles:
   CONTRIBUTING: CONTRIBUTING.html
   WQPDataHarmonization: WQPDataHarmonization.html
-last_built: 2022-10-13T20:39Z
+last_built: 2022-10-17T18:24Z
 urls:
   reference: usepa.github.io/tada/reference
   article: usepa.github.io/tada/articles
