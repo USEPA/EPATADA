@@ -35,7 +35,7 @@ The following code will also install any packages you do not have, and
 load all packages required to run this vignette into your R session.
 
 ```{r, results = 'hide', message = FALSE, warning = FALSE}
-list.of.packages <- c("plyr", "data.table", "dataRetrieval", "dplyr", "ggplot2", "grDevices", "magrittr", "stringr", "utils", "RColorBrewer", "stats", "lubridate", "remotes", "rlang", "tidyverse", "knitr", "rmarkdown", "testthat", "usethis", "devtools", "pkgdown", "Rcpp", "spelling")
+list.of.packages <- c("plyr", "data.table", "dataRetrieval", "dplyr", "ggplot2", "grDevices", "magrittr", "stringr", "utils", "RColorBrewer", "stats", "lubridate", "remotes", "rlang")
 
 new.packages <- list.of.packages[!(list.of.packages %in% installed.packages()[,"Package"])]
 if(length(new.packages)) install.packages(new.packages)
@@ -47,7 +47,6 @@ GitHub
 ```{r, results = 'hide', message = FALSE, warning = FALSE}
 # If you have any issues loading the remotes library, uncomment the line below to install the "remotes" package specifying the repo
 # install.packages("remotes", repos = "http://cran.us.r-project.org")
-
 library(remotes)
 ```
 
@@ -74,15 +73,6 @@ library(RColorBrewer)
 library(stats)
 library(lubridate)
 library(rlang)
-library(tidyverse)
-library(knitr)
-library(rmarkdown)
-library(testthat)
-library(usethis)
-library(devtools)
-library(pkgdown)
-library(Rcpp)
-library(spelling)
 library(dataRetrieval)
 library(TADA)
 ```
