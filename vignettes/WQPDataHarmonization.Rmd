@@ -643,7 +643,7 @@ Optional outputs include:
 
 1.  the dataset with Harmonization columns appended,
 
-2.  the datset with CharacteristicName, ResultSampleFractionText,
+2.  the dataset with CharacteristicName, ResultSampleFractionText,
     MethodSpecificationName, and ResultMeasure.MeasureUnitCode converted
     to TADA standards or
 
