@@ -39,11 +39,11 @@ Imports:
     utils, 
     RColorBrewer,
     stats, 
-    rlang, 
     lubridate
 Depends: 
     R (>= 3.5.0)
 Suggests: 
+    rlang,
     remotes, 
     tidyverse,
     knitr,
