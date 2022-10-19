@@ -205,6 +205,10 @@ Additional resources:
 Option 1: Use the TADAdataRetrieval function.
 
 ```{r}
+# uncomment below if you would like to review differences between the profiles you get using readWQPdata vs. TADAdataRetrieval. This is because TADAdataRetrieval automatically joins in other data from different WQP profiles, and does some additional data cleaning as part of the data retrieval process
+
+#dataRetrievalProfile <- dataRetrieval::readWQPdata(statecode = "UT", characteristicName = c("Ammonia", "Nitrate", "Nitrogen"), startDate = "01-01-2021", ignore_attributes = TRUE)
+
 #You can edit this to define your own WQP query inputs below
 TADAProfile <- TADAdataRetrieval(statecode = "UT", characteristicName = c("Ammonia", "Nitrate", "Nitrogen"), startDate = "01-01-2021")
 
