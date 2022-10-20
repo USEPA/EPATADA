@@ -43,8 +43,8 @@ Imports:
 Depends: 
     R (>= 3.5.0)
 Suggests: 
+    rlang,
     remotes, 
-    rlang, 
     tidyverse,
     knitr,
     rmarkdown,

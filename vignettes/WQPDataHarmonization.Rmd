@@ -22,40 +22,45 @@ knitr::opts_chunk$set(
 
 ## Overview
 
-This vignette will walk through how to discover, wrangle, and
-harmonize [Water Quality Portal (WQP)](https://www.waterqualitydata.us/)
-data from multiple organizations.
+This vignette will walk through how to discover, wrangle, and harmonize
+[Water Quality Portal (WQP)](https://www.waterqualitydata.us/) data from
+multiple organizations.
 
 ## Install and load packages
 
-To install TADA, currently you need to install from GitHub using remotes (shown)
-or devtools. dataRetrieval will be downloaded from CRAN, but the development
-version can be downloaded directly from GitHub (un-comment). The following code will also install
-any packages you do not have, and load all packages required to run this vignette into 
-your R session.
+To install TADA, currently you need to install from GitHub using remotes
+(shown) or devtools. dataRetrieval will be downloaded from CRAN, but the
+development version can be downloaded directly from GitHub (un-comment).
+The following code will also install any packages you do not have, and
+load all packages required to run this vignette into your R session.
+
 ```{r, results = 'hide', message = FALSE, warning = FALSE}
-list.of.packages <- c("plyr", "data.table", "dataRetrieval", "dplyr", "ggplot2", "grDevices", "magrittr", "stringr", "utils", "RColorBrewer", "stats", "lubridate", "remotes", "rlang", "tidyverse", "knitr", "rmarkdown", "testthat", "usethis", "devtools", "pkgdown", "Rcpp", "spelling")
+list.of.packages <- c("plyr", "data.table", "dataRetrieval", "dplyr", "ggplot2", "grDevices", "magrittr", "stringr", "utils", "RColorBrewer", "stats", "lubridate", "remotes")
 
 new.packages <- list.of.packages[!(list.of.packages %in% installed.packages()[,"Package"])]
 if(length(new.packages)) install.packages(new.packages)
 ```
 
-Load the remotes library before installing TADA or dataRetrieval from GitHub
-```{r}
+Load the remotes library before installing TADA or dataRetrieval from
+GitHub
+
+```{r, results = 'hide', message = FALSE, warning = FALSE}
 # If you have any issues loading the remotes library, uncomment the line below to install the "remotes" package specifying the repo
 # install.packages("remotes", repos = "http://cran.us.r-project.org")
-
 library(remotes)
 ```
 
-Uncomment the lines below to  install latest version of TADA and dataRetrieval from GitHub.
-```{r}
+Uncomment the lines below to install latest version of TADA and
+dataRetrieval from GitHub.
+
+```{r, results = 'hide', message = FALSE, warning = FALSE}
 # remotes::install_github("USGS-R/dataRetrieval", dependencies=TRUE)
-# remotes::install_github("USEPA/TADA", dependencies=TRUE)
+remotes::install_github("USEPA/TADA", dependencies=TRUE)
 ```
 
 Load the required libraries to run this vignette into your R session
-```{r}
+
+```{r, results = 'hide', message = FALSE, warning = FALSE}
 library(plyr)
 library(data.table)
 library(dplyr)
@@ -68,15 +73,6 @@ library(RColorBrewer)
 library(stats)
 library(lubridate)
 library(rlang)
-library(tidyverse)
-library(knitr)
-library(rmarkdown)
-library(testthat)
-library(usethis)
-library(devtools)
-library(pkgdown)
-library(Rcpp)
-library(spelling)
 library(dataRetrieval)
 library(TADA)
 ```
@@ -206,29 +202,49 @@ Additional resources:
 
 -   [dataRetrieval Tutorial](https://owi.usgs.gov/R/dataRetrieval.html)
 
-
 Option 1: Use the TADAdataRetrieval function.
+
 ```{r}
+# uncomment below if you would like to review differences between the profiles you get using readWQPdata vs. TADAdataRetrieval. This is because TADAdataRetrieval automatically joins in other data from different WQP profiles, and does some additional data cleaning as part of the data retrieval process
+
+#dataRetrievalProfile <- dataRetrieval::readWQPdata(statecode = "UT", characteristicName = c("Ammonia", "Nitrate", "Nitrogen"), startDate = "01-01-2021", ignore_attributes = TRUE)
+
 #You can edit this to define your own WQP query inputs below
 TADAProfile <- TADAdataRetrieval(statecode = "UT", characteristicName = c("Ammonia", "Nitrate", "Nitrogen"), startDate = "01-01-2021")
 
 ```
 
-Option 2: Alternatively, you can use the data.table::fread function to read in a web service call for any WQP profile (un-comment).
+Option 2: Alternatively, you can use the data.table::fread function to
+read in a web service call for any WQP profile (un-comment).
+
 ```{r}
-# new_fullphyschem <- data.table::fread("https://www.waterqualitydata.us/data/Result/search?countrycode=US&statecode=US%3A49&siteid=UTAHDWQ_WQX-4925610&startDateLo=01-01-2015&startDateHi=12-31-2016&mimeType=csv&zip=no&sorted=yes&dataProfile=fullPhysChem&providers=NWIS&providers=STEWARDS&providers=STORET")
+# New_Draft_fullphyschem <- data.table::fread("https://www.waterqualitydata.us/data/Result/search?countrycode=US&statecode=US%3A49&siteid=UTAHDWQ_WQX-4925610&startDateLo=01-01-2015&startDateHi=12-31-2016&mimeType=csv&zip=no&sorted=yes&dataProfile=fullPhysChem&providers=NWIS&providers=STEWARDS&providers=STORET")
 ```
 
-Option 3: If you need to download a large amount of data from across a large area, and the TADAdataRetrieval function is not working due to WQP timeout issues, then the TADABigdataRetrieval function may work better.
+Option 3: If you need to download a large amount of data from across a
+large area, and the TADAdataRetrieval function is not working due to WQP
+timeout issues, then the TADABigdataRetrieval function may work better.
 
-This function does multiple synchronous data calls to the WQP (waterqualitydata.us). It uses the WQP summary service to limit the amount downloaded to only relevant data, and pulls back data from 100 stations at a time and then joins the data back together and produces a single TADA compatible dataframe as the output. For large data sets, that can save a lot of time and ultimately reduce the complexity of subsequent data processing. Using this function, you will be able to download all data available from all sites in the contiguous United States that is available for the time period, characteristicName, and siteType requested.
+This function does multiple synchronous data calls to the WQP
+(waterqualitydata.us). It uses the WQP summary service to limit the
+amount downloaded to only relevant data, and pulls back data from 100
+stations at a time and then joins the data back together and produces a
+single TADA compatible dataframe as the output. For large data sets,
+that can save a lot of time and ultimately reduce the complexity of
+subsequent data processing. Using this function, you will be able to
+download all data available from all sites in the contiguous United
+States that is available for the time period, characteristicName, and
+siteType requested.
 
-See ?TADABigdataRetrieval for more details. WARNING, this can take multiple hours to run. The total run time depends on your query inputs.
+See ?TADABigdataRetrieval for more details. WARNING, this can take
+multiple hours to run. The total run time depends on your query inputs.
+
 ```{r}
 #AllWaterTempData <- TADABigdataRetrieval(startDate = "2019-01-01", endDate = "2021-12-31", characteristicName = "Temperature, water", siteType = "Stream")
 ```
 
 Review all column names in the TADA Profile
+
 ```{r}
 colnames(TADAProfile)
 ```
@@ -313,9 +329,9 @@ TADAProfileClean3 <- AggregatedContinuousData(TADAProfileClean2, clean = TRUE)
 ## WQX QAQC Service Result Flags
 
 Run the following result functions to address invalid method, fraction,
-speciation, and unit metadata by characteristic. The default is
-clean = TRUE, which will remove invalid results. You can change this to
-clean = FALSE to flag results, but not remove them.
+speciation, and unit metadata by characteristic. The default is clean =
+TRUE, which will remove invalid results. You can change this to clean =
+FALSE to flag results, but not remove them.
 
 See documentation for more details:
 
@@ -621,7 +637,7 @@ Optional outputs include:
 
 1.  the dataset with Harmonization columns appended,
 
-2.  the datset with CharacteristicName, ResultSampleFractionText,
+2.  the dataset with CharacteristicName, ResultSampleFractionText,
     MethodSpecificationName, and ResultMeasure.MeasureUnitCode converted
     to TADA standards or
 

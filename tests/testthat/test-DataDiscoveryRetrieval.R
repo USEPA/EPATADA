@@ -112,3 +112,13 @@ test_that("TADAdataRetrieval", {
                     "MethodSpecificationName") %in% names(tada1)))
   
 })
+
+#testing that "meters" is successfully replaced with "m". This feature is part of the autoclean function
+#which runs automatically when TADAdataRetrieval runs
+test_that("TADAdataRetrieval", {
+  check_autoclean_meters_works <- TADAdataRetrieval(statecode = "UT",
+                                    characteristicName = c("Ammonia", "Nitrate", "Nitrogen"),
+                                    startDate = "01-01-2021")
+  expect_equal(check_autoclean_meters_works$ActivityDepthHeightMeasure.MeasureUnitCode[975], "m"
+  )
+  })

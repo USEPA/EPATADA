@@ -129,6 +129,8 @@
 "Measurement Unit(MeasureUnitCode)",117,"cm3/min","Flow, Cubic centimeters per minute","7/26/2006 10:57:47 AM","cfs",5.885777786e-07,0
 "Measurement Unit(MeasureUnitCode)",116,"cm3/sec","Flow, Cubic centimeters per second","7/26/2006 10:57:47 AM","cfs",3.531467e-05,0
 "Measurement Unit(MeasureUnitCode)",355,"code","Picklist or Choicelist, Please see http://waterdata.usgs.gov/nwis/qwdata?codes_table26_help#62955","9/10/2014 12:00:00 AM","code",1,0
+"Measurement Unit(MeasureUnitCode)",728,"copies","Concentration Solution, copies (ie viral load)","10/3/2022 12:00:00 AM","pct modern",1,0
+"Measurement Unit(MeasureUnitCode)",727,"copies/ml","Concentration Solution, copies per milliliters (ie viral load)","10/3/2022 12:00:00 AM","pct modern",1,0
 "Measurement Unit(MeasureUnitCode)",145,"count","Quantity, Count","7/26/2006 10:57:47 AM","count",1,0
 "Measurement Unit(MeasureUnitCode)",356,"counts/sec","Concentration Solution, Counts per second","9/10/2014 12:00:00 AM","counts/sec",1,0
 "Measurement Unit(MeasureUnitCode)",286,"d/h/m/s","Time, Days/hours/minutes/seconds","7/19/2010 3:16:29 PM","d/h/m/s",1,0
@@ -232,6 +234,7 @@
 "Measurement Unit(MeasureUnitCode)",108,"lm/ft2","Light Intensity, lumens per square foot","7/26/2006 10:57:47 AM","lm/m2",10.763910417,0
 "Measurement Unit(MeasureUnitCode)",325,"lm/m2","Light Intensity, lumens per square meter","1/11/2012 3:59:08 PM","lm/m2",1,0
 "Measurement Unit(MeasureUnitCode)",372,"loc-sec","Direction or angle, Locational seconds (latitude/longitude)","3/1/2016 7:39:07 AM","loc-sec",1,0
+"Measurement Unit(MeasureUnitCode)",729,"log10 copies","Concentration Solution, Log10 copies (If Loga b = x, then a^x=b)","10/3/2022 12:00:00 AM","pct modern",1,0
 "Measurement Unit(MeasureUnitCode)",106,"lumens","Light Intensity, lumens","7/26/2006 10:57:47 AM","lm/m2",10.763910417,0
 "Measurement Unit(MeasureUnitCode)",137,"m","Length Distance, Meters","7/26/2006 10:57:47 AM","in",39.3700787401575,0
 "Measurement Unit(MeasureUnitCode)",367,"m-1","Concentration Solution, Inverse meters or per meters","1/19/2016 11:12:28 AM","per in",0.0254,0
