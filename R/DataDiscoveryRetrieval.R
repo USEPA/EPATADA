@@ -1,14 +1,7 @@
-#' Generate TADA-Compatible Data with WQP Data
+#' Generate TADA-compatible dataframe from WQP Data
 #'
-#' Retrieve data from Water Quality Portal (WQP) and output a TADA-compatible
+#' Retrieve data from Water Quality Portal (WQP) and generate a TADA-compatible
 #' dataframe.
-#' 
-#' Keep in mind that all the query filters for the WQP work as an AND 
-#' but within the fields there are ORs. So for example, 
-#' characteristics – if you choose pH & DO – it’s an OR. Similarly, if you
-#' choose VA and IL, it’s an OR. But the combo of fields are ANDs. 
-#' Such as State/VA AND Characteristic/DO". 
-#' "Characteristic" and "Characteristic Group" also work as an AND. 
 #' 
 #' This function will create and/or edit the following columns:
 #' TADA.DetectionLimitMeasureValue.Flag
@@ -18,6 +11,13 @@
 #' TADA.ResultMeasureValue.Flag
 #' ResultMeasureValue
 #' 
+#' Keep in mind that all the query filters for the WQP work as an AND 
+#' but within the fields there are ORs. So for example, 
+#' characteristics – if you choose pH & DO – it’s an OR. Similarly, if you
+#' choose VA and IL, it’s an OR. But the combo of fields are ANDs. 
+#' Such as State/VA AND Characteristic/DO". 
+#' "Characteristic" and "Characteristic Group" also work as an AND. 
+#'  
 #' All data cleaning and transformations are done directly to the
 #' "ResultMeasureValue" and "DetectionLimitMeasureValue" columns, 
 #' however the original "ResultMeasureValue" and "DetectionLimitMeasureValue"
@@ -27,9 +27,9 @@
 #' "TADA.DetectionLimitMeasureValue.Flag" are created to track and changes made
 #' to the "ResultMeasureValue" and "DetectionLimitMeasureValue" columns; 
 #' and to provide information about the result values that is needed to address
-#'  censored data later on (i.e., nondetections)
+#' censored data later on (i.e., nondetections)
 #'  
-#'  See ?MeasureValueSpecialCharacters and ?autoclean documentation for more information.
+#' See ?MeasureValueSpecialCharacters and ?autoclean documentation for more information.
 #' 
 #' @param statecode Code that identifies a state
 #' @param startDate Start Date
