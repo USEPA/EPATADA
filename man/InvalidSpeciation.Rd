@@ -10,19 +10,19 @@ InvalidSpeciation(.data, clean = TRUE)
 \item{.data}{TADA dataframe}
 
 \item{clean}{Boolean argument; removes "Invalid" characteristic-method
-speciation combinations from the dataset when clean = TRUE. Default is
+speciation combinations from the dataframe when clean = TRUE. Default is
 clean = TRUE.}
 }
 \value{
 #'When clean = FALSE, this function adds the following column to your
 dataframe: WQX.MethodSpeciationValidity. This column flags each
-CharacteristicName and MethodSpecificationName combination in your dataset as
+CharacteristicName and MethodSpecificationName combination in your dataframe as
 either "Nonstandardized", "Invalid", or "Valid". When clean = TRUE, "Invalid"
-rows are removed from the dataset and no column will be appended.
+rows are removed from the dataframe and no column will be appended.
 }
 \description{
 Function checks the validity of each characteristic-method
-speciation combination in the dataset. When clean = TRUE, rows with invalid
+speciation combination in the dataframe. When clean = TRUE, rows with invalid
 characteristic-method speciation combinations are removed. Default is
 clean = TRUE.
 }

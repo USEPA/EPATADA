@@ -10,16 +10,16 @@ PotentialDuplicateRowID(.data, clean = TRUE)
 \item{.data}{TADA dataframe}
 
 \item{clean}{Boolean argument; removes potential duplicate data from
-the dataset when clean = TRUE. When clean = FALSE, a column indicating
+the dataframe when clean = TRUE. When clean = FALSE, a column indicating
 potential duplicate rows with a unique number linking rows is appended to the
 input data set. Default is clean = TRUE.}
 }
 \value{
 When clean = FALSE, the following column will be added to you dataframe:
 TADA.PotentialDupRowID. This column flags potential duplicate rows of data
-in your dataset, and assigns each potential duplicate combination a unique number
+in your dataframe, and assigns each potential duplicate combination a unique number
 linking the two potential duplication rows. When clean = FALSE the first of
-each group of potential duplicate rows will be removed from the dataset
+each group of potential duplicate rows will be removed from the dataframe
 and no column is appended.
 }
 \description{
@@ -29,5 +29,5 @@ function checks for and identifies data that is identical in all fields
 excluding organization-specific and comment text fields. Each pair or group
 of potential duplicate rows is flagged with a unique ID. When clean = TRUE,
 the function retains the first occurrence of each potential duplicate in the
-dataset. Default is clean = TRUE.
+dataframe. Default is clean = TRUE.
 }

@@ -18,14 +18,14 @@ clean_imprecise = TRUE. Default is clean_imprecise = FALSE.}
 \value{
 When either the clean_outsideUSA or clean_imprecise argument is FALSE,
 a column flagging rows with the respective QA check is appended to the input
-dataset. When either argument is TRUE, "invalid" or "imprecise" data is
+dataframe. When either argument is TRUE, "invalid" or "imprecise" data is
 removed, respectively.
 }
 \description{
 Function identifies and flags invalid coordinate data. When
 clean_outsideUSA = FALSE and clean_imprecise = FALSE,
 a column will be appended titled "TADA.InvalidCoordinates" with the following
-flags (if relevant to dataset). If the latitude is less than zero, the row will be
+flags (if relevant to dataframe). If the latitude is less than zero, the row will be
 flagged with "LAT_OutsideUSA". If the longitude is greater than zero AND less than 145,
 the row will be flagged as "LONG_OutsideUSA". If the latitude or longitude
 contains the string, "999", the row will be flagged as invalid. Finally,

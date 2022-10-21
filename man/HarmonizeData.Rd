@@ -16,7 +16,7 @@ harmonization reference file unique to their data, and they made changes to
 that file.}
 
 \item{transform}{Boolean argument; transforms and/or converts original values
-in the dataset to the TADA Harmonization Reference Table values for the
+in the dataframe to the TADA Harmonization Reference Table values for the
 following fields: CharacteristicName, ResultSampleFractionText,
 MethodSpecificationName, and ResultMeasure.MeasureUnitCode. Default is
 transform = TRUE.}
@@ -26,17 +26,17 @@ Reference Table to the dataframe. Default is flag = TRUE.}
 }
 \value{
 When transform = FALSE and flag = TRUE, Harmonization Reference Table
-columns are appended to the dataset only. When transform = TRUE and flag = TRUE,
-Harmonization columns are appended to the dataset and transformations are
+columns are appended to the dataframe only. When transform = TRUE and flag = TRUE,
+Harmonization columns are appended to the dataframe and transformations are
 executed. When transform = TRUE and flag = FALSE, transformations are executed
 only. When transform = FALSE and flag = FALSE, an error is returned (function
 would return the input dataframe unchanged if input was allowed).
 }
 \description{
-Function compares input dataset to the TADA Harmonization Reference Table, and makes
+Function compares input dataframe to the TADA Harmonization Reference Table, and makes
 synonymous data consistent.
-Optional outputs include: 1) the dataset with
-Harmonization columns appended, 2) the dataset with CharacteristicName,
+Optional outputs include: 1) the dataframe with
+Harmonization columns appended, 2) the dataframe with CharacteristicName,
 ResultSampleFractionText, MethodSpecificationName, and
 ResultMeasure.MeasureUnitCode converted to TADA standards or 3) the four fields
 converted with most Harmonization Reference Table columns appended. Default is

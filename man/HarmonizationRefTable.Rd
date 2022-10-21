@@ -13,11 +13,11 @@ HarmonizationRefTable(.data, download = FALSE)
 downloaded to the current working directory.}
 }
 \value{
-Harmonization Reference Table unique to the input dataset
+Harmonization Reference Table unique to the input dataframe
 }
 \description{
 Function generates a harmonization reference table that is specific to
-the input dataset. Users can review how their input data relates to standard
+the input dataframe. Users can review how their input data relates to standard
 TADA values for CharacteristicName, ResultSampleFractionText,
 MethodSpecificationName, and ResultMeasure.MeasureUnitCode and they can optionally
 edit the reference file to meet their needs.

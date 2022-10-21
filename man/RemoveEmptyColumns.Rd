@@ -10,9 +10,9 @@ RemoveEmptyColumns(.data)
 \item{.data}{Dataframe}
 }
 \value{
-Full dataset with empty data columns removed
+Full dataframe with empty data columns removed
 }
 \description{
 Removes any columns with only NA values. Used to quickly reduce the number of
-columns in a dataframe to improve management and readability of the dataset.
+columns in a dataframe to improve management and readability of the dataframe.
 }

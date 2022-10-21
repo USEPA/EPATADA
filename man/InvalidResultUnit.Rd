@@ -10,20 +10,20 @@ InvalidResultUnit(.data, clean = TRUE)
 \item{.data}{TADA dataframe}
 
 \item{clean}{Boolean argument; removes "Invalid" characteristic-media-result
-unit combinations from the dataset when clean = TRUE. Default is
+unit combinations from the dataframe when clean = TRUE. Default is
 clean = TRUE.}
 }
 \value{
-When clean = FALSE, the following column will be added to your dataset:
+When clean = FALSE, the following column will be added to your dataframe:
 WQX.ResultUnitValidity. This column flags each CharacteristicName,
 ActivityMediaName, and ResultMeasure/MeasureUnitCode combination in your
-dataset as either "Nonstandardized", "Invalid", or "Valid". When
-clean = TRUE, "Invalid" rows are removed from the dataset and no column will
+dataframe as either "Nonstandardized", "Invalid", or "Valid". When
+clean = TRUE, "Invalid" rows are removed from the dataframe and no column will
 be appended.
 }
 \description{
 Function checks the validity of each characteristic-media-result unit
-combination in the dataset. When clean = TRUE, rows with invalid
+combination in the dataframe. When clean = TRUE, rows with invalid
 characteristic-media-result unit combinations are removed. Default is
 clean = TRUE.
 }

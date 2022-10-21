@@ -2,7 +2,7 @@
 % Please edit documentation in R/DataDiscoveryRetrieval.R
 \name{TADAdataRetrieval}
 \alias{TADAdataRetrieval}
-\title{Generate TADA-Compatible Dataset with WQP Data}
+\title{Generate TADA-compatible dataframe from WQP Data}
 \usage{
 TADAdataRetrieval(
   statecode = "null",
@@ -36,17 +36,10 @@ TADAdataRetrieval(
 TADA-compatible dataframe
 }
 \description{
-Retrieve data from Water Quality Portal (WQP) and output a TADA-compatible
-dataset.
+Retrieve data from Water Quality Portal (WQP) and generate a TADA-compatible
+dataframe.
 }
 \details{
-Keep in mind that all the query filters for the WQP work as an AND
-but within the fields there are ORs. So for example,
-characteristics – if you choose pH & DO – it’s an OR. Similarly, if you
-choose VA and IL, it’s an OR. But the combo of fields are ANDs.
-Such as State/VA AND Characteristic/DO".
-"Characteristic" and "Characteristic Group" also work as an AND.
-
 This function will create and/or edit the following columns:
 TADA.DetectionLimitMeasureValue.Flag
 DetectionQuantitationLimitMeasure.MeasureValue
@@ -54,6 +47,13 @@ DetectionLimitMeasureValue.Original
 ResultMeasureValue.Original
 TADA.ResultMeasureValue.Flag
 ResultMeasureValue
+
+Keep in mind that all the query filters for the WQP work as an AND
+but within the fields there are ORs. So for example,
+characteristics – if you choose pH & DO – it’s an OR. Similarly, if you
+choose VA and IL, it’s an OR. But the combo of fields are ANDs.
+Such as State/VA AND Characteristic/DO".
+"Characteristic" and "Characteristic Group" also work as an AND.
 
 All data cleaning and transformations are done directly to the
 "ResultMeasureValue" and "DetectionLimitMeasureValue" columns,

@@ -9,7 +9,7 @@ FilterParFields(.data, parameter)
 \arguments{
 \item{.data}{TADA dataframe}
 
-\item{parameter}{Characteristic name (parameter name) from the dataset.}
+\item{parameter}{Characteristic name (parameter name) from the dataframe.}
 }
 \value{
 A table of fields and the count of unique values in each field,

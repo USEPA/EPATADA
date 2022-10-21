@@ -205,7 +205,7 @@ Additional resources:
 Option 1: Use the TADAdataRetrieval function.
 
 ```{r}
-# uncomment below if you would like to review differences between the profiles you get using readWQPdata vs. TADAdataRetrieval. This is because TADAdataRetrieval automatically joins in other data from different WQP profiles, and does some additional data cleaning as part of the data retrieval process
+# uncomment below if you would like to review differences between the profiles you would get using readWQPdata vs. TADAdataRetrieval. The profiles are different because TADAdataRetrieval automatically joins in other data from different WQP profiles, and does some additional data cleaning as part of the data retrieval process.
 
 #dataRetrievalProfile <- dataRetrieval::readWQPdata(statecode = "UT", characteristicName = c("Ammonia", "Nitrate", "Nitrogen"), startDate = "01-01-2021", ignore_attributes = TRUE)
 
@@ -229,7 +229,7 @@ This function does multiple synchronous data calls to the WQP
 (waterqualitydata.us). It uses the WQP summary service to limit the
 amount downloaded to only relevant data, and pulls back data from 100
 stations at a time and then joins the data back together and produces a
-single TADA compatible dataframe as the output. For large data sets,
+single TADA compatible dataframe as the output. For large dataframes,
 that can save a lot of time and ultimately reduce the complexity of
 subsequent data processing. Using this function, you will be able to
 download all data available from all sites in the contiguous United
@@ -256,7 +256,7 @@ Converts depth units to a consistent unit.
 **ActivityDepthHeightMeasure.MeasureValue** provides depth information.
 This is a crucial column for lake data but less often for river data.
 
-Function checks dataset for depth profile data. Where depth profile
+Function checks dataframe for depth profile data. Where depth profile
 columns are populated, the function appends 'Conversion Factor' columns
 and populates those columns based on the original unit (MeasureUnitCode
 columns) and the target unit, which is defined in the 'unit' argument. A
@@ -277,11 +277,11 @@ Allowable values for 'unit' are either 'm' (meter), 'ft' (feet), or 'in'
 unit = "m".
 
 See additional function documentation for additional function options by
-entering the following code in the console: ?DepthProfileData
+entering the following code in the console: ?ConvertDepthUnits
 
 ```{r}
 #converts all depth profile data to meters
-TADAProfileClean1 <- DepthProfileData(TADAProfile, unit = "m", transform = TRUE)
+TADAProfileClean1 <- ConvertDepthUnits(TADAProfile, unit = "ft", transform = TRUE)
 ```
 
 ## Result unit conversions
@@ -292,11 +292,11 @@ from the MeasureUnit domain table:
 -   <https://cdx.epa.gov/wqx/download/DomainValues/MeasureUnit.CSV>
 
 See additional function documentation for additional function options by
-entering the following code in the console: ?WQXTargetUnits
+entering the following code in the console: ?ConvertResultUnits
 
 ```{r}
 #Converts all results to WQX target units
-TADAProfileClean2 <- WQXTargetUnits(TADAProfileClean1, transform = TRUE)
+TADAProfileClean2 <- ConvertResultUnits(TADAProfileClean1, transform = TRUE)
 ```
 
 ## Statistically aggregated data
@@ -315,12 +315,12 @@ providers to flags rows with aggregated continuous data.
     ResultDetectionConditionText = "Reported in Raw Data (attached)"
 
     -   When clean = TRUE, rows with aggregated continuous data are
-        removed from the dataset and no column will be appended
+        removed from the dataframe and no column will be appended
 
     -   Default is clean = TRUE
 
 -   See function documentation for additional function options by
-    entering the following code in the console: ?DepthProfileData
+    entering the following code in the console: ?AggregatedContinuousData
 
 ```{r}
 TADAProfileClean3 <- AggregatedContinuousData(TADAProfileClean2, clean = TRUE)
@@ -342,9 +342,9 @@ See documentation for more details:
         invalid CharacteristicName,
         ResultAnalyticalMethod/MethodIdentifier, and
         ResultAnalyticalMethod/MethodIdentifierContext combinations in
-        your dataset either "Nonstandardized", "Invalid", or "Valid".
+        your dataframe either "Nonstandardized", "Invalid", or "Valid".
 
-    -   When clean = TRUE, "Invalid" rows are removed from the dataset
+    -   When clean = TRUE, "Invalid" rows are removed from the dataframe
         and no column will be appended.
 
 -   ?InvalidSpeciation
@@ -352,21 +352,21 @@ See documentation for more details:
     -   When clean = FALSE, this function adds the following column to
         your dataframe: WQX.MethodSpeciationValidity. This column flags
         each CharacteristicName and MethodSpecificationName combination
-        in your dataset as either "Nonstandardized", "Invalid", or
+        in your dataframe as either "Nonstandardized", "Invalid", or
         "Valid".
 
-    -   When clean = TRUE, "Invalid" rows are removed from the dataset
+    -   When clean = TRUE, "Invalid" rows are removed from the dataframe
         and no column will be appended.
 
 -   ?InvalidResultUnit
 
     -   When clean = FALSE, the following column will be added to your
-        dataset: WQX.ResultUnitValidity. This column flags each
+        dataframe: WQX.ResultUnitValidity. This column flags each
         CharacteristicName, ActivityMediaName, and
-        ResultMeasure/MeasureUnitCode combination in your dataset as
+        ResultMeasure/MeasureUnitCode combination in your dataframe as
         either "Nonstandardized", "Invalid", or "Valid".
 
-    -   When clean = TRUE, "Invalid" rows are removed from the dataset
+    -   When clean = TRUE, "Invalid" rows are removed from the dataframe
         and no column will be appended.
 
 -   ?InvalidFraction
@@ -374,9 +374,9 @@ See documentation for more details:
     -   When clean = FALSE, this function adds the following column to
         your dataframe: WQX.SampleFractionValidity. This column flags
         each CharacteristicName and ResultSampleFractionText combination
-        in your dataset as either "Nonstandardized", "Invalid", or
+        in your dataframe as either "Nonstandardized", "Invalid", or
         "Valid".
-    -   When clean = TRUE, "Invalid" rows are removed from the dataset
+    -   When clean = TRUE, "Invalid" rows are removed from the dataframe
         and no column will be appended.
 
 ```{r}
@@ -395,20 +395,20 @@ combination. See documentation for more details:
 -   ?AboveNationalWQXUpperThreshold
 
     -   When clean = FALSE, the following column is added to your
-        dataset: AboveWQXUpperThreshold. This column flags rows with
+        dataframe: AboveWQXUpperThreshold. This column flags rows with
         data that are above the upper WQX threshold.
 
     -   When clean = TRUE, data that is above the upper WQX threshold is
-        removed from the dataset.
+        removed from the dataframe.
 
 -   ?BelowNationalWQXUpperThreshold
 
     -   When clean = FALSE, the following column is added to your
-        dataset: BelowWQXUpperThreshold. This column flags rows with
+        dataframe: BelowWQXUpperThreshold. This column flags rows with
         data that are below the lower WQX threshold.
 
     -   When clean = TRUE, data that is below the lower WQX threshold is
-        removed from the dataset.
+        removed from the dataframe.
 
 The default is clean=TRUE, but you can change this to only flag results
 if desired. Results will be flagged, but not removed, when clean=FALSE.
@@ -432,16 +432,16 @@ the following into the console:
 
     -   When clean = FALSE, the following column will be added to you
         dataframe: TADA.PotentialDupRowID. This column flags potential
-        duplicate rows of data in your dataset, and assigns each
+        duplicate rows of data in your dataframe, and assigns each
         potential duplicate combination a unique number linking the two
         potential duplication rows.
 
     -   When clean = FALSE the first of each group of potential
-        duplicate rows will be removed from the dataset and no column is
+        duplicate rows will be removed from the dataframe and no column is
         appended.
 
 When clean = TRUE, the function retains the first occurrence of each
-potential duplicate in the dataset. Default is clean = TRUE.
+potential duplicate in the dataframe. Default is clean = TRUE.
 
 ```{r}
 TADAProfileClean10 <- PotentialDuplicateRowID(TADAProfileClean9)
@@ -453,7 +453,7 @@ Function identifies and flags invalid coordinate data.
 
 When clean_outsideUSA = FALSE and clean_imprecise = FALSE, a column will
 be appended titled "TADA.InvalidCoordinates" with the following flags
-(if relevant to dataset).
+(if relevant to dataframe).
 
 -   If the latitude is less than zero, the row will be flagged with
     "LAT_OutsideUSA".
@@ -503,7 +503,7 @@ This function checks data submitted under the "ProjectFileUrl" column to
 determine if a QAPP document is available to review. When clean = FALSE,
 a column will be appended to flag results that do have an associated
 QAPP document URL provided. When clean = TRUE, rows that do not have an
-associated QAPP document are removed from the dataset and no column will
+associated QAPP document are removed from the dataframe and no column will
 be appended. This function should only be used to remove data if an
 accompanying QAPP document is required to use data in assessments.
 
@@ -524,7 +524,7 @@ FilterFields(TADAProfileClean13)
 ```
 
 Next, choose a field from the list to see the unique values in that
-field, as well as the number of times each value appears in the dataset.
+field, as well as the number of times each value appears in the dataframe.
 We'll start with ActivityTypeCode.
 
 Here is a list of other fields to review:
@@ -575,7 +575,7 @@ In this section a TADA user will want to select a parameter, review the
 unique values associated with that parameter in specific fields, and
 choose to remove particular values.
 
-To start, review the list of parameters in the dataset. (The list is
+To start, review the list of parameters in the dataframe. (The list is
 sorted from highest to lowest counts. Only the first few rows are
 displayed to save space on the page)
 
@@ -613,7 +613,7 @@ TADAProfileClean16 <- dplyr::filter(TADAProfileClean15, !(CharacteristicName %in
 ## Transform Characteristic, Speciation, and Unit values to TADA Standards
 
 The HarmonizeRefTable function generates a harmonization reference table
-that is specific to the input dataset. Users can review how their input
+that is specific to the input dataframe. Users can review how their input
 data relates to standard TADA values for the following elements:
 
 -   CharacteristicName
@@ -624,7 +624,7 @@ data relates to standard TADA values for the following elements:
 
 -   ResultMeasure.MeasureUnitCode
 
-The HarmonizeData function then compares the input dataset to the TADA
+The HarmonizeData function then compares the input dataframe to the TADA
 Harmonization Reference Table. The purpose of the function is to make
 similar data consistent and therefore easier to compare and analyze.
 
@@ -635,9 +635,9 @@ current working directory when download = TRUE, the default is download
 
 Optional outputs include:
 
-1.  the dataset with Harmonization columns appended,
+1.  the dataframe with Harmonization columns appended,
 
-2.  the dataset with CharacteristicName, ResultSampleFractionText,
+2.  the dataframe with CharacteristicName, ResultSampleFractionText,
     MethodSpecificationName, and ResultMeasure.MeasureUnitCode converted
     to TADA standards or
 
