@@ -425,9 +425,10 @@ ConvertDepthUnits <- function(.data,
           check.data <- merge(check.data, unit.ref[, c("Code", "Conversion.Factor")],
                               by.x = unitCol,
                               by.y = "Code",
-                              all.x = TRUE
+                              all.x = TRUE, 
+                              sort = FALSE
           )
-          
+
           # rename new columns
           names(check.data)[names(check.data) == "Conversion.Factor"] <- paste('WQXConversionFactor.', field,  sep="")
           
