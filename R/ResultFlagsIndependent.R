@@ -1,20 +1,20 @@
 #' Check for Invalid Analytical Methods
 #'
 #' Function checks the validity of each characteristic-analytical method
-#' combination in the dataset. When clean = TRUE, rows with invalid
+#' combination in the dataframe. When clean = TRUE, rows with invalid
 #' characteristic-analytical method combinations are removed. Default is
 #' clean = TRUE.
 #' 
 #' @param .data TADA dataframe
 #' @param clean Boolean argument; removes "Invalid" characteristic-analytical
-#' method combinations from the dataset when clean = TRUE. Default is
+#' method combinations from the dataframe when clean = TRUE. Default is
 #' clean = TRUE.
 #' 
 #' @return When clean = FALSE, this function adds the following column to your
 #' dataframe: WQX.AnalyticalMethodValidity. This column flags invalid 
 #' CharacteristicName, ResultAnalyticalMethod/MethodIdentifier,
-#' and ResultAnalyticalMethod/MethodIdentifierContext combinations in your dataset
-#' as either "Nonstandardized", "Invalid", or "Valid". When clean = TRUE, "Invalid" rows are removed from the dataset and no column 
+#' and ResultAnalyticalMethod/MethodIdentifierContext combinations in your dataframe
+#' as either "Nonstandardized", "Invalid", or "Valid". When clean = TRUE, "Invalid" rows are removed from the dataframe and no column 
 #' will be appended.
 #' 
 #' @export
@@ -80,7 +80,7 @@ InvalidMethod <- function(.data, clean = TRUE) {
     ##note: Cristina edited this on 9/19/22 to keep Nonstandardized/NA data when clean = TRUE. Now only Invalid data is removed.
     if (any("Invalid" %in%
       unique(check.data$WQX.AnalyticalMethodValidity)) == FALSE) {
-      print("No changes were made, because we did not find any invalid method/characteristic combinations in your dataset.")
+      print("No changes were made, because we did not find any invalid method/characteristic combinations in your dataframe")
       return(.data)
     }
 
@@ -115,15 +115,15 @@ InvalidMethod <- function(.data, clean = TRUE) {
 #' to flags rows with aggregated continuous data. This is done by flagging results
 #' where the ResultDetectionConditionText = "Reported in Raw Data (attached)".
 #' When clean = TRUE, rows with aggregated continuous data are removed from the
-#' dataset and no column will be appended. Default is clean = TRUE.
+#' dataframe and no column will be appended. Default is clean = TRUE.
 #'
 #' @param .data TADA dataframe
 #' @param clean Boolean argument; removes aggregated continuous data from
-#' the dataset when clean = TRUE. Default is clean = TRUE.
+#' the dataframe when clean = TRUE. Default is clean = TRUE.
 #'
 #' @return When clean = FALSE, a column flagging rows with aggregated continuous
 #' data is appended to the input data set. When clean = TRUE, aggregated
-#' continuous data is removed from the dataset.
+#' continuous data is removed from the dataframe.
 #'
 #' @export
 
@@ -176,7 +176,7 @@ AggregatedContinuousData <- function(.data, clean = TRUE) {
 
     # if no aggregated continuous data is in the data set
     if (nrow(cont.data) == 0) {
-      print("The dataset does not contain aggregated continuous data.")
+      print("No changes were made, because we did not find any aggregated continuous data in your dataframe")
 
       return(.data)
     }
@@ -192,19 +192,19 @@ AggregatedContinuousData <- function(.data, clean = TRUE) {
 #' excluding organization-specific and comment text fields. Each pair or group
 #' of potential duplicate rows is flagged with a unique ID. When clean = TRUE,
 #' the function retains the first occurrence of each potential duplicate in the
-#' dataset. Default is clean = TRUE.
+#' dataframe. Default is clean = TRUE.
 #'
 #' @param .data TADA dataframe
 #' @param clean Boolean argument; removes potential duplicate data from
-#' the dataset when clean = TRUE. When clean = FALSE, a column indicating
+#' the dataframe when clean = TRUE. When clean = FALSE, a column indicating
 #' potential duplicate rows with a unique number linking rows is appended to the
 #' input data set. Default is clean = TRUE.
 #'
 #' @return When clean = FALSE, the following column will be added to you dataframe: 
 #' TADA.PotentialDupRowID. This column flags potential duplicate rows of data 
-#' in your dataset, and assigns each potential duplicate combination a unique number
+#' in your dataframe, and assigns each potential duplicate combination a unique number
 #' linking the two potential duplication rows. When clean = FALSE the first of
-#' each group of potential duplicate rows will be removed from the dataset
+#' each group of potential duplicate rows will be removed from the dataframe
 #' and no column is appended.
 #'
 #' @export
@@ -305,17 +305,17 @@ PotentialDuplicateRowID <- function(.data, clean = TRUE) {
 #' leverages that statistical data from WQX to flag any data that is above the
 #' upper threshold of result values submitted to WQX for a given characteristic.
 #' When clean = TRUE, rows with values that are above the upper WQX threshold
-#' are removed from the dataset and no column will be appended. Default is
+#' are removed from the dataframe and no column will be appended. Default is
 #' clean = TRUE.
 #'
 #' @param .data TADA dataframe
 #' @param clean Boolean argument; removes data that is above the upper WQX
-#' threshold from the dataset when clean = TRUE. Default is clean = TRUE
+#' threshold from the dataframe when clean = TRUE. Default is clean = TRUE
 #'
-#' @return When clean = FALSE, the following column is added to your dataset: 
+#' @return When clean = FALSE, the following column is added to your dataframe: 
 #' AboveWQXUpperThreshold. This column flags rows with data that are above
 #' the upper WQX threshold. When clean = TRUE, data that is above the upper 
-#' WQX threshold is removed from the dataset.
+#' WQX threshold is removed from the dataframe.
 #'
 #' @export
 
@@ -420,17 +420,17 @@ AboveNationalWQXUpperThreshold <- function(.data, clean = TRUE) {
 #' leverages that statistical data from WQX to flag any data that is below the
 #' lower threshold of result values submitted to WQX for a given characteristic.
 #' When clean = TRUE, rows with values that are below the lower WQX threshold
-#' are removed from the dataset and no column will be appended. Default is
+#' are removed from the dataframe and no column will be appended. Default is
 #' clean = TRUE.
 #'
 #' @param .data TADA dataframe
 #' @param clean Boolean argument; removes data that is below the lower WQX
-#' threshold from the dataset when clean = TRUE. Default is clean = TRUE.
+#' threshold from the dataframe when clean = TRUE. Default is clean = TRUE.
 #'
-#' @return When clean = FALSE, the following column is added to your dataset: 
+#' @return When clean = FALSE, the following column is added to your dataframe: 
 #' BelowWQXUpperThreshold. This column flags rows with data that are below
 #' the lower WQX threshold. When clean = TRUE, data that is below the lower 
-#' WQX threshold is removed from the dataset.
+#' WQX threshold is removed from the dataframe.
 #' 
 #' @export
 
@@ -558,7 +558,7 @@ BelowNationalWQXUpperThreshold <- function(.data, clean = TRUE) {
 #' the QAPPApprovedIndicator equals "NA" will be retained.
 #'
 #' @return When clean = FALSE and cleanNA = FALSE, no data is removed from the
-#' dataset.
+#' dataframe.
 #'
 #' @export
 #'
@@ -604,17 +604,17 @@ QAPPapproved <- function(.data, clean = TRUE, cleanNA = FALSE) {
 #' to determine if a QAPP document is available to review. When clean = FALSE,
 #' a column will be appended to flag results that have an associated
 #' QAPP document URL provided. When clean = TRUE, rows that do not
-#' have an associated QAPP document are removed from the dataset and no column
+#' have an associated QAPP document are removed from the dataframe and no column
 #' will be appended. This function should only be used to remove data if an
 #' accompanying QAPP document is required to use data in assessments.
 #'
 #' @param .data TADA dataframe
 #' @param clean Boolean argument; removes data without an associated QAPP
-#' document from the dataset when clean = TRUE. Default is clean = FALSE.
+#' document from the dataframe when clean = TRUE. Default is clean = FALSE.
 #'
 #' @return When clean = FALSE, a column is appended to the input data set that
 #' flags rows with an associated QAPP document. When clean = TRUE,
-#' data without an associated QAPP document is removed from the dataset.
+#' data without an associated QAPP document is removed from the dataframe.
 #'
 #' @export
 #'
@@ -666,7 +666,7 @@ QAPPDocAvailable <- function(.data, clean = FALSE) {
 
     # if no associated QAPP url data is in the data set
     if (nrow(QAPPdoc.data) == 0) {
-      warning("The dataset does not contain QAPP document url data.")
+      print("No changes were made, because we did not find any QAPP document url data in your dataframe")
 
       return(.data)
     }
@@ -678,7 +678,7 @@ QAPPDocAvailable <- function(.data, clean = FALSE) {
 #' Function identifies and flags invalid coordinate data. When
 #' clean_outsideUSA = FALSE and clean_imprecise = FALSE,
 #' a column will be appended titled "TADA.InvalidCoordinates" with the following
-#' flags (if relevant to dataset). If the latitude is less than zero, the row will be
+#' flags (if relevant to dataframe). If the latitude is less than zero, the row will be
 #' flagged with "LAT_OutsideUSA". If the longitude is greater than zero AND less than 145,
 #' the row will be flagged as "LONG_OutsideUSA". If the latitude or longitude
 #' contains the string, "999", the row will be flagged as invalid. Finally,
@@ -694,7 +694,7 @@ QAPPDocAvailable <- function(.data, clean = FALSE) {
 #'
 #' @return When either the clean_outsideUSA or clean_imprecise argument is FALSE,
 #' a column flagging rows with the respective QA check is appended to the input
-#' dataset. When either argument is TRUE, "invalid" or "imprecise" data is
+#' dataframe. When either argument is TRUE, "invalid" or "imprecise" data is
 #' removed, respectively.
 #'
 #' @export
@@ -736,7 +736,7 @@ InvalidCoordinates <- function(.data, clean_outsideUSA = FALSE, clean_imprecise 
     }
 
     if (all(is.na(.data$TADA.InvalidCoordinates) == TRUE)) {
-      print("All invalid coordinates were removed or your dataset does not contain monitoring stations with invalid coordinates")
+      print("All invalid coordinates were removed or your dataframe does not contain monitoring stations with invalid coordinates")
       return(dplyr::select(.data, -TADA.InvalidCoordinates))
     } else {
       return(.data)

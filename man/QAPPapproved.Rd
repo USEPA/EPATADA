@@ -21,7 +21,7 @@ the QAPPApprovedIndicator equals "NA" will be retained.}
 }
 \value{
 When clean = FALSE and cleanNA = FALSE, no data is removed from the
-dataset.
+dataframe.
 }
 \description{
 Function checks data submitted under the column "QAPPApprovedIndicator".

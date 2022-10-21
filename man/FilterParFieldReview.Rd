@@ -11,7 +11,7 @@ FilterParFieldReview(field, .data, parameter)
 
 \item{.data}{Optional argument; TADA dataframe}
 
-\item{parameter}{Characteristic name (parameter name) from the dataset.}
+\item{parameter}{Characteristic name (parameter name) from the dataframe.}
 }
 \value{
 A table and pie chart of unique values in the selected field.

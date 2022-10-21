@@ -109,7 +109,7 @@ FilterFieldReview <- function(field, .data) {
   invisible(utils::capture.output(FilterFields(.data)))
   # check that input is in UniqueValList
   if (exists(field, TADA.env$UniqueValList) == FALSE) {
-    stop("Input does not exist as a field in the dataset.")
+    stop("Input does not exist as a field in the dataframe.")
   }
 
   # subset UniqueValList by input
@@ -134,7 +134,7 @@ FilterFieldReview <- function(field, .data) {
 
 #' Generate list of parameters
 #'
-#' Function generates list of characteristics in the input dataset, as well as
+#' Function generates list of characteristics in the input dataframe, as well as
 #' the number of records for each. The list is intended to inform users
 #' as to which parameters to explore further and filter.
 #'
@@ -163,7 +163,7 @@ FilterParList <- function(.data) {
 #' specific fields to explore further and filter subset by a parameter.
 #'
 #' @param .data TADA dataframe
-#' @param parameter Characteristic name (parameter name) from the dataset.
+#' @param parameter Characteristic name (parameter name) from the dataframe.
 #'
 #' @return A table of fields and the count of unique values in each field,
 #' subset by a parameter.
@@ -184,7 +184,7 @@ FilterParFields <- function(.data, parameter) {
   }
   # check parameter is in .data
   if ((parameter %in% .data$CharacteristicName) == FALSE) {
-    stop("Input parameter is not in the input dataset.")
+    stop("Input parameter is not in the input dataframe.")
   }
 
   # SUBSET DATAFRAME; CREATE LIST OF FIELDS
@@ -268,7 +268,7 @@ FilterParFields <- function(.data, parameter) {
 #'
 #' @param field Field name
 #' @param .data Optional argument; TADA dataframe
-#' @param parameter Characteristic name (parameter name) from the dataset.
+#' @param parameter Characteristic name (parameter name) from the dataframe.
 #'
 #' @return A table and pie chart of unique values in the selected field.
 #'
@@ -286,7 +286,7 @@ FilterParFieldReview <- function(field, .data, parameter) {
   # check parameter is in .data
   if (!missing(parameter)) {
     if ((parameter %in% .data$CharacteristicName) == FALSE) {
-      stop("Input parameter is not in the input dataset.")
+      stop("Input parameter is not in the input dataframe.")
     }
   }
   # execute function after checks are passed
@@ -295,7 +295,7 @@ FilterParFieldReview <- function(field, .data, parameter) {
   invisible(utils::capture.output(FilterParFields(.data, parameter)))
   # check that input is in ParUniqueValList
   if (exists(field, TADA.env$ParUniqueValList) == FALSE) {
-    stop("Input does not exist as a field in the dataset.")
+    stop("Input does not exist as a field in the dataframe.")
   }
 
   # subset UniqueValList by input

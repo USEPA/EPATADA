@@ -2,7 +2,7 @@
 % Please edit documentation in R/DataDiscoveryRetrieval.R
 \name{TADAdataRetrieval}
 \alias{TADAdataRetrieval}
-\title{Generate TADA-Compatible Dataset with WQP Data}
+\title{Generate TADA-Compatible Data with WQP Data}
 \usage{
 TADAdataRetrieval(
   statecode = "null",
@@ -37,7 +37,7 @@ TADA-compatible dataframe
 }
 \description{
 Retrieve data from Water Quality Portal (WQP) and output a TADA-compatible
-dataset.
+dataframe.
 }
 \details{
 Keep in mind that all the query filters for the WQP work as an AND

@@ -3,7 +3,7 @@
 #' This function compares measure units in the input data to the Water Quality
 #' Exchange (WQX) 3.0 QAQC Characteristic Validation table.
 #'
-#' This function will ALWAYS add the following two columns to the input dataset:
+#' This function will ALWAYS add the following two columns to the input dataframe:
 #' 1) "WQX.ResultMeasureValue.UnitConversion",
 #' 2) "WQX.DetectionLimitMeasureValue.UnitConversion"
 #' These two fields indicate if data can be converted."NoResultValue" means data
@@ -12,7 +12,7 @@
 #' "Convert" means the data can be transformed, and "Converted" means that this function
 #' has been run with the input transform = TRUE, and the values were already converted.
 #'
-#' It also uses the following six fields from the input dataset:
+#' It also uses the following six fields from the input dataframe:
 #' 1) "CharacteristicName",
 #' 2) "ActivityMediaName",
 #' 3) "ResultMeasureValue",
@@ -28,7 +28,7 @@
 #' This function adds the following two fields ONLY when transform=FALSE:
 #' Adds: "WQX.ConversionFactor" and "WQX.TargetUnit".
 #'
-#' @param .data TADA dataset
+#' @param .data TADA dataframe
 #'
 #' @param transform Boolean argument with two possible values, “TRUE” and “FALSE”.
 #' Default is transform = TRUE.
@@ -39,7 +39,7 @@
 #' converts respective values within the "ResultMeasureValue" and "DetectionQuantitationLimitMeasure.MeasureValue"
 #' fields. In addition to "WQX.ResultMeasureValue.UnitConversion"
 #' and "WQX.DetectionLimitMeasureValue.UnitConversion", transform=TRUE will add
-#' the following two fields to the input dataset, "ResultMeasureUnitCode.Original",
+#' the following two fields to the input dataframe, "ResultMeasureUnitCode.Original",
 #' and "DetectionLimitMeasureUnitCode.Original", to retain the original result
 #' and unit values.
 #'
@@ -47,11 +47,11 @@
 #' but columns are appended to indicate what the target units and conversion factors are,
 #' and if the data can be converted. In addition to "WQX.ResultMeasureValue.UnitConversion"
 #' and "WQX.DetectionLimitMeasureValue.UnitConversion",  transform=FALSE will add the
-#' following two fields to the input dataset: "WQX.ConversionFactor" and "WQX.TargetUnit".
+#' following two fields to the input dataframe: "WQX.ConversionFactor" and "WQX.TargetUnit".
 #'
 #' @export
 
-WQXTargetUnits <- function(.data, transform = TRUE) {
+ConvertResultUnits <- function(.data, transform = TRUE) {
 
   # check that .data object is compatible with TADA
   # check .data is of class data.frame
@@ -305,12 +305,322 @@ WQXTargetUnits <- function(.data, transform = TRUE) {
 }
 
 
+#' Convert Depth Units
+#'
+#' Default is transform = TRUE. When transform = TRUE, all depth data is converted
+#' to a consistent unit; and no additional columns are added. 
+#' The default unit is "m" (meters), but a user can also choose 
+#' "ft" or "in". When transform = FALSE, where depth data is populated, the 
+#' function appends columns indicating the target unit and conversion factor for
+#' each row; and for each depth field. No conversions are done at this time. 
+#' A user can review the conversion factor information if desired by using this
+#' feature. 
+#' 
+#' @param .data TADA dataframe
+#' @param unit Character string input indicating the target depth unit to use for 
+#' conversions. Allowable values for 'unit' are either "m" (meters), "ft" (feet),
+#' or "in" (inches). 'unit' accepts only one allowable value as an input. The
+#' default unit = "m".
+#' @param fields Character string input indicating the relevant depth data fields
+#' that will be converted to the desired target unit. Allowable values for 'fields'
+#' are "ActivityDepthHeightMeasure", "ActivityTopDepthHeightMeasure", 
+#' "ActivityBottomDepthHeightMeasure", and "ResultDepthHeightMeasure". The default
+#' is to include all depth fields.
+#' @param transform Boolean argument; The default is transform = TRUE. 
+#' When transform = TRUE, all depth data is converted to the target unit; and
+#' no additional columns are added. When transform = FALSE, where depth data 
+#' is populated, the function appends columns indicating the target unit and 
+#' conversion factor for each row; and for each depth field. No conversions are
+#' done at this time. A user can review the conversion factor information if 
+#' desired by using this feature. 
+#' 
+#' @return When transform = true, the input dataframe is returned with all depth
+#' data converted to the target unit; no additional columns are added.
+#' When transform = FALSE, the input dataframe is returned with additional columns
+#' including... be specific here ... 
+#' 
+#' @export
+#'
+
+ConvertDepthUnits <- function(.data,
+                              unit = "m",
+                              fields = c("ActivityDepthHeightMeasure",
+                                         "ActivityTopDepthHeightMeasure",
+                                         "ActivityBottomDepthHeightMeasure",
+                                         "ResultDepthHeightMeasure"),
+                              transform = TRUE) {
+  
+  # check that .data object is compatible with TADA
+  # check .data is of class data.frame
+  if (("data.frame" %in% class(.data)) == FALSE) {
+    stop("Input object must be of class 'data.frame'")
+  }
+  # check .data has required columns
+  if (all(c(
+    "ActivityDepthHeightMeasure.MeasureValue", "ActivityDepthHeightMeasure.MeasureUnitCode",
+    "ActivityTopDepthHeightMeasure.MeasureValue", "ActivityTopDepthHeightMeasure.MeasureUnitCode",
+    "ActivityBottomDepthHeightMeasure.MeasureValue", "ActivityBottomDepthHeightMeasure.MeasureUnitCode",
+    "ResultDepthHeightMeasure.MeasureValue", "ResultDepthHeightMeasure.MeasureUnitCode", "ActivityEndTime.TimeZoneCode"
+  )
+  %in% colnames(.data)) == FALSE) {
+    stop("The dataframe does not contain the required fields to use TADA. Use either the full physical/chemical profile downloaded from WQP or download the TADA profile template available on the EPA TADA webpage.")
+  }
+  # check unit argument for valid number of inputs
+  if (length(unit) != 1) {
+    stop("Invalid 'unit' argument. 'unit' accepts only one allowable value as an input. 'unit' must be one of either 'm' (meter), 'ft' (feet), or 'in' (inch).")
+  }
+  # check unit argument for valid inputs
+  if (all(is.na(match(c("m", "ft", "in"), unit))) == TRUE) {
+    stop("Invalid 'unit' argument. 'unit' must be either 'm' (meter), 'ft' (feet), or 'in' (inch).")
+  }
+  # check fields argument for valid inputs
+  validFields <- c("ActivityDepthHeightMeasure",
+                   "ActivityTopDepthHeightMeasure",
+                   "ActivityBottomDepthHeightMeasure",
+                   "ResultDepthHeightMeasure")
+  if (all(is.na(match(validFields, fields))) == TRUE) {
+    stop("Invalid 'fields' argument. 'fields' must include one or many of the
+    following: 'ActivityDepthHeightMeasure,' 'ActivityTopDepthHeightMeasure,'
+    'ActivityBottomDepthHeightMeasure,' and/or 'ResultDepthHeightMeasure.'")
+  }
+  
+  # execute function after checks are passed
+  if (all(c(
+    "ActivityDepthHeightMeasure.MeasureValue", "ActivityDepthHeightMeasure.MeasureUnitCode",
+    "ActivityTopDepthHeightMeasure.MeasureValue", "ActivityTopDepthHeightMeasure.MeasureUnitCode",
+    "ActivityBottomDepthHeightMeasure.MeasureValue", "ActivityBottomDepthHeightMeasure.MeasureUnitCode",
+    "ResultDepthHeightMeasure.MeasureValue", "ResultDepthHeightMeasure.MeasureUnitCode"
+  )
+  %in% colnames(.data)) == TRUE) {
+    
+    # define check.data (to preserve .data and avoid mistakes with if statements below)
+    check.data <- .data
+    
+    appCols <- c("WQXConversionFactor.ActivityDepthHeightMeasure",
+                 "WQXConversionFactor.ActivityTopDepthHeightMeasure",
+                 "WQXConversionFactor.ActivityBottomDepthHeightMeasure",
+                 "WQXConversionFactor.ResultDepthHeightMeasure")
+    
+    # read in unit conversion reference table from extdata
+    unit.ref <- GetMeasureUnitRef()
+    
+    # subset to include only "Length Distance" units; filter by target unit defined in 'unit' argument
+    unit.ref <- unit.ref %>%
+      dplyr::filter(stringr::str_detect(
+        Description,
+        stringr::regex("\\bLength Distance")
+      )) %>%
+      dplyr::filter(Target.Unit == unit) #%>%
+
+    for (i in seq(length(validFields)+1)) {
+      field <- validFields[i]
+      if ((field %in% fields) == TRUE) {
+        # Old unit column
+        unitCol <- paste(field, ".MeasureUnitCode", sep="")
+        
+        # proceed only if unitCol has values other than NA
+        if (sum(!is.na(check.data[unitCol])) > 0) {
+          
+          # Join conversion factor from unit.ref to .data by unitCol
+          check.data <- merge(check.data, unit.ref[, c("Code", "Conversion.Factor")],
+                              by.x = unitCol,
+                              by.y = "Code",
+                              all.x = TRUE
+          )
+          
+          # rename new columns
+          names(check.data)[names(check.data) == "Conversion.Factor"] <- paste('WQXConversionFactor.', field,  sep="")
+          
+        }
+      }
+    }
+    
+    # check if any Conversion Factor columns were appended
+    if (all(is.na(match(appCols, colnames(check.data)))) == TRUE) {
+      stop("The dataframe does not have any depth data.")
+    }
+    
+    # reorder column names to match .data
+    
+    # get .data column names
+    col.order <- colnames(.data)
+    # add appended columns to the list
+    for (appCol in appCols) {
+      if ((appCol %in% colnames(check.data)) == TRUE) {
+        col.order <- append(col.order, appCol)
+      }
+    }
+    
+    # reorder columns in check.data
+    check.data <- check.data[, col.order]
+    # place flag columns next to relevant fields
+    if ((appCols[1] %in% colnames(check.data)) == TRUE) {
+      check.data <- check.data %>%
+        dplyr::relocate(appCols[1],
+                        .after = "ActivityDepthHeightMeasure.MeasureValue"
+        )
+    }
+    if ((appCols[2] %in% colnames(check.data)) == TRUE) {
+      check.data <- check.data %>%
+        dplyr::relocate(appCols[2],
+                        .after = "ActivityTopDepthHeightMeasure.MeasureValue"
+        )
+    }
+    if ((appCols[3] %in% colnames(check.data)) == TRUE) {
+      check.data <- check.data %>%
+        dplyr::relocate(appCols[3],
+                        .after = "ActivityBottomDepthHeightMeasure.MeasureValue"
+        )
+    }
+    if ((appCols[4] %in% colnames(check.data)) == TRUE) {
+      check.data <- check.data %>%
+        dplyr::relocate(appCols[4],
+                        .after = "ResultDepthHeightMeasure.MeasureValue"
+        )
+    }
+    if ((appCols[5] %in% colnames(check.data)) == TRUE) {
+      check.data <- check.data %>%
+        dplyr::relocate(appCols[5],
+                        .after = "ActivityEndTime.TimeZoneCode"
+        )
+    }
+    
+    #function should always run all code above
+    
+    # if transform = FALSE, output data
+    if (transform == FALSE) {
+      # add WQX.Depth.TargetUnit column
+      check.data[ , 'WQX.Depth.TargetUnit'] <- unit
+      return(check.data)
+    }
+    
+    # if transform = TRUE, apply conversions and remove extra columns
+    if (transform == TRUE) {
+      # define clean.data
+      clean.data <- check.data
+      
+      # add WQX.Depth.TargetUnit column
+      #clean.data[ , 'WQX.Depth.TargetUnit'] <- unit
+      
+      # if WQXConversionFactor.ActivityDepthHeightMeasure exists...
+      if (("WQXConversionFactor.ActivityDepthHeightMeasure" %in% colnames(clean.data)) == TRUE) {
+        # multiply ActivityDepthHeightMeasure.MeasureValue by WQXConversionFactor.ActivityDepthHeightMeasure
+        clean.data$ActivityDepthHeightMeasure.MeasureValue <- ((clean.data$ActivityDepthHeightMeasure.MeasureValue) * (clean.data$WQXConversionFactor.ActivityDepthHeightMeasure))
+        
+        # uncomment out below to keep a copy of the original unit field
+        #clean.data$ActivityDepthHeightMeasure.MeasureUnitCode.Original <- clean.data$ActivityDepthHeightMeasure.MeasureUnitCode
+        #clean.data <- clean.data %>%
+        #  dplyr::relocate("ActivityDepthHeightMeasure.MeasureUnitCode.Original",
+        #                  .after = "WQXConversionFactor.ActivityDepthHeightMeasure"
+        #  )
+        
+        # then replace ActivityDepthHeightMeasure.MeasureUnitCode values with the new unit argument
+        clean.data$ActivityDepthHeightMeasure.MeasureUnitCode[which(
+          !is.na(clean.data$ActivityDepthHeightMeasure.MeasureUnitCode)
+        )] <- unit
+        
+        # move the relevant data and unit fields next to each other in the dataframe
+        clean.data <- clean.data %>%
+          dplyr::relocate("ActivityDepthHeightMeasure.MeasureUnitCode",
+                          .after = "ActivityDepthHeightMeasure.MeasureValue"
+          )
+        
+        # comment out below to keep ActDepth.Conversion.Unit column
+        clean.data <- dplyr::select(clean.data, -"WQXConversionFactor.ActivityDepthHeightMeasure")
+      }
+      
+      # if WQXConversionFactor.ActivityTopDepthHeightMeasure exists...
+      if (("WQXConversionFactor.ActivityTopDepthHeightMeasure" %in% colnames(clean.data)) == TRUE) {
+        # multiply ActivityTopDepthHeightMeasure.MeasureValue by WQXConversionFactor.ActivityTopDepthHeightMeasure
+        clean.data$ActivityTopDepthHeightMeasure.MeasureValue <- ((clean.data$ActivityTopDepthHeightMeasure.MeasureValue) * (clean.data$WQXConversionFactor.ActivityTopDepthHeightMeasure))
+        
+        # uncomment out below to keep a copy of the original unit field
+        #clean.data$ActivityTopDepthHeightMeasure.MeasureUnitCode.Original <- clean.data$ActivityTopDepthHeightMeasure.MeasureUnitCode
+        #clean.data <- clean.data %>%
+        #  dplyr::relocate("ActivityTopDepthHeightMeasure.MeasureUnitCode.Original",
+        #                  .after = "WQXConversionFactor.ActivityTopDepthHeightMeasure"
+        #  )
+        
+        # replace ActivityTopDepthHeightMeasure.MeasureUnitCode values with unit argument
+        clean.data$ActivityTopDepthHeightMeasure.MeasureUnitCode[which(
+          !is.na(clean.data$ActivityTopDepthHeightMeasure.MeasureUnitCode)
+        )] <- unit
+        
+        clean.data <- clean.data %>%
+          dplyr::relocate("ActivityTopDepthHeightMeasure.MeasureUnitCode",
+                          .after = "ActivityTopDepthHeightMeasure.MeasureValue"
+          )
+        # comment out below to keep ActTopDepth.Conversion.Unit column
+        clean.data <- dplyr::select(clean.data, -"WQXConversionFactor.ActivityTopDepthHeightMeasure")
+      }
+      
+      # if WQXConversionFactor.ActivityBottomDepthHeightMeasure exists...
+      if (("WQXConversionFactor.ActivityBottomDepthHeightMeasure" %in% colnames(clean.data)) == TRUE) {
+        # multiply ActivityBottomDepthHeightMeasure.MeasureValue by WQXConversionFactor.ActivityBottomDepthHeightMeasure
+        clean.data$ActivityBottomDepthHeightMeasure.MeasureValue <- ((clean.data$ActivityBottomDepthHeightMeasure.MeasureValue) * (clean.data$WQXConversionFactor.ActivityBottomDepthHeightMeasure))
+        
+        # uncomment out below to keep a copy of the original unit field
+        #clean.data$ActivityBottomDepthHeightMeasure.MeasureUnitCode.Original <- clean.data$ActivityBottomDepthHeightMeasure.MeasureUnitCode
+        #clean.data <- clean.data %>%
+        #  dplyr::relocate("ActivityBottomDepthHeightMeasure.MeasureUnitCode.Original",
+        #                  .after = "WQXConversionFactor.ActivityBottomDepthHeightMeasure"
+        #  )
+        
+        # replace ActivityTopDepthHeightMeasure.MeasureUnitCode values with unit argument
+        clean.data$ActivityBottomDepthHeightMeasure.MeasureUnitCode[which(
+          !is.na(clean.data$ActivityBottomDepthHeightMeasure.MeasureUnitCode)
+        )] <- unit
+        
+        clean.data <- clean.data %>%
+          dplyr::relocate("ActivityBottomDepthHeightMeasure.MeasureUnitCode",
+                          .after = "ActivityBottomDepthHeightMeasure.MeasureValue"
+          )
+        # comment out below to keep ActBottomDepth.Conversion.Unit column
+        clean.data <- dplyr::select(clean.data, -"WQXConversionFactor.ActivityBottomDepthHeightMeasure")
+      }
+      
+      # if WQXConversionFactor.ResultDepthHeightMeasure exists...
+      if (("WQXConversionFactor.ResultDepthHeightMeasure" %in% colnames(clean.data)) == TRUE) {
+        # multiply ResultDepthHeightMeasure.MeasureValue by WQXConversionFactor.ResultDepthHeightMeasure
+        clean.data$ResultDepthHeightMeasure.MeasureValue <- ((clean.data$ResultDepthHeightMeasure.MeasureValue) * (clean.data$WQXConversionFactor.ResultDepthHeightMeasure))
+        
+        # uncomment out below to keep a copy of the original unit field
+        #clean.data$ResultDepthHeightMeasure.MeasureUnitCode.Original <- clean.data$ResultDepthHeightMeasure.MeasureUnitCode
+        #clean.data <- clean.data %>%
+        #  dplyr::relocate("ResultDepthHeightMeasure.MeasureUnitCode.Original",
+        #                  .after = "WQXConversionFactor.ResultDepthHeightMeasure"
+        #  )
+        
+        # replace ResultDepthHeightMeasure.MeasureUnitCode values with unit argument
+        clean.data$ResultDepthHeightMeasure.MeasureUnitCode[which(
+          !is.na(clean.data$ResultDepthHeightMeasure.MeasureUnitCode)
+        )] <- unit
+        
+        clean.data <- clean.data %>%
+          dplyr::relocate("ResultDepthHeightMeasure.MeasureUnitCode",
+                          .after = "ResultDepthHeightMeasure.MeasureUnitCode"
+          )
+        # comment out below to keep WQXConversionFactor.ResultDepthHeightMeasure column
+        clean.data <- dplyr::select(clean.data, -"WQXConversionFactor.ResultDepthHeightMeasure")
+      }
+      
+      # MAY BE ABLE TO DELETE BELOW NO LONGER NEEDED? uncomment below to delete WQX.Depth.TargetUnit column
+      # clean.data <- dplyr::select(clean.data, -"WQX.Depth.TargetUnit")
+      
+      return(clean.data)
+    } else {
+      stop("'transform' argument must be Boolean (TRUE or FALSE)")
+    }
+  }
+}
+
+
 
 
 #' Generate Unique Harmonization Reference Table
 #' 
 #' Function generates a harmonization reference table that is specific to
-#' the input dataset. Users can review how their input data relates to standard
+#' the input dataframe. Users can review how their input data relates to standard
 #' TADA values for CharacteristicName, ResultSampleFractionText,
 #' MethodSpecificationName, and ResultMeasure.MeasureUnitCode and they can optionally
 #' edit the reference file to meet their needs.
@@ -320,7 +630,7 @@ WQXTargetUnits <- function(.data, transform = TRUE) {
 #' @param download Boolean argument; when download = TRUE, the output is
 #' downloaded to the current working directory.
 #'
-#' @return Harmonization Reference Table unique to the input dataset
+#' @return Harmonization Reference Table unique to the input dataframe
 #'
 #' @export
 
@@ -452,10 +762,10 @@ HarmonizationRefTable <- function(.data, download = FALSE) {
 #' Transform CharacteristicName, ResultSampleFractionText, MethodSpecificationName, 
 #' and ResultMeasure.MeasureUnitCode values to TADA standards.
 #'
-#' Function compares input dataset to the TADA Harmonization Reference Table, and makes
+#' Function compares input dataframe to the TADA Harmonization Reference Table, and makes
 #' synonymous data consistent.
-#' Optional outputs include: 1) the dataset with
-#' Harmonization columns appended, 2) the dataset with CharacteristicName,
+#' Optional outputs include: 1) the dataframe with
+#' Harmonization columns appended, 2) the dataframe with CharacteristicName,
 #' ResultSampleFractionText, MethodSpecificationName, and
 #' ResultMeasure.MeasureUnitCode converted to TADA standards or 3) the four fields
 #' converted with most Harmonization Reference Table columns appended. Default is
@@ -467,7 +777,7 @@ HarmonizationRefTable <- function(.data, download = FALSE) {
 #' harmonization reference file unique to their data, and they made changes to
 #' that file.
 #' @param transform Boolean argument; transforms and/or converts original values
-#' in the dataset to the TADA Harmonization Reference Table values for the
+#' in the dataframe to the TADA Harmonization Reference Table values for the
 #' following fields: CharacteristicName, ResultSampleFractionText,
 #' MethodSpecificationName, and ResultMeasure.MeasureUnitCode. Default is
 #' transform = TRUE.
@@ -475,8 +785,8 @@ HarmonizationRefTable <- function(.data, download = FALSE) {
 #' Reference Table to the dataframe. Default is flag = TRUE.
 #'
 #' @return When transform = FALSE and flag = TRUE, Harmonization Reference Table
-#' columns are appended to the dataset only. When transform = TRUE and flag = TRUE,
-#' Harmonization columns are appended to the dataset and transformations are
+#' columns are appended to the dataframe only. When transform = TRUE and flag = TRUE,
+#' Harmonization columns are appended to the dataframe and transformations are
 #' executed. When transform = TRUE and flag = FALSE, transformations are executed
 #' only. When transform = FALSE and flag = FALSE, an error is returned (function
 #' would return the input dataframe unchanged if input was allowed).
@@ -527,7 +837,7 @@ HarmonizeData <- function(.data, ref, transform = TRUE, flag = TRUE) {
   }
   # check that both transform and flag do NOT equal FALSE
   if (transform == FALSE & flag == FALSE) {
-    stop("Both 'transform' and 'flag' arguments equal FALSE, which would return the input dataset unchanged. One or both arguments must be equal to TRUE.")
+    stop("Both 'transform' and 'flag' arguments equal FALSE, which would return the input dataframe unchanged. One or both arguments must be equal to TRUE.")
   }
 
   # execute function after checks are passed
@@ -749,3 +1059,57 @@ HarmonizeData <- function(.data, ref, transform = TRUE, flag = TRUE) {
   }
 }
 
+
+
+#' Harmonize censored data
+#' 
+#' Function substitutes monitoring device/method detection limits (if available) as result values when applicable.
+#'
+#' @param transform Boolean argument with two possible values, “TRUE” and “FALSE”.
+#' Default is transform = TRUE.
+#' 
+#' @param .data Optional argument; TADA dataframe
+#'
+#' @return When transform=TRUE, monitoring device/method detection limits (if available) are substituted as result values and units.
+#' When transform = FALSE, monitoring device/method detection limits (if available) are NOT substituted as result values and units - 
+#' Instead, columns are appended to rows that may include censored data. The flag indicates 1) if the row contains censored data, and 2)
+#' if monitoring device/method detection limits are available.  
+#' 
+
+HarmonizeCensoredData <- function(transform, .data) {
+  
+  # check .data is of class data.frame
+  if (!missing(.data)) {
+    if (("data.frame" %in% class(.data)) == FALSE) {
+      stop(".data must be of class 'data.frame'")
+    }
+  }
+  # execute function after checks are passed 
+  {
+    
+  }
+}
+
+
+#' Generates Censored Data Statictics
+#' 
+#' Function summarizes censored data in dataframe, including any substitutions made. 
+#' 
+#' @param .data Optional argument; TADA dataframe
+#'
+#' @return Summary table
+#' 
+
+CensoredDataStats <- function(.data) {
+  
+  # check .data is of class data.frame
+  if (!missing(.data)) {
+    if (("data.frame" %in% class(.data)) == FALSE) {
+      stop(".data must be of class 'data.frame'")
+    }
+  }
+  # execute function after checks are passed 
+  {
+    
+  }
+}

@@ -10,13 +10,13 @@ BelowNationalWQXUpperThreshold(.data, clean = TRUE)
 \item{.data}{TADA dataframe}
 
 \item{clean}{Boolean argument; removes data that is below the lower WQX
-threshold from the dataset when clean = TRUE. Default is clean = TRUE.}
+threshold from the dataframe when clean = TRUE. Default is clean = TRUE.}
 }
 \value{
-When clean = FALSE, the following column is added to your dataset:
+When clean = FALSE, the following column is added to your dataframe:
 BelowWQXUpperThreshold. This column flags rows with data that are below
 the lower WQX threshold. When clean = TRUE, data that is below the lower
-WQX threshold is removed from the dataset.
+WQX threshold is removed from the dataframe.
 }
 \description{
 EPA's Water Quality Exchange (WQX) has generated statistics and data from
@@ -24,6 +24,6 @@ millions of water quality data points around the country. This functions
 leverages that statistical data from WQX to flag any data that is below the
 lower threshold of result values submitted to WQX for a given characteristic.
 When clean = TRUE, rows with values that are below the lower WQX threshold
-are removed from the dataset and no column will be appended. Default is
+are removed from the dataframe and no column will be appended. Default is
 clean = TRUE.
 }

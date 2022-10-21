@@ -10,17 +10,17 @@ InvalidFraction(.data, clean = TRUE)
 \item{.data}{TADA dataframe}
 
 \item{clean}{Boolean argument; removes "Invalid" characteristic-fraction
-combinations from the dataset when clean = TRUE. Default is clean = TRUE.}
+combinations from the dataframe when clean = TRUE. Default is clean = TRUE.}
 }
 \value{
 When clean = FALSE, this function adds the following column to your
 dataframe: WQX.SampleFractionValidity. This column flags each
-CharacteristicName and ResultSampleFractionText combination in your dataset
+CharacteristicName and ResultSampleFractionText combination in your dataframe
 as either "Nonstandardized", "Invalid", or "Valid". When clean = TRUE,
-"Invalid" rows are removed from the dataset and no column will be appended.
+"Invalid" rows are removed from the dataframe and no column will be appended.
 }
 \description{
 Function checks the validity of each characteristic-fraction combination
-in the dataset. When clean = TRUE, rows with invalid characteristic-fraction
+in the dataframe. When clean = TRUE, rows with invalid characteristic-fraction
 combinations are removed. Default is clean = TRUE.
 }

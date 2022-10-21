@@ -10,12 +10,12 @@ AggregatedContinuousData(.data, clean = TRUE)
 \item{.data}{TADA dataframe}
 
 \item{clean}{Boolean argument; removes aggregated continuous data from
-the dataset when clean = TRUE. Default is clean = TRUE.}
+the dataframe when clean = TRUE. Default is clean = TRUE.}
 }
 \value{
 When clean = FALSE, a column flagging rows with aggregated continuous
 data is appended to the input data set. When clean = TRUE, aggregated
-continuous data is removed from the dataset.
+continuous data is removed from the dataframe.
 }
 \description{
 The Water Quality Portal (WQP) is not designed to store high-frequency
@@ -26,5 +26,5 @@ assessments. Therefore, this function uses metadata submitted by data providers
 to flags rows with aggregated continuous data. This is done by flagging results
 where the ResultDetectionConditionText = "Reported in Raw Data (attached)".
 When clean = TRUE, rows with aggregated continuous data are removed from the
-dataset and no column will be appended. Default is clean = TRUE.
+dataframe and no column will be appended. Default is clean = TRUE.
 }

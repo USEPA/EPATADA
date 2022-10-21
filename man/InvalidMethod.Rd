@@ -10,20 +10,20 @@ InvalidMethod(.data, clean = TRUE)
 \item{.data}{TADA dataframe}
 
 \item{clean}{Boolean argument; removes "Invalid" characteristic-analytical
-method combinations from the dataset when clean = TRUE. Default is
+method combinations from the dataframe when clean = TRUE. Default is
 clean = TRUE.}
 }
 \value{
 When clean = FALSE, this function adds the following column to your
 dataframe: WQX.AnalyticalMethodValidity. This column flags invalid
 CharacteristicName, ResultAnalyticalMethod/MethodIdentifier,
-and ResultAnalyticalMethod/MethodIdentifierContext combinations in your dataset
-as either "Nonstandardized", "Invalid", or "Valid". When clean = TRUE, "Invalid" rows are removed from the dataset and no column
+and ResultAnalyticalMethod/MethodIdentifierContext combinations in your dataframe
+as either "Nonstandardized", "Invalid", or "Valid". When clean = TRUE, "Invalid" rows are removed from the dataframe and no column
 will be appended.
 }
 \description{
 Function checks the validity of each characteristic-analytical method
-combination in the dataset. When clean = TRUE, rows with invalid
+combination in the dataframe. When clean = TRUE, rows with invalid
 characteristic-analytical method combinations are removed. Default is
 clean = TRUE.
 }
