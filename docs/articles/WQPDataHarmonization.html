@@ -73,7 +73,7 @@
                         <h4 data-toc-skip class="author">Cristina A.
 Mullin</h4>
             
-            <h4 data-toc-skip class="date">2022-10-19</h4>
+            <h4 data-toc-skip class="date">2022-10-21</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/USEPA/TADA/blob/HEAD/vignettes/WQPDataHarmonization.Rmd" class="external-link"><code>vignettes/WQPDataHarmonization.Rmd</code></a></small>
       <div class="d-none name"><code>WQPDataHarmonization.Rmd</code></div>
@@ -246,7 +246,7 @@ Tutorial</a></p></li>
 </ul>
 <p>Option 1: Use the TADAdataRetrieval function.</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># uncomment below if you would like to review differences between the profiles you get using readWQPdata vs. TADAdataRetrieval. This is because TADAdataRetrieval automatically joins in other data from different WQP profiles, and does some additional data cleaning as part of the data retrieval process</span></span>
+<code class="sourceCode R"><span><span class="co"># uncomment below if you would like to review differences between the profiles you would get using readWQPdata vs. TADAdataRetrieval. The profiles are different because TADAdataRetrieval automatically joins in other data from different WQP profiles, and does some additional data cleaning as part of the data retrieval process.</span></span>
 <span></span>
 <span><span class="co">#dataRetrievalProfile &lt;- dataRetrieval::readWQPdata(statecode = "UT", characteristicName = c("Ammonia", "Nitrate", "Nitrogen"), startDate = "01-01-2021", ignore_attributes = TRUE)</span></span>
 <span></span>
@@ -264,7 +264,7 @@ better.</p>
 (waterqualitydata.us). It uses the WQP summary service to limit the
 amount downloaded to only relevant data, and pulls back data from 100
 stations at a time and then joins the data back together and produces a
-single TADA compatible dataframe as the output. For large data sets,
+single TADA compatible dataframe as the output. For large dataframes,
 that can save a lot of time and ultimately reduce the complexity of
 subsequent data processing. Using this function, you will be able to
 download all data available from all sites in the contiguous United
@@ -398,7 +398,7 @@ inputs.</p>
 <p><strong>ActivityDepthHeightMeasure.MeasureValue</strong> provides
 depth information. This is a crucial column for lake data but less often
 for river data.</p>
-<p>Function checks dataset for depth profile data. Where depth profile
+<p>Function checks dataframe for depth profile data. Where depth profile
 columns are populated, the function appends ‘Conversion Factor’ columns
 and populates those columns based on the original unit (MeasureUnitCode
 columns) and the target unit, which is defined in the ‘unit’ argument. A
@@ -417,15 +417,10 @@ default is all.</p>
 ‘in’ (inch). ‘unit’ accepts only one allowable value as an input.
 Default is unit = “m”.</p>
 <p>See additional function documentation for additional function options
-by entering the following code in the console: ?DepthProfileData</p>
+by entering the following code in the console: ?ConvertDepthUnits</p>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">#converts all depth profile data to meters</span></span>
-<span><span class="va">TADAProfileClean1</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/DepthProfileData.html">DepthProfileData</a></span><span class="op">(</span><span class="va">TADAProfile</span>, unit <span class="op">=</span> <span class="st">"m"</span>, transform <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Warning in `[&lt;-.data.frame`(`*tmp*`, targetUnit, value = structure(list(:</span></span>
-<span><span class="co">#&gt; provided 2 variables to replace 1 variables</span></span>
-<span></span>
-<span><span class="co">#&gt; Warning in `[&lt;-.data.frame`(`*tmp*`, targetUnit, value = structure(list(:</span></span>
-<span><span class="co">#&gt; provided 2 variables to replace 1 variables</span></span></code></pre></div>
+<span><span class="va">TADAProfileClean1</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/ConvertDepthUnits.html">ConvertDepthUnits</a></span><span class="op">(</span><span class="va">TADAProfile</span>, unit <span class="op">=</span> <span class="st">"ft"</span>, transform <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="result-unit-conversions">Result unit conversions<a class="anchor" aria-label="anchor" href="#result-unit-conversions"></a>
@@ -436,10 +431,10 @@ from the MeasureUnit domain table:</p>
 <li><a href="https://cdx.epa.gov/wqx/download/DomainValues/MeasureUnit.CSV" class="external-link uri">https://cdx.epa.gov/wqx/download/DomainValues/MeasureUnit.CSV</a></li>
 </ul>
 <p>See additional function documentation for additional function options
-by entering the following code in the console: ?WQXTargetUnits</p>
+by entering the following code in the console: ?ConvertResultUnits</p>
 <div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">#Converts all results to WQX target units</span></span>
-<span><span class="va">TADAProfileClean2</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/WQXTargetUnits.html">WQXTargetUnits</a></span><span class="op">(</span><span class="va">TADAProfileClean1</span>, transform <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
+<span><span class="va">TADAProfileClean2</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/ConvertResultUnits.html">ConvertResultUnits</a></span><span class="op">(</span><span class="va">TADAProfileClean1</span>, transform <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="statistically-aggregated-data">Statistically aggregated data<a class="anchor" aria-label="anchor" href="#statistically-aggregated-data"></a>
@@ -459,16 +454,17 @@ data.</p>
 ResultDetectionConditionText = “Reported in Raw Data (attached)”</p>
 <ul>
 <li><p>When clean = TRUE, rows with aggregated continuous data are
-removed from the dataset and no column will be appended</p></li>
+removed from the dataframe and no column will be appended</p></li>
 <li><p>Default is clean = TRUE</p></li>
 </ul>
 </li>
 <li><p>See function documentation for additional function options by
-entering the following code in the console: ?DepthProfileData</p></li>
+entering the following code in the console:
+?AggregatedContinuousData</p></li>
 </ul>
 <div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">TADAProfileClean3</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/AggregatedContinuousData.html">AggregatedContinuousData</a></span><span class="op">(</span><span class="va">TADAProfileClean2</span>, clean <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
-<span><span class="co">#&gt; [1] "The dataset does not contain aggregated continuous data."</span></span></code></pre></div>
+<span><span class="co">#&gt; [1] "No changes were made, because we did not find any aggregated continuous data in your dataframe"</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="wqx-qaqc-service-result-flags">WQX QAQC Service Result Flags<a class="anchor" aria-label="anchor" href="#wqx-qaqc-service-result-flags"></a>
@@ -486,8 +482,8 @@ to clean = FALSE to flag results, but not remove them.</p>
 your dataframe: WQX.AnalyticalMethodValidity. This column flags invalid
 CharacteristicName, ResultAnalyticalMethod/MethodIdentifier, and
 ResultAnalyticalMethod/MethodIdentifierContext combinations in your
-dataset either “Nonstandardized”, “Invalid”, or “Valid”.</p></li>
-<li><p>When clean = TRUE, “Invalid” rows are removed from the dataset
+dataframe either “Nonstandardized”, “Invalid”, or “Valid”.</p></li>
+<li><p>When clean = TRUE, “Invalid” rows are removed from the dataframe
 and no column will be appended.</p></li>
 </ul>
 </li>
@@ -497,8 +493,8 @@ and no column will be appended.</p></li>
 <li><p>When clean = FALSE, this function adds the following column to
 your dataframe: WQX.MethodSpeciationValidity. This column flags each
 CharacteristicName and MethodSpecificationName combination in your
-dataset as either “Nonstandardized”, “Invalid”, or “Valid”.</p></li>
-<li><p>When clean = TRUE, “Invalid” rows are removed from the dataset
+dataframe as either “Nonstandardized”, “Invalid”, or “Valid”.</p></li>
+<li><p>When clean = TRUE, “Invalid” rows are removed from the dataframe
 and no column will be appended.</p></li>
 </ul>
 </li>
@@ -506,11 +502,11 @@ and no column will be appended.</p></li>
 <p>?InvalidResultUnit</p>
 <ul>
 <li><p>When clean = FALSE, the following column will be added to your
-dataset: WQX.ResultUnitValidity. This column flags each
+dataframe: WQX.ResultUnitValidity. This column flags each
 CharacteristicName, ActivityMediaName, and ResultMeasure/MeasureUnitCode
-combination in your dataset as either “Nonstandardized”, “Invalid”, or
+combination in your dataframe as either “Nonstandardized”, “Invalid”, or
 “Valid”.</p></li>
-<li><p>When clean = TRUE, “Invalid” rows are removed from the dataset
+<li><p>When clean = TRUE, “Invalid” rows are removed from the dataframe
 and no column will be appended.</p></li>
 </ul>
 </li>
@@ -520,17 +516,17 @@ and no column will be appended.</p></li>
 <li>When clean = FALSE, this function adds the following column to your
 dataframe: WQX.SampleFractionValidity. This column flags each
 CharacteristicName and ResultSampleFractionText combination in your
-dataset as either “Nonstandardized”, “Invalid”, or “Valid”.</li>
-<li>When clean = TRUE, “Invalid” rows are removed from the dataset and
+dataframe as either “Nonstandardized”, “Invalid”, or “Valid”.</li>
+<li>When clean = TRUE, “Invalid” rows are removed from the dataframe and
 no column will be appended.</li>
 </ul>
 </li>
 </ul>
 <div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">TADAProfileClean4</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/InvalidMethod.html">InvalidMethod</a></span><span class="op">(</span><span class="va">TADAProfileClean3</span>, clean <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
-<span><span class="co">#&gt; [1] "No changes were made, because we did not find any invalid method/characteristic combinations in your dataset."</span></span>
+<span><span class="co">#&gt; [1] "No changes were made, because we did not find any invalid method/characteristic combinations in your dataframe"</span></span>
 <span><span class="va">TADAProfileClean5</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/InvalidFraction.html">InvalidFraction</a></span><span class="op">(</span><span class="va">TADAProfileClean4</span>, clean <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
-<span><span class="co">#&gt; [1] "All data is valid, therefore the function cannot be applied."</span></span>
+<span><span class="co">#&gt; [1] "No changes were made, because we did not find any invalid fraction/characteristic combinations in your dataframe"</span></span>
 <span><span class="va">TADAProfileClean6</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/InvalidSpeciation.html">InvalidSpeciation</a></span><span class="op">(</span><span class="va">TADAProfileClean5</span>, clean <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
 <span><span class="va">TADAProfileClean7</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/InvalidResultUnit.html">InvalidResultUnit</a></span><span class="op">(</span><span class="va">TADAProfileClean6</span>, clean <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
 </div>
@@ -545,20 +541,20 @@ unit combination. See documentation for more details:</p>
 <p>?AboveNationalWQXUpperThreshold</p>
 <ul>
 <li><p>When clean = FALSE, the following column is added to your
-dataset: AboveWQXUpperThreshold. This column flags rows with data that
+dataframe: AboveWQXUpperThreshold. This column flags rows with data that
 are above the upper WQX threshold.</p></li>
 <li><p>When clean = TRUE, data that is above the upper WQX threshold is
-removed from the dataset.</p></li>
+removed from the dataframe.</p></li>
 </ul>
 </li>
 <li>
 <p>?BelowNationalWQXUpperThreshold</p>
 <ul>
 <li><p>When clean = FALSE, the following column is added to your
-dataset: BelowWQXUpperThreshold. This column flags rows with data that
+dataframe: BelowWQXUpperThreshold. This column flags rows with data that
 are below the lower WQX threshold.</p></li>
 <li><p>When clean = TRUE, data that is below the lower WQX threshold is
-removed from the dataset.</p></li>
+removed from the dataframe.</p></li>
 </ul>
 </li>
 </ul>
@@ -585,17 +581,17 @@ the following into the console:</p>
 <ul>
 <li><p>When clean = FALSE, the following column will be added to you
 dataframe: TADA.PotentialDupRowID. This column flags potential duplicate
-rows of data in your dataset, and assigns each potential duplicate
+rows of data in your dataframe, and assigns each potential duplicate
 combination a unique number linking the two potential duplication
 rows.</p></li>
 <li><p>When clean = FALSE the first of each group of potential duplicate
-rows will be removed from the dataset and no column is
+rows will be removed from the dataframe and no column is
 appended.</p></li>
 </ul>
 </li>
 </ul>
 <p>When clean = TRUE, the function retains the first occurrence of each
-potential duplicate in the dataset. Default is clean = TRUE.</p>
+potential duplicate in the dataframe. Default is clean = TRUE.</p>
 <div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">TADAProfileClean10</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/PotentialDuplicateRowID.html">PotentialDuplicateRowID</a></span><span class="op">(</span><span class="va">TADAProfileClean9</span><span class="op">)</span></span></code></pre></div>
 </div>
@@ -605,7 +601,7 @@ potential duplicate in the dataset. Default is clean = TRUE.</p>
 <p>Function identifies and flags invalid coordinate data.</p>
 <p>When clean_outsideUSA = FALSE and clean_imprecise = FALSE, a column
 will be appended titled “TADA.InvalidCoordinates” with the following
-flags (if relevant to dataset).</p>
+flags (if relevant to dataframe).</p>
 <ul>
 <li><p>If the latitude is less than zero, the row will be flagged with
 “LAT_OutsideUSA”.</p></li>
@@ -644,14 +640,13 @@ anything.</p>
 to determine if a QAPP document is available to review. When clean =
 FALSE, a column will be appended to flag results that do have an
 associated QAPP document URL provided. When clean = TRUE, rows that do
-not have an associated QAPP document are removed from the dataset and no
-column will be appended. This function should only be used to remove
+not have an associated QAPP document are removed from the dataframe and
+no column will be appended. This function should only be used to remove
 data if an accompanying QAPP document is required to use data in
 assessments.</p>
 <div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">TADAProfileClean13</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/QAPPDocAvailable.html">QAPPDocAvailable</a></span><span class="op">(</span><span class="va">TADAProfileClean12</span>, clean <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Warning in QAPPDocAvailable(TADAProfileClean12, clean = FALSE): The dataset does</span></span>
-<span><span class="co">#&gt; not contain QAPP document url data.</span></span></code></pre></div>
+<span><span class="co">#&gt; [1] "No changes were made, because we did not find any QAPP document url data in your dataframe"</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="filter-data-by-field">Filter data by field<a class="anchor" aria-label="anchor" href="#filter-data-by-field"></a>
@@ -679,8 +674,8 @@ in each field.</p>
 <span><span class="co">#&gt; 13         MonitoringLocationTypeName    14</span></span>
 <span><span class="co">#&gt; 14                        ProjectName     8</span></span></code></pre></div>
 <p>Next, choose a field from the list to see the unique values in that
-field, as well as the number of times each value appears in the dataset.
-We’ll start with ActivityTypeCode.</p>
+field, as well as the number of times each value appears in the
+dataframe. We’ll start with ActivityTypeCode.</p>
 <p>Here is a list of other fields to review:</p>
 <ol style="list-style-type: decimal">
 <li>
@@ -735,8 +730,8 @@ ResultStatusIdentifier field.</p>
 <p>In this section a TADA user will want to select a parameter, review
 the unique values associated with that parameter in specific fields, and
 choose to remove particular values.</p>
-<p>To start, review the list of parameters in the dataset. (The list is
-sorted from highest to lowest counts. Only the first few rows are
+<p>To start, review the list of parameters in the dataframe. (The list
+is sorted from highest to lowest counts. Only the first few rows are
 displayed to save space on the page)</p>
 <div class="sourceCode" id="cb25"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/FilterParList.html">FilterParList</a></span><span class="op">(</span><span class="va">TADAProfileClean15</span><span class="op">)</span></span>
@@ -798,8 +793,8 @@ specify that we want to remove rows where the CharacteristicName is
 Standards<a class="anchor" aria-label="anchor" href="#transform-characteristic-speciation-and-unit-values-to-tada-standards"></a>
 </h2>
 <p>The HarmonizeRefTable function generates a harmonization reference
-table that is specific to the input dataset. Users can review how their
-input data relates to standard TADA values for the following
+table that is specific to the input dataframe. Users can review how
+their input data relates to standard TADA values for the following
 elements:</p>
 <ul>
 <li><p>CharacteristicName</p></li>
@@ -807,7 +802,7 @@ elements:</p>
 <li><p>MethodSpecicationName</p></li>
 <li><p>ResultMeasure.MeasureUnitCode</p></li>
 </ul>
-<p>The HarmonizeData function then compares the input dataset to the
+<p>The HarmonizeData function then compares the input dataframe to the
 TADA Harmonization Reference Table. The purpose of the function is to
 make similar data consistent and therefore easier to compare and
 analyze.</p>
@@ -817,8 +812,8 @@ file to your current working directory when download = TRUE, the default
 is download = FALSE.</p>
 <p>Optional outputs include:</p>
 <ol style="list-style-type: decimal">
-<li><p>the dataset with Harmonization columns appended,</p></li>
-<li><p>the dataset with CharacteristicName, ResultSampleFractionText,
+<li><p>the dataframe with Harmonization columns appended,</p></li>
+<li><p>the dataframe with CharacteristicName, ResultSampleFractionText,
 MethodSpecificationName, and ResultMeasure.MeasureUnitCode converted to
 TADA standards or</p></li>
 <li><p>the four fields converted with most Harmonization Reference Table

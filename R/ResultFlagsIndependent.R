@@ -368,9 +368,9 @@ AboveNationalWQXUpperThreshold <- function(.data, clean = TRUE) {
     by.y = c("Characteristic", "Source", "Value"), all.x = TRUE
     )
 
-    # If ResultMeasureValue is not numeric, run WQXTargetUnits function to convert class to numeric
+    # If ResultMeasureValue is not numeric, run ConvertDepthUnits function to convert class to numeric
     if (!is.numeric(check.data$ResultMeasureValue)) {
-      check.data <- WQXTargetUnits(check.data, transform = TRUE)
+      check.data <- ConvertDepthUnits(check.data, transform = TRUE)
     }
 
     # Create flag column, flag rows where ResultMeasureValue > Maximum
@@ -483,9 +483,9 @@ BelowNationalWQXUpperThreshold <- function(.data, clean = TRUE) {
     by.y = c("Characteristic", "Source", "Value"), all.x = TRUE
     )
 
-    # If ResultMeasureValue is not numeric, run WQXTargetUnits function to convert class to numeric
+    # If ResultMeasureValue is not numeric, run ConvertDepthUnits function to convert class to numeric
     if (!is.numeric(check.data$ResultMeasureValue)) {
-      check.data <- WQXTargetUnits(check.data, transform = TRUE)
+      check.data <- ConvertDepthUnits(check.data, transform = TRUE)
     }
 
     # Create flag column, flag rows where ResultMeasureValue < Minimum

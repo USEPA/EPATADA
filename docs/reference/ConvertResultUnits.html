@@ -64,7 +64,7 @@ Exchange (WQX) 3.0 QAQC Characteristic Validation table.</p>
     <div class="section level2">
     <h2 id="arguments">Arguments<a class="anchor" aria-label="anchor" href="#arguments"></a></h2>
     <dl><dt>.data</dt>
-<dd><p>TADA dataset</p></dd>
+<dd><p>TADA dataframe</p></dd>
 
 
 <dt>transform</dt>
@@ -82,7 +82,7 @@ and "DetectionQuantitationLimitMeasure.MeasureUnitCode" to the WQX target units 
 converts respective values within the "ResultMeasureValue" and "DetectionQuantitationLimitMeasure.MeasureValue"
 fields. In addition to "WQX.ResultMeasureValue.UnitConversion"
 and "WQX.DetectionLimitMeasureValue.UnitConversion", transform=TRUE will add
-the following two fields to the input dataset, "ResultMeasureUnitCode.Original",
+the following two fields to the input dataframe, "ResultMeasureUnitCode.Original",
 and "DetectionLimitMeasureUnitCode.Original", to retain the original result
 and unit values.</p>
 
@@ -91,18 +91,18 @@ and unit values.</p>
 but columns are appended to indicate what the target units and conversion factors are,
 and if the data can be converted. In addition to "WQX.ResultMeasureValue.UnitConversion"
 and "WQX.DetectionLimitMeasureValue.UnitConversion",  transform=FALSE will add the
-following two fields to the input dataset: "WQX.ConversionFactor" and "WQX.TargetUnit".</p>
+following two fields to the input dataframe: "WQX.ConversionFactor" and "WQX.TargetUnit".</p>
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
-    <p>This function will ALWAYS add the following two columns to the input dataset:</p><ol><li><p>"WQX.ResultMeasureValue.UnitConversion",</p></li>
+    <p>This function will ALWAYS add the following two columns to the input dataframe:</p><ol><li><p>"WQX.ResultMeasureValue.UnitConversion",</p></li>
 <li><p>"WQX.DetectionLimitMeasureValue.UnitConversion"
 These two fields indicate if data can be converted."NoResultValue" means data
 cannot be converted because there is no ResultMeasureValue, and "NoTargetUnit"
 means data cannot be converted because the original unit is not associated with a target unit in WQX.
 "Convert" means the data can be transformed, and "Converted" means that this function
 has been run with the input transform = TRUE, and the values were already converted.</p></li>
-</ol><p>It also uses the following six fields from the input dataset:</p><ol><li><p>"CharacteristicName",</p></li>
+</ol><p>It also uses the following six fields from the input dataframe:</p><ol><li><p>"CharacteristicName",</p></li>
 <li><p>"ActivityMediaName",</p></li>
 <li><p>"ResultMeasureValue",</p></li>
 <li><p>"ResultMeasure.MeasureUnitCode",</p></li>

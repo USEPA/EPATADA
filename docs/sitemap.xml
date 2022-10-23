@@ -46,6 +46,15 @@
     <loc>usepa.github.io/tada/reference/BelowNationalWQXUpperThreshold.html</loc>
   </url>
   <url>
+    <loc>usepa.github.io/tada/reference/CensoredDataStats.html</loc>
+  </url>
+  <url>
+    <loc>usepa.github.io/tada/reference/ConvertDepthUnits.html</loc>
+  </url>
+  <url>
+    <loc>usepa.github.io/tada/reference/ConvertResultUnits.html</loc>
+  </url>
+  <url>
     <loc>usepa.github.io/tada/reference/decimalnumcount.html</loc>
   </url>
   <url>
@@ -80,6 +89,9 @@
   </url>
   <url>
     <loc>usepa.github.io/tada/reference/HarmonizationRefTable.html</loc>
+  </url>
+  <url>
+    <loc>usepa.github.io/tada/reference/HarmonizeCensoredData.html</loc>
   </url>
   <url>
     <loc>usepa.github.io/tada/reference/HarmonizeData.html</loc>
