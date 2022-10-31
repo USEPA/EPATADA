@@ -41,9 +41,9 @@ test_that("ConvertDepthUnits catches non-dataframe", {
 
 # When unit arg is not expected
 test_that("ConvertDepthUnits catches bad unit arg", {
-  # Must escape regex special characters
-  err <- "Invalid \'unit\' argument. \'unit\' must be either \'m\' \\(meter\\), \'ft\' \\(feet\\), or \'in\' \\(inch\\)\\."
-  expect_error(ConvertDepthUnits(TADAProfile, unit = "km"), err)
+  err <- "Invalid 'unit' argument. 'unit' must be either 'm' (meter), 'ft' (feet), or 'in' (inch)."
+  # Fixed = TRUE avoids dealing with regex
+  expect_error(ConvertDepthUnits(TADAProfile, unit = "km"), err, fixed = TRUE)
 })
 
 # When fields arg is not valid
