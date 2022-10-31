@@ -53,14 +53,9 @@
 
 ConvertResultUnits <- function(.data, transform = TRUE) {
   # check .data is data.frame
-  if (is.data.frame(.data) == FALSE) {
-    stop("Input object must be of class 'data.frame'")
-  }
+  checkType(.data, "data.frame")
   # check transform is boolean
-  if (is.logical(transform) == FALSE) {
-    stop("transform argument must be Boolean (TRUE or FALSE)")
-  }
-  
+  checkType(transform, "logical")
   # check .data has all of the required columns
   expected_cols <- c(
     "CharacteristicName", "ActivityMediaName", "ResultMeasureValue",
@@ -68,9 +63,8 @@ ConvertResultUnits <- function(.data, transform = TRUE) {
     "DetectionQuantitationLimitMeasure.MeasureValue",
     "DetectionQuantitationLimitMeasure.MeasureUnitCode"
     )
-  if (all(expected_cols %in% colnames(.data)) == FALSE) {
-    stop("The dataframe does not contain the required fields to use TADA. Use either the full physical/chemical profile downloaded from WQP or download the TADA profile template available on the EPA TADA webpage.")
-  }
+  checkColumns(.data, expected_cols)
+
   # execute function after checks are passed
 
   # if class(ResultMeasureValue) != numeric, run special char function
@@ -328,8 +322,8 @@ ConvertResultUnits <- function(.data, transform = TRUE) {
 #' 
 #' @return When transform = true, the input dataframe is returned with all depth
 #' data converted to the target unit; no additional columns are added.
-#' When transform = FALSE, the input dataframe is returned with additional columns
-#' including... be specific here ... 
+#' When transform = FALSE, the input dataframe is returned with additional
+#' columns including... be specific here ... 
 #' 
 #' @export
 #'
@@ -342,16 +336,19 @@ ConvertDepthUnits <- function(.data,
                                          "ResultDepthHeightMeasure"),
                               transform = TRUE) {
   # check .data is data.frame
-  if (is.data.frame(.data) == FALSE) {
-    stop("Input object must be of class 'data.frame'")
-  }
-  # check unit argument for valid number of inputs
+  checkType(.data, "data.frame")
+  # check unit is character
+  checkType(unit, "character")
+  # check unit argument for valid number of inputs (e.g., vector of character)
   if (length(unit) != 1) {
-    stop("Invalid 'unit' argument. 'unit' accepts only one allowable value as an input. 'unit' must be one of either 'm' (meter), 'ft' (feet), or 'in' (inch).")
+    stop("Invalid 'unit' argument. 'unit' accepts only one allowable value as an
+         input. 'unit' must be one of either 'm' (meter), 'ft' (feet), or 'in'
+         (inch).")
   }
   # check unit argument for valid inputs
   if (all(is.na(match(c("m", "ft", "in"), unit))) == TRUE) {
-    stop("Invalid 'unit' argument. 'unit' must be either 'm' (meter), 'ft' (feet), or 'in' (inch).")
+    stop("Invalid 'unit' argument. 'unit' must be either 'm' (meter), 'ft'
+         (feet), or 'in' (inch).")
   }
   # check fields argument for valid inputs
   valid_fields <- c("ActivityDepthHeightMeasure",
@@ -364,9 +361,7 @@ ConvertDepthUnits <- function(.data,
     'ActivityBottomDepthHeightMeasure,' and/or 'ResultDepthHeightMeasure.'")
   }
   # check transform is boolean
-  if (is.logical(transform) == FALSE) {
-    stop("transform argument must be Boolean (TRUE or FALSE)")
-  }
+  checkType(transform, "logical")
   
   # .data required columns
   expected_cols <-c(
@@ -380,9 +375,8 @@ ConvertDepthUnits <- function(.data,
     "ResultDepthHeightMeasure.MeasureUnitCode",
     "ActivityEndTime.TimeZoneCode"
     )
-  if (all(expected_cols %in% colnames(.data)) == FALSE) {
-    stop("The dataframe does not contain the required fields to use TADA. Use either the full physical/chemical profile downloaded from WQP or download the TADA profile template available on the EPA TADA webpage.")
-  }
+  checkColumns(.data, expected_cols)
+  
   # execute function after checks are passed
   # define check.data (to preserve .data and avoid mistakes with if statements below)
   check.data <- .data
@@ -600,8 +594,6 @@ ConvertDepthUnits <- function(.data,
     # clean.data <- dplyr::select(clean.data, -"WQX.Depth.TargetUnit")
     
     return(clean.data)
-  } else {
-    stop("'transform' argument must be Boolean (TRUE or FALSE)")
   }
 }
 
@@ -626,17 +618,10 @@ ConvertDepthUnits <- function(.data,
 #' @export
 
 HarmonizationRefTable <- function(.data, download = FALSE) {
-  
-  # check that .data object is compatible with TADA
-  # check .data is of class data.frame
-  if (("data.frame" %in% class(.data)) == FALSE) {
-    stop("Input object must be of class 'data.frame'")
-  }
-
-  # check if download is boolean
-  if (is.logical(download) == FALSE) {
-    stop("download argument must be Boolean (TRUE or FALSE)")
-  }
+  # check .data is data.frame
+  checkType(.data, "data.frame")
+  # check download is boolean
+  checkType(download, "logical")
   
   # check .data has the required columns
   expected_cols <- c(
@@ -644,9 +629,8 @@ HarmonizationRefTable <- function(.data, download = FALSE) {
     "MethodSpecificationName",
     "ResultMeasure.MeasureUnitCode"
     )
-  if (all(expected_cols %in% colnames(.data)) == FALSE) {
-      stop("The dataframe does not contain the required fields to use TADA. Use either the full physical/chemical profile downloaded from WQP or download the TADA profile template available on the EPA TADA webpage.")
-  }
+  checkColumns(.data, expected_cols)
+  
   # execute function after checks are passed
   # define raw harmonization table as an object
   harm.raw <- utils::read.csv(system.file("extdata", "HarmonizationTemplate.csv", package = "TADA"))
@@ -740,26 +724,22 @@ HarmonizationRefTable <- function(.data, download = FALSE) {
 #' @export
 
 HarmonizeData <- function(.data, ref, transform = TRUE, flag = TRUE) {
+  # check .data is data.frame
+  checkType(.data, "data.frame")
+  # check ref is data.frame
+  checkType(ref, "data.frame")  
+  # check transform is boolean
+  checkType(transform, "logical")
+  # check flag is boolean
+  checkType(flag, "logical")
 
-  # check that .data object is compatible with TADA
-  # check .data is of class data.frame
-  if (("data.frame" %in% class(.data)) == FALSE) {
-    stop(".data must be of class 'data.frame'")
-  }
-  # check ref is of class data.frame, if it exists
-  if (!missing(ref)) {
-    if (("data.frame" %in% class(ref)) == FALSE) {
-      stop("ref must be of class 'data.frame'")
-    }
-  }
-  # check .data has all of the required columns
+  # check .data has the required columns
   expected_cols <- c(
     "CharacteristicName", "ResultSampleFractionText",
     "MethodSpecificationName", "ResultMeasure.MeasureUnitCode"
     )
-  if (all(expected_cols %in% colnames(.data)) == FALSE) {
-    stop("The dataframe does not contain the required fields to use TADA. Use either the full physical/chemical profile downloaded from WQP or download the TADA profile template available on the EPA TADA webpage.")
-  }
+  checkColumns(.data, expected_cols)
+
   # check ref has all of the required columns
   expected_ref_cols <- c(
     "TADA.SuggestedCharacteristicName",
@@ -768,25 +748,17 @@ HarmonizeData <- function(.data, ref, transform = TRUE, flag = TRUE) {
     "TADA.SuggestedResultUnit"
     )
   if (!missing(ref)) {
-    if (all(expected_ref_cols %in% colnames(ref)) == FALSE) {
-      stop("The 'ref' input dataframe does not contain the required fields to use TADA. Use either the full physical/chemical profile downloaded from WQP or download the TADA profile template available on the EPA TADA webpage.")
-    }
+    checkColumns(ref, expected_ref_cols)
   }
-  # check if transform is boolean
-  if (is.logical(transform) == FALSE) {
-    stop("transform argument must be Boolean (TRUE or FALSE)")
-  }
-  # check if flag is boolean
-  if (is.logical(flag) == FALSE) {
-    stop("flag argument must be Boolean (TRUE or FALSE)")
-  }
+
   # check that both transform and flag do NOT equal FALSE
   if (transform == FALSE & flag == FALSE) {
-    stop("Both 'transform' and 'flag' arguments equal FALSE, which would return the input dataframe unchanged. One or both arguments must be equal to TRUE.")
+    stop("Both 'transform' and 'flag' arguments equal FALSE, which would return
+         the input dataframe unchanged. One or both arguments must be equal to
+         TRUE.")
   }
 
   # execute function after checks are passed
-  
   if (all(c(
     "CharacteristicName", "ActivityMediaName", "ResultMeasureValue",
     "ResultMeasure.MeasureUnitCode"
@@ -1012,12 +984,9 @@ HarmonizeData <- function(.data, ref, transform = TRUE, flag = TRUE) {
 #' 
 
 HarmonizeCensoredData <- function(transform, .data) {
-  
-  # check .data is of class data.frame
+  # if .data specified, check .data is data.frame
   if (!missing(.data)) {
-    if (("data.frame" %in% class(.data)) == FALSE) {
-      stop(".data must be of class 'data.frame'")
-    }
+    checkType(.data, "data.frame")
   }
   # execute function after checks are passed 
   {
@@ -1036,12 +1005,9 @@ HarmonizeCensoredData <- function(transform, .data) {
 #' 
 
 CensoredDataStats <- function(.data) {
-  
-  # check .data is of class data.frame
+  # if .data specified, check .data is data.frame
   if (!missing(.data)) {
-    if (("data.frame" %in% class(.data)) == FALSE) {
-      stop(".data must be of class 'data.frame'")
-    }
+    checkType(.data, "data.frame")
   }
   # execute function after checks are passed 
   {
@@ -1049,9 +1015,39 @@ CensoredDataStats <- function(.data) {
   }
 }
 
-typeCheck <- function(arg, type) {
+
+#' Check Type
+#'
+#' This function checks if the inputs to a function are of the expected type. It
+#' is used at the beginning of TADA functions to ensure the
+#' inputs are suitable.
+#'
+#' @param arg An input argument to check
+#' @param type Expected class of input argument
+#'
+
+checkType <- function(arg, type) {
   if ((type %in% class(arg)) == FALSE) {
     errorMessage <- paste(arg, 'must be of class', type)
     return(stop(errorMessage))
+  }
+}
+
+
+#' Check Columns
+#'
+#' This function checks if the expected column names are in the dataframe. It is
+#' used at the beginning of TADA functions to ensure the input data frame is
+#' suitable (i.e. is either the full physical/chemical results profile
+#' downloaded from WQP or the TADA profile template downloaded from the EPA TADA
+#' webpage.)
+#'
+#' @param .data A dataframe
+#' @param expected_cols A vector of expected column names as strings
+#'
+
+checkColumns <- function(.data, expected_cols) {
+  if (all(expected_cols %in% colnames(.data)) == FALSE) {
+    stop("The dataframe does not contain the required fields to use TADA. Use either the full physical/chemical profile downloaded from WQP or download the TADA profile template available on the EPA TADA webpage.")
   }
 }
