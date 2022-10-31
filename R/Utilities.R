@@ -362,3 +362,45 @@ TADAprofileCheck <- function(.data) {
     stop("The dataframe does not contain the required fields to use TADA. Use either the full physical/chemical profile downloaded from WQP or download the TADA profile template available on the EPA TADA webpage.")
   }
 }
+
+
+#' Check Type
+#'
+#' This function checks if the inputs to a function are of the expected type. It
+#' is used at the beginning of TADA functions to ensure the
+#' inputs are suitable.
+#'
+#' @param arg An input argument to check
+#' @param type Expected class of input argument
+#' @param paramName Optional name for argument to use in error message
+#'
+
+checkType <- function(arg, type, paramName) {
+  if ((type %in% class(arg)) == FALSE) {
+    # if optional parameter name not specified use arg in errorMessage
+    if (missing(paramName)) {
+      paramName = arg
+    }
+    errorMessage <- paste(paramName, " must be of class '", type, "'", sep = "")
+    return(stop(errorMessage))
+  }
+}
+
+
+#' Check Columns
+#'
+#' This function checks if the expected column names are in the dataframe. It is
+#' used at the beginning of TADA functions to ensure the input data frame is
+#' suitable (i.e. is either the full physical/chemical results profile
+#' downloaded from WQP or the TADA profile template downloaded from the EPA TADA
+#' webpage.)
+#'
+#' @param .data A dataframe
+#' @param expected_cols A vector of expected column names as strings
+#'
+
+checkColumns <- function(.data, expected_cols) {
+  if (all(expected_cols %in% colnames(.data)) == FALSE) {
+    stop("The dataframe does not contain the required fields to use TADA. Use either the full physical/chemical profile downloaded from WQP or download the TADA profile template available on the EPA TADA webpage.")
+  }
+}
