@@ -53,7 +53,7 @@
 
 ConvertResultUnits <- function(.data, transform = TRUE) {
   # check .data is data.frame
-  checkType(.data, "data.frame")
+  checkType(.data, "data.frame", "Input object")
   # check transform is boolean
   checkType(transform, "logical")
   # check .data has all of the required columns
@@ -336,7 +336,7 @@ ConvertDepthUnits <- function(.data,
                                          "ResultDepthHeightMeasure"),
                               transform = TRUE) {
   # check .data is data.frame
-  checkType(.data, "data.frame")
+  checkType(.data, "data.frame", "Input object")
   # check unit is character
   checkType(unit, "character")
   # check unit argument for valid number of inputs (e.g., vector of character)
@@ -347,8 +347,7 @@ ConvertDepthUnits <- function(.data,
   }
   # check unit argument for valid inputs
   if (all(is.na(match(c("m", "ft", "in"), unit))) == TRUE) {
-    stop("Invalid 'unit' argument. 'unit' must be either 'm' (meter), 'ft'
-         (feet), or 'in' (inch).")
+    stop("Invalid 'unit' argument. 'unit' must be either 'm' (meter), 'ft' (feet), or 'in' (inch).")
   }
   # check fields argument for valid inputs
   valid_fields <- c("ActivityDepthHeightMeasure",
@@ -619,7 +618,7 @@ ConvertDepthUnits <- function(.data,
 
 HarmonizationRefTable <- function(.data, download = FALSE) {
   # check .data is data.frame
-  checkType(.data, "data.frame")
+  checkType(.data, "data.frame", "Input object")
   # check download is boolean
   checkType(download, "logical")
   
@@ -725,7 +724,7 @@ HarmonizationRefTable <- function(.data, download = FALSE) {
 
 HarmonizeData <- function(.data, ref, transform = TRUE, flag = TRUE) {
   # check .data is data.frame
-  checkType(.data, "data.frame")
+  checkType(.data, "data.frame", "Input object")
   # check ref is data.frame
   checkType(ref, "data.frame")  
   # check transform is boolean
@@ -986,7 +985,7 @@ HarmonizeData <- function(.data, ref, transform = TRUE, flag = TRUE) {
 HarmonizeCensoredData <- function(transform, .data) {
   # if .data specified, check .data is data.frame
   if (!missing(.data)) {
-    checkType(.data, "data.frame")
+    checkType(.data, "data.frame", "Input object")
   }
   # execute function after checks are passed 
   {
@@ -1007,7 +1006,7 @@ HarmonizeCensoredData <- function(transform, .data) {
 CensoredDataStats <- function(.data) {
   # if .data specified, check .data is data.frame
   if (!missing(.data)) {
-    checkType(.data, "data.frame")
+    checkType(.data, "data.frame", "Input object")
   }
   # execute function after checks are passed 
   {
@@ -1024,11 +1023,16 @@ CensoredDataStats <- function(.data) {
 #'
 #' @param arg An input argument to check
 #' @param type Expected class of input argument
+#' @param paramName Optional name for argument to use in error message
 #'
 
-checkType <- function(arg, type) {
+checkType <- function(arg, type, paramName) {
   if ((type %in% class(arg)) == FALSE) {
-    errorMessage <- paste(arg, 'must be of class', type)
+    # if optional parameter name not specified use arg in errorMessage
+    if (missing(paramName)) {
+      paramName = arg
+    }
+    errorMessage <- paste(paramName, " must be of class '", type, "'", sep = "")
     return(stop(errorMessage))
   }
 }
