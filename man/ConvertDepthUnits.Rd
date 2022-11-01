@@ -37,8 +37,8 @@ desired by using this feature.}
 \value{
 When transform = true, the input dataframe is returned with all depth
 data converted to the target unit; no additional columns are added.
-When transform = FALSE, the input dataframe is returned with additional columns
-including... be specific here ...
+When transform = FALSE, the input dataframe is returned with additional
+columns including... be specific here ...
 }
 \description{
 Default is transform = TRUE. When transform = TRUE, all depth data is converted

@@ -14,12 +14,8 @@ TADA.env <- new.env()
 #'
 
 FilterFields <- function(.data) {
-
-  # check that .data object is compatible with TADA
-  # check .data is of class data.frame
-  if ("data.frame" %in% class(.data) == FALSE) {
-    stop("Input object must be of class 'data.frame'")
-  }
+  # check .data is data.frame
+  checkType(.data, "data.frame", "Input object")
 
   # CREATE LIST OF FIELDS
   # Find count of unique values in each column
@@ -96,12 +92,9 @@ FilterFields <- function(.data) {
 #'
 
 FilterFieldReview <- function(field, .data) {
-
-  # check .data is of class data.frame
+  # if provided, check .data is data.frame
   if (!missing(.data)) {
-    if (("data.frame" %in% class(.data)) == FALSE) {
-      stop(".data must be of class 'data.frame'")
-    }
+    checkType(.data, "data.frame", "Input object")
   }
   # execute function after checks are passed
 
@@ -172,16 +165,11 @@ FilterParList <- function(.data) {
 #'
 
 FilterParFields <- function(.data, parameter) {
-
-  # check that .data object is compatible with TADA
-  # check .data is of class data.frame
-  if ("data.frame" %in% class(.data) == FALSE) {
-    stop("Input object must be of class 'data.frame'")
-  }
+  # check .data is data.frame
+  checkType(.data, "data.frame", "Input object")
   # check .data has required columns
-  if (("CharacteristicName" %in% colnames(.data)) == FALSE) {
-    stop("The dataframe does not contain the required fields to use TADA. Use either the full physical/chemical profile downloaded from WQP or download the TADA profile template available on the EPA TADA webpage.")
-  }
+  checkColumns(.data, "CharacteristicName")
+  
   # check parameter is in .data
   if ((parameter %in% .data$CharacteristicName) == FALSE) {
     stop("Input parameter is not in the input dataframe.")
@@ -276,12 +264,9 @@ FilterParFields <- function(.data, parameter) {
 #'
 
 FilterParFieldReview <- function(field, .data, parameter) {
-
-  # check .data is of class data.frame
+  # if provided, check .data is data.frame
   if (!missing(.data)) {
-    if (("data.frame" %in% class(.data)) == FALSE) {
-      stop(".data must be of class 'data.frame'")
-    }
+    checkType(.data, "data.frame", "Input object")
   }
   # check parameter is in .data
   if (!missing(parameter)) {
