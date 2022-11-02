@@ -14,7 +14,7 @@ threshold from the dataframe when clean = TRUE. Default is clean = TRUE}
 }
 \value{
 When clean = FALSE, the following column is added to your dataframe:
-AboveWQXUpperThreshold. This column flags rows with data that are above
+AboveNationalWQXUpperThreshold. This column flags rows with data that are above
 the upper WQX threshold. When clean = TRUE, data that is above the upper
 WQX threshold is removed from the dataframe.
 }
