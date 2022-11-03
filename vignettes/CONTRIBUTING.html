@@ -1,0 +1,541 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+
+
+<meta name="date" content="2022-11-03" />
+
+<title>Contributing</title>
+
+<script>// Pandoc 2.9 adds attributes on both header and div. We remove the former (to
+// be compatible with the behavior of Pandoc < 2.8).
+document.addEventListener('DOMContentLoaded', function(e) {
+  var hs = document.querySelectorAll("div.section[class*='level'] > :first-child");
+  var i, h, a;
+  for (i = 0; i < hs.length; i++) {
+    h = hs[i];
+    if (!/^h[1-6]$/i.test(h.tagName)) continue;  // it should be a header h1-h6
+    a = h.attributes;
+    while (a.length > 0) h.removeAttribute(a[0].name);
+  }
+});
+</script>
+
+<style type="text/css">
+  code{white-space: pre-wrap;}
+  span.smallcaps{font-variant: small-caps;}
+  span.underline{text-decoration: underline;}
+  div.column{display: inline-block; vertical-align: top; width: 50%;}
+  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+  ul.task-list{list-style: none;}
+    </style>
+
+
+
+<style type="text/css">
+  code {
+    white-space: pre;
+  }
+  .sourceCode {
+    overflow: visible;
+  }
+</style>
+<style type="text/css" data-origin="pandoc">
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+
+</style>
+<script>
+// apply pandoc div.sourceCode style to pre.sourceCode instead
+(function() {
+  var sheets = document.styleSheets;
+  for (var i = 0; i < sheets.length; i++) {
+    if (sheets[i].ownerNode.dataset["origin"] !== "pandoc") continue;
+    try { var rules = sheets[i].cssRules; } catch (e) { continue; }
+    var j = 0;
+    while (j < rules.length) {
+      var rule = rules[j];
+      // check if there is a div.sourceCode rule
+      if (rule.type !== rule.STYLE_RULE || rule.selectorText !== "div.sourceCode") {
+        j++;
+        continue;
+      }
+      var style = rule.style.cssText;
+      // check if color or background-color is set
+      if (rule.style.color === '' && rule.style.backgroundColor === '') {
+        j++;
+        continue;
+      }
+      // replace div.sourceCode by a pre.sourceCode rule
+      sheets[i].deleteRule(j);
+      sheets[i].insertRule('pre.sourceCode{' + style + '}', j);
+    }
+  }
+})();
+</script>
+
+
+
+
+<style type="text/css">body {
+background-color: #fff;
+margin: 1em auto;
+max-width: 700px;
+overflow: visible;
+padding-left: 2em;
+padding-right: 2em;
+font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+font-size: 14px;
+line-height: 1.35;
+}
+#TOC {
+clear: both;
+margin: 0 0 10px 10px;
+padding: 4px;
+width: 400px;
+border: 1px solid #CCCCCC;
+border-radius: 5px;
+background-color: #f6f6f6;
+font-size: 13px;
+line-height: 1.3;
+}
+#TOC .toctitle {
+font-weight: bold;
+font-size: 15px;
+margin-left: 5px;
+}
+#TOC ul {
+padding-left: 40px;
+margin-left: -1.5em;
+margin-top: 5px;
+margin-bottom: 5px;
+}
+#TOC ul ul {
+margin-left: -2em;
+}
+#TOC li {
+line-height: 16px;
+}
+table {
+margin: 1em auto;
+border-width: 1px;
+border-color: #DDDDDD;
+border-style: outset;
+border-collapse: collapse;
+}
+table th {
+border-width: 2px;
+padding: 5px;
+border-style: inset;
+}
+table td {
+border-width: 1px;
+border-style: inset;
+line-height: 18px;
+padding: 5px 5px;
+}
+table, table th, table td {
+border-left-style: none;
+border-right-style: none;
+}
+table thead, table tr.even {
+background-color: #f7f7f7;
+}
+p {
+margin: 0.5em 0;
+}
+blockquote {
+background-color: #f6f6f6;
+padding: 0.25em 0.75em;
+}
+hr {
+border-style: solid;
+border: none;
+border-top: 1px solid #777;
+margin: 28px 0;
+}
+dl {
+margin-left: 0;
+}
+dl dd {
+margin-bottom: 13px;
+margin-left: 13px;
+}
+dl dt {
+font-weight: bold;
+}
+ul {
+margin-top: 0;
+}
+ul li {
+list-style: circle outside;
+}
+ul ul {
+margin-bottom: 0;
+}
+pre, code {
+background-color: #f7f7f7;
+border-radius: 3px;
+color: #333;
+white-space: pre-wrap; 
+}
+pre {
+border-radius: 3px;
+margin: 5px 0px 10px 0px;
+padding: 10px;
+}
+pre:not([class]) {
+background-color: #f7f7f7;
+}
+code {
+font-family: Consolas, Monaco, 'Courier New', monospace;
+font-size: 85%;
+}
+p > code, li > code {
+padding: 2px 0px;
+}
+div.figure {
+text-align: center;
+}
+img {
+background-color: #FFFFFF;
+padding: 2px;
+border: 1px solid #DDDDDD;
+border-radius: 3px;
+border: 1px solid #CCCCCC;
+margin: 0 5px;
+}
+h1 {
+margin-top: 0;
+font-size: 35px;
+line-height: 40px;
+}
+h2 {
+border-bottom: 4px solid #f7f7f7;
+padding-top: 10px;
+padding-bottom: 2px;
+font-size: 145%;
+}
+h3 {
+border-bottom: 2px solid #f7f7f7;
+padding-top: 10px;
+font-size: 120%;
+}
+h4 {
+border-bottom: 1px solid #f7f7f7;
+margin-left: 8px;
+font-size: 105%;
+}
+h5, h6 {
+border-bottom: 1px solid #ccc;
+font-size: 105%;
+}
+a {
+color: #0033dd;
+text-decoration: none;
+}
+a:hover {
+color: #6666ff; }
+a:visited {
+color: #800080; }
+a:visited:hover {
+color: #BB00BB; }
+a[href^="http:"] {
+text-decoration: underline; }
+a[href^="https:"] {
+text-decoration: underline; }
+
+code > span.kw { color: #555; font-weight: bold; } 
+code > span.dt { color: #902000; } 
+code > span.dv { color: #40a070; } 
+code > span.bn { color: #d14; } 
+code > span.fl { color: #d14; } 
+code > span.ch { color: #d14; } 
+code > span.st { color: #d14; } 
+code > span.co { color: #888888; font-style: italic; } 
+code > span.ot { color: #007020; } 
+code > span.al { color: #ff0000; font-weight: bold; } 
+code > span.fu { color: #900; font-weight: bold; } 
+code > span.er { color: #a61717; background-color: #e3d2d2; } 
+</style>
+
+
+
+
+</head>
+
+<body>
+
+
+
+
+<h1 class="title toc-ignore">Contributing</h1>
+<h4 class="date">2022-11-03</h4>
+
+
+<div id="TOC">
+<ul>
+<li><a href="#contribute-to-tada" id="toc-contribute-to-tada">Contribute
+to TADA!</a></li>
+<li><a href="#package-development" id="toc-package-development">Package
+Development</a></li>
+<li><a href="#what-is-github" id="toc-what-is-github">What is
+GitHub?</a></li>
+<li><a href="#required-installations" id="toc-required-installations">Required Installations</a></li>
+<li><a href="#issues" id="toc-issues">Issues</a></li>
+<li><a href="#branches" id="toc-branches">Branches</a></li>
+<li><a href="#additional-references" id="toc-additional-references">Additional References</a></li>
+<li><a href="#open-source-code-policy" id="toc-open-source-code-policy">Open-Source Code Policy</a></li>
+<li><a href="#license" id="toc-license">License</a></li>
+<li><a href="#disclaimer" id="toc-disclaimer">Disclaimer</a></li>
+<li><a href="#contact" id="toc-contact">Contact</a></li>
+</ul>
+</div>
+
+<div id="contribute-to-tada" class="section level2">
+<h2>Contribute to TADA!</h2>
+<p>We encourage you to read this project’s <a href="https://github.com/USEPA/TADA/blob/develop/vignettes/CONTRIBUTING.Rmd">CONTRIBUTING</a>
+policy (you are here), its <a href="https://github.com/USEPA/TADA/blob/develop/LICENSE.md">LICENSE</a>,
+and its <a href="https://github.com/USEPA/TADA/blob/develop/readme.md">README</a>.</p>
+<p>We’re so glad you’re thinking about contributing to an EPA open
+source project! If you’re unsure about anything, just ask — or submit
+your issue or pull request anyway. The worst that can happen is we’ll
+politely ask you to change something. We appreciate all friendly
+contributions.</p>
+<p>No matter who you are, if you spot an error, omission, or bug, you’re
+welcome to open an issue in this repo!</p>
+</div>
+<div id="package-development" class="section level2">
+<h2>Package Development</h2>
+<p>This article will walk through how to contribute to the TADA package.
+It will use a git-forking workflow, but it is not a full git tutorial.
+This is also not a complete guide to R package development (a
+comprehensive guide is <a href="https://r-pkgs.org/">R Packages</a>),
+instead this is meant as more of a checklist for the general steps.
+Several references are included at the bottom for more information on <a href="https://r-pkgs.org/">R-package</a> development and <a href="https://happygitwithr.com/">git</a> workflows.</p>
+</div>
+<div id="what-is-github" class="section level2">
+<h2>What is GitHub?</h2>
+<p>GitHub is a third-party website that offers version-controlled
+repositories that developers and scientists can use to collaborate on
+projects (e.g., software, text, manuscripts, etc.) in real-time. GitHub
+also provides social networking features that allow developers to follow
+open-source projects, share code and learn how code changes are made
+throughout the development process. GitHub is so named because it
+utilizes the open-source version control system (VCS) known as Git.</p>
+<ul>
+<li><p><a href="https://docs.github.com/articles/set-up-git/">Setting Up
+Git</a></p></li>
+<li><p><a href="https://git-scm.com/book/ch1-3.html">Git
+Basics</a></p></li>
+<li><p><a href="https://happygitwithr.com/" title="Great and comprehensive guide for Git with an R flair">Comprehensive
+Guide: Happy Git and GitHub for the useR</a></p></li>
+</ul>
+</div>
+<div id="required-installations" class="section level2">
+<h2>Required Installations</h2>
+<p>There are several programs that are needed before any work can begin.
+With admin access to your computer, you can install all of these,
+otherwise create a ticket with your IT group with the following
+requests. The links provided assume a Windows computer. Adjustments
+might be needed for Mac or Linux OS:</p>
+<ul>
+<li><p><a href="https://cran.r-project.org/bin/windows/base/">R</a></p></li>
+<li><p><a href="https://www.rstudio.com/products/rstudio/download/">RStudio</a></p></li>
+<li><p><a href="https://cran.r-project.org/bin/windows/Rtools/">Rtools</a></p></li>
+<li><p><a href="https://git-scm.com/downloads">Git</a></p></li>
+</ul>
+<p>Once those have been installed, the following R packages will be
+needed for R-package development work:</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">install.packages</span>(<span class="fu">c</span>(<span class="st">&quot;devtools&quot;</span>, <span class="st">&quot;rmarkdown&quot;</span>))</span></code></pre></div>
+</div>
+<div id="issues" class="section level2">
+<h2>Issues</h2>
+<ul>
+<li>If you see an error or have feedback, the best way to let us know is
+to file an issue.</li>
+<li>Issues are labeled to help indicate what they are about. For
+example, we are using “Good First Issue” to indicate issues that be be
+good first pickings for your first contribution to this open-source
+project.</li>
+<li>Pull requests can be directly linked to a specific issue. If linked,
+the Repository Administrators can more easily review the pull request
+and issue at the same time once a contributor submits the pull request.
+The issue can then be closed once the pull request is merged.</li>
+</ul>
+</div>
+<div id="branches" class="section level2">
+<h2>Branches</h2>
+<p>All new development currently happens in the <strong>develop</strong>
+branch.</p>
+<p>To contribute a specific change or new code, outside contributors can
+fork this repo from the <strong>develop</strong> branch. Contributors
+should work from their personal fork and on one specific “task” at a
+time. When complete, they should submit a pull request to request their
+changes be merged into the TADA develop branch. Contributors should
+submit a separate pull request for each “task”.</p>
+<p>“Tasks” should be small in scope. For example, they may pertain to a
+bug fix or update relevant to a single function. A single “task” may
+also encompass the same changes made across many functions if needed.
+Another example of a single “task” could be to make changes to all
+documentation to improve clarity, for example. Furthermore, a task may
+include developing a new function, or a series of related functions. In
+some cases, tasks can also be synonymous with issues, and the pull
+requests can be directly linked to a specific issue (in that case, the
+Repository Administrators will review the pull request and issue at the
+same time and the issue can be closed once the pull request is
+merged).</p>
+<p>Complete the pull request by detailing all fixes and contributions,
+and tagging TADA repo admins who should review the work. For this
+package, please tag cristinamullin (Cristina Mullin) and mthawley
+(Shelly Thawley). Repository Administrators will review code
+contributions from external collaborators and integrate code commits
+into source code. This is done to ensure code stability and consistency
+and prevent degradation of code performance. After review, the admin
+will either accept the submission, recommend specific improvements to
+the submission, or in some cases reject the submission. To avoid issues,
+developers contributing code should contact the repository admins
+(Cristina or) early in the development process and maintain contact
+throughout to help ensure the submission is compatible with the code
+base and is a robust addition.</p>
+</div>
+<div id="additional-references" class="section level2">
+<h2>Additional References</h2>
+<ul>
+<li><p><a href="https://r-pkgs.org/">R Packages</a></p></li>
+<li><p><a href="https://testthat.r-lib.org/">testthat</a></p></li>
+<li><p><a href="https://r4ds.had.co.nz/r-markdown.html">R
+markdown</a></p></li>
+</ul>
+</div>
+<div id="open-source-code-policy" class="section level2">
+<h2>Open-Source Code Policy</h2>
+<p>Effective August 8, 2016, the <a href="https://www.whitehouse.gov/wp-content/uploads/legacy_drupal_files/omb/memoranda/2016/m_16_21.pdf">OMB
+Mandate: M-16-21; Federal Source Code Policy: Achieving Efficiency,
+Transparency, and Innovation through Reusable and Open Source
+Software</a> applies to new custom-developed code created or procured by
+EPA consistent with the scope and applicability requirements of Office
+of Management and Budget’s (OMB’s) Federal Source Code Policy. In
+general, it states that all new custom-developed code by Federal
+Agencies should be made available and reusable as open-source code.</p>
+<p>The EPA specific implementation of OMB Mandate M-16-21 is addressed
+in the <a href="https://www.epa.gov/irmpoli8/policy-procedures-and-guidance-system-life-cycle-management-slcm">System
+Life Cycle Management Procedure</a>. EPA has chosen to use GitHub as its
+version control system as well as its inventory of open-source code
+projects. EPA uses GitHub to inventory its custom-developed, open-source
+code and generate the necessary metadata file that is then posted to
+code.gov for broad reuse in compliance with OMB Mandate M-16-21.</p>
+<p>If you have any questions or want to read more, check out the <a href="https://github.com/USEPA/open-source-projects">EPA Open Source
+Project Repo</a>.</p>
+</div>
+<div id="license" class="section level2">
+<h2>License</h2>
+<p>All contributions to this project will be released under the CCO-1.0
+license file dedication. By submitting a pull request or issue, you are
+agreeing to comply with this waiver of copyright interest.</p>
+</div>
+<div id="disclaimer" class="section level2">
+<h2>Disclaimer</h2>
+<p>This United States Environmental Protection Agency (EPA) GitHub
+project code is provided on an “as is” basis and the user assumes
+responsibility for its use. EPA has relinquished control of the
+information and no longer has responsibility to protect the integrity,
+confidentiality, or availability of the information. Any reference to
+specific commercial products, processes, or services by service mark,
+trademark, manufacturer, or otherwise, does not constitute or imply
+their endorsement, recommendation or favoring by EPA. The EPA seal and
+logo shall not be used in any manner to imply endorsement of any
+commercial product or activity by EPA or the United States
+Government.</p>
+</div>
+<div id="contact" class="section level2">
+<h2>Contact</h2>
+<p>If you have any questions, please reach out to Cristina Mullin (<a href="mailto:mullin.cristina@epa.gov" class="email">mullin.cristina@epa.gov</a>).</p>
+</div>
+
+
+
+<!-- code folding -->
+
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>
