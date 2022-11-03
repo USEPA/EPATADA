@@ -55,7 +55,7 @@ dataRetrieval from GitHub.
 
 ```{r, results = 'hide', message = FALSE, warning = FALSE}
 # remotes::install_github("USGS-R/dataRetrieval", dependencies=TRUE)
-remotes::install_github("USEPA/TADA", dependencies=TRUE)
+# remotes::install_github("USEPA/TADA", dependencies=TRUE)
 ```
 
 Load the required libraries to run this vignette into your R session
@@ -74,7 +74,7 @@ library(stats)
 library(lubridate)
 library(rlang)
 library(dataRetrieval)
-library(TADA)
+# library(TADA)
 ```
 
 ## Retrieve WQP data
@@ -401,10 +401,10 @@ combination. See documentation for more details:
     -   When clean = TRUE, data that is above the upper WQX threshold is
         removed from the dataframe.
 
--   ?BelowNationalWQXUpperThreshold
+-   ?BelowNationalWQXLowerThreshold
 
     -   When clean = FALSE, the following column is added to your
-        dataframe: BelowWQXUpperThreshold. This column flags rows with
+        dataframe: BelowWQXLowerThreshold. This column flags rows with
         data that are below the lower WQX threshold.
 
     -   When clean = TRUE, data that is below the lower WQX threshold is
@@ -415,7 +415,7 @@ if desired. Results will be flagged, but not removed, when clean=FALSE.
 
 ```{r}
 TADAProfileClean8 <- AboveNationalWQXUpperThreshold(TADAProfileClean7, clean = TRUE)
-TADAProfileClean9 <- BelowNationalWQXUpperThreshold(TADAProfileClean8, clean = TRUE)
+TADAProfileClean9 <- BelowNationalWQXLowerThreshold(TADAProfileClean8, clean = TRUE)
 ```
 
 ## Potential duplicates
