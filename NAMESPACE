@@ -3,7 +3,7 @@
 export("%>%")
 export(AboveNationalWQXUpperThreshold)
 export(AggregatedContinuousData)
-export(BelowNationalWQXUpperThreshold)
+export(BelowNationalWQXLowerThreshold)
 export(ConvertDepthUnits)
 export(ConvertResultUnits)
 export(FilterFieldReview)

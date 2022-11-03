@@ -388,13 +388,13 @@ AboveNationalWQXUpperThreshold <- function(.data, clean = TRUE) {
 #' threshold from the dataframe when clean = TRUE. Default is clean = TRUE.
 #'
 #' @return When clean = FALSE, the following column is added to your dataframe: 
-#' BelowWQXUpperThreshold. This column flags rows with data that are below
+#' BelowWQXLowerThreshold. This column flags rows with data that are below
 #' the lower WQX threshold. When clean = TRUE, data that is below the lower 
 #' WQX threshold is removed from the dataframe.
 #' 
 #' @export
 
-BelowNationalWQXUpperThreshold <- function(.data, clean = TRUE) {
+BelowNationalWQXLowerThreshold <- function(.data, clean = TRUE) {
   # check .data is data.frame
   checkType(.data, "data.frame", "Input object")
   # check clean is boolean
@@ -413,8 +413,8 @@ BelowNationalWQXUpperThreshold <- function(.data, clean = TRUE) {
 
   # execute function after checks are passed
   # delete existing flag column
-  if (("BelowWQXUpperThreshold" %in% colnames(.data)) == TRUE) {
-    .data <- dplyr::select(.data, -BelowWQXUpperThreshold)
+  if (("BelowWQXLowerThreshold" %in% colnames(.data)) == TRUE) {
+    .data <- dplyr::select(.data, -BelowWQXLowerThreshold)
   }
   
   # filter WQXcharVal.ref to include only valid CharacteristicUnit in water media
@@ -444,7 +444,7 @@ BelowNationalWQXUpperThreshold <- function(.data, clean = TRUE) {
     # apply function row by row
     dplyr::rowwise() %>%
     # create flag column
-    dplyr::mutate(BelowWQXUpperThreshold = dplyr::case_when(
+    dplyr::mutate(BelowWQXLowerThreshold = dplyr::case_when(
       ResultMeasureValue <= Minimum ~ as.character("Y"),
       ResultMeasureValue > Minimum ~ as.character("N")
     ))
@@ -457,7 +457,7 @@ BelowNationalWQXUpperThreshold <- function(.data, clean = TRUE) {
   # get .data column names
   col.order <- colnames(.data)
   # add TADA.PotentialDupRowID column to the list
-  col.order <- append(col.order, "BelowWQXUpperThreshold")
+  col.order <- append(col.order, "BelowWQXLowerThreshold")
   # reorder columns in flag.data
   flag.data <- flag.data[, col.order]
   
@@ -465,10 +465,10 @@ BelowNationalWQXUpperThreshold <- function(.data, clean = TRUE) {
     return(flag.data)
   }
   if (clean == TRUE) {
-    # filter out rows where BelowWQXUpperThreshold = Y; remove BelowWQXUpperThreshold column
+    # filter out rows where BelowWQXLowerThreshold = Y; remove BelowWQXLowerThreshold column
     clean.data <- flag.data %>%
-      dplyr::filter(!(BelowWQXUpperThreshold %in% "Y")) %>%
-      dplyr::select(-BelowWQXUpperThreshold)
+      dplyr::filter(!(BelowWQXLowerThreshold %in% "Y")) %>%
+      dplyr::select(-BelowWQXLowerThreshold)
     
     return(clean.data)
   }
