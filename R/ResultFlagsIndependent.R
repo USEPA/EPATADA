@@ -289,6 +289,7 @@ PotentialDuplicateRowID <- function(.data, clean = TRUE) {
 #' WQX threshold is removed from the dataframe.
 #'
 #' @export
+#' 
 
 AboveNationalWQXUpperThreshold <- function(.data, clean = TRUE) {
   # check .data is data.frame

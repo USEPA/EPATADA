@@ -548,10 +548,10 @@ removed from the dataframe.</p></li>
 </ul>
 </li>
 <li>
-<p>?BelowNationalWQXUpperThreshold</p>
+<p>?BelowNationalWQXLowerThreshold</p>
 <ul>
 <li><p>When clean = FALSE, the following column is added to your
-dataframe: BelowWQXUpperThreshold. This column flags rows with data that
+dataframe: BelowWQXLowerThreshold. This column flags rows with data that
 are below the lower WQX threshold.</p></li>
 <li><p>When clean = TRUE, data that is below the lower WQX threshold is
 removed from the dataframe.</p></li>
@@ -563,7 +563,7 @@ results if desired. Results will be flagged, but not removed, when
 clean=FALSE.</p>
 <div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">TADAProfileClean8</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/AboveNationalWQXUpperThreshold.html">AboveNationalWQXUpperThreshold</a></span><span class="op">(</span><span class="va">TADAProfileClean7</span>, clean <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
-<span><span class="va">TADAProfileClean9</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/BelowNationalWQXUpperThreshold.html">BelowNationalWQXUpperThreshold</a></span><span class="op">(</span><span class="va">TADAProfileClean8</span>, clean <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
+<span><span class="va">TADAProfileClean9</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/BelowNationalWQXLowerThreshold.html">BelowNationalWQXLowerThreshold</a></span><span class="op">(</span><span class="va">TADAProfileClean8</span>, clean <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="potential-duplicates">Potential duplicates<a class="anchor" aria-label="anchor" href="#potential-duplicates"></a>
@@ -847,7 +847,7 @@ constituent (e.g., “Total Kjeldahl nitrogen (Organic N &amp; NH3)” and
 
     <footer><div class="pkgdown-footer-left">
   <p></p>
-<p>Developed by Cristina Mullin, Michelle Thawley, Laura Shumway, Jacob Greif.</p>
+<p>Developed by Cristina Mullin, Jacob Greif, Michelle Thawley, Laura Shumway.</p>
 </div>
 
 <div class="pkgdown-footer-right">

@@ -295,6 +295,7 @@
 "Measurement Unit(MeasureUnitCode)",362,"ml/l/hr","Viscosity, Milliliters per liter per hour","1/5/2015 11:12:58 AM","ml/l/hr",1,0
 "Measurement Unit(MeasureUnitCode)",479,"ml/m3","Concentration Percentage, Milliliters per cubic meter","5/22/2017 7:27:59 AM","ml/m3",1,0
 "Measurement Unit(MeasureUnitCode)",359,"ml/min","Flow, Milliliters per minute","12/2/2014 8:51:42 AM","ml/min",1,0
+"Measurement Unit(MeasureUnitCode)",629,"ml/sec","Flow, Milliliters per second","10/31/2022 6:04:27 PM","",35.31,0
 "Measurement Unit(MeasureUnitCode)",134,"mm","Length Distance, Millimeters","7/26/2006 10:57:47 AM","in",0.0393700787401575,0
 "Measurement Unit(MeasureUnitCode)",236,"mm2","Area, Square millimeters","7/26/2006 10:57:47 AM","m2",1e-06,0
 "Measurement Unit(MeasureUnitCode)",323,"mm3","Volume, Cubic millimeters","1/11/2012 3:59:08 PM","m3",1e-09,0
@@ -420,7 +421,7 @@
 "Measurement Unit(MeasureUnitCode)",167,"umol/S/m2","Viscosity, Micromoles per siemen per square meter","7/26/2006 10:57:47 AM","umol/S/m2",1,0
 "Measurement Unit(MeasureUnitCode)",264,"umol/g","Concentration Percentage, Micromoles per gram","2/27/2008 3:00:21 PM","umol/kg",0.001,0
 "Measurement Unit(MeasureUnitCode)",330,"umol/kg","Concentration Molar, Micromoles per kilogram","3/7/2012 5:11:11 PM","umol/kg",1,0
-"Measurement Unit(MeasureUnitCode)",170,"umol/m2/s","Viscosity, Micromolesr square meter per second","7/26/2006 10:57:47 AM","umol/m2/s",1,0
+"Measurement Unit(MeasureUnitCode)",170,"umol/m2/s","Viscosity, Micromoles square meter per second. For Light, photosynthetic active radiation (PAR). A unit of measure of the amount of light hitting a surface that is in the range of 400-700 nanometers.","7/26/2006 10:57:47 AM","umol/m2/s",1,0
 "Measurement Unit(MeasureUnitCode)",254,"units/cm","Concentration Solution, Units per centimeter, for UV absorbance","7/26/2006 10:57:47 AM","units/cm",1,0
 "Measurement Unit(MeasureUnitCode)",407,"units/m","Concentration Solution, Units per metre, for UV absorbance","4/12/2022 9:06:10 PM","units/cm",0.01,0
 "Measurement Unit(MeasureUnitCode)",61,"volts","Power, Electro-motive force, volts","7/26/2006 10:57:47 AM","volts",1,0

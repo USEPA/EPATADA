@@ -55,7 +55,7 @@ dataRetrieval from GitHub.
 
 ```{r, results = 'hide', message = FALSE, warning = FALSE}
 # remotes::install_github("USGS-R/dataRetrieval", dependencies=TRUE)
-# remotes::install_github("USEPA/TADA", dependencies=TRUE)
+remotes::install_github("USEPA/TADA", dependencies=TRUE)
 ```
 
 Load the required libraries to run this vignette into your R session
@@ -74,7 +74,7 @@ library(stats)
 library(lubridate)
 library(rlang)
 library(dataRetrieval)
-# library(TADA)
+library(TADA)
 ```
 
 ## Retrieve WQP data
