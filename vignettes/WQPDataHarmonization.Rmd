@@ -304,23 +304,29 @@ TADAProfileClean2 <- ConvertResultUnits(TADAProfileClean1, transform = TRUE)
 Checks for and removes statistically aggregated high frequency (i.e.,
 continuous) data, if present.
 
-The Water Quality Portal (WQP) is not designed to store high-frequency
-sensor data. However, sometimes data providers choose to aggregate their
-continuous data and submit it to WQP as one value. This type of data may
-not be suitable for integration with discrete water quality data for
-assessments. Therefore, this function uses metadata submitted by data
-providers to flags rows with aggregated continuous data.
+The Water Quality Portal (WQP) is not currently designed to store
+high-frequency sensor data (more than 1 value per day). However,
+sometimes data providers choose to aggregate their continuous data to a
+daily avg, max, or min value, and then submit that aggregated data to
+the WQP through WQX. Alternatively, some organizations aggregate their
+high frequency data (15 min or 1 hour data) to 2 or 4 hour interval
+averages, and they also submit that data to the WQP through WQX. This
+type of high frequency data may (or may not) be suitable for integration
+with discrete water quality data for assessments. Therefore, this
+function uses metadata submitted by data providers to flag rows with
+aggregated continuous data. This is done by flagging results where the
+ResultDetectionConditionText = "Reported in Raw Data (attached)".
 
--   This is done by flagging results where the
-    ResultDetectionConditionText = "Reported in Raw Data (attached)"
+-   When clean = FALSE, a column titled "TADA.AggregatedContinuousData"
+    is added to the dataframe to indicate if the row includes aggregated
+    continuous data, "Y", or not, "N".
 
-    -   When clean = TRUE, rows with aggregated continuous data are
-        removed from the dataframe and no column will be appended
+-   When clean = TRUE, rows with aggregated continuous data are removed
+    from the dataframe and no column will be appended. The default is
+    clean = TRUE.
 
-    -   Default is clean = TRUE
-
--   See function documentation for additional function options by
-    entering the following code in the console: ?AggregatedContinuousData
+See function documentation for additional function options by entering
+the following code in the console: ?AggregatedContinuousData
 
 ```{r}
 TADAProfileClean3 <- AggregatedContinuousData(TADAProfileClean2, clean = TRUE)
@@ -437,8 +443,8 @@ the following into the console:
         potential duplication rows.
 
     -   When clean = FALSE the first of each group of potential
-        duplicate rows will be removed from the dataframe and no column is
-        appended.
+        duplicate rows will be removed from the dataframe and no column
+        is appended.
 
 When clean = TRUE, the function retains the first occurrence of each
 potential duplicate in the dataframe. Default is clean = TRUE.
@@ -503,8 +509,8 @@ This function checks data submitted under the "ProjectFileUrl" column to
 determine if a QAPP document is available to review. When clean = FALSE,
 a column will be appended to flag results that do have an associated
 QAPP document URL provided. When clean = TRUE, rows that do not have an
-associated QAPP document are removed from the dataframe and no column will
-be appended. This function should only be used to remove data if an
+associated QAPP document are removed from the dataframe and no column
+will be appended. This function should only be used to remove data if an
 accompanying QAPP document is required to use data in assessments.
 
 ```{r}
@@ -524,8 +530,8 @@ FilterFields(TADAProfileClean13)
 ```
 
 Next, choose a field from the list to see the unique values in that
-field, as well as the number of times each value appears in the dataframe.
-We'll start with ActivityTypeCode.
+field, as well as the number of times each value appears in the
+dataframe. We'll start with ActivityTypeCode.
 
 Here is a list of other fields to review:
 
@@ -613,8 +619,8 @@ TADAProfileClean16 <- dplyr::filter(TADAProfileClean15, !(CharacteristicName %in
 ## Transform Characteristic, Speciation, and Unit values to TADA Standards
 
 The HarmonizeRefTable function generates a harmonization reference table
-that is specific to the input dataframe. Users can review how their input
-data relates to standard TADA values for the following elements:
+that is specific to the input dataframe. Users can review how their
+input data relates to standard TADA values for the following elements:
 
 -   CharacteristicName
 

@@ -18,13 +18,19 @@ data is appended to the input data set. When clean = TRUE, aggregated
 continuous data is removed from the dataframe.
 }
 \description{
-The Water Quality Portal (WQP) is not designed to store high-frequency
-sensor data. However, sometimes data providers choose to aggregate
-their continuous data and submit it to WQP as one value. This type of data
-may not be suitable for integration with discrete water quality data for
-assessments. Therefore, this function uses metadata submitted by data providers
-to flags rows with aggregated continuous data. This is done by flagging results
-where the ResultDetectionConditionText = "Reported in Raw Data (attached)".
-When clean = TRUE, rows with aggregated continuous data are removed from the
-dataframe and no column will be appended. Default is clean = TRUE.
+The Water Quality Portal (WQP) is not currently designed to store high-frequency
+sensor data (more than 1 value per day). However, sometimes data providers
+choose to aggregate their continuous data to a daily avg, max, or min value,
+and then submit that aggregated data to the WQP through WQX. Alternatively,
+some organizations aggregate their high frequency data (15 min or 1 hour data)
+to 2 or 4 hour interval averages, and they also submit that data to the WQP through WQX.
+This type of high frequency data may (or may not) be suitable for integration with discrete
+water quality data for assessments. Therefore, this function uses metadata
+submitted by data providers to flag rows with aggregated continuous data.
+This is done by flagging results where the ResultDetectionConditionText =
+"Reported in Raw Data (attached)". When clean = FALSE, a column titled
+"TADA.AggregatedContinuousData" is added to the dataframe to indicate if the row
+includes aggregated continuous data, "Y", or not,  "N". When clean = TRUE,
+rows with aggregated continuous data are removed from the dataframe and no
+column will be appended. The default is clean = TRUE.
 }
