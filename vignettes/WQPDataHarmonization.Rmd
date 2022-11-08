@@ -35,7 +35,7 @@ The following code will also install any packages you do not have, and
 load all packages required to run this vignette into your R session.
 
 ```{r, results = 'hide', message = FALSE, warning = FALSE}
-list.of.packages <- c("plyr", "data.table", "dataRetrieval", "dplyr", "ggplot2", "grDevices", "magrittr", "stringr", "utils", "RColorBrewer", "stats", "lubridate", "remotes")
+list.of.packages <- c("plyr", "data.table", "dataRetrieval", "dplyr", "ggplot2", "grDevices", "magrittr", "stringr", "utils", "RColorBrewer", "stats", "lubridate", "remotes", "gganimate", "gifski", "maps")
 
 new.packages <- list.of.packages[!(list.of.packages %in% installed.packages()[,"Package"])]
 if(length(new.packages)) install.packages(new.packages)
@@ -55,7 +55,7 @@ dataRetrieval from GitHub.
 
 ```{r, results = 'hide', message = FALSE, warning = FALSE}
 # remotes::install_github("USGS-R/dataRetrieval", dependencies=TRUE)
-remotes::install_github("USEPA/TADA", dependencies=TRUE)
+# remotes::install_github("USEPA/TADA", dependencies=TRUE)
 ```
 
 Load the required libraries to run this vignette into your R session
@@ -74,6 +74,9 @@ library(stats)
 library(lubridate)
 library(rlang)
 library(dataRetrieval)
+library(gganimate)
+library(gifski)
+library(maps)
 library(TADA)
 ```
 
@@ -243,6 +246,57 @@ multiple hours to run. The total run time depends on your query inputs.
 #AllWaterTempData <- TADABigdataRetrieval(startDate = "2019-01-01", endDate = "2021-12-31", characteristicName = "Temperature, water", siteType = "Stream")
 ```
 
+
+## Invalid coordinates
+
+Review station locations
+```{r}
+#create a map of the world
+map()
+
+# uncomment below to create USA base map
+#map("usa")
+
+# uncomment below to add state outlines
+#map("state", add=TRUE)
+
+# uncomment below to add county outlines
+#map("county", add=TRUE)
+
+# draw the site locations onto the map
+points(TADAProfile$LongitudeMeasure, TADAProfile$LatitudeMeasure, col="red", pch=20)
+```
+
+The TADA InvalidCoordinates function identifies and flags invalid coordinate data.
+
+When clean_outsideUSA = FALSE and clean_imprecise = FALSE, a column will
+be appended titled "TADA.InvalidCoordinates" with the following flags
+(if relevant to dataframe).
+
+-   If the latitude is less than zero, the row will be flagged with
+    "LAT_OutsideUSA".
+
+-   If the longitude is greater than zero AND less than 145, the row
+    will be flagged as "LONG_OutsideUSA".
+
+-   If the latitude or longitude contains the string, "999", the row
+    will be flagged as invalid.
+
+-   Finally, precision can be measured by the number of decimal places
+    in the latitude and longitude provided. If either does not have any
+    numbers to the right of the decimal point, the row will be flagged
+    as "Imprecise".
+
+```{r}
+TADAProfileClean1 <- InvalidCoordinates(TADAProfile, clean_outsideUSA = TRUE, clean_imprecise = TRUE)
+
+#redraw map with after all rows with invalid LAT/LONG data are removed
+map()
+# uncomment below to draw map of specific state
+# map('county', 'utah')
+points(TADAProfileClean1$LongitudeMeasure, TADAProfileClean1$LatitudeMeasure, col="red", pch=20)
+```
+
 Review all column names in the TADA Profile
 
 ```{r}
@@ -281,7 +335,7 @@ entering the following code in the console: ?ConvertDepthUnits
 
 ```{r}
 #converts all depth profile data to meters
-TADAProfileClean1 <- ConvertDepthUnits(TADAProfile, unit = "ft", transform = TRUE)
+TADAProfileClean2 <- ConvertDepthUnits(TADAProfileClean1, unit = "ft", transform = TRUE)
 ```
 
 ## Result unit conversions
@@ -296,7 +350,7 @@ entering the following code in the console: ?ConvertResultUnits
 
 ```{r}
 #Converts all results to WQX target units
-TADAProfileClean2 <- ConvertResultUnits(TADAProfileClean1, transform = TRUE)
+TADAProfileClean3 <- ConvertResultUnits(TADAProfileClean2, transform = TRUE)
 ```
 
 ## Statistically aggregated data
@@ -329,7 +383,7 @@ See function documentation for additional function options by entering
 the following code in the console: ?AggregatedContinuousData
 
 ```{r}
-TADAProfileClean3 <- AggregatedContinuousData(TADAProfileClean2, clean = TRUE)
+TADAProfileClean4 <- AggregatedContinuousData(TADAProfileClean3, clean = TRUE)
 ```
 
 ## WQX QAQC Service Result Flags
@@ -386,10 +440,10 @@ See documentation for more details:
         and no column will be appended.
 
 ```{r}
-TADAProfileClean4 <- InvalidMethod(TADAProfileClean3, clean = TRUE)
-TADAProfileClean5 <- InvalidFraction(TADAProfileClean4, clean = TRUE)
-TADAProfileClean6 <- InvalidSpeciation(TADAProfileClean5, clean = FALSE)
-TADAProfileClean7 <- InvalidResultUnit(TADAProfileClean6, clean = FALSE)
+TADAProfileClean5 <- InvalidMethod(TADAProfileClean4, clean = TRUE)
+TADAProfileClean6 <- InvalidFraction(TADAProfileClean5, clean = TRUE)
+TADAProfileClean7 <- InvalidSpeciation(TADAProfileClean6, clean = FALSE)
+TADAProfileClean8 <- InvalidResultUnit(TADAProfileClean7, clean = FALSE)
 ```
 
 ## WQX national upper and lower thresholds
@@ -420,8 +474,8 @@ The default is clean=TRUE, but you can change this to only flag results
 if desired. Results will be flagged, but not removed, when clean=FALSE.
 
 ```{r}
-TADAProfileClean8 <- AboveNationalWQXUpperThreshold(TADAProfileClean7, clean = TRUE)
-TADAProfileClean9 <- BelowNationalWQXLowerThreshold(TADAProfileClean8, clean = TRUE)
+TADAProfileClean9 <- AboveNationalWQXUpperThreshold(TADAProfileClean8, clean = TRUE)
+TADAProfileClean10 <- BelowNationalWQXLowerThreshold(TADAProfileClean9, clean = TRUE)
 ```
 
 ## Potential duplicates
@@ -450,33 +504,7 @@ When clean = TRUE, the function retains the first occurrence of each
 potential duplicate in the dataframe. Default is clean = TRUE.
 
 ```{r}
-TADAProfileClean10 <- PotentialDuplicateRowID(TADAProfileClean9)
-```
-
-## Invalid coordinates
-
-Function identifies and flags invalid coordinate data.
-
-When clean_outsideUSA = FALSE and clean_imprecise = FALSE, a column will
-be appended titled "TADA.InvalidCoordinates" with the following flags
-(if relevant to dataframe).
-
--   If the latitude is less than zero, the row will be flagged with
-    "LAT_OutsideUSA".
-
--   If the longitude is greater than zero AND less than 145, the row
-    will be flagged as "LONG_OutsideUSA".
-
--   If the latitude or longitude contains the string, "999", the row
-    will be flagged as invalid.
-
--   Finally, precision can be measured by the number of decimal places
-    in the latitude and longitude provided. If either does not have any
-    numbers to the right of the decimal point, the row will be flagged
-    as "Imprecise".
-
-```{r}
-TADAProfileClean11 <- InvalidCoordinates(TADAProfileClean10, clean_outsideUSA = FALSE, clean_imprecise = FALSE)
+TADAProfileClean11 <- PotentialDuplicateRowID(TADAProfileClean10)
 ```
 
 ## Review QAPP information
@@ -669,3 +697,33 @@ Here are some examples of how the HarmonizeData function can be used:
 UniqueHarmonizationRef <- HarmonizationRefTable(TADAProfileClean16, download = FALSE)
 TADAProfileClean17 <- HarmonizeData(TADAProfileClean16, ref = UniqueHarmonizationRef, transform = TRUE, flag = TRUE)
 ```
+
+PLACEHOLDER: Address censored data for a single characteristic
+```{r}
+#How to point to a column in R: yourdataset$thecolumnyouwant
+#E.g., temp$ResultMeasureValueNitrogenExample <- filter(TADAProfileClean17, CharacteristicName == "NITROGEN")
+SingleCharacteristic <- filter(TADAProfileClean17, CharacteristicName == "TOTAL NITROGEN, MIXED FORMS")
+
+#Review the types of nondetects you have
+table(SingleCharacteristic$ResultDetectionConditionText)
+
+#Review number of results that are NA's
+sum(is.na(SingleCharacteristic$ResultMeasureValue))
+
+#substitute a value for NA. In this example, 0.02 MG/L is used for TOTAL NITROGEN, MIXED FORMS
+SingleCharacteristic$ResultMeasureValue <- ifelse(is.na(SingleCharacteristic$ResultMeasureValue) == TRUE, 0.02, SingleCharacteristic$ResultMeasureValue)
+```
+
+PLACEHOLDER: Summarize results for a single characteristic
+```{r}
+summary(SingleCharacteristic$ResultMeasureValue)
+#na.rm = TRUE strips NA values before the mean computation proceeds
+hist(SingleCharacteristic$ResultMeasureValue)
+```
+
+
+```{r}
+#Animation currently only works for Total Nitrogen. Updates coming soon.
+CreateAnimatedMap(SingleCharacteristic)
+```
+
