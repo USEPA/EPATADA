@@ -39,7 +39,6 @@ Imports:
     utils, 
     RColorBrewer,
     stats, 
-    lubridate, 
     gifski, 
     gganimate,
     maps

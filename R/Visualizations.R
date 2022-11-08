@@ -10,7 +10,7 @@ CreateAnimatedMap <- function(.data) {
   #code adapted from USGS blog: https://waterdata.usgs.gov/blog/large_sample_pull/
   
   # pull the year from the date
-  .data$year <- format(as.Date(.data$ActivityStartDate, format="%Y-%m-%d"),"%Y")
+  .data$year <- base::format(as.Date(.data$ActivityStartDate, format="%Y-%m-%d"),"%Y")
   
   # create new data frame of summarized result data by year
   n_bysite <- 
@@ -82,16 +82,16 @@ GenerateMap <- function(.data, flag = TRUE) {
 #create a map of the world
 maps::map()
 
-# uncomment below to create USA base map
+# uncomment below to create USA base map instead
 # maps::map("usa")
 
-# uncomment below to add state outlines
+# uncomment below to add state outlines to usa map
 # maps::map("state", add=TRUE)
 
-# uncomment below to add county outlines
+# uncomment below to add county outlines to usa map
 # maps::map("county", add=TRUE)
 
-# uncomment below to draw map of specific state
+# uncomment below to draw map of specific state instead, with county lines
 # maps::map('county', 'utah')
 
 # draw the site locations onto the map
