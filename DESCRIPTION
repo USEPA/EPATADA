@@ -39,7 +39,9 @@ Imports:
     utils, 
     RColorBrewer,
     stats, 
-    lubridate
+    gifski, 
+    gganimate,
+    maps
 Depends: 
     R (>= 3.5.0)
 Suggests: 

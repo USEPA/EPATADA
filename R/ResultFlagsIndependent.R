@@ -98,15 +98,21 @@ InvalidMethod <- function(.data, clean = TRUE) {
 
 #' Check for Aggregated Continuous Data
 #'
-#' The Water Quality Portal (WQP) is not designed to store high-frequency
-#' sensor data. However, sometimes data providers choose to aggregate
-#' their continuous data and submit it to WQP as one value. This type of data
-#' may not be suitable for integration with discrete water quality data for
-#' assessments. Therefore, this function uses metadata submitted by data providers
-#' to flags rows with aggregated continuous data. This is done by flagging results
-#' where the ResultDetectionConditionText = "Reported in Raw Data (attached)".
-#' When clean = TRUE, rows with aggregated continuous data are removed from the
-#' dataframe and no column will be appended. Default is clean = TRUE.
+#' The Water Quality Portal (WQP) is not currently designed to store high-frequency
+#' sensor data (more than 1 value per day). However, sometimes data providers 
+#' choose to aggregate their continuous data to a daily avg, max, or min value, 
+#' and then submit that aggregated data to the WQP through WQX. Alternatively, 
+#' some organizations aggregate their high frequency data (15 min or 1 hour data) 
+#' to 2 or 4 hour interval averages, and they also submit that data to the WQP through WQX.
+#' This type of high frequency data may (or may not) be suitable for integration with discrete 
+#' water quality data for assessments. Therefore, this function uses metadata 
+#' submitted by data providers to flag rows with aggregated continuous data. 
+#' This is done by flagging results where the ResultDetectionConditionText = 
+#' "Reported in Raw Data (attached)". When clean = FALSE, a column titled 
+#' "TADA.AggregatedContinuousData" is added to the dataframe to indicate if the row 
+#' includes aggregated continuous data, "Y", or not,  "N". When clean = TRUE,
+#' rows with aggregated continuous data are removed from the dataframe and no 
+#' column will be appended. The default is clean = TRUE.
 #'
 #' @param .data TADA dataframe
 #' @param clean Boolean argument; removes aggregated continuous data from
@@ -615,16 +621,16 @@ QAPPDocAvailable <- function(.data, clean = FALSE) {
 
 #' Invalid coordinates
 #'
-#' Function identifies and flags invalid coordinate data. When
+#' This function identifies and flags invalid coordinate data. When
 #' clean_outsideUSA = FALSE and clean_imprecise = FALSE,
 #' a column will be appended titled "TADA.InvalidCoordinates" with the following
-#' flags (if relevant to dataframe). If the latitude is less than zero, the row will be
-#' flagged with "LAT_OutsideUSA". If the longitude is greater than zero AND less than 145,
-#' the row will be flagged as "LONG_OutsideUSA". If the latitude or longitude
-#' contains the string, "999", the row will be flagged as invalid. Finally,
+#' flags: 1) If the latitude is less than zero, the row will be
+#' flagged with "LAT_OutsideUSA", 2) If the longitude is greater than zero AND less than 145,
+#' the row will be flagged as "LONG_OutsideUSA", 3) If the latitude or longitude
+#' contains the string, "999", the row will be flagged as invalid, and 4) Finally,
 #' precision can be measured by the number of decimal places in the latitude and longitude
-#' provided. If either does not have any numbers to the right of the decimal point,
-#' the row will be flagged as "Imprecise".
+#' provided. If either the lattitue or longitude does not have any numbers to the 
+#' right of the decimal point, the row will be flagged as "Imprecise".
 #'
 #' @param .data TADA dataframe
 #' @param clean_outsideUSA Boolean argument; removes data with coordinates outside

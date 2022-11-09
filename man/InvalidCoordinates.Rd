@@ -22,14 +22,14 @@ dataframe. When either argument is TRUE, "invalid" or "imprecise" data is
 removed, respectively.
 }
 \description{
-Function identifies and flags invalid coordinate data. When
+This function identifies and flags invalid coordinate data. When
 clean_outsideUSA = FALSE and clean_imprecise = FALSE,
 a column will be appended titled "TADA.InvalidCoordinates" with the following
-flags (if relevant to dataframe). If the latitude is less than zero, the row will be
-flagged with "LAT_OutsideUSA". If the longitude is greater than zero AND less than 145,
-the row will be flagged as "LONG_OutsideUSA". If the latitude or longitude
-contains the string, "999", the row will be flagged as invalid. Finally,
+flags: 1) If the latitude is less than zero, the row will be
+flagged with "LAT_OutsideUSA", 2) If the longitude is greater than zero AND less than 145,
+the row will be flagged as "LONG_OutsideUSA", 3) If the latitude or longitude
+contains the string, "999", the row will be flagged as invalid, and 4) Finally,
 precision can be measured by the number of decimal places in the latitude and longitude
-provided. If either does not have any numbers to the right of the decimal point,
-the row will be flagged as "Imprecise".
+provided. If either the lattitue or longitude does not have any numbers to the
+right of the decimal point, the row will be flagged as "Imprecise".
 }
