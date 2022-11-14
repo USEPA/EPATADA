@@ -1,10 +1,13 @@
 #' Generate Animated Map
+#' 
+#' Animated map code adapted from USGS blog: https://waterdata.usgs.gov/blog/large_sample_pull/
 #'
 #' @param .data TADA dataframe
 #'
 #' @return Animated map
 #'
 #' @export
+#' 
 #'
 
 CreateAnimatedMap <- function(.data) { 
@@ -77,6 +80,7 @@ CreateAnimatedMap <- function(.data) {
 #' When flag = FALSE, all stations are colored blue. The default is flag = TRUE.
 #'
 #' @export
+#' 
 #'
 
 GenerateMap <- function(.data, flag = TRUE) { 

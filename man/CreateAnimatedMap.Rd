@@ -13,5 +13,5 @@ CreateAnimatedMap(.data)
 Animated map
 }
 \description{
-Generate Animated Map
+Animated map code adapted from USGS blog: https://waterdata.usgs.gov/blog/large_sample_pull/
 }
