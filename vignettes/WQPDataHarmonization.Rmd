@@ -56,6 +56,7 @@ dataRetrieval from GitHub.
 
 ```{r, results = 'hide', message = FALSE, warning = FALSE}
 # remotes::install_github("USGS-R/dataRetrieval", dependencies=TRUE)
+
 remotes::install_github("USEPA/TADA", dependencies=TRUE)
 ```
 
@@ -213,7 +214,7 @@ Option 1: Use the TADAdataRetrieval function.
 #dataRetrievalProfile <- dataRetrieval::readWQPdata(statecode = "UT", characteristicName = c("Ammonia", "Nitrate", "Nitrogen"), startDate = "01-01-2021", ignore_attributes = TRUE)
 
 #You can edit this to define your own WQP query inputs below
-TADAProfile <- TADAdataRetrieval(statecode = "UT", characteristicName = c("Ammonia", "Nitrate", "Nitrogen"), startDate = "01-01-2021")
+TADAProfile <- TADAdataRetrieval(statecode = "UT", siteType=c("Lake, Reservoir, Impoundment","Spring","Stream"), startDate = "10-01-2019")
 
 ```
 
@@ -240,10 +241,10 @@ States that is available for the time period, characteristicName, and
 siteType requested.
 
 See ?TADABigdataRetrieval for more details. WARNING, this can take
-multiple hours to run. The total run time depends on your query inputs.
+multiple HOURS to run. The total run time depends on your query inputs.
 
 ```{r}
-#AllWaterTempData <- TADABigdataRetrieval(startDate = "2019-01-01", endDate = "2021-12-31", characteristicName = "Temperature, water", siteType = "Stream")
+# AllWaterTempData <- TADABigdataRetrieval(startDate = "2019-01-01", endDate = "2021-12-31", characteristicName = "Temperature, water", siteType = "Stream")
 ```
 
 ## Invalid coordinates
