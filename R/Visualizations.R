@@ -4,6 +4,8 @@
 #'
 #' @return Animated map
 #'
+#' @export
+#'
 
 CreateAnimatedMap <- function(.data) { 
   

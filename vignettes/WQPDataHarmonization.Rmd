@@ -28,8 +28,12 @@ multiple organizations.
 
 ## Install and load packages
 
-To install TADA, currently you need to install from GitHub using remotes (shown) or devtools. dataRetrieval will be downloaded from CRAN, but the development version can be downloaded directly from GitHub (un-comment).
-The following code will also install any packages you do not have, and load all packages required to run this vignette into your R session.
+To install TADA, currently you need to install from GitHub using remotes
+(shown) or devtools. dataRetrieval will be downloaded from CRAN, but the
+development version can be downloaded directly from GitHub (un-comment).
+
+The following code will also install any packages you do not have, and
+load all packages required to run this vignette into your R session.
 
 ```{r, results = 'hide', message = FALSE, warning = FALSE}
 list.of.packages <- c("plyr", "data.table", "dataRetrieval", "dplyr", "ggplot2", "grDevices", "magrittr", "stringr", "utils", "RColorBrewer", "stats", "remotes", "gganimate", "gifski", "maps")
@@ -242,10 +246,10 @@ multiple hours to run. The total run time depends on your query inputs.
 #AllWaterTempData <- TADABigdataRetrieval(startDate = "2019-01-01", endDate = "2021-12-31", characteristicName = "Temperature, water", siteType = "Stream")
 ```
 
-
 ## Invalid coordinates
 
 Review station locations
+
 ```{r}
 #create a map of the world
 map()
@@ -267,7 +271,8 @@ map()
 points(TADAProfile$LongitudeMeasure, TADAProfile$LatitudeMeasure, col="red", pch=20)
 ```
 
-The TADA InvalidCoordinates function identifies and flags invalid coordinate data.
+The TADA InvalidCoordinates function identifies and flags invalid
+coordinate data.
 
 When clean_outsideUSA = FALSE and clean_imprecise = FALSE, a column will
 be appended titled "TADA.InvalidCoordinates" with the following flags
@@ -478,16 +483,28 @@ TADAProfileClean10 <- BelowNationalWQXLowerThreshold(TADAProfileClean9, clean = 
 
 ## Potential duplicates
 
-Sometimes multiple organizations submit the exact same data to Water Quality Portal (WQP), which can affect water quality analyses and assessments. This function checks for and identifies data that is identical in all fields excluding organization-specific and comment text
-fields. Each pair or group of potential duplicate rows is flagged with a unique ID. For more information, review the documentation by entering the following into the console:
+Sometimes multiple organizations submit the exact same data to Water
+Quality Portal (WQP), which can affect water quality analyses and
+assessments. This function checks for and identifies data that is
+identical in all fields excluding organization-specific and comment text
+fields. Each pair or group of potential duplicate rows is flagged with a
+unique ID. For more information, review the documentation by entering
+the following into the console:
 
 -   ?PotentialDuplicateRowID
 
-    -   When clean = FALSE, the following column will be added to you dataframe: TADA.PotentialDupRowID. This column flags potential duplicate rows of data in your dataframe, and assigns each potential duplicate combination a unique number linking the two potential duplication rows.
+    -   When clean = FALSE, the following column will be added to you
+        dataframe: TADA.PotentialDupRowID. This column flags potential
+        duplicate rows of data in your dataframe, and assigns each
+        potential duplicate combination a unique number linking the two
+        potential duplication rows.
 
-    -   When clean = FALSE the first of each group of potential duplicate rows will be removed from the dataframe and no column is appended.
+    -   When clean = FALSE the first of each group of potential
+        duplicate rows will be removed from the dataframe and no column
+        is appended.
 
-When clean = TRUE, the function retains the first occurrence of each potential duplicate in the dataframe. Default is clean = TRUE.
+When clean = TRUE, the function retains the first occurrence of each
+potential duplicate in the dataframe. Default is clean = TRUE.
 
 ```{r}
 TADAProfileClean11 <- PotentialDuplicateRowID(TADAProfileClean10)
@@ -497,13 +514,21 @@ TADAProfileClean11 <- PotentialDuplicateRowID(TADAProfileClean10)
 
 Check data for an approved QAPP
 
-This function checks to see if there is any information in the column "QAPPApprovedIndicator". Some organizations submit data for this field to indicate if the data produced has an approved Quality Assurance Project Plan (QAPP) or not. In this field, Y indicates yes, N indicates no.
+This function checks to see if there is any information in the column
+"QAPPApprovedIndicator". Some organizations submit data for this field
+to indicate if the data produced has an approved Quality Assurance
+Project Plan (QAPP) or not. In this field, Y indicates yes, N indicates
+no.
 
-This function has two default inputs: clean = TRUE and cleanNA = FALSE. These defaults remove rows of data where the QAPPApprovedIndicator equals "N".
+This function has two default inputs: clean = TRUE and cleanNA = FALSE.
+These defaults remove rows of data where the QAPPApprovedIndicator
+equals "N".
 
-Users could alternatively remove both N's and NA's using the inputs clean = TRUE and cleanNA = TRUE.
+Users could alternatively remove both N's and NA's using the inputs
+clean = TRUE and cleanNA = TRUE.
 
-If both clean = FALSE and cleanNA = FALSE, the function will not do anything.
+If both clean = FALSE and cleanNA = FALSE, the function will not do
+anything.
 
 ```{r}
 TADAProfileClean12 <- QAPPapproved(TADAProfileClean11, clean = TRUE, cleanNA = FALSE)
@@ -511,7 +536,13 @@ TADAProfileClean12 <- QAPPapproved(TADAProfileClean11, clean = TRUE, cleanNA = F
 
 Check to see if a QAPP Doc is Available
 
-This function checks data submitted under the "ProjectFileUrl" column to determine if a QAPP document is available to review. When clean = FALSE, a column will be appended to flag results that do have an associated QAPP document URL provided. When clean = TRUE, rows that do not have an associated QAPP document are removed from the dataframe and no column will be appended. This function should only be used to remove data if an accompanying QAPP document is required to use data in assessments.
+This function checks data submitted under the "ProjectFileUrl" column to
+determine if a QAPP document is available to review. When clean = FALSE,
+a column will be appended to flag results that do have an associated
+QAPP document URL provided. When clean = TRUE, rows that do not have an
+associated QAPP document are removed from the dataframe and no column
+will be appended. This function should only be used to remove data if an
+accompanying QAPP document is required to use data in assessments.
 
 ```{r}
 TADAProfileClean13 <- QAPPDocAvailable(TADAProfileClean12, clean = FALSE)
@@ -519,28 +550,41 @@ TADAProfileClean13 <- QAPPDocAvailable(TADAProfileClean12, clean = FALSE)
 
 ## Filter data by field
 
-In this section a TADA user will want to review the unique values in specific fields and may choose to remove data with particular values.
+In this section a TADA user will want to review the unique values in
+specific fields and may choose to remove data with particular values.
 
-To start, review the list of fields and the number of unique values in each field.
+To start, review the list of fields and the number of unique values in
+each field.
 
 ```{r}
 FilterFields(TADAProfileClean13)
 ```
 
-Next, choose a field from the list to see the unique values in that field, as well as the number of times each value appears in the dataframe. We'll start with ActivityTypeCode.
+Next, choose a field from the list to see the unique values in that
+field, as well as the number of times each value appears in the
+dataframe. We'll start with ActivityTypeCode.
 
 Here is a list of other fields to review:
 
 1.  **ResultCommentText** often has details relating to additional QA.
-2.  **MeasureQualifierCode** Contains information about data flags 
-3.     Other codes may designate suspect data or other flags which may be described in detail in **ResultLaboratoryCommentText** or another column
+
+2.  **MeasureQualifierCode** Contains information about data flags
+
+3.  
+
+        Other codes may designate suspect data or other flags which may be described in detail in **ResultLaboratoryCommentText** or another column
 
 ```{r, fig.width=6, fig.height=2, fig.fullwidth=TRUE}
 FilterFieldReview("ActivityTypeCode", TADAProfileClean13)
 ```
 
-The ActivityTypeCode field has four unique values -- "Sample-Routine", "Quality Control Sample-Field Replicate", "Field Msr/Obs", and "Quality Control Sample-Field Blank." In this example we want to remove quality control values in the ActivityTypeCode field, therefore, we'll specify
-that we want to remove the "Quality Control Sample-Field Replicate" and "Quality Control Sample-Field Blank" values in the ActivityTypeCode field.
+The ActivityTypeCode field has four unique values -- "Sample-Routine",
+"Quality Control Sample-Field Replicate", "Field Msr/Obs", and "Quality
+Control Sample-Field Blank." In this example we want to remove quality
+control values in the ActivityTypeCode field, therefore, we'll specify
+that we want to remove the "Quality Control Sample-Field Replicate" and
+"Quality Control Sample-Field Blank" values in the ActivityTypeCode
+field.
 
 ```{r}
 TADAProfileClean14 <- dplyr::filter(TADAProfileClean13, !(ActivityTypeCode %in% c("Quality Control Sample-Field Replicate", "Quality Control Sample-Field Blank", "Quality Control Sample-Lab Duplicate", "Quality Control Sample-Equipment Blank")))
@@ -548,13 +592,17 @@ TADAProfileClean14 <- dplyr::filter(TADAProfileClean13, !(ActivityTypeCode %in% 
 
 We've completed our review of the ActivityTypeCode field.
 
-Let's move on to a different field and see if there are any values that we want to remove -- we'll look at the values in the ResultStatusIdentifier field.
+Let's move on to a different field and see if there are any values that
+we want to remove -- we'll look at the values in the
+ResultStatusIdentifier field.
 
 ```{r, fig.width=6, fig.height=2, fig.fullwidth=TRUE}
 FilterFieldReview("ActivityMediaSubdivisionName", TADAProfileClean14)
 ```
 
-The ActivityMediaSubdivisionName field has two unique values, "Surface Water" and "Groundwater." In this example we want to remove the "Groundwater" values.
+The ActivityMediaSubdivisionName field has two unique values, "Surface
+Water" and "Groundwater." In this example we want to remove the
+"Groundwater" values.
 
 ```{r}
 TADAProfileClean15 <- dplyr::filter(TADAProfileClean14, !(ActivityMediaSubdivisionName %in% c("Groundwater", "Bulk deposition")))
@@ -562,29 +610,40 @@ TADAProfileClean15 <- dplyr::filter(TADAProfileClean14, !(ActivityMediaSubdivisi
 
 ## Filter data by field, subset by parameter
 
-In this section a TADA user will want to select a parameter, review the unique values associated with that parameter in specific fields, and choose to remove particular values.
+In this section a TADA user will want to select a parameter, review the
+unique values associated with that parameter in specific fields, and
+choose to remove particular values.
 
-To start, review the list of parameters in the dataframe. (The list is sorted from highest to lowest counts. Only the first few rows are displayed to save space on the page)
+To start, review the list of parameters in the dataframe. (The list is
+sorted from highest to lowest counts. Only the first few rows are
+displayed to save space on the page)
 
 ```{r}
 FilterParList(TADAProfileClean15)
 ```
 
-Next, select a parameter. Let's explore the fields associated with Nitrogen:
+Next, select a parameter. Let's explore the fields associated with
+Nitrogen:
 
 ```{r}
 FilterParFields(TADAProfileClean15, "NITROGEN")
 ```
 
-Selecting a parameter generates the list below, which is subset by the selected parameter, of fields and the number of unique values in each field.
+Selecting a parameter generates the list below, which is subset by the
+selected parameter, of fields and the number of unique values in each
+field.
 
-Then choose a field from the list. In this example we'll remove certain values from the HydrologicEvent field.
+Then choose a field from the list. In this example we'll remove certain
+values from the HydrologicEvent field.
 
 ```{r, fig.width=6, fig.height=2, fig.fullwidth=TRUE}
 FilterParFieldReview("HydrologicEvent", TADAProfileClean15, "NITROGEN")
 ```
 
-The HydrologicEvent field has three unique values. In this example we want to remove samples collected during "Storm" events. Therefore, we'll specify that we want to remove rows where the CharacteristicName is "NITROGEN" and the HydrologicEvent field is "Storm."
+The HydrologicEvent field has three unique values. In this example we
+want to remove samples collected during "Storm" events. Therefore, we'll
+specify that we want to remove rows where the CharacteristicName is
+"NITROGEN" and the HydrologicEvent field is "Storm."
 
 ```{r}
 TADAProfileClean16 <- dplyr::filter(TADAProfileClean15, !(CharacteristicName %in% "NITROGEN" & HydrologicEvent %in% "Storm"))
@@ -592,7 +651,9 @@ TADAProfileClean16 <- dplyr::filter(TADAProfileClean15, !(CharacteristicName %in
 
 ## Transform Characteristic, Speciation, and Unit values to TADA Standards
 
-The HarmonizeRefTable function generates a harmonization reference table that is specific to the input dataframe. Users can review how their input data relates to standard TADA values for the following elements:
+The HarmonizeRefTable function generates a harmonization reference table
+that is specific to the input dataframe. Users can review how their
+input data relates to standard TADA values for the following elements:
 
 -   CharacteristicName
 
@@ -602,33 +663,50 @@ The HarmonizeRefTable function generates a harmonization reference table that is
 
 -   ResultMeasure.MeasureUnitCode
 
-The HarmonizeData function then compares the input dataframe to the TADA Harmonization Reference Table. The purpose of the function is to make similar data consistent and therefore easier to compare and analyze.
+The HarmonizeData function then compares the input dataframe to the TADA
+Harmonization Reference Table. The purpose of the function is to make
+similar data consistent and therefore easier to compare and analyze.
 
-Users can also edit the reference file to meet their needs if desired. The download argument can be used to save the harmonization file to your current working directory when download = TRUE, the default is download = FALSE.
+Users can also edit the reference file to meet their needs if desired.
+The download argument can be used to save the harmonization file to your
+current working directory when download = TRUE, the default is download
+= FALSE.
 
 Optional outputs include:
 
 1.  the dataframe with Harmonization columns appended,
 
-2.  the dataframe with CharacteristicName, ResultSampleFractionText, MethodSpecificationName, and ResultMeasure.MeasureUnitCode converted
+2.  the dataframe with CharacteristicName, ResultSampleFractionText,
+    MethodSpecificationName, and ResultMeasure.MeasureUnitCode converted
     to TADA standards or
 
-3.  the four fields converted with most Harmonization Reference Table columns appended. Default is transform = TRUE and flag = TRUE.
+3.  the four fields converted with most Harmonization Reference Table
+    columns appended. Default is transform = TRUE and flag = TRUE.
 
 Here are some examples of how the HarmonizeData function can be used:
 
-1.  **ResultSampleFractionText** specifies forms of constituents. In some cases, a single *CharacteristicName** will have both "Total" and "Dissolved" forms specified, which should not be combined. In these cases, each CharacteristicName and ResultSampleFractionText combination is given a different identifier. This identifier can be used later on to identify comparable data groups for calculating statistics and creating figures for each combination. 
+1.  **ResultSampleFractionText** specifies forms of constituents. In
+    some cases, a single \*CharacteristicName\*\* will have both "Total"
+    and "Dissolved" forms specified, which should not be combined. In
+    these cases, each CharacteristicName and ResultSampleFractionText
+    combination is given a different identifier. This identifier can be
+    used later on to identify comparable data groups for calculating
+    statistics and creating figures for each combination.
 
-2.  Some variables have different names but represent the same constituent (e.g., "Total Kjeldahl nitrogen (Organic N & NH3)" and "Kjeldahl nitrogen"). The HarmonizeData function gives a consistent name (and identifier) to synonyms.
+2.  Some variables have different names but represent the same
+    constituent (e.g., "Total Kjeldahl nitrogen (Organic N & NH3)" and
+    "Kjeldahl nitrogen"). The HarmonizeData function gives a consistent
+    name (and identifier) to synonyms.
 
 ```{r}
 UniqueHarmonizationRef <- HarmonizationRefTable(TADAProfileClean16, download = FALSE)
 TADAProfileClean17 <- HarmonizeData(TADAProfileClean16, ref = UniqueHarmonizationRef, transform = TRUE, flag = TRUE)
 ```
 
-THE FOLLOWING IS CHARACTERISTIC SPECIFIC 
+THE FOLLOWING IS CHARACTERISTIC SPECIFIC
 
 PLACEHOLDER: Address censored data for a single characteristic
+
 ```{r}
 #How to point to a column in R: yourdataset$thecolumnyouwant
 #E.g., temp$ResultMeasureValueNitrogenExample <- filter(TADAProfileClean17, CharacteristicName == "NITROGEN")
@@ -645,6 +723,7 @@ SingleCharacteristic$ResultMeasureValue <- ifelse(is.na(SingleCharacteristic$Res
 ```
 
 PLACEHOLDER: Summarize results for a single characteristic
+
 ```{r}
 summary(SingleCharacteristic$ResultMeasureValue)
 #na.rm = TRUE strips NA values before the mean computation proceeds
@@ -652,8 +731,8 @@ hist(SingleCharacteristic$ResultMeasureValue)
 ```
 
 PLACEHOLDER: Create animated national map for a single characteristic
+
 ```{r}
 #Animation currently only works for Total Nitrogen. Updates coming soon.
 CreateAnimatedMap(SingleCharacteristic)
 ```
-
