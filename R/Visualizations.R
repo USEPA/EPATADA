@@ -1,5 +1,6 @@
-#' Generate Animated Map
+#' @title Generate Animated Map
 #' 
+#' @description
 #' Animated map code adapted from USGS blog: https://waterdata.usgs.gov/blog/large_sample_pull/
 #'
 #' @param .data TADA dataframe
@@ -8,7 +9,6 @@
 #'
 #' @export
 #' 
-#'
 
 CreateAnimatedMap <- function(.data) { 
   
@@ -66,8 +66,9 @@ CreateAnimatedMap <- function(.data) {
   }
 
 
-#' Generate Map
+#' @title Generate Map
 #'
+#' @description 
 #' Function will plot WQP stations on a map. Stations with an invalid or imprecise
 #' latitude or longitude will be colored red; all other stations will be colored 
 #' blue. 
@@ -103,4 +104,33 @@ maps::map()
 # draw the site locations onto the map
 graphics::points(.data$LongitudeMeasure, .data$LatitudeMeasure, col="red", pch=20) 
 
+}
+
+
+#' @title Summarize data downloaded for each Characteristic
+#' 
+#' @description 
+#' Function to summarize the number of sites and records downloaded from the 
+#' WQP for each CharacteristicName.
+#' 
+#' @param .data TADA data frame containing the data downloaded from the WQP, where
+#' each row represents a unique data record.
+#' 
+#' @return 
+#' Saves a .csv file containing the total number of sites and records downloaded
+#' from the Water Quality Portal for each requested characteristic name.
+#'  
+#' @export
+#'  
+
+SummarizeCharacteristics <- function(.data){
+  
+  # Summarize WQP data pull
+  wqp_summary <- .data %>%
+    dplyr::group_by(CharacteristicName) %>%
+    dplyr::summarize(n_sites = length(unique(MonitoringLocationIdentifier)),
+                     n_records = length(ResultMeasureValue),
+                     .groups = 'drop') %>%
+    dplyr::select(CharacteristicName, n_sites, n_records)
+  
 }
