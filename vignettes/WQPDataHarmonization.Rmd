@@ -28,7 +28,7 @@ multiple organizations.
 
 ## Install and load packages
 
-To install TADA, currently you need to install from GitHub using remotes
+To install TADA,  currently you need to install from GitHub using remotes
 (shown) or devtools. dataRetrieval will be downloaded from CRAN, but the
 development version can be downloaded directly from GitHub (un-comment).
 
