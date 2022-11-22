@@ -1,6 +1,6 @@
 ---
 title: "WQP Data Harmonization"
-author: "Cristina A. Mullin"
+author: "Cristina Mullin"
 date: "`r Sys.Date()`"
 output: rmarkdown::html_vignette
 vignette: >
