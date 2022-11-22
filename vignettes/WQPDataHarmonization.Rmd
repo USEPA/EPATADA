@@ -83,7 +83,7 @@ library(TADA)
 ## Retrieve WQP data
 
 WQP data is retrieved and processed for compatibility with TADA. This
-function, TADAdataRetrieval builds on the USGS dataRetrieval package
+function, TADAdataRetrieval, builds on the USGS dataRetrieval package
 functions. It joins three WQP profiles (i.e., the station, narrow, and
 phys/chem), changes all data in the Characteristic, Speciation,
 Fraction, and Unit fields to uppercase, removes true duplicates, removes
@@ -136,12 +136,12 @@ the console for more details):
     preserved in these new fields, "ResultMeasureValue.Original" and
     "DetectionLimitMeasureValue.Original". Additionally,
     "TADA.ResultMeasureValue.Flag" and
-    "TADA.DetectionLimitMeasureValue.Flag" are created to track and
+    "TADA.DetectionLimitMeasureValue.Flag" are created to track any
     changes made to the "ResultMeasureValue" and
     "DetectionLimitMeasureValue" columns; and to provide information
     about the result values that is needed to address censored data
     later on (i.e., nondetections). Specifically, these new columns flag
-    if special characters that are included in result values, and
+    if special characters are included in result values, and
     specifies what the special characters are.
 
     -   ResultMeasureValue.Original
