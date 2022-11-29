@@ -63,3 +63,6 @@ WA_raw_data.rds
 WV_raw_data.rds
 WI_raw_data.rds
 WY_raw_data.rds
+.Rdata
+.httr-oauth
+.DS_Store

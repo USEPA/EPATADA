@@ -41,7 +41,8 @@ Imports:
     stats, 
     gganimate,
     lubridate,
-    maps
+    maps, 
+    readr
 Depends: 
     R (>= 3.5.0)
 Suggests: 

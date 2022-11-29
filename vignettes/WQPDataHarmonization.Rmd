@@ -56,6 +56,7 @@ dataRetrieval from GitHub.
 
 ```{r, results = 'hide', message = FALSE, warning = FALSE}
 # remotes::install_github("USGS-R/dataRetrieval", dependencies=TRUE)
+
 remotes::install_github("USEPA/TADA", dependencies=TRUE)
 ```
 
@@ -213,7 +214,7 @@ Option 1: Use the TADAdataRetrieval function.
 #dataRetrievalProfile <- dataRetrieval::readWQPdata(statecode = "UT", characteristicName = c("Ammonia", "Nitrate", "Nitrogen"), startDate = "01-01-2021", ignore_attributes = TRUE)
 
 #You can edit this to define your own WQP query inputs below
-TADAProfile <- TADAdataRetrieval(statecode = "UT", characteristicName = c("Ammonia", "Nitrate", "Nitrogen"), startDate = "01-01-2021")
+TADAProfile <- TADAdataRetrieval(statecode = "UT", characteristicName = c("Ammonia", "Nitrate", "Nitrogen"), startDate = "10-01-2020")
 
 ```
 
@@ -240,10 +241,17 @@ States that is available for the time period, characteristicName, and
 siteType requested.
 
 See ?TADABigdataRetrieval for more details. WARNING, this can take
-multiple hours to run. The total run time depends on your query inputs.
+multiple HOURS to run. The total run time depends on your query inputs.
 
 ```{r}
-#AllWaterTempData <- TADABigdataRetrieval(startDate = "2019-01-01", endDate = "2021-12-31", characteristicName = "Temperature, water", siteType = "Stream")
+# AllWaterTempData <- TADABigdataRetrieval(startDate = "2019-01-01", endDate = "2021-12-31", characteristicName = "Temperature, water", siteType = "Stream")
+```
+
+Review all column names in the TADA Profile
+
+```{r}
+colnames(TADAProfile)
+TADAProfile_CharSummary <- SummarizeCharacteristics(TADAProfile)
 ```
 
 ## Invalid coordinates
@@ -300,11 +308,6 @@ map('county', 'utah')
 points(TADAProfileClean1$LongitudeMeasure, TADAProfileClean1$LatitudeMeasure, col="red", pch=20)
 ```
 
-Review all column names in the TADA Profile
-
-```{r}
-colnames(TADAProfile)
-```
 
 ## Depth unit conversions
 
@@ -338,7 +341,7 @@ entering the following code in the console: ?ConvertDepthUnits
 
 ```{r}
 #converts all depth profile data to meters
-TADAProfileClean2 <- ConvertDepthUnits(TADAProfileClean1, unit = "ft", transform = TRUE)
+TADAProfileClean2 <- ConvertDepthUnits(TADAProfileClean1, unit = "m", transform = TRUE)
 ```
 
 ## Result unit conversions

@@ -256,11 +256,10 @@ readWQPwebservice <- function(webservice) {
 #'
 #' @examples 
 #' \dontrun{
-#' tada2 <- TADABigdataRetrieval(startDate = "01-01-2021", 
-#'                               endDate = "01-01-2022", 
-#'                               characteristicName = "Nitrogen",
-#'                               siteType = "Stream")
+#' tada2 <- TADABigdataRetrieval(startDate = "2019-01-01", endDate = "2021-12-31", characteristicName = "Temperature, water", siteType = "Stream")
 #' }
+#' 
+
 
 TADABigdataRetrieval <- function(startDate = "null",
                               endDate = "null",
@@ -307,7 +306,10 @@ TADABigdataRetrieval <- function(startDate = "null",
     if(length(siteid_all) > 0) {
       
       l=length(siteid_all)  #len(sites)
-      g=100   #grouping size
+      g=100   #max number of sites pulled per WQP query
+      #may want to consider using the total number of records in a given 
+      #download group instead, e.g., records must not exceed some maximum 
+      #threshold (e.g. USGS uses 250,000 records per group for their pipelines)
       nl=ceiling(l/g) #number of queries
       
       i=0

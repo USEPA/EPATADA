@@ -389,3 +389,4 @@ checkColumns <- function(.data, expected_cols) {
     stop("The dataframe does not contain the required fields to use TADA. Use either the full physical/chemical profile downloaded from WQP or download the TADA profile template available on the EPA TADA webpage.")
   }
 }
+
