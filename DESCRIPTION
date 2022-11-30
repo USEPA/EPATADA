@@ -41,11 +41,11 @@ Imports:
     stats, 
     gganimate,
     lubridate,
-    maps, 
-    readr
+    maps
 Depends: 
     R (>= 3.5.0)
 Suggests: 
+    readr,
     gifski,
     rlang,
     remotes, 

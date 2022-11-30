@@ -71,9 +71,9 @@
   <main id="main" class="col-md-9"><div class="page-header">
       <img src="" class="logo" alt=""><h1>WQP Data Harmonization</h1>
                         <h4 data-toc-skip class="author">Cristina A.
-Mullin</h4>
+Mullin, TADA Team</h4>
             
-            <h4 data-toc-skip class="date">2022-11-08</h4>
+            <h4 data-toc-skip class="date">2022-11-30</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/USEPA/TADA/blob/HEAD/vignettes/WQPDataHarmonization.Rmd" class="external-link"><code>vignettes/WQPDataHarmonization.Rmd</code></a></small>
       <div class="d-none name"><code>WQPDataHarmonization.Rmd</code></div>
@@ -94,11 +94,12 @@ Portal (WQP)</a> data from multiple organizations.</p>
 <p>To install TADA, currently you need to install from GitHub using
 remotes (shown) or devtools. dataRetrieval will be downloaded from CRAN,
 but the development version can be downloaded directly from GitHub
-(un-comment). The following code will also install any packages you do
-not have, and load all packages required to run this vignette into your
-R session.</p>
+(un-comment).</p>
+<p>The following code will also install any packages you do not have,
+and load all packages required to run this vignette into your R
+session.</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">list.of.packages</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"plyr"</span>, <span class="st">"data.table"</span>, <span class="st">"dataRetrieval"</span>, <span class="st">"dplyr"</span>, <span class="st">"ggplot2"</span>, <span class="st">"grDevices"</span>, <span class="st">"magrittr"</span>, <span class="st">"stringr"</span>, <span class="st">"utils"</span>, <span class="st">"RColorBrewer"</span>, <span class="st">"stats"</span>, <span class="st">"lubridate"</span>, <span class="st">"remotes"</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="va">list.of.packages</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"plyr"</span>, <span class="st">"data.table"</span>, <span class="st">"dataRetrieval"</span>, <span class="st">"dplyr"</span>, <span class="st">"ggplot2"</span>, <span class="st">"grDevices"</span>, <span class="st">"magrittr"</span>, <span class="st">"stringr"</span>, <span class="st">"utils"</span>, <span class="st">"RColorBrewer"</span>, <span class="st">"stats"</span>, <span class="st">"remotes"</span>, <span class="st">"gganimate"</span>, <span class="st">"gifski"</span>, <span class="st">"maps"</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">new.packages</span> <span class="op">&lt;-</span> <span class="va">list.of.packages</span><span class="op">[</span><span class="op">!</span><span class="op">(</span><span class="va">list.of.packages</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="fu"><a href="https://rdrr.io/r/utils/installed.packages.html" class="external-link">installed.packages</a></span><span class="op">(</span><span class="op">)</span><span class="op">[</span>,<span class="st">"Package"</span><span class="op">]</span><span class="op">)</span><span class="op">]</span></span>
 <span><span class="kw">if</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">new.packages</span><span class="op">)</span><span class="op">)</span> <span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="va">new.packages</span><span class="op">)</span></span></code></pre></div>
@@ -112,6 +113,7 @@ GitHub</p>
 dataRetrieval from GitHub.</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># remotes::install_github("USGS-R/dataRetrieval", dependencies=TRUE)</span></span>
+<span></span>
 <span><span class="fu">remotes</span><span class="fu">::</span><span class="fu"><a href="https://remotes.r-lib.org/reference/install_github.html" class="external-link">install_github</a></span><span class="op">(</span><span class="st">"USEPA/TADA"</span>, dependencies<span class="op">=</span><span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
 <p>Load the required libraries to run this vignette into your R
 session</p>
@@ -126,9 +128,11 @@ session</p>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">utils</span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">RColorBrewer</span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">stats</span><span class="op">)</span></span>
-<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://lubridate.tidyverse.org" class="external-link">lubridate</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://rlang.r-lib.org" class="external-link">rlang</a></span><span class="op">)</span></span>
-<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://pubs.usgs.gov/tm/04/a10/" class="external-link">dataRetrieval</a></span><span class="op">)</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://code.usgs.gov/water/dataRetrieval" class="external-link">dataRetrieval</a></span><span class="op">)</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://gganimate.com" class="external-link">gganimate</a></span><span class="op">)</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://gif.ski/" class="external-link">gifski</a></span><span class="op">)</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">maps</span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://usepa.github.io/TADA/" class="external-link">TADA</a></span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">
@@ -251,7 +255,7 @@ Tutorial</a></p></li>
 <span><span class="co">#dataRetrievalProfile &lt;- dataRetrieval::readWQPdata(statecode = "UT", characteristicName = c("Ammonia", "Nitrate", "Nitrogen"), startDate = "01-01-2021", ignore_attributes = TRUE)</span></span>
 <span></span>
 <span><span class="co">#You can edit this to define your own WQP query inputs below</span></span>
-<span><span class="va">TADAProfile</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/TADAdataRetrieval.html">TADAdataRetrieval</a></span><span class="op">(</span>statecode <span class="op">=</span> <span class="st">"UT"</span>, characteristicName <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Ammonia"</span>, <span class="st">"Nitrate"</span>, <span class="st">"Nitrogen"</span><span class="op">)</span>, startDate <span class="op">=</span> <span class="st">"01-01-2021"</span><span class="op">)</span></span></code></pre></div>
+<span><span class="va">TADAProfile</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/TADAdataRetrieval.html">TADAdataRetrieval</a></span><span class="op">(</span>statecode <span class="op">=</span> <span class="st">"UT"</span>, characteristicName <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Ammonia"</span>, <span class="st">"Nitrate"</span>, <span class="st">"Nitrogen"</span><span class="op">)</span>, startDate <span class="op">=</span> <span class="st">"10-01-2020"</span><span class="op">)</span></span></code></pre></div>
 <p>Option 2: Alternatively, you can use the data.table::fread function
 to read in a web service call for any WQP profile (un-comment).</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
@@ -271,10 +275,10 @@ download all data available from all sites in the contiguous United
 States that is available for the time period, characteristicName, and
 siteType requested.</p>
 <p>See ?TADABigdataRetrieval for more details. WARNING, this can take
-multiple hours to run. The total run time depends on your query
+multiple HOURS to run. The total run time depends on your query
 inputs.</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co">#AllWaterTempData &lt;- TADABigdataRetrieval(startDate = "2019-01-01", endDate = "2021-12-31", characteristicName = "Temperature, water", siteType = "Stream")</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="co"># AllWaterTempData &lt;- TADABigdataRetrieval(startDate = "2019-01-01", endDate = "2021-12-31", characteristicName = "Temperature, water", siteType = "Stream")</span></span></code></pre></div>
 <p>Review all column names in the TADA Profile</p>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="va">TADAProfile</span><span class="op">)</span></span>
@@ -389,7 +393,58 @@ inputs.</p>
 <span><span class="co">#&gt; [109] "QAPPApprovedIndicator"                            </span></span>
 <span><span class="co">#&gt; [110] "QAPPApprovalAgencyName"                           </span></span>
 <span><span class="co">#&gt; [111] "ProjectFileUrl"                                   </span></span>
-<span><span class="co">#&gt; [112] "ProjectMonitoringLocationWeightingUrl"</span></span></code></pre></div>
+<span><span class="co">#&gt; [112] "ProjectMonitoringLocationWeightingUrl"</span></span>
+<span><span class="va">TADAProfile_CharSummary</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/SummarizeCharacteristics.html">SummarizeCharacteristics</a></span><span class="op">(</span><span class="va">TADAProfile</span><span class="op">)</span></span></code></pre></div>
+</div>
+<div class="section level2">
+<h2 id="invalid-coordinates">Invalid coordinates<a class="anchor" aria-label="anchor" href="#invalid-coordinates"></a>
+</h2>
+<p>Review station locations</p>
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co">#create a map of the world</span></span>
+<span><span class="fu"><a href="https://rdrr.io/pkg/maps/man/map.html" class="external-link">map</a></span><span class="op">(</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># uncomment below to create USA base map instead</span></span>
+<span><span class="co">#map("usa")</span></span>
+<span></span>
+<span><span class="co"># uncomment below to add state outlines to USA map</span></span>
+<span><span class="co">#map("state", add=TRUE)</span></span>
+<span></span>
+<span><span class="co"># uncomment below to add county outlines to USA map</span></span>
+<span><span class="co">#map("county", add=TRUE)</span></span>
+<span></span>
+<span></span>
+<span><span class="co"># uncomment below to draw map of a specific state instead, with county lines</span></span>
+<span><span class="co"># maps::map('county', 'utah')</span></span>
+<span></span>
+<span><span class="co"># draw the site locations onto the map</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/points.html" class="external-link">points</a></span><span class="op">(</span><span class="va">TADAProfile</span><span class="op">$</span><span class="va">LongitudeMeasure</span>, <span class="va">TADAProfile</span><span class="op">$</span><span class="va">LatitudeMeasure</span>, col<span class="op">=</span><span class="st">"red"</span>, pch<span class="op">=</span><span class="fl">20</span><span class="op">)</span></span></code></pre></div>
+<p><img src="WQPDataHarmonization_files/figure-html/unnamed-chunk-9-1.png" width="700"></p>
+<p>The TADA InvalidCoordinates function identifies and flags invalid
+coordinate data.</p>
+<p>When clean_outsideUSA = FALSE and clean_imprecise = FALSE, a column
+will be appended titled “TADA.InvalidCoordinates” with the following
+flags (if relevant to dataframe).</p>
+<ul>
+<li><p>If the latitude is less than zero, the row will be flagged with
+“LAT_OutsideUSA”.</p></li>
+<li><p>If the longitude is greater than zero AND less than 145, the row
+will be flagged as “LONG_OutsideUSA”.</p></li>
+<li><p>If the latitude or longitude contains the string, “999”, the row
+will be flagged as invalid.</p></li>
+<li><p>Finally, precision can be measured by the number of decimal
+places in the latitude and longitude provided. If either does not have
+any numbers to the right of the decimal point, the row will be flagged
+as “Imprecise”.</p></li>
+</ul>
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">TADAProfileClean1</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/InvalidCoordinates.html">InvalidCoordinates</a></span><span class="op">(</span><span class="va">TADAProfile</span>, clean_outsideUSA <span class="op">=</span> <span class="cn">TRUE</span>, clean_imprecise <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
+<span><span class="co">#&gt; [1] "All invalid coordinates were removed or your dataframe does not contain monitoring stations with invalid coordinates"</span></span>
+<span></span>
+<span><span class="co">#redraw map after all rows with invalid LAT/LONG data are removed</span></span>
+<span><span class="fu"><a href="https://rdrr.io/pkg/maps/man/map.html" class="external-link">map</a></span><span class="op">(</span><span class="st">'county'</span>, <span class="st">'utah'</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/points.html" class="external-link">points</a></span><span class="op">(</span><span class="va">TADAProfileClean1</span><span class="op">$</span><span class="va">LongitudeMeasure</span>, <span class="va">TADAProfileClean1</span><span class="op">$</span><span class="va">LatitudeMeasure</span>, col<span class="op">=</span><span class="st">"red"</span>, pch<span class="op">=</span><span class="fl">20</span><span class="op">)</span></span></code></pre></div>
+<p><img src="WQPDataHarmonization_files/figure-html/unnamed-chunk-10-1.png" width="700"></p>
 </div>
 <div class="section level2">
 <h2 id="depth-unit-conversions">Depth unit conversions<a class="anchor" aria-label="anchor" href="#depth-unit-conversions"></a>
@@ -418,9 +473,9 @@ default is all.</p>
 Default is unit = “m”.</p>
 <p>See additional function documentation for additional function options
 by entering the following code in the console: ?ConvertDepthUnits</p>
-<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">#converts all depth profile data to meters</span></span>
-<span><span class="va">TADAProfileClean1</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/ConvertDepthUnits.html">ConvertDepthUnits</a></span><span class="op">(</span><span class="va">TADAProfile</span>, unit <span class="op">=</span> <span class="st">"ft"</span>, transform <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
+<span><span class="va">TADAProfileClean2</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/ConvertDepthUnits.html">ConvertDepthUnits</a></span><span class="op">(</span><span class="va">TADAProfileClean1</span>, unit <span class="op">=</span> <span class="st">"m"</span>, transform <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="result-unit-conversions">Result unit conversions<a class="anchor" aria-label="anchor" href="#result-unit-conversions"></a>
@@ -432,38 +487,40 @@ from the MeasureUnit domain table:</p>
 </ul>
 <p>See additional function documentation for additional function options
 by entering the following code in the console: ?ConvertResultUnits</p>
-<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">#Converts all results to WQX target units</span></span>
-<span><span class="va">TADAProfileClean2</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/ConvertResultUnits.html">ConvertResultUnits</a></span><span class="op">(</span><span class="va">TADAProfileClean1</span>, transform <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
+<span><span class="va">TADAProfileClean3</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/ConvertResultUnits.html">ConvertResultUnits</a></span><span class="op">(</span><span class="va">TADAProfileClean2</span>, transform <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="statistically-aggregated-data">Statistically aggregated data<a class="anchor" aria-label="anchor" href="#statistically-aggregated-data"></a>
 </h2>
 <p>Checks for and removes statistically aggregated high frequency (i.e.,
 continuous) data, if present.</p>
-<p>The Water Quality Portal (WQP) is not designed to store
-high-frequency sensor data. However, sometimes data providers choose to
-aggregate their continuous data and submit it to WQP as one value. This
-type of data may not be suitable for integration with discrete water
-quality data for assessments. Therefore, this function uses metadata
-submitted by data providers to flags rows with aggregated continuous
-data.</p>
+<p>The Water Quality Portal (WQP) is not currently designed to store
+high-frequency sensor data (more than 1 value per day). However,
+sometimes data providers choose to aggregate their continuous data to a
+daily avg, max, or min value, and then submit that aggregated data to
+the WQP through WQX. Alternatively, some organizations aggregate their
+high frequency data (15 min or 1 hour data) to 2 or 4 hour interval
+averages, and they also submit that data to the WQP through WQX. This
+type of high frequency data may (or may not) be suitable for integration
+with discrete water quality data for assessments. Therefore, this
+function uses metadata submitted by data providers to flag rows with
+aggregated continuous data. This is done by flagging results where the
+ResultDetectionConditionText = “Reported in Raw Data (attached)”.</p>
 <ul>
-<li>
-<p>This is done by flagging results where the
-ResultDetectionConditionText = “Reported in Raw Data (attached)”</p>
-<ul>
+<li><p>When clean = FALSE, a column titled
+“TADA.AggregatedContinuousData” is added to the dataframe to indicate if
+the row includes aggregated continuous data, “Y”, or not, “N”.</p></li>
 <li><p>When clean = TRUE, rows with aggregated continuous data are
-removed from the dataframe and no column will be appended</p></li>
-<li><p>Default is clean = TRUE</p></li>
+removed from the dataframe and no column will be appended. The default
+is clean = TRUE.</p></li>
 </ul>
-</li>
-<li><p>See function documentation for additional function options by
+<p>See function documentation for additional function options by
 entering the following code in the console:
-?AggregatedContinuousData</p></li>
-</ul>
-<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">TADAProfileClean3</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/AggregatedContinuousData.html">AggregatedContinuousData</a></span><span class="op">(</span><span class="va">TADAProfileClean2</span>, clean <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
+?AggregatedContinuousData</p>
+<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">TADAProfileClean4</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/AggregatedContinuousData.html">AggregatedContinuousData</a></span><span class="op">(</span><span class="va">TADAProfileClean3</span>, clean <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] "No changes were made, because we did not find any aggregated continuous data in your dataframe"</span></span></code></pre></div>
 </div>
 <div class="section level2">
@@ -522,13 +579,13 @@ no column will be appended.</li>
 </ul>
 </li>
 </ul>
-<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">TADAProfileClean4</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/InvalidMethod.html">InvalidMethod</a></span><span class="op">(</span><span class="va">TADAProfileClean3</span>, clean <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
+<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">TADAProfileClean5</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/InvalidMethod.html">InvalidMethod</a></span><span class="op">(</span><span class="va">TADAProfileClean4</span>, clean <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] "No changes were made, because we did not find any invalid method/characteristic combinations in your dataframe"</span></span>
-<span><span class="va">TADAProfileClean5</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/InvalidFraction.html">InvalidFraction</a></span><span class="op">(</span><span class="va">TADAProfileClean4</span>, clean <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
+<span><span class="va">TADAProfileClean6</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/InvalidFraction.html">InvalidFraction</a></span><span class="op">(</span><span class="va">TADAProfileClean5</span>, clean <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] "No changes were made, because we did not find any invalid fraction/characteristic combinations in your dataframe"</span></span>
-<span><span class="va">TADAProfileClean6</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/InvalidSpeciation.html">InvalidSpeciation</a></span><span class="op">(</span><span class="va">TADAProfileClean5</span>, clean <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
-<span><span class="va">TADAProfileClean7</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/InvalidResultUnit.html">InvalidResultUnit</a></span><span class="op">(</span><span class="va">TADAProfileClean6</span>, clean <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
+<span><span class="va">TADAProfileClean7</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/InvalidSpeciation.html">InvalidSpeciation</a></span><span class="op">(</span><span class="va">TADAProfileClean6</span>, clean <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
+<span><span class="va">TADAProfileClean8</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/InvalidResultUnit.html">InvalidResultUnit</a></span><span class="op">(</span><span class="va">TADAProfileClean7</span>, clean <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="wqx-national-upper-and-lower-thresholds">WQX national upper and lower thresholds<a class="anchor" aria-label="anchor" href="#wqx-national-upper-and-lower-thresholds"></a>
@@ -561,9 +618,9 @@ removed from the dataframe.</p></li>
 <p>The default is clean=TRUE, but you can change this to only flag
 results if desired. Results will be flagged, but not removed, when
 clean=FALSE.</p>
-<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">TADAProfileClean8</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/AboveNationalWQXUpperThreshold.html">AboveNationalWQXUpperThreshold</a></span><span class="op">(</span><span class="va">TADAProfileClean7</span>, clean <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
-<span><span class="va">TADAProfileClean9</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/BelowNationalWQXLowerThreshold.html">BelowNationalWQXLowerThreshold</a></span><span class="op">(</span><span class="va">TADAProfileClean8</span>, clean <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
+<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">TADAProfileClean9</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/AboveNationalWQXUpperThreshold.html">AboveNationalWQXUpperThreshold</a></span><span class="op">(</span><span class="va">TADAProfileClean8</span>, clean <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
+<span><span class="va">TADAProfileClean10</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/BelowNationalWQXLowerThreshold.html">BelowNationalWQXLowerThreshold</a></span><span class="op">(</span><span class="va">TADAProfileClean9</span>, clean <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="potential-duplicates">Potential duplicates<a class="anchor" aria-label="anchor" href="#potential-duplicates"></a>
@@ -592,30 +649,8 @@ appended.</p></li>
 </ul>
 <p>When clean = TRUE, the function retains the first occurrence of each
 potential duplicate in the dataframe. Default is clean = TRUE.</p>
-<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">TADAProfileClean10</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/PotentialDuplicateRowID.html">PotentialDuplicateRowID</a></span><span class="op">(</span><span class="va">TADAProfileClean9</span><span class="op">)</span></span></code></pre></div>
-</div>
-<div class="section level2">
-<h2 id="invalid-coordinates">Invalid coordinates<a class="anchor" aria-label="anchor" href="#invalid-coordinates"></a>
-</h2>
-<p>Function identifies and flags invalid coordinate data.</p>
-<p>When clean_outsideUSA = FALSE and clean_imprecise = FALSE, a column
-will be appended titled “TADA.InvalidCoordinates” with the following
-flags (if relevant to dataframe).</p>
-<ul>
-<li><p>If the latitude is less than zero, the row will be flagged with
-“LAT_OutsideUSA”.</p></li>
-<li><p>If the longitude is greater than zero AND less than 145, the row
-will be flagged as “LONG_OutsideUSA”.</p></li>
-<li><p>If the latitude or longitude contains the string, “999”, the row
-will be flagged as invalid.</p></li>
-<li><p>Finally, precision can be measured by the number of decimal
-places in the latitude and longitude provided. If either does not have
-any numbers to the right of the decimal point, the row will be flagged
-as “Imprecise”.</p></li>
-</ul>
-<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">TADAProfileClean11</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/InvalidCoordinates.html">InvalidCoordinates</a></span><span class="op">(</span><span class="va">TADAProfileClean10</span>, clean_outsideUSA <span class="op">=</span> <span class="cn">FALSE</span>, clean_imprecise <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
+<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">TADAProfileClean11</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/PotentialDuplicateRowID.html">PotentialDuplicateRowID</a></span><span class="op">(</span><span class="va">TADAProfileClean10</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="review-qapp-information">Review QAPP information<a class="anchor" aria-label="anchor" href="#review-qapp-information"></a>
@@ -633,7 +668,7 @@ QAPPApprovedIndicator equals “N”.</p>
 clean = TRUE and cleanNA = TRUE.</p>
 <p>If both clean = FALSE and cleanNA = FALSE, the function will not do
 anything.</p>
-<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">TADAProfileClean12</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/QAPPapproved.html">QAPPapproved</a></span><span class="op">(</span><span class="va">TADAProfileClean11</span>, clean <span class="op">=</span> <span class="cn">TRUE</span>, cleanNA <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
 <p>Check to see if a QAPP Doc is Available</p>
 <p>This function checks data submitted under the “ProjectFileUrl” column
@@ -644,7 +679,7 @@ not have an associated QAPP document are removed from the dataframe and
 no column will be appended. This function should only be used to remove
 data if an accompanying QAPP document is required to use data in
 assessments.</p>
-<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">TADAProfileClean13</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/QAPPDocAvailable.html">QAPPDocAvailable</a></span><span class="op">(</span><span class="va">TADAProfileClean12</span>, clean <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] "No changes were made, because we did not find any QAPP document url data in your dataframe"</span></span></code></pre></div>
 </div>
@@ -656,48 +691,46 @@ specific fields and may choose to remove data with particular
 values.</p>
 <p>To start, review the list of fields and the number of unique values
 in each field.</p>
-<div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/FilterFields.html">FilterFields</a></span><span class="op">(</span><span class="va">TADAProfileClean13</span><span class="op">)</span></span>
 <span><span class="co">#&gt;                             FieldName Count</span></span>
-<span><span class="co">#&gt; 1              OrganizationFormalName     7</span></span>
-<span><span class="co">#&gt; 2                    ActivityTypeCode     7</span></span>
+<span><span class="co">#&gt; 1              OrganizationFormalName     8</span></span>
+<span><span class="co">#&gt; 2                    ActivityTypeCode     8</span></span>
 <span><span class="co">#&gt; 3                   ActivityMediaName     1</span></span>
 <span><span class="co">#&gt; 4        ActivityMediaSubdivisionName     4</span></span>
-<span><span class="co">#&gt; 5                 ActivityCommentText     4</span></span>
+<span><span class="co">#&gt; 5                 ActivityCommentText     6</span></span>
 <span><span class="co">#&gt; 6                 HydrologicCondition     8</span></span>
 <span><span class="co">#&gt; 7                     HydrologicEvent     4</span></span>
 <span><span class="co">#&gt; 8                  CharacteristicName     3</span></span>
-<span><span class="co">#&gt; 9                MeasureQualifierCode     4</span></span>
+<span><span class="co">#&gt; 9                MeasureQualifierCode     6</span></span>
 <span><span class="co">#&gt; 10            SampleTissueAnatomyName     1</span></span>
 <span><span class="co">#&gt; 11                     LaboratoryName    11</span></span>
 <span><span class="co">#&gt; 12 DetectionQuantitationLimitTypeName     7</span></span>
 <span><span class="co">#&gt; 13         MonitoringLocationTypeName    14</span></span>
-<span><span class="co">#&gt; 14                        ProjectName     8</span></span></code></pre></div>
+<span><span class="co">#&gt; 14                        ProjectName     9</span></span></code></pre></div>
 <p>Next, choose a field from the list to see the unique values in that
 field, as well as the number of times each value appears in the
 dataframe. We’ll start with ActivityTypeCode.</p>
 <p>Here is a list of other fields to review:</p>
 <ol style="list-style-type: decimal">
-<li>
-<strong>ResultCommentText</strong> often has details relating to
-additional QA.</li>
-<li>
-<strong>MeasureQualifierCode</strong> Contains information about
-data flags 3. Other codes may designate suspect data or other flags
-which may be described in detail in
-<strong>ResultLaboratoryCommentText</strong> or another column</li>
+<li><p><strong>ResultCommentText</strong> often has details relating to
+additional QA.</p></li>
+<li><p><strong>MeasureQualifierCode</strong> Contains information about
+data flags</p></li>
+<li><pre><code>Other codes may designate suspect data or other flags which may be described in detail in **ResultLaboratoryCommentText** or another column</code></pre></li>
 </ol>
-<div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb21"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/FilterFieldReview.html">FilterFieldReview</a></span><span class="op">(</span><span class="st">"ActivityTypeCode"</span>, <span class="va">TADAProfileClean13</span><span class="op">)</span></span></code></pre></div>
-<p><img src="WQPDataHarmonization_files/figure-html/unnamed-chunk-19-1.png" width="576"></p>
+<p><img src="WQPDataHarmonization_files/figure-html/unnamed-chunk-20-1.png" width="576"></p>
 <pre><code><span><span class="co">#&gt;                               FieldValue Count</span></span>
-<span><span class="co">#&gt; 7                         Sample-Routine  5268</span></span>
-<span><span class="co">#&gt; 6     Sample-Integrated Vertical Profile   474</span></span>
-<span><span class="co">#&gt; 4 Quality Control Sample-Field Replicate   454</span></span>
-<span><span class="co">#&gt; 2 Quality Control Sample-Equipment Blank   276</span></span>
-<span><span class="co">#&gt; 3     Quality Control Sample-Field Blank    60</span></span>
+<span><span class="co">#&gt; 8                         Sample-Routine  6362</span></span>
+<span><span class="co">#&gt; 5 Quality Control Sample-Field Replicate   560</span></span>
+<span><span class="co">#&gt; 7     Sample-Integrated Vertical Profile   510</span></span>
+<span><span class="co">#&gt; 3 Quality Control Sample-Equipment Blank   276</span></span>
+<span><span class="co">#&gt; 4     Quality Control Sample-Field Blank   134</span></span>
 <span><span class="co">#&gt; 1                          Field Msr/Obs     4</span></span>
-<span><span class="co">#&gt; 5   Quality Control Sample-Lab Duplicate     2</span></span></code></pre>
+<span><span class="co">#&gt; 6   Quality Control Sample-Lab Duplicate     2</span></span>
+<span><span class="co">#&gt; 2 Quality Control Sample-Blind Duplicate     1</span></span></code></pre>
 <p>The ActivityTypeCode field has four unique values – “Sample-Routine”,
 “Quality Control Sample-Field Replicate”, “Field Msr/Obs”, and “Quality
 Control Sample-Field Blank.” In this example we want to remove quality
@@ -705,23 +738,23 @@ control values in the ActivityTypeCode field, therefore, we’ll specify
 that we want to remove the “Quality Control Sample-Field Replicate” and
 “Quality Control Sample-Field Blank” values in the ActivityTypeCode
 field.</p>
-<div class="sourceCode" id="cb21"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb23"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">TADAProfileClean14</span> <span class="op">&lt;-</span> <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">TADAProfileClean13</span>, <span class="op">!</span><span class="op">(</span><span class="va">ActivityTypeCode</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Quality Control Sample-Field Replicate"</span>, <span class="st">"Quality Control Sample-Field Blank"</span>, <span class="st">"Quality Control Sample-Lab Duplicate"</span>, <span class="st">"Quality Control Sample-Equipment Blank"</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <p>We’ve completed our review of the ActivityTypeCode field.</p>
 <p>Let’s move on to a different field and see if there are any values
 that we want to remove – we’ll look at the values in the
 ResultStatusIdentifier field.</p>
-<div class="sourceCode" id="cb22"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb24"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/FilterFieldReview.html">FilterFieldReview</a></span><span class="op">(</span><span class="st">"ActivityMediaSubdivisionName"</span>, <span class="va">TADAProfileClean14</span><span class="op">)</span></span></code></pre></div>
-<p><img src="WQPDataHarmonization_files/figure-html/unnamed-chunk-21-1.png" width="576"></p>
+<p><img src="WQPDataHarmonization_files/figure-html/unnamed-chunk-22-1.png" width="576"></p>
 <pre><code><span><span class="co">#&gt;        FieldValue Count</span></span>
-<span><span class="co">#&gt; 3   Surface Water   687</span></span>
-<span><span class="co">#&gt; 2     Groundwater   106</span></span>
+<span><span class="co">#&gt; 3   Surface Water   835</span></span>
+<span><span class="co">#&gt; 2     Groundwater   108</span></span>
 <span><span class="co">#&gt; 1 Bulk deposition     1</span></span></code></pre>
 <p>The ActivityMediaSubdivisionName field has two unique values,
 “Surface Water” and “Groundwater.” In this example we want to remove the
 “Groundwater” values.</p>
-<div class="sourceCode" id="cb24"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb26"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">TADAProfileClean15</span> <span class="op">&lt;-</span> <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">TADAProfileClean14</span>, <span class="op">!</span><span class="op">(</span><span class="va">ActivityMediaSubdivisionName</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Groundwater"</span>, <span class="st">"Bulk deposition"</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">
@@ -733,27 +766,27 @@ choose to remove particular values.</p>
 <p>To start, review the list of parameters in the dataframe. (The list
 is sorted from highest to lowest counts. Only the first few rows are
 displayed to save space on the page)</p>
-<div class="sourceCode" id="cb25"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb27"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/FilterParList.html">FilterParList</a></span><span class="op">(</span><span class="va">TADAProfileClean15</span><span class="op">)</span></span>
 <span><span class="co">#&gt;   FieldValue Count</span></span>
-<span><span class="co">#&gt; 3   NITROGEN  4130</span></span>
-<span><span class="co">#&gt; 2    NITRATE  1479</span></span>
-<span><span class="co">#&gt; 1    AMMONIA    30</span></span></code></pre></div>
+<span><span class="co">#&gt; 3   NITROGEN  5020</span></span>
+<span><span class="co">#&gt; 2    NITRATE  1722</span></span>
+<span><span class="co">#&gt; 1    AMMONIA    26</span></span></code></pre></div>
 <p>Next, select a parameter. Let’s explore the fields associated with
 Nitrogen:</p>
-<div class="sourceCode" id="cb26"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb28"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/FilterParFields.html">FilterParFields</a></span><span class="op">(</span><span class="va">TADAProfileClean15</span>, <span class="st">"NITROGEN"</span><span class="op">)</span></span>
 <span><span class="co">#&gt;                                         FieldName Count</span></span>
 <span><span class="co">#&gt; 1                                ActivityTypeCode     2</span></span>
 <span><span class="co">#&gt; 2                               ActivityMediaName     1</span></span>
 <span><span class="co">#&gt; 3                    ActivityMediaSubdivisionName     2</span></span>
-<span><span class="co">#&gt; 4                             ActivityCommentText     3</span></span>
+<span><span class="co">#&gt; 4                             ActivityCommentText     5</span></span>
 <span><span class="co">#&gt; 5                             HydrologicCondition     7</span></span>
 <span><span class="co">#&gt; 6                                 HydrologicEvent     2</span></span>
 <span><span class="co">#&gt; 7         SampleCollectionMethod.MethodIdentifier     6</span></span>
 <span><span class="co">#&gt; 8  SampleCollectionMethod.MethodIdentifierContext     2</span></span>
 <span><span class="co">#&gt; 9               SampleCollectionMethod.MethodName     6</span></span>
-<span><span class="co">#&gt; 10                  SampleCollectionEquipmentName     6</span></span>
+<span><span class="co">#&gt; 10                  SampleCollectionEquipmentName     7</span></span>
 <span><span class="co">#&gt; 11                       ResultSampleFractionText     3</span></span>
 <span><span class="co">#&gt; 12                  ResultMeasure.MeasureUnitCode     2</span></span>
 <span><span class="co">#&gt; 13                           MeasureQualifierCode     3</span></span>
@@ -763,29 +796,29 @@ Nitrogen:</p>
 <span><span class="co">#&gt; 17                     ResultTemperatureBasisText     1</span></span>
 <span><span class="co">#&gt; 18                    ResultParticleSizeBasisText     1</span></span>
 <span><span class="co">#&gt; 19                              ResultCommentText     7</span></span>
-<span><span class="co">#&gt; 20        ResultAnalyticalMethod.MethodIdentifier     2</span></span>
-<span><span class="co">#&gt; 21 ResultAnalyticalMethod.MethodIdentifierContext     2</span></span>
-<span><span class="co">#&gt; 22              ResultAnalyticalMethod.MethodName     2</span></span>
+<span><span class="co">#&gt; 20        ResultAnalyticalMethod.MethodIdentifier     3</span></span>
+<span><span class="co">#&gt; 21 ResultAnalyticalMethod.MethodIdentifierContext     3</span></span>
+<span><span class="co">#&gt; 22              ResultAnalyticalMethod.MethodName     3</span></span>
 <span><span class="co">#&gt; 23                          MethodDescriptionText     1</span></span>
 <span><span class="co">#&gt; 24                                 LaboratoryName     2</span></span>
 <span><span class="co">#&gt; 25                    ResultLaboratoryCommentText     5</span></span>
 <span><span class="co">#&gt; 26             DetectionQuantitationLimitTypeName     2</span></span>
-<span><span class="co">#&gt; 27                     MonitoringLocationTypeName    11</span></span></code></pre></div>
+<span><span class="co">#&gt; 27                     MonitoringLocationTypeName    12</span></span></code></pre></div>
 <p>Selecting a parameter generates the list below, which is subset by
 the selected parameter, of fields and the number of unique values in
 each field.</p>
 <p>Then choose a field from the list. In this example we’ll remove
 certain values from the HydrologicEvent field.</p>
-<div class="sourceCode" id="cb27"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb29"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/FilterParFieldReview.html">FilterParFieldReview</a></span><span class="op">(</span><span class="st">"HydrologicEvent"</span>, <span class="va">TADAProfileClean15</span>, <span class="st">"NITROGEN"</span><span class="op">)</span></span></code></pre></div>
-<p><img src="WQPDataHarmonization_files/figure-html/unnamed-chunk-25-1.png" width="576"></p>
+<p><img src="WQPDataHarmonization_files/figure-html/unnamed-chunk-26-1.png" width="576"></p>
 <pre><code><span><span class="co">#&gt;       FieldValue Count</span></span>
-<span><span class="co">#&gt; 1 Routine sample    59</span></span></code></pre>
+<span><span class="co">#&gt; 1 Routine sample    73</span></span></code></pre>
 <p>The HydrologicEvent field has three unique values. In this example we
 want to remove samples collected during “Storm” events. Therefore, we’ll
 specify that we want to remove rows where the CharacteristicName is
 “NITROGEN” and the HydrologicEvent field is “Storm.”</p>
-<div class="sourceCode" id="cb29"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb31"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">TADAProfileClean16</span> <span class="op">&lt;-</span> <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">TADAProfileClean15</span>, <span class="op">!</span><span class="op">(</span><span class="va">CharacteristicName</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="st">"NITROGEN"</span> <span class="op">&amp;</span> <span class="va">HydrologicEvent</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="st">"Storm"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">
@@ -823,21 +856,56 @@ columns appended. Default is transform = TRUE and flag = TRUE.</p></li>
 used:</p>
 <ol style="list-style-type: decimal">
 <li><p><strong>ResultSampleFractionText</strong> specifies forms of
-constituents. In some cases, a single
-<strong>CharacteristicName</strong> will have both “Total” and
-“Dissolved” forms specified, which should not be combined. In these
-cases, each CharacteristicName and ResultSampleFractionText combination
-is given a different identifier. This identifier can be used later on to
-identify comparable data groups for calculating statistics and creating
-figures for each combination.</p></li>
+constituents. In some cases, a single *CharacteristicName** will have
+both “Total” and “Dissolved” forms specified, which should not be
+combined. In these cases, each CharacteristicName and
+ResultSampleFractionText combination is given a different identifier.
+This identifier can be used later on to identify comparable data groups
+for calculating statistics and creating figures for each
+combination.</p></li>
 <li><p>Some variables have different names but represent the same
 constituent (e.g., “Total Kjeldahl nitrogen (Organic N &amp; NH3)” and
 “Kjeldahl nitrogen”). The HarmonizeData function gives a consistent name
 (and identifier) to synonyms.</p></li>
 </ol>
-<div class="sourceCode" id="cb30"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb32"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">UniqueHarmonizationRef</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/HarmonizationRefTable.html">HarmonizationRefTable</a></span><span class="op">(</span><span class="va">TADAProfileClean16</span>, download <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
 <span><span class="va">TADAProfileClean17</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/HarmonizeData.html">HarmonizeData</a></span><span class="op">(</span><span class="va">TADAProfileClean16</span>, ref <span class="op">=</span> <span class="va">UniqueHarmonizationRef</span>, transform <span class="op">=</span> <span class="cn">TRUE</span>, flag <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
+<p>THE FOLLOWING IS CHARACTERISTIC SPECIFIC</p>
+<p>PLACEHOLDER: Address censored data for a single characteristic</p>
+<div class="sourceCode" id="cb33"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co">#How to point to a column in R: yourdataset$thecolumnyouwant</span></span>
+<span><span class="co">#E.g., temp$ResultMeasureValueNitrogenExample &lt;- filter(TADAProfileClean17, CharacteristicName == "NITROGEN")</span></span>
+<span><span class="va">SingleCharacteristic</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">TADAProfileClean17</span>, <span class="va">CharacteristicName</span> <span class="op">==</span> <span class="st">"TOTAL NITROGEN, MIXED FORMS"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co">#Review the types of nondetects you have</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/table.html" class="external-link">table</a></span><span class="op">(</span><span class="va">SingleCharacteristic</span><span class="op">$</span><span class="va">ResultDetectionConditionText</span><span class="op">)</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Not Detected </span></span>
+<span><span class="co">#&gt;           12</span></span>
+<span></span>
+<span><span class="co">#Review number of results that are NA's</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/NA.html" class="external-link">is.na</a></span><span class="op">(</span><span class="va">SingleCharacteristic</span><span class="op">$</span><span class="va">ResultMeasureValue</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="co">#&gt; [1] 12</span></span>
+<span></span>
+<span><span class="co">#substitute a value for NA. In this example, 0.02 MG/L is used for TOTAL NITROGEN, MIXED FORMS</span></span>
+<span><span class="va">SingleCharacteristic</span><span class="op">$</span><span class="va">ResultMeasureValue</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/ifelse.html" class="external-link">ifelse</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/NA.html" class="external-link">is.na</a></span><span class="op">(</span><span class="va">SingleCharacteristic</span><span class="op">$</span><span class="va">ResultMeasureValue</span><span class="op">)</span> <span class="op">==</span> <span class="cn">TRUE</span>, <span class="fl">0.02</span>, <span class="va">SingleCharacteristic</span><span class="op">$</span><span class="va">ResultMeasureValue</span><span class="op">)</span></span></code></pre></div>
+<p>PLACEHOLDER: Summarize results for a single characteristic</p>
+<div class="sourceCode" id="cb34"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">SingleCharacteristic</span><span class="op">$</span><span class="va">ResultMeasureValue</span><span class="op">)</span></span>
+<span><span class="co">#&gt;     Min.  1st Qu.   Median     Mean  3rd Qu.     Max. </span></span>
+<span><span class="co">#&gt;   0.0200   0.4620   0.8205   2.8191   2.1975 132.0000</span></span>
+<span><span class="co">#na.rm = TRUE strips NA values before the mean computation proceeds</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/hist.html" class="external-link">hist</a></span><span class="op">(</span><span class="va">SingleCharacteristic</span><span class="op">$</span><span class="va">ResultMeasureValue</span><span class="op">)</span></span></code></pre></div>
+<p><img src="WQPDataHarmonization_files/figure-html/unnamed-chunk-30-1.png" width="700"></p>
+<p>PLACEHOLDER: Create animated national map for a single
+characteristic</p>
+<div class="sourceCode" id="cb35"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co">#Animation currently only works for Total Nitrogen. Updates coming soon.</span></span>
+<span><span class="fu"><a href="../reference/CreateAnimatedMap.html">CreateAnimatedMap</a></span><span class="op">(</span><span class="va">SingleCharacteristic</span><span class="op">)</span></span>
+<span><span class="co">#&gt; Warning in ggplot2::geom_point(data = n_bysite, aes(x = LongitudeMeasure, :</span></span>
+<span><span class="co">#&gt; Ignoring unknown aesthetics: <span style="color: #00BB00;">frame</span></span></span></code></pre></div>
+<p><img src="../docs/articles/WQPDataHarmonization_files/figure-html/unnamed-chunk-31-1.gif"><!-- --></p>
 </div>
   </main><aside class="col-md-3"><nav id="toc"><h2>On this page</h2>
     </nav></aside>

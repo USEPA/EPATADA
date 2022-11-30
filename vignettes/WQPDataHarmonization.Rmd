@@ -1,6 +1,6 @@
 ---
 title: "WQP Data Harmonization"
-author: "Cristina A. Mullin"
+author: "Cristina A. Mullin, TADA Team"
 date: "`r Sys.Date()`"
 output: rmarkdown::html_vignette
 vignette: >
@@ -244,7 +244,10 @@ See ?TADABigdataRetrieval for more details. WARNING, this can take
 multiple HOURS to run. The total run time depends on your query inputs.
 
 ```{r}
-# AllWaterTempData <- TADABigdataRetrieval(startDate = "2019-01-01", endDate = "2021-12-31", characteristicName = "Temperature, water", siteType = "Stream")
+# AllWaterTempData <- TADABigdataRetrieval(startDate = "2019-01-01", 
+#                                     endDate = "2021-12-31", 
+#                                     characteristicName = "Temperature, water",
+#                                     siteType = "Stream")
 ```
 
 Review all column names in the TADA Profile

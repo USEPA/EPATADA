@@ -64,6 +64,9 @@
     <loc>usepa.github.io/tada/reference/ConvertResultUnits.html</loc>
   </url>
   <url>
+    <loc>usepa.github.io/tada/reference/CreateAnimatedMap.html</loc>
+  </url>
+  <url>
     <loc>usepa.github.io/tada/reference/decimalnumcount.html</loc>
   </url>
   <url>
@@ -89,6 +92,9 @@
   </url>
   <url>
     <loc>usepa.github.io/tada/reference/GenerateCensoredDataStats.html</loc>
+  </url>
+  <url>
+    <loc>usepa.github.io/tada/reference/GenerateMap.html</loc>
   </url>
   <url>
     <loc>usepa.github.io/tada/reference/GetMeasureUnitRef.html</loc>
@@ -143,6 +149,9 @@
   </url>
   <url>
     <loc>usepa.github.io/tada/reference/RemoveEmptyColumns.html</loc>
+  </url>
+  <url>
+    <loc>usepa.github.io/tada/reference/SummarizeCharacteristics.html</loc>
   </url>
   <url>
     <loc>usepa.github.io/tada/reference/TADABigdataRetrieval.html</loc>
