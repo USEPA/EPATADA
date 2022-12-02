@@ -1,186 +1,186 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
-    <loc>/404.html</loc>
+    <loc>usepa.github.io/TADA/404.html</loc>
   </url>
   <url>
-    <loc>/articles/CONTRIBUTING.html</loc>
+    <loc>usepa.github.io/TADA/articles/CONTRIBUTING.html</loc>
   </url>
   <url>
-    <loc>/articles/index.html</loc>
+    <loc>usepa.github.io/TADA/articles/index.html</loc>
   </url>
   <url>
-    <loc>/articles/WQPDataHarmonization.html</loc>
+    <loc>usepa.github.io/TADA/articles/WQPDataHarmonization.html</loc>
   </url>
   <url>
-    <loc>/articles/WQPDataVisualization.html</loc>
+    <loc>usepa.github.io/TADA/articles/WQPDataVisualization.html</loc>
   </url>
   <url>
-    <loc>/authors.html</loc>
+    <loc>usepa.github.io/TADA/authors.html</loc>
   </url>
   <url>
-    <loc>/CONTRIBUTING.html</loc>
+    <loc>usepa.github.io/TADA/CONTRIBUTING.html</loc>
   </url>
   <url>
-    <loc>/index.html</loc>
+    <loc>usepa.github.io/TADA/index.html</loc>
   </url>
   <url>
-    <loc>/LICENSE.html</loc>
+    <loc>usepa.github.io/TADA/LICENSE.html</loc>
   </url>
   <url>
-    <loc>/readme.html</loc>
+    <loc>usepa.github.io/TADA/readme.html</loc>
   </url>
   <url>
-    <loc>/reference/AboveNationalWQXUpperThreshold.html</loc>
+    <loc>usepa.github.io/TADA/reference/AboveNationalWQXUpperThreshold.html</loc>
   </url>
   <url>
-    <loc>/reference/AggregatedContinuousData.html</loc>
+    <loc>usepa.github.io/TADA/reference/AggregatedContinuousData.html</loc>
   </url>
   <url>
-    <loc>/reference/autoclean.html</loc>
+    <loc>usepa.github.io/TADA/reference/autoclean.html</loc>
   </url>
   <url>
-    <loc>/reference/AutoFilter.html</loc>
+    <loc>usepa.github.io/TADA/reference/AutoFilter.html</loc>
   </url>
   <url>
-    <loc>/reference/BelowNationalWQXLowerThreshold.html</loc>
+    <loc>usepa.github.io/TADA/reference/BelowNationalWQXLowerThreshold.html</loc>
   </url>
   <url>
-    <loc>/reference/BelowNationalWQXUpperThreshold.html</loc>
+    <loc>usepa.github.io/TADA/reference/BelowNationalWQXUpperThreshold.html</loc>
   </url>
   <url>
-    <loc>/reference/CensoredDataStats.html</loc>
+    <loc>usepa.github.io/TADA/reference/CensoredDataStats.html</loc>
   </url>
   <url>
-    <loc>/reference/checkColumns.html</loc>
+    <loc>usepa.github.io/TADA/reference/checkColumns.html</loc>
   </url>
   <url>
-    <loc>/reference/checkType.html</loc>
+    <loc>usepa.github.io/TADA/reference/checkType.html</loc>
   </url>
   <url>
-    <loc>/reference/ConvertDepthUnits.html</loc>
+    <loc>usepa.github.io/TADA/reference/ConvertDepthUnits.html</loc>
   </url>
   <url>
-    <loc>/reference/ConvertResultUnits.html</loc>
+    <loc>usepa.github.io/TADA/reference/ConvertResultUnits.html</loc>
   </url>
   <url>
-    <loc>/reference/CreateAnimatedMap.html</loc>
+    <loc>usepa.github.io/TADA/reference/CreateAnimatedMap.html</loc>
   </url>
   <url>
-    <loc>/reference/decimalnumcount.html</loc>
+    <loc>usepa.github.io/TADA/reference/decimalnumcount.html</loc>
   </url>
   <url>
-    <loc>/reference/decimalplaces.html</loc>
+    <loc>usepa.github.io/TADA/reference/decimalplaces.html</loc>
   </url>
   <url>
-    <loc>/reference/DepthProfileData.html</loc>
+    <loc>usepa.github.io/TADA/reference/DepthProfileData.html</loc>
   </url>
   <url>
-    <loc>/reference/FilterFieldReview.html</loc>
+    <loc>usepa.github.io/TADA/reference/FilterFieldReview.html</loc>
   </url>
   <url>
-    <loc>/reference/FilterFields.html</loc>
+    <loc>usepa.github.io/TADA/reference/FilterFields.html</loc>
   </url>
   <url>
-    <loc>/reference/FilterParFieldReview.html</loc>
+    <loc>usepa.github.io/TADA/reference/FilterParFieldReview.html</loc>
   </url>
   <url>
-    <loc>/reference/FilterParFields.html</loc>
+    <loc>usepa.github.io/TADA/reference/FilterParFields.html</loc>
   </url>
   <url>
-    <loc>/reference/FilterParList.html</loc>
+    <loc>usepa.github.io/TADA/reference/FilterParList.html</loc>
   </url>
   <url>
-    <loc>/reference/GenerateCensoredDataStats.html</loc>
+    <loc>usepa.github.io/TADA/reference/GenerateCensoredDataStats.html</loc>
   </url>
   <url>
-    <loc>/reference/GenerateMap.html</loc>
+    <loc>usepa.github.io/TADA/reference/GenerateMap.html</loc>
   </url>
   <url>
-    <loc>/reference/GetMeasureUnitRef.html</loc>
+    <loc>usepa.github.io/TADA/reference/GetMeasureUnitRef.html</loc>
   </url>
   <url>
-    <loc>/reference/GetWQXCharValRef.html</loc>
+    <loc>usepa.github.io/TADA/reference/GetWQXCharValRef.html</loc>
   </url>
   <url>
-    <loc>/reference/HarmonizationRefTable.html</loc>
+    <loc>usepa.github.io/TADA/reference/HarmonizationRefTable.html</loc>
   </url>
   <url>
-    <loc>/reference/HarmonizeCensoredData.html</loc>
+    <loc>usepa.github.io/TADA/reference/HarmonizeCensoredData.html</loc>
   </url>
   <url>
-    <loc>/reference/HarmonizeData.html</loc>
+    <loc>usepa.github.io/TADA/reference/HarmonizeData.html</loc>
   </url>
   <url>
-    <loc>/reference/index.html</loc>
+    <loc>usepa.github.io/TADA/reference/index.html</loc>
   </url>
   <url>
-    <loc>/reference/InvalidCoordinates.html</loc>
+    <loc>usepa.github.io/TADA/reference/InvalidCoordinates.html</loc>
   </url>
   <url>
-    <loc>/reference/InvalidFraction.html</loc>
+    <loc>usepa.github.io/TADA/reference/InvalidFraction.html</loc>
   </url>
   <url>
-    <loc>/reference/InvalidMethod.html</loc>
+    <loc>usepa.github.io/TADA/reference/InvalidMethod.html</loc>
   </url>
   <url>
-    <loc>/reference/InvalidResultUnit.html</loc>
+    <loc>usepa.github.io/TADA/reference/InvalidResultUnit.html</loc>
   </url>
   <url>
-    <loc>/reference/InvalidSpeciation.html</loc>
+    <loc>usepa.github.io/TADA/reference/InvalidSpeciation.html</loc>
   </url>
   <url>
-    <loc>/reference/MeasureValueSpecialCharacters.html</loc>
+    <loc>usepa.github.io/TADA/reference/MeasureValueSpecialCharacters.html</loc>
   </url>
   <url>
-    <loc>/reference/pipe.html</loc>
+    <loc>usepa.github.io/TADA/reference/pipe.html</loc>
   </url>
   <url>
-    <loc>/reference/PotentialDuplicateRowID.html</loc>
+    <loc>usepa.github.io/TADA/reference/PotentialDuplicateRowID.html</loc>
   </url>
   <url>
-    <loc>/reference/QAPPapproved.html</loc>
+    <loc>usepa.github.io/TADA/reference/QAPPapproved.html</loc>
   </url>
   <url>
-    <loc>/reference/QAPPDocAvailable.html</loc>
+    <loc>usepa.github.io/TADA/reference/QAPPDocAvailable.html</loc>
   </url>
   <url>
-    <loc>/reference/readWQPwebservice.html</loc>
+    <loc>usepa.github.io/TADA/reference/readWQPwebservice.html</loc>
   </url>
   <url>
-    <loc>/reference/RemoveEmptyColumns.html</loc>
+    <loc>usepa.github.io/TADA/reference/RemoveEmptyColumns.html</loc>
   </url>
   <url>
-    <loc>/reference/SummarizeCharacteristics.html</loc>
+    <loc>usepa.github.io/TADA/reference/SummarizeCharacteristics.html</loc>
   </url>
   <url>
-    <loc>/reference/TADABigdataRetrieval.html</loc>
+    <loc>usepa.github.io/TADA/reference/TADABigdataRetrieval.html</loc>
   </url>
   <url>
-    <loc>/reference/TADAdataRetrieval.html</loc>
+    <loc>usepa.github.io/TADA/reference/TADAdataRetrieval.html</loc>
   </url>
   <url>
-    <loc>/reference/TADAprofileCheck.html</loc>
+    <loc>usepa.github.io/TADA/reference/TADAprofileCheck.html</loc>
   </url>
   <url>
-    <loc>/reference/TransformCensoredData.html</loc>
+    <loc>usepa.github.io/TADA/reference/TransformCensoredData.html</loc>
   </url>
   <url>
-    <loc>/reference/UpdateInternalData.html</loc>
+    <loc>usepa.github.io/TADA/reference/UpdateInternalData.html</loc>
   </url>
   <url>
-    <loc>/reference/UpdateMeasureUnitRef.html</loc>
+    <loc>usepa.github.io/TADA/reference/UpdateMeasureUnitRef.html</loc>
   </url>
   <url>
-    <loc>/reference/UpdateWQXCharValRef.html</loc>
+    <loc>usepa.github.io/TADA/reference/UpdateWQXCharValRef.html</loc>
   </url>
   <url>
-    <loc>/reference/WQXCharValRef_Cached.html</loc>
+    <loc>usepa.github.io/TADA/reference/WQXCharValRef_Cached.html</loc>
   </url>
   <url>
-    <loc>/reference/WQXTargetUnits.html</loc>
+    <loc>usepa.github.io/TADA/reference/WQXTargetUnits.html</loc>
   </url>
   <url>
-    <loc>/reference/WQXunitRef_Cached.html</loc>
+    <loc>usepa.github.io/TADA/reference/WQXunitRef_Cached.html</loc>
   </url>
 </urlset>
