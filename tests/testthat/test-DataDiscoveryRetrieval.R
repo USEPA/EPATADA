@@ -121,3 +121,19 @@ test_that("TADAdataRetrieval", {
                                     startDate = "01-01-2021")
   expect_true(any(check_autoclean_meters_works$ActivityDepthHeightMeasure.MeasureUnitCode!="meters"))
   })
+
+
+# Testing that the JoinWQPProfiles() function in DataDiscoveryRetrieval.R 
+# has the expected number of columns after joining the full physical chemical 
+# profile and the sites profiles together. This function uses cyanobacteria 
+# full phys chem results and station metadata. 
+test_that("JoinWQPProfiles", {
+  physchemresults = readRDS("tests/testthat/testdata/Cyan_Results.rds")
+  stations = readRDS("tests/testthat/testdata/Cyan_Stations.rds")
+  
+  add_sites_metadata <- JoinWQPProfiles(Sites = stations, 
+                                           FullPhysChem = physchemresults)
+  
+  expect_true(ncol(add_sites_metadata) == 113)
+})
+
