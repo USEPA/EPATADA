@@ -16,9 +16,9 @@ JoinWQPProfiles(
 
 \item{Sites}{Sites data profile}
 
-\item{Projects}{Projects data profile}
+\item{Narrow}{Full biological data profile}
 
-\item{FullBiolological}{Full biological data profile}
+\item{Projects}{Projects data profile}
 }
 \value{
 TADA-compatible dataframe
@@ -27,19 +27,4 @@ TADA-compatible dataframe
 After retrieving multiple result and metadata profiles from the WQP, you
 can use this function to join those profiles together into one dataframe.
 The FullPhysChem data input is required to run this function.
-}
-\examples{
-\dontrun { 
-
-  physchemresults = readRDS("tests/testdata/Cyan_Results.rds")
-  
-  stations = readRDS("tests/testdata/Cyan_Stations.rds")
-  
-  JoinSites <- JoinWQPProfiles(Sites = stations, 
-                               FullPhysChem = physchemresults, 
-                               Narrow = "null",
-                               Projects = "null")
-                               
-                                                 }
-
 }

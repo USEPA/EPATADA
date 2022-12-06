@@ -435,22 +435,13 @@ TADABigdataRetrieval <- function(startDate = "null",
 #' 
 #' @param FullPhysChem Full physical chemical data profile
 #' @param Sites Sites data profile
-#' @param FullBiolological Full biological data profile
+#' @param Narrow Full biological data profile
 #' @param Projects Projects data profile
 #'
 #' @return TADA-compatible dataframe
 #' 
 #' @export
 #' 
-#' @examples \dontrun { 
-#' 
-#' JoinSites <- JoinWQPProfiles(Sites = stations, 
-#'                                FullPhysChem = physchemresults, 
-#'                                Narrow = "null",
-#'                                Projects = "null")
-#'                                
-#'                                                  }
-#'
 
 JoinWQPProfiles <- function(FullPhysChem = "null",
                             Sites = "null",
