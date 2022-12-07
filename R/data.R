@@ -11,8 +11,8 @@
 #'
 #' @docType data
 #' @keywords datasets
-#' @name TADAProfile_AllUS_LakeWaterT_Jan2000toJuly2022
-#' @usage data(TADAProfile_AllUS_LakeWaterT_Jan2000toJuly2022)
+#' @name WaterTemp_US
+#' @usage data(WaterTemp_US)
 #' @format A data frame with 14237 rows and 103 variables
 NULL
 
@@ -26,7 +26,7 @@ NULL
 #'
 #' @docType data
 #' @keywords datasets
-#' @name TADAProfile_UT_Nutrients
-#' @usage data(TADAProfile_UT_Nutrients)
+#' @name Nutrients_Utah
+#' @usage data(Nutrients_Utah)
 #' @format A data frame with 6608 rows and 110 variables
 NULL
