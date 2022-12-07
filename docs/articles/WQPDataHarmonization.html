@@ -73,7 +73,7 @@
                         <h4 data-toc-skip class="author">Cristina A.
 Mullin, TADA Team</h4>
             
-            <h4 data-toc-skip class="date">2022-11-30</h4>
+            <h4 data-toc-skip class="date">2022-12-06</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/USEPA/TADA/blob/HEAD/vignettes/WQPDataHarmonization.Rmd" class="external-link"><code>vignettes/WQPDataHarmonization.Rmd</code></a></small>
       <div class="d-none name"><code>WQPDataHarmonization.Rmd</code></div>
@@ -129,11 +129,11 @@ session</p>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">RColorBrewer</span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">stats</span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://rlang.r-lib.org" class="external-link">rlang</a></span><span class="op">)</span></span>
-<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://code.usgs.gov/water/dataRetrieval" class="external-link">dataRetrieval</a></span><span class="op">)</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://pubs.usgs.gov/tm/04/a10/" class="external-link">dataRetrieval</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://gganimate.com" class="external-link">gganimate</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://gif.ski/" class="external-link">gifski</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">maps</span><span class="op">)</span></span>
-<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://usepa.github.io/TADA/" class="external-link">TADA</a></span><span class="op">)</span></span></code></pre></div>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://usepa.github.io/TADA/">TADA</a></span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="retrieve-wqp-data">Retrieve WQP data<a class="anchor" aria-label="anchor" href="#retrieve-wqp-data"></a>
@@ -278,7 +278,10 @@ siteType requested.</p>
 multiple HOURS to run. The total run time depends on your query
 inputs.</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># AllWaterTempData &lt;- TADABigdataRetrieval(startDate = "2019-01-01", endDate = "2021-12-31", characteristicName = "Temperature, water", siteType = "Stream")</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="co"># AllWaterTempData &lt;- TADABigdataRetrieval(startDate = "2019-01-01", </span></span>
+<span><span class="co">#                                     endDate = "2021-12-31", </span></span>
+<span><span class="co">#                                     characteristicName = "Temperature, water",</span></span>
+<span><span class="co">#                                     siteType = "Stream")</span></span></code></pre></div>
 <p>Review all column names in the TADA Profile</p>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="va">TADAProfile</span><span class="op">)</span></span>

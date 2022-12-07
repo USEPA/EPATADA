@@ -424,3 +424,85 @@ TADABigdataRetrieval <- function(startDate = "null",
     
   return(finalprofile2)
 }
+
+
+
+#' Join WQP Profiles
+#'
+#' After retrieving multiple result and metadata profiles from the WQP, you 
+#' can use this function to join those profiles together into one dataframe.
+#' The FullPhysChem data input is required to run this function.
+#' 
+#' @param FullPhysChem Full physical chemical data profile
+#' @param Sites Sites data profile
+#' @param Narrow Full biological data profile
+#' @param Projects Projects data profile
+#'
+#' @return TADA-compatible dataframe
+#' 
+#' @export
+#' 
+
+JoinWQPProfiles <- function(FullPhysChem = "null",
+                            Sites = "null",
+                            Narrow = "null",
+                            Projects = "null"
+) {
+  
+  FullPhysChem.df <- FullPhysChem 
+  
+  Sites.df <- Sites
+  
+  Narrow.df <- Narrow
+
+  Projects.df <- Projects
+  
+  # Join station data to full phys/chem (FullPhysChem.df)
+  if (length(Sites.df)>1) {
+    join1 <- FullPhysChem.df %>%
+    # join stations to results
+    dplyr::left_join(Sites.df, by = "MonitoringLocationIdentifier") %>%
+    # remove ".x" suffix from column names
+    dplyr::rename_at(dplyr::vars(dplyr::ends_with(".x")), ~ stringr::str_replace(., "\\..$", "")) %>%
+    # remove columns with ".y" suffix
+    dplyr::select_at(dplyr::vars(-dplyr::ends_with(".y")))
+  } else {
+    join1 <- FullPhysChem.df
+  }
+  
+  # Add Speciation column from narrow
+  if (length(Narrow.df)>1){
+    join2 <- join1 %>%
+      dplyr::left_join(dplyr::select(
+        Narrow.df, ActivityIdentifier, MonitoringLocationIdentifier,
+        CharacteristicName, ResultMeasureValue,
+        MethodSpecificationName
+      ),
+      by = c(
+        "ActivityIdentifier", "MonitoringLocationIdentifier",
+        "CharacteristicName", "ResultMeasureValue"
+      )
+      )
+  } else {
+    join2 <- join1 
+  }
+  
+  # Add QAPP columns from project
+  if (length(Projects.df)>1){
+    join3 <- join2 %>%
+      dplyr::left_join(dplyr::select(
+        Projects.df, OrganizationIdentifier, OrganizationFormalName,
+        ProjectIdentifier, ProjectName, ProjectDescriptionText, 
+        SamplingDesignTypeCode, QAPPApprovedIndicator, QAPPApprovalAgencyName, 
+        ProjectFileUrl, ProjectMonitoringLocationWeightingUrl
+      ),
+      by = c(
+        "OrganizationIdentifier", "OrganizationFormalName",
+        "ProjectIdentifier"
+      )
+      )
+  } else {
+    join3 <- join2
+  }
+  return(join3)
+}
