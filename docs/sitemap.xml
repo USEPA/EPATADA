@@ -130,6 +130,9 @@
     <loc>usepa.github.io/TADA/reference/InvalidSpeciation.html</loc>
   </url>
   <url>
+    <loc>usepa.github.io/TADA/reference/JoinWQPProfiles.html</loc>
+  </url>
+  <url>
     <loc>usepa.github.io/TADA/reference/MeasureValueSpecialCharacters.html</loc>
   </url>
   <url>
@@ -161,6 +164,12 @@
   </url>
   <url>
     <loc>usepa.github.io/TADA/reference/TADAprofileCheck.html</loc>
+  </url>
+  <url>
+    <loc>usepa.github.io/TADA/reference/TADAProfile_AllUS_LakeWaterT_Jan2000toJuly2022.html</loc>
+  </url>
+  <url>
+    <loc>usepa.github.io/TADA/reference/TADAProfile_UT_Nutrients.html</loc>
   </url>
   <url>
     <loc>usepa.github.io/TADA/reference/TransformCensoredData.html</loc>
