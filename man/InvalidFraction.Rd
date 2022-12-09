@@ -24,3 +24,11 @@ Function checks the validity of each characteristic-fraction combination
 in the dataframe. When clean = TRUE, rows with invalid characteristic-fraction
 combinations are removed. Default is clean = TRUE.
 }
+\examples{
+data(Nutrients_Utah)
+
+Nutrients_Utah_1 <- InvalidFraction(Nutrients_Utah)
+
+Nutrients_Utah_2 <- InvalidFraction(Nutrients_Utah, clean = FALSE)
+
+}
