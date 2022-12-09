@@ -15,6 +15,13 @@
 #' "Invalid" rows are removed from the dataframe and no column will be appended.
 #'
 #' @export
+#' 
+#' @examples
+#' data(Nutrients_Utah)
+#' 
+#' Nutrients_Utah_1 <- InvalidFraction(Nutrients_Utah)
+#' 
+#' Nutrients_Utah_2 <- InvalidFraction(Nutrients_Utah, clean = FALSE)
 #'
 
 
