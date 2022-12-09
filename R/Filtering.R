@@ -12,6 +12,10 @@ TADA.env <- new.env()
 #'
 #' @export
 #'
+#' @examples 
+#' data(Nutrients_Utah)
+#' 
+#' Fields_Nutrients_Utah <- FilterFields(Nutrients_Utah)
 
 FilterFields <- function(.data) {
   # check .data is data.frame
@@ -90,6 +94,10 @@ FilterFields <- function(.data) {
 #'
 #' @export
 #'
+#' @examples 
+#' data(Nutrients_Utah)
+#' 
+#' FieldReview_HydrologicCondition <- FilterFieldReview(field = "HydrologicCondition", Nutrients_Utah)
 
 FilterFieldReview <- function(field, .data) {
   # if provided, check .data is data.frame
@@ -136,7 +144,13 @@ FilterFieldReview <- function(field, .data) {
 #' @return A list of unique characteristics and their counts
 #'
 #' @export
+#' 
+#' @examples 
+#' data(Nutrients_Utah)
+#' 
+#' ParameterList <- FilterParList(Nutrients_Utah)
 #'
+
 FilterParList <- function(.data) {
   # count the frequency of each value in CharactersticName field
   ParValueCount <- data.frame(table(list(.data$CharacteristicName)))
@@ -162,6 +176,11 @@ FilterParList <- function(.data) {
 #' subset by a parameter.
 #'
 #' @export
+#' 
+#' @examples 
+#' data(Nutrients_Utah)
+#' 
+#' AmmoniaFields <- FilterParFields(Nutrients_Utah, parameter = "AMMONIA")
 #'
 
 FilterParFields <- function(.data, parameter) {
@@ -261,6 +280,11 @@ FilterParFields <- function(.data, parameter) {
 #' @return A table and pie chart of unique values in the selected field.
 #'
 #' @export
+#' 
+#' @examples 
+#' data(Nutrients_Utah)
+#' 
+#' AmmoniaMonitoringLocations <- FilterParFieldReview(field = "MonitoringLocationIdentifier", Nutrients_Utah, parameter = "AMMONIA")
 #'
 
 FilterParFieldReview <- function(field, .data, parameter) {

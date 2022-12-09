@@ -19,9 +19,9 @@
 #' @examples
 #' data(Nutrients_Utah)
 #' 
-#' Nutrients_Utah_1 <- InvalidFraction(Nutrients_Utah)
+#' InvalidFraction_clean <- InvalidFraction(Nutrients_Utah)
 #' 
-#' Nutrients_Utah_2 <- InvalidFraction(Nutrients_Utah, clean = FALSE)
+#' InvalidFraction_flags <- InvalidFraction(Nutrients_Utah, clean = FALSE)
 #'
 
 
@@ -115,6 +115,12 @@ InvalidFraction <- function(.data, clean = TRUE) {
 #'
 #' @export
 #'
+#' @examples
+#' data(Nutrients_Utah)
+#' 
+#' InvalidSpeciation_clean <- InvalidSpeciation(Nutrients_Utah)
+#' 
+#' InvalidSpeciation_flags <- InvalidSpeciation(Nutrients_Utah, clean = FALSE)
 
 
 InvalidSpeciation <- function(.data, clean = TRUE) {
@@ -205,6 +211,12 @@ InvalidSpeciation <- function(.data, clean = TRUE) {
 #'
 #' @export
 #'
+#' @examples 
+#' data(Nutrients_Utah)
+#' 
+#' ResultUnitValidity_clean <- InvalidResultUnit(Nutrients_Utah)
+#' 
+#' ResultUnitValidity_flags <- InvalidResultUnit(Nutrients_Utah, clean = FALSE)
 
 
 InvalidResultUnit <- function(.data, clean = TRUE) {

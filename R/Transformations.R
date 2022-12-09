@@ -50,6 +50,13 @@
 #' following two fields to the input dataframe: "WQX.ConversionFactor" and "WQX.TargetUnit".
 #'
 #' @export
+#' 
+#' @examples 
+#' data(Nutrients_Utah)
+#' 
+#' ResultUnitsConverted <- ConvertResultUnits(Nutrients_Utah)
+#' 
+#' ResultUnitsNotConverted <- ConvertResultUnits(Nutrients_Utah, transform = FALSE)
 
 ConvertResultUnits <- function(.data, transform = TRUE) {
   # check .data is data.frame
@@ -320,12 +327,23 @@ ConvertResultUnits <- function(.data, transform = TRUE) {
 #' done at this time. A user can review the conversion factor information if 
 #' desired by using this feature. 
 #' 
-#' @return When transform = true, the input dataframe is returned with all depth
+#' @return When transform = TRUE, the input dataframe is returned with all depth
 #' data converted to the target unit; no additional columns are added.
 #' When transform = FALSE, the input dataframe is returned with additional
 #' columns including... be specific here ... 
 #' 
 #' @export
+#' 
+#' @examples 
+#' data(Nutrients_Utah)
+#' 
+#' DepthUnitsConverted_m <- ConvertDepthUnits(Nutrients_Utah)
+#' 
+#' DepthUnitsConverted_ft <- ConvertDepthUnits(Nutrients_Utah, unit = "ft")
+#' 
+#' TopDepthUnitsConverted_in <- ConvertDepthUnits(Nutrients_Utah, unit = "in", fields = "ActivityTopDepthHeightMeasure")
+#' 
+#' DepthUnitsNotConverted <- ConvertDepthUnits(Nutrients_Utah, transform = FALSE)
 #'
 
 ConvertDepthUnits <- function(.data,
@@ -615,6 +633,13 @@ ConvertDepthUnits <- function(.data,
 #' @return Harmonization Reference Table unique to the input dataframe
 #'
 #' @export
+#' 
+#' @examples 
+#' data(Nutrients_Utah)
+#' 
+#' CreateRefTable <- HarmonizationRefTable(Nutrients_Utah)
+#' 
+#' DownloadRefTable <- HarmonizationRefTable(Nutrients_Utah, download = TRUE)
 
 HarmonizationRefTable <- function(.data, download = FALSE) {
   # check .data is data.frame
@@ -721,6 +746,15 @@ HarmonizationRefTable <- function(.data, download = FALSE) {
 #' would return the input dataframe unchanged if input was allowed).
 #'
 #' @export
+#' 
+#' @examples 
+#' data(Nutrients_Utah)
+#' 
+#' Nutrients_Harmonized <- HarmonizeData(Nutrients_Utah)
+#' 
+#' Nutrients_Harmonized_noflags <- HarmonizeData(Nutrients_Utah, flag = FALSE)
+#' 
+#' Nutrients_NotHarmonized <- HarmonizeData(Nutrients_Utah, transform = FALSE)
 
 HarmonizeData <- function(.data, ref, transform = TRUE, flag = TRUE) {
   # check .data is data.frame

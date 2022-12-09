@@ -19,7 +19,12 @@
 #' 
 #' @export
 #'
+#' @examples 
+#' data(Nutrients_Utah)
 #' 
+#' InvalidMethod_clean <- InvalidMethod(Nutrients_Utah)
+#' 
+#' InvalidMethod_flags <- InvalidMethod(Nutrients_Utah, clean = FALSE)
 
 InvalidMethod <- function(.data, clean = TRUE) {
   # check .data is data.frame
@@ -123,6 +128,13 @@ InvalidMethod <- function(.data, clean = TRUE) {
 #' continuous data is removed from the dataframe.
 #'
 #' @export
+#' 
+#' @examples 
+#' data(Nutrients_Utah)
+#' 
+#' AggContinuous_clean <- AggregatedContinuousData(Nutrients_Utah)
+#' 
+#' AggContinuous_flags <- AggregatedContinuousData(Nutrients_Utah, clean = FALSE)
 
 AggregatedContinuousData <- function(.data, clean = TRUE) {
   # check .data is data.frame
@@ -197,6 +209,13 @@ AggregatedContinuousData <- function(.data, clean = TRUE) {
 #' and no column is appended.
 #'
 #' @export
+#' 
+#' @examples 
+#' data(Nutrients_Utah)
+#' 
+#' PotentialDup_clean <- PotentialDuplicateRowID(Nutrients_Utah)
+#' 
+#' PotentialDup_flags <- PotentialDuplicateRowID(Nutrients_Utah, clean = FALSE)
 
 PotentialDuplicateRowID <- function(.data, clean = TRUE) {
   # check .data is data.frame
@@ -295,6 +314,13 @@ PotentialDuplicateRowID <- function(.data, clean = TRUE) {
 #' WQX threshold is removed from the dataframe.
 #'
 #' @export
+#' 
+#' @examples 
+#' data(Nutrients_Utah)
+#' 
+#' WQXUpperThreshold_clean <- AboveNationalWQXUpperThreshold(Nutrients_Utah)
+#' 
+#' WQXUpperThreshold_flags <- AboveNationalWQXUpperThreshold(Nutrients_Utah, clean = FALSE)
 #' 
 
 AboveNationalWQXUpperThreshold <- function(.data, clean = TRUE) {
@@ -400,6 +426,13 @@ AboveNationalWQXUpperThreshold <- function(.data, clean = TRUE) {
 #' WQX threshold is removed from the dataframe.
 #' 
 #' @export
+#' 
+#' @examples 
+#' data(Nutrients_Utah)
+#' 
+#' WQXLowerThreshold_clean <- BelowNationalWQXLowerThreshold(Nutrients_Utah)
+#' 
+#' WQXLowerThreshold_flags <- BelowNationalWQXLowerThreshold(Nutrients_Utah, clean = FALSE)
 
 BelowNationalWQXLowerThreshold <- function(.data, clean = TRUE) {
   # check .data is data.frame
@@ -516,6 +549,13 @@ BelowNationalWQXLowerThreshold <- function(.data, clean = TRUE) {
 #' dataframe.
 #'
 #' @export
+#' 
+#' @examples 
+#' data(Nutrients_Utah)
+#' 
+#' QAPPapproved_clean <- QAPPapproved(Nutrients_Utah)
+#' 
+#' QAPPapproved_cleanNAs <- QAPPapproved(Nutrients_Utah, cleanNA = TRUE)
 #'
 
 QAPPapproved <- function(.data, clean = TRUE, cleanNA = FALSE) {
@@ -570,7 +610,15 @@ QAPPapproved <- function(.data, clean = TRUE, cleanNA = FALSE) {
 #' data without an associated QAPP document is removed from the dataframe.
 #'
 #' @export
+#' 
+#' @examples 
+#' data(Nutrients_Utah)
+#' 
+#' QAPP_URLs_added <- QAPPDocAvailable(Nutrients_Utah)
+#' 
+#' QAPP_URLs_clean <- QAPPDocAvailable(Nutrients_Utah, clean = TRUE)
 #'
+
 QAPPDocAvailable <- function(.data, clean = FALSE) {
   # check .data is data.frame
   checkType(.data, "data.frame", "Input object")
@@ -629,7 +677,7 @@ QAPPDocAvailable <- function(.data, clean = FALSE) {
 #' the row will be flagged as "LONG_OutsideUSA", 3) If the latitude or longitude
 #' contains the string, "999", the row will be flagged as invalid, and 4) Finally,
 #' precision can be measured by the number of decimal places in the latitude and longitude
-#' provided. If either the lattitue or longitude does not have any numbers to the 
+#' provided. If either the latitude or longitude does not have any numbers to the 
 #' right of the decimal point, the row will be flagged as "Imprecise".
 #'
 #' @param .data TADA dataframe
@@ -644,6 +692,17 @@ QAPPDocAvailable <- function(.data, clean = FALSE) {
 #' removed, respectively.
 #'
 #' @export
+#' 
+#' @examples 
+#' data(Nutrients_Utah)
+#' 
+#' InvalidCoord_flags <- InvalidCoordinates(Nutrients_Utah)
+#' 
+#' OutsideUSACoord_removed <- InvalidCoordinates(Nutrients_Utah, clean_outsideUSA = TRUE)
+#' 
+#' ImpreciseCoord_removed <- InvalidCoordinates(Nutrients_Utah, clean_imprecise = TRUE)
+#' 
+#' InvalidCoord_removed <- InvalidCoordinates(Nutrients_Utah, clean_outsideUSA = TRUE, clean_imprecise = TRUE)
 #'
 
 InvalidCoordinates <- function(.data, clean_outsideUSA = FALSE, clean_imprecise = FALSE) {
