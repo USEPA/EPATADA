@@ -52,10 +52,16 @@
 #' @export
 #' 
 #' @examples 
+#' # Load example dataset:
 #' data(Nutrients_Utah)
 #' 
+#' # Convert result and detection limit values and units to WQX target units and 
+#' # add two new columns titled "ResultMeasureUnitCode.Original" and 
+#' # "DetectionLimitMeasureUnitCode.Original" to retain the original result and unit values:
 #' ResultUnitsConverted <- ConvertResultUnits(Nutrients_Utah)
 #' 
+#' # Do not convert result values and units, but add two new columns titled
+#' # "WQX.ConversionFactor" and "WQX.TargetUnit":
 #' ResultUnitsNotConverted <- ConvertResultUnits(Nutrients_Utah, transform = FALSE)
 
 ConvertResultUnits <- function(.data, transform = TRUE) {
@@ -335,16 +341,21 @@ ConvertResultUnits <- function(.data, transform = TRUE) {
 #' @export
 #' 
 #' @examples 
+#' # Load example dataset:
 #' data(Nutrients_Utah)
 #' 
+#' # Convert all depth units to meters:
 #' DepthUnitsConverted_m <- ConvertDepthUnits(Nutrients_Utah)
 #' 
+#' # Convert all depth units to feet:
 #' DepthUnitsConverted_ft <- ConvertDepthUnits(Nutrients_Utah, unit = "ft")
 #' 
+#' # Convert only the "ActivityTopDepthHeightMeasure" field to inches:
 #' TopDepthUnitsConverted_in <- ConvertDepthUnits(Nutrients_Utah, unit = "in", fields = "ActivityTopDepthHeightMeasure")
 #' 
+#' # Do not convert any depth units, but add columns for target units and 
+#' # conversion factors for each depth measure:
 #' DepthUnitsNotConverted <- ConvertDepthUnits(Nutrients_Utah, transform = FALSE)
-#'
 
 ConvertDepthUnits <- function(.data,
                               unit = "m",
@@ -635,10 +646,13 @@ ConvertDepthUnits <- function(.data,
 #' @export
 #' 
 #' @examples 
+#' # Load example dataset:
 #' data(Nutrients_Utah)
 #' 
+#' # Create a harmonization reference table for dataframe:
 #' CreateRefTable <- HarmonizationRefTable(Nutrients_Utah)
 #' 
+#' # Create and download a harmonization reference table for dataframe:
 #' DownloadRefTable <- HarmonizationRefTable(Nutrients_Utah, download = TRUE)
 
 HarmonizationRefTable <- function(.data, download = FALSE) {
@@ -748,12 +762,19 @@ HarmonizationRefTable <- function(.data, download = FALSE) {
 #' @export
 #' 
 #' @examples 
+#' # Load example dataset:
 #' data(Nutrients_Utah)
 #' 
+#' # Append harmonization reference table columns to dataframe and transform/convert
+#' # data to the reference table values:
 #' Nutrients_Harmonized <- HarmonizeData(Nutrients_Utah)
 #' 
+#' # Transform/convert data to the harmonization reference table values, but
+#' # do not append any columns to dataframe:
 #' Nutrients_Harmonized_noflags <- HarmonizeData(Nutrients_Utah, flag = FALSE)
 #' 
+#' # Append harmonization reference table columns to dataframe, but do not
+#' # transform/convert data to the reference table values:
 #' Nutrients_NotHarmonized <- HarmonizeData(Nutrients_Utah, transform = FALSE)
 
 HarmonizeData <- function(.data, ref, transform = TRUE, flag = TRUE) {

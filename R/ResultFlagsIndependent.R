@@ -20,10 +20,14 @@
 #' @export
 #'
 #' @examples 
+#' # Load example dataset
 #' data(Nutrients_Utah)
 #' 
+#' # Remove invalid characteristic-analytical method combinations from dataframe:
 #' InvalidMethod_clean <- InvalidMethod(Nutrients_Utah)
 #' 
+#' # Flag, but do not remove, invalid characteristic-analytical method combinations
+#' # in new column titled "WQX.AnalyticalMethodValidity":
 #' InvalidMethod_flags <- InvalidMethod(Nutrients_Utah, clean = FALSE)
 
 InvalidMethod <- function(.data, clean = TRUE) {
@@ -130,10 +134,13 @@ InvalidMethod <- function(.data, clean = TRUE) {
 #' @export
 #' 
 #' @examples 
+#' # Load example dataset
 #' data(Nutrients_Utah)
 #' 
+#' # Remove aggregated continuous data from dataframe:
 #' AggContinuous_clean <- AggregatedContinuousData(Nutrients_Utah)
 #' 
+#' # Flag, but do not remove, aggregated continuous data in new column titled "TADA.AggregatedContinuousData":
 #' AggContinuous_flags <- AggregatedContinuousData(Nutrients_Utah, clean = FALSE)
 
 AggregatedContinuousData <- function(.data, clean = TRUE) {
@@ -211,10 +218,13 @@ AggregatedContinuousData <- function(.data, clean = TRUE) {
 #' @export
 #' 
 #' @examples 
+#' # Load example dataset:
 #' data(Nutrients_Utah)
 #' 
+#' # Remove potential duplicate data from dataframe:
 #' PotentialDup_clean <- PotentialDuplicateRowID(Nutrients_Utah)
 #' 
+#' # Flag, but do not remove, potential duplicate data in new column titled "TADA.PotentialDupRowID":
 #' PotentialDup_flags <- PotentialDuplicateRowID(Nutrients_Utah, clean = FALSE)
 
 PotentialDuplicateRowID <- function(.data, clean = TRUE) {
@@ -316,12 +326,15 @@ PotentialDuplicateRowID <- function(.data, clean = TRUE) {
 #' @export
 #' 
 #' @examples 
+#' # Load example dataset:
 #' data(Nutrients_Utah)
 #' 
+#' # Remove data that is above the upper WQX threshold from dataframe:
 #' WQXUpperThreshold_clean <- AboveNationalWQXUpperThreshold(Nutrients_Utah)
 #' 
+#' # Flag, but do not remove, data that is above the upper WQX threshold in
+#' # new column titled "AboveWQXUpperThreshold":
 #' WQXUpperThreshold_flags <- AboveNationalWQXUpperThreshold(Nutrients_Utah, clean = FALSE)
-#' 
 
 AboveNationalWQXUpperThreshold <- function(.data, clean = TRUE) {
   # check .data is data.frame
@@ -428,10 +441,14 @@ AboveNationalWQXUpperThreshold <- function(.data, clean = TRUE) {
 #' @export
 #' 
 #' @examples 
+#' # Load example dataset:
 #' data(Nutrients_Utah)
 #' 
+#' # Remove data that is below the lower WQX threshold from the dataframe:
 #' WQXLowerThreshold_clean <- BelowNationalWQXLowerThreshold(Nutrients_Utah)
 #' 
+#' # Flag, but do not remove, data that is below the lower WQX threshold in
+#' # new column titled "BelowWQXLowerThreshold":
 #' WQXLowerThreshold_flags <- BelowNationalWQXLowerThreshold(Nutrients_Utah, clean = FALSE)
 
 BelowNationalWQXLowerThreshold <- function(.data, clean = TRUE) {
@@ -551,12 +568,17 @@ BelowNationalWQXLowerThreshold <- function(.data, clean = TRUE) {
 #' @export
 #' 
 #' @examples 
+#' # Load example dataset:
 #' data(Nutrients_Utah)
 #' 
+#' # Remove data where the QAPPApprovedIndicator equals "N", but retain data
+#' # where the QAPPApprovedIndicator equals "NA":
 #' QAPPapproved_clean <- QAPPapproved(Nutrients_Utah)
 #' 
+#' # Remove data where the QAPPApprovedIndicator equals "N" or "NA":
 #' QAPPapproved_cleanNAs <- QAPPapproved(Nutrients_Utah, cleanNA = TRUE)
 #'
+#' # Note: When clean = FALSE and cleanNA = FALSE, no data is removed
 
 QAPPapproved <- function(.data, clean = TRUE, cleanNA = FALSE) {
   # check .data is data.frame
@@ -615,12 +637,15 @@ QAPPapproved <- function(.data, clean = TRUE, cleanNA = FALSE) {
 #' @export
 #' 
 #' @examples 
+#' # Load example dataset:
 #' data(Nutrients_Utah)
 #' 
+#' # Flag, but do not remove, data without an associated QAPP document in
+#' # new column titled "TADA.QAPPDocAvailable":
 #' FlagData_MissingQAPPDocURLs <- QAPPDocAvailable(Nutrients_Utah)
 #' 
+#' # Remove data without an associated QAPP document available:
 #' RemoveData_MissingQAPPDocURLs <- QAPPDocAvailable(Nutrients_Utah, clean = TRUE)
-#'
 
 QAPPDocAvailable <- function(.data, clean = FALSE) {
   # check .data is data.frame
@@ -697,16 +722,20 @@ QAPPDocAvailable <- function(.data, clean = FALSE) {
 #' @export
 #' 
 #' @examples 
+#' # Load example dataset:
 #' data(Nutrients_Utah)
 #' 
+#' # Flag, but do not remove, data with invalid coordinates in new column titled "TADA.InvalidCoordinates":
 #' InvalidCoord_flags <- InvalidCoordinates(Nutrients_Utah)
 #' 
+#' # Remove data with coordinates outside the USA, but keep flagged data with imprecise coordinates:
 #' OutsideUSACoord_removed <- InvalidCoordinates(Nutrients_Utah, clean_outsideUSA = TRUE)
 #' 
+#' # Remove data with imprecise coordinates, but keep flagged data with coordinates outside the USA:
 #' ImpreciseCoord_removed <- InvalidCoordinates(Nutrients_Utah, clean_imprecise = TRUE)
 #' 
+#' # Remove data with imprecise coordinates or coordinates outside the USA from the dataframe:
 #' InvalidCoord_removed <- InvalidCoordinates(Nutrients_Utah, clean_outsideUSA = TRUE, clean_imprecise = TRUE)
-#'
 
 InvalidCoordinates <- function(.data, clean_outsideUSA = FALSE, clean_imprecise = FALSE) {
   # check .data is data.frame

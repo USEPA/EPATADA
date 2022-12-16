@@ -17,10 +17,14 @@
 #' @export
 #' 
 #' @examples
+#' # Load example dataset:
 #' data(Nutrients_Utah)
 #' 
+#' # Remove data with invalid characteristic-fraction combinations:
 #' InvalidFraction_clean <- InvalidFraction(Nutrients_Utah)
 #' 
+#' # Flag, but do not remove, data with invalid characteristic-fraction combinations
+#' # in new column titled "WQX.SampleFractionValidity":
 #' InvalidFraction_flags <- InvalidFraction(Nutrients_Utah, clean = FALSE)
 #'
 
@@ -116,10 +120,14 @@ InvalidFraction <- function(.data, clean = TRUE) {
 #' @export
 #'
 #' @examples
+#' # Load example dataset:
 #' data(Nutrients_Utah)
 #' 
+#' # Remove data with invalid characteristic-method speciation combinations from dataframe:
 #' InvalidSpeciation_clean <- InvalidSpeciation(Nutrients_Utah)
 #' 
+#' # Flag, but do not remove, data with invalid characteristic-method speciation
+#' # combinations in new column titled "WQX.MethodSpeciationValidity":
 #' InvalidSpeciation_flags <- InvalidSpeciation(Nutrients_Utah, clean = FALSE)
 
 
@@ -212,10 +220,14 @@ InvalidSpeciation <- function(.data, clean = TRUE) {
 #' @export
 #'
 #' @examples 
+#' # Load example dataset:
 #' data(Nutrients_Utah)
 #' 
+#' # Remove invalid characteristic-media-result unit combinations from dataframe:
 #' ResultUnitValidity_clean <- InvalidResultUnit(Nutrients_Utah)
 #' 
+#' # Flag, but do not remove, invalid characteristic-media-result unit combinations
+#' # in new column titled "WQX.ResultUnitValidity":
 #' ResultUnitValidity_flags <- InvalidResultUnit(Nutrients_Utah, clean = FALSE)
 
 
