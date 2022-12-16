@@ -70,10 +70,9 @@
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
       <img src="" class="logo" alt=""><h1>WQP Data Harmonization</h1>
-                        <h4 data-toc-skip class="author">Cristina A.
-Mullin, TADA Team</h4>
+                        <h4 data-toc-skip class="author">TADA Team</h4>
             
-            <h4 data-toc-skip class="date">2022-12-06</h4>
+            <h4 data-toc-skip class="date">2022-12-16</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/USEPA/TADA/blob/HEAD/vignettes/WQPDataHarmonization.Rmd" class="external-link"><code>vignettes/WQPDataHarmonization.Rmd</code></a></small>
       <div class="d-none name"><code>WQPDataHarmonization.Rmd</code></div>
@@ -129,7 +128,7 @@ session</p>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">RColorBrewer</span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">stats</span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://rlang.r-lib.org" class="external-link">rlang</a></span><span class="op">)</span></span>
-<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://pubs.usgs.gov/tm/04/a10/" class="external-link">dataRetrieval</a></span><span class="op">)</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://code.usgs.gov/water/dataRetrieval" class="external-link">dataRetrieval</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://gganimate.com" class="external-link">gganimate</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://gif.ski/" class="external-link">gifski</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">maps</span><span class="op">)</span></span>
@@ -139,7 +138,7 @@ session</p>
 <h2 id="retrieve-wqp-data">Retrieve WQP data<a class="anchor" aria-label="anchor" href="#retrieve-wqp-data"></a>
 </h2>
 <p>WQP data is retrieved and processed for compatibility with TADA. This
-function, TADAdataRetrieval builds on the USGS dataRetrieval package
+function, TADAdataRetrieval, builds on the USGS dataRetrieval package
 functions. It joins three WQP profiles (i.e., the station, narrow, and
 phys/chem), changes all data in the Characteristic, Speciation,
 Fraction, and Unit fields to uppercase, removes true duplicates, removes
@@ -185,13 +184,12 @@ however the original “ResultMeasureValue” and
 preserved in these new fields, “ResultMeasureValue.Original” and
 “DetectionLimitMeasureValue.Original”. Additionally,
 “TADA.ResultMeasureValue.Flag” and
-“TADA.DetectionLimitMeasureValue.Flag” are created to track and changes
+“TADA.DetectionLimitMeasureValue.Flag” are created to track any changes
 made to the “ResultMeasureValue” and “DetectionLimitMeasureValue”
 columns; and to provide information about the result values that is
 needed to address censored data later on (i.e., nondetections).
-Specifically, these new columns flag if special characters that are
-included in result values, and specifies what the special characters
-are.</p>
+Specifically, these new columns flag if special characters are included
+in result values, and specifies what the special characters are.</p>
 <ul>
 <li><p>ResultMeasureValue.Original</p></li>
 <li><p>TADA.ResultMeasureValue.Flag</p></li>
@@ -710,7 +708,7 @@ in each field.</p>
 <span><span class="co">#&gt; 11                     LaboratoryName    11</span></span>
 <span><span class="co">#&gt; 12 DetectionQuantitationLimitTypeName     7</span></span>
 <span><span class="co">#&gt; 13         MonitoringLocationTypeName    14</span></span>
-<span><span class="co">#&gt; 14                        ProjectName     9</span></span></code></pre></div>
+<span><span class="co">#&gt; 14                        ProjectName     8</span></span></code></pre></div>
 <p>Next, choose a field from the list to see the unique values in that
 field, as well as the number of times each value appears in the
 dataframe. We’ll start with ActivityTypeCode.</p>
@@ -726,8 +724,8 @@ data flags</p></li>
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/FilterFieldReview.html">FilterFieldReview</a></span><span class="op">(</span><span class="st">"ActivityTypeCode"</span>, <span class="va">TADAProfileClean13</span><span class="op">)</span></span></code></pre></div>
 <p><img src="WQPDataHarmonization_files/figure-html/unnamed-chunk-20-1.png" width="576"></p>
 <pre><code><span><span class="co">#&gt;                               FieldValue Count</span></span>
-<span><span class="co">#&gt; 8                         Sample-Routine  6362</span></span>
-<span><span class="co">#&gt; 5 Quality Control Sample-Field Replicate   560</span></span>
+<span><span class="co">#&gt; 8                         Sample-Routine  6370</span></span>
+<span><span class="co">#&gt; 5 Quality Control Sample-Field Replicate   565</span></span>
 <span><span class="co">#&gt; 7     Sample-Integrated Vertical Profile   510</span></span>
 <span><span class="co">#&gt; 3 Quality Control Sample-Equipment Blank   276</span></span>
 <span><span class="co">#&gt; 4     Quality Control Sample-Field Blank   134</span></span>
@@ -751,7 +749,7 @@ ResultStatusIdentifier field.</p>
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/FilterFieldReview.html">FilterFieldReview</a></span><span class="op">(</span><span class="st">"ActivityMediaSubdivisionName"</span>, <span class="va">TADAProfileClean14</span><span class="op">)</span></span></code></pre></div>
 <p><img src="WQPDataHarmonization_files/figure-html/unnamed-chunk-22-1.png" width="576"></p>
 <pre><code><span><span class="co">#&gt;        FieldValue Count</span></span>
-<span><span class="co">#&gt; 3   Surface Water   835</span></span>
+<span><span class="co">#&gt; 3   Surface Water   837</span></span>
 <span><span class="co">#&gt; 2     Groundwater   108</span></span>
 <span><span class="co">#&gt; 1 Bulk deposition     1</span></span></code></pre>
 <p>The ActivityMediaSubdivisionName field has two unique values,
@@ -773,8 +771,8 @@ displayed to save space on the page)</p>
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/FilterParList.html">FilterParList</a></span><span class="op">(</span><span class="va">TADAProfileClean15</span><span class="op">)</span></span>
 <span><span class="co">#&gt;   FieldValue Count</span></span>
 <span><span class="co">#&gt; 3   NITROGEN  5020</span></span>
-<span><span class="co">#&gt; 2    NITRATE  1722</span></span>
-<span><span class="co">#&gt; 1    AMMONIA    26</span></span></code></pre></div>
+<span><span class="co">#&gt; 2    NITRATE  1724</span></span>
+<span><span class="co">#&gt; 1    AMMONIA    32</span></span></code></pre></div>
 <p>Next, select a parameter. Let’s explore the fields associated with
 Nitrogen:</p>
 <div class="sourceCode" id="cb28"><pre class="downlit sourceCode r">
@@ -918,7 +916,7 @@ characteristic</p>
 
     <footer><div class="pkgdown-footer-left">
   <p></p>
-<p>Developed by Cristina Mullin, Jacob Greif, Michelle Thawley, Laura Shumway.</p>
+<p>Developed by Cristina Mullin, Michelle Thawley, Jacob Greif, Laura Shumway.</p>
 </div>
 
 <div class="pkgdown-footer-right">
