@@ -585,6 +585,9 @@ QAPPapproved <- function(.data, clean = TRUE, cleanNA = FALSE) {
       warning("All QAPPApprovedIndicator data is NA")
     }
   }
+  if (clean == FALSE & cleanNA == FALSE) {
+    warning("No changes were made because clean and cleanNA were FALSE")
+  }
   return(.data)
 }
 
@@ -614,9 +617,9 @@ QAPPapproved <- function(.data, clean = TRUE, cleanNA = FALSE) {
 #' @examples 
 #' data(Nutrients_Utah)
 #' 
-#' QAPP_URLs_added <- QAPPDocAvailable(Nutrients_Utah)
+#' FlagData_MissingQAPPDocURLs <- QAPPDocAvailable(Nutrients_Utah)
 #' 
-#' QAPP_URLs_clean <- QAPPDocAvailable(Nutrients_Utah, clean = TRUE)
+#' RemoveData_MissingQAPPDocURLs <- QAPPDocAvailable(Nutrients_Utah, clean = TRUE)
 #'
 
 QAPPDocAvailable <- function(.data, clean = FALSE) {
