@@ -34,3 +34,13 @@ includes aggregated continuous data, "Y", or not,  "N". When clean = TRUE,
 rows with aggregated continuous data are removed from the dataframe and no
 column will be appended. The default is clean = TRUE.
 }
+\examples{
+# Load example dataset
+data(Nutrients_Utah)
+
+# Remove aggregated continuous data from dataframe:
+AggContinuous_clean <- AggregatedContinuousData(Nutrients_Utah)
+
+# Flag, but do not remove, aggregated continuous data in new column titled "TADA.AggregatedContinuousData":
+AggContinuous_flags <- AggregatedContinuousData(Nutrients_Utah, clean = FALSE)
+}

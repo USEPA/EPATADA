@@ -27,3 +27,14 @@ combination in the dataframe. When clean = TRUE, rows with invalid
 characteristic-media-result unit combinations are removed. Default is
 clean = TRUE.
 }
+\examples{
+# Load example dataset:
+data(Nutrients_Utah)
+
+# Remove invalid characteristic-media-result unit combinations from dataframe:
+ResultUnitValidity_clean <- InvalidResultUnit(Nutrients_Utah)
+
+# Flag, but do not remove, invalid characteristic-media-result unit combinations
+# in new column titled "WQX.ResultUnitValidity":
+ResultUnitValidity_flags <- InvalidResultUnit(Nutrients_Utah, clean = FALSE)
+}

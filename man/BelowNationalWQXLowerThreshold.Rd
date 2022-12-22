@@ -27,3 +27,14 @@ When clean = TRUE, rows with values that are below the lower WQX threshold
 are removed from the dataframe and no column will be appended. Default is
 clean = TRUE.
 }
+\examples{
+# Load example dataset:
+data(Nutrients_Utah)
+
+# Remove data that is below the lower WQX threshold from the dataframe:
+WQXLowerThreshold_clean <- BelowNationalWQXLowerThreshold(Nutrients_Utah)
+
+# Flag, but do not remove, data that is below the lower WQX threshold in
+# new column titled "BelowWQXLowerThreshold":
+WQXLowerThreshold_flags <- BelowNationalWQXLowerThreshold(Nutrients_Utah, clean = FALSE)
+}

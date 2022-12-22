@@ -26,3 +26,14 @@ speciation combination in the dataframe. When clean = TRUE, rows with invalid
 characteristic-method speciation combinations are removed. Default is
 clean = TRUE.
 }
+\examples{
+# Load example dataset:
+data(Nutrients_Utah)
+
+# Remove data with invalid characteristic-method speciation combinations from dataframe:
+InvalidSpeciation_clean <- InvalidSpeciation(Nutrients_Utah)
+
+# Flag, but do not remove, data with invalid characteristic-method speciation
+# combinations in new column titled "WQX.MethodSpeciationValidity":
+InvalidSpeciation_flags <- InvalidSpeciation(Nutrients_Utah, clean = FALSE)
+}

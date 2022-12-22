@@ -17,3 +17,10 @@ Function generates list of characteristics in the input dataframe, as well as
 the number of records for each. The list is intended to inform users
 as to which parameters to explore further and filter.
 }
+\examples{
+# Load example dataset:
+data(Nutrients_Utah)
+
+# Create a list of parameters in the dataset and the number of records of each paramter:
+ParameterList <- FilterParList(Nutrients_Utah)
+}

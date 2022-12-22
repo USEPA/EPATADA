@@ -30,6 +30,22 @@ flagged with "LAT_OutsideUSA", 2) If the longitude is greater than zero AND less
 the row will be flagged as "LONG_OutsideUSA", 3) If the latitude or longitude
 contains the string, "999", the row will be flagged as invalid, and 4) Finally,
 precision can be measured by the number of decimal places in the latitude and longitude
-provided. If either the lattitue or longitude does not have any numbers to the
+provided. If either the latitude or longitude does not have any numbers to the
 right of the decimal point, the row will be flagged as "Imprecise".
+}
+\examples{
+# Load example dataset:
+data(Nutrients_Utah)
+
+# Flag, but do not remove, data with invalid coordinates in new column titled "TADA.InvalidCoordinates":
+InvalidCoord_flags <- InvalidCoordinates(Nutrients_Utah)
+
+# Remove data with coordinates outside the USA, but keep flagged data with imprecise coordinates:
+OutsideUSACoord_removed <- InvalidCoordinates(Nutrients_Utah, clean_outsideUSA = TRUE)
+
+# Remove data with imprecise coordinates, but keep flagged data with coordinates outside the USA:
+ImpreciseCoord_removed <- InvalidCoordinates(Nutrients_Utah, clean_imprecise = TRUE)
+
+# Remove data with imprecise coordinates or coordinates outside the USA from the dataframe:
+InvalidCoord_removed <- InvalidCoordinates(Nutrients_Utah, clean_outsideUSA = TRUE, clean_imprecise = TRUE)
 }

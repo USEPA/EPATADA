@@ -4,31 +4,46 @@
 \alias{InvalidFraction}
 \title{Check Sample Fraction Validity}
 \usage{
-InvalidFraction(.data, clean = TRUE)
+InvalidFraction(.data, clean = TRUE, errorsonly = FALSE)
 }
 \arguments{
 \item{.data}{TADA dataframe}
 
 \item{clean}{Boolean argument; removes "Invalid" characteristic-fraction
 combinations from the dataframe when clean = TRUE. Default is clean = TRUE.}
+
+\item{errorsonly}{Boolean argument; filters to show only the "Invalid"
+characteristic-fraction combinations in the dataframe when errorsonly = TRUE.
+Default is errorsonly = FALSE.}
 }
 \value{
-When clean = FALSE, this function adds the following column to your
-dataframe: WQX.SampleFractionValidity. This column flags each
+When clean = FALSE and errorsonly = FALSE, this function adds the
+following column to your dataframe: WQX.SampleFractionValidity. This column flags each
 CharacteristicName and ResultSampleFractionText combination in your dataframe
-as either "Nonstandardized", "Invalid", or "Valid". When clean = TRUE,
-"Invalid" rows are removed from the dataframe and no column will be appended.
+as either "Nonstandardized", "Invalid", or "Valid". When clean = FALSE and
+errorsonly = TRUE, the WQX.SampleFractionValidity is still added and the data
+is filtered to only show the "Invalid" rows only. When clean = TRUE and
+errorsonly = FALSE, "Invalid" rows are removed from the dataframe and no
+column will be appended. When clean = TRUE and errorsonly = TRUE, the function
+does not execute and an error message is returned.
 }
 \description{
 Function checks the validity of each characteristic-fraction combination
 in the dataframe. When clean = TRUE, rows with invalid characteristic-fraction
-combinations are removed. Default is clean = TRUE.
+combinations are removed. Default is clean = TRUE. When errorsonly = TRUE, only
+invalid characteristic-fraction combinations are returned. Default is errorsonly = FALSE.
 }
 \examples{
+# Load example dataset:
 data(Nutrients_Utah)
 
-Nutrients_Utah_1 <- InvalidFraction(Nutrients_Utah)
+# Remove data with invalid characteristic-fraction combinations:
+InvalidFraction_clean <- InvalidFraction(Nutrients_Utah)
 
-Nutrients_Utah_2 <- InvalidFraction(Nutrients_Utah, clean = FALSE)
+# Flag, but do not remove, data with invalid characteristic-fraction combinations
+# in new column titled "WQX.SampleFractionValidity":
+InvalidFraction_flags <- InvalidFraction(Nutrients_Utah, clean = FALSE)
 
+# Show only invalid characteristic-fraction combinations:
+InvalidFraction_errorsonly <- InvalidFraction(Nutrients_Utah, clean = FALSE, errorsonly = TRUE)
 }

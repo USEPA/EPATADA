@@ -31,3 +31,13 @@ of potential duplicate rows is flagged with a unique ID. When clean = TRUE,
 the function retains the first occurrence of each potential duplicate in the
 dataframe. Default is clean = TRUE.
 }
+\examples{
+# Load example dataset:
+data(Nutrients_Utah)
+
+# Remove potential duplicate data from dataframe:
+PotentialDup_clean <- PotentialDuplicateRowID(Nutrients_Utah)
+
+# Flag, but do not remove, potential duplicate data in new column titled "TADA.PotentialDupRowID":
+PotentialDup_flags <- PotentialDuplicateRowID(Nutrients_Utah, clean = FALSE)
+}

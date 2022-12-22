@@ -27,3 +27,14 @@ combination in the dataframe. When clean = TRUE, rows with invalid
 characteristic-analytical method combinations are removed. Default is
 clean = TRUE.
 }
+\examples{
+# Load example dataset
+data(Nutrients_Utah)
+
+# Remove invalid characteristic-analytical method combinations from dataframe:
+InvalidMethod_clean <- InvalidMethod(Nutrients_Utah)
+
+# Flag, but do not remove, invalid characteristic-analytical method combinations
+# in new column titled "WQX.AnalyticalMethodValidity":
+InvalidMethod_flags <- InvalidMethod(Nutrients_Utah, clean = FALSE)
+}

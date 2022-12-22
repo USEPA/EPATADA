@@ -20,3 +20,10 @@ A table and pie chart of unique values in the selected field.
 Function creates a table and pie chart of unique values, and counts of those
 values, for a chosen field in a dataframe subset by parameter.
 }
+\examples{
+# Load example dataset:
+data(Nutrients_Utah)
+
+# Create table and pie chart of monitoring locations for the parameter "AMMONIA" in dataframe:
+AmmoniaMonitoringLocations <- FilterParFieldReview(field = "MonitoringLocationIdentifier", Nutrients_Utah, parameter = "AMMONIA")
+}

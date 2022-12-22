@@ -27,3 +27,14 @@ When clean = TRUE, rows with values that are above the upper WQX threshold
 are removed from the dataframe and no column will be appended. Default is
 clean = TRUE.
 }
+\examples{
+# Load example dataset:
+data(Nutrients_Utah)
+
+# Remove data that is above the upper WQX threshold from dataframe:
+WQXUpperThreshold_clean <- AboveNationalWQXUpperThreshold(Nutrients_Utah)
+
+# Flag, but do not remove, data that is above the upper WQX threshold in
+# new column titled "AboveWQXUpperThreshold":
+WQXUpperThreshold_flags <- AboveNationalWQXUpperThreshold(Nutrients_Utah, clean = FALSE)
+}

@@ -42,3 +42,16 @@ are required to have an EPA approved QAPP to receive 106 funding. Therefore,
 most of these organizations data has an approved QAPP even if the data
 submitted to WQP is NA.
 }
+\examples{
+# Load example dataset:
+data(Nutrients_Utah)
+
+# Remove data where the QAPPApprovedIndicator equals "N", but retain data
+# where the QAPPApprovedIndicator equals "NA":
+QAPPapproved_clean <- QAPPapproved(Nutrients_Utah)
+
+# Remove data where the QAPPApprovedIndicator equals "N" or "NA":
+QAPPapproved_cleanNAs <- QAPPapproved(Nutrients_Utah, cleanNA = TRUE)
+
+# Note: When clean = FALSE and cleanNA = FALSE, no data is removed
+}
