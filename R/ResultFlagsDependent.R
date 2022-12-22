@@ -127,18 +127,27 @@ InvalidFraction <- function(.data, clean = TRUE, errorsonly = FALSE) {
 #' Function checks the validity of each characteristic-method
 #' speciation combination in the dataframe. When clean = TRUE, rows with invalid
 #' characteristic-method speciation combinations are removed. Default is
-#' clean = TRUE.
+#' clean = TRUE. When errorsonly = TRUE, dataframe is filtered to show only
+#' rows with invalid characteristic-method speciation combinations. Default is
+#' errorsonly = FALSE.
 #'
 #' @param .data TADA dataframe
 #' @param clean Boolean argument; removes "Invalid" characteristic-method
 #' speciation combinations from the dataframe when clean = TRUE. Default is
 #' clean = TRUE.
+#' @param errorsonly Boolean argument; filters to show only the "Invalid" 
+#' characteristic-method speciation combinations from the dataframe when 
+#' errorsonly = TRUE. Default is errorsonly = FALSE.
 #'
-#' @return #'When clean = FALSE, this function adds the following column to your
-#' dataframe: WQX.MethodSpeciationValidity. This column flags each 
-#' CharacteristicName and MethodSpecificationName combination in your dataframe as 
-#' either "Nonstandardized", "Invalid", or "Valid". When clean = TRUE, "Invalid" 
-#' rows are removed from the dataframe and no column will be appended.
+#' @return When clean = FALSE and errorsonly = FALSE, this function adds the 
+#' following column to your dataframe: WQX.MethodSpeciationValidity. This column 
+#' flags each CharacteristicName and MethodSpecificationName combination in your 
+#' dataframe as either "Nonstandardized", "Invalid", or "Valid". When clean = FALSE 
+#' and errorsonly = TRUE, the dataframe is filtered to show only the "Invalid" data; 
+#' the column WQX.MethodSpeciationValidity is still appended. When clean = TRUE
+#' and errorsonly = FALSE, "Invalid" rows are removed from the dataframe and 
+#' no column will be appended. When clean = TRUE and errorsonly = TRUE, the
+#' function is not executed and an error message is returned.
 #'
 #' @export
 #'
@@ -152,15 +161,24 @@ InvalidFraction <- function(.data, clean = TRUE, errorsonly = FALSE) {
 #' # Flag, but do not remove, data with invalid characteristic-method speciation
 #' # combinations in new column titled "WQX.MethodSpeciationValidity":
 #' InvalidSpeciation_flags <- InvalidSpeciation(Nutrients_Utah, clean = FALSE)
+#' 
+#' # Show only invalid characteristic-method speciation combinations:
+#' InvalidSpeciation_errorsonly <- InvalidSpeciation(Nutrients_Utah, clean = FALSE, errorsonly = TRUE)
 
 
-InvalidSpeciation <- function(.data, clean = TRUE) {
+InvalidSpeciation <- function(.data, clean = TRUE, errorsonly = FALSE) {
   # check .data is data.frame
   checkType(.data, "data.frame", "Input object")
   # check clean is boolean
   checkType(clean, "logical")
+  # check errorsonly is boolean
+  checkType(errorsonly, "logical")
   # check .data has required columns
   checkColumns(.data, c("CharacteristicName", "MethodSpecificationName"))
+  # check that clean and errorsonly are not both TRUE
+  if (clean == TRUE & errorsonly == TRUE) {
+    stop("Function not executed because clean and errorsonly cannot both be TRUE")
+  }
 
   # execute function after checks are passed
   if (("WQX.MethodSpeciationValidity" %in% colnames(.data)) == TRUE) {
@@ -202,15 +220,15 @@ InvalidSpeciation <- function(.data, clean = TRUE) {
     return(.data)
   }
   
-  # flagged output
-  if (clean == FALSE) {
+  # flagged output, all data
+  if (clean == FALSE & errorsonly == FALSE) {
     return(check.data)
     warning("Metadata transformations may be adversely affected by choosing to retain 'Invalid' speciation. In order to ensure transformation functions will run properly, set clean = TRUE.")
   }
   
   # clean output
-  if (clean == TRUE) {
-    # filter out invalid characteristic-fraction combinations
+  if (clean == TRUE & errorsonly == FALSE) {
+    # filter out invalid characteristic-method speciation combinations
     clean.data <- dplyr::filter(check.data, WQX.MethodSpeciationValidity != "Invalid")
     
     # remove WQX.MethodSpeciationValidity column
@@ -218,27 +236,41 @@ InvalidSpeciation <- function(.data, clean = TRUE) {
     
     return(clean.data)
   }
+  
+  # flagged output, errors only
+  if (clean == FALSE & errorsonly == TRUE) {
+    # filter to show only invalid characteristic-method speciation combinations
+    invalid.data <- dplyr::filter(check.data, WQX.MethodSpeciationValidity == "Invalid")
+    return(invalid.data)
+  }
 }
 
 
 #' Check Result Unit Validity
 #'
 #' Function checks the validity of each characteristic-media-result unit
-#' combination in the dataframe. When clean = TRUE, rows with invalid
-#' characteristic-media-result unit combinations are removed. Default is
-#' clean = TRUE.
+#' combination in the dataframe. When clean = TRUE, rows 
+#' with invalid characteristic-media-result unit combinations are removed. Default is
+#' clean = TRUE. When errorsonly = TRUE, dataframe is filtered to show only rows
+#' with invalid characteristic-media-result unit combinations. Default is
+#' errorsonly = FALSE.
 #'
 #' @param .data TADA dataframe
 #' @param clean Boolean argument; removes "Invalid" characteristic-media-result
 #' unit combinations from the dataframe when clean = TRUE. Default is
 #' clean = TRUE.
+#' @param errorsonly Boolean argument; filters dataframe to show only "Invalid"
+#' characteristic-media-result unit combinations when errorsonly = TRUE. Default
+#' is errorsonly = FALSE.
 #'
-#' @return When clean = FALSE, the following column will be added to your dataframe: 
-#' WQX.ResultUnitValidity. This column flags each CharacteristicName, 
-#' ActivityMediaName, and ResultMeasure/MeasureUnitCode combination in your 
-#' dataframe as either "Nonstandardized", "Invalid", or "Valid". When
-#' clean = TRUE, "Invalid" rows are removed from the dataframe and no column will
-#' be appended.
+#' @return When clean = FALSE and errorsonly = FALSE, the following column will 
+#' be added to your dataframe: WQX.ResultUnitValidity. This column flags each 
+#' CharacteristicName, ActivityMediaName, and ResultMeasure/MeasureUnitCode 
+#' combination in your dataframe as either "Nonstandardized", "Invalid", or "Valid". 
+#' When clean = FALSE and errorsonly = TRUE, the dataframe will be filtered to 
+#' show only "Invalid" characteristic-media-result unit combinations;
+#' WQX.ResultUnitValidity column is still appended. When clean = TRUE, "Invalid" 
+#' rows are removed from the dataframe and no column will be appended.
 #'
 #' @export
 #'
@@ -252,15 +284,24 @@ InvalidSpeciation <- function(.data, clean = TRUE) {
 #' # Flag, but do not remove, invalid characteristic-media-result unit combinations
 #' # in new column titled "WQX.ResultUnitValidity":
 #' ResultUnitValidity_flags <- InvalidResultUnit(Nutrients_Utah, clean = FALSE)
+#' 
+#' # Show only invalid characteristic-media-result unit combinations:
+#' ResultUnitValidity_errorsonly <- InvalidResultUnit(Nutrients_Utah, clean = FALSE, errorsonly = TRUE)
 
 
-InvalidResultUnit <- function(.data, clean = TRUE) {
+InvalidResultUnit <- function(.data, clean = TRUE, errorsonly = FALSE) {
   # check .data is data.frame
   checkType(.data, "data.frame", "Input object")
   # check clean is boolean
   checkType(clean, "logical")
+  # check errorsonly is boolean
+  checkType(errorsonly, "logical")
   # check .data has required columns
   checkColumns(.data, c("CharacteristicName", "ResultMeasure.MeasureUnitCode", "ActivityMediaName"))
+  # check that clean and errorsonly are not both TRUE
+  if (clean == TRUE & errorsonly == TRUE) {
+    stop("Function not executed because clean and errorsonly cannot both be TRUE")
+  }
 
   # execute function after checks are passed
   if (("WQX.ResultUnitValidity" %in% colnames(.data)) == TRUE) {
@@ -302,14 +343,14 @@ InvalidResultUnit <- function(.data, clean = TRUE) {
     return(.data)
   }
   
-  # flagged output
-  if (clean == FALSE) {
+  # flagged output, all data
+  if (clean == FALSE & errorsonly == FALSE) {
     return(check.data)
     warning("Metadata transformations may be adversely affected by choosing to retain 'Invalid' result units. In order to ensure transformation functions will run properly, set clean = TRUE.")
   }
   
   # clean output
-  if (clean == TRUE) {
+  if (clean == TRUE & errorsonly == FALSE) {
     # filter out invalid characteristic-unit-media combinations
     clean.data <- dplyr::filter(check.data, WQX.ResultUnitValidity != "Invalid")
     
@@ -318,5 +359,11 @@ InvalidResultUnit <- function(.data, clean = TRUE) {
     
     return(clean.data)
   }
+  
+  # flagged output, errors only
+  if (clean == FALSE & errorsonly == TRUE) {
+    # filter to show only invalid characteristic-unit-media combinations
+    invalid.data <- dplyr::filter(check.data, WQX.ResultUnitValidity == "Invalid")
+    return(invalid.data)
+  }
 }
-
