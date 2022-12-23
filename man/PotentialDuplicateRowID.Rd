@@ -4,7 +4,7 @@
 \alias{PotentialDuplicateRowID}
 \title{Check for Potential Duplicates}
 \usage{
-PotentialDuplicateRowID(.data, clean = TRUE)
+PotentialDuplicateRowID(.data, clean = TRUE, errorsonly = FALSE)
 }
 \arguments{
 \item{.data}{TADA dataframe}

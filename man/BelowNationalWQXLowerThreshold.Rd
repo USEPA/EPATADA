@@ -4,19 +4,28 @@
 \alias{BelowNationalWQXLowerThreshold}
 \title{Check Result Value Against WQX Lower Threshold}
 \usage{
-BelowNationalWQXLowerThreshold(.data, clean = TRUE)
+BelowNationalWQXLowerThreshold(.data, clean = TRUE, errorsonly = FALSE)
 }
 \arguments{
 \item{.data}{TADA dataframe}
 
 \item{clean}{Boolean argument; removes data that is below the lower WQX
 threshold from the dataframe when clean = TRUE. Default is clean = TRUE.}
+
+\item{errorsonly}{Boolean argument; filters data to show only the values
+flagged as below the lower WQX threshold when errorsonly = TRUE. Default is
+errorsonly = FALSE.}
 }
 \value{
-When clean = FALSE, the following column is added to your dataframe:
-BelowWQXLowerThreshold. This column flags rows with data that are below
-the lower WQX threshold. When clean = TRUE, data that is below the lower
-WQX threshold is removed from the dataframe.
+When clean = FALSE and errorsonly = FALSE, the following column is
+added to your dataframe: BelowWQXLowerThreshold. This column flags rows with
+data that are below the lower WQX threshold. When clean = FALSE and
+errorsonly = TRUE, the dataframe is filtered to show only the rows which are
+flagged as below the WQX threshold; the column BelowWQXThreshold is still
+appended. When clean = TRUE and errorsonly = FALSE, data that is below the lower
+WQX threshold is removed from the dataframe. When clean = TRUE and
+errorsonly = TRUE, the function does not execute and an error message is
+returned. The defaults are clean = TRUE and errorsonly = FALSE.
 }
 \description{
 EPA's Water Quality Exchange (WQX) has generated statistics and data from
@@ -25,7 +34,9 @@ leverages that statistical data from WQX to flag any data that is below the
 lower threshold of result values submitted to WQX for a given characteristic.
 When clean = TRUE, rows with values that are below the lower WQX threshold
 are removed from the dataframe and no column will be appended. Default is
-clean = TRUE.
+clean = TRUE. When errorsonly = TRUE, the dataframe is filtered to show only
+rows with values that are flagged below the lower WQX threshold. Default is
+errorsonly = FALSE
 }
 \examples{
 # Load example dataset:
@@ -37,4 +48,7 @@ WQXLowerThreshold_clean <- BelowNationalWQXLowerThreshold(Nutrients_Utah)
 # Flag, but do not remove, data that is below the lower WQX threshold in
 # new column titled "BelowWQXLowerThreshold":
 WQXLowerThreshold_flags <- BelowNationalWQXLowerThreshold(Nutrients_Utah, clean = FALSE)
+
+# Show only data that is below the lower WQX threshold:
+WQXLowerThreshold_flagsonly <- BelowNationalWQXLowerThreshold(Nutrients_Utah, clean = FALSE, errorsonly = TRUE)
 }

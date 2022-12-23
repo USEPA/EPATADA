@@ -4,7 +4,7 @@
 \alias{InvalidSpeciation}
 \title{Check Method Speciation Validity}
 \usage{
-InvalidSpeciation(.data, clean = TRUE)
+InvalidSpeciation(.data, clean = TRUE, errorsonly = FALSE)
 }
 \arguments{
 \item{.data}{TADA dataframe}
@@ -12,19 +12,29 @@ InvalidSpeciation(.data, clean = TRUE)
 \item{clean}{Boolean argument; removes "Invalid" characteristic-method
 speciation combinations from the dataframe when clean = TRUE. Default is
 clean = TRUE.}
+
+\item{errorsonly}{Boolean argument; filters to show only the "Invalid"
+characteristic-method speciation combinations from the dataframe when
+errorsonly = TRUE. Default is errorsonly = FALSE.}
 }
 \value{
-#'When clean = FALSE, this function adds the following column to your
-dataframe: WQX.MethodSpeciationValidity. This column flags each
-CharacteristicName and MethodSpecificationName combination in your dataframe as
-either "Nonstandardized", "Invalid", or "Valid". When clean = TRUE, "Invalid"
-rows are removed from the dataframe and no column will be appended.
+When clean = FALSE and errorsonly = FALSE, this function adds the
+following column to your dataframe: WQX.MethodSpeciationValidity. This column
+flags each CharacteristicName and MethodSpecificationName combination in your
+dataframe as either "Nonstandardized", "Invalid", or "Valid". When clean = FALSE
+and errorsonly = TRUE, the dataframe is filtered to show only the "Invalid" data;
+the column WQX.MethodSpeciationValidity is still appended. When clean = TRUE
+and errorsonly = FALSE, "Invalid" rows are removed from the dataframe and
+no column will be appended. When clean = TRUE and errorsonly = TRUE, the
+function is not executed and an error message is returned.
 }
 \description{
 Function checks the validity of each characteristic-method
 speciation combination in the dataframe. When clean = TRUE, rows with invalid
 characteristic-method speciation combinations are removed. Default is
-clean = TRUE.
+clean = TRUE. When errorsonly = TRUE, dataframe is filtered to show only
+rows with invalid characteristic-method speciation combinations. Default is
+errorsonly = FALSE.
 }
 \examples{
 # Load example dataset:
@@ -36,4 +46,7 @@ InvalidSpeciation_clean <- InvalidSpeciation(Nutrients_Utah)
 # Flag, but do not remove, data with invalid characteristic-method speciation
 # combinations in new column titled "WQX.MethodSpeciationValidity":
 InvalidSpeciation_flags <- InvalidSpeciation(Nutrients_Utah, clean = FALSE)
+
+# Show only invalid characteristic-method speciation combinations:
+InvalidSpeciation_errorsonly <- InvalidSpeciation(Nutrients_Utah, clean = FALSE, errorsonly = TRUE)
 }

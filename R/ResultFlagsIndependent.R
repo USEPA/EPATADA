@@ -436,7 +436,7 @@ AboveNationalWQXUpperThreshold <- function(.data, clean = TRUE, errorsonly = FAL
   )
   checkColumns(.data, required_cols)
   # check that clean and errorsonly are not both TRUE
-  if (clean == TRUE & errorsonly = TRUE) {
+  if (clean == TRUE & errorsonly == TRUE) {
     stop("Function not executed because clean and errorsonly cannot both be TRUE")
   }
 
