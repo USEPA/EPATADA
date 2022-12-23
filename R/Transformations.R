@@ -799,6 +799,14 @@ HarmonizeData <- function(.data, ref, transform = TRUE, flag = TRUE) {
          TRUE.")
   }
 
+  #define which columns are expected in ref
+  expected_ref_cols <- c(
+    "TADA.SuggestedCharacteristicName",
+    "TADA.SuggestedSampleFraction",
+    "TADA.SuggestedSpeciation",
+    "TADA.SuggestedResultUnit"
+  )
+  
   # execute function after checks are passed
   if (all(c(
     "CharacteristicName", "ActivityMediaName", "ResultMeasureValue",
@@ -817,14 +825,7 @@ HarmonizeData <- function(.data, ref, transform = TRUE, flag = TRUE) {
       # check ref is data.frame
       checkType(ref, "data.frame")
       
-      # check ref has all of the required columns
-      expected_ref_cols <- c(
-        "TADA.SuggestedCharacteristicName",
-        "TADA.SuggestedSampleFraction",
-        "TADA.SuggestedSpeciation",
-        "TADA.SuggestedResultUnit"
-      )
-            
+      # check ref has all of the required columns      
       checkColumns(ref, expected_ref_cols)      
       
       harm.ref <- ref
