@@ -958,7 +958,15 @@ InvalidCoordinates <- function(.data, clean_outsideUSA = FALSE, clean_imprecise 
   checkType(clean_imprecise, "logical")
   # check .data has required columns
   checkColumns(.data, c("LatitudeMeasure", "LongitudeMeasure"))
-
+  #check lat and long are "numeric"
+  if (class(.data$LongitudeMeasure) != "numeric") {
+    warning("LongitudeMeasure field must be numeric")
+  }
+  
+  if (class(.data$LatitudeMeasure) != "numeric") {
+    warning("LatitudeMeasure field must be numeric")
+  }
+  
   # execute function after checks are passed
   .data <- .data %>%
     dplyr::mutate(TADA.InvalidCoordinates = dplyr::case_when(
@@ -966,7 +974,8 @@ InvalidCoordinates <- function(.data, clean_outsideUSA = FALSE, clean_imprecise 
       LongitudeMeasure > 0 & LongitudeMeasure < 145 ~ "LONG_OutsideUSA",
       grepl("999", LatitudeMeasure) ~ "Imprecise",
       grepl("999", LongitudeMeasure) ~ "Imprecise",
-      sapply(.data$LatitudeMeasure, decimalnumcount) < 4 | sapply(.data$LongitudeMeasure, decimalnumcount) < 4 ~ "Imprecise"
+      #for below, lat and long fields must be numeric
+      sapply(.data$LatitudeMeasure, decimalplaces) < 4 | sapply(.data$LongitudeMeasure, decimalplaces) < 4 ~ "Imprecise"
     ))
   
   # clean output, remove all data for stations outside of the US

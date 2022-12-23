@@ -1,3 +1,6 @@
-test_that("multiplication works", {
-  expect_equal(2 * 2, 4)
+test_that("LongitudeMeasure is numeric", {
+  
+  
+  
+  expect_equal(class(Nutrients_Utah$LongitudeMeasure), "numeric")
 })
