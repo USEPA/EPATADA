@@ -10,9 +10,13 @@ PotentialDuplicateRowID(.data, clean = TRUE, errorsonly = FALSE)
 \item{.data}{TADA dataframe}
 
 \item{clean}{Boolean argument; removes potential duplicate data from
-the dataframe when clean = TRUE. When clean = FALSE, a column indicating
-potential duplicate rows with a unique number linking rows is appended to the
-input data set. Default is clean = TRUE.}
+the dataframe when clean = TRUE. When clean = FALSE,
+a column titled "TADA.PotentialDupRowID" is added to the dataframe which
+assigns each pair of potential duplicates a unique ID for review.
+Default is clean = TRUE.}
+
+\item{errorsonly}{Boolean argument; filters dataframe to show only potential
+duplicate rows of data when errorsonly = TRUE. Default is errorsonly = FALSE.}
 }
 \value{
 When clean = FALSE, the following column will be added to you dataframe:
@@ -23,13 +27,14 @@ each group of potential duplicate rows will be removed from the dataframe
 and no column is appended.
 }
 \description{
-Sometimes multiple organizations submit the exact same data to Water Quality
-Portal (WQP), which can affect water quality analyses and assessments. This
+Sometimes multiple organizations submit the exact same data set to the
+Water Quality Portal (WQP), which can affect water quality analyses. This
 function checks for and identifies data that is identical in all fields
-excluding organization-specific and comment text fields. Each pair or group
-of potential duplicate rows is flagged with a unique ID. When clean = TRUE,
-the function retains the first occurrence of each potential duplicate in the
-dataframe. Default is clean = TRUE.
+excluding organization-specific and comment text fields. When clean = FALSE,
+a column titled "TADA.PotentialDupRowID" is added to the dataframe which
+assigns each pair of potential duplicates a unique ID for review.
+When clean = TRUE, the function retains the first occurrence of each
+potential duplicate in the dataframe. Default is clean = TRUE.
 }
 \examples{
 # Load example dataset:
@@ -39,5 +44,9 @@ data(Nutrients_Utah)
 PotentialDup_clean <- PotentialDuplicateRowID(Nutrients_Utah)
 
 # Flag, but do not remove, potential duplicate data in new column titled "TADA.PotentialDupRowID":
-PotentialDup_flags <- PotentialDuplicateRowID(Nutrients_Utah, clean = FALSE)
+PotentialDup_flagcolumnadded <- PotentialDuplicateRowID(Nutrients_Utah, clean = FALSE)
+
+# Flag and review potential duplicate data only:
+PotentialDup_reviewduplicatesonly <- PotentialDuplicateRowID(Nutrients_Utah, clean = FALSE, errorsonly = TRUE) 
+
 }
