@@ -923,8 +923,9 @@ QAPPDocAvailable <- function(.data, clean = FALSE) {
 #' @param .data TADA dataframe
 #' @param clean_outsideUSA Boolean argument; removes data with coordinates outside
 #' of the United States when clean_outsideUSA = TRUE. Default is clean = FALSE.
-#' @param clean_imprecise Boolean arguments; removes imprecise data when
+#' @param clean_imprecise Boolean argument; removes imprecise data when
 #' clean_imprecise = TRUE. Default is clean_imprecise = FALSE.
+#' @param errorsonly Boolean argument; Return flagged data only when errorsonly = FALSE
 #'
 #' @return When either the clean_outsideUSA or clean_imprecise argument is FALSE,
 #' a column flagging rows with the respective QA check is appended to the input
@@ -938,18 +939,26 @@ QAPPDocAvailable <- function(.data, clean = FALSE) {
 #' data(Nutrients_Utah)
 #' 
 #' # Flag, but do not remove, data with invalid coordinates in new column titled "TADA.InvalidCoordinates":
+#' # Return ALL data:
 #' InvalidCoord_flags <- InvalidCoordinates(Nutrients_Utah)
+#' 
+#' # Flag, but do not remove, data with invalid coordinates in new column titled "TADA.InvalidCoordinates"
+#' # Return ONLY the flagged data:
+#' InvalidCoord_flags_errorsonly <- InvalidCoordinates(Nutrients_Utah, errorsonly = TRUE)
 #' 
 #' # Remove data with coordinates outside the USA, but keep flagged data with imprecise coordinates:
 #' OutsideUSACoord_removed <- InvalidCoordinates(Nutrients_Utah, clean_outsideUSA = TRUE)
 #' 
 #' # Remove data with imprecise coordinates, but keep flagged data with coordinates outside the USA:
+#' # imprecise data may include a series of 999's to the right of the decimal points
+#' # alternatively, imprecise data may have less than 3 significant figures to the right
+#' # of the decimal point
 #' ImpreciseCoord_removed <- InvalidCoordinates(Nutrients_Utah, clean_imprecise = TRUE)
 #' 
 #' # Remove data with imprecise coordinates or coordinates outside the USA from the dataframe:
 #' InvalidCoord_removed <- InvalidCoordinates(Nutrients_Utah, clean_outsideUSA = TRUE, clean_imprecise = TRUE)
 
-InvalidCoordinates <- function(.data, clean_outsideUSA = FALSE, clean_imprecise = FALSE) {
+InvalidCoordinates <- function(.data, clean_outsideUSA = FALSE, clean_imprecise = FALSE, errorsonly = FALSE) {
   # check .data is data.frame
   checkType(.data, "data.frame", "Input object")
   # check clean_outsideUSA is boolean
@@ -972,23 +981,38 @@ InvalidCoordinates <- function(.data, clean_outsideUSA = FALSE, clean_imprecise 
     dplyr::mutate(TADA.InvalidCoordinates = dplyr::case_when(
       LatitudeMeasure < 0 ~ "LAT_OutsideUSA",
       LongitudeMeasure > 0 & LongitudeMeasure < 145 ~ "LONG_OutsideUSA",
-      grepl("999", LatitudeMeasure) ~ "Imprecise",
-      grepl("999", LongitudeMeasure) ~ "Imprecise",
+      grepl("999", LatitudeMeasure) ~ "Imprecise_Latincludes999",
+      grepl("999", LongitudeMeasure) ~ "Imprecise_Longincludes999",
       #for below, lat and long fields must be numeric
-      sapply(.data$LatitudeMeasure, decimalplaces) < 4 | sapply(.data$LongitudeMeasure, decimalplaces) < 4 ~ "Imprecise"
+      # this checks if there are at least 3 significant figures to the 
+      # right of the decimal point
+      sapply(.data$LatitudeMeasure, decimalplaces) < 3 
+      | sapply(.data$LongitudeMeasure, decimalplaces) < 3 ~ "Imprecise_lessthan3decimaldigits"
     ))
   
-  # clean output, remove all data for stations outside of the US
+  # clean output, remove all data with invalid station metadata
   if ((clean_outsideUSA == TRUE) & (clean_imprecise == TRUE)) {
     .data <- dplyr::filter(.data, is.na(TADA.InvalidCoordinates) == TRUE)
   }
   
   if ((clean_outsideUSA == FALSE) & (clean_imprecise == TRUE)) {
-    .data <- dplyr::filter(.data, TADA.InvalidCoordinates != "Imprecise" | is.na(TADA.InvalidCoordinates) == TRUE)
+    .data <- dplyr::filter(.data, 
+                           TADA.InvalidCoordinates != "Imprecise_Latincludes999" 
+                           & TADA.InvalidCoordinates != "Imprecise_Longincludes999"
+                           & TADA.InvalidCoordinates != "Imprecise_lessthan3decimaldigits"
+                           | is.na(TADA.InvalidCoordinates) == TRUE)
   }
   
   if ((clean_outsideUSA == TRUE) & (clean_imprecise == FALSE)) {
-    .data <- dplyr::filter(.data, TADA.InvalidCoordinates == "Imprecise" | is.na(TADA.InvalidCoordinates) == TRUE)
+    .data <- dplyr::filter(.data, 
+                           TADA.InvalidCoordinates != "LAT_OutsideUSA" 
+                           & TADA.InvalidCoordinates != "LONG_OutsideUSA"
+                           | is.na(TADA.InvalidCoordinates) == TRUE)
+  }
+  
+  #return only flagged data if errorsonly = true
+  if ((errorsonly == TRUE)) {
+    .data <- dplyr::filter(.data, is.na(TADA.InvalidCoordinates) != TRUE)
   }
   
   if (all(is.na(.data$TADA.InvalidCoordinates) == TRUE)) {
