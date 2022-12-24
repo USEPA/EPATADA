@@ -72,7 +72,7 @@
       <img src="" class="logo" alt=""><h1>WQP Data Harmonization</h1>
                         <h4 data-toc-skip class="author">TADA Team</h4>
             
-            <h4 data-toc-skip class="date">2022-12-16</h4>
+            <h4 data-toc-skip class="date">2022-12-23</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/USEPA/TADA/blob/HEAD/vignettes/WQPDataHarmonization.Rmd" class="external-link"><code>vignettes/WQPDataHarmonization.Rmd</code></a></small>
       <div class="d-none name"><code>WQPDataHarmonization.Rmd</code></div>
@@ -724,7 +724,7 @@ data flags</p></li>
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/FilterFieldReview.html">FilterFieldReview</a></span><span class="op">(</span><span class="st">"ActivityTypeCode"</span>, <span class="va">TADAProfileClean13</span><span class="op">)</span></span></code></pre></div>
 <p><img src="WQPDataHarmonization_files/figure-html/unnamed-chunk-20-1.png" width="576"></p>
 <pre><code><span><span class="co">#&gt;                               FieldValue Count</span></span>
-<span><span class="co">#&gt; 8                         Sample-Routine  6370</span></span>
+<span><span class="co">#&gt; 8                         Sample-Routine  6374</span></span>
 <span><span class="co">#&gt; 5 Quality Control Sample-Field Replicate   565</span></span>
 <span><span class="co">#&gt; 7     Sample-Integrated Vertical Profile   510</span></span>
 <span><span class="co">#&gt; 3 Quality Control Sample-Equipment Blank   276</span></span>
@@ -749,7 +749,7 @@ ResultStatusIdentifier field.</p>
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/FilterFieldReview.html">FilterFieldReview</a></span><span class="op">(</span><span class="st">"ActivityMediaSubdivisionName"</span>, <span class="va">TADAProfileClean14</span><span class="op">)</span></span></code></pre></div>
 <p><img src="WQPDataHarmonization_files/figure-html/unnamed-chunk-22-1.png" width="576"></p>
 <pre><code><span><span class="co">#&gt;        FieldValue Count</span></span>
-<span><span class="co">#&gt; 3   Surface Water   837</span></span>
+<span><span class="co">#&gt; 3   Surface Water   841</span></span>
 <span><span class="co">#&gt; 2     Groundwater   108</span></span>
 <span><span class="co">#&gt; 1 Bulk deposition     1</span></span></code></pre>
 <p>The ActivityMediaSubdivisionName field has two unique values,
@@ -770,7 +770,7 @@ displayed to save space on the page)</p>
 <div class="sourceCode" id="cb27"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/FilterParList.html">FilterParList</a></span><span class="op">(</span><span class="va">TADAProfileClean15</span><span class="op">)</span></span>
 <span><span class="co">#&gt;   FieldValue Count</span></span>
-<span><span class="co">#&gt; 3   NITROGEN  5020</span></span>
+<span><span class="co">#&gt; 3   NITROGEN  5024</span></span>
 <span><span class="co">#&gt; 2    NITRATE  1724</span></span>
 <span><span class="co">#&gt; 1    AMMONIA    32</span></span></code></pre></div>
 <p>Next, select a parameter. Let’s explore the fields associated with
@@ -814,7 +814,7 @@ certain values from the HydrologicEvent field.</p>
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/FilterParFieldReview.html">FilterParFieldReview</a></span><span class="op">(</span><span class="st">"HydrologicEvent"</span>, <span class="va">TADAProfileClean15</span>, <span class="st">"NITROGEN"</span><span class="op">)</span></span></code></pre></div>
 <p><img src="WQPDataHarmonization_files/figure-html/unnamed-chunk-26-1.png" width="576"></p>
 <pre><code><span><span class="co">#&gt;       FieldValue Count</span></span>
-<span><span class="co">#&gt; 1 Routine sample    73</span></span></code></pre>
+<span><span class="co">#&gt; 1 Routine sample    77</span></span></code></pre>
 <p>The HydrologicEvent field has three unique values. In this example we
 want to remove samples collected during “Storm” events. Therefore, we’ll
 specify that we want to remove rows where the CharacteristicName is

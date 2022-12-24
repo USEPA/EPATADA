@@ -35,7 +35,7 @@ done at this time. A user can review the conversion factor information if
 desired by using this feature.}
 }
 \value{
-When transform = true, the input dataframe is returned with all depth
+When transform = TRUE, the input dataframe is returned with all depth
 data converted to the target unit; no additional columns are added.
 When transform = FALSE, the input dataframe is returned with additional
 columns including... be specific here ...
@@ -49,4 +49,21 @@ function appends columns indicating the target unit and conversion factor for
 each row; and for each depth field. No conversions are done at this time.
 A user can review the conversion factor information if desired by using this
 feature.
+}
+\examples{
+# Load example dataset:
+data(Nutrients_Utah)
+
+# Convert all depth units to meters:
+DepthUnitsConverted_m <- ConvertDepthUnits(Nutrients_Utah)
+
+# Convert all depth units to feet:
+DepthUnitsConverted_ft <- ConvertDepthUnits(Nutrients_Utah, unit = "ft")
+
+# Convert only the "ActivityTopDepthHeightMeasure" field to inches:
+TopDepthUnitsConverted_in <- ConvertDepthUnits(Nutrients_Utah, unit = "in", fields = "ActivityTopDepthHeightMeasure")
+
+# Do not convert any depth units, but add columns for target units and 
+# conversion factors for each depth measure:
+DepthUnitsNotConverted <- ConvertDepthUnits(Nutrients_Utah, transform = FALSE)
 }

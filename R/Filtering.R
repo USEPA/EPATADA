@@ -266,7 +266,8 @@ FilterParFields <- function(.data, parameter) {
     "ResultAnalyticalMethod.MethodName",
     "ResultAnalyticalMethod.MethodIdentifier",
     "ResultAnalyticalMethod.MethodIdentifierContext",
-    "AssemblageSampledName", "DetectionQuantitationLimitTypeName"
+    "AssemblageSampledName", "DetectionQuantitationLimitTypeName", 
+    "MonitoringLocationIdentifier"
   )]
 
 

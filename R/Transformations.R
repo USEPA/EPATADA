@@ -780,8 +780,6 @@ HarmonizationRefTable <- function(.data, download = FALSE) {
 HarmonizeData <- function(.data, ref, transform = TRUE, flag = TRUE) {
   # check .data is data.frame
   checkType(.data, "data.frame", "Input object")
-  # check ref is data.frame
-  checkType(ref, "data.frame")  
   # check transform is boolean
   checkType(transform, "logical")
   # check flag is boolean
@@ -794,17 +792,6 @@ HarmonizeData <- function(.data, ref, transform = TRUE, flag = TRUE) {
     )
   checkColumns(.data, expected_cols)
 
-  # check ref has all of the required columns
-  expected_ref_cols <- c(
-    "TADA.SuggestedCharacteristicName",
-    "TADA.SuggestedSampleFraction",
-    "TADA.SuggestedSpeciation",
-    "TADA.SuggestedResultUnit"
-    )
-  if (!missing(ref)) {
-    checkColumns(ref, expected_ref_cols)
-  }
-
   # check that both transform and flag do NOT equal FALSE
   if (transform == FALSE & flag == FALSE) {
     stop("Both 'transform' and 'flag' arguments equal FALSE, which would return
@@ -812,6 +799,14 @@ HarmonizeData <- function(.data, ref, transform = TRUE, flag = TRUE) {
          TRUE.")
   }
 
+  #define which columns are expected in ref
+  expected_ref_cols <- c(
+    "TADA.SuggestedCharacteristicName",
+    "TADA.SuggestedSampleFraction",
+    "TADA.SuggestedSpeciation",
+    "TADA.SuggestedResultUnit"
+  )
+  
   # execute function after checks are passed
   if (all(c(
     "CharacteristicName", "ActivityMediaName", "ResultMeasureValue",
@@ -826,17 +821,21 @@ HarmonizeData <- function(.data, ref, transform = TRUE, flag = TRUE) {
     # define harm.ref
     # if input for ref exists, use that data
     if (!missing(ref)) {
+      
+      # check ref is data.frame
+      checkType(ref, "data.frame")
+      
+      # check ref has all of the required columns      
+      checkColumns(ref, expected_ref_cols)      
+      
       harm.ref <- ref
+      
     }
+    
     # if input for ref does not exist, use raw harmonization template
     if (missing(ref)) {
+      # use output of HarmonizationRefTable which uses the TADA HarmonizationTemplate.csv in the extdata folder
       harm.ref <- HarmonizationRefTable(.data, download=FALSE)
-      
-      #changed code to use output of HarmonizationRefTable for transformations when user ref table is not supplied
-      #utils::read.csv(system.file("extdata", "HarmonizationTemplate.csv", package = "TADA"))
-      # remove extraneous characters in first column (not needed? 10/12/22 cm patch)
-      #colnames(harm.ref)[1] <- gsub("^...", "", colnames(harm.ref)[1])
-      
     }
 
     # join harm.ref to .data

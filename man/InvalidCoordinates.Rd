@@ -4,7 +4,12 @@
 \alias{InvalidCoordinates}
 \title{Invalid coordinates}
 \usage{
-InvalidCoordinates(.data, clean_outsideUSA = FALSE, clean_imprecise = FALSE)
+InvalidCoordinates(
+  .data,
+  clean_outsideUSA = FALSE,
+  clean_imprecise = FALSE,
+  errorsonly = FALSE
+)
 }
 \arguments{
 \item{.data}{TADA dataframe}
@@ -12,8 +17,10 @@ InvalidCoordinates(.data, clean_outsideUSA = FALSE, clean_imprecise = FALSE)
 \item{clean_outsideUSA}{Boolean argument; removes data with coordinates outside
 of the United States when clean_outsideUSA = TRUE. Default is clean = FALSE.}
 
-\item{clean_imprecise}{Boolean arguments; removes imprecise data when
+\item{clean_imprecise}{Boolean argument; removes imprecise data when
 clean_imprecise = TRUE. Default is clean_imprecise = FALSE.}
+
+\item{errorsonly}{Boolean argument; Return flagged data only when errorsonly = FALSE}
 }
 \value{
 When either the clean_outsideUSA or clean_imprecise argument is FALSE,
@@ -30,6 +37,30 @@ flagged with "LAT_OutsideUSA", 2) If the longitude is greater than zero AND less
 the row will be flagged as "LONG_OutsideUSA", 3) If the latitude or longitude
 contains the string, "999", the row will be flagged as invalid, and 4) Finally,
 precision can be measured by the number of decimal places in the latitude and longitude
-provided. If either the lattitue or longitude does not have any numbers to the
+provided. If either the latitude or longitude does not have any numbers to the
 right of the decimal point, the row will be flagged as "Imprecise".
+}
+\examples{
+# Load example dataset:
+data(Nutrients_Utah)
+
+# Flag, but do not remove, data with invalid coordinates in new column titled "TADA.InvalidCoordinates":
+# Return ALL data:
+InvalidCoord_flags <- InvalidCoordinates(Nutrients_Utah)
+
+# Flag, but do not remove, data with invalid coordinates in new column titled "TADA.InvalidCoordinates"
+# Return ONLY the flagged data:
+InvalidCoord_flags_errorsonly <- InvalidCoordinates(Nutrients_Utah, errorsonly = TRUE)
+
+# Remove data with coordinates outside the USA, but keep flagged data with imprecise coordinates:
+OutsideUSACoord_removed <- InvalidCoordinates(Nutrients_Utah, clean_outsideUSA = TRUE)
+
+# Remove data with imprecise coordinates, but keep flagged data with coordinates outside the USA:
+# imprecise data may include a series of 999's to the right of the decimal points
+# alternatively, imprecise data may have less than 3 significant figures to the right
+# of the decimal point
+ImpreciseCoord_removed <- InvalidCoordinates(Nutrients_Utah, clean_imprecise = TRUE)
+
+# Remove data with imprecise coordinates or coordinates outside the USA from the dataframe:
+InvalidCoord_removed <- InvalidCoordinates(Nutrients_Utah, clean_outsideUSA = TRUE, clean_imprecise = TRUE)
 }

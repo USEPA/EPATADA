@@ -63,3 +63,16 @@ Transforms: "ResultMeasureValue", "ResultMeasure.MeasureUnitCode", "DetectionQua
 This function adds the following two fields ONLY when transform=FALSE:
 Adds: "WQX.ConversionFactor" and "WQX.TargetUnit".
 }
+\examples{
+# Load example dataset:
+data(Nutrients_Utah)
+
+# Convert result and detection limit values and units to WQX target units and 
+# add two new columns titled "ResultMeasureUnitCode.Original" and 
+# "DetectionLimitMeasureUnitCode.Original" to retain the original result and unit values:
+ResultUnitsConverted <- ConvertResultUnits(Nutrients_Utah)
+
+# Do not convert result values and units, but add two new columns titled
+# "WQX.ConversionFactor" and "WQX.TargetUnit":
+ResultUnitsNotConverted <- ConvertResultUnits(Nutrients_Utah, transform = FALSE)
+}

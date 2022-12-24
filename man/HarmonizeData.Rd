@@ -42,3 +42,19 @@ ResultMeasure.MeasureUnitCode converted to TADA standards or 3) the four fields
 converted with most Harmonization Reference Table columns appended. Default is
 transform = TRUE and flag = TRUE.
 }
+\examples{
+# Load example dataset:
+data(Nutrients_Utah)
+
+# Append harmonization reference table columns to dataframe and transform/convert
+# data to the reference table values:
+Nutrients_Harmonized <- HarmonizeData(Nutrients_Utah)
+
+# Transform/convert data to the harmonization reference table values, but
+# do not append any columns to dataframe:
+Nutrients_Harmonized_noflags <- HarmonizeData(Nutrients_Utah, flag = FALSE)
+
+# Append harmonization reference table columns to dataframe, but do not
+# transform/convert data to the reference table values:
+Nutrients_NotHarmonized <- HarmonizeData(Nutrients_Utah, transform = FALSE)
+}

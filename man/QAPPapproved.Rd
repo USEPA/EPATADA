@@ -4,7 +4,7 @@
 \alias{QAPPapproved}
 \title{Check data for an approved QAPP}
 \usage{
-QAPPapproved(.data, clean = TRUE, cleanNA = FALSE)
+QAPPapproved(.data, clean = TRUE, cleanNA = FALSE, errorsonly = FALSE)
 }
 \arguments{
 \item{.data}{TADA dataframe}
@@ -18,21 +18,40 @@ QAPPApprovedIndicator equals "N" will be retained.}
 "FALSE". When cleanNA=TRUE, rows of data where the QAPPApprovedIndicator
 equals "NA" will be removed. When, cleanNA=FALSE, rows of data where the
 the QAPPApprovedIndicator equals "NA" will be retained.}
+
+\item{errorsonly}{Boolean argument; when errorsonly = TRUE, the dataframe will
+be filtered to remove any rows where the QAPPApprovedIndicator equals "Y".}
 }
 \value{
-When clean = FALSE and cleanNA = FALSE, no data is removed from the
-dataframe.
+Several combinations of inputs are possible:
+When clean = TRUE, cleanNA = FALSE, and errorsonly = FALSE, the dataframe will
+be filtered to show only rows where QAPPAprrovedIndicator is "Y" or "NA";
+When clean = TRUE, cleanNA = TRUE, and errorsonly = FALSE, the dataframe will
+be filtered to show only rows where QAPPApprovedIndicator is "Y";
+When clean = FALSE, cleanNA = TRUE, and errorsonly = FALSE, the dataframe will
+be filtered to show only rows where QAPPApprovedIndicator is "Y" or "N";
+When clean = FALSE, cleanNA = FALSE, and errorsonly = FALSE, no rows are
+removed from the dataframe;
+When clean = TRUE, cleanNA = TRUE, and errorsonly = TRUE, the function will
+not execute and an error message will be returned;
+When clean = TRUE, cleanNA = FALSE, and errorsonly = TRUE, the dataframe will
+be filtered to show only rows where QAPPApprovedIndicator is "NA";
+When clean = FALSE, cleanNA = TRUE, and errorsonly = TRUE, the dataframe will
+be filtered to show only rows where QAPPApprovedIndicator is "N";
+When clean = FALSE, cleanNA = FALSE, and errorsonly = TRUE, the dataframe will
+be filtered to show only rows where QAPPApprovedIndicator is "N" or "NA"
 }
 \description{
 Function checks data submitted under the column "QAPPApprovedIndicator".
 Some organizations submit data for this field to indicate if the data
 produced has an approved Quality Assurance Project Plan (QAPP) or not.
-Y indicates yes, N indicates no.  This function has two default inputs:
-clean = TRUE and cleanNA = FALSE. The default removes rows of data where the
-QAPPApprovedIndicator equals "N". Users could alternatively remove both N's
-and NA's using the inputs clean = TRUE and cleanNA = TRUE. If both
-clean = FALSE and cleanNA = FALSE, the function will not make any changes to
-the data.
+Y indicates yes, N indicates no.  This function has three default inputs:
+clean = TRUE, cleanNA = FALSE, and errorsonly == FALSE. The default removes
+rows of data where the QAPPApprovedIndicator equals "N". Users could
+remove NA's in addition to N's using the inputs clean = TRUE, cleanNA = TRUE,
+and errorsonly = FALSE. If errorsonly = TRUE, the function will filter out all
+rows where the QAPPApprovedIndicator is 'Y'. If clean = FALSE, cleanNA = FALSE,
+and errorsonly = FALSE, the function will not make any changes to the data.
 }
 \details{
 Note: This is not a required field, so it is often left blank (NA) even if
@@ -41,4 +60,23 @@ monitoring data using 106 funding (almost all state and tribal data in WQX)
 are required to have an EPA approved QAPP to receive 106 funding. Therefore,
 most of these organizations data has an approved QAPP even if the data
 submitted to WQP is NA.
+}
+\examples{
+# Load example dataset:
+data(Nutrients_Utah)
+
+# Show data where the QAPPApprovedIndicator equals "Y" or "NA":
+QAPPapproved_clean <- QAPPapproved(Nutrients_Utah)
+
+# Show only data where the QAPPApprovedIndicator equals "Y":
+QAPPapproved_cleanNAs <- QAPPapproved(Nutrients_Utah, cleanNA = TRUE)
+
+# Show data where the QAPPApprovedIndicator equals "N" or "NA":
+QAPPIndicator_N_NA <- QAPPapproved(Nutrients_Utah, clean = FALSE, cleanNA = FALSE, errorsonly = TRUE)
+
+# Show data where the QAPPApprovedIndicator equals "N":
+QAPPIndicator_N <- QAPPapproved(Nutrients_Utah, clean = FALSE, cleanNA = TRUE, errorsonly = TRUE)
+
+# Note: When clean = FALSE, cleanNA = FALSE, and errorsonly = FALSE, no data is removed
+# Note: When clean = TRUE, cleanNA = TRUE, and errorsonly = TRUE, an error message is returned
 }

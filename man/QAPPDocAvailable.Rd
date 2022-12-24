@@ -26,3 +26,14 @@ have an associated QAPP document are removed from the dataframe and no column
 will be appended. This function should only be used to remove data if an
 accompanying QAPP document is required to use data in assessments.
 }
+\examples{
+# Load example dataset:
+data(Nutrients_Utah)
+
+# Flag, but do not remove, data without an associated QAPP document in
+# new column titled "TADA.QAPPDocAvailable":
+FlagData_MissingQAPPDocURLs <- QAPPDocAvailable(Nutrients_Utah)
+
+# Remove data without an associated QAPP document available:
+RemoveData_MissingQAPPDocURLs <- QAPPDocAvailable(Nutrients_Utah, clean = TRUE)
+}
