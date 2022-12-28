@@ -51,5 +51,6 @@ WQXUpperThreshold_clean <- AboveNationalWQXUpperThreshold(Nutrients_Utah)
 WQXUpperThreshold_flags <- AboveNationalWQXUpperThreshold(Nutrients_Utah, clean = FALSE)
 
 # Show only data flagged as above the upper WQX threshold:
-WQXUpperThreshold_flagsonly <- AboveNationalWQXUpperThreshold(Nutrients_Utah, clean = FALSE, errorsonly = TRUE)
+WQXUpperThreshold_flagsonly <- AboveNationalWQXUpperThreshold(Nutrients_Utah, 
+clean = FALSE, errorsonly = TRUE)
 }

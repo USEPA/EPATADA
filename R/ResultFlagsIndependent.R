@@ -173,7 +173,8 @@ InvalidMethod <- function(.data, clean = TRUE, errorsonly = FALSE) {
 #' # Remove aggregated continuous data from dataframe:
 #' AggContinuous_clean <- AggregatedContinuousData(Nutrients_Utah)
 #' 
-#' # Flag, but do not remove, aggregated continuous data in new column titled "TADA.AggregatedContinuousData":
+#' # Flag, but do not remove, aggregated continuous data in new column
+#' titled "TADA.AggregatedContinuousData":
 #' AggContinuous_flags <- AggregatedContinuousData(Nutrients_Utah, clean = FALSE)
 #' 
 #' # Show only rows flagged for aggregated continuous data:
@@ -281,7 +282,8 @@ AggregatedContinuousData <- function(.data, clean = TRUE, errorsonly = FALSE) {
 #' PotentialDup_flagcolumnadded <- PotentialDuplicateRowID(Nutrients_Utah, clean = FALSE)
 #' 
 #' # Flag and review potential duplicate data only:
-#' PotentialDup_reviewduplicatesonly <- PotentialDuplicateRowID(Nutrients_Utah, clean = FALSE, errorsonly = TRUE) 
+#' PotentialDup_reviewduplicatesonly <- PotentialDuplicateRowID
+#' (Nutrients_Utah, clean = FALSE, errorsonly = TRUE) 
 #' 
 
 PotentialDuplicateRowID <- function(.data, clean = TRUE, errorsonly = FALSE) {
@@ -428,7 +430,8 @@ PotentialDuplicateRowID <- function(.data, clean = TRUE, errorsonly = FALSE) {
 #' WQXUpperThreshold_flags <- AboveNationalWQXUpperThreshold(Nutrients_Utah, clean = FALSE)
 #' 
 #' # Show only data flagged as above the upper WQX threshold:
-#' WQXUpperThreshold_flagsonly <- AboveNationalWQXUpperThreshold(Nutrients_Utah, clean = FALSE, errorsonly = TRUE)
+#' WQXUpperThreshold_flagsonly <- AboveNationalWQXUpperThreshold(Nutrients_Utah, 
+#' clean = FALSE, errorsonly = TRUE)
 
 AboveNationalWQXUpperThreshold <- function(.data, clean = TRUE, errorsonly = FALSE) {
   # check .data is data.frame
@@ -579,7 +582,8 @@ AboveNationalWQXUpperThreshold <- function(.data, clean = TRUE, errorsonly = FAL
 #' WQXLowerThreshold_flags <- BelowNationalWQXLowerThreshold(Nutrients_Utah, clean = FALSE)
 #' 
 #' # Show only data that is below the lower WQX threshold:
-#' WQXLowerThreshold_flagsonly <- BelowNationalWQXLowerThreshold(Nutrients_Utah, clean = FALSE, errorsonly = TRUE)
+#' WQXLowerThreshold_flagsonly <- BelowNationalWQXLowerThreshold(Nutrients_Utah,
+#' clean = FALSE, errorsonly = TRUE)
 
 BelowNationalWQXLowerThreshold <- function(.data, clean = TRUE, errorsonly = FALSE) {
   # check .data is data.frame
@@ -751,10 +755,12 @@ BelowNationalWQXLowerThreshold <- function(.data, clean = TRUE, errorsonly = FAL
 #' QAPPapproved_cleanNAs <- QAPPapproved(Nutrients_Utah, cleanNA = TRUE)
 #' 
 #' # Show data where the QAPPApprovedIndicator equals "N" or "NA":
-#' QAPPIndicator_N_NA <- QAPPapproved(Nutrients_Utah, clean = FALSE, cleanNA = FALSE, errorsonly = TRUE)
+#' QAPPIndicator_N_NA <- QAPPapproved(Nutrients_Utah, clean = FALSE, 
+#' cleanNA = FALSE, errorsonly = TRUE)
 #' 
 #' # Show data where the QAPPApprovedIndicator equals "N":
-#' QAPPIndicator_N <- QAPPapproved(Nutrients_Utah, clean = FALSE, cleanNA = TRUE, errorsonly = TRUE)
+#' QAPPIndicator_N <- QAPPapproved(Nutrients_Utah, clean = FALSE, 
+#' cleanNA = TRUE, errorsonly = TRUE)
 #'
 #' # Note: When clean = FALSE, cleanNA = FALSE, and errorsonly = FALSE, no data is removed
 #' # Note: When clean = TRUE, cleanNA = TRUE, and errorsonly = TRUE, an error message is returned
@@ -938,16 +944,21 @@ QAPPDocAvailable <- function(.data, clean = FALSE) {
 #' # Load example dataset:
 #' data(Nutrients_Utah)
 #' 
-#' # Flag, but do not remove, data with invalid coordinates in new column titled "TADA.InvalidCoordinates":
+#' # Flag, but do not remove, data with invalid coordinates in new column 
+#' titled "TADA.InvalidCoordinates":
 #' # Return ALL data:
 #' InvalidCoord_flags <- InvalidCoordinates(Nutrients_Utah)
 #' 
-#' # Flag, but do not remove, data with invalid coordinates in new column titled "TADA.InvalidCoordinates"
+#' # Flag, but do not remove, data with invalid coordinates in new column 
+#' titled "TADA.InvalidCoordinates"
 #' # Return ONLY the flagged data:
-#' InvalidCoord_flags_errorsonly <- InvalidCoordinates(Nutrients_Utah, errorsonly = TRUE)
+#' InvalidCoord_flags_errorsonly <- InvalidCoordinates
+#' (Nutrients_Utah, errorsonly = TRUE)
 #' 
-#' # Remove data with coordinates outside the USA, but keep flagged data with imprecise coordinates:
-#' OutsideUSACoord_removed <- InvalidCoordinates(Nutrients_Utah, clean_outsideUSA = TRUE)
+#' # Remove data with coordinates outside the USA, but keep flagged data with 
+#' imprecise coordinates:
+#' OutsideUSACoord_removed <- InvalidCoordinates(Nutrients_Utah, 
+#' clean_outsideUSA = TRUE)
 #' 
 #' # Remove data with imprecise coordinates, but keep flagged data with coordinates outside the USA:
 #' # imprecise data may include a series of 999's to the right of the decimal points

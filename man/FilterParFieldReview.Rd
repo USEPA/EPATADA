@@ -25,5 +25,6 @@ values, for a chosen field in a dataframe subset by parameter.
 data(Nutrients_Utah)
 
 # Create table and pie chart of monitoring locations for the parameter "AMMONIA" in dataframe:
-AmmoniaMonitoringLocations <- FilterParFieldReview(field = "MonitoringLocationIdentifier", Nutrients_Utah, parameter = "AMMONIA")
+AmmoniaMonitoringLocations <- FilterParFieldReview
+(field = "MonitoringLocationIdentifier", Nutrients_Utah, parameter = "AMMONIA")
 }

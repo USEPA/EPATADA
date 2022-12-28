@@ -50,5 +50,6 @@ WQXLowerThreshold_clean <- BelowNationalWQXLowerThreshold(Nutrients_Utah)
 WQXLowerThreshold_flags <- BelowNationalWQXLowerThreshold(Nutrients_Utah, clean = FALSE)
 
 # Show only data that is below the lower WQX threshold:
-WQXLowerThreshold_flagsonly <- BelowNationalWQXLowerThreshold(Nutrients_Utah, clean = FALSE, errorsonly = TRUE)
+WQXLowerThreshold_flagsonly <- BelowNationalWQXLowerThreshold(Nutrients_Utah,
+clean = FALSE, errorsonly = TRUE)
 }

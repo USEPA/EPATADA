@@ -51,7 +51,8 @@ data(Nutrients_Utah)
 # Remove aggregated continuous data from dataframe:
 AggContinuous_clean <- AggregatedContinuousData(Nutrients_Utah)
 
-# Flag, but do not remove, aggregated continuous data in new column titled "TADA.AggregatedContinuousData":
+# Flag, but do not remove, aggregated continuous data in new column
+titled "TADA.AggregatedContinuousData":
 AggContinuous_flags <- AggregatedContinuousData(Nutrients_Utah, clean = FALSE)
 
 # Show only rows flagged for aggregated continuous data:

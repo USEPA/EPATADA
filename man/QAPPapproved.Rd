@@ -72,10 +72,12 @@ QAPPapproved_clean <- QAPPapproved(Nutrients_Utah)
 QAPPapproved_cleanNAs <- QAPPapproved(Nutrients_Utah, cleanNA = TRUE)
 
 # Show data where the QAPPApprovedIndicator equals "N" or "NA":
-QAPPIndicator_N_NA <- QAPPapproved(Nutrients_Utah, clean = FALSE, cleanNA = FALSE, errorsonly = TRUE)
+QAPPIndicator_N_NA <- QAPPapproved(Nutrients_Utah, clean = FALSE, 
+cleanNA = FALSE, errorsonly = TRUE)
 
 # Show data where the QAPPApprovedIndicator equals "N":
-QAPPIndicator_N <- QAPPapproved(Nutrients_Utah, clean = FALSE, cleanNA = TRUE, errorsonly = TRUE)
+QAPPIndicator_N <- QAPPapproved(Nutrients_Utah, clean = FALSE, 
+cleanNA = TRUE, errorsonly = TRUE)
 
 # Note: When clean = FALSE, cleanNA = FALSE, and errorsonly = FALSE, no data is removed
 # Note: When clean = TRUE, cleanNA = TRUE, and errorsonly = TRUE, an error message is returned

@@ -61,7 +61,8 @@ DepthUnitsConverted_m <- ConvertDepthUnits(Nutrients_Utah)
 DepthUnitsConverted_ft <- ConvertDepthUnits(Nutrients_Utah, unit = "ft")
 
 # Convert only the "ActivityTopDepthHeightMeasure" field to inches:
-TopDepthUnitsConverted_in <- ConvertDepthUnits(Nutrients_Utah, unit = "in", fields = "ActivityTopDepthHeightMeasure")
+TopDepthUnitsConverted_in <- ConvertDepthUnits(Nutrients_Utah, 
+unit = "in", fields = "ActivityTopDepthHeightMeasure")
 
 # Do not convert any depth units, but add columns for target units and 
 # conversion factors for each depth measure:
