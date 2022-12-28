@@ -304,7 +304,7 @@ be appended titled "TADA.InvalidCoordinates" with the following flags
     as "Imprecise".
 
 ```{r}
-TADAProfileClean1 <- InvalidCoordinates(TADAProfile, clean_outsideUSA = TRUE, clean_imprecise = TRUE)
+TADAProfileClean1 <- InvalidCoordinates(TADAProfile, clean_outsideUSA = TRUE, clean_imprecise = FALSE)
 
 #redraw map after all rows with invalid LAT/LONG data are removed
 map('county', 'utah')
