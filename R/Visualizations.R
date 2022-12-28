@@ -12,7 +12,7 @@
 
 CreateAnimatedMap <- function(.data) { 
   
-  #code adapted from USGS blog: https://waterdata.usgs.gov/blog/large_sample_pull/
+  # code adapted from USGS blog: https://waterdata.usgs.gov/blog/large_sample_pull/
   
   # pull the year from the date
   .data$year <- base::format(as.Date(.data$ActivityStartDate, format="%Y-%m-%d"),"%Y")

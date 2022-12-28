@@ -174,7 +174,7 @@ InvalidMethod <- function(.data, clean = TRUE, errorsonly = FALSE) {
 #' AggContinuous_clean <- AggregatedContinuousData(Nutrients_Utah)
 #' 
 #' # Flag, but do not remove, aggregated continuous data in new column
-#' titled "TADA.AggregatedContinuousData":
+#' # titled "TADA.AggregatedContinuousData":
 #' AggContinuous_flags <- AggregatedContinuousData(Nutrients_Utah, clean = FALSE)
 #' 
 #' # Show only rows flagged for aggregated continuous data:
@@ -945,18 +945,18 @@ QAPPDocAvailable <- function(.data, clean = FALSE) {
 #' data(Nutrients_Utah)
 #' 
 #' # Flag, but do not remove, data with invalid coordinates in new column 
-#' titled "TADA.InvalidCoordinates":
+#' # titled "TADA.InvalidCoordinates":
 #' # Return ALL data:
 #' InvalidCoord_flags <- InvalidCoordinates(Nutrients_Utah)
 #' 
 #' # Flag, but do not remove, data with invalid coordinates in new column 
-#' titled "TADA.InvalidCoordinates"
+#' # titled "TADA.InvalidCoordinates"
 #' # Return ONLY the flagged data:
 #' InvalidCoord_flags_errorsonly <- InvalidCoordinates
 #' (Nutrients_Utah, errorsonly = TRUE)
 #' 
 #' # Remove data with coordinates outside the USA, but keep flagged data with 
-#' imprecise coordinates:
+#' # imprecise coordinates:
 #' OutsideUSACoord_removed <- InvalidCoordinates(Nutrients_Utah, 
 #' clean_outsideUSA = TRUE)
 #' 

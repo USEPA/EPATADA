@@ -45,18 +45,18 @@ right of the decimal point, the row will be flagged as "Imprecise".
 data(Nutrients_Utah)
 
 # Flag, but do not remove, data with invalid coordinates in new column 
-titled "TADA.InvalidCoordinates":
+# titled "TADA.InvalidCoordinates":
 # Return ALL data:
 InvalidCoord_flags <- InvalidCoordinates(Nutrients_Utah)
 
 # Flag, but do not remove, data with invalid coordinates in new column 
-titled "TADA.InvalidCoordinates"
+# titled "TADA.InvalidCoordinates"
 # Return ONLY the flagged data:
 InvalidCoord_flags_errorsonly <- InvalidCoordinates
 (Nutrients_Utah, errorsonly = TRUE)
 
 # Remove data with coordinates outside the USA, but keep flagged data with 
-imprecise coordinates:
+# imprecise coordinates:
 OutsideUSACoord_removed <- InvalidCoordinates(Nutrients_Utah, 
 clean_outsideUSA = TRUE)
 
