@@ -653,8 +653,12 @@ ConvertDepthUnits <- function(.data,
 #' # Create a harmonization reference table for dataframe:
 #' CreateRefTable <- HarmonizationRefTable(Nutrients_Utah)
 #' 
-#' # Create and download a harmonization reference table for dataframe:
+#' # Create and download (to your working directory) a harmonization reference
+#' # table for dataframe: 
+#' \dontrun{
 #' DownloadRefTable <- HarmonizationRefTable(Nutrients_Utah, download = TRUE)
+#' }
+#' 
 
 HarmonizationRefTable <- function(.data, download = FALSE) {
   # check .data is data.frame

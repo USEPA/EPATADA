@@ -282,8 +282,7 @@ AggregatedContinuousData <- function(.data, clean = TRUE, errorsonly = FALSE) {
 #' PotentialDup_flagcolumnadded <- PotentialDuplicateRowID(Nutrients_Utah, clean = FALSE)
 #' 
 #' # Flag and review potential duplicate data only:
-#' PotentialDup_reviewduplicatesonly <- PotentialDuplicateRowID
-#' (Nutrients_Utah, clean = FALSE, errorsonly = TRUE) 
+#' PotentialDup_reviewduplicatesonly <- PotentialDuplicateRowID(Nutrients_Utah, clean = FALSE, errorsonly = TRUE) 
 #' 
 
 PotentialDuplicateRowID <- function(.data, clean = TRUE, errorsonly = FALSE) {
@@ -789,20 +788,20 @@ QAPPapproved <- function(.data, clean = TRUE, cleanNA = FALSE, errorsonly = FALS
       .data <- dplyr::filter(.data, is.na(QAPPApprovedIndicator) == TRUE | QAPPApprovedIndicator == "Y")
       
       if (nrow(.data) == 0) {
-        warning("All QAPPApprovedIndicator data is N")
+        print("All QAPPApprovedIndicator data is N")
       }
     }
     if (cleanNA == TRUE) {
       .data <- dplyr::filter(.data, is.na(QAPPApprovedIndicator) == FALSE)
       
       if (nrow(.data) == 0 & clean == TRUE) {
-        warning("All QAPPApprovedIndicator data is NA or N")
+        print("All QAPPApprovedIndicator data is NA or N")
       } else if (nrow(.data) == 0 & clean == FALSE) {
-        warning("All QAPPApprovedIndicator data is NA")
+        print("All QAPPApprovedIndicator data is NA")
       }
     }
     if (clean == FALSE & cleanNA == FALSE) {
-      warning("No changes were made because clean and cleanNA were FALSE")
+      print("Data is flagged but not removed because clean and cleanNA were FALSE")
     }
     return(.data)
   }
@@ -952,13 +951,11 @@ QAPPDocAvailable <- function(.data, clean = FALSE) {
 #' # Flag, but do not remove, data with invalid coordinates in new column 
 #' # titled "TADA.InvalidCoordinates"
 #' # Return ONLY the flagged data:
-#' InvalidCoord_flags_errorsonly <- InvalidCoordinates
-#' (Nutrients_Utah, errorsonly = TRUE)
+#' InvalidCoord_flags_errorsonly <- InvalidCoordinates(Nutrients_Utah, errorsonly = TRUE)
 #' 
 #' # Remove data with coordinates outside the USA, but keep flagged data with 
 #' # imprecise coordinates:
-#' OutsideUSACoord_removed <- InvalidCoordinates(Nutrients_Utah, 
-#' clean_outsideUSA = TRUE)
+#' OutsideUSACoord_removed <- InvalidCoordinates(Nutrients_Utah, clean_outsideUSA = TRUE)
 #' 
 #' # Remove data with imprecise coordinates, but keep flagged data with coordinates outside the USA:
 #' # imprecise data may include a series of 999's to the right of the decimal points

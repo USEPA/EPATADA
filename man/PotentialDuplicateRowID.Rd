@@ -47,7 +47,6 @@ PotentialDup_clean <- PotentialDuplicateRowID(Nutrients_Utah)
 PotentialDup_flagcolumnadded <- PotentialDuplicateRowID(Nutrients_Utah, clean = FALSE)
 
 # Flag and review potential duplicate data only:
-PotentialDup_reviewduplicatesonly <- PotentialDuplicateRowID
-(Nutrients_Utah, clean = FALSE, errorsonly = TRUE) 
+PotentialDup_reviewduplicatesonly <- PotentialDuplicateRowID(Nutrients_Utah, clean = FALSE, errorsonly = TRUE) 
 
 }
