@@ -924,7 +924,7 @@ QAPPDocAvailable <- function(.data, clean = FALSE) {
 #' American Samoa, Northern Mariana Islands, and Guam), 3) If the latitude or longitude
 #' contains the string, "999", the row will be flagged as invalid, and 4) Finally,
 #' precision can be measured by the number of decimal places in the latitude and longitude
-#' provided. If either the latitude or longitude does not have any numbers to the 
+#' provided. If either the latitude or longitude does not have at least three numbers to the 
 #' right of the decimal point, the row will be flagged as "Imprecise". Occasionally
 #' latitude and longitude measurements are flagged as outside of the United States
 #' because the data was entered as negative when it should be positive or vice versa.
@@ -933,7 +933,7 @@ QAPPDocAvailable <- function(.data, clean = FALSE) {
 #' with changing raw data, email the WQX help desk: \email{WQX@@epa.gov}
 #'
 #' @param .data TADA dataframe
-#' @param clean_outsideUSA character argument with options "no", "remove", and "change sign"; 
+#' @param clean_outsideUSA Character argument with options "no", "remove", and "change sign"; 
 #' flags coordinates as outside the USA when clean_outsideUSA = "no";
 #' removes data with coordinates outside of the United States when clean_outsideUSA = "remove";
 #' changes sign of lat/long coordinates flagged as outside the USA when 
@@ -943,12 +943,13 @@ QAPPDocAvailable <- function(.data, clean = FALSE) {
 #' @param errorsonly Boolean argument; Return only flagged data when errorsonly = TRUE;
 #' default is errorsonly = FALSE.
 #'
-#' @return When clean_outsideUSA is "no"/"change sign" or clean_imprecise argument is FALSE,
+#' @return When clean_outsideUSA is "no", "change sign", or clean_imprecise argument is FALSE,
 #' a column flagging rows with the respective QA check is appended to the input
 #' dataframe. When clean_outsideUSA is "remove" or clean_imprecise is TRUE, 
 #' "invalid" or "imprecise" data is removed, respectively. When errorsonly is TRUE, 
-#' the dataframe will be filtered to show only the "invalid" or "imprecise" data.
-#' Defaults are clean_outsideUSA = "no", clean_imprecise = FALSE, and errorsonly = FALSE.
+#' the dataframe will be filtered to show only the data flagged as invalid, imprecise, 
+#' or out of the United States. Defaults are clean_outsideUSA = "no", 
+#' clean_imprecise = FALSE, and errorsonly = FALSE.
 #'
 #' @export
 #' 
@@ -983,7 +984,10 @@ QAPPDocAvailable <- function(.data, clean = FALSE) {
 #' # Remove data with imprecise coordinates or coordinates outside the USA from the dataframe:
 #' InvalidCoord_removed <- InvalidCoordinates(Nutrients_Utah, clean_outsideUSA = "remove", clean_imprecise = TRUE)
 
-InvalidCoordinates <- function(.data, clean_outsideUSA = c("no", "remove", "change sign"), clean_imprecise = FALSE, errorsonly = FALSE) {
+InvalidCoordinates <- function(.data, 
+                               clean_outsideUSA = c("no", "remove", "change sign"), 
+                               clean_imprecise = FALSE, 
+                               errorsonly = FALSE) {
   # check .data is data.frame
   checkType(.data, "data.frame", "Input object")
   # check clean_outsideUSA is character

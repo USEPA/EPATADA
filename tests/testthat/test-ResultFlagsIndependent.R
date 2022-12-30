@@ -20,14 +20,14 @@ test_that("InvalidCoordinates works", {
               | ImpreciseCoord_removed$TADA.InvalidCoordinates!="Imprecise_lessthan3decimaldigits"))
   
   # Remove data with coordinates outside the USA, but keep flagged data with imprecise coordinates:
-  OutsideUSACoord_removed <- InvalidCoordinates(Nutrients_Utah, clean_outsideUSA = TRUE)
+  OutsideUSACoord_removed <- InvalidCoordinates(Nutrients_Utah, clean_outsideUSA = "remove")
   unique(OutsideUSACoord_removed$TADA.InvalidCoordinates)
   
   expect_true(any(OutsideUSACoord_removed$TADA.InvalidCoordinates!="LONG_OutsideUSA" 
                   | OutsideUSACoord_removed$TADA.InvalidCoordinates!="LAT_OutsideUSA"))
   
   ## Remove data with imprecise coordinates or coordinates outside the USA from the dataframe:
-  Invalid_removed <- InvalidCoordinates(Nutrients_Utah, clean_outsideUSA = TRUE, clean_imprecise = TRUE)
+  Invalid_removed <- InvalidCoordinates(Nutrients_Utah, clean_outsideUSA = "remove", clean_imprecise = TRUE)
   unique(Invalid_removed$TADA.InvalidCoordinates)
   
 })
@@ -60,7 +60,7 @@ test_that("Imprecise_lessthan3decimaldigits works again", {
   FLAGSONLY <- dplyr::filter(FLAGSONLY, sapply(FLAGSONLY$LatitudeMeasure, decimalplaces) < 3)
   
   check = sapply(FLAGSONLY$LatitudeMeasure, decimalplaces) < 4
-         
-  expect_true(unique(check))
   
+  expect_true(unique(check))
 })
+

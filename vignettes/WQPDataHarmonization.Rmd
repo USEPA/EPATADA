@@ -57,9 +57,9 @@ Uncomment the lines below to install latest version of TADA and
 dataRetrieval from GitHub.
 
 ```{r, results = 'hide', message = FALSE, warning = FALSE}
-remotes::install_github("USGS-R/dataRetrieval", dependencies=TRUE)
+# remotes::install_github("USGS-R/dataRetrieval", dependencies=TRUE)
 
-remotes::install_github("hadley/ggplot2", dependencies=TRUE)
+# remotes::install_github("hadley/ggplot2", dependencies=TRUE)
 
 remotes::install_github("USEPA/TADA", dependencies=TRUE)
 ```
@@ -289,7 +289,7 @@ points(TADAProfile$LongitudeMeasure, TADAProfile$LatitudeMeasure, col="red", pch
 The TADA InvalidCoordinates function identifies and flags invalid
 coordinate data.
 
-When clean_outsideUSA = FALSE and clean_imprecise = FALSE, a column will
+When clean_outsideUSA = "no" and clean_imprecise = FALSE, a column will
 be appended titled "TADA.InvalidCoordinates" with the following flags
 (if relevant to dataframe).
 
@@ -308,7 +308,7 @@ be appended titled "TADA.InvalidCoordinates" with the following flags
     as "Imprecise".
 
 ```{r}
-TADAProfileClean1 <- InvalidCoordinates(TADAProfile, clean_outsideUSA = TRUE, clean_imprecise = FALSE)
+TADAProfileClean1 <- InvalidCoordinates(TADAProfile, clean_outsideUSA = "no", clean_imprecise = FALSE)
 
 #redraw map after all rows with invalid LAT/LONG data are removed
 map('county', 'utah')

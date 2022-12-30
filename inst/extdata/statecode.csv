@@ -1,5 +1,6 @@
 "STATE","STATE_NAME","STUSAB","STATENS"
 "01","Alabama","AL","01779775"
+"02","Alaska","AK","01785533"
 "04","Arizona","AZ","01779777"
 "05","Arkansas","AR","00068085"
 "06","California","CA","01779778"
@@ -48,3 +49,11 @@
 "54","West Virginia","WV","01779805"
 "55","Wisconsin","WI","01779806"
 "56","Wyoming","WY","01779807"
+"60","American Samoa","AS","01802701"
+"66","Guam","GU","01802705"
+"69","Northern Mariana Islands","MP","01779809"
+"72","Puerto Rico","PR","Puerto Rico"
+"74","U.S. Minor Outlying Islands","UM","01878752"
+"78","U.S. Virgin Islands","VI","01802710"
+
+
