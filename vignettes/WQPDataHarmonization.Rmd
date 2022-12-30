@@ -103,7 +103,8 @@ characteristicName = "pH".
 
 Data retrieval filters include:
 
--   statecode
+-   statecode (review list of possible state and territory
+    [abbreviations](https://www2.census.gov/geo/docs/reference/state.txt))
 
 -   endDate
 
