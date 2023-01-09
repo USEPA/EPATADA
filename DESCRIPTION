@@ -1,6 +1,6 @@
 Package: TADA
 Type: Package
-Title: Tools for Automated Data Assessment R Package
+Title: Tools for Automated Data Analysis R Package
 Version: 0.0.1
 Organization: U.S. Environmental Protection Agency
 Authors@R: 
@@ -9,11 +9,11 @@ Authors@R:
            role = c("aut", "cre"),
            email = "mullin.cristina@epa.gov",
            comment = c(ORCID = "0000-0002-0615-6087")),
+    person(given = "Michelle",
+           family = "Thawley",
+           role = "aut"),
     person(given = "Jacob",
            family = "Greif",
-           role = "aut"), 
-           person(given = "Michelle",
-           family = "Thawley",
            role = "aut"),
     person(given = "Laura",
            family = "Shumway",

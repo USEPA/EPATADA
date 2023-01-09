@@ -54,6 +54,10 @@ autoclean <- function(.data) {
   # run MeasureValueSpecialCharacters function
   .data <- MeasureValueSpecialCharacters(.data)
   
+  # change latitude and longitude measures to class numeric
+  .data$LatitudeMeasure <- as.numeric(.data$LatitudeMeasure)
+  .data$LongitudeMeasure <- as.numeric(.data$LongitudeMeasure)
+  
   #convert 'meters' to 'm'
   .data$ActivityDepthHeightMeasure.MeasureUnitCode[.data$ActivityDepthHeightMeasure.MeasureUnitCode == 'meters'] <- 'm'
   .data$ActivityTopDepthHeightMeasure.MeasureUnitCode[.data$ActivityTopDepthHeightMeasure.MeasureUnitCode == 'meters'] <- 'm'

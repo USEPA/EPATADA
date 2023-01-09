@@ -21,3 +21,10 @@ list of the fields in the subset dataframe as well as the number of unique
 values in each field. The list is intended to inform users as to which
 specific fields to explore further and filter subset by a parameter.
 }
+\examples{
+# Load example dataset:
+data(Nutrients_Utah)
+
+# Create list of fields for parameter "AMMONIA" with number of unique values in each field:
+AmmoniaFields <- FilterParFields(Nutrients_Utah, parameter = "AMMONIA")
+}

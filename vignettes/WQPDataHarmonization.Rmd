@@ -1,6 +1,6 @@
 ---
 title: "WQP Data Harmonization"
-author: "Cristina A. Mullin, TADA Team"
+author: "TADA Team"
 date: "`r Sys.Date()`"
 output: rmarkdown::html_vignette
 vignette: >
@@ -39,14 +39,16 @@ load all packages required to run this vignette into your R session.
 list.of.packages <- c("plyr", "data.table", "dataRetrieval", "dplyr", "ggplot2", "grDevices", "magrittr", "stringr", "utils", "RColorBrewer", "stats", "remotes", "gganimate", "gifski", "maps")
 
 new.packages <- list.of.packages[!(list.of.packages %in% installed.packages()[,"Package"])]
+
 if(length(new.packages)) install.packages(new.packages)
 ```
 
-Load the remotes library before installing TADA or dataRetrieval from
-GitHub
+If you have any issues loading the remotes library using the code above,
+uncomment the line below to install the "remotes" package specifying the
+repo. You must load the remotes library before installing TADA or
+dataRetrieval from GitHub
 
 ```{r, results = 'hide', message = FALSE, warning = FALSE}
-# If you have any issues loading the remotes library, uncomment the line below to install the "remotes" package specifying the repo
 # install.packages("remotes", repos = "http://cran.us.r-project.org")
 library(remotes)
 ```
@@ -56,6 +58,8 @@ dataRetrieval from GitHub.
 
 ```{r, results = 'hide', message = FALSE, warning = FALSE}
 # remotes::install_github("USGS-R/dataRetrieval", dependencies=TRUE)
+
+# remotes::install_github("hadley/ggplot2", dependencies=TRUE)
 
 remotes::install_github("USEPA/TADA", dependencies=TRUE)
 ```
@@ -84,7 +88,7 @@ library(TADA)
 ## Retrieve WQP data
 
 WQP data is retrieved and processed for compatibility with TADA. This
-function, TADAdataRetrieval builds on the USGS dataRetrieval package
+function, TADAdataRetrieval, builds on the USGS dataRetrieval package
 functions. It joins three WQP profiles (i.e., the station, narrow, and
 phys/chem), changes all data in the Characteristic, Speciation,
 Fraction, and Unit fields to uppercase, removes true duplicates, removes
@@ -99,7 +103,8 @@ characteristicName = "pH".
 
 Data retrieval filters include:
 
--   statecode
+-   statecode (review list of possible state and territory
+    [abbreviations](https://www2.census.gov/geo/docs/reference/state.txt))
 
 -   endDate
 
@@ -137,13 +142,13 @@ the console for more details):
     preserved in these new fields, "ResultMeasureValue.Original" and
     "DetectionLimitMeasureValue.Original". Additionally,
     "TADA.ResultMeasureValue.Flag" and
-    "TADA.DetectionLimitMeasureValue.Flag" are created to track and
+    "TADA.DetectionLimitMeasureValue.Flag" are created to track any
     changes made to the "ResultMeasureValue" and
     "DetectionLimitMeasureValue" columns; and to provide information
     about the result values that is needed to address censored data
     later on (i.e., nondetections). Specifically, these new columns flag
-    if special characters that are included in result values, and
-    specifies what the special characters are.
+    if special characters are included in result values, and specifies
+    what the special characters are.
 
     -   ResultMeasureValue.Original
 
@@ -285,15 +290,37 @@ points(TADAProfile$LongitudeMeasure, TADAProfile$LatitudeMeasure, col="red", pch
 The TADA InvalidCoordinates function identifies and flags invalid
 coordinate data.
 
-When clean_outsideUSA = FALSE and clean_imprecise = FALSE, a column will
-be appended titled "TADA.InvalidCoordinates" with the following flags
-(if relevant to dataframe).
+Allowable values for clean_outsideUSA are "no", "remove", or "change
+sign". The default is "no" which flags latitude and longitude
+coordinates outside the USA. Assigning clean_ousideUSA = "remove" will
+remove rows of data with coordinates outside the USA. And assigning
+clean_outsideUSA = "change sign" will flip the sign of latitude or
+longitude coordinates flagged as outside the USA. The "change sign"
+option should only be used when it is known that coordinates were
+entered with the wrong sign in WQX; additionally, the data ower should
+fix these incorrect coordinates in the raw data through the WQX - for
+assistance email the WQX help desk: WQX\@epa.gov
+
+Allowable values for clean_imprecise are TRUE or FALSE. The default is
+FALSE which flags rows of data with invalid or imprecise coordinates.
+Assigning clean_imprecise = TRUE will remove rows of data with invalid
+or imprecise coordinates.
+
+Allowable values for errorsonly are TRUE or FALSE. The default is FALSE
+which keeps all rows of data regardless of flag status. Assigning
+errorsonly = TRUE filters the dataframe to show only rows of data which
+are flagged.
+
+When clean_outsideUSA = "no" and/or clean_imprecise = FALSE, a column
+will be appended titled "TADA.InvalidCoordinates" with the following
+flags (if relevant to dataframe):
 
 -   If the latitude is less than zero, the row will be flagged with
-    "LAT_OutsideUSA".
+    "LAT_OutsideUSA". (Exception for American Samoa)
 
 -   If the longitude is greater than zero AND less than 145, the row
-    will be flagged as "LONG_OutsideUSA".
+    will be flagged as "LONG_OutsideUSA". (Exceptions for Guam and the
+    Northern Mariana Islands)
 
 -   If the latitude or longitude contains the string, "999", the row
     will be flagged as invalid.
@@ -304,13 +331,12 @@ be appended titled "TADA.InvalidCoordinates" with the following flags
     as "Imprecise".
 
 ```{r}
-TADAProfileClean1 <- InvalidCoordinates(TADAProfile, clean_outsideUSA = TRUE, clean_imprecise = TRUE)
+TADAProfileClean1 <- InvalidCoordinates(TADAProfile, clean_outsideUSA = "no", clean_imprecise = FALSE)
 
 #redraw map after all rows with invalid LAT/LONG data are removed
 map('county', 'utah')
 points(TADAProfileClean1$LongitudeMeasure, TADAProfileClean1$LatitudeMeasure, col="red", pch=20)
 ```
-
 
 ## Depth unit conversions
 
@@ -388,11 +414,20 @@ ResultDetectionConditionText = "Reported in Raw Data (attached)".
     from the dataframe and no column will be appended. The default is
     clean = TRUE.
 
+An additional input called errorsonly will allow the user to filter data
+to show only rows of aggregated continuous data. Allowable values for
+errorsonly are TRUE or FALSE. The default is FALSE which keeps all rows
+of data regardless of flag status. Assigning errorsonly = TRUE filters
+the dataframe to show only rows of data which are flagged "Y".
+
 See function documentation for additional function options by entering
 the following code in the console: ?AggregatedContinuousData
 
 ```{r}
 TADAProfileClean4 <- AggregatedContinuousData(TADAProfileClean3, clean = TRUE)
+
+# uncomment below to create a dataframe of only the aggregated continuous data
+# TADAProfile_aggcont <- AggregatedContinuousData(TADAProfileClean3, clean = FALSE, errorsonly = TRUE)
 ```
 
 ## WQX QAQC Service Result Flags
@@ -406,7 +441,7 @@ See documentation for more details:
 
 -   ?InvalidMethod
 
-    -   When Clean = FALSE, this function adds the following column to
+    -   When clean = FALSE, this function adds the following column to
         your dataframe: WQX.AnalyticalMethodValidity. This column flags
         invalid CharacteristicName,
         ResultAnalyticalMethod/MethodIdentifier, and
@@ -415,6 +450,9 @@ See documentation for more details:
 
     -   When clean = TRUE, "Invalid" rows are removed from the dataframe
         and no column will be appended.
+
+    -   When errorsonly = TRUE, the dataframe is filtered to only the
+        rows flagged as "Invalid"; default is errorsonly = FALSE.
 
 -   ?InvalidSpeciation
 
@@ -427,6 +465,9 @@ See documentation for more details:
     -   When clean = TRUE, "Invalid" rows are removed from the dataframe
         and no column will be appended.
 
+    -   When errorsonly = TRUE, the dataframe is filtered to only the
+        rows flagged as "Invalid"; default is errorsonly = FALSE.
+
 -   ?InvalidResultUnit
 
     -   When clean = FALSE, the following column will be added to your
@@ -438,6 +479,9 @@ See documentation for more details:
     -   When clean = TRUE, "Invalid" rows are removed from the dataframe
         and no column will be appended.
 
+    -   When errorsonly = TRUE, the dataframe is filtered to only the
+        rows flagged as "Invalid"; default is errorsonly = FALSE.
+
 -   ?InvalidFraction
 
     -   When clean = FALSE, this function adds the following column to
@@ -447,6 +491,8 @@ See documentation for more details:
         "Valid".
     -   When clean = TRUE, "Invalid" rows are removed from the dataframe
         and no column will be appended.
+    -   When errorsonly = TRUE, the dataframe is filtered to only the
+        rows flagged as "Invalid"; default is errorsonly = FALSE.
 
 ```{r}
 TADAProfileClean5 <- InvalidMethod(TADAProfileClean4, clean = TRUE)
@@ -470,6 +516,10 @@ combination. See documentation for more details:
     -   When clean = TRUE, data that is above the upper WQX threshold is
         removed from the dataframe.
 
+    -   When errorsonly = TRUE, the dataframe is filtered to only the
+        rows flagged as above the upper WQX threshold; default is
+        errorsonly = FALSE.
+
 -   ?BelowNationalWQXLowerThreshold
 
     -   When clean = FALSE, the following column is added to your
@@ -478,6 +528,10 @@ combination. See documentation for more details:
 
     -   When clean = TRUE, data that is below the lower WQX threshold is
         removed from the dataframe.
+
+    -   When errorsonly = TRUE, the dataframe is filtered to only the
+        rows flagged as below the lower WQX threshold; default is
+        errorsonly = FALSE.
 
 The default is clean=TRUE, but you can change this to only flag results
 if desired. Results will be flagged, but not removed, when clean=FALSE.
@@ -509,6 +563,10 @@ the following into the console:
         duplicate rows will be removed from the dataframe and no column
         is appended.
 
+    -   When errorsonly = TRUE, the dataframe is filtered to only the
+        rows flagged as potential duplicates; default is errorsonly =
+        FALSE.
+
 When clean = TRUE, the function retains the first occurrence of each
 potential duplicate in the dataframe. Default is clean = TRUE.
 
@@ -526,15 +584,18 @@ to indicate if the data produced has an approved Quality Assurance
 Project Plan (QAPP) or not. In this field, Y indicates yes, N indicates
 no.
 
-This function has two default inputs: clean = TRUE and cleanNA = FALSE.
-These defaults remove rows of data where the QAPPApprovedIndicator
-equals "N".
+This function has three default inputs: clean = TRUE, cleanNA = FALSE,
+and errorsonly = FALSE. These defaults remove rows of data where the
+QAPPApprovedIndicator equals "N".
 
 Users could alternatively remove both N's and NA's using the inputs
-clean = TRUE and cleanNA = TRUE.
+clean = TRUE, cleanNA = TRUE, and errorsonly = FALSE.
 
-If both clean = FALSE and cleanNA = FALSE, the function will not do
-anything.
+Additionally, users could filter to show only N's and NA's by using the
+inputs clean = FALSE, cleanNA = FALSE, and errorsonly = TRUE.
+
+If clean = FALSE, cleanNA = FALSE, and errorsonly = FALSE, the function
+will not do anything.
 
 ```{r}
 TADAProfileClean12 <- QAPPapproved(TADAProfileClean11, clean = TRUE, cleanNA = FALSE)
@@ -547,8 +608,11 @@ determine if a QAPP document is available to review. When clean = FALSE,
 a column will be appended to flag results that do have an associated
 QAPP document URL provided. When clean = TRUE, rows that do not have an
 associated QAPP document are removed from the dataframe and no column
-will be appended. This function should only be used to remove data if an
-accompanying QAPP document is required to use data in assessments.
+will be appended. When errorsonly = TRUE, the dataframe is filtered to
+show only rows that do not have an associated QAPP document. The
+defaults are clean = FALSE and errorsonly = FALSE. This function should
+only be used to remove data if an accompanying QAPP document is required
+to use data in assessments.
 
 ```{r}
 TADAProfileClean13 <- QAPPDocAvailable(TADAProfileClean12, clean = FALSE)

@@ -12,6 +12,12 @@ TADA.env <- new.env()
 #'
 #' @export
 #'
+#' @examples 
+#' # Load example dataset:
+#' data(Nutrients_Utah)
+#' 
+#' # Create a table of fields and count of unique values in each field:
+#' Fields_Nutrients_Utah <- FilterFields(Nutrients_Utah)
 
 FilterFields <- function(.data) {
   # check .data is data.frame
@@ -90,6 +96,12 @@ FilterFields <- function(.data) {
 #'
 #' @export
 #'
+#' @examples 
+#' # Load example dataset:
+#' data(Nutrients_Utah)
+#' 
+#' # Create table and pie chart of "Hydrologic Condition" unique values and counts:
+#' FieldReview_HydrologicCondition <- FilterFieldReview(field = "HydrologicCondition", Nutrients_Utah)
 
 FilterFieldReview <- function(field, .data) {
   # if provided, check .data is data.frame
@@ -136,7 +148,14 @@ FilterFieldReview <- function(field, .data) {
 #' @return A list of unique characteristics and their counts
 #'
 #' @export
-#'
+#' 
+#' @examples 
+#' # Load example dataset:
+#' data(Nutrients_Utah)
+#' 
+#' # Create a list of parameters in the dataset and the number of records of each paramter:
+#' ParameterList <- FilterParList(Nutrients_Utah)
+
 FilterParList <- function(.data) {
   # count the frequency of each value in CharactersticName field
   ParValueCount <- data.frame(table(list(.data$CharacteristicName)))
@@ -162,7 +181,13 @@ FilterParList <- function(.data) {
 #' subset by a parameter.
 #'
 #' @export
-#'
+#' 
+#' @examples 
+#' # Load example dataset:
+#' data(Nutrients_Utah)
+#' 
+#' # Create list of fields for parameter "AMMONIA" with number of unique values in each field:
+#' AmmoniaFields <- FilterParFields(Nutrients_Utah, parameter = "AMMONIA")
 
 FilterParFields <- function(.data, parameter) {
   # check .data is data.frame
@@ -241,7 +266,8 @@ FilterParFields <- function(.data, parameter) {
     "ResultAnalyticalMethod.MethodName",
     "ResultAnalyticalMethod.MethodIdentifier",
     "ResultAnalyticalMethod.MethodIdentifierContext",
-    "AssemblageSampledName", "DetectionQuantitationLimitTypeName"
+    "AssemblageSampledName", "DetectionQuantitationLimitTypeName", 
+    "MonitoringLocationIdentifier"
   )]
 
 
@@ -261,7 +287,13 @@ FilterParFields <- function(.data, parameter) {
 #' @return A table and pie chart of unique values in the selected field.
 #'
 #' @export
-#'
+#' 
+#' @examples 
+#' # Load example dataset:
+#' data(Nutrients_Utah)
+#' 
+#' # Create table and pie chart of monitoring locations for the parameter "AMMONIA" in dataframe:
+#' AmmoniaMonitoringLocations <- FilterParFieldReview(field = "MonitoringLocationIdentifier", Nutrients_Utah, parameter = "AMMONIA")
 
 FilterParFieldReview <- function(field, .data, parameter) {
   # if provided, check .data is data.frame

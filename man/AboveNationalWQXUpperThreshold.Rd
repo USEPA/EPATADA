@@ -4,26 +4,53 @@
 \alias{AboveNationalWQXUpperThreshold}
 \title{Check Result Value Against WQX Upper Threshold}
 \usage{
-AboveNationalWQXUpperThreshold(.data, clean = TRUE)
+AboveNationalWQXUpperThreshold(.data, clean = TRUE, errorsonly = FALSE)
 }
 \arguments{
 \item{.data}{TADA dataframe}
 
 \item{clean}{Boolean argument; removes data that is above the upper WQX
-threshold from the dataframe when clean = TRUE. Default is clean = TRUE}
+threshold from the dataframe when clean = TRUE. Default is clean = TRUE.}
+
+\item{errorsonly}{Boolean argument; filters dataframe to show only the data
+flagged as above the upper WQX threshold. Default is errorsonly = FALSE.}
 }
 \value{
-When clean = FALSE, the following column is added to your dataframe:
-AboveWQXUpperThreshold. This column flags rows with data that are above
-the upper WQX threshold. When clean = TRUE, data that is above the upper
-WQX threshold is removed from the dataframe.
+When clean = FALSE and errorsonly = FALSE, a column which flags data above the
+upper WQX threshold is appended to the dataframe. When clean = FALSE and
+errorsonly = TRUE, the dataframe is filtered to show only data found above
+the WQX threshold. When clean = TRUE and errorsonly = FALSE, rows with values
+that are above the upper WQX threshold are removed from the dataframe and no
+column is appended. When clean = TRUE and and errorsonly = TRUE, the function
+is not executed and an error message is returned. Defaults are clean = TRUE and
+errorsonly = FALSE.
 }
 \description{
 EPA's Water Quality Exchange (WQX) has generated statistics and data from
-millions of water quality data points around the country. This functions
-leverages that statistical data from WQX to flag any data that is above the
+millions of water quality data points around the country. This function
+leverages the statistical data from WQX to flag any data that is above the
 upper threshold of result values submitted to WQX for a given characteristic.
-When clean = TRUE, rows with values that are above the upper WQX threshold
-are removed from the dataframe and no column will be appended. Default is
-clean = TRUE.
+When clean = FALSE and errorsonly = FALSE, a column which flags data above the
+upper WQX threshold is appended to the dataframe. When clean = FALSE and
+errorsonly = TRUE, the dataframe is filtered to show only data found above
+the WQX threshold. When clean = TRUE and errorsonly = FALSE, rows with values
+that are above the upper WQX threshold are removed from the dataframe and no
+column is appended. When clean = TRUE and and errorsonly = TRUE, the function
+is not executed and an error message is returned. Defaults are clean = TRUE and
+errorsonly = FALSE.
+}
+\examples{
+# Load example dataset:
+data(Nutrients_Utah)
+
+# Remove data that is above the upper WQX threshold from dataframe:
+WQXUpperThreshold_clean <- AboveNationalWQXUpperThreshold(Nutrients_Utah)
+
+# Flag, but do not remove, data that is above the upper WQX threshold in
+# new column titled "AboveWQXUpperThreshold":
+WQXUpperThreshold_flags <- AboveNationalWQXUpperThreshold(Nutrients_Utah, clean = FALSE)
+
+# Show only data flagged as above the upper WQX threshold:
+WQXUpperThreshold_flagsonly <- AboveNationalWQXUpperThreshold(Nutrients_Utah, 
+clean = FALSE, errorsonly = TRUE)
 }

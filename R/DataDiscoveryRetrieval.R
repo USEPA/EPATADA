@@ -113,6 +113,10 @@ TADAdataRetrieval <- function(statecode = "null",
   # Retrieve all 3 profiles
   results.DR <- dataRetrieval::readWQPdata(WQPquery,
                                            ignore_attributes = TRUE)
+  #check if any results are available
+  if ((nrow(results.DR) > 0) == FALSE) {
+    stop("Your WQP query returned no results (no data available). Try a different query. Removing some of your query filters OR broadening your search area may help.")
+  }
 
   narrow.DR <- dataRetrieval::readWQPdata(WQPquery, 
                                           dataProfile = "narrowResult", 
@@ -256,7 +260,9 @@ readWQPwebservice <- function(webservice) {
 #'
 #' @examples 
 #' \dontrun{
-#' tada2 <- TADABigdataRetrieval(startDate = "2019-01-01", endDate = "2021-12-31", characteristicName = "Temperature, water", siteType = "Stream")
+#' tada2 <- TADABigdataRetrieval(startDate = "2019-01-01", e
+#' ndDate = "2021-12-31", characteristicName = "Temperature, water", 
+#' siteType = "Stream")
 #' }
 #' 
 

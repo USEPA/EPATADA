@@ -96,12 +96,27 @@ flags rows with an associated QAPP document. When clean = TRUE,
 data without an associated QAPP document is removed from the dataframe.</p>
     </div>
 
+    <div class="section level2">
+    <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># Load example dataset:</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">Nutrients_Utah</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Flag, but do not remove, data without an associated QAPP document in</span></span></span>
+<span class="r-in"><span><span class="co"># new column titled "TADA.QAPPDocAvailable":</span></span></span>
+<span class="r-in"><span><span class="va">FlagData_MissingQAPPDocURLs</span> <span class="op">&lt;-</span> <span class="fu">QAPPDocAvailable</span><span class="op">(</span><span class="va">Nutrients_Utah</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "No changes were made, because we did not find any QAPP document url data in your dataframe"</span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Remove data without an associated QAPP document available:</span></span></span>
+<span class="r-in"><span><span class="va">RemoveData_MissingQAPPDocURLs</span> <span class="op">&lt;-</span> <span class="fu">QAPPDocAvailable</span><span class="op">(</span><span class="va">Nutrients_Utah</span>, clean <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "No changes were made, because we did not find any QAPP document url data in your dataframe"</span>
+</code></pre></div>
+    </div>
   </main><aside class="col-md-3"><nav id="toc"><h2>On this page</h2>
     </nav></aside></div>
 
 
     <footer><div class="pkgdown-footer-left">
-  <p></p><p>Developed by Cristina Mullin, Jacob Greif, Michelle Thawley, Laura Shumway.</p>
+  <p></p><p>Developed by Cristina Mullin, Michelle Thawley, Jacob Greif, Laura Shumway.</p>
 </div>
 
 <div class="pkgdown-footer-right">

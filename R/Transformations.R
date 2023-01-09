@@ -50,6 +50,19 @@
 #' following two fields to the input dataframe: "WQX.ConversionFactor" and "WQX.TargetUnit".
 #'
 #' @export
+#' 
+#' @examples 
+#' # Load example dataset:
+#' data(Nutrients_Utah)
+#' 
+#' # Convert result and detection limit values and units to WQX target units and 
+#' # add two new columns titled "ResultMeasureUnitCode.Original" and 
+#' # "DetectionLimitMeasureUnitCode.Original" to retain the original result and unit values:
+#' ResultUnitsConverted <- ConvertResultUnits(Nutrients_Utah)
+#' 
+#' # Do not convert result values and units, but add two new columns titled
+#' # "WQX.ConversionFactor" and "WQX.TargetUnit":
+#' ResultUnitsNotConverted <- ConvertResultUnits(Nutrients_Utah, transform = FALSE)
 
 ConvertResultUnits <- function(.data, transform = TRUE) {
   # check .data is data.frame
@@ -320,13 +333,30 @@ ConvertResultUnits <- function(.data, transform = TRUE) {
 #' done at this time. A user can review the conversion factor information if 
 #' desired by using this feature. 
 #' 
-#' @return When transform = true, the input dataframe is returned with all depth
+#' @return When transform = TRUE, the input dataframe is returned with all depth
 #' data converted to the target unit; no additional columns are added.
 #' When transform = FALSE, the input dataframe is returned with additional
 #' columns including... be specific here ... 
 #' 
 #' @export
-#'
+#' 
+#' @examples 
+#' # Load example dataset:
+#' data(Nutrients_Utah)
+#' 
+#' # Convert all depth units to meters:
+#' DepthUnitsConverted_m <- ConvertDepthUnits(Nutrients_Utah)
+#' 
+#' # Convert all depth units to feet:
+#' DepthUnitsConverted_ft <- ConvertDepthUnits(Nutrients_Utah, unit = "ft")
+#' 
+#' # Convert only the "ActivityTopDepthHeightMeasure" field to inches:
+#' TopDepthUnitsConverted_in <- ConvertDepthUnits(Nutrients_Utah, 
+#' unit = "in", fields = "ActivityTopDepthHeightMeasure")
+#' 
+#' # Do not convert any depth units, but add columns for target units and 
+#' # conversion factors for each depth measure:
+#' DepthUnitsNotConverted <- ConvertDepthUnits(Nutrients_Utah, transform = FALSE)
 
 ConvertDepthUnits <- function(.data,
                               unit = "m",
@@ -615,6 +645,20 @@ ConvertDepthUnits <- function(.data,
 #' @return Harmonization Reference Table unique to the input dataframe
 #'
 #' @export
+#' 
+#' @examples 
+#' # Load example dataset:
+#' data(Nutrients_Utah)
+#' 
+#' # Create a harmonization reference table for dataframe:
+#' CreateRefTable <- HarmonizationRefTable(Nutrients_Utah)
+#' 
+#' # Create and download (to your working directory) a harmonization reference
+#' # table for dataframe: 
+#' \dontrun{
+#' DownloadRefTable <- HarmonizationRefTable(Nutrients_Utah, download = TRUE)
+#' }
+#' 
 
 HarmonizationRefTable <- function(.data, download = FALSE) {
   # check .data is data.frame
@@ -721,12 +765,26 @@ HarmonizationRefTable <- function(.data, download = FALSE) {
 #' would return the input dataframe unchanged if input was allowed).
 #'
 #' @export
+#' 
+#' @examples 
+#' # Load example dataset:
+#' data(Nutrients_Utah)
+#' 
+#' # Append harmonization reference table columns to dataframe and transform/convert
+#' # data to the reference table values:
+#' Nutrients_Harmonized <- HarmonizeData(Nutrients_Utah)
+#' 
+#' # Transform/convert data to the harmonization reference table values, but
+#' # do not append any columns to dataframe:
+#' Nutrients_Harmonized_noflags <- HarmonizeData(Nutrients_Utah, flag = FALSE)
+#' 
+#' # Append harmonization reference table columns to dataframe, but do not
+#' # transform/convert data to the reference table values:
+#' Nutrients_NotHarmonized <- HarmonizeData(Nutrients_Utah, transform = FALSE)
 
 HarmonizeData <- function(.data, ref, transform = TRUE, flag = TRUE) {
   # check .data is data.frame
   checkType(.data, "data.frame", "Input object")
-  # check ref is data.frame
-  checkType(ref, "data.frame")  
   # check transform is boolean
   checkType(transform, "logical")
   # check flag is boolean
@@ -739,17 +797,6 @@ HarmonizeData <- function(.data, ref, transform = TRUE, flag = TRUE) {
     )
   checkColumns(.data, expected_cols)
 
-  # check ref has all of the required columns
-  expected_ref_cols <- c(
-    "TADA.SuggestedCharacteristicName",
-    "TADA.SuggestedSampleFraction",
-    "TADA.SuggestedSpeciation",
-    "TADA.SuggestedResultUnit"
-    )
-  if (!missing(ref)) {
-    checkColumns(ref, expected_ref_cols)
-  }
-
   # check that both transform and flag do NOT equal FALSE
   if (transform == FALSE & flag == FALSE) {
     stop("Both 'transform' and 'flag' arguments equal FALSE, which would return
@@ -757,6 +804,14 @@ HarmonizeData <- function(.data, ref, transform = TRUE, flag = TRUE) {
          TRUE.")
   }
 
+  #define which columns are expected in ref
+  expected_ref_cols <- c(
+    "TADA.SuggestedCharacteristicName",
+    "TADA.SuggestedSampleFraction",
+    "TADA.SuggestedSpeciation",
+    "TADA.SuggestedResultUnit"
+  )
+  
   # execute function after checks are passed
   if (all(c(
     "CharacteristicName", "ActivityMediaName", "ResultMeasureValue",
@@ -771,17 +826,21 @@ HarmonizeData <- function(.data, ref, transform = TRUE, flag = TRUE) {
     # define harm.ref
     # if input for ref exists, use that data
     if (!missing(ref)) {
+      
+      # check ref is data.frame
+      checkType(ref, "data.frame")
+      
+      # check ref has all of the required columns      
+      checkColumns(ref, expected_ref_cols)      
+      
       harm.ref <- ref
+      
     }
+    
     # if input for ref does not exist, use raw harmonization template
     if (missing(ref)) {
+      # use output of HarmonizationRefTable which uses the TADA HarmonizationTemplate.csv in the extdata folder
       harm.ref <- HarmonizationRefTable(.data, download=FALSE)
-      
-      #changed code to use output of HarmonizationRefTable for transformations when user ref table is not supplied
-      #utils::read.csv(system.file("extdata", "HarmonizationTemplate.csv", package = "TADA"))
-      # remove extraneous characters in first column (not needed? 10/12/22 cm patch)
-      #colnames(harm.ref)[1] <- gsub("^...", "", colnames(harm.ref)[1])
-      
     }
 
     # join harm.ref to .data

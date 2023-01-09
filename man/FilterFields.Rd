@@ -17,3 +17,10 @@ Function creates a list of the fields in the input dataframe as well as the
 number of unique values in each field. The list is intended to inform users
 as to which specific fields to explore further and filter.
 }
+\examples{
+# Load example dataset:
+data(Nutrients_Utah)
+
+# Create a table of fields and count of unique values in each field:
+Fields_Nutrients_Utah <- FilterFields(Nutrients_Utah)
+}

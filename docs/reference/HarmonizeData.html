@@ -120,12 +120,31 @@ only. When transform = FALSE and flag = FALSE, an error is returned (function
 would return the input dataframe unchanged if input was allowed).</p>
     </div>
 
+    <div class="section level2">
+    <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># Load example dataset:</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">Nutrients_Utah</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Append harmonization reference table columns to dataframe and transform/convert</span></span></span>
+<span class="r-in"><span><span class="co"># data to the reference table values:</span></span></span>
+<span class="r-in"><span><span class="va">Nutrients_Harmonized</span> <span class="op">&lt;-</span> <span class="fu">HarmonizeData</span><span class="op">(</span><span class="va">Nutrients_Utah</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Transform/convert data to the harmonization reference table values, but</span></span></span>
+<span class="r-in"><span><span class="co"># do not append any columns to dataframe:</span></span></span>
+<span class="r-in"><span><span class="va">Nutrients_Harmonized_noflags</span> <span class="op">&lt;-</span> <span class="fu">HarmonizeData</span><span class="op">(</span><span class="va">Nutrients_Utah</span>, flag <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Append harmonization reference table columns to dataframe, but do not</span></span></span>
+<span class="r-in"><span><span class="co"># transform/convert data to the reference table values:</span></span></span>
+<span class="r-in"><span><span class="va">Nutrients_NotHarmonized</span> <span class="op">&lt;-</span> <span class="fu">HarmonizeData</span><span class="op">(</span><span class="va">Nutrients_Utah</span>, transform <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "Be aware that you must run this function with transform = TRUE to use subsequent TADA functions."</span>
+</code></pre></div>
+    </div>
   </main><aside class="col-md-3"><nav id="toc"><h2>On this page</h2>
     </nav></aside></div>
 
 
     <footer><div class="pkgdown-footer-left">
-  <p></p><p>Developed by Cristina Mullin, Jacob Greif, Michelle Thawley, Laura Shumway.</p>
+  <p></p><p>Developed by Cristina Mullin, Michelle Thawley, Jacob Greif, Laura Shumway.</p>
 </div>
 
 <div class="pkgdown-footer-right">

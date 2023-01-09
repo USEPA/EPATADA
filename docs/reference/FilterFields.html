@@ -77,12 +77,36 @@ as to which specific fields to explore further and filter.</p>
 <p>A table of fields and the count of unique values in each field.</p>
     </div>
 
+    <div class="section level2">
+    <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># Load example dataset:</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">Nutrients_Utah</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Create a table of fields and count of unique values in each field:</span></span></span>
+<span class="r-in"><span><span class="va">Fields_Nutrients_Utah</span> <span class="op">&lt;-</span> <span class="fu">FilterFields</span><span class="op">(</span><span class="va">Nutrients_Utah</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                             FieldName Count</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1              OrganizationFormalName     7</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2                    ActivityTypeCode     8</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3                   ActivityMediaName     1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4        ActivityMediaSubdivisionName     4</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5                 ActivityCommentText     7</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 6                 HydrologicCondition     8</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 7                     HydrologicEvent     4</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 8                  CharacteristicName     3</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 9                MeasureQualifierCode     4</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 10            SampleTissueAnatomyName     1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 11                     LaboratoryName    12</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 12 DetectionQuantitationLimitTypeName     7</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 13         MonitoringLocationTypeName    14</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 14                        ProjectName    10</span>
+</code></pre></div>
+    </div>
   </main><aside class="col-md-3"><nav id="toc"><h2>On this page</h2>
     </nav></aside></div>
 
 
     <footer><div class="pkgdown-footer-left">
-  <p></p><p>Developed by Cristina Mullin, Jacob Greif, Michelle Thawley, Laura Shumway.</p>
+  <p></p><p>Developed by Cristina Mullin, Michelle Thawley, Jacob Greif, Laura Shumway.</p>
 </div>
 
 <div class="pkgdown-footer-right">

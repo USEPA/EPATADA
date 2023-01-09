@@ -18,3 +18,10 @@ A table and pie chart of unique values in the selected field.
 Function creates a table and pie chart of unique values, and counts of those
 values for a chosen field in a dataframe.
 }
+\examples{
+# Load example dataset:
+data(Nutrients_Utah)
+
+# Create table and pie chart of "Hydrologic Condition" unique values and counts:
+FieldReview_HydrologicCondition <- FilterFieldReview(field = "HydrologicCondition", Nutrients_Utah)
+}

@@ -4,7 +4,7 @@
 \alias{InvalidMethod}
 \title{Check for Invalid Analytical Methods}
 \usage{
-InvalidMethod(.data, clean = TRUE)
+InvalidMethod(.data, clean = TRUE, errorsonly = FALSE)
 }
 \arguments{
 \item{.data}{TADA dataframe}
@@ -12,18 +12,41 @@ InvalidMethod(.data, clean = TRUE)
 \item{clean}{Boolean argument; removes "Invalid" characteristic-analytical
 method combinations from the dataframe when clean = TRUE. Default is
 clean = TRUE.}
+
+\item{errorsonly}{Boolean argument; filters dataframe to show only "Invalid"
+characteristic-analytical method combinations when errorsonly = TRUE. Default
+is errorsonly = FALSE.}
 }
 \value{
-When clean = FALSE, this function adds the following column to your
-dataframe: WQX.AnalyticalMethodValidity. This column flags invalid
-CharacteristicName, ResultAnalyticalMethod/MethodIdentifier,
+When clean = FALSE and errorsonly = FALSE, this function adds the
+following column to your dataframe: WQX.AnalyticalMethodValidity. This column
+flags invalid CharacteristicName, ResultAnalyticalMethod/MethodIdentifier,
 and ResultAnalyticalMethod/MethodIdentifierContext combinations in your dataframe
-as either "Nonstandardized", "Invalid", or "Valid". When clean = TRUE, "Invalid" rows are removed from the dataframe and no column
-will be appended.
+as either "Nonstandardized", "Invalid", or "Valid". When clean = FALSE and
+errorsonly = TRUE, the dataframe is filtered to show only "Invalid"
+characteristic-analytical method combinations; the column WQX.AnalyticalMethodValidity
+is still appended. When clean = TRUE and errorsonly = FALSE, "Invalid" rows
+are removed from the dataframe and no column will be appended.
 }
 \description{
 Function checks the validity of each characteristic-analytical method
 combination in the dataframe. When clean = TRUE, rows with invalid
 characteristic-analytical method combinations are removed. Default is
-clean = TRUE.
+clean = TRUE. When errorsonly = TRUE, dataframe is filtered to show only
+invalid characteristic-analytical method combinations. Default is
+errorsonly = FALSE.
+}
+\examples{
+# Load example dataset
+data(Nutrients_Utah)
+
+# Remove invalid characteristic-analytical method combinations from dataframe:
+InvalidMethod_clean <- InvalidMethod(Nutrients_Utah)
+
+# Flag, but do not remove, invalid characteristic-analytical method combinations
+# in new column titled "WQX.AnalyticalMethodValidity":
+InvalidMethod_flags <- InvalidMethod(Nutrients_Utah, clean = FALSE)
+
+# Show only invalid characteristic-analytical method combinations:
+InvalidMethod_errorsonly <- InvalidMethod(Nutrients_Utah, clean = FALSE, errorsonly = TRUE)
 }

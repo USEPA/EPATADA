@@ -4,7 +4,7 @@
 \alias{InvalidResultUnit}
 \title{Check Result Unit Validity}
 \usage{
-InvalidResultUnit(.data, clean = TRUE)
+InvalidResultUnit(.data, clean = TRUE, errorsonly = FALSE)
 }
 \arguments{
 \item{.data}{TADA dataframe}
@@ -12,18 +12,40 @@ InvalidResultUnit(.data, clean = TRUE)
 \item{clean}{Boolean argument; removes "Invalid" characteristic-media-result
 unit combinations from the dataframe when clean = TRUE. Default is
 clean = TRUE.}
+
+\item{errorsonly}{Boolean argument; filters dataframe to show only "Invalid"
+characteristic-media-result unit combinations when errorsonly = TRUE. Default
+is errorsonly = FALSE.}
 }
 \value{
-When clean = FALSE, the following column will be added to your dataframe:
-WQX.ResultUnitValidity. This column flags each CharacteristicName,
-ActivityMediaName, and ResultMeasure/MeasureUnitCode combination in your
-dataframe as either "Nonstandardized", "Invalid", or "Valid". When
-clean = TRUE, "Invalid" rows are removed from the dataframe and no column will
-be appended.
+When clean = FALSE and errorsonly = FALSE, the following column will
+be added to your dataframe: WQX.ResultUnitValidity. This column flags each
+CharacteristicName, ActivityMediaName, and ResultMeasure/MeasureUnitCode
+combination in your dataframe as either "Nonstandardized", "Invalid", or "Valid".
+When clean = FALSE and errorsonly = TRUE, the dataframe will be filtered to
+show only "Invalid" characteristic-media-result unit combinations;
+WQX.ResultUnitValidity column is still appended. When clean = TRUE, "Invalid"
+rows are removed from the dataframe and no column will be appended.
 }
 \description{
 Function checks the validity of each characteristic-media-result unit
-combination in the dataframe. When clean = TRUE, rows with invalid
-characteristic-media-result unit combinations are removed. Default is
-clean = TRUE.
+combination in the dataframe. When clean = TRUE, rows
+with invalid characteristic-media-result unit combinations are removed. Default is
+clean = TRUE. When errorsonly = TRUE, dataframe is filtered to show only rows
+with invalid characteristic-media-result unit combinations. Default is
+errorsonly = FALSE.
+}
+\examples{
+# Load example dataset:
+data(Nutrients_Utah)
+
+# Remove invalid characteristic-media-result unit combinations from dataframe:
+ResultUnitValidity_clean <- InvalidResultUnit(Nutrients_Utah)
+
+# Flag, but do not remove, invalid characteristic-media-result unit combinations
+# in new column titled "WQX.ResultUnitValidity":
+ResultUnitValidity_flags <- InvalidResultUnit(Nutrients_Utah, clean = FALSE)
+
+# Show only invalid characteristic-media-result unit combinations:
+ResultUnitValidity_errorsonly <- InvalidResultUnit(Nutrients_Utah, clean = FALSE, errorsonly = TRUE)
 }

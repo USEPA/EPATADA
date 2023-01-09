@@ -22,3 +22,17 @@ TADA values for CharacteristicName, ResultSampleFractionText,
 MethodSpecificationName, and ResultMeasure.MeasureUnitCode and they can optionally
 edit the reference file to meet their needs.
 }
+\examples{
+# Load example dataset:
+data(Nutrients_Utah)
+
+# Create a harmonization reference table for dataframe:
+CreateRefTable <- HarmonizationRefTable(Nutrients_Utah)
+
+# Create and download (to your working directory) a harmonization reference
+# table for dataframe: 
+\dontrun{
+DownloadRefTable <- HarmonizationRefTable(Nutrients_Utah, download = TRUE)
+}
+
+}
