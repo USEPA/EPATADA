@@ -88,12 +88,12 @@ library(TADA)
 ## Retrieve WQP data
 
 WQP data is retrieved and processed for compatibility with TADA. This
-function, TADAdataRetrieval, builds on the USGS dataRetrieval package
-functions. It joins three WQP profiles (i.e., the station, narrow, and
-phys/chem), changes all data in the Characteristic, Speciation,
-Fraction, and Unit fields to uppercase, removes true duplicates, removes
-data for all non-water media types, and cleans up results with special
-characters.
+function, **TADAdataRetrieval**, builds on the USGS dataRetrieval
+package functions. It joins three WQP profiles (i.e., the station,
+narrow, and phys/chem), changes all data in the Characteristic,
+Speciation, Fraction, and Unit fields to uppercase, removes true
+duplicates, removes data for all non-water media types, and cleans up
+results with special characters.
 
 This function uses the same inputs as the dataRetrieval `readWQPdata`
 function. `readWQPdata` does not restrict the characteristics pulled
@@ -121,11 +121,11 @@ Data retrieval filters include:
 -   ActivityMediaName
 
 Please be aware that this TADAdataRetrieval function automatically runs
-the TADA autoclean and MeasureValueSpecialCharacters functions as well,
-which are both required for subsequent functions within the TADA R
-package to run. These functions alter and/or add the following WQP
-columns (enter *?MeasureValueSpecialCharacters* and *?autoclean* into
-the console for more details):
+the TADA **autoclean** and **MeasureValueSpecialCharacters** functions
+as well, which are both required for subsequent functions within the
+TADA R package to run. These functions alter and/or add the following
+WQP columns (enter *?MeasureValueSpecialCharacters* and *?autoclean*
+into the console for more details):
 
 -   Alters (e.g., ResultMeasureValue and
     DetectionQuantitationLimitMeasure.MeasureValue fields are converted
@@ -232,7 +232,8 @@ read in a web service call for any WQP profile (un-comment).
 
 Option 3: If you need to download a large amount of data from across a
 large area, and the TADAdataRetrieval function is not working due to WQP
-timeout issues, then the TADABigdataRetrieval function may work better.
+timeout issues, then the **TADABigdataRetrieval** function may work
+better.
 
 This function does multiple synchronous data calls to the WQP
 (waterqualitydata.us). It uses the WQP summary service to limit the
@@ -287,7 +288,7 @@ map()
 points(TADAProfile$LongitudeMeasure, TADAProfile$LatitudeMeasure, col="red", pch=20)
 ```
 
-The TADA InvalidCoordinates function identifies and flags invalid
+The TADA **InvalidCoordinates** function identifies and flags invalid
 coordinate data.
 
 Allowable values for clean_outsideUSA are "no", "remove", or "change
@@ -297,7 +298,7 @@ remove rows of data with coordinates outside the USA. And assigning
 clean_outsideUSA = "change sign" will flip the sign of latitude or
 longitude coordinates flagged as outside the USA. The "change sign"
 option should only be used when it is known that coordinates were
-entered with the wrong sign in WQX; additionally, the data ower should
+entered with the wrong sign in WQX; additionally, the data owner should
 fix these incorrect coordinates in the raw data through the WQX - for
 assistance email the WQX help desk: WQX\@epa.gov
 
@@ -331,7 +332,7 @@ flags (if relevant to dataframe):
     as "Imprecise".
 
 ```{r}
-TADAProfileClean1 <- InvalidCoordinates(TADAProfile, clean_outsideUSA = "no", clean_imprecise = FALSE)
+TADAProfileClean1 <- InvalidCoordinates(TADAProfile, clean_outsideUSA = "remove", clean_imprecise = TRUE)
 
 #redraw map after all rows with invalid LAT/LONG data are removed
 map('county', 'utah')
@@ -340,21 +341,24 @@ points(TADAProfileClean1$LongitudeMeasure, TADAProfileClean1$LatitudeMeasure, co
 
 ## Depth unit conversions
 
-Converts depth units to a consistent unit.
+The **ConvertDepthUnits** function converts depth units to a consistent
+unit.
 
-**ActivityDepthHeightMeasure.MeasureValue** provides depth information.
-This is a crucial column for lake data but less often for river data.
+The ActivityDepthHeightMeasure.MeasureValue column provides depth
+information. This is a crucial column for lake data but less often for
+river data.
 
-Function checks dataframe for depth profile data. Where depth profile
-columns are populated, the function appends 'Conversion Factor' columns
-and populates those columns based on the original unit (MeasureUnitCode
-columns) and the target unit, which is defined in the 'unit' argument. A
-'Depth Target Unit' column is also appended, indicating the unit all
-selected depth data is converted to. When transform = FALSE, the output
-includes all 'Conversion Factor' columns and the 'Depth Target Unit'
-column. When transform = TRUE, the output includes converted depth data
-and the 'Depth Target Unit' column, which acts as a flag indicating
-which rows have been converted. Default is transform = TRUE.
+This function checks dataframe for depth profile data. Where depth
+profile columns are populated, the function appends 'Conversion Factor'
+columns and populates those columns based on the original unit
+(MeasureUnitCode columns) and the target unit, which is defined in the
+'unit' argument. A 'Depth Target Unit' column is also appended,
+indicating the unit all selected depth data is converted to. When
+transform = FALSE, the output includes all 'Conversion Factor' columns
+and the 'Depth Target Unit' column. When transform = TRUE, the output
+includes converted depth data and the 'Depth Target Unit' column, which
+acts as a flag indicating which rows have been converted. Default is
+transform = TRUE.
 
 The depth profile function can harmonize the depth units across all the
 following fields (or only a specific one): "ActivityDepthHeightMeasure",
@@ -375,8 +379,8 @@ TADAProfileClean2 <- ConvertDepthUnits(TADAProfileClean1, unit = "m", transform 
 
 ## Result unit conversions
 
-Converts all results to WQX target units. WQX target units are pulled
-from the MeasureUnit domain table:
+The **ConvertResultUnits** function converts all results to WQX target
+units. WQX target units are pulled from the MeasureUnit domain table:
 
 -   <https://cdx.epa.gov/wqx/download/DomainValues/MeasureUnit.CSV>
 
@@ -390,8 +394,9 @@ TADAProfileClean3 <- ConvertResultUnits(TADAProfileClean2, transform = TRUE)
 
 ## Statistically aggregated data
 
-Checks for and removes statistically aggregated high frequency (i.e.,
-continuous) data, if present.
+The **AggregatedContinuousData** function checks for and removes
+statistically aggregated high frequency (i.e., continuous) data, if
+present.
 
 The Water Quality Portal (WQP) is not currently designed to store
 high-frequency sensor data (more than 1 value per day). However,
@@ -439,7 +444,7 @@ FALSE to flag results, but not remove them.
 
 See documentation for more details:
 
--   ?InvalidMethod
+-   ?**InvalidMethod**
 
     -   When clean = FALSE, this function adds the following column to
         your dataframe: WQX.AnalyticalMethodValidity. This column flags
@@ -454,7 +459,7 @@ See documentation for more details:
     -   When errorsonly = TRUE, the dataframe is filtered to only the
         rows flagged as "Invalid"; default is errorsonly = FALSE.
 
--   ?InvalidSpeciation
+-   ?**InvalidSpeciation**
 
     -   When clean = FALSE, this function adds the following column to
         your dataframe: WQX.MethodSpeciationValidity. This column flags
@@ -468,7 +473,7 @@ See documentation for more details:
     -   When errorsonly = TRUE, the dataframe is filtered to only the
         rows flagged as "Invalid"; default is errorsonly = FALSE.
 
--   ?InvalidResultUnit
+-   ?**InvalidResultUnit**
 
     -   When clean = FALSE, the following column will be added to your
         dataframe: WQX.ResultUnitValidity. This column flags each
@@ -482,7 +487,7 @@ See documentation for more details:
     -   When errorsonly = TRUE, the dataframe is filtered to only the
         rows flagged as "Invalid"; default is errorsonly = FALSE.
 
--   ?InvalidFraction
+-   ?**InvalidFraction**
 
     -   When clean = FALSE, this function adds the following column to
         your dataframe: WQX.SampleFractionValidity. This column flags
@@ -507,34 +512,31 @@ Run the following code to flag or remove results that are above or below
 the national upper and lower bound for each characteristic and unit
 combination. See documentation for more details:
 
--   ?AboveNationalWQXUpperThreshold
+-   ?**AboveNationalWQXUpperThreshold**
 
     -   When clean = FALSE, the following column is added to your
         dataframe: AboveWQXUpperThreshold. This column flags rows with
         data that are above the upper WQX threshold.
 
     -   When clean = TRUE, data that is above the upper WQX threshold is
-        removed from the dataframe.
+        removed from the dataframe. The default is clean = TRUE.
 
     -   When errorsonly = TRUE, the dataframe is filtered to only the
         rows flagged as above the upper WQX threshold; default is
         errorsonly = FALSE.
 
--   ?BelowNationalWQXLowerThreshold
+-   ?**BelowNationalWQXLowerThreshold**
 
     -   When clean = FALSE, the following column is added to your
         dataframe: BelowWQXLowerThreshold. This column flags rows with
         data that are below the lower WQX threshold.
 
     -   When clean = TRUE, data that is below the lower WQX threshold is
-        removed from the dataframe.
+        removed from the dataframe. The default is clean = TRUE.
 
     -   When errorsonly = TRUE, the dataframe is filtered to only the
         rows flagged as below the lower WQX threshold; default is
         errorsonly = FALSE.
-
-The default is clean=TRUE, but you can change this to only flag results
-if desired. Results will be flagged, but not removed, when clean=FALSE.
 
 ```{r}
 TADAProfileClean9 <- AboveNationalWQXUpperThreshold(TADAProfileClean8, clean = TRUE)
@@ -551,7 +553,7 @@ fields. Each pair or group of potential duplicate rows is flagged with a
 unique ID. For more information, review the documentation by entering
 the following into the console:
 
--   ?PotentialDuplicateRowID
+-   ?**PotentialDuplicateRowID**
 
     -   When clean = FALSE, the following column will be added to you
         dataframe: TADA.PotentialDupRowID. This column flags potential
@@ -559,16 +561,14 @@ the following into the console:
         potential duplicate combination a unique number linking the two
         potential duplication rows.
 
-    -   When clean = FALSE the first of each group of potential
-        duplicate rows will be removed from the dataframe and no column
-        is appended.
+    -   When clean = TRUE, the function retains the first occurrence of
+        each potential duplicate in the dataframe and removes potential
+        duplicate rows. No column is appended. The default is clean =
+        TRUE.
 
     -   When errorsonly = TRUE, the dataframe is filtered to only the
         rows flagged as potential duplicates; default is errorsonly =
         FALSE.
-
-When clean = TRUE, the function retains the first occurrence of each
-potential duplicate in the dataframe. Default is clean = TRUE.
 
 ```{r}
 TADAProfileClean11 <- PotentialDuplicateRowID(TADAProfileClean10)
@@ -576,7 +576,7 @@ TADAProfileClean11 <- PotentialDuplicateRowID(TADAProfileClean10)
 
 ## Review QAPP information
 
-Check data for an approved QAPP
+The **QAPPapproved** function checks data for an approved QAPP.
 
 This function checks to see if there is any information in the column
 "QAPPApprovedIndicator". Some organizations submit data for this field
@@ -601,7 +601,8 @@ will not do anything.
 TADAProfileClean12 <- QAPPapproved(TADAProfileClean11, clean = TRUE, cleanNA = FALSE)
 ```
 
-Check to see if a QAPP Doc is Available
+The **QAPPDocAvailable** function checks to see if a QAPP Doc is
+Available
 
 This function checks data submitted under the "ProjectFileUrl" column to
 determine if a QAPP document is available to review. When clean = FALSE,
@@ -624,7 +625,7 @@ In this section a TADA user will want to review the unique values in
 specific fields and may choose to remove data with particular values.
 
 To start, review the list of fields and the number of unique values in
-each field.
+each field using the **FilterFields** function.
 
 ```{r}
 FilterFields(TADAProfileClean13)
@@ -632,7 +633,8 @@ FilterFields(TADAProfileClean13)
 
 Next, choose a field from the list to see the unique values in that
 field, as well as the number of times each value appears in the
-dataframe. We'll start with ActivityTypeCode.
+dataframe using the **FilterFieldReview** function. We'll start with
+ActivityTypeCode.
 
 Here is a list of other fields to review:
 
@@ -684,16 +686,16 @@ In this section a TADA user will want to select a parameter, review the
 unique values associated with that parameter in specific fields, and
 choose to remove particular values.
 
-To start, review the list of parameters in the dataframe. (The list is
-sorted from highest to lowest counts. Only the first few rows are
-displayed to save space on the page)
+To start, review the list of parameters in the dataframe using the
+**FilterParList** function. (The list is sorted from highest to lowest
+counts. Only the first few rows are displayed to save space on the page)
 
 ```{r}
 FilterParList(TADAProfileClean15)
 ```
 
 Next, select a parameter. Let's explore the fields associated with
-Nitrogen:
+Nitrogen using the **FilterParFields** function:
 
 ```{r}
 FilterParFields(TADAProfileClean15, "NITROGEN")
@@ -721,9 +723,10 @@ TADAProfileClean16 <- dplyr::filter(TADAProfileClean15, !(CharacteristicName %in
 
 ## Transform Characteristic, Speciation, and Unit values to TADA Standards
 
-The HarmonizeRefTable function generates a harmonization reference table
-that is specific to the input dataframe. Users can review how their
-input data relates to standard TADA values for the following elements:
+The **HarmonizeRefTable** function generates a harmonization reference
+table that is specific to the input dataframe. Users can review how
+their input data relates to standard TADA values for the following
+elements:
 
 -   CharacteristicName
 
@@ -733,9 +736,10 @@ input data relates to standard TADA values for the following elements:
 
 -   ResultMeasure.MeasureUnitCode
 
-The HarmonizeData function then compares the input dataframe to the TADA
-Harmonization Reference Table. The purpose of the function is to make
-similar data consistent and therefore easier to compare and analyze.
+The **HarmonizeData** function then compares the input dataframe to the
+TADA Harmonization Reference Table. The purpose of the function is to
+make similar data consistent and therefore easier to compare and
+analyze.
 
 Users can also edit the reference file to meet their needs if desired.
 The download argument can be used to save the harmonization file to your
@@ -755,10 +759,10 @@ Optional outputs include:
 
 Here are some examples of how the HarmonizeData function can be used:
 
-1.  **ResultSampleFractionText** specifies forms of constituents. In
-    some cases, a single \*CharacteristicName\*\* will have both "Total"
-    and "Dissolved" forms specified, which should not be combined. In
-    these cases, each CharacteristicName and ResultSampleFractionText
+1.  ResultSampleFractionText specifies forms of constituents. In some
+    cases, a single \*CharacteristicName\*\* will have both "Total" and
+    "Dissolved" forms specified, which should not be combined. In these
+    cases, each CharacteristicName and ResultSampleFractionText
     combination is given a different identifier. This identifier can be
     used later on to identify comparable data groups for calculating
     statistics and creating figures for each combination.
