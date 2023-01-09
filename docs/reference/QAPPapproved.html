@@ -146,25 +146,21 @@ submitted to WQP is NA.</p>
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># Load example dataset:</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">Nutrients_Utah</span><span class="op">)</span></span></span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>data set 'Nutrients_Utah' not found</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Show data where the QAPPApprovedIndicator equals "Y" or "NA":</span></span></span>
 <span class="r-in"><span><span class="va">QAPPapproved_clean</span> <span class="op">&lt;-</span> <span class="fu">QAPPapproved</span><span class="op">(</span><span class="va">Nutrients_Utah</span><span class="op">)</span></span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in type %in% class(arg):</span> object 'Nutrients_Utah' not found</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Show only data where the QAPPApprovedIndicator equals "Y":</span></span></span>
 <span class="r-in"><span><span class="va">QAPPapproved_cleanNAs</span> <span class="op">&lt;-</span> <span class="fu">QAPPapproved</span><span class="op">(</span><span class="va">Nutrients_Utah</span>, cleanNA <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in type %in% class(arg):</span> object 'Nutrients_Utah' not found</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "All QAPPApprovedIndicator data is NA or N"</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Show data where the QAPPApprovedIndicator equals "N" or "NA":</span></span></span>
 <span class="r-in"><span><span class="va">QAPPIndicator_N_NA</span> <span class="op">&lt;-</span> <span class="fu">QAPPapproved</span><span class="op">(</span><span class="va">Nutrients_Utah</span>, clean <span class="op">=</span> <span class="cn">FALSE</span>, </span></span>
 <span class="r-in"><span>cleanNA <span class="op">=</span> <span class="cn">FALSE</span>, errorsonly <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in QAPPapproved(Nutrients_Utah, clean = FALSE, cleanNA = FALSE,     errorsonly = TRUE):</span> unused argument (errorsonly = TRUE)</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Show data where the QAPPApprovedIndicator equals "N":</span></span></span>
 <span class="r-in"><span><span class="va">QAPPIndicator_N</span> <span class="op">&lt;-</span> <span class="fu">QAPPapproved</span><span class="op">(</span><span class="va">Nutrients_Utah</span>, clean <span class="op">=</span> <span class="cn">FALSE</span>, </span></span>
 <span class="r-in"><span>cleanNA <span class="op">=</span> <span class="cn">TRUE</span>, errorsonly <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in QAPPapproved(Nutrients_Utah, clean = FALSE, cleanNA = TRUE, errorsonly = TRUE):</span> unused argument (errorsonly = TRUE)</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Note: When clean = FALSE, cleanNA = FALSE, and errorsonly = FALSE, no data is removed</span></span></span>
 <span class="r-in"><span><span class="co"># Note: When clean = TRUE, cleanNA = TRUE, and errorsonly = TRUE, an error message is returned</span></span></span>

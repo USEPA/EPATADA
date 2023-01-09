@@ -92,11 +92,9 @@ downloaded to the current working directory.</p></dd>
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># Load example dataset:</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">Nutrients_Utah</span><span class="op">)</span></span></span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>data set 'Nutrients_Utah' not found</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Create a harmonization reference table for dataframe:</span></span></span>
 <span class="r-in"><span><span class="va">CreateRefTable</span> <span class="op">&lt;-</span> <span class="fu">HarmonizationRefTable</span><span class="op">(</span><span class="va">Nutrients_Utah</span><span class="op">)</span></span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in type %in% class(arg):</span> object 'Nutrients_Utah' not found</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Create and download (to your working directory) a harmonization reference</span></span></span>
 <span class="r-in"><span><span class="co"># table for dataframe: </span></span></span>

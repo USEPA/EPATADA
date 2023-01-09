@@ -120,18 +120,16 @@ Adds: "WQX.ConversionFactor" and "WQX.TargetUnit".</p>
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># Load example dataset:</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">Nutrients_Utah</span><span class="op">)</span></span></span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>data set 'Nutrients_Utah' not found</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Convert result and detection limit values and units to WQX target units and </span></span></span>
 <span class="r-in"><span><span class="co"># add two new columns titled "ResultMeasureUnitCode.Original" and </span></span></span>
 <span class="r-in"><span><span class="co"># "DetectionLimitMeasureUnitCode.Original" to retain the original result and unit values:</span></span></span>
 <span class="r-in"><span><span class="va">ResultUnitsConverted</span> <span class="op">&lt;-</span> <span class="fu">ConvertResultUnits</span><span class="op">(</span><span class="va">Nutrients_Utah</span><span class="op">)</span></span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in type %in% class(arg):</span> object 'Nutrients_Utah' not found</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Do not convert result values and units, but add two new columns titled</span></span></span>
 <span class="r-in"><span><span class="co"># "WQX.ConversionFactor" and "WQX.TargetUnit":</span></span></span>
 <span class="r-in"><span><span class="va">ResultUnitsNotConverted</span> <span class="op">&lt;-</span> <span class="fu">ConvertResultUnits</span><span class="op">(</span><span class="va">Nutrients_Utah</span>, transform <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in type %in% class(arg):</span> object 'Nutrients_Utah' not found</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "Conversions required for range checks and TADATargetUnit conversions -- Unit conversions, data summaries, and data calculations may be affected."</span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc"><h2>On this page</h2>

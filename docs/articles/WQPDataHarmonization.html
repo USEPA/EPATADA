@@ -72,7 +72,7 @@
       <img src="" class="logo" alt=""><h1>WQP Data Harmonization</h1>
                         <h4 data-toc-skip class="author">TADA Team</h4>
             
-            <h4 data-toc-skip class="date">2022-12-29</h4>
+            <h4 data-toc-skip class="date">2023-01-09</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/USEPA/TADA/blob/HEAD/vignettes/WQPDataHarmonization.Rmd" class="external-link"><code>vignettes/WQPDataHarmonization.Rmd</code></a></small>
       <div class="d-none name"><code>WQPDataHarmonization.Rmd</code></div>
@@ -113,9 +113,9 @@ TADA or dataRetrieval from GitHub</p>
 <p>Uncomment the lines below to install latest version of TADA and
 dataRetrieval from GitHub.</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu">remotes</span><span class="fu">::</span><span class="fu"><a href="https://remotes.r-lib.org/reference/install_github.html" class="external-link">install_github</a></span><span class="op">(</span><span class="st">"USGS-R/dataRetrieval"</span>, dependencies<span class="op">=</span><span class="cn">TRUE</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="co"># remotes::install_github("USGS-R/dataRetrieval", dependencies=TRUE)</span></span>
 <span></span>
-<span><span class="fu">remotes</span><span class="fu">::</span><span class="fu"><a href="https://remotes.r-lib.org/reference/install_github.html" class="external-link">install_github</a></span><span class="op">(</span><span class="st">"hadley/ggplot2"</span>, dependencies<span class="op">=</span><span class="cn">TRUE</span><span class="op">)</span></span>
+<span><span class="co"># remotes::install_github("hadley/ggplot2", dependencies=TRUE)</span></span>
 <span></span>
 <span><span class="fu">remotes</span><span class="fu">::</span><span class="fu"><a href="https://remotes.r-lib.org/reference/install_github.html" class="external-link">install_github</a></span><span class="op">(</span><span class="st">"USEPA/TADA"</span>, dependencies<span class="op">=</span><span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
 <p>Load the required libraries to run this vignette into your R
@@ -155,7 +155,7 @@ You may specify the desired characteristics by using, for instance:
 characteristicName = “pH”.</p>
 <p>Data retrieval filters include:</p>
 <ul>
-<li><p>statecode</p></li>
+<li><p>statecode (review list of possible state and territory <a href="https://www2.census.gov/geo/docs/reference/state.txt" class="external-link">abbreviations</a>)</p></li>
 <li><p>endDate</p></li>
 <li><p>startDate</p></li>
 <li><p>countycode</p></li>
@@ -427,14 +427,33 @@ inputs.</p>
 <p><img src="WQPDataHarmonization_files/figure-html/unnamed-chunk-9-1.png" width="700"></p>
 <p>The TADA InvalidCoordinates function identifies and flags invalid
 coordinate data.</p>
-<p>When clean_outsideUSA = FALSE and clean_imprecise = FALSE, a column
+<p>Allowable values for clean_outsideUSA are “no”, “remove”, or “change
+sign”. The default is “no” which flags latitude and longitude
+coordinates outside the USA. Assigning clean_ousideUSA = “remove” will
+remove rows of data with coordinates outside the USA. And assigning
+clean_outsideUSA = “change sign” will flip the sign of latitude or
+longitude coordinates flagged as outside the USA. The “change sign”
+option should only be used when it is known that coordinates were
+entered with the wrong sign in WQX; additionally, the data ower should
+fix these incorrect coordinates in the raw data through the WQX - for
+assistance email the WQX help desk: WQX@epa.gov</p>
+<p>Allowable values for clean_imprecise are TRUE or FALSE. The default
+is FALSE which flags rows of data with invalid or imprecise coordinates.
+Assigning clean_imprecise = TRUE will remove rows of data with invalid
+or imprecise coordinates.</p>
+<p>Allowable values for errorsonly are TRUE or FALSE. The default is
+FALSE which keeps all rows of data regardless of flag status. Assigning
+errorsonly = TRUE filters the dataframe to show only rows of data which
+are flagged.</p>
+<p>When clean_outsideUSA = “no” and/or clean_imprecise = FALSE, a column
 will be appended titled “TADA.InvalidCoordinates” with the following
-flags (if relevant to dataframe).</p>
+flags (if relevant to dataframe):</p>
 <ul>
 <li><p>If the latitude is less than zero, the row will be flagged with
-“LAT_OutsideUSA”.</p></li>
+“LAT_OutsideUSA”. (Exception for American Samoa)</p></li>
 <li><p>If the longitude is greater than zero AND less than 145, the row
-will be flagged as “LONG_OutsideUSA”.</p></li>
+will be flagged as “LONG_OutsideUSA”. (Exceptions for Guam and the
+Northern Mariana Islands)</p></li>
 <li><p>If the latitude or longitude contains the string, “999”, the row
 will be flagged as invalid.</p></li>
 <li><p>Finally, precision can be measured by the number of decimal
@@ -443,7 +462,7 @@ any numbers to the right of the decimal point, the row will be flagged
 as “Imprecise”.</p></li>
 </ul>
 <div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">TADAProfileClean1</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/InvalidCoordinates.html">InvalidCoordinates</a></span><span class="op">(</span><span class="va">TADAProfile</span>, clean_outsideUSA <span class="op">=</span> <span class="cn">TRUE</span>, clean_imprecise <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="va">TADAProfileClean1</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/InvalidCoordinates.html">InvalidCoordinates</a></span><span class="op">(</span><span class="va">TADAProfile</span>, clean_outsideUSA <span class="op">=</span> <span class="st">"no"</span>, clean_imprecise <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co">#redraw map after all rows with invalid LAT/LONG data are removed</span></span>
 <span><span class="fu"><a href="https://rdrr.io/pkg/maps/man/map.html" class="external-link">map</a></span><span class="op">(</span><span class="st">'county'</span>, <span class="st">'utah'</span><span class="op">)</span></span>
@@ -520,12 +539,21 @@ the row includes aggregated continuous data, “Y”, or not, “N”.</p></li>
 removed from the dataframe and no column will be appended. The default
 is clean = TRUE.</p></li>
 </ul>
+<p>An additional input called errorsonly will allow the user to filter
+data to show only rows of aggregated continuous data. Allowable values
+for errorsonly are TRUE or FALSE. The default is FALSE which keeps all
+rows of data regardless of flag status. Assigning errorsonly = TRUE
+filters the dataframe to show only rows of data which are flagged
+“Y”.</p>
 <p>See function documentation for additional function options by
 entering the following code in the console:
 ?AggregatedContinuousData</p>
 <div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">TADAProfileClean4</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/AggregatedContinuousData.html">AggregatedContinuousData</a></span><span class="op">(</span><span class="va">TADAProfileClean3</span>, clean <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
-<span><span class="co">#&gt; [1] "No changes were made, because we did not find any aggregated continuous data in your dataframe"</span></span></code></pre></div>
+<span><span class="co">#&gt; [1] "No changes were made, because we did not find any aggregated continuous data in your dataframe"</span></span>
+<span></span>
+<span><span class="co"># uncomment below to create a dataframe of only the aggregated continuous data</span></span>
+<span><span class="co"># TADAProfile_aggcont &lt;- AggregatedContinuousData(TADAProfileClean3, clean = FALSE, errorsonly = TRUE)</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="wqx-qaqc-service-result-flags">WQX QAQC Service Result Flags<a class="anchor" aria-label="anchor" href="#wqx-qaqc-service-result-flags"></a>
@@ -539,13 +567,15 @@ to clean = FALSE to flag results, but not remove them.</p>
 <li>
 <p>?InvalidMethod</p>
 <ul>
-<li><p>When Clean = FALSE, this function adds the following column to
+<li><p>When clean = FALSE, this function adds the following column to
 your dataframe: WQX.AnalyticalMethodValidity. This column flags invalid
 CharacteristicName, ResultAnalyticalMethod/MethodIdentifier, and
 ResultAnalyticalMethod/MethodIdentifierContext combinations in your
 dataframe either “Nonstandardized”, “Invalid”, or “Valid”.</p></li>
 <li><p>When clean = TRUE, “Invalid” rows are removed from the dataframe
 and no column will be appended.</p></li>
+<li><p>When errorsonly = TRUE, the dataframe is filtered to only the
+rows flagged as “Invalid”; default is errorsonly = FALSE.</p></li>
 </ul>
 </li>
 <li>
@@ -557,6 +587,8 @@ CharacteristicName and MethodSpecificationName combination in your
 dataframe as either “Nonstandardized”, “Invalid”, or “Valid”.</p></li>
 <li><p>When clean = TRUE, “Invalid” rows are removed from the dataframe
 and no column will be appended.</p></li>
+<li><p>When errorsonly = TRUE, the dataframe is filtered to only the
+rows flagged as “Invalid”; default is errorsonly = FALSE.</p></li>
 </ul>
 </li>
 <li>
@@ -569,6 +601,8 @@ combination in your dataframe as either “Nonstandardized”, “Invalid”, or
 “Valid”.</p></li>
 <li><p>When clean = TRUE, “Invalid” rows are removed from the dataframe
 and no column will be appended.</p></li>
+<li><p>When errorsonly = TRUE, the dataframe is filtered to only the
+rows flagged as “Invalid”; default is errorsonly = FALSE.</p></li>
 </ul>
 </li>
 <li>
@@ -580,6 +614,8 @@ CharacteristicName and ResultSampleFractionText combination in your
 dataframe as either “Nonstandardized”, “Invalid”, or “Valid”.</li>
 <li>When clean = TRUE, “Invalid” rows are removed from the dataframe and
 no column will be appended.</li>
+<li>When errorsonly = TRUE, the dataframe is filtered to only the rows
+flagged as “Invalid”; default is errorsonly = FALSE.</li>
 </ul>
 </li>
 </ul>
@@ -606,6 +642,9 @@ dataframe: AboveWQXUpperThreshold. This column flags rows with data that
 are above the upper WQX threshold.</p></li>
 <li><p>When clean = TRUE, data that is above the upper WQX threshold is
 removed from the dataframe.</p></li>
+<li><p>When errorsonly = TRUE, the dataframe is filtered to only the
+rows flagged as above the upper WQX threshold; default is errorsonly =
+FALSE.</p></li>
 </ul>
 </li>
 <li>
@@ -616,6 +655,9 @@ dataframe: BelowWQXLowerThreshold. This column flags rows with data that
 are below the lower WQX threshold.</p></li>
 <li><p>When clean = TRUE, data that is below the lower WQX threshold is
 removed from the dataframe.</p></li>
+<li><p>When errorsonly = TRUE, the dataframe is filtered to only the
+rows flagged as below the lower WQX threshold; default is errorsonly =
+FALSE.</p></li>
 </ul>
 </li>
 </ul>
@@ -650,6 +692,9 @@ rows.</p></li>
 <li><p>When clean = FALSE the first of each group of potential duplicate
 rows will be removed from the dataframe and no column is
 appended.</p></li>
+<li><p>When errorsonly = TRUE, the dataframe is filtered to only the
+rows flagged as potential duplicates; default is errorsonly =
+FALSE.</p></li>
 </ul>
 </li>
 </ul>
@@ -668,13 +713,15 @@ potential duplicate in the dataframe. Default is clean = TRUE.</p>
 to indicate if the data produced has an approved Quality Assurance
 Project Plan (QAPP) or not. In this field, Y indicates yes, N indicates
 no.</p>
-<p>This function has two default inputs: clean = TRUE and cleanNA =
-FALSE. These defaults remove rows of data where the
-QAPPApprovedIndicator equals “N”.</p>
+<p>This function has three default inputs: clean = TRUE, cleanNA =
+FALSE, and errorsonly = FALSE. These defaults remove rows of data where
+the QAPPApprovedIndicator equals “N”.</p>
 <p>Users could alternatively remove both N’s and NA’s using the inputs
-clean = TRUE and cleanNA = TRUE.</p>
-<p>If both clean = FALSE and cleanNA = FALSE, the function will not do
-anything.</p>
+clean = TRUE, cleanNA = TRUE, and errorsonly = FALSE.</p>
+<p>Additionally, users could filter to show only N’s and NA’s by using
+the inputs clean = FALSE, cleanNA = FALSE, and errorsonly = TRUE.</p>
+<p>If clean = FALSE, cleanNA = FALSE, and errorsonly = FALSE, the
+function will not do anything.</p>
 <div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">TADAProfileClean12</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/QAPPapproved.html">QAPPapproved</a></span><span class="op">(</span><span class="va">TADAProfileClean11</span>, clean <span class="op">=</span> <span class="cn">TRUE</span>, cleanNA <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
 <p>Check to see if a QAPP Doc is Available</p>
@@ -683,9 +730,11 @@ to determine if a QAPP document is available to review. When clean =
 FALSE, a column will be appended to flag results that do have an
 associated QAPP document URL provided. When clean = TRUE, rows that do
 not have an associated QAPP document are removed from the dataframe and
-no column will be appended. This function should only be used to remove
-data if an accompanying QAPP document is required to use data in
-assessments.</p>
+no column will be appended. When errorsonly = TRUE, the dataframe is
+filtered to show only rows that do not have an associated QAPP document.
+The defaults are clean = FALSE and errorsonly = FALSE. This function
+should only be used to remove data if an accompanying QAPP document is
+required to use data in assessments.</p>
 <div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">TADAProfileClean13</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/QAPPDocAvailable.html">QAPPDocAvailable</a></span><span class="op">(</span><span class="va">TADAProfileClean12</span>, clean <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] "No changes were made, because we did not find any QAPP document url data in your dataframe"</span></span></code></pre></div>
@@ -730,8 +779,8 @@ data flags</p></li>
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/FilterFieldReview.html">FilterFieldReview</a></span><span class="op">(</span><span class="st">"ActivityTypeCode"</span>, <span class="va">TADAProfileClean13</span><span class="op">)</span></span></code></pre></div>
 <p><img src="WQPDataHarmonization_files/figure-html/unnamed-chunk-20-1.png" width="576"></p>
 <pre><code><span><span class="co">#&gt;                               FieldValue Count</span></span>
-<span><span class="co">#&gt; 8                         Sample-Routine  6483</span></span>
-<span><span class="co">#&gt; 5 Quality Control Sample-Field Replicate   565</span></span>
+<span><span class="co">#&gt; 8                         Sample-Routine  6488</span></span>
+<span><span class="co">#&gt; 5 Quality Control Sample-Field Replicate   569</span></span>
 <span><span class="co">#&gt; 7     Sample-Integrated Vertical Profile   532</span></span>
 <span><span class="co">#&gt; 3 Quality Control Sample-Equipment Blank   276</span></span>
 <span><span class="co">#&gt; 4     Quality Control Sample-Field Blank   134</span></span>
@@ -777,8 +826,8 @@ displayed to save space on the page)</p>
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/FilterParList.html">FilterParList</a></span><span class="op">(</span><span class="va">TADAProfileClean15</span><span class="op">)</span></span>
 <span><span class="co">#&gt;   FieldValue Count</span></span>
 <span><span class="co">#&gt; 3   NITROGEN  5104</span></span>
-<span><span class="co">#&gt; 2    NITRATE  1775</span></span>
-<span><span class="co">#&gt; 1    AMMONIA    32</span></span></code></pre></div>
+<span><span class="co">#&gt; 2    NITRATE  1776</span></span>
+<span><span class="co">#&gt; 1    AMMONIA    36</span></span></code></pre></div>
 <p>Next, select a parameter. Let’s explore the fields associated with
 Nitrogen:</p>
 <div class="sourceCode" id="cb28"><pre class="downlit sourceCode r">
