@@ -155,3 +155,44 @@ test_that("JoinWQPProfiles", {
   expect_true(ncol(add_sites_metadata) == 113)
 })
 
+
+test_that("JoinWQPProfile", {
+  data(station)
+  data(narrow)
+  data(resultphyschem)
+  
+  #narrow = readRDS(testthat::test_path("testdata/narrow_raw.rds"))
+  #resultphyschem = readRDS(testthat::test_path("testdata/resultphyschem_raw.rds"))
+  #station = readRDS(testthat::test_path("testdata/station_raw.rds"))
+  
+  join = TADA::JoinWQPProfiles(FullPhysChem = resultphyschem, 
+                               Sites = station, 
+                               Narrow = narrow)
+  # update in future to pick the important columns:
+  expect_true(all(c("OrganizationIdentifier",                           
+                    "OrganizationFormalName",                           
+                    "ActivityIdentifier",                               
+                    "ActivityTypeCode",                                 
+                    "ActivityMediaName",                                
+                    "ActivityMediaSubdivisionName",                     
+                    "ActivityStartDate",                                
+                   "ActivityStartTime.Time",                           
+                    "VerticalAccuracyMeasure.MeasureValue"           ,  
+                    "VerticalAccuracyMeasure.MeasureUnitCode"        ,  
+                    "VerticalCollectionMethodName"                  ,   
+                    "VerticalCoordinateReferenceSystemDatumName"   ,    
+                    "CountryCode"                                   ,   
+                    "StateCode"                                     ,   
+                    "CountyCode"                                     ,  
+                    "AquiferName"                                     , 
+                    "LocalAqfrName"           ,                         
+                    "FormationTypeText"        ,                        
+                    "AquiferTypeName"           ,                       
+                    "ConstructionDateText"       ,                      
+                    "WellDepthMeasure.MeasureValue"   ,                 
+                    "WellDepthMeasure.MeasureUnitCode" ,                
+                    "WellHoleDepthMeasure.MeasureValue"   ,             
+                    "WellHoleDepthMeasure.MeasureUnitCode",
+                    "MethodSpecificationName") %in% names(join)))
+  
+})
