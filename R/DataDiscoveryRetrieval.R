@@ -454,9 +454,7 @@ TADABigdataRetrieval <- function(startDate = "null",
 #' 
 #' @export
 #' 
-#' @examples join = TADA::JoinWQPProfiles
-#' (FullPhysChem = resultphyschem, 
-#' Sites = station, Narrow = narrow)
+#' @examples join = TADA::JoinWQPProfiles(FullPhysChem = resultphyschem, Sites = station, Narrow = narrow)
 #' 
 
 JoinWQPProfiles <- function(FullPhysChem = "null",

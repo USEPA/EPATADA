@@ -29,8 +29,6 @@ can use this function to join those profiles together into one dataframe.
 The FullPhysChem data input is required to run this function.
 }
 \examples{
-join = TADA::JoinWQPProfiles
-(FullPhysChem = resultphyschem, 
-Sites = station, Narrow = narrow)
+join = TADA::JoinWQPProfiles(FullPhysChem = resultphyschem, Sites = station, Narrow = narrow)
 
 }
