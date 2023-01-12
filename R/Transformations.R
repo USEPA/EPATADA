@@ -781,6 +781,11 @@ HarmonizationRefTable <- function(.data, download = FALSE) {
 #' # Append harmonization reference table columns to dataframe, but do not
 #' # transform/convert data to the reference table values:
 #' Nutrients_NotHarmonized <- HarmonizeData(Nutrients_Utah, transform = FALSE)
+#' 
+#' # Append harmonization reference table columns to dataframe and transform/convert
+#' # data to the USER SUPPLIED reference table values:
+#' UniqueHarmonizationRef <- HarmonizationRefTable(Nutrients_Utah, download = FALSE)
+#' Nutrients_Harmonized_UserSuppliedRef <- HarmonizeData(Nutrients_Utah, ref = UniqueHarmonizationRef)
 
 HarmonizeData <- function(.data, ref, transform = TRUE, flag = TRUE) {
   # check .data is data.frame
@@ -883,40 +888,46 @@ HarmonizeData <- function(.data, ref, transform = TRUE, flag = TRUE) {
       "TADA.TotalN_TotalP_Summation_Identifier",
       "TADA.TotalN_TotalP_ComboLogic"
     ))
+    
+    # CM removed below on 1/12/2023: working group advised that it is easier
+    # to find new columns if they are added to the END of a dataframe
+    # AND include the work TADA. at the start
+    
     # reorder columns in flag.data
-    flag.data <- flag.data[, col.order]
+    # flag.data <- flag.data[, col.order]
+    
     # place flag columns next to relevant fields
-    flag.data <- flag.data %>%
-      dplyr::relocate("TADACharacteristicGroup",
-        .before = "CharacteristicName"
-      ) %>%
-      dplyr::relocate(c(
-        "CharacteristicNameUserSupplied",
-        "TADA.SuggestedCharacteristicName",
-        "TADA.CharacteristicNameAssumptions"
-      ),
-      .after = "CharacteristicName"
-      ) %>%
-      dplyr::relocate(c(
-        "TADA.SuggestedSampleFraction",
-        "TADA.FractionAssumptions"
-      ),
-      .after = "ResultSampleFractionText"
-      ) %>%
-      dplyr::relocate(c(
-        "TADA.SuggestedSpeciation",
-        "TADA.SpeciationAssumptions",
-        "TADA.SpeciationConversionFactor"
-      ),
-      .after = "MethodSpecificationName"
-      ) %>%
-      dplyr::relocate(c(
-        "TADA.SuggestedResultUnit",
-        "TADA.UnitConversionFactor",
-        "TADA.UnitConversionCoefficient"
-      ),
-      .after = "ResultMeasure.MeasureUnitCode"
-      )
+    # flag.data <- flag.data %>%
+    #  dplyr::relocate("TADACharacteristicGroup",
+    #    .before = "CharacteristicName"
+    #  ) %>%
+    #  dplyr::relocate(c(
+    #    "CharacteristicNameUserSupplied",
+    #    "TADA.SuggestedCharacteristicName",
+    #    "TADA.CharacteristicNameAssumptions"
+    #  ),
+    #  .after = "CharacteristicName"
+    #  ) %>%
+    #  dplyr::relocate(c(
+    #    "TADA.SuggestedSampleFraction",
+    #    "TADA.FractionAssumptions"
+    #  ),
+    #  .after = "ResultSampleFractionText"
+    #  ) %>%
+    #  dplyr::relocate(c(
+    #    "TADA.SuggestedSpeciation",
+    #    "TADA.SpeciationAssumptions",
+    #    "TADA.SpeciationConversionFactor"
+    #  ),
+    #  .after = "MethodSpecificationName"
+    #  ) %>%
+    #  dplyr::relocate(c(
+    #    "TADA.SuggestedResultUnit",
+    #    "TADA.UnitConversionFactor",
+    #    "TADA.UnitConversionCoefficient"
+    #  ),
+    #  .after = "ResultMeasure.MeasureUnitCode"
+    #  )
 
     # if transform = FALSE and flag = TRUE, return flag.data
     if ((transform == FALSE) & (flag == TRUE)) {
@@ -1053,7 +1064,7 @@ HarmonizeCensoredData <- function(transform, .data) {
 }
 
 
-#' Generates Censored Data Statictics
+#' Generates Censored Data Statistics
 #' 
 #' Function summarizes censored data in dataframe, including any substitutions made. 
 #' 

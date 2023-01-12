@@ -57,4 +57,9 @@ Nutrients_Harmonized_noflags <- HarmonizeData(Nutrients_Utah, flag = FALSE)
 # Append harmonization reference table columns to dataframe, but do not
 # transform/convert data to the reference table values:
 Nutrients_NotHarmonized <- HarmonizeData(Nutrients_Utah, transform = FALSE)
+
+# Append harmonization reference table columns to dataframe and transform/convert
+# data to the USER SUPPLIED reference table values:
+UniqueHarmonizationRef <- HarmonizationRefTable(Nutrients_Utah, download = FALSE)
+Nutrients_Harmonized_UserSuppliedRef <- HarmonizeData(Nutrients_Utah, ref = UniqueHarmonizationRef)
 }

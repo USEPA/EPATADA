@@ -2,7 +2,7 @@
 % Please edit documentation in R/Transformations.R
 \name{CensoredDataStats}
 \alias{CensoredDataStats}
-\title{Generates Censored Data Statictics}
+\title{Generates Censored Data Statistics}
 \usage{
 CensoredDataStats(.data)
 }
