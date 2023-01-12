@@ -112,6 +112,7 @@ TADAdataRetrieval <- function(statecode = "null",
 
   # Retrieve all 3 profiles
   results.DR <- dataRetrieval::readWQPdata(WQPquery,
+                                           dataProfile = "resultPhysChem",
                                            ignore_attributes = TRUE)
   #check if any results are available
   if ((nrow(results.DR) > 0) == FALSE) {
@@ -143,11 +144,13 @@ TADAdataRetrieval <- function(statecode = "null",
       dplyr::left_join(dplyr::select(
         narrow.DR, ActivityIdentifier, MonitoringLocationIdentifier,
         CharacteristicName, ResultMeasureValue,
-        MethodSpecificationName
+        MethodSpecificationName, OrganizationIdentifier,
+        ResultIdentifier
       ),
       by = c(
         "ActivityIdentifier", "MonitoringLocationIdentifier",
-        "CharacteristicName", "ResultMeasureValue"
+        "CharacteristicName", "ResultMeasureValue", "OrganizationIdentifier",
+        "ResultIdentifier"
       )
       )
   } else {
@@ -332,6 +335,7 @@ TADABigdataRetrieval <- function(startDate = "null",
         
         results.DR <- dataRetrieval::readWQPdata(siteid = sites,
                                                characteristicName = characteristicName, 
+                                               dataProfile = "resultPhysChem",
                                                ignore_attributes = TRUE) 
                                                #startDate = startDate)
         
@@ -363,11 +367,13 @@ TADABigdataRetrieval <- function(startDate = "null",
         dplyr::left_join(dplyr::select(
         narrow.DR, ActivityIdentifier, MonitoringLocationIdentifier,
         CharacteristicName, ResultMeasureValue,
-        MethodSpecificationName
+        MethodSpecificationName, OrganizationIdentifier,
+        ResultIdentifier
         ),
         by = c(
           "ActivityIdentifier", "MonitoringLocationIdentifier",
-          "CharacteristicName", "ResultMeasureValue"
+          "CharacteristicName", "ResultMeasureValue", "OrganizationIdentifier",
+          "ResultIdentifier"
         )
         )
         
@@ -448,6 +454,9 @@ TADABigdataRetrieval <- function(startDate = "null",
 #' 
 #' @export
 #' 
+#' @examples 
+#' join = TADA::JoinWQPProfiles(FullPhysChem = resultphyschem, Sites = station, Narrow = narrow)
+#' 
 
 JoinWQPProfiles <- function(FullPhysChem = "null",
                             Sites = "null",
@@ -482,11 +491,12 @@ JoinWQPProfiles <- function(FullPhysChem = "null",
       dplyr::left_join(dplyr::select(
         Narrow.df, ActivityIdentifier, MonitoringLocationIdentifier,
         CharacteristicName, ResultMeasureValue,
-        MethodSpecificationName
+        MethodSpecificationName, OrganizationIdentifier, ResultIdentifier
       ),
       by = c(
         "ActivityIdentifier", "MonitoringLocationIdentifier",
-        "CharacteristicName", "ResultMeasureValue"
+        "CharacteristicName", "ResultMeasureValue", "OrganizationIdentifier",
+        "ResultIdentifier"
       )
       )
   } else {

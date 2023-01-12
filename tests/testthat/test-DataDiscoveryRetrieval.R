@@ -1,7 +1,3 @@
-test_that("multiplication works", {
-  expect_equal(2 * 2, 4)
-})
-
 test_that("TADAdataRetrieval", {
   tada1 <- TADAdataRetrieval(siteid = c("USGS-054064785",
                                         "USGS-430305089260600"),
@@ -18,7 +14,8 @@ test_that("TADAdataRetrieval", {
                     "ActivityStartTime.TimeZoneCode",                   
                     "ActivityEndDate",                                  
                     "ActivityEndTime.Time",                             
-                    "ActivityEndTime.TimeZoneCode",                     
+                    "ActivityEndTime.TimeZoneCode",  
+                    "ActivityRelativeDepthName",
                     "ActivityDepthHeightMeasure.MeasureValue",          
                     "ActivityDepthHeightMeasure.MeasureUnitCode",       
                     "ActivityDepthAltitudeReferencePointText",          
@@ -27,8 +24,10 @@ test_that("TADAdataRetrieval", {
                     "ActivityBottomDepthHeightMeasure.MeasureValue",    
                     "ActivityBottomDepthHeightMeasure.MeasureUnitCode", 
                     "ProjectIdentifier",                                
+                    "ProjectName", 
                     "ActivityConductingOrganizationText",               
                     "MonitoringLocationIdentifier",                     
+                    "MonitoringLocationName", 
                     "ActivityCommentText",                              
                     "SampleAquifer",                                    
                     "HydrologicCondition",                              
@@ -37,7 +36,10 @@ test_that("TADAdataRetrieval", {
                     "SampleCollectionMethod.MethodIdentifierContext",   
                     "SampleCollectionMethod.MethodName",                
                     "SampleCollectionEquipmentName",                    
+                    "ActivityLocation.LatitudeMeasure",                
+                    "ActivityLocation.LongitudeMeasure",
                     "ResultDetectionConditionText",                     
+                    "MethodSpeciationName", 
                     "CharacteristicName",                              
                     "ResultSampleFractionText",                         
                     "ResultMeasureValue",                               
@@ -51,8 +53,12 @@ test_that("TADAdataRetrieval", {
                     "ResultWeightBasisText",                            
                     "ResultTimeBasisText",                              
                     "ResultTemperatureBasisText",                       
-                    "ResultParticleSizeBasisText" ,                     
-                    "PrecisionValue",                                   
+                    "ResultParticleSizeBasisText",                     
+                    "DataQuality.PrecisionValue",                     
+                    "DataQuality.BiasValue",                            
+                    "DataQuality.ConfidenceIntervalValue",              
+                    "DataQuality.UpperConfidenceLimitValue",            
+                    "DataQuality.LowerConfidenceLimitValue",
                     "ResultCommentText",                                
                     "USGSPCode",                                        
                     "ResultDepthHeightMeasure.MeasureValue",           
@@ -60,24 +66,31 @@ test_that("TADAdataRetrieval", {
                     "ResultDepthAltitudeReferencePointText",            
                     "SubjectTaxonomicName",                             
                     "SampleTissueAnatomyName",                          
+                    "BinaryObjectFileName", 
+                    "BinaryObjectFileTypeCode",                         
+                    "ResultFileUrl", 
                     "ResultAnalyticalMethod.MethodIdentifier",          
                     "ResultAnalyticalMethod.MethodIdentifierContext",   
                     "ResultAnalyticalMethod.MethodName",                
-                    "MethodDescriptionText",                            
+                    "ResultAnalyticalMethod.MethodUrl",                 
+                    "ResultAnalyticalMethod.MethodDescriptionText",  
                     "LaboratoryName",                                   
                     "AnalysisStartDate" ,                               
                     "ResultLaboratoryCommentText",                      
+                    "ResultDetectionQuantitationLimitUrl", 
                     "DetectionQuantitationLimitTypeName",               
                     "DetectionQuantitationLimitMeasure.MeasureValue",   
                     "DetectionLimitMeasureValue.Original",              
                     "TADA.DetectionLimitMeasureValue.Flag",             
                     "DetectionQuantitationLimitMeasure.MeasureUnitCode",
-                    "PreparationStartDate",                             
+                    "LabSamplePreparationUrl", 
+                    "LastUpdated", 
                     "ProviderName",                                     
+                    "timeZoneStart", 
+                    "timeZoneEnd", 
                     "ActivityStartDateTime",                            
                     "ActivityEndDateTime" ,                             
-                    "MonitoringLocationName",                           
-                    "MonitoringLocationTypeName",                       
+                    "MonitoringLocationTypeName",                           
                     "MonitoringLocationDescriptionText",                
                     "HUCEightDigitCode",                                
                     "DrainageAreaMeasure.MeasureValue",                 
@@ -142,3 +155,44 @@ test_that("JoinWQPProfiles", {
   expect_true(ncol(add_sites_metadata) == 113)
 })
 
+
+test_that("JoinWQPProfile", {
+  data(station)
+  data(narrow)
+  data(resultphyschem)
+  
+  #narrow = readRDS(testthat::test_path("testdata/narrow_raw.rds"))
+  #resultphyschem = readRDS(testthat::test_path("testdata/resultphyschem_raw.rds"))
+  #station = readRDS(testthat::test_path("testdata/station_raw.rds"))
+  
+  join = TADA::JoinWQPProfiles(FullPhysChem = resultphyschem, 
+                               Sites = station, 
+                               Narrow = narrow)
+  # update in future to pick the important columns:
+  expect_true(all(c("OrganizationIdentifier",                           
+                    "OrganizationFormalName",                           
+                    "ActivityIdentifier",                               
+                    "ActivityTypeCode",                                 
+                    "ActivityMediaName",                                
+                    "ActivityMediaSubdivisionName",                     
+                    "ActivityStartDate",                                
+                   "ActivityStartTime.Time",                           
+                    "VerticalAccuracyMeasure.MeasureValue"           ,  
+                    "VerticalAccuracyMeasure.MeasureUnitCode"        ,  
+                    "VerticalCollectionMethodName"                  ,   
+                    "VerticalCoordinateReferenceSystemDatumName"   ,    
+                    "CountryCode"                                   ,   
+                    "StateCode"                                     ,   
+                    "CountyCode"                                     ,  
+                    "AquiferName"                                     , 
+                    "LocalAqfrName"           ,                         
+                    "FormationTypeText"        ,                        
+                    "AquiferTypeName"           ,                       
+                    "ConstructionDateText"       ,                      
+                    "WellDepthMeasure.MeasureValue"   ,                 
+                    "WellDepthMeasure.MeasureUnitCode" ,                
+                    "WellHoleDepthMeasure.MeasureValue"   ,             
+                    "WellHoleDepthMeasure.MeasureUnitCode",
+                    "MethodSpecificationName") %in% names(join)))
+  
+})
