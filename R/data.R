@@ -33,11 +33,11 @@ NULL
 
 #' narrow
 #'
-#' Narrow dataset containing all WQP data for a 5 day period from 1/5/2023-1/10/2023
+#' narrow dataset containing all WQP data for a 5 day period from 1/5/2023-1/10/2023
 #'  
 #' @docType data
 #' @keywords datasets
-#' @name Narrow
+#' @name narrow
 #' @usage data(narrow)
 #' @format A data frame with 898 rows and 78 variables
 NULL
@@ -55,7 +55,7 @@ NULL
 
 #' station
 #'
-#' Narrow dataset containing all WQP data for a 5 day period from 1/5/2023-1/10/2023
+#' station dataset containing all WQP data for a 5 day period from 1/5/2023-1/10/2023
 #'  
 #' @docType data
 #' @keywords datasets

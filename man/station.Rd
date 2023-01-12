@@ -11,6 +11,6 @@ A data frame with 55 rows and 37 variables
 data(station)
 }
 \description{
-Narrow dataset containing all WQP data for a 5 day period from 1/5/2023-1/10/2023
+station dataset containing all WQP data for a 5 day period from 1/5/2023-1/10/2023
 }
 \keyword{datasets}
