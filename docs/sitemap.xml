@@ -136,6 +136,9 @@
     <loc>usepa.github.io/TADA/reference/MeasureValueSpecialCharacters.html</loc>
   </url>
   <url>
+    <loc>usepa.github.io/TADA/reference/narrow.html</loc>
+  </url>
+  <url>
     <loc>usepa.github.io/TADA/reference/Nutrients_Utah.html</loc>
   </url>
   <url>
@@ -155,6 +158,12 @@
   </url>
   <url>
     <loc>usepa.github.io/TADA/reference/RemoveEmptyColumns.html</loc>
+  </url>
+  <url>
+    <loc>usepa.github.io/TADA/reference/resultphyschem.html</loc>
+  </url>
+  <url>
+    <loc>usepa.github.io/TADA/reference/station.html</loc>
   </url>
   <url>
     <loc>usepa.github.io/TADA/reference/SummarizeCharacteristics.html</loc>
