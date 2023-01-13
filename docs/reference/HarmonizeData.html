@@ -137,6 +137,11 @@ would return the input dataframe unchanged if input was allowed).</p>
 <span class="r-in"><span><span class="co"># transform/convert data to the reference table values:</span></span></span>
 <span class="r-in"><span><span class="va">Nutrients_NotHarmonized</span> <span class="op">&lt;-</span> <span class="fu">HarmonizeData</span><span class="op">(</span><span class="va">Nutrients_Utah</span>, transform <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] "Be aware that you must run this function with transform = TRUE to use subsequent TADA functions."</span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Append harmonization reference table columns to dataframe and transform/convert</span></span></span>
+<span class="r-in"><span><span class="co"># data to the USER SUPPLIED reference table values:</span></span></span>
+<span class="r-in"><span><span class="va">UniqueHarmonizationRef</span> <span class="op">&lt;-</span> <span class="fu"><a href="HarmonizationRefTable.html">HarmonizationRefTable</a></span><span class="op">(</span><span class="va">Nutrients_Utah</span>, download <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">Nutrients_Harmonized_UserSuppliedRef</span> <span class="op">&lt;-</span> <span class="fu">HarmonizeData</span><span class="op">(</span><span class="va">Nutrients_Utah</span>, ref <span class="op">=</span> <span class="va">UniqueHarmonizationRef</span><span class="op">)</span></span></span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc"><h2>On this page</h2>
