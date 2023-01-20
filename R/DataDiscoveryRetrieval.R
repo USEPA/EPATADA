@@ -168,7 +168,7 @@ TADAdataRetrieval <- function(statecode = "null",
       ),
       by = c(
         "OrganizationIdentifier", "OrganizationFormalName",
-        "ProjectIdentifier"
+        "ProjectIdentifier", "ProjectName"
       )
       )
   } else {
