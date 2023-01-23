@@ -128,52 +128,11 @@ TADAdataRetrieval <- function(statecode = "null",
   projects.DR <- dataRetrieval::readWQPdata(WQPquery, 
                                             ignore_attributes = TRUE, 
                                             service = "Project")
-
-  # Join station data to full phys/chem (results.DR)
-  join1 <- results.DR %>%
-    # join stations to results
-    dplyr::left_join(sites.DR, by = "MonitoringLocationIdentifier") %>%
-    # remove ".x" suffix from column names
-    dplyr::rename_at(dplyr::vars(dplyr::ends_with(".x")), ~ stringr::str_replace(., "\\..$", "")) %>%
-    # remove columns with ".y" suffix
-    dplyr::select_at(dplyr::vars(-dplyr::ends_with(".y")))
-
-  # Join Speciation column from narrow to full profile
-  if(nrow(narrow.DR) > 0){
-    join2 <- join1 %>%
-      dplyr::left_join(dplyr::select(
-        narrow.DR, ActivityIdentifier, MonitoringLocationIdentifier,
-        CharacteristicName, ResultMeasureValue,
-        MethodSpecificationName, OrganizationIdentifier,
-        ResultIdentifier
-      ),
-      by = c(
-        "ActivityIdentifier", "MonitoringLocationIdentifier",
-        "CharacteristicName", "ResultMeasureValue", "OrganizationIdentifier",
-        "ResultIdentifier"
-      )
-      )
-  } else {
-    join2 <- join1 
-  }
   
-  # Join QAPP columns from project to full profile
-  if(nrow(projects.DR) > 0){
-    TADAprofile <- join2 %>%
-      dplyr::left_join(dplyr::select(
-        projects.DR, OrganizationIdentifier, OrganizationFormalName,
-        ProjectIdentifier, ProjectName, ProjectDescriptionText, 
-        SamplingDesignTypeCode, QAPPApprovedIndicator, QAPPApprovalAgencyName, 
-        ProjectFileUrl, ProjectMonitoringLocationWeightingUrl
-      ),
-      by = c(
-        "OrganizationIdentifier", "OrganizationFormalName",
-        "ProjectIdentifier", "ProjectName"
-      )
-      )
-  } else {
-    TADAprofile <- join2
-  }
+  TADAprofile = JoinWQPProfiles(FullPhysChem = results.DR,
+                          Sites = sites.DR,
+                          Narrow = narrow.DR,
+                          Projects = projects.DR)
   # run autoclean function
   TADAprofile.clean <- autoclean(TADAprofile)
 
@@ -300,98 +259,89 @@ TADABigdataRetrieval <- function(startDate = "null",
     
     state_cd = as.numeric(state_cd_cont$STATE[i])
     state_nm = state_cd_cont$STUSAB[i]
-    
+    ## NOTE: if query brings back no results, function returns empty 
+    # dataRetrieval profile, not empty summary
     df_summary = dataRetrieval::readWQPsummary(statecode = state_cd,
                      characteristicName = characteristicName, 
-                     siteType = siteType, 
-                     startDate = startDate)
-    
-    sites = df_summary %>%
-      dplyr::filter(YearSummarized >= startYearLo,
+                     siteType = siteType)
+    if(nrows(df_summary)>0){
+      sites = df_summary %>%
+        dplyr::filter(YearSummarized >= startYearLo,
                     YearSummarized <= startYearHi)
-    
-    siteid_all = unique(sites$MonitoringLocationIdentifier)
-    
-    if(length(siteid_all) > 0) {
+      siteid_all = unique(sites$MonitoringLocationIdentifier)
       
-      l=length(siteid_all)  #len(sites)
-      g=100   #max number of sites pulled per WQP query
-      #may want to consider using the total number of records in a given 
-      #download group instead, e.g., records must not exceed some maximum 
-      #threshold (e.g. USGS uses 250,000 records per group for their pipelines)
-      nl=ceiling(l/g) #number of queries
+      if(length(siteid_all) > 0) {
+        print(paste0("Grabbing ",state_nm," data from ",length(siteid_all)," sites."))
+        l=length(siteid_all)  #len(sites)
+        g=100   #max number of sites pulled per WQP query
+        #may want to consider using the total number of records in a given 
+        #download group instead, e.g., records must not exceed some maximum 
+        #threshold (e.g. USGS uses 250,000 records per group for their pipelines)
+        nl=ceiling(l/g) #number of queries
       
-      i=0
-      j=0
-      k=0
+        i=0
+        j=0
+        k=0
       
-      while (i < nl) {
+        while (i < nl) {
         
-        j=i*g
-        k=j+g-1
+          j=i*g
+          k=j+g-1
         
-        if (k>l){k=l}
-        sites=siteid_all[j:k]
+          if (k>l){k=l}
+          sites=siteid_all[j:k]
         
-        results.DR <- dataRetrieval::readWQPdata(siteid = sites,
-                                               characteristicName = characteristicName, 
-                                               dataProfile = "resultPhysChem",
-                                               ignore_attributes = TRUE) 
-                                               #startDate = startDate)
+          results.DR <- dataRetrieval::readWQPdata(siteid = sites,
+                                                characteristicName = characteristicName, 
+                                                dataProfile = "resultPhysChem",
+                                                ignore_attributes = TRUE, 
+                                                startDateLo = startDate,
+                                                endDateHi = endDate)
         
-        narrow.DR <- dataRetrieval::readWQPdata(siteid = sites,
+          narrow.DR <- dataRetrieval::readWQPdata(siteid = sites,
                                                 characteristicName = characteristicName,
                                                 dataProfile = "narrowResult", 
-                                                ignore_attributes = TRUE)
+                                                ignore_attributes = TRUE,
+                                                startDateLo = startDate,
+                                                endDateHi = endDate)
         
-        sites.DR <- dataRetrieval::whatWQPsites(siteid = sites,
-                                                characteristicName = characteristicName)
+          sites.DR <- dataRetrieval::whatWQPsites(siteid = sites,
+                                                characteristicName = characteristicName,
+                                                startDateLo = startDate,
+                                                endDateHi = endDate)
+          
+          projects.DR <- dataRetrieval::readWQPdata(siteid = sites,
+                                                characteristicName = characteristicName,
+                                                service = "Project",
+                                                startDateLo = startDate,
+                                                endDateHi = endDate)
 
-        #projects.DR <- dataRetrieval::readWQPdata(siteid = siteid,
-                                                  #characteristicName = characteristicName,
-                                                  #service = "Project")
+          joins = JoinWQPProfiles(FullPhysChem = results.DR,
+                                  Sites = sites.DR,
+                                  Narrow = narrow.DR,
+                                  Projects = projects.DR)
+          
+          # need to specify this or throws error when trying to bind rows. Temporary fix for larger
+          # issue where data structure for all columns should be specified.
+          joins$ResultMeasureValue = as.character(joins$ResultMeasureValue)
+          joins$HorizontalAccuracyMeasure.MeasureValue = as.character(joins$HorizontalAccuracyMeasure.MeasureValue)
+          joins$ActivityDepthHeightMeasure.MeasureValue = as.character(joins$ActivityDepthHeightMeasure.MeasureValue)
+          joins$DetectionQuantitationLimitMeasure.MeasureValue = as.character(joins$DetectionQuantitationLimitMeasure.MeasureValue)
+          if (i==0){
+            df = joins }  
+          else {
+            joins = dplyr::bind_rows(df, joins)
+            }
+          # print(j)
+          # print(k)
         
-        #})
-        
-        # Join station data to full phys/chem (results.DR)
-        join1 <- results.DR %>%
-        # join stations to results
-        dplyr::left_join(sites.DR, by = "MonitoringLocationIdentifier") %>%
-        # remove ".x" suffix from column names
-        dplyr::rename_at(dplyr::vars(dplyr::ends_with(".x")), ~ stringr::str_replace(., "\\..$", "")) %>%
-        # remove columns with ".y" suffix
-        dplyr::select_at(dplyr::vars(-dplyr::ends_with(".y")))
+          i = i+1
+        }
+      }else{
+        joins = data.frame()
+        print(paste0(state_nm, " had no data."))}
     
-        # Join Speciation column from narrow to full profile
-        join2 <- join1 %>%
-        dplyr::left_join(dplyr::select(
-        narrow.DR, ActivityIdentifier, MonitoringLocationIdentifier,
-        CharacteristicName, ResultMeasureValue,
-        MethodSpecificationName, OrganizationIdentifier,
-        ResultIdentifier
-        ),
-        by = c(
-          "ActivityIdentifier", "MonitoringLocationIdentifier",
-          "CharacteristicName", "ResultMeasureValue", "OrganizationIdentifier",
-          "ResultIdentifier"
-        )
-        )
-        
-        join2$ResultMeasureValue = as.character(join2$ResultMeasureValue)
-        
-        if (i==0){
-          df = join2 }  
-        else {
-          join2 = rbind(df, join2)
-          }
-        print(j)
-        print(k)
-        
-        i = i+1
-      }
-    }
-    
-    if(nrow(join2) > 0){
+      if(nrow(joins) > 0){
       
       #####
       #need to edit below if temporary rds files do not go away
@@ -402,13 +352,17 @@ TADABigdataRetrieval <- function(startDate = "null",
       #original
       #saveRDS(df_state, file = paste0(state_nm, "_raw_data.rds"))
       
-      tempfilename = paste0(state_nm, "_raw_data.rds")
-      file.path(tempdir(), saveRDS(join2, file = paste0("inst/tempdata/", tempfilename)))
+        tempfilename = paste0(state_nm, "_raw_data.rds")
+        file.path(tempdir(), saveRDS(joins, file = paste0("inst/tempdata/", tempfilename)))
 
-    }
+        }
+      }else{print(paste0(state_nm, " had no data."))}
   }
     all_data <- data.frame()
-    for(state in state_cd_cont$STUSAB){
+    stdir = list.files("inst/tempdata/")
+    
+    for(m in 1:length(stdir)){
+      path = paste0("inst/tempdata/",stdir[m])
       allstates_df <- tryCatch({
         #####
         #need to edit line below if rds files do not go away
@@ -417,8 +371,9 @@ TADABigdataRetrieval <- function(startDate = "null",
         #original below
        #readRDS(paste0(state, "_raw_data.rds"))
       
-        readRDS(paste0("inst/tempdata/", tempfilename))
+        readRDS(path)
       })
+      unlink(path)
     
       if(nrow(allstates_df) > 0){
         all_data <- dplyr::bind_rows(all_data, allstates_df)
@@ -426,8 +381,9 @@ TADABigdataRetrieval <- function(startDate = "null",
     
     } 
     
+    # Do not need if date input works in dataRetrieval functions
     finalprofile = all_data %>%
-      dplyr::filter(ActivityStartDate <= endDate, 
+      dplyr::filter(ActivityStartDate <= endDate,
                     ActivityStartDate >= startDate)
     
     finalprofile2 = autoclean(finalprofile)
@@ -473,20 +429,20 @@ JoinWQPProfiles <- function(FullPhysChem = "null",
   Projects.df <- Projects
   
   # Join station data to full phys/chem (FullPhysChem.df)
-  if (length(Sites.df)>1) {
+  if(nrow(Sites.df)>0){
     join1 <- FullPhysChem.df %>%
-    # join stations to results
-    dplyr::left_join(Sites.df, by = "MonitoringLocationIdentifier") %>%
-    # remove ".x" suffix from column names
-    dplyr::rename_at(dplyr::vars(dplyr::ends_with(".x")), ~ stringr::str_replace(., "\\..$", "")) %>%
-    # remove columns with ".y" suffix
-    dplyr::select_at(dplyr::vars(-dplyr::ends_with(".y")))
-  } else {
-    join1 <- FullPhysChem.df
+      # join stations to results
+      dplyr::left_join(Sites.df, by = "MonitoringLocationIdentifier") %>%
+      # remove ".x" suffix from column names
+      dplyr::rename_at(dplyr::vars(dplyr::ends_with(".x")), ~ stringr::str_replace(., "\\..$", "")) %>%
+      # remove columns with ".y" suffix
+      dplyr::select_at(dplyr::vars(-dplyr::ends_with(".y")))
+  }else{
+    join1 = FullPhysChem.df
   }
-  
+ 
   # Add Speciation column from narrow
-  if (length(Narrow.df)>1){
+  if (nrow(Narrow.df)>0){
     join2 <- join1 %>%
       dplyr::left_join(dplyr::select(
         Narrow.df, ActivityIdentifier, MonitoringLocationIdentifier,
@@ -504,7 +460,7 @@ JoinWQPProfiles <- function(FullPhysChem = "null",
   }
   
   # Add QAPP columns from project
-  if (length(Projects.df)>1){
+  if (nrow(Projects.df)>0){
     join3 <- join2 %>%
       dplyr::left_join(dplyr::select(
         Projects.df, OrganizationIdentifier, OrganizationFormalName,
@@ -514,7 +470,7 @@ JoinWQPProfiles <- function(FullPhysChem = "null",
       ),
       by = c(
         "OrganizationIdentifier", "OrganizationFormalName",
-        "ProjectIdentifier"
+        "ProjectIdentifier","ProjectName"
       )
       )
   } else {
