@@ -429,52 +429,54 @@ JoinWQPProfiles <- function(FullPhysChem = "null",
   Projects.df <- Projects
   
   # Join station data to full phys/chem (FullPhysChem.df)
-  if(exists("Sites.df")&nrow(Sites.df)>0){
-    join1 <- FullPhysChem.df %>%
-      # join stations to results
-      dplyr::left_join(Sites.df, by = "MonitoringLocationIdentifier") %>%
-      # remove ".x" suffix from column names
-      dplyr::rename_at(dplyr::vars(dplyr::ends_with(".x")), ~ stringr::str_replace(., "\\..$", "")) %>%
-      # remove columns with ".y" suffix
-      dplyr::select_at(dplyr::vars(-dplyr::ends_with(".y")))
-  }else{
-    join1 = FullPhysChem.df
-  }
+  if(exists("Sites.df")){
+    if(nrow(Sites.df)>0){
+      join1 <- FullPhysChem.df %>%
+        # join stations to results
+        dplyr::left_join(Sites.df, by = "MonitoringLocationIdentifier") %>%
+        # remove ".x" suffix from column names
+        dplyr::rename_at(dplyr::vars(dplyr::ends_with(".x")), ~ stringr::str_replace(., "\\..$", "")) %>%
+        # remove columns with ".y" suffix
+        dplyr::select_at(dplyr::vars(-dplyr::ends_with(".y")))
+    }else{join1 = FullPhysChem.df}
+  }else{join1 = FullPhysChem.df}
  
   # Add Speciation column from narrow
-  if (exists("Narrow.df")&nrow(Narrow.df)>0){
-    join2 <- join1 %>%
-      dplyr::left_join(dplyr::select(
-        Narrow.df, ActivityIdentifier, MonitoringLocationIdentifier,
-        CharacteristicName, ResultMeasureValue,
-        MethodSpecificationName, OrganizationIdentifier, ResultIdentifier
-      ),
-      by = c(
-        "ActivityIdentifier", "MonitoringLocationIdentifier",
-        "CharacteristicName", "ResultMeasureValue", "OrganizationIdentifier",
-        "ResultIdentifier"
-      )
-      )
-  } else {
-    join2 <- join1 
-  }
+  if (exists("Narrow.df")){
+    if(nrow(Narrow.df)>0){
+      join2 <- join1 %>%
+        dplyr::left_join(dplyr::select(
+          Narrow.df, ActivityIdentifier, MonitoringLocationIdentifier,
+          CharacteristicName, ResultMeasureValue,
+          MethodSpecificationName, OrganizationIdentifier, ResultIdentifier
+        ),
+        by = c(
+          "ActivityIdentifier", "MonitoringLocationIdentifier",
+          "CharacteristicName", "ResultMeasureValue", "OrganizationIdentifier",
+          "ResultIdentifier"
+        )
+        )
+    }else{join2 = join1}
+    
+  }else{join2 <- join1}
   
   # Add QAPP columns from project
-  if (exists("Projects.df")&nrow(Projects.df)>0){
-    join3 <- join2 %>%
-      dplyr::left_join(dplyr::select(
-        Projects.df, OrganizationIdentifier, OrganizationFormalName,
-        ProjectIdentifier, ProjectName, ProjectDescriptionText, 
-        SamplingDesignTypeCode, QAPPApprovedIndicator, QAPPApprovalAgencyName, 
-        ProjectFileUrl, ProjectMonitoringLocationWeightingUrl
-      ),
-      by = c(
-        "OrganizationIdentifier", "OrganizationFormalName",
-        "ProjectIdentifier","ProjectName"
-      )
-      )
-  } else {
-    join3 <- join2
-  }
+  if (exists("Projects.df")){
+    if(nrow(Projects.df)>0){
+      join3 <- join2 %>%
+        dplyr::left_join(dplyr::select(
+          Projects.df, OrganizationIdentifier, OrganizationFormalName,
+          ProjectIdentifier, ProjectName, ProjectDescriptionText, 
+          SamplingDesignTypeCode, QAPPApprovedIndicator, QAPPApprovalAgencyName, 
+          ProjectFileUrl, ProjectMonitoringLocationWeightingUrl
+        ),
+        by = c(
+          "OrganizationIdentifier", "OrganizationFormalName",
+          "ProjectIdentifier","ProjectName"
+        )
+        )
+    }else{join3 = join2}
+    
+  }else{join3 <- join2}
   return(join3)
 }
