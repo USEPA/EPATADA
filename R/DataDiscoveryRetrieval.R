@@ -429,7 +429,7 @@ JoinWQPProfiles <- function(FullPhysChem = "null",
   Projects.df <- Projects
   
   # Join station data to full phys/chem (FullPhysChem.df)
-  if(exists("Sites.df")){
+  if(length(Sites.df>1)){
     if(nrow(Sites.df)>0){
       join1 <- FullPhysChem.df %>%
         # join stations to results
@@ -442,7 +442,7 @@ JoinWQPProfiles <- function(FullPhysChem = "null",
   }else{join1 = FullPhysChem.df}
  
   # Add Speciation column from narrow
-  if (exists("Narrow.df")){
+  if (length(Narrow.df)>1){
     if(nrow(Narrow.df)>0){
       join2 <- join1 %>%
         dplyr::left_join(dplyr::select(
@@ -461,7 +461,7 @@ JoinWQPProfiles <- function(FullPhysChem = "null",
   }else{join2 <- join1}
   
   # Add QAPP columns from project
-  if (exists("Projects.df")){
+  if (length(Projects.df)>1){
     if(nrow(Projects.df)>0){
       join3 <- join2 %>%
         dplyr::left_join(dplyr::select(
