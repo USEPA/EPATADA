@@ -264,7 +264,7 @@ TADABigdataRetrieval <- function(startDate = "null",
     df_summary = dataRetrieval::readWQPsummary(statecode = state_cd,
                      characteristicName = characteristicName, 
                      siteType = siteType)
-    if(nrows(df_summary)>0){
+    if(nrow(df_summary)>0){
       sites = df_summary %>%
         dplyr::filter(YearSummarized >= startYearLo,
                     YearSummarized <= startYearHi)
@@ -429,7 +429,7 @@ JoinWQPProfiles <- function(FullPhysChem = "null",
   Projects.df <- Projects
   
   # Join station data to full phys/chem (FullPhysChem.df)
-  if(nrow(Sites.df)>0){
+  if(exists("Sites.df")&nrow(Sites.df)>0){
     join1 <- FullPhysChem.df %>%
       # join stations to results
       dplyr::left_join(Sites.df, by = "MonitoringLocationIdentifier") %>%
@@ -442,7 +442,7 @@ JoinWQPProfiles <- function(FullPhysChem = "null",
   }
  
   # Add Speciation column from narrow
-  if (nrow(Narrow.df)>0){
+  if (exists("Narrow.df")&nrow(Narrow.df)>0){
     join2 <- join1 %>%
       dplyr::left_join(dplyr::select(
         Narrow.df, ActivityIdentifier, MonitoringLocationIdentifier,
@@ -460,7 +460,7 @@ JoinWQPProfiles <- function(FullPhysChem = "null",
   }
   
   # Add QAPP columns from project
-  if (nrow(Projects.df)>0){
+  if (exists("Projects.df")&nrow(Projects.df)>0){
     join3 <- join2 %>%
       dplyr::left_join(dplyr::select(
         Projects.df, OrganizationIdentifier, OrganizationFormalName,
