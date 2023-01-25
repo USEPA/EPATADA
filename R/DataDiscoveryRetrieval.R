@@ -376,6 +376,10 @@ TADABigdataRetrieval <- function(startDate = "null",
       unlink(path)
     
       if(nrow(allstates_df) > 0){
+        allstates_df$ResultMeasureValue = as.character(allstates_df$ResultMeasureValue)
+        allstates_df$HorizontalAccuracyMeasure.MeasureValue = as.character(allstates_df$HorizontalAccuracyMeasure.MeasureValue)
+        allstates_df$ActivityDepthHeightMeasure.MeasureValue = as.character(allstates_df$ActivityDepthHeightMeasure.MeasureValue)
+        allstates_df$DetectionQuantitationLimitMeasure.MeasureValue = as.character(allstates_df$DetectionQuantitationLimitMeasure.MeasureValue)
         all_data <- dplyr::bind_rows(all_data, allstates_df)
       }
     
