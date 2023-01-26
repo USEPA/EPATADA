@@ -235,6 +235,7 @@ TADAReadWQPWebServices <- function(webservice) {
 #'
 #' @param startDate Start Date YYYY-MM-DD format, for example, "1995-01-01"
 #' @param endDate end date in YYYY-MM-DD format, for example, "2020-12-31"
+#' @param statecode Character/character vector. State/territory abbreviations from FIPS codes consist of two letters 
 #' @param characteristicName Name of water quality parameter
 #' @param siteType Name of water body type (e.g., "Stream", "Lake, Reservoir, Impoundment")
 #' 
@@ -253,6 +254,7 @@ TADAReadWQPWebServices <- function(webservice) {
 
 TADABigdataRetrieval <- function(startDate = "null",
                               endDate = "null",
+                              statecode = character(0),
                               characteristicName = "null", 
                               siteType = "null"
 ) {
@@ -277,6 +279,12 @@ TADABigdataRetrieval <- function(startDate = "null",
   
   state_cd_cont = utils::read.csv(file = "inst/extdata/statecode.csv")
   
+  if(length(statecode)>0){
+    statecode = as.character(statecode)
+    state_cd_cont = state_cd_cont%>%filter(STUSAB%in%statecode)
+    if(nrow(state_cd_cont)==0){stop("State code is not valid. Check FIPS state/territory abbreviations.")}
+  }
+  
   for(i in seq_len(nrow(state_cd_cont))){
     
     state_cd = as.numeric(state_cd_cont$STATE[i])
@@ -295,48 +303,40 @@ TADABigdataRetrieval <- function(startDate = "null",
       if(length(siteid_all) > 0) {
         print(paste0("Grabbing ",state_nm," data from ",length(siteid_all)," sites."))
         l=length(siteid_all)  #len(sites)
-        g=100   #max number of sites pulled per WQP query
+        maxsites=100   #max number of sites pulled per WQP query
         #may want to consider using the total number of records in a given 
         #download group instead, e.g., records must not exceed some maximum 
         #threshold (e.g. USGS uses 250,000 records per group for their pipelines)
-        nl=ceiling(l/g) #number of queries
-      
-        i=0
-        j=0
-        k=0
-      
-        while (i < nl) {
-        
-          j=i*g
-          k=j+g-1
-        
-          if (k>l){k=l}
-          sites=siteid_all[j:k]
-        
+        site_groups = split(siteid_all, ceiling(seq_along(siteid_all)/maxsites))
+
+        df = data.frame()
+        for(j in 1:length(site_groups)){
+          sites = site_groups[[j]]
+
           results.DR <- dataRetrieval::readWQPdata(siteid = sites,
                                                 characteristicName = characteristicName, 
                                                 dataProfile = "resultPhysChem",
                                                 ignore_attributes = TRUE, 
-                                                startDateLo = startDate,
-                                                endDateHi = endDate)
+                                                startDate = startDate,
+                                                endDate = endDate)
         
           narrow.DR <- dataRetrieval::readWQPdata(siteid = sites,
                                                 characteristicName = characteristicName,
                                                 dataProfile = "narrowResult", 
                                                 ignore_attributes = TRUE,
-                                                startDateLo = startDate,
-                                                endDateHi = endDate)
+                                                startDate = startDate,
+                                                endDate = endDate)
         
           sites.DR <- dataRetrieval::whatWQPsites(siteid = sites,
                                                 characteristicName = characteristicName,
-                                                startDateLo = startDate,
-                                                endDateHi = endDate)
+                                                startDate = startDate,
+                                                endDate = endDate)
           
           projects.DR <- dataRetrieval::readWQPdata(siteid = sites,
                                                 characteristicName = characteristicName,
                                                 service = "Project",
-                                                startDateLo = startDate,
-                                                endDateHi = endDate)
+                                                startDate = startDate,
+                                                endDate = endDate)
 
           joins = JoinWQPProfiles(FullPhysChem = results.DR,
                                   Sites = sites.DR,
@@ -349,21 +349,14 @@ TADABigdataRetrieval <- function(startDate = "null",
           joins$HorizontalAccuracyMeasure.MeasureValue = as.character(joins$HorizontalAccuracyMeasure.MeasureValue)
           joins$ActivityDepthHeightMeasure.MeasureValue = as.character(joins$ActivityDepthHeightMeasure.MeasureValue)
           joins$DetectionQuantitationLimitMeasure.MeasureValue = as.character(joins$DetectionQuantitationLimitMeasure.MeasureValue)
-          if (i==0){
-            df = joins }  
-          else {
-            joins = dplyr::bind_rows(df, joins)
-            }
-          # print(j)
-          # print(k)
-        
-          i = i+1
+          
+          df = dplyr::bind_rows(df, joins)
         }
       }else{
         joins = data.frame()
-        print(paste0(state_nm, " had no data."))}
+        print(paste0(state_nm, " returned no data."))}
     
-      if(nrow(joins) > 0){
+      if(nrow(df) > 0){
       
       #####
       #need to edit below if temporary rds files do not go away
@@ -375,7 +368,7 @@ TADABigdataRetrieval <- function(startDate = "null",
       #saveRDS(df_state, file = paste0(state_nm, "_raw_data.rds"))
       
         tempfilename = paste0(state_nm, "_raw_data.rds")
-        file.path(tempdir(), saveRDS(joins, file = paste0("inst/tempdata/", tempfilename)))
+        file.path(tempdir(), saveRDS(df, file = paste0("inst/tempdata/", tempfilename)))
 
         }
       }else{print(paste0(state_nm, " had no data."))}
@@ -383,8 +376,8 @@ TADABigdataRetrieval <- function(startDate = "null",
     all_data <- data.frame()
     stdir = list.files("inst/tempdata/")
     
-    for(m in 1:length(stdir)){
-      path = paste0("inst/tempdata/",stdir[m])
+    for(k in 1:length(stdir)){
+      path = paste0("inst/tempdata/",stdir[k])
       allstates_df <- tryCatch({
         #####
         #need to edit line below if rds files do not go away
@@ -407,16 +400,16 @@ TADABigdataRetrieval <- function(startDate = "null",
     
     } 
     
-    # Do not need if date input works in dataRetrieval functions
-    finalprofile = all_data %>%
-      dplyr::filter(ActivityStartDate <= endDate,
-                    ActivityStartDate >= startDate)
+    # # Do not need if date input works in dataRetrieval functions
+    # finalprofile = all_data %>%
+    #   dplyr::filter(ActivityStartDate <= endDate,
+    #                 ActivityStartDate >= startDate)
     
-    finalprofile2 = autoclean(finalprofile)
+    finalprofile = autoclean(all_data)
     #not sure if above is working correctly, thousands of "duplicated" rows are removed
     # you will still need to filter on activity media subdivision now
     
-  return(finalprofile2)
+  return(finalprofile)
 }
 
 

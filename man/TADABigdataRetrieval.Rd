@@ -7,6 +7,7 @@
 TADABigdataRetrieval(
   startDate = "null",
   endDate = "null",
+  statecode = character(0),
   characteristicName = "null",
   siteType = "null"
 )
@@ -15,6 +16,8 @@ TADABigdataRetrieval(
 \item{startDate}{Start Date YYYY-MM-DD format, for example, "1995-01-01"}
 
 \item{endDate}{end date in YYYY-MM-DD format, for example, "2020-12-31"}
+
+\item{statecode}{Character/character vector. State/territory abbreviations from FIPS codes consist of two letters}
 
 \item{characteristicName}{Name of water quality parameter}
 
