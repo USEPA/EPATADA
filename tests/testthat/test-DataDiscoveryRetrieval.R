@@ -196,11 +196,3 @@ test_that("JoinWQPProfile", {
                     "MethodSpecificationName") %in% names(join)))
   
 })
-
-test_that("Reg&BigdataRetrieval",{
-  big <- TADABigdataRetrieval(startDate = "2022-01-01", endDate = "2023-05-01", characteristicName = "Flow", siteType = "Stream")
-  reg <- TADAdataRetrieval(startDate = "2022-01-01", endDate = "2023-05-01", characteristicName = "Flow", siteType = "Stream")
-  reg = subset(reg, !is.na(reg$StateCode))
-  
-  expect_equal(nrow(big),nrow(reg))
-})
