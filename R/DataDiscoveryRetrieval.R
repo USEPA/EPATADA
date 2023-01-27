@@ -32,13 +32,15 @@
 #' See ?MeasureValueSpecialCharacters and ?autoclean documentation for more information.
 #' 
 #' @param statecode Code that identifies a state
-#' @param startDate Start Date
+#' @param startDate Start Date in the format YYYY-MM-DD
 #' @param countycode Code that identifies a county 
 #' @param siteid Unique monitoring station identifier
 #' @param siteType Type of waterbody
 #' @param characteristicName Name of parameter
 #' @param ActivityMediaName Sampling substrate such as water, air, or sediment
-#' @param endDate End Date
+#' @param ProjectIdentifier A string of letters and/or numbers (some additional characters also possible) used to signify a project with data in the Water Quality Portal
+#' @param OrganizationIdentifier A string of letters and/or numbers (some additional characters also possible) used to signify an organization with data in the Water Quality Portal
+#' @param endDate End Date in the format YYYY-MM-DD
 #'
 #' @return TADA-compatible dataframe
 #' 
@@ -56,7 +58,9 @@ TADAdataRetrieval <- function(statecode = "null",
                               siteid = "null",
                               siteType = "null",
                               characteristicName = "null",
-                              ActivityMediaName = "null", 
+                              ActivityMediaName = "null",
+                              ProjectIdentifier = "null",
+                              OrganizationIdentifier = "null",
                               endDate = "null"
                               ) {
 
@@ -102,6 +106,18 @@ TADAdataRetrieval <- function(statecode = "null",
     WQPquery <- c(WQPquery, ActivityMediaName = list(ActivityMediaName)) 
   } else if (ActivityMediaName != "null") {
     WQPquery <- c(WQPquery, ActivityMediaName = ActivityMediaName)
+  }
+  
+  if (length(ProjectIdentifier)>1) {
+    WQPquery <- c(WQPquery, project = list(ProjectIdentifier)) 
+  } else if (ProjectIdentifier != "null") {
+    WQPquery <- c(WQPquery, project = ProjectIdentifier)
+  }
+  
+  if (length(OrganizationIdentifier)>1) {
+    WQPquery <- c(WQPquery, organization = list(OrganizationIdentifier)) 
+  } else if (OrganizationIdentifier != "null") {
+    WQPquery <- c(WQPquery, organization = OrganizationIdentifier)
   }
   
   if (length(endDate)>1) {
