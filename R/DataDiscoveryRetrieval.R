@@ -317,7 +317,7 @@ TADABigdataRetrieval <- function(startDate = "null",
       siteid_all = unique(sites$MonitoringLocationIdentifier)
       
       if(length(siteid_all) > 0) {
-        print(paste0("Grabbing ",state_nm," data from ",length(siteid_all)," sites."))
+        #print(paste0("Grabbing ",state_nm," data from ",length(siteid_all)," sites."))
         l=length(siteid_all)  #len(sites)
         maxsites=100   #max number of sites pulled per WQP query
         #may want to consider using the total number of records in a given 
@@ -370,7 +370,8 @@ TADABigdataRetrieval <- function(startDate = "null",
         }
       }else{
         joins = data.frame()
-        print(paste0(state_nm, " returned no data."))}
+        # print(paste0(state_nm, " returned no data."))
+        }
     
       if(nrow(df) > 0){
       
@@ -387,7 +388,7 @@ TADABigdataRetrieval <- function(startDate = "null",
         file.path(tempdir(), saveRDS(df, file = paste0("inst/tempdata/", tempfilename)))
 
         }
-      }else{print(paste0(state_nm, " had no data."))}
+      } #else{print(paste0(state_nm, " had no data."))}
   }
     all_data <- data.frame()
     stdir = list.files("inst/tempdata/")
