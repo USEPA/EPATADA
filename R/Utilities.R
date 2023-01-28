@@ -20,6 +20,9 @@
 #'
 #' @return autocleaned TADA data profile
 #'
+#' @export 
+#'
+
 
 autoclean <- function(.data) {
   # check .data is data.frame

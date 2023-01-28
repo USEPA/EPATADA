@@ -7,6 +7,7 @@
 TADABigdataRetrieval(
   startDate = "null",
   endDate = "null",
+  statecode = character(0),
   characteristicName = "null",
   siteType = "null"
 )
@@ -15,6 +16,8 @@ TADABigdataRetrieval(
 \item{startDate}{Start Date YYYY-MM-DD format, for example, "1995-01-01"}
 
 \item{endDate}{end date in YYYY-MM-DD format, for example, "2020-12-31"}
+
+\item{statecode}{Character/character vector. State/territory abbreviations from FIPS codes consist of two letters}
 
 \item{characteristicName}{Name of water quality parameter}
 
@@ -59,9 +62,11 @@ See ?MeasureValueSpecialCharacters and ?autoclean documentation for more informa
 }
 \examples{
 \dontrun{
-tada2 <- TADABigdataRetrieval(startDate = "2019-01-01", e
-ndDate = "2021-12-31", characteristicName = "Temperature, water", 
-siteType = "Stream")
+tada2 <- TADABigdataRetrieval(startDate = "2019-01-01", endDate = "2021-12-31", characteristicName = "Temperature, water", siteType = "Stream")
+
+tada3 <- TADABigdataRetrieval(characteristicName = "Phosphorus")
+
+tada3 <- TADABigdataRetrieval(statecode = "CT")
 }
 
 }

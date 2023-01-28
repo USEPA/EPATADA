@@ -72,7 +72,7 @@
       <img src="" class="logo" alt=""><h1>WQP Data Harmonization</h1>
                         <h4 data-toc-skip class="author">TADA Team</h4>
             
-            <h4 data-toc-skip class="date">2023-01-13</h4>
+            <h4 data-toc-skip class="date">2023-01-27</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/USEPA/TADA/blob/HEAD/vignettes/WQPDataHarmonization.Rmd" class="external-link"><code>vignettes/WQPDataHarmonization.Rmd</code></a></small>
       <div class="d-none name"><code>WQPDataHarmonization.Rmd</code></div>
@@ -275,16 +275,22 @@ single TADA compatible dataframe as the output. For large dataframes,
 that can save a lot of time and ultimately reduce the complexity of
 subsequent data processing. Using this function, you will be able to
 download all data available from all sites in the contiguous United
-States that is available for the time period, characteristicName, and
-siteType requested.</p>
+States that is available for the time period, characteristicName,
+statecode, and siteType requested.</p>
 <p>See ?TADABigdataRetrieval for more details. WARNING, this can take
 multiple HOURS to run. The total run time depends on your query
 inputs.</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># AllWaterTempData &lt;- TADABigdataRetrieval(startDate = "2019-01-01", </span></span>
-<span><span class="co">#                                     endDate = "2021-12-31", </span></span>
+<code class="sourceCode R"><span><span class="co"># StreamTemp &lt;- TADABigdataRetrieval(startDate = "2000-01-01", </span></span>
+<span><span class="co">#                                     endDate = "2022-12-31", </span></span>
 <span><span class="co">#                                     characteristicName = "Temperature, water",</span></span>
-<span><span class="co">#                                     siteType = "Stream")</span></span></code></pre></div>
+<span><span class="co">#                                     siteType = "Stream")</span></span>
+<span><span class="co"># </span></span>
+<span><span class="co"># WaterTemp &lt;- TADABigdataRetrieval(characteristicName = "Temperature, water")</span></span>
+<span><span class="co">#</span></span>
+<span><span class="co"># Phosphorus &lt;- TADABigdataRetrieval(characteristicName = "Phosphorus")</span></span>
+<span><span class="co"># </span></span>
+<span><span class="co"># CT &lt;- TADABigdataRetrieval(statecode = "CT")</span></span></code></pre></div>
 <p>Review all column names in the TADA Profile</p>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="va">TADAProfile</span><span class="op">)</span></span>
@@ -800,7 +806,7 @@ data flags</p></li>
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/FilterFieldReview.html">FilterFieldReview</a></span><span class="op">(</span><span class="st">"ActivityTypeCode"</span>, <span class="va">TADAProfileClean13</span><span class="op">)</span></span></code></pre></div>
 <p><img src="WQPDataHarmonization_files/figure-html/unnamed-chunk-20-1.png" width="576"></p>
 <pre><code><span><span class="co">#&gt;                               FieldValue Count</span></span>
-<span><span class="co">#&gt; 8                         Sample-Routine  6398</span></span>
+<span><span class="co">#&gt; 8                         Sample-Routine  6425</span></span>
 <span><span class="co">#&gt; 5 Quality Control Sample-Field Replicate   567</span></span>
 <span><span class="co">#&gt; 7     Sample-Integrated Vertical Profile   510</span></span>
 <span><span class="co">#&gt; 3 Quality Control Sample-Equipment Blank   276</span></span>
@@ -816,7 +822,7 @@ that we want to remove the “Quality Control Sample-Field Replicate” and
 “Quality Control Sample-Field Blank” values in the ActivityTypeCode
 field.</p>
 <div class="sourceCode" id="cb23"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">TADAProfileClean14</span> <span class="op">&lt;-</span> <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">TADAProfileClean13</span>, <span class="op">!</span><span class="op">(</span><span class="va">ActivityTypeCode</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Quality Control Sample-Field Replicate"</span>, <span class="st">"Quality Control Sample-Field Blank"</span>, <span class="st">"Quality Control Sample-Lab Duplicate"</span>, <span class="st">"Quality Control Sample-Equipment Blank"</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="va">TADAProfileClean14</span> <span class="op">&lt;-</span> <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/dplyr/man/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">TADAProfileClean13</span>, <span class="op">!</span><span class="op">(</span><span class="va">ActivityTypeCode</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Quality Control Sample-Field Replicate"</span>, <span class="st">"Quality Control Sample-Field Blank"</span>, <span class="st">"Quality Control Sample-Lab Duplicate"</span>, <span class="st">"Quality Control Sample-Equipment Blank"</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <p>We’ve completed our review of the ActivityTypeCode field.</p>
 <p>Let’s move on to a different field and see if there are any values
 that we want to remove – we’ll look at the values in the
@@ -825,14 +831,14 @@ ResultStatusIdentifier field.</p>
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/FilterFieldReview.html">FilterFieldReview</a></span><span class="op">(</span><span class="st">"ActivityMediaSubdivisionName"</span>, <span class="va">TADAProfileClean14</span><span class="op">)</span></span></code></pre></div>
 <p><img src="WQPDataHarmonization_files/figure-html/unnamed-chunk-22-1.png" width="576"></p>
 <pre><code><span><span class="co">#&gt;        FieldValue Count</span></span>
-<span><span class="co">#&gt; 3   Surface Water   851</span></span>
+<span><span class="co">#&gt; 3   Surface Water   857</span></span>
 <span><span class="co">#&gt; 2     Groundwater   108</span></span>
 <span><span class="co">#&gt; 1 Bulk deposition     1</span></span></code></pre>
 <p>The ActivityMediaSubdivisionName field has two unique values,
 “Surface Water” and “Groundwater.” In this example we want to remove the
 “Groundwater” values.</p>
 <div class="sourceCode" id="cb26"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">TADAProfileClean15</span> <span class="op">&lt;-</span> <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">TADAProfileClean14</span>, <span class="op">!</span><span class="op">(</span><span class="va">ActivityMediaSubdivisionName</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Groundwater"</span>, <span class="st">"Bulk deposition"</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="va">TADAProfileClean15</span> <span class="op">&lt;-</span> <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/dplyr/man/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">TADAProfileClean14</span>, <span class="op">!</span><span class="op">(</span><span class="va">ActivityMediaSubdivisionName</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Groundwater"</span>, <span class="st">"Bulk deposition"</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="filter-data-by-field-subset-by-parameter">Filter data by field, subset by parameter<a class="anchor" aria-label="anchor" href="#filter-data-by-field-subset-by-parameter"></a>
@@ -848,7 +854,7 @@ space on the page)</p>
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/FilterParList.html">FilterParList</a></span><span class="op">(</span><span class="va">TADAProfileClean15</span><span class="op">)</span></span>
 <span><span class="co">#&gt;   FieldValue Count</span></span>
 <span><span class="co">#&gt; 3   NITROGEN  4996</span></span>
-<span><span class="co">#&gt; 2    NITRATE  1776</span></span>
+<span><span class="co">#&gt; 2    NITRATE  1803</span></span>
 <span><span class="co">#&gt; 1    AMMONIA    32</span></span></code></pre></div>
 <p>Next, select a parameter. Let’s explore the fields associated with
 Nitrogen using the <strong>FilterParFields</strong> function:</p>
@@ -898,7 +904,7 @@ want to remove samples collected during “Storm” events. Therefore, we’ll
 specify that we want to remove rows where the CharacteristicName is
 “NITROGEN” and the HydrologicEvent field is “Storm.”</p>
 <div class="sourceCode" id="cb31"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">TADAProfileClean16</span> <span class="op">&lt;-</span> <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">TADAProfileClean15</span>, <span class="op">!</span><span class="op">(</span><span class="va">CharacteristicName</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="st">"NITROGEN"</span> <span class="op">&amp;</span> <span class="va">HydrologicEvent</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="st">"Storm"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="va">TADAProfileClean16</span> <span class="op">&lt;-</span> <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/dplyr/man/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">TADAProfileClean15</span>, <span class="op">!</span><span class="op">(</span><span class="va">CharacteristicName</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="st">"NITROGEN"</span> <span class="op">&amp;</span> <span class="va">HydrologicEvent</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="st">"Storm"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="transform-characteristic-speciation-and-unit-values-to-tada-standards">Transform Characteristic, Speciation, and Unit values to TADA
@@ -954,7 +960,7 @@ constituent (e.g., “Total Kjeldahl nitrogen (Organic N &amp; NH3)” and
 <div class="sourceCode" id="cb33"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">#How to point to a column in R: yourdataset$thecolumnyouwant</span></span>
 <span><span class="co">#E.g., temp$ResultMeasureValueNitrogenExample &lt;- filter(TADAProfileClean17, CharacteristicName == "NITROGEN")</span></span>
-<span><span class="va">SingleCharacteristic</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">TADAProfileClean17</span>, <span class="va">CharacteristicName</span> <span class="op">==</span> <span class="st">"TOTAL NITROGEN, MIXED FORMS"</span><span class="op">)</span></span>
+<span><span class="va">SingleCharacteristic</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/dplyr/man/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">TADAProfileClean17</span>, <span class="va">CharacteristicName</span> <span class="op">==</span> <span class="st">"TOTAL NITROGEN, MIXED FORMS"</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co">#Review the types of nondetects you have</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/table.html" class="external-link">table</a></span><span class="op">(</span><span class="va">SingleCharacteristic</span><span class="op">$</span><span class="va">ResultDetectionConditionText</span><span class="op">)</span></span>

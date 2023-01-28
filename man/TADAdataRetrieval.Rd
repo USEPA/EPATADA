@@ -12,13 +12,15 @@ TADAdataRetrieval(
   siteType = "null",
   characteristicName = "null",
   ActivityMediaName = "null",
+  ProjectIdentifier = "null",
+  OrganizationIdentifier = "null",
   endDate = "null"
 )
 }
 \arguments{
 \item{statecode}{Code that identifies a state}
 
-\item{startDate}{Start Date}
+\item{startDate}{Start Date in the format YYYY-MM-DD}
 
 \item{countycode}{Code that identifies a county}
 
@@ -30,7 +32,11 @@ TADAdataRetrieval(
 
 \item{ActivityMediaName}{Sampling substrate such as water, air, or sediment}
 
-\item{endDate}{End Date}
+\item{ProjectIdentifier}{A string of letters and/or numbers (some additional characters also possible) used to signify a project with data in the Water Quality Portal}
+
+\item{OrganizationIdentifier}{A string of letters and/or numbers (some additional characters also possible) used to signify an organization with data in the Water Quality Portal}
+
+\item{endDate}{End Date in the format YYYY-MM-DD}
 }
 \value{
 TADA-compatible dataframe
