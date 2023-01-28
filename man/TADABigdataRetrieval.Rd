@@ -62,9 +62,11 @@ See ?MeasureValueSpecialCharacters and ?autoclean documentation for more informa
 }
 \examples{
 \dontrun{
-tada2 <- TADABigdataRetrieval(startDate = "2019-01-01", e
-ndDate = "2021-12-31", characteristicName = "Temperature, water", 
-siteType = "Stream")
+tada2 <- TADABigdataRetrieval(startDate = "2019-01-01", endDate = "2021-12-31", characteristicName = "Temperature, water", siteType = "Stream")
+
+tada3 <- TADABigdataRetrieval(characteristicName = "Phosphorus")
+
+tada3 <- TADABigdataRetrieval(statecode = "CT")
 }
 
 }

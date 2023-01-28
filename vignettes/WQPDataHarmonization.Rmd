@@ -243,17 +243,23 @@ single TADA compatible dataframe as the output. For large dataframes,
 that can save a lot of time and ultimately reduce the complexity of
 subsequent data processing. Using this function, you will be able to
 download all data available from all sites in the contiguous United
-States that is available for the time period, characteristicName, and
-siteType requested.
+States that is available for the time period, characteristicName, statecode, 
+and siteType requested.
 
 See ?TADABigdataRetrieval for more details. WARNING, this can take
 multiple HOURS to run. The total run time depends on your query inputs.
 
 ```{r}
-# AllWaterTempData <- TADABigdataRetrieval(startDate = "2019-01-01", 
-#                                     endDate = "2021-12-31", 
+# StreamTemp <- TADABigdataRetrieval(startDate = "2000-01-01", 
+#                                     endDate = "2022-12-31", 
 #                                     characteristicName = "Temperature, water",
 #                                     siteType = "Stream")
+# 
+# WaterTemp <- TADABigdataRetrieval(characteristicName = "Temperature, water")
+#
+# Phosphorus <- TADABigdataRetrieval(characteristicName = "Phosphorus")
+# 
+# CT <- TADABigdataRetrieval(statecode = "CT")
 ```
 
 Review all column names in the TADA Profile
