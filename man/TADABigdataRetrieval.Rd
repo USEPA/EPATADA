@@ -7,7 +7,7 @@
 TADABigdataRetrieval(
   startDate = "null",
   endDate = "null",
-  statecode = character(0),
+  statecode = "null",
   characteristicName = "null",
   siteType = "null"
 )

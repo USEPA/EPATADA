@@ -135,6 +135,14 @@ test_that("TADAdataRetrieval", {
   expect_true(any(check_autoclean_meters_works$ActivityDepthHeightMeasure.MeasureUnitCode!="meters"))
   })
 
+# Testing that regular and big data retrieval return the same number of rows on an identical query.
+test_that("Reg&BigdataRetrieval",{
+  big <- TADABigdataRetrieval(characteristicName = "Algae, substrate rock/bank cover (choice list)", siteType = "Stream")
+  reg <- TADAdataRetrieval(characteristicName = "Algae, substrate rock/bank cover (choice list)", siteType = "Stream")
+  
+  expect_equal(nrow(big),nrow(reg))
+})
+
 
 # Testing that the JoinWQPProfiles() function in DataDiscoveryRetrieval.R 
 # has the expected number of columns after joining the full physical chemical 

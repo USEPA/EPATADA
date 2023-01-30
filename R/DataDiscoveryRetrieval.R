@@ -272,54 +272,69 @@ TADAReadWQPWebServices <- function(webservice) {
 
 TADABigdataRetrieval <- function(startDate = "null",
                               endDate = "null",
-                              statecode = character(0),
+                              statecode = "null",
                               characteristicName = "null", 
                               siteType = "null"
 ) {
+
+  if(!startDate=="null"){
+    startDate_Low = lubridate::ymd(startDate)
+    startYearLo = lubridate::year(startDate_Low)
+  }else{ # else: pick a date before which any data are unlikely to be in WQP
+    startDate = "1800-01-01"
+    startDate_Low = lubridate::ymd(startDate)
+    startYearLo = lubridate::year(startDate_Low)
+  } 
   
-  startDate_Low = lubridate::ymd(startDate)
-  startYearLo = lubridate::year(startDate_Low)
+# Logic: if the input endDate is not null, convert to date and obtain year
+  # for summary
+  if(!endDate=="null"){
+    endDate_High = lubridate::ymd(endDate)
+    endYearHi = lubridate::year(endDate_High)
+  }else{ # Else, if not populated, default to using today's date/year for summary
+    endDate = Sys.Date()
+    endDate_High = lubridate::ymd(endDate)
+    endYearHi = lubridate::year(endDate_High)
+  }
   
-  endDate_High = lubridate::ymd(endDate)
-  startYearHi = lubridate::year(endDate_High)
-  
+  # Create WQPsummary query
+  WQPquery <- list()
   if (length(characteristicName)>1) {
-    characteristicName = list(characteristicName) 
+    WQPquery = c(WQPquery,characteristicName = list(characteristicName)) 
   } else if (characteristicName != "null") {
-    characteristicName = characteristicName
+    WQPquery = c(WQPquery,characteristicName = characteristicName)
+  }
+  if (length(siteType)>1) {
+    WQPquery = c(WQPquery,siteType = list(siteType)) 
+  } else if (siteType != "null") {
+    WQPquery = c(WQPquery,siteType = siteType)
   }
 
-  if (length(siteType)>1) {
-    siteType = list(siteType)
-  } else if (siteType != "null") {
-    siteType = siteType
-  }
-  
-  state_cd_cont = utils::read.csv(file = "inst/extdata/statecode.csv")
-  
-  if(length(statecode)>0){
+  if (!statecode=="null") {
+    state_cd_cont = utils::read.csv(file = "inst/extdata/statecode.csv")
     statecode = as.character(statecode)
     state_cd_cont = state_cd_cont%>%filter(STUSAB%in%statecode)
+    statecd = state_cd_cont$STATE
     if(nrow(state_cd_cont)==0){stop("State code is not valid. Check FIPS state/territory abbreviations.")}
+    if(length(statecode)>1){
+      WQPquery = c(WQPquery, statecode=list(statecd))
+    }else{WQPquery = c(WQPquery, statecode=statecd)}
   }
   
-  for(i in seq_len(nrow(state_cd_cont))){
-    
-    state_cd = as.numeric(state_cd_cont$STATE[i])
-    state_nm = state_cd_cont$STUSAB[i]
+  df_summary = dataRetrieval::readWQPsummary(WQPquery)
+  
     ## NOTE: if query brings back no results, function returns empty 
     # dataRetrieval profile, not empty summary
-    df_summary = dataRetrieval::readWQPsummary(statecode = state_cd,
-                     characteristicName = characteristicName, 
-                     siteType = siteType)
     if(nrow(df_summary)>0){
       sites = df_summary %>%
         dplyr::filter(YearSummarized >= startYearLo,
-                    YearSummarized <= startYearHi)
+                      YearSummarized <= endYearHi)
+      
       siteid_all = unique(sites$MonitoringLocationIdentifier)
+      rm(df_summary) # save some space
       
       if(length(siteid_all) > 0) {
-        #print(paste0("Grabbing ",state_nm," data from ",length(siteid_all)," sites."))
+        rm(sites) # save some space
         l=length(siteid_all)  #len(sites)
         maxsites=100   #max number of sites pulled per WQP query
         #may want to consider using the total number of records in a given 
@@ -371,60 +386,16 @@ TADABigdataRetrieval <- function(startDate = "null",
           df = dplyr::bind_rows(df, joins)
         }
       }else{
-        joins = data.frame()
-        # print(paste0(state_nm, " returned no data."))
-        }
-    
-      if(nrow(df) > 0){
-      
-      #####
-      #need to edit below if temporary rds files do not go away
-      #may be able to delete below
-      #https://stackoverflow.com/questions/47626331/saving-and-retrieving-temp-files-in-r-packages
-      #####
-      
-      #original
-      #saveRDS(df_state, file = paste0(state_nm, "_raw_data.rds"))
-      
-        tempfilename = paste0(state_nm, "_raw_data.rds")
-        file.path(tempdir(), saveRDS(df, file = paste0("inst/tempdata/", tempfilename)))
-
-        }
-      } #else{print(paste0(state_nm, " had no data."))}
-  }
-    all_data <- data.frame()
-    stdir = list.files("inst/tempdata/")
-    
-    for(k in 1:length(stdir)){
-      path = paste0("inst/tempdata/",stdir[k])
-      allstates_df <- tryCatch({
-        #####
-        #need to edit line below if rds files do not go away
-        #####
-      
-        #original below
-       #readRDS(paste0(state, "_raw_data.rds"))
-      
-        readRDS(path)
-      })
-      unlink(path)
-    
-      if(nrow(allstates_df) > 0){
-        allstates_df$ResultMeasureValue = as.character(allstates_df$ResultMeasureValue)
-        allstates_df$HorizontalAccuracyMeasure.MeasureValue = as.character(allstates_df$HorizontalAccuracyMeasure.MeasureValue)
-        allstates_df$ActivityDepthHeightMeasure.MeasureValue = as.character(allstates_df$ActivityDepthHeightMeasure.MeasureValue)
-        allstates_df$DetectionQuantitationLimitMeasure.MeasureValue = as.character(allstates_df$DetectionQuantitationLimitMeasure.MeasureValue)
-        all_data <- dplyr::bind_rows(all_data, allstates_df)
+        warning("Query returned no data. Function returns an empty dataframe.")
+        return(sites)
       }
+    }else{
+      warning("Query returned no data. Function returns an empty dataframe.")
+      return(df_summary)
+}
     
-    } 
     
-    # # Do not need if date input works in dataRetrieval functions
-    # finalprofile = all_data %>%
-    #   dplyr::filter(ActivityStartDate <= endDate,
-    #                 ActivityStartDate >= startDate)
-    
-    finalprofile = autoclean(all_data)
+    finalprofile = autoclean(df)
     #not sure if above is working correctly, thousands of "duplicated" rows are removed
     # you will still need to filter on activity media subdivision now
     
