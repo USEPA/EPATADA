@@ -59,6 +59,10 @@ and to provide information about the result values that is needed to address
 censored data later on (i.e., nondetections)
 
 See ?MeasureValueSpecialCharacters and ?autoclean documentation for more information.
+
+Reference:
+Some code for this function was adapted from USGS (Author: Aliesha Krall):
+https://waterdata.usgs.gov/blog/large_sample_pull/
 }
 \examples{
 \dontrun{
@@ -66,7 +70,6 @@ tada2 <- TADABigdataRetrieval(startDate = "2019-01-01", endDate = "2021-12-31", 
 
 tada3 <- TADABigdataRetrieval(characteristicName = "Phosphorus")
 
-tada3 <- TADABigdataRetrieval(statecode = "CT")
 }
 
 }

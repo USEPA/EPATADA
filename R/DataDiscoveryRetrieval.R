@@ -248,6 +248,10 @@ TADAReadWQPWebServices <- function(webservice) {
 #'  censored data later on (i.e., nondetections)
 #'  
 #' See ?MeasureValueSpecialCharacters and ?autoclean documentation for more information.
+#' 
+#' Reference: 
+#' Some code for this function was adapted from USGS (Author: Aliesha Krall):
+#' https://waterdata.usgs.gov/blog/large_sample_pull/
 #'
 #' @param startDate Start Date YYYY-MM-DD format, for example, "1995-01-01"
 #' @param endDate end date in YYYY-MM-DD format, for example, "2020-12-31"
@@ -264,8 +268,7 @@ TADAReadWQPWebServices <- function(webservice) {
 #' tada2 <- TADABigdataRetrieval(startDate = "2019-01-01", endDate = "2021-12-31", characteristicName = "Temperature, water", siteType = "Stream")
 #' 
 #' tada3 <- TADABigdataRetrieval(characteristicName = "Phosphorus")
-#' 
-#' tada3 <- TADABigdataRetrieval(statecode = "CT")
+#'
 #' }
 #' 
 
