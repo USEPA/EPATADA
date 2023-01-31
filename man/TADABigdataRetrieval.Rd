@@ -8,8 +8,11 @@ TADABigdataRetrieval(
   startDate = "null",
   endDate = "null",
   statecode = "null",
+  huc = "null",
   characteristicName = "null",
-  siteType = "null"
+  siteType = "null",
+  sampleMedia = "Water",
+  applyautoclean = FALSE
 )
 }
 \arguments{
@@ -19,9 +22,15 @@ TADABigdataRetrieval(
 
 \item{statecode}{Character/character vector. State/territory abbreviations from FIPS codes consist of two letters}
 
+\item{huc}{An 8-digit numeric code denoting a hydrologic unit. Example: "04030202"}
+
 \item{characteristicName}{Name of water quality parameter}
 
 \item{siteType}{Name of water body type (e.g., "Stream", "Lake, Reservoir, Impoundment")}
+
+\item{sampleMedia}{Defaults to "Water". Refer to WQP domain tables for other options.}
+
+\item{applyautoclean}{Defaults to FALSE. If TRUE, runs TADA's autoclean function on final combined dataset.}
 }
 \value{
 TADA-compatible dataframe
@@ -35,7 +44,11 @@ compatible dataframe as the output. For large data sets, that can save a lot
 of time and ultimately reduce the complexity of subsequent data processing.
 Using this function, you will be able to download all data available from all
 sites in the contiguous United States that is available for the time period,
-characteristicName, and siteType requested.
+characteristicName, and siteType requested. Computer memory may limit the
+size of datasets that your R console will be able to hold in one session.
+Function requires a characteristicName, siteType, statecode, huc, or start/
+end date input. The recommendation is to be as specific as you can with your
+large data call.
 }
 \details{
 Similarly to the TADAdataRetrieval function, this function will create
@@ -65,9 +78,13 @@ See ?MeasureValueSpecialCharacters and ?autoclean documentation for more informa
 }
 \examples{
 \dontrun{
-tada2 <- TADABigdataRetrieval(startDate = "2019-01-01", endDate = "2021-12-31", characteristicName = "Temperature, water", siteType = "Stream")
+tada1 <- TADABigdataRetrieval(startDate = "2019-01-01", endDate = "2021-12-31", characteristicName = "Temperature, water", siteType = "Stream")
 
-tada3 <- TADABigdataRetrieval(characteristicName = "Phosphorus")
+tada2 <- TADABigdataRetrieval(startDate = "2016-10-01",endDate = "2022-09-30", statecode = "UT")
+
+tada3 = TADABigdataRetrieval(huc = "04030202", characteristicName = "Escherichia coli")
+
+tada4 = TADABigdataRetrieval(huc = c("04030202","04030201"), characteristicName = "Temperature, water")
 
 }
 
