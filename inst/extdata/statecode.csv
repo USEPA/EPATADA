@@ -1,11 +1,11 @@
 STATE,STATE_NAME,STUSAB,STATENS
-1,Alabama,AL,1779775
-2,Alaska,AK,1785533
-4,Arizona,AZ,1779777
-5,Arkansas,AR,68085
-6,California,CA,1779778
-8,Colorado,CO,1779779
-9,Connecticut,CT,1779780
+01,Alabama,AL,1779775
+02,Alaska,AK,1785533
+04,Arizona,AZ,1779777
+05,Arkansas,AR,68085
+06,California,CA,1779778
+08,Colorado,CO,1779779
+09,Connecticut,CT,1779780
 10,Delaware,DE,1779781
 11,District of Columbia,DC,1702382
 12,Florida,FL,294478

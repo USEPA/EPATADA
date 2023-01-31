@@ -282,7 +282,7 @@ TADAReadWQPWebServices <- function(webservice) {
 #'
 #' @examples 
 #' \dontrun{
-#' tada1 <- TADABigdataRetrieval(startDate = "2019-01-01", endDate = "2021-12-31", characteristicName = "Temperature, water", siteType = "Stream")
+#' tada1 <- TADABigdataRetrieval(startDate = "2019-01-01", endDate = "2021-12-31", characteristicName = "Temperature, water", statecode = c("AK","AL"))
 #' 
 #' tada2 <- TADABigdataRetrieval(startDate = "2016-10-01",endDate = "2022-09-30", statecode = "UT")
 #' 
@@ -342,13 +342,13 @@ TADABigdataRetrieval <- function(startDate = "null",
   }
 
   if (!"null"%in%statecode) {
-    state_cd_cont = utils::read.csv(file = "inst/extdata/statecode.csv")
+    # state_cd_cont = utils::read.csv(file = "inst/extdata/statecode.csv",colClasses=c("STATE"="character"))
+    load("inst/extdata/statecodes_df.Rdata")
     statecode = as.character(statecode)
-    state_cd_cont = state_cd_cont%>%dplyr::filter(STUSAB%in%statecode)
-    statecd = state_cd_cont$STUSAB
-    if(nrow(state_cd_cont)==0){stop("State code is not valid. Check FIPS state/territory abbreviations.")}
+    statecodes_sub = statecodes_df%>%dplyr::filter(STUSAB%in%statecode)
+    statecd = paste0("US:",statecodes_sub$STATE)
+    if(nrow(statecodes_sub)==0){stop("State code is not valid. Check FIPS state/territory abbreviations.")}
     if(length(statecode)>1){
-      warning("Multiple state codes do not appear to be supported in dataRetrieval::readWQPsummary(). Error may occur.")
       for(i in 1:length(statecode)){
         WQPquery = c(WQPquery, statecode=list(statecd))
       }
