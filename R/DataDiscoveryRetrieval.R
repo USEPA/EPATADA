@@ -245,13 +245,14 @@ TADAReadWQPWebServices <- function(webservice) {
 #' "TADA.DetectionLimitMeasureValue.Flag" are created to track and changes made
 #' to the "ResultMeasureValue" and "DetectionLimitMeasureValue" columns; 
 #' and to provide information about the result values that is needed to address
-#'  censored data later on (i.e., nondetections)
-#'  
+#' censored data later on (i.e., nondetections)
+#' 
+#' Some code for this function was adapted from this USGS Blog (Author: Aliesha Krall)
+#' \href{https://waterdata.usgs.gov/blog/large_sample_pull/}{Large Sample Pull}  
+#' 
 #' See ?MeasureValueSpecialCharacters and ?autoclean documentation for more information.
 #' 
-#' Reference: 
-#' Some code for this function was adapted from USGS (Author: Aliesha Krall):
-#' https://waterdata.usgs.gov/blog/large_sample_pull/
+#'
 #'
 #' @param startDate Start Date YYYY-MM-DD format, for example, "1995-01-01"
 #' @param endDate end date in YYYY-MM-DD format, for example, "2020-12-31"

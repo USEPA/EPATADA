@@ -58,11 +58,10 @@ to the "ResultMeasureValue" and "DetectionLimitMeasureValue" columns;
 and to provide information about the result values that is needed to address
 censored data later on (i.e., nondetections)
 
-See ?MeasureValueSpecialCharacters and ?autoclean documentation for more information.
+Some code for this function was adapted from this USGS Blog (Author: Aliesha Krall)
+\href{https://waterdata.usgs.gov/blog/large_sample_pull/}{Large Sample Pull}
 
-Reference:
-Some code for this function was adapted from USGS (Author: Aliesha Krall):
-https://waterdata.usgs.gov/blog/large_sample_pull/
+See ?MeasureValueSpecialCharacters and ?autoclean documentation for more information.
 }
 \examples{
 \dontrun{
