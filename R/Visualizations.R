@@ -22,12 +22,12 @@ CreateAnimatedMap <- function(.data) {
   n_bysite <- 
     .data %>% 
     dplyr::group_by(MonitoringLocationIdentifier, LatitudeMeasure, LongitudeMeasure, year) %>% 
-    dplyr::summarize(mean = mean(.data$ResultMeasureValue, na.rm = TRUE), 
+    dplyr::summarize(mean = stats::mean(.data$ResultMeasureValue, na.rm = TRUE), 
                      median = stats::median(.data$ResultMeasureValue, na.rm = TRUE))
   
   # create a new character column with total nitrogen acceptable range designations
   n_bysite <- 
-    n_bysite %>% dplyr::mutate(TN_mean=
+    n_bysite %>% dplyr::mutate(TN_mean =
                                  dplyr::case_when(mean<2 ~ "<2 mg/l", 
                                                   mean>=2 & mean<=6 ~ "2-6 mg/l", 
                                                   mean>6 ~ ">6 mg/l")) 
