@@ -36,7 +36,7 @@ The following code will also install any packages you do not have, and
 load all packages required to run this vignette into your R session.
 
 ```{r, results = 'hide', message = FALSE, warning = FALSE}
-list.of.packages <- c("plyr", "data.table", "dataRetrieval", "dplyr", "ggplot2", "grDevices", "magrittr", "stringr", "utils", "RColorBrewer", "stats", "remotes", "gganimate", "gifski", "maps", "usmap", "maptools", "xfun")
+list.of.packages <- c("plyr", "data.table", "dataRetrieval", "dplyr", "ggplot2", "grDevices", "magrittr", "stringr", "utils", "RColorBrewer", "stats", "remotes", "gganimate", "gifski", "maps", "usmap", "maptools")
 
 new.packages <- list.of.packages[!(list.of.packages %in% installed.packages()[,"Package"])]
 
@@ -392,13 +392,13 @@ usmap::plot_usmap("counties", include = "AK", labels = FALSE) +
 
 # plot map of county
 # first, find unique county codes in your dataframe
-unique(TADAProfile$CountyCode)
-unique(TADAProfile$StateCode)
+TADAProfileClean1$FullCountyCode <- paste(TADAProfileClean1$StateCode, sep = "", TADAProfileClean1$CountyCode)
+Unique_FullCountyCodes <- unique(TADAProfileClean1$FullCountyCode)
 
 # county code domain list for WQP: https://www.waterqualitydata.us/Codes/countycode
 # filter map down to the counties in your dataframe. Here, the state and county codes translate to "02020". 
  
-usmap::plot_usmap("counties", include = c("02122", "02090", "02130", "02270", "02170", "02110", "02282", "02275", "02198", "02185", "02261", "02195", "02105","02020", "02100", "02050", "02220", "02150", "02180",  "02016", "02230", "02240", "02290", "02188"), labels = FALSE) +
+usmap::plot_usmap("counties", include = c(Unique_FullCountyCodes), labels = FALSE) +
   geom_point(data = usmap_transform(TADAProfileClean1, 
                                     input_names = c("LongitudeMeasure", "LatitudeMeasure"), 
                                     output_names = c("x", "y")), 
