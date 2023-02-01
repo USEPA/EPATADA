@@ -30,8 +30,8 @@
 #' censored data later on (i.e., nondetections)
 #' 
 #' Users can reference the \href{https://www.epa.gov/waterdata/storage-and-retrieval-and-water-quality-exchange-domain-services-and-downloads}{WQX domain tables}
-#' to find allowable vales for queries, e.g., https://cdx.epa.gov/wqx/download/DomainValues/County_CSV.zip
-#'  
+#' to find allowable vales for queries, e.g., reference the WQX domain table to find countycode and statecode: https://cdx.epa.gov/wqx/download/DomainValues/County_CSV.zip
+#'   
 #' See ?MeasureValueSpecialCharacters and ?autoclean documentation for more information.
 #' 
 #' @param statecode Code that identifies a state
@@ -62,8 +62,7 @@
 #'                            characteristicName = c("Ammonia", "Nitrate", "Nitrogen"), 
 #'                            startDate = "10-01-2020")
 #' 
-#' # Users can reference the WQX domain table to find countycode and statecode
-#' # https://cdx.epa.gov/wqx/download/DomainValues/County_CSV.zip
+
 #' test4 <- TADAdataRetrieval(statecode = "SC", countycode  = "Abbeville")
 #' 
 #' # countycode queries require a statecode
