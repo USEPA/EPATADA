@@ -36,7 +36,7 @@ The following code will also install any packages you do not have, and
 load all packages required to run this vignette into your R session.
 
 ```{r, results = 'hide', message = FALSE, warning = FALSE}
-list.of.packages <- c("plyr", "data.table", "dataRetrieval", "dplyr", "ggplot2", "grDevices", "magrittr", "stringr", "utils", "RColorBrewer", "stats", "remotes", "gganimate", "gifski", "maps", "usmap", "maptools")
+list.of.packages <- c("plyr", "data.table", "dataRetrieval", "dplyr", "ggplot2", "grDevices", "magrittr", "stringr", "utils", "RColorBrewer", "stats", "remotes", "gganimate", "gifski", "maps", "usmap", "maptools", "xfun")
 
 new.packages <- list.of.packages[!(list.of.packages %in% installed.packages()[,"Package"])]
 
@@ -86,6 +86,7 @@ library(gganimate)
 library(gifski)
 library(maps)
 library(usmap)
+library(maptools)
 library(TADA)
 ```
 
