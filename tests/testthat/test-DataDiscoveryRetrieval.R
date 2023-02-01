@@ -135,6 +135,26 @@ test_that("TADAdataRetrieval", {
   expect_true(any(check_autoclean_meters_works$ActivityDepthHeightMeasure.MeasureUnitCode!="meters"))
   })
 
+# Testing that regular and big data retrieval return the same number of rows on an identical query.
+test_that("Reg&BigdataRetrieval",{
+  big <- TADABigdataRetrieval(characteristicName = "Algae, substrate rock/bank cover (choice list)", siteType = "Stream", applyautoclean = TRUE)
+  reg <- TADAdataRetrieval(characteristicName = "Algae, substrate rock/bank cover (choice list)", siteType = "Stream")
+  
+  expect_equal(nrow(big),nrow(reg))
+  
+})
+
+# Testing that dates work correctly in queries in big data retrieval
+test_that("BigdataRetrieval_daterange",{
+  startDate = "2018-10-01"
+  endDate = "2021-09-30"
+  big <- TADABigdataRetrieval(startDate = startDate, endDate = endDate, huc = c("04030202","04030201"), characteristicName = "Escherichia coli", siteType = "Stream")
+  logic = min(big$ActivityStartDate)>=as.Date(startDate, format = "%Y-%m-%d")&max(big$ActivityStartDate)<=as.Date(endDate, format = "%Y-%m-%d")
+  
+  expect_true(logic)
+  
+})
+
 
 # Testing that the JoinWQPProfiles() function in DataDiscoveryRetrieval.R 
 # has the expected number of columns after joining the full physical chemical 

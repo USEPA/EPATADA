@@ -14,7 +14,8 @@ TADAdataRetrieval(
   ActivityMediaName = "null",
   ProjectIdentifier = "null",
   OrganizationIdentifier = "null",
-  endDate = "null"
+  endDate = "null",
+  applyautoclean = TRUE
 )
 }
 \arguments{
@@ -37,6 +38,8 @@ TADAdataRetrieval(
 \item{OrganizationIdentifier}{A string of letters and/or numbers (some additional characters also possible) used to signify an organization with data in the Water Quality Portal}
 
 \item{endDate}{End Date in the format YYYY-MM-DD}
+
+\item{applyautoclean}{Logical, defaults to TRUE. Applies TADA's autoclean function on the returned data profile.}
 }
 \value{
 TADA-compatible dataframe
