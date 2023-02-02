@@ -166,11 +166,12 @@ clean_imprecise = FALSE, and errorsonly = FALSE.</p>
 <span class="r-in"><span><span class="co"># Remove data with coordinates outside the USA, but keep flagged data with </span></span></span>
 <span class="r-in"><span><span class="co"># imprecise coordinates:</span></span></span>
 <span class="r-in"><span><span class="va">OutsideUSACoord_removed</span> <span class="op">&lt;-</span> <span class="fu">InvalidCoordinates</span><span class="op">(</span><span class="va">Nutrients_Utah</span>, clean_outsideUSA <span class="op">=</span> <span class="st">"remove"</span><span class="op">)</span></span></span>
+<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in checkType(clean_outsideUSA, "logical"):</span> remove must be of class 'logical'</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Change the sign of coordinates flagged as outside the USA and keep all</span></span></span>
 <span class="r-in"><span><span class="co"># flagged data:</span></span></span>
 <span class="r-in"><span><span class="va">OutsideUSACoord_changed</span> <span class="op">&lt;-</span> <span class="fu">InvalidCoordinates</span><span class="op">(</span><span class="va">Nutrients_Utah</span>, clean_outsideUSA <span class="op">=</span> <span class="st">"change sign"</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "Note: When clean_outsideUSA == change sign, the sign of lat/long coordinates flagged as outside of USA are switched. This is a temporary solution. Data owners should fix the raw data to address invalid coordinates through WQX. For assistance fixing data errors you see in the WQP, email the WQX helpdesk (WQX@epa.gov)."</span>
+<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in checkType(clean_outsideUSA, "logical"):</span> change sign must be of class 'logical'</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Remove data with imprecise coordinates, but keep flagged data with coordinates outside the USA;</span></span></span>
 <span class="r-in"><span><span class="co"># imprecise data may include a series of 999's to the right of the decimal points;</span></span></span>
@@ -180,7 +181,7 @@ clean_imprecise = FALSE, and errorsonly = FALSE.</p>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Remove data with imprecise coordinates or coordinates outside the USA from the dataframe:</span></span></span>
 <span class="r-in"><span><span class="va">InvalidCoord_removed</span> <span class="op">&lt;-</span> <span class="fu">InvalidCoordinates</span><span class="op">(</span><span class="va">Nutrients_Utah</span>, clean_outsideUSA <span class="op">=</span> <span class="st">"remove"</span>, clean_imprecise <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "All invalid coordinates were removed or your dataframe does not contain monitoring stations with invalid coordinates"</span>
+<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in checkType(clean_outsideUSA, "logical"):</span> remove must be of class 'logical'</span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc"><h2>On this page</h2>
@@ -188,7 +189,7 @@ clean_imprecise = FALSE, and errorsonly = FALSE.</p>
 
 
     <footer><div class="pkgdown-footer-left">
-  <p></p><p>Developed by Cristina Mullin, Michelle Thawley, Jacob Greif, Laura Shumway, Elise Hinman, Kathleen Healy.</p>
+  <p></p><p>Developed by Cristina Mullin, Michelle Thawley, Jacob Greif, Laura Shumway.</p>
 </div>
 
 <div class="pkgdown-footer-right">

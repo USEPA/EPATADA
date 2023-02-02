@@ -47,20 +47,13 @@ Imports:
     stats, 
     gganimate,
     gifski,
-    lubridate, 
-    usmap,
-    maptools,
-    rgdal
-Remotes: USEPA/TADA
+    lubridate,
+    maps, 
+    maptools, 
+    usmap
 Depends: 
     R (>= 3.5.0)
 Suggests: 
-    ggrepel, 
-    proto,
-    scales, 
-    sp, 
-    covr,
-    maps,
     readr,
     rlang,
     remotes, 
