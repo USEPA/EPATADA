@@ -418,15 +418,16 @@ ConvertSpecialChars <- function(.data,col){
   }
   chars.data = .data
   names(chars.data)[names(chars.data)==col] = "orig"
-  chars.data$masked = as.character(chars.data$orig)
+  chars.data$masked = chars.data$orig
   chars.data = chars.data%>%
     dplyr::mutate(flag = dplyr::case_when(
       is.na(masked) ~ as.character("ND or NA"),
-      (!is.na(suppressWarnings(as.numeric(orig))) == TRUE) ~ as.character("Numeric"),
+      (!is.na(suppressWarnings(as.numeric(masked)) == TRUE)) ~ as.character("Numeric"),
       (grepl("<", masked) == TRUE) ~ as.character("Less Than"),
       (grepl(">", masked) == TRUE) ~ as.character("Greater Than"),
       (grepl("~", masked) == TRUE) ~ as.character("Approximate Value"),
       (grepl("[A-Za-z]", masked) == TRUE) ~ as.character("Text"),
+      (grepl(",", masked) == TRUE) ~ as.character("Comma-Separated Numeric"),
       TRUE ~ "Coerced to NA"
     ))
 
