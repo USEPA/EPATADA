@@ -17,12 +17,6 @@ Authors@R:
            role = "aut"),
     person(given = "Laura",
            family = "Shumway",
-           role = "aut"),
-        person(given = "Elise",
-           family = "Hinman",
-           role = "aut"),
-    person(given = "Kathleen",
-           family = "Healy",
            role = "aut")
     )
 Description: Assists data partners in performing automated assessments with
@@ -46,15 +40,13 @@ Imports:
     RColorBrewer,
     stats, 
     gganimate,
-    gifski,
     lubridate,
-    maps, 
-    maptools, 
-    usmap
+    maps
 Depends: 
     R (>= 3.5.0)
 Suggests: 
     readr,
+    gifski,
     rlang,
     remotes, 
     tidyverse,

@@ -13,7 +13,6 @@
 CreateAnimatedMap <- function(.data) { 
   
   # code adapted from USGS blog: https://waterdata.usgs.gov/blog/large_sample_pull/
-  # reference: https://cran.r-project.org/web/packages/usmap/vignettes/advanced-mapping.html
   
   # pull the year from the date
   .data$year <- base::format(as.Date(.data$ActivityStartDate, format="%Y-%m-%d"),"%Y")
@@ -23,45 +22,42 @@ CreateAnimatedMap <- function(.data) {
     .data %>% 
     dplyr::group_by(MonitoringLocationIdentifier, LatitudeMeasure, LongitudeMeasure, year) %>% 
     dplyr::summarize(mean = mean(.data$ResultMeasureValue, na.rm = TRUE), 
-                     median = stats::median(.data$ResultMeasureValue, na.rm = TRUE))
+              median = stats::median(.data$ResultMeasureValue, na.rm = TRUE))
   
   # create a new character column with total nitrogen acceptable range designations
   n_bysite <- 
     n_bysite %>% dplyr::mutate(TN_mean=
-                                 dplyr::case_when(mean<2 ~ "<2 mg/l", 
-                                                  mean>=2 & mean<=6 ~ "2-6 mg/l", 
-                                                  mean>6 ~ ">6 mg/l")) 
-  
+                               dplyr::case_when(mean<2 ~ "<2 mg/l", 
+                               mean>=2 & mean<=6 ~ "2-6 mg/l", 
+                               mean>6 ~ ">6 mg/l")) 
+
   # convert latitude, longitude, and year data to numeric form
   n_bysite$LatitudeMeasure <- as.numeric(n_bysite$LatitudeMeasure)
   n_bysite$LongitudeMeasure <- as.numeric(n_bysite$LongitudeMeasure)
   n_bysite$year <- as.numeric(n_bysite$year)
   
+  # first, create the base map data frame
+  all_state <- "usa"
   
-  # plot the base map and add data to it
-  base_map <- 
-    map_with_data <- usmap::plot_usmap("counties", include = "AK", labels = FALSE) +
-    ggplot2::geom_point(data = usmap::usmap_transform(n_bysite, 
-                                                      input_names = c("LongitudeMeasure", "LatitudeMeasure"), 
-                                                      output_names = c("x", "y")), 
-                        aes(x = x, 
-                            y = y),
-                        color = "black", fill = "white")
+  usa <- map_data("state", interior=TRUE)
+  base_map <- ggplot2::ggplot(data = usa, mapping = aes(x = long, 
+                                               y = lat, 
+                                               group = group)) +
+    ggplot2::geom_polygon(color = "black", fill = "white") +
+    ggplot2::coord_quickmap() +
+    ggplot2::theme_void() 
   
+  # second, plot the base map and add data to it
   map_with_data <- base_map +
-    ggplot2::geom_point(data = usmap::usmap_transform(n_bysite, 
-                                             input_names = c("LongitudeMeasure", "LatitudeMeasure"), 
-                                             output_names = c("x", "y")), 
-               aes(x = x, 
-                   y = y, 
-                   color = TN_mean, 
-                   group = year, 
-                   frame = year)) +
+    ggplot2::geom_point(data = n_bysite, aes(x = LongitudeMeasure, 
+                                    y = LatitudeMeasure, 
+                                    color = TN_mean, 
+                                    group = year, 
+                                    frame = year)) +
     gganimate::transition_time(year) +
     ggplot2::ggtitle('Year: {frame_time}', # add year to the title
-                     subtitle = 'Frame {frame} of {nframes}') +
+            subtitle = 'Frame {frame} of {nframes}') +
     ggplot2::scale_colour_manual(values = c("blue", "red", "green")) 
-  
   num_years <- max(n_bysite$year)-min(n_bysite$year) + 1 
   
   # lastly, run the animation
