@@ -36,7 +36,7 @@ The following code will also install any packages you do not have, and
 load all packages required to run this vignette into your R session.
 
 ```{r, results = 'hide', message = FALSE, warning = FALSE}
-list.of.packages <- c("plyr", "data.table", "dplyr", "grDevices", "magrittr", "stringr", "utils", "RColorBrewer", "stats", "gganimate", "gifski", "lubridate", "maps", "remotes")
+list.of.packages <- c("plyr", "data.table", "dplyr", "grDevices", "magrittr", "stringr", "utils", "RColorBrewer", "stats", "gganimate", "gifski", "lubridate", "maps", "remotes", "rmarkdown")
 
 new.packages <- list.of.packages[!(list.of.packages %in% installed.packages()[,"Package"])]
 
@@ -59,13 +59,13 @@ Uncomment the lines below to install latest version of dataRetrieval,
 ggplot2, usmap, and TADA from GitHub.
 
 ```{r, results = 'hide', message = FALSE, warning = FALSE}
-remotes::install_github("USGS-R/dataRetrieval", dependencies=TRUE)
+# remotes::install_github("USGS-R/dataRetrieval", dependencies=TRUE)
 
-remotes::install_github("hadley/ggplot2", dependencies=TRUE)
+# remotes::install_github("hadley/ggplot2", dependencies=TRUE)
 
-remotes::install_github("pdil/usmap", dependencies=TRUE)
+# remotes::install_github("pdil/usmap", dependencies=TRUE)
 
-remotes::install_github("USEPA/TADA", dependencies=TRUE)
+# remotes::install_github("USEPA/TADA", dependencies=TRUE)
 
 # if you experience any issues installing TADA, try uncommenting and running the line below before the install
 # options(download.file.method = "wininet")
@@ -74,6 +74,7 @@ remotes::install_github("USEPA/TADA", dependencies=TRUE)
 Load the required libraries to run this vignette into your R session
 
 ```{r, results = 'hide', message = FALSE, warning = FALSE}
+#libraries loaded from CRAN
 library(plyr)
 library(data.table)
 library(dplyr)
@@ -88,6 +89,7 @@ library(gifski)
 library(lubridate)
 library(maps)
 
+#libraries loaded straight from GitHub instead of CRAN (see last two code chunks)
 library(dataRetrieval)
 library(ggplot2)
 library(usmap)
