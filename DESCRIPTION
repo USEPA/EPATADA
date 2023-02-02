@@ -35,10 +35,8 @@ Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.2.3
 Imports:
     plyr, 
-    data.table, 
-    dataRetrieval,
+    data.table,
     dplyr,
-    ggplot2,
     grDevices,
     magrittr,
     stringr,
@@ -48,25 +46,27 @@ Imports:
     gganimate,
     gifski,
     lubridate, 
-    usmap,
-    maptools,
-    rgdal
-Remotes: USEPA/TADA
+    maps,
+    remotes,
+    rmarkdown
+Remotes: 
+    pdil/usmap, 
+    USGS-R/dataRetrieval, 
+    hadley/ggplot2
 Depends: 
     R (>= 3.5.0)
 Suggests: 
+    maptools, 
+    rgdal, 
     ggrepel, 
     proto,
     scales, 
     sp, 
     covr,
-    maps,
     readr,
     rlang,
-    remotes, 
     tidyverse,
     knitr,
-    rmarkdown,
     testthat (>= 3.0.0),
     testthis, 
     usethis,
