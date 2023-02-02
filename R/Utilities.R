@@ -397,3 +397,50 @@ checkColumns <- function(.data, expected_cols) {
   }
 }
 
+#' ConvertSpecialChars
+#' 
+#' This function will screen a column of the user's choice for special characters.
+#' It creates a new column that describes the content of the column prior to
+#' conversion to numeric. It also creates a new column to hold the new, numeric
+#' column
+#' 
+#' @param .data A TADA profile object
+#' @param col A character column to be converted to numeric
+#' 
+#' 
+
+ConvertSpecialChars <- function(.data,col){
+  if(!col%in%names(.data)){
+    stop("Invalid column name specified for input dataset.")
+  }
+  if(class(col)=="numeric"){
+    stop("Column is already numeric. This conversion not needed.")
+  }
+  chars.data = .data
+  names(chars.data)[names(chars.data)==col] = "orig"
+  chars.data$masked = as.character(chars.data$orig)
+  chars.data = chars.data%>%
+    dplyr::mutate(flag = dplyr::case_when(
+      is.na(masked) ~ as.character("ND or NA"),
+      (!is.na(suppressWarnings(as.numeric(orig))) == TRUE) ~ as.character("Numeric"),
+      (grepl("<", masked) == TRUE) ~ as.character("Less Than"),
+      (grepl(">", masked) == TRUE) ~ as.character("Greater Than"),
+      (grepl("~", masked) == TRUE) ~ as.character("Approximate Value"),
+      (grepl("[A-Za-z]", masked) == TRUE) ~ as.character("Text"),
+      TRUE ~ "Coerced to NA"
+    ))
+
+  chars.data$masked = suppressWarnings(as.numeric(stringr::str_replace_all(
+    chars.data$orig,c("<" = "", ">" = "", "~" = "", "," = ""))))
+  
+  clean.data = chars.data%>%
+    dplyr::relocate("masked",.after = "orig")%>%
+    dplyr::relocate("flag", .after="masked")
+  names(clean.data)[names(clean.data)=="orig"] = col
+  names(clean.data)[names(clean.data)=="masked"] = paste0(col,".nochar")
+  names(clean.data)[names(clean.data)=="flag"] = paste0(col,".nochar_flag")
+  return(clean.data)
+}
+
+
+ 
