@@ -427,12 +427,13 @@ ConvertSpecialChars <- function(.data,col){
       (grepl(">", masked) == TRUE) ~ as.character("Greater Than"),
       (grepl("~", masked) == TRUE) ~ as.character("Approximate Value"),
       (grepl("[A-Za-z]", masked) == TRUE) ~ as.character("Text"),
+      (grepl("%", masked) == TRUE) ~ as.character("Percentage"),
       (grepl(",", masked) == TRUE) ~ as.character("Comma-Separated Numeric"),
       TRUE ~ "Coerced to NA"
     ))
 
   chars.data$masked = suppressWarnings(as.numeric(stringr::str_replace_all(
-    chars.data$orig,c("<" = "", ">" = "", "~" = "", "," = ""))))
+    chars.data$orig,c("<" = "", ">" = "", "~" = "", "," = "","%" = ""))))
   
   clean.data = chars.data%>%
     dplyr::relocate("masked",.after = "orig")%>%
