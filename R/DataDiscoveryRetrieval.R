@@ -41,7 +41,7 @@
 #' @param siteid Unique monitoring station identifier
 #' @param siteType Type of waterbody
 #' @param characteristicName Name of parameter
-#' @param ActivityMediaName Sampling substrate such as water, air, or sediment
+#' @param sampleMedia Sampling substrate such as water, air, or sediment
 #' @param ProjectIdentifier A string of letters and/or numbers (some additional characters also possible) used to signify a project with data in the Water Quality Portal
 #' @param OrganizationIdentifier A string of letters and/or numbers (some additional characters also possible) used to signify an organization with data in the Water Quality Portal
 #' @param endDate End Date in the format YYYY-MM-DD
@@ -81,7 +81,7 @@ TADAdataRetrieval <- function(statecode = "null",
                               siteid = "null",
                               siteType = "null",
                               characteristicName = "null",
-                              ActivityMediaName = "null",
+                              sampleMedia = "null",
                               ProjectIdentifier = "null",
                               OrganizationIdentifier = "null",
                               endDate = "null",
@@ -126,10 +126,10 @@ TADAdataRetrieval <- function(statecode = "null",
     WQPquery <- c(WQPquery, characteristicName = characteristicName)
   }
   
-  if (length(ActivityMediaName)>1) {
-    WQPquery <- c(WQPquery, ActivityMediaName = list(ActivityMediaName)) 
-  } else if (ActivityMediaName != "null") {
-    WQPquery <- c(WQPquery, ActivityMediaName = ActivityMediaName)
+  if (length(sampleMedia)>1) {
+    WQPquery <- c(WQPquery, sampleMedia = list(sampleMedia)) 
+  } else if (sampleMedia != "null") {
+    WQPquery <- c(WQPquery, sampleMedia = sampleMedia)
   }
   
   if (length(ProjectIdentifier)>1) {
@@ -292,7 +292,7 @@ TADAReadWQPWebServices <- function(webservice) {
 #' @param startDate Start Date YYYY-MM-DD format, for example, "1995-01-01"
 #' @param endDate end date in YYYY-MM-DD format, for example, "2020-12-31"
 #' @param statecode Character/character vector. State/territory abbreviations from FIPS codes consist of two letters 
-#' @param huc An 8-digit numeric code denoting a hydrologic unit. Example: "04030202"
+#' @param huc A numeric code denoting a hydrologic unit. Example: "04030202". Different size hucs can be entered.
 #' @param characteristicName Name of water quality parameter
 #' @param siteType Name of water body type (e.g., "Stream", "Lake, Reservoir, Impoundment")
 #' @param sampleMedia Defaults to "Water". Refer to WQP domain tables for other options.

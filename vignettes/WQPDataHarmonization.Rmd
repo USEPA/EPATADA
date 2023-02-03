@@ -126,7 +126,7 @@ Data retrieval filters include:
 
 -   characteristicName
 
--   ActivityMediaName
+-   sampleMedia
 
 Please be aware that this TADAdataRetrieval function automatically runs
 the TADA **autoclean** and **MeasureValueSpecialCharacters** functions
@@ -271,6 +271,7 @@ See ?TADABigdataRetrieval for more details. WARNING, this can take
 multiple HOURS to run. The total run time depends on your query inputs.
 
 ```{r}
+# WARNING, this can take multiple HOURS to run 
 # StreamTemp <- TADABigdataRetrieval(startDate = "2000-01-01", 
 #                                     endDate = "2022-12-31", 
 #                                     characteristicName = "Temperature, water",
@@ -558,7 +559,7 @@ See documentation for more details:
 
     -   When clean = FALSE, the following column will be added to your
         dataframe: WQX.ResultUnitValidity. This column flags each
-        CharacteristicName, ActivityMediaName, and
+        CharacteristicName, sampleMedia, and
         ResultMeasure/MeasureUnitCode combination in your dataframe as
         either "Nonstandardized", "Invalid", or "Valid".
 
