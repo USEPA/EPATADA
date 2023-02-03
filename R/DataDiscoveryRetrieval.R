@@ -173,6 +173,7 @@ TADAdataRetrieval <- function(statecode = "null",
                           Sites = sites.DR,
                           Narrow = narrow.DR,
                           Projects = projects.DR)
+  
   # run autoclean function
   if(applyautoclean==TRUE){
     

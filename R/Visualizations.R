@@ -23,8 +23,8 @@ CreateAnimatedMap <- function(.data) {
   n_bysite <- 
     .data %>% 
     dplyr::group_by(MonitoringLocationIdentifier, LatitudeMeasure, LongitudeMeasure, year) %>% 
-    dplyr::summarize(mean = stats::mean(.data$ResultMeasureValue, na.rm = TRUE), 
-              median = stats::median(.data$ResultMeasureValue, na.rm = TRUE))
+    dplyr::summarize(mean = mean(.data$ResultMeasureValue, na.rm = TRUE), 
+              median = median(.data$ResultMeasureValue, na.rm = TRUE))
   
   # create a new character column with total nitrogen acceptable range designations
   n_bysite <- 
@@ -48,14 +48,6 @@ CreateAnimatedMap <- function(.data) {
                             y = y),
                         color = "black", fill = "white")
   
-  usa <- map_data("state", interior=TRUE)
-  base_map <- ggplot2::ggplot(data = usa, mapping = aes(x = long, 
-                                               y = lat, 
-                                               group = group)) +
-    ggplot2::geom_polygon(color = "black", fill = "white") +
-    ggplot2::coord_quickmap() +
-    ggplot2::theme_void() 
-  
   # second, plot the base map and add data to it
   map_with_data <- base_map +
     ggplot2::geom_point(data = usmap::usmap_transform(n_bysite, 
@@ -69,23 +61,10 @@ CreateAnimatedMap <- function(.data) {
     gganimate::transition_time(year) +
     ggplot2::ggtitle('Year: {frame_time}', # add year to the title
                      subtitle = 'Frame {frame} of {nframes}') +
-    ggplot2::scale_colour_manual(values = c("blue", "red", "green")) 
+    ggplot2::scale_colour_manual(values = c("blue", "red", "green"))
   
-  num_years <- max(n_bysite$year)-min(n_bysite$year) + 1 
-  
-  # lastly, run the animation
-    
-    ggplot2::geom_point(data = n_bysite, aes(x = LongitudeMeasure, 
-                                    y = LatitudeMeasure, 
-                                    color = TN_mean, 
-                                    group = year, 
-                                    frame = year)) +
-    gganimate::transition_time(year) +
-    ggplot2::ggtitle('Year: {frame_time}', # add year to the title
-            subtitle = 'Frame {frame} of {nframes}') +
-    ggplot2::scale_colour_manual(values = c("blue", "red", "green")) 
-  num_years <- max(n_bysite$year)-min(n_bysite$year) + 1 
-  
+    num_years <- max(n_bysite$year)-min(n_bysite$year) + 1 
+
   # lastly, run the animation
   gganimate::animate(map_with_data, nframes = num_years, fps = 1)
   
