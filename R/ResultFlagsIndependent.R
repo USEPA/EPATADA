@@ -1005,8 +1005,7 @@ InvalidCoordinates <- function(.data,
     warning("LatitudeMeasure field must be numeric")
   }
   # check that clean_outsideUSA is either "no", "remove", or "change sign"
-  # remove for now 2/3
-  # clean_outsideUSA <- match.arg(clean_outsideUSA)
+  clean_outsideUSA <- match.arg(clean_outsideUSA)
   
   # execute function after checks are passed
   .data <- .data %>%
