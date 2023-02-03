@@ -36,9 +36,7 @@ RoxygenNote: 7.2.3
 Imports:
     plyr, 
     data.table, 
-    dataRetrieval,
     dplyr,
-    ggplot2,
     grDevices,
     magrittr,
     stringr,
@@ -49,6 +47,7 @@ Imports:
     lubridate,
     maps, 
     gifski
+Remotes: pdil/usmap, USGS-R/dataRetrieval, hadley/ggplot2
 Depends: 
     R (>= 3.5.0)
 Suggests: 
