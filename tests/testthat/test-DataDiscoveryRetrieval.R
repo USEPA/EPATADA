@@ -162,21 +162,23 @@ test_that("BigdataRetrieval_daterange",{
 # full phys chem results and station metadata. 
 
 
-test_that("JoinWQPProfiles", {
+test_that("JoinWQPProfiles_works", {
 
   # testthat::test_path() is automatically set to "tests/testthat". To get to the data files, you 
-  #only need to add the additional pathway e.g., not the full path i.e., 
+  # only need to add the additional pathway e.g., not the full path i.e., 
   #"tests/testthat/testdata/Cyan_Stations.rds" but "testdata/Cyan_Results.rds"
   physchemresults = readRDS(testthat::test_path("testdata/Cyan_Results.rds"))
+  
   stations = readRDS(testthat::test_path("testdata/Cyan_Stations.rds"))
   
   add_sites_metadata <- JoinWQPProfiles(Sites = stations, 
                                         FullPhysChem = physchemresults)
+  
   expect_true(ncol(add_sites_metadata) == 113)
 })
 
 
-test_that("JoinWQPProfile", {
+test_that("JoinWQPProfiles_columns", {
   data(station)
   data(narrow)
   data(resultphyschem)

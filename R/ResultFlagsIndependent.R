@@ -875,7 +875,7 @@ QAPPDocAvailable <- function(.data, clean = FALSE) {
   # execute function after checks are passed
   # flag data where QAPP document url is provided
   # make QAPPdoc.data data frame
-  QAPPdoc.data <- dplyr::filter(.data, base::grepl("/", ProjectFileUrl))
+  QAPPdoc.data <- dplyr::filter(.data, grepl("/", ProjectFileUrl))
   
   # if there is data without an associated QAPP url in the data set
   if (nrow(QAPPdoc.data) != 0) {
@@ -894,7 +894,7 @@ QAPPDocAvailable <- function(.data, clean = FALSE) {
     # clean output
     if (clean == TRUE) {
       # remove data without an associated QAPP url
-      clean.data <- dplyr::filter(flag.data, base::grepl("/", ProjectFileUrl))
+      clean.data <- dplyr::filter(flag.data, grepl("/", ProjectFileUrl))
       
       # remove TADA.QAPPDocAvailable column
       clean.data <- dplyr::select(clean.data, -TADA.QAPPDocAvailable)
@@ -997,7 +997,7 @@ InvalidCoordinates <- function(.data,
   checkType(clean_imprecise, "logical")
   # check .data has required columns
   checkColumns(.data, c("LatitudeMeasure", "LongitudeMeasure"))
-  #check lat and long are "numeric"
+  # check lat and long are "numeric"
   if (class(.data$LongitudeMeasure) != "numeric") {
     warning("LongitudeMeasure field must be numeric")
   }
@@ -1006,7 +1006,7 @@ InvalidCoordinates <- function(.data,
     warning("LatitudeMeasure field must be numeric")
   }
   # check that clean_outsideUSA is either "no", "remove", or "change sign"
-  clean_outsideUSA <- base::match.arg(clean_outsideUSA)
+  clean_outsideUSA <- match.arg(clean_outsideUSA)
   
   # execute function after checks are passed
   .data <- .data %>%
@@ -1016,13 +1016,13 @@ InvalidCoordinates <- function(.data,
       LatitudeMeasure < 13.654383 & LatitudeMeasure > 13.234189 & LongitudeMeasure < 144.956712 & LongitudeMeasure > 144.618068 ~ NA_character_, #Guam
       LatitudeMeasure < 0 ~ "LAT_OutsideUSA",
       LongitudeMeasure > 0 & LongitudeMeasure < 145 ~ "LONG_OutsideUSA",
-      base::grepl("999", LatitudeMeasure) ~ "Imprecise_Latincludes999",
-      base::grepl("999", LongitudeMeasure) ~ "Imprecise_Longincludes999",
-      #for below, lat and long fields must be numeric
+      grepl("999", LatitudeMeasure) ~ "Imprecise_Latincludes999",
+      grepl("999", LongitudeMeasure) ~ "Imprecise_Longincludes999",
+      # for below, lat and long fields must be numeric
       # this checks if there are at least 3 significant figures to the 
       # right of the decimal point
-      base::sapply(.data$LatitudeMeasure, decimalplaces) < 3 
-      | base::sapply(.data$LongitudeMeasure, decimalplaces) < 3 ~ "Imprecise_lessthan3decimaldigits"
+      sapply(.data$LatitudeMeasure, decimalplaces) < 3 
+      | sapply(.data$LongitudeMeasure, decimalplaces) < 3 ~ "Imprecise_lessthan3decimaldigits"
     ))
   
   # if clean_imprecise is TRUE, remove imprecise station metadata
@@ -1044,7 +1044,7 @@ InvalidCoordinates <- function(.data,
   
   # if clean_outsideUSA is "change sign", change the sign of lat/long coordinates outside of USA
   if (clean_outsideUSA == "change sign") {
-    base::print("When clean_outsideUSA == change sign, the sign for any lat/long coordinates flagged as outside of USA are switched. This is a temporary solution. Data owners should fix the raw data to address invalid coordinates through WQX. For assistance fixing data errors you see in the WQP, email the WQX helpdesk (WQX@epa.gov).")
+    print("When clean_outsideUSA == change sign, the sign for any lat/long coordinates flagged as outside of USA are switched. This is a temporary solution. Data owners should fix the raw data to address invalid coordinates through WQX. For assistance fixing data errors you see in the WQP, email the WQX helpdesk (WQX@epa.gov).")
     .data <- .data %>% 
       dplyr::mutate(
         LatitudeMeasure = dplyr::case_when(
@@ -1056,7 +1056,7 @@ InvalidCoordinates <- function(.data,
       )
   }
   
-  #return only flagged data if errorsonly = true
+  # return only flagged data if errorsonly = true
   if ((errorsonly == TRUE)) {
     .data <- dplyr::filter(.data, is.na(TADA.InvalidCoordinates) != TRUE)
   }
