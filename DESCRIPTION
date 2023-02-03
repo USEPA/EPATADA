@@ -46,11 +46,13 @@ Imports:
     gganimate,
     lubridate,
     maps, 
-    gifski
-Remotes: pdil/usmap, USGS-R/dataRetrieval, hadley/ggplot2
+    dataRetrieval, 
+    usmap, 
+    ggplot2
 Depends: 
     R (>= 3.5.0)
 Suggests: 
+    gifski,
     readr,
     rlang,
     remotes, 
