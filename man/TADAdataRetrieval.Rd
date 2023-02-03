@@ -11,7 +11,7 @@ TADAdataRetrieval(
   siteid = "null",
   siteType = "null",
   characteristicName = "null",
-  ActivityMediaName = "null",
+  sampleMedia = "null",
   ProjectIdentifier = "null",
   OrganizationIdentifier = "null",
   endDate = "null",
@@ -31,7 +31,7 @@ TADAdataRetrieval(
 
 \item{characteristicName}{Name of parameter}
 
-\item{ActivityMediaName}{Sampling substrate such as water, air, or sediment}
+\item{sampleMedia}{Sampling substrate such as water, air, or sediment}
 
 \item{ProjectIdentifier}{A string of letters and/or numbers (some additional characters also possible) used to signify a project with data in the Water Quality Portal}
 

@@ -22,7 +22,7 @@ TADABigdataRetrieval(
 
 \item{statecode}{Character/character vector. State/territory abbreviations from FIPS codes consist of two letters}
 
-\item{huc}{An 8-digit numeric code denoting a hydrologic unit. Example: "04030202"}
+\item{huc}{A numeric code denoting a hydrologic unit. Example: "04030202". Different size hucs can be entered.}
 
 \item{characteristicName}{Name of water quality parameter}
 
