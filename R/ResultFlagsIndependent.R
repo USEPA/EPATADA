@@ -1005,7 +1005,8 @@ InvalidCoordinates <- function(.data,
     warning("LatitudeMeasure field must be numeric")
   }
   # check that clean_outsideUSA is either "no", "remove", or "change sign"
-  clean_outsideUSA <- match.arg(clean_outsideUSA)
+  # remove for now 2/3
+  # clean_outsideUSA <- match.arg(clean_outsideUSA)
   
   # execute function after checks are passed
   .data <- .data %>%
@@ -1043,7 +1044,7 @@ InvalidCoordinates <- function(.data,
   
   # if clean_outsideUSA is "change sign", change the sign of lat/long coordinates outside of USA
   if (clean_outsideUSA == "change sign") {
-    print("Note: This is a temporary solution. Data owner should fix the raw data to address invalid coordinates through WQX. For assistance, email the WQX helpdesk (WQX@epa.gov).")
+    print("Note: When clean_outsideUSA == change sign, the sign of lat/long coordinates flagged as outside of USA are switched. This is a temporary solution. Data owners should fix the raw data to address invalid coordinates through WQX. For assistance fixing data errors you see in the WQP, email the WQX helpdesk (WQX@epa.gov).")
     .data <- .data %>% 
       dplyr::mutate(
         LatitudeMeasure = dplyr::case_when(
