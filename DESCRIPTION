@@ -43,17 +43,13 @@ Imports:
     utils, 
     RColorBrewer,
     stats, 
-    gganimate,
     lubridate,
     maps, 
     dataRetrieval, 
-    usmap, 
     ggplot2
 Depends: 
     R (>= 3.5.0)
 Suggests: 
-    maptools, 
-    gifski,
     readr,
     rlang,
     remotes, 
