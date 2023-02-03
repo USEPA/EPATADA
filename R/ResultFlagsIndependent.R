@@ -939,9 +939,14 @@ QAPPDocAvailable <- function(.data, clean = FALSE) {
   
   # if no associated QAPP url data is in the data set
   if (nrow(QAPPdoc.data) == 0) {
-    print("No changes were made, because we did not find any QAPP document url data in your dataframe")
-    
-    return(.data)
+    if (clean == FALSE) {
+      print("No changes were made, because we did not find any QAPP document url data in your dataframe")
+      return(.data)
+    }
+    if (clean == TRUE) {
+      print("This dataframe is empty because we did not find any QAPP document url data in your dataframe")
+      return(QAPPdoc.data)
+    }
   }
 }
 

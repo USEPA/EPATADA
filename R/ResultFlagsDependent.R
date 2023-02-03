@@ -92,8 +92,16 @@ InvalidFraction <- function(.data, clean = TRUE, errorsonly = FALSE) {
   # if all rows are "Valid", return input unchanged
   if (any(c("Nonstandardized", "Invalid") %in%
           unique(check.data$WQX.SampleFractionValidity)) == FALSE) {
-    print("No changes were made, because we did not find any invalid fraction/characteristic combinations in your dataframe")
-    return(.data)
+    if (errorsonly == FALSE) {
+      print("No changes were made, because we did not find any invalid fraction/characteristic combinations in your dataframe")
+      return(.data)
+    }
+    if (errorsonly == TRUE) {
+      print("This dataframe is empty because we did not find any invalid fraction/characteristic combinations in your dataframe")
+      empty.data <- dplyr::filter(check.data, WQX.SampleFractionValidity == "Invalid")
+      empty.data <- dplyr::select(empty.data, -WQX.SampleFractionValidity)
+      return(empty.data)
+    }
   }
   
   # flagged output, all data
@@ -241,6 +249,10 @@ InvalidSpeciation <- function(.data, clean = TRUE, errorsonly = FALSE) {
   if (clean == FALSE & errorsonly == TRUE) {
     # filter to show only invalid characteristic-method speciation combinations
     invalid.data <- dplyr::filter(check.data, WQX.MethodSpeciationValidity == "Invalid")
+    if (nrow(invalid.data) == 0) {
+      print("This dataframe is empty because we did not find any invalid characteristic-method speciation combinations in your dataframe")
+      invalid.data <- dplyr::select(invalid.data, -WQX.MethodSpeciationValidity)
+    }
     return(invalid.data)
   }
 }
@@ -364,6 +376,10 @@ InvalidResultUnit <- function(.data, clean = TRUE, errorsonly = FALSE) {
   if (clean == FALSE & errorsonly == TRUE) {
     # filter to show only invalid characteristic-unit-media combinations
     invalid.data <- dplyr::filter(check.data, WQX.ResultUnitValidity == "Invalid")
+    if (nrow(invalid.data) == 0) {
+      print("This dataframe is empty because we did not find any invalid characteristic-unit-media combinations in your dataframe")
+      invalid.data <- dplyr::select(invalid.data, -WQX.ResultUnitValidity)
+    }
     return(invalid.data)
   }
 }
