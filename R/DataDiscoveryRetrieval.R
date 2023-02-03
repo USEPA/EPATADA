@@ -28,6 +28,10 @@
 #' to the "ResultMeasureValue" and "DetectionLimitMeasureValue" columns; 
 #' and to provide information about the result values that is needed to address
 #' censored data later on (i.e., nondetections)
+#' 
+#' Users can reference the \href{https://www.epa.gov/waterdata/storage-and-retrieval-and-water-quality-exchange-domain-services-and-downloads}{WQX domain tables}
+#' to find allowable vales for queries, e.g., reference the WQX domain table to find countycode and statecode: https://cdx.epa.gov/wqx/download/DomainValues/County_CSV.zip
+#' Alternatively, you can use the WQP services to find areas where data is available in the US: https://www.waterqualitydata.us/Codes/countycode
 #'  
 #' See ?MeasureValueSpecialCharacters and ?autoclean documentation for more information.
 #' 
@@ -52,7 +56,25 @@
 #' tada1 <- TADAdataRetrieval(statecode = "WI",
 #'                            countycode = "Dane",
 #'                            characteristicName = "Phosphorus")
+#' 
+#' tada2 <- TADAdataRetrieval(ProjectIdentifier = "Anchorage Bacteria 20-21")
+#' 
+#' tada3 <- TADAdataRetrieval(statecode = "UT", 
+#'                            characteristicName = c("Ammonia", "Nitrate", "Nitrogen"), 
+#'                            startDate = "10-01-2020")
+#' 
+#' tada4 <- TADAdataRetrieval(statecode = "SC", countycode  = "Abbeville")
+#' 
+#' # countycode queries require a statecode
+#' tada5 <- TADAdataRetrieval(countycode = "US:02:020")
+#' 
+#' tada6 <- TADABigdataRetrieval(startDate = "2019-01-01", 
+#'                               endDate = "2021-12-31", 
+#'                               characteristicName = "Temperature, water",
+#'                               statecode = c("AK","AL"))
+#' 
 #' }
+#' 
 TADAdataRetrieval <- function(statecode = "null",
                               startDate = "null",
                               countycode = "null", 
