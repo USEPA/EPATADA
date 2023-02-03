@@ -96,34 +96,41 @@ InvalidMethod <- function(.data, clean = TRUE, errorsonly = FALSE) {
                     .after = "ResultAnalyticalMethod.MethodName"
     )
   
-  # if all rows are "Valid" or NA "Nonstandardized", return input unchanged
-  ##note: Cristina edited this on 9/19/22 to keep Nonstandardized/NA data when clean = TRUE. Now only Invalid data is removed.
-  if (any("Invalid" %in%
-          unique(check.data$WQX.AnalyticalMethodValidity)) == FALSE) {
-    print("No changes were made, because we did not find any invalid method/characteristic combinations in your dataframe")
-    return(.data)
-  }
-  
-  # flagged output, all data
-  if (clean == FALSE & errorsonly == FALSE) {
-    return(check.data)
-  }
-  
-  # clean output
-  if (clean == TRUE & errorsonly == FALSE) {
-    # filter out invalid characteristic-unit-method combinations
-    clean.data <- dplyr::filter(check.data, WQX.AnalyticalMethodValidity != "Invalid")
+  if (errorsonly == FALSE) {
     
-    # remove WQX.AnalyticalMethodValidity column
-    clean.data <- dplyr::select(clean.data, -WQX.AnalyticalMethodValidity)
+    #if all rows are "Valid" or NA "Nonstandardized", return input unchanged
+    ##note: Cristina edited this on 9/19/22 to keep Nonstandardized/NA data when clean = TRUE. Now only Invalid data is removed.
+    if (any("Invalid" %in%
+            unique(check.data$WQX.AnalyticalMethodValidity)) == FALSE) {
+      print("No changes were made, because we did not find any invalid method/characteristic combinations in your dataframe")
+      return(.data)
+    }
     
-    return(clean.data)
+    # flagged output, all data
+    if (clean == FALSE) {
+      return(check.data)
+    }
+    
+    # clean output
+    if (clean == TRUE) {
+      # filter out invalid characteristic-unit-method combinations
+      clean.data <- dplyr::filter(check.data, WQX.AnalyticalMethodValidity != "Invalid")
+      
+      # remove WQX.AnalyticalMethodValidity column
+      clean.data <- dplyr::select(clean.data, -WQX.AnalyticalMethodValidity)
+      
+      return(clean.data)
+    }
   }
-  
+
   # flagged output, errors only
   if (clean == FALSE & errorsonly == TRUE) {
     # filter to show only invalid characteristic-unit-method combinations
     invalid.data <- dplyr::filter(check.data, WQX.AnalyticalMethodValidity == "Invalid")
+    if (nrow(invalid.data) == 0) {
+      invalid.data <- dplyr::select(invalid.data, -WQX.AnalyticalMethodValidity)
+      print("This dataframe is empty because we did not find any invalid method/characteristic combinations in your dataframe")
+    }
     return(invalid.data)
   }
 }
@@ -228,16 +235,22 @@ AggregatedContinuousData <- function(.data, clean = TRUE, errorsonly = FALSE) {
     # flagged output, only aggregated continuous data
     if (clean == FALSE & errorsonly == TRUE) {
       #filter to show only invalid characteristic-unit-media combinations
-      aggcont.data <- dplyr::filter(flag.data, (TADA.AggregatedContinuousData %in% "Y"))
+      aggcont.data <- dplyr::filter(flag.data, TADA.AggregatedContinuousData == "Y")
       return(aggcont.data)
     }
   }
   
   # if no aggregated continuous data is in the data set
   if (nrow(cont.data) == 0) {
-    print("No changes were made, because we did not find any aggregated continuous data in your dataframe")
+    if (errorsonly == FALSE) {
+      print("No changes were made, because we did not find any aggregated continuous data in your dataframe")
+      return(.data)
+    }
     
-    return(.data)
+    if (errorsonly == TRUE) {
+      print("This dataframe is empty because we did not find any aggregated continuous data in your dataframe")
+      return(cont.data)
+    }
   }
 }
 
@@ -283,7 +296,6 @@ AggregatedContinuousData <- function(.data, clean = TRUE, errorsonly = FALSE) {
 #' 
 #' # Flag and review potential duplicate data only:
 #' PotentialDup_reviewduplicatesonly <- PotentialDuplicateRowID(Nutrients_Utah, clean = FALSE, errorsonly = TRUE) 
-#' 
 
 PotentialDuplicateRowID <- function(.data, clean = TRUE, errorsonly = FALSE) {
   # check .data is data.frame
@@ -322,8 +334,14 @@ PotentialDuplicateRowID <- function(.data, clean = TRUE, errorsonly = FALSE) {
   
   # if no potential duplicates are found
   if (nrow(dupe.data) == 0) {
-    print("No changes were made, because we did not find any potential duplicates in your dataframe")
-    return(.data)
+    if (errorsonly == FALSE) {
+      print("No changes were made, because we did not find any potential duplicates in your dataframe")
+      return(.data)
+    }
+    if (errorsonly == TRUE) {
+      print("This dataframe is empty because we did not find any potential duplicates in your dataframe")
+      return(dupe.data)
+    }
   }
   
   # if potential duplicates are found
@@ -509,8 +527,16 @@ AboveNationalWQXUpperThreshold <- function(.data, clean = TRUE, errorsonly = FAL
   # if no data above WQX threshold is found
   if (any("Y" %in%
           unique(flag.data$AboveWQXUpperThreshold)) == FALSE) {
-    print("No changes were made because no data above the WQX Upper Threshold was found in your dataframe")
-    return(.data)
+    if (errorsonly == FALSE) {
+      print("No changes were made because no data above the WQX Upper Threshold was found in your dataframe")
+      return(.data)
+    }
+    if (errorsonly == TRUE) {
+      print("This dataframe is empty because no data above the WQX Upper Threshold was found in your dataframe")
+      emptyflag.data <- dplyr::filter(flag.data, AboveWQXUpperThreshold %in% "Y")
+      emptyflag.data <- dplyr::select(emptyflag.data, -AboveWQXUpperThreshold)
+      return(emptyflag.data)
+    }
   }
   
   # flagged, all data
@@ -660,8 +686,16 @@ BelowNationalWQXLowerThreshold <- function(.data, clean = TRUE, errorsonly = FAL
   # if no data below WQX lower threshold is found
   if (any("Y" %in%
           unique(flag.data$BelowWQXLowerThreshold)) == FALSE) {
-    print("No changes were made because no data below the WQX Lower Threshold was found in your dataframe")
-    return(.data)
+    if (errorsonly == FALSE) {
+      print("No changes were made because no data below the WQX Lower Threshold was found in your dataframe")
+      return(.data)
+    }
+    if (errorsonly == TRUE) {
+      print("This dataframe is empty because no data below the WQX Lower Threshold was found in your dataframe")
+      emptyflag.data <- dplyr::filter(flag.data, BelowWQXLowerThreshold %in% "Y")
+      emptyflag.data <- dplyr::select(emptyflag.data, -BelowWQXLowerThreshold)
+      return(emptyflag.data)
+    }
   }
   
   # flagged, all data
