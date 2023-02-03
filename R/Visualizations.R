@@ -24,14 +24,14 @@ CreateAnimatedMap <- function(.data) {
     .data %>% 
     dplyr::group_by(MonitoringLocationIdentifier, LatitudeMeasure, LongitudeMeasure, year) %>% 
     dplyr::summarize(mean = mean(.data$ResultMeasureValue, na.rm = TRUE), 
-              median = median(.data$ResultMeasureValue, na.rm = TRUE))
+                     median = median(.data$ResultMeasureValue, na.rm = TRUE))
   
   # create a new character column with total nitrogen acceptable range designations
   n_bysite <- 
     n_bysite %>% dplyr::mutate(TN_mean=
-                               dplyr::case_when(mean<2 ~ "<2 mg/l", 
-                               mean>=2 & mean<=6 ~ "2-6 mg/l", 
-                               mean>6 ~ ">6 mg/l")) 
+                                 dplyr::case_when(mean<2 ~ "<2 mg/l", 
+                                                  mean>=2 & mean<=6 ~ "2-6 mg/l", 
+                                                  mean>6 ~ ">6 mg/l")) 
 
   # convert latitude, longitude, and year data to numeric form
   n_bysite$LatitudeMeasure <- as.numeric(n_bysite$LatitudeMeasure)
@@ -48,7 +48,6 @@ CreateAnimatedMap <- function(.data) {
                             y = y),
                         color = "black", fill = "white")
   
-  # second, plot the base map and add data to it
   map_with_data <- base_map +
     ggplot2::geom_point(data = usmap::usmap_transform(n_bysite, 
                                                       input_names = c("LongitudeMeasure", "LatitudeMeasure"), 
@@ -61,10 +60,10 @@ CreateAnimatedMap <- function(.data) {
     gganimate::transition_time(year) +
     ggplot2::ggtitle('Year: {frame_time}', # add year to the title
                      subtitle = 'Frame {frame} of {nframes}') +
-    ggplot2::scale_colour_manual(values = c("blue", "red", "green"))
+    ggplot2::scale_colour_manual(values = c("blue", "red", "green")) 
   
-    num_years <- max(n_bysite$year)-min(n_bysite$year) + 1 
-
+  num_years <- max(n_bysite$year)-min(n_bysite$year) + 1 
+  
   # lastly, run the animation
   gganimate::animate(map_with_data, nframes = num_years, fps = 1)
   
