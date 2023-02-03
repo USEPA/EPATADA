@@ -46,7 +46,9 @@ Imports:
     lubridate,
     maps, 
     dataRetrieval, 
-    ggplot2
+    ggplot2, 
+    gganimate, 
+    gifski
 Depends: 
     R (>= 3.5.0)
 Suggests: 

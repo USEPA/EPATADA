@@ -529,7 +529,7 @@ JoinWQPProfiles <- function(FullPhysChem = "null",
     if(nrow(Sites.df)>0){
       join1 <- FullPhysChem.df %>%
         # join stations to results
-        dplyr::left_join(Sites.df, by = "MonitoringLocationIdentifier") %>%
+        dplyr::left_join(Sites.df, by = "MonitoringLocationIdentifier", multiple = "all") %>%
         # remove ".x" suffix from column names
         dplyr::rename_at(dplyr::vars(dplyr::ends_with(".x")), ~ stringr::str_replace(., "\\..$", "")) %>%
         # remove columns with ".y" suffix
@@ -568,8 +568,8 @@ JoinWQPProfiles <- function(FullPhysChem = "null",
         ),
         by = c(
           "OrganizationIdentifier", "OrganizationFormalName",
-          "ProjectIdentifier","ProjectName"
-        )
+          "ProjectIdentifier","ProjectName"),
+        multiple = "all"
         )
     }else{join3 = join2}
     
