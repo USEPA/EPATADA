@@ -40,9 +40,9 @@
 #' @param siteid Unique monitoring station identifier
 #' @param siteType Type of waterbody
 #' @param characteristicName Name of parameter
-#' @param ActivityMediaName Sampling substrate such as water, air, or sediment
-#' @param ProjectIdentifier A string of letters and/or numbers (some additional characters also possible) used to signify a project with data in the Water Quality Portal
-#' @param OrganizationIdentifier A string of letters and/or numbers (some additional characters also possible) used to signify an organization with data in the Water Quality Portal
+#' @param sampleMedia Sampling substrate such as water, air, or sediment
+#' @param project A string of letters and/or numbers (some additional characters also possible) used to signify a project with data in the Water Quality Portal
+#' @param organization A string of letters and/or numbers (some additional characters also possible) used to signify an organization with data in the Water Quality Portal
 #' @param endDate End Date in the format YYYY-MM-DD
 #' @param applyautoclean Logical, defaults to TRUE. Applies TADA's autoclean function on the returned data profile.
 #'
@@ -57,7 +57,7 @@
 #' countycode = "Dane",
 #' characteristicName = "Phosphorus")
 #' 
-#' tada2 <- TADAdataRetrieval(ProjectIdentifier = "Anchorage Bacteria 20-21")
+#' tada2 <- TADAdataRetrieval(project = "Anchorage Bacteria 20-21")
 #' 
 #' tada3 <- TADAdataRetrieval(statecode = "UT", 
 #'                            characteristicName = c("Ammonia", "Nitrate", "Nitrogen"), 
@@ -78,9 +78,9 @@ TADAdataRetrieval <- function(statecode = "null",
                               siteid = "null",
                               siteType = "null",
                               characteristicName = "null",
-                              ActivityMediaName = "null",
-                              ProjectIdentifier = "null",
-                              OrganizationIdentifier = "null",
+                              sampleMedia = "null",
+                              project = "null",
+                              organization = "null",
                               endDate = "null",
                               applyautoclean = TRUE
                               ) {
@@ -123,22 +123,22 @@ TADAdataRetrieval <- function(statecode = "null",
     WQPquery <- c(WQPquery, characteristicName = characteristicName)
   }
   
-  if (length(ActivityMediaName)>1) {
-    WQPquery <- c(WQPquery, ActivityMediaName = list(ActivityMediaName)) 
-  } else if (ActivityMediaName != "null") {
-    WQPquery <- c(WQPquery, ActivityMediaName = ActivityMediaName)
+  if (length(sampleMedia)>1) {
+    WQPquery <- c(WQPquery, sampleMedia = list(sampleMedia)) 
+  } else if (sampleMedia != "null") {
+    WQPquery <- c(WQPquery, sampleMedia = sampleMedia)
   }
   
-  if (length(ProjectIdentifier)>1) {
-    WQPquery <- c(WQPquery, project = list(ProjectIdentifier)) 
-  } else if (ProjectIdentifier != "null") {
-    WQPquery <- c(WQPquery, project = ProjectIdentifier)
+  if (length(project)>1) {
+    WQPquery <- c(WQPquery, project = list(project)) 
+  } else if (project != "null") {
+    WQPquery <- c(WQPquery, project = project)
   }
   
-  if (length(OrganizationIdentifier)>1) {
-    WQPquery <- c(WQPquery, organization = list(OrganizationIdentifier)) 
-  } else if (OrganizationIdentifier != "null") {
-    WQPquery <- c(WQPquery, organization = OrganizationIdentifier)
+  if (length(organization)>1) {
+    WQPquery <- c(WQPquery, organization = list(organization)) 
+  } else if (organization != "null") {
+    WQPquery <- c(WQPquery, organization = organization)
   }
   
   if (length(endDate)>1) {
