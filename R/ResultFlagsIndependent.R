@@ -983,6 +983,7 @@ QAPPDocAvailable <- function(.data, clean = FALSE) {
 #' 
 #' # Remove data with imprecise coordinates or coordinates outside the USA from the dataframe:
 #' InvalidCoord_removed <- InvalidCoordinates(Nutrients_Utah, clean_outsideUSA = "remove", clean_imprecise = TRUE)
+#' 
 
 InvalidCoordinates <- function(.data, 
                                clean_outsideUSA = c("no", "remove", "change sign"), 
@@ -996,7 +997,7 @@ InvalidCoordinates <- function(.data,
   checkType(clean_imprecise, "logical")
   # check .data has required columns
   checkColumns(.data, c("LatitudeMeasure", "LongitudeMeasure"))
-  #check lat and long are "numeric"
+  # check lat and long are "numeric"
   if (class(.data$LongitudeMeasure) != "numeric") {
     warning("LongitudeMeasure field must be numeric")
   }
@@ -1017,7 +1018,7 @@ InvalidCoordinates <- function(.data,
       LongitudeMeasure > 0 & LongitudeMeasure < 145 ~ "LONG_OutsideUSA",
       grepl("999", LatitudeMeasure) ~ "Imprecise_Latincludes999",
       grepl("999", LongitudeMeasure) ~ "Imprecise_Longincludes999",
-      #for below, lat and long fields must be numeric
+      # for below, lat and long fields must be numeric
       # this checks if there are at least 3 significant figures to the 
       # right of the decimal point
       sapply(.data$LatitudeMeasure, decimalplaces) < 3 
@@ -1043,7 +1044,7 @@ InvalidCoordinates <- function(.data,
   
   # if clean_outsideUSA is "change sign", change the sign of lat/long coordinates outside of USA
   if (clean_outsideUSA == "change sign") {
-    print("Note: This is a temporary solution. Data owner should fix the raw data to address invalid coordinates through WQX. For assistance, email the WQX helpdesk (WQX@epa.gov).")
+    print("When clean_outsideUSA == change sign, the sign for any lat/long coordinates flagged as outside of USA are switched. This is a temporary solution. Data owners should fix the raw data to address invalid coordinates through WQX. For assistance fixing data errors you see in the WQP, email the WQX helpdesk (WQX@epa.gov).")
     .data <- .data %>% 
       dplyr::mutate(
         LatitudeMeasure = dplyr::case_when(
@@ -1055,7 +1056,7 @@ InvalidCoordinates <- function(.data,
       )
   }
   
-  #return only flagged data if errorsonly = true
+  # return only flagged data if errorsonly = true
   if ((errorsonly == TRUE)) {
     .data <- dplyr::filter(.data, is.na(TADA.InvalidCoordinates) != TRUE)
   }

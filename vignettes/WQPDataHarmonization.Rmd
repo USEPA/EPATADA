@@ -36,7 +36,7 @@ The following code will also install any packages you do not have, and
 load all packages required to run this vignette into your R session.
 
 ```{r, results = 'hide', message = FALSE, warning = FALSE}
-list.of.packages <- c("plyr", "data.table", "dataRetrieval", "dplyr", "ggplot2", "grDevices", "magrittr", "stringr", "utils", "RColorBrewer", "stats", "remotes", "gganimate", "gifski", "maps")
+list.of.packages <- c("plyr", "data.table", "dplyr", "magrittr", "stringr", "utils", "RColorBrewer", "stats", "gganimate", "gifski", "lubridate", "maps", "remotes", "dataRetrieval", "ggplot2")
 
 new.packages <- list.of.packages[!(list.of.packages %in% installed.packages()[,"Package"])]
 
@@ -45,16 +45,14 @@ if(length(new.packages)) install.packages(new.packages)
 
 If you have any issues loading the remotes library using the code above,
 uncomment the line below to install the "remotes" package specifying the
-repo. You must load the remotes library before installing TADA or
-dataRetrieval from GitHub
+repo. You must load the remotes library before installing TADA and other packages from GitHub
 
 ```{r, results = 'hide', message = FALSE, warning = FALSE}
 # install.packages("remotes", repos = "http://cran.us.r-project.org")
 library(remotes)
 ```
 
-Uncomment the lines below to install latest version of TADA and
-dataRetrieval from GitHub.
+Uncomment the lines below to install latest version of dataRetrieval and ggplot2 from GitHub.
 
 ```{r, results = 'hide', message = FALSE, warning = FALSE}
 # remotes::install_github("USGS-R/dataRetrieval", dependencies=TRUE)
@@ -62,26 +60,30 @@ dataRetrieval from GitHub.
 # remotes::install_github("hadley/ggplot2", dependencies=TRUE)
 
 remotes::install_github("USEPA/TADA", dependencies=TRUE)
+
+# if you experience any issues installing TADA, try uncommenting and running the line below before the install
+# options(download.file.method = "wininet")
 ```
 
 Load the required libraries to run this vignette into your R session
 
 ```{r, results = 'hide', message = FALSE, warning = FALSE}
+# libraries loaded from CRAN
 library(plyr)
 library(data.table)
 library(dplyr)
-library(ggplot2)
-library(grDevices)
 library(magrittr)
 library(stringr)
 library(utils)
 library(RColorBrewer)
 library(stats)
 library(rlang)
-library(dataRetrieval)
 library(gganimate)
 library(gifski)
 library(maps)
+library(lubridate)
+library(ggplot2)
+library(dataRetrieval)
 library(TADA)
 ```
 
@@ -118,7 +120,7 @@ Data retrieval filters include:
 
 -   characteristicName
 
--   ActivityMediaName
+-   sampleMedia
 
 Please be aware that this TADAdataRetrieval function automatically runs
 the TADA **autoclean** and **MeasureValueSpecialCharacters** functions
@@ -211,15 +213,28 @@ Additional resources:
 
 -   [dataRetrieval Tutorial](https://owi.usgs.gov/R/dataRetrieval.html)
 
-Option 1: Use the TADAdataRetrieval function.
+## dataRetrieval 
+Uncomment below if you would like to review differences between the profiles you would get using readWQPdata vs. TADAdataRetrieval. The profiles are different because TADAdataRetrieval automatically joins in data from multiple WQP profiles, and does some additional data cleaning as part of the data retrieval process.
 
 ```{r}
-# uncomment below if you would like to review differences between the profiles you would get using readWQPdata vs. TADAdataRetrieval. The profiles are different because TADAdataRetrieval automatically joins in other data from different WQP profiles, and does some additional data cleaning as part of the data retrieval process.
+# dataRetrieval1 <- dataRetrieval::readWQPdata(statecode = "AK", characteristicName = c("Fecal Coliform", "Escherichia coli", "Enterococcus"), startDate = "05-01-2018", ignore_attributes = TRUE)
 
-#dataRetrievalProfile <- dataRetrieval::readWQPdata(statecode = "UT", characteristicName = c("Ammonia", "Nitrate", "Nitrogen"), startDate = "01-01-2021", ignore_attributes = TRUE)
+# another example
+# dataRetrieval2 <- dataRetrieval::readWQPdata(statecode = "UT", characteristicName = c("Ammonia", "Nitrate", "Nitrogen"), startDate = "01-01-2021", ignore_attributes = TRUE)
 
-#You can edit this to define your own WQP query inputs below
-TADAProfile <- TADAdataRetrieval(statecode = "UT", characteristicName = c("Ammonia", "Nitrate", "Nitrogen"), startDate = "10-01-2020")
+```
+
+Use the code below to download data from the WQP using TADAdataRetrieval. Edit the code chuck below to define your own WQP query inputs.
+
+```{r}
+# here is an example for Utah
+# TADAProfile1 <- TADAdataRetrieval(statecode = "UT", characteristicName = c("Ammonia", "Nitrate", "Nitrogen"), startDate = "10-01-2020")
+
+# example for Alaska
+# TADAProfile2 <- TADAdataRetrieval(ProjectIdentifier = "Anchorage Bacteria 20-21")
+
+# another example query for Alaska. We will move forward with this example in the remainder of the vignette
+TADAProfile <- TADAdataRetrieval(statecode = "AK", characteristicName = c("Fecal Coliform", "Escherichia coli", "Enterococcus", "Ammonia", "Nitrate", "Nitrogen"), startDate = "05-01-2018")
 
 ```
 
@@ -250,16 +265,18 @@ See ?TADABigdataRetrieval for more details. WARNING, this can take
 multiple HOURS to run. The total run time depends on your query inputs.
 
 ```{r}
+# WARNING, this can take multiple HOURS to run 
 # StreamTemp <- TADABigdataRetrieval(startDate = "2000-01-01", 
 #                                     endDate = "2022-12-31", 
 #                                     characteristicName = "Temperature, water",
-#                                     siteType = "Stream")
+#                                     statecode = c("AK","AL"))
 # 
 # WaterTemp <- TADABigdataRetrieval(characteristicName = "Temperature, water")
 #
 # Phosphorus <- TADABigdataRetrieval(characteristicName = "Phosphorus")
 # 
 # CT <- TADABigdataRetrieval(statecode = "CT")
+
 ```
 
 Review all column names in the TADA Profile
@@ -277,20 +294,7 @@ Review station locations
 #create a map of the world
 map()
 
-# uncomment below to create USA base map instead
-#map("usa")
-
-# uncomment below to add state outlines to USA map
-#map("state", add=TRUE)
-
-# uncomment below to add county outlines to USA map
-#map("county", add=TRUE)
-
-
-# uncomment below to draw map of a specific state instead, with county lines
-# maps::map('county', 'utah')
-
-# draw the site locations onto the map
+# draw the sites included in your TADAProfile onto the map
 points(TADAProfile$LongitudeMeasure, TADAProfile$LatitudeMeasure, col="red", pch=20)
 ```
 
@@ -338,11 +342,24 @@ flags (if relevant to dataframe):
     as "Imprecise".
 
 ```{r}
-TADAProfileClean1 <- InvalidCoordinates(TADAProfile, clean_outsideUSA = "remove", clean_imprecise = TRUE)
+InvalidCoordinateFlags <- InvalidCoordinates(TADAProfile, clean_outsideUSA = "no", clean_imprecise = FALSE, errorsonly = TRUE)
 
-#redraw map after all rows with invalid LAT/LONG data are removed
-map('county', 'utah')
-points(TADAProfileClean1$LongitudeMeasure, TADAProfileClean1$LatitudeMeasure, col="red", pch=20)
+# review unique flags in InvalidCoordinateFlags
+unique(InvalidCoordinateFlags$TADA.InvalidCoordinates)
+
+# review unique MonitoringLocationIdentifiers in your flag dataframe
+unique(InvalidCoordinateFlags$MonitoringLocationIdentifier)
+
+Unique_InvalidCoordinateFlags <- InvalidCoordinateFlags %>%
+  select('MonitoringLocationIdentifier','MonitoringLocationName', 'TADA.InvalidCoordinates',
+         'OrganizationIdentifier', 'LongitudeMeasure', 'LatitudeMeasure', 'MonitoringLocationTypeName', 
+         'CountryCode', 'StateCode', 'CountyCode', 'HUCEightDigitCode', 'MonitoringLocationDescriptionText',
+         'ProjectName', 'ProjectIdentifier', 'OrganizationFormalName') %>%
+  distinct()
+
+# remove all data for sites with invalid or imprecise coordinates. Change function inputs to keep this data, but be aware it may impact your mapping. 
+TADAProfileClean1 <- InvalidCoordinates(TADAProfile, clean_outsideUSA = "remove", clean_imprecise = TRUE, errorsonly = FALSE)
+
 ```
 
 ## Depth unit conversions
@@ -483,7 +500,7 @@ See documentation for more details:
 
     -   When clean = FALSE, the following column will be added to your
         dataframe: WQX.ResultUnitValidity. This column flags each
-        CharacteristicName, ActivityMediaName, and
+        CharacteristicName, sampleMedia, and
         ResultMeasure/MeasureUnitCode combination in your dataframe as
         either "Nonstandardized", "Invalid", or "Valid".
 
@@ -783,36 +800,32 @@ UniqueHarmonizationRef <- HarmonizationRefTable(TADAProfileClean16, download = F
 TADAProfileClean17 <- HarmonizeData(TADAProfileClean16, ref = UniqueHarmonizationRef, transform = TRUE, flag = TRUE)
 ```
 
-THE FOLLOWING IS CHARACTERISTIC SPECIFIC
+## Characteristic Specific Analyses Below
 
-PLACEHOLDER: Address censored data for a single characteristic
+Address censored data for a single characteristic.
 
 ```{r}
-#How to point to a column in R: yourdataset$thecolumnyouwant
-#E.g., temp$ResultMeasureValueNitrogenExample <- filter(TADAProfileClean17, CharacteristicName == "NITROGEN")
-SingleCharacteristic <- filter(TADAProfileClean17, CharacteristicName == "TOTAL NITROGEN, MIXED FORMS")
+# how to point to a column in R: yourdataset$thecolumnyouwant
+# e.g., temp$ResultMeasureValueNitrogenExample <- filter(TADAProfileClean17, CharacteristicName == "NITROGEN")
+SingleCharacteristic <- filter(TADAProfileClean17, CharacteristicName == "NITROGEN")
 
-#Review the types of nondetects you have
+# review the types of censored data you have in your data frame
 table(SingleCharacteristic$ResultDetectionConditionText)
 
-#Review number of results that are NA's
+# review number of results that are NA's
 sum(is.na(SingleCharacteristic$ResultMeasureValue))
 
-#substitute a value for NA. In this example, 0.02 MG/L is used for TOTAL NITROGEN, MIXED FORMS
+# substitute a value for NA. In this example, 0.02 MG/L is used for NITROGEN
 SingleCharacteristic$ResultMeasureValue <- ifelse(is.na(SingleCharacteristic$ResultMeasureValue) == TRUE, 0.02, SingleCharacteristic$ResultMeasureValue)
+
 ```
 
-PLACEHOLDER: Summarize results for a single characteristic
+Summarize results for a single characteristic
 
 ```{r}
-summary(SingleCharacteristic$ResultMeasureValue)
-#na.rm = TRUE strips NA values before the mean computation proceeds
+# add na.rm = TRUE to the function above to strip NA values before the mean computation proceeds
+summary(SingleCharacteristic$ResultMeasureValue, na.rm = TRUE)
+
 hist(SingleCharacteristic$ResultMeasureValue)
-```
 
-PLACEHOLDER: Create animated national map for a single characteristic
-
-```{r}
-#Animation currently only works for Total Nitrogen. Updates coming soon.
-CreateAnimatedMap(SingleCharacteristic)
 ```

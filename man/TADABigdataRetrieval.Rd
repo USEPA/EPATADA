@@ -22,7 +22,7 @@ TADABigdataRetrieval(
 
 \item{statecode}{Character/character vector. State/territory abbreviations from FIPS codes consist of two letters}
 
-\item{huc}{An 8-digit numeric code denoting a hydrologic unit. Example: "04030202"}
+\item{huc}{A numeric code denoting a hydrologic unit. Example: "04030202". Different size hucs can be entered.}
 
 \item{characteristicName}{Name of water quality parameter}
 
@@ -78,7 +78,7 @@ See ?MeasureValueSpecialCharacters and ?autoclean documentation for more informa
 }
 \examples{
 \dontrun{
-tada1 <- TADABigdataRetrieval(startDate = "2019-01-01", endDate = "2021-12-31", characteristicName = "Temperature, water", siteType = "Stream")
+tada1 <- TADABigdataRetrieval(startDate = "2019-01-01", endDate = "2021-12-31", characteristicName = "Temperature, water", statecode = c("AK","AL"))
 
 tada2 <- TADABigdataRetrieval(startDate = "2016-10-01",endDate = "2022-09-30", statecode = "UT")
 
