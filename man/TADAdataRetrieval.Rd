@@ -21,7 +21,7 @@ TADAdataRetrieval(
 \arguments{
 \item{statecode}{Code that identifies a state}
 
-\item{startDate}{Start Date in the format YYYY-MM-DD}
+\item{startDate}{Start Date in the format MM-DD-YYYY}
 
 \item{countycode}{Code that identifies a county}
 
@@ -98,10 +98,6 @@ tada4 <- TADAdataRetrieval(statecode = "SC", countycode  = "Abbeville")
 # countycode queries require a statecode
 tada5 <- TADAdataRetrieval(countycode = "US:02:020")
 
-tada6 <- TADABigdataRetrieval(startDate = "2019-01-01", 
-                              endDate = "2021-12-31", 
-                              characteristicName = "Temperature, water",
-                              statecode = c("AK","AL"))
 
 }
 

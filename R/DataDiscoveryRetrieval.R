@@ -36,7 +36,7 @@
 #' See ?MeasureValueSpecialCharacters and ?autoclean documentation for more information.
 #' 
 #' @param statecode Code that identifies a state
-#' @param startDate Start Date in the format YYYY-MM-DD
+#' @param startDate Start Date in the format MM-DD-YYYY
 #' @param countycode Code that identifies a county 
 #' @param siteid Unique monitoring station identifier
 #' @param siteType Type of waterbody
@@ -68,10 +68,6 @@
 #' # countycode queries require a statecode
 #' tada5 <- TADAdataRetrieval(countycode = "US:02:020")
 #' 
-#' tada6 <- TADABigdataRetrieval(startDate = "2019-01-01", 
-#'                               endDate = "2021-12-31", 
-#'                               characteristicName = "Temperature, water",
-#'                               statecode = c("AK","AL"))
 #' 
 #' }
 #' 
