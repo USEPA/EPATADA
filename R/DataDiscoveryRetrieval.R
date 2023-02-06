@@ -28,16 +28,20 @@
 #' to the "ResultMeasureValue" and "DetectionLimitMeasureValue" columns; 
 #' and to provide information about the result values that is needed to address
 #' censored data later on (i.e., nondetections)
+#' 
+#' Users can reference the \href{https://www.epa.gov/waterdata/storage-and-retrieval-and-water-quality-exchange-domain-services-and-downloads}{WQX domain tables}
+#' to find allowable vales for queries, e.g., reference the WQX domain table to find countycode and statecode: https://cdx.epa.gov/wqx/download/DomainValues/County_CSV.zip
+#' Alternatively, you can use the WQP services to find areas where data is available in the US: https://www.waterqualitydata.us/Codes/countycode
 #'  
 #' See ?MeasureValueSpecialCharacters and ?autoclean documentation for more information.
 #' 
 #' @param statecode Code that identifies a state
-#' @param startDate Start Date in the format YYYY-MM-DD
+#' @param startDate Start Date in the format MM-DD-YYYY
 #' @param countycode Code that identifies a county 
 #' @param siteid Unique monitoring station identifier
 #' @param siteType Type of waterbody
 #' @param characteristicName Name of parameter
-#' @param ActivityMediaName Sampling substrate such as water, air, or sediment
+#' @param sampleMedia Sampling substrate such as water, air, or sediment
 #' @param ProjectIdentifier A string of letters and/or numbers (some additional characters also possible) used to signify a project with data in the Water Quality Portal
 #' @param OrganizationIdentifier A string of letters and/or numbers (some additional characters also possible) used to signify an organization with data in the Water Quality Portal
 #' @param endDate End Date in the format YYYY-MM-DD
@@ -52,14 +56,28 @@
 #' tada1 <- TADAdataRetrieval(statecode = "WI",
 #'                            countycode = "Dane",
 #'                            characteristicName = "Phosphorus")
+#' 
+#' tada2 <- TADAdataRetrieval(ProjectIdentifier = "Anchorage Bacteria 20-21")
+#' 
+#' tada3 <- TADAdataRetrieval(statecode = "UT", 
+#'                            characteristicName = c("Ammonia", "Nitrate", "Nitrogen"), 
+#'                            startDate = "10-01-2020")
+#' 
+#' tada4 <- TADAdataRetrieval(statecode = "SC", countycode  = "Abbeville")
+#' 
+#' # countycode queries require a statecode
+#' tada5 <- TADAdataRetrieval(countycode = "US:02:020")
+#' 
+#' 
 #' }
+#' 
 TADAdataRetrieval <- function(statecode = "null",
                               startDate = "null",
                               countycode = "null", 
                               siteid = "null",
                               siteType = "null",
                               characteristicName = "null",
-                              ActivityMediaName = "null",
+                              sampleMedia = "null",
                               ProjectIdentifier = "null",
                               OrganizationIdentifier = "null",
                               endDate = "null",
@@ -104,10 +122,10 @@ TADAdataRetrieval <- function(statecode = "null",
     WQPquery <- c(WQPquery, characteristicName = characteristicName)
   }
   
-  if (length(ActivityMediaName)>1) {
-    WQPquery <- c(WQPquery, ActivityMediaName = list(ActivityMediaName)) 
-  } else if (ActivityMediaName != "null") {
-    WQPquery <- c(WQPquery, ActivityMediaName = ActivityMediaName)
+  if (length(sampleMedia)>1) {
+    WQPquery <- c(WQPquery, sampleMedia = list(sampleMedia)) 
+  } else if (sampleMedia != "null") {
+    WQPquery <- c(WQPquery, sampleMedia = sampleMedia)
   }
   
   if (length(ProjectIdentifier)>1) {
@@ -151,6 +169,7 @@ TADAdataRetrieval <- function(statecode = "null",
                           Sites = sites.DR,
                           Narrow = narrow.DR,
                           Projects = projects.DR)
+  
   # run autoclean function
   if(applyautoclean==TRUE){
     
@@ -270,7 +289,7 @@ TADAReadWQPWebServices <- function(webservice) {
 #' @param startDate Start Date YYYY-MM-DD format, for example, "1995-01-01"
 #' @param endDate end date in YYYY-MM-DD format, for example, "2020-12-31"
 #' @param statecode Character/character vector. State/territory abbreviations from FIPS codes consist of two letters 
-#' @param huc An 8-digit numeric code denoting a hydrologic unit. Example: "04030202"
+#' @param huc A numeric code denoting a hydrologic unit. Example: "04030202". Different size hucs can be entered.
 #' @param characteristicName Name of water quality parameter
 #' @param siteType Name of water body type (e.g., "Stream", "Lake, Reservoir, Impoundment")
 #' @param sampleMedia Defaults to "Water". Refer to WQP domain tables for other options.
@@ -506,7 +525,7 @@ JoinWQPProfiles <- function(FullPhysChem = "null",
     if(nrow(Sites.df)>0){
       join1 <- FullPhysChem.df %>%
         # join stations to results
-        dplyr::left_join(Sites.df, by = "MonitoringLocationIdentifier") %>%
+        dplyr::left_join(Sites.df, by = "MonitoringLocationIdentifier", multiple = "all") %>%
         # remove ".x" suffix from column names
         dplyr::rename_at(dplyr::vars(dplyr::ends_with(".x")), ~ stringr::str_replace(., "\\..$", "")) %>%
         # remove columns with ".y" suffix
@@ -545,8 +564,8 @@ JoinWQPProfiles <- function(FullPhysChem = "null",
         ),
         by = c(
           "OrganizationIdentifier", "OrganizationFormalName",
-          "ProjectIdentifier","ProjectName"
-        )
+          "ProjectIdentifier","ProjectName"),
+        multiple = "all"
         )
     }else{join3 = join2}
     

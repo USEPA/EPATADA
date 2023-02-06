@@ -84,4 +84,5 @@ ImpreciseCoord_removed <- InvalidCoordinates(Nutrients_Utah, clean_imprecise = T
 
 # Remove data with imprecise coordinates or coordinates outside the USA from the dataframe:
 InvalidCoord_removed <- InvalidCoordinates(Nutrients_Utah, clean_outsideUSA = "remove", clean_imprecise = TRUE)
+
 }
