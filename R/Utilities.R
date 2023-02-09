@@ -56,6 +56,8 @@ autoclean <- function(.data) {
   
   # run MeasureValueSpecialCharacters function
   .data <- MeasureValueSpecialCharacters(.data)
+  # .data <- ConvertSpecialChars(.data, "ResultMeasureValue")
+  # .data <- ConvertSpecialChars(.data, "DetectionQuantitationLimitMeasure.MeasureValue")
   
   # change latitude and longitude measures to class numeric
   .data$LatitudeMeasure <- as.numeric(.data$LatitudeMeasure)
