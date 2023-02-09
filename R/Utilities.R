@@ -47,8 +47,16 @@ autoclean <- function(.data) {
     toupper(.data$DetectionQuantitationLimitMeasure.MeasureUnitCode)
   # .data$BiologicalIntentName = toupper(.data$BiologicalIntentName)
   
-  # Remove duplicate rows
-  .data <- .data[!duplicated(.data), ]
+  # Remove duplicate rows - turned into a test because duplicated() takes a long
+  # time acting on all columns in a large dataset.
+  if(!length(unique(.data$ResultIdentifier))==dim(.data)[1]){
+    print("Duplicate records may be present. Filtering to unique records. This may take a while on large datasets.")
+    dup_rids = names(table(.data$ResultIdentifier)[table(.data$ResultIdentifier)>1])
+    dup_check = .data%>%dplyr::filter(ResultIdentifier%in%dup_rids)%>%dplyr::group_by(ResultIdentifier)%>%dplyr::distinct()
+    not_dups = .data%>%dplyr::filter(!ResultIdentifier%in%dup_rids)
+    .data = plyr::rbind.fill(dup_check, not_dups)
+  }
+
   
   # Remove complex biological data
   .data <- dplyr::filter(.data, ActivityMediaName == "WATER")
