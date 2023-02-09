@@ -131,7 +131,7 @@ test_that("TADAdataRetrieval", {
 test_that("TADAdataRetrieval", {
   check_autoclean_meters_works <- TADAdataRetrieval(statecode = "UT",
                                     characteristicName = c("Ammonia", "Nitrate", "Nitrogen"),
-                                    startDate = "01-01-2021")
+                                    startDate = "2021-01-01")
   expect_true(any(check_autoclean_meters_works$ActivityDepthHeightMeasure.MeasureUnitCode!="meters"))
   })
 

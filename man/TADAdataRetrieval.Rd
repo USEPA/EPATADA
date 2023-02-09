@@ -12,8 +12,8 @@ TADAdataRetrieval(
   siteType = "null",
   characteristicName = "null",
   sampleMedia = "null",
-  ProjectIdentifier = "null",
-  OrganizationIdentifier = "null",
+  project = "null",
+  organization = "null",
   endDate = "null",
   applyautoclean = TRUE
 )
@@ -21,7 +21,7 @@ TADAdataRetrieval(
 \arguments{
 \item{statecode}{Code that identifies a state}
 
-\item{startDate}{Start Date in the format MM-DD-YYYY}
+\item{startDate}{Start Date string in the format YYYY-MM-DD, for example, "2020-01-01"}
 
 \item{countycode}{Code that identifies a county}
 
@@ -33,11 +33,11 @@ TADAdataRetrieval(
 
 \item{sampleMedia}{Sampling substrate such as water, air, or sediment}
 
-\item{ProjectIdentifier}{A string of letters and/or numbers (some additional characters also possible) used to signify a project with data in the Water Quality Portal}
+\item{project}{A string of letters and/or numbers (some additional characters also possible) used to signify a project with data in the Water Quality Portal}
 
-\item{OrganizationIdentifier}{A string of letters and/or numbers (some additional characters also possible) used to signify an organization with data in the Water Quality Portal}
+\item{organization}{A string of letters and/or numbers (some additional characters also possible) used to signify an organization with data in the Water Quality Portal}
 
-\item{endDate}{End Date in the format YYYY-MM-DD}
+\item{endDate}{End Date string in the format YYYY-MM-DD}
 
 \item{applyautoclean}{Logical, defaults to TRUE. Applies TADA's autoclean function on the returned data profile.}
 }
@@ -87,11 +87,11 @@ tada1 <- TADAdataRetrieval(statecode = "WI",
                            countycode = "Dane",
                            characteristicName = "Phosphorus")
 
-tada2 <- TADAdataRetrieval(ProjectIdentifier = "Anchorage Bacteria 20-21")
+tada2 <- TADAdataRetrieval(project = "Anchorage Bacteria 20-21")
 
 tada3 <- TADAdataRetrieval(statecode = "UT", 
                            characteristicName = c("Ammonia", "Nitrate", "Nitrogen"), 
-                           startDate = "10-01-2020")
+                           startDate = "2020-10-01")
 
 tada4 <- TADAdataRetrieval(statecode = "SC", countycode  = "Abbeville")
 

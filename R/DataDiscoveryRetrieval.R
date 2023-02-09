@@ -36,15 +36,15 @@
 #' See ?MeasureValueSpecialCharacters and ?autoclean documentation for more information.
 #' 
 #' @param statecode Code that identifies a state
-#' @param startDate Start Date in the format MM-DD-YYYY
+#' @param startDate Start Date string in the format YYYY-MM-DD, for example, "2020-01-01"
 #' @param countycode Code that identifies a county 
 #' @param siteid Unique monitoring station identifier
 #' @param siteType Type of waterbody
 #' @param characteristicName Name of parameter
 #' @param sampleMedia Sampling substrate such as water, air, or sediment
-#' @param ProjectIdentifier A string of letters and/or numbers (some additional characters also possible) used to signify a project with data in the Water Quality Portal
-#' @param OrganizationIdentifier A string of letters and/or numbers (some additional characters also possible) used to signify an organization with data in the Water Quality Portal
-#' @param endDate End Date in the format YYYY-MM-DD
+#' @param project A string of letters and/or numbers (some additional characters also possible) used to signify a project with data in the Water Quality Portal
+#' @param organization A string of letters and/or numbers (some additional characters also possible) used to signify an organization with data in the Water Quality Portal
+#' @param endDate End Date string in the format YYYY-MM-DD
 #' @param applyautoclean Logical, defaults to TRUE. Applies TADA's autoclean function on the returned data profile.
 #'
 #' @return TADA-compatible dataframe
@@ -57,11 +57,11 @@
 #'                            countycode = "Dane",
 #'                            characteristicName = "Phosphorus")
 #' 
-#' tada2 <- TADAdataRetrieval(ProjectIdentifier = "Anchorage Bacteria 20-21")
+#' tada2 <- TADAdataRetrieval(project = "Anchorage Bacteria 20-21")
 #' 
 #' tada3 <- TADAdataRetrieval(statecode = "UT", 
 #'                            characteristicName = c("Ammonia", "Nitrate", "Nitrogen"), 
-#'                            startDate = "10-01-2020")
+#'                            startDate = "2020-10-01")
 #' 
 #' tada4 <- TADAdataRetrieval(statecode = "SC", countycode  = "Abbeville")
 #' 
@@ -78,8 +78,8 @@ TADAdataRetrieval <- function(statecode = "null",
                               siteType = "null",
                               characteristicName = "null",
                               sampleMedia = "null",
-                              ProjectIdentifier = "null",
-                              OrganizationIdentifier = "null",
+                              project = "null",
+                              organization = "null",
                               endDate = "null",
                               applyautoclean = TRUE
                               ) {
@@ -128,16 +128,16 @@ TADAdataRetrieval <- function(statecode = "null",
     WQPquery <- c(WQPquery, sampleMedia = sampleMedia)
   }
   
-  if (length(ProjectIdentifier)>1) {
-    WQPquery <- c(WQPquery, project = list(ProjectIdentifier)) 
-  } else if (ProjectIdentifier != "null") {
-    WQPquery <- c(WQPquery, project = ProjectIdentifier)
+  if (length(project)>1) {
+    WQPquery <- c(WQPquery, project = list(project)) 
+  } else if (project != "null") {
+    WQPquery <- c(WQPquery, project = project)
   }
   
-  if (length(OrganizationIdentifier)>1) {
-    WQPquery <- c(WQPquery, organization = list(OrganizationIdentifier)) 
-  } else if (OrganizationIdentifier != "null") {
-    WQPquery <- c(WQPquery, organization = OrganizationIdentifier)
+  if (length(organization)>1) {
+    WQPquery <- c(WQPquery, organization = list(organization)) 
+  } else if (organization != "null") {
+    WQPquery <- c(WQPquery, organization = organization)
   }
   
   if (length(endDate)>1) {
@@ -328,23 +328,22 @@ TADABigdataRetrieval <- function(startDate = "null",
   if(!"null"%in%statecode&!"null"%in%huc){stop("Please provide either state code(s) OR huc(s) to proceed.")}
 
   if(!startDate=="null"){
-    startDate_Low = lubridate::ymd(startDate)
-    startYearLo = lubridate::year(startDate_Low)
+    startDate = lubridate::ymd(startDate)
+    startYearLo = lubridate::year(startDate)
   }else{ # else: pick a date before which any data are unlikely to be in WQP
-    startDate = "1800-01-01"
-    startDate_Low = lubridate::ymd(startDate)
-    startYearLo = lubridate::year(startDate_Low)
+    startDate = lubridate::ymd("1800-01-01")
+    startYearLo = lubridate::year(startDate)
   } 
   
 # Logic: if the input endDate is not null, convert to date and obtain year
   # for summary
   if(!endDate=="null"){
-    endDate_High = lubridate::ymd(endDate)
-    endYearHi = lubridate::year(endDate_High)
+    endDate = lubridate::ymd(endDate)
+    endYearHi = lubridate::year(endDate)
   }else{ # else: if not populated, default to using today's date/year for summary
     endDate = Sys.Date()
-    endDate_High = lubridate::ymd(endDate)
-    endYearHi = lubridate::year(endDate_High)
+    endDate = lubridate::ymd(endDate)
+    endYearHi = lubridate::year(endDate)
   }
   
   # Create readWQPsummary query
