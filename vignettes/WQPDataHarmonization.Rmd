@@ -45,14 +45,16 @@ if(length(new.packages)) install.packages(new.packages)
 
 If you have any issues loading the remotes library using the code above,
 uncomment the line below to install the "remotes" package specifying the
-repo. You must load the remotes library before installing TADA and other packages from GitHub
+repo. You must load the remotes library before installing TADA and other
+packages from GitHub
 
 ```{r, results = 'hide', message = FALSE, warning = FALSE}
 # install.packages("remotes", repos = "http://cran.us.r-project.org")
 library(remotes)
 ```
 
-Uncomment the lines below to install latest version of dataRetrieval and ggplot2 from GitHub.
+Uncomment the lines below to install latest version of dataRetrieval and
+ggplot2 from GitHub.
 
 ```{r, results = 'hide', message = FALSE, warning = FALSE}
 # remotes::install_github("USGS-R/dataRetrieval", dependencies=TRUE)
@@ -213,8 +215,13 @@ Additional resources:
 
 -   [dataRetrieval Tutorial](https://owi.usgs.gov/R/dataRetrieval.html)
 
-## dataRetrieval 
-Uncomment below if you would like to review differences between the profiles you would get using readWQPdata vs. TADAdataRetrieval. The profiles are different because TADAdataRetrieval automatically joins in data from multiple WQP profiles, and does some additional data cleaning as part of the data retrieval process.
+## dataRetrieval
+
+Uncomment below if you would like to review differences between the
+profiles you would get using readWQPdata vs. TADAdataRetrieval. The
+profiles are different because TADAdataRetrieval automatically joins in
+data from multiple WQP profiles, and does some additional data cleaning
+as part of the data retrieval process.
 
 ```{r}
 # dataRetrieval1 <- dataRetrieval::readWQPdata(statecode = "AK", characteristicName = c("Fecal Coliform", "Escherichia coli", "Enterococcus"), startDate = "05-01-2018", ignore_attributes = TRUE)
@@ -224,7 +231,9 @@ Uncomment below if you would like to review differences between the profiles you
 
 ```
 
-Use the code below to download data from the WQP using TADAdataRetrieval. Edit the code chuck below to define your own WQP query inputs.
+Use the code below to download data from the WQP using
+TADAdataRetrieval. Edit the code chuck below to define your own WQP
+query inputs.
 
 ```{r}
 # here is an example for Utah
@@ -258,8 +267,8 @@ single TADA compatible dataframe as the output. For large dataframes,
 that can save a lot of time and ultimately reduce the complexity of
 subsequent data processing. Using this function, you will be able to
 download all data available from all sites in the contiguous United
-States that is available for the time period, characteristicName, statecode, 
-and siteType requested.
+States that is available for the time period, characteristicName,
+statecode, and siteType requested.
 
 See ?TADABigdataRetrieval for more details. WARNING, this can take
 multiple HOURS to run. The total run time depends on your query inputs.
@@ -484,17 +493,26 @@ See documentation for more details:
 
 -   ?**InvalidSpeciation**
 
-    -   When clean = FALSE, this function adds the following column to
+    -   When clean = "none", this function adds the following column to
         your dataframe: WQX.MethodSpeciationValidity. This column flags
         each CharacteristicName and MethodSpecificationName combination
         in your dataframe as either "Nonstandardized", "Invalid", or
         "Valid".
 
-    -   When clean = TRUE, "Invalid" rows are removed from the dataframe
-        and no column will be appended.
+    -   When clean = "invalid_only", only "Invalid" rows are removed
+        from the dataframe. Default is clean = "invalid_only".
+
+    -   When clean = "nonstandardized_only", only "Nonstandardized" rows
+        are removed from the dataframe.
+
+    -   When clean = "both", "Invalid" and "Nonstandardized" rows are
+        removed from the dataframe.
+
+    -   When clean = "none", no rows are removed from the dataframe.
 
     -   When errorsonly = TRUE, the dataframe is filtered to only the
-        rows flagged as "Invalid"; default is errorsonly = FALSE.
+        rows flagged as "Invalid" or "Nonstandardized"; default is
+        errorsonly = FALSE.
 
 -   ?**InvalidResultUnit**
 
@@ -525,7 +543,7 @@ See documentation for more details:
 ```{r}
 TADAProfileClean5 <- InvalidMethod(TADAProfileClean4, clean = TRUE)
 TADAProfileClean6 <- InvalidFraction(TADAProfileClean5, clean = TRUE)
-TADAProfileClean7 <- InvalidSpeciation(TADAProfileClean6, clean = FALSE)
+TADAProfileClean7 <- InvalidSpeciation(TADAProfileClean6, clean = "none")
 TADAProfileClean8 <- InvalidResultUnit(TADAProfileClean7, clean = FALSE)
 ```
 
