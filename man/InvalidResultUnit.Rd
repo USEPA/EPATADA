@@ -4,48 +4,72 @@
 \alias{InvalidResultUnit}
 \title{Check Result Unit Validity}
 \usage{
-InvalidResultUnit(.data, clean = TRUE, errorsonly = FALSE)
+InvalidResultUnit(
+  .data,
+  clean = c("invalid_only", "nonstandardized_only", "both", "none"),
+  errorsonly = FALSE
+)
 }
 \arguments{
 \item{.data}{TADA dataframe}
 
-\item{clean}{Boolean argument; removes "Invalid" characteristic-media-result
-unit combinations from the dataframe when clean = TRUE. Default is
-clean = TRUE.}
+\item{clean}{Character argument with options "invalid_only", "nonstandardized_only",
+"both", or "none." The default is clean = "invalid_only" which removes rows of
+data flagged as having "Invalid" characteristic-media-result unit combinations. When
+clean = "nonstandardized_only", the function removes rows of data flagged as
+having "Nonstandardized" characteristic-media-result unit combinations. When
+clean = "both", the function removes rows of data flagged as either "Invalid" or
+"Nonstandardized". And when clean = "none", the function does not remove any "Invalid"
+or "Nonstandardized" rows of data.}
 
 \item{errorsonly}{Boolean argument; filters dataframe to show only "Invalid"
 characteristic-media-result unit combinations when errorsonly = TRUE. Default
 is errorsonly = FALSE.}
 }
 \value{
-When clean = FALSE and errorsonly = FALSE, the following column will
-be added to your dataframe: WQX.ResultUnitValidity. This column flags each
-CharacteristicName, ActivityMediaName, and ResultMeasure/MeasureUnitCode
+When clean = "none" and errorsonly = FALSE, this function adds the
+following column to your dataframe: WQX.ResultUnitValidity. This column
+flags each CharacteristicName, ActivityMediaName, and ResultMeasure/MeasureUnitCode
 combination in your dataframe as either "Nonstandardized", "Invalid", or "Valid".
-When clean = FALSE and errorsonly = TRUE, the dataframe will be filtered to
-show only "Invalid" characteristic-media-result unit combinations;
-WQX.ResultUnitValidity column is still appended. When clean = TRUE, "Invalid"
-rows are removed from the dataframe and no column will be appended.
+When clean = "none" and errorsonly = TRUE, the dataframe is filtered to show only
+the "Invalid" and "Nonstandardized data; the column WQX.ResultUnitValidity is
+still appended. When clean = "invalid_only" and errorsonly = FALSE, "Invalid"
+rows are removed from the dataframe, but "Nonstandardized" rows are retained. When
+clean = "nonstandardized_only" and errorsonly = FALSE, "Nonstandardized" rows
+are removed, but "Invalid" rows are retained. The default is clean = "invalid_only"
+and errorsonly = FALSE.
 }
 \description{
 Function checks the validity of each characteristic-media-result unit
-combination in the dataframe. When clean = TRUE, rows
-with invalid characteristic-media-result unit combinations are removed. Default is
-clean = TRUE. When errorsonly = TRUE, dataframe is filtered to show only rows
-with invalid characteristic-media-result unit combinations. Default is
-errorsonly = FALSE.
+combination in the dataframe. When clean = "invalid_only", rows with invalid
+characteristic-media-result unit combinations are removed. Default is
+clean = "invalid_only". When errorsonly = TRUE, dataframe is filtered to show only
+rows with invalid or nonstandardized characteristic-media-result unit combinations.
+Default is errorsonly = FALSE.
 }
 \examples{
 # Load example dataset:
 data(Nutrients_Utah)
 
-# Remove invalid characteristic-media-result unit combinations from dataframe:
-ResultUnitValidity_clean <- InvalidResultUnit(Nutrients_Utah)
+# Remove data with invalid characteristic-media-result unit combinations from dataframe, 
+# but retain nonstandardized combinations flagged in new column 'WQX.ResultUnitValidity':
+InvalidUnit_clean <- InvalidResultUnit(Nutrients_Utah)
 
-# Flag, but do not remove, invalid characteristic-media-result unit combinations
-# in new column titled "WQX.ResultUnitValidity":
-ResultUnitValidity_flags <- InvalidResultUnit(Nutrients_Utah, clean = FALSE)
+# Remove data with nonstandardized characteristic-media-result unit combinations 
+# from dataframe but retain invalid combinations flagged in new column 'WQX.ResultUnitValidity':
+NonstandardUnit_clean <- InvalidResultUnit(Nutrients_Utah, clean = "nonstandardized_only")
+
+# Remove both invalid and nonstandardized characteristic-media-result unit combinations
+# from dataframe:
+ResultUnit_clean <- InvalidResultUnit(Nutrients_Utah, clean = "both")
+
+# Flag, but do not remove, data with invalid or nonstandardized characteristic-media-result unit
+# combinations in new column titled "WQX.ResultUnitValidity":
+InvalidUnit_flags <- InvalidResultUnit(Nutrients_Utah, clean = "none")
 
 # Show only invalid characteristic-media-result unit combinations:
-ResultUnitValidity_errorsonly <- InvalidResultUnit(Nutrients_Utah, clean = FALSE, errorsonly = TRUE)
+InvalidUnit_errorsonly <- InvalidResultUnit(Nutrients_Utah, clean = "nonstandardized_only", errorsonly = TRUE)
+
+# Show only nonstandardized characteristic-media-result unit combinations:
+NonstandardUnit_errorsonly <- InvalidResultUnit(Nutrients_Utah, clean = "invalid_only", errorsonly = TRUE)
 }

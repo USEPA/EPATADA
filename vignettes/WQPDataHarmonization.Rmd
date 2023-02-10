@@ -544,7 +544,7 @@ See documentation for more details:
 TADAProfileClean5 <- InvalidMethod(TADAProfileClean4, clean = TRUE)
 TADAProfileClean6 <- InvalidFraction(TADAProfileClean5, clean = TRUE)
 TADAProfileClean7 <- InvalidSpeciation(TADAProfileClean6, clean = "none")
-TADAProfileClean8 <- InvalidResultUnit(TADAProfileClean7, clean = FALSE)
+TADAProfileClean8 <- InvalidResultUnit(TADAProfileClean7, clean = "none")
 ```
 
 ## WQX national upper and lower thresholds
