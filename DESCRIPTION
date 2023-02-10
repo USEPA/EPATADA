@@ -25,7 +25,7 @@ Authors@R:
            family = "Healy",
            role = "aut")
     )
-Description: Assists data partners in performing automated assessments with
+Description: Assists data partners in performing water quality analyses with
     data from the Water Quality Portal.
 License: CC0
 Copyright: This software is in the public domain because it contains materials
