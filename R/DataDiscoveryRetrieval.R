@@ -56,21 +56,16 @@
 #' tada1 <- TADAdataRetrieval(statecode = "WI",
 #'                            countycode = "Dane",
 #'                            characteristicName = "Phosphorus")
-#' 
 #' tada2 <- TADAdataRetrieval(ProjectIdentifier = "Anchorage Bacteria 20-21")
-#' 
 #' tada3 <- TADAdataRetrieval(statecode = "UT", 
 #'                            characteristicName = c("Ammonia", "Nitrate", "Nitrogen"), 
 #'                            startDate = "10-01-2020")
-#' 
 #' tada4 <- TADAdataRetrieval(statecode = "SC", countycode  = "Abbeville")
-#' 
 #' # countycode queries require a statecode
 #' tada5 <- TADAdataRetrieval(countycode = "US:02:020")
-#' 
-#' 
 #' }
-#' 
+#'
+
 TADAdataRetrieval <- function(statecode = "null",
                               startDate = "null",
                               countycode = "null", 
@@ -225,7 +220,6 @@ TADAdataRetrieval <- function(statecode = "null",
 #' narrow1 <- TADAReadWQPWebServices("https://www.waterqualitydata.us/data/Result/search?statecode=US%3A09&sampleMedia=water&sampleMedia=Water&startDateLo=01-01-2021&mimeType=csv&zip=yes&dataProfile=narrowResult&providers=NWIS&providers=STEWARDS&providers=STORET")
 #' }
 #'
-#'
 
 TADAReadWQPWebServices <- function(webservice) {
   #consider function dataRetrieval::getWebServiceData
@@ -241,6 +235,7 @@ TADAReadWQPWebServices <- function(webservice) {
     #return(autoclean(data.table::fread(webservice)))
   }
 }
+
 
 
 #' Large WQP data pulls using dataRetrieval
@@ -284,8 +279,6 @@ TADAReadWQPWebServices <- function(webservice) {
 #' 
 #' See ?MeasureValueSpecialCharacters and ?autoclean documentation for more information.
 #' 
-#'
-#'
 #' @param startDate Start Date YYYY-MM-DD format, for example, "1995-01-01"
 #' @param endDate end date in YYYY-MM-DD format, for example, "2020-12-31"
 #' @param statecode Character/character vector. State/territory abbreviations from FIPS codes consist of two letters 
@@ -302,16 +295,11 @@ TADAReadWQPWebServices <- function(webservice) {
 #' @examples 
 #' \dontrun{
 #' tada1 <- TADABigdataRetrieval(startDate = "2019-01-01", endDate = "2021-12-31", characteristicName = "Temperature, water", statecode = c("AK","AL"))
-#' 
 #' tada2 <- TADABigdataRetrieval(startDate = "2016-10-01",endDate = "2022-09-30", statecode = "UT")
-#' 
 #' tada3 = TADABigdataRetrieval(huc = "04030202", characteristicName = "Escherichia coli")
-#' 
 #' tada4 = TADABigdataRetrieval(huc = c("04030202","04030201"), characteristicName = "Temperature, water")
-#' 
 #' }
 #' 
-
 
 TADABigdataRetrieval <- function(startDate = "null",
                               endDate = "null",

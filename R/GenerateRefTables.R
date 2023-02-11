@@ -1,7 +1,7 @@
-
 #' Used to store cached WQX QAQC Characteristic Validation Reference Table
-
 WQXCharValRef_Cached <- NULL
+
+
 
 #' WQX QAQC Characteristic Validation Reference Table
 #'

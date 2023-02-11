@@ -24,4 +24,5 @@ data(Nutrients_Utah)
 
 # Create table and pie chart of "Hydrologic Condition" unique values and counts:
 FieldReview_HydrologicCondition <- FilterFieldReview(field = "HydrologicCondition", Nutrients_Utah)
+
 }
