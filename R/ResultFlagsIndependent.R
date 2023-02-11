@@ -40,6 +40,7 @@
 #' 
 #' # Show only invalid characteristic-analytical method combinations:
 #' InvalidMethod_errorsonly <- InvalidMethod(Nutrients_Utah, clean = FALSE, errorsonly = TRUE)
+#' 
 
 InvalidMethod <- function(.data, clean = TRUE, errorsonly = FALSE) {
   # check .data is data.frame
@@ -136,6 +137,7 @@ InvalidMethod <- function(.data, clean = TRUE, errorsonly = FALSE) {
 }
 
 
+
 #' Check for Aggregated Continuous Data
 #'
 #' The Water Quality Portal (WQP) is not currently designed to store high-frequency
@@ -186,6 +188,7 @@ InvalidMethod <- function(.data, clean = TRUE, errorsonly = FALSE) {
 #' 
 #' # Show only rows flagged for aggregated continuous data:
 #' AggContinuous_errorsonly <- AggregatedContinuousData(Nutrients_Utah, clean = FALSE, errorsonly = TRUE)
+#' 
 
 AggregatedContinuousData <- function(.data, clean = TRUE, errorsonly = FALSE) {
   # check .data is data.frame
@@ -255,6 +258,7 @@ AggregatedContinuousData <- function(.data, clean = TRUE, errorsonly = FALSE) {
 }
 
 
+
 #' Check for Potential Duplicates
 #'
 #' Sometimes multiple organizations submit the exact same data set to the 
@@ -296,6 +300,7 @@ AggregatedContinuousData <- function(.data, clean = TRUE, errorsonly = FALSE) {
 #' 
 #' # Flag and review potential duplicate data only:
 #' PotentialDup_reviewduplicatesonly <- PotentialDuplicateRowID(Nutrients_Utah, clean = FALSE, errorsonly = TRUE) 
+#' 
 
 PotentialDuplicateRowID <- function(.data, clean = TRUE, errorsonly = FALSE) {
   # check .data is data.frame
@@ -403,6 +408,7 @@ PotentialDuplicateRowID <- function(.data, clean = TRUE, errorsonly = FALSE) {
 }
 
 
+
 #' Check Result Value Against WQX Upper Threshold
 #'
 #' EPA's Water Quality Exchange (WQX) has generated statistics and data from
@@ -449,6 +455,7 @@ PotentialDuplicateRowID <- function(.data, clean = TRUE, errorsonly = FALSE) {
 #' # Show only data flagged as above the upper WQX threshold:
 #' WQXUpperThreshold_flagsonly <- AboveNationalWQXUpperThreshold(Nutrients_Utah, 
 #' clean = FALSE, errorsonly = TRUE)
+#' 
 
 AboveNationalWQXUpperThreshold <- function(.data, clean = TRUE, errorsonly = FALSE) {
   # check .data is data.frame
@@ -609,6 +616,7 @@ AboveNationalWQXUpperThreshold <- function(.data, clean = TRUE, errorsonly = FAL
 #' # Show only data that is below the lower WQX threshold:
 #' WQXLowerThreshold_flagsonly <- BelowNationalWQXLowerThreshold(Nutrients_Utah,
 #' clean = FALSE, errorsonly = TRUE)
+#' 
 
 BelowNationalWQXLowerThreshold <- function(.data, clean = TRUE, errorsonly = FALSE) {
   # check .data is data.frame
@@ -797,6 +805,7 @@ BelowNationalWQXLowerThreshold <- function(.data, clean = TRUE, errorsonly = FAL
 #'
 #' # Note: When clean = FALSE, cleanNA = FALSE, and errorsonly = FALSE, no data is removed
 #' # Note: When clean = TRUE, cleanNA = TRUE, and errorsonly = TRUE, an error message is returned
+#' 
 
 QAPPapproved <- function(.data, clean = TRUE, cleanNA = FALSE, errorsonly = FALSE) {
   # check .data is data.frame
@@ -866,7 +875,6 @@ QAPPapproved <- function(.data, clean = TRUE, cleanNA = FALSE, errorsonly = FALS
 
 
 
-
 #' Check if an approved QAPP document URL is provided
 #'
 #' Function checks data submitted under the "ProjectFileUrl" column
@@ -897,6 +905,7 @@ QAPPapproved <- function(.data, clean = TRUE, cleanNA = FALSE, errorsonly = FALS
 #' 
 #' # Remove data without an associated QAPP document available:
 #' RemoveData_MissingQAPPDocURLs <- QAPPDocAvailable(Nutrients_Utah, clean = TRUE)
+#' 
 
 QAPPDocAvailable <- function(.data, clean = FALSE) {
   # check .data is data.frame
@@ -949,6 +958,7 @@ QAPPDocAvailable <- function(.data, clean = FALSE) {
     }
   }
 }
+
 
 
 #' Invalid coordinates

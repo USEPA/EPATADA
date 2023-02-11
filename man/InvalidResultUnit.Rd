@@ -68,8 +68,10 @@ ResultUnit_clean <- InvalidResultUnit(Nutrients_Utah, clean = "both")
 InvalidUnit_flags <- InvalidResultUnit(Nutrients_Utah, clean = "none")
 
 # Show only invalid characteristic-media-result unit combinations:
+
 InvalidUnit_errorsonly <- InvalidResultUnit(Nutrients_Utah, clean = "nonstandardized_only", errorsonly = TRUE)
 
 # Show only nonstandardized characteristic-media-result unit combinations:
 NonstandardUnit_errorsonly <- InvalidResultUnit(Nutrients_Utah, clean = "invalid_only", errorsonly = TRUE)
+
 }

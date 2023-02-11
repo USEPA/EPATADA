@@ -46,4 +46,5 @@ InvalidFraction_flags <- InvalidFraction(Nutrients_Utah, clean = FALSE)
 
 # Show only invalid characteristic-fraction combinations:
 InvalidFraction_errorsonly <- InvalidFraction(Nutrients_Utah, clean = FALSE, errorsonly = TRUE)
+
 }

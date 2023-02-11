@@ -1,6 +1,6 @@
 Package: TADA
 Type: Package
-Title: Tools for Automated Data Analysis R Package
+Title: TADA (Tools for Automated Data Analysis) R Package
 Version: 0.0.1
 Organization: U.S. Environmental Protection Agency
 Authors@R: 
@@ -25,7 +25,7 @@ Authors@R:
            family = "Healy",
            role = "aut")
     )
-Description: Assists data partners in performing automated assessments with
+Description: Assists data partners in performing water quality analyses with
     data from the Water Quality Portal.
 License: CC0
 Copyright: This software is in the public domain because it contains materials
@@ -58,7 +58,7 @@ Suggests:
     tidyverse,
     knitr,
     rmarkdown,
-    testthat (>= 3.0.0),
+    testthat,
     testthis, 
     usethis,
     devtools,

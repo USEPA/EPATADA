@@ -37,7 +37,7 @@
 #' 
 #' # Show only invalid characteristic-fraction combinations:
 #' InvalidFraction_errorsonly <- InvalidFraction(Nutrients_Utah, clean = FALSE, errorsonly = TRUE)
-
+#' 
 
 InvalidFraction <- function(.data, clean = TRUE, errorsonly = FALSE) {
   # check .data is data.frame
@@ -130,6 +130,7 @@ InvalidFraction <- function(.data, clean = TRUE, errorsonly = FALSE) {
 }
 
 
+
 #' Check Method Speciation Validity
 #'
 #' Function checks the validity of each characteristic-method
@@ -191,7 +192,7 @@ InvalidFraction <- function(.data, clean = TRUE, errorsonly = FALSE) {
 #' 
 #' # Show only nonstandardized characteristic-method speciation combinations:
 #' NonstandardSpeciation_errorsonly <- InvalidSpeciation(Nutrients_Utah, clean = "invalid_only", errorsonly = TRUE)
-
+#' 
 
 InvalidSpeciation <- function(.data, clean = c("invalid_only", "nonstandardized_only", "both", "none"), errorsonly = FALSE) {
   # check .data is data.frame
@@ -294,6 +295,7 @@ InvalidSpeciation <- function(.data, clean = c("invalid_only", "nonstandardized_
 }
 
 
+
 #' Check Result Unit Validity
 #'
 #' Function checks the validity of each characteristic-media-result unit
@@ -351,11 +353,11 @@ InvalidSpeciation <- function(.data, clean = c("invalid_only", "nonstandardized_
 #' InvalidUnit_flags <- InvalidResultUnit(Nutrients_Utah, clean = "none")
 #' 
 #' # Show only invalid characteristic-media-result unit combinations:
+
 #' InvalidUnit_errorsonly <- InvalidResultUnit(Nutrients_Utah, clean = "nonstandardized_only", errorsonly = TRUE)
 #' 
 #' # Show only nonstandardized characteristic-media-result unit combinations:
 #' NonstandardUnit_errorsonly <- InvalidResultUnit(Nutrients_Utah, clean = "invalid_only", errorsonly = TRUE)
-
 
 InvalidResultUnit <- function(.data, clean = c("invalid_only", "nonstandardized_only", "both", "none"), errorsonly = FALSE) {
   # check .data is data.frame

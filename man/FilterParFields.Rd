@@ -27,4 +27,5 @@ data(Nutrients_Utah)
 
 # Create list of fields for parameter "AMMONIA" with number of unique values in each field:
 AmmoniaFields <- FilterParFields(Nutrients_Utah, parameter = "AMMONIA")
+
 }
