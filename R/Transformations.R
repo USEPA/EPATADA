@@ -63,6 +63,7 @@
 #' # Do not convert result values and units, but add two new columns titled
 #' # "WQX.ConversionFactor" and "WQX.TargetUnit":
 #' ResultUnitsNotConverted <- ConvertResultUnits(Nutrients_Utah, transform = FALSE)
+#' 
 
 ConvertResultUnits <- function(.data, transform = TRUE) {
   # check .data is data.frame
@@ -303,7 +304,6 @@ ConvertResultUnits <- function(.data, transform = TRUE) {
 
 
 
-
 #' Convert Depth Units
 #'
 #' Default is transform = TRUE. When transform = TRUE, all depth data is converted
@@ -357,6 +357,7 @@ ConvertResultUnits <- function(.data, transform = TRUE) {
 #' # Do not convert any depth units, but add columns for target units and 
 #' # conversion factors for each depth measure:
 #' DepthUnitsNotConverted <- ConvertDepthUnits(Nutrients_Utah, transform = FALSE)
+#' 
 
 ConvertDepthUnits <- function(.data,
                               unit = "m",
@@ -625,7 +626,6 @@ ConvertDepthUnits <- function(.data,
     return(clean.data)
   }
 }
-
 
 
 
@@ -1032,54 +1032,5 @@ HarmonizeData <- function(.data, ref, transform = TRUE, flag = TRUE) {
         return(clean.data)
       }
     }
-  }
-}
-
-
-
-#' Harmonize censored data
-#' 
-#' Function substitutes monitoring device/method detection limits (if available) as result values when applicable.
-#'
-#' @param transform Boolean argument with two possible values, “TRUE” and “FALSE”.
-#' Default is transform = TRUE.
-#' 
-#' @param .data Optional argument; TADA dataframe
-#'
-#' @return When transform=TRUE, monitoring device/method detection limits (if available) are substituted as result values and units.
-#' When transform = FALSE, monitoring device/method detection limits (if available) are NOT substituted as result values and units - 
-#' Instead, columns are appended to rows that may include censored data. The flag indicates 1) if the row contains censored data, and 2)
-#' if monitoring device/method detection limits are available.  
-#' 
-
-HarmonizeCensoredData <- function(transform, .data) {
-  # if .data specified, check .data is data.frame
-  if (!missing(.data)) {
-    checkType(.data, "data.frame", "Input object")
-  }
-  # execute function after checks are passed 
-  {
-    
-  }
-}
-
-
-#' Generates Censored Data Statistics
-#' 
-#' Function summarizes censored data in dataframe, including any substitutions made. 
-#' 
-#' @param .data Optional argument; TADA dataframe
-#'
-#' @return Summary table
-#' 
-
-CensoredDataStats <- function(.data) {
-  # if .data specified, check .data is data.frame
-  if (!missing(.data)) {
-    checkType(.data, "data.frame", "Input object")
-  }
-  # execute function after checks are passed 
-  {
-    
   }
 }

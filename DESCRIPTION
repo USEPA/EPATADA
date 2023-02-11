@@ -1,6 +1,6 @@
 Package: TADA
 Type: Package
-Title: Tools for Automated Data Analysis R Package
+Title: TADA (Tools for Automated Data Analysis) R Package
 Version: 0.0.1
 Organization: U.S. Environmental Protection Agency
 Authors@R: 
@@ -58,7 +58,7 @@ Suggests:
     tidyverse,
     knitr,
     rmarkdown,
-    testthat (>= 3.0.0),
+    testthat,
     testthis, 
     usethis,
     devtools,

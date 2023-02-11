@@ -23,4 +23,5 @@ data(Nutrients_Utah)
 
 # Create a table of fields and count of unique values in each field:
 Fields_Nutrients_Utah <- FilterFields(Nutrients_Utah)
+
 }

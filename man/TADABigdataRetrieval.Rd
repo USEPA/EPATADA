@@ -79,13 +79,9 @@ See ?MeasureValueSpecialCharacters and ?autoclean documentation for more informa
 \examples{
 \dontrun{
 tada1 <- TADABigdataRetrieval(startDate = "2019-01-01", endDate = "2021-12-31", characteristicName = "Temperature, water", statecode = c("AK","AL"))
-
 tada2 <- TADABigdataRetrieval(startDate = "2016-10-01",endDate = "2022-09-30", statecode = "UT")
-
 tada3 = TADABigdataRetrieval(huc = "04030202", characteristicName = "Escherichia coli")
-
 tada4 = TADABigdataRetrieval(huc = c("04030202","04030201"), characteristicName = "Temperature, water")
-
 }
 
 }

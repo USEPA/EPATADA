@@ -81,4 +81,5 @@ cleanNA = TRUE, errorsonly = TRUE)
 
 # Note: When clean = FALSE, cleanNA = FALSE, and errorsonly = FALSE, no data is removed
 # Note: When clean = TRUE, cleanNA = TRUE, and errorsonly = TRUE, an error message is returned
+
 }
