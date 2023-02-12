@@ -72,7 +72,7 @@
       <img src="" class="logo" alt=""><h1>WQP Data Harmonization</h1>
                         <h4 data-toc-skip class="author">TADA Team</h4>
             
-            <h4 data-toc-skip class="date">2023-02-04</h4>
+            <h4 data-toc-skip class="date">2023-02-12</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/USEPA/TADA/blob/HEAD/vignettes/WQPDataHarmonization.Rmd" class="external-link"><code>vignettes/WQPDataHarmonization.Rmd</code></a></small>
       <div class="d-none name"><code>WQPDataHarmonization.Rmd</code></div>
@@ -633,14 +633,21 @@ rows flagged as “Invalid”; default is errorsonly = FALSE.</p></li>
 <li>
 <p>?<strong>InvalidSpeciation</strong></p>
 <ul>
-<li><p>When clean = FALSE, this function adds the following column to
+<li><p>When clean = “none”, this function adds the following column to
 your dataframe: WQX.MethodSpeciationValidity. This column flags each
 CharacteristicName and MethodSpecificationName combination in your
 dataframe as either “Nonstandardized”, “Invalid”, or “Valid”.</p></li>
-<li><p>When clean = TRUE, “Invalid” rows are removed from the dataframe
-and no column will be appended.</p></li>
+<li><p>When clean = “invalid_only”, only “Invalid” rows are removed from
+the dataframe. Default is clean = “invalid_only”.</p></li>
+<li><p>When clean = “nonstandardized_only”, only “Nonstandardized” rows
+are removed from the dataframe.</p></li>
+<li><p>When clean = “both”, “Invalid” and “Nonstandardized” rows are
+removed from the dataframe.</p></li>
+<li><p>When clean = “none”, no rows are removed from the
+dataframe.</p></li>
 <li><p>When errorsonly = TRUE, the dataframe is filtered to only the
-rows flagged as “Invalid”; default is errorsonly = FALSE.</p></li>
+rows flagged as “Invalid” or “Nonstandardized”; default is errorsonly =
+FALSE.</p></li>
 </ul>
 </li>
 <li>
@@ -674,8 +681,16 @@ flagged as “Invalid”; default is errorsonly = FALSE.</li>
 <div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">TADAProfileClean5</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/InvalidMethod.html">InvalidMethod</a></span><span class="op">(</span><span class="va">TADAProfileClean4</span>, clean <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span><span class="va">TADAProfileClean6</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/InvalidFraction.html">InvalidFraction</a></span><span class="op">(</span><span class="va">TADAProfileClean5</span>, clean <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
-<span><span class="va">TADAProfileClean7</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/InvalidSpeciation.html">InvalidSpeciation</a></span><span class="op">(</span><span class="va">TADAProfileClean6</span>, clean <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
-<span><span class="va">TADAProfileClean8</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/InvalidResultUnit.html">InvalidResultUnit</a></span><span class="op">(</span><span class="va">TADAProfileClean7</span>, clean <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
+<span><span class="va">TADAProfileClean7</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/InvalidSpeciation.html">InvalidSpeciation</a></span><span class="op">(</span><span class="va">TADAProfileClean6</span>, clean <span class="op">=</span> <span class="st">"none"</span><span class="op">)</span></span>
+<span><span class="co">#&gt; Warning in InvalidSpeciation(TADAProfileClean6, clean = "none"): Metadata</span></span>
+<span><span class="co">#&gt; transformations may be adversely affected by choosing to retain 'Invalid'</span></span>
+<span><span class="co">#&gt; speciation. In order to ensure transformation functions will run properly, set</span></span>
+<span><span class="co">#&gt; clean = 'invalid_only' or 'both'.</span></span>
+<span><span class="va">TADAProfileClean8</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/InvalidResultUnit.html">InvalidResultUnit</a></span><span class="op">(</span><span class="va">TADAProfileClean7</span>, clean <span class="op">=</span> <span class="st">"none"</span><span class="op">)</span></span>
+<span><span class="co">#&gt; Warning in InvalidResultUnit(TADAProfileClean7, clean = "none"): Metadata</span></span>
+<span><span class="co">#&gt; transformations may be adversely affected by choosing to retain 'Invalid'</span></span>
+<span><span class="co">#&gt; result units. In order to ensure transformation functions will run properly,</span></span>
+<span><span class="co">#&gt; set clean = 'invalid_only' or 'both'.</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="wqx-national-upper-and-lower-thresholds">WQX national upper and lower thresholds<a class="anchor" aria-label="anchor" href="#wqx-national-upper-and-lower-thresholds"></a>
@@ -796,10 +811,10 @@ in each field using the <strong>FilterFields</strong> function.</p>
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/FilterFields.html">FilterFields</a></span><span class="op">(</span><span class="va">TADAProfileClean13</span><span class="op">)</span></span>
 <span><span class="co">#&gt;                             FieldName Count</span></span>
 <span><span class="co">#&gt; 1              OrganizationFormalName     7</span></span>
-<span><span class="co">#&gt; 2                    ActivityTypeCode     7</span></span>
+<span><span class="co">#&gt; 2                    ActivityTypeCode     8</span></span>
 <span><span class="co">#&gt; 3                   ActivityMediaName     1</span></span>
 <span><span class="co">#&gt; 4        ActivityMediaSubdivisionName     2</span></span>
-<span><span class="co">#&gt; 5                         ProjectName    32</span></span>
+<span><span class="co">#&gt; 5                         ProjectName    33</span></span>
 <span><span class="co">#&gt; 6                 ActivityCommentText    55</span></span>
 <span><span class="co">#&gt; 7                 HydrologicCondition     7</span></span>
 <span><span class="co">#&gt; 8                     HydrologicEvent     7</span></span>
@@ -808,7 +823,7 @@ in each field using the <strong>FilterFields</strong> function.</p>
 <span><span class="co">#&gt; 11            SampleTissueAnatomyName     1</span></span>
 <span><span class="co">#&gt; 12                     LaboratoryName    29</span></span>
 <span><span class="co">#&gt; 13 DetectionQuantitationLimitTypeName    10</span></span>
-<span><span class="co">#&gt; 14         MonitoringLocationTypeName     7</span></span></code></pre></div>
+<span><span class="co">#&gt; 14         MonitoringLocationTypeName     8</span></span></code></pre></div>
 <p>Next, choose a field from the list to see the unique values in that
 field, as well as the number of times each value appears in the
 dataframe using the <strong>FilterFieldReview</strong> function. We’ll
@@ -825,13 +840,14 @@ data flags</p></li>
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/FilterFieldReview.html">FilterFieldReview</a></span><span class="op">(</span><span class="st">"ActivityTypeCode"</span>, <span class="va">TADAProfileClean13</span><span class="op">)</span></span></code></pre></div>
 <p><img src="WQPDataHarmonization_files/figure-html/unnamed-chunk-21-1.png" width="576"></p>
 <pre><code><span><span class="co">#&gt;                                FieldValue Count</span></span>
-<span><span class="co">#&gt; 7                          Sample-Routine  4354</span></span>
-<span><span class="co">#&gt; 6  Quality Control Sample-Field Replicate   206</span></span>
+<span><span class="co">#&gt; 8                          Sample-Routine  4381</span></span>
+<span><span class="co">#&gt; 7  Quality Control Sample-Field Replicate   213</span></span>
 <span><span class="co">#&gt; 4  Quality Control Sample-Blind Duplicate    35</span></span>
 <span><span class="co">#&gt; 3 Quality Control Field Replicate Msr/Obs    27</span></span>
 <span><span class="co">#&gt; 1                           Field Msr/Obs    22</span></span>
 <span><span class="co">#&gt; 2                          Not determined     2</span></span>
-<span><span class="co">#&gt; 5  Quality Control Sample-Equipment Blank     2</span></span></code></pre>
+<span><span class="co">#&gt; 5  Quality Control Sample-Equipment Blank     2</span></span>
+<span><span class="co">#&gt; 6      Quality Control Sample-Field Blank     1</span></span></code></pre>
 <p>The ActivityTypeCode field has four unique values – “Sample-Routine”,
 “Quality Control Sample-Field Replicate”, “Field Msr/Obs”, and “Quality
 Control Sample-Field Blank.” In this example we want to remove quality
@@ -849,7 +865,7 @@ ResultStatusIdentifier field.</p>
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/FilterFieldReview.html">FilterFieldReview</a></span><span class="op">(</span><span class="st">"ActivityMediaSubdivisionName"</span>, <span class="va">TADAProfileClean14</span><span class="op">)</span></span></code></pre></div>
 <p><img src="WQPDataHarmonization_files/figure-html/unnamed-chunk-23-1.png" width="576"></p>
 <pre><code><span><span class="co">#&gt;      FieldValue Count</span></span>
-<span><span class="co">#&gt; 1 Surface Water  3134</span></span></code></pre>
+<span><span class="co">#&gt; 1 Surface Water  3161</span></span></code></pre>
 <p>The ActivityMediaSubdivisionName field has two unique values,
 “Surface Water” and “Groundwater.” In this example we want to remove the
 “Groundwater” values.</p>
@@ -869,7 +885,7 @@ space on the page)</p>
 <div class="sourceCode" id="cb28"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/FilterParList.html">FilterParList</a></span><span class="op">(</span><span class="va">TADAProfileClean15</span><span class="op">)</span></span>
 <span><span class="co">#&gt;         FieldValue Count</span></span>
-<span><span class="co">#&gt; 4   FECAL COLIFORM  3039</span></span>
+<span><span class="co">#&gt; 4   FECAL COLIFORM  3066</span></span>
 <span><span class="co">#&gt; 5          NITRATE   490</span></span>
 <span><span class="co">#&gt; 2     ENTEROCOCCUS   360</span></span>
 <span><span class="co">#&gt; 6         NITROGEN   276</span></span>
