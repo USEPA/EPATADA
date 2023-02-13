@@ -12,8 +12,8 @@ TADAdataRetrieval(
   siteType = "null",
   characteristicName = "null",
   sampleMedia = "null",
-  ProjectIdentifier = "null",
-  OrganizationIdentifier = "null",
+  project = "null",
+  organization = "null",
   endDate = "null",
   applyautoclean = TRUE
 )
@@ -21,7 +21,7 @@ TADAdataRetrieval(
 \arguments{
 \item{statecode}{Code that identifies a state}
 
-\item{startDate}{Start Date in the format MM-DD-YYYY}
+\item{startDate}{Start Date string in the format YYYY-MM-DD, for example, "2020-01-01"}
 
 \item{countycode}{Code that identifies a county}
 
@@ -33,11 +33,11 @@ TADAdataRetrieval(
 
 \item{sampleMedia}{Sampling substrate such as water, air, or sediment}
 
-\item{ProjectIdentifier}{A string of letters and/or numbers (some additional characters also possible) used to signify a project with data in the Water Quality Portal}
+\item{project}{A string of letters and/or numbers (some additional characters also possible) used to signify a project with data in the Water Quality Portal}
 
-\item{OrganizationIdentifier}{A string of letters and/or numbers (some additional characters also possible) used to signify an organization with data in the Water Quality Portal}
+\item{organization}{A string of letters and/or numbers (some additional characters also possible) used to signify an organization with data in the Water Quality Portal}
 
-\item{endDate}{End Date in the format YYYY-MM-DD}
+\item{endDate}{End Date string in the format YYYY-MM-DD}
 
 \item{applyautoclean}{Logical, defaults to TRUE. Applies TADA's autoclean function on the returned data profile.}
 }
@@ -46,7 +46,11 @@ TADA-compatible dataframe
 }
 \description{
 Retrieve data from Water Quality Portal (WQP) and generate a TADA-compatible
-dataframe.
+dataframe. Note that the inputs (e.g. project, organization, siteType) with the
+exceptions of endDate and startDate match the web service call format from the
+online WQP GUI. endDate and startDate match the format suggested in USGS's
+dataRetrieval package (endDate = "YYYY-MM-DD"), which is a more familiar date
+format for R users than the WQP GUI's endDateHi = "MM-DD-YYYY".
 }
 \details{
 This function will create and/or edit the following columns:
@@ -59,7 +63,7 @@ ResultMeasureValue
 
 Keep in mind that all the query filters for the WQP work as an AND
 but within the fields there are ORs. So for example,
-characteristics – if you choose pH & DO – it’s an OR. Similarly, if you
+characteristicNames – if you choose pH & DO – it’s an OR. Similarly, if you
 choose VA and IL, it’s an OR. But the combo of fields are ANDs.
 Such as State/VA AND Characteristic/DO".
 "Characteristic" and "Characteristic Group" also work as an AND.
@@ -76,7 +80,7 @@ and to provide information about the result values that is needed to address
 censored data later on (i.e., nondetections)
 
 Users can reference the \href{https://www.epa.gov/waterdata/storage-and-retrieval-and-water-quality-exchange-domain-services-and-downloads}{WQX domain tables}
-to find allowable vales for queries, e.g., reference the WQX domain table to find countycode and statecode: https://cdx.epa.gov/wqx/download/DomainValues/County_CSV.zip
+to find allowable values for queries, e.g., reference the WQX domain table to find countycode and statecode: https://cdx.epa.gov/wqx/download/DomainValues/County_CSV.zip
 Alternatively, you can use the WQP services to find areas where data is available in the US: https://www.waterqualitydata.us/Codes/countycode
 
 See ?MeasureValueSpecialCharacters and ?autoclean documentation for more information.
@@ -86,10 +90,13 @@ See ?MeasureValueSpecialCharacters and ?autoclean documentation for more informa
 tada1 <- TADAdataRetrieval(statecode = "WI",
                            countycode = "Dane",
                            characteristicName = "Phosphorus")
-tada2 <- TADAdataRetrieval(ProjectIdentifier = "Anchorage Bacteria 20-21")
+
+tada2 <- TADAdataRetrieval(project = "Anchorage Bacteria 20-21")
+
 tada3 <- TADAdataRetrieval(statecode = "UT", 
                            characteristicName = c("Ammonia", "Nitrate", "Nitrogen"), 
-                           startDate = "10-01-2020")
+                           startDate = "2020-10-01")
+
 tada4 <- TADAdataRetrieval(statecode = "SC", countycode  = "Abbeville")
 # countycode queries require a statecode
 tada5 <- TADAdataRetrieval(countycode = "US:02:020")

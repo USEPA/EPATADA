@@ -1,7 +1,12 @@
 #' Generate TADA-compatible dataframe from WQP Data
 #'
 #' Retrieve data from Water Quality Portal (WQP) and generate a TADA-compatible
-#' dataframe.
+#' dataframe. Note that the inputs (e.g. project, organization, siteType) with the 
+#' exceptions of endDate and startDate match the web service call format from the
+#' online WQP GUI. endDate and startDate match the format suggested in USGS's 
+#' dataRetrieval package (endDate = "YYYY-MM-DD"), which is a more familiar date 
+#' format for R users than the WQP GUI's endDateHi = "MM-DD-YYYY".
+#'  
 #' 
 #' This function will create and/or edit the following columns:
 #' TADA.DetectionLimitMeasureValue.Flag
@@ -13,7 +18,7 @@
 #' 
 #' Keep in mind that all the query filters for the WQP work as an AND 
 #' but within the fields there are ORs. So for example, 
-#' characteristics – if you choose pH & DO – it’s an OR. Similarly, if you
+#' characteristicNames – if you choose pH & DO – it’s an OR. Similarly, if you
 #' choose VA and IL, it’s an OR. But the combo of fields are ANDs. 
 #' Such as State/VA AND Characteristic/DO". 
 #' "Characteristic" and "Characteristic Group" also work as an AND. 
@@ -30,21 +35,21 @@
 #' censored data later on (i.e., nondetections)
 #' 
 #' Users can reference the \href{https://www.epa.gov/waterdata/storage-and-retrieval-and-water-quality-exchange-domain-services-and-downloads}{WQX domain tables}
-#' to find allowable vales for queries, e.g., reference the WQX domain table to find countycode and statecode: https://cdx.epa.gov/wqx/download/DomainValues/County_CSV.zip
+#' to find allowable values for queries, e.g., reference the WQX domain table to find countycode and statecode: https://cdx.epa.gov/wqx/download/DomainValues/County_CSV.zip
 #' Alternatively, you can use the WQP services to find areas where data is available in the US: https://www.waterqualitydata.us/Codes/countycode
 #'  
 #' See ?MeasureValueSpecialCharacters and ?autoclean documentation for more information.
 #' 
 #' @param statecode Code that identifies a state
-#' @param startDate Start Date in the format MM-DD-YYYY
+#' @param startDate Start Date string in the format YYYY-MM-DD, for example, "2020-01-01"
 #' @param countycode Code that identifies a county 
 #' @param siteid Unique monitoring station identifier
 #' @param siteType Type of waterbody
 #' @param characteristicName Name of parameter
 #' @param sampleMedia Sampling substrate such as water, air, or sediment
-#' @param ProjectIdentifier A string of letters and/or numbers (some additional characters also possible) used to signify a project with data in the Water Quality Portal
-#' @param OrganizationIdentifier A string of letters and/or numbers (some additional characters also possible) used to signify an organization with data in the Water Quality Portal
-#' @param endDate End Date in the format YYYY-MM-DD
+#' @param project A string of letters and/or numbers (some additional characters also possible) used to signify a project with data in the Water Quality Portal
+#' @param organization A string of letters and/or numbers (some additional characters also possible) used to signify an organization with data in the Water Quality Portal
+#' @param endDate End Date string in the format YYYY-MM-DD
 #' @param applyautoclean Logical, defaults to TRUE. Applies TADA's autoclean function on the returned data profile.
 #'
 #' @return TADA-compatible dataframe
@@ -56,10 +61,13 @@
 #' tada1 <- TADAdataRetrieval(statecode = "WI",
 #'                            countycode = "Dane",
 #'                            characteristicName = "Phosphorus")
-#' tada2 <- TADAdataRetrieval(ProjectIdentifier = "Anchorage Bacteria 20-21")
+#' 
+#' tada2 <- TADAdataRetrieval(project = "Anchorage Bacteria 20-21")
+#' 
 #' tada3 <- TADAdataRetrieval(statecode = "UT", 
 #'                            characteristicName = c("Ammonia", "Nitrate", "Nitrogen"), 
-#'                            startDate = "10-01-2020")
+#'                            startDate = "2020-10-01")
+#' 
 #' tada4 <- TADAdataRetrieval(statecode = "SC", countycode  = "Abbeville")
 #' # countycode queries require a statecode
 #' tada5 <- TADAdataRetrieval(countycode = "US:02:020")
@@ -73,8 +81,8 @@ TADAdataRetrieval <- function(statecode = "null",
                               siteType = "null",
                               characteristicName = "null",
                               sampleMedia = "null",
-                              ProjectIdentifier = "null",
-                              OrganizationIdentifier = "null",
+                              project = "null",
+                              organization = "null",
                               endDate = "null",
                               applyautoclean = TRUE
                               ) {
@@ -88,8 +96,14 @@ TADAdataRetrieval <- function(statecode = "null",
   }
   
   if (length(startDate)>1) {
+    if(is.na(suppressWarnings(lubridate::parse_date_time(startDate[1], orders = "ymd")))){
+      stop("Incorrect date format. Please use the format YYYY-MM-DD.")
+    }
     WQPquery <- c(WQPquery, startDate = list(startDate)) 
   } else if (startDate != "null") {
+    if(is.na(suppressWarnings(lubridate::parse_date_time(startDate, orders = "ymd")))){
+      stop("Incorrect date format. Please use the format YYYY-MM-DD.")
+    }
     WQPquery <- c(WQPquery, startDate = startDate)
   }
   
@@ -123,21 +137,27 @@ TADAdataRetrieval <- function(statecode = "null",
     WQPquery <- c(WQPquery, sampleMedia = sampleMedia)
   }
   
-  if (length(ProjectIdentifier)>1) {
-    WQPquery <- c(WQPquery, project = list(ProjectIdentifier)) 
-  } else if (ProjectIdentifier != "null") {
-    WQPquery <- c(WQPquery, project = ProjectIdentifier)
+  if (length(project)>1) {
+    WQPquery <- c(WQPquery, project = list(project)) 
+  } else if (project != "null") {
+    WQPquery <- c(WQPquery, project = project)
   }
   
-  if (length(OrganizationIdentifier)>1) {
-    WQPquery <- c(WQPquery, organization = list(OrganizationIdentifier)) 
-  } else if (OrganizationIdentifier != "null") {
-    WQPquery <- c(WQPquery, organization = OrganizationIdentifier)
+  if (length(organization)>1) {
+    WQPquery <- c(WQPquery, organization = list(organization)) 
+  } else if (organization != "null") {
+    WQPquery <- c(WQPquery, organization = organization)
   }
   
   if (length(endDate)>1) {
+    if(is.na(suppressWarnings(lubridate::parse_date_time(endDate[1], orders = "ymd")))){
+      stop("Incorrect date format. Please use the format YYYY-MM-DD.")
+    }
     WQPquery <- c(WQPquery, endDate = list(endDate)) 
   } else if (endDate != "null") {
+    if(is.na(suppressWarnings(lubridate::parse_date_time(endDate, orders = "ymd")))){
+      stop("Incorrect date format. Please use the format YYYY-MM-DD.")
+    }
     WQPquery <- c(WQPquery, endDate = endDate)
   }
 
@@ -316,23 +336,22 @@ TADABigdataRetrieval <- function(startDate = "null",
   if(!"null"%in%statecode&!"null"%in%huc){stop("Please provide either state code(s) OR huc(s) to proceed.")}
 
   if(!startDate=="null"){
-    startDate_Low = lubridate::ymd(startDate)
-    startYearLo = lubridate::year(startDate_Low)
+    startDate = lubridate::ymd(startDate)
+    startYearLo = lubridate::year(startDate)
   }else{ # else: pick a date before which any data are unlikely to be in WQP
-    startDate = "1800-01-01"
-    startDate_Low = lubridate::ymd(startDate)
-    startYearLo = lubridate::year(startDate_Low)
+    startDate = lubridate::ymd("1800-01-01")
+    startYearLo = lubridate::year(startDate)
   } 
   
 # Logic: if the input endDate is not null, convert to date and obtain year
   # for summary
   if(!endDate=="null"){
-    endDate_High = lubridate::ymd(endDate)
-    endYearHi = lubridate::year(endDate_High)
+    endDate = lubridate::ymd(endDate)
+    endYearHi = lubridate::year(endDate)
   }else{ # else: if not populated, default to using today's date/year for summary
     endDate = Sys.Date()
-    endDate_High = lubridate::ymd(endDate)
-    endYearHi = lubridate::year(endDate_High)
+    endDate = lubridate::ymd(endDate)
+    endYearHi = lubridate::year(endDate)
   }
   
   # Create readWQPsummary query

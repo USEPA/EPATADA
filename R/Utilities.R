@@ -64,8 +64,16 @@ autoclean <- function(.data) {
     toupper(.data$DetectionQuantitationLimitMeasure.MeasureUnitCode)
   # .data$BiologicalIntentName = toupper(.data$BiologicalIntentName)
   
-  # Remove duplicate rows
-  .data <- .data[!duplicated(.data), ]
+  # Remove duplicate rows - turned into a test because duplicated() takes a long
+  # time acting on all columns in a large dataset.
+  if(!length(unique(.data$ResultIdentifier))==dim(.data)[1]){
+    print("Duplicate records may be present. Filtering to unique records. This may take a while on large datasets.")
+    dup_rids = names(table(.data$ResultIdentifier)[table(.data$ResultIdentifier)>1])
+    dup_check = .data%>%dplyr::filter(ResultIdentifier%in%dup_rids)%>%dplyr::group_by(ResultIdentifier)%>%dplyr::distinct()
+    not_dups = .data%>%dplyr::filter(!ResultIdentifier%in%dup_rids)
+    .data = plyr::rbind.fill(dup_check, not_dups)
+  }
+
   
   # Remove complex biological data
   .data <- dplyr::filter(.data, ActivityMediaName == "WATER")
@@ -73,6 +81,8 @@ autoclean <- function(.data) {
   
   # run MeasureValueSpecialCharacters function
   .data <- MeasureValueSpecialCharacters(.data)
+  # .data <- ConvertSpecialChars(.data, "ResultMeasureValue")
+  # .data <- ConvertSpecialChars(.data, "DetectionQuantitationLimitMeasure.MeasureValue")
   
   # change latitude and longitude measures to class numeric
   .data$LatitudeMeasure <- as.numeric(.data$LatitudeMeasure)
@@ -401,4 +411,54 @@ checkColumns <- function(.data, expected_cols) {
   if (all(expected_cols %in% colnames(.data)) == FALSE) {
     stop("The dataframe does not contain the required fields to use TADA. Use either the full physical/chemical profile downloaded from WQP or download the TADA profile template available on the EPA TADA webpage.")
   }
+}
+
+
+
+#' ConvertSpecialChars
+#' 
+#' This function will screen a column of the user's choice for special characters.
+#' It creates a new column that describes the content of the column prior to
+#' conversion to numeric. It also creates a new column to hold the new, numeric
+#' column
+#' 
+#' @param .data A TADA profile object
+#' @param col A character column to be converted to numeric
+#' 
+#' @export
+#' 
+
+ConvertSpecialChars <- function(.data,col){
+  if(!col%in%names(.data)){
+    stop("Invalid column name specified for input dataset.")
+  }
+  if(class(col)=="numeric"){
+    stop("Column is already numeric. This conversion not needed.")
+  }
+  chars.data = .data
+  names(chars.data)[names(chars.data)==col] = "orig"
+  chars.data$masked = chars.data$orig
+  chars.data = chars.data%>%
+    dplyr::mutate(flag = dplyr::case_when(
+      is.na(masked) ~ as.character("ND or NA"),
+      (!is.na(suppressWarnings(as.numeric(masked)) == TRUE)) ~ as.character("Numeric"),
+      (grepl("<", masked) == TRUE) ~ as.character("Less Than"),
+      (grepl(">", masked) == TRUE) ~ as.character("Greater Than"),
+      (grepl("~", masked) == TRUE) ~ as.character("Approximate Value"),
+      (grepl("[A-Za-z]", masked) == TRUE) ~ as.character("Text"),
+      (grepl("%", masked) == TRUE) ~ as.character("Percentage"),
+      (grepl(",", masked) == TRUE) ~ as.character("Comma-Separated Numeric"),
+      TRUE ~ "Coerced to NA"
+    ))
+  
+  chars.data$masked = suppressWarnings(as.numeric(stringr::str_replace_all(
+    chars.data$orig,c("<" = "", ">" = "", "~" = "", "," = "","%" = ""))))
+  
+  clean.data = chars.data%>%
+    dplyr::relocate("masked",.after = "orig")%>%
+    dplyr::relocate("flag", .after="masked")
+  names(clean.data)[names(clean.data)=="orig"] = col
+  names(clean.data)[names(clean.data)=="masked"] = paste0(col,".nochar")
+  names(clean.data)[names(clean.data)=="flag"] = paste0(col,".nochar_flag")
+  return(clean.data)
 }
