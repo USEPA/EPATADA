@@ -86,19 +86,13 @@ See ?MeasureValueSpecialCharacters and ?autoclean documentation for more informa
 tada1 <- TADAdataRetrieval(statecode = "WI",
                            countycode = "Dane",
                            characteristicName = "Phosphorus")
-
 tada2 <- TADAdataRetrieval(project = "Anchorage Bacteria 20-21")
-
 tada3 <- TADAdataRetrieval(statecode = "UT", 
                            characteristicName = c("Ammonia", "Nitrate", "Nitrogen"), 
                            startDate = "2020-10-01")
-
 tada4 <- TADAdataRetrieval(statecode = "SC", countycode  = "Abbeville")
-
 # countycode queries require a statecode
 tada5 <- TADAdataRetrieval(countycode = "US:02:020")
-
-
 }
 
 }

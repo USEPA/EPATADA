@@ -40,6 +40,7 @@
 #' 
 #' # Show only invalid characteristic-analytical method combinations:
 #' InvalidMethod_errorsonly <- InvalidMethod(Nutrients_Utah, clean = FALSE, errorsonly = TRUE)
+#' 
 
 InvalidMethod <- function(.data, clean = TRUE, errorsonly = FALSE) {
   # check .data is data.frame
@@ -96,37 +97,45 @@ InvalidMethod <- function(.data, clean = TRUE, errorsonly = FALSE) {
                     .after = "ResultAnalyticalMethod.MethodName"
     )
   
-  # if all rows are "Valid" or NA "Nonstandardized", return input unchanged
-  ##note: Cristina edited this on 9/19/22 to keep Nonstandardized/NA data when clean = TRUE. Now only Invalid data is removed.
-  if (any("Invalid" %in%
-          unique(check.data$WQX.AnalyticalMethodValidity)) == FALSE) {
-    print("No changes were made, because we did not find any invalid method/characteristic combinations in your dataframe")
-    return(.data)
-  }
-  
-  # flagged output, all data
-  if (clean == FALSE & errorsonly == FALSE) {
-    return(check.data)
-  }
-  
-  # clean output
-  if (clean == TRUE & errorsonly == FALSE) {
-    # filter out invalid characteristic-unit-method combinations
-    clean.data <- dplyr::filter(check.data, WQX.AnalyticalMethodValidity != "Invalid")
+  if (errorsonly == FALSE) {
     
-    # remove WQX.AnalyticalMethodValidity column
-    clean.data <- dplyr::select(clean.data, -WQX.AnalyticalMethodValidity)
+    #if all rows are "Valid" or NA "Nonstandardized", return input unchanged
+    ##note: Cristina edited this on 9/19/22 to keep Nonstandardized/NA data when clean = TRUE. Now only Invalid data is removed.
+    if (any("Invalid" %in%
+            unique(check.data$WQX.AnalyticalMethodValidity)) == FALSE) {
+      print("No changes were made, because we did not find any invalid method/characteristic combinations in your dataframe")
+      return(.data)
+    }
     
-    return(clean.data)
+    # flagged output, all data
+    if (clean == FALSE) {
+      return(check.data)
+    }
+    
+    # clean output
+    if (clean == TRUE) {
+      # filter out invalid characteristic-unit-method combinations
+      clean.data <- dplyr::filter(check.data, WQX.AnalyticalMethodValidity != "Invalid")
+      
+      # remove WQX.AnalyticalMethodValidity column
+      clean.data <- dplyr::select(clean.data, -WQX.AnalyticalMethodValidity)
+      
+      return(clean.data)
+    }
   }
-  
+
   # flagged output, errors only
   if (clean == FALSE & errorsonly == TRUE) {
     # filter to show only invalid characteristic-unit-method combinations
     invalid.data <- dplyr::filter(check.data, WQX.AnalyticalMethodValidity == "Invalid")
+    if (nrow(invalid.data) == 0) {
+      invalid.data <- dplyr::select(invalid.data, -WQX.AnalyticalMethodValidity)
+      print("This dataframe is empty because we did not find any invalid method/characteristic combinations in your dataframe")
+    }
     return(invalid.data)
   }
 }
+
 
 
 #' Check for Aggregated Continuous Data
@@ -179,6 +188,7 @@ InvalidMethod <- function(.data, clean = TRUE, errorsonly = FALSE) {
 #' 
 #' # Show only rows flagged for aggregated continuous data:
 #' AggContinuous_errorsonly <- AggregatedContinuousData(Nutrients_Utah, clean = FALSE, errorsonly = TRUE)
+#' 
 
 AggregatedContinuousData <- function(.data, clean = TRUE, errorsonly = FALSE) {
   # check .data is data.frame
@@ -228,18 +238,25 @@ AggregatedContinuousData <- function(.data, clean = TRUE, errorsonly = FALSE) {
     # flagged output, only aggregated continuous data
     if (clean == FALSE & errorsonly == TRUE) {
       #filter to show only invalid characteristic-unit-media combinations
-      aggcont.data <- dplyr::filter(flag.data, (TADA.AggregatedContinuousData %in% "Y"))
+      aggcont.data <- dplyr::filter(flag.data, TADA.AggregatedContinuousData == "Y")
       return(aggcont.data)
     }
   }
   
   # if no aggregated continuous data is in the data set
   if (nrow(cont.data) == 0) {
-    print("No changes were made, because we did not find any aggregated continuous data in your dataframe")
+    if (errorsonly == FALSE) {
+      print("No changes were made, because we did not find any aggregated continuous data in your dataframe")
+      return(.data)
+    }
     
-    return(.data)
+    if (errorsonly == TRUE) {
+      print("This dataframe is empty because we did not find any aggregated continuous data in your dataframe")
+      return(cont.data)
+    }
   }
 }
+
 
 
 #' Check for Potential Duplicates
@@ -322,8 +339,14 @@ PotentialDuplicateRowID <- function(.data, clean = TRUE, errorsonly = FALSE) {
   
   # if no potential duplicates are found
   if (nrow(dupe.data) == 0) {
-    print("No changes were made, because we did not find any potential duplicates in your dataframe")
-    return(.data)
+    if (errorsonly == FALSE) {
+      print("No changes were made, because we did not find any potential duplicates in your dataframe")
+      return(.data)
+    }
+    if (errorsonly == TRUE) {
+      print("This dataframe is empty because we did not find any potential duplicates in your dataframe")
+      return(dupe.data)
+    }
   }
   
   # if potential duplicates are found
@@ -385,6 +408,7 @@ PotentialDuplicateRowID <- function(.data, clean = TRUE, errorsonly = FALSE) {
 }
 
 
+
 #' Check Result Value Against WQX Upper Threshold
 #'
 #' EPA's Water Quality Exchange (WQX) has generated statistics and data from
@@ -431,6 +455,7 @@ PotentialDuplicateRowID <- function(.data, clean = TRUE, errorsonly = FALSE) {
 #' # Show only data flagged as above the upper WQX threshold:
 #' WQXUpperThreshold_flagsonly <- AboveNationalWQXUpperThreshold(Nutrients_Utah, 
 #' clean = FALSE, errorsonly = TRUE)
+#' 
 
 AboveNationalWQXUpperThreshold <- function(.data, clean = TRUE, errorsonly = FALSE) {
   # check .data is data.frame
@@ -509,8 +534,16 @@ AboveNationalWQXUpperThreshold <- function(.data, clean = TRUE, errorsonly = FAL
   # if no data above WQX threshold is found
   if (any("Y" %in%
           unique(flag.data$AboveWQXUpperThreshold)) == FALSE) {
-    print("No changes were made because no data above the WQX Upper Threshold was found in your dataframe")
-    return(.data)
+    if (errorsonly == FALSE) {
+      print("No changes were made because no data above the WQX Upper Threshold was found in your dataframe")
+      return(.data)
+    }
+    if (errorsonly == TRUE) {
+      print("This dataframe is empty because no data above the WQX Upper Threshold was found in your dataframe")
+      emptyflag.data <- dplyr::filter(flag.data, AboveWQXUpperThreshold %in% "Y")
+      emptyflag.data <- dplyr::select(emptyflag.data, -AboveWQXUpperThreshold)
+      return(emptyflag.data)
+    }
   }
   
   # flagged, all data
@@ -583,6 +616,7 @@ AboveNationalWQXUpperThreshold <- function(.data, clean = TRUE, errorsonly = FAL
 #' # Show only data that is below the lower WQX threshold:
 #' WQXLowerThreshold_flagsonly <- BelowNationalWQXLowerThreshold(Nutrients_Utah,
 #' clean = FALSE, errorsonly = TRUE)
+#' 
 
 BelowNationalWQXLowerThreshold <- function(.data, clean = TRUE, errorsonly = FALSE) {
   # check .data is data.frame
@@ -660,8 +694,16 @@ BelowNationalWQXLowerThreshold <- function(.data, clean = TRUE, errorsonly = FAL
   # if no data below WQX lower threshold is found
   if (any("Y" %in%
           unique(flag.data$BelowWQXLowerThreshold)) == FALSE) {
-    print("No changes were made because no data below the WQX Lower Threshold was found in your dataframe")
-    return(.data)
+    if (errorsonly == FALSE) {
+      print("No changes were made because no data below the WQX Lower Threshold was found in your dataframe")
+      return(.data)
+    }
+    if (errorsonly == TRUE) {
+      print("This dataframe is empty because no data below the WQX Lower Threshold was found in your dataframe")
+      emptyflag.data <- dplyr::filter(flag.data, BelowWQXLowerThreshold %in% "Y")
+      emptyflag.data <- dplyr::select(emptyflag.data, -BelowWQXLowerThreshold)
+      return(emptyflag.data)
+    }
   }
   
   # flagged, all data
@@ -763,6 +805,7 @@ BelowNationalWQXLowerThreshold <- function(.data, clean = TRUE, errorsonly = FAL
 #'
 #' # Note: When clean = FALSE, cleanNA = FALSE, and errorsonly = FALSE, no data is removed
 #' # Note: When clean = TRUE, cleanNA = TRUE, and errorsonly = TRUE, an error message is returned
+#' 
 
 QAPPapproved <- function(.data, clean = TRUE, cleanNA = FALSE, errorsonly = FALSE) {
   # check .data is data.frame
@@ -832,7 +875,6 @@ QAPPapproved <- function(.data, clean = TRUE, cleanNA = FALSE, errorsonly = FALS
 
 
 
-
 #' Check if an approved QAPP document URL is provided
 #'
 #' Function checks data submitted under the "ProjectFileUrl" column
@@ -863,6 +905,7 @@ QAPPapproved <- function(.data, clean = TRUE, cleanNA = FALSE, errorsonly = FALS
 #' 
 #' # Remove data without an associated QAPP document available:
 #' RemoveData_MissingQAPPDocURLs <- QAPPDocAvailable(Nutrients_Utah, clean = TRUE)
+#' 
 
 QAPPDocAvailable <- function(.data, clean = FALSE) {
   # check .data is data.frame
@@ -905,11 +948,17 @@ QAPPDocAvailable <- function(.data, clean = FALSE) {
   
   # if no associated QAPP url data is in the data set
   if (nrow(QAPPdoc.data) == 0) {
-    print("No changes were made, because we did not find any QAPP document url data in your dataframe")
-    
-    return(.data)
+    if (clean == FALSE) {
+      print("No changes were made, because we did not find any QAPP document url data in your dataframe")
+      return(.data)
+    }
+    if (clean == TRUE) {
+      print("This dataframe is empty because we did not find any QAPP document url data in your dataframe")
+      return(QAPPdoc.data)
+    }
   }
 }
+
 
 
 #' Invalid coordinates

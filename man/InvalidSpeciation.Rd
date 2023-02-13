@@ -4,49 +4,73 @@
 \alias{InvalidSpeciation}
 \title{Check Method Speciation Validity}
 \usage{
-InvalidSpeciation(.data, clean = TRUE, errorsonly = FALSE)
+InvalidSpeciation(
+  .data,
+  clean = c("invalid_only", "nonstandardized_only", "both", "none"),
+  errorsonly = FALSE
+)
 }
 \arguments{
 \item{.data}{TADA dataframe}
 
-\item{clean}{Boolean argument; removes "Invalid" characteristic-method
-speciation combinations from the dataframe when clean = TRUE. Default is
-clean = TRUE.}
+\item{clean}{Character argument with options "invalid_only", "nonstandardized_only",
+"both", or "none." The default is clean = "invalid_only" which removes rows of
+data flagged as having "Invalid" characteristic-method speciation combinations. When
+clean = "nonstandardized_only", the function removes rows of data flagged as
+having "Nonstandardized" characteristic-method speciation combinations. When
+clean = "both", the function removes rows of data flagged as either "Invalid" or
+"Nonstandardized". And when clean = "none", the function does not remove any "Invalid"
+or "Nonstandardized" rows of data.}
 
 \item{errorsonly}{Boolean argument; filters to show only the "Invalid"
 characteristic-method speciation combinations from the dataframe when
 errorsonly = TRUE. Default is errorsonly = FALSE.}
 }
 \value{
-When clean = FALSE and errorsonly = FALSE, this function adds the
+When clean = "none" and errorsonly = FALSE, this function adds the
 following column to your dataframe: WQX.MethodSpeciationValidity. This column
 flags each CharacteristicName and MethodSpecificationName combination in your
-dataframe as either "Nonstandardized", "Invalid", or "Valid". When clean = FALSE
-and errorsonly = TRUE, the dataframe is filtered to show only the "Invalid" data;
-the column WQX.MethodSpeciationValidity is still appended. When clean = TRUE
-and errorsonly = FALSE, "Invalid" rows are removed from the dataframe and
-no column will be appended. When clean = TRUE and errorsonly = TRUE, the
-function is not executed and an error message is returned.
+dataframe as either "Nonstandardized", "Invalid", or "Valid". When clean = "none"
+and errorsonly = TRUE, the dataframe is filtered to show only the "Invalid" and
+"Nonstandardized data; the column WQX.MethodSpeciationValidity is still appended.
+When clean = "invalid_only" and errorsonly = FALSE, "Invalid" rows are removed
+from the dataframe, but "Nonstandardized" rows are retained. When
+clean = "nonstandardized_only" and errorsonly = FALSE, "Nonstandardized" rows
+are removed, but "Invalid" rows are retained. The default is clean = "invalid_only"
+and errorsonly = FALSE.
 }
 \description{
 Function checks the validity of each characteristic-method
-speciation combination in the dataframe. When clean = TRUE, rows with invalid
+speciation combination in the dataframe. When clean = "invalid_only", rows with invalid
 characteristic-method speciation combinations are removed. Default is
-clean = TRUE. When errorsonly = TRUE, dataframe is filtered to show only
-rows with invalid characteristic-method speciation combinations. Default is
-errorsonly = FALSE.
+clean = "invalid_only". When errorsonly = TRUE, dataframe is filtered to show only
+rows with invalid or nonstandardized characteristic-method speciation combinations.
+Default is errorsonly = FALSE.
 }
 \examples{
 # Load example dataset:
 data(Nutrients_Utah)
 
-# Remove data with invalid characteristic-method speciation combinations from dataframe:
+# Remove data with invalid characteristic-method speciation combinations from dataframe, 
+# but retain nonstandardized combinations flagged in new column 'WQX.MethodSpeciationValidity':
 InvalidSpeciation_clean <- InvalidSpeciation(Nutrients_Utah)
 
-# Flag, but do not remove, data with invalid characteristic-method speciation
+# Remove data with nonstandardized characteristic-method speciation combinations 
+# from dataframe but retain invalid combinations flagged in new column 'WQX.MethodSpeciationValidity':
+NonstandardSpeciation_clean <- InvalidSpeciation(Nutrients_Utah, clean = "nonstandardized_only")
+
+# Remove both invalid and nonstandardized characteristic-method speciation combinations
+# from dataframe:
+Speciation_clean <- InvalidSpeciation(Nutrients_Utah, clean = "both")
+
+# Flag, but do not remove, data with invalid or nonstandardized characteristic-method speciation
 # combinations in new column titled "WQX.MethodSpeciationValidity":
-InvalidSpeciation_flags <- InvalidSpeciation(Nutrients_Utah, clean = FALSE)
+InvalidSpeciation_flags <- InvalidSpeciation(Nutrients_Utah, clean = "none")
 
 # Show only invalid characteristic-method speciation combinations:
-InvalidSpeciation_errorsonly <- InvalidSpeciation(Nutrients_Utah, clean = FALSE, errorsonly = TRUE)
+InvalidSpeciation_errorsonly <- InvalidSpeciation(Nutrients_Utah, clean = "nonstandardized_only", errorsonly = TRUE)
+
+# Show only nonstandardized characteristic-method speciation combinations:
+NonstandardSpeciation_errorsonly <- InvalidSpeciation(Nutrients_Utah, clean = "invalid_only", errorsonly = TRUE)
+
 }

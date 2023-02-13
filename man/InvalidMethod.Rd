@@ -49,4 +49,5 @@ InvalidMethod_flags <- InvalidMethod(Nutrients_Utah, clean = FALSE)
 
 # Show only invalid characteristic-analytical method combinations:
 InvalidMethod_errorsonly <- InvalidMethod(Nutrients_Utah, clean = FALSE, errorsonly = TRUE)
+
 }

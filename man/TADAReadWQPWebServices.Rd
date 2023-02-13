@@ -48,5 +48,4 @@ projects1 <- TADAReadWQPWebServices("https://www.waterqualitydata.us/data/Projec
 narrow1 <- TADAReadWQPWebServices("https://www.waterqualitydata.us/data/Result/search?statecode=US\%3A09&sampleMedia=water&sampleMedia=Water&startDateLo=01-01-2021&mimeType=csv&zip=yes&dataProfile=narrowResult&providers=NWIS&providers=STEWARDS&providers=STORET")
 }
 
-
 }

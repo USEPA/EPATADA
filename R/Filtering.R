@@ -1,4 +1,7 @@
+#' Used with multiple filter functions in this .R file
 TADA.env <- new.env()
+
+
 
 #' Generate list of field names
 #'
@@ -18,6 +21,7 @@ TADA.env <- new.env()
 #' 
 #' # Create a table of fields and count of unique values in each field:
 #' Fields_Nutrients_Utah <- FilterFields(Nutrients_Utah)
+#' 
 
 FilterFields <- function(.data) {
   # check .data is data.frame
@@ -84,6 +88,8 @@ FilterFields <- function(.data) {
   print(col.names)
 }
 
+
+
 #' Generate list of unique values in a given field
 #'
 #' Function creates a table and pie chart of unique values, and counts of those
@@ -102,6 +108,7 @@ FilterFields <- function(.data) {
 #' 
 #' # Create table and pie chart of "Hydrologic Condition" unique values and counts:
 #' FieldReview_HydrologicCondition <- FilterFieldReview(field = "HydrologicCondition", Nutrients_Utah)
+#' 
 
 FilterFieldReview <- function(field, .data) {
   # if provided, check .data is data.frame
@@ -137,6 +144,8 @@ FilterFieldReview <- function(field, .data) {
   print(df)
 }
 
+
+
 #' Generate list of parameters
 #'
 #' Function generates list of characteristics in the input dataframe, as well as
@@ -155,6 +164,7 @@ FilterFieldReview <- function(field, .data) {
 #' 
 #' # Create a list of parameters in the dataset and the number of records of each paramter:
 #' ParameterList <- FilterParList(Nutrients_Utah)
+#' 
 
 FilterParList <- function(.data) {
   # count the frequency of each value in CharactersticName field
@@ -166,6 +176,8 @@ FilterParList <- function(.data) {
 
   print(ParValueCount)
 }
+
+
 
 #' Generate list of field names subset by parameter
 #'
@@ -188,6 +200,7 @@ FilterParList <- function(.data) {
 #' 
 #' # Create list of fields for parameter "AMMONIA" with number of unique values in each field:
 #' AmmoniaFields <- FilterParFields(Nutrients_Utah, parameter = "AMMONIA")
+#' 
 
 FilterParFields <- function(.data, parameter) {
   # check .data is data.frame
@@ -275,6 +288,8 @@ FilterParFields <- function(.data, parameter) {
   print(col.names)
 }
 
+
+
 #' Generate list of unique values in a given field subset by parameter
 #'
 #' Function creates a table and pie chart of unique values, and counts of those
@@ -294,6 +309,7 @@ FilterParFields <- function(.data, parameter) {
 #' 
 #' # Create table and pie chart of monitoring locations for the parameter "AMMONIA" in dataframe:
 #' AmmoniaMonitoringLocations <- FilterParFieldReview(field = "MonitoringLocationIdentifier", Nutrients_Utah, parameter = "AMMONIA")
+#' 
 
 FilterParFieldReview <- function(field, .data, parameter) {
   # if provided, check .data is data.frame

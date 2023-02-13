@@ -1,3 +1,21 @@
+# write global variables. Gets rid of global variable NOTE in check:
+utils::globalVariables(c("AboveWQXUpperThreshold", "ActivityIdentifier",  "ActivityMediaName",
+                         "ActivityStartDate", "BelowWQXUpperThreshold", "CharacteristicName",
+                         "Conversion.Factor", "Count", "Description", "FieldName", "FieldValue",
+                         "MethodSpecificationName", "MonitoringLocationIdentifier",
+                         "OrganizationFormalName", "OrganizationIdentifier", "ProjectDescriptionText",
+                         "ProjectFileUrl", "ProjectIdentifier",
+                         "ProjectMonitoringLocationWeightingUrl", "ProjectName",
+                         "QAPPApprovalAgencyName", "QAPPApprovedIndicator",
+                         "ResultDetectionConditionText", "ResultMeasureValue",
+                         "SamplingDesignTypeCode", "Source", "Status", "TADA.AggregatedContinuousData",
+                         "TADA.InvalidCoordinates", "TADA.PotentialDupRowID", "TADA.QAPPDocAvailable",
+                         "Target.Unit", "Type", "Value.Unit", "WQX.AnalyticalMethodValidity",
+                         "WQX.MethodSpeciationValidity", "WQX.ResultUnitValidity",
+                         "WQX.SampleFractionValidity", "YearSummarized", "where"))
+
+
+
 #' autoclean
 #'
 #' Removes complex biological data. Removes non-water media samples.
@@ -22,7 +40,6 @@
 #'
 #' @export 
 #'
-
 
 autoclean <- function(.data) {
   # check .data is data.frame
@@ -80,6 +97,7 @@ autoclean <- function(.data) {
   
   return(.data)
 }
+
 
 
 #' Check for Special Characters in Measure Value Fields
@@ -208,7 +226,6 @@ MeasureValueSpecialCharacters <- function(.data) {
 #' clean = TRUE, flag column is not appended and relevant rows are removed.
 #'
 
-
 AutoFilter <- function(.data, clean = TRUE) {
   field.names <- colnames(.data)
 
@@ -236,6 +253,7 @@ AutoFilter <- function(.data, clean = TRUE) {
 }
 
 
+
 #' RemoveEmptyColumns
 #'
 #' Removes any columns with only NA values. Used to quickly reduce the number of
@@ -251,6 +269,7 @@ RemoveEmptyColumns <- function(.data) {
   .data %>%
     dplyr::select(where(~ !all(is.na(.x))))
 }
+
 
 
 #' decimalplaces
@@ -271,6 +290,7 @@ decimalplaces <- function(x) {
 }
 
 
+
 #' decimalnumcount
 #'
 #' for character data type
@@ -286,22 +306,6 @@ decimalnumcount <- function(x) {
   nchar(x)
 }
 
-
-# to get rid of global variable NOTE in check:
-utils::globalVariables(c("AboveWQXUpperThreshold", "ActivityIdentifier",  "ActivityMediaName",
-                         "ActivityStartDate", "BelowWQXUpperThreshold", "CharacteristicName",
-                         "Conversion.Factor", "Count", "Description", "FieldName", "FieldValue",
-                         "MethodSpecificationName", "MonitoringLocationIdentifier",
-                         "OrganizationFormalName", "OrganizationIdentifier", "ProjectDescriptionText",
-                         "ProjectFileUrl", "ProjectIdentifier",
-                         "ProjectMonitoringLocationWeightingUrl", "ProjectName",
-                         "QAPPApprovalAgencyName", "QAPPApprovedIndicator",
-                         "ResultDetectionConditionText", "ResultMeasureValue",
-                         "SamplingDesignTypeCode", "Source", "Status", "TADA.AggregatedContinuousData",
-                         "TADA.InvalidCoordinates", "TADA.PotentialDupRowID", "TADA.QAPPDocAvailable",
-                         "Target.Unit", "Type", "Value.Unit", "WQX.AnalyticalMethodValidity",
-                         "WQX.MethodSpeciationValidity", "WQX.ResultUnitValidity",
-                         "WQX.SampleFractionValidity", "YearSummarized", "where"))
 
 
 #' TADA Profile Check
@@ -366,6 +370,7 @@ TADAprofileCheck <- function(.data) {
 }
 
 
+
 #' Check Type
 #'
 #' This function checks if the inputs to a function are of the expected type. It
@@ -389,6 +394,7 @@ checkType <- function(arg, type, paramName) {
 }
 
 
+
 #' Check Columns
 #'
 #' This function checks if the expected column names are in the dataframe. It is
@@ -407,6 +413,8 @@ checkColumns <- function(.data, expected_cols) {
   }
 }
 
+
+
 #' ConvertSpecialChars
 #' 
 #' This function will screen a column of the user's choice for special characters.
@@ -417,6 +425,7 @@ checkColumns <- function(.data, expected_cols) {
 #' @param .data A TADA profile object
 #' @param col A character column to be converted to numeric
 #' 
+#' @export
 #' 
 
 ConvertSpecialChars <- function(.data,col){
