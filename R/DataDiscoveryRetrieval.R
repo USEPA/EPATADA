@@ -1,7 +1,12 @@
 #' Generate TADA-compatible dataframe from WQP Data
 #'
 #' Retrieve data from Water Quality Portal (WQP) and generate a TADA-compatible
-#' dataframe.
+#' dataframe. Note that the inputs (e.g. project, organization, siteType) with the 
+#' exceptions of endDate and startDate match the web service call format from the
+#' online WQP GUI. endDate and startDate match the format suggested in USGS's 
+#' dataRetrieval package (endDate = "YYYY-MM-DD"), which is a more familiar date 
+#' format for R users than the WQP GUI's endDateHi = "MM-DD-YYYY".
+#'  
 #' 
 #' This function will create and/or edit the following columns:
 #' TADA.DetectionLimitMeasureValue.Flag
@@ -13,7 +18,7 @@
 #' 
 #' Keep in mind that all the query filters for the WQP work as an AND 
 #' but within the fields there are ORs. So for example, 
-#' characteristics – if you choose pH & DO – it’s an OR. Similarly, if you
+#' characteristicNames – if you choose pH & DO – it’s an OR. Similarly, if you
 #' choose VA and IL, it’s an OR. But the combo of fields are ANDs. 
 #' Such as State/VA AND Characteristic/DO". 
 #' "Characteristic" and "Characteristic Group" also work as an AND. 
@@ -30,7 +35,7 @@
 #' censored data later on (i.e., nondetections)
 #' 
 #' Users can reference the \href{https://www.epa.gov/waterdata/storage-and-retrieval-and-water-quality-exchange-domain-services-and-downloads}{WQX domain tables}
-#' to find allowable vales for queries, e.g., reference the WQX domain table to find countycode and statecode: https://cdx.epa.gov/wqx/download/DomainValues/County_CSV.zip
+#' to find allowable values for queries, e.g., reference the WQX domain table to find countycode and statecode: https://cdx.epa.gov/wqx/download/DomainValues/County_CSV.zip
 #' Alternatively, you can use the WQP services to find areas where data is available in the US: https://www.waterqualitydata.us/Codes/countycode
 #'  
 #' See ?MeasureValueSpecialCharacters and ?autoclean documentation for more information.
@@ -91,8 +96,14 @@ TADAdataRetrieval <- function(statecode = "null",
   }
   
   if (length(startDate)>1) {
+    if(is.na(suppressWarnings(lubridate::parse_date_time(startDate[1], orders = "ymd")))){
+      stop("Incorrect date format. Please use the format YYYY-MM-DD.")
+    }
     WQPquery <- c(WQPquery, startDate = list(startDate)) 
   } else if (startDate != "null") {
+    if(is.na(suppressWarnings(lubridate::parse_date_time(startDate, orders = "ymd")))){
+      stop("Incorrect date format. Please use the format YYYY-MM-DD.")
+    }
     WQPquery <- c(WQPquery, startDate = startDate)
   }
   
@@ -139,8 +150,14 @@ TADAdataRetrieval <- function(statecode = "null",
   }
   
   if (length(endDate)>1) {
+    if(is.na(suppressWarnings(lubridate::parse_date_time(endDate[1], orders = "ymd")))){
+      stop("Incorrect date format. Please use the format YYYY-MM-DD.")
+    }
     WQPquery <- c(WQPquery, endDate = list(endDate)) 
   } else if (endDate != "null") {
+    if(is.na(suppressWarnings(lubridate::parse_date_time(endDate, orders = "ymd")))){
+      stop("Incorrect date format. Please use the format YYYY-MM-DD.")
+    }
     WQPquery <- c(WQPquery, endDate = endDate)
   }
 

@@ -124,6 +124,10 @@ Data retrieval filters include:
 
 -   sampleMedia
 
+-   project
+
+-   organization
+
 Please be aware that this TADAdataRetrieval function automatically runs
 the TADA **autoclean** and **MeasureValueSpecialCharacters** functions
 as well, which are both required for subsequent functions within the
@@ -224,10 +228,10 @@ data from multiple WQP profiles, and does some additional data cleaning
 as part of the data retrieval process.
 
 ```{r}
-# dataRetrieval1 <- dataRetrieval::readWQPdata(statecode = "AK", characteristicName = c("Fecal Coliform", "Escherichia coli", "Enterococcus"), startDate = "05-01-2018", ignore_attributes = TRUE)
+# dataRetrieval1 <- dataRetrieval::readWQPdata(statecode = "AK", characteristicName = c("Fecal Coliform", "Escherichia coli", "Enterococcus"), startDate = "2018-05-01", ignore_attributes = TRUE)
 
 # another example
-# dataRetrieval2 <- dataRetrieval::readWQPdata(statecode = "UT", characteristicName = c("Ammonia", "Nitrate", "Nitrogen"), startDate = "01-01-2021", ignore_attributes = TRUE)
+# dataRetrieval2 <- dataRetrieval::readWQPdata(statecode = "UT", characteristicName = c("Ammonia", "Nitrate", "Nitrogen"), startDate = "2021-01-01", ignore_attributes = TRUE)
 
 ```
 
@@ -237,13 +241,13 @@ query inputs.
 
 ```{r}
 # here is an example for Utah
-# TADAProfile1 <- TADAdataRetrieval(statecode = "UT", characteristicName = c("Ammonia", "Nitrate", "Nitrogen"), startDate = "10-01-2020")
+# TADAProfile1 <- TADAdataRetrieval(statecode = "UT", characteristicName = c("Ammonia", "Nitrate", "Nitrogen"), startDate = "2020-10-01")
 
 # example for Alaska
 # TADAProfile2 <- TADAdataRetrieval(ProjectIdentifier = "Anchorage Bacteria 20-21")
 
 # another example query for Alaska. We will move forward with this example in the remainder of the vignette
-TADAProfile <- TADAdataRetrieval(statecode = "AK", characteristicName = c("Fecal Coliform", "Escherichia coli", "Enterococcus", "Ammonia", "Nitrate", "Nitrogen"), startDate = "05-01-2018")
+TADAProfile <- TADAdataRetrieval(statecode = "AK", characteristicName = c("Fecal Coliform", "Escherichia coli", "Enterococcus", "Ammonia", "Nitrate", "Nitrogen"), startDate = "2018-05-01")
 
 ```
 
@@ -253,6 +257,8 @@ read in a web service call for any WQP profile (un-comment).
 ```{r}
 # New_Draft_fullphyschem <- data.table::fread("https://www.waterqualitydata.us/data/Result/search?countrycode=US&statecode=US%3A49&siteid=UTAHDWQ_WQX-4925610&startDateLo=01-01-2015&startDateHi=12-31-2016&mimeType=csv&zip=no&sorted=yes&dataProfile=fullPhysChem&providers=NWIS&providers=STEWARDS&providers=STORET")
 ```
+
+**Extra tip:** Note that the web service call built using the Water Quality Portal uses the inputs startDateLo and startDateHi rather than startDate and endDate, and dates are in the format MM-DD-YYYY rather than the TADAdataRetrieval and dataRetrieval format of YYYY-MM-DD. The functions use the latter format rather than the web service call date format because YYYY-MM-DD is a more easily utilized format in the R coding environment. However, users of USGS's dataRetrieval may use the date format MM-DD-YYYY *only if* they specify with "startDateLo" and "startDateHi" inputs. For coding consistency, it is recommended users stick with YYYY-MM-DD.
 
 Option 3: If you need to download a large amount of data from across a
 large area, and the TADAdataRetrieval function is not working due to WQP
