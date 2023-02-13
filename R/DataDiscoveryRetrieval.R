@@ -16,12 +16,15 @@
 #' TADA.ResultMeasureValue.Flag
 #' ResultMeasureValue
 #' 
-#' Keep in mind that all the query filters for the WQP work as an AND 
-#' but within the fields there are ORs. So for example, 
-#' characteristicNames – if you choose pH & DO – it’s an OR. Similarly, if you
-#' choose VA and IL, it’s an OR. But the combo of fields are ANDs. 
-#' Such as State/VA AND Characteristic/DO". 
-#' "Characteristic" and "Characteristic Group" also work as an AND. 
+#' Keep in mind that all the query filters for the WQP work as an AND, 
+#' but within the fields there are ORs. For example, within
+#' characteristicName – if you enter, c("pH", "Dissolved oxygen (DO)), – it’s an OR. 
+#' Meaning that you will be back "pH" or "Dissolved oxygen (DO)" data. Similarly, if you
+#' enter c("Virginia", "Illinois"), it’s an OR. But the combo of fields are ANDs. 
+#' Such as State/Virginia AND Characteristic/Dissolved oxygen (DO)". Meaning, you 
+#' will get get back only Dissolved oxygen (DO) from Virginia.
+#' characteristicName and Characteristic Group also work as an AND, therefore the 
+#' characteristicName must fall within the Characteristic Group when both are entered.
 #'  
 #' All data cleaning and transformations are done directly to the
 #' "ResultMeasureValue" and "DetectionLimitMeasureValue" columns, 
