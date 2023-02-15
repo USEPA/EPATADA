@@ -109,7 +109,7 @@ ConvertResultUnits <- function(.data, transform = TRUE) {
     "Value", "Value.Unit",
     "Conversion.Factor"
   )],
-  by.x = c("CharacteristicName", "ActivityMediaName", "TADA.ResultMeasure.MeasureUnitCode"),
+  by.x = c("CharacteristicName", "ActivityMediaName", "TADA.ResultMeasure.MeasureUnitCode"), # note: only joins on ResultMeasure.MeasureUnitCode, so will not join to detection limit units
   by.y = c("Characteristic", "Source", "Value"), all.x = TRUE
   )
   # rename columns
