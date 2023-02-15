@@ -77,15 +77,28 @@ ConvertResultUnits <- function(.data, transform = TRUE) {
     "DetectionQuantitationLimitMeasure.MeasureValue",
     "DetectionQuantitationLimitMeasure.MeasureUnitCode"
     )
+  
   checkColumns(.data, expected_cols)
+  
+  # Check to make sure special characters converted and TADA columns created. If not, run spec chars function.
+  if(!"TADA.ResultMeasureValue"%in%names(.data)){
+    .data <- ConvertSpecialChars(.data,"ResultMeasureValue")
+  }
+  if(!"TADA.DetectionQuantitationLimitMeasure.MeasureValue"%in%names(.data)){
+    .data <- ConvertSpecialChars(.data,"DetectionQuantitationLimitMeasure.MeasureValue")
+  }
+  
+  
+  # Check to make sure TADA unit columns created. If not, create them.
+  if(!"TADA.ResultMeasure.MeasureUnitCode"%in%names(.data)){
+    .data$TADA.ResultMeasure.MeasureUnitCode = .data$ResultMeasure.MeasureUnitCode
+  }
+  if(!"TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode"%in%names(.data)){
+    .data$TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode = .data$DetectionQuantitationLimitMeasure.MeasureUnitCode
+  }
 
   # execute function after checks are passed
 
-  # if class(ResultMeasureValue) != numeric, run special char function
-  if (!is.numeric(.data$ResultMeasureValue)) {
-    .data <- MeasureValueSpecialCharacters(.data)
-  }
-  
   # filter WQXcharValRef to include only valid CharacteristicUnit in water media
   unit.ref <- GetWQXCharValRef() %>%
     dplyr::filter(Type == "CharacteristicUnit" & Source == "WATER" &
@@ -96,7 +109,7 @@ ConvertResultUnits <- function(.data, transform = TRUE) {
     "Value", "Value.Unit",
     "Conversion.Factor"
   )],
-  by.x = c("CharacteristicName", "ActivityMediaName", "ResultMeasure.MeasureUnitCode"),
+  by.x = c("CharacteristicName", "ActivityMediaName", "TADA.ResultMeasure.MeasureUnitCode"),
   by.y = c("Characteristic", "Source", "Value"), all.x = TRUE
   )
   # rename columns
@@ -105,9 +118,10 @@ ConvertResultUnits <- function(.data, transform = TRUE) {
     dplyr::rename(WQX.ConversionFactor = Conversion.Factor)
   
   # if temp data exists, calculate conversion factor
+  # EDH I THINK THIS RUNS IF THERE IS ONE OR MORE NA'S IN THE DATASET
   if (all(is.na(match(
     c("deg F", "deg K"),
-    flag.data$ResultMeasure.MeasureUnitCode
+    flag.data$TADA.ResultMeasure.MeasureUnitCode
   ))) == FALSE) {
     
     # Calculate deg F and deg C, replace Conversion factor values
@@ -116,10 +130,10 @@ ConvertResultUnits <- function(.data, transform = TRUE) {
       dplyr::rowwise() %>%
       # create flag column
       dplyr::mutate(WQX.ConversionFactor = dplyr::case_when(
-        ResultMeasure.MeasureUnitCode == "deg F" ~
-          as.numeric(((ResultMeasureValue - 32) * (5 / 9)) / ResultMeasureValue),
-        ResultMeasure.MeasureUnitCode == "deg K" ~
-          as.numeric((ResultMeasureValue - 273.15) / ResultMeasureValue),
+        TADA.ResultMeasure.MeasureUnitCode == "deg F" ~
+          as.numeric(((TADA.ResultMeasureValue - 32) * (5 / 9)) / TADA.ResultMeasureValue),
+        TADA.ResultMeasure.MeasureUnitCode == "deg K" ~
+          as.numeric((TADA.ResultMeasureValue - 273.15) / TADA.ResultMeasureValue),
         TRUE ~ WQX.ConversionFactor
       ))
   }
@@ -131,8 +145,8 @@ ConvertResultUnits <- function(.data, transform = TRUE) {
     dplyr::rowwise() %>%
     # create flag column
     dplyr::mutate(WQX.ResultMeasureValue.UnitConversion = dplyr::case_when(
-      (!is.na(ResultMeasureValue) & !is.na(WQX.TargetUnit)) ~ as.character("Convert"),
-      is.na(ResultMeasureValue) ~ as.character("NoResultValue"),
+      (!is.na(TADA.ResultMeasureValue) & !is.na(WQX.TargetUnit)) ~ as.character("Convert"),
+      is.na(TADA.ResultMeasureValue) ~ as.character("NoResultValue"),
       is.na(WQX.TargetUnit) ~ as.character("NoTargetUnit")
     ))
   
@@ -142,9 +156,9 @@ ConvertResultUnits <- function(.data, transform = TRUE) {
     dplyr::rowwise() %>%
     # create flag column
     dplyr::mutate(WQX.DetectionLimitMeasureValue.UnitConversion = dplyr::case_when(
-      (!is.na(DetectionQuantitationLimitMeasure.MeasureValue) &
+      (!is.na(TADA.DetectionQuantitationLimitMeasure.MeasureValue) &
          !is.na(WQX.TargetUnit)) ~ as.character("Convert"),
-      is.na(DetectionQuantitationLimitMeasure.MeasureValue) ~ as.character("NoDetectionLimitValue"),
+      is.na(TADA.DetectionQuantitationLimitMeasure.MeasureValue) ~ as.character("NoDetectionLimitValue"),
       is.na(WQX.TargetUnit) ~ as.character("NoTargetUnit")
     ))
   
@@ -165,13 +179,15 @@ ConvertResultUnits <- function(.data, transform = TRUE) {
     # place flag columns next to relevant fields
     flag.data <- flag.data %>%
       dplyr::relocate(c(
+        "TADA.ResultMeasure.MeasureUnitCode",
         "WQX.TargetUnit",
         "WQX.ConversionFactor",
         "WQX.ResultMeasureValue.UnitConversion"
       ),
       .after = "ResultMeasure.MeasureUnitCode"
       ) %>%
-      dplyr::relocate("WQX.DetectionLimitMeasureValue.UnitConversion",
+      dplyr::relocate(c("TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode",
+                        "WQX.DetectionLimitMeasureValue.UnitConversion"),
                       .after = "DetectionQuantitationLimitMeasure.MeasureUnitCode"
       )
     
@@ -181,24 +197,24 @@ ConvertResultUnits <- function(.data, transform = TRUE) {
   }
   
   if (transform == TRUE) {
-    
-    # Duplicate unit columns, rename with .Original suffix
-    if (("ResultMeasureUnitCode.Original" %in% colnames(flag.data)) == FALSE) {
-      flag.data$ResultMeasureUnitCode.Original <- flag.data$ResultMeasure.MeasureUnitCode
-    }
-    if (("DetectionLimitMeasureUnitCode.Original" %in% colnames(flag.data)) == FALSE) {
-      flag.data$DetectionLimitMeasureUnitCode.Original <-
-        flag.data$DetectionQuantitationLimitMeasure.MeasureUnitCode
-    }
+    # 
+    # # Duplicate unit columns, rename with .Original suffix
+    # if (("ResultMeasureUnitCode.Original" %in% colnames(flag.data)) == FALSE) {
+    #   flag.data$ResultMeasureUnitCode.Original <- flag.data$ResultMeasure.MeasureUnitCode
+    # }
+    # if (("DetectionLimitMeasureUnitCode.Original" %in% colnames(flag.data)) == FALSE) {
+    #   flag.data$DetectionLimitMeasureUnitCode.Original <-
+    #     flag.data$DetectionQuantitationLimitMeasure.MeasureUnitCode
+    # }
     # Transform result measure value to Target Unit only if target unit exists
     clean.data <- flag.data %>%
       # apply function row by row
       dplyr::rowwise() %>%
       # apply conversions where there is a target unit, use original value if no target unit
-      dplyr::mutate(ResultMeasureValue = dplyr::case_when(
+      dplyr::mutate(TADA.ResultMeasureValue = dplyr::case_when(
         !is.na(WQX.TargetUnit) ~
-          (ResultMeasureValue * WQX.ConversionFactor),
-        is.na(WQX.TargetUnit) ~ ResultMeasureValue
+          (TADA.ResultMeasureValue * WQX.ConversionFactor),
+        is.na(WQX.TargetUnit) ~ TADA.ResultMeasureValue
       ))
     
     # populate ResultMeasure.MeasureUnitCode
@@ -206,9 +222,9 @@ ConvertResultUnits <- function(.data, transform = TRUE) {
       # apply function row by row
       dplyr::rowwise() %>%
       # use target unit where there is a target unit, use original unit if no target unit
-      dplyr::mutate(ResultMeasure.MeasureUnitCode = dplyr::case_when(
+      dplyr::mutate(TADA.ResultMeasure.MeasureUnitCode = dplyr::case_when(
         !is.na(WQX.TargetUnit) ~ WQX.TargetUnit,
-        is.na(WQX.TargetUnit) ~ ResultMeasure.MeasureUnitCode
+        is.na(WQX.TargetUnit) ~ TADA.ResultMeasure.MeasureUnitCode
       ))
     
     # Transform detection limit measure value to Target Unit only if target unit exists
@@ -216,10 +232,10 @@ ConvertResultUnits <- function(.data, transform = TRUE) {
       # apply function row by row
       dplyr::rowwise() %>%
       # apply conversions where there is a target unit, use original value if no target unit
-      dplyr::mutate(DetectionQuantitationLimitMeasure.MeasureValue = dplyr::case_when(
+      dplyr::mutate(TADA.DetectionQuantitationLimitMeasure.MeasureValue = dplyr::case_when(
         !is.na(WQX.TargetUnit) ~
-          (DetectionQuantitationLimitMeasure.MeasureValue * WQX.ConversionFactor),
-        is.na(WQX.TargetUnit) ~ DetectionQuantitationLimitMeasure.MeasureValue
+          (TADA.DetectionQuantitationLimitMeasure.MeasureValue * WQX.ConversionFactor),
+        is.na(WQX.TargetUnit) ~ TADA.DetectionQuantitationLimitMeasure.MeasureValue
       ))
     
     # populate DetectionQuantitationLimitMeasure.MeasureUnitCode
@@ -227,9 +243,9 @@ ConvertResultUnits <- function(.data, transform = TRUE) {
       # apply function row by row
       dplyr::rowwise() %>%
       # use target unit where there is a target unit, use original unit if no target unit
-      dplyr::mutate(DetectionQuantitationLimitMeasure.MeasureUnitCode = dplyr::case_when(
+      dplyr::mutate(TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode = dplyr::case_when(
         !is.na(WQX.TargetUnit) ~ WQX.TargetUnit,
-        is.na(WQX.TargetUnit) ~ DetectionQuantitationLimitMeasure.MeasureUnitCode
+        is.na(WQX.TargetUnit) ~ TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode
       ))
     
     
@@ -239,7 +255,7 @@ ConvertResultUnits <- function(.data, transform = TRUE) {
       dplyr::rowwise() %>%
       # create flag column
       dplyr::mutate(WQX.ResultMeasureValue.UnitConversion = dplyr::case_when(
-        (!is.na(ResultMeasureValue) & !is.na(WQX.TargetUnit)) ~ as.character("Converted"),
+        (!is.na(TADA.ResultMeasureValue) & !is.na(WQX.TargetUnit)) ~ as.character("Converted"),
         TRUE ~ WQX.ResultMeasureValue.UnitConversion
       ))
     
@@ -249,7 +265,7 @@ ConvertResultUnits <- function(.data, transform = TRUE) {
       dplyr::rowwise() %>%
       # create flag column
       dplyr::mutate(WQX.DetectionLimitMeasureValue.UnitConversion = dplyr::case_when(
-        (!is.na(DetectionQuantitationLimitMeasure.MeasureValue) & !is.na(WQX.TargetUnit)) ~ as.character("Converted"),
+        (!is.na(TADA.DetectionQuantitationLimitMeasure.MeasureValue) & !is.na(WQX.TargetUnit)) ~ as.character("Converted"),
         TRUE ~ WQX.DetectionLimitMeasureValue.UnitConversion
       ))
     
@@ -268,19 +284,19 @@ ConvertResultUnits <- function(.data, transform = TRUE) {
       "WQX.DetectionLimitMeasureValue.UnitConversion"
     ))
     
-    # add original units to list if transform = TRUE
-    if (transform == TRUE) {
-      col.order <- append(col.order, c(
-        "ResultMeasureUnitCode.Original",
-        "DetectionLimitMeasureUnitCode.Original"
-      ))
+    # # add original units to list if transform = TRUE
+    # if (transform == TRUE) {
+    #   col.order <- append(col.order, c(
+    #     "ResultMeasureUnitCode.Original",
+    #     "DetectionLimitMeasureUnitCode.Original"
+    #   ))
       
       # reorder columns in clean.data
       clean.data <- clean.data[, col.order]
       
       # place flag columns next to relevant fields
       clean.data <- clean.data %>%
-        dplyr::relocate("ResultMeasureUnitCode.Original",
+        dplyr::relocate("WQX.ResultMeasureValue.UnitConversion",
                         .after = "ResultMeasure.MeasureUnitCode"
         ) %>%
         dplyr::relocate("WQX.DetectionLimitMeasureValue.UnitConversion",
@@ -290,17 +306,22 @@ ConvertResultUnits <- function(.data, transform = TRUE) {
       # Place original unit columns next to original columns
       
       clean.data <- clean.data %>%
-        dplyr::relocate("WQX.ResultMeasureValue.UnitConversion",
+        dplyr::relocate("TADA.ResultMeasure.MeasureUnitCode",
                         .after = "ResultMeasure.MeasureUnitCode"
         ) %>%
-        dplyr::relocate("DetectionLimitMeasureUnitCode.Original",
+        dplyr::relocate("TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode",
                         .after = "DetectionQuantitationLimitMeasure.MeasureUnitCode"
+        ) %>%
+        dplyr::relocate("TADA.ResultMeasureValue",
+                        .after = "ResultMeasureValue"
+        ) %>%
+        dplyr::relocate("TADA.DetectionQuantitationLimitMeasure.MeasureValue",
+                        .after = "DetectionQuantitationLimitMeasure.MeasureValue"
         )
     }
     
     return(clean.data)
   }
-}
 
 
 

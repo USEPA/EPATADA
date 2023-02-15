@@ -80,9 +80,9 @@ autoclean <- function(.data) {
   # .data = dplyr::filter(.data, BiologicalIntentName != "TISSUE" | "TOXICITY" | is.na(InvalidCoordinates)== TRUE)
   
   # run MeasureValueSpecialCharacters function
-  .data <- MeasureValueSpecialCharacters(.data)
-  # .data <- ConvertSpecialChars(.data, "ResultMeasureValue")
-  # .data <- ConvertSpecialChars(.data, "DetectionQuantitationLimitMeasure.MeasureValue")
+  # .data <- MeasureValueSpecialCharacters(.data)
+  .data <- ConvertSpecialChars(.data, "ResultMeasureValue")
+  .data <- ConvertSpecialChars(.data, "DetectionQuantitationLimitMeasure.MeasureValue")
   
   # change latitude and longitude measures to class numeric
   .data$LatitudeMeasure <- as.numeric(.data$LatitudeMeasure)
@@ -307,7 +307,6 @@ decimalnumcount <- function(x) {
 }
 
 
-
 #' TADA Profile Check
 #'
 #' This function checks if the column names in a dataframe include the TADA
@@ -432,33 +431,55 @@ ConvertSpecialChars <- function(.data,col){
   if(!col%in%names(.data)){
     stop("Invalid column name specified for input dataset.")
   }
-  if(class(col)=="numeric"){
-    stop("Column is already numeric. This conversion not needed.")
-  }
+  
+  # Define new column names
+  numcol = paste0("TADA.",col)
+  flagcol = paste0("TADA.",col,".DataTypeFlag")
+  
+  # Create dummy columns for easy handling in function
   chars.data = .data
   names(chars.data)[names(chars.data)==col] = "orig"
   chars.data$masked = chars.data$orig
-  chars.data = chars.data%>%
-    dplyr::mutate(flag = dplyr::case_when(
-      is.na(masked) ~ as.character("ND or NA"),
-      (!is.na(suppressWarnings(as.numeric(masked)) == TRUE)) ~ as.character("Numeric"),
-      (grepl("<", masked) == TRUE) ~ as.character("Less Than"),
-      (grepl(">", masked) == TRUE) ~ as.character("Greater Than"),
-      (grepl("~", masked) == TRUE) ~ as.character("Approximate Value"),
-      (grepl("[A-Za-z]", masked) == TRUE) ~ as.character("Text"),
-      (grepl("%", masked) == TRUE) ~ as.character("Percentage"),
-      (grepl(",", masked) == TRUE) ~ as.character("Comma-Separated Numeric"),
-      TRUE ~ "Coerced to NA"
-    ))
   
-  chars.data$masked = suppressWarnings(as.numeric(stringr::str_replace_all(
-    chars.data$orig,c("<" = "", ">" = "", "~" = "", "," = "","%" = ""))))
+  # If column is already numeric, just discern between NA and numeric
+  if(class(chars.data$orig)=="numeric"){
+    chars.data = chars.data%>%
+      dplyr::mutate(flag = dplyr::case_when(
+        is.na(masked) ~ as.character("ND or NA"),
+        TRUE ~ as.character("Numeric")
+      ))
+  }else{
+    # Detect special characters in column and populate new flag column with descriptor
+    # of the specific type of character/data type
+    chars.data = chars.data%>%
+      dplyr::mutate(flag = dplyr::case_when(
+        is.na(masked) ~ as.character("ND or NA"),
+        (!is.na(suppressWarnings(as.numeric(masked)) == TRUE)) ~ as.character("Numeric"),
+        (grepl("<", masked) == TRUE) ~ as.character("Less Than"),
+        (grepl(">", masked) == TRUE) ~ as.character("Greater Than"),
+        (grepl("~", masked) == TRUE) ~ as.character("Approximate Value"),
+        (grepl("[A-Za-z]", masked) == TRUE) ~ as.character("Text"),
+        (grepl("%", masked) == TRUE) ~ as.character("Percentage"),
+        (grepl(",", masked) == TRUE) ~ as.character("Comma-Separated Numeric"),
+        TRUE ~ "Coerced to NA"
+      ))
+    
+    # In the new TADA column, convert to numeric and remove some specific special 
+    # characters.
+    chars.data$masked = suppressWarnings(as.numeric(stringr::str_replace_all(
+      chars.data$orig,c("<" = "", ">" = "", "~" = "", "," = "","%" = ""))))
+  }
   
+  # Move columns to appropriate position in dataframe and rename to TADA columns
+  # served out of function.
   clean.data = chars.data%>%
     dplyr::relocate("masked",.after = "orig")%>%
     dplyr::relocate("flag", .after="masked")
+  
+  # Rename to original column name, TADA column name, and flag column name
   names(clean.data)[names(clean.data)=="orig"] = col
-  names(clean.data)[names(clean.data)=="masked"] = paste0(col,".nochar")
-  names(clean.data)[names(clean.data)=="flag"] = paste0(col,".nochar_flag")
+  names(clean.data)[names(clean.data)=="masked"] = numcol
+  names(clean.data)[names(clean.data)=="flag"] = flagcol
+  
   return(clean.data)
 }
