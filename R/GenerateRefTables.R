@@ -186,3 +186,118 @@ GetMeasureUnitRef <- function() {
 UpdateMeasureUnitRef <- function() {
   utils::write.csv(GetMeasureUnitRef(), file = "inst/extdata/WQXunitRef.csv", row.names = FALSE)
 }
+
+#' Used to store cached Result Detection Condition Reference Table
+
+WQXDetCondRef_Cached <- NULL
+
+#' Update Result Detection Condition Reference Table
+#'
+#' Function downloads and returns in the latest WQX ResultDetectionCondition Domain table, 
+#' adds additional target unit information, and writes the data to sysdata.rda.
+#'
+#' This function caches the table after it has been called once
+#' so subsequent calls will be faster.
+#'
+#' @return sysdata.rda with updated WQXResultDetectionConditionRef object (detection condition reference
+#' table for censored data)
+#'
+
+GetDetCondRef <- function() {
+  
+  # If there is a cached table available return it
+  if (!is.null(WQXDetCondRef_Cached)) {
+    return(WQXDetCondRef_Cached)
+  }
+  
+  # Try to download up-to-date raw data
+  raw.data <- tryCatch({
+    # read raw csv from url
+    utils::read.csv(url("https://cdx.epa.gov/wqx/download/DomainValues/ResultDetectionCondition.CSV"))
+  }, error = function(err) {
+    NULL
+  })
+  
+  # If the download failed fall back to internal data (and report it)
+  if (is.null(raw.data)) {
+    message('Downloading latest Measure Unit Reference Table failed!')
+    message('Falling back to (possibly outdated) internal file.')
+    return(utils::read.csv(system.file("extdata", "WQXResultDetectionConditionRef.csv", package = "TADA")))
+  }
+  
+  WQXDetCondRef <- raw.data%>%
+    dplyr::mutate(TADA.Detection_Type = dplyr::case_when(
+      Name%in%c("Above Operating Range","Present Above Quantification Limit") ~ as.character("Over-Detect"),
+      Name%in%c("Value Decensored","Reported in Raw Data (attached)","High Moisture") ~ as.character("Other"),
+      TRUE ~ as.character("Non-Detect")
+    ))
+  
+  # Save updated table in cache
+  WQXDetCondRef_Cached <- WQXDetCondRef
+  
+  WQXDetCondRef
+}
+
+#' Update Measure Unit Reference Table internal file (for internal use only)
+
+UpdateDetCondRef <- function() {
+  utils::write.csv(GetDetCondRef(), file = "inst/extdata/WQXResultDetectionConditionRef.csv", row.names = FALSE)
+}
+
+#' Used to store cached Result Detection Condition Reference Table
+
+WQXDetLimitRef_Cached <- NULL
+
+#' Update Detection Quantitation Limit Type Reference Table
+#'
+#' Function downloads and returns in the latest WQX DetectionQuantitationLimitType Domain table, 
+#' adds additional target unit information, and writes the data to sysdata.rda.
+#'
+#' This function caches the table after it has been called once
+#' so subsequent calls will be faster.
+#'
+#' @return sysdata.rda with updated WQXDetectionQuantitationLimitTypeRef object (detection limit type reference
+#' table for censored data)
+#'
+
+GetDetLimitRef <- function() {
+  
+  # If there is a cached table available return it
+  if (!is.null(WQXDetLimitRef_Cached)) {
+    return(WQXDetLimitRef_Cached)
+  }
+  
+  # Try to download up-to-date raw data
+  raw.data <- tryCatch({
+    # read raw csv from url
+    utils::read.csv(url("https://cdx.epa.gov/wqx/download/DomainValues/DetectionQuantitationLimitType.CSV"))
+  }, error = function(err) {
+    NULL
+  })
+  
+  # If the download failed fall back to internal data (and report it)
+  if (is.null(raw.data)) {
+    message('Downloading latest Measure Unit Reference Table failed!')
+    message('Falling back to (possibly outdated) internal file.')
+    return(utils::read.csv(system.file("extdata", "WQXDetectionQuantitationLimitTypeRef.csv", package = "TADA")))
+  }
+  
+  WQXDetLimitRef <- raw.data%>%
+    dplyr::mutate(TADA.Limit_Type = dplyr::case_when(
+      Name%in%c("Upper Quantitation Limit","Upper Reporting Limit","Upper Calibration Limit") ~ as.character("Over-Detect"),
+      Name%in%c("Drinking Water Maximum","Field Holding Time Limit","Specified in workplan","Statistical Uncertainty","Systematic Uncertainty","Taxonomic Loss Threshold","Water Quality Standard or Criteria") ~ as.character("Other"),
+      TRUE ~ as.character("Non-Detect")
+    ))
+  
+  # Save updated table in cache
+  WQXDetLimitRef_Cached <- WQXDetLimitRef
+  
+  WQXDetLimitRef
+}
+
+#' Update Measure Unit Reference Table internal file (for internal use only)
+
+UpdateDetLimitRef <- function() {
+  utils::write.csv(GetDetLimitRef(), file = "inst/extdata/WQXDetectionQuantitationLimitTypeRef.csv", row.names = FALSE)
+}
+
