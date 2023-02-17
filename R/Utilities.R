@@ -55,12 +55,12 @@ autoclean <- function(.data) {
   
   # execute function after checks are passed
   # capitalize fields (just those used w/ ref tables for now)
-  .data$CharacteristicName <- toupper(.data$CharacteristicName)
-  .data$ResultSampleFractionText <- toupper(.data$ResultSampleFractionText)
-  .data$MethodSpecificationName <- toupper(.data$MethodSpecificationName)
-  .data$ResultMeasure.MeasureUnitCode <- toupper(.data$ResultMeasure.MeasureUnitCode)
-  .data$ActivityMediaName <- toupper(.data$ActivityMediaName)
-  .data$DetectionQuantitationLimitMeasure.MeasureUnitCode <-
+  .data$TADA.CharacteristicName <- toupper(.data$CharacteristicName)
+  .data$TADA.ResultSampleFractionText <- toupper(.data$ResultSampleFractionText)
+  .data$TADA.MethodSpecificationName <- toupper(.data$MethodSpecificationName)
+  .data$TADA.ResultMeasure.MeasureUnitCode <- toupper(.data$ResultMeasure.MeasureUnitCode)
+  .data$TADA.ActivityMediaName <- toupper(.data$ActivityMediaName)
+  .data$TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode <-
     toupper(.data$DetectionQuantitationLimitMeasure.MeasureUnitCode)
   # .data$BiologicalIntentName = toupper(.data$BiologicalIntentName)
   
@@ -85,15 +85,15 @@ autoclean <- function(.data) {
   .data <- ConvertSpecialChars(.data, "DetectionQuantitationLimitMeasure.MeasureValue")
   
   # change latitude and longitude measures to class numeric
-  .data$LatitudeMeasure <- as.numeric(.data$LatitudeMeasure)
-  .data$LongitudeMeasure <- as.numeric(.data$LongitudeMeasure)
+  .data$TADA.LatitudeMeasure <- as.numeric(.data$LatitudeMeasure)
+  .data$TADA.LongitudeMeasure <- as.numeric(.data$LongitudeMeasure)
   
   #convert 'meters' to 'm'
-  .data$ActivityDepthHeightMeasure.MeasureUnitCode[.data$ActivityDepthHeightMeasure.MeasureUnitCode == 'meters'] <- 'm'
-  .data$ActivityTopDepthHeightMeasure.MeasureUnitCode[.data$ActivityTopDepthHeightMeasure.MeasureUnitCode == 'meters'] <- 'm'
-  .data$ActivityBottomDepthHeightMeasure.MeasureUnitCode[.data$ActivityBottomDepthHeightMeasure.MeasureUnitCode == 'meters'] <- 'm'
-  .data$ResultDepthHeightMeasure.MeasureUnitCode[.data$ResultDepthHeightMeasure.MeasureUnitCode == 'meters'] <- 'm'
-  .data$ResultMeasure.MeasureUnitCode[.data$ResultMeasure.MeasureUnitCode == 'meters'] <- 'm'
+  .data$TADA.ActivityDepthHeightMeasure.MeasureUnitCode[.data$ActivityDepthHeightMeasure.MeasureUnitCode == 'meters'] <- 'm'
+  .data$TADA.ActivityTopDepthHeightMeasure.MeasureUnitCode[.data$ActivityTopDepthHeightMeasure.MeasureUnitCode == 'meters'] <- 'm'
+  .data$TADA.ActivityBottomDepthHeightMeasure.MeasureUnitCode[.data$ActivityBottomDepthHeightMeasure.MeasureUnitCode == 'meters'] <- 'm'
+  .data$TADA.ResultDepthHeightMeasure.MeasureUnitCode[.data$ResultDepthHeightMeasure.MeasureUnitCode == 'meters'] <- 'm'
+  .data$TADA.ResultMeasure.MeasureUnitCode[.data$ResultMeasure.MeasureUnitCode == 'meters'] <- 'm'
   
   return(.data)
 }

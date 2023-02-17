@@ -129,42 +129,21 @@ Data retrieval filters include:
 -   organization
 
 Please be aware that this TADAdataRetrieval function automatically runs
-the TADA **autoclean** and **MeasureValueSpecialCharacters** functions
+the TADA **autoclean** and **ConvertSpecialChars** functions
 as well, which are both required for subsequent functions within the
-TADA R package to run. These functions alter and/or add the following
-WQP columns (enter *?MeasureValueSpecialCharacters* and *?autoclean*
-into the console for more details):
+TADA R package to run. As a general rule, TADA functions do not change any contents in the WQP-served columns (enter *?ConvertSpecialChars* and *?autoclean*
+into the console for more details). Instead, they add new columns with the prefix "TADA." The following columns are numeric versions of their WQP origins:
 
--   Alters (e.g., ResultMeasureValue and
-    DetectionQuantitationLimitMeasure.MeasureValue fields are converted
-    to class numeric)
+    -   TADA.ResultMeasureValue
 
-    -   ResultMeasureValue
+    -   TADA.DetectionQuantitationLimitMeasure.MeasureValue
+    
+    -   TADA.LatitudeMeasure
+    
+    -   TADA.LongitudeMeasure
 
-    -   DetectionQuantitationLimitMeasure.MeasureValue
-
--   Adds (All the data cleaning and transformations are done directly to
-    the "ResultMeasureValue" and "DetectionLimitMeasureValue" columns,
-    however the original "ResultMeasureValue" and
-    "DetectionLimitMeasureValue" columns and values from the WQP are
-    preserved in these new fields, "ResultMeasureValue.Original" and
-    "DetectionLimitMeasureValue.Original". Additionally,
-    "TADA.ResultMeasureValue.Flag" and
-    "TADA.DetectionLimitMeasureValue.Flag" are created to track any
-    changes made to the "ResultMeasureValue" and
-    "DetectionLimitMeasureValue" columns; and to provide information
-    about the result values that is needed to address censored data
-    later on (i.e., nondetections). Specifically, these new columns flag
-    if special characters are included in result values, and specifies
-    what the special characters are.
-
-    -   ResultMeasureValue.Original
-
-    -   TADA.ResultMeasureValue.Flag
-
-    -   DetectionLimitMeasureValue.Original
-
-    -   TADA.DetectionLimitMeasureValue.Flag
+These functions also add the columns TADA.ResultMeasureValue.DataTypeFlag and             TADA.DetectionQuantitationLimitMeasure.MeasureValue.DataTypeFlag, which provide           information about the result values that is needed to address censored data later on (i.e., nondetections). Specifically, these new columns flag
+if special characters are included in result values, and specifies what the special characters are.
 
 Downloads using TADAdataRetrieval will have the same columns each time,
 but be aware that data are uploaded to the Water Quality Portal by
