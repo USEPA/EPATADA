@@ -93,10 +93,16 @@ ConvertResultUnits <- function(.data, transform = TRUE) {
   if(!"TADA.ResultMeasure.MeasureUnitCode"%in%names(.data)){
     .data$TADA.ResultMeasure.MeasureUnitCode = .data$ResultMeasure.MeasureUnitCode
   }
-  if(!"TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode"%in%names(.data)){
-    .data$TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode = .data$DetectionQuantitationLimitMeasure.MeasureUnitCode
-  }
-
+  # EDH Don't think this is needed. Don't have to do manipulations ever on detlimit unit code if using TADA.unit
+  # if(!"TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode"%in%names(.data)){
+  #   .data$TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode = .data$DetectionQuantitationLimitMeasure.MeasureUnitCode
+  # }
+  
+  # Move detection limit value and unit to TADA.RV and Unit columns
+  .data$TADA.ResultMeasureValue = ifelse(is.na(.data$TADA.ResultMeasureValue)&!is.na(.data$TADA.DetectionQuantitationLimitMeasure.MeasureValue),.data$TADA.DetectionQuantitationLimitMeasure.MeasureValue,.data$TADA.ResultMeasureValue)
+  .data$TADA.ResultMeasure.MeasureUnitCode = ifelse(is.na(.data$TADA.ResultMeasure.MeasureUnitCode)&!is.na(.data$DetectionQuantitationLimitMeasure.MeasureUnitCode),.data$DetectionQuantitationLimitMeasure.MeasureUnitCode,.data$TADA.ResultMeasure.MeasureUnitCode)
+  .data$TADA.ResultMeasureValue.DataTypeFlag = ifelse(is.na(.data$TADA.ResultMeasureValue)&!is.na(.data$TADA.DetectionQuantitationLimitMeasure.MeasureValue),"Detection Limit Substituted",.data$TADA.ResultMeasureValue.DataTypeFlag)
+  
   # execute function after checks are passed
 
   # filter WQXcharValRef to include only valid CharacteristicUnit in water media
@@ -150,17 +156,18 @@ ConvertResultUnits <- function(.data, transform = TRUE) {
       is.na(WQX.TargetUnit) ~ as.character("NoTargetUnit")
     ))
   
-  # add WQX.DetectionLimitMeasureValue.UnitConversion column
-  flag.data <- flag.data %>%
-    # apply function row by row
-    dplyr::rowwise() %>%
-    # create flag column
-    dplyr::mutate(WQX.DetectionLimitMeasureValue.UnitConversion = dplyr::case_when(
-      (!is.na(TADA.DetectionQuantitationLimitMeasure.MeasureValue) &
-         !is.na(WQX.TargetUnit)) ~ as.character("Convert"),
-      is.na(TADA.DetectionQuantitationLimitMeasure.MeasureValue) ~ as.character("NoDetectionLimitValue"),
-      is.na(WQX.TargetUnit) ~ as.character("NoTargetUnit")
-    ))
+  # Can remove this section if fill TADA.ResultMeasureValue and TADA.ResultMeasure.MeasureUnitCode with detection limit info
+  # # add WQX.DetectionLimitMeasureValue.UnitConversion column
+  # flag.data <- flag.data %>%
+  #   # apply function row by row
+  #   dplyr::rowwise() %>%
+  #   # create flag column
+  #   dplyr::mutate(WQX.DetectionLimitMeasureValue.UnitConversion = dplyr::case_when(
+  #     (!is.na(TADA.DetectionQuantitationLimitMeasure.MeasureValue) &
+  #        !is.na(WQX.TargetUnit)) ~ as.character("Convert"),
+  #     is.na(TADA.DetectionQuantitationLimitMeasure.MeasureValue) ~ as.character("NoDetectionLimitValue"),
+  #     is.na(WQX.TargetUnit) ~ as.character("NoTargetUnit")
+  #   ))
   
   if (transform == FALSE) {
     
@@ -185,11 +192,12 @@ ConvertResultUnits <- function(.data, transform = TRUE) {
         "WQX.ResultMeasureValue.UnitConversion"
       ),
       .after = "ResultMeasure.MeasureUnitCode"
-      ) %>%
-      dplyr::relocate(c("TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode",
-                        "WQX.DetectionLimitMeasureValue.UnitConversion"),
-                      .after = "DetectionQuantitationLimitMeasure.MeasureUnitCode"
-      )
+      ) 
+    # %>%
+    #   dplyr::relocate(c("TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode",
+    #                     "WQX.DetectionLimitMeasureValue.UnitConversion"),
+    #                   .after = "DetectionQuantitationLimitMeasure.MeasureUnitCode"
+    #   )
     
     
     print("Conversions required for range checks and TADATargetUnit conversions -- Unit conversions, data summaries, and data calculations may be affected.")
@@ -227,26 +235,26 @@ ConvertResultUnits <- function(.data, transform = TRUE) {
         is.na(WQX.TargetUnit) ~ TADA.ResultMeasure.MeasureUnitCode
       ))
     
-    # Transform detection limit measure value to Target Unit only if target unit exists
-    clean.data <- clean.data %>%
-      # apply function row by row
-      dplyr::rowwise() %>%
-      # apply conversions where there is a target unit, use original value if no target unit
-      dplyr::mutate(TADA.DetectionQuantitationLimitMeasure.MeasureValue = dplyr::case_when(
-        !is.na(WQX.TargetUnit) ~
-          (TADA.DetectionQuantitationLimitMeasure.MeasureValue * WQX.ConversionFactor),
-        is.na(WQX.TargetUnit) ~ TADA.DetectionQuantitationLimitMeasure.MeasureValue
-      ))
+    # # Transform detection limit measure value to Target Unit only if target unit exists
+    # clean.data <- clean.data %>%
+    #   # apply function row by row
+    #   dplyr::rowwise() %>%
+    #   # apply conversions where there is a target unit, use original value if no target unit
+    #   dplyr::mutate(TADA.DetectionQuantitationLimitMeasure.MeasureValue = dplyr::case_when(
+    #     !is.na(WQX.TargetUnit) ~
+    #       (TADA.DetectionQuantitationLimitMeasure.MeasureValue * WQX.ConversionFactor),
+    #     is.na(WQX.TargetUnit) ~ TADA.DetectionQuantitationLimitMeasure.MeasureValue
+    #   ))
     
     # populate DetectionQuantitationLimitMeasure.MeasureUnitCode
-    clean.data <- clean.data %>%
-      # apply function row by row
-      dplyr::rowwise() %>%
-      # use target unit where there is a target unit, use original unit if no target unit
-      dplyr::mutate(TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode = dplyr::case_when(
-        !is.na(WQX.TargetUnit) ~ WQX.TargetUnit,
-        is.na(WQX.TargetUnit) ~ TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode
-      ))
+    # clean.data <- clean.data %>%
+    #   # apply function row by row
+    #   dplyr::rowwise() %>%
+    #   # use target unit where there is a target unit, use original unit if no target unit
+    #   dplyr::mutate(TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode = dplyr::case_when(
+    #     !is.na(WQX.TargetUnit) ~ WQX.TargetUnit,
+    #     is.na(WQX.TargetUnit) ~ TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode
+    #   ))
     
     
     # edit WQX.ResultMeasureValue.UnitConversion column
@@ -259,15 +267,15 @@ ConvertResultUnits <- function(.data, transform = TRUE) {
         TRUE ~ WQX.ResultMeasureValue.UnitConversion
       ))
     
-    # edit WQX.DetectionLimitMeasureValue.UnitConversion column
-    clean.data <- clean.data %>%
-      # apply function row by row
-      dplyr::rowwise() %>%
-      # create flag column
-      dplyr::mutate(WQX.DetectionLimitMeasureValue.UnitConversion = dplyr::case_when(
-        (!is.na(TADA.DetectionQuantitationLimitMeasure.MeasureValue) & !is.na(WQX.TargetUnit)) ~ as.character("Converted"),
-        TRUE ~ WQX.DetectionLimitMeasureValue.UnitConversion
-      ))
+    # # edit WQX.DetectionLimitMeasureValue.UnitConversion column
+    # clean.data <- clean.data %>%
+    #   # apply function row by row
+    #   dplyr::rowwise() %>%
+    #   # create flag column
+    #   dplyr::mutate(WQX.DetectionLimitMeasureValue.UnitConversion = dplyr::case_when(
+    #     (!is.na(TADA.DetectionQuantitationLimitMeasure.MeasureValue) & !is.na(WQX.TargetUnit)) ~ as.character("Converted"),
+    #     TRUE ~ WQX.DetectionLimitMeasureValue.UnitConversion
+    #   ))
     
     
     # remove extraneous columns, fix field names
@@ -279,9 +287,13 @@ ConvertResultUnits <- function(.data, transform = TRUE) {
     col.order <- colnames(.data)
     # add ResultUnitConversion column to the list if flag = TRUE
     
+    # col.order <- append(col.order, c(
+    #   "WQX.ResultMeasureValue.UnitConversion",
+    #   "WQX.DetectionLimitMeasureValue.UnitConversion"
+    # ))
+    
     col.order <- append(col.order, c(
-      "WQX.ResultMeasureValue.UnitConversion",
-      "WQX.DetectionLimitMeasureValue.UnitConversion"
+      "WQX.ResultMeasureValue.UnitConversion"
     ))
     
     # # add original units to list if transform = TRUE
@@ -298,10 +310,11 @@ ConvertResultUnits <- function(.data, transform = TRUE) {
       clean.data <- clean.data %>%
         dplyr::relocate("WQX.ResultMeasureValue.UnitConversion",
                         .after = "ResultMeasure.MeasureUnitCode"
-        ) %>%
-        dplyr::relocate("WQX.DetectionLimitMeasureValue.UnitConversion",
-                        .after = "DetectionQuantitationLimitMeasure.MeasureUnitCode"
-        )
+        ) 
+      # %>%
+      #   dplyr::relocate("WQX.DetectionLimitMeasureValue.UnitConversion",
+      #                   .after = "DetectionQuantitationLimitMeasure.MeasureUnitCode"
+      #   )
       
       # Place original unit columns next to original columns
       
@@ -309,15 +322,16 @@ ConvertResultUnits <- function(.data, transform = TRUE) {
         dplyr::relocate("TADA.ResultMeasure.MeasureUnitCode",
                         .after = "ResultMeasure.MeasureUnitCode"
         ) %>%
-        dplyr::relocate("TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode",
-                        .after = "DetectionQuantitationLimitMeasure.MeasureUnitCode"
-        ) %>%
         dplyr::relocate("TADA.ResultMeasureValue",
                         .after = "ResultMeasureValue"
-        ) %>%
-        dplyr::relocate("TADA.DetectionQuantitationLimitMeasure.MeasureValue",
-                        .after = "DetectionQuantitationLimitMeasure.MeasureValue"
-        )
+        ) 
+      # %>%
+      #   dplyr::relocate("TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode",
+      #                   .after = "DetectionQuantitationLimitMeasure.MeasureUnitCode"
+      #   ) %>%
+      #   dplyr::relocate("TADA.DetectionQuantitationLimitMeasure.MeasureValue",
+      #                   .after = "DetectionQuantitationLimitMeasure.MeasureValue"
+      #   )
     }
     
     return(clean.data)

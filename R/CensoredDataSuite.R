@@ -32,7 +32,7 @@ expected_cols <- c(
 checkColumns(.data, expected_cols)
 
 ## Notification: function will use RV as-is, even if populated with detection limit
-print("Note: This function operates on rows where the TADA.ResultMeasureValue is NA. Detection limit values populated as a result value will not be considered for censored data analyses.")
+print("Note: This function operates on rows where the ResultMeasureValue is NA. Detection limit values populated as a result value will not be considered for censored data analyses.")
 
 ## First step: identify censored data
 cens = .data%>%dplyr::filter(is.na(TADA.ResultMeasureValue)&!is.na(TADA.DetectionQuantitationLimitMeasure.MeasureValue))
@@ -59,7 +59,7 @@ cens = cens%>%dplyr::mutate(TADA.Censored_Flag = dplyr::case_when(
 ## Fill TADA.ResultMeasureValue and Unit with detection limit info
 cens$TADA.ResultMeasureValue = cens$TADA.DetectionQuantitationLimitMeasure.MeasureValue
 cens$TADA.ResultMeasure.MeasureUnitCode = cens$DetectionQuantitationLimitMeasure.MeasureUnitCode
-cens$TADA.ResultMeasureValue.DataTypeFlag = "Censored"
+cens$TADA.ResultMeasureValue.DataTypeFlag = "Detection Limit Substituted"
 
 flag.data = plyr::rbind.fill(not_cens, cens)
 
@@ -117,13 +117,13 @@ simpleCensoredMethods <- function(.data, method = "halflimit"){
   }
   
   if(method=="halflimit"){
-    .data$TADA.ResultMeasureValue = ifelse(.data$TADA.ResultMeasureValue.DataTypeFlag=="Censored",.data$TADA.ResultMeasureValue*0.5,.data$TADA.ResultMeasureValue)
-    .data$TADA.Censored_Method = "Half Detection Limit Value"
+    .data$TADA.ResultMeasureValue = ifelse(.data$TADA.ResultMeasureValue.DataTypeFlag=="Detection Limit Substituted",.data$TADA.ResultMeasureValue*0.5,.data$TADA.ResultMeasureValue)
+    .data$TADA.Censored_Method = ifelse(.data$TADA.ResultMeasureValue.DataTypeFlag=="Detection Limit Substituted","Half Detection Limit Value",NA)
   }
   if(method=="randombelowlimit"){
     .data$multiplier = runif(dim(.data)[1],0,1)
-    .data$TADA.ResultMeasureValue = ifelse(.data$TADA.ResultMeasureValue.DataTypeFlag=="Censored",.data$TADA.ResultMeasureValue*.data$multiplier,.data$TADA.ResultMeasureValue)
-    .data$TADA.Censored_Method = "Random Value Between 0 and Detection Limit"
+    .data$TADA.ResultMeasureValue = ifelse(.data$TADA.ResultMeasureValue.DataTypeFlag=="Detection Limit Substituted",.data$TADA.ResultMeasureValue*.data$multiplier,.data$TADA.ResultMeasureValue)
+    .data$TADA.Censored_Method = ifelse(.data$TADA.ResultMeasureValue.DataTypeFlag=="Detection Limit Substituted","Random Value Between 0 and Detection Limit",NA)
     .data = .data%>%dplyr::select(-multiplier)
   }
   
