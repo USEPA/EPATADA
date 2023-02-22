@@ -2,7 +2,7 @@
 % Please edit documentation in R/Visualizations.R
 \name{SummarizeColumn}
 \alias{SummarizeColumn}
-\title{Summarize data downloaded for each Characteristic}
+\title{Summarize data downloaded by specified column}
 \usage{
 SummarizeColumn(.data, col)
 }
