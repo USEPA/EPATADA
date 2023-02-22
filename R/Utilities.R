@@ -18,10 +18,9 @@ utils::globalVariables(c("AboveWQXUpperThreshold", "ActivityIdentifier",  "Activ
 
 #' autoclean
 #'
-#' Removes complex biological data. Removes non-water media samples.
-#' Removes rows of data that are true duplicates. Capitalizes fields to harmonize
-#' data. This function includes and runs the TADA "MeasureValueSpecialCharacters" 
-#' function as well. 
+#' Removes rows of data that are true duplicates. Creates new columns with prefix
+#' "TADA." and capitalizes fields to harmonize data. This function includes and 
+#' runs the TADA "ConvertSpecialChars" function as well.
 #'
 #' Within "BiologicalIntentName", only the allowable values "tissue", "toxicity",
 #' and "NA" apply to non-biological data (the function removes all others).
@@ -74,12 +73,11 @@ autoclean <- function(.data) {
     .data = plyr::rbind.fill(dup_check, not_dups)
   }
 
-  
-  # Remove complex biological data
-  .data <- dplyr::filter(.data, ActivityMediaName == "WATER")
+  # Remove complex biological data - DECISION TO MOVE TO OWN FUNCTION
+  # .data <- dplyr::filter(.data, ActivityMediaName == "WATER")
   # .data = dplyr::filter(.data, BiologicalIntentName != "TISSUE" | "TOXICITY" | is.na(InvalidCoordinates)== TRUE)
   
-  # run MeasureValueSpecialCharacters function
+  # run ConvertSpecialChars function
   # .data <- MeasureValueSpecialCharacters(.data)
   .data <- ConvertSpecialChars(.data, "ResultMeasureValue")
   .data <- ConvertSpecialChars(.data, "DetectionQuantitationLimitMeasure.MeasureValue")
@@ -88,12 +86,12 @@ autoclean <- function(.data) {
   .data$TADA.LatitudeMeasure <- as.numeric(.data$LatitudeMeasure)
   .data$TADA.LongitudeMeasure <- as.numeric(.data$LongitudeMeasure)
   
-  #convert 'meters' to 'm'
-  .data$TADA.ActivityDepthHeightMeasure.MeasureUnitCode[.data$ActivityDepthHeightMeasure.MeasureUnitCode == 'meters'] <- 'm'
-  .data$TADA.ActivityTopDepthHeightMeasure.MeasureUnitCode[.data$ActivityTopDepthHeightMeasure.MeasureUnitCode == 'meters'] <- 'm'
-  .data$TADA.ActivityBottomDepthHeightMeasure.MeasureUnitCode[.data$ActivityBottomDepthHeightMeasure.MeasureUnitCode == 'meters'] <- 'm'
-  .data$TADA.ResultDepthHeightMeasure.MeasureUnitCode[.data$ResultDepthHeightMeasure.MeasureUnitCode == 'meters'] <- 'm'
-  .data$TADA.ResultMeasure.MeasureUnitCode[.data$ResultMeasure.MeasureUnitCode == 'meters'] <- 'm'
+  # #convert 'meters' to 'm' - EDH MOVED TO CONVERT DEPTH UNITS
+  # .data$TADA.ActivityDepthHeightMeasure.MeasureUnitCode[.data$ActivityDepthHeightMeasure.MeasureUnitCode == 'meters'] <- 'm'
+  # .data$TADA.ActivityTopDepthHeightMeasure.MeasureUnitCode[.data$ActivityTopDepthHeightMeasure.MeasureUnitCode == 'meters'] <- 'm'
+  # .data$TADA.ActivityBottomDepthHeightMeasure.MeasureUnitCode[.data$ActivityBottomDepthHeightMeasure.MeasureUnitCode == 'meters'] <- 'm'
+  # .data$TADA.ResultDepthHeightMeasure.MeasureUnitCode[.data$ResultDepthHeightMeasure.MeasureUnitCode == 'meters'] <- 'm'
+  # .data$TADA.ResultMeasure.MeasureUnitCode[.data$ResultMeasure.MeasureUnitCode == 'meters'] <- 'm'
   
   return(.data)
 }
@@ -443,7 +441,7 @@ ConvertSpecialChars <- function(.data,col){
   
   # If column is already numeric, just discern between NA and numeric
   if(class(chars.data$orig)=="numeric"){
-    chars.data = chars.data%>%
+    clean.data = chars.data%>%
       dplyr::mutate(flag = dplyr::case_when(
         is.na(masked) ~ as.character("ND or NA"),
         TRUE ~ as.character("Numeric")
@@ -451,7 +449,7 @@ ConvertSpecialChars <- function(.data,col){
   }else{
     # Detect special characters in column and populate new flag column with descriptor
     # of the specific type of character/data type
-    chars.data = chars.data%>%
+    clean.data = chars.data%>%
       dplyr::mutate(flag = dplyr::case_when(
         is.na(masked) ~ as.character("ND or NA"),
         (!is.na(suppressWarnings(as.numeric(masked)) == TRUE)) ~ as.character("Numeric"),
@@ -466,15 +464,9 @@ ConvertSpecialChars <- function(.data,col){
     
     # In the new TADA column, convert to numeric and remove some specific special 
     # characters.
-    chars.data$masked = suppressWarnings(as.numeric(stringr::str_replace_all(
-      chars.data$orig,c("<" = "", ">" = "", "~" = "", "," = "","%" = ""))))
+    clean.data$masked = suppressWarnings(as.numeric(stringr::str_replace_all(
+      clean.data$orig,c("<" = "", ">" = "", "~" = "", "," = "","%" = ""))))
   }
-  
-  # Move columns to appropriate position in dataframe and rename to TADA columns
-  # served out of function.
-  clean.data = chars.data%>%
-    dplyr::relocate("masked",.after = "orig")%>%
-    dplyr::relocate("flag", .after="masked")
   
   # Rename to original column name, TADA column name, and flag column name
   names(clean.data)[names(clean.data)=="orig"] = col
