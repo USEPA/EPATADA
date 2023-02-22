@@ -12,18 +12,14 @@
 #' "Convert" means the data can be transformed, and "Converted" means that this function
 #' has been run with the input transform = TRUE, and the values were already converted.
 #'
-#' It also uses the following six fields from the input dataframe:
-#' 1) "CharacteristicName",
-#' 2) "ActivityMediaName",
-#' 3) "ResultMeasureValue",
-#' 4) "ResultMeasure.MeasureUnitCode",
-#' 5) "DetectionQuantitationLimitMeasure.MeasureValue",
-#' 6) "DetectionQuantitationLimitMeasure.MeasureUnitCode"
+#' It also uses the following six fields from an autocleaned input dataframe:
+#' 1) "TADA.CharacteristicName",
+#' 2) "TADA.ActivityMediaName",
+#' 3) "TADA.ResultMeasureValue",
+#' 4) "TADA.ResultMeasure.MeasureUnitCode",
+#' 5) "TADA.DetectionQuantitationLimitMeasure.MeasureValue",
+#' 6) "TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode"
 #'
-#' This function adds the following two fields and transforms values within the
-#' following four fields ONLY when transform=TRUE:
-#' Adds: "ResultMeasureUnitCode.Original", and "DetectionLimitMeasureUnitCode.Original".
-#' Transforms: "ResultMeasureValue", "ResultMeasure.MeasureUnitCode", "DetectionQuantitationLimitMeasure.MeasureValue", and "DetectionQuantitationLimitMeasure.MeasureUnitCode".
 #'
 #' This function adds the following two fields ONLY when transform=FALSE:
 #' Adds: "WQX.ConversionFactor" and "WQX.TargetUnit".
@@ -34,9 +30,9 @@
 #' Default is transform = TRUE.
 #'
 #' @return When transform=TRUE, result values and units are converted to WQX target units.
-#' This function changes the values within the "ResultMeasure.MeasureUnitCode"
-#' and "DetectionQuantitationLimitMeasure.MeasureUnitCode" to the WQX target units and
-#' converts respective values within the "ResultMeasureValue" and "DetectionQuantitationLimitMeasure.MeasureValue"
+#' This function changes the values within the "TADA.ResultMeasure.MeasureUnitCode"
+#' and "TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode" to the WQX target units and
+#' converts respective values within the "TADA.ResultMeasureValue" and "TADA.DetectionQuantitationLimitMeasure.MeasureValue"
 #' fields. In addition to "WQX.ResultMeasureValue.UnitConversion"
 #' and "WQX.DetectionLimitMeasureValue.UnitConversion", transform=TRUE will add
 #' the following two fields to the input dataframe, "ResultMeasureUnitCode.Original",
@@ -56,8 +52,8 @@
 #' data(Nutrients_Utah)
 #' 
 #' # Convert result and detection limit values and units to WQX target units and 
-#' # add two new columns titled "ResultMeasureUnitCode.Original" and 
-#' # "DetectionLimitMeasureUnitCode.Original" to retain the original result and unit values:
+#' # add two new columns titled "TADA.ResultMeasure.MeasureUnitCode" and 
+#' # "TADA.DetectionLimitMeasure.MeasureUnitCode" to hold the new result and unit values:
 #' ResultUnitsConverted <- ConvertResultUnits(Nutrients_Utah)
 #' 
 #' # Do not convert result values and units, but add two new columns titled
@@ -71,14 +67,6 @@ ConvertResultUnits <- function(.data, transform = TRUE) {
   # check transform is boolean
   checkType(transform, "logical")
   # check .data has all of the required columns
-  expected_cols <- c(
-    "CharacteristicName", "ActivityMediaName", "ResultMeasureValue",
-    "ResultMeasure.MeasureUnitCode",
-    "DetectionQuantitationLimitMeasure.MeasureValue",
-    "DetectionQuantitationLimitMeasure.MeasureUnitCode"
-    )
-  
-  checkColumns(.data, expected_cols)
   
   # Check to make sure special characters converted and TADA columns created. If not, run spec chars function.
   if(!"TADA.ResultMeasureValue"%in%names(.data)){
@@ -88,20 +76,19 @@ ConvertResultUnits <- function(.data, transform = TRUE) {
     .data <- ConvertSpecialChars(.data,"DetectionQuantitationLimitMeasure.MeasureValue")
   }
   
-  
   # Check to make sure TADA unit columns created. If not, create them.
   if(!"TADA.ResultMeasure.MeasureUnitCode"%in%names(.data)){
     .data$TADA.ResultMeasure.MeasureUnitCode = .data$ResultMeasure.MeasureUnitCode
   }
-  # EDH Don't think this is needed. Don't have to do manipulations ever on detlimit unit code if using TADA.unit
-  # if(!"TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode"%in%names(.data)){
-  #   .data$TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode = .data$DetectionQuantitationLimitMeasure.MeasureUnitCode
-  # }
   
-  # Move detection limit value and unit to TADA.RV and Unit columns
-  .data$TADA.ResultMeasureValue = ifelse(is.na(.data$TADA.ResultMeasureValue)&!is.na(.data$TADA.DetectionQuantitationLimitMeasure.MeasureValue),.data$TADA.DetectionQuantitationLimitMeasure.MeasureValue,.data$TADA.ResultMeasureValue)
-  .data$TADA.ResultMeasure.MeasureUnitCode = ifelse(is.na(.data$TADA.ResultMeasure.MeasureUnitCode)&!is.na(.data$DetectionQuantitationLimitMeasure.MeasureUnitCode),.data$DetectionQuantitationLimitMeasure.MeasureUnitCode,.data$TADA.ResultMeasure.MeasureUnitCode)
-  .data$TADA.ResultMeasureValue.DataTypeFlag = ifelse(is.na(.data$TADA.ResultMeasureValue)&!is.na(.data$TADA.DetectionQuantitationLimitMeasure.MeasureValue),"Detection Limit Substituted",.data$TADA.ResultMeasureValue.DataTypeFlag)
+  expected_cols <- c(
+    "TADA.CharacteristicName", "TADA.ActivityMediaName", "TADA.ResultMeasureValue",
+    "TADA.ResultMeasure.MeasureUnitCode",
+    "TADA.DetectionQuantitationLimitMeasure.MeasureValue",
+    "TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode"
+    )
+  
+  checkColumns(.data, expected_cols)
   
   # execute function after checks are passed
 
@@ -115,7 +102,7 @@ ConvertResultUnits <- function(.data, transform = TRUE) {
     "Value", "Value.Unit",
     "Conversion.Factor"
   )],
-  by.x = c("CharacteristicName", "ActivityMediaName", "TADA.ResultMeasure.MeasureUnitCode"), # note: only joins on ResultMeasure.MeasureUnitCode, so will not join to detection limit units
+  by.x = c("TADA.CharacteristicName", "TADA.ActivityMediaName", "TADA.ResultMeasure.MeasureUnitCode"), # note: only joins on ResultMeasure.MeasureUnitCode, so will not join to detection limit units
   by.y = c("Characteristic", "Source", "Value"), all.x = TRUE
   )
   # rename columns
@@ -156,19 +143,6 @@ ConvertResultUnits <- function(.data, transform = TRUE) {
       is.na(WQX.TargetUnit) ~ as.character("NoTargetUnit")
     ))
   
-  # Can remove this section if fill TADA.ResultMeasureValue and TADA.ResultMeasure.MeasureUnitCode with detection limit info
-  # # add WQX.DetectionLimitMeasureValue.UnitConversion column
-  # flag.data <- flag.data %>%
-  #   # apply function row by row
-  #   dplyr::rowwise() %>%
-  #   # create flag column
-  #   dplyr::mutate(WQX.DetectionLimitMeasureValue.UnitConversion = dplyr::case_when(
-  #     (!is.na(TADA.DetectionQuantitationLimitMeasure.MeasureValue) &
-  #        !is.na(WQX.TargetUnit)) ~ as.character("Convert"),
-  #     is.na(TADA.DetectionQuantitationLimitMeasure.MeasureValue) ~ as.character("NoDetectionLimitValue"),
-  #     is.na(WQX.TargetUnit) ~ as.character("NoTargetUnit")
-  #   ))
-  
   if (transform == FALSE) {
     
     # reorder column names to match .data
@@ -183,22 +157,6 @@ ConvertResultUnits <- function(.data, transform = TRUE) {
     ))
     # reorder columns in flag.data
     flag.data <- flag.data[, col.order]
-    # place flag columns next to relevant fields
-    flag.data <- flag.data %>%
-      dplyr::relocate(c(
-        "TADA.ResultMeasure.MeasureUnitCode",
-        "WQX.TargetUnit",
-        "WQX.ConversionFactor",
-        "WQX.ResultMeasureValue.UnitConversion"
-      ),
-      .after = "ResultMeasure.MeasureUnitCode"
-      ) 
-    # %>%
-    #   dplyr::relocate(c("TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode",
-    #                     "WQX.DetectionLimitMeasureValue.UnitConversion"),
-    #                   .after = "DetectionQuantitationLimitMeasure.MeasureUnitCode"
-    #   )
-    
     
     print("Conversions required for range checks and TADATargetUnit conversions -- Unit conversions, data summaries, and data calculations may be affected.")
     return(flag.data)
@@ -307,24 +265,24 @@ ConvertResultUnits <- function(.data, transform = TRUE) {
       clean.data <- clean.data[, col.order]
       
       # place flag columns next to relevant fields
-      clean.data <- clean.data %>%
-        dplyr::relocate("WQX.ResultMeasureValue.UnitConversion",
-                        .after = "ResultMeasure.MeasureUnitCode"
-        ) 
+      # clean.data <- clean.data %>%
+      #   dplyr::relocate("WQX.ResultMeasureValue.UnitConversion",
+      #                   .after = "ResultMeasure.MeasureUnitCode"
+      #   ) 
       # %>%
       #   dplyr::relocate("WQX.DetectionLimitMeasureValue.UnitConversion",
       #                   .after = "DetectionQuantitationLimitMeasure.MeasureUnitCode"
       #   )
       
       # Place original unit columns next to original columns
-      
-      clean.data <- clean.data %>%
-        dplyr::relocate("TADA.ResultMeasure.MeasureUnitCode",
-                        .after = "ResultMeasure.MeasureUnitCode"
-        ) %>%
-        dplyr::relocate("TADA.ResultMeasureValue",
-                        .after = "ResultMeasureValue"
-        ) 
+      # 
+      # clean.data <- clean.data %>%
+      #   dplyr::relocate("TADA.ResultMeasure.MeasureUnitCode",
+      #                   .after = "ResultMeasure.MeasureUnitCode"
+      #   ) %>%
+      #   dplyr::relocate("TADA.ResultMeasureValue",
+      #                   .after = "ResultMeasureValue"
+      #   ) 
       # %>%
       #   dplyr::relocate("TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode",
       #                   .after = "DetectionQuantitationLimitMeasure.MeasureUnitCode"
@@ -342,13 +300,16 @@ ConvertResultUnits <- function(.data, transform = TRUE) {
 #' Convert Depth Units
 #'
 #' Default is transform = TRUE. When transform = TRUE, all depth data is converted
-#' to a consistent unit; and no additional columns are added. 
+#' to a consistent unit. The converted depth value and unit are placed in a NEW
+#' column with the same name as the original, plus the prefix "TADA." New columns
+#' are only created if there are values/units in the column(s) of interest. 
 #' The default unit is "m" (meters), but a user can also choose 
 #' "ft" or "in". When transform = FALSE, where depth data is populated, the 
 #' function appends columns indicating the target unit and conversion factor for
 #' each row; and for each depth field. No conversions are done at this time. 
 #' A user can review the conversion factor information if desired by using this
-#' feature. 
+#' feature. All transformations are performed on columns created by this function
+#' with the prefix "TADA." All WQP columns retain original values.
 #' 
 #' @param .data TADA dataframe
 #' @param unit Character string input indicating the target depth unit to use for 
@@ -356,8 +317,8 @@ ConvertResultUnits <- function(.data, transform = TRUE) {
 #' or "in" (inches). 'unit' accepts only one allowable value as an input. The
 #' default unit = "m".
 #' @param fields Character string input indicating the relevant depth data fields
-#' that will be converted to the desired target unit. Allowable values for 'fields'
-#' are "ActivityDepthHeightMeasure", "ActivityTopDepthHeightMeasure", 
+#' that will be converted to the desired target unit in new TADA column. Allowable 
+#' values for 'fields' are "ActivityDepthHeightMeasure", "ActivityTopDepthHeightMeasure",
 #' "ActivityBottomDepthHeightMeasure", and "ResultDepthHeightMeasure". The default
 #' is to include all depth fields.
 #' @param transform Boolean argument; The default is transform = TRUE. 
@@ -462,25 +423,40 @@ ConvertDepthUnits <- function(.data,
     )) %>%
     dplyr::filter(Target.Unit == unit) #%>%
   
-  for (i in seq(length(valid_fields)+1)) {
+  # Loop over all supplied depth columns, create TADA columns, then join conversion table 
+  for (i in 1:length(valid_fields)) {
     field <- valid_fields[i]
     if ((field %in% fields) == TRUE) {
-      # Old unit column
-      unitCol <- paste(field, ".MeasureUnitCode", sep="")
       
+      # OG unit column
+      unitCol <- paste(field, ".MeasureUnitCode", sep="")
+      valCol = paste0(field,".MeasureValue")
       # proceed only if unitCol has values other than NA
       if (sum(!is.na(check.data[unitCol])) > 0) {
         
+        # new TADA columns
+        unitCol2 = paste0("TADA.",unitCol)
+        valCol2 = paste0("TADA.",valCol)
+        
+        # deal with any units that are "meters" and change to "m" (USGS convention)
+        check.data$new = check.data[,unitCol]
+        check.data$new[check.data$new=="meters"] = "m"
+        names(check.data)[names(check.data)=="new"] = unitCol2
+        
         # Join conversion factor from unit.ref to .data by unitCol
         check.data <- merge(check.data, unit.ref[, c("Code", "Conversion.Factor")],
-                            by.x = unitCol,
+                            by.x = unitCol2,
                             by.y = "Code",
                             all.x = TRUE, 
                             sort = FALSE
         )
         
+        check.data = check.data %>% dplyr::relocate(unitCol2,.after = last_col())
+        
         # rename new columns
         names(check.data)[names(check.data) == "Conversion.Factor"] <- paste('WQXConversionFactor.', field,  sep="")
+        check.data$new1 = check.data[,valCol]
+        names(check.data)[names(check.data)=="new1"] = valCol2
         
       }
     }
@@ -489,51 +465,6 @@ ConvertDepthUnits <- function(.data,
   # check if any Conversion Factor columns were appended
   if (all(is.na(match(appCols, colnames(check.data)))) == TRUE) {
     stop("The dataframe does not have any depth data.")
-  }
-  
-  # reorder column names to match .data
-  
-  # get .data column names
-  col.order <- colnames(.data)
-  # add appended columns to the list
-  for (appCol in appCols) {
-    if ((appCol %in% colnames(check.data)) == TRUE) {
-      col.order <- append(col.order, appCol)
-    }
-  }
-  
-  # reorder columns in check.data
-  check.data <- check.data[, col.order]
-  # place flag columns next to relevant fields
-  if ((appCols[1] %in% colnames(check.data)) == TRUE) {
-    check.data <- check.data %>%
-      dplyr::relocate(appCols[1],
-                      .after = "ActivityDepthHeightMeasure.MeasureValue"
-      )
-  }
-  if ((appCols[2] %in% colnames(check.data)) == TRUE) {
-    check.data <- check.data %>%
-      dplyr::relocate(appCols[2],
-                      .after = "ActivityTopDepthHeightMeasure.MeasureValue"
-      )
-  }
-  if ((appCols[3] %in% colnames(check.data)) == TRUE) {
-    check.data <- check.data %>%
-      dplyr::relocate(appCols[3],
-                      .after = "ActivityBottomDepthHeightMeasure.MeasureValue"
-      )
-  }
-  if ((appCols[4] %in% colnames(check.data)) == TRUE) {
-    check.data <- check.data %>%
-      dplyr::relocate(appCols[4],
-                      .after = "ResultDepthHeightMeasure.MeasureValue"
-      )
-  }
-  if ((appCols[5] %in% colnames(check.data)) == TRUE) {
-    check.data <- check.data %>%
-      dplyr::relocate(appCols[5],
-                      .after = "ActivityEndTime.TimeZoneCode"
-      )
   }
   
   #function should always run all code above
@@ -556,25 +487,12 @@ ConvertDepthUnits <- function(.data,
     # if WQXConversionFactor.ActivityDepthHeightMeasure exists...
     if (("WQXConversionFactor.ActivityDepthHeightMeasure" %in% colnames(clean.data)) == TRUE) {
       # multiply ActivityDepthHeightMeasure.MeasureValue by WQXConversionFactor.ActivityDepthHeightMeasure
-      clean.data$ActivityDepthHeightMeasure.MeasureValue <- ((clean.data$ActivityDepthHeightMeasure.MeasureValue) * (clean.data$WQXConversionFactor.ActivityDepthHeightMeasure))
-      
-      # uncomment out below to keep a copy of the original unit field
-      #clean.data$ActivityDepthHeightMeasure.MeasureUnitCode.Original <- clean.data$ActivityDepthHeightMeasure.MeasureUnitCode
-      #clean.data <- clean.data %>%
-      #  dplyr::relocate("ActivityDepthHeightMeasure.MeasureUnitCode.Original",
-      #                  .after = "WQXConversionFactor.ActivityDepthHeightMeasure"
-      #  )
+      clean.data$TADA.ActivityDepthHeightMeasure.MeasureValue <- (as.numeric(clean.data$TADA.ActivityDepthHeightMeasure.MeasureValue) * (clean.data$WQXConversionFactor.ActivityDepthHeightMeasure))
       
       # then replace ActivityDepthHeightMeasure.MeasureUnitCode values with the new unit argument
-      clean.data$ActivityDepthHeightMeasure.MeasureUnitCode[which(
-        !is.na(clean.data$ActivityDepthHeightMeasure.MeasureUnitCode)
+      clean.data$TADA.ActivityDepthHeightMeasure.MeasureUnitCode[which(
+        !is.na(clean.data$TADA.ActivityDepthHeightMeasure.MeasureUnitCode)
       )] <- unit
-      
-      # move the relevant data and unit fields next to each other in the dataframe
-      clean.data <- clean.data %>%
-        dplyr::relocate("ActivityDepthHeightMeasure.MeasureUnitCode",
-                        .after = "ActivityDepthHeightMeasure.MeasureValue"
-        )
       
       # comment out below to keep ActDepth.Conversion.Unit column
       clean.data <- dplyr::select(clean.data, -"WQXConversionFactor.ActivityDepthHeightMeasure")
@@ -583,24 +501,13 @@ ConvertDepthUnits <- function(.data,
     # if WQXConversionFactor.ActivityTopDepthHeightMeasure exists...
     if (("WQXConversionFactor.ActivityTopDepthHeightMeasure" %in% colnames(clean.data)) == TRUE) {
       # multiply ActivityTopDepthHeightMeasure.MeasureValue by WQXConversionFactor.ActivityTopDepthHeightMeasure
-      clean.data$ActivityTopDepthHeightMeasure.MeasureValue <- ((clean.data$ActivityTopDepthHeightMeasure.MeasureValue) * (clean.data$WQXConversionFactor.ActivityTopDepthHeightMeasure))
-      
-      # uncomment out below to keep a copy of the original unit field
-      #clean.data$ActivityTopDepthHeightMeasure.MeasureUnitCode.Original <- clean.data$ActivityTopDepthHeightMeasure.MeasureUnitCode
-      #clean.data <- clean.data %>%
-      #  dplyr::relocate("ActivityTopDepthHeightMeasure.MeasureUnitCode.Original",
-      #                  .after = "WQXConversionFactor.ActivityTopDepthHeightMeasure"
-      #  )
+      clean.data$TADA.ActivityTopDepthHeightMeasure.MeasureValue <- (as.numeric(clean.data$TADA.ActivityTopDepthHeightMeasure.MeasureValue) * (clean.data$WQXConversionFactor.ActivityTopDepthHeightMeasure))
       
       # replace ActivityTopDepthHeightMeasure.MeasureUnitCode values with unit argument
-      clean.data$ActivityTopDepthHeightMeasure.MeasureUnitCode[which(
-        !is.na(clean.data$ActivityTopDepthHeightMeasure.MeasureUnitCode)
+      clean.data$TADA.ActivityTopDepthHeightMeasure.MeasureUnitCode[which(
+        !is.na(clean.data$TADA.ActivityTopDepthHeightMeasure.MeasureUnitCode)
       )] <- unit
       
-      clean.data <- clean.data %>%
-        dplyr::relocate("ActivityTopDepthHeightMeasure.MeasureUnitCode",
-                        .after = "ActivityTopDepthHeightMeasure.MeasureValue"
-        )
       # comment out below to keep ActTopDepth.Conversion.Unit column
       clean.data <- dplyr::select(clean.data, -"WQXConversionFactor.ActivityTopDepthHeightMeasure")
     }
@@ -608,24 +515,13 @@ ConvertDepthUnits <- function(.data,
     # if WQXConversionFactor.ActivityBottomDepthHeightMeasure exists...
     if (("WQXConversionFactor.ActivityBottomDepthHeightMeasure" %in% colnames(clean.data)) == TRUE) {
       # multiply ActivityBottomDepthHeightMeasure.MeasureValue by WQXConversionFactor.ActivityBottomDepthHeightMeasure
-      clean.data$ActivityBottomDepthHeightMeasure.MeasureValue <- ((clean.data$ActivityBottomDepthHeightMeasure.MeasureValue) * (clean.data$WQXConversionFactor.ActivityBottomDepthHeightMeasure))
-      
-      # uncomment out below to keep a copy of the original unit field
-      #clean.data$ActivityBottomDepthHeightMeasure.MeasureUnitCode.Original <- clean.data$ActivityBottomDepthHeightMeasure.MeasureUnitCode
-      #clean.data <- clean.data %>%
-      #  dplyr::relocate("ActivityBottomDepthHeightMeasure.MeasureUnitCode.Original",
-      #                  .after = "WQXConversionFactor.ActivityBottomDepthHeightMeasure"
-      #  )
+      clean.data$TADA.ActivityBottomDepthHeightMeasure.MeasureValue <- (as.numeric(clean.data$TADA.ActivityBottomDepthHeightMeasure.MeasureValue) * (clean.data$WQXConversionFactor.ActivityBottomDepthHeightMeasure))
       
       # replace ActivityTopDepthHeightMeasure.MeasureUnitCode values with unit argument
-      clean.data$ActivityBottomDepthHeightMeasure.MeasureUnitCode[which(
-        !is.na(clean.data$ActivityBottomDepthHeightMeasure.MeasureUnitCode)
+      clean.data$TADA.ActivityBottomDepthHeightMeasure.MeasureUnitCode[which(
+        !is.na(clean.data$TADA.ActivityBottomDepthHeightMeasure.MeasureUnitCode)
       )] <- unit
-      
-      clean.data <- clean.data %>%
-        dplyr::relocate("ActivityBottomDepthHeightMeasure.MeasureUnitCode",
-                        .after = "ActivityBottomDepthHeightMeasure.MeasureValue"
-        )
+ 
       # comment out below to keep ActBottomDepth.Conversion.Unit column
       clean.data <- dplyr::select(clean.data, -"WQXConversionFactor.ActivityBottomDepthHeightMeasure")
     }
@@ -633,24 +529,13 @@ ConvertDepthUnits <- function(.data,
     # if WQXConversionFactor.ResultDepthHeightMeasure exists...
     if (("WQXConversionFactor.ResultDepthHeightMeasure" %in% colnames(clean.data)) == TRUE) {
       # multiply ResultDepthHeightMeasure.MeasureValue by WQXConversionFactor.ResultDepthHeightMeasure
-      clean.data$ResultDepthHeightMeasure.MeasureValue <- ((clean.data$ResultDepthHeightMeasure.MeasureValue) * (clean.data$WQXConversionFactor.ResultDepthHeightMeasure))
-      
-      # uncomment out below to keep a copy of the original unit field
-      #clean.data$ResultDepthHeightMeasure.MeasureUnitCode.Original <- clean.data$ResultDepthHeightMeasure.MeasureUnitCode
-      #clean.data <- clean.data %>%
-      #  dplyr::relocate("ResultDepthHeightMeasure.MeasureUnitCode.Original",
-      #                  .after = "WQXConversionFactor.ResultDepthHeightMeasure"
-      #  )
+      clean.data$TADA.ResultDepthHeightMeasure.MeasureValue <- (as.numeric(clean.data$TADA.ResultDepthHeightMeasure.MeasureValue) * (clean.data$WQXConversionFactor.ResultDepthHeightMeasure))
       
       # replace ResultDepthHeightMeasure.MeasureUnitCode values with unit argument
-      clean.data$ResultDepthHeightMeasure.MeasureUnitCode[which(
-        !is.na(clean.data$ResultDepthHeightMeasure.MeasureUnitCode)
+      clean.data$TADA.ResultDepthHeightMeasure.MeasureUnitCode[which(
+        !is.na(clean.data$TADA.ResultDepthHeightMeasure.MeasureUnitCode)
       )] <- unit
       
-      clean.data <- clean.data %>%
-        dplyr::relocate("ResultDepthHeightMeasure.MeasureUnitCode",
-                        .after = "ResultDepthHeightMeasure.MeasureUnitCode"
-        )
       # comment out below to keep WQXConversionFactor.ResultDepthHeightMeasure column
       clean.data <- dplyr::select(clean.data, -"WQXConversionFactor.ResultDepthHeightMeasure")
     }
@@ -661,8 +546,6 @@ ConvertDepthUnits <- function(.data,
     return(clean.data)
   }
 }
-
-
 
 #' Generate Unique Harmonization Reference Table
 #' 
@@ -703,9 +586,9 @@ HarmonizationRefTable <- function(.data, download = FALSE) {
   
   # check .data has the required columns
   expected_cols <- c(
-    "CharacteristicName", "ResultSampleFractionText",
-    "MethodSpecificationName",
-    "ResultMeasure.MeasureUnitCode"
+    "TADA.CharacteristicName", "TADA.ResultSampleFractionText",
+    "TADA.MethodSpecificationName",
+    "TADA.ResultMeasure.MeasureUnitCode"
     )
   checkColumns(.data, expected_cols)
   
@@ -832,8 +715,8 @@ HarmonizeData <- function(.data, ref, transform = TRUE, flag = TRUE) {
 
   # check .data has the required columns
   expected_cols <- c(
-    "CharacteristicName", "ResultSampleFractionText",
-    "MethodSpecificationName", "ResultMeasure.MeasureUnitCode"
+    "TADA.CharacteristicName", "TADA.ResultSampleFractionText",
+    "TADA.MethodSpecificationName", "TADA.ResultMeasure.MeasureUnitCode"
     )
   checkColumns(.data, expected_cols)
 
@@ -854,13 +737,13 @@ HarmonizeData <- function(.data, ref, transform = TRUE, flag = TRUE) {
   
   # execute function after checks are passed
   if (all(c(
-    "CharacteristicName", "ActivityMediaName", "ResultMeasureValue",
-    "ResultMeasure.MeasureUnitCode"
+    "TADA.CharacteristicName", "TADA.ActivityMediaName", "TADA.ResultMeasureValue",
+    "TADA.ResultMeasure.MeasureUnitCode"
   ) %in% colnames(.data)) == TRUE) {
 
     # if class(ResultMeasureValue) != numeric, run special char function
-    if (!is.numeric(.data$ResultMeasureValue) ) {
-      .data <- MeasureValueSpecialCharacters(.data)
+    if (!is.numeric(.data$TADA.ResultMeasureValue) ) {
+      stop("TADA.ResultMeasureValue is not numeric. This column must be numeric before proceeding.")
     }
 
     # define harm.ref
@@ -905,7 +788,7 @@ HarmonizeData <- function(.data, ref, transform = TRUE, flag = TRUE) {
     col.order <- colnames(.data)
     # add flag columns to the list
     col.order <- append(col.order, c(
-      "TADACharacteristicGroup",
+      "TADA.CharacteristicGroup",
       "CharacteristicNameUserSupplied",
       "TADA.SuggestedCharacteristicName",
       "TADA.CharacteristicNameAssumptions",
@@ -973,26 +856,26 @@ HarmonizeData <- function(.data, ref, transform = TRUE, flag = TRUE) {
     # if transform = TRUE, transform data
     if (transform == TRUE) {
 
-      # CharacteristicName
-      # replace CharacteristicName with TADA.SuggestedCharacteristicName
+      # TADA.CharacteristicName
+      # replace TADA.CharacteristicName with TADA.SuggestedCharacteristicName
       clean.data <- flag.data %>%
         # apply function row by row
         dplyr::rowwise() %>%
         # use TADA suggested name where there is a suggested name, use original name if no suggested name
-        dplyr::mutate(CharacteristicName = dplyr::case_when(
+        dplyr::mutate(TADA.CharacteristicName = dplyr::case_when(
           !is.na(TADA.SuggestedCharacteristicName) ~ TADA.SuggestedCharacteristicName,
-          is.na(TADA.SuggestedCharacteristicName) ~ CharacteristicName
+          is.na(TADA.SuggestedCharacteristicName) ~ TADA.CharacteristicName
         ))
 
-      # ResultSampleFractionText
+      # TADA.ResultSampleFractionText
       # replace ResultSampleFractionText with TADA.SuggestedSampleFraction
       clean.data <- clean.data %>%
         # apply function row by row
         dplyr::rowwise() %>%
         # use TADA suggested frac where there is a suggested frac, use original frac if no suggested frac
-        dplyr::mutate(ResultSampleFractionText = dplyr::case_when(
+        dplyr::mutate(TADA.ResultSampleFractionText = dplyr::case_when(
           !is.na(TADA.SuggestedSampleFraction) ~ TADA.SuggestedSampleFraction,
-          is.na(TADA.SuggestedSampleFraction) ~ ResultSampleFractionText
+          is.na(TADA.SuggestedSampleFraction) ~ TADA.ResultSampleFractionText
         ))
 
 
@@ -1002,34 +885,34 @@ HarmonizeData <- function(.data, ref, transform = TRUE, flag = TRUE) {
         # apply function row by row
         dplyr::rowwise() %>%
         # use TADA suggested unit where there is a suggested unit, use original unit if no suggested unit
-        dplyr::mutate(ResultMeasure.MeasureUnitCode = dplyr::case_when(
+        dplyr::mutate(TADA.ResultMeasure.MeasureUnitCode = dplyr::case_when(
           !is.na(TADA.SuggestedResultUnit) ~ TADA.SuggestedResultUnit,
-          is.na(TADA.SuggestedResultUnit) ~ ResultMeasure.MeasureUnitCode
+          is.na(TADA.SuggestedResultUnit) ~ TADA.ResultMeasure.MeasureUnitCode
         )) %>%
         # if conversion factor exists, multiply by ResultMeasureValue
         dplyr::rowwise() %>%
-        dplyr::mutate(ResultMeasureValue = dplyr::case_when(
+        dplyr::mutate(TADA.ResultMeasureValue = dplyr::case_when(
           !is.na(TADA.UnitConversionFactor) ~
-            (TADA.UnitConversionFactor * ResultMeasureValue),
-          is.na(TADA.UnitConversionFactor) ~ ResultMeasureValue
+            (TADA.UnitConversionFactor * TADA.ResultMeasureValue),
+          is.na(TADA.UnitConversionFactor) ~ TADA.ResultMeasureValue
         ))
 
-      # MethodSpecificationName
+      # TADA.MethodSpecificationName
       # replace MethodSpecificationName with TADA.SuggestedSpeciation
       clean.data <- clean.data %>%
         # apply function row by row
         dplyr::rowwise() %>%
         # use TADA suggested spec where there is a suggested spec, use original spec if no suggested spec
-        dplyr::mutate(MethodSpecificationName = dplyr::case_when(
+        dplyr::mutate(TADA.MethodSpecificationName = dplyr::case_when(
           !is.na(TADA.SuggestedSpeciation) ~ TADA.SuggestedSpeciation,
-          is.na(TADA.SuggestedSpeciation) ~ MethodSpecificationName
+          is.na(TADA.SuggestedSpeciation) ~ TADA.MethodSpecificationName
         )) %>%
         # if conversion factor exists, multiply by ResultMeasureValue
         dplyr::rowwise() %>%
-        dplyr::mutate(ResultMeasureValue = dplyr::case_when(
+        dplyr::mutate(TADA.ResultMeasureValue = dplyr::case_when(
           !is.na(TADA.SpeciationConversionFactor) ~
-            (TADA.SpeciationConversionFactor * ResultMeasureValue),
-          is.na(TADA.SpeciationConversionFactor) ~ ResultMeasureValue
+            (TADA.SpeciationConversionFactor * TADA.ResultMeasureValue),
+          is.na(TADA.SpeciationConversionFactor) ~ TADA.ResultMeasureValue
         ))
 
       # remove conversion columns

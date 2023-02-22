@@ -47,7 +47,7 @@ InvalidFraction <- function(.data, clean = TRUE, errorsonly = FALSE) {
   # check errorsonly is boolean
   checkType(errorsonly, "logical")
   # check .data has required columns
-  checkColumns(.data, c("CharacteristicName", "ResultSampleFractionText"))
+  checkColumns(.data, c("TADA.CharacteristicName", "TADA.ResultSampleFractionText"))
   # check that both clean and errorsonly are not TRUE
   if (clean == TRUE & errorsonly == TRUE) {
     stop("Function not executed because clean and errorsonly cannot both be TRUE")
@@ -64,8 +64,8 @@ InvalidFraction <- function(.data, clean = TRUE, errorsonly = FALSE) {
   # join "Status" column to .data by CharacteristicName and Value (SampleFraction)
   check.data <- merge(.data, frac.ref[, c("Characteristic", "Status", "Value")],
                       by.x = c(
-                        "CharacteristicName",
-                        "ResultSampleFractionText"
+                        "TADA.CharacteristicName",
+                        "TADA.ResultSampleFractionText"
                       ),
                       by.y = c("Characteristic", "Value"), all.x = TRUE
   )
@@ -76,18 +76,18 @@ InvalidFraction <- function(.data, clean = TRUE, errorsonly = FALSE) {
   # rename NA values to Nonstandardized in WQX.SampleFractionValidity column
   check.data["WQX.SampleFractionValidity"][is.na(check.data["WQX.SampleFractionValidity"])] <- "Nonstandardized"
   
-  # reorder column names to match .data
-  # get .data column names
-  col.order <- colnames(.data)
-  # add WQX.SampleFractionValidity column to the list
-  col.order <- append(col.order, "WQX.SampleFractionValidity")
-  # reorder columns in check.data
-  check.data <- check.data[, col.order]
-  # place flag column next to relevant fields
-  check.data <- check.data %>%
-    dplyr::relocate("WQX.SampleFractionValidity",
-                    .after = "ResultSampleFractionText"
-    )
+  # # reorder column names to match .data
+  # # get .data column names
+  # col.order <- colnames(.data)
+  # # add WQX.SampleFractionValidity column to the list
+  # col.order <- append(col.order, "WQX.SampleFractionValidity")
+  # # reorder columns in check.data
+  # check.data <- check.data[, col.order]
+  # # place flag column next to relevant fields
+  # check.data <- check.data %>%
+  #   dplyr::relocate("WQX.SampleFractionValidity",
+  #                   .after = "ResultSampleFractionText"
+  #   )
   
   # if all rows are "Valid", return input unchanged
   if (any(c("Nonstandardized", "Invalid") %in%
@@ -128,8 +128,6 @@ InvalidFraction <- function(.data, clean = TRUE, errorsonly = FALSE) {
     return(invalid.data)
   }
 }
-
-
 
 #' Check Method Speciation Validity
 #'
@@ -202,7 +200,7 @@ InvalidSpeciation <- function(.data, clean = c("invalid_only", "nonstandardized_
   # check errorsonly is boolean
   checkType(errorsonly, "logical")
   # check .data has required columns
-  checkColumns(.data, c("CharacteristicName", "MethodSpecificationName"))
+  checkColumns(.data, c("TADA.CharacteristicName", "TADA.MethodSpecificationName"))
   # check that clean is either "invalid_only", "nonstandardized_only", "both", or "none"
   clean <- match.arg(clean)
 
@@ -217,7 +215,7 @@ InvalidSpeciation <- function(.data, clean = c("invalid_only", "nonstandardized_
   
   # join "Status" column to .data by CharacteristicName and Value (Speciation)
   check.data <- merge(.data, spec.ref[, c("Characteristic", "Status", "Value")],
-                      by.x = c("CharacteristicName", "MethodSpecificationName"),
+                      by.x = c("TADA.CharacteristicName", "TADA.MethodSpecificationName"),
                       by.y = c("Characteristic", "Value"), all.x = TRUE
   )
   
@@ -227,18 +225,18 @@ InvalidSpeciation <- function(.data, clean = c("invalid_only", "nonstandardized_
   # rename NA values to Nonstandardized in WQX.MethodSpeciationValidity column
   check.data["WQX.MethodSpeciationValidity"][is.na(check.data["WQX.MethodSpeciationValidity"])] <- "Nonstandardized"
   
-  # reorder column names to match .data
-  # get .data column names
-  col.order <- colnames(.data)
-  # add WQX.MethodSpeciationValidity column to the list
-  col.order <- append(col.order, "WQX.MethodSpeciationValidity")
-  # reorder columns in check.data
-  check.data <- check.data[, col.order]
-  # place flag columns next to relevant fields
-  check.data <- check.data %>%
-    dplyr::relocate("WQX.MethodSpeciationValidity",
-                    .after = "MethodSpecificationName"
-    )
+  # # reorder column names to match .data
+  # # get .data column names
+  # col.order <- colnames(.data)
+  # # add WQX.MethodSpeciationValidity column to the list
+  # col.order <- append(col.order, "WQX.MethodSpeciationValidity")
+  # # reorder columns in check.data
+  # check.data <- check.data[, col.order]
+  # # place flag columns next to relevant fields
+  # check.data <- check.data %>%
+  #   dplyr::relocate("WQX.MethodSpeciationValidity",
+  #                   .after = "MethodSpecificationName"
+  #   )
   
   # if all rows are "Valid", return input unchanged
   if (any(c("Nonstandardized", "Invalid") %in%
@@ -367,7 +365,7 @@ InvalidResultUnit <- function(.data, clean = c("invalid_only", "nonstandardized_
   # check errorsonly is boolean
   checkType(errorsonly, "logical")
   # check .data has required columns
-  checkColumns(.data, c("CharacteristicName", "ResultMeasure.MeasureUnitCode", "ActivityMediaName"))
+  checkColumns(.data, c("TADA.CharacteristicName", "TADA.ResultMeasure.MeasureUnitCode", "TADA.ActivityMediaName"))
   # check that clean is either "invalid_only", "nonstandardized_only", "both", or "none"
   clean <- match.arg(clean)
 
@@ -382,7 +380,7 @@ InvalidResultUnit <- function(.data, clean = c("invalid_only", "nonstandardized_
   
   # join "Status" column to .data by CharacteristicName, Source (Media), and Value (unit)
   check.data <- merge(.data, unit.ref[, c("Characteristic", "Source", "Status", "Value")],
-                      by.x = c("CharacteristicName", "ResultMeasure.MeasureUnitCode", "ActivityMediaName"),
+                      by.x = c("TADA.CharacteristicName", "TADA.ResultMeasure.MeasureUnitCode", "TADA.ActivityMediaName"),
                       by.y = c("Characteristic", "Value", "Source"), all.x = TRUE
   )
   
@@ -392,18 +390,18 @@ InvalidResultUnit <- function(.data, clean = c("invalid_only", "nonstandardized_
   # rename NA values to Nonstandardized in WQX.ResultUnitValidity column
   check.data["WQX.ResultUnitValidity"][is.na(check.data["WQX.ResultUnitValidity"])] <- "Nonstandardized"
   
-  # reorder column names to match .data
-  # get .data column names
-  col.order <- colnames(.data)
-  # add WQX.ResultUnitValidity column to the list
-  col.order <- append(col.order, "WQX.ResultUnitValidity")
-  # reorder columns in check.data
-  check.data <- check.data[, col.order]
-  # place flag columns next to relevant fields
-  check.data <- check.data %>%
-    dplyr::relocate("WQX.ResultUnitValidity",
-                    .after = "ResultMeasure.MeasureUnitCode"
-    )
+  # # reorder column names to match .data
+  # # get .data column names
+  # col.order <- colnames(.data)
+  # # add WQX.ResultUnitValidity column to the list
+  # col.order <- append(col.order, "WQX.ResultUnitValidity")
+  # # reorder columns in check.data
+  # check.data <- check.data[, col.order]
+  # # place flag columns next to relevant fields
+  # check.data <- check.data %>%
+  #   dplyr::relocate("WQX.ResultUnitValidity",
+  #                   .after = "ResultMeasure.MeasureUnitCode"
+  #   )
   
   # if all rows are "Valid", return input unchanged
   if (any(c("Nonstandardized", "Invalid") %in%

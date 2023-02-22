@@ -51,7 +51,7 @@ InvalidMethod <- function(.data, clean = TRUE, errorsonly = FALSE) {
   checkType(errorsonly, "logical")
   # check .data has required columns
   required_cols <- c(
-    "CharacteristicName", "ResultAnalyticalMethod.MethodIdentifier",
+    "TADA.CharacteristicName", "ResultAnalyticalMethod.MethodIdentifier",
     "ResultAnalyticalMethod.MethodIdentifierContext"
   )
   checkColumns(.data, required_cols)
@@ -72,7 +72,7 @@ InvalidMethod <- function(.data, clean = TRUE, errorsonly = FALSE) {
   # join "Status" column to .data by CharacteristicName, Source (Media), and Value (unit)
   check.data <- merge(.data, meth.ref[, c("Characteristic", "Source", "Status", "Value")],
                       by.x = c(
-                        "CharacteristicName", "ResultAnalyticalMethod.MethodIdentifier",
+                        "TADA.CharacteristicName", "ResultAnalyticalMethod.MethodIdentifier",
                         "ResultAnalyticalMethod.MethodIdentifierContext"
                       ),
                       by.y = c("Characteristic", "Value", "Source"), all.x = TRUE
@@ -466,8 +466,8 @@ AboveNationalWQXUpperThreshold <- function(.data, clean = TRUE, errorsonly = FAL
   checkType(errorsonly, "logical")
   # check .data has required columns
   required_cols <- c(
-    "CharacteristicName", "ActivityMediaName", "ResultMeasureValue",
-    "ResultMeasure.MeasureUnitCode"
+    "TADA.CharacteristicName", "TADA.ActivityMediaName", "TADA.ResultMeasureValue",
+    "TADA.ResultMeasure.MeasureUnitCode"
   )
   checkColumns(.data, required_cols)
   # check that clean and errorsonly are not both TRUE
@@ -476,7 +476,7 @@ AboveNationalWQXUpperThreshold <- function(.data, clean = TRUE, errorsonly = FAL
   }
 
   # check ResultMeasureValue column is of class numeric
-  if (!is.numeric(.data$ResultMeasureValue)) {
+  if (!is.numeric(.data$TADA.ResultMeasureValue)) {
     stop("The ResultMeasureValue column must be of class 'numeric'.")
   }
 
@@ -498,16 +498,11 @@ AboveNationalWQXUpperThreshold <- function(.data, clean = TRUE, errorsonly = FAL
     "Value", "Maximum"
   )],
   by.x = c(
-    "CharacteristicName", "ActivityMediaName",
-    "ResultMeasure.MeasureUnitCode"
+    "TADA.CharacteristicName", "TADA.ActivityMediaName",
+    "TADA.ResultMeasure.MeasureUnitCode"
   ),
   by.y = c("Characteristic", "Source", "Value"), all.x = TRUE
   )
-  
-  # If ResultMeasureValue is not numeric, run ConvertDepthUnits function to convert class to numeric
-  if (!is.numeric(check.data$ResultMeasureValue)) {
-    check.data <- ConvertDepthUnits(check.data, transform = TRUE)
-  }
   
   # Create flag column, flag rows where ResultMeasureValue > Maximum
   flag.data <- check.data %>%
@@ -515,8 +510,8 @@ AboveNationalWQXUpperThreshold <- function(.data, clean = TRUE, errorsonly = FAL
     dplyr::rowwise() %>%
     # create flag column
     dplyr::mutate(AboveWQXUpperThreshold = dplyr::case_when(
-      ResultMeasureValue >= Maximum ~ as.character("Y"),
-      ResultMeasureValue < Maximum ~ as.character("N")
+      TADA.ResultMeasureValue >= Maximum ~ as.character("Y"),
+      TADA.ResultMeasureValue < Maximum ~ as.character("N")
     ))
   
   # remove extraneous columns, fix field names
@@ -627,8 +622,8 @@ BelowNationalWQXLowerThreshold <- function(.data, clean = TRUE, errorsonly = FAL
   checkType(errorsonly, "logical")
   # check .data has required columns
   required_cols <- c(
-    "CharacteristicName", "ActivityMediaName", "ResultMeasureValue",
-    "ResultMeasure.MeasureUnitCode"
+    "TADA.CharacteristicName", "TADA.ActivityMediaName", "TADA.ResultMeasureValue",
+    "TADA.ResultMeasure.MeasureUnitCode"
   )
   checkColumns(.data, required_cols)
   # check that clean and errorsonly are not both TRUE
@@ -637,7 +632,7 @@ BelowNationalWQXLowerThreshold <- function(.data, clean = TRUE, errorsonly = FAL
   }
 
   # check ResultMeasureValue column is of class numeric
-  if (!is.numeric(.data$ResultMeasureValue)) {
+  if (!is.numeric(.data$TADA.ResultMeasureValue)) {
     stop("The ResultMeasureValue column must be of class 'numeric'.")
   }
 
@@ -658,25 +653,20 @@ BelowNationalWQXLowerThreshold <- function(.data, clean = TRUE, errorsonly = FAL
     "Value", "Minimum"
   )],
   by.x = c(
-    "CharacteristicName", "ActivityMediaName",
-    "ResultMeasure.MeasureUnitCode"
+    "TADA.CharacteristicName", "TADA.ActivityMediaName",
+    "TADA.ResultMeasure.MeasureUnitCode"
   ),
   by.y = c("Characteristic", "Source", "Value"), all.x = TRUE
   )
   
-  # If ResultMeasureValue is not numeric, run ConvertDepthUnits function to convert class to numeric
-  if (!is.numeric(check.data$ResultMeasureValue)) {
-    check.data <- ConvertDepthUnits(check.data, transform = TRUE)
-  }
-  
-  # Create flag column, flag rows where ResultMeasureValue < Minimum
+  # Create flag column, flag rows where TADA.ResultMeasureValue < Minimum
   flag.data <- check.data %>%
     # apply function row by row
     dplyr::rowwise() %>%
     # create flag column
     dplyr::mutate(BelowWQXLowerThreshold = dplyr::case_when(
-      ResultMeasureValue <= Minimum ~ as.character("Y"),
-      ResultMeasureValue > Minimum ~ as.character("N")
+      TADA.ResultMeasureValue <= Minimum ~ as.character("Y"),
+      TADA.ResultMeasureValue > Minimum ~ as.character("N")
     ))
   
   # remove extraneous columns, fix field names
@@ -1045,13 +1035,13 @@ InvalidCoordinates <- function(.data,
   # check clean_imprecise is boolean
   checkType(clean_imprecise, "logical")
   # check .data has required columns
-  checkColumns(.data, c("LatitudeMeasure", "LongitudeMeasure"))
+  checkColumns(.data, c("TADA.LatitudeMeasure", "TADA.LongitudeMeasure"))
   # check lat and long are "numeric"
-  if (class(.data$LongitudeMeasure) != "numeric") {
+  if (class(.data$TADA.LongitudeMeasure) != "numeric") {
     warning("LongitudeMeasure field must be numeric")
   }
   
-  if (class(.data$LatitudeMeasure) != "numeric") {
+  if (class(.data$TADA.LatitudeMeasure) != "numeric") {
     warning("LatitudeMeasure field must be numeric")
   }
   # check that clean_outsideUSA is either "no", "remove", or "change sign"
@@ -1060,18 +1050,18 @@ InvalidCoordinates <- function(.data,
   # execute function after checks are passed
   .data <- .data %>%
     dplyr::mutate(TADA.InvalidCoordinates = dplyr::case_when(
-      LatitudeMeasure < -11.046934 & LatitudeMeasure > -14.548699 & LongitudeMeasure < -168.1433 & LongitudeMeasure > -171.089874 ~ NA_character_, #American Samoa
-      LatitudeMeasure < 20.553802 & LatitudeMeasure > 14.110472 & LongitudeMeasure < 146.064818 & LongitudeMeasure > 144.886331 ~ NA_character_, #Northern Mariana Islands
-      LatitudeMeasure < 13.654383 & LatitudeMeasure > 13.234189 & LongitudeMeasure < 144.956712 & LongitudeMeasure > 144.618068 ~ NA_character_, #Guam
-      LatitudeMeasure < 0 ~ "LAT_OutsideUSA",
-      LongitudeMeasure > 0 & LongitudeMeasure < 145 ~ "LONG_OutsideUSA",
-      grepl("999", LatitudeMeasure) ~ "Imprecise_Latincludes999",
-      grepl("999", LongitudeMeasure) ~ "Imprecise_Longincludes999",
+      TADA.LatitudeMeasure < -11.046934 & TADA.LatitudeMeasure > -14.548699 & TADA.LongitudeMeasure < -168.1433 & TADA.LongitudeMeasure > -171.089874 ~ NA_character_, #American Samoa
+      TADA.LatitudeMeasure < 20.553802 & TADA.LatitudeMeasure > 14.110472 & TADA.LongitudeMeasure < 146.064818 & TADA.LongitudeMeasure > 144.886331 ~ NA_character_, #Northern Mariana Islands
+      TADA.LatitudeMeasure < 13.654383 & TADA.LatitudeMeasure > 13.234189 & TADA.LongitudeMeasure < 144.956712 & TADA.LongitudeMeasure > 144.618068 ~ NA_character_, #Guam
+      TADA.LatitudeMeasure < 0 ~ "LAT_OutsideUSA",
+      TADA.LongitudeMeasure > 0 & TADA.LongitudeMeasure < 145 ~ "LONG_OutsideUSA",
+      grepl("999", TADA.LatitudeMeasure) ~ "Imprecise_Latincludes999",
+      grepl("999", TADA.LongitudeMeasure) ~ "Imprecise_Longincludes999",
       # for below, lat and long fields must be numeric
       # this checks if there are at least 3 significant figures to the 
       # right of the decimal point
-      sapply(.data$LatitudeMeasure, decimalplaces) < 3 
-      | sapply(.data$LongitudeMeasure, decimalplaces) < 3 ~ "Imprecise_lessthan3decimaldigits"
+      sapply(.data$TADA.LatitudeMeasure, decimalplaces) < 3 
+      | sapply(.data$TADA.LongitudeMeasure, decimalplaces) < 3 ~ "Imprecise_lessthan3decimaldigits"
     ))
   
   # if clean_imprecise is TRUE, remove imprecise station metadata
@@ -1096,12 +1086,12 @@ InvalidCoordinates <- function(.data,
     print("When clean_outsideUSA == change sign, the sign for any lat/long coordinates flagged as outside of USA are switched. This is a temporary solution. Data owners should fix the raw data to address invalid coordinates through WQX. For assistance fixing data errors you see in the WQP, email the WQX helpdesk (WQX@epa.gov).")
     .data <- .data %>% 
       dplyr::mutate(
-        LatitudeMeasure = dplyr::case_when(
-          TADA.InvalidCoordinates == "LAT_OutsideUSA" ~ LatitudeMeasure*(-1),
-          TRUE ~ LatitudeMeasure),
-        LongitudeMeasure = dplyr::case_when(
-          TADA.InvalidCoordinates == "LONG_OutsideUSA" ~ LongitudeMeasure*(-1),
-          TRUE ~ LongitudeMeasure)
+        TADA.LatitudeMeasure = dplyr::case_when(
+          TADA.InvalidCoordinates == "LAT_OutsideUSA" ~ TADA.LatitudeMeasure*(-1),
+          TRUE ~ TADA.LatitudeMeasure),
+        TADA.LongitudeMeasure = dplyr::case_when(
+          TADA.InvalidCoordinates == "LONG_OutsideUSA" ~ TADA.LongitudeMeasure*(-1),
+          TRUE ~ TADA.LongitudeMeasure)
       )
   }
   

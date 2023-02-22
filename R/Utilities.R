@@ -46,7 +46,7 @@ autoclean <- function(.data) {
   
   # .data required columns
   required_cols <- c(
-    "ActivityMediaName", "ResultMeasure.MeasureUnitCode",
+    "ActivityMediaName", "ResultMeasureValue", "ResultMeasure.MeasureUnitCode",
     "CharacteristicName", "ResultSampleFractionText", "MethodSpecificationName"
     ) 
   # check .data has required columns
@@ -81,6 +81,11 @@ autoclean <- function(.data) {
   # .data <- MeasureValueSpecialCharacters(.data)
   .data <- ConvertSpecialChars(.data, "ResultMeasureValue")
   .data <- ConvertSpecialChars(.data, "DetectionQuantitationLimitMeasure.MeasureValue")
+  
+  # Move detection limit value and unit to TADA.RV and Unit columns
+  .data$TADA.ResultMeasureValue = ifelse(is.na(.data$TADA.ResultMeasureValue)&!is.na(.data$TADA.DetectionQuantitationLimitMeasure.MeasureValue),.data$TADA.DetectionQuantitationLimitMeasure.MeasureValue,.data$TADA.ResultMeasureValue)
+  .data$TADA.ResultMeasure.MeasureUnitCode = ifelse(is.na(.data$TADA.ResultMeasure.MeasureUnitCode)&!is.na(.data$TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode),.data$TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode,.data$TADA.ResultMeasure.MeasureUnitCode)
+  .data$TADA.ResultMeasureValue.DataTypeFlag = ifelse(.data$TADA.ResultMeasureValue.DataTypeFlag=="ND or NA"&!is.na(.data$TADA.DetectionQuantitationLimitMeasure.MeasureValue),"Result Value/Unit Copied from Detection Limit",.data$TADA.ResultMeasureValue.DataTypeFlag)
   
   # change latitude and longitude measures to class numeric
   .data$TADA.LatitudeMeasure <- as.numeric(.data$LatitudeMeasure)
@@ -474,4 +479,86 @@ ConvertSpecialChars <- function(.data,col){
   names(clean.data)[names(clean.data)=="flag"] = flagcol
   
   return(clean.data)
+}
+
+#' Order TADA Columns
+#' 
+#' This utility function moves all TADA-created columns to the end of the dataframe 
+#' in an order that improves readability. 
+#' 
+#' @param .data TADA dataframe 
+#' 
+#' @return A TADA handled dataframe with the TADA-created columns at the end.
+#'
+#' @export
+#' 
+#' 
+
+OrderTADACols <- function(.data){
+  cols = c("TADA.LatitudeMeasure",
+           "TADA.LongitudeMeasure",
+           "TADA.InvalidCoordinates",
+           "QAPPApprovedIndicator",
+           "TADA.QAPPDocAvailable",
+           "TADA.ActivityMediaName", 
+           "TADA.CharacteristicName",
+           "TADA.CharacteristicGroup",
+           "CharacteristicNameUserSupplied",
+           "TADA.SuggestedCharacteristicName",
+           "TADA.CharacteristicNameAssumptions",
+           "TADA.TotalN_TotalP_CharacteristicNames_AfterSummation",
+           "TADA.TotalN_TotalP_Summation_Identifier",
+           "TADA.TotalN_TotalP_ComboLogic",
+           "TADA.AggregatedContinuousData",
+           "TADA.ResultMeasureValue",
+           "TADA.ResultMeasureValue.DataTypeFlag",
+           "TADA.ResultMeasure.MeasureUnitCode",
+           "WQX.TargetUnit",
+           "WQX.ConversionFactor",
+           "WQX.ResultMeasureValue.UnitConversion",
+           "TADA.SuggestedResultUnit",
+           "TADA.UnitConversionFactor",
+           "TADA.UnitConversionCoefficient",
+           "WQX.DetectionLimitMeasureValue.UnitConversion",
+           "AboveWQXUpperThreshold",
+           "BelowWQXLowerThreshold",
+           "WQX.ResultUnitValidity",
+           "CombinationValidity",
+           "WQX.ResultMeasureValue.UnitConversion",
+           "TADA.MethodSpecificationName",
+           "WQX.AnalyticalMethodValidity",
+           "WQX.MethodSpeciationValidity",
+           "TADA.SuggestedSpeciation",
+           "TADA.SpeciationAssumptions",
+           "TADA.SpeciationConversionFactor",
+           "TADA.ResultSampleFractionText",
+           "WQX.SampleFractionValidity",
+           "TADA.SuggestedSampleFraction",
+           "TADA.FractionAssumptions",
+           "TADA.ComparableDataIdentifier",
+           "TADA.DetectionQuantitationLimitMeasure.MeasureValue",
+           "TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode",
+           "TADA.DetectionQuantitationLimitMeasure.MeasureValue.DataTypeFlag",
+           "TADA.ActivityDepthHeightMeasure.MeasureValue",
+           "TADA.ActivityDepthHeightMeasure.MeasureUnitCode",
+           "TADA.ActivityTopDepthHeightMeasure.MeasureValue",
+           "TADA.ActivityTopDepthHeightMeasure.MeasureUnitCode",
+           "TADA.ActivityBottomDepthHeightMeasure.MeasureValue",
+           "TADA.ActivityBottomDepthHeightMeasure.MeasureUnitCode",
+           "TADA.ResultDepthHeightMeasure.MeasureValue",
+           "TADA.ResultDepthHeightMeasure.MeasureUnitCode",
+           "WQXConversionFactor.ActivityDepthHeightMeasure",
+           "WQXConversionFactor.ActivityTopDepthHeightMeasure",
+           "WQXConversionFactor.ActivityBottomDepthHeightMeasure",
+           "WQXConversionFactor.ResultDepthHeightMeasure",
+           "TADA.PotentialDupRowID"
+           )
+  
+  focal_cols = cols[cols%in%names(.data)]
+  other_cols = names(.data)[!names(.data)%in%focal_cols]
+  
+  rearranged = .data%>%dplyr::relocate(focal_cols,.after = last_col())
+  
+  return(rearranged)
+  
 }
