@@ -79,6 +79,6 @@ test_that("ConvertDepthUnits converts meters to m", {
                                           characteristicName = c("Ammonia", "Nitrate", "Nitrogen"),
                                           startDate = "2021-01-01")
   check_depth_meters = ConvertDepthUnits(check_depth_meters)
-  expect_true(any(check_depth_meters$TADA.ActivityDepthHeightMeasure.MeasureUnitCode!="meters"))
+  expect_false("meters"%in%check_depth_meters$TADA.ActivityDepthHeightMeasure.MeasureUnitCode)
 })
 

@@ -133,7 +133,7 @@ test_that("TADAdataRetrieval", {
   check_autoclean_meters_works <- TADAdataRetrieval(statecode = "UT",
                                     characteristicName = c("Ammonia", "Nitrate", "Nitrogen"),
                                     startDate = "2021-01-01")
-  expect_true(any(check_autoclean_meters_works$TADA.ResultMeasure.MeasureUnitCode!="meters"))
+  expect_false("meters"%in%check_autoclean_meters_works$TADA.ResultMeasure.MeasureUnitCode)
   })
 
 # Testing that regular and big data retrieval return the same number of rows on an identical query.
