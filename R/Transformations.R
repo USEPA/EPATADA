@@ -159,6 +159,7 @@ ConvertResultUnits <- function(.data, transform = TRUE) {
     flag.data <- flag.data[, col.order]
     
     print("Conversions required for range checks and TADATargetUnit conversions -- Unit conversions, data summaries, and data calculations may be affected.")
+    flag.data = OrderTADACols(flag.data)
     return(flag.data)
   }
   
@@ -290,7 +291,9 @@ ConvertResultUnits <- function(.data, transform = TRUE) {
       #   dplyr::relocate("TADA.DetectionQuantitationLimitMeasure.MeasureValue",
       #                   .after = "DetectionQuantitationLimitMeasure.MeasureValue"
       #   )
-    }
+  }
+  
+    clean.data = OrderTADACols(clean.data)
     
     return(clean.data)
   }
@@ -473,6 +476,7 @@ ConvertDepthUnits <- function(.data,
   if (transform == FALSE) {
     # add WQX.Depth.TargetUnit column
     check.data[ , 'WQX.Depth.TargetUnit'] <- unit
+    check.data = OrderTADACols(check.data)
     return(check.data)
   }
   
@@ -542,7 +546,7 @@ ConvertDepthUnits <- function(.data,
     
     # MAY BE ABLE TO DELETE BELOW NO LONGER NEEDED? uncomment below to delete WQX.Depth.TargetUnit column
     # clean.data <- dplyr::select(clean.data, -"WQX.Depth.TargetUnit")
-    
+    clean.data = OrderTADACols(clean.data)
     return(clean.data)
   }
 }
@@ -850,6 +854,7 @@ HarmonizeData <- function(.data, ref, transform = TRUE, flag = TRUE) {
     # if transform = FALSE and flag = TRUE, return flag.data
     if ((transform == FALSE) & (flag == TRUE)) {
       print("Be aware that you must run this function with transform = TRUE to use subsequent TADA functions.")
+      flag.data = OrderTADACols(flag.data)
       return(flag.data)
     }
 
@@ -925,6 +930,7 @@ HarmonizeData <- function(.data, ref, transform = TRUE, flag = TRUE) {
 
       # if flag = TRUE, return clean.data
       if (flag == TRUE) {
+        clean.data = OrderTADACols(clean.data)
         return(clean.data)
       }
 
@@ -947,6 +953,7 @@ HarmonizeData <- function(.data, ref, transform = TRUE, flag = TRUE) {
           ))
 
         # return clean.data
+        clean.data = OrderTADACols(clean.data)
         return(clean.data)
       }
     }

@@ -135,7 +135,7 @@ FilterFieldReview <- function(field, .data) {
 
   # create pie chart
   pie <- ggplot2::ggplot(df, ggplot2::aes(x = "", y = Count, fill = FieldValue)) +
-    ggplot2::scale_fill_manual(values = getPalette(colorCount)) +
+    ggplot2::scale_fill_manual(values = getPalette(colorCount),name = field) +
     ggplot2::geom_bar(stat = "identity", width = 1) +
     ggplot2::coord_polar("y", start = 0) +
     ggplot2::theme_void()

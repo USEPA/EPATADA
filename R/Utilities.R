@@ -98,6 +98,8 @@ autoclean <- function(.data) {
   # .data$TADA.ResultDepthHeightMeasure.MeasureUnitCode[.data$ResultDepthHeightMeasure.MeasureUnitCode == 'meters'] <- 'm'
   .data$TADA.ResultMeasure.MeasureUnitCode[.data$TADA.ResultMeasure.MeasureUnitCode == 'meters'] <- 'm'
   
+  .data = OrderTADACols(.data)
+  
   return(.data)
 }
 
@@ -478,6 +480,8 @@ ConvertSpecialChars <- function(.data,col){
   names(clean.data)[names(clean.data)=="masked"] = numcol
   names(clean.data)[names(clean.data)=="flag"] = flagcol
   
+  clean.data = OrderTADACols(clean.data)
+  
   return(clean.data)
 }
 
@@ -498,7 +502,6 @@ OrderTADACols <- function(.data){
   cols = c("TADA.LatitudeMeasure",
            "TADA.LongitudeMeasure",
            "TADA.InvalidCoordinates",
-           "QAPPApprovedIndicator",
            "TADA.QAPPDocAvailable",
            "TADA.ActivityMediaName", 
            "TADA.CharacteristicName",

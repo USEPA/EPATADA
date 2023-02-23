@@ -94,21 +94,24 @@ InvalidFraction <- function(.data, clean = TRUE, errorsonly = FALSE) {
           unique(check.data$WQX.SampleFractionValidity)) == FALSE) {
     if (errorsonly == FALSE) {
       print("No changes were made, because we did not find any invalid fraction/characteristic combinations in your dataframe")
+      .data = OrderTADACols(.data)
       return(.data)
     }
     if (errorsonly == TRUE) {
       print("This dataframe is empty because we did not find any invalid fraction/characteristic combinations in your dataframe")
       empty.data <- dplyr::filter(check.data, WQX.SampleFractionValidity == "Invalid")
       empty.data <- dplyr::select(empty.data, -WQX.SampleFractionValidity)
+      empty.data = OrderTADACols(empty.data)
       return(empty.data)
     }
   }
   
   # flagged output, all data
   if (clean == FALSE & errorsonly == FALSE) {
-    return(check.data)
     warning("Metadata transformations may be adversely affected by choosing to retain 'Invalid' fraction. In order to ensure transformation functions will run properly, set clean = TRUE.")
-  }
+    check.data = OrderTADACols(check.data)
+    return(check.data)
+      }
   
   # clean output
   if (clean == TRUE & errorsonly == FALSE) {
@@ -117,7 +120,7 @@ InvalidFraction <- function(.data, clean = TRUE, errorsonly = FALSE) {
     
     # remove WQX.SampleFractionValidity column
     clean.data <- dplyr::select(clean.data, -WQX.SampleFractionValidity)
-    
+    clean.data = OrderTADACols(clean.data)
     return(clean.data)
   }
   
@@ -125,6 +128,7 @@ InvalidFraction <- function(.data, clean = TRUE, errorsonly = FALSE) {
   if (clean == FALSE & errorsonly == TRUE) {
     # filter out valid characteristic-fraction combinations
     invalid.data <- dplyr::filter(check.data, WQX.SampleFractionValidity == "Invalid")
+    invalid.data = OrderTADACols(invalid.data)
     return(invalid.data)
   }
 }
@@ -242,6 +246,7 @@ InvalidSpeciation <- function(.data, clean = c("invalid_only", "nonstandardized_
   if (any(c("Nonstandardized", "Invalid") %in%
           unique(check.data$WQX.MethodSpeciationValidity)) == FALSE) {
     print("All data is valid, therefore the function cannot be applied.")
+    .data = OrderTADACols(.data)
     return(.data)
   }
   
@@ -276,6 +281,7 @@ InvalidSpeciation <- function(.data, clean = c("invalid_only", "nonstandardized_
   
   # when errorsonly = FALSE
   if (errorsonly == FALSE) {
+    clean.data = OrderTADACols(clean.data)
     return(clean.data)
   }
   
@@ -288,6 +294,7 @@ InvalidSpeciation <- function(.data, clean = c("invalid_only", "nonstandardized_
       print("This dataframe is empty because either we did not find any invalid/nonstandardized characteristic-method speciation combinations or they were all filtered out")
       error.data <- dplyr::select(error.data, -WQX.MethodSpeciationValidity)
     }
+    error.data = OrderTADACols(error.data)
     return(error.data)
   }
 }
@@ -406,7 +413,8 @@ InvalidResultUnit <- function(.data, clean = c("invalid_only", "nonstandardized_
   # if all rows are "Valid", return input unchanged
   if (any(c("Nonstandardized", "Invalid") %in%
           unique(check.data$WQX.ResultUnitValidity)) == FALSE) {
-    print("All data is valid, therefore the function cannot be applied.")
+    print("All data are valid, therefore the function cannot be applied.")
+    .data = OrderTADACols(.data)
     return(.data)
   }
   
@@ -441,6 +449,7 @@ InvalidResultUnit <- function(.data, clean = c("invalid_only", "nonstandardized_
   
   # when errorsonly = FALSE
   if (errorsonly == FALSE) {
+    clean.data = OrderTADACols(clean.data)
     return(clean.data)
   }
   
@@ -453,6 +462,7 @@ InvalidResultUnit <- function(.data, clean = c("invalid_only", "nonstandardized_
       print("This dataframe is empty because either we did not find any invalid/nonstandardized characteristic-media-result unit combinations or they were all filtered out")
       error.data <- dplyr::select(error.data, -WQX.ResultUnitValidity)
     }
+    error.data = OrderTADACols(error.data)
     return(error.data)
   }
 }
