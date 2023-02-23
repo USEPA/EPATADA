@@ -6,7 +6,7 @@ test_that("InvalidCoordinates works", {
   #flagonly
   InvalidCoord_flags <- InvalidCoordinates(Nutrients_Utah)
   unique(InvalidCoord_flags$TADA.InvalidCoordinates)
-  reviewselectcolumns <- InvalidCoord_flags %>% dplyr::select(TADA.InvalidCoordinates, LatitudeMeasure, LongitudeMeasure)
+  reviewselectcolumns <- InvalidCoord_flags %>% dplyr::select(TADA.InvalidCoordinates, TADA.LatitudeMeasure, TADA.LongitudeMeasure)
   reviewflagsonly <- dplyr::filter(reviewselectcolumns, 
                                         is.na(TADA.InvalidCoordinates) != TRUE)
   unique(reviewflagsonly$TADA.InvalidCoordinates)
@@ -40,11 +40,11 @@ test_that("Imprecise_lessthan3decimaldigits works", {
   
   #flagonly
   FLAGSONLY <- InvalidCoordinates(Nutrients_Utah)
-  FLAGSONLY <- FLAGSONLY %>% dplyr::select(TADA.InvalidCoordinates, LatitudeMeasure, LongitudeMeasure)
+  FLAGSONLY <- FLAGSONLY %>% dplyr::select(TADA.InvalidCoordinates, TADA.LatitudeMeasure, TADA.LongitudeMeasure)
   FLAGSONLY <- dplyr::filter(FLAGSONLY, FLAGSONLY$TADA.InvalidCoordinates == "Imprecise_lessthan3decimaldigits")
-  FLAGSONLY <- dplyr::filter(FLAGSONLY, sapply(FLAGSONLY$LongitudeMeasure, decimalplaces) < 3)
+  FLAGSONLY <- dplyr::filter(FLAGSONLY, sapply(FLAGSONLY$TADA.LongitudeMeasure, decimalplaces) < 3)%>%dplyr::distinct()
   
-  expect_true(sapply(FLAGSONLY$LongitudeMeasure, decimalplaces) < 4)
+  expect_true(all(sapply(FLAGSONLY$TADA.LongitudeMeasure, decimalplaces) < 4))
   
 })
 
@@ -55,12 +55,10 @@ test_that("Imprecise_lessthan3decimaldigits works again", {
   
   #flagonly
   FLAGSONLY <- InvalidCoordinates(Nutrients_Utah)
-  FLAGSONLY <- FLAGSONLY %>% dplyr::select(TADA.InvalidCoordinates, LatitudeMeasure, LongitudeMeasure)
+  FLAGSONLY <- FLAGSONLY %>% dplyr::select(TADA.InvalidCoordinates, TADA.LatitudeMeasure, TADA.LongitudeMeasure)
   FLAGSONLY <- dplyr::filter(FLAGSONLY, FLAGSONLY$TADA.InvalidCoordinates == "Imprecise_lessthan3decimaldigits")
-  FLAGSONLY <- dplyr::filter(FLAGSONLY, sapply(FLAGSONLY$LatitudeMeasure, decimalplaces) < 3)
+  FLAGSONLY <- dplyr::filter(FLAGSONLY, sapply(FLAGSONLY$TADA.LatitudeMeasure, decimalplaces) < 3) %>% dplyr::distinct()
   
-  check = sapply(FLAGSONLY$LatitudeMeasure, decimalplaces) < 4
-  
-  expect_true(unique(check))
+  expect_true(all(sapply(FLAGSONLY$TADA.LatitudeMeasure, decimalplaces) < 4))
 })
 
