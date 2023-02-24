@@ -93,14 +93,15 @@ suggestCensoredMethod <- function(){
 #' and the detection limit. It does not depend upon the rest of the data in the sample 
 #' 
 #' @param .data A post-idCensoredData() TADA dataframe
-#' @param method A text string indicating the type of method used to populate censored data value. Can be set to "halflimit" (default), or "randombelowlimit".
+#' @param method A text string indicating the type of method used to populate censored data value. Can be set to "multiplier" (default), or "randombelowlimit".
+#' @param multiplier A number to be multiplied to the detection limit for each entry to obtain the censored data value. Must be supplied if method = "multiplier". Defaults to 0.5, or half the detection limit.
 #' 
 #' @return A TADA dataframe with an additional column named TADA.Censored_Method, which documents the method used to fill censored data values.
 #' 
 #' @export
 
 
-simpleCensoredMethods <- function(.data, method = "halflimit"){
+simpleCensoredMethods <- function(.data, method = "multiplier", multiplier = 0.5){
   # check .data has all of the required columns
   expected_cols <- c(
     "ResultDetectionConditionText",
@@ -109,6 +110,11 @@ simpleCensoredMethods <- function(.data, method = "halflimit"){
     "DetectionQuantitationLimitMeasure.MeasureUnitCode"
   )
   
+  # check that multiplier is provided if method = "multiplier"
+  if(method=="multiplier"&multiplier=="null"){
+    stop("Please provide a multiplier for the detection limit handling method of 'multiplier'. Typically, the multiplier value is between 0 and 1.")
+  }
+  
   ## Notification: function will use RV as-is, even if populated with detection limit
   if("TADA.Censored_Flag"%in%names(.data)){
     if("Conflict"%in%.data$TADA.Censored_Flag){
@@ -116,9 +122,9 @@ simpleCensoredMethods <- function(.data, method = "halflimit"){
     }
   }
   
-  if(method=="halflimit"){
-    .data$TADA.ResultMeasureValue = ifelse(.data$TADA.ResultMeasureValue.DataTypeFlag=="Detection Limit Substituted",.data$TADA.ResultMeasureValue*0.5,.data$TADA.ResultMeasureValue)
-    .data$TADA.Censored_Method = ifelse(.data$TADA.ResultMeasureValue.DataTypeFlag=="Detection Limit Substituted","Half Detection Limit Value",NA)
+  if(method=="multiplier"){
+    .data$TADA.ResultMeasureValue = ifelse(.data$TADA.ResultMeasureValue.DataTypeFlag=="Detection Limit Substituted",.data$TADA.ResultMeasureValue*multiplier,.data$TADA.ResultMeasureValue)
+    .data$TADA.Censored_Method = ifelse(.data$TADA.ResultMeasureValue.DataTypeFlag=="Detection Limit Substituted",paste0("Detection Limit Value Multiplied by ",multiplier),NA)
   }
   if(method=="randombelowlimit"){
     .data$multiplier = runif(dim(.data)[1],0,1)
