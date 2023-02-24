@@ -360,7 +360,6 @@ InvalidSpeciation <- function(.data, clean = c("invalid_only", "nonstandardized_
 #' InvalidUnit_flags <- InvalidResultUnit(Nutrients_Utah, clean = "none")
 #' 
 #' # Show only invalid characteristic-media-result unit combinations:
-
 #' InvalidUnit_errorsonly <- InvalidResultUnit(Nutrients_Utah, clean = "nonstandardized_only", errorsonly = TRUE)
 #' 
 #' # Show only nonstandardized characteristic-media-result unit combinations:
