@@ -377,13 +377,14 @@ PotentialDuplicateRowID <- function(.data, clean = TRUE, errorsonly = FALSE) {
       # remove columns with ".y" suffix
       dplyr::select_at(dplyr::vars(-dplyr::ends_with(".y")))
     
-    # reorder column names to match .data
-    # get .data column names
-    col.order <- colnames(.data)
-    # add TADA.PotentialDupRowID column to the list
-    col.order <- append(col.order, "TADA.PotentialDupRowID")
-    # reorder columns in flag.data
-    flag.data <- flag.data[, col.order]
+    # EDH replaced with OrderTADACols at end of function
+    # # reorder column names to match .data
+    # # get .data column names
+    # col.order <- colnames(.data)
+    # # add TADA.PotentialDupRowID column to the list
+    # col.order <- append(col.order, "TADA.PotentialDupRowID")
+    # # reorder columns in flag.data
+    # flag.data <- flag.data[, col.order]
     
     # flagged output, all data
     if (clean == FALSE & errorsonly == FALSE) {
@@ -529,13 +530,14 @@ AboveNationalWQXUpperThreshold <- function(.data, clean = TRUE, errorsonly = FAL
   flag.data <- flag.data %>%
     dplyr::select(-"Maximum")
   
-  # reorder column names to match .data
-  # get .data column names
-  col.order <- colnames(.data)
-  # add AboveWQXUpperThreshold column to the list
-  col.order <- append(col.order, "AboveWQXUpperThreshold")
-  # reorder columns in flag.data
-  flag.data <- flag.data[, col.order]
+  # EDH replaced with OrderTADACols at end of function
+  # # reorder column names to match .data
+  # # get .data column names
+  # col.order <- colnames(.data)
+  # # add AboveWQXUpperThreshold column to the list
+  # col.order <- append(col.order, "AboveWQXUpperThreshold")
+  # # reorder columns in flag.data
+  # flag.data <- flag.data[, col.order]
   
   # if no data above WQX threshold is found
   if (any("Y" %in%
@@ -689,13 +691,14 @@ BelowNationalWQXLowerThreshold <- function(.data, clean = TRUE, errorsonly = FAL
   flag.data <- flag.data %>%
     dplyr::select(-"Minimum")
   
-  # reorder column names to match .data
-  # get .data column names
-  col.order <- colnames(.data)
-  # add BelowWQXLowerThreshold column to the list
-  col.order <- append(col.order, "BelowWQXLowerThreshold")
-  # reorder columns in flag.data
-  flag.data <- flag.data[, col.order]
+  # EDH replaced with OrderTADACols at end of function
+  # # reorder column names to match .data
+  # # get .data column names
+  # col.order <- colnames(.data)
+  # # add BelowWQXLowerThreshold column to the list
+  # col.order <- append(col.order, "BelowWQXLowerThreshold")
+  # # reorder columns in flag.data
+  # flag.data <- flag.data[, col.order]
   
   # if no data below WQX lower threshold is found
   if (any("Y" %in%

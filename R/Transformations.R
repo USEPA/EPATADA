@@ -68,19 +68,6 @@ ConvertResultUnits <- function(.data, transform = TRUE) {
   checkType(transform, "logical")
   # check .data has all of the required columns
   
-  # Check to make sure special characters converted and TADA columns created. If not, run spec chars function.
-  if(!"TADA.ResultMeasureValue"%in%names(.data)){
-    .data <- ConvertSpecialChars(.data,"ResultMeasureValue")
-  }
-  if(!"TADA.DetectionQuantitationLimitMeasure.MeasureValue"%in%names(.data)){
-    .data <- ConvertSpecialChars(.data,"DetectionQuantitationLimitMeasure.MeasureValue")
-  }
-  
-  # Check to make sure TADA unit columns created. If not, create them.
-  if(!"TADA.ResultMeasure.MeasureUnitCode"%in%names(.data)){
-    .data$TADA.ResultMeasure.MeasureUnitCode = .data$ResultMeasure.MeasureUnitCode
-  }
-  
   expected_cols <- c(
     "TADA.CharacteristicName", "TADA.ActivityMediaName", "TADA.ResultMeasureValue",
     "TADA.ResultMeasure.MeasureUnitCode",
@@ -131,7 +118,6 @@ ConvertResultUnits <- function(.data, transform = TRUE) {
       ))
   }
   
-  
   # add WQX.ResultMeasureValue.UnitConversion column
   flag.data <- flag.data %>%
     # apply function row by row
@@ -155,10 +141,9 @@ ConvertResultUnits <- function(.data, transform = TRUE) {
       "WQX.ResultMeasureValue.UnitConversion",
       "WQX.DetectionLimitMeasureValue.UnitConversion"
     ))
-    # reorder columns in flag.data
-    flag.data <- flag.data[, col.order]
     
     print("Conversions required for range checks and TADATargetUnit conversions -- Unit conversions, data summaries, and data calculations may be affected.")
+    # reorder columns
     flag.data = OrderTADACols(flag.data)
     return(flag.data)
   }
@@ -195,6 +180,7 @@ ConvertResultUnits <- function(.data, transform = TRUE) {
         is.na(WQX.TargetUnit) ~ TADA.ResultMeasure.MeasureUnitCode
       ))
     
+    ## EDH THIS IS COMMENTED OUT BECAUSE WE FILL RV WITH DET LIM VALUES IN AUTOCLEAN
     # # Transform detection limit measure value to Target Unit only if target unit exists
     # clean.data <- clean.data %>%
     #   # apply function row by row
@@ -227,6 +213,7 @@ ConvertResultUnits <- function(.data, transform = TRUE) {
         TRUE ~ WQX.ResultMeasureValue.UnitConversion
       ))
     
+    ## SEE COMMENT ABOVE
     # # edit WQX.DetectionLimitMeasureValue.UnitConversion column
     # clean.data <- clean.data %>%
     #   # apply function row by row
@@ -242,19 +229,20 @@ ConvertResultUnits <- function(.data, transform = TRUE) {
     clean.data <- clean.data %>%
       dplyr::select(-c("WQX.ConversionFactor", "WQX.TargetUnit"))
     
-    # reorder column names to match .data
-    # get .data column names
-    col.order <- colnames(.data)
-    # add ResultUnitConversion column to the list if flag = TRUE
-    
+    ## EDH REPLACED CODE BELOW WITH ORDER COLS FNCT AT END
+    # # reorder column names to match .data
+    # # get .data column names
+    # col.order <- colnames(.data)
+    # # add ResultUnitConversion column to the list if flag = TRUE
+    # 
+    # # col.order <- append(col.order, c(
+    # #   "WQX.ResultMeasureValue.UnitConversion",
+    # #   "WQX.DetectionLimitMeasureValue.UnitConversion"
+    # # ))
+    # 
     # col.order <- append(col.order, c(
-    #   "WQX.ResultMeasureValue.UnitConversion",
-    #   "WQX.DetectionLimitMeasureValue.UnitConversion"
+    #   "WQX.ResultMeasureValue.UnitConversion"
     # ))
-    
-    col.order <- append(col.order, c(
-      "WQX.ResultMeasureValue.UnitConversion"
-    ))
     
     # # add original units to list if transform = TRUE
     # if (transform == TRUE) {
@@ -263,8 +251,8 @@ ConvertResultUnits <- function(.data, transform = TRUE) {
     #     "DetectionLimitMeasureUnitCode.Original"
     #   ))
       
-      # reorder columns in clean.data
-      clean.data <- clean.data[, col.order]
+      # # reorder columns in clean.data
+      # clean.data <- clean.data[, col.order]
       
       # place flag columns next to relevant fields
       # clean.data <- clean.data %>%
@@ -293,7 +281,7 @@ ConvertResultUnits <- function(.data, transform = TRUE) {
       #                   .after = "DetectionQuantitationLimitMeasure.MeasureValue"
       #   )
   }
-  
+    # reorder cols
     clean.data = OrderTADACols(clean.data)
     
     return(clean.data)
@@ -411,6 +399,7 @@ ConvertDepthUnits <- function(.data,
   # define check.data (to preserve .data and avoid mistakes with if statements below)
   check.data <- .data
   
+  # conversion column names
   appCols <- c("WQXConversionFactor.ActivityDepthHeightMeasure",
                "WQXConversionFactor.ActivityTopDepthHeightMeasure",
                "WQXConversionFactor.ActivityBottomDepthHeightMeasure",
@@ -457,8 +446,6 @@ ConvertDepthUnits <- function(.data,
         # rename new columns
         names(check.data)[names(check.data) == "Conversion.Factor"] <- paste('WQXConversionFactor.', field,  sep="")
         check.data = ConvertSpecialChars(check.data, valCol)
-        # check.data$new1 = check.data[,valCol]
-        # names(check.data)[names(check.data)=="new1"] = valCol2
         
       }
     }
@@ -475,6 +462,7 @@ ConvertDepthUnits <- function(.data,
   if (transform == FALSE) {
     # add WQX.Depth.TargetUnit column
     check.data[ , 'WQX.Depth.TargetUnit'] <- unit
+    #reorder cols
     check.data = OrderTADACols(check.data)
     return(check.data)
   }
@@ -490,6 +478,7 @@ ConvertDepthUnits <- function(.data,
     # if WQXConversionFactor.ActivityDepthHeightMeasure exists...
     if (("WQXConversionFactor.ActivityDepthHeightMeasure" %in% colnames(clean.data)) == TRUE) {
       # multiply ActivityDepthHeightMeasure.MeasureValue by WQXConversionFactor.ActivityDepthHeightMeasure
+      # if else added to deal with NA's in RV column, which throws error when NA multiplied by number.
       clean.data$TADA.ActivityDepthHeightMeasure.MeasureValue <- ifelse(!is.na(clean.data$TADA.ActivityDepthHeightMeasure.MeasureValue),(clean.data$TADA.ActivityDepthHeightMeasure.MeasureValue) * (clean.data$WQXConversionFactor.ActivityDepthHeightMeasure),clean.data$TADA.ActivityDepthHeightMeasure.MeasureValue)
       
       # then replace ActivityDepthHeightMeasure.MeasureUnitCode values with the new unit argument
@@ -504,6 +493,7 @@ ConvertDepthUnits <- function(.data,
     # if WQXConversionFactor.ActivityTopDepthHeightMeasure exists...
     if (("WQXConversionFactor.ActivityTopDepthHeightMeasure" %in% colnames(clean.data)) == TRUE) {
       # multiply ActivityTopDepthHeightMeasure.MeasureValue by WQXConversionFactor.ActivityTopDepthHeightMeasure
+      # if else added to deal with NA's in RV column, which throws error when NA multiplied by number.
       clean.data$TADA.ActivityTopDepthHeightMeasure.MeasureValue <- ifelse(!is.na(clean.data$TADA.ActivityTopDepthHeightMeasure.MeasureValue),(clean.data$TADA.ActivityTopDepthHeightMeasure.MeasureValue) * (clean.data$WQXConversionFactor.ActivityTopDepthHeightMeasure),clean.data$TADA.ActivityTopDepthHeightMeasure.MeasureValue)
 
       # replace ActivityTopDepthHeightMeasure.MeasureUnitCode values with unit argument
@@ -518,6 +508,7 @@ ConvertDepthUnits <- function(.data,
     # if WQXConversionFactor.ActivityBottomDepthHeightMeasure exists...
     if (("WQXConversionFactor.ActivityBottomDepthHeightMeasure" %in% colnames(clean.data)) == TRUE) {
       # multiply ActivityBottomDepthHeightMeasure.MeasureValue by WQXConversionFactor.ActivityBottomDepthHeightMeasure
+      # if else added to deal with NA's in RV column, which throws error when NA multiplied by number.
       clean.data$TADA.ActivityBottomDepthHeightMeasure.MeasureValue <- ifelse(!is.na(clean.data$TADA.ActivityBottomDepthHeightMeasure.MeasureValue),(clean.data$TADA.ActivityBottomDepthHeightMeasure.MeasureValue) * (clean.data$WQXConversionFactor.ActivityBottomDepthHeightMeasure),clean.data$TADA.ActivityBottomDepthHeightMeasure.MeasureValue)
      
       # replace ActivityTopDepthHeightMeasure.MeasureUnitCode values with unit argument
@@ -532,6 +523,7 @@ ConvertDepthUnits <- function(.data,
     # if WQXConversionFactor.ResultDepthHeightMeasure exists...
     if (("WQXConversionFactor.ResultDepthHeightMeasure" %in% colnames(clean.data)) == TRUE) {
       # multiply ResultDepthHeightMeasure.MeasureValue by WQXConversionFactor.ResultDepthHeightMeasure
+      # if else added to deal with NA's in RV column, which throws error when NA multiplied by number.
       clean.data$TADA.ResultDepthHeightMeasure.MeasureValue <- ifelse(!is.na(clean.data$TADA.ResultDepthHeightMeasure.MeasureValue),(clean.data$TADA.ResultDepthHeightMeasure.MeasureValue) * (clean.data$WQXConversionFactor.ResultDepthHeightMeasure),clean.data$TADA.ResultDepthHeightMeasure.MeasureValue)
      
       # replace ResultDepthHeightMeasure.MeasureUnitCode values with unit argument
@@ -599,11 +591,12 @@ HarmonizationRefTable <- function(.data, download = FALSE) {
   # define raw harmonization table as an object
   harm.raw <- utils::read.csv(system.file("extdata", "HarmonizationTemplate.csv", package = "TADA"))
   
-  # join harmonization table to .data
+  # columns to keep from .data if exist
   harmonization_cols <- c(
     "WQX.SampleFractionValidity", "WQX.MethodSpeciationValidity",
     "WQX.ResultUnitValidity", "WQX.AnalyticalMethodValidity"
   )
+  # join to harmonization table
   # if WQX QA Char Val flags are in .data, include them in the join
   if (all(harmonization_cols %in% colnames(.data)) == TRUE) {
     join.data <- merge(.data[, c(expected_cols, harmonization_cols)],
@@ -785,31 +778,32 @@ HarmonizeData <- function(.data, ref, transform = TRUE, flag = TRUE) {
       ) %>%
       # remove columns with ".y" suffix
       dplyr::select_at(dplyr::vars(-dplyr::ends_with(".y")))
-
-    # reorder column names to match .data
-    # get .data column names
-    col.order <- colnames(.data)
-    # add flag columns to the list
-    col.order <- append(col.order, c(
-      "TADA.CharacteristicGroup",
-      "CharacteristicNameUserSupplied",
-      "TADA.SuggestedCharacteristicName",
-      "TADA.CharacteristicNameAssumptions",
-      "TADA.SuggestedSampleFraction",
-      "TADA.FractionAssumptions",
-      "TADA.SuggestedSpeciation",
-      "TADA.SpeciationAssumptions",
-      "TADA.SpeciationConversionFactor",
-      "TADA.SuggestedResultUnit",
-      "TADA.UnitConversionFactor",
-      "TADA.UnitConversionCoefficient",
-      "CombinationValidity",
-      "TADA.ComparableDataIdentifier",
-      "TADA.TotalN_TotalP_CharacteristicNames_AfterSummation",
-      "TADA.TotalN_TotalP_Summation_Identifier",
-      "TADA.TotalN_TotalP_ComboLogic"
-    ))
     
+    ## EDH - commented out because dealt with in orderTADAcols function below
+    # # reorder column names to match .data
+    # # get .data column names
+    # col.order <- colnames(.data)
+    # # add flag columns to the list
+    # col.order <- append(col.order, c(
+    #   "TADA.CharacteristicGroup",
+    #   "CharacteristicNameUserSupplied",
+    #   "TADA.SuggestedCharacteristicName",
+    #   "TADA.CharacteristicNameAssumptions",
+    #   "TADA.SuggestedSampleFraction",
+    #   "TADA.FractionAssumptions",
+    #   "TADA.SuggestedSpeciation",
+    #   "TADA.SpeciationAssumptions",
+    #   "TADA.SpeciationConversionFactor",
+    #   "TADA.SuggestedResultUnit",
+    #   "TADA.UnitConversionFactor",
+    #   "TADA.UnitConversionCoefficient",
+    #   "CombinationValidity",
+    #   "TADA.ComparableDataIdentifier",
+    #   "TADA.TotalN_TotalP_CharacteristicNames_AfterSummation",
+    #   "TADA.TotalN_TotalP_Summation_Identifier",
+    #   "TADA.TotalN_TotalP_ComboLogic"
+    # ))
+    # 
     # CM removed below on 1/12/2023: working group advised that it is easier
     # to find new columns if they are added to the END of a dataframe
     # AND include the work TADA. at the start

@@ -76,6 +76,7 @@ InvalidFraction <- function(.data, clean = TRUE, errorsonly = FALSE) {
   # rename NA values to Nonstandardized in WQX.SampleFractionValidity column
   check.data["WQX.SampleFractionValidity"][is.na(check.data["WQX.SampleFractionValidity"])] <- "Nonstandardized"
   
+  # EDH replaced with function OrderTADACols at end
   # # reorder column names to match .data
   # # get .data column names
   # col.order <- colnames(.data)
@@ -229,6 +230,7 @@ InvalidSpeciation <- function(.data, clean = c("invalid_only", "nonstandardized_
   # rename NA values to Nonstandardized in WQX.MethodSpeciationValidity column
   check.data["WQX.MethodSpeciationValidity"][is.na(check.data["WQX.MethodSpeciationValidity"])] <- "Nonstandardized"
   
+  # EDH replaced with OrderTADACols at end of function
   # # reorder column names to match .data
   # # get .data column names
   # col.order <- colnames(.data)
@@ -397,6 +399,7 @@ InvalidResultUnit <- function(.data, clean = c("invalid_only", "nonstandardized_
   # rename NA values to Nonstandardized in WQX.ResultUnitValidity column
   check.data["WQX.ResultUnitValidity"][is.na(check.data["WQX.ResultUnitValidity"])] <- "Nonstandardized"
   
+  # EDH replaced with OrderTADACols at end of function
   # # reorder column names to match .data
   # # get .data column names
   # col.order <- colnames(.data)
