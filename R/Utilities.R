@@ -544,12 +544,16 @@ OrderTADACols <- function(.data){
            "TADA.DetectionQuantitationLimitMeasure.MeasureValue.DataTypeFlag",
            "TADA.ActivityDepthHeightMeasure.MeasureValue",
            "TADA.ActivityDepthHeightMeasure.MeasureUnitCode",
+           "TADA.ActivityDepthHeightMeasure.MeasureValue.DataTypeFlag",
            "TADA.ActivityTopDepthHeightMeasure.MeasureValue",
            "TADA.ActivityTopDepthHeightMeasure.MeasureUnitCode",
+           "TADA.ActivityTopDepthHeightMeasure.MeasureValue.DataTypeFlag",
            "TADA.ActivityBottomDepthHeightMeasure.MeasureValue",
            "TADA.ActivityBottomDepthHeightMeasure.MeasureUnitCode",
+           "TADA.ActivityBottomDepthHeightMeasure.MeasureValue.DataTypeFlag",
            "TADA.ResultDepthHeightMeasure.MeasureValue",
            "TADA.ResultDepthHeightMeasure.MeasureUnitCode",
+           "TADA.ResultDepthHeightMeasure.MeasureValue.DataTypeFlag",
            "WQXConversionFactor.ActivityDepthHeightMeasure",
            "WQXConversionFactor.ActivityTopDepthHeightMeasure",
            "WQXConversionFactor.ActivityBottomDepthHeightMeasure",
@@ -560,7 +564,7 @@ OrderTADACols <- function(.data){
   focal_cols = cols[cols%in%names(.data)]
   other_cols = names(.data)[!names(.data)%in%focal_cols]
   
-  rearranged = .data%>%dplyr::relocate(focal_cols,.after = last_col())
+  rearranged = .data%>%dplyr::relocate(dplyr::any_of(focal_cols),.after = last_col())
   
   return(rearranged)
   

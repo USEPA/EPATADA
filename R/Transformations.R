@@ -179,6 +179,7 @@ ConvertResultUnits <- function(.data, transform = TRUE) {
       dplyr::rowwise() %>%
       # apply conversions where there is a target unit, use original value if no target unit
       dplyr::mutate(TADA.ResultMeasureValue = dplyr::case_when(
+        is.na(TADA.ResultMeasureValue) ~ TADA.ResultMeasureValue,
         !is.na(WQX.TargetUnit) ~
           (TADA.ResultMeasureValue * WQX.ConversionFactor),
         is.na(WQX.TargetUnit) ~ TADA.ResultMeasureValue
@@ -437,10 +438,9 @@ ConvertDepthUnits <- function(.data,
       # proceed only if unitCol has values other than NA
       if (sum(!is.na(check.data[unitCol])) > 0) {
         
-        # new TADA columns
+        # new TADA column
         unitCol2 = paste0("TADA.",unitCol)
-        valCol2 = paste0("TADA.",valCol)
-        
+       
         # deal with any units that are "meters" and change to "m" (USGS convention)
         check.data$new = check.data[,unitCol]
         check.data$new[check.data$new=="meters"] = "m"
@@ -454,12 +454,11 @@ ConvertDepthUnits <- function(.data,
                             sort = FALSE
         )
         
-        check.data = check.data %>% dplyr::relocate(unitCol2,.after = last_col())
-        
         # rename new columns
         names(check.data)[names(check.data) == "Conversion.Factor"] <- paste('WQXConversionFactor.', field,  sep="")
-        check.data$new1 = check.data[,valCol]
-        names(check.data)[names(check.data)=="new1"] = valCol2
+        check.data = ConvertSpecialChars(check.data, valCol)
+        # check.data$new1 = check.data[,valCol]
+        # names(check.data)[names(check.data)=="new1"] = valCol2
         
       }
     }
@@ -491,7 +490,7 @@ ConvertDepthUnits <- function(.data,
     # if WQXConversionFactor.ActivityDepthHeightMeasure exists...
     if (("WQXConversionFactor.ActivityDepthHeightMeasure" %in% colnames(clean.data)) == TRUE) {
       # multiply ActivityDepthHeightMeasure.MeasureValue by WQXConversionFactor.ActivityDepthHeightMeasure
-      clean.data$TADA.ActivityDepthHeightMeasure.MeasureValue <- (as.numeric(clean.data$TADA.ActivityDepthHeightMeasure.MeasureValue) * (clean.data$WQXConversionFactor.ActivityDepthHeightMeasure))
+      clean.data$TADA.ActivityDepthHeightMeasure.MeasureValue <- ifelse(!is.na(clean.data$TADA.ActivityDepthHeightMeasure.MeasureValue),(clean.data$TADA.ActivityDepthHeightMeasure.MeasureValue) * (clean.data$WQXConversionFactor.ActivityDepthHeightMeasure),clean.data$TADA.ActivityDepthHeightMeasure.MeasureValue)
       
       # then replace ActivityDepthHeightMeasure.MeasureUnitCode values with the new unit argument
       clean.data$TADA.ActivityDepthHeightMeasure.MeasureUnitCode[which(
@@ -505,8 +504,8 @@ ConvertDepthUnits <- function(.data,
     # if WQXConversionFactor.ActivityTopDepthHeightMeasure exists...
     if (("WQXConversionFactor.ActivityTopDepthHeightMeasure" %in% colnames(clean.data)) == TRUE) {
       # multiply ActivityTopDepthHeightMeasure.MeasureValue by WQXConversionFactor.ActivityTopDepthHeightMeasure
-      clean.data$TADA.ActivityTopDepthHeightMeasure.MeasureValue <- (as.numeric(clean.data$TADA.ActivityTopDepthHeightMeasure.MeasureValue) * (clean.data$WQXConversionFactor.ActivityTopDepthHeightMeasure))
-      
+      clean.data$TADA.ActivityTopDepthHeightMeasure.MeasureValue <- ifelse(!is.na(clean.data$TADA.ActivityTopDepthHeightMeasure.MeasureValue),(clean.data$TADA.ActivityTopDepthHeightMeasure.MeasureValue) * (clean.data$WQXConversionFactor.ActivityTopDepthHeightMeasure),clean.data$TADA.ActivityTopDepthHeightMeasure.MeasureValue)
+
       # replace ActivityTopDepthHeightMeasure.MeasureUnitCode values with unit argument
       clean.data$TADA.ActivityTopDepthHeightMeasure.MeasureUnitCode[which(
         !is.na(clean.data$TADA.ActivityTopDepthHeightMeasure.MeasureUnitCode)
@@ -519,8 +518,8 @@ ConvertDepthUnits <- function(.data,
     # if WQXConversionFactor.ActivityBottomDepthHeightMeasure exists...
     if (("WQXConversionFactor.ActivityBottomDepthHeightMeasure" %in% colnames(clean.data)) == TRUE) {
       # multiply ActivityBottomDepthHeightMeasure.MeasureValue by WQXConversionFactor.ActivityBottomDepthHeightMeasure
-      clean.data$TADA.ActivityBottomDepthHeightMeasure.MeasureValue <- (as.numeric(clean.data$TADA.ActivityBottomDepthHeightMeasure.MeasureValue) * (clean.data$WQXConversionFactor.ActivityBottomDepthHeightMeasure))
-      
+      clean.data$TADA.ActivityBottomDepthHeightMeasure.MeasureValue <- ifelse(!is.na(clean.data$TADA.ActivityBottomDepthHeightMeasure.MeasureValue),(clean.data$TADA.ActivityBottomDepthHeightMeasure.MeasureValue) * (clean.data$WQXConversionFactor.ActivityBottomDepthHeightMeasure),clean.data$TADA.ActivityBottomDepthHeightMeasure.MeasureValue)
+     
       # replace ActivityTopDepthHeightMeasure.MeasureUnitCode values with unit argument
       clean.data$TADA.ActivityBottomDepthHeightMeasure.MeasureUnitCode[which(
         !is.na(clean.data$TADA.ActivityBottomDepthHeightMeasure.MeasureUnitCode)
@@ -533,8 +532,8 @@ ConvertDepthUnits <- function(.data,
     # if WQXConversionFactor.ResultDepthHeightMeasure exists...
     if (("WQXConversionFactor.ResultDepthHeightMeasure" %in% colnames(clean.data)) == TRUE) {
       # multiply ResultDepthHeightMeasure.MeasureValue by WQXConversionFactor.ResultDepthHeightMeasure
-      clean.data$TADA.ResultDepthHeightMeasure.MeasureValue <- (as.numeric(clean.data$TADA.ResultDepthHeightMeasure.MeasureValue) * (clean.data$WQXConversionFactor.ResultDepthHeightMeasure))
-      
+      clean.data$TADA.ResultDepthHeightMeasure.MeasureValue <- ifelse(!is.na(clean.data$TADA.ResultDepthHeightMeasure.MeasureValue),(clean.data$TADA.ResultDepthHeightMeasure.MeasureValue) * (clean.data$WQXConversionFactor.ResultDepthHeightMeasure),clean.data$TADA.ResultDepthHeightMeasure.MeasureValue)
+     
       # replace ResultDepthHeightMeasure.MeasureUnitCode values with unit argument
       clean.data$TADA.ResultDepthHeightMeasure.MeasureUnitCode[which(
         !is.na(clean.data$TADA.ResultDepthHeightMeasure.MeasureUnitCode)
@@ -609,8 +608,8 @@ HarmonizationRefTable <- function(.data, download = FALSE) {
   if (all(harmonization_cols %in% colnames(.data)) == TRUE) {
     join.data <- merge(.data[, c(expected_cols, harmonization_cols)],
                        harm.raw,
-                       by.x = expected_cols,
-                       by.y = harmonization_cols,
+                       by.x = expected_cols, 
+                       by.y = expected_cols, # EDH: this was not working with "harmonization cols" because those are not contained in Y
                        all.x = TRUE
     )
     # otherwise, execute the join with no additional columns
