@@ -51,9 +51,6 @@
 #' # Load example dataset:
 #' data(Nutrients_Utah)
 #' 
-#' # Convert result and detection limit values and units to WQX target units and 
-#' # add two new columns titled "TADA.ResultMeasure.MeasureUnitCode" and 
-#' # "TADA.DetectionLimitMeasure.MeasureUnitCode" to hold the new result and unit values:
 #' ResultUnitsConverted <- ConvertResultUnits(Nutrients_Utah)
 #' 
 #' # Do not convert result values and units, but add two new columns titled
@@ -932,7 +929,7 @@ HarmonizeData <- function(.data, ref, transform = TRUE, flag = TRUE) {
         # remove all appended columns
         clean.data <- clean.data %>%
           dplyr::select(-c(
-            "TADACharacteristicGroup",
+            "TADA.CharacteristicGroup",
             "CharacteristicNameUserSupplied",
             "CombinationValidity",
             "TADA.CharacteristicNameAssumptions",
