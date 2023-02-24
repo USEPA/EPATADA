@@ -4,18 +4,32 @@
 \alias{simpleCensoredMethods}
 \title{Simple Tools for Censored Data Handling}
 \usage{
-simpleCensoredMethods(.data, method = "halflimit")
+simpleCensoredMethods(
+  .data,
+  nd_method = "multiplier",
+  nd_multiplier = 0.5,
+  od_method = "as-is",
+  od_multiplier = "null"
+)
 }
 \arguments{
 \item{.data}{A post-idCensoredData() TADA dataframe}
 
-\item{method}{A text string indicating the type of method used to populate censored data value. Can be set to "halflimit" (default), or "randombelowlimit".}
+\item{nd_method}{A text string indicating the type of method used to populate a non-detect (lower limit) data value. Can be set to "multiplier" (default),"randombelowlimit", or "as-is".}
+
+\item{nd_multiplier}{A number to be multiplied to the LOWER detection limit for each entry to obtain the censored data value. Must be supplied if nd_method = "multiplier". Defaults to 0.5, or half the detection limit.}
+
+\item{od_method}{A text string indicating the type of method used to populate an over-detect (upper limit) data value. Can be set to "multiplier" or "as-is" (default).}
+
+\item{od_multiplier}{A number to be multiplied to the UPPER detection limit for each entry to obtain the censored data value. Must be supplied if od_method = "multiplier". Defaults to 0.5, or half the detection limit.}
 }
 \value{
 A TADA dataframe with an additional column named TADA.Censored_Method, which documents the method used to fill censored data values.
 }
 \description{
-This function offers simple tools for censored data handling, including filling
-in the values as-is, half of the detection limit, or a random number between 0
-and the detection limit. It does not depend upon the rest of the data in the sample
+This function determines if detection limit type and detection condition are parsimonious
+before applying simple tools for non-detect and over-detect data handling, including filling
+in the values as-is, X times the detection limit, or a random number between 0
+and the LOWER detection limit. These methods do NOT depend upon censored data frequency
+in the dataset.
 }

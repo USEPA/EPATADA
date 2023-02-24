@@ -1,72 +1,105 @@
-#' Identify and flag censored data
+#' Simple Tools for Censored Data Handling
 #' 
-#' This function identifies censored data (over- and non-detects) and checks whether 
-#' discrepancies exist in the metadata. It then fills the TADA.ResultMeasureValue
-#' and TADA.ResultMeasureUnit with detection limit values and units, and converts
-#' the TADA.DataType column to "Censored"
+#' This function determines if detection limit type and detection condition are parsimonious
+#' before applying simple tools for non-detect and over-detect data handling, including filling
+#' in the values as-is, X times the detection limit, or a random number between 0
+#' and the LOWER detection limit. These methods do NOT depend upon censored data frequency
+#' in the dataset.
 #' 
-#' @param .data An autocleaned TADA dataframe
+#' @param .data A post-idCensoredData() TADA dataframe
+#' @param nd_method A text string indicating the type of method used to populate a non-detect (lower limit) data value. Can be set to "multiplier" (default),"randombelowlimit", or "as-is".
+#' @param nd_multiplier A number to be multiplied to the LOWER detection limit for each entry to obtain the censored data value. Must be supplied if nd_method = "multiplier". Defaults to 0.5, or half the detection limit.
+#' @param od_method A text string indicating the type of method used to populate an over-detect (upper limit) data value. Can be set to "multiplier" or "as-is" (default).
+#' @param od_multiplier A number to be multiplied to the UPPER detection limit for each entry to obtain the censored data value. Must be supplied if od_method = "multiplier". Defaults to 0.5, or half the detection limit.
 #' 
-#' @return A TADA dataframe with additional columns named TADA.CensoredDataType and TADA.CensoredDataFlag
+#' @return A TADA dataframe with an additional column named TADA.Censored_Method, which documents the method used to fill censored data values.
 #' 
 #' @export
 
-idCensoredData <- function(.data){
-  if(!"TADA.ResultMeasureValue"%in%names(.data)){
-    .data <- ConvertSpecialChars(.data, "ResultMeasureValue")
+
+simpleCensoredMethods <- function(.data, nd_method = "multiplier", nd_multiplier = 0.5, od_method = "as-is", od_multiplier = "null"){
+  # check .data has all of the required columns
+  expected_cols <- c(
+    "ResultDetectionConditionText",
+    "DetectionQuantitationLimitTypeName",
+    "TADA.ResultMeasureValue.DataTypeFlag"
+  )
+  
+  # check that multiplier is provided if method = "multiplier"
+  if(nd_method=="multiplier"&nd_multiplier=="null"){
+    stop("Please provide a multiplier for the detection limit handling method of 'multiplier'. Typically, the multiplier value is between 0 and 1.")
   }
-  if(!"TADA.DetectionQuantitationLimitMeasure.MeasureValue"%in%names(.data)){
-  .data <- ConvertSpecialChars(.data, "DetectionQuantitationLimitMeasure.MeasureValue")
+  if(od_method=="multiplier"&od_multiplier=="null"){
+    stop("Please provide a multiplier for the detection limit handling method of 'multiplier'. Typically, the multiplier value is between 0 and 1.")
   }
-  if(!"TADA.ResultMeasure.MeasureUnitCode"%in%names(.data)){
-    .data$TADA.ResultMeasure.MeasureUnitCode = .data$ResultMeasure.MeasureUnitCode
+  
+  ## First step: identify censored data
+  cens = .data%>%dplyr::filter(TADA.ResultMeasureValue.DataTypeFlag=="Result Value/Unit Copied from Detection Limit")
+  not_cens = .data%>%dplyr::filter(!ResultIdentifier%in%cens$ResultIdentifier)
+  
+  ## Bring in det cond reference table
+  cond.ref = GetDetCondRef()%>%dplyr::rename(ResultDetectionConditionText = Name)%>%dplyr::select(ResultDetectionConditionText, TADA.Detection_Type)
+  
+  ## Join to censored data
+  cens = dplyr::left_join(cens, cond.ref)
+  
+  ## Bring in det limit type reference table
+  limtype.ref = GetDetLimitRef()%>%dplyr::rename(DetectionQuantitationLimitTypeName = Name)%>%dplyr::select(DetectionQuantitationLimitTypeName, TADA.Limit_Type)
+  
+  ## Join to censored data
+  cens = dplyr::left_join(cens, limtype.ref)
+  
+  ## Create flag for condition and limit type combinations
+  cens = cens%>%dplyr::mutate(TADA.Censored_Flag = dplyr::case_when(
+    TADA.Detection_Type=="Non-Detect"&TADA.Limit_Type=="Non-Detect" ~ as.character("Non-Detect"),
+    TADA.Detection_Type=="Over-Detect"&TADA.Limit_Type=="Over-Detect" ~ as.character("Over-Detect"),
+    TADA.Detection_Type=="Other"&TADA.Limit_Type=="Other" ~ as.character("Other Condition/Limit Populated"),
+    !TADA.Detection_Type==TADA.Limit_Type ~ as.character("Conflict between Condition and Limit")
+  ))
+  
+  ## warn when some limit metadata may be problematic
+  if("Conflict between Condition and Limit"%in%cens$TADA.Censored_Flag){
+    num = length(cens$TADA.Censored_Flag[cens$TADA.Censored_Flag=="Conflict between Condition and Limit"])
+    warning(paste0(num," records in supplied dataset have conflicting detection condition and detection limit type information. These records will not be included in detection limit handling calculations."))
   }
-
-# check .data has all of the required columns
-expected_cols <- c(
-  "ResultDetectionConditionText",
-  "DetectionQuantitationLimitTypeName",
-  "DetectionQuantitationLimitMeasure.MeasureValue",
-  "DetectionQuantitationLimitMeasure.MeasureUnitCode"
-)
-checkColumns(.data, expected_cols)
-
-## Notification: function will use RV as-is, even if populated with detection limit
-print("Note: This function operates on rows where the ResultMeasureValue is NA. Detection limit values populated as a result value will not be considered for censored data analyses.")
-
-## First step: identify censored data
-cens = .data%>%dplyr::filter(is.na(TADA.ResultMeasureValue)&!is.na(TADA.DetectionQuantitationLimitMeasure.MeasureValue))
-not_cens = .data%>%dplyr::filter(!ResultIdentifier%in%cens$ResultIdentifier)
-
-## Bring in det cond reference table
-cond.ref = GetDetCondRef()%>%dplyr::rename(ResultDetectionConditionText = Name)%>%dplyr::select(ResultDetectionConditionText, TADA.Detection_Type)
-
-## Join to censored data
-cens = dplyr::left_join(cens, cond.ref)
-
-## Bring in det limit type reference table
-limtype.ref = GetDetLimitRef()%>%dplyr::rename(DetectionQuantitationLimitTypeName = Name)%>%dplyr::select(DetectionQuantitationLimitTypeName, TADA.Limit_Type)
-
-## Join to censored data
-cens = dplyr::left_join(cens, limtype.ref)
-
-## Create flag for condition and limit type combinations
-cens = cens%>%dplyr::mutate(TADA.Censored_Flag = dplyr::case_when(
-  TADA.Detection_Type==TADA.Limit_Type ~ as.character("No Conflict"),
-  !TADA.Detection_Type==TADA.Limit_Type ~ as.character("Conflict")
-))
-
-## Fill TADA.ResultMeasureValue and Unit with detection limit info
-cens$TADA.ResultMeasureValue = cens$TADA.DetectionQuantitationLimitMeasure.MeasureValue
-cens$TADA.ResultMeasure.MeasureUnitCode = cens$DetectionQuantitationLimitMeasure.MeasureUnitCode
-cens$TADA.ResultMeasureValue.DataTypeFlag = "Detection Limit Substituted"
-
-flag.data = plyr::rbind.fill(not_cens, cens)
-
-flag.data = flag.data%>%
-  dplyr::relocate("TADA.ResultMeasure.MeasureUnitCode",.after = "ResultMeasure.MeasureUnitCode")
-
-return(flag.data)
+  
+  cens = cens%>%dplyr::select(-TADA.Detection_Type, -TADA.Limit_Type)
+  
+  # split out over detects and non detects
+  nd = subset(cens, cens$TADA.Censored_Flag=="Non-Detect")
+  od = subset(cens, cens$TADA.Censored_Flag=="Over-Detect")
+  other = subset(cens, !cens$ResultIdentifier%in%c(nd$ResultIdentifier,od$ResultIdentifier))
+  
+  # ND handling
+  if(dim(nd)[1]>0){
+    if(nd_method=="multiplier"){
+      nd$TADA.ResultMeasureValue = nd$TADA.ResultMeasureValue*nd_multiplier
+      nd$TADA.Censored_Method = paste0("Detection Limit Value Multiplied by ",nd_multiplier)
+    }
+    if(nd_method=="randombelowlimit"){
+      nd$multiplier = runif(dim(nd)[1],0,1)
+      nd$TADA.ResultMeasureValue = nd$TADA.ResultMeasureValue*nd$multiplier
+      nd$TADA.Censored_Method = paste0("Multiplied by Random Value Between 0 and Detection Limit: ",round(nd$multiplier,digits=3))
+      nd = nd%>%dplyr::select(-multiplier)
+    }
+    if(nd_method=="as-is"){
+      nd$TADA.Censored_Method = "Detection Limit Value Unchanged"
+    }
+  }
+  # OD handling
+  if(dim(od)[1]>0){
+    if(od_method=="multiplier"){
+      od$TADA.ResultMeasureValue = od$TADA.ResultMeasureValue*od_multiplier
+      od$TADA.Censored_Method = paste0("Detection Limit Value Multiplied by ",od_multiplier)
+    }
+    if(od_method=="as-is"){
+      od$TADA.Censored_Method = "Detection Limit Value Unchanged"
+    }
+  }
+  
+  .data = plyr::rbind.fill(not_cens, nd, od, other)
+  .data = OrderTADACols(.data)
+  return(.data)
 }
 
 #' Censored Data Solutions
@@ -84,56 +117,3 @@ return(flag.data)
 suggestCensoredMethod <- function(){
   
 }
-
-
-#' Simple Tools for Censored Data Handling
-#' 
-#' This function offers simple tools for censored data handling, including filling
-#' in the values as-is, half of the detection limit, or a random number between 0
-#' and the detection limit. It does not depend upon the rest of the data in the sample 
-#' 
-#' @param .data A post-idCensoredData() TADA dataframe
-#' @param method A text string indicating the type of method used to populate censored data value. Can be set to "multiplier" (default), or "randombelowlimit".
-#' @param multiplier A number to be multiplied to the detection limit for each entry to obtain the censored data value. Must be supplied if method = "multiplier". Defaults to 0.5, or half the detection limit.
-#' 
-#' @return A TADA dataframe with an additional column named TADA.Censored_Method, which documents the method used to fill censored data values.
-#' 
-#' @export
-
-
-simpleCensoredMethods <- function(.data, method = "multiplier", multiplier = 0.5){
-  # check .data has all of the required columns
-  expected_cols <- c(
-    "ResultDetectionConditionText",
-    "DetectionQuantitationLimitTypeName",
-    "DetectionQuantitationLimitMeasure.MeasureValue",
-    "DetectionQuantitationLimitMeasure.MeasureUnitCode"
-  )
-  
-  # check that multiplier is provided if method = "multiplier"
-  if(method=="multiplier"&multiplier=="null"){
-    stop("Please provide a multiplier for the detection limit handling method of 'multiplier'. Typically, the multiplier value is between 0 and 1.")
-  }
-  
-  ## Notification: function will use RV as-is, even if populated with detection limit
-  if("TADA.Censored_Flag"%in%names(.data)){
-    if("Conflict"%in%.data$TADA.Censored_Flag){
-      warning("One or more censored data records have conflicting information in the ResultDetectionConditionText and DetectionQuantitationLimitTypeName columns. Consider evaluating these records before proceeding.")
-    }
-  }
-  
-  if(method=="multiplier"){
-    .data$TADA.ResultMeasureValue = ifelse(.data$TADA.ResultMeasureValue.DataTypeFlag=="Detection Limit Substituted",.data$TADA.ResultMeasureValue*multiplier,.data$TADA.ResultMeasureValue)
-    .data$TADA.Censored_Method = ifelse(.data$TADA.ResultMeasureValue.DataTypeFlag=="Detection Limit Substituted",paste0("Detection Limit Value Multiplied by ",multiplier),NA)
-  }
-  if(method=="randombelowlimit"){
-    .data$multiplier = runif(dim(.data)[1],0,1)
-    .data$TADA.ResultMeasureValue = ifelse(.data$TADA.ResultMeasureValue.DataTypeFlag=="Detection Limit Substituted",.data$TADA.ResultMeasureValue*.data$multiplier,.data$TADA.ResultMeasureValue)
-    .data$TADA.Censored_Method = ifelse(.data$TADA.ResultMeasureValue.DataTypeFlag=="Detection Limit Substituted","Random Value Between 0 and Detection Limit",NA)
-    .data = .data%>%dplyr::select(-multiplier)
-  }
-  
-  return(.data)
-}
-
-

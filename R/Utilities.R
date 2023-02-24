@@ -515,6 +515,8 @@ OrderTADACols <- function(.data){
            "TADA.AggregatedContinuousData",
            "TADA.ResultMeasureValue",
            "TADA.ResultMeasureValue.DataTypeFlag",
+           "TADA.Censored_Flag",
+           "TADA.Censored_Method",
            "TADA.ResultMeasure.MeasureUnitCode",
            "WQX.TargetUnit",
            "WQX.ConversionFactor",
