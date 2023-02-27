@@ -44,11 +44,9 @@ Imports:
     RColorBrewer,
     stats, 
     lubridate,
-    maps, 
     dataRetrieval, 
     ggplot2, 
-    gganimate, 
-    gifski
+    sf
 Depends: 
     R (>= 3.5.0)
 Suggests: 

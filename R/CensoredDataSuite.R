@@ -27,10 +27,10 @@ simpleCensoredMethods <- function(.data, nd_method = "multiplier", nd_multiplier
   
   # check that multiplier is provided if method = "multiplier"
   if(nd_method=="multiplier"&nd_multiplier=="null"){
-    stop("Please provide a multiplier for the detection limit handling method of 'multiplier'. Typically, the multiplier value is between 0 and 1.")
+    stop("Please provide a multiplier for the lower detection limit handling method of 'multiplier'. Typically, the multiplier value is between 0 and 1.")
   }
   if(od_method=="multiplier"&od_multiplier=="null"){
-    stop("Please provide a multiplier for the detection limit handling method of 'multiplier'. Typically, the multiplier value is between 0 and 1.")
+    stop("Please provide a multiplier for the upper detection limit handling method of 'multiplier'. Typically, the multiplier value is between 0 and 1.")
   }
   
   ## First step: identify censored data
@@ -79,7 +79,7 @@ simpleCensoredMethods <- function(.data, nd_method = "multiplier", nd_multiplier
     if(nd_method=="randombelowlimit"){
       nd$multiplier = runif(dim(nd)[1],0,1)
       nd$TADA.ResultMeasureValue = nd$TADA.ResultMeasureValue*nd$multiplier
-      nd$TADA.Censored_Method = paste0("Multiplied by Random Value Between 0 and Detection Limit: ",round(nd$multiplier,digits=3))
+      nd$TADA.Censored_Method = paste0("Random Value Between 0 and Detection Limit Using this Multiplier: ",round(nd$multiplier,digits=3))
       nd = nd%>%dplyr::select(-multiplier)
     }
     if(nd_method=="as-is"){
@@ -100,20 +100,4 @@ simpleCensoredMethods <- function(.data, nd_method = "multiplier", nd_multiplier
   .data = plyr::rbind.fill(not_cens, nd, od, other)
   .data = OrderTADACols(.data)
   return(.data)
-}
-
-#' Censored Data Solutions
-#' 
-#' This function groups data in a user-specified fashion and determines the frequency of
-#' non-detects. Given the frequency, it offers a suggested censored data solution.
-#' 
-#' @param .data An autocleaned TADA dataframe
-#' @param group_cols A vector of column names over which the function will group data to determine applicable censored data solutions.
-#' 
-#' @return A TADA dataframe with an added TADA.Censored_Suggest column that specifies a suitable method for handling censored data.
-#' 
-#' @export
-
-suggestCensoredMethod <- function(){
-  
 }
