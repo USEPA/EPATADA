@@ -36,7 +36,7 @@ The following code will also install any packages you do not have, and
 load all packages required to run this vignette into your R session.
 
 ```{r, results = 'hide', message = FALSE, warning = FALSE}
-list.of.packages <- c("plyr", "data.table", "dplyr", "magrittr", "stringr", "utils", "RColorBrewer", "stats", "lubridate", "remotes", "dataRetrieval", "ggplot2")
+list.of.packages <- c("plyr", "data.table", "dplyr", "magrittr", "stringr", "maps","utils", "RColorBrewer", "stats", "lubridate", "remotes", "dataRetrieval", "ggplot2")
 
 new.packages <- list.of.packages[!(list.of.packages %in% installed.packages()[,"Package"])]
 
@@ -80,6 +80,7 @@ library(utils)
 library(RColorBrewer)
 library(stats)
 library(rlang)
+library(maps)
 library(lubridate)
 library(ggplot2)
 library(dataRetrieval)
