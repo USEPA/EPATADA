@@ -137,9 +137,11 @@ test_that("TADAdataRetrieval", {
   })
 
 # Testing that regular and big data retrieval return the same number of rows on an identical query.
+# cm edited to include start date on 2/27/23 because without this it takes too long to run
+# these tests, and may time out
 test_that("Reg&BigdataRetrieval",{
-  big <- TADABigdataRetrieval(characteristicName = "Algae, substrate rock/bank cover (choice list)", siteType = "Stream", applyautoclean = TRUE)
-  reg <- TADAdataRetrieval(characteristicName = "Algae, substrate rock/bank cover (choice list)", sampleMedia = "Water", siteType = "Stream")
+  big <- TADABigdataRetrieval(characteristicName = "Algae, substrate rock/bank cover (choice list)", siteType = "Stream", startDate = "2020-01-01", applyautoclean = TRUE)
+  reg <- TADAdataRetrieval(characteristicName = "Algae, substrate rock/bank cover (choice list)", sampleMedia = "Water", siteType = "Stream", startDate = "2020-01-01")
   
   expect_equal(nrow(big),nrow(reg))
   

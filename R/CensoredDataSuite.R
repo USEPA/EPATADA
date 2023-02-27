@@ -14,6 +14,7 @@
 #' 
 #' @return A TADA dataframe with an additional column named TADA.Censored_Method, which documents the method used to fill censored data values.
 #' 
+#' 
 #' @export
 
 
@@ -77,7 +78,7 @@ simpleCensoredMethods <- function(.data, nd_method = "multiplier", nd_multiplier
       nd$TADA.Censored_Method = paste0("Detection Limit Value Multiplied by ",nd_multiplier)
     }
     if(nd_method=="randombelowlimit"){
-      nd$multiplier = runif(dim(nd)[1],0,1)
+      nd$multiplier = stats::runif(dim(nd)[1],0,1)
       nd$TADA.ResultMeasureValue = nd$TADA.ResultMeasureValue*nd$multiplier
       nd$TADA.Censored_Method = paste0("Random Value Between 0 and Detection Limit Using this Multiplier: ",round(nd$multiplier,digits=3))
       nd = nd%>%dplyr::select(-multiplier)

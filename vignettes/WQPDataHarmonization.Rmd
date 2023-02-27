@@ -80,9 +80,9 @@ library(utils)
 library(RColorBrewer)
 library(stats)
 library(rlang)
-library(maps)
 library(lubridate)
 library(ggplot2)
+library(maps)
 library(dataRetrieval)
 library(TADA)
 ```
@@ -269,12 +269,16 @@ multiple HOURS to run. The total run time depends on your query inputs.
 
 ```
 
-Review all column names in the TADA Profile
+Review all column names in the TADA Profile. Remove results that are not water samples or measurements (TADA is recommended for use with water data only). 
 
 ```{r}
 colnames(TADAProfile)
 TADAProfile_CharSummary <- SummarizeColumn(TADAProfile,"TADA.CharacteristicName")
 TADAProfile_CharSummary
+
+# Remove data for non-water media types
+TADAProfile <- dplyr::filter(TADAProfile, TADA.ActivityMediaName == "WATER")
+
 ```
 
 ## Invalid coordinates
@@ -283,7 +287,7 @@ Review station locations
 
 ```{r}
 #create a map of the world
-map()
+maps::map()
 
 # draw the sites included in your TADAProfile onto the map
 points(TADAProfile$TADA.LongitudeMeasure, TADAProfile$TADA.LatitudeMeasure, col="red", pch=20)

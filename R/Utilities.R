@@ -16,7 +16,8 @@ utils::globalVariables(c("AboveWQXUpperThreshold", "ActivityIdentifier",  "Activ
                          "ResultIdentifier", "TADA.ResultMeasureValue", "n_sites",
                          "n_records", "statecodes_df", "STUSAB" ,"ActivityStartTime.Time", "numorgs", "dup_id",
                          "LatitudeMeasure", "TADA.ResultMeasureValue.DataTypeFlag", "Name", "TADA.Detection_Type",
-                         "DetectionQuantitationLimitTypeName", "TADA.Limit_Type", "multiplier"))
+                         "DetectionQuantitationLimitTypeName", "TADA.Limit_Type", "multiplier", "last_col", "summ", 
+                         "LongitudeMeasure"))
 
 
 
@@ -31,11 +32,12 @@ utils::globalVariables(c("AboveWQXUpperThreshold", "ActivityIdentifier",  "Activ
 #' Toxicity and fish tissue data will be kept, but other types of biological
 #' monitoring data will not.
 #'
-#' We decided to make some fields uppercase that way they're more compatible
+#' This function makes certain fields uppercase so that they're interoperable
 #' with the WQX validation reference tables and to avoid any issues with
-#' case-sensitivity when joining data. Therefore, we might need to tack on any
-#' immediate QA steps (removing true duplicates, converting result values to numeric,
-#' capitalizing letters, etc.) to this function, as well as the other retrieval functions.
+#' case-sensitivity when joining data. This function also performs immediate QA steps 
+#' (removes true duplicates, converts result values to numeric, capitalizes 
+#' letters, etc.). It can be run as a stand alone function or can be tacked onto
+#' other functions.
 #'
 #' @param .data TADA dataframe
 #'
@@ -45,19 +47,23 @@ utils::globalVariables(c("AboveWQXUpperThreshold", "ActivityIdentifier",  "Activ
 #'
 
 autoclean <- function(.data) {
+  
   # check .data is data.frame
   checkType(.data, "data.frame", "Input object")
   
   # .data required columns
   required_cols <- c(
     "ActivityMediaName", "ResultMeasureValue", "ResultMeasure.MeasureUnitCode",
-    "CharacteristicName", "ResultSampleFractionText", "MethodSpecificationName"
+    "CharacteristicName", "ResultSampleFractionText", "MethodSpecificationName", 
+    "DetectionQuantitationLimitMeasure.MeasureUnitCode"
     ) 
+  
   # check .data has required columns
   checkColumns(.data, required_cols)
   
   # execute function after checks are passed
-  # capitalize fields (just those used w/ ref tables for now)
+  
+  # capitalize fields with known synonyms that only differ in caps
   .data$TADA.CharacteristicName <- toupper(.data$CharacteristicName)
   .data$TADA.ResultSampleFractionText <- toupper(.data$ResultSampleFractionText)
   .data$TADA.MethodSpecificationName <- toupper(.data$MethodSpecificationName)
@@ -65,7 +71,14 @@ autoclean <- function(.data) {
   .data$TADA.ActivityMediaName <- toupper(.data$ActivityMediaName)
   .data$TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode <-
     toupper(.data$DetectionQuantitationLimitMeasure.MeasureUnitCode)
-  # .data$BiologicalIntentName = toupper(.data$BiologicalIntentName)
+  
+  # Remove complex biological data. Un-comment after new WQX 3.0 Profiles are released.
+  # .data$TADA.BiologicalIntentName = toupper(.data$BiologicalIntentName)
+  # TADAProfile = dplyr::filter(TADAProfile, TADA.BiologicalIntentName != "TISSUE" | "TOXICITY" | is.na(TADA.BiologicalIntentName) == TRUE)
+  
+  # Remove data for non-water media types. Un-comment and add back later once new workflow for 
+  # documenting "removed" data is set up
+  # TADAProfile <- dplyr::filter(TADAProfile, TADA.ActivityMediaName == "WATER")
   
   # Remove duplicate rows - turned into a test because duplicated() takes a long
   # time acting on all columns in a large dataset.
@@ -76,10 +89,6 @@ autoclean <- function(.data) {
     not_dups = .data%>%dplyr::filter(!ResultIdentifier%in%dup_rids)
     .data = plyr::rbind.fill(dup_check, not_dups)
   }
-
-  # Remove complex biological data - DECISION TO MOVE TO OWN FUNCTION
-  # .data <- dplyr::filter(.data, ActivityMediaName == "WATER")
-  # .data = dplyr::filter(.data, BiologicalIntentName != "TISSUE" | "TOXICITY" | is.na(InvalidCoordinates)== TRUE)
   
   # run ConvertSpecialChars function
   # .data <- MeasureValueSpecialCharacters(.data)
