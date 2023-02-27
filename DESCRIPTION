@@ -46,9 +46,7 @@ Imports:
     lubridate,
     dataRetrieval, 
     ggplot2, 
-    sf,
-    stats, 
-    maps
+    sf
 Depends: 
     R (>= 3.5.0)
 Suggests: 
