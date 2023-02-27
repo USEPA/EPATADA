@@ -16,7 +16,7 @@ utils::globalVariables(c("AboveWQXUpperThreshold", "ActivityIdentifier",  "Activ
                          "ResultIdentifier", "TADA.ResultMeasureValue", "n_sites",
                          "n_records", "statecodes_df", "STUSAB" ,"ActivityStartTime.Time", "numorgs", "dup_id",
                          "LatitudeMeasure", "TADA.ResultMeasureValue.DataTypeFlag", "Name", "TADA.Detection_Type",
-                         "DetectionQuantitationLimitTypeName", "TADA.Limit_Type", "multiplier", "last_col", "summ", 
+                         "DetectionQuantitationLimitTypeName", "TADA.Limit_Type", "multiplier", "summ",
                          "LongitudeMeasure"))
 
 
@@ -579,7 +579,7 @@ OrderTADACols <- function(.data){
   focal_cols = cols[cols%in%names(.data)]
   other_cols = names(.data)[!names(.data)%in%focal_cols]
   
-  rearranged = .data%>%dplyr::relocate(dplyr::any_of(focal_cols),.after = last_col())
+  rearranged = .data%>%dplyr::relocate(dplyr::any_of(focal_cols),.after = dplyr::last_col())
   
   return(rearranged)
   
