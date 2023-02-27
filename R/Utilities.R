@@ -1,6 +1,6 @@
 # write global variables. Gets rid of global variable NOTE in check:
 utils::globalVariables(c("AboveWQXUpperThreshold", "ActivityIdentifier",  "ActivityMediaName",
-                         "ActivityStartDate", "BelowWQXUpperThreshold", "CharacteristicName",
+                         "ActivityStartDate", "BelowWQXUpperThreshold", "BelowWQXLowerThreshold", "CharacteristicName",
                          "Conversion.Factor", "Count", "Description", "FieldName", "FieldValue",
                          "MethodSpecificationName", "MonitoringLocationIdentifier",
                          "OrganizationFormalName", "OrganizationIdentifier", "ProjectDescriptionText",
@@ -12,7 +12,11 @@ utils::globalVariables(c("AboveWQXUpperThreshold", "ActivityIdentifier",  "Activ
                          "TADA.InvalidCoordinates", "TADA.PotentialDupRowID", "TADA.QAPPDocAvailable",
                          "Target.Unit", "Type", "Value.Unit", "WQX.AnalyticalMethodValidity",
                          "WQX.MethodSpeciationValidity", "WQX.ResultUnitValidity",
-                         "WQX.SampleFractionValidity", "YearSummarized", "where"))
+                         "WQX.SampleFractionValidity", "YearSummarized", "where", "TADA.CharacteristicName",
+                         "ResultIdentifier", "TADA.ResultMeasureValue", "n_sites",
+                         "n_records", "statecodes_df", "STUSAB" ,"ActivityStartTime.Time", "numorgs", "dup_id",
+                         "LatitudeMeasure", "TADA.ResultMeasureValue.DataTypeFlag", "Name", "TADA.Detection_Type",
+                         "DetectionQuantitationLimitTypeName", "TADA.Limit_Type", "multiplier"))
 
 
 
