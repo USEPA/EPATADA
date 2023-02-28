@@ -35,7 +35,7 @@ water quality data for assessments. Therefore, this function uses metadata
 submitted by data providers to flag rows with aggregated continuous data.
 This is done by flagging results where the ResultDetectionConditionText =
 "Reported in Raw Data (attached)". When clean = FALSE and errorsonly = FALSE, a column titled
-"TADA.AggregatedContinuousData" is added to the dataframe to indicate if the row
+"TADA.AggregatedContinuousData.Flag" is added to the dataframe to indicate if the row
 includes aggregated continuous data, "Y", or not,  "N". When clean = FALSE and
 errorsonly = TRUE, the dataframe will be filtered to show only the rows flagged
 "Y" for aggregated continuous data. When clean = TRUE and errorsonly = FALSE,
@@ -52,7 +52,7 @@ data(Nutrients_Utah)
 AggContinuous_clean <- AggregatedContinuousData(Nutrients_Utah)
 
 # Flag, but do not remove, aggregated continuous data in new column
-# titled "TADA.AggregatedContinuousData":
+# titled "TADA.AggregatedContinuousData.Flag":
 AggContinuous_flags <- AggregatedContinuousData(Nutrients_Utah, clean = FALSE)
 
 # Show only rows flagged for aggregated continuous data:

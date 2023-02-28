@@ -28,11 +28,11 @@ errorsonly = TRUE. Default is errorsonly = FALSE.}
 }
 \value{
 When clean = "none" and errorsonly = FALSE, this function adds the
-following column to your dataframe: WQX.MethodSpeciationValidity. This column
+following column to your dataframe: TADA.MethodSpeciation.Flag. This column
 flags each CharacteristicName and MethodSpecificationName combination in your
 dataframe as either "Nonstandardized", "Invalid", or "Valid". When clean = "none"
 and errorsonly = TRUE, the dataframe is filtered to show only the "Invalid" and
-"Nonstandardized data; the column WQX.MethodSpeciationValidity is still appended.
+"Nonstandardized data; the column TADA.MethodSpeciation.Flag is still appended.
 When clean = "invalid_only" and errorsonly = FALSE, "Invalid" rows are removed
 from the dataframe, but "Nonstandardized" rows are retained. When
 clean = "nonstandardized_only" and errorsonly = FALSE, "Nonstandardized" rows
@@ -52,11 +52,11 @@ Default is errorsonly = FALSE.
 data(Nutrients_Utah)
 
 # Remove data with invalid characteristic-method speciation combinations from dataframe, 
-# but retain nonstandardized combinations flagged in new column 'WQX.MethodSpeciationValidity':
+# but retain nonstandardized combinations flagged in new column 'TADA.MethodSpeciation.Flag':
 InvalidSpeciation_clean <- InvalidSpeciation(Nutrients_Utah)
 
 # Remove data with nonstandardized characteristic-method speciation combinations 
-# from dataframe but retain invalid combinations flagged in new column 'WQX.MethodSpeciationValidity':
+# from dataframe but retain invalid combinations flagged in new column 'TADA.MethodSpeciation.Flag':
 NonstandardSpeciation_clean <- InvalidSpeciation(Nutrients_Utah, clean = "nonstandardized_only")
 
 # Remove both invalid and nonstandardized characteristic-method speciation combinations
@@ -64,7 +64,7 @@ NonstandardSpeciation_clean <- InvalidSpeciation(Nutrients_Utah, clean = "nonsta
 Speciation_clean <- InvalidSpeciation(Nutrients_Utah, clean = "both")
 
 # Flag, but do not remove, data with invalid or nonstandardized characteristic-method speciation
-# combinations in new column titled "WQX.MethodSpeciationValidity":
+# combinations in new column titled "TADA.MethodSpeciation.Flag":
 InvalidSpeciation_flags <- InvalidSpeciation(Nutrients_Utah, clean = "none")
 
 # Show only invalid characteristic-method speciation combinations:

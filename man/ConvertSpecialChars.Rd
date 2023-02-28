@@ -11,6 +11,13 @@ ConvertSpecialChars(.data, col)
 
 \item{col}{A character column to be converted to numeric}
 }
+\value{
+Returns the original dataframe with two new columns: the input column
+with the prefix "TADA.", which holds the numeric form of the original column,
+and "TADA.ResultValueDataTypes.Flag", which has text describing the type of data
+contained within the column of interest, including "Numeric","Less Than" (<), "Greater Than" (>),
+"Approximate Value" (~), "Text" (A-z), "Percentage" (\%), and "Comma-Separated Numeric" (#,###)
+}
 \description{
 This function will screen a column of the user's choice for special characters.
 It creates a new column that describes the content of the column prior to

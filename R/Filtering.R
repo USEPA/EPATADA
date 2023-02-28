@@ -38,7 +38,7 @@ FilterFields <- function(.data) {
   col.names <- col.names[, c(2, 1)]
   # Filter dataframe to include only fields for filtering
   col.names <- dplyr::filter(col.names, FieldName %in% c(
-    "ActivityTypeCode", "ActivityMediaName",
+    "ActivityTypeCode", "TADA.ActivityMediaName",
     "ActivityMediaSubdivisionName",
     "ActivityCommentText", "MonitoringLocationTypeName",
     "StateName", "TribalLandName",
@@ -71,7 +71,7 @@ FilterFields <- function(.data) {
 
   # Filter list to include only fields for filtering
   UniqueValList <- UniqueValList[c(
-    "ActivityTypeCode", "ActivityMediaName",
+    "ActivityTypeCode", "TADA.ActivityMediaName",
     "ActivityMediaSubdivisionName",
     "ActivityCommentText", "MonitoringLocationTypeName",
     "StateName", "TribalLandName",

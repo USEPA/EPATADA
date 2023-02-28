@@ -63,7 +63,7 @@ DepthUnitsConverted_m <- ConvertDepthUnits(Nutrients_Utah)
 # Convert all depth units to feet:
 DepthUnitsConverted_ft <- ConvertDepthUnits(Nutrients_Utah, unit = "ft")
 
-# Convert only the "ActivityTopDepthHeightMeasure" field to inches:
+# Convert only the "TADA.ActivityTopDepthHeightMeasure" field to inches:
 TopDepthUnitsConverted_in <- ConvertDepthUnits(Nutrients_Utah, 
 unit = "in", fields = "ActivityTopDepthHeightMeasure")
 

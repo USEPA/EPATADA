@@ -13,10 +13,10 @@
 #' Default is errorsonly = FALSE.
 #'
 #' @return When clean = FALSE and errorsonly = FALSE, this function adds the
-#' following column to your dataframe: WQX.SampleFractionValidity. This column flags each 
+#' following column to your dataframe: TADA.SampleFraction.Flag. This column flags each 
 #' CharacteristicName and ResultSampleFractionText combination in your dataframe 
 #' as either "Nonstandardized", "Invalid", or "Valid". When clean = FALSE and 
-#' errorsonly = TRUE, the WQX.SampleFractionValidity is still added and the data
+#' errorsonly = TRUE, the TADA.SampleFraction.Flag is still added and the data
 #' is filtered to only show the "Invalid" rows only. When clean = TRUE and
 #' errorsonly = FALSE, "Invalid" rows are removed from the dataframe and no 
 #' column will be appended. When clean = TRUE and errorsonly = TRUE, the function
@@ -32,7 +32,7 @@
 #' InvalidFraction_clean <- InvalidFraction(Nutrients_Utah)
 #' 
 #' # Flag, but do not remove, data with invalid characteristic-fraction combinations
-#' # in new column titled "WQX.SampleFractionValidity":
+#' # in new column titled "TADA.SampleFraction.Flag":
 #' InvalidFraction_flags <- InvalidFraction(Nutrients_Utah, clean = FALSE)
 #' 
 #' # Show only invalid characteristic-fraction combinations:
@@ -54,8 +54,8 @@ InvalidFraction <- function(.data, clean = TRUE, errorsonly = FALSE) {
   }
   
   # execute function after checks are passed
-  if (("WQX.SampleFractionValidity" %in% colnames(.data)) == TRUE) {
-    .data <- dplyr::select(.data, -WQX.SampleFractionValidity)
+  if (("TADA.SampleFraction.Flag" %in% colnames(.data)) == TRUE) {
+    .data <- dplyr::select(.data, -TADA.SampleFraction.Flag)
   }
   # read in sample fraction reference table from extdata and filter
   frac.ref <- GetWQXCharValRef() %>%
@@ -72,27 +72,27 @@ InvalidFraction <- function(.data, clean = TRUE, errorsonly = FALSE) {
   
   # rename Status column
   check.data <- check.data %>%
-    dplyr::rename(WQX.SampleFractionValidity = Status)
-  # rename NA values to Nonstandardized in WQX.SampleFractionValidity column
-  check.data["WQX.SampleFractionValidity"][is.na(check.data["WQX.SampleFractionValidity"])] <- "Nonstandardized"
+    dplyr::rename(TADA.SampleFraction.Flag = Status)
+  # rename NA values to Nonstandardized in TADA.SampleFraction.Flag column
+  check.data["TADA.SampleFraction.Flag"][is.na(check.data["TADA.SampleFraction.Flag"])] <- "Nonstandardized"
   
   # EDH replaced with function OrderTADACols at end
   # # reorder column names to match .data
   # # get .data column names
   # col.order <- colnames(.data)
   # # add WQX.SampleFractionValidity column to the list
-  # col.order <- append(col.order, "WQX.SampleFractionValidity")
+  # col.order <- append(col.order, "TADA.SampleFraction.Flag")
   # # reorder columns in check.data
   # check.data <- check.data[, col.order]
   # # place flag column next to relevant fields
   # check.data <- check.data %>%
-  #   dplyr::relocate("WQX.SampleFractionValidity",
+  #   dplyr::relocate("TADA.SampleFraction.Flag",
   #                   .after = "ResultSampleFractionText"
   #   )
   
   # if all rows are "Valid", return input unchanged
   if (any(c("Nonstandardized", "Invalid") %in%
-          unique(check.data$WQX.SampleFractionValidity)) == FALSE) {
+          unique(check.data$TADA.SampleFraction.Flag)) == FALSE) {
     if (errorsonly == FALSE) {
       print("No changes were made, because we did not find any invalid fraction/characteristic combinations in your dataframe")
       .data = OrderTADACols(.data)
@@ -100,8 +100,8 @@ InvalidFraction <- function(.data, clean = TRUE, errorsonly = FALSE) {
     }
     if (errorsonly == TRUE) {
       print("This dataframe is empty because we did not find any invalid fraction/characteristic combinations in your dataframe")
-      empty.data <- dplyr::filter(check.data, WQX.SampleFractionValidity == "Invalid")
-      empty.data <- dplyr::select(empty.data, -WQX.SampleFractionValidity)
+      empty.data <- dplyr::filter(check.data, TADA.SampleFraction.Flag == "Invalid")
+      empty.data <- dplyr::select(empty.data, -TADA.SampleFraction.Flag)
       empty.data = OrderTADACols(empty.data)
       return(empty.data)
     }
@@ -117,10 +117,10 @@ InvalidFraction <- function(.data, clean = TRUE, errorsonly = FALSE) {
   # clean output
   if (clean == TRUE & errorsonly == FALSE) {
     # filter out invalid characteristic-fraction combinations
-    clean.data <- dplyr::filter(check.data, WQX.SampleFractionValidity != "Invalid")
+    clean.data <- dplyr::filter(check.data, TADA.SampleFraction.Flag != "Invalid")
     
     # remove WQX.SampleFractionValidity column
-    clean.data <- dplyr::select(clean.data, -WQX.SampleFractionValidity)
+    clean.data <- dplyr::select(clean.data, -TADA.SampleFraction.Flag)
     clean.data = OrderTADACols(clean.data)
     return(clean.data)
   }
@@ -128,7 +128,7 @@ InvalidFraction <- function(.data, clean = TRUE, errorsonly = FALSE) {
   # flagged output, errors only
   if (clean == FALSE & errorsonly == TRUE) {
     # filter out valid characteristic-fraction combinations
-    invalid.data <- dplyr::filter(check.data, WQX.SampleFractionValidity == "Invalid")
+    invalid.data <- dplyr::filter(check.data, TADA.SampleFraction.Flag == "Invalid")
     invalid.data = OrderTADACols(invalid.data)
     return(invalid.data)
   }
@@ -157,11 +157,11 @@ InvalidFraction <- function(.data, clean = TRUE, errorsonly = FALSE) {
 #' errorsonly = TRUE. Default is errorsonly = FALSE.
 #'
 #' @return When clean = "none" and errorsonly = FALSE, this function adds the 
-#' following column to your dataframe: WQX.MethodSpeciationValidity. This column 
+#' following column to your dataframe: TADA.MethodSpeciation.Flag. This column 
 #' flags each CharacteristicName and MethodSpecificationName combination in your 
 #' dataframe as either "Nonstandardized", "Invalid", or "Valid". When clean = "none" 
 #' and errorsonly = TRUE, the dataframe is filtered to show only the "Invalid" and
-#' "Nonstandardized data; the column WQX.MethodSpeciationValidity is still appended. 
+#' "Nonstandardized data; the column TADA.MethodSpeciation.Flag is still appended. 
 #' When clean = "invalid_only" and errorsonly = FALSE, "Invalid" rows are removed 
 #' from the dataframe, but "Nonstandardized" rows are retained. When
 #' clean = "nonstandardized_only" and errorsonly = FALSE, "Nonstandardized" rows
@@ -175,11 +175,11 @@ InvalidFraction <- function(.data, clean = TRUE, errorsonly = FALSE) {
 #' data(Nutrients_Utah)
 #' 
 #' # Remove data with invalid characteristic-method speciation combinations from dataframe, 
-#' # but retain nonstandardized combinations flagged in new column 'WQX.MethodSpeciationValidity':
+#' # but retain nonstandardized combinations flagged in new column 'TADA.MethodSpeciation.Flag':
 #' InvalidSpeciation_clean <- InvalidSpeciation(Nutrients_Utah)
 #' 
 #' # Remove data with nonstandardized characteristic-method speciation combinations 
-#' # from dataframe but retain invalid combinations flagged in new column 'WQX.MethodSpeciationValidity':
+#' # from dataframe but retain invalid combinations flagged in new column 'TADA.MethodSpeciation.Flag':
 #' NonstandardSpeciation_clean <- InvalidSpeciation(Nutrients_Utah, clean = "nonstandardized_only")
 #' 
 #' # Remove both invalid and nonstandardized characteristic-method speciation combinations
@@ -187,7 +187,7 @@ InvalidFraction <- function(.data, clean = TRUE, errorsonly = FALSE) {
 #' Speciation_clean <- InvalidSpeciation(Nutrients_Utah, clean = "both")
 #' 
 #' # Flag, but do not remove, data with invalid or nonstandardized characteristic-method speciation
-#' # combinations in new column titled "WQX.MethodSpeciationValidity":
+#' # combinations in new column titled "TADA.MethodSpeciation.Flag":
 #' InvalidSpeciation_flags <- InvalidSpeciation(Nutrients_Utah, clean = "none")
 #' 
 #' # Show only invalid characteristic-method speciation combinations:
@@ -210,8 +210,8 @@ InvalidSpeciation <- function(.data, clean = c("invalid_only", "nonstandardized_
   clean <- match.arg(clean)
 
   # execute function after checks are passed
-  if (("WQX.MethodSpeciationValidity" %in% colnames(.data)) == TRUE) {
-    .data <- dplyr::select(.data, -WQX.MethodSpeciationValidity)
+  if (("TADA.MethodSpeciation.Flag" %in% colnames(.data)) == TRUE) {
+    .data <- dplyr::select(.data, -TADA.MethodSpeciation.Flag)
   }
   
   # read in speciation reference table from extdata and filter
@@ -226,27 +226,27 @@ InvalidSpeciation <- function(.data, clean = c("invalid_only", "nonstandardized_
   
   # rename Status column
   check.data <- check.data %>%
-    dplyr::rename(WQX.MethodSpeciationValidity = Status)
-  # rename NA values to Nonstandardized in WQX.MethodSpeciationValidity column
-  check.data["WQX.MethodSpeciationValidity"][is.na(check.data["WQX.MethodSpeciationValidity"])] <- "Nonstandardized"
+    dplyr::rename(TADA.MethodSpeciation.Flag = Status)
+  # rename NA values to Nonstandardized in TADA.MethodSpeciation.Flag column
+  check.data["TADA.MethodSpeciation.Flag"][is.na(check.data["TADA.MethodSpeciation.Flag"])] <- "Nonstandardized"
   
   # EDH replaced with OrderTADACols at end of function
   # # reorder column names to match .data
   # # get .data column names
   # col.order <- colnames(.data)
-  # # add WQX.MethodSpeciationValidity column to the list
-  # col.order <- append(col.order, "WQX.MethodSpeciationValidity")
+  # # add TADA.MethodSpeciation.Flag column to the list
+  # col.order <- append(col.order, "TADA.MethodSpeciation.Flag")
   # # reorder columns in check.data
   # check.data <- check.data[, col.order]
   # # place flag columns next to relevant fields
   # check.data <- check.data %>%
-  #   dplyr::relocate("WQX.MethodSpeciationValidity",
+  #   dplyr::relocate("TADA.MethodSpeciation.Flag",
   #                   .after = "MethodSpecificationName"
   #   )
   
   # if all rows are "Valid", return input unchanged
   if (any(c("Nonstandardized", "Invalid") %in%
-          unique(check.data$WQX.MethodSpeciationValidity)) == FALSE) {
+          unique(check.data$TADA.MethodSpeciation.Flag)) == FALSE) {
     print("All data is valid, therefore the function cannot be applied.")
     .data = OrderTADACols(.data)
     return(.data)
@@ -260,19 +260,19 @@ InvalidSpeciation <- function(.data, clean = c("invalid_only", "nonstandardized_
   # when clean = "invalid_only"
   if (clean == "invalid_only") {
     # filter out only "Invalid" characteristic-method speciation combinations
-    clean.data <- dplyr::filter(check.data, WQX.MethodSpeciationValidity != "Invalid")
+    clean.data <- dplyr::filter(check.data, TADA.MethodSpeciation.Flag != "Invalid")
   }
   
   # when clean = "nonstandardized_only"
   if (clean == "nonstandardized_only") {
     # filter out only "Nonstandardized" characteristic-method speciation combinations
-    clean.data <- dplyr::filter(check.data, WQX.MethodSpeciationValidity != "Nonstandardized")
+    clean.data <- dplyr::filter(check.data, TADA.MethodSpeciation.Flag != "Nonstandardized")
   }
   
   # when clean = "both"
   if (clean == "both") {
     # filter out both "Invalid" and "Nonstandardized" characteristic-method speciation combinations
-    clean.data <- dplyr::filter(check.data, WQX.MethodSpeciationValidity != "Nonstandardized" & WQX.MethodSpeciationValidity != "Invalid")
+    clean.data <- dplyr::filter(check.data, TADA.MethodSpeciation.Flag != "Nonstandardized" & TADA.MethodSpeciation.Flag != "Invalid")
   }
   
   # when clean = "none"
@@ -290,11 +290,11 @@ InvalidSpeciation <- function(.data, clean = c("invalid_only", "nonstandardized_
   # when errorsonly = TRUE
   if (errorsonly == TRUE) {
     # filter to show only invalid and/or nonstandardized characteristic-method speciation combinations
-    error.data <- dplyr::filter(clean.data, WQX.MethodSpeciationValidity == "Invalid" | WQX.MethodSpeciationValidity == "Nonstandardized")
+    error.data <- dplyr::filter(clean.data, TADA.MethodSpeciation.Flag == "Invalid" | TADA.MethodSpeciation.Flag == "Nonstandardized")
     # if there are no errors
     if (nrow(error.data) == 0) {
       print("This dataframe is empty because either we did not find any invalid/nonstandardized characteristic-method speciation combinations or they were all filtered out")
-      error.data <- dplyr::select(error.data, -WQX.MethodSpeciationValidity)
+      error.data <- dplyr::select(error.data, -TADA.MethodSpeciation.Flag)
     }
     error.data = OrderTADACols(error.data)
     return(error.data)
@@ -326,11 +326,11 @@ InvalidSpeciation <- function(.data, clean = c("invalid_only", "nonstandardized_
 #' is errorsonly = FALSE.
 #'
 #' @return When clean = "none" and errorsonly = FALSE, this function adds the 
-#' following column to your dataframe: WQX.ResultUnitValidity. This column 
+#' following column to your dataframe: TADA.ResultUnit.Flag. This column 
 #' flags each CharacteristicName, ActivityMediaName, and ResultMeasure/MeasureUnitCode
 #' combination in your dataframe as either "Nonstandardized", "Invalid", or "Valid". 
 #' When clean = "none" and errorsonly = TRUE, the dataframe is filtered to show only 
-#' the "Invalid" and "Nonstandardized data; the column WQX.ResultUnitValidity is 
+#' the "Invalid" and "Nonstandardized data; the column TADA.ResultUnit.Flag is 
 #' still appended. When clean = "invalid_only" and errorsonly = FALSE, "Invalid" 
 #' rows are removed from the dataframe, but "Nonstandardized" rows are retained. When
 #' clean = "nonstandardized_only" and errorsonly = FALSE, "Nonstandardized" rows
@@ -344,11 +344,11 @@ InvalidSpeciation <- function(.data, clean = c("invalid_only", "nonstandardized_
 #' data(Nutrients_Utah)
 #' 
 #' # Remove data with invalid characteristic-media-result unit combinations from dataframe, 
-#' # but retain nonstandardized combinations flagged in new column 'WQX.ResultUnitValidity':
+#' # but retain nonstandardized combinations flagged in new column 'TADA.ResultUnit.Flag':
 #' InvalidUnit_clean <- InvalidResultUnit(Nutrients_Utah)
 #' 
 #' # Remove data with nonstandardized characteristic-media-result unit combinations 
-#' # from dataframe but retain invalid combinations flagged in new column 'WQX.ResultUnitValidity':
+#' # from dataframe but retain invalid combinations flagged in new column 'TADA.ResultUnit.Flag:
 #' NonstandardUnit_clean <- InvalidResultUnit(Nutrients_Utah, clean = "nonstandardized_only")
 #' 
 #' # Remove both invalid and nonstandardized characteristic-media-result unit combinations
@@ -356,7 +356,7 @@ InvalidSpeciation <- function(.data, clean = c("invalid_only", "nonstandardized_
 #' ResultUnit_clean <- InvalidResultUnit(Nutrients_Utah, clean = "both")
 #' 
 #' # Flag, but do not remove, data with invalid or nonstandardized characteristic-media-result unit
-#' # combinations in new column titled "WQX.ResultUnitValidity":
+#' # combinations in new column titled "TADA.ResultUnit.Flag":
 #' InvalidUnit_flags <- InvalidResultUnit(Nutrients_Utah, clean = "none")
 #' 
 #' # Show only invalid characteristic-media-result unit combinations:
@@ -378,8 +378,8 @@ InvalidResultUnit <- function(.data, clean = c("invalid_only", "nonstandardized_
   clean <- match.arg(clean)
 
   # execute function after checks are passed
-  if (("WQX.ResultUnitValidity" %in% colnames(.data)) == TRUE) {
-    .data <- dplyr::select(.data, -WQX.ResultUnitValidity)
+  if (("TADA.ResultUnit.Flag" %in% colnames(.data)) == TRUE) {
+    .data <- dplyr::select(.data, -TADA.ResultUnit.Flag)
   }
   
   # read in unit reference table from extdata and filter
@@ -394,27 +394,27 @@ InvalidResultUnit <- function(.data, clean = c("invalid_only", "nonstandardized_
   
   # rename Status column
   check.data <- check.data %>%
-    dplyr::rename(WQX.ResultUnitValidity = Status)
+    dplyr::rename(TADA.ResultUnit.Flag = Status)
   # rename NA values to Nonstandardized in WQX.ResultUnitValidity column
-  check.data["WQX.ResultUnitValidity"][is.na(check.data["WQX.ResultUnitValidity"])] <- "Nonstandardized"
+  check.data["TADA.ResultUnit.Flag"][is.na(check.data["TADA.ResultUnit.Flag"])] <- "Nonstandardized"
   
   # EDH replaced with OrderTADACols at end of function
   # # reorder column names to match .data
   # # get .data column names
   # col.order <- colnames(.data)
-  # # add WQX.ResultUnitValidity column to the list
-  # col.order <- append(col.order, "WQX.ResultUnitValidity")
+  # # add TADA.ResultUnit.Flag column to the list
+  # col.order <- append(col.order, "TADA.ResultUnit.Flag")
   # # reorder columns in check.data
   # check.data <- check.data[, col.order]
   # # place flag columns next to relevant fields
   # check.data <- check.data %>%
-  #   dplyr::relocate("WQX.ResultUnitValidity",
+  #   dplyr::relocate("TADA.ResultUnit.Flag",
   #                   .after = "ResultMeasure.MeasureUnitCode"
   #   )
   
   # if all rows are "Valid", return input unchanged
   if (any(c("Nonstandardized", "Invalid") %in%
-          unique(check.data$WQX.ResultUnitValidity)) == FALSE) {
+          unique(check.data$TADA.ResultUnit.Flag)) == FALSE) {
     print("All data are valid, therefore the function cannot be applied.")
     .data = OrderTADACols(.data)
     return(.data)
@@ -428,19 +428,19 @@ InvalidResultUnit <- function(.data, clean = c("invalid_only", "nonstandardized_
   # when clean = "invalid_only"
   if (clean == "invalid_only") {
     # filter out only "Invalid" characteristic-method speciation combinations
-    clean.data <- dplyr::filter(check.data, WQX.ResultUnitValidity != "Invalid")
+    clean.data <- dplyr::filter(check.data, TADA.ResultUnit.Flag != "Invalid")
   }
   
   # when clean = "nonstandardized_only"
   if (clean == "nonstandardized_only") {
     # filter out only "Nonstandardized" characteristic-method speciation combinations
-    clean.data <- dplyr::filter(check.data, WQX.ResultUnitValidity != "Nonstandardized")
+    clean.data <- dplyr::filter(check.data, TADA.ResultUnit.Flag != "Nonstandardized")
   }
   
   # when clean = "both"
   if (clean == "both") {
     # filter out both "Invalid" and "Nonstandardized" characteristic-method speciation combinations
-    clean.data <- dplyr::filter(check.data, WQX.ResultUnitValidity != "Nonstandardized" & WQX.ResultUnitValidity != "Invalid")
+    clean.data <- dplyr::filter(check.data, TADA.ResultUnit.Flag != "Nonstandardized" & TADA.ResultUnit.Flag != "Invalid")
   }
   
   # when clean = "none"
@@ -458,11 +458,11 @@ InvalidResultUnit <- function(.data, clean = c("invalid_only", "nonstandardized_
   # when errorsonly = TRUE
   if (errorsonly == TRUE) {
     # filter to show only invalid and/or nonstandardized characteristic-method speciation combinations
-    error.data <- dplyr::filter(clean.data, WQX.ResultUnitValidity == "Invalid" | WQX.ResultUnitValidity == "Nonstandardized")
+    error.data <- dplyr::filter(clean.data, TADA.ResultUnit.Flag == "Invalid" | TADA.ResultUnit.Flag == "Nonstandardized")
     # if there are no errors
     if (nrow(error.data) == 0) {
       print("This dataframe is empty because either we did not find any invalid/nonstandardized characteristic-media-result unit combinations or they were all filtered out")
-      error.data <- dplyr::select(error.data, -WQX.ResultUnitValidity)
+      error.data <- dplyr::select(error.data, -TADA.ResultUnit.Flag)
     }
     error.data = OrderTADACols(error.data)
     return(error.data)

@@ -1,8 +1,3 @@
-test_that("multiplication works", {
-  expect_equal(2 * 2, 4)
-})
-
-
 
 # Unit tests for ConvertDepthUnits function
 # Dataframe fixture
@@ -59,8 +54,8 @@ test_that("ConvertDepthUnits check fields argument for valid inputs", {
 test_that("ConvertDepthUnits all value columns NaN", {
   # Replace units col w/ NaN
   TADAProfile$ActivityDepthHeightMeasure.MeasureUnitCode <- c(NaN, NaN)
-  err <- "The dataframe does not have any depth data."
-  expect_error(ConvertDepthUnits(TADAProfile), err)
+  warn <- "No action taken: the dataframe does not have any depth data in ActivityTop/BottomDepthHeight or ResultDepthHeight columns."
+  expect_warning(ConvertDepthUnits(TADAProfile), warn)
 })
 
 # Conversion correct
