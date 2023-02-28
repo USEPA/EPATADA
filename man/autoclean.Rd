@@ -13,10 +13,9 @@ autoclean(.data)
 autocleaned TADA data profile
 }
 \description{
-Removes complex biological data. Removes non-water media samples.
-Removes rows of data that are true duplicates. Capitalizes fields to harmonize
-data. This function includes and runs the TADA "MeasureValueSpecialCharacters"
-function as well.
+Removes rows of data that are true duplicates. Creates new columns with prefix
+"TADA." and capitalizes fields to harmonize data. This function includes and
+runs the TADA "ConvertSpecialChars" function as well.
 }
 \details{
 Within "BiologicalIntentName", only the allowable values "tissue", "toxicity",
@@ -24,9 +23,10 @@ and "NA" apply to non-biological data (the function removes all others).
 Toxicity and fish tissue data will be kept, but other types of biological
 monitoring data will not.
 
-We decided to make some fields uppercase that way they're more compatible
+This function makes certain fields uppercase so that they're interoperable
 with the WQX validation reference tables and to avoid any issues with
-case-sensitivity when joining data. Therefore, we might need to tack on any
-immediate QA steps (removing true duplicates, converting result values to numeric,
-capitalizing letters, etc.) to this function, as well as the other retrieval functions.
+case-sensitivity when joining data. This function also performs immediate QA steps
+(removes true duplicates, converts result values to numeric, capitalizes
+letters, etc.). It can be run as a stand alone function or can be tacked onto
+other functions.
 }

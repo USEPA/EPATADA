@@ -21,8 +21,8 @@ or "in" (inches). 'unit' accepts only one allowable value as an input. The
 default unit = "m".}
 
 \item{fields}{Character string input indicating the relevant depth data fields
-that will be converted to the desired target unit. Allowable values for 'fields'
-are "ActivityDepthHeightMeasure", "ActivityTopDepthHeightMeasure",
+that will be converted to the desired target unit in new TADA column. Allowable
+values for 'fields' are "ActivityDepthHeightMeasure", "ActivityTopDepthHeightMeasure",
 "ActivityBottomDepthHeightMeasure", and "ResultDepthHeightMeasure". The default
 is to include all depth fields.}
 
@@ -42,13 +42,16 @@ columns including... be specific here ...
 }
 \description{
 Default is transform = TRUE. When transform = TRUE, all depth data is converted
-to a consistent unit; and no additional columns are added.
+to a consistent unit. The converted depth value and unit are placed in a NEW
+column with the same name as the original, plus the prefix "TADA." New columns
+are only created if there are values/units in the column(s) of interest.
 The default unit is "m" (meters), but a user can also choose
 "ft" or "in". When transform = FALSE, where depth data is populated, the
 function appends columns indicating the target unit and conversion factor for
 each row; and for each depth field. No conversions are done at this time.
 A user can review the conversion factor information if desired by using this
-feature.
+feature. All transformations are performed on columns created by this function
+with the prefix "TADA." All WQP columns retain original values.
 }
 \examples{
 # Load example dataset:

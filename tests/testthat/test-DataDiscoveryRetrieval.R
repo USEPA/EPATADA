@@ -43,9 +43,10 @@ test_that("TADAdataRetrieval", {
                     "CharacteristicName",                              
                     "ResultSampleFractionText",                         
                     "ResultMeasureValue",                               
-                    "ResultMeasureValue.Original",                      
-                    "TADA.ResultMeasureValue.Flag",                     
-                    "ResultMeasure.MeasureUnitCode",                    
+                    "TADA.ResultMeasureValue",                      
+                    "TADA.ResultMeasureValue.DataTypeFlag",                     
+                    "ResultMeasure.MeasureUnitCode",
+                    "TADA.ResultMeasure.MeasureUnitCode",
                     "MeasureQualifierCode",                             
                     "ResultStatusIdentifier",                           
                     "StatisticalBaseCode",                              
@@ -80,8 +81,8 @@ test_that("TADAdataRetrieval", {
                     "ResultDetectionQuantitationLimitUrl", 
                     "DetectionQuantitationLimitTypeName",               
                     "DetectionQuantitationLimitMeasure.MeasureValue",   
-                    "DetectionLimitMeasureValue.Original",              
-                    "TADA.DetectionLimitMeasureValue.Flag",             
+                    "TADA.DetectionQuantitationLimitMeasure.MeasureValue",              
+                    "TADA.DetectionQuantitationLimitMeasure.MeasureValue.DataTypeFlag",             
                     "DetectionQuantitationLimitMeasure.MeasureUnitCode",
                     "LabSamplePreparationUrl", 
                     "LastUpdated", 
@@ -132,13 +133,15 @@ test_that("TADAdataRetrieval", {
   check_autoclean_meters_works <- TADAdataRetrieval(statecode = "UT",
                                     characteristicName = c("Ammonia", "Nitrate", "Nitrogen"),
                                     startDate = "2021-01-01")
-  expect_true(any(check_autoclean_meters_works$ActivityDepthHeightMeasure.MeasureUnitCode!="meters"))
+  expect_false("meters"%in%check_autoclean_meters_works$TADA.ResultMeasure.MeasureUnitCode)
   })
 
 # Testing that regular and big data retrieval return the same number of rows on an identical query.
+# cm edited to include start date on 2/27/23 because without this it takes too long to run
+# these tests, and may time out
 test_that("Reg&BigdataRetrieval",{
-  big <- TADABigdataRetrieval(characteristicName = "Algae, substrate rock/bank cover (choice list)", siteType = "Stream", applyautoclean = TRUE)
-  reg <- TADAdataRetrieval(characteristicName = "Algae, substrate rock/bank cover (choice list)", siteType = "Stream")
+  big <- TADABigdataRetrieval(characteristicName = "Algae, substrate rock/bank cover (choice list)", siteType = "Stream", startDate = "2020-01-01", applyautoclean = TRUE)
+  reg <- TADAdataRetrieval(characteristicName = "Algae, substrate rock/bank cover (choice list)", sampleMedia = "Water", siteType = "Stream", startDate = "2020-01-01")
   
   expect_equal(nrow(big),nrow(reg))
   

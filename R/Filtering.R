@@ -42,7 +42,7 @@ FilterFields <- function(.data) {
     "ActivityMediaSubdivisionName",
     "ActivityCommentText", "MonitoringLocationTypeName",
     "StateName", "TribalLandName",
-    "OrganizationFormalName", "CharacteristicName",
+    "OrganizationFormalName", "TADA.CharacteristicName",
     "HydrologicCondition", "HydrologicEvent",
     "BiologicalIntentName", "MeasureQualifierCode",
     "ActivityGroup", "AssemblageSampledName",
@@ -75,7 +75,7 @@ FilterFields <- function(.data) {
     "ActivityMediaSubdivisionName",
     "ActivityCommentText", "MonitoringLocationTypeName",
     "StateName", "TribalLandName",
-    "OrganizationFormalName", "CharacteristicName",
+    "OrganizationFormalName", "TADA.CharacteristicName",
     "HydrologicCondition", "HydrologicEvent",
     "BiologicalIntentName", "MeasureQualifierCode",
     "ActivityGroup", "AssemblageSampledName",
@@ -135,7 +135,7 @@ FilterFieldReview <- function(field, .data) {
 
   # create pie chart
   pie <- ggplot2::ggplot(df, ggplot2::aes(x = "", y = Count, fill = FieldValue)) +
-    ggplot2::scale_fill_manual(values = getPalette(colorCount)) +
+    ggplot2::scale_fill_manual(values = getPalette(colorCount),name = field) +
     ggplot2::geom_bar(stat = "identity", width = 1) +
     ggplot2::coord_polar("y", start = 0) +
     ggplot2::theme_void()
@@ -168,7 +168,7 @@ FilterFieldReview <- function(field, .data) {
 
 FilterParList <- function(.data) {
   # count the frequency of each value in CharactersticName field
-  ParValueCount <- data.frame(table(list(.data$CharacteristicName)))
+  ParValueCount <- data.frame(table(list(.data$TADA.CharacteristicName)))
   # Reorder Freq column from largest to smallest number
   ParValueCount <- ParValueCount[order(-ParValueCount$Freq), ]
   # Rename fields
@@ -206,15 +206,15 @@ FilterParFields <- function(.data, parameter) {
   # check .data is data.frame
   checkType(.data, "data.frame", "Input object")
   # check .data has required columns
-  checkColumns(.data, "CharacteristicName")
+  checkColumns(.data, "TADA.CharacteristicName")
   
   # check parameter is in .data
-  if ((parameter %in% .data$CharacteristicName) == FALSE) {
+  if ((parameter %in% .data$TADA.CharacteristicName) == FALSE) {
     stop("Input parameter is not in the input dataframe.")
   }
 
   # SUBSET DATAFRAME; CREATE LIST OF FIELDS
-  df <- dplyr::filter(.data, CharacteristicName %in% parameter)
+  df <- dplyr::filter(.data, TADA.CharacteristicName %in% parameter)
   # Find count of unique values in each column
   col.names <- data.frame(Count = apply(df, 2, function(x) length(unique(x))))
   # Create "FieldName" column from row names
@@ -226,13 +226,13 @@ FilterParFields <- function(.data, parameter) {
   # Filter col.names to include only fields for filtering
   col.names <- dplyr::filter(col.names, FieldName %in% c(
     "ActivityCommentText", "ActivityTypeCode",
-    "ActivityMediaName", "ActivityMediaSubdivisionName",
+    "TADA.ActivityMediaName", "ActivityMediaSubdivisionName",
     "MeasureQualifierCode", "MonitoringLocationTypeName",
     "HydrologicCondition", "HydrologicEvent",
     "ResultStatusIdentifier", "MethodQualifierTypeName",
     "ResultCommentText", "ResultLaboratoryCommentText",
-    "ResultMeasure.MeasureUnitCode",
-    "ResultSampleFractionText", "ResultTemperatureBasisText",
+    "TADA.ResultMeasure.MeasureUnitCode",
+    "TADA.ResultSampleFractionText", "ResultTemperatureBasisText",
     "ResultValueTypeName", "ResultWeightBasisText",
     "SampleCollectionEquipmentName", "LaboratoryName",
     "MethodDescriptionText", "ResultParticleSizeBasisText",
@@ -262,13 +262,13 @@ FilterParFields <- function(.data, parameter) {
   # Filter list to include only fields for filtering
   ParUniqueValList <- ParUniqueValList[c(
     "ActivityCommentText", "ActivityTypeCode",
-    "ActivityMediaName", "ActivityMediaSubdivisionName",
+    "TADA.ActivityMediaName", "ActivityMediaSubdivisionName",
     "MeasureQualifierCode", "MonitoringLocationTypeName",
     "HydrologicCondition", "HydrologicEvent",
     "ResultStatusIdentifier", "MethodQualifierTypeName",
     "ResultCommentText", "ResultLaboratoryCommentText",
-    "ResultMeasure.MeasureUnitCode",
-    "ResultSampleFractionText", "ResultTemperatureBasisText",
+    "TADA.ResultMeasure.MeasureUnitCode",
+    "TADA.ResultSampleFractionText", "ResultTemperatureBasisText",
     "ResultValueTypeName", "ResultWeightBasisText",
     "SampleCollectionEquipmentName", "LaboratoryName",
     "MethodDescriptionText", "ResultParticleSizeBasisText",
@@ -318,7 +318,7 @@ FilterParFieldReview <- function(field, .data, parameter) {
   }
   # check parameter is in .data
   if (!missing(parameter)) {
-    if ((parameter %in% .data$CharacteristicName) == FALSE) {
+    if ((parameter %in% .data$TADA.CharacteristicName) == FALSE) {
       stop("Input parameter is not in the input dataframe.")
     }
   }
@@ -342,10 +342,11 @@ FilterParFieldReview <- function(field, .data, parameter) {
 
   # create pie chart
   pie <- ggplot2::ggplot(df, ggplot2::aes(x = "", y = Count, fill = FieldValue)) +
-    ggplot2::scale_fill_manual(values = getPalette(colorCount)) +
+    ggplot2::scale_fill_manual(values = getPalette(colorCount), name = field) +
     ggplot2::geom_bar(stat = "identity", width = 1) +
     ggplot2::coord_polar("y", start = 0) +
-    ggplot2::theme_void()
+    ggplot2::theme_void() +
+    ggplot2::labs(title = parameter)
 
   print(pie)
   print(df)

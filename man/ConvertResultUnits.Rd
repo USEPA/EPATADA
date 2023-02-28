@@ -14,9 +14,9 @@ Default is transform = TRUE.}
 }
 \value{
 When transform=TRUE, result values and units are converted to WQX target units.
-This function changes the values within the "ResultMeasure.MeasureUnitCode"
-and "DetectionQuantitationLimitMeasure.MeasureUnitCode" to the WQX target units and
-converts respective values within the "ResultMeasureValue" and "DetectionQuantitationLimitMeasure.MeasureValue"
+This function changes the values within the "TADA.ResultMeasure.MeasureUnitCode"
+and "TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode" to the WQX target units and
+converts respective values within the "TADA.ResultMeasureValue" and "TADA.DetectionQuantitationLimitMeasure.MeasureValue"
 fields. In addition to "WQX.ResultMeasureValue.UnitConversion"
 and "WQX.DetectionLimitMeasureValue.UnitConversion", transform=TRUE will add
 the following two fields to the input dataframe, "ResultMeasureUnitCode.Original",
@@ -45,20 +45,15 @@ means data cannot be converted because the original unit is not associated with 
 has been run with the input transform = TRUE, and the values were already converted.
 }
 
-It also uses the following six fields from the input dataframe:
+It also uses the following six fields from an autocleaned input dataframe:
 \enumerate{
-\item "CharacteristicName",
-\item "ActivityMediaName",
-\item "ResultMeasureValue",
-\item "ResultMeasure.MeasureUnitCode",
-\item "DetectionQuantitationLimitMeasure.MeasureValue",
-\item "DetectionQuantitationLimitMeasure.MeasureUnitCode"
+\item "TADA.CharacteristicName",
+\item "TADA.ActivityMediaName",
+\item "TADA.ResultMeasureValue",
+\item "TADA.ResultMeasure.MeasureUnitCode",
+\item "TADA.DetectionQuantitationLimitMeasure.MeasureValue",
+\item "TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode"
 }
-
-This function adds the following two fields and transforms values within the
-following four fields ONLY when transform=TRUE:
-Adds: "ResultMeasureUnitCode.Original", and "DetectionLimitMeasureUnitCode.Original".
-Transforms: "ResultMeasureValue", "ResultMeasure.MeasureUnitCode", "DetectionQuantitationLimitMeasure.MeasureValue", and "DetectionQuantitationLimitMeasure.MeasureUnitCode".
 
 This function adds the following two fields ONLY when transform=FALSE:
 Adds: "WQX.ConversionFactor" and "WQX.TargetUnit".
@@ -67,9 +62,6 @@ Adds: "WQX.ConversionFactor" and "WQX.TargetUnit".
 # Load example dataset:
 data(Nutrients_Utah)
 
-# Convert result and detection limit values and units to WQX target units and 
-# add two new columns titled "ResultMeasureUnitCode.Original" and 
-# "DetectionLimitMeasureUnitCode.Original" to retain the original result and unit values:
 ResultUnitsConverted <- ConvertResultUnits(Nutrients_Utah)
 
 # Do not convert result values and units, but add two new columns titled

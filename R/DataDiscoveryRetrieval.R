@@ -69,7 +69,8 @@
 #'                            startDate = "2020-10-01")
 #' 
 #' tada4 <- TADAdataRetrieval(statecode = "SC", countycode  = "Abbeville")
-#' # countycode queries require a statecode
+#' 
+#' # note that countycode queries require a statecode (see example below)
 #' tada5 <- TADAdataRetrieval(countycode = "US:02:020")
 #' }
 #'

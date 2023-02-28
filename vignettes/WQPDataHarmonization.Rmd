@@ -36,11 +36,11 @@ The following code will also install any packages you do not have, and
 load all packages required to run this vignette into your R session.
 
 ```{r, results = 'hide', message = FALSE, warning = FALSE}
-list.of.packages <- c("plyr", "data.table", "dplyr", "magrittr", "stringr", "utils", "RColorBrewer", "stats", "gganimate", "gifski", "lubridate", "maps", "remotes", "dataRetrieval", "ggplot2")
+list.of.packages <- c("plyr", "data.table", "dplyr", "magrittr", "stringr", "maps","utils", "RColorBrewer", "stats", "lubridate", "remotes", "dataRetrieval", "ggplot2")
 
 new.packages <- list.of.packages[!(list.of.packages %in% installed.packages()[,"Package"])]
 
-if(length(new.packages)) install.packages(new.packages)
+if(length(new.packages)) install.packages(new.packages, repos = "https://cloud.r-project.org/")
 ```
 
 If you have any issues loading the remotes library using the code above,
@@ -61,8 +61,8 @@ ggplot2 from GitHub.
 
 # remotes::install_github("hadley/ggplot2", dependencies=TRUE)
 
-remotes::install_github("USEPA/TADA", dependencies=TRUE)
-
+# remotes::install_github("USEPA/TADA", dependencies=TRUE)
+remotes::install_github("USEPA/TADA", dependencies=TRUE, ref="censored_data_eh") # EDH temporarily switched source so that this will build with new functions/names
 # if you experience any issues installing TADA, try uncommenting and running the line below before the install
 # options(download.file.method = "wininet")
 ```
@@ -80,11 +80,9 @@ library(utils)
 library(RColorBrewer)
 library(stats)
 library(rlang)
-library(gganimate)
-library(gifski)
-library(maps)
 library(lubridate)
 library(ggplot2)
+library(maps)
 library(dataRetrieval)
 library(TADA)
 ```
@@ -129,42 +127,19 @@ Data retrieval filters include:
 -   organization
 
 Please be aware that this TADAdataRetrieval function automatically runs
-the TADA **autoclean** and **MeasureValueSpecialCharacters** functions
+the TADA **autoclean** and **ConvertSpecialChars** functions
 as well, which are both required for subsequent functions within the
-TADA R package to run. These functions alter and/or add the following
-WQP columns (enter *?MeasureValueSpecialCharacters* and *?autoclean*
-into the console for more details):
+TADA R package to run. As a general rule, TADA functions do not change any contents in the WQP-served columns (enter *?ConvertSpecialChars* and *?autoclean* into the console for more details). Instead, they add new columns with the prefix "TADA." The following columns are numeric versions of their WQP origins:
 
--   Alters (e.g., ResultMeasureValue and
-    DetectionQuantitationLimitMeasure.MeasureValue fields are converted
-    to class numeric)
+    -   TADA.ResultMeasureValue
 
-    -   ResultMeasureValue
+    -   TADA.DetectionQuantitationLimitMeasure.MeasureValue
+    
+    -   TADA.LatitudeMeasure
+    
+    -   TADA.LongitudeMeasure
 
-    -   DetectionQuantitationLimitMeasure.MeasureValue
-
--   Adds (All the data cleaning and transformations are done directly to
-    the "ResultMeasureValue" and "DetectionLimitMeasureValue" columns,
-    however the original "ResultMeasureValue" and
-    "DetectionLimitMeasureValue" columns and values from the WQP are
-    preserved in these new fields, "ResultMeasureValue.Original" and
-    "DetectionLimitMeasureValue.Original". Additionally,
-    "TADA.ResultMeasureValue.Flag" and
-    "TADA.DetectionLimitMeasureValue.Flag" are created to track any
-    changes made to the "ResultMeasureValue" and
-    "DetectionLimitMeasureValue" columns; and to provide information
-    about the result values that is needed to address censored data
-    later on (i.e., nondetections). Specifically, these new columns flag
-    if special characters are included in result values, and specifies
-    what the special characters are.
-
-    -   ResultMeasureValue.Original
-
-    -   TADA.ResultMeasureValue.Flag
-
-    -   DetectionLimitMeasureValue.Original
-
-    -   TADA.DetectionLimitMeasureValue.Flag
+These functions also add the columns TADA.ResultMeasureValue.DataTypeFlag and TADA.DetectionQuantitationLimitMeasure.MeasureValue.DataTypeFlag, which provide information about the result values that is needed to address censored data later on (i.e., nondetections). Specifically, these new columns flag if special characters are included in result values, and specifies what the special characters are.
 
 Downloads using TADAdataRetrieval will have the same columns each time,
 but be aware that data are uploaded to the Water Quality Portal by
@@ -294,11 +269,16 @@ multiple HOURS to run. The total run time depends on your query inputs.
 
 ```
 
-Review all column names in the TADA Profile
+Review all column names in the TADA Profile. Remove results that are not water samples or measurements (TADA is recommended for use with water data only). 
 
 ```{r}
 colnames(TADAProfile)
-TADAProfile_CharSummary <- SummarizeCharacteristics(TADAProfile)
+TADAProfile_CharSummary <- SummarizeColumn(TADAProfile,"TADA.CharacteristicName")
+TADAProfile_CharSummary
+
+# Remove data for non-water media types
+TADAProfile <- dplyr::filter(TADAProfile, TADA.ActivityMediaName == "WATER")
+
 ```
 
 ## Invalid coordinates
@@ -307,10 +287,10 @@ Review station locations
 
 ```{r}
 #create a map of the world
-map()
+maps::map()
 
 # draw the sites included in your TADAProfile onto the map
-points(TADAProfile$LongitudeMeasure, TADAProfile$LatitudeMeasure, col="red", pch=20)
+points(TADAProfile$TADA.LongitudeMeasure, TADAProfile$TADA.LatitudeMeasure, col="red", pch=20)
 ```
 
 The TADA **InvalidCoordinates** function identifies and flags invalid
@@ -366,11 +346,11 @@ unique(InvalidCoordinateFlags$TADA.InvalidCoordinates)
 unique(InvalidCoordinateFlags$MonitoringLocationIdentifier)
 
 Unique_InvalidCoordinateFlags <- InvalidCoordinateFlags %>%
-  select('MonitoringLocationIdentifier','MonitoringLocationName', 'TADA.InvalidCoordinates',
-         'OrganizationIdentifier', 'LongitudeMeasure', 'LatitudeMeasure', 'MonitoringLocationTypeName', 
+  dplyr::select('MonitoringLocationIdentifier','MonitoringLocationName', 'TADA.InvalidCoordinates',
+         'OrganizationIdentifier', 'TADA.LongitudeMeasure', 'TADA.LatitudeMeasure', 'MonitoringLocationTypeName', 
          'CountryCode', 'StateCode', 'CountyCode', 'HUCEightDigitCode', 'MonitoringLocationDescriptionText',
          'ProjectName', 'ProjectIdentifier', 'OrganizationFormalName') %>%
-  distinct()
+  dplyr::distinct()
 
 # remove all data for sites with invalid or imprecise coordinates. Change function inputs to keep this data, but be aware it may impact your mapping. 
 TADAProfileClean1 <- InvalidCoordinates(TADAProfile, clean_outsideUSA = "remove", clean_imprecise = TRUE, errorsonly = FALSE)
@@ -380,28 +360,21 @@ TADAProfileClean1 <- InvalidCoordinates(TADAProfile, clean_outsideUSA = "remove"
 ## Depth unit conversions
 
 The **ConvertDepthUnits** function converts depth units to a consistent
-unit.
+unit. Depth values and units are most commonly associated with lake data, and are populated in the *ActivityDepthHeightMeasure*,
+*ActivityTopDepthHeightMeasure*, *ActivityBottomDepthHeightMeasure*, and
+*ResultDepthHeightMeasure* Result Value/Unit columns.
 
-The ActivityDepthHeightMeasure.MeasureValue column provides depth
-information. This is a crucial column for lake data but less often for
-river data.
-
-This function checks dataframe for depth profile data. Where depth
+This function first checks the dataframe for depth profile data. Where depth
 profile columns are populated, the function appends 'Conversion Factor'
-columns and populates those columns based on the original unit
-(MeasureUnitCode columns) and the target unit, which is defined in the
-'unit' argument. A 'Depth Target Unit' column is also appended,
-indicating the unit all selected depth data is converted to. When
+columns and populates those columns based on the original unit and the target unit, which is defined in the 'unit' argument. A 'Depth Target Unit' column is also appended, indicating the unit all selected depth data is converted to. When
 transform = FALSE, the output includes all 'Conversion Factor' columns
 and the 'Depth Target Unit' column. When transform = TRUE, the output
-includes converted depth data and the 'Depth Target Unit' column, which
-acts as a flag indicating which rows have been converted. Default is
-transform = TRUE.
+includes converted depth data and the 'Depth Target Unit' column, which acts as a flag indicating which rows have been converted. Default is transform = TRUE.
 
 The depth profile function can harmonize the depth units across all the
 following fields (or only a specific one): "ActivityDepthHeightMeasure",
 "ActivityTopDepthHeightMeasure", "ActivityBottomDepthHeightMeasure",
-"ResultDepthHeightMeasure"). The default is all.
+"ResultDepthHeightMeasure"). It creates new result value/unit columns with the prefix "TADA." to all converted columns. The default is to check all four Depth Height columns.
 
 Allowable values for 'unit' are either 'm' (meter), 'ft' (feet), or 'in'
 (inch). 'unit' accepts only one allowable value as an input. Default is
@@ -775,13 +748,13 @@ table that is specific to the input dataframe. Users can review how
 their input data relates to standard TADA values for the following
 elements:
 
--   CharacteristicName
+-   TADA.CharacteristicName
 
--   ResultSampleFractionText
+-   TADA.ResultSampleFractionText
 
--   MethodSpecicationName
+-   TADA.MethodSpecificationName
 
--   ResultMeasure.MeasureUnitCode
+-   TADA.ResultMeasure.MeasureUnitCode
 
 The **HarmonizeData** function then compares the input dataframe to the
 TADA Harmonization Reference Table. The purpose of the function is to
@@ -797,8 +770,8 @@ Optional outputs include:
 
 1.  the dataframe with Harmonization columns appended,
 
-2.  the dataframe with CharacteristicName, ResultSampleFractionText,
-    MethodSpecificationName, and ResultMeasure.MeasureUnitCode converted
+2.  the dataframe with TADA.CharacteristicName, TADA.ResultSampleFractionText,
+    TADA.MethodSpecificationName, and TADA.ResultMeasure.MeasureUnitCode converted
     to TADA standards or
 
 3.  the four fields converted with most Harmonization Reference Table
@@ -806,10 +779,10 @@ Optional outputs include:
 
 Here are some examples of how the HarmonizeData function can be used:
 
-1.  ResultSampleFractionText specifies forms of constituents. In some
+1.  TADA.ResultSampleFractionText specifies forms of constituents. In some
     cases, a single \*CharacteristicName\*\* will have both "Total" and
     "Dissolved" forms specified, which should not be combined. In these
-    cases, each CharacteristicName and ResultSampleFractionText
+    cases, each TADA.CharacteristicName and TADA.ResultSampleFractionText
     combination is given a different identifier. This identifier can be
     used later on to identify comparable data groups for calculating
     statistics and creating figures for each combination.
@@ -831,16 +804,16 @@ Address censored data for a single characteristic.
 ```{r}
 # how to point to a column in R: yourdataset$thecolumnyouwant
 # e.g., temp$ResultMeasureValueNitrogenExample <- filter(TADAProfileClean17, CharacteristicName == "NITROGEN")
-SingleCharacteristic <- filter(TADAProfileClean17, CharacteristicName == "NITROGEN")
+SingleCharacteristic <- dplyr::filter(TADAProfileClean17, TADA.CharacteristicName == "NITROGEN")
 
 # review the types of censored data you have in your data frame
 table(SingleCharacteristic$ResultDetectionConditionText)
 
 # review number of results that are NA's
-sum(is.na(SingleCharacteristic$ResultMeasureValue))
+sum(is.na(SingleCharacteristic$TADA.ResultMeasureValue))
 
 # substitute a value for NA. In this example, 0.02 MG/L is used for NITROGEN
-SingleCharacteristic$ResultMeasureValue <- ifelse(is.na(SingleCharacteristic$ResultMeasureValue) == TRUE, 0.02, SingleCharacteristic$ResultMeasureValue)
+SingleCharacteristic$TADA.ResultMeasureValue <- ifelse(is.na(SingleCharacteristic$TADA.ResultMeasureValue) == TRUE, 0.02, SingleCharacteristic$TADA.ResultMeasureValue)
 
 ```
 
@@ -848,8 +821,8 @@ Summarize results for a single characteristic
 
 ```{r}
 # add na.rm = TRUE to the function above to strip NA values before the mean computation proceeds
-summary(SingleCharacteristic$ResultMeasureValue, na.rm = TRUE)
+summary(SingleCharacteristic$TADA.ResultMeasureValue, na.rm = TRUE)
 
-hist(SingleCharacteristic$ResultMeasureValue)
+hist(SingleCharacteristic$TADA.ResultMeasureValue, main = unique(SingleCharacteristic$TADA.CharacteristicName), xlab = "Values")
 
 ```

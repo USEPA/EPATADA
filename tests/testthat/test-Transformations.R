@@ -66,9 +66,19 @@ test_that("ConvertDepthUnits all value columns NaN", {
 # Conversion correct
 test_that("ConvertDepthUnits convert ft to m", {
   x = ConvertDepthUnits(TADAProfile)
-  actual = x$ActivityDepthHeightMeasure.MeasureValue[2]
-  actual.unit <- x$ActivityDepthHeightMeasure.MeasureUnitCode[2]
+  actual = x$TADA.ActivityDepthHeightMeasure.MeasureValue[2]
+  actual.unit <- x$TADA.ActivityDepthHeightMeasure.MeasureUnitCode[2]
   expect_equal(actual, 0.3048)
   expect_equal(actual.unit, 'm')
+})
+
+# meters to m in depth columns
+test_that("ConvertDepthUnits converts meters to m", {
+  check_depth_meters <- TADAdataRetrieval(statecode = "UT",
+                                          organization = "USGS-UT",
+                                          characteristicName = c("Ammonia", "Nitrate", "Nitrogen"),
+                                          startDate = "2021-01-01")
+  check_depth_meters = ConvertDepthUnits(check_depth_meters)
+  expect_false("meters"%in%check_depth_meters$TADA.ActivityDepthHeightMeasure.MeasureUnitCode)
 })
 
