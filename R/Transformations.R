@@ -335,7 +335,7 @@ ConvertResultUnits <- function(.data, transform = TRUE) {
 #' # Convert all depth units to feet:
 #' DepthUnitsConverted_ft <- ConvertDepthUnits(Nutrients_Utah, unit = "ft")
 #' 
-#' # Convert only the "ActivityTopDepthHeightMeasure" field to inches:
+#' # Convert only the "TADA.ActivityTopDepthHeightMeasure" field to inches:
 #' TopDepthUnitsConverted_in <- ConvertDepthUnits(Nutrients_Utah, 
 #' unit = "in", fields = "ActivityTopDepthHeightMeasure")
 #' 
@@ -387,8 +387,7 @@ ConvertDepthUnits <- function(.data,
     "ActivityBottomDepthHeightMeasure.MeasureValue",
     "ActivityBottomDepthHeightMeasure.MeasureUnitCode",
     "ResultDepthHeightMeasure.MeasureValue",
-    "ResultDepthHeightMeasure.MeasureUnitCode",
-    "ActivityEndTime.TimeZoneCode"
+    "ResultDepthHeightMeasure.MeasureUnitCode"
     )
   checkColumns(.data, expected_cols)
   
@@ -450,7 +449,9 @@ ConvertDepthUnits <- function(.data,
   
   # check if any Conversion Factor columns were appended
   if (all(is.na(match(appCols, colnames(check.data)))) == TRUE) {
-    stop("The dataframe does not have any depth data.")
+    warning("No action taken: the dataframe does not have any depth data in ActivityTop/BottomDepthHeight or ResultDepthHeight columns.")
+    check.data = OrderTADACols(check.data)
+    return(check.data)
   }
   
   #function should always run all code above
@@ -472,65 +473,37 @@ ConvertDepthUnits <- function(.data,
     # add WQX.Depth.TargetUnit column
     #clean.data[ , 'WQX.Depth.TargetUnit'] <- unit
     
-    # if WQXConversionFactor.ActivityDepthHeightMeasure exists...
-    if (("WQXConversionFactor.ActivityDepthHeightMeasure" %in% colnames(clean.data)) == TRUE) {
-      # multiply ActivityDepthHeightMeasure.MeasureValue by WQXConversionFactor.ActivityDepthHeightMeasure
-      # if else added to deal with NA's in RV column, which throws error when NA multiplied by number.
-      clean.data$TADA.ActivityDepthHeightMeasure.MeasureValue <- ifelse(!is.na(clean.data$TADA.ActivityDepthHeightMeasure.MeasureValue),(clean.data$TADA.ActivityDepthHeightMeasure.MeasureValue) * (clean.data$WQXConversionFactor.ActivityDepthHeightMeasure),clean.data$TADA.ActivityDepthHeightMeasure.MeasureValue)
-      
-      # then replace ActivityDepthHeightMeasure.MeasureUnitCode values with the new unit argument
-      clean.data$TADA.ActivityDepthHeightMeasure.MeasureUnitCode[which(
-        !is.na(clean.data$TADA.ActivityDepthHeightMeasure.MeasureUnitCode)
-      )] <- unit
-      
-      # comment out below to keep ActDepth.Conversion.Unit column
-      clean.data <- dplyr::select(clean.data, -"WQXConversionFactor.ActivityDepthHeightMeasure")
+    # function to run through each depth column
+    conv_unit <- function(.data, coln){
+      if(coln %in% colnames(.data)){
+        .data$cf = .data[,coln]
+        colnv = paste0(gsub("WQXConversionFactor","TADA",coln),".MeasureValue")
+        .data$val = .data[,colnv]
+        colnu = paste0(gsub("WQXConversionFactor","TADA",coln),".MeasureUnitCode")
+        .data$unit = .data[,colnu]
+        
+        # multiply .MeasureValue by WQXConversionFactor.
+        # if else added to deal with NA's in RV column, which throws error when NA multiplied by number.
+        .data$val <- ifelse(!is.na(.data$val),.data$val * .data$cf,.data$val)
+          
+          # then replace unit values with the new unit argument
+          .data$unit[which(
+            !is.na(.data$unit)
+          )] <- unit
+          
+          # replace TADA depth height columns and remove WQX conversion column
+          .data <- dplyr::select(.data, -cf,-dplyr::all_of(coln),-dplyr::all_of(colnv),-dplyr::all_of(colnu))
+          names(.data)[names(.data)=="val"] = colnv
+          names(.data)[names(.data)=="unit"] = colnu
+          
+          return(.data)
+        }else{return(.data)}
     }
     
-    # if WQXConversionFactor.ActivityTopDepthHeightMeasure exists...
-    if (("WQXConversionFactor.ActivityTopDepthHeightMeasure" %in% colnames(clean.data)) == TRUE) {
-      # multiply ActivityTopDepthHeightMeasure.MeasureValue by WQXConversionFactor.ActivityTopDepthHeightMeasure
-      # if else added to deal with NA's in RV column, which throws error when NA multiplied by number.
-      clean.data$TADA.ActivityTopDepthHeightMeasure.MeasureValue <- ifelse(!is.na(clean.data$TADA.ActivityTopDepthHeightMeasure.MeasureValue),(clean.data$TADA.ActivityTopDepthHeightMeasure.MeasureValue) * (clean.data$WQXConversionFactor.ActivityTopDepthHeightMeasure),clean.data$TADA.ActivityTopDepthHeightMeasure.MeasureValue)
-
-      # replace ActivityTopDepthHeightMeasure.MeasureUnitCode values with unit argument
-      clean.data$TADA.ActivityTopDepthHeightMeasure.MeasureUnitCode[which(
-        !is.na(clean.data$TADA.ActivityTopDepthHeightMeasure.MeasureUnitCode)
-      )] <- unit
-      
-      # comment out below to keep ActTopDepth.Conversion.Unit column
-      clean.data <- dplyr::select(clean.data, -"WQXConversionFactor.ActivityTopDepthHeightMeasure")
-    }
-    
-    # if WQXConversionFactor.ActivityBottomDepthHeightMeasure exists...
-    if (("WQXConversionFactor.ActivityBottomDepthHeightMeasure" %in% colnames(clean.data)) == TRUE) {
-      # multiply ActivityBottomDepthHeightMeasure.MeasureValue by WQXConversionFactor.ActivityBottomDepthHeightMeasure
-      # if else added to deal with NA's in RV column, which throws error when NA multiplied by number.
-      clean.data$TADA.ActivityBottomDepthHeightMeasure.MeasureValue <- ifelse(!is.na(clean.data$TADA.ActivityBottomDepthHeightMeasure.MeasureValue),(clean.data$TADA.ActivityBottomDepthHeightMeasure.MeasureValue) * (clean.data$WQXConversionFactor.ActivityBottomDepthHeightMeasure),clean.data$TADA.ActivityBottomDepthHeightMeasure.MeasureValue)
-     
-      # replace ActivityTopDepthHeightMeasure.MeasureUnitCode values with unit argument
-      clean.data$TADA.ActivityBottomDepthHeightMeasure.MeasureUnitCode[which(
-        !is.na(clean.data$TADA.ActivityBottomDepthHeightMeasure.MeasureUnitCode)
-      )] <- unit
- 
-      # comment out below to keep ActBottomDepth.Conversion.Unit column
-      clean.data <- dplyr::select(clean.data, -"WQXConversionFactor.ActivityBottomDepthHeightMeasure")
-    }
-    
-    # if WQXConversionFactor.ResultDepthHeightMeasure exists...
-    if (("WQXConversionFactor.ResultDepthHeightMeasure" %in% colnames(clean.data)) == TRUE) {
-      # multiply ResultDepthHeightMeasure.MeasureValue by WQXConversionFactor.ResultDepthHeightMeasure
-      # if else added to deal with NA's in RV column, which throws error when NA multiplied by number.
-      clean.data$TADA.ResultDepthHeightMeasure.MeasureValue <- ifelse(!is.na(clean.data$TADA.ResultDepthHeightMeasure.MeasureValue),(clean.data$TADA.ResultDepthHeightMeasure.MeasureValue) * (clean.data$WQXConversionFactor.ResultDepthHeightMeasure),clean.data$TADA.ResultDepthHeightMeasure.MeasureValue)
-     
-      # replace ResultDepthHeightMeasure.MeasureUnitCode values with unit argument
-      clean.data$TADA.ResultDepthHeightMeasure.MeasureUnitCode[which(
-        !is.na(clean.data$TADA.ResultDepthHeightMeasure.MeasureUnitCode)
-      )] <- unit
-      
-      # comment out below to keep WQXConversionFactor.ResultDepthHeightMeasure column
-      clean.data <- dplyr::select(clean.data, -"WQXConversionFactor.ResultDepthHeightMeasure")
-    }
+    clean.data = conv_unit(clean.data,"WQXConversionFactor.ActivityDepthHeightMeasure")
+    clean.data = conv_unit(clean.data,"WQXConversionFactor.ActivityBottomDepthHeightMeasure")
+    clean.data = conv_unit(clean.data,"WQXConversionFactor.ResultDepthHeightMeasure")
+    clean.data = conv_unit(clean.data,"WQXConversionFactor.ActivityTopDepthHeightMeasure")
     
     # MAY BE ABLE TO DELETE BELOW NO LONGER NEEDED? uncomment below to delete WQX.Depth.TargetUnit column
     # clean.data <- dplyr::select(clean.data, -"WQX.Depth.TargetUnit")

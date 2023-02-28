@@ -62,7 +62,7 @@ ggplot2 from GitHub.
 # remotes::install_github("hadley/ggplot2", dependencies=TRUE)
 
 # remotes::install_github("USEPA/TADA", dependencies=TRUE)
-remotes::install_github("USEPA/TADA", dependencies=TRUE, ref="censored_data_eh") # EDH temporarily switched source so that this will build with new functions/names
+remotes::install_github("USEPA/TADA", dependencies=TRUE, ref="name_clean_eh") # EDH temporarily switched source so that this will build with new functions/names
 # if you experience any issues installing TADA, try uncommenting and running the line below before the install
 # options(download.file.method = "wininet")
 ```
@@ -139,7 +139,7 @@ TADA R package to run. As a general rule, TADA functions do not change any conte
     
     -   TADA.LongitudeMeasure
 
-These functions also add the columns TADA.ResultMeasureValue.DataTypeFlag and TADA.DetectionQuantitationLimitMeasure.MeasureValue.DataTypeFlag, which provide information about the result values that is needed to address censored data later on (i.e., nondetections). Specifically, these new columns flag if special characters are included in result values, and specifies what the special characters are.
+These functions also add the columns TADA.ResultMeasureValueDataTypes.Flag and TADA.DetectionQuantitationLimitMeasure.MeasureValueDataTypes.Flag, which provide information about the result values that is needed to address censored data later on (i.e., nondetections). Specifically, these new columns flag if special characters are included in result values, and specifies what the special characters are.
 
 Downloads using TADAdataRetrieval will have the same columns each time,
 but be aware that data are uploaded to the Water Quality Portal by
@@ -293,8 +293,7 @@ maps::map()
 points(TADAProfile$TADA.LongitudeMeasure, TADAProfile$TADA.LatitudeMeasure, col="red", pch=20)
 ```
 
-The TADA **InvalidCoordinates** function identifies and flags invalid
-coordinate data.
+The TADA **InvalidCoordinates** function identifies and flags potentially invalid coordinate data. While its functionality is showcased here, it is always important to review any invalid outputs before cleaning to reduce the risk of leaving out usable data/sites.
 
 Allowable values for clean_outsideUSA are "no", "remove", or "change
 sign". The default is "no" which flags latitude and longitude
@@ -308,9 +307,7 @@ fix these incorrect coordinates in the raw data through the WQX - for
 assistance email the WQX help desk: WQX\@epa.gov
 
 Allowable values for clean_imprecise are TRUE or FALSE. The default is
-FALSE which flags rows of data with invalid or imprecise coordinates.
-Assigning clean_imprecise = TRUE will remove rows of data with invalid
-or imprecise coordinates.
+FALSE which flags rows of data with invalid or imprecise coordinates without removing them. Assigning clean_imprecise = TRUE will remove rows of data with invalid or imprecise coordinates.
 
 Allowable values for errorsonly are TRUE or FALSE. The default is FALSE
 which keeps all rows of data regardless of flag status. Assigning
@@ -318,7 +315,7 @@ errorsonly = TRUE filters the dataframe to show only rows of data which
 are flagged.
 
 When clean_outsideUSA = "no" and/or clean_imprecise = FALSE, a column
-will be appended titled "TADA.InvalidCoordinates" with the following
+will be appended titled "TADA.InvalidCoordinates.Flag" with the following
 flags (if relevant to dataframe):
 
 -   If the latitude is less than zero, the row will be flagged with
@@ -340,13 +337,13 @@ flags (if relevant to dataframe):
 InvalidCoordinateFlags <- InvalidCoordinates(TADAProfile, clean_outsideUSA = "no", clean_imprecise = FALSE, errorsonly = TRUE)
 
 # review unique flags in InvalidCoordinateFlags
-unique(InvalidCoordinateFlags$TADA.InvalidCoordinates)
+unique(InvalidCoordinateFlags$TADA.InvalidCoordinates.Flag)
 
 # review unique MonitoringLocationIdentifiers in your flag dataframe
 unique(InvalidCoordinateFlags$MonitoringLocationIdentifier)
 
 Unique_InvalidCoordinateFlags <- InvalidCoordinateFlags %>%
-  dplyr::select('MonitoringLocationIdentifier','MonitoringLocationName', 'TADA.InvalidCoordinates',
+  dplyr::select('MonitoringLocationIdentifier','MonitoringLocationName', 'TADA.InvalidCoordinates.Flag',
          'OrganizationIdentifier', 'TADA.LongitudeMeasure', 'TADA.LatitudeMeasure', 'MonitoringLocationTypeName', 
          'CountryCode', 'StateCode', 'CountyCode', 'HUCEightDigitCode', 'MonitoringLocationDescriptionText',
          'ProjectName', 'ProjectIdentifier', 'OrganizationFormalName') %>%
@@ -458,8 +455,8 @@ See documentation for more details:
 -   ?**InvalidMethod**
 
     -   When clean = FALSE, this function adds the following column to
-        your dataframe: WQX.AnalyticalMethodValidity. This column flags
-        invalid CharacteristicName,
+        your dataframe: TADA.AnalyticalMethod.Flag. This column flags
+        invalid TADA.CharacteristicName,
         ResultAnalyticalMethod/MethodIdentifier, and
         ResultAnalyticalMethod/MethodIdentifierContext combinations in
         your dataframe either "Nonstandardized", "Invalid", or "Valid".
@@ -473,10 +470,8 @@ See documentation for more details:
 -   ?**InvalidSpeciation**
 
     -   When clean = "none", this function adds the following column to
-        your dataframe: WQX.MethodSpeciationValidity. This column flags
-        each CharacteristicName and MethodSpecificationName combination
-        in your dataframe as either "Nonstandardized", "Invalid", or
-        "Valid".
+        your dataframe: TADA.MethodSpeciation.Flag. This column flags
+        each TADA.CharacteristicName and MethodSpecificationName                 combination in your dataframe as either "Nonstandardized",               "Invalid", or "Valid".
 
     -   When clean = "invalid_only", only "Invalid" rows are removed
         from the dataframe. Default is clean = "invalid_only".
@@ -496,10 +491,10 @@ See documentation for more details:
 -   ?**InvalidResultUnit**
 
     -   When clean = FALSE, the following column will be added to your
-        dataframe: WQX.ResultUnitValidity. This column flags each
-        CharacteristicName, sampleMedia, and
-        ResultMeasure/MeasureUnitCode combination in your dataframe as
-        either "Nonstandardized", "Invalid", or "Valid".
+        dataframe: TADA.ResultUnit.Flag. This column flags each
+        TADA.CharacteristicName, TADA.ActivityMediaName, and
+        TADA.ResultMeasure.MeasureUnitCode combination in your dataframe
+        as either "Nonstandardized", "Invalid", or "Valid".
 
     -   When clean = TRUE, "Invalid" rows are removed from the dataframe
         and no column will be appended.
@@ -510,8 +505,8 @@ See documentation for more details:
 -   ?**InvalidFraction**
 
     -   When clean = FALSE, this function adds the following column to
-        your dataframe: WQX.SampleFractionValidity. This column flags
-        each CharacteristicName and ResultSampleFractionText combination
+        your dataframe: TADA.SampleFraction.Flag. This column flags
+        each TADA.CharacteristicName and TADA.ResultSampleFractionText           combination
         in your dataframe as either "Nonstandardized", "Invalid", or
         "Valid".
     -   When clean = TRUE, "Invalid" rows are removed from the dataframe
@@ -535,8 +530,7 @@ combination. See documentation for more details:
 -   ?**AboveNationalWQXUpperThreshold**
 
     -   When clean = FALSE, the following column is added to your
-        dataframe: AboveWQXUpperThreshold. This column flags rows with
-        data that are above the upper WQX threshold.
+        dataframe: TADA.ResultValueAboveUpperThreshold.Flag. This column         flags rows with data that are above the upper WQX threshold.
 
     -   When clean = TRUE, data that is above the upper WQX threshold is
         removed from the dataframe. The default is clean = TRUE.
@@ -548,8 +542,7 @@ combination. See documentation for more details:
 -   ?**BelowNationalWQXLowerThreshold**
 
     -   When clean = FALSE, the following column is added to your
-        dataframe: BelowWQXLowerThreshold. This column flags rows with
-        data that are below the lower WQX threshold.
+        dataframe: TADA.ResultValueBelowLowerThreshold.Flag. This column         flags rows with data that are below the lower WQX threshold.
 
     -   When clean = TRUE, data that is below the lower WQX threshold is
         removed from the dataframe. The default is clean = TRUE.
@@ -576,10 +569,7 @@ the following into the console:
 -   ?**PotentialDuplicateRowID**
 
     -   When clean = FALSE, the following column will be added to you
-        dataframe: TADA.PotentialDupRowID. This column flags potential
-        duplicate rows of data in your dataframe, and assigns each
-        potential duplicate combination a unique number linking the two
-        potential duplication rows.
+        dataframe: TADA.PotentialDupRowIDs.Flag. This column flags               potential duplicate rows of data in your dataframe, and assigns          each potential duplicate combination a unique number linking the         two potential duplication rows.
 
     -   When clean = TRUE, the function retains the first occurrence of
         each potential duplicate in the dataframe and removes potential
@@ -738,7 +728,7 @@ specify that we want to remove rows where the CharacteristicName is
 "NITROGEN" and the HydrologicEvent field is "Storm."
 
 ```{r}
-TADAProfileClean16 <- dplyr::filter(TADAProfileClean15, !(CharacteristicName %in% "NITROGEN" & HydrologicEvent %in% "Storm"))
+TADAProfileClean16 <- dplyr::filter(TADAProfileClean15, !(TADA.CharacteristicName %in% "NITROGEN" & HydrologicEvent %in% "Storm"))
 ```
 
 ## Transform Characteristic, Speciation, and Unit values to TADA Standards
@@ -780,7 +770,7 @@ Optional outputs include:
 Here are some examples of how the HarmonizeData function can be used:
 
 1.  TADA.ResultSampleFractionText specifies forms of constituents. In some
-    cases, a single \*CharacteristicName\*\* will have both "Total" and
+    cases, a single \*TADA.CharacteristicName\*\* will have both "Total" and
     "Dissolved" forms specified, which should not be combined. In these
     cases, each TADA.CharacteristicName and TADA.ResultSampleFractionText
     combination is given a different identifier. This identifier can be

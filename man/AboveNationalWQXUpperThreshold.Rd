@@ -47,7 +47,7 @@ data(Nutrients_Utah)
 WQXUpperThreshold_clean <- AboveNationalWQXUpperThreshold(Nutrients_Utah)
 
 # Flag, but do not remove, data that is above the upper WQX threshold in
-# new column titled "AboveWQXUpperThreshold":
+# new column titled "TADA.ResultValueAboveUpperThreshold.Flag":
 WQXUpperThreshold_flags <- AboveNationalWQXUpperThreshold(Nutrients_Utah, clean = FALSE)
 
 # Show only data flagged as above the upper WQX threshold:

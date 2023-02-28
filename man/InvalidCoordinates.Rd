@@ -38,7 +38,7 @@ clean_imprecise = FALSE, and errorsonly = FALSE.
 \description{
 This function identifies and flags invalid coordinate data. When
 clean_outsideUSA = "no" and clean_imprecise = FALSE,
-a column will be appended titled "TADA.InvalidCoordinates" with the following
+a column will be appended titled "TADA.InvalidCoordinates.Flag" with the following
 flags: 1) If the latitude is less than zero, the row will be
 flagged with "LAT_OutsideUSA" (with the exception of American Samoa,
 Northern Mariana Islands, and Guam), 2) If the longitude is greater than zero AND less than 145,
@@ -59,12 +59,12 @@ with changing raw data, email the WQX help desk: \email{WQX@epa.gov}
 data(Nutrients_Utah)
 
 # Flag, but do not remove, data with invalid coordinates in new column 
-# titled "TADA.InvalidCoordinates":
+# titled "TADA.InvalidCoordinates.Flag":
 # Return ALL data:
 InvalidCoord_flags <- InvalidCoordinates(Nutrients_Utah)
 
 # Flag, but do not remove, data with invalid coordinates in new column 
-# titled "TADA.InvalidCoordinates"
+# titled "TADA.InvalidCoordinates.Flag"
 # Return ONLY the flagged data:
 InvalidCoord_flags_errorsonly <- InvalidCoordinates(Nutrients_Utah, errorsonly = TRUE)
 

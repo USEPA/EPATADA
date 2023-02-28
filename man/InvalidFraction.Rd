@@ -18,10 +18,10 @@ Default is errorsonly = FALSE.}
 }
 \value{
 When clean = FALSE and errorsonly = FALSE, this function adds the
-following column to your dataframe: WQX.SampleFractionValidity. This column flags each
+following column to your dataframe: TADA.SampleFraction.Flag. This column flags each
 CharacteristicName and ResultSampleFractionText combination in your dataframe
 as either "Nonstandardized", "Invalid", or "Valid". When clean = FALSE and
-errorsonly = TRUE, the WQX.SampleFractionValidity is still added and the data
+errorsonly = TRUE, the TADA.SampleFraction.Flag is still added and the data
 is filtered to only show the "Invalid" rows only. When clean = TRUE and
 errorsonly = FALSE, "Invalid" rows are removed from the dataframe and no
 column will be appended. When clean = TRUE and errorsonly = TRUE, the function
@@ -41,7 +41,7 @@ data(Nutrients_Utah)
 InvalidFraction_clean <- InvalidFraction(Nutrients_Utah)
 
 # Flag, but do not remove, data with invalid characteristic-fraction combinations
-# in new column titled "WQX.SampleFractionValidity":
+# in new column titled "TADA.SampleFraction.Flag":
 InvalidFraction_flags <- InvalidFraction(Nutrients_Utah, clean = FALSE)
 
 # Show only invalid characteristic-fraction combinations:

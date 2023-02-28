@@ -6,29 +6,29 @@ test_that("InvalidCoordinates works", {
   #flagonly
   InvalidCoord_flags <- InvalidCoordinates(Nutrients_Utah)
   unique(InvalidCoord_flags$TADA.InvalidCoordinates)
-  reviewselectcolumns <- InvalidCoord_flags %>% dplyr::select(TADA.InvalidCoordinates, TADA.LatitudeMeasure, TADA.LongitudeMeasure)
+  reviewselectcolumns <- InvalidCoord_flags %>% dplyr::select(TADA.InvalidCoordinates.Flag, TADA.LatitudeMeasure, TADA.LongitudeMeasure)
   reviewflagsonly <- dplyr::filter(reviewselectcolumns, 
-                                        is.na(TADA.InvalidCoordinates) != TRUE)
-  unique(reviewflagsonly$TADA.InvalidCoordinates)
+                                        is.na(TADA.InvalidCoordinates.Flag) != TRUE)
+  unique(reviewflagsonly$TADA.InvalidCoordinates.Flag)
 
   #removeimprecise
   ImpreciseCoord_removed <- InvalidCoordinates(Nutrients_Utah, clean_imprecise = TRUE)
-  unique(ImpreciseCoord_removed$TADA.InvalidCoordinates)
+  unique(ImpreciseCoord_removed$TADA.InvalidCoordinates.Flag)
   
-  expect_true(any(ImpreciseCoord_removed$TADA.InvalidCoordinates!="Imprecise_Latincludes999" 
-                  | ImpreciseCoord_removed$TADA.InvalidCoordinates!="Imprecise_Longincludes999"
-              | ImpreciseCoord_removed$TADA.InvalidCoordinates!="Imprecise_lessthan3decimaldigits"))
+  expect_true(any(ImpreciseCoord_removed$TADA.InvalidCoordinates.Flag!="Imprecise_Latincludes999" 
+                  | ImpreciseCoord_removed$TADA.InvalidCoordinates.Flag!="Imprecise_Longincludes999"
+              | ImpreciseCoord_removed$TADA.InvalidCoordinates.Flag!="Imprecise_lessthan3decimaldigits"))
   
   # Remove data with coordinates outside the USA, but keep flagged data with imprecise coordinates:
   OutsideUSACoord_removed <- InvalidCoordinates(Nutrients_Utah, clean_outsideUSA = "remove")
-  unique(OutsideUSACoord_removed$TADA.InvalidCoordinates)
+  unique(OutsideUSACoord_removed$TADA.InvalidCoordinates.Flag)
   
-  expect_true(any(OutsideUSACoord_removed$TADA.InvalidCoordinates!="LONG_OutsideUSA" 
-                  | OutsideUSACoord_removed$TADA.InvalidCoordinates!="LAT_OutsideUSA"))
+  expect_true(any(OutsideUSACoord_removed$TADA.InvalidCoordinates.Flag!="LONG_OutsideUSA" 
+                  | OutsideUSACoord_removed$TADA.InvalidCoordinates.Flag!="LAT_OutsideUSA"))
   
   ## Remove data with imprecise coordinates or coordinates outside the USA from the dataframe:
   Invalid_removed <- InvalidCoordinates(Nutrients_Utah, clean_outsideUSA = "remove", clean_imprecise = TRUE)
-  unique(Invalid_removed$TADA.InvalidCoordinates)
+  unique(Invalid_removed$TADA.InvalidCoordinates.Flag)
   
 })
 
@@ -40,8 +40,8 @@ test_that("Imprecise_lessthan3decimaldigits works", {
   
   #flagonly
   FLAGSONLY <- InvalidCoordinates(Nutrients_Utah)
-  FLAGSONLY <- FLAGSONLY %>% dplyr::select(TADA.InvalidCoordinates, TADA.LatitudeMeasure, TADA.LongitudeMeasure)
-  FLAGSONLY <- dplyr::filter(FLAGSONLY, FLAGSONLY$TADA.InvalidCoordinates == "Imprecise_lessthan3decimaldigits")
+  FLAGSONLY <- FLAGSONLY %>% dplyr::select(TADA.InvalidCoordinates.Flag, TADA.LatitudeMeasure, TADA.LongitudeMeasure)
+  FLAGSONLY <- dplyr::filter(FLAGSONLY, FLAGSONLY$TADA.InvalidCoordinates.Flag == "Imprecise_lessthan3decimaldigits")
   FLAGSONLY <- dplyr::filter(FLAGSONLY, sapply(FLAGSONLY$TADA.LongitudeMeasure, decimalplaces) < 3)%>%dplyr::distinct()
   
   expect_true(all(sapply(FLAGSONLY$TADA.LongitudeMeasure, decimalplaces) < 4))
@@ -55,8 +55,8 @@ test_that("Imprecise_lessthan3decimaldigits works again", {
   
   #flagonly
   FLAGSONLY <- InvalidCoordinates(Nutrients_Utah)
-  FLAGSONLY <- FLAGSONLY %>% dplyr::select(TADA.InvalidCoordinates, TADA.LatitudeMeasure, TADA.LongitudeMeasure)
-  FLAGSONLY <- dplyr::filter(FLAGSONLY, FLAGSONLY$TADA.InvalidCoordinates == "Imprecise_lessthan3decimaldigits")
+  FLAGSONLY <- FLAGSONLY %>% dplyr::select(TADA.InvalidCoordinates.Flag, TADA.LatitudeMeasure, TADA.LongitudeMeasure)
+  FLAGSONLY <- dplyr::filter(FLAGSONLY, FLAGSONLY$TADA.InvalidCoordinates.Flag == "Imprecise_lessthan3decimaldigits")
   FLAGSONLY <- dplyr::filter(FLAGSONLY, sapply(FLAGSONLY$TADA.LatitudeMeasure, decimalplaces) < 3) %>% dplyr::distinct()
   
   expect_true(all(sapply(FLAGSONLY$TADA.LatitudeMeasure, decimalplaces) < 4))

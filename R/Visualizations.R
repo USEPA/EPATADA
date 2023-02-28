@@ -15,7 +15,7 @@
 #' @export
 #'  
 
-SummarizeColumn <- function(.data,col){
+SummarizeColumn <- function(.data,col="TADA.CharacteristicName"){
   .data$summ = .data[,col]
   # Summarize WQP data pull
   wqp_summary <- .data %>%

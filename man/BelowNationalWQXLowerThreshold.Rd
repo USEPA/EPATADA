@@ -18,10 +18,10 @@ errorsonly = FALSE.}
 }
 \value{
 When clean = FALSE and errorsonly = FALSE, the following column is
-added to your dataframe: BelowWQXLowerThreshold. This column flags rows with
+added to your dataframe: TADA.ResultValueBelowLowerThreshold.Flag. This column flags rows with
 data that are below the lower WQX threshold. When clean = FALSE and
 errorsonly = TRUE, the dataframe is filtered to show only the rows which are
-flagged as below the WQX threshold; the column BelowWQXThreshold is still
+flagged as below the WQX threshold; the column TADA.ResultValueBelowLowerThreshold.Flag is still
 appended. When clean = TRUE and errorsonly = FALSE, data that is below the lower
 WQX threshold is removed from the dataframe. When clean = TRUE and
 errorsonly = TRUE, the function does not execute and an error message is
@@ -46,7 +46,7 @@ data(Nutrients_Utah)
 WQXLowerThreshold_clean <- BelowNationalWQXLowerThreshold(Nutrients_Utah)
 
 # Flag, but do not remove, data that is below the lower WQX threshold in
-# new column titled "BelowWQXLowerThreshold":
+# new column titled "TADA.ResultValueBelowLowerThreshold.Flag":
 WQXLowerThreshold_flags <- BelowNationalWQXLowerThreshold(Nutrients_Utah, clean = FALSE)
 
 # Show only data that is below the lower WQX threshold:

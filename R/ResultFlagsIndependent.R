@@ -16,12 +16,12 @@
 #' is errorsonly = FALSE.
 #' 
 #' @return When clean = FALSE and errorsonly = FALSE, this function adds the 
-#' following column to your dataframe: WQX.AnalyticalMethodValidity. This column 
+#' following column to your dataframe: TADA.AnalyticalMethod.Flag. This column 
 #' flags invalid CharacteristicName, ResultAnalyticalMethod/MethodIdentifier,
 #' and ResultAnalyticalMethod/MethodIdentifierContext combinations in your dataframe
 #' as either "Nonstandardized", "Invalid", or "Valid". When clean = FALSE and 
 #' errorsonly = TRUE, the dataframe is filtered to show only "Invalid" 
-#' characteristic-analytical method combinations; the column WQX.AnalyticalMethodValidity
+#' characteristic-analytical method combinations; the column TADA.AnalyticalMethod.Flag
 #' is still appended. When clean = TRUE and errorsonly = FALSE, "Invalid" rows 
 #' are removed from the dataframe and no column will be appended.
 #' 
@@ -35,7 +35,7 @@
 #' InvalidMethod_clean <- InvalidMethod(Nutrients_Utah)
 #' 
 #' # Flag, but do not remove, invalid characteristic-analytical method combinations
-#' # in new column titled "WQX.AnalyticalMethodValidity":
+#' # in new column titled "TADA.AnalyticalMethod.Flag":
 #' InvalidMethod_flags <- InvalidMethod(Nutrients_Utah, clean = FALSE)
 #' 
 #' # Show only invalid characteristic-analytical method combinations:
@@ -62,8 +62,8 @@ InvalidMethod <- function(.data, clean = TRUE, errorsonly = FALSE) {
 
   # execute function after checks are passed
   # delete existing flag column
-  if (("WQX.AnalyticalMethodValidity" %in% colnames(.data)) == TRUE) {
-    .data <- dplyr::select(.data, -WQX.AnalyticalMethodValidity)
+  if (("TADA.AnalyticalMethod.Flag" %in% colnames(.data)) == TRUE) {
+    .data <- dplyr::select(.data, -TADA.AnalyticalMethod.Flag)
   }
   # read in speciation reference table from sysdata.rda and filter
   meth.ref <- GetWQXCharValRef() %>%
@@ -80,29 +80,29 @@ InvalidMethod <- function(.data, clean = TRUE, errorsonly = FALSE) {
   
   # rename Status column to WQX.AnalyticalMethodValidity
   check.data <- check.data %>%
-    dplyr::rename(WQX.AnalyticalMethodValidity = Status)
+    dplyr::rename(TADA.AnalyticalMethod.Flag = Status)
   # rename NA values to Nonstandardized in WQX.AnalyticalMethodValidity column
-  check.data["WQX.AnalyticalMethodValidity"][is.na(check.data["WQX.AnalyticalMethodValidity"])] <- "Nonstandardized"
+  check.data["TADA.AnalyticalMethod.Flag"][is.na(check.data["TADA.AnalyticalMethod.Flag"])] <- "Nonstandardized"
   
-  # reorder column names to match .data
-  # get .data column names
-  col.order <- colnames(.data)
-  # add WQX.AnalyticalMethodValidity column to the list
-  col.order <- append(col.order, "WQX.AnalyticalMethodValidity")
-  # reorder columns in flag.data
-  check.data <- check.data[, col.order]
-  # place flag columns next to relevant fields
-  check.data <- check.data %>%
-    dplyr::relocate("WQX.AnalyticalMethodValidity",
-                    .after = "ResultAnalyticalMethod.MethodName"
-    )
+  # # reorder column names to match .data
+  # # get .data column names
+  # col.order <- colnames(.data)
+  # # add WQX.AnalyticalMethodValidity column to the list
+  # col.order <- append(col.order, "WQX.AnalyticalMethodValidity")
+  # # reorder columns in flag.data
+  # check.data <- check.data[, col.order]
+  # # place flag columns next to relevant fields
+  # check.data <- check.data %>%
+  #   dplyr::relocate("WQX.AnalyticalMethodValidity",
+  #                   .after = "ResultAnalyticalMethod.MethodName"
+  #   )
   
   if (errorsonly == FALSE) {
     
     #if all rows are "Valid" or NA "Nonstandardized", return input unchanged
     ##note: Cristina edited this on 9/19/22 to keep Nonstandardized/NA data when clean = TRUE. Now only Invalid data is removed.
     if (any("Invalid" %in%
-            unique(check.data$WQX.AnalyticalMethodValidity)) == FALSE) {
+            unique(check.data$TADA.AnalyticalMethod.Flag)) == FALSE) {
       print("No changes were made, because we did not find any invalid method/characteristic combinations in your dataframe")
       .data = OrderTADACols(.data)
       return(.data)
@@ -117,10 +117,10 @@ InvalidMethod <- function(.data, clean = TRUE, errorsonly = FALSE) {
     # clean output
     if (clean == TRUE) {
       # filter out invalid characteristic-unit-method combinations
-      clean.data <- dplyr::filter(check.data, WQX.AnalyticalMethodValidity != "Invalid")
+      clean.data <- dplyr::filter(check.data, TADA.AnalyticalMethod.Flag != "Invalid")
       
       # remove WQX.AnalyticalMethodValidity column
-      clean.data <- dplyr::select(clean.data, -WQX.AnalyticalMethodValidity)
+      clean.data <- dplyr::select(clean.data, -TADA.AnalyticalMethod.Flag)
       clean.data = OrderTADACols(clean.data)
       return(clean.data)
     }
@@ -129,9 +129,9 @@ InvalidMethod <- function(.data, clean = TRUE, errorsonly = FALSE) {
   # flagged output, errors only
   if (clean == FALSE & errorsonly == TRUE) {
     # filter to show only invalid characteristic-unit-method combinations
-    invalid.data <- dplyr::filter(check.data, WQX.AnalyticalMethodValidity == "Invalid")
+    invalid.data <- dplyr::filter(check.data, TADA.AnalyticalMethod.Flag == "Invalid")
     if (nrow(invalid.data) == 0) {
-      invalid.data <- dplyr::select(invalid.data, -WQX.AnalyticalMethodValidity)
+      invalid.data <- dplyr::select(invalid.data, -TADA.AnalyticalMethod.Flag)
       print("This dataframe is empty because we did not find any invalid method/characteristic combinations in your dataframe")
     }
     invalid.data = OrderTADACols(invalid.data)
@@ -154,7 +154,7 @@ InvalidMethod <- function(.data, clean = TRUE, errorsonly = FALSE) {
 #' submitted by data providers to flag rows with aggregated continuous data. 
 #' This is done by flagging results where the ResultDetectionConditionText = 
 #' "Reported in Raw Data (attached)". When clean = FALSE and errorsonly = FALSE, a column titled 
-#' "TADA.AggregatedContinuousData" is added to the dataframe to indicate if the row 
+#' "TADA.AggregatedContinuousData.Flag" is added to the dataframe to indicate if the row 
 #' includes aggregated continuous data, "Y", or not,  "N". When clean = FALSE and
 #' errorsonly = TRUE, the dataframe will be filtered to show only the rows flagged 
 #' "Y" for aggregated continuous data. When clean = TRUE and errorsonly = FALSE,
@@ -186,7 +186,7 @@ InvalidMethod <- function(.data, clean = TRUE, errorsonly = FALSE) {
 #' AggContinuous_clean <- AggregatedContinuousData(Nutrients_Utah)
 #' 
 #' # Flag, but do not remove, aggregated continuous data in new column
-#' # titled "TADA.AggregatedContinuousData":
+#' # titled "TADA.AggregatedContinuousData.Flag":
 #' AggContinuous_flags <- AggregatedContinuousData(Nutrients_Utah, clean = FALSE)
 #' 
 #' # Show only rows flagged for aggregated continuous data:
@@ -218,7 +218,7 @@ AggregatedContinuousData <- function(.data, clean = TRUE, errorsonly = FALSE) {
   # if there is aggregated continuous data is in the data set
   if (nrow(cont.data) != 0) {
     # append ContDataFlag column
-    cont.data$TADA.AggregatedContinuousData <- "Y"
+    cont.data$TADA.AggregatedContinuousData.Flag <- "Y"
     # join cont.data to flag.data
     flag.data <- merge(.data, cont.data, all.x = TRUE)
     
@@ -231,10 +231,10 @@ AggregatedContinuousData <- function(.data, clean = TRUE, errorsonly = FALSE) {
     # clean output
     if (clean == TRUE & errorsonly == FALSE) {
       # filter out invalid characteristic-unit-media combinations
-      clean.data <- dplyr::filter(flag.data, !(TADA.AggregatedContinuousData %in% "Y"))
+      clean.data <- dplyr::filter(flag.data, !(TADA.AggregatedContinuousData.Flag %in% "Y"))
       
       # remove TADA.AggregatedContinuousData column
-      clean.data <- dplyr::select(clean.data, -TADA.AggregatedContinuousData)
+      clean.data <- dplyr::select(clean.data, -TADA.AggregatedContinuousData.Flag)
       clean.data = OrderTADACols(clean.data)
       return(clean.data)
     }
@@ -242,7 +242,7 @@ AggregatedContinuousData <- function(.data, clean = TRUE, errorsonly = FALSE) {
     # flagged output, only aggregated continuous data
     if (clean == FALSE & errorsonly == TRUE) {
       #filter to show only invalid characteristic-unit-media combinations
-      aggcont.data <- dplyr::filter(flag.data, TADA.AggregatedContinuousData == "Y")
+      aggcont.data <- dplyr::filter(flag.data, TADA.AggregatedContinuousData.Flag == "Y")
       aggcont.data = OrderTADACols(aggcont.data)
       return(aggcont.data)
     }
@@ -272,7 +272,7 @@ AggregatedContinuousData <- function(.data, clean = TRUE, errorsonly = FALSE) {
 #' Water Quality Portal (WQP), which can affect water quality analyses. This
 #' function checks for and identifies data that is identical in all fields
 #' excluding organization-specific and comment text fields. When clean = FALSE,
-#' a column titled "TADA.PotentialDupRowID" is added to the dataframe which
+#' a column titled "TADA.PotentialDupRowIDs.Flag" is added to the dataframe which
 #' assigns each pair of potential duplicates a unique ID for review.
 #' When clean = TRUE, the function retains the first occurrence of each 
 #' potential duplicate in the dataframe. Default is clean = TRUE.
@@ -280,14 +280,14 @@ AggregatedContinuousData <- function(.data, clean = TRUE, errorsonly = FALSE) {
 #' @param .data TADA dataframe
 #' @param clean Boolean argument; removes potential duplicate data from
 #' the dataframe when clean = TRUE. When clean = FALSE,
-#' a column titled "TADA.PotentialDupRowID" is added to the dataframe which
+#' a column titled "TADA.PotentialDupRowIDs.Flag" is added to the dataframe which
 #' assigns each pair of potential duplicates a unique ID for review.
 #' Default is clean = TRUE.
 #' @param errorsonly Boolean argument; filters dataframe to show only potential 
 #' duplicate rows of data when errorsonly = TRUE. Default is errorsonly = FALSE.
 #'
 #' @return When clean = FALSE, the following column will be added to you dataframe: 
-#' TADA.PotentialDupRowID. This column flags potential duplicate rows of data 
+#' TADA.PotentialDupRowIDs.Flag. This column flags potential duplicate rows of data 
 #' in your dataframe, and assigns each potential duplicate combination a unique number
 #' linking the two potential duplication rows. When clean = FALSE the first of
 #' each group of potential duplicate rows will be removed from the dataframe
@@ -302,7 +302,7 @@ AggregatedContinuousData <- function(.data, clean = TRUE, errorsonly = FALSE) {
 #' # Remove potential duplicate data from dataframe:
 #' PotentialDup_clean <- PotentialDuplicateRowID(Nutrients_Utah)
 #' 
-#' # Flag, but do not remove, potential duplicate data in new column titled "TADA.PotentialDupRowID":
+#' # Flag, but do not remove, potential duplicate data in new column titled "TADA.PotentialDupRowIDs.Flag":
 #' PotentialDup_flagcolumnadded <- PotentialDuplicateRowID(Nutrients_Utah, clean = FALSE)
 #' 
 #' # Flag and review potential duplicate data only:
@@ -362,7 +362,7 @@ PotentialDuplicateRowID <- function(.data, clean = TRUE, errorsonly = FALSE) {
   if (nrow(dupe.data) != 0) {
     
     # flag potential duplicates
-    dupe.data$TADA.PotentialDupRowID <- as.integer(seq_len(nrow(dupe.data)))
+    dupe.data$TADA.PotentialDupRowIDs.Flag <- as.integer(seq_len(nrow(dupe.data)))
     
     # merge flag column into .data
     flag.data <- merge(.data, dupe.data, by = dupe.fields, all.x = TRUE)
@@ -395,16 +395,16 @@ PotentialDuplicateRowID <- function(.data, clean = TRUE, errorsonly = FALSE) {
     # clean output
     if (clean == TRUE & errorsonly == FALSE) {
       # remove duplicate rows
-      # seperate data into 2 dataframes by TADA.PotentialDupRowID (no NAs and NAs)
-      dup.data <- flag.data[!is.na(flag.data$TADA.PotentialDupRowID), ]
-      NAdup.data <- flag.data[is.na(flag.data$TADA.PotentialDupRowID), ]
+      # seperate data into 2 dataframes by TADA.PotentialDupRowIDs.Flag (no NAs and NAs)
+      dup.data <- flag.data[!is.na(flag.data$TADA.PotentialDupRowIDs.Flag), ]
+      NAdup.data <- flag.data[is.na(flag.data$TADA.PotentialDupRowIDs.Flag), ]
       
-      nodup.data <- dup.data[!duplicated(dup.data$TADA.PotentialDupRowID), ]
+      nodup.data <- dup.data[!duplicated(dup.data$TADA.PotentialDupRowIDs.Flag), ]
       
       clean.data <- rbind(nodup.data, NAdup.data)
       
       # remove TADA.PotentialDupRowID column
-      clean.data <- dplyr::select(clean.data, -TADA.PotentialDupRowID)
+      clean.data <- dplyr::select(clean.data, -TADA.PotentialDupRowIDs.Flag)
       clean.data = OrderTADACols(clean.data)
       return(clean.data)
     }
@@ -412,7 +412,7 @@ PotentialDuplicateRowID <- function(.data, clean = TRUE, errorsonly = FALSE) {
     # flagged data, errors only
     if (clean == FALSE & errorsonly == TRUE) {
       # filter to show duplicate data only
-      dup.data <- flag.data[!is.na(flag.data$TADA.PotentialDupRowID), ]
+      dup.data <- flag.data[!is.na(flag.data$TADA.PotentialDupRowIDs.Flag), ]
       dup.data = OrderTADACols(dup.data)
       return(dup.data)
     }
@@ -461,7 +461,7 @@ PotentialDuplicateRowID <- function(.data, clean = TRUE, errorsonly = FALSE) {
 #' WQXUpperThreshold_clean <- AboveNationalWQXUpperThreshold(Nutrients_Utah)
 #' 
 #' # Flag, but do not remove, data that is above the upper WQX threshold in
-#' # new column titled "AboveWQXUpperThreshold":
+#' # new column titled "TADA.ResultValueAboveUpperThreshold.Flag":
 #' WQXUpperThreshold_flags <- AboveNationalWQXUpperThreshold(Nutrients_Utah, clean = FALSE)
 #' 
 #' # Show only data flagged as above the upper WQX threshold:
@@ -495,8 +495,8 @@ AboveNationalWQXUpperThreshold <- function(.data, clean = TRUE, errorsonly = FAL
   # execute function after checks are passed
 
   # delete existing flag column
-  if (("AboveWQXUpperThreshold" %in% colnames(.data)) == TRUE) {
-    .data <- dplyr::select(.data, -AboveWQXUpperThreshold)
+  if (("TADA.ResultValueAboveUpperThreshold.Flag" %in% colnames(.data)) == TRUE) {
+    .data <- dplyr::select(.data, -TADA.ResultValueAboveUpperThreshold.Flag)
   }
   
   # filter WQXcharVal.ref to include only valid CharacteristicUnit in water media
@@ -521,7 +521,7 @@ AboveNationalWQXUpperThreshold <- function(.data, clean = TRUE, errorsonly = FAL
     # apply function row by row
     dplyr::rowwise() %>%
     # create flag column
-    dplyr::mutate(AboveWQXUpperThreshold = dplyr::case_when(
+    dplyr::mutate(TADA.ResultValueAboveUpperThreshold.Flag = dplyr::case_when(
       TADA.ResultMeasureValue >= Maximum ~ as.character("Y"),
       TADA.ResultMeasureValue < Maximum ~ as.character("N")
     ))
@@ -534,14 +534,14 @@ AboveNationalWQXUpperThreshold <- function(.data, clean = TRUE, errorsonly = FAL
   # # reorder column names to match .data
   # # get .data column names
   # col.order <- colnames(.data)
-  # # add AboveWQXUpperThreshold column to the list
-  # col.order <- append(col.order, "AboveWQXUpperThreshold")
+  # # add TADA.ResultValueAboveUpperThreshold.Flag column to the list
+  # col.order <- append(col.order, "TADA.ResultValueAboveUpperThreshold.Flag")
   # # reorder columns in flag.data
   # flag.data <- flag.data[, col.order]
   
   # if no data above WQX threshold is found
   if (any("Y" %in%
-          unique(flag.data$AboveWQXUpperThreshold)) == FALSE) {
+          unique(flag.data$TADA.ResultValueAboveUpperThreshold.Flag)) == FALSE) {
     if (errorsonly == FALSE) {
       print("No changes were made because no data above the WQX Upper Threshold was found in your dataframe")
       .data = OrderTADACols(.data)
@@ -549,8 +549,8 @@ AboveNationalWQXUpperThreshold <- function(.data, clean = TRUE, errorsonly = FAL
     }
     if (errorsonly == TRUE) {
       print("This dataframe is empty because no data above the WQX Upper Threshold was found in your dataframe")
-      emptyflag.data <- dplyr::filter(flag.data, AboveWQXUpperThreshold %in% "Y")
-      emptyflag.data <- dplyr::select(emptyflag.data, -AboveWQXUpperThreshold)
+      emptyflag.data <- dplyr::filter(flag.data, TADA.ResultValueAboveUpperThreshold.Flag %in% "Y")
+      emptyflag.data <- dplyr::select(emptyflag.data, -TADA.ResultValueAboveUpperThreshold.Flag)
       emptyflag.data = OrderTADACols(emptyflag.data)
       return(emptyflag.data)
     }
@@ -564,10 +564,10 @@ AboveNationalWQXUpperThreshold <- function(.data, clean = TRUE, errorsonly = FAL
   
   # clean data
   if (clean == TRUE & errorsonly == FALSE) {
-    # filter out rows where AboveWQXUpperThreshold = Y; remove AboveWQXUpperThreshold column
+    # filter out rows where TADA.ResultValueAboveUpperThreshold.Flag = Y; remove TADA.ResultValueAboveUpperThreshold.Flag column
     clean.data <- flag.data %>%
-      dplyr::filter(!(AboveWQXUpperThreshold %in% "Y")) %>%
-      dplyr::select(-AboveWQXUpperThreshold)
+      dplyr::filter(!(TADA.ResultValueAboveUpperThreshold.Flag %in% "Y")) %>%
+      dplyr::select(-TADA.ResultValueAboveUpperThreshold.Flag)
     clean.data = OrderTADACols(clean.data)
     return(clean.data)
   }
@@ -576,7 +576,7 @@ AboveNationalWQXUpperThreshold <- function(.data, clean = TRUE, errorsonly = FAL
   if (clean == FALSE & errorsonly == TRUE) {
     # filter to show only rows above WQX upper threshold
     flagsonly.data <- flag.data %>%
-      dplyr::filter(AboveWQXUpperThreshold %in% "Y")
+      dplyr::filter(TADA.ResultValueAboveUpperThreshold.Flag %in% "Y")
     flagsonly.data = OrderTADACols(flagsonly.data)
     return(flagsonly.data)
   }
@@ -604,10 +604,10 @@ AboveNationalWQXUpperThreshold <- function(.data, clean = TRUE, errorsonly = FAL
 #' errorsonly = FALSE.
 #'
 #' @return When clean = FALSE and errorsonly = FALSE, the following column is 
-#' added to your dataframe: BelowWQXLowerThreshold. This column flags rows with 
+#' added to your dataframe: TADA.ResultValueBelowLowerThreshold.Flag. This column flags rows with 
 #' data that are below the lower WQX threshold. When clean = FALSE and 
 #' errorsonly = TRUE, the dataframe is filtered to show only the rows which are
-#' flagged as below the WQX threshold; the column BelowWQXThreshold is still
+#' flagged as below the WQX threshold; the column TADA.ResultValueBelowLowerThreshold.Flag is still
 #' appended. When clean = TRUE and errorsonly = FALSE, data that is below the lower 
 #' WQX threshold is removed from the dataframe. When clean = TRUE and
 #' errorsonly = TRUE, the function does not execute and an error message is
@@ -623,7 +623,7 @@ AboveNationalWQXUpperThreshold <- function(.data, clean = TRUE, errorsonly = FAL
 #' WQXLowerThreshold_clean <- BelowNationalWQXLowerThreshold(Nutrients_Utah)
 #' 
 #' # Flag, but do not remove, data that is below the lower WQX threshold in
-#' # new column titled "BelowWQXLowerThreshold":
+#' # new column titled "TADA.ResultValueBelowLowerThreshold.Flag":
 #' WQXLowerThreshold_flags <- BelowNationalWQXLowerThreshold(Nutrients_Utah, clean = FALSE)
 #' 
 #' # Show only data that is below the lower WQX threshold:
@@ -656,8 +656,8 @@ BelowNationalWQXLowerThreshold <- function(.data, clean = TRUE, errorsonly = FAL
 
   # execute function after checks are passed
   # delete existing flag column
-  if (("BelowWQXLowerThreshold" %in% colnames(.data)) == TRUE) {
-    .data <- dplyr::select(.data, -BelowWQXLowerThreshold)
+  if (("TADA.ResultValueBelowLowerThreshold.Flag" %in% colnames(.data)) == TRUE) {
+    .data <- dplyr::select(.data, -TADA.ResultValueBelowLowerThreshold.Flag)
   }
   
   # filter WQXcharVal.ref to include only valid CharacteristicUnit in water media
@@ -682,7 +682,7 @@ BelowNationalWQXLowerThreshold <- function(.data, clean = TRUE, errorsonly = FAL
     # apply function row by row
     dplyr::rowwise() %>%
     # create flag column
-    dplyr::mutate(BelowWQXLowerThreshold = dplyr::case_when(
+    dplyr::mutate(TADA.ResultValueBelowLowerThreshold.Flag = dplyr::case_when(
       TADA.ResultMeasureValue <= Minimum ~ as.character("Y"),
       TADA.ResultMeasureValue > Minimum ~ as.character("N")
     ))
@@ -695,14 +695,14 @@ BelowNationalWQXLowerThreshold <- function(.data, clean = TRUE, errorsonly = FAL
   # # reorder column names to match .data
   # # get .data column names
   # col.order <- colnames(.data)
-  # # add BelowWQXLowerThreshold column to the list
-  # col.order <- append(col.order, "BelowWQXLowerThreshold")
+  # # add TADA.ResultValueBelowLowerThreshold.Flag column to the list
+  # col.order <- append(col.order, "TADA.ResultValueBelowLowerThreshold.Flag")
   # # reorder columns in flag.data
   # flag.data <- flag.data[, col.order]
   
   # if no data below WQX lower threshold is found
   if (any("Y" %in%
-          unique(flag.data$BelowWQXLowerThreshold)) == FALSE) {
+          unique(flag.data$TADA.ResultValueBelowLowerThreshold.Flag)) == FALSE) {
     if (errorsonly == FALSE) {
       print("No changes were made because no data below the WQX Lower Threshold was found in your dataframe")
       .data = OrderTADACols(.data)
@@ -710,8 +710,8 @@ BelowNationalWQXLowerThreshold <- function(.data, clean = TRUE, errorsonly = FAL
     }
     if (errorsonly == TRUE) {
       print("This dataframe is empty because no data below the WQX Lower Threshold was found in your dataframe")
-      emptyflag.data <- dplyr::filter(flag.data, BelowWQXLowerThreshold %in% "Y")
-      emptyflag.data <- dplyr::select(emptyflag.data, -BelowWQXLowerThreshold)
+      emptyflag.data <- dplyr::filter(flag.data, TADA.ResultValueBelowLowerThreshold.Flag %in% "Y")
+      emptyflag.data <- dplyr::select(emptyflag.data, -TADA.ResultValueBelowLowerThreshold.Flag)
       emptyflag.data = OrderTADACols(emptyflag.data)
       return(emptyflag.data)
     }
@@ -725,19 +725,19 @@ BelowNationalWQXLowerThreshold <- function(.data, clean = TRUE, errorsonly = FAL
   
   # clean data
   if (clean == TRUE & errorsonly == FALSE) {
-    # filter out rows where BelowWQXLowerThreshold = Y; remove BelowWQXLowerThreshold column
+    # filter out rows where TADA.ResultValueBelowLowerThreshold.Flag = Y; remove TADA.ResultValueBelowLowerThreshold.Flag column
     clean.data <- flag.data %>%
-      dplyr::filter(!(BelowWQXLowerThreshold %in% "Y")) %>%
-      dplyr::select(-BelowWQXLowerThreshold)
+      dplyr::filter(!(TADA.ResultValueBelowLowerThreshold.Flag %in% "Y")) %>%
+      dplyr::select(-TADA.ResultValueBelowLowerThreshold.Flag)
     clean.data = OrderTADACols(clean.data)
     return(clean.data)
   }
   
   # only flagged data
   if (clean == FALSE & errorsonly == TRUE) {
-    # filter to show only rows where BelowWQXLowerThreshold = Y
+    # filter to show only rows where TADA.ResultValueBelowLowerThreshold.Flag = Y
     flagsonly.data <- flag.data %>%
-      dplyr::filter(BelowWQXLowerThreshold %in% "Y")
+      dplyr::filter(TADA.ResultValueBelowLowerThreshold.Flag %in% "Y")
     flagsonly.data = OrderTADACols(flagsonly.data)
     return(flagsonly.data)
   }
@@ -985,7 +985,7 @@ QAPPDocAvailable <- function(.data, clean = FALSE) {
 #'
 #' This function identifies and flags invalid coordinate data. When
 #' clean_outsideUSA = "no" and clean_imprecise = FALSE,
-#' a column will be appended titled "TADA.InvalidCoordinates" with the following
+#' a column will be appended titled "TADA.InvalidCoordinates.Flag" with the following
 #' flags: 1) If the latitude is less than zero, the row will be
 #' flagged with "LAT_OutsideUSA" (with the exception of American Samoa, 
 #' Northern Mariana Islands, and Guam), 2) If the longitude is greater than zero AND less than 145,
@@ -1027,12 +1027,12 @@ QAPPDocAvailable <- function(.data, clean = FALSE) {
 #' data(Nutrients_Utah)
 #' 
 #' # Flag, but do not remove, data with invalid coordinates in new column 
-#' # titled "TADA.InvalidCoordinates":
+#' # titled "TADA.InvalidCoordinates.Flag":
 #' # Return ALL data:
 #' InvalidCoord_flags <- InvalidCoordinates(Nutrients_Utah)
 #' 
 #' # Flag, but do not remove, data with invalid coordinates in new column 
-#' # titled "TADA.InvalidCoordinates"
+#' # titled "TADA.InvalidCoordinates.Flag"
 #' # Return ONLY the flagged data:
 #' InvalidCoord_flags_errorsonly <- InvalidCoordinates(Nutrients_Utah, errorsonly = TRUE)
 #' 
@@ -1068,18 +1068,18 @@ InvalidCoordinates <- function(.data,
   checkColumns(.data, c("TADA.LatitudeMeasure", "TADA.LongitudeMeasure"))
   # check lat and long are "numeric"
   if (class(.data$TADA.LongitudeMeasure) != "numeric") {
-    warning("LongitudeMeasure field must be numeric")
+    warning("TADA.LongitudeMeasure field must be numeric")
   }
   
   if (class(.data$TADA.LatitudeMeasure) != "numeric") {
-    warning("LatitudeMeasure field must be numeric")
+    warning("TADA.LatitudeMeasure field must be numeric")
   }
   # check that clean_outsideUSA is either "no", "remove", or "change sign"
   clean_outsideUSA <- match.arg(clean_outsideUSA)
   
   # execute function after checks are passed
   .data <- .data %>%
-    dplyr::mutate(TADA.InvalidCoordinates = dplyr::case_when(
+    dplyr::mutate(TADA.InvalidCoordinates.Flag = dplyr::case_when(
       TADA.LatitudeMeasure < -11.046934 & TADA.LatitudeMeasure > -14.548699 & TADA.LongitudeMeasure < -168.1433 & TADA.LongitudeMeasure > -171.089874 ~ NA_character_, #American Samoa
       TADA.LatitudeMeasure < 20.553802 & TADA.LatitudeMeasure > 14.110472 & TADA.LongitudeMeasure < 146.064818 & TADA.LongitudeMeasure > 144.886331 ~ NA_character_, #Northern Mariana Islands
       TADA.LatitudeMeasure < 13.654383 & TADA.LatitudeMeasure > 13.234189 & TADA.LongitudeMeasure < 144.956712 & TADA.LongitudeMeasure > 144.618068 ~ NA_character_, #Guam
@@ -1097,18 +1097,18 @@ InvalidCoordinates <- function(.data,
   # if clean_imprecise is TRUE, remove imprecise station metadata
   if (clean_imprecise == TRUE) {
     .data <- dplyr::filter(.data,
-                           TADA.InvalidCoordinates != "Imprecise_Latincludes999" 
-                           & TADA.InvalidCoordinates != "Imprecise_Longincludes999"
-                           & TADA.InvalidCoordinates != "Imprecise_lessthan3decimaldigits"
-                           | is.na(TADA.InvalidCoordinates) == TRUE)
+                           TADA.InvalidCoordinates.Flag != "Imprecise_Latincludes999" 
+                           & TADA.InvalidCoordinates.Flag != "Imprecise_Longincludes999"
+                           & TADA.InvalidCoordinates.Flag != "Imprecise_lessthan3decimaldigits"
+                           | is.na(TADA.InvalidCoordinates.Flag) == TRUE)
   }
   
   # if clean_outsideUSA is "remove", remove stations flagged as outside the USA
   if (clean_outsideUSA == "remove") {
     .data <- dplyr::filter(.data, 
-                           TADA.InvalidCoordinates != "LAT_OutsideUSA" 
-                           & TADA.InvalidCoordinates != "LONG_OutsideUSA"
-                           | is.na(TADA.InvalidCoordinates) == TRUE)
+                           TADA.InvalidCoordinates.Flag != "LAT_OutsideUSA" 
+                           & TADA.InvalidCoordinates.Flag != "LONG_OutsideUSA"
+                           | is.na(TADA.InvalidCoordinates.Flag) == TRUE)
   }
   
   # if clean_outsideUSA is "change sign", change the sign of lat/long coordinates outside of USA
@@ -1117,23 +1117,23 @@ InvalidCoordinates <- function(.data,
     .data <- .data %>% 
       dplyr::mutate(
         TADA.LatitudeMeasure = dplyr::case_when(
-          TADA.InvalidCoordinates == "LAT_OutsideUSA" ~ TADA.LatitudeMeasure*(-1),
+          TADA.InvalidCoordinates.Flag == "LAT_OutsideUSA" ~ TADA.LatitudeMeasure*(-1),
           TRUE ~ TADA.LatitudeMeasure),
         TADA.LongitudeMeasure = dplyr::case_when(
-          TADA.InvalidCoordinates == "LONG_OutsideUSA" ~ TADA.LongitudeMeasure*(-1),
+          TADA.InvalidCoordinates.Flag == "LONG_OutsideUSA" ~ TADA.LongitudeMeasure*(-1),
           TRUE ~ TADA.LongitudeMeasure)
       )
   }
   
   # return only flagged data if errorsonly = true
   if ((errorsonly == TRUE)) {
-    .data <- dplyr::filter(.data, is.na(TADA.InvalidCoordinates) != TRUE)
+    .data <- dplyr::filter(.data, is.na(TADA.InvalidCoordinates.Flag) != TRUE)
   }
   
-  if (all(is.na(.data$TADA.InvalidCoordinates) == TRUE)) {
+  if (all(is.na(.data$TADA.InvalidCoordinates.Flag) == TRUE)) {
     print("All invalid coordinates were removed or your dataframe does not contain monitoring stations with invalid coordinates")
     .data = OrderTADACols(.data)
-    return(dplyr::select(.data, -TADA.InvalidCoordinates))
+    return(dplyr::select(.data, -TADA.InvalidCoordinates.Flag))
   } else {
     .data = OrderTADACols(.data)
     return(.data)

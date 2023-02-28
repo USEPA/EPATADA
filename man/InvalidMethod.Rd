@@ -19,12 +19,12 @@ is errorsonly = FALSE.}
 }
 \value{
 When clean = FALSE and errorsonly = FALSE, this function adds the
-following column to your dataframe: WQX.AnalyticalMethodValidity. This column
+following column to your dataframe: TADA.AnalyticalMethod.Flag. This column
 flags invalid CharacteristicName, ResultAnalyticalMethod/MethodIdentifier,
 and ResultAnalyticalMethod/MethodIdentifierContext combinations in your dataframe
 as either "Nonstandardized", "Invalid", or "Valid". When clean = FALSE and
 errorsonly = TRUE, the dataframe is filtered to show only "Invalid"
-characteristic-analytical method combinations; the column WQX.AnalyticalMethodValidity
+characteristic-analytical method combinations; the column TADA.AnalyticalMethod.Flag
 is still appended. When clean = TRUE and errorsonly = FALSE, "Invalid" rows
 are removed from the dataframe and no column will be appended.
 }
@@ -44,7 +44,7 @@ data(Nutrients_Utah)
 InvalidMethod_clean <- InvalidMethod(Nutrients_Utah)
 
 # Flag, but do not remove, invalid characteristic-analytical method combinations
-# in new column titled "WQX.AnalyticalMethodValidity":
+# in new column titled "TADA.AnalyticalMethod.Flag":
 InvalidMethod_flags <- InvalidMethod(Nutrients_Utah, clean = FALSE)
 
 # Show only invalid characteristic-analytical method combinations:

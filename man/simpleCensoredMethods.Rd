@@ -24,7 +24,7 @@ simpleCensoredMethods(
 \item{od_multiplier}{A number to be multiplied to the UPPER detection limit for each entry to obtain the censored data value. Must be supplied if od_method = "multiplier". Defaults to 0.5, or half the detection limit.}
 }
 \value{
-A TADA dataframe with an additional column named TADA.Censored_Method, which documents the method used to fill censored data values.
+A TADA dataframe with additional columns named TADA.CensoredData.Flag, which indicates if there are disagreements in ResultDetectionCondition and DetectionQuantitationLimitTypeName, and TADA.CensoredMethod, which documents the method used to fill censored data values.
 }
 \description{
 This function determines if detection limit type and detection condition are parsimonious

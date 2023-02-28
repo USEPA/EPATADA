@@ -28,11 +28,11 @@ is errorsonly = FALSE.}
 }
 \value{
 When clean = "none" and errorsonly = FALSE, this function adds the
-following column to your dataframe: WQX.ResultUnitValidity. This column
+following column to your dataframe: TADA.ResultUnit.Flag. This column
 flags each CharacteristicName, ActivityMediaName, and ResultMeasure/MeasureUnitCode
 combination in your dataframe as either "Nonstandardized", "Invalid", or "Valid".
 When clean = "none" and errorsonly = TRUE, the dataframe is filtered to show only
-the "Invalid" and "Nonstandardized data; the column WQX.ResultUnitValidity is
+the "Invalid" and "Nonstandardized data; the column TADA.ResultUnit.Flag is
 still appended. When clean = "invalid_only" and errorsonly = FALSE, "Invalid"
 rows are removed from the dataframe, but "Nonstandardized" rows are retained. When
 clean = "nonstandardized_only" and errorsonly = FALSE, "Nonstandardized" rows
@@ -52,11 +52,11 @@ Default is errorsonly = FALSE.
 data(Nutrients_Utah)
 
 # Remove data with invalid characteristic-media-result unit combinations from dataframe, 
-# but retain nonstandardized combinations flagged in new column 'WQX.ResultUnitValidity':
+# but retain nonstandardized combinations flagged in new column 'TADA.ResultUnit.Flag':
 InvalidUnit_clean <- InvalidResultUnit(Nutrients_Utah)
 
 # Remove data with nonstandardized characteristic-media-result unit combinations 
-# from dataframe but retain invalid combinations flagged in new column 'WQX.ResultUnitValidity':
+# from dataframe but retain invalid combinations flagged in new column 'TADA.ResultUnit.Flag:
 NonstandardUnit_clean <- InvalidResultUnit(Nutrients_Utah, clean = "nonstandardized_only")
 
 # Remove both invalid and nonstandardized characteristic-media-result unit combinations
@@ -64,7 +64,7 @@ NonstandardUnit_clean <- InvalidResultUnit(Nutrients_Utah, clean = "nonstandardi
 ResultUnit_clean <- InvalidResultUnit(Nutrients_Utah, clean = "both")
 
 # Flag, but do not remove, data with invalid or nonstandardized characteristic-media-result unit
-# combinations in new column titled "WQX.ResultUnitValidity":
+# combinations in new column titled "TADA.ResultUnit.Flag":
 InvalidUnit_flags <- InvalidResultUnit(Nutrients_Utah, clean = "none")
 
 # Show only invalid characteristic-media-result unit combinations:
