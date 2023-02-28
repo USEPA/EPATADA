@@ -1067,11 +1067,11 @@ InvalidCoordinates <- function(.data,
   # check .data has required columns
   checkColumns(.data, c("TADA.LatitudeMeasure", "TADA.LongitudeMeasure"))
   # check lat and long are "numeric"
-  if (class(.data$TADA.LongitudeMeasure) != "numeric") {
+  if (!is.numeric(.data$TADA.LongitudeMeasure)) {
     warning("TADA.LongitudeMeasure field must be numeric")
   }
   
-  if (class(.data$TADA.LatitudeMeasure) != "numeric") {
+  if (!is.numeric(.data$TADA.LatitudeMeasure)) {
     warning("TADA.LatitudeMeasure field must be numeric")
   }
   # check that clean_outsideUSA is either "no", "remove", or "change sign"

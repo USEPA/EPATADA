@@ -9,14 +9,14 @@ utils::globalVariables(c("TADA.ResultValueAboveUpperThreshold.Flag", "ActivityId
                          "QAPPApprovalAgencyName", "QAPPApprovedIndicator",
                          "ResultDetectionConditionText", "ResultMeasureValue",
                          "SamplingDesignTypeCode", "Source", "Status", "TADA.AggregatedContinuousData.Flag",
-                         "TADA.InvalidCoordinates.Flag", "TADA.PotentialDupRowIDs.Flag", "QAPPDocAvailable",
+                         "TADA.InvalidCoordinates.Flag", "TADA.PotentialDupRowIDs.Flag", "TADA.QAPPDocAvailable",
                          "Target.Unit", "Type", "Value.Unit", "TADA.AnalyticalMethod.Flag",
                          "TADA.MethodSpeciation.Flag", "TADA.ResultUnit.Flag",
                          "TADA.SampleFraction.Flag", "YearSummarized", "where", "TADA.CharacteristicName",
                          "ResultIdentifier", "TADA.ResultMeasureValue", "n_sites",
                          "n_records", "statecodes_df", "STUSAB" ,"ActivityStartTime.Time", "numorgs", "dup_id",
-                         "LatitudeMeasure", "TADA.ResultMeasureValue.DataTypeFlag", "Name", "TADA.Detection_Type",
-                         "DetectionQuantitationLimitTypeName", "TADA.Limit_Type", "multiplier", "summ",
+                         "LatitudeMeasure", "TADA.ResultMeasureValueDataTypes.Flag", "Name", "TADA.Detection_Type",
+                         "DetectionQuantitationLimitTypeName", "TADA.Limit_Type", "multiplier", "summ", "cf",
                          "LongitudeMeasure"))
 
 
@@ -466,7 +466,7 @@ ConvertSpecialChars <- function(.data,col){
   chars.data$masked = chars.data$orig
   
   # If column is already numeric, just discern between NA and numeric
-  if(class(chars.data$orig)=="numeric"){
+  if(is.numeric(chars.data$orig)){
     clean.data = chars.data%>%
       dplyr::mutate(flag = dplyr::case_when(
         is.na(masked) ~ as.character("ND or NA"),

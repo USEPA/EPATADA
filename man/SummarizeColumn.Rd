@@ -4,7 +4,7 @@
 \alias{SummarizeColumn}
 \title{Summarize data downloaded by specified column}
 \usage{
-SummarizeColumn(.data, col)
+SummarizeColumn(.data, col = "TADA.CharacteristicName")
 }
 \arguments{
 \item{.data}{TADA data frame containing the data downloaded from the WQP, where
