@@ -41,7 +41,7 @@
 #' to find allowable values for queries, e.g., reference the WQX domain table to find countycode and statecode: https://cdx.epa.gov/wqx/download/DomainValues/County_CSV.zip
 #' Alternatively, you can use the WQP services to find areas where data is available in the US: https://www.waterqualitydata.us/Codes/countycode
 #'  
-#' See ?MeasureValueSpecialCharacters and ?autoclean documentation for more information.
+#' See ?ConvertSpecialChars and ?autoclean documentation for more information.
 #' 
 #' @param statecode Code that identifies a state
 #' @param startDate Start Date string in the format YYYY-MM-DD, for example, "2020-01-01"
@@ -276,32 +276,15 @@ TADAReadWQPWebServices <- function(webservice) {
 #' size of datasets that your R console will be able to hold in one session.
 #' Function requires a characteristicName, siteType, statecode, huc, or start/
 #' end date input. The recommendation is to be as specific as you can with your
-#' large data call.
-#' 
-#' Similarly to the TADAdataRetrieval function, this function will create 
-#' and/or edit the following columns:
-#' TADA.DetectionLimitMeasureValue.Flag
-#' DetectionQuantitationLimitMeasure.MeasureValue
-#' DetectionLimitMeasureValue.Original
-#' ResultMeasureValue.Original
-#' TADA.ResultMeasureValue.Flag
-#' ResultMeasureValue
-#' 
-#' All data cleaning and transformations are done directly to the
-#' "ResultMeasureValue" and "DetectionLimitMeasureValue" columns, 
-#' however the original "ResultMeasureValue" and "DetectionLimitMeasureValue"
-#' columns and values from the WQP are preserved in these new fields, 
-#' "ResultMeasureValue.Original" and "DetectionLimitMeasureValue.Original". 
-#' Additionally, "TADA.ResultMeasureValue.Flag" and 
-#' "TADA.DetectionLimitMeasureValue.Flag" are created to track and changes made
-#' to the "ResultMeasureValue" and "DetectionLimitMeasureValue" columns; 
-#' and to provide information about the result values that is needed to address
-#' censored data later on (i.e., nondetections)
+#' large data call. The function allows the user to run autoclean on the dataset,
+#' but this is not the default as checking large dataframes for exact duplicate
+#' rows can be time consuming and is better performed on its own once the query is
+#' completed.
 #' 
 #' Some code for this function was adapted from this USGS Blog (Author: Aliesha Krall)
 #' \href{https://waterdata.usgs.gov/blog/large_sample_pull/}{Large Sample Pull}  
 #' 
-#' See ?MeasureValueSpecialCharacters and ?autoclean documentation for more information.
+#' See ?autoclean documentation for more information on this optional input.
 #' 
 #' @param startDate Start Date YYYY-MM-DD format, for example, "1995-01-01"
 #' @param endDate end date in YYYY-MM-DD format, for example, "2020-12-31"
@@ -311,6 +294,7 @@ TADAReadWQPWebServices <- function(webservice) {
 #' @param siteType Name of water body type (e.g., "Stream", "Lake, Reservoir, Impoundment")
 #' @param sampleMedia Defaults to "Water". Refer to WQP domain tables for other options.
 #' @param applyautoclean Defaults to FALSE. If TRUE, runs TADA's autoclean function on final combined dataset.
+#' @param maxsitesquery Numeric. The maximum number of sites to query in each for-loop of the TADABigdataRetrieval function. This input is flexible because sites are often variable in their data richness. If several data rich sites are within the same download chunk, time outs and errors are more likely. Thus, the smaller the maxsitesquery (especially with very large datacalls), the lower the probability of overwhelming the WQP. 
 #' 
 #' @return TADA-compatible dataframe
 #' 
@@ -332,7 +316,8 @@ TADABigdataRetrieval <- function(startDate = "null",
                               characteristicName = "null", 
                               siteType = "null",
                               sampleMedia = "Water",
-                              applyautoclean = FALSE
+                              applyautoclean = FALSE,
+                              maxsitesquery = 20
 ) {
   
   start_T = Sys.time()
@@ -422,7 +407,7 @@ TADABigdataRetrieval <- function(startDate = "null",
       if(length(siteid_all) > 0) {
         rm(sites) # save some space
         l=length(siteid_all)  #len(sites)
-        maxsites=100   #max number of sites pulled per WQP query
+        maxsites=maxsitesquery   #max number of sites pulled per WQP query
         #may want to consider using the total number of records in a given 
         #download group instead, e.g., records must not exceed some maximum 
         #threshold (e.g. USGS uses 250,000 records per group for their pipelines)

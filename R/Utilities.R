@@ -26,18 +26,13 @@ utils::globalVariables(c("TADA.ResultValueAboveUpperThreshold.Flag", "ActivityId
 #' Removes rows of data that are true duplicates. Creates new columns with prefix
 #' "TADA." and capitalizes fields to harmonize data. This function includes and 
 #' runs the TADA "ConvertSpecialChars" function as well.
-#'
-#' Within "BiologicalIntentName", only the allowable values "tissue", "toxicity",
-#' and "NA" apply to non-biological data (the function removes all others).
-#' Toxicity and fish tissue data will be kept, but other types of biological
-#' monitoring data will not.
-#'
-#' This function makes certain fields uppercase so that they're interoperable
-#' with the WQX validation reference tables and to avoid any issues with
-#' case-sensitivity when joining data. This function also performs immediate QA steps 
-#' (removes true duplicates, converts result values to numeric, capitalizes 
-#' letters, etc.). It can be run as a stand alone function or can be tacked onto
-#' other functions.
+#'  This function performs immediate QA steps (removes true duplicates, converts 
+#'  result values to numeric, capitalizes letters, etc.) on heavily used columns 
+#'  and places these new values in a column of the same name with the added prefix 
+#'  "TADA." It makes certain fields uppercase so that they're interoperable with 
+#'  the WQX validation reference tables and reduces issues with case-sensitivity 
+#'  when joining data.It can be run as a stand alone function or can be tacked onto 
+#'  other functions.
 #'
 #' @param .data TADA dataframe
 #'
@@ -110,6 +105,8 @@ autoclean <- function(.data) {
   # .data$TADA.ActivityBottomDepthHeightMeasure.MeasureUnitCode[.data$ActivityBottomDepthHeightMeasure.MeasureUnitCode == 'meters'] <- 'm'
   # .data$TADA.ResultDepthHeightMeasure.MeasureUnitCode[.data$ResultDepthHeightMeasure.MeasureUnitCode == 'meters'] <- 'm'
   .data$TADA.ResultMeasure.MeasureUnitCode[.data$TADA.ResultMeasure.MeasureUnitCode == 'meters'] <- 'm'
+  
+  print("NOTE: This version of the TADA package is designed to work with data with sample media: 'WATER'. autoclean does not currently filter downloaded data to 'WATER'. The user must make this specification on their own outside of package functions. See the WQPDataHamornization vignette for an example.")
   
   .data = OrderTADACols(.data)
   
