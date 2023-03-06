@@ -72,7 +72,7 @@
       <img src="" class="logo" alt=""><h1>WQP Data Harmonization</h1>
                         <h4 data-toc-skip class="author">TADA Team</h4>
             
-            <h4 data-toc-skip class="date">2023-02-12</h4>
+            <h4 data-toc-skip class="date">2023-03-06</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/USEPA/TADA/blob/HEAD/vignettes/WQPDataHarmonization.Rmd" class="external-link"><code>vignettes/WQPDataHarmonization.Rmd</code></a></small>
       <div class="d-none name"><code>WQPDataHarmonization.Rmd</code></div>
@@ -98,11 +98,11 @@ but the development version can be downloaded directly from GitHub
 and load all packages required to run this vignette into your R
 session.</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">list.of.packages</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"plyr"</span>, <span class="st">"data.table"</span>, <span class="st">"dplyr"</span>, <span class="st">"magrittr"</span>, <span class="st">"stringr"</span>, <span class="st">"utils"</span>, <span class="st">"RColorBrewer"</span>, <span class="st">"stats"</span>, <span class="st">"gganimate"</span>, <span class="st">"gifski"</span>, <span class="st">"lubridate"</span>, <span class="st">"maps"</span>, <span class="st">"remotes"</span>, <span class="st">"dataRetrieval"</span>, <span class="st">"ggplot2"</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="va">list.of.packages</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"plyr"</span>, <span class="st">"data.table"</span>, <span class="st">"dplyr"</span>, <span class="st">"magrittr"</span>, <span class="st">"stringr"</span>, <span class="st">"maps"</span>,<span class="st">"utils"</span>, <span class="st">"RColorBrewer"</span>, <span class="st">"stats"</span>, <span class="st">"lubridate"</span>, <span class="st">"remotes"</span>, <span class="st">"dataRetrieval"</span>, <span class="st">"ggplot2"</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">new.packages</span> <span class="op">&lt;-</span> <span class="va">list.of.packages</span><span class="op">[</span><span class="op">!</span><span class="op">(</span><span class="va">list.of.packages</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="fu"><a href="https://rdrr.io/r/utils/installed.packages.html" class="external-link">installed.packages</a></span><span class="op">(</span><span class="op">)</span><span class="op">[</span>,<span class="st">"Package"</span><span class="op">]</span><span class="op">)</span><span class="op">]</span></span>
 <span></span>
-<span><span class="kw">if</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">new.packages</span><span class="op">)</span><span class="op">)</span> <span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="va">new.packages</span><span class="op">)</span></span></code></pre></div>
+<span><span class="kw">if</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">new.packages</span><span class="op">)</span><span class="op">)</span> <span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="va">new.packages</span>, repos <span class="op">=</span> <span class="st">"https://cloud.r-project.org/"</span><span class="op">)</span></span></code></pre></div>
 <p>If you have any issues loading the remotes library using the code
 above, uncomment the line below to install the “remotes” package
 specifying the repo. You must load the remotes library before installing
@@ -134,11 +134,9 @@ session</p>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">RColorBrewer</span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">stats</span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://rlang.r-lib.org" class="external-link">rlang</a></span><span class="op">)</span></span>
-<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://gganimate.com" class="external-link">gganimate</a></span><span class="op">)</span></span>
-<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://gif.ski/" class="external-link">gifski</a></span><span class="op">)</span></span>
-<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">maps</span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://lubridate.tidyverse.org" class="external-link">lubridate</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://ggplot2.tidyverse.org" class="external-link">ggplot2</a></span><span class="op">)</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">maps</span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://code.usgs.gov/water/dataRetrieval" class="external-link">dataRetrieval</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://usepa.github.io/TADA/">TADA</a></span><span class="op">)</span></span></code></pre></div>
 </div>
@@ -167,46 +165,32 @@ characteristicName = “pH”.</p>
 <li><p>siteType</p></li>
 <li><p>characteristicName</p></li>
 <li><p>sampleMedia</p></li>
+<li><p>project</p></li>
+<li><p>organization</p></li>
 </ul>
 <p>Please be aware that this TADAdataRetrieval function automatically
 runs the TADA <strong>autoclean</strong> and
-<strong>MeasureValueSpecialCharacters</strong> functions as well, which
-are both required for subsequent functions within the TADA R package to
-run. These functions alter and/or add the following WQP columns (enter
-<em>?MeasureValueSpecialCharacters</em> and <em>?autoclean</em> into the
-console for more details):</p>
-<ul>
-<li>
-<p>Alters (e.g., ResultMeasureValue and
-DetectionQuantitationLimitMeasure.MeasureValue fields are converted to
-class numeric)</p>
-<ul>
-<li><p>ResultMeasureValue</p></li>
-<li><p>DetectionQuantitationLimitMeasure.MeasureValue</p></li>
-</ul>
-</li>
-<li>
-<p>Adds (All the data cleaning and transformations are done directly
-to the “ResultMeasureValue” and “DetectionLimitMeasureValue” columns,
-however the original “ResultMeasureValue” and
-“DetectionLimitMeasureValue” columns and values from the WQP are
-preserved in these new fields, “ResultMeasureValue.Original” and
-“DetectionLimitMeasureValue.Original”. Additionally,
-“TADA.ResultMeasureValue.Flag” and
-“TADA.DetectionLimitMeasureValue.Flag” are created to track any changes
-made to the “ResultMeasureValue” and “DetectionLimitMeasureValue”
-columns; and to provide information about the result values that is
-needed to address censored data later on (i.e., nondetections).
-Specifically, these new columns flag if special characters are included
-in result values, and specifies what the special characters are.</p>
-<ul>
-<li><p>ResultMeasureValue.Original</p></li>
-<li><p>TADA.ResultMeasureValue.Flag</p></li>
-<li><p>DetectionLimitMeasureValue.Original</p></li>
-<li><p>TADA.DetectionLimitMeasureValue.Flag</p></li>
-</ul>
-</li>
-</ul>
+<strong>ConvertSpecialChars</strong> functions as well, which are both
+required for subsequent functions within the TADA R package to run. As a
+general rule, TADA functions do not change any contents in the
+WQP-served columns (enter <em>?ConvertSpecialChars</em> and
+<em>?autoclean</em> into the console for more details). Instead, they
+add new columns with the prefix “TADA.” The following columns are
+numeric versions of their WQP origins:</p>
+<pre><code><span><span class="op">-</span>   <span class="va">TADA.ResultMeasureValue</span></span>
+<span></span>
+<span><span class="op">-</span>   <span class="va">TADA.DetectionQuantitationLimitMeasure.MeasureValue</span></span>
+<span></span>
+<span><span class="op">-</span>   <span class="va">TADA.LatitudeMeasure</span></span>
+<span></span>
+<span><span class="op">-</span>   <span class="va">TADA.LongitudeMeasure</span></span></code></pre>
+<p>These functions also add the columns
+TADA.ResultMeasureValueDataTypes.Flag and
+TADA.DetectionQuantitationLimitMeasure.MeasureValueDataTypes.Flag, which
+provide information about the result values that is needed to address
+censored data later on (i.e., nondetections). Specifically, these new
+columns flag if special characters are included in result values, and
+specifies what the special characters are.</p>
 <p>Downloads using TADAdataRetrieval will have the same columns each
 time, but be aware that data are uploaded to the Water Quality Portal by
 individual organizations, which may or may not follow the same
@@ -264,27 +248,37 @@ profiles you would get using readWQPdata vs. TADAdataRetrieval. The
 profiles are different because TADAdataRetrieval automatically joins in
 data from multiple WQP profiles, and does some additional data cleaning
 as part of the data retrieval process.</p>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># dataRetrieval1 &lt;- dataRetrieval::readWQPdata(statecode = "AK", characteristicName = c("Fecal Coliform", "Escherichia coli", "Enterococcus"), startDate = "05-01-2018", ignore_attributes = TRUE)</span></span>
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># dataRetrieval1 &lt;- dataRetrieval::readWQPdata(statecode = "AK", characteristicName = c("Fecal Coliform", "Escherichia coli", "Enterococcus"), startDate = "2018-05-01", ignore_attributes = TRUE)</span></span>
 <span></span>
 <span><span class="co"># another example</span></span>
-<span><span class="co"># dataRetrieval2 &lt;- dataRetrieval::readWQPdata(statecode = "UT", characteristicName = c("Ammonia", "Nitrate", "Nitrogen"), startDate = "01-01-2021", ignore_attributes = TRUE)</span></span></code></pre></div>
+<span><span class="co"># dataRetrieval2 &lt;- dataRetrieval::readWQPdata(statecode = "UT", characteristicName = c("Ammonia", "Nitrate", "Nitrogen"), startDate = "2021-01-01", ignore_attributes = TRUE)</span></span></code></pre></div>
 <p>Use the code below to download data from the WQP using
 TADAdataRetrieval. Edit the code chuck below to define your own WQP
 query inputs.</p>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># here is an example for Utah</span></span>
-<span><span class="co"># TADAProfile1 &lt;- TADAdataRetrieval(statecode = "UT", characteristicName = c("Ammonia", "Nitrate", "Nitrogen"), startDate = "10-01-2020")</span></span>
+<span><span class="co"># TADAProfile1 &lt;- TADAdataRetrieval(statecode = "UT", characteristicName = c("Ammonia", "Nitrate", "Nitrogen"), startDate = "2020-10-01")</span></span>
 <span></span>
 <span><span class="co"># example for Alaska</span></span>
 <span><span class="co"># TADAProfile2 &lt;- TADAdataRetrieval(ProjectIdentifier = "Anchorage Bacteria 20-21")</span></span>
 <span></span>
 <span><span class="co"># another example query for Alaska. We will move forward with this example in the remainder of the vignette</span></span>
-<span><span class="va">TADAProfile</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/TADAdataRetrieval.html">TADAdataRetrieval</a></span><span class="op">(</span>statecode <span class="op">=</span> <span class="st">"AK"</span>, characteristicName <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Fecal Coliform"</span>, <span class="st">"Escherichia coli"</span>, <span class="st">"Enterococcus"</span>, <span class="st">"Ammonia"</span>, <span class="st">"Nitrate"</span>, <span class="st">"Nitrogen"</span><span class="op">)</span>, startDate <span class="op">=</span> <span class="st">"05-01-2018"</span><span class="op">)</span></span></code></pre></div>
+<span><span class="va">TADAProfile</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/TADAdataRetrieval.html">TADAdataRetrieval</a></span><span class="op">(</span>statecode <span class="op">=</span> <span class="st">"AK"</span>, characteristicName <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Fecal Coliform"</span>, <span class="st">"Escherichia coli"</span>, <span class="st">"Enterococcus"</span>, <span class="st">"Ammonia"</span>, <span class="st">"Nitrate"</span>, <span class="st">"Nitrogen"</span><span class="op">)</span>, startDate <span class="op">=</span> <span class="st">"2018-05-01"</span><span class="op">)</span></span></code></pre></div>
 <p>Option 2: Alternatively, you can use the data.table::fread function
 to read in a web service call for any WQP profile (un-comment).</p>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># New_Draft_fullphyschem &lt;- data.table::fread("https://www.waterqualitydata.us/data/Result/search?countrycode=US&amp;statecode=US%3A49&amp;siteid=UTAHDWQ_WQX-4925610&amp;startDateLo=01-01-2015&amp;startDateHi=12-31-2016&amp;mimeType=csv&amp;zip=no&amp;sorted=yes&amp;dataProfile=fullPhysChem&amp;providers=NWIS&amp;providers=STEWARDS&amp;providers=STORET")</span></span></code></pre></div>
+<p><strong>Extra tip:</strong> Note that the web service call built
+using the Water Quality Portal uses the inputs startDateLo and
+startDateHi rather than startDate and endDate, and dates are in the
+format MM-DD-YYYY rather than the TADAdataRetrieval and dataRetrieval
+format of YYYY-MM-DD. The functions use the latter format rather than
+the web service call date format because YYYY-MM-DD is a more easily
+utilized format in the R coding environment. However, users of USGS’s
+dataRetrieval may use the date format MM-DD-YYYY <em>only if</em> they
+specify with “startDateLo” and “startDateHi” inputs. For coding
+consistency, it is recommended users stick with YYYY-MM-DD.</p>
 <p>Option 3: If you need to download a large amount of data from across
 a large area, and the TADAdataRetrieval function is not working due to
 WQP timeout issues, then the <strong>TADABigdataRetrieval</strong>
@@ -302,7 +296,7 @@ statecode, and siteType requested.</p>
 <p>See ?TADABigdataRetrieval for more details. WARNING, this can take
 multiple HOURS to run. The total run time depends on your query
 inputs.</p>
-<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># WARNING, this can take multiple HOURS to run </span></span>
 <span><span class="co"># StreamTemp &lt;- TADABigdataRetrieval(startDate = "2000-01-01", </span></span>
 <span><span class="co">#                                     endDate = "2022-12-31", </span></span>
@@ -314,152 +308,177 @@ inputs.</p>
 <span><span class="co"># Phosphorus &lt;- TADABigdataRetrieval(characteristicName = "Phosphorus")</span></span>
 <span><span class="co"># </span></span>
 <span><span class="co"># CT &lt;- TADABigdataRetrieval(statecode = "CT")</span></span></code></pre></div>
-<p>Review all column names in the TADA Profile</p>
-<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<p>Review all column names in the TADA Profile. Remove results that are
+not water samples or measurements (TADA is recommended for use with
+water data only).</p>
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="va">TADAProfile</span><span class="op">)</span></span>
-<span><span class="co">#&gt;   [1] "OrganizationIdentifier"                           </span></span>
-<span><span class="co">#&gt;   [2] "OrganizationFormalName"                           </span></span>
-<span><span class="co">#&gt;   [3] "ActivityIdentifier"                               </span></span>
-<span><span class="co">#&gt;   [4] "ActivityTypeCode"                                 </span></span>
-<span><span class="co">#&gt;   [5] "ActivityMediaName"                                </span></span>
-<span><span class="co">#&gt;   [6] "ActivityMediaSubdivisionName"                     </span></span>
-<span><span class="co">#&gt;   [7] "ActivityStartDate"                                </span></span>
-<span><span class="co">#&gt;   [8] "ActivityStartTime.Time"                           </span></span>
-<span><span class="co">#&gt;   [9] "ActivityStartTime.TimeZoneCode"                   </span></span>
-<span><span class="co">#&gt;  [10] "ActivityEndDate"                                  </span></span>
-<span><span class="co">#&gt;  [11] "ActivityEndTime.Time"                             </span></span>
-<span><span class="co">#&gt;  [12] "ActivityEndTime.TimeZoneCode"                     </span></span>
-<span><span class="co">#&gt;  [13] "ActivityRelativeDepthName"                        </span></span>
-<span><span class="co">#&gt;  [14] "ActivityDepthHeightMeasure.MeasureValue"          </span></span>
-<span><span class="co">#&gt;  [15] "ActivityDepthHeightMeasure.MeasureUnitCode"       </span></span>
-<span><span class="co">#&gt;  [16] "ActivityDepthAltitudeReferencePointText"          </span></span>
-<span><span class="co">#&gt;  [17] "ActivityTopDepthHeightMeasure.MeasureValue"       </span></span>
-<span><span class="co">#&gt;  [18] "ActivityTopDepthHeightMeasure.MeasureUnitCode"    </span></span>
-<span><span class="co">#&gt;  [19] "ActivityBottomDepthHeightMeasure.MeasureValue"    </span></span>
-<span><span class="co">#&gt;  [20] "ActivityBottomDepthHeightMeasure.MeasureUnitCode" </span></span>
-<span><span class="co">#&gt;  [21] "ProjectIdentifier"                                </span></span>
-<span><span class="co">#&gt;  [22] "ProjectName"                                      </span></span>
-<span><span class="co">#&gt;  [23] "ActivityConductingOrganizationText"               </span></span>
-<span><span class="co">#&gt;  [24] "MonitoringLocationIdentifier"                     </span></span>
-<span><span class="co">#&gt;  [25] "MonitoringLocationName"                           </span></span>
-<span><span class="co">#&gt;  [26] "ActivityCommentText"                              </span></span>
-<span><span class="co">#&gt;  [27] "SampleAquifer"                                    </span></span>
-<span><span class="co">#&gt;  [28] "HydrologicCondition"                              </span></span>
-<span><span class="co">#&gt;  [29] "HydrologicEvent"                                  </span></span>
-<span><span class="co">#&gt;  [30] "ActivityLocation.LatitudeMeasure"                 </span></span>
-<span><span class="co">#&gt;  [31] "ActivityLocation.LongitudeMeasure"                </span></span>
-<span><span class="co">#&gt;  [32] "SampleCollectionMethod.MethodIdentifier"          </span></span>
-<span><span class="co">#&gt;  [33] "SampleCollectionMethod.MethodIdentifierContext"   </span></span>
-<span><span class="co">#&gt;  [34] "SampleCollectionMethod.MethodName"                </span></span>
-<span><span class="co">#&gt;  [35] "SampleCollectionMethod.MethodDescriptionText"     </span></span>
-<span><span class="co">#&gt;  [36] "SampleCollectionEquipmentName"                    </span></span>
-<span><span class="co">#&gt;  [37] "ResultIdentifier"                                 </span></span>
-<span><span class="co">#&gt;  [38] "ResultDetectionConditionText"                     </span></span>
-<span><span class="co">#&gt;  [39] "MethodSpeciationName"                             </span></span>
-<span><span class="co">#&gt;  [40] "CharacteristicName"                               </span></span>
-<span><span class="co">#&gt;  [41] "ResultSampleFractionText"                         </span></span>
-<span><span class="co">#&gt;  [42] "ResultMeasureValue"                               </span></span>
-<span><span class="co">#&gt;  [43] "ResultMeasureValue.Original"                      </span></span>
-<span><span class="co">#&gt;  [44] "TADA.ResultMeasureValue.Flag"                     </span></span>
-<span><span class="co">#&gt;  [45] "ResultMeasure.MeasureUnitCode"                    </span></span>
-<span><span class="co">#&gt;  [46] "MeasureQualifierCode"                             </span></span>
-<span><span class="co">#&gt;  [47] "ResultStatusIdentifier"                           </span></span>
-<span><span class="co">#&gt;  [48] "StatisticalBaseCode"                              </span></span>
-<span><span class="co">#&gt;  [49] "ResultValueTypeName"                              </span></span>
-<span><span class="co">#&gt;  [50] "ResultWeightBasisText"                            </span></span>
-<span><span class="co">#&gt;  [51] "ResultTimeBasisText"                              </span></span>
-<span><span class="co">#&gt;  [52] "ResultTemperatureBasisText"                       </span></span>
-<span><span class="co">#&gt;  [53] "ResultParticleSizeBasisText"                      </span></span>
-<span><span class="co">#&gt;  [54] "DataQuality.PrecisionValue"                       </span></span>
-<span><span class="co">#&gt;  [55] "DataQuality.BiasValue"                            </span></span>
-<span><span class="co">#&gt;  [56] "DataQuality.ConfidenceIntervalValue"              </span></span>
-<span><span class="co">#&gt;  [57] "DataQuality.UpperConfidenceLimitValue"            </span></span>
-<span><span class="co">#&gt;  [58] "DataQuality.LowerConfidenceLimitValue"            </span></span>
-<span><span class="co">#&gt;  [59] "ResultCommentText"                                </span></span>
-<span><span class="co">#&gt;  [60] "USGSPCode"                                        </span></span>
-<span><span class="co">#&gt;  [61] "ResultDepthHeightMeasure.MeasureValue"            </span></span>
-<span><span class="co">#&gt;  [62] "ResultDepthHeightMeasure.MeasureUnitCode"         </span></span>
-<span><span class="co">#&gt;  [63] "ResultDepthAltitudeReferencePointText"            </span></span>
-<span><span class="co">#&gt;  [64] "SubjectTaxonomicName"                             </span></span>
-<span><span class="co">#&gt;  [65] "SampleTissueAnatomyName"                          </span></span>
-<span><span class="co">#&gt;  [66] "BinaryObjectFileName"                             </span></span>
-<span><span class="co">#&gt;  [67] "BinaryObjectFileTypeCode"                         </span></span>
-<span><span class="co">#&gt;  [68] "ResultFileUrl"                                    </span></span>
-<span><span class="co">#&gt;  [69] "ResultAnalyticalMethod.MethodIdentifier"          </span></span>
-<span><span class="co">#&gt;  [70] "ResultAnalyticalMethod.MethodIdentifierContext"   </span></span>
-<span><span class="co">#&gt;  [71] "ResultAnalyticalMethod.MethodName"                </span></span>
-<span><span class="co">#&gt;  [72] "ResultAnalyticalMethod.MethodUrl"                 </span></span>
-<span><span class="co">#&gt;  [73] "ResultAnalyticalMethod.MethodDescriptionText"     </span></span>
-<span><span class="co">#&gt;  [74] "LaboratoryName"                                   </span></span>
-<span><span class="co">#&gt;  [75] "AnalysisStartDate"                                </span></span>
-<span><span class="co">#&gt;  [76] "ResultLaboratoryCommentText"                      </span></span>
-<span><span class="co">#&gt;  [77] "ResultDetectionQuantitationLimitUrl"              </span></span>
-<span><span class="co">#&gt;  [78] "DetectionQuantitationLimitTypeName"               </span></span>
-<span><span class="co">#&gt;  [79] "DetectionQuantitationLimitMeasure.MeasureValue"   </span></span>
-<span><span class="co">#&gt;  [80] "DetectionLimitMeasureValue.Original"              </span></span>
-<span><span class="co">#&gt;  [81] "TADA.DetectionLimitMeasureValue.Flag"             </span></span>
-<span><span class="co">#&gt;  [82] "DetectionQuantitationLimitMeasure.MeasureUnitCode"</span></span>
-<span><span class="co">#&gt;  [83] "LabSamplePreparationUrl"                          </span></span>
-<span><span class="co">#&gt;  [84] "LastUpdated"                                      </span></span>
-<span><span class="co">#&gt;  [85] "ProviderName"                                     </span></span>
-<span><span class="co">#&gt;  [86] "timeZoneStart"                                    </span></span>
-<span><span class="co">#&gt;  [87] "timeZoneEnd"                                      </span></span>
-<span><span class="co">#&gt;  [88] "ActivityStartDateTime"                            </span></span>
-<span><span class="co">#&gt;  [89] "ActivityEndDateTime"                              </span></span>
-<span><span class="co">#&gt;  [90] "MonitoringLocationTypeName"                       </span></span>
-<span><span class="co">#&gt;  [91] "MonitoringLocationDescriptionText"                </span></span>
-<span><span class="co">#&gt;  [92] "HUCEightDigitCode"                                </span></span>
-<span><span class="co">#&gt;  [93] "DrainageAreaMeasure.MeasureValue"                 </span></span>
-<span><span class="co">#&gt;  [94] "DrainageAreaMeasure.MeasureUnitCode"              </span></span>
-<span><span class="co">#&gt;  [95] "ContributingDrainageAreaMeasure.MeasureValue"     </span></span>
-<span><span class="co">#&gt;  [96] "ContributingDrainageAreaMeasure.MeasureUnitCode"  </span></span>
-<span><span class="co">#&gt;  [97] "LatitudeMeasure"                                  </span></span>
-<span><span class="co">#&gt;  [98] "LongitudeMeasure"                                 </span></span>
-<span><span class="co">#&gt;  [99] "SourceMapScaleNumeric"                            </span></span>
-<span><span class="co">#&gt; [100] "HorizontalAccuracyMeasure.MeasureValue"           </span></span>
-<span><span class="co">#&gt; [101] "HorizontalAccuracyMeasure.MeasureUnitCode"        </span></span>
-<span><span class="co">#&gt; [102] "HorizontalCollectionMethodName"                   </span></span>
-<span><span class="co">#&gt; [103] "HorizontalCoordinateReferenceSystemDatumName"     </span></span>
-<span><span class="co">#&gt; [104] "VerticalMeasure.MeasureValue"                     </span></span>
-<span><span class="co">#&gt; [105] "VerticalMeasure.MeasureUnitCode"                  </span></span>
-<span><span class="co">#&gt; [106] "VerticalAccuracyMeasure.MeasureValue"             </span></span>
-<span><span class="co">#&gt; [107] "VerticalAccuracyMeasure.MeasureUnitCode"          </span></span>
-<span><span class="co">#&gt; [108] "VerticalCollectionMethodName"                     </span></span>
-<span><span class="co">#&gt; [109] "VerticalCoordinateReferenceSystemDatumName"       </span></span>
-<span><span class="co">#&gt; [110] "CountryCode"                                      </span></span>
-<span><span class="co">#&gt; [111] "StateCode"                                        </span></span>
-<span><span class="co">#&gt; [112] "CountyCode"                                       </span></span>
-<span><span class="co">#&gt; [113] "AquiferName"                                      </span></span>
-<span><span class="co">#&gt; [114] "LocalAqfrName"                                    </span></span>
-<span><span class="co">#&gt; [115] "FormationTypeText"                                </span></span>
-<span><span class="co">#&gt; [116] "AquiferTypeName"                                  </span></span>
-<span><span class="co">#&gt; [117] "ConstructionDateText"                             </span></span>
-<span><span class="co">#&gt; [118] "WellDepthMeasure.MeasureValue"                    </span></span>
-<span><span class="co">#&gt; [119] "WellDepthMeasure.MeasureUnitCode"                 </span></span>
-<span><span class="co">#&gt; [120] "WellHoleDepthMeasure.MeasureValue"                </span></span>
-<span><span class="co">#&gt; [121] "WellHoleDepthMeasure.MeasureUnitCode"             </span></span>
-<span><span class="co">#&gt; [122] "MethodSpecificationName"                          </span></span>
-<span><span class="co">#&gt; [123] "ProjectDescriptionText"                           </span></span>
-<span><span class="co">#&gt; [124] "SamplingDesignTypeCode"                           </span></span>
-<span><span class="co">#&gt; [125] "QAPPApprovedIndicator"                            </span></span>
-<span><span class="co">#&gt; [126] "QAPPApprovalAgencyName"                           </span></span>
-<span><span class="co">#&gt; [127] "ProjectFileUrl"                                   </span></span>
-<span><span class="co">#&gt; [128] "ProjectMonitoringLocationWeightingUrl"</span></span>
-<span><span class="va">TADAProfile_CharSummary</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/SummarizeCharacteristics.html">SummarizeCharacteristics</a></span><span class="op">(</span><span class="va">TADAProfile</span><span class="op">)</span></span></code></pre></div>
+<span><span class="co">#&gt;   [1] "OrganizationIdentifier"                                           </span></span>
+<span><span class="co">#&gt;   [2] "OrganizationFormalName"                                           </span></span>
+<span><span class="co">#&gt;   [3] "ActivityIdentifier"                                               </span></span>
+<span><span class="co">#&gt;   [4] "ActivityTypeCode"                                                 </span></span>
+<span><span class="co">#&gt;   [5] "ActivityMediaName"                                                </span></span>
+<span><span class="co">#&gt;   [6] "ActivityMediaSubdivisionName"                                     </span></span>
+<span><span class="co">#&gt;   [7] "ActivityStartDate"                                                </span></span>
+<span><span class="co">#&gt;   [8] "ActivityStartTime.Time"                                           </span></span>
+<span><span class="co">#&gt;   [9] "ActivityStartTime.TimeZoneCode"                                   </span></span>
+<span><span class="co">#&gt;  [10] "ActivityEndDate"                                                  </span></span>
+<span><span class="co">#&gt;  [11] "ActivityEndTime.Time"                                             </span></span>
+<span><span class="co">#&gt;  [12] "ActivityEndTime.TimeZoneCode"                                     </span></span>
+<span><span class="co">#&gt;  [13] "ActivityRelativeDepthName"                                        </span></span>
+<span><span class="co">#&gt;  [14] "ActivityDepthHeightMeasure.MeasureValue"                          </span></span>
+<span><span class="co">#&gt;  [15] "ActivityDepthHeightMeasure.MeasureUnitCode"                       </span></span>
+<span><span class="co">#&gt;  [16] "ActivityDepthAltitudeReferencePointText"                          </span></span>
+<span><span class="co">#&gt;  [17] "ActivityTopDepthHeightMeasure.MeasureValue"                       </span></span>
+<span><span class="co">#&gt;  [18] "ActivityTopDepthHeightMeasure.MeasureUnitCode"                    </span></span>
+<span><span class="co">#&gt;  [19] "ActivityBottomDepthHeightMeasure.MeasureValue"                    </span></span>
+<span><span class="co">#&gt;  [20] "ActivityBottomDepthHeightMeasure.MeasureUnitCode"                 </span></span>
+<span><span class="co">#&gt;  [21] "ProjectIdentifier"                                                </span></span>
+<span><span class="co">#&gt;  [22] "ProjectName"                                                      </span></span>
+<span><span class="co">#&gt;  [23] "ActivityConductingOrganizationText"                               </span></span>
+<span><span class="co">#&gt;  [24] "MonitoringLocationIdentifier"                                     </span></span>
+<span><span class="co">#&gt;  [25] "MonitoringLocationName"                                           </span></span>
+<span><span class="co">#&gt;  [26] "ActivityCommentText"                                              </span></span>
+<span><span class="co">#&gt;  [27] "SampleAquifer"                                                    </span></span>
+<span><span class="co">#&gt;  [28] "HydrologicCondition"                                              </span></span>
+<span><span class="co">#&gt;  [29] "HydrologicEvent"                                                  </span></span>
+<span><span class="co">#&gt;  [30] "ActivityLocation.LatitudeMeasure"                                 </span></span>
+<span><span class="co">#&gt;  [31] "ActivityLocation.LongitudeMeasure"                                </span></span>
+<span><span class="co">#&gt;  [32] "SampleCollectionMethod.MethodIdentifier"                          </span></span>
+<span><span class="co">#&gt;  [33] "SampleCollectionMethod.MethodIdentifierContext"                   </span></span>
+<span><span class="co">#&gt;  [34] "SampleCollectionMethod.MethodName"                                </span></span>
+<span><span class="co">#&gt;  [35] "SampleCollectionMethod.MethodDescriptionText"                     </span></span>
+<span><span class="co">#&gt;  [36] "SampleCollectionEquipmentName"                                    </span></span>
+<span><span class="co">#&gt;  [37] "ResultIdentifier"                                                 </span></span>
+<span><span class="co">#&gt;  [38] "ResultDetectionConditionText"                                     </span></span>
+<span><span class="co">#&gt;  [39] "MethodSpeciationName"                                             </span></span>
+<span><span class="co">#&gt;  [40] "CharacteristicName"                                               </span></span>
+<span><span class="co">#&gt;  [41] "ResultSampleFractionText"                                         </span></span>
+<span><span class="co">#&gt;  [42] "ResultMeasureValue"                                               </span></span>
+<span><span class="co">#&gt;  [43] "ResultMeasure.MeasureUnitCode"                                    </span></span>
+<span><span class="co">#&gt;  [44] "MeasureQualifierCode"                                             </span></span>
+<span><span class="co">#&gt;  [45] "ResultStatusIdentifier"                                           </span></span>
+<span><span class="co">#&gt;  [46] "StatisticalBaseCode"                                              </span></span>
+<span><span class="co">#&gt;  [47] "ResultValueTypeName"                                              </span></span>
+<span><span class="co">#&gt;  [48] "ResultWeightBasisText"                                            </span></span>
+<span><span class="co">#&gt;  [49] "ResultTimeBasisText"                                              </span></span>
+<span><span class="co">#&gt;  [50] "ResultTemperatureBasisText"                                       </span></span>
+<span><span class="co">#&gt;  [51] "ResultParticleSizeBasisText"                                      </span></span>
+<span><span class="co">#&gt;  [52] "DataQuality.PrecisionValue"                                       </span></span>
+<span><span class="co">#&gt;  [53] "DataQuality.BiasValue"                                            </span></span>
+<span><span class="co">#&gt;  [54] "DataQuality.ConfidenceIntervalValue"                              </span></span>
+<span><span class="co">#&gt;  [55] "DataQuality.UpperConfidenceLimitValue"                            </span></span>
+<span><span class="co">#&gt;  [56] "DataQuality.LowerConfidenceLimitValue"                            </span></span>
+<span><span class="co">#&gt;  [57] "ResultCommentText"                                                </span></span>
+<span><span class="co">#&gt;  [58] "USGSPCode"                                                        </span></span>
+<span><span class="co">#&gt;  [59] "ResultDepthHeightMeasure.MeasureValue"                            </span></span>
+<span><span class="co">#&gt;  [60] "ResultDepthHeightMeasure.MeasureUnitCode"                         </span></span>
+<span><span class="co">#&gt;  [61] "ResultDepthAltitudeReferencePointText"                            </span></span>
+<span><span class="co">#&gt;  [62] "SubjectTaxonomicName"                                             </span></span>
+<span><span class="co">#&gt;  [63] "SampleTissueAnatomyName"                                          </span></span>
+<span><span class="co">#&gt;  [64] "BinaryObjectFileName"                                             </span></span>
+<span><span class="co">#&gt;  [65] "BinaryObjectFileTypeCode"                                         </span></span>
+<span><span class="co">#&gt;  [66] "ResultFileUrl"                                                    </span></span>
+<span><span class="co">#&gt;  [67] "ResultAnalyticalMethod.MethodIdentifier"                          </span></span>
+<span><span class="co">#&gt;  [68] "ResultAnalyticalMethod.MethodIdentifierContext"                   </span></span>
+<span><span class="co">#&gt;  [69] "ResultAnalyticalMethod.MethodName"                                </span></span>
+<span><span class="co">#&gt;  [70] "ResultAnalyticalMethod.MethodUrl"                                 </span></span>
+<span><span class="co">#&gt;  [71] "ResultAnalyticalMethod.MethodDescriptionText"                     </span></span>
+<span><span class="co">#&gt;  [72] "LaboratoryName"                                                   </span></span>
+<span><span class="co">#&gt;  [73] "AnalysisStartDate"                                                </span></span>
+<span><span class="co">#&gt;  [74] "ResultLaboratoryCommentText"                                      </span></span>
+<span><span class="co">#&gt;  [75] "ResultDetectionQuantitationLimitUrl"                              </span></span>
+<span><span class="co">#&gt;  [76] "DetectionQuantitationLimitTypeName"                               </span></span>
+<span><span class="co">#&gt;  [77] "DetectionQuantitationLimitMeasure.MeasureValue"                   </span></span>
+<span><span class="co">#&gt;  [78] "DetectionQuantitationLimitMeasure.MeasureUnitCode"                </span></span>
+<span><span class="co">#&gt;  [79] "LabSamplePreparationUrl"                                          </span></span>
+<span><span class="co">#&gt;  [80] "LastUpdated"                                                      </span></span>
+<span><span class="co">#&gt;  [81] "ProviderName"                                                     </span></span>
+<span><span class="co">#&gt;  [82] "timeZoneStart"                                                    </span></span>
+<span><span class="co">#&gt;  [83] "timeZoneEnd"                                                      </span></span>
+<span><span class="co">#&gt;  [84] "ActivityStartDateTime"                                            </span></span>
+<span><span class="co">#&gt;  [85] "ActivityEndDateTime"                                              </span></span>
+<span><span class="co">#&gt;  [86] "MonitoringLocationTypeName"                                       </span></span>
+<span><span class="co">#&gt;  [87] "MonitoringLocationDescriptionText"                                </span></span>
+<span><span class="co">#&gt;  [88] "HUCEightDigitCode"                                                </span></span>
+<span><span class="co">#&gt;  [89] "DrainageAreaMeasure.MeasureValue"                                 </span></span>
+<span><span class="co">#&gt;  [90] "DrainageAreaMeasure.MeasureUnitCode"                              </span></span>
+<span><span class="co">#&gt;  [91] "ContributingDrainageAreaMeasure.MeasureValue"                     </span></span>
+<span><span class="co">#&gt;  [92] "ContributingDrainageAreaMeasure.MeasureUnitCode"                  </span></span>
+<span><span class="co">#&gt;  [93] "LatitudeMeasure"                                                  </span></span>
+<span><span class="co">#&gt;  [94] "LongitudeMeasure"                                                 </span></span>
+<span><span class="co">#&gt;  [95] "SourceMapScaleNumeric"                                            </span></span>
+<span><span class="co">#&gt;  [96] "HorizontalAccuracyMeasure.MeasureValue"                           </span></span>
+<span><span class="co">#&gt;  [97] "HorizontalAccuracyMeasure.MeasureUnitCode"                        </span></span>
+<span><span class="co">#&gt;  [98] "HorizontalCollectionMethodName"                                   </span></span>
+<span><span class="co">#&gt;  [99] "HorizontalCoordinateReferenceSystemDatumName"                     </span></span>
+<span><span class="co">#&gt; [100] "VerticalMeasure.MeasureValue"                                     </span></span>
+<span><span class="co">#&gt; [101] "VerticalMeasure.MeasureUnitCode"                                  </span></span>
+<span><span class="co">#&gt; [102] "VerticalAccuracyMeasure.MeasureValue"                             </span></span>
+<span><span class="co">#&gt; [103] "VerticalAccuracyMeasure.MeasureUnitCode"                          </span></span>
+<span><span class="co">#&gt; [104] "VerticalCollectionMethodName"                                     </span></span>
+<span><span class="co">#&gt; [105] "VerticalCoordinateReferenceSystemDatumName"                       </span></span>
+<span><span class="co">#&gt; [106] "CountryCode"                                                      </span></span>
+<span><span class="co">#&gt; [107] "StateCode"                                                        </span></span>
+<span><span class="co">#&gt; [108] "CountyCode"                                                       </span></span>
+<span><span class="co">#&gt; [109] "AquiferName"                                                      </span></span>
+<span><span class="co">#&gt; [110] "LocalAqfrName"                                                    </span></span>
+<span><span class="co">#&gt; [111] "FormationTypeText"                                                </span></span>
+<span><span class="co">#&gt; [112] "AquiferTypeName"                                                  </span></span>
+<span><span class="co">#&gt; [113] "ConstructionDateText"                                             </span></span>
+<span><span class="co">#&gt; [114] "WellDepthMeasure.MeasureValue"                                    </span></span>
+<span><span class="co">#&gt; [115] "WellDepthMeasure.MeasureUnitCode"                                 </span></span>
+<span><span class="co">#&gt; [116] "WellHoleDepthMeasure.MeasureValue"                                </span></span>
+<span><span class="co">#&gt; [117] "WellHoleDepthMeasure.MeasureUnitCode"                             </span></span>
+<span><span class="co">#&gt; [118] "MethodSpecificationName"                                          </span></span>
+<span><span class="co">#&gt; [119] "ProjectDescriptionText"                                           </span></span>
+<span><span class="co">#&gt; [120] "SamplingDesignTypeCode"                                           </span></span>
+<span><span class="co">#&gt; [121] "QAPPApprovedIndicator"                                            </span></span>
+<span><span class="co">#&gt; [122] "QAPPApprovalAgencyName"                                           </span></span>
+<span><span class="co">#&gt; [123] "ProjectFileUrl"                                                   </span></span>
+<span><span class="co">#&gt; [124] "ProjectMonitoringLocationWeightingUrl"                            </span></span>
+<span><span class="co">#&gt; [125] "TADA.LatitudeMeasure"                                             </span></span>
+<span><span class="co">#&gt; [126] "TADA.LongitudeMeasure"                                            </span></span>
+<span><span class="co">#&gt; [127] "TADA.ActivityMediaName"                                           </span></span>
+<span><span class="co">#&gt; [128] "TADA.CharacteristicName"                                          </span></span>
+<span><span class="co">#&gt; [129] "TADA.ResultMeasureValue"                                          </span></span>
+<span><span class="co">#&gt; [130] "TADA.ResultMeasureValueDataTypes.Flag"                            </span></span>
+<span><span class="co">#&gt; [131] "TADA.ResultMeasure.MeasureUnitCode"                               </span></span>
+<span><span class="co">#&gt; [132] "TADA.MethodSpecificationName"                                     </span></span>
+<span><span class="co">#&gt; [133] "TADA.ResultSampleFractionText"                                    </span></span>
+<span><span class="co">#&gt; [134] "TADA.DetectionQuantitationLimitMeasure.MeasureValue"              </span></span>
+<span><span class="co">#&gt; [135] "TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode"           </span></span>
+<span><span class="co">#&gt; [136] "TADA.DetectionQuantitationLimitMeasure.MeasureValueDataTypes.Flag"</span></span>
+<span><span class="va">TADAProfile_CharSummary</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/SummarizeColumn.html">SummarizeColumn</a></span><span class="op">(</span><span class="va">TADAProfile</span>,<span class="st">"TADA.CharacteristicName"</span><span class="op">)</span></span>
+<span><span class="va">TADAProfile_CharSummary</span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 6 × 3</span></span></span>
+<span><span class="co">#&gt;   TADA.CharacteristicName n_sites n_records</span></span>
+<span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>                     <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;int&gt;</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> AMMONIA                      38        46</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span> ENTEROCOCCUS                179      <span style="text-decoration: underline;">2</span>761</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span> ESCHERICHIA COLI             34       286</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">4</span> FECAL COLIFORM              234      <span style="text-decoration: underline;">3</span>271</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">5</span> NITRATE                      48       516</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">6</span> NITROGEN                     54       291</span></span>
+<span></span>
+<span><span class="co"># Remove data for non-water media types</span></span>
+<span><span class="va">TADAProfile</span> <span class="op">&lt;-</span> <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">TADAProfile</span>, <span class="va">TADA.ActivityMediaName</span> <span class="op">==</span> <span class="st">"WATER"</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="invalid-coordinates">Invalid coordinates<a class="anchor" aria-label="anchor" href="#invalid-coordinates"></a>
 </h2>
 <p>Review station locations</p>
-<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">#create a map of the world</span></span>
-<span><span class="fu"><a href="https://rdrr.io/pkg/maps/man/map.html" class="external-link">map</a></span><span class="op">(</span><span class="op">)</span></span>
+<span><span class="fu">maps</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/maps/man/map.html" class="external-link">map</a></span><span class="op">(</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># draw the sites included in your TADAProfile onto the map</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/graphics/points.html" class="external-link">points</a></span><span class="op">(</span><span class="va">TADAProfile</span><span class="op">$</span><span class="va">LongitudeMeasure</span>, <span class="va">TADAProfile</span><span class="op">$</span><span class="va">LatitudeMeasure</span>, col<span class="op">=</span><span class="st">"red"</span>, pch<span class="op">=</span><span class="fl">20</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/points.html" class="external-link">points</a></span><span class="op">(</span><span class="va">TADAProfile</span><span class="op">$</span><span class="va">TADA.LongitudeMeasure</span>, <span class="va">TADAProfile</span><span class="op">$</span><span class="va">TADA.LatitudeMeasure</span>, col<span class="op">=</span><span class="st">"red"</span>, pch<span class="op">=</span><span class="fl">20</span><span class="op">)</span></span></code></pre></div>
 <p><img src="WQPDataHarmonization_files/figure-html/unnamed-chunk-10-1.png" width="700"></p>
 <p>The TADA <strong>InvalidCoordinates</strong> function identifies and
-flags invalid coordinate data.</p>
+flags potentially invalid coordinate data. While its functionality is
+showcased here, it is always important to review any invalid outputs
+before cleaning to reduce the risk of leaving out usable data/sites.</p>
 <p>Allowable values for clean_outsideUSA are “no”, “remove”, or “change
 sign”. The default is “no” which flags latitude and longitude
 coordinates outside the USA. Assigning clean_ousideUSA = “remove” will
@@ -471,16 +490,16 @@ entered with the wrong sign in WQX; additionally, the data owner should
 fix these incorrect coordinates in the raw data through the WQX - for
 assistance email the WQX help desk: WQX@epa.gov</p>
 <p>Allowable values for clean_imprecise are TRUE or FALSE. The default
-is FALSE which flags rows of data with invalid or imprecise coordinates.
-Assigning clean_imprecise = TRUE will remove rows of data with invalid
-or imprecise coordinates.</p>
+is FALSE which flags rows of data with invalid or imprecise coordinates
+without removing them. Assigning clean_imprecise = TRUE will remove rows
+of data with invalid or imprecise coordinates.</p>
 <p>Allowable values for errorsonly are TRUE or FALSE. The default is
 FALSE which keeps all rows of data regardless of flag status. Assigning
 errorsonly = TRUE filters the dataframe to show only rows of data which
 are flagged.</p>
 <p>When clean_outsideUSA = “no” and/or clean_imprecise = FALSE, a column
-will be appended titled “TADA.InvalidCoordinates” with the following
-flags (if relevant to dataframe):</p>
+will be appended titled “TADA.InvalidCoordinates.Flag” with the
+following flags (if relevant to dataframe):</p>
 <ul>
 <li><p>If the latitude is less than zero, the row will be flagged with
 “LAT_OutsideUSA”. (Exception for American Samoa)</p></li>
@@ -494,11 +513,11 @@ places in the latitude and longitude provided. If either does not have
 any numbers to the right of the decimal point, the row will be flagged
 as “Imprecise”.</p></li>
 </ul>
-<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">InvalidCoordinateFlags</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/InvalidCoordinates.html">InvalidCoordinates</a></span><span class="op">(</span><span class="va">TADAProfile</span>, clean_outsideUSA <span class="op">=</span> <span class="st">"no"</span>, clean_imprecise <span class="op">=</span> <span class="cn">FALSE</span>, errorsonly <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># review unique flags in InvalidCoordinateFlags</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/unique.html" class="external-link">unique</a></span><span class="op">(</span><span class="va">InvalidCoordinateFlags</span><span class="op">$</span><span class="va">TADA.InvalidCoordinates</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/unique.html" class="external-link">unique</a></span><span class="op">(</span><span class="va">InvalidCoordinateFlags</span><span class="op">$</span><span class="va">TADA.InvalidCoordinates.Flag</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] "Imprecise_lessthan3decimaldigits" "Imprecise_Longincludes999"</span></span>
 <span></span>
 <span><span class="co"># review unique MonitoringLocationIdentifiers in your flag dataframe</span></span>
@@ -507,46 +526,49 @@ as “Imprecise”.</p></li>
 <span><span class="co">#&gt; [3] "AKDECWQ-WHADA-Che3"</span></span>
 <span></span>
 <span><span class="va">Unique_InvalidCoordinateFlags</span> <span class="op">&lt;-</span> <span class="va">InvalidCoordinateFlags</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span></span>
-<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html" class="external-link">select</a></span><span class="op">(</span><span class="st">'MonitoringLocationIdentifier'</span>,<span class="st">'MonitoringLocationName'</span>, <span class="st">'TADA.InvalidCoordinates'</span>,</span>
-<span>         <span class="st">'OrganizationIdentifier'</span>, <span class="st">'LongitudeMeasure'</span>, <span class="st">'LatitudeMeasure'</span>, <span class="st">'MonitoringLocationTypeName'</span>, </span>
+<span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html" class="external-link">select</a></span><span class="op">(</span><span class="st">'MonitoringLocationIdentifier'</span>,<span class="st">'MonitoringLocationName'</span>, <span class="st">'TADA.InvalidCoordinates.Flag'</span>,</span>
+<span>         <span class="st">'OrganizationIdentifier'</span>, <span class="st">'TADA.LongitudeMeasure'</span>, <span class="st">'TADA.LatitudeMeasure'</span>, <span class="st">'MonitoringLocationTypeName'</span>, </span>
 <span>         <span class="st">'CountryCode'</span>, <span class="st">'StateCode'</span>, <span class="st">'CountyCode'</span>, <span class="st">'HUCEightDigitCode'</span>, <span class="st">'MonitoringLocationDescriptionText'</span>,</span>
 <span>         <span class="st">'ProjectName'</span>, <span class="st">'ProjectIdentifier'</span>, <span class="st">'OrganizationFormalName'</span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span></span>
-<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/distinct.html" class="external-link">distinct</a></span><span class="op">(</span><span class="op">)</span></span>
+<span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/distinct.html" class="external-link">distinct</a></span><span class="op">(</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># remove all data for sites with invalid or imprecise coordinates. Change function inputs to keep this data, but be aware it may impact your mapping. </span></span>
-<span><span class="va">TADAProfileClean1</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/InvalidCoordinates.html">InvalidCoordinates</a></span><span class="op">(</span><span class="va">TADAProfile</span>, clean_outsideUSA <span class="op">=</span> <span class="st">"remove"</span>, clean_imprecise <span class="op">=</span> <span class="cn">TRUE</span>, errorsonly <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
-<span><span class="co">#&gt; [1] "All invalid coordinates were removed or your dataframe does not contain monitoring stations with invalid coordinates"</span></span></code></pre></div>
+<span><span class="va">TADAProfileClean1</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/InvalidCoordinates.html">InvalidCoordinates</a></span><span class="op">(</span><span class="va">TADAProfile</span>, clean_outsideUSA <span class="op">=</span> <span class="st">"no"</span>, clean_imprecise <span class="op">=</span> <span class="cn">FALSE</span>, errorsonly <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="depth-unit-conversions">Depth unit conversions<a class="anchor" aria-label="anchor" href="#depth-unit-conversions"></a>
 </h2>
 <p>The <strong>ConvertDepthUnits</strong> function converts depth units
-to a consistent unit.</p>
-<p>The ActivityDepthHeightMeasure.MeasureValue column provides depth
-information. This is a crucial column for lake data but less often for
-river data.</p>
-<p>This function checks dataframe for depth profile data. Where depth
-profile columns are populated, the function appends ‘Conversion Factor’
-columns and populates those columns based on the original unit
-(MeasureUnitCode columns) and the target unit, which is defined in the
-‘unit’ argument. A ‘Depth Target Unit’ column is also appended,
-indicating the unit all selected depth data is converted to. When
-transform = FALSE, the output includes all ‘Conversion Factor’ columns
-and the ‘Depth Target Unit’ column. When transform = TRUE, the output
-includes converted depth data and the ‘Depth Target Unit’ column, which
-acts as a flag indicating which rows have been converted. Default is
-transform = TRUE.</p>
+to a consistent unit. Depth values and units are most commonly
+associated with lake data, and are populated in the
+<em>ActivityDepthHeightMeasure</em>,
+<em>ActivityTopDepthHeightMeasure</em>,
+<em>ActivityBottomDepthHeightMeasure</em>, and
+<em>ResultDepthHeightMeasure</em> Result Value/Unit columns.</p>
+<p>This function first checks the dataframe for depth profile data.
+Where depth profile columns are populated, the function appends
+‘Conversion Factor’ columns and populates those columns based on the
+original unit and the target unit, which is defined in the ‘unit’
+argument. A ‘Depth Target Unit’ column is also appended, indicating the
+unit all selected depth data is converted to. When transform = FALSE,
+the output includes all ‘Conversion Factor’ columns and the ‘Depth
+Target Unit’ column. When transform = TRUE, the output includes
+converted depth data and the ‘Depth Target Unit’ column, which acts as a
+flag indicating which rows have been converted. Default is transform =
+TRUE.</p>
 <p>The depth profile function can harmonize the depth units across all
 the following fields (or only a specific one):
 “ActivityDepthHeightMeasure”, “ActivityTopDepthHeightMeasure”,
-“ActivityBottomDepthHeightMeasure”, “ResultDepthHeightMeasure”). The
-default is all.</p>
+“ActivityBottomDepthHeightMeasure”, “ResultDepthHeightMeasure”). It
+creates new result value/unit columns with the prefix “TADA.” to all
+converted columns. The default is to check all four Depth Height
+columns.</p>
 <p>Allowable values for ‘unit’ are either ‘m’ (meter), ‘ft’ (feet), or
 ‘in’ (inch). ‘unit’ accepts only one allowable value as an input.
 Default is unit = “m”.</p>
 <p>See additional function documentation for additional function options
 by entering the following code in the console: ?ConvertDepthUnits</p>
-<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">#converts all depth profile data to meters</span></span>
 <span><span class="va">TADAProfileClean2</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/ConvertDepthUnits.html">ConvertDepthUnits</a></span><span class="op">(</span><span class="va">TADAProfileClean1</span>, unit <span class="op">=</span> <span class="st">"m"</span>, transform <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
 </div>
@@ -561,7 +583,7 @@ domain table:</p>
 </ul>
 <p>See additional function documentation for additional function options
 by entering the following code in the console: ?ConvertResultUnits</p>
-<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">#Converts all results to WQX target units</span></span>
 <span><span class="va">TADAProfileClean3</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/ConvertResultUnits.html">ConvertResultUnits</a></span><span class="op">(</span><span class="va">TADAProfileClean2</span>, transform <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
 </div>
@@ -600,7 +622,7 @@ filters the dataframe to show only rows of data which are flagged
 <p>See function documentation for additional function options by
 entering the following code in the console:
 ?AggregatedContinuousData</p>
-<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">TADAProfileClean4</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/AggregatedContinuousData.html">AggregatedContinuousData</a></span><span class="op">(</span><span class="va">TADAProfileClean3</span>, clean <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] "No changes were made, because we did not find any aggregated continuous data in your dataframe"</span></span>
 <span></span>
@@ -620,8 +642,8 @@ to clean = FALSE to flag results, but not remove them.</p>
 <p>?<strong>InvalidMethod</strong></p>
 <ul>
 <li><p>When clean = FALSE, this function adds the following column to
-your dataframe: WQX.AnalyticalMethodValidity. This column flags invalid
-CharacteristicName, ResultAnalyticalMethod/MethodIdentifier, and
+your dataframe: TADA.AnalyticalMethod.Flag. This column flags invalid
+TADA.CharacteristicName, ResultAnalyticalMethod/MethodIdentifier, and
 ResultAnalyticalMethod/MethodIdentifierContext combinations in your
 dataframe either “Nonstandardized”, “Invalid”, or “Valid”.</p></li>
 <li><p>When clean = TRUE, “Invalid” rows are removed from the dataframe
@@ -634,8 +656,8 @@ rows flagged as “Invalid”; default is errorsonly = FALSE.</p></li>
 <p>?<strong>InvalidSpeciation</strong></p>
 <ul>
 <li><p>When clean = “none”, this function adds the following column to
-your dataframe: WQX.MethodSpeciationValidity. This column flags each
-CharacteristicName and MethodSpecificationName combination in your
+your dataframe: TADA.MethodSpeciation.Flag. This column flags each
+TADA.CharacteristicName and MethodSpecificationName combination in your
 dataframe as either “Nonstandardized”, “Invalid”, or “Valid”.</p></li>
 <li><p>When clean = “invalid_only”, only “Invalid” rows are removed from
 the dataframe. Default is clean = “invalid_only”.</p></li>
@@ -654,10 +676,10 @@ FALSE.</p></li>
 <p>?<strong>InvalidResultUnit</strong></p>
 <ul>
 <li><p>When clean = FALSE, the following column will be added to your
-dataframe: WQX.ResultUnitValidity. This column flags each
-CharacteristicName, sampleMedia, and ResultMeasure/MeasureUnitCode
-combination in your dataframe as either “Nonstandardized”, “Invalid”, or
-“Valid”.</p></li>
+dataframe: TADA.ResultUnit.Flag. This column flags each
+TADA.CharacteristicName, TADA.ActivityMediaName, and
+TADA.ResultMeasure.MeasureUnitCode combination in your dataframe as
+either “Nonstandardized”, “Invalid”, or “Valid”.</p></li>
 <li><p>When clean = TRUE, “Invalid” rows are removed from the dataframe
 and no column will be appended.</p></li>
 <li><p>When errorsonly = TRUE, the dataframe is filtered to only the
@@ -668,9 +690,9 @@ rows flagged as “Invalid”; default is errorsonly = FALSE.</p></li>
 <p>?<strong>InvalidFraction</strong></p>
 <ul>
 <li>When clean = FALSE, this function adds the following column to your
-dataframe: WQX.SampleFractionValidity. This column flags each
-CharacteristicName and ResultSampleFractionText combination in your
-dataframe as either “Nonstandardized”, “Invalid”, or “Valid”.</li>
+dataframe: TADA.SampleFraction.Flag. This column flags each
+TADA.CharacteristicName and TADA.ResultSampleFractionText combination in
+your dataframe as either “Nonstandardized”, “Invalid”, or “Valid”.</li>
 <li>When clean = TRUE, “Invalid” rows are removed from the dataframe and
 no column will be appended.</li>
 <li>When errorsonly = TRUE, the dataframe is filtered to only the rows
@@ -678,7 +700,7 @@ flagged as “Invalid”; default is errorsonly = FALSE.</li>
 </ul>
 </li>
 </ul>
-<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">TADAProfileClean5</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/InvalidMethod.html">InvalidMethod</a></span><span class="op">(</span><span class="va">TADAProfileClean4</span>, clean <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span><span class="va">TADAProfileClean6</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/InvalidFraction.html">InvalidFraction</a></span><span class="op">(</span><span class="va">TADAProfileClean5</span>, clean <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span><span class="va">TADAProfileClean7</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/InvalidSpeciation.html">InvalidSpeciation</a></span><span class="op">(</span><span class="va">TADAProfileClean6</span>, clean <span class="op">=</span> <span class="st">"none"</span><span class="op">)</span></span>
@@ -703,8 +725,8 @@ unit combination. See documentation for more details:</p>
 <p>?<strong>AboveNationalWQXUpperThreshold</strong></p>
 <ul>
 <li><p>When clean = FALSE, the following column is added to your
-dataframe: AboveWQXUpperThreshold. This column flags rows with data that
-are above the upper WQX threshold.</p></li>
+dataframe: TADA.ResultValueAboveUpperThreshold.Flag. This column flags
+rows with data that are above the upper WQX threshold.</p></li>
 <li><p>When clean = TRUE, data that is above the upper WQX threshold is
 removed from the dataframe. The default is clean = TRUE.</p></li>
 <li><p>When errorsonly = TRUE, the dataframe is filtered to only the
@@ -716,8 +738,8 @@ FALSE.</p></li>
 <p>?<strong>BelowNationalWQXLowerThreshold</strong></p>
 <ul>
 <li><p>When clean = FALSE, the following column is added to your
-dataframe: BelowWQXLowerThreshold. This column flags rows with data that
-are below the lower WQX threshold.</p></li>
+dataframe: TADA.ResultValueBelowLowerThreshold.Flag. This column flags
+rows with data that are below the lower WQX threshold.</p></li>
 <li><p>When clean = TRUE, data that is below the lower WQX threshold is
 removed from the dataframe. The default is clean = TRUE.</p></li>
 <li><p>When errorsonly = TRUE, the dataframe is filtered to only the
@@ -726,9 +748,9 @@ FALSE.</p></li>
 </ul>
 </li>
 </ul>
-<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">TADAProfileClean9</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/AboveNationalWQXUpperThreshold.html">AboveNationalWQXUpperThreshold</a></span><span class="op">(</span><span class="va">TADAProfileClean8</span>, clean <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
-<span><span class="va">TADAProfileClean10</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/BelowNationalWQXLowerThreshold.html">BelowNationalWQXLowerThreshold</a></span><span class="op">(</span><span class="va">TADAProfileClean9</span>, clean <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
+<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">TADAProfileClean9</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/AboveNationalWQXUpperThreshold.html">AboveNationalWQXUpperThreshold</a></span><span class="op">(</span><span class="va">TADAProfileClean8</span>, clean <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
+<span><span class="va">TADAProfileClean10</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/BelowNationalWQXLowerThreshold.html">BelowNationalWQXLowerThreshold</a></span><span class="op">(</span><span class="va">TADAProfileClean9</span>, clean <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="potential-duplicates">Potential duplicates<a class="anchor" aria-label="anchor" href="#potential-duplicates"></a>
@@ -745,10 +767,10 @@ the following into the console:</p>
 <p>?<strong>PotentialDuplicateRowID</strong></p>
 <ul>
 <li><p>When clean = FALSE, the following column will be added to you
-dataframe: TADA.PotentialDupRowID. This column flags potential duplicate
-rows of data in your dataframe, and assigns each potential duplicate
-combination a unique number linking the two potential duplication
-rows.</p></li>
+dataframe: TADA.PotentialDupRowIDs.Flag. This column flags potential
+duplicate rows of data in your dataframe, and assigns each potential
+duplicate combination a unique number linking the two potential
+duplication rows.</p></li>
 <li><p>When clean = TRUE, the function retains the first occurrence of
 each potential duplicate in the dataframe and removes potential
 duplicate rows. No column is appended. The default is clean =
@@ -759,7 +781,7 @@ FALSE.</p></li>
 </ul>
 </li>
 </ul>
-<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">TADAProfileClean11</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/PotentialDuplicateRowID.html">PotentialDuplicateRowID</a></span><span class="op">(</span><span class="va">TADAProfileClean10</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] "No changes were made, because we did not find any potential duplicates in your dataframe"</span></span></code></pre></div>
 </div>
@@ -782,8 +804,9 @@ clean = TRUE, cleanNA = TRUE, and errorsonly = FALSE.</p>
 the inputs clean = FALSE, cleanNA = FALSE, and errorsonly = TRUE.</p>
 <p>If clean = FALSE, cleanNA = FALSE, and errorsonly = FALSE, the
 function will not do anything.</p>
-<div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">TADAProfileClean12</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/QAPPapproved.html">QAPPapproved</a></span><span class="op">(</span><span class="va">TADAProfileClean11</span>, clean <span class="op">=</span> <span class="cn">TRUE</span>, cleanNA <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
+<div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">TADAProfileClean12</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/QAPPapproved.html">QAPPapproved</a></span><span class="op">(</span><span class="va">TADAProfileClean11</span>, clean <span class="op">=</span> <span class="cn">FALSE</span>, cleanNA <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
+<span><span class="co">#&gt; [1] "Data is flagged but not removed because clean and cleanNA were FALSE"</span></span></code></pre></div>
 <p>The <strong>QAPPDocAvailable</strong> function checks to see if a
 QAPP Doc is Available</p>
 <p>This function checks data submitted under the “ProjectFileUrl” column
@@ -796,7 +819,7 @@ filtered to show only rows that do not have an associated QAPP document.
 The defaults are clean = FALSE and errorsonly = FALSE. This function
 should only be used to remove data if an accompanying QAPP document is
 required to use data in assessments.</p>
-<div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">TADAProfileClean13</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/QAPPDocAvailable.html">QAPPDocAvailable</a></span><span class="op">(</span><span class="va">TADAProfileClean12</span>, clean <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">
@@ -807,23 +830,23 @@ specific fields and may choose to remove data with particular
 values.</p>
 <p>To start, review the list of fields and the number of unique values
 in each field using the <strong>FilterFields</strong> function.</p>
-<div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb21"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/FilterFields.html">FilterFields</a></span><span class="op">(</span><span class="va">TADAProfileClean13</span><span class="op">)</span></span>
 <span><span class="co">#&gt;                             FieldName Count</span></span>
 <span><span class="co">#&gt; 1              OrganizationFormalName     7</span></span>
 <span><span class="co">#&gt; 2                    ActivityTypeCode     8</span></span>
-<span><span class="co">#&gt; 3                   ActivityMediaName     1</span></span>
-<span><span class="co">#&gt; 4        ActivityMediaSubdivisionName     2</span></span>
-<span><span class="co">#&gt; 5                         ProjectName    33</span></span>
-<span><span class="co">#&gt; 6                 ActivityCommentText    55</span></span>
-<span><span class="co">#&gt; 7                 HydrologicCondition     7</span></span>
-<span><span class="co">#&gt; 8                     HydrologicEvent     7</span></span>
-<span><span class="co">#&gt; 9                  CharacteristicName     6</span></span>
-<span><span class="co">#&gt; 10               MeasureQualifierCode    18</span></span>
-<span><span class="co">#&gt; 11            SampleTissueAnatomyName     1</span></span>
-<span><span class="co">#&gt; 12                     LaboratoryName    29</span></span>
-<span><span class="co">#&gt; 13 DetectionQuantitationLimitTypeName    10</span></span>
-<span><span class="co">#&gt; 14         MonitoringLocationTypeName     8</span></span></code></pre></div>
+<span><span class="co">#&gt; 3        ActivityMediaSubdivisionName     2</span></span>
+<span><span class="co">#&gt; 4                         ProjectName    33</span></span>
+<span><span class="co">#&gt; 5                 ActivityCommentText    55</span></span>
+<span><span class="co">#&gt; 6                 HydrologicCondition     7</span></span>
+<span><span class="co">#&gt; 7                     HydrologicEvent     7</span></span>
+<span><span class="co">#&gt; 8                MeasureQualifierCode    19</span></span>
+<span><span class="co">#&gt; 9             SampleTissueAnatomyName     1</span></span>
+<span><span class="co">#&gt; 10                     LaboratoryName    29</span></span>
+<span><span class="co">#&gt; 11 DetectionQuantitationLimitTypeName    10</span></span>
+<span><span class="co">#&gt; 12         MonitoringLocationTypeName     8</span></span>
+<span><span class="co">#&gt; 13             TADA.ActivityMediaName     1</span></span>
+<span><span class="co">#&gt; 14            TADA.CharacteristicName     6</span></span></code></pre></div>
 <p>Next, choose a field from the list to see the unique values in that
 field, as well as the number of times each value appears in the
 dataframe using the <strong>FilterFieldReview</strong> function. We’ll
@@ -836,12 +859,12 @@ additional QA.</p></li>
 data flags</p></li>
 <li><pre><code>Other codes may designate suspect data or other flags which may be described in detail in **ResultLaboratoryCommentText** or another column</code></pre></li>
 </ol>
-<div class="sourceCode" id="cb22"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb23"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/FilterFieldReview.html">FilterFieldReview</a></span><span class="op">(</span><span class="st">"ActivityTypeCode"</span>, <span class="va">TADAProfileClean13</span><span class="op">)</span></span></code></pre></div>
 <p><img src="WQPDataHarmonization_files/figure-html/unnamed-chunk-21-1.png" width="576"></p>
 <pre><code><span><span class="co">#&gt;                                FieldValue Count</span></span>
-<span><span class="co">#&gt; 8                          Sample-Routine  4381</span></span>
-<span><span class="co">#&gt; 7  Quality Control Sample-Field Replicate   213</span></span>
+<span><span class="co">#&gt; 8                          Sample-Routine  4466</span></span>
+<span><span class="co">#&gt; 7  Quality Control Sample-Field Replicate   218</span></span>
 <span><span class="co">#&gt; 4  Quality Control Sample-Blind Duplicate    35</span></span>
 <span><span class="co">#&gt; 3 Quality Control Field Replicate Msr/Obs    27</span></span>
 <span><span class="co">#&gt; 1                           Field Msr/Obs    22</span></span>
@@ -855,21 +878,21 @@ control values in the ActivityTypeCode field, therefore, we’ll specify
 that we want to remove the “Quality Control Sample-Field Replicate” and
 “Quality Control Sample-Field Blank” values in the ActivityTypeCode
 field.</p>
-<div class="sourceCode" id="cb24"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb25"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">TADAProfileClean14</span> <span class="op">&lt;-</span> <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">TADAProfileClean13</span>, <span class="op">!</span><span class="op">(</span><span class="va">ActivityTypeCode</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Quality Control Sample-Field Replicate"</span>, <span class="st">"Quality Control Sample-Field Blank"</span>, <span class="st">"Quality Control Sample-Lab Duplicate"</span>, <span class="st">"Quality Control Sample-Equipment Blank"</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <p>We’ve completed our review of the ActivityTypeCode field.</p>
 <p>Let’s move on to a different field and see if there are any values
 that we want to remove – we’ll look at the values in the
 ResultStatusIdentifier field.</p>
-<div class="sourceCode" id="cb25"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb26"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/FilterFieldReview.html">FilterFieldReview</a></span><span class="op">(</span><span class="st">"ActivityMediaSubdivisionName"</span>, <span class="va">TADAProfileClean14</span><span class="op">)</span></span></code></pre></div>
 <p><img src="WQPDataHarmonization_files/figure-html/unnamed-chunk-23-1.png" width="576"></p>
 <pre><code><span><span class="co">#&gt;      FieldValue Count</span></span>
-<span><span class="co">#&gt; 1 Surface Water  3161</span></span></code></pre>
+<span><span class="co">#&gt; 1 Surface Water  3245</span></span></code></pre>
 <p>The ActivityMediaSubdivisionName field has two unique values,
 “Surface Water” and “Groundwater.” In this example we want to remove the
 “Groundwater” values.</p>
-<div class="sourceCode" id="cb27"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb28"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">TADAProfileClean15</span> <span class="op">&lt;-</span> <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">TADAProfileClean14</span>, <span class="op">!</span><span class="op">(</span><span class="va">ActivityMediaSubdivisionName</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Groundwater"</span>, <span class="st">"Bulk deposition"</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">
@@ -882,58 +905,58 @@ choose to remove particular values.</p>
 <strong>FilterParList</strong> function. (The list is sorted from
 highest to lowest counts. Only the first few rows are displayed to save
 space on the page)</p>
-<div class="sourceCode" id="cb28"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb29"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/FilterParList.html">FilterParList</a></span><span class="op">(</span><span class="va">TADAProfileClean15</span><span class="op">)</span></span>
 <span><span class="co">#&gt;         FieldValue Count</span></span>
-<span><span class="co">#&gt; 4   FECAL COLIFORM  3066</span></span>
-<span><span class="co">#&gt; 5          NITRATE   490</span></span>
-<span><span class="co">#&gt; 2     ENTEROCOCCUS   360</span></span>
-<span><span class="co">#&gt; 6         NITROGEN   276</span></span>
-<span><span class="co">#&gt; 3 ESCHERICHIA COLI   238</span></span>
-<span><span class="co">#&gt; 1          AMMONIA    37</span></span></code></pre></div>
+<span><span class="co">#&gt; 4   FECAL COLIFORM  3104</span></span>
+<span><span class="co">#&gt; 5          NITRATE   502</span></span>
+<span><span class="co">#&gt; 2     ENTEROCOCCUS   365</span></span>
+<span><span class="co">#&gt; 6         NITROGEN   277</span></span>
+<span><span class="co">#&gt; 3 ESCHERICHIA COLI   263</span></span>
+<span><span class="co">#&gt; 1          AMMONIA    41</span></span></code></pre></div>
 <p>Next, select a parameter. Let’s explore the fields associated with
 Nitrogen using the <strong>FilterParFields</strong> function:</p>
-<div class="sourceCode" id="cb29"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb30"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/FilterParFields.html">FilterParFields</a></span><span class="op">(</span><span class="va">TADAProfileClean15</span>, <span class="st">"NITROGEN"</span><span class="op">)</span></span>
 <span><span class="co">#&gt;                                         FieldName Count</span></span>
-<span><span class="co">#&gt; 1                                ActivityTypeCode     2</span></span>
-<span><span class="co">#&gt; 2                               ActivityMediaName     1</span></span>
-<span><span class="co">#&gt; 3                    ActivityMediaSubdivisionName     1</span></span>
-<span><span class="co">#&gt; 4                             ActivityCommentText    40</span></span>
-<span><span class="co">#&gt; 5                             HydrologicCondition     7</span></span>
-<span><span class="co">#&gt; 6                                 HydrologicEvent     6</span></span>
-<span><span class="co">#&gt; 7         SampleCollectionMethod.MethodIdentifier    14</span></span>
-<span><span class="co">#&gt; 8  SampleCollectionMethod.MethodIdentifierContext     4</span></span>
-<span><span class="co">#&gt; 9               SampleCollectionMethod.MethodName    11</span></span>
-<span><span class="co">#&gt; 10                  SampleCollectionEquipmentName    12</span></span>
-<span><span class="co">#&gt; 11                           MethodSpeciationName     2</span></span>
-<span><span class="co">#&gt; 12                       ResultSampleFractionText     3</span></span>
-<span><span class="co">#&gt; 13                  ResultMeasure.MeasureUnitCode     2</span></span>
-<span><span class="co">#&gt; 14                           MeasureQualifierCode     4</span></span>
-<span><span class="co">#&gt; 15                         ResultStatusIdentifier     5</span></span>
-<span><span class="co">#&gt; 16                            ResultValueTypeName     2</span></span>
-<span><span class="co">#&gt; 17                          ResultWeightBasisText     2</span></span>
-<span><span class="co">#&gt; 18                     ResultTemperatureBasisText     1</span></span>
-<span><span class="co">#&gt; 19                    ResultParticleSizeBasisText     1</span></span>
-<span><span class="co">#&gt; 20                          DataQuality.BiasValue     1</span></span>
-<span><span class="co">#&gt; 21                              ResultCommentText     5</span></span>
-<span><span class="co">#&gt; 22        ResultAnalyticalMethod.MethodIdentifier     2</span></span>
-<span><span class="co">#&gt; 23 ResultAnalyticalMethod.MethodIdentifierContext     3</span></span>
-<span><span class="co">#&gt; 24              ResultAnalyticalMethod.MethodName     2</span></span>
-<span><span class="co">#&gt; 25                                 LaboratoryName     3</span></span>
-<span><span class="co">#&gt; 26                    ResultLaboratoryCommentText    12</span></span>
-<span><span class="co">#&gt; 27             DetectionQuantitationLimitTypeName     3</span></span>
-<span><span class="co">#&gt; 28                     MonitoringLocationTypeName     2</span></span></code></pre></div>
+<span><span class="co">#&gt; 1         ResultAnalyticalMethod.MethodIdentifier     2</span></span>
+<span><span class="co">#&gt; 2  ResultAnalyticalMethod.MethodIdentifierContext     3</span></span>
+<span><span class="co">#&gt; 3                                ActivityTypeCode     2</span></span>
+<span><span class="co">#&gt; 4                    ActivityMediaSubdivisionName     1</span></span>
+<span><span class="co">#&gt; 5                             ActivityCommentText    40</span></span>
+<span><span class="co">#&gt; 6                             HydrologicCondition     7</span></span>
+<span><span class="co">#&gt; 7                                 HydrologicEvent     6</span></span>
+<span><span class="co">#&gt; 8         SampleCollectionMethod.MethodIdentifier    14</span></span>
+<span><span class="co">#&gt; 9  SampleCollectionMethod.MethodIdentifierContext     4</span></span>
+<span><span class="co">#&gt; 10              SampleCollectionMethod.MethodName    11</span></span>
+<span><span class="co">#&gt; 11                  SampleCollectionEquipmentName    12</span></span>
+<span><span class="co">#&gt; 12                           MethodSpeciationName     2</span></span>
+<span><span class="co">#&gt; 13                           MeasureQualifierCode     4</span></span>
+<span><span class="co">#&gt; 14                         ResultStatusIdentifier     5</span></span>
+<span><span class="co">#&gt; 15                            ResultValueTypeName     2</span></span>
+<span><span class="co">#&gt; 16                          ResultWeightBasisText     2</span></span>
+<span><span class="co">#&gt; 17                     ResultTemperatureBasisText     1</span></span>
+<span><span class="co">#&gt; 18                    ResultParticleSizeBasisText     1</span></span>
+<span><span class="co">#&gt; 19                          DataQuality.BiasValue     1</span></span>
+<span><span class="co">#&gt; 20                              ResultCommentText     5</span></span>
+<span><span class="co">#&gt; 21              ResultAnalyticalMethod.MethodName     2</span></span>
+<span><span class="co">#&gt; 22                                 LaboratoryName     3</span></span>
+<span><span class="co">#&gt; 23                    ResultLaboratoryCommentText    12</span></span>
+<span><span class="co">#&gt; 24             DetectionQuantitationLimitTypeName     3</span></span>
+<span><span class="co">#&gt; 25                     MonitoringLocationTypeName     2</span></span>
+<span><span class="co">#&gt; 26                         TADA.ActivityMediaName     1</span></span>
+<span><span class="co">#&gt; 27             TADA.ResultMeasure.MeasureUnitCode     1</span></span>
+<span><span class="co">#&gt; 28                  TADA.ResultSampleFractionText     3</span></span></code></pre></div>
 <p>Selecting a parameter generates the list below, which is subset by
 the selected parameter, of fields and the number of unique values in
 each field.</p>
 <p>Then choose a field from the list. In this example we’ll remove
 certain values from the HydrologicEvent field.</p>
-<div class="sourceCode" id="cb30"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb31"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/FilterParFieldReview.html">FilterParFieldReview</a></span><span class="op">(</span><span class="st">"HydrologicEvent"</span>, <span class="va">TADAProfileClean15</span>, <span class="st">"NITROGEN"</span><span class="op">)</span></span></code></pre></div>
 <p><img src="WQPDataHarmonization_files/figure-html/unnamed-chunk-27-1.png" width="576"></p>
 <pre><code><span><span class="co">#&gt;        FieldValue Count</span></span>
-<span><span class="co">#&gt; 3  Routine sample   173</span></span>
+<span><span class="co">#&gt; 3  Routine sample   174</span></span>
 <span><span class="co">#&gt; 5 Under ice cover     9</span></span>
 <span><span class="co">#&gt; 1           Flood     3</span></span>
 <span><span class="co">#&gt; 2  Not applicable     1</span></span>
@@ -942,8 +965,8 @@ certain values from the HydrologicEvent field.</p>
 want to remove samples collected during “Storm” events. Therefore, we’ll
 specify that we want to remove rows where the CharacteristicName is
 “NITROGEN” and the HydrologicEvent field is “Storm.”</p>
-<div class="sourceCode" id="cb32"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">TADAProfileClean16</span> <span class="op">&lt;-</span> <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">TADAProfileClean15</span>, <span class="op">!</span><span class="op">(</span><span class="va">CharacteristicName</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="st">"NITROGEN"</span> <span class="op">&amp;</span> <span class="va">HydrologicEvent</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="st">"Storm"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<div class="sourceCode" id="cb33"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">TADAProfileClean16</span> <span class="op">&lt;-</span> <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">TADAProfileClean15</span>, <span class="op">!</span><span class="op">(</span><span class="va">TADA.CharacteristicName</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="st">"NITROGEN"</span> <span class="op">&amp;</span> <span class="va">HydrologicEvent</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="st">"Storm"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="transform-characteristic-speciation-and-unit-values-to-tada-standards">Transform Characteristic, Speciation, and Unit values to TADA
@@ -954,10 +977,10 @@ harmonization reference table that is specific to the input dataframe.
 Users can review how their input data relates to standard TADA values
 for the following elements:</p>
 <ul>
-<li><p>CharacteristicName</p></li>
-<li><p>ResultSampleFractionText</p></li>
-<li><p>MethodSpecicationName</p></li>
-<li><p>ResultMeasure.MeasureUnitCode</p></li>
+<li><p>TADA.CharacteristicName</p></li>
+<li><p>TADA.ResultSampleFractionText</p></li>
+<li><p>TADA.MethodSpecificationName</p></li>
+<li><p>TADA.ResultMeasure.MeasureUnitCode</p></li>
 </ul>
 <p>The <strong>HarmonizeData</strong> function then compares the input
 dataframe to the TADA Harmonization Reference Table. The purpose of the
@@ -970,61 +993,87 @@ is download = FALSE.</p>
 <p>Optional outputs include:</p>
 <ol style="list-style-type: decimal">
 <li><p>the dataframe with Harmonization columns appended,</p></li>
-<li><p>the dataframe with CharacteristicName, ResultSampleFractionText,
-MethodSpecificationName, and ResultMeasure.MeasureUnitCode converted to
-TADA standards or</p></li>
+<li><p>the dataframe with TADA.CharacteristicName,
+TADA.ResultSampleFractionText, TADA.MethodSpecificationName, and
+TADA.ResultMeasure.MeasureUnitCode converted to TADA standards
+or</p></li>
 <li><p>the four fields converted with most Harmonization Reference Table
 columns appended. Default is transform = TRUE and flag = TRUE.</p></li>
 </ol>
 <p>Here are some examples of how the HarmonizeData function can be
 used:</p>
 <ol style="list-style-type: decimal">
-<li><p>ResultSampleFractionText specifies forms of constituents. In some
-cases, a single *CharacteristicName** will have both “Total” and
-“Dissolved” forms specified, which should not be combined. In these
-cases, each CharacteristicName and ResultSampleFractionText combination
-is given a different identifier. This identifier can be used later on to
-identify comparable data groups for calculating statistics and creating
-figures for each combination.</p></li>
+<li><p>TADA.ResultSampleFractionText specifies forms of constituents. In
+some cases, a single *TADA.CharacteristicName** will have both “Total”
+and “Dissolved” forms specified, which should not be combined. In these
+cases, each TADA.CharacteristicName and TADA.ResultSampleFractionText
+combination is given a different identifier. This identifier can be used
+later on to identify comparable data groups for calculating statistics
+and creating figures for each combination.</p></li>
 <li><p>Some variables have different names but represent the same
 constituent (e.g., “Total Kjeldahl nitrogen (Organic N &amp; NH3)” and
 “Kjeldahl nitrogen”). The HarmonizeData function gives a consistent name
 (and identifier) to synonyms.</p></li>
 </ol>
-<div class="sourceCode" id="cb33"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb34"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">UniqueHarmonizationRef</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/HarmonizationRefTable.html">HarmonizationRefTable</a></span><span class="op">(</span><span class="va">TADAProfileClean16</span>, download <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
 <span><span class="va">TADAProfileClean17</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/HarmonizeData.html">HarmonizeData</a></span><span class="op">(</span><span class="va">TADAProfileClean16</span>, ref <span class="op">=</span> <span class="va">UniqueHarmonizationRef</span>, transform <span class="op">=</span> <span class="cn">TRUE</span>, flag <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
+</div>
+<div class="section level2">
+<h2 id="censored-data">Censored data<a class="anchor" aria-label="anchor" href="#censored-data"></a>
+</h2>
+<p>Censored data are measurements for which the true value is not known,
+but we can estimate the value based on lower or upper detection
+conditions and limit types. TADA fills missing
+<em>TADA.ResultMeasureValue</em> and
+<em>TADA.ResultMeasure.MeasureUnitCode</em> values with values and units
+from <em>TADA.DetectionQuantitationLimitMeasure.MeasureValue</em> and
+<em>TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode</em>,
+respectively, using the autoclean function. In other words, detection
+limit information is copied and pasted into the result value column when
+the original value is NA and detection limit information is available.
+The two columns TADA focuses on to define and flag censored data are
+<em>ResultDetectionConditionText</em> and
+<em>DetectionQuantitationLimitTypeName</em>.</p>
+<div class="sourceCode" id="cb35"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">TADAProfileClean18</span> <span class="op">=</span> <span class="fu"><a href="../reference/simpleCensoredMethods.html">simpleCensoredMethods</a></span><span class="op">(</span><span class="va">TADAProfileClean17</span>, nd_method <span class="op">=</span> <span class="st">"multiplier"</span>, nd_multiplier <span class="op">=</span> <span class="fl">0.5</span>, od_method <span class="op">=</span> <span class="st">"as-is"</span>, od_multiplier <span class="op">=</span> <span class="st">"null"</span><span class="op">)</span></span>
+<span><span class="co">#&gt; Joining with `by = join_by(ResultDetectionConditionText)`</span></span>
+<span><span class="co">#&gt; Joining with `by = join_by(DetectionQuantitationLimitTypeName)`</span></span>
+<span><span class="co">#&gt; Warning in simpleCensoredMethods(TADAProfileClean17, nd_method = "multiplier",</span></span>
+<span><span class="co">#&gt; : 21 records in supplied dataset have conflicting detection condition and</span></span>
+<span><span class="co">#&gt; detection limit type information. These records will not be included in</span></span>
+<span><span class="co">#&gt; detection limit handling calculations.</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="characteristic-specific-analyses-below">Characteristic Specific Analyses Below<a class="anchor" aria-label="anchor" href="#characteristic-specific-analyses-below"></a>
 </h2>
 <p>Address censored data for a single characteristic.</p>
-<div class="sourceCode" id="cb34"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb36"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># how to point to a column in R: yourdataset$thecolumnyouwant</span></span>
 <span><span class="co"># e.g., temp$ResultMeasureValueNitrogenExample &lt;- filter(TADAProfileClean17, CharacteristicName == "NITROGEN")</span></span>
-<span><span class="va">SingleCharacteristic</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">TADAProfileClean17</span>, <span class="va">CharacteristicName</span> <span class="op">==</span> <span class="st">"NITROGEN"</span><span class="op">)</span></span>
+<span><span class="va">SingleCharacteristic</span> <span class="op">&lt;-</span> <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">TADAProfileClean17</span>, <span class="va">TADA.CharacteristicName</span> <span class="op">==</span> <span class="st">"NITROGEN"</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># review the types of censored data you have in your data frame</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/table.html" class="external-link">table</a></span><span class="op">(</span><span class="va">SingleCharacteristic</span><span class="op">$</span><span class="va">ResultDetectionConditionText</span><span class="op">)</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Not Detected </span></span>
-<span><span class="co">#&gt;           99</span></span>
+<span><span class="co">#&gt;          100</span></span>
 <span></span>
 <span><span class="co"># review number of results that are NA's</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/NA.html" class="external-link">is.na</a></span><span class="op">(</span><span class="va">SingleCharacteristic</span><span class="op">$</span><span class="va">ResultMeasureValue</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="co">#&gt; [1] 99</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/NA.html" class="external-link">is.na</a></span><span class="op">(</span><span class="va">SingleCharacteristic</span><span class="op">$</span><span class="va">TADA.ResultMeasureValue</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="co">#&gt; [1] 0</span></span>
 <span></span>
 <span><span class="co"># substitute a value for NA. In this example, 0.02 MG/L is used for NITROGEN</span></span>
-<span><span class="va">SingleCharacteristic</span><span class="op">$</span><span class="va">ResultMeasureValue</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/ifelse.html" class="external-link">ifelse</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/NA.html" class="external-link">is.na</a></span><span class="op">(</span><span class="va">SingleCharacteristic</span><span class="op">$</span><span class="va">ResultMeasureValue</span><span class="op">)</span> <span class="op">==</span> <span class="cn">TRUE</span>, <span class="fl">0.02</span>, <span class="va">SingleCharacteristic</span><span class="op">$</span><span class="va">ResultMeasureValue</span><span class="op">)</span></span></code></pre></div>
+<span><span class="va">SingleCharacteristic</span><span class="op">$</span><span class="va">TADA.ResultMeasureValue</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/ifelse.html" class="external-link">ifelse</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/NA.html" class="external-link">is.na</a></span><span class="op">(</span><span class="va">SingleCharacteristic</span><span class="op">$</span><span class="va">TADA.ResultMeasureValue</span><span class="op">)</span> <span class="op">==</span> <span class="cn">TRUE</span>, <span class="fl">0.02</span>, <span class="va">SingleCharacteristic</span><span class="op">$</span><span class="va">TADA.ResultMeasureValue</span><span class="op">)</span></span></code></pre></div>
 <p>Summarize results for a single characteristic</p>
-<div class="sourceCode" id="cb35"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb37"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># add na.rm = TRUE to the function above to strip NA values before the mean computation proceeds</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">SingleCharacteristic</span><span class="op">$</span><span class="va">ResultMeasureValue</span>, na.rm <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">SingleCharacteristic</span><span class="op">$</span><span class="va">TADA.ResultMeasureValue</span>, na.rm <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span><span class="co">#&gt;    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. </span></span>
-<span><span class="co">#&gt;  0.0200  0.0200  0.0445  0.1624  0.1288  3.7400</span></span>
+<span><span class="co">#&gt;  0.0300  0.0365  0.0980  0.3544  0.4020  3.7400</span></span>
 <span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/graphics/hist.html" class="external-link">hist</a></span><span class="op">(</span><span class="va">SingleCharacteristic</span><span class="op">$</span><span class="va">ResultMeasureValue</span><span class="op">)</span></span></code></pre></div>
-<p><img src="WQPDataHarmonization_files/figure-html/unnamed-chunk-31-1.png" width="700"></p>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/hist.html" class="external-link">hist</a></span><span class="op">(</span><span class="va">SingleCharacteristic</span><span class="op">$</span><span class="va">TADA.ResultMeasureValue</span>, main <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/unique.html" class="external-link">unique</a></span><span class="op">(</span><span class="va">SingleCharacteristic</span><span class="op">$</span><span class="va">TADA.CharacteristicName</span><span class="op">)</span>, xlab <span class="op">=</span> <span class="st">"Values"</span><span class="op">)</span></span></code></pre></div>
+<p><img src="WQPDataHarmonization_files/figure-html/unnamed-chunk-32-1.png" width="700"></p>
 </div>
   </main><aside class="col-md-3"><nav id="toc"><h2>On this page</h2>
     </nav></aside>

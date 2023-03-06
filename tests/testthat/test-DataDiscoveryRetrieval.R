@@ -148,7 +148,6 @@ test_that("Reg&BigdataRetrieval",{
   reg <- TADAdataRetrieval(characteristicName = "Algae, substrate rock/bank cover (choice list)", sampleMedia = "Water", siteType = "Stream", startDate = "2020-01-01")
   
   expect_equal(nrow(big),nrow(reg))
-  
 })
 
 # Testing that dates work correctly in queries in big data retrieval

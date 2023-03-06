@@ -61,8 +61,8 @@ ggplot2 from GitHub.
 
 # remotes::install_github("hadley/ggplot2", dependencies=TRUE)
 
-# remotes::install_github("USEPA/TADA", dependencies=TRUE)
-remotes::install_github("USEPA/TADA", dependencies=TRUE, ref="name_clean_eh") # EDH temporarily switched source so that this will build with new functions/names
+remotes::install_github("USEPA/TADA", dependencies=TRUE)
+
 # if you experience any issues installing TADA, try uncommenting and running the line below before the install
 # options(download.file.method = "wininet")
 ```
@@ -350,7 +350,7 @@ Unique_InvalidCoordinateFlags <- InvalidCoordinateFlags %>%
   dplyr::distinct()
 
 # remove all data for sites with invalid or imprecise coordinates. Change function inputs to keep this data, but be aware it may impact your mapping. 
-TADAProfileClean1 <- InvalidCoordinates(TADAProfile, clean_outsideUSA = "remove", clean_imprecise = TRUE, errorsonly = FALSE)
+TADAProfileClean1 <- InvalidCoordinates(TADAProfile, clean_outsideUSA = "no", clean_imprecise = FALSE, errorsonly = FALSE)
 
 ```
 
@@ -552,8 +552,8 @@ combination. See documentation for more details:
         errorsonly = FALSE.
 
 ```{r}
-TADAProfileClean9 <- AboveNationalWQXUpperThreshold(TADAProfileClean8, clean = TRUE)
-TADAProfileClean10 <- BelowNationalWQXLowerThreshold(TADAProfileClean9, clean = TRUE)
+TADAProfileClean9 <- AboveNationalWQXUpperThreshold(TADAProfileClean8, clean = FALSE)
+TADAProfileClean10 <- BelowNationalWQXLowerThreshold(TADAProfileClean9, clean = FALSE)
 ```
 
 ## Potential duplicates
@@ -608,7 +608,7 @@ If clean = FALSE, cleanNA = FALSE, and errorsonly = FALSE, the function
 will not do anything.
 
 ```{r}
-TADAProfileClean12 <- QAPPapproved(TADAProfileClean11, clean = TRUE, cleanNA = FALSE)
+TADAProfileClean12 <- QAPPapproved(TADAProfileClean11, clean = FALSE, cleanNA = FALSE)
 ```
 
 The **QAPPDocAvailable** function checks to see if a QAPP Doc is
@@ -786,6 +786,15 @@ Here are some examples of how the HarmonizeData function can be used:
 UniqueHarmonizationRef <- HarmonizationRefTable(TADAProfileClean16, download = FALSE)
 TADAProfileClean17 <- HarmonizeData(TADAProfileClean16, ref = UniqueHarmonizationRef, transform = TRUE, flag = TRUE)
 ```
+
+## Censored data
+Censored data are measurements for which the true value is not known, but we can estimate the value based on lower or upper detection conditions and limit types. TADA fills missing *TADA.ResultMeasureValue* and *TADA.ResultMeasure.MeasureUnitCode* values with values and units from *TADA.DetectionQuantitationLimitMeasure.MeasureValue* and *TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode*, respectively, using the autoclean function. In other words, detection limit information is copied and pasted into the result value column when the original value is NA and detection limit information is available. The two columns TADA focuses on to define and flag censored data are *ResultDetectionConditionText* and *DetectionQuantitationLimitTypeName*.
+
+```{r}
+TADAProfileClean18 = simpleCensoredMethods(TADAProfileClean17, nd_method = "multiplier", nd_multiplier = 0.5, od_method = "as-is", od_multiplier = "null")
+```
+
+
 
 ## Characteristic Specific Analyses Below
 

@@ -518,8 +518,8 @@ AboveNationalWQXUpperThreshold <- function(.data, clean = TRUE, errorsonly = FAL
   
   # Create flag column, flag rows where ResultMeasureValue > Maximum
   flag.data <- check.data %>%
-    # apply function row by row
-    dplyr::rowwise() %>%
+    # apply function row by row- EDH - I think this is unnecessary and slows function down considerably.
+    # dplyr::rowwise() %>%
     # create flag column
     dplyr::mutate(TADA.ResultValueAboveUpperThreshold.Flag = dplyr::case_when(
       TADA.ResultMeasureValue >= Maximum ~ as.character("Y"),
@@ -679,8 +679,8 @@ BelowNationalWQXLowerThreshold <- function(.data, clean = TRUE, errorsonly = FAL
   
   # Create flag column, flag rows where TADA.ResultMeasureValue < Minimum
   flag.data <- check.data %>%
-    # apply function row by row
-    dplyr::rowwise() %>%
+    # apply function row by row - EDH - I think this is unnecessary and slows function down considerably.
+    # dplyr::rowwise() %>%
     # create flag column
     dplyr::mutate(TADA.ResultValueBelowLowerThreshold.Flag = dplyr::case_when(
       TADA.ResultMeasureValue <= Minimum ~ as.character("Y"),
