@@ -10,7 +10,7 @@ water quality data for assessments. Therefore, this function uses metadata
 submitted by data providers to flag rows with aggregated continuous data.
 This is done by flagging results where the ResultDetectionConditionText =
 "Reported in Raw Data (attached)". When clean = FALSE and errorsonly = FALSE, a column titled
-"TADA.AggregatedContinuousData" is added to the dataframe to indicate if the row
+"TADA.AggregatedContinuousData.Flag" is added to the dataframe to indicate if the row
 includes aggregated continuous data, "Y", or not,  "N". When clean = FALSE and
 errorsonly = TRUE, the dataframe will be filtered to show only the rows flagged
 "Y" for aggregated continuous data. When clean = TRUE and errorsonly = FALSE,
@@ -28,7 +28,7 @@ water quality data for assessments. Therefore, this function uses metadata
 submitted by data providers to flag rows with aggregated continuous data.
 This is done by flagging results where the ResultDetectionConditionText =
 "Reported in Raw Data (attached)". When clean = FALSE and errorsonly = FALSE, a column titled
-"TADA.AggregatedContinuousData" is added to the dataframe to indicate if the row
+"TADA.AggregatedContinuousData.Flag" is added to the dataframe to indicate if the row
 includes aggregated continuous data, "Y", or not,  "N". When clean = FALSE and
 errorsonly = TRUE, the dataframe will be filtered to show only the rows flagged
 "Y" for aggregated continuous data. When clean = TRUE and errorsonly = FALSE,
@@ -97,7 +97,7 @@ water quality data for assessments. Therefore, this function uses metadata
 submitted by data providers to flag rows with aggregated continuous data.
 This is done by flagging results where the ResultDetectionConditionText =
 "Reported in Raw Data (attached)". When clean = FALSE and errorsonly = FALSE, a column titled
-"TADA.AggregatedContinuousData" is added to the dataframe to indicate if the row
+"TADA.AggregatedContinuousData.Flag" is added to the dataframe to indicate if the row
 includes aggregated continuous data, "Y", or not,  "N". When clean = FALSE and
 errorsonly = TRUE, the dataframe will be filtered to show only the rows flagged
 "Y" for aggregated continuous data. When clean = TRUE and errorsonly = FALSE,
@@ -150,13 +150,13 @@ and no column is appended. The default is clean = TRUE and errorsonly = FALSE.</
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] "No changes were made, because we did not find any aggregated continuous data in your dataframe"</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Flag, but do not remove, aggregated continuous data in new column</span></span></span>
-<span class="r-in"><span><span class="co"># titled "TADA.AggregatedContinuousData":</span></span></span>
+<span class="r-in"><span><span class="co"># titled "TADA.AggregatedContinuousData.Flag":</span></span></span>
 <span class="r-in"><span><span class="va">AggContinuous_flags</span> <span class="op">&lt;-</span> <span class="fu">AggregatedContinuousData</span><span class="op">(</span><span class="va">Nutrients_Utah</span>, clean <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] "No changes were made, because we did not find any aggregated continuous data in your dataframe"</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Show only rows flagged for aggregated continuous data:</span></span></span>
 <span class="r-in"><span><span class="va">AggContinuous_errorsonly</span> <span class="op">&lt;-</span> <span class="fu">AggregatedContinuousData</span><span class="op">(</span><span class="va">Nutrients_Utah</span>, clean <span class="op">=</span> <span class="cn">FALSE</span>, errorsonly <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "No changes were made, because we did not find any aggregated continuous data in your dataframe"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "This dataframe is empty because we did not find any aggregated continuous data in your dataframe"</span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
     </div>

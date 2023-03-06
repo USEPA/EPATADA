@@ -104,10 +104,10 @@ errorsonly = FALSE.</p></dd>
     
 
 <p>When clean = FALSE and errorsonly = FALSE, the following column is
-added to your dataframe: BelowWQXLowerThreshold. This column flags rows with
+added to your dataframe: TADA.ResultValueBelowLowerThreshold.Flag. This column flags rows with
 data that are below the lower WQX threshold. When clean = FALSE and
 errorsonly = TRUE, the dataframe is filtered to show only the rows which are
-flagged as below the WQX threshold; the column BelowWQXThreshold is still
+flagged as below the WQX threshold; the column TADA.ResultValueBelowLowerThreshold.Flag is still
 appended. When clean = TRUE and errorsonly = FALSE, data that is below the lower
 WQX threshold is removed from the dataframe. When clean = TRUE and
 errorsonly = TRUE, the function does not execute and an error message is
@@ -124,14 +124,14 @@ returned. The defaults are clean = TRUE and errorsonly = FALSE.</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] "No changes were made because no data below the WQX Lower Threshold was found in your dataframe"</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Flag, but do not remove, data that is below the lower WQX threshold in</span></span></span>
-<span class="r-in"><span><span class="co"># new column titled "BelowWQXLowerThreshold":</span></span></span>
+<span class="r-in"><span><span class="co"># new column titled "TADA.ResultValueBelowLowerThreshold.Flag":</span></span></span>
 <span class="r-in"><span><span class="va">WQXLowerThreshold_flags</span> <span class="op">&lt;-</span> <span class="fu">BelowNationalWQXLowerThreshold</span><span class="op">(</span><span class="va">Nutrients_Utah</span>, clean <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] "No changes were made because no data below the WQX Lower Threshold was found in your dataframe"</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Show only data that is below the lower WQX threshold:</span></span></span>
 <span class="r-in"><span><span class="va">WQXLowerThreshold_flagsonly</span> <span class="op">&lt;-</span> <span class="fu">BelowNationalWQXLowerThreshold</span><span class="op">(</span><span class="va">Nutrients_Utah</span>,</span></span>
 <span class="r-in"><span>clean <span class="op">=</span> <span class="cn">FALSE</span>, errorsonly <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "No changes were made because no data below the WQX Lower Threshold was found in your dataframe"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "This dataframe is empty because no data below the WQX Lower Threshold was found in your dataframe"</span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
     </div>
