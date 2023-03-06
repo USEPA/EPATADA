@@ -13,7 +13,7 @@ simpleCensoredMethods(
 )
 }
 \arguments{
-\item{.data}{A post-idCensoredData() TADA dataframe}
+\item{.data}{A TADA dataframe}
 
 \item{nd_method}{A text string indicating the type of method used to populate a non-detect (lower limit) data value. Can be set to "multiplier" (default),"randombelowlimit", or "as-is".}
 

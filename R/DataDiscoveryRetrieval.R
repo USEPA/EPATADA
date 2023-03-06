@@ -442,19 +442,20 @@ TADABigdataRetrieval <- function(startDate = "null",
           
           # need to specify this or throws error when trying to bind rows. Temporary fix for larger
           # issue where data structure for all columns should be specified.
-          joins = joins%>%dplyr::mutate_at(c("ActivityDepthHeightMeasure.MeasureValue",
-                                      "ActivityTopDepthHeightMeasure.MeasureValue",
-                                      "ActivityBottomDepthHeightMeasure.MeasureValue",
-                                      "ResultMeasureValue",
-                                      "ResultDepthHeightMeasure.MeasureValue",
-                                      "DetectionQuantitationLimitMeasure.MeasureValue",
-                                      "DrainageAreaMeasure.MeasureValue",
-                                      "ContributingDrainageAreaMeasure.MeasureValue",
-                                      "HorizontalAccuracyMeasure.MeasureValue",
-                                      "VerticalMeasure.MeasureValue",
-                                      "VerticalAccuracyMeasure.MeasureValue",
-                                      "WellDepthMeasure.MeasureValue",
-                                      "WellHoleDepthMeasure.MeasureValue"), as.character)
+          cols = names(joins)[names(joins)%in%c("ActivityDepthHeightMeasure.MeasureValue",
+                                                "ActivityTopDepthHeightMeasure.MeasureValue",
+                                                "ActivityBottomDepthHeightMeasure.MeasureValue",
+                                                "ResultMeasureValue",
+                                                "ResultDepthHeightMeasure.MeasureValue",
+                                                "DetectionQuantitationLimitMeasure.MeasureValue",
+                                                "DrainageAreaMeasure.MeasureValue",
+                                                "ContributingDrainageAreaMeasure.MeasureValue",
+                                                "HorizontalAccuracyMeasure.MeasureValue",
+                                                "VerticalMeasure.MeasureValue",
+                                                "VerticalAccuracyMeasure.MeasureValue",
+                                                "WellDepthMeasure.MeasureValue",
+                                                "WellHoleDepthMeasure.MeasureValue")]
+          joins = joins%>%dplyr::mutate_at(cols, as.character)
           
           df = dplyr::bind_rows(df, joins)
           # status of download relative to total number of sites queried.

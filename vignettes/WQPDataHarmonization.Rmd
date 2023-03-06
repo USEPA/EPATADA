@@ -350,7 +350,7 @@ Unique_InvalidCoordinateFlags <- InvalidCoordinateFlags %>%
   dplyr::distinct()
 
 # remove all data for sites with invalid or imprecise coordinates. Change function inputs to keep this data, but be aware it may impact your mapping. 
-TADAProfileClean1 <- InvalidCoordinates(TADAProfile, clean_outsideUSA = "remove", clean_imprecise = TRUE, errorsonly = FALSE)
+TADAProfileClean1 <- InvalidCoordinates(TADAProfile, clean_outsideUSA = "no", clean_imprecise = FALSE, errorsonly = FALSE)
 
 ```
 
@@ -552,8 +552,8 @@ combination. See documentation for more details:
         errorsonly = FALSE.
 
 ```{r}
-TADAProfileClean9 <- AboveNationalWQXUpperThreshold(TADAProfileClean8, clean = TRUE)
-TADAProfileClean10 <- BelowNationalWQXLowerThreshold(TADAProfileClean9, clean = TRUE)
+TADAProfileClean9 <- AboveNationalWQXUpperThreshold(TADAProfileClean8, clean = FALSE)
+TADAProfileClean10 <- BelowNationalWQXLowerThreshold(TADAProfileClean9, clean = FALSE)
 ```
 
 ## Potential duplicates
@@ -608,7 +608,7 @@ If clean = FALSE, cleanNA = FALSE, and errorsonly = FALSE, the function
 will not do anything.
 
 ```{r}
-TADAProfileClean12 <- QAPPapproved(TADAProfileClean11, clean = TRUE, cleanNA = FALSE)
+TADAProfileClean12 <- QAPPapproved(TADAProfileClean11, clean = FALSE, cleanNA = FALSE)
 ```
 
 The **QAPPDocAvailable** function checks to see if a QAPP Doc is
