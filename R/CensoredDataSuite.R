@@ -6,7 +6,7 @@
 #' and the LOWER detection limit. These methods do NOT depend upon censored data frequency
 #' in the dataset.
 #' 
-#' @param .data A post-idCensoredData() TADA dataframe
+#' @param .data A TADA dataframe
 #' @param nd_method A text string indicating the type of method used to populate a non-detect (lower limit) data value. Can be set to "multiplier" (default),"randombelowlimit", or "as-is".
 #' @param nd_multiplier A number to be multiplied to the LOWER detection limit for each entry to obtain the censored data value. Must be supplied if nd_method = "multiplier". Defaults to 0.5, or half the detection limit.
 #' @param od_method A text string indicating the type of method used to populate an over-detect (upper limit) data value. Can be set to "multiplier" or "as-is" (default).
@@ -20,7 +20,7 @@
 #' @examples
 #' #' # Load example dataset:
 #' data(Nutrients_Utah)
-#' Check for agreement between detection condition and detection limit type, and in instances where the sample is non-detect, set the result value to half of the detection limit value. For over-detect samples, retain the detection limit value as the result value as-is. 
+#' # Check for agreement between detection condition and detection limit type, and in instances where the sample is non-detect, set the result value to half of the detection limit value. For over-detect samples, retain the detection limit value as the result value as-is. 
 #' Nutrients_Utah_CensoredFlag = simpleCensoredMethods(Nutrients_Utah, nd_method = "multiplier", nd_multiplier = 0.5, od_method = "as-is", od_multiplier = "null")
 #' 
 #' Check for agreement between detection condition and detection limit type, and in instances where the sample is non-detect, set the result value to a random value between 0 and the detection limit value. For over-detect samples, retain the detection limit value as the result value as-is. 
