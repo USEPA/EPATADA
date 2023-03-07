@@ -112,3 +112,38 @@ simpleCensoredMethods <- function(.data, nd_method = "multiplier", nd_multiplier
   .data = OrderTADACols(.data)
   return(.data)
 }
+
+#' Summarize Censored Data
+#' 
+#' This function creates a summary table of the percentage of non-detects by 
+#' specified ID columns. It can be used to determine the best method for handling 
+#' censored data estimation methods that depend upon the distribution of the dataset.
+#' 
+#' @param .data A TADA dataframe
+#' @param spec_cols A vector of column names to be used as aggregating variables when summarizing censored data information.
+#' @return A TADA dataframe with additional columns named TADA.CensoredData.Flag, which indicates if there are disagreements in ResultDetectionCondition and DetectionQuantitationLimitTypeName, and TADA.CensoredMethod, which documents the method used to fill censored data values.
+#' 
+#' 
+#' @export
+
+summarizeCensoredData <- function(.data, spec_cols = c("TADA.CharacteristicName","TADA.ResultMeasure.MeasureUnitCode","TADA.ResultSampleFractionText","TADA.MethodSpecificationName")){
+  
+  if(any(is.na(.data$TADA.ResultMeasureValue))){
+    warning("Dataset contains data missing both a result value and a detection limit. Suggest removing or handling before summarizing.")
+  }
+  sum_low = .data%>%dplyr::group_by_at(spec_cols)%>%
+    dplyr::filter(TADA.CensoredData.Flag=="Non-Detect"|is.na(TADA.CensoredData.Flag))%>%
+    dplyr::summarise(SampleCount = length(unique(ResultIdentifier)), Censored_Count = length(TADA.CensoredData.Flag[!is.na(TADA.CensoredData.Flag)]), Percent_Censored = length(TADA.CensoredData.Flag[!is.na(TADA.CensoredData.Flag)])/length(TADA.CensoredData.Flag)*100)%>%
+    dplyr::filter(Censored_Count>0)%>%
+    dplyr::mutate("TADA.CensoredData.Flag" ="Non-Detect")
+  
+  sum_hi = .data%>%dplyr::group_by_at(spec_cols)%>%
+    dplyr::filter(TADA.CensoredData.Flag=="Over-Detect"|is.na(TADA.CensoredData.Flag))%>%
+    dplyr::summarise(SampleCount = length(unique(ResultIdentifier)), Censored_Count = length(TADA.CensoredData.Flag[!is.na(TADA.CensoredData.Flag)]), Percent_Censored = length(TADA.CensoredData.Flag[!is.na(TADA.CensoredData.Flag)])/length(TADA.CensoredData.Flag)*100)%>%
+    dplyr::filter(Censored_Count>0)%>%
+    dplyr::mutate("TADA.CensoredData.Flag" ="Over-Detect")
+  
+  sum_all = plyr::rbind.fill(sum_low, sum_hi)
+  
+  
+}
