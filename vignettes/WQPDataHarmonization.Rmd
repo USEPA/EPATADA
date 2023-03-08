@@ -437,7 +437,7 @@ See function documentation for additional function options by entering
 the following code in the console: ?AggregatedContinuousData
 
 ```{r}
-TADAProfileClean4 <- AggregatedContinuousData(TADAProfileClean3, clean = TRUE)
+TADAProfileClean4 <- AggregatedContinuousData(TADAProfileClean3, clean = FALSE)
 
 # uncomment below to create a dataframe of only the aggregated continuous data
 # TADAProfile_aggcont <- AggregatedContinuousData(TADAProfileClean3, clean = FALSE, errorsonly = TRUE)
@@ -515,8 +515,8 @@ See documentation for more details:
         rows flagged as "Invalid"; default is errorsonly = FALSE.
 
 ```{r}
-TADAProfileClean5 <- InvalidMethod(TADAProfileClean4, clean = TRUE)
-TADAProfileClean6 <- InvalidFraction(TADAProfileClean5, clean = TRUE)
+TADAProfileClean5 <- InvalidMethod(TADAProfileClean4, clean = FALSE)
+TADAProfileClean6 <- InvalidFraction(TADAProfileClean5, clean = FALSE)
 TADAProfileClean7 <- InvalidSpeciation(TADAProfileClean6, clean = "none")
 TADAProfileClean8 <- InvalidResultUnit(TADAProfileClean7, clean = "none")
 ```
@@ -669,7 +669,7 @@ that we want to remove the "Quality Control Sample-Field Replicate" and
 field.
 
 ```{r}
-TADAProfileClean14 <- dplyr::filter(TADAProfileClean13, !(ActivityTypeCode %in% c("Quality Control Sample-Field Replicate", "Quality Control Sample-Field Blank", "Quality Control Sample-Lab Duplicate", "Quality Control Sample-Equipment Blank")))
+TADAProfileClean14 <- dplyr::filter(TADAProfileClean13, !(ActivityTypeCode %in% ActivityTypeCode[grepl("Quality",ActivityTypeCode)]))
 ```
 
 We've completed our review of the ActivityTypeCode field.
@@ -682,7 +682,7 @@ ResultStatusIdentifier field.
 FilterFieldReview("ActivityMediaSubdivisionName", TADAProfileClean14)
 ```
 
-The ActivityMediaSubdivisionName field has two unique values, "Surface
+[Not true of current test dataset] The ActivityMediaSubdivisionName field has two unique values, "Surface
 Water" and "Groundwater." In this example we want to remove the
 "Groundwater" values.
 
@@ -722,13 +722,13 @@ values from the HydrologicEvent field.
 FilterParFieldReview("HydrologicEvent", TADAProfileClean15, "NITROGEN")
 ```
 
-The HydrologicEvent field has three unique values. In this example we
-want to remove samples collected during "Storm" events. Therefore, we'll
+The HydrologicEvent field has five unique values. In this example we
+want to remove samples collected during "Flood" events. Therefore, we'll
 specify that we want to remove rows where the CharacteristicName is
-"NITROGEN" and the HydrologicEvent field is "Storm."
+"NITROGEN" and the HydrologicEvent field is "Flood."
 
 ```{r}
-TADAProfileClean16 <- dplyr::filter(TADAProfileClean15, !(TADA.CharacteristicName %in% "NITROGEN" & HydrologicEvent %in% "Storm"))
+TADAProfileClean16 <- dplyr::filter(TADAProfileClean15, !(TADA.CharacteristicName %in% "NITROGEN" & HydrologicEvent %in% "Flood"))
 ```
 
 ## Transform Characteristic, Speciation, and Unit values to TADA Standards
@@ -790,10 +790,27 @@ TADAProfileClean17 <- HarmonizeData(TADAProfileClean16, ref = UniqueHarmonizatio
 ## Censored data
 Censored data are measurements for which the true value is not known, but we can estimate the value based on lower or upper detection conditions and limit types. TADA fills missing *TADA.ResultMeasureValue* and *TADA.ResultMeasure.MeasureUnitCode* values with values and units from *TADA.DetectionQuantitationLimitMeasure.MeasureValue* and *TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode*, respectively, using the autoclean function. In other words, detection limit information is copied and pasted into the result value column when the original value is NA and detection limit information is available. The two columns TADA focuses on to define and flag censored data are *ResultDetectionConditionText* and *DetectionQuantitationLimitTypeName*.
 
+The TADA package currently has functions that summarize censored data incidence in the dataset and perform simple substitutions of censored data values, including x times the detection limit and random selection of a value between 0 and the detection limit. The user may specify the methods used for non-detects and over-detects separately in the input to the **simpleCensoredMethods** function. 
+
+All censored data functions depend first on the **idCensoredData** utility function, which assigns a *TADA.CensoredData.Flag* to all data records and identifies over-detects from non-detects using the *ResultDetectionConditionText* and *DetectionQuantitationLimitTypeName*. This utility function is automatically run within the summary and simple methods functions if the dataset does not contain the *TADA.CensoredData.Flag*. All records receive one of the following classifications:
+  - Uncensored - Not filled with detection limit value; a detection.
+  - Non-Detect - Left-censored
+  - Over-Detect - Right-censored
+  - Other Condition/Limit Populated - detection condition or limit type are ambiguous or not associated with a lower/upper detection limit.
+  - Conflict between Condition and Limit - detection condition and limit type for a single record do not agree, e.g. one suggests over-detect and the other suggests non-detect.
+  - Censored but not Categorized - detection condition or limit type is not characterized in the TADA reference tables, which are based on WQX domain tables. Causes function to produce a warning.
+  
+In the example below, we first summarize the censored data in the dataset using the default grouping variables *TADA.CharacteristicName*, *TADA.ResultMeasure.MeasureUnitCode*,*TADA.ResultSampleFractionText*, and *TADA.MethodSpecificationName*. The user can specify any columns in the TADA dataframe they'd like to use to aggregate their censored data counts. For example, some may want to aggregate both by characteristic and HUC or characteristic and monitoring location.
+
+The next step we take in this example is to perform simple conversions to the censored data in the dataset: we keep over-detects as is (no conversion made) and convert non-detect values to 0.5 times the detection limit (half the detection limit). Please review **?summarizeCensoredData** and **?simpleCensoredMethods** for more information.
+
 ```{r}
+TADAProfileClean18_censoredSummary = summarizeCensoredData(TADAProfileClean17, spec_cols = c("TADA.CharacteristicName","TADA.ResultMeasure.MeasureUnitCode","TADA.ResultSampleFractionText","TADA.MethodSpecificationName"))
+
+TADAProfileClean18_censoredSummary
+
 TADAProfileClean18 = simpleCensoredMethods(TADAProfileClean17, nd_method = "multiplier", nd_multiplier = 0.5, od_method = "as-is", od_multiplier = "null")
 ```
-
 
 
 ## Characteristic Specific Analyses Below

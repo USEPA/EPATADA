@@ -18,9 +18,12 @@ summarizeCensoredData(
 \value{
 A summary dataframe yielding sample ncounts, censored data ncounts,
 and percent of dataset that is censored, aggregated by user-defined grouping
-variables. Also produces a column "TADA.Applicable.Methods" that identifies
+variables. Also produces a column "TADA.Censored.Note" that identifies
 when there is sufficient non-censored data to estimate censored data using statistical
-methods including Robust ROS and Kaplan Meier.
+methods including Maximum Likelihood Estimation, Robust ROS and Kaplan Meier.
+The decision tree used to identify applicable statistical analyses is based
+on the Baseline Assessment of Left-Censored Environmental Data Using R Tech Note.
+More info can be found here: https://www.epa.gov/sites/default/files/2016-05/documents/tech_notes_10_jun2014_r.pdf
 }
 \description{
 This function creates a summary table of the percentage of non-detects by
