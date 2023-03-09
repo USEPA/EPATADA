@@ -61,7 +61,7 @@ ggplot2 from GitHub.
 
 # remotes::install_github("hadley/ggplot2", dependencies=TRUE)
 
-remotes::install_github("USEPA/TADA", ref = "censored_data_2_eh",dependencies=TRUE)
+remotes::install_github("USEPA/TADA", ref = "develop", dependencies = TRUE)
 
 # if you experience any issues installing TADA, try uncommenting and running the line below before the install
 # options(download.file.method = "wininet")
@@ -669,6 +669,11 @@ that we want to remove the "Quality Control Sample-Field Replicate" and
 field.
 
 ```{r}
+# This chunk of code removes rows where any value in the ActivityTypeCode filed includes the string "Quality")
+# See WQX domain file to review all the ActivityTypeCode allowable values:
+# https://cdx.epa.gov/wqx/download/DomainValues/ActivityType.CSV
+# Access all WQX Domain Files
+#https://www.epa.gov/waterdata/storage-and-retrieval-and-water-quality-exchange-domain-services-and-downloads
 TADAProfileClean14 <- dplyr::filter(TADAProfileClean13, !(ActivityTypeCode %in% ActivityTypeCode[grepl("Quality",ActivityTypeCode)]))
 ```
 
@@ -682,9 +687,7 @@ ResultStatusIdentifier field.
 FilterFieldReview("ActivityMediaSubdivisionName", TADAProfileClean14)
 ```
 
-[Not true of current test dataset] The ActivityMediaSubdivisionName field has two unique values, "Surface
-Water" and "Groundwater." In this example we want to remove the
-"Groundwater" values.
+The ActivityMediaSubdivisionName field has unique values. In this example, we show how a user could leverage this function to remove specific values from their dataframe.
 
 ```{r}
 TADAProfileClean15 <- dplyr::filter(TADAProfileClean14, !(ActivityMediaSubdivisionName %in% c("Groundwater", "Bulk deposition")))

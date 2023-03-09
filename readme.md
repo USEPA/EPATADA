@@ -18,7 +18,7 @@ You can install and load the most recent version of the TADA R Package from GitH
 
 ``` r
 library (remotes)
-remotes::install_github("USEPA/TADA")
+remotes::install_github("USEPA/TADA", ref = "develop", dependencies = TRUE)
 ```
 
 ## Open-Source Code Policy
