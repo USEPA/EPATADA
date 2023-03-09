@@ -72,7 +72,7 @@
       <img src="" class="logo" alt=""><h1>WQP Data Harmonization</h1>
                         <h4 data-toc-skip class="author">TADA Team</h4>
             
-            <h4 data-toc-skip class="date">2023-03-06</h4>
+            <h4 data-toc-skip class="date">2023-03-08</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/USEPA/TADA/blob/HEAD/vignettes/WQPDataHarmonization.Rmd" class="external-link"><code>vignettes/WQPDataHarmonization.Rmd</code></a></small>
       <div class="d-none name"><code>WQPDataHarmonization.Rmd</code></div>
@@ -117,7 +117,7 @@ and ggplot2 from GitHub.</p>
 <span></span>
 <span><span class="co"># remotes::install_github("hadley/ggplot2", dependencies=TRUE)</span></span>
 <span></span>
-<span><span class="fu">remotes</span><span class="fu">::</span><span class="fu"><a href="https://remotes.r-lib.org/reference/install_github.html" class="external-link">install_github</a></span><span class="op">(</span><span class="st">"USEPA/TADA"</span>, dependencies<span class="op">=</span><span class="cn">TRUE</span><span class="op">)</span></span>
+<span><span class="fu">remotes</span><span class="fu">::</span><span class="fu"><a href="https://remotes.r-lib.org/reference/install_github.html" class="external-link">install_github</a></span><span class="op">(</span><span class="st">"USEPA/TADA"</span>, ref <span class="op">=</span> <span class="st">"censored_data_2_eh"</span>,dependencies<span class="op">=</span><span class="cn">TRUE</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># if you experience any issues installing TADA, try uncommenting and running the line below before the install</span></span>
 <span><span class="co"># options(download.file.method = "wininet")</span></span></code></pre></div>
@@ -264,7 +264,8 @@ query inputs.</p>
 <span><span class="co"># TADAProfile2 &lt;- TADAdataRetrieval(ProjectIdentifier = "Anchorage Bacteria 20-21")</span></span>
 <span></span>
 <span><span class="co"># another example query for Alaska. We will move forward with this example in the remainder of the vignette</span></span>
-<span><span class="va">TADAProfile</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/TADAdataRetrieval.html">TADAdataRetrieval</a></span><span class="op">(</span>statecode <span class="op">=</span> <span class="st">"AK"</span>, characteristicName <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Fecal Coliform"</span>, <span class="st">"Escherichia coli"</span>, <span class="st">"Enterococcus"</span>, <span class="st">"Ammonia"</span>, <span class="st">"Nitrate"</span>, <span class="st">"Nitrogen"</span><span class="op">)</span>, startDate <span class="op">=</span> <span class="st">"2018-05-01"</span><span class="op">)</span></span></code></pre></div>
+<span><span class="va">TADAProfile</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/TADAdataRetrieval.html">TADAdataRetrieval</a></span><span class="op">(</span>statecode <span class="op">=</span> <span class="st">"AK"</span>, characteristicName <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Fecal Coliform"</span>, <span class="st">"Escherichia coli"</span>, <span class="st">"Enterococcus"</span>, <span class="st">"Ammonia"</span>, <span class="st">"Nitrate"</span>, <span class="st">"Nitrogen"</span><span class="op">)</span>, startDate <span class="op">=</span> <span class="st">"2018-05-01"</span><span class="op">)</span></span>
+<span><span class="co">#&gt; [1] "NOTE: This version of the TADA package is designed to work with data with sample media: 'WATER'. autoclean does not currently filter downloaded data to 'WATER'. The user must make this specification on their own outside of package functions. See the WQPDataHamornization vignette for an example."</span></span></code></pre></div>
 <p>Option 2: Alternatively, you can use the data.table::fread function
 to read in a web service call for any WQP profile (un-comment).</p>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
@@ -623,7 +624,7 @@ filters the dataframe to show only rows of data which are flagged
 entering the following code in the console:
 ?AggregatedContinuousData</p>
 <div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">TADAProfileClean4</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/AggregatedContinuousData.html">AggregatedContinuousData</a></span><span class="op">(</span><span class="va">TADAProfileClean3</span>, clean <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="va">TADAProfileClean4</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/AggregatedContinuousData.html">AggregatedContinuousData</a></span><span class="op">(</span><span class="va">TADAProfileClean3</span>, clean <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] "No changes were made, because we did not find any aggregated continuous data in your dataframe"</span></span>
 <span></span>
 <span><span class="co"># uncomment below to create a dataframe of only the aggregated continuous data</span></span>
@@ -701,8 +702,12 @@ flagged as “Invalid”; default is errorsonly = FALSE.</li>
 </li>
 </ul>
 <div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">TADAProfileClean5</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/InvalidMethod.html">InvalidMethod</a></span><span class="op">(</span><span class="va">TADAProfileClean4</span>, clean <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
-<span><span class="va">TADAProfileClean6</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/InvalidFraction.html">InvalidFraction</a></span><span class="op">(</span><span class="va">TADAProfileClean5</span>, clean <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="va">TADAProfileClean5</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/InvalidMethod.html">InvalidMethod</a></span><span class="op">(</span><span class="va">TADAProfileClean4</span>, clean <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
+<span><span class="va">TADAProfileClean6</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/InvalidFraction.html">InvalidFraction</a></span><span class="op">(</span><span class="va">TADAProfileClean5</span>, clean <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
+<span><span class="co">#&gt; Warning in InvalidFraction(TADAProfileClean5, clean = FALSE): Metadata</span></span>
+<span><span class="co">#&gt; transformations may be adversely affected by choosing to retain 'Invalid'</span></span>
+<span><span class="co">#&gt; fraction. In order to ensure transformation functions will run properly, set</span></span>
+<span><span class="co">#&gt; clean = TRUE.</span></span>
 <span><span class="va">TADAProfileClean7</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/InvalidSpeciation.html">InvalidSpeciation</a></span><span class="op">(</span><span class="va">TADAProfileClean6</span>, clean <span class="op">=</span> <span class="st">"none"</span><span class="op">)</span></span>
 <span><span class="co">#&gt; Warning in InvalidSpeciation(TADAProfileClean6, clean = "none"): Metadata</span></span>
 <span><span class="co">#&gt; transformations may be adversely affected by choosing to retain 'Invalid'</span></span>
@@ -840,7 +845,7 @@ in each field using the <strong>FilterFields</strong> function.</p>
 <span><span class="co">#&gt; 5                 ActivityCommentText    55</span></span>
 <span><span class="co">#&gt; 6                 HydrologicCondition     7</span></span>
 <span><span class="co">#&gt; 7                     HydrologicEvent     7</span></span>
-<span><span class="co">#&gt; 8                MeasureQualifierCode    19</span></span>
+<span><span class="co">#&gt; 8                MeasureQualifierCode    20</span></span>
 <span><span class="co">#&gt; 9             SampleTissueAnatomyName     1</span></span>
 <span><span class="co">#&gt; 10                     LaboratoryName    29</span></span>
 <span><span class="co">#&gt; 11 DetectionQuantitationLimitTypeName    10</span></span>
@@ -863,14 +868,14 @@ data flags</p></li>
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/FilterFieldReview.html">FilterFieldReview</a></span><span class="op">(</span><span class="st">"ActivityTypeCode"</span>, <span class="va">TADAProfileClean13</span><span class="op">)</span></span></code></pre></div>
 <p><img src="WQPDataHarmonization_files/figure-html/unnamed-chunk-21-1.png" width="576"></p>
 <pre><code><span><span class="co">#&gt;                                FieldValue Count</span></span>
-<span><span class="co">#&gt; 8                          Sample-Routine  4466</span></span>
-<span><span class="co">#&gt; 7  Quality Control Sample-Field Replicate   218</span></span>
-<span><span class="co">#&gt; 4  Quality Control Sample-Blind Duplicate    35</span></span>
-<span><span class="co">#&gt; 3 Quality Control Field Replicate Msr/Obs    27</span></span>
+<span><span class="co">#&gt; 8                          Sample-Routine  6678</span></span>
+<span><span class="co">#&gt; 7  Quality Control Sample-Field Replicate   339</span></span>
+<span><span class="co">#&gt; 4  Quality Control Sample-Blind Duplicate    70</span></span>
+<span><span class="co">#&gt; 3 Quality Control Field Replicate Msr/Obs    54</span></span>
 <span><span class="co">#&gt; 1                           Field Msr/Obs    22</span></span>
 <span><span class="co">#&gt; 2                          Not determined     2</span></span>
 <span><span class="co">#&gt; 5  Quality Control Sample-Equipment Blank     2</span></span>
-<span><span class="co">#&gt; 6      Quality Control Sample-Field Blank     1</span></span></code></pre>
+<span><span class="co">#&gt; 6      Quality Control Sample-Field Blank     2</span></span></code></pre>
 <p>The ActivityTypeCode field has four unique values – “Sample-Routine”,
 “Quality Control Sample-Field Replicate”, “Field Msr/Obs”, and “Quality
 Control Sample-Field Blank.” In this example we want to remove quality
@@ -879,7 +884,7 @@ that we want to remove the “Quality Control Sample-Field Replicate” and
 “Quality Control Sample-Field Blank” values in the ActivityTypeCode
 field.</p>
 <div class="sourceCode" id="cb25"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">TADAProfileClean14</span> <span class="op">&lt;-</span> <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">TADAProfileClean13</span>, <span class="op">!</span><span class="op">(</span><span class="va">ActivityTypeCode</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Quality Control Sample-Field Replicate"</span>, <span class="st">"Quality Control Sample-Field Blank"</span>, <span class="st">"Quality Control Sample-Lab Duplicate"</span>, <span class="st">"Quality Control Sample-Equipment Blank"</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="va">TADAProfileClean14</span> <span class="op">&lt;-</span> <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">TADAProfileClean13</span>, <span class="op">!</span><span class="op">(</span><span class="va">ActivityTypeCode</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="va">ActivityTypeCode</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/grep.html" class="external-link">grepl</a></span><span class="op">(</span><span class="st">"Quality"</span>,<span class="va">ActivityTypeCode</span><span class="op">)</span><span class="op">]</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <p>We’ve completed our review of the ActivityTypeCode field.</p>
 <p>Let’s move on to a different field and see if there are any values
 that we want to remove – we’ll look at the values in the
@@ -888,10 +893,10 @@ ResultStatusIdentifier field.</p>
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/FilterFieldReview.html">FilterFieldReview</a></span><span class="op">(</span><span class="st">"ActivityMediaSubdivisionName"</span>, <span class="va">TADAProfileClean14</span><span class="op">)</span></span></code></pre></div>
 <p><img src="WQPDataHarmonization_files/figure-html/unnamed-chunk-23-1.png" width="576"></p>
 <pre><code><span><span class="co">#&gt;      FieldValue Count</span></span>
-<span><span class="co">#&gt; 1 Surface Water  3245</span></span></code></pre>
-<p>The ActivityMediaSubdivisionName field has two unique values,
-“Surface Water” and “Groundwater.” In this example we want to remove the
-“Groundwater” values.</p>
+<span><span class="co">#&gt; 1 Surface Water  4234</span></span></code></pre>
+<p>[Not true of current test dataset] The ActivityMediaSubdivisionName
+field has two unique values, “Surface Water” and “Groundwater.” In this
+example we want to remove the “Groundwater” values.</p>
 <div class="sourceCode" id="cb28"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">TADAProfileClean15</span> <span class="op">&lt;-</span> <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">TADAProfileClean14</span>, <span class="op">!</span><span class="op">(</span><span class="va">ActivityMediaSubdivisionName</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Groundwater"</span>, <span class="st">"Bulk deposition"</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 </div>
@@ -908,9 +913,9 @@ space on the page)</p>
 <div class="sourceCode" id="cb29"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/FilterParList.html">FilterParList</a></span><span class="op">(</span><span class="va">TADAProfileClean15</span><span class="op">)</span></span>
 <span><span class="co">#&gt;         FieldValue Count</span></span>
-<span><span class="co">#&gt; 4   FECAL COLIFORM  3104</span></span>
+<span><span class="co">#&gt; 4   FECAL COLIFORM  3042</span></span>
+<span><span class="co">#&gt; 2     ENTEROCOCCUS  2577</span></span>
 <span><span class="co">#&gt; 5          NITRATE   502</span></span>
-<span><span class="co">#&gt; 2     ENTEROCOCCUS   365</span></span>
 <span><span class="co">#&gt; 6         NITROGEN   277</span></span>
 <span><span class="co">#&gt; 3 ESCHERICHIA COLI   263</span></span>
 <span><span class="co">#&gt; 1          AMMONIA    41</span></span></code></pre></div>
@@ -961,12 +966,12 @@ certain values from the HydrologicEvent field.</p>
 <span><span class="co">#&gt; 1           Flood     3</span></span>
 <span><span class="co">#&gt; 2  Not applicable     1</span></span>
 <span><span class="co">#&gt; 4        Snowmelt     1</span></span></code></pre>
-<p>The HydrologicEvent field has three unique values. In this example we
-want to remove samples collected during “Storm” events. Therefore, we’ll
+<p>The HydrologicEvent field has five unique values. In this example we
+want to remove samples collected during “Flood” events. Therefore, we’ll
 specify that we want to remove rows where the CharacteristicName is
-“NITROGEN” and the HydrologicEvent field is “Storm.”</p>
+“NITROGEN” and the HydrologicEvent field is “Flood.”</p>
 <div class="sourceCode" id="cb33"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">TADAProfileClean16</span> <span class="op">&lt;-</span> <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">TADAProfileClean15</span>, <span class="op">!</span><span class="op">(</span><span class="va">TADA.CharacteristicName</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="st">"NITROGEN"</span> <span class="op">&amp;</span> <span class="va">HydrologicEvent</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="st">"Storm"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="va">TADAProfileClean16</span> <span class="op">&lt;-</span> <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">TADAProfileClean15</span>, <span class="op">!</span><span class="op">(</span><span class="va">TADA.CharacteristicName</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="st">"NITROGEN"</span> <span class="op">&amp;</span> <span class="va">HydrologicEvent</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="st">"Flood"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="transform-characteristic-speciation-and-unit-values-to-tada-standards">Transform Characteristic, Speciation, and Unit values to TADA
@@ -1035,14 +1040,121 @@ the original value is NA and detection limit information is available.
 The two columns TADA focuses on to define and flag censored data are
 <em>ResultDetectionConditionText</em> and
 <em>DetectionQuantitationLimitTypeName</em>.</p>
+<p>The TADA package currently has functions that summarize censored data
+incidence in the dataset and perform simple substitutions of censored
+data values, including x times the detection limit and random selection
+of a value between 0 and the detection limit. The user may specify the
+methods used for non-detects and over-detects separately in the input to
+the <strong>simpleCensoredMethods</strong> function.</p>
+<p>All censored data functions depend first on the
+<strong>idCensoredData</strong> utility function, which assigns a
+<em>TADA.CensoredData.Flag</em> to all data records and identifies
+over-detects from non-detects using the
+<em>ResultDetectionConditionText</em> and
+<em>DetectionQuantitationLimitTypeName</em>. This utility function is
+automatically run within the summary and simple methods functions if the
+dataset does not contain the <em>TADA.CensoredData.Flag</em>. All
+records receive one of the following classifications: - Uncensored - Not
+filled with detection limit value; a detection. - Non-Detect -
+Left-censored - Over-Detect - Right-censored - Other Condition/Limit
+Populated - detection condition or limit type are ambiguous or not
+associated with a lower/upper detection limit. - Conflict between
+Condition and Limit - detection condition and limit type for a single
+record do not agree, e.g. one suggests over-detect and the other
+suggests non-detect. - Censored but not Categorized - detection
+condition or limit type is not characterized in the TADA reference
+tables, which are based on WQX domain tables. Causes function to produce
+a warning.</p>
+<p>In the example below, we first summarize the censored data in the
+dataset using the default grouping variables
+<em>TADA.CharacteristicName</em>,
+<em>TADA.ResultMeasure.MeasureUnitCode</em>,<em>TADA.ResultSampleFractionText</em>,
+and <em>TADA.MethodSpecificationName</em>. The user can specify any
+columns in the TADA dataframe they’d like to use to aggregate their
+censored data counts. For example, some may want to aggregate both by
+characteristic and HUC or characteristic and monitoring location.</p>
+<p>The next step we take in this example is to perform simple
+conversions to the censored data in the dataset: we keep over-detects as
+is (no conversion made) and convert non-detect values to 0.5 times the
+detection limit (half the detection limit). Please review
+<strong>?summarizeCensoredData</strong> and
+<strong>?simpleCensoredMethods</strong> for more information.</p>
 <div class="sourceCode" id="cb35"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">TADAProfileClean18</span> <span class="op">=</span> <span class="fu"><a href="../reference/simpleCensoredMethods.html">simpleCensoredMethods</a></span><span class="op">(</span><span class="va">TADAProfileClean17</span>, nd_method <span class="op">=</span> <span class="st">"multiplier"</span>, nd_multiplier <span class="op">=</span> <span class="fl">0.5</span>, od_method <span class="op">=</span> <span class="st">"as-is"</span>, od_multiplier <span class="op">=</span> <span class="st">"null"</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Joining with `by = join_by(ResultDetectionConditionText)`</span></span>
-<span><span class="co">#&gt; Joining with `by = join_by(DetectionQuantitationLimitTypeName)`</span></span>
-<span><span class="co">#&gt; Warning in simpleCensoredMethods(TADAProfileClean17, nd_method = "multiplier",</span></span>
-<span><span class="co">#&gt; : 21 records in supplied dataset have conflicting detection condition and</span></span>
-<span><span class="co">#&gt; detection limit type information. These records will not be included in</span></span>
-<span><span class="co">#&gt; detection limit handling calculations.</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="va">TADAProfileClean18_censoredSummary</span> <span class="op">=</span> <span class="fu"><a href="../reference/summarizeCensoredData.html">summarizeCensoredData</a></span><span class="op">(</span><span class="va">TADAProfileClean17</span>, spec_cols <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"TADA.CharacteristicName"</span>,<span class="st">"TADA.ResultMeasure.MeasureUnitCode"</span>,<span class="st">"TADA.ResultSampleFractionText"</span>,<span class="st">"TADA.MethodSpecificationName"</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="co">#&gt; Warning in summarizeCensoredData(TADAProfileClean17, spec_cols =</span></span>
+<span><span class="co">#&gt; c("TADA.CharacteristicName", : Dataset contains data missing both a result</span></span>
+<span><span class="co">#&gt; value and a detection limit. Suggest removing or handling before summarizing.</span></span>
+<span><span class="co">#&gt; Warning in idCensoredData(.data): DetectionQuantitationLimitTypeName column</span></span>
+<span><span class="co">#&gt; dataset contains value(s) Historical Lower Reporting Limit which is/are not</span></span>
+<span><span class="co">#&gt; represented in the DetectionQuantitationLimitTypeName WQX domain table. These</span></span>
+<span><span class="co">#&gt; data records are placed under the TADA.CensoredData.Flag: Censored but not</span></span>
+<span><span class="co">#&gt; Categorized, and will not be used in censored data handling methods. Please</span></span>
+<span><span class="co">#&gt; contact TADA administrators to resolve.</span></span>
+<span><span class="co">#&gt; Warning in idCensoredData(.data): 7 records in supplied dataset have</span></span>
+<span><span class="co">#&gt; conflicting detection condition and detection limit type information. These</span></span>
+<span><span class="co">#&gt; records will not be included in detection limit handling calculations.</span></span>
+<span></span>
+<span><span class="va">TADAProfileClean18_censoredSummary</span></span>
+<span><span class="co">#&gt;        TADA.CharacteristicName TADA.ResultMeasure.MeasureUnitCode</span></span>
+<span><span class="co">#&gt; 1                      AMMONIA                                   </span></span>
+<span><span class="co">#&gt; 2                      AMMONIA                               UG/L</span></span>
+<span><span class="co">#&gt; 3                 ENTEROCOCCUS                          MPN/100ML</span></span>
+<span><span class="co">#&gt; 4                 ENTEROCOCCUS                          MPN/100ML</span></span>
+<span><span class="co">#&gt; 5             ESCHERICHIA COLI                          MPN/100ML</span></span>
+<span><span class="co">#&gt; 6             ESCHERICHIA COLI                               UG/L</span></span>
+<span><span class="co">#&gt; 7               FECAL COLIFORM                          CFU/100ML</span></span>
+<span><span class="co">#&gt; 8               FECAL COLIFORM                               UG/L</span></span>
+<span><span class="co">#&gt; 9                     NITROGEN                               MG/L</span></span>
+<span><span class="co">#&gt; 10                    NITROGEN                               MG/L</span></span>
+<span><span class="co">#&gt; 11 TOTAL NITROGEN, MIXED FORMS                               MG/L</span></span>
+<span><span class="co">#&gt;    TADA.ResultSampleFractionText TADA.MethodSpecificationName Sample_Count</span></span>
+<span><span class="co">#&gt; 1                     UNFILTERED                         AS N            5</span></span>
+<span><span class="co">#&gt; 2                          TOTAL                       AS NH3           36</span></span>
+<span><span class="co">#&gt; 3                          TOTAL                         &lt;NA&gt;           21</span></span>
+<span><span class="co">#&gt; 4                           &lt;NA&gt;                         &lt;NA&gt;         2552</span></span>
+<span><span class="co">#&gt; 5                           &lt;NA&gt;                         &lt;NA&gt;          195</span></span>
+<span><span class="co">#&gt; 6                           &lt;NA&gt;                         &lt;NA&gt;           55</span></span>
+<span><span class="co">#&gt; 7                           &lt;NA&gt;                         &lt;NA&gt;         2934</span></span>
+<span><span class="co">#&gt; 8                           &lt;NA&gt;                         &lt;NA&gt;           55</span></span>
+<span><span class="co">#&gt; 9                      SUSPENDED                         &lt;NA&gt;          185</span></span>
+<span><span class="co">#&gt; 10                    UNFILTERED                         AS N           59</span></span>
+<span><span class="co">#&gt; 11                         TOTAL                         AS N           30</span></span>
+<span><span class="co">#&gt;    Censored_Count Percent_Censored Censoring_Levels TADA.CensoredData.Flag</span></span>
+<span><span class="co">#&gt; 1               3        60.000000                1             Non-Detect</span></span>
+<span><span class="co">#&gt; 2              27        75.000000                1             Non-Detect</span></span>
+<span><span class="co">#&gt; 3               4        19.047619                2             Non-Detect</span></span>
+<span><span class="co">#&gt; 4            1153        45.180251                3             Non-Detect</span></span>
+<span><span class="co">#&gt; 5              14         7.179487                1             Non-Detect</span></span>
+<span><span class="co">#&gt; 6              11        20.000000                1             Non-Detect</span></span>
+<span><span class="co">#&gt; 7             576        19.631902               11             Non-Detect</span></span>
+<span><span class="co">#&gt; 8              15        27.272727                1             Non-Detect</span></span>
+<span><span class="co">#&gt; 9              51        27.567568                1             Non-Detect</span></span>
+<span><span class="co">#&gt; 10             48        81.355932                1             Non-Detect</span></span>
+<span><span class="co">#&gt; 11             11        36.666667                1             Non-Detect</span></span>
+<span><span class="co">#&gt;                                  TADA.Censored.Note</span></span>
+<span><span class="co">#&gt; 1                Robust Regression Order Statistics</span></span>
+<span><span class="co">#&gt; 2                Robust Regression Order Statistics</span></span>
+<span><span class="co">#&gt; 3                                      Kaplan-Meier</span></span>
+<span><span class="co">#&gt; 4                                      Kaplan-Meier</span></span>
+<span><span class="co">#&gt; 5                Robust Regression Order Statistics</span></span>
+<span><span class="co">#&gt; 6                Robust Regression Order Statistics</span></span>
+<span><span class="co">#&gt; 7                                      Kaplan-Meier</span></span>
+<span><span class="co">#&gt; 8                Robust Regression Order Statistics</span></span>
+<span><span class="co">#&gt; 9                Robust Regression Order Statistics</span></span>
+<span><span class="co">#&gt; 10 Percent censored too high for estimation methods</span></span>
+<span><span class="co">#&gt; 11               Robust Regression Order Statistics</span></span>
+<span></span>
+<span><span class="va">TADAProfileClean18</span> <span class="op">=</span> <span class="fu"><a href="../reference/simpleCensoredMethods.html">simpleCensoredMethods</a></span><span class="op">(</span><span class="va">TADAProfileClean17</span>, nd_method <span class="op">=</span> <span class="st">"multiplier"</span>, nd_multiplier <span class="op">=</span> <span class="fl">0.5</span>, od_method <span class="op">=</span> <span class="st">"as-is"</span>, od_multiplier <span class="op">=</span> <span class="st">"null"</span><span class="op">)</span></span>
+<span><span class="co">#&gt; Warning in idCensoredData(.data): DetectionQuantitationLimitTypeName column</span></span>
+<span><span class="co">#&gt; dataset contains value(s) Historical Lower Reporting Limit which is/are not</span></span>
+<span><span class="co">#&gt; represented in the DetectionQuantitationLimitTypeName WQX domain table. These</span></span>
+<span><span class="co">#&gt; data records are placed under the TADA.CensoredData.Flag: Censored but not</span></span>
+<span><span class="co">#&gt; Categorized, and will not be used in censored data handling methods. Please</span></span>
+<span><span class="co">#&gt; contact TADA administrators to resolve.</span></span>
+<span></span>
+<span><span class="co">#&gt; Warning in idCensoredData(.data): 7 records in supplied dataset have</span></span>
+<span><span class="co">#&gt; conflicting detection condition and detection limit type information. These</span></span>
+<span><span class="co">#&gt; records will not be included in detection limit handling calculations.</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="characteristic-specific-analyses-below">Characteristic Specific Analyses Below<a class="anchor" aria-label="anchor" href="#characteristic-specific-analyses-below"></a>
@@ -1057,7 +1169,7 @@ The two columns TADA focuses on to define and flag censored data are
 <span><span class="fu"><a href="https://rdrr.io/r/base/table.html" class="external-link">table</a></span><span class="op">(</span><span class="va">SingleCharacteristic</span><span class="op">$</span><span class="va">ResultDetectionConditionText</span><span class="op">)</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Not Detected </span></span>
-<span><span class="co">#&gt;          100</span></span>
+<span><span class="co">#&gt;           99</span></span>
 <span></span>
 <span><span class="co"># review number of results that are NA's</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/NA.html" class="external-link">is.na</a></span><span class="op">(</span><span class="va">SingleCharacteristic</span><span class="op">$</span><span class="va">TADA.ResultMeasureValue</span><span class="op">)</span><span class="op">)</span></span>
@@ -1070,7 +1182,7 @@ The two columns TADA focuses on to define and flag censored data are
 <code class="sourceCode R"><span><span class="co"># add na.rm = TRUE to the function above to strip NA values before the mean computation proceeds</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">SingleCharacteristic</span><span class="op">$</span><span class="va">TADA.ResultMeasureValue</span>, na.rm <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span><span class="co">#&gt;    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. </span></span>
-<span><span class="co">#&gt;  0.0300  0.0365  0.0980  0.3544  0.4020  3.7400</span></span>
+<span><span class="co">#&gt;  0.0300  0.0370  0.1000  0.3580  0.4248  3.7400</span></span>
 <span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/hist.html" class="external-link">hist</a></span><span class="op">(</span><span class="va">SingleCharacteristic</span><span class="op">$</span><span class="va">TADA.ResultMeasureValue</span>, main <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/unique.html" class="external-link">unique</a></span><span class="op">(</span><span class="va">SingleCharacteristic</span><span class="op">$</span><span class="va">TADA.CharacteristicName</span><span class="op">)</span>, xlab <span class="op">=</span> <span class="st">"Values"</span><span class="op">)</span></span></code></pre></div>
 <p><img src="WQPDataHarmonization_files/figure-html/unnamed-chunk-32-1.png" width="700"></p>

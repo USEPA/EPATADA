@@ -121,6 +121,9 @@
     <loc>usepa.github.io/TADA/reference/HarmonizeData.html</loc>
   </url>
   <url>
+    <loc>usepa.github.io/TADA/reference/idCensoredData.html</loc>
+  </url>
+  <url>
     <loc>usepa.github.io/TADA/reference/identifyPotentialDuplicates.html</loc>
   </url>
   <url>
@@ -182,6 +185,9 @@
   </url>
   <url>
     <loc>usepa.github.io/TADA/reference/station.html</loc>
+  </url>
+  <url>
+    <loc>usepa.github.io/TADA/reference/summarizeCensoredData.html</loc>
   </url>
   <url>
     <loc>usepa.github.io/TADA/reference/SummarizeCharacteristics.html</loc>
