@@ -47,8 +47,8 @@ GetWQXCharValRef <- function() {
     ))
   # replace "Status" values with Valid, Invalid, Unknown
   WQXcharValRef["Status"][WQXcharValRef["Status"] == "Accepted"] <- "Valid"
-  WQXcharValRef["Status"][WQXcharValRef["Status"] == "Rejected"] <- "Invalid"
-  WQXcharValRef["Status"][WQXcharValRef["Status"] == "Nonstandardized" |
+  WQXcharValRef["Status"][WQXcharValRef["Status"] == "Rejected "] <- "Invalid"
+  WQXcharValRef["Status"][WQXcharValRef["Status"] == "NonStandardized" |
     WQXcharValRef["Status"] == "InvalidMediaUnit" |
     WQXcharValRef["Status"] == "InvalidChar" |
     WQXcharValRef["Status"] == "MethodNeeded"] <- "Nonstandardized"

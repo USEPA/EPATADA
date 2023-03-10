@@ -222,7 +222,7 @@ query inputs.
 # TADAProfile2 <- TADAdataRetrieval(ProjectIdentifier = "Anchorage Bacteria 20-21")
 
 # another example query for Alaska. We will move forward with this example in the remainder of the vignette
-TADAProfile <- TADAdataRetrieval(statecode = "AK", characteristicName = c("Fecal Coliform", "Escherichia coli", "Enterococcus", "Ammonia", "Nitrate", "Nitrogen"), startDate = "2018-05-01")
+TADAProfile <- TADAdataRetrieval(statecode = "NM", characteristicName = c("Ammonia", "Nitrate", "Nitrogen"), startDate = "2020-05-01")
 
 ```
 

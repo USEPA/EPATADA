@@ -103,8 +103,8 @@ ConvertResultUnits <- function(.data, transform = TRUE) {
     
     # Calculate deg F and deg C, replace Conversion factor values
     flag.data <- flag.data %>%
-      # apply function row by row
-      dplyr::rowwise() %>%
+      # apply function row by row - EDH - I don't think this is needed (I think default behavior of case_when is row by row)?
+      # dplyr::rowwise() %>%
       # create flag column
       dplyr::mutate(WQX.ConversionFactor = dplyr::case_when(
         TADA.ResultMeasure.MeasureUnitCode == "deg F" ~
@@ -117,8 +117,8 @@ ConvertResultUnits <- function(.data, transform = TRUE) {
   
   # add WQX.ResultMeasureValue.UnitConversion column
   flag.data <- flag.data %>%
-    # apply function row by row
-    dplyr::rowwise() %>%
+    # apply function row by row - EDH - I don't think this is needed (I think default behavior of case_when is row by row)?
+    # dplyr::rowwise() %>%
     # create flag column
     dplyr::mutate(WQX.ResultMeasureValue.UnitConversion = dplyr::case_when(
       (!is.na(TADA.ResultMeasureValue) & !is.na(WQX.TargetUnit)) ~ as.character("Convert"),
@@ -157,8 +157,8 @@ ConvertResultUnits <- function(.data, transform = TRUE) {
     # }
     # Transform result measure value to Target Unit only if target unit exists
     clean.data <- flag.data %>%
-      # apply function row by row
-      dplyr::rowwise() %>%
+      # apply function row by row - EDH - I don't think this is needed (I think default behavior of case_when is row by row)?
+      # dplyr::rowwise() %>%
       # apply conversions where there is a target unit, use original value if no target unit
       dplyr::mutate(TADA.ResultMeasureValue = dplyr::case_when(
         is.na(TADA.ResultMeasureValue) ~ TADA.ResultMeasureValue,
@@ -169,8 +169,8 @@ ConvertResultUnits <- function(.data, transform = TRUE) {
     
     # populate ResultMeasure.MeasureUnitCode
     clean.data <- clean.data %>%
-      # apply function row by row
-      dplyr::rowwise() %>%
+      # apply function row by row- EDH - I don't think this is needed (I think default behavior of case_when is row by row)?
+      # dplyr::rowwise() %>%
       # use target unit where there is a target unit, use original unit if no target unit
       dplyr::mutate(TADA.ResultMeasure.MeasureUnitCode = dplyr::case_when(
         !is.na(WQX.TargetUnit) ~ WQX.TargetUnit,
@@ -202,8 +202,8 @@ ConvertResultUnits <- function(.data, transform = TRUE) {
     
     # edit WQX.ResultMeasureValue.UnitConversion column
     clean.data <- clean.data %>%
-      # apply function row by row
-      dplyr::rowwise() %>%
+      # apply function row by row- EDH - I don't think this is needed (I think default behavior of case_when is row by row)?
+      # dplyr::rowwise() %>%
       # create flag column
       dplyr::mutate(WQX.ResultMeasureValue.UnitConversion = dplyr::case_when(
         (!is.na(TADA.ResultMeasureValue) & !is.na(WQX.TargetUnit)) ~ as.character("Converted"),
@@ -827,8 +827,8 @@ HarmonizeData <- function(.data, ref, transform = TRUE, flag = TRUE) {
       # TADA.CharacteristicName
       # replace TADA.CharacteristicName with TADA.SuggestedCharacteristicName
       clean.data <- flag.data %>%
-        # apply function row by row
-        dplyr::rowwise() %>%
+        # apply function row by row- EDH - I don't think this is needed (I think default behavior of case_when is row by row)?
+        # dplyr::rowwise() %>%
         # use TADA suggested name where there is a suggested name, use original name if no suggested name
         dplyr::mutate(TADA.CharacteristicName = dplyr::case_when(
           !is.na(TADA.SuggestedCharacteristicName) ~ TADA.SuggestedCharacteristicName,
@@ -838,8 +838,8 @@ HarmonizeData <- function(.data, ref, transform = TRUE, flag = TRUE) {
       # TADA.ResultSampleFractionText
       # replace ResultSampleFractionText with TADA.SuggestedSampleFraction
       clean.data <- clean.data %>%
-        # apply function row by row
-        dplyr::rowwise() %>%
+        # apply function row by row- EDH - I don't think this is needed (I think default behavior of case_when is row by row)?
+        # dplyr::rowwise() %>%
         # use TADA suggested frac where there is a suggested frac, use original frac if no suggested frac
         dplyr::mutate(TADA.ResultSampleFractionText = dplyr::case_when(
           !is.na(TADA.SuggestedSampleFraction) ~ TADA.SuggestedSampleFraction,
@@ -850,15 +850,15 @@ HarmonizeData <- function(.data, ref, transform = TRUE, flag = TRUE) {
       # ResultMeasure.MeasureUnitCode
       # replace ResultMeasure.MeasureUnitCode with TADA.SuggestedResultUnit
       clean.data <- clean.data %>%
-        # apply function row by row
-        dplyr::rowwise() %>%
+        # apply function row by row- EDH - I don't think this is needed (I think default behavior of case_when is row by row)?
+        # dplyr::rowwise() %>%
         # use TADA suggested unit where there is a suggested unit, use original unit if no suggested unit
         dplyr::mutate(TADA.ResultMeasure.MeasureUnitCode = dplyr::case_when(
           !is.na(TADA.SuggestedResultUnit) ~ TADA.SuggestedResultUnit,
           is.na(TADA.SuggestedResultUnit) ~ TADA.ResultMeasure.MeasureUnitCode
         )) %>%
         # if conversion factor exists, multiply by ResultMeasureValue
-        dplyr::rowwise() %>%
+        # dplyr::rowwise() %>%
         dplyr::mutate(TADA.ResultMeasureValue = dplyr::case_when(
           !is.na(TADA.UnitConversionFactor) ~
             (TADA.UnitConversionFactor * TADA.ResultMeasureValue),
@@ -868,15 +868,15 @@ HarmonizeData <- function(.data, ref, transform = TRUE, flag = TRUE) {
       # TADA.MethodSpecificationName
       # replace MethodSpecificationName with TADA.SuggestedSpeciation
       clean.data <- clean.data %>%
-        # apply function row by row
-        dplyr::rowwise() %>%
+        # apply function row by row- EDH - I don't think this is needed (I think default behavior of case_when is row by row)?
+        # dplyr::rowwise() %>%
         # use TADA suggested spec where there is a suggested spec, use original spec if no suggested spec
         dplyr::mutate(TADA.MethodSpecificationName = dplyr::case_when(
           !is.na(TADA.SuggestedSpeciation) ~ TADA.SuggestedSpeciation,
           is.na(TADA.SuggestedSpeciation) ~ TADA.MethodSpecificationName
         )) %>%
         # if conversion factor exists, multiply by ResultMeasureValue
-        dplyr::rowwise() %>%
+        # dplyr::rowwise() %>%
         dplyr::mutate(TADA.ResultMeasureValue = dplyr::case_when(
           !is.na(TADA.SpeciationConversionFactor) ~
             (TADA.SpeciationConversionFactor * TADA.ResultMeasureValue),
