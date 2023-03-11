@@ -2,7 +2,7 @@
 % Please edit documentation in R/Utilities.R
 \name{MeasureValueSpecialCharacters}
 \alias{MeasureValueSpecialCharacters}
-\title{Check for Special Characters in Measure Value Fields}
+\title{Check for Special Characters in Measure Value Fields - Deprecated}
 \usage{
 MeasureValueSpecialCharacters(.data)
 }
@@ -23,5 +23,5 @@ ResultMeasureValue and DetectionQuantitationLimitMeasure.MeasureValue
 fields and appends flag columns indicating if special characters are included
 and if so, what the special characters are. The ResultMeasureValue and
 DetectionQuantitationLimitMeasure.MeasureValue fields are also converted to
-class numeric.
+class numeric. This function is deprecated, please use ConvertSpecialChars() function.
 }
