@@ -4,13 +4,13 @@ test_that("No NA's in dependent flag columns", {
   testdat = TADAdataRetrieval(statecode = "UT", startDate = twoago, characteristicName = c("Nitrate","Copper"), sampleMedia = "Water")
   testdat = ConvertResultUnits(testdat, transform = TRUE)
   
-  testdat = InvalidFraction(testdat, clean = FALSE, errorsonly=FALSE)
+  testdat = suppressWarnings(InvalidFraction(testdat, clean = FALSE, errorsonly=FALSE))
   expect_false(any(is.na(testdat$TADA.SampleFraction.Flag)))
   
-  testdat = InvalidSpeciation(testdat, clean = "none", errorsonly=FALSE)
+  testdat = suppressWarnings(InvalidSpeciation(testdat, clean = "none", errorsonly=FALSE))
   expect_false(any(is.na(testdat$TADA.MethodSpeciation.Flag)))
   
-  testdat = InvalidResultUnit(testdat, clean = "none", errorsonly=FALSE)
+  testdat = suppressWarnings(InvalidResultUnit(testdat, clean = "none", errorsonly=FALSE))
   expect_false(any(is.na(testdat$TADA.ResultUnit.Flag)))
   })
 

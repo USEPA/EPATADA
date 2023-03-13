@@ -72,7 +72,7 @@
       <img src="" class="logo" alt=""><h1>WQP Data Harmonization</h1>
                         <h4 data-toc-skip class="author">TADA Team</h4>
             
-            <h4 data-toc-skip class="date">2023-03-11</h4>
+            <h4 data-toc-skip class="date">2023-03-13</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/USEPA/TADA/blob/HEAD/vignettes/WQPDataHarmonization.Rmd" class="external-link"><code>vignettes/WQPDataHarmonization.Rmd</code></a></small>
       <div class="d-none name"><code>WQPDataHarmonization.Rmd</code></div>
@@ -462,8 +462,8 @@ water data only).</p>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span> ENTEROCOCCUS                179      <span style="text-decoration: underline;">2</span>761</span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span> ESCHERICHIA COLI             34       286</span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">4</span> FECAL COLIFORM              234      <span style="text-decoration: underline;">3</span>271</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">5</span> NITRATE                      48       516</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">6</span> NITROGEN                     54       291</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">5</span> NITRATE                      49       554</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">6</span> NITROGEN                     54       292</span></span>
 <span></span>
 <span><span class="co"># Remove data for non-water media types</span></span>
 <span><span class="va">TADAProfile</span> <span class="op">&lt;-</span> <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">TADAProfile</span>, <span class="va">TADA.ActivityMediaName</span> <span class="op">==</span> <span class="st">"WATER"</span><span class="op">)</span></span></code></pre></div>
@@ -871,12 +871,12 @@ data flags</p></li>
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/FilterFieldReview.html">FilterFieldReview</a></span><span class="op">(</span><span class="st">"ActivityTypeCode"</span>, <span class="va">TADAProfileClean13</span><span class="op">)</span></span></code></pre></div>
 <p><img src="WQPDataHarmonization_files/figure-html/unnamed-chunk-21-1.png" width="576"></p>
 <pre><code><span><span class="co">#&gt;                                FieldValue Count</span></span>
-<span><span class="co">#&gt; 8                          Sample-Routine  6678</span></span>
+<span><span class="co">#&gt; 8                          Sample-Routine  6713</span></span>
 <span><span class="co">#&gt; 7  Quality Control Sample-Field Replicate   339</span></span>
 <span><span class="co">#&gt; 4  Quality Control Sample-Blind Duplicate    70</span></span>
 <span><span class="co">#&gt; 3 Quality Control Field Replicate Msr/Obs    54</span></span>
 <span><span class="co">#&gt; 1                           Field Msr/Obs    22</span></span>
-<span><span class="co">#&gt; 2                          Not determined     2</span></span>
+<span><span class="co">#&gt; 2                          Not determined     6</span></span>
 <span><span class="co">#&gt; 5  Quality Control Sample-Equipment Blank     2</span></span>
 <span><span class="co">#&gt; 6      Quality Control Sample-Field Blank     2</span></span></code></pre>
 <p>The ActivityTypeCode field has four unique values – “Sample-Routine”,
@@ -901,7 +901,7 @@ ResultStatusIdentifier field.</p>
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/FilterFieldReview.html">FilterFieldReview</a></span><span class="op">(</span><span class="st">"ActivityMediaSubdivisionName"</span>, <span class="va">TADAProfileClean14</span><span class="op">)</span></span></code></pre></div>
 <p><img src="WQPDataHarmonization_files/figure-html/unnamed-chunk-23-1.png" width="576"></p>
 <pre><code><span><span class="co">#&gt;      FieldValue Count</span></span>
-<span><span class="co">#&gt; 1 Surface Water  4234</span></span></code></pre>
+<span><span class="co">#&gt; 1 Surface Water  4273</span></span></code></pre>
 <p>The ActivityMediaSubdivisionName field has unique values. In this
 example, we show how a user could leverage this function to remove
 specific values from their dataframe.</p>
@@ -923,8 +923,8 @@ space on the page)</p>
 <span><span class="co">#&gt;         FieldValue Count</span></span>
 <span><span class="co">#&gt; 4   FECAL COLIFORM  3042</span></span>
 <span><span class="co">#&gt; 2     ENTEROCOCCUS  2577</span></span>
-<span><span class="co">#&gt; 5          NITRATE   502</span></span>
-<span><span class="co">#&gt; 6         NITROGEN   277</span></span>
+<span><span class="co">#&gt; 5          NITRATE   540</span></span>
+<span><span class="co">#&gt; 6         NITROGEN   278</span></span>
 <span><span class="co">#&gt; 3 ESCHERICHIA COLI   263</span></span>
 <span><span class="co">#&gt; 1          AMMONIA    41</span></span></code></pre></div>
 <p>Next, select a parameter. Let’s explore the fields associated with
@@ -969,7 +969,7 @@ certain values from the HydrologicEvent field.</p>
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/FilterParFieldReview.html">FilterParFieldReview</a></span><span class="op">(</span><span class="st">"HydrologicEvent"</span>, <span class="va">TADAProfileClean15</span>, <span class="st">"NITROGEN"</span><span class="op">)</span></span></code></pre></div>
 <p><img src="WQPDataHarmonization_files/figure-html/unnamed-chunk-27-1.png" width="576"></p>
 <pre><code><span><span class="co">#&gt;        FieldValue Count</span></span>
-<span><span class="co">#&gt; 3  Routine sample   174</span></span>
+<span><span class="co">#&gt; 3  Routine sample   175</span></span>
 <span><span class="co">#&gt; 5 Under ice cover     9</span></span>
 <span><span class="co">#&gt; 1           Flood     3</span></span>
 <span><span class="co">#&gt; 2  Not applicable     1</span></span>
@@ -1124,7 +1124,7 @@ detection limit (half the detection limit). Please review
 <span><span class="co">#&gt; 6                           &lt;NA&gt;                         &lt;NA&gt;           55</span></span>
 <span><span class="co">#&gt; 7                           &lt;NA&gt;                         &lt;NA&gt;         2934</span></span>
 <span><span class="co">#&gt; 8                           &lt;NA&gt;                         &lt;NA&gt;           55</span></span>
-<span><span class="co">#&gt; 9                      SUSPENDED                         &lt;NA&gt;          185</span></span>
+<span><span class="co">#&gt; 9                      SUSPENDED                         &lt;NA&gt;          186</span></span>
 <span><span class="co">#&gt; 10                    UNFILTERED                         AS N           59</span></span>
 <span><span class="co">#&gt; 11                         TOTAL                         AS N           30</span></span>
 <span><span class="co">#&gt;    Censored_Count Percent_Censored Censoring_Levels TADA.CensoredData.Flag</span></span>
@@ -1136,7 +1136,7 @@ detection limit (half the detection limit). Please review
 <span><span class="co">#&gt; 6              11        20.000000                1             Non-Detect</span></span>
 <span><span class="co">#&gt; 7             576        19.631902               11             Non-Detect</span></span>
 <span><span class="co">#&gt; 8              15        27.272727                1             Non-Detect</span></span>
-<span><span class="co">#&gt; 9              51        27.567568                1             Non-Detect</span></span>
+<span><span class="co">#&gt; 9              51        27.419355                1             Non-Detect</span></span>
 <span><span class="co">#&gt; 10             48        81.355932                1             Non-Detect</span></span>
 <span><span class="co">#&gt; 11             11        36.666667                1             Non-Detect</span></span>
 <span><span class="co">#&gt;                                  TADA.Censored.Note</span></span>
@@ -1190,7 +1190,7 @@ detection limit (half the detection limit). Please review
 <code class="sourceCode R"><span><span class="co"># add na.rm = TRUE to the function above to strip NA values before the mean computation proceeds</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">SingleCharacteristic</span><span class="op">$</span><span class="va">TADA.ResultMeasureValue</span>, na.rm <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span><span class="co">#&gt;    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. </span></span>
-<span><span class="co">#&gt;  0.0300  0.0370  0.1000  0.3580  0.4248  3.7400</span></span>
+<span><span class="co">#&gt;  0.0300  0.0370  0.0980  0.3569  0.4210  3.7400</span></span>
 <span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/hist.html" class="external-link">hist</a></span><span class="op">(</span><span class="va">SingleCharacteristic</span><span class="op">$</span><span class="va">TADA.ResultMeasureValue</span>, main <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/unique.html" class="external-link">unique</a></span><span class="op">(</span><span class="va">SingleCharacteristic</span><span class="op">$</span><span class="va">TADA.CharacteristicName</span><span class="op">)</span>, xlab <span class="op">=</span> <span class="st">"Values"</span><span class="op">)</span></span></code></pre></div>
 <p><img src="WQPDataHarmonization_files/figure-html/unnamed-chunk-32-1.png" width="700"></p>

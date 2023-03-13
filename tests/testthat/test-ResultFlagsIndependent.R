@@ -68,7 +68,7 @@ test_that("No NA's in independent flag columns", {
   testdat = TADAdataRetrieval(statecode = "UT", startDate = twoago, characteristicName = c("Nitrate","Copper"), sampleMedia = "Water")
   testdat = ConvertResultUnits(testdat, transform = TRUE)
   
-  testdat = InvalidMethod(testdat, clean = FALSE, errorsonly=FALSE)
+  testdat = suppressWarnings(InvalidMethod(testdat, clean = FALSE, errorsonly=FALSE))
   expect_false(any(is.na(testdat$TADA.AnalyticalMethod.Flag)))
   
   testdat = AggregatedContinuousData(testdat, clean = FALSE, errorsonly=FALSE)
