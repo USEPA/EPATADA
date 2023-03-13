@@ -53,7 +53,7 @@ InvalidFraction <- function(.data, clean = TRUE, errorsonly = FALSE) {
     stop("Function not executed because clean and errorsonly cannot both be TRUE")
   }
   
-  # execute function after checks are passed
+  # execute function after checks are passed - removes flag column in case reference table has changed.
   if (("TADA.SampleFraction.Flag" %in% colnames(.data)) == TRUE) {
     .data <- dplyr::select(.data, -TADA.SampleFraction.Flag)
   }
@@ -76,32 +76,18 @@ InvalidFraction <- function(.data, clean = TRUE, errorsonly = FALSE) {
   # rename NA values to Nonstandardized in TADA.SampleFraction.Flag column
   check.data["TADA.SampleFraction.Flag"][is.na(check.data["TADA.SampleFraction.Flag"])] <- "Nonstandardized"
   
-  # EDH replaced with function OrderTADACols at end
-  # # reorder column names to match .data
-  # # get .data column names
-  # col.order <- colnames(.data)
-  # # add WQX.SampleFractionValidity column to the list
-  # col.order <- append(col.order, "TADA.SampleFraction.Flag")
-  # # reorder columns in check.data
-  # check.data <- check.data[, col.order]
-  # # place flag column next to relevant fields
-  # check.data <- check.data %>%
-  #   dplyr::relocate("TADA.SampleFraction.Flag",
-  #                   .after = "ResultSampleFractionText"
-  #   )
-  
   # if all rows are "Valid", return input unchanged
   if (any(c("Nonstandardized", "Invalid") %in%
           unique(check.data$TADA.SampleFraction.Flag)) == FALSE) {
     if (errorsonly == FALSE) {
-      print("No changes were made, because we did not find any invalid fraction/characteristic combinations in your dataframe")
-      .data = OrderTADACols(.data)
-      return(.data)
+      print("All characteristic/fraction combinations are valid in your dataframe. Returning input dataframe with TADA.SampleFraction.Flag column for tracking.")
+      check.data = OrderTADACols(check.data)
+      return(check.data)
     }
     if (errorsonly == TRUE) {
       print("This dataframe is empty because we did not find any invalid fraction/characteristic combinations in your dataframe")
       empty.data <- dplyr::filter(check.data, TADA.SampleFraction.Flag == "Invalid")
-      empty.data <- dplyr::select(empty.data, -TADA.SampleFraction.Flag)
+      # empty.data <- dplyr::select(empty.data, -TADA.SampleFraction.Flag)
       empty.data = OrderTADACols(empty.data)
       return(empty.data)
     }
@@ -109,7 +95,7 @@ InvalidFraction <- function(.data, clean = TRUE, errorsonly = FALSE) {
   
   # flagged output, all data
   if (clean == FALSE & errorsonly == FALSE) {
-    warning("Metadata transformations may be adversely affected by choosing to retain 'Invalid' fraction. In order to ensure transformation functions will run properly, set clean = TRUE.")
+    warning("Metadata transformations may be adversely affected by choosing to retain 'Invalid' fraction. Check these records before proceeding with transformations and/or set clean = TRUE.")
     check.data = OrderTADACols(check.data)
     return(check.data)
       }
@@ -120,7 +106,7 @@ InvalidFraction <- function(.data, clean = TRUE, errorsonly = FALSE) {
     clean.data <- dplyr::filter(check.data, TADA.SampleFraction.Flag != "Invalid")
     
     # remove WQX.SampleFractionValidity column
-    clean.data <- dplyr::select(clean.data, -TADA.SampleFraction.Flag)
+    # clean.data <- dplyr::select(clean.data, -TADA.SampleFraction.Flag)
     clean.data = OrderTADACols(clean.data)
     return(clean.data)
   }
@@ -209,7 +195,7 @@ InvalidSpeciation <- function(.data, clean = c("invalid_only", "nonstandardized_
   # check that clean is either "invalid_only", "nonstandardized_only", "both", or "none"
   clean <- match.arg(clean)
 
-  # execute function after checks are passed
+  # execute function after checks are passed - removes flag column in case reference table has changed.
   if (("TADA.MethodSpeciation.Flag" %in% colnames(.data)) == TRUE) {
     .data <- dplyr::select(.data, -TADA.MethodSpeciation.Flag)
   }
@@ -230,31 +216,17 @@ InvalidSpeciation <- function(.data, clean = c("invalid_only", "nonstandardized_
   # rename NA values to Nonstandardized in TADA.MethodSpeciation.Flag column
   check.data["TADA.MethodSpeciation.Flag"][is.na(check.data["TADA.MethodSpeciation.Flag"])] <- "Nonstandardized"
   
-  # EDH replaced with OrderTADACols at end of function
-  # # reorder column names to match .data
-  # # get .data column names
-  # col.order <- colnames(.data)
-  # # add TADA.MethodSpeciation.Flag column to the list
-  # col.order <- append(col.order, "TADA.MethodSpeciation.Flag")
-  # # reorder columns in check.data
-  # check.data <- check.data[, col.order]
-  # # place flag columns next to relevant fields
-  # check.data <- check.data %>%
-  #   dplyr::relocate("TADA.MethodSpeciation.Flag",
-  #                   .after = "MethodSpecificationName"
-  #   )
-  
-  # if all rows are "Valid", return input unchanged
+  # if all rows are "Valid", return input with flag column
   if (any(c("Nonstandardized", "Invalid") %in%
           unique(check.data$TADA.MethodSpeciation.Flag)) == FALSE) {
-    print("All data is valid, therefore the function cannot be applied.")
-    .data = OrderTADACols(.data)
+    print("All characteristic/method speciation combinations are valid in your dataframe. Returning input dataframe with TADA.MethodSpeciation.Flag column for tracking.")
+    check.data = OrderTADACols(check.data)
     return(.data)
   }
   
   # flagged output, all data
   if (clean == "none" & errorsonly == FALSE) {
-    warning("Metadata transformations may be adversely affected by choosing to retain 'Invalid' speciation. In order to ensure transformation functions will run properly, set clean = 'invalid_only' or 'both'.")
+    warning("Metadata transformations may be adversely affected by choosing to retain 'Invalid' speciation. Check these records before proceeding with transformations and/or set clean = 'invalid_only' or 'both'.")
   }
   
   # when clean = "invalid_only"
@@ -294,7 +266,7 @@ InvalidSpeciation <- function(.data, clean = c("invalid_only", "nonstandardized_
     # if there are no errors
     if (nrow(error.data) == 0) {
       print("This dataframe is empty because either we did not find any invalid/nonstandardized characteristic-method speciation combinations or they were all filtered out")
-      error.data <- dplyr::select(error.data, -TADA.MethodSpeciation.Flag)
+      # error.data <- dplyr::select(error.data, -TADA.MethodSpeciation.Flag)
     }
     error.data = OrderTADACols(error.data)
     return(error.data)
@@ -377,7 +349,7 @@ InvalidResultUnit <- function(.data, clean = c("invalid_only", "nonstandardized_
   # check that clean is either "invalid_only", "nonstandardized_only", "both", or "none"
   clean <- match.arg(clean)
 
-  # execute function after checks are passed
+  # execute function after checks are passed - removes flag column in case reference table has changed.
   if (("TADA.ResultUnit.Flag" %in% colnames(.data)) == TRUE) {
     .data <- dplyr::select(.data, -TADA.ResultUnit.Flag)
   }
@@ -398,31 +370,17 @@ InvalidResultUnit <- function(.data, clean = c("invalid_only", "nonstandardized_
   # rename NA values to Nonstandardized in WQX.ResultUnitValidity column
   check.data["TADA.ResultUnit.Flag"][is.na(check.data["TADA.ResultUnit.Flag"])] <- "Nonstandardized"
   
-  # EDH replaced with OrderTADACols at end of function
-  # # reorder column names to match .data
-  # # get .data column names
-  # col.order <- colnames(.data)
-  # # add TADA.ResultUnit.Flag column to the list
-  # col.order <- append(col.order, "TADA.ResultUnit.Flag")
-  # # reorder columns in check.data
-  # check.data <- check.data[, col.order]
-  # # place flag columns next to relevant fields
-  # check.data <- check.data %>%
-  #   dplyr::relocate("TADA.ResultUnit.Flag",
-  #                   .after = "ResultMeasure.MeasureUnitCode"
-  #   )
-  
-  # if all rows are "Valid", return input unchanged
+  # if all rows are "Valid", return input with flag column
   if (any(c("Nonstandardized", "Invalid") %in%
           unique(check.data$TADA.ResultUnit.Flag)) == FALSE) {
-    print("All data are valid, therefore the function cannot be applied.")
-    .data = OrderTADACols(.data)
-    return(.data)
+    print("All characteristic/unit combinations are valid in your dataframe. Returning input dataframe with TADA.ResultUnit.Flag column for tracking.")
+    check.data = OrderTADACols(.data)
+    return(check.data)
   }
   
   # flagged output, all data
   if (clean == "none" & errorsonly == FALSE) {
-    warning("Metadata transformations may be adversely affected by choosing to retain 'Invalid' result units. In order to ensure transformation functions will run properly, set clean = 'invalid_only' or 'both'.")
+    warning("Metadata transformations may be adversely affected by choosing to retain 'Invalid' result units. Check these records before proceeding with transformations and/or set clean = 'invalid_only' or 'both'.")
   }
   
   # when clean = "invalid_only"
@@ -462,7 +420,7 @@ InvalidResultUnit <- function(.data, clean = c("invalid_only", "nonstandardized_
     # if there are no errors
     if (nrow(error.data) == 0) {
       print("This dataframe is empty because either we did not find any invalid/nonstandardized characteristic-media-result unit combinations or they were all filtered out")
-      error.data <- dplyr::select(error.data, -TADA.ResultUnit.Flag)
+      # error.data <- dplyr::select(error.data, -TADA.ResultUnit.Flag)
     }
     error.data = OrderTADACols(error.data)
     return(error.data)
