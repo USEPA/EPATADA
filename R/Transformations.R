@@ -103,8 +103,6 @@ ConvertResultUnits <- function(.data, transform = TRUE) {
     
     # Calculate deg F and deg C, replace Conversion factor values
     flag.data <- flag.data %>%
-      # apply function row by row - EDH - I don't think this is needed (I think default behavior of case_when is row by row)?
-      # dplyr::rowwise() %>%
       # create flag column
       dplyr::mutate(WQX.ConversionFactor = dplyr::case_when(
         TADA.ResultMeasure.MeasureUnitCode == "deg F" ~
@@ -117,8 +115,6 @@ ConvertResultUnits <- function(.data, transform = TRUE) {
   
   # add WQX.ResultMeasureValue.UnitConversion column
   flag.data <- flag.data %>%
-    # apply function row by row - EDH - I don't think this is needed (I think default behavior of case_when is row by row)?
-    # dplyr::rowwise() %>%
     # create flag column
     dplyr::mutate(WQX.ResultMeasureValue.UnitConversion = dplyr::case_when(
       (!is.na(TADA.ResultMeasureValue) & !is.na(WQX.TargetUnit)) ~ as.character("Convert"),
@@ -146,19 +142,8 @@ ConvertResultUnits <- function(.data, transform = TRUE) {
   }
   
   if (transform == TRUE) {
-    # 
-    # # Duplicate unit columns, rename with .Original suffix
-    # if (("ResultMeasureUnitCode.Original" %in% colnames(flag.data)) == FALSE) {
-    #   flag.data$ResultMeasureUnitCode.Original <- flag.data$ResultMeasure.MeasureUnitCode
-    # }
-    # if (("DetectionLimitMeasureUnitCode.Original" %in% colnames(flag.data)) == FALSE) {
-    #   flag.data$DetectionLimitMeasureUnitCode.Original <-
-    #     flag.data$DetectionQuantitationLimitMeasure.MeasureUnitCode
-    # }
     # Transform result measure value to Target Unit only if target unit exists
     clean.data <- flag.data %>%
-      # apply function row by row - EDH - I don't think this is needed (I think default behavior of case_when is row by row)?
-      # dplyr::rowwise() %>%
       # apply conversions where there is a target unit, use original value if no target unit
       dplyr::mutate(TADA.ResultMeasureValue = dplyr::case_when(
         is.na(TADA.ResultMeasureValue) ~ TADA.ResultMeasureValue,
@@ -169,37 +154,12 @@ ConvertResultUnits <- function(.data, transform = TRUE) {
     
     # populate ResultMeasure.MeasureUnitCode
     clean.data <- clean.data %>%
-      # apply function row by row- EDH - I don't think this is needed (I think default behavior of case_when is row by row)?
-      # dplyr::rowwise() %>%
       # use target unit where there is a target unit, use original unit if no target unit
       dplyr::mutate(TADA.ResultMeasure.MeasureUnitCode = dplyr::case_when(
         !is.na(WQX.TargetUnit) ~ WQX.TargetUnit,
         is.na(WQX.TargetUnit) ~ TADA.ResultMeasure.MeasureUnitCode
       ))
-    
-    ## EDH THIS IS COMMENTED OUT BECAUSE WE FILL RV WITH DET LIM VALUES IN AUTOCLEAN
-    # # Transform detection limit measure value to Target Unit only if target unit exists
-    # clean.data <- clean.data %>%
-    #   # apply function row by row
-    #   dplyr::rowwise() %>%
-    #   # apply conversions where there is a target unit, use original value if no target unit
-    #   dplyr::mutate(TADA.DetectionQuantitationLimitMeasure.MeasureValue = dplyr::case_when(
-    #     !is.na(WQX.TargetUnit) ~
-    #       (TADA.DetectionQuantitationLimitMeasure.MeasureValue * WQX.ConversionFactor),
-    #     is.na(WQX.TargetUnit) ~ TADA.DetectionQuantitationLimitMeasure.MeasureValue
-    #   ))
-    
-    # populate DetectionQuantitationLimitMeasure.MeasureUnitCode
-    # clean.data <- clean.data %>%
-    #   # apply function row by row
-    #   dplyr::rowwise() %>%
-    #   # use target unit where there is a target unit, use original unit if no target unit
-    #   dplyr::mutate(TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode = dplyr::case_when(
-    #     !is.na(WQX.TargetUnit) ~ WQX.TargetUnit,
-    #     is.na(WQX.TargetUnit) ~ TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode
-    #   ))
-    
-    
+   
     # edit WQX.ResultMeasureValue.UnitConversion column
     clean.data <- clean.data %>%
       # apply function row by row- EDH - I don't think this is needed (I think default behavior of case_when is row by row)?
@@ -210,73 +170,9 @@ ConvertResultUnits <- function(.data, transform = TRUE) {
         TRUE ~ WQX.ResultMeasureValue.UnitConversion
       ))
     
-    ## SEE COMMENT ABOVE
-    # # edit WQX.DetectionLimitMeasureValue.UnitConversion column
-    # clean.data <- clean.data %>%
-    #   # apply function row by row
-    #   dplyr::rowwise() %>%
-    #   # create flag column
-    #   dplyr::mutate(WQX.DetectionLimitMeasureValue.UnitConversion = dplyr::case_when(
-    #     (!is.na(TADA.DetectionQuantitationLimitMeasure.MeasureValue) & !is.na(WQX.TargetUnit)) ~ as.character("Converted"),
-    #     TRUE ~ WQX.DetectionLimitMeasureValue.UnitConversion
-    #   ))
-    
-    
     # remove extraneous columns, fix field names
     clean.data <- clean.data %>%
       dplyr::select(-c("WQX.ConversionFactor", "WQX.TargetUnit"))
-    
-    ## EDH REPLACED CODE BELOW WITH ORDER COLS FNCT AT END
-    # # reorder column names to match .data
-    # # get .data column names
-    # col.order <- colnames(.data)
-    # # add ResultUnitConversion column to the list if flag = TRUE
-    # 
-    # # col.order <- append(col.order, c(
-    # #   "WQX.ResultMeasureValue.UnitConversion",
-    # #   "WQX.DetectionLimitMeasureValue.UnitConversion"
-    # # ))
-    # 
-    # col.order <- append(col.order, c(
-    #   "WQX.ResultMeasureValue.UnitConversion"
-    # ))
-    
-    # # add original units to list if transform = TRUE
-    # if (transform == TRUE) {
-    #   col.order <- append(col.order, c(
-    #     "ResultMeasureUnitCode.Original",
-    #     "DetectionLimitMeasureUnitCode.Original"
-    #   ))
-      
-      # # reorder columns in clean.data
-      # clean.data <- clean.data[, col.order]
-      
-      # place flag columns next to relevant fields
-      # clean.data <- clean.data %>%
-      #   dplyr::relocate("WQX.ResultMeasureValue.UnitConversion",
-      #                   .after = "ResultMeasure.MeasureUnitCode"
-      #   ) 
-      # %>%
-      #   dplyr::relocate("WQX.DetectionLimitMeasureValue.UnitConversion",
-      #                   .after = "DetectionQuantitationLimitMeasure.MeasureUnitCode"
-      #   )
-      
-      # Place original unit columns next to original columns
-      # 
-      # clean.data <- clean.data %>%
-      #   dplyr::relocate("TADA.ResultMeasure.MeasureUnitCode",
-      #                   .after = "ResultMeasure.MeasureUnitCode"
-      #   ) %>%
-      #   dplyr::relocate("TADA.ResultMeasureValue",
-      #                   .after = "ResultMeasureValue"
-      #   ) 
-      # %>%
-      #   dplyr::relocate("TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode",
-      #                   .after = "DetectionQuantitationLimitMeasure.MeasureUnitCode"
-      #   ) %>%
-      #   dplyr::relocate("TADA.DetectionQuantitationLimitMeasure.MeasureValue",
-      #                   .after = "DetectionQuantitationLimitMeasure.MeasureValue"
-      #   )
   }
     # reorder cols
     clean.data = OrderTADACols(clean.data)
@@ -551,7 +447,9 @@ HarmonizationRefTable <- function(.data, download = FALSE) {
   
   # check .data has the required columns
   expected_cols <- c(
-    "TADA.CharacteristicName", "TADA.ResultSampleFractionText",
+    "TADA.CharacteristicName",
+    "TADA.ActivityMediaName",
+    "TADA.ResultSampleFractionText",
     "TADA.MethodSpecificationName",
     "TADA.ResultMeasure.MeasureUnitCode"
     )
@@ -563,16 +461,16 @@ HarmonizationRefTable <- function(.data, download = FALSE) {
   
   # columns to keep from .data if exist
   harmonization_cols <- c(
-    "WQX.SampleFractionValidity", "WQX.MethodSpeciationValidity",
-    "WQX.ResultUnitValidity", "WQX.AnalyticalMethodValidity"
+    "TADA.SampleFraction.Flag", "TADA.MethodSpeciation.Flag",
+    "TADA.ResultUnit.Flag", "TADA.AnalyticalMethod.Flag"
   )
   # join to harmonization table
   # if WQX QA Char Val flags are in .data, include them in the join
   if (all(harmonization_cols %in% colnames(.data)) == TRUE) {
     join.data <- merge(.data[, c(expected_cols, harmonization_cols)],
                        harm.raw,
-                       by.x = expected_cols, 
-                       by.y = expected_cols, # EDH: this was not working with "harmonization cols" because those are not contained in Y
+                       by.x = expected_cols,
+                       by.y = expected_cols, 
                        all.x = TRUE
     )
     # otherwise, execute the join with no additional columns
@@ -748,71 +646,6 @@ HarmonizeData <- function(.data, ref, transform = TRUE, flag = TRUE) {
       ) %>%
       # remove columns with ".y" suffix
       dplyr::select_at(dplyr::vars(-dplyr::ends_with(".y")))
-    
-    ## EDH - commented out because dealt with in orderTADAcols function below
-    # # reorder column names to match .data
-    # # get .data column names
-    # col.order <- colnames(.data)
-    # # add flag columns to the list
-    # col.order <- append(col.order, c(
-    #   "TADA.CharacteristicGroup",
-    #   "CharacteristicNameUserSupplied",
-    #   "TADA.SuggestedCharacteristicName",
-    #   "TADA.CharacteristicNameAssumptions",
-    #   "TADA.SuggestedSampleFraction",
-    #   "TADA.FractionAssumptions",
-    #   "TADA.SuggestedSpeciation",
-    #   "TADA.SpeciationAssumptions",
-    #   "TADA.SpeciationConversionFactor",
-    #   "TADA.SuggestedResultUnit",
-    #   "TADA.UnitConversionFactor",
-    #   "TADA.UnitConversionCoefficient",
-    #   "CombinationValidity",
-    #   "TADA.ComparableDataIdentifier",
-    #   "TADA.TotalN_TotalP_CharacteristicNames_AfterSummation",
-    #   "TADA.TotalN_TotalP_Summation_Identifier",
-    #   "TADA.TotalN_TotalP_ComboLogic"
-    # ))
-    # 
-    # CM removed below on 1/12/2023: working group advised that it is easier
-    # to find new columns if they are added to the END of a dataframe
-    # AND include the work TADA. at the start
-    
-    # reorder columns in flag.data
-    # flag.data <- flag.data[, col.order]
-    
-    # place flag columns next to relevant fields
-    # flag.data <- flag.data %>%
-    #  dplyr::relocate("TADACharacteristicGroup",
-    #    .before = "CharacteristicName"
-    #  ) %>%
-    #  dplyr::relocate(c(
-    #    "CharacteristicNameUserSupplied",
-    #    "TADA.SuggestedCharacteristicName",
-    #    "TADA.CharacteristicNameAssumptions"
-    #  ),
-    #  .after = "CharacteristicName"
-    #  ) %>%
-    #  dplyr::relocate(c(
-    #    "TADA.SuggestedSampleFraction",
-    #    "TADA.FractionAssumptions"
-    #  ),
-    #  .after = "ResultSampleFractionText"
-    #  ) %>%
-    #  dplyr::relocate(c(
-    #    "TADA.SuggestedSpeciation",
-    #    "TADA.SpeciationAssumptions",
-    #    "TADA.SpeciationConversionFactor"
-    #  ),
-    #  .after = "MethodSpecificationName"
-    #  ) %>%
-    #  dplyr::relocate(c(
-    #    "TADA.SuggestedResultUnit",
-    #    "TADA.UnitConversionFactor",
-    #    "TADA.UnitConversionCoefficient"
-    #  ),
-    #  .after = "ResultMeasure.MeasureUnitCode"
-    #  )
 
     # if transform = FALSE and flag = TRUE, return flag.data
     if ((transform == FALSE) & (flag == TRUE)) {
@@ -827,8 +660,6 @@ HarmonizeData <- function(.data, ref, transform = TRUE, flag = TRUE) {
       # TADA.CharacteristicName
       # replace TADA.CharacteristicName with TADA.SuggestedCharacteristicName
       clean.data <- flag.data %>%
-        # apply function row by row- EDH - I don't think this is needed (I think default behavior of case_when is row by row)?
-        # dplyr::rowwise() %>%
         # use TADA suggested name where there is a suggested name, use original name if no suggested name
         dplyr::mutate(TADA.CharacteristicName = dplyr::case_when(
           !is.na(TADA.SuggestedCharacteristicName) ~ TADA.SuggestedCharacteristicName,
@@ -838,8 +669,6 @@ HarmonizeData <- function(.data, ref, transform = TRUE, flag = TRUE) {
       # TADA.ResultSampleFractionText
       # replace ResultSampleFractionText with TADA.SuggestedSampleFraction
       clean.data <- clean.data %>%
-        # apply function row by row- EDH - I don't think this is needed (I think default behavior of case_when is row by row)?
-        # dplyr::rowwise() %>%
         # use TADA suggested frac where there is a suggested frac, use original frac if no suggested frac
         dplyr::mutate(TADA.ResultSampleFractionText = dplyr::case_when(
           !is.na(TADA.SuggestedSampleFraction) ~ TADA.SuggestedSampleFraction,
@@ -850,15 +679,12 @@ HarmonizeData <- function(.data, ref, transform = TRUE, flag = TRUE) {
       # ResultMeasure.MeasureUnitCode
       # replace ResultMeasure.MeasureUnitCode with TADA.SuggestedResultUnit
       clean.data <- clean.data %>%
-        # apply function row by row- EDH - I don't think this is needed (I think default behavior of case_when is row by row)?
-        # dplyr::rowwise() %>%
         # use TADA suggested unit where there is a suggested unit, use original unit if no suggested unit
         dplyr::mutate(TADA.ResultMeasure.MeasureUnitCode = dplyr::case_when(
           !is.na(TADA.SuggestedResultUnit) ~ TADA.SuggestedResultUnit,
           is.na(TADA.SuggestedResultUnit) ~ TADA.ResultMeasure.MeasureUnitCode
         )) %>%
         # if conversion factor exists, multiply by ResultMeasureValue
-        # dplyr::rowwise() %>%
         dplyr::mutate(TADA.ResultMeasureValue = dplyr::case_when(
           !is.na(TADA.UnitConversionFactor) ~
             (TADA.UnitConversionFactor * TADA.ResultMeasureValue),
@@ -868,15 +694,12 @@ HarmonizeData <- function(.data, ref, transform = TRUE, flag = TRUE) {
       # TADA.MethodSpecificationName
       # replace MethodSpecificationName with TADA.SuggestedSpeciation
       clean.data <- clean.data %>%
-        # apply function row by row- EDH - I don't think this is needed (I think default behavior of case_when is row by row)?
-        # dplyr::rowwise() %>%
         # use TADA suggested spec where there is a suggested spec, use original spec if no suggested spec
         dplyr::mutate(TADA.MethodSpecificationName = dplyr::case_when(
           !is.na(TADA.SuggestedSpeciation) ~ TADA.SuggestedSpeciation,
           is.na(TADA.SuggestedSpeciation) ~ TADA.MethodSpecificationName
         )) %>%
         # if conversion factor exists, multiply by ResultMeasureValue
-        # dplyr::rowwise() %>%
         dplyr::mutate(TADA.ResultMeasureValue = dplyr::case_when(
           !is.na(TADA.SpeciationConversionFactor) ~
             (TADA.SpeciationConversionFactor * TADA.ResultMeasureValue),

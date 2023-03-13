@@ -62,3 +62,24 @@ test_that("Imprecise_lessthan3decimaldigits works again", {
   expect_true(all(sapply(FLAGSONLY$TADA.LatitudeMeasure, decimalplaces) < 4))
 })
 
+test_that("No NA's in independent flag columns", {
+  today = Sys.Date()
+  twoago = as.character(today-2*365)
+  testdat = TADAdataRetrieval(statecode = "UT", startDate = twoago, characteristicName = c("Nitrate","Copper"), sampleMedia = "Water")
+  testdat = ConvertResultUnits(testdat, transform = TRUE)
+  
+  testdat = InvalidMethod(testdat, clean = FALSE, errorsonly=FALSE)
+  expect_false(any(is.na(testdat$TADA.AnalyticalMethod.Flag)))
+  
+  testdat = AggregatedContinuousData(testdat, clean = FALSE, errorsonly=FALSE)
+  expect_false(any(is.na(testdat$TADA.AggregatedContinuousData.Flag)))
+  
+  testdat = AboveNationalWQXUpperThreshold(testdat, clean = FALSE, errorsonly=FALSE)
+  expect_false(any(is.na(testdat$TADA.ResultValueAboveUpperThreshold.Flag)))
+  
+  testdat = BelowNationalWQXLowerThreshold(testdat, clean = FALSE, errorsonly=FALSE)
+  expect_false(any(is.na(testdat$TADA.ResultValueBelowLowerThreshold.Flag)))
+  
+  testdat = QAPPDocAvailable(testdat, clean = FALSE)
+  expect_false(any(is.na(testdat$TADA.QAPPDocAvailable)))
+  })

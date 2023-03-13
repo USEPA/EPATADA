@@ -76,25 +76,11 @@ InvalidFraction <- function(.data, clean = TRUE, errorsonly = FALSE) {
   # rename NA values to Nonstandardized in TADA.SampleFraction.Flag column
   check.data["TADA.SampleFraction.Flag"][is.na(check.data["TADA.SampleFraction.Flag"])] <- "Nonstandardized"
   
-  # EDH replaced with function OrderTADACols at end
-  # # reorder column names to match .data
-  # # get .data column names
-  # col.order <- colnames(.data)
-  # # add WQX.SampleFractionValidity column to the list
-  # col.order <- append(col.order, "TADA.SampleFraction.Flag")
-  # # reorder columns in check.data
-  # check.data <- check.data[, col.order]
-  # # place flag column next to relevant fields
-  # check.data <- check.data %>%
-  #   dplyr::relocate("TADA.SampleFraction.Flag",
-  #                   .after = "ResultSampleFractionText"
-  #   )
-  
   # if all rows are "Valid", return input unchanged
   if (any(c("Nonstandardized", "Invalid") %in%
           unique(check.data$TADA.SampleFraction.Flag)) == FALSE) {
     if (errorsonly == FALSE) {
-      print("All characteristic/fraction combinations are valid in your dataframe. Returning input dataframe with TADA.SampleFraction.Flag column.")
+      print("All characteristic/fraction combinations are valid in your dataframe. Returning input dataframe with TADA.SampleFraction.Flag column for tracking.")
       check.data = OrderTADACols(check.data)
       return(check.data)
     }
@@ -230,24 +216,10 @@ InvalidSpeciation <- function(.data, clean = c("invalid_only", "nonstandardized_
   # rename NA values to Nonstandardized in TADA.MethodSpeciation.Flag column
   check.data["TADA.MethodSpeciation.Flag"][is.na(check.data["TADA.MethodSpeciation.Flag"])] <- "Nonstandardized"
   
-  # EDH replaced with OrderTADACols at end of function
-  # # reorder column names to match .data
-  # # get .data column names
-  # col.order <- colnames(.data)
-  # # add TADA.MethodSpeciation.Flag column to the list
-  # col.order <- append(col.order, "TADA.MethodSpeciation.Flag")
-  # # reorder columns in check.data
-  # check.data <- check.data[, col.order]
-  # # place flag columns next to relevant fields
-  # check.data <- check.data %>%
-  #   dplyr::relocate("TADA.MethodSpeciation.Flag",
-  #                   .after = "MethodSpecificationName"
-  #   )
-  
   # if all rows are "Valid", return input with flag column
   if (any(c("Nonstandardized", "Invalid") %in%
           unique(check.data$TADA.MethodSpeciation.Flag)) == FALSE) {
-    print("All characteristic/method speciation combinations are valid in your dataframe. Returning input dataframe with TADA.MethodSpeciation.Flag column.")
+    print("All characteristic/method speciation combinations are valid in your dataframe. Returning input dataframe with TADA.MethodSpeciation.Flag column for tracking.")
     check.data = OrderTADACols(check.data)
     return(.data)
   }
@@ -398,24 +370,10 @@ InvalidResultUnit <- function(.data, clean = c("invalid_only", "nonstandardized_
   # rename NA values to Nonstandardized in WQX.ResultUnitValidity column
   check.data["TADA.ResultUnit.Flag"][is.na(check.data["TADA.ResultUnit.Flag"])] <- "Nonstandardized"
   
-  # EDH replaced with OrderTADACols at end of function
-  # # reorder column names to match .data
-  # # get .data column names
-  # col.order <- colnames(.data)
-  # # add TADA.ResultUnit.Flag column to the list
-  # col.order <- append(col.order, "TADA.ResultUnit.Flag")
-  # # reorder columns in check.data
-  # check.data <- check.data[, col.order]
-  # # place flag columns next to relevant fields
-  # check.data <- check.data %>%
-  #   dplyr::relocate("TADA.ResultUnit.Flag",
-  #                   .after = "ResultMeasure.MeasureUnitCode"
-  #   )
-  
   # if all rows are "Valid", return input with flag column
   if (any(c("Nonstandardized", "Invalid") %in%
           unique(check.data$TADA.ResultUnit.Flag)) == FALSE) {
-    print("All characteristic/unit combinations are valid in your dataframe. Returning input dataframe with TADA.ResultUnit.Flag column.")
+    print("All characteristic/unit combinations are valid in your dataframe. Returning input dataframe with TADA.ResultUnit.Flag column for tracking.")
     check.data = OrderTADACols(.data)
     return(check.data)
   }
