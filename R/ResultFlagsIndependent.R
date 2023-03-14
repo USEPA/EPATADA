@@ -669,8 +669,8 @@ BelowNationalWQXLowerThreshold <- function(.data, clean = TRUE, errorsonly = FAL
           unique(flag.data$TADA.ResultValueBelowLowerThreshold.Flag)) == FALSE) {
     if (errorsonly == FALSE) {
       print("No data below the WQX Lower Threshold were found in your dataframe. Returning the input dataframe with TADA.ResultValueBelowLowerThreshold.Flag column for tracking.")
-      check.data = OrderTADACols(check.data)
-      return(check.data)
+      flag.data = OrderTADACols(flag.data)
+      return(flag.data)
     }
     if (errorsonly == TRUE) {
       print("This dataframe is empty because no data below the WQX Lower Threshold was found in your dataframe")
