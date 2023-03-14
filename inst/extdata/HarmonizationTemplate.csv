@@ -32,16 +32,16 @@ NUTRIENT,,,,,,WATER,PHOSPHATE-PHOSPHORUS,"TOTAL PHOSPHORUS, MIXED FORMS","Assume
 NUTRIENT,,,,,,WATER,PHOSPHATE-PHOSPHORUS,"TOTAL PHOSPHORUS, MIXED FORMS","Assumed synonymous with ""Total Phosphorus, mixed forms""",TOTAL,,"Assumed ""Total"" was derived from multiple P subspecies",,AS P,Assumed as P,,UG/L,UG/L,,,,Total Phosphorus_as P_ug/L,Total Phosphorous,TP,Use Total P if present
 NUTRIENT,,,,,,WATER,PHOSPHORUS,"TOTAL PHOSPHORUS, MIXED FORMS","Assumed synonymous with ""Total Phosphorus, mixed forms""",DISSOLVED,FILTERABLE,Assumes Filterable equals Dissolved,AS P,AS P,,,UG/L,UG/L,,,,"Total Phosphorus, mixed forms_Filterable_as P_ug/L",,,
 NUTRIENT,,,,,,WATER,PHOSPHORUS,"TOTAL PHOSPHORUS, MIXED FORMS","Assumed synonymous with ""Total Phosphorus, mixed forms""",,,"Assumed ""Total"" was derived from multiple P subspecies",AS P,AS P,,,UG/L,UG/L,,,,Total Phosphorus_as P_ug/L,Total Phosphorous,TP,Use Total P if present
-NUTRIENT,,,,,,WATER,PHOSPHATE-PHOSPHORUS,"TOTAL PHOSPHORUS, MIXED FORMS","Assumed ""Phosphate-Phosphorus” and “Phosphorus” are synonyms",DISSOLVED,FILTERABLE,Assumes Filterable equals Dissolved,,AS P,Assumed as P,,UG/L,UG/L,,,,P3,,,
-NUTRIENT,,,,,,WATER,PHOSPHATE-PHOSPHORUS,PHOSPHORUS,"Assumed ""Phosphate-Phosphorus” and “Phosphorus” are synonyms",DISSOLVED,FILTERABLE,Assumes Filterable equals Dissolved,AS P,AS P,,,UG/L,UG/L,,,,P3,,,
-NUTRIENT,,,,,,WATER,PHOSPHATE-PHOSPHORUS,PHOSPHORUS,"Assumed ""Phosphate-Phosphorus” and “Phosphorus” are synonyms",,,,,AS P,Assumed as P,,UG/L,UG/L,,,,P4,,,
-NUTRIENT,,,,,,WATER,PHOSPHATE-PHOSPHORUS,PHOSPHORUS,"Assumed ""Phosphate-Phosphorus” and “Phosphorus” are synonyms",,,,AS P,AS P,,,UG/L,UG/L,,,,P4,,,
-NUTRIENT,,,,,,WATER,PHOSPHATE,PHOSPHATE,,DISSOLVED,FILTERABLE,Assumes Filterable equals Dissolved,AS P,AS P,,,UG/L,UG/L,,,,P5,,,
-NUTRIENT,,,,,,WATER,PHOSPHATE,PHOSPHATE,,DISSOLVED,FILTERABLE,Assumes Filterable equals Dissolved,,AS P,Assumed as P,,UG/L,UG/L,,,,P5,,,
-NUTRIENT,,,,,,WATER,ORTHOPHOSPHATE,ORTHOPHOSPHATE,,TOTAL,TOTAL,"Assumed ""Total"" was derived from multiple P subspecies",AS P,AS P,,,UG/L,UG/L,,,,P6,,,
-NUTRIENT,,,,,,WATER,ORTHOPHOSPHATE,ORTHOPHOSPHATE,,DISSOLVED,FILTERABLE,Assumes Filterable equals Dissolved,,AS P,Assumed as P,,UG/L,UG/L,,,,P7,,,
-NUTRIENT,,,,,,WATER,ORTHOPHOSPHATE,ORTHOPHOSPHATE,,DISSOLVED,FILTERABLE,Assumes Filterable equals Dissolved,AS P,AS P,,,UG/L,UG/L,,,,P7,,,
-NUTRIENT,,,,,,WATER,ORTHOPHOSPHATE,ORTHOPHOSPHATE,,,,,AS P,AS P,,,UG/L,UG/L,,,,P8,,,
+NUTRIENT,,,,,,WATER,PHOSPHATE-PHOSPHORUS,PHOSPHATE,"Assumes ""Phosphate-Phosphorus” and ""Phosphate"" are synonymous",DISSOLVED,FILTERABLE,Assumes Filterable equals Dissolved,,AS P,Assumed as P,,UG/L,UG/L,,,,Phosphate_Filterable_as P_ug/L,,,
+NUTRIENT,,,,,,WATER,PHOSPHATE-PHOSPHORUS,PHOSPHATE,"Assumes ""Phosphate-Phosphorus” and ""Phosphate"" are synonymous",DISSOLVED,FILTERABLE,Assumes Filterable equals Dissolved,AS P,AS P,,,UG/L,UG/L,,,,Phosphate_Filterable_as P_ug/L,,,
+NUTRIENT,,,,,,WATER,PHOSPHATE-PHOSPHORUS,PHOSPHATE,"Assumes ""Phosphate-Phosphorus” and ""Phosphate"" are synonymous",,,,,AS P,Assumed as P,,UG/L,UG/L,,,,Phosphate_as P_ug/L,,,
+NUTRIENT,,,,,,WATER,PHOSPHATE-PHOSPHORUS,PHOSPHATE,"Assumes ""Phosphate-Phosphorus” and ""Phosphate"" are synonymous",,,,AS P,AS P,,,UG/L,UG/L,,,,Phosphate_as P_ug/L,,,
+NUTRIENT,,,,,,WATER,PHOSPHATE,PHOSPHATE,,DISSOLVED,FILTERABLE,Assumes Filterable equals Dissolved,AS P,AS P,,,UG/L,UG/L,,,,Phosphate_Filterable_as P_ug/L,,,
+NUTRIENT,,,,,,WATER,PHOSPHATE,PHOSPHATE,,DISSOLVED,FILTERABLE,Assumes Filterable equals Dissolved,,AS P,Assumed as P,,UG/L,UG/L,,,,Phosphate_Filterable_as P_ug/L,,,
+NUTRIENT,,,,,,WATER,ORTHOPHOSPHATE,ORTHOPHOSPHATE,,TOTAL,TOTAL,"Assumed ""Total"" was derived from multiple P subspecies",AS P,AS P,,,UG/L,UG/L,,,,Orthophosphate_Total_as P_ug/L,,,
+NUTRIENT,,,,,,WATER,ORTHOPHOSPHATE,ORTHOPHOSPHATE,,DISSOLVED,FILTERABLE,Assumes Filterable equals Dissolved,,AS P,Assumed as P,,UG/L,UG/L,,,,Orthophosphate_Filterable_as P_ug/L,,,
+NUTRIENT,,,,,,WATER,ORTHOPHOSPHATE,ORTHOPHOSPHATE,,DISSOLVED,FILTERABLE,Assumes Filterable equals Dissolved,AS P,AS P,,,UG/L,UG/L,,,,Orthophosphate_Filterable_as P_ug/L,,,
+NUTRIENT,,,,,,WATER,ORTHOPHOSPHATE,ORTHOPHOSPHATE,,,,,AS P,AS P,,,UG/L,UG/L,,,,Orthophosphate_as P_ug/L,,,
 NUTRIENT,,,,,,WATER,"TOTAL NITROGEN, MIXED FORMS","TOTAL NITROGEN, MIXED FORMS","Assumed synonymous with ""Total Nitrogen, mixed forms""",TOTAL,,,AS N,AS N,,,MG/L,MG/L,,,,Total Nitrogen_as N_mg/L,Total Nitrogen,TN,Use Total N if present
 NUTRIENT,,,,,,WATER,"TOTAL PHOSPHORUS, MIXED FORMS","TOTAL PHOSPHORUS, MIXED FORMS","Assumed synonymous with ""Total Phosphorus, mixed forms""",TOTAL,,,AS P,AS P,,,UG/L,UG/L,,,,Total Phosphorus_as P_ug/L,Total Phosphorous,TP,Use Total P if present
 NUTRIENT,,,,,,WATER,"INORGANIC NITROGEN (AMMONIA, NITRATE AND NITRITE)",INORGANIC NITROGEN,,DISSOLVED,FILTERABLE,Assumes Filterable equals Dissolved,AS N,AS N,,,MG/L,MG/L,,,VALID,Inorganic Nitrogen_Filterable_as N_mg/L,Total Nitrogen,N14,Derive values for total N from N subspecies

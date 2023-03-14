@@ -70,12 +70,12 @@ ConvertResultUnits <- function(.data, transform = TRUE) {
     "TADA.ResultMeasure.MeasureUnitCode",
     "TADA.DetectionQuantitationLimitMeasure.MeasureValue",
     "TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode"
-    )
+  )
   
   checkColumns(.data, expected_cols)
   
   # execute function after checks are passed
-
+  
   # filter WQXcharValRef to include only valid CharacteristicUnit in water media
   unit.ref <- GetWQXCharValRef() %>%
     dplyr::filter(Type == "CharacteristicUnit" & Source == "WATER" &
@@ -247,42 +247,42 @@ ConvertResultUnits <- function(.data, transform = TRUE) {
     #     "ResultMeasureUnitCode.Original",
     #     "DetectionLimitMeasureUnitCode.Original"
     #   ))
-      
-      # # reorder columns in clean.data
-      # clean.data <- clean.data[, col.order]
-      
-      # place flag columns next to relevant fields
-      # clean.data <- clean.data %>%
-      #   dplyr::relocate("WQX.ResultMeasureValue.UnitConversion",
-      #                   .after = "ResultMeasure.MeasureUnitCode"
-      #   ) 
-      # %>%
-      #   dplyr::relocate("WQX.DetectionLimitMeasureValue.UnitConversion",
-      #                   .after = "DetectionQuantitationLimitMeasure.MeasureUnitCode"
-      #   )
-      
-      # Place original unit columns next to original columns
-      # 
-      # clean.data <- clean.data %>%
-      #   dplyr::relocate("TADA.ResultMeasure.MeasureUnitCode",
-      #                   .after = "ResultMeasure.MeasureUnitCode"
-      #   ) %>%
-      #   dplyr::relocate("TADA.ResultMeasureValue",
-      #                   .after = "ResultMeasureValue"
-      #   ) 
-      # %>%
-      #   dplyr::relocate("TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode",
-      #                   .after = "DetectionQuantitationLimitMeasure.MeasureUnitCode"
-      #   ) %>%
-      #   dplyr::relocate("TADA.DetectionQuantitationLimitMeasure.MeasureValue",
-      #                   .after = "DetectionQuantitationLimitMeasure.MeasureValue"
-      #   )
-  }
-    # reorder cols
-    clean.data = OrderTADACols(clean.data)
     
-    return(clean.data)
+    # # reorder columns in clean.data
+    # clean.data <- clean.data[, col.order]
+    
+    # place flag columns next to relevant fields
+    # clean.data <- clean.data %>%
+    #   dplyr::relocate("WQX.ResultMeasureValue.UnitConversion",
+    #                   .after = "ResultMeasure.MeasureUnitCode"
+    #   ) 
+    # %>%
+    #   dplyr::relocate("WQX.DetectionLimitMeasureValue.UnitConversion",
+    #                   .after = "DetectionQuantitationLimitMeasure.MeasureUnitCode"
+    #   )
+    
+    # Place original unit columns next to original columns
+    # 
+    # clean.data <- clean.data %>%
+    #   dplyr::relocate("TADA.ResultMeasure.MeasureUnitCode",
+    #                   .after = "ResultMeasure.MeasureUnitCode"
+    #   ) %>%
+    #   dplyr::relocate("TADA.ResultMeasureValue",
+    #                   .after = "ResultMeasureValue"
+    #   ) 
+    # %>%
+    #   dplyr::relocate("TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode",
+    #                   .after = "DetectionQuantitationLimitMeasure.MeasureUnitCode"
+    #   ) %>%
+    #   dplyr::relocate("TADA.DetectionQuantitationLimitMeasure.MeasureValue",
+    #                   .after = "DetectionQuantitationLimitMeasure.MeasureValue"
+    #   )
   }
+  # reorder cols
+  clean.data = OrderTADACols(clean.data)
+  
+  return(clean.data)
+}
 
 
 
@@ -367,9 +367,9 @@ ConvertDepthUnits <- function(.data,
   }
   # check fields argument for valid inputs
   valid_fields <- c("ActivityDepthHeightMeasure",
-                   "ActivityTopDepthHeightMeasure",
-                   "ActivityBottomDepthHeightMeasure",
-                   "ResultDepthHeightMeasure")
+                    "ActivityTopDepthHeightMeasure",
+                    "ActivityBottomDepthHeightMeasure",
+                    "ResultDepthHeightMeasure")
   if (all(is.na(match(valid_fields, fields))) == TRUE) {
     stop("Invalid 'fields' argument. 'fields' must include one or many of the
     following: 'ActivityDepthHeightMeasure,' 'ActivityTopDepthHeightMeasure,'
@@ -388,7 +388,7 @@ ConvertDepthUnits <- function(.data,
     "ActivityBottomDepthHeightMeasure.MeasureUnitCode",
     "ResultDepthHeightMeasure.MeasureValue",
     "ResultDepthHeightMeasure.MeasureUnitCode"
-    )
+  )
   checkColumns(.data, expected_cols)
   
   # execute function after checks are passed
@@ -425,7 +425,7 @@ ConvertDepthUnits <- function(.data,
         
         # new TADA column
         unitCol2 = paste0("TADA.",unitCol)
-       
+        
         # deal with any units that are "meters" and change to "m" (USGS convention)
         check.data$new = check.data[,unitCol]
         check.data$new[check.data$new=="meters"] = "m"
@@ -485,19 +485,19 @@ ConvertDepthUnits <- function(.data,
         # multiply .MeasureValue by WQXConversionFactor.
         # if else added to deal with NA's in RV column, which throws error when NA multiplied by number.
         .data$val <- ifelse(!is.na(.data$val),.data$val * .data$cf,.data$val)
-          
-          # then replace unit values with the new unit argument
-          .data$unit[which(
-            !is.na(.data$unit)
-          )] <- unit
-          
-          # replace TADA depth height columns and remove WQX conversion column
-          .data <- dplyr::select(.data, -cf,-dplyr::all_of(coln),-dplyr::all_of(colnv),-dplyr::all_of(colnu))
-          names(.data)[names(.data)=="val"] = colnv
-          names(.data)[names(.data)=="unit"] = colnu
-          
-          return(.data)
-        }else{return(.data)}
+        
+        # then replace unit values with the new unit argument
+        .data$unit[which(
+          !is.na(.data$unit)
+        )] <- unit
+        
+        # replace TADA depth height columns and remove WQX conversion column
+        .data <- dplyr::select(.data, -cf,-dplyr::all_of(coln),-dplyr::all_of(colnv),-dplyr::all_of(colnu))
+        names(.data)[names(.data)=="val"] = colnv
+        names(.data)[names(.data)=="unit"] = colnu
+        
+        return(.data)
+      }else{return(.data)}
     }
     
     clean.data = conv_unit(clean.data,"WQXConversionFactor.ActivityDepthHeightMeasure")
@@ -509,416 +509,5 @@ ConvertDepthUnits <- function(.data,
     # clean.data <- dplyr::select(clean.data, -"WQX.Depth.TargetUnit")
     clean.data = OrderTADACols(clean.data)
     return(clean.data)
-  }
-}
-
-#' Generate Unique Harmonization Reference Table
-#' 
-#' Function generates a harmonization reference table that is specific to
-#' the input dataframe. Users can review how their input data relates to standard
-#' TADA values for CharacteristicName, ResultSampleFractionText,
-#' MethodSpecificationName, and ResultMeasure.MeasureUnitCode and they can optionally
-#' edit the reference file to meet their needs.
-#'
-#' @param .data TADA dataframe
-#' 
-#' @param download Boolean argument; when download = TRUE, the output is
-#' downloaded to the current working directory.
-#'
-#' @return Harmonization Reference Table unique to the input dataframe
-#'
-#' @export
-#' 
-#' @examples 
-#' # Load example dataset:
-#' data(Nutrients_Utah)
-#' 
-#' # Create a harmonization reference table for dataframe:
-#' CreateRefTable <- HarmonizationRefTable(Nutrients_Utah)
-#' 
-#' # Create and download (to your working directory) a harmonization reference
-#' # table for dataframe: 
-#' \dontrun{
-#' DownloadRefTable <- HarmonizationRefTable(Nutrients_Utah, download = TRUE)
-#' }
-#' 
-
-HarmonizationRefTable <- function(.data, download = FALSE) {
-  # check .data is data.frame
-  checkType(.data, "data.frame", "Input object")
-  # check download is boolean
-  checkType(download, "logical")
-  
-  # check .data has the required columns
-  expected_cols <- c(
-    "TADA.CharacteristicName", "TADA.ResultSampleFractionText",
-    "TADA.MethodSpecificationName",
-    "TADA.ResultMeasure.MeasureUnitCode"
-    )
-  checkColumns(.data, expected_cols)
-  
-  # execute function after checks are passed
-  # define raw harmonization table as an object
-  harm.raw <- utils::read.csv(system.file("extdata", "HarmonizationTemplate.csv", package = "TADA"))
-  
-  # columns to keep from .data if exist
-  harmonization_cols <- c(
-    "WQX.SampleFractionValidity", "WQX.MethodSpeciationValidity",
-    "WQX.ResultUnitValidity", "WQX.AnalyticalMethodValidity"
-  )
-  # join to harmonization table
-  # if WQX QA Char Val flags are in .data, include them in the join
-  if (all(harmonization_cols %in% colnames(.data)) == TRUE) {
-    join.data <- merge(.data[, c(expected_cols, harmonization_cols)],
-                       harm.raw,
-                       by.x = expected_cols, 
-                       by.y = expected_cols, # EDH: this was not working with "harmonization cols" because those are not contained in Y
-                       all.x = TRUE
-    )
-    # otherwise, execute the join with no additional columns
-  } else {
-    join.data <- merge(.data[, expected_cols],
-                       harm.raw,
-                       by.x = expected_cols,
-                       by.y = expected_cols,
-                       all.x = TRUE
-    )
-  }
-  
-  # trim join.data to include only unique combos of char-frac-spec-unit
-  unique.data <- join.data %>%
-    dplyr::filter(!duplicated(join.data[, expected_cols]))
-  
-  # reorder columns to match harm.raw
-  # include WQX QA flag columns, if they exist
-  if (all(harmonization_cols %in% colnames(.data)) == TRUE) {
-    # get .data column names
-    col.order <- colnames(harm.raw)
-    # add WQX.SampleFractionValidity column to the list
-    col.order <- append(col.order, harmonization_cols)
-    # reorder columns in flag.data
-    unique.data <- unique.data[, col.order]
-  } else {
-    unique.data <- unique.data[, colnames(harm.raw)]
-  }
-  
-  # remove extraneous characters in first column
-  colnames(unique.data)[1] <- gsub("^", "", colnames(unique.data)[1])
-  
-  # if download = TRUE, download unique.data as a csv to the working directory
-  if (download == TRUE) {
-    utils::write.csv(unique.data, "HarmonizationRefTable.csv", row.names = FALSE)
-  }
-  
-  # return unique.data
-  return(unique.data)
-}
-
-
-
-#' Transform CharacteristicName, ResultSampleFractionText, MethodSpecificationName, 
-#' and ResultMeasure.MeasureUnitCode values to TADA standards.
-#'
-#' Function compares input dataframe to the TADA Harmonization Reference Table, and makes
-#' synonymous data consistent.
-#' Optional outputs include: 1) the dataframe with
-#' Harmonization columns appended, 2) the dataframe with CharacteristicName,
-#' ResultSampleFractionText, MethodSpecificationName, and
-#' ResultMeasure.MeasureUnitCode converted to TADA standards or 3) the four fields
-#' converted with most Harmonization Reference Table columns appended. Default is
-#' transform = TRUE and flag = TRUE.
-#'
-#' @param .data TADA dataframe
-#' @param ref Optional argument to specify which dataframe to use as a reference
-#' file. The primary use for this argument is when a user has generated a
-#' harmonization reference file unique to their data, and they made changes to
-#' that file.
-#' @param transform Boolean argument; transforms and/or converts original values
-#' in the dataframe to the TADA Harmonization Reference Table values for the
-#' following fields: CharacteristicName, ResultSampleFractionText,
-#' MethodSpecificationName, and ResultMeasure.MeasureUnitCode. Default is
-#' transform = TRUE.
-#' @param flag Boolean argument; appends all columns from the TADA Harmonization
-#' Reference Table to the dataframe. Default is flag = TRUE.
-#'
-#' @return When transform = FALSE and flag = TRUE, Harmonization Reference Table
-#' columns are appended to the dataframe only. When transform = TRUE and flag = TRUE,
-#' Harmonization columns are appended to the dataframe and transformations are
-#' executed. When transform = TRUE and flag = FALSE, transformations are executed
-#' only. When transform = FALSE and flag = FALSE, an error is returned (function
-#' would return the input dataframe unchanged if input was allowed).
-#'
-#' @export
-#' 
-#' @examples 
-#' # Load example dataset:
-#' data(Nutrients_Utah)
-#' 
-#' # Append harmonization reference table columns to dataframe and transform/convert
-#' # data to the reference table values:
-#' Nutrients_Harmonized <- HarmonizeData(Nutrients_Utah)
-#' 
-#' # Transform/convert data to the harmonization reference table values, but
-#' # do not append any columns to dataframe:
-#' Nutrients_Harmonized_noflags <- HarmonizeData(Nutrients_Utah, flag = FALSE)
-#' 
-#' # Append harmonization reference table columns to dataframe, but do not
-#' # transform/convert data to the reference table values:
-#' Nutrients_NotHarmonized <- HarmonizeData(Nutrients_Utah, transform = FALSE)
-#' 
-#' # Append harmonization reference table columns to dataframe and transform/convert
-#' # data to the USER SUPPLIED reference table values:
-#' UniqueHarmonizationRef <- HarmonizationRefTable(Nutrients_Utah, download = FALSE)
-#' Nutrients_Harmonized_UserSuppliedRef <- HarmonizeData(Nutrients_Utah, ref = UniqueHarmonizationRef)
-
-HarmonizeData <- function(.data, ref, transform = TRUE, flag = TRUE) {
-  # check .data is data.frame
-  checkType(.data, "data.frame", "Input object")
-  # check transform is boolean
-  checkType(transform, "logical")
-  # check flag is boolean
-  checkType(flag, "logical")
-
-  # check .data has the required columns
-  expected_cols <- c(
-    "TADA.CharacteristicName", "TADA.ResultSampleFractionText",
-    "TADA.MethodSpecificationName", "TADA.ResultMeasure.MeasureUnitCode"
-    )
-  checkColumns(.data, expected_cols)
-
-  # check that both transform and flag do NOT equal FALSE
-  if (transform == FALSE & flag == FALSE) {
-    stop("Both 'transform' and 'flag' arguments equal FALSE, which would return
-         the input dataframe unchanged. One or both arguments must be equal to
-         TRUE.")
-  }
-
-  #define which columns are expected in ref
-  expected_ref_cols <- c(
-    "TADA.SuggestedCharacteristicName",
-    "TADA.SuggestedSampleFraction",
-    "TADA.SuggestedSpeciation",
-    "TADA.SuggestedResultUnit"
-  )
-  
-  # execute function after checks are passed
-  if (all(c(
-    "TADA.CharacteristicName", "TADA.ActivityMediaName", "TADA.ResultMeasureValue",
-    "TADA.ResultMeasure.MeasureUnitCode"
-  ) %in% colnames(.data)) == TRUE) {
-
-    # if class(ResultMeasureValue) != numeric, run special char function
-    if (!is.numeric(.data$TADA.ResultMeasureValue) ) {
-      stop("TADA.ResultMeasureValue is not numeric. This column must be numeric before proceeding.")
-    }
-
-    # define harm.ref
-    # if input for ref exists, use that data
-    if (!missing(ref)) {
-      
-      # check ref is data.frame
-      checkType(ref, "data.frame")
-      
-      # check ref has all of the required columns      
-      checkColumns(ref, expected_ref_cols)      
-      
-      harm.ref <- ref
-      
-    }
-    
-    # if input for ref does not exist, use raw harmonization template
-    if (missing(ref)) {
-      # use output of HarmonizationRefTable which uses the TADA HarmonizationTemplate.csv in the extdata folder
-      harm.ref <- HarmonizationRefTable(.data, download=FALSE)
-    }
-
-    # join harm.ref to .data
-    flag.data <- merge(.data, harm.ref,
-                       by.x = expected_cols,
-                       by.y = expected_cols,
-                       all.x = TRUE
-                       )
-
-    # remove extraneous columns, fix field names
-    flag.data <- flag.data %>%
-      # remove ".x" suffix from column names
-      dplyr::rename_at(
-        dplyr::vars(dplyr::ends_with(".x")),
-        ~ stringr::str_replace(., "\\..$", "")
-      ) %>%
-      # remove columns with ".y" suffix
-      dplyr::select_at(dplyr::vars(-dplyr::ends_with(".y")))
-    
-    ## EDH - commented out because dealt with in orderTADAcols function below
-    # # reorder column names to match .data
-    # # get .data column names
-    # col.order <- colnames(.data)
-    # # add flag columns to the list
-    # col.order <- append(col.order, c(
-    #   "TADA.CharacteristicGroup",
-    #   "CharacteristicNameUserSupplied",
-    #   "TADA.SuggestedCharacteristicName",
-    #   "TADA.CharacteristicNameAssumptions",
-    #   "TADA.SuggestedSampleFraction",
-    #   "TADA.FractionAssumptions",
-    #   "TADA.SuggestedSpeciation",
-    #   "TADA.SpeciationAssumptions",
-    #   "TADA.SpeciationConversionFactor",
-    #   "TADA.SuggestedResultUnit",
-    #   "TADA.UnitConversionFactor",
-    #   "TADA.UnitConversionCoefficient",
-    #   "CombinationValidity",
-    #   "TADA.ComparableDataIdentifier",
-    #   "TADA.TotalN_TotalP_CharacteristicNames_AfterSummation",
-    #   "TADA.TotalN_TotalP_Summation_Identifier",
-    #   "TADA.TotalN_TotalP_ComboLogic"
-    # ))
-    # 
-    # CM removed below on 1/12/2023: working group advised that it is easier
-    # to find new columns if they are added to the END of a dataframe
-    # AND include the work TADA. at the start
-    
-    # reorder columns in flag.data
-    # flag.data <- flag.data[, col.order]
-    
-    # place flag columns next to relevant fields
-    # flag.data <- flag.data %>%
-    #  dplyr::relocate("TADACharacteristicGroup",
-    #    .before = "CharacteristicName"
-    #  ) %>%
-    #  dplyr::relocate(c(
-    #    "CharacteristicNameUserSupplied",
-    #    "TADA.SuggestedCharacteristicName",
-    #    "TADA.CharacteristicNameAssumptions"
-    #  ),
-    #  .after = "CharacteristicName"
-    #  ) %>%
-    #  dplyr::relocate(c(
-    #    "TADA.SuggestedSampleFraction",
-    #    "TADA.FractionAssumptions"
-    #  ),
-    #  .after = "ResultSampleFractionText"
-    #  ) %>%
-    #  dplyr::relocate(c(
-    #    "TADA.SuggestedSpeciation",
-    #    "TADA.SpeciationAssumptions",
-    #    "TADA.SpeciationConversionFactor"
-    #  ),
-    #  .after = "MethodSpecificationName"
-    #  ) %>%
-    #  dplyr::relocate(c(
-    #    "TADA.SuggestedResultUnit",
-    #    "TADA.UnitConversionFactor",
-    #    "TADA.UnitConversionCoefficient"
-    #  ),
-    #  .after = "ResultMeasure.MeasureUnitCode"
-    #  )
-
-    # if transform = FALSE and flag = TRUE, return flag.data
-    if ((transform == FALSE) & (flag == TRUE)) {
-      print("Be aware that you must run this function with transform = TRUE to use subsequent TADA functions.")
-      flag.data = OrderTADACols(flag.data)
-      return(flag.data)
-    }
-
-    # if transform = TRUE, transform data
-    if (transform == TRUE) {
-
-      # TADA.CharacteristicName
-      # replace TADA.CharacteristicName with TADA.SuggestedCharacteristicName
-      clean.data <- flag.data %>%
-        # apply function row by row
-        dplyr::rowwise() %>%
-        # use TADA suggested name where there is a suggested name, use original name if no suggested name
-        dplyr::mutate(TADA.CharacteristicName = dplyr::case_when(
-          !is.na(TADA.SuggestedCharacteristicName) ~ TADA.SuggestedCharacteristicName,
-          is.na(TADA.SuggestedCharacteristicName) ~ TADA.CharacteristicName
-        ))
-
-      # TADA.ResultSampleFractionText
-      # replace ResultSampleFractionText with TADA.SuggestedSampleFraction
-      clean.data <- clean.data %>%
-        # apply function row by row
-        dplyr::rowwise() %>%
-        # use TADA suggested frac where there is a suggested frac, use original frac if no suggested frac
-        dplyr::mutate(TADA.ResultSampleFractionText = dplyr::case_when(
-          !is.na(TADA.SuggestedSampleFraction) ~ TADA.SuggestedSampleFraction,
-          is.na(TADA.SuggestedSampleFraction) ~ TADA.ResultSampleFractionText
-        ))
-
-
-      # ResultMeasure.MeasureUnitCode
-      # replace ResultMeasure.MeasureUnitCode with TADA.SuggestedResultUnit
-      clean.data <- clean.data %>%
-        # apply function row by row
-        dplyr::rowwise() %>%
-        # use TADA suggested unit where there is a suggested unit, use original unit if no suggested unit
-        dplyr::mutate(TADA.ResultMeasure.MeasureUnitCode = dplyr::case_when(
-          !is.na(TADA.SuggestedResultUnit) ~ TADA.SuggestedResultUnit,
-          is.na(TADA.SuggestedResultUnit) ~ TADA.ResultMeasure.MeasureUnitCode
-        )) %>%
-        # if conversion factor exists, multiply by ResultMeasureValue
-        dplyr::rowwise() %>%
-        dplyr::mutate(TADA.ResultMeasureValue = dplyr::case_when(
-          !is.na(TADA.UnitConversionFactor) ~
-            (TADA.UnitConversionFactor * TADA.ResultMeasureValue),
-          is.na(TADA.UnitConversionFactor) ~ TADA.ResultMeasureValue
-        ))
-
-      # TADA.MethodSpecificationName
-      # replace MethodSpecificationName with TADA.SuggestedSpeciation
-      clean.data <- clean.data %>%
-        # apply function row by row
-        dplyr::rowwise() %>%
-        # use TADA suggested spec where there is a suggested spec, use original spec if no suggested spec
-        dplyr::mutate(TADA.MethodSpecificationName = dplyr::case_when(
-          !is.na(TADA.SuggestedSpeciation) ~ TADA.SuggestedSpeciation,
-          is.na(TADA.SuggestedSpeciation) ~ TADA.MethodSpecificationName
-        )) %>%
-        # if conversion factor exists, multiply by ResultMeasureValue
-        dplyr::rowwise() %>%
-        dplyr::mutate(TADA.ResultMeasureValue = dplyr::case_when(
-          !is.na(TADA.SpeciationConversionFactor) ~
-            (TADA.SpeciationConversionFactor * TADA.ResultMeasureValue),
-          is.na(TADA.SpeciationConversionFactor) ~ TADA.ResultMeasureValue
-        ))
-
-      # remove conversion columns
-      clean.data <- clean.data %>%
-        dplyr::select(-c(
-          expected_ref_cols,
-          "TADA.SpeciationConversionFactor",
-          "TADA.UnitConversionFactor"
-        ))
-
-      # if flag = TRUE, return clean.data
-      if (flag == TRUE) {
-        clean.data = OrderTADACols(clean.data)
-        return(clean.data)
-      }
-
-      # remove all appended columns if flag = FALSE
-      if (flag == FALSE) {
-        # remove all appended columns
-        clean.data <- clean.data %>%
-          dplyr::select(-c(
-            "TADA.CharacteristicGroup",
-            "CharacteristicNameUserSupplied",
-            "CombinationValidity",
-            "TADA.CharacteristicNameAssumptions",
-            "TADA.FractionAssumptions",
-            "TADA.SpeciationAssumptions",
-            "TADA.UnitConversionCoefficient",
-            "TADA.ComparableDataIdentifier",
-            "TADA.TotalN_TotalP_CharacteristicNames_AfterSummation",
-            "TADA.TotalN_TotalP_Summation_Identifier",
-            "TADA.TotalN_TotalP_ComboLogic"
-          ))
-
-        # return clean.data
-        clean.data = OrderTADACols(clean.data)
-        return(clean.data)
-      }
-    }
   }
 }

@@ -17,7 +17,7 @@ utils::globalVariables(c("TADA.ResultValueAboveUpperThreshold.Flag", "ActivityId
                          "n_records", "statecodes_df", "STUSAB" ,"ActivityStartTime.Time", "numorgs", "dup_id",
                          "LatitudeMeasure", "TADA.ResultMeasureValueDataTypes.Flag", "Name", "TADA.Detection_Type",
                          "DetectionQuantitationLimitTypeName", "TADA.Limit_Type", "multiplier", "summ", "cf",
-                         "LongitudeMeasure"))
+                         "LongitudeMeasure", "TADA.CensoredData.Flag", "Censored_Count", "TADA.ResultMeasureValueDataTypes.Flag"))
 
 
 
