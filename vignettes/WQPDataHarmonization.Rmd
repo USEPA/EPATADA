@@ -85,6 +85,7 @@ Load the required libraries to run this vignette into your R session
 # library(maps)
 # library(dataRetrieval)
 library(TADA)
+
 ```
 
 ## Retrieve WQP data

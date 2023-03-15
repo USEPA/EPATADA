@@ -94,21 +94,21 @@ Portal (WQP)</a> data from multiple organizations.</p>
 remotes (shown) or devtools. dataRetrieval will be downloaded from CRAN,
 but the development version can be downloaded directly from GitHub
 (un-comment).</p>
-<p>The following code will also install any packages you do not have,
-and load all packages required to run this vignette into your R
-session.</p>
+<p>The following code (un-comment) will also install any packages you do
+not have, and load all packages required to run this vignette into your
+R session.</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">list.of.packages</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"plyr"</span>, <span class="st">"data.table"</span>, <span class="st">"dplyr"</span>, <span class="st">"magrittr"</span>, <span class="st">"stringr"</span>, <span class="st">"maps"</span>,<span class="st">"utils"</span>, <span class="st">"RColorBrewer"</span>, <span class="st">"stats"</span>, <span class="st">"lubridate"</span>, <span class="st">"remotes"</span>, <span class="st">"dataRetrieval"</span>, <span class="st">"ggplot2"</span>, <span class="st">"rlang"</span>, <span class="st">"sf"</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="co"># list.of.packages &lt;- c("plyr", "data.table", "dplyr", "magrittr", "stringr", "maps","utils", "RColorBrewer", "stats", "lubridate", "remotes", "dataRetrieval", "ggplot2", "sf")</span></span>
 <span></span>
-<span><span class="va">new.packages</span> <span class="op">&lt;-</span> <span class="va">list.of.packages</span><span class="op">[</span><span class="op">!</span><span class="op">(</span><span class="va">list.of.packages</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="fu"><a href="https://rdrr.io/r/utils/installed.packages.html" class="external-link">installed.packages</a></span><span class="op">(</span><span class="op">)</span><span class="op">[</span>,<span class="st">"Package"</span><span class="op">]</span><span class="op">)</span><span class="op">]</span></span>
+<span><span class="co"># new.packages &lt;- list.of.packages[!(list.of.packages %in% installed.packages()[,"Package"])]</span></span>
 <span></span>
-<span><span class="kw">if</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">new.packages</span><span class="op">)</span><span class="op">)</span> <span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="va">new.packages</span>, repos <span class="op">=</span> <span class="st">"https://cloud.r-project.org/"</span><span class="op">)</span></span></code></pre></div>
+<span><span class="co"># if(length(new.packages)) install.packages(new.packages, repos = "https://cloud.r-project.org/")</span></span></code></pre></div>
 <p>If you have any issues loading the remotes library using the code
 above, uncomment the line below to install the “remotes” package
 specifying the repo. You must load the remotes library before installing
 TADA and other packages from GitHub</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># install.packages("remotes", repos = "http://cran.us.r-project.org")</span></span>
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"remotes"</span>, repos <span class="op">=</span> <span class="st">"http://cran.us.r-project.org"</span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://remotes.r-lib.org" class="external-link">remotes</a></span><span class="op">)</span></span></code></pre></div>
 <p>Uncomment the lines below to install latest version of dataRetrieval
 and ggplot2 from GitHub.</p>
@@ -125,20 +125,19 @@ and ggplot2 from GitHub.</p>
 session</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># libraries loaded from CRAN</span></span>
-<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="http://had.co.nz/plyr" class="external-link">plyr</a></span><span class="op">)</span></span>
-<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://r-datatable.com" class="external-link">data.table</a></span><span class="op">)</span></span>
-<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://dplyr.tidyverse.org" class="external-link">dplyr</a></span><span class="op">)</span></span>
-<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://magrittr.tidyverse.org" class="external-link">magrittr</a></span><span class="op">)</span></span>
-<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://stringr.tidyverse.org" class="external-link">stringr</a></span><span class="op">)</span></span>
-<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">utils</span><span class="op">)</span></span>
-<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">RColorBrewer</span><span class="op">)</span></span>
-<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">stats</span><span class="op">)</span></span>
-<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://rlang.r-lib.org" class="external-link">rlang</a></span><span class="op">)</span></span>
-<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://r-spatial.github.io/sf/" class="external-link">sf</a></span><span class="op">)</span></span>
-<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://lubridate.tidyverse.org" class="external-link">lubridate</a></span><span class="op">)</span></span>
-<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://ggplot2.tidyverse.org" class="external-link">ggplot2</a></span><span class="op">)</span></span>
-<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">maps</span><span class="op">)</span></span>
-<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://code.usgs.gov/water/dataRetrieval" class="external-link">dataRetrieval</a></span><span class="op">)</span></span>
+<span><span class="co"># library(plyr)</span></span>
+<span><span class="co"># library(data.table)</span></span>
+<span><span class="co"># library(dplyr)</span></span>
+<span><span class="co"># library(magrittr)</span></span>
+<span><span class="co"># library(stringr)</span></span>
+<span><span class="co"># library(utils)</span></span>
+<span><span class="co"># library(RColorBrewer)</span></span>
+<span><span class="co"># library(stats)</span></span>
+<span><span class="co"># library(sf)</span></span>
+<span><span class="co"># library(lubridate)</span></span>
+<span><span class="co"># library(ggplot2)</span></span>
+<span><span class="co"># library(maps)</span></span>
+<span><span class="co"># library(dataRetrieval)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://usepa.github.io/TADA/">TADA</a></span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">
