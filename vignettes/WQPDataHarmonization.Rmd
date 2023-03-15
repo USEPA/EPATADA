@@ -61,7 +61,7 @@ ggplot2 from GitHub.
 
 # remotes::install_github("hadley/ggplot2", dependencies=TRUE)
 
-remotes::install_github("USEPA/TADA", ref = "Update-Harmonization-Template", dependencies = TRUE)
+remotes::install_github("USEPA/TADA", ref = "develop", dependencies = TRUE)
 
 # if you experience any issues installing TADA, try uncommenting and running the line below before the install
 # options(download.file.method = "wininet")
