@@ -104,12 +104,12 @@ completed.</p>
 <span>  startDate <span class="op">=</span> <span class="st">"null"</span>,</span>
 <span>  endDate <span class="op">=</span> <span class="st">"null"</span>,</span>
 <span>  statecode <span class="op">=</span> <span class="st">"null"</span>,</span>
-<span>  huc <span class="op">=</span> <span class="st">"null"</span>,</span>
 <span>  characteristicName <span class="op">=</span> <span class="st">"null"</span>,</span>
-<span>  siteType <span class="op">=</span> <span class="st">"null"</span>,</span>
 <span>  sampleMedia <span class="op">=</span> <span class="st">"Water"</span>,</span>
-<span>  applyautoclean <span class="op">=</span> <span class="cn">FALSE</span>,</span>
-<span>  maxsitesquery <span class="op">=</span> <span class="fl">20</span></span>
+<span>  siteType <span class="op">=</span> <span class="st">"null"</span>,</span>
+<span>  huc <span class="op">=</span> <span class="st">"null"</span>,</span>
+<span>  maxsitesquery <span class="op">=</span> <span class="fl">20</span>,</span>
+<span>  applyautoclean <span class="op">=</span> <span class="cn">FALSE</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -127,28 +127,28 @@ completed.</p>
 <dd><p>Character/character vector. State/territory abbreviations from FIPS codes consist of two letters</p></dd>
 
 
-<dt>huc</dt>
-<dd><p>A numeric code denoting a hydrologic unit. Example: "04030202". Different size hucs can be entered.</p></dd>
-
-
 <dt>characteristicName</dt>
 <dd><p>Name of water quality parameter</p></dd>
-
-
-<dt>siteType</dt>
-<dd><p>Name of water body type (e.g., "Stream", "Lake, Reservoir, Impoundment")</p></dd>
 
 
 <dt>sampleMedia</dt>
 <dd><p>Defaults to "Water". Refer to WQP domain tables for other options.</p></dd>
 
 
-<dt>applyautoclean</dt>
-<dd><p>Defaults to FALSE. If TRUE, runs TADA's autoclean function on final combined dataset.</p></dd>
+<dt>siteType</dt>
+<dd><p>Name of water body type (e.g., "Stream", "Lake, Reservoir, Impoundment")</p></dd>
+
+
+<dt>huc</dt>
+<dd><p>A numeric code denoting a hydrologic unit. Example: "04030202". Different size hucs can be entered.</p></dd>
 
 
 <dt>maxsitesquery</dt>
 <dd><p>Numeric. The maximum number of sites to query in each for-loop of the TADABigdataRetrieval function. This input is flexible because sites are often variable in their data richness. If several data rich sites are within the same download chunk, time outs and errors are more likely. Thus, the smaller the maxsitesquery (especially with very large datacalls), the lower the probability of overwhelming the WQP.</p></dd>
+
+
+<dt>applyautoclean</dt>
+<dd><p>Defaults to FALSE. If TRUE, runs TADA's autoclean function on final combined dataset.</p></dd>
 
 </dl></div>
     <div class="section level2">

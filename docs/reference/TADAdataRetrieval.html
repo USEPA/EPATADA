@@ -71,40 +71,28 @@ format for R users than the WQP GUI's endDateHi = "MM-DD-YYYY".</p>
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">TADAdataRetrieval</span><span class="op">(</span></span>
-<span>  statecode <span class="op">=</span> <span class="st">"null"</span>,</span>
 <span>  startDate <span class="op">=</span> <span class="st">"null"</span>,</span>
-<span>  countycode <span class="op">=</span> <span class="st">"null"</span>,</span>
-<span>  siteid <span class="op">=</span> <span class="st">"null"</span>,</span>
-<span>  siteType <span class="op">=</span> <span class="st">"null"</span>,</span>
+<span>  endDate <span class="op">=</span> <span class="st">"null"</span>,</span>
 <span>  characteristicName <span class="op">=</span> <span class="st">"null"</span>,</span>
 <span>  sampleMedia <span class="op">=</span> <span class="st">"null"</span>,</span>
-<span>  project <span class="op">=</span> <span class="st">"null"</span>,</span>
+<span>  siteType <span class="op">=</span> <span class="st">"null"</span>,</span>
+<span>  statecode <span class="op">=</span> <span class="st">"null"</span>,</span>
+<span>  countycode <span class="op">=</span> <span class="st">"null"</span>,</span>
+<span>  siteid <span class="op">=</span> <span class="st">"null"</span>,</span>
 <span>  organization <span class="op">=</span> <span class="st">"null"</span>,</span>
-<span>  endDate <span class="op">=</span> <span class="st">"null"</span>,</span>
+<span>  project <span class="op">=</span> <span class="st">"null"</span>,</span>
 <span>  applyautoclean <span class="op">=</span> <span class="cn">TRUE</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div class="section level2">
     <h2 id="arguments">Arguments<a class="anchor" aria-label="anchor" href="#arguments"></a></h2>
-    <dl><dt>statecode</dt>
-<dd><p>Code that identifies a state</p></dd>
-
-
-<dt>startDate</dt>
+    <dl><dt>startDate</dt>
 <dd><p>Start Date string in the format YYYY-MM-DD, for example, "2020-01-01"</p></dd>
 
 
-<dt>countycode</dt>
-<dd><p>Code that identifies a county</p></dd>
-
-
-<dt>siteid</dt>
-<dd><p>Unique monitoring station identifier</p></dd>
-
-
-<dt>siteType</dt>
-<dd><p>Type of waterbody</p></dd>
+<dt>endDate</dt>
+<dd><p>End Date string in the format YYYY-MM-DD</p></dd>
 
 
 <dt>characteristicName</dt>
@@ -115,16 +103,28 @@ format for R users than the WQP GUI's endDateHi = "MM-DD-YYYY".</p>
 <dd><p>Sampling substrate such as water, air, or sediment</p></dd>
 
 
-<dt>project</dt>
-<dd><p>A string of letters and/or numbers (some additional characters also possible) used to signify a project with data in the Water Quality Portal</p></dd>
+<dt>siteType</dt>
+<dd><p>Type of waterbody</p></dd>
+
+
+<dt>statecode</dt>
+<dd><p>Code that identifies a state</p></dd>
+
+
+<dt>countycode</dt>
+<dd><p>Code that identifies a county</p></dd>
+
+
+<dt>siteid</dt>
+<dd><p>Unique monitoring station identifier</p></dd>
 
 
 <dt>organization</dt>
 <dd><p>A string of letters and/or numbers (some additional characters also possible) used to signify an organization with data in the Water Quality Portal</p></dd>
 
 
-<dt>endDate</dt>
-<dd><p>End Date string in the format YYYY-MM-DD</p></dd>
+<dt>project</dt>
+<dd><p>A string of letters and/or numbers (some additional characters also possible) used to signify a project with data in the Water Quality Portal</p></dd>
 
 
 <dt>applyautoclean</dt>

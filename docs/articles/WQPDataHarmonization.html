@@ -146,11 +146,12 @@ session</p>
 </h2>
 <p>WQP data is retrieved and processed for compatibility with TADA. This
 function, <strong>TADAdataRetrieval</strong>, builds on the USGS
-dataRetrieval package functions. It joins three WQP profiles (i.e., the
-station, narrow, and phys/chem), changes all data in the Characteristic,
-Speciation, Fraction, and Unit fields to uppercase, removes true
-duplicates, removes data for all non-water media types, and cleans up
-results with special characters.</p>
+dataRetrieval package functions. It joins four WQP profiles (i.e., Site
+metadata, Sample Results (narrow), Sample Results (physical/chemical
+metadata), and Project metadata. In addition, it changes all data in the
+Characteristic, Speciation, Fraction, and Unit fields to uppercase,
+removes true duplicates, and addressed result values that include
+special characters.</p>
 <p>This function uses the same inputs as the dataRetrieval
 <code>readWQPdata</code> function. <code>readWQPdata</code> does not
 restrict the characteristics pulled from <a href="https://www.waterqualitydata.us/" class="external-link">Water Quality Portal (WQP)</a>.
@@ -158,26 +159,26 @@ You may specify the desired characteristics by using, for instance:
 characteristicName = “pH”.</p>
 <p>Data retrieval filters include:</p>
 <ul>
-<li><p>statecode (review list of possible state and territory <a href="https://www2.census.gov/geo/docs/reference/state.txt" class="external-link">abbreviations</a>)</p></li>
-<li><p>endDate</p></li>
 <li><p>startDate</p></li>
-<li><p>countycode</p></li>
-<li><p>siteid</p></li>
-<li><p>siteType</p></li>
+<li><p>endDate</p></li>
 <li><p>characteristicName</p></li>
 <li><p>sampleMedia</p></li>
-<li><p>project</p></li>
+<li><p>siteType</p></li>
+<li><p>statecode (review list of possible state and territory <a href="https://www2.census.gov/geo/docs/reference/state.txt" class="external-link">abbreviations</a>)</p></li>
+<li><p>countycode</p></li>
+<li><p>siteid</p></li>
 <li><p>organization</p></li>
+<li><p>project</p></li>
 </ul>
-<p>Please be aware that this TADAdataRetrieval function automatically
-runs the TADA <strong>autoclean</strong> and
-<strong>ConvertSpecialChars</strong> functions as well, which are both
-required for subsequent functions within the TADA R package to run. As a
-general rule, TADA functions do not change any contents in the
-WQP-served columns (enter <em>?ConvertSpecialChars</em> and
-<em>?autoclean</em> into the console for more details). Instead, they
-add new columns with the prefix “TADA.” The following columns are
-numeric versions of their WQP origins:</p>
+<p>Please be aware that the default TADAdataRetrieval function
+automatically runs the TADA <strong>autoclean</strong> and
+<strong>ConvertSpecialChars</strong> functions. Both are both required
+for subsequent functions within the TADA R package to run. As a general
+rule, TADA functions do not change any contents in the WQP-served
+columns (enter <em>?ConvertSpecialChars</em> and <em>?autoclean</em>
+into the console for more details). Instead, they add new columns with
+the prefix “TADA.” The following columns are numeric versions of their
+WQP origins:</p>
 <pre><code><span><span class="op">-</span>   <span class="va">TADA.ResultMeasureValue</span></span>
 <span></span>
 <span><span class="op">-</span>   <span class="va">TADA.DetectionQuantitationLimitMeasure.MeasureValue</span></span>
@@ -265,7 +266,7 @@ query inputs.</p>
 <span><span class="co"># TADAProfile &lt;- TADAdataRetrieval(statecode = "NM", characteristicName = c("Ammonia", "Nitrate", "Nitrogen"), startDate = "2020-05-01")</span></span>
 <span></span>
 <span><span class="co"># example for Alaska</span></span>
-<span><span class="co"># TADAProfile2 &lt;- TADAdataRetrieval(ProjectIdentifier = "Anchorage Bacteria 20-21")</span></span>
+<span><span class="co"># TADAProfile2 &lt;- TADAdataRetrieval(project = "Anchorage Bacteria 20-21")</span></span>
 <span></span>
 <span><span class="co"># another example query for Alaska. We will move forward with this example in the remainder of the vignette</span></span>
 <span><span class="va">TADAProfile</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/TADAdataRetrieval.html">TADAdataRetrieval</a></span><span class="op">(</span>statecode <span class="op">=</span> <span class="st">"AK"</span>, characteristicName <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Fecal Coliform"</span>, <span class="st">"Escherichia coli"</span>, <span class="st">"Enterococcus"</span>, <span class="st">"Ammonia"</span>, <span class="st">"Nitrate"</span>, <span class="st">"Nitrogen"</span><span class="op">)</span>, startDate <span class="op">=</span> <span class="st">"2018-05-01"</span><span class="op">)</span></span>
@@ -290,29 +291,25 @@ WQP timeout issues, then the <strong>TADABigdataRetrieval</strong>
 function may work better.</p>
 <p>This function does multiple synchronous data calls to the WQP
 (waterqualitydata.us). It uses the WQP summary service to limit the
-amount downloaded to only relevant data, and pulls back data from 100
-stations at a time and then joins the data back together and produces a
-single TADA compatible dataframe as the output. For large dataframes,
-that can save a lot of time and ultimately reduce the complexity of
-subsequent data processing. Using this function, you will be able to
-download all data available from all sites in the contiguous United
-States that is available for the time period, characteristicName,
-statecode, and siteType requested.</p>
+sites downloaded to only those with relevant data. It pulls back data
+from set number of stations at a time and then joins the data back
+together to produce a single TADA compatible dataframe as the
+output.</p>
 <p>See ?TADABigdataRetrieval for more details. WARNING, this can take
 multiple HOURS to run. The total run time depends on your query
 inputs.</p>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># WARNING, this can take multiple HOURS to run </span></span>
-<span><span class="co"># StreamTemp &lt;- TADABigdataRetrieval(startDate = "2000-01-01", </span></span>
+<span><span class="co"># AK_AL_WaterTemp &lt;- TADABigdataRetrieval(startDate = "2000-01-01", </span></span>
 <span><span class="co">#                                     endDate = "2022-12-31", </span></span>
 <span><span class="co">#                                     characteristicName = "Temperature, water",</span></span>
 <span><span class="co">#                                     statecode = c("AK","AL"))</span></span>
 <span><span class="co"># </span></span>
-<span><span class="co"># WaterTemp &lt;- TADABigdataRetrieval(characteristicName = "Temperature, water")</span></span>
+<span><span class="co"># AllWaterTemp &lt;- TADABigdataRetrieval(characteristicName = "Temperature, water")</span></span>
 <span><span class="co">#</span></span>
-<span><span class="co"># Phosphorus &lt;- TADABigdataRetrieval(characteristicName = "Phosphorus")</span></span>
+<span><span class="co"># AllPhosphorus &lt;- TADABigdataRetrieval(characteristicName = "Phosphorus")</span></span>
 <span><span class="co"># </span></span>
-<span><span class="co"># CT &lt;- TADABigdataRetrieval(statecode = "CT")</span></span></code></pre></div>
+<span><span class="co"># AllCT &lt;- TADABigdataRetrieval(statecode = "CT")</span></span></code></pre></div>
 <p>Review all column names in the TADA Profile. Remove results that are
 not water samples or measurements (TADA is recommended for use with
 water data only).</p>
@@ -1093,12 +1090,7 @@ detection limit (half the detection limit). Please review
 <span><span class="co">#&gt; Warning in summarizeCensoredData(TADAProfileClean17, spec_cols =</span></span>
 <span><span class="co">#&gt; c("TADA.CharacteristicName", : Dataset contains data missing both a result</span></span>
 <span><span class="co">#&gt; value and a detection limit. Suggest removing or handling before summarizing.</span></span>
-<span><span class="co">#&gt; Warning in idCensoredData(.data): DetectionQuantitationLimitTypeName column</span></span>
-<span><span class="co">#&gt; dataset contains value(s) Historical Lower Reporting Limit which is/are not</span></span>
-<span><span class="co">#&gt; represented in the DetectionQuantitationLimitTypeName WQX domain table. These</span></span>
-<span><span class="co">#&gt; data records are placed under the TADA.CensoredData.Flag: Censored but not</span></span>
-<span><span class="co">#&gt; Categorized, and will not be used in censored data handling methods. Please</span></span>
-<span><span class="co">#&gt; contact TADA administrators to resolve.</span></span>
+<span><span class="co">#&gt; [1] "DetectionQuantitationLimitTypeName column dataset contains value(s) Historical Lower Reporting Limit which is/are not represented in the DetectionQuantitationLimitTypeName WQX domain table. These data records are placed under the TADA.CensoredData.Flag: Censored but not Categorized, and will not be used in censored data handling methods. Please contact TADA administrators to resolve."</span></span>
 <span><span class="co">#&gt; Warning in idCensoredData(.data): 7 records in supplied dataset have</span></span>
 <span><span class="co">#&gt; conflicting detection condition and detection limit type information. These</span></span>
 <span><span class="co">#&gt; records will not be included in detection limit handling calculations.</span></span>
@@ -1154,13 +1146,7 @@ detection limit (half the detection limit). Please review
 <span><span class="co">#&gt; 11               Robust Regression Order Statistics</span></span>
 <span></span>
 <span><span class="va">TADAProfileClean18</span> <span class="op">=</span> <span class="fu"><a href="../reference/simpleCensoredMethods.html">simpleCensoredMethods</a></span><span class="op">(</span><span class="va">TADAProfileClean17</span>, nd_method <span class="op">=</span> <span class="st">"multiplier"</span>, nd_multiplier <span class="op">=</span> <span class="fl">0.5</span>, od_method <span class="op">=</span> <span class="st">"as-is"</span>, od_multiplier <span class="op">=</span> <span class="st">"null"</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Warning in idCensoredData(.data): DetectionQuantitationLimitTypeName column</span></span>
-<span><span class="co">#&gt; dataset contains value(s) Historical Lower Reporting Limit which is/are not</span></span>
-<span><span class="co">#&gt; represented in the DetectionQuantitationLimitTypeName WQX domain table. These</span></span>
-<span><span class="co">#&gt; data records are placed under the TADA.CensoredData.Flag: Censored but not</span></span>
-<span><span class="co">#&gt; Categorized, and will not be used in censored data handling methods. Please</span></span>
-<span><span class="co">#&gt; contact TADA administrators to resolve.</span></span>
-<span></span>
+<span><span class="co">#&gt; [1] "DetectionQuantitationLimitTypeName column dataset contains value(s) Historical Lower Reporting Limit which is/are not represented in the DetectionQuantitationLimitTypeName WQX domain table. These data records are placed under the TADA.CensoredData.Flag: Censored but not Categorized, and will not be used in censored data handling methods. Please contact TADA administrators to resolve."</span></span>
 <span><span class="co">#&gt; Warning in idCensoredData(.data): 7 records in supplied dataset have</span></span>
 <span><span class="co">#&gt; conflicting detection condition and detection limit type information. These</span></span>
 <span><span class="co">#&gt; records will not be included in detection limit handling calculations.</span></span></code></pre></div>
