@@ -70,12 +70,12 @@ ConvertResultUnits <- function(.data, transform = TRUE) {
     "TADA.ResultMeasure.MeasureUnitCode",
     "TADA.DetectionQuantitationLimitMeasure.MeasureValue",
     "TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode"
-    )
+  )
   
   checkColumns(.data, expected_cols)
   
   # execute function after checks are passed
-
+  
   # filter WQXcharValRef to include only valid CharacteristicUnit in water media
   unit.ref <- GetWQXCharValRef() %>%
     dplyr::filter(Type == "CharacteristicUnit" & Source == "WATER" &
@@ -173,12 +173,13 @@ ConvertResultUnits <- function(.data, transform = TRUE) {
     # remove extraneous columns, fix field names
     clean.data <- clean.data %>%
       dplyr::select(-c("WQX.ConversionFactor", "WQX.TargetUnit"))
+
   }
-    # reorder cols
-    clean.data = OrderTADACols(clean.data)
-    
-    return(clean.data)
-  }
+  # reorder cols
+  clean.data = OrderTADACols(clean.data)
+  
+  return(clean.data)
+}
 
 
 
@@ -263,9 +264,9 @@ ConvertDepthUnits <- function(.data,
   }
   # check fields argument for valid inputs
   valid_fields <- c("ActivityDepthHeightMeasure",
-                   "ActivityTopDepthHeightMeasure",
-                   "ActivityBottomDepthHeightMeasure",
-                   "ResultDepthHeightMeasure")
+                    "ActivityTopDepthHeightMeasure",
+                    "ActivityBottomDepthHeightMeasure",
+                    "ResultDepthHeightMeasure")
   if (all(is.na(match(valid_fields, fields))) == TRUE) {
     stop("Invalid 'fields' argument. 'fields' must include one or many of the
     following: 'ActivityDepthHeightMeasure,' 'ActivityTopDepthHeightMeasure,'
@@ -284,7 +285,7 @@ ConvertDepthUnits <- function(.data,
     "ActivityBottomDepthHeightMeasure.MeasureUnitCode",
     "ResultDepthHeightMeasure.MeasureValue",
     "ResultDepthHeightMeasure.MeasureUnitCode"
-    )
+  )
   checkColumns(.data, expected_cols)
   
   # execute function after checks are passed
@@ -321,7 +322,7 @@ ConvertDepthUnits <- function(.data,
         
         # new TADA column
         unitCol2 = paste0("TADA.",unitCol)
-       
+        
         # deal with any units that are "meters" and change to "m" (USGS convention)
         check.data$new = check.data[,unitCol]
         check.data$new[check.data$new=="meters"] = "m"
@@ -381,19 +382,19 @@ ConvertDepthUnits <- function(.data,
         # multiply .MeasureValue by WQXConversionFactor.
         # if else added to deal with NA's in RV column, which throws error when NA multiplied by number.
         .data$val <- ifelse(!is.na(.data$val),.data$val * .data$cf,.data$val)
-          
-          # then replace unit values with the new unit argument
-          .data$unit[which(
-            !is.na(.data$unit)
-          )] <- unit
-          
-          # replace TADA depth height columns and remove WQX conversion column
-          .data <- dplyr::select(.data, -cf,-dplyr::all_of(coln),-dplyr::all_of(colnv),-dplyr::all_of(colnu))
-          names(.data)[names(.data)=="val"] = colnv
-          names(.data)[names(.data)=="unit"] = colnu
-          
-          return(.data)
-        }else{return(.data)}
+        
+        # then replace unit values with the new unit argument
+        .data$unit[which(
+          !is.na(.data$unit)
+        )] <- unit
+        
+        # replace TADA depth height columns and remove WQX conversion column
+        .data <- dplyr::select(.data, -cf,-dplyr::all_of(coln),-dplyr::all_of(colnv),-dplyr::all_of(colnu))
+        names(.data)[names(.data)=="val"] = colnv
+        names(.data)[names(.data)=="unit"] = colnu
+        
+        return(.data)
+      }else{return(.data)}
     }
     
     clean.data = conv_unit(clean.data,"WQXConversionFactor.ActivityDepthHeightMeasure")
@@ -406,6 +407,8 @@ ConvertDepthUnits <- function(.data,
     clean.data = OrderTADACols(clean.data)
     return(clean.data)
   }
+
+
 }
 
 #' Generate Unique Harmonization Reference Table

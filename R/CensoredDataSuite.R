@@ -102,6 +102,7 @@ idCensoredData <- function(.data){
 #' 
 #' # Check for agreement between detection condition and detection limit type, and in instances where the sample is non-detect, set the result value to a random value between 0 and the detection limit value. For over-detect samples, retain the detection limit value as the result value as-is. 
 #' Nutrients_Utah_CensoredFlag = simpleCensoredMethods(Nutrients_Utah, nd_method = "randombelowlimit", nd_multiplier = "null", od_method = "as-is", od_multiplier = "null")
+#' 
 
 
 
@@ -185,6 +186,7 @@ simpleCensoredMethods <- function(.data, nd_method = "multiplier", nd_multiplier
 #' 
 #' 
 #' @export
+#' 
 
 summarizeCensoredData <- function(.data, spec_cols = c("TADA.CharacteristicName","TADA.ResultMeasure.MeasureUnitCode","TADA.ResultSampleFractionText","TADA.MethodSpecificationName")){
   
