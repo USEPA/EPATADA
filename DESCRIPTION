@@ -48,15 +48,14 @@ Imports:
     ggplot2, 
     sf,
     maps,
-    rlang
+    remotes,
+    rmarkdown
 Depends: 
     R (>= 3.5.0)
 Suggests: 
     readr,
-    remotes, 
     tidyverse,
     knitr,
-    rmarkdown,
     testthat,
     testthis, 
     usethis,
