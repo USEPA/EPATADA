@@ -91,13 +91,13 @@ InvalidMethod <- function(.data, clean = TRUE, errorsonly = FALSE) {
     if (any("Invalid" %in%
             unique(check.data$TADA.AnalyticalMethod.Flag)) == FALSE) {
       print("No invalid method/characteristic combinations in your dataframe. Returning the input dataframe with TADA.AnalyticalMethod.Flag column for tracking.")
-      check.data = OrderTADACols(check.data)
+      check.data <- OrderTADACols(check.data)
       return(check.data)
     }
     
     # flagged output, all data
     if (clean == FALSE) {
-      check.data = OrderTADACols(check.data)
+      check.data <- OrderTADACols(check.data)
       return(check.data)
     }
     
@@ -108,7 +108,7 @@ InvalidMethod <- function(.data, clean = TRUE, errorsonly = FALSE) {
       
       # remove WQX.AnalyticalMethodValidity column
       # clean.data <- dplyr::select(clean.data, -TADA.AnalyticalMethod.Flag)
-      clean.data = OrderTADACols(clean.data)
+      clean.data <- OrderTADACols(clean.data)
       return(clean.data)
     }
   }
@@ -177,7 +177,8 @@ InvalidMethod <- function(.data, clean = TRUE, errorsonly = FALSE) {
 #' AggContinuous_flags <- AggregatedContinuousData(Nutrients_Utah, clean = FALSE)
 #' 
 #' # Show only rows flagged for aggregated continuous data:
-#' AggContinuous_errorsonly <- AggregatedContinuousData(Nutrients_Utah, clean = FALSE, errorsonly = TRUE)
+#' AggContinuous_errorsonly <- AggregatedContinuousData(Nutrients_Utah, 
+#' clean = FALSE, errorsonly = TRUE)
 #' 
 
 AggregatedContinuousData <- function(.data, clean = TRUE, errorsonly = FALSE) {
@@ -217,7 +218,7 @@ AggregatedContinuousData <- function(.data, clean = TRUE, errorsonly = FALSE) {
     
     # flagged output, all data
     if (clean == FALSE & errorsonly == FALSE) {
-      flag.data = OrderTADACols(flag.data)
+      flag.data <- OrderTADACols(flag.data)
       return(flag.data)
     }
     
@@ -228,7 +229,7 @@ AggregatedContinuousData <- function(.data, clean = TRUE, errorsonly = FALSE) {
       
       # remove TADA.AggregatedContinuousData column
       # clean.data <- dplyr::select(clean.data, -TADA.AggregatedContinuousData.Flag)
-      clean.data = OrderTADACols(clean.data)
+      clean.data <- OrderTADACols(clean.data)
       return(clean.data)
     }
     
@@ -236,7 +237,7 @@ AggregatedContinuousData <- function(.data, clean = TRUE, errorsonly = FALSE) {
     if (clean == FALSE & errorsonly == TRUE) {
       #filter to show only invalid characteristic-unit-media combinations
       aggcont.data <- dplyr::filter(flag.data, TADA.AggregatedContinuousData.Flag == "Y")
-      aggcont.data = OrderTADACols(aggcont.data)
+      aggcont.data <- OrderTADACols(aggcont.data)
       return(aggcont.data)
     }
   }
@@ -245,13 +246,13 @@ AggregatedContinuousData <- function(.data, clean = TRUE, errorsonly = FALSE) {
   if (nrow(cont.data) == 0) {
     if (errorsonly == FALSE) {
       print("No evidence of aggregated continuous data in your dataframe. Returning the input dataframe with TADA.AggregatedContinuousData.Flag column for tracking.")
-      .data = OrderTADACols(.data)
+      .data <- OrderTADACols(.data)
       return(.data)
     }
     
     if (errorsonly == TRUE) {
       print("This dataframe is empty because we did not find any aggregated continuous data in your dataframe")
-      cont.data = OrderTADACols(cont.data)
+      cont.data <- OrderTADACols(cont.data)
       return(cont.data)
     }
   }
@@ -341,12 +342,12 @@ PotentialDuplicateRowID <- function(.data, clean = TRUE, errorsonly = FALSE) {
   if (nrow(dupe.data) == 0) {
     if (errorsonly == FALSE) {
       print("No potential duplicates found in your dataframe.")
-      .data = OrderTADACols(.data)
+      .data <- OrderTADACols(.data)
       return(.data)
     }
     if (errorsonly == TRUE) {
       print("This dataframe is empty because we did not find any potential duplicates in your dataframe")
-      dupe.data = OrderTADACols(dupe.data)
+      dupe.data <- OrderTADACols(dupe.data)
       return(dupe.data)
     }
   }
@@ -372,7 +373,7 @@ PotentialDuplicateRowID <- function(.data, clean = TRUE, errorsonly = FALSE) {
     
     # flagged output, all data
     if (clean == FALSE & errorsonly == FALSE) {
-      flag.data = OrderTADACols(flag.data)
+      flag.data <- OrderTADACols(flag.data)
       return(flag.data)
     }
     
@@ -389,7 +390,7 @@ PotentialDuplicateRowID <- function(.data, clean = TRUE, errorsonly = FALSE) {
       
       # remove TADA.PotentialDupRowID column
       clean.data <- dplyr::select(clean.data, -TADA.PotentialDupRowIDs.Flag)
-      clean.data = OrderTADACols(clean.data)
+      clean.data <- OrderTADACols(clean.data)
       return(clean.data)
     }
     
@@ -397,7 +398,7 @@ PotentialDuplicateRowID <- function(.data, clean = TRUE, errorsonly = FALSE) {
     if (clean == FALSE & errorsonly == TRUE) {
       # filter to show duplicate data only
       dup.data <- flag.data[!is.na(flag.data$TADA.PotentialDupRowIDs.Flag), ]
-      dup.data = OrderTADACols(dup.data)
+      dup.data <- OrderTADACols(dup.data)
       return(dup.data)
     }
   }
@@ -518,21 +519,21 @@ AboveNationalWQXUpperThreshold <- function(.data, clean = TRUE, errorsonly = FAL
           unique(flag.data$TADA.ResultValueAboveUpperThreshold.Flag)) == FALSE) {
     if (errorsonly == FALSE) {
       print("No data above the WQX Upper Threshold was found in your dataframe. Returning the input dataframe with TADA.ResultAboveUpperThreshold.Flag column for tracking.")
-      flag.data = OrderTADACols(flag.data)
+      flag.data <- OrderTADACols(flag.data)
       return(flag.data)
     }
     if (errorsonly == TRUE) {
       print("This dataframe is empty because no data above the WQX Upper Threshold was found in your dataframe")
       emptyflag.data <- dplyr::filter(flag.data, TADA.ResultValueAboveUpperThreshold.Flag %in% "Y")
       # emptyflag.data <- dplyr::select(emptyflag.data, -TADA.ResultValueAboveUpperThreshold.Flag)
-      emptyflag.data = OrderTADACols(emptyflag.data)
+      emptyflag.data <- OrderTADACols(emptyflag.data)
       return(emptyflag.data)
     }
   }
   
   # flagged, all data
   if (clean == FALSE & errorsonly == FALSE) {
-    flag.data = OrderTADACols(flag.data)
+    flag.data <- OrderTADACols(flag.data)
     return(flag.data)
   }
   
@@ -542,7 +543,7 @@ AboveNationalWQXUpperThreshold <- function(.data, clean = TRUE, errorsonly = FAL
     clean.data <- flag.data %>%
       dplyr::filter(!(TADA.ResultValueAboveUpperThreshold.Flag %in% "Y")) #%>%
       # dplyr::select(-TADA.ResultValueAboveUpperThreshold.Flag)
-    clean.data = OrderTADACols(clean.data)
+    clean.data <- OrderTADACols(clean.data)
     return(clean.data)
   }
   
@@ -551,7 +552,7 @@ AboveNationalWQXUpperThreshold <- function(.data, clean = TRUE, errorsonly = FAL
     # filter to show only rows above WQX upper threshold
     flagsonly.data <- flag.data %>%
       dplyr::filter(TADA.ResultValueAboveUpperThreshold.Flag %in% "Y")
-    flagsonly.data = OrderTADACols(flagsonly.data)
+    flagsonly.data <- OrderTADACols(flagsonly.data)
     return(flagsonly.data)
   }
 }
@@ -669,14 +670,14 @@ BelowNationalWQXLowerThreshold <- function(.data, clean = TRUE, errorsonly = FAL
           unique(flag.data$TADA.ResultValueBelowLowerThreshold.Flag)) == FALSE) {
     if (errorsonly == FALSE) {
       print("No data below the WQX Lower Threshold were found in your dataframe. Returning the input dataframe with TADA.ResultValueBelowLowerThreshold.Flag column for tracking.")
-      flag.data = OrderTADACols(flag.data)
+      flag.data <- OrderTADACols(flag.data)
       return(flag.data)
     }
     if (errorsonly == TRUE) {
       print("This dataframe is empty because no data below the WQX Lower Threshold was found in your dataframe")
       emptyflag.data <- dplyr::filter(flag.data, TADA.ResultValueBelowLowerThreshold.Flag %in% "Y")
       # emptyflag.data <- dplyr::select(emptyflag.data, -TADA.ResultValueBelowLowerThreshold.Flag)
-      emptyflag.data = OrderTADACols(emptyflag.data)
+      emptyflag.data <- OrderTADACols(emptyflag.data)
       return(emptyflag.data)
     }
   }
@@ -693,7 +694,7 @@ BelowNationalWQXLowerThreshold <- function(.data, clean = TRUE, errorsonly = FAL
     clean.data <- flag.data %>%
       dplyr::filter(!(TADA.ResultValueBelowLowerThreshold.Flag %in% "Y")) #%>%
       # dplyr::select(-TADA.ResultValueBelowLowerThreshold.Flag)
-    clean.data = OrderTADACols(clean.data)
+    clean.data <- OrderTADACols(clean.data)
     return(clean.data)
   }
   
@@ -702,7 +703,7 @@ BelowNationalWQXLowerThreshold <- function(.data, clean = TRUE, errorsonly = FAL
     # filter to show only rows where TADA.ResultValueBelowLowerThreshold.Flag = Y
     flagsonly.data <- flag.data %>%
       dplyr::filter(TADA.ResultValueBelowLowerThreshold.Flag %in% "Y")
-    flagsonly.data = OrderTADACols(flagsonly.data)
+    flagsonly.data <- OrderTADACols(flagsonly.data)
     return(flagsonly.data)
   }
 }

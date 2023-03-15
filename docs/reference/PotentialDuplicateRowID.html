@@ -117,11 +117,11 @@ and no column is appended.</p>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Remove potential duplicate data from dataframe:</span></span></span>
 <span class="r-in"><span><span class="va">PotentialDup_clean</span> <span class="op">&lt;-</span> <span class="fu">PotentialDuplicateRowID</span><span class="op">(</span><span class="va">Nutrients_Utah</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "No changes were made, because we did not find any potential duplicates in your dataframe"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "No potential duplicates found in your dataframe."</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Flag, but do not remove, potential duplicate data in new column titled "TADA.PotentialDupRowIDs.Flag":</span></span></span>
 <span class="r-in"><span><span class="va">PotentialDup_flagcolumnadded</span> <span class="op">&lt;-</span> <span class="fu">PotentialDuplicateRowID</span><span class="op">(</span><span class="va">Nutrients_Utah</span>, clean <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "No changes were made, because we did not find any potential duplicates in your dataframe"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "No potential duplicates found in your dataframe."</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Flag and review potential duplicate data only:</span></span></span>
 <span class="r-in"><span><span class="va">PotentialDup_reviewduplicatesonly</span> <span class="op">&lt;-</span> <span class="fu">PotentialDuplicateRowID</span><span class="op">(</span><span class="va">Nutrients_Utah</span>, clean <span class="op">=</span> <span class="cn">FALSE</span>, errorsonly <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span> </span></span>

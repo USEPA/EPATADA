@@ -39,7 +39,7 @@ idCensoredData <- function(.data){
   if(any(!conds%in%cond.ref$ResultDetectionConditionText)){
     missing_conds = conds[!conds%in%cond.ref$ResultDetectionConditionText]
     missing_conds = paste(missing_conds, collapse = ", ")
-    warning(paste0("ResultDetectionConditionText column in dataset contains value(s) ",missing_conds, " which is/are not represented in the ResultDetectionConditionText WQX domain table. These data records are placed under the TADA.CensoredData.Flag: Censored but not Categorized, and will not be used in censored data handling methods. Please contact TADA administrators to resolve."))
+    print(paste0("ResultDetectionConditionText column in dataset contains value(s) ",missing_conds, " which is/are not represented in the ResultDetectionConditionText WQX domain table. These data records are placed under the TADA.CensoredData.Flag: Censored but not Categorized, and will not be used in censored data handling methods. Please contact TADA administrators to resolve."))
   }
   
   ## Bring in det limit type reference table
@@ -52,7 +52,7 @@ idCensoredData <- function(.data){
   if(any(!limits%in%limtype.ref$DetectionQuantitationLimitTypeName)){
     missing_lims = limits[!limits%in%limtype.ref$DetectionQuantitationLimitTypeName]
     missing_lims = paste(missing_lims, collapse = ", ")
-    warning(paste0("DetectionQuantitationLimitTypeName column dataset contains value(s) ",missing_lims, " which is/are not represented in the DetectionQuantitationLimitTypeName WQX domain table. These data records are placed under the TADA.CensoredData.Flag: Censored but not Categorized, and will not be used in censored data handling methods. Please contact TADA administrators to resolve."))
+    print(paste0("DetectionQuantitationLimitTypeName column dataset contains value(s) ",missing_lims, " which is/are not represented in the DetectionQuantitationLimitTypeName WQX domain table. These data records are placed under the TADA.CensoredData.Flag: Censored but not Categorized, and will not be used in censored data handling methods. Please contact TADA administrators to resolve."))
   }
   
   ## Create flag for condition and limit type combinations

@@ -121,12 +121,12 @@ returned. The defaults are clean = TRUE and errorsonly = FALSE.</p>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Remove data that is below the lower WQX threshold from the dataframe:</span></span></span>
 <span class="r-in"><span><span class="va">WQXLowerThreshold_clean</span> <span class="op">&lt;-</span> <span class="fu">BelowNationalWQXLowerThreshold</span><span class="op">(</span><span class="va">Nutrients_Utah</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "No changes were made because no data below the WQX Lower Threshold was found in your dataframe"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "No data below the WQX Lower Threshold were found in your dataframe. Returning the input dataframe with TADA.ResultValueBelowLowerThreshold.Flag column for tracking."</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Flag, but do not remove, data that is below the lower WQX threshold in</span></span></span>
 <span class="r-in"><span><span class="co"># new column titled "TADA.ResultValueBelowLowerThreshold.Flag":</span></span></span>
 <span class="r-in"><span><span class="va">WQXLowerThreshold_flags</span> <span class="op">&lt;-</span> <span class="fu">BelowNationalWQXLowerThreshold</span><span class="op">(</span><span class="va">Nutrients_Utah</span>, clean <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "No changes were made because no data below the WQX Lower Threshold was found in your dataframe"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "No data below the WQX Lower Threshold were found in your dataframe. Returning the input dataframe with TADA.ResultValueBelowLowerThreshold.Flag column for tracking."</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Show only data that is below the lower WQX threshold:</span></span></span>
 <span class="r-in"><span><span class="va">WQXLowerThreshold_flagsonly</span> <span class="op">&lt;-</span> <span class="fu">BelowNationalWQXLowerThreshold</span><span class="op">(</span><span class="va">Nutrients_Utah</span>,</span></span>

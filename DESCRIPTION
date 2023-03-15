@@ -47,7 +47,8 @@ Imports:
     dataRetrieval, 
     ggplot2, 
     sf,
-    maps
+    maps,
+    rlang
 Depends: 
     R (>= 3.5.0)
 Suggests: 
