@@ -22,68 +22,30 @@ knitr::opts_chunk$set(
 
 ## Overview
 
-This vignette will walk through how to discover, wrangle, and harmonize
+This vignette will walk through how to discover, wrangle, QAQC, and harmonize
 [Water Quality Portal (WQP)](https://www.waterqualitydata.us/) data from
 multiple organizations.
 
 ## Install and load packages
 
-To install TADA, currently you need to install from GitHub using remotes
-(shown) or devtools. dataRetrieval will be downloaded from CRAN, but the
-development version can be downloaded directly from GitHub (un-comment).
+To install TADA, currently you need to install from GitHub using remotes (shown) or devtools. 
 
-The following code (un-comment) will also install any packages you do not have, and
-load all packages required to run this vignette into your R session.
-
-```{r, results = 'hide', message = FALSE, warning = FALSE}
-# list.of.packages <- c("plyr", "data.table", "dplyr", "magrittr", "stringr", "maps","utils", "RColorBrewer", "stats", "lubridate", "remotes", "dataRetrieval", "ggplot2", "sf")
-
-# new.packages <- list.of.packages[!(list.of.packages %in% installed.packages()[,"Package"])]
-
-# if(length(new.packages)) install.packages(new.packages, repos = "https://cloud.r-project.org/")
-```
-
-If you have any issues loading the remotes library using the code above,
-uncomment the line below to install the "remotes" package specifying the
-repo. You must load the remotes library before installing TADA and other
-packages from GitHub
+First, install and load the "remotes" package specifying the repo. This is needed before installing TADA because it is only available on GitHub (not CRAN).
 
 ```{r, results = 'hide', message = FALSE, warning = FALSE}
 install.packages("remotes", repos = "http://cran.us.r-project.org")
 library(remotes)
 ```
 
-Uncomment the lines below to install latest version of dataRetrieval and
-ggplot2 from GitHub.
+Next, install and load TADA. dataRetrieval and other TADA R Package dependencies will also be downloaded from CRAN with the TADA install, but the development version can be downloaded directly from GitHub if desired (un-comment). 
 
 ```{r, results = 'hide', message = FALSE, warning = FALSE}
 # remotes::install_github("USGS-R/dataRetrieval", dependencies=TRUE)
 
-# remotes::install_github("hadley/ggplot2", dependencies=TRUE)
-
-remotes::install_github("USEPA/TADA", ref = "develop", dependencies = TRUE)
-
 # if you experience any issues installing TADA, try uncommenting and running the line below before the install
 # options(download.file.method = "wininet")
-```
 
-Load the required libraries to run this vignette into your R session
-
-```{r, results = 'hide', message = FALSE, warning = FALSE}
-# libraries loaded from CRAN
-# library(plyr)
-# library(data.table)
-# library(dplyr)
-# library(magrittr)
-# library(stringr)
-# library(utils)
-# library(RColorBrewer)
-# library(stats)
-# library(sf)
-# library(lubridate)
-# library(ggplot2)
-# library(maps)
-# library(dataRetrieval)
+remotes::install_github("USEPA/TADA", ref = "develop", dependencies = TRUE)
 library(TADA)
 
 ```
