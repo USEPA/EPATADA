@@ -60,7 +60,7 @@ InvalidMethod <- function(.data, clean = TRUE, errorsonly = FALSE) {
     stop("Function not executed because clean and errorsonly cannot both be TRUE")
   }
 
-  # execute function after checks are passed
+  # execute function after checks are passed - removes flag column in case reference table has changed.
   # delete existing flag column
   if (("TADA.AnalyticalMethod.Flag" %in% colnames(.data)) == TRUE) {
     .data <- dplyr::select(.data, -TADA.AnalyticalMethod.Flag)
@@ -84,28 +84,15 @@ InvalidMethod <- function(.data, clean = TRUE, errorsonly = FALSE) {
   # rename NA values to Nonstandardized in WQX.AnalyticalMethodValidity column
   check.data["TADA.AnalyticalMethod.Flag"][is.na(check.data["TADA.AnalyticalMethod.Flag"])] <- "Nonstandardized"
   
-  # # reorder column names to match .data
-  # # get .data column names
-  # col.order <- colnames(.data)
-  # # add WQX.AnalyticalMethodValidity column to the list
-  # col.order <- append(col.order, "WQX.AnalyticalMethodValidity")
-  # # reorder columns in flag.data
-  # check.data <- check.data[, col.order]
-  # # place flag columns next to relevant fields
-  # check.data <- check.data %>%
-  #   dplyr::relocate("WQX.AnalyticalMethodValidity",
-  #                   .after = "ResultAnalyticalMethod.MethodName"
-  #   )
-  
   if (errorsonly == FALSE) {
     
     #if all rows are "Valid" or NA "Nonstandardized", return input unchanged
     ##note: Cristina edited this on 9/19/22 to keep Nonstandardized/NA data when clean = TRUE. Now only Invalid data is removed.
     if (any("Invalid" %in%
             unique(check.data$TADA.AnalyticalMethod.Flag)) == FALSE) {
-      print("No changes were made, because we did not find any invalid method/characteristic combinations in your dataframe")
-      .data = OrderTADACols(.data)
-      return(.data)
+      print("No invalid method/characteristic combinations in your dataframe. Returning the input dataframe with TADA.AnalyticalMethod.Flag column for tracking.")
+      check.data = OrderTADACols(check.data)
+      return(check.data)
     }
     
     # flagged output, all data
@@ -120,7 +107,7 @@ InvalidMethod <- function(.data, clean = TRUE, errorsonly = FALSE) {
       clean.data <- dplyr::filter(check.data, TADA.AnalyticalMethod.Flag != "Invalid")
       
       # remove WQX.AnalyticalMethodValidity column
-      clean.data <- dplyr::select(clean.data, -TADA.AnalyticalMethod.Flag)
+      # clean.data <- dplyr::select(clean.data, -TADA.AnalyticalMethod.Flag)
       clean.data = OrderTADACols(clean.data)
       return(clean.data)
     }
@@ -131,7 +118,7 @@ InvalidMethod <- function(.data, clean = TRUE, errorsonly = FALSE) {
     # filter to show only invalid characteristic-unit-method combinations
     invalid.data <- dplyr::filter(check.data, TADA.AnalyticalMethod.Flag == "Invalid")
     if (nrow(invalid.data) == 0) {
-      invalid.data <- dplyr::select(invalid.data, -TADA.AnalyticalMethod.Flag)
+      # invalid.data <- dplyr::select(invalid.data, -TADA.AnalyticalMethod.Flag)
       print("This dataframe is empty because we did not find any invalid method/characteristic combinations in your dataframe")
     }
     invalid.data = OrderTADACols(invalid.data)
@@ -206,6 +193,9 @@ AggregatedContinuousData <- function(.data, clean = TRUE, errorsonly = FALSE) {
   if (clean == TRUE & errorsonly == TRUE) {
     stop("Function not executed because clean and errorsonly cannot both be TRUE")
   }
+  
+  # set default flag to "unknown"
+  .data$TADA.AggregatedContinuousData.Flag = "Unknown"
 
   # execute function after checks are passed
   # flag continuous data
@@ -215,12 +205,15 @@ AggregatedContinuousData <- function(.data, clean = TRUE, errorsonly = FALSE) {
     ResultDetectionConditionText == "Reported in Raw Data (attached)"
   )
   
+  # everything not in cont dataframe
+  noncont.data = subset(.data, !.data$ResultIdentifier%in%cont.data$ResultIdentifier)
+  
   # if there is aggregated continuous data is in the data set
   if (nrow(cont.data) != 0) {
-    # append ContDataFlag column
+    # change contents of ContDataFlag column
     cont.data$TADA.AggregatedContinuousData.Flag <- "Y"
     # join cont.data to flag.data
-    flag.data <- merge(.data, cont.data, all.x = TRUE)
+    flag.data <- plyr::rbind.fill(cont.data, noncont.data)
     
     # flagged output, all data
     if (clean == FALSE & errorsonly == FALSE) {
@@ -234,7 +227,7 @@ AggregatedContinuousData <- function(.data, clean = TRUE, errorsonly = FALSE) {
       clean.data <- dplyr::filter(flag.data, !(TADA.AggregatedContinuousData.Flag %in% "Y"))
       
       # remove TADA.AggregatedContinuousData column
-      clean.data <- dplyr::select(clean.data, -TADA.AggregatedContinuousData.Flag)
+      # clean.data <- dplyr::select(clean.data, -TADA.AggregatedContinuousData.Flag)
       clean.data = OrderTADACols(clean.data)
       return(clean.data)
     }
@@ -251,7 +244,7 @@ AggregatedContinuousData <- function(.data, clean = TRUE, errorsonly = FALSE) {
   # if no aggregated continuous data is in the data set
   if (nrow(cont.data) == 0) {
     if (errorsonly == FALSE) {
-      print("No changes were made, because we did not find any aggregated continuous data in your dataframe")
+      print("No evidence of aggregated continuous data in your dataframe. Returning the input dataframe with TADA.AggregatedContinuousData.Flag column for tracking.")
       .data = OrderTADACols(.data)
       return(.data)
     }
@@ -347,7 +340,7 @@ PotentialDuplicateRowID <- function(.data, clean = TRUE, errorsonly = FALSE) {
   # if no potential duplicates are found
   if (nrow(dupe.data) == 0) {
     if (errorsonly == FALSE) {
-      print("No changes were made, because we did not find any potential duplicates in your dataframe")
+      print("No potential duplicates found in your dataframe.")
       .data = OrderTADACols(.data)
       return(.data)
     }
@@ -376,15 +369,6 @@ PotentialDuplicateRowID <- function(.data, clean = TRUE, errorsonly = FALSE) {
       ) %>%
       # remove columns with ".y" suffix
       dplyr::select_at(dplyr::vars(-dplyr::ends_with(".y")))
-    
-    # EDH replaced with OrderTADACols at end of function
-    # # reorder column names to match .data
-    # # get .data column names
-    # col.order <- colnames(.data)
-    # # add TADA.PotentialDupRowID column to the list
-    # col.order <- append(col.order, "TADA.PotentialDupRowID")
-    # # reorder columns in flag.data
-    # flag.data <- flag.data[, col.order]
     
     # flagged output, all data
     if (clean == FALSE & errorsonly == FALSE) {
@@ -494,7 +478,7 @@ AboveNationalWQXUpperThreshold <- function(.data, clean = TRUE, errorsonly = FAL
 
   # execute function after checks are passed
 
-  # delete existing flag column
+  # delete existing flag column - removes flag column in case reference table has changed.
   if (("TADA.ResultValueAboveUpperThreshold.Flag" %in% colnames(.data)) == TRUE) {
     .data <- dplyr::select(.data, -TADA.ResultValueAboveUpperThreshold.Flag)
   }
@@ -518,39 +502,29 @@ AboveNationalWQXUpperThreshold <- function(.data, clean = TRUE, errorsonly = FAL
   
   # Create flag column, flag rows where ResultMeasureValue > Maximum
   flag.data <- check.data %>%
-    # apply function row by row- EDH - I think this is unnecessary and slows function down considerably.
-    # dplyr::rowwise() %>%
     # create flag column
     dplyr::mutate(TADA.ResultValueAboveUpperThreshold.Flag = dplyr::case_when(
       TADA.ResultMeasureValue >= Maximum ~ as.character("Y"),
-      TADA.ResultMeasureValue < Maximum ~ as.character("N")
+      TADA.ResultMeasureValue < Maximum ~ as.character("N"),
+      TRUE ~ as.character("No threshold available") # this occurs when the char/unit combo is not in the table
     ))
   
   # remove extraneous columns, fix field names
   flag.data <- flag.data %>%
     dplyr::select(-"Maximum")
   
-  # EDH replaced with OrderTADACols at end of function
-  # # reorder column names to match .data
-  # # get .data column names
-  # col.order <- colnames(.data)
-  # # add TADA.ResultValueAboveUpperThreshold.Flag column to the list
-  # col.order <- append(col.order, "TADA.ResultValueAboveUpperThreshold.Flag")
-  # # reorder columns in flag.data
-  # flag.data <- flag.data[, col.order]
-  
   # if no data above WQX threshold is found
   if (any("Y" %in%
           unique(flag.data$TADA.ResultValueAboveUpperThreshold.Flag)) == FALSE) {
     if (errorsonly == FALSE) {
-      print("No changes were made because no data above the WQX Upper Threshold was found in your dataframe")
-      .data = OrderTADACols(.data)
-      return(.data)
+      print("No data above the WQX Upper Threshold was found in your dataframe. Returning the input dataframe with TADA.ResultAboveUpperThreshold.Flag column for tracking.")
+      flag.data = OrderTADACols(flag.data)
+      return(flag.data)
     }
     if (errorsonly == TRUE) {
       print("This dataframe is empty because no data above the WQX Upper Threshold was found in your dataframe")
       emptyflag.data <- dplyr::filter(flag.data, TADA.ResultValueAboveUpperThreshold.Flag %in% "Y")
-      emptyflag.data <- dplyr::select(emptyflag.data, -TADA.ResultValueAboveUpperThreshold.Flag)
+      # emptyflag.data <- dplyr::select(emptyflag.data, -TADA.ResultValueAboveUpperThreshold.Flag)
       emptyflag.data = OrderTADACols(emptyflag.data)
       return(emptyflag.data)
     }
@@ -566,8 +540,8 @@ AboveNationalWQXUpperThreshold <- function(.data, clean = TRUE, errorsonly = FAL
   if (clean == TRUE & errorsonly == FALSE) {
     # filter out rows where TADA.ResultValueAboveUpperThreshold.Flag = Y; remove TADA.ResultValueAboveUpperThreshold.Flag column
     clean.data <- flag.data %>%
-      dplyr::filter(!(TADA.ResultValueAboveUpperThreshold.Flag %in% "Y")) %>%
-      dplyr::select(-TADA.ResultValueAboveUpperThreshold.Flag)
+      dplyr::filter(!(TADA.ResultValueAboveUpperThreshold.Flag %in% "Y")) #%>%
+      # dplyr::select(-TADA.ResultValueAboveUpperThreshold.Flag)
     clean.data = OrderTADACols(clean.data)
     return(clean.data)
   }
@@ -654,7 +628,7 @@ BelowNationalWQXLowerThreshold <- function(.data, clean = TRUE, errorsonly = FAL
     stop("The ResultMeasureValue column must be of class 'numeric'.")
   }
 
-  # execute function after checks are passed
+  # execute function after checks are passed - removes flag column in case reference table has changed.
   # delete existing flag column
   if (("TADA.ResultValueBelowLowerThreshold.Flag" %in% colnames(.data)) == TRUE) {
     .data <- dplyr::select(.data, -TADA.ResultValueBelowLowerThreshold.Flag)
@@ -679,39 +653,29 @@ BelowNationalWQXLowerThreshold <- function(.data, clean = TRUE, errorsonly = FAL
   
   # Create flag column, flag rows where TADA.ResultMeasureValue < Minimum
   flag.data <- check.data %>%
-    # apply function row by row - EDH - I think this is unnecessary and slows function down considerably.
-    # dplyr::rowwise() %>%
     # create flag column
     dplyr::mutate(TADA.ResultValueBelowLowerThreshold.Flag = dplyr::case_when(
       TADA.ResultMeasureValue <= Minimum ~ as.character("Y"),
-      TADA.ResultMeasureValue > Minimum ~ as.character("N")
+      TADA.ResultMeasureValue > Minimum ~ as.character("N"),
+      TRUE ~ as.character("No threshold available") # this occurs when the char/unit combo is not in the table
     ))
   
   # remove extraneous columns, fix field names
   flag.data <- flag.data %>%
     dplyr::select(-"Minimum")
   
-  # EDH replaced with OrderTADACols at end of function
-  # # reorder column names to match .data
-  # # get .data column names
-  # col.order <- colnames(.data)
-  # # add TADA.ResultValueBelowLowerThreshold.Flag column to the list
-  # col.order <- append(col.order, "TADA.ResultValueBelowLowerThreshold.Flag")
-  # # reorder columns in flag.data
-  # flag.data <- flag.data[, col.order]
-  
   # if no data below WQX lower threshold is found
   if (any("Y" %in%
           unique(flag.data$TADA.ResultValueBelowLowerThreshold.Flag)) == FALSE) {
     if (errorsonly == FALSE) {
-      print("No changes were made because no data below the WQX Lower Threshold was found in your dataframe")
-      .data = OrderTADACols(.data)
-      return(.data)
+      print("No data below the WQX Lower Threshold were found in your dataframe. Returning the input dataframe with TADA.ResultValueBelowLowerThreshold.Flag column for tracking.")
+      flag.data = OrderTADACols(flag.data)
+      return(flag.data)
     }
     if (errorsonly == TRUE) {
       print("This dataframe is empty because no data below the WQX Lower Threshold was found in your dataframe")
       emptyflag.data <- dplyr::filter(flag.data, TADA.ResultValueBelowLowerThreshold.Flag %in% "Y")
-      emptyflag.data <- dplyr::select(emptyflag.data, -TADA.ResultValueBelowLowerThreshold.Flag)
+      # emptyflag.data <- dplyr::select(emptyflag.data, -TADA.ResultValueBelowLowerThreshold.Flag)
       emptyflag.data = OrderTADACols(emptyflag.data)
       return(emptyflag.data)
     }
@@ -727,8 +691,8 @@ BelowNationalWQXLowerThreshold <- function(.data, clean = TRUE, errorsonly = FAL
   if (clean == TRUE & errorsonly == FALSE) {
     # filter out rows where TADA.ResultValueBelowLowerThreshold.Flag = Y; remove TADA.ResultValueBelowLowerThreshold.Flag column
     clean.data <- flag.data %>%
-      dplyr::filter(!(TADA.ResultValueBelowLowerThreshold.Flag %in% "Y")) %>%
-      dplyr::select(-TADA.ResultValueBelowLowerThreshold.Flag)
+      dplyr::filter(!(TADA.ResultValueBelowLowerThreshold.Flag %in% "Y")) #%>%
+      # dplyr::select(-TADA.ResultValueBelowLowerThreshold.Flag)
     clean.data = OrderTADACols(clean.data)
     return(clean.data)
   }
@@ -932,19 +896,23 @@ QAPPDocAvailable <- function(.data, clean = FALSE) {
   # check .data has required columns
   checkColumns(.data, "ProjectFileUrl")
   
+  # default flag column
+  .data$TADA.QAPPDocAvailable = "N"
+  
   # execute function after checks are passed
   # flag data where QAPP document url is provided
   # make QAPPdoc.data data frame
   QAPPdoc.data <- dplyr::filter(.data, grepl("/", ProjectFileUrl))
+  NQAPPdoc.data = subset(.data, !.data$ResultIdentifier%in%QAPPdoc.data$ResultIdentifier)
   
   # if there is data without an associated QAPP url in the data set
   if (nrow(QAPPdoc.data) != 0) {
     
-    # append flag column
+    # change flag column
     QAPPdoc.data$TADA.QAPPDocAvailable <- "Y_ProjectFileUrlProvided"
     
     # join QAPPdoc.data to flag.data
-    flag.data <- merge(.data, QAPPdoc.data, all.x = TRUE)
+    flag.data <- plyr::rbind.fill(QAPPdoc.data, NQAPPdoc.data)
     
     # flagged output
     if (clean == FALSE) {
@@ -958,7 +926,7 @@ QAPPDocAvailable <- function(.data, clean = FALSE) {
       clean.data <- dplyr::filter(flag.data, grepl("/", ProjectFileUrl))
       
       # remove TADA.QAPPDocAvailable column
-      clean.data <- dplyr::select(clean.data, -TADA.QAPPDocAvailable)
+      # clean.data <- dplyr::select(clean.data, -TADA.QAPPDocAvailable)
       clean.data = OrderTADACols(clean.data)
       return(clean.data)
     }
@@ -967,7 +935,7 @@ QAPPDocAvailable <- function(.data, clean = FALSE) {
   # if no associated QAPP url data is in the data set
   if (nrow(QAPPdoc.data) == 0) {
     if (clean == FALSE) {
-      print("No changes were made, because we did not find any QAPP document url data in your dataframe")
+      print("No QAPP document url data found in your dataframe. Returning input dataframe with TADA.QAPPDocAvailable column for tracking.")
       .data = OrderTADACols(.data)
       return(.data)
     }
@@ -1077,6 +1045,8 @@ InvalidCoordinates <- function(.data,
   # check that clean_outsideUSA is either "no", "remove", or "change sign"
   clean_outsideUSA <- match.arg(clean_outsideUSA)
   
+  orig_dim = dim(.data)[1]
+  
   # execute function after checks are passed
   .data <- .data %>%
     dplyr::mutate(TADA.InvalidCoordinates.Flag = dplyr::case_when(
@@ -1094,21 +1064,21 @@ InvalidCoordinates <- function(.data,
       | sapply(.data$TADA.LongitudeMeasure, decimalplaces) < 3 ~ "Imprecise_lessthan3decimaldigits"
     ))
   
+  # Fill in flag for coordinates that appear OK/PASS tests
+  .data$TADA.InvalidCoordinates.Flag[is.na(.data$TADA.InvalidCoordinates.Flag)] = "OK"
+  
   # if clean_imprecise is TRUE, remove imprecise station metadata
   if (clean_imprecise == TRUE) {
     .data <- dplyr::filter(.data,
-                           TADA.InvalidCoordinates.Flag != "Imprecise_Latincludes999" 
-                           & TADA.InvalidCoordinates.Flag != "Imprecise_Longincludes999"
-                           & TADA.InvalidCoordinates.Flag != "Imprecise_lessthan3decimaldigits"
-                           | is.na(TADA.InvalidCoordinates.Flag) == TRUE)
+                           !TADA.InvalidCoordinates.Flag%in%c("Imprecise_Latincludes999",
+                                                              "Imprecise_Longincludes999",
+                                                              "Imprecise_lessthan3decimaldigits"))
   }
   
   # if clean_outsideUSA is "remove", remove stations flagged as outside the USA
   if (clean_outsideUSA == "remove") {
-    .data <- dplyr::filter(.data, 
-                           TADA.InvalidCoordinates.Flag != "LAT_OutsideUSA" 
-                           & TADA.InvalidCoordinates.Flag != "LONG_OutsideUSA"
-                           | is.na(TADA.InvalidCoordinates.Flag) == TRUE)
+    .data <- dplyr::filter(.data,
+                           !TADA.InvalidCoordinates.Flag%in%c("LAT_OutsideUSA","LONG_OutsideUSA"))
   }
   
   # if clean_outsideUSA is "change sign", change the sign of lat/long coordinates outside of USA
@@ -1127,15 +1097,63 @@ InvalidCoordinates <- function(.data,
   
   # return only flagged data if errorsonly = true
   if ((errorsonly == TRUE)) {
-    .data <- dplyr::filter(.data, is.na(TADA.InvalidCoordinates.Flag) != TRUE)
+    .data <- dplyr::filter(.data, !TADA.InvalidCoordinates.Flag%in%c("OK"))
   }
   
-  if (all(is.na(.data$TADA.InvalidCoordinates.Flag) == TRUE)) {
-    print("All invalid coordinates were removed or your dataframe does not contain monitoring stations with invalid coordinates")
-    .data = OrderTADACols(.data)
-    return(dplyr::select(.data, -TADA.InvalidCoordinates.Flag))
-  } else {
-    .data = OrderTADACols(.data)
-    return(.data)
+  if (all(.data$TADA.InvalidCoordinates.Flag%in%c("OK")) == TRUE) {
+    if(orig_dim==dim(.data)[1]){
+      print("Your dataframe does not contain monitoring stations with invalid coordinates. Returning input dataframe with TADA.InvalidCoordinates.Flag column for tracking.")
+    }else{
+      print("All invalid coordinates were removed. Returning input dataframe with TADA.InvalidCoordinates.Flag column for tracking.")
+    }
+    }
+  .data = OrderTADACols(.data)
+  return(.data)
+}
+
+#' Identify Potential Duplicate Data Uploads
+#' 
+#' Identifies data records uploaded by different organizations with the same date,
+#' time, characteristic name, and result value within X meters of each other and
+#' flags as potential duplicates. However, it is at the discretion of the data user
+#' to determine if the data records are unique or represent overlap that could cause
+#' issues in the data analysis.
+#' 
+#' @param .data TADA dataframe
+#' @param dist_buffer Numeric. The distance in meters below which two sites with 
+#' measurements at the same time on the same day of the same parameter will
+#' be flagged as potential duplicates.
+#' 
+#' @return The same TADA dataframe with two additional columns, a duplicate flag
+#' column, and a distance between sites (in meters) column.
+#' 
+#' @export
+#' 
+
+identifyPotentialDuplicates <- function(.data, dist_buffer = 100){
+  dat = .data
+  dups = dat%>%dplyr::filter(!is.na(ResultMeasureValue))%>%dplyr::mutate(roundRV = round(ResultMeasureValue,digits=2))%>%dplyr::group_by(ActivityStartDate, ActivityStartTime.Time, CharacteristicName,ResultMeasureValue)%>%dplyr::summarise(numorgs = length(unique(OrganizationIdentifier)))%>%dplyr::filter(numorgs>1)
+  dups$dup_id = seq(1:dim(dups)[1])
+  
+  tdups = dplyr::left_join(dups, dat)
+  tdups$LatitudeMeasure = as.numeric(tdups$LatitudeMeasure)
+  tdups$LongitudeMeasure = as.numeric(tdups$LongitudeMeasure)
+  
+  distances = tdups%>%dplyr::ungroup()%>%dplyr::select(dup_id,LatitudeMeasure,LongitudeMeasure)
+  dcoords = sf::st_as_sf(x = distances, coords = c("LongitudeMeasure","LatitudeMeasure"), crs="EPSG:4326")
+  
+  dists = data.frame()
+  for(i in 1:max(dcoords$dup_id)){
+    ds = subset(dcoords, dcoords$dup_id==i)
+    dist = as.numeric(sf::st_distance(ds$geometry[1],ds$geometry[2]))
+    dsdist = data.frame(dup_id = i, distance_m = as.numeric(dist))
+    dsdist$TADA.idPotentialDuplicates.Flag = ifelse(dist<=dist_buffer,"POTENTIAL DUPLICATE DATAPOINT",NA)
+    dists = rbind(dists, dsdist)
   }
+  
+  tdups1 = merge(tdups, dists, all.x = TRUE)
+  tdups1 = tdups1[,!names(tdups1)%in%c("dup_id","numorgs")]
+  dat1 = merge(dat, tdups1, all.x = TRUE)
+  
+  return(dat1)
 }

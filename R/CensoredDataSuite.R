@@ -215,11 +215,11 @@ summarizeCensoredData <- function(.data, spec_cols = c("TADA.CharacteristicName"
   sum_all = plyr::rbind.fill(sum_low, sum_hi)
   
   sum_all = sum_all%>%dplyr::mutate(TADA.Censored.Note = dplyr::case_when(
-    Percent_Censored>80 ~ as.character("Percent censored too high for estimation methods"),
-    Percent_Censored<50&Censoring_Levels>1 ~ as.character("Kaplan-Meier"),
-    Percent_Censored<50&Sample_Count>=50 ~ as.character("Robust Regression Order Statistics"),
-    Sample_Count<50 ~ as.character("Robust Regression Order Statistics"),
-    Percent_Censored>=50&Sample_Count<50 ~ as.character("Maximum Likelihood Estimation")
-  ))
+    Percent_Censored>80 ~ as.character("Percent censored too high for estimation methods"), # greater than 80, cannot estimate
+    Percent_Censored<50&Censoring_Levels>1 ~ as.character("Kaplan-Meier"), # less than 50% censored, and multiple censoring levels (no minimum n)
+    Percent_Censored<50 ~ as.character("Robust Regression Order Statistics"), # less than 50% censored and one censoring level (no minimum n?)
+    Sample_Count>=50 ~ as.character("Maximum Likelihood Estimation"), # 50%-80% censored, 50 or more samples
+    Sample_Count<50 ~ as.character("Robust Regression Order Statistics"), # 50%-80% censored, less than 50 samples
+    ))
   return(sum_all)
 }

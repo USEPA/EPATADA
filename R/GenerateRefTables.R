@@ -46,12 +46,14 @@ GetWQXCharValRef <- function() {
       "Last.Change.Date"
     ))
   # replace "Status" values with Valid, Invalid, Unknown
-  WQXcharValRef["Status"][WQXcharValRef["Status"] == "Accepted"] <- "Valid"
-  WQXcharValRef["Status"][WQXcharValRef["Status"] == "Rejected"] <- "Invalid"
-  WQXcharValRef["Status"][WQXcharValRef["Status"] == "Nonstandardized" |
-    WQXcharValRef["Status"] == "InvalidMediaUnit" |
-    WQXcharValRef["Status"] == "InvalidChar" |
-    WQXcharValRef["Status"] == "MethodNeeded"] <- "Nonstandardized"
+  WQXcharValRef$Status2 = ifelse(WQXcharValRef$Status%in%c("Accepted"),"Valid","Invalid")
+  WQXcharValRef$Status2 = ifelse(WQXcharValRef$Status%in%c("NonStandardized",
+                                                           "Nonstandardized",
+                                                           "InvalidMediaUnit",
+                                                           "InvalidChar",
+                                                           "MethodNeeded"),"Nonstandardized",WQXcharValRef$Status2)
+  
+  WQXcharValRef = WQXcharValRef%>%dplyr::select(-Status)%>%dplyr::rename(Status = Status2)
 
   # Save updated table in cache
   WQXCharValRef_Cached <- WQXcharValRef
