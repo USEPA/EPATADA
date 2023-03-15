@@ -8,12 +8,12 @@ TADABigdataRetrieval(
   startDate = "null",
   endDate = "null",
   statecode = "null",
-  huc = "null",
   characteristicName = "null",
-  siteType = "null",
   sampleMedia = "Water",
-  applyautoclean = FALSE,
-  maxsitesquery = 20
+  siteType = "null",
+  huc = "null",
+  maxsitesquery = 20,
+  applyautoclean = FALSE
 )
 }
 \arguments{
@@ -23,17 +23,17 @@ TADABigdataRetrieval(
 
 \item{statecode}{Character/character vector. State/territory abbreviations from FIPS codes consist of two letters}
 
-\item{huc}{A numeric code denoting a hydrologic unit. Example: "04030202". Different size hucs can be entered.}
-
 \item{characteristicName}{Name of water quality parameter}
-
-\item{siteType}{Name of water body type (e.g., "Stream", "Lake, Reservoir, Impoundment")}
 
 \item{sampleMedia}{Defaults to "Water". Refer to WQP domain tables for other options.}
 
-\item{applyautoclean}{Defaults to FALSE. If TRUE, runs TADA's autoclean function on final combined dataset.}
+\item{siteType}{Name of water body type (e.g., "Stream", "Lake, Reservoir, Impoundment")}
+
+\item{huc}{A numeric code denoting a hydrologic unit. Example: "04030202". Different size hucs can be entered.}
 
 \item{maxsitesquery}{Numeric. The maximum number of sites to query in each for-loop of the TADABigdataRetrieval function. This input is flexible because sites are often variable in their data richness. If several data rich sites are within the same download chunk, time outs and errors are more likely. Thus, the smaller the maxsitesquery (especially with very large datacalls), the lower the probability of overwhelming the WQP.}
+
+\item{applyautoclean}{Defaults to FALSE. If TRUE, runs TADA's autoclean function on final combined dataset.}
 }
 \value{
 TADA-compatible dataframe

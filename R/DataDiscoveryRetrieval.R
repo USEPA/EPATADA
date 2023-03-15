@@ -43,16 +43,16 @@
 #'  
 #' See ?ConvertSpecialChars and ?autoclean documentation for more information.
 #' 
-#' @param statecode Code that identifies a state
 #' @param startDate Start Date string in the format YYYY-MM-DD, for example, "2020-01-01"
-#' @param countycode Code that identifies a county 
-#' @param siteid Unique monitoring station identifier
-#' @param siteType Type of waterbody
+#' @param endDate End Date string in the format YYYY-MM-DD
 #' @param characteristicName Name of parameter
 #' @param sampleMedia Sampling substrate such as water, air, or sediment
-#' @param project A string of letters and/or numbers (some additional characters also possible) used to signify a project with data in the Water Quality Portal
+#' @param siteType Type of waterbody
+#' @param statecode Code that identifies a state
+#' @param countycode Code that identifies a county 
+#' @param siteid Unique monitoring station identifier
 #' @param organization A string of letters and/or numbers (some additional characters also possible) used to signify an organization with data in the Water Quality Portal
-#' @param endDate End Date string in the format YYYY-MM-DD
+#' @param project A string of letters and/or numbers (some additional characters also possible) used to signify a project with data in the Water Quality Portal
 #' @param applyautoclean Logical, defaults to TRUE. Applies TADA's autoclean function on the returned data profile.
 #'
 #' @return TADA-compatible dataframe
@@ -78,16 +78,16 @@
 #' }
 #'
 
-TADAdataRetrieval <- function(statecode = "null",
-                              startDate = "null",
-                              countycode = "null", 
-                              siteid = "null",
-                              siteType = "null",
+TADAdataRetrieval <- function(startDate = "null",
+                              endDate = "null",
                               characteristicName = "null",
                               sampleMedia = "null",
-                              project = "null",
+                              siteType = "null",
+                              statecode = "null",
+                              countycode = "null",
+                              siteid = "null",
                               organization = "null",
-                              endDate = "null",
+                              project = "null",
                               applyautoclean = TRUE
                               ) {
 
@@ -288,13 +288,13 @@ TADAReadWQPWebServices <- function(webservice) {
 #' 
 #' @param startDate Start Date YYYY-MM-DD format, for example, "1995-01-01"
 #' @param endDate end date in YYYY-MM-DD format, for example, "2020-12-31"
+#' @param characteristicName Name of water quality parameter
+#' @param sampleMedia Defaults to "Water". Refer to WQP domain tables for other options.
+#' @param siteType Name of water body type (e.g., "Stream", "Lake, Reservoir, Impoundment")
 #' @param statecode Character/character vector. State/territory abbreviations from FIPS codes consist of two letters 
 #' @param huc A numeric code denoting a hydrologic unit. Example: "04030202". Different size hucs can be entered.
-#' @param characteristicName Name of water quality parameter
-#' @param siteType Name of water body type (e.g., "Stream", "Lake, Reservoir, Impoundment")
-#' @param sampleMedia Defaults to "Water". Refer to WQP domain tables for other options.
-#' @param applyautoclean Defaults to FALSE. If TRUE, runs TADA's autoclean function on final combined dataset.
 #' @param maxsitesquery Numeric. The maximum number of sites to query in each for-loop of the TADABigdataRetrieval function. This input is flexible because sites are often variable in their data richness. If several data rich sites are within the same download chunk, time outs and errors are more likely. Thus, the smaller the maxsitesquery (especially with very large datacalls), the lower the probability of overwhelming the WQP. 
+#' @param applyautoclean Defaults to FALSE. If TRUE, runs TADA's autoclean function on final combined dataset.
 #' 
 #' @return TADA-compatible dataframe
 #' 
@@ -312,12 +312,12 @@ TADAReadWQPWebServices <- function(webservice) {
 TADABigdataRetrieval <- function(startDate = "null",
                               endDate = "null",
                               statecode = "null",
-                              huc = "null",
-                              characteristicName = "null", 
-                              siteType = "null",
+                              characteristicName = "null",
                               sampleMedia = "Water",
-                              applyautoclean = FALSE,
-                              maxsitesquery = 20
+                              siteType = "null",
+                              huc = "null",
+                              maxsitesquery = 20,
+                              applyautoclean = FALSE
 ) {
   
   start_T = Sys.time()

@@ -5,39 +5,39 @@
 \title{Generate TADA-compatible dataframe from WQP Data}
 \usage{
 TADAdataRetrieval(
-  statecode = "null",
   startDate = "null",
-  countycode = "null",
-  siteid = "null",
-  siteType = "null",
+  endDate = "null",
   characteristicName = "null",
   sampleMedia = "null",
-  project = "null",
+  siteType = "null",
+  statecode = "null",
+  countycode = "null",
+  siteid = "null",
   organization = "null",
-  endDate = "null",
+  project = "null",
   applyautoclean = TRUE
 )
 }
 \arguments{
-\item{statecode}{Code that identifies a state}
-
 \item{startDate}{Start Date string in the format YYYY-MM-DD, for example, "2020-01-01"}
 
-\item{countycode}{Code that identifies a county}
-
-\item{siteid}{Unique monitoring station identifier}
-
-\item{siteType}{Type of waterbody}
+\item{endDate}{End Date string in the format YYYY-MM-DD}
 
 \item{characteristicName}{Name of parameter}
 
 \item{sampleMedia}{Sampling substrate such as water, air, or sediment}
 
-\item{project}{A string of letters and/or numbers (some additional characters also possible) used to signify a project with data in the Water Quality Portal}
+\item{siteType}{Type of waterbody}
+
+\item{statecode}{Code that identifies a state}
+
+\item{countycode}{Code that identifies a county}
+
+\item{siteid}{Unique monitoring station identifier}
 
 \item{organization}{A string of letters and/or numbers (some additional characters also possible) used to signify an organization with data in the Water Quality Portal}
 
-\item{endDate}{End Date string in the format YYYY-MM-DD}
+\item{project}{A string of letters and/or numbers (some additional characters also possible) used to signify a project with data in the Water Quality Portal}
 
 \item{applyautoclean}{Logical, defaults to TRUE. Applies TADA's autoclean function on the returned data profile.}
 }
