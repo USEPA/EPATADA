@@ -43,7 +43,7 @@ SummarizeColumn <- function(.data,col="TADA.CharacteristicName"){
 #' 
 #' @export
 #' 
-#' @example
+#' @examples
 #' # Load example dataset:
 #' data(Nutrients_Utah)
 #' 
