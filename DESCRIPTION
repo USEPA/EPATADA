@@ -47,16 +47,15 @@ Imports:
     dataRetrieval, 
     ggplot2, 
     sf,
-    maps
+    maps,
+    remotes,
+    rmarkdown
 Depends: 
     R (>= 3.5.0)
 Suggests: 
     readr,
-    rlang,
-    remotes, 
     tidyverse,
     knitr,
-    rmarkdown,
     testthat,
     testthis, 
     usethis,

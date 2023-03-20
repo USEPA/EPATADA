@@ -104,11 +104,11 @@ data without an associated QAPP document is removed from the dataframe.</p>
 <span class="r-in"><span><span class="co"># Flag, but do not remove, data without an associated QAPP document in</span></span></span>
 <span class="r-in"><span><span class="co"># new column titled "TADA.QAPPDocAvailable":</span></span></span>
 <span class="r-in"><span><span class="va">FlagData_MissingQAPPDocURLs</span> <span class="op">&lt;-</span> <span class="fu">QAPPDocAvailable</span><span class="op">(</span><span class="va">Nutrients_Utah</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "No changes were made, because we did not find any QAPP document url data in your dataframe"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "No QAPP document url data found in your dataframe. Returning input dataframe with TADA.QAPPDocAvailable column for tracking."</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Remove data without an associated QAPP document available:</span></span></span>
 <span class="r-in"><span><span class="va">RemoveData_MissingQAPPDocURLs</span> <span class="op">&lt;-</span> <span class="fu">QAPPDocAvailable</span><span class="op">(</span><span class="va">Nutrients_Utah</span>, clean <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "No changes were made, because we did not find any QAPP document url data in your dataframe"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "This dataframe is empty because we did not find any QAPP document url data in your dataframe"</span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
     </div>

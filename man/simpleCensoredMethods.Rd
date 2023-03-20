@@ -13,7 +13,7 @@ simpleCensoredMethods(
 )
 }
 \arguments{
-\item{.data}{A post-idCensoredData() TADA dataframe}
+\item{.data}{A TADA dataframe}
 
 \item{nd_method}{A text string indicating the type of method used to populate a non-detect (lower limit) data value. Can be set to "multiplier" (default),"randombelowlimit", or "as-is".}
 
@@ -32,4 +32,14 @@ before applying simple tools for non-detect and over-detect data handling, inclu
 in the values as-is, X times the detection limit, or a random number between 0
 and the LOWER detection limit. These methods do NOT depend upon censored data frequency
 in the dataset.
+}
+\examples{
+#' # Load example dataset:
+data(Nutrients_Utah)
+# Check for agreement between detection condition and detection limit type, and in instances where the sample is non-detect, set the result value to half of the detection limit value. For over-detect samples, retain the detection limit value as the result value as-is. 
+Nutrients_Utah_CensoredFlag = simpleCensoredMethods(Nutrients_Utah, nd_method = "multiplier", nd_multiplier = 0.5, od_method = "as-is", od_multiplier = "null")
+
+# Check for agreement between detection condition and detection limit type, and in instances where the sample is non-detect, set the result value to a random value between 0 and the detection limit value. For over-detect samples, retain the detection limit value as the result value as-is. 
+Nutrients_Utah_CensoredFlag = simpleCensoredMethods(Nutrients_Utah, nd_method = "randombelowlimit", nd_multiplier = "null", od_method = "as-is", od_multiplier = "null")
+
 }

@@ -1,62 +1,66 @@
-#' Simple Tools for Censored Data Handling
+#' Prepare Censored Data
 #' 
-#' This function determines if detection limit type and detection condition are parsimonious
-#' before applying simple tools for non-detect and over-detect data handling, including filling
-#' in the values as-is, X times the detection limit, or a random number between 0
-#' and the LOWER detection limit. These methods do NOT depend upon censored data frequency
-#' in the dataset.
+#' This function identifies censored data records and characterizes them as non-detects
+#' or over-detects based on the ResultDetectionConditionText and DetectionQuantitationLimitTypeName.
+#' It also identifies records populated with limits and conditions that cannot be grouped
+#' as over- or non-detects as "Other", and flags records where there is a conflict
+#' between ResultDetectionConditionText and DetectionQuantitationLimitTypeName.
+#' This function is used by default in the simpleCensoredMethods and summarizeCensoredData
+#' functions, but can be used on its own.
 #' 
-#' @param .data A post-idCensoredData() TADA dataframe
-#' @param nd_method A text string indicating the type of method used to populate a non-detect (lower limit) data value. Can be set to "multiplier" (default),"randombelowlimit", or "as-is".
-#' @param nd_multiplier A number to be multiplied to the LOWER detection limit for each entry to obtain the censored data value. Must be supplied if nd_method = "multiplier". Defaults to 0.5, or half the detection limit.
-#' @param od_method A text string indicating the type of method used to populate an over-detect (upper limit) data value. Can be set to "multiplier" or "as-is" (default).
-#' @param od_multiplier A number to be multiplied to the UPPER detection limit for each entry to obtain the censored data value. Must be supplied if od_method = "multiplier". Defaults to 0.5, or half the detection limit.
+#' @param .data A TADA dataframe
 #' 
-#' @return A TADA dataframe with additional columns named TADA.CensoredData.Flag, which indicates if there are disagreements in ResultDetectionCondition and DetectionQuantitationLimitTypeName, and TADA.CensoredMethod, which documents the method used to fill censored data values.
-#' 
+#' @return A TADA dataframe with additional column named TADA.CensoredData.Flag, which indicates if there are disagreements in ResultDetectionCondition and DetectionQuantitationLimitTypeName.
 #' 
 #' @export
+#' 
 
-
-simpleCensoredMethods <- function(.data, nd_method = "multiplier", nd_multiplier = 0.5, od_method = "as-is", od_multiplier = "null"){
+idCensoredData <- function(.data){
   # check .data has all of the required columns
   expected_cols <- c(
     "ResultDetectionConditionText",
     "DetectionQuantitationLimitTypeName",
-    "TADA.ResultMeasureValue.DataTypeFlag"
+    "TADA.ResultMeasureValueDataTypes.Flag"
   )
-  
-  # check that multiplier is provided if method = "multiplier"
-  if(nd_method=="multiplier"&nd_multiplier=="null"){
-    stop("Please provide a multiplier for the lower detection limit handling method of 'multiplier'. Typically, the multiplier value is between 0 and 1.")
-  }
-  if(od_method=="multiplier"&od_multiplier=="null"){
-    stop("Please provide a multiplier for the upper detection limit handling method of 'multiplier'. Typically, the multiplier value is between 0 and 1.")
-  }
+  checkColumns(.data, expected_cols)
   
   ## First step: identify censored data
   cens = .data%>%dplyr::filter(TADA.ResultMeasureValueDataTypes.Flag=="Result Value/Unit Copied from Detection Limit")
   not_cens = .data%>%dplyr::filter(!ResultIdentifier%in%cens$ResultIdentifier)
+  not_cens$TADA.CensoredData.Flag = "Uncensored"
   
   ## Bring in det cond reference table
   cond.ref = GetDetCondRef()%>%dplyr::rename(ResultDetectionConditionText = Name)%>%dplyr::select(ResultDetectionConditionText, TADA.Detection_Type)
   
   ## Join to censored data
-  cens = dplyr::left_join(cens, cond.ref)
+  cens = dplyr::left_join(cens, cond.ref, by = "ResultDetectionConditionText")
+  
+  conds = unique(cens$ResultDetectionConditionText)
+  if(any(!conds%in%cond.ref$ResultDetectionConditionText)){
+    missing_conds = conds[!conds%in%cond.ref$ResultDetectionConditionText]
+    missing_conds = paste(missing_conds, collapse = ", ")
+    print(paste0("ResultDetectionConditionText column in dataset contains value(s) ",missing_conds, " which is/are not represented in the ResultDetectionConditionText WQX domain table. These data records are placed under the TADA.CensoredData.Flag: Censored but not Categorized, and will not be used in censored data handling methods. Please contact TADA administrators to resolve."))
+  }
   
   ## Bring in det limit type reference table
   limtype.ref = GetDetLimitRef()%>%dplyr::rename(DetectionQuantitationLimitTypeName = Name)%>%dplyr::select(DetectionQuantitationLimitTypeName, TADA.Limit_Type)
   
   ## Join to censored data
-  cens = dplyr::left_join(cens, limtype.ref)
+  cens = dplyr::left_join(cens, limtype.ref, by = "DetectionQuantitationLimitTypeName")
+  
+  limits = unique(cens$DetectionQuantitationLimitTypeName)
+  if(any(!limits%in%limtype.ref$DetectionQuantitationLimitTypeName)){
+    missing_lims = limits[!limits%in%limtype.ref$DetectionQuantitationLimitTypeName]
+    missing_lims = paste(missing_lims, collapse = ", ")
+    print(paste0("DetectionQuantitationLimitTypeName column dataset contains value(s) ",missing_lims, " which is/are not represented in the DetectionQuantitationLimitTypeName WQX domain table. These data records are placed under the TADA.CensoredData.Flag: Censored but not Categorized, and will not be used in censored data handling methods. Please contact TADA administrators to resolve."))
+  }
   
   ## Create flag for condition and limit type combinations
-  cens = cens%>%dplyr::mutate(TADA.CensoredData.Flag = dplyr::case_when(
-    TADA.Detection_Type=="Non-Detect"&TADA.Limit_Type=="Non-Detect" ~ as.character("Non-Detect"),
-    TADA.Detection_Type=="Over-Detect"&TADA.Limit_Type=="Over-Detect" ~ as.character("Over-Detect"),
-    TADA.Detection_Type=="Other"&TADA.Limit_Type=="Other" ~ as.character("Other Condition/Limit Populated"),
-    !TADA.Detection_Type==TADA.Limit_Type ~ as.character("Conflict between Condition and Limit")
-  ))
+  cens$TADA.CensoredData.Flag = "Censored but not Categorized"
+  cens$TADA.CensoredData.Flag = ifelse(cens$TADA.Detection_Type%in%c("Non-Detect")&cens$TADA.Limit_Type%in%c("Non-Detect"),"Non-Detect",cens$TADA.CensoredData.Flag)
+  cens$TADA.CensoredData.Flag = ifelse(cens$TADA.Detection_Type%in%c("Over-Detect")&cens$TADA.Limit_Type%in%c("Over-Detect"),"Over-Detect",cens$TADA.CensoredData.Flag)
+  cens$TADA.CensoredData.Flag = ifelse(cens$TADA.Detection_Type%in%c("Other")&cens$TADA.Limit_Type%in%c("Other"),"Other Condition/Limit Populated",cens$TADA.CensoredData.Flag)
+  cens$TADA.CensoredData.Flag = ifelse(cens$TADA.Detection_Type%in%c("Non-Detect","Over-Detect","Other")&cens$TADA.Limit_Type%in%c("Non-Detect","Over-Detect","Other")&!cens$TADA.Detection_Type==cens$TADA.Limit_Type,"Conflict between Condition and Limit",cens$TADA.CensoredData.Flag)
   
   ## warn when some limit metadata may be problematic
   if("Conflict between Condition and Limit"%in%cens$TADA.CensoredData.Flag){
@@ -66,11 +70,71 @@ simpleCensoredMethods <- function(.data, nd_method = "multiplier", nd_multiplier
   
   cens = cens%>%dplyr::select(-TADA.Detection_Type, -TADA.Limit_Type)
   
-  # split out over detects and non detects
-  nd = subset(cens, cens$TADA.CensoredData.Flag=="Non-Detect")
-  od = subset(cens, cens$TADA.CensoredData.Flag=="Over-Detect")
-  other = subset(cens, !cens$ResultIdentifier%in%c(nd$ResultIdentifier,od$ResultIdentifier))
+  cens.check = plyr::rbind.fill(cens, not_cens)
+  return(cens.check)
+}
+
+
+#' Simple Tools for Censored Data Handling
+#' 
+#' This function determines if detection limit type and detection condition are parsimonious
+#' before applying simple tools for non-detect and over-detect data handling, including filling
+#' in the values as-is, X times the detection limit, or a random number between 0
+#' and the LOWER detection limit. These methods do NOT depend upon censored data frequency
+#' in the dataset.
+#' 
+#' @param .data A TADA dataframe
+#' @param nd_method A text string indicating the type of method used to populate a non-detect (lower limit) data value. Can be set to "multiplier" (default),"randombelowlimit", or "as-is".
+#' @param nd_multiplier A number to be multiplied to the LOWER detection limit for each entry to obtain the censored data value. Must be supplied if nd_method = "multiplier". Defaults to 0.5, or half the detection limit.
+#' @param od_method A text string indicating the type of method used to populate an over-detect (upper limit) data value. Can be set to "multiplier" or "as-is" (default).
+#' @param od_multiplier A number to be multiplied to the UPPER detection limit for each entry to obtain the censored data value. Must be supplied if od_method = "multiplier". Defaults to 0.5, or half the detection limit.
+#' 
+#' @return A TADA dataframe with additional columns named TADA.CensoredData.Flag, which indicates if there are disagreements in ResultDetectionCondition and DetectionQuantitationLimitTypeName, and TADA.CensoredMethod, which documents the method used to fill censored data values.
+#' 
+#' 
+#' @export
+#' 
+#' @examples
+#' #' # Load example dataset:
+#' data(Nutrients_Utah)
+#' # Check for agreement between detection condition and detection limit type, and in instances where the sample is non-detect, set the result value to half of the detection limit value. For over-detect samples, retain the detection limit value as the result value as-is. 
+#' Nutrients_Utah_CensoredFlag = simpleCensoredMethods(Nutrients_Utah, nd_method = "multiplier", nd_multiplier = 0.5, od_method = "as-is", od_multiplier = "null")
+#' 
+#' # Check for agreement between detection condition and detection limit type, and in instances where the sample is non-detect, set the result value to a random value between 0 and the detection limit value. For over-detect samples, retain the detection limit value as the result value as-is. 
+#' Nutrients_Utah_CensoredFlag = simpleCensoredMethods(Nutrients_Utah, nd_method = "randombelowlimit", nd_multiplier = "null", od_method = "as-is", od_multiplier = "null")
+#' 
+
+
+
+simpleCensoredMethods <- function(.data, nd_method = "multiplier", nd_multiplier = 0.5, od_method = "as-is", od_multiplier = "null"){
+  # check .data has all of the required columns
+  expected_cols <- c(
+    "ResultDetectionConditionText",
+    "DetectionQuantitationLimitTypeName",
+    "TADA.ResultMeasureValueDataTypes.Flag"
+  )
+  checkColumns(.data, expected_cols)
   
+  # check that multiplier is provided if method = "multiplier"
+  if(nd_method=="multiplier"&nd_multiplier=="null"){
+    stop("Please provide a multiplier for the lower detection limit handling method of 'multiplier'. Typically, the multiplier value is between 0 and 1.")
+  }
+  if(od_method=="multiplier"&od_multiplier=="null"){
+    stop("Please provide a multiplier for the upper detection limit handling method of 'multiplier'. Typically, the multiplier value is between 0 and 1.")
+  }
+  
+  # If user has not previously run idCensoredData function, run it here to get required columns 
+  if(!"TADA.CensoredData.Flag"%in%names(.data)){
+    cens.data = idCensoredData(.data)
+  }else{
+    cens.data = .data
+  }
+  
+  # split out over detects and non detects
+  nd = subset(cens.data, cens.data$TADA.CensoredData.Flag=="Non-Detect")
+  od = subset(cens.data, cens.data$TADA.CensoredData.Flag=="Over-Detect")
+  all_others = subset(cens.data, !cens.data$ResultIdentifier%in%c(nd$ResultIdentifier,od$ResultIdentifier))
+
   # ND handling
   if(dim(nd)[1]>0){
     if(nd_method=="multiplier"){
@@ -98,7 +162,64 @@ simpleCensoredMethods <- function(.data, nd_method = "multiplier", nd_multiplier
     }
   }
   
-  .data = plyr::rbind.fill(not_cens, nd, od, other)
+  .data = plyr::rbind.fill(nd, od, all_others)
   .data = OrderTADACols(.data)
   return(.data)
+}
+
+#' Summarize Censored Data
+#' 
+#' This function creates a summary table of the percentage of non-detects by 
+#' specified ID columns. It can be used to determine the best method for handling 
+#' censored data estimation methods that depend upon the distribution of the dataset.
+#' 
+#' @param .data A TADA dataframe
+#' @param spec_cols A vector of column names to be used as aggregating variables when summarizing censored data information.
+#' @return A summary dataframe yielding sample ncounts, censored data ncounts, 
+#' and percent of dataset that is censored, aggregated by user-defined grouping 
+#' variables. Also produces a column "TADA.Censored.Note" that identifies 
+#' when there is sufficient non-censored data to estimate censored data using statistical
+#' methods including Maximum Likelihood Estimation, Robust ROS and Kaplan Meier.
+#' The decision tree used to identify applicable statistical analyses is based 
+#' on the Baseline Assessment of Left-Censored Environmental Data Using R Tech Note.
+#' More info can be found here: https://www.epa.gov/sites/default/files/2016-05/documents/tech_notes_10_jun2014_r.pdf
+#' 
+#' 
+#' @export
+#' 
+
+summarizeCensoredData <- function(.data, spec_cols = c("TADA.CharacteristicName","TADA.ResultMeasure.MeasureUnitCode","TADA.ResultSampleFractionText","TADA.MethodSpecificationName")){
+  
+  if(any(is.na(.data$TADA.ResultMeasureValue))){
+    warning("Dataset contains data missing both a result value and a detection limit. Suggest removing or handling before summarizing.")
+  }
+  
+  if(!"TADA.CensoredData.Flag"%in%names(.data)){
+    cens = idCensoredData(.data)
+  }else{
+    cens = .data
+  }
+  
+  sum_low = cens%>%dplyr::group_by_at(spec_cols)%>%
+    dplyr::filter(TADA.CensoredData.Flag%in%c("Non-Detect", "Uncensored"))%>%
+    dplyr::summarise(Sample_Count = length(unique(ResultIdentifier)), Censored_Count = length(TADA.CensoredData.Flag[TADA.CensoredData.Flag=="Non-Detect"]), Percent_Censored = length(TADA.CensoredData.Flag[TADA.CensoredData.Flag=="Non-Detect"])/length(TADA.CensoredData.Flag)*100, Censoring_Levels = length(unique(TADA.ResultMeasureValue[TADA.CensoredData.Flag=="Non-Detect"])))%>%
+    dplyr::filter(Censored_Count>0)%>%
+    dplyr::mutate("TADA.CensoredData.Flag" ="Non-Detect")
+  
+  sum_hi = cens%>%dplyr::group_by_at(spec_cols)%>%
+    dplyr::filter(TADA.CensoredData.Flag%in%c("Over-Detect", "Uncensored"))%>%
+    dplyr::summarise(Sample_Count = length(unique(ResultIdentifier)), Censored_Count = length(TADA.CensoredData.Flag[TADA.CensoredData.Flag=="Over-Detect"]), Percent_Censored = length(TADA.CensoredData.Flag[TADA.CensoredData.Flag=="Over-Detect"])/length(TADA.CensoredData.Flag)*100, Censoring_Levels = length(unique(TADA.ResultMeasureValue[TADA.CensoredData.Flag=="Over-Detect"])))%>%
+    dplyr::filter(Censored_Count>0)%>%
+    dplyr::mutate("TADA.CensoredData.Flag" ="Over-Detect")
+  
+  sum_all = plyr::rbind.fill(sum_low, sum_hi)
+  
+  sum_all = sum_all%>%dplyr::mutate(TADA.Censored.Note = dplyr::case_when(
+    Percent_Censored>80 ~ as.character("Percent censored too high for estimation methods"), # greater than 80, cannot estimate
+    Percent_Censored<50&Censoring_Levels>1 ~ as.character("Kaplan-Meier"), # less than 50% censored, and multiple censoring levels (no minimum n)
+    Percent_Censored<50 ~ as.character("Robust Regression Order Statistics"), # less than 50% censored and one censoring level (no minimum n?)
+    Sample_Count>=50 ~ as.character("Maximum Likelihood Estimation"), # 50%-80% censored, 50 or more samples
+    Sample_Count<50 ~ as.character("Robust Regression Order Statistics"), # 50%-80% censored, less than 50 samples
+    ))
+  return(sum_all)
 }

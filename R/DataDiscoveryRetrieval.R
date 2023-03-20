@@ -41,18 +41,18 @@
 #' to find allowable values for queries, e.g., reference the WQX domain table to find countycode and statecode: https://cdx.epa.gov/wqx/download/DomainValues/County_CSV.zip
 #' Alternatively, you can use the WQP services to find areas where data is available in the US: https://www.waterqualitydata.us/Codes/countycode
 #'  
-#' See ?MeasureValueSpecialCharacters and ?autoclean documentation for more information.
+#' See ?ConvertSpecialChars and ?autoclean documentation for more information.
 #' 
-#' @param statecode Code that identifies a state
 #' @param startDate Start Date string in the format YYYY-MM-DD, for example, "2020-01-01"
-#' @param countycode Code that identifies a county 
-#' @param siteid Unique monitoring station identifier
-#' @param siteType Type of waterbody
+#' @param endDate End Date string in the format YYYY-MM-DD
 #' @param characteristicName Name of parameter
 #' @param sampleMedia Sampling substrate such as water, air, or sediment
-#' @param project A string of letters and/or numbers (some additional characters also possible) used to signify a project with data in the Water Quality Portal
+#' @param siteType Type of waterbody
+#' @param statecode Code that identifies a state
+#' @param countycode Code that identifies a county 
+#' @param siteid Unique monitoring station identifier
 #' @param organization A string of letters and/or numbers (some additional characters also possible) used to signify an organization with data in the Water Quality Portal
-#' @param endDate End Date string in the format YYYY-MM-DD
+#' @param project A string of letters and/or numbers (some additional characters also possible) used to signify a project with data in the Water Quality Portal
 #' @param applyautoclean Logical, defaults to TRUE. Applies TADA's autoclean function on the returned data profile.
 #'
 #' @return TADA-compatible dataframe
@@ -78,16 +78,16 @@
 #' }
 #'
 
-TADAdataRetrieval <- function(statecode = "null",
-                              startDate = "null",
-                              countycode = "null", 
-                              siteid = "null",
-                              siteType = "null",
+TADAdataRetrieval <- function(startDate = "null",
+                              endDate = "null",
                               characteristicName = "null",
                               sampleMedia = "null",
-                              project = "null",
+                              siteType = "null",
+                              statecode = "null",
+                              countycode = "null",
+                              siteid = "null",
                               organization = "null",
-                              endDate = "null",
+                              project = "null",
                               applyautoclean = TRUE
                               ) {
 
@@ -276,40 +276,24 @@ TADAReadWQPWebServices <- function(webservice) {
 #' size of datasets that your R console will be able to hold in one session.
 #' Function requires a characteristicName, siteType, statecode, huc, or start/
 #' end date input. The recommendation is to be as specific as you can with your
-#' large data call.
-#' 
-#' Similarly to the TADAdataRetrieval function, this function will create 
-#' and/or edit the following columns:
-#' TADA.DetectionLimitMeasureValue.Flag
-#' DetectionQuantitationLimitMeasure.MeasureValue
-#' DetectionLimitMeasureValue.Original
-#' ResultMeasureValue.Original
-#' TADA.ResultMeasureValue.Flag
-#' ResultMeasureValue
-#' 
-#' All data cleaning and transformations are done directly to the
-#' "ResultMeasureValue" and "DetectionLimitMeasureValue" columns, 
-#' however the original "ResultMeasureValue" and "DetectionLimitMeasureValue"
-#' columns and values from the WQP are preserved in these new fields, 
-#' "ResultMeasureValue.Original" and "DetectionLimitMeasureValue.Original". 
-#' Additionally, "TADA.ResultMeasureValue.Flag" and 
-#' "TADA.DetectionLimitMeasureValue.Flag" are created to track and changes made
-#' to the "ResultMeasureValue" and "DetectionLimitMeasureValue" columns; 
-#' and to provide information about the result values that is needed to address
-#' censored data later on (i.e., nondetections)
+#' large data call. The function allows the user to run autoclean on the dataset,
+#' but this is not the default as checking large dataframes for exact duplicate
+#' rows can be time consuming and is better performed on its own once the query is
+#' completed.
 #' 
 #' Some code for this function was adapted from this USGS Blog (Author: Aliesha Krall)
 #' \href{https://waterdata.usgs.gov/blog/large_sample_pull/}{Large Sample Pull}  
 #' 
-#' See ?MeasureValueSpecialCharacters and ?autoclean documentation for more information.
+#' See ?autoclean documentation for more information on this optional input.
 #' 
 #' @param startDate Start Date YYYY-MM-DD format, for example, "1995-01-01"
 #' @param endDate end date in YYYY-MM-DD format, for example, "2020-12-31"
+#' @param characteristicName Name of water quality parameter
+#' @param sampleMedia Defaults to "Water". Refer to WQP domain tables for other options.
+#' @param siteType Name of water body type (e.g., "Stream", "Lake, Reservoir, Impoundment")
 #' @param statecode Character/character vector. State/territory abbreviations from FIPS codes consist of two letters 
 #' @param huc A numeric code denoting a hydrologic unit. Example: "04030202". Different size hucs can be entered.
-#' @param characteristicName Name of water quality parameter
-#' @param siteType Name of water body type (e.g., "Stream", "Lake, Reservoir, Impoundment")
-#' @param sampleMedia Defaults to "Water". Refer to WQP domain tables for other options.
+#' @param maxsitesquery Numeric. The maximum number of sites to query in each for-loop of the TADABigdataRetrieval function. This input is flexible because sites are often variable in their data richness. If several data rich sites are within the same download chunk, time outs and errors are more likely. Thus, the smaller the maxsitesquery (especially with very large datacalls), the lower the probability of overwhelming the WQP. 
 #' @param applyautoclean Defaults to FALSE. If TRUE, runs TADA's autoclean function on final combined dataset.
 #' 
 #' @return TADA-compatible dataframe
@@ -328,10 +312,11 @@ TADAReadWQPWebServices <- function(webservice) {
 TADABigdataRetrieval <- function(startDate = "null",
                               endDate = "null",
                               statecode = "null",
-                              huc = "null",
-                              characteristicName = "null", 
-                              siteType = "null",
+                              characteristicName = "null",
                               sampleMedia = "Water",
+                              siteType = "null",
+                              huc = "null",
+                              maxsitesquery = 20,
                               applyautoclean = FALSE
 ) {
   
@@ -422,7 +407,7 @@ TADABigdataRetrieval <- function(startDate = "null",
       if(length(siteid_all) > 0) {
         rm(sites) # save some space
         l=length(siteid_all)  #len(sites)
-        maxsites=100   #max number of sites pulled per WQP query
+        maxsites=maxsitesquery   #max number of sites pulled per WQP query
         #may want to consider using the total number of records in a given 
         #download group instead, e.g., records must not exceed some maximum 
         #threshold (e.g. USGS uses 250,000 records per group for their pipelines)
@@ -457,19 +442,20 @@ TADABigdataRetrieval <- function(startDate = "null",
           
           # need to specify this or throws error when trying to bind rows. Temporary fix for larger
           # issue where data structure for all columns should be specified.
-          joins = joins%>%dplyr::mutate_at(c("ActivityDepthHeightMeasure.MeasureValue",
-                                      "ActivityTopDepthHeightMeasure.MeasureValue",
-                                      "ActivityBottomDepthHeightMeasure.MeasureValue",
-                                      "ResultMeasureValue",
-                                      "ResultDepthHeightMeasure.MeasureValue",
-                                      "DetectionQuantitationLimitMeasure.MeasureValue",
-                                      "DrainageAreaMeasure.MeasureValue",
-                                      "ContributingDrainageAreaMeasure.MeasureValue",
-                                      "HorizontalAccuracyMeasure.MeasureValue",
-                                      "VerticalMeasure.MeasureValue",
-                                      "VerticalAccuracyMeasure.MeasureValue",
-                                      "WellDepthMeasure.MeasureValue",
-                                      "WellHoleDepthMeasure.MeasureValue"), as.character)
+          cols = names(joins)[names(joins)%in%c("ActivityDepthHeightMeasure.MeasureValue",
+                                                "ActivityTopDepthHeightMeasure.MeasureValue",
+                                                "ActivityBottomDepthHeightMeasure.MeasureValue",
+                                                "ResultMeasureValue",
+                                                "ResultDepthHeightMeasure.MeasureValue",
+                                                "DetectionQuantitationLimitMeasure.MeasureValue",
+                                                "DrainageAreaMeasure.MeasureValue",
+                                                "ContributingDrainageAreaMeasure.MeasureValue",
+                                                "HorizontalAccuracyMeasure.MeasureValue",
+                                                "VerticalMeasure.MeasureValue",
+                                                "VerticalAccuracyMeasure.MeasureValue",
+                                                "WellDepthMeasure.MeasureValue",
+                                                "WellHoleDepthMeasure.MeasureValue")]
+          joins = joins%>%dplyr::mutate_at(cols, as.character)
           
           df = dplyr::bind_rows(df, joins)
           # status of download relative to total number of sites queried.

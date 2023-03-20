@@ -93,33 +93,34 @@ subset by a parameter.</p>
 <span class="r-in"><span><span class="co"># Create list of fields for parameter "AMMONIA" with number of unique values in each field:</span></span></span>
 <span class="r-in"><span><span class="va">AmmoniaFields</span> <span class="op">&lt;-</span> <span class="fu">FilterParFields</span><span class="op">(</span><span class="va">Nutrients_Utah</span>, parameter <span class="op">=</span> <span class="st">"AMMONIA"</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>                                         FieldName Count</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1                                ActivityTypeCode     4</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2                               ActivityMediaName     1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3                    ActivityMediaSubdivisionName     1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 4                             ActivityCommentText     1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 5                             HydrologicCondition     1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 6                                 HydrologicEvent     1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 7         SampleCollectionMethod.MethodIdentifier     2</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 8  SampleCollectionMethod.MethodIdentifierContext     2</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 9               SampleCollectionMethod.MethodName     2</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 10                  SampleCollectionEquipmentName     1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 11                       ResultSampleFractionText     2</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 12                  ResultMeasure.MeasureUnitCode     1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 13                           MeasureQualifierCode     3</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 14                         ResultStatusIdentifier     1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 15                            ResultValueTypeName     1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 16                          ResultWeightBasisText     1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 17                     ResultTemperatureBasisText     1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 18                    ResultParticleSizeBasisText     1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 19                              ResultCommentText     1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 20        ResultAnalyticalMethod.MethodIdentifier     1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 21 ResultAnalyticalMethod.MethodIdentifierContext     1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 22              ResultAnalyticalMethod.MethodName     1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 23                          MethodDescriptionText     1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 24                                 LaboratoryName     2</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 25                    ResultLaboratoryCommentText     1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 26             DetectionQuantitationLimitTypeName     2</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 27                     MonitoringLocationTypeName     3</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1                                ActivityTypeCode     5</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2                    ActivityMediaSubdivisionName     1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3                             ActivityCommentText     1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4                             HydrologicCondition     1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5                                 HydrologicEvent     1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 6         SampleCollectionMethod.MethodIdentifier     2</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 7  SampleCollectionMethod.MethodIdentifierContext     2</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 8               SampleCollectionMethod.MethodName     2</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 9                   SampleCollectionEquipmentName     1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 10                           MethodSpeciationName     2</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 11                           MeasureQualifierCode     3</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 12                         ResultStatusIdentifier     1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 13                            ResultValueTypeName     1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 14                          ResultWeightBasisText     1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 15                     ResultTemperatureBasisText     1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 16                    ResultParticleSizeBasisText     1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 17                          DataQuality.BiasValue     1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 18                              ResultCommentText     1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 19        ResultAnalyticalMethod.MethodIdentifier     1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 20 ResultAnalyticalMethod.MethodIdentifierContext     1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 21              ResultAnalyticalMethod.MethodName     1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 22                                 LaboratoryName     3</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 23                    ResultLaboratoryCommentText     1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 24             DetectionQuantitationLimitTypeName     3</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 25                     MonitoringLocationTypeName     3</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 26                         TADA.ActivityMediaName     1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 27             TADA.ResultMeasure.MeasureUnitCode     1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 28                  TADA.ResultSampleFractionText     2</span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
     </div>

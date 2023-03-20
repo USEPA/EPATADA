@@ -96,12 +96,12 @@ is errorsonly = FALSE.</p></dd>
     
 
 <p>When clean = FALSE and errorsonly = FALSE, this function adds the
-following column to your dataframe: WQX.AnalyticalMethodValidity. This column
+following column to your dataframe: TADA.AnalyticalMethod.Flag. This column
 flags invalid CharacteristicName, ResultAnalyticalMethod/MethodIdentifier,
 and ResultAnalyticalMethod/MethodIdentifierContext combinations in your dataframe
 as either "Nonstandardized", "Invalid", or "Valid". When clean = FALSE and
 errorsonly = TRUE, the dataframe is filtered to show only "Invalid"
-characteristic-analytical method combinations; the column WQX.AnalyticalMethodValidity
+characteristic-analytical method combinations; the column TADA.AnalyticalMethod.Flag
 is still appended. When clean = TRUE and errorsonly = FALSE, "Invalid" rows
 are removed from the dataframe and no column will be appended.</p>
     </div>
@@ -113,16 +113,16 @@ are removed from the dataframe and no column will be appended.</p>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Remove invalid characteristic-analytical method combinations from dataframe:</span></span></span>
 <span class="r-in"><span><span class="va">InvalidMethod_clean</span> <span class="op">&lt;-</span> <span class="fu">InvalidMethod</span><span class="op">(</span><span class="va">Nutrients_Utah</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "No changes were made, because we did not find any invalid method/characteristic combinations in your dataframe"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "No invalid method/characteristic combinations in your dataframe. Returning the input dataframe with TADA.AnalyticalMethod.Flag column for tracking."</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Flag, but do not remove, invalid characteristic-analytical method combinations</span></span></span>
-<span class="r-in"><span><span class="co"># in new column titled "WQX.AnalyticalMethodValidity":</span></span></span>
+<span class="r-in"><span><span class="co"># in new column titled "TADA.AnalyticalMethod.Flag":</span></span></span>
 <span class="r-in"><span><span class="va">InvalidMethod_flags</span> <span class="op">&lt;-</span> <span class="fu">InvalidMethod</span><span class="op">(</span><span class="va">Nutrients_Utah</span>, clean <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "No changes were made, because we did not find any invalid method/characteristic combinations in your dataframe"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "No invalid method/characteristic combinations in your dataframe. Returning the input dataframe with TADA.AnalyticalMethod.Flag column for tracking."</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Show only invalid characteristic-analytical method combinations:</span></span></span>
 <span class="r-in"><span><span class="va">InvalidMethod_errorsonly</span> <span class="op">&lt;-</span> <span class="fu">InvalidMethod</span><span class="op">(</span><span class="va">Nutrients_Utah</span>, clean <span class="op">=</span> <span class="cn">FALSE</span>, errorsonly <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "No changes were made, because we did not find any invalid method/characteristic combinations in your dataframe"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "This dataframe is empty because we did not find any invalid method/characteristic combinations in your dataframe"</span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
     </div>

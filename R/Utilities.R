@@ -17,7 +17,8 @@ utils::globalVariables(c("TADA.ResultValueAboveUpperThreshold.Flag", "ActivityId
                          "n_records", "statecodes_df", "STUSAB" ,"ActivityStartTime.Time", "numorgs", "dup_id",
                          "LatitudeMeasure", "TADA.ResultMeasureValueDataTypes.Flag", "Name", "TADA.Detection_Type",
                          "DetectionQuantitationLimitTypeName", "TADA.Limit_Type", "multiplier", "summ", "cf",
-                         "LongitudeMeasure"))
+                         "LongitudeMeasure", "TADA.CensoredData.Flag", "Censored_Count", "TADA.ResultMeasureValueDataTypes.Flag",
+                         "Status2"))
 
 
 
@@ -26,18 +27,13 @@ utils::globalVariables(c("TADA.ResultValueAboveUpperThreshold.Flag", "ActivityId
 #' Removes rows of data that are true duplicates. Creates new columns with prefix
 #' "TADA." and capitalizes fields to harmonize data. This function includes and 
 #' runs the TADA "ConvertSpecialChars" function as well.
-#'
-#' Within "BiologicalIntentName", only the allowable values "tissue", "toxicity",
-#' and "NA" apply to non-biological data (the function removes all others).
-#' Toxicity and fish tissue data will be kept, but other types of biological
-#' monitoring data will not.
-#'
-#' This function makes certain fields uppercase so that they're interoperable
-#' with the WQX validation reference tables and to avoid any issues with
-#' case-sensitivity when joining data. This function also performs immediate QA steps 
-#' (removes true duplicates, converts result values to numeric, capitalizes 
-#' letters, etc.). It can be run as a stand alone function or can be tacked onto
-#' other functions.
+#'  This function performs immediate QA steps (removes true duplicates, converts 
+#'  result values to numeric, capitalizes letters, etc.) on heavily used columns 
+#'  and places these new values in a column of the same name with the added prefix 
+#'  "TADA." It makes certain fields uppercase so that they're interoperable with 
+#'  the WQX validation reference tables and reduces issues with case-sensitivity 
+#'  when joining data.It can be run as a stand alone function or can be tacked onto 
+#'  other functions.
 #'
 #' @param .data TADA dataframe
 #'
@@ -111,120 +107,12 @@ autoclean <- function(.data) {
   # .data$TADA.ResultDepthHeightMeasure.MeasureUnitCode[.data$ResultDepthHeightMeasure.MeasureUnitCode == 'meters'] <- 'm'
   .data$TADA.ResultMeasure.MeasureUnitCode[.data$TADA.ResultMeasure.MeasureUnitCode == 'meters'] <- 'm'
   
+  print("NOTE: This version of the TADA package is designed to work with data with sample media: 'WATER'. autoclean does not currently filter downloaded data to 'WATER'. The user must make this specification on their own outside of package functions. See the WQPDataHamornization vignette for an example.")
+  
   .data = OrderTADACols(.data)
   
   return(.data)
 }
-
-
-
-#' Check for Special Characters in Measure Value Fields
-#'
-#' Function checks for special characters and non-numeric values in the
-#' ResultMeasureValue and DetectionQuantitationLimitMeasure.MeasureValue
-#' fields and appends flag columns indicating if special characters are included
-#' and if so, what the special characters are. The ResultMeasureValue and
-#' DetectionQuantitationLimitMeasure.MeasureValue fields are also converted to
-#' class numeric.
-#'
-#' @param .data TADA dataframe
-#'
-#' @return Full dataframe with column indicating presence of special characters in
-#' the ResultMeasureValue and DetectionQuantitationLimitMeasure.MeasureValue
-#' fields. Additionally, the ResultMeasureValue and
-#' DetectionQuantitationLimitMeasure.MeasureValue fields are converted to class
-#' numeric, and copies of each column are created to preserve original
-#' character values.
-#'
-
-MeasureValueSpecialCharacters <- function(.data) {
-  # check .data is data.frame
-  checkType(.data, "data.frame", "Input object")
-  
-  # .data required columns
-  required_cols <- c("ResultMeasureValue", "DetectionQuantitationLimitMeasure.MeasureValue")
-  # check .data has required columns
-  checkColumns(.data, required_cols)
-  
-  # execute function after checks are passed
-  # define check.data
-  check.data <- .data
-  
-  # copy MeasureValue columns to MeasureValue.Original
-  check.data$ResultMeasureValue.Original <- check.data$ResultMeasureValue
-  check.data$DetectionLimitMeasureValue.Original <-
-    check.data$DetectionQuantitationLimitMeasure.MeasureValue
-  
-  # add TADA.ResultMeasureValue.Flag column
-  flag.data <- check.data %>%
-    # apply function row by row
-    dplyr::rowwise() %>%
-    # create flag column
-    dplyr::mutate(TADA.ResultMeasureValue.Flag = dplyr::case_when(
-      is.na(ResultMeasureValue.Original) ~ as.character("ND or NA"),
-      (grepl("<", ResultMeasureValue.Original) == TRUE) ~ as.character("Less Than"),
-      (grepl(">", ResultMeasureValue.Original) == TRUE) ~ as.character("Greater Than"),
-      (grepl("~", ResultMeasureValue.Original) == TRUE) ~ as.character("Approximate Value"),
-      (grepl("[A-Za-z]", ResultMeasureValue.Original) == TRUE) ~ as.character("Text"),
-      (grepl("\\d", ResultMeasureValue.Original) == TRUE) ~ as.character("Numeric"),
-      TRUE ~ "Coerced to NA"
-    ))
-  
-  # add TADA.DetectionLimitMeasureValue.Flag column
-  flag.data <- flag.data %>%
-    # apply function row by row
-    dplyr::rowwise() %>%
-    # create flag column
-    dplyr::mutate(TADA.DetectionLimitMeasureValue.Flag = dplyr::case_when(
-      is.na(DetectionLimitMeasureValue.Original) ~ as.character(NA),
-      (grepl("<", DetectionLimitMeasureValue.Original) == TRUE) ~ as.character("Less Than"),
-      (grepl(">", DetectionLimitMeasureValue.Original) == TRUE) ~ as.character("Greater Than"),
-      (grepl("~", DetectionLimitMeasureValue.Original) == TRUE) ~ as.character("Approximate Value"),
-      (grepl("[A-Za-z]", DetectionLimitMeasureValue.Original) == TRUE) ~ as.character("Text"),
-      (grepl("\\d", DetectionLimitMeasureValue.Original) == TRUE) ~ as.character("Numeric"),
-      TRUE ~ "Coerced to NA"
-    ))
-  
-  # remove special characters before converting to numeric
-  flag.data$ResultMeasureValue <- stringr::str_replace_all(
-    flag.data$ResultMeasureValue,
-    c("<" = "", ">" = "", "~" = "", "," = "")
-  )
-  flag.data$DetectionQuantitationLimitMeasure.MeasureValue <- stringr::str_replace_all(
-    flag.data$DetectionQuantitationLimitMeasure.MeasureValue,
-    c("<" = "", ">" = "", "~" = "", "," = "")
-  )
-  
-  # change measure value columns to numeric
-  # rename df
-  clean.data <- flag.data
-  # ResultMeasureValue
-  clean.data$ResultMeasureValue <- suppressWarnings(
-    as.numeric(clean.data$ResultMeasureValue)
-  )
-  # DetectionQuantitationLimitMeasure.MeasureValue
-  clean.data$DetectionQuantitationLimitMeasure.MeasureValue <-
-    suppressWarnings(as.numeric(clean.data$DetectionQuantitationLimitMeasure.MeasureValue))
-  
-  # reorder columns
-  # place flag column next to relevant fields
-  clean.data <- clean.data %>%
-    dplyr::relocate("ResultMeasureValue.Original",
-                    .after = "ResultMeasureValue"
-    ) %>%
-    dplyr::relocate("TADA.ResultMeasureValue.Flag",
-                    .after = "ResultMeasureValue.Original"
-    ) %>%
-    dplyr::relocate("DetectionLimitMeasureValue.Original",
-                    .after = "DetectionQuantitationLimitMeasure.MeasureValue"
-    ) %>%
-    dplyr::relocate("TADA.DetectionLimitMeasureValue.Flag",
-                    .after = "DetectionLimitMeasureValue.Original"
-    )
-  return(clean.data)
-}
-
-
 
 #' AutoFilter
 #'
@@ -590,3 +478,113 @@ OrderTADACols <- function(.data){
   return(rearranged)
   
 }
+
+#' Check for Special Characters in Measure Value Fields - Deprecated
+#'
+#' Function checks for special characters and non-numeric values in the
+#' ResultMeasureValue and DetectionQuantitationLimitMeasure.MeasureValue
+#' fields and appends flag columns indicating if special characters are included
+#' and if so, what the special characters are. The ResultMeasureValue and
+#' DetectionQuantitationLimitMeasure.MeasureValue fields are also converted to
+#' class numeric. This function is deprecated, please use ConvertSpecialChars() function.
+#'
+#' @param .data TADA dataframe
+#'
+#' @return Full dataframe with column indicating presence of special characters in
+#' the ResultMeasureValue and DetectionQuantitationLimitMeasure.MeasureValue
+#' fields. Additionally, the ResultMeasureValue and
+#' DetectionQuantitationLimitMeasure.MeasureValue fields are converted to class
+#' numeric, and copies of each column are created to preserve original
+#' character values.
+#'
+
+MeasureValueSpecialCharacters <- function(.data) {
+  
+  warning("This function is deprecated and does not return the correct column names. Please use ConvertSpecialChars() function instead.")
+  
+  # check .data is data.frame
+  checkType(.data, "data.frame", "Input object")
+  
+  # .data required columns
+  required_cols <- c("ResultMeasureValue", "DetectionQuantitationLimitMeasure.MeasureValue")
+  # check .data has required columns
+  checkColumns(.data, required_cols)
+  
+  # execute function after checks are passed
+  # define check.data
+  check.data <- .data
+  
+  # copy MeasureValue columns to MeasureValue.Original
+  check.data$ResultMeasureValue.Original <- check.data$ResultMeasureValue
+  check.data$DetectionLimitMeasureValue.Original <-
+    check.data$DetectionQuantitationLimitMeasure.MeasureValue
+  
+  # add TADA.ResultMeasureValue.Flag column
+  flag.data <- check.data %>%
+    # apply function row by row
+    dplyr::rowwise() %>%
+    # create flag column
+    dplyr::mutate(TADA.ResultMeasureValue.Flag = dplyr::case_when(
+      is.na(ResultMeasureValue.Original) ~ as.character("ND or NA"),
+      (grepl("<", ResultMeasureValue.Original) == TRUE) ~ as.character("Less Than"),
+      (grepl(">", ResultMeasureValue.Original) == TRUE) ~ as.character("Greater Than"),
+      (grepl("~", ResultMeasureValue.Original) == TRUE) ~ as.character("Approximate Value"),
+      (grepl("[A-Za-z]", ResultMeasureValue.Original) == TRUE) ~ as.character("Text"),
+      (grepl("\\d", ResultMeasureValue.Original) == TRUE) ~ as.character("Numeric"),
+      TRUE ~ "Coerced to NA"
+    ))
+  
+  # add TADA.DetectionLimitMeasureValue.Flag column
+  flag.data <- flag.data %>%
+    # apply function row by row
+    dplyr::rowwise() %>%
+    # create flag column
+    dplyr::mutate(TADA.DetectionLimitMeasureValue.Flag = dplyr::case_when(
+      is.na(DetectionLimitMeasureValue.Original) ~ as.character(NA),
+      (grepl("<", DetectionLimitMeasureValue.Original) == TRUE) ~ as.character("Less Than"),
+      (grepl(">", DetectionLimitMeasureValue.Original) == TRUE) ~ as.character("Greater Than"),
+      (grepl("~", DetectionLimitMeasureValue.Original) == TRUE) ~ as.character("Approximate Value"),
+      (grepl("[A-Za-z]", DetectionLimitMeasureValue.Original) == TRUE) ~ as.character("Text"),
+      (grepl("\\d", DetectionLimitMeasureValue.Original) == TRUE) ~ as.character("Numeric"),
+      TRUE ~ "Coerced to NA"
+    ))
+  
+  # remove special characters before converting to numeric
+  flag.data$ResultMeasureValue <- stringr::str_replace_all(
+    flag.data$ResultMeasureValue,
+    c("<" = "", ">" = "", "~" = "", "," = "")
+  )
+  flag.data$DetectionQuantitationLimitMeasure.MeasureValue <- stringr::str_replace_all(
+    flag.data$DetectionQuantitationLimitMeasure.MeasureValue,
+    c("<" = "", ">" = "", "~" = "", "," = "")
+  )
+  
+  # change measure value columns to numeric
+  # rename df
+  clean.data <- flag.data
+  # ResultMeasureValue
+  clean.data$ResultMeasureValue <- suppressWarnings(
+    as.numeric(clean.data$ResultMeasureValue)
+  )
+  # DetectionQuantitationLimitMeasure.MeasureValue
+  clean.data$DetectionQuantitationLimitMeasure.MeasureValue <-
+    suppressWarnings(as.numeric(clean.data$DetectionQuantitationLimitMeasure.MeasureValue))
+  
+  # reorder columns
+  # place flag column next to relevant fields
+  clean.data <- clean.data %>%
+    dplyr::relocate("ResultMeasureValue.Original",
+                    .after = "ResultMeasureValue"
+    ) %>%
+    dplyr::relocate("TADA.ResultMeasureValue.Flag",
+                    .after = "ResultMeasureValue.Original"
+    ) %>%
+    dplyr::relocate("DetectionLimitMeasureValue.Original",
+                    .after = "DetectionQuantitationLimitMeasure.MeasureValue"
+    ) %>%
+    dplyr::relocate("TADA.DetectionLimitMeasureValue.Flag",
+                    .after = "DetectionLimitMeasureValue.Original"
+    )
+  return(clean.data)
+}
+
