@@ -48,7 +48,8 @@ Imports:
     ggplot2, 
     sf,
     maps,
-    plotly
+    plotly,
+    rmarkdown
 Depends: 
     R (>= 3.5.0)
 Suggests: 
