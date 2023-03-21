@@ -841,7 +841,7 @@ Summarize results for a single comparable data group (i.e., comparable character
 # review TADA.ComparableDataIdentifier
 unique(TADAProfileClean17$TADA.ComparableDataIdentifier)
 
-# filter dataframe to only "NITROGEN"
+# filter dataframe to only "TOTAL NITROGEN, MIXED FORMS"
 TADAProfileClean18_TNonly <- dplyr::filter(TADAProfileClean17, TADA.CharacteristicName == "TOTAL NITROGEN, MIXED FORMS")
 
 # review if any remaining result values are NA
