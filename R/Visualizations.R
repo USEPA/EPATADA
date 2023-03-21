@@ -45,21 +45,13 @@ SummarizeColumn <- function(.data,col="TADA.CharacteristicName"){
 #' 
 #' @examples
 #' # Load example dataset:
-#' data(Nutrients_Utah)
-#' 
-#' # Note for future: consider creating example dataset which has been cleaned
-#' 
-#' # Filter out quality control samples:
-#' Utah_qc <- dplyr::filter(Nutrients_Utah, !(ActivityTypeCode %in% ActivityTypeCode[grepl("Quality",ActivityTypeCode)]))
-#' 
-#' # Run HarmonizeData function:
-#' Utah_harmonized <- HarmonizeData(Utah_qc)
-#' 
-#' # Filter to 1 Comparable Data Identifier:
-#' Utah_filtered <- dplyr::filter(Utah_harmonized, TADA.ComparableDataIdentifier == "Total Nitrogen, Mixed Forms_as N_mg/L")
+#' data("Nutrients_Utah_Clean_TNonly")
+#' # TADAProfileClean18_TNonly dataframe is clean, harmonized, and filtered
+#' # down to one Comparable Data Identifier
 #' 
 #' # Create boxplot:
-#' TADA_boxplot(Utah_filtered)
+#' TADA_boxplot(TADAProfileClean18_TNonly)
+#' 
 
 TADA_boxplot <- function(filtered.data) {
   # check .data is data.frame
