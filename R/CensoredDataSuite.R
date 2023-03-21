@@ -120,7 +120,7 @@ simpleCensoredMethods <- function(.data, nd_method = "multiplier", nd_multiplier
     stop("Please provide a multiplier for the lower detection limit handling method of 'multiplier'. Typically, the multiplier value is between 0 and 1.")
   }
   if(od_method=="multiplier"&od_multiplier=="null"){
-    stop("Please provide a multiplier for the upper detection limit handling method of 'multiplier'. Typically, the multiplier value is between 0 and 1.")
+    stop("Please provide a multiplier for the upper detection limit handling method of 'multiplier'")
   }
   
   # If user has not previously run idCensoredData function, run it here to get required columns 

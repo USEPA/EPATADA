@@ -121,7 +121,7 @@ FilterFieldReview <- function(field, .data) {
   invisible(utils::capture.output(FilterFields(.data)))
   # check that input is in UniqueValList
   if (exists(field, TADA.env$UniqueValList) == FALSE) {
-    stop("Input does not exist as a field in the dataframe.")
+    stop("Input does not exist as a field in the dataframe or field only contains 1 value.")
   }
 
   # subset UniqueValList by input
@@ -322,13 +322,19 @@ FilterParFieldReview <- function(field, .data, parameter) {
       stop("Input parameter is not in the input dataframe.")
     }
   }
+  
   # execute function after checks are passed
+  
+  # refreshes UniqueValList
+  FilterParList(.data)
+  FilterParFields(.data, parameter)
 
-  # refresh UniqueValList
-  invisible(utils::capture.output(FilterParFields(.data, parameter)))
+  #invisible(utils::capture.output(FilterParFields(.data, parameter)))
+  
+  # below not working correctly  
   # check that input is in ParUniqueValList
   if (exists(field, TADA.env$ParUniqueValList) == FALSE) {
-    stop("Input does not exist as a field in the dataframe.")
+    stop("Input does not exist as a field in the dataframe or field only contains 1 value.")
   }
 
   # subset UniqueValList by input
