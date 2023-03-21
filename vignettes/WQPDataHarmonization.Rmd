@@ -50,7 +50,7 @@ development version can be downloaded directly from GitHub if desired
 # if you experience any issues installing TADA, try uncommenting and running the line below before the install
 # options(download.file.method = "wininet")
 
-remotes::install_github("USEPA/TADA", ref = "develop", dependencies = TRUE)
+remotes::install_github("USEPA/TADA", ref = "misc-updates-cm", dependencies = TRUE)
 library(TADA)
 
 ```

@@ -66,13 +66,14 @@
 
 
 
-
-<div class="row">
+<script src="WQPDataHarmonization_files/htmlwidgets-1.6.2/htmlwidgets.js"></script><script src="WQPDataHarmonization_files/plotly-binding-4.10.1/plotly.js"></script><script src="WQPDataHarmonization_files/typedarray-0.1/typedarray.min.js"></script><link href="WQPDataHarmonization_files/crosstalk-1.2.0/css/crosstalk.min.css" rel="stylesheet">
+<script src="WQPDataHarmonization_files/crosstalk-1.2.0/js/crosstalk.min.js"></script><link href="WQPDataHarmonization_files/plotly-htmlwidgets-css-2.11.1/plotly-htmlwidgets.css" rel="stylesheet">
+<script src="WQPDataHarmonization_files/plotly-main-2.11.1/plotly-latest.min.js"></script><div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
       <img src="" class="logo" alt=""><h1>WQP Data Harmonization</h1>
                         <h4 data-toc-skip class="author">TADA Team</h4>
             
-            <h4 data-toc-skip class="date">2023-03-15</h4>
+            <h4 data-toc-skip class="date">2023-03-20</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/USEPA/TADA/blob/HEAD/vignettes/WQPDataHarmonization.Rmd" class="external-link"><code>vignettes/WQPDataHarmonization.Rmd</code></a></small>
       <div class="d-none name"><code>WQPDataHarmonization.Rmd</code></div>
@@ -83,7 +84,7 @@
 <div class="section level2">
 <h2 id="overview">Overview<a class="anchor" aria-label="anchor" href="#overview"></a>
 </h2>
-<p>This vignette will walk through how to discover, wrangle, and
+<p>This vignette will walk through how to discover, wrangle, QAQC, and
 harmonize <a href="https://www.waterqualitydata.us/" class="external-link">Water Quality
 Portal (WQP)</a> data from multiple organizations.</p>
 </div>
@@ -91,53 +92,24 @@ Portal (WQP)</a> data from multiple organizations.</p>
 <h2 id="install-and-load-packages">Install and load packages<a class="anchor" aria-label="anchor" href="#install-and-load-packages"></a>
 </h2>
 <p>To install TADA, currently you need to install from GitHub using
-remotes (shown) or devtools. dataRetrieval will be downloaded from CRAN,
-but the development version can be downloaded directly from GitHub
-(un-comment).</p>
-<p>The following code (un-comment) will also install any packages you do
-not have, and load all packages required to run this vignette into your
-R session.</p>
+remotes (shown) or devtools.</p>
+<p>First, install and load the “remotes” package specifying the repo.
+This is needed before installing TADA because it is only available on
+GitHub (not CRAN).</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># list.of.packages &lt;- c("plyr", "data.table", "dplyr", "magrittr", "stringr", "maps","utils", "RColorBrewer", "stats", "lubridate", "remotes", "dataRetrieval", "ggplot2", "sf")</span></span>
-<span></span>
-<span><span class="co"># new.packages &lt;- list.of.packages[!(list.of.packages %in% installed.packages()[,"Package"])]</span></span>
-<span></span>
-<span><span class="co"># if(length(new.packages)) install.packages(new.packages, repos = "https://cloud.r-project.org/")</span></span></code></pre></div>
-<p>If you have any issues loading the remotes library using the code
-above, uncomment the line below to install the “remotes” package
-specifying the repo. You must load the remotes library before installing
-TADA and other packages from GitHub</p>
-<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"remotes"</span>, repos <span class="op">=</span> <span class="st">"http://cran.us.r-project.org"</span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://remotes.r-lib.org" class="external-link">remotes</a></span><span class="op">)</span></span></code></pre></div>
-<p>Uncomment the lines below to install latest version of dataRetrieval
-and ggplot2 from GitHub.</p>
-<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<p>Next, install and load TADA. dataRetrieval and other TADA R Package
+dependencies will also be downloaded from CRAN with the TADA install,
+but the development version can be downloaded directly from GitHub if
+desired (un-comment).</p>
+<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># remotes::install_github("USGS-R/dataRetrieval", dependencies=TRUE)</span></span>
 <span></span>
-<span><span class="co"># remotes::install_github("hadley/ggplot2", dependencies=TRUE)</span></span>
-<span></span>
-<span><span class="fu">remotes</span><span class="fu">::</span><span class="fu"><a href="https://remotes.r-lib.org/reference/install_github.html" class="external-link">install_github</a></span><span class="op">(</span><span class="st">"USEPA/TADA"</span>, ref <span class="op">=</span> <span class="st">"develop"</span>, dependencies <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
-<span></span>
 <span><span class="co"># if you experience any issues installing TADA, try uncommenting and running the line below before the install</span></span>
-<span><span class="co"># options(download.file.method = "wininet")</span></span></code></pre></div>
-<p>Load the required libraries to run this vignette into your R
-session</p>
-<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># libraries loaded from CRAN</span></span>
-<span><span class="co"># library(plyr)</span></span>
-<span><span class="co"># library(data.table)</span></span>
-<span><span class="co"># library(dplyr)</span></span>
-<span><span class="co"># library(magrittr)</span></span>
-<span><span class="co"># library(stringr)</span></span>
-<span><span class="co"># library(utils)</span></span>
-<span><span class="co"># library(RColorBrewer)</span></span>
-<span><span class="co"># library(stats)</span></span>
-<span><span class="co"># library(sf)</span></span>
-<span><span class="co"># library(lubridate)</span></span>
-<span><span class="co"># library(ggplot2)</span></span>
-<span><span class="co"># library(maps)</span></span>
-<span><span class="co"># library(dataRetrieval)</span></span>
+<span><span class="co"># options(download.file.method = "wininet")</span></span>
+<span></span>
+<span><span class="fu">remotes</span><span class="fu">::</span><span class="fu"><a href="https://remotes.r-lib.org/reference/install_github.html" class="external-link">install_github</a></span><span class="op">(</span><span class="st">"USEPA/TADA"</span>, ref <span class="op">=</span> <span class="st">"misc-updates-cm"</span>, dependencies <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://usepa.github.io/TADA/">TADA</a></span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">
@@ -249,7 +221,7 @@ profiles you would get using readWQPdata vs. TADAdataRetrieval. The
 profiles are different because TADAdataRetrieval automatically joins in
 data from multiple WQP profiles, and does some additional data cleaning
 as part of the data retrieval process.</p>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># dataRetrieval1 &lt;- dataRetrieval::readWQPdata(statecode = "AK", characteristicName = c("Fecal Coliform", "Escherichia coli", "Enterococcus"), startDate = "2018-05-01", ignore_attributes = TRUE)</span></span>
 <span></span>
 <span><span class="co"># another example</span></span>
@@ -257,22 +229,22 @@ as part of the data retrieval process.</p>
 <p>Use the code below to download data from the WQP using
 TADAdataRetrieval. Edit the code chuck below to define your own WQP
 query inputs.</p>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># here is an example for Utah</span></span>
-<span><span class="co"># TADAProfile1 &lt;- TADAdataRetrieval(statecode = "UT", characteristicName = c("Ammonia", "Nitrate", "Nitrogen"), startDate = "2020-10-01")</span></span>
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># here is an example for Utah. We will move forward with this example in the remainder of the vignette</span></span>
+<span><span class="va">TADAProfile</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/TADAdataRetrieval.html">TADAdataRetrieval</a></span><span class="op">(</span>statecode <span class="op">=</span> <span class="st">"UT"</span>, characteristicName <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Ammonia"</span>, <span class="st">"Nitrate"</span>, <span class="st">"Nitrogen"</span><span class="op">)</span>, startDate <span class="op">=</span> <span class="st">"2020-10-01"</span><span class="op">)</span></span>
+<span><span class="co">#&gt; [1] "NOTE: This version of the TADA package is designed to work with data with sample media: 'WATER'. autoclean does not currently filter downloaded data to 'WATER'. The user must make this specification on their own outside of package functions. See the WQPDataHamornization vignette for an example."</span></span>
 <span></span>
 <span><span class="co"># example for NM</span></span>
 <span><span class="co"># TADAProfile &lt;- TADAdataRetrieval(statecode = "NM", characteristicName = c("Ammonia", "Nitrate", "Nitrogen"), startDate = "2020-05-01")</span></span>
 <span></span>
 <span><span class="co"># example for Alaska</span></span>
-<span><span class="co"># TADAProfile2 &lt;- TADAdataRetrieval(project = "Anchorage Bacteria 20-21")</span></span>
+<span><span class="co"># TADAProfile &lt;- TADAdataRetrieval(project = "Anchorage Bacteria 20-21")</span></span>
 <span></span>
-<span><span class="co"># another example query for Alaska. We will move forward with this example in the remainder of the vignette</span></span>
-<span><span class="va">TADAProfile</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/TADAdataRetrieval.html">TADAdataRetrieval</a></span><span class="op">(</span>statecode <span class="op">=</span> <span class="st">"AK"</span>, characteristicName <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Fecal Coliform"</span>, <span class="st">"Escherichia coli"</span>, <span class="st">"Enterococcus"</span>, <span class="st">"Ammonia"</span>, <span class="st">"Nitrate"</span>, <span class="st">"Nitrogen"</span><span class="op">)</span>, startDate <span class="op">=</span> <span class="st">"2018-05-01"</span><span class="op">)</span></span>
-<span><span class="co">#&gt; [1] "NOTE: This version of the TADA package is designed to work with data with sample media: 'WATER'. autoclean does not currently filter downloaded data to 'WATER'. The user must make this specification on their own outside of package functions. See the WQPDataHamornization vignette for an example."</span></span></code></pre></div>
+<span><span class="co"># another example query for Alaska</span></span>
+<span><span class="co">#TADAProfile &lt;- TADAdataRetrieval(statecode = "AK", characteristicName = c("Fecal Coliform", "Escherichia coli", "Enterococcus", "Ammonia", "Nitrate", "Nitrogen"), startDate = "2018-05-01")</span></span></code></pre></div>
 <p>Option 2: Alternatively, you can use the data.table::fread function
 to read in a web service call for any WQP profile (un-comment).</p>
-<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># New_Draft_fullphyschem &lt;- data.table::fread("https://www.waterqualitydata.us/data/Result/search?countrycode=US&amp;statecode=US%3A49&amp;siteid=UTAHDWQ_WQX-4925610&amp;startDateLo=01-01-2015&amp;startDateHi=12-31-2016&amp;mimeType=csv&amp;zip=no&amp;sorted=yes&amp;dataProfile=fullPhysChem&amp;providers=NWIS&amp;providers=STEWARDS&amp;providers=STORET")</span></span></code></pre></div>
 <p><strong>Extra tip:</strong> Note that the web service call built
 using the Water Quality Portal uses the inputs startDateLo and
@@ -297,7 +269,7 @@ output.</p>
 <p>See ?TADABigdataRetrieval for more details. WARNING, this can take
 multiple HOURS to run. The total run time depends on your query
 inputs.</p>
-<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># WARNING, this can take multiple HOURS to run </span></span>
 <span><span class="co"># AK_AL_WaterTemp &lt;- TADABigdataRetrieval(startDate = "2000-01-01", </span></span>
 <span><span class="co">#                                     endDate = "2022-12-31", </span></span>
@@ -312,7 +284,7 @@ inputs.</p>
 <p>Review all column names in the TADA Profile. Remove results that are
 not water samples or measurements (TADA is recommended for use with
 water data only).</p>
-<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="va">TADAProfile</span><span class="op">)</span></span>
 <span><span class="co">#&gt;   [1] "OrganizationIdentifier"                                           </span></span>
 <span><span class="co">#&gt;   [2] "OrganizationFormalName"                                           </span></span>
@@ -452,15 +424,12 @@ water data only).</p>
 <span><span class="co">#&gt; [136] "TADA.DetectionQuantitationLimitMeasure.MeasureValueDataTypes.Flag"</span></span>
 <span><span class="va">TADAProfile_CharSummary</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/SummarizeColumn.html">SummarizeColumn</a></span><span class="op">(</span><span class="va">TADAProfile</span>,<span class="st">"TADA.CharacteristicName"</span><span class="op">)</span></span>
 <span><span class="va">TADAProfile_CharSummary</span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 6 × 3</span></span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 3 × 3</span></span></span>
 <span><span class="co">#&gt;   TADA.CharacteristicName n_sites n_records</span></span>
 <span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>                     <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;int&gt;</span></span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> AMMONIA                      38        46</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span> ENTEROCOCCUS                179      <span style="text-decoration: underline;">2</span>761</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span> ESCHERICHIA COLI             34       286</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">4</span> FECAL COLIFORM              234      <span style="text-decoration: underline;">3</span>271</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">5</span> NITRATE                      49       554</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">6</span> NITROGEN                     54       292</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> AMMONIA                      27        72</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span> NITRATE                     147      <span style="text-decoration: underline;">2</span>159</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span> NITROGEN                    728     <span style="text-decoration: underline;">12</span>534</span></span>
 <span></span>
 <span><span class="co"># Remove data for non-water media types</span></span>
 <span><span class="va">TADAProfile</span> <span class="op">&lt;-</span> <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">TADAProfile</span>, <span class="va">TADA.ActivityMediaName</span> <span class="op">==</span> <span class="st">"WATER"</span><span class="op">)</span></span></code></pre></div>
@@ -469,13 +438,13 @@ water data only).</p>
 <h2 id="invalid-coordinates">Invalid coordinates<a class="anchor" aria-label="anchor" href="#invalid-coordinates"></a>
 </h2>
 <p>Review station locations</p>
-<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">#create a map of the world</span></span>
 <span><span class="fu">maps</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/maps/man/map.html" class="external-link">map</a></span><span class="op">(</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># draw the sites included in your TADAProfile onto the map</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/points.html" class="external-link">points</a></span><span class="op">(</span><span class="va">TADAProfile</span><span class="op">$</span><span class="va">TADA.LongitudeMeasure</span>, <span class="va">TADAProfile</span><span class="op">$</span><span class="va">TADA.LatitudeMeasure</span>, col<span class="op">=</span><span class="st">"red"</span>, pch<span class="op">=</span><span class="fl">20</span><span class="op">)</span></span></code></pre></div>
-<p><img src="WQPDataHarmonization_files/figure-html/unnamed-chunk-10-1.png" width="700"></p>
+<p><img src="WQPDataHarmonization_files/figure-html/unnamed-chunk-8-1.png" width="700"></p>
 <p>The TADA <strong>InvalidCoordinates</strong> function identifies and
 flags potentially invalid coordinate data. While its functionality is
 showcased here, it is always important to review any invalid outputs
@@ -514,17 +483,24 @@ places in the latitude and longitude provided. If either does not have
 any numbers to the right of the decimal point, the row will be flagged
 as “Imprecise”.</p></li>
 </ul>
-<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">InvalidCoordinateFlags</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/InvalidCoordinates.html">InvalidCoordinates</a></span><span class="op">(</span><span class="va">TADAProfile</span>, clean_outsideUSA <span class="op">=</span> <span class="st">"no"</span>, clean_imprecise <span class="op">=</span> <span class="cn">FALSE</span>, errorsonly <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># review unique flags in InvalidCoordinateFlags</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/unique.html" class="external-link">unique</a></span><span class="op">(</span><span class="va">InvalidCoordinateFlags</span><span class="op">$</span><span class="va">TADA.InvalidCoordinates.Flag</span><span class="op">)</span></span>
-<span><span class="co">#&gt; [1] "Imprecise_lessthan3decimaldigits" "Imprecise_Longincludes999"</span></span>
+<span><span class="co">#&gt; [1] "Imprecise_Longincludes999"        "Imprecise_Latincludes999"        </span></span>
+<span><span class="co">#&gt; [3] "Imprecise_lessthan3decimaldigits" "LONG_OutsideUSA"</span></span>
 <span></span>
 <span><span class="co"># review unique MonitoringLocationIdentifiers in your flag dataframe</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/unique.html" class="external-link">unique</a></span><span class="op">(</span><span class="va">InvalidCoordinateFlags</span><span class="op">$</span><span class="va">MonitoringLocationIdentifier</span><span class="op">)</span></span>
-<span><span class="co">#&gt; [1] "USGS-695924143420301"    "AKDECWQ-AnchBact20-Che3"</span></span>
-<span><span class="co">#&gt; [3] "AKDECWQ-WHADA-Che3"</span></span>
+<span><span class="co">#&gt;  [1] "USGS-403234111295700"    "UTAHDWQ_WQX-4904965"    </span></span>
+<span><span class="co">#&gt;  [3] "UTAHDWQ_WQX-4906400"     "UTAHDWQ_WQX-4917450"    </span></span>
+<span><span class="co">#&gt;  [5] "UTAHDWQ_WQX-4926323"     "UTAHDWQ_WQX-4922990"    </span></span>
+<span><span class="co">#&gt;  [7] "UTAHDWQ_WQX-4928005"     "UTEMTN-RARE - 1"        </span></span>
+<span><span class="co">#&gt;  [9] "UTAHDWQ_WQX-4990280"     "UTAHDWQ_WQX-4900702"    </span></span>
+<span><span class="co">#&gt; [11] "UTAHDWQ_WQX-4922760"     "UTAHDWQ_WQX-4920220"    </span></span>
+<span><span class="co">#&gt; [13] "WFWQC_UT-4992540"        "WFWQC_UT-4991820"       </span></span>
+<span><span class="co">#&gt; [15] "952307_WQX-Rye Spring 3"</span></span>
 <span></span>
 <span><span class="va">Unique_InvalidCoordinateFlags</span> <span class="op">&lt;-</span> <span class="va">InvalidCoordinateFlags</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span></span>
 <span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html" class="external-link">select</a></span><span class="op">(</span><span class="st">'MonitoringLocationIdentifier'</span>,<span class="st">'MonitoringLocationName'</span>, <span class="st">'TADA.InvalidCoordinates.Flag'</span>,</span>
@@ -534,7 +510,7 @@ as “Imprecise”.</p></li>
 <span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/distinct.html" class="external-link">distinct</a></span><span class="op">(</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># remove all data for sites with invalid or imprecise coordinates. Change function inputs to keep this data, but be aware it may impact your mapping. </span></span>
-<span><span class="va">TADAProfileClean1</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/InvalidCoordinates.html">InvalidCoordinates</a></span><span class="op">(</span><span class="va">TADAProfile</span>, clean_outsideUSA <span class="op">=</span> <span class="st">"no"</span>, clean_imprecise <span class="op">=</span> <span class="cn">FALSE</span>, errorsonly <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
+<span><span class="va">TADAProfileClean1</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/InvalidCoordinates.html">InvalidCoordinates</a></span><span class="op">(</span><span class="va">TADAProfile</span>, clean_outsideUSA <span class="op">=</span> <span class="st">"remove"</span>, clean_imprecise <span class="op">=</span> <span class="cn">FALSE</span>, errorsonly <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="depth-unit-conversions">Depth unit conversions<a class="anchor" aria-label="anchor" href="#depth-unit-conversions"></a>
@@ -569,7 +545,7 @@ columns.</p>
 Default is unit = “m”.</p>
 <p>See additional function documentation for additional function options
 by entering the following code in the console: ?ConvertDepthUnits</p>
-<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">#converts all depth profile data to meters</span></span>
 <span><span class="va">TADAProfileClean2</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/ConvertDepthUnits.html">ConvertDepthUnits</a></span><span class="op">(</span><span class="va">TADAProfileClean1</span>, unit <span class="op">=</span> <span class="st">"m"</span>, transform <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
 </div>
@@ -584,7 +560,7 @@ domain table:</p>
 </ul>
 <p>See additional function documentation for additional function options
 by entering the following code in the console: ?ConvertResultUnits</p>
-<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">#Converts all results to WQX target units</span></span>
 <span><span class="va">TADAProfileClean3</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/ConvertResultUnits.html">ConvertResultUnits</a></span><span class="op">(</span><span class="va">TADAProfileClean2</span>, transform <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
 </div>
@@ -623,7 +599,7 @@ filters the dataframe to show only rows of data which are flagged
 <p>See function documentation for additional function options by
 entering the following code in the console:
 ?AggregatedContinuousData</p>
-<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">TADAProfileClean4</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/AggregatedContinuousData.html">AggregatedContinuousData</a></span><span class="op">(</span><span class="va">TADAProfileClean3</span>, clean <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] "No evidence of aggregated continuous data in your dataframe. Returning the input dataframe with TADA.AggregatedContinuousData.Flag column for tracking."</span></span>
 <span></span>
@@ -701,23 +677,13 @@ flagged as “Invalid”; default is errorsonly = FALSE.</li>
 </ul>
 </li>
 </ul>
-<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">TADAProfileClean5</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/InvalidMethod.html">InvalidMethod</a></span><span class="op">(</span><span class="va">TADAProfileClean4</span>, clean <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
-<span><span class="va">TADAProfileClean6</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/InvalidFraction.html">InvalidFraction</a></span><span class="op">(</span><span class="va">TADAProfileClean5</span>, clean <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Warning in InvalidFraction(TADAProfileClean5, clean = FALSE): Metadata</span></span>
-<span><span class="co">#&gt; transformations may be adversely affected by choosing to retain 'Invalid'</span></span>
-<span><span class="co">#&gt; fraction. Check these records before proceeding with transformations and/or set</span></span>
-<span><span class="co">#&gt; clean = TRUE.</span></span>
-<span><span class="va">TADAProfileClean7</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/InvalidSpeciation.html">InvalidSpeciation</a></span><span class="op">(</span><span class="va">TADAProfileClean6</span>, clean <span class="op">=</span> <span class="st">"none"</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Warning in InvalidSpeciation(TADAProfileClean6, clean = "none"): Metadata</span></span>
-<span><span class="co">#&gt; transformations may be adversely affected by choosing to retain 'Invalid'</span></span>
-<span><span class="co">#&gt; speciation. Check these records before proceeding with transformations and/or</span></span>
-<span><span class="co">#&gt; set clean = 'invalid_only' or 'both'.</span></span>
-<span><span class="va">TADAProfileClean8</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/InvalidResultUnit.html">InvalidResultUnit</a></span><span class="op">(</span><span class="va">TADAProfileClean7</span>, clean <span class="op">=</span> <span class="st">"none"</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Warning in InvalidResultUnit(TADAProfileClean7, clean = "none"): Metadata</span></span>
-<span><span class="co">#&gt; transformations may be adversely affected by choosing to retain 'Invalid'</span></span>
-<span><span class="co">#&gt; result units. Check these records before proceeding with transformations and/or</span></span>
-<span><span class="co">#&gt; set clean = 'invalid_only' or 'both'.</span></span></code></pre></div>
+<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">TADAProfileClean5</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/InvalidMethod.html">InvalidMethod</a></span><span class="op">(</span><span class="va">TADAProfileClean4</span>, clean <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
+<span><span class="co">#&gt; [1] "No invalid method/characteristic combinations in your dataframe. Returning the input dataframe with TADA.AnalyticalMethod.Flag column for tracking."</span></span>
+<span><span class="va">TADAProfileClean6</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/InvalidFraction.html">InvalidFraction</a></span><span class="op">(</span><span class="va">TADAProfileClean5</span>, clean <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
+<span><span class="co">#&gt; [1] "All characteristic/fraction combinations are valid in your dataframe. Returning input dataframe with TADA.SampleFraction.Flag column for tracking."</span></span>
+<span><span class="va">TADAProfileClean7</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/InvalidSpeciation.html">InvalidSpeciation</a></span><span class="op">(</span><span class="va">TADAProfileClean6</span>, clean <span class="op">=</span> <span class="st">"invalid_only"</span><span class="op">)</span></span>
+<span><span class="va">TADAProfileClean8</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/InvalidResultUnit.html">InvalidResultUnit</a></span><span class="op">(</span><span class="va">TADAProfileClean7</span>, clean <span class="op">=</span> <span class="st">"invalid_only"</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="wqx-national-upper-and-lower-thresholds">WQX national upper and lower thresholds<a class="anchor" aria-label="anchor" href="#wqx-national-upper-and-lower-thresholds"></a>
@@ -753,9 +719,11 @@ FALSE.</p></li>
 </ul>
 </li>
 </ul>
-<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">TADAProfileClean9</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/AboveNationalWQXUpperThreshold.html">AboveNationalWQXUpperThreshold</a></span><span class="op">(</span><span class="va">TADAProfileClean8</span>, clean <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
-<span><span class="va">TADAProfileClean10</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/BelowNationalWQXLowerThreshold.html">BelowNationalWQXLowerThreshold</a></span><span class="op">(</span><span class="va">TADAProfileClean9</span>, clean <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
+<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">TADAProfileClean9</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/AboveNationalWQXUpperThreshold.html">AboveNationalWQXUpperThreshold</a></span><span class="op">(</span><span class="va">TADAProfileClean8</span>, clean <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
+<span><span class="co">#&gt; [1] "No data above the WQX Upper Threshold was found in your dataframe. Returning the input dataframe with TADA.ResultAboveUpperThreshold.Flag column for tracking."</span></span>
+<span><span class="va">TADAProfileClean10</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/BelowNationalWQXLowerThreshold.html">BelowNationalWQXLowerThreshold</a></span><span class="op">(</span><span class="va">TADAProfileClean9</span>, clean <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
+<span><span class="co">#&gt; [1] "No data below the WQX Lower Threshold were found in your dataframe. Returning the input dataframe with TADA.ResultValueBelowLowerThreshold.Flag column for tracking."</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="potential-duplicates">Potential duplicates<a class="anchor" aria-label="anchor" href="#potential-duplicates"></a>
@@ -786,8 +754,9 @@ FALSE.</p></li>
 </ul>
 </li>
 </ul>
-<div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">TADAProfileClean11</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/PotentialDuplicateRowID.html">PotentialDuplicateRowID</a></span><span class="op">(</span><span class="va">TADAProfileClean10</span><span class="op">)</span></span>
+<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">TADAProfileClean11</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/PotentialDuplicateRowID.html">PotentialDuplicateRowID</a></span><span class="op">(</span><span class="va">TADAProfileClean10</span>, clean <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>                                              errorsonly <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] "No potential duplicates found in your dataframe."</span></span></code></pre></div>
 </div>
 <div class="section level2">
@@ -809,8 +778,9 @@ clean = TRUE, cleanNA = TRUE, and errorsonly = FALSE.</p>
 the inputs clean = FALSE, cleanNA = FALSE, and errorsonly = TRUE.</p>
 <p>If clean = FALSE, cleanNA = FALSE, and errorsonly = FALSE, the
 function will not do anything.</p>
-<div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">TADAProfileClean12</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/QAPPapproved.html">QAPPapproved</a></span><span class="op">(</span><span class="va">TADAProfileClean11</span>, clean <span class="op">=</span> <span class="cn">FALSE</span>, cleanNA <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
+<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">TADAProfileClean12</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/QAPPapproved.html">QAPPapproved</a></span><span class="op">(</span><span class="va">TADAProfileClean11</span>, clean <span class="op">=</span> <span class="cn">FALSE</span>, </span>
+<span>                                   cleanNA <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] "Data is flagged but not removed because clean and cleanNA were FALSE"</span></span></code></pre></div>
 <p>The <strong>QAPPDocAvailable</strong> function checks to see if a
 QAPP Doc is Available</p>
@@ -824,8 +794,9 @@ filtered to show only rows that do not have an associated QAPP document.
 The defaults are clean = FALSE and errorsonly = FALSE. This function
 should only be used to remove data if an accompanying QAPP document is
 required to use data in assessments.</p>
-<div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">TADAProfileClean13</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/QAPPDocAvailable.html">QAPPDocAvailable</a></span><span class="op">(</span><span class="va">TADAProfileClean12</span>, clean <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
+<div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">TADAProfileClean13</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/QAPPDocAvailable.html">QAPPDocAvailable</a></span><span class="op">(</span><span class="va">TADAProfileClean12</span>, clean <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
+<span><span class="co">#&gt; [1] "No QAPP document url data found in your dataframe. Returning input dataframe with TADA.QAPPDocAvailable column for tracking."</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="filter-data-by-field">Filter data by field<a class="anchor" aria-label="anchor" href="#filter-data-by-field"></a>
@@ -835,23 +806,23 @@ specific fields and may choose to remove data with particular
 values.</p>
 <p>To start, review the list of fields and the number of unique values
 in each field using the <strong>FilterFields</strong> function.</p>
-<div class="sourceCode" id="cb21"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/FilterFields.html">FilterFields</a></span><span class="op">(</span><span class="va">TADAProfileClean13</span><span class="op">)</span></span>
 <span><span class="co">#&gt;                             FieldName Count</span></span>
-<span><span class="co">#&gt; 1              OrganizationFormalName     7</span></span>
-<span><span class="co">#&gt; 2                    ActivityTypeCode     8</span></span>
-<span><span class="co">#&gt; 3        ActivityMediaSubdivisionName     2</span></span>
-<span><span class="co">#&gt; 4                         ProjectName    33</span></span>
-<span><span class="co">#&gt; 5                 ActivityCommentText    55</span></span>
-<span><span class="co">#&gt; 6                 HydrologicCondition     7</span></span>
-<span><span class="co">#&gt; 7                     HydrologicEvent     7</span></span>
-<span><span class="co">#&gt; 8                MeasureQualifierCode    20</span></span>
+<span><span class="co">#&gt; 1              OrganizationFormalName     8</span></span>
+<span><span class="co">#&gt; 2                    ActivityTypeCode    10</span></span>
+<span><span class="co">#&gt; 3        ActivityMediaSubdivisionName     4</span></span>
+<span><span class="co">#&gt; 4                         ProjectName    14</span></span>
+<span><span class="co">#&gt; 5                 ActivityCommentText    17</span></span>
+<span><span class="co">#&gt; 6                 HydrologicCondition     9</span></span>
+<span><span class="co">#&gt; 7                     HydrologicEvent     4</span></span>
+<span><span class="co">#&gt; 8                MeasureQualifierCode     6</span></span>
 <span><span class="co">#&gt; 9             SampleTissueAnatomyName     1</span></span>
-<span><span class="co">#&gt; 10                     LaboratoryName    29</span></span>
-<span><span class="co">#&gt; 11 DetectionQuantitationLimitTypeName    10</span></span>
-<span><span class="co">#&gt; 12         MonitoringLocationTypeName     8</span></span>
+<span><span class="co">#&gt; 10                     LaboratoryName    12</span></span>
+<span><span class="co">#&gt; 11 DetectionQuantitationLimitTypeName     7</span></span>
+<span><span class="co">#&gt; 12         MonitoringLocationTypeName    14</span></span>
 <span><span class="co">#&gt; 13             TADA.ActivityMediaName     1</span></span>
-<span><span class="co">#&gt; 14            TADA.CharacteristicName     6</span></span></code></pre></div>
+<span><span class="co">#&gt; 14            TADA.CharacteristicName     3</span></span></code></pre></div>
 <p>Next, choose a field from the list to see the unique values in that
 field, as well as the number of times each value appears in the
 dataframe using the <strong>FilterFieldReview</strong> function. We’ll
@@ -862,20 +833,23 @@ start with ActivityTypeCode.</p>
 additional QA.</p></li>
 <li><p><strong>MeasureQualifierCode</strong> Contains information about
 data flags</p></li>
-<li><pre><code>Other codes may designate suspect data or other flags which may be described in detail in **ResultLaboratoryCommentText** or another column</code></pre></li>
+<li><pre><code>Other codes may designate suspect data or other flags which may be 
+described in detail in **ResultLaboratoryCommentText** or another column</code></pre></li>
 </ol>
-<div class="sourceCode" id="cb23"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb21"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/FilterFieldReview.html">FilterFieldReview</a></span><span class="op">(</span><span class="st">"ActivityTypeCode"</span>, <span class="va">TADAProfileClean13</span><span class="op">)</span></span></code></pre></div>
-<p><img src="WQPDataHarmonization_files/figure-html/unnamed-chunk-21-1.png" width="576"></p>
+<p><img src="WQPDataHarmonization_files/figure-html/unnamed-chunk-19-1.png" width="576"></p>
 <pre><code><span><span class="co">#&gt;                                FieldValue Count</span></span>
-<span><span class="co">#&gt; 8                          Sample-Routine  6713</span></span>
-<span><span class="co">#&gt; 7  Quality Control Sample-Field Replicate   339</span></span>
-<span><span class="co">#&gt; 4  Quality Control Sample-Blind Duplicate    70</span></span>
-<span><span class="co">#&gt; 3 Quality Control Field Replicate Msr/Obs    54</span></span>
-<span><span class="co">#&gt; 1                           Field Msr/Obs    22</span></span>
-<span><span class="co">#&gt; 2                          Not determined     6</span></span>
-<span><span class="co">#&gt; 5  Quality Control Sample-Equipment Blank     2</span></span>
-<span><span class="co">#&gt; 6      Quality Control Sample-Field Blank     2</span></span></code></pre>
+<span><span class="co">#&gt; 10                         Sample-Routine 11962</span></span>
+<span><span class="co">#&gt; 9      Sample-Integrated Vertical Profile  1047</span></span>
+<span><span class="co">#&gt; 5  Quality Control Sample-Field Replicate   797</span></span>
+<span><span class="co">#&gt; 3  Quality Control Sample-Equipment Blank   671</span></span>
+<span><span class="co">#&gt; 4      Quality Control Sample-Field Blank   250</span></span>
+<span><span class="co">#&gt; 8        Sample-Composite Without Parents    18</span></span>
+<span><span class="co">#&gt; 7    Quality Control Sample-Lab Duplicate     5</span></span>
+<span><span class="co">#&gt; 1                           Field Msr/Obs     4</span></span>
+<span><span class="co">#&gt; 6        Quality Control Sample-Lab Blank     3</span></span>
+<span><span class="co">#&gt; 2  Quality Control Sample-Blind Duplicate     1</span></span></code></pre>
 <p>The ActivityTypeCode field has four unique values – “Sample-Routine”,
 “Quality Control Sample-Field Replicate”, “Field Msr/Obs”, and “Quality
 Control Sample-Field Blank.” In this example we want to remove quality
@@ -883,151 +857,42 @@ control values in the ActivityTypeCode field, therefore, we’ll specify
 that we want to remove the “Quality Control Sample-Field Replicate” and
 “Quality Control Sample-Field Blank” values in the ActivityTypeCode
 field.</p>
-<div class="sourceCode" id="cb25"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb23"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># This chunk of code removes rows where any value in the ActivityTypeCode filed includes the string "Quality")</span></span>
 <span><span class="co"># See WQX domain file to review all the ActivityTypeCode allowable values:</span></span>
 <span><span class="co"># https://cdx.epa.gov/wqx/download/DomainValues/ActivityType.CSV</span></span>
 <span><span class="co"># Access all WQX Domain Files</span></span>
 <span><span class="co">#https://www.epa.gov/waterdata/storage-and-retrieval-and-water-quality-exchange-domain-services-and-downloads</span></span>
-<span><span class="va">TADAProfileClean14</span> <span class="op">&lt;-</span> <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">TADAProfileClean13</span>, <span class="op">!</span><span class="op">(</span><span class="va">ActivityTypeCode</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="va">ActivityTypeCode</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/grep.html" class="external-link">grepl</a></span><span class="op">(</span><span class="st">"Quality"</span>,<span class="va">ActivityTypeCode</span><span class="op">)</span><span class="op">]</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<span><span class="va">TADAProfileClean14</span> <span class="op">&lt;-</span> <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">TADAProfileClean13</span>, <span class="op">!</span><span class="op">(</span><span class="va">ActivityTypeCode</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="va">ActivityTypeCode</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/grep.html" class="external-link">grepl</a></span><span class="op">(</span><span class="st">"Quality"</span>,<span class="va">ActivityTypeCode</span><span class="op">)</span><span class="op">]</span><span class="op">)</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu"><a href="../reference/FilterFieldReview.html">FilterFieldReview</a></span><span class="op">(</span><span class="st">"ActivityTypeCode"</span>, <span class="va">TADAProfileClean14</span><span class="op">)</span></span></code></pre></div>
+<p><img src="WQPDataHarmonization_files/figure-html/unnamed-chunk-20-1.png" width="700"></p>
+<pre><code><span><span class="co">#&gt;                           FieldValue Count</span></span>
+<span><span class="co">#&gt; 4                     Sample-Routine 11962</span></span>
+<span><span class="co">#&gt; 3 Sample-Integrated Vertical Profile  1047</span></span>
+<span><span class="co">#&gt; 2   Sample-Composite Without Parents    18</span></span>
+<span><span class="co">#&gt; 1                      Field Msr/Obs     4</span></span></code></pre>
 <p>We’ve completed our review of the ActivityTypeCode field.</p>
 <p>Let’s move on to a different field and see if there are any values
 that we want to remove – we’ll look at the values in the
 ResultStatusIdentifier field.</p>
-<div class="sourceCode" id="cb26"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb25"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/FilterFieldReview.html">FilterFieldReview</a></span><span class="op">(</span><span class="st">"ActivityMediaSubdivisionName"</span>, <span class="va">TADAProfileClean14</span><span class="op">)</span></span></code></pre></div>
-<p><img src="WQPDataHarmonization_files/figure-html/unnamed-chunk-23-1.png" width="576"></p>
-<pre><code><span><span class="co">#&gt;      FieldValue Count</span></span>
-<span><span class="co">#&gt; 1 Surface Water  4273</span></span></code></pre>
+<p><img src="WQPDataHarmonization_files/figure-html/unnamed-chunk-21-1.png" width="576"></p>
+<pre><code><span><span class="co">#&gt;        FieldValue Count</span></span>
+<span><span class="co">#&gt; 3   Surface Water   995</span></span>
+<span><span class="co">#&gt; 2     Groundwater   108</span></span>
+<span><span class="co">#&gt; 1 Bulk deposition     1</span></span></code></pre>
 <p>The ActivityMediaSubdivisionName field has unique values. In this
 example, we show how a user could leverage this function to remove
 specific values from their dataframe.</p>
-<div class="sourceCode" id="cb28"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">TADAProfileClean15</span> <span class="op">&lt;-</span> <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">TADAProfileClean14</span>, <span class="op">!</span><span class="op">(</span><span class="va">ActivityMediaSubdivisionName</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Groundwater"</span>, <span class="st">"Bulk deposition"</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
-</div>
-<div class="section level2">
-<h2 id="filter-data-by-field-subset-by-parameter">Filter data by field, subset by parameter<a class="anchor" aria-label="anchor" href="#filter-data-by-field-subset-by-parameter"></a>
-</h2>
-<p>In this section a TADA user will want to select a parameter, review
-the unique values associated with that parameter in specific fields, and
-choose to remove particular values.</p>
-<p>To start, review the list of parameters in the dataframe using the
-<strong>FilterParList</strong> function. (The list is sorted from
-highest to lowest counts. Only the first few rows are displayed to save
-space on the page)</p>
-<div class="sourceCode" id="cb29"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/FilterParList.html">FilterParList</a></span><span class="op">(</span><span class="va">TADAProfileClean15</span><span class="op">)</span></span>
-<span><span class="co">#&gt;         FieldValue Count</span></span>
-<span><span class="co">#&gt; 4   FECAL COLIFORM  3042</span></span>
-<span><span class="co">#&gt; 2     ENTEROCOCCUS  2577</span></span>
-<span><span class="co">#&gt; 5          NITRATE   540</span></span>
-<span><span class="co">#&gt; 6         NITROGEN   278</span></span>
-<span><span class="co">#&gt; 3 ESCHERICHIA COLI   263</span></span>
-<span><span class="co">#&gt; 1          AMMONIA    41</span></span></code></pre></div>
-<p>Next, select a parameter. Let’s explore the fields associated with
-Nitrogen using the <strong>FilterParFields</strong> function:</p>
-<div class="sourceCode" id="cb30"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/FilterParFields.html">FilterParFields</a></span><span class="op">(</span><span class="va">TADAProfileClean15</span>, <span class="st">"NITROGEN"</span><span class="op">)</span></span>
-<span><span class="co">#&gt;                                         FieldName Count</span></span>
-<span><span class="co">#&gt; 1         ResultAnalyticalMethod.MethodIdentifier     2</span></span>
-<span><span class="co">#&gt; 2  ResultAnalyticalMethod.MethodIdentifierContext     3</span></span>
-<span><span class="co">#&gt; 3                                ActivityTypeCode     2</span></span>
-<span><span class="co">#&gt; 4                    ActivityMediaSubdivisionName     1</span></span>
-<span><span class="co">#&gt; 5                             ActivityCommentText    40</span></span>
-<span><span class="co">#&gt; 6                             HydrologicCondition     7</span></span>
-<span><span class="co">#&gt; 7                                 HydrologicEvent     6</span></span>
-<span><span class="co">#&gt; 8         SampleCollectionMethod.MethodIdentifier    14</span></span>
-<span><span class="co">#&gt; 9  SampleCollectionMethod.MethodIdentifierContext     4</span></span>
-<span><span class="co">#&gt; 10              SampleCollectionMethod.MethodName    11</span></span>
-<span><span class="co">#&gt; 11                  SampleCollectionEquipmentName    12</span></span>
-<span><span class="co">#&gt; 12                           MethodSpeciationName     2</span></span>
-<span><span class="co">#&gt; 13                           MeasureQualifierCode     4</span></span>
-<span><span class="co">#&gt; 14                         ResultStatusIdentifier     5</span></span>
-<span><span class="co">#&gt; 15                            ResultValueTypeName     2</span></span>
-<span><span class="co">#&gt; 16                          ResultWeightBasisText     2</span></span>
-<span><span class="co">#&gt; 17                     ResultTemperatureBasisText     1</span></span>
-<span><span class="co">#&gt; 18                    ResultParticleSizeBasisText     1</span></span>
-<span><span class="co">#&gt; 19                          DataQuality.BiasValue     1</span></span>
-<span><span class="co">#&gt; 20                              ResultCommentText     5</span></span>
-<span><span class="co">#&gt; 21              ResultAnalyticalMethod.MethodName     2</span></span>
-<span><span class="co">#&gt; 22                                 LaboratoryName     3</span></span>
-<span><span class="co">#&gt; 23                    ResultLaboratoryCommentText    12</span></span>
-<span><span class="co">#&gt; 24             DetectionQuantitationLimitTypeName     3</span></span>
-<span><span class="co">#&gt; 25                     MonitoringLocationTypeName     2</span></span>
-<span><span class="co">#&gt; 26                         TADA.ActivityMediaName     1</span></span>
-<span><span class="co">#&gt; 27             TADA.ResultMeasure.MeasureUnitCode     1</span></span>
-<span><span class="co">#&gt; 28                  TADA.ResultSampleFractionText     3</span></span></code></pre></div>
-<p>Selecting a parameter generates the list below, which is subset by
-the selected parameter, of fields and the number of unique values in
-each field.</p>
-<p>Then choose a field from the list. In this example we’ll remove
-certain values from the HydrologicEvent field.</p>
-<div class="sourceCode" id="cb31"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/FilterParFieldReview.html">FilterParFieldReview</a></span><span class="op">(</span><span class="st">"HydrologicEvent"</span>, <span class="va">TADAProfileClean15</span>, <span class="st">"NITROGEN"</span><span class="op">)</span></span></code></pre></div>
-<p><img src="WQPDataHarmonization_files/figure-html/unnamed-chunk-27-1.png" width="576"></p>
-<pre><code><span><span class="co">#&gt;        FieldValue Count</span></span>
-<span><span class="co">#&gt; 3  Routine sample   175</span></span>
-<span><span class="co">#&gt; 5 Under ice cover     9</span></span>
-<span><span class="co">#&gt; 1           Flood     3</span></span>
-<span><span class="co">#&gt; 2  Not applicable     1</span></span>
-<span><span class="co">#&gt; 4        Snowmelt     1</span></span></code></pre>
-<p>The HydrologicEvent field has five unique values. In this example we
-want to remove samples collected during “Flood” events. Therefore, we’ll
-specify that we want to remove rows where the CharacteristicName is
-“NITROGEN” and the HydrologicEvent field is “Flood.”</p>
-<div class="sourceCode" id="cb33"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">TADAProfileClean16</span> <span class="op">&lt;-</span> <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">TADAProfileClean15</span>, <span class="op">!</span><span class="op">(</span><span class="va">TADA.CharacteristicName</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="st">"NITROGEN"</span> <span class="op">&amp;</span> <span class="va">HydrologicEvent</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="st">"Flood"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
-</div>
-<div class="section level2">
-<h2 id="transform-characteristic-speciation-and-unit-values-to-tada-standards">Transform Characteristic, Speciation, and Unit values to TADA
-Standards<a class="anchor" aria-label="anchor" href="#transform-characteristic-speciation-and-unit-values-to-tada-standards"></a>
-</h2>
-<p>The <strong>HarmonizeRefTable</strong> function generates a
-harmonization reference table that is specific to the input dataframe.
-Users can review how their input data relates to standard TADA values
-for the following elements:</p>
-<ul>
-<li><p>TADA.CharacteristicName</p></li>
-<li><p>TADA.ResultSampleFractionText</p></li>
-<li><p>TADA.MethodSpecificationName</p></li>
-<li><p>TADA.ResultMeasure.MeasureUnitCode</p></li>
-</ul>
-<p>The <strong>HarmonizeData</strong> function then compares the input
-dataframe to the TADA Harmonization Reference Table. The purpose of the
-function is to make similar data consistent and therefore easier to
-compare and analyze.</p>
-<p>Users can also edit the reference file to meet their needs if
-desired. The download argument can be used to save the harmonization
-file to your current working directory when download = TRUE, the default
-is download = FALSE.</p>
-<p>Optional outputs include:</p>
-<ol style="list-style-type: decimal">
-<li><p>the dataframe with Harmonization columns appended,</p></li>
-<li><p>the dataframe with TADA.CharacteristicName,
-TADA.ResultSampleFractionText, TADA.MethodSpecificationName, and
-TADA.ResultMeasure.MeasureUnitCode converted to TADA standards
-or</p></li>
-<li><p>the four fields converted with most Harmonization Reference Table
-columns appended. Default is transform = TRUE and flag = TRUE.</p></li>
-</ol>
-<p>Here are some examples of how the HarmonizeData function can be
-used:</p>
-<ol style="list-style-type: decimal">
-<li><p>TADA.ResultSampleFractionText specifies forms of constituents. In
-some cases, a single *TADA.CharacteristicName** will have both “Total”
-and “Dissolved” forms specified, which should not be combined. In these
-cases, each TADA.CharacteristicName and TADA.ResultSampleFractionText
-combination is given a different identifier. This identifier can be used
-later on to identify comparable data groups for calculating statistics
-and creating figures for each combination.</p></li>
-<li><p>Some variables have different names but represent the same
-constituent (e.g., “Total Kjeldahl nitrogen (Organic N &amp; NH3)” and
-“Kjeldahl nitrogen”). The HarmonizeData function gives a consistent name
-(and identifier) to synonyms.</p></li>
-</ol>
-<div class="sourceCode" id="cb34"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">UniqueHarmonizationRef</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/HarmonizationRefTable.html">HarmonizationRefTable</a></span><span class="op">(</span><span class="va">TADAProfileClean16</span>, download <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
-<span><span class="va">TADAProfileClean17</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/HarmonizeData.html">HarmonizeData</a></span><span class="op">(</span><span class="va">TADAProfileClean16</span>, ref <span class="op">=</span> <span class="va">UniqueHarmonizationRef</span>, transform <span class="op">=</span> <span class="cn">TRUE</span>, flag <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
+<div class="sourceCode" id="cb27"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">TADAProfileClean15</span> <span class="op">&lt;-</span> <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">TADAProfileClean14</span>, <span class="op">!</span><span class="op">(</span><span class="va">ActivityMediaSubdivisionName</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Groundwater"</span>, <span class="st">"Bulk deposition"</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu"><a href="../reference/FilterFieldReview.html">FilterFieldReview</a></span><span class="op">(</span><span class="st">"ActivityMediaSubdivisionName"</span>, <span class="va">TADAProfileClean15</span><span class="op">)</span></span></code></pre></div>
+<p><img src="WQPDataHarmonization_files/figure-html/unnamed-chunk-22-1.png" width="700"></p>
+<pre><code><span><span class="co">#&gt;      FieldValue Count</span></span>
+<span><span class="co">#&gt; 1 Surface Water   995</span></span></code></pre>
 </div>
 <div class="section level2">
 <h2 id="censored-data">Censored data<a class="anchor" aria-label="anchor" href="#censored-data"></a>
@@ -1084,102 +949,299 @@ is (no conversion made) and convert non-detect values to 0.5 times the
 detection limit (half the detection limit). Please review
 <strong>?summarizeCensoredData</strong> and
 <strong>?simpleCensoredMethods</strong> for more information.</p>
-<div class="sourceCode" id="cb35"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">TADAProfileClean18_censoredSummary</span> <span class="op">=</span> <span class="fu"><a href="../reference/summarizeCensoredData.html">summarizeCensoredData</a></span><span class="op">(</span><span class="va">TADAProfileClean17</span>, spec_cols <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"TADA.CharacteristicName"</span>,<span class="st">"TADA.ResultMeasure.MeasureUnitCode"</span>,<span class="st">"TADA.ResultSampleFractionText"</span>,<span class="st">"TADA.MethodSpecificationName"</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Warning in summarizeCensoredData(TADAProfileClean17, spec_cols =</span></span>
+<div class="sourceCode" id="cb29"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">TADAProfileClean16_censoredSummary</span> <span class="op">=</span> <span class="fu"><a href="../reference/summarizeCensoredData.html">summarizeCensoredData</a></span><span class="op">(</span><span class="va">TADAProfileClean15</span>, spec_cols <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"TADA.CharacteristicName"</span>,<span class="st">"TADA.ResultMeasure.MeasureUnitCode"</span>,<span class="st">"TADA.ResultSampleFractionText"</span>,<span class="st">"TADA.MethodSpecificationName"</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="co">#&gt; Warning in summarizeCensoredData(TADAProfileClean15, spec_cols =</span></span>
 <span><span class="co">#&gt; c("TADA.CharacteristicName", : Dataset contains data missing both a result</span></span>
 <span><span class="co">#&gt; value and a detection limit. Suggest removing or handling before summarizing.</span></span>
 <span><span class="co">#&gt; [1] "DetectionQuantitationLimitTypeName column dataset contains value(s) Historical Lower Reporting Limit which is/are not represented in the DetectionQuantitationLimitTypeName WQX domain table. These data records are placed under the TADA.CensoredData.Flag: Censored but not Categorized, and will not be used in censored data handling methods. Please contact TADA administrators to resolve."</span></span>
-<span><span class="co">#&gt; Warning in idCensoredData(.data): 7 records in supplied dataset have</span></span>
-<span><span class="co">#&gt; conflicting detection condition and detection limit type information. These</span></span>
-<span><span class="co">#&gt; records will not be included in detection limit handling calculations.</span></span>
 <span></span>
-<span><span class="va">TADAProfileClean18_censoredSummary</span></span>
-<span><span class="co">#&gt;        TADA.CharacteristicName TADA.ResultMeasure.MeasureUnitCode</span></span>
-<span><span class="co">#&gt; 1                      AMMONIA                               UG/L</span></span>
-<span><span class="co">#&gt; 2                      AMMONIA                               UG/L</span></span>
-<span><span class="co">#&gt; 3                 ENTEROCOCCUS                          MPN/100ML</span></span>
-<span><span class="co">#&gt; 4                 ENTEROCOCCUS                          MPN/100ML</span></span>
-<span><span class="co">#&gt; 5             ESCHERICHIA COLI                          MPN/100ML</span></span>
-<span><span class="co">#&gt; 6             ESCHERICHIA COLI                               UG/L</span></span>
-<span><span class="co">#&gt; 7               FECAL COLIFORM                          CFU/100ML</span></span>
-<span><span class="co">#&gt; 8               FECAL COLIFORM                               UG/L</span></span>
-<span><span class="co">#&gt; 9                     NITROGEN                               MG/L</span></span>
-<span><span class="co">#&gt; 10                    NITROGEN                               MG/L</span></span>
-<span><span class="co">#&gt; 11 TOTAL NITROGEN, MIXED FORMS                               MG/L</span></span>
-<span><span class="co">#&gt;    TADA.ResultSampleFractionText TADA.MethodSpecificationName Sample_Count</span></span>
-<span><span class="co">#&gt; 1                          TOTAL                       AS NH3           36</span></span>
-<span><span class="co">#&gt; 2                     UNFILTERED                         AS N            5</span></span>
-<span><span class="co">#&gt; 3                          TOTAL                         &lt;NA&gt;           21</span></span>
-<span><span class="co">#&gt; 4                           &lt;NA&gt;                         &lt;NA&gt;         2552</span></span>
-<span><span class="co">#&gt; 5                           &lt;NA&gt;                         &lt;NA&gt;          195</span></span>
-<span><span class="co">#&gt; 6                           &lt;NA&gt;                         &lt;NA&gt;           55</span></span>
-<span><span class="co">#&gt; 7                           &lt;NA&gt;                         &lt;NA&gt;         2934</span></span>
-<span><span class="co">#&gt; 8                           &lt;NA&gt;                         &lt;NA&gt;           55</span></span>
-<span><span class="co">#&gt; 9                      SUSPENDED                         &lt;NA&gt;          186</span></span>
-<span><span class="co">#&gt; 10                    UNFILTERED                         AS N           59</span></span>
-<span><span class="co">#&gt; 11                         TOTAL                         AS N           30</span></span>
-<span><span class="co">#&gt;    Censored_Count Percent_Censored Censoring_Levels TADA.CensoredData.Flag</span></span>
-<span><span class="co">#&gt; 1              27        75.000000                1             Non-Detect</span></span>
-<span><span class="co">#&gt; 2               3        60.000000                1             Non-Detect</span></span>
-<span><span class="co">#&gt; 3               4        19.047619                2             Non-Detect</span></span>
-<span><span class="co">#&gt; 4            1153        45.180251                3             Non-Detect</span></span>
-<span><span class="co">#&gt; 5              14         7.179487                1             Non-Detect</span></span>
-<span><span class="co">#&gt; 6              11        20.000000                1             Non-Detect</span></span>
-<span><span class="co">#&gt; 7             576        19.631902               11             Non-Detect</span></span>
-<span><span class="co">#&gt; 8              15        27.272727                1             Non-Detect</span></span>
-<span><span class="co">#&gt; 9              51        27.419355                1             Non-Detect</span></span>
-<span><span class="co">#&gt; 10             48        81.355932                1             Non-Detect</span></span>
-<span><span class="co">#&gt; 11             11        36.666667                1             Non-Detect</span></span>
-<span><span class="co">#&gt;                                  TADA.Censored.Note</span></span>
-<span><span class="co">#&gt; 1                Robust Regression Order Statistics</span></span>
-<span><span class="co">#&gt; 2                Robust Regression Order Statistics</span></span>
-<span><span class="co">#&gt; 3                                      Kaplan-Meier</span></span>
-<span><span class="co">#&gt; 4                                      Kaplan-Meier</span></span>
-<span><span class="co">#&gt; 5                Robust Regression Order Statistics</span></span>
-<span><span class="co">#&gt; 6                Robust Regression Order Statistics</span></span>
-<span><span class="co">#&gt; 7                                      Kaplan-Meier</span></span>
-<span><span class="co">#&gt; 8                Robust Regression Order Statistics</span></span>
-<span><span class="co">#&gt; 9                Robust Regression Order Statistics</span></span>
-<span><span class="co">#&gt; 10 Percent censored too high for estimation methods</span></span>
-<span><span class="co">#&gt; 11               Robust Regression Order Statistics</span></span>
+<span><span class="va">TADAProfileClean16_censoredSummary</span></span>
+<span><span class="co">#&gt;   TADA.CharacteristicName TADA.ResultMeasure.MeasureUnitCode</span></span>
+<span><span class="co">#&gt; 1                 AMMONIA                               UG/L</span></span>
+<span><span class="co">#&gt; 2                 AMMONIA                               UG/L</span></span>
+<span><span class="co">#&gt; 3                 AMMONIA                               UG/L</span></span>
+<span><span class="co">#&gt; 4                 NITRATE                               UG/L</span></span>
+<span><span class="co">#&gt; 5                 NITRATE                               UG/L</span></span>
+<span><span class="co">#&gt; 6                NITROGEN                               MG/L</span></span>
+<span><span class="co">#&gt; 7                NITROGEN                               MG/L</span></span>
+<span><span class="co">#&gt; 8                NITROGEN                               MG/L</span></span>
+<span><span class="co">#&gt;   TADA.ResultSampleFractionText TADA.MethodSpecificationName Sample_Count</span></span>
+<span><span class="co">#&gt; 1                         TOTAL                         AS N           19</span></span>
+<span><span class="co">#&gt; 2                    UNFILTERED                         AS N           30</span></span>
+<span><span class="co">#&gt; 3                    UNFILTERED                         NONE            6</span></span>
+<span><span class="co">#&gt; 4                         TOTAL                         AS N         1039</span></span>
+<span><span class="co">#&gt; 5                    UNFILTERED                         AS N            9</span></span>
+<span><span class="co">#&gt; 6                     DISSOLVED                         AS N         5611</span></span>
+<span><span class="co">#&gt; 7                     SUSPENDED                         &lt;NA&gt;           85</span></span>
+<span><span class="co">#&gt; 8                         TOTAL                         AS N         5194</span></span>
+<span><span class="co">#&gt;   Censored_Count Percent_Censored Censoring_Levels TADA.CensoredData.Flag</span></span>
+<span><span class="co">#&gt; 1             19       100.000000                1             Non-Detect</span></span>
+<span><span class="co">#&gt; 2             28        93.333333                3             Non-Detect</span></span>
+<span><span class="co">#&gt; 3              6       100.000000                1             Non-Detect</span></span>
+<span><span class="co">#&gt; 4             12         1.154957                4             Non-Detect</span></span>
+<span><span class="co">#&gt; 5              5        55.555556                2             Non-Detect</span></span>
+<span><span class="co">#&gt; 6            900        16.039922                2             Non-Detect</span></span>
+<span><span class="co">#&gt; 7              4         4.705882                1             Non-Detect</span></span>
+<span><span class="co">#&gt; 8            189         3.638814                1             Non-Detect</span></span>
+<span><span class="co">#&gt;                                 TADA.Censored.Note</span></span>
+<span><span class="co">#&gt; 1 Percent censored too high for estimation methods</span></span>
+<span><span class="co">#&gt; 2 Percent censored too high for estimation methods</span></span>
+<span><span class="co">#&gt; 3 Percent censored too high for estimation methods</span></span>
+<span><span class="co">#&gt; 4                                     Kaplan-Meier</span></span>
+<span><span class="co">#&gt; 5               Robust Regression Order Statistics</span></span>
+<span><span class="co">#&gt; 6                                     Kaplan-Meier</span></span>
+<span><span class="co">#&gt; 7               Robust Regression Order Statistics</span></span>
+<span><span class="co">#&gt; 8               Robust Regression Order Statistics</span></span>
 <span></span>
-<span><span class="va">TADAProfileClean18</span> <span class="op">=</span> <span class="fu"><a href="../reference/simpleCensoredMethods.html">simpleCensoredMethods</a></span><span class="op">(</span><span class="va">TADAProfileClean17</span>, nd_method <span class="op">=</span> <span class="st">"multiplier"</span>, nd_multiplier <span class="op">=</span> <span class="fl">0.5</span>, od_method <span class="op">=</span> <span class="st">"as-is"</span>, od_multiplier <span class="op">=</span> <span class="st">"null"</span><span class="op">)</span></span>
-<span><span class="co">#&gt; [1] "DetectionQuantitationLimitTypeName column dataset contains value(s) Historical Lower Reporting Limit which is/are not represented in the DetectionQuantitationLimitTypeName WQX domain table. These data records are placed under the TADA.CensoredData.Flag: Censored but not Categorized, and will not be used in censored data handling methods. Please contact TADA administrators to resolve."</span></span>
-<span><span class="co">#&gt; Warning in idCensoredData(.data): 7 records in supplied dataset have</span></span>
-<span><span class="co">#&gt; conflicting detection condition and detection limit type information. These</span></span>
-<span><span class="co">#&gt; records will not be included in detection limit handling calculations.</span></span></code></pre></div>
+<span><span class="va">TADAProfileClean16</span> <span class="op">=</span> <span class="fu"><a href="../reference/simpleCensoredMethods.html">simpleCensoredMethods</a></span><span class="op">(</span><span class="va">TADAProfileClean15</span>, nd_method <span class="op">=</span> <span class="st">"multiplier"</span>, nd_multiplier <span class="op">=</span> <span class="fl">0.5</span>, od_method <span class="op">=</span> <span class="st">"as-is"</span>, od_multiplier <span class="op">=</span> <span class="st">"null"</span><span class="op">)</span></span>
+<span><span class="co">#&gt; [1] "DetectionQuantitationLimitTypeName column dataset contains value(s) Historical Lower Reporting Limit which is/are not represented in the DetectionQuantitationLimitTypeName WQX domain table. These data records are placed under the TADA.CensoredData.Flag: Censored but not Categorized, and will not be used in censored data handling methods. Please contact TADA administrators to resolve."</span></span></code></pre></div>
 </div>
 <div class="section level2">
-<h2 id="characteristic-specific-analyses-below">Characteristic Specific Analyses Below<a class="anchor" aria-label="anchor" href="#characteristic-specific-analyses-below"></a>
+<h2 id="transform-characteristic-speciation-and-unit-values-to-tada-standards">Transform Characteristic, Speciation, and Unit values to TADA
+Standards<a class="anchor" aria-label="anchor" href="#transform-characteristic-speciation-and-unit-values-to-tada-standards"></a>
 </h2>
-<p>Address censored data for a single characteristic.</p>
+<p>The <strong>HarmonizeRefTable</strong> function generates a
+harmonization reference table that is specific to the input dataframe.
+Users can review how their input data relates to standard TADA values
+for the following elements:</p>
+<ul>
+<li><p>TADA.CharacteristicName</p></li>
+<li><p>TADA.ResultSampleFractionText</p></li>
+<li><p>TADA.MethodSpecificationName</p></li>
+<li><p>TADA.ResultMeasure.MeasureUnitCode</p></li>
+</ul>
+<p>The <strong>HarmonizeData</strong> function then compares the input
+dataframe to the TADA Harmonization Reference Table. The purpose of the
+function is to make similar data consistent and therefore easier to
+compare and analyze.</p>
+<p>Users can also edit the reference file to meet their needs if
+desired. The download argument can be used to save the harmonization
+file to your current working directory when download = TRUE, the default
+is download = FALSE.</p>
+<p>Optional outputs include:</p>
+<ol style="list-style-type: decimal">
+<li><p>the dataframe with Harmonization columns appended,</p></li>
+<li><p>the dataframe with TADA.CharacteristicName,
+TADA.ResultSampleFractionText, TADA.MethodSpecificationName, and
+TADA.ResultMeasure.MeasureUnitCode converted to TADA standards
+or</p></li>
+<li><p>the four fields converted with most Harmonization Reference Table
+columns appended. Default is transform = TRUE and flag = TRUE.</p></li>
+</ol>
+<p>Here are some examples of how the HarmonizeData function can be
+used:</p>
+<ol style="list-style-type: decimal">
+<li><p>TADA.ResultSampleFractionText specifies forms of constituents. In
+some cases, a single *TADA.CharacteristicName** will have both “Total”
+and “Dissolved” forms specified, which should not be combined. In these
+cases, each TADA.CharacteristicName and TADA.ResultSampleFractionText
+combination is given a different identifier. This identifier can be used
+later on to identify comparable data groups for calculating statistics
+and creating figures for each combination.</p></li>
+<li><p>Some variables have different names but represent the same
+constituent (e.g., “Total Kjeldahl nitrogen (Organic N &amp; NH3)” and
+“Kjeldahl nitrogen”). The HarmonizeData function gives a consistent name
+(and identifier) to synonyms.</p></li>
+</ol>
+<div class="sourceCode" id="cb30"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">UniqueHarmonizationRef</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/HarmonizationRefTable.html">HarmonizationRefTable</a></span><span class="op">(</span><span class="va">TADAProfileClean16</span>, download <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
+<span><span class="va">TADAProfileClean16</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/HarmonizeData.html">HarmonizeData</a></span><span class="op">(</span><span class="va">TADAProfileClean16</span>, ref <span class="op">=</span> <span class="va">UniqueHarmonizationRef</span>, transform <span class="op">=</span> <span class="cn">TRUE</span>, flag <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
+</div>
+<div class="section level2">
+<h2 id="filter-data-by-field-subset-by-parameter">Filter data by field, subset by parameter<a class="anchor" aria-label="anchor" href="#filter-data-by-field-subset-by-parameter"></a>
+</h2>
+<p>In this section a TADA user will want to select a parameter, review
+the unique values associated with that parameter in specific fields, and
+choose to remove particular values.</p>
+<p>To start, review the list of parameters in the dataframe using the
+<strong>FilterParList</strong> function. (The list is sorted from
+highest to lowest counts. Only the first few rows are displayed to save
+space on the page)</p>
+<div class="sourceCode" id="cb31"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/FilterParList.html">FilterParList</a></span><span class="op">(</span><span class="va">TADAProfileClean16</span><span class="op">)</span></span>
+<span><span class="co">#&gt;                    FieldValue Count</span></span>
+<span><span class="co">#&gt; 3                    NITROGEN  5696</span></span>
+<span><span class="co">#&gt; 4 TOTAL NITROGEN, MIXED FORMS  5194</span></span>
+<span><span class="co">#&gt; 2                     NITRATE  1977</span></span>
+<span><span class="co">#&gt; 1                     AMMONIA    55</span></span></code></pre></div>
+<p>Next, explore the fields associated with a specific parameter using
+the <strong>FilterParFields</strong> function:</p>
+<div class="sourceCode" id="cb32"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/FilterParFields.html">FilterParFields</a></span><span class="op">(</span><span class="va">TADAProfileClean16</span>, <span class="st">"TOTAL NITROGEN, MIXED FORMS"</span><span class="op">)</span></span>
+<span><span class="co">#&gt;                                         FieldName Count</span></span>
+<span><span class="co">#&gt; 1         ResultAnalyticalMethod.MethodIdentifier     2</span></span>
+<span><span class="co">#&gt; 2  ResultAnalyticalMethod.MethodIdentifierContext     2</span></span>
+<span><span class="co">#&gt; 3                                ActivityTypeCode     3</span></span>
+<span><span class="co">#&gt; 4                    ActivityMediaSubdivisionName     1</span></span>
+<span><span class="co">#&gt; 5                             ActivityCommentText    13</span></span>
+<span><span class="co">#&gt; 6                             HydrologicCondition     1</span></span>
+<span><span class="co">#&gt; 7                                 HydrologicEvent     1</span></span>
+<span><span class="co">#&gt; 8         SampleCollectionMethod.MethodIdentifier     1</span></span>
+<span><span class="co">#&gt; 9  SampleCollectionMethod.MethodIdentifierContext     1</span></span>
+<span><span class="co">#&gt; 10              SampleCollectionMethod.MethodName     1</span></span>
+<span><span class="co">#&gt; 11                  SampleCollectionEquipmentName     1</span></span>
+<span><span class="co">#&gt; 12                           MethodSpeciationName     1</span></span>
+<span><span class="co">#&gt; 13                           MeasureQualifierCode     3</span></span>
+<span><span class="co">#&gt; 14                         ResultStatusIdentifier     1</span></span>
+<span><span class="co">#&gt; 15                            ResultValueTypeName     1</span></span>
+<span><span class="co">#&gt; 16                          ResultWeightBasisText     1</span></span>
+<span><span class="co">#&gt; 17                     ResultTemperatureBasisText     1</span></span>
+<span><span class="co">#&gt; 18                    ResultParticleSizeBasisText     1</span></span>
+<span><span class="co">#&gt; 19                          DataQuality.BiasValue     1</span></span>
+<span><span class="co">#&gt; 20                              ResultCommentText    12</span></span>
+<span><span class="co">#&gt; 21              ResultAnalyticalMethod.MethodName     2</span></span>
+<span><span class="co">#&gt; 22                                 LaboratoryName     1</span></span>
+<span><span class="co">#&gt; 23                    ResultLaboratoryCommentText     1</span></span>
+<span><span class="co">#&gt; 24             DetectionQuantitationLimitTypeName     1</span></span>
+<span><span class="co">#&gt; 25                     MonitoringLocationTypeName    10</span></span>
+<span><span class="co">#&gt; 26                         TADA.ActivityMediaName     1</span></span>
+<span><span class="co">#&gt; 27             TADA.ResultMeasure.MeasureUnitCode     1</span></span>
+<span><span class="co">#&gt; 28                  TADA.ResultSampleFractionText     1</span></span></code></pre></div>
+<p>Selecting a parameter generates the list below, which is subset by
+the selected parameter. The list includes fields to review, and the
+number of unique values in each field.</p>
+<p>Next, choose a field from the list.</p>
+<p>Review the WQX domain files for definitions: <a href="https://www.epa.gov/waterdata/storage-and-retrieval-and-water-quality-exchange-domain-services-and-downloads" class="external-link uri">https://www.epa.gov/waterdata/storage-and-retrieval-and-water-quality-exchange-domain-services-and-downloads</a></p>
+<div class="sourceCode" id="cb33"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># In this example we remove certain values from the MeasureQualifierCode field</span></span>
+<span><span class="fu"><a href="../reference/FilterParFieldReview.html">FilterParFieldReview</a></span><span class="op">(</span>field <span class="op">=</span> <span class="st">"MeasureQualifierCode"</span>, <span class="va">TADAProfileClean16</span>,  </span>
+<span>                     parameter <span class="op">=</span> <span class="st">"TOTAL NITROGEN, MIXED FORMS"</span><span class="op">)</span></span>
+<span><span class="co">#&gt;                    FieldValue Count</span></span>
+<span><span class="co">#&gt; 3                    NITROGEN  5696</span></span>
+<span><span class="co">#&gt; 4 TOTAL NITROGEN, MIXED FORMS  5194</span></span>
+<span><span class="co">#&gt; 2                     NITRATE  1977</span></span>
+<span><span class="co">#&gt; 1                     AMMONIA    55</span></span>
+<span><span class="co">#&gt;                                         FieldName Count</span></span>
+<span><span class="co">#&gt; 1         ResultAnalyticalMethod.MethodIdentifier     2</span></span>
+<span><span class="co">#&gt; 2  ResultAnalyticalMethod.MethodIdentifierContext     2</span></span>
+<span><span class="co">#&gt; 3                                ActivityTypeCode     3</span></span>
+<span><span class="co">#&gt; 4                    ActivityMediaSubdivisionName     1</span></span>
+<span><span class="co">#&gt; 5                             ActivityCommentText    13</span></span>
+<span><span class="co">#&gt; 6                             HydrologicCondition     1</span></span>
+<span><span class="co">#&gt; 7                                 HydrologicEvent     1</span></span>
+<span><span class="co">#&gt; 8         SampleCollectionMethod.MethodIdentifier     1</span></span>
+<span><span class="co">#&gt; 9  SampleCollectionMethod.MethodIdentifierContext     1</span></span>
+<span><span class="co">#&gt; 10              SampleCollectionMethod.MethodName     1</span></span>
+<span><span class="co">#&gt; 11                  SampleCollectionEquipmentName     1</span></span>
+<span><span class="co">#&gt; 12                           MethodSpeciationName     1</span></span>
+<span><span class="co">#&gt; 13                           MeasureQualifierCode     3</span></span>
+<span><span class="co">#&gt; 14                         ResultStatusIdentifier     1</span></span>
+<span><span class="co">#&gt; 15                            ResultValueTypeName     1</span></span>
+<span><span class="co">#&gt; 16                          ResultWeightBasisText     1</span></span>
+<span><span class="co">#&gt; 17                     ResultTemperatureBasisText     1</span></span>
+<span><span class="co">#&gt; 18                    ResultParticleSizeBasisText     1</span></span>
+<span><span class="co">#&gt; 19                          DataQuality.BiasValue     1</span></span>
+<span><span class="co">#&gt; 20                              ResultCommentText    12</span></span>
+<span><span class="co">#&gt; 21              ResultAnalyticalMethod.MethodName     2</span></span>
+<span><span class="co">#&gt; 22                                 LaboratoryName     1</span></span>
+<span><span class="co">#&gt; 23                    ResultLaboratoryCommentText     1</span></span>
+<span><span class="co">#&gt; 24             DetectionQuantitationLimitTypeName     1</span></span>
+<span><span class="co">#&gt; 25                     MonitoringLocationTypeName    10</span></span>
+<span><span class="co">#&gt; 26                         TADA.ActivityMediaName     1</span></span>
+<span><span class="co">#&gt; 27             TADA.ResultMeasure.MeasureUnitCode     1</span></span>
+<span><span class="co">#&gt; 28                  TADA.ResultSampleFractionText     1</span></span></code></pre></div>
+<p><img src="WQPDataHarmonization_files/figure-html/unnamed-chunk-27-1.png" width="576"></p>
+<pre><code><span><span class="co">#&gt;   FieldValue Count</span></span>
+<span><span class="co">#&gt; 1          J   364</span></span>
+<span><span class="co">#&gt; 2          U   189</span></span>
+<span></span>
+<span><span class="co"># review WQX allowable values for MeasureQualifierCode</span></span>
+<span><span class="co"># all allowable values lists can be found here: https://www.epa.gov/waterdata/storage-and-retrieval-and-water-quality-exchange-domain-services-and-downloads</span></span>
+<span><span class="va">ReviewWQXDomainValue</span> <span class="op">&lt;-</span> <span class="fu">utils</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/utils/read.table.html" class="external-link">read.csv</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/connections.html" class="external-link">url</a></span><span class="op">(</span><span class="st">"https://cdx.epa.gov/wqx/download/DomainValues/ResultMeasureQualifier.CSV"</span><span class="op">)</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># filter allowable values for MeasureQualifierCode down to the two in your dataset</span></span>
+<span><span class="va">ReviewWQXDomainValue</span> <span class="op">&lt;-</span> <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">ReviewWQXDomainValue</span>, <span class="va">Code</span> <span class="op">==</span> <span class="st">"J"</span> <span class="op">|</span> <span class="va">Code</span> <span class="op">==</span> <span class="st">"U"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># remove rows where MeasureQualifierCode = "U" (Not Detected: The analyte </span></span>
+<span><span class="co"># was analyzed for, but was not detected at a level greater than or equal to </span></span>
+<span><span class="co"># the level of the adjusted Contract Required Quantitation Limit (CRQL) for </span></span>
+<span><span class="co"># sample and method.)</span></span>
+<span></span>
+<span><span class="va">TADAProfileClean17</span> <span class="op">&lt;-</span> <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">TADAProfileClean16</span>, <span class="op">!</span><span class="op">(</span><span class="va">TADA.CharacteristicName</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="st">"TOTAL NITROGEN, MIXED FORMS"</span> <span class="op">&amp;</span> <span class="va">MeasureQualifierCode</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="st">"U"</span><span class="op">)</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu"><a href="../reference/FilterParFieldReview.html">FilterParFieldReview</a></span><span class="op">(</span>field <span class="op">=</span> <span class="st">"MeasureQualifierCode"</span>, <span class="va">TADAProfileClean17</span>,  </span>
+<span>                     parameter <span class="op">=</span> <span class="st">"TOTAL NITROGEN, MIXED FORMS"</span><span class="op">)</span></span>
+<span><span class="co">#&gt;                    FieldValue Count</span></span>
+<span><span class="co">#&gt; 3                    NITROGEN  5696</span></span>
+<span><span class="co">#&gt; 4 TOTAL NITROGEN, MIXED FORMS  5005</span></span>
+<span><span class="co">#&gt; 2                     NITRATE  1977</span></span>
+<span><span class="co">#&gt; 1                     AMMONIA    55</span></span>
+<span><span class="co">#&gt;                                         FieldName Count</span></span>
+<span><span class="co">#&gt; 1         ResultAnalyticalMethod.MethodIdentifier     2</span></span>
+<span><span class="co">#&gt; 2  ResultAnalyticalMethod.MethodIdentifierContext     2</span></span>
+<span><span class="co">#&gt; 3                                ActivityTypeCode     3</span></span>
+<span><span class="co">#&gt; 4                    ActivityMediaSubdivisionName     1</span></span>
+<span><span class="co">#&gt; 5                             ActivityCommentText    13</span></span>
+<span><span class="co">#&gt; 6                             HydrologicCondition     1</span></span>
+<span><span class="co">#&gt; 7                                 HydrologicEvent     1</span></span>
+<span><span class="co">#&gt; 8         SampleCollectionMethod.MethodIdentifier     1</span></span>
+<span><span class="co">#&gt; 9  SampleCollectionMethod.MethodIdentifierContext     1</span></span>
+<span><span class="co">#&gt; 10              SampleCollectionMethod.MethodName     1</span></span>
+<span><span class="co">#&gt; 11                  SampleCollectionEquipmentName     1</span></span>
+<span><span class="co">#&gt; 12                           MethodSpeciationName     1</span></span>
+<span><span class="co">#&gt; 13                           MeasureQualifierCode     2</span></span>
+<span><span class="co">#&gt; 14                         ResultStatusIdentifier     1</span></span>
+<span><span class="co">#&gt; 15                            ResultValueTypeName     1</span></span>
+<span><span class="co">#&gt; 16                          ResultWeightBasisText     1</span></span>
+<span><span class="co">#&gt; 17                     ResultTemperatureBasisText     1</span></span>
+<span><span class="co">#&gt; 18                    ResultParticleSizeBasisText     1</span></span>
+<span><span class="co">#&gt; 19                          DataQuality.BiasValue     1</span></span>
+<span><span class="co">#&gt; 20                              ResultCommentText    11</span></span>
+<span><span class="co">#&gt; 21              ResultAnalyticalMethod.MethodName     2</span></span>
+<span><span class="co">#&gt; 22                                 LaboratoryName     1</span></span>
+<span><span class="co">#&gt; 23                    ResultLaboratoryCommentText     1</span></span>
+<span><span class="co">#&gt; 24             DetectionQuantitationLimitTypeName     1</span></span>
+<span><span class="co">#&gt; 25                     MonitoringLocationTypeName    10</span></span>
+<span><span class="co">#&gt; 26                         TADA.ActivityMediaName     1</span></span>
+<span><span class="co">#&gt; 27             TADA.ResultMeasure.MeasureUnitCode     1</span></span>
+<span><span class="co">#&gt; 28                  TADA.ResultSampleFractionText     1</span></span></code></pre>
+<p><img src="WQPDataHarmonization_files/figure-html/unnamed-chunk-27-2.png" width="576"></p>
+<pre><code><span><span class="co">#&gt;   FieldValue Count</span></span>
+<span><span class="co">#&gt; 1          J   364</span></span></code></pre>
+<p>Summarize results for a single comparable data group (i.e.,
+comparable characteristic, unit, speciation, and fraction
+combination)</p>
 <div class="sourceCode" id="cb36"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># how to point to a column in R: yourdataset$thecolumnyouwant</span></span>
-<span><span class="co"># e.g., temp$ResultMeasureValueNitrogenExample &lt;- filter(TADAProfileClean17, CharacteristicName == "NITROGEN")</span></span>
-<span><span class="va">SingleCharacteristic</span> <span class="op">&lt;-</span> <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">TADAProfileClean17</span>, <span class="va">TADA.CharacteristicName</span> <span class="op">==</span> <span class="st">"NITROGEN"</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="co"># review TADA.ComparableDataIdentifier</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/unique.html" class="external-link">unique</a></span><span class="op">(</span><span class="va">TADAProfileClean17</span><span class="op">$</span><span class="va">TADA.ComparableDataIdentifier</span><span class="op">)</span></span>
+<span><span class="co">#&gt; [1] "Ammonia_Total_as N_mg/L"              </span></span>
+<span><span class="co">#&gt; [2] "Ammonia_Unfiltered_as N_mg/L"         </span></span>
+<span><span class="co">#&gt; [3] NA                                     </span></span>
+<span><span class="co">#&gt; [4] ""                                     </span></span>
+<span><span class="co">#&gt; [5] "Nitrate_Total_as N_mg/L"              </span></span>
+<span><span class="co">#&gt; [6] "Nitrate_Unfiltered_as N_mg/L"         </span></span>
+<span><span class="co">#&gt; [7] "Nitrogen_Filterable_as N_mg/L"        </span></span>
+<span><span class="co">#&gt; [8] "Total Nitrogen, Mixed Forms_as N_mg/L"</span></span>
 <span></span>
-<span><span class="co"># review the types of censored data you have in your data frame</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/table.html" class="external-link">table</a></span><span class="op">(</span><span class="va">SingleCharacteristic</span><span class="op">$</span><span class="va">ResultDetectionConditionText</span><span class="op">)</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; Not Detected </span></span>
-<span><span class="co">#&gt;           99</span></span>
+<span><span class="co"># filter dataframe to only "NITROGEN"</span></span>
+<span><span class="va">TADAProfileClean18_TNonly</span> <span class="op">&lt;-</span> <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">TADAProfileClean17</span>, <span class="va">TADA.CharacteristicName</span> <span class="op">==</span> <span class="st">"TOTAL NITROGEN, MIXED FORMS"</span><span class="op">)</span></span>
 <span></span>
-<span><span class="co"># review number of results that are NA's</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/NA.html" class="external-link">is.na</a></span><span class="op">(</span><span class="va">SingleCharacteristic</span><span class="op">$</span><span class="va">TADA.ResultMeasureValue</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="co"># review if any remaining result values are NA</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/NA.html" class="external-link">is.na</a></span><span class="op">(</span><span class="va">TADAProfileClean18_TNonly</span><span class="op">$</span><span class="va">TADA.ResultMeasureValueDataTypes.Flag</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] 0</span></span>
 <span></span>
-<span><span class="co"># substitute a value for NA. In this example, 0.02 MG/L is used for NITROGEN</span></span>
-<span><span class="va">SingleCharacteristic</span><span class="op">$</span><span class="va">TADA.ResultMeasureValue</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/ifelse.html" class="external-link">ifelse</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/NA.html" class="external-link">is.na</a></span><span class="op">(</span><span class="va">SingleCharacteristic</span><span class="op">$</span><span class="va">TADA.ResultMeasureValue</span><span class="op">)</span> <span class="op">==</span> <span class="cn">TRUE</span>, <span class="fl">0.02</span>, <span class="va">SingleCharacteristic</span><span class="op">$</span><span class="va">TADA.ResultMeasureValue</span><span class="op">)</span></span></code></pre></div>
-<p>Summarize results for a single characteristic</p>
-<div class="sourceCode" id="cb37"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># add na.rm = TRUE to the function above to strip NA values before the mean computation proceeds</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">SingleCharacteristic</span><span class="op">$</span><span class="va">TADA.ResultMeasureValue</span>, na.rm <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
-<span><span class="co">#&gt;    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. </span></span>
-<span><span class="co">#&gt;  0.0300  0.0370  0.0980  0.3569  0.4210  3.7400</span></span>
+<span><span class="co"># review unique values in TADA.ResultMeasureValueDataTypes.Flag</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/unique.html" class="external-link">unique</a></span><span class="op">(</span><span class="va">TADAProfileClean18_TNonly</span><span class="op">$</span><span class="va">TADA.ResultMeasureValueDataTypes.Flag</span><span class="op">)</span></span>
+<span><span class="co">#&gt; [1] "Numeric"</span></span>
 <span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/graphics/hist.html" class="external-link">hist</a></span><span class="op">(</span><span class="va">SingleCharacteristic</span><span class="op">$</span><span class="va">TADA.ResultMeasureValue</span>, main <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/unique.html" class="external-link">unique</a></span><span class="op">(</span><span class="va">SingleCharacteristic</span><span class="op">$</span><span class="va">TADA.CharacteristicName</span><span class="op">)</span>, xlab <span class="op">=</span> <span class="st">"Values"</span><span class="op">)</span></span></code></pre></div>
-<p><img src="WQPDataHarmonization_files/figure-html/unnamed-chunk-32-1.png" width="700"></p>
+<span><span class="co"># if applicable, substitute a value for NA. In this example, 0.02 MG/L is used for NITROGEN.</span></span>
+<span><span class="va">TADAProfileClean18_TNonly</span><span class="op">$</span><span class="va">TADA.ResultMeasureValue</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/ifelse.html" class="external-link">ifelse</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/NA.html" class="external-link">is.na</a></span><span class="op">(</span><span class="va">TADAProfileClean18_TNonly</span><span class="op">$</span><span class="va">TADA.ResultMeasureValue</span><span class="op">)</span> <span class="op">==</span> <span class="cn">TRUE</span>, <span class="fl">0.02</span>, <span class="va">TADAProfileClean18_TNonly</span><span class="op">$</span><span class="va">TADA.ResultMeasureValue</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># generate summay stats</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">TADAProfileClean18_TNonly</span><span class="op">$</span><span class="va">TADA.ResultMeasureValue</span><span class="op">)</span></span>
+<span><span class="co">#&gt;    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. </span></span>
+<span><span class="co">#&gt;   0.084   0.338   0.618   2.044   1.240 365.000</span></span>
+<span></span>
+<span><span class="co"># generate a histogram</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/hist.html" class="external-link">hist</a></span><span class="op">(</span><span class="va">TADAProfileClean18_TNonly</span><span class="op">$</span><span class="va">TADA.ResultMeasureValue</span>, main <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/unique.html" class="external-link">unique</a></span><span class="op">(</span><span class="va">TADAProfileClean18_TNonly</span><span class="op">$</span><span class="va">TADA.CharacteristicName</span><span class="op">)</span>, xlab <span class="op">=</span> <span class="st">"Values"</span><span class="op">)</span></span></code></pre></div>
+<p><img src="WQPDataHarmonization_files/figure-html/unnamed-chunk-28-1.png" width="700"></p>
+<div class="sourceCode" id="cb37"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span></span>
+<span><span class="co"># generate interactive box plot</span></span>
+<span><span class="fu">TADA</span><span class="fu">::</span><span class="fu"><a href="../reference/TADA_boxplot.html">TADA_boxplot</a></span><span class="op">(</span><span class="va">TADAProfileClean18_TNonly</span><span class="op">)</span></span></code></pre></div>
+<div class="plotly html-widget html-fill-item-overflow-hidden html-fill-item" id="htmlwidget-0c48330eb44e406d397e" style="width:700px;height:432.632880098888px;"></div>
+<script type="application/json" data-for="htmlwidget-0c48330eb44e406d397e">{"x":{"visdat":{"a0467e6448":["function () ","plotlyVisDat"]},"cur_data":"a0467e6448","attrs":{"a0467e6448":{"y":[[0.315,13.1,5.69,0.295,0.192,1.28,0.368,0.99,0.224,0.761,0.675,0.427,0.247,0.779,0.286,0.706,10.6,0.883,0.936,0.642,0.698,3.13,1,0.595,0.959,0.712,0.278,2.25,0.486,1.11,0.742,0.377,9.91,0.405,0.157,0.33,0.793,0.296,0.247,0.709,7.69,1.59,0.483,7.6,0.543,0.38,0.401,0.41,0.533,0.337,0.105,0.293,0.477,0.891,0.245,0.246,0.221,0.169,0.272,0.298,0.249,0.716,0.22,0.733,7.93,0.154,0.607,0.442,0.504,0.921,0.777,0.799,0.756,0.244,0.699,0.296,0.813,0.323,0.319,0.436,0.254,0.497,0.466,0.294,0.28,0.429,0.617,0.299,0.887,0.655,0.765,7.49,2.3,0.37,0.751,9.87,0.334,0.139,0.734,0.84,0.773,0.293,1.13,0.467,0.537,0.367,0.198,6.59,0.378,0.535,0.184,0.569,1.19,0.481,0.786,0.648,0.663,4.99,0.444,0.417,1,1.2,1.31,0.149,4.12,1.22,0.97,0.769,0.728,0.597,1.06,0.099,4.95,0.848,0.377,0.333,0.361,0.882,0.821,0.231,0.231,1.54,4.36,0.292,0.408,0.208,10.6,0.228,4.38,0.745,0.543,0.749,0.567,0.762,0.228,0.392,5.97,0.799,0.225,0.355,0.97,0.587,0.199,1.02,0.761,0.474,0.221,0.24,0.618,0.978,11.2,0.175,0.422,0.15,0.785,2.84,0.338,0.212,0.448,0.196,9.13,0.845,10.7,0.479,5.32,0.612,0.381,0.16,0.676,0.904,0.352,0.915,1.01,15,0.754,0.397,0.928,0.607,0.257,0.328,0.332,9.43,1.65,0.326,0.298,1.77,1.25,1.04,1.07,0.275,3.74,1.26,1.94,0.398,0.421,3.12,7.89,0.805,0.275,0.284,0.132,0.642,1.31,0.765,1.32,0.225,6.85,0.386,1.37,1.07,4.89,1,5.03,0.351,0.408,0.183,0.51,1.94,0.179,0.918,0.214,0.165,1.75,0.392,0.782,4.9,0.121,0.521,0.276,0.163,1.09,0.949,0.432,1.23,0.53,0.908,0.355,0.568,0.269,0.201,0.776,1.82,0.788,0.645,2.76,1.97,8.77,0.445,17.9,0.488,0.508,0.362,0.71,0.372,29.2,0.529,8.91,0.693,0.546,0.277,0.524,1.16,0.352,0.54,0.73,0.396,0.355,0.92,0.824,20.1,1.91,0.742,0.237,0.303,0.247,0.671,0.426,0.622,0.404,0.35,0.229,0.304,0.238,0.095,0.503,0.734,0.183,0.302,0.333,0.863,0.681,0.308,0.678,0.237,0.333,1.43,9.28,9.63,6.28,0.3,1.14,1.8,1.28,0.691,0.714,11.2,0.641,0.363,1.33,0.757,0.838,0.676,0.621,1.33,2.11,1.65,0.603,0.694,0.37,0.179,0.225,0.78,0.513,0.17,0.919,0.441,3.39,0.665,0.292,0.464,0.212,6.1,0.748,0.506,0.48,1.91,0.201,0.268,0.341,0.809,0.661,0.223,1.18,0.28,4.68,1.53,1.05,0.305,0.55,0.275,0.129,0.555,0.801,0.18,0.272,0.355,0.85,0.141,0.248,0.307,0.251,0.662,0.14,0.716,0.345,0.71,9,33.3,0.452,0.574,2.05,0.463,2.59,0.209,1.97,0.729,0.496,0.143,0.301,1.26,2.31,0.559,8.91,0.85,2.07,0.431,0.659,0.695,0.583,0.641,0.525,1.55,0.092,0.713,0.163,1.29,0.8,1.87,4.79,0.367,0.252,2.79,0.329,10.4,0.773,4.3,1.3,2.07,0.747,0.143,0.203,0.384,1.31,0.677,0.89,0.962,0.389,0.91,0.562,0.736,0.219,3.46,0.694,0.788,2.1,0.447,0.416,0.436,0.268,14.7,0.914,0.804,0.661,0.437,1.11,0.235,1.61,0.341,0.69,0.842,0.438,0.839,0.533,0.349,0.552,0.645,1.01,1.94,0.614,0.388,0.287,3.23,1.74,0.265,0.843,0.271,0.332,1.44,0.288,1.26,0.64,11.4,0.419,1.2,1.4,11.2,0.459,0.236,2.09,0.379,0.305,0.578,0.564,0.425,0.242,0.436,0.648,0.373,0.207,1.11,0.203,0.519,1.21,0.436,3,0.444,0.883,0.575,0.547,3.29,0.521,0.163,0.614,0.556,0.224,3.82,0.457,1.31,0.55,0.401,10.3,0.242,0.818,0.504,0.697,3.38,4.05,0.278,0.219,0.909,0.848,0.479,0.388,0.201,0.905,0.344,1.9,1.26,0.474,0.646,0.279,0.657,1.16,0.28,0.251,0.419,0.174,0.328,0.608,0.255,3.9,0.623,0.802,0.237,0.656,10.8,0.672,0.378,0.363,0.661,1.02,0.192,0.346,0.856,0.598,2.39,0.738,2.1,4.15,2.39,0.474,0.411,1.47,4.51,0.404,1.43,0.599,11.6,0.912,0.661,0.594,1.37,0.275,0.476,4.97,0.338,1.75,0.446,0.171,0.769,0.299,8,0.229,0.152,1.07,0.515,0.249,0.497,0.57,0.846,0.202,0.662,0.311,2.74,0.245,0.295,0.456,0.442,0.302,0.447,1.77,0.821,3.91,0.287,2.08,0.305,3.8,0.267,0.234,0.682,0.211,14.6,2.46,0.247,0.26,1.68,0.223,0.751,1.29,0.228,0.522,0.256,0.524,1.4,0.528,0.255,0.402,0.316,0.183,0.715,0.321,0.698,0.379,0.487,0.299,0.925,1.21,1.47,0.502,0.689,0.26,0.422,13.9,0.623,1.07,0.366,0.214,0.225,0.132,0.522,0.186,2.68,0.389,1.12,0.237,1.5,0.148,8,0.198,0.561,1.62,0.511,0.105,0.817,0.235,0.424,1.48,0.619,0.93,0.589,15.9,0.663,1.57,0.499,0.631,0.599,0.663,0.219,1.02,0.212,0.242,0.302,0.691,1.98,0.249,1.07,0.135,0.194,1.15,0.336,0.404,0.76,0.732,0.835,0.369,0.213,0.478,6.66,0.975,0.259,0.284,0.497,25.3,0.299,0.861,0.685,0.713,0.6,0.336,0.457,0.823,21.3,0.861,0.508,2.43,0.842,0.31,0.315,1.65,0.443,0.215,1.41,0.902,0.535,1.11,5.24,0.27,0.24,0.734,0.451,0.385,0.362,19.1,0.705,0.974,0.831,0.784,0.628,1.03,0.645,2.47,0.86,1.08,2.39,0.443,0.214,0.649,0.822,0.615,0.254,0.324,0.788,0.449,0.287,0.169,0.471,0.19,0.697,0.205,1.53,0.226,0.304,0.323,1.5,0.457,3.07,3.11,7.49,0.243,9.31,0.639,0.279,0.944,0.52,0.088,0.691,0.376,0.233,0.773,0.916,8.77,0.845,0.567,0.18,0.806,0.333,1.51,0.86,1.28,5.46,0.413,0.446,0.19,0.506,0.333,0.303,0.512,0.598,4.39,0.169,7.8,0.296,0.234,0.2,0.567,14.3,0.128,0.74,0.293,1.34,1.82,2.83,0.648,3.32,0.297,0.397,3.42,0.373,1.43,2.63,0.254,0.245,4.53,0.803,9.84,1.7,13,0.646,0.412,0.346,0.904,27.6,0.74,1.02,0.561,3.35,0.567,5.86,2.37,0.146,0.1,5.68,0.743,0.693,0.157,0.404,0.581,5.56,0.806,1.95,0.269,19.2,0.19,0.279,24.7,19.9,0.678,2.48,0.472,0.426,0.591,0.381,0.503,1.04,1.13,3.89,0.512,1.98,0.643,3.54,0.23,0.444,0.388,1.08,0.27,0.347,14.2,6.06,0.284,0.766,0.479,0.264,0.106,1.1,0.187,0.738,0.375,2.36,4.4,2.23,0.574,14.9,0.24,21.3,1.62,0.58,0.24,1.59,1.54,0.562,0.251,2.85,0.266,2.87,0.665,2.73,10.9,0.338,0.199,3.49,1.66,0.409,0.185,0.477,0.128,0.198,96.9,0.341,0.105,0.355,1.16,0.241,0.219,0.473,0.382,0.648,0.404,28.1,0.467,3.75,0.457,22.3,1.65,0.539,97.2,0.165,0.466,9.9,0.28,0.112,0.499,0.503,0.283,10,4.32,0.609,0.73,2.54,1.86,0.456,1.16,1.11,1.13,35.3,0.224,0.232,0.778,0.361,0.824,0.93,1.13,4.88,1.51,0.433,0.266,0.575,0.867,0.866,16.9,0.242,12.8,1.33,0.198,0.308,0.582,0.316,3.19,2.33,2.07,0.62,3.39,2.8,0.157,0.372,1.02,1.82,0.505,2.38,0.221,0.558,0.432,14,3.64,7.31,0.227,0.219,0.427,1.18,3.65,0.292,0.227,0.397,0.191,1.21,1.04,0.589,0.729,1.41,1.02,0.254,2.62,0.28,2.66,4.67,0.392,9.77,1.22,1.13,0.347,0.755,0.288,1.29,0.4,3.83,0.831,0.103,0.174,3.57,0.62,1.84,0.298,0.324,0.227,0.701,0.431,0.152,37.6,1.83,0.138,4.8,0.693,0.651,0.299,0.393,0.652,0.444,0.958,0.101,0.803,1.2,0.874,0.305,0.393,0.312,0.668,0.237,0.352,0.368,0.28,0.365,0.444,0.867,1.4,0.32,11.4,2.12,0.6,2.98,2.67,1.46,0.447,0.323,21.3,0.656,4.14,0.31,3.6,0.098,0.377,0.92,2.59,0.214,4.2,1.82,0.444,0.419,0.27,0.818,0.289,0.709,0.586,0.253,0.164,0.181,0.163,0.739,1.32,0.107,0.902,1.42,1.39,0.431,0.358,1.48,0.196,2.03,0.437,4.38,0.182,0.455,0.708,0.979,1.94,0.207,2.79,0.866,7.9,0.276,1.38,2.12,0.194,1.22,0.429,1.35,0.232,1.24,0.197,4.03,3.09,26.8,0.183,0.912,5.19,1.26,0.142,0.25,0.683,0.428,4.27,2.48,0.194,0.472,0.392,32.8,7.27,0.185,0.23,2.66,0.625,0.243,0.582,0.525,0.477,0.361,0.129,0.394,3.45,0.383,0.658,5.41,0.299,0.428,0.312,1.31,0.261,0.097,3.76,9.45,12.9,0.514,0.285,0.207,1.15,1.09,0.325,1.31,0.19,0.595,2.51,0.431,0.649,0.737,2.43,0.585,1.83,13,1.07,0.857,0.753,0.634,0.448,1.28,1.02,0.443,1.4,0.3,1.05,0.28,0.988,0.154,0.166,1.97,0.257,0.126,0.133,0.893,1.3,0.587,14.8,3.51,0.479,7.5,1.94,0.551,0.876,4.28,0.094,0.161,0.502,1.08,0.559,0.21,4.05,0.207,3.41,0.919,0.411,0.126,0.458,5.16,1.29,2.12,0.457,0.636,0.918,0.632,0.621,0.464,4.41,2.49,0.809,1.71,0.357,1.09,2.02,0.258,0.77,0.216,0.256,2.48,0.245,0.608,0.254,0.466,0.199,3.02,0.659,0.288,0.272,2.83,0.238,0.247,2.13,17.8,0.584,0.187,21.1,2.33,18.8,0.504,0.433,0.748,4.03,0.434,2.43,0.302,0.618,0.462,0.235,0.237,1.3,0.315,0.392,0.389,1.06,0.358,0.499,3.98,0.364,11.2,0.859,1.27,2.81,10.6,0.507,0.626,0.203,0.287,0.42,0.452,4.9,1.69,10.5,0.165,0.544,0.433,0.796,0.562,0.618,0.238,0.783,0.459,4.39,8.72,0.245,0.847,1.5,0.305,1.26,0.351,0.68,0.536,0.258,0.269,0.573,0.705,0.163,1.16,0.643,0.6,0.155,0.607,0.489,0.384,1.74,2.73,0.215,0.164,0.329,18.2,3.25,0.993,0.334,0.331,6.47,0.421,0.337,0.147,0.386,0.087,0.325,0.531,0.416,0.198,0.911,0.263,0.369,17.6,0.553,0.802,1.36,0.3,0.577,0.141,0.268,0.292,0.788,1.08,0.714,0.412,4.75,0.613,0.288,0.71,8.01,0.537,0.251,0.17,36.9,0.199,22.6,2.68,0.476,0.124,1.02,1.54,0.706,0.775,0.167,0.146,0.53,1.05,0.328,6.94,0.47,0.627,0.894,0.657,0.197,0.463,0.211,0.357,0.309,8.94,2.39,0.15,0.764,1.62,1.21,1.49,0.198,0.228,0.214,0.353,1.16,0.912,0.32,2.13,0.568,0.905,132,2.03,0.812,0.221,0.763,1.43,1,0.648,6.1,1.18,19.3,5.2,18,0.272,0.628,0.614,0.89,2.16,1.49,0.376,0.19,2.06,0.385,2.91,0.421,0.451,0.317,0.116,0.376,0.631,0.366,11.5,1.72,0.623,0.611,3.21,41.1,0.107,9.72,0.952,0.621,0.801,0.228,11.8,0.493,3.48,0.311,0.895,0.421,3.19,0.233,5.04,9.04,0.803,0.593,3.56,0.705,2.14,0.21,0.332,0.606,0.64,0.268,0.183,0.246,0.456,0.803,0.304,0.232,4.46,0.342,0.262,0.293,0.617,0.832,2.73,0.404,0.191,6.71,1.29,1.19,3.39,0.111,0.98,1.13,0.283,0.151,19.3,2.41,0.862,4.22,1.43,4,0.809,7.9,20.8,1.22,1.06,1.02,10.8,0.213,2.09,0.549,0.313,0.091,8.56,0.802,1.16,0.671,0.467,0.858,9.33,1.57,7.01,0.217,0.495,3.31,6.36,2.46,1.21,1.04,0.177,0.098,0.249,1.84,0.854,0.361,0.255,0.087,0.698,0.315,0.428,2.99,0.338,0.233,0.469,0.271,0.228,0.594,1.32,0.423,1.36,1.44,0.396,1.23,2.8,1.23,9.28,0.348,0.271,0.133,0.561,0.278,0.33,0.264,0.534,0.562,1.98,3,0.219,0.474,13.2,0.743,5.86,0.255,18,0.399,0.33,0.207,2.12,0.858,0.704,0.184,11.7,0.392,0.104,0.173,8.5,0.441,0.473,0.559,4.29,1.87,0.111,1.78,0.37,0.389,2.92,6.81,0.831,1.62,4.78,0.158,0.307,0.205,1.17,0.175,0.27,0.395,0.242,0.455,1.01,0.522,0.681,0.787,0.136,0.3,0.367,1.08,1.58,1.94,0.334,0.486,0.708,1.02,0.71,2.05,0.2,0.471,0.653,0.573,0.481,0.296,6.62,0.612,0.133,7.24,0.167,9.77,1.62,0.382,1.69,0.77,3.82,1.55,2.27,3.98,16.4,0.286,0.223,0.563,2.93,0.489,6.13,1.09,0.794,0.135,0.492,0.183,0.169,0.223,0.929,1.01,0.369,0.907,2.48,0.555,0.304,0.111,0.93,7.67,1.08,0.51,0.124,0.174,0.28,1.09,0.501,6.7,0.909,0.857,4.49,0.204,1.75,0.725,1.61,1.06,0.158,1.28,0.4,0.169,7.74,1.55,13.2,0.901,0.3,0.218,0.318,0.105,3.12,0.309,0.359,0.196,0.291,0.573,0.412,0.204,8.69,0.385,0.392,1.58,0.261,1.2,1.43,0.849,0.653,0.122,1.04,0.45,0.78,0.321,3.23,0.73,1.66,0.736,0.193,1.57,0.457,1.02,0.542,0.379,0.59,0.653,0.906,0.791,0.828,1.19,0.22,0.406,0.447,0.229,0.162,0.73,0.238,2.28,0.211,0.898,0.401,11.2,0.938,7.05,0.259,0.312,0.689,0.163,0.369,6.21,10.6,0.406,0.201,0.217,0.48,11.4,0.522,0.378,0.249,9.02,0.21,2.12,0.419,1.99,1.85,0.572,0.356,25.6,1.26,0.552,0.881,9.96,0.812,1.23,36.7,1.21,0.701,0.799,1.69,0.533,0.286,0.403,0.261,6.32,0.865,1.3,0.308,1.55,1.59,0.578,0.298,0.266,0.237,0.655,2.61,0.807,1.23,0.291,0.93,0.193,0.228,0.266,16.1,1.32,0.413,0.769,0.287,0.145,1.06,0.435,0.362,0.415,0.704,0.78,0.883,7.03,0.879,0.544,0.271,0.604,0.563,0.368,1.44,0.167,15.7,0.706,1.85,0.789,18.4,0.751,0.78,0.48,0.919,1.13,0.454,4.41,0.388,0.577,0.719,0.558,0.584,0.658,2.24,0.599,8.59,2.47,0.666,0.466,1.78,1.25,0.903,0.759,3.7,0.632,2.76,1.49,0.788,0.302,5.25,2.96,0.617,7.35,1.36,0.62,23.9,0.528,0.36,0.149,0.612,0.981,0.944,1.4,0.251,1.09,0.773,0.961,1.12,2.02,1.36,0.458,1.15,0.2,0.304,7.86,0.418,1.39,0.499,2.21,1.28,0.634,0.387,1.15,0.225,0.318,1.38,1.77,8.84,0.203,0.336,0.593,0.417,1.55,0.257,0.263,0.439,1.04,2.13,4.26,0.685,0.407,0.749,1.54,0.305,1.17,13.2,2.66,2.6,0.329,0.254,0.531,0.789,0.711,0.376,0.226,0.18,2.46,16.2,0.315,7.87,8.04,0.402,0.165,2.43,0.463,0.205,1.15,0.365,0.571,0.598,0.539,0.404,0.434,0.566,0.783,0.181,2.52,0.961,1.69,0.186,0.571,0.945,0.65,1.31,0.588,0.346,0.259,0.431,0.84,0.455,0.346,11.1,1.57,0.729,0.764,0.95,10.1,0.781,0.234,0.424,0.712,39.5,1.57,0.608,0.216,1.34,0.89,0.572,0.185,0.455,1.61,0.624,0.728,0.301,1.67,0.471,10.6,0.577,0.505,0.633,0.311,0.737,0.224,0.382,0.702,0.297,0.416,0.747,1.39,7.8,0.22,4.01,0.796,0.261,0.384,0.326,1.72,2.2,6.65,0.592,0.676,2.78,0.345,0.732,0.426,0.513,0.229,0.534,0.3,9.3,0.906,0.676,0.515,0.644,0.689,0.499,0.659,0.245,0.123,0.22,0.555,0.148,0.462,0.115,0.244,0.101,6.78,0.175,1.15,1.04,21.8,0.549,0.452,0.367,0.251,1.66,0.662,0.718,0.55,0.188,0.42,3.79,0.944,1.19,0.435,0.672,0.448,0.29,0.644,1.46,3.33,0.94,0.835,0.61,1.42,11.5,0.24,1.06,1.14,1.61,0.376,0.217,0.45,0.727,0.9,0.433,0.796,0.378,0.193,0.235,0.468,0.967,0.688,6.1,0.426,1.53,1.89,0.23,0.456,4.54,0.592,0.781,0.34,0.788,1.18,0.644,0.237,0.805,1.66,0.471,0.799,0.489,17.5,0.615,1.12,0.607,0.73,12.7,0.601,0.233,0.637,1.41,1.19,1.07,0.297,0.378,0.553,11.7,0.898,0.356,5.02,0.396,0.565,8.9,0.545,7.75,3.76,0.352,0.322,1.1,0.614,0.158,1.89,11.3,0.764,0.602,0.18,25.2,0.224,1.28,0.287,0.426,0.562,0.578,0.922,0.409,0.201,0.318,0.934,0.784,14.4,1.1,4.38,0.735,0.229,0.4,1.51,0.198,0.49,0.178,0.852,0.882,0.905,0.236,0.59,0.316,1.22,2.38,0.863,5.5,0.234,0.409,2.11,0.578,3.48,0.44,0.598,1.16,0.275,0.534,0.224,0.547,0.301,1.26,2.39,0.516,0.489,1.19,0.437,4.57,0.354,0.666,0.653,0.771,0.55,1.37,0.321,0.849,1.28,0.256,0.145,0.513,2.02,0.545,0.319,4.45,4.73,1.22,1.89,1.54,1.09,5.16,1.2,0.41,0.488,0.542,0.571,11,0.374,8.09,0.743,0.356,0.665,0.152,4.91,1.76,0.311,0.868,0.99,1.16,0.146,34.7,1.24,1.21,0.21,4.87,0.322,0.787,0.247,0.933,0.323,0.54,0.706,0.254,0.2,0.714,365,0.734,0.478,0.762,0.529,0.678,0.472,0.591,0.283,0.598,1.91,0.38,0.859,0.32,0.951,0.202,0.254,0.923,0.162,0.699,0.468,0.604,0.456,0.79,2.11,15.8,0.212,1.08,2.08,1.53,0.275,10.3,1.99,0.782,0.283,0.664,0.726,0.517,7.35,0.6,1.14,1.22,2.59,0.214,0.729,0.294,0.195,0.992,0.953,0.108,0.324,0.386,0.587,0.969,0.225,2.85,0.167,0.179,0.84,0.571,0.483,1.04,0.609,0.647,0.207,4.42,3.62,0.223,1.1,1.08,0.162,0.446,0.735,0.243,0.809,0.193,0.157,0.553,0.78,0.984,0.366,0.622,1,0.569,0.33,0.549,2.61,0.35,0.276,1.17,0.294,0.458,4.92,0.087,0.429,0.393,0.455,0.505,0.848,0.186,0.158,0.1,1.81,0.494,0.181,0.89,0.473,0.756,0.935,0.251,0.503,0.21,0.514,0.231,0.774,0.453,0.352,0.19,0.223,0.214,0.756,0.366,0.184,0.265,0.551,0.215,1.38,0.837,0.398,0.478,1.52,0.368,2.28,0.484,0.816,0.243,0.519,21,0.307,0.549,5.53,0.233,1.12,0.507,0.155,1.21,16.4,0.299,1.19,0.443,3.55,0.321,0.175,0.162,1.29,3.12,1.24,0.224,1.96,0.512,0.662,1.15,24.1,0.361,0.831,0.347,0.387,0.552,0.503,0.886,0.824,0.618,0.497,0.615,0.182,0.87,0.683,0.373,0.614,0.312,0.139,0.22,0.368,0.354,0.532,17.7,0.741,0.423,1.01,0.16,0.384,0.432,0.802,0.499,9.98,1.38,11.6,7.27,0.467,0.61,0.288,0.235,4.01,0.524,1.36,19.8,1.02,0.7,0.162,0.335,11.3,0.559,0.572,0.544,10.4,8.82,1.7,0.882,1.27,0.817,0.979,0.329,1.07,0.458,0.81,0.33,0.374,0.708,0.323,0.25,1.36,0.331,0.468,0.392,0.359,9.98,0.337,0.392,0.839,0.203,2.42,4.15,2.55,0.246,0.348,0.961,0.302,3.17,0.25,2.83,0.213,0.09,0.787,3.89,0.459,0.186,0.487,0.474,0.271,5.5,0.339,0.249,0.212,0.546,8.74,0.304,0.715,8.29,4.37,0.912,1.38,9.85,0.6,0.217,0.115,0.192,1.33,0.229,0.579,1.38,0.289,1.09,0.211,2.04,0.088,0.95,4.41,0.276,0.338,3.3,0.377,0.201,0.586,0.234,0.337,0.723,0.458,0.175,0.276,1.07,0.21,0.382,0.587,0.853,7.59,0.215,0.232,0.763,0.372,3.4,1.13,2.68,2.03,1.62,1.7,0.451,0.419,0.23,36.5,0.351,0.176,37.5,0.722,0.155,0.185,0.38,0.827,0.658,0.328,1.5,0.766,1.06,0.997,0.183,0.531,1.8,1.09,3.22,0.82,2.25,0.491,0.927,0.415,3.05,0.691,3.27,0.725,0.637,1.33,18.5,0.319,1.13,3.96,1.21,0.804,0.222,0.578,3.84,19.8,0.611,0.251,0.539,0.344,0.54,0.208,0.338,0.449,0.269,0.633,0.268,0.377,0.297,0.522,1.22,0.272,0.538,0.635,5.62,0.172,0.228,0.273,0.189,0.188,0.874,1.33,0.396,1.65,1.55,0.255,1.11,1.81,2.61,0.456,0.495,0.195,0.762,0.234,0.46,16.6,0.176,1.07,0.255,11.9,1.37,0.29,0.41,5.22,0.83,0.591,0.804,0.614,0.795,1.51,0.739,0.321,0.804,0.4,0.464,0.683,0.661,0.39,0.269,2.95,0.586,0.189,0.537,0.196,0.802,1.88,0.426,0.402,0.812,3.37,0.202,1.03,0.167,1.02,0.88,4.34,0.674,0.106,15.8,0.658,0.15,0.558,2.82,0.679,0.712,4.11,3.41,0.836,0.476,10.4,0.458,0.263,0.87,0.71,0.416,8.57,32.3,0.185,0.456,0.437,0.288,0.633,0.212,1.17,0.242,0.354,0.217,1.92,0.688,1.46,1.67,0.342,0.741,0.281,12.2,0.278,17.4,0.828,0.294,4.52,0.801,0.503,1.36,0.469,1.73,16.1,6.61,0.371,0.999,0.327,5.07,40.8,0.878,0.241,0.376,0.559,1.01,0.455,0.574,0.828,0.94,0.642,7.31,3.66,0.407,2.43,0.613,0.675,0.465,0.57,1.52,21.8,0.108,1.5,8.61,0.316,0.866,0.228,0.892,12.3,0.27,0.74,1.04,2.3,0.747,1.26,0.601,0.219,1.24,0.668,10.7,1.05,2.08,0.329,0.277,0.546,0.675,1.39,1.01,1.01,3.27,0.273,3.32,0.21,0.479,0.184,0.573,0.892,0.246,2.06,0.528,0.269,1.56,0.742,12.5,0.379,0.549,0.283,1.1,0.686,3.57,0.291,0.217,1.6,0.49,1.04,0.945,0.517,0.372,0.211,0.471,1.43,0.104,0.786,1.46,0.43,18.2,4.24,0.34,9.26,5.9,11.3,38.6,0.11,2.18,0.56,0.809,0.998,8.35,0.123,0.493,1.32,0.653,1.93,0.776,0.515,1.22,0.557,0.453,8.75,0.454,0.234,0.134,0.216,0.239,0.404,0.681,0.085,1.14,9.69,0.428,0.321,0.591,44.6,1.68,0.654,0.68,0.608,0.312,0.819,0.52,2.03,0.541,0.554,2.65,0.485,1.06,8.99,0.167,0.252,0.397,0.346,8.28,0.278,0.562,0.362,0.898,0.436,4.39,0.381,0.51,0.191,0.98,0.847,0.282,0.642,0.463,1.15,0.241,0.588,0.698,79.6,0.617,0.098,0.215,0.718,0.36,1.4,3.5,0.233,3.91,0.389,0.274,1.22,0.262,0.507,7.63,0.268,0.577,0.191,1.42,1.64,1.07,0.511,0.632,0.225,0.332,2.8,0.292,0.229,0.17,0.529,0.812,0.315,0.985,0.586,0.26,1.22,0.183,0.757,0.271,2.1,0.381,0.751,0.53,1.29,0.538,0.133,0.273,0.206,0.202,0.282,0.382,0.536,18.2,0.309,0.61,0.869,0.859,2.22,0.812,0.86,1.06,0.431,0.77,0.263,0.412,0.767,0.599,0.783,0.605,0.443,0.473,0.358,0.6,2.43,13.1,0.308,0.569,0.632,1.2,0.337,0.907,0.862,2.51,0.35,1.37,18.2,0.844,2.21,0.672,0.741,0.277,0.938,0.308,1.45,0.592,0.183,0.739,0.676,1.23,1.42,0.676,0.173,0.249,0.247,0.556,0.175,0.496,0.605,0.478,0.151,1.12,0.847,0.709,2.18,0.682,0.503,0.689,0.316,0.444,1.57,0.274,0.404,0.302,0.575,0.786,0.208,0.993,0.261,0.99,0.955,3.24,0.467,0.25,0.131,0.385,0.574,0.776,0.442,0.556,0.825,0.531,0.661,0.774,0.261,0.755,0.315,0.593,9.63,0.169,0.248,0.421,0.229,0.664,0.266,0.307,0.203,0.179,0.481,0.392,0.383,3.72,8.71,0.352,1.17,0.826,0.91,0.808,0.395,1.1,0.616,1.68,1.11,4.97,1.07,16.5,0.365,0.555,0.243,1.01,0.545,0.354,0.557,0.172,0.339,0.354,0.589,0.521,2.61,1.1,0.273,1.79,0.674,0.4,0.271,1.09,0.62,0.209,0.326,1.52,0.514,0.918,0.554,0.233,0.835,2.46,0.507,0.324,0.362,1.14,0.795,0.411,0.888,0.663,0.797,0.851,0.465,3.96,0.558,0.294,1.43,0.778,0.23,1.33,10.6,1.36,1.85,0.513,0.798,0.888,0.599,0.747,1,0.52,0.461,0.375,0.559,0.764,0.452,0.599,0.228,1.69,0.695,1.1,0.157,0.211,2.43,0.775,0.364,0.197,0.272,0.718,0.228,0.426,3.36,0.49,0.296,0.363,1.8,0.306,0.789,0.33,0.438,0.253,1.04,22.6,0.825,0.26,0.363,1.05,0.248,0.796,0.313,0.64,0.247,0.455,0.232,1.03,0.657,0.318,2.59,0.394,0.847,0.47,0.377,0.451,2.37,0.25,2.25,0.666,0.839,1.1,1.27,1.07,1.59,0.328,0.736,1.64,0.374,1.54,8.99,9.41,0.156,2.36,1.1,14.5,1.1,0.39,0.526,1.52,0.898,0.677,0.846,0.356,1.04,0.17,0.365,1.2,1.21,0.482,0.766,0.557,0.931,0.26,0.377,1.25,1.31,13.4,0.13,4.79,0.299,0.6,0.535,0.816,0.342,0.571,0.694,2.13,0.729,0.975,0.383,0.47,0.893,0.406,0.307,0.433,1.89,24.5,0.552,0.405,0.841,0.582,0.267,0.528,0.209,0.244,0.589,0.492,0.409,0.347,0.187,0.396,0.597,0.666,0.335,0.365,0.48,0.448,0.443,0.386,0.386,0.22,0.426,0.309,2.71,0.255,0.955,0.374,0.254,0.759,0.204,0.562,0.673,3.84,1.16,33.1,0.514,0.327,5.99,2.27,1.13,1.69,0.74,0.412,0.507,0.222,0.445,0.337,0.63,9.42,0.275,0.257,0.335,22.6,5.62,0.397,0.761,0.332,0.851,0.683,0.255,1.3,0.316,0.53,0.552,1.04,0.409,0.187,0.541,0.424,2.96,0.54,0.194,1.55,0.48,0.351,0.422,0.311,0.455,0.529,2.19,1.19,0.739,1.07,0.658,0.411,0.894,1.61,3.45,0.334,0.208,2.29,0.808,0.732,0.558,0.821,0.533,3.59,0.41,2.61,0.357,7.16,0.776,0.342,0.473,12.5,0.553,0.33,0.74,0.798,0.225,0.353,0.637,30.8,2.45,10.9,0.174,0.772,0.189,2.22,0.926,2.24,1.27,0.481,0.784,0.543,0.231,9.66,1.19,1.21,0.526,0.585,2.96,1.11,0.578,0.524,0.332,1.18,2.37,0.963,0.163,0.251,0.312,0.294,0.218,0.491,4.95,1.2,0.235,1.38,0.754,7.72,0.231,0.403,0.317,5.24,0.637,0.692,0.774,1.02,8.07,0.774,0.372,0.498,1.65,0.294,1.74,0.309,0.87,0.222,0.476,37.4,0.29,0.708,0.588,0.452,0.288,0.88,0.283,0.808,0.214,0.184,0.786,0.297,1.25,0.282,2.65,0.621,0.781,0.345,0.315,0.373,0.599,0.987,0.251,0.846,0.663,0.877,0.292,0.32,0.761,39.9,0.247,0.68,0.339,0.255,0.182,16.9,0.309,1.03,1.92,0.327,2.96,1.01,0.291,0.606,0.194,0.329,0.816,1.64,0.423,0.753,0.753,0.135,0.839,0.296,1.05,0.802,1.17,0.328,0.315,1.07,0.865,1.41,1.54,0.889,0.411,0.603,9.1,0.278,1.34,1.49,0.503,0.717,2.21,35.8,0.663,0.826,0.777,0.865,0.18,0.596,0.954,0.364,2.37,0.365,0.202,0.15,0.842,0.196,0.279,0.308,0.31,1.56,0.519,1.22,0.435,1.21,0.129,43,0.46,0.286,0.32,0.376,0.249,2.55,0.855,0.261,0.766,10.8,0.788,0.523,0.65,0.372,0.836,0.732,1.06,0.253,9.41,0.744,0.358,0.396,0.201,0.133,0.271,0.733,2.94,0.45,0.993,0.991,0.907,0.761,0.815,0.15,0.461,0.645,0.235,1.05,1.07,0.856,1.24,0.324,0.797,0.791,0.617,0.296,1.51,0.771,0.289,0.663,0.764,0.261,0.436,7.58,0.5,1.16,1.07,0.09,0.56,0.267,0.858,0.626,0.547,0.397,2.23,1.53,0.614,0.482,0.782,5.97,8.53,0.332,0.5,6.19,0.19,0.868,1.06,0.668,1.39,0.296,1.21,0.796,0.27,6.06,0.945,0.338,0.478,0.307,0.334,0.259,0.338,0.61,38,0.792,0.219,0.347,0.545,0.654,0.349,2,0.729,0.828,0.454,0.329,0.274,0.354,0.278,8.74,0.481,3.65,0.847,0.677,0.645,1.44,1.13,1.21,1,0.291,0.688,0.473,0.386,0.717,0.6,0.32,0.55,0.354,1.01,0.314,0.773,0.297,2.79,0.787,3.26,0.202,0.284,1.57,0.418,0.438,0.501,0.269,0.565,0.342,0.679,1.09,0.793,0.383,8.3,0.354,0.717,0.83,0.607,3.62,1.58,0.952,0.32,9.36,0.789,0.756,0.482,0.154,0.68,2.89,0.282,0.563,0.259,2.72,0.568,0.284,0.274,0.37,0.168,0.877,0.621,0.53,0.558,0.456,0.194,0.726,0.322,0.205,0.936,0.283,0.445,0.743,0.528,0.319,0.48,1.08,0.183,0.292,0.691,0.926,1.65,0.446,1.02,0.21,1.09,0.849,0.393,0.295,0.217,0.589,0.358,0.571,0.154,0.316,0.394,1.1,0.154,0.415,0.412,0.796,0.279,7.63,0.26,0.771,0.357,0.199,0.407,1.9,0.242,0.57,0.287,0.331,0.406,2,0.847,0.677,0.602,0.559,0.15,1.41,0.175,1.31,0.727,0.528,0.707,0.919,0.276,0.446,1.01,0.848,0.188,0.293,1.92,0.392,0.342,0.586,0.296,0.656,0.433,0.352,0.212,0.366,0.464,0.543,0.393,16.9,0.568,0.364,0.983,0.211,0.357,0.297,1.99,1.01,0.236,0.721,0.221,0.494,3.32,1.95,0.377,0.395,0.538,0.933,1.79,0.471,0.358,0.288,0.331,0.565,0.312,0.422,2.63,0.643,0.38,1.91,2.38,0.534,4.7,0.384,1.04,0.465,0.253,1.19,21.1,1.11,0.199,0.814,0.446,0.881,0.679,0.23,1.21,7.57,0.473,3.07,0.911,1.64,0.218,0.494,1.82,0.55,9.19,1.05,0.401,1.5,0.269,0.668,0.314,0.161,8.75,2.66,3.02,2.84,0.388,0.213,0.938,0.154,0.299,0.738,0.485,0.554,0.356,0.812,0.34,1.58,0.781,0.441,0.479,0.567,1.06,0.638,0.967,0.406,0.323,0.24,3.34,0.917,1.03,0.72,1.04,0.294,1.19,0.369,9.29,0.957,0.409,0.198,1.23,1.16,0.873,0.18,0.611,0.56,0.588,3.01,4.81,0.769,0.653,1.54,6.18,2.65,0.275,0.357,0.5,0.899,0.33,0.232,1.29,0.257,0.773,2.84,1.57,3.48,0.418,0.102,0.349,1.03,0.263,0.265,1.8,2.98,18.5,1.25,4.69,4.6,0.678,0.24,0.325,3.61,0.366,3.08,0.347,0.387,0.26,3.22,3.14,4.09,1.17,0.21,0.361,0.487,0.36,4.13,3.88,1.06,6.09,0.863,0.308,1.63,0.396,0.299,0.247,0.101,0.576,0.415,7.22,2.65,0.123,0.723,0.248,1.72,9.23,3.49,0.166,0.086,0.183,2.16,9.95,0.614,1.03,0.619,1.44,0.152,0.215,0.232,0.798,0.628,7.3,0.105,0.13,0.357,1.48,0.883,7.13,0.515,9.35,3.29,0.89,0.445,0.975,0.25,0.806,0.372,0.174,1.12,1.29,0.332,0.273,0.832,2.24,45.5,0.212,0.399,0.361,0.947,5.28,8.84,1.49,0.661,0.6,0.194,0.321,2,0.979,0.29,1.36,2.17,1.34,1.28,0.745,13.6,0.484,0.508,1.22,0.382,0.714,0.561,1.05,0.266,0.348,0.735,0.714,1.21,0.466,0.421,1.5,0.777,1.92,0.675,0.497,0.255,0.278,1.63,6.53,1.3,1.23,0.18,0.619,0.428,0.246,0.33,2.32,1.43,0.627,1.34,9.44,0.647,7.84,19.9,0.741,0.293,1.03,0.406,0.267,1.14,10.4,3.52,3.17,0.2,0.654,2.92,1.84,1.02,0.202,0.397,0.501,0.182,2.74,0.742,0.416,0.545,11.8,3.84,0.177,0.254,1.03,0.238,0.785,7.84,0.177,0.251,0.249,0.753,1.04,0.175,4.76,2.25,0.365,0.937,1.74,0.375,7.88,1.87,1.22,0.497,0.922,0.12,0.427,1.12,0.365,0.596,1.23,0.309,5.23,0.805,0.249,1.04,0.463,1.4,0.415,1.14,0.193,2.2,0.321,0.298,0.177,0.781,0.533,0.852,0.24,3.13,0.411,7.12,4.07,1.38,3.36,0.441,1,0.095,3.56,2.38,0.467,28.3,0.572,0.21,0.391,0.34,0.52,0.404,3.52,0.313,0.53,3.43,0.089,2.3,3.75,31.7,0.586,0.579,0.585,0.335,1.3,1.86,0.227,2.45,0.855,1.96,0.772,2.36,0.213,0.115,0.366,0.389,0.868,5.26,1.2,8.76,0.624,0.442,0.154,0.365,2.33,0.246,21.8,0.589,0.563,1.24,0.916,0.762,0.424,7.65,0.752,2.76,0.989,0.517,0.163,0.637,0.914,1.38,1.8,1.9,0.86,0.373,1.7,0.776,1.86,0.275,0.791,1.36,2.81,0.427,0.968,0.469,0.542,0.309,0.357,18,0.397,0.673,0.575,3.67,9.98,0.317,0.843,0.25,0.569,0.232,2.48,0.519,7.09,0.506,0.607,0.786,0.804,0.11,1.18,1.04,3,0.776,0.451,1.23,1.46,0.415,0.43,1.68,0.274,0.808,0.466,12,0.302,2.03,0.094,0.256,0.318,0.215,0.2,0.884,0.298,1.49,11.4,0.845,0.249,0.267,0.641,0.676,0.121,0.109,0.771,0.869,2.92,0.412,0.2,0.261,0.292,2.47,1.25,1.3,6.82,0.798,37.8,13.3,9.38,0.17,0.108,18.8,1.02,0.321,0.403,43.6,0.216,0.502,0.658,0.294,0.7,1.42,0.623,0.205,0.212,1.24,0.268,0.168,0.391,0.302,0.554,0.534,1.23,1.39,0.218,1.92,0.324,1.61,0.664,2.32,0.486,1.4,1.2,1.8,1.38,0.622,4.03,9.89,1.68,2.74,1.15,1.37,4.46,7.5,0.498,0.37,0.384,3.51,0.111,2.92,1.09,0.44,7.39,1.62,8.39,0.495,1.05,0.442,0.511,6.15,0.682,40,45.7,11.5,0.795,0.479,0.242,7.92,3.14,0.54,0.209,0.172,0.599,0.166,1.39,0.629,0.233,0.85,0.472,0.802,4.55,0.203,0.085,0.714,0.697,0.424,0.628,0.423,3.03,0.286,1.1,1.84,1.07,3.78,1.14,0.219,1.02,0.158,0.861,0.318,6.19,0.651,0.309,0.23,0.259,0.569,0.558,0.174,1.55,2.51,0.267,0.599,9,0.269,9.9,1.19,0.152,0.961,0.215,1.05,0.963,1.7,0.568,1.2,0.239,0.922,1.19,3.61,0.199,21.8,9.65,0.642,0.569,22.4,2.87,36.7,0.882,0.103,1.24,0.395,0.856,0.353,3.77,0.141,0.213,0.145,0.232,0.533,6,0.111,0.93,12.6,0.319,0.535,0.259,0.406,0.493,0.966,0.443,0.559,1.55,0.584,0.185,27.9,0.362,1.18,0.409,0.582,1.12,0.286,9.37,3.16,0.219,1.71,0.373,0.534,30.6,0.216,15.1,0.246,20.3,0.706,0.084,0.963,0.673,0.832,11.1,0.337,0.949,0.319,0.389,0.563,5.69,0.094,2.83,0.532,8.47,7.28,0.401,3.65,0.263,0.515,1.47,4.4,0.536,0.407,0.325,2.51,21.5,0.529,5.84,0.306,1.34,0.362,0.384,1.37,16.4,0.709,0.608,0.175,0.729,0.644,1.58,1.32,0.38,0.624,0.402,10.8,1.09,1.36,3.77,0.55,7.89,0.322,0.717,0.959,1.34,0.293,0.23,0.482,0.334,1.18,0.338,3.49,0.65,0.425,0.431,2.93,0.171,21.3,0.657,6.9,0.747,0.567,0.626,0.519,0.82,0.202,1.18,0.225,0.441,1.49,0.405,2.1,0.933,0.9,1.04,0.455,1.11,0.51,0.976,0.526,2.45,0.693,9.57,0.264,0.998,1.1,1.42,6.13,1.2,0.588,0.315,0.425,0.195,0.206,0.472,0.254,1.3,0.352,0.476,0.648,0.951,0.709,2.86,0.76,0.346,0.342,0.465,3.45,0.449,0.364,0.4,0.321,1.48,0.465,3.46,7.85,1.63,1.96,0.382,0.32,0.604,0.731,1.3,0.608,1.44,0.429,2.72,0.212,3.89,0.344,0.855,1.78,0.199,0.263,0.538,4.67,0.9,0.394,1.63,31.1,1.75,0.198,0.553,7.3,16.4,0.458,0.76,0.767,0.491,1.11,0.324,0.481,0.605,0.419,0.635,1.35,0.396,1.14,0.253,0.587,0.362,1.08,0.185,1.84,1.28,1.01,0.341,1.02,0.906,8.43,0.447,0.27,2.11,0.624,1.03,1.45,0.342,0.461,0.546,0.366,4.12,0.264,17.9,0.198,18.4,0.474,0.532,0.42,2.58,0.72,0.52,1.34,1.41,0.517,0.118,5.51,0.107,0.237,0.654,0.762,0.455,0.764,0.573,0.25,0.687,0.749,1.61,1.56,3,0.321,0.259,0.795,0.952,0.667,1.9,1.55,0.81,0.245,0.801,0.206,0.936,0.329,10.4,0.802,0.612,0.464,0.707,0.38,0.498,0.442,1.6,0.273,0.279,0.386,1.02,0.823,0.314,0.921,0.543,0.335,0.665,0.286,0.169,0.561,0.408,0.635,0.431,0.446,2.31,3.8,3.09,10.3,0.569,1.38,0.233,0.489,0.366,0.276,1.33,2.77,0.311,0.563,3.13,0.191,2.08,13.9,0.869,0.151,1,0.598,5.45,0.114,0.657,0.261,0.264,0.117,1.26,2.92,4.04,0.291,1.74,43.4,0.282,0.609,0.581,3.22,1.02,1.49,2.56,0.639,0.201,0.143,0.62,2.22,1.1,1.89,0.696,8.68,1.6,0.775,0.28,1.16,0.178,0.157,15.3,0.232,1.05,3.55,0.291,0.237,0.456,0.498,7.63,0.584,0.301,0.451,0.502,0.987,4.94,0.211,1.05,0.352,1.42,0.597,0.672,3.88,12.5,0.138,0.11,0.622,0.607,0.747,1.73,2.18,0.396,0.491,0.316,0.669,0.451,0.141,11.7,1.42,3.52,1.92,0.251,0.207,0.596,0.202,0.486,0.324,0.688,0.26,0.272,0.423,0.188,13.5,0.49,1.37,0.8,0.42,0.345,6.99,0.586,0.38,0.157,0.314,0.285,1.6,0.435,1.08,0.412,1.21,0.83,0.845,1.15,0.436,0.189,0.138,6.27,0.693,0.869,0.43,0.411,0.341,0.754,1.32,0.532,0.413,1.17,0.171,1.29,0.834,0.849,1.45,0.13,0.358,0.724,0.383,9.53,0.368,0.57,1.7,1.25,0.617,0.311,19.3,0.44,0.537,0.432,7.59,0.356,0.372,0.735,0.693,0.123,0.337,0.193,0.677,0.396,0.261,0.242,0.248,0.453,0.537,0.405,3.59,0.748,0.272,0.445,0.216,0.874,0.177,3.34,15.1,0.35,2.71,0.132,21.2,0.144,0.825,0.48,0.454,0.466,0.312,2.22,9.83,1.69,1.72,0.442,1.45,0.791,1.75,0.259,0.133,0.422,2.29,0.309,0.356,2.33,0.102,1,0.283,0.52,0.798,0.262,0.431,7.31,0.255,3.44,0.15,0.377,0.817,3.52,0.881,5.88,0.132,0.498,0.419,0.417,3.53,0.243,2.45,7.41,0.6,0.943,1.01,0.424,7.38,0.503,12.9,0.467,9.92,0.677,1.67,0.336,0.959,5.56,0.715,0.147,0.232,2.77,8.44,17.4,0.244,3.24,0.849,0.232,12.8,0.349,1.28,0.965]],"q1":0.338,"median":0.618,"q3":1.24,"lowerfence":0.084,"hoverinfo":"y","upperfence":2.59,"boxpoints":"outliers","marker":{"color":"#7cb5ec","fill":"#c0e9ff"},"color":["#c0e9ff"],"stroke":["#7cb5ec"],"alpha_stroke":1,"sizes":[10,100],"spans":[1,20],"type":"box"}},"layout":{"margin":{"b":40,"l":60,"t":25,"r":10},"xaxis":{"domain":[0,1],"automargin":true,"showticklabels":false},"yaxis":{"domain":[0,1],"automargin":true,"title":"Level (MG/L)","titlefont":{"size":16,"family":"Arial"},"tickfont":{"size":16,"family":"Arial"},"hoverformat":",.4r","linecolor":"black","rangemode":"tozero","showgrid":false,"tickcolor":"black"},"hoverlabel":{"bgcolor":"white"},"hovermode":"closest","showlegend":false},"source":"A","config":{"modeBarButtonsToAdd":["hoverclosest","hovercompare"],"showSendToCloud":false,"displayModeBar":false},"data":[{"fillcolor":"rgba(192,233,255,0.5)","y":[[0.315,13.1,5.69,0.295,0.192,1.28,0.368,0.99,0.224,0.761,0.675,0.427,0.247,0.779,0.286,0.706,10.6,0.883,0.936,0.642,0.698,3.13,1,0.595,0.959,0.712,0.278,2.25,0.486,1.11,0.742,0.377,9.91,0.405,0.157,0.33,0.793,0.296,0.247,0.709,7.69,1.59,0.483,7.6,0.543,0.38,0.401,0.41,0.533,0.337,0.105,0.293,0.477,0.891,0.245,0.246,0.221,0.169,0.272,0.298,0.249,0.716,0.22,0.733,7.93,0.154,0.607,0.442,0.504,0.921,0.777,0.799,0.756,0.244,0.699,0.296,0.813,0.323,0.319,0.436,0.254,0.497,0.466,0.294,0.28,0.429,0.617,0.299,0.887,0.655,0.765,7.49,2.3,0.37,0.751,9.87,0.334,0.139,0.734,0.84,0.773,0.293,1.13,0.467,0.537,0.367,0.198,6.59,0.378,0.535,0.184,0.569,1.19,0.481,0.786,0.648,0.663,4.99,0.444,0.417,1,1.2,1.31,0.149,4.12,1.22,0.97,0.769,0.728,0.597,1.06,0.099,4.95,0.848,0.377,0.333,0.361,0.882,0.821,0.231,0.231,1.54,4.36,0.292,0.408,0.208,10.6,0.228,4.38,0.745,0.543,0.749,0.567,0.762,0.228,0.392,5.97,0.799,0.225,0.355,0.97,0.587,0.199,1.02,0.761,0.474,0.221,0.24,0.618,0.978,11.2,0.175,0.422,0.15,0.785,2.84,0.338,0.212,0.448,0.196,9.13,0.845,10.7,0.479,5.32,0.612,0.381,0.16,0.676,0.904,0.352,0.915,1.01,15,0.754,0.397,0.928,0.607,0.257,0.328,0.332,9.43,1.65,0.326,0.298,1.77,1.25,1.04,1.07,0.275,3.74,1.26,1.94,0.398,0.421,3.12,7.89,0.805,0.275,0.284,0.132,0.642,1.31,0.765,1.32,0.225,6.85,0.386,1.37,1.07,4.89,1,5.03,0.351,0.408,0.183,0.51,1.94,0.179,0.918,0.214,0.165,1.75,0.392,0.782,4.9,0.121,0.521,0.276,0.163,1.09,0.949,0.432,1.23,0.53,0.908,0.355,0.568,0.269,0.201,0.776,1.82,0.788,0.645,2.76,1.97,8.77,0.445,17.9,0.488,0.508,0.362,0.71,0.372,29.2,0.529,8.91,0.693,0.546,0.277,0.524,1.16,0.352,0.54,0.73,0.396,0.355,0.92,0.824,20.1,1.91,0.742,0.237,0.303,0.247,0.671,0.426,0.622,0.404,0.35,0.229,0.304,0.238,0.095,0.503,0.734,0.183,0.302,0.333,0.863,0.681,0.308,0.678,0.237,0.333,1.43,9.28,9.63,6.28,0.3,1.14,1.8,1.28,0.691,0.714,11.2,0.641,0.363,1.33,0.757,0.838,0.676,0.621,1.33,2.11,1.65,0.603,0.694,0.37,0.179,0.225,0.78,0.513,0.17,0.919,0.441,3.39,0.665,0.292,0.464,0.212,6.1,0.748,0.506,0.48,1.91,0.201,0.268,0.341,0.809,0.661,0.223,1.18,0.28,4.68,1.53,1.05,0.305,0.55,0.275,0.129,0.555,0.801,0.18,0.272,0.355,0.85,0.141,0.248,0.307,0.251,0.662,0.14,0.716,0.345,0.71,9,33.3,0.452,0.574,2.05,0.463,2.59,0.209,1.97,0.729,0.496,0.143,0.301,1.26,2.31,0.559,8.91,0.85,2.07,0.431,0.659,0.695,0.583,0.641,0.525,1.55,0.092,0.713,0.163,1.29,0.8,1.87,4.79,0.367,0.252,2.79,0.329,10.4,0.773,4.3,1.3,2.07,0.747,0.143,0.203,0.384,1.31,0.677,0.89,0.962,0.389,0.91,0.562,0.736,0.219,3.46,0.694,0.788,2.1,0.447,0.416,0.436,0.268,14.7,0.914,0.804,0.661,0.437,1.11,0.235,1.61,0.341,0.69,0.842,0.438,0.839,0.533,0.349,0.552,0.645,1.01,1.94,0.614,0.388,0.287,3.23,1.74,0.265,0.843,0.271,0.332,1.44,0.288,1.26,0.64,11.4,0.419,1.2,1.4,11.2,0.459,0.236,2.09,0.379,0.305,0.578,0.564,0.425,0.242,0.436,0.648,0.373,0.207,1.11,0.203,0.519,1.21,0.436,3,0.444,0.883,0.575,0.547,3.29,0.521,0.163,0.614,0.556,0.224,3.82,0.457,1.31,0.55,0.401,10.3,0.242,0.818,0.504,0.697,3.38,4.05,0.278,0.219,0.909,0.848,0.479,0.388,0.201,0.905,0.344,1.9,1.26,0.474,0.646,0.279,0.657,1.16,0.28,0.251,0.419,0.174,0.328,0.608,0.255,3.9,0.623,0.802,0.237,0.656,10.8,0.672,0.378,0.363,0.661,1.02,0.192,0.346,0.856,0.598,2.39,0.738,2.1,4.15,2.39,0.474,0.411,1.47,4.51,0.404,1.43,0.599,11.6,0.912,0.661,0.594,1.37,0.275,0.476,4.97,0.338,1.75,0.446,0.171,0.769,0.299,8,0.229,0.152,1.07,0.515,0.249,0.497,0.57,0.846,0.202,0.662,0.311,2.74,0.245,0.295,0.456,0.442,0.302,0.447,1.77,0.821,3.91,0.287,2.08,0.305,3.8,0.267,0.234,0.682,0.211,14.6,2.46,0.247,0.26,1.68,0.223,0.751,1.29,0.228,0.522,0.256,0.524,1.4,0.528,0.255,0.402,0.316,0.183,0.715,0.321,0.698,0.379,0.487,0.299,0.925,1.21,1.47,0.502,0.689,0.26,0.422,13.9,0.623,1.07,0.366,0.214,0.225,0.132,0.522,0.186,2.68,0.389,1.12,0.237,1.5,0.148,8,0.198,0.561,1.62,0.511,0.105,0.817,0.235,0.424,1.48,0.619,0.93,0.589,15.9,0.663,1.57,0.499,0.631,0.599,0.663,0.219,1.02,0.212,0.242,0.302,0.691,1.98,0.249,1.07,0.135,0.194,1.15,0.336,0.404,0.76,0.732,0.835,0.369,0.213,0.478,6.66,0.975,0.259,0.284,0.497,25.3,0.299,0.861,0.685,0.713,0.6,0.336,0.457,0.823,21.3,0.861,0.508,2.43,0.842,0.31,0.315,1.65,0.443,0.215,1.41,0.902,0.535,1.11,5.24,0.27,0.24,0.734,0.451,0.385,0.362,19.1,0.705,0.974,0.831,0.784,0.628,1.03,0.645,2.47,0.86,1.08,2.39,0.443,0.214,0.649,0.822,0.615,0.254,0.324,0.788,0.449,0.287,0.169,0.471,0.19,0.697,0.205,1.53,0.226,0.304,0.323,1.5,0.457,3.07,3.11,7.49,0.243,9.31,0.639,0.279,0.944,0.52,0.088,0.691,0.376,0.233,0.773,0.916,8.77,0.845,0.567,0.18,0.806,0.333,1.51,0.86,1.28,5.46,0.413,0.446,0.19,0.506,0.333,0.303,0.512,0.598,4.39,0.169,7.8,0.296,0.234,0.2,0.567,14.3,0.128,0.74,0.293,1.34,1.82,2.83,0.648,3.32,0.297,0.397,3.42,0.373,1.43,2.63,0.254,0.245,4.53,0.803,9.84,1.7,13,0.646,0.412,0.346,0.904,27.6,0.74,1.02,0.561,3.35,0.567,5.86,2.37,0.146,0.1,5.68,0.743,0.693,0.157,0.404,0.581,5.56,0.806,1.95,0.269,19.2,0.19,0.279,24.7,19.9,0.678,2.48,0.472,0.426,0.591,0.381,0.503,1.04,1.13,3.89,0.512,1.98,0.643,3.54,0.23,0.444,0.388,1.08,0.27,0.347,14.2,6.06,0.284,0.766,0.479,0.264,0.106,1.1,0.187,0.738,0.375,2.36,4.4,2.23,0.574,14.9,0.24,21.3,1.62,0.58,0.24,1.59,1.54,0.562,0.251,2.85,0.266,2.87,0.665,2.73,10.9,0.338,0.199,3.49,1.66,0.409,0.185,0.477,0.128,0.198,96.9,0.341,0.105,0.355,1.16,0.241,0.219,0.473,0.382,0.648,0.404,28.1,0.467,3.75,0.457,22.3,1.65,0.539,97.2,0.165,0.466,9.9,0.28,0.112,0.499,0.503,0.283,10,4.32,0.609,0.73,2.54,1.86,0.456,1.16,1.11,1.13,35.3,0.224,0.232,0.778,0.361,0.824,0.93,1.13,4.88,1.51,0.433,0.266,0.575,0.867,0.866,16.9,0.242,12.8,1.33,0.198,0.308,0.582,0.316,3.19,2.33,2.07,0.62,3.39,2.8,0.157,0.372,1.02,1.82,0.505,2.38,0.221,0.558,0.432,14,3.64,7.31,0.227,0.219,0.427,1.18,3.65,0.292,0.227,0.397,0.191,1.21,1.04,0.589,0.729,1.41,1.02,0.254,2.62,0.28,2.66,4.67,0.392,9.77,1.22,1.13,0.347,0.755,0.288,1.29,0.4,3.83,0.831,0.103,0.174,3.57,0.62,1.84,0.298,0.324,0.227,0.701,0.431,0.152,37.6,1.83,0.138,4.8,0.693,0.651,0.299,0.393,0.652,0.444,0.958,0.101,0.803,1.2,0.874,0.305,0.393,0.312,0.668,0.237,0.352,0.368,0.28,0.365,0.444,0.867,1.4,0.32,11.4,2.12,0.6,2.98,2.67,1.46,0.447,0.323,21.3,0.656,4.14,0.31,3.6,0.098,0.377,0.92,2.59,0.214,4.2,1.82,0.444,0.419,0.27,0.818,0.289,0.709,0.586,0.253,0.164,0.181,0.163,0.739,1.32,0.107,0.902,1.42,1.39,0.431,0.358,1.48,0.196,2.03,0.437,4.38,0.182,0.455,0.708,0.979,1.94,0.207,2.79,0.866,7.9,0.276,1.38,2.12,0.194,1.22,0.429,1.35,0.232,1.24,0.197,4.03,3.09,26.8,0.183,0.912,5.19,1.26,0.142,0.25,0.683,0.428,4.27,2.48,0.194,0.472,0.392,32.8,7.27,0.185,0.23,2.66,0.625,0.243,0.582,0.525,0.477,0.361,0.129,0.394,3.45,0.383,0.658,5.41,0.299,0.428,0.312,1.31,0.261,0.097,3.76,9.45,12.9,0.514,0.285,0.207,1.15,1.09,0.325,1.31,0.19,0.595,2.51,0.431,0.649,0.737,2.43,0.585,1.83,13,1.07,0.857,0.753,0.634,0.448,1.28,1.02,0.443,1.4,0.3,1.05,0.28,0.988,0.154,0.166,1.97,0.257,0.126,0.133,0.893,1.3,0.587,14.8,3.51,0.479,7.5,1.94,0.551,0.876,4.28,0.094,0.161,0.502,1.08,0.559,0.21,4.05,0.207,3.41,0.919,0.411,0.126,0.458,5.16,1.29,2.12,0.457,0.636,0.918,0.632,0.621,0.464,4.41,2.49,0.809,1.71,0.357,1.09,2.02,0.258,0.77,0.216,0.256,2.48,0.245,0.608,0.254,0.466,0.199,3.02,0.659,0.288,0.272,2.83,0.238,0.247,2.13,17.8,0.584,0.187,21.1,2.33,18.8,0.504,0.433,0.748,4.03,0.434,2.43,0.302,0.618,0.462,0.235,0.237,1.3,0.315,0.392,0.389,1.06,0.358,0.499,3.98,0.364,11.2,0.859,1.27,2.81,10.6,0.507,0.626,0.203,0.287,0.42,0.452,4.9,1.69,10.5,0.165,0.544,0.433,0.796,0.562,0.618,0.238,0.783,0.459,4.39,8.72,0.245,0.847,1.5,0.305,1.26,0.351,0.68,0.536,0.258,0.269,0.573,0.705,0.163,1.16,0.643,0.6,0.155,0.607,0.489,0.384,1.74,2.73,0.215,0.164,0.329,18.2,3.25,0.993,0.334,0.331,6.47,0.421,0.337,0.147,0.386,0.087,0.325,0.531,0.416,0.198,0.911,0.263,0.369,17.6,0.553,0.802,1.36,0.3,0.577,0.141,0.268,0.292,0.788,1.08,0.714,0.412,4.75,0.613,0.288,0.71,8.01,0.537,0.251,0.17,36.9,0.199,22.6,2.68,0.476,0.124,1.02,1.54,0.706,0.775,0.167,0.146,0.53,1.05,0.328,6.94,0.47,0.627,0.894,0.657,0.197,0.463,0.211,0.357,0.309,8.94,2.39,0.15,0.764,1.62,1.21,1.49,0.198,0.228,0.214,0.353,1.16,0.912,0.32,2.13,0.568,0.905,132,2.03,0.812,0.221,0.763,1.43,1,0.648,6.1,1.18,19.3,5.2,18,0.272,0.628,0.614,0.89,2.16,1.49,0.376,0.19,2.06,0.385,2.91,0.421,0.451,0.317,0.116,0.376,0.631,0.366,11.5,1.72,0.623,0.611,3.21,41.1,0.107,9.72,0.952,0.621,0.801,0.228,11.8,0.493,3.48,0.311,0.895,0.421,3.19,0.233,5.04,9.04,0.803,0.593,3.56,0.705,2.14,0.21,0.332,0.606,0.64,0.268,0.183,0.246,0.456,0.803,0.304,0.232,4.46,0.342,0.262,0.293,0.617,0.832,2.73,0.404,0.191,6.71,1.29,1.19,3.39,0.111,0.98,1.13,0.283,0.151,19.3,2.41,0.862,4.22,1.43,4,0.809,7.9,20.8,1.22,1.06,1.02,10.8,0.213,2.09,0.549,0.313,0.091,8.56,0.802,1.16,0.671,0.467,0.858,9.33,1.57,7.01,0.217,0.495,3.31,6.36,2.46,1.21,1.04,0.177,0.098,0.249,1.84,0.854,0.361,0.255,0.087,0.698,0.315,0.428,2.99,0.338,0.233,0.469,0.271,0.228,0.594,1.32,0.423,1.36,1.44,0.396,1.23,2.8,1.23,9.28,0.348,0.271,0.133,0.561,0.278,0.33,0.264,0.534,0.562,1.98,3,0.219,0.474,13.2,0.743,5.86,0.255,18,0.399,0.33,0.207,2.12,0.858,0.704,0.184,11.7,0.392,0.104,0.173,8.5,0.441,0.473,0.559,4.29,1.87,0.111,1.78,0.37,0.389,2.92,6.81,0.831,1.62,4.78,0.158,0.307,0.205,1.17,0.175,0.27,0.395,0.242,0.455,1.01,0.522,0.681,0.787,0.136,0.3,0.367,1.08,1.58,1.94,0.334,0.486,0.708,1.02,0.71,2.05,0.2,0.471,0.653,0.573,0.481,0.296,6.62,0.612,0.133,7.24,0.167,9.77,1.62,0.382,1.69,0.77,3.82,1.55,2.27,3.98,16.4,0.286,0.223,0.563,2.93,0.489,6.13,1.09,0.794,0.135,0.492,0.183,0.169,0.223,0.929,1.01,0.369,0.907,2.48,0.555,0.304,0.111,0.93,7.67,1.08,0.51,0.124,0.174,0.28,1.09,0.501,6.7,0.909,0.857,4.49,0.204,1.75,0.725,1.61,1.06,0.158,1.28,0.4,0.169,7.74,1.55,13.2,0.901,0.3,0.218,0.318,0.105,3.12,0.309,0.359,0.196,0.291,0.573,0.412,0.204,8.69,0.385,0.392,1.58,0.261,1.2,1.43,0.849,0.653,0.122,1.04,0.45,0.78,0.321,3.23,0.73,1.66,0.736,0.193,1.57,0.457,1.02,0.542,0.379,0.59,0.653,0.906,0.791,0.828,1.19,0.22,0.406,0.447,0.229,0.162,0.73,0.238,2.28,0.211,0.898,0.401,11.2,0.938,7.05,0.259,0.312,0.689,0.163,0.369,6.21,10.6,0.406,0.201,0.217,0.48,11.4,0.522,0.378,0.249,9.02,0.21,2.12,0.419,1.99,1.85,0.572,0.356,25.6,1.26,0.552,0.881,9.96,0.812,1.23,36.7,1.21,0.701,0.799,1.69,0.533,0.286,0.403,0.261,6.32,0.865,1.3,0.308,1.55,1.59,0.578,0.298,0.266,0.237,0.655,2.61,0.807,1.23,0.291,0.93,0.193,0.228,0.266,16.1,1.32,0.413,0.769,0.287,0.145,1.06,0.435,0.362,0.415,0.704,0.78,0.883,7.03,0.879,0.544,0.271,0.604,0.563,0.368,1.44,0.167,15.7,0.706,1.85,0.789,18.4,0.751,0.78,0.48,0.919,1.13,0.454,4.41,0.388,0.577,0.719,0.558,0.584,0.658,2.24,0.599,8.59,2.47,0.666,0.466,1.78,1.25,0.903,0.759,3.7,0.632,2.76,1.49,0.788,0.302,5.25,2.96,0.617,7.35,1.36,0.62,23.9,0.528,0.36,0.149,0.612,0.981,0.944,1.4,0.251,1.09,0.773,0.961,1.12,2.02,1.36,0.458,1.15,0.2,0.304,7.86,0.418,1.39,0.499,2.21,1.28,0.634,0.387,1.15,0.225,0.318,1.38,1.77,8.84,0.203,0.336,0.593,0.417,1.55,0.257,0.263,0.439,1.04,2.13,4.26,0.685,0.407,0.749,1.54,0.305,1.17,13.2,2.66,2.6,0.329,0.254,0.531,0.789,0.711,0.376,0.226,0.18,2.46,16.2,0.315,7.87,8.04,0.402,0.165,2.43,0.463,0.205,1.15,0.365,0.571,0.598,0.539,0.404,0.434,0.566,0.783,0.181,2.52,0.961,1.69,0.186,0.571,0.945,0.65,1.31,0.588,0.346,0.259,0.431,0.84,0.455,0.346,11.1,1.57,0.729,0.764,0.95,10.1,0.781,0.234,0.424,0.712,39.5,1.57,0.608,0.216,1.34,0.89,0.572,0.185,0.455,1.61,0.624,0.728,0.301,1.67,0.471,10.6,0.577,0.505,0.633,0.311,0.737,0.224,0.382,0.702,0.297,0.416,0.747,1.39,7.8,0.22,4.01,0.796,0.261,0.384,0.326,1.72,2.2,6.65,0.592,0.676,2.78,0.345,0.732,0.426,0.513,0.229,0.534,0.3,9.3,0.906,0.676,0.515,0.644,0.689,0.499,0.659,0.245,0.123,0.22,0.555,0.148,0.462,0.115,0.244,0.101,6.78,0.175,1.15,1.04,21.8,0.549,0.452,0.367,0.251,1.66,0.662,0.718,0.55,0.188,0.42,3.79,0.944,1.19,0.435,0.672,0.448,0.29,0.644,1.46,3.33,0.94,0.835,0.61,1.42,11.5,0.24,1.06,1.14,1.61,0.376,0.217,0.45,0.727,0.9,0.433,0.796,0.378,0.193,0.235,0.468,0.967,0.688,6.1,0.426,1.53,1.89,0.23,0.456,4.54,0.592,0.781,0.34,0.788,1.18,0.644,0.237,0.805,1.66,0.471,0.799,0.489,17.5,0.615,1.12,0.607,0.73,12.7,0.601,0.233,0.637,1.41,1.19,1.07,0.297,0.378,0.553,11.7,0.898,0.356,5.02,0.396,0.565,8.9,0.545,7.75,3.76,0.352,0.322,1.1,0.614,0.158,1.89,11.3,0.764,0.602,0.18,25.2,0.224,1.28,0.287,0.426,0.562,0.578,0.922,0.409,0.201,0.318,0.934,0.784,14.4,1.1,4.38,0.735,0.229,0.4,1.51,0.198,0.49,0.178,0.852,0.882,0.905,0.236,0.59,0.316,1.22,2.38,0.863,5.5,0.234,0.409,2.11,0.578,3.48,0.44,0.598,1.16,0.275,0.534,0.224,0.547,0.301,1.26,2.39,0.516,0.489,1.19,0.437,4.57,0.354,0.666,0.653,0.771,0.55,1.37,0.321,0.849,1.28,0.256,0.145,0.513,2.02,0.545,0.319,4.45,4.73,1.22,1.89,1.54,1.09,5.16,1.2,0.41,0.488,0.542,0.571,11,0.374,8.09,0.743,0.356,0.665,0.152,4.91,1.76,0.311,0.868,0.99,1.16,0.146,34.7,1.24,1.21,0.21,4.87,0.322,0.787,0.247,0.933,0.323,0.54,0.706,0.254,0.2,0.714,365,0.734,0.478,0.762,0.529,0.678,0.472,0.591,0.283,0.598,1.91,0.38,0.859,0.32,0.951,0.202,0.254,0.923,0.162,0.699,0.468,0.604,0.456,0.79,2.11,15.8,0.212,1.08,2.08,1.53,0.275,10.3,1.99,0.782,0.283,0.664,0.726,0.517,7.35,0.6,1.14,1.22,2.59,0.214,0.729,0.294,0.195,0.992,0.953,0.108,0.324,0.386,0.587,0.969,0.225,2.85,0.167,0.179,0.84,0.571,0.483,1.04,0.609,0.647,0.207,4.42,3.62,0.223,1.1,1.08,0.162,0.446,0.735,0.243,0.809,0.193,0.157,0.553,0.78,0.984,0.366,0.622,1,0.569,0.33,0.549,2.61,0.35,0.276,1.17,0.294,0.458,4.92,0.087,0.429,0.393,0.455,0.505,0.848,0.186,0.158,0.1,1.81,0.494,0.181,0.89,0.473,0.756,0.935,0.251,0.503,0.21,0.514,0.231,0.774,0.453,0.352,0.19,0.223,0.214,0.756,0.366,0.184,0.265,0.551,0.215,1.38,0.837,0.398,0.478,1.52,0.368,2.28,0.484,0.816,0.243,0.519,21,0.307,0.549,5.53,0.233,1.12,0.507,0.155,1.21,16.4,0.299,1.19,0.443,3.55,0.321,0.175,0.162,1.29,3.12,1.24,0.224,1.96,0.512,0.662,1.15,24.1,0.361,0.831,0.347,0.387,0.552,0.503,0.886,0.824,0.618,0.497,0.615,0.182,0.87,0.683,0.373,0.614,0.312,0.139,0.22,0.368,0.354,0.532,17.7,0.741,0.423,1.01,0.16,0.384,0.432,0.802,0.499,9.98,1.38,11.6,7.27,0.467,0.61,0.288,0.235,4.01,0.524,1.36,19.8,1.02,0.7,0.162,0.335,11.3,0.559,0.572,0.544,10.4,8.82,1.7,0.882,1.27,0.817,0.979,0.329,1.07,0.458,0.81,0.33,0.374,0.708,0.323,0.25,1.36,0.331,0.468,0.392,0.359,9.98,0.337,0.392,0.839,0.203,2.42,4.15,2.55,0.246,0.348,0.961,0.302,3.17,0.25,2.83,0.213,0.09,0.787,3.89,0.459,0.186,0.487,0.474,0.271,5.5,0.339,0.249,0.212,0.546,8.74,0.304,0.715,8.29,4.37,0.912,1.38,9.85,0.6,0.217,0.115,0.192,1.33,0.229,0.579,1.38,0.289,1.09,0.211,2.04,0.088,0.95,4.41,0.276,0.338,3.3,0.377,0.201,0.586,0.234,0.337,0.723,0.458,0.175,0.276,1.07,0.21,0.382,0.587,0.853,7.59,0.215,0.232,0.763,0.372,3.4,1.13,2.68,2.03,1.62,1.7,0.451,0.419,0.23,36.5,0.351,0.176,37.5,0.722,0.155,0.185,0.38,0.827,0.658,0.328,1.5,0.766,1.06,0.997,0.183,0.531,1.8,1.09,3.22,0.82,2.25,0.491,0.927,0.415,3.05,0.691,3.27,0.725,0.637,1.33,18.5,0.319,1.13,3.96,1.21,0.804,0.222,0.578,3.84,19.8,0.611,0.251,0.539,0.344,0.54,0.208,0.338,0.449,0.269,0.633,0.268,0.377,0.297,0.522,1.22,0.272,0.538,0.635,5.62,0.172,0.228,0.273,0.189,0.188,0.874,1.33,0.396,1.65,1.55,0.255,1.11,1.81,2.61,0.456,0.495,0.195,0.762,0.234,0.46,16.6,0.176,1.07,0.255,11.9,1.37,0.29,0.41,5.22,0.83,0.591,0.804,0.614,0.795,1.51,0.739,0.321,0.804,0.4,0.464,0.683,0.661,0.39,0.269,2.95,0.586,0.189,0.537,0.196,0.802,1.88,0.426,0.402,0.812,3.37,0.202,1.03,0.167,1.02,0.88,4.34,0.674,0.106,15.8,0.658,0.15,0.558,2.82,0.679,0.712,4.11,3.41,0.836,0.476,10.4,0.458,0.263,0.87,0.71,0.416,8.57,32.3,0.185,0.456,0.437,0.288,0.633,0.212,1.17,0.242,0.354,0.217,1.92,0.688,1.46,1.67,0.342,0.741,0.281,12.2,0.278,17.4,0.828,0.294,4.52,0.801,0.503,1.36,0.469,1.73,16.1,6.61,0.371,0.999,0.327,5.07,40.8,0.878,0.241,0.376,0.559,1.01,0.455,0.574,0.828,0.94,0.642,7.31,3.66,0.407,2.43,0.613,0.675,0.465,0.57,1.52,21.8,0.108,1.5,8.61,0.316,0.866,0.228,0.892,12.3,0.27,0.74,1.04,2.3,0.747,1.26,0.601,0.219,1.24,0.668,10.7,1.05,2.08,0.329,0.277,0.546,0.675,1.39,1.01,1.01,3.27,0.273,3.32,0.21,0.479,0.184,0.573,0.892,0.246,2.06,0.528,0.269,1.56,0.742,12.5,0.379,0.549,0.283,1.1,0.686,3.57,0.291,0.217,1.6,0.49,1.04,0.945,0.517,0.372,0.211,0.471,1.43,0.104,0.786,1.46,0.43,18.2,4.24,0.34,9.26,5.9,11.3,38.6,0.11,2.18,0.56,0.809,0.998,8.35,0.123,0.493,1.32,0.653,1.93,0.776,0.515,1.22,0.557,0.453,8.75,0.454,0.234,0.134,0.216,0.239,0.404,0.681,0.085,1.14,9.69,0.428,0.321,0.591,44.6,1.68,0.654,0.68,0.608,0.312,0.819,0.52,2.03,0.541,0.554,2.65,0.485,1.06,8.99,0.167,0.252,0.397,0.346,8.28,0.278,0.562,0.362,0.898,0.436,4.39,0.381,0.51,0.191,0.98,0.847,0.282,0.642,0.463,1.15,0.241,0.588,0.698,79.6,0.617,0.098,0.215,0.718,0.36,1.4,3.5,0.233,3.91,0.389,0.274,1.22,0.262,0.507,7.63,0.268,0.577,0.191,1.42,1.64,1.07,0.511,0.632,0.225,0.332,2.8,0.292,0.229,0.17,0.529,0.812,0.315,0.985,0.586,0.26,1.22,0.183,0.757,0.271,2.1,0.381,0.751,0.53,1.29,0.538,0.133,0.273,0.206,0.202,0.282,0.382,0.536,18.2,0.309,0.61,0.869,0.859,2.22,0.812,0.86,1.06,0.431,0.77,0.263,0.412,0.767,0.599,0.783,0.605,0.443,0.473,0.358,0.6,2.43,13.1,0.308,0.569,0.632,1.2,0.337,0.907,0.862,2.51,0.35,1.37,18.2,0.844,2.21,0.672,0.741,0.277,0.938,0.308,1.45,0.592,0.183,0.739,0.676,1.23,1.42,0.676,0.173,0.249,0.247,0.556,0.175,0.496,0.605,0.478,0.151,1.12,0.847,0.709,2.18,0.682,0.503,0.689,0.316,0.444,1.57,0.274,0.404,0.302,0.575,0.786,0.208,0.993,0.261,0.99,0.955,3.24,0.467,0.25,0.131,0.385,0.574,0.776,0.442,0.556,0.825,0.531,0.661,0.774,0.261,0.755,0.315,0.593,9.63,0.169,0.248,0.421,0.229,0.664,0.266,0.307,0.203,0.179,0.481,0.392,0.383,3.72,8.71,0.352,1.17,0.826,0.91,0.808,0.395,1.1,0.616,1.68,1.11,4.97,1.07,16.5,0.365,0.555,0.243,1.01,0.545,0.354,0.557,0.172,0.339,0.354,0.589,0.521,2.61,1.1,0.273,1.79,0.674,0.4,0.271,1.09,0.62,0.209,0.326,1.52,0.514,0.918,0.554,0.233,0.835,2.46,0.507,0.324,0.362,1.14,0.795,0.411,0.888,0.663,0.797,0.851,0.465,3.96,0.558,0.294,1.43,0.778,0.23,1.33,10.6,1.36,1.85,0.513,0.798,0.888,0.599,0.747,1,0.52,0.461,0.375,0.559,0.764,0.452,0.599,0.228,1.69,0.695,1.1,0.157,0.211,2.43,0.775,0.364,0.197,0.272,0.718,0.228,0.426,3.36,0.49,0.296,0.363,1.8,0.306,0.789,0.33,0.438,0.253,1.04,22.6,0.825,0.26,0.363,1.05,0.248,0.796,0.313,0.64,0.247,0.455,0.232,1.03,0.657,0.318,2.59,0.394,0.847,0.47,0.377,0.451,2.37,0.25,2.25,0.666,0.839,1.1,1.27,1.07,1.59,0.328,0.736,1.64,0.374,1.54,8.99,9.41,0.156,2.36,1.1,14.5,1.1,0.39,0.526,1.52,0.898,0.677,0.846,0.356,1.04,0.17,0.365,1.2,1.21,0.482,0.766,0.557,0.931,0.26,0.377,1.25,1.31,13.4,0.13,4.79,0.299,0.6,0.535,0.816,0.342,0.571,0.694,2.13,0.729,0.975,0.383,0.47,0.893,0.406,0.307,0.433,1.89,24.5,0.552,0.405,0.841,0.582,0.267,0.528,0.209,0.244,0.589,0.492,0.409,0.347,0.187,0.396,0.597,0.666,0.335,0.365,0.48,0.448,0.443,0.386,0.386,0.22,0.426,0.309,2.71,0.255,0.955,0.374,0.254,0.759,0.204,0.562,0.673,3.84,1.16,33.1,0.514,0.327,5.99,2.27,1.13,1.69,0.74,0.412,0.507,0.222,0.445,0.337,0.63,9.42,0.275,0.257,0.335,22.6,5.62,0.397,0.761,0.332,0.851,0.683,0.255,1.3,0.316,0.53,0.552,1.04,0.409,0.187,0.541,0.424,2.96,0.54,0.194,1.55,0.48,0.351,0.422,0.311,0.455,0.529,2.19,1.19,0.739,1.07,0.658,0.411,0.894,1.61,3.45,0.334,0.208,2.29,0.808,0.732,0.558,0.821,0.533,3.59,0.41,2.61,0.357,7.16,0.776,0.342,0.473,12.5,0.553,0.33,0.74,0.798,0.225,0.353,0.637,30.8,2.45,10.9,0.174,0.772,0.189,2.22,0.926,2.24,1.27,0.481,0.784,0.543,0.231,9.66,1.19,1.21,0.526,0.585,2.96,1.11,0.578,0.524,0.332,1.18,2.37,0.963,0.163,0.251,0.312,0.294,0.218,0.491,4.95,1.2,0.235,1.38,0.754,7.72,0.231,0.403,0.317,5.24,0.637,0.692,0.774,1.02,8.07,0.774,0.372,0.498,1.65,0.294,1.74,0.309,0.87,0.222,0.476,37.4,0.29,0.708,0.588,0.452,0.288,0.88,0.283,0.808,0.214,0.184,0.786,0.297,1.25,0.282,2.65,0.621,0.781,0.345,0.315,0.373,0.599,0.987,0.251,0.846,0.663,0.877,0.292,0.32,0.761,39.9,0.247,0.68,0.339,0.255,0.182,16.9,0.309,1.03,1.92,0.327,2.96,1.01,0.291,0.606,0.194,0.329,0.816,1.64,0.423,0.753,0.753,0.135,0.839,0.296,1.05,0.802,1.17,0.328,0.315,1.07,0.865,1.41,1.54,0.889,0.411,0.603,9.1,0.278,1.34,1.49,0.503,0.717,2.21,35.8,0.663,0.826,0.777,0.865,0.18,0.596,0.954,0.364,2.37,0.365,0.202,0.15,0.842,0.196,0.279,0.308,0.31,1.56,0.519,1.22,0.435,1.21,0.129,43,0.46,0.286,0.32,0.376,0.249,2.55,0.855,0.261,0.766,10.8,0.788,0.523,0.65,0.372,0.836,0.732,1.06,0.253,9.41,0.744,0.358,0.396,0.201,0.133,0.271,0.733,2.94,0.45,0.993,0.991,0.907,0.761,0.815,0.15,0.461,0.645,0.235,1.05,1.07,0.856,1.24,0.324,0.797,0.791,0.617,0.296,1.51,0.771,0.289,0.663,0.764,0.261,0.436,7.58,0.5,1.16,1.07,0.09,0.56,0.267,0.858,0.626,0.547,0.397,2.23,1.53,0.614,0.482,0.782,5.97,8.53,0.332,0.5,6.19,0.19,0.868,1.06,0.668,1.39,0.296,1.21,0.796,0.27,6.06,0.945,0.338,0.478,0.307,0.334,0.259,0.338,0.61,38,0.792,0.219,0.347,0.545,0.654,0.349,2,0.729,0.828,0.454,0.329,0.274,0.354,0.278,8.74,0.481,3.65,0.847,0.677,0.645,1.44,1.13,1.21,1,0.291,0.688,0.473,0.386,0.717,0.6,0.32,0.55,0.354,1.01,0.314,0.773,0.297,2.79,0.787,3.26,0.202,0.284,1.57,0.418,0.438,0.501,0.269,0.565,0.342,0.679,1.09,0.793,0.383,8.3,0.354,0.717,0.83,0.607,3.62,1.58,0.952,0.32,9.36,0.789,0.756,0.482,0.154,0.68,2.89,0.282,0.563,0.259,2.72,0.568,0.284,0.274,0.37,0.168,0.877,0.621,0.53,0.558,0.456,0.194,0.726,0.322,0.205,0.936,0.283,0.445,0.743,0.528,0.319,0.48,1.08,0.183,0.292,0.691,0.926,1.65,0.446,1.02,0.21,1.09,0.849,0.393,0.295,0.217,0.589,0.358,0.571,0.154,0.316,0.394,1.1,0.154,0.415,0.412,0.796,0.279,7.63,0.26,0.771,0.357,0.199,0.407,1.9,0.242,0.57,0.287,0.331,0.406,2,0.847,0.677,0.602,0.559,0.15,1.41,0.175,1.31,0.727,0.528,0.707,0.919,0.276,0.446,1.01,0.848,0.188,0.293,1.92,0.392,0.342,0.586,0.296,0.656,0.433,0.352,0.212,0.366,0.464,0.543,0.393,16.9,0.568,0.364,0.983,0.211,0.357,0.297,1.99,1.01,0.236,0.721,0.221,0.494,3.32,1.95,0.377,0.395,0.538,0.933,1.79,0.471,0.358,0.288,0.331,0.565,0.312,0.422,2.63,0.643,0.38,1.91,2.38,0.534,4.7,0.384,1.04,0.465,0.253,1.19,21.1,1.11,0.199,0.814,0.446,0.881,0.679,0.23,1.21,7.57,0.473,3.07,0.911,1.64,0.218,0.494,1.82,0.55,9.19,1.05,0.401,1.5,0.269,0.668,0.314,0.161,8.75,2.66,3.02,2.84,0.388,0.213,0.938,0.154,0.299,0.738,0.485,0.554,0.356,0.812,0.34,1.58,0.781,0.441,0.479,0.567,1.06,0.638,0.967,0.406,0.323,0.24,3.34,0.917,1.03,0.72,1.04,0.294,1.19,0.369,9.29,0.957,0.409,0.198,1.23,1.16,0.873,0.18,0.611,0.56,0.588,3.01,4.81,0.769,0.653,1.54,6.18,2.65,0.275,0.357,0.5,0.899,0.33,0.232,1.29,0.257,0.773,2.84,1.57,3.48,0.418,0.102,0.349,1.03,0.263,0.265,1.8,2.98,18.5,1.25,4.69,4.6,0.678,0.24,0.325,3.61,0.366,3.08,0.347,0.387,0.26,3.22,3.14,4.09,1.17,0.21,0.361,0.487,0.36,4.13,3.88,1.06,6.09,0.863,0.308,1.63,0.396,0.299,0.247,0.101,0.576,0.415,7.22,2.65,0.123,0.723,0.248,1.72,9.23,3.49,0.166,0.086,0.183,2.16,9.95,0.614,1.03,0.619,1.44,0.152,0.215,0.232,0.798,0.628,7.3,0.105,0.13,0.357,1.48,0.883,7.13,0.515,9.35,3.29,0.89,0.445,0.975,0.25,0.806,0.372,0.174,1.12,1.29,0.332,0.273,0.832,2.24,45.5,0.212,0.399,0.361,0.947,5.28,8.84,1.49,0.661,0.6,0.194,0.321,2,0.979,0.29,1.36,2.17,1.34,1.28,0.745,13.6,0.484,0.508,1.22,0.382,0.714,0.561,1.05,0.266,0.348,0.735,0.714,1.21,0.466,0.421,1.5,0.777,1.92,0.675,0.497,0.255,0.278,1.63,6.53,1.3,1.23,0.18,0.619,0.428,0.246,0.33,2.32,1.43,0.627,1.34,9.44,0.647,7.84,19.9,0.741,0.293,1.03,0.406,0.267,1.14,10.4,3.52,3.17,0.2,0.654,2.92,1.84,1.02,0.202,0.397,0.501,0.182,2.74,0.742,0.416,0.545,11.8,3.84,0.177,0.254,1.03,0.238,0.785,7.84,0.177,0.251,0.249,0.753,1.04,0.175,4.76,2.25,0.365,0.937,1.74,0.375,7.88,1.87,1.22,0.497,0.922,0.12,0.427,1.12,0.365,0.596,1.23,0.309,5.23,0.805,0.249,1.04,0.463,1.4,0.415,1.14,0.193,2.2,0.321,0.298,0.177,0.781,0.533,0.852,0.24,3.13,0.411,7.12,4.07,1.38,3.36,0.441,1,0.095,3.56,2.38,0.467,28.3,0.572,0.21,0.391,0.34,0.52,0.404,3.52,0.313,0.53,3.43,0.089,2.3,3.75,31.7,0.586,0.579,0.585,0.335,1.3,1.86,0.227,2.45,0.855,1.96,0.772,2.36,0.213,0.115,0.366,0.389,0.868,5.26,1.2,8.76,0.624,0.442,0.154,0.365,2.33,0.246,21.8,0.589,0.563,1.24,0.916,0.762,0.424,7.65,0.752,2.76,0.989,0.517,0.163,0.637,0.914,1.38,1.8,1.9,0.86,0.373,1.7,0.776,1.86,0.275,0.791,1.36,2.81,0.427,0.968,0.469,0.542,0.309,0.357,18,0.397,0.673,0.575,3.67,9.98,0.317,0.843,0.25,0.569,0.232,2.48,0.519,7.09,0.506,0.607,0.786,0.804,0.11,1.18,1.04,3,0.776,0.451,1.23,1.46,0.415,0.43,1.68,0.274,0.808,0.466,12,0.302,2.03,0.094,0.256,0.318,0.215,0.2,0.884,0.298,1.49,11.4,0.845,0.249,0.267,0.641,0.676,0.121,0.109,0.771,0.869,2.92,0.412,0.2,0.261,0.292,2.47,1.25,1.3,6.82,0.798,37.8,13.3,9.38,0.17,0.108,18.8,1.02,0.321,0.403,43.6,0.216,0.502,0.658,0.294,0.7,1.42,0.623,0.205,0.212,1.24,0.268,0.168,0.391,0.302,0.554,0.534,1.23,1.39,0.218,1.92,0.324,1.61,0.664,2.32,0.486,1.4,1.2,1.8,1.38,0.622,4.03,9.89,1.68,2.74,1.15,1.37,4.46,7.5,0.498,0.37,0.384,3.51,0.111,2.92,1.09,0.44,7.39,1.62,8.39,0.495,1.05,0.442,0.511,6.15,0.682,40,45.7,11.5,0.795,0.479,0.242,7.92,3.14,0.54,0.209,0.172,0.599,0.166,1.39,0.629,0.233,0.85,0.472,0.802,4.55,0.203,0.085,0.714,0.697,0.424,0.628,0.423,3.03,0.286,1.1,1.84,1.07,3.78,1.14,0.219,1.02,0.158,0.861,0.318,6.19,0.651,0.309,0.23,0.259,0.569,0.558,0.174,1.55,2.51,0.267,0.599,9,0.269,9.9,1.19,0.152,0.961,0.215,1.05,0.963,1.7,0.568,1.2,0.239,0.922,1.19,3.61,0.199,21.8,9.65,0.642,0.569,22.4,2.87,36.7,0.882,0.103,1.24,0.395,0.856,0.353,3.77,0.141,0.213,0.145,0.232,0.533,6,0.111,0.93,12.6,0.319,0.535,0.259,0.406,0.493,0.966,0.443,0.559,1.55,0.584,0.185,27.9,0.362,1.18,0.409,0.582,1.12,0.286,9.37,3.16,0.219,1.71,0.373,0.534,30.6,0.216,15.1,0.246,20.3,0.706,0.084,0.963,0.673,0.832,11.1,0.337,0.949,0.319,0.389,0.563,5.69,0.094,2.83,0.532,8.47,7.28,0.401,3.65,0.263,0.515,1.47,4.4,0.536,0.407,0.325,2.51,21.5,0.529,5.84,0.306,1.34,0.362,0.384,1.37,16.4,0.709,0.608,0.175,0.729,0.644,1.58,1.32,0.38,0.624,0.402,10.8,1.09,1.36,3.77,0.55,7.89,0.322,0.717,0.959,1.34,0.293,0.23,0.482,0.334,1.18,0.338,3.49,0.65,0.425,0.431,2.93,0.171,21.3,0.657,6.9,0.747,0.567,0.626,0.519,0.82,0.202,1.18,0.225,0.441,1.49,0.405,2.1,0.933,0.9,1.04,0.455,1.11,0.51,0.976,0.526,2.45,0.693,9.57,0.264,0.998,1.1,1.42,6.13,1.2,0.588,0.315,0.425,0.195,0.206,0.472,0.254,1.3,0.352,0.476,0.648,0.951,0.709,2.86,0.76,0.346,0.342,0.465,3.45,0.449,0.364,0.4,0.321,1.48,0.465,3.46,7.85,1.63,1.96,0.382,0.32,0.604,0.731,1.3,0.608,1.44,0.429,2.72,0.212,3.89,0.344,0.855,1.78,0.199,0.263,0.538,4.67,0.9,0.394,1.63,31.1,1.75,0.198,0.553,7.3,16.4,0.458,0.76,0.767,0.491,1.11,0.324,0.481,0.605,0.419,0.635,1.35,0.396,1.14,0.253,0.587,0.362,1.08,0.185,1.84,1.28,1.01,0.341,1.02,0.906,8.43,0.447,0.27,2.11,0.624,1.03,1.45,0.342,0.461,0.546,0.366,4.12,0.264,17.9,0.198,18.4,0.474,0.532,0.42,2.58,0.72,0.52,1.34,1.41,0.517,0.118,5.51,0.107,0.237,0.654,0.762,0.455,0.764,0.573,0.25,0.687,0.749,1.61,1.56,3,0.321,0.259,0.795,0.952,0.667,1.9,1.55,0.81,0.245,0.801,0.206,0.936,0.329,10.4,0.802,0.612,0.464,0.707,0.38,0.498,0.442,1.6,0.273,0.279,0.386,1.02,0.823,0.314,0.921,0.543,0.335,0.665,0.286,0.169,0.561,0.408,0.635,0.431,0.446,2.31,3.8,3.09,10.3,0.569,1.38,0.233,0.489,0.366,0.276,1.33,2.77,0.311,0.563,3.13,0.191,2.08,13.9,0.869,0.151,1,0.598,5.45,0.114,0.657,0.261,0.264,0.117,1.26,2.92,4.04,0.291,1.74,43.4,0.282,0.609,0.581,3.22,1.02,1.49,2.56,0.639,0.201,0.143,0.62,2.22,1.1,1.89,0.696,8.68,1.6,0.775,0.28,1.16,0.178,0.157,15.3,0.232,1.05,3.55,0.291,0.237,0.456,0.498,7.63,0.584,0.301,0.451,0.502,0.987,4.94,0.211,1.05,0.352,1.42,0.597,0.672,3.88,12.5,0.138,0.11,0.622,0.607,0.747,1.73,2.18,0.396,0.491,0.316,0.669,0.451,0.141,11.7,1.42,3.52,1.92,0.251,0.207,0.596,0.202,0.486,0.324,0.688,0.26,0.272,0.423,0.188,13.5,0.49,1.37,0.8,0.42,0.345,6.99,0.586,0.38,0.157,0.314,0.285,1.6,0.435,1.08,0.412,1.21,0.83,0.845,1.15,0.436,0.189,0.138,6.27,0.693,0.869,0.43,0.411,0.341,0.754,1.32,0.532,0.413,1.17,0.171,1.29,0.834,0.849,1.45,0.13,0.358,0.724,0.383,9.53,0.368,0.57,1.7,1.25,0.617,0.311,19.3,0.44,0.537,0.432,7.59,0.356,0.372,0.735,0.693,0.123,0.337,0.193,0.677,0.396,0.261,0.242,0.248,0.453,0.537,0.405,3.59,0.748,0.272,0.445,0.216,0.874,0.177,3.34,15.1,0.35,2.71,0.132,21.2,0.144,0.825,0.48,0.454,0.466,0.312,2.22,9.83,1.69,1.72,0.442,1.45,0.791,1.75,0.259,0.133,0.422,2.29,0.309,0.356,2.33,0.102,1,0.283,0.52,0.798,0.262,0.431,7.31,0.255,3.44,0.15,0.377,0.817,3.52,0.881,5.88,0.132,0.498,0.419,0.417,3.53,0.243,2.45,7.41,0.6,0.943,1.01,0.424,7.38,0.503,12.9,0.467,9.92,0.677,1.67,0.336,0.959,5.56,0.715,0.147,0.232,2.77,8.44,17.4,0.244,3.24,0.849,0.232,12.8,0.349,1.28,0.965]],"q1":[0.338],"median":[0.618],"q3":[1.24],"lowerfence":[0.084],"hoverinfo":"y","upperfence":[2.59],"boxpoints":"outliers","marker":{"color":"#7cb5ec","fill":"#c0e9ff","line":{"color":"rgba(124,181,236,1)","width":1}},"type":"box","line":{"color":"rgba(124,181,236,1)","width":1},"xaxis":"x","yaxis":"y","frame":null}],"highlight":{"on":"plotly_click","persistent":false,"dynamic":false,"selectize":false,"opacityDim":0.2,"selected":{"opacity":1},"debounce":0},"shinyEvents":["plotly_hover","plotly_click","plotly_selected","plotly_relayout","plotly_brushed","plotly_brushing","plotly_clickannotation","plotly_doubleclick","plotly_deselect","plotly_afterplot","plotly_sunburstclick"],"base_url":"https://plot.ly"},"evals":[],"jsHooks":[]}</script>
 </div>
   </main><aside class="col-md-3"><nav id="toc"><h2>On this page</h2>
     </nav></aside>
