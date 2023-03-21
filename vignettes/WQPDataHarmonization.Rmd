@@ -853,13 +853,40 @@ unique(TADAProfileClean18_TNonly$TADA.ResultMeasureValueDataTypes.Flag)
 # if applicable, substitute a value for NA. In this example, 0.02 MG/L is used for NITROGEN.
 TADAProfileClean18_TNonly$TADA.ResultMeasureValue <- ifelse(is.na(TADAProfileClean18_TNonly$TADA.ResultMeasureValue) == TRUE, 0.02, TADAProfileClean18_TNonly$TADA.ResultMeasureValue)
 
-# generate summay stats
+# generate summary stats
 summary(TADAProfileClean18_TNonly$TADA.ResultMeasureValue)
 
 # generate a histogram
-hist(TADAProfileClean18_TNonly$TADA.ResultMeasureValue, main = unique(TADAProfileClean18_TNonly$TADA.CharacteristicName), xlab = "Values")
+hist(TADAProfileClean18_TNonly$TADA.ResultMeasureValue, 
+     main = paste((unique(TADAProfileClean18_TNonly$TADA.CharacteristicName))
+                  ,"vs. Frequency"),
+     breaks=200, xlab = paste(
+       (unique(TADAProfileClean18_TNonly$TADA.CharacteristicName)),
+       "Values"))
 
 # generate interactive box plot
 TADA::TADA_boxplot(TADAProfileClean18_TNonly)
 
+# flag and remove outliers
+UpperBound=quantile(TADAProfileClean18_TNonly$TADA.ResultMeasureValue, 
+                      c(.75))+(1.5*IQR(TADAProfileClean18_TNonly$TADA.ResultMeasureValue))
+LowerBound=quantile(TADAProfileClean18_TNonly$TADA.ResultMeasureValue, 
+                      c(.25))-(1.5*IQR(TADAProfileClean18_TNonly$TADA.ResultMeasureValue))
+
+outliers::chisq.out.test(TADAProfileClean18_TNonly$TADA.ResultMeasureValue)
+
+# remove results greater than the upper bound
+TADAProfileClean18_TNonly_removeOutliers <-
+  dplyr::filter(TADAProfileClean18_TNonly, TADA.ResultMeasureValue <= 2.59)
+
+# regenerate histogram
+hist(TADAProfileClean18_TNonly_removeOutliers$TADA.ResultMeasureValue, 
+     main = paste((unique(TADAProfileClean18_TNonly_removeOutliers$TADA.CharacteristicName))
+                  ,"vs. Frequency"), xlab = paste(
+       (unique(TADAProfileClean18_TNonly_removeOutliers$TADA.CharacteristicName)),
+       "Values"))
+
+# regenerate interactive box plot
+TADA::TADA_boxplot(TADAProfileClean18_TNonly_removeOutliers)
+  
 ```
