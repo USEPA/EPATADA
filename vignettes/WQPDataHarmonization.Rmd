@@ -867,12 +867,13 @@ hist(TADAProfileClean18_TNonly$TADA.ResultMeasureValue,
 # generate interactive box plot
 TADA::TADA_boxplot(TADAProfileClean18_TNonly)
 
-# flag and remove outliers
+# calculate lower and upper thresholds
 UpperBound=quantile(TADAProfileClean18_TNonly$TADA.ResultMeasureValue, 
                       c(.75))+(1.5*IQR(TADAProfileClean18_TNonly$TADA.ResultMeasureValue))
 LowerBound=quantile(TADAProfileClean18_TNonly$TADA.ResultMeasureValue, 
                       c(.25))-(1.5*IQR(TADAProfileClean18_TNonly$TADA.ResultMeasureValue))
 
+# test if highest value is a true outlier
 outliers::chisq.out.test(TADAProfileClean18_TNonly$TADA.ResultMeasureValue)
 
 # remove results greater than the upper bound
