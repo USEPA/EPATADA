@@ -51,16 +51,8 @@ SummarizeColumn <- function(.data,col="TADA.CharacteristicName"){
 #' 
 
 TADA_Stats <- function(.data){
-  
-  censoredStats <- summarizeCensoredData(.data,
-                                         spec_cols = c("TADA.CharacteristicName",
-                                                       "TADA.ResultMeasure.MeasureUnitCode",
-                                                       "TADA.ResultSampleFractionText",
-                                                       "TADA.MethodSpecificationName")) 
-  
-  descStats = summary(TADA.ResultMeasureValue)
 
-  moreStats <- .data %>%
+  StatsTable <- .data %>%
     dplyr::group_by(TADA.ComparableDataIdentifier) %>%
     dplyr::summarize(n_sites = length(unique(MonitoringLocationIdentifier)),
                      n_records = length(TADA.ResultMeasureValue), 
@@ -84,5 +76,5 @@ TADA_Stats <- function(.data){
                      Percentile_98th = stats::quantile(TADA.ResultMeasureValue, .98)
                      )
   
-  return(stats)
+  return(StatsTable)
 }
