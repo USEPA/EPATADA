@@ -65,7 +65,7 @@ NULL
 #' @format A data frame with 55 rows and 37 variables
 NULL
 
-#' Nutrients_Utah_Clean_TNonly
+#' TADAProfileClean18_TNonly
 #' 
 #' A dataset containing Nutrient data from Utah:
 #'
@@ -80,7 +80,7 @@ NULL
 #'  
 #' @docType data
 #' @keywords datasets
-#' @name Nutrients_Utah_Clean_TNonly
-#' @usage data(Nutrients_Utah_Clean_TNonly)
+#' @name TADAProfileClean18_TNonly
+#' @usage data(TADAProfileClean18_TNonly)
 #' @format A data frame with 5005 rows and 168 variables
 NULL

@@ -15,12 +15,12 @@
 #' 
 #' @examples
 #' # Load example dataset:
-#' data("Nutrients_Utah_Clean_TNonly")
-#' # Nutrients_Utah_Clean_TNonly dataframe is clean, harmonized, and filtered
+#' data("TADAProfileClean18_TNonly")
+#' # TADAProfileClean18_TNonly dataframe is clean, harmonized, and filtered
 #' # down to one Comparable Data Identifier
 #' 
 #' # Create boxplot:
-#' TADA_boxplot(Nutrients_Utah_Clean_TNonly)
+#' TADA_boxplot(TADAProfileClean18_TNonly)
 #' 
 
 TADA_boxplot <- function(filtered.data) {

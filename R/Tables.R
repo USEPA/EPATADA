@@ -15,7 +15,7 @@
 #' @export
 #'  
 
-SummarizeColumn <- function(.data,col="TADA.CharacteristicName"){
+TADA_summarizeColumn <- function(.data,col="TADA.CharacteristicName"){
   .data$summ = .data[,col]
   # Summarize WQP data pull
   wqp_summary <- .data %>%
@@ -47,10 +47,10 @@ SummarizeColumn <- function(.data,col="TADA.CharacteristicName"){
 #' # down to one Comparable Data Identifier
 #' 
 #' # Create stats table:
-#' TADA_Stats(TADAProfileClean18_TNonly)
+#' TADA_stats(TADAProfileClean18_TNonly)
 #' 
 
-TADA_Stats <- function(.data){
+TADA_stats <- function(.data){
 
   StatsTable <- .data %>%
     dplyr::group_by(TADA.ComparableDataIdentifier) %>%
@@ -60,8 +60,8 @@ TADA_Stats <- function(.data){
                      # from Q1 and add this value to Q3. This gives us the minimum and maximum fence
                      # posts that we compare each observation to. Any observations that are more than
                      # 1.5 IQR below Q1 or more than 1.5 IQR above Q3 are considered outliers
-                     UpperFence_Outliers = (stats::quantile(TADA.ResultMeasureValue, c(.75))+(1.5*stats::IQR(TADA.ResultMeasureValue))), 
-                     LowerFence_Outliers = (stats::quantile(TADA.ResultMeasureValue, c(.25))-(1.5*stats::IQR(TADA.ResultMeasureValue))), 
+                     UpperFence = (stats::quantile(TADA.ResultMeasureValue, c(.75))+(1.5*stats::IQR(TADA.ResultMeasureValue))), 
+                     LowerFence = (stats::quantile(TADA.ResultMeasureValue, c(.25))-(1.5*stats::IQR(TADA.ResultMeasureValue))), 
                      Min = min(TADA.ResultMeasureValue),
                      Mean = mean(TADA.ResultMeasureValue),
                      Max = max(TADA.ResultMeasureValue), 

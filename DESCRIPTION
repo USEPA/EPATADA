@@ -50,7 +50,8 @@ Imports:
     maps,
     plotly,
     rmarkdown, 
-    outliers
+    outliers,
+    remotes
 Depends: 
     R (>= 3.5.0)
 Suggests: 
