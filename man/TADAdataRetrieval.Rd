@@ -7,12 +7,14 @@
 TADAdataRetrieval(
   startDate = "null",
   endDate = "null",
-  characteristicName = "null",
-  sampleMedia = "null",
-  siteType = "null",
-  statecode = "null",
   countycode = "null",
+  huc = "null",
   siteid = "null",
+  siteType = "null",
+  characteristicName = "null",
+  characteristicType = "null",
+  sampleMedia = "null",
+  statecode = "null",
   organization = "null",
   project = "null",
   applyautoclean = TRUE
@@ -21,19 +23,23 @@ TADAdataRetrieval(
 \arguments{
 \item{startDate}{Start Date string in the format YYYY-MM-DD, for example, "2020-01-01"}
 
-\item{endDate}{End Date string in the format YYYY-MM-DD}
-
-\item{characteristicName}{Name of parameter}
-
-\item{sampleMedia}{Sampling substrate such as water, air, or sediment}
-
-\item{siteType}{Type of waterbody}
-
-\item{statecode}{Code that identifies a state}
+\item{endDate}{End Date string in the format YYYY-MM-DD, for example, "2020-01-01"}
 
 \item{countycode}{Code that identifies a county}
 
+\item{huc}{A numeric code denoting a hydrologic unit. Example: "04030202". Different size hucs can be entered.}
+
 \item{siteid}{Unique monitoring station identifier}
+
+\item{siteType}{Type of waterbody}
+
+\item{characteristicName}{Name of parameter}
+
+\item{characteristicType}{Groups of environmental measurements/parameters.}
+
+\item{sampleMedia}{Sampling substrate such as water, air, or sediment}
+
+\item{statecode}{Code that identifies a state}
 
 \item{organization}{A string of letters and/or numbers (some additional characters also possible) used to signify an organization with data in the Water Quality Portal}
 
