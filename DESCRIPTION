@@ -49,7 +49,9 @@ Imports:
     sf,
     maps,
     plotly,
-    rmarkdown
+    rmarkdown, 
+    outliers,
+    remotes
 Depends: 
     R (>= 3.5.0)
 Suggests: 

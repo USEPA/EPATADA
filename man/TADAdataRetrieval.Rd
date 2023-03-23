@@ -93,6 +93,10 @@ to find allowable values for queries, e.g., reference the WQX domain table to fi
 Alternatively, you can use the WQP services to find areas where data is available in the US: https://www.waterqualitydata.us/Codes/countycode
 
 See ?ConvertSpecialChars and ?autoclean documentation for more information.
+
+Note: TADAdataRetrieval (by leveraging dataRetrieval),  automatically converts
+the date times to UTC. It also automatically converts the data to dates,
+datetimes, numerics based on a standard algorithm. See: ?dataRetrieval::readWQPdata
 }
 \examples{
 \dontrun{

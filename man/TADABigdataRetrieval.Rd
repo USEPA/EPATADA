@@ -61,6 +61,10 @@ Some code for this function was adapted from this USGS Blog (Author: Aliesha Kra
 \href{https://waterdata.usgs.gov/blog/large_sample_pull/}{Large Sample Pull}
 
 See ?autoclean documentation for more information on this optional input.
+
+Note: TADABigdataRetrieval (by leveraging dataRetrieval),  automatically converts
+the date times to UTC. It also automatically converts the data to dates,
+datetimes, numerics based on a standard algorithm. See: ?dataRetrieval::readWQPdata
 }
 \examples{
 \dontrun{

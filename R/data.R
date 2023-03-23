@@ -20,10 +20,10 @@ NULL
 #'
 #' A dataset containing Ammonia, Nitrate, and Nitrogen data from Utah:
 #'  
-# TADAProfile <- TADAdataRetrieval(statecode = "UT",
-# characteristicName = c("Ammonia", "Nitrate", "Nitrogen"),
-# startDate = "2020-10-01",
-# endDate = "2022-09-30")
+#' TADAProfile <- TADAdataRetrieval(statecode = "UT",
+#' characteristicName = c("Ammonia", "Nitrate", "Nitrogen"),
+#' startDate = "2020-10-01",
+#' endDate = "2022-09-30")
 #'
 #' @docType data
 #' @keywords datasets
@@ -63,4 +63,24 @@ NULL
 #' @name station
 #' @usage data(station)
 #' @format A data frame with 55 rows and 37 variables
+NULL
+
+#' TADAProfileClean18_TNonly
+#' 
+#' A dataset containing Nutrient data from Utah:
+#'
+#' original pull below:  
+#' TADAProfile <- TADAdataRetrieval(statecode = "UT",
+#' characteristicName = c("Ammonia", "Nitrate", "Nitrogen"),
+#' startDate = "2020-10-01",
+#' endDate = "2022-09-30")
+#'
+#' Data was cleaned using the TADA harmonize vignette. Data is filtered down to 
+#' only Total Nitrogen.
+#'  
+#' @docType data
+#' @keywords datasets
+#' @name TADAProfileClean18_TNonly
+#' @usage data(TADAProfileClean18_TNonly)
+#' @format A data frame with 5005 rows and 168 variables
 NULL

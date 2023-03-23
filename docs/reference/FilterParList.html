@@ -74,7 +74,7 @@ as to which parameters to explore further and filter.</p>
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
     
 
-<p>A list of unique characteristics and their counts</p>
+<p>A list of unique values in TADA.CharacteristicName and their counts</p>
     </div>
 
     <div class="section level2">
@@ -82,12 +82,13 @@ as to which parameters to explore further and filter.</p>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># Load example dataset:</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">Nutrients_Utah</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># Create a list of parameters in the dataset and the number of records of each paramter:</span></span></span>
+<span class="r-in"><span><span class="co"># Create a list of parameters in the dataset and the number of records of</span></span></span>
+<span class="r-in"><span><span class="co"># each parameter: </span></span></span>
 <span class="r-in"><span><span class="va">ParameterList</span> <span class="op">&lt;-</span> <span class="fu">FilterParList</span><span class="op">(</span><span class="va">Nutrients_Utah</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   FieldValue Count</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3   NITROGEN  9037</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2    NITRATE  1979</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1    AMMONIA    72</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   TADA.CharacteristicName Count</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3                NITROGEN  9037</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2                 NITRATE  1979</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1                 AMMONIA    72</span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
     </div>

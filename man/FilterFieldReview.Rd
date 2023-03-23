@@ -15,8 +15,8 @@ FilterFieldReview(field, .data)
 A table and pie chart of unique values in the selected field.
 }
 \description{
-Function creates a table and pie chart of unique values, and counts of those
-values for a chosen field in a dataframe.
+Function creates a table and pie chart of all unique values
+(and their counts) in the input dataframe for the field specified.
 }
 \examples{
 # Load example dataset:
