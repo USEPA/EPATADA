@@ -13,7 +13,8 @@ FilterFields(.data)
 A table of fields and the count of unique values in each field.
 }
 \description{
-Function creates a list of the fields in the input dataframe as well as the
+Function creates a list of common fields in the input dataframe that
+are used for full data frame filtering, as well as the
 number of unique values in each field. The list is intended to inform users
 as to which specific fields to explore further and filter.
 }

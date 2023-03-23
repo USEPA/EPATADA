@@ -120,7 +120,7 @@ simpleCensoredMethods <- function(.data, nd_method = "multiplier", nd_multiplier
     stop("Please provide a multiplier for the lower detection limit handling method of 'multiplier'. Typically, the multiplier value is between 0 and 1.")
   }
   if(od_method=="multiplier"&od_multiplier=="null"){
-    stop("Please provide a multiplier for the upper detection limit handling method of 'multiplier'. Typically, the multiplier value is between 0 and 1.")
+    stop("Please provide a multiplier for the upper detection limit handling method of 'multiplier'")
   }
   
   # If user has not previously run idCensoredData function, run it here to get required columns 
@@ -204,13 +204,13 @@ summarizeCensoredData <- function(.data, spec_cols = c("TADA.CharacteristicName"
     dplyr::filter(TADA.CensoredData.Flag%in%c("Non-Detect", "Uncensored"))%>%
     dplyr::summarise(Sample_Count = length(unique(ResultIdentifier)), Censored_Count = length(TADA.CensoredData.Flag[TADA.CensoredData.Flag=="Non-Detect"]), Percent_Censored = length(TADA.CensoredData.Flag[TADA.CensoredData.Flag=="Non-Detect"])/length(TADA.CensoredData.Flag)*100, Censoring_Levels = length(unique(TADA.ResultMeasureValue[TADA.CensoredData.Flag=="Non-Detect"])))%>%
     dplyr::filter(Censored_Count>0)%>%
-    dplyr::mutate("TADA.CensoredData.Flag" ="Non-Detect")
+    dplyr::mutate("TADA.CensoredData.Flag" = "Non-Detect")
   
   sum_hi = cens%>%dplyr::group_by_at(spec_cols)%>%
     dplyr::filter(TADA.CensoredData.Flag%in%c("Over-Detect", "Uncensored"))%>%
     dplyr::summarise(Sample_Count = length(unique(ResultIdentifier)), Censored_Count = length(TADA.CensoredData.Flag[TADA.CensoredData.Flag=="Over-Detect"]), Percent_Censored = length(TADA.CensoredData.Flag[TADA.CensoredData.Flag=="Over-Detect"])/length(TADA.CensoredData.Flag)*100, Censoring_Levels = length(unique(TADA.ResultMeasureValue[TADA.CensoredData.Flag=="Over-Detect"])))%>%
     dplyr::filter(Censored_Count>0)%>%
-    dplyr::mutate("TADA.CensoredData.Flag" ="Over-Detect")
+    dplyr::mutate("TADA.CensoredData.Flag" = "Over-Detect")
   
   sum_all = plyr::rbind.fill(sum_low, sum_hi)
   

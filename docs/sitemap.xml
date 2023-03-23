@@ -157,6 +157,9 @@
     <loc>usepa.github.io/TADA/reference/Nutrients_Utah.html</loc>
   </url>
   <url>
+    <loc>usepa.github.io/TADA/reference/Nutrients_Utah_Clean_TNonly.html</loc>
+  </url>
+  <url>
     <loc>usepa.github.io/TADA/reference/OrderTADACols.html</loc>
   </url>
   <url>
@@ -215,6 +218,9 @@
   </url>
   <url>
     <loc>usepa.github.io/TADA/reference/TADAReadWQPWebServices.html</loc>
+  </url>
+  <url>
+    <loc>usepa.github.io/TADA/reference/TADA_boxplot.html</loc>
   </url>
   <url>
     <loc>usepa.github.io/TADA/reference/TransformCensoredData.html</loc>

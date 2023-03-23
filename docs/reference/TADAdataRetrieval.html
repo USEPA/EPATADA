@@ -73,12 +73,14 @@ format for R users than the WQP GUI's endDateHi = "MM-DD-YYYY".</p>
     <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">TADAdataRetrieval</span><span class="op">(</span></span>
 <span>  startDate <span class="op">=</span> <span class="st">"null"</span>,</span>
 <span>  endDate <span class="op">=</span> <span class="st">"null"</span>,</span>
-<span>  characteristicName <span class="op">=</span> <span class="st">"null"</span>,</span>
-<span>  sampleMedia <span class="op">=</span> <span class="st">"null"</span>,</span>
-<span>  siteType <span class="op">=</span> <span class="st">"null"</span>,</span>
-<span>  statecode <span class="op">=</span> <span class="st">"null"</span>,</span>
 <span>  countycode <span class="op">=</span> <span class="st">"null"</span>,</span>
+<span>  huc <span class="op">=</span> <span class="st">"null"</span>,</span>
 <span>  siteid <span class="op">=</span> <span class="st">"null"</span>,</span>
+<span>  siteType <span class="op">=</span> <span class="st">"null"</span>,</span>
+<span>  characteristicName <span class="op">=</span> <span class="st">"null"</span>,</span>
+<span>  characteristicType <span class="op">=</span> <span class="st">"null"</span>,</span>
+<span>  sampleMedia <span class="op">=</span> <span class="st">"null"</span>,</span>
+<span>  statecode <span class="op">=</span> <span class="st">"null"</span>,</span>
 <span>  organization <span class="op">=</span> <span class="st">"null"</span>,</span>
 <span>  project <span class="op">=</span> <span class="st">"null"</span>,</span>
 <span>  applyautoclean <span class="op">=</span> <span class="cn">TRUE</span></span>
@@ -92,31 +94,39 @@ format for R users than the WQP GUI's endDateHi = "MM-DD-YYYY".</p>
 
 
 <dt>endDate</dt>
-<dd><p>End Date string in the format YYYY-MM-DD</p></dd>
-
-
-<dt>characteristicName</dt>
-<dd><p>Name of parameter</p></dd>
-
-
-<dt>sampleMedia</dt>
-<dd><p>Sampling substrate such as water, air, or sediment</p></dd>
-
-
-<dt>siteType</dt>
-<dd><p>Type of waterbody</p></dd>
-
-
-<dt>statecode</dt>
-<dd><p>Code that identifies a state</p></dd>
+<dd><p>End Date string in the format YYYY-MM-DD, for example, "2020-01-01"</p></dd>
 
 
 <dt>countycode</dt>
 <dd><p>Code that identifies a county</p></dd>
 
 
+<dt>huc</dt>
+<dd><p>A numeric code denoting a hydrologic unit. Example: "04030202". Different size hucs can be entered.</p></dd>
+
+
 <dt>siteid</dt>
 <dd><p>Unique monitoring station identifier</p></dd>
+
+
+<dt>siteType</dt>
+<dd><p>Type of waterbody</p></dd>
+
+
+<dt>characteristicName</dt>
+<dd><p>Name of parameter</p></dd>
+
+
+<dt>characteristicType</dt>
+<dd><p>Groups of environmental measurements/parameters.</p></dd>
+
+
+<dt>sampleMedia</dt>
+<dd><p>Sampling substrate such as water, air, or sediment</p></dd>
+
+
+<dt>statecode</dt>
+<dd><p>Code that identifies a state</p></dd>
 
 
 <dt>organization</dt>
@@ -169,6 +179,9 @@ censored data later on (i.e., nondetections)</p>
 to find allowable values for queries, e.g., reference the WQX domain table to find countycode and statecode: https://cdx.epa.gov/wqx/download/DomainValues/County_CSV.zip
 Alternatively, you can use the WQP services to find areas where data is available in the US: https://www.waterqualitydata.us/Codes/countycode</p>
 <p>See ?ConvertSpecialChars and ?autoclean documentation for more information.</p>
+<p>Note: TADAdataRetrieval (by leveraging dataRetrieval),  automatically converts
+the date times to UTC. It also automatically converts the data to dates,
+datetimes, numerics based on a standard algorithm. See: ?dataRetrieval::readWQPdata</p>
     </div>
 
     <div class="section level2">

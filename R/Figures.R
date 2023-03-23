@@ -1,33 +1,3 @@
-#' @title Summarize data downloaded by specified column
-#' 
-#' @description 
-#' Function to summarize the number of sites and records downloaded from the 
-#' WQP for each unique column group.
-#' 
-#' @param .data TADA data frame containing the data downloaded from the WQP, where
-#' each row represents a unique data record.
-#' @param col A text string name of the column the user would like summarized.
-#' 
-#' @return A dataframe containing a column for each unique element, the number of
-#' sites with that element populated, and the number of records with that element
-#' populated.
-#'  
-#' @export
-#'  
-
-SummarizeColumn <- function(.data,col="TADA.CharacteristicName"){
-  .data$summ = .data[,col]
-  # Summarize WQP data pull
-  wqp_summary <- .data %>%
-    dplyr::group_by(summ) %>%
-    dplyr::summarize(n_sites = length(unique(MonitoringLocationIdentifier)),
-                     n_records = length(TADA.ResultMeasureValue),
-                     .groups = 'drop') %>%
-    dplyr::select(summ, n_sites, n_records)
-  names(wqp_summary)[names(wqp_summary)=="summ"] = col
-  return(wqp_summary)
-}
-
 #' Create Boxplot
 #' 
 #' @param filtered.data TADA data frame containing the data downloaded from the WQP, where
@@ -45,21 +15,13 @@ SummarizeColumn <- function(.data,col="TADA.CharacteristicName"){
 #' 
 #' @examples
 #' # Load example dataset:
-#' data(Nutrients_Utah)
-#' 
-#' # Note for future: consider creating example dataset which has been cleaned
-#' 
-#' # Filter out quality control samples:
-#' Utah_qc <- dplyr::filter(Nutrients_Utah, !(ActivityTypeCode %in% ActivityTypeCode[grepl("Quality",ActivityTypeCode)]))
-#' 
-#' # Run HarmonizeData function:
-#' Utah_harmonized <- HarmonizeData(Utah_qc)
-#' 
-#' # Filter to 1 Comparable Data Identifier:
-#' Utah_filtered <- dplyr::filter(Utah_harmonized, TADA.ComparableDataIdentifier == "Total Nitrogen, Mixed Forms_as N_mg/L")
+#' data("TADAProfileClean18_TNonly")
+#' # TADAProfileClean18_TNonly dataframe is clean, harmonized, and filtered
+#' # down to one Comparable Data Identifier
 #' 
 #' # Create boxplot:
-#' TADA_boxplot(Utah_filtered)
+#' TADA_boxplot(TADAProfileClean18_TNonly)
+#' 
 
 TADA_boxplot <- function(filtered.data) {
   # check .data is data.frame
