@@ -10,7 +10,7 @@ FilterParList(.data)
 \item{.data}{TADA dataframe}
 }
 \value{
-A list of unique characteristics and their counts
+A list of unique values in TADA.CharacteristicName and their counts
 }
 \description{
 Function generates list of characteristics in the input dataframe, as well as
@@ -21,7 +21,8 @@ as to which parameters to explore further and filter.
 # Load example dataset:
 data(Nutrients_Utah)
 
-# Create a list of parameters in the dataset and the number of records of each paramter:
+# Create a list of parameters in the dataset and the number of records of
+# each parameter: 
 ParameterList <- FilterParList(Nutrients_Utah)
 
 }

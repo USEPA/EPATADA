@@ -43,6 +43,10 @@
 #'  
 #' See ?ConvertSpecialChars and ?autoclean documentation for more information.
 #' 
+#' Note: TADAdataRetrieval (by leveraging dataRetrieval),  automatically converts
+#' the date times to UTC. It also automatically converts the data to dates, 
+#' datetimes, numerics based on a standard algorithm. See: ?dataRetrieval::readWQPdata
+#' 
 #' @param startDate Start Date string in the format YYYY-MM-DD, for example, "2020-01-01"
 #' @param endDate End Date string in the format YYYY-MM-DD, for example, "2020-01-01"
 #' @param countycode Code that identifies a county 
@@ -305,6 +309,10 @@ TADAReadWQPWebServices <- function(webservice) {
 #' \href{https://waterdata.usgs.gov/blog/large_sample_pull/}{Large Sample Pull}  
 #' 
 #' See ?autoclean documentation for more information on this optional input.
+#' 
+#' Note: TADABigdataRetrieval (by leveraging dataRetrieval),  automatically converts
+#' the date times to UTC. It also automatically converts the data to dates, 
+#' datetimes, numerics based on a standard algorithm. See: ?dataRetrieval::readWQPdata
 #' 
 #' @param startDate Start Date YYYY-MM-DD format, for example, "1995-01-01"
 #' @param endDate end date in YYYY-MM-DD format, for example, "2020-12-31"
