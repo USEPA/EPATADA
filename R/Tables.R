@@ -28,6 +28,7 @@ TADA_summarizeColumn <- function(.data,col="TADA.CharacteristicName"){
   return(wqp_summary)
 }
 
+
 #' Generate Statistics Table
 #' 
 #' @param .data TADA data frame containing the data downloaded from the WQP, where

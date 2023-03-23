@@ -233,29 +233,28 @@ FilterParFields <- function(.data, parameter) {
   # Reorder columns
   col.names <- col.names[, c(2, 1)]
   
-  # cm removed 3/23/23
-  # Filter col.names to include only fields for filtering
-  # col.names <- dplyr::filter(col.names, Fields %in% c(
-  #  "ActivityCommentText", "ActivityTypeCode",
-  #  "TADA.ActivityMediaName", "ActivityMediaSubdivisionName",
-  #  "MeasureQualifierCode", "MonitoringLocationTypeName",
-  #  "HydrologicCondition", "HydrologicEvent",
-  #  "ResultStatusIdentifier", "MethodQualifierTypeName",
-  #  "ResultCommentText", "ResultLaboratoryCommentText",
-  #  "TADA.ResultMeasure.MeasureUnitCode",
-  #  "TADA.ResultSampleFractionText", "ResultTemperatureBasisText",
-  #  "ResultValueTypeName", "ResultWeightBasisText",
-  #  "SampleCollectionEquipmentName", "LaboratoryName",
-  #  "MethodDescriptionText", "ResultParticleSizeBasisText",
-  #  "SampleCollectionMethod.MethodIdentifier",
-  #  "SampleCollectionMethod.MethodIdentifierContext",
-  #  "SampleCollectionMethod.MethodName",
-  #  "DataQuality.BiasValue", "MethodSpeciationName",
-  #  "ResultAnalyticalMethod.MethodName",
-  #  "ResultAnalyticalMethod.MethodIdentifier",
-  #  "ResultAnalyticalMethod.MethodIdentifierContext",
-  #  "AssemblageSampledName", "DetectionQuantitationLimitTypeName"
-  #))
+  #Filter col.names to include only fields recommended for filtering
+  col.names <- dplyr::filter(col.names, Fields %in% c(
+    "ActivityCommentText", "ActivityTypeCode",
+    "TADA.ActivityMediaName", "ActivityMediaSubdivisionName",
+    "MeasureQualifierCode", "MonitoringLocationTypeName",
+    "HydrologicCondition", "HydrologicEvent",
+    "ResultStatusIdentifier", "MethodQualifierTypeName",
+    "ResultCommentText", "ResultLaboratoryCommentText",
+    "TADA.ResultMeasure.MeasureUnitCode",
+    "TADA.ResultSampleFractionText", "ResultTemperatureBasisText",
+    "ResultValueTypeName", "ResultWeightBasisText",
+    "SampleCollectionEquipmentName", "LaboratoryName",
+    "MethodDescriptionText", "ResultParticleSizeBasisText",
+    "SampleCollectionMethod.MethodIdentifier",
+    "SampleCollectionMethod.MethodIdentifierContext",
+    "SampleCollectionMethod.MethodName",
+    "DataQuality.BiasValue", "MethodSpeciationName",
+    "ResultAnalyticalMethod.MethodName",
+    "ResultAnalyticalMethod.MethodIdentifier",
+    "ResultAnalyticalMethod.MethodIdentifierContext",
+    "AssemblageSampledName", "DetectionQuantitationLimitTypeName"
+  ))
 
   # CREATE LIST OF UNIQUE VALUES PER FIELD FROM DATAFRAME
   # remove fields with only NAs from df (NA-only fields were removed from WQP, not .data)
@@ -269,10 +268,11 @@ FilterParFields <- function(.data, parameter) {
     x[order(-x$Freq), ]
   })
   # Rename fields
-  ParUniqueValList <- lapply(ParUniqueValList, stats::setNames, c("FieldValues", "Count"))
+  ParUniqueValList <- lapply(ParUniqueValList, stats::setNames, 
+                             c("FieldValues", "Count"))
   
   # cm removed, saving for potential future use in Shiny
-  # Filter list to include only fields for filtering
+  # Filter list to require only these fields for filtering
   #ParUniqueValList <- ParUniqueValList[c(
   #  "ActivityCommentText", "ActivityTypeCode",
   #  "TADA.ActivityMediaName", "ActivityMediaSubdivisionName",

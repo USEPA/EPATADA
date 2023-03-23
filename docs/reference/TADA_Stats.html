@@ -79,13 +79,20 @@ frame by running the function HarmonizeData().</p></dd>
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># Load example dataset:</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"TADAProfileClean18_TNonly"</span><span class="op">)</span></span></span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>data set 'TADAProfileClean18_TNonly' not found</span>
 <span class="r-in"><span><span class="co"># TADAProfileClean18_TNonly dataframe is clean, harmonized, and filtered</span></span></span>
 <span class="r-in"><span><span class="co"># down to one Comparable Data Identifier</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Create stats table:</span></span></span>
 <span class="r-in"><span><span class="fu">TADA_stats</span><span class="op">(</span><span class="va">TADAProfileClean18_TNonly</span><span class="op">)</span></span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in TADA_stats(TADAProfileClean18_TNonly):</span> could not find function "TADA_stats"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># A tibble: 1 × 17</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   TADA.ComparableDataIdent…¹ n_sites n_records UpperFence LowerFence   Min  Mean</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>                        <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>      <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>      <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">1</span> Total Nitrogen, Mixed For…     630      <span style="text-decoration: underline;">5</span>005       2.59      -<span style="color: #BB0000;">1.01</span> 0.084  2.04</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># ℹ abbreviated name: ¹​TADA.ComparableDataIdentifier</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># ℹ 10 more variables: Max &lt;dbl&gt;, Percentile_5th &lt;dbl&gt;, Percentile_10th &lt;dbl&gt;,</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;">#   Percentile_15th &lt;dbl&gt;, Percentile_25th &lt;dbl&gt;, Percentile_50th_Median &lt;dbl&gt;,</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;">#   Percentile_75th &lt;dbl&gt;, Percentile_85th &lt;dbl&gt;, Percentile_95th &lt;dbl&gt;,</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;">#   Percentile_98th &lt;dbl&gt;</span></span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
     </div>

@@ -53,7 +53,7 @@ desired (un-comment).
 # options(download.file.method = "wininet")
 
 remotes::install_github("USEPA/TADA", 
-                        ref = "misc-updates-cm",
+                        ref = "develop",
                         dependencies = TRUE)
 library(TADA)
 
@@ -203,11 +203,11 @@ to dates, datetimes, numerics based on a standard algorithm.
 
 ```{r}
 # here is an example for UT. We will move forward with this example in the remainder of the vignette. This may take a few minutes to run.
- TADAProfile <- TADAdataRetrieval(statecode = "UT",
-                                  characteristicName = c("Ammonia",
-                                                         "Nitrate",
-                                                         "Nitrogen"), 
-                                  startDate = "2020-10-01")
+TADAProfile <- TADAdataRetrieval(statecode = "UT",
+                                 characteristicName = c("Ammonia",
+                                                        "Nitrate",
+                                                        "Nitrogen"),
+                                 startDate = "2020-10-01")
 
 # example for CT
 # TADAProfile <- TADAdataRetrieval(statecode = "CT", startDate = "2020-10-01")
@@ -276,6 +276,7 @@ data only).
 
 ```{r}
 colnames(TADAProfile)
+
 TADAProfile_CharSummary <- TADA_summarizeColumn(TADAProfile,
                                                 "TADA.CharacteristicName")
 TADAProfile_CharSummary
@@ -347,7 +348,11 @@ following flags (if relevant to dataframe):
     as "Imprecise".
 
 ```{r}
-InvalidCoordinateFlags <- InvalidCoordinates(TADAProfile, clean_outsideUSA = "no", clean_imprecise = FALSE, errorsonly = TRUE)
+# flag only
+InvalidCoordinateFlags <- InvalidCoordinates(TADAProfile, 
+                                             clean_outsideUSA = "no",
+                                             clean_imprecise = FALSE, 
+                                             errorsonly = TRUE)
 
 # review unique flags in InvalidCoordinateFlags
 unique(InvalidCoordinateFlags$TADA.InvalidCoordinates.Flag)
@@ -373,7 +378,8 @@ Unique_InvalidCoordinateFlags <- InvalidCoordinateFlags %>%
                 'OrganizationFormalName') %>%
   dplyr::distinct()
 
-# remove all data for sites with invalid coordinates. Change function inputs to keep this data, but be aware it may impact your mapping. 
+# remove all data for sites with invalid coordinates. 
+# Change function inputs to keep this data, but be aware it may impact your mapping. 
 TADAProfileClean1 <- InvalidCoordinates(TADAProfile,
                                         clean_outsideUSA = "remove",
                                         clean_imprecise = FALSE,
@@ -685,7 +691,7 @@ TADAProfileClean13 <- QAPPDocAvailable(TADAProfileClean12,
                                        clean = FALSE)
 ```
 
-## Filter data by field
+## Full Dataframe Filtering
 
 In this section a TADA user will want to review the unique values in
 specific fields and may choose to remove data with particular values.
@@ -811,13 +817,22 @@ could leverage this function to remove specific values from their
 dataframe if desired.
 
 ```{r}
-# Remove results associated with storm or tidal action
+# Remove non-surface water results
 TADAProfileClean15 <- dplyr::filter(TADAProfileClean14, 
-                                    !(HydrologicEvent %in%
+                                    !(ActivityMediaSubdivisionName %in%
+                                        c("Bulk deposition", "Groundwater")))
+
+# regenerate table and pie chart
+FilterFieldReview("ActivityMediaSubdivisionName", TADAProfileClean15)
+
+# Remove results associated with storm or tidal action
+TADAProfileClean15 <- dplyr::filter(TADAProfileClean15, 
+                                    !(OrganizationFormalName %in%
                                         c("Storm", "Tidal action")))
 
 # regenerate table and pie chart
 FilterFieldReview("HydrologicEvent", TADAProfileClean15)
+
 ```
 
 ## Censored data
@@ -875,10 +890,12 @@ detection limit (half the detection limit). Please review
 information.
 
 ```{r}
-TADAProfileClean16_censoredSummary = summarizeCensoredData(TADAProfileClean15, spec_cols = c("TADA.CharacteristicName",
-                                   "TADA.ResultMeasure.MeasureUnitCode",
-                                   "TADA.ResultSampleFractionText",
-                                   "TADA.MethodSpecificationName"))
+TADAProfileClean16_censoredSummary = 
+  summarizeCensoredData(TADAProfileClean15,
+                        spec_cols = c("TADA.CharacteristicName",
+                                      "TADA.ResultMeasure.MeasureUnitCode",
+                                      "TADA.ResultSampleFractionText",
+                                      "TADA.MethodSpecificationName"))
 
 TADAProfileClean16_censoredSummary
 
@@ -887,6 +904,13 @@ TADAProfileClean16 = simpleCensoredMethods(TADAProfileClean15,
                                            nd_multiplier = 0.5,
                                            od_method = "as-is",
                                            od_multiplier = "null")
+
+# review unique values for TADA.CensoredData.Flag, 
+# DetectionQuantitationLimitTypeName, and ResultDetectionConditionText
+unique(TADAProfileClean16$TADA.CensoredData.Flag)
+unique(TADAProfileClean16$DetectionQuantitationLimitTypeName)
+unique(TADAProfileClean16$ResultDetectionConditionText)
+
 ```
 
 ## Transform Characteristic, Speciation, and Unit values to TADA Standards
@@ -947,35 +971,96 @@ UniqueHarmonizationRef <- HarmonizationRefTable(TADAProfileClean16,
 
 TADAProfileClean16 <- HarmonizeData(TADAProfileClean16, 
                                     ref = UniqueHarmonizationRef,
-                                    transform = TRUE, flag = TRUE)
+                                    transform = TRUE, 
+                                    flag = TRUE)
 ```
 
-## Filter data by field, subset by parameter
+## Parameter Level Filtering
 
-In this section, you can select a single parameter, review the unique
-values associated with that parameter in specific fields, and choose to
-remove particular values.
+In this section, you can select a single parameter, and review the
+unique values in specified fields. You may then choose to remove
+particular values by filtering.
 
 To start, review the list of parameters in the dataframe using the
-**FilterParList** function. (The list is sorted from highest to lowest
-counts. Only the first few rows are displayed to save space on the page)
+**FilterParList** function.
 
 ```{r}
 FilterParList(TADAProfileClean16)
 ```
 
-FilterParList(TADAProfileClean16)
+Next, using the **FilterParFields** function, review how many unique
+allowable values are included within each of the following fields for a
+specific parameter:
 
-Next, explore the fields associated with a specific parameter using the
-**FilterParFields** function:
+-   "ActivityCommentText"
+
+-   "ActivityTypeCode"
+
+-   "TADA.ActivityMediaName"
+
+-   "ActivityMediaSubdivisionName"
+
+-   "MeasureQualifierCode"
+
+-   "MonitoringLocationTypeName"
+
+-   "HydrologicCondition"
+
+-   "HydrologicEvent"
+
+-   "ResultStatusIdentifier"
+
+-   "MethodQualifierTypeName"
+
+-   "ResultCommentText"
+
+-   "ResultLaboratoryCommentText"
+
+-   "TADA.ResultMeasure.MeasureUnitCode"
+
+-   "TADA.ResultSampleFractionText"
+
+-   "ResultTemperatureBasisText"
+
+-   "ResultValueTypeName"
+
+-   "ResultWeightBasisText"
+
+-   "SampleCollectionEquipmentName"
+
+-   "LaboratoryName"
+
+-   "MethodDescriptionText"
+
+-   "ResultParticleSizeBasisText"
+
+-   "SampleCollectionMethod.MethodIdentifier"
+
+-   "SampleCollectionMethod.MethodIdentifierContext"
+
+-   "SampleCollectionMethod.MethodName"
+
+-   "DataQuality.BiasValue"
+
+-   "MethodSpeciationName"
+
+-   "ResultAnalyticalMethod.MethodName"
+
+-   "ResultAnalyticalMethod.MethodIdentifier"
+
+-   "ResultAnalyticalMethod.MethodIdentifierContext"
+
+-   "AssemblageSampledName"
+
+-   "DetectionQuantitationLimitTypeName"
 
 ```{r}
 FilterParFields(TADAProfileClean16, "TOTAL NITROGEN, MIXED FORMS")
 ```
 
 Selecting a parameter generates the list below, which is subset by the
-selected parameter. The list includes fields to review, and the number
-of unique values in each field.
+selected parameter. The list includes fields you may want to review, and
+the number of unique values in each field.
 
 Next, choose a field from the list.
 
@@ -1001,13 +1086,15 @@ ReviewWQXDomainValue <- dplyr::filter(ReviewWQXDomainValue, Code == "J" | Code =
 
 TADAProfileClean17 <- dplyr::filter(TADAProfileClean16, !(TADA.CharacteristicName %in% "TOTAL NITROGEN, MIXED FORMS" & MeasureQualifierCode %in% "U"))
 
+# regenerate table and pie chart
 FilterParFieldReview(field = "MeasureQualifierCode", TADAProfileClean17,  
                      parameter = "TOTAL NITROGEN, MIXED FORMS")
 
 ```
 
-Summarize results for a single comparable data group (i.e., comparable
-characteristic, unit, speciation, and fraction combination)
+Summarize results for a single comparable data group using the
+TADA.ComparableDataIdentifier (i.e., comparable characteristic, unit,
+speciation, and fraction combination)
 
 ```{r}
 # review TADA.ComparableDataIdentifier
@@ -1016,11 +1103,12 @@ unique(TADAProfileClean17$TADA.ComparableDataIdentifier)
 # filter dataframe to only "TOTAL NITROGEN, MIXED FORMS"
 TADAProfileClean18 <- dplyr::filter(TADAProfileClean17, TADA.CharacteristicName == "TOTAL NITROGEN, MIXED FORMS")
 
-# review if any remaining result values are NA
-sum(is.na(TADAProfileClean18$TADA.ResultMeasureValueDataTypes.Flag))
-
-# review unique values in TADA.ResultMeasureValueDataTypes.Flag
+# review TADA.ResultMeasureValueDataTypes.Flag to see any
+# NA's remain
 unique(TADAProfileClean18$TADA.ResultMeasureValueDataTypes.Flag)
+
+# review if any remaining result values are NA
+sum(is.na(TADAProfileClean18$TADA.ResultMeasureValue))
 
 # if applicable, substitute a value for NA. In this example, 0.02 MG/L is used for NITROGEN.
 TADAProfileClean18$TADA.ResultMeasureValue <- ifelse(is.na(TADAProfileClean18$TADA.ResultMeasureValue) == TRUE, 0.02, TADAProfileClean18$TADA.ResultMeasureValue)
@@ -1043,7 +1131,7 @@ TADA::TADA_boxplot(TADAProfileClean18)
 outliers::chisq.out.test(TADAProfileClean18$TADA.ResultMeasureValue)
 
 # remove results greater than the upper fence (see stats table generated above)
-# note: many outliers are valid results. Code below only included as an example.
+# note: many outliers are valid results.
 TADAProfileClean18_removeOutliers <-
   dplyr::filter(TADAProfileClean18, TADA.ResultMeasureValue <= 2.593)
 
@@ -1056,5 +1144,5 @@ hist(TADAProfileClean18_removeOutliers$TADA.ResultMeasureValue,
 
 # regenerate interactive box plot
 TADA::TADA_boxplot(TADAProfileClean18_removeOutliers)
-  
+
 ```
