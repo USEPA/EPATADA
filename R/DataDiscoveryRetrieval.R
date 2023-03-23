@@ -44,8 +44,13 @@
 #' See ?ConvertSpecialChars and ?autoclean documentation for more information.
 #' 
 #' @param startDate Start Date string in the format YYYY-MM-DD, for example, "2020-01-01"
-#' @param endDate End Date string in the format YYYY-MM-DD
+#' @param endDate End Date string in the format YYYY-MM-DD, for example, "2020-01-01"
+#' @param countycode Code that identifies a county 
+#' @param huc A numeric code denoting a hydrologic unit. Example: "04030202". Different size hucs can be entered.
+#' @param siteid Unique monitoring station identifier
+#' @param siteType Type of waterbody
 #' @param characteristicName Name of parameter
+#' @param characteristicType Groups of environmental measurements/parameters.
 #' @param sampleMedia Sampling substrate such as water, air, or sediment
 #' @param siteType Type of waterbody
 #' @param statecode Code that identifies a state
@@ -80,23 +85,31 @@
 
 TADAdataRetrieval <- function(startDate = "null",
                               endDate = "null",
-                              characteristicName = "null",
-                              sampleMedia = "null",
-                              siteType = "null",
-                              statecode = "null",
                               countycode = "null",
+                              huc = "null",
                               siteid = "null",
+                              siteType = "null",
+                              characteristicName = "null",
+                              characteristicType = "null",
+                              sampleMedia = "null",
+                              statecode = "null",
                               organization = "null",
                               project = "null",
                               applyautoclean = TRUE
-                              ) {
-
+) {
+  
   # Set query parameters
   WQPquery <- list()
   if (length(statecode)>1) {
-        WQPquery <- c(WQPquery, statecode = list(statecode)) 
+    WQPquery <- c(WQPquery, statecode = list(statecode)) 
   } else if (statecode != "null") {
-        WQPquery <- c(WQPquery, statecode = statecode)
+    WQPquery <- c(WQPquery, statecode = statecode)
+  }
+  
+  if (length(huc)>1) {
+    WQPquery = c(WQPquery,huc = list(huc)) 
+  } else if (huc != "null") {
+    WQPquery = c(WQPquery,huc = huc)
   }
   
   if (length(startDate)>1) {
@@ -135,6 +148,12 @@ TADAdataRetrieval <- function(startDate = "null",
     WQPquery <- c(WQPquery, characteristicName = characteristicName)
   }
   
+  if (length(characteristicType)>1) {
+    WQPquery <- c(WQPquery, characteristicType = list(characteristicType))
+  } else if (characteristicType != "null") {
+    WQPquery <- c(WQPquery, characteristicType = characteristicType)
+  }
+  
   if (length(sampleMedia)>1) {
     WQPquery <- c(WQPquery, sampleMedia = list(sampleMedia)) 
   } else if (sampleMedia != "null") {
@@ -164,39 +183,40 @@ TADAdataRetrieval <- function(startDate = "null",
     }
     WQPquery <- c(WQPquery, endDate = endDate)
   }
-
+  
   # Retrieve all 3 profiles
   results.DR <- dataRetrieval::readWQPdata(WQPquery,
                                            dataProfile = "resultPhysChem",
                                            ignore_attributes = TRUE)
   #check if any results are available
   if ((nrow(results.DR) > 0) == FALSE) {
-    stop("Your WQP query returned no results (no data available). Try a different query. Removing some of your query filters OR broadening your search area may help.")
-  }
-
-  narrow.DR <- dataRetrieval::readWQPdata(WQPquery, 
-                                          dataProfile = "narrowResult", 
-                                          ignore_attributes = TRUE)
-
-  sites.DR <- dataRetrieval::whatWQPsites(WQPquery)
-
-  projects.DR <- dataRetrieval::readWQPdata(WQPquery, 
-                                            ignore_attributes = TRUE, 
-                                            service = "Project")
-  
-  TADAprofile = JoinWQPProfiles(FullPhysChem = results.DR,
-                          Sites = sites.DR,
-                          Narrow = narrow.DR,
-                          Projects = projects.DR)
-  
-  # run autoclean function
-  if(applyautoclean==TRUE){
-    
-    TADAprofile.clean <- autoclean(TADAprofile)
-    
+    print("Returning empty results dataframe: Your WQP query returned no results (no data available). Try a different query. Removing some of your query filters OR broadening your search area may help.")
+    TADAprofile.clean = results.DR
   }else{
+    narrow.DR <- dataRetrieval::readWQPdata(WQPquery, 
+                                            dataProfile = "narrowResult", 
+                                            ignore_attributes = TRUE)
     
-    TADAprofile.clean = TADAprofile
+    sites.DR <- dataRetrieval::whatWQPsites(WQPquery)
+    
+    projects.DR <- dataRetrieval::readWQPdata(WQPquery, 
+                                              ignore_attributes = TRUE, 
+                                              service = "Project")
+    
+    TADAprofile = JoinWQPProfiles(FullPhysChem = results.DR,
+                                  Sites = sites.DR,
+                                  Narrow = narrow.DR,
+                                  Projects = projects.DR)
+    
+    # run autoclean function
+    if(applyautoclean==TRUE){
+      
+      TADAprofile.clean <- autoclean(TADAprofile)
+      
+    }else{
+      
+      TADAprofile.clean = TADAprofile
+    }
   }
   
   return(TADAprofile.clean)
