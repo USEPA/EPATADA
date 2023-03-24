@@ -4,11 +4,7 @@
 \alias{QualityControlActivity}
 \title{Check for Quality Control Samples}
 \usage{
-QualityControlActivity(
-  .data,
-  clean = c("none", "all", "duplicates", "blanks", "calibrations", "other"),
-  errorsonly = FALSE
-)
+QualityControlActivity(.data, clean = FALSE, errorsonly = FALSE)
 }
 \arguments{
 \item{.data}{TADA dataframe which must include the column 'ActivityTypeCode'}
@@ -52,26 +48,11 @@ or spiked samples as "QC_calibration", and other QC samples as "QC_other".
 data(Nutrients_Utah)
 
 # Flag and keep all QC samples:
-QualityControlActivity(Nutrients_Utah)
+QC_flagged <- QualityControlActivity(Nutrients_Utah)
 
 # Flag QC samples and filter to flagged data only:
-QualityControlActivity(Nutrients_Utah, errorsonly = TRUE)
+QC_flags_only <- QualityControlActivity(Nutrients_Utah, errorsonly = TRUE)
 
 # Remove all QC samples:
-QualityControlActivity(Nutrients_Utah, clean = "all")
-
-# Remove only duplicate QC samples:
-QualityControlActivity(Nutrients_Utah, clean = "duplicates")
-
-# Remove only blank QC samples:
-QualityControlActivity(Nutrients_Utah, clean = "blanks")
-
-# Remove only calibration checks or spiked QC samples:
-QualityControlActivity(Nutrients_Utah, clean = "calibrations")
-
-# Remove only other QC samples:
-QualityControlActivity(Nutrients_Utah, clean = "other")
-
-# Remove blank QC samples and filter to flagged data only:
-QualityControlActivity(Nutrients_Utah, clean = "blanks", errorsonly = TRUE)
+QC_clean <- QualityControlActivity(Nutrients_Utah, clean = TRUE)
 }
