@@ -777,20 +777,18 @@ FilterFieldReview_Table
 ```
 
 The ActivityTypeCode field has multiple unique values. In this example
-we remove quality control values.
+we remove quality control (QC) values.
 
 ```{r}
-# This chunk of code removes rows where any value in the ActivityTypeCode filed includes the string "Quality")
+# Remove all QC samples using the TADA QualityControlActivity function:
+# enter ?QualityControlActivity into the console for more information
+TADAProfileClean14 <- QualityControlActivity(TADAProfileClean13, clean = "all")
 
 # See WQX domain file to review all the ActivityTypeCode allowable values:
 # https://cdx.epa.gov/wqx/download/DomainValues/ActivityType.CSV
 
 # Access all WQX Domain Files
 # https://www.epa.gov/waterdata/storage-and-retrieval-and-water-quality-exchange-domain-services-and-downloads
-
-TADAProfileClean14 <- dplyr::filter(TADAProfileClean13,
-                                    !(ActivityTypeCode %in% ActivityTypeCode
-                                      [grepl("Quality",ActivityTypeCode)]))
 
 # regenerate table and pie chart
 FilterFieldReview("ActivityTypeCode",
