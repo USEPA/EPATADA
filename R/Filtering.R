@@ -129,11 +129,6 @@ FilterFieldReview <- function(field, .data) {
   # subset UniqueValList by input
   df <- TADA.env$UniqueValList[[field]]
   
-  ##### need to add code here to set column name to field input
-  # Rename fields
-  # df2 <- colnames(df, c((paste(field, 'Values')), "Count"))
-  ##### 
-  
   # define number of colors required for pie chart
   colorCount <- length(unique(df$FieldValues))
 
@@ -145,7 +140,8 @@ FilterFieldReview <- function(field, .data) {
     ggplot2::scale_fill_manual(values = getPalette(colorCount),name = field) +
     ggplot2::geom_bar(stat = "identity", width = 1) +
     ggplot2::coord_polar("y", start = 0) +
-    ggplot2::theme_void()
+    ggplot2::theme_void() + # remove background, grid, numeric labels
+    ggplot2::geom_text(ggplot2::aes(label = Count), color = "black", size=4, position = ggplot2::position_stack(vjust = 0.5))
 
   print(pie)
   print(df)
@@ -331,7 +327,7 @@ FilterParFieldReview <- function(field, .data, parameter) {
   # check parameter is in .data
   if (!missing(parameter)) {
     if ((parameter %in% .data$TADA.CharacteristicName) == FALSE) {
-      stop("Input parameter is not in the input dataframe.")
+      stop("The input parameter you entered is not in the input dataframe.")
     }
   }
   
@@ -345,9 +341,9 @@ FilterParFieldReview <- function(field, .data, parameter) {
   
   # cm removed 
   # check that input is in ParUniqueValList
-  #if (exists(field, TADA.env$ParUniqueValList) == FALSE) {
-  #  stop("Input not recommened for parameter level filtering.")
-  #}
+  if (exists(field, TADA.env$ParUniqueValList) == FALSE) {
+    stop("The field you entered is not populated in the input dataframe.")
+  }
 
   # subset UniqueValList by input
   df <- TADA.env$ParUniqueValList[[field]]
@@ -364,7 +360,8 @@ FilterParFieldReview <- function(field, .data, parameter) {
     ggplot2::geom_bar(stat = "identity", width = 1) +
     ggplot2::coord_polar("y", start = 0) +
     ggplot2::theme_void() +
-    ggplot2::labs(title = parameter)
+    ggplot2::labs(title = parameter) + 
+    ggplot2::geom_text(ggplot2::aes(label = Count), color = "black", size=4, position = ggplot2::position_stack(vjust = 0.5))
 
   print(pie)
   print(df)

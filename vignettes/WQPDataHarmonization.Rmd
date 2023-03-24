@@ -99,6 +99,10 @@ Data retrieval filters include:
 
 -   project
 
+-   huc
+
+-   characteristicType
+
 Please be aware that the default TADAdataRetrieval function
 automatically runs the TADA **autoclean** and **ConvertSpecialChars**
 functions. Both are both required for subsequent functions within the
@@ -202,12 +206,11 @@ converts the date times to UTC. It also automatically converts the data
 to dates, datetimes, numerics based on a standard algorithm.
 
 ```{r}
-# here is an example for UT. We will move forward with this example in the remainder of the vignette. This may take a few minutes to run.
-TADAProfile <- TADAdataRetrieval(statecode = "UT",
-                                 characteristicName = c("Ammonia",
-                                                        "Nitrate",
-                                                        "Nitrogen"),
-                                 startDate = "2020-10-01")
+# here is an example for Sac and Fox Nation. We will move forward with this example in the remainder of the vignette. 
+TADAProfile = TADAdataRetrieval(organization = "SACFOXMO")
+
+# here is an example for UT. 
+#TADAProfile <- TADAdataRetrieval(statecode = "UT",characteristicName = c("Ammonia","Nitrate","Nitrogen"),startDate = "2020-10-01")
 
 # example for CT
 # TADAProfile <- TADAdataRetrieval(statecode = "CT", startDate = "2020-10-01")
@@ -1114,6 +1117,8 @@ TADAProfileClean18$TADA.ResultMeasureValue <- ifelse(is.na(TADAProfileClean18$TA
 # generate stats table
 TADAProfileClean18_stats <- TADA::TADA_stats(TADAProfileClean18)
 
+TADAProfileClean18_stats
+
 # generate a histogram
 hist(TADAProfileClean18$TADA.ResultMeasureValue, 
      main = paste((unique(TADAProfileClean18$TADA.CharacteristicName))
@@ -1122,16 +1127,30 @@ hist(TADAProfileClean18$TADA.ResultMeasureValue,
        (unique(TADAProfileClean18$TADA.CharacteristicName)),
        "Values"))
 
-# generate interactive box plot
+```
+
+Generate interactive box plot.
+```{r}
+
 TADA::TADA_boxplot(TADAProfileClean18)
 
-# test if highest value is a true outlier
+```
+
+Test if highest value is a true outlier. 
+```{r}
+
+# run chisq test
 outliers::chisq.out.test(TADAProfileClean18$TADA.ResultMeasureValue)
 
 # remove results greater than the upper fence (see stats table generated above)
 # note: many outliers are valid results.
 TADAProfileClean18_removeOutliers <-
   dplyr::filter(TADAProfileClean18, TADA.ResultMeasureValue <= 2.593)
+
+```
+
+Regenerate histogram and box plot.
+```{r}
 
 # regenerate histogram
 hist(TADAProfileClean18_removeOutliers$TADA.ResultMeasureValue, 
