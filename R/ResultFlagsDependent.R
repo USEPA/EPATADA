@@ -594,7 +594,7 @@ QualityControlActivity <- function(.data, clean = c("none", "all", "duplicates",
   }
   # if clean = "duplicates", remove data flagged as duplicate samples
   if(clean == "duplicates") {
-    clean.data <- dpylr::filter(flag.data, flag.data$TADA.ActivityType.Flag != "QC_duplicate"|is.na(flag.data$TADA.ActivityType.Flag))
+    clean.data <- dplyr::filter(flag.data, flag.data$TADA.ActivityType.Flag != "QC_duplicate"|is.na(flag.data$TADA.ActivityType.Flag))
   }
   # if clean = "blanks", remove data flagged as blank samples
   if(clean == "blanks") {
