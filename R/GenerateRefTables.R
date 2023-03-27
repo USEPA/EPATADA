@@ -294,7 +294,8 @@ GetDetLimitRef <- function() {
   ## Add USGS limits not in WQX domain table
   usgs = data.frame(Name = c("Elevated Detection Limit","Historical Lower Reporting Limit"),
                     Description = c("USGS hard-coded limit","USGS hard-coded limit"),
-                    TADA.Limit_Type = c("Non-Detect","Non-Detect"))
+                    TADA.Limit_Type = c("Non-Detect","Non-Detect"),
+                    Last.Change.Date = rep("3/27/2023 12:00:00 PM",2))
   
   WQXDetLimitRef = plyr::rbind.fill(WQXDetLimitRef, usgs)
   
