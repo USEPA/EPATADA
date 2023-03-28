@@ -36,3 +36,5 @@
 "Detection/Quantitation Limit Type(DetectionQuantitationLimitTypeName)",4,"Upper Quantitation Limit","The largest concentration that an instrument can reliably detect.","8/12/2006 12:26:53 AM","Over-Detect"
 "Detection/Quantitation Limit Type(DetectionQuantitationLimitTypeName)",9,"Upper Reporting Limit","The largest concentration that can be reliably reported.","8/12/2006 12:26:53 AM","Over-Detect"
 "Detection/Quantitation Limit Type(DetectionQuantitationLimitTypeName)",8,"Water Quality Standard or Criteria","Provisions of state, territorial, tribal or federal law approved by EPA that describe the desired condition of a water body and the means by which that condition will be protected or achieved.","8/12/2006 12:26:53 AM","Other"
+NA,NA,"Elevated Detection Limit","USGS hard-coded limit","3/27/2023 12:00:00 PM","Non-Detect"
+NA,NA,"Historical Lower Reporting Limit","USGS hard-coded limit","3/27/2023 12:00:00 PM","Non-Detect"
