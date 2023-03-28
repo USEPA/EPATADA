@@ -519,7 +519,7 @@ QualityControlActivity <- function(.data, clean = FALSE, errorsonly = FALSE) {
   } 
   # if clean = TRUE, remove flagged data
   if(clean == TRUE) {
-    clean.data <- flag.data[is.na(flag.data$TADA.ActivityType.Flag),]
+    clean.data <- dplyr::filter(flag.data, flag.data$TADA.ActivityType.Flag == "Non_QC")
   }
 
   # if errorsonly = FALSE, return full clean dataframe
@@ -530,7 +530,7 @@ QualityControlActivity <- function(.data, clean = FALSE, errorsonly = FALSE) {
       print("This dataframe is empty because all rows contained QC samples and were removed")
     }
     # if there are no flags, remove flag column and print message
-    if(sum(!is.na(final.data$TADA.ActivityType.Flag)) == 0) {
+    if(sum(final.data$TADA.ActivityType.Flag != "Non_QC") == 0) {
       print("The column TADA.ActivityType.Flag was not added to this dataframe because either no QC samples were found or all flagged QC samples were removed")
       final.data <- dplyr::select(final.data, -TADA.ActivityType.Flag)
     }
