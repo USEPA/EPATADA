@@ -311,3 +311,118 @@ UpdateDetLimitRef <- function() {
   utils::write.csv(GetDetLimitRef(), file = "inst/extdata/WQXDetectionQuantitationLimitTypeRef.csv", row.names = FALSE)
 }
 
+#' Used to store cached Activity Type Reference Table
+
+WQXActivityTypeRef_Cached <- NULL
+
+#' Update Activity Type Reference Table
+#'
+#' Function downloads and returns in the latest WQX ActivityType Domain table, 
+#' adds QC category information, and writes the data to sysdata.rda.
+#'
+#' This function caches the table after it has been called once
+#' so subsequent calls will be faster.
+#'
+#' @return sysdata.rda with updated WQXActivityTypeRef object
+#'
+
+GetActivityTypeRef <- function() {
+  
+  # If there is a cached table available return it
+  if (!is.null(WQXActivityTypeRef_Cached)) {
+    return(WQXActivityType_Cached)
+  }
+  
+  # Try to download up-to-date raw data
+  raw.data <- tryCatch({
+    # read raw csv from url
+    utils::read.csv(url("https://cdx.epa.gov/wqx/download/DomainValues/ActivityType.CSV"))
+  }, error = function(err) {
+    NULL
+  })
+  
+  # If the download failed fall back to internal data (and report it)
+  if (is.null(raw.data)) {
+    message('Downloading latest Activity Type Reference Table failed!')
+    message('Falling back to (possibly outdated) internal file.')
+    return(utils::read.csv(system.file("extdata", "WQXActivityTypeRef.csv", package = "TADA")))
+  }
+  
+  # Categorize Activity Types
+  dup <- c("Quality Control Alternative Measurement Sensitivity",
+           "Quality Control Alternative Measurement Sensitivity Plus",
+           "Quality Control Field Replicate Habitat Assessment",
+           "Quality Control Field Replicate Msr/Obs",
+           "Quality Control Field Replicate Portable Data Logger",
+           "Quality Control Field Replicate Sample-Composite",
+           "Quality Control Sample-Blind Duplicate",
+           "Quality Control Sample-Field Replicate",
+           "Quality Control Sample-Inter-lab Split",
+           "Quality Control Sample-Lab Duplicate",
+           "Quality Control Sample-Lab Duplicate 2",
+           "Quality Control Sample-Lab Re-Analysis",
+           "Quality Control Sample-Lab Split",
+           "Quality Control-Meter Lab Duplicate",
+           "Quality Control-Meter Lab Duplicate 2",
+           "Sample-Routine Resample")
+  blank <- c("Quality Control Field Sample Equipment Rinsate Blank",
+             "Quality Control Lab Sample Equipment Rinsate Blank",
+             "Quality Control Sample-Equipment Blank",
+             "Quality Control Sample-Field Ambient Conditions Blank",
+             "Quality Control Sample-Field Blank",
+             "Quality Control Sample-Lab Blank",
+             "Quality Control Sample-Post-preservative Blank",
+             "Quality Control Sample-Pre-preservative Blank",
+             "Quality Control Sample-Reagent Blank",
+             "Quality Control Sample-Trip Blank",
+             "Quality Control-Meter Lab Blank",
+             "Quality Control-Negative Control",
+             "Sample-Depletion Replicate",
+             "Sample-Negative Control")
+  cal <- c("Quality Control Field Calibration Check",
+           "Quality Control Field Msr/Obs Post-Calibration",
+           "Quality Control Field Msr/Obs Pre-Calibration",
+           "Quality Control Sample-Field Spike",
+           "Quality Control Sample-Field Surrogate Spike",
+           "Quality Control Sample-Lab Continuing Calibration Verification",
+           "Quality Control Sample-Lab Control Sample/Blank Spike",
+           "Quality Control Sample-Lab Control Sample/Blank Spike Duplicate",
+           "Quality Control Sample-Lab Control Standard",
+           "Quality Control Sample-Lab Control Standard Duplicate",
+           "Quality Control Sample-Lab Initial Calib Certified Reference Material",
+           "Quality Control Sample-Lab Initial Calibration Verification",
+           "Quality Control Sample-Lab Matrix Spike",
+           "Quality Control Sample-Lab Matrix Spike Duplicate",
+           "Quality Control Sample-Lab Spike",
+           "Quality Control Sample-Lab Spike Duplicate",
+           "Quality Control Sample-Lab Spike Target",
+           "Quality Control Sample-Lab Spike of a Lab Blank",
+           "Quality Control Sample-Lab Surrogate Control Standard",
+           "Quality Control Sample-Lab Surrogate Control Standard Duplicate",
+           "Quality Control Sample-Lab Surrogate Method Blank",
+           "Quality Control Sample-Measurement Precision Sample",
+           "Quality Control Sample-Reference Sample",
+           "Quality Control-Calibration Check",
+           "Quality Control-Calibration Check Buffer",
+           "Sample-Positive Control")
+  other <- c("Quality Control Sample-Other")
+  
+  WQXActivityTypeRef <- raw.data%>%
+    dplyr::mutate(TADA.ActivityType.Flag = dplyr::case_when(
+      Code %in% dup ~ "QC_duplicate",
+      Code %in% blank ~ "QC_blank",
+      Code %in% cal ~ "QC_calibration",
+      Code %in% other ~ "QC_other"
+    ))
+  
+  # Save updated table in cache
+  WQXActivityTypeRef_Cached <- WQXActivityTypeRef
+  
+  return(WQXActivityTypeRef)
+}
+
+#' Update Activity Type Reference Table internal file (for internal use only)
+
+UpdateActivityTypeRef <- function() {
+  utils::write.csv(GetActivityTypeRef(), file = "inst/extdata/WQXActivityTypeRef.csv", row.names = FALSE)
+}
