@@ -412,7 +412,8 @@ GetActivityTypeRef <- function() {
       Code %in% dup ~ "QC_duplicate",
       Code %in% blank ~ "QC_blank",
       Code %in% cal ~ "QC_calibration",
-      Code %in% other ~ "QC_other"
+      Code %in% other ~ "QC_other",
+      TRUE ~ as.character("Non_QC")
     ))
   
   # Save updated table in cache
