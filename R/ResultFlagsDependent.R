@@ -531,8 +531,7 @@ QualityControlActivity <- function(.data, clean = FALSE, errorsonly = FALSE) {
     }
     # if there are no flags, remove flag column and print message
     if(sum(final.data$TADA.ActivityType.Flag != "Non_QC") == 0) {
-      print("The column TADA.ActivityType.Flag was not added to this dataframe because either no QC samples were found or all flagged QC samples were removed")
-      final.data <- dplyr::select(final.data, -TADA.ActivityType.Flag)
+      print("No quality control samples were found in your dataframe or they were all removed. Returning dataframe with TADA.ActivityType.Flag column for tracking.")
     }
   }
   

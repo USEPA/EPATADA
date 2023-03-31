@@ -785,7 +785,7 @@ we remove quality control (QC) values.
 ```{r}
 # Remove all QC samples using the TADA QualityControlActivity function:
 # enter ?QualityControlActivity into the console for more information
-TADAProfileClean14 <- QualityControlActivity(TADAProfileClean13, clean = "all")
+TADAProfileClean14 <- QualityControlActivity(TADAProfileClean13, clean = TRUE)
 
 # See WQX domain file to review all the ActivityTypeCode allowable values:
 # https://cdx.epa.gov/wqx/download/DomainValues/ActivityType.CSV
@@ -805,34 +805,26 @@ Let's move on to a different field and see if there are any values that
 we want to remove.
 
 ```{r, fig.width=6, fig.height=2, fig.fullwidth=TRUE}
-FilterFieldReview("ActivityMediaSubdivisionName", TADAProfileClean14)
+FilterFieldReview("MonitoringLocationTypeName", TADAProfileClean14)
 
 FilterFieldReview("OrganizationFormalName", TADAProfileClean14)
 
-FilterFieldReview("HydrologicEvent", TADAProfileClean14)
+FilterFieldReview("ProjectName", TADAProfileClean14)
 
 ```
 
-HydrologicEvent has multiple values. In this example, we show how a user
-could leverage this function to remove specific values from their
+MonitoringLocationTypeName has two values: River/Stream and Well. In this example, 
+we show how a user could leverage this function to remove specific values from their
 dataframe if desired.
 
 ```{r}
-# Remove non-surface water results
+# Remove well sample results
 TADAProfileClean15 <- dplyr::filter(TADAProfileClean14, 
-                                    !(ActivityMediaSubdivisionName %in%
-                                        c("Bulk deposition", "Groundwater")))
+                                    !(MonitoringLocationTypeName %in%
+                                        "Well"))
 
 # regenerate table and pie chart
-FilterFieldReview("ActivityMediaSubdivisionName", TADAProfileClean15)
-
-# Remove results associated with storm or tidal action
-TADAProfileClean15 <- dplyr::filter(TADAProfileClean15, 
-                                    !(OrganizationFormalName %in%
-                                        c("Storm", "Tidal action")))
-
-# regenerate table and pie chart
-FilterFieldReview("HydrologicEvent", TADAProfileClean15)
+FilterFieldReview("MonitoringLocationTypeName", TADAProfileClean15)
 
 ```
 
