@@ -1,13 +1,13 @@
 #' Generate TADA-compatible dataframe from WQP Data
 #'
 #' Retrieve data from Water Quality Portal (WQP) and generate a TADA-compatible
-#' dataframe. Note that the inputs (e.g. project, organization, siteType) with the 
+#' dataframe. Note that the inputs (e.g. project, organization, siteType) with the
 #' exceptions of endDate and startDate match the web service call format from the
-#' online WQP GUI. endDate and startDate match the format suggested in USGS's 
-#' dataRetrieval package (endDate = "YYYY-MM-DD"), which is a more familiar date 
+#' online WQP GUI. endDate and startDate match the format suggested in USGS's
+#' dataRetrieval package (endDate = "YYYY-MM-DD"), which is a more familiar date
 #' format for R users than the WQP GUI's endDateHi = "MM-DD-YYYY".
-#'  
-#' 
+#'
+#'
 #' This function will create and/or edit the following columns:
 #' TADA.DetectionLimitMeasureValue.Flag
 #' DetectionQuantitationLimitMeasure.MeasureValue
@@ -15,41 +15,41 @@
 #' ResultMeasureValue.Original
 #' TADA.ResultMeasureValue.Flag
 #' ResultMeasureValue
-#' 
-#' Keep in mind that all the query filters for the WQP work as an AND, 
+#'
+#' Keep in mind that all the query filters for the WQP work as an AND,
 #' but within the fields there are ORs. For example, within
-#' characteristicName – if you enter, c("pH", "Dissolved oxygen (DO)), – it’s an OR. 
+#' characteristicName – if you enter, c("pH", "Dissolved oxygen (DO)), – it’s an OR.
 #' Meaning that you will be back "pH" or "Dissolved oxygen (DO)" data. Similarly, if you
-#' enter c("Virginia", "Illinois"), it’s an OR. But the combo of fields are ANDs. 
-#' Such as State/Virginia AND Characteristic/Dissolved oxygen (DO)". Meaning, you 
+#' enter c("Virginia", "Illinois"), it’s an OR. But the combo of fields are ANDs.
+#' Such as State/Virginia AND Characteristic/Dissolved oxygen (DO)". Meaning, you
 #' will get get back only Dissolved oxygen (DO) from Virginia.
-#' characteristicName and Characteristic Group also work as an AND, therefore the 
+#' characteristicName and Characteristic Group also work as an AND, therefore the
 #' characteristicName must fall within the Characteristic Group when both are entered.
-#'  
+#'
 #' All data cleaning and transformations are done directly to the
-#' "ResultMeasureValue" and "DetectionLimitMeasureValue" columns, 
+#' "ResultMeasureValue" and "DetectionLimitMeasureValue" columns,
 #' however the original "ResultMeasureValue" and "DetectionLimitMeasureValue"
-#' columns and values from the WQP are preserved in these new fields, 
-#' "ResultMeasureValue.Original" and "DetectionLimitMeasureValue.Original". 
-#' Additionally, "TADA.ResultMeasureValue.Flag" and 
+#' columns and values from the WQP are preserved in these new fields,
+#' "ResultMeasureValue.Original" and "DetectionLimitMeasureValue.Original".
+#' Additionally, "TADA.ResultMeasureValue.Flag" and
 #' "TADA.DetectionLimitMeasureValue.Flag" are created to track and changes made
-#' to the "ResultMeasureValue" and "DetectionLimitMeasureValue" columns; 
+#' to the "ResultMeasureValue" and "DetectionLimitMeasureValue" columns;
 #' and to provide information about the result values that is needed to address
 #' censored data later on (i.e., nondetections)
-#' 
+#'
 #' Users can reference the \href{https://www.epa.gov/waterdata/storage-and-retrieval-and-water-quality-exchange-domain-services-and-downloads}{WQX domain tables}
 #' to find allowable values for queries, e.g., reference the WQX domain table to find countycode and statecode: https://cdx.epa.gov/wqx/download/DomainValues/County_CSV.zip
 #' Alternatively, you can use the WQP services to find areas where data is available in the US: https://www.waterqualitydata.us/Codes/countycode
-#'  
+#'
 #' See ?ConvertSpecialChars and ?autoclean documentation for more information.
-#' 
+#'
 #' Note: TADAdataRetrieval (by leveraging dataRetrieval),  automatically converts
-#' the date times to UTC. It also automatically converts the data to dates, 
+#' the date times to UTC. It also automatically converts the data to dates,
 #' datetimes, numerics based on a standard algorithm. See: ?dataRetrieval::readWQPdata
-#' 
+#'
 #' @param startDate Start Date string in the format YYYY-MM-DD, for example, "2020-01-01"
 #' @param endDate End Date string in the format YYYY-MM-DD, for example, "2020-01-01"
-#' @param countycode Code that identifies a county 
+#' @param countycode Code that identifies a county
 #' @param huc A numeric code denoting a hydrologic unit. Example: "04030202". Different size hucs can be entered.
 #' @param siteid Unique monitoring station identifier
 #' @param siteType Type of waterbody
@@ -58,30 +58,30 @@
 #' @param sampleMedia Sampling substrate such as water, air, or sediment
 #' @param siteType Type of waterbody
 #' @param statecode Code that identifies a state
-#' @param countycode Code that identifies a county 
+#' @param countycode Code that identifies a county
 #' @param siteid Unique monitoring station identifier
 #' @param organization A string of letters and/or numbers (some additional characters also possible) used to signify an organization with data in the Water Quality Portal
 #' @param project A string of letters and/or numbers (some additional characters also possible) used to signify a project with data in the Water Quality Portal
 #' @param applyautoclean Logical, defaults to TRUE. Applies TADA's autoclean function on the returned data profile.
 #'
 #' @return TADA-compatible dataframe
-#' 
+#'
 #' @export
 #'
-#' @examples 
+#' @examples
 #' \dontrun{
 #' tada1 <- TADAdataRetrieval(statecode = "WI",
 #'                            countycode = "Dane",
 #'                            characteristicName = "Phosphorus")
-#' 
+#'
 #' tada2 <- TADAdataRetrieval(project = "Anchorage Bacteria 20-21")
-#' 
-#' tada3 <- TADAdataRetrieval(statecode = "UT", 
-#'                            characteristicName = c("Ammonia", "Nitrate", "Nitrogen"), 
+#'
+#' tada3 <- TADAdataRetrieval(statecode = "UT",
+#'                            characteristicName = c("Ammonia", "Nitrate", "Nitrogen"),
 #'                            startDate = "2020-10-01")
-#' 
+#'
 #' tada4 <- TADAdataRetrieval(statecode = "SC", countycode  = "Abbeville")
-#' 
+#'
 #' # note that countycode queries require a statecode (see example below)
 #' tada5 <- TADAdataRetrieval(countycode = "US:02:020")
 #' }
@@ -101,93 +101,93 @@ TADAdataRetrieval <- function(startDate = "null",
                               project = "null",
                               applyautoclean = TRUE
 ) {
-  
+
   # Set query parameters
   WQPquery <- list()
   if (length(statecode)>1) {
-    WQPquery <- c(WQPquery, statecode = list(statecode)) 
+    WQPquery <- c(WQPquery, statecode = list(statecode))
   } else if (statecode != "null") {
     WQPquery <- c(WQPquery, statecode = statecode)
   }
-  
+
   if (length(huc)>1) {
-    WQPquery = c(WQPquery,huc = list(huc)) 
+    WQPquery = c(WQPquery,huc = list(huc))
   } else if (huc != "null") {
     WQPquery = c(WQPquery,huc = huc)
   }
-  
+
   if (length(startDate)>1) {
     if(is.na(suppressWarnings(lubridate::parse_date_time(startDate[1], orders = "ymd")))){
       stop("Incorrect date format. Please use the format YYYY-MM-DD.")
     }
-    WQPquery <- c(WQPquery, startDate = list(startDate)) 
+    WQPquery <- c(WQPquery, startDate = list(startDate))
   } else if (startDate != "null") {
     if(is.na(suppressWarnings(lubridate::parse_date_time(startDate, orders = "ymd")))){
       stop("Incorrect date format. Please use the format YYYY-MM-DD.")
     }
     WQPquery <- c(WQPquery, startDate = startDate)
   }
-  
+
   if (length(countycode)>1) {
-    WQPquery <- c(WQPquery, countycode = list(countycode)) 
+    WQPquery <- c(WQPquery, countycode = list(countycode))
   } else if (countycode != "null") {
     WQPquery <- c(WQPquery, countycode = countycode)
   }
-  
+
   if (length(siteid)>1) {
-    WQPquery <- c(WQPquery, siteid = list(siteid)) 
+    WQPquery <- c(WQPquery, siteid = list(siteid))
   } else if (siteid != "null") {
     WQPquery <- c(WQPquery, siteid = siteid)
   }
-  
+
   if (length(siteType)>1) {
-    WQPquery <- c(WQPquery, siteType = list(siteType)) 
+    WQPquery <- c(WQPquery, siteType = list(siteType))
   } else if (siteType != "null") {
     WQPquery <- c(WQPquery, siteType = siteType)
   }
-  
+
   if (length(characteristicName)>1) {
     WQPquery <- c(WQPquery, characteristicName = list(characteristicName))
   } else if (characteristicName != "null") {
     WQPquery <- c(WQPquery, characteristicName = characteristicName)
   }
-  
+
   if (length(characteristicType)>1) {
     WQPquery <- c(WQPquery, characteristicType = list(characteristicType))
   } else if (characteristicType != "null") {
     WQPquery <- c(WQPquery, characteristicType = characteristicType)
   }
-  
+
   if (length(sampleMedia)>1) {
-    WQPquery <- c(WQPquery, sampleMedia = list(sampleMedia)) 
+    WQPquery <- c(WQPquery, sampleMedia = list(sampleMedia))
   } else if (sampleMedia != "null") {
     WQPquery <- c(WQPquery, sampleMedia = sampleMedia)
   }
-  
+
   if (length(project)>1) {
-    WQPquery <- c(WQPquery, project = list(project)) 
+    WQPquery <- c(WQPquery, project = list(project))
   } else if (project != "null") {
     WQPquery <- c(WQPquery, project = project)
   }
-  
+
   if (length(organization)>1) {
-    WQPquery <- c(WQPquery, organization = list(organization)) 
+    WQPquery <- c(WQPquery, organization = list(organization))
   } else if (organization != "null") {
     WQPquery <- c(WQPquery, organization = organization)
   }
-  
+
   if (length(endDate)>1) {
     if(is.na(suppressWarnings(lubridate::parse_date_time(endDate[1], orders = "ymd")))){
       stop("Incorrect date format. Please use the format YYYY-MM-DD.")
     }
-    WQPquery <- c(WQPquery, endDate = list(endDate)) 
+    WQPquery <- c(WQPquery, endDate = list(endDate))
   } else if (endDate != "null") {
     if(is.na(suppressWarnings(lubridate::parse_date_time(endDate, orders = "ymd")))){
       stop("Incorrect date format. Please use the format YYYY-MM-DD.")
     }
     WQPquery <- c(WQPquery, endDate = endDate)
   }
-  
+
   # Retrieve all 3 profiles
   results.DR <- dataRetrieval::readWQPdata(WQPquery,
                                            dataProfile = "resultPhysChem",
@@ -197,32 +197,32 @@ TADAdataRetrieval <- function(startDate = "null",
     print("Returning empty results dataframe: Your WQP query returned no results (no data available). Try a different query. Removing some of your query filters OR broadening your search area may help.")
     TADAprofile.clean = results.DR
   }else{
-    narrow.DR <- dataRetrieval::readWQPdata(WQPquery, 
-                                            dataProfile = "narrowResult", 
+    narrow.DR <- dataRetrieval::readWQPdata(WQPquery,
+                                            dataProfile = "narrowResult",
                                             ignore_attributes = TRUE)
-    
+
     sites.DR <- dataRetrieval::whatWQPsites(WQPquery)
-    
-    projects.DR <- dataRetrieval::readWQPdata(WQPquery, 
-                                              ignore_attributes = TRUE, 
+
+    projects.DR <- dataRetrieval::readWQPdata(WQPquery,
+                                              ignore_attributes = TRUE,
                                               service = "Project")
-    
+
     TADAprofile = JoinWQPProfiles(FullPhysChem = results.DR,
                                   Sites = sites.DR,
                                   Narrow = narrow.DR,
                                   Projects = projects.DR)
-    
+
     # run autoclean function
     if(applyautoclean==TRUE){
-      
+
       TADAprofile.clean <- autoclean(TADAprofile)
-      
+
     }else{
-      
+
       TADAprofile.clean = TADAprofile
     }
   }
-  
+
   return(TADAprofile.clean)
 }
 
@@ -231,27 +231,27 @@ TADAdataRetrieval <- function(startDate = "null",
 #' Read in WQP data using the Water Quality Portal (WQP) web services
 #'
 #' Go to the WQP website (https://www.waterqualitydata.us/) and fill out the
-#' advanced query form. Choose the file format Comma-Separated. 
+#' advanced query form. Choose the file format Comma-Separated.
 #' Then, choose a data profile. When finished, do not hit the download button.
-#' Instead, copy the web service URL located at the bottom of the page under 
-#' the header "Station" or "Result". This is the url in the second box from the 
-#' top. Use that web service URL as the input for this function to download 
+#' Instead, copy the web service URL located at the bottom of the page under
+#' the header "Station" or "Result". This is the url in the second box from the
+#' top. Use that web service URL as the input for this function to download
 #' data directly into R.
-#' 
-#' We recommend retrieving data for all the following profiles 
+#'
+#' We recommend retrieving data for all the following profiles
 #' (you can run this function four separate times to bring in all four profiles):
 #' 1. Sample Results (physical/chemical metadata)
 #' 2. Sample Results (narrow)
 #' 3. Project Data
 #' 4. Site Data Only
-#' 
-#' After you retrieve all four profiles, you can use TADA::JoinWQPProfiles to 
+#'
+#' After you retrieve all four profiles, you can use TADA::JoinWQPProfiles to
 #' joining the four dataframes into a single dataframe.
-#' 
-#' Note: It may be useful to save the Query URL from the WQP as well as a 
-#' comment within your code. This URL let's you return to the WQP query page 
+#'
+#' Note: It may be useful to save the Query URL from the WQP as well as a
+#' comment within your code. This URL let's you return to the WQP query page
 #' with all your selected data filters. For example, this is the query used
-#' in the examples for this function: 
+#' in the examples for this function:
 #' https://www.waterqualitydata.us/#statecode=US%3A09&sampleMedia=water&sampleMedia=Water&startDateLo=01-01-2021&mimeType=csv&dataProfile=biological&providers=NWIS&providers=STEWARDS&providers=STORET
 #'
 #' @param webservice WQP Web Service URL, entered within quotes, i.e., "webserviceurl"
@@ -259,8 +259,8 @@ TADAdataRetrieval <- function(startDate = "null",
 #' @return WQP Data Profile
 #'
 #' @export
-#' 
-#' @examples 
+#'
+#' @examples
 #' \dontrun{
 #' physchemresults1 <- TADAReadWQPWebServices("https://www.waterqualitydata.us/data/Result/search?statecode=US%3A09&sampleMedia=water&sampleMedia=Water&startDateLo=01-01-2021&mimeType=csv&zip=yes&dataProfile=biological&providers=NWIS&providers=STEWARDS&providers=STORET")
 #' sites1 <- TADAReadWQPWebServices("https://www.waterqualitydata.us/data/Station/search?statecode=US%3A09&sampleMedia=water&sampleMedia=Water&startDateLo=01-01-2021&mimeType=csv&zip=yes&providers=NWIS&providers=STEWARDS&providers=STORET")
@@ -287,13 +287,13 @@ TADAReadWQPWebServices <- function(webservice) {
 
 
 #' Large WQP data pulls using dataRetrieval
-#' 
-#' This function does multiple synchronous data calls to the WQP 
-#' (waterqualitydata.us). It uses the WQP summary service to limit the amount 
-#' downloaded to only relevant data, and pulls back data from 100 stations at a 
-#' time and then joins the data back together and produces a single TADA 
-#' compatible dataframe as the output. For large data sets, that can save a lot 
-#' of time and ultimately reduce the complexity of subsequent data processing. 
+#'
+#' This function does multiple synchronous data calls to the WQP
+#' (waterqualitydata.us). It uses the WQP summary service to limit the amount
+#' downloaded to only relevant data, and pulls back data from 100 stations at a
+#' time and then joins the data back together and produces a single TADA
+#' compatible dataframe as the output. For large data sets, that can save a lot
+#' of time and ultimately reduce the complexity of subsequent data processing.
 #' Using this function, you will be able to download all data available from all
 #' sites in the contiguous United States that is available for the time period,
 #' characteristicName, and siteType requested. Computer memory may limit the
@@ -304,52 +304,54 @@ TADAReadWQPWebServices <- function(webservice) {
 #' but this is not the default as checking large dataframes for exact duplicate
 #' rows can be time consuming and is better performed on its own once the query is
 #' completed.
-#' 
+#'
 #' Some code for this function was adapted from this USGS Blog (Author: Aliesha Krall)
-#' \href{https://waterdata.usgs.gov/blog/large_sample_pull/}{Large Sample Pull}  
-#' 
+#' \href{https://waterdata.usgs.gov/blog/large_sample_pull/}{Large Sample Pull}
+#'
 #' See ?autoclean documentation for more information on this optional input.
-#' 
+#'
 #' Note: TADABigdataRetrieval (by leveraging dataRetrieval),  automatically converts
-#' the date times to UTC. It also automatically converts the data to dates, 
+#' the date times to UTC. It also automatically converts the data to dates,
 #' datetimes, numerics based on a standard algorithm. See: ?dataRetrieval::readWQPdata
-#' 
+#'
 #' @param startDate Start Date YYYY-MM-DD format, for example, "1995-01-01"
 #' @param endDate end date in YYYY-MM-DD format, for example, "2020-12-31"
-#' @param characteristicName Name of water quality parameter
+#' @param characteristicType Groups of environmental measurements/parameters.
+#' @param characteristicName Name of water quality parameter.
 #' @param sampleMedia Defaults to "Water". Refer to WQP domain tables for other options.
 #' @param siteType Name of water body type (e.g., "Stream", "Lake, Reservoir, Impoundment")
-#' @param statecode Character/character vector. State/territory abbreviations from FIPS codes consist of two letters 
+#' @param statecode Character/character vector. State/territory abbreviations from FIPS codes consist of two letters
 #' @param huc A numeric code denoting a hydrologic unit. Example: "04030202". Different size hucs can be entered.
-#' @param maxsitesquery Numeric. The maximum number of sites to query in each for-loop of the TADABigdataRetrieval function. This input is flexible because sites are often variable in their data richness. If several data rich sites are within the same download chunk, time outs and errors are more likely. Thus, the smaller the maxsitesquery (especially with very large datacalls), the lower the probability of overwhelming the WQP. 
+#' @param maxsitesquery Numeric. The maximum number of sites to query in each for-loop of the TADABigdataRetrieval function. This input is flexible because sites are often variable in their data richness. If several data rich sites are within the same download chunk, time outs and errors are more likely. Thus, the smaller the maxsitesquery (especially with very large datacalls), the lower the probability of overwhelming the WQP.
 #' @param applyautoclean Defaults to FALSE. If TRUE, runs TADA's autoclean function on final combined dataset.
-#' 
+#'
 #' @return TADA-compatible dataframe
-#' 
+#'
 #' @export
 #'
-#' @examples 
+#' @examples
 #' \dontrun{
 #' tada1 <- TADABigdataRetrieval(startDate = "2019-01-01", endDate = "2021-12-31", characteristicName = "Temperature, water", statecode = c("AK","AL"))
 #' tada2 <- TADABigdataRetrieval(startDate = "2016-10-01",endDate = "2022-09-30", statecode = "UT")
 #' tada3 = TADABigdataRetrieval(huc = "04030202", characteristicName = "Escherichia coli")
 #' tada4 = TADABigdataRetrieval(huc = c("04030202","04030201"), characteristicName = "Temperature, water")
 #' }
-#' 
+#'
 
 TADABigdataRetrieval <- function(startDate = "null",
                               endDate = "null",
                               statecode = "null",
                               characteristicName = "null",
+                              characteristicType = "null",
                               sampleMedia = "Water",
                               siteType = "null",
                               huc = "null",
                               maxsitesquery = 20,
                               applyautoclean = FALSE
 ) {
-  
+
   start_T = Sys.time()
-  
+
   if(!"null"%in%statecode&!"null"%in%huc){stop("Please provide either state code(s) OR huc(s) to proceed.")}
 
   if(!startDate=="null"){
@@ -358,8 +360,8 @@ TADABigdataRetrieval <- function(startDate = "null",
   }else{ # else: pick a date before which any data are unlikely to be in WQP
     startDate = lubridate::ymd("1800-01-01")
     startYearLo = lubridate::year(startDate)
-  } 
-  
+  }
+
 # Logic: if the input endDate is not null, convert to date and obtain year
   # for summary
   if(!endDate=="null"){
@@ -370,16 +372,21 @@ TADABigdataRetrieval <- function(startDate = "null",
     endDate = lubridate::ymd(endDate)
     endYearHi = lubridate::year(endDate)
   }
-  
+
   # Create readWQPsummary query
   WQPquery <- list()
   if (length(characteristicName)>1) {
-    WQPquery = c(WQPquery,characteristicName = list(characteristicName)) 
+    WQPquery = c(WQPquery,characteristicName = list(characteristicName))
   } else if (characteristicName != "null") {
     WQPquery = c(WQPquery,characteristicName = characteristicName)
   }
+  if (length(characteristicType)>1) {
+    WQPquery <- c(WQPquery, characteristicType = list(characteristicType))
+  } else if (characteristicType != "null") {
+    WQPquery <- c(WQPquery, characteristicType = characteristicType)
+  }
   if (length(siteType)>1) {
-    WQPquery = c(WQPquery,siteType = list(siteType)) 
+    WQPquery = c(WQPquery,siteType = list(siteType))
   } else if (siteType != "null") {
     WQPquery = c(WQPquery,siteType = siteType)
   }
@@ -398,46 +405,51 @@ TADABigdataRetrieval <- function(startDate = "null",
       WQPquery = c(WQPquery, statecode=list(statecd))
     }else{WQPquery = c(WQPquery, statecode=statecd)}
   }
-  
+
   if (length(huc)>1) {
-    WQPquery = c(WQPquery,huc = list(huc)) 
+    WQPquery = c(WQPquery,huc = list(huc))
   } else if (huc != "null") {
     WQPquery = c(WQPquery,huc = huc)
   }
-  
+
   print("Building site summary table for chunking result downloads...")
   df_summary = dataRetrieval::readWQPsummary(WQPquery)
-  
+
   # Create readWQPdata query
   WQPquery2 = list(startDate = startDate, endDate = endDate)
   if (length(characteristicName)>1) {
-    WQPquery2 = c(WQPquery2,characteristicName = list(characteristicName)) 
+    WQPquery2 = c(WQPquery2,characteristicName = list(characteristicName))
   } else if (characteristicName != "null") {
     WQPquery2 = c(WQPquery2,characteristicName = characteristicName)
   }
-  
+  if (length(characteristicType)>1) {
+    WQPquery2 <- c(WQPquery2, characteristicType = list(characteristicType))
+  } else if (characteristicType != "null") {
+    WQPquery2 <- c(WQPquery2, characteristicType = characteristicType)
+  }
+
   if (length(sampleMedia)>1) {
-    WQPquery2 <- c(WQPquery2, sampleMedia = list(sampleMedia)) 
+    WQPquery2 <- c(WQPquery2, sampleMedia = list(sampleMedia))
   } else if (sampleMedia != "null") {
     WQPquery2 <- c(WQPquery2, sampleMedia = sampleMedia)
   }
-  
-    ## NOTE: if query brings back no results, function returns empty 
+
+    ## NOTE: if query brings back no results, function returns empty
     # dataRetrieval profile, not empty summary
     if(nrow(df_summary)>0){
       sites = df_summary %>%
         dplyr::filter(YearSummarized >= startYearLo,
                       YearSummarized <= endYearHi)
-      
+
       siteid_all = unique(sites$MonitoringLocationIdentifier)
       rm(df_summary) # save some space
-      
+
       if(length(siteid_all) > 0) {
         rm(sites) # save some space
         l=length(siteid_all)  #len(sites)
         maxsites=maxsitesquery   #max number of sites pulled per WQP query
-        #may want to consider using the total number of records in a given 
-        #download group instead, e.g., records must not exceed some maximum 
+        #may want to consider using the total number of records in a given
+        #download group instead, e.g., records must not exceed some maximum
         #threshold (e.g. USGS uses 250,000 records per group for their pipelines)
         site_groups = split(siteid_all, ceiling(seq_along(siteid_all)/maxsites))
 
@@ -447,18 +459,18 @@ TADABigdataRetrieval <- function(startDate = "null",
           sites = site_groups[[j]]
 
           results.DR <- dataRetrieval::readWQPdata(siteid = sites,
-                                                WQPquery2, 
+                                                WQPquery2,
                                                 dataProfile = "resultPhysChem",
                                                 ignore_attributes = TRUE)
-        
+
           narrow.DR <- dataRetrieval::readWQPdata(siteid = sites,
                                                 WQPquery2,
-                                                dataProfile = "narrowResult", 
+                                                dataProfile = "narrowResult",
                                                 ignore_attributes = TRUE)
-        
+
           sites.DR <- dataRetrieval::whatWQPsites(siteid = sites,
                                                 WQPquery2)
-          
+
           projects.DR <- dataRetrieval::readWQPdata(siteid = sites,
                                                 WQPquery2,
                                                 service = "Project")
@@ -467,7 +479,7 @@ TADABigdataRetrieval <- function(startDate = "null",
                                   Sites = sites.DR,
                                   Narrow = narrow.DR,
                                   Projects = projects.DR)
-          
+
           # need to specify this or throws error when trying to bind rows. Temporary fix for larger
           # issue where data structure for all columns should be specified.
           cols = names(joins)[names(joins)%in%c("ActivityDepthHeightMeasure.MeasureValue",
@@ -484,7 +496,7 @@ TADABigdataRetrieval <- function(startDate = "null",
                                                 "WellDepthMeasure.MeasureValue",
                                                 "WellHoleDepthMeasure.MeasureValue")]
           joins = joins%>%dplyr::mutate_at(cols, as.character)
-          
+
           df = dplyr::bind_rows(df, joins)
           # status of download relative to total number of sites queried.
           perc = round(j/length(site_groups)*100)
@@ -502,11 +514,11 @@ TADABigdataRetrieval <- function(startDate = "null",
     print("Applying TADA autoclean function...")
     df = autoclean(df)
   }
-  
+
   # timing function for efficiency tests.
   difference = difftime(Sys.time(), start_T, units = "mins")
   print(difference)
-  
+
   return(df)
 }
 
@@ -514,37 +526,37 @@ TADABigdataRetrieval <- function(startDate = "null",
 
 #' Join WQP Profiles
 #'
-#' After retrieving multiple result and metadata profiles from the WQP, you 
+#' After retrieving multiple result and metadata profiles from the WQP, you
 #' can use this function to join those profiles together into one dataframe.
 #' The FullPhysChem data input is required to run this function.
-#' 
+#'
 #' @param FullPhysChem Full physical chemical data profile
 #' @param Sites Sites data profile
 #' @param Narrow Full biological data profile
 #' @param Projects Projects data profile
 #'
 #' @return TADA-compatible dataframe
-#' 
+#'
 #' @export
-#' 
-#' @examples 
+#'
+#' @examples
 #' join = TADA::JoinWQPProfiles(FullPhysChem = resultphyschem, Sites = station, Narrow = narrow)
-#' 
+#'
 
 JoinWQPProfiles <- function(FullPhysChem = "null",
                             Sites = "null",
                             Narrow = "null",
                             Projects = "null"
 ) {
-  
-  FullPhysChem.df <- FullPhysChem 
-  
+
+  FullPhysChem.df <- FullPhysChem
+
   Sites.df <- Sites
-  
+
   Narrow.df <- Narrow
 
   Projects.df <- Projects
-  
+
   # Join station data to full phys/chem (FullPhysChem.df)
   if(length(Sites.df>1)){
     if(nrow(Sites.df)>0){
@@ -557,7 +569,7 @@ JoinWQPProfiles <- function(FullPhysChem = "null",
         dplyr::select_at(dplyr::vars(-dplyr::ends_with(".y")))
     }else{join1 = FullPhysChem.df}
   }else{join1 = FullPhysChem.df}
- 
+
   # Add Speciation column from narrow
   if (length(Narrow.df)>1){
     if(nrow(Narrow.df)>0){
@@ -574,17 +586,17 @@ JoinWQPProfiles <- function(FullPhysChem = "null",
         )
         )
     }else{join2 = join1}
-    
+
   }else{join2 <- join1}
-  
+
   # Add QAPP columns from project
   if (length(Projects.df)>1){
     if(nrow(Projects.df)>0){
       join3 <- join2 %>%
         dplyr::left_join(dplyr::select(
           Projects.df, OrganizationIdentifier, OrganizationFormalName,
-          ProjectIdentifier, ProjectName, ProjectDescriptionText, 
-          SamplingDesignTypeCode, QAPPApprovedIndicator, QAPPApprovalAgencyName, 
+          ProjectIdentifier, ProjectName, ProjectDescriptionText,
+          SamplingDesignTypeCode, QAPPApprovedIndicator, QAPPApprovalAgencyName,
           ProjectFileUrl, ProjectMonitoringLocationWeightingUrl
         ),
         by = c(
@@ -593,7 +605,7 @@ JoinWQPProfiles <- function(FullPhysChem = "null",
         multiple = "all"
         )
     }else{join3 = join2}
-    
+
   }else{join3 <- join2}
   return(join3)
 }

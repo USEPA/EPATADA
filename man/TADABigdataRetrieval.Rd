@@ -9,6 +9,7 @@ TADABigdataRetrieval(
   endDate = "null",
   statecode = "null",
   characteristicName = "null",
+  characteristicType = "null",
   sampleMedia = "Water",
   siteType = "null",
   huc = "null",
@@ -23,7 +24,9 @@ TADABigdataRetrieval(
 
 \item{statecode}{Character/character vector. State/territory abbreviations from FIPS codes consist of two letters}
 
-\item{characteristicName}{Name of water quality parameter}
+\item{characteristicName}{Name of water quality parameter.}
+
+\item{characteristicType}{Groups of environmental measurements/parameters.}
 
 \item{sampleMedia}{Defaults to "Water". Refer to WQP domain tables for other options.}
 
