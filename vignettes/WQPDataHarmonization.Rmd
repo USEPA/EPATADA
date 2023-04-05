@@ -53,7 +53,7 @@ desired (un-comment).
 # options(download.file.method = "wininet")
 
 remotes::install_github("USEPA/TADA", 
-                        ref = "develop",
+                        ref = "VignetteReview",
                         dependencies = TRUE)
 library(TADA)
 
@@ -203,11 +203,46 @@ query inputs.
 
 Note: TADAdataRetrieval (by leveraging dataRetrieval), automatically
 converts the date times to UTC. It also automatically converts the data
-to dates, datetimes, numerics based on a standard algorithm.
+to dates, datetimes, and numerics based on a standard algorithm.
 
 ```{r}
-# here is an example for Sac and Fox Nation. We will move forward with this example in the remainder of the vignette. 
-TADAProfile = TADAdataRetrieval(organization = "SACFOXMO")
+# Here is an example for multiple tribal nations with data in WQX. 
+# We will move forward with this example in the remainder of the vignette. 
+
+# Sac & Fox Nation, Oklahoma "SFNOES_WQX"
+# Citizen Potawatomi Nation, Oklahoma "CPNWATER"
+# Delaware Nation, Oklahoma "DELAWARENATION"
+# Hoopa Valley Tribe, California "HVTEPA_WQX"
+# Otoe Missouria Tribe of Oklahoma "O_MTRIBE_WQX"
+# Minnesota Chippewa Tribe, Minnesota (Fond du Lac Band) "FONDULAC_WQX"
+# Pueblo of San Ildefonso, New Mexico "SANILDEFONSODECP"
+# Pueblo of Santa Ana, New Mexico "PUEBLO_SANTAANA"
+# Pueblo of Tesuque, New Mexico "PUEBLOOFTESUQUE"
+# Red Lake Band of Chippewa Indians, Minnesota "REDLAKE_WQX"
+# Seneca-Cayuga Nation "SCEQ"
+# The Chickasaw Nation "CNENVSER"
+# The Choctaw Nation of Oklahoma "CHOCNATWQX"
+# Wyandotte Nation "WNENVDPT_WQX"
+
+# original data retrieval call, takes a bit to run
+# TADAProfile <- TADAdataRetrieval(organization = c("SFNOES_WQX", 
+#                                                 "CPNWATER", 
+#                                                 "DELAWARENATION",
+#                                                 "HVTEPA_WQX",
+#                                                 "O_MTRIBE_WQX",
+#                                                 "FONDULAC_WQX",
+#                                                 "SANILDEFONSODECP",
+#                                                 "PUEBLO_SANTAANA",
+#                                                 "PUEBLOOFTESUQUE",
+#                                                 "REDLAKE_WQX",
+#                                                 "SCEQ",
+#                                                 "CNENVSER",
+#                                                 "CHOCNATWQX",
+#                                                 "WNENVDPT_WQX"))
+
+# Results from the example above are stored in the TADA package. Load the data:
+data(TribalNations)
+TADAProfile <- TribalNations
 
 # here is an example for UT. 
 #TADAProfile <- TADAdataRetrieval(statecode = "UT",characteristicName = c("Ammonia","Nitrate","Nitrogen"),startDate = "2020-10-01")
@@ -381,13 +416,23 @@ Unique_InvalidCoordinateFlags <- InvalidCoordinateFlags %>%
                 'OrganizationFormalName') %>%
   dplyr::distinct()
 
-# remove all data for sites with invalid coordinates. 
-# Change function inputs to keep this data, but be aware it may impact your mapping. 
+# change the sign for all data for sites flagged as outside the USA. 
 TADAProfileClean1 <- InvalidCoordinates(TADAProfile,
-                                        clean_outsideUSA = "remove",
+                                        clean_outsideUSA = "change sign",
                                         clean_imprecise = FALSE,
                                         errorsonly = FALSE)
+```
 
+Redraw the map
+```{r}
+#redraw the map
+maps::map()
+
+# draw the sites included in your TADAProfile onto the map
+points(TADAProfileClean1$TADA.LongitudeMeasure, 
+       TADAProfileClean1$TADA.LatitudeMeasure, 
+       col="red", 
+       pch=20)
 ```
 
 ## Depth unit conversions

@@ -84,3 +84,46 @@ NULL
 #' @usage data(TADAProfileClean18_TNonly)
 #' @format A data frame with 5005 rows and 168 variables
 NULL
+
+#' TribalNations
+#' 
+#' A dataset containing data from multiple tribes:
+#'
+#' original pull below: 
+#' 
+#' TADAProfile = TADAdataRetrieval(organization = c("SFNOES_WQX", 
+#'                                                 "CPNWATER", 
+#'                                                 "DELAWARENATION",
+#'                                                 "HVTEPA_WQX",
+#'                                                 "O_MTRIBE_WQX",
+#'                                                 "FONDULAC_WQX",
+#'                                                 "SANILDEFONSODECP",
+#'                                                 "PUEBLO_SANTAANA",
+#'                                                 "PUEBLOOFTESUQUE",
+#'                                                 "REDLAKE_WQX",
+#'                                                 "SCEQ",
+#'                                                 "CNENVSER",
+#'                                                 "CHOCNATWQX",
+#'                                                 "WNENVDPT_WQX")) 
+#' Sac & Fox Nation, Oklahoma "SFNOES_WQX"
+#' Citizen Potawatomi Nation, Oklahoma "CPNWATER"
+#' Delaware Nation, Oklahoma "DELAWARENATION"
+#' Hoopa Valley Tribe, California "HVTEPA_WQX"
+#' Otoe Missouria Tribe of Oklahoma "O_MTRIBE_WQX"
+#' Minnesota Chippewa Tribe, Minnesota (Fond du Lac Band) "FONDULAC_WQX"
+#' Pueblo of San Ildefonso, New Mexico "SANILDEFONSODECP"
+#' Pueblo of Santa Ana, New Mexico "PUEBLO_SANTAANA"
+#' Pueblo of Tesuque, New Mexico "PUEBLOOFTESUQUE"
+#' Red Lake Band of Chippewa Indians, Minnesota "REDLAKE_WQX"
+#' Seneca-Cayuga Nation "SCEQ"
+#' The Chickasaw Nation "CNENVSER"
+#' The Choctaw Nation of Oklahoma "CHOCNATWQX"
+#' Wyandotte Nation "WNENVDPT_WQX"                                                
+#'                                            
+#'  
+#' @docType data
+#' @keywords datasets
+#' @name TribalNations
+#' @usage data(TribalNations)
+#' @format A data frame with 791162 rows and 136 variables
+NULL
