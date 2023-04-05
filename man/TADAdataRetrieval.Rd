@@ -110,12 +110,12 @@ tada3 <- TADAdataRetrieval(statecode = "UT",
                            characteristicName = c("Ammonia", 
                                                   "Nitrate", 
                                                   "Nitrogen"), 
-                           startDate = "2020-10-01")
 
 tada4 <- TADAdataRetrieval(statecode = "SC", countycode  = "Abbeville")
 
 # example for CT
 tada5 <- TADAdataRetrieval(statecode = "CT", startDate = "2020-10-01")
+
 
 # note that countycode queries require a statecode (see example below)
 tada6 <- TADAdataRetrieval(countycode = "US:02:020")
