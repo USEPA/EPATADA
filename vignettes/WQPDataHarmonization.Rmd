@@ -49,7 +49,8 @@ desired (un-comment).
 ```{r, results = 'hide', message = FALSE, warning = FALSE}
 # remotes::install_github("USGS-R/dataRetrieval", dependencies=TRUE)
 
-# if you experience any issues installing TADA, try uncommenting and running the line below before the install
+# if you experience any issues installing TADA, try un-commenting and running
+# the line below before the install
 # options(download.file.method = "wininet")
 
 remotes::install_github("USEPA/TADA", 
@@ -190,11 +191,10 @@ data from multiple WQP profiles, and does some additional data cleaning
 as part of the data retrieval process.
 
 ```{r}
-# dataRetrieval1 <- dataRetrieval::readWQPdata(statecode = "AK", characteristicName = c("Fecal Coliform", "Escherichia coli", "Enterococcus"), startDate = "2018-05-01", ignore_attributes = TRUE)
+# Here is an example for Red Lake Band of Chippewa Indians, Minnesota
+# We will move forward with this example in the remainder of the vignette. 
 
-# another example
-# dataRetrieval2 <- dataRetrieval::readWQPdata(statecode = "UT", characteristicName = c("Ammonia", "Nitrate", "Nitrogen"), startDate = "2021-01-01", ignore_attributes = TRUE)
-
+# test <- dataRetrieval::readWQPdata(organization = "REDLAKE_WQX", ignore_attributes = TRUE)
 ```
 
 Use the code below to download data from the WQP using
@@ -205,81 +205,14 @@ Note: TADAdataRetrieval (by leveraging dataRetrieval), automatically
 converts the date times to UTC. It also automatically converts the data
 to dates, datetimes, and numerics based on a standard algorithm.
 
-```{r}
-# Here is an example for multiple tribal nations with data in WQX. 
-# We will move forward with this example in the remainder of the vignette. 
-
-# Sac & Fox Nation, Oklahoma "SFNOES_WQX"
-# Citizen Potawatomi Nation, Oklahoma "CPNWATER"
-# Delaware Nation, Oklahoma "DELAWARENATION"
-# Hoopa Valley Tribe, California "HVTEPA_WQX"
-# Otoe Missouria Tribe of Oklahoma "O_MTRIBE_WQX"
-# Minnesota Chippewa Tribe, Minnesota (Fond du Lac Band) "FONDULAC_WQX"
-# Pueblo of San Ildefonso, New Mexico "SANILDEFONSODECP"
-# Pueblo of Santa Ana, New Mexico "PUEBLO_SANTAANA"
-# Pueblo of Tesuque, New Mexico "PUEBLOOFTESUQUE"
-# Red Lake Band of Chippewa Indians, Minnesota "REDLAKE_WQX"
-# Seneca-Cayuga Nation "SCEQ"
-# The Chickasaw Nation "CNENVSER"
-# The Choctaw Nation of Oklahoma "CHOCNATWQX"
-# Wyandotte Nation "WNENVDPT_WQX"
-
-# original data retrieval call, takes a bit to run
-# TADAProfile <- TADAdataRetrieval(organization = c("SFNOES_WQX", 
-#                                                 "CPNWATER", 
-#                                                 "DELAWARENATION",
-#                                                 "HVTEPA_WQX",
-#                                                 "O_MTRIBE_WQX",
-#                                                 "FONDULAC_WQX",
-#                                                 "SANILDEFONSODECP",
-#                                                 "PUEBLO_SANTAANA",
-#                                                 "PUEBLOOFTESUQUE",
-#                                                 "REDLAKE_WQX",
-#                                                 "SCEQ",
-#                                                 "CNENVSER",
-#                                                 "CHOCNATWQX",
-#                                                 "WNENVDPT_WQX"))
-
-# Results from the example above are stored in the TADA package. Load the data:
-data(TribalNations)
-TADAProfile <- TribalNations
-
-# here is an example for UT. 
-#TADAProfile <- TADAdataRetrieval(statecode = "UT",characteristicName = c("Ammonia","Nitrate","Nitrogen"),startDate = "2020-10-01")
-
-# example for CT
-# TADAProfile <- TADAdataRetrieval(statecode = "CT", startDate = "2020-10-01")
-
-# example for NM
-# TADAProfile <- TADAdataRetrieval(statecode = "NM", characteristicName = c("Ammonia", "Nitrate", "Nitrogen"), startDate = "2020-05-01")
-
-# example for AK
-# TADAProfile <- TADAdataRetrieval(project = "Anchorage Bacteria 20-21")
-
-# another example for AK
-#TADAProfile <- TADAdataRetrieval(statecode = "AK", characteristicName = c("Fecal Coliform", "Escherichia coli", "Enterococcus", "Ammonia", "Nitrate", "Nitrogen"), startDate = "2018-05-01")
-
-```
-
-Option 2: Alternatively, you can use the data.table::fread function to
-read in a web service call for any WQP profile (un-comment).
+Enter ?TADAdataRetrieval into the console to review more example queries and
+additional information.
 
 ```{r}
-# New_Draft_fullphyschem <- data.table::fread("https://www.waterqualitydata.us/data/Result/search?countrycode=US&statecode=US%3A49&siteid=UTAHDWQ_WQX-4925610&startDateLo=01-01-2015&startDateHi=12-31-2016&mimeType=csv&zip=no&sorted=yes&dataProfile=fullPhysChem&providers=NWIS&providers=STEWARDS&providers=STORET")
+TADAProfile <- TADAdataRetrieval(organization = "REDLAKE_WQX")
 ```
 
-**Extra tip:** Note that the web service call built using the Water
-Quality Portal uses the inputs startDateLo and startDateHi rather than
-startDate and endDate, and dates are in the format MM-DD-YYYY rather
-than the TADAdataRetrieval and dataRetrieval format of YYYY-MM-DD. The
-functions use the latter format rather than the web service call date
-format because YYYY-MM-DD is a more easily utilized format in the R
-coding environment. However, users of USGS's dataRetrieval may use the
-date format MM-DD-YYYY *only if* they specify with "startDateLo" and
-"startDateHi" inputs. For coding consistency, it is recommended users
-stick with YYYY-MM-DD.
-
-Option 3: If you need to download a large amount of data from across a
+If you need to download a large amount of data from across a
 large area, and the TADAdataRetrieval function is not working due to WQP
 timeout issues, then the **TADABigdataRetrieval** function may work
 better.

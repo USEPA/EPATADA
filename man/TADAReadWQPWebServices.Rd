@@ -39,6 +39,17 @@ comment within your code. This URL let's you return to the WQP query page
 with all your selected data filters. For example, this is the query used
 in the examples for this function:
 https://www.waterqualitydata.us/#statecode=US\%3A09&sampleMedia=water&sampleMedia=Water&startDateLo=01-01-2021&mimeType=csv&dataProfile=biological&providers=NWIS&providers=STEWARDS&providers=STORET
+
+\strong{Extra tip:} Note that the web service call built using the Water
+Quality Portal uses the inputs startDateLo and startDateHi rather than
+startDate and endDate, and dates are in the format MM-DD-YYYY rather
+than the TADAdataRetrieval and dataRetrieval format of YYYY-MM-DD. The
+functions use the latter format rather than the web service call date
+format because YYYY-MM-DD is a more easily utilized format in the R
+coding environment. However, users of USGS's dataRetrieval may use the
+date format MM-DD-YYYY \emph{only if} they specify with "startDateLo" and
+"startDateHi" inputs. For coding consistency, it is recommended users
+stick with YYYY-MM-DD.
 }
 \examples{
 \dontrun{
