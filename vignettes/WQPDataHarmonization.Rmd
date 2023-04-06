@@ -192,7 +192,7 @@ as part of the data retrieval process.
 
 ```{r}
 # Here is an example for Red Lake Band of Chippewa Indians, Minnesota
-dataRetrieval_example <- dataRetrieval::readWQPdata(organization = "REDLAKE_WQX", ignore_attributes = TRUE)
+# dataRetrieval_example <- dataRetrieval::readWQPdata(organization = "REDLAKE_WQX", ignore_attributes = TRUE)
 ```
 
 Use the code below to download data from the WQP using
@@ -844,6 +844,19 @@ detection condition or limit type is not characterized in the TADA
 reference tables, which are based on WQX domain tables. Causes function
 to produce a warning.
 
+```{r}
+# review TADA.ResultMeasureValueDataTypes.Flag to see any NA's remain
+unique(TADAProfileClean15$TADA.ResultMeasureValueDataTypes.Flag)
+
+# review if any remaining result values are NA
+sum(is.na(TADAProfileClean15$TADA.ResultMeasureValue))
+
+# Filter down to only numeric data. Remove "Text","Coerced to NA","ND or NA"  
+TADAProfileClean16 <- dplyr::filter(TADAProfile, 
+                  TADA.ResultMeasureValueDataTypes.Flag == c("Numeric",
+                  "Result Value/Unit Copied from Detection Limit"))
+```
+
 In the example below, we first summarize the censored data in the
 dataset using the default grouping variables *TADA.CharacteristicName*,
 *TADA.ResultMeasure.MeasureUnitCode*,*TADA.ResultSampleFractionText*,
@@ -1072,16 +1085,6 @@ unique(TADAProfileClean17$TADA.ComparableDataIdentifier)
 
 # filter dataframe to only "TOTAL NITROGEN, MIXED FORMS"
 TADAProfileClean18 <- dplyr::filter(TADAProfileClean17, TADA.CharacteristicName == "TOTAL NITROGEN, MIXED FORMS")
-
-# review TADA.ResultMeasureValueDataTypes.Flag to see any
-# NA's remain
-unique(TADAProfileClean18$TADA.ResultMeasureValueDataTypes.Flag)
-
-# review if any remaining result values are NA
-sum(is.na(TADAProfileClean18$TADA.ResultMeasureValue))
-
-# if applicable, substitute a value for NA. In this example, 0.02 MG/L is used for NITROGEN.
-TADAProfileClean18$TADA.ResultMeasureValue <- ifelse(is.na(TADAProfileClean18$TADA.ResultMeasureValue) == TRUE, 0.02, TADAProfileClean18$TADA.ResultMeasureValue)
 
 # generate stats table
 TADAProfileClean18_stats <- TADA::TADA_stats(TADAProfileClean18)

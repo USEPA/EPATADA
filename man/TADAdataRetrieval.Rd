@@ -162,6 +162,7 @@ tada9 <- TADAdataRetrieval(statecode = "AK",
 # The Chickasaw Nation "CNENVSER"
 # The Choctaw Nation of Oklahoma "CHOCNATWQX"
 # Wyandotte Nation "WNENVDPT_WQX"
+# Pueblo of Pojoaque "PUEBLO_POJOAQUE"
 
 tada10 <- TADAdataRetrieval(organization = c("SFNOES_WQX",
                                              "CPNWATER",
@@ -176,7 +177,8 @@ tada10 <- TADAdataRetrieval(organization = c("SFNOES_WQX",
                                              "SCEQ",
                                              "CNENVSER",
                                              "CHOCNATWQX",
-                                             "WNENVDPT_WQX"))
+                                             "WNENVDPT_WQX",
+                                             "PUEBLO_POJOAQUE")))
 }
 
 }
