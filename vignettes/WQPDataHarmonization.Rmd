@@ -190,9 +190,27 @@ profiles are different because TADAdataRetrieval automatically joins in
 data from multiple WQP profiles, and does some additional data cleaning
 as part of the data retrieval process.
 
+This example includes monitoring data collected from Jan 2013 to present
+by six organizations: 
+1) Red Lake Band of Chippewa Indians,
+2) Sac & Fox Nation, 
+3) Pueblo of Pojoaque,
+4) Minnesota Chippewa Tribe (Fond du Lac Band),
+5) Pueblo of Tesuque, and
+6) The Chickasaw Nation
+
+We will move forward with this example in the remainder of the vignette. 
+
 ```{r}
-# Here is an example for Red Lake Band of Chippewa Indians, Minnesota
-# dataRetrieval_example <- dataRetrieval::readWQPdata(organization = "REDLAKE_WQX", ignore_attributes = TRUE)
+# dataRetrieval_example <- dataRetrieval::readWQPdata(organization = 
+#                                                 c("REDLAKE_WQX", 
+#                                                   "SFNOES_WQX", 
+#                                                   "PUEBLO_POJOAQUE",
+#                                                   "FONDULAC_WQX",
+#                                                   "PUEBLOOFTESUQUE",
+#                                                   "CNENVSER"),
+#                                                 startDate = "2013-01-01",
+#                                                 ignore_attributes = TRUE)
 ```
 
 Use the code below to download data from the WQP using
@@ -207,8 +225,13 @@ Enter ?TADAdataRetrieval into the console to review more example queries and
 additional information.
 
 ```{r}
-# We will move forward with this example in the remainder of the vignette. 
-TADAProfile <- TADAdataRetrieval(organization = "REDLAKE_WQX")
+TADAProfile <- TADAdataRetrieval(organization = c("REDLAKE_WQX", 
+                                                  "SFNOES_WQX", 
+                                                  "PUEBLO_POJOAQUE",
+                                                  "FONDULAC_WQX",
+                                                  "PUEBLOOFTESUQUE",
+                                                  "CNENVSER"),
+                                 startDate = "2018-01-01")
 ```
 
 If you need to download a large amount of data from across a
@@ -348,23 +371,13 @@ Unique_InvalidCoordinateFlags <- InvalidCoordinateFlags %>%
                 'OrganizationFormalName') %>%
   dplyr::distinct()
 
-# change the sign for all data for sites flagged as outside the USA. 
+# if needed, change the sign for all data for sites flagged as outside the USA
+# you can also change FALSE to TRUE if you want to remove sites outside of the 
+# US or sites with imprecise lat/longs
 TADAProfileClean1 <- InvalidCoordinates(TADAProfile,
                                         clean_outsideUSA = "change sign",
                                         clean_imprecise = FALSE,
                                         errorsonly = FALSE)
-```
-
-Redraw the map
-```{r}
-#redraw the map
-maps::map()
-
-# draw the sites included in your TADAProfile onto the map
-points(TADAProfileClean1$TADA.LongitudeMeasure, 
-       TADAProfileClean1$TADA.LatitudeMeasure, 
-       col="red", 
-       pch=20)
 ```
 
 ## Depth unit conversions
@@ -853,8 +866,11 @@ sum(is.na(TADAProfileClean15$TADA.ResultMeasureValue))
 
 # Filter down to only numeric data. Remove "Text","Coerced to NA","ND or NA"  
 TADAProfileClean16 <- dplyr::filter(TADAProfile, 
-                  TADA.ResultMeasureValueDataTypes.Flag == c("Numeric",
-                  "Result Value/Unit Copied from Detection Limit"))
+                  TADA.ResultMeasureValueDataTypes.Flag != "ND or NA" &
+                  TADA.ResultMeasureValueDataTypes.Flag != "Text" &
+                  TADA.ResultMeasureValueDataTypes.Flag != "Coerced to NA")
+
+unique(TADAProfileClean16$TADA.ResultMeasureValueDataTypes.Flag)
 ```
 
 In the example below, we first summarize the censored data in the
