@@ -54,7 +54,7 @@ desired (un-comment).
 # options(download.file.method = "wininet")
 
 remotes::install_github("USEPA/TADA", 
-                        ref = "VignetteReview",
+                        ref = "develop",
                         dependencies = TRUE)
 library(TADA)
 
@@ -192,9 +192,7 @@ as part of the data retrieval process.
 
 ```{r}
 # Here is an example for Red Lake Band of Chippewa Indians, Minnesota
-# We will move forward with this example in the remainder of the vignette. 
-
-# test <- dataRetrieval::readWQPdata(organization = "REDLAKE_WQX", ignore_attributes = TRUE)
+dataRetrieval_example <- dataRetrieval::readWQPdata(organization = "REDLAKE_WQX", ignore_attributes = TRUE)
 ```
 
 Use the code below to download data from the WQP using
@@ -209,6 +207,7 @@ Enter ?TADAdataRetrieval into the console to review more example queries and
 additional information.
 
 ```{r}
+# We will move forward with this example in the remainder of the vignette. 
 TADAProfile <- TADAdataRetrieval(organization = "REDLAKE_WQX")
 ```
 
