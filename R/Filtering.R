@@ -318,6 +318,7 @@ FilterParFields <- function(.data, parameter) {
   row.names(col.names) <- NULL
   # Reorder columns
   col.names <- col.names[, c(2, 1)]
+
   
   # Filter col.names to include only fields recommended for filtering
   # This does not limit the fields than can be entered in other filter 
@@ -345,6 +346,12 @@ FilterParFields <- function(.data, parameter) {
     "AssemblageSampledName", "DetectionQuantitationLimitTypeName"
   ))
 
+  
+  # Reorder Count column in col.names from largest to smallest number
+  col.names <- col.names %>%
+    dplyr::arrange(desc(Count))
+  
+  
   # CREATE LIST OF UNIQUE VALUES PER FIELD FROM DATAFRAME
   # remove fields with only NAs from df (NA-only fields were removed from WQP, not .data)
   df <- df %>% dplyr::select(where(~ !all(is.na(.x))))
@@ -395,6 +402,39 @@ FilterParFields <- function(.data, parameter) {
 #'
 #' Function creates a table and pie chart of unique values, and counts of those
 #' values, for a chosen field in a dataframe subset by parameter.
+#' 
+#' Recommended fields to review and filter by for each parameter:
+#' "ActivityCommentText"
+#' "ActivityTypeCode"
+#' "TADA.ActivityMediaName"
+#' "ActivityMediaSubdivisionName"
+#' "MeasureQualifierCode"
+#' "MonitoringLocationTypeName"
+#' "HydrologicCondition"
+#' "HydrologicEvent"
+#' "ResultStatusIdentifier"
+#' "MethodQualifierTypeName"
+#' "ResultCommentText" 
+#' "ResultLaboratoryCommentText"
+#' "TADA.ResultMeasure.MeasureUnitCode"
+#' "TADA.ResultSampleFractionText"
+#' "ResultTemperatureBasisText"
+#' "ResultValueTypeName"
+#' "ResultWeightBasisText"
+#' "SampleCollectionEquipmentName"
+#' "LaboratoryName"
+#' "MethodDescriptionText"
+#' "ResultParticleSizeBasisText"
+#' "SampleCollectionMethod.MethodIdentifier"
+#' "SampleCollectionMethod.MethodIdentifierContext"
+#' "SampleCollectionMethod.MethodName"
+#' "DataQuality.BiasValue"
+#' "MethodSpeciationName"
+#' "ResultAnalyticalMethod.MethodName"
+#' "ResultAnalyticalMethod.MethodIdentifier"
+#' "ResultAnalyticalMethod.MethodIdentifierContext"
+#' "AssemblageSampledName"
+#' "DetectionQuantitationLimitTypeName"
 #'
 #' @param field Field name
 #' @param .data Optional argument; TADA dataframe

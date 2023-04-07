@@ -20,6 +20,40 @@ A table and pie chart of unique values in the selected field.
 Function creates a table and pie chart of unique values, and counts of those
 values, for a chosen field in a dataframe subset by parameter.
 }
+\details{
+Recommended fields to review and filter by for each parameter:
+"ActivityCommentText"
+"ActivityTypeCode"
+"TADA.ActivityMediaName"
+"ActivityMediaSubdivisionName"
+"MeasureQualifierCode"
+"MonitoringLocationTypeName"
+"HydrologicCondition"
+"HydrologicEvent"
+"ResultStatusIdentifier"
+"MethodQualifierTypeName"
+"ResultCommentText"
+"ResultLaboratoryCommentText"
+"TADA.ResultMeasure.MeasureUnitCode"
+"TADA.ResultSampleFractionText"
+"ResultTemperatureBasisText"
+"ResultValueTypeName"
+"ResultWeightBasisText"
+"SampleCollectionEquipmentName"
+"LaboratoryName"
+"MethodDescriptionText"
+"ResultParticleSizeBasisText"
+"SampleCollectionMethod.MethodIdentifier"
+"SampleCollectionMethod.MethodIdentifierContext"
+"SampleCollectionMethod.MethodName"
+"DataQuality.BiasValue"
+"MethodSpeciationName"
+"ResultAnalyticalMethod.MethodName"
+"ResultAnalyticalMethod.MethodIdentifier"
+"ResultAnalyticalMethod.MethodIdentifierContext"
+"AssemblageSampledName"
+"DetectionQuantitationLimitTypeName"
+}
 \examples{
 # Load example dataset:
 data(Nutrients_Utah)

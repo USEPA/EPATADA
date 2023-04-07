@@ -529,9 +529,11 @@ QualityControlActivity <- function(.data, clean = FALSE, errorsonly = FALSE) {
     if(nrow(final.data) == 0) {
       print("This dataframe is empty because all rows contained QC samples and were removed")
     }
-    # if there are no flags, remove flag column and print message
+    # if there are no flags, print message
     if(sum(final.data$TADA.ActivityType.Flag != "Non_QC") == 0) {
-      print("No quality control samples were found in your dataframe or they were all removed. Returning dataframe with TADA.ActivityType.Flag column for tracking.")
+      print("Quality control samples have been removed or were not present
+            in the input dataframe. Returning dataframe with 
+            TADA.ActivityType.Flag column for tracking.")
     }
   }
   

@@ -54,7 +54,7 @@ desired (un-comment).
 # options(download.file.method = "wininet")
 
 remotes::install_github("USEPA/TADA", 
-                        ref = "VignetteReview",
+                        ref = "develop",
                         dependencies = TRUE)
 library(TADA)
 
@@ -803,7 +803,7 @@ FilterFieldReview("ProjectName", TADAProfileClean14)
 
 ```
 
-MonitoringLocationTypeName has two values: River/Stream and Well. In this example, 
+MonitoringLocationTypeName has multiple values. In this example, 
 we show how a user could leverage this function to remove specific values from their
 dataframe if desired.
 
@@ -811,7 +811,7 @@ dataframe if desired.
 # Remove well sample results
 TADAProfileClean15 <- dplyr::filter(TADAProfileClean14, 
                                     !(MonitoringLocationTypeName %in%
-                                        "Well"))
+                                        c("Well", "Other-Ground Water")))
 
 # regenerate table and pie chart
 FilterFieldReview("MonitoringLocationTypeName", TADAProfileClean15)
@@ -857,22 +857,6 @@ detection condition or limit type is not characterized in the TADA
 reference tables, which are based on WQX domain tables. Causes function
 to produce a warning.
 
-```{r}
-# review TADA.ResultMeasureValueDataTypes.Flag to see any NA's remain
-unique(TADAProfileClean15$TADA.ResultMeasureValueDataTypes.Flag)
-
-# review if any remaining result values are NA
-sum(is.na(TADAProfileClean15$TADA.ResultMeasureValue))
-
-# Filter down to only numeric data. Remove "Text","Coerced to NA","ND or NA"  
-TADAProfileClean16 <- dplyr::filter(TADAProfile, 
-                  TADA.ResultMeasureValueDataTypes.Flag != "ND or NA" &
-                  TADA.ResultMeasureValueDataTypes.Flag != "Text" &
-                  TADA.ResultMeasureValueDataTypes.Flag != "Coerced to NA")
-
-unique(TADAProfileClean16$TADA.ResultMeasureValueDataTypes.Flag)
-```
-
 In the example below, we first summarize the censored data in the
 dataset using the default grouping variables *TADA.CharacteristicName*,
 *TADA.ResultMeasure.MeasureUnitCode*,*TADA.ResultSampleFractionText*,
@@ -889,14 +873,14 @@ detection limit (half the detection limit). Please review
 information.
 
 ```{r}
-TADAProfileClean16_censoredSummary = 
+TADAProfileClean15_censoredSummary = 
   summarizeCensoredData(TADAProfileClean15,
                         spec_cols = c("TADA.CharacteristicName",
                                       "TADA.ResultMeasure.MeasureUnitCode",
                                       "TADA.ResultSampleFractionText",
                                       "TADA.MethodSpecificationName"))
 
-TADAProfileClean16_censoredSummary
+TADAProfileClean15_censoredSummary
 
 TADAProfileClean16 = simpleCensoredMethods(TADAProfileClean15,
                                            nd_method = "multiplier",
@@ -904,12 +888,28 @@ TADAProfileClean16 = simpleCensoredMethods(TADAProfileClean15,
                                            od_method = "as-is",
                                            od_multiplier = "null")
 
+```
+
+```{r}
 # review unique values for TADA.CensoredData.Flag, 
 # DetectionQuantitationLimitTypeName, and ResultDetectionConditionText
 unique(TADAProfileClean16$TADA.CensoredData.Flag)
 unique(TADAProfileClean16$DetectionQuantitationLimitTypeName)
 unique(TADAProfileClean16$ResultDetectionConditionText)
 
+# review TADA.ResultMeasureValueDataTypes.Flag to see any NA's remain
+unique(TADAProfileClean16$TADA.ResultMeasureValueDataTypes.Flag)
+
+# review if any remaining result values are NA
+sum(is.na(TADAProfileClean16$TADA.ResultMeasureValue))
+
+# Filter down to only numeric data. Remove "Text","Coerced to NA","ND or NA"  
+TADAProfileClean17 <- dplyr::filter(TADAProfileClean16, 
+                  TADA.ResultMeasureValueDataTypes.Flag != "ND or NA" &
+                  TADA.ResultMeasureValueDataTypes.Flag != "Text" &
+                  TADA.ResultMeasureValueDataTypes.Flag != "Coerced to NA")
+
+unique(TADAProfileClean17$TADA.ResultMeasureValueDataTypes.Flag)
 ```
 
 ## Transform Characteristic, Speciation, and Unit values to TADA Standards
@@ -965,10 +965,10 @@ Here are some examples of how the HarmonizeData function can be used:
     name (and identifier) to synonyms.
 
 ```{r}
-UniqueHarmonizationRef <- HarmonizationRefTable(TADAProfileClean16,
+UniqueHarmonizationRef <- HarmonizationRefTable(TADAProfileClean17,
                                                 download = FALSE)
 
-TADAProfileClean16 <- HarmonizeData(TADAProfileClean16, 
+TADAProfileClean18 <- HarmonizeData(TADAProfileClean17, 
                                     ref = UniqueHarmonizationRef,
                                     transform = TRUE, 
                                     flag = TRUE)
@@ -984,7 +984,10 @@ To start, review the list of parameters in the dataframe using the
 **FilterParList** function.
 
 ```{r}
-FilterParList(TADAProfileClean16)
+# review function documentation
+?FilterParList
+
+FilterParList(TADAProfileClean18)
 ```
 
 Next, using the **FilterParFields** function, review how many unique
@@ -1054,7 +1057,7 @@ specific parameter:
 -   "DetectionQuantitationLimitTypeName"
 
 ```{r}
-FilterParFields(TADAProfileClean16, "TOTAL NITROGEN, MIXED FORMS")
+FilterParFields(TADAProfileClean18, "TOTAL NITROGEN, MIXED FORMS")
 ```
 
 Selecting a parameter generates the list below, which is subset by the
@@ -1068,7 +1071,7 @@ Review the WQX domain files for definitions:
 
 ```{r, fig.width=6, fig.height=2, fig.fullwidth=TRUE}
 # In this example we remove certain values from the MeasureQualifierCode field
-FilterParFieldReview(field = "MeasureQualifierCode", TADAProfileClean16,  
+FilterParFieldReview(field = "MeasureQualifierCode", TADAProfileClean18,  
                      parameter = "TOTAL NITROGEN, MIXED FORMS")
 
 # review WQX allowable values for MeasureQualifierCode
@@ -1083,10 +1086,10 @@ ReviewWQXDomainValue <- dplyr::filter(ReviewWQXDomainValue, Code == "J" | Code =
 # the level of the adjusted Contract Required Quantitation Limit (CRQL) for 
 # sample and method.)
 
-TADAProfileClean17 <- dplyr::filter(TADAProfileClean16, !(TADA.CharacteristicName %in% "TOTAL NITROGEN, MIXED FORMS" & MeasureQualifierCode %in% "U"))
+TADAProfileClean19 <- dplyr::filter(TADAProfileClean18, !(TADA.CharacteristicName %in% "TOTAL NITROGEN, MIXED FORMS" & MeasureQualifierCode %in% "U"))
 
 # regenerate table and pie chart
-FilterParFieldReview(field = "MeasureQualifierCode", TADAProfileClean17,  
+FilterParFieldReview(field = "MeasureQualifierCode", TADAProfileClean19,  
                      parameter = "TOTAL NITROGEN, MIXED FORMS")
 
 ```
@@ -1097,22 +1100,22 @@ speciation, and fraction combination)
 
 ```{r}
 # review TADA.ComparableDataIdentifier
-unique(TADAProfileClean17$TADA.ComparableDataIdentifier)
+unique(TADAProfileClean19$TADA.ComparableDataIdentifier)
 
 # filter dataframe to only "TOTAL NITROGEN, MIXED FORMS"
-TADAProfileClean18 <- dplyr::filter(TADAProfileClean17, TADA.CharacteristicName == "TOTAL NITROGEN, MIXED FORMS")
+TADAProfileClean20 <- dplyr::filter(TADAProfileClean19, TADA.CharacteristicName == "TOTAL NITROGEN, MIXED FORMS")
 
 # generate stats table
-TADAProfileClean18_stats <- TADA::TADA_stats(TADAProfileClean18)
+TADAProfileClean20_stats <- TADA::TADA_stats(TADAProfileClean20)
 
-TADAProfileClean18_stats
+TADAProfileClean20_stats
 
 # generate a histogram
-hist(TADAProfileClean18$TADA.ResultMeasureValue, 
-     main = paste((unique(TADAProfileClean18$TADA.CharacteristicName))
+hist(TADAProfileClean20$TADA.ResultMeasureValue, 
+     main = paste((unique(TADAProfileClean20$TADA.CharacteristicName))
                   ,"vs. Frequency"),
      breaks=200, xlab = paste(
-       (unique(TADAProfileClean18$TADA.CharacteristicName)),
+       (unique(TADAProfileClean20$TADA.CharacteristicName)),
        "Values"))
 
 ```
@@ -1120,7 +1123,7 @@ hist(TADAProfileClean18$TADA.ResultMeasureValue,
 Generate interactive box plot.
 ```{r}
 
-TADA::TADA_boxplot(TADAProfileClean18)
+TADA::TADA_boxplot(TADAProfileClean20)
 
 ```
 
@@ -1128,12 +1131,12 @@ Test if highest value is a true outlier.
 ```{r}
 
 # run chisq test
-outliers::chisq.out.test(TADAProfileClean18$TADA.ResultMeasureValue)
+outliers::chisq.out.test(TADAProfileClean20$TADA.ResultMeasureValue)
 
 # remove results greater than the upper fence (see stats table generated above)
 # note: many outliers are valid results.
-TADAProfileClean18_removeOutliers <-
-  dplyr::filter(TADAProfileClean18, TADA.ResultMeasureValue <= 2.593)
+TADAProfileClean20_removeOutliers <-
+  dplyr::filter(TADAProfileClean20, TADA.ResultMeasureValue <= 2.593)
 
 ```
 
@@ -1141,13 +1144,13 @@ Regenerate histogram and box plot.
 ```{r}
 
 # regenerate histogram
-hist(TADAProfileClean18_removeOutliers$TADA.ResultMeasureValue, 
-     main = paste((unique(TADAProfileClean18_removeOutliers$TADA.CharacteristicName))
+hist(TADAProfileClean20_removeOutliers$TADA.ResultMeasureValue, 
+     main = paste((unique(TADAProfileClean20_removeOutliers$TADA.CharacteristicName))
                   ,"vs. Frequency"), xlab = paste(
-       (unique(TADAProfileClean18_removeOutliers$TADA.CharacteristicName)),
+       (unique(TADAProfileClean20_removeOutliers$TADA.CharacteristicName)),
        "Values"))
 
 # regenerate interactive box plot
-TADA::TADA_boxplot(TADAProfileClean18_removeOutliers)
+TADA::TADA_boxplot(TADAProfileClean20_removeOutliers)
 
 ```
