@@ -18,6 +18,31 @@ A table and pie chart of unique values in the selected field.
 Function creates a table and pie chart of all unique values
 (and their counts) in the input dataframe for the field specified.
 }
+\details{
+Any field may be specified.
+
+To start, we recommend reviewing any of the following fields:
+"ActivityTypeCode"
+"TADA.ActivityMediaName"
+"ActivityMediaSubdivisionName"
+"ActivityCommentText"
+"MonitoringLocationTypeName"
+"StateName"
+"TribalLandName"
+"OrganizationFormalName"
+"TADA.CharacteristicName"
+"HydrologicCondition"
+"HydrologicEvent"
+"BiologicalIntentName"
+"MeasureQualifierCode"
+"ActivityGroup"
+"AssemblageSampledName"
+"ProjectName"
+"CharacteristicNameUserSupplied"
+"DetectionQuantitationLimitTypeName"
+"SampleTissueAnatomyName"
+"LaboratoryName"
+}
 \examples{
 # Load example dataset:
 data(Nutrients_Utah)

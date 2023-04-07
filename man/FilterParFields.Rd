@@ -19,7 +19,41 @@ subset by a parameter.
 Function subsets the input dataframe by the input parameter and creates a
 list of the fields in the subset dataframe as well as the number of unique
 values in each field. The list is intended to inform users as to which
-specific fields to explore further and filter subset by a parameter.
+specific fields to explore further and filter (subset by a parameter).
+}
+\details{
+Recommended fields to review and filter by for each parameter:
+"ActivityCommentText"
+"ActivityTypeCode"
+"TADA.ActivityMediaName"
+"ActivityMediaSubdivisionName"
+"MeasureQualifierCode"
+"MonitoringLocationTypeName"
+"HydrologicCondition"
+"HydrologicEvent"
+"ResultStatusIdentifier"
+"MethodQualifierTypeName"
+"ResultCommentText"
+"ResultLaboratoryCommentText"
+"TADA.ResultMeasure.MeasureUnitCode"
+"TADA.ResultSampleFractionText"
+"ResultTemperatureBasisText"
+"ResultValueTypeName"
+"ResultWeightBasisText"
+"SampleCollectionEquipmentName"
+"LaboratoryName"
+"MethodDescriptionText"
+"ResultParticleSizeBasisText"
+"SampleCollectionMethod.MethodIdentifier"
+"SampleCollectionMethod.MethodIdentifierContext"
+"SampleCollectionMethod.MethodName"
+"DataQuality.BiasValue"
+"MethodSpeciationName"
+"ResultAnalyticalMethod.MethodName"
+"ResultAnalyticalMethod.MethodIdentifier"
+"ResultAnalyticalMethod.MethodIdentifierContext"
+"AssemblageSampledName"
+"DetectionQuantitationLimitTypeName"
 }
 \examples{
 # Load example dataset:
