@@ -36,6 +36,7 @@ FilterFields <- function(.data) {
   row.names(col.names) <- NULL
   # Reorder columns
   col.names <- col.names[, c(2, 1)]
+  
   # Filter dataframe to include only recommended fields for filtering
   col.names <- dplyr::filter(col.names, Fields %in% c(
     "ActivityTypeCode", "TADA.ActivityMediaName",
@@ -49,8 +50,12 @@ FilterFields <- function(.data) {
     "ProjectName", "CharacteristicNameUserSupplied",
     "DetectionQuantitationLimitTypeName",
     "SampleTissueAnatomyName", "LaboratoryName"
-  ))
+   ))
 
+  # Reorder Count column in col.names from largest to smallest number
+  col.names <- col.names %>%
+    dplyr::arrange(desc(Count))
+  
   # CREATE LIST OF UNIQUE VALUES PER FIELDS FROM DATAFRAME
 
   # remove fields with only NAs from df

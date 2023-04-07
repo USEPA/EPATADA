@@ -190,7 +190,7 @@ profiles are different because TADAdataRetrieval automatically joins in
 data from multiple WQP profiles, and does some additional data cleaning
 as part of the data retrieval process.
 
-This example includes monitoring data collected from Jan 2013 to present
+This example includes monitoring data collected from Jan 2018 to present
 by six organizations: 
 1) Red Lake Band of Chippewa Indians,
 2) Sac & Fox Nation, 
@@ -209,7 +209,7 @@ We will move forward with this example in the remainder of the vignette.
 #                                                   "FONDULAC_WQX",
 #                                                   "PUEBLOOFTESUQUE",
 #                                                   "CNENVSER"),
-#                                                 startDate = "2013-01-01",
+#                                                 startDate = "2018-01-01",
 #                                                 ignore_attributes = TRUE)
 ```
 
