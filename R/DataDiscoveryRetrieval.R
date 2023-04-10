@@ -75,15 +75,80 @@
 #'                            characteristicName = "Phosphorus")
 #'
 #' tada2 <- TADAdataRetrieval(project = "Anchorage Bacteria 20-21")
-#'
-#' tada3 <- TADAdataRetrieval(statecode = "UT",
-#'                            characteristicName = c("Ammonia", "Nitrate", "Nitrogen"),
-#'                            startDate = "2020-10-01")
+#' 
+#' tada3 <- TADAdataRetrieval(statecode = "UT", 
+#'                            characteristicName = c("Ammonia", 
+#'                                                   "Nitrate", 
+#'                                                   "Nitrogen"), 
 #'
 #' tada4 <- TADAdataRetrieval(statecode = "SC", countycode  = "Abbeville")
+#' 
+#' # example for CT
+#' tada5 <- TADAdataRetrieval(statecode = "CT", startDate = "2020-10-01")
+#' 
 #'
 #' # note that countycode queries require a statecode (see example below)
-#' tada5 <- TADAdataRetrieval(countycode = "US:02:020")
+#' tada6 <- TADAdataRetrieval(countycode = "US:02:020")
+#' 
+#' # example for NM
+#' tada7 <- TADAdataRetrieval(statecode = "NM", 
+#'                            characteristicName = c("Ammonia",
+#'                                                   "Nitrate", 
+#'                                                   "Nitrogen"), 
+#'                            startDate = "2020-05-01")
+#'                            
+#' # example for AK
+#' tada8 <- TADAdataRetrieval(project = "Anchorage Bacteria 20-21")
+#' 
+#' # another example for AK
+#' tada9 <- TADAdataRetrieval(statecode = "AK", 
+#'                            characteristicName = c("Fecal Coliform",
+#'                                                   "Escherichia coli",
+#'                                                   "Enterococcus", 
+#'                                                   "Ammonia", 
+#'                                                   "Nitrate", 
+#'                                                   "Nitrogen"),
+#'                            startDate = "2018-05-01")
+#' 
+#' # example for tribes
+#' # Download data for many of the ATTAINS participating tribes
+#' # Note this query may take about a half hour to run
+#' # https://www.itecmembers.org/attains/
+#' # ATTAINS participating tribes also have tribal pages in EPA's 
+#' # How's My Waterway Application
+#' # Example: https://mywaterway.epa.gov/tribe/SFNOES
+#' #
+#' # Sac & Fox Nation, Oklahoma "SFNOES_WQX"
+#' # Citizen Potawatomi Nation, Oklahoma "CPNWATER"
+#' # Delaware Nation, Oklahoma "DELAWARENATION"
+#' # Hoopa Valley Tribe, California "HVTEPA_WQX"
+#' # Otoe Missouria Tribe of Oklahoma "O_MTRIBE_WQX"
+#' # Minnesota Chippewa Tribe, Minnesota (Fond du Lac Band) "FONDULAC_WQX"
+#' # Pueblo of San Ildefonso, New Mexico "SANILDEFONSODECP"
+#' # Pueblo of Santa Ana, New Mexico "PUEBLO_SANTAANA"
+#' # Pueblo of Tesuque, New Mexico "PUEBLOOFTESUQUE"
+#' # Red Lake Band of Chippewa Indians, Minnesota "REDLAKE_WQX"
+#' # Seneca-Cayuga Nation "SCEQ"
+#' # The Chickasaw Nation "CNENVSER"
+#' # The Choctaw Nation of Oklahoma "CHOCNATWQX"
+#' # Wyandotte Nation "WNENVDPT_WQX"
+#' # Pueblo of Pojoaque "PUEBLO_POJOAQUE"
+#' 
+#' tada10 <- TADAdataRetrieval(organization = c("SFNOES_WQX",
+#'                                              "CPNWATER",
+#'                                              "DELAWARENATION",
+#'                                              "HVTEPA_WQX",
+#'                                              "O_MTRIBE_WQX",
+#'                                              "FONDULAC_WQX",
+#'                                              "SANILDEFONSODECP",
+#'                                              "PUEBLO_SANTAANA",
+#'                                              "PUEBLOOFTESUQUE",
+#'                                              "REDLAKE_WQX",
+#'                                              "SCEQ",
+#'                                              "CNENVSER",
+#'                                              "CHOCNATWQX",
+#'                                              "WNENVDPT_WQX",
+#'                                              "PUEBLO_POJOAQUE"))
 #' }
 #'
 
@@ -253,6 +318,17 @@ TADAdataRetrieval <- function(startDate = "null",
 #' with all your selected data filters. For example, this is the query used
 #' in the examples for this function:
 #' https://www.waterqualitydata.us/#statecode=US%3A09&sampleMedia=water&sampleMedia=Water&startDateLo=01-01-2021&mimeType=csv&dataProfile=biological&providers=NWIS&providers=STEWARDS&providers=STORET
+#'
+#' **Extra tip:** Note that the web service call built using the Water
+#' Quality Portal uses the inputs startDateLo and startDateHi rather than
+#' startDate and endDate, and dates are in the format MM-DD-YYYY rather
+#' than the TADAdataRetrieval and dataRetrieval format of YYYY-MM-DD. The
+#' functions use the latter format rather than the web service call date
+#' format because YYYY-MM-DD is a more easily utilized format in the R
+#' coding environment. However, users of USGS's dataRetrieval may use the
+#' date format MM-DD-YYYY *only if* they specify with "startDateLo" and
+#' "startDateHi" inputs. For coding consistency, it is recommended users
+#' stick with YYYY-MM-DD.
 #'
 #' @param webservice WQP Web Service URL, entered within quotes, i.e., "webserviceurl"
 #'

@@ -4,10 +4,32 @@ TADA.env <- new.env()
 
 #' Generate list of field names
 #'
-#' Function creates a list of common fields in the input dataframe that
-#' are used for full data frame filtering, as well as the
+#' Function creates a list of common WQX fields that should be reviewed when 
+#' doing full data frame filtering, as well as the
 #' number of unique values in each field. The list is intended to inform users
-#' as to which specific fields to explore further and filter.
+#' as to which specific fields to explore further and filter by.
+#' 
+#' The output will include counts for the following fields:
+#' "ActivityTypeCode"
+#' "TADA.ActivityMediaName"
+#' "ActivityMediaSubdivisionName"
+#' "ActivityCommentText"
+#' "MonitoringLocationTypeName"
+#' "StateName"
+#' "TribalLandName"
+#' "OrganizationFormalName"
+#' "TADA.CharacteristicName"
+#' "HydrologicCondition"
+#' "HydrologicEvent"
+#' "BiologicalIntentName"
+#' "MeasureQualifierCode"
+#' "ActivityGroup"
+#' "AssemblageSampledName"
+#' "ProjectName"
+#' "CharacteristicNameUserSupplied"
+#' "DetectionQuantitationLimitTypeName"
+#' "SampleTissueAnatomyName"
+#' "LaboratoryName"
 #'
 #' @param .data TADA dataframe
 #'
@@ -36,7 +58,10 @@ FilterFields <- function(.data) {
   row.names(col.names) <- NULL
   # Reorder columns
   col.names <- col.names[, c(2, 1)]
+  
   # Filter dataframe to include only recommended fields for filtering
+  # This does not limit the elements that can be used in other filter functions
+  # This only filters the table output of this function
   col.names <- dplyr::filter(col.names, Fields %in% c(
     "ActivityTypeCode", "TADA.ActivityMediaName",
     "ActivityMediaSubdivisionName",
@@ -49,8 +74,12 @@ FilterFields <- function(.data) {
     "ProjectName", "CharacteristicNameUserSupplied",
     "DetectionQuantitationLimitTypeName",
     "SampleTissueAnatomyName", "LaboratoryName"
-  ))
+   ))
 
+  # Reorder Count column in col.names from largest to smallest number
+  col.names <- col.names %>%
+    dplyr::arrange(desc(Count))
+  
   # CREATE LIST OF UNIQUE VALUES PER FIELDS FROM DATAFRAME
 
   # remove fields with only NAs from df
@@ -90,11 +119,34 @@ FilterFields <- function(.data) {
 }
 
 
-
 #' Generate list of unique values in a given field
 #'
 #' Function creates a table and pie chart of all unique values 
 #' (and their counts) in the input dataframe for the field specified.
+#' 
+#' Any field may be specified. 
+#'
+#' To start, we recommend reviewing any of the following fields:
+#' "ActivityTypeCode"
+#' "TADA.ActivityMediaName"
+#' "ActivityMediaSubdivisionName"
+#' "ActivityCommentText"
+#' "MonitoringLocationTypeName"
+#' "StateName"
+#' "TribalLandName"
+#' "OrganizationFormalName"
+#' "TADA.CharacteristicName"
+#' "HydrologicCondition"
+#' "HydrologicEvent"
+#' "BiologicalIntentName"
+#' "MeasureQualifierCode"
+#' "ActivityGroup"
+#' "AssemblageSampledName"
+#' "ProjectName"
+#' "CharacteristicNameUserSupplied"
+#' "DetectionQuantitationLimitTypeName"
+#' "SampleTissueAnatomyName"
+#' "LaboratoryName"
 #'
 #' @param field Field name
 #' @param .data Optional argument; TADA dataframe
@@ -121,18 +173,14 @@ FilterFieldReview <- function(field, .data) {
   # refresh UniqueValList
   invisible(utils::capture.output(FilterFields(.data)))
   
-  # check that input is in UniqueValList (cm removed 3/23/23)
-  # if (exists(field, TADA.env$UniqueValList) == FALSE) {
-  #  stop("Input not recommened for function.")
-  #}
+  # check that input is in UniqueValList
+  if (exists(field, TADA.env$UniqueValList) == FALSE) {
+    stop("The field entered into FilterFieldReview is not populated (all NA) in 
+         the input data frame.")
+  }
 
   # subset UniqueValList by input
   df <- TADA.env$UniqueValList[[field]]
-  
-  ##### need to add code here to set column name to field input
-  # Rename fields
-  # df2 <- colnames(df, c((paste(field, 'Values')), "Count"))
-  ##### 
   
   # define number of colors required for pie chart
   colorCount <- length(unique(df$FieldValues))
@@ -141,11 +189,14 @@ FilterFieldReview <- function(field, .data) {
   getPalette <- grDevices::colorRampPalette(RColorBrewer::brewer.pal(8, "Set2"))
 
   # create pie chart
+  # look into fixing display of counts for small slices: 
+  # https://stackoverflow.com/questions/28912059/labels-on-the-pie-chart-for-small-pieces-ggplot
   pie <- ggplot2::ggplot(df, ggplot2::aes(x = "", y = Count, fill = FieldValues)) +
     ggplot2::scale_fill_manual(values = getPalette(colorCount),name = field) +
     ggplot2::geom_bar(stat = "identity", width = 1) +
     ggplot2::coord_polar("y", start = 0) +
-    ggplot2::theme_void()
+    ggplot2::theme_void() + # remove background, grid, numeric labels
+    ggplot2::geom_text(ggplot2::aes(label = Count), color = "black", size=4, position = ggplot2::position_stack(vjust = 0.5))
 
   print(pie)
   print(df)
@@ -177,6 +228,7 @@ FilterFieldReview <- function(field, .data) {
 FilterParList <- function(.data) {
   # count the frequency of each value in TADA.CharactersticName field
   ParValueCount <- data.frame(table(list(.data$TADA.CharacteristicName)))
+  
   # Reorder Freq column from largest to smallest number
   ParValueCount <- ParValueCount[order(-ParValueCount$Freq), ]
   
@@ -193,7 +245,40 @@ FilterParList <- function(.data) {
 #' Function subsets the input dataframe by the input parameter and creates a
 #' list of the fields in the subset dataframe as well as the number of unique
 #' values in each field. The list is intended to inform users as to which
-#' specific fields to explore further and filter subset by a parameter.
+#' specific fields to explore further and filter (subset by a parameter).
+#' 
+#' Recommended fields to review and filter by for each parameter:
+#' "ActivityCommentText"
+#' "ActivityTypeCode"
+#' "TADA.ActivityMediaName"
+#' "ActivityMediaSubdivisionName"
+#' "MeasureQualifierCode"
+#' "MonitoringLocationTypeName"
+#' "HydrologicCondition"
+#' "HydrologicEvent"
+#' "ResultStatusIdentifier"
+#' "MethodQualifierTypeName"
+#' "ResultCommentText" 
+#' "ResultLaboratoryCommentText"
+#' "TADA.ResultMeasure.MeasureUnitCode"
+#' "TADA.ResultSampleFractionText"
+#' "ResultTemperatureBasisText"
+#' "ResultValueTypeName"
+#' "ResultWeightBasisText"
+#' "SampleCollectionEquipmentName"
+#' "LaboratoryName"
+#' "MethodDescriptionText"
+#' "ResultParticleSizeBasisText"
+#' "SampleCollectionMethod.MethodIdentifier"
+#' "SampleCollectionMethod.MethodIdentifierContext"
+#' "SampleCollectionMethod.MethodName"
+#' "DataQuality.BiasValue"
+#' "MethodSpeciationName"
+#' "ResultAnalyticalMethod.MethodName"
+#' "ResultAnalyticalMethod.MethodIdentifier"
+#' "ResultAnalyticalMethod.MethodIdentifierContext"
+#' "AssemblageSampledName"
+#' "DetectionQuantitationLimitTypeName"
 #'
 #' @param .data TADA dataframe
 #' @param parameter Characteristic name (parameter name) from the dataframe.
@@ -219,7 +304,8 @@ FilterParFields <- function(.data, parameter) {
   
   # check parameter is in .data
   if ((parameter %in% .data$TADA.CharacteristicName) == FALSE) {
-    stop("Input parameter is not in the input dataframe.")
+    stop("Input parameter for FilterParFields function is not in the 
+         input dataframe.")
   }
 
   # SUBSET DATAFRAME; CREATE LIST OF FIELDS
@@ -232,8 +318,12 @@ FilterParFields <- function(.data, parameter) {
   row.names(col.names) <- NULL
   # Reorder columns
   col.names <- col.names[, c(2, 1)]
+
   
-  #Filter col.names to include only fields recommended for filtering
+  # Filter col.names to include only fields recommended for filtering
+  # This does not limit the fields than can be entered in other filter 
+  # functions. It simply subsets the output table to a more manageable 
+  # number of fields for the user to review (subsets to suggestions)
   col.names <- dplyr::filter(col.names, Fields %in% c(
     "ActivityCommentText", "ActivityTypeCode",
     "TADA.ActivityMediaName", "ActivityMediaSubdivisionName",
@@ -256,6 +346,12 @@ FilterParFields <- function(.data, parameter) {
     "AssemblageSampledName", "DetectionQuantitationLimitTypeName"
   ))
 
+  
+  # Reorder Count column in col.names from largest to smallest number
+  col.names <- col.names %>%
+    dplyr::arrange(desc(Count))
+  
+  
   # CREATE LIST OF UNIQUE VALUES PER FIELD FROM DATAFRAME
   # remove fields with only NAs from df (NA-only fields were removed from WQP, not .data)
   df <- df %>% dplyr::select(where(~ !all(is.na(.x))))
@@ -271,7 +367,7 @@ FilterParFields <- function(.data, parameter) {
   ParUniqueValList <- lapply(ParUniqueValList, stats::setNames, 
                              c("FieldValues", "Count"))
   
-  # cm removed, saving for potential future use in Shiny
+  # cm removed so we do not limit users ability to enter other fields
   # Filter list to require only these fields for filtering
   #ParUniqueValList <- ParUniqueValList[c(
   #  "ActivityCommentText", "ActivityTypeCode",
@@ -306,6 +402,39 @@ FilterParFields <- function(.data, parameter) {
 #'
 #' Function creates a table and pie chart of unique values, and counts of those
 #' values, for a chosen field in a dataframe subset by parameter.
+#' 
+#' Recommended fields to review and filter by for each parameter:
+#' "ActivityCommentText"
+#' "ActivityTypeCode"
+#' "TADA.ActivityMediaName"
+#' "ActivityMediaSubdivisionName"
+#' "MeasureQualifierCode"
+#' "MonitoringLocationTypeName"
+#' "HydrologicCondition"
+#' "HydrologicEvent"
+#' "ResultStatusIdentifier"
+#' "MethodQualifierTypeName"
+#' "ResultCommentText" 
+#' "ResultLaboratoryCommentText"
+#' "TADA.ResultMeasure.MeasureUnitCode"
+#' "TADA.ResultSampleFractionText"
+#' "ResultTemperatureBasisText"
+#' "ResultValueTypeName"
+#' "ResultWeightBasisText"
+#' "SampleCollectionEquipmentName"
+#' "LaboratoryName"
+#' "MethodDescriptionText"
+#' "ResultParticleSizeBasisText"
+#' "SampleCollectionMethod.MethodIdentifier"
+#' "SampleCollectionMethod.MethodIdentifierContext"
+#' "SampleCollectionMethod.MethodName"
+#' "DataQuality.BiasValue"
+#' "MethodSpeciationName"
+#' "ResultAnalyticalMethod.MethodName"
+#' "ResultAnalyticalMethod.MethodIdentifier"
+#' "ResultAnalyticalMethod.MethodIdentifierContext"
+#' "AssemblageSampledName"
+#' "DetectionQuantitationLimitTypeName"
 #'
 #' @param field Field name
 #' @param .data Optional argument; TADA dataframe
@@ -331,7 +460,8 @@ FilterParFieldReview <- function(field, .data, parameter) {
   # check parameter is in .data
   if (!missing(parameter)) {
     if ((parameter %in% .data$TADA.CharacteristicName) == FALSE) {
-      stop("Input parameter is not in the input dataframe.")
+      stop("The parameter entered into FilterParFieldReview is not in the input 
+           dataframe.")
     }
   }
   
@@ -343,11 +473,11 @@ FilterParFieldReview <- function(field, .data, parameter) {
 
   invisible(utils::capture.output(FilterParFields(.data, parameter)))
   
-  # cm removed 
   # check that input is in ParUniqueValList
-  #if (exists(field, TADA.env$ParUniqueValList) == FALSE) {
-  #  stop("Input not recommened for parameter level filtering.")
-  #}
+  if (exists(field, TADA.env$ParUniqueValList) == FALSE) {
+    stop("The field entered into FilterParFieldReview is NOT available 
+    (or all NA) for the parameter entered in the input dataframe.")
+  }
 
   # subset UniqueValList by input
   df <- TADA.env$ParUniqueValList[[field]]
@@ -364,7 +494,8 @@ FilterParFieldReview <- function(field, .data, parameter) {
     ggplot2::geom_bar(stat = "identity", width = 1) +
     ggplot2::coord_polar("y", start = 0) +
     ggplot2::theme_void() +
-    ggplot2::labs(title = parameter)
+    ggplot2::labs(title = parameter) + 
+    ggplot2::geom_text(ggplot2::aes(label = Count), color = "black", size=4, position = ggplot2::position_stack(vjust = 0.5))
 
   print(pie)
   print(df)

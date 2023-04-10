@@ -469,146 +469,59 @@ InvalidResultUnit <- function(.data, clean = c("invalid_only", "nonstandardized_
 #' data(Nutrients_Utah)
 #' 
 #' # Flag and keep all QC samples:
-#' QualityControlActivity(Nutrients_Utah)
+#' QC_flagged <- QualityControlActivity(Nutrients_Utah)
 #' 
 #' # Flag QC samples and filter to flagged data only:
-#' QualityControlActivity(Nutrients_Utah, errorsonly = TRUE)
+#' QC_flags_only <- QualityControlActivity(Nutrients_Utah, errorsonly = TRUE)
 #' 
 #' # Remove all QC samples:
-#' QualityControlActivity(Nutrients_Utah, clean = "all")
-#' 
-#' # Remove only duplicate QC samples:
-#' QualityControlActivity(Nutrients_Utah, clean = "duplicates")
-#' 
-#' # Remove only blank QC samples:
-#' QualityControlActivity(Nutrients_Utah, clean = "blanks")
-#' 
-#' # Remove only calibration checks or spiked QC samples:
-#' QualityControlActivity(Nutrients_Utah, clean = "calibrations")
-#' 
-#' # Remove only other QC samples:
-#' QualityControlActivity(Nutrients_Utah, clean = "other")
-#' 
-#' # Remove blank QC samples and filter to flagged data only:
-#' QualityControlActivity(Nutrients_Utah, clean = "blanks", errorsonly = TRUE)
+#' QC_clean <- QualityControlActivity(Nutrients_Utah, clean = TRUE)
 
-QualityControlActivity <- function(.data, clean = c("none", "all", "duplicates", "blanks", "calibrations", "other"), errorsonly = FALSE) {
+QualityControlActivity <- function(.data, clean = FALSE, errorsonly = FALSE) {
   # check .data is data.frame
   checkType(.data, "data.frame", "Input object")
-  # check that clean is either "all", "none", "duplicates", "blanks", "calibrations", or "other"
-  clean <- match.arg(clean)
+  # check that clean is boolean
+  checkType(clean, "logical")
   # check errorsonly is boolean
   checkType(errorsonly, "logical")
   # check .data has required columns
   checkColumns(.data, c("ActivityTypeCode"))
 
-  
   # execute function after checks are passed
   # delete existing flag column
   if (("TADA.ActivityType.Flag" %in% colnames(.data)) == TRUE) {
     .data <- dplyr::select(.data, -TADA.ActivityType.Flag)
   }
   
-  # designate replicate/duplicate Activity Types to flag
-  dup <- c("Quality Control Alternative Measurement Sensitivity",
-           "Quality Control Alternative Measurement Sensitivity Plus",
-           "Quality Control Field Replicate Habitat Assessment",
-           "Quality Control Field Replicate Msr/Obs",
-           "Quality Control Field Replicate Portable Data Logger",
-           "Quality Control Field Replicate Sample-Composite",
-           "Quality Control Sample-Blind Duplicate",
-           "Quality Control Sample-Field Replicate",
-           "Quality Control Sample-Inter-lab Split",
-           "Quality Control Sample-Lab Duplicate",
-           "Quality Control Sample-Lab Duplicate 2",
-           "Quality Control Sample-Lab Re-Analysis",
-           "Quality Control Sample-Lab Split",
-           "Quality Control-Meter Lab Duplicate",
-           "Quality Control-Meter Lab Duplicate 2",
-           "Sample-Routine Resample")
+  # load in ActivityTypeRef Table
+  qc.ref <- GetActivityTypeRef() %>%
+    dplyr::rename(ActivityTypeCode = Code) %>%
+    dplyr::select(ActivityTypeCode, TADA.ActivityType.Flag)
   
-  # designate blank Activity Types to flag
-  blank <- c("Quality Control Field Sample Equipment Rinsate Blank",
-             "Quality Control Lab Sample Equipment Rinsate Blank",
-             "Quality Control Sample-Equipment Blank",
-             "Quality Control Sample-Field Ambient Conditions Blank",
-             "Quality Control Sample-Field Blank",
-             "Quality Control Sample-Lab Blank",
-             "Quality Control Sample-Post-preservative Blank",
-             "Quality Control Sample-Pre-preservative Blank",
-             "Quality Control Sample-Reagent Blank",
-             "Quality Control Sample-Trip Blank",
-             "Quality Control-Meter Lab Blank",
-             "Quality Control-Negative Control",
-             "Sample-Depletion Replicate",
-             "Sample-Negative Control")
+  # identify any Activity Type Codes not in reference table
+  codes = unique(.data$ActivityTypeCode)
+  if(any(!codes %in% qc.ref$ActivityTypeCode)){
+    missing_codes = codes[!codes %in% qc.ref$ActivityTypeCode]
+    missing_codes_df <- data.frame(ActivityTypeCode = missing_codes,
+                                   TADA.ActivityType.Flag = "QC_uncategorized")
+    qc.ref <- rbind(qc.ref, missing_codes_df)
+    missing_codes = paste(missing_codes, collapse = ", ")
+    print(paste0("ActivityTypeCode column in dataset contains value(s) ",missing_conds, " which is/are not represented in the ActivityType WQX domain table. These data records are placed under the TADA.ActivityType.Flag: 'QC_uncategorized'. Please contact TADA administrators to resolve."))
+  }
   
-  # designate calibration/spike/standard Activity Types to flag
-  cal <- c("Quality Control Field Calibration Check",
-           "Quality Control Field Msr/Obs Post-Calibration",
-           "Quality Control Field Msr/Obs Pre-Calibration",
-           "Quality Control Sample-Field Spike",
-           "Quality Control Sample-Field Surrogate Spike",
-           "Quality Control Sample-Lab Continuing Calibration Verification",
-           "Quality Control Sample-Lab Control Sample/Blank Spike",
-           "Quality Control Sample-Lab Control Sample/Blank Spike Duplicate",
-           "Quality Control Sample-Lab Control Standard",
-           "Quality Control Sample-Lab Control Standard Duplicate",
-           "Quality Control Sample-Lab Initial Calib Certified Reference Material",
-           "Quality Control Sample-Lab Initial Calibration Verification",
-           "Quality Control Sample-Lab Matrix Spike",
-           "Quality Control Sample-Lab Matrix Spike Duplicate",
-           "Quality Control Sample-Lab Spike",
-           "Quality Control Sample-Lab Spike Duplicate",
-           "Quality Control Sample-Lab Spike Target",
-           "Quality Control Sample-Lab Spike of a Lab Blank",
-           "Quality Control Sample-Lab Surrogate Control Standard",
-           "Quality Control Sample-Lab Surrogate Control Standard Duplicate",
-           "Quality Control Sample-Lab Surrogate Method Blank",
-           "Quality Control Sample-Measurement Precision Sample",
-           "Quality Control Sample-Reference Sample",
-           "Quality Control-Calibration Check",
-           "Quality Control-Calibration Check Buffer",
-           "Sample-Positive Control")
-  
-  # designate "other" QC Activity types to flag
-  other <- c("Quality Control Sample-Other")
-  
-  # populate flag column
-  flag.data <- .data %>%
-    dplyr::mutate(TADA.ActivityType.Flag = dplyr::case_when(
-      ActivityTypeCode %in% dup ~ "QC_duplicate",
-      ActivityTypeCode %in% blank ~ "QC_blank",
-      ActivityTypeCode %in% cal ~ "QC_calibration",
-      ActivityTypeCode %in% other ~ "QC_other"
-    ))
+  # populate flag column in data
+  flag.data <- dplyr::left_join(.data, qc.ref, by = "ActivityTypeCode")
   
   # clean dataframe
-  # if clean = "none", return full dataframe
-  if(clean == "none") {
+  # if clean = FALSE, return full dataframe
+  if(clean == FALSE) {
     clean.data <- flag.data
   } 
-  # if clean = "all", remove flagged data
-  if(clean == "all") {
-    clean.data <- flag.data[is.na(flag.data$TADA.ActivityType.Flag),]
+  # if clean = TRUE, remove flagged data
+  if(clean == TRUE) {
+    clean.data <- dplyr::filter(flag.data, flag.data$TADA.ActivityType.Flag == "Non_QC")
   }
-  # if clean = "duplicates", remove data flagged as duplicate samples
-  if(clean == "duplicates") {
-    clean.data <- dplyr::filter(flag.data, flag.data$TADA.ActivityType.Flag != "QC_duplicate"|is.na(flag.data$TADA.ActivityType.Flag))
-  }
-  # if clean = "blanks", remove data flagged as blank samples
-  if(clean == "blanks") {
-    clean.data <- dplyr::filter(flag.data, flag.data$TADA.ActivityType.Flag != "QC_blank"|is.na(flag.data$TADA.ActivityType.Flag))
-  }
-  # if clean = "calibrations", remove data flagged as calibration samples
-  if(clean == "calibrations") {
-    clean.data <- dplyr::filter(flag.data, flag.data$TADA.ActivityType.Flag != "QC_calibration"|is.na(flag.data$TADA.ActivityType.Flag))
-  }
-  # if clean = "other", remove data flagged as other QC samples
-  if(clean == "other") {
-    clean.data <- dplyr::filter(flag.data, flag.data$TADA.ActivityType.Flag != "QC_other"|is.na(flag.data$TADA.ActivityType.Flag))
-  }
-  
+
   # if errorsonly = FALSE, return full clean dataframe
   if(errorsonly == FALSE) {
     final.data <- clean.data
@@ -616,10 +529,9 @@ QualityControlActivity <- function(.data, clean = c("none", "all", "duplicates",
     if(nrow(final.data) == 0) {
       print("This dataframe is empty because all rows contained QC samples and were removed")
     }
-    # if there are no flags, remove flag column and print message
-    if(sum(!is.na(final.data$TADA.ActivityType.Flag)) == 0) {
-      print("The column TADA.ActivityType.Flag was not added to this dataframe because either no QC samples were found or all flagged QC samples were removed")
-      final.data <- dplyr::select(final.data, -TADA.ActivityType.Flag)
+    # if there are no flags, print message
+    if(sum(final.data$TADA.ActivityType.Flag != "Non_QC") == 0) {
+      print("Quality control samples have been removed or were not present in the input dataframe. Returning dataframe with TADA.ActivityType.Flag column for tracking.")
     }
   }
   

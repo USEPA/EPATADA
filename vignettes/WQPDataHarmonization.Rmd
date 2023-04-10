@@ -49,7 +49,8 @@ desired (un-comment).
 ```{r, results = 'hide', message = FALSE, warning = FALSE}
 # remotes::install_github("USGS-R/dataRetrieval", dependencies=TRUE)
 
-# if you experience any issues installing TADA, try uncommenting and running the line below before the install
+# if you experience any issues installing TADA, try un-commenting and running
+# the line below before the install
 # options(download.file.method = "wininet")
 
 remotes::install_github("USEPA/TADA", 
@@ -98,6 +99,10 @@ Data retrieval filters include:
 -   organization
 
 -   project
+
+-   huc
+
+-   characteristicType
 
 Please be aware that the default TADAdataRetrieval function
 automatically runs the TADA **autoclean** and **ConvertSpecialChars**
@@ -185,12 +190,27 @@ profiles are different because TADAdataRetrieval automatically joins in
 data from multiple WQP profiles, and does some additional data cleaning
 as part of the data retrieval process.
 
+This example includes monitoring data collected from Jan 2018 to present
+by six organizations: 
+1) Red Lake Band of Chippewa Indians,
+2) Sac & Fox Nation, 
+3) Pueblo of Pojoaque,
+4) Minnesota Chippewa Tribe (Fond du Lac Band),
+5) Pueblo of Tesuque, and
+6) The Chickasaw Nation
+
+We will move forward with this example in the remainder of the vignette. 
+
 ```{r}
-# dataRetrieval1 <- dataRetrieval::readWQPdata(statecode = "AK", characteristicName = c("Fecal Coliform", "Escherichia coli", "Enterococcus"), startDate = "2018-05-01", ignore_attributes = TRUE)
-
-# another example
-# dataRetrieval2 <- dataRetrieval::readWQPdata(statecode = "UT", characteristicName = c("Ammonia", "Nitrate", "Nitrogen"), startDate = "2021-01-01", ignore_attributes = TRUE)
-
+# dataRetrieval_example <- dataRetrieval::readWQPdata(organization = 
+#                                                 c("REDLAKE_WQX", 
+#                                                   "SFNOES_WQX", 
+#                                                   "PUEBLO_POJOAQUE",
+#                                                   "FONDULAC_WQX",
+#                                                   "PUEBLOOFTESUQUE",
+#                                                   "CNENVSER"),
+#                                                 startDate = "2018-01-01",
+#                                                 ignore_attributes = TRUE)
 ```
 
 Use the code below to download data from the WQP using
@@ -199,49 +219,22 @@ query inputs.
 
 Note: TADAdataRetrieval (by leveraging dataRetrieval), automatically
 converts the date times to UTC. It also automatically converts the data
-to dates, datetimes, numerics based on a standard algorithm.
+to dates, datetimes, and numerics based on a standard algorithm.
+
+Enter ?TADAdataRetrieval into the console to review more example queries and
+additional information.
 
 ```{r}
-# here is an example for UT. We will move forward with this example in the remainder of the vignette. This may take a few minutes to run.
-TADAProfile <- TADAdataRetrieval(statecode = "UT",
-                                 characteristicName = c("Ammonia",
-                                                        "Nitrate",
-                                                        "Nitrogen"),
-                                 startDate = "2020-10-01")
-
-# example for CT
-# TADAProfile <- TADAdataRetrieval(statecode = "CT", startDate = "2020-10-01")
-
-# example for NM
-# TADAProfile <- TADAdataRetrieval(statecode = "NM", characteristicName = c("Ammonia", "Nitrate", "Nitrogen"), startDate = "2020-05-01")
-
-# example for AK
-# TADAProfile <- TADAdataRetrieval(project = "Anchorage Bacteria 20-21")
-
-# another example for AK
-#TADAProfile <- TADAdataRetrieval(statecode = "AK", characteristicName = c("Fecal Coliform", "Escherichia coli", "Enterococcus", "Ammonia", "Nitrate", "Nitrogen"), startDate = "2018-05-01")
-
+TADAProfile <- TADAdataRetrieval(organization = c("REDLAKE_WQX", 
+                                                  "SFNOES_WQX", 
+                                                  "PUEBLO_POJOAQUE",
+                                                  "FONDULAC_WQX",
+                                                  "PUEBLOOFTESUQUE",
+                                                  "CNENVSER"),
+                                 startDate = "2018-01-01")
 ```
 
-Option 2: Alternatively, you can use the data.table::fread function to
-read in a web service call for any WQP profile (un-comment).
-
-```{r}
-# New_Draft_fullphyschem <- data.table::fread("https://www.waterqualitydata.us/data/Result/search?countrycode=US&statecode=US%3A49&siteid=UTAHDWQ_WQX-4925610&startDateLo=01-01-2015&startDateHi=12-31-2016&mimeType=csv&zip=no&sorted=yes&dataProfile=fullPhysChem&providers=NWIS&providers=STEWARDS&providers=STORET")
-```
-
-**Extra tip:** Note that the web service call built using the Water
-Quality Portal uses the inputs startDateLo and startDateHi rather than
-startDate and endDate, and dates are in the format MM-DD-YYYY rather
-than the TADAdataRetrieval and dataRetrieval format of YYYY-MM-DD. The
-functions use the latter format rather than the web service call date
-format because YYYY-MM-DD is a more easily utilized format in the R
-coding environment. However, users of USGS's dataRetrieval may use the
-date format MM-DD-YYYY *only if* they specify with "startDateLo" and
-"startDateHi" inputs. For coding consistency, it is recommended users
-stick with YYYY-MM-DD.
-
-Option 3: If you need to download a large amount of data from across a
+If you need to download a large amount of data from across a
 large area, and the TADAdataRetrieval function is not working due to WQP
 timeout issues, then the **TADABigdataRetrieval** function may work
 better.
@@ -378,13 +371,13 @@ Unique_InvalidCoordinateFlags <- InvalidCoordinateFlags %>%
                 'OrganizationFormalName') %>%
   dplyr::distinct()
 
-# remove all data for sites with invalid coordinates. 
-# Change function inputs to keep this data, but be aware it may impact your mapping. 
+# if needed, change the sign for all data for sites flagged as outside the USA
+# you can also change FALSE to TRUE if you want to remove sites outside of the 
+# US or sites with imprecise lat/longs
 TADAProfileClean1 <- InvalidCoordinates(TADAProfile,
-                                        clean_outsideUSA = "remove",
+                                        clean_outsideUSA = "change sign",
                                         clean_imprecise = FALSE,
                                         errorsonly = FALSE)
-
 ```
 
 ## Depth unit conversions
@@ -777,20 +770,18 @@ FilterFieldReview_Table
 ```
 
 The ActivityTypeCode field has multiple unique values. In this example
-we remove quality control values.
+we remove quality control (QC) values.
 
 ```{r}
-# This chunk of code removes rows where any value in the ActivityTypeCode filed includes the string "Quality")
+# Remove all QC samples using the TADA QualityControlActivity function:
+# enter ?QualityControlActivity into the console for more information
+TADAProfileClean14 <- QualityControlActivity(TADAProfileClean13, clean = TRUE)
 
 # See WQX domain file to review all the ActivityTypeCode allowable values:
 # https://cdx.epa.gov/wqx/download/DomainValues/ActivityType.CSV
 
 # Access all WQX Domain Files
 # https://www.epa.gov/waterdata/storage-and-retrieval-and-water-quality-exchange-domain-services-and-downloads
-
-TADAProfileClean14 <- dplyr::filter(TADAProfileClean13,
-                                    !(ActivityTypeCode %in% ActivityTypeCode
-                                      [grepl("Quality",ActivityTypeCode)]))
 
 # regenerate table and pie chart
 FilterFieldReview("ActivityTypeCode",
@@ -804,34 +795,26 @@ Let's move on to a different field and see if there are any values that
 we want to remove.
 
 ```{r, fig.width=6, fig.height=2, fig.fullwidth=TRUE}
-FilterFieldReview("ActivityMediaSubdivisionName", TADAProfileClean14)
+FilterFieldReview("MonitoringLocationTypeName", TADAProfileClean14)
 
 FilterFieldReview("OrganizationFormalName", TADAProfileClean14)
 
-FilterFieldReview("HydrologicEvent", TADAProfileClean14)
+FilterFieldReview("ProjectName", TADAProfileClean14)
 
 ```
 
-HydrologicEvent has multiple values. In this example, we show how a user
-could leverage this function to remove specific values from their
+MonitoringLocationTypeName has multiple values. In this example, 
+we show how a user could leverage this function to remove specific values from their
 dataframe if desired.
 
 ```{r}
-# Remove non-surface water results
+# Remove well sample results
 TADAProfileClean15 <- dplyr::filter(TADAProfileClean14, 
-                                    !(ActivityMediaSubdivisionName %in%
-                                        c("Bulk deposition", "Groundwater")))
+                                    !(MonitoringLocationTypeName %in%
+                                        c("Well", "Other-Ground Water")))
 
 # regenerate table and pie chart
-FilterFieldReview("ActivityMediaSubdivisionName", TADAProfileClean15)
-
-# Remove results associated with storm or tidal action
-TADAProfileClean15 <- dplyr::filter(TADAProfileClean15, 
-                                    !(OrganizationFormalName %in%
-                                        c("Storm", "Tidal action")))
-
-# regenerate table and pie chart
-FilterFieldReview("HydrologicEvent", TADAProfileClean15)
+FilterFieldReview("MonitoringLocationTypeName", TADAProfileClean15)
 
 ```
 
@@ -890,14 +873,14 @@ detection limit (half the detection limit). Please review
 information.
 
 ```{r}
-TADAProfileClean16_censoredSummary = 
+TADAProfileClean15_censoredSummary = 
   summarizeCensoredData(TADAProfileClean15,
                         spec_cols = c("TADA.CharacteristicName",
                                       "TADA.ResultMeasure.MeasureUnitCode",
                                       "TADA.ResultSampleFractionText",
                                       "TADA.MethodSpecificationName"))
 
-TADAProfileClean16_censoredSummary
+TADAProfileClean15_censoredSummary
 
 TADAProfileClean16 = simpleCensoredMethods(TADAProfileClean15,
                                            nd_method = "multiplier",
@@ -905,12 +888,28 @@ TADAProfileClean16 = simpleCensoredMethods(TADAProfileClean15,
                                            od_method = "as-is",
                                            od_multiplier = "null")
 
+```
+
+```{r}
 # review unique values for TADA.CensoredData.Flag, 
 # DetectionQuantitationLimitTypeName, and ResultDetectionConditionText
 unique(TADAProfileClean16$TADA.CensoredData.Flag)
 unique(TADAProfileClean16$DetectionQuantitationLimitTypeName)
 unique(TADAProfileClean16$ResultDetectionConditionText)
 
+# review TADA.ResultMeasureValueDataTypes.Flag to see any NA's remain
+unique(TADAProfileClean16$TADA.ResultMeasureValueDataTypes.Flag)
+
+# review if any remaining result values are NA
+sum(is.na(TADAProfileClean16$TADA.ResultMeasureValue))
+
+# Filter down to only numeric data. Remove "Text","Coerced to NA","ND or NA"  
+TADAProfileClean17 <- dplyr::filter(TADAProfileClean16, 
+                  TADA.ResultMeasureValueDataTypes.Flag != "ND or NA" &
+                  TADA.ResultMeasureValueDataTypes.Flag != "Text" &
+                  TADA.ResultMeasureValueDataTypes.Flag != "Coerced to NA")
+
+unique(TADAProfileClean17$TADA.ResultMeasureValueDataTypes.Flag)
 ```
 
 ## Transform Characteristic, Speciation, and Unit values to TADA Standards
@@ -966,10 +965,10 @@ Here are some examples of how the HarmonizeData function can be used:
     name (and identifier) to synonyms.
 
 ```{r}
-UniqueHarmonizationRef <- HarmonizationRefTable(TADAProfileClean16,
+UniqueHarmonizationRef <- HarmonizationRefTable(TADAProfileClean17,
                                                 download = FALSE)
 
-TADAProfileClean16 <- HarmonizeData(TADAProfileClean16, 
+TADAProfileClean18 <- HarmonizeData(TADAProfileClean17, 
                                     ref = UniqueHarmonizationRef,
                                     transform = TRUE, 
                                     flag = TRUE)
@@ -985,7 +984,10 @@ To start, review the list of parameters in the dataframe using the
 **FilterParList** function.
 
 ```{r}
-FilterParList(TADAProfileClean16)
+# review function documentation
+?FilterParList
+
+FilterParList(TADAProfileClean18)
 ```
 
 Next, using the **FilterParFields** function, review how many unique
@@ -1055,7 +1057,7 @@ specific parameter:
 -   "DetectionQuantitationLimitTypeName"
 
 ```{r}
-FilterParFields(TADAProfileClean16, "TOTAL NITROGEN, MIXED FORMS")
+FilterParFields(TADAProfileClean18, "TOTAL PHOSPHORUS, MIXED FORMS")
 ```
 
 Selecting a parameter generates the list below, which is subset by the
@@ -1068,27 +1070,9 @@ Review the WQX domain files for definitions:
 <https://www.epa.gov/waterdata/storage-and-retrieval-and-water-quality-exchange-domain-services-and-downloads>
 
 ```{r, fig.width=6, fig.height=2, fig.fullwidth=TRUE}
-# In this example we remove certain values from the MeasureQualifierCode field
-FilterParFieldReview(field = "MeasureQualifierCode", TADAProfileClean16,  
-                     parameter = "TOTAL NITROGEN, MIXED FORMS")
-
-# review WQX allowable values for MeasureQualifierCode
-# all allowable values lists can be found here: https://www.epa.gov/waterdata/storage-and-retrieval-and-water-quality-exchange-domain-services-and-downloads
-ReviewWQXDomainValue <- utils::read.csv(url("https://cdx.epa.gov/wqx/download/DomainValues/ResultMeasureQualifier.CSV"))
-
-# filter allowable values for MeasureQualifierCode down to the two in your dataset
-ReviewWQXDomainValue <- dplyr::filter(ReviewWQXDomainValue, Code == "J" | Code == "U")
-
-# remove rows where MeasureQualifierCode = "U" (Not Detected: The analyte 
-# was analyzed for, but was not detected at a level greater than or equal to 
-# the level of the adjusted Contract Required Quantitation Limit (CRQL) for 
-# sample and method.)
-
-TADAProfileClean17 <- dplyr::filter(TADAProfileClean16, !(TADA.CharacteristicName %in% "TOTAL NITROGEN, MIXED FORMS" & MeasureQualifierCode %in% "U"))
-
-# regenerate table and pie chart
-FilterParFieldReview(field = "MeasureQualifierCode", TADAProfileClean17,  
-                     parameter = "TOTAL NITROGEN, MIXED FORMS")
+# In this example we review values from the SampleCollectionMethod.MethodName field
+FilterParFieldReview(field = "SampleCollectionMethod.MethodName", TADAProfileClean18,  
+                     parameter = "TOTAL PHOSPHORUS, MIXED FORMS")
 
 ```
 
@@ -1098,51 +1082,57 @@ speciation, and fraction combination)
 
 ```{r}
 # review TADA.ComparableDataIdentifier
-unique(TADAProfileClean17$TADA.ComparableDataIdentifier)
+unique(TADAProfileClean18$TADA.ComparableDataIdentifier)
 
-# filter dataframe to only "TOTAL NITROGEN, MIXED FORMS"
-TADAProfileClean18 <- dplyr::filter(TADAProfileClean17, TADA.CharacteristicName == "TOTAL NITROGEN, MIXED FORMS")
-
-# review TADA.ResultMeasureValueDataTypes.Flag to see any
-# NA's remain
-unique(TADAProfileClean18$TADA.ResultMeasureValueDataTypes.Flag)
-
-# review if any remaining result values are NA
-sum(is.na(TADAProfileClean18$TADA.ResultMeasureValue))
-
-# if applicable, substitute a value for NA. In this example, 0.02 MG/L is used for NITROGEN.
-TADAProfileClean18$TADA.ResultMeasureValue <- ifelse(is.na(TADAProfileClean18$TADA.ResultMeasureValue) == TRUE, 0.02, TADAProfileClean18$TADA.ResultMeasureValue)
+# filter dataframe to only "TOTAL PHOSPHORUS, MIXED FORMS"
+TADAProfileClean19 <- dplyr::filter(TADAProfileClean18, TADA.ComparableDataIdentifier == "Total Phosphorus_as P_ug/L")
 
 # generate stats table
-TADAProfileClean18_stats <- TADA::TADA_stats(TADAProfileClean18)
+TADAProfileClean19_stats <- TADA::TADA_stats(TADAProfileClean19)
+
+TADAProfileClean19_stats
 
 # generate a histogram
-hist(TADAProfileClean18$TADA.ResultMeasureValue, 
-     main = paste((unique(TADAProfileClean18$TADA.CharacteristicName))
+hist(TADAProfileClean19$TADA.ResultMeasureValue, 
+     main = paste((unique(TADAProfileClean19$TADA.CharacteristicName))
                   ,"vs. Frequency"),
      breaks=200, xlab = paste(
-       (unique(TADAProfileClean18$TADA.CharacteristicName)),
+       (unique(TADAProfileClean19$TADA.CharacteristicName)),
        "Values"))
 
-# generate interactive box plot
-TADA::TADA_boxplot(TADAProfileClean18)
+```
 
-# test if highest value is a true outlier
-outliers::chisq.out.test(TADAProfileClean18$TADA.ResultMeasureValue)
+Generate interactive box plot.
+```{r}
+
+TADA::TADA_boxplot(TADAProfileClean19)
+
+```
+
+Test if highest value is a true outlier. 
+```{r}
+
+# run chisq test
+outliers::chisq.out.test(TADAProfileClean19$TADA.ResultMeasureValue)
 
 # remove results greater than the upper fence (see stats table generated above)
 # note: many outliers are valid results.
-TADAProfileClean18_removeOutliers <-
-  dplyr::filter(TADAProfileClean18, TADA.ResultMeasureValue <= 2.593)
+TADAProfileClean19_removeOutliers <-
+  dplyr::filter(TADAProfileClean19, TADA.ResultMeasureValue <= 89)
+
+```
+
+Regenerate histogram and box plot.
+```{r}
 
 # regenerate histogram
-hist(TADAProfileClean18_removeOutliers$TADA.ResultMeasureValue, 
-     main = paste((unique(TADAProfileClean18_removeOutliers$TADA.CharacteristicName))
+hist(TADAProfileClean19_removeOutliers$TADA.ResultMeasureValue, 
+     main = paste((unique(TADAProfileClean19_removeOutliers$TADA.CharacteristicName))
                   ,"vs. Frequency"), xlab = paste(
-       (unique(TADAProfileClean18_removeOutliers$TADA.CharacteristicName)),
+       (unique(TADAProfileClean19_removeOutliers$TADA.CharacteristicName)),
        "Values"))
 
 # regenerate interactive box plot
-TADA::TADA_boxplot(TADAProfileClean18_removeOutliers)
+TADA::TADA_boxplot(TADAProfileClean19_removeOutliers)
 
 ```

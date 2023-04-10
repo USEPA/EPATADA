@@ -206,7 +206,7 @@ simpleCensoredMethods <- function(.data, nd_method = "multiplier", nd_multiplier
 summarizeCensoredData <- function(.data, spec_cols = c("TADA.CharacteristicName","TADA.ResultMeasure.MeasureUnitCode","TADA.ResultSampleFractionText","TADA.MethodSpecificationName")){
   
   if(any(is.na(.data$TADA.ResultMeasureValue))){
-    warning("Dataset contains data missing both a result value and a detection limit. Suggest removing or handling before summarizing.")
+    warning("Dataset contains data missing both a result value and a detection limit. Suggest removing or handling. See TADA Harmonization vignette for an example.")
   }
   
   if(!"TADA.CensoredData.Flag"%in%names(.data)){
