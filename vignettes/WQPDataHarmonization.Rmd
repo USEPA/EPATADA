@@ -1057,7 +1057,7 @@ specific parameter:
 -   "DetectionQuantitationLimitTypeName"
 
 ```{r}
-FilterParFields(TADAProfileClean18, "TOTAL NITROGEN, MIXED FORMS")
+FilterParFields(TADAProfileClean18, "TOTAL PHOSPHORUS, MIXED FORMS")
 ```
 
 Selecting a parameter generates the list below, which is subset by the
@@ -1070,27 +1070,9 @@ Review the WQX domain files for definitions:
 <https://www.epa.gov/waterdata/storage-and-retrieval-and-water-quality-exchange-domain-services-and-downloads>
 
 ```{r, fig.width=6, fig.height=2, fig.fullwidth=TRUE}
-# In this example we remove certain values from the MeasureQualifierCode field
-FilterParFieldReview(field = "MeasureQualifierCode", TADAProfileClean18,  
-                     parameter = "TOTAL NITROGEN, MIXED FORMS")
-
-# review WQX allowable values for MeasureQualifierCode
-# all allowable values lists can be found here: https://www.epa.gov/waterdata/storage-and-retrieval-and-water-quality-exchange-domain-services-and-downloads
-ReviewWQXDomainValue <- utils::read.csv(url("https://cdx.epa.gov/wqx/download/DomainValues/ResultMeasureQualifier.CSV"))
-
-# filter allowable values for MeasureQualifierCode down to the two in your dataset
-ReviewWQXDomainValue <- dplyr::filter(ReviewWQXDomainValue, Code == "J" | Code == "U")
-
-# remove rows where MeasureQualifierCode = "U" (Not Detected: The analyte 
-# was analyzed for, but was not detected at a level greater than or equal to 
-# the level of the adjusted Contract Required Quantitation Limit (CRQL) for 
-# sample and method.)
-
-TADAProfileClean19 <- dplyr::filter(TADAProfileClean18, !(TADA.CharacteristicName %in% "TOTAL NITROGEN, MIXED FORMS" & MeasureQualifierCode %in% "U"))
-
-# regenerate table and pie chart
-FilterParFieldReview(field = "MeasureQualifierCode", TADAProfileClean19,  
-                     parameter = "TOTAL NITROGEN, MIXED FORMS")
+# In this example we review values from the SampleCollectionMethod.MethodName field
+FilterParFieldReview(field = "SampleCollectionMethod.MethodName", TADAProfileClean18,  
+                     parameter = "TOTAL PHOSPHORUS, MIXED FORMS")
 
 ```
 
@@ -1100,22 +1082,22 @@ speciation, and fraction combination)
 
 ```{r}
 # review TADA.ComparableDataIdentifier
-unique(TADAProfileClean19$TADA.ComparableDataIdentifier)
+unique(TADAProfileClean18$TADA.ComparableDataIdentifier)
 
-# filter dataframe to only "TOTAL NITROGEN, MIXED FORMS"
-TADAProfileClean20 <- dplyr::filter(TADAProfileClean19, TADA.CharacteristicName == "TOTAL NITROGEN, MIXED FORMS")
+# filter dataframe to only "TOTAL PHOSPHORUS, MIXED FORMS"
+TADAProfileClean19 <- dplyr::filter(TADAProfileClean18, TADA.ComparableDataIdentifier == "Total Phosphorus_as P_ug/L")
 
 # generate stats table
-TADAProfileClean20_stats <- TADA::TADA_stats(TADAProfileClean20)
+TADAProfileClean19_stats <- TADA::TADA_stats(TADAProfileClean19)
 
-TADAProfileClean20_stats
+TADAProfileClean19_stats
 
 # generate a histogram
-hist(TADAProfileClean20$TADA.ResultMeasureValue, 
-     main = paste((unique(TADAProfileClean20$TADA.CharacteristicName))
+hist(TADAProfileClean19$TADA.ResultMeasureValue, 
+     main = paste((unique(TADAProfileClean19$TADA.CharacteristicName))
                   ,"vs. Frequency"),
      breaks=200, xlab = paste(
-       (unique(TADAProfileClean20$TADA.CharacteristicName)),
+       (unique(TADAProfileClean19$TADA.CharacteristicName)),
        "Values"))
 
 ```
@@ -1123,7 +1105,7 @@ hist(TADAProfileClean20$TADA.ResultMeasureValue,
 Generate interactive box plot.
 ```{r}
 
-TADA::TADA_boxplot(TADAProfileClean20)
+TADA::TADA_boxplot(TADAProfileClean19)
 
 ```
 
@@ -1131,12 +1113,12 @@ Test if highest value is a true outlier.
 ```{r}
 
 # run chisq test
-outliers::chisq.out.test(TADAProfileClean20$TADA.ResultMeasureValue)
+outliers::chisq.out.test(TADAProfileClean19$TADA.ResultMeasureValue)
 
 # remove results greater than the upper fence (see stats table generated above)
 # note: many outliers are valid results.
-TADAProfileClean20_removeOutliers <-
-  dplyr::filter(TADAProfileClean20, TADA.ResultMeasureValue <= 2.593)
+TADAProfileClean19_removeOutliers <-
+  dplyr::filter(TADAProfileClean19, TADA.ResultMeasureValue <= 89)
 
 ```
 
@@ -1144,13 +1126,13 @@ Regenerate histogram and box plot.
 ```{r}
 
 # regenerate histogram
-hist(TADAProfileClean20_removeOutliers$TADA.ResultMeasureValue, 
-     main = paste((unique(TADAProfileClean20_removeOutliers$TADA.CharacteristicName))
+hist(TADAProfileClean19_removeOutliers$TADA.ResultMeasureValue, 
+     main = paste((unique(TADAProfileClean19_removeOutliers$TADA.CharacteristicName))
                   ,"vs. Frequency"), xlab = paste(
-       (unique(TADAProfileClean20_removeOutliers$TADA.CharacteristicName)),
+       (unique(TADAProfileClean19_removeOutliers$TADA.CharacteristicName)),
        "Values"))
 
 # regenerate interactive box plot
-TADA::TADA_boxplot(TADAProfileClean20_removeOutliers)
+TADA::TADA_boxplot(TADAProfileClean19_removeOutliers)
 
 ```

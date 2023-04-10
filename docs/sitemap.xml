@@ -100,6 +100,9 @@
     <loc>usepa.github.io/TADA/reference/GenerateMap.html</loc>
   </url>
   <url>
+    <loc>usepa.github.io/TADA/reference/GetActivityTypeRef.html</loc>
+  </url>
+  <url>
     <loc>usepa.github.io/TADA/reference/GetDetCondRef.html</loc>
   </url>
   <url>
@@ -238,6 +241,9 @@
     <loc>usepa.github.io/TADA/reference/TransformCensoredData.html</loc>
   </url>
   <url>
+    <loc>usepa.github.io/TADA/reference/UpdateActivityTypeRef.html</loc>
+  </url>
+  <url>
     <loc>usepa.github.io/TADA/reference/UpdateDetCondRef.html</loc>
   </url>
   <url>
@@ -254,6 +260,9 @@
   </url>
   <url>
     <loc>usepa.github.io/TADA/reference/WaterTemp_US.html</loc>
+  </url>
+  <url>
+    <loc>usepa.github.io/TADA/reference/WQXActivityTypeRef_Cached.html</loc>
   </url>
   <url>
     <loc>usepa.github.io/TADA/reference/WQXCharValRef_Cached.html</loc>

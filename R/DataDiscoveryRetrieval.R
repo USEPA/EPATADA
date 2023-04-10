@@ -148,7 +148,7 @@
 #'                                              "CNENVSER",
 #'                                              "CHOCNATWQX",
 #'                                              "WNENVDPT_WQX",
-#'                                              "PUEBLO_POJOAQUE")))
+#'                                              "PUEBLO_POJOAQUE"))
 #' }
 #'
 

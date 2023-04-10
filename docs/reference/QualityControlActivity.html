@@ -122,7 +122,7 @@ cleaned dataframe is returned. The default is clean = "none" and errorsonly = FA
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Remove all QC samples:</span></span></span>
 <span class="r-in"><span><span class="va">QC_clean</span> <span class="op">&lt;-</span> <span class="fu">QualityControlActivity</span><span class="op">(</span><span class="va">Nutrients_Utah</span>, clean <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "No quality control samples were found in your dataframe or they were all removed. Returning dataframe with TADA.ActivityType.Flag column for tracking."</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "Quality control samples have been removed or were not present in the input dataframe. Returning dataframe with TADA.ActivityType.Flag column for tracking."</span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc"><h2>On this page</h2>
