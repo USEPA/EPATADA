@@ -245,11 +245,11 @@ sites downloaded to only those with relevant data. It pulls back data
 from set number of stations at a time and then joins the data back
 together to produce a single TADA compatible dataframe as the output.
 
-See ?TADABigdataRetrieval for more details. WARNING, this can take
-multiple HOURS to run. The total run time depends on your query inputs.
+See ?TADABigdataRetrieval for more details. WARNING, some of the examples
+below can take multiple HOURS to run. The total run time depends on your
+query inputs.
 
 ```{r}
-# WARNING, this can take multiple HOURS to run 
 # AK_AL_WaterTemp <- TADABigdataRetrieval(startDate = "2000-01-01", 
 #                                     endDate = "2022-12-31", 
 #                                     characteristicName = "Temperature, water",
@@ -260,7 +260,6 @@ multiple HOURS to run. The total run time depends on your query inputs.
 # AllPhosphorus <- TADABigdataRetrieval(characteristicName = "Phosphorus")
 # 
 # AllCT <- TADABigdataRetrieval(statecode = "CT")
-
 ```
 
 Review all column names in the TADA Profile. Remove results that are not
@@ -342,18 +341,18 @@ following flags (if relevant to dataframe):
 
 ```{r}
 # flag only
-InvalidCoordinateFlags <- InvalidCoordinates(TADAProfile, 
+TADAProfileClean1 <- InvalidCoordinates(TADAProfile, 
                                              clean_outsideUSA = "no",
                                              clean_imprecise = FALSE, 
                                              errorsonly = TRUE)
 
-# review unique flags in InvalidCoordinateFlags
-unique(InvalidCoordinateFlags$TADA.InvalidCoordinates.Flag)
+# review unique flags in TADAProfileClean1
+unique(TADAProfileClean1$TADA.InvalidCoordinates.Flag)
 
 # review unique MonitoringLocationIdentifiers in your flag dataframe
-unique(InvalidCoordinateFlags$MonitoringLocationIdentifier)
+unique(TADAProfileClean1$MonitoringLocationIdentifier)
 
-Unique_InvalidCoordinateFlags <- InvalidCoordinateFlags %>%
+Unique_InvalidCoordinateFlags <- TADAProfileClean1 %>%
   dplyr::select('MonitoringLocationIdentifier',
                 'MonitoringLocationName',
                 'TADA.InvalidCoordinates.Flag',
@@ -371,13 +370,17 @@ Unique_InvalidCoordinateFlags <- InvalidCoordinateFlags %>%
                 'OrganizationFormalName') %>%
   dplyr::distinct()
 
-# if needed, change the sign for all data for sites flagged as outside the USA
+View(Unique_InvalidCoordinateFlags)
+
+# if needed, un-comment below to change the sign for all data for sites flagged 
+# as outside the USA
 # you can also change FALSE to TRUE if you want to remove sites outside of the 
 # US or sites with imprecise lat/longs
-TADAProfileClean1 <- InvalidCoordinates(TADAProfile,
-                                        clean_outsideUSA = "change sign",
-                                        clean_imprecise = FALSE,
-                                        errorsonly = FALSE)
+#
+# TADAProfileClean1 <- InvalidCoordinates(TADAProfile,
+#                                        clean_outsideUSA = "change sign",
+#                                        clean_imprecise = FALSE,
+#                                        errorsonly = FALSE)
 ```
 
 ## Depth unit conversions
@@ -747,7 +750,7 @@ FilterFields(TADAProfileClean13)
 FilterFields_Table = FilterFields(TADAProfileClean13)
 
 # view table
-FilterFields_Table
+View(FilterFields_Table)
 
 ```
 
@@ -757,15 +760,15 @@ in the dataframe using the **FilterFieldReview** function. We'll start
 with ActivityTypeCode.
 
 ```{r, fig.width=6, fig.height=2, fig.fullwidth=TRUE}
-# print table in console, and generate pie chart
-FilterFieldReview("ActivityTypeCode", TADAProfileClean13)
+# Un-comment to print table in console, and generate pie chart plot
+# FilterFieldReview("ActivityTypeCode", TADAProfileClean13)
 
-# write table to environment
+# write table to environment, and generate pie chart plot
 FilterFieldReview_Table <- FilterFieldReview("ActivityTypeCode",
                                              TADAProfileClean13)
 
 # view table
-FilterFieldReview_Table
+View(FilterFieldReview_Table)
 
 ```
 
@@ -808,7 +811,7 @@ we show how a user could leverage this function to remove specific values from t
 dataframe if desired.
 
 ```{r}
-# Remove well sample results
+# Remove well and groundwater sample results
 TADAProfileClean15 <- dplyr::filter(TADAProfileClean14, 
                                     !(MonitoringLocationTypeName %in%
                                         c("Well", "Other-Ground Water")))
