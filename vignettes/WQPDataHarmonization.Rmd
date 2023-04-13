@@ -54,7 +54,7 @@ desired (un-comment).
 # options(download.file.method = "wininet")
 
 remotes::install_github("USEPA/TADA", 
-                        ref = "develop",
+                        ref = "add_map_vignette_eh",
                         dependencies = TRUE)
 library(TADA)
 
@@ -281,17 +281,10 @@ TADAProfile <- dplyr::filter(TADAProfile,
 
 ## Invalid coordinates
 
-Review station locations
+Review station locations and summary information using the **TADAOverviewMap** function. **TADAOverviewMap** counts the number of unique results, characteristics, and organizations at each monitoring location in the dataset and creates a tidy map for reviewing summary stats spatially. Larger point sizes indicate more results collected at a given site, while darker blue colors indicate more unique characteristics collected at the site. Users may click on a site to view a pop-up with this summary information, including the number of organizations that reported results at that site. This map may inform a user's decision to remove/correct sites that are outside the US.
 
 ```{r}
-#create a map of the world
-maps::map()
-
-# draw the sites included in your TADAProfile onto the map
-points(TADAProfile$TADA.LongitudeMeasure, 
-       TADAProfile$TADA.LatitudeMeasure, 
-       col="red", 
-       pch=20)
+TADAOverviewMap(TADAProfile)
 ```
 
 The TADA **InvalidCoordinates** function identifies and flags
