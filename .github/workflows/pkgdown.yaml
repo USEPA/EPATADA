@@ -45,7 +45,8 @@ jobs:
 
       - name: Build site
         run: |
-          install.packages(c("zoo", "patchwork", "maps", "leaflet", "remotes"))
+          install.packages(c("zoo", "patchwork", "maps", "leaflet"))
+          install.packages("remotes", repos = "http://cran.us.r-project.org")
           remotes::install_github("USEPA/TADA", ref = "develop", dependencies = TRUE)
           pkgdown::build_site_github_pages(new_process = FALSE, install = FALSE, dest_dir = "public") |
           file.copy(from = "./public/articles/logo.png",to = "./public/reference/logo.png")
