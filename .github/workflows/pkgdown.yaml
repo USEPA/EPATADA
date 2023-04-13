@@ -48,8 +48,7 @@ jobs:
           install.packages(c("zoo", "patchwork", "maps", "leaflet"))
           install.packages("remotes", repos = "http://cran.us.r-project.org")
           remotes::install_github("USEPA/TADA", ref = "develop", dependencies = TRUE)
-          pkgdown::build_site_github_pages(new_process = TRUE, clean = TRUE, install = FALSE, dest_dir = "docs") |
-          file.copy(from = "./docs/articles/logo.png",to = "./docs/reference/logo.png")
+          pkgdown::build_site() |
         shell: Rscript {0}
       - name: Upload artifact
         uses: actions/upload-pages-artifact@64bcae551a7b18bcb9a09042ddf1960979799187
