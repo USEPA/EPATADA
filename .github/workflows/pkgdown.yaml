@@ -54,15 +54,3 @@ jobs:
         uses: actions/upload-pages-artifact@64bcae551a7b18bcb9a09042ddf1960979799187
         with:
           path: ./docs
-  
-  # Deployment job
-  deploy:
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    runs-on: ubuntu-latest
-    needs: pkgdown
-    steps:
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@73e62e651178eeba977de2dc9f4c7645b3d01015
