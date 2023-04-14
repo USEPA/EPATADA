@@ -56,10 +56,10 @@ jobs:
       - name: Build site        
         run:  Rscript -e 'pkgdown::build_site()'
       
-      - name: Set up Git
-        run: |
-          git config --local user.email "actions@github.com"
-          git config --local user.name "GitHub Actions"
+#      - name: Set up Git
+#        run: |
+#          git config --local user.email "actions@github.com"
+#          git config --local user.name "GitHub Actions"
       - name: Commit all changes
         run: |
           git add -A && git commit -m 'Build site' || echo "No changes to commit"
