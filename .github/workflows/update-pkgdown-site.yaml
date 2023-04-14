@@ -50,7 +50,7 @@ jobs:
         run: Rscript -e 'roxygen2::roxygenize()'
         
       - name: Update Readme.md
-        run: Rscript -e 'knitr::knit("Readme.md")'
+        run: Rscript -e 'knitr::knit("readme.md")'
       
       - name: Install TADA
         run:  R script -e 'remotes::install_github("USEPA/TADA", ref = "develop", dependencies = TRUE)'
