@@ -3,8 +3,6 @@
 on:
   push:
     branches: [develop]
-  pull_request:
-    branches: [develop]
 
 name: update-pkgdown-site
 
@@ -65,5 +63,5 @@ jobs:
       - name: Commit all changes
         run: |
           git add -A && git commit -m 'Build site' || echo "No changes to commit"
-          git push origin || echo "No changes to commit"
+          git push origin HEAD:develop --force || echo "No changes to commit"
   
