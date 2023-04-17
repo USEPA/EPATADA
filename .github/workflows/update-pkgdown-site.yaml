@@ -55,5 +55,7 @@ jobs:
       
       - name: Commit all changes
         run: |
+          git config --global user.email "mullin.cristina@epa.gov"
+          git config --global user.name "Cristina Mullin" 
           git commit -am 'Build site'
           git push origin HEAD:develop --force
