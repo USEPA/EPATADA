@@ -438,6 +438,7 @@ TADABigdataRetrieval <- function(startDate = "null",
                                  characteristicType = "null",
                                  sampleMedia = "Water",
                                  statecode = "null",
+                                 maxrecs = 250000,
                                  applyautoclean = FALSE
 ) {
 
@@ -503,6 +504,17 @@ TADABigdataRetrieval <- function(startDate = "null",
   } else if (huc != "null") {
     WQPquery = c(WQPquery,huc = huc)
   }
+  
+  # cut down on summary query time if possible based on big data query
+  diffdat = lubridate::time_length(difftime(Sys.Date(), startDat), "years")
+  
+  if(diffdat<=1){
+    WQPquery = c(WQPquery, summaryYears=1)
+  }
+  
+  if(diffdat>1&diffdat<=5){
+    WQPquery = c(WQPquery, summaryYears=5)
+  }
 
   print("Building site summary table for chunking result downloads...")
   df_summary = dataRetrieval::readWQPsummary(WQPquery)
@@ -521,8 +533,8 @@ TADABigdataRetrieval <- function(startDate = "null",
       if(dim(sites)[1]>0){
         
         # function for chunking by records
-        make_groups = function(x,maxchunk){
-          if(sum(x$tot_n)<=maxchunk){
+        make_groups = function(x,maxrecs){
+          if(sum(x$tot_n)<=maxrecs|dim(x)[1]==1){ # WARNING: if there's only one row and it's more than maxrecs, it will try to run the query anyway
             groupings = x
             groupings$group = 1
           }else{
@@ -531,7 +543,7 @@ TADABigdataRetrieval <- function(startDate = "null",
             i = 1
             while(nrow(x)>nrow(group)){
               x$csum = cumsum(x$tot_n)
-              brk = which(x$csum>maxchunk)[1]
+              brk = which(x$csum>maxrecs)[1]
               group = x[1:(brk-1),]
               group$group = i
               if(brk>1){
@@ -553,16 +565,19 @@ TADABigdataRetrieval <- function(startDate = "null",
         
         # get total number of results per site and separate out sites with >250000 results
         tot_sites = sites%>%dplyr::group_by(MonitoringLocationIdentifier)%>%dplyr::summarise(tot_n = sum(ResultCount))%>%dplyr::arrange(tot_n)
-        smallsites = tot_sites%>%dplyr::filter(tot_n<=250000)
-        bigsites = tot_sites%>%dplyr::filter(tot_n>250000)
+        smallsites = tot_sites%>%dplyr::filter(tot_n<=maxrecs)
+        bigsites = tot_sites%>%dplyr::filter(tot_n>maxrecs)
         
         df = data.frame()
         
         if(dim(smallsites)[1]>0){
           
-          smallsitesgrp = make_groups(smallsites, maxchunk = 250000)
+          smallsitesgrp = make_groups(smallsites, maxrecs)
+          
+          print(paste0("Downloading data from sites with fewer than ",maxrecs," results by grouping them together."))
           
           for(i in 1:max(smallsitesgrp$group)){
+            print(i)
             site_chunk = subset(smallsitesgrp$MonitoringLocationIdentifier, smallsitesgrp$group==i)
             joins = TADA::TADAdataRetrieval(startDate = startDate,
                                             endDate = endDate,
@@ -571,36 +586,44 @@ TADABigdataRetrieval <- function(startDate = "null",
                                             characteristicType = characteristicType,
                                             sampleMedia = sampleMedia,
                                             applyautoclean = FALSE)
+            if(dim(joins)[1]>0){
+              df = dplyr::bind_rows(df, joins)
+            }
             
-            df = dplyr::bind_rows(df, joins)
           }
           
           rm(smallsites, smallsitesgrp)
         }
           
           if(dim(bigsites)[1]>0){
-            for(i in 1:length(unique(bigsites$MonitoringLocationIdentifier))){
-              mlidsum = subset(sites, sites$MonitoringLocationIdentifier[i])
+            
+            print(paste0("Downloading data from sites with greater than ",maxrecs," results, chunking queries by shorter time intervals..."))
+            
+            bsitesvec = unique(bigsites$MonitoringLocationIdentifier)
+            
+            for(i in 1:length(bsitesvec)){
+              mlidsum = subset(sites, sites$MonitoringLocationIdentifier==bsitesvec[i])
               mlidsum = mlidsum%>%dplyr::group_by(MonitoringLocationIdentifier, YearSummarized)%>%dplyr::summarise(tot_n = sum(ResultCount))
               site_chunk = unique(mlidsum$MonitoringLocationIdentifier)
               
-              bigsitegrps = make_groups(mlidsum, maxchunk = 250000)
+              bigsitegrps = make_groups(mlidsum, maxrecs)
               
               for(i in 1:max(bigsitegrps$group)){
                 yearchunk = subset(bigsitegrps$YearSummarized, bigsitegrps$group==i)
                 startD = paste0(min(yearchunk),"-01-01")
-                endD = paste0(max(yearchunk),"-01-01")
+                endD = paste0(max(yearchunk),"-12-31")
                 
                 joins = TADA::TADAdataRetrieval(startDate = startD,
                                                 endDate = endD,
-                                                huc = huc,
                                                 siteid = site_chunk,
                                                 characteristicName = characteristicName,
                                                 characteristicType = characteristicType,
                                                 sampleMedia = sampleMedia,
                                                 applyautoclean = FALSE)
                 
-                df = dplyr::bind_rows(df, joins)
+                if(dim(joins)[1]>0){
+                  df = dplyr::bind_rows(df, joins)
+                }
               }
             }
             rm(bigsites, bigsitegrps)
