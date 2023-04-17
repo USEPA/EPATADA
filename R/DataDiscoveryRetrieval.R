@@ -414,6 +414,7 @@ TADAReadWQPWebServices <- function(webservice) {
 #' @param sampleMedia Sampling substrate such as water, air, or sediment
 #' @param siteType Type of waterbody
 #' @param statecode Code that identifies a state
+#' @param maxrecs The maximum number of results queried within one call to dataRetrieval. 
 #' @param applyautoclean Logical, defaults to TRUE. Applies TADA's autoclean function on the returned data profile.
 #'
 #' @return TADA-compatible dataframe

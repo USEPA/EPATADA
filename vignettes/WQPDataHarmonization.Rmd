@@ -363,7 +363,7 @@ Unique_InvalidCoordinateFlags <- TADAProfileClean1 %>%
                 'OrganizationFormalName') %>%
   dplyr::distinct()
 
-View(Unique_InvalidCoordinateFlags)
+Unique_InvalidCoordinateFlags
 
 # if needed, un-comment below to change the sign for all data for sites flagged 
 # as outside the USA
@@ -743,7 +743,7 @@ FilterFields(TADAProfileClean13)
 FilterFields_Table = FilterFields(TADAProfileClean13)
 
 # view table
-View(FilterFields_Table)
+FilterFields_Table
 
 ```
 
@@ -761,7 +761,7 @@ FilterFieldReview_Table <- FilterFieldReview("ActivityTypeCode",
                                              TADAProfileClean13)
 
 # view table
-View(FilterFieldReview_Table)
+FilterFieldReview_Table
 
 ```
 
@@ -981,7 +981,7 @@ To start, review the list of parameters in the dataframe using the
 
 ```{r}
 # review function documentation
-?FilterParList
+# ?FilterParList
 
 FilterParList(TADAProfileClean18)
 ```
