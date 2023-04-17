@@ -25,7 +25,7 @@ idCensoredData <- function(.data){
   checkColumns(.data, expected_cols)
   
   ## First step: identify censored data
-  cens = .data%>%dplyr::filter(TADA.ResultMeasureValueDataTypes.Flag=="Result Value/Unit Copied from Detection Limit")
+  cens = .data%>%dplyr::filter(TADA.ResultMeasureValueDataTypes.Flag=="Result Value/Unit Copied or Estimated from Detection Limit")
   not_cens = .data%>%dplyr::filter(!ResultIdentifier%in%cens$ResultIdentifier)
   not_cens$TADA.CensoredData.Flag = "Uncensored"
   
