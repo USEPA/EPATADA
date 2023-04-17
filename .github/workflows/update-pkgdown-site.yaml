@@ -42,13 +42,10 @@ jobs:
           needs: website
 
       - name: Install packages
-        run: Rscript -e 'install.packages(c("remotes", "roxygen2", "knitr"))'
+        run: Rscript -e 'install.packages(c("remotes", "devtools"))'
         
       - name: Update R function documentation
-        run: Rscript -e 'roxygen2::roxygenize()'
-        
-      - name: Update Readme.md
-        run: Rscript -e 'knitr::knit("readme.md")'
+        run: Rscript -e 'devtools::document()'
       
       - name: Install TADA
         run:  R script -e 'remotes::install_github("USEPA/TADA", ref = "develop", dependencies = TRUE)'
@@ -56,11 +53,7 @@ jobs:
       - name: Build site        
         run:  Rscript -e 'pkgdown::build_site()'
       
-      - name: Set up Git
-        run: |
-          git config --local user.email "mullin.cristina@epa.gov"
-          git config --local user.name "Cristina Mullin"
       - name: Commit all changes
         run: |
-          git add -A && git commit -m 'Build site' || echo "No changes to commit"
-          git push origin HEAD:develop --force || echo "No changes to commit"
+          git commit -am 'Build site'
+          git push origin HEAD:develop --force
