@@ -37,7 +37,14 @@ idCensoredData <- function(.data){
     ## Join to censored data
     cens = dplyr::left_join(cens, cond.ref, by = "ResultDetectionConditionText")
     
-    conds = unique(cens$ResultDetectionConditionText)
+    ## Flag censored data that does not havedet cond populated
+    cens$TADA.Detection_Type = ifelse(is.na(cens$ResultDetectionConditionText),"ResultDetectionConditionText missing", cens$TADA.Detection_Type)
+    if(any(is.na(cens$ResultDetectionConditionText))){
+      missing_detcond = length(cens$ResultDetectionConditionText[is.na(cens$ResultDetectionConditionText)])
+      print(paste0("There are ", missing_detcond," results in your dataset that are missing ResultDetectionConditionText. TADA requires BOTH ResultDetectionConditionText and DetectionQuantitationLimitTypeName fields to be populated in order to categorize censored data. Please contact the TADA Admins to resolve."))
+    }
+    
+    conds = unique(cens$ResultDetectionConditionText[!is.na(cens$ResultDetectionConditionText)])
     if(any(!conds%in%cond.ref$ResultDetectionConditionText)){
       missing_conds = conds[!conds%in%cond.ref$ResultDetectionConditionText]
       missing_conds = paste(missing_conds, collapse = ", ")
@@ -58,7 +65,8 @@ idCensoredData <- function(.data){
     }
     
     ## Create flag for condition and limit type combinations
-    cens$TADA.CensoredData.Flag = "Censored but not Categorized"
+    cens$TADA.CensoredData.Flag = "Detection condition or detection limit is not documented in TADA reference tables."
+    cens$TADA.CensoredData.Flag = ifelse(cens$TADA.Detection_Type%in%c("ResultDetectionConditionText missing"),"Detection condition is missing and required for censored data ID.",cens$TADA.CensoredData.Flag)
     cens$TADA.CensoredData.Flag = ifelse(cens$TADA.Detection_Type%in%c("Non-Detect")&cens$TADA.Limit_Type%in%c("Non-Detect"),"Non-Detect",cens$TADA.CensoredData.Flag)
     cens$TADA.CensoredData.Flag = ifelse(cens$TADA.Detection_Type%in%c("Over-Detect")&cens$TADA.Limit_Type%in%c("Over-Detect"),"Over-Detect",cens$TADA.CensoredData.Flag)
     cens$TADA.CensoredData.Flag = ifelse(cens$TADA.Detection_Type%in%c("Other")&cens$TADA.Limit_Type%in%c("Other"),"Other Condition/Limit Populated",cens$TADA.CensoredData.Flag)
@@ -67,7 +75,12 @@ idCensoredData <- function(.data){
     ## warn when some limit metadata may be problematic
     if("Conflict between Condition and Limit"%in%cens$TADA.CensoredData.Flag){
       num = length(cens$TADA.CensoredData.Flag[cens$TADA.CensoredData.Flag=="Conflict between Condition and Limit"])
-      warning(paste0(num," records in supplied dataset have conflicting detection condition and detection limit type information. These records will not be included in detection limit handling calculations."))
+      print(paste0(num," records in supplied dataset have conflicting detection condition and detection limit type information. These records will not be included in detection limit handling calculations."))
+    }
+    
+    if("Detection condition or detection limit is not documented in TADA reference tables."%in%cens$TADA.CensoredData.Flag){
+      num = length(cens$TADA.CensoredData.Flag[cens$TADA.CensoredData.Flag=="Detection condition or detection limit is not documented in TADA reference tables."])
+      print(paste0(num," records in supplied dataset have detection conditions and/or limit types that are missing from TADA reference tables . These records will not be included in detection limit handling calculations."))
     }
     
     cens = cens%>%dplyr::select(-TADA.Detection_Type, -TADA.Limit_Type)
