@@ -56,14 +56,11 @@ jobs:
       - name: Build site        
         run:  Rscript -e 'pkgdown::build_site()'
       
-#      - name: Set up Git
-#        run: |
-#          git config --local user.email "mullin.cristina@epa.gov"
-#          git config --local user.name "GitHub Actions"
-#      - name: Commit all changes
-#        run: |
-#          git add -A && git commit -m 'Build site' || echo "No changes to commit"
-#          git push origin HEAD:develop --force || echo "No changes to commit"
-  
-      - name: Add & Commit
-        uses: EndBug/add-and-commit@v9.1.1
+      - name: Set up Git
+        run: |
+          git config --local user.email "mullin.cristina@epa.gov"
+          git config --local user.name "Cristina Mullin"
+      - name: Commit all changes
+        run: |
+          git add -A && git commit -m 'Build site' || echo "No changes to commit"
+          git push origin HEAD:develop --force || echo "No changes to commit"
