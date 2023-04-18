@@ -53,7 +53,7 @@ jobs:
         run:  R script -e 'remotes::install_github("USEPA/TADA", ref = "develop", dependencies = TRUE)'
               
       - name: Build site        
-        run:  Rscript -e 'build_site_github_pages(dest_dir = "docs", clean = TRUE, install = FALSE, new_process = FALSE)'
+        run:  Rscript -e 'pkgdown::build_site_github_pages(dest_dir = "docs", clean = TRUE, install = FALSE, new_process = FALSE)'
       
       - name: Deploy to GitHub pages 🚀
         if: github.event_name != 'pull_request'
