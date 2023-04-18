@@ -175,6 +175,9 @@
     <loc>usepa.github.io/TADA/reference/TADAdataRetrieval.html</loc>
   </url>
   <url>
+    <loc>usepa.github.io/TADA/reference/TADAOverviewMap.html</loc>
+  </url>
+  <url>
     <loc>usepa.github.io/TADA/reference/TADAprofileCheck.html</loc>
   </url>
   <url>
@@ -187,7 +190,7 @@
     <loc>usepa.github.io/TADA/reference/TADA_boxplot.html</loc>
   </url>
   <url>
-    <loc>usepa.github.io/TADA/reference/TADA_stats.html</loc>
+    <loc>usepa.github.io/TADA/reference/TADA_Stats.html</loc>
   </url>
   <url>
     <loc>usepa.github.io/TADA/reference/TADA_summarizeColumn.html</loc>
