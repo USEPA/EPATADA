@@ -186,7 +186,84 @@ datetimes, numerics based on a standard algorithm. See: ?dataRetrieval::readWQPd
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span></span></span>
+<span class="r-in"><span><span class="va">tada1</span> <span class="op">&lt;-</span> <span class="fu">TADAdataRetrieval</span><span class="op">(</span>statecode <span class="op">=</span> <span class="st">"WI"</span>, countycode <span class="op">=</span> <span class="st">"Dane"</span>, characteristicName <span class="op">=</span> <span class="st">"Phosphorus"</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="va">tada2</span> <span class="op">&lt;-</span> <span class="fu">TADAdataRetrieval</span><span class="op">(</span>project <span class="op">=</span> <span class="st">"Anchorage Bacteria 20-21"</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="va">tada3</span> <span class="op">&lt;-</span> <span class="fu">TADAdataRetrieval</span><span class="op">(</span>statecode <span class="op">=</span> <span class="st">"UT"</span>, characteristicName <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Ammonia"</span>, <span class="st">"Nitrate"</span>, <span class="st">"Nitrogen"</span><span class="op">)</span><span class="op">)</span> </span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="va">tada4</span> <span class="op">&lt;-</span> <span class="fu">TADAdataRetrieval</span><span class="op">(</span>statecode <span class="op">=</span> <span class="st">"SC"</span>, countycode  <span class="op">=</span> <span class="st">"Abbeville"</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># example for CT</span></span></span>
+<span class="r-in"><span><span class="va">tada5</span> <span class="op">&lt;-</span> <span class="fu">TADAdataRetrieval</span><span class="op">(</span>statecode <span class="op">=</span> <span class="st">"CT"</span>, startDate <span class="op">=</span> <span class="st">"2020-10-01"</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># note that countycode queries require a statecode (see example below)</span></span></span>
+<span class="r-in"><span><span class="va">tada6</span> <span class="op">&lt;-</span> <span class="fu">TADAdataRetrieval</span><span class="op">(</span>countycode <span class="op">=</span> <span class="st">"US:02:020"</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># example for NM</span></span></span>
+<span class="r-in"><span><span class="va">tada7</span> <span class="op">&lt;-</span> <span class="fu">TADAdataRetrieval</span><span class="op">(</span>statecode <span class="op">=</span> <span class="st">"NM"</span>, </span></span>
+<span class="r-in"><span>                           characteristicName <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Ammonia"</span>,</span></span>
+<span class="r-in"><span>                                                  <span class="st">"Nitrate"</span>, </span></span>
+<span class="r-in"><span>                                                  <span class="st">"Nitrogen"</span><span class="op">)</span>, </span></span>
+<span class="r-in"><span>                           startDate <span class="op">=</span> <span class="st">"2020-05-01"</span><span class="op">)</span></span></span>
+<span class="r-in"><span>                           </span></span>
+<span class="r-in"><span><span class="co"># example for AK</span></span></span>
+<span class="r-in"><span><span class="va">tada8</span> <span class="op">&lt;-</span> <span class="fu">TADAdataRetrieval</span><span class="op">(</span>project <span class="op">=</span> <span class="st">"Anchorage Bacteria 20-21"</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># another example for AK</span></span></span>
+<span class="r-in"><span><span class="va">tada9</span> <span class="op">&lt;-</span> <span class="fu">TADAdataRetrieval</span><span class="op">(</span>statecode <span class="op">=</span> <span class="st">"AK"</span>, </span></span>
+<span class="r-in"><span>                           characteristicName <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Fecal Coliform"</span>,</span></span>
+<span class="r-in"><span>                                                  <span class="st">"Escherichia coli"</span>,</span></span>
+<span class="r-in"><span>                                                  <span class="st">"Enterococcus"</span>, </span></span>
+<span class="r-in"><span>                                                  <span class="st">"Ammonia"</span>, </span></span>
+<span class="r-in"><span>                                                  <span class="st">"Nitrate"</span>, </span></span>
+<span class="r-in"><span>                                                  <span class="st">"Nitrogen"</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>                           startDate <span class="op">=</span> <span class="st">"2018-05-01"</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># example for tribes</span></span></span>
+<span class="r-in"><span><span class="co"># Download data for many of the ATTAINS participating tribes</span></span></span>
+<span class="r-in"><span><span class="co"># Note this query may take about a half hour to run</span></span></span>
+<span class="r-in"><span><span class="co"># https://www.itecmembers.org/attains/</span></span></span>
+<span class="r-in"><span><span class="co"># ATTAINS participating tribes also have tribal pages in EPA's </span></span></span>
+<span class="r-in"><span><span class="co"># How's My Waterway Application</span></span></span>
+<span class="r-in"><span><span class="co"># Example: https://mywaterway.epa.gov/tribe/SFNOES</span></span></span>
+<span class="r-in"><span><span class="co">#</span></span></span>
+<span class="r-in"><span><span class="co"># Sac &amp; Fox Nation, Oklahoma "SFNOES_WQX"</span></span></span>
+<span class="r-in"><span><span class="co"># Citizen Potawatomi Nation, Oklahoma "CPNWATER"</span></span></span>
+<span class="r-in"><span><span class="co"># Delaware Nation, Oklahoma "DELAWARENATION"</span></span></span>
+<span class="r-in"><span><span class="co"># Hoopa Valley Tribe, California "HVTEPA_WQX"</span></span></span>
+<span class="r-in"><span><span class="co"># Otoe Missouria Tribe of Oklahoma "O_MTRIBE_WQX"</span></span></span>
+<span class="r-in"><span><span class="co"># Minnesota Chippewa Tribe, Minnesota (Fond du Lac Band) "FONDULAC_WQX"</span></span></span>
+<span class="r-in"><span><span class="co"># Pueblo of San Ildefonso, New Mexico "SANILDEFONSODECP"</span></span></span>
+<span class="r-in"><span><span class="co"># Pueblo of Santa Ana, New Mexico "PUEBLO_SANTAANA"</span></span></span>
+<span class="r-in"><span><span class="co"># Pueblo of Tesuque, New Mexico "PUEBLOOFTESUQUE"</span></span></span>
+<span class="r-in"><span><span class="co"># Red Lake Band of Chippewa Indians, Minnesota "REDLAKE_WQX"</span></span></span>
+<span class="r-in"><span><span class="co"># Seneca-Cayuga Nation "SCEQ"</span></span></span>
+<span class="r-in"><span><span class="co"># The Chickasaw Nation "CNENVSER"</span></span></span>
+<span class="r-in"><span><span class="co"># The Choctaw Nation of Oklahoma "CHOCNATWQX"</span></span></span>
+<span class="r-in"><span><span class="co"># Wyandotte Nation "WNENVDPT_WQX"</span></span></span>
+<span class="r-in"><span><span class="co"># Pueblo of Pojoaque "PUEBLO_POJOAQUE"</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="va">tada10</span> <span class="op">&lt;-</span> <span class="fu">TADAdataRetrieval</span><span class="op">(</span>organization <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"SFNOES_WQX"</span>,</span></span>
+<span class="r-in"><span>                                             <span class="st">"CPNWATER"</span>,</span></span>
+<span class="r-in"><span>                                             <span class="st">"DELAWARENATION"</span>,</span></span>
+<span class="r-in"><span>                                             <span class="st">"HVTEPA_WQX"</span>,</span></span>
+<span class="r-in"><span>                                             <span class="st">"O_MTRIBE_WQX"</span>,</span></span>
+<span class="r-in"><span>                                             <span class="st">"FONDULAC_WQX"</span>,</span></span>
+<span class="r-in"><span>                                             <span class="st">"SANILDEFONSODECP"</span>,</span></span>
+<span class="r-in"><span>                                             <span class="st">"PUEBLO_SANTAANA"</span>,</span></span>
+<span class="r-in"><span>                                             <span class="st">"PUEBLOOFTESUQUE"</span>,</span></span>
+<span class="r-in"><span>                                             <span class="st">"REDLAKE_WQX"</span>,</span></span>
+<span class="r-in"><span>                                             <span class="st">"SCEQ"</span>,</span></span>
+<span class="r-in"><span>                                             <span class="st">"CNENVSER"</span>,</span></span>
+<span class="r-in"><span>                                             <span class="st">"CHOCNATWQX"</span>,</span></span>
+<span class="r-in"><span>                                             <span class="st">"WNENVDPT_WQX"</span>,</span></span>
+<span class="r-in"><span>                                             <span class="st">"PUEBLO_POJOAQUE"</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="op">}</span></span></span>
+<span class="r-in"><span></span></span>
+</code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc"><h2>On this page</h2>
     </nav></aside></div>

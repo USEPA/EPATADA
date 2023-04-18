@@ -13,13 +13,7 @@
     <loc>usepa.github.io/TADA/articles/WQPDataHarmonization.html</loc>
   </url>
   <url>
-    <loc>usepa.github.io/TADA/articles/WQPDataVisualization.html</loc>
-  </url>
-  <url>
     <loc>usepa.github.io/TADA/authors.html</loc>
-  </url>
-  <url>
-    <loc>usepa.github.io/TADA/CONTRIBUTING.html</loc>
   </url>
   <url>
     <loc>usepa.github.io/TADA/index.html</loc>
@@ -46,12 +40,6 @@
     <loc>usepa.github.io/TADA/reference/BelowNationalWQXLowerThreshold.html</loc>
   </url>
   <url>
-    <loc>usepa.github.io/TADA/reference/BelowNationalWQXUpperThreshold.html</loc>
-  </url>
-  <url>
-    <loc>usepa.github.io/TADA/reference/CensoredDataStats.html</loc>
-  </url>
-  <url>
     <loc>usepa.github.io/TADA/reference/checkColumns.html</loc>
   </url>
   <url>
@@ -67,16 +55,10 @@
     <loc>usepa.github.io/TADA/reference/ConvertSpecialChars.html</loc>
   </url>
   <url>
-    <loc>usepa.github.io/TADA/reference/CreateAnimatedMap.html</loc>
-  </url>
-  <url>
     <loc>usepa.github.io/TADA/reference/decimalnumcount.html</loc>
   </url>
   <url>
     <loc>usepa.github.io/TADA/reference/decimalplaces.html</loc>
-  </url>
-  <url>
-    <loc>usepa.github.io/TADA/reference/DepthProfileData.html</loc>
   </url>
   <url>
     <loc>usepa.github.io/TADA/reference/FilterFieldReview.html</loc>
@@ -92,12 +74,6 @@
   </url>
   <url>
     <loc>usepa.github.io/TADA/reference/FilterParList.html</loc>
-  </url>
-  <url>
-    <loc>usepa.github.io/TADA/reference/GenerateCensoredDataStats.html</loc>
-  </url>
-  <url>
-    <loc>usepa.github.io/TADA/reference/GenerateMap.html</loc>
   </url>
   <url>
     <loc>usepa.github.io/TADA/reference/GetActivityTypeRef.html</loc>
@@ -116,9 +92,6 @@
   </url>
   <url>
     <loc>usepa.github.io/TADA/reference/HarmonizationRefTable.html</loc>
-  </url>
-  <url>
-    <loc>usepa.github.io/TADA/reference/HarmonizeCensoredData.html</loc>
   </url>
   <url>
     <loc>usepa.github.io/TADA/reference/HarmonizeData.html</loc>
@@ -160,9 +133,6 @@
     <loc>usepa.github.io/TADA/reference/Nutrients_Utah.html</loc>
   </url>
   <url>
-    <loc>usepa.github.io/TADA/reference/Nutrients_Utah_Clean_TNonly.html</loc>
-  </url>
-  <url>
     <loc>usepa.github.io/TADA/reference/OrderTADACols.html</loc>
   </url>
   <url>
@@ -181,9 +151,6 @@
     <loc>usepa.github.io/TADA/reference/QualityControlActivity.html</loc>
   </url>
   <url>
-    <loc>usepa.github.io/TADA/reference/readWQPwebservice.html</loc>
-  </url>
-  <url>
     <loc>usepa.github.io/TADA/reference/RemoveEmptyColumns.html</loc>
   </url>
   <url>
@@ -197,12 +164,6 @@
   </url>
   <url>
     <loc>usepa.github.io/TADA/reference/summarizeCensoredData.html</loc>
-  </url>
-  <url>
-    <loc>usepa.github.io/TADA/reference/SummarizeCharacteristics.html</loc>
-  </url>
-  <url>
-    <loc>usepa.github.io/TADA/reference/SummarizeColumn.html</loc>
   </url>
   <url>
     <loc>usepa.github.io/TADA/reference/TADA.env.html</loc>
@@ -220,25 +181,16 @@
     <loc>usepa.github.io/TADA/reference/TADAProfileClean18_TNonly.html</loc>
   </url>
   <url>
-    <loc>usepa.github.io/TADA/reference/TADAProfile_AllUS_LakeWaterT_Jan2000toJuly2022.html</loc>
-  </url>
-  <url>
-    <loc>usepa.github.io/TADA/reference/TADAProfile_UT_Nutrients.html</loc>
-  </url>
-  <url>
     <loc>usepa.github.io/TADA/reference/TADAReadWQPWebServices.html</loc>
   </url>
   <url>
     <loc>usepa.github.io/TADA/reference/TADA_boxplot.html</loc>
   </url>
   <url>
-    <loc>usepa.github.io/TADA/reference/TADA_Stats.html</loc>
+    <loc>usepa.github.io/TADA/reference/TADA_stats.html</loc>
   </url>
   <url>
     <loc>usepa.github.io/TADA/reference/TADA_summarizeColumn.html</loc>
-  </url>
-  <url>
-    <loc>usepa.github.io/TADA/reference/TransformCensoredData.html</loc>
   </url>
   <url>
     <loc>usepa.github.io/TADA/reference/UpdateActivityTypeRef.html</loc>
@@ -248,9 +200,6 @@
   </url>
   <url>
     <loc>usepa.github.io/TADA/reference/UpdateDetLimitRef.html</loc>
-  </url>
-  <url>
-    <loc>usepa.github.io/TADA/reference/UpdateInternalData.html</loc>
   </url>
   <url>
     <loc>usepa.github.io/TADA/reference/UpdateMeasureUnitRef.html</loc>
@@ -272,9 +221,6 @@
   </url>
   <url>
     <loc>usepa.github.io/TADA/reference/WQXDetLimitRef_Cached.html</loc>
-  </url>
-  <url>
-    <loc>usepa.github.io/TADA/reference/WQXTargetUnits.html</loc>
   </url>
   <url>
     <loc>usepa.github.io/TADA/reference/WQXunitRef_Cached.html</loc>
