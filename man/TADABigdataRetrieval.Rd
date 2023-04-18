@@ -7,36 +7,39 @@
 TADABigdataRetrieval(
   startDate = "null",
   endDate = "null",
-  statecode = "null",
+  huc = "null",
+  siteid = "null",
+  siteType = "null",
   characteristicName = "null",
   characteristicType = "null",
   sampleMedia = "Water",
-  siteType = "null",
-  huc = "null",
-  maxsitesquery = 20,
+  statecode = "null",
+  maxrecs = 250000,
   applyautoclean = FALSE
 )
 }
 \arguments{
-\item{startDate}{Start Date YYYY-MM-DD format, for example, "1995-01-01"}
+\item{startDate}{Start Date string in the format YYYY-MM-DD, for example, "2020-01-01"}
 
-\item{endDate}{end date in YYYY-MM-DD format, for example, "2020-12-31"}
-
-\item{statecode}{Character/character vector. State/territory abbreviations from FIPS codes consist of two letters}
-
-\item{characteristicName}{Name of water quality parameter.}
-
-\item{characteristicType}{Groups of environmental measurements/parameters.}
-
-\item{sampleMedia}{Defaults to "Water". Refer to WQP domain tables for other options.}
-
-\item{siteType}{Name of water body type (e.g., "Stream", "Lake, Reservoir, Impoundment")}
+\item{endDate}{End Date string in the format YYYY-MM-DD, for example, "2020-01-01"}
 
 \item{huc}{A numeric code denoting a hydrologic unit. Example: "04030202". Different size hucs can be entered.}
 
-\item{maxsitesquery}{Numeric. The maximum number of sites to query in each for-loop of the TADABigdataRetrieval function. This input is flexible because sites are often variable in their data richness. If several data rich sites are within the same download chunk, time outs and errors are more likely. Thus, the smaller the maxsitesquery (especially with very large datacalls), the lower the probability of overwhelming the WQP.}
+\item{siteid}{Unique monitoring station identifier}
 
-\item{applyautoclean}{Defaults to FALSE. If TRUE, runs TADA's autoclean function on final combined dataset.}
+\item{siteType}{Type of waterbody}
+
+\item{characteristicName}{Name of parameter}
+
+\item{characteristicType}{Groups of environmental measurements/parameters.}
+
+\item{sampleMedia}{Sampling substrate such as water, air, or sediment}
+
+\item{statecode}{Code that identifies a state}
+
+\item{maxrecs}{The maximum number of results queried within one call to dataRetrieval.}
+
+\item{applyautoclean}{Logical, defaults to TRUE. Applies TADA's autoclean function on the returned data profile.}
 }
 \value{
 TADA-compatible dataframe

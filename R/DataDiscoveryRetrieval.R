@@ -56,10 +56,7 @@
 #' @param characteristicName Name of parameter
 #' @param characteristicType Groups of environmental measurements/parameters.
 #' @param sampleMedia Sampling substrate such as water, air, or sediment
-#' @param siteType Type of waterbody
 #' @param statecode Code that identifies a state
-#' @param countycode Code that identifies a county
-#' @param siteid Unique monitoring station identifier
 #' @param organization A string of letters and/or numbers (some additional characters also possible) used to signify an organization with data in the Water Quality Portal
 #' @param project A string of letters and/or numbers (some additional characters also possible) used to signify a project with data in the Water Quality Portal
 #' @param applyautoclean Logical, defaults to TRUE. Applies TADA's autoclean function on the returned data profile.
@@ -271,6 +268,24 @@ TADAdataRetrieval <- function(startDate = "null",
                                   Sites = sites.DR,
                                   Narrow = narrow.DR,
                                   Projects = projects.DR)
+    
+    # need to specify this or throws error when trying to bind rows. Temporary fix for larger
+    # issue where data structure for all columns should be specified.
+    cols = names(TADAprofile)[names(TADAprofile)%in%c("ActivityDepthHeightMeasure.MeasureValue",
+                                          "ActivityTopDepthHeightMeasure.MeasureValue",
+                                          "ActivityBottomDepthHeightMeasure.MeasureValue",
+                                          "ResultMeasureValue",
+                                          "ResultDepthHeightMeasure.MeasureValue",
+                                          "DetectionQuantitationLimitMeasure.MeasureValue",
+                                          "DrainageAreaMeasure.MeasureValue",
+                                          "ContributingDrainageAreaMeasure.MeasureValue",
+                                          "HorizontalAccuracyMeasure.MeasureValue",
+                                          "VerticalMeasure.MeasureValue",
+                                          "VerticalAccuracyMeasure.MeasureValue",
+                                          "WellDepthMeasure.MeasureValue",
+                                          "WellHoleDepthMeasure.MeasureValue")]
+    
+    TADAprofile = TADAprofile%>%dplyr::mutate_at(cols, as.character)
 
     # run autoclean function
     if(applyautoclean==TRUE){
@@ -385,16 +400,17 @@ TADAReadWQPWebServices <- function(webservice) {
 #' the date times to UTC. It also automatically converts the data to dates,
 #' datetimes, numerics based on a standard algorithm. See: ?dataRetrieval::readWQPdata
 #'
-#' @param startDate Start Date YYYY-MM-DD format, for example, "1995-01-01"
-#' @param endDate end date in YYYY-MM-DD format, for example, "2020-12-31"
-#' @param characteristicType Groups of environmental measurements/parameters.
-#' @param characteristicName Name of water quality parameter.
-#' @param sampleMedia Defaults to "Water". Refer to WQP domain tables for other options.
-#' @param siteType Name of water body type (e.g., "Stream", "Lake, Reservoir, Impoundment")
-#' @param statecode Character/character vector. State/territory abbreviations from FIPS codes consist of two letters
+#' @param startDate Start Date string in the format YYYY-MM-DD, for example, "2020-01-01"
+#' @param endDate End Date string in the format YYYY-MM-DD, for example, "2020-01-01"
 #' @param huc A numeric code denoting a hydrologic unit. Example: "04030202". Different size hucs can be entered.
-#' @param maxsitesquery Numeric. The maximum number of sites to query in each for-loop of the TADABigdataRetrieval function. This input is flexible because sites are often variable in their data richness. If several data rich sites are within the same download chunk, time outs and errors are more likely. Thus, the smaller the maxsitesquery (especially with very large datacalls), the lower the probability of overwhelming the WQP.
-#' @param applyautoclean Defaults to FALSE. If TRUE, runs TADA's autoclean function on final combined dataset.
+#' @param siteid Unique monitoring station identifier
+#' @param characteristicName Name of parameter
+#' @param characteristicType Groups of environmental measurements/parameters.
+#' @param sampleMedia Sampling substrate such as water, air, or sediment
+#' @param siteType Type of waterbody
+#' @param statecode Code that identifies a state
+#' @param maxrecs The maximum number of results queried within one call to dataRetrieval. 
+#' @param applyautoclean Logical, defaults to TRUE. Applies TADA's autoclean function on the returned data profile.
 #'
 #' @return TADA-compatible dataframe
 #'
@@ -410,15 +426,16 @@ TADAReadWQPWebServices <- function(webservice) {
 #'
 
 TADABigdataRetrieval <- function(startDate = "null",
-                              endDate = "null",
-                              statecode = "null",
-                              characteristicName = "null",
-                              characteristicType = "null",
-                              sampleMedia = "Water",
-                              siteType = "null",
-                              huc = "null",
-                              maxsitesquery = 20,
-                              applyautoclean = FALSE
+                                 endDate = "null",
+                                 huc = "null",
+                                 siteid = "null",
+                                 siteType = "null",
+                                 characteristicName = "null",
+                                 characteristicType = "null",
+                                 sampleMedia = "Water",
+                                 statecode = "null",
+                                 maxrecs = 250000,
+                                 applyautoclean = FALSE
 ) {
 
   start_T = Sys.time()
@@ -426,22 +443,23 @@ TADABigdataRetrieval <- function(startDate = "null",
   if(!"null"%in%statecode&!"null"%in%huc){stop("Please provide either state code(s) OR huc(s) to proceed.")}
 
   if(!startDate=="null"){
-    startDate = lubridate::ymd(startDate)
-    startYearLo = lubridate::year(startDate)
+    startDat = lubridate::ymd(startDate)
+    startYearLo = lubridate::year(startDat)
   }else{ # else: pick a date before which any data are unlikely to be in WQP
-    startDate = lubridate::ymd("1800-01-01")
-    startYearLo = lubridate::year(startDate)
+    startDate = "1800-01-01"
+    startDat = lubridate::ymd(startDate)
+    startYearLo = lubridate::year(startDat)
   }
 
 # Logic: if the input endDate is not null, convert to date and obtain year
   # for summary
   if(!endDate=="null"){
-    endDate = lubridate::ymd(endDate)
-    endYearHi = lubridate::year(endDate)
+    endDat = lubridate::ymd(endDate)
+    endYearHi = lubridate::year(endDat)
   }else{ # else: if not populated, default to using today's date/year for summary
-    endDate = Sys.Date()
-    endDate = lubridate::ymd(endDate)
-    endYearHi = lubridate::year(endDate)
+    endDate = as.character(Sys.Date())
+    endDat = lubridate::ymd(endDate)
+    endYearHi = lubridate::year(endDat)
   }
 
   # Create readWQPsummary query
@@ -482,97 +500,131 @@ TADABigdataRetrieval <- function(startDate = "null",
   } else if (huc != "null") {
     WQPquery = c(WQPquery,huc = huc)
   }
+  
+  # cut down on summary query time if possible based on big data query
+  diffdat = lubridate::time_length(difftime(Sys.Date(), startDat), "years")
+  
+  if(diffdat<=1){
+    WQPquery = c(WQPquery, summaryYears=1)
+  }
+  
+  if(diffdat>1&diffdat<=5){
+    WQPquery = c(WQPquery, summaryYears=5)
+  }
 
   print("Building site summary table for chunking result downloads...")
   df_summary = dataRetrieval::readWQPsummary(WQPquery)
 
-  # Create readWQPdata query
-  WQPquery2 = list(startDate = startDate, endDate = endDate)
-  if (length(characteristicName)>1) {
-    WQPquery2 = c(WQPquery2,characteristicName = list(characteristicName))
-  } else if (characteristicName != "null") {
-    WQPquery2 = c(WQPquery2,characteristicName = characteristicName)
-  }
-  if (length(characteristicType)>1) {
-    WQPquery2 <- c(WQPquery2, characteristicType = list(characteristicType))
-  } else if (characteristicType != "null") {
-    WQPquery2 <- c(WQPquery2, characteristicType = characteristicType)
-  }
-
-  if (length(sampleMedia)>1) {
-    WQPquery2 <- c(WQPquery2, sampleMedia = list(sampleMedia))
-  } else if (sampleMedia != "null") {
-    WQPquery2 <- c(WQPquery2, sampleMedia = sampleMedia)
-  }
-
     ## NOTE: if query brings back no results, function returns empty
     # dataRetrieval profile, not empty summary
     if(nrow(df_summary)>0){
+
+      # narrow down to years of interest from summary
       sites = df_summary %>%
         dplyr::filter(YearSummarized >= startYearLo,
                       YearSummarized <= endYearHi)
-
-      siteid_all = unique(sites$MonitoringLocationIdentifier)
-      rm(df_summary) # save some space
-
-      if(length(siteid_all) > 0) {
-        rm(sites) # save some space
-        l=length(siteid_all)  #len(sites)
-        maxsites=maxsitesquery   #max number of sites pulled per WQP query
-        #may want to consider using the total number of records in a given
-        #download group instead, e.g., records must not exceed some maximum
-        #threshold (e.g. USGS uses 250,000 records per group for their pipelines)
-        site_groups = split(siteid_all, ceiling(seq_along(siteid_all)/maxsites))
-
-        df = data.frame()
-        print("Starting result downloads...")
-        for(j in 1:length(site_groups)){
-          sites = site_groups[[j]]
-
-          results.DR <- dataRetrieval::readWQPdata(siteid = sites,
-                                                WQPquery2,
-                                                dataProfile = "resultPhysChem",
-                                                ignore_attributes = TRUE)
-
-          narrow.DR <- dataRetrieval::readWQPdata(siteid = sites,
-                                                WQPquery2,
-                                                dataProfile = "narrowResult",
-                                                ignore_attributes = TRUE)
-
-          sites.DR <- dataRetrieval::whatWQPsites(siteid = sites,
-                                                WQPquery2)
-
-          projects.DR <- dataRetrieval::readWQPdata(siteid = sites,
-                                                WQPquery2,
-                                                service = "Project")
-
-          joins = JoinWQPProfiles(FullPhysChem = results.DR,
-                                  Sites = sites.DR,
-                                  Narrow = narrow.DR,
-                                  Projects = projects.DR)
-
-          # need to specify this or throws error when trying to bind rows. Temporary fix for larger
-          # issue where data structure for all columns should be specified.
-          cols = names(joins)[names(joins)%in%c("ActivityDepthHeightMeasure.MeasureValue",
-                                                "ActivityTopDepthHeightMeasure.MeasureValue",
-                                                "ActivityBottomDepthHeightMeasure.MeasureValue",
-                                                "ResultMeasureValue",
-                                                "ResultDepthHeightMeasure.MeasureValue",
-                                                "DetectionQuantitationLimitMeasure.MeasureValue",
-                                                "DrainageAreaMeasure.MeasureValue",
-                                                "ContributingDrainageAreaMeasure.MeasureValue",
-                                                "HorizontalAccuracyMeasure.MeasureValue",
-                                                "VerticalMeasure.MeasureValue",
-                                                "VerticalAccuracyMeasure.MeasureValue",
-                                                "WellDepthMeasure.MeasureValue",
-                                                "WellHoleDepthMeasure.MeasureValue")]
-          joins = joins%>%dplyr::mutate_at(cols, as.character)
-
-          df = dplyr::bind_rows(df, joins)
-          # status of download relative to total number of sites queried.
-          perc = round(j/length(site_groups)*100)
-          print(paste0(perc,"% of sites run through web services and their data successfully combined."))
+      
+      rm(df_summary)
+      # if there are still site records when filtered to years of interest....
+      if(dim(sites)[1]>0){
+        
+        # function for chunking by records
+        make_groups = function(x,maxrecs){
+          if(sum(x$tot_n)<=maxrecs|dim(x)[1]==1){ # WARNING: if there's only one row and it's more than maxrecs, it will try to run the query anyway
+            groupings = x
+            groupings$group = 1
+          }else{
+            groupings = data.frame()
+            group = data.frame()
+            i = 1
+            while(nrow(x)>nrow(group)){
+              x$csum = cumsum(x$tot_n)
+              brk = which(x$csum>maxrecs)[1]
+              group = x[1:(brk-1),]
+              group$group = i
+              if(brk>1){
+                x = x[brk:length(x$tot_n),]
+              }else{
+                x = x[2:length(x$tot_n),]
+              }
+              i = i+1
+              groupings = plyr::rbind.fill(groupings, group)
+            }
+            
+            x$group = i
+            
+            groupings = plyr::rbind.fill(groupings, x)
+          }
+          return(groupings)
         }
+        
+        
+        # get total number of results per site and separate out sites with >250000 results
+        tot_sites = sites%>%dplyr::group_by(MonitoringLocationIdentifier)%>%dplyr::summarise(tot_n = sum(ResultCount))%>%dplyr::arrange(tot_n)
+        smallsites = tot_sites%>%dplyr::filter(tot_n<=maxrecs)
+        bigsites = tot_sites%>%dplyr::filter(tot_n>maxrecs)
+        
+        df = data.frame()
+        
+        if(dim(smallsites)[1]>0){
+          
+          smallsitesgrp = make_groups(smallsites, maxrecs)
+          
+          print(paste0("Downloading data from sites with fewer than ",maxrecs," results by grouping them together."))
+          
+          for(i in 1:max(smallsitesgrp$group)){
+            print(i)
+            site_chunk = subset(smallsitesgrp$MonitoringLocationIdentifier, smallsitesgrp$group==i)
+            joins = TADA::TADAdataRetrieval(startDate = startDate,
+                                            endDate = endDate,
+                                            siteid = site_chunk,
+                                            characteristicName = characteristicName,
+                                            characteristicType = characteristicType,
+                                            sampleMedia = sampleMedia,
+                                            applyautoclean = FALSE)
+            if(dim(joins)[1]>0){
+              df = dplyr::bind_rows(df, joins)
+            }
+            
+          }
+          
+          rm(smallsites, smallsitesgrp)
+        }
+          
+          if(dim(bigsites)[1]>0){
+            
+            print(paste0("Downloading data from sites with greater than ",maxrecs," results, chunking queries by shorter time intervals..."))
+            
+            bsitesvec = unique(bigsites$MonitoringLocationIdentifier)
+            
+            for(i in 1:length(bsitesvec)){
+              mlidsum = subset(sites, sites$MonitoringLocationIdentifier==bsitesvec[i])
+              mlidsum = mlidsum%>%dplyr::group_by(MonitoringLocationIdentifier, YearSummarized)%>%dplyr::summarise(tot_n = sum(ResultCount))
+              site_chunk = unique(mlidsum$MonitoringLocationIdentifier)
+              
+              bigsitegrps = make_groups(mlidsum, maxrecs)
+              
+              for(i in 1:max(bigsitegrps$group)){
+                yearchunk = subset(bigsitegrps$YearSummarized, bigsitegrps$group==i)
+                startD = paste0(min(yearchunk),"-01-01")
+                endD = paste0(max(yearchunk),"-12-31")
+                
+                joins = TADA::TADAdataRetrieval(startDate = startD,
+                                                endDate = endD,
+                                                siteid = site_chunk,
+                                                characteristicName = characteristicName,
+                                                characteristicType = characteristicType,
+                                                sampleMedia = sampleMedia,
+                                                applyautoclean = FALSE)
+                
+                if(dim(joins)[1]>0){
+                  df = dplyr::bind_rows(df, joins)
+                }
+              }
+            }
+            rm(bigsites, bigsitegrps)
+          }
+          
       }else{
         warning("Query returned no data. Function returns an empty dataframe.")
         return(sites)
@@ -581,6 +633,9 @@ TADABigdataRetrieval <- function(startDate = "null",
       warning("Query returned no data. Function returns an empty dataframe.")
       return(df_summary)
     }
+  
+  df = subset(df, as.Date(df$ActivityStartDate,"%Y-%m-%d")>=startDat&as.Date(df$ActivityStartDate,"%Y-%m-%d")<=endDat)
+  
   if(applyautoclean == TRUE){
     print("Applying TADA autoclean function...")
     df = autoclean(df)

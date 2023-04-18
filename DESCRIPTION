@@ -48,6 +48,7 @@ Imports:
     ggplot2, 
     sf,
     maps,
+    leaflet,
     plotly,
     rmarkdown, 
     outliers,

@@ -88,3 +88,57 @@ TADA_boxplot <- function(filtered.data) {
   
   return(base_boxplot)
 }
+
+#' Create Overview Map
+#' 
+#' @param .data TADA data frame containing the data downloaded from the WQP, where
+#' each row represents a unique data record. Data frame must include the columns
+#' 'MonitoringLocationIdentifier','MonitoringLocationName','TADA.LatitudeMeasure', 
+#' 'TADA.LongitudeMeasure', 'ResultIdentifier', 'ActivityStartDate', 'TADA.CharacteristicName',
+#' and 'OrganizationIdentifier' to run this function. 
+#' 
+#' @return A leaflet map that shows all sites in the data frame, where larger point sizes
+#' indicate more results collected at a site, and darker point colors indicate more
+#' characteristics measured at that site. Users can click on points on the map to see
+#' a pop-up window with exact counts for results, characteristics, and organizations
+#' associated with each site.
+#' 
+#' @export
+#' 
+#' @examples
+#' # Load example dataset:
+#' data("Nutrients_Utah.rda")
+#' 
+#' # Create map:
+#' TADAOverviewMap(Nutrients_Utah)
+#' 
+
+TADAOverviewMap <- function(.data){
+  sumdat = .data%>%dplyr::group_by(MonitoringLocationIdentifier,MonitoringLocationName,TADA.LatitudeMeasure, TADA.LongitudeMeasure)%>%dplyr::summarise("Sample_Count" = length(unique(ResultIdentifier)), "Visit_Count" = length(unique(ActivityStartDate)), "Parameter_Count" = length(unique(TADA.CharacteristicName)), "Organization_Count" = length(unique(OrganizationIdentifier)))
+  sumdat$radius = 3
+  sumdat$radius = ifelse(sumdat$Sample_Count>10,5,sumdat$radius)
+  sumdat$radius = ifelse(sumdat$Sample_Count>50,8,sumdat$radius)
+  sumdat$radius = ifelse(sumdat$Sample_Count>100,10,sumdat$radius)
+  sumdat$radius = ifelse(sumdat$Sample_Count>200,15,sumdat$radius)
+  sumdat$radius = ifelse(sumdat$Sample_Count>500,20,sumdat$radius)
+  sumdat$radius = ifelse(sumdat$Sample_Count>1500,30,sumdat$radius)
+  
+  pal <- leaflet::colorBin(
+    palette = "Blues",
+    domain = sumdat$Parameter_Count)
+  map = leaflet::leaflet()%>%
+    leaflet::addProviderTiles("Esri.WorldTopoMap", group = "World topo", options = leaflet::providerTileOptions(updateWhenZooming = FALSE,updateWhenIdle = TRUE))%>%
+    leaflet::clearShapes()%>% # get rid of whatever was there before if loading a second dataset
+    leaflet::fitBounds(lng1 = min(sumdat$TADA.LongitudeMeasure), lat1 = min(sumdat$TADA.LatitudeMeasure), lng2 = max(sumdat$TADA.LongitudeMeasure), lat2 = max(sumdat$TADA.LatitudeMeasure))%>% # fit to bounds of data in tadat$raw
+    leaflet::addCircleMarkers(data = sumdat, lng=~TADA.LongitudeMeasure, lat=~TADA.LatitudeMeasure, color="black",fillColor=~pal(Parameter_Count), fillOpacity = 0.7, stroke = TRUE, weight = 1.5, radius=sumdat$radius,
+                              popup = paste0("Site ID: ", sumdat$MonitoringLocationIdentifier,
+                                             "<br> Site Name: ", sumdat$MonitoringLocationName,
+                                             "<br> Sample Count: ", sumdat$Sample_Count,
+                                             "<br> Visit Count: ", sumdat$Visit_Count,
+                                             "<br> Parameter Count: ", sumdat$Parameter_Count))%>%
+    leaflet::addLegend("bottomright", pal = pal, values =sumdat$Parameter_Count,
+                       title = "Characteristics",
+                       opacity = 0.5
+    )
+  return(map)
+}
