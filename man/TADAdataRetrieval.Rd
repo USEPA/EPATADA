@@ -100,16 +100,11 @@ datetimes, numerics based on a standard algorithm. See: ?dataRetrieval::readWQPd
 }
 \examples{
 \dontrun{
-tada1 <- TADAdataRetrieval(statecode = "WI",
-                           countycode = "Dane",
-                           characteristicName = "Phosphorus")
+tada1 <- TADAdataRetrieval(statecode = "WI", countycode = "Dane", characteristicName = "Phosphorus")
 
 tada2 <- TADAdataRetrieval(project = "Anchorage Bacteria 20-21")
 
-tada3 <- TADAdataRetrieval(statecode = "UT", 
-                           characteristicName = c("Ammonia", 
-                                                  "Nitrate", 
-                                                  "Nitrogen"), 
+tada3 <- TADAdataRetrieval(statecode = "UT", characteristicName = c("Ammonia", "Nitrate", "Nitrogen")) 
 
 tada4 <- TADAdataRetrieval(statecode = "SC", countycode  = "Abbeville")
 
