@@ -84,3 +84,32 @@ NULL
 #' @usage data(TADAProfileClean18_TNonly)
 #' @format A data frame with 5005 rows and 168 variables
 NULL
+
+#' Tribal Data
+#'
+#' Original pull:  
+#' TADAProfile <- TADAdataRetrieval(organization = c("REDLAKE_WQX", 
+#'                                                  "SFNOES_WQX", 
+#'                                                  "PUEBLO_POJOAQUE",
+#'                                                  "FONDULAC_WQX",
+#'                                                  "PUEBLOOFTESUQUE",
+#'                                                  "CNENVSER"),
+#'                                 startDate = "2018-01-01")
+#'                                 
+#' This example includes monitoring data collected from Jan 2018 to present
+#' by six organizations: 
+#' 1) Red Lake Band of Chippewa Indians,
+#' 2) Sac & Fox Nation, 
+#' 3) Pueblo of Pojoaque,
+#' 4) Minnesota Chippewa Tribe (Fond du Lac Band),
+#' 5) Pueblo of Tesuque, and
+#' 6) The Chickasaw Nation
+#'
+#'  
+#' @docType data
+#' @keywords datasets
+#' @name TribalData
+#' @usage data(TribalData)
+#' @format A data frame with 131106 rows and 168 variables
+NULL
+
