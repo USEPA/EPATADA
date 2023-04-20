@@ -733,7 +733,8 @@ FilterFieldReview_Table
 ```
 
 The ActivityTypeCode field has multiple unique values. In this example
-we remove Quality Control (QC) values.
+we remove Quality Control (QC) values using the TADA
+QualityControlActivity function.
 
 ```{r}
 # Remove all QC samples using the TADA QualityControlActivity function:
@@ -752,31 +753,51 @@ FilterFieldReview("ActivityTypeCode",
 
 ```
 
-We've completed our review of the ActivityTypeCode field.
+We've completed our review of the ActivityTypeCode.
 
-Let's move on to a different field and see if there are any values that
-we want to remove.
+Now, let's move on to a different field and see if there are any values
+that we want to remove.
+
+In this next example, there are multiple MeasureQualifierCode values to
+review.
 
 ```{r, fig.width=6, fig.height=2, fig.fullwidth=TRUE}
 FilterFieldReview("MeasureQualifierCode", TADAProfileClean14)
-# review definitions here: https://cdx.epa.gov/wqx/download/DomainValues/ResultMeasureQualifier.CSV
-
-# D: Contract Required Quantitation Limit (CRQL) not met due to sample matrix interference, dilution required
-# H: Holding time exceeded
-# ICA: Incorrect Initial Calibration Associated with Sample
-
-FilterFieldReview("OrganizationFormalName", TADAProfileClean14)
-
 ```
 
-MeasureQualifierCode has multiple values. In this example, we show how to remove specific values.
+MeasureQualifierCode definitions are available
+[here](https://cdx.epa.gov/wqx/download/DomainValues/ResultMeasureQualifier.CSV){style="font-size: 12pt;"}.
+Values and definitions relevant to this example data frame are included
+below:
+
+-   D: Contract Required Quantitation Limit (CRQL) not met due to sample
+    matrix interference, dilution required
+
+-   H: Holding time exceeded
+
+-   ICA: Incorrect Initial Calibration Associated with Sample
+
+-   \*: Sample was warm when received
+
+-   E: Concentration of analyte being analyzed exceeded calibration
+    range of instrument.
+
+-   J: Estimated: The analyte was positively identified and the
+    associated numerical value is the approximate concentration of the
+    analyte in the sample.
+
+-   U: Not Detected: The analyte was analyzed for, but was not detected
+    at a level greater than or equal to the level of the adjusted
+    Contract Required Quantitation Limit (CRQL) for sample and method.
+
+In this example, we show how to remove specific values and regenerate
+the pie chart.
 
 ```{r}
-TADAProfileClean15 <- dplyr::filter(TADAProfileClean14, !(MeasureQualifierCode %in% c("D", "H", "ICA")))
+TADAProfileClean15 <- dplyr::filter(TADAProfileClean14, !(MeasureQualifierCode %in% c("D", "H", "ICA", "*")))
 
 # regenerate table and pie chart
 FilterFieldReview("MeasureQualifierCode", TADAProfileClean15)
-
 ```
 
 ## Censored data
@@ -843,28 +864,38 @@ TADAProfileClean16 = simpleCensoredMethods(TADAProfileClean15,
                                            nd_multiplier = 0.5,
                                            od_method = "as-is",
                                            od_multiplier = "null")
-
 ```
 
+Next, review  unique values within the TADA.CensoredData.Flag, DetectionQuantitationLimitTypeName, and ResultDetectionConditionText columns. 
+
 ```{r}
-# review unique values for TADA.CensoredData.Flag, 
-# DetectionQuantitationLimitTypeName, and ResultDetectionConditionText
+# review unique values
 unique(TADAProfileClean16$TADA.CensoredData.Flag)
 unique(TADAProfileClean16$DetectionQuantitationLimitTypeName)
 unique(TADAProfileClean16$ResultDetectionConditionText)
+```
 
-# review TADA.ResultMeasureValueDataTypes.Flag to see any NA's remain
+Also, review the TADA.ResultMeasureValueDataTypes.Flag to see if any NA's or ND's (non-detects) remain. 
+```{r}
 unique(TADAProfileClean16$TADA.ResultMeasureValueDataTypes.Flag)
+```
 
-# review if any remaining result values are NA
+Count how many NA's remain in the TADA.ResultMeasureValue. 
+```{r}
 sum(is.na(TADAProfileClean16$TADA.ResultMeasureValue))
+```
 
+Filter down to only numeric data. Remove data where the TADA.ResultMeasureValueDataTypes.Flag = "Text","Coerced to NA","ND or NA".
+```{r}
 # Filter down to only numeric data. Remove "Text","Coerced to NA","ND or NA"  
 TADAProfileClean17 <- dplyr::filter(TADAProfileClean16, 
                   TADA.ResultMeasureValueDataTypes.Flag != "ND or NA" &
                   TADA.ResultMeasureValueDataTypes.Flag != "Text" &
                   TADA.ResultMeasureValueDataTypes.Flag != "Coerced to NA")
+```
 
+Double check to make sure no NA's or ND's remain.
+```{r}
 unique(TADAProfileClean17$TADA.ResultMeasureValueDataTypes.Flag)
 ```
 
@@ -939,10 +970,9 @@ particular values by filtering.
 To start, review the list of parameters in the dataframe using the
 **FilterParList** function.
 
-```{r}
-# review function documentation
-# ?FilterParList
+Enter ?FilterParList into the console for more information.
 
+```{r}
 FilterParList(TADAProfileClean18)
 ```
 
@@ -1074,7 +1104,7 @@ outliers::chisq.out.test(TADAProfileClean19$TADA.ResultMeasureValue)
 
 # remove results greater than the upper fence (see stats table generated above)
 # note: many outliers are valid results.
-TADAProfileClean19_removeOutliers <- dplyr::filter(TADAProfileClean19, TADA.ResultMeasureValue <= 89)
+TADAProfileClean19_removeOutliers <- dplyr::filter(TADAProfileClean19, TADA.ResultMeasureValue <= 86.5)
 
 ```
 
