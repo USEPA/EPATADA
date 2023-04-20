@@ -181,6 +181,7 @@ FilterFieldReview <- function(field, .data) {
 
   # subset UniqueValList by input
   df <- TADA.env$UniqueValList[[field]]
+  df$Legend = paste0(df$FieldValues, " - ", df$Count, " results")
   
   # define number of colors required for pie chart
   colorCount <- length(unique(df$FieldValues))
@@ -191,12 +192,12 @@ FilterFieldReview <- function(field, .data) {
   # create pie chart
   # look into fixing display of counts for small slices: 
   # https://stackoverflow.com/questions/28912059/labels-on-the-pie-chart-for-small-pieces-ggplot
-  pie <- ggplot2::ggplot(df, ggplot2::aes(x = "", y = Count, fill = FieldValues)) +
+  pie <- ggplot2::ggplot(df, ggplot2::aes(x = "", y = Count, fill = Legend)) +
     ggplot2::scale_fill_manual(values = getPalette(colorCount),name = field) +
     ggplot2::geom_bar(stat = "identity", width = 1) +
     ggplot2::coord_polar("y", start = 0) +
-    ggplot2::theme_void() + # remove background, grid, numeric labels
-    ggplot2::geom_text(ggplot2::aes(label = Count), color = "black", size=4, position = ggplot2::position_stack(vjust = 0.5))
+    ggplot2::theme_void() # remove background, grid, numeric labels
+    # ggplot2::geom_text(ggplot2::aes(label = Count), color = "black", size=4, position = ggplot2::position_stack(vjust = 0.5))
 
   print(pie)
   print(df)
@@ -481,7 +482,8 @@ FilterParFieldReview <- function(field, .data, parameter) {
 
   # subset UniqueValList by input
   df <- TADA.env$ParUniqueValList[[field]]
-
+  df$Legend = paste0(df$FieldValues, " - ", df$Count, " results")
+  
   # define number of colors required for pie chart
   colorCount <- length(unique(df$FieldValues))
 
@@ -489,13 +491,13 @@ FilterParFieldReview <- function(field, .data, parameter) {
   getPalette <- grDevices::colorRampPalette(RColorBrewer::brewer.pal(8, "Set2"))
 
   # create pie chart
-  pie <- ggplot2::ggplot(df, ggplot2::aes(x = "", y = Count, fill = FieldValues)) +
+  pie <- ggplot2::ggplot(df, ggplot2::aes(x = "", y = Count, fill = Legend)) +
     ggplot2::scale_fill_manual(values = getPalette(colorCount), name = field) +
     ggplot2::geom_bar(stat = "identity", width = 1) +
     ggplot2::coord_polar("y", start = 0) +
     ggplot2::theme_void() +
-    ggplot2::labs(title = parameter) + 
-    ggplot2::geom_text(ggplot2::aes(label = Count), color = "black", size=4, position = ggplot2::position_stack(vjust = 0.5))
+    ggplot2::labs(title = parameter) #+ 
+    # ggplot2::geom_text(ggplot2::aes(label = Count), color = "black", size=4, position = ggplot2::position_stack(vjust = 0.5))
 
   print(pie)
   print(df)

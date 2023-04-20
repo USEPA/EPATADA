@@ -10,6 +10,9 @@
     <loc>usepa.github.io/TADA/articles/index.html</loc>
   </url>
   <url>
+    <loc>usepa.github.io/TADA/articles/TADAModule1.html</loc>
+  </url>
+  <url>
     <loc>usepa.github.io/TADA/articles/WQPDataHarmonization.html</loc>
   </url>
   <url>
@@ -194,6 +197,9 @@
   </url>
   <url>
     <loc>usepa.github.io/TADA/reference/TADA_summarizeColumn.html</loc>
+  </url>
+  <url>
+    <loc>usepa.github.io/TADA/reference/TribalData.html</loc>
   </url>
   <url>
     <loc>usepa.github.io/TADA/reference/UpdateActivityTypeRef.html</loc>
