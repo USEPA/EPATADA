@@ -1,5 +1,7 @@
 ## Welcome to TADA!
 
+[![](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://lifecycle.r-lib.org/articles/stages.html#experimental)
+
 [![](https://github.com/USEPA/TADA/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/USEPA/TADA/actions/workflows/R-CMD-check.yaml)
 
 We encourage you to read this package's [CONTRIBUTING](https://usepa.github.io/TADA/articles/CONTRIBUTING.html), [LICENSE](https://usepa.github.io/TADA/LICENSE.html), and [README](https://usepa.github.io/TADA/index.html) files (you are here).
@@ -8,13 +10,15 @@ TADA is a draft R package being developed to help States, Tribes, Tribal Nations
 
 We encourage stakeholders to test the functionality and provide feedback. Moreover, open source software provides an avenue for water quality data originators and users to develop and share code, and we welcome your contributions! More information on how to contribute can be found in the [CONTRIBUTING](https://usepa.github.io/TADA/articles/CONTRIBUTING.html) file. This file explains how users can contribute to the R package by submitting an issue, requesting a change, or submitting an inquiry. We hope to build a collaborative community dedicated to this effort where contributors can discover, share and build the package functionality over time.
 
+[More about the TADA Project](https://www.epa.gov/waterdata/TADA)
+
 ## Water Quality Portal
 
 In 2012, the WQP was deployed by the U.S. Geological Survey (USGS), the U.S. Environmental Protection Agency (USEPA), and the National Water Quality Monitoring Council to combine and serve water-quality data from numerous sources in a standardized format. The WQP holds over 420 million water quality sample results from over 1000 federal, state, tribal and other partners, and is the nation's largest source for single point of access for water-quality data. Participating organizations submit their data to the WQP using the EPA's Water Quality Exchange (WQX), a framework designed to map their data holdings to a common data structure.
 
 ## Installation
 
-You can install and load the most recent version of the TADA R Package from GitHub by running:
+You can install and load the most recent version of the TADA R Package from [GitHub](https://github.com/USEPA/TADA) by running:
 
 ``` r
 library (remotes)
