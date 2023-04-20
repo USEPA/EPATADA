@@ -72,7 +72,7 @@ InvalidFraction <- function(.data, clean = TRUE, errorsonly = FALSE) {
   
   # rename Status column
   check.data <- check.data %>%
-    dplyr::rename(TADA.SampleFraction.Flag = Status)
+    dplyr::rename(TADA.SampleFraction.Flag = Status) %>% dplyr::distinct()
   # rename NA values to Nonstandardized in TADA.SampleFraction.Flag column
   check.data["TADA.SampleFraction.Flag"][is.na(check.data["TADA.SampleFraction.Flag"])] <- "Nonstandardized"
   
@@ -212,7 +212,7 @@ InvalidSpeciation <- function(.data, clean = c("invalid_only", "nonstandardized_
   
   # rename Status column
   check.data <- check.data %>%
-    dplyr::rename(TADA.MethodSpeciation.Flag = Status)
+    dplyr::rename(TADA.MethodSpeciation.Flag = Status) %>% dplyr::distinct()
   # rename NA values to Nonstandardized in TADA.MethodSpeciation.Flag column
   check.data["TADA.MethodSpeciation.Flag"][is.na(check.data["TADA.MethodSpeciation.Flag"])] <- "Nonstandardized"
   
@@ -366,7 +366,7 @@ InvalidResultUnit <- function(.data, clean = c("invalid_only", "nonstandardized_
   
   # rename Status column
   check.data <- check.data %>%
-    dplyr::rename(TADA.ResultUnit.Flag = Status)
+    dplyr::rename(TADA.ResultUnit.Flag = Status) %>% dplyr::distinct()
   # rename NA values to Nonstandardized in WQX.ResultUnitValidity column
   check.data["TADA.ResultUnit.Flag"][is.na(check.data["TADA.ResultUnit.Flag"])] <- "Nonstandardized"
   
@@ -511,6 +511,7 @@ QualityControlActivity <- function(.data, clean = FALSE, errorsonly = FALSE) {
   
   # populate flag column in data
   flag.data <- dplyr::left_join(.data, qc.ref, by = "ActivityTypeCode")
+  flag.data = flag.data %>% dplyr::distinct()
   
   # clean dataframe
   # if clean = FALSE, return full dataframe
