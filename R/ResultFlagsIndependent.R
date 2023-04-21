@@ -80,7 +80,7 @@ InvalidMethod <- function(.data, clean = TRUE, errorsonly = FALSE) {
   
   # rename Status column to WQX.AnalyticalMethodValidity
   check.data <- check.data %>%
-    dplyr::rename(TADA.AnalyticalMethod.Flag = Status)
+    dplyr::rename(TADA.AnalyticalMethod.Flag = Status) %>% dplyr::distinct()
   # rename NA values to Nonstandardized in WQX.AnalyticalMethodValidity column
   check.data["TADA.AnalyticalMethod.Flag"][is.na(check.data["TADA.AnalyticalMethod.Flag"])] <- "Nonstandardized"
   
@@ -512,7 +512,7 @@ AboveNationalWQXUpperThreshold <- function(.data, clean = TRUE, errorsonly = FAL
   
   # remove extraneous columns, fix field names
   flag.data <- flag.data %>%
-    dplyr::select(-"Maximum")
+    dplyr::select(-"Maximum") %>% dplyr::distinct()
   
   # if no data above WQX threshold is found
   if (any("Y" %in%
@@ -663,7 +663,7 @@ BelowNationalWQXLowerThreshold <- function(.data, clean = TRUE, errorsonly = FAL
   
   # remove extraneous columns, fix field names
   flag.data <- flag.data %>%
-    dplyr::select(-"Minimum")
+    dplyr::select(-"Minimum") %>% dplyr::distinct()
   
   # if no data below WQX lower threshold is found
   if (any("Y" %in%

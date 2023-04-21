@@ -53,7 +53,7 @@ GetWQXCharValRef <- function() {
                                                            "InvalidChar",
                                                            "MethodNeeded"),"Nonstandardized",WQXcharValRef$Status2)
   
-  WQXcharValRef = WQXcharValRef%>%dplyr::select(-Status)%>%dplyr::rename(Status = Status2)
+  WQXcharValRef = WQXcharValRef%>%dplyr::select(-Status)%>%dplyr::rename(Status = Status2)%>%dplyr::distinct()
 
   # Save updated table in cache
   WQXCharValRef_Cached <- WQXcharValRef
@@ -175,7 +175,7 @@ GetMeasureUnitRef <- function() {
     Conversion.Coefficient = rep(0, 13)
   )
   # add data to WQXunitRef
-  WQXunitRef <- plyr::rbind.fill(WQXunitRef, target.m, target.ft)
+  WQXunitRef <- plyr::rbind.fill(WQXunitRef, target.m, target.ft)%>%dplyr::distinct()
 
   # Save updated table in cache
   WQXunitRef_Cached <- WQXunitRef
@@ -232,7 +232,7 @@ GetDetCondRef <- function() {
       Name%in%c("Above Operating Range","Present Above Quantification Limit") ~ as.character("Over-Detect"),
       Name%in%c("Value Decensored","Reported in Raw Data (attached)","High Moisture") ~ as.character("Other"),
       TRUE ~ as.character("Non-Detect")
-    ))
+    ))%>%dplyr::distinct()
   
   # Save updated table in cache
   WQXDetCondRef_Cached <- WQXDetCondRef
@@ -289,7 +289,7 @@ GetDetLimitRef <- function() {
       Name%in%c("Upper Quantitation Limit","Upper Reporting Limit","Upper Calibration Limit") ~ as.character("Over-Detect"),
       Name%in%c("Drinking Water Maximum","Field Holding Time Limit","Specified in workplan","Statistical Uncertainty","Systematic Uncertainty","Taxonomic Loss Threshold","Water Quality Standard or Criteria") ~ as.character("Other"),
       TRUE ~ as.character("Non-Detect")
-    ))
+    ))%>%dplyr::distinct()
   
   ## Add USGS limits not in WQX domain table
   usgs = data.frame(Name = c("Elevated Detection Limit","Historical Lower Reporting Limit","Method Detection Limit (MDL)"),
@@ -414,7 +414,7 @@ GetActivityTypeRef <- function() {
       Code %in% cal ~ "QC_calibration",
       Code %in% other ~ "QC_other",
       TRUE ~ as.character("Non_QC")
-    ))
+    ))%>%dplyr::distinct()
   
   # Save updated table in cache
   WQXActivityTypeRef_Cached <- WQXActivityTypeRef
