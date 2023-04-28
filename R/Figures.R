@@ -71,9 +71,8 @@ TADA_boxplot <- function(filtered.data) {
                                   q3 = quant_75, lowerfence = box_lower,
                                   hoverinfo = 'y',
                                   upperfence = box_upper, boxpoints = "outliers",
-                                  marker = list(color = "#7cb5ec", fill = "#c0e9ff"),
-                                  color = I("#c0e9ff"),
-                                  stroke = I("#7cb5ec"))
+                                  marker = list(color = "#00bde3"),
+                                  stroke = I("#005ea2"))
   
   # boxplot layout and labels
   base_boxplot <- base_boxplot %>% 
@@ -87,6 +86,71 @@ TADA_boxplot <- function(filtered.data) {
     plotly::config(displayModeBar = FALSE)
   
   return(base_boxplot)
+}
+
+#' Create Histogram
+#' 
+#' @param filtered.data TADA data frame containing the data downloaded from the WQP, where
+#' each row represents a unique data record. Data frame must include the columns
+#' 'TADA.ComparableDataIdentifier", 'TADA.ResultMeasureValue', and
+#' 'TADA.ResultMeasure.MeasureUnitCode' to run this function. These columns can 
+#' be added to the data frame by running the function HarmonizeData(). The data frame
+#' must be filtered down to a single comparable data identifier to run this function.
+#' 
+#' @return A plotly histogram figure showing the distribution of sample values 
+#' for the given comparable data identifier.
+#' 
+#' @export
+#' 
+#' @examples
+#' # Load example dataset:
+#' data("TADAProfileClean18_TNonly")
+#' # TADAProfileClean18_TNonly dataframe is clean, harmonized, and filtered
+#' # down to one Comparable Data Identifier
+#' 
+#' # Create histogram:
+#' TADA_hist(TADAProfileClean18_TNonly)
+
+TADA_hist <- function(filtered.data) {
+  # check .data is data.frame
+  checkType(filtered.data, "data.frame", "Input object")
+  # check .data has required columns
+  checkColumns(filtered.data, c("TADA.ComparableDataIdentifier", "TADA.ResultMeasureValue", "TADA.ResultMeasure.MeasureUnitCode"))
+  # check TADA.ComparableDataIdentifier column is filtered to one identifier
+  if (length(unique(filtered.data$TADA.ComparableDataIdentifier)) > 1) {
+    warning("Histogram function cannot run with more than 1 comparable data identifier. Please filter dataframe and rerun function.")
+  }
+  
+  # execute function after checks have passed
+  
+  # units
+  unit <- unique(filtered.data$TADA.ResultMeasure.MeasureUnitCode)
+  x_label <- paste0("Level (", unit, ")")
+  y_label <- paste0("Number of Samples
+  (Total of ", nrow(filtered.data), " Samples)")
+  
+  # construct plotly histogram
+  x <- filtered.data$TADA.ResultMeasureValue
+  histogram <- plotly::plot_ly(x=x, type = "histogram",
+                               xbins = list(start = 0),
+                               marker = list(color = "#00bde3"),
+                               stroke = I("#005ea2")
+                               )
+  
+  # histogram layout and labels
+  histogram <- histogram %>% 
+  plotly::layout(
+    xaxis = list(title = x_label, titlefont = list(size = 16, family = "Arial"), tickfont = list(size = 16, family = "Arial"),
+                 hoverformat = ',.4r', linecolor = "black", rangemode = 'nonnegative', 
+                 showgrid = FALSE, tickcolor= "black"),
+    yaxis = list(title = y_label, titlefont = list(size = 16, family = "Arial"), tickfont = list(size = 16, family = "Arial"),
+                 hoverformat = ',.4r', linecolor = "black", rangemode = 'nonnegative', 
+                 showgrid = FALSE, tickcolor= "black"), 
+    hoverlabel=list(bgcolor="white")
+  ) %>% 
+    plotly::config(displayModeBar = FALSE)
+  
+  return(histogram)
 }
 
 #' Create Overview Map
