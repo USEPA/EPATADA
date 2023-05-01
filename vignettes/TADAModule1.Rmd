@@ -1078,12 +1078,7 @@ TADAProfileClean19_stats <- TADA::TADA_stats(TADAProfileClean19)
 TADAProfileClean19_stats
 
 # generate a histogram
-hist(TADAProfileClean19$TADA.ResultMeasureValue, 
-     main = paste((unique(TADAProfileClean19$TADA.CharacteristicName))
-                  ,"vs. Frequency"),
-     breaks=200, xlab = paste(
-       (unique(TADAProfileClean19$TADA.CharacteristicName)),
-       "Values"))
+TADA_hist(TADAProfileClean19)
 
 ```
 
@@ -1113,7 +1108,7 @@ Regenerate histogram and box plot.
 ```{r}
 
 # regenerate histogram
-hist(TADAProfileClean19_removeOutliers$TADA.ResultMeasureValue, main = paste((unique(TADAProfileClean19_removeOutliers$TADA.CharacteristicName)) ,"vs. Frequency"), xlab = paste((unique(TADAProfileClean19_removeOutliers$TADA.CharacteristicName)), "Values"))
+TADA_hist(TADAProfileClean19_removeOutliers)
 
 # regenerate interactive box plot
 TADA::TADA_boxplot(TADAProfileClean19_removeOutliers)

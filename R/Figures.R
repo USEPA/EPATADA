@@ -37,7 +37,8 @@ TADA_boxplot <- function(filtered.data) {
 
   # units
   unit <- unique(filtered.data$TADA.ResultMeasure.MeasureUnitCode)
-  y_label <- paste0("Level (", unit, ")")
+  char <- unique(filtered.data$TADA.CharacteristicName)
+  y_label <- paste0(char, " (", unit, ")")
   
   # boxplot stats
   values <- filtered.data$TADA.ResultMeasureValue
@@ -81,7 +82,9 @@ TADA_boxplot <- function(filtered.data) {
       yaxis = list(title = y_label, titlefont = list(size = 16, family = "Arial"), tickfont = list(size = 16, family = "Arial"),
                    hoverformat = ',.4r', linecolor = "black", rangemode = 'tozero', 
                    showgrid = FALSE, tickcolor= "black"),
-      hoverlabel=list(bgcolor="white")
+      hoverlabel=list(bgcolor="white"),
+      title = paste0("Boxplot of ", char, " (", unit, ")"), 
+      plot_bgcolor = "#e5ecf6"
     ) %>% 
     plotly::config(displayModeBar = FALSE)
   
@@ -125,8 +128,9 @@ TADA_hist <- function(filtered.data) {
   
   # units
   unit <- unique(filtered.data$TADA.ResultMeasure.MeasureUnitCode)
-  x_label <- paste0("Level (", unit, ")")
-  y_label <- paste0("Number of Samples
+  char <- unique(filtered.data$TADA.CharacteristicName)
+  x_label <- paste0("Level of ", char, " (", unit, ")")
+  y_label <- paste0("Frequency
   (Total of ", nrow(filtered.data), " Samples)")
   
   # construct plotly histogram
@@ -146,7 +150,9 @@ TADA_hist <- function(filtered.data) {
     yaxis = list(title = y_label, titlefont = list(size = 16, family = "Arial"), tickfont = list(size = 16, family = "Arial"),
                  hoverformat = ',.4r', linecolor = "black", rangemode = 'nonnegative', 
                  showgrid = FALSE, tickcolor= "black"), 
-    hoverlabel=list(bgcolor="white")
+    hoverlabel=list(bgcolor="white"),
+    title = paste0(char, " vs. Frequency"), 
+    plot_bgcolor = "#e5ecf6"
   ) %>% 
     plotly::config(displayModeBar = FALSE)
   
