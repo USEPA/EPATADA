@@ -286,8 +286,8 @@ GetDetLimitRef <- function() {
   
   WQXDetLimitRef <- raw.data%>%
     dplyr::mutate(TADA.Limit_Type = dplyr::case_when(
-      Name%in%c("Upper Quantitation Limit","Upper Reporting Limit","Upper Calibration Limit", "Upper 95% Confidence Limit") ~ as.character("Over-Detect"),
-      Name%in%c("Drinking Water Maximum","Field Holding Time Limit","Specified in workplan","Statistical Uncertainty","Systematic Uncertainty","Taxonomic Loss Threshold","Water Quality Standard or Criteria") ~ as.character("Other"),
+      Name%in%c("Upper Quantitation Limit","Upper Reporting Limit","Upper Calibration Limit") ~ as.character("Over-Detect"),
+      Name%in%c("Drinking Water Maximum","Field Holding Time Limit","Specified in workplan","Statistical Uncertainty","Systematic Uncertainty","Taxonomic Loss Threshold","Water Quality Standard or Criteria","Upper 95% Confidence Limit","Lower 95% Confidence Limit") ~ as.character("Other"),
       TRUE ~ as.character("Non-Detect")
     ))%>%dplyr::distinct()
   
