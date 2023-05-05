@@ -133,28 +133,49 @@ TADA_hist <- function(filtered.data) {
   y_label <- paste0("Frequency
   (Total of ", nrow(filtered.data), " Samples)")
   
-  # construct plotly histogram
-  x <- filtered.data$TADA.ResultMeasureValue
-  histogram <- plotly::plot_ly(x=x, type = "histogram",
-                               xbins = list(start = 0),
-                               marker = list(color = "#00bde3"),
-                               stroke = I("#005ea2")
-                               )
+  # data for all_data trace
+  all_data <- filtered.data
+  # data for remove_outliers trace
+  quant_25 <- stats::quantile(all_data$TADA.ResultMeasureValue, 0.25, type = 7)
+  quant_75 <- stats::quantile(all_data$TADA.ResultMeasureValue, 0.75, type = 7)
+  box_iqr <- quant_75 - quant_25
+  upper_thresh <- quant_75 + 1.5*box_iqr
+  lower_thresh <- quant_25 - 1.5*box_iqr
+  no_outliers <- subset(filtered.data, filtered.data$TADA.ResultMeasureValue>=lower_thresh & filtered.data$TADA.ResultMeasureValue<=upper_thresh)
+  
+  histogram <- plotly::plot_ly() %>%
+    plotly::add_histogram(x = all_data$TADA.ResultMeasureValue,
+              xbins = list(start = min(all_data$TADA.ResultMeasureValue)),
+              marker = list(color = "#00bde3"),
+              stroke = I("#005ea2"),
+              bingroup = 1,
+              name = "<b>All Data<b>"
+              ) %>%
+    plotly::add_histogram(x = no_outliers$TADA.ResultMeasureValue,
+              xbins = list(start = min(all_data$TADA.ResultMeasureValue)),
+              marker = list(color = "#00bde3"),
+              stroke = I("#005ea2"),
+              bingroup = 1,
+              name = paste0("<b>Outliers Removed</b>", "\nUpper Threshold: ", upper_thresh, "\nLower Threshold: ", lower_thresh),
+              visible = "legendonly"
+              )
   
   # histogram layout and labels
   histogram <- histogram %>% 
   plotly::layout(
     xaxis = list(title = x_label, titlefont = list(size = 16, family = "Arial"), tickfont = list(size = 16, family = "Arial"),
-                 hoverformat = ',.4r', linecolor = "black", rangemode = 'nonnegative', 
+                 hoverformat = ',.4r', linecolor = "black", rangemode = 'tozero', 
                  showgrid = FALSE, tickcolor= "black"),
     yaxis = list(title = y_label, titlefont = list(size = 16, family = "Arial"), tickfont = list(size = 16, family = "Arial"),
-                 hoverformat = ',.4r', linecolor = "black", rangemode = 'nonnegative', 
+                 hoverformat = ',.4r', linecolor = "black", rangemode = 'tozero', 
                  showgrid = FALSE, tickcolor= "black"), 
     hoverlabel=list(bgcolor="white"),
     title = paste0(char, " vs. Frequency"), 
-    plot_bgcolor = "#e5ecf6"
+    plot_bgcolor = "#e5ecf6",
+    barmode = "overlay",
+    legend = list(title = list(text = "<b>Select 'Outliers Removed' \nand Deselect 'All Data' \nto View a Subset of the Data<b>"))
   ) %>% 
-    plotly::config(displayModeBar = FALSE)
+    plotly::config(displayModeBar = TRUE)
   
   return(histogram)
 }
