@@ -397,14 +397,14 @@ ConvertSpecialChars <- function(.data,col){
   return(clean.data)
 }
 
-#' Order TADA Columns
+#' Order TADA Columns and Rows
 #' 
 #' This utility function moves all TADA-created columns to the end of the dataframe 
 #' in an order that improves readability and orders the dataframe rows by ResultIdentifier. 
 #' 
 #' @param .data TADA dataframe 
 #' 
-#' @return A TADA handled dataframe with the TADA-created columns at the end.
+#' @return A TADA handled dataframe with the TADA-created columns at the end and rows ordered by ResultIdentifier.
 #'
 #' @export
 #' 

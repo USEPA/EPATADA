@@ -1,6 +1,7 @@
 
 # Unit tests for ConvertDepthUnits function
 # Dataframe fixture
+ResultIdentifier = c(21,22)
 ActivityDepthHeightMeasure.MeasureValue <- c(2.0, 1)
 ActivityDepthHeightMeasure.MeasureUnitCode <- c("m", "ft")
 ActivityTopDepthHeightMeasure.MeasureValue <- c(NaN, NaN)
@@ -10,7 +11,8 @@ ActivityBottomDepthHeightMeasure.MeasureUnitCode <- c(NaN, NaN)
 ResultDepthHeightMeasure.MeasureValue <- c(NaN, NaN)
 ResultDepthHeightMeasure.MeasureUnitCode <- c(NaN, NaN)
 ActivityEndTime.TimeZoneCode <- c(NaN, NaN)
-TADAProfile <- data.frame(ActivityDepthHeightMeasure.MeasureValue,
+TADAProfile <- data.frame(ResultIdentifier,
+                          ActivityDepthHeightMeasure.MeasureValue,
                           ActivityDepthHeightMeasure.MeasureUnitCode,
                           ActivityTopDepthHeightMeasure.MeasureValue,
                           ActivityTopDepthHeightMeasure.MeasureUnitCode,
