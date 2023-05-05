@@ -7,6 +7,8 @@
 #' be added to the data frame by running the function HarmonizeData(). The data frame
 #' must be filtered down to a single comparable data identifier to run this function.
 #' 
+#' @param id_col 
+#' 
 #' @return A plotly boxplot figure showing the median, 25th percentile, 75th percentile, 
 #' upper fence, lower fence, minimum, maximum, and data outliers for the given 
 #' comparable data identifier.
@@ -20,24 +22,32 @@
 #' # down to one Comparable Data Identifier
 #' 
 #' # Create boxplot:
-#' TADA_boxplot(TADAProfileClean18_TNonly)
+#' TADA_boxplot(TADAProfileClean18_TNonly, id_col = "TADA.ComparableDataIdentifier")
 #' 
 
-TADA_boxplot <- function(filtered.data) {
+TADA_boxplot <- function(filtered.data, id_col = c("TADA.CharacteristicName", "TADA.ComparableDataIdentifier")) {
   # check .data is data.frame
   checkType(filtered.data, "data.frame", "Input object")
+  # check id_col matches one of the options
+  id_col <- match.arg(id_col)
   # check .data has required columns
-  checkColumns(filtered.data, c("TADA.ComparableDataIdentifier", "TADA.ResultMeasureValue", "TADA.ResultMeasure.MeasureUnitCode"))
-  # check TADA.ComparableDataIdentifier column is filtered to one identifier
-  if (length(unique(filtered.data$TADA.ComparableDataIdentifier)) > 1) {
-    warning("Boxplot function cannot run with more than 1 comparable data identifier. Please filter dataframe and rerun function.")
+  checkColumns(filtered.data, id_col)
+  # check .data has required columns
+  checkColumns(filtered.data, c("TADA.ResultMeasureValue", "TADA.ResultMeasure.MeasureUnitCode"))
+  # check id_col is filtered to one characteristic or identifier
+  if (length(unique(filtered.data[,id_col])) > 1) {
+    warning("Boxplot function cannot run with more than 1 unique characteristic or comparable data identifier. Please filter dataframe and rerun function.")
+  }
+  # check that units are the same across all data points
+  if (length(unique(filtered.data$TADA.ResultMeasure.MeasureUnitCode)) > 1) {
+    warning("Histogram function cannot run with more than 1 unique measure unit code. Please filter or harmonize dataframe and rerun function.")
   }
   
   # execute function after checks have passed
 
   # units
   unit <- unique(filtered.data$TADA.ResultMeasure.MeasureUnitCode)
-  char <- unique(filtered.data$TADA.CharacteristicName)
+  char <- unique(filtered.data[,id_col])
   y_label <- paste0(char, " (", unit, ")")
   
   # boxplot stats
@@ -100,6 +110,8 @@ TADA_boxplot <- function(filtered.data) {
 #' be added to the data frame by running the function HarmonizeData(). The data frame
 #' must be filtered down to a single comparable data identifier to run this function.
 #' 
+#' @param id_col 
+#' 
 #' @return A plotly histogram figure showing the distribution of sample values 
 #' for the given comparable data identifier.
 #' 
@@ -112,24 +124,31 @@ TADA_boxplot <- function(filtered.data) {
 #' # down to one Comparable Data Identifier
 #' 
 #' # Create histogram:
-#' TADA_hist(TADAProfileClean18_TNonly)
+#' TADA_hist(TADAProfileClean18_TNonly, id_col = "TADA.ComparableDataIdentifier")
 
-TADA_hist <- function(filtered.data) {
+TADA_hist <- function(filtered.data, id_col = c("TADA.CharacteristicName", "TADA.ComparableDataIdentifier")) {
   # check .data is data.frame
   checkType(filtered.data, "data.frame", "Input object")
+  # check id_col matches one of the options
+  id_col <- match.arg(id_col)
   # check .data has required columns
-  checkColumns(filtered.data, c("TADA.ComparableDataIdentifier", "TADA.ResultMeasureValue", "TADA.ResultMeasure.MeasureUnitCode"))
-  # check TADA.ComparableDataIdentifier column is filtered to one identifier
-  if (length(unique(filtered.data$TADA.ComparableDataIdentifier)) > 1) {
-    warning("Histogram function cannot run with more than 1 comparable data identifier. Please filter dataframe and rerun function.")
+  checkColumns(filtered.data, id_col)
+  checkColumns(filtered.data, c("TADA.ResultMeasureValue", "TADA.ResultMeasure.MeasureUnitCode"))
+  # check id_col is filtered to one characteristic or identifier
+  if (length(unique(filtered.data[,id_col])) > 1) {
+    warning("Histogram function cannot run with more than 1 unique characteristic or comparable data identifier. Please filter dataframe and rerun function.")
+  }
+  # check that units are the same across all data points
+  if (length(unique(filtered.data$TADA.ResultMeasure.MeasureUnitCode)) > 1) {
+    warning("Histogram function cannot run with more than 1 unique measure unit code. Please filter or harmonize dataframe and rerun function.")
   }
   
   # execute function after checks have passed
   
   # units
   unit <- unique(filtered.data$TADA.ResultMeasure.MeasureUnitCode)
-  char <- unique(filtered.data$TADA.CharacteristicName)
-  x_label <- paste0("Level of ", char, " (", unit, ")")
+  char <- unique(filtered.data[,id_col])
+  x_label <- paste0(char, " (", unit, ")")
   y_label <- paste0("Frequency
   (Total of ", nrow(filtered.data), " Samples)")
   

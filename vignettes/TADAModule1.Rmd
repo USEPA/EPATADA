@@ -225,7 +225,7 @@ Enter ?TADAdataRetrieval into the console to review more example queries
 and additional information.
 
 ```{r TADAdataRetrieval}
-TADAProfile <- TADAdataRetrieval(organization = c("REDLAKE_WQX", "SFNOES_WQX", "PUEBLO_POJOAQUE", "FONDULAC_WQX", "PUEBLOOFTESUQUE", "CNENVSER"), startDate = "2018-01-01")
+TADAProfile <- TADAdataRetrieval(organization = c("REDLAKE_WQX", "SFNOES_WQX", "PUEBLO_POJOAQUE", "FONDULAC_WQX", "PUEBLOOFTESUQUE", "CNENVSER"), startDate = "2018-01-01", endDate = "2020-01-01")
 ```
 
 If you need to download a large amount of data from across a large area,
@@ -1076,7 +1076,7 @@ Summarize results for a single comparable data group using the
 TADA.ComparableDataIdentifier (i.e., comparable characteristic, unit,
 speciation, and fraction combination)
 
-```{r ComparableDataIdentifier_stats_and_histogram}
+```{r ComparableDataIdentifier_stats_and_histogram, fig.width=6, fig.height=6, fig.fullwidth=TRUE}
 # review TADA.ComparableDataIdentifier
 unique(TADAProfileClean18$TADA.ComparableDataIdentifier)
 
@@ -1095,33 +1095,8 @@ TADA_hist(TADAProfileClean19)
 
 Generate interactive box plot.
 
-```{r boxplot}
+```{r boxplot, fig.width=6, fig.height=6, fig.fullwidth=TRUE}
 
 TADA::TADA_boxplot(TADAProfileClean19)
-
-```
-
-Test if highest value is a true outlier.
-
-```{r removeOutliers}
-
-# run chisq test
-outliers::chisq.out.test(TADAProfileClean19$TADA.ResultMeasureValue)
-
-# remove results greater than the upper fence (see stats table generated above)
-# note: many outliers are valid results.
-TADAProfileClean19_removeOutliers <- dplyr::filter(TADAProfileClean19, TADA.ResultMeasureValue <= 86.5)
-
-```
-
-Regenerate histogram and box plot.
-
-```{r histogram_and_boxplot_final}
-
-# regenerate histogram
-TADA_hist(TADAProfileClean19_removeOutliers)
-
-# regenerate interactive box plot
-TADA::TADA_boxplot(TADAProfileClean19_removeOutliers)
 
 ```
