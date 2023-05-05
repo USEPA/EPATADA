@@ -1,11 +1,11 @@
 ---
-title: "Tools for Automated Data Analysis (TADA) Module 1: Water Quality Portal Data Discovery and Cleaning"
+title: "TADA Module 1: Water Quality Portal Data Discovery and Cleaning"
 author: "TADA Team"
 date: "`r Sys.Date()`"
 output: rmarkdown::html_vignette
 vignette: >
   %\usepackage[utf8]{inputenc}
-  %\VignetteIndexEntry{Tools for Automated Data Analysis (TADA) Module 1: Water Quality Portal Data Discovery and Cleaning}
+  %\VignetteIndexEntry{TADA Module 1: Water Quality Portal Data Discovery and Cleaning}
   %\VignetteEngine{knitr::rmarkdown}
 editor_options: 
   chunk_output_type: console
