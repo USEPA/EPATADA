@@ -369,19 +369,18 @@ ConvertSpecialChars <- function(.data,col){
         (masked=="ND") ~ as.character("ND or NA"),
         (!is.na(suppressWarnings(as.numeric(masked)) == TRUE)) ~ as.character("Numeric"),
         (grepl("<", masked) == TRUE) ~ as.character("Less Than"),
-        (grepl("˂", masked) == TRUE) ~ as.character("Less Than"),
         (grepl(">", masked) == TRUE) ~ as.character("Greater Than"),
         (grepl("~", masked) == TRUE) ~ as.character("Approximate Value"),
         (grepl("[A-Za-z]", masked) == TRUE) ~ as.character("Text"),
         (grepl("%", masked) == TRUE) ~ as.character("Percentage"),
         (grepl(",", masked) == TRUE) ~ as.character("Comma-Separated Numeric"),
-        TRUE ~ "Coerced to NA"
+        TRUE ~ "Coerced to NA" # NOTE THAT THIS COULD OCCUR DUE TO NON-ASCII CHARACTERS like "˂"
       ))
     
     # In the new TADA column, convert to numeric and remove some specific special 
     # characters.
     clean.data$masked = suppressWarnings(as.numeric(stringr::str_replace_all(
-      clean.data$orig,c("<" = "","˂" = "",">" = "","~" = "","," = "","%" = ""))))
+      clean.data$orig,c("<" = "",">" = "","~" = "","," = "","%" = ""))))
   }
   
   # Rename to original column name, TADA column name, and flag column name
