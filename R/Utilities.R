@@ -400,7 +400,7 @@ ConvertSpecialChars <- function(.data,col){
 #' Order TADA Columns
 #' 
 #' This utility function moves all TADA-created columns to the end of the dataframe 
-#' in an order that improves readability. 
+#' in an order that improves readability and orders the dataframe rows by ResultIdentifier. 
 #' 
 #' @param .data TADA dataframe 
 #' 
@@ -478,7 +478,7 @@ OrderTADACols <- function(.data){
   focal_cols = cols[cols%in%names(.data)]
   other_cols = names(.data)[!names(.data)%in%focal_cols]
   
-  rearranged = .data%>%dplyr::relocate(dplyr::any_of(focal_cols),.after = dplyr::last_col())
+  rearranged = .data%>%dplyr::relocate(dplyr::any_of(focal_cols),.after = dplyr::last_col())%>%dplyr::arrange(ResultIdentifier)
   
   return(rearranged)
   
