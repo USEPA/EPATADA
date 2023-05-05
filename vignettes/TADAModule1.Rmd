@@ -825,19 +825,16 @@ All censored data functions depend first on the **idCensoredData**
 utility function, which assigns a *TADA.CensoredData.Flag* to all data
 records and identifies over-detects from non-detects using the
 *ResultDetectionConditionText* and *DetectionQuantitationLimitTypeName*.
-This utility function is automatically run within the summary and simple
-methods functions if the dataset does not contain the
-*TADA.CensoredData.Flag*. All records receive one of the following
+This utility function is automatically run  within the TADAdataRetrieval function and produces the *TADA.CensoredData.Flag* column. All records receive one of the following
 classifications: - Uncensored - Not filled with detection limit value; a
 detection. - Non-Detect - Left-censored - Over-Detect - Right-censored -
 Other Condition/Limit Populated - detection condition or limit type are
 ambiguous or not associated with a lower/upper detection limit. -
 Conflict between Condition and Limit - detection condition and limit
 type for a single record do not agree, e.g. one suggests over-detect and
-the other suggests non-detect. - Censored but not Categorized -
+the other suggests non-detect. - Detection condition or detection limit is not documented in TADA reference tables. -
 detection condition or limit type is not characterized in the TADA
-reference tables, which are based on WQX domain tables. Causes function
-to produce a warning.
+reference tables, which are based on WQX domain tables. - Detection condition is missing and required for censored data ID. - Result needs more information before being categorized.
 
 In the example below, we first summarize the censored data in the
 dataset using the default grouping variables *TADA.CharacteristicName*,

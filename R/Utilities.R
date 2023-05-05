@@ -26,9 +26,9 @@ utils::globalVariables(c("TADA.ResultValueAboveUpperThreshold.Flag", "ActivityId
 #'
 #' Removes rows of data that are true duplicates. Creates new columns with prefix
 #' "TADA." and capitalizes fields to harmonize data. This function includes and 
-#' runs the TADA "ConvertSpecialChars" function as well.
+#' runs the TADA "ConvertSpecialChars" and "idCensoredData" functions as well.
 #'  This function performs immediate QA steps (removes true duplicates, converts 
-#'  result values to numeric, capitalizes letters, etc.) on heavily used columns 
+#'  result values to numeric, capitalizes letters, categorizes detection limit data, etc.) on heavily used columns 
 #'  and places these new values in a column of the same name with the added prefix 
 #'  "TADA." It makes certain fields uppercase so that they're interoperable with 
 #'  the WQX validation reference tables and reduces issues with case-sensitivity 
@@ -95,6 +95,9 @@ autoclean <- function(.data) {
   .data$TADA.ResultMeasureValue = ifelse(is.na(.data$TADA.ResultMeasureValue)&!is.na(.data$TADA.DetectionQuantitationLimitMeasure.MeasureValue),.data$TADA.DetectionQuantitationLimitMeasure.MeasureValue,.data$TADA.ResultMeasureValue)
   .data$TADA.ResultMeasure.MeasureUnitCode = ifelse(is.na(.data$TADA.ResultMeasure.MeasureUnitCode)&!is.na(.data$TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode),.data$TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode,.data$TADA.ResultMeasure.MeasureUnitCode)
   .data$TADA.ResultMeasureValueDataTypes.Flag = ifelse(.data$TADA.ResultMeasureValueDataTypes.Flag=="ND or NA"&!is.na(.data$TADA.DetectionQuantitationLimitMeasure.MeasureValue),"Result Value/Unit Copied from Detection Limit",.data$TADA.ResultMeasureValueDataTypes.Flag)
+  
+  # Identify detection limit data
+  .data = idCensoredData(.data)
   
   # change latitude and longitude measures to class numeric
   .data$TADA.LatitudeMeasure <- as.numeric(.data$LatitudeMeasure)
@@ -374,7 +377,8 @@ ConvertSpecialChars <- function(.data,col){
         (grepl("[A-Za-z]", masked) == TRUE) ~ as.character("Text"),
         (grepl("%", masked) == TRUE) ~ as.character("Percentage"),
         (grepl(",", masked) == TRUE) ~ as.character("Comma-Separated Numeric"),
-        TRUE ~ "Coerced to NA" # NOTE THAT THIS COULD OCCUR DUE TO NON-ASCII CHARACTERS like "˂"
+        (!stringi::stri_enc_mark(masked)%in%c("ASCII")) ~ as.character("Non-ASCII Character(s)"),
+        TRUE ~ "Coerced to NA"
       ))
     
     # In the new TADA column, convert to numeric and remove some specific special 
