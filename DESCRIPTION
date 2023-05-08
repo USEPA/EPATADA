@@ -40,6 +40,7 @@ Imports:
     grDevices,
     magrittr,
     stringr,
+    stringi,
     utils, 
     RColorBrewer,
     stats, 

@@ -221,7 +221,7 @@ InvalidSpeciation <- function(.data, clean = c("invalid_only", "nonstandardized_
           unique(check.data$TADA.MethodSpeciation.Flag)) == FALSE) {
     print("All characteristic/method speciation combinations are valid in your dataframe. Returning input dataframe with TADA.MethodSpeciation.Flag column for tracking.")
     check.data = OrderTADACols(check.data)
-    return(.data)
+    return(check.data)
   }
   
   # flagged output, all data

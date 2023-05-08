@@ -573,7 +573,6 @@ TADABigdataRetrieval <- function(startDate = "null",
           print(paste0("Downloading data from sites with fewer than ",maxrecs," results by grouping them together."))
           
           for(i in 1:max(smallsitesgrp$group)){
-            print(i)
             site_chunk = subset(smallsitesgrp$MonitoringLocationIdentifier, smallsitesgrp$group==i)
             joins = TADA::TADAdataRetrieval(startDate = startDate,
                                             endDate = endDate,
