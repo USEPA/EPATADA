@@ -155,12 +155,17 @@ TADA_hist <- function(filtered.data, id_col = c("TADA.CharacteristicName", "TADA
   # data for all_data trace
   all_data <- filtered.data
   # data for remove_outliers trace
+  values <- filtered.data$TADA.ResultMeasureValue
   quant_25 <- stats::quantile(all_data$TADA.ResultMeasureValue, 0.25, type = 7)
   quant_75 <- stats::quantile(all_data$TADA.ResultMeasureValue, 0.75, type = 7)
   box_iqr <- quant_75 - quant_25
   upper_thresh <- quant_75 + 1.5*box_iqr
   lower_thresh <- quant_25 - 1.5*box_iqr
-  no_outliers <- subset(filtered.data, filtered.data$TADA.ResultMeasureValue>=lower_thresh & filtered.data$TADA.ResultMeasureValue<=upper_thresh)
+  box_upper_row <- which(values == max(values[values <= upper_thresh]))
+  box_upper <- values[[box_upper_row[[1]]]]
+  box_lower_row <- which(values == min(values[values >= lower_thresh]))
+  box_lower <- values[[box_lower_row[[1]]]]
+  no_outliers <- subset(filtered.data, filtered.data$TADA.ResultMeasureValue>=box_lower & filtered.data$TADA.ResultMeasureValue<=box_upper)
   
   histogram <- plotly::plot_ly() %>%
     plotly::add_histogram(x = all_data$TADA.ResultMeasureValue,
@@ -175,7 +180,7 @@ TADA_hist <- function(filtered.data, id_col = c("TADA.CharacteristicName", "TADA
               marker = list(color = "#00bde3"),
               stroke = I("#005ea2"),
               bingroup = 1,
-              name = paste0("<b>Outliers Removed</b>", "\nUpper Threshold: ", upper_thresh, "\nLower Threshold: ", lower_thresh),
+              name = paste0("<b>Outliers Removed</b>", "\nUpper Threshold: ", box_upper, "\nLower Threshold: ", box_lower),
               visible = "legendonly"
               )
   

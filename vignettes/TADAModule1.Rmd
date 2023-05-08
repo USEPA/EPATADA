@@ -202,7 +202,7 @@ profiles are different because TADAdataRetrieval automatically joins in
 data from multiple WQP profiles, and does some additional data cleaning
 as part of the data retrieval process.
 
-This example includes monitoring data collected from Jan 2018 to present
+This example includes monitoring data collected from Jan 2018 to Jan 2019
 by six organizations: 1) Red Lake Band of Chippewa Indians, 2) Sac & Fox
 Nation, 3) Pueblo of Pojoaque, 4) Minnesota Chippewa Tribe (Fond du Lac
 Band), 5) Pueblo of Tesuque, and 6) The Chickasaw Nation
@@ -210,7 +210,7 @@ Band), 5) Pueblo of Tesuque, and 6) The Chickasaw Nation
 We will move forward with this example in the remainder of the vignette.
 
 ```{r dataRetrieval_example}
-# dataRetrieval_example <- dataRetrieval::readWQPdata(organization = c("REDLAKE_WQX", "SFNOES_WQX", "PUEBLO_POJOAQUE", "FONDULAC_WQX", "PUEBLOOFTESUQUE", "CNENVSER"), startDate = "2018-01-01", ignore_attributes = TRUE)
+# dataRetrieval_example <- dataRetrieval::readWQPdata(organization = c("REDLAKE_WQX", "SFNOES_WQX", "PUEBLO_POJOAQUE", "FONDULAC_WQX", "PUEBLOOFTESUQUE", "CNENVSER"), startDate = "2018-01-01", endDate = "2019-01-01", ignore_attributes = TRUE)
 ```
 
 Use the code below to download data from the WQP using
@@ -225,7 +225,7 @@ Enter ?TADAdataRetrieval into the console to review more example queries
 and additional information.
 
 ```{r TADAdataRetrieval}
-TADAProfile <- TADAdataRetrieval(organization = c("REDLAKE_WQX", "SFNOES_WQX", "PUEBLO_POJOAQUE", "FONDULAC_WQX", "PUEBLOOFTESUQUE", "CNENVSER"), startDate = "2018-01-01", endDate = "2020-01-01")
+TADAProfile <- TADAdataRetrieval(organization = c("REDLAKE_WQX", "SFNOES_WQX", "PUEBLO_POJOAQUE", "FONDULAC_WQX", "PUEBLOOFTESUQUE", "CNENVSER"), startDate = "2018-01-01", endDate = "2019-01-01")
 ```
 
 If you need to download a large amount of data from across a large area,
@@ -1089,7 +1089,7 @@ TADAProfileClean19_stats <- TADA::TADA_stats(TADAProfileClean19)
 TADAProfileClean19_stats
 
 # generate a histogram
-TADA_hist(TADAProfileClean19)
+TADA_hist(TADAProfileClean19, id_col = "TADA.ComparableDataIdentifier")
 
 ```
 
@@ -1097,6 +1097,6 @@ Generate interactive box plot.
 
 ```{r boxplot, fig.width=6, fig.height=6, fig.fullwidth=TRUE}
 
-TADA::TADA_boxplot(TADAProfileClean19)
+TADA::TADA_boxplot(TADAProfileClean19, id_col = "TADA.ComparableDataIdentifier")
 
 ```
