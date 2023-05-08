@@ -118,22 +118,11 @@ ConvertResultUnits <- function(.data, transform = TRUE) {
     # create flag column
     dplyr::mutate(WQX.ResultMeasureValue.UnitConversion = dplyr::case_when(
       (!is.na(TADA.ResultMeasureValue) & !is.na(WQX.TargetUnit)) ~ as.character("Convert"),
-      is.na(TADA.ResultMeasureValue) ~ as.character("NoResultValue"),
-      is.na(WQX.TargetUnit) ~ as.character("NoTargetUnit")
+      is.na(TADA.ResultMeasureValue) ~ as.character("No Result Value"),
+      is.na(WQX.TargetUnit) ~ as.character("No Target Unit")
     ))
   
   if (transform == FALSE) {
-    
-    # reorder column names to match .data
-    # get .data column names
-    col.order <- colnames(.data)
-    # add flag columns to the list
-    col.order <- append(col.order, c(
-      "WQX.TargetUnit",
-      "WQX.ConversionFactor",
-      "WQX.ResultMeasureValue.UnitConversion",
-      "WQX.DetectionLimitMeasureValue.UnitConversion"
-    ))
     
     print("Conversions required for range checks and TADATargetUnit conversions -- Unit conversions, data summaries, and data calculations may be affected.")
     # reorder columns
@@ -166,6 +155,7 @@ ConvertResultUnits <- function(.data, transform = TRUE) {
       # dplyr::rowwise() %>%
       # create flag column
       dplyr::mutate(WQX.ResultMeasureValue.UnitConversion = dplyr::case_when(
+        (WQX.ConversionFactor == 1) ~ as.character("No Conversion Needed"),
         (!is.na(TADA.ResultMeasureValue) & !is.na(WQX.TargetUnit)) ~ as.character("Converted"),
         TRUE ~ WQX.ResultMeasureValue.UnitConversion
       ))
