@@ -1,17 +1,17 @@
 #' Create Boxplot
 #' 
 #' @param filtered.data TADA data frame containing the data downloaded from the WQP, where
-#' each row represents a unique data record. Data frame must include the columns
-#' 'TADA.ComparableDataIdentifier", 'TADA.ResultMeasureValue', and
-#' 'TADA.ResultMeasure.MeasureUnitCode' to run this function. These columns can 
+#' each row represents a unique data record. Data frame must include the columns 'TADA.CharacteristicName' OR
+#' 'TADA.ComparableDataIdentifier', 'TADA.ResultMeasureValue', and
+#' 'TADA.ResultMeasure.MeasureUnitCode' to run this function. 'TADA.ComparableDataIdentifier' can 
 #' be added to the data frame by running the function HarmonizeData(). The data frame
-#' must be filtered down to a single comparable data identifier to run this function.
+#' must be filtered down to a single characteristic with a consistent unit or comparable data identifier to run this function.
 #' 
-#' @param id_col 
+#' @param id_col The column in the dataset used to identify the characteristic plotted in the boxplot. May be set to "TADA.CharacteristicName" or "TADA.ComparableDataIdentifier" if user would rather use a post-harmonization dataset that groups multiple TADA.CharacteristicNames into one. 
 #' 
 #' @return A plotly boxplot figure showing the median, 25th percentile, 75th percentile, 
 #' upper fence, lower fence, minimum, maximum, and data outliers for the given 
-#' comparable data identifier.
+#' characteristic or comparable data identifier.
 #' 
 #' @export
 #' 
@@ -36,11 +36,11 @@ TADA_boxplot <- function(filtered.data, id_col = c("TADA.CharacteristicName", "T
   checkColumns(filtered.data, c("TADA.ResultMeasureValue", "TADA.ResultMeasure.MeasureUnitCode"))
   # check id_col is filtered to one characteristic or identifier
   if (length(unique(filtered.data[,id_col])) > 1) {
-    warning("Boxplot function cannot run with more than 1 unique characteristic or comparable data identifier. Please filter dataframe and rerun function.")
+    stop(paste0(id_col, " field contains more than one unique value. Boxplot function cannot run with more than 1 unique characteristic or comparable data identifier. Please filter dataframe and rerun function."))
   }
   # check that units are the same across all data points
   if (length(unique(filtered.data$TADA.ResultMeasure.MeasureUnitCode)) > 1) {
-    warning("Histogram function cannot run with more than 1 unique measure unit code. Please filter or harmonize dataframe and rerun function.")
+    warning("Dataset contains more than one result unit. Plotting results with multiple units in one boxplot is not advised. Please filter or harmonize dataframe and rerun function.")
   }
   
   # execute function after checks have passed
@@ -104,16 +104,16 @@ TADA_boxplot <- function(filtered.data, id_col = c("TADA.CharacteristicName", "T
 #' Create Histogram
 #' 
 #' @param filtered.data TADA data frame containing the data downloaded from the WQP, where
-#' each row represents a unique data record. Data frame must include the columns
-#' 'TADA.ComparableDataIdentifier", 'TADA.ResultMeasureValue', and
-#' 'TADA.ResultMeasure.MeasureUnitCode' to run this function. These columns can 
+#' each row represents a unique data record. Data frame must include the columns 'TADA.CharacteristicName' OR
+#' 'TADA.ComparableDataIdentifier', 'TADA.ResultMeasureValue', and
+#' 'TADA.ResultMeasure.MeasureUnitCode' to run this function. 'TADA.ComparableDataIdentifier' can  
 #' be added to the data frame by running the function HarmonizeData(). The data frame
-#' must be filtered down to a single comparable data identifier to run this function.
+#' must be filtered down to a single characteristic with a consistent unit or comparable data identifier to run this function.
 #' 
-#' @param id_col 
+#' @param id_col The column in the dataset used to identify the characteristic plotted in the histogram. May be set to "TADA.CharacteristicName" or "TADA.ComparableDataIdentifier" if user would rather use a post-harmonization dataset that groups multiple TADA.CharacteristicNames into one. 
 #' 
 #' @return A plotly histogram figure showing the distribution of sample values 
-#' for the given comparable data identifier.
+#' for the given characteristic or comparable data identifier.
 #' 
 #' @export
 #' 
@@ -136,11 +136,11 @@ TADA_hist <- function(filtered.data, id_col = c("TADA.CharacteristicName", "TADA
   checkColumns(filtered.data, c("TADA.ResultMeasureValue", "TADA.ResultMeasure.MeasureUnitCode"))
   # check id_col is filtered to one characteristic or identifier
   if (length(unique(filtered.data[,id_col])) > 1) {
-    warning("Histogram function cannot run with more than 1 unique characteristic or comparable data identifier. Please filter dataframe and rerun function.")
+    stop(paste0(id_col, " field contains more than one unique value. Histogram function cannot run with more than 1 unique characteristic or comparable data identifier. Please filter dataframe and rerun function."))
   }
   # check that units are the same across all data points
   if (length(unique(filtered.data$TADA.ResultMeasure.MeasureUnitCode)) > 1) {
-    warning("Histogram function cannot run with more than 1 unique measure unit code. Please filter or harmonize dataframe and rerun function.")
+    warning("Dataset contains more than one result unit. Plotting results with multiple units in one histogram is not advised. Please filter or harmonize dataframe and rerun function.")
   }
   
   # execute function after checks have passed
