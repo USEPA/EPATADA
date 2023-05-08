@@ -4,19 +4,24 @@
 \alias{TADA_hist}
 \title{Create Histogram}
 \usage{
-TADA_hist(filtered.data)
+TADA_hist(
+  filtered.data,
+  id_col = c("TADA.CharacteristicName", "TADA.ComparableDataIdentifier")
+)
 }
 \arguments{
 \item{filtered.data}{TADA data frame containing the data downloaded from the WQP, where
-each row represents a unique data record. Data frame must include the columns
-'TADA.ComparableDataIdentifier", 'TADA.ResultMeasureValue', and
-'TADA.ResultMeasure.MeasureUnitCode' to run this function. These columns can
+each row represents a unique data record. Data frame must include the columns 'TADA.CharacteristicName' OR
+'TADA.ComparableDataIdentifier', 'TADA.ResultMeasureValue', and
+'TADA.ResultMeasure.MeasureUnitCode' to run this function. 'TADA.ComparableDataIdentifier' can
 be added to the data frame by running the function HarmonizeData(). The data frame
-must be filtered down to a single comparable data identifier to run this function.}
+must be filtered down to a single characteristic with a consistent unit or comparable data identifier to run this function.}
+
+\item{id_col}{The column in the dataset used to identify the characteristic plotted in the histogram. May be set to "TADA.CharacteristicName" or "TADA.ComparableDataIdentifier" if user would rather use a post-harmonization dataset that groups multiple TADA.CharacteristicNames into one.}
 }
 \value{
 A plotly histogram figure showing the distribution of sample values
-for the given comparable data identifier.
+for the given characteristic or comparable data identifier.
 }
 \description{
 Create Histogram
@@ -28,5 +33,5 @@ data("TADAProfileClean18_TNonly")
 # down to one Comparable Data Identifier
 
 # Create histogram:
-TADA_hist(TADAProfileClean18_TNonly)
+TADA_hist(TADAProfileClean18_TNonly, id_col = "TADA.ComparableDataIdentifier")
 }
