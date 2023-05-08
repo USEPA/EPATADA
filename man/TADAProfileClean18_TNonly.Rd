@@ -5,7 +5,7 @@
 \alias{TADAProfileClean18_TNonly}
 \title{TADAProfileClean18_TNonly}
 \format{
-A data frame with 5005 rows and 168 variables
+A data frame with 5198 rows and 169 variables
 }
 \usage{
 data(TADAProfileClean18_TNonly)

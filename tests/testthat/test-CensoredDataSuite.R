@@ -1,6 +1,5 @@
 test_that("idCensoredData orphans", {
-  testdat = TADAdataRetrieval(statecode = "CO",startDate = "2021-01-01",endDate = "2022-01-01",characteristicName = c("Phosphorus","Nitrate"))
-  cens.check = idCensoredData(testdat)
+  cens.check = TADAdataRetrieval(statecode = "CO",startDate = "2021-01-01",endDate = "2022-01-01",characteristicName = c("Phosphorus","Nitrate"))
   expect_true(all(!is.na(cens.check$TADA.CensoredData.Flag)))
 })
 

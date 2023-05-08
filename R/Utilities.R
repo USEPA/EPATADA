@@ -26,9 +26,9 @@ utils::globalVariables(c("TADA.ResultValueAboveUpperThreshold.Flag", "ActivityId
 #'
 #' Removes rows of data that are true duplicates. Creates new columns with prefix
 #' "TADA." and capitalizes fields to harmonize data. This function includes and 
-#' runs the TADA "ConvertSpecialChars" function as well.
+#' runs the TADA "ConvertSpecialChars" and "idCensoredData" functions as well.
 #'  This function performs immediate QA steps (removes true duplicates, converts 
-#'  result values to numeric, capitalizes letters, etc.) on heavily used columns 
+#'  result values to numeric, capitalizes letters, categorizes detection limit data, etc.) on heavily used columns 
 #'  and places these new values in a column of the same name with the added prefix 
 #'  "TADA." It makes certain fields uppercase so that they're interoperable with 
 #'  the WQX validation reference tables and reduces issues with case-sensitivity 
@@ -95,6 +95,9 @@ autoclean <- function(.data) {
   .data$TADA.ResultMeasureValue = ifelse(is.na(.data$TADA.ResultMeasureValue)&!is.na(.data$TADA.DetectionQuantitationLimitMeasure.MeasureValue),.data$TADA.DetectionQuantitationLimitMeasure.MeasureValue,.data$TADA.ResultMeasureValue)
   .data$TADA.ResultMeasure.MeasureUnitCode = ifelse(is.na(.data$TADA.ResultMeasure.MeasureUnitCode)&!is.na(.data$TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode),.data$TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode,.data$TADA.ResultMeasure.MeasureUnitCode)
   .data$TADA.ResultMeasureValueDataTypes.Flag = ifelse(.data$TADA.ResultMeasureValueDataTypes.Flag=="ND or NA"&!is.na(.data$TADA.DetectionQuantitationLimitMeasure.MeasureValue),"Result Value/Unit Copied from Detection Limit",.data$TADA.ResultMeasureValueDataTypes.Flag)
+  
+  # Identify detection limit data
+  .data = idCensoredData(.data)
   
   # change latitude and longitude measures to class numeric
   .data$TADA.LatitudeMeasure <- as.numeric(.data$LatitudeMeasure)
@@ -374,13 +377,14 @@ ConvertSpecialChars <- function(.data,col){
         (grepl("[A-Za-z]", masked) == TRUE) ~ as.character("Text"),
         (grepl("%", masked) == TRUE) ~ as.character("Percentage"),
         (grepl(",", masked) == TRUE) ~ as.character("Comma-Separated Numeric"),
+        (!stringi::stri_enc_mark(masked)%in%c("ASCII")) ~ as.character("Non-ASCII Character(s)"),
         TRUE ~ "Coerced to NA"
       ))
     
     # In the new TADA column, convert to numeric and remove some specific special 
     # characters.
     clean.data$masked = suppressWarnings(as.numeric(stringr::str_replace_all(
-      clean.data$orig,c("<" = "", ">" = "", "~" = "", "," = "","%" = ""))))
+      clean.data$orig,c("<" = "",">" = "","~" = "","," = "","%" = ""))))
   }
   
   # Rename to original column name, TADA column name, and flag column name
@@ -393,14 +397,14 @@ ConvertSpecialChars <- function(.data,col){
   return(clean.data)
 }
 
-#' Order TADA Columns
+#' Order TADA Columns and Rows
 #' 
 #' This utility function moves all TADA-created columns to the end of the dataframe 
-#' in an order that improves readability. 
+#' in an order that improves readability and orders the dataframe rows by ResultIdentifier. 
 #' 
 #' @param .data TADA dataframe 
 #' 
-#' @return A TADA handled dataframe with the TADA-created columns at the end.
+#' @return A TADA handled dataframe with the TADA-created columns at the end and rows ordered by ResultIdentifier.
 #'
 #' @export
 #' 
@@ -474,7 +478,7 @@ OrderTADACols <- function(.data){
   focal_cols = cols[cols%in%names(.data)]
   other_cols = names(.data)[!names(.data)%in%focal_cols]
   
-  rearranged = .data%>%dplyr::relocate(dplyr::any_of(focal_cols),.after = dplyr::last_col())
+  rearranged = .data%>%dplyr::relocate(dplyr::any_of(focal_cols),.after = dplyr::last_col())%>%dplyr::arrange(ResultIdentifier)
   
   return(rearranged)
   
