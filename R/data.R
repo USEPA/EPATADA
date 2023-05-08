@@ -29,7 +29,7 @@ NULL
 #' @keywords datasets
 #' @name Nutrients_Utah
 #' @usage data(Nutrients_Utah)
-#' @format A data frame with 11086 rows and 136 variables
+#' @format A data frame with 14587 rows and 137 variables
 NULL
 
 #' narrow
@@ -82,7 +82,7 @@ NULL
 #' @keywords datasets
 #' @name TADAProfileClean18_TNonly
 #' @usage data(TADAProfileClean18_TNonly)
-#' @format A data frame with 5005 rows and 168 variables
+#' @format A data frame with 5198 rows and 169 variables
 NULL
 
 #' Tribal Data
@@ -110,6 +110,6 @@ NULL
 #' @keywords datasets
 #' @name TribalData
 #' @usage data(TribalData)
-#' @format A data frame with 131106 rows and 168 variables
+#' @format A data frame with 131558 rows and 137 variables
 NULL
 

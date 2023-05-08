@@ -5,7 +5,7 @@
 \alias{TribalData}
 \title{Tribal Data}
 \format{
-A data frame with 131106 rows and 168 variables
+A data frame with 131558 rows and 137 variables
 }
 \usage{
 data(TribalData)
