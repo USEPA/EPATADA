@@ -201,10 +201,8 @@ AggregatedContinuousData <- function(.data, clean = TRUE, errorsonly = FALSE) {
   # execute function after checks are passed
   # flag continuous data
   # make cont.data data frame
-  cont.data <- dplyr::filter(
-    .data,
-    ResultDetectionConditionText == "Reported in Raw Data (attached)"
-  )
+  # with new profiles might want to check for zip files? Do these columns show up in TADAdataRetrieval?
+  cont.data = .data%>%dplyr::filter((ActivityTypeCode=="Field Msr/Obs"&ResultDetectionConditionText=="Reported in Raw Data (attached)")|(ActivityTypeCode=="Field Msr/Obs"&SampleCollectionEquipmentName=="Probe/Sensor"&!is.na(ResultTimeBasisText)&!is.na(StatisticalBaseCode)&ResultValueTypeName=="Calculated"))
   
   # everything not in cont dataframe
   noncont.data = subset(.data, !.data$ResultIdentifier%in%cont.data$ResultIdentifier)
