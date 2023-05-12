@@ -37,6 +37,7 @@ Imports:
     plyr, 
     data.table, 
     dplyr,
+    tidyr,
     grDevices,
     magrittr,
     stringr,
