@@ -364,6 +364,8 @@ ConvertSpecialChars <- function(.data,col){
         TRUE ~ as.character("Numeric")
       ))
   }else{
+    chars.data$masked = gsub(" ","",chars.data$masked) # get rid of white space for subsequent sorting
+    
     # Detect special characters in column and populate new flag column with descriptor
     # of the specific type of character/data type
     clean.data = chars.data%>%
@@ -377,14 +379,25 @@ ConvertSpecialChars <- function(.data,col){
         (grepl("[A-Za-z]", masked) == TRUE) ~ as.character("Text"),
         (grepl("%", masked) == TRUE) ~ as.character("Percentage"),
         (grepl(",", masked) == TRUE) ~ as.character("Comma-Separated Numeric"),
+        (grepl('\\d\\-\\d',masked) == TRUE) ~ as.character("Numeric Range - Averaged"),
         (!stringi::stri_enc_mark(masked)%in%c("ASCII")) ~ as.character("Non-ASCII Character(s)"),
         TRUE ~ "Coerced to NA"
       ))
     
+    # Deal with numeric ranges
+    if(any(clean.data$flag=="Numeric Range - Averaged")){
+      numrange = subset(clean.data, clean.data$flag%in%c("Numeric Range - Averaged"))
+      notnumrange = subset(clean.data, !clean.data$flag%in%c("Numeric Range - Averaged"))
+      numrange = numrange%>%tidyr::separate(masked,into = c("num1","num2"),sep = "-", remove = TRUE)%>%dplyr::mutate_at(c('num1', 'num2'), as.numeric)
+      numrange$masked = as.character(rowMeans(numrange[,c('num1', 'num2')], na.rm=TRUE))
+      numrange = numrange[,!names(numrange)%in%c('num1','num2')]
+      
+      clean.data = plyr::rbind.fill(notnumrange,numrange)
+    }
     # In the new TADA column, convert to numeric and remove some specific special 
     # characters.
     clean.data$masked = suppressWarnings(as.numeric(stringr::str_replace_all(
-      clean.data$orig,c("<" = "",">" = "","~" = "","," = "","%" = ""))))
+      clean.data$masked,c("<" = "",">" = "","~" = "","," = "","%" = ""))))
   }
   
   # Rename to original column name, TADA column name, and flag column name
@@ -607,7 +620,8 @@ OrderTADACols <- function(.data){
   dret_cols = dretcols[dretcols%in%names(.data)]
   tada_cols = tadacols[tadacols%in%names(.data)]
   
-  rearranged = .data%>%dplyr::relocate(dplyr::any_of(dret_cols))%>%dplyr::relocate(dplyr::any_of(tada_cols),.after = dplyr::last_col())%>%dplyr::arrange(ResultIdentifier)
+  rearranged = .data%>%dplyr::relocate(dplyr::any_of(dret_cols))%>%dplyr::relocate(dplyr::any_of(tada_cols),.after = dplyr::last_col())
+  rearranged = rearranged[order(rearranged$ResultIdentifier),]
   
   return(rearranged)
   
