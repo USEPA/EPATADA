@@ -502,3 +502,180 @@ FilterParFieldReview <- function(field, .data, parameter) {
   print(pie)
   print(df)
 }
+
+fieldCounts <- function(.data, display = c("all","key","narrow")){
+  # check .data is data.frame
+  checkType(.data, "data.frame", "Input object")
+  
+  # remove fields with only NAs from df
+  df <- .data %>% dplyr::select(where(~ !all(is.na(.x))))
+  
+  if(display=="key"){
+    cols = c("ActivityTypeCode", "TADA.ActivityMediaName",
+             "ActivityMediaSubdivisionName",
+             "ActivityCommentText", "MonitoringLocationTypeName",
+             "StateName", "TribalLandName",
+             "OrganizationFormalName", "TADA.CharacteristicName",
+             "HydrologicCondition", "HydrologicEvent",
+             "BiologicalIntentName", "MeasureQualifierCode",
+             "ActivityGroup", "AssemblageSampledName",
+             "ProjectName", "CharacteristicNameUserSupplied",
+             "DetectionQuantitationLimitTypeName",
+             "SampleTissueAnatomyName", "LaboratoryName")
+  }
+  if(display=="narrow"){
+    cols = c("OrganizationIdentifier",
+             "OrganizationFormalName",
+             "ActivityIdentifier",
+             "ActivityTypeCode",
+             "ActivityMediaName",
+             "ActivityMediaSubdivisionName",
+             "ActivityRelativeDepthName",
+             "ProjectIdentifier",
+             "ProjectName",
+             "ActivityConductingOrganizationText",
+             "MonitoringLocationIdentifier",
+             "MonitoringLocationName",
+             "ActivityCommentText",
+             "SampleAquifer",
+             "HydrologicCondition",
+             "HydrologicEvent",
+             "SampleCollectionMethod.MethodIdentifier",
+             "SampleCollectionMethod.MethodIdentifierContext",
+             "SampleCollectionMethod.MethodName",
+             "SampleCollectionMethod.MethodDescriptionText",
+             "SampleCollectionEquipmentName",
+             "ResultDetectionConditionText",
+             "MethodSpeciationName",
+             "CharacteristicName",
+             "ResultSampleFractionText",
+             "MeasureQualifierCode",
+             "ResultStatusIdentifier",
+             "StatisticalBaseCode",
+             "ResultValueTypeName",
+             "ResultWeightBasisText",
+             "ResultTimeBasisText",
+             "ResultTemperatureBasisText",
+             "ResultParticleSizeBasisText",
+             "DataQuality.PrecisionValue",
+             "DataQuality.BiasValue",
+             "DataQuality.ConfidenceIntervalValue",
+             "DataQuality.UpperConfidenceLimitValue",
+             "DataQuality.LowerConfidenceLimitValue",
+             "ResultCommentText",
+             "USGSPCode",
+             "ResultDepthAltitudeReferencePointText",
+             "SubjectTaxonomicName",
+             "SampleTissueAnatomyName",
+             "BinaryObjectFileName",
+             "BinaryObjectFileTypeCode",
+             "ResultFileUrl",
+             "ResultAnalyticalMethod.MethodIdentifier",
+             "ResultAnalyticalMethod.MethodIdentifierContext",
+             "ResultAnalyticalMethod.MethodName",
+             "ResultAnalyticalMethod.MethodUrl",
+             "ResultAnalyticalMethod.MethodDescriptionText",
+             "LaboratoryName",
+             "ResultLaboratoryCommentText",
+             "ResultDetectionQuantitationLimitUrl",
+             "DetectionQuantitationLimitTypeName",
+             "LabSamplePreparationUrl",
+             "ProviderName",
+             "MonitoringLocationTypeName",
+             "MonitoringLocationDescriptionText",
+             "HUCEightDigitCode",
+             "LatitudeMeasure",
+             "LongitudeMeasure",
+             "SourceMapScaleNumeric",
+             "HorizontalCollectionMethodName",
+             "HorizontalCoordinateReferenceSystemDatumName",
+             "VerticalCollectionMethodName",
+             "VerticalCoordinateReferenceSystemDatumName",
+             "CountryCode",
+             "StateCode",
+             "CountyCode",
+             "AquiferName",
+             "LocalAqfrName",
+             "FormationTypeText",
+             "AquiferTypeName",
+             "ConstructionDateText",
+             "MethodSpecificationName",
+             "ProjectDescriptionText",
+             "SamplingDesignTypeCode",
+             "QAPPApprovedIndicator",
+             "QAPPApprovalAgencyName",
+             "ProjectFileUrl",
+             "ProjectMonitoringLocationWeightingUrl",
+             "TADA.LatitudeMeasure",
+             "TADA.LongitudeMeasure",
+             "TADA.InvalidCoordinates.Flag",
+             "TADA.ActivityMediaName", 
+             "TADA.CharacteristicName",
+             "TADA.CharacteristicGroup",
+             "CharacteristicNameUserSupplied",
+             "TADA.SuggestedCharacteristicName",
+             "TADA.CharacteristicNameAssumptions",
+             "TADA.TotalN_TotalP_CharacteristicNames_AfterSummation",
+             "TADA.TotalN_TotalP_Summation_Identifier",
+             "TADA.TotalN_TotalP_ComboLogic",
+             "TADA.AggregatedContinuousData.Flag",
+             "TADA.ResultMeasureValue",
+             "TADA.ResultMeasureValueDataTypes.Flag",
+             "TADA.CensoredData.Flag",
+             "TADA.CensoredMethod",
+             "TADA.ResultUnit.Flag",
+             "TADA.MethodSpecificationName",
+             "TADA.AnalyticalMethod.Flag",
+             "TADA.MethodSpeciation.Flag",
+             "TADA.ResultSampleFractionText",
+             "TADA.SampleFraction.Flag",
+             "TADA.SuggestedSampleFraction",
+             "TADA.FractionAssumptions",
+             "TADA.ComparableDataIdentifier",
+             "TADA.RemoveReason"
+    )
+  }
+  if(display=="all"){
+    cols = names(df)
+  }
+  
+  df = df[,names(df)%in%cols]
+  
+  # CREATE LIST OF FIELDS
+  # Find count of unique values in each column
+  col.names <- data.frame(Count = apply(df, 2, function(x) length(unique(x))))
+  # Create "Fields" column from row names
+  col.names$Fields <- row.names(col.names)
+  # Remove row names
+  row.names(col.names) <- NULL
+  # Reorder columns
+  col.names <- col.names[, c(2, 1)]
+  
+  # Reorder Count column in col.names from largest to smallest number
+  col.names <- col.names %>%
+    dplyr::arrange(desc(Count))
+  
+  return(col.names)
+  
+}
+
+
+filterPie <- function(.data,col){
+  dat = as.data.frame(table(.data[,col]))
+  dat$Legend = paste0(dat$Var1, " - ", dat$Freq, " results")
+  
+  # define number of colors required for pie chart
+  colorCount <- length(unique(dat$Var1))
+  
+  # define color palette
+  getPalette <- grDevices::colorRampPalette(RColorBrewer::brewer.pal(8, "Set2"))
+  
+  # create pie chart
+  pie <- ggplot2::ggplot(dat, ggplot2::aes(x = "", y = Freq, fill = Legend)) +
+    ggplot2::scale_fill_manual(values = getPalette(colorCount), name = col) +
+    ggplot2::geom_bar(stat = "identity", width = 1) +
+    ggplot2::coord_polar("y", start = 0) +
+    ggplot2::theme_void() 
+  
+  return(pie)
+}
