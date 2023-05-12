@@ -491,7 +491,8 @@ OrderTADACols <- function(.data){
   focal_cols = cols[cols%in%names(.data)]
   other_cols = names(.data)[!names(.data)%in%focal_cols]
   
-  rearranged = .data%>%dplyr::relocate(dplyr::any_of(focal_cols),.after = dplyr::last_col())%>%dplyr::arrange(ResultIdentifier)
+  rearranged = .data%>%dplyr::relocate(dplyr::any_of(focal_cols),.after = dplyr::last_col())
+  rearranged = rearranged[order(rearranged$ResultIdentifier),]
   
   return(rearranged)
   
