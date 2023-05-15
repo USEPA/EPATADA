@@ -503,9 +503,41 @@ FilterParFieldReview <- function(field, .data, parameter) {
   print(df)
 }
 
-fieldCounts <- function(.data, display = c("all","key","narrow")){
+#' Unique Field Values Table
+#'
+#' Function creates a table yielding the number of unique values in each field (column) returned.
+#' The first column of the summary table holds the field name and the second column holds the
+#' unique value count.
+#' 
+#' @param .data TADA dataframe
+#' @param display A character string denoting what fields to return in the summary table. Defaults to "key". "all" will return all fields in the dataset, "narrow" will return most field names except those holding numeric values or units, and "key" returns the most important columns to review. Note that if a field is completely NA, it will not be shown on the summary table.
+#' @param characteristicName Optional. Defaults to "null". A vector of WQP characteristics a user may provide to filter the results to one or more characteristics of interest. "null" will show a summary table for the whole dataset.
+#'
+#' @return A summary table yielding the number of unique values in each field.
+#'
+#' @export
+#' 
+#' @examples 
+#' # Load example dataset:
+#' data(Nutrients_Utah)
+#' 
+#' # Create a list of parameters in the dataset and the number of records of
+#' # each parameter: 
+#' fieldCountUT <- fieldCounts(Nutrients_Utah)
+#' 
+
+fieldCounts <- function(.data, display = "key", characteristicName = "null"){
   # check .data is data.frame
   checkType(.data, "data.frame", "Input object")
+  
+  # filter to characteristic if provided
+  if(!characteristicName%in%c("null")){
+    .data = subset(.data, .data$TADA.CharacteristicName%in%c(characteristicName))
+    
+    if(length(.data)<1){
+      stop("Characteristic name(s) provided are not contained within the input dataset.")
+    }
+  }
   
   # remove fields with only NAs from df
   df <- .data %>% dplyr::select(where(~ !all(is.na(.x))))
@@ -656,12 +688,46 @@ fieldCounts <- function(.data, display = c("all","key","narrow")){
     dplyr::arrange(desc(Count))
   
   return(col.names)
-  
 }
 
 
-filterPie <- function(.data,col){
-  dat = as.data.frame(table(.data[,col]))
+#' Field Values Pie Chart
+#'
+#' Function creates a ggplot2 pie chart showing the relative proportions of values in a given field in a TADA dataset.
+#' 
+#' @param .data TADA dataframe
+#' @param field The field (column) the user would like to see represented in a pie chart.
+#' @param characteristicName Optional. Defaults to "null". A vector of WQP characteristics a user may provide to filter the results to one or more characteristics of interest. "null" will show a summary table for the whole dataset.
+#'
+#' @return A ggplot2 pie chart.
+#'
+#' @export
+#' 
+#' @examples 
+#' # Load example dataset:
+#' data(Nutrients_Utah)
+#' 
+#' # Create a list of parameters in the dataset and the number of records of
+#' # each parameter: 
+#' filterPie(Nutrients_Utah, field = "TADA.CharacteristicName")
+#' 
+
+
+filterPie <- function(.data,field="null",characteristicName="null"){
+  
+  # check .data is data.frame
+  checkType(.data, "data.frame", "Input object")
+  
+  if(!field%in%names(.data)){
+    stop("Field input does not exist in dataset. Please populate the 'field' argument with a valid field name. Enter ?TADA::filterPie in console for more information.")
+  }
+  
+  # filter to characteristic if provided
+  if(!characteristicName%in%c("null")){
+    .data = subset(.data, .data$TADA.CharacteristicName%in%c(characteristicName))
+  }
+  
+  dat = as.data.frame(table(.data[,field]))
   dat$Legend = paste0(dat$Var1, " - ", dat$Freq, " results")
   
   # define number of colors required for pie chart
@@ -672,7 +738,7 @@ filterPie <- function(.data,col){
   
   # create pie chart
   pie <- ggplot2::ggplot(dat, ggplot2::aes(x = "", y = Freq, fill = Legend)) +
-    ggplot2::scale_fill_manual(values = getPalette(colorCount), name = col) +
+    ggplot2::scale_fill_manual(values = getPalette(colorCount), name = field) +
     ggplot2::geom_bar(stat = "identity", width = 1) +
     ggplot2::coord_polar("y", start = 0) +
     ggplot2::theme_void() 
