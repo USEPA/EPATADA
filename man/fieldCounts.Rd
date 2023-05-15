@@ -11,7 +11,7 @@ fieldCounts(.data, display = "key", characteristicName = "null")
 
 \item{display}{A character string denoting what fields to return in the summary table. Defaults to "key". "all" will return all fields in the dataset, "narrow" will return most field names except those holding numeric values or units, and "key" returns the most important columns to review. Note that if a field is completely NA, it will not be shown on the summary table.}
 
-\item{characteristicName}{Optional. Defaults to "null". A vector of WQP characteristics a user may provide to filter the results to one or more characteristics of interest. "null" will show a summary table for the whole dataset.}
+\item{characteristicName}{Optional. Defaults to "null". A vector of TADA-converted (all caps) WQP characteristics a user may provide to filter the results to one or more characteristics of interest. "null" will show a summary table for the whole dataset.}
 }
 \value{
 A summary table yielding the number of unique values in each field.

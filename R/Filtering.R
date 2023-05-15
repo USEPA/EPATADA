@@ -511,7 +511,7 @@ FilterParFieldReview <- function(field, .data, parameter) {
 #' 
 #' @param .data TADA dataframe
 #' @param display A character string denoting what fields to return in the summary table. Defaults to "key". "all" will return all fields in the dataset, "narrow" will return most field names except those holding numeric values or units, and "key" returns the most important columns to review. Note that if a field is completely NA, it will not be shown on the summary table.
-#' @param characteristicName Optional. Defaults to "null". A vector of WQP characteristics a user may provide to filter the results to one or more characteristics of interest. "null" will show a summary table for the whole dataset.
+#' @param characteristicName Optional. Defaults to "null". A vector of TADA-converted (all caps) WQP characteristics a user may provide to filter the results to one or more characteristics of interest. "null" will show a summary table for the whole dataset.
 #'
 #' @return A summary table yielding the number of unique values in each field.
 #'
@@ -535,7 +535,7 @@ fieldCounts <- function(.data, display = "key", characteristicName = "null"){
     .data = subset(.data, .data$TADA.CharacteristicName%in%c(characteristicName))
     
     if(length(.data)<1){
-      stop("Characteristic name(s) provided are not contained within the input dataset.")
+      stop("Characteristic name(s) provided are not contained within the input dataset. Note that TADA converts characteristic names to ALL CAPS for easier harmonization.")
     }
   }
   
@@ -697,7 +697,7 @@ fieldCounts <- function(.data, display = "key", characteristicName = "null"){
 #' 
 #' @param .data TADA dataframe
 #' @param field The field (column) the user would like to see represented in a pie chart.
-#' @param characteristicName Optional. Defaults to "null". A vector of WQP characteristics a user may provide to filter the results to one or more characteristics of interest. "null" will show a summary table for the whole dataset.
+#' @param characteristicName Optional. Defaults to "null". A vector of TADA-converted (all caps) WQP characteristics a user may provide to filter the results to one or more characteristics of interest. "null" will show a summary table for the whole dataset.
 #'
 #' @return A ggplot2 pie chart.
 #'
@@ -725,6 +725,9 @@ filterPie <- function(.data,field="null",characteristicName="null"){
   # filter to characteristic if provided
   if(!characteristicName%in%c("null")){
     .data = subset(.data, .data$TADA.CharacteristicName%in%c(characteristicName))
+    if(length(.data)<1){
+      stop("Characteristic name(s) provided are not contained within the input dataset. Note that TADA converts characteristic names to ALL CAPS for easier harmonization.")
+    }
   }
   
   dat = as.data.frame(table(.data[,field]))

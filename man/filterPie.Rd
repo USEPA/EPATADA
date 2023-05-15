@@ -11,7 +11,7 @@ filterPie(.data, field = "null", characteristicName = "null")
 
 \item{field}{The field (column) the user would like to see represented in a pie chart.}
 
-\item{characteristicName}{Optional. Defaults to "null". A vector of WQP characteristics a user may provide to filter the results to one or more characteristics of interest. "null" will show a summary table for the whole dataset.}
+\item{characteristicName}{Optional. Defaults to "null". A vector of TADA-converted (all caps) WQP characteristics a user may provide to filter the results to one or more characteristics of interest. "null" will show a summary table for the whole dataset.}
 }
 \value{
 A ggplot2 pie chart.
