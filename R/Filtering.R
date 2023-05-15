@@ -520,11 +520,10 @@ FilterParFieldReview <- function(field, .data, parameter) {
 #' @examples 
 #' # Load example dataset:
 #' data(Nutrients_Utah)
-#' 
-#' # Create a list of parameters in the dataset and the number of records of
-#' # each parameter: 
+#' # Count table of key fields in Nutrients_Utah dataset
 #' fieldCountUT <- fieldCounts(Nutrients_Utah)
-#' 
+#' # Count table of most fields in Nutrients_Utah, filtered to only AMMONIA results.
+#' fieldCountUTAmmonia <- fieldCounts(Nutrients_Utah, display = "narrow", characteristicName = "AMMONIA")
 
 fieldCounts <- function(.data, display = "key", characteristicName = "null"){
   # check .data is data.frame
@@ -556,7 +555,8 @@ fieldCounts <- function(.data, display = "key", characteristicName = "null"){
              "SampleTissueAnatomyName", "LaboratoryName")
   }
   if(display=="narrow"){
-    cols = c("OrganizationIdentifier",
+    cols = c("ResultIdentifier",
+            "OrganizationIdentifier",
              "OrganizationFormalName",
              "ActivityIdentifier",
              "ActivityTypeCode",
