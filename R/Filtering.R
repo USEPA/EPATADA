@@ -525,15 +525,17 @@ FilterParFieldReview <- function(field, .data, parameter) {
 #' # Count table of most fields in Nutrients_Utah, filtered to only AMMONIA results.
 #' fieldCountUTAmmonia <- fieldCounts(Nutrients_Utah, display = "narrow", characteristicName = "AMMONIA")
 
-fieldCounts <- function(.data, display = "key", characteristicName = "null"){
+fieldCounts <- function(.data, display = c("key","narrow", "all"), characteristicName = "null"){
   # check .data is data.frame
   checkType(.data, "data.frame", "Input object")
+  
+  display = match.arg(display)
   
   # filter to characteristic if provided
   if(!characteristicName%in%c("null")){
     .data = subset(.data, .data$TADA.CharacteristicName%in%c(characteristicName))
     
-    if(length(.data)<1){
+    if(dim(.data)[1]<1){
       stop("Characteristic name(s) provided are not contained within the input dataset. Note that TADA converts characteristic names to ALL CAPS for easier harmonization.")
     }
   }
@@ -725,7 +727,7 @@ filterPie <- function(.data,field="null",characteristicName="null"){
   # filter to characteristic if provided
   if(!characteristicName%in%c("null")){
     .data = subset(.data, .data$TADA.CharacteristicName%in%c(characteristicName))
-    if(length(.data)<1){
+    if(dim(.data)[1]<1){
       stop("Characteristic name(s) provided are not contained within the input dataset. Note that TADA converts characteristic names to ALL CAPS for easier harmonization.")
     }
   }
