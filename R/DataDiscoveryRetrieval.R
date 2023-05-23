@@ -482,7 +482,7 @@ TADABigdataRetrieval <- function(startDate = "null",
 
   if (!"null"%in%statecode) {
     # state_cd_cont = utils::read.csv(file = "inst/extdata/statecode.csv",colClasses=c("STATE"="character"))
-    load("inst/extdata/statecodes_df.Rdata")
+    load(system.file("extdata", "statecodes_df.Rdata", package = "TADA"))
     statecode = as.character(statecode)
     statecodes_sub = statecodes_df%>%dplyr::filter(STUSAB%in%statecode)
     statecd = paste0("US:",statecodes_sub$STATE)
