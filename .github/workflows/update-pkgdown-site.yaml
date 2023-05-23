@@ -3,8 +3,8 @@
 on:
   push:
     branches: [develop]
-  pull_request:
-    branches: [develop]    
+#  pull_request:
+#    branches: [develop]    
 
 name: update-pkgdown-site
 
@@ -55,10 +55,13 @@ jobs:
       - name: Build site        
         run:  Rscript -e 'pkgdown::build_site_github_pages(dest_dir = "docs", clean = TRUE, install = FALSE, new_process = FALSE)'
       
-      - name: Deploy to GitHub pages 🚀
-        if: github.event_name != 'pull_request'
-        uses: JamesIves/github-pages-deploy-action@v4
-        with:
-          clean: false
-          branch: gh-pages
-          folder: docs
+      #- name: Deploy to GitHub pages 🚀
+      #  if: github.event_name != 'pull_request'
+      #  uses: JamesIves/github-pages-deploy-action@v4
+      #  with:
+      #    clean: false
+      #    branch: gh-pages
+      #    folder: docs
+          
+      - name: Add & Commit
+        uses: EndBug/add-and-commit@v9.1.3
