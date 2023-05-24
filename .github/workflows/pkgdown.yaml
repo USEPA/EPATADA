@@ -5,8 +5,9 @@ on:
     branches: [develop]
   pull_request:
     branches: [develop]
-  release:
-    types: [published]
+  # build and deploy when we publish a GitHub release
+  # release:
+  #  types: [published]
   workflow_dispatch:
 
 name: pkgdown
@@ -46,7 +47,8 @@ jobs:
         shell: Rscript {0}
 
       - name: Deploy to GitHub pages 🚀
-        if: github.event_name != 'pull_request'
+        # don’t deploy for pull requests
+        # if: github.event_name != 'pull_request'
         uses: JamesIves/github-pages-deploy-action@v4
         with:
           clean: false
