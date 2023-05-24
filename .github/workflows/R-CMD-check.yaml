@@ -8,6 +8,12 @@ on:
 
 name: R-CMD-check
 
+# Allow only one concurrent deployment, skipping runs queued between the run in-progress and latest queued.
+# Also, cancel in-progress runs.
+concurrency:
+  group: "R-CMD-check"
+  cancel-in-progress: true
+
 jobs:
   R-CMD-check:
     runs-on: ${{ matrix.config.os }}
