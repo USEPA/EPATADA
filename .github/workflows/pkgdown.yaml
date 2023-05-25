@@ -43,14 +43,14 @@ jobs:
           needs: website
 
       - name: Build site
-        run: pkgdown::build_site_github_pages(dest_dir = "docs", new_process = FALSE, clean = TRUE, install = FALSE)
+        run: pkgdown::build_site_github_pages(dest_dir = "docs", new_process = TRUE, clean = TRUE, install = TRUE)
         shell: Rscript {0}
 
       - name: Deploy to GitHub pages 🚀
-        # don’t deploy for pull requests
+        # Don’t deploy for pull requests
         if: github.event_name != 'pull_request'
         uses: JamesIves/github-pages-deploy-action@v4
         with:
-          clean: false
+          clean: true
           branch: gh-pages
           folder: docs
