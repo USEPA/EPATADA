@@ -4,7 +4,11 @@
 \alias{fieldCounts}
 \title{Unique Field Values Table}
 \usage{
-fieldCounts(.data, display = "key", characteristicName = "null")
+fieldCounts(
+  .data,
+  display = c("key", "narrow", "all"),
+  characteristicName = "null"
+)
 }
 \arguments{
 \item{.data}{TADA dataframe}
