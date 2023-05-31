@@ -48,19 +48,20 @@ TADA_summarizeColumn <- function(.data,col="TADA.CharacteristicName"){
 #' # down to one Comparable Data Identifier
 #' 
 #' # Create stats table:
-#' TADA_stats(TADAProfileClean18_TNonly)
+#' TADAProfileClean18_TNonly_stats <- TADA_stats(TADAProfileClean18_TNonly)
 #' 
 
 TADA_stats <- function(.data){
 
   StatsTable <- .data %>%
     dplyr::group_by(TADA.ComparableDataIdentifier) %>%
-    dplyr::summarize(n_sites = length(unique(MonitoringLocationIdentifier)),
-                     n_records = length(TADA.ResultMeasureValue), 
-                     #To build this fence we take 1.5 times the IQR and then subtract this value 
+    dplyr::summarize(Location_Count = length(unique(MonitoringLocationIdentifier)),
+                     Measurement_Count = length(unique(ResultIdentifier)), 
+                     # To build this fence we take 1.5 times the IQR and then subtract this value 
                      # from Q1 and add this value to Q3. This gives us the minimum and maximum fence
                      # posts that we compare each observation to. Any observations that are more than
                      # 1.5 IQR below Q1 or more than 1.5 IQR above Q3 are considered outliers
+                     NA_Count = sum(is.na(.data$TADA.ResultMeasureValue)),
                      UpperFence = (stats::quantile(TADA.ResultMeasureValue, c(.75))+(1.5*stats::IQR(TADA.ResultMeasureValue))), 
                      LowerFence = (stats::quantile(TADA.ResultMeasureValue, c(.25))-(1.5*stats::IQR(TADA.ResultMeasureValue))), 
                      Min = min(TADA.ResultMeasureValue),

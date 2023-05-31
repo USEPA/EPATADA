@@ -117,10 +117,10 @@ idCensoredData <- function(.data){
 #' @examples
 #' #' # Load example dataset:
 #' data(Nutrients_Utah)
-#' # Check for agreement between detection condition and detection limit type, and in instances where the sample is non-detect, set the result value to half of the detection limit value. For over-detect samples, retain the detection limit value as the result value as-is. 
+#' # Check for agreement between detection condition and detection limit type, and in instances where the measurement is non-detect, set the result value to half of the detection limit value. For over-detect measurements, retain the detection limit value as the result value as-is. 
 #' Nutrients_Utah_CensoredFlag = simpleCensoredMethods(Nutrients_Utah, nd_method = "multiplier", nd_multiplier = 0.5, od_method = "as-is", od_multiplier = "null")
 #' 
-#' # Check for agreement between detection condition and detection limit type, and in instances where the sample is non-detect, set the result value to a random value between 0 and the detection limit value. For over-detect samples, retain the detection limit value as the result value as-is. 
+#' # Check for agreement between detection condition and detection limit type, and in instances where the measurement is non-detect, set the result value to a random value between 0 and the detection limit value. For over-detect measurements, retain the detection limit value as the result value as-is. 
 #' Nutrients_Utah_CensoredFlag = simpleCensoredMethods(Nutrients_Utah, nd_method = "randombelowlimit", nd_multiplier = "null", od_method = "as-is", od_multiplier = "null")
 #' 
 
@@ -203,7 +203,7 @@ simpleCensoredMethods <- function(.data, nd_method = "multiplier", nd_multiplier
 #' 
 #' @param .data A TADA dataframe
 #' @param spec_cols A vector of column names to be used as aggregating variables when summarizing censored data information.
-#' @return A summary dataframe yielding sample ncounts, censored data ncounts, 
+#' @return A summary dataframe yielding measurement ncounts, censored data ncounts, 
 #' and percent of dataset that is censored, aggregated by user-defined grouping 
 #' variables. Also produces a column "TADA.Censored.Note" that identifies 
 #' when there is sufficient non-censored data to estimate censored data using statistical
@@ -214,6 +214,15 @@ simpleCensoredMethods <- function(.data, nd_method = "multiplier", nd_multiplier
 #' 
 #' 
 #' @export
+#' 
+#' @examples
+#' # Load example dataset:
+#' data("TADAProfileClean18_TNonly")
+#' # TADAProfileClean18_TNonly dataframe is clean, harmonized, and filtered
+#' # down to one Comparable Data Identifier
+#' 
+#' # Create summarizeCensoredData table:
+#' TADAProfileClean18_TNonly_summarizeCensoredData <- summarizeCensoredData(TADAProfileClean18_TNonly)
 #' 
 
 summarizeCensoredData <- function(.data, spec_cols = c("TADA.CharacteristicName","TADA.ResultMeasure.MeasureUnitCode","TADA.ResultSampleFractionText","TADA.MethodSpecificationName")){
@@ -230,13 +239,13 @@ summarizeCensoredData <- function(.data, spec_cols = c("TADA.CharacteristicName"
   
   sum_low = cens%>%dplyr::group_by_at(spec_cols)%>%
     dplyr::filter(TADA.CensoredData.Flag%in%c("Non-Detect", "Uncensored"))%>%
-    dplyr::summarise(Sample_Count = length(unique(ResultIdentifier)), Censored_Count = length(TADA.CensoredData.Flag[TADA.CensoredData.Flag=="Non-Detect"]), Percent_Censored = length(TADA.CensoredData.Flag[TADA.CensoredData.Flag=="Non-Detect"])/length(TADA.CensoredData.Flag)*100, Censoring_Levels = length(unique(TADA.ResultMeasureValue[TADA.CensoredData.Flag=="Non-Detect"])))%>%
+    dplyr::summarise(Measurement_Count = length(unique(ResultIdentifier)), Censored_Count = length(TADA.CensoredData.Flag[TADA.CensoredData.Flag=="Non-Detect"]), Percent_Censored = length(TADA.CensoredData.Flag[TADA.CensoredData.Flag=="Non-Detect"])/length(TADA.CensoredData.Flag)*100, Censoring_Levels = length(unique(TADA.ResultMeasureValue[TADA.CensoredData.Flag=="Non-Detect"])))%>%
     dplyr::filter(Censored_Count>0)%>%
     dplyr::mutate("TADA.CensoredData.Flag" = "Non-Detect")
   
   sum_hi = cens%>%dplyr::group_by_at(spec_cols)%>%
     dplyr::filter(TADA.CensoredData.Flag%in%c("Over-Detect", "Uncensored"))%>%
-    dplyr::summarise(Sample_Count = length(unique(ResultIdentifier)), Censored_Count = length(TADA.CensoredData.Flag[TADA.CensoredData.Flag=="Over-Detect"]), Percent_Censored = length(TADA.CensoredData.Flag[TADA.CensoredData.Flag=="Over-Detect"])/length(TADA.CensoredData.Flag)*100, Censoring_Levels = length(unique(TADA.ResultMeasureValue[TADA.CensoredData.Flag=="Over-Detect"])))%>%
+    dplyr::summarise(Measurement_Count = length(unique(ResultIdentifier)), Censored_Count = length(TADA.CensoredData.Flag[TADA.CensoredData.Flag=="Over-Detect"]), Percent_Censored = length(TADA.CensoredData.Flag[TADA.CensoredData.Flag=="Over-Detect"])/length(TADA.CensoredData.Flag)*100, Censoring_Levels = length(unique(TADA.ResultMeasureValue[TADA.CensoredData.Flag=="Over-Detect"])))%>%
     dplyr::filter(Censored_Count>0)%>%
     dplyr::mutate("TADA.CensoredData.Flag" = "Over-Detect")
   
@@ -246,8 +255,8 @@ summarizeCensoredData <- function(.data, spec_cols = c("TADA.CharacteristicName"
     Percent_Censored>80 ~ as.character("Percent censored too high for estimation methods"), # greater than 80, cannot estimate
     Percent_Censored<50&Censoring_Levels>1 ~ as.character("Kaplan-Meier"), # less than 50% censored, and multiple censoring levels (no minimum n)
     Percent_Censored<50 ~ as.character("Robust Regression Order Statistics"), # less than 50% censored and one censoring level (no minimum n?)
-    Sample_Count>=50 ~ as.character("Maximum Likelihood Estimation"), # 50%-80% censored, 50 or more samples
-    Sample_Count<50 ~ as.character("Robust Regression Order Statistics"), # 50%-80% censored, less than 50 samples
+    Measurement_Count>=50 ~ as.character("Maximum Likelihood Estimation"), # 50%-80% censored, 50 or more measurements
+    Measurement_Count<50 ~ as.character("Robust Regression Order Statistics"), # 50%-80% censored, less than 50 measures
     ))
   if(dim(sum_all)[1]==0){
     print("No censored data to summarize. Returning empty data frame.")
