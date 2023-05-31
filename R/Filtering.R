@@ -536,7 +536,7 @@ fieldCounts <- function(.data, display = c("key","narrow", "all"), characteristi
     .data = subset(.data, .data$TADA.CharacteristicName%in%c(characteristicName))
     
     if(dim(.data)[1]<1){
-      stop("Characteristic name(s) provided are not contained within the input dataset. Note that TADA converts characteristic names to ALL CAPS for easier harmonization.")
+      stop("Characteristic name(s) provided are not contained within the input dataset. Note that TADA converts characteristic names to ALL CAPS for easier harmonization of synonyms from different WQP data providers (USGS's NWIS and EPA's WQX).")
     }
   }
   

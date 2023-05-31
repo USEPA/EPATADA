@@ -136,10 +136,10 @@ simpleCensoredMethods <- function(.data, nd_method = "multiplier", nd_multiplier
   checkColumns(.data, expected_cols)
   
   # check that multiplier is provided if method = "multiplier"
-  if(nd_method=="multiplier"&nd_multiplier=="null"){
+  if(nd_method == "multiplier"&nd_multiplier == "null"){
     stop("Please provide a multiplier for the lower detection limit handling method of 'multiplier'. Typically, the multiplier value is between 0 and 1.")
   }
-  if(od_method=="multiplier"&od_multiplier=="null"){
+  if(od_method == "multiplier"&od_multiplier == "null"){
     stop("Please provide a multiplier for the upper detection limit handling method of 'multiplier'")
   }
   
@@ -150,41 +150,41 @@ simpleCensoredMethods <- function(.data, nd_method = "multiplier", nd_multiplier
     cens.data = .data
   }
   
-  if(all(cens.data$TADA.CensoredData.Flag=="Uncensored")){
+  if(all(cens.data$TADA.CensoredData.Flag == "Uncensored")){
     print("Cannot apply simple censored methods to dataset with no censored data results. Returning input dataframe.")
     .data = cens.data
   }else{
     # split out over detects and non detects
-    nd = subset(cens.data, cens.data$TADA.CensoredData.Flag=="Non-Detect")
-    od = subset(cens.data, cens.data$TADA.CensoredData.Flag=="Over-Detect")
+    nd = subset(cens.data, cens.data$TADA.CensoredData.Flag == "Non-Detect")
+    od = subset(cens.data, cens.data$TADA.CensoredData.Flag == "Over-Detect")
     all_others = subset(cens.data, !cens.data$ResultIdentifier%in%c(nd$ResultIdentifier,od$ResultIdentifier))
     
     # ND handling
     if(dim(nd)[1]>0){
-      if(nd_method=="multiplier"){
+      if(nd_method == "multiplier"){
         nd$TADA.ResultMeasureValue = nd$TADA.ResultMeasureValue*nd_multiplier
         nd$TADA.CensoredMethod = paste0("Detection Limit Value Multiplied by ",nd_multiplier)
         nd$TADA.ResultMeasureValueDataTypes.Flag = "Result Value/Unit Estimated from Detection Limit"
       }
-      if(nd_method=="randombelowlimit"){
+      if(nd_method == "randombelowlimit"){
         nd$multiplier = stats::runif(dim(nd)[1],0,1)
         nd$TADA.ResultMeasureValue = nd$TADA.ResultMeasureValue*nd$multiplier
         nd$TADA.CensoredMethod = paste0("Random Value Between 0 and Detection Limit Using this Multiplier: ",round(nd$multiplier,digits=3))
         nd = nd%>%dplyr::select(-multiplier)
         nd$TADA.ResultMeasureValueDataTypes.Flag = "Result Value/Unit Estimated from Detection Limit"
       }
-      if(nd_method=="as-is"){
+      if(nd_method == "as-is"){
         nd$TADA.CensoredMethod = "Detection Limit Value Unchanged"
       }
     }
     # OD handling
     if(dim(od)[1]>0){
-      if(od_method=="multiplier"){
+      if(od_method == "multiplier"){
         od$TADA.ResultMeasureValue = od$TADA.ResultMeasureValue*od_multiplier
         od$TADA.CensoredMethod = paste0("Detection Limit Value Multiplied by ",od_multiplier)
         od$TADA.ResultMeasureValueDataTypes.Flag = "Result Value/Unit Estimated from Detection Limit"
       }
-      if(od_method=="as-is"){
+      if(od_method == "as-is"){
         od$TADA.CensoredMethod = "Detection Limit Value Unchanged"
       }
     }

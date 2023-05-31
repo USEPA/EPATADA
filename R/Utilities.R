@@ -68,12 +68,12 @@ autoclean <- function(.data) {
   .data$TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode <-
     toupper(.data$DetectionQuantitationLimitMeasure.MeasureUnitCode)
   
-  # Remove complex biological data. Un-comment after new WQX 3.0 Profiles are released.
+  # Remove complex biological data. Un-comment after new WQX 3.0 Profiles are released. May not be needed if implemented via WQP UI/services.
   # .data$TADA.BiologicalIntentName = toupper(.data$BiologicalIntentName)
   # TADAProfile = dplyr::filter(TADAProfile, TADA.BiologicalIntentName != "TISSUE" | "TOXICITY" | is.na(TADA.BiologicalIntentName) == TRUE)
   
-  # Remove data for non-water media types. Un-comment and add back later once new workflow for 
-  # documenting "removed" data is set up
+  # Remove data for non-water media types. Un-comment. Discuss possibly adding back
+  # later once new workflow for documenting "removed" data is set up. May not be needed for R package.
   # TADAProfile <- dplyr::filter(TADAProfile, TADA.ActivityMediaName == "WATER")
   
   # Remove duplicate rows - turned into a test because duplicated() takes a long
@@ -91,13 +91,13 @@ autoclean <- function(.data) {
   .data <- ConvertSpecialChars(.data, "ResultMeasureValue")
   .data <- ConvertSpecialChars(.data, "DetectionQuantitationLimitMeasure.MeasureValue")
   
-  # Move detection limit value and unit to TADA.RV and Unit columns
-  .data$TADA.ResultMeasureValue = ifelse(is.na(.data$TADA.ResultMeasureValue)&!is.na(.data$TADA.DetectionQuantitationLimitMeasure.MeasureValue),.data$TADA.DetectionQuantitationLimitMeasure.MeasureValue,.data$TADA.ResultMeasureValue)
-  .data$TADA.ResultMeasure.MeasureUnitCode = ifelse(is.na(.data$TADA.ResultMeasure.MeasureUnitCode)&!is.na(.data$TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode),.data$TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode,.data$TADA.ResultMeasure.MeasureUnitCode)
-  .data$TADA.ResultMeasureValueDataTypes.Flag = ifelse(.data$TADA.ResultMeasureValueDataTypes.Flag=="ND or NA"&!is.na(.data$TADA.DetectionQuantitationLimitMeasure.MeasureValue),"Result Value/Unit Copied from Detection Limit",.data$TADA.ResultMeasureValueDataTypes.Flag)
+  # Move detection limit value and unit to TADA Result Measure Value and Unit columns
+  .data$TADA.ResultMeasureValue <- ifelse(is.na(.data$TADA.ResultMeasureValue)&!is.na(.data$TADA.DetectionQuantitationLimitMeasure.MeasureValue),.data$TADA.DetectionQuantitationLimitMeasure.MeasureValue,.data$TADA.ResultMeasureValue)
+  .data$TADA.ResultMeasure.MeasureUnitCode <- ifelse(is.na(.data$TADA.ResultMeasure.MeasureUnitCode)&!is.na(.data$TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode),.data$TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode,.data$TADA.ResultMeasure.MeasureUnitCode)
+  .data$TADA.ResultMeasureValueDataTypes.Flag <- ifelse(.data$TADA.ResultMeasureValueDataTypes.Flag=="ND or NA"&!is.na(.data$TADA.DetectionQuantitationLimitMeasure.MeasureValue),"Result Value/Unit Copied from Detection Limit",.data$TADA.ResultMeasureValueDataTypes.Flag)
   
   # Identify detection limit data
-  .data = idCensoredData(.data)
+  .data <- idCensoredData(.data)
   
   # change latitude and longitude measures to class numeric
   .data$TADA.LatitudeMeasure <- as.numeric(.data$LatitudeMeasure)
@@ -110,9 +110,9 @@ autoclean <- function(.data) {
   # .data$TADA.ResultDepthHeightMeasure.MeasureUnitCode[.data$ResultDepthHeightMeasure.MeasureUnitCode == 'meters'] <- 'm'
   .data$TADA.ResultMeasure.MeasureUnitCode[.data$TADA.ResultMeasure.MeasureUnitCode == 'meters'] <- 'm'
   
-  print("NOTE: This version of the TADA package is designed to work with data with sample media: 'WATER'. autoclean does not currently filter downloaded data to 'WATER'. The user must make this specification on their own outside of package functions. See the WQPDataHamornization vignette for an example.")
+  print("NOTE: This version of the TADA package is designed to work with quantitative (numeric) data with sample media: 'WATER'. autoclean does not currently filter downloaded data to 'WATER'. The user must make this specification on their own outside of package functions. See the WQPDataHamornization vignette for an example.")
   
-  .data = OrderTADACols(.data)
+  .data <- OrderTADACols(.data)
   
   return(.data)
 }
@@ -162,25 +162,6 @@ AutoFilter <- function(.data, clean = TRUE) {
 }
 
 
-
-#' RemoveEmptyColumns
-#'
-#' Removes any columns with only NA values. Used to quickly reduce the number of
-#' columns in a dataframe to improve management and readability of the dataframe.
-#'
-#' @param .data Dataframe
-#'
-#' @return Full dataframe with empty data columns removed
-#'
-
-RemoveEmptyColumns <- function(.data) {
-  # Remove columns with only NAs
-  .data %>%
-    dplyr::select(where(~ !all(is.na(.x))))
-}
-
-
-
 #' decimalplaces
 #'
 #' for numeric data type
@@ -198,22 +179,6 @@ decimalplaces <- function(x) {
   }
 }
 
-
-
-#' decimalnumcount
-#'
-#' for character data type
-#'
-#' @param x Numeric data field from TADA profile
-#'
-#' @return Number of values to the right of the decimal point for character type data.
-#' 
-
-decimalnumcount <- function(x) {
-  stopifnot(class(x) == "character")
-  x <- gsub("(.*)(\\.)|(*$)", "", x)
-  nchar(x)
-}
 
 
 #' TADA Profile Check
