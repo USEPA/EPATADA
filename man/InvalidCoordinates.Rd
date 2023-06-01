@@ -27,6 +27,7 @@ clean_imprecise = TRUE. Default is clean_imprecise = FALSE.}
 default is errorsonly = FALSE.}
 }
 \value{
+Returns input TADA dataset with the added "TADA.InvalidCoordinates.Flag" column.
 When clean_outsideUSA is "no", "change sign", or clean_imprecise argument is FALSE,
 a column flagging rows with the respective QA check is appended to the input
 dataframe. When clean_outsideUSA is "remove" or clean_imprecise is TRUE,

@@ -15,8 +15,7 @@
 #' characteristic-analytical method combinations when errorsonly = TRUE. Default
 #' is errorsonly = FALSE.
 #' 
-#' @return When clean = FALSE and errorsonly = FALSE, this function adds the 
-#' following column to your dataframe: TADA.AnalyticalMethod.Flag. This column 
+#' @return This function adds the TADA.AnalyticalMethod.Flag to a TADA dataframe. This column 
 #' flags invalid CharacteristicName, ResultAnalyticalMethod/MethodIdentifier,
 #' and ResultAnalyticalMethod/MethodIdentifierContext combinations in your dataframe
 #' as either "Nonstandardized", "Invalid", or "Valid". When clean = FALSE and 
@@ -131,7 +130,7 @@ InvalidMethod <- function(.data, clean = TRUE, errorsonly = FALSE) {
 #' Check for Aggregated Continuous Data
 #'
 #' The Water Quality Portal (WQP) is not currently designed to store high-frequency
-#' sensor data (more than 1 value per day). However, sometimes data providers 
+#' sensor data as typical result values. However, sometimes data providers 
 #' choose to aggregate their continuous data to a daily avg, max, or min value, 
 #' and then submit that aggregated data to the WQP through WQX. Alternatively, 
 #' some organizations aggregate their high frequency data (15 min or 1 hour data) 
@@ -425,14 +424,14 @@ PotentialDuplicateRowID <- function(.data, clean = TRUE, errorsonly = FALSE) {
 #' @param errorsonly Boolean argument; filters dataframe to show only the data
 #' flagged as above the upper WQX threshold. Default is errorsonly = FALSE.
 #'
-#' @return When clean = FALSE and errorsonly = FALSE, a column which flags data above the
-#' upper WQX threshold is appended to the dataframe. When clean = FALSE and 
-#' errorsonly = TRUE, the dataframe is filtered to show only data found above 
-#' the WQX threshold. When clean = TRUE and errorsonly = FALSE, rows with values 
-#' that are above the upper WQX threshold are removed from the dataframe and no 
-#' column is appended. When clean = TRUE and and errorsonly = TRUE, the function 
-#' is not executed and an error message is returned. Defaults are clean = TRUE and
-#' errorsonly = FALSE.
+#' @return The input TADA dataset with the added
+#'   TADA.AboveNationalWQXUpperThreshold column. When clean = FALSE and
+#'   errorsonly = TRUE, the dataframe is filtered to show only data found above
+#'   the WQX threshold. When clean = TRUE and errorsonly = FALSE, rows with
+#'   values that are above the upper WQX threshold are removed from the
+#'   dataframe and no column is appended. When clean = TRUE and and errorsonly =
+#'   TRUE, the function is not executed and an error message is returned.
+#'   Defaults are clean = TRUE and errorsonly = FALSE.
 #'
 #' @export
 #' 
@@ -576,15 +575,16 @@ AboveNationalWQXUpperThreshold <- function(.data, clean = TRUE, errorsonly = FAL
 #' flagged as below the lower WQX threshold when errorsonly = TRUE. Default is
 #' errorsonly = FALSE.
 #'
-#' @return When clean = FALSE and errorsonly = FALSE, the following column is 
-#' added to your dataframe: TADA.ResultValueBelowLowerThreshold.Flag. This column flags rows with 
-#' data that are below the lower WQX threshold. When clean = FALSE and 
-#' errorsonly = TRUE, the dataframe is filtered to show only the rows which are
-#' flagged as below the WQX threshold; the column TADA.ResultValueBelowLowerThreshold.Flag is still
-#' appended. When clean = TRUE and errorsonly = FALSE, data that is below the lower 
-#' WQX threshold is removed from the dataframe. When clean = TRUE and
-#' errorsonly = TRUE, the function does not execute and an error message is
-#' returned. The defaults are clean = TRUE and errorsonly = FALSE.
+#' @return The input TADA dataset with the added
+#'   TADA.BelowNationalWQXLowerThreshold column. This column flags rows with
+#'   data that are below the lower WQX threshold. When clean = FALSE and
+#'   errorsonly = TRUE, the dataframe is filtered to show only the rows which
+#'   are flagged as below the WQX threshold; the column
+#'   TADA.ResultValueBelowLowerThreshold.Flag is still appended. When clean =
+#'   TRUE and errorsonly = FALSE, data that is below the lower WQX threshold is
+#'   removed from the dataframe. When clean = TRUE and errorsonly = TRUE, the
+#'   function does not execute and an error message is returned. The defaults
+#'   are clean = TRUE and errorsonly = FALSE.
 #' 
 #' @export
 #' 
@@ -869,9 +869,10 @@ QAPPapproved <- function(.data, clean = TRUE, cleanNA = FALSE, errorsonly = FALS
 #' @param clean Boolean argument; removes data without an associated QAPP
 #' document from the dataframe when clean = TRUE. Default is clean = FALSE.
 #'
-#' @return When clean = FALSE, a column is appended to the input data set that
+#' @return Returns input dataframe with the added "TADA.QAPPDocAvailable" column. 
+#' When clean = FALSE, no data are removed and the TADA.QAPPDocAvailable column
 #' flags rows with an associated QAPP document. When clean = TRUE,
-#' data without an associated QAPP document is removed from the dataframe.
+#' data without an associated QAPP document are removed from the dataframe.
 #'
 #' @export
 #' 
@@ -979,7 +980,8 @@ QAPPDocAvailable <- function(.data, clean = FALSE) {
 #' @param errorsonly Boolean argument; Return only flagged data when errorsonly = TRUE;
 #' default is errorsonly = FALSE.
 #'
-#' @return When clean_outsideUSA is "no", "change sign", or clean_imprecise argument is FALSE,
+#' @return Returns input TADA dataset with the added "TADA.InvalidCoordinates.Flag" column.
+#' When clean_outsideUSA is "no", "change sign", or clean_imprecise argument is FALSE,
 #' a column flagging rows with the respective QA check is appended to the input
 #' dataframe. When clean_outsideUSA is "remove" or clean_imprecise is TRUE, 
 #' "invalid" or "imprecise" data is removed, respectively. When errorsonly is TRUE, 

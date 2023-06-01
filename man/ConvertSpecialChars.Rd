@@ -16,7 +16,8 @@ Returns the original dataframe with two new columns: the input column
 with the prefix "TADA.", which holds the numeric form of the original column,
 and "TADA.ResultValueDataTypes.Flag", which has text describing the type of data
 contained within the column of interest, including "Numeric","Less Than" (<), "Greater Than" (>),
-"Approximate Value" (~), "Text" (A-z), "Percentage" (\%), and "Comma-Separated Numeric" (#,###)
+"Approximate Value" (~), "Text" (A-z), "Percentage" (\%), "Comma-Separated Numeric" (#,###),
+and "Numeric Range - Averaged" (# - #)
 }
 \description{
 This function will screen a column of the user's choice for special characters.

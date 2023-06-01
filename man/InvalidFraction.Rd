@@ -17,15 +17,14 @@ characteristic-fraction combinations in the dataframe when errorsonly = TRUE.
 Default is errorsonly = FALSE.}
 }
 \value{
-When clean = FALSE and errorsonly = FALSE, this function adds the
-following column to your dataframe: TADA.SampleFraction.Flag. This column flags each
-CharacteristicName and ResultSampleFractionText combination in your dataframe
-as either "Nonstandardized", "Invalid", or "Valid". When clean = FALSE and
-errorsonly = TRUE, the TADA.SampleFraction.Flag is still added and the data
-is filtered to only show the "Invalid" rows only. When clean = TRUE and
-errorsonly = FALSE, "Invalid" rows are removed from the dataframe and no
-column will be appended. When clean = TRUE and errorsonly = TRUE, the function
-does not execute and an error message is returned.
+This function adds the following column to your dataframe:
+TADA.SampleFraction.Flag, which flags each CharacteristicName and
+ResultSampleFractionText combination in your dataframe as either
+"Nonstandardized", "Invalid", or "Valid". When clean = FALSE and errorsonly
+= TRUE, the data are filtered to show the "Invalid" rows only. When clean =
+TRUE and errorsonly = FALSE, "Invalid" rows are removed from the dataframe
+and no column will be appended. When clean = TRUE and errorsonly = TRUE,
+the function does not execute and an error message is returned.
 }
 \description{
 Function checks the validity of each characteristic-fraction combination

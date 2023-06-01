@@ -25,7 +25,7 @@ and no column is appended. The default is clean = TRUE and errorsonly = FALSE.
 }
 \description{
 The Water Quality Portal (WQP) is not currently designed to store high-frequency
-sensor data (more than 1 value per day). However, sometimes data providers
+sensor data as typical result values. However, sometimes data providers
 choose to aggregate their continuous data to a daily avg, max, or min value,
 and then submit that aggregated data to the WQP through WQX. Alternatively,
 some organizations aggregate their high frequency data (15 min or 1 hour data)

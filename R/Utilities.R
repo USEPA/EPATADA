@@ -302,7 +302,8 @@ checkColumns <- function(.data, expected_cols) {
 #' with the prefix "TADA.", which holds the numeric form of the original column, 
 #' and "TADA.ResultValueDataTypes.Flag", which has text describing the type of data
 #' contained within the column of interest, including "Numeric","Less Than" (<), "Greater Than" (>),
-#' "Approximate Value" (~), "Text" (A-z), "Percentage" (%), and "Comma-Separated Numeric" (#,###)
+#' "Approximate Value" (~), "Text" (A-z), "Percentage" (%), "Comma-Separated Numeric" (#,###),
+#' and "Numeric Range - Averaged" (# - #)
 #' 
 #' @export
 #' 
@@ -349,7 +350,7 @@ ConvertSpecialChars <- function(.data,col){
         TRUE ~ "Coerced to NA"
       ))
     
-    # Deal with numeric ranges
+    # Result Values that are numeric ranges with the format #-# are converted to an average of the two numbers expressed in the range.
     if(any(clean.data$flag=="Numeric Range - Averaged")){
       numrange = subset(clean.data, clean.data$flag%in%c("Numeric Range - Averaged"))
       notnumrange = subset(clean.data, !clean.data$flag%in%c("Numeric Range - Averaged"))
@@ -590,4 +591,23 @@ OrderTADACols <- function(.data){
   
   return(rearranged)
   
+}
+
+#' Create TADA.ComparableDataIdentifier Column
+#' 
+#' This utility function creates the TADA.ComparableDataIdentifier column by pasting
+#' together TADA.CharacteristicName, TADA.ResultSampleFractionText, TADA.MethodSpecificationName,
+#' and TADA.ResultMeasure.MeasureUnitCode.
+#' 
+#' @param .data TADA dataframe 
+#' 
+#' @return Input TADA dataframe with added TADA.ComparableDataIdentifier column.
+#'
+#' @export
+#' 
+
+createComparableId <- function(.data){
+  checkColumns(.data, expected_cols = c("TADA.CharacteristicName", "TADA.ResultSampleFractionText", "TADA.MethodSpecificationName","TADA.ResultMeasure.MeasureUnitCode"))
+  .data$TADA.ComparableDataIdentifier = paste(.data$TADA.CharacteristicName,.data$TADA.ResultSampleFractionText, .data$TADA.MethodSpecificationName, .data$TADA.ResultMeasure.MeasureUnitCode,sep = "_")
+  return(.data)
 }

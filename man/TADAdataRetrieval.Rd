@@ -59,40 +59,24 @@ dataRetrieval package (endDate = "YYYY-MM-DD"), which is a more familiar date
 format for R users than the WQP GUI's endDateHi = "MM-DD-YYYY".
 }
 \details{
-This function will create and/or edit the following columns:
-TADA.DetectionLimitMeasureValue.Flag
-DetectionQuantitationLimitMeasure.MeasureValue
-DetectionLimitMeasureValue.Original
-ResultMeasureValue.Original
-TADA.ResultMeasureValue.Flag
-ResultMeasureValue
-
-Keep in mind that all the query filters for the WQP work as an AND,
-but within the fields there are ORs. For example, within
-characteristicName – if you enter, c("pH", "Dissolved oxygen (DO)), – it’s an OR.
-Meaning that you will be back "pH" or "Dissolved oxygen (DO)" data. Similarly, if you
-enter c("Virginia", "Illinois"), it’s an OR. But the combo of fields are ANDs.
-Such as State/Virginia AND Characteristic/Dissolved oxygen (DO)". Meaning, you
-will get get back only Dissolved oxygen (DO) from Virginia.
+Multiple fields are queried together using AND logic, but multiple values within
+one field are queried together using OR logic. For example, within
+characteristicName, if you enter, c("pH", "Dissolved oxygen (DO)), the
+function will return all results that are "pH" OR "Dissolved oxygen (DO)". Similarly,
+if you enter c("VA", "IL"), the function will return results from Virginia OR Illinois.
+But the combo of these fields are ANDs: The function will return any pH and DO data
+from only Virginia or Illinois; the data must fit into one of the values from BOTH
+of the query fields.
 characteristicName and Characteristic Group also work as an AND, therefore the
 characteristicName must fall within the Characteristic Group when both are entered.
-
-All data cleaning and transformations are done directly to the
-"ResultMeasureValue" and "DetectionLimitMeasureValue" columns,
-however the original "ResultMeasureValue" and "DetectionLimitMeasureValue"
-columns and values from the WQP are preserved in these new fields,
-"ResultMeasureValue.Original" and "DetectionLimitMeasureValue.Original".
-Additionally, "TADA.ResultMeasureValue.Flag" and
-"TADA.DetectionLimitMeasureValue.Flag" are created to track and changes made
-to the "ResultMeasureValue" and "DetectionLimitMeasureValue" columns;
-and to provide information about the result values that is needed to address
-censored data later on (i.e., nondetections)
 
 Users can reference the \href{https://www.epa.gov/waterdata/storage-and-retrieval-and-water-quality-exchange-domain-services-and-downloads}{WQX domain tables}
 to find allowable values for queries, e.g., reference the WQX domain table to find countycode and statecode: https://cdx.epa.gov/wqx/download/DomainValues/County_CSV.zip
 Alternatively, you can use the WQP services to find areas where data is available in the US: https://www.waterqualitydata.us/Codes/countycode
 
-See ?ConvertSpecialChars and ?autoclean documentation for more information.
+TADAdataRetrieval automatically runs autoclean on the incoming dataset. autoclean
+is important for categorizing result value and detection limit data, as well as
+harmonizing key columns used in TADA. See ?autoclean for more information.
 
 Note: TADAdataRetrieval (by leveraging dataRetrieval),  automatically converts
 the date times to UTC. It also automatically converts the data to dates,
