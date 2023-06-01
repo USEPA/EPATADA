@@ -729,8 +729,8 @@ fieldCounts_Table <- fieldCounts(TADAProfileClean13)
 Next, choose a field from the list generated above to view a summary table or pie chart of the counts of unique values in that field using **fieldValuesTable** or **fieldValuesPie**. We'll start with ActivityTypeCode.
 
 ```{r fieldValues_all, fig.width=6, fig.height=2, fig.fullwidth=TRUE}
-fieldValuesTable(TADAProfileClean13, "ActivityTypeCode")
-fieldValuesPie(TADAProfileClean13, "ActivityTypeCode")
+fieldValuesTable(TADAProfileClean13, field = "ActivityTypeCode")
+fieldValuesPie(TADAProfileClean13, field = "ActivityTypeCode")
 ```
 
 The ActivityTypeCode field has multiple unique values. In this example
@@ -798,7 +798,7 @@ the pie chart.
 TADAProfileClean15 <- dplyr::filter(TADAProfileClean14, !(MeasureQualifierCode %in% c("D", "H", "ICA", "*")))
 
 # regenerate table and pie chart
-fieldValuesPie(TADAProfileClean15, "MeasureQualifierCode")
+fieldValuesPie(TADAProfileClean15, field = "MeasureQualifierCode")
 ```
 
 ## Censored data
@@ -971,7 +971,7 @@ To start, review the list of parameters in the dataframe using the
 Enter ?fieldValuesTable into the console for more information.
 
 ```{r fieldValuesTable_chars}
-fieldValuesTable(TADAProfileClean18, "TADA.CharacteristicName")
+fieldValuesTable(TADAProfileClean18, field = "TADA.CharacteristicName")
 ```
 
 Next, we can revisit the **fieldCounts** function at the characteristic level to review how many unique allowable values are included within each of the following fields:

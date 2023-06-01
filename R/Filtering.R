@@ -227,7 +227,7 @@ fieldValuesTable <- function(.data,field="null",characteristicName="null"){
   }
 
   dat = as.data.frame(table(.data[,field]))
-  names(dat)[names(dat)=="Freq"] = "Count"
+  names(dat) = c("Var","Count")
   return(dat)
 }
 

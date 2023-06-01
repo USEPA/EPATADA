@@ -283,9 +283,8 @@ TADAOverviewMap <- function(.data){
 fieldValuesPie <- function(.data,field="null",characteristicName="null"){
   
   dat = fieldValuesTable(.data = .data, field = field, characteristicName = characteristicName)
-  
-  dat$Value = dat[,field]
-  dat$Legend = paste0(dat$Value, " - ", dat$Count, " results")
+
+  dat$Legend = paste0(dat$Var, " - ", dat$Count, " results")
   
   # define number of colors required for pie chart
   colorCount <- length(unique(dat$Legend))
