@@ -257,3 +257,47 @@ TADAOverviewMap <- function(.data){
     )
   return(map)
 }
+
+#' Field Values Pie Chart
+#'
+#' Function creates a ggplot2 pie chart showing the relative proportions of values in a given field in a TADA dataset.
+#' 
+#' @param .data TADA dataframe
+#' @param field The field (column) the user would like to see represented in a pie chart.
+#' @param characteristicName Optional. Defaults to "null". A vector of TADA-converted (all caps) WQP characteristics a user may provide to filter the results to one or more characteristics of interest. "null" will show a summary table for the whole dataset.
+#'
+#' @return A ggplot2 pie chart.
+#'
+#' @export
+#' 
+#' @examples 
+#' # Load example dataset:
+#' data(Nutrients_Utah)
+#' 
+#' # Create a list of parameters in the dataset and the number of records of
+#' # each parameter: 
+#' fieldValuesPie(Nutrients_Utah, field = "TADA.CharacteristicName")
+#' 
+
+
+fieldValuesPie <- function(.data,field="null",characteristicName="null"){
+  
+  dat = fieldValuesTable(.data = .data, field = field, characteristicName = characteristicName)
+  
+  dat$Legend = paste0(dat$Var1, " - ", dat$Freq, " results")
+  
+  # define number of colors required for pie chart
+  colorCount <- length(unique(dat$Var1))
+  
+  # define color palette
+  getPalette <- grDevices::colorRampPalette(RColorBrewer::brewer.pal(8, "Set2"))
+  
+  # create pie chart
+  pie <- ggplot2::ggplot(dat, ggplot2::aes(x = "", y = Freq, fill = Legend)) +
+    ggplot2::scale_fill_manual(values = getPalette(colorCount), name = field) +
+    ggplot2::geom_bar(stat = "identity", width = 1) +
+    ggplot2::coord_polar("y", start = 0) +
+    ggplot2::theme_void() 
+  
+  return(pie)
+}

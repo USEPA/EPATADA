@@ -523,7 +523,7 @@ FilterParFieldReview <- function(field, .data, parameter) {
 #' # Count table of key fields in Nutrients_Utah dataset
 #' fieldCountUT <- fieldCounts(Nutrients_Utah)
 #' # Count table of most fields in Nutrients_Utah, filtered to only AMMONIA results.
-#' fieldCountUTAmmonia <- fieldCounts(Nutrients_Utah, display = "narrow", characteristicName = "AMMONIA")
+#' fieldCountUTAmmonia <- fieldCounts(Nutrients_Utah, display = "most", characteristicName = "AMMONIA")
 
 fieldCounts <- function(.data, display = c("key","most", "all"), characteristicName = "null"){
   # check .data is data.frame
@@ -692,16 +692,15 @@ fieldCounts <- function(.data, display = c("key","most", "all"), characteristicN
   return(col.names)
 }
 
-
-#' Field Values Pie Chart
+#' Field Values Summary Table
 #'
-#' Function creates a ggplot2 pie chart showing the relative proportions of values in a given field in a TADA dataset.
+#' Function creates a dataframe containing the relative proportions of values in a given field in a TADA dataset.
 #' 
 #' @param .data TADA dataframe
 #' @param field The field (column) the user would like to see represented in a pie chart.
 #' @param characteristicName Optional. Defaults to "null". A vector of TADA-converted (all caps) WQP characteristics a user may provide to filter the results to one or more characteristics of interest. "null" will show a summary table for the whole dataset.
 #'
-#' @return A ggplot2 pie chart.
+#' @return A summary dataframe.
 #'
 #' @export
 #' 
@@ -711,11 +710,11 @@ fieldCounts <- function(.data, display = c("key","most", "all"), characteristicN
 #' 
 #' # Create a list of parameters in the dataset and the number of records of
 #' # each parameter: 
-#' filterPie(Nutrients_Utah, field = "TADA.CharacteristicName")
+#' fieldValuesTable(Nutrients_Utah, field = "TADA.CharacteristicName")
 #' 
 
 
-filterPie <- function(.data,field="null",characteristicName="null"){
+fieldValuesTable <- function(.data,field="null",characteristicName="null"){
   
   # check .data is data.frame
   checkType(.data, "data.frame", "Input object")
@@ -733,20 +732,6 @@ filterPie <- function(.data,field="null",characteristicName="null"){
   }
   
   dat = as.data.frame(table(.data[,field]))
-  dat$Legend = paste0(dat$Var1, " - ", dat$Freq, " results")
-  
-  # define number of colors required for pie chart
-  colorCount <- length(unique(dat$Var1))
-  
-  # define color palette
-  getPalette <- grDevices::colorRampPalette(RColorBrewer::brewer.pal(8, "Set2"))
-  
-  # create pie chart
-  pie <- ggplot2::ggplot(dat, ggplot2::aes(x = "", y = Freq, fill = Legend)) +
-    ggplot2::scale_fill_manual(values = getPalette(colorCount), name = field) +
-    ggplot2::geom_bar(stat = "identity", width = 1) +
-    ggplot2::coord_polar("y", start = 0) +
-    ggplot2::theme_void() 
-  
-  return(pie)
+  return(dat)
 }
+

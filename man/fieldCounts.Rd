@@ -6,14 +6,14 @@
 \usage{
 fieldCounts(
   .data,
-  display = c("key", "narrow", "all"),
+  display = c("key", "most", "all"),
   characteristicName = "null"
 )
 }
 \arguments{
 \item{.data}{TADA dataframe}
 
-\item{display}{A character string denoting what fields to return in the summary table. Defaults to "key". "all" will return all fields in the dataset, "narrow" will return most field names except those holding numeric values or units, and "key" returns the most important columns to review. Note that if a field is completely NA, it will not be shown on the summary table.}
+\item{display}{A character string denoting what fields to return in the summary table. Defaults to "key". "all" will return all fields in the dataset, "most" will return most field names except those holding numeric values or units, and "key" returns the most important columns to review. Note that if a field is completely NA, it will not be shown on the summary table.}
 
 \item{characteristicName}{Optional. Defaults to "null". A vector of TADA-converted (all caps) WQP characteristics a user may provide to filter the results to one or more characteristics of interest. "null" will show a summary table for the whole dataset.}
 }
@@ -31,5 +31,5 @@ data(Nutrients_Utah)
 # Count table of key fields in Nutrients_Utah dataset
 fieldCountUT <- fieldCounts(Nutrients_Utah)
 # Count table of most fields in Nutrients_Utah, filtered to only AMMONIA results.
-fieldCountUTAmmonia <- fieldCounts(Nutrients_Utah, display = "narrow", characteristicName = "AMMONIA")
+fieldCountUTAmmonia <- fieldCounts(Nutrients_Utah, display = "most", characteristicName = "AMMONIA")
 }

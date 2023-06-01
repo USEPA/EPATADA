@@ -668,7 +668,7 @@ In this section a TADA user will want to review the unique values in
 specific fields and may choose to remove data with particular values.
 
 To start, review the list of common fields used for filtering, and the
-number of unique values in each field using the **FilterFields**
+number of unique values in each field using the **fieldCounts**
 function.
 
 This function returns counts for you entire data frame for each of the
@@ -715,32 +715,22 @@ NA's are not included in the output):
 
 -   "LaboratoryName"
 
-```{r FilterFields}
+```{r fieldCounts_all}
 # multiple options
 
 # print table to console
-FilterFields(TADAProfileClean13)
+fieldCounts(TADAProfileClean13)
 
 # create object of table
-FilterFields_Table <- FilterFields(TADAProfileClean13)
+fieldCounts_Table <- fieldCounts(TADAProfileClean13)
 
 ```
 
-Next, choose a field from the list generated above to see the unique
-values in that field, as well as the number of times each value appears
-in the dataframe using the **FilterFieldReview** function. We'll start
-with ActivityTypeCode.
+Next, choose a field from the list generated above to view a summary table or pie chart of the counts of unique values in that field using **fieldValuesTable** or **fieldValuesPie**. We'll start with ActivityTypeCode.
 
-```{r FilterFieldReview, fig.width=6, fig.height=2, fig.fullwidth=TRUE}
-# Un-comment to print table in console, and generate a pie chart plot
-# FilterFieldReview("ActivityTypeCode", TADAProfileClean13)
-
-# Write table to environment, and generate a pie chart plot
-FilterFieldReview_Table <- FilterFieldReview("ActivityTypeCode", TADAProfileClean13)
-
-# View table
-FilterFieldReview_Table
-
+```{r fieldValues_all, fig.width=6, fig.height=2, fig.fullwidth=TRUE}
+fieldValuesTable(TADAProfileClean13, "ActivityTypeCode")
+fieldValuesPie(TADAProfileClean13, "ActivityTypeCode")
 ```
 
 The ActivityTypeCode field has multiple unique values. In this example
@@ -759,8 +749,8 @@ TADAProfileClean14 <- QualityControlActivity(TADAProfileClean13, clean = TRUE)
 # https://www.epa.gov/waterdata/storage-and-retrieval-and-water-quality-exchange-domain-services-and-downloads
 
 # regenerate table and pie chart
-FilterFieldReview("ActivityTypeCode",
-                  TADAProfileClean14)
+fieldValuesTable(TADAProfileClean14, "ActivityTypeCode")
+fieldValuesPie(TADAProfileClean14, "ActivityTypeCode")
 
 ```
 
@@ -773,7 +763,7 @@ In this next example, there are multiple MeasureQualifierCode values to
 review.
 
 ```{r MeasureQualifierCodeReview, fig.width=6, fig.height=2, fig.fullwidth=TRUE}
-FilterFieldReview("MeasureQualifierCode", TADAProfileClean14)
+fieldValuesPie(TADAProfileClean14, "MeasureQualifierCode")
 ```
 
 MeasureQualifierCode definitions are available
@@ -808,7 +798,7 @@ the pie chart.
 TADAProfileClean15 <- dplyr::filter(TADAProfileClean14, !(MeasureQualifierCode %in% c("D", "H", "ICA", "*")))
 
 # regenerate table and pie chart
-FilterFieldReview("MeasureQualifierCode", TADAProfileClean15)
+fieldValuesPie(TADAProfileClean15, "MeasureQualifierCode")
 ```
 
 ## Censored data
@@ -976,17 +966,15 @@ unique values in specified fields. You may then choose to remove
 particular values by filtering.
 
 To start, review the list of parameters in the dataframe using the
-**FilterParList** function.
+**fieldValuesTable** function.
 
-Enter ?FilterParList into the console for more information.
+Enter ?fieldValuesTable into the console for more information.
 
-```{r FilterParList}
-FilterParList(TADAProfileClean18)
+```{r fieldValuesTable_chars}
+fieldValuesTable(TADAProfileClean18, "TADA.CharacteristicName")
 ```
 
-Next, using the **FilterParFields** function, review how many unique
-allowable values are included within each of the following fields for a
-specific parameter:
+Next, we can revisit the **fieldCounts** function at the characteristic level to review how many unique allowable values are included within each of the following fields:
 
 -   "ActivityCommentText"
 
@@ -1050,11 +1038,11 @@ specific parameter:
 
 -   "DetectionQuantitationLimitTypeName"
 
-```{r FilterParFields}
-FilterParFields(TADAProfileClean18, "TOTAL PHOSPHORUS, MIXED FORMS")
+```{r fieldCounts_char}
+fieldCounts(TADAProfileClean18, display = "most", characteristicName = "TOTAL PHOSPHORUS, MIXED FORMS")
 ```
 
-Selecting a parameter generates the list below, which is subset by the
+Selecting a parameter generates the list above, which is subset by the
 selected parameter. The list includes fields you may want to review, and
 the number of unique values in each field.
 
@@ -1063,9 +1051,12 @@ Next, choose a field from the list.
 Review the WQX domain files for definitions:
 <https://www.epa.gov/waterdata/storage-and-retrieval-and-water-quality-exchange-domain-services-and-downloads>
 
-```{r FilterParFieldReview, fig.width=6, fig.height=2, fig.fullwidth=TRUE}
+Now, we'll use **fieldValuesTable** and **fieldValuesPie** at the characteristic-level to review a column of interest.
+
+```{r fieldValuesTable_Pie_char, fig.width=6, fig.height=2, fig.fullwidth=TRUE}
 # In this example we review values from the SampleCollectionMethod.MethodName field
-FilterParFieldReview(field = "SampleCollectionMethod.MethodName", TADAProfileClean18, parameter = "TOTAL PHOSPHORUS, MIXED FORMS")
+fieldValuesTable(TADAProfileClean18, field = "SampleCollectionMethod.MethodName",  characteristicName = "TOTAL PHOSPHORUS, MIXED FORMS")
+fieldValuesPie(TADAProfileClean18, field = "SampleCollectionMethod.MethodName",  characteristicName = "TOTAL PHOSPHORUS, MIXED FORMS")
 
 ```
 
