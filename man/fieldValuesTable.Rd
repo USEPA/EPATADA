@@ -24,7 +24,7 @@ Function creates a dataframe containing the relative proportions of values in a 
 data(Nutrients_Utah)
 
 # Create a list of parameters in the dataset and the number of records of
-# each parameter: 
+# each parameter:
 fieldValuesTable(Nutrients_Utah, field = "TADA.CharacteristicName")
 
 }

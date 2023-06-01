@@ -66,7 +66,7 @@ desired (un-comment).
 # options(download.file.method = "wininet")
 
 remotes::install_github("USEPA/TADA", 
-                        ref = "histogram_kh",
+                        ref = "pseudo-develop",
                         dependencies = TRUE)
 library(TADA)
 
