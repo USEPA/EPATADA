@@ -400,7 +400,7 @@ entering the following code in the console: ?ConvertDepthUnits
 
 ```{r ConvertDepthUnits}
 #converts all depth profile data to meters
-TADAProfileClean2 <- ConvertDepthUnits(TADAProfileClean1,
+TADAProfileClean1 <- ConvertDepthUnits(TADAProfileClean1,
                                        unit = "m",
                                        transform = TRUE)
 ```
@@ -417,7 +417,7 @@ entering the following code in the console: ?ConvertResultUnits
 
 ```{r ConvertResultUnits}
 #Converts all results to WQX target units
-TADAProfileClean3 <- ConvertResultUnits(TADAProfileClean2, transform = TRUE)
+TADAProfileClean1 <- ConvertResultUnits(TADAProfileClean1, transform = TRUE)
 ```
 
 ## Statistically aggregated data
@@ -457,7 +457,7 @@ See function documentation for additional function options by entering
 the following code in the console: ?AggregatedContinuousData
 
 ```{r AggregatedContinuousData}
-TADAProfileClean4 <- AggregatedContinuousData(TADAProfileClean3, clean = FALSE)
+TADAProfileClean1 <- AggregatedContinuousData(TADAProfileClean1, clean = FALSE)
 
 # uncomment below to create a dataframe of only the aggregated continuous data
 
@@ -538,13 +538,13 @@ See documentation for more details:
         rows flagged as "Invalid"; default is errorsonly = FALSE.
 
 ```{r Invalid_Method_Fraction_Speciation_ResultUnit}
-TADAProfileClean5 <- InvalidMethod(TADAProfileClean4, clean = TRUE)
+TADAProfileClean2 <- InvalidMethod(TADAProfileClean1, clean = TRUE)
 
-TADAProfileClean6 <- InvalidFraction(TADAProfileClean5, clean = TRUE)
+TADAProfileClean2 <- InvalidFraction(TADAProfileClean2, clean = TRUE)
 
-TADAProfileClean7 <- InvalidSpeciation(TADAProfileClean6, clean = "invalid_only")
+TADAProfileClean2 <- InvalidSpeciation(TADAProfileClean2, clean = "invalid_only")
 
-TADAProfileClean8 <- InvalidResultUnit(TADAProfileClean7, clean = "invalid_only")
+TADAProfileClean2 <- InvalidResultUnit(TADAProfileClean2, clean = "invalid_only")
 ```
 
 ## WQX national upper and lower thresholds
@@ -580,9 +580,9 @@ combination. See documentation for more details:
         errorsonly = FALSE.
 
 ```{r WQX_Thresholds}
-TADAProfileClean9 <- AboveNationalWQXUpperThreshold(TADAProfileClean8, clean = TRUE)
+TADAProfileClean3 <- AboveNationalWQXUpperThreshold(TADAProfileClean2, clean = TRUE)
 
-TADAProfileClean10 <- BelowNationalWQXLowerThreshold(TADAProfileClean9, clean = TRUE)
+TADAProfileClean3 <- BelowNationalWQXLowerThreshold(TADAProfileClean3, clean = TRUE)
 ```
 
 ## Potential duplicates
@@ -613,7 +613,7 @@ the following into the console:
         FALSE.
 
 ```{r PotentialDuplicateRowID}
-TADAProfileClean11 <- PotentialDuplicateRowID(TADAProfileClean10, clean = TRUE, errorsonly = FALSE)
+TADAProfileClean3 <- PotentialDuplicateRowID(TADAProfileClean3, clean = TRUE, errorsonly = FALSE)
 ```
 
 ## Review QAPP information
@@ -640,7 +640,7 @@ If clean = FALSE, cleanNA = FALSE, and errorsonly = FALSE, the function
 will not do anything.
 
 ```{r QAPPapproved}
-TADAProfileClean12 <- QAPPapproved(TADAProfileClean11, clean = FALSE, cleanNA = FALSE)
+TADAProfileClean3 <- QAPPapproved(TADAProfileClean3, clean = FALSE, cleanNA = FALSE)
 ```
 
 The **QAPPDocAvailable** function checks to see if a QAPP Doc is
@@ -658,7 +658,7 @@ only be used to remove data if an accompanying QAPP document is required
 to use data in assessments.
 
 ```{r QAPPDocAvailable}
-TADAProfileClean13 <- QAPPDocAvailable(TADAProfileClean12,
+TADAProfileClean3 <- QAPPDocAvailable(TADAProfileClean3,
                                        clean = FALSE)
 ```
 
@@ -719,18 +719,18 @@ NA's are not included in the output):
 # multiple options
 
 # print table to console
-fieldCounts(TADAProfileClean13)
+fieldCounts(TADAProfileClean3)
 
 # create object of table
-fieldCounts_Table <- fieldCounts(TADAProfileClean13)
+fieldCounts_Table <- fieldCounts(TADAProfileClean3)
 
 ```
 
 Next, choose a field from the list generated above to view a summary table or pie chart of the counts of unique values in that field using **fieldValuesTable** or **fieldValuesPie**. We'll start with ActivityTypeCode.
 
 ```{r fieldValues_all, fig.width=6, fig.height=2, fig.fullwidth=TRUE}
-fieldValuesTable(TADAProfileClean13, field = "ActivityTypeCode")
-fieldValuesPie(TADAProfileClean13, field = "ActivityTypeCode")
+fieldValuesTable(TADAProfileClean3, field = "ActivityTypeCode")
+fieldValuesPie(TADAProfileClean3, field = "ActivityTypeCode")
 ```
 
 The ActivityTypeCode field has multiple unique values. In this example
@@ -740,7 +740,7 @@ QualityControlActivity function.
 ```{r QualityControlActivity}
 # Remove all QC samples using the TADA QualityControlActivity function:
 # enter ?QualityControlActivity into the console for more information
-TADAProfileClean14 <- QualityControlActivity(TADAProfileClean13, clean = TRUE)
+TADAProfileClean4 <- QualityControlActivity(TADAProfileClean3, clean = TRUE)
 
 # See WQX domain file to review all the ActivityTypeCode allowable values:
 # https://cdx.epa.gov/wqx/download/DomainValues/ActivityType.CSV
@@ -749,8 +749,8 @@ TADAProfileClean14 <- QualityControlActivity(TADAProfileClean13, clean = TRUE)
 # https://www.epa.gov/waterdata/storage-and-retrieval-and-water-quality-exchange-domain-services-and-downloads
 
 # regenerate table and pie chart
-fieldValuesTable(TADAProfileClean14, "ActivityTypeCode")
-fieldValuesPie(TADAProfileClean14, "ActivityTypeCode")
+fieldValuesTable(TADAProfileClean4, "ActivityTypeCode")
+fieldValuesPie(TADAProfileClean4, "ActivityTypeCode")
 
 ```
 
@@ -763,7 +763,7 @@ In this next example, there are multiple MeasureQualifierCode values to
 review.
 
 ```{r MeasureQualifierCodeReview, fig.width=6, fig.height=2, fig.fullwidth=TRUE}
-fieldValuesPie(TADAProfileClean14, "MeasureQualifierCode")
+fieldValuesPie(TADAProfileClean4, "MeasureQualifierCode")
 ```
 
 MeasureQualifierCode definitions are available
@@ -795,10 +795,10 @@ In this example, we show how to remove specific values and regenerate
 the pie chart.
 
 ```{r FilterMeasureQualifierCodes}
-TADAProfileClean15 <- dplyr::filter(TADAProfileClean14, !(MeasureQualifierCode %in% c("D", "H", "ICA", "*")))
+TADAProfileClean4 <- dplyr::filter(TADAProfileClean4, !(MeasureQualifierCode %in% c("D", "H", "ICA", "*")))
 
 # regenerate table and pie chart
-fieldValuesPie(TADAProfileClean15, field = "MeasureQualifierCode")
+fieldValuesPie(TADAProfileClean4, field = "MeasureQualifierCode")
 ```
 
 ## Censored data
@@ -853,11 +853,11 @@ detection limit (half the detection limit). Please review
 information.
 
 ```{r SummarizeCensoredData}
-TADAProfileClean15_censoredSummary <- summarizeCensoredData(TADAProfileClean15, spec_cols = c("TADA.CharacteristicName", "TADA.ResultMeasure.MeasureUnitCode", "TADA.ResultSampleFractionText", "TADA.MethodSpecificationName"))
+TADAProfileClean_censoredSummary <- summarizeCensoredData(TADAProfileClean4, spec_cols = c("TADA.CharacteristicName", "TADA.ResultMeasure.MeasureUnitCode", "TADA.ResultSampleFractionText", "TADA.MethodSpecificationName"))
 
-TADAProfileClean15_censoredSummary
+TADAProfileClean_censoredSummary
 
-TADAProfileClean16 = simpleCensoredMethods(TADAProfileClean15,
+TADAProfileClean4 = simpleCensoredMethods(TADAProfileClean4,
                                            nd_method = "multiplier",
                                            nd_multiplier = 0.5,
                                            od_method = "as-is",
@@ -868,25 +868,25 @@ Next, review  unique values within the TADA.CensoredData.Flag, DetectionQuantita
 
 ```{r uniquevalues}
 # review unique values
-unique(TADAProfileClean16$TADA.CensoredData.Flag)
-unique(TADAProfileClean16$DetectionQuantitationLimitTypeName)
-unique(TADAProfileClean16$ResultDetectionConditionText)
+unique(TADAProfileClean4$TADA.CensoredData.Flag)
+unique(TADAProfileClean4$DetectionQuantitationLimitTypeName)
+unique(TADAProfileClean4$ResultDetectionConditionText)
 ```
 
 Also, review the TADA.ResultMeasureValueDataTypes.Flag to see if any NA's or ND's (non-detects) remain. 
 ```{r ResultMeasureValueDataTypes.Flag_uniquevalues}
-unique(TADAProfileClean16$TADA.ResultMeasureValueDataTypes.Flag)
+unique(TADAProfileClean4$TADA.ResultMeasureValueDataTypes.Flag)
 ```
 
 Count how many NA's remain in the TADA.ResultMeasureValue. 
 ```{r Review_NA_MeasureValues}
-sum(is.na(TADAProfileClean16$TADA.ResultMeasureValue))
+sum(is.na(TADAProfileClean4$TADA.ResultMeasureValue))
 ```
 
 Filter down to only numeric data. Remove data where the TADA.ResultMeasureValueDataTypes.Flag = "Text","Coerced to NA","ND or NA".
 ```{r filter_out_NAs}
 # Filter down to only numeric data. Remove "Text","Coerced to NA","ND or NA"  
-TADAProfileClean17 <- dplyr::filter(TADAProfileClean16, 
+TADAProfileClean5 <- dplyr::filter(TADAProfileClean4, 
                   TADA.ResultMeasureValueDataTypes.Flag != "ND or NA" &
                   TADA.ResultMeasureValueDataTypes.Flag != "Text" &
                   TADA.ResultMeasureValueDataTypes.Flag != "Coerced to NA")
@@ -894,7 +894,7 @@ TADAProfileClean17 <- dplyr::filter(TADAProfileClean16,
 
 Double check to make sure no NA's or ND's remain.
 ```{r check_for_NAs_again}
-unique(TADAProfileClean17$TADA.ResultMeasureValueDataTypes.Flag)
+unique(TADAProfileClean5$TADA.ResultMeasureValueDataTypes.Flag)
 ```
 
 ## Transform Characteristic, Speciation, and Unit values to TADA Standards
@@ -950,10 +950,10 @@ Here are some examples of how the HarmonizeData function can be used:
     name (and identifier) to synonyms.
 
 ```{r HarmonizeData}
-UniqueHarmonizationRef <- HarmonizationRefTable(TADAProfileClean17,
+UniqueHarmonizationRef <- HarmonizationRefTable(TADAProfileClean5,
                                                 download = FALSE)
 
-TADAProfileClean18 <- HarmonizeData(TADAProfileClean17,
+TADAProfileClean5 <- HarmonizeData(TADAProfileClean5,
                                     ref = UniqueHarmonizationRef,
                                     transform = TRUE,
                                     flag = TRUE)
@@ -971,7 +971,7 @@ To start, review the list of parameters in the dataframe using the
 Enter ?fieldValuesTable into the console for more information.
 
 ```{r fieldValuesTable_chars}
-fieldValuesTable(TADAProfileClean18, field = "TADA.CharacteristicName")
+fieldValuesTable(TADAProfileClean5, field = "TADA.CharacteristicName")
 ```
 
 Next, we can revisit the **fieldCounts** function at the characteristic level to review how many unique allowable values are included within each of the following fields:
@@ -1039,7 +1039,7 @@ Next, we can revisit the **fieldCounts** function at the characteristic level to
 -   "DetectionQuantitationLimitTypeName"
 
 ```{r fieldCounts_char}
-fieldCounts(TADAProfileClean18, display = "most", characteristicName = "TOTAL PHOSPHORUS, MIXED FORMS")
+fieldCounts(TADAProfileClean5, display = "most", characteristicName = "TOTAL PHOSPHORUS, MIXED FORMS")
 ```
 
 Selecting a parameter generates the list above, which is subset by the
@@ -1055,8 +1055,8 @@ Now, we'll use **fieldValuesTable** and **fieldValuesPie** at the characteristic
 
 ```{r fieldValuesTable_Pie_char, fig.width=6, fig.height=2, fig.fullwidth=TRUE}
 # In this example we review values from the SampleCollectionMethod.MethodName field
-fieldValuesTable(TADAProfileClean18, field = "SampleCollectionMethod.MethodName",  characteristicName = "TOTAL PHOSPHORUS, MIXED FORMS")
-fieldValuesPie(TADAProfileClean18, field = "SampleCollectionMethod.MethodName",  characteristicName = "TOTAL PHOSPHORUS, MIXED FORMS")
+fieldValuesTable(TADAProfileClean5, field = "SampleCollectionMethod.MethodName",  characteristicName = "TOTAL PHOSPHORUS, MIXED FORMS")
+fieldValuesPie(TADAProfileClean5, field = "SampleCollectionMethod.MethodName",  characteristicName = "TOTAL PHOSPHORUS, MIXED FORMS")
 
 ```
 
@@ -1066,18 +1066,18 @@ speciation, and fraction combination)
 
 ```{r ComparableDataIdentifier_stats_and_histogram, fig.width=6, fig.height=6, fig.fullwidth=TRUE}
 # review TADA.ComparableDataIdentifier
-unique(TADAProfileClean18$TADA.ComparableDataIdentifier)
+unique(TADAProfileClean5$TADA.ComparableDataIdentifier)
 
 # filter dataframe to only "TOTAL PHOSPHORUS, MIXED FORMS"
-TADAProfileClean19 <- dplyr::filter(TADAProfileClean18, TADA.ComparableDataIdentifier == "Total Phosphorus_as P_ug/L")
+TADAProfileCleanTP <- dplyr::filter(TADAProfileClean5, TADA.ComparableDataIdentifier == "Total Phosphorus_as P_ug/L")
 
 # generate stats table
-TADAProfileClean19_stats <- TADA::TADA_stats(TADAProfileClean19)
+TADAProfileCleanTP_stats <- TADA::TADA_stats(TADAProfileCleanTP)
 
-TADAProfileClean19_stats
+TADAProfileCleanTP_stats
 
 # generate a histogram
-TADA_hist(TADAProfileClean19, id_col = "TADA.ComparableDataIdentifier")
+TADA_hist(TADAProfileCleanTP, id_col = "TADA.ComparableDataIdentifier")
 
 ```
 
@@ -1085,6 +1085,6 @@ Generate interactive box plot.
 
 ```{r boxplot, fig.width=6, fig.height=6, fig.fullwidth=TRUE}
 
-TADA::TADA_boxplot(TADAProfileClean19, id_col = "TADA.ComparableDataIdentifier")
+TADA::TADA_boxplot(TADAProfileCleanTP, id_col = "TADA.ComparableDataIdentifier")
 
 ```
