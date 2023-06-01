@@ -255,7 +255,7 @@ HarmonizeData <- function(.data, ref, transform = TRUE, flag = TRUE) {
       # replace TADA.CharacteristicName with TADA.SuggestedCharacteristicName
       clean.data <- flag.data %>%
         # apply function row by row
-        dplyr::rowwise() %>%
+        # dplyr::rowwise() %>%
         # use TADA suggested name where there is a suggested name, use original name if no suggested name
         dplyr::mutate(TADA.CharacteristicName = dplyr::case_when(
           !is.na(TADA.SuggestedCharacteristicName) ~ TADA.SuggestedCharacteristicName,
@@ -265,8 +265,8 @@ HarmonizeData <- function(.data, ref, transform = TRUE, flag = TRUE) {
       # TADA.ResultSampleFractionText
       # replace ResultSampleFractionText with TADA.SuggestedSampleFraction
       clean.data <- clean.data %>%
-        # apply function row by row
-        dplyr::rowwise() %>%
+        # # apply function row by row
+        # dplyr::rowwise() %>%
         # use TADA suggested frac where there is a suggested frac, use original frac if no suggested frac
         dplyr::mutate(TADA.ResultSampleFractionText = dplyr::case_when(
           !is.na(TADA.SuggestedSampleFraction) ~ TADA.SuggestedSampleFraction,
@@ -278,7 +278,7 @@ HarmonizeData <- function(.data, ref, transform = TRUE, flag = TRUE) {
       # replace ResultMeasure.MeasureUnitCode with TADA.SuggestedResultUnit
       clean.data <- clean.data %>%
         # apply function row by row
-        dplyr::rowwise() %>%
+        # dplyr::rowwise() %>%
         # use TADA suggested unit where there is a suggested unit, use original unit if no suggested unit
         dplyr::mutate(TADA.ResultMeasure.MeasureUnitCode = dplyr::case_when(
           !is.na(TADA.SuggestedResultUnit) ~ TADA.SuggestedResultUnit,
@@ -296,7 +296,7 @@ HarmonizeData <- function(.data, ref, transform = TRUE, flag = TRUE) {
       # replace MethodSpecificationName with TADA.SuggestedSpeciation
       clean.data <- clean.data %>%
         # apply function row by row
-        dplyr::rowwise() %>%
+        # dplyr::rowwise() %>%
         # use TADA suggested spec where there is a suggested spec, use original spec if no suggested spec
         dplyr::mutate(TADA.MethodSpecificationName = dplyr::case_when(
           !is.na(TADA.SuggestedSpeciation) ~ TADA.SuggestedSpeciation,
@@ -336,7 +336,6 @@ HarmonizeData <- function(.data, ref, transform = TRUE, flag = TRUE) {
             "TADA.FractionAssumptions",
             "TADA.SpeciationAssumptions",
             "TADA.UnitConversionCoefficient",
-            "TADA.ComparableDataIdentifier",
             "TADA.TotalN_TotalP_CharacteristicNames_AfterSummation",
             "TADA.TotalN_TotalP_Summation_Identifier",
             "TADA.TotalN_TotalP_ComboLogic"
