@@ -49,13 +49,15 @@ HarmonizationRefTable <- function(.data, download = FALSE) {
   
   # columns to keep from .data if exist
   harmonization_cols <- c(
-    "WQX.SampleFractionValidity", "WQX.MethodSpeciationValidity",
-    "WQX.ResultUnitValidity", "WQX.AnalyticalMethodValidity"
+    "TADA.SampleFraction.Flag", "TADA.MethodSpeciation.Flag",
+    "TADA.ResultUnit.Flag", "TADA.AnalyticalMethod.Flag"
   )
+  
   # join to harmonization table
   # if WQX QA Char Val flags are in .data, include them in the join
   if (all(harmonization_cols %in% colnames(.data)) == TRUE) {
-    join.data <- merge(.data[, c(expected_cols, harmonization_cols)],
+    datcols = unique(.data[, c(expected_cols, harmonization_cols)])
+    join.data <- merge(datcols,
                        harm.raw,
                        by.x = expected_cols, 
                        by.y = expected_cols, # EDH: this was not working with "harmonization cols" because those are not contained in Y
@@ -63,7 +65,8 @@ HarmonizationRefTable <- function(.data, download = FALSE) {
     )
     # otherwise, execute the join with no additional columns
   } else {
-    join.data <- merge(.data[, expected_cols],
+    datcols = unique(.data[, expected_cols])
+    join.data <- merge(datcols,
                        harm.raw,
                        by.x = expected_cols,
                        by.y = expected_cols,
@@ -72,8 +75,9 @@ HarmonizationRefTable <- function(.data, download = FALSE) {
   }
   
   # trim join.data to include only unique combos of char-frac-spec-unit
-  unique.data <- join.data %>%
-    dplyr::filter(!duplicated(join.data[, expected_cols]))
+  unique.data <- join.data %>% dplyr::distict()
+  
+  unique.data$TADA.ComparableDataIdentifier = ifelse(is.na(unique.data$TADA.ComparableDataIdentifier),paste(unique.data$TADA.CharacteristicName,unique.data$TADA.ResultSampleFractionText, unique.data$TADA.MethodSpecificationName, unique.data$TADA.ResultMeasure.MeasureUnitCode,sep = "_"),unique.data$TADA.ComparableDataIdentifier)
   
   # reorder columns to match harm.raw
   # include WQX QA flag columns, if they exist
@@ -217,6 +221,8 @@ HarmonizeData <- function(.data, ref, transform = TRUE, flag = TRUE) {
       # use output of HarmonizationRefTable which uses the TADA HarmonizationTemplate.csv in the extdata folder
       harm.ref <- HarmonizationRefTable(.data, download=FALSE)
     }
+    
+    .data = .data[,!names(.data)%in%c("TADA.ComparableDataIdentifier")]
 
     # join harm.ref to .data
     flag.data <- merge(.data, harm.ref,
