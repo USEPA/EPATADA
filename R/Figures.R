@@ -284,16 +284,17 @@ fieldValuesPie <- function(.data,field="null",characteristicName="null"){
   
   dat = fieldValuesTable(.data = .data, field = field, characteristicName = characteristicName)
   
-  dat$Legend = paste0(dat$Var1, " - ", dat$Freq, " results")
+  dat$Value = dat[,field]
+  dat$Legend = paste0(dat$Value, " - ", dat$Count, " results")
   
   # define number of colors required for pie chart
-  colorCount <- length(unique(dat$Var1))
+  colorCount <- length(unique(dat$Legend))
   
   # define color palette
   getPalette <- grDevices::colorRampPalette(RColorBrewer::brewer.pal(8, "Set2"))
   
   # create pie chart
-  pie <- ggplot2::ggplot(dat, ggplot2::aes(x = "", y = Freq, fill = Legend)) +
+  pie <- ggplot2::ggplot(dat, ggplot2::aes(x = "", y = Count, fill = Legend)) +
     ggplot2::scale_fill_manual(values = getPalette(colorCount), name = field) +
     ggplot2::geom_bar(stat = "identity", width = 1) +
     ggplot2::coord_polar("y", start = 0) +
