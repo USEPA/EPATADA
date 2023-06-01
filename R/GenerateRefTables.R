@@ -16,6 +16,7 @@ WQXCharValRef_Cached <- NULL
 #'
 #' @return Updated sysdata.rda with updated WQXcharValRef object
 #'
+#' @export
 
 GetWQXCharValRef <- function() {
 
@@ -83,6 +84,8 @@ WQXunitRef_Cached <- NULL
 #'
 #' @return sysdata.rda with updated WQXunitRef object (unit conversion reference
 #' table)
+#'
+#' @export
 #'
 
 GetMeasureUnitRef <- function() {
@@ -203,6 +206,7 @@ WQXDetCondRef_Cached <- NULL
 #'
 #' @return sysdata.rda with updated WQXResultDetectionConditionRef object (detection condition reference
 #' table for censored data)
+#' @export
 #'
 
 GetDetCondRef <- function() {
@@ -261,6 +265,7 @@ WQXDetLimitRef_Cached <- NULL
 #' @return sysdata.rda with updated WQXDetectionQuantitationLimitTypeRef object (detection limit type reference
 #' table for censored data)
 #'
+#' @export
 
 GetDetLimitRef <- function() {
   
@@ -325,6 +330,7 @@ WQXActivityTypeRef_Cached <- NULL
 #'
 #' @return sysdata.rda with updated WQXActivityTypeRef object
 #'
+#' @export
 
 GetActivityTypeRef <- function() {
   
