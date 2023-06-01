@@ -110,6 +110,9 @@ autoclean <- function(.data) {
   # .data$TADA.ResultDepthHeightMeasure.MeasureUnitCode[.data$ResultDepthHeightMeasure.MeasureUnitCode == 'meters'] <- 'm'
   .data$TADA.ResultMeasure.MeasureUnitCode[.data$TADA.ResultMeasure.MeasureUnitCode == 'meters'] <- 'm'
   
+  # create comparable data identifier column
+  .data = createComparableId(.data)
+  
   print("NOTE: This version of the TADA package is designed to work with quantitative (numeric) data with sample media: 'WATER'. autoclean does not currently filter downloaded data to 'WATER'. The user must make this specification on their own outside of package functions. See the WQPDataHamornization vignette for an example.")
   
   .data <- OrderTADACols(.data)

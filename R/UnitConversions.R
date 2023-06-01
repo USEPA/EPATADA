@@ -163,6 +163,9 @@ ConvertResultUnits <- function(.data, transform = TRUE) {
     # remove extraneous columns, fix field names
     clean.data <- clean.data %>%
       dplyr::select(-c("WQX.ConversionFactor", "WQX.TargetUnit"))
+    
+    # create new comparable data identifier column following conversion
+    clean.data = createComparableId(clean.data)
 
   }
   # reorder cols
