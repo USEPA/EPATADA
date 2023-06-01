@@ -75,7 +75,7 @@ HarmonizationRefTable <- function(.data, download = FALSE) {
   }
   
   # trim join.data to include only unique combos of char-frac-spec-unit
-  unique.data <- join.data %>% dplyr::distict()
+  unique.data <- join.data %>% dplyr::distinct()
   
   unique.data$TADA.ComparableDataIdentifier = ifelse(is.na(unique.data$TADA.ComparableDataIdentifier),paste(unique.data$TADA.CharacteristicName,unique.data$TADA.ResultSampleFractionText, unique.data$TADA.MethodSpecificationName, unique.data$TADA.ResultMeasure.MeasureUnitCode,sep = "_"),unique.data$TADA.ComparableDataIdentifier)
   
