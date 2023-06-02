@@ -236,9 +236,9 @@ Any results flagged as "Invalid" are recognized in the QAQC Validation Table as 
 **Note: if you find any errors in the QAQC Validation Table, please contact the WQX Help Desk at WQX\@epa.gov to help correct it. Thanks in advance!**
 
 ```{r}
-problem_flagged = dataset_flags%>%filter(TADA.SampleFraction.Flag=="Invalid"|TADA.MethodSpeciation.Flag=="Invalid"|TADA.ResultUnit.Flag=="Invalid"|!TADA.ActivityType.Flag=="Non-QC")
+problem_flagged = dataset_flags%>%filter(TADA.SampleFraction.Flag=="Invalid"|TADA.MethodSpeciation.Flag=="Invalid"|TADA.ResultUnit.Flag=="Invalid"|!TADA.ActivityType.Flag%in%("Non_QC"))
 
-dataset_flagged = dataset_flagged%>%dplyr::filter(!ResultIdentifier%in%problem_flagged$ResultIdentifier)
+dataset_flags = dataset_flags%>%dplyr::filter(!ResultIdentifier%in%problem_flagged$ResultIdentifier)
 
 removed = plyr::rbind.fill(removed, problem_flagged)
 rm(problem_flagged)
@@ -285,7 +285,7 @@ TADA::fieldValuesTable(dataset_flags, field = "TADA.ResultMeasureValueDataTypes.
 TADA::fieldValuesTable(dataset_cens, field = "TADA.ResultMeasureValueDataTypes.Flag")
 ```
 
-**Question 9: What do you notice is different between the first and second tables?**
+**Question 9: Is there a difference between the first and second tables?**
 
 If you'd like to start thinking about using statistical methods to estimate detection limit values, check out the `?summarizeCensoredData` function, which accepts user-defined data groupings to prescribe estimation tests based on the number of results, % of dataset censored, and number of censoring levels (detection limits). The decision tree used in the function was outlined in an [National Nonpoint Source Tech Memo](https://www.epa.gov/sites/default/files/2016-05/documents/tech_notes_10_jun2014_r.pdf).
 
