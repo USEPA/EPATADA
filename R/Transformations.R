@@ -57,22 +57,16 @@ HarmonizationRefTable <- function(.data, download = FALSE) {
   # if WQX QA Char Val flags are in .data, include them in the join
   if (all(harmonization_cols %in% colnames(.data)) == TRUE) {
     datcols = unique(.data[, c(expected_cols, harmonization_cols)])
-    join.data <- merge(datcols,
-                       harm.raw,
-                       by.x = expected_cols, 
-                       by.y = expected_cols, # EDH: this was not working with "harmonization cols" because those are not contained in Y
-                       all.x = TRUE
-    )
     # otherwise, execute the join with no additional columns
   } else {
     datcols = unique(.data[, expected_cols])
-    join.data <- merge(datcols,
-                       harm.raw,
-                       by.x = expected_cols,
-                       by.y = expected_cols,
-                       all.x = TRUE
-    )
   }
+  
+  join.data <- merge(datcols,
+                     harm.raw,
+                     # by.x = expected_cols,
+                     # by.y = expected_cols, EDH - are these needed?
+                     all.x = TRUE)
   
   # trim join.data to include only unique combos of char-frac-spec-unit
   unique.data <- join.data %>% dplyr::distinct()
@@ -226,8 +220,8 @@ HarmonizeData <- function(.data, ref, transform = TRUE, flag = TRUE) {
 
     # join harm.ref to .data
     flag.data <- merge(.data, harm.ref,
-                       by.x = expected_cols,
-                       by.y = expected_cols,
+                       # by.x = expected_cols, EDH - this is problematic because harm.ref might share expected and flag columns with data - this join is potentially many to many, leading to duplicate results.
+                       # by.y = expected_cols,
                        all.x = TRUE
                        )
 
