@@ -169,6 +169,13 @@ HarmonizeData <- function(.data, ref, transform = TRUE, flag = TRUE) {
     "TADA.MethodSpecificationName", "TADA.ResultMeasure.MeasureUnitCode"
     )
   checkColumns(.data, expected_cols)
+  
+  # additional columns that may be in harmonization ref
+  # columns to keep from .data if exist
+  harmonization_cols <- c(
+    "TADA.SampleFraction.Flag", "TADA.MethodSpeciation.Flag",
+    "TADA.ResultUnit.Flag", "TADA.AnalyticalMethod.Flag"
+  )
 
   # check that both transform and flag do NOT equal FALSE
   if (transform == FALSE & flag == FALSE) {
@@ -186,10 +193,10 @@ HarmonizeData <- function(.data, ref, transform = TRUE, flag = TRUE) {
   )
   
   # execute function after checks are passed
-  if (all(c(
-    "TADA.CharacteristicName", "TADA.ActivityMediaName", "TADA.ResultMeasureValue",
-    "TADA.ResultMeasure.MeasureUnitCode"
-  ) %in% colnames(.data)) == TRUE) {
+  # if (all(c(
+  #   "TADA.CharacteristicName", "TADA.ActivityMediaName", "TADA.ResultMeasureValue",
+  #   "TADA.ResultMeasure.MeasureUnitCode"
+  # ) %in% colnames(.data)) == TRUE) { EDH - REDUNDANT FROM ABOVE
 
     # if class(ResultMeasureValue) != numeric, run special char function
     if (!is.numeric(.data$TADA.ResultMeasureValue) ) {
@@ -217,11 +224,14 @@ HarmonizeData <- function(.data, ref, transform = TRUE, flag = TRUE) {
     }
     
     .data = .data[,!names(.data)%in%c("TADA.ComparableDataIdentifier")]
+    
+    # join by expected cols and (if in dataset) harmonization cols
+    joincols = names(.data)[names(.data)%in%c(expected_cols, harmonization_cols)]
 
-    # join harm.ref to .data
+    # join harm.ref to .data - EDH - there are some columns ("ResultAnalyticalMethod.MethodName","SampleCollectionMethod.MethodName","ResultCommentText","MonitoringLocationTypeName")in the example harmonization table that are also in .data that would result in erroneous joins if not excluded from join below
     flag.data <- merge(.data, harm.ref,
-                       # by.x = expected_cols, EDH - this is problematic because harm.ref might share expected and flag columns with data - this join is potentially many to many, leading to duplicate results.
-                       # by.y = expected_cols,
+                       by.x = joincols,
+                       by.y = joincols,
                        all.x = TRUE
                        )
 
@@ -340,5 +350,5 @@ HarmonizeData <- function(.data, ref, transform = TRUE, flag = TRUE) {
         return(clean.data)
       }
     }
-  }
+  # }
 }
