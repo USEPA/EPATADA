@@ -503,7 +503,7 @@ QualityControlActivity <- function(.data, clean = FALSE, errorsonly = FALSE) {
                                    TADA.ActivityType.Flag = "QC_uncategorized")
     qc.ref <- rbind(qc.ref, missing_codes_df)
     missing_codes = paste(missing_codes, collapse = ", ")
-    print(paste0("ActivityTypeCode column in dataset contains value(s) ",missing_conds, " which is/are not represented in the ActivityType WQX domain table. These data records are placed under the TADA.ActivityType.Flag: 'QC_uncategorized'. Please contact TADA administrators to resolve."))
+    print(paste0("ActivityTypeCode column in dataset contains value(s) ",missing_codes, " which is/are not represented in the ActivityType WQX domain table. These data records are placed under the TADA.ActivityType.Flag: 'QC_uncategorized'. Please contact TADA administrators to resolve."))
   }
   
   # populate flag column in data
