@@ -293,10 +293,18 @@ checkColumns <- function(.data, expected_cols) {
 
 #' ConvertSpecialChars
 #' 
-#' This function will screen a column of the user's choice for special characters.
-#' It creates a new column that describes the content of the column prior to
-#' conversion to numeric. It also creates a new column to hold the new, numeric
-#' column
+#' This function will screen a column of the user's choice for special
+#' characters. It creates a NEW column that describes the content of the column
+#' prior to conversion to numeric (named "TADA.COLUMN NAME DataTypes.Flag"). It
+#' also creates a NEW column to hold the new, numeric format (named "TADA.COLUMN
+#' NAME"). This function will successfully convert some special character
+#' formats to numeric: whitespace, >, <, ~, %, and commas are removed before
+#' converting a result value to numeric. Result values in the format # - # are
+#' converted to an average of the two numbers. Result values
+#' containing any other text or non-numeric characters become NA in
+#' the newly created "TADA.COLUMN NAME" and labeled accordingly in "TADA.COLUMN
+#' NAME DataTypes.Flag".
+#' 
 #' 
 #' @param .data A TADA profile object
 #' @param col A character column to be converted to numeric
