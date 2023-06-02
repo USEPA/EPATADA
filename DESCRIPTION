@@ -54,7 +54,8 @@ Imports:
     plotly,
     rmarkdown, 
     outliers,
-    remotes
+    remotes,
+    writexl
 Depends: 
     R (>= 3.5.0)
 Suggests: 

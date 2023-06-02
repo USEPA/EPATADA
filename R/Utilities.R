@@ -614,3 +614,21 @@ createComparableId <- function(.data){
   .data$TADA.ComparableDataIdentifier = paste(.data$TADA.CharacteristicName,.data$TADA.ResultSampleFractionText, .data$TADA.MethodSpecificationName, .data$TADA.ResultMeasure.MeasureUnitCode,sep = "_")
   return(.data)
 }
+
+#' Get TADA spreadsheet template
+#' 
+#' This function downloads a .xlsx template with all required columns for TADA 
+#' to the user's computer to cater custom datasets to the TADA format. 
+#' It contains one sample row to guide users when adding their own data to the 
+#' spreadsheet. Please note that it downloads the spreadsheet to the user's current
+#' working directory.
+#' 
+#' @return A .xlsx spreadsheet to be saved in the user's working directory.
+#' 
+#' @export
+#' 
+
+getTADATemplate <- function(){
+  colsreq = names(TADA::Nutrients_Utah)[!grepl("TADA.",names(TADA::Nutrients_Utah))]
+  writexl::write_xlsx(TADA::Nutrients_Utah[1,colsreq], path = "TADATemplate.xlsx")
+}
