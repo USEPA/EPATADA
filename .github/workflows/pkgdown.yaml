@@ -17,9 +17,9 @@ name: pkgdown
 
 # Allow only one concurrent deployment, skipping runs queued between the run in-progress and latest queued.
 # Also, cancel in-progress runs.
-concurrency:
-  group: "pkgdown"
-  cancel-in-progress: true
+# concurrency:
+#   group: "pkgdown"
+#   cancel-in-progress: true
   
 jobs:
   pkgdown:
