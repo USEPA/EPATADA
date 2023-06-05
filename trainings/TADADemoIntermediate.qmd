@@ -32,7 +32,7 @@ Users can install the TADA package from GitHub into their R library using the `r
 if(!"remotes"%in%installed.packages()){
   install.packages("remotes")
 }
-remotes::install_github("USEPA/TADA", ref="pseudo-develop")
+remotes::install_github("USEPA/TADA", ref="develop")
 
 ```
 
@@ -120,6 +120,7 @@ Next, we can use the `fieldCounts()` function to see how many unique values are 
 **Question 2: Which column should have a unique value in every row and why?**
 
 ```{r}
+TADA::fieldCounts(dataset, display = "key")
 TADA::fieldCounts(dataset, display = "all")
 ```
 
@@ -177,7 +178,8 @@ rm(problem_censored)
 Let's also look at characteristics in the dataset using `dplyr` functions and pipes.
 
 ```{r}
-dataset%>%dplyr::group_by(TADA.CharacteristicName)%>%dplyr::summarise(Result_Count = length(ResultIdentifier), Site_Count = length(unique(MonitoringLocationIdentifier)), Org_Count = length(unique(OrganizationIdentifier)))%>%dplyr::arrange(desc(Result_Count))
+nrow = length(unique(dataset$TADA.CharacteristicName))
+dataset%>%dplyr::group_by(TADA.CharacteristicName)%>%dplyr::summarise(Result_Count = length(ResultIdentifier), Site_Count = length(unique(MonitoringLocationIdentifier)), Org_Count = length(unique(OrganizationIdentifier)))%>%dplyr::arrange(desc(Result_Count))%>%print(n = nrow)
 ```
 
 You may see a characteristic that you'd like to investigate further in isolation. `fieldValuesPie()` will also produce summary pie charts for a given column *within* a specific characteristic. Let's take a look.
@@ -190,6 +192,7 @@ Finally, we can view the site locations using a TADA mapping function. In this m
 
 ```{r}
 TADA::TADAOverviewMap(dataset)
+TADA::TADAOverviewMap(removed)
 ```
 
 ## Data transformation
@@ -205,7 +208,7 @@ dataset = TADA::ConvertResultUnits(dataset, transform = TRUE)
 TADA::fieldValuesTable(dataset, field = "TADA.ResultMeasure.MeasureUnitCode")%>%dplyr::arrange(desc(Count))
 ```
 
-**Question 5: Do you notice that any totals change between the two tables? Has the number of units in the dataset increased, decreased, or stayed the same?**
+**Question 5: Do you notice that any totals change between the two tables? Has the number of units in the dataset increased, decreased, or stayed the same? Why is this step important?**
 
 ## Data flagging
 
@@ -213,7 +216,7 @@ We've taken a quick look at the raw dataset, now let's run through some quality 
 
 ```{r}
 qaqc_ref = TADA::GetWQXCharValRef()
-colnames(qaqc_ref)
+head(qaqc_ref)
 unique(qaqc_ref$Type)
 ```
 
