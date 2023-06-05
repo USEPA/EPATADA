@@ -8,6 +8,7 @@ on:
   # build and deploy when we publish a GitHub release
   # release:
   #  types: [published]
+  # allow manual action trigger
   workflow_dispatch:
 
 name: pkgdown
