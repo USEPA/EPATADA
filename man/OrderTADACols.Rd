@@ -2,7 +2,7 @@
 % Please edit documentation in R/Utilities.R
 \name{OrderTADACols}
 \alias{OrderTADACols}
-\title{Order TADA Columns}
+\title{Order TADA Columns and Rows}
 \usage{
 OrderTADACols(.data)
 }
@@ -10,9 +10,9 @@ OrderTADACols(.data)
 \item{.data}{TADA dataframe}
 }
 \value{
-A TADA handled dataframe with the TADA-created columns at the end.
+A TADA handled dataframe with the TADA-created columns at the end and rows ordered by ResultIdentifier.
 }
 \description{
 This utility function moves all TADA-created columns to the end of the dataframe
-in an order that improves readability.
+in an order that improves readability and orders the dataframe rows by ResultIdentifier.
 }

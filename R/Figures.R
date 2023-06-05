@@ -1,15 +1,17 @@
 #' Create Boxplot
 #' 
 #' @param filtered.data TADA data frame containing the data downloaded from the WQP, where
-#' each row represents a unique data record. Data frame must include the columns
-#' 'TADA.ComparableDataIdentifier", 'TADA.ResultMeasureValue', and
-#' 'TADA.ResultMeasure.MeasureUnitCode' to run this function. These columns can 
+#' each row represents a unique data record. Data frame must include the columns 'TADA.CharacteristicName' OR
+#' 'TADA.ComparableDataIdentifier', 'TADA.ResultMeasureValue', and
+#' 'TADA.ResultMeasure.MeasureUnitCode' to run this function. 'TADA.ComparableDataIdentifier' can 
 #' be added to the data frame by running the function HarmonizeData(). The data frame
-#' must be filtered down to a single comparable data identifier to run this function.
+#' must be filtered down to a single characteristic with a consistent unit or comparable data identifier to run this function.
+#' 
+#' @param id_col The column in the dataset used to identify the characteristic plotted in the boxplot. May be set to "TADA.CharacteristicName" or "TADA.ComparableDataIdentifier" if user would rather use a post-harmonization dataset that groups multiple TADA.CharacteristicNames into one. 
 #' 
 #' @return A plotly boxplot figure showing the median, 25th percentile, 75th percentile, 
 #' upper fence, lower fence, minimum, maximum, and data outliers for the given 
-#' comparable data identifier.
+#' characteristic or comparable data identifier.
 #' 
 #' @export
 #' 
@@ -20,24 +22,33 @@
 #' # down to one Comparable Data Identifier
 #' 
 #' # Create boxplot:
-#' TADA_boxplot(TADAProfileClean18_TNonly)
+#' TADA_boxplot(TADAProfileClean18_TNonly, id_col = "TADA.ComparableDataIdentifier")
 #' 
 
-TADA_boxplot <- function(filtered.data) {
+TADA_boxplot <- function(filtered.data, id_col = c("TADA.CharacteristicName", "TADA.ComparableDataIdentifier")) {
   # check .data is data.frame
   checkType(filtered.data, "data.frame", "Input object")
+  # check id_col matches one of the options
+  id_col <- match.arg(id_col)
   # check .data has required columns
-  checkColumns(filtered.data, c("TADA.ComparableDataIdentifier", "TADA.ResultMeasureValue", "TADA.ResultMeasure.MeasureUnitCode"))
-  # check TADA.ComparableDataIdentifier column is filtered to one identifier
-  if (length(unique(filtered.data$TADA.ComparableDataIdentifier)) > 1) {
-    warning("Boxplot function cannot run with more than 1 comparable data identifier. Please filter dataframe and rerun function.")
+  checkColumns(filtered.data, id_col)
+  # check .data has required columns
+  checkColumns(filtered.data, c("TADA.ResultMeasureValue", "TADA.ResultMeasure.MeasureUnitCode"))
+  # check id_col is filtered to one characteristic or identifier
+  if (length(unique(filtered.data[,id_col])) > 1) {
+    stop(paste0(id_col, " field contains more than one unique value. Boxplot function cannot run with more than 1 unique characteristic or comparable data identifier. Please filter dataframe and rerun function."))
+  }
+  # check that units are the same across all data points
+  if (length(unique(filtered.data$TADA.ResultMeasure.MeasureUnitCode)) > 1) {
+    warning("Dataset contains more than one result unit. Plotting results with multiple units in one boxplot is not advised. Please filter or harmonize dataframe and rerun function.")
   }
   
   # execute function after checks have passed
 
   # units
   unit <- unique(filtered.data$TADA.ResultMeasure.MeasureUnitCode)
-  y_label <- paste0("Level (", unit, ")")
+  char <- unique(filtered.data[,id_col])
+  y_label <- paste0(char, " (", unit, ")")
   
   # boxplot stats
   values <- filtered.data$TADA.ResultMeasureValue
@@ -71,9 +82,8 @@ TADA_boxplot <- function(filtered.data) {
                                   q3 = quant_75, lowerfence = box_lower,
                                   hoverinfo = 'y',
                                   upperfence = box_upper, boxpoints = "outliers",
-                                  marker = list(color = "#7cb5ec", fill = "#c0e9ff"),
-                                  color = I("#c0e9ff"),
-                                  stroke = I("#7cb5ec"))
+                                  marker = list(color = "#00bde3"),
+                                  stroke = I("#005ea2"))
   
   # boxplot layout and labels
   base_boxplot <- base_boxplot %>% 
@@ -82,11 +92,116 @@ TADA_boxplot <- function(filtered.data) {
       yaxis = list(title = y_label, titlefont = list(size = 16, family = "Arial"), tickfont = list(size = 16, family = "Arial"),
                    hoverformat = ',.4r', linecolor = "black", rangemode = 'tozero', 
                    showgrid = FALSE, tickcolor= "black"),
-      hoverlabel=list(bgcolor="white")
+      hoverlabel=list(bgcolor="white"),
+      title = paste0("Boxplot of ", char, " (", unit, ")"), 
+      plot_bgcolor = "#e5ecf6"
     ) %>% 
     plotly::config(displayModeBar = FALSE)
   
   return(base_boxplot)
+}
+
+#' Create Histogram
+#' 
+#' @param filtered.data TADA data frame containing the data downloaded from the WQP, where
+#' each row represents a unique data record. Data frame must include the columns 'TADA.CharacteristicName' OR
+#' 'TADA.ComparableDataIdentifier', 'TADA.ResultMeasureValue', and
+#' 'TADA.ResultMeasure.MeasureUnitCode' to run this function. 'TADA.ComparableDataIdentifier' can  
+#' be added to the data frame by running the function HarmonizeData(). The data frame
+#' must be filtered down to a single characteristic with a consistent unit or comparable data identifier to run this function.
+#' 
+#' @param id_col The column in the dataset used to identify the characteristic plotted in the histogram. May be set to "TADA.CharacteristicName" or "TADA.ComparableDataIdentifier" if user would rather use a post-harmonization dataset that groups multiple TADA.CharacteristicNames into one. 
+#' 
+#' @return A plotly histogram figure showing the distribution of sample values 
+#' for the given characteristic or comparable data identifier.
+#' 
+#' @export
+#' 
+#' @examples
+#' # Load example dataset:
+#' data("TADAProfileClean18_TNonly")
+#' # TADAProfileClean18_TNonly dataframe is clean, harmonized, and filtered
+#' # down to one Comparable Data Identifier
+#' 
+#' # Create histogram:
+#' TADA_hist(TADAProfileClean18_TNonly, id_col = "TADA.ComparableDataIdentifier")
+
+TADA_hist <- function(filtered.data, id_col = c("TADA.CharacteristicName", "TADA.ComparableDataIdentifier")) {
+  # check .data is data.frame
+  checkType(filtered.data, "data.frame", "Input object")
+  # check id_col matches one of the options
+  id_col <- match.arg(id_col)
+  # check .data has required columns
+  checkColumns(filtered.data, id_col)
+  checkColumns(filtered.data, c("TADA.ResultMeasureValue", "TADA.ResultMeasure.MeasureUnitCode"))
+  # check id_col is filtered to one characteristic or identifier
+  if (length(unique(filtered.data[,id_col])) > 1) {
+    stop(paste0(id_col, " field contains more than one unique value. Histogram function cannot run with more than 1 unique characteristic or comparable data identifier. Please filter dataframe and rerun function."))
+  }
+  # check that units are the same across all data points
+  if (length(unique(filtered.data$TADA.ResultMeasure.MeasureUnitCode)) > 1) {
+    warning("Dataset contains more than one result unit. Plotting results with multiple units in one histogram is not advised. Please filter or harmonize dataframe and rerun function.")
+  }
+  
+  # execute function after checks have passed
+  
+  # units
+  unit <- unique(filtered.data$TADA.ResultMeasure.MeasureUnitCode)
+  char <- unique(filtered.data[,id_col])
+  x_label <- paste0(char, " (", unit, ")")
+  y_label <- paste0("Frequency
+  (Total of ", nrow(filtered.data), " Samples)")
+  
+  # data for all_data trace
+  all_data <- filtered.data
+  # data for remove_outliers trace
+  values <- filtered.data$TADA.ResultMeasureValue
+  quant_25 <- stats::quantile(all_data$TADA.ResultMeasureValue, 0.25, type = 7)
+  quant_75 <- stats::quantile(all_data$TADA.ResultMeasureValue, 0.75, type = 7)
+  box_iqr <- quant_75 - quant_25
+  upper_thresh <- quant_75 + 1.5*box_iqr
+  lower_thresh <- quant_25 - 1.5*box_iqr
+  box_upper_row <- which(values == max(values[values <= upper_thresh]))
+  box_upper <- values[[box_upper_row[[1]]]]
+  box_lower_row <- which(values == min(values[values >= lower_thresh]))
+  box_lower <- values[[box_lower_row[[1]]]]
+  no_outliers <- subset(filtered.data, filtered.data$TADA.ResultMeasureValue>=box_lower & filtered.data$TADA.ResultMeasureValue<=box_upper)
+  
+  histogram <- plotly::plot_ly() %>%
+    plotly::add_histogram(x = all_data$TADA.ResultMeasureValue,
+              xbins = list(start = min(all_data$TADA.ResultMeasureValue)),
+              marker = list(color = "#00bde3"),
+              stroke = I("#005ea2"),
+              bingroup = 1,
+              name = "<b>All Data<b>"
+              ) %>%
+    plotly::add_histogram(x = no_outliers$TADA.ResultMeasureValue,
+              xbins = list(start = min(all_data$TADA.ResultMeasureValue)),
+              marker = list(color = "#00bde3"),
+              stroke = I("#005ea2"),
+              bingroup = 1,
+              name = paste0("<b>Outliers Removed</b>", "\nUpper Threshold: ", box_upper, "\nLower Threshold: ", box_lower),
+              visible = "legendonly"
+              )
+  
+  # histogram layout and labels
+  histogram <- histogram %>% 
+  plotly::layout(
+    xaxis = list(title = x_label, titlefont = list(size = 16, family = "Arial"), tickfont = list(size = 16, family = "Arial"),
+                 hoverformat = ',.4r', linecolor = "black", rangemode = 'tozero', 
+                 showgrid = FALSE, tickcolor= "black"),
+    yaxis = list(title = y_label, titlefont = list(size = 16, family = "Arial"), tickfont = list(size = 16, family = "Arial"),
+                 hoverformat = ',.4r', linecolor = "black", rangemode = 'tozero', 
+                 showgrid = FALSE, tickcolor= "black"), 
+    hoverlabel=list(bgcolor="white"),
+    title = paste0(char, " vs. Frequency"), 
+    plot_bgcolor = "#e5ecf6",
+    barmode = "overlay",
+    legend = list(title = list(text = "<b>Select 'Outliers Removed' \nand Deselect 'All Data' \nto View a Subset of the Data<b>"))
+  ) %>% 
+    plotly::config(displayModeBar = TRUE)
+  
+  return(histogram)
 }
 
 #' Create Overview Map
@@ -141,4 +256,48 @@ TADAOverviewMap <- function(.data){
                        opacity = 0.5
     )
   return(map)
+}
+
+#' Field Values Pie Chart
+#'
+#' Function creates a ggplot2 pie chart showing the relative proportions of values in a given field in a TADA dataset.
+#' 
+#' @param .data TADA dataframe
+#' @param field The field (column) the user would like to see represented in a pie chart.
+#' @param characteristicName Optional. Defaults to "null". A vector of TADA-converted (all caps) WQP characteristics a user may provide to filter the results to one or more characteristics of interest. "null" will show a summary table for the whole dataset.
+#'
+#' @return A ggplot2 pie chart.
+#'
+#' @export
+#' 
+#' @examples 
+#' # Load example dataset:
+#' data(Nutrients_Utah)
+#' 
+#' # Create a list of parameters in the dataset and the number of records of
+#' # each parameter: 
+#' fieldValuesPie(Nutrients_Utah, field = "TADA.CharacteristicName")
+#' 
+
+
+fieldValuesPie <- function(.data,field="null",characteristicName="null"){
+  
+  dat = fieldValuesTable(.data = .data, field = field, characteristicName = characteristicName)
+
+  dat$Legend = paste0(dat$Var, " - ", dat$Count, " results")
+  
+  # define number of colors required for pie chart
+  colorCount <- length(unique(dat$Legend))
+  
+  # define color palette
+  getPalette <- grDevices::colorRampPalette(RColorBrewer::brewer.pal(8, "Set2"))
+  
+  # create pie chart
+  pie <- ggplot2::ggplot(dat, ggplot2::aes(x = "", y = Count, fill = Legend)) +
+    ggplot2::scale_fill_manual(values = getPalette(colorCount), name = field) +
+    ggplot2::geom_bar(stat = "identity", width = 1) +
+    ggplot2::coord_polar("y", start = 0) +
+    ggplot2::theme_void() 
+  
+  return(pie)
 }

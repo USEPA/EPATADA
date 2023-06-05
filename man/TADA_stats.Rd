@@ -26,6 +26,6 @@ data("TADAProfileClean18_TNonly")
 # down to one Comparable Data Identifier
 
 # Create stats table:
-TADA_stats(TADAProfileClean18_TNonly)
+TADAProfileClean18_TNonly_stats <- TADA_stats(TADAProfileClean18_TNonly)
 
 }

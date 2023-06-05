@@ -12,15 +12,14 @@
 #' characteristic-fraction combinations in the dataframe when errorsonly = TRUE.
 #' Default is errorsonly = FALSE.
 #'
-#' @return When clean = FALSE and errorsonly = FALSE, this function adds the
-#' following column to your dataframe: TADA.SampleFraction.Flag. This column flags each 
-#' CharacteristicName and ResultSampleFractionText combination in your dataframe 
-#' as either "Nonstandardized", "Invalid", or "Valid". When clean = FALSE and 
-#' errorsonly = TRUE, the TADA.SampleFraction.Flag is still added and the data
-#' is filtered to only show the "Invalid" rows only. When clean = TRUE and
-#' errorsonly = FALSE, "Invalid" rows are removed from the dataframe and no 
-#' column will be appended. When clean = TRUE and errorsonly = TRUE, the function
-#' does not execute and an error message is returned.
+#' @return This function adds the following column to your dataframe:
+#'   TADA.SampleFraction.Flag, which flags each CharacteristicName and
+#'   ResultSampleFractionText combination in your dataframe as either
+#'   "Nonstandardized", "Invalid", or "Valid". When clean = FALSE and errorsonly
+#'   = TRUE, the data are filtered to show the "Invalid" rows only. When clean =
+#'   TRUE and errorsonly = FALSE, "Invalid" rows are removed from the dataframe
+#'   and no column will be appended. When clean = TRUE and errorsonly = TRUE,
+#'   the function does not execute and an error message is returned.
 #'
 #' @export
 #' 
@@ -142,9 +141,8 @@ InvalidFraction <- function(.data, clean = TRUE, errorsonly = FALSE) {
 #' characteristic-method speciation combinations from the dataframe when 
 #' errorsonly = TRUE. Default is errorsonly = FALSE.
 #'
-#' @return When clean = "none" and errorsonly = FALSE, this function adds the 
-#' following column to your dataframe: TADA.MethodSpeciation.Flag. This column 
-#' flags each CharacteristicName and MethodSpecificationName combination in your 
+#' @return This function adds TADA.MethodSpeciation.Flag to the dataframe. This column 
+#' flags each TADA.CharacteristicName and MethodSpecificationName combination in your 
 #' dataframe as either "Nonstandardized", "Invalid", or "Valid". When clean = "none" 
 #' and errorsonly = TRUE, the dataframe is filtered to show only the "Invalid" and
 #' "Nonstandardized data; the column TADA.MethodSpeciation.Flag is still appended. 
@@ -221,7 +219,7 @@ InvalidSpeciation <- function(.data, clean = c("invalid_only", "nonstandardized_
           unique(check.data$TADA.MethodSpeciation.Flag)) == FALSE) {
     print("All characteristic/method speciation combinations are valid in your dataframe. Returning input dataframe with TADA.MethodSpeciation.Flag column for tracking.")
     check.data = OrderTADACols(check.data)
-    return(.data)
+    return(check.data)
   }
   
   # flagged output, all data
@@ -297,8 +295,7 @@ InvalidSpeciation <- function(.data, clean = c("invalid_only", "nonstandardized_
 #' characteristic-media-result unit combinations when errorsonly = TRUE. Default
 #' is errorsonly = FALSE.
 #'
-#' @return When clean = "none" and errorsonly = FALSE, this function adds the 
-#' following column to your dataframe: TADA.ResultUnit.Flag. This column 
+#' @return This function adds the TADA.ResultUnit.Flag to a TADA dataframe. This column 
 #' flags each CharacteristicName, ActivityMediaName, and ResultMeasure/MeasureUnitCode
 #' combination in your dataframe as either "Nonstandardized", "Invalid", or "Valid". 
 #' When clean = "none" and errorsonly = TRUE, the dataframe is filtered to show only 
@@ -506,7 +503,7 @@ QualityControlActivity <- function(.data, clean = FALSE, errorsonly = FALSE) {
                                    TADA.ActivityType.Flag = "QC_uncategorized")
     qc.ref <- rbind(qc.ref, missing_codes_df)
     missing_codes = paste(missing_codes, collapse = ", ")
-    print(paste0("ActivityTypeCode column in dataset contains value(s) ",missing_conds, " which is/are not represented in the ActivityType WQX domain table. These data records are placed under the TADA.ActivityType.Flag: 'QC_uncategorized'. Please contact TADA administrators to resolve."))
+    print(paste0("ActivityTypeCode column in dataset contains value(s) ",missing_codes, " which is/are not represented in the ActivityType WQX domain table. These data records are placed under the TADA.ActivityType.Flag: 'QC_uncategorized'. Please contact TADA administrators to resolve."))
   }
   
   # populate flag column in data

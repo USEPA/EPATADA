@@ -49,31 +49,29 @@ HarmonizationRefTable <- function(.data, download = FALSE) {
   
   # columns to keep from .data if exist
   harmonization_cols <- c(
-    "WQX.SampleFractionValidity", "WQX.MethodSpeciationValidity",
-    "WQX.ResultUnitValidity", "WQX.AnalyticalMethodValidity"
+    "TADA.SampleFraction.Flag", "TADA.MethodSpeciation.Flag",
+    "TADA.ResultUnit.Flag", "TADA.AnalyticalMethod.Flag"
   )
+  
   # join to harmonization table
   # if WQX QA Char Val flags are in .data, include them in the join
   if (all(harmonization_cols %in% colnames(.data)) == TRUE) {
-    join.data <- merge(.data[, c(expected_cols, harmonization_cols)],
-                       harm.raw,
-                       by.x = expected_cols, 
-                       by.y = expected_cols, # EDH: this was not working with "harmonization cols" because those are not contained in Y
-                       all.x = TRUE
-    )
+    datcols = unique(.data[, c(expected_cols, harmonization_cols)])
     # otherwise, execute the join with no additional columns
   } else {
-    join.data <- merge(.data[, expected_cols],
-                       harm.raw,
-                       by.x = expected_cols,
-                       by.y = expected_cols,
-                       all.x = TRUE
-    )
+    datcols = unique(.data[, expected_cols])
   }
   
+  join.data <- merge(datcols,
+                     harm.raw,
+                     # by.x = expected_cols,
+                     # by.y = expected_cols, EDH - are these needed?
+                     all.x = TRUE)
+  
   # trim join.data to include only unique combos of char-frac-spec-unit
-  unique.data <- join.data %>%
-    dplyr::filter(!duplicated(join.data[, expected_cols]))
+  unique.data <- join.data %>% dplyr::distinct()
+  
+  unique.data$TADA.ComparableDataIdentifier = ifelse(is.na(unique.data$TADA.ComparableDataIdentifier),paste(unique.data$TADA.CharacteristicName,unique.data$TADA.ResultSampleFractionText, unique.data$TADA.MethodSpecificationName, unique.data$TADA.ResultMeasure.MeasureUnitCode,sep = "_"),unique.data$TADA.ComparableDataIdentifier)
   
   # reorder columns to match harm.raw
   # include WQX QA flag columns, if they exist
@@ -171,6 +169,13 @@ HarmonizeData <- function(.data, ref, transform = TRUE, flag = TRUE) {
     "TADA.MethodSpecificationName", "TADA.ResultMeasure.MeasureUnitCode"
     )
   checkColumns(.data, expected_cols)
+  
+  # additional columns that may be in harmonization ref
+  # columns to keep from .data if exist
+  harmonization_cols <- c(
+    "TADA.SampleFraction.Flag", "TADA.MethodSpeciation.Flag",
+    "TADA.ResultUnit.Flag", "TADA.AnalyticalMethod.Flag"
+  )
 
   # check that both transform and flag do NOT equal FALSE
   if (transform == FALSE & flag == FALSE) {
@@ -188,10 +193,10 @@ HarmonizeData <- function(.data, ref, transform = TRUE, flag = TRUE) {
   )
   
   # execute function after checks are passed
-  if (all(c(
-    "TADA.CharacteristicName", "TADA.ActivityMediaName", "TADA.ResultMeasureValue",
-    "TADA.ResultMeasure.MeasureUnitCode"
-  ) %in% colnames(.data)) == TRUE) {
+  # if (all(c(
+  #   "TADA.CharacteristicName", "TADA.ActivityMediaName", "TADA.ResultMeasureValue",
+  #   "TADA.ResultMeasure.MeasureUnitCode"
+  # ) %in% colnames(.data)) == TRUE) { EDH - REDUNDANT FROM ABOVE
 
     # if class(ResultMeasureValue) != numeric, run special char function
     if (!is.numeric(.data$TADA.ResultMeasureValue) ) {
@@ -217,11 +222,16 @@ HarmonizeData <- function(.data, ref, transform = TRUE, flag = TRUE) {
       # use output of HarmonizationRefTable which uses the TADA HarmonizationTemplate.csv in the extdata folder
       harm.ref <- HarmonizationRefTable(.data, download=FALSE)
     }
+    
+    .data = .data[,!names(.data)%in%c("TADA.ComparableDataIdentifier")]
+    
+    # join by expected cols and (if in dataset) harmonization cols
+    joincols = names(.data)[names(.data)%in%c(expected_cols, harmonization_cols)]
 
-    # join harm.ref to .data
+    # join harm.ref to .data - EDH - there are some columns ("ResultAnalyticalMethod.MethodName","SampleCollectionMethod.MethodName","ResultCommentText","MonitoringLocationTypeName")in the example harmonization table that are also in .data that would result in erroneous joins if not excluded from join below
     flag.data <- merge(.data, harm.ref,
-                       by.x = expected_cols,
-                       by.y = expected_cols,
+                       by.x = joincols,
+                       by.y = joincols,
                        all.x = TRUE
                        )
 
@@ -249,7 +259,7 @@ HarmonizeData <- function(.data, ref, transform = TRUE, flag = TRUE) {
       # replace TADA.CharacteristicName with TADA.SuggestedCharacteristicName
       clean.data <- flag.data %>%
         # apply function row by row
-        dplyr::rowwise() %>%
+        # dplyr::rowwise() %>%
         # use TADA suggested name where there is a suggested name, use original name if no suggested name
         dplyr::mutate(TADA.CharacteristicName = dplyr::case_when(
           !is.na(TADA.SuggestedCharacteristicName) ~ TADA.SuggestedCharacteristicName,
@@ -259,8 +269,8 @@ HarmonizeData <- function(.data, ref, transform = TRUE, flag = TRUE) {
       # TADA.ResultSampleFractionText
       # replace ResultSampleFractionText with TADA.SuggestedSampleFraction
       clean.data <- clean.data %>%
-        # apply function row by row
-        dplyr::rowwise() %>%
+        # # apply function row by row
+        # dplyr::rowwise() %>%
         # use TADA suggested frac where there is a suggested frac, use original frac if no suggested frac
         dplyr::mutate(TADA.ResultSampleFractionText = dplyr::case_when(
           !is.na(TADA.SuggestedSampleFraction) ~ TADA.SuggestedSampleFraction,
@@ -272,7 +282,7 @@ HarmonizeData <- function(.data, ref, transform = TRUE, flag = TRUE) {
       # replace ResultMeasure.MeasureUnitCode with TADA.SuggestedResultUnit
       clean.data <- clean.data %>%
         # apply function row by row
-        dplyr::rowwise() %>%
+        # dplyr::rowwise() %>%
         # use TADA suggested unit where there is a suggested unit, use original unit if no suggested unit
         dplyr::mutate(TADA.ResultMeasure.MeasureUnitCode = dplyr::case_when(
           !is.na(TADA.SuggestedResultUnit) ~ TADA.SuggestedResultUnit,
@@ -290,7 +300,7 @@ HarmonizeData <- function(.data, ref, transform = TRUE, flag = TRUE) {
       # replace MethodSpecificationName with TADA.SuggestedSpeciation
       clean.data <- clean.data %>%
         # apply function row by row
-        dplyr::rowwise() %>%
+        # dplyr::rowwise() %>%
         # use TADA suggested spec where there is a suggested spec, use original spec if no suggested spec
         dplyr::mutate(TADA.MethodSpecificationName = dplyr::case_when(
           !is.na(TADA.SuggestedSpeciation) ~ TADA.SuggestedSpeciation,
@@ -330,7 +340,6 @@ HarmonizeData <- function(.data, ref, transform = TRUE, flag = TRUE) {
             "TADA.FractionAssumptions",
             "TADA.SpeciationAssumptions",
             "TADA.UnitConversionCoefficient",
-            "TADA.ComparableDataIdentifier",
             "TADA.TotalN_TotalP_CharacteristicNames_AfterSummation",
             "TADA.TotalN_TotalP_Summation_Identifier",
             "TADA.TotalN_TotalP_ComboLogic"
@@ -341,5 +350,5 @@ HarmonizeData <- function(.data, ref, transform = TRUE, flag = TRUE) {
         return(clean.data)
       }
     }
-  }
+  # }
 }

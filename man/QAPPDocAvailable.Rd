@@ -13,9 +13,10 @@ QAPPDocAvailable(.data, clean = FALSE)
 document from the dataframe when clean = TRUE. Default is clean = FALSE.}
 }
 \value{
-When clean = FALSE, a column is appended to the input data set that
+Returns input dataframe with the added "TADA.QAPPDocAvailable" column.
+When clean = FALSE, no data are removed and the TADA.QAPPDocAvailable column
 flags rows with an associated QAPP document. When clean = TRUE,
-data without an associated QAPP document is removed from the dataframe.
+data without an associated QAPP document are removed from the dataframe.
 }
 \description{
 Function checks data submitted under the "ProjectFileUrl" column

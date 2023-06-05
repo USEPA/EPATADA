@@ -18,8 +18,7 @@ characteristic-analytical method combinations when errorsonly = TRUE. Default
 is errorsonly = FALSE.}
 }
 \value{
-When clean = FALSE and errorsonly = FALSE, this function adds the
-following column to your dataframe: TADA.AnalyticalMethod.Flag. This column
+This function adds the TADA.AnalyticalMethod.Flag to a TADA dataframe. This column
 flags invalid CharacteristicName, ResultAnalyticalMethod/MethodIdentifier,
 and ResultAnalyticalMethod/MethodIdentifierContext combinations in your dataframe
 as either "Nonstandardized", "Invalid", or "Valid". When clean = FALSE and

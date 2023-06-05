@@ -5,7 +5,7 @@
 \alias{Nutrients_Utah}
 \title{Utah Nutrient Data}
 \format{
-A data frame with 11086 rows and 136 variables
+A data frame with 14587 rows and 137 variables
 }
 \usage{
 data(Nutrients_Utah)

@@ -27,8 +27,7 @@ characteristic-media-result unit combinations when errorsonly = TRUE. Default
 is errorsonly = FALSE.}
 }
 \value{
-When clean = "none" and errorsonly = FALSE, this function adds the
-following column to your dataframe: TADA.ResultUnit.Flag. This column
+This function adds the TADA.ResultUnit.Flag to a TADA dataframe. This column
 flags each CharacteristicName, ActivityMediaName, and ResultMeasure/MeasureUnitCode
 combination in your dataframe as either "Nonstandardized", "Invalid", or "Valid".
 When clean = "none" and errorsonly = TRUE, the dataframe is filtered to show only

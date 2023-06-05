@@ -26,9 +26,9 @@ utils::globalVariables(c("TADA.ResultValueAboveUpperThreshold.Flag", "ActivityId
 #'
 #' Removes rows of data that are true duplicates. Creates new columns with prefix
 #' "TADA." and capitalizes fields to harmonize data. This function includes and 
-#' runs the TADA "ConvertSpecialChars" function as well.
+#' runs the TADA "ConvertSpecialChars" and "idCensoredData" functions as well.
 #'  This function performs immediate QA steps (removes true duplicates, converts 
-#'  result values to numeric, capitalizes letters, etc.) on heavily used columns 
+#'  result values to numeric, capitalizes letters, categorizes detection limit data, etc.) on heavily used columns 
 #'  and places these new values in a column of the same name with the added prefix 
 #'  "TADA." It makes certain fields uppercase so that they're interoperable with 
 #'  the WQX validation reference tables and reduces issues with case-sensitivity 
@@ -68,12 +68,12 @@ autoclean <- function(.data) {
   .data$TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode <-
     toupper(.data$DetectionQuantitationLimitMeasure.MeasureUnitCode)
   
-  # Remove complex biological data. Un-comment after new WQX 3.0 Profiles are released.
+  # Remove complex biological data. Un-comment after new WQX 3.0 Profiles are released. May not be needed if implemented via WQP UI/services.
   # .data$TADA.BiologicalIntentName = toupper(.data$BiologicalIntentName)
   # TADAProfile = dplyr::filter(TADAProfile, TADA.BiologicalIntentName != "TISSUE" | "TOXICITY" | is.na(TADA.BiologicalIntentName) == TRUE)
   
-  # Remove data for non-water media types. Un-comment and add back later once new workflow for 
-  # documenting "removed" data is set up
+  # Remove data for non-water media types. Un-comment. Discuss possibly adding back
+  # later once new workflow for documenting "removed" data is set up. May not be needed for R package.
   # TADAProfile <- dplyr::filter(TADAProfile, TADA.ActivityMediaName == "WATER")
   
   # Remove duplicate rows - turned into a test because duplicated() takes a long
@@ -91,10 +91,13 @@ autoclean <- function(.data) {
   .data <- ConvertSpecialChars(.data, "ResultMeasureValue")
   .data <- ConvertSpecialChars(.data, "DetectionQuantitationLimitMeasure.MeasureValue")
   
-  # Move detection limit value and unit to TADA.RV and Unit columns
-  .data$TADA.ResultMeasureValue = ifelse(is.na(.data$TADA.ResultMeasureValue)&!is.na(.data$TADA.DetectionQuantitationLimitMeasure.MeasureValue),.data$TADA.DetectionQuantitationLimitMeasure.MeasureValue,.data$TADA.ResultMeasureValue)
-  .data$TADA.ResultMeasure.MeasureUnitCode = ifelse(is.na(.data$TADA.ResultMeasure.MeasureUnitCode)&!is.na(.data$TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode),.data$TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode,.data$TADA.ResultMeasure.MeasureUnitCode)
-  .data$TADA.ResultMeasureValueDataTypes.Flag = ifelse(.data$TADA.ResultMeasureValueDataTypes.Flag=="ND or NA"&!is.na(.data$TADA.DetectionQuantitationLimitMeasure.MeasureValue),"Result Value/Unit Copied from Detection Limit",.data$TADA.ResultMeasureValueDataTypes.Flag)
+  # Move detection limit value and unit to TADA Result Measure Value and Unit columns
+  .data$TADA.ResultMeasureValue <- ifelse(is.na(.data$TADA.ResultMeasureValue)&!is.na(.data$TADA.DetectionQuantitationLimitMeasure.MeasureValue),.data$TADA.DetectionQuantitationLimitMeasure.MeasureValue,.data$TADA.ResultMeasureValue)
+  .data$TADA.ResultMeasure.MeasureUnitCode <- ifelse(is.na(.data$TADA.ResultMeasure.MeasureUnitCode)&!is.na(.data$TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode),.data$TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode,.data$TADA.ResultMeasure.MeasureUnitCode)
+  .data$TADA.ResultMeasureValueDataTypes.Flag <- ifelse(.data$TADA.ResultMeasureValueDataTypes.Flag=="ND or NA"&!is.na(.data$TADA.DetectionQuantitationLimitMeasure.MeasureValue),"Result Value/Unit Copied from Detection Limit",.data$TADA.ResultMeasureValueDataTypes.Flag)
+  
+  # Identify detection limit data
+  .data <- idCensoredData(.data)
   
   # change latitude and longitude measures to class numeric
   .data$TADA.LatitudeMeasure <- as.numeric(.data$LatitudeMeasure)
@@ -107,9 +110,12 @@ autoclean <- function(.data) {
   # .data$TADA.ResultDepthHeightMeasure.MeasureUnitCode[.data$ResultDepthHeightMeasure.MeasureUnitCode == 'meters'] <- 'm'
   .data$TADA.ResultMeasure.MeasureUnitCode[.data$TADA.ResultMeasure.MeasureUnitCode == 'meters'] <- 'm'
   
-  print("NOTE: This version of the TADA package is designed to work with data with sample media: 'WATER'. autoclean does not currently filter downloaded data to 'WATER'. The user must make this specification on their own outside of package functions. See the WQPDataHamornization vignette for an example.")
+  # create comparable data identifier column
+  .data = createComparableId(.data)
   
-  .data = OrderTADACols(.data)
+  print("NOTE: This version of the TADA package is designed to work with quantitative (numeric) data with sample media: 'WATER'. autoclean does not currently filter downloaded data to 'WATER'. The user must make this specification on their own outside of package functions. See the WQPDataHamornization vignette for an example.")
+  
+  .data <- OrderTADACols(.data)
   
   return(.data)
 }
@@ -159,25 +165,6 @@ AutoFilter <- function(.data, clean = TRUE) {
 }
 
 
-
-#' RemoveEmptyColumns
-#'
-#' Removes any columns with only NA values. Used to quickly reduce the number of
-#' columns in a dataframe to improve management and readability of the dataframe.
-#'
-#' @param .data Dataframe
-#'
-#' @return Full dataframe with empty data columns removed
-#'
-
-RemoveEmptyColumns <- function(.data) {
-  # Remove columns with only NAs
-  .data %>%
-    dplyr::select(where(~ !all(is.na(.x))))
-}
-
-
-
 #' decimalplaces
 #'
 #' for numeric data type
@@ -195,22 +182,6 @@ decimalplaces <- function(x) {
   }
 }
 
-
-
-#' decimalnumcount
-#'
-#' for character data type
-#'
-#' @param x Numeric data field from TADA profile
-#'
-#' @return Number of values to the right of the decimal point for character type data.
-#' 
-
-decimalnumcount <- function(x) {
-  stopifnot(class(x) == "character")
-  x <- gsub("(.*)(\\.)|(*$)", "", x)
-  nchar(x)
-}
 
 
 #' TADA Profile Check
@@ -334,7 +305,8 @@ checkColumns <- function(.data, expected_cols) {
 #' with the prefix "TADA.", which holds the numeric form of the original column, 
 #' and "TADA.ResultValueDataTypes.Flag", which has text describing the type of data
 #' contained within the column of interest, including "Numeric","Less Than" (<), "Greater Than" (>),
-#' "Approximate Value" (~), "Text" (A-z), "Percentage" (%), and "Comma-Separated Numeric" (#,###)
+#' "Approximate Value" (~), "Text" (A-z), "Percentage" (%), "Comma-Separated Numeric" (#,###),
+#' and "Numeric Range - Averaged" (# - #)
 #' 
 #' @export
 #' 
@@ -361,6 +333,8 @@ ConvertSpecialChars <- function(.data,col){
         TRUE ~ as.character("Numeric")
       ))
   }else{
+    chars.data$masked = gsub(" ","",chars.data$masked) # get rid of white space for subsequent sorting
+    
     # Detect special characters in column and populate new flag column with descriptor
     # of the specific type of character/data type
     clean.data = chars.data%>%
@@ -374,13 +348,25 @@ ConvertSpecialChars <- function(.data,col){
         (grepl("[A-Za-z]", masked) == TRUE) ~ as.character("Text"),
         (grepl("%", masked) == TRUE) ~ as.character("Percentage"),
         (grepl(",", masked) == TRUE) ~ as.character("Comma-Separated Numeric"),
+        (grepl('\\d\\-\\d',masked) == TRUE) ~ as.character("Numeric Range - Averaged"),
+        (!stringi::stri_enc_mark(masked)%in%c("ASCII")) ~ as.character("Non-ASCII Character(s)"),
         TRUE ~ "Coerced to NA"
       ))
     
+    # Result Values that are numeric ranges with the format #-# are converted to an average of the two numbers expressed in the range.
+    if(any(clean.data$flag=="Numeric Range - Averaged")){
+      numrange = subset(clean.data, clean.data$flag%in%c("Numeric Range - Averaged"))
+      notnumrange = subset(clean.data, !clean.data$flag%in%c("Numeric Range - Averaged"))
+      numrange = numrange%>%tidyr::separate(masked,into = c("num1","num2"),sep = "-", remove = TRUE)%>%dplyr::mutate_at(c('num1', 'num2'), as.numeric)
+      numrange$masked = as.character(rowMeans(numrange[,c('num1', 'num2')], na.rm=TRUE))
+      numrange = numrange[,!names(numrange)%in%c('num1','num2')]
+      
+      clean.data = plyr::rbind.fill(notnumrange,numrange)
+    }
     # In the new TADA column, convert to numeric and remove some specific special 
     # characters.
     clean.data$masked = suppressWarnings(as.numeric(stringr::str_replace_all(
-      clean.data$orig,c("<" = "", ">" = "", "~" = "", "," = "","%" = ""))))
+      clean.data$masked,c("<" = "",">" = "","~" = "","," = "","%" = ""))))
   }
   
   # Rename to original column name, TADA column name, and flag column name
@@ -393,21 +379,148 @@ ConvertSpecialChars <- function(.data,col){
   return(clean.data)
 }
 
-#' Order TADA Columns
+#' Order TADA Columns and Rows
 #' 
 #' This utility function moves all TADA-created columns to the end of the dataframe 
-#' in an order that improves readability. 
+#' in an order that improves readability and orders the dataframe rows by ResultIdentifier. 
 #' 
 #' @param .data TADA dataframe 
 #' 
-#' @return A TADA handled dataframe with the TADA-created columns at the end.
+#' @return A TADA handled dataframe with the TADA-created columns at the end and rows ordered by ResultIdentifier.
 #'
 #' @export
 #' 
 #' 
 
 OrderTADACols <- function(.data){
-  cols = c("TADA.LatitudeMeasure",
+  
+  dretcols = c("OrganizationIdentifier","
+              OrganizationFormalName",
+              "ActivityIdentifier",
+              "ActivityTypeCode",
+              "ActivityMediaName",
+              "ActivityMediaSubdivisionName",
+              "ActivityStartDate",
+              "ActivityStartTime.Time",
+              "ActivityStartTime.TimeZoneCode",
+              "ActivityEndDate",
+              "ActivityEndTime.Time",
+              "ActivityEndTime.TimeZoneCode",
+              "ActivityRelativeDepthName",
+              "ActivityDepthHeightMeasure.MeasureValue",
+              "ActivityDepthHeightMeasure.MeasureUnitCode",
+              "ActivityDepthAltitudeReferencePointText",
+              "ActivityTopDepthHeightMeasure.MeasureValue",
+              "ActivityTopDepthHeightMeasure.MeasureUnitCode",
+              "ActivityBottomDepthHeightMeasure.MeasureValue",
+              "ActivityBottomDepthHeightMeasure.MeasureUnitCode",
+              "ProjectIdentifier",
+              "ProjectName",
+              "ActivityConductingOrganizationText",
+              "MonitoringLocationIdentifier",
+              "MonitoringLocationName",
+              "ActivityCommentText",
+              "SampleAquifer",
+              "HydrologicCondition",
+              "HydrologicEvent",
+              "ActivityLocation.LatitudeMeasure",
+              "ActivityLocation.LongitudeMeasure",
+              "SampleCollectionMethod.MethodIdentifier",
+              "SampleCollectionMethod.MethodIdentifierContext",
+              "SampleCollectionMethod.MethodName",
+              "SampleCollectionMethod.MethodDescriptionText",
+              "SampleCollectionEquipmentName",
+              "ResultIdentifier",
+              "ResultDetectionConditionText",
+              "MethodSpeciationName",
+              "CharacteristicName",
+              "ResultSampleFractionText",
+              "ResultMeasureValue",
+              "ResultMeasure.MeasureUnitCode",
+              "MeasureQualifierCode",
+              "ResultStatusIdentifier",
+              "StatisticalBaseCode",
+              "ResultValueTypeName",
+              "ResultWeightBasisText",
+              "ResultTimeBasisText",
+              "ResultTemperatureBasisText",
+              "ResultParticleSizeBasisText",
+              "DataQuality.PrecisionValue",
+              "DataQuality.BiasValue",
+              "DataQuality.ConfidenceIntervalValue",
+              "DataQuality.UpperConfidenceLimitValue",
+              "DataQuality.LowerConfidenceLimitValue",
+              "ResultCommentText",
+              "USGSPCode",
+              "ResultDepthHeightMeasure.MeasureValue",
+              "ResultDepthHeightMeasure.MeasureUnitCode",
+              "ResultDepthAltitudeReferencePointText",
+              "SubjectTaxonomicName",
+              "SampleTissueAnatomyName",
+              "BinaryObjectFileName",
+              "BinaryObjectFileTypeCode",
+              "ResultFileUrl",
+              "ResultAnalyticalMethod.MethodIdentifier",
+              "ResultAnalyticalMethod.MethodIdentifierContext",
+              "ResultAnalyticalMethod.MethodName",
+              "ResultAnalyticalMethod.MethodUrl",
+              "ResultAnalyticalMethod.MethodDescriptionText",
+              "LaboratoryName",
+              "AnalysisStartDate",
+              "ResultLaboratoryCommentText",
+              "ResultDetectionQuantitationLimitUrl",
+              "DetectionQuantitationLimitTypeName",
+              "DetectionQuantitationLimitMeasure.MeasureValue",
+              "DetectionQuantitationLimitMeasure.MeasureUnitCode",
+              "LabSamplePreparationUrl",
+              "LastUpdated",
+              "ProviderName",
+              "timeZoneStart",
+              "timeZoneEnd",
+              "ActivityStartDateTime",
+              "ActivityEndDateTime",
+              "MonitoringLocationTypeName",
+              "MonitoringLocationDescriptionText",
+              "HUCEightDigitCode",
+              "DrainageAreaMeasure.MeasureValue",
+              "DrainageAreaMeasure.MeasureUnitCode",
+              "ContributingDrainageAreaMeasure.MeasureValue",
+              "ContributingDrainageAreaMeasure.MeasureUnitCode",
+              "LatitudeMeasure",
+              "LongitudeMeasure",
+              "SourceMapScaleNumeric",
+              "HorizontalAccuracyMeasure.MeasureValue",
+              "HorizontalAccuracyMeasure.MeasureUnitCode",
+              "HorizontalCollectionMethodName",
+              "HorizontalCoordinateReferenceSystemDatumName",
+              "VerticalMeasure.MeasureValue",
+              "VerticalMeasure.MeasureUnitCode",
+              "VerticalAccuracyMeasure.MeasureValue",
+              "VerticalAccuracyMeasure.MeasureUnitCode",
+              "VerticalCollectionMethodName",
+              "VerticalCoordinateReferenceSystemDatumName",
+              "CountryCode",
+              "StateCode",
+              "CountyCode",
+              "AquiferName",
+              "LocalAqfrName",
+              "FormationTypeText",
+              "AquiferTypeName",
+              "ConstructionDateText",
+              "WellDepthMeasure.MeasureValue",
+              "WellDepthMeasure.MeasureUnitCode",
+              "WellHoleDepthMeasure.MeasureValue",
+              "WellHoleDepthMeasure.MeasureUnitCode",
+              "MethodSpecificationName",
+              "ProjectDescriptionText",
+              "SamplingDesignTypeCode",
+              "QAPPApprovedIndicator",
+              "QAPPApprovalAgencyName",
+              "ProjectFileUrl",
+              "ProjectMonitoringLocationWeightingUrl"
+  )
+  
+  tadacols = c("TADA.LatitudeMeasure",
            "TADA.LongitudeMeasure",
            "TADA.InvalidCoordinates.Flag",
            "TADA.QAPPDocAvailable",
@@ -468,124 +581,54 @@ OrderTADACols <- function(.data){
            "WQXConversionFactor.ActivityTopDepthHeightMeasure",
            "WQXConversionFactor.ActivityBottomDepthHeightMeasure",
            "WQXConversionFactor.ResultDepthHeightMeasure",
-           "TADA.PotentialDupRowIDs.Flag"
+           "TADA.PotentialDupRowIDs.Flag",
+           "TADA.Remove",
+           "TADA.RemoveReason",
+           "TADAShiny.tab"
   )
+  dret_cols = dretcols[dretcols%in%names(.data)]
+  tada_cols = tadacols[tadacols%in%names(.data)]
   
-  focal_cols = cols[cols%in%names(.data)]
-  other_cols = names(.data)[!names(.data)%in%focal_cols]
-  
-  rearranged = .data%>%dplyr::relocate(dplyr::any_of(focal_cols),.after = dplyr::last_col())
+  rearranged = .data%>%dplyr::relocate(dplyr::any_of(dret_cols))%>%dplyr::relocate(dplyr::any_of(tada_cols),.after = dplyr::last_col())
+  rearranged = rearranged[order(rearranged$ResultIdentifier),]
   
   return(rearranged)
   
 }
 
-#' Check for Special Characters in Measure Value Fields - Deprecated
+#' Create TADA.ComparableDataIdentifier Column
+#' 
+#' This utility function creates the TADA.ComparableDataIdentifier column by pasting
+#' together TADA.CharacteristicName, TADA.ResultSampleFractionText, TADA.MethodSpecificationName,
+#' and TADA.ResultMeasure.MeasureUnitCode.
+#' 
+#' @param .data TADA dataframe 
+#' 
+#' @return Input TADA dataframe with added TADA.ComparableDataIdentifier column.
 #'
-#' Function checks for special characters and non-numeric values in the
-#' ResultMeasureValue and DetectionQuantitationLimitMeasure.MeasureValue
-#' fields and appends flag columns indicating if special characters are included
-#' and if so, what the special characters are. The ResultMeasureValue and
-#' DetectionQuantitationLimitMeasure.MeasureValue fields are also converted to
-#' class numeric. This function is deprecated, please use ConvertSpecialChars() function.
-#'
-#' @param .data TADA dataframe
-#'
-#' @return Full dataframe with column indicating presence of special characters in
-#' the ResultMeasureValue and DetectionQuantitationLimitMeasure.MeasureValue
-#' fields. Additionally, the ResultMeasureValue and
-#' DetectionQuantitationLimitMeasure.MeasureValue fields are converted to class
-#' numeric, and copies of each column are created to preserve original
-#' character values.
-#'
+#' @export
+#' 
 
-MeasureValueSpecialCharacters <- function(.data) {
-  
-  warning("This function is deprecated and does not return the correct column names. Please use ConvertSpecialChars() function instead.")
-  
-  # check .data is data.frame
-  checkType(.data, "data.frame", "Input object")
-  
-  # .data required columns
-  required_cols <- c("ResultMeasureValue", "DetectionQuantitationLimitMeasure.MeasureValue")
-  # check .data has required columns
-  checkColumns(.data, required_cols)
-  
-  # execute function after checks are passed
-  # define check.data
-  check.data <- .data
-  
-  # copy MeasureValue columns to MeasureValue.Original
-  check.data$ResultMeasureValue.Original <- check.data$ResultMeasureValue
-  check.data$DetectionLimitMeasureValue.Original <-
-    check.data$DetectionQuantitationLimitMeasure.MeasureValue
-  
-  # add TADA.ResultMeasureValue.Flag column
-  flag.data <- check.data %>%
-    # apply function row by row
-    dplyr::rowwise() %>%
-    # create flag column
-    dplyr::mutate(TADA.ResultMeasureValue.Flag = dplyr::case_when(
-      is.na(ResultMeasureValue.Original) ~ as.character("ND or NA"),
-      (grepl("<", ResultMeasureValue.Original) == TRUE) ~ as.character("Less Than"),
-      (grepl(">", ResultMeasureValue.Original) == TRUE) ~ as.character("Greater Than"),
-      (grepl("~", ResultMeasureValue.Original) == TRUE) ~ as.character("Approximate Value"),
-      (grepl("[A-Za-z]", ResultMeasureValue.Original) == TRUE) ~ as.character("Text"),
-      (grepl("\\d", ResultMeasureValue.Original) == TRUE) ~ as.character("Numeric"),
-      TRUE ~ "Coerced to NA"
-    ))
-  
-  # add TADA.DetectionLimitMeasureValue.Flag column
-  flag.data <- flag.data %>%
-    # apply function row by row
-    dplyr::rowwise() %>%
-    # create flag column
-    dplyr::mutate(TADA.DetectionLimitMeasureValue.Flag = dplyr::case_when(
-      is.na(DetectionLimitMeasureValue.Original) ~ as.character(NA),
-      (grepl("<", DetectionLimitMeasureValue.Original) == TRUE) ~ as.character("Less Than"),
-      (grepl(">", DetectionLimitMeasureValue.Original) == TRUE) ~ as.character("Greater Than"),
-      (grepl("~", DetectionLimitMeasureValue.Original) == TRUE) ~ as.character("Approximate Value"),
-      (grepl("[A-Za-z]", DetectionLimitMeasureValue.Original) == TRUE) ~ as.character("Text"),
-      (grepl("\\d", DetectionLimitMeasureValue.Original) == TRUE) ~ as.character("Numeric"),
-      TRUE ~ "Coerced to NA"
-    ))
-  
-  # remove special characters before converting to numeric
-  flag.data$ResultMeasureValue <- stringr::str_replace_all(
-    flag.data$ResultMeasureValue,
-    c("<" = "", ">" = "", "~" = "", "," = "")
-  )
-  flag.data$DetectionQuantitationLimitMeasure.MeasureValue <- stringr::str_replace_all(
-    flag.data$DetectionQuantitationLimitMeasure.MeasureValue,
-    c("<" = "", ">" = "", "~" = "", "," = "")
-  )
-  
-  # change measure value columns to numeric
-  # rename df
-  clean.data <- flag.data
-  # ResultMeasureValue
-  clean.data$ResultMeasureValue <- suppressWarnings(
-    as.numeric(clean.data$ResultMeasureValue)
-  )
-  # DetectionQuantitationLimitMeasure.MeasureValue
-  clean.data$DetectionQuantitationLimitMeasure.MeasureValue <-
-    suppressWarnings(as.numeric(clean.data$DetectionQuantitationLimitMeasure.MeasureValue))
-  
-  # reorder columns
-  # place flag column next to relevant fields
-  clean.data <- clean.data %>%
-    dplyr::relocate("ResultMeasureValue.Original",
-                    .after = "ResultMeasureValue"
-    ) %>%
-    dplyr::relocate("TADA.ResultMeasureValue.Flag",
-                    .after = "ResultMeasureValue.Original"
-    ) %>%
-    dplyr::relocate("DetectionLimitMeasureValue.Original",
-                    .after = "DetectionQuantitationLimitMeasure.MeasureValue"
-    ) %>%
-    dplyr::relocate("TADA.DetectionLimitMeasureValue.Flag",
-                    .after = "DetectionLimitMeasureValue.Original"
-    )
-  return(clean.data)
+createComparableId <- function(.data){
+  checkColumns(.data, expected_cols = c("TADA.CharacteristicName", "TADA.ResultSampleFractionText", "TADA.MethodSpecificationName","TADA.ResultMeasure.MeasureUnitCode"))
+  .data$TADA.ComparableDataIdentifier = paste(.data$TADA.CharacteristicName,.data$TADA.ResultSampleFractionText, .data$TADA.MethodSpecificationName, .data$TADA.ResultMeasure.MeasureUnitCode,sep = "_")
+  return(.data)
 }
 
+#' Get TADA spreadsheet template
+#' 
+#' This function downloads a .xlsx template with all required columns for TADA 
+#' to the user's computer to cater custom datasets to the TADA format. 
+#' It contains one sample row to guide users when adding their own data to the 
+#' spreadsheet. Please note that it downloads the spreadsheet to the user's current
+#' working directory.
+#' 
+#' @return A .xlsx spreadsheet to be saved in the user's working directory.
+#' 
+#' @export
+#' 
+
+getTADATemplate <- function(){
+  colsreq = names(TADA::Nutrients_Utah)[!grepl("TADA.",names(TADA::Nutrients_Utah))]
+  writexl::write_xlsx(TADA::Nutrients_Utah[1,colsreq], path = "TADATemplate.xlsx")
+}

@@ -17,15 +17,16 @@ flagged as below the lower WQX threshold when errorsonly = TRUE. Default is
 errorsonly = FALSE.}
 }
 \value{
-When clean = FALSE and errorsonly = FALSE, the following column is
-added to your dataframe: TADA.ResultValueBelowLowerThreshold.Flag. This column flags rows with
+The input TADA dataset with the added
+TADA.BelowNationalWQXLowerThreshold column. This column flags rows with
 data that are below the lower WQX threshold. When clean = FALSE and
-errorsonly = TRUE, the dataframe is filtered to show only the rows which are
-flagged as below the WQX threshold; the column TADA.ResultValueBelowLowerThreshold.Flag is still
-appended. When clean = TRUE and errorsonly = FALSE, data that is below the lower
-WQX threshold is removed from the dataframe. When clean = TRUE and
-errorsonly = TRUE, the function does not execute and an error message is
-returned. The defaults are clean = TRUE and errorsonly = FALSE.
+errorsonly = TRUE, the dataframe is filtered to show only the rows which
+are flagged as below the WQX threshold; the column
+TADA.ResultValueBelowLowerThreshold.Flag is still appended. When clean =
+TRUE and errorsonly = FALSE, data that is below the lower WQX threshold is
+removed from the dataframe. When clean = TRUE and errorsonly = TRUE, the
+function does not execute and an error message is returned. The defaults
+are clean = TRUE and errorsonly = FALSE.
 }
 \description{
 EPA's Water Quality Exchange (WQX) has generated statistics and data from

@@ -16,6 +16,7 @@ WQXCharValRef_Cached <- NULL
 #'
 #' @return Updated sysdata.rda with updated WQXcharValRef object
 #'
+#' @export
 
 GetWQXCharValRef <- function() {
 
@@ -83,6 +84,8 @@ WQXunitRef_Cached <- NULL
 #'
 #' @return sysdata.rda with updated WQXunitRef object (unit conversion reference
 #' table)
+#'
+#' @export
 #'
 
 GetMeasureUnitRef <- function() {
@@ -203,6 +206,7 @@ WQXDetCondRef_Cached <- NULL
 #'
 #' @return sysdata.rda with updated WQXResultDetectionConditionRef object (detection condition reference
 #' table for censored data)
+#' @export
 #'
 
 GetDetCondRef <- function() {
@@ -261,6 +265,7 @@ WQXDetLimitRef_Cached <- NULL
 #' @return sysdata.rda with updated WQXDetectionQuantitationLimitTypeRef object (detection limit type reference
 #' table for censored data)
 #'
+#' @export
 
 GetDetLimitRef <- function() {
   
@@ -287,7 +292,7 @@ GetDetLimitRef <- function() {
   WQXDetLimitRef <- raw.data%>%
     dplyr::mutate(TADA.Limit_Type = dplyr::case_when(
       Name%in%c("Upper Quantitation Limit","Upper Reporting Limit","Upper Calibration Limit") ~ as.character("Over-Detect"),
-      Name%in%c("Drinking Water Maximum","Field Holding Time Limit","Specified in workplan","Statistical Uncertainty","Systematic Uncertainty","Taxonomic Loss Threshold","Water Quality Standard or Criteria") ~ as.character("Other"),
+      Name%in%c("Drinking Water Maximum","Field Holding Time Limit","Specified in workplan","Statistical Uncertainty","Systematic Uncertainty","Taxonomic Loss Threshold","Water Quality Standard or Criteria","Upper 95% Confidence Limit","Lower 95% Confidence Limit") ~ as.character("Other"),
       TRUE ~ as.character("Non-Detect")
     ))%>%dplyr::distinct()
   
@@ -325,6 +330,7 @@ WQXActivityTypeRef_Cached <- NULL
 #'
 #' @return sysdata.rda with updated WQXActivityTypeRef object
 #'
+#' @export
 
 GetActivityTypeRef <- function() {
   

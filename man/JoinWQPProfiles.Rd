@@ -24,8 +24,8 @@ JoinWQPProfiles(
 TADA-compatible dataframe
 }
 \description{
-After retrieving multiple result and metadata profiles from the WQP, you
-can use this function to join those profiles together into one dataframe.
+After retrieving multiple result and metadata profiles from the WQP, this
+function joins those profiles together into one dataframe.
 The FullPhysChem data input is required to run this function.
 }
 \examples{

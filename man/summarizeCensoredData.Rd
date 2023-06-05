@@ -16,7 +16,7 @@ summarizeCensoredData(
 \item{spec_cols}{A vector of column names to be used as aggregating variables when summarizing censored data information.}
 }
 \value{
-A summary dataframe yielding sample ncounts, censored data ncounts,
+A summary dataframe yielding measurement ncounts, censored data ncounts,
 and percent of dataset that is censored, aggregated by user-defined grouping
 variables. Also produces a column "TADA.Censored.Note" that identifies
 when there is sufficient non-censored data to estimate censored data using statistical
@@ -29,4 +29,14 @@ More info can be found here: https://www.epa.gov/sites/default/files/2016-05/doc
 This function creates a summary table of the percentage of non-detects by
 specified ID columns. It can be used to determine the best method for handling
 censored data estimation methods that depend upon the distribution of the dataset.
+}
+\examples{
+# Load example dataset:
+data("TADAProfileClean18_TNonly")
+# TADAProfileClean18_TNonly dataframe is clean, harmonized, and filtered
+# down to one Comparable Data Identifier
+
+# Create summarizeCensoredData table:
+TADAProfileClean18_TNonly_summarizeCensoredData <- summarizeCensoredData(TADAProfileClean18_TNonly)
+
 }
