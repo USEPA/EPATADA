@@ -12,6 +12,8 @@ execute:
 
 Thank you for your interest in Tools for Automated Data Analysis (TADA). TADA is an open-source tool set built in the R programming language and available for anyone to download and edit to their specific needs. This [Quarto](https://quarto.org/docs/tools/rstudio.html) document walks users through how to download the TADA R package from GitHub, access and parameterize several important functions with a sample dataset, and create basic visualizations. The workflow is similar to a funnel: at each decision point, data that fail QC checks are removed from the core dataset and placed in a separate dataframe, while data that pass are carried into the next step. At the end of the QC checks, the user should be confident that their data are properly documented and applicable to the analysis at hand.
 
+**Note: TADA is still under development. New functionality is added weekly, and sometimes we need to make bug fixes in response to tester and user feedback. We appreciate your interest (and patience) in these helpful tools.**
+
 ## Customize or contribute
 
 TADA is housed in a repository on [GitHub](https://github.com/USEPA/TADA). Users desiring to review the base code and customize the package for their own purposes may:
@@ -386,3 +388,17 @@ TADA::TADA_hist(plot_data, id_col = "TADA.ComparableDataIdentifier")
 TADA::TADA_boxplot(plot_data, id_col = "TADA.ComparableDataIdentifier")
 TADA::TADA_stats(plot_data)
 ```
+
+## TADA R Shiny Modules
+
+Finally, take a look at an alternative workflow for QC'ing WQP data: TADA Shiny Module 1: Data Discovery and Cleaning. This is a Shiny application that runs many of the TADA functions covered in this training document behind a graphical user interface. The shiny application queries the WQP, contains maps and data visualizations, flags suspect data results, handles censored data, and more. You can launch it using the code below.
+
+```{r}
+# download TADA Shiny repository
+remotes::install_github("USEPA/TADAShiny", ref = "develop", dependencies = TRUE)
+
+# launch the app locally.
+TADAShiny::run_app()
+```
+
+DRAFT [Module 1](https://owshiny-dev.app.cloud.gov/tada-dev/) is also currently hosted on the web with minimal server memory/storage allocated.

@@ -135,6 +135,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <section id="welcome" class="level2">
 <h2 class="anchored" data-anchor-id="welcome">Welcome!</h2>
 <p>Thank you for your interest in Tools for Automated Data Analysis (TADA). TADA is an open-source tool set built in the R programming language and available for anyone to download and edit to their specific needs. This <a href="https://quarto.org/docs/tools/rstudio.html">Quarto</a> document walks users through how to download the TADA R package from GitHub, access and parameterize several important functions with a sample dataset, and create basic visualizations. The workflow is similar to a funnel: at each decision point, data that fail QC checks are removed from the core dataset and placed in a separate dataframe, while data that pass are carried into the next step. At the end of the QC checks, the user should be confident that their data are properly documented and applicable to the analysis at hand.</p>
+<p><strong>Note: TADA is still under development. New functionality is added weekly, and sometimes we need to make bug fixes in response to tester and user feedback. We appreciate your interest (and patience) in these helpful tools.</strong></p>
 </section>
 <section id="customize-or-contribute" class="level2">
 <h2 class="anchored" data-anchor-id="customize-or-contribute">Customize or contribute</h2>
@@ -436,6 +437,18 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <span id="cb24-5"><a href="#cb24-5" aria-hidden="true" tabindex="-1"></a>TADA<span class="sc">::</span><span class="fu">TADA_boxplot</span>(plot_data, <span class="at">id_col =</span> <span class="st">"TADA.ComparableDataIdentifier"</span>)</span>
 <span id="cb24-6"><a href="#cb24-6" aria-hidden="true" tabindex="-1"></a>TADA<span class="sc">::</span><span class="fu">TADA_stats</span>(plot_data)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
+</section>
+<section id="tada-r-shiny-modules" class="level2">
+<h2 class="anchored" data-anchor-id="tada-r-shiny-modules">TADA R Shiny Modules</h2>
+<p>Finally, take a look at an alternative workflow for QC’ing WQP data: TADA Shiny Module 1: Data Discovery and Cleaning. This is a Shiny application that runs many of the TADA functions covered in this training document behind a graphical user interface. The shiny application queries the WQP, contains maps and data visualizations, flags suspect data results, handles censored data, and more. You can launch it using the code below.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb25"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="co"># download TADA Shiny repository</span></span>
+<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a>remotes<span class="sc">::</span><span class="fu">install_github</span>(<span class="st">"USEPA/TADAShiny"</span>, <span class="at">ref =</span> <span class="st">"develop"</span>, <span class="at">dependencies =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-4"><a href="#cb25-4" aria-hidden="true" tabindex="-1"></a><span class="co"># launch the app locally.</span></span>
+<span id="cb25-5"><a href="#cb25-5" aria-hidden="true" tabindex="-1"></a>TADAShiny<span class="sc">::</span><span class="fu">run_app</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>DRAFT <a href="https://owshiny-dev.app.cloud.gov/tada-dev/">Module 1</a> is also currently hosted on the web with minimal server memory/storage allocated.</p>
 </section>
 
 </main>
