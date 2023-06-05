@@ -84,7 +84,7 @@ Let's give it a try. `TADAdataRetrieval` follows similar parameterization to `re
 
 ```{r}
 # download data for NCTC's HUC12
-dataset = TADA::TADAdataRetrieval(
+dataset_0 = TADA::TADAdataRetrieval(
   startDate = "2020-03-14",
   endDate = "null",
   countycode = "null",
@@ -99,7 +99,7 @@ dataset = TADA::TADAdataRetrieval(
   project = "null",
   applyautoclean = TRUE
 )
-# save(dataset,file = "vignette_dataset.Rdata")
+save(dataset_0,file = "TADA_training_dataset.Rdata")
 ```
 
 Currently, the `TADAdataRetrieval` function combines three WQP data profiles: Sample Results (Physical/Chemical), Site data, and Project data. This ensures that all important quality control columns are included in the dataset.
@@ -116,8 +116,8 @@ First, always good to take a look at the data frame dimensions.
 
 ```{r}
 # uncomment if internet not working
-# load("vignette_dataset.Rdata")
-dim(dataset)
+# load("TADA_training_dataset.Rdata")
+dim(dataset_0)
 ```
 
 Next, we can use the `fieldCounts()` function to see how many unique values are contained within each column of the dataset. We're using the command `display = "all"` to view all of the columns but could also use `"most"` or `"key"` to cut down on the number of columns reviewed.
@@ -126,8 +126,8 @@ Next, we can use the `fieldCounts()` function to see how many unique values are 
 
 ```{r}
 # different columns displayed in table
-TADA::fieldCounts(dataset, display = "key")
-TADA::fieldCounts(dataset, display = "all")
+TADA::fieldCounts(dataset_0, display = "key")
+TADA::fieldCounts(dataset_0, display = "all")
 ```
 
 **Question 3: How many unique TADA.ActivityMediaNames exist in your dataset? Are there any media types that are not water?**
@@ -136,16 +136,16 @@ TADA is currently designed to accommodate water data from the WQP. Let's ensure 
 
 ```{r}
 # check result numbers
-all_result_num = dim(dataset)[1]
+all_result_num = dim(dataset_0)[1]
 
 # remove data with media type that is not water
-removed = dataset%>%dplyr::filter(!TADA.ActivityMediaName%in%c("WATER"))
+removed = dataset_0%>%dplyr::filter(!TADA.ActivityMediaName%in%c("WATER"))
 
 # what other media types exist in dataset?
 unique(removed$TADA.ActivityMediaName)
 
 # clean dataset contains only water
-dataset = dataset%>%dplyr::filter(TADA.ActivityMediaName%in%c("WATER"))
+dataset = dataset_0%>%dplyr::filter(TADA.ActivityMediaName%in%c("WATER"))
 
 # check result numbers after split
 final_result_num = dim(dataset)[1] + dim(removed)[1]
@@ -234,6 +234,12 @@ Finally, we can view the site locations using a TADA mapping function. In this m
 ```{r}
 TADA::TADAOverviewMap(dataset)
 TADA::TADAOverviewMap(removed)
+```
+
+Out of curiosity, let's take a look at a breakdown of these monitoring location types. Do they all indicate surface water samples? Depending upon your program's goals and methods, you might want to filter out some of the types you see.
+
+```{r}
+TADA::fieldValuesPie(dataset, field = "MonitoringLocationTypeName")
 ```
 
 ## Data transformation
