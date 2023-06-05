@@ -6,15 +6,11 @@
 
 We encourage you to read this package's [CONTRIBUTING](https://usepa.github.io/TADA/articles/CONTRIBUTING.html), [LICENSE](https://usepa.github.io/TADA/LICENSE.html), and [README](https://usepa.github.io/TADA/index.html) files (you are here).
 
-Tools for Automated Data Analysis, or TADA, is a draft R package being developed to help States, Tribes, Tribal Nations, Pueblos, and other stakeholders more efficiently compile and evaluate [Water Quality Portal (WQP)](https://www.waterqualitydata.us/) data collected from surface water monitoring sites. TADA is a building block to support future development of the [TADA R Shiny application](https://github.com/USEPA/TADAShiny).
+Tools for Automated Data Analysis, or TADA, is a draft R package being developed to help States, Tribes, Tribal Nations, Pueblos, and other stakeholders more efficiently compile and evaluate [Water Quality Portal (WQP)](https://www.waterqualitydata.us/) data collected from surface water monitoring sites. TADA is both a stand-alone R package, and a building block to support development of the [TADA R Shiny application](https://github.com/USEPA/TADAShiny).
 
-We encourage stakeholders to test the functionality and provide feedback. Moreover, open source software provides an avenue for water quality data originators and users to develop and share code, and we welcome your contributions! More information on how to contribute can be found in the [CONTRIBUTING](https://usepa.github.io/TADA/articles/CONTRIBUTING.html) file. This file explains how users can contribute to the R package by submitting an issue, requesting a change, or submitting an inquiry. We hope to build a collaborative community dedicated to this effort where contributors can discover, share and build the package functionality over time.
+We encourage stakeholders to test the functionality and provide feedback. Moreover, open source software provides an avenue for water quality data originators and users to develop and share code, and we welcome your contributions! More information on how to contribute can be found in the [CONTRIBUTING](https://usepa.github.io/TADA/articles/CONTRIBUTING.html) file. This file explains how users can contribute to the R package by submitting a pull request or issue to request a change or provide feedback. We hope to build a collaborative community dedicated to this effort where contributors can discover, share and build the package functionality over time.
 
 [More about the TADA Project](https://www.epa.gov/waterdata/TADA)
-
-## Water Quality Portal
-
-In 2012, the WQP was deployed by the U.S. Geological Survey (USGS), the U.S. Environmental Protection Agency (USEPA), and the National Water Quality Monitoring Council to combine and serve water-quality data from numerous sources in a standardized format. The WQP holds over 420 million water quality sample results from over 1000 federal, state, tribal and other partners, and is the nation's largest source for single point of access for water-quality data. Participating organizations submit their data to the WQP using the EPA's Water Quality Exchange (WQX), a framework designed to map their data holdings to a common data structure.
 
 ## Installation
 
@@ -24,6 +20,10 @@ You can install and load the most recent version of the TADA R Package from [Git
 library (remotes)
 remotes::install_github("USEPA/TADA", ref = "develop", dependencies = TRUE)
 ```
+
+## Water Quality Portal
+
+In 2012, the WQP was deployed by the U.S. Geological Survey (USGS), the U.S. Environmental Protection Agency (USEPA), and the National Water Quality Monitoring Council to combine and serve water-quality data from numerous sources in a standardized format. The WQP holds over 420 million water quality sample results from over 1000 federal, state, tribal and other partners, and is the nation's largest source for single point of access for water-quality data. Participating organizations submit their data to the WQP using the EPA's Water Quality Exchange (WQX), a framework designed to map their data holdings to a common data structure.
 
 ## Open-Source Code Policy
 
