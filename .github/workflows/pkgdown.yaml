@@ -3,11 +3,13 @@
 on:
   push:
     branches: [develop]
-  pull_request:
-    branches: [develop]
+  # pull_request:
+  #  branches: [develop]
+  
   # build and deploy when we publish a GitHub release
   # release:
   #  types: [published]
+  
   # allow manual action trigger
   workflow_dispatch:
 
