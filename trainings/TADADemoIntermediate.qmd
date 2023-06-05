@@ -123,14 +123,18 @@ Next, we can use the `fieldCounts()` function to see how many unique values are 
 TADA::fieldCounts(dataset, display = "all")
 ```
 
-**Question 3: How many TADA.ActivityMediaNames exist in your dataset?**
+**Question 3: How many unique TADA.ActivityMediaNames exist in your dataset? Are there any media types that are not water?**
 
 TADA is currently designed to accommodate water data from the WQP. Let's ensure that we remove all non-water data first.
 
 ```{r}
 removed = dataset%>%dplyr::filter(!TADA.ActivityMediaName%in%c("WATER"))
 
+unique(removed$TADA.ActivityMediaName)
+
 dataset = dataset%>%dplyr::filter(TADA.ActivityMediaName%in%c("WATER"))
+
+unique(dataset$TADA.ActivityMediaName)
 ```
 
 Two additional helper functions one can use at any step in the process are `fieldValuesTable()` and `fieldValuesPie()`. These functions create a summay table and pie chart (respectively) of all the unique values in a given column. Let's give it a try on ActivityTypeCode, which is a WQP column describing the type of sample collected for each result.
@@ -147,12 +151,14 @@ We can take a quick look at some of the TADA-created columns that review result 
 ```{r}
 TADA::fieldValuesTable(dataset,field="TADA.ResultMeasureValueDataTypes.Flag")
 
-wrong_datatype = dataset%>%filter(!TADA.ResultMeasureValueDataTypes.Flag%in%c("Numeric","Less Than","Greater Than","Approximate Value","Percentage","Comma-Separated Numeric","Numeric Range - Averaged"))
+wrong_datatype = dataset%>%filter(!TADA.ResultMeasureValueDataTypes.Flag%in%c("Numeric","Less Than","Greater Than","Approximate Value","Percentage","Comma-Separated Numeric","Numeric Range - Averaged","Result Value/Unit Copied from Detection Limit"))
 
-dataset = dataset%>%filter(TADA.ResultMeasureValueDataTypes.Flag%in%c("Numeric","Less Than","Greater Than","Approximate Value","Percentage","Comma-Separated Numeric","Numeric Range - Averaged"))
+check = unique(wrong_datatype[,c("TADA.CharacteristicName","ResultMeasureValue","TADA.ResultMeasureValue", "ResultMeasure.MeasureUnitCode","TADA.ResultMeasure.MeasureUnitCode","TADA.ResultMeasureValueDataTypes.Flag","DetectionQuantitationLimitMeasure.MeasureValue","TADA.DetectionQuantitationLimitMeasure.MeasureValue", "DetectionQuantitationLimitMeasure.MeasureUnitCode","TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode")])
+
+dataset = dataset%>%filter(TADA.ResultMeasureValueDataTypes.Flag%in%c("Numeric","Less Than","Greater Than","Approximate Value","Percentage","Comma-Separated Numeric","Numeric Range - Averaged","Result Value/Unit Copied from Detection Limit"))
 
 removed = plyr::rbind.fill(removed, wrong_datatype)
-rm(wrong_datatype)
+rm(wrong_datatype, check)
 ```
 
 During `TADAdataRetrieval`, TADA automatically sorts result values into detection limit categories (e.g. non-detect, over-detect) based on populated values in the ResultDetectionConditionText and DetectionQuantitationLimitTypeName columns. You can find the reference tables used to make these decisions in `GetDetCondRef()` and `GetDetLimitRef()` functions. In some cases, results are missing detection limit/condition info, or there is a conflict in the detection limit and condition. The user may want to remove problematic detection limit data before proceeding.
