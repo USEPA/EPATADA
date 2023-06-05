@@ -29,6 +29,7 @@ Interested in contributing to the TADA package? The TADA team highly encourages 
 Users can install the TADA package from GitHub into their R library using the `remotes` package. Copy and paste the code below into your R or RStudio console to download and install.
 
 ```{r}
+# Install TADA
 if(!"remotes"%in%installed.packages()){
   install.packages("remotes")
 }
@@ -41,6 +42,7 @@ It's that easy! The most stable branch for TADA right now is the develop branch.
 The following code block ensures the proper packages needed to run the code in this Quarto document are loaded. However, users may also use the `package name:: package function` notation to avoid the list of `library()` calls.
 
 ```{r}
+# Load tidyverse
 if(!"tidyverse"%in%installed.packages()){
   install.packages("tidyverse")
 }
@@ -62,7 +64,8 @@ Now let's start using the TADA R package functions. The first step is to bring a
 If you are interested in the columns headers and formats required to run TADA, use the function below, which saves an example spreadsheet to the user's working directory. You can also take a look at an example dataset, like `TADA::Nutrients_Utah` to get an idea of the data structure and format.
 
 ```{r}
-TADA::getTADATemplate()
+getwd() # find your working directory
+TADA::getTADATemplate() # download template to working directory
 ```
 
 `TADAdataRetrieval` is built upon USGS's `readWQPdata` function within the dataRetrieval package, which uses API service calls to bring WQP data into the R environment. Additionally, `TADAdataRetrieval` performs some basic quality control checks on the data using new TADA-specific columns to preserve the original dataset:
@@ -80,6 +83,7 @@ TADA::getTADATemplate()
 Let's give it a try. `TADAdataRetrieval` follows similar parameterization to `readWQPdata`, but check out the [help page](https://usepa.github.io/TADA/reference/TADAdataRetrieval.html) for all input parameters and several examples.
 
 ```{r}
+# download data for NCTC's HUC12
 dataset = TADA::TADAdataRetrieval(
   startDate = "2020-03-14",
   endDate = "null",
@@ -95,7 +99,7 @@ dataset = TADA::TADAdataRetrieval(
   project = "null",
   applyautoclean = TRUE
 )
-save(dataset,file = "vignette_dataset.Rdata")
+# save(dataset,file = "vignette_dataset.Rdata")
 ```
 
 Currently, the `TADAdataRetrieval` function combines three WQP data profiles: Sample Results (Physical/Chemical), Site data, and Project data. This ensures that all important quality control columns are included in the dataset.
@@ -111,8 +115,9 @@ First, always good to take a look at the data frame dimensions.
 **Question 1: What are the dimensions of your dataset?**
 
 ```{r}
-load("vignette_dataset.Rdata")
-dim(dataset) # 32217 rows, 136 columns
+# uncomment if internet not working
+# load("vignette_dataset.Rdata")
+dim(dataset)
 ```
 
 Next, we can use the `fieldCounts()` function to see how many unique values are contained within each column of the dataset. We're using the command `display = "all"` to view all of the columns but could also use `"most"` or `"key"` to cut down on the number of columns reviewed.
@@ -120,6 +125,7 @@ Next, we can use the `fieldCounts()` function to see how many unique values are 
 **Question 2: Which column should have a unique value in every row and why?**
 
 ```{r}
+# different columns displayed in table
 TADA::fieldCounts(dataset, display = "key")
 TADA::fieldCounts(dataset, display = "all")
 ```
@@ -129,13 +135,25 @@ TADA::fieldCounts(dataset, display = "all")
 TADA is currently designed to accommodate water data from the WQP. Let's ensure that we remove all non-water data first.
 
 ```{r}
+# check result numbers
+all_result_num = dim(dataset)[1]
+
+# remove data with media type that is not water
 removed = dataset%>%dplyr::filter(!TADA.ActivityMediaName%in%c("WATER"))
 
+# what other media types exist in dataset?
 unique(removed$TADA.ActivityMediaName)
 
+# clean dataset contains only water
 dataset = dataset%>%dplyr::filter(TADA.ActivityMediaName%in%c("WATER"))
 
-unique(dataset$TADA.ActivityMediaName)
+# check result numbers after split
+final_result_num = dim(dataset)[1] + dim(removed)[1]
+
+# always good to do a dimension check
+if(!all_result_num==final_result_num){
+  print("Help! Results do not add up between dataset and removed after media filter.")
+}
 ```
 
 Two additional helper functions one can use at any step in the process are `fieldValuesTable()` and `fieldValuesPie()`. These functions create a summay table and pie chart (respectively) of all the unique values in a given column. Let's give it a try on ActivityTypeCode, which is a WQP column describing the type of sample collected for each result.
@@ -150,16 +168,27 @@ TADA::fieldValuesPie(dataset,field="ActivityTypeCode")
 We can take a quick look at some of the TADA-created columns that review result value types. Because TADA is intended to work with numeric data, at this point, it would be good to remove those result values that are NA without any detection limit info, or contain text or special characters that cannot be converted to numeric. Note that TADA will fill in missing values with detection limit values and units if the ResultDetectionConditionText and DetectionQuantitationLimitType fields are populated. Use `?ConvertSpecialChars` for more details on result value types and handling.
 
 ```{r}
+# take a look at datatypes
 TADA::fieldValuesTable(dataset,field="TADA.ResultMeasureValueDataTypes.Flag")
 
+# these are all of the NOT allowable data types in the dataset.
 wrong_datatype = dataset%>%filter(!TADA.ResultMeasureValueDataTypes.Flag%in%c("Numeric","Less Than","Greater Than","Approximate Value","Percentage","Comma-Separated Numeric","Numeric Range - Averaged","Result Value/Unit Copied from Detection Limit"))
 
+# take a look at the difficult data types - do they make sense?
 check = unique(wrong_datatype[,c("TADA.CharacteristicName","ResultMeasureValue","TADA.ResultMeasureValue", "ResultMeasure.MeasureUnitCode","TADA.ResultMeasure.MeasureUnitCode","TADA.ResultMeasureValueDataTypes.Flag","DetectionQuantitationLimitMeasure.MeasureValue","TADA.DetectionQuantitationLimitMeasure.MeasureValue", "DetectionQuantitationLimitMeasure.MeasureUnitCode","TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode")])
 
 dataset = dataset%>%filter(TADA.ResultMeasureValueDataTypes.Flag%in%c("Numeric","Less Than","Greater Than","Approximate Value","Percentage","Comma-Separated Numeric","Numeric Range - Averaged","Result Value/Unit Copied from Detection Limit"))
 
 removed = plyr::rbind.fill(removed, wrong_datatype)
 rm(wrong_datatype, check)
+
+# check result numbers after split
+current_result_num = dim(dataset)[1] + dim(removed)[1]
+
+# always good to do a dimension check
+if(!all_result_num==current_result_num){
+  print("Help! Results do not add up between dataset and removed after data types filter.")
+}
 ```
 
 During `TADAdataRetrieval`, TADA automatically sorts result values into detection limit categories (e.g. non-detect, over-detect) based on populated values in the ResultDetectionConditionText and DetectionQuantitationLimitTypeName columns. You can find the reference tables used to make these decisions in `GetDetCondRef()` and `GetDetLimitRef()` functions. In some cases, results are missing detection limit/condition info, or there is a conflict in the detection limit and condition. The user may want to remove problematic detection limit data before proceeding.
@@ -173,18 +202,30 @@ dataset = dataset%>%dplyr::filter(TADA.CensoredData.Flag%in%c("Non-Detect","Over
 
 removed = plyr::rbind.fill(removed, problem_censored)
 rm(problem_censored)
+
+# check result numbers after split
+current_result_num = dim(dataset)[1] + dim(removed)[1]
+
+# always good to do a dimension check
+if(!all_result_num==current_result_num){
+  print("Help! Results do not add up between dataset and removed after censored data filter.")
+}
 ```
 
 Let's also look at characteristics in the dataset using `dplyr` functions and pipes.
 
 ```{r}
+# display full table
 nrow = length(unique(dataset$TADA.CharacteristicName))
+
+# get table of characteristics with number of results, sites, and organizations
 dataset%>%dplyr::group_by(TADA.CharacteristicName)%>%dplyr::summarise(Result_Count = length(ResultIdentifier), Site_Count = length(unique(MonitoringLocationIdentifier)), Org_Count = length(unique(OrganizationIdentifier)))%>%dplyr::arrange(desc(Result_Count))%>%print(n = nrow)
 ```
 
 You may see a characteristic that you'd like to investigate further in isolation. `fieldValuesPie()` will also produce summary pie charts for a given column *within* a specific characteristic. Let's take a look.
 
 ```{r}
+# go ahead and pick a characteristic name from the table generated above. I picked nitrogen, mixed forms
 TADA::fieldValuesPie(dataset, field = "TADA.ResultSampleFractionText", characteristicName = "NITROGEN, MIXED FORMS (NH3), (NH4), ORGANIC, (NO2) AND (NO3)")
 ```
 
@@ -229,7 +270,17 @@ dataset_flags = TADA::InvalidFraction(dataset, clean = FALSE, errorsonly = FALSE
 dataset_flags = TADA::InvalidSpeciation(dataset_flags, clean = "none", errorsonly = FALSE)
 dataset_flags = TADA::InvalidResultUnit(dataset_flags, clean = "none", errorsonly = FALSE)
 dataset_flags = TADA::QualityControlActivity(dataset_flags, clean = FALSE, errorsonly = FALSE)
+
+# check result numbers after split
+current_result_num = dim(dataset_flags)[1] + dim(removed)[1]
+
+# always good to do a dimension check
+if(!all_result_num==current_result_num){
+  print("Help! Results do not add up between dataset and removed after running flagging functions.")
+}
 ```
+
+**Question 7: Did any warnings or messages appear in the console after running these flagging functions? What do they say?**
 
 Now that we've run all the key flagging functions, let's take a look at the results and make some decisions.
 
@@ -245,15 +296,24 @@ Any results flagged as "Invalid" are recognized in the QAQC Validation Table as 
 **Note: if you find any errors in the QAQC Validation Table, please contact the WQX Help Desk at WQX\@epa.gov to help correct it. Thanks in advance!**
 
 ```{r}
+# grab all the flagged results from the four functions
 problem_flagged = dataset_flags%>%filter(TADA.SampleFraction.Flag=="Invalid"|TADA.MethodSpeciation.Flag=="Invalid"|TADA.ResultUnit.Flag=="Invalid"|!TADA.ActivityType.Flag%in%("Non_QC"))
 
 dataset_flags = dataset_flags%>%dplyr::filter(!ResultIdentifier%in%problem_flagged$ResultIdentifier)
 
 removed = plyr::rbind.fill(removed, problem_flagged)
 rm(problem_flagged)
+
+# check result numbers after split
+current_result_num = dim(dataset_flags)[1] + dim(removed)[1]
+
+# always good to do a dimension check
+if(!all_result_num==current_result_num){
+  print("Help! Results do not add up between dataset and removed after filtering data following flagging functions.")
+}
 ```
 
-**Question 7: Are there any other metadata columns that you review and filter in your workflow?**
+**Question 8: Are there any other metadata columns that you review and filter in your workflow?**
 
 You can review any other columns of interest and create custom domain tables of your "Valid" and "Invalid" criteria using R or Excel. Also check out some of the other flagging functions available in TADA:
 
@@ -283,7 +343,7 @@ We have already identified, flagged, and in some cases removed problematic detec
 dataset_cens = TADA::simpleCensoredMethods(dataset_flags, nd_method = "multiplier",nd_multiplier = 0.5, od_method = "as-is")
 ```
 
-**Question 8: How would you parameterize `simpleCensoredMethods()` to make non-detect values a random number between 0 and the provided detection limit?**
+**Question 9: How would you parameterize `simpleCensoredMethods()` to make non-detect values a random number between 0 and the provided detection limit?**
 
 Let's take a look at how the censored data handling function affects the `TADA.ResultMeasureValueDataTypes.Flag` column.
 
@@ -294,10 +354,29 @@ TADA::fieldValuesTable(dataset_flags, field = "TADA.ResultMeasureValueDataTypes.
 TADA::fieldValuesTable(dataset_cens, field = "TADA.ResultMeasureValueDataTypes.Flag")
 ```
 
-**Question 9: Is there a difference between the first and second tables?**
+**Question 10: Is there a difference between the first and second tables?**
 
 If you'd like to start thinking about using statistical methods to estimate detection limit values, check out the `?summarizeCensoredData` function, which accepts user-defined data groupings to prescribe estimation tests based on the number of results, % of dataset censored, and number of censoring levels (detection limits). The decision tree used in the function was outlined in an [National Nonpoint Source Tech Memo](https://www.epa.gov/sites/default/files/2016-05/documents/tech_notes_10_jun2014_r.pdf).
 
 ## Data exploration
 
-How are you feeling about your test dataset? Does it seem ready for the next step(s) in your analyses? One of the next big steps is data harmonization: translating and aggregating synonyms, combining multiple forms/species of certain characteristics, etc. We won't get to that in this demo, but we can start looking at how single characteristics are represented throughout the dataset. How many different units exist? Fractions? Species? We can use some plotting functions to see characteristic data ranges across related data groups.
+How are you feeling about your test dataset? Does it seem ready for the next step(s) in your analyses? One of the next big steps is data harmonization: translating and aggregating synonyms, combining multiple forms/species of certain characteristics, etc. We won't get to that in this demo (more coming soon in TADA!), but we can start looking at data distributions within a single characteristic-speciation-fraction-unit using the plotting functions `TADA_hist()` and `TADA_boxplot()`. We can also view a stats table using `TADA_stats`.
+
+Let's first take a look at the column TADA.ComparableDataIdentifier, which breaks down characteristics into groups by name, fraction, speciation, and unit. These four columns are important to evaluate together to ensure the plotted data are sufficiently similar to appear on a single plot together: it doesn't make sense to plot characteristics with different units or fractions in the same distribution.
+
+```{r}
+# trusty field values table - lets just look at the first few entries with the most associated records
+TADA::fieldValuesTable(dataset_cens, field = "TADA.ComparableDataIdentifier")%>%dplyr::arrange(desc(Count))%>%head()
+
+```
+
+Now that we have an idea for what the TADA.ComparableDataIdentifier looks like, we can check out how it is used to plot distinct characteristic groups.
+
+```{r}
+# Look at a histogram, boxplot, and stats for TADA.ComparableDataIdentifier(s) of your choice.
+comp_data_id = "TEMPERATURE, WATER_NA_NA_DEG C"
+plot_data = subset(dataset_cens, dataset_cens$TADA.ComparableDataIdentifier%in%comp_data_id)
+TADA::TADA_hist(plot_data, id_col = "TADA.ComparableDataIdentifier")
+TADA::TADA_boxplot(plot_data, id_col = "TADA.ComparableDataIdentifier")
+TADA::TADA_stats(plot_data)
+```
