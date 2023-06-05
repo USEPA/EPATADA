@@ -29,9 +29,13 @@ We're so glad you're thinking about contributing to an EPA open source project! 
 
 No matter who you are, if you spot an error, omission, or bug, you're welcome to open an issue in this repo!
 
+## TADA Working Group Mission
+
+To share and develop R code for evaluating and visualizing Water Quality Portal (WQP) data more efficiently though collaboration and open-source programming. This includes working together to find commonalities in assessment processes across the nation, creating flexible tools that can be easily customized to work within existing workflows, supporting each other in learning R, and ensuring products will be accessible to organizations most in need.
+
 ## Package Development
 
-This article will walk through how to contribute to the TADA package. It will use a git-forking workflow, but it is not a full git tutorial. This is also not a complete guide to R package development (a comprehensive guide is [R Packages](https://r-pkgs.org/)), instead this is meant as more of a checklist for the general steps. Several references are included at the bottom for more information on [R-package](https://r-pkgs.org/) development and [git](https://happygitwithr.com/) workflows.
+This article will walk through how to contribute to the TADA package via a pull request workflow. This is also not a complete guide to R package development (a comprehensive guide is [R Packages](https://r-pkgs.org/)), instead this is meant as more of a checklist for the general steps. Several references are included at the bottom for more information on [R-package](https://r-pkgs.org/) development and [git](https://happygitwithr.com/) workflows.
 
 ## What is GitHub?
 
@@ -63,21 +67,35 @@ install.packages(c("devtools", "rmarkdown"))
 
 ## Issues
 
--   If you see an error or have feedback, the best way to let us know is to file an issue.
+-   If you see an error or have feedback, the best way to let us know is to file an [issue](https://github.com/USEPA/TADA/issues).
 -   Issues are labeled to help indicate what they are about. For example, we are using "Good First Issue" to indicate issues that might be good first pickings for your first contribution to this open-source project.
--   Pull requests can be directly linked to a specific issue. If linked, the Repository Administrators can more easily review the pull request and issue at the same time once a contributor submits the pull request. The issue can then be closed once the pull request is merged.
+-   Pull requests can be directly [linked](https://docs.github.com/en/issues/tracking-your-work-with-issues/linking-a-pull-request-to-an-issue) to a specific issue. If linked, the Repository Administrators can more easily review the pull request and issue at the same time once a contributor submits the pull request. The issue can then be closed once the pull request is merged.
 
-## Branches
+## Branches and Pull Requests
 
 All new development currently happens in the **develop** branch.
 
-To contribute a specific change or new code, outside contributors can fork this repo from the **develop** branch, or simply create a new branch. Contributors should work from their personal fork and/or branch, and on one specific "task" at a time. When complete, they should submit a pull request, to request their changes be merged from their branch into the TADA develop branch. Contributors should submit a separate pull request for each "task".
+To contribute a specific change or new code, outside contributors can [create a new branch](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/creating-and-deleting-branches-within-your-repository), using the **develop** branch as the source. We recommend that contributors work from their personal branch, and on one specific "task" at a time. When complete, you may submit a pull request to request that your changes be merged from your branch into the TADA develop branch. Contributors should submit separate pull requests for each "task".
 
 "Tasks" should be small in scope. For example, they may pertain to a bug fix or update relevant to a single function. A single "task" may also encompass the same changes made across many functions if needed. Another example of a single "task" could be to make changes to all documentation to improve clarity, for example. Furthermore, a task may include developing a new function, or a series of related functions. In some cases, tasks can also be synonymous with issues, and the pull requests can be directly linked to a specific issue (in that case, the Repository Administrators will review the pull request and issue at the same time and the issue can be closed once the pull request is merged).
 
-Complete the pull request by detailing all fixes and contributions, and tagging TADA repo admins who should review the work. For this package, please tag cristinamullin (Cristina Mullin) and mthawley (Shelly Thawley). Repository Administrators will review code contributions from both internal EPA and external collaborators and integrate code commits into source code. This is done to ensure code stability and consistency and prevent degradation of code performance. After review, the admin will either accept the submission, recommend specific improvements to the submission, or in some cases reject the submission. 
+Complete the pull request by detailing all fixes and contributions, and tagging TADA repo admins who should review the work. For this package, please tag cristinamullin (Cristina Mullin). Repository Administrators will review code contributions from both internal EPA and external collaborators and integrate code commits into source code. This is done to ensure code stability and consistency and prevent degradation of code performance. After review, the admin will either accept the submission, recommend specific improvements to the submission, or in some cases reject the submission.
 
-To avoid issues, developers contributing code should contact the repository admins (Cristina or Shelly) early in the development process and maintain contact throughout to help ensure the submission is compatible with the code base and is a robust addition.
+To avoid issues, developers contributing code should contact the repository admins (Cristina Mullin) early in the development process and maintain contact throughout to help ensure the submission is compatible with the code base and is a robust addition.
+
+A few tips:
+
+-   GitHub makes it easy to review Pull Requests for changes on each file, and to discuss the changes if needed using comments
+
+-   We have set up [automated checks](https://github.com/USEPA/TADA/tree/develop/.github/workflows) (using Github Actions). Any new code included in Pull Requests must pass these checks before it can be merged into develop. These checks will run automatically when Pull Requests are submitted, and are ancillary to our content review, and help make sure the code is robust.
+
+-   We recommend to run devtools::check() often during development.
+
+-   Be descriptive with your commits and commit descriptions, but don't over-think it! All changes are tracked. Include comments and details within the package code itself to describe what the code does.
+
+-   Always pull in upstream changes from the develop branch before adding a new commit on your branch.
+
+-   Directly link Pull Request to Issues they address, if relevant.
 
 ## Additional References
 
@@ -105,4 +123,4 @@ This United States Environmental Protection Agency (EPA) GitHub project code is 
 
 ## Contact
 
-If you have any questions, please reach out to Cristina Mullin (mullin.cristina@epa.gov).
+If you have any questions, please reach out to Cristina Mullin ([mullin.cristina\@epa.gov](mailto:mullin.cristina@epa.gov){.email}).

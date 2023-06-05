@@ -3,20 +3,23 @@
 on:
   push:
     branches: [develop]
-  pull_request:
-    branches: [develop]
+  # pull_request:
+  #  branches: [develop]
+  
   # build and deploy when we publish a GitHub release
   # release:
   #  types: [published]
+  
+  # allow manual action trigger
   workflow_dispatch:
 
 name: pkgdown
 
 # Allow only one concurrent deployment, skipping runs queued between the run in-progress and latest queued.
 # Also, cancel in-progress runs.
-concurrency:
-  group: "pkgdown"
-  cancel-in-progress: true
+# concurrency:
+#   group: "pkgdown"
+#   cancel-in-progress: true
   
 jobs:
   pkgdown:
