@@ -646,3 +646,93 @@ getTADATemplate <- function(){
   colsreq = names(TADA::Nutrients_Utah)[!grepl("TADA.",names(TADA::Nutrients_Utah))]
   writexl::write_xlsx(TADA::Nutrients_Utah[1,colsreq], path = "TADATemplate.xlsx")
 }
+
+
+#' Identify and group nearby monitoring locations
+#'
+#' This function takes a TADA dataset and creates a distance matrix for all sites in the dataset. It then uses the buffer input value to determine which sites are within the buffer and should be identified as part of a nearby site group.
+#'
+#' @param .data TADA dataframe OR TADA sites dataframe
+#' @param dist_buffer Numeric. The maximum distance (in meters) two sites can be from one another to be considered "nearby" and grouped together.
+#'
+#' @return Input dataframe with one or more TADA.SiteGroup columns (depending upon if a site belongs to more than one nearby group), which identify each site group as "Group_#" for easy filtering. 
+#'
+#' @export
+
+idNearbySites <- function(.data, dist_buffer=100){
+  
+  # check .data is data.frame
+  checkType(.data, "data.frame", "Input object")
+  
+  # .data required columns
+  required_cols <- c("MonitoringLocationIdentifier","TADA.LongitudeMeasure","TADA.LatitudeMeasure")
+  # check .data has required columns
+  checkColumns(.data, required_cols)
+  
+  # create spatial dataset based on sites
+  data_sf = unique(.data[,c("MonitoringLocationIdentifier","TADA.LongitudeMeasure","TADA.LatitudeMeasure")])
+  # convert to sf object
+  data_sf = sf::st_as_sf(data_sf, coords = c("TADA.LongitudeMeasure", "TADA.LatitudeMeasure"),
+                         # Change to your CRS
+                         crs = "+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs")
+  # create a distance matrix in meters
+  dist.mat <- data.frame(sf::st_distance(data_sf)) # Great Circle distance since in lat/lon
+  
+  row.names(dist.mat) = data_sf$MonitoringLocationIdentifier
+  colnames(dist.mat) = data_sf$MonitoringLocationIdentifier
+  
+  # convert distances to those within buffer (1) and beyond buffer (0)
+  dist.mat1 = apply(dist.mat, c(1,2), function(x){
+    if(x<=dist_buffer){x=1}else{x=0}
+  })
+  
+  # create empty dataframe for groups
+  groups = data.frame()
+  
+  # loop through distance matrix and extract site groups that are within the buffer distance from one another
+  for(i in 1:dim(dist.mat1)[1]){
+    fsite = rownames(dist.mat1)[i] # focal site
+    dat = data.frame(Count = dist.mat1[i,]) # get focal site count row as a column
+    dat$MonitoringLocationIdentifier = colnames(dist.mat1) # give df site names along with counts
+    sites = dat$MonitoringLocationIdentifier[dat$Count==1] # filter to sites within buffer
+    sites1 = sites[!sites%in%fsite] # get site list within buffer that does not include focal site
+    if(length(sites1)>0){ # if this list is greater than 0, combine sites within buffer into data frame
+      df = data.frame(MonitoringLocationIdentifier = sites, TADA.SiteGroup = paste0(sites, collapse=", "))
+      groups = plyr::rbind.fill(groups, df)
+    }
+  }
+  
+  # get unique groups (since represented multiple times for each site looped through, above)
+  groups = unique(groups)
+  
+  if(dim(groups)[1]>0){ # if there are groups of nearby sites...
+    # create group ID's for easier understanding
+    grp = data.frame(TADA.SiteGroup = unique(groups$TADA.SiteGroup), TADA.SiteGroupID = paste0("Group_",1:length(unique(groups$TADA.SiteGroup))))
+    groups = merge(groups, grp, all.x = TRUE)
+    groups = unique(groups[,!names(groups)%in%c("TADA.SiteGroup")])
+    
+    # find any sites within multiple groups
+    summ_sites = groups%>%dplyr::group_by(MonitoringLocationIdentifier)%>%dplyr::mutate(GroupCount = 1:length(MonitoringLocationIdentifier))
+    
+    # pivot wider if a site belongs to multiple groups
+    groups_wide = merge(groups, summ_sites, all.x = TRUE)
+    groups_wide = tidyr::pivot_wider(groups_wide, id_cols = "MonitoringLocationIdentifier",names_from = "GroupCount", names_prefix = "TADA.SiteGroup",values_from = "TADA.SiteGroupID")
+    
+    # merge data to site groupings
+    .data = merge(.data, groups_wide, all.x = TRUE)
+  }else{ # if no groups, give a TADA.SiteGroup1 column filled with NA
+    .data$TADA.SiteGroup1 = NA
+    print("No nearby sites detected using input buffer distance.")
+  }
+  
+  # order columns
+  .data = OrderTADACols(.data)
+  
+  # move site id cols to right place
+  grpcols = names(.data)[grepl("TADA.SiteGroup",names(.data))]
+  
+  # relocate site group columns to TADA area
+  .data = .data%>%dplyr::relocate(dplyr::all_of(grpcols), .after="TADA.LongitudeMeasure")
+  
+  return(.data)
+}

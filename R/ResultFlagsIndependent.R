@@ -1131,30 +1131,80 @@ InvalidCoordinates <- function(.data,
 #' @export
 #' 
 
-identifyPotentialDuplicates <- function(.data, dist_buffer = 100){
-  dat = .data
-  dups = dat%>%dplyr::filter(!is.na(ResultMeasureValue))%>%dplyr::mutate(roundRV = round(ResultMeasureValue,digits=2))%>%dplyr::group_by(ActivityStartDate, ActivityStartTime.Time, CharacteristicName,ResultMeasureValue)%>%dplyr::summarise(numorgs = length(unique(OrganizationIdentifier)))%>%dplyr::filter(numorgs>1)
-  dups$dup_id = seq(1:dim(dups)[1])
-  
-  tdups = dplyr::left_join(dups, dat)
-  tdups$LatitudeMeasure = as.numeric(tdups$LatitudeMeasure)
-  tdups$LongitudeMeasure = as.numeric(tdups$LongitudeMeasure)
-  
-  distances = tdups%>%dplyr::ungroup()%>%dplyr::select(dup_id,LatitudeMeasure,LongitudeMeasure)
-  dcoords = sf::st_as_sf(x = distances, coords = c("LongitudeMeasure","LatitudeMeasure"), crs="EPSG:4326")
-  
-  dists = data.frame()
-  for(i in 1:max(dcoords$dup_id)){
-    ds = subset(dcoords, dcoords$dup_id==i)
-    dist = as.numeric(sf::st_distance(ds$geometry[1],ds$geometry[2]))
-    dsdist = data.frame(dup_id = i, distance_m = as.numeric(dist))
-    dsdist$TADA.idPotentialDuplicates.Flag = ifelse(dist<=dist_buffer,"POTENTIAL DUPLICATE DATAPOINT",NA)
-    dists = rbind(dists, dsdist)
+idPotentialDuplicates <- function(.data, dist_buffer = 100){
+  # get all data that are not NA and round to 2 digits
+  dupsprep = .data%>%dplyr::select(OrganizationIdentifier,ResultIdentifier,ActivityStartDate, ActivityStartTime.Time, TADA.CharacteristicName,TADA.ResultMeasureValue)%>%dplyr::filter(!is.na(TADA.ResultMeasureValue))%>%dplyr::mutate(roundRV = round(TADA.ResultMeasureValue,digits=2))
+  # group by date, time, characteristic, and rounded result value and summarise the number of organizations that have those same row values, and filter to those summary rows with more than one organization
+  dups_sum = dupsprep%>%dplyr::group_by(ActivityStartDate, ActivityStartTime.Time, TADA.CharacteristicName,roundRV)%>%dplyr::summarise(numorgs = length(unique(OrganizationIdentifier)))%>%dplyr::filter(numorgs>1)
+  # if there are potential duplicates based on grouping above, check if sites are nearby
+  if(dim(dups_sum)[1]>0){
+    # give potential duplicates a grouping ID
+    dups_sum$TADA.DuplicateID = seq(1:dim(dups_sum)[1])
+    # merge to narrow dataset to match to true result value
+    dupsdat = merge(dups_sum, dupsprep, all.x = TRUE)
+    # make sure potential dupes are within 10% of the max value in the group
+    dupsdat = dupsdat%>%dplyr::group_by(TADA.DuplicateID)%>%dplyr::mutate(maxRV = max(TADA.ResultMeasureValue))%>%dplyr::mutate(within10 = ifelse(min(TADA.ResultMeasureValue)>=0.9*maxRV,"Y","N"))%>%dplyr::filter(within10=="Y")%>%dplyr::select(!c(roundRV,maxRV,within10,numorgs))%>%dplyr::ungroup()
+    
+    # merge to data
+    dupsdat = dplyr::left_join(dupsdat, .data)
+    
+    rm(dupsprep)
+    # from those datapoints, determine which are in adjacent sites
+    if(!"TADA.SiteGroup1"%in%names(.data)){
+      .data = idNearbySites(.data, dist_buffer = dist_buffer)
+    }
+    dupsitesids = names(.data)[grepl("TADA.SiteGroup",names(.data))]
+    dupsites = unique(.data[,c("MonitoringLocationIdentifier","TADA.LatitudeMeasure","TADA.LongitudeMeasure",dupsitesids)])
+    
+    # get rid of results with no site group added - not duplicated spatially
+    dupsites = subset(dupsites, !is.na(dupsites$TADA.SiteGroup1))
+    
+    if(dim(dupsites)[1]>0){ # if results are potentially duplicated temporally and spatially, determine if they share site group membership
+      # narrow down dataset more
+      dupsdat = subset(dupsdat, dupsdat$MonitoringLocationIdentifier%in%dupsites$MonitoringLocationIdentifier)
+      
+      if(dim(dupsdat)[1]>0){ # nearby sites exist but do not overlap with potentially duplicated result values
+        sitecomp = dupsites%>%dplyr::select(MonitoringLocationIdentifier,dplyr::all_of(dupsitesids))%>%tidyr::pivot_longer(dplyr::all_of(dupsitesids), values_to = "AllGroups")%>%dplyr::filter(!is.na(AllGroups))%>%dplyr::distinct() # get unique groups in dataset
+        dupids = unique(dupsdat$TADA.DuplicateID) # will loop by ID
+        
+        # create empty dataframe to hold result of spatial grouping tests
+        dupdata = data.frame()
+        
+        for(i in 1:length(dupids)){ # loop through each duplicate group
+          dat = subset(dupsdat, dupsdat$TADA.DuplicateID==dupids[i])
+          if(dim(dat)[1]>1&length(unique(dat$OrganizationIdentifier))>1){ # if more than one result in dataset and multiple organizations
+            sitecompj = subset(sitecomp, sitecomp$MonitoringLocationIdentifier%in%dat$MonitoringLocationIdentifier)  
+            for(j in 1:length(unique(sitecompj$AllGroups))){ # loop through each group
+              sitegp = subset(sitecompj, sitecompj$AllGroups==unique(sitecompj$AllGroups)[j])
+              if(dim(sitegp)[1]>1){
+                dat$TADA.ProbableDuplicate = ifelse(dat$MonitoringLocationIdentifier%in%sitegp$MonitoringLocationIdentifier,"Y","N") # mark as "Y" probable duplicate if sites in dup id subset are in group id subset.
+                dupdata = plyr::rbind.fill(dupdata, dat) #bind to all other potential duplicate results
+              }
+            }
+          }
+          print(i)
+        }
+        
+        dupdata = subset(dupdata, dupdata$TADA.ProbableDuplicate=="Y")
+        # connect back to original dataset
+        .data = merge(.data, dupdata[,c("ResultIdentifier","TADA.DuplicateID","TADA.ProbableDuplicate")], all.x = TRUE)
+        .data$TADA.ProbableDuplicate[is.na(.data$TADA.ProbableDuplicate)] = "N"
+        .data$TADA.DuplicateID[is.na(.data$TADA.ProbableDuplicate)] = NA
+      }else{
+        .data$TADA.DuplicateID = NA
+        .data$TADA.ProbableDuplicate = "N"
+        print("No duplicate results detected. Returning input dataframe with duplicate flagging columns set to N.")
+      }
+    }else{ # if no site duplicates detected
+      .data$TADA.DuplicateID = NA
+      .data$TADA.ProbableDuplicate = "N"
+      print("No duplicate results detected. Returning input dataframe with duplicate flagging columns set to N.")
+    }
+  }else{ # if no result/org duplicates detected
+    .data$TADA.DuplicateID = NA
+    .data$TADA.ProbableDuplicate = "N"
+    print("No duplicate results detected. Returning input dataframe with duplicate flagging columns set to N.")
   }
   
-  tdups1 = merge(tdups, dists, all.x = TRUE)
-  tdups1 = tdups1[,!names(tdups1)%in%c("dup_id","numorgs")]
-  dat1 = merge(dat, tdups1, all.x = TRUE)
-  
-  return(dat1)
+  return(.data)
 }
