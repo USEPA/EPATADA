@@ -1,0 +1,36 @@
+---
+title: "WQX QAQC Service User Guide"
+format: html
+editor: visual
+---
+
+## User Guide for EPA's Water Quality eXchange (WQX) QAQC Service
+
+This is a user guide for the WQX Quality Assurance and Quality Control (QAQC) data submission service. It will cover: 1) an overview of all available WQX QAQC tests, 2) which of these WQX valiation tests are also available in TADA for testing WQP outbound data, 3) how to interpret and provide feedback on the validation tables referenced by WQX and TADA for this QAQC service.
+
+## Available Tests
+
+When you click the **Render** button a document will be generated that includes both content and the output of embedded code. You can embed code like this:
+
+When you click the **Render** button a document will be generated that includes both content and the output of embedded code. You can embed code like this:
+
+## Interpreting the Validation Tables
+
+When you click the **Render** button a document will be generated that includes both content and the output of embedded code. You can embed code like this:
+
+## Providing Feedback on Validation Tables
+
+When you click the **Render** button a document will be generated that includes both content and the output of embedded code. You can embed code like this:
+
+```{r}
+1 + 1
+```
+
+You can add options to executable code like this
+
+```{r}
+#| echo: false
+2 * 2
+```
+
+The `echo: false` option disables the printing of code (only output is displayed).
