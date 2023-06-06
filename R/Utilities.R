@@ -18,7 +18,13 @@ utils::globalVariables(c("TADA.ResultValueAboveUpperThreshold.Flag", "ActivityId
                          "LatitudeMeasure", "TADA.ResultMeasureValueDataTypes.Flag", "Name", "TADA.Detection_Type",
                          "DetectionQuantitationLimitTypeName", "TADA.Limit_Type", "multiplier", "summ", "cf",
                          "LongitudeMeasure", "TADA.CensoredData.Flag", "Censored_Count", "TADA.ResultMeasureValueDataTypes.Flag",
-                         "Status2"))
+                         "Status2", "ActivityTypeCode", "SampleCollectionEquipmentName", 
+                         "ResultTimeBasisText", "StatisticalBaseCode", "ResultValueTypeName", 
+                         "masked", "TADA.env", "Legend", "Fields", "desc", "WQXActivityType_Cached", 
+                         "TADA.ActivityType.Flag", "Code", "ActivityTypeCode", "ResultCount", 
+                         "tot_n", "MonitoringLocationName", "TADA.LatitudeMeasure", 
+                         "TADA.LongitudeMeasure", "median", "sd", "TADA.ComparableDataIdentifier", 
+                         "desc", "Legend"))
 
 
 
