@@ -58,11 +58,11 @@ TADA_boxplot <- function(filtered.data, id_col = c("TADA.CharacteristicName", "T
   # 75th percentile (see note above)
   quant_75 <- signif(stats::quantile(values, 0.75, type = 7), 5)
   # median for box center line
-  box_median <- median(values)
+  box_median <- stats::median(values)
   # mean
   box_mean <- mean(values)
   # standard deviation
-  box_sd <- sd(values)
+  box_sd <- stats::sd(values)
   # interquantile range (length of box)
   box_iqr <- quant_75 - quant_25
   # upper threshold for upper whisker
