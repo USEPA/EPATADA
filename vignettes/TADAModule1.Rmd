@@ -66,7 +66,7 @@ desired (un-comment).
 # options(download.file.method = "wininet")
 
 remotes::install_github("USEPA/TADA", 
-                        ref = "develop",
+                        ref = "cm-training",
                         dependencies = TRUE)
 library(TADA)
 
@@ -367,7 +367,7 @@ Unique_InvalidCoordinateFlags
 
 ## Depth unit conversions
 
-The **ConvertDepthUnits** function converts depth units to a consistent
+The **TADA_ConvertDepthUnits** function converts depth units to a consistent
 unit. Depth values and units are most commonly associated with lake
 data, and are populated in the *ActivityDepthHeightMeasure*,
 *ActivityTopDepthHeightMeasure*, *ActivityBottomDepthHeightMeasure*, and
@@ -396,11 +396,11 @@ Allowable values for 'unit' are either 'm' (meter), 'ft' (feet), or 'in'
 unit = "m".
 
 See additional function documentation for additional function options by
-entering the following code in the console: ?ConvertDepthUnits
+entering the following code in the console: ?TADA_ConvertDepthUnits
 
-```{r ConvertDepthUnits}
+```{r TADA_ConvertDepthUnits}
 #converts all depth profile data to meters
-TADAProfileClean1 <- ConvertDepthUnits(TADAProfileClean1,
+TADAProfileClean1 <- TADA_ConvertDepthUnits(TADAProfileClean1,
                                        unit = "m",
                                        transform = TRUE)
 ```

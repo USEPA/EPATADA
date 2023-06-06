@@ -220,21 +220,21 @@ TADA_ConvertResultUnits <- function(.data, transform = TRUE) {
 #' data(Nutrients_Utah)
 #' 
 #' # Convert all depth units to meters:
-#' DepthUnitsConverted_m <- ConvertDepthUnits(Nutrients_Utah)
+#' DepthUnitsConverted_m <- TADA_ConvertDepthUnits(Nutrients_Utah)
 #' 
 #' # Convert all depth units to feet:
-#' DepthUnitsConverted_ft <- ConvertDepthUnits(Nutrients_Utah, unit = "ft")
+#' DepthUnitsConverted_ft <- TADA_ConvertDepthUnits(Nutrients_Utah, unit = "ft")
 #' 
 #' # Convert only the "TADA.ActivityTopDepthHeightMeasure" field to inches:
-#' TopDepthUnitsConverted_in <- ConvertDepthUnits(Nutrients_Utah, 
+#' TopDepthUnitsConverted_in <- TADA_ConvertDepthUnits(Nutrients_Utah, 
 #' unit = "in", fields = "ActivityTopDepthHeightMeasure")
 #' 
 #' # Do not convert any depth units, but add columns for target units and 
 #' # conversion factors for each depth measure:
-#' DepthUnitsNotConverted <- ConvertDepthUnits(Nutrients_Utah, transform = FALSE)
+#' DepthUnitsNotConverted <- TADA_ConvertDepthUnits(Nutrients_Utah, transform = FALSE)
 #' 
 
-ConvertDepthUnits <- function(.data,
+TADA_ConvertDepthUnits <- function(.data,
                               unit = "m",
                               fields = c("ActivityDepthHeightMeasure",
                                          "ActivityTopDepthHeightMeasure",
