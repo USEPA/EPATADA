@@ -1,12 +1,21 @@
 #' Prepare Censored Data
 #' 
-#' This function identifies censored data records and characterizes them as non-detects
-#' or over-detects based on the ResultDetectionConditionText and DetectionQuantitationLimitTypeName.
-#' It also identifies records populated with limits and conditions that cannot be grouped
-#' as over- or non-detects as "Other", and flags records where there is a conflict
-#' between ResultDetectionConditionText and DetectionQuantitationLimitTypeName.
-#' This function is used by default in the simpleCensoredMethods and summarizeCensoredData
-#' functions, but can be used on its own.
+#' This function identifies censored data records and characterizes them as
+#' "Non-Detects" or "Over-Detects" based on the ResultDetectionConditionText and
+#' DetectionQuantitationLimitTypeName. It also identifies records populated with
+#' limits and conditions that cannot be grouped as over- or non-detects as
+#' "Other Condition/Limit Populated", and flags records where there is a
+#' conflict between ResultDetectionConditionText and
+#' DetectionQuantitationLimitTypeName as "Conflict between Condition and Limit".
+#' Detection limit results missing ResultDetectionConditionText are flagged as
+#' "Detection condition is missing and required for censored data ID.", and in
+#' rare situations, new detection limit types are added to WQX domain tables
+#' (and thus WQP data) that have not yet been classified as over- or
+#' non-detects. When these appear in a dataset, they are categorized as
+#' "Detection condition or detection limit is not documented in TADA reference
+#' tables." In these situations, users should contact TADA administrators to
+#' update the package accordingly. This function is used by default in
+#' autoclean, but can be used on its own.
 #' 
 #' @param .data A TADA dataframe
 #' 
