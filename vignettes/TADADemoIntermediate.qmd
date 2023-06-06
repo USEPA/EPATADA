@@ -244,13 +244,13 @@ TADA::fieldValuesPie(dataset, field = "MonitoringLocationTypeName")
 
 ## Data transformation
 
-But don't get too into the weeds yet! This is a minimally QC'd dataset, and we have several other QC checks at our disposal. Before running a series of quality control checks on our dataset, it is a good idea to convert provided result units to a common unit for easy comparison and aggregation, where possible. The `ConvertResultUnits()` function uses the WQX [QAQC Validation Table](https://cdx.epa.gov/wqx/download/DomainValues/QAQCCharacteristicValidation.CSV) to convert results (when `transform = TRUE` to a "target unit". Results without a target unit retain their original unit and pass through the function.
+But don't get too into the weeds yet! This is a minimally QC'd dataset, and we have several other QC checks at our disposal. Before running a series of quality control checks on our dataset, it is a good idea to convert provided result units to a common unit for easy comparison and aggregation, where possible. The `TADA_ConvertResultUnits()` function uses the WQX [QAQC Validation Table](https://cdx.epa.gov/wqx/download/DomainValues/QAQCCharacteristicValidation.CSV) to convert results (when `transform = TRUE` to a "target unit". Results without a target unit retain their original unit and pass through the function.
 
 ```{r}
 # before...
 TADA::fieldValuesTable(dataset, field = "TADA.ResultMeasure.MeasureUnitCode")%>%dplyr::arrange(desc(Count))
 # convert units
-dataset = TADA::ConvertResultUnits(dataset, transform = TRUE)
+dataset = TADA::TADA_ConvertResultUnits(dataset, transform = TRUE)
 # after!
 TADA::fieldValuesTable(dataset, field = "TADA.ResultMeasure.MeasureUnitCode")%>%dplyr::arrange(desc(Count))
 ```

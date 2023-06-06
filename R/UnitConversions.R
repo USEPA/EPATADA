@@ -51,14 +51,14 @@
 #' # Load example dataset:
 #' data(Nutrients_Utah)
 #' 
-#' ResultUnitsConverted <- ConvertResultUnits(Nutrients_Utah)
+#' ResultUnitsConverted <- (Nutrients_Utah)
 #' 
 #' # Do not convert result values and units, but add two new columns titled
 #' # "WQX.ConversionFactor" and "WQX.TargetUnit":
-#' ResultUnitsNotConverted <- ConvertResultUnits(Nutrients_Utah, transform = FALSE)
+#' ResultUnitsNotConverted <- TADA_ConvertResultUnits(Nutrients_Utah, transform = FALSE)
 #' 
 
-ConvertResultUnits <- function(.data, transform = TRUE) {
+TADA_ConvertResultUnits <- function(.data, transform = TRUE) {
   # check .data is data.frame
   checkType(.data, "data.frame", "Input object")
   # check transform is boolean

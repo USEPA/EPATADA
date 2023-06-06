@@ -86,7 +86,7 @@ All WQX Domain Tables are available [HERE](https://www.epa.gov/waterdata/storage
 
     -   Both WQX and TADA leverage the table above to convert all data for each unique characteristic to a consistent unit, so that results can then we assessed against the WQX upper and lower thresholds in the validataion table. Target units for each charactersitic are included in the MeasureUnit domain table. TADA leverages this table to convert all data for each unique characteristic to a consistent target unit. See relevant TADA functions:
 
-    -   See TADA Function: [ConvertResultUnits()](https://usepa.github.io/TADA/reference/ConvertResultUnits.html)
+    -   See TADA Function: [TADA_ConvertResultUnits()](https://usepa.github.io/TADA/reference/ConvertResultUnits.html)
 
 All TADA Reference and Validation Tables are also available in the R Package [HERE](https://github.com/USEPA/TADA/tree/develop/inst/extdata). TADA pulls the WQX Validation Table and other domain tables into TADA and updates them automatically whenever changes are made
 

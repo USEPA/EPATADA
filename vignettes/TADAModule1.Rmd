@@ -407,17 +407,17 @@ TADAProfileClean1 <- ConvertDepthUnits(TADAProfileClean1,
 
 ## Result unit conversions
 
-The **ConvertResultUnits** function converts all results to WQX target
+The **TADA_ConvertResultUnits** function converts all results to WQX target
 units. WQX target units are pulled from the MeasureUnit domain table:
 
 -   <https://cdx.epa.gov/wqx/download/DomainValues/MeasureUnit.CSV>
 
 See additional function documentation for additional function options by
-entering the following code in the console: ?ConvertResultUnits
+entering the following code in the console: ?TADA_ConvertResultUnits
 
-```{r ConvertResultUnits}
+```{r TADA_ConvertResultUnits}
 #Converts all results to WQX target units
-TADAProfileClean1 <- ConvertResultUnits(TADAProfileClean1, transform = TRUE)
+TADAProfileClean1 <- TADA_ConvertResultUnits(TADAProfileClean1, transform = TRUE)
 ```
 
 ## Statistically aggregated data
