@@ -122,6 +122,22 @@ First, always good to take a look at the data frame dimensions.
 dim(dataset_0)
 ```
 
+Before we start filtering and flagging our data, let's create a little function that performs dimension checks between the results that pass QC checks and those that do not. Dimension checks ensure we catch any situations where results may be lost or duplicated by counting the total number of rows in the input data frame, the total number of rows in the passing data frame, and the total number of rows in the removed data frame. The latter two should add up to the total number of rows of all the data.
+
+```{r}
+# defining a dimension check function that compares removed and retained data dimensions against the initial data input
+dimCheck <- function(all_result_num, pass_data, fail_data, checkName){
+  # check result numbers after split
+final_result_num = dim(pass_data)[1] + dim(fail_data)[1]
+
+# always good to do a dimension check
+if(!all_result_num==final_result_num){
+  print(paste0("Help! Results do not add up between dataset and removed after ",checkName," check."))
+}else{print(paste0("Good to go. Zero results created or destroyed in ",checkName," check."))}
+  
+}
+```
+
 Next, we can use the `fieldCounts()` function to see how many unique values are contained within each column of the dataset. We're using the command `display = "all"` to view all of the columns but could also use `"most"` or `"key"` to cut down on the number of columns reviewed.
 
 **Question 2: Which column should have a unique value in every row and why?**
@@ -141,7 +157,7 @@ TADA is currently designed to accommodate water data from the WQP. Let's ensure 
 all_result_num = dim(dataset_0)[1]
 
 # remove data with media type that is not water
-removed = dataset_0%>%dplyr::filter(!TADA.ActivityMediaName%in%c("WATER"))
+removed = dataset_0%>%dplyr::filter(!TADA.ActivityMediaName%in%c("WATER"))%>%dplyr::mutate(TADA.RemovedReason = "Activity media is not water.")
 
 # what other media types exist in dataset?
 unique(removed$TADA.ActivityMediaName)
@@ -149,13 +165,8 @@ unique(removed$TADA.ActivityMediaName)
 # clean dataset contains only water
 dataset = dataset_0%>%dplyr::filter(TADA.ActivityMediaName%in%c("WATER"))
 
-# check result numbers after split
-final_result_num = dim(dataset)[1] + dim(removed)[1]
+dimCheck(all_result_num, dataset, removed, checkName = "Activity Media")
 
-# always good to do a dimension check
-if(!all_result_num==final_result_num){
-  print("Help! Results do not add up between dataset and removed after media filter.")
-}
 ```
 
 Two additional helper functions one can use at any step in the process are `fieldValuesTable()` and `fieldValuesPie()`. These functions create a summay table and pie chart (respectively) of all the unique values in a given column. Let's give it a try on ActivityTypeCode, which is a WQP column describing the type of sample collected for each result.
@@ -174,7 +185,7 @@ We can take a quick look at some of the TADA-created columns that review result 
 TADA::fieldValuesTable(dataset,field="TADA.ResultMeasureValueDataTypes.Flag")
 
 # these are all of the NOT allowable data types in the dataset.
-wrong_datatype = dataset%>%filter(!TADA.ResultMeasureValueDataTypes.Flag%in%c("Numeric","Less Than","Greater Than","Approximate Value","Percentage","Comma-Separated Numeric","Numeric Range - Averaged","Result Value/Unit Copied from Detection Limit"))
+wrong_datatype = dataset%>%filter(!TADA.ResultMeasureValueDataTypes.Flag%in%c("Numeric","Less Than","Greater Than","Approximate Value","Percentage","Comma-Separated Numeric","Numeric Range - Averaged","Result Value/Unit Copied from Detection Limit"))%>%dplyr::mutate(TADA.RemovedReason = "Result value type cannot be converted to numeric or no detection limit values provided.")
 
 # take a look at the difficult data types - do they make sense?
 check = unique(wrong_datatype[,c("TADA.CharacteristicName","ResultMeasureValue","TADA.ResultMeasureValue", "ResultMeasure.MeasureUnitCode","TADA.ResultMeasure.MeasureUnitCode","TADA.ResultMeasureValueDataTypes.Flag","DetectionQuantitationLimitMeasure.MeasureValue","TADA.DetectionQuantitationLimitMeasure.MeasureValue", "DetectionQuantitationLimitMeasure.MeasureUnitCode","TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode")])
@@ -184,13 +195,7 @@ dataset = dataset%>%filter(TADA.ResultMeasureValueDataTypes.Flag%in%c("Numeric",
 removed = plyr::rbind.fill(removed, wrong_datatype)
 rm(wrong_datatype, check)
 
-# check result numbers after split
-current_result_num = dim(dataset)[1] + dim(removed)[1]
-
-# always good to do a dimension check
-if(!all_result_num==current_result_num){
-  print("Help! Results do not add up between dataset and removed after data types filter.")
-}
+dimCheck(all_result_num, dataset, removed, checkName = "Result Format")
 ```
 
 During `TADAdataRetrieval`, TADA automatically sorts result values into detection limit categories (e.g. non-detect, over-detect) based on populated values in the ResultDetectionConditionText and DetectionQuantitationLimitTypeName columns. You can find the reference tables used to make these decisions in `GetDetCondRef()` and `GetDetLimitRef()` functions. In some cases, results are missing detection limit/condition info, or there is a conflict in the detection limit and condition. The user may want to remove problematic detection limit data before proceeding.
@@ -198,20 +203,14 @@ During `TADAdataRetrieval`, TADA automatically sorts result values into detectio
 ```{r}
 TADA::fieldValuesPie(dataset, field = "TADA.CensoredData.Flag")
 
-problem_censored = dataset%>%dplyr::filter(!TADA.CensoredData.Flag%in%c("Non-Detect","Over-Detect","Other","Uncensored"))
+problem_censored = dataset%>%dplyr::filter(!TADA.CensoredData.Flag%in%c("Non-Detect","Over-Detect","Other","Uncensored"))%>%dplyr::mutate(TADA.RemovedReason = "Detection limit information contains errors or missing information.")
 
 dataset = dataset%>%dplyr::filter(TADA.CensoredData.Flag%in%c("Non-Detect","Over-Detect","Other", "Uncensored"))
 
 removed = plyr::rbind.fill(removed, problem_censored)
 rm(problem_censored)
 
-# check result numbers after split
-current_result_num = dim(dataset)[1] + dim(removed)[1]
-
-# always good to do a dimension check
-if(!all_result_num==current_result_num){
-  print("Help! Results do not add up between dataset and removed after censored data filter.")
-}
+dimCheck(all_result_num, dataset, removed, checkName = "Censored Data")
 ```
 
 Let's also look at characteristics in the dataset using `dplyr` functions and pipes.
@@ -235,7 +234,6 @@ Finally, we can view the site locations using a TADA mapping function. In this m
 
 ```{r}
 TADA::TADAOverviewMap(dataset)
-TADA::TADAOverviewMap(removed)
 ```
 
 Out of curiosity, let's take a look at a breakdown of these monitoring location types. Do they all indicate surface water samples? Depending upon your program's goals and methods, you might want to filter out some of the types you see.
@@ -279,13 +277,7 @@ dataset_flags = TADA::InvalidSpeciation(dataset_flags, clean = "none", errorsonl
 dataset_flags = TADA::InvalidResultUnit(dataset_flags, clean = "none", errorsonly = FALSE)
 dataset_flags = TADA::QualityControlActivity(dataset_flags, clean = FALSE, errorsonly = FALSE)
 
-# check result numbers after split
-current_result_num = dim(dataset_flags)[1] + dim(removed)[1]
-
-# always good to do a dimension check
-if(!all_result_num==current_result_num){
-  print("Help! Results do not add up between dataset and removed after running flagging functions.")
-}
+dimCheck(all_result_num, dataset_flags, removed, checkName = "Run Flag Functions")
 ```
 
 **Question 7: Did any warnings or messages appear in the console after running these flagging functions? What do they say?**
@@ -305,23 +297,23 @@ Any results flagged as "Invalid" are recognized in the QAQC Validation Table as 
 
 ```{r}
 # grab all the flagged results from the four functions
-problem_flagged = dataset_flags%>%filter(TADA.SampleFraction.Flag=="Invalid"|TADA.MethodSpeciation.Flag=="Invalid"|TADA.ResultUnit.Flag=="Invalid"|!TADA.ActivityType.Flag%in%("Non_QC"))
+problem_flagged = dataset_flags%>%filter(TADA.SampleFraction.Flag=="Invalid"|TADA.MethodSpeciation.Flag=="Invalid"|TADA.ResultUnit.Flag=="Invalid"|!TADA.ActivityType.Flag%in%("Non_QC"))%>%dplyr::mutate(TADA.RemovedReason = "Invalid Unit, Method, Speciation, or Activity Type.")
 
 dataset_flags = dataset_flags%>%dplyr::filter(!ResultIdentifier%in%problem_flagged$ResultIdentifier)
 
 removed = plyr::rbind.fill(removed, problem_flagged)
 rm(problem_flagged)
 
-# check result numbers after split
-current_result_num = dim(dataset_flags)[1] + dim(removed)[1]
-
-# always good to do a dimension check
-if(!all_result_num==current_result_num){
-  print("Help! Results do not add up between dataset and removed after filtering data following flagging functions.")
-}
+dimCheck(all_result_num, dataset_flags, removed, checkName = "Filter Flag Functions")
 ```
 
 **Question 8: Are there any other metadata columns that you review and filter in your workflow?**
+
+We've finished running the recommended flagging functions and removing results that do not pass QC checks. Let's look at the breakdown of these data in the removed object.
+
+```{r}
+TADA::fieldValuesTable(removed, field = "TADA.RemovedReason")
+```
 
 You can review any other columns of interest and create custom domain tables of your "Valid" and "Invalid" criteria using R or Excel. Also check out some of the other flagging functions available in TADA:
 
