@@ -529,7 +529,7 @@ TADA_OrderCols <- function(.data){
            "WQXConversionFactor.ResultDepthHeightMeasure",
            "TADA.PotentialDupRowIDs.Flag",
            "TADA.Remove",
-           "TADA.RemoveReason",
+           "TADA.RemovalReason",
            "TADAShiny.tab"
   )
   dret_cols = dretcols[dretcols%in%names(.data)]
