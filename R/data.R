@@ -108,3 +108,28 @@ NULL
 #' @format A data frame with 131906 rows and 151 variables
 NULL
 
+#' Shepherdstown 2023 Training Dataset
+#'
+#' #' Original pull:  
+#' NCTCShepherdstown_HUC12 = TADA::TADAdataRetrieval(
+#'   startDate = "2020-03-14",
+#'   endDate = "null",
+#'   countycode = "null",
+#'   huc = "02070004",
+#'   siteid = "null",
+#'   siteType = "null",
+#'   characteristicName = "null",
+#'   characteristicType = "null",
+#'   sampleMedia = "null",
+#'   statecode = "null",
+#'   organization = "null",
+#'   project = "null",
+#'   applyautoclean = TRUE
+#' )
+#'  
+#' @docType data
+#' @keywords datasets
+#' @name NCTCShepherdstown_HUC12
+#' @usage data(NCTCShepherdstown_HUC12)
+#' @format A data frame with 34330 rows and 151 variables
+NULL
