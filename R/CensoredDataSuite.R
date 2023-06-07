@@ -202,7 +202,7 @@ simpleCensoredMethods <- function(.data, nd_method = "multiplier", nd_multiplier
     }
     
     .data = plyr::rbind.fill(nd, od, all_others)
-    .data = OrderTADACols(.data)
+    .data = TADA_OrderCols(.data)
   }
   return(.data)
 }

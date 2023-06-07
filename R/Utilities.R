@@ -138,7 +138,7 @@ TADA_AutoClean <- function(.data) {
   
   print("NOTE: This version of the TADA package is designed to work with quantitative (numeric) data with sample media: 'WATER'. TADA_AutoClean does not currently filter downloaded data to 'WATER'. The user must make this specification on their own outside of package functions. See the WQPDataHamornization vignette for an example.")
   
-  .data <- OrderTADACols(.data)
+  .data <- TADA_OrderCols(.data)
   
   return(.data)
 }
@@ -299,7 +299,7 @@ TADA_ConvertSpecialChars <- function(.data,col){
   names(clean.data)[names(clean.data)=="masked"] = numcol
   names(clean.data)[names(clean.data)=="flag"] = flagcol
   
-  clean.data = OrderTADACols(clean.data)
+  clean.data = TADA_OrderCols(clean.data)
   
   return(clean.data)
 }
@@ -317,7 +317,7 @@ TADA_ConvertSpecialChars <- function(.data,col){
 #' 
 #' 
 
-OrderTADACols <- function(.data){
+TADA_OrderCols <- function(.data){
   
   dretcols = c("OrganizationIdentifier","
               OrganizationFormalName",

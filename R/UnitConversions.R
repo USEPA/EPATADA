@@ -126,7 +126,7 @@ TADA_ConvertResultUnits <- function(.data, transform = TRUE) {
     
     print("Conversions required for range checks and TADATargetUnit conversions -- Unit conversions, data summaries, and data calculations may be affected.")
     # reorder columns
-    flag.data = OrderTADACols(flag.data)
+    flag.data <- TADA_OrderCols(flag.data)
     return(flag.data)
   }
   
@@ -169,7 +169,7 @@ TADA_ConvertResultUnits <- function(.data, transform = TRUE) {
 
   }
   # reorder cols
-  clean.data = OrderTADACols(clean.data)
+  clean.data <- TADA_OrderCols(clean.data)
   
   return(clean.data)
 }
@@ -340,7 +340,7 @@ TADA_ConvertDepthUnits <- function(.data,
   # check if any Conversion Factor columns were appended
   if (all(is.na(match(appCols, colnames(check.data)))) == TRUE) {
     warning("No action taken: the dataframe does not have any depth data in ActivityTop/BottomDepthHeight or ResultDepthHeight columns.")
-    check.data = OrderTADACols(check.data)
+    check.data <- TADA_OrderCols(check.data)
     return(check.data)
   }
   
@@ -351,7 +351,7 @@ TADA_ConvertDepthUnits <- function(.data,
     # add WQX.Depth.TargetUnit column
     check.data[ , 'WQX.Depth.TargetUnit'] <- unit
     #reorder cols
-    check.data = OrderTADACols(check.data)
+    check.data <- TADA_OrderCols(check.data)
     return(check.data)
   }
   
@@ -393,7 +393,7 @@ TADA_ConvertDepthUnits <- function(.data,
     clean.data = conv_unit(clean.data,"WQXConversionFactor.ActivityTopDepthHeightMeasure")
     
     # order columns
-    clean.data = OrderTADACols(clean.data)
+    clean.data <- TADA_OrderCols(clean.data)
     return(clean.data)
   }
 

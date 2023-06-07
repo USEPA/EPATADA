@@ -248,7 +248,7 @@ HarmonizeData <- function(.data, ref, transform = TRUE, flag = TRUE) {
     # if transform = FALSE and flag = TRUE, return flag.data
     if ((transform == FALSE) & (flag == TRUE)) {
       print("Be aware that you must run this function with transform = TRUE to use subsequent TADA functions.")
-      flag.data = OrderTADACols(flag.data)
+      flag.data <- TADA_OrderCols(flag.data)
       return(flag.data)
     }
 
@@ -324,7 +324,7 @@ HarmonizeData <- function(.data, ref, transform = TRUE, flag = TRUE) {
 
       # if flag = TRUE, return clean.data
       if (flag == TRUE) {
-        clean.data = OrderTADACols(clean.data)
+        clean.data <- TADA_OrderCols(clean.data)
         return(clean.data)
       }
 
@@ -346,7 +346,7 @@ HarmonizeData <- function(.data, ref, transform = TRUE, flag = TRUE) {
           ))
 
         # return clean.data
-        clean.data = OrderTADACols(clean.data)
+        clean.data <- TADA_OrderCols(clean.data)
         return(clean.data)
       }
     }
