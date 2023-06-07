@@ -39,7 +39,7 @@ TADABigdataRetrieval(
 
 \item{maxrecs}{The maximum number of results queried within one call to dataRetrieval.}
 
-\item{applyautoclean}{Logical, defaults to TRUE. Applies TADA's autoclean function on the returned data profile.}
+\item{applyautoclean}{Logical, defaults to TRUE. Applies TADA_AutoClean function on the returned data profile.}
 }
 \value{
 TADA-compatible dataframe
@@ -57,7 +57,7 @@ characteristicName, and siteType requested. Computer memory may limit the
 size of datasets that your R console will be able to hold in one session.
 Function requires a characteristicName, siteType, statecode, huc, or start/
 end date input. The recommendation is to be as specific as you can with your
-large data call. The function allows the user to run autoclean on the dataset,
+large data call. The function allows the user to run TADA_AutoClean on the dataset,
 but this is not the default as checking large dataframes for exact duplicate
 rows can be time consuming and is better performed on its own once the query is
 completed.
@@ -66,7 +66,7 @@ completed.
 Some code for this function was adapted from this USGS Blog (Author: Aliesha Krall)
 \href{https://waterdata.usgs.gov/blog/large_sample_pull/}{Large Sample Pull}
 
-See ?autoclean documentation for more information on this optional input.
+See ?TADA_AutoClean documentation for more information on this optional input.
 
 Note: TADABigdataRetrieval (by leveraging dataRetrieval),  automatically converts
 the date times to UTC. It also automatically converts the data to dates,

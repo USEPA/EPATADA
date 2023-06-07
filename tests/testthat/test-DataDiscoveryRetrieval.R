@@ -131,7 +131,7 @@ test_that("TADAdataRetrieval", {
   
 })
 
-#testing that "meters" is successfully replaced with "m". This feature is part of the autoclean function
+#testing that "meters" is successfully replaced with "m". This feature is part of the TADA_AutoClean function
 #which runs automatically when TADAdataRetrieval runs
 test_that("TADAdataRetrieval", {
   check_autoclean_meters_works <- TADAdataRetrieval(statecode = "UT",

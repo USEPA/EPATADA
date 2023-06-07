@@ -1,3 +1,20 @@
+#' Pipe operator
+#'
+#' See \code{magrittr::\link[magrittr:pipe]{\%>\%}} for details.
+#'
+#' @name %>%
+#' @rdname pipe
+#' @keywords internal
+#' @export
+#' @importFrom magrittr %>%
+#' @usage lhs \%>\% rhs
+#' @param lhs A value or the magrittr placeholder.
+#' @param rhs A function call using the magrittr semantics.
+#' @return The result of calling `rhs(lhs)`.
+NULL
+
+
+
 # write global variables. Gets rid of global variable NOTE in check:
 utils::globalVariables(c("TADA.ResultValueAboveUpperThreshold.Flag", "ActivityIdentifier",  "ActivityMediaName",
                          "ActivityStartDate", "TADA.ResultValueBelowUpperThreshold.Flag", "TADA.ResultValueBelowLowerThreshold.Flag", "CharacteristicName",
@@ -28,11 +45,11 @@ utils::globalVariables(c("TADA.ResultValueAboveUpperThreshold.Flag", "ActivityId
 
 
 
-#' autoclean
+#' TADA_AutoClean
 #'
 #' Removes rows of data that are true duplicates. Creates new columns with prefix
 #' "TADA." and capitalizes fields to harmonize data. This function includes and 
-#' runs the TADA "ConvertSpecialChars" and "idCensoredData" functions as well.
+#' runs the "TADA_ConvertSpecialChars" and "idCensoredData" functions as well.
 #'  This function performs immediate QA steps (removes true duplicates, converts 
 #'  result values to numeric, capitalizes letters, categorizes detection limit data, etc.) on heavily used columns 
 #'  and places these new values in a column of the same name with the added prefix 
@@ -43,12 +60,12 @@ utils::globalVariables(c("TADA.ResultValueAboveUpperThreshold.Flag", "ActivityId
 #'
 #' @param .data TADA dataframe
 #'
-#' @return autocleaned TADA data profile
+#' @return Automatically cleaned TADA data profile
 #'
 #' @export 
 #'
 
-autoclean <- function(.data) {
+TADA_AutoClean <- function(.data) {
   
   # check .data is data.frame
   checkType(.data, "data.frame", "Input object")
@@ -92,10 +109,10 @@ autoclean <- function(.data) {
     .data = plyr::rbind.fill(dup_check, not_dups)
   }
   
-  # run ConvertSpecialChars function
+  # run TADA_ConvertSpecialChars function
   # .data <- MeasureValueSpecialCharacters(.data)
-  .data <- ConvertSpecialChars(.data, "ResultMeasureValue")
-  .data <- ConvertSpecialChars(.data, "DetectionQuantitationLimitMeasure.MeasureValue")
+  .data <- TADA_ConvertSpecialChars(.data, "ResultMeasureValue")
+  .data <- TADA_ConvertSpecialChars(.data, "DetectionQuantitationLimitMeasure.MeasureValue")
   
   # Move detection limit value and unit to TADA Result Measure Value and Unit columns
   .data$TADA.ResultMeasureValue <- ifelse(is.na(.data$TADA.ResultMeasureValue)&!is.na(.data$TADA.DetectionQuantitationLimitMeasure.MeasureValue),.data$TADA.DetectionQuantitationLimitMeasure.MeasureValue,.data$TADA.ResultMeasureValue)
@@ -119,56 +136,13 @@ autoclean <- function(.data) {
   # create comparable data identifier column
   .data = createComparableId(.data)
   
-  print("NOTE: This version of the TADA package is designed to work with quantitative (numeric) data with sample media: 'WATER'. autoclean does not currently filter downloaded data to 'WATER'. The user must make this specification on their own outside of package functions. See the WQPDataHamornization vignette for an example.")
+  print("NOTE: This version of the TADA package is designed to work with quantitative (numeric) data with sample media: 'WATER'. TADA_AutoClean does not currently filter downloaded data to 'WATER'. The user must make this specification on their own outside of package functions. See the WQPDataHamornization vignette for an example.")
   
-  .data <- OrderTADACols(.data)
+  .data <- TADA_OrderCols(.data)
   
   return(.data)
 }
 
-#' AutoFilter
-#'
-#' Function can be used to autofilter and simplify a WQP dataframe.
-#' After applying this function, the dataframe will only contain result values for
-#' water media types or chemicals in tissue (e.g. mercury in fish tissue).
-#' More complex biological data (counts and macroinvertebrates) is removed.
-#' The function looks at the following fields to autofilter:
-#' ActivityMediaName, ActivityMediaSubDivisionName, AssemblageSampledName
-#'
-#' @param .data TADA dataframe
-#' @param clean Indicates whether flag columns should be appended to the data
-#' (clean = FALSE), or flagged data is transformed/filtered from the
-#' dataframe and no columns are appended (clean = TRUE).
-#'
-#' @return When clean = FALSE, flag column is appended to the dataframe. When
-#' clean = TRUE, flag column is not appended and relevant rows are removed.
-#'
-
-AutoFilter <- function(.data, clean = TRUE) {
-  field.names <- colnames(.data)
-  
-  if (TADAprofileCheck(.data) == FALSE) {
-    stop("The dataframe does not contain the required fields to use TADA. Use either the full physical/chemical profile downloaded from WQP or download the TADA profile template available on the EPA TADA webpage.")
-  }
-  
-  if (TADAprofileCheck(.data) == TRUE) {
-    if (clean == TRUE) {
-      # Remove all data where media name does NOT equal WATER (ignore punctuation)
-      cleandata <- dplyr::filter(.data, ActivityMediaName == "Water")
-      
-      return(cleandata)
-    }
-    
-    if (clean == FALSE) {
-      # NEED TO EDIT TO ADD FLAGS, currently removes other water Water
-      flagdata <- dplyr::filter(.data, ActivityMediaName == "water")
-      
-      return(flagdata)
-    } else {
-      stop("'clean' argument must be Boolean (TRUE or FALSE)")
-    }
-  }
-}
 
 
 #' decimalplaces
@@ -185,69 +159,6 @@ decimalplaces <- function(x) {
     nchar(strsplit(sub("0+$", "", as.character(x)), ".", fixed = TRUE)[[1]][[2]])
   } else {
     return(0)
-  }
-}
-
-
-
-#' TADA Profile Check
-#'
-#' This function checks if the column names in a dataframe include the TADA
-#' profile fields. It is used at the beginning of TADA functions to ensure the
-#' input data frame is suitable (i.e. is either the full physical/chemical
-#' results profile downloaded from WQP or the TADA profile template downloaded
-#' from the EPA TADA webpage.)
-#'
-#' @param .data A dataframe
-#'
-#' @return Boolean result indicating whether or not the input dataframe contains
-#' all of the TADA profile fields.
-#'
-
-TADAprofileCheck <- function(.data) {
-  TADA.fields <- c(
-    "OrganizationIdentifier", "OrganizationFormalName",
-    "ActivityIdentifier", "ActivityTypeCode",
-    "ActivityMediaName", "ActivityMediaSubdivisionName",
-    "ActivityStartDate", "ActivityStartTime.Time",
-    "ActivityStartTime.TimeZoneCode", "ActivityEndDate",
-    "ActivityEndTime.Time", "ActivityEndTime.TimeZoneCode",
-    "ActivityDepthHeightMeasure.MeasureValue", "ActivityDepthHeightMeasure.MeasureUnitCode",
-    "ActivityDepthAltitudeReferencePointText", "ActivityTopDepthHeightMeasure.MeasureValue",
-    "ActivityTopDepthHeightMeasure.MeasureUnitCode", "ActivityBottomDepthHeightMeasure.MeasureValue",
-    "ActivityBottomDepthHeightMeasure.MeasureUnitCode", "ProjectIdentifier",
-    "ActivityConductingOrganizationText", "MonitoringLocationIdentifier",
-    "ActivityCommentText", "SampleAquifer",
-    "HydrologicCondition", "HydrologicEvent",
-    "SampleCollectionMethod.MethodIdentifier", "SampleCollectionMethod.MethodIdentifierContext",
-    "SampleCollectionMethod.MethodName", "SampleCollectionEquipmentName",
-    "ResultDetectionConditionText", "CharacteristicName",
-    "ResultSampleFractionText", "ResultMeasureValue",
-    "ResultMeasure.MeasureUnitCode", "MeasureQualifierCode",
-    "ResultStatusIdentifier", "StatisticalBaseCode",
-    "ResultValueTypeName", "ResultWeightBasisText",
-    "ResultTimeBasisText", "ResultTemperatureBasisText",
-    "ResultParticleSizeBasisText", "PrecisionValue",
-    "ResultCommentText", "USGSPCode",
-    "ResultDepthHeightMeasure.MeasureValue", "ResultDepthHeightMeasure.MeasureUnitCode",
-    "ResultDepthAltitudeReferencePointText", "SubjectTaxonomicName",
-    "SampleTissueAnatomyName", "ResultAnalyticalMethod.MethodIdentifier",
-    "ResultAnalyticalMethod.MethodIdentifierContext", "ResultAnalyticalMethod.MethodName",
-    "MethodDescriptionText", "LaboratoryName",
-    "AnalysisStartDate", "ResultLaboratoryCommentText",
-    "DetectionQuantitationLimitTypeName", "DetectionQuantitationLimitMeasure.MeasureValue",
-    "DetectionQuantitationLimitMeasure.MeasureUnitCode", "PreparationStartDate",
-    "ProviderName", "ActivityStartDateTime", "ActivityEndDateTime"
-  )
-  
-  if (("data.frame" %in% class(.data)) == FALSE) {
-    stop("Input object must be of class 'data.frame'")
-  }
-  
-  if (all(TADA.fields %in% colnames(.data)) == TRUE) {
-    TRUE
-  } else {
-    stop("The dataframe does not contain the required fields to use TADA. Use either the full physical/chemical profile downloaded from WQP or download the TADA profile template available on the EPA TADA webpage.")
   }
 }
 
@@ -297,7 +208,7 @@ checkColumns <- function(.data, expected_cols) {
 
 
 
-#' ConvertSpecialChars
+#' TADA_ConvertSpecialChars
 #' 
 #' This function will screen a column of the user's choice for special
 #' characters. It creates a NEW column that describes the content of the column
@@ -325,7 +236,7 @@ checkColumns <- function(.data, expected_cols) {
 #' @export
 #' 
 
-ConvertSpecialChars <- function(.data,col){
+TADA_ConvertSpecialChars <- function(.data,col){
   if(!col%in%names(.data)){
     stop("Invalid column name specified for input dataset.")
   }
@@ -388,7 +299,7 @@ ConvertSpecialChars <- function(.data,col){
   names(clean.data)[names(clean.data)=="masked"] = numcol
   names(clean.data)[names(clean.data)=="flag"] = flagcol
   
-  clean.data = OrderTADACols(clean.data)
+  clean.data = TADA_OrderCols(clean.data)
   
   return(clean.data)
 }
@@ -406,7 +317,7 @@ ConvertSpecialChars <- function(.data,col){
 #' 
 #' 
 
-OrderTADACols <- function(.data){
+TADA_OrderCols <- function(.data){
   
   dretcols = c("OrganizationIdentifier","
               OrganizationFormalName",

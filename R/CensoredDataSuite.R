@@ -15,7 +15,7 @@
 #' "Detection condition or detection limit is not documented in TADA reference
 #' tables." In these situations, users should contact TADA administrators to
 #' update the package accordingly. This function is used by default in
-#' autoclean, but can be used on its own.
+#' TADA_AutoClean, but can be used on its own.
 #' 
 #' @param .data A TADA dataframe
 #' 
@@ -126,7 +126,10 @@ idCensoredData <- function(.data){
 #' @examples
 #' #' # Load example dataset:
 #' data(Nutrients_Utah)
-#' # Check for agreement between detection condition and detection limit type, and in instances where the measurement is non-detect, set the result value to half of the detection limit value. For over-detect measurements, retain the detection limit value as the result value as-is. 
+#' # Check for agreement between detection condition and detection limit type,
+#' # and in instances where the measurement is non-detect, set the result value
+#' # to half of the detection limit value. For over-detect measurements, retain
+#' # the detection limit value as the result value as-is. 
 #' Nutrients_Utah_CensoredFlag = simpleCensoredMethods(Nutrients_Utah, nd_method = "multiplier", nd_multiplier = 0.5, od_method = "as-is", od_multiplier = "null")
 #' 
 #' # Check for agreement between detection condition and detection limit type, and in instances where the measurement is non-detect, set the result value to a random value between 0 and the detection limit value. For over-detect measurements, retain the detection limit value as the result value as-is. 
@@ -199,7 +202,7 @@ simpleCensoredMethods <- function(.data, nd_method = "multiplier", nd_multiplier
     }
     
     .data = plyr::rbind.fill(nd, od, all_others)
-    .data = OrderTADACols(.data)
+    .data = TADA_OrderCols(.data)
   }
   return(.data)
 }

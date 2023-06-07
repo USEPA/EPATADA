@@ -80,14 +80,14 @@ InvalidFraction <- function(.data, clean = TRUE, errorsonly = FALSE) {
           unique(check.data$TADA.SampleFraction.Flag)) == FALSE) {
     if (errorsonly == FALSE) {
       print("All characteristic/fraction combinations are valid in your dataframe. Returning input dataframe with TADA.SampleFraction.Flag column for tracking.")
-      check.data = OrderTADACols(check.data)
+      check.data = TADA_OrderCols(check.data)
       return(check.data)
     }
     if (errorsonly == TRUE) {
       print("This dataframe is empty because we did not find any invalid fraction/characteristic combinations in your dataframe")
       empty.data <- dplyr::filter(check.data, TADA.SampleFraction.Flag == "Invalid")
       # empty.data <- dplyr::select(empty.data, -TADA.SampleFraction.Flag)
-      empty.data = OrderTADACols(empty.data)
+      empty.data = TADA_OrderCols(empty.data)
       return(empty.data)
     }
   }
@@ -95,7 +95,7 @@ InvalidFraction <- function(.data, clean = TRUE, errorsonly = FALSE) {
   # flagged output, all data
   if (clean == FALSE & errorsonly == FALSE) {
     warning("Metadata transformations may be adversely affected by choosing to retain 'Invalid' fraction. Check these records before proceeding with transformations and/or set clean = TRUE.")
-    check.data = OrderTADACols(check.data)
+    check.data = TADA_OrderCols(check.data)
     return(check.data)
       }
   
@@ -106,7 +106,7 @@ InvalidFraction <- function(.data, clean = TRUE, errorsonly = FALSE) {
     
     # remove WQX.SampleFractionValidity column
     # clean.data <- dplyr::select(clean.data, -TADA.SampleFraction.Flag)
-    clean.data = OrderTADACols(clean.data)
+    clean.data = TADA_OrderCols(clean.data)
     return(clean.data)
   }
   
@@ -114,7 +114,7 @@ InvalidFraction <- function(.data, clean = TRUE, errorsonly = FALSE) {
   if (clean == FALSE & errorsonly == TRUE) {
     # filter out valid characteristic-fraction combinations
     invalid.data <- dplyr::filter(check.data, TADA.SampleFraction.Flag == "Invalid")
-    invalid.data = OrderTADACols(invalid.data)
+    invalid.data = TADA_OrderCols(invalid.data)
     return(invalid.data)
   }
 }
@@ -218,7 +218,7 @@ InvalidSpeciation <- function(.data, clean = c("invalid_only", "nonstandardized_
   if (any(c("Nonstandardized", "Invalid") %in%
           unique(check.data$TADA.MethodSpeciation.Flag)) == FALSE) {
     print("All characteristic/method speciation combinations are valid in your dataframe. Returning input dataframe with TADA.MethodSpeciation.Flag column for tracking.")
-    check.data = OrderTADACols(check.data)
+    check.data = TADA_OrderCols(check.data)
     return(check.data)
   }
   
@@ -253,7 +253,7 @@ InvalidSpeciation <- function(.data, clean = c("invalid_only", "nonstandardized_
   
   # when errorsonly = FALSE
   if (errorsonly == FALSE) {
-    clean.data = OrderTADACols(clean.data)
+    clean.data = TADA_OrderCols(clean.data)
     return(clean.data)
   }
   
@@ -266,7 +266,7 @@ InvalidSpeciation <- function(.data, clean = c("invalid_only", "nonstandardized_
       print("This dataframe is empty because either we did not find any invalid/nonstandardized characteristic-method speciation combinations or they were all filtered out")
       # error.data <- dplyr::select(error.data, -TADA.MethodSpeciation.Flag)
     }
-    error.data = OrderTADACols(error.data)
+    error.data = TADA_OrderCols(error.data)
     return(error.data)
   }
 }
@@ -371,7 +371,7 @@ InvalidResultUnit <- function(.data, clean = c("invalid_only", "nonstandardized_
   if (any(c("Nonstandardized", "Invalid") %in%
           unique(check.data$TADA.ResultUnit.Flag)) == FALSE) {
     print("All characteristic/unit combinations are valid in your dataframe. Returning input dataframe with TADA.ResultUnit.Flag column for tracking.")
-    check.data = OrderTADACols(.data)
+    check.data = TADA_OrderCols(.data)
     return(check.data)
   }
   
@@ -406,7 +406,7 @@ InvalidResultUnit <- function(.data, clean = c("invalid_only", "nonstandardized_
   
   # when errorsonly = FALSE
   if (errorsonly == FALSE) {
-    clean.data = OrderTADACols(clean.data)
+    clean.data = TADA_OrderCols(clean.data)
     return(clean.data)
   }
   
@@ -419,7 +419,7 @@ InvalidResultUnit <- function(.data, clean = c("invalid_only", "nonstandardized_
       print("This dataframe is empty because either we did not find any invalid/nonstandardized characteristic-media-result unit combinations or they were all filtered out")
       # error.data <- dplyr::select(error.data, -TADA.ResultUnit.Flag)
     }
-    error.data = OrderTADACols(error.data)
+    error.data = TADA_OrderCols(error.data)
     return(error.data)
   }
 }

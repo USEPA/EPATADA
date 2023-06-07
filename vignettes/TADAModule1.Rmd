@@ -66,7 +66,7 @@ desired (un-comment).
 # options(download.file.method = "wininet")
 
 remotes::install_github("USEPA/TADA", 
-                        ref = "develop",
+                        ref = "cm-training",
                         dependencies = TRUE)
 library(TADA)
 
@@ -117,11 +117,11 @@ Data retrieval filters include:
 -   characteristicType
 
 Please be aware that the default TADAdataRetrieval function
-automatically runs the TADA **autoclean** and **ConvertSpecialChars**
+automatically runs the TADA **TADA_AutoClean** and **TADA_ConvertSpecialChars**
 functions. Both are both required for subsequent functions within the
 TADA R package to run. As a general rule, TADA functions do not change
-any contents in the WQP-served columns (enter *?ConvertSpecialChars* and
-*?autoclean* into the console for more details). Instead, they add new
+any contents in the WQP-served columns (enter *?TADA_ConvertSpecialChars* and
+*?TADA_AutoClean* into the console for more details). Instead, they add new
 columns with the prefix "TADA." The following columns are numeric
 versions of their WQP origins:
 
@@ -367,7 +367,7 @@ Unique_InvalidCoordinateFlags
 
 ## Depth unit conversions
 
-The **ConvertDepthUnits** function converts depth units to a consistent
+The **TADA_ConvertDepthUnits** function converts depth units to a consistent
 unit. Depth values and units are most commonly associated with lake
 data, and are populated in the *ActivityDepthHeightMeasure*,
 *ActivityTopDepthHeightMeasure*, *ActivityBottomDepthHeightMeasure*, and
@@ -396,28 +396,28 @@ Allowable values for 'unit' are either 'm' (meter), 'ft' (feet), or 'in'
 unit = "m".
 
 See additional function documentation for additional function options by
-entering the following code in the console: ?ConvertDepthUnits
+entering the following code in the console: ?TADA_ConvertDepthUnits
 
-```{r ConvertDepthUnits}
+```{r TADA_ConvertDepthUnits}
 #converts all depth profile data to meters
-TADAProfileClean1 <- ConvertDepthUnits(TADAProfileClean1,
+TADAProfileClean1 <- TADA_ConvertDepthUnits(TADAProfileClean1,
                                        unit = "m",
                                        transform = TRUE)
 ```
 
 ## Result unit conversions
 
-The **ConvertResultUnits** function converts all results to WQX target
+The **TADA_ConvertResultUnits** function converts all results to WQX target
 units. WQX target units are pulled from the MeasureUnit domain table:
 
 -   <https://cdx.epa.gov/wqx/download/DomainValues/MeasureUnit.CSV>
 
 See additional function documentation for additional function options by
-entering the following code in the console: ?ConvertResultUnits
+entering the following code in the console: ?TADA_ConvertResultUnits
 
-```{r ConvertResultUnits}
+```{r TADA_ConvertResultUnits}
 #Converts all results to WQX target units
-TADAProfileClean1 <- ConvertResultUnits(TADAProfileClean1, transform = TRUE)
+TADAProfileClean1 <- TADA_ConvertResultUnits(TADAProfileClean1, transform = TRUE)
 ```
 
 ## Statistically aggregated data
@@ -809,7 +809,7 @@ conditions and limit types. TADA fills missing *TADA.ResultMeasureValue*
 and *TADA.ResultMeasure.MeasureUnitCode* values with values and units
 from *TADA.DetectionQuantitationLimitMeasure.MeasureValue* and
 *TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode*, respectively,
-using the autoclean function. In other words, detection limit
+using the TADA_AutoClean function. In other words, detection limit
 information is copied and pasted into the result value column when the
 original value is NA and detection limit information is available. The
 two columns TADA focuses on to define and flag censored data are
