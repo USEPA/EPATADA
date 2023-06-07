@@ -20,7 +20,7 @@ NULL
 #'
 #' A dataset containing Ammonia, Nitrate, and Nitrogen data from Utah:
 #'  
-#' TADAProfile <- TADAdataRetrieval(statecode = "UT",
+#' Nutrients_Utah <- TADAdataRetrieval(statecode = "UT",
 #' characteristicName = c("Ammonia", "Nitrate", "Nitrogen"),
 #' startDate = "2020-10-01",
 #' endDate = "2022-09-30")
@@ -29,7 +29,7 @@ NULL
 #' @keywords datasets
 #' @name Nutrients_Utah
 #' @usage data(Nutrients_Utah)
-#' @format A data frame with 14587 rows and 137 variables
+#' @format A data frame with 14587 rows and 148 variables
 NULL
 
 #' narrow
@@ -65,30 +65,25 @@ NULL
 #' @format A data frame with 55 rows and 37 variables
 NULL
 
-#' TADAProfileClean18_TNonly
+#' TADAProfileCleanTP
 #' 
-#' A dataset containing Nutrient data from Utah:
+#' A dataset containing Total Phosphorus data from Tribal Data (see ?TribalData for more information):
 #'
-#' original pull below:  
-#' TADAProfile <- TADAdataRetrieval(statecode = "UT",
-#' characteristicName = c("Ammonia", "Nitrate", "Nitrogen"),
-#' startDate = "2020-10-01",
-#' endDate = "2022-09-30")
 #'
 #' Data was cleaned using the TADA harmonize vignette. Data is filtered down to 
-#' only Total Nitrogen.
+#' only Total Phosphorus, Mixed Forms.
 #'  
 #' @docType data
 #' @keywords datasets
-#' @name TADAProfileClean18_TNonly
-#' @usage data(TADAProfileClean18_TNonly)
-#' @format A data frame with 5198 rows and 169 variables
+#' @name TADAProfileCleanTP
+#' @usage data(TADAProfileCleanTP)
+#' @format A data frame with 2498 rows and 172 variables
 NULL
 
 #' Tribal Data
 #'
 #' Original pull:  
-#' TADAProfile <- TADAdataRetrieval(organization = c("REDLAKE_WQX", 
+#' TribalData <- TADAdataRetrieval(organization = c("REDLAKE_WQX", 
 #'                                                  "SFNOES_WQX", 
 #'                                                  "PUEBLO_POJOAQUE",
 #'                                                  "FONDULAC_WQX",
@@ -110,6 +105,6 @@ NULL
 #' @keywords datasets
 #' @name TribalData
 #' @usage data(TribalData)
-#' @format A data frame with 131558 rows and 137 variables
+#' @format A data frame with 131906 rows and 151 variables
 NULL
 

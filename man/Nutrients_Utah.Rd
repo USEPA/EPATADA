@@ -5,7 +5,7 @@
 \alias{Nutrients_Utah}
 \title{Utah Nutrient Data}
 \format{
-A data frame with 14587 rows and 137 variables
+A data frame with 14587 rows and 148 variables
 }
 \usage{
 data(Nutrients_Utah)
@@ -13,7 +13,7 @@ data(Nutrients_Utah)
 \description{
 A dataset containing Ammonia, Nitrate, and Nitrogen data from Utah:
 
-TADAProfile <- TADAdataRetrieval(statecode = "UT",
+Nutrients_Utah <- TADAdataRetrieval(statecode = "UT",
 characteristicName = c("Ammonia", "Nitrate", "Nitrogen"),
 startDate = "2020-10-01",
 endDate = "2022-09-30")

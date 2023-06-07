@@ -5,14 +5,14 @@
 \alias{TribalData}
 \title{Tribal Data}
 \format{
-A data frame with 131558 rows and 137 variables
+A data frame with 131906 rows and 151 variables
 }
 \usage{
 data(TribalData)
 }
 \description{
 Original pull:
-TADAProfile <- TADAdataRetrieval(organization = c("REDLAKE_WQX",
+TribalData <- TADAdataRetrieval(organization = c("REDLAKE_WQX",
 "SFNOES_WQX",
 "PUEBLO_POJOAQUE",
 "FONDULAC_WQX",

@@ -17,12 +17,12 @@
 #' 
 #' @examples
 #' # Load example dataset:
-#' data("TADAProfileClean18_TNonly")
-#' # TADAProfileClean18_TNonly dataframe is clean, harmonized, and filtered
+#' data(TADAProfileCleanTP)
+#' # TADAProfileCleanTP dataframe is clean, harmonized, and filtered
 #' # down to one Comparable Data Identifier
 #' 
 #' # Create boxplot:
-#' TADA_boxplot(TADAProfileClean18_TNonly, id_col = "TADA.ComparableDataIdentifier")
+#' TADA_boxplot(TADAProfileCleanTP, id_col = "TADA.ComparableDataIdentifier")
 #' 
 
 TADA_boxplot <- function(filtered.data, id_col = c("TADA.CharacteristicName", "TADA.ComparableDataIdentifier")) {
@@ -119,12 +119,12 @@ TADA_boxplot <- function(filtered.data, id_col = c("TADA.CharacteristicName", "T
 #' 
 #' @examples
 #' # Load example dataset:
-#' data("TADAProfileClean18_TNonly")
-#' # TADAProfileClean18_TNonly dataframe is clean, harmonized, and filtered
+#' data(TADAProfileCleanTP)
+#' # TADAProfileCleanTP dataframe is clean, harmonized, and filtered
 #' # down to one Comparable Data Identifier
 #' 
 #' # Create histogram:
-#' TADA_hist(TADAProfileClean18_TNonly, id_col = "TADA.ComparableDataIdentifier")
+#' TADA_hist(TADAProfileCleanTP, id_col = "TADA.ComparableDataIdentifier")
 
 TADA_hist <- function(filtered.data, id_col = c("TADA.CharacteristicName", "TADA.ComparableDataIdentifier")) {
   # check .data is data.frame

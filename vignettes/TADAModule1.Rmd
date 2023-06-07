@@ -373,51 +373,17 @@ data, and are populated in the *ActivityDepthHeightMeasure*,
 *ActivityTopDepthHeightMeasure*, *ActivityBottomDepthHeightMeasure*, and
 *ResultDepthHeightMeasure* Result Value/Unit columns.
 
-This function first checks the dataframe for depth profile data. Where
-depth profile columns are populated, the function appends 'Conversion
-Factor' columns and populates those columns based on the original unit
-and the target unit, which is defined in the 'unit' argument. A 'Depth
-Target Unit' column is also appended, indicating the unit all selected
-depth data is converted to. When transform = FALSE, the output includes
-all 'Conversion Factor' columns and the 'Depth Target Unit' column. When
-transform = TRUE, the output includes converted depth data and the
-'Depth Target Unit' column, which acts as a flag indicating which rows
-have been converted. Default is transform = TRUE.
-
-The depth profile function can harmonize the depth units across all the
-following fields (or only a specific one): "ActivityDepthHeightMeasure",
-"ActivityTopDepthHeightMeasure", "ActivityBottomDepthHeightMeasure",
-"ResultDepthHeightMeasure"). It creates new result value/unit columns
-with the prefix "TADA." to all converted columns. The default is to
-check all four Depth Height columns.
-
 Allowable values for 'unit' are either 'm' (meter), 'ft' (feet), or 'in'
 (inch). 'unit' accepts only one allowable value as an input. Default is
 unit = "m".
 
-See additional function documentation for additional function options by
-entering the following code in the console: ?TADA_ConvertDepthUnits
+Note that upon download using **TADAdataRetrieval**, all depth columns are converted to meters by default. However, the user may choose to run the **TADA_ConvertDepthUnits** function on their dataset to convert to another unit. See function documentation for additional input options by entering the following code in the console: ?TADA_ConvertDepthUnits
 
 ```{r TADA_ConvertDepthUnits}
 #converts all depth profile data to meters
 TADAProfileClean1 <- TADA_ConvertDepthUnits(TADAProfileClean1,
-                                       unit = "m",
+                                       unit = "ft",
                                        transform = TRUE)
-```
-
-## Result unit conversions
-
-The **TADA_ConvertResultUnits** function converts all results to WQX target
-units. WQX target units are pulled from the MeasureUnit domain table:
-
--   <https://cdx.epa.gov/wqx/download/DomainValues/MeasureUnit.CSV>
-
-See additional function documentation for additional function options by
-entering the following code in the console: ?TADA_ConvertResultUnits
-
-```{r TADA_ConvertResultUnits}
-#Converts all results to WQX target units
-TADAProfileClean1 <- TADA_ConvertResultUnits(TADAProfileClean1, transform = TRUE)
 ```
 
 ## Statistically aggregated data

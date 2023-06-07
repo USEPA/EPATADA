@@ -50,14 +50,14 @@ idCensoredData <- function(.data){
     cens$TADA.Detection_Type = ifelse(is.na(cens$ResultDetectionConditionText),"ResultDetectionConditionText missing", cens$TADA.Detection_Type)
     if(any(is.na(cens$ResultDetectionConditionText))){
       missing_detcond = length(cens$ResultDetectionConditionText[is.na(cens$ResultDetectionConditionText)])
-      print(paste0("There are ", missing_detcond," results in your dataset that are missing ResultDetectionConditionText. TADA requires BOTH ResultDetectionConditionText and DetectionQuantitationLimitTypeName fields to be populated in order to categorize censored data. Please contact the TADA Admins to resolve."))
+      print(paste0("TADA_IDCensoredData: There are ", missing_detcond," results in your dataset that are missing ResultDetectionConditionText. TADA requires BOTH ResultDetectionConditionText and DetectionQuantitationLimitTypeName fields to be populated in order to categorize censored data. Please contact the TADA Admins to resolve."))
     }
     
     conds = unique(cens$ResultDetectionConditionText[!is.na(cens$ResultDetectionConditionText)])
     if(any(!conds%in%cond.ref$ResultDetectionConditionText)){
       missing_conds = conds[!conds%in%cond.ref$ResultDetectionConditionText]
       missing_conds = paste(missing_conds, collapse = ", ")
-      print(paste0("ResultDetectionConditionText column in dataset contains value(s) ",missing_conds, " which is/are not represented in the ResultDetectionConditionText WQX domain table. These data records are placed under the TADA.CensoredData.Flag: Censored but not Categorized, and will not be used in censored data handling methods. Please contact TADA administrators to resolve."))
+      print(paste0("TADA_IDCensoredData: ResultDetectionConditionText column in dataset contains value(s) ",missing_conds, " which is/are not represented in the ResultDetectionConditionText WQX domain table. These data records are placed under the TADA.CensoredData.Flag: Censored but not Categorized, and will not be used in censored data handling methods. Please contact TADA administrators to resolve."))
     }
     
     ## Bring in det limit type reference table
@@ -70,7 +70,7 @@ idCensoredData <- function(.data){
     if(any(!limits%in%limtype.ref$DetectionQuantitationLimitTypeName)){
       missing_lims = limits[!limits%in%limtype.ref$DetectionQuantitationLimitTypeName]
       missing_lims = paste(missing_lims, collapse = ", ")
-      print(paste0("DetectionQuantitationLimitTypeName column dataset contains value(s) ",missing_lims, " which is/are not represented in the DetectionQuantitationLimitTypeName WQX domain table. These data records are placed under the TADA.CensoredData.Flag: Censored but not Categorized, and will not be used in censored data handling methods. Please contact TADA administrators to resolve."))
+      print(paste0("TADA_IDCensoredData: DetectionQuantitationLimitTypeName column dataset contains value(s) ",missing_lims, " which is/are not represented in the DetectionQuantitationLimitTypeName WQX domain table. These data records are placed under the TADA.CensoredData.Flag: Censored but not Categorized, and will not be used in censored data handling methods. Please contact TADA administrators to resolve."))
     }
     
     ## Create flag for condition and limit type combinations
@@ -84,12 +84,12 @@ idCensoredData <- function(.data){
     ## warn when some limit metadata may be problematic
     if("Conflict between Condition and Limit"%in%cens$TADA.CensoredData.Flag){
       num = length(cens$TADA.CensoredData.Flag[cens$TADA.CensoredData.Flag=="Conflict between Condition and Limit"])
-      print(paste0(num," records in supplied dataset have conflicting detection condition and detection limit type information. These records will not be included in detection limit handling calculations."))
+      print(paste0("TADA_IDCensoredData: ",num," records in supplied dataset have conflicting detection condition and detection limit type information. These records will not be included in detection limit handling calculations."))
     }
     
     if("Detection condition or detection limit is not documented in TADA reference tables."%in%cens$TADA.CensoredData.Flag){
       num = length(cens$TADA.CensoredData.Flag[cens$TADA.CensoredData.Flag=="Detection condition or detection limit is not documented in TADA reference tables."])
-      print(paste0(num," records in supplied dataset have detection conditions and/or limit types that are missing from TADA reference tables . These records will not be included in detection limit handling calculations."))
+      print(paste0("TADA_IDCensoredData: ",num," records in supplied dataset have detection conditions and/or limit types that are missing from TADA reference tables . These records will not be included in detection limit handling calculations."))
     }
     
     cens = cens%>%dplyr::select(-TADA.Detection_Type, -TADA.Limit_Type)
@@ -97,7 +97,7 @@ idCensoredData <- function(.data){
     cens.check = plyr::rbind.fill(cens, not_cens)
   }else{
     cens.check = not_cens
-    print("No censored data detected in your dataset. Returning input dataframe with new column TADA.CensoredData.Flag set to Uncensored")
+    print("TADA_IDCensoredData: No censored data detected in your dataset. Returning input dataframe with new column TADA.CensoredData.Flag set to Uncensored")
     }
 
   return(cens.check)
