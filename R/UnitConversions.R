@@ -281,6 +281,22 @@ TADA_ConvertDepthUnits <- function(.data,
   )
   checkColumns(.data, expected_cols)
   
+  tadacols = c("TADA.ActivityDepthHeightMeasure.MeasureValue",
+               "TADA.ActivityDepthHeightMeasure.MeasureUnitCode",
+               "TADA.ActivityDepthHeightMeasure.MeasureValueDataTypes.Flag",
+               "TADA.ActivityTopDepthHeightMeasure.MeasureValue",
+               "TADA.ActivityTopDepthHeightMeasure.MeasureUnitCode",
+               "TADA.ActivityTopDepthHeightMeasure.MeasureValueDataTypes.Flag",
+               "TADA.ActivityBottomDepthHeightMeasure.MeasureValue",
+               "TADA.ActivityBottomDepthHeightMeasure.MeasureUnitCode",
+               "TADA.ActivityBottomDepthHeightMeasure.MeasureValueDataTypes.Flag",
+               "TADA.ResultDepthHeightMeasure.MeasureValue",
+               "TADA.ResultDepthHeightMeasure.MeasureUnitCode",
+               "TADA.ResultDepthHeightMeasure.MeasureValueDataTypes.Flag")
+  
+  # Remove TADA cols if already run on a single dataset - this might occur if someone chooses initially one unit but changes mind and wants other unit.
+  .data = .data[,!names(.data)%in%tadacols]
+  
   # execute function after checks are passed
   # define check.data (to preserve .data and avoid mistakes with if statements below)
   check.data <- .data
