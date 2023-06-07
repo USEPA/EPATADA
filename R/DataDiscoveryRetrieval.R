@@ -230,6 +230,7 @@ TADAdataRetrieval <- function(startDate = "null",
   }
 
   # Retrieve all 3 profiles
+  print("Downloading WQP query results. This may take some time depending upon the query size.")
   results.DR <- dataRetrieval::readWQPdata(WQPquery,
                                            dataProfile = "resultPhysChem",
                                            ignore_attributes = TRUE)
@@ -273,6 +274,7 @@ TADAdataRetrieval <- function(startDate = "null",
 
     # run TADA_AutoClean function
     if(applyautoclean==TRUE){
+      print("Data successfully downloaded. Running TADA_AutoClean function.")
 
       TADAprofile.clean <- TADA_AutoClean(TADAprofile)
 
