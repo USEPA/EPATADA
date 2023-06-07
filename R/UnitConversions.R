@@ -178,17 +178,35 @@ TADA_ConvertResultUnits <- function(.data, transform = TRUE) {
 
 #' Convert Depth Units
 #'
-#' Default is transform = TRUE. When transform = TRUE, all depth data is converted
-#' to a consistent unit. The converted depth value and unit are placed in a NEW
-#' column with the same name as the original, plus the prefix "TADA." New columns
-#' are only created if there are values/units in the column(s) of interest. 
-#' The default unit is "m" (meters), but a user can also choose 
-#' "ft" or "in". When transform = FALSE, where depth data is populated, the 
-#' function appends columns indicating the target unit and conversion factor for
-#' each row; and for each depth field. No conversions are done at this time. 
-#' A user can review the conversion factor information if desired by using this
-#' feature. All transformations are performed on columns created by this function
-#' with the prefix "TADA." All WQP columns retain original values.
+#' #'The **TADA_ConvertDepthUnits** function converts depth units to a consistent
+#' unit. Depth values and units are most commonly associated with lake
+#' data, and are populated in the *ActivityDepthHeightMeasure*,
+#' *ActivityTopDepthHeightMeasure*, *ActivityBottomDepthHeightMeasure*, and
+#' *ResultDepthHeightMeasure* Result Value/Unit columns.
+#' 
+#' This function first checks the dataframe for depth profile data. Where depth
+#' profile columns are populated, the function appends 'Conversion Factor'
+#' columns and populates those columns based on the original unit and the target
+#' unit, which is defined in the 'unit' argument. A 'Depth Target Unit' column
+#' is also appended, indicating the unit all selected depth data is converted
+#' to. When transform = FALSE, the output includes all 'Conversion Factor'
+#' columns and the 'Depth Target Unit' column. When transform = TRUE, the output
+#' includes converted depth data in a column with the same name as the original,
+#' plus the prefix "TADA." and a 'Depth Target Unit' column, which acts as a
+#' flag indicating which rows have been converted. New columns are only created
+#' if there are values/units in the column(s) of interest. Default is transform
+#' = TRUE.
+#' 
+#' The depth profile function can harmonize the depth units across all the
+#' following fields (or only a specific one): "ActivityDepthHeightMeasure",
+#' "ActivityTopDepthHeightMeasure", "ActivityBottomDepthHeightMeasure",
+#' "ResultDepthHeightMeasure"). It creates new result value/unit columns
+#' with the prefix "TADA." to all converted columns. The default is to
+#' check all four Depth Height columns.
+#' 
+#' Allowable values for 'unit' are either 'm' (meter), 'ft' (feet), or 'in'
+#' (inch). 'unit' accepts only one allowable value as an input. Default is
+#' unit = "m".
 #' 
 #' @param .data TADA dataframe
 #' @param unit Character string input indicating the target depth unit to use for 
@@ -209,9 +227,9 @@ TADA_ConvertResultUnits <- function(.data, transform = TRUE) {
 #' desired by using this feature. 
 #' 
 #' @return When transform = TRUE, the input dataframe is returned with all depth
-#' data converted to the target unit; no additional columns are added.
+#' data converted to the target unit in new TADA-specific columns.
 #' When transform = FALSE, the input dataframe is returned with additional
-#' columns including... be specific here ... 
+#' columns showing how the data would be handled when converted.
 #' 
 #' @export
 #' 
@@ -280,6 +298,22 @@ TADA_ConvertDepthUnits <- function(.data,
     "ResultDepthHeightMeasure.MeasureUnitCode"
   )
   checkColumns(.data, expected_cols)
+  
+  tadacols = c("TADA.ActivityDepthHeightMeasure.MeasureValue",
+               "TADA.ActivityDepthHeightMeasure.MeasureUnitCode",
+               "TADA.ActivityDepthHeightMeasure.MeasureValueDataTypes.Flag",
+               "TADA.ActivityTopDepthHeightMeasure.MeasureValue",
+               "TADA.ActivityTopDepthHeightMeasure.MeasureUnitCode",
+               "TADA.ActivityTopDepthHeightMeasure.MeasureValueDataTypes.Flag",
+               "TADA.ActivityBottomDepthHeightMeasure.MeasureValue",
+               "TADA.ActivityBottomDepthHeightMeasure.MeasureUnitCode",
+               "TADA.ActivityBottomDepthHeightMeasure.MeasureValueDataTypes.Flag",
+               "TADA.ResultDepthHeightMeasure.MeasureValue",
+               "TADA.ResultDepthHeightMeasure.MeasureUnitCode",
+               "TADA.ResultDepthHeightMeasure.MeasureValueDataTypes.Flag")
+  
+  # Remove TADA cols if already run on a single dataset - this might occur if someone chooses initially one unit but changes mind and wants other unit.
+  .data = .data[,!names(.data)%in%tadacols]
   
   # execute function after checks are passed
   # define check.data (to preserve .data and avoid mistakes with if statements below)

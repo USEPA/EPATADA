@@ -43,12 +43,12 @@ TADA_summarizeColumn <- function(.data,col="TADA.CharacteristicName"){
 #' 
 #' @examples
 #' # Load example dataset:
-#' data("TADAProfileClean18_TNonly")
-#' # TADAProfileClean18_TNonly dataframe is clean, harmonized, and filtered
+#' data(TADAProfileCleanTP)
+#' # TADAProfileCleanTP dataframe is clean, harmonized, and filtered
 #' # down to one Comparable Data Identifier
 #' 
 #' # Create stats table:
-#' TADAProfileClean18_TNonly_stats <- TADA_stats(TADAProfileClean18_TNonly)
+#' TADAProfileCleanTP_stats <- TADA_stats(TADAProfileCleanTP)
 #' 
 
 TADA_stats <- function(.data){

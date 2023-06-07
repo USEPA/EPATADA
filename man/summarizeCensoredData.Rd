@@ -32,11 +32,11 @@ censored data estimation methods that depend upon the distribution of the datase
 }
 \examples{
 # Load example dataset:
-data("TADAProfileClean18_TNonly")
-# TADAProfileClean18_TNonly dataframe is clean, harmonized, and filtered
+data(TADAProfileCleanTP)
+# TADAProfileCleanTP dataframe is clean, harmonized, and filtered
 # down to one Comparable Data Identifier
 
 # Create summarizeCensoredData table:
-TADAProfileClean18_TNonly_summarizeCensoredData <- summarizeCensoredData(TADAProfileClean18_TNonly)
+TADAProfileCleanTP_summarizeCensoredData <- summarizeCensoredData(TADAProfileCleanTP)
 
 }
