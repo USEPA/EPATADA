@@ -506,9 +506,10 @@ TADA_OrderCols <- function(.data){
            "WQXConversionFactor.ActivityTopDepthHeightMeasure",
            "WQXConversionFactor.ActivityBottomDepthHeightMeasure",
            "WQXConversionFactor.ResultDepthHeightMeasure",
-           "TADA.PotentialDupRowIDs.Flag",
+           "TADA.ProbableDuplicate",
+           "TADA.DuplicateID",
            "TADA.Remove",
-           "TADA.RemoveReason",
+           "TADA.RemovalReason",
            "TADAShiny.tab"
   )
   dret_cols = dretcols[dretcols%in%names(.data)]
@@ -570,7 +571,7 @@ getTADATemplate <- function(){
 #'
 #' @export
 
-idNearbySites <- function(.data, dist_buffer=100){
+TADA_NearbySites <- function(.data, dist_buffer=100){
   
   # check .data is data.frame
   checkType(.data, "data.frame", "Input object")
@@ -637,7 +638,7 @@ idNearbySites <- function(.data, dist_buffer=100){
   }
   
   # order columns
-  .data = OrderTADACols(.data)
+  .data = TADA_OrderCols(.data)
   
   # move site id cols to right place
   grpcols = names(.data)[grepl("TADA.SiteGroup",names(.data))]

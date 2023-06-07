@@ -1124,14 +1124,18 @@ InvalidCoordinates <- function(.data,
 #' @param dist_buffer Numeric. The distance in meters below which two sites with 
 #' measurements at the same time on the same day of the same parameter will
 #' be flagged as potential duplicates.
-#' 
-#' @return The same TADA dataframe with two additional columns, a duplicate flag
-#' column, and a distance between sites (in meters) column.
-#' 
+#'
+#' @return The same input TADA dataframe with additional columns: a
+#'   TADA.ProbableDuplicate column indicating if there is evidence that two or
+#'   more results are duplicated, a TADA.DuplicateID column, containing a
+#'   number unique to results that may represent duplicated measurement events,
+#'   and one or more TADA.SiteGroup columns indicating monitoring locations
+#'   within the distance buffer from each other.
+#'   
 #' @export
 #' 
 
-idPotentialDuplicates <- function(.data, dist_buffer = 100){
+TADA_FindPotentialDuplicates <- function(.data, dist_buffer = 100){
   # get all data that are not NA and round to 2 digits
   dupsprep = .data%>%dplyr::select(OrganizationIdentifier,ResultIdentifier,ActivityStartDate, ActivityStartTime.Time, TADA.CharacteristicName,TADA.ResultMeasureValue)%>%dplyr::filter(!is.na(TADA.ResultMeasureValue))%>%dplyr::mutate(roundRV = round(TADA.ResultMeasureValue,digits=2))
   # group by date, time, characteristic, and rounded result value and summarise the number of organizations that have those same row values, and filter to those summary rows with more than one organization
@@ -1151,7 +1155,7 @@ idPotentialDuplicates <- function(.data, dist_buffer = 100){
     rm(dupsprep)
     # from those datapoints, determine which are in adjacent sites
     if(!"TADA.SiteGroup1"%in%names(.data)){
-      .data = idNearbySites(.data, dist_buffer = dist_buffer)
+      .data = TADA_NearbySites(.data, dist_buffer = dist_buffer)
     }
     dupsitesids = names(.data)[grepl("TADA.SiteGroup",names(.data))]
     dupsites = unique(.data[,c("MonitoringLocationIdentifier","TADA.LatitudeMeasure","TADA.LongitudeMeasure",dupsitesids)])
@@ -1182,7 +1186,7 @@ idPotentialDuplicates <- function(.data, dist_buffer = 100){
               }
             }
           }
-          print(i)
+          # print(i)
         }
         
         dupdata = subset(dupdata, dupdata$TADA.ProbableDuplicate=="Y")
@@ -1205,6 +1209,8 @@ idPotentialDuplicates <- function(.data, dist_buffer = 100){
     .data$TADA.ProbableDuplicate = "N"
     print("No duplicate results detected. Returning input dataframe with duplicate flagging columns set to N.")
   }
+  
+  .data = TADA_OrderCols(.data)
   
   return(.data)
 }
