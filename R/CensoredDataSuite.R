@@ -229,12 +229,12 @@ simpleCensoredMethods <- function(.data, nd_method = "multiplier", nd_multiplier
 #' 
 #' @examples
 #' # Load example dataset:
-#' data("TADAProfileClean18_TNonly")
-#' # TADAProfileClean18_TNonly dataframe is clean, harmonized, and filtered
+#' data(TADAProfileCleanTP)
+#' # TADAProfileCleanTP dataframe is clean, harmonized, and filtered
 #' # down to one Comparable Data Identifier
 #' 
 #' # Create summarizeCensoredData table:
-#' TADAProfileClean18_TNonly_summarizeCensoredData <- summarizeCensoredData(TADAProfileClean18_TNonly)
+#' TADAProfileCleanTP_summarizeCensoredData <- summarizeCensoredData(TADAProfileCleanTP)
 #' 
 
 summarizeCensoredData <- function(.data, spec_cols = c("TADA.CharacteristicName","TADA.ResultMeasure.MeasureUnitCode","TADA.ResultSampleFractionText","TADA.MethodSpecificationName")){

@@ -162,9 +162,9 @@ TADA_hist <- function(filtered.data, id_col = c("TADA.CharacteristicName", "TADA
   upper_thresh <- quant_75 + 1.5*box_iqr
   lower_thresh <- quant_25 - 1.5*box_iqr
   box_upper_row <- which(values == max(values[values <= upper_thresh]))
-  box_upper <- values[box_upper_row[1]]
+  box_upper <- values[[box_upper_row[[1]]]]
   box_lower_row <- which(values == min(values[values >= lower_thresh]))
-  box_lower <- values[box_lower_row[1]]
+  box_lower <- values[[box_lower_row[[1]]]]
   no_outliers <- subset(filtered.data, filtered.data$TADA.ResultMeasureValue>=box_lower & filtered.data$TADA.ResultMeasureValue<=box_upper)
   
   histogram <- plotly::plot_ly() %>%
