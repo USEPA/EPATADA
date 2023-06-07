@@ -36,7 +36,10 @@ in the dataset.
 \examples{
 #' # Load example dataset:
 data(Nutrients_Utah)
-# Check for agreement between detection condition and detection limit type, and in instances where the measurement is non-detect, set the result value to half of the detection limit value. For over-detect measurements, retain the detection limit value as the result value as-is. 
+# Check for agreement between detection condition and detection limit type,
+# and in instances where the measurement is non-detect, set the result value
+# to half of the detection limit value. For over-detect measurements, retain
+# the detection limit value as the result value as-is. 
 Nutrients_Utah_CensoredFlag = simpleCensoredMethods(Nutrients_Utah, nd_method = "multiplier", nd_multiplier = 0.5, od_method = "as-is", od_multiplier = "null")
 
 # Check for agreement between detection condition and detection limit type, and in instances where the measurement is non-detect, set the result value to a random value between 0 and the detection limit value. For over-detect measurements, retain the detection limit value as the result value as-is. 
