@@ -15,7 +15,7 @@ Automatically cleaned TADA data profile
 \description{
 Removes rows of data that are true duplicates. Creates new columns with prefix
 "TADA." and capitalizes fields to harmonize data. This function includes and
-runs the TADA "ConvertSpecialChars" and "idCensoredData" functions as well.
+runs the "TADA_ConvertSpecialChars" and "idCensoredData" functions as well.
 This function performs immediate QA steps (removes true duplicates, converts
 result values to numeric, capitalizes letters, categorizes detection limit data, etc.) on heavily used columns
 and places these new values in a column of the same name with the added prefix

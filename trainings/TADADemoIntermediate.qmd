@@ -178,7 +178,7 @@ TADA::fieldValuesPie(dataset,field="ActivityTypeCode")
 
 **Question 4: When might a user choose to view a column's unique values as a table rather than in a pie chart?**
 
-We can take a quick look at some of the TADA-created columns that review result value types. Because TADA is intended to work with numeric data, at this point, it would be good to remove those result values that are NA without any detection limit info, or contain text or special characters that cannot be converted to numeric. Note that TADA will fill in missing values with detection limit values and units if the ResultDetectionConditionText and DetectionQuantitationLimitType fields are populated. Use `?ConvertSpecialChars` for more details on result value types and handling.
+We can take a quick look at some of the TADA-created columns that review result value types. Because TADA is intended to work with numeric data, at this point, it would be good to remove those result values that are NA without any detection limit info, or contain text or special characters that cannot be converted to numeric. Note that TADA will fill in missing values with detection limit values and units if the ResultDetectionConditionText and DetectionQuantitationLimitType fields are populated. Use `?TADA_ConvertSpecialChars` for more details on result value types and handling.
 
 ```{r}
 # take a look at datatypes

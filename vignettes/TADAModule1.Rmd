@@ -117,10 +117,10 @@ Data retrieval filters include:
 -   characteristicType
 
 Please be aware that the default TADAdataRetrieval function
-automatically runs the TADA **TADA_AutoClean** and **ConvertSpecialChars**
+automatically runs the TADA **TADA_AutoClean** and **TADA_ConvertSpecialChars**
 functions. Both are both required for subsequent functions within the
 TADA R package to run. As a general rule, TADA functions do not change
-any contents in the WQP-served columns (enter *?ConvertSpecialChars* and
+any contents in the WQP-served columns (enter *?TADA_ConvertSpecialChars* and
 *?TADA_AutoClean* into the console for more details). Instead, they add new
 columns with the prefix "TADA." The following columns are numeric
 versions of their WQP origins:

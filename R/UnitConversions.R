@@ -331,7 +331,7 @@ TADA_ConvertDepthUnits <- function(.data,
         
         # rename new columns
         names(check.data)[names(check.data) == "Conversion.Factor"] <- paste('WQXConversionFactor.', field,  sep="")
-        check.data = ConvertSpecialChars(check.data, valCol)
+        check.data = TADA_ConvertSpecialChars(check.data, valCol)
         
       }
     }
