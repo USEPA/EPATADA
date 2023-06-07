@@ -13,18 +13,26 @@ TADA_AutoClean(.data)
 Input dataframe with several added TADA-specific columns, including:
 TADA.ActivityMediaName, TADA.CharacteristicName, TADA.ResultMeasureValue,
 TADA.ResultMeasure.MeasureUnitCode, TADA.ResultMeasureValueDataTypes.Flag,
-TADA.CensoredData.Flag, TADA.ActivityDepthHeightMeasure.MeasureValue,
-TADA.LatitudeMeasure, TADA.LongitudeMeasure, TADA.ResultSampleFractionText,
-TADA.MethodSpecificationName, and more.
+TADA.CensoredData.Flag, TADA.LatitudeMeasure, TADA.LongitudeMeasure,
+TADA.ResultSampleFractionText, TADA.MethodSpecificationName, and more.
+Please note that the number of TADA-specific depth columns in the returned
+dataframe depends upon the number of depth columns with one or more results
+populated with a numeric value. If all depth columns contain only NA's, no
+conversion is necessary and no TADA depth columns are created.
 }
 \description{
-Removes rows of data that are true duplicates. Creates new columns with prefix
-"TADA." and capitalizes fields to harmonize data. This function
-runs "TADA_ConvertSpecialChars", "TADA_ConvertResultUnits", "TADA_ConvertDepthUnits", and "TADA_IDCensoredData" functions,
-which perform the following QA steps: remove true duplicates, convert
-result values to numeric, harmonize result and depth units, convert text to uppercase letters, and categorize detection limit data.
-Original affected columns are not changed: new columns are added to the end of the dataframe with the prefix
-"TADA." This function makes important character fields uppercase so that they're interoperable with
-the WQX validation reference tables and reduces issues with case-sensitivity
-when joining data.TADA_AutoClean can be run as a stand alone function but is primarily used by the TADA_dataRetrieval function.
+Removes rows of data that are true duplicates. Creates new columns with
+prefix "TADA." and capitalizes fields to harmonize data. This function runs
+"TADA_ConvertSpecialChars", "TADA_ConvertResultUnits",
+"TADA_ConvertDepthUnits", and "TADA_IDCensoredData" functions, which perform
+the following QA steps: remove true duplicates, convert result values to
+numeric, harmonize result and depth units (note: all depth-related columns
+with populated values are converted to meters in a TADA-specific column),
+convert text to uppercase letters, and categorize detection limit data.
+Original affected columns are not changed: new columns are added to the end
+of the dataframe with the prefix "TADA." This function makes important
+character fields uppercase so that they're interoperable with the WQX
+validation reference tables and reduces issues with case-sensitivity when
+joining data.TADA_AutoClean can be run as a stand alone function but is
+primarily used by the TADA_dataRetrieval function.
 }
