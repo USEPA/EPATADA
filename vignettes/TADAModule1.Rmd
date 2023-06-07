@@ -117,11 +117,11 @@ Data retrieval filters include:
 -   characteristicType
 
 Please be aware that the default TADAdataRetrieval function
-automatically runs the TADA **autoclean** and **ConvertSpecialChars**
+automatically runs the TADA **TADA_AutoClean** and **ConvertSpecialChars**
 functions. Both are both required for subsequent functions within the
 TADA R package to run. As a general rule, TADA functions do not change
 any contents in the WQP-served columns (enter *?ConvertSpecialChars* and
-*?autoclean* into the console for more details). Instead, they add new
+*?TADA_AutoClean* into the console for more details). Instead, they add new
 columns with the prefix "TADA." The following columns are numeric
 versions of their WQP origins:
 
@@ -809,7 +809,7 @@ conditions and limit types. TADA fills missing *TADA.ResultMeasureValue*
 and *TADA.ResultMeasure.MeasureUnitCode* values with values and units
 from *TADA.DetectionQuantitationLimitMeasure.MeasureValue* and
 *TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode*, respectively,
-using the autoclean function. In other words, detection limit
+using the TADA_AutoClean function. In other words, detection limit
 information is copied and pasted into the result value column when the
 original value is NA and detection limit information is available. The
 two columns TADA focuses on to define and flag censored data are

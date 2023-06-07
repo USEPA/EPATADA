@@ -360,9 +360,6 @@ TADA_ConvertDepthUnits <- function(.data,
     # define clean.data
     clean.data <- check.data
     
-    # add WQX.Depth.TargetUnit column
-    #clean.data[ , 'WQX.Depth.TargetUnit'] <- unit
-    
     # function to run through each depth column
     conv_unit <- function(.data, coln){
       if(coln %in% colnames(.data)){
@@ -395,8 +392,7 @@ TADA_ConvertDepthUnits <- function(.data,
     clean.data = conv_unit(clean.data,"WQXConversionFactor.ResultDepthHeightMeasure")
     clean.data = conv_unit(clean.data,"WQXConversionFactor.ActivityTopDepthHeightMeasure")
     
-    # MAY BE ABLE TO DELETE BELOW NO LONGER NEEDED? uncomment below to delete WQX.Depth.TargetUnit column
-    # clean.data <- dplyr::select(clean.data, -"WQX.Depth.TargetUnit")
+    # order columns
     clean.data = OrderTADACols(clean.data)
     return(clean.data)
   }

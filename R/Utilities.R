@@ -1,3 +1,20 @@
+#' Pipe operator
+#'
+#' See \code{magrittr::\link[magrittr:pipe]{\%>\%}} for details.
+#'
+#' @name %>%
+#' @rdname pipe
+#' @keywords internal
+#' @export
+#' @importFrom magrittr %>%
+#' @usage lhs \%>\% rhs
+#' @param lhs A value or the magrittr placeholder.
+#' @param rhs A function call using the magrittr semantics.
+#' @return The result of calling `rhs(lhs)`.
+NULL
+
+
+
 # write global variables. Gets rid of global variable NOTE in check:
 utils::globalVariables(c("TADA.ResultValueAboveUpperThreshold.Flag", "ActivityIdentifier",  "ActivityMediaName",
                          "ActivityStartDate", "TADA.ResultValueBelowUpperThreshold.Flag", "TADA.ResultValueBelowLowerThreshold.Flag", "CharacteristicName",
@@ -28,7 +45,7 @@ utils::globalVariables(c("TADA.ResultValueAboveUpperThreshold.Flag", "ActivityId
 
 
 
-#' autoclean
+#' TADA_AutoClean
 #'
 #' Removes rows of data that are true duplicates. Creates new columns with prefix
 #' "TADA." and capitalizes fields to harmonize data. This function includes and 
@@ -43,12 +60,12 @@ utils::globalVariables(c("TADA.ResultValueAboveUpperThreshold.Flag", "ActivityId
 #'
 #' @param .data TADA dataframe
 #'
-#' @return autocleaned TADA data profile
+#' @return Automatically cleaned TADA data profile
 #'
 #' @export 
 #'
 
-autoclean <- function(.data) {
+TADA_AutoClean <- function(.data) {
   
   # check .data is data.frame
   checkType(.data, "data.frame", "Input object")
@@ -119,7 +136,7 @@ autoclean <- function(.data) {
   # create comparable data identifier column
   .data = createComparableId(.data)
   
-  print("NOTE: This version of the TADA package is designed to work with quantitative (numeric) data with sample media: 'WATER'. autoclean does not currently filter downloaded data to 'WATER'. The user must make this specification on their own outside of package functions. See the WQPDataHamornization vignette for an example.")
+  print("NOTE: This version of the TADA package is designed to work with quantitative (numeric) data with sample media: 'WATER'. TADA_AutoClean does not currently filter downloaded data to 'WATER'. The user must make this specification on their own outside of package functions. See the WQPDataHamornization vignette for an example.")
   
   .data <- OrderTADACols(.data)
   

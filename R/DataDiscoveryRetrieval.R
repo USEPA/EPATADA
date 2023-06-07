@@ -23,9 +23,9 @@
 #' to find allowable values for queries, e.g., reference the WQX domain table to find countycode and statecode: https://cdx.epa.gov/wqx/download/DomainValues/County_CSV.zip
 #' Alternatively, you can use the WQP services to find areas where data is available in the US: https://www.waterqualitydata.us/Codes/countycode
 #'
-#' TADAdataRetrieval automatically runs autoclean on the incoming dataset. autoclean
+#' TADAdataRetrieval automatically runs TADA_AutoClean on the incoming dataset. TADA_AutoClean
 #' is important for categorizing result value and detection limit data, as well as 
-#' harmonizing key columns used in TADA. See ?autoclean for more information.
+#' harmonizing key columns used in TADA. See ?TADA_AutoClean for more information.
 #'
 #' Note: TADAdataRetrieval (by leveraging dataRetrieval),  automatically converts
 #' the date times to UTC. It also automatically converts the data to dates,
@@ -43,7 +43,7 @@
 #' @param statecode Code that identifies a state
 #' @param organization A string of letters and/or numbers (some additional characters also possible) used to signify an organization with data in the Water Quality Portal
 #' @param project A string of letters and/or numbers (some additional characters also possible) used to signify a project with data in the Water Quality Portal
-#' @param applyautoclean Logical, defaults to TRUE. Applies TADA's autoclean function on the returned data profile.
+#' @param applyautoclean Logical, defaults to TRUE. Applies TADA_AutoClean function on the returned data profile.
 #'
 #' @return TADA-compatible dataframe
 #'
@@ -271,10 +271,10 @@ TADAdataRetrieval <- function(startDate = "null",
     
     TADAprofile = TADAprofile%>%dplyr::mutate_at(cols, as.character)
 
-    # run autoclean function
+    # run TADA_AutoClean function
     if(applyautoclean==TRUE){
 
-      TADAprofile.clean <- autoclean(TADAprofile)
+      TADAprofile.clean <- TADA_AutoClean(TADAprofile)
 
     }else{
 
@@ -346,11 +346,11 @@ TADAReadWQPWebServices <- function(webservice) {
     webservice <- stringr::str_replace(webservice, "zip=yes", "zip=no")
     return(data.table::fread(toString(webservice)))
     #update when we switch to WQX 3.0
-    #return(autoclean(data.table::fread(toString(webservice))))
+    #return(TADA_AutoClean(data.table::fread(toString(webservice))))
   } else {
     return(data.table::fread(webservice))
     #update when we switch to WQX 3.0
-    #return(autoclean(data.table::fread(webservice)))
+    #return(TADA_AutoClean(data.table::fread(webservice)))
   }
 }
 
@@ -370,7 +370,7 @@ TADAReadWQPWebServices <- function(webservice) {
 #' size of datasets that your R console will be able to hold in one session.
 #' Function requires a characteristicName, siteType, statecode, huc, or start/
 #' end date input. The recommendation is to be as specific as you can with your
-#' large data call. The function allows the user to run autoclean on the dataset,
+#' large data call. The function allows the user to run TADA_AutoClean on the dataset,
 #' but this is not the default as checking large dataframes for exact duplicate
 #' rows can be time consuming and is better performed on its own once the query is
 #' completed.
@@ -378,7 +378,7 @@ TADAReadWQPWebServices <- function(webservice) {
 #' Some code for this function was adapted from this USGS Blog (Author: Aliesha Krall)
 #' \href{https://waterdata.usgs.gov/blog/large_sample_pull/}{Large Sample Pull}
 #'
-#' See ?autoclean documentation for more information on this optional input.
+#' See ?TADA_AutoClean documentation for more information on this optional input.
 #'
 #' Note: TADABigdataRetrieval (by leveraging dataRetrieval),  automatically converts
 #' the date times to UTC. It also automatically converts the data to dates,
@@ -394,7 +394,7 @@ TADAReadWQPWebServices <- function(webservice) {
 #' @param siteType Type of waterbody
 #' @param statecode Code that identifies a state
 #' @param maxrecs The maximum number of results queried within one call to dataRetrieval. 
-#' @param applyautoclean Logical, defaults to TRUE. Applies TADA's autoclean function on the returned data profile.
+#' @param applyautoclean Logical, defaults to TRUE. Applies TADA_AutoClean function on the returned data profile.
 #'
 #' @return TADA-compatible dataframe
 #'
@@ -620,8 +620,8 @@ TADABigdataRetrieval <- function(startDate = "null",
   df = subset(df, as.Date(df$ActivityStartDate,"%Y-%m-%d")>=startDat&as.Date(df$ActivityStartDate,"%Y-%m-%d")<=endDat)
   
   if(applyautoclean == TRUE){
-    print("Applying TADA autoclean function...")
-    df = autoclean(df)
+    print("Applying TADA_AutoClean function...")
+    df = TADA_AutoClean(df)
   }
 
   # timing function for efficiency tests.
