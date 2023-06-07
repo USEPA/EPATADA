@@ -496,7 +496,7 @@ FilterParFieldReview <- function(field, .data, parameter) {
 # fields and appends flag columns indicating if special characters are included
 # and if so, what the special characters are. The ResultMeasureValue and
 # DetectionQuantitationLimitMeasure.MeasureValue fields are also converted to
-# class numeric. This function is deprecated, please use ConvertSpecialChars() function.
+# class numeric. This function is deprecated, please use TADA_ConvertSpecialChars() function.
 # 
 # param .data TADA dataframe
 # 
@@ -510,7 +510,7 @@ FilterParFieldReview <- function(field, .data, parameter) {
 
 MeasureValueSpecialCharacters <- function(.data) {
   
-  warning("This function is deprecated and does not return the correct column names. Please use ConvertSpecialChars() function instead.")
+  warning("This function is deprecated and does not return the correct column names. Please use TADA_ConvertSpecialChars() function instead.")
   
   # check .data is data.frame
   checkType(.data, "data.frame", "Input object")
@@ -599,3 +599,111 @@ MeasureValueSpecialCharacters <- function(.data) {
 }
 
 
+
+# AutoFilter
+#
+# Function can be used to autofilter and simplify a WQP dataframe.
+# After applying this function, the dataframe will only contain result values for
+# water media types or chemicals in tissue (e.g. mercury in fish tissue).
+# More complex biological data (counts and macroinvertebrates) is removed.
+# The function looks at the following fields to autofilter:
+# ActivityMediaName, ActivityMediaSubDivisionName, AssemblageSampledName
+#
+# @param .data TADA dataframe
+# @param clean Indicates whether flag columns should be appended to the data
+# (clean = FALSE), or flagged data is transformed/filtered from the
+# dataframe and no columns are appended (clean = TRUE).
+#
+# @return When clean = FALSE, flag column is appended to the dataframe. When
+# clean = TRUE, flag column is not appended and relevant rows are removed.
+#
+# 
+# AutoFilter <- function(.data, clean = TRUE) {
+#   field.names <- colnames(.data)
+#   
+#   if (TADAprofileCheck(.data) == FALSE) {
+#     stop("The dataframe does not contain the required fields to use TADA. Use either the full physical/chemical profile downloaded from WQP or download the TADA profile template available on the EPA TADA webpage.")
+#   }
+#   
+#   if (TADAprofileCheck(.data) == TRUE) {
+#     if (clean == TRUE) {
+#       # Remove all data where media name does NOT equal WATER (ignore punctuation)
+#       cleandata <- dplyr::filter(.data, ActivityMediaName == "Water")
+#       
+#       return(cleandata)
+#     }
+#     
+#     if (clean == FALSE) {
+#       # NEED TO EDIT TO ADD FLAGS, currently removes other water Water
+#       flagdata <- dplyr::filter(.data, ActivityMediaName == "water")
+#       
+#       return(flagdata)
+#     } else {
+#       stop("'clean' argument must be Boolean (TRUE or FALSE)")
+#     }
+#   }
+# }
+#
+
+
+
+# TADA Profile Check
+#
+# This function checks if the column names in a dataframe include the TADA
+# profile fields. It is used at the beginning of TADA functions to ensure the
+# input data frame is suitable (i.e. is either the full physical/chemical
+# results profile downloaded from WQP or the TADA profile template downloaded
+# from the EPA TADA webpage.)
+#
+# @param .data A dataframe
+#
+# @return Boolean result indicating whether or not the input dataframe contains
+# all of the TADA profile fields.
+#
+
+TADAprofileCheck <- function(.data) {
+  TADA.fields <- c(
+    "OrganizationIdentifier", "OrganizationFormalName",
+    "ActivityIdentifier", "ActivityTypeCode",
+    "ActivityMediaName", "ActivityMediaSubdivisionName",
+    "ActivityStartDate", "ActivityStartTime.Time",
+    "ActivityStartTime.TimeZoneCode", "ActivityEndDate",
+    "ActivityEndTime.Time", "ActivityEndTime.TimeZoneCode",
+    "ActivityDepthHeightMeasure.MeasureValue", "ActivityDepthHeightMeasure.MeasureUnitCode",
+    "ActivityDepthAltitudeReferencePointText", "ActivityTopDepthHeightMeasure.MeasureValue",
+    "ActivityTopDepthHeightMeasure.MeasureUnitCode", "ActivityBottomDepthHeightMeasure.MeasureValue",
+    "ActivityBottomDepthHeightMeasure.MeasureUnitCode", "ProjectIdentifier",
+    "ActivityConductingOrganizationText", "MonitoringLocationIdentifier",
+    "ActivityCommentText", "SampleAquifer",
+    "HydrologicCondition", "HydrologicEvent",
+    "SampleCollectionMethod.MethodIdentifier", "SampleCollectionMethod.MethodIdentifierContext",
+    "SampleCollectionMethod.MethodName", "SampleCollectionEquipmentName",
+    "ResultDetectionConditionText", "CharacteristicName",
+    "ResultSampleFractionText", "ResultMeasureValue",
+    "ResultMeasure.MeasureUnitCode", "MeasureQualifierCode",
+    "ResultStatusIdentifier", "StatisticalBaseCode",
+    "ResultValueTypeName", "ResultWeightBasisText",
+    "ResultTimeBasisText", "ResultTemperatureBasisText",
+    "ResultParticleSizeBasisText", "PrecisionValue",
+    "ResultCommentText", "USGSPCode",
+    "ResultDepthHeightMeasure.MeasureValue", "ResultDepthHeightMeasure.MeasureUnitCode",
+    "ResultDepthAltitudeReferencePointText", "SubjectTaxonomicName",
+    "SampleTissueAnatomyName", "ResultAnalyticalMethod.MethodIdentifier",
+    "ResultAnalyticalMethod.MethodIdentifierContext", "ResultAnalyticalMethod.MethodName",
+    "MethodDescriptionText", "LaboratoryName",
+    "AnalysisStartDate", "ResultLaboratoryCommentText",
+    "DetectionQuantitationLimitTypeName", "DetectionQuantitationLimitMeasure.MeasureValue",
+    "DetectionQuantitationLimitMeasure.MeasureUnitCode", "PreparationStartDate",
+    "ProviderName", "ActivityStartDateTime", "ActivityEndDateTime"
+  )
+  
+  if (("data.frame" %in% class(.data)) == FALSE) {
+    stop("Input object must be of class 'data.frame'")
+  }
+  
+  if (all(TADA.fields %in% colnames(.data)) == TRUE) {
+    TRUE
+  } else {
+    stop("The dataframe does not contain the required fields to use TADA. Use either the full physical/chemical profile downloaded from WQP or download the TADA profile template available on the EPA TADA webpage.")
+  }
+}

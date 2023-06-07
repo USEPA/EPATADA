@@ -51,14 +51,14 @@
 #' # Load example dataset:
 #' data(Nutrients_Utah)
 #' 
-#' ResultUnitsConverted <- ConvertResultUnits(Nutrients_Utah)
+#' ResultUnitsConverted <- (Nutrients_Utah)
 #' 
 #' # Do not convert result values and units, but add two new columns titled
 #' # "WQX.ConversionFactor" and "WQX.TargetUnit":
-#' ResultUnitsNotConverted <- ConvertResultUnits(Nutrients_Utah, transform = FALSE)
+#' ResultUnitsNotConverted <- TADA_ConvertResultUnits(Nutrients_Utah, transform = FALSE)
 #' 
 
-ConvertResultUnits <- function(.data, transform = TRUE) {
+TADA_ConvertResultUnits <- function(.data, transform = TRUE) {
   # check .data is data.frame
   checkType(.data, "data.frame", "Input object")
   # check transform is boolean
@@ -126,7 +126,7 @@ ConvertResultUnits <- function(.data, transform = TRUE) {
     
     print("Conversions required for range checks and TADATargetUnit conversions -- Unit conversions, data summaries, and data calculations may be affected.")
     # reorder columns
-    flag.data = OrderTADACols(flag.data)
+    flag.data <- TADA_OrderCols(flag.data)
     return(flag.data)
   }
   
@@ -169,7 +169,7 @@ ConvertResultUnits <- function(.data, transform = TRUE) {
 
   }
   # reorder cols
-  clean.data = OrderTADACols(clean.data)
+  clean.data <- TADA_OrderCols(clean.data)
   
   return(clean.data)
 }
@@ -220,21 +220,21 @@ ConvertResultUnits <- function(.data, transform = TRUE) {
 #' data(Nutrients_Utah)
 #' 
 #' # Convert all depth units to meters:
-#' DepthUnitsConverted_m <- ConvertDepthUnits(Nutrients_Utah)
+#' DepthUnitsConverted_m <- TADA_ConvertDepthUnits(Nutrients_Utah)
 #' 
 #' # Convert all depth units to feet:
-#' DepthUnitsConverted_ft <- ConvertDepthUnits(Nutrients_Utah, unit = "ft")
+#' DepthUnitsConverted_ft <- TADA_ConvertDepthUnits(Nutrients_Utah, unit = "ft")
 #' 
 #' # Convert only the "TADA.ActivityTopDepthHeightMeasure" field to inches:
-#' TopDepthUnitsConverted_in <- ConvertDepthUnits(Nutrients_Utah, 
+#' TopDepthUnitsConverted_in <- TADA_ConvertDepthUnits(Nutrients_Utah, 
 #' unit = "in", fields = "ActivityTopDepthHeightMeasure")
 #' 
 #' # Do not convert any depth units, but add columns for target units and 
 #' # conversion factors for each depth measure:
-#' DepthUnitsNotConverted <- ConvertDepthUnits(Nutrients_Utah, transform = FALSE)
+#' DepthUnitsNotConverted <- TADA_ConvertDepthUnits(Nutrients_Utah, transform = FALSE)
 #' 
 
-ConvertDepthUnits <- function(.data,
+TADA_ConvertDepthUnits <- function(.data,
                               unit = "m",
                               fields = c("ActivityDepthHeightMeasure",
                                          "ActivityTopDepthHeightMeasure",
@@ -331,7 +331,7 @@ ConvertDepthUnits <- function(.data,
         
         # rename new columns
         names(check.data)[names(check.data) == "Conversion.Factor"] <- paste('WQXConversionFactor.', field,  sep="")
-        check.data = ConvertSpecialChars(check.data, valCol)
+        check.data = TADA_ConvertSpecialChars(check.data, valCol)
         
       }
     }
@@ -340,7 +340,7 @@ ConvertDepthUnits <- function(.data,
   # check if any Conversion Factor columns were appended
   if (all(is.na(match(appCols, colnames(check.data)))) == TRUE) {
     warning("No action taken: the dataframe does not have any depth data in ActivityTop/BottomDepthHeight or ResultDepthHeight columns.")
-    check.data = OrderTADACols(check.data)
+    check.data <- TADA_OrderCols(check.data)
     return(check.data)
   }
   
@@ -351,7 +351,7 @@ ConvertDepthUnits <- function(.data,
     # add WQX.Depth.TargetUnit column
     check.data[ , 'WQX.Depth.TargetUnit'] <- unit
     #reorder cols
-    check.data = OrderTADACols(check.data)
+    check.data <- TADA_OrderCols(check.data)
     return(check.data)
   }
   
@@ -359,9 +359,6 @@ ConvertDepthUnits <- function(.data,
   if (transform == TRUE) {
     # define clean.data
     clean.data <- check.data
-    
-    # add WQX.Depth.TargetUnit column
-    #clean.data[ , 'WQX.Depth.TargetUnit'] <- unit
     
     # function to run through each depth column
     conv_unit <- function(.data, coln){
@@ -395,9 +392,8 @@ ConvertDepthUnits <- function(.data,
     clean.data = conv_unit(clean.data,"WQXConversionFactor.ResultDepthHeightMeasure")
     clean.data = conv_unit(clean.data,"WQXConversionFactor.ActivityTopDepthHeightMeasure")
     
-    # MAY BE ABLE TO DELETE BELOW NO LONGER NEEDED? uncomment below to delete WQX.Depth.TargetUnit column
-    # clean.data <- dplyr::select(clean.data, -"WQX.Depth.TargetUnit")
-    clean.data = OrderTADACols(clean.data)
+    # order columns
+    clean.data <- TADA_OrderCols(clean.data)
     return(clean.data)
   }
 

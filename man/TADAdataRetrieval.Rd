@@ -45,7 +45,7 @@ TADAdataRetrieval(
 
 \item{project}{A string of letters and/or numbers (some additional characters also possible) used to signify a project with data in the Water Quality Portal}
 
-\item{applyautoclean}{Logical, defaults to TRUE. Applies TADA's autoclean function on the returned data profile.}
+\item{applyautoclean}{Logical, defaults to TRUE. Applies TADA_AutoClean function on the returned data profile.}
 }
 \value{
 TADA-compatible dataframe
@@ -74,9 +74,9 @@ Users can reference the \href{https://www.epa.gov/waterdata/storage-and-retrieva
 to find allowable values for queries, e.g., reference the WQX domain table to find countycode and statecode: https://cdx.epa.gov/wqx/download/DomainValues/County_CSV.zip
 Alternatively, you can use the WQP services to find areas where data is available in the US: https://www.waterqualitydata.us/Codes/countycode
 
-TADAdataRetrieval automatically runs autoclean on the incoming dataset. autoclean
+TADAdataRetrieval automatically runs TADA_AutoClean on the incoming dataset. TADA_AutoClean
 is important for categorizing result value and detection limit data, as well as
-harmonizing key columns used in TADA. See ?autoclean for more information.
+harmonizing key columns used in TADA. See ?TADA_AutoClean for more information.
 
 Note: TADAdataRetrieval (by leveraging dataRetrieval),  automatically converts
 the date times to UTC. It also automatically converts the data to dates,

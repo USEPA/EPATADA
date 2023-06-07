@@ -21,23 +21,23 @@ TADA.AboveNationalWQXUpperThreshold column. When clean = FALSE and
 errorsonly = TRUE, the dataframe is filtered to show only data found above
 the WQX threshold. When clean = TRUE and errorsonly = FALSE, rows with
 values that are above the upper WQX threshold are removed from the
-dataframe and no column is appended. When clean = TRUE and and errorsonly =
-TRUE, the function is not executed and an error message is returned.
-Defaults are clean = TRUE and errorsonly = FALSE.
+dataframe and no column is appended. When clean = TRUE and and
+errorsonly = TRUE, the function is not executed and an error message
+is returned. Defaults are clean = TRUE and errorsonly = FALSE.
 }
 \description{
 EPA's Water Quality Exchange (WQX) has generated statistics and data from
 millions of water quality data points around the country. This function
 leverages the statistical data from WQX to flag any data that is above the
 upper threshold of result values submitted to WQX for a given characteristic.
-When clean = FALSE and errorsonly = FALSE, a column which flags data above the
-upper WQX threshold is appended to the dataframe. When clean = FALSE and
+When clean = FALSE and errorsonly = FALSE, a column which flags data above
+the upper WQX threshold is appended to the dataframe. When clean = FALSE and
 errorsonly = TRUE, the dataframe is filtered to show only data found above
 the WQX threshold. When clean = TRUE and errorsonly = FALSE, rows with values
 that are above the upper WQX threshold are removed from the dataframe and no
 column is appended. When clean = TRUE and and errorsonly = TRUE, the function
-is not executed and an error message is returned. Defaults are clean = TRUE and
-errorsonly = FALSE.
+is not executed and an error message is returned. Defaults are clean = TRUE
+and errorsonly = FALSE.
 }
 \examples{
 # Load example dataset:

@@ -28,5 +28,5 @@ non-detects. When these appear in a dataset, they are categorized as
 "Detection condition or detection limit is not documented in TADA reference
 tables." In these situations, users should contact TADA administrators to
 update the package accordingly. This function is used by default in
-autoclean, but can be used on its own.
+TADA_AutoClean, but can be used on its own.
 }
