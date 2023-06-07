@@ -20,27 +20,30 @@ editor_options:
 This is a overview of the the WQX Quality Assurance and Quality Control
 (QAQC) data submission service, and how TADA leverages that service to
 flag potentially invalid data in the Water Quality Portal (WQP). It will
-cover: 1) an overview of all available WQX QAQC tests, 2) which of these
-WQX validation tests are also available in TADA for testing WQP outbound
-data, 3) how to interpret and provide feedback on the validation tables
-referenced by WQX and TADA for this QAQC service.
+cover: 1) an overview of all available WQX QAQC tests for data
+submissions, 2) which of these QAQC tests are also available in TADA for
+flagging potentially invalid WQP data, and 3) how to interpret and
+provide feedback on the validation reference tables referenced by WQX
+and TADA for this QAQC service.
 
 ## Background
 
-The WQX philosophy for QAQC is that users submit only QAQC'd data and
-utilize WQX fields to ensure the data is of "documented quality". The
-WQX team has historically hosted data quality working groups aimed at
-creating best practices and required data elements for WQX 3.0 for
-specific parameter groups such as nutrients, metals and biological data.
-These resources have supported users to submit data of documented
-quality. This approach has been broadly successful, but because it is
-not an enforceable approach it has allowed for data of varying quality
-to be shared. In response, the WQX team released a QAQC service in 2012
-to test data submissions, and help improve the quality of data that gets
-into the WQP. However the new WQX services will not flag or fix data
-historical that is already in the WQP. Therefore, the TADA R package
-leverages the WQX QAQC Validation tables in the R package to make these
-same tests available on WQP outbound data using R.
+The WQX expectation for submissions is that users submit only QAQC'd
+data and utilize WQX elements to ensure the data is of "documented
+quality". The WQX team has historically hosted data quality working
+groups aimed at creating best practices and required data elements for
+WQX 3.0 for specific parameter groups such as nutrients, metals and
+biological data. These resources have supported users to submit data of
+documented quality. This approach has been broadly successful, but
+because it is not an enforceable approach it has allowed for data of
+varying quality to be shared. In response, the WQX team recently
+released a QAQC service in 2022 to test and flag data submissions for
+potential errors, and provide the data submitter with a chance to make
+edits to improve the quality of their data, before it goes into the WQP.
+However the new WQX services will not flag or fix data historical that
+is already in the WQP. Therefore, the TADA R package leverages the WQX
+QAQC Validation Reference tables in the R package to make these same
+tests available on WQP outbound data using R.
 
 ## Available Tests
 
@@ -103,7 +106,8 @@ Package for use with data retrieved from the WQP:
 [![](images/IQR.png){width="428"
 height="467"}](https://en.wikipedia.org/wiki/Interquartile_range)
 
-Additional tests only available in WQX Web (for now):
+Additional tests only available in WQX Web and Node Submissions (for
+now):
 
 -   Location
 
@@ -114,8 +118,10 @@ Additional tests only available in WQX Web (for now):
         in the state and country included in metadata
 
     -   Flag if monitoring locations nearby each other are likely the
-        same. If they are, then provide user an option to use the
-        existing monitoring location instead of creating a new one.
+        same based on three decimal degrees precision. Includes two
+        flags - one within your org and one national (across all orgs).
+        If they are, then provide user an option to use the existing
+        monitoring location instead of creating a new one [expand here].
 
 ## Providing Feedback on Validation Tables
 
@@ -165,9 +171,9 @@ Package [HERE](https://github.com/USEPA/TADA/tree/develop/inst/extdata).
 TADA pulls the WQX Validation Table and other domain tables into TADA
 and updates them automatically whenever changes are made
 
--   https://github.com/USEPA/TADA/blob/develop/inst/extdata/WQXcharValRef.csv
+-   <https://github.com/USEPA/TADA/blob/develop/inst/extdata/WQXcharValRef.csv>
 
--   https://github.com/USEPA/TADA/blob/develop/inst/extdata/WQXunitRef.csv
+-   <https://github.com/USEPA/TADA/blob/develop/inst/extdata/WQXunitRef.csv>
 
 WQX and TADA users can review and provide feedback on the validation
 table and/or target units assigned, and provide feedback by emailing the
