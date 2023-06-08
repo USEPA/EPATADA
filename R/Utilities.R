@@ -114,6 +114,8 @@ TADA_AutoClean <- function(.data) {
   
   # Remove duplicate rows - turned into a test because duplicated() takes a long
   # time acting on all columns in a large dataset.
+  # test relies only on ResultIdentifier to identify exact duplicates. It 
+  # speeds the process up quite a bit.
   print("TADA_Autoclean: checking for exact duplicates.")
   if(!length(unique(.data$ResultIdentifier))==dim(.data)[1]){
     print("Duplicate results may be present. Filtering to unique results. This may take a while on large datasets.")
