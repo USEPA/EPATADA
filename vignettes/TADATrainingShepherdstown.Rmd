@@ -1,11 +1,15 @@
 ---
 title: "TADA R Package Training: A Markdown for Shepherdstown"
+author: "TADA Team"
 description: A foray into TADA's major functions for users familiar with R and RStudio.
-format: html
-df-print: paged
-execute:
-  eval: false
+output: rmarkdown::html_vignette
 ---
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  eval = FALSE
+)
+```
+
 
 ## Welcome!
 
@@ -40,7 +44,7 @@ library(TADA)
 
 It's that easy! The most stable branch for TADA right now is the develop branch. Contributors generally create their own branches based on develop, make some improvements, and then submit a pull request to be reviewed by the TADA Team. However, you are welcome to download any branch you'd like using the `ref` input in `install_github` .
 
-The following code block ensures the proper packages needed to run the code in this Quarto document are loaded. However, users may also use the `package name:: package function` notation to avoid the list of `library()` calls.
+The following code block ensures the proper packages needed to run the code in this RMarkdown document are loaded. However, users may also use the `package name:: package function` notation to avoid the list of `library()` calls.
 
 ```{r}
 # Load tidyverse
@@ -103,7 +107,15 @@ dataset_0 = TADA::TADAdataRetrieval(
   project = "null",
   applyautoclean = TRUE
 )
-# save(dataset_0,file = "NCTCShepherdstown_HUC12.Rdata")
+
+# If TADAdataRetrieval is not up for the challenge today, uncomment and run the following:
+# dataset_0 = TADA::NCTCShepherdstown_HUC12
+
+```
+
+```{r, echo=FALSE}
+# NCTCShepherdstown_HUC12 = dataset_0
+# save(NCTCShepherdstown_HUC12,file = "\\data\\NCTCShepherdstown_HUC12.Rda")
 ```
 
 Currently, the `TADAdataRetrieval` function combines three WQP data profiles: Sample Results (Physical/Chemical), Site data, and Project data. This ensures that all important quality control columns are included in the dataset.
@@ -119,8 +131,6 @@ First, always good to take a look at the data frame dimensions.
 **Question 1: What are the dimensions of your dataset?**
 
 ```{r}
-# uncomment if internet not working
-# load("TADA_training_dataset.Rdata")
 dim(dataset_0)
 ```
 
