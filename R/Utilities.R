@@ -47,21 +47,33 @@ utils::globalVariables(c("TADA.ResultValueAboveUpperThreshold.Flag", "ActivityId
 
 #' TADA_AutoClean
 #'
-#' Removes rows of data that are true duplicates. Creates new columns with prefix
-#' "TADA." and capitalizes fields to harmonize data. This function includes and 
-#' runs the "TADA_ConvertSpecialChars" and "idCensoredData" functions as well.
-#'  This function performs immediate QA steps (removes true duplicates, converts 
-#'  result values to numeric, capitalizes letters, categorizes detection limit data, etc.) on heavily used columns 
-#'  and places these new values in a column of the same name with the added prefix 
-#'  "TADA." It makes certain fields uppercase so that they're interoperable with 
-#'  the WQX validation reference tables and reduces issues with case-sensitivity 
-#'  when joining data.It can be run as a stand alone function or can be tacked onto 
-#'  other functions.
-#'
+#' Removes rows of data that are true duplicates. Creates new columns with
+#' prefix "TADA." and capitalizes fields to harmonize data. This function runs
+#' "TADA_ConvertSpecialChars", "TADA_ConvertResultUnits",
+#' "TADA_ConvertDepthUnits", and "TADA_IDCensoredData" functions, which perform
+#' the following QA steps: remove true duplicates, convert result values to
+#' numeric, harmonize result and depth units (note: all depth-related columns
+#' with populated values are converted to meters in a TADA-specific column),
+#' convert text to uppercase letters, and categorize detection limit data.
+#' Original affected columns are not changed: new columns are added to the end
+#' of the dataframe with the prefix "TADA." This function makes important
+#' character fields uppercase so that they're interoperable with the WQX
+#' validation reference tables and reduces issues with case-sensitivity when
+#' joining data.TADA_AutoClean can be run as a stand alone function but is
+#' primarily used by the TADA_dataRetrieval function.
+#' 
 #' @param .data TADA dataframe
 #'
-#' @return Automatically cleaned TADA data profile
-#'
+#' @return Input dataframe with several added TADA-specific columns, including:
+#'   TADA.ActivityMediaName, TADA.CharacteristicName, TADA.ResultMeasureValue,
+#'   TADA.ResultMeasure.MeasureUnitCode, TADA.ResultMeasureValueDataTypes.Flag,
+#'   TADA.CensoredData.Flag, TADA.LatitudeMeasure, TADA.LongitudeMeasure,
+#'   TADA.ResultSampleFractionText, TADA.MethodSpecificationName, and more.
+#'   Please note that the number of TADA-specific depth columns in the returned
+#'   dataframe depends upon the number of depth columns with one or more results
+#'   populated with a numeric value. If all depth columns contain only NA's, no
+#'   conversion is necessary and no TADA depth columns are created.
+#' 
 #' @export 
 #'
 
@@ -83,6 +95,7 @@ TADA_AutoClean <- function(.data) {
   # execute function after checks are passed
   
   # capitalize fields with known synonyms that only differ in caps
+  print("TADA_Autoclean: creating TADA-specific columns.")
   .data$TADA.CharacteristicName <- toupper(.data$CharacteristicName)
   .data$TADA.ResultSampleFractionText <- toupper(.data$ResultSampleFractionText)
   .data$TADA.MethodSpecificationName <- toupper(.data$MethodSpecificationName)
@@ -101,8 +114,9 @@ TADA_AutoClean <- function(.data) {
   
   # Remove duplicate rows - turned into a test because duplicated() takes a long
   # time acting on all columns in a large dataset.
+  print("TADA_Autoclean: checking for exact duplicates.")
   if(!length(unique(.data$ResultIdentifier))==dim(.data)[1]){
-    print("Duplicate records may be present. Filtering to unique records. This may take a while on large datasets.")
+    print("Duplicate results may be present. Filtering to unique results. This may take a while on large datasets.")
     dup_rids = names(table(.data$ResultIdentifier)[table(.data$ResultIdentifier)>1])
     dup_check = .data%>%dplyr::filter(ResultIdentifier%in%dup_rids)%>%dplyr::group_by(ResultIdentifier)%>%dplyr::distinct()
     not_dups = .data%>%dplyr::filter(!ResultIdentifier%in%dup_rids)
@@ -111,6 +125,7 @@ TADA_AutoClean <- function(.data) {
   
   # run TADA_ConvertSpecialChars function
   # .data <- MeasureValueSpecialCharacters(.data)
+  print("TADA_Autoclean: checking for special characters.")
   .data <- TADA_ConvertSpecialChars(.data, "ResultMeasureValue")
   .data <- TADA_ConvertSpecialChars(.data, "DetectionQuantitationLimitMeasure.MeasureValue")
   
@@ -120,11 +135,17 @@ TADA_AutoClean <- function(.data) {
   .data$TADA.ResultMeasureValueDataTypes.Flag <- ifelse(.data$TADA.ResultMeasureValueDataTypes.Flag=="ND or NA"&!is.na(.data$TADA.DetectionQuantitationLimitMeasure.MeasureValue),"Result Value/Unit Copied from Detection Limit",.data$TADA.ResultMeasureValueDataTypes.Flag)
   
   # Identify detection limit data
+  print("TADA_Autoclean: identifying detection limit data.")
   .data <- idCensoredData(.data)
   
   # change latitude and longitude measures to class numeric
   .data$TADA.LatitudeMeasure <- as.numeric(.data$LatitudeMeasure)
   .data$TADA.LongitudeMeasure <- as.numeric(.data$LongitudeMeasure)
+  
+  # Implement unit harmonization
+  print("TADA_Autoclean: harmonizing result and depth units.")
+  .data = TADA_ConvertResultUnits(.data, transform = TRUE)
+  .data = TADA_ConvertDepthUnits(.data, unit = "m")
   
   # #convert 'meters' to 'm' - EDH MOVED TO CONVERT DEPTH UNITS
   # .data$TADA.ActivityDepthHeightMeasure.MeasureUnitCode[.data$ActivityDepthHeightMeasure.MeasureUnitCode == 'meters'] <- 'm'
