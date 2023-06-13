@@ -73,7 +73,8 @@ If you are interested in reviewing the column headers and formats required to ru
 getwd() # find your working directory
 TADA::getTADATemplate() # download template to working directory
 
-Nutrients_Utah <- TADA::Nutrients_Utah # review example dataset
+# uncomment below to review example dataset
+# Nutrients_Utah <- TADA::Nutrients_Utah 
 ```
 
 `TADAdataRetrieval` is built upon USGS's `readWQPdata` function within the dataRetrieval package, which uses web service calls to bring WQP data into the R environment. Additionally, `TADAdataRetrieval` performs some basic quality control checks on the data using new TADA-specific columns to preserve the original dataset:
