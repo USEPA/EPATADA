@@ -15,7 +15,7 @@ knitr::opts_chunk$set(
 
 Thank you for your interest in Tools for Automated Data Analysis (TADA). TADA is an open-source tool set built in the R programming language and available for anyone to download and edit to their specific needs. This [RMarkdown](https://bookdown.org/yihui/rmarkdown/) document walks users through how to download the TADA R package from GitHub, access and parameterize several important functions with a sample dataset, and create basic visualizations. The workflow is similar to a funnel: at each decision point, data that fail QC checks are removed from the core dataset and placed in a separate dataframe, while data that pass are carried into the next step. At the end of the QC checks, the user should be confident that their data are properly documented and applicable to the analysis at hand.
 
-**Note: TADA is still under development. New functionality is added weekly, and sometimes we need to make bug fixes in response to tester and user feedback. We appreciate your interest (and patience) in these helpful tools.**
+**Note: TADA is still under development. New functionality is added weekly, and sometimes we need to make bug fixes in response to tester and user feedback. We appreciate your feedback, patience, and interest in these helpful tools.**
 
 ## Customize or contribute
 
@@ -33,6 +33,7 @@ Interested in contributing to the TADA package? The TADA team highly encourages 
 
 Users can install the TADA package from GitHub into their R library using the `remotes` package. Copy and paste the code below into your R or RStudio console to download and install.
 
+TADA package relies on other packages, therefore you may be prompted in the console to update dependency packages that have more recent versions available. If you see this prompt, it is recommended to update all of them (enter 1 into the console).
 ```{r}
 # Install TADA
 if(!"remotes"%in%installed.packages()){
@@ -42,9 +43,9 @@ remotes::install_github("USEPA/TADA", ref="develop")
 library(TADA)
 ```
 
-It's that easy! The most stable branch for TADA right now is the develop branch. Contributors generally create their own branches based on develop, make some improvements, and then submit a pull request to be reviewed by the TADA Team. However, you are welcome to download any branch you'd like using the `ref` input in `install_github` .
+It's that easy! The most stable branch for TADA right now is the develop branch. Contributors generally create their own branches based on develop, make some improvements, and then submit a pull request to be reviewed by the TADA Team. Once approved, updates are then merged into the develop branch. However, you are welcome to download any branch you'd like using the `ref` input in `install_github` (see code chunk above). This functionality is mainly only useful to TADA package developers/contributors.
 
-The following code block ensures the proper packages needed to run the code in this RMarkdown document are loaded. However, users may also use the `package name:: package function` notation to avoid the list of `library()` calls.
+The following code block ensures the additional packages needed to run the code in this RMarkdown document are loaded. However, users may also use the `package name:: package function` notation to avoid the list of `library()` calls.
 
 ```{r}
 # Load tidyverse
@@ -66,29 +67,30 @@ All TADA R package functions have their own individual help pages, listed on the
 
 Now let's start using the TADA R package functions. The first step is to bring a dataset into the R environment. TADA is designed to work with [Water Quality Portal](https://www.waterqualitydata.us/) (WQP) data. This means that all of its functions will look for WQP column names and create new TADA-specific columns based on these elements. Users may upload their own custom dataset into R for use with TADA by ensuring their column names and data formats (e.g. numeric, character) align with WQP profiles.
 
-If you are interested in the columns headers and formats required to run TADA, use the function below, which saves an example spreadsheet to the user's working directory. You can also take a look at an example dataset, like `TADA::Nutrients_Utah` to get an idea of the data structure and format.
+If you are interested in reviewing the column headers and formats required to run TADA, use the function below, which saves an example spreadsheet to the user's working directory. You can also take a look at an example dataset, like `TADA::Nutrients_Utah` to get an idea of the data structure and format.
 
 ```{r}
 getwd() # find your working directory
 TADA::getTADATemplate() # download template to working directory
+
+# uncomment below to review example dataset
+# Nutrients_Utah <- TADA::Nutrients_Utah 
 ```
 
-`TADAdataRetrieval` is built upon USGS's `readWQPdata` function within the dataRetrieval package, which uses API service calls to bring WQP data into the R environment. Additionally, `TADAdataRetrieval` performs some basic quality control checks on the data using new TADA-specific columns to preserve the original dataset:
+`TADAdataRetrieval` is built upon USGS's `readWQPdata` function within the dataRetrieval package, which uses web service calls to bring WQP data into the R environment. Additionally, `TADAdataRetrieval` performs some basic quality control checks on the data using new TADA-specific columns to preserve the original dataset:
 
--   Converts some key character columns to ALL CAPS for easier harmonization and validation.
+-   Converts key character columns to ALL CAPS for easier harmonization and validation.
 
 -   Removes complete duplicate results.
 
 -   Identifies different classes of result values (numeric, text, percentage, comma-separated numeric, greater than/less than, numbers preceded by a tilde, etc.) and converts values to numeric where feasible.
 
--   Fills NA result values and units with detection limit values and units where the detection condition text indicates a censored data value.
-
--   Identifies censored data results and categorizes them as over-detect, non-detect, or other.
+-   Fills NA result values and units with detection limit values and units where the detection condition text indicates a censored data value. Identifies censored data results and categorizes them as over-detect, non-detect, or other. These data preprocessing features facilitate more complex detection limit value handling using other TADA functions (more details to come later in this training).
 
 -   Unifies result and depth units to common units to improve ease of data harmonization. See `?TADA_ConvertResultUnits` and `?TADA_ConvertDepthUnits` for more information on these processes.
 
 
-Let's give it a try. `TADAdataRetrieval` follows similar parameterization to `readWQPdata`, but check out the [help page](https://usepa.github.io/TADA/reference/TADAdataRetrieval.html) for all input parameters and several examples.
+Let's give it a try. `TADAdataRetrieval` follows similar parameterization to `readWQPdata`, but check out the [help page](https://usepa.github.io/TADA/reference/TADAdataRetrieval.html) or enter ?TADA::TADAdataRetrieval into the console for more information about input parameters and to see several examples.
 
 ```{r}
 # download data for NCTC's HUC12
@@ -113,14 +115,9 @@ dataset_0 = TADA::TADAdataRetrieval(
 
 ```
 
-```{r, echo=FALSE}
-# NCTCShepherdstown_HUC12 = dataset_0
-# save(NCTCShepherdstown_HUC12,file = "\\data\\NCTCShepherdstown_HUC12.Rda")
-```
-
 Currently, the `TADAdataRetrieval` function combines three WQP data profiles: Sample Results (Physical/Chemical), Site data, and Project data. This ensures that all important quality control columns are included in the dataset.
 
-**Note:** USGS and EPA are working together to create WQP 3.0 data profiles. One data profile will contain the columns critical to TADA, removing the need to combine profiles in this first step. TADA package users likely will not notice a difference in their usage of the `TADAdataRetrieval` function, but it will simplify the steps needed to upload a custom or WQP GUI-downloaded dataset into the R package.
+**Note:** USGS and EPA are working together to create WQP 3.0 data profiles. Once released, one data profile will contain the columns critical to TADA, removing the need to combine profiles in this first step. TADA package users likely will not notice a difference in their usage of the `TADAdataRetrieval` function, but it will simplify the steps needed to upload a custom or WQP GUI-downloaded dataset into the R package.
 
 ## Initial data review
 
@@ -131,10 +128,10 @@ First, always good to take a look at the data frame dimensions.
 **Question 1: What are the dimensions of your dataset?**
 
 ```{r}
-dim(dataset_0)
+dim(dataset_0) # returns x and of x (as the numbers of rows and columns respectively)
 ```
 
-Before we start filtering and flagging our data, let's create a little function that performs dimension checks between the results that pass QC checks and those that do not. Dimension checks ensure we catch any situations where results may be lost or duplicated by counting the total number of rows in the input data frame, the total number of rows in the passing data frame, and the total number of rows in the removed data frame. The latter two should add up to the total number of rows of all the data.
+Before we start filtering and flagging our data, let's create a function (dimCheck) that performs dimension checks between the results that pass each filter or QC flag check (and are retained) and those that do not (and are removed). These dimension checks ensure that the total number of rows in the original input dataset (all_result_num) equal the the total number of rows added up between the passing (pass_data) and removed (fail_data) data frames. 
 
 ```{r}
 # defining a dimension check function that compares removed and retained data dimensions against the initial data input
@@ -150,7 +147,7 @@ if(!all_result_num==final_result_num){
 }
 ```
 
-Next, we can use the `fieldCounts()` function to see how many unique values are contained within each column of the dataset. We're using the command `display = "all"` to view all of the columns but could also use `"most"` or `"key"` to cut down on the number of columns reviewed.
+Next, we can use the TADA `fieldCounts()` function to see how many unique values are contained within each column of the dataset. We're using the command `display = "all"` to view all of the columns but could also use `"most"` or `"key"` to cut down on the number of columns reviewed. Enter ?TADA::fieldCounts() into the console for more information on this function.
 
 **Question 2: Which column should have a unique value in every row and why?**
 
@@ -160,7 +157,7 @@ TADA::fieldCounts(dataset_0, display = "key")
 TADA::fieldCounts(dataset_0, display = "all")
 ```
 
-**Question 3: How many unique TADA.ActivityMediaNames exist in your dataset? Are there any media types that are not water?**
+**Question 3: How many unique 'TADA.ActivityMediaName' values exist in your dataset? Are there any media types that are not water?**
 
 TADA is currently designed to accommodate water data from the WQP. Let's ensure that we remove all non-water data first.
 
@@ -181,7 +178,7 @@ dimCheck(all_result_num, dataset, removed, checkName = "Activity Media")
 
 ```
 
-Two additional helper functions one can use at any step in the process are `fieldValuesTable()` and `fieldValuesPie()`. These functions create a summay table and pie chart (respectively) of all the unique values in a given column. Let's give it a try on ActivityTypeCode, which is a WQP column describing the type of sample collected for each result.
+Two additional helper functions one can use at any step in the process are `fieldValuesTable()` and `fieldValuesPie()`. These functions create a summary table and pie chart (respectively) of all the unique values in a given column. Let's give it a try on ActivityTypeCode, which is a WQP column describing the type of sample collected for each result.
 
 ```{r}
 TADA::fieldValuesTable(dataset,field="ActivityTypeCode")

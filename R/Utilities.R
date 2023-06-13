@@ -114,6 +114,8 @@ TADA_AutoClean <- function(.data) {
   
   # Remove duplicate rows - turned into a test because duplicated() takes a long
   # time acting on all columns in a large dataset.
+  # test relies only on ResultIdentifier to identify exact duplicates. It 
+  # speeds the process up quite a bit.
   print("TADA_Autoclean: checking for exact duplicates.")
   if(!length(unique(.data$ResultIdentifier))==dim(.data)[1]){
     print("Duplicate results may be present. Filtering to unique results. This may take a while on large datasets.")
@@ -157,8 +159,8 @@ TADA_AutoClean <- function(.data) {
   # create comparable data identifier column
   .data = createComparableId(.data)
   
-  print("NOTE: This version of the TADA package is designed to work with quantitative (numeric) data with sample media: 'WATER'. TADA_AutoClean does not currently filter downloaded data to 'WATER'. The user must make this specification on their own outside of package functions. See the WQPDataHamornization vignette for an example.")
-  
+  print("NOTE: This version of the TADA package is designed to work with quantitative (numeric) data with media name: 'WATER'. TADA_AutoClean does not currently remove (filter) data with non-water media types. If desired, the user must make this specification on their own outside of package functions. Example: dplyr::filter(.data, TADA.ActivityMediaName == 'WATER')")
+
   .data <- TADA_OrderCols(.data)
   
   return(.data)
