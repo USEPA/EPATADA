@@ -159,8 +159,8 @@ TADA_AutoClean <- function(.data) {
   # create comparable data identifier column
   .data = createComparableId(.data)
   
-  print("NOTE: This version of the TADA package is designed to work with quantitative (numeric) data with sample media: 'WATER'. TADA_AutoClean does not currently filter downloaded data to 'WATER'. The user must make this specification on their own outside of package functions. See the WQPDataHamornization vignette for an example.")
-  
+  print("NOTE: This version of the TADA package is designed to work with quantitative (numeric) data with media name: 'WATER'. TADA_AutoClean does not currently remove (filter) data with non-water media types. If desired, the user must make this specification on their own outside of package functions. Example: dplyr::filter(.data, TADA.ActivityMediaName == 'WATER')")
+
   .data <- TADA_OrderCols(.data)
   
   return(.data)
