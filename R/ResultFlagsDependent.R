@@ -371,7 +371,7 @@ InvalidResultUnit <- function(.data, clean = c("invalid_only", "nonstandardized_
   if (any(c("Nonstandardized", "Invalid") %in%
           unique(check.data$TADA.ResultUnit.Flag)) == FALSE) {
     print("All characteristic/unit combinations are valid in your dataframe. Returning input dataframe with TADA.ResultUnit.Flag column for tracking.")
-    check.data = TADA_OrderCols(.data)
+    check.data = TADA_OrderCols(check.data)
     return(check.data)
   }
   
