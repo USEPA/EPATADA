@@ -94,7 +94,7 @@ InvalidFraction <- function(.data, clean = TRUE, errorsonly = FALSE) {
   
   # flagged output, all data
   if (clean == FALSE & errorsonly == FALSE) {
-    print("NOTE: Metadata transformations may be adversely affected by choosing to retain 'Invalid' fraction. Check these records before proceeding with transformations and/or set clean = TRUE.")
+    print("Rows with invalid sample fractions have been flagged but retained. Review these rows before proceeding and/or set clean = TRUE.")
     check.data = TADA_OrderCols(check.data)
     return(check.data)
       }
@@ -224,7 +224,7 @@ InvalidSpeciation <- function(.data, clean = c("invalid_only", "nonstandardized_
   
   # flagged output, all data
   if (clean == "none" & errorsonly == FALSE) {
-    print("NOTE: Metadata transformations may be adversely affected by choosing to retain 'Invalid' speciation. Check these records before proceeding with transformations and/or set clean = 'invalid_only' or 'both'.")
+    print("Rows with invalid speciations have been flagged but retained. Review these rows before proceeding and/or set clean = 'invalid_only' or 'both'.")
   }
   
   # when clean = "invalid_only"
@@ -377,7 +377,7 @@ InvalidResultUnit <- function(.data, clean = c("invalid_only", "nonstandardized_
   
   # flagged output, all data
   if (clean == "none" & errorsonly == FALSE) {
-    print("NOTE: Metadata transformations may be adversely affected by choosing to retain 'Invalid' result units. Check these records before proceeding with transformations and/or set clean = 'invalid_only' or 'both'.")
+    print("Rows with invalid result value units have been flagged but retained. Review these rows before proceeding and/or set clean = 'invalid_only' or 'both'.")
   }
   
   # when clean = "invalid_only"
