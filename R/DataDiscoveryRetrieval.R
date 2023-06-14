@@ -362,12 +362,12 @@ TADAReadWQPWebServices <- function(webservice) {
 #'
 #' This function does multiple synchronous data calls to the WQP
 #' (waterqualitydata.us). It uses the WQP summary service to limit the amount
-#' downloaded to only relevant data, and pulls back data from 100 stations at a
-#' time and then joins the data back together and produces a single TADA
-#' compatible dataframe as the output. For large data sets, that can save a lot
+#' downloaded to only relevant data (based on user query), pulls back data for 
+#' 250000 records at a time, and then joins the data back together to produce a 
+#' single TADA compatible dataframe as the output. For large data sets, that can save a lot
 #' of time and ultimately reduce the complexity of subsequent data processing.
 #' Using this function, you will be able to download all data available from all
-#' sites in the contiguous United States that is available for the time period,
+#' sites in the contiguous United States available for the time period,
 #' characteristicName, and siteType requested. Computer memory may limit the
 #' size of datasets that your R console will be able to hold in one session.
 #' Function requires a characteristicName, siteType, statecode, huc, or start/
@@ -382,7 +382,7 @@ TADAReadWQPWebServices <- function(webservice) {
 #'
 #' See ?TADA_AutoClean documentation for more information on this optional input.
 #'
-#' Note: TADABigdataRetrieval (by leveraging dataRetrieval),  automatically converts
+#' Note: TADABigdataRetrieval (by leveraging USGS's dataRetrieval),  automatically converts
 #' the date times to UTC. It also automatically converts the data to dates,
 #' datetimes, numerics based on a standard algorithm. See: ?dataRetrieval::readWQPdata
 #'
