@@ -47,7 +47,7 @@ It's that easy! The most stable branch for TADA right now is the develop branch.
 
 The following code block ensures the additional packages needed to run the code in this RMarkdown document are loaded. However, users may also use the `package name:: package function` notation to avoid the list of `library()` calls.
 
-```{r}
+```{r, warning=FALSE,message=FALSE}
 # Load tidyverse
 if(!"tidyverse"%in%installed.packages()){
   install.packages("tidyverse")
@@ -197,12 +197,12 @@ TADA::fieldValuesTable(dataset,field="TADA.ResultMeasureValueDataTypes.Flag")
 wrong_datatype = dataset%>%filter(!TADA.ResultMeasureValueDataTypes.Flag%in%c("Numeric","Less Than","Greater Than","Approximate Value","Percentage","Comma-Separated Numeric","Numeric Range - Averaged","Result Value/Unit Copied from Detection Limit"))%>%dplyr::mutate(TADA.RemovalReason = "Result value type cannot be converted to numeric or no detection limit values provided.")
 
 # take a look at the difficult data types - do they make sense?
-check = unique(wrong_datatype[,c("TADA.CharacteristicName","ResultMeasureValue","TADA.ResultMeasureValue", "ResultMeasure.MeasureUnitCode","TADA.ResultMeasure.MeasureUnitCode","TADA.ResultMeasureValueDataTypes.Flag","DetectionQuantitationLimitMeasure.MeasureValue","TADA.DetectionQuantitationLimitMeasure.MeasureValue", "DetectionQuantitationLimitMeasure.MeasureUnitCode","TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode")])
+unique(wrong_datatype[,c("TADA.CharacteristicName","ResultMeasureValue","TADA.ResultMeasureValue", "ResultMeasure.MeasureUnitCode","TADA.ResultMeasure.MeasureUnitCode","TADA.ResultMeasureValueDataTypes.Flag","DetectionQuantitationLimitMeasure.MeasureValue","TADA.DetectionQuantitationLimitMeasure.MeasureValue", "DetectionQuantitationLimitMeasure.MeasureUnitCode","TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode")])
 
 dataset = dataset%>%filter(TADA.ResultMeasureValueDataTypes.Flag%in%c("Numeric","Less Than","Greater Than","Approximate Value","Percentage","Comma-Separated Numeric","Numeric Range - Averaged","Result Value/Unit Copied from Detection Limit"))
 
 removed = plyr::rbind.fill(removed, wrong_datatype)
-rm(wrong_datatype, check)
+rm(wrong_datatype)
 
 dimCheck(all_result_num, dataset, removed, checkName = "Result Format")
 ```
@@ -213,6 +213,11 @@ During `TADAdataRetrieval`, TADA automatically sorts result values into detectio
 TADA::fieldValuesPie(dataset, field = "TADA.CensoredData.Flag")
 
 problem_censored = dataset%>%dplyr::filter(!TADA.CensoredData.Flag%in%c("Non-Detect","Over-Detect","Other","Uncensored"))%>%dplyr::mutate(TADA.RemovalReason = "Detection limit information contains errors or missing information.")
+
+# Let's take a look at the problematic data that we filtered out
+# take a look at the difficult data types - do they make sense?
+unique(problem_censored[,c("TADA.CharacteristicName","ResultDetectionConditionText","DetectionQuantitationLimitTypeName","TADA.CensoredData.Flag")])
+
 
 dataset = dataset%>%dplyr::filter(TADA.CensoredData.Flag%in%c("Non-Detect","Over-Detect","Other", "Uncensored"))
 
@@ -241,7 +246,7 @@ TADA::fieldValuesPie(dataset, field = "TADA.ResultSampleFractionText", character
 
 Finally, we can view the site locations using a TADA mapping function. In this map, the circles indicate monitoring locations in the dataset; their size corresponds to the number of results collected at that site, while the darker the circle, the more characteristics were sampled at that site.
 
-```{r}
+```{r, warning=FALSE, message=FALSE}
 TADA::TADAOverviewMap(dataset)
 ```
 
