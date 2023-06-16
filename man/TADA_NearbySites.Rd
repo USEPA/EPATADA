@@ -2,7 +2,7 @@
 % Please edit documentation in R/Utilities.R
 \name{TADA_NearbySites}
 \alias{TADA_NearbySites}
-\title{Identify and group nearby monitoring locations}
+\title{Identify and group nearby monitoring locations (UNDER ACTIVE DEVELOPMENT)}
 \usage{
 TADA_NearbySites(.data, dist_buffer = 100)
 }

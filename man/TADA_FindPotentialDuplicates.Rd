@@ -2,7 +2,7 @@
 % Please edit documentation in R/ResultFlagsIndependent.R
 \name{TADA_FindPotentialDuplicates}
 \alias{TADA_FindPotentialDuplicates}
-\title{Identify Potential Duplicate Data Uploads}
+\title{Identify Potential Duplicate Data Uploads (UNDER ACTIVE DEVELOPMENT)}
 \usage{
 TADA_FindPotentialDuplicates(.data, dist_buffer = 100)
 }

@@ -1112,7 +1112,7 @@ InvalidCoordinates <- function(.data,
   return(.data)
 }
 
-#' Identify Potential Duplicate Data Uploads
+#' Identify Potential Duplicate Data Uploads (UNDER ACTIVE DEVELOPMENT)
 #' 
 #' Identifies data records uploaded by different organizations with the same date,
 #' time, characteristic name, and result value within X meters of each other and

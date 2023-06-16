@@ -583,7 +583,7 @@ getTADATemplate <- function(){
 }
 
 
-#' Identify and group nearby monitoring locations
+#' Identify and group nearby monitoring locations (UNDER ACTIVE DEVELOPMENT)
 #'
 #' This function takes a TADA dataset and creates a distance matrix for all sites in the dataset. It then uses the buffer input value to determine which sites are within the buffer and should be identified as part of a nearby site group.
 #'
