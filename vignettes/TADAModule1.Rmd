@@ -31,12 +31,23 @@ pre[class] {
 }
 ```
 
+## Download this Article from GitHub
+
+Go to:
+<https://github.com/USEPA/TADA/blob/develop/vignettes/TADAModule1.Rmd>
+
+[![Click the highlighted icon to download TADAModule1.Rmd from GitHub.
+Open this file in R Studio to follow along. Alternatively, you can copy
+and paste desired lines of code herein into your own
+script.](images/DownloadModule1.jpg)](https://github.com/USEPA/TADA/blob/develop/vignettes/TADAModule1.Rmd)
+
 ## Overview
 
-This vignette will walk through how to discover and clean (i.e.,
-wrangle, Quality Assure and Quality Control (QAQC), and harmonize)
-[Water Quality Portal (WQP)](https://www.waterqualitydata.us/) data from
-multiple organizations.
+This vignette walks through how to use the TADA R Package to discover
+and clean (i.e., wrangle, Quality Assure and Quality Control (QAQC), and
+harmonize) [Water Quality Portal
+(WQP)](https://www.waterqualitydata.us/) data from multiple
+organizations.
 
 ## Install and load packages
 
@@ -117,13 +128,14 @@ Data retrieval filters include:
 -   characteristicType
 
 Please be aware that the default TADAdataRetrieval function
-automatically runs the TADA **TADA_AutoClean** and **TADA_ConvertSpecialChars**
-functions. Both are both required for subsequent functions within the
-TADA R package to run. As a general rule, TADA functions do not change
-any contents in the WQP-served columns (enter *?TADA_ConvertSpecialChars* and
-*?TADA_AutoClean* into the console for more details). Instead, they add new
-columns with the prefix "TADA." The following columns are numeric
-versions of their WQP origins:
+automatically runs the TADA **TADA_AutoClean** and
+**TADA_ConvertSpecialChars** functions. Both are both required for
+subsequent functions within the TADA R package to run. As a general
+rule, TADA functions do not change any contents in the WQP-served
+columns (enter *?TADA_ConvertSpecialChars* and *?TADA_AutoClean* into
+the console for more details). Instead, they add new columns with the
+prefix "TADA." The following columns are numeric versions of their WQP
+origins:
 
     -   TADA.ResultMeasureValue
 
@@ -202,10 +214,10 @@ profiles are different because TADAdataRetrieval automatically joins in
 data from multiple WQP profiles, and does some additional data cleaning
 as part of the data retrieval process.
 
-This example includes monitoring data collected from Jan 2018 to Jan 2019
-by six organizations: 1) Red Lake Band of Chippewa Indians, 2) Sac & Fox
-Nation, 3) Pueblo of Pojoaque, 4) Minnesota Chippewa Tribe (Fond du Lac
-Band), 5) Pueblo of Tesuque, and 6) The Chickasaw Nation
+This example includes monitoring data collected from Jan 2018 to Jan
+2019 by six organizations: 1) Red Lake Band of Chippewa Indians, 2) Sac
+& Fox Nation, 3) Pueblo of Pojoaque, 4) Minnesota Chippewa Tribe (Fond
+du Lac Band), 5) Pueblo of Tesuque, and 6) The Chickasaw Nation
 
 We will move forward with this example in the remainder of the vignette.
 
@@ -367,9 +379,9 @@ Unique_InvalidCoordinateFlags
 
 ## Depth unit conversions
 
-The **TADA_ConvertDepthUnits** function converts depth units to a consistent
-unit. Depth values and units are most commonly associated with lake
-data, and are populated in the *ActivityDepthHeightMeasure*,
+The **TADA_ConvertDepthUnits** function converts depth units to a
+consistent unit. Depth values and units are most commonly associated
+with lake data, and are populated in the *ActivityDepthHeightMeasure*,
 *ActivityTopDepthHeightMeasure*, *ActivityBottomDepthHeightMeasure*, and
 *ResultDepthHeightMeasure* Result Value/Unit columns.
 
@@ -377,7 +389,11 @@ Allowable values for 'unit' are either 'm' (meter), 'ft' (feet), or 'in'
 (inch). 'unit' accepts only one allowable value as an input. Default is
 unit = "m".
 
-Note that upon download using **TADAdataRetrieval**, all depth columns are converted to meters by default. However, the user may choose to run the **TADA_ConvertDepthUnits** function on their dataset to convert to another unit. See function documentation for additional input options by entering the following code in the console: ?TADA_ConvertDepthUnits
+Note that upon download using **TADAdataRetrieval**, all depth columns
+are converted to meters by default. However, the user may choose to run
+the **TADA_ConvertDepthUnits** function on their dataset to convert to
+another unit. See function documentation for additional input options by
+entering the following code in the console: ?TADA_ConvertDepthUnits
 
 ```{r TADA_ConvertDepthUnits}
 #converts all depth profile data to meters
@@ -692,7 +708,10 @@ fieldCounts_Table <- fieldCounts(TADAProfileClean3)
 
 ```
 
-Next, choose a field from the list generated above to view a summary table or pie chart of the counts of unique values in that field using **fieldValuesTable** or **fieldValuesPie**. We'll start with ActivityTypeCode.
+Next, choose a field from the list generated above to view a summary
+table or pie chart of the counts of unique values in that field using
+**fieldValuesTable** or **fieldValuesPie**. We'll start with
+ActivityTypeCode.
 
 ```{r fieldValues_all, fig.width=6, fig.height=2, fig.fullwidth=TRUE}
 fieldValuesTable(TADAProfileClean3, field = "ActivityTypeCode")
@@ -792,16 +811,21 @@ All censored data functions depend first on the **idCensoredData**
 utility function, which assigns a *TADA.CensoredData.Flag* to all data
 records and identifies over-detects from non-detects using the
 *ResultDetectionConditionText* and *DetectionQuantitationLimitTypeName*.
-This utility function is automatically run  within the TADAdataRetrieval function and produces the *TADA.CensoredData.Flag* column. All records receive one of the following
-classifications: - Uncensored - Not filled with detection limit value; a
-detection. - Non-Detect - Left-censored - Over-Detect - Right-censored -
-Other Condition/Limit Populated - detection condition or limit type are
-ambiguous or not associated with a lower/upper detection limit. -
-Conflict between Condition and Limit - detection condition and limit
-type for a single record do not agree, e.g. one suggests over-detect and
-the other suggests non-detect. - Detection condition or detection limit is not documented in TADA reference tables. -
-detection condition or limit type is not characterized in the TADA
-reference tables, which are based on WQX domain tables. - Detection condition is missing and required for censored data ID. - Result needs more information before being categorized.
+This utility function is automatically run within the TADAdataRetrieval
+function and produces the *TADA.CensoredData.Flag* column. All records
+receive one of the following classifications: - Uncensored - Not filled
+with detection limit value; a detection. - Non-Detect - Left-censored -
+Over-Detect - Right-censored - Other Condition/Limit Populated -
+detection condition or limit type are ambiguous or not associated with a
+lower/upper detection limit. - Conflict between Condition and Limit -
+detection condition and limit type for a single record do not agree,
+e.g. one suggests over-detect and the other suggests non-detect. -
+Detection condition or detection limit is not documented in TADA
+reference tables. - detection condition or limit type is not
+characterized in the TADA reference tables, which are based on WQX
+domain tables. - Detection condition is missing and required for
+censored data ID. - Result needs more information before being
+categorized.
 
 In the example below, we first summarize the censored data in the
 dataset using the default grouping variables *TADA.CharacteristicName*,
@@ -830,7 +854,9 @@ TADAProfileClean4 = simpleCensoredMethods(TADAProfileClean4,
                                            od_multiplier = "null")
 ```
 
-Next, review  unique values within the TADA.CensoredData.Flag, DetectionQuantitationLimitTypeName, and ResultDetectionConditionText columns. 
+Next, review unique values within the TADA.CensoredData.Flag,
+DetectionQuantitationLimitTypeName, and ResultDetectionConditionText
+columns.
 
 ```{r uniquevalues}
 # review unique values
@@ -839,17 +865,23 @@ unique(TADAProfileClean4$DetectionQuantitationLimitTypeName)
 unique(TADAProfileClean4$ResultDetectionConditionText)
 ```
 
-Also, review the TADA.ResultMeasureValueDataTypes.Flag to see if any NA's or ND's (non-detects) remain. 
+Also, review the TADA.ResultMeasureValueDataTypes.Flag to see if any
+NA's or ND's (non-detects) remain.
+
 ```{r ResultMeasureValueDataTypes.Flag_uniquevalues}
 unique(TADAProfileClean4$TADA.ResultMeasureValueDataTypes.Flag)
 ```
 
-Count how many NA's remain in the TADA.ResultMeasureValue. 
+Count how many NA's remain in the TADA.ResultMeasureValue.
+
 ```{r Review_NA_MeasureValues}
 sum(is.na(TADAProfileClean4$TADA.ResultMeasureValue))
 ```
 
-Filter down to only numeric data. Remove data where the TADA.ResultMeasureValueDataTypes.Flag = "Text","Coerced to NA","ND or NA".
+Filter down to only numeric data. Remove data where the
+TADA.ResultMeasureValueDataTypes.Flag = "Text","Coerced to NA","ND or
+NA".
+
 ```{r filter_out_NAs}
 # Filter down to only numeric data. Remove "Text","Coerced to NA","ND or NA"  
 TADAProfileClean5 <- dplyr::filter(TADAProfileClean4, 
@@ -859,6 +891,7 @@ TADAProfileClean5 <- dplyr::filter(TADAProfileClean4,
 ```
 
 Double check to make sure no NA's or ND's remain.
+
 ```{r check_for_NAs_again}
 unique(TADAProfileClean5$TADA.ResultMeasureValueDataTypes.Flag)
 ```
@@ -940,7 +973,9 @@ Enter ?fieldValuesTable into the console for more information.
 fieldValuesTable(TADAProfileClean5, field = "TADA.CharacteristicName")
 ```
 
-Next, we can revisit the **fieldCounts** function at the characteristic level to review how many unique allowable values are included within each of the following fields:
+Next, we can revisit the **fieldCounts** function at the characteristic
+level to review how many unique allowable values are included within
+each of the following fields:
 
 -   "ActivityCommentText"
 
@@ -1017,7 +1052,8 @@ Next, choose a field from the list.
 Review the WQX domain files for definitions:
 <https://www.epa.gov/waterdata/storage-and-retrieval-and-water-quality-exchange-domain-services-and-downloads>
 
-Now, we'll use **fieldValuesTable** and **fieldValuesPie** at the characteristic-level to review a column of interest.
+Now, we'll use **fieldValuesTable** and **fieldValuesPie** at the
+characteristic-level to review a column of interest.
 
 ```{r fieldValuesTable_Pie_char, fig.width=6, fig.height=2, fig.fullwidth=TRUE}
 # In this example we review values from the SampleCollectionMethod.MethodName field
@@ -1054,3 +1090,24 @@ Generate interactive box plot.
 TADA::TADA_boxplot(TADAProfileCleanTP, id_col = "TADA.ComparableDataIdentifier")
 
 ```
+
+## TADA Shiny Application
+
+Finally, take a look at an alternative workflow, TADA Shiny Module 1:
+Data Discovery and Cleaning. This is a Shiny application that runs many
+of the TADA functions covered in this document behind a graphical user
+interface. The shiny application queries the WQP, contains maps and data
+visualizations, flags suspect data results, handles censored data, and
+more. You can launch it using the code below.
+
+```{r}
+# download TADA Shiny repository
+remotes::install_github("USEPA/TADAShiny", ref = "develop", dependencies = TRUE)
+
+# launch the app locally.
+TADAShiny::run_app()
+```
+
+DRAFT [Module 1](https://owshiny-dev.app.cloud.gov/tada-dev/) is also
+currently hosted on the web with minimal server memory/storage
+allocated.
