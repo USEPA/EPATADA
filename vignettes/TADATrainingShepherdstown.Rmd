@@ -95,7 +95,7 @@ Let's give it a try. `TADAdataRetrieval` follows similar parameterization to `re
 ```{r}
 # download data for NCTC's HUC12
 dataset_0 = TADA::TADAdataRetrieval(
-  startDate = "2020-03-14",
+  startDate = "2020-06-22",
   endDate = "null",
   countycode = "null",
   huc = "02070004",
