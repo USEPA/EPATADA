@@ -33,14 +33,14 @@
 #'
 #' @param startDate Start Date string in the format YYYY-MM-DD, for example, "2020-01-01"
 #' @param endDate End Date string in the format YYYY-MM-DD, for example, "2020-01-01"
-#' @param countycode Code that identifies a county
+#' @param countycode FIPS county name. Note that a state code must also be supplied (e.g. statecode = "AL", countycode = "Chilton").
 #' @param huc A numeric code denoting a hydrologic unit. Example: "04030202". Different size hucs can be entered.
 #' @param siteid Unique monitoring station identifier
 #' @param siteType Type of waterbody
 #' @param characteristicName Name of parameter
 #' @param characteristicType Groups of environmental measurements/parameters.
 #' @param sampleMedia Sampling substrate such as water, air, or sediment
-#' @param statecode Code that identifies a state
+#' @param statecode FIPS state alpha code that identifies a state (e.g. statecode = "DE" for Delaware)
 #' @param organization A string of letters and/or numbers (some additional characters also possible) used to signify an organization with data in the Water Quality Portal
 #' @param project A string of letters and/or numbers (some additional characters also possible) used to signify a project with data in the Water Quality Portal
 #' @param applyautoclean Logical, defaults to TRUE. Applies TADA_AutoClean function on the returned data profile.
