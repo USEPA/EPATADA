@@ -25,7 +25,7 @@ TADAdataRetrieval(
 
 \item{endDate}{End Date string in the format YYYY-MM-DD, for example, "2020-01-01"}
 
-\item{countycode}{Code that identifies a county}
+\item{countycode}{FIPS county name. Note that a state code must also be supplied (e.g. statecode = "AL", countycode = "Chilton").}
 
 \item{huc}{A numeric code denoting a hydrologic unit. Example: "04030202". Different size hucs can be entered.}
 
@@ -39,7 +39,7 @@ TADAdataRetrieval(
 
 \item{sampleMedia}{Sampling substrate such as water, air, or sediment}
 
-\item{statecode}{Code that identifies a state}
+\item{statecode}{FIPS state alpha code that identifies a state (e.g. statecode = "DE" for Delaware)}
 
 \item{organization}{A string of letters and/or numbers (some additional characters also possible) used to signify an organization with data in the Water Quality Portal}
 

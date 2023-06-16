@@ -33,14 +33,14 @@
 #'
 #' @param startDate Start Date string in the format YYYY-MM-DD, for example, "2020-01-01"
 #' @param endDate End Date string in the format YYYY-MM-DD, for example, "2020-01-01"
-#' @param countycode Code that identifies a county
+#' @param countycode FIPS county name. Note that a state code must also be supplied (e.g. statecode = "AL", countycode = "Chilton").
 #' @param huc A numeric code denoting a hydrologic unit. Example: "04030202". Different size hucs can be entered.
 #' @param siteid Unique monitoring station identifier
 #' @param siteType Type of waterbody
 #' @param characteristicName Name of parameter
 #' @param characteristicType Groups of environmental measurements/parameters.
 #' @param sampleMedia Sampling substrate such as water, air, or sediment
-#' @param statecode Code that identifies a state
+#' @param statecode FIPS state alpha code that identifies a state (e.g. statecode = "DE" for Delaware)
 #' @param organization A string of letters and/or numbers (some additional characters also possible) used to signify an organization with data in the Water Quality Portal
 #' @param project A string of letters and/or numbers (some additional characters also possible) used to signify a project with data in the Water Quality Portal
 #' @param applyautoclean Logical, defaults to TRUE. Applies TADA_AutoClean function on the returned data profile.
@@ -362,12 +362,12 @@ TADAReadWQPWebServices <- function(webservice) {
 #'
 #' This function does multiple synchronous data calls to the WQP
 #' (waterqualitydata.us). It uses the WQP summary service to limit the amount
-#' downloaded to only relevant data, and pulls back data from 100 stations at a
-#' time and then joins the data back together and produces a single TADA
-#' compatible dataframe as the output. For large data sets, that can save a lot
+#' downloaded to only relevant data (based on user query), pulls back data for 
+#' 250000 records at a time, and then joins the data back together to produce a 
+#' single TADA compatible dataframe as the output. For large data sets, that can save a lot
 #' of time and ultimately reduce the complexity of subsequent data processing.
 #' Using this function, you will be able to download all data available from all
-#' sites in the contiguous United States that is available for the time period,
+#' sites in the contiguous United States available for the time period,
 #' characteristicName, and siteType requested. Computer memory may limit the
 #' size of datasets that your R console will be able to hold in one session.
 #' Function requires a characteristicName, siteType, statecode, huc, or start/
@@ -382,7 +382,7 @@ TADAReadWQPWebServices <- function(webservice) {
 #'
 #' See ?TADA_AutoClean documentation for more information on this optional input.
 #'
-#' Note: TADABigdataRetrieval (by leveraging dataRetrieval),  automatically converts
+#' Note: TADABigdataRetrieval (by leveraging USGS's dataRetrieval),  automatically converts
 #' the date times to UTC. It also automatically converts the data to dates,
 #' datetimes, numerics based on a standard algorithm. See: ?dataRetrieval::readWQPdata
 #'
