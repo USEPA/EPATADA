@@ -48,11 +48,12 @@ It's that easy! The most stable branch for TADA right now is the develop branch.
 The following code block ensures the additional packages needed to run the code in this RMarkdown document are loaded. However, users may also use the `package name:: package function` notation to avoid the list of `library()` calls.
 
 ```{r, warning=FALSE,message=FALSE}
-# Load tidyverse
-if(!"tidyverse"%in%installed.packages()){
-  install.packages("tidyverse")
-}
+list.of.packages <- c("tidyverse", "writexl")
+new.packages <- list.of.packages[!(list.of.packages %in% installed.packages()[,"Package"])]
+if(length(new.packages)) install.packages(new.packages)
+
 library(tidyverse)
+library(writexl)
 ```
 
 ## Help pages
@@ -196,8 +197,12 @@ TADA::fieldValuesTable(dataset,field="TADA.ResultMeasureValueDataTypes.Flag")
 # Numeric or numeric-coerced data types
 rv_datatypes = unique(subset(dataset, !is.na(dataset$TADA.ResultMeasureValue))$TADA.ResultMeasureValueDataTypes.Flag)
 
+rv_datatypes
+
 # Non-numeric data types coerced to NA
 na_rv_datatypes = unique(subset(dataset, is.na(dataset$TADA.ResultMeasureValue))$TADA.ResultMeasureValueDataTypes.Flag)
+
+na_rv_datatypes
 
 # these are all of the NOT allowable data types in the dataset.
 wrong_datatype = dataset%>%filter(!TADA.ResultMeasureValueDataTypes.Flag%in%c("Numeric","Less Than","Greater Than","Approximate Value","Percentage","Comma-Separated Numeric","Numeric Range - Averaged","Result Value/Unit Copied from Detection Limit"))%>%dplyr::mutate(TADA.RemovalReason = "Result value type cannot be converted to numeric or no detection limit values provided.")
@@ -397,6 +402,15 @@ TADA::TADA_boxplot(plot_data, id_col = "TADA.ComparableDataIdentifier")
 
 TADA::TADA_stats(plot_data)
 ```
+
+Finally, we can download our PASS and FAIL datasets together into an Excel spreadsheet to see all of the TADA-related columns together. TADA-generated columns will occur at the far end of the dataset.
+
+```{r}
+dataset_and_removed = dplyr::bind_rows(dataset_cens, removed)
+
+writexl::write_xlsx(dataset_and_removed, "NCTCShepherdstownData.xlsx")
+```
+
 
 ## TADA R Shiny Modules
 
