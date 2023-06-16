@@ -147,7 +147,7 @@ if(!all_result_num==final_result_num){
 }
 ```
 
-Next, we can use the TADA `fieldCounts()` function to see how many unique values are contained within each column of the dataset. We're using the command `display = "all"` to view all of the columns but could also use `"most"` or `"key"` to cut down on the number of columns reviewed. Enter ?TADA::fieldCounts() into the console for more information on this function.
+Next, we can use the TADA `fieldCounts()` function to see how many unique values are contained within each column of the dataset. The function can either return all column counts, most, or just the key columns. We'll try the input with `display = "key"` and `display = "all"`. Enter ?TADA::fieldCounts() into the console for more information on this function.
 
 **Question 2: Which column should have a unique value in every row and why?**
 
@@ -162,7 +162,7 @@ TADA::fieldCounts(dataset_0, display = "all")
 TADA is currently designed to accommodate water data from the WQP. Let's ensure that we remove all non-water data first.
 
 ```{r}
-# check result numbers
+# let's first get the total number of rows in the dataset.
 all_result_num = dim(dataset_0)[1]
 
 # remove data with media type that is not water
@@ -193,16 +193,24 @@ We can take a quick look at some of the TADA-created columns that review result 
 # take a look at datatypes
 TADA::fieldValuesTable(dataset,field="TADA.ResultMeasureValueDataTypes.Flag")
 
+# Numeric or numeric-coerced data types
+rv_datatypes = unique(subset(dataset, !is.na(dataset$TADA.ResultMeasureValue))$TADA.ResultMeasureValueDataTypes.Flag)
+
+# Non-numeric data types coerced to NA
+na_rv_datatypes = unique(subset(dataset, is.na(dataset$TADA.ResultMeasureValue))$TADA.ResultMeasureValueDataTypes.Flag)
+
 # these are all of the NOT allowable data types in the dataset.
 wrong_datatype = dataset%>%filter(!TADA.ResultMeasureValueDataTypes.Flag%in%c("Numeric","Less Than","Greater Than","Approximate Value","Percentage","Comma-Separated Numeric","Numeric Range - Averaged","Result Value/Unit Copied from Detection Limit"))%>%dplyr::mutate(TADA.RemovalReason = "Result value type cannot be converted to numeric or no detection limit values provided.")
 
 # take a look at the difficult data types - do they make sense?
-unique(wrong_datatype[,c("TADA.CharacteristicName","ResultMeasureValue","TADA.ResultMeasureValue", "ResultMeasure.MeasureUnitCode","TADA.ResultMeasure.MeasureUnitCode","TADA.ResultMeasureValueDataTypes.Flag","DetectionQuantitationLimitMeasure.MeasureValue","TADA.DetectionQuantitationLimitMeasure.MeasureValue", "DetectionQuantitationLimitMeasure.MeasureUnitCode","TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode")])
+check = unique(wrong_datatype[,c("TADA.CharacteristicName","ResultMeasureValue","TADA.ResultMeasureValue", "ResultMeasure.MeasureUnitCode","TADA.ResultMeasure.MeasureUnitCode","TADA.ResultMeasureValueDataTypes.Flag","DetectionQuantitationLimitMeasure.MeasureValue","TADA.DetectionQuantitationLimitMeasure.MeasureValue", "DetectionQuantitationLimitMeasure.MeasureUnitCode","TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode")])
+
+View(check)
 
 dataset = dataset%>%filter(TADA.ResultMeasureValueDataTypes.Flag%in%c("Numeric","Less Than","Greater Than","Approximate Value","Percentage","Comma-Separated Numeric","Numeric Range - Averaged","Result Value/Unit Copied from Detection Limit"))
 
 removed = plyr::rbind.fill(removed, wrong_datatype)
-rm(wrong_datatype)
+rm(wrong_datatype, check, rv_datatypes, na_rv_datatypes)
 
 dimCheck(all_result_num, dataset, removed, checkName = "Result Format")
 ```
@@ -214,15 +222,15 @@ TADA::fieldValuesPie(dataset, field = "TADA.CensoredData.Flag")
 
 problem_censored = dataset%>%dplyr::filter(!TADA.CensoredData.Flag%in%c("Non-Detect","Over-Detect","Other","Uncensored"))%>%dplyr::mutate(TADA.RemovalReason = "Detection limit information contains errors or missing information.")
 
-# Let's take a look at the problematic data that we filtered out
-# take a look at the difficult data types - do they make sense?
-unique(problem_censored[,c("TADA.CharacteristicName","ResultDetectionConditionText","DetectionQuantitationLimitTypeName","TADA.CensoredData.Flag")])
+# Let's take a look at the problematic data that we filtered out (if any)
+check = unique(problem_censored[,c("TADA.CharacteristicName","ResultDetectionConditionText","DetectionQuantitationLimitTypeName","TADA.CensoredData.Flag")])
 
+View(check)
 
 dataset = dataset%>%dplyr::filter(TADA.CensoredData.Flag%in%c("Non-Detect","Over-Detect","Other", "Uncensored"))
 
 removed = plyr::rbind.fill(removed, problem_censored)
-rm(problem_censored)
+rm(problem_censored, check)
 
 dimCheck(all_result_num, dataset, removed, checkName = "Censored Data")
 ```
@@ -264,7 +272,11 @@ Bring the QAQC Validation Table into your R session to view or save with the fol
 
 ```{r}
 qaqc_ref = TADA::GetWQXCharValRef()
+
+View(qaqc_ref)
+
 head(qaqc_ref)
+
 unique(qaqc_ref$Type)
 ```
 
@@ -367,7 +379,7 @@ Let's first take a look at the column TADA.ComparableDataIdentifier, which break
 
 ```{r}
 # trusty field values table - lets just look at the first few entries with the most associated records
-TADA::fieldValuesTable(dataset_cens, field = "TADA.ComparableDataIdentifier")%>%dplyr::arrange(desc(Count))%>%head()
+TADA::fieldValuesTable(dataset_cens, field = "TADA.ComparableDataIdentifier")%>%head()
 
 ```
 
@@ -376,9 +388,13 @@ Now that we have an idea for what the TADA.ComparableDataIdentifier looks like, 
 ```{r}
 # Look at a histogram, boxplot, and stats for TADA.ComparableDataIdentifier(s) of your choice.
 comp_data_id = "TEMPERATURE, WATER_NA_NA_DEG C"
+
 plot_data = subset(dataset_cens, dataset_cens$TADA.ComparableDataIdentifier%in%comp_data_id)
+
 TADA::TADA_hist(plot_data, id_col = "TADA.ComparableDataIdentifier")
+
 TADA::TADA_boxplot(plot_data, id_col = "TADA.ComparableDataIdentifier")
+
 TADA::TADA_stats(plot_data)
 ```
 

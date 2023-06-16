@@ -227,7 +227,8 @@ fieldValuesTable <- function(.data,field="null",characteristicName="null"){
   }
 
   dat = as.data.frame(table(.data[,field]))
-  names(dat) = c("Var","Count")
+  names(dat) = c("Value","Count")
+  dat = dat%>%dplyr::arrange(desc(Count))
   return(dat)
 }
 
