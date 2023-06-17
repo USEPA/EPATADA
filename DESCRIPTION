@@ -55,7 +55,8 @@ Imports:
     rmarkdown, 
     outliers,
     remotes,
-    writexl
+    writexl,
+    TADAShiny
 Depends: 
     R (>= 3.5.0)
 Suggests: 
