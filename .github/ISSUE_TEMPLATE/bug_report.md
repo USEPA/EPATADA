@@ -4,35 +4,54 @@ about: Create a report to help us improve
 title: ''
 labels: ''
 assignees: ''
-
+editor_options: 
+  markdown: 
+    wrap: 72
 ---
 
-**Describe the bug**
-A clear and concise description of what the bug is.
+**Describe the bug** A clear and concise description of what the bug is.
 
-**To Reproduce**
-Steps to reproduce the behavior:
-1. Go to '...'
-2. Click on '....'
-3. Scroll down to '....'
-4. See error
+**To Reproduce** Steps to reproduce the behavior: 1. Go to '...' 2.
+Click on '....' 3. Scroll down to '....' 4. See error
 
-**Expected behavior**
-A clear and concise description of what you expected to happen.
+Code to reproduce the behavior:
 
-**Screenshots**
-If applicable, add screenshots to help explain your problem.
+``` r
+library(TADA)
 
-**Desktop (please complete the following information):**
- - OS: [e.g. iOS]
- - Browser [e.g. chrome, safari]
- - Version [e.g. 22]
+# Data used when you encountered the bug
+df <- TADAdataRetrieval("a","b","c","d")
 
-**Smartphone (please complete the following information):**
- - Device: [e.g. iPhone6]
- - OS: [e.g. iOS8.1]
- - Browser [e.g. stock browser, safari]
- - Version [e.g. 22]
+# TADA function and function inputs used when you encountered the bug
+df2 <- TADA_ProblemFunction("a","b","c","d")
+```
 
-**Additional context**
-Add any other context about the problem here.
+**Expected behavior** A clear and concise description of what you
+expected to happen.
+
+**Screenshots** If applicable, add screenshots to help explain your
+problem.
+
+**Session Info** Please include your session info:
+
+``` r
+sessionInfo()
+#OR preferred:
+devtools::session_info()
+```
+
+**Additional context** Add any other context about the problem here.
+
+**Reminders for TADA contributors addressing this issue**
+
+New features should include all of the following work:
+
+-   [ ] Create the function/code
+
+-   [ ] Create tests in tests folder
+
+-   [ ] Create help file using roxygen2 above code.
+
+-   [ ] Create working examples in help file (via roxygen2)
+
+-   [ ] Add to appropriate vignette (or create new one)

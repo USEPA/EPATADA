@@ -41,7 +41,8 @@ utils::globalVariables(c("TADA.ResultValueAboveUpperThreshold.Flag", "ActivityId
                          "TADA.ActivityType.Flag", "Code", "ActivityTypeCode", "ResultCount", 
                          "tot_n", "MonitoringLocationName", "TADA.LatitudeMeasure", 
                          "TADA.LongitudeMeasure", "median", "sd", "TADA.ComparableDataIdentifier", 
-                         "desc", "Legend"))
+                         "desc", "Legend", "roundRV", "TADA.DuplicateID", "maxRV", "within10", 
+                         "AllGroups"))
 
 
 
