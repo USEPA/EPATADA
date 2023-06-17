@@ -59,6 +59,8 @@ Imports:
     TADAShiny
 Depends: 
     R (>= 3.5.0)
+Remotes: 
+    github::USEPA/TADAShiny
 Suggests: 
     readr,
     tidyverse,
