@@ -1100,7 +1100,7 @@ interface. The shiny application queries the WQP, contains maps and data
 visualizations, flags suspect data results, handles censored data, and
 more. You can launch it using the code below.
 
-```{r}
+```{r, eval = F}
 # download TADA Shiny repository
 remotes::install_github("USEPA/TADAShiny", 
                         ref = "develop", 
