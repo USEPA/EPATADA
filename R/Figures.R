@@ -215,7 +215,7 @@ TADA_hist <- function(filtered.data, id_col = c("TADA.CharacteristicName", "TADA
 #' @return A leaflet map that shows all sites in the data frame, where larger point sizes
 #' indicate more results collected at a site, and darker point colors indicate more
 #' characteristics measured at that site. Users can click on points on the map to see
-#' a pop-up window with exact counts for results, characteristics, and organizations
+#' a pop-up window with exact counts for measurements, visits, and characteristics
 #' associated with each site.
 #' 
 #' @export
@@ -229,33 +229,51 @@ TADA_hist <- function(filtered.data, id_col = c("TADA.CharacteristicName", "TADA
 #' 
 
 TADAOverviewMap <- function(.data){
-  sumdat = .data%>%dplyr::group_by(MonitoringLocationIdentifier,MonitoringLocationName,TADA.LatitudeMeasure, TADA.LongitudeMeasure)%>%dplyr::summarise("Sample_Count" = length(unique(ResultIdentifier)), "Visit_Count" = length(unique(ActivityStartDate)), "Parameter_Count" = length(unique(TADA.CharacteristicName)), "Organization_Count" = length(unique(OrganizationIdentifier)))
-  sumdat$radius = 3
-  sumdat$radius = ifelse(sumdat$Sample_Count>10,5,sumdat$radius)
-  sumdat$radius = ifelse(sumdat$Sample_Count>50,8,sumdat$radius)
-  sumdat$radius = ifelse(sumdat$Sample_Count>100,10,sumdat$radius)
-  sumdat$radius = ifelse(sumdat$Sample_Count>200,15,sumdat$radius)
-  sumdat$radius = ifelse(sumdat$Sample_Count>500,20,sumdat$radius)
-  sumdat$radius = ifelse(sumdat$Sample_Count>1500,30,sumdat$radius)
-  
-  pal <- leaflet::colorBin(
-    palette = "Blues",
-    domain = sumdat$Parameter_Count)
-  map = leaflet::leaflet()%>%
-    leaflet::addProviderTiles("Esri.WorldTopoMap", group = "World topo", options = leaflet::providerTileOptions(updateWhenZooming = FALSE,updateWhenIdle = TRUE))%>%
-    leaflet::clearShapes()%>% # get rid of whatever was there before if loading a second dataset
-    leaflet::fitBounds(lng1 = min(sumdat$TADA.LongitudeMeasure), lat1 = min(sumdat$TADA.LatitudeMeasure), lng2 = max(sumdat$TADA.LongitudeMeasure), lat2 = max(sumdat$TADA.LatitudeMeasure))%>% # fit to bounds of data in tadat$raw
-    leaflet::addCircleMarkers(data = sumdat, lng=~TADA.LongitudeMeasure, lat=~TADA.LatitudeMeasure, color="black",fillColor=~pal(Parameter_Count), fillOpacity = 0.7, stroke = TRUE, weight = 1.5, radius=sumdat$radius,
-                              popup = paste0("Site ID: ", sumdat$MonitoringLocationIdentifier,
-                                             "<br> Site Name: ", sumdat$MonitoringLocationName,
-                                             "<br> Sample Count: ", sumdat$Sample_Count,
-                                             "<br> Visit Count: ", sumdat$Visit_Count,
-                                             "<br> Parameter Count: ", sumdat$Parameter_Count))%>%
-    leaflet::addLegend("bottomright", pal = pal, values =sumdat$Parameter_Count,
-                       title = "Characteristics",
-                       opacity = 0.5
-    )
-  return(map)
+  suppressWarnings({
+    
+    # taken from this stackoverflow: https://stackoverflow.com/questions/58505589/circles-in-legend-for-leaflet-map-with-addcirclemarkers-in-r-without-shiny
+    addLegendCustom <- function(map, colors, labels, sizes, opacity = 0.5){
+      colorAdditions <- paste0(colors, "; border-radius: 50%; width:", sizes, "px; height:", sizes, "px")
+      labelAdditions <- paste0("<div style='display: inline-block;height: ", sizes, "px;margin-top: 4px;line-height: ", sizes, "px;'>", labels, "</div>")
+      
+      return(leaflet::addLegend(map, colors = colorAdditions, labels = labelAdditions, opacity = opacity, title = "Measurements"))
+    }
+    
+    site_size = data.frame(Sample_n = c("<9",">10",">50",">100",">200",">500",">1500"),Point_size = c(3,5,8,10,15,20,30))
+    
+    sumdat = .data%>%dplyr::group_by(MonitoringLocationIdentifier,MonitoringLocationName,TADA.LatitudeMeasure, TADA.LongitudeMeasure)%>%dplyr::summarise("Sample_Count" = length(unique(ResultIdentifier)), "Visit_Count" = length(unique(ActivityStartDate)), "Parameter_Count" = length(unique(TADA.CharacteristicName)), "Organization_Count" = length(unique(OrganizationIdentifier)))
+    sumdat$radius = 3
+    sumdat$radius = ifelse(sumdat$Sample_Count>10,5,sumdat$radius)
+    sumdat$radius = ifelse(sumdat$Sample_Count>50,8,sumdat$radius)
+    sumdat$radius = ifelse(sumdat$Sample_Count>100,10,sumdat$radius)
+    sumdat$radius = ifelse(sumdat$Sample_Count>200,15,sumdat$radius)
+    sumdat$radius = ifelse(sumdat$Sample_Count>500,20,sumdat$radius)
+    sumdat$radius = ifelse(sumdat$Sample_Count>1500,30,sumdat$radius)
+    
+    site_legend = subset(site_size, site_size$Point_size%in%unique(sumdat$radius))
+    
+    pal <- leaflet::colorBin(
+      palette = "Blues",
+      domain = sumdat$Parameter_Count)
+    
+    map = leaflet::leaflet()%>%
+      leaflet::addProviderTiles("Esri.WorldTopoMap", group = "World topo", options = leaflet::providerTileOptions(updateWhenZooming = FALSE,updateWhenIdle = TRUE))%>%
+      leaflet::clearShapes()%>% # get rid of whatever was there before if loading a second dataset
+      leaflet::fitBounds(lng1 = min(sumdat$TADA.LongitudeMeasure), lat1 = min(sumdat$TADA.LatitudeMeasure), lng2 = max(sumdat$TADA.LongitudeMeasure), lat2 = max(sumdat$TADA.LatitudeMeasure))%>% # fit to bounds of data in tadat$raw
+      leaflet::addCircleMarkers(data = sumdat, lng=~TADA.LongitudeMeasure, lat=~TADA.LatitudeMeasure, color="black",fillColor=~pal(Parameter_Count), fillOpacity = 0.7, stroke = TRUE, weight = 1.5, radius=sumdat$radius,
+                                popup = paste0("Site ID: ", sumdat$MonitoringLocationIdentifier,
+                                               "<br> Site Name: ", sumdat$MonitoringLocationName,
+                                               "<br> Measurement Count: ", sumdat$Sample_Count,
+                                               "<br> Visit Count: ", sumdat$Visit_Count,
+                                               "<br> Characteristic Count: ", sumdat$Parameter_Count))%>%
+      leaflet::addLegend("bottomright", pal = pal, values =sumdat$Parameter_Count,
+                         title = "Characteristics",
+                         opacity = 0.5
+      )%>%
+      addLegendCustom(colors = "black", 
+                      labels = site_legend$Sample_n, sizes = site_legend$Point_size*2)
+    return(map)
+  })
 }
 
 #' Field Values Pie Chart
