@@ -69,7 +69,7 @@ library(writexl)
 All TADA R package functions have their own individual help pages, listed on the [Function reference](https://usepa.github.io/TADA/reference/index.html) page on the GitHub site. Users can also access the help page for a given function in R or RStudio using the following format (example below): `?TADA::[name of TADA function]`
 
 ```{r}
-?TADA::TADAdataRetrieval
+?TADA::TADA_DataRetrieval
 ```
 
 ## Upload data
@@ -86,7 +86,7 @@ TADA::getTADATemplate() # download template to working directory
 # Nutrients_Utah <- TADA::Nutrients_Utah 
 ```
 
-`TADAdataRetrieval` is built upon USGS's `readWQPdata` function within the dataRetrieval package, which uses web service calls to bring WQP data into the R environment. Additionally, `TADAdataRetrieval` performs some basic quality control checks on the data using new TADA-specific columns to preserve the original dataset:
+`TADA_DataRetrieval` is built upon USGS's `readWQPdata` function within the dataRetrieval package, which uses web service calls to bring WQP data into the R environment. Additionally, `TADA_DataRetrieval` performs some basic quality control checks on the data using new TADA-specific columns to preserve the original dataset:
 
 -   Converts key character columns to ALL CAPS for easier harmonization and validation.
 
@@ -99,11 +99,11 @@ TADA::getTADATemplate() # download template to working directory
 -   Unifies result and depth units to common units to improve ease of data harmonization. See `?TADA_ConvertResultUnits` and `?TADA_ConvertDepthUnits` for more information on these processes.
 
 
-Let's give it a try. `TADAdataRetrieval` follows similar parameterization to `readWQPdata`, but check out the [help page](https://usepa.github.io/TADA/reference/TADAdataRetrieval.html) or enter ?TADA::TADAdataRetrieval into the console for more information about input parameters and to see several examples.
+Let's give it a try. `TADA_DataRetrieval` follows similar parameterization to `readWQPdata`, but check out the [help page](https://usepa.github.io/TADA/reference/TADA_DataRetrieval.html) or enter ?TADA::TADA_DataRetrieval into the console for more information about input parameters and to see several examples.
 
 ```{r}
 # download data for NCTC's HUC12
-# dataset_0 = TADA::TADAdataRetrieval(
+# dataset_0 = TADA::TADA_DataRetrieval(
 #   startDate = "2020-06-22",
 #   endDate = "null",
 #   countycode = "null",
@@ -126,13 +126,13 @@ dataset_0 = TADA::NCTCShepherdstown_HUC12
 names(dataset_0)[grepl("TADA.",names(dataset_0))]
 ```
 
-Currently, the `TADAdataRetrieval` function combines three WQP data profiles: Sample Results (Physical/Chemical), Site data, and Project data. This ensures that all important quality control columns are included in the dataset.
+Currently, the `TADA_DataRetrieval` function combines three WQP data profiles: Sample Results (Physical/Chemical), Site data, and Project data. This ensures that all important quality control columns are included in the dataset.
 
-**Note:** USGS and EPA are working together to create WQP 3.0 data profiles. Once released, one data profile will contain the columns critical to TADA, removing the need to combine profiles in this first step. TADA package users likely will not notice a difference in their usage of the `TADAdataRetrieval` function, but it will simplify the steps needed to upload a custom or WQP GUI-downloaded dataset into the R package.
+**Note:** USGS and EPA are working together to create WQP 3.0 data profiles. Once released, one data profile will contain the columns critical to TADA, removing the need to combine profiles in this first step. TADA package users likely will not notice a difference in their usage of the `TADA_DataRetrieval` function, but it will simplify the steps needed to upload a custom or WQP GUI-downloaded dataset into the R package.
 
 ## Initial data review
 
-Now that we've pulled the data into the R session, let's take a look at it. Note that any column names with a leading "TADA." were generated from the TADAdataRetrieval function.
+Now that we've pulled the data into the R session, let's take a look at it. Note that any column names with a leading "TADA." were generated from the TADA_DataRetrieval function.
 
 First, always good to take a look at the data frame dimensions.
 
@@ -238,7 +238,7 @@ rm(incompatible_datatype, check, rv_datatypes, na_rv_datatypes)
 dimCheck(all_result_num, dataset, removed, checkName = "Result Format")
 ```
 
-During `TADAdataRetrieval`, TADA automatically sorts result values into detection limit categories (e.g. non-detect, over-detect) based on populated values in the ResultDetectionConditionText and DetectionQuantitationLimitTypeName columns. You can find the reference tables used to make these decisions in `GetDetCondRef()` and `GetDetLimitRef()` functions. In some cases, results are missing detection limit/condition info, or there is a conflict in the detection limit and condition. The user may want to remove problematic detection limit data before proceeding.
+During `TADA_DataRetrieval`, TADA automatically sorts result values into detection limit categories (e.g. non-detect, over-detect) based on populated values in the ResultDetectionConditionText and DetectionQuantitationLimitTypeName columns. You can find the reference tables used to make these decisions in `GetDetCondRef()` and `GetDetLimitRef()` functions. In some cases, results are missing detection limit/condition info, or there is a conflict in the detection limit and condition. The user may want to remove problematic detection limit data before proceeding.
 
 ```{r}
 TADA::fieldValuesPie(dataset, field = "TADA.CensoredData.Flag")

@@ -16,7 +16,7 @@ from Jan. 2000 to July 2022. This dataset can be reproduced
 with the following TADABigdataRetrieval call:
 }
 \details{
-AllWaterTempData <- TADABigdataRetrieval(startDate = "2000-01-01",
+AllWaterTempData <- TADA_BigDataRetrieval(startDate = "2000-01-01",
 endDate = "2022-07-01",
 characteristicName = "Temperature, water",
 siteType = "Lake, Reservoir, Impoundment")

@@ -200,7 +200,7 @@ AggregatedContinuousData <- function(.data, clean = TRUE, errorsonly = FALSE) {
   # execute function after checks are passed
   # flag continuous data
   # make cont.data data frame
-  # with new profiles might want to check for zip files? Do these columns show up in TADAdataRetrieval?
+  # with new profiles might want to check for zip files? Do these columns show up in TADA_DataRetrieval?
   cont.data = .data%>%dplyr::filter((ActivityTypeCode=="Field Msr/Obs"&ResultDetectionConditionText=="Reported in Raw Data (attached)")|(ActivityTypeCode=="Field Msr/Obs"&SampleCollectionEquipmentName=="Probe/Sensor"&!is.na(ResultTimeBasisText)&!is.na(StatisticalBaseCode)&ResultValueTypeName=="Calculated"))
   
   # everything not in cont dataframe

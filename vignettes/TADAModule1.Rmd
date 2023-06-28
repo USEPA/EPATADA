@@ -86,7 +86,7 @@ library(TADA)
 ## Retrieve WQP data
 
 WQP data is retrieved and processed for compatibility with TADA. This
-function, **TADAdataRetrieval**, builds on the USGS dataRetrieval
+function, **TADA_DataRetrieval**, builds on the USGS dataRetrieval
 package functions. It joins four WQP profiles (i.e., Site metadata,
 Sample Results (narrow), Sample Results (physical/chemical metadata),
 and Project metadata. In addition, it changes all data in the
@@ -127,7 +127,7 @@ Data retrieval filters include:
 
 -   characteristicType
 
-Please be aware that the default TADAdataRetrieval function
+Please be aware that the default TADA_DataRetrieval function
 automatically runs the TADA **TADA_AutoClean** and
 **TADA_ConvertSpecialChars** functions. Both are both required for
 subsequent functions within the TADA R package to run. As a general
@@ -153,7 +153,7 @@ censored data later on (i.e., nondetections). Specifically, these new
 columns flag if special characters are included in result values, and
 specifies what the special characters are.
 
-Downloads using TADAdataRetrieval will have the same columns each time,
+Downloads using TADA_DataRetrieval will have the same columns each time,
 but be aware that data are uploaded to the Water Quality Portal by
 individual organizations, which may or may not follow the same
 conventions. Data and metadata quality are not guaranteed! Make sure to
@@ -193,7 +193,7 @@ Tips:
 Additional resources:
 
 -   Review function documentation by entering the following code into
-    the console: ?TADAdataRetrieval
+    the console: ?TADA_DataRetrieval
 
 -   [Introduction to the dataRetrieval
     package](https://CRAN.R-project.org/package=dataRetrieval)
@@ -209,8 +209,8 @@ Additional resources:
 ## dataRetrieval
 
 Uncomment below if you would like to review differences between the
-profiles you would get using readWQPdata vs. TADAdataRetrieval. The
-profiles are different because TADAdataRetrieval automatically joins in
+profiles you would get using readWQPdata vs. TADA_DataRetrieval. The
+profiles are different because TADA_DataRetrieval automatically joins in
 data from multiple WQP profiles, and does some additional data cleaning
 as part of the data retrieval process.
 
@@ -226,23 +226,23 @@ We will move forward with this example in the remainder of the vignette.
 ```
 
 Use the code below to download data from the WQP using
-TADAdataRetrieval. Edit the code chuck below to define your own WQP
+TADA_DataRetrieval. Edit the code chuck below to define your own WQP
 query inputs.
 
-Note: TADAdataRetrieval (by leveraging dataRetrieval), automatically
+Note: TADA_DataRetrieval (by leveraging dataRetrieval), automatically
 converts the date times to UTC. It also automatically converts the data
 to dates, datetimes, and numerics based on a standard algorithm.
 
-Enter ?TADAdataRetrieval into the console to review more example queries
+Enter ?TADA_DataRetrieval into the console to review more example queries
 and additional information.
 
-```{r TADAdataRetrieval}
-TADAProfile <- TADAdataRetrieval(organization = c("REDLAKE_WQX", "SFNOES_WQX", "PUEBLO_POJOAQUE", "FONDULAC_WQX", "PUEBLOOFTESUQUE", "CNENVSER"), startDate = "2018-01-01", endDate = "2019-01-01")
+```{r TADA_DataRetrieval}
+TADAProfile <- TADA_DataRetrieval(organization = c("REDLAKE_WQX", "SFNOES_WQX", "PUEBLO_POJOAQUE", "FONDULAC_WQX", "PUEBLOOFTESUQUE", "CNENVSER"), startDate = "2018-01-01", endDate = "2019-01-01")
 ```
 
 If you need to download a large amount of data from across a large area,
-and the TADAdataRetrieval function is not working due to WQP timeout
-issues, then the **TADABigdataRetrieval** function may work better.
+and the TADA_DataRetrieval function is not working due to WQP timeout
+issues, then the **TADA_BigDataRetrieval** function may work better.
 
 This function does multiple synchronous data calls to the WQP
 (waterqualitydata.us). It uses the WQP summary service to limit the
@@ -250,18 +250,18 @@ sites downloaded to only those with relevant data. It pulls back data
 from set number of stations at a time and then joins the data back
 together to produce a single TADA compatible dataframe as the output.
 
-See ?TADABigdataRetrieval for more details. WARNING, some of the
+See ?TADA_BigDataRetrieval for more details. WARNING, some of the
 examples below can take multiple HOURS to run. The total run time
 depends on your query inputs.
 
 ```{r BigdataRetrieval}
-# AK_AL_WaterTemp <- TADABigdataRetrieval(startDate = "2000-01-01", endDate = "2022-12-31", characteristicName = "Temperature, water", statecode = c("AK","AL"))
+# AK_AL_WaterTemp <- TADA_BigDataRetrieval(startDate = "2000-01-01", endDate = "2022-12-31", characteristicName = "Temperature, water", statecode = c("AK","AL"))
 
-# AllWaterTemp <- TADABigdataRetrieval(characteristicName = "Temperature, water")
+# AllWaterTemp <- TADA_BigDataRetrieval(characteristicName = "Temperature, water")
 
-# AllPhosphorus <- TADABigdataRetrieval(characteristicName = "Phosphorus")
+# AllPhosphorus <- TADA_BigDataRetrieval(characteristicName = "Phosphorus")
 
-# AllCT <- TADABigdataRetrieval(statecode = "CT")
+# AllCT <- TADA_BigDataRetrieval(statecode = "CT")
 ```
 
 Review all column names in the TADA Profile. Remove results that are not
@@ -389,7 +389,7 @@ Allowable values for 'unit' are either 'm' (meter), 'ft' (feet), or 'in'
 (inch). 'unit' accepts only one allowable value as an input. Default is
 unit = "m".
 
-Note that upon download using **TADAdataRetrieval**, all depth columns
+Note that upon download using **TADA_DataRetrieval**, all depth columns
 are converted to meters by default. However, the user may choose to run
 the **TADA_ConvertDepthUnits** function on their dataset to convert to
 another unit. See function documentation for additional input options by
@@ -811,7 +811,7 @@ All censored data functions depend first on the **idCensoredData**
 utility function, which assigns a *TADA.CensoredData.Flag* to all data
 records and identifies over-detects from non-detects using the
 *ResultDetectionConditionText* and *DetectionQuantitationLimitTypeName*.
-This utility function is automatically run within the TADAdataRetrieval
+This utility function is automatically run within the TADA_DataRetrieval
 function and produces the *TADA.CensoredData.Flag* column. All records
 receive one of the following classifications: - Uncensored - Not filled
 with detection limit value; a detection. - Non-Detect - Left-censored -
