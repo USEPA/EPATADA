@@ -162,16 +162,16 @@ all_result_num = dim(dataset_0)[1]
 
 ```
 
-Next, we can use the TADA `fieldCounts()` function to see how many unique values are contained within each column of the dataset. The function can either return all column counts, most, or just the key columns. We'll try the input with `display = "key"` and `display = "all"`. Enter ?TADA::fieldCounts() into the console for more information on this function.
+Next, we can use the TADA `TADA_FieldCounts()` function to see how many unique values are contained within each column of the dataset. The function can either return all column counts, most, or just the key columns. We'll try the input with `display = "key"` and `display = "all"`. Enter ?TADA::TADA_FieldCounts() into the console for more information on this function.
 
 **Question 2: Which column should have a unique value in every row and why?**
 
 ```{r}
-TADA::fieldCounts(dataset_0, display = "key")
+TADA::TADA_FieldCounts(dataset_0, display = "key")
 ```
 
 ```{r}
-TADA::fieldCounts(dataset_0, display = "all")
+TADA::TADA_FieldCounts(dataset_0, display = "all")
 ```
 
 **Question 3: How many unique 'TADA.ActivityMediaName' values exist in your dataset? Are there any media types that are not water?**
@@ -193,11 +193,11 @@ dataset = dataset_0%>%dplyr::filter(TADA.ActivityMediaName%in%c("WATER"))
 dimCheck(all_result_num, dataset, removed, checkName = "Activity Media")
 ```
 
-Two additional helper functions one can use at any step in the process are `fieldValuesTable()` and `fieldValuesPie()`. These functions create a summary table and pie chart (respectively) of all the unique values in a given column. Let's give it a try on ActivityTypeCode, which is a WQP column describing the type of sample collected for each result.
+Two additional helper functions one can use at any step in the process are `TADA_FieldValuesTable()` and `TADA_FieldValuesPie()`. These functions create a summary table and pie chart (respectively) of all the unique values in a given column. Let's give it a try on ActivityTypeCode, which is a WQP column describing the type of sample collected for each result.
 
 ```{r}
-TADA::fieldValuesTable(dataset,field="OrganizationFormalName")
-TADA::fieldValuesPie(dataset,field="OrganizationFormalName")
+TADA::TADA_FieldValuesTable(dataset,field="OrganizationFormalName")
+TADA::TADA_FieldValuesPie(dataset,field="OrganizationFormalName")
 ```
 
 **Question 4: When might a user choose to view a column's unique values as a table rather than in a pie chart?**
@@ -206,7 +206,7 @@ We can take a quick look at some of the TADA-created columns that review result 
 
 ```{r}
 # take a look at datatypes
-TADA::fieldValuesTable(dataset,field="TADA.ResultMeasureValueDataTypes.Flag")
+TADA::TADA_FieldValuesTable(dataset,field="TADA.ResultMeasureValueDataTypes.Flag")
 
 # Numeric or numeric-coerced data types
 rv_datatypes = unique(subset(dataset, !is.na(dataset$TADA.ResultMeasureValue))$TADA.ResultMeasureValueDataTypes.Flag)
@@ -241,7 +241,7 @@ dimCheck(all_result_num, dataset, removed, checkName = "Result Format")
 During `TADA_DataRetrieval`, TADA automatically sorts result values into detection limit categories (e.g. non-detect, over-detect) based on populated values in the ResultDetectionConditionText and DetectionQuantitationLimitTypeName columns. You can find the reference tables used to make these decisions in `GetDetCondRef()` and `GetDetLimitRef()` functions. In some cases, results are missing detection limit/condition info, or there is a conflict in the detection limit and condition. The user may want to remove problematic detection limit data before proceeding.
 
 ```{r}
-TADA::fieldValuesPie(dataset, field = "TADA.CensoredData.Flag")
+TADA::TADA_FieldValuesPie(dataset, field = "TADA.CensoredData.Flag")
 
 problem_censored = dataset%>%dplyr::filter(!TADA.CensoredData.Flag%in%c("Non-Detect","Over-Detect","Other","Uncensored"))%>%dplyr::mutate(TADA.RemovalReason = "Detection limit information contains errors or missing information.")
 
@@ -292,10 +292,10 @@ dimCheck(all_result_num, dataset_flags, removed, checkName = "Run Flag Functions
 Now that we've run all the key flagging functions, let's take a look at the results and make some decisions.
 
 ```{r}
-TADA::fieldValuesPie(dataset_flags, field = "TADA.SampleFraction.Flag")
-TADA::fieldValuesPie(dataset_flags, field = "TADA.MethodSpeciation.Flag")
-TADA::fieldValuesPie(dataset_flags, field = "TADA.ResultUnit.Flag")
-TADA::fieldValuesPie(dataset_flags, field = "TADA.ActivityType.Flag")
+TADA::TADA_FieldValuesPie(dataset_flags, field = "TADA.SampleFraction.Flag")
+TADA::TADA_FieldValuesPie(dataset_flags, field = "TADA.MethodSpeciation.Flag")
+TADA::TADA_FieldValuesPie(dataset_flags, field = "TADA.ResultUnit.Flag")
+TADA::TADA_FieldValuesPie(dataset_flags, field = "TADA.ActivityType.Flag")
 ```
 
 Any results flagged as "Invalid" are recognized in the QAQC Validation Table as having some data quality issue. "Nonstandardized" means that the format has not been fully vetted or processed, while "Valid" confirms that the characteristic combination is widely recognized as correctly formatted. Let's add any invalid results to the removed dataset for later review.
@@ -319,7 +319,7 @@ dimCheck(all_result_num, dataset_flags, removed, checkName = "Filter Flag Functi
 We've finished running the recommended flagging functions and removing results that do not pass QC checks. Let's look at the breakdown of these data in the removed object.
 
 ```{r}
-TADA::fieldValuesTable(removed, field = "TADA.RemovalReason")
+TADA::TADA_FieldValuesTable(removed, field = "TADA.RemovalReason")
 ```
 
 You can review any other columns of interest and create custom domain tables of your "Valid" and "Invalid" criteria using R or Excel. Also check out some of the other flagging functions available in TADA:
@@ -356,9 +356,9 @@ Let's take a look at how the censored data handling function affects the `TADA.R
 
 ```{r}
 # before
-TADA::fieldValuesTable(dataset_flags, field = "TADA.ResultMeasureValueDataTypes.Flag")
+TADA::TADA_FieldValuesTable(dataset_flags, field = "TADA.ResultMeasureValueDataTypes.Flag")
 # after
-TADA::fieldValuesTable(dataset_cens, field = "TADA.ResultMeasureValueDataTypes.Flag")
+TADA::TADA_FieldValuesTable(dataset_cens, field = "TADA.ResultMeasureValueDataTypes.Flag")
 ```
 
 **Question 9: Is there a difference between the first and second tables?**
@@ -377,11 +377,11 @@ nrow = length(unique(dataset_cens$TADA.CharacteristicName))
 dataset_cens%>%dplyr::group_by(TADA.CharacteristicName)%>%dplyr::summarise(Result_Count = length(ResultIdentifier), Site_Count = length(unique(MonitoringLocationIdentifier)), Org_Count = length(unique(OrganizationIdentifier)))%>%dplyr::arrange(desc(Result_Count))%>%print(n = nrow)
 ```
 
-You may see a characteristic that you'd like to investigate further in isolation. `fieldValuesPie()` will also produce summary pie charts for a given column *within* a specific characteristic. Let's take a look.
+You may see a characteristic that you'd like to investigate further in isolation. `TADA_FieldValuesPie()` will also produce summary pie charts for a given column *within* a specific characteristic. Let's take a look.
 
 ```{r}
 # go ahead and pick a characteristic name from the table generated above. I picked nitrogen, mixed forms
-TADA::fieldValuesPie(dataset_cens, field = "TADA.ResultSampleFractionText", characteristicName = "NITROGEN, MIXED FORMS (NH3), (NH4), ORGANIC, (NO2) AND (NO3)")
+TADA::TADA_FieldValuesPie(dataset_cens, field = "TADA.ResultSampleFractionText", characteristicName = "NITROGEN, MIXED FORMS (NH3), (NH4), ORGANIC, (NO2) AND (NO3)")
 ```
 
 We can view the site locations using a TADA mapping function. In this map, the circles indicate monitoring locations in the dataset; their size corresponds to the number of results collected at that site, while the darker the circle, the more characteristics were sampled at that site.
@@ -393,7 +393,7 @@ TADA::TADA_OverviewMap(dataset_cens)
 Out of curiosity, let's take a look at a breakdown of these monitoring location types. Do they all indicate surface water samples? Depending upon your program's goals and methods, you might want to filter out some of the types you see.
 
 ```{r}
-TADA::fieldValuesPie(dataset_cens, field = "MonitoringLocationTypeName")
+TADA::TADA_FieldValuesPie(dataset_cens, field = "MonitoringLocationTypeName")
 ```
 
 One of the next big steps is data harmonization: translating and aggregating synonyms, combining multiple forms/species of certain characteristics, etc. We won't get to that in this demo (more coming soon in TADA!), but we can start looking at data distributions within a single characteristic-speciation-fraction-unit using the plotting functions `TADA_Histogram()` and `TADA_Boxplot()`. We can also view a stats table using `TADA_stats`.
@@ -402,7 +402,7 @@ Let's first take a look at the column TADA.ComparableDataIdentifier, which break
 
 ```{r}
 # trusty field values table - lets just look at the first few entries with the most associated records
-View(TADA::fieldValuesTable(dataset_cens, field = "TADA.ComparableDataIdentifier"))
+View(TADA::TADA_FieldValuesTable(dataset_cens, field = "TADA.ComparableDataIdentifier"))
 
 ```
 

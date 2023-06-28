@@ -294,11 +294,11 @@ TADA_OverviewMap <- function(.data){
 #' 
 #' # Create a list of parameters in the dataset and the number of records of
 #' # each parameter: 
-#' fieldValuesPie(Nutrients_Utah, field = "TADA.CharacteristicName")
+#' TADA_FieldValuesPie(Nutrients_Utah, field = "TADA.CharacteristicName")
 #' 
 
 
-fieldValuesPie <- function(.data,field="null",characteristicName="null"){
+TADA_FieldValuesPie <- function(.data,field="null",characteristicName="null"){
   
   dat = fieldValuesTable(.data = .data, field = field, characteristicName = characteristicName)
 
