@@ -22,10 +22,10 @@
 #' # down to one Comparable Data Identifier
 #' 
 #' # Create boxplot:
-#' TADA_boxplot(TADAProfileCleanTP, id_col = "TADA.ComparableDataIdentifier")
+#' TADA_Boxplot(TADAProfileCleanTP, id_col = "TADA.ComparableDataIdentifier")
 #' 
 
-TADA_boxplot <- function(filtered.data, id_col = c("TADA.CharacteristicName", "TADA.ComparableDataIdentifier")) {
+TADA_Boxplot <- function(filtered.data, id_col = c("TADA.CharacteristicName", "TADA.ComparableDataIdentifier")) {
   # check .data is data.frame
   checkType(filtered.data, "data.frame", "Input object")
   # check id_col matches one of the options
@@ -124,9 +124,9 @@ TADA_boxplot <- function(filtered.data, id_col = c("TADA.CharacteristicName", "T
 #' # down to one Comparable Data Identifier
 #' 
 #' # Create histogram:
-#' TADA_hist(TADAProfileCleanTP, id_col = "TADA.ComparableDataIdentifier")
+#' TADA_Histogram(TADAProfileCleanTP, id_col = "TADA.ComparableDataIdentifier")
 
-TADA_hist <- function(filtered.data, id_col = c("TADA.CharacteristicName", "TADA.ComparableDataIdentifier")) {
+TADA_Histogram <- function(filtered.data, id_col = c("TADA.CharacteristicName", "TADA.ComparableDataIdentifier")) {
   # check .data is data.frame
   checkType(filtered.data, "data.frame", "Input object")
   # check id_col matches one of the options

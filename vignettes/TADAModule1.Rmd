@@ -283,7 +283,7 @@ TADAProfile <- dplyr::filter(TADAProfile, TADA.ActivityMediaName == "WATER")
 ## Invalid coordinates
 
 Review station locations and summary information using the
-**TADAOverviewMap** function. **TADAOverviewMap** counts the number of
+**TADA_OverviewMap** function. **TADA_OverviewMap** counts the number of
 unique results, characteristics, and organizations at each monitoring
 location in the dataset and creates a tidy map for reviewing summary
 stats spatially. Larger point sizes indicate more results collected at a
@@ -294,7 +294,7 @@ organizations that reported results at that site. This map may inform a
 user's decision to remove/correct sites that are outside the US.
 
 ```{r Map, fig.width=6, fig.height=6, fig.fullwidth=TRUE}
-TADAOverviewMap(TADAProfile)
+TADA_OverviewMap(TADAProfile)
 ```
 
 The TADA **InvalidCoordinates** function identifies and flags
@@ -1079,7 +1079,7 @@ TADAProfileCleanTP_stats <- TADA::TADA_stats(TADAProfileCleanTP)
 TADAProfileCleanTP_stats
 
 # generate a histogram
-TADA_hist(TADAProfileCleanTP, id_col = "TADA.ComparableDataIdentifier")
+TADA_Histogram(TADAProfileCleanTP, id_col = "TADA.ComparableDataIdentifier")
 
 ```
 
@@ -1087,7 +1087,7 @@ Generate interactive box plot.
 
 ```{r boxplot, fig.width=6, fig.height=6, fig.fullwidth=TRUE}
 
-TADA::TADA_boxplot(TADAProfileCleanTP, id_col = "TADA.ComparableDataIdentifier")
+TADA::TADA_Boxplot(TADAProfileCleanTP, id_col = "TADA.ComparableDataIdentifier")
 
 ```
 

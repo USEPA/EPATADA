@@ -387,7 +387,7 @@ TADA::fieldValuesPie(dataset_cens, field = "TADA.ResultSampleFractionText", char
 We can view the site locations using a TADA mapping function. In this map, the circles indicate monitoring locations in the dataset; their size corresponds to the number of results collected at that site, while the darker the circle, the more characteristics were sampled at that site.
 
 ```{r, warning=FALSE, message=FALSE}
-TADA::TADAOverviewMap(dataset_cens)
+TADA::TADA_OverviewMap(dataset_cens)
 ```
 
 Out of curiosity, let's take a look at a breakdown of these monitoring location types. Do they all indicate surface water samples? Depending upon your program's goals and methods, you might want to filter out some of the types you see.
@@ -396,7 +396,7 @@ Out of curiosity, let's take a look at a breakdown of these monitoring location 
 TADA::fieldValuesPie(dataset_cens, field = "MonitoringLocationTypeName")
 ```
 
-One of the next big steps is data harmonization: translating and aggregating synonyms, combining multiple forms/species of certain characteristics, etc. We won't get to that in this demo (more coming soon in TADA!), but we can start looking at data distributions within a single characteristic-speciation-fraction-unit using the plotting functions `TADA_hist()` and `TADA_boxplot()`. We can also view a stats table using `TADA_stats`.
+One of the next big steps is data harmonization: translating and aggregating synonyms, combining multiple forms/species of certain characteristics, etc. We won't get to that in this demo (more coming soon in TADA!), but we can start looking at data distributions within a single characteristic-speciation-fraction-unit using the plotting functions `TADA_Histogram()` and `TADA_Boxplot()`. We can also view a stats table using `TADA_stats`.
 
 Let's first take a look at the column TADA.ComparableDataIdentifier, which breaks down characteristics into groups by name, fraction, speciation, and unit. These four columns are important to evaluate together to ensure the plotted data are sufficiently similar to appear on a single plot together: it doesn't make sense to plot characteristics with different units or fractions in the same distribution.
 
@@ -416,11 +416,11 @@ plot_data = subset(dataset_cens, dataset_cens$TADA.ComparableDataIdentifier%in%c
 ```
 
 ```{r}
-TADA::TADA_hist(plot_data, id_col = "TADA.ComparableDataIdentifier")
+TADA::TADA_Histogram(plot_data, id_col = "TADA.ComparableDataIdentifier")
 ```
 
 ```{r}
-TADA::TADA_boxplot(plot_data, id_col = "TADA.ComparableDataIdentifier")
+TADA::TADA_Boxplot(plot_data, id_col = "TADA.ComparableDataIdentifier")
 
 View(TADA::TADA_stats(plot_data))
 ```
