@@ -404,7 +404,7 @@ TADAProfileClean1 <- TADA_ConvertDepthUnits(TADAProfileClean1,
 
 ## Statistically aggregated data
 
-The **AggregatedContinuousData** function checks for and removes
+The **TADA_AggregatedContinuousData** function checks for and removes
 statistically aggregated high frequency (i.e., continuous) data, if
 present.
 
@@ -436,14 +436,14 @@ of data regardless of flag status. Assigning errorsonly = TRUE filters
 the dataframe to show only rows of data which are flagged "Y".
 
 See function documentation for additional function options by entering
-the following code in the console: ?AggregatedContinuousData
+the following code in the console: ?TADA_AggregatedContinuousData
 
 ```{r AggregatedContinuousData}
-TADAProfileClean1 <- AggregatedContinuousData(TADAProfileClean1, clean = FALSE)
+TADAProfileClean1 <- TADA_AggregatedContinuousData(TADAProfileClean1, clean = FALSE)
 
 # uncomment below to create a dataframe of only the aggregated continuous data
 
-# TADAProfile_aggcont <- AggregatedContinuousData(TADAProfileClean3, clean = FALSE, errorsonly = TRUE)
+# TADAProfile_aggcont <- TADA_AggregatedContinuousData(TADAProfileClean3, clean = FALSE, errorsonly = TRUE)
 ```
 
 ## WQX Quality Assurance and Quality Control (QAQC) Service Result Flags
