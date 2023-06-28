@@ -15,7 +15,7 @@
 #' @export
 #'  
 
-TADA_summarizeColumn <- function(.data,col="TADA.CharacteristicName"){
+TADA_SummarizeColumn <- function(.data,col="TADA.CharacteristicName"){
   .data$summ = .data[,col]
   # Summarize WQP data pull
   wqp_summary <- .data %>%
@@ -48,10 +48,10 @@ TADA_summarizeColumn <- function(.data,col="TADA.CharacteristicName"){
 #' # down to one Comparable Data Identifier
 #' 
 #' # Create stats table:
-#' TADAProfileCleanTP_stats <- TADA_stats(TADAProfileCleanTP)
+#' TADAProfileCleanTP_stats <- TADA_Stats(TADAProfileCleanTP)
 #' 
 
-TADA_stats <- function(.data){
+TADA_Stats <- function(.data){
 
   StatsTable <- .data %>%
     dplyr::group_by(TADA.ComparableDataIdentifier) %>%
@@ -79,4 +79,73 @@ TADA_stats <- function(.data){
                      )
   
   return(StatsTable)
+}
+
+#' Summarize Data Stats
+#' 
+#' This function creates a summary table of the percentage of non-detects by 
+#' specified ID columns. It can be used to determine the best method for handling 
+#' censored data estimation methods that depend upon the distribution of the dataset.
+#' 
+#' @param .data A TADA dataframe
+#' @param spec_cols A vector of column names to be used as aggregating variables when summarizing censored data information.
+#' @return A summary dataframe yielding measurement ncounts, censored data ncounts, 
+#' and percent of dataset that is censored, aggregated by user-defined grouping 
+#' variables. Also produces a column "TADA.Censored.Note" that identifies 
+#' when there is sufficient non-censored data to estimate censored data using statistical
+#' methods including Maximum Likelihood Estimation, Robust ROS and Kaplan Meier.
+#' The decision tree used to identify applicable statistical analyses is based 
+#' on the Baseline Assessment of Left-Censored Environmental Data Using R Tech Note.
+#' More info can be found here: https://www.epa.gov/sites/default/files/2016-05/documents/tech_notes_10_jun2014_r.pdf
+#' 
+#' 
+#' @export
+#' 
+#' @examples
+#' # Load example dataset:
+#' data(TADAProfileCleanTP)
+#' # TADAProfileCleanTP dataframe is clean, harmonized, and filtered
+#' # down to one Comparable Data Identifier
+#' 
+#' # Create TADA_SummarizeCensoredData table:
+#' TADAProfileCleanTP_TADA_SummarizeCensoredData <- TADA_SummarizeCensoredData(TADAProfileCleanTP)
+#' 
+
+TADA_SummarizeCensoredData <- function(.data, spec_cols = c("TADA.CharacteristicName","TADA.ResultMeasure.MeasureUnitCode","TADA.ResultSampleFractionText","TADA.MethodSpecificationName")){
+  
+  if(any(is.na(.data$TADA.ResultMeasureValue))){
+    warning("Dataset contains data missing both a result value and a detection limit. Suggest removing or handling. See TADA Harmonization vignette for an example.")
+  }
+  
+  if(!"TADA.CensoredData.Flag"%in%names(.data)){
+    cens = TADA_IDCensoredData(.data)
+  }else{
+    cens = .data
+  }
+  
+  sum_low = cens%>%dplyr::group_by_at(spec_cols)%>%
+    dplyr::filter(TADA.CensoredData.Flag%in%c("Non-Detect", "Uncensored"))%>%
+    dplyr::summarise(Measurement_Count = length(unique(ResultIdentifier)), Censored_Count = length(TADA.CensoredData.Flag[TADA.CensoredData.Flag=="Non-Detect"]), Percent_Censored = length(TADA.CensoredData.Flag[TADA.CensoredData.Flag=="Non-Detect"])/length(TADA.CensoredData.Flag)*100, Censoring_Levels = length(unique(TADA.ResultMeasureValue[TADA.CensoredData.Flag=="Non-Detect"])))%>%
+    dplyr::filter(Censored_Count>0)%>%
+    dplyr::mutate("TADA.CensoredData.Flag" = "Non-Detect")
+  
+  sum_hi = cens%>%dplyr::group_by_at(spec_cols)%>%
+    dplyr::filter(TADA.CensoredData.Flag%in%c("Over-Detect", "Uncensored"))%>%
+    dplyr::summarise(Measurement_Count = length(unique(ResultIdentifier)), Censored_Count = length(TADA.CensoredData.Flag[TADA.CensoredData.Flag=="Over-Detect"]), Percent_Censored = length(TADA.CensoredData.Flag[TADA.CensoredData.Flag=="Over-Detect"])/length(TADA.CensoredData.Flag)*100, Censoring_Levels = length(unique(TADA.ResultMeasureValue[TADA.CensoredData.Flag=="Over-Detect"])))%>%
+    dplyr::filter(Censored_Count>0)%>%
+    dplyr::mutate("TADA.CensoredData.Flag" = "Over-Detect")
+  
+  sum_all = plyr::rbind.fill(sum_low, sum_hi)
+  
+  sum_all = sum_all%>%dplyr::mutate(TADA.Censored.Note = dplyr::case_when(
+    Percent_Censored>80 ~ as.character("Percent censored too high for estimation methods"), # greater than 80, cannot estimate
+    Percent_Censored<50&Censoring_Levels>1 ~ as.character("Kaplan-Meier"), # less than 50% censored, and multiple censoring levels (no minimum n)
+    Percent_Censored<50 ~ as.character("Robust Regression Order Statistics"), # less than 50% censored and one censoring level (no minimum n?)
+    Measurement_Count>=50 ~ as.character("Maximum Likelihood Estimation"), # 50%-80% censored, 50 or more measurements
+    Measurement_Count<50 ~ as.character("Robust Regression Order Statistics"), # 50%-80% censored, less than 50 measures
+  ))
+  if(dim(sum_all)[1]==0){
+    print("No censored data to summarize. Returning empty data frame.")
+  }
+  return(sum_all)
 }

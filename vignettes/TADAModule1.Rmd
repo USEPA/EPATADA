@@ -268,10 +268,10 @@ Review all column names in the TADA Profile. Remove results that are not
 water samples or measurements (TADA is recommended for use with water
 data only).
 
-```{r TADA_summarizeColumn}
+```{r TADA_SummarizeColumn}
 colnames(TADAProfile)
 
-TADAProfile_CharSummary <- TADA_summarizeColumn(TADAProfile, "TADA.CharacteristicName")
+TADAProfile_CharSummary <- TADA_SummarizeColumn(TADAProfile, "TADA.CharacteristicName")
 
 TADAProfile_CharSummary
 
@@ -839,11 +839,11 @@ The next step we take in this example is to perform simple conversions
 to the censored data in the dataset: we keep over-detects as is (no
 conversion made) and convert non-detect values to 0.5 times the
 detection limit (half the detection limit). Please review
-**?summarizeCensoredData** and **?TADA_SimpleCensoredMethods** for more
+**?TADA_SummarizeCensoredData** and **?TADA_SimpleCensoredMethods** for more
 information.
 
 ```{r SummarizeCensoredData}
-TADAProfileClean_censoredSummary <- summarizeCensoredData(TADAProfileClean4, spec_cols = c("TADA.CharacteristicName", "TADA.ResultMeasure.MeasureUnitCode", "TADA.ResultSampleFractionText", "TADA.MethodSpecificationName"))
+TADAProfileClean_censoredSummary <- TADA_SummarizeCensoredData(TADAProfileClean4, spec_cols = c("TADA.CharacteristicName", "TADA.ResultMeasure.MeasureUnitCode", "TADA.ResultSampleFractionText", "TADA.MethodSpecificationName"))
 
 TADAProfileClean_censoredSummary
 
@@ -1074,7 +1074,7 @@ unique(TADAProfileClean5$TADA.ComparableDataIdentifier)
 TADAProfileCleanTP <- dplyr::filter(TADAProfileClean5, TADA.ComparableDataIdentifier == "Total Phosphorus_as P_ug/L")
 
 # generate stats table
-TADAProfileCleanTP_stats <- TADA::TADA_stats(TADAProfileCleanTP)
+TADAProfileCleanTP_stats <- TADA::TADA_Stats(TADAProfileCleanTP)
 
 TADAProfileCleanTP_stats
 

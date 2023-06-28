@@ -363,7 +363,7 @@ TADA::TADA_FieldValuesTable(dataset_cens, field = "TADA.ResultMeasureValueDataTy
 
 **Question 9: Is there a difference between the first and second tables?**
 
-If you'd like to start thinking about using statistical methods to estimate detection limit values, check out the `?summarizeCensoredData` function, which accepts user-defined data groupings to prescribe estimation tests based on the number of results, % of dataset censored, and number of censoring levels (detection limits). The decision tree used in the function was outlined in an [National Nonpoint Source Tech Memo](https://www.epa.gov/sites/default/files/2016-05/documents/tech_notes_10_jun2014_r.pdf).
+If you'd like to start thinking about using statistical methods to estimate detection limit values, check out the `?TADA_SummarizeCensoredData` function, which accepts user-defined data groupings to prescribe estimation tests based on the number of results, % of dataset censored, and number of censoring levels (detection limits). The decision tree used in the function was outlined in an [National Nonpoint Source Tech Memo](https://www.epa.gov/sites/default/files/2016-05/documents/tech_notes_10_jun2014_r.pdf).
 
 ## Data exploration
 
@@ -396,7 +396,7 @@ Out of curiosity, let's take a look at a breakdown of these monitoring location 
 TADA::TADA_FieldValuesPie(dataset_cens, field = "MonitoringLocationTypeName")
 ```
 
-One of the next big steps is data harmonization: translating and aggregating synonyms, combining multiple forms/species of certain characteristics, etc. We won't get to that in this demo (more coming soon in TADA!), but we can start looking at data distributions within a single characteristic-speciation-fraction-unit using the plotting functions `TADA_Histogram()` and `TADA_Boxplot()`. We can also view a stats table using `TADA_stats`.
+One of the next big steps is data harmonization: translating and aggregating synonyms, combining multiple forms/species of certain characteristics, etc. We won't get to that in this demo (more coming soon in TADA!), but we can start looking at data distributions within a single characteristic-speciation-fraction-unit using the plotting functions `TADA_Histogram()` and `TADA_Boxplot()`. We can also view a stats table using `TADA_Stats`.
 
 Let's first take a look at the column TADA.ComparableDataIdentifier, which breaks down characteristics into groups by name, fraction, speciation, and unit. These four columns are important to evaluate together to ensure the plotted data are sufficiently similar to appear on a single plot together: it doesn't make sense to plot characteristics with different units or fractions in the same distribution.
 
@@ -422,7 +422,7 @@ TADA::TADA_Histogram(plot_data, id_col = "TADA.ComparableDataIdentifier")
 ```{r}
 TADA::TADA_Boxplot(plot_data, id_col = "TADA.ComparableDataIdentifier")
 
-View(TADA::TADA_stats(plot_data))
+View(TADA::TADA_Stats(plot_data))
 ```
 
 Finally, we can download our PASS and FAIL datasets together into an Excel spreadsheet to see all of the TADA-related columns together. TADA-generated columns will occur at the far end of the dataset.
