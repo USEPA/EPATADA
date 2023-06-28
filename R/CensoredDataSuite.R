@@ -31,7 +31,7 @@ TADA_IDCensoredData <- function(.data){
     "DetectionQuantitationLimitTypeName",
     "TADA.ResultMeasureValueDataTypes.Flag"
   )
-  checkColumns(.data, expected_cols)
+  TADA_CheckColumns(.data, expected_cols)
   
   ## First step: identify censored data
   cens = .data%>%dplyr::filter(TADA.ResultMeasureValueDataTypes.Flag=="Result Value/Unit Copied from Detection Limit")
@@ -145,7 +145,7 @@ TADA_SimpleCensoredMethods <- function(.data, nd_method = "multiplier", nd_multi
     "DetectionQuantitationLimitTypeName",
     "TADA.ResultMeasureValueDataTypes.Flag"
   )
-  checkColumns(.data, expected_cols)
+  TADA_CheckColumns(.data, expected_cols)
   
   # check that multiplier is provided if method = "multiplier"
   if(nd_method == "multiplier"&nd_multiplier == "null"){

@@ -22,7 +22,7 @@
 
 TADA_FieldCounts <- function(.data, display = c("key","most", "all"), characteristicName = "null"){
   # check .data is data.frame
-  checkType(.data, "data.frame", "Input object")
+  TADA_CheckType(.data, "data.frame", "Input object")
 
   display = match.arg(display)
 
@@ -212,7 +212,7 @@ TADA_FieldCounts <- function(.data, display = c("key","most", "all"), characteri
 TADA_FieldValuesTable <- function(.data,field="null",characteristicName="null"){
 
   # check .data is data.frame
-  checkType(.data, "data.frame", "Input object")
+  TADA_CheckType(.data, "data.frame", "Input object")
 
   if(!field%in%names(.data)){
     stop("Field input does not exist in dataset. Please populate the 'field' argument with a valid field name. Enter ?TADA::filterPie in console for more information.")

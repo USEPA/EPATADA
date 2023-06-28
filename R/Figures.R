@@ -27,13 +27,13 @@
 
 TADA_Boxplot <- function(filtered.data, id_col = c("TADA.CharacteristicName", "TADA.ComparableDataIdentifier")) {
   # check .data is data.frame
-  checkType(filtered.data, "data.frame", "Input object")
+  TADA_CheckType(filtered.data, "data.frame", "Input object")
   # check id_col matches one of the options
   id_col <- match.arg(id_col)
   # check .data has required columns
-  checkColumns(filtered.data, id_col)
+  TADA_CheckColumns(filtered.data, id_col)
   # check .data has required columns
-  checkColumns(filtered.data, c("TADA.ResultMeasureValue", "TADA.ResultMeasure.MeasureUnitCode"))
+  TADA_CheckColumns(filtered.data, c("TADA.ResultMeasureValue", "TADA.ResultMeasure.MeasureUnitCode"))
   # check id_col is filtered to one characteristic or identifier
   if (length(unique(filtered.data[,id_col])) > 1) {
     stop(paste0(id_col, " field contains more than one unique value. Boxplot function cannot run with more than 1 unique characteristic or comparable data identifier. Please filter dataframe and rerun function."))
@@ -128,12 +128,12 @@ TADA_Boxplot <- function(filtered.data, id_col = c("TADA.CharacteristicName", "T
 
 TADA_Histogram <- function(filtered.data, id_col = c("TADA.CharacteristicName", "TADA.ComparableDataIdentifier")) {
   # check .data is data.frame
-  checkType(filtered.data, "data.frame", "Input object")
+  TADA_CheckType(filtered.data, "data.frame", "Input object")
   # check id_col matches one of the options
   id_col <- match.arg(id_col)
   # check .data has required columns
-  checkColumns(filtered.data, id_col)
-  checkColumns(filtered.data, c("TADA.ResultMeasureValue", "TADA.ResultMeasure.MeasureUnitCode"))
+  TADA_CheckColumns(filtered.data, id_col)
+  TADA_CheckColumns(filtered.data, c("TADA.ResultMeasureValue", "TADA.ResultMeasure.MeasureUnitCode"))
   # check id_col is filtered to one characteristic or identifier
   if (length(unique(filtered.data[,id_col])) > 1) {
     stop(paste0(id_col, " field contains more than one unique value. Histogram function cannot run with more than 1 unique characteristic or comparable data identifier. Please filter dataframe and rerun function."))

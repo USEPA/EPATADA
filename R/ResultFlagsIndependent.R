@@ -43,17 +43,17 @@
 
 TADA_InvalidMethod <- function(.data, clean = TRUE, errorsonly = FALSE) {
   # check .data is data.frame
-  checkType(.data, "data.frame", "Input object")
+  TADA_CheckType(.data, "data.frame", "Input object")
   # check clean is boolean
-  checkType(clean, "logical")
+  TADA_CheckType(clean, "logical")
   # check errorsonly is boolean
-  checkType(errorsonly, "logical")
+  TADA_CheckType(errorsonly, "logical")
   # check .data has required columns
   required_cols <- c(
     "TADA.CharacteristicName", "ResultAnalyticalMethod.MethodIdentifier",
     "ResultAnalyticalMethod.MethodIdentifierContext"
   )
-  checkColumns(.data, required_cols)
+  TADA_CheckColumns(.data, required_cols)
   # check that clean and errorsonly are not both TRUE
   if (clean == TRUE & errorsonly == TRUE) {
     stop("Function not executed because clean and errorsonly cannot both be TRUE")
@@ -182,13 +182,13 @@ TADA_InvalidMethod <- function(.data, clean = TRUE, errorsonly = FALSE) {
 
 TADA_AggregatedContinuousData <- function(.data, clean = TRUE, errorsonly = FALSE) {
   # check .data is data.frame
-  checkType(.data, "data.frame", "Input object")
+  TADA_CheckType(.data, "data.frame", "Input object")
   # check clean is boolean
-  checkType(clean, "logical")
+  TADA_CheckType(clean, "logical")
   # check errorsonly is boolean
-  checkType(errorsonly, "logical")
+  TADA_CheckType(errorsonly, "logical")
   # check .data has required columns
-  checkColumns(.data, "ResultDetectionConditionText")
+  TADA_CheckColumns(.data, "ResultDetectionConditionText")
   # check that clean and errorsonly are not both TRUE
   if (clean == TRUE & errorsonly == TRUE) {
     stop("Function not executed because clean and errorsonly cannot both be TRUE")
@@ -305,17 +305,17 @@ TADA_AggregatedContinuousData <- function(.data, clean = TRUE, errorsonly = FALS
 
 TADA_AboveNationalWQXUpperThreshold <- function(.data, clean = TRUE, errorsonly = FALSE) {
   # check .data is data.frame
-  checkType(.data, "data.frame", "Input object")
+  TADA_CheckType(.data, "data.frame", "Input object")
   # check clean is boolean
-  checkType(clean, "logical")
+  TADA_CheckType(clean, "logical")
   # check errorsonly is boolean
-  checkType(errorsonly, "logical")
+  TADA_CheckType(errorsonly, "logical")
   # check .data has required columns
   required_cols <- c(
     "TADA.CharacteristicName", "TADA.ActivityMediaName", "TADA.ResultMeasureValue",
     "TADA.ResultMeasure.MeasureUnitCode"
   )
-  checkColumns(.data, required_cols)
+  TADA_CheckColumns(.data, required_cols)
   # check that clean and errorsonly are not both TRUE
   if (clean == TRUE & errorsonly == TRUE) {
     stop("Function not executed because clean and errorsonly cannot both be TRUE")
@@ -458,17 +458,17 @@ TADA_AboveNationalWQXUpperThreshold <- function(.data, clean = TRUE, errorsonly 
 
 TADA_BelowNationalWQXLowerThreshold <- function(.data, clean = TRUE, errorsonly = FALSE) {
   # check .data is data.frame
-  checkType(.data, "data.frame", "Input object")
+  TADA_CheckType(.data, "data.frame", "Input object")
   # check clean is boolean
-  checkType(clean, "logical")
+  TADA_CheckType(clean, "logical")
   # check errorsonly is boolean
-  checkType(errorsonly, "logical")
+  TADA_CheckType(errorsonly, "logical")
   # check .data has required columns
   required_cols <- c(
     "TADA.CharacteristicName", "TADA.ActivityMediaName", "TADA.ResultMeasureValue",
     "TADA.ResultMeasure.MeasureUnitCode"
   )
-  checkColumns(.data, required_cols)
+  TADA_CheckColumns(.data, required_cols)
   # check that clean and errorsonly are not both TRUE
   if (clean == TRUE & errorsonly == TRUE) {
     stop("Function not executed because clean and errorsonly cannot both be TRUE")
@@ -637,15 +637,15 @@ TADA_BelowNationalWQXLowerThreshold <- function(.data, clean = TRUE, errorsonly 
 
 TADA_QAPPapproved <- function(.data, clean = TRUE, cleanNA = FALSE, errorsonly = FALSE) {
   # check .data is data.frame
-  checkType(.data, "data.frame", "Input object")
+  TADA_CheckType(.data, "data.frame", "Input object")
   # check clean is boolean
-  checkType(clean, "logical")
+  TADA_CheckType(clean, "logical")
   # check cleanNA is boolean
-  checkType(cleanNA, "logical") 
+  TADA_CheckType(cleanNA, "logical") 
   # check errorsonly is boolean
-  checkType(errorsonly, "logical")
+  TADA_CheckType(errorsonly, "logical")
   # check .data has required columns
-  checkColumns(.data, "QAPPApprovedIndicator")
+  TADA_CheckColumns(.data, "QAPPApprovedIndicator")
   # check that clean, cleanNA and errorsonly are not all TRUE
   if (clean == TRUE & cleanNA == TRUE & errorsonly == TRUE) {
     stop("Function not executed because clean, cleanNA, and errorsonly cannot all be TRUE")
@@ -742,11 +742,11 @@ TADA_QAPPapproved <- function(.data, clean = TRUE, cleanNA = FALSE, errorsonly =
 
 TADA_QAPPDocAvailable <- function(.data, clean = FALSE) {
   # check .data is data.frame
-  checkType(.data, "data.frame", "Input object")
+  TADA_CheckType(.data, "data.frame", "Input object")
   # check clean is boolean
-  checkType(clean, "logical")
+  TADA_CheckType(clean, "logical")
   # check .data has required columns
-  checkColumns(.data, "ProjectFileUrl")
+  TADA_CheckColumns(.data, "ProjectFileUrl")
   
   # default flag column
   .data$TADA.QAPPDocAvailable = "N"
@@ -880,13 +880,13 @@ TADA_InvalidCoordinates <- function(.data,
                                clean_imprecise = FALSE, 
                                errorsonly = FALSE) {
   # check .data is data.frame
-  checkType(.data, "data.frame", "Input object")
+  TADA_CheckType(.data, "data.frame", "Input object")
   # check clean_outsideUSA is character
-  checkType(clean_outsideUSA, "character")
+  TADA_CheckType(clean_outsideUSA, "character")
   # check clean_imprecise is boolean
-  checkType(clean_imprecise, "logical")
+  TADA_CheckType(clean_imprecise, "logical")
   # check .data has required columns
-  checkColumns(.data, c("TADA.LatitudeMeasure", "TADA.LongitudeMeasure"))
+  TADA_CheckColumns(.data, c("TADA.LatitudeMeasure", "TADA.LongitudeMeasure"))
   # check lat and long are "numeric"
   if (!is.numeric(.data$TADA.LongitudeMeasure)) {
     warning("TADA.LongitudeMeasure field must be numeric")

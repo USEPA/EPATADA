@@ -40,13 +40,13 @@
 
 TADA_InvalidFraction <- function(.data, clean = TRUE, errorsonly = FALSE) {
   # check .data is data.frame
-  checkType(.data, "data.frame", "Input object")
+  TADA_CheckType(.data, "data.frame", "Input object")
   # check clean is boolean
-  checkType(clean, "logical")
+  TADA_CheckType(clean, "logical")
   # check errorsonly is boolean
-  checkType(errorsonly, "logical")
+  TADA_CheckType(errorsonly, "logical")
   # check .data has required columns
-  checkColumns(.data, c("TADA.CharacteristicName", "TADA.ResultSampleFractionText"))
+  TADA_CheckColumns(.data, c("TADA.CharacteristicName", "TADA.ResultSampleFractionText"))
   # check that both clean and errorsonly are not TRUE
   if (clean == TRUE & errorsonly == TRUE) {
     stop("Function not executed because clean and errorsonly cannot both be TRUE")
@@ -183,13 +183,13 @@ TADA_InvalidFraction <- function(.data, clean = TRUE, errorsonly = FALSE) {
 
 TADA_InvalidSpeciation <- function(.data, clean = c("invalid_only", "nonstandardized_only", "both", "none"), errorsonly = FALSE) {
   # check .data is data.frame
-  checkType(.data, "data.frame", "Input object")
+  TADA_CheckType(.data, "data.frame", "Input object")
   # check clean is boolean
-  checkType(clean, "character")
+  TADA_CheckType(clean, "character")
   # check errorsonly is boolean
-  checkType(errorsonly, "logical")
+  TADA_CheckType(errorsonly, "logical")
   # check .data has required columns
-  checkColumns(.data, c("TADA.CharacteristicName", "TADA.MethodSpecificationName"))
+  TADA_CheckColumns(.data, c("TADA.CharacteristicName", "TADA.MethodSpecificationName"))
   # check that clean is either "invalid_only", "nonstandardized_only", "both", or "none"
   clean <- match.arg(clean)
 
@@ -336,13 +336,13 @@ TADA_InvalidSpeciation <- function(.data, clean = c("invalid_only", "nonstandard
 
 TADA_InvalidResultUnit <- function(.data, clean = c("invalid_only", "nonstandardized_only", "both", "none"), errorsonly = FALSE) {
   # check .data is data.frame
-  checkType(.data, "data.frame", "Input object")
+  TADA_CheckType(.data, "data.frame", "Input object")
   # check clean is character
-  checkType(clean, "character")
+  TADA_CheckType(clean, "character")
   # check errorsonly is boolean
-  checkType(errorsonly, "logical")
+  TADA_CheckType(errorsonly, "logical")
   # check .data has required columns
-  checkColumns(.data, c("TADA.CharacteristicName", "TADA.ResultMeasure.MeasureUnitCode", "TADA.ActivityMediaName"))
+  TADA_CheckColumns(.data, c("TADA.CharacteristicName", "TADA.ResultMeasure.MeasureUnitCode", "TADA.ActivityMediaName"))
   # check that clean is either "invalid_only", "nonstandardized_only", "both", or "none"
   clean <- match.arg(clean)
 
@@ -476,13 +476,13 @@ TADA_InvalidResultUnit <- function(.data, clean = c("invalid_only", "nonstandard
 
 TADA_QualityControlActivity <- function(.data, clean = FALSE, errorsonly = FALSE) {
   # check .data is data.frame
-  checkType(.data, "data.frame", "Input object")
+  TADA_CheckType(.data, "data.frame", "Input object")
   # check that clean is boolean
-  checkType(clean, "logical")
+  TADA_CheckType(clean, "logical")
   # check errorsonly is boolean
-  checkType(errorsonly, "logical")
+  TADA_CheckType(errorsonly, "logical")
   # check .data has required columns
-  checkColumns(.data, c("ActivityTypeCode"))
+  TADA_CheckColumns(.data, c("ActivityTypeCode"))
 
   # execute function after checks are passed
   # delete existing flag column

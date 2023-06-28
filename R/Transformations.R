@@ -31,9 +31,9 @@
 
 TADA_HarmonizationRefTable <- function(.data, download = FALSE) {
   # check .data is data.frame
-  checkType(.data, "data.frame", "Input object")
+  TADA_CheckType(.data, "data.frame", "Input object")
   # check download is boolean
-  checkType(download, "logical")
+  TADA_CheckType(download, "logical")
   
   # check .data has the required columns
   expected_cols <- c(
@@ -41,7 +41,7 @@ TADA_HarmonizationRefTable <- function(.data, download = FALSE) {
     "TADA.MethodSpecificationName",
     "TADA.ResultMeasure.MeasureUnitCode"
     )
-  checkColumns(.data, expected_cols)
+  TADA_CheckColumns(.data, expected_cols)
   
   # execute function after checks are passed
   # define raw harmonization table as an object
@@ -155,18 +155,18 @@ TADA_HarmonizationRefTable <- function(.data, download = FALSE) {
 
 TADA_HarmonizeData <- function(.data, ref, transform = TRUE, flag = TRUE) {
   # check .data is data.frame
-  checkType(.data, "data.frame", "Input object")
+  TADA_CheckType(.data, "data.frame", "Input object")
   # check transform is boolean
-  checkType(transform, "logical")
+  TADA_CheckType(transform, "logical")
   # check flag is boolean
-  checkType(flag, "logical")
+  TADA_CheckType(flag, "logical")
 
   # check .data has the required columns
   expected_cols <- c(
     "TADA.CharacteristicName", "TADA.ResultSampleFractionText",
     "TADA.MethodSpecificationName", "TADA.ResultMeasure.MeasureUnitCode"
     )
-  checkColumns(.data, expected_cols)
+  TADA_CheckColumns(.data, expected_cols)
   
   # additional columns that may be in harmonization ref
   # columns to keep from .data if exist
@@ -206,10 +206,10 @@ TADA_HarmonizeData <- function(.data, ref, transform = TRUE, flag = TRUE) {
     if (!missing(ref)) {
       
       # check ref is data.frame
-      checkType(ref, "data.frame")
+      TADA_CheckType(ref, "data.frame")
       
       # check ref has all of the required columns      
-      checkColumns(ref, expected_ref_cols)      
+      TADA_CheckColumns(ref, expected_ref_cols)      
       
       harm.ref <- ref
       
