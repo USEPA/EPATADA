@@ -913,8 +913,8 @@ TADA_InvalidCoordinates <- function(.data,
       # for below, lat and long fields must be numeric
       # this checks if there are at least 3 significant figures to the 
       # right of the decimal point
-      sapply(.data$TADA.LatitudeMeasure, decimalplaces) < 3 
-      | sapply(.data$TADA.LongitudeMeasure, decimalplaces) < 3 ~ "Imprecise_lessthan3decimaldigits"
+      sapply(.data$TADA.LatitudeMeasure, TADA_DecimalPlaces) < 3 
+      | sapply(.data$TADA.LongitudeMeasure, TADA_DecimalPlaces) < 3 ~ "Imprecise_lessthan3decimaldigits"
     ))
   
   # Fill in flag for coordinates that appear OK/PASS tests
