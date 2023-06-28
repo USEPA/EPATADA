@@ -347,10 +347,10 @@ Please let us know of other flagging functions you think would have broad appeal
 We have already identified, flagged, and in some cases removed problematic detection limit data from our dataset, but that doesn't keep them from being difficult. Because we do not know the result value with adequate precision, water quality data users often set non-detect values to some number below the reported detection limit. TADA contains some simple methods for handling detection limits: users may multiply the detection limit by some number between 0 and 1, or convert the detection limit value to a random number between 0 and the detection limit. More complex detection limit estimation requiring regression models (Maximum Likelihood, Kaplan-Meier, Robust Regression on Order Statistics) or similar must be performed outside of the current version of TADA (though future development is planned).
 
 ```{r}
-dataset_cens = TADA::simpleCensoredMethods(dataset_flags, nd_method = "multiplier",nd_multiplier = 0.5, od_method = "as-is")
+dataset_cens = TADA::TADA_SimpleCensoredMethods(dataset_flags, nd_method = "multiplier",nd_multiplier = 0.5, od_method = "as-is")
 ```
 
-**Question 8: How would you parameterize `simpleCensoredMethods()` to make non-detect values a random number between 0 and the provided detection limit?**
+**Question 8: How would you parameterize `TADA_SimpleCensoredMethods()` to make non-detect values a random number between 0 and the provided detection limit?**
 
 Let's take a look at how the censored data handling function affects the `TADA.ResultMeasureValueDataTypes.Flag` column.
 

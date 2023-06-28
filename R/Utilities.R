@@ -139,7 +139,7 @@ TADA_AutoClean <- function(.data) {
   
   # Identify detection limit data
   print("TADA_Autoclean: identifying detection limit data.")
-  .data <- idCensoredData(.data)
+  .data <- TADA_IDCensoredData(.data)
   
   # change latitude and longitude measures to class numeric
   .data$TADA.LatitudeMeasure <- as.numeric(.data$LatitudeMeasure)

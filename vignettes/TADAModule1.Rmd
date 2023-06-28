@@ -805,7 +805,7 @@ incidence in the dataset and perform simple substitutions of censored
 data values, including x times the detection limit and random selection
 of a value between 0 and the detection limit. The user may specify the
 methods used for non-detects and over-detects separately in the input to
-the **simpleCensoredMethods** function.
+the **TADA_SimpleCensoredMethods** function.
 
 All censored data functions depend first on the **idCensoredData**
 utility function, which assigns a *TADA.CensoredData.Flag* to all data
@@ -839,7 +839,7 @@ The next step we take in this example is to perform simple conversions
 to the censored data in the dataset: we keep over-detects as is (no
 conversion made) and convert non-detect values to 0.5 times the
 detection limit (half the detection limit). Please review
-**?summarizeCensoredData** and **?simpleCensoredMethods** for more
+**?summarizeCensoredData** and **?TADA_SimpleCensoredMethods** for more
 information.
 
 ```{r SummarizeCensoredData}
@@ -847,7 +847,7 @@ TADAProfileClean_censoredSummary <- summarizeCensoredData(TADAProfileClean4, spe
 
 TADAProfileClean_censoredSummary
 
-TADAProfileClean4 = simpleCensoredMethods(TADAProfileClean4,
+TADAProfileClean4 = TADA_SimpleCensoredMethods(TADAProfileClean4,
                                            nd_method = "multiplier",
                                            nd_multiplier = 0.5,
                                            od_method = "as-is",
