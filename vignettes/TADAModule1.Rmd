@@ -881,7 +881,7 @@ unique(TADAProfileClean5$TADA.ResultMeasureValueDataTypes.Flag)
 
 ## Transform Characteristic, Speciation, and Unit values to TADA Standards
 
-The **HarmonizeRefTable** function generates a harmonization reference
+The **TADA_HarmonizeRefTable** function generates a harmonization reference
 table that is specific to the input dataframe. Users can review how
 their input data relates to standard TADA values for the following
 elements:
@@ -894,7 +894,7 @@ elements:
 
 -   TADA.ResultMeasure.MeasureUnitCode
 
-The **HarmonizeData** function then compares the input dataframe to the
+The **TADA_HarmonizeData** function then compares the input dataframe to the
 TADA Harmonization Reference Table. The purpose of the function is to
 make similar data consistent and therefore easier to compare and
 analyze.
@@ -915,7 +915,7 @@ Optional outputs include:
 3.  the four fields converted with most Harmonization Reference Table
     columns appended. Default is transform = TRUE and flag = TRUE.
 
-Here are some examples of how the HarmonizeData function can be used:
+Here are some examples of how the TADA_HarmonizeData function can be used:
 
 1.  TADA.ResultSampleFractionText specifies forms of constituents. In
     some cases, a single \*TADA.CharacteristicName\*\* will have both
@@ -928,14 +928,14 @@ Here are some examples of how the HarmonizeData function can be used:
 
 2.  Some variables have different names but represent the same
     constituent (e.g., "Total Kjeldahl nitrogen (Organic N & NH3)" and
-    "Kjeldahl nitrogen"). The HarmonizeData function gives a consistent
+    "Kjeldahl nitrogen"). The TADA_HarmonizeData function gives a consistent
     name (and identifier) to synonyms.
 
-```{r HarmonizeData}
-UniqueHarmonizationRef <- HarmonizationRefTable(TADAProfileClean5,
+```{r TADA_HarmonizeData}
+UniqueHarmonizationRef <- TADA_HarmonizationRefTable(TADAProfileClean5,
                                                 download = FALSE)
 
-TADAProfileClean5 <- HarmonizeData(TADAProfileClean5,
+TADAProfileClean5 <- TADA_HarmonizeData(TADAProfileClean5,
                                     ref = UniqueHarmonizationRef,
                                     transform = TRUE,
                                     flag = TRUE)
