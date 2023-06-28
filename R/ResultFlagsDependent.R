@@ -57,7 +57,7 @@ InvalidFraction <- function(.data, clean = TRUE, errorsonly = FALSE) {
     .data <- dplyr::select(.data, -TADA.SampleFraction.Flag)
   }
   # read in sample fraction reference table from extdata and filter
-  frac.ref <- GetWQXCharValRef() %>%
+  frac.ref <- TADA_GetWQXCharValRef() %>%
     dplyr::filter(Type == "CharacteristicFraction")
   
   # join "Status" column to .data by CharacteristicName and Value (SampleFraction)
@@ -199,7 +199,7 @@ InvalidSpeciation <- function(.data, clean = c("invalid_only", "nonstandardized_
   }
   
   # read in speciation reference table from extdata and filter
-  spec.ref <- GetWQXCharValRef() %>%
+  spec.ref <- TADA_GetWQXCharValRef() %>%
     dplyr::filter(Type == "CharacteristicSpeciation")
   
   # join "Status" column to .data by CharacteristicName and Value (Speciation)
@@ -352,7 +352,7 @@ InvalidResultUnit <- function(.data, clean = c("invalid_only", "nonstandardized_
   }
   
   # read in unit reference table from extdata and filter
-  unit.ref <- GetWQXCharValRef() %>%
+  unit.ref <- TADA_GetWQXCharValRef() %>%
     dplyr::filter(Type == "CharacteristicUnit")
   
   # join "Status" column to .data by CharacteristicName, Source (Media), and Value (unit)
@@ -491,7 +491,7 @@ QualityControlActivity <- function(.data, clean = FALSE, errorsonly = FALSE) {
   }
   
   # load in ActivityTypeRef Table
-  qc.ref <- GetActivityTypeRef() %>%
+  qc.ref <- TADA_GetActivityTypeRef() %>%
     dplyr::rename(ActivityTypeCode = Code) %>%
     dplyr::select(ActivityTypeCode, TADA.ActivityType.Flag)
   

@@ -77,7 +77,7 @@ TADA_ConvertResultUnits <- function(.data, transform = TRUE) {
   # execute function after checks are passed
   
   # filter WQXcharValRef to include only valid CharacteristicUnit in water media
-  unit.ref <- GetWQXCharValRef() %>%
+  unit.ref <- TADA_GetWQXCharValRef() %>%
     dplyr::filter(Type == "CharacteristicUnit" & Source == "WATER" &
                     Status == "Valid")
   # join unit.ref to .data
@@ -326,7 +326,7 @@ TADA_ConvertDepthUnits <- function(.data,
                "WQXConversionFactor.ResultDepthHeightMeasure")
   
   # read in unit conversion reference table from extdata
-  unit.ref <- GetMeasureUnitRef()
+  unit.ref <- TADA_GetMeasureUnitRef()
   
   # subset to include only "Length Distance" units; filter by target unit defined in 'unit' argument
   unit.ref <- unit.ref %>%

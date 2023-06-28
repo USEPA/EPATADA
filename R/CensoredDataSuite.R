@@ -41,7 +41,7 @@ TADA_IDCensoredData <- function(.data){
 
   if(dim(cens)[1]>0){
     ## Bring in det cond reference table
-    cond.ref = GetDetCondRef()%>%dplyr::rename(ResultDetectionConditionText = Name)%>%dplyr::select(ResultDetectionConditionText, TADA.Detection_Type)
+    cond.ref = TADA_GetDetCondRef()%>%dplyr::rename(ResultDetectionConditionText = Name)%>%dplyr::select(ResultDetectionConditionText, TADA.Detection_Type)
     
     ## Join to censored data
     cens = dplyr::left_join(cens, cond.ref, by = "ResultDetectionConditionText")
@@ -61,7 +61,7 @@ TADA_IDCensoredData <- function(.data){
     }
     
     ## Bring in det limit type reference table
-    limtype.ref = GetDetLimitRef()%>%dplyr::rename(DetectionQuantitationLimitTypeName = Name)%>%dplyr::select(DetectionQuantitationLimitTypeName, TADA.Limit_Type)
+    limtype.ref = TADA_GetDetLimitRef()%>%dplyr::rename(DetectionQuantitationLimitTypeName = Name)%>%dplyr::select(DetectionQuantitationLimitTypeName, TADA.Limit_Type)
     
     ## Join to censored data
     cens = dplyr::left_join(cens, limtype.ref, by = "DetectionQuantitationLimitTypeName")
