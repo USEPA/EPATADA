@@ -238,7 +238,7 @@ rm(incompatible_datatype, check, rv_datatypes, na_rv_datatypes)
 dimCheck(all_result_num, dataset, removed, checkName = "Result Format")
 ```
 
-During `TADA_DataRetrieval`, TADA automatically sorts result values into detection limit categories (e.g. non-detect, over-detect) based on populated values in the ResultDetectionConditionText and DetectionQuantitationLimitTypeName columns. You can find the reference tables used to make these decisions in `GetDetCondRef()` and `GetDetLimitRef()` functions. In some cases, results are missing detection limit/condition info, or there is a conflict in the detection limit and condition. The user may want to remove problematic detection limit data before proceeding.
+During `TADA_DataRetrieval`, TADA automatically sorts result values into detection limit categories (e.g. non-detect, over-detect) based on populated values in the ResultDetectionConditionText and DetectionQuantitationLimitTypeName columns. You can find the reference tables used to make these decisions in `TADA_GetDetCondRef()` and `TADA_GetDetLimitRef()` functions. In some cases, results are missing detection limit/condition info, or there is a conflict in the detection limit and condition. The user may want to remove problematic detection limit data before proceeding.
 
 ```{r}
 TADA::TADA_FieldValuesPie(dataset, field = "TADA.CensoredData.Flag")
@@ -262,12 +262,12 @@ dimCheck(all_result_num, dataset, removed, checkName = "Censored Data")
 
 ## Data flagging
 
-We've taken a quick look at the raw dataset and split off some data that are not compatible with TADA, now let's run through some quality control checks. The most important ones to run to ensure your dataset is ready for subsequent steps are `InvalidFraction()`, `InvalidSpeciation()`, `InvalidResultUnit()`, and `QualityControlActivity()`. With the exception of `QualityControlActivity()`, these flagging functions leverage WQX's [QAQC Validation Table](https://cdx.epa.gov/wqx/download/DomainValues/QAQCCharacteristicValidation.CSV). `QualityControlActivity()` uses a TADA-specific domain table users can review with `GetActivityTypeRef()`. All QAQC tables are frequently updated in the package to ensure they match the latest version on the web. You can find guidance for using the WQX QAQC Validation Tables in this [vignette](https://usepa.github.io/TADA/articles/WQXValidationService.html) on the TADA GitHub site. 
+We've taken a quick look at the raw dataset and split off some data that are not compatible with TADA, now let's run through some quality control checks. The most important ones to run to ensure your dataset is ready for subsequent steps are `InvalidFraction()`, `InvalidSpeciation()`, `InvalidResultUnit()`, and `QualityControlActivity()`. With the exception of `QualityControlActivity()`, these flagging functions leverage WQX's [QAQC Validation Table](https://cdx.epa.gov/wqx/download/DomainValues/QAQCCharacteristicValidation.CSV). `QualityControlActivity()` uses a TADA-specific domain table users can review with `TADA_GetActivityTypeRef()`. All QAQC tables are frequently updated in the package to ensure they match the latest version on the web. You can find guidance for using the WQX QAQC Validation Tables in this [vignette](https://usepa.github.io/TADA/articles/WQXValidationService.html) on the TADA GitHub site. 
 
 Bring the QAQC Validation Table into your R session to view or save with the following command:
 
 ```{r}
-qaqc_ref = TADA::GetWQXCharValRef()
+qaqc_ref = TADA::TADA_GetWQXCharValRef()
 
 View(qaqc_ref)
 
