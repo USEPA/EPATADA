@@ -297,7 +297,7 @@ user's decision to remove/correct sites that are outside the US.
 TADA_OverviewMap(TADAProfile)
 ```
 
-The TADA **InvalidCoordinates** function identifies and flags
+The TADA **TADA_InvalidCoordinates** function identifies and flags
 potentially invalid coordinate data. While its functionality is
 showcased here, it is always important to review any invalid outputs
 before cleaning to reduce the risk of leaving out usable data/sites.
@@ -342,9 +342,9 @@ following flags (if relevant to dataframe):
     numbers to the right of the decimal point, the row will be flagged
     as "Imprecise".
 
-```{r InvalidCoordinates}
+```{r TADA_InvalidCoordinates}
 # flag only
-TADAProfileClean1 <- InvalidCoordinates(TADAProfile, clean_outsideUSA = "no", clean_imprecise = FALSE, errorsonly = FALSE)
+TADAProfileClean1 <- TADA_InvalidCoordinates(TADAProfile, clean_outsideUSA = "no", clean_imprecise = FALSE, errorsonly = FALSE)
 
 # review unique flags in TADAProfileClean1
 unique(TADAProfileClean1$TADA.InvalidCoordinates.Flag)
@@ -374,7 +374,7 @@ Unique_InvalidCoordinateFlags
 
 # if needed, un-comment below to change the sign for all data for sites flagged as outside the USA. You can also change FALSE to TRUE if you want to remove sites outside of the US or sites with imprecise lat/longs
 
-# TADAProfileClean1 <- InvalidCoordinates(TADAProfile, clean_outsideUSA = "change sign", clean_imprecise = FALSE, errorsonly = FALSE)
+# TADAProfileClean1 <- TADA_InvalidCoordinates(TADAProfile, clean_outsideUSA = "change sign", clean_imprecise = FALSE, errorsonly = FALSE)
 ```
 
 ## Depth unit conversions
@@ -455,7 +455,7 @@ FALSE to flag results, but not remove them.
 
 See documentation for more details:
 
--   ?**InvalidMethod**
+-   ?**TADA_InvalidMethod**
 
     -   When clean = FALSE, this function adds the following column to
         your dataframe: TADA.AnalyticalMethod.Flag. This column flags
@@ -470,7 +470,7 @@ See documentation for more details:
     -   When errorsonly = TRUE, the dataframe is filtered to only the
         rows flagged as "Invalid"; default is errorsonly = FALSE.
 
--   ?**InvalidSpeciation**
+-   ?**TADA_InvalidSpeciation**
 
     -   When clean = "none", this function adds the following column to
         your dataframe: TADA.MethodSpeciation.Flag. This column flags
@@ -493,7 +493,7 @@ See documentation for more details:
         rows flagged as "Invalid" or "Nonstandardized"; default is
         errorsonly = FALSE.
 
--   ?**InvalidResultUnit**
+-   ?**TADA_InvalidResultUnit**
 
     -   When clean = FALSE, the following column will be added to your
         dataframe: TADA.ResultUnit.Flag. This column flags each
@@ -507,7 +507,7 @@ See documentation for more details:
     -   When errorsonly = TRUE, the dataframe is filtered to only the
         rows flagged as "Invalid"; default is errorsonly = FALSE.
 
--   ?**InvalidFraction**
+-   ?**TADA_InvalidFraction**
 
     -   When clean = FALSE, this function adds the following column to
         your dataframe: TADA.SampleFraction.Flag. This column flags each
@@ -520,13 +520,13 @@ See documentation for more details:
         rows flagged as "Invalid"; default is errorsonly = FALSE.
 
 ```{r Invalid_Method_Fraction_Speciation_ResultUnit}
-TADAProfileClean2 <- InvalidMethod(TADAProfileClean1, clean = TRUE)
+TADAProfileClean2 <- TADA_InvalidMethod(TADAProfileClean1, clean = TRUE)
 
-TADAProfileClean2 <- InvalidFraction(TADAProfileClean2, clean = TRUE)
+TADAProfileClean2 <- TADA_InvalidFraction(TADAProfileClean2, clean = TRUE)
 
-TADAProfileClean2 <- InvalidSpeciation(TADAProfileClean2, clean = "invalid_only")
+TADAProfileClean2 <- TADA_InvalidSpeciation(TADAProfileClean2, clean = "invalid_only")
 
-TADAProfileClean2 <- InvalidResultUnit(TADAProfileClean2, clean = "invalid_only")
+TADAProfileClean2 <- TADA_InvalidResultUnit(TADAProfileClean2, clean = "invalid_only")
 ```
 
 ## WQX national upper and lower thresholds
@@ -535,7 +535,7 @@ Run the following code to flag or remove results that are above or below
 the national upper and lower bound for each characteristic and unit
 combination. See documentation for more details:
 
--   ?**AboveNationalWQXUpperThreshold**
+-   ?**TADA_AboveNationalWQXUpperThreshold**
 
     -   When clean = FALSE, the following column is added to your
         dataframe: TADA.ResultValueAboveUpperThreshold.Flag. This column
@@ -548,7 +548,7 @@ combination. See documentation for more details:
         rows flagged as above the upper WQX threshold; default is
         errorsonly = FALSE.
 
--   ?**BelowNationalWQXLowerThreshold**
+-   ?**TADA_BelowNationalWQXLowerThreshold**
 
     -   When clean = FALSE, the following column is added to your
         dataframe: TADA.ResultValueBelowLowerThreshold.Flag. This column
@@ -562,45 +562,28 @@ combination. See documentation for more details:
         errorsonly = FALSE.
 
 ```{r WQX_Thresholds}
-TADAProfileClean3 <- AboveNationalWQXUpperThreshold(TADAProfileClean2, clean = TRUE)
+TADAProfileClean3 <- TADA_AboveNationalWQXUpperThreshold(TADAProfileClean2, clean = TRUE)
 
-TADAProfileClean3 <- BelowNationalWQXLowerThreshold(TADAProfileClean3, clean = TRUE)
+TADAProfileClean3 <- TADA_BelowNationalWQXLowerThreshold(TADAProfileClean3, clean = TRUE)
 ```
 
 ## Potential duplicates
 
 Sometimes multiple organizations submit the exact same data to Water
 Quality Portal (WQP), which can affect water quality analyses and
-assessments. This function checks for and identifies data that is
-identical in all fields excluding organization-specific and comment text
-fields. Each pair or group of potential duplicate rows is flagged with a
+assessments. This function checks for and identifies data that may be duplicates based on date, time, characteristic, result value, and a distance buffer. Each pair or group of potential duplicate rows is flagged with a
 unique ID. For more information, review the documentation by entering
 the following into the console:
 
--   ?**PotentialDuplicateRowID**
-
-    -   When clean = FALSE, the following column will be added to you
-        dataframe: TADA.PotentialDupRowIDs.Flag. This column flags
-        potential duplicate rows of data in your dataframe, and assigns
-        each potential duplicate combination a unique number linking the
-        two potential duplication rows.
-
-    -   When clean = TRUE, the function retains the first occurrence of
-        each potential duplicate in the dataframe and removes potential
-        duplicate rows. No column is appended. The default is clean =
-        TRUE.
-
-    -   When errorsonly = TRUE, the dataframe is filtered to only the
-        rows flagged as potential duplicates; default is errorsonly =
-        FALSE.
+-   ?**TADA_FindPotentialDuplicates**
 
 ```{r PotentialDuplicateRowID}
-TADAProfileClean3 <- PotentialDuplicateRowID(TADAProfileClean3, clean = TRUE, errorsonly = FALSE)
+TADAProfileClean3 <- TADA_FindPotentialDuplicates(TADAProfileClean3, dist_buffer = 100)
 ```
 
 ## Review QAPP information
 
-The **QAPPapproved** function checks data for an approved QAPP.
+The **TADA_QAPPapproved** function checks data for an approved QAPP.
 
 This function checks to see if there is any information in the column
 "QAPPApprovedIndicator". Some organizations submit data for this field
@@ -622,10 +605,10 @@ If clean = FALSE, cleanNA = FALSE, and errorsonly = FALSE, the function
 will not do anything.
 
 ```{r QAPPapproved}
-TADAProfileClean3 <- QAPPapproved(TADAProfileClean3, clean = FALSE, cleanNA = FALSE)
+TADAProfileClean3 <- TADA_QAPPapproved(TADAProfileClean3, clean = FALSE, cleanNA = FALSE)
 ```
 
-The **QAPPDocAvailable** function checks to see if a QAPP Doc is
+The **TADA_QAPPDocAvailable** function checks to see if a QAPP Doc is
 Available
 
 This function checks data submitted under the "ProjectFileUrl" column to
@@ -639,8 +622,8 @@ defaults are clean = FALSE and errorsonly = FALSE. This function should
 only be used to remove data if an accompanying QAPP document is required
 to use data in assessments.
 
-```{r QAPPDocAvailable}
-TADAProfileClean3 <- QAPPDocAvailable(TADAProfileClean3,
+```{r TADA_QAPPDocAvailable}
+TADAProfileClean3 <- TADA_QAPPDocAvailable(TADAProfileClean3,
                                        clean = FALSE)
 ```
 
@@ -719,13 +702,13 @@ TADA_FieldValuesPie(TADAProfileClean3, field = "ActivityTypeCode")
 ```
 
 The ActivityTypeCode field has multiple unique values. In this example
-we remove Quality Control (QC) values using the TADA
-QualityControlActivity function.
+we remove Quality Control (QC) values using the
+TADA_QualityControlActivity function.
 
-```{r QualityControlActivity}
-# Remove all QC samples using the TADA QualityControlActivity function:
-# enter ?QualityControlActivity into the console for more information
-TADAProfileClean4 <- QualityControlActivity(TADAProfileClean3, clean = TRUE)
+```{r TADA_QualityControlActivity}
+# Remove all QC samples using the TADA_QualityControlActivity function:
+# enter ?TADA_QualityControlActivity into the console for more information
+TADAProfileClean4 <- TADA_QualityControlActivity(TADAProfileClean3, clean = TRUE)
 
 # See WQX domain file to review all the ActivityTypeCode allowable values:
 # https://cdx.epa.gov/wqx/download/DomainValues/ActivityType.CSV
@@ -807,7 +790,7 @@ of a value between 0 and the detection limit. The user may specify the
 methods used for non-detects and over-detects separately in the input to
 the **TADA_SimpleCensoredMethods** function.
 
-All censored data functions depend first on the **idCensoredData**
+All censored data functions depend first on the **TADA_IDCensoredData**
 utility function, which assigns a *TADA.CensoredData.Flag* to all data
 records and identifies over-detects from non-detects using the
 *ResultDetectionConditionText* and *DetectionQuantitationLimitTypeName*.
