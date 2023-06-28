@@ -225,10 +225,10 @@ TADA_hist <- function(filtered.data, id_col = c("TADA.CharacteristicName", "TADA
 #' data("Nutrients_Utah.rda")
 #' 
 #' # Create map:
-#' TADAOverviewMap(Nutrients_Utah)
+#' TADA_OverviewMap(Nutrients_Utah)
 #' 
 
-TADAOverviewMap <- function(.data){
+TADA_OverviewMap <- function(.data){
   suppressWarnings({
     
     # taken from this stackoverflow: https://stackoverflow.com/questions/58505589/circles-in-legend-for-leaflet-map-with-addcirclemarkers-in-r-without-shiny
