@@ -218,7 +218,7 @@ TADA_HarmonizeData <- function(.data, ref, transform = TRUE, flag = TRUE) {
     # if input for ref does not exist, use raw harmonization template
     if (missing(ref)) {
       # use output of HarmonizationRefTable which uses the TADA HarmonizationTemplate.csv in the extdata folder
-      harm.ref <- HarmonizationRefTable(.data, download=FALSE)
+      harm.ref <- TADA_HarmonizationRefTable(.data, download=FALSE)
     }
     
     .data = .data[,!names(.data)%in%c("TADA.ComparableDataIdentifier")]

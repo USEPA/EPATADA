@@ -42,9 +42,9 @@ test_that("Imprecise_lessthan3decimaldigits works", {
   FLAGSONLY <- TADA_InvalidCoordinates(Nutrients_Utah)
   FLAGSONLY <- FLAGSONLY %>% dplyr::select(TADA.InvalidCoordinates.Flag, TADA.LatitudeMeasure, TADA.LongitudeMeasure)
   FLAGSONLY <- dplyr::filter(FLAGSONLY, FLAGSONLY$TADA.InvalidCoordinates.Flag == "Imprecise_lessthan3decimaldigits")
-  FLAGSONLY <- dplyr::filter(FLAGSONLY, sapply(FLAGSONLY$TADA.LongitudeMeasure, decimalplaces) < 3)%>%dplyr::distinct()
+  FLAGSONLY <- dplyr::filter(FLAGSONLY, sapply(FLAGSONLY$TADA.LongitudeMeasure, TADA_DecimalPlaces) < 3)%>%dplyr::distinct()
   
-  expect_true(all(sapply(FLAGSONLY$TADA.LongitudeMeasure, decimalplaces) < 4))
+  expect_true(all(sapply(FLAGSONLY$TADA.LongitudeMeasure, TADA_DecimalPlaces) < 4))
   
 })
 
@@ -57,9 +57,9 @@ test_that("Imprecise_lessthan3decimaldigits works again", {
   FLAGSONLY <- TADA_InvalidCoordinates(Nutrients_Utah)
   FLAGSONLY <- FLAGSONLY %>% dplyr::select(TADA.InvalidCoordinates.Flag, TADA.LatitudeMeasure, TADA.LongitudeMeasure)
   FLAGSONLY <- dplyr::filter(FLAGSONLY, FLAGSONLY$TADA.InvalidCoordinates.Flag == "Imprecise_lessthan3decimaldigits")
-  FLAGSONLY <- dplyr::filter(FLAGSONLY, sapply(FLAGSONLY$TADA.LatitudeMeasure, decimalplaces) < 3) %>% dplyr::distinct()
+  FLAGSONLY <- dplyr::filter(FLAGSONLY, sapply(FLAGSONLY$TADA.LatitudeMeasure, TADA_DecimalPlaces) < 3) %>% dplyr::distinct()
   
-  expect_true(all(sapply(FLAGSONLY$TADA.LatitudeMeasure, decimalplaces) < 4))
+  expect_true(all(sapply(FLAGSONLY$TADA.LatitudeMeasure, TADA_DecimalPlaces) < 4))
 })
 
 test_that("No NA's in independent flag columns", {
