@@ -61,7 +61,7 @@ There are several programs that are needed before any work can begin. With admin
 
 Once those have been installed, the following R packages will be needed for R-package development work:
 
-```{r eval=FALSE}
+```{r, eval = F}
 install.packages(c("devtools", "rmarkdown"))
 ```
 

@@ -49,17 +49,14 @@ Imports:
     dataRetrieval, 
     ggplot2, 
     sf,
-    maps,
     leaflet,
     plotly,
-    rmarkdown, 
-    outliers,
     remotes,
     writexl
 Depends: 
     R (>= 3.5.0)
-Remotes: 
 Suggests: 
+    rmarkdown,
     readr,
     tidyverse,
     knitr,
@@ -68,7 +65,6 @@ Suggests:
     usethis,
     devtools,
     pkgdown,
-    Rcpp,
     spelling
 VignetteBuilder: knitr, rmarkdown
 Language: en-US

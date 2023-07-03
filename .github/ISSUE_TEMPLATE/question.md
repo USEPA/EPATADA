@@ -20,7 +20,7 @@ If possible, narrow down the question to a specific dataset and
 
 ``` r
 library(TADA)
-# Data used 
+# Include the TADAdataRetrieval function inputs used
 df <- TADAdataRetrieval("a","b","c","d")
 
 # Function your question pertains to
