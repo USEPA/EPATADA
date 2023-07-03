@@ -37,12 +37,14 @@ Add any other context or screenshots about the feature request here.
 
 New features should include all of the following work:
 
--   [ ] Create the function/code
+-   [ ] Create the function/code.
 
--   [ ] Create tests in tests folder
+-   [ ] Document all code using comments to describe what is does.
+
+-   [ ] Create tests in tests folder.
 
 -   [ ] Create help file using roxygen2 above code.
 
--   [ ] Create working examples in help file (via roxygen2)
+-   [ ] Create working examples in help file (via roxygen2).
 
--   [ ] Add to appropriate vignette (or create new one)
+-   [ ] Add to appropriate vignette (or create new one).

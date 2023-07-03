@@ -17,7 +17,7 @@ and 'OrganizationIdentifier' to run this function.}
 A leaflet map that shows all sites in the data frame, where larger point sizes
 indicate more results collected at a site, and darker point colors indicate more
 characteristics measured at that site. Users can click on points on the map to see
-a pop-up window with exact counts for results, characteristics, and organizations
+a pop-up window with exact counts for measurements, visits, and characteristics
 associated with each site.
 }
 \description{
