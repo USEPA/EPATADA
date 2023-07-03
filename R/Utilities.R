@@ -595,7 +595,7 @@ TADA_GetTemplate <- function(){
 #'
 #' @export
 
-TADA_NearbySites <- function(.data, dist_buffer=100){
+TADA_FindNearbySites <- function(.data, dist_buffer=100){
   
   # check .data is data.frame
   TADA_CheckType(.data, "data.frame", "Input object")

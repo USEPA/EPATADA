@@ -262,7 +262,7 @@ dimCheck(all_result_num, dataset, removed, checkName = "Censored Data")
 
 ## Data flagging
 
-We've taken a quick look at the raw dataset and split off some data that are not compatible with TADA, now let's run through some quality control checks. The most important ones to run to ensure your dataset is ready for subsequent steps are `TADA_InvalidFraction()`, `TADA_InvalidSpeciation()`, `TADA_InvalidResultUnit()`, and `TADA_QualityControlActivity()`. With the exception of `TADA_QualityControlActivity()`, these flagging functions leverage WQX's [QAQC Validation Table](https://cdx.epa.gov/wqx/download/DomainValues/QAQCCharacteristicValidation.CSV). `TADA_QualityControlActivity()` uses a TADA-specific domain table users can review with `TADA_GetActivityTypeRef()`. All QAQC tables are frequently updated in the package to ensure they match the latest version on the web. You can find guidance for using the WQX QAQC Validation Tables in this [vignette](https://usepa.github.io/TADA/articles/WQXValidationService.html) on the TADA GitHub site. 
+We've taken a quick look at the raw dataset and split off some data that are not compatible with TADA, now let's run through some quality control checks. The most important ones to run to ensure your dataset is ready for subsequent steps are `TADA_FlagFraction()`, `TADA_FlagSpeciation()`, `TADA_FlagResultUnit()`, and `TADA_FindQualityControlData()`. With the exception of `TADA_FindQualityControlData()`, these flagging functions leverage WQX's [QAQC Validation Table](https://cdx.epa.gov/wqx/download/DomainValues/QAQCCharacteristicValidation.CSV). `TADA_FindQualityControlData()` uses a TADA-specific domain table users can review with `TADA_GetActivityTypeRef()`. All QAQC tables are frequently updated in the package to ensure they match the latest version on the web. You can find guidance for using the WQX QAQC Validation Tables in this [vignette](https://usepa.github.io/TADA/articles/WQXValidationService.html) on the TADA GitHub site. 
 
 Bring the QAQC Validation Table into your R session to view or save with the following command:
 
@@ -279,10 +279,10 @@ unique(qaqc_ref$Type)
 TADA joins this validation table to the data and uses the "Valid" and "Invalid" labels in the Status column to create easily understandable flagging columns for each function. Let's run these four flagging functions.
 
 ```{r}
-dataset_flags = TADA::TADA_InvalidFraction(dataset, clean = FALSE, errorsonly = FALSE)
-dataset_flags = TADA::TADA_InvalidSpeciation(dataset_flags, clean = "none", errorsonly = FALSE)
-dataset_flags = TADA::TADA_InvalidResultUnit(dataset_flags, clean = "none", errorsonly = FALSE)
-dataset_flags = TADA::TADA_QualityControlActivity(dataset_flags, clean = FALSE, errorsonly = FALSE)
+dataset_flags = TADA::TADA_FlagFraction(dataset, clean = FALSE, errorsonly = FALSE)
+dataset_flags = TADA::TADA_FlagSpeciation(dataset_flags, clean = "none", errorsonly = FALSE)
+dataset_flags = TADA::TADA_FlagResultUnit(dataset_flags, clean = "none", errorsonly = FALSE)
+dataset_flags = TADA::TADA_FindQualityControlData(dataset_flags, clean = FALSE, errorsonly = FALSE)
 
 dimCheck(all_result_num, dataset_flags, removed, checkName = "Run Flag Functions")
 ```
@@ -324,15 +324,15 @@ TADA::TADA_FieldValuesTable(removed, field = "TADA.RemovalReason")
 
 You can review any other columns of interest and create custom domain tables of your "Valid" and "Invalid" criteria using R or Excel. Also check out some of the other flagging functions available in TADA:
 
--   `?TADA_AboveNationalWQXUpperThreshold()`
+-   `?TADA_FlagResultAboveThreshold()`
 
--   `?TADA_BelowNationalWQXLowerThreshold()`
+-   `?TADA_FlagResultBelowThreshold()`
 
--   `?TADA_AggregatedContinuousData()`
+-   `?TADA_FindContinuousData()`
 
--   `?TADA_InvalidCoordinates()`
+-   `?TADA_FlagCoordinates()`
 
--   `?TADA_InvalidMethod()`
+-   `?TADA_FlagMethod()`
 
 -   `?TADA_QAPPapproved()`
 

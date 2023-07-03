@@ -77,7 +77,7 @@ desired (un-comment).
 # options(download.file.method = "wininet")
 
 remotes::install_github("USEPA/TADA", 
-                        ref = "functions_names_eh",
+                        ref = "function_names_eh",
                         dependencies = TRUE)
 library(TADA)
 
@@ -297,7 +297,7 @@ user's decision to remove/correct sites that are outside the US.
 TADA_OverviewMap(TADAProfile)
 ```
 
-The TADA **TADA_InvalidCoordinates** function identifies and flags
+The TADA **TADA_FlagCoordinates** function identifies and flags
 potentially invalid coordinate data. While its functionality is
 showcased here, it is always important to review any invalid outputs
 before cleaning to reduce the risk of leaving out usable data/sites.
@@ -342,9 +342,9 @@ following flags (if relevant to dataframe):
     numbers to the right of the decimal point, the row will be flagged
     as "Imprecise".
 
-```{r TADA_InvalidCoordinates}
+```{r TADA_FlagCoordinates}
 # flag only
-TADAProfileClean1 <- TADA_InvalidCoordinates(TADAProfile, clean_outsideUSA = "no", clean_imprecise = FALSE, errorsonly = FALSE)
+TADAProfileClean1 <- TADA_FlagCoordinates(TADAProfile, clean_outsideUSA = "no", clean_imprecise = FALSE, errorsonly = FALSE)
 
 # review unique flags in TADAProfileClean1
 unique(TADAProfileClean1$TADA.InvalidCoordinates.Flag)
@@ -374,7 +374,7 @@ Unique_InvalidCoordinateFlags
 
 # if needed, un-comment below to change the sign for all data for sites flagged as outside the USA. You can also change FALSE to TRUE if you want to remove sites outside of the US or sites with imprecise lat/longs
 
-# TADAProfileClean1 <- TADA_InvalidCoordinates(TADAProfile, clean_outsideUSA = "change sign", clean_imprecise = FALSE, errorsonly = FALSE)
+# TADAProfileClean1 <- TADA_FlagCoordinates(TADAProfile, clean_outsideUSA = "change sign", clean_imprecise = FALSE, errorsonly = FALSE)
 ```
 
 ## Depth unit conversions
@@ -404,7 +404,7 @@ TADAProfileClean1 <- TADA_ConvertDepthUnits(TADAProfileClean1,
 
 ## Statistically aggregated data
 
-The **TADA_AggregatedContinuousData** function checks for and removes
+The **TADA_FindContinuousData** function checks for and removes
 statistically aggregated high frequency (i.e., continuous) data, if
 present.
 
@@ -436,14 +436,14 @@ of data regardless of flag status. Assigning errorsonly = TRUE filters
 the dataframe to show only rows of data which are flagged "Y".
 
 See function documentation for additional function options by entering
-the following code in the console: ?TADA_AggregatedContinuousData
+the following code in the console: ?TADA_FindContinuousData
 
 ```{r AggregatedContinuousData}
-TADAProfileClean1 <- TADA_AggregatedContinuousData(TADAProfileClean1, clean = FALSE)
+TADAProfileClean1 <- TADA_FindContinuousData(TADAProfileClean1, clean = FALSE)
 
 # uncomment below to create a dataframe of only the aggregated continuous data
 
-# TADAProfile_aggcont <- TADA_AggregatedContinuousData(TADAProfileClean3, clean = FALSE, errorsonly = TRUE)
+# TADAProfile_aggcont <- TADA_FindContinuousData(TADAProfileClean3, clean = FALSE, errorsonly = TRUE)
 ```
 
 ## WQX Quality Assurance and Quality Control (QAQC) Service Result Flags
@@ -455,7 +455,7 @@ FALSE to flag results, but not remove them.
 
 See documentation for more details:
 
--   ?**TADA_InvalidMethod**
+-   ?**TADA_FlagMethod**
 
     -   When clean = FALSE, this function adds the following column to
         your dataframe: TADA.AnalyticalMethod.Flag. This column flags
@@ -470,7 +470,7 @@ See documentation for more details:
     -   When errorsonly = TRUE, the dataframe is filtered to only the
         rows flagged as "Invalid"; default is errorsonly = FALSE.
 
--   ?**TADA_InvalidSpeciation**
+-   ?**TADA_FlagSpeciation**
 
     -   When clean = "none", this function adds the following column to
         your dataframe: TADA.MethodSpeciation.Flag. This column flags
@@ -493,7 +493,7 @@ See documentation for more details:
         rows flagged as "Invalid" or "Nonstandardized"; default is
         errorsonly = FALSE.
 
--   ?**TADA_InvalidResultUnit**
+-   ?**TADA_FlagResultUnit**
 
     -   When clean = FALSE, the following column will be added to your
         dataframe: TADA.ResultUnit.Flag. This column flags each
@@ -507,7 +507,7 @@ See documentation for more details:
     -   When errorsonly = TRUE, the dataframe is filtered to only the
         rows flagged as "Invalid"; default is errorsonly = FALSE.
 
--   ?**TADA_InvalidFraction**
+-   ?**TADA_FlagFraction**
 
     -   When clean = FALSE, this function adds the following column to
         your dataframe: TADA.SampleFraction.Flag. This column flags each
@@ -520,13 +520,13 @@ See documentation for more details:
         rows flagged as "Invalid"; default is errorsonly = FALSE.
 
 ```{r Invalid_Method_Fraction_Speciation_ResultUnit}
-TADAProfileClean2 <- TADA_InvalidMethod(TADAProfileClean1, clean = TRUE)
+TADAProfileClean2 <- TADA_FlagMethod(TADAProfileClean1, clean = TRUE)
 
-TADAProfileClean2 <- TADA_InvalidFraction(TADAProfileClean2, clean = TRUE)
+TADAProfileClean2 <- TADA_FlagFraction(TADAProfileClean2, clean = TRUE)
 
-TADAProfileClean2 <- TADA_InvalidSpeciation(TADAProfileClean2, clean = "invalid_only")
+TADAProfileClean2 <- TADA_FlagSpeciation(TADAProfileClean2, clean = "invalid_only")
 
-TADAProfileClean2 <- TADA_InvalidResultUnit(TADAProfileClean2, clean = "invalid_only")
+TADAProfileClean2 <- TADA_FlagResultUnit(TADAProfileClean2, clean = "invalid_only")
 ```
 
 ## WQX national upper and lower thresholds
@@ -535,7 +535,7 @@ Run the following code to flag or remove results that are above or below
 the national upper and lower bound for each characteristic and unit
 combination. See documentation for more details:
 
--   ?**TADA_AboveNationalWQXUpperThreshold**
+-   ?**TADA_FlagResultAboveThreshold**
 
     -   When clean = FALSE, the following column is added to your
         dataframe: TADA.ResultValueAboveUpperThreshold.Flag. This column
@@ -548,7 +548,7 @@ combination. See documentation for more details:
         rows flagged as above the upper WQX threshold; default is
         errorsonly = FALSE.
 
--   ?**TADA_BelowNationalWQXLowerThreshold**
+-   ?**TADA_FlagResultBelowThreshold**
 
     -   When clean = FALSE, the following column is added to your
         dataframe: TADA.ResultValueBelowLowerThreshold.Flag. This column
@@ -562,9 +562,9 @@ combination. See documentation for more details:
         errorsonly = FALSE.
 
 ```{r WQX_Thresholds}
-TADAProfileClean3 <- TADA_AboveNationalWQXUpperThreshold(TADAProfileClean2, clean = TRUE)
+TADAProfileClean3 <- TADA_FlagResultAboveThreshold(TADAProfileClean2, clean = TRUE)
 
-TADAProfileClean3 <- TADA_BelowNationalWQXLowerThreshold(TADAProfileClean3, clean = TRUE)
+TADAProfileClean3 <- TADA_FlagResultBelowThreshold(TADAProfileClean3, clean = TRUE)
 ```
 
 ## Potential duplicates
@@ -703,12 +703,12 @@ TADA_FieldValuesPie(TADAProfileClean3, field = "ActivityTypeCode")
 
 The ActivityTypeCode field has multiple unique values. In this example
 we remove Quality Control (QC) values using the
-TADA_QualityControlActivity function.
+TADA_FindQualityControlData function.
 
-```{r TADA_QualityControlActivity}
-# Remove all QC samples using the TADA_QualityControlActivity function:
-# enter ?TADA_QualityControlActivity into the console for more information
-TADAProfileClean4 <- TADA_QualityControlActivity(TADAProfileClean3, clean = TRUE)
+```{r TADA_FindQualityControlData}
+# Remove all QC samples using the TADA_FindQualityControlData function:
+# enter ?TADA_FindQualityControlData into the console for more information
+TADAProfileClean4 <- TADA_FindQualityControlData(TADAProfileClean3, clean = TRUE)
 
 # See WQX domain file to review all the ActivityTypeCode allowable values:
 # https://cdx.epa.gov/wqx/download/DomainValues/ActivityType.CSV
@@ -894,7 +894,7 @@ elements:
 
 -   TADA.ResultMeasure.MeasureUnitCode
 
-The **TADA_HarmonizeData** function then compares the input dataframe to the
+The **TADA_HarmonizeSynonyms** function then compares the input dataframe to the
 TADA Harmonization Reference Table. The purpose of the function is to
 make similar data consistent and therefore easier to compare and
 analyze.
@@ -915,7 +915,7 @@ Optional outputs include:
 3.  the four fields converted with most Harmonization Reference Table
     columns appended. Default is transform = TRUE and flag = TRUE.
 
-Here are some examples of how the TADA_HarmonizeData function can be used:
+Here are some examples of how the TADA_HarmonizeSynonyms function can be used:
 
 1.  TADA.ResultSampleFractionText specifies forms of constituents. In
     some cases, a single \*TADA.CharacteristicName\*\* will have both
@@ -928,14 +928,14 @@ Here are some examples of how the TADA_HarmonizeData function can be used:
 
 2.  Some variables have different names but represent the same
     constituent (e.g., "Total Kjeldahl nitrogen (Organic N & NH3)" and
-    "Kjeldahl nitrogen"). The TADA_HarmonizeData function gives a consistent
+    "Kjeldahl nitrogen"). The TADA_HarmonizeSynonyms function gives a consistent
     name (and identifier) to synonyms.
 
-```{r TADA_HarmonizeData}
-UniqueHarmonizationRef <- TADA_HarmonizationRefTable(TADAProfileClean5,
+```{r TADA_HarmonizeSynonyms}
+UniqueHarmonizationRef <- TADA_GetSynonymRef(TADAProfileClean5,
                                                 download = FALSE)
 
-TADAProfileClean5 <- TADA_HarmonizeData(TADAProfileClean5,
+TADAProfileClean5 <- TADA_HarmonizeSynonyms(TADAProfileClean5,
                                     ref = UniqueHarmonizationRef,
                                     transform = TRUE,
                                     flag = TRUE)
