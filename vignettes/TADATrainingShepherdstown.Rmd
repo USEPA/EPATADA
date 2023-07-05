@@ -334,7 +334,7 @@ You can review any other columns of interest and create custom domain tables of 
 
 -   `?TADA_FlagMethod()`
 
--   `?TADA_QAPPapproved()`
+-   `?TADA_FindQAPPApproval()`
 
 -   `?TADA_QAPPDocAvailable()`
 

@@ -566,7 +566,7 @@ TADA_FlagResultBelowThreshold <- function(.data, clean = TRUE, errorsonly = FALS
 #' Some organizations submit data for this field to indicate if the data
 #' produced has an approved Quality Assurance Project Plan (QAPP) or not.
 #' Y indicates yes, N indicates no.  This function has three default inputs:
-#' clean = TRUE, cleanNA = FALSE, and errorsonly == FALSE. The default removes 
+#' clean = TRUE, cleanNA = FALSE, and errorsonly == FALSE. The default flags 
 #' rows of data where the QAPPApprovedIndicator equals "N". Users could 
 #' remove NA's in addition to N's using the inputs clean = TRUE, cleanNA = TRUE,
 #' and errorsonly = FALSE. If errorsonly = TRUE, the function will filter out all
@@ -618,24 +618,24 @@ TADA_FlagResultBelowThreshold <- function(.data, clean = TRUE, errorsonly = FALS
 #' data(Nutrients_Utah)
 #' 
 #' # Show data where the QAPPApprovedIndicator equals "Y" or "NA":
-#' QAPPapproved_clean <- TADA_QAPPapproved(Nutrients_Utah)
+#' QAPPapproved_clean <- TADA_FindQAPPApproval(Nutrients_Utah)
 #' 
 #' # Show only data where the QAPPApprovedIndicator equals "Y":
-#' QAPPapproved_cleanNAs <- TADA_QAPPapproved(Nutrients_Utah, cleanNA = TRUE)
+#' QAPPapproved_cleanNAs <- TADA_FindQAPPApproval(Nutrients_Utah, cleanNA = TRUE)
 #' 
 #' # Show data where the QAPPApprovedIndicator equals "N" or "NA":
-#' QAPPIndicator_N_NA <- TADA_QAPPapproved(Nutrients_Utah, clean = FALSE, 
+#' QAPPIndicator_N_NA <- TADA_FindQAPPApproval(Nutrients_Utah, clean = FALSE, 
 #' cleanNA = FALSE, errorsonly = TRUE)
 #' 
 #' # Show data where the QAPPApprovedIndicator equals "N":
-#' QAPPIndicator_N <- TADA_QAPPapproved(Nutrients_Utah, clean = FALSE, 
+#' QAPPIndicator_N <- TADA_FindQAPPApproval(Nutrients_Utah, clean = FALSE, 
 #' cleanNA = TRUE, errorsonly = TRUE)
 #'
 #' # Note: When clean = FALSE, cleanNA = FALSE, and errorsonly = FALSE, no data is removed
 #' # Note: When clean = TRUE, cleanNA = TRUE, and errorsonly = TRUE, an error message is returned
 #' 
 
-TADA_QAPPapproved <- function(.data, clean = TRUE, cleanNA = FALSE, errorsonly = FALSE) {
+TADA_FlagQAPPApproved <- function(.data, clean = FALSE, cleanNA = FALSE, errorsonly = FALSE) {
   # check .data is data.frame
   TADA_CheckType(.data, "data.frame", "Input object")
   # check clean is boolean

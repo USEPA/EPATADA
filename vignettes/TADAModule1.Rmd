@@ -583,7 +583,7 @@ TADAProfileClean3 <- TADA_FindPotentialDuplicates(TADAProfileClean3, dist_buffer
 
 ## Review QAPP information
 
-The **TADA_QAPPapproved** function checks data for an approved QAPP.
+The **TADA_FindQAPPApproval** function checks data for an approved QAPP.
 
 This function checks to see if there is any information in the column
 "QAPPApprovedIndicator". Some organizations submit data for this field
@@ -604,8 +604,8 @@ inputs clean = FALSE, cleanNA = FALSE, and errorsonly = TRUE.
 If clean = FALSE, cleanNA = FALSE, and errorsonly = FALSE, the function
 will not do anything.
 
-```{r QAPPapproved}
-TADAProfileClean3 <- TADA_QAPPapproved(TADAProfileClean3, clean = FALSE, cleanNA = FALSE)
+```{r TADA_FindQAPPApproval}
+TADAProfileClean3 <- TADA_FindQAPPApproval(TADAProfileClean3, clean = FALSE, cleanNA = FALSE)
 ```
 
 The **TADA_QAPPDocAvailable** function checks to see if a QAPP Doc is
