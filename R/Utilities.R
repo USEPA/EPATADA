@@ -81,7 +81,7 @@ utils::globalVariables(c("TADA.ResultValueAboveUpperThreshold.Flag", "ActivityId
 TADA_AutoClean <- function(.data) {
   
   # check .data is data.frame
-  checkType(.data, "data.frame", "Input object")
+  TADA_CheckType(.data, "data.frame", "Input object")
   
   # .data required columns
   required_cols <- c(
@@ -91,7 +91,7 @@ TADA_AutoClean <- function(.data) {
   ) 
   
   # check .data has required columns
-  checkColumns(.data, required_cols)
+  TADA_CheckColumns(.data, required_cols)
   
   # execute function after checks are passed
   
@@ -139,7 +139,7 @@ TADA_AutoClean <- function(.data) {
   
   # Identify detection limit data
   print("TADA_Autoclean: identifying detection limit data.")
-  .data <- idCensoredData(.data)
+  .data <- TADA_IDCensoredData(.data)
   
   # change latitude and longitude measures to class numeric
   .data$TADA.LatitudeMeasure <- as.numeric(.data$LatitudeMeasure)
@@ -158,7 +158,7 @@ TADA_AutoClean <- function(.data) {
   .data$TADA.ResultMeasure.MeasureUnitCode[.data$TADA.ResultMeasure.MeasureUnitCode == 'meters'] <- 'm'
   
   # create comparable data identifier column
-  .data = createComparableId(.data)
+  .data = TADA_CreateComparableID(.data)
   
   print("NOTE: This version of the TADA package is designed to work with quantitative (numeric) data with media name: 'WATER'. TADA_AutoClean does not currently remove (filter) data with non-water media types. If desired, the user must make this specification on their own outside of package functions. Example: dplyr::filter(.data, TADA.ActivityMediaName == 'WATER')")
 
@@ -169,7 +169,7 @@ TADA_AutoClean <- function(.data) {
 
 
 
-#' decimalplaces
+#' Decimal Places
 #'
 #' for numeric data type
 #'
@@ -178,7 +178,7 @@ TADA_AutoClean <- function(.data) {
 #' @return Number of values to the right of the decimal point for numeric type data.
 #'
 
-decimalplaces <- function(x) {
+TADA_DecimalPlaces <- function(x) {
   if (abs(x - round(x)) > .Machine$double.eps^0.5) {
     nchar(strsplit(sub("0+$", "", as.character(x)), ".", fixed = TRUE)[[1]][[2]])
   } else {
@@ -199,7 +199,7 @@ decimalplaces <- function(x) {
 #' @param paramName Optional name for argument to use in error message
 #'
 
-checkType <- function(arg, type, paramName) {
+TADA_CheckType <- function(arg, type, paramName) {
   if ((type %in% class(arg)) == FALSE) {
     # if optional parameter name not specified use arg in errorMessage
     if (missing(paramName)) {
@@ -224,7 +224,7 @@ checkType <- function(arg, type, paramName) {
 #' @param expected_cols A vector of expected column names as strings
 #'
 
-checkColumns <- function(.data, expected_cols) {
+TADA_CheckColumns <- function(.data, expected_cols) {
   if (all(expected_cols %in% colnames(.data)) == FALSE) {
     stop("The dataframe does not contain the required fields to use TADA. Use either the full physical/chemical profile downloaded from WQP or download the TADA profile template available on the EPA TADA webpage.")
   }
@@ -559,8 +559,8 @@ TADA_OrderCols <- function(.data){
 #' @export
 #' 
 
-createComparableId <- function(.data){
-  checkColumns(.data, expected_cols = c("TADA.CharacteristicName", "TADA.ResultSampleFractionText", "TADA.MethodSpecificationName","TADA.ResultMeasure.MeasureUnitCode"))
+TADA_CreateComparableID <- function(.data){
+  TADA_CheckColumns(.data, expected_cols = c("TADA.CharacteristicName", "TADA.ResultSampleFractionText", "TADA.MethodSpecificationName","TADA.ResultMeasure.MeasureUnitCode"))
   .data$TADA.ComparableDataIdentifier = paste(.data$TADA.CharacteristicName,.data$TADA.ResultSampleFractionText, .data$TADA.MethodSpecificationName, .data$TADA.ResultMeasure.MeasureUnitCode,sep = "_")
   return(.data)
 }
@@ -578,7 +578,7 @@ createComparableId <- function(.data){
 #' @export
 #' 
 
-getTADATemplate <- function(){
+TADA_GetTemplate <- function(){
   colsreq = names(TADA::Nutrients_Utah)[!grepl("TADA.",names(TADA::Nutrients_Utah))]
   writexl::write_xlsx(TADA::Nutrients_Utah[1,colsreq], path = "TADATemplate.xlsx")
 }
@@ -595,15 +595,15 @@ getTADATemplate <- function(){
 #'
 #' @export
 
-TADA_NearbySites <- function(.data, dist_buffer=100){
+TADA_FindNearbySites <- function(.data, dist_buffer=100){
   
   # check .data is data.frame
-  checkType(.data, "data.frame", "Input object")
+  TADA_CheckType(.data, "data.frame", "Input object")
   
   # .data required columns
   required_cols <- c("MonitoringLocationIdentifier","TADA.LongitudeMeasure","TADA.LatitudeMeasure")
   # check .data has required columns
-  checkColumns(.data, required_cols)
+  TADA_CheckColumns(.data, required_cols)
   
   # create spatial dataset based on sites
   data_sf = unique(.data[,c("MonitoringLocationIdentifier","TADA.LongitudeMeasure","TADA.LatitudeMeasure")])

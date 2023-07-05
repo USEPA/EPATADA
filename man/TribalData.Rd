@@ -12,7 +12,7 @@ data(TribalData)
 }
 \description{
 Original pull:
-TribalData <- TADAdataRetrieval(organization = c("REDLAKE_WQX",
+TribalData <- TADA_DataRetrieval(organization = c("REDLAKE_WQX",
 "SFNOES_WQX",
 "PUEBLO_POJOAQUE",
 "FONDULAC_WQX",

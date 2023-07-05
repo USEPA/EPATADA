@@ -22,18 +22,18 @@
 #' # down to one Comparable Data Identifier
 #' 
 #' # Create boxplot:
-#' TADA_boxplot(TADAProfileCleanTP, id_col = "TADA.ComparableDataIdentifier")
+#' TADA_Boxplot(TADAProfileCleanTP, id_col = "TADA.ComparableDataIdentifier")
 #' 
 
-TADA_boxplot <- function(filtered.data, id_col = c("TADA.CharacteristicName", "TADA.ComparableDataIdentifier")) {
+TADA_Boxplot <- function(filtered.data, id_col = c("TADA.CharacteristicName", "TADA.ComparableDataIdentifier")) {
   # check .data is data.frame
-  checkType(filtered.data, "data.frame", "Input object")
+  TADA_CheckType(filtered.data, "data.frame", "Input object")
   # check id_col matches one of the options
   id_col <- match.arg(id_col)
   # check .data has required columns
-  checkColumns(filtered.data, id_col)
+  TADA_CheckColumns(filtered.data, id_col)
   # check .data has required columns
-  checkColumns(filtered.data, c("TADA.ResultMeasureValue", "TADA.ResultMeasure.MeasureUnitCode"))
+  TADA_CheckColumns(filtered.data, c("TADA.ResultMeasureValue", "TADA.ResultMeasure.MeasureUnitCode"))
   # check id_col is filtered to one characteristic or identifier
   if (length(unique(filtered.data[,id_col])) > 1) {
     stop(paste0(id_col, " field contains more than one unique value. Boxplot function cannot run with more than 1 unique characteristic or comparable data identifier. Please filter dataframe and rerun function."))
@@ -124,16 +124,16 @@ TADA_boxplot <- function(filtered.data, id_col = c("TADA.CharacteristicName", "T
 #' # down to one Comparable Data Identifier
 #' 
 #' # Create histogram:
-#' TADA_hist(TADAProfileCleanTP, id_col = "TADA.ComparableDataIdentifier")
+#' TADA_Histogram(TADAProfileCleanTP, id_col = "TADA.ComparableDataIdentifier")
 
-TADA_hist <- function(filtered.data, id_col = c("TADA.CharacteristicName", "TADA.ComparableDataIdentifier")) {
+TADA_Histogram <- function(filtered.data, id_col = c("TADA.CharacteristicName", "TADA.ComparableDataIdentifier")) {
   # check .data is data.frame
-  checkType(filtered.data, "data.frame", "Input object")
+  TADA_CheckType(filtered.data, "data.frame", "Input object")
   # check id_col matches one of the options
   id_col <- match.arg(id_col)
   # check .data has required columns
-  checkColumns(filtered.data, id_col)
-  checkColumns(filtered.data, c("TADA.ResultMeasureValue", "TADA.ResultMeasure.MeasureUnitCode"))
+  TADA_CheckColumns(filtered.data, id_col)
+  TADA_CheckColumns(filtered.data, c("TADA.ResultMeasureValue", "TADA.ResultMeasure.MeasureUnitCode"))
   # check id_col is filtered to one characteristic or identifier
   if (length(unique(filtered.data[,id_col])) > 1) {
     stop(paste0(id_col, " field contains more than one unique value. Histogram function cannot run with more than 1 unique characteristic or comparable data identifier. Please filter dataframe and rerun function."))
@@ -225,10 +225,10 @@ TADA_hist <- function(filtered.data, id_col = c("TADA.CharacteristicName", "TADA
 #' data("Nutrients_Utah.rda")
 #' 
 #' # Create map:
-#' TADAOverviewMap(Nutrients_Utah)
+#' TADA_OverviewMap(Nutrients_Utah)
 #' 
 
-TADAOverviewMap <- function(.data){
+TADA_OverviewMap <- function(.data){
   suppressWarnings({
     
     # taken from this stackoverflow: https://stackoverflow.com/questions/58505589/circles-in-legend-for-leaflet-map-with-addcirclemarkers-in-r-without-shiny
@@ -294,13 +294,13 @@ TADAOverviewMap <- function(.data){
 #' 
 #' # Create a list of parameters in the dataset and the number of records of
 #' # each parameter: 
-#' fieldValuesPie(Nutrients_Utah, field = "TADA.CharacteristicName")
+#' TADA_FieldValuesPie(Nutrients_Utah, field = "TADA.CharacteristicName")
 #' 
 
 
-fieldValuesPie <- function(.data,field="null",characteristicName="null"){
+TADA_FieldValuesPie <- function(.data,field="null",characteristicName="null"){
   
-  dat = fieldValuesTable(.data = .data, field = field, characteristicName = characteristicName)
+  dat = TADA_FieldValuesTable(.data = .data, field = field, characteristicName = characteristicName)
 
   dat$Legend = paste0(dat$Value, " - ", dat$Count, " results")
   

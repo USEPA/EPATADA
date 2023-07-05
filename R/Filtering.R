@@ -16,13 +16,13 @@
 #' # Load example dataset:
 #' data(Nutrients_Utah)
 #' # Count table of key fields in Nutrients_Utah dataset
-#' fieldCountUT <- fieldCounts(Nutrients_Utah)
+#' fieldCountUT <- TADA_FieldCounts(Nutrients_Utah)
 #' # Count table of most fields in Nutrients_Utah, filtered to only AMMONIA results.
-#' fieldCountUTAmmonia <- fieldCounts(Nutrients_Utah, display = "most", characteristicName = "AMMONIA")
+#' fieldCountUTAmmonia <- TADA_FieldCounts(Nutrients_Utah, display = "most", characteristicName = "AMMONIA")
 
-fieldCounts <- function(.data, display = c("key","most", "all"), characteristicName = "null"){
+TADA_FieldCounts <- function(.data, display = c("key","most", "all"), characteristicName = "null"){
   # check .data is data.frame
-  checkType(.data, "data.frame", "Input object")
+  TADA_CheckType(.data, "data.frame", "Input object")
 
   display = match.arg(display)
 
@@ -205,14 +205,14 @@ fieldCounts <- function(.data, display = c("key","most", "all"), characteristicN
 #'
 #' # Create a list of parameters in the dataset and the number of records of
 #' # each parameter:
-#' fieldValuesTable(Nutrients_Utah, field = "TADA.CharacteristicName")
+#' TADA_FieldValuesTable(Nutrients_Utah, field = "TADA.CharacteristicName")
 #'
 
 
-fieldValuesTable <- function(.data,field="null",characteristicName="null"){
+TADA_FieldValuesTable <- function(.data,field="null",characteristicName="null"){
 
   # check .data is data.frame
-  checkType(.data, "data.frame", "Input object")
+  TADA_CheckType(.data, "data.frame", "Input object")
 
   if(!field%in%names(.data)){
     stop("Field input does not exist in dataset. Please populate the 'field' argument with a valid field name. Enter ?TADA::filterPie in console for more information.")

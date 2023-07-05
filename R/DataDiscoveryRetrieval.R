@@ -23,11 +23,11 @@
 #' to find allowable values for queries, e.g., reference the WQX domain table to find countycode and statecode: https://cdx.epa.gov/wqx/download/DomainValues/County_CSV.zip
 #' Alternatively, you can use the WQP services to find areas where data is available in the US: https://www.waterqualitydata.us/Codes/countycode
 #'
-#' TADAdataRetrieval automatically runs TADA_AutoClean on the incoming dataset. TADA_AutoClean
+#' TADA_DataRetrieval automatically runs TADA_AutoClean on the incoming dataset. TADA_AutoClean
 #' is important for categorizing result value and detection limit data, as well as 
 #' harmonizing key columns used in TADA. See ?TADA_AutoClean for more information.
 #'
-#' Note: TADAdataRetrieval (by leveraging dataRetrieval),  automatically converts
+#' Note: TADA_DataRetrieval (by leveraging dataRetrieval),  automatically converts
 #' the date times to UTC. It also automatically converts the data to dates,
 #' datetimes, numerics based on a standard algorithm. See: ?dataRetrieval::readWQPdata
 #'
@@ -51,33 +51,33 @@
 #'
 #' @examples
 #' \dontrun{
-#' tada1 <- TADAdataRetrieval(statecode = "WI", countycode = "Dane", characteristicName = "Phosphorus")
+#' tada1 <- TADA_DataRetrieval(statecode = "WI", countycode = "Dane", characteristicName = "Phosphorus")
 #'
-#' tada2 <- TADAdataRetrieval(project = "Anchorage Bacteria 20-21")
+#' tada2 <- TADA_DataRetrieval(project = "Anchorage Bacteria 20-21")
 #' 
-#' tada3 <- TADAdataRetrieval(statecode = "UT", characteristicName = c("Ammonia", "Nitrate", "Nitrogen")) 
+#' tada3 <- TADA_DataRetrieval(statecode = "UT", characteristicName = c("Ammonia", "Nitrate", "Nitrogen")) 
 #'
-#' tada4 <- TADAdataRetrieval(statecode = "SC", countycode  = "Abbeville")
+#' tada4 <- TADA_DataRetrieval(statecode = "SC", countycode  = "Abbeville")
 #' 
 #' # example for CT
-#' tada5 <- TADAdataRetrieval(statecode = "CT", startDate = "2020-10-01")
+#' tada5 <- TADA_DataRetrieval(statecode = "CT", startDate = "2020-10-01")
 #' 
 #'
 #' # note that countycode queries require a statecode (see example below)
-#' tada6 <- TADAdataRetrieval(countycode = "US:02:020")
+#' tada6 <- TADA_DataRetrieval(countycode = "US:02:020")
 #' 
 #' # example for NM
-#' tada7 <- TADAdataRetrieval(statecode = "NM", 
+#' tada7 <- TADA_DataRetrieval(statecode = "NM", 
 #'                            characteristicName = c("Ammonia",
 #'                                                   "Nitrate", 
 #'                                                   "Nitrogen"), 
 #'                            startDate = "2020-05-01")
 #'                            
 #' # example for AK
-#' tada8 <- TADAdataRetrieval(project = "Anchorage Bacteria 20-21")
+#' tada8 <- TADA_DataRetrieval(project = "Anchorage Bacteria 20-21")
 #' 
 #' # another example for AK
-#' tada9 <- TADAdataRetrieval(statecode = "AK", 
+#' tada9 <- TADA_DataRetrieval(statecode = "AK", 
 #'                            characteristicName = c("Fecal Coliform",
 #'                                                   "Escherichia coli",
 #'                                                   "Enterococcus", 
@@ -110,7 +110,7 @@
 #' # Wyandotte Nation "WNENVDPT_WQX"
 #' # Pueblo of Pojoaque "PUEBLO_POJOAQUE"
 #' 
-#' tada10 <- TADAdataRetrieval(organization = c("SFNOES_WQX",
+#' tada10 <- TADA_DataRetrieval(organization = c("SFNOES_WQX",
 #'                                              "CPNWATER",
 #'                                              "DELAWARENATION",
 #'                                              "HVTEPA_WQX",
@@ -128,7 +128,7 @@
 #' }
 #'
 
-TADAdataRetrieval <- function(startDate = "null",
+TADA_DataRetrieval <- function(startDate = "null",
                               endDate = "null",
                               countycode = "null",
                               huc = "null",
@@ -249,7 +249,7 @@ TADAdataRetrieval <- function(startDate = "null",
                                               ignore_attributes = TRUE,
                                               service = "Project")
 
-    TADAprofile = JoinWQPProfiles(FullPhysChem = results.DR,
+    TADAprofile = TADA_JoinWQPProfiles(FullPhysChem = results.DR,
                                   Sites = sites.DR,
                                   Narrow = narrow.DR,
                                   Projects = projects.DR)
@@ -306,7 +306,7 @@ TADAdataRetrieval <- function(startDate = "null",
 #' 3. Project Data
 #' 4. Site Data Only
 #'
-#' After you retrieve all four profiles, you can use TADA::JoinWQPProfiles to
+#' After you retrieve all four profiles, you can use TADA::TADA_JoinWQPProfiles to
 #' joining the four dataframes into a single dataframe.
 #'
 #' Note: It may be useful to save the Query URL from the WQP as well as a
@@ -318,7 +318,7 @@ TADAdataRetrieval <- function(startDate = "null",
 #' **Extra tip:** Note that the web service call built using the Water
 #' Quality Portal uses the inputs startDateLo and startDateHi rather than
 #' startDate and endDate, and dates are in the format MM-DD-YYYY rather
-#' than the TADAdataRetrieval and dataRetrieval format of YYYY-MM-DD. The
+#' than the TADA_DataRetrieval and dataRetrieval format of YYYY-MM-DD. The
 #' functions use the latter format rather than the web service call date
 #' format because YYYY-MM-DD is a more easily utilized format in the R
 #' coding environment. However, users of USGS's dataRetrieval may use the
@@ -334,14 +334,14 @@ TADAdataRetrieval <- function(startDate = "null",
 #'
 #' @examples
 #' \dontrun{
-#' physchemresults1 <- TADAReadWQPWebServices("https://www.waterqualitydata.us/data/Result/search?statecode=US%3A09&sampleMedia=water&sampleMedia=Water&startDateLo=01-01-2021&mimeType=csv&zip=yes&dataProfile=biological&providers=NWIS&providers=STEWARDS&providers=STORET")
-#' sites1 <- TADAReadWQPWebServices("https://www.waterqualitydata.us/data/Station/search?statecode=US%3A09&sampleMedia=water&sampleMedia=Water&startDateLo=01-01-2021&mimeType=csv&zip=yes&providers=NWIS&providers=STEWARDS&providers=STORET")
-#' projects1 <- TADAReadWQPWebServices("https://www.waterqualitydata.us/data/Project/search?statecode=US%3A09&sampleMedia=water&sampleMedia=Water&startDateLo=01-01-2021&mimeType=csv&zip=yes&providers=NWIS&providers=STEWARDS&providers=STORET")
-#' narrow1 <- TADAReadWQPWebServices("https://www.waterqualitydata.us/data/Result/search?statecode=US%3A09&sampleMedia=water&sampleMedia=Water&startDateLo=01-01-2021&mimeType=csv&zip=yes&dataProfile=narrowResult&providers=NWIS&providers=STEWARDS&providers=STORET")
+#' physchemresults1 <- TADA_ReadWQPWebServices("https://www.waterqualitydata.us/data/Result/search?statecode=US%3A09&sampleMedia=water&sampleMedia=Water&startDateLo=01-01-2021&mimeType=csv&zip=yes&dataProfile=biological&providers=NWIS&providers=STEWARDS&providers=STORET")
+#' sites1 <- TADA_ReadWQPWebServices("https://www.waterqualitydata.us/data/Station/search?statecode=US%3A09&sampleMedia=water&sampleMedia=Water&startDateLo=01-01-2021&mimeType=csv&zip=yes&providers=NWIS&providers=STEWARDS&providers=STORET")
+#' projects1 <- TADA_ReadWQPWebServices("https://www.waterqualitydata.us/data/Project/search?statecode=US%3A09&sampleMedia=water&sampleMedia=Water&startDateLo=01-01-2021&mimeType=csv&zip=yes&providers=NWIS&providers=STEWARDS&providers=STORET")
+#' narrow1 <- TADA_ReadWQPWebServices("https://www.waterqualitydata.us/data/Result/search?statecode=US%3A09&sampleMedia=water&sampleMedia=Water&startDateLo=01-01-2021&mimeType=csv&zip=yes&dataProfile=narrowResult&providers=NWIS&providers=STEWARDS&providers=STORET")
 #' }
 #'
 
-TADAReadWQPWebServices <- function(webservice) {
+TADA_ReadWQPWebServices <- function(webservice) {
   #consider function dataRetrieval::getWebServiceData
   # read in csv from WQP web service
   if (grepl("zip=yes", webservice)) {
@@ -382,7 +382,7 @@ TADAReadWQPWebServices <- function(webservice) {
 #'
 #' See ?TADA_AutoClean documentation for more information on this optional input.
 #'
-#' Note: TADABigdataRetrieval (by leveraging USGS's dataRetrieval),  automatically converts
+#' Note: TADA_BigDataRetrieval (by leveraging USGS's dataRetrieval),  automatically converts
 #' the date times to UTC. It also automatically converts the data to dates,
 #' datetimes, numerics based on a standard algorithm. See: ?dataRetrieval::readWQPdata
 #'
@@ -404,14 +404,14 @@ TADAReadWQPWebServices <- function(webservice) {
 #'
 #' @examples
 #' \dontrun{
-#' tada1 <- TADABigdataRetrieval(startDate = "2019-01-01", endDate = "2021-12-31", characteristicName = "Temperature, water", statecode = c("AK","AL"))
-#' tada2 <- TADABigdataRetrieval(startDate = "2016-10-01",endDate = "2022-09-30", statecode = "UT")
-#' tada3 = TADABigdataRetrieval(huc = "04030202", characteristicName = "Escherichia coli")
-#' tada4 = TADABigdataRetrieval(huc = c("04030202","04030201"), characteristicName = "Temperature, water")
+#' tada1 <- TADA_BigDataRetrieval(startDate = "2019-01-01", endDate = "2021-12-31", characteristicName = "Temperature, water", statecode = c("AK","AL"))
+#' tada2 <- TADA_BigDataRetrieval(startDate = "2016-10-01",endDate = "2022-09-30", statecode = "UT")
+#' tada3 = TADA_BigDataRetrieval(huc = "04030202", characteristicName = "Escherichia coli")
+#' tada4 = TADA_BigDataRetrieval(huc = c("04030202","04030201"), characteristicName = "Temperature, water")
 #' }
 #'
 
-TADABigdataRetrieval <- function(startDate = "null",
+TADA_BigDataRetrieval <- function(startDate = "null",
                                  endDate = "null",
                                  huc = "null",
                                  siteid = "null",
@@ -560,7 +560,7 @@ TADABigdataRetrieval <- function(startDate = "null",
           
           for(i in 1:max(smallsitesgrp$group)){
             site_chunk = subset(smallsitesgrp$MonitoringLocationIdentifier, smallsitesgrp$group==i)
-            joins = TADA::TADAdataRetrieval(startDate = startDate,
+            joins = TADA::TADA_DataRetrieval(startDate = startDate,
                                             endDate = endDate,
                                             siteid = site_chunk,
                                             characteristicName = characteristicName,
@@ -594,7 +594,7 @@ TADABigdataRetrieval <- function(startDate = "null",
                 startD = paste0(min(yearchunk),"-01-01")
                 endD = paste0(max(yearchunk),"-12-31")
                 
-                joins = TADA::TADAdataRetrieval(startDate = startD,
+                joins = TADA::TADA_DataRetrieval(startDate = startD,
                                                 endDate = endD,
                                                 siteid = site_chunk,
                                                 characteristicName = characteristicName,
@@ -651,10 +651,10 @@ TADABigdataRetrieval <- function(startDate = "null",
 #' @export
 #'
 #' @examples
-#' join = TADA::JoinWQPProfiles(FullPhysChem = resultphyschem, Sites = station, Narrow = narrow)
+#' join = TADA::TADA_JoinWQPProfiles(FullPhysChem = resultphyschem, Sites = station, Narrow = narrow)
 #'
 
-JoinWQPProfiles <- function(FullPhysChem = "null",
+TADA_JoinWQPProfiles <- function(FullPhysChem = "null",
                             Sites = "null",
                             Narrow = "null",
                             Projects = "null"

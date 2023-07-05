@@ -60,9 +60,9 @@
 
 TADA_ConvertResultUnits <- function(.data, transform = TRUE) {
   # check .data is data.frame
-  checkType(.data, "data.frame", "Input object")
+  TADA_CheckType(.data, "data.frame", "Input object")
   # check transform is boolean
-  checkType(transform, "logical")
+  TADA_CheckType(transform, "logical")
   # check .data has all of the required columns
   
   expected_cols <- c(
@@ -72,12 +72,12 @@ TADA_ConvertResultUnits <- function(.data, transform = TRUE) {
     "TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode"
   )
   
-  checkColumns(.data, expected_cols)
+  TADA_CheckColumns(.data, expected_cols)
   
   # execute function after checks are passed
   
   # filter WQXcharValRef to include only valid CharacteristicUnit in water media
-  unit.ref <- GetWQXCharValRef() %>%
+  unit.ref <- TADA_GetWQXCharValRef() %>%
     dplyr::filter(Type == "CharacteristicUnit" & Source == "WATER" &
                     Status == "Valid")
   # join unit.ref to .data
@@ -165,7 +165,7 @@ TADA_ConvertResultUnits <- function(.data, transform = TRUE) {
       dplyr::select(-c("WQX.ConversionFactor", "WQX.TargetUnit"))
     
     # create new comparable data identifier column following conversion
-    clean.data = createComparableId(clean.data)
+    clean.data = TADA_CreateComparableID(clean.data)
 
   }
   # reorder cols
@@ -260,9 +260,9 @@ TADA_ConvertDepthUnits <- function(.data,
                                          "ResultDepthHeightMeasure"),
                               transform = TRUE) {
   # check .data is data.frame
-  checkType(.data, "data.frame", "Input object")
+  TADA_CheckType(.data, "data.frame", "Input object")
   # check unit is character
-  checkType(unit, "character")
+  TADA_CheckType(unit, "character")
   # check unit argument for valid number of inputs (e.g., vector of character)
   if (length(unit) != 1) {
     stop("Invalid 'unit' argument. 'unit' accepts only one allowable value as an
@@ -284,7 +284,7 @@ TADA_ConvertDepthUnits <- function(.data,
     'ActivityBottomDepthHeightMeasure,' and/or 'ResultDepthHeightMeasure.'")
   }
   # check transform is boolean
-  checkType(transform, "logical")
+  TADA_CheckType(transform, "logical")
   
   # .data required columns
   expected_cols <-c(
@@ -297,7 +297,7 @@ TADA_ConvertDepthUnits <- function(.data,
     "ResultDepthHeightMeasure.MeasureValue",
     "ResultDepthHeightMeasure.MeasureUnitCode"
   )
-  checkColumns(.data, expected_cols)
+  TADA_CheckColumns(.data, expected_cols)
   
   tadacols = c("TADA.ActivityDepthHeightMeasure.MeasureValue",
                "TADA.ActivityDepthHeightMeasure.MeasureUnitCode",
@@ -326,7 +326,7 @@ TADA_ConvertDepthUnits <- function(.data,
                "WQXConversionFactor.ResultDepthHeightMeasure")
   
   # read in unit conversion reference table from extdata
-  unit.ref <- GetMeasureUnitRef()
+  unit.ref <- TADA_GetMeasureUnitRef()
   
   # subset to include only "Length Distance" units; filter by target unit defined in 'unit' argument
   unit.ref <- unit.ref %>%

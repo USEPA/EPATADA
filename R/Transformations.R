@@ -20,20 +20,20 @@
 #' data(Nutrients_Utah)
 #' 
 #' # Create a harmonization reference table for dataframe:
-#' CreateRefTable <- HarmonizationRefTable(Nutrients_Utah)
+#' CreateRefTable <- TADA_GetSynonymRef(Nutrients_Utah)
 #' 
 #' # Create and download (to your working directory) a harmonization reference
 #' # table for dataframe: 
 #' \dontrun{
-#' DownloadRefTable <- HarmonizationRefTable(Nutrients_Utah, download = TRUE)
+#' DownloadRefTable <- TADA_GetSynonymRef(Nutrients_Utah, download = TRUE)
 #' }
 #' 
 
-HarmonizationRefTable <- function(.data, download = FALSE) {
+TADA_GetSynonymRef <- function(.data, download = FALSE) {
   # check .data is data.frame
-  checkType(.data, "data.frame", "Input object")
+  TADA_CheckType(.data, "data.frame", "Input object")
   # check download is boolean
-  checkType(download, "logical")
+  TADA_CheckType(download, "logical")
   
   # check .data has the required columns
   expected_cols <- c(
@@ -41,7 +41,7 @@ HarmonizationRefTable <- function(.data, download = FALSE) {
     "TADA.MethodSpecificationName",
     "TADA.ResultMeasure.MeasureUnitCode"
     )
-  checkColumns(.data, expected_cols)
+  TADA_CheckColumns(.data, expected_cols)
   
   # execute function after checks are passed
   # define raw harmonization table as an object
@@ -98,8 +98,6 @@ HarmonizationRefTable <- function(.data, download = FALSE) {
   return(unique.data)
 }
 
-
-
 #' Transform CharacteristicName, ResultSampleFractionText, MethodSpecificationName, 
 #' and ResultMeasure.MeasureUnitCode values to TADA standards.
 #'
@@ -140,35 +138,35 @@ HarmonizationRefTable <- function(.data, download = FALSE) {
 #' 
 #' # Append harmonization reference table columns to dataframe and transform/convert
 #' # data to the reference table values:
-#' Nutrients_Harmonized <- HarmonizeData(Nutrients_Utah)
+#' Nutrients_Harmonized <- TADA_HarmonizeSynonyms(Nutrients_Utah)
 #' 
 #' # Transform/convert data to the harmonization reference table values, but
 #' # do not append any columns to dataframe:
-#' Nutrients_Harmonized_noflags <- HarmonizeData(Nutrients_Utah, flag = FALSE)
+#' Nutrients_Harmonized_noflags <- TADA_HarmonizeSynonyms(Nutrients_Utah, flag = FALSE)
 #' 
 #' # Append harmonization reference table columns to dataframe, but do not
 #' # transform/convert data to the reference table values:
-#' Nutrients_NotHarmonized <- HarmonizeData(Nutrients_Utah, transform = FALSE)
+#' Nutrients_NotHarmonized <- TADA_HarmonizeSynonyms(Nutrients_Utah, transform = FALSE)
 #' 
 #' # Append harmonization reference table columns to dataframe and transform/convert
 #' # data to the USER SUPPLIED reference table values:
-#' UniqueHarmonizationRef <- HarmonizationRefTable(Nutrients_Utah, download = FALSE)
-#' Nutrients_Harmonized_UserSuppliedRef <- HarmonizeData(Nutrients_Utah, ref = UniqueHarmonizationRef)
+#' UniqueHarmonizationRef <- TADA_GetSynonymRef(Nutrients_Utah, download = FALSE)
+#' Nutrients_Harmonized_UserSuppliedRef <- TADA_HarmonizeSynonyms(Nutrients_Utah, ref = UniqueHarmonizationRef)
 
-HarmonizeData <- function(.data, ref, transform = TRUE, flag = TRUE) {
+TADA_HarmonizeSynonyms <- function(.data, ref, transform = TRUE, flag = TRUE) {
   # check .data is data.frame
-  checkType(.data, "data.frame", "Input object")
+  TADA_CheckType(.data, "data.frame", "Input object")
   # check transform is boolean
-  checkType(transform, "logical")
+  TADA_CheckType(transform, "logical")
   # check flag is boolean
-  checkType(flag, "logical")
+  TADA_CheckType(flag, "logical")
 
   # check .data has the required columns
   expected_cols <- c(
     "TADA.CharacteristicName", "TADA.ResultSampleFractionText",
     "TADA.MethodSpecificationName", "TADA.ResultMeasure.MeasureUnitCode"
     )
-  checkColumns(.data, expected_cols)
+  TADA_CheckColumns(.data, expected_cols)
   
   # additional columns that may be in harmonization ref
   # columns to keep from .data if exist
@@ -208,10 +206,10 @@ HarmonizeData <- function(.data, ref, transform = TRUE, flag = TRUE) {
     if (!missing(ref)) {
       
       # check ref is data.frame
-      checkType(ref, "data.frame")
+      TADA_CheckType(ref, "data.frame")
       
       # check ref has all of the required columns      
-      checkColumns(ref, expected_ref_cols)      
+      TADA_CheckColumns(ref, expected_ref_cols)      
       
       harm.ref <- ref
       
@@ -220,7 +218,7 @@ HarmonizeData <- function(.data, ref, transform = TRUE, flag = TRUE) {
     # if input for ref does not exist, use raw harmonization template
     if (missing(ref)) {
       # use output of HarmonizationRefTable which uses the TADA HarmonizationTemplate.csv in the extdata folder
-      harm.ref <- HarmonizationRefTable(.data, download=FALSE)
+      harm.ref <- TADA_GetSynonymRef(.data, download=FALSE)
     }
     
     .data = .data[,!names(.data)%in%c("TADA.ComparableDataIdentifier")]

@@ -4,7 +4,7 @@
 #' from Jan. 2000 to July 2022. This dataset can be reproduced 
 #' with the following TADABigdataRetrieval call: 
 #' 
-#' AllWaterTempData <- TADABigdataRetrieval(startDate = "2000-01-01", 
+#' AllWaterTempData <- TADA_BigDataRetrieval(startDate = "2000-01-01", 
 #' endDate = "2022-07-01", 
 #' characteristicName = "Temperature, water",
 #' siteType = "Lake, Reservoir, Impoundment")
@@ -20,7 +20,7 @@ NULL
 #'
 #' A dataset containing Ammonia, Nitrate, and Nitrogen data from Utah:
 #'  
-#' Nutrients_Utah <- TADAdataRetrieval(statecode = "UT",
+#' Nutrients_Utah <- TADA_DataRetrieval(statecode = "UT",
 #' characteristicName = c("Ammonia", "Nitrate", "Nitrogen"),
 #' startDate = "2020-10-01",
 #' endDate = "2022-09-30")
@@ -83,7 +83,7 @@ NULL
 #' Tribal Data
 #'
 #' Original pull:  
-#' TribalData <- TADAdataRetrieval(organization = c("REDLAKE_WQX", 
+#' TribalData <- TADA_DataRetrieval(organization = c("REDLAKE_WQX", 
 #'                                                  "SFNOES_WQX", 
 #'                                                  "PUEBLO_POJOAQUE",
 #'                                                  "FONDULAC_WQX",
@@ -111,7 +111,7 @@ NULL
 #' Shepherdstown 2023 Training Dataset
 #'
 #' #' Original pull:  
-#' NCTCShepherdstown_HUC12 = TADA::TADAdataRetrieval(
+#' NCTCShepherdstown_HUC12 = TADA::TADA_DataRetrieval(
 #'   startDate = "2020-03-14",
 #'   endDate = "null",
 #'   countycode = "null",
