@@ -292,18 +292,18 @@ TADA_FindContinuousData <- function(.data, clean = TRUE, errorsonly = FALSE) {
 #' data(Nutrients_Utah)
 #' 
 #' # Remove data that is above the upper WQX threshold from dataframe:
-#' WQXUpperThreshold_clean <- TADA_FlagResultAboveThreshold(Nutrients_Utah)
+#' WQXUpperThreshold_clean <- TADA_FlagAboveThreshold(Nutrients_Utah)
 #' 
 #' # Flag, but do not remove, data that is above the upper WQX threshold in
 #' # new column titled "TADA.ResultValueAboveUpperThreshold.Flag":
-#' WQXUpperThreshold_flags <- TADA_FlagResultAboveThreshold(Nutrients_Utah, clean = FALSE)
+#' WQXUpperThreshold_flags <- TADA_FlagAboveThreshold(Nutrients_Utah, clean = FALSE)
 #' 
 #' # Show only data flagged as above the upper WQX threshold:
-#' WQXUpperThreshold_flagsonly <- TADA_FlagResultAboveThreshold(Nutrients_Utah, 
+#' WQXUpperThreshold_flagsonly <- TADA_FlagAboveThreshold(Nutrients_Utah, 
 #' clean = FALSE, errorsonly = TRUE)
 #' 
 
-TADA_FlagResultAboveThreshold <- function(.data, clean = TRUE, errorsonly = FALSE) {
+TADA_FlagAboveThreshold <- function(.data, clean = TRUE, errorsonly = FALSE) {
   # check .data is data.frame
   TADA_CheckType(.data, "data.frame", "Input object")
   # check clean is boolean
@@ -445,18 +445,18 @@ TADA_FlagResultAboveThreshold <- function(.data, clean = TRUE, errorsonly = FALS
 #' data(Nutrients_Utah)
 #' 
 #' # Remove data that is below the lower WQX threshold from the dataframe:
-#' WQXLowerThreshold_clean <- TADA_FlagResultBelowThreshold(Nutrients_Utah)
+#' WQXLowerThreshold_clean <- TADA_FlagBelowThreshold(Nutrients_Utah)
 #' 
 #' # Flag, but do not remove, data that is below the lower WQX threshold in
 #' # new column titled "TADA.ResultValueBelowLowerThreshold.Flag":
-#' WQXLowerThreshold_flags <- TADA_FlagResultBelowThreshold(Nutrients_Utah, clean = FALSE)
+#' WQXLowerThreshold_flags <- TADA_FlagBelowThreshold(Nutrients_Utah, clean = FALSE)
 #' 
 #' # Show only data that is below the lower WQX threshold:
-#' WQXLowerThreshold_flagsonly <- TADA_FlagResultBelowThreshold(Nutrients_Utah,
+#' WQXLowerThreshold_flagsonly <- TADA_FlagBelowThreshold(Nutrients_Utah,
 #' clean = FALSE, errorsonly = TRUE)
 #' 
 
-TADA_FlagResultBelowThreshold <- function(.data, clean = TRUE, errorsonly = FALSE) {
+TADA_FlagBelowThreshold <- function(.data, clean = TRUE, errorsonly = FALSE) {
   # check .data is data.frame
   TADA_CheckType(.data, "data.frame", "Input object")
   # check clean is boolean

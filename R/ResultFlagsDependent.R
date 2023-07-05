@@ -466,15 +466,15 @@ TADA_FlagResultUnit <- function(.data, clean = c("invalid_only", "nonstandardize
 #' data(Nutrients_Utah)
 #' 
 #' # Flag and keep all QC samples:
-#' QC_flagged <- TADA_FindQualityControlData(Nutrients_Utah)
+#' QC_flagged <- TADA_FindQCActivities(Nutrients_Utah)
 #' 
 #' # Flag QC samples and filter to flagged data only:
-#' QC_flags_only <- TADA_FindQualityControlData(Nutrients_Utah, errorsonly = TRUE)
+#' QC_flags_only <- TADA_FindQCActivities(Nutrients_Utah, errorsonly = TRUE)
 #' 
 #' # Remove all QC samples:
-#' QC_clean <- TADA_FindQualityControlData(Nutrients_Utah, clean = TRUE)
+#' QC_clean <- TADA_FindQCActivities(Nutrients_Utah, clean = TRUE)
 
-TADA_FindQualityControlData <- function(.data, clean = FALSE, errorsonly = FALSE) {
+TADA_FindQCActivities <- function(.data, clean = FALSE, errorsonly = FALSE) {
   # check .data is data.frame
   TADA_CheckType(.data, "data.frame", "Input object")
   # check that clean is boolean

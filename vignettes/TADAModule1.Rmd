@@ -535,7 +535,7 @@ Run the following code to flag or remove results that are above or below
 the national upper and lower bound for each characteristic and unit
 combination. See documentation for more details:
 
--   ?**TADA_FlagResultAboveThreshold**
+-   ?**TADA_FlagAboveThreshold**
 
     -   When clean = FALSE, the following column is added to your
         dataframe: TADA.ResultValueAboveUpperThreshold.Flag. This column
@@ -548,7 +548,7 @@ combination. See documentation for more details:
         rows flagged as above the upper WQX threshold; default is
         errorsonly = FALSE.
 
--   ?**TADA_FlagResultBelowThreshold**
+-   ?**TADA_FlagBelowThreshold**
 
     -   When clean = FALSE, the following column is added to your
         dataframe: TADA.ResultValueBelowLowerThreshold.Flag. This column
@@ -562,9 +562,9 @@ combination. See documentation for more details:
         errorsonly = FALSE.
 
 ```{r WQX_Thresholds}
-TADAProfileClean3 <- TADA_FlagResultAboveThreshold(TADAProfileClean2, clean = TRUE)
+TADAProfileClean3 <- TADA_FlagAboveThreshold(TADAProfileClean2, clean = TRUE)
 
-TADAProfileClean3 <- TADA_FlagResultBelowThreshold(TADAProfileClean3, clean = TRUE)
+TADAProfileClean3 <- TADA_FlagBelowThreshold(TADAProfileClean3, clean = TRUE)
 ```
 
 ## Potential duplicates
@@ -703,12 +703,12 @@ TADA_FieldValuesPie(TADAProfileClean3, field = "ActivityTypeCode")
 
 The ActivityTypeCode field has multiple unique values. In this example
 we remove Quality Control (QC) values using the
-TADA_FindQualityControlData function.
+TADA_FindQCActivities function.
 
-```{r TADA_FindQualityControlData}
-# Remove all QC samples using the TADA_FindQualityControlData function:
-# enter ?TADA_FindQualityControlData into the console for more information
-TADAProfileClean4 <- TADA_FindQualityControlData(TADAProfileClean3, clean = TRUE)
+```{r TADA_FindQCActivities}
+# Remove all QC samples using the TADA_FindQCActivities function:
+# enter ?TADA_FindQCActivities into the console for more information
+TADAProfileClean4 <- TADA_FindQCActivities(TADAProfileClean3, clean = TRUE)
 
 # See WQX domain file to review all the ActivityTypeCode allowable values:
 # https://cdx.epa.gov/wqx/download/DomainValues/ActivityType.CSV

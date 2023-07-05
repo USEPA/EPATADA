@@ -74,10 +74,10 @@ test_that("No NA's in independent flag columns", {
   testdat = TADA_FindContinuousData(testdat, clean = FALSE, errorsonly=FALSE)
   expect_false(any(is.na(testdat$TADA.AggregatedContinuousData.Flag)))
   
-  testdat = TADA_FlagResultAboveThreshold(testdat, clean = FALSE, errorsonly=FALSE)
+  testdat = TADA_FlagAboveThreshold(testdat, clean = FALSE, errorsonly=FALSE)
   expect_false(any(is.na(testdat$TADA.ResultValueAboveUpperThreshold.Flag)))
   
-  testdat = TADA_FlagResultBelowThreshold(testdat, clean = FALSE, errorsonly=FALSE)
+  testdat = TADA_FlagBelowThreshold(testdat, clean = FALSE, errorsonly=FALSE)
   expect_false(any(is.na(testdat$TADA.ResultValueBelowLowerThreshold.Flag)))
   
   testdat = TADA_FindQAPPDoc(testdat, clean = FALSE)
