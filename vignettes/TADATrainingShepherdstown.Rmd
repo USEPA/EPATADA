@@ -336,7 +336,7 @@ You can review any other columns of interest and create custom domain tables of 
 
 -   `?TADA_FindQAPPApproval()`
 
--   `?TADA_QAPPDocAvailable()`
+-   `?TADA_FindQAPPDoc()`
 
 -   `?TADA_FindPotentialDuplicates()` - in development
 

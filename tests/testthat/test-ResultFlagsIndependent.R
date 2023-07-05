@@ -80,6 +80,6 @@ test_that("No NA's in independent flag columns", {
   testdat = TADA_FlagResultBelowThreshold(testdat, clean = FALSE, errorsonly=FALSE)
   expect_false(any(is.na(testdat$TADA.ResultValueBelowLowerThreshold.Flag)))
   
-  testdat = TADA_QAPPDocAvailable(testdat, clean = FALSE)
-  expect_false(any(is.na(testdat$TADA.QAPPDocAvailable)))
+  testdat = TADA_FindQAPPDoc(testdat, clean = FALSE)
+  expect_false(any(is.na(testdat$TADA_FindQAPPDoc)))
   })

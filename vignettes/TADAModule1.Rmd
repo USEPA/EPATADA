@@ -608,7 +608,7 @@ will not do anything.
 TADAProfileClean3 <- TADA_FindQAPPApproval(TADAProfileClean3, clean = FALSE, cleanNA = FALSE)
 ```
 
-The **TADA_QAPPDocAvailable** function checks to see if a QAPP Doc is
+The **TADA_FindQAPPDoc** function checks to see if a QAPP Doc is
 Available
 
 This function checks data submitted under the "ProjectFileUrl" column to
@@ -622,8 +622,8 @@ defaults are clean = FALSE and errorsonly = FALSE. This function should
 only be used to remove data if an accompanying QAPP document is required
 to use data in assessments.
 
-```{r TADA_QAPPDocAvailable}
-TADAProfileClean3 <- TADA_QAPPDocAvailable(TADAProfileClean3,
+```{r TADA_FindQAPPDoc}
+TADAProfileClean3 <- TADA_FindQAPPDoc(TADAProfileClean3,
                                        clean = FALSE)
 ```
 

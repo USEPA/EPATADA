@@ -734,13 +734,13 @@ TADA_FlagQAPPApproved <- function(.data, clean = FALSE, cleanNA = FALSE, errorso
 #' 
 #' # Flag, but do not remove, data without an associated QAPP document in
 #' # new column titled "TADA.QAPPDocAvailable":
-#' FlagData_MissingQAPPDocURLs <- TADA_QAPPDocAvailable(Nutrients_Utah)
+#' FlagData_MissingQAPPDocURLs <- TADA_FindQAPPDoc(Nutrients_Utah)
 #' 
 #' # Remove data without an associated QAPP document available:
-#' RemoveData_MissingQAPPDocURLs <- TADA_QAPPDocAvailable(Nutrients_Utah, clean = TRUE)
+#' RemoveData_MissingQAPPDocURLs <- TADA_FindQAPPDoc(Nutrients_Utah, clean = TRUE)
 #' 
 
-TADA_QAPPDocAvailable <- function(.data, clean = FALSE) {
+TADA_FindQAPPDoc <- function(.data, clean = FALSE) {
   # check .data is data.frame
   TADA_CheckType(.data, "data.frame", "Input object")
   # check clean is boolean
