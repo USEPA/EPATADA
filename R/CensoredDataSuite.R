@@ -8,8 +8,9 @@
 #' conflict between ResultDetectionConditionText and
 #' DetectionQuantitationLimitTypeName as "Conflict between Condition and Limit".
 #' Detection limit results missing ResultDetectionConditionText are flagged as
-#' "Detection condition is missing and required for censored data ID.", and in
-#' rare situations, new detection limit types are added to WQX domain tables
+#' "Detection condition is missing and required for censored data ID." unless
+#' the ResultMeasureValue field is populated with "ND" (indicating non-detect).
+#' In rare situations, new detection limit types are added to WQX domain tables
 #' (and thus WQP data) that have not yet been classified as over- or
 #' non-detects. When these appear in a dataset, they are categorized as
 #' "Detection condition or detection limit is not documented in TADA reference
