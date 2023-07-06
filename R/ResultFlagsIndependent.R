@@ -635,7 +635,7 @@ TADA_FlagBelowThreshold <- function(.data, clean = TRUE, errorsonly = FALSE) {
 #' # Note: When clean = TRUE, cleanNA = TRUE, and errorsonly = TRUE, an error message is returned
 #' 
 
-TADA_FlagQAPPApproved <- function(.data, clean = FALSE, cleanNA = FALSE, errorsonly = FALSE) {
+TADA_FindQAPPApproval <- function(.data, clean = FALSE, cleanNA = FALSE, errorsonly = FALSE) {
   # check .data is data.frame
   TADA_CheckType(.data, "data.frame", "Input object")
   # check clean is boolean
