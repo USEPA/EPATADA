@@ -77,7 +77,7 @@ desired (un-comment).
 # options(download.file.method = "wininet")
 
 remotes::install_github("USEPA/TADA", 
-                        ref = "function_names_eh",
+                        ref = "small-change",
                         dependencies = TRUE)
 library(TADA)
 
