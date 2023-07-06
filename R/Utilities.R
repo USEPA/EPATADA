@@ -55,9 +55,10 @@ utils::globalVariables(c("TADA.ResultValueAboveUpperThreshold.Flag", "ActivityId
 #' the following QA steps: remove true duplicates, convert result values to
 #' numeric, harmonize result and depth units (note: all depth-related columns
 #' with populated values are converted to meters in a TADA-specific column),
-#' convert text to uppercase letters, and categorize detection limit data.
-#' Original affected columns are not changed: new columns are added to the end
-#' of the dataframe with the prefix "TADA." This function makes important
+#' convert text to uppercase letters, substitute outdated (deprecated) characteristic names
+#' with updated names in TADA.CharacteristicName, and categorize detection limit
+#' data. Original affected columns are not changed: new columns are added to the
+#' end of the dataframe with the prefix "TADA." This function makes important
 #' character fields uppercase so that they're interoperable with the WQX
 #' validation reference tables and reduces issues with case-sensitivity when
 #' joining data.TADA_AutoClean can be run as a stand alone function but is
@@ -156,6 +157,10 @@ TADA_AutoClean <- function(.data) {
   # .data$TADA.ActivityBottomDepthHeightMeasure.MeasureUnitCode[.data$ActivityBottomDepthHeightMeasure.MeasureUnitCode == 'meters'] <- 'm'
   # .data$TADA.ResultDepthHeightMeasure.MeasureUnitCode[.data$ResultDepthHeightMeasure.MeasureUnitCode == 'meters'] <- 'm'
   .data$TADA.ResultMeasure.MeasureUnitCode[.data$TADA.ResultMeasure.MeasureUnitCode == 'meters'] <- 'm'
+  
+  # Substitute updated characteristic name for deprecated names
+  print("TADA_Autoclean: updating deprecated (i.e. retired) characteristic names.")
+  .data = TADA_SubstituteDeprecatedChars(.data)
   
   # create comparable data identifier column
   .data = TADA_CreateComparableID(.data)
@@ -544,6 +549,49 @@ TADA_OrderCols <- function(.data){
   
   return(rearranged)
   
+}
+
+#' Substitute Preferred Characteristic Name for Deprecated Names
+#' 
+#' This utility function uses the WQX Characteristic domain table to substitute
+#' deprecated (i.e. retired and/or invalid) characteristic names with the new
+#' name in the TADA.CharacteristicName column. TADA_SubstituteDeprecatedChars is
+#' run within TADA_Autoclean, which runs within TADA_DataRetreival and (if autoclean = TRUE)
+#' in TADA_BigDataRetrieval. Therefore, deprecated characteristic names are
+#' harmonized to their current name automatically upon data retrieval.
+#' TADA_SubstituteDeprecatedChars can also be used by itself on a user supplied
+#' dataset that is in the WQX format, if desired. 
+#' 
+#' @param .data TADA dataframe 
+#' 
+#' @return Input TADA dataframe with substituted characteristic names in
+#'   TADA.CharacteristicName column. Original columns are unchanged.
+#'
+#' @export
+#' 
+
+TADA_SubstituteDeprecatedChars <- function(.data){
+  TADA_CheckColumns(.data, expected_cols = c("CharacteristicName","TADA.CharacteristicName"))
+  
+  # read in characteristic reference table with deprecation information and filter to deprecated terms
+  ref.table = TADA_GetCharacteristicRef()%>%dplyr::filter(Char_Flag == "Deprecated")
+  
+  # merge to dataset
+  .data = merge(.data, ref.table, all.x = TRUE)
+  # if CharacteristicName is deprecated and comparable name is not BLANK, use the provided Comparable.Name. Otherwise, keep TADA.CharacteristicName as-is.
+  .data$TADA.CharacteristicName = ifelse(!is.na(.data$Char_Flag)&!.data$Comparable.Name%in%c(""),.data$Comparable.Name, .data$TADA.CharacteristicName)
+  
+  howmany = length(.data$Char_Flag[!is.na(.data$Char_Flag)])
+  
+  if(howmany>0){
+    chars = unique(.data$CharacteristicName[!is.na(.data$Char_Flag)])
+    chars = paste0(chars, collapse = "; ")
+    print(paste0(howmany, " results in your dataset have one of the following deprecated characteristic names: ",chars,". These names have been substituted with the updated preferred names in the TADA.CharacteristicName field."))
+  }else{print("No deprecated characteristic names found in dataset.")}
+  
+  .data = .data%>%dplyr::select(-Char_Flag, -Comparable.Name)
+  .data = TADA_OrderCols(.data)
+  return(.data)
 }
 
 #' Create TADA.ComparableDataIdentifier Column

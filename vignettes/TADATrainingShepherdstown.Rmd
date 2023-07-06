@@ -80,7 +80,7 @@ If you are interested in reviewing the column headers and formats required to ru
 
 ```{r}
 getwd() # find your working directory
-TADA::getTADATemplate() # download template to working directory
+TADA::TADA_GetTemplate() # download template to working directory
 
 # uncomment below to review example dataset
 # Nutrients_Utah <- TADA::Nutrients_Utah 
