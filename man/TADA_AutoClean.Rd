@@ -28,9 +28,10 @@ prefix "TADA." and capitalizes fields to harmonize data. This function runs
 the following QA steps: remove true duplicates, convert result values to
 numeric, harmonize result and depth units (note: all depth-related columns
 with populated values are converted to meters in a TADA-specific column),
-convert text to uppercase letters, and categorize detection limit data.
-Original affected columns are not changed: new columns are added to the end
-of the dataframe with the prefix "TADA." This function makes important
+convert text to uppercase letters, substitute outdated (deprecated) characteristic names
+with updated names in TADA.CharacteristicName, and categorize detection limit
+data. Original affected columns are not changed: new columns are added to the
+end of the dataframe with the prefix "TADA." This function makes important
 character fields uppercase so that they're interoperable with the WQX
 validation reference tables and reduces issues with case-sensitivity when
 joining data.TADA_AutoClean can be run as a stand alone function but is

@@ -433,3 +433,56 @@ TADA_GetActivityTypeRef <- function() {
 TADA_UpdateActivityTypeRef <- function() {
   utils::write.csv(TADA_GetActivityTypeRef(), file = "inst/extdata/WQXActivityTypeRef.csv", row.names = FALSE)
 }
+
+#' Used to store cached Characteristic Reference Table
+
+WQXCharacteristicRef_Cached <- NULL
+
+#' Update Characteristic Reference Table
+#'
+#' Function downloads and returns in the latest WQX Characteristic Domain table and writes the data to sysdata.rda.
+#'
+#' This function caches the table after it has been called once
+#' so subsequent calls will be faster.
+#'
+#' @return sysdata.rda with updated WQXCharacteristicRef object (characteristic reference
+#' table)
+#' @export
+#'
+
+TADA_GetCharacteristicRef <- function() {
+  
+  # If there is a cached table available return it
+  if (!is.null(WQXCharacteristicRef_Cached)) {
+    return(WQXCharacteristicRef_Cached)
+  }
+  
+  # Try to download up-to-date raw data
+  raw.data <- tryCatch({
+    # read raw csv from url
+    utils::read.csv(url("https://cdx.epa.gov/wqx/download/DomainValues/Characteristic.CSV"))
+  }, error = function(err) {
+    NULL
+  })
+  
+  # If the download failed fall back to internal data (and report it)
+  if (is.null(raw.data)) {
+    message('Downloading latest Measure Unit Reference Table failed!')
+    message('Falling back to (possibly outdated) internal file.')
+    return(utils::read.csv(system.file("extdata", "WQXCharacteristicRef.csv", package = "TADA")))
+  }
+  
+  # rename some columns
+  WQXCharacteristicRef = raw.data%>%dplyr::rename(CharacteristicName = Name, Char_Flag = Domain.Value.Status)%>%dplyr::select(CharacteristicName, Char_Flag, Comparable.Name)
+  
+  # Save updated table in cache
+  WQXCharacteristicRef_Cached <- WQXCharacteristicRef
+  
+  WQXCharacteristicRef
+}
+
+#' Update Characteristic Reference Table internal file (for internal use only)
+
+TADA_UpdateCharacteristicRef <- function() {
+  utils::write.csv(TADA_GetCharacteristicRef(), file = "inst/extdata/WQXCharacteristicRef.csv", row.names = FALSE)
+}
