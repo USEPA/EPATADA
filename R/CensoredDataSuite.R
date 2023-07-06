@@ -48,9 +48,13 @@ TADA_IDCensoredData <- function(.data){
     
     ## Flag censored data that does not havedet cond populated
     cens$TADA.Detection_Type = ifelse(is.na(cens$ResultDetectionConditionText),"ResultDetectionConditionText missing", cens$TADA.Detection_Type)
-    if(any(is.na(cens$ResultDetectionConditionText))){
-      missing_detcond = length(cens$ResultDetectionConditionText[is.na(cens$ResultDetectionConditionText)])
-      print(paste0("TADA_IDCensoredData: There are ", missing_detcond," results in your dataset that are missing ResultDetectionConditionText. TADA requires BOTH ResultDetectionConditionText and DetectionQuantitationLimitTypeName fields to be populated in order to categorize censored data. Please contact the TADA Admins to resolve."))
+    
+    ## Fill in detection type when result measure value = "ND"
+    cens$TADA.Detection_Type = ifelse(cens$ResultMeasureValue%in%c("ND"),"Non-Detect", cens$TADA.Detection_Type)
+    
+    if(any(cens$TADA.Detection_Type=="ResultDetectionConditionText missing")){
+      missing_detcond = length(cens$TADA.Detection_Type[cens$TADA.Detection_Type=="ResultDetectionConditionText missing"])
+      print(paste0("TADA_IDCensoredData: There are ", missing_detcond," results in your dataset that are missing ResultDetectionConditionText. Unless the ResultMeasureValue = 'ND' (indicating non-detect), TADA requires BOTH ResultDetectionConditionText and DetectionQuantitationLimitTypeName fields to be populated in order to categorize censored data. Please contact the TADA Admins to resolve."))
     }
     
     conds = unique(cens$ResultDetectionConditionText[!is.na(cens$ResultDetectionConditionText)])
