@@ -159,7 +159,7 @@ TADA_AutoClean <- function(.data) {
   .data$TADA.ResultMeasure.MeasureUnitCode[.data$TADA.ResultMeasure.MeasureUnitCode == 'meters'] <- 'm'
   
   # Substitute updated characteristic name for deprecated names
-  print("TADA_Autoclean: updating deprecated characterisitc names.")
+  print("TADA_Autoclean: updating deprecated (i.e. retired) characteristic names.")
   .data = TADA_SubstituteDeprecatedChars(.data)
   
   # create comparable data identifier column
@@ -554,7 +554,7 @@ TADA_OrderCols <- function(.data){
 #' Substitute Preferred Characteristic Name for Deprecated Names
 #' 
 #' This utility function uses the WQX Characteristic domain table to substitute
-#' deprecated characteristic names with the new name in the
+#' deprecated (i.e. retired and/or invalid) characteristic names with the new name in the
 #' TADA.CharacteristicName column. Used in TADA_Autoclean function on data
 #' pulled from the WQP.
 #' 
