@@ -77,7 +77,7 @@ desired (un-comment).
 # options(download.file.method = "wininet")
 
 remotes::install_github("USEPA/TADA", 
-                        ref = "function_names_eh",
+                        ref = "small-change",
                         dependencies = TRUE)
 library(TADA)
 
@@ -535,7 +535,7 @@ Run the following code to flag or remove results that are above or below
 the national upper and lower bound for each characteristic and unit
 combination. See documentation for more details:
 
--   ?**TADA_FlagResultAboveThreshold**
+-   ?**TADA_FlagAboveThreshold**
 
     -   When clean = FALSE, the following column is added to your
         dataframe: TADA.ResultValueAboveUpperThreshold.Flag. This column
@@ -548,7 +548,7 @@ combination. See documentation for more details:
         rows flagged as above the upper WQX threshold; default is
         errorsonly = FALSE.
 
--   ?**TADA_FlagResultBelowThreshold**
+-   ?**TADA_FlagBelowThreshold**
 
     -   When clean = FALSE, the following column is added to your
         dataframe: TADA.ResultValueBelowLowerThreshold.Flag. This column
@@ -562,9 +562,9 @@ combination. See documentation for more details:
         errorsonly = FALSE.
 
 ```{r WQX_Thresholds}
-TADAProfileClean3 <- TADA_FlagResultAboveThreshold(TADAProfileClean2, clean = TRUE)
+TADAProfileClean3 <- TADA_FlagAboveThreshold(TADAProfileClean2, clean = TRUE)
 
-TADAProfileClean3 <- TADA_FlagResultBelowThreshold(TADAProfileClean3, clean = TRUE)
+TADAProfileClean3 <- TADA_FlagBelowThreshold(TADAProfileClean3, clean = TRUE)
 ```
 
 ## Potential duplicates
@@ -583,7 +583,7 @@ TADAProfileClean3 <- TADA_FindPotentialDuplicates(TADAProfileClean3, dist_buffer
 
 ## Review QAPP information
 
-The **TADA_QAPPapproved** function checks data for an approved QAPP.
+The **TADA_FindQAPPApproval** function checks data for an approved QAPP.
 
 This function checks to see if there is any information in the column
 "QAPPApprovedIndicator". Some organizations submit data for this field
@@ -604,11 +604,11 @@ inputs clean = FALSE, cleanNA = FALSE, and errorsonly = TRUE.
 If clean = FALSE, cleanNA = FALSE, and errorsonly = FALSE, the function
 will not do anything.
 
-```{r QAPPapproved}
-TADAProfileClean3 <- TADA_QAPPapproved(TADAProfileClean3, clean = FALSE, cleanNA = FALSE)
+```{r TADA_FindQAPPApproval}
+TADAProfileClean3 <- TADA_FindQAPPApproval(TADAProfileClean3, clean = FALSE, cleanNA = FALSE)
 ```
 
-The **TADA_QAPPDocAvailable** function checks to see if a QAPP Doc is
+The **TADA_FindQAPPDoc** function checks to see if a QAPP Doc is
 Available
 
 This function checks data submitted under the "ProjectFileUrl" column to
@@ -622,8 +622,8 @@ defaults are clean = FALSE and errorsonly = FALSE. This function should
 only be used to remove data if an accompanying QAPP document is required
 to use data in assessments.
 
-```{r TADA_QAPPDocAvailable}
-TADAProfileClean3 <- TADA_QAPPDocAvailable(TADAProfileClean3,
+```{r TADA_FindQAPPDoc}
+TADAProfileClean3 <- TADA_FindQAPPDoc(TADAProfileClean3,
                                        clean = FALSE)
 ```
 
@@ -703,12 +703,12 @@ TADA_FieldValuesPie(TADAProfileClean3, field = "ActivityTypeCode")
 
 The ActivityTypeCode field has multiple unique values. In this example
 we remove Quality Control (QC) values using the
-TADA_FindQualityControlData function.
+TADA_FindQCActivities function.
 
-```{r TADA_FindQualityControlData}
-# Remove all QC samples using the TADA_FindQualityControlData function:
-# enter ?TADA_FindQualityControlData into the console for more information
-TADAProfileClean4 <- TADA_FindQualityControlData(TADAProfileClean3, clean = TRUE)
+```{r TADA_FindQCActivities}
+# Remove all QC samples using the TADA_FindQCActivities function:
+# enter ?TADA_FindQCActivities into the console for more information
+TADAProfileClean4 <- TADA_FindQCActivities(TADAProfileClean3, clean = TRUE)
 
 # See WQX domain file to review all the ActivityTypeCode allowable values:
 # https://cdx.epa.gov/wqx/download/DomainValues/ActivityType.CSV

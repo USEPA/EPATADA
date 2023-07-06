@@ -292,18 +292,18 @@ TADA_FindContinuousData <- function(.data, clean = TRUE, errorsonly = FALSE) {
 #' data(Nutrients_Utah)
 #' 
 #' # Remove data that is above the upper WQX threshold from dataframe:
-#' WQXUpperThreshold_clean <- TADA_FlagResultAboveThreshold(Nutrients_Utah)
+#' WQXUpperThreshold_clean <- TADA_FlagAboveThreshold(Nutrients_Utah)
 #' 
 #' # Flag, but do not remove, data that is above the upper WQX threshold in
 #' # new column titled "TADA.ResultValueAboveUpperThreshold.Flag":
-#' WQXUpperThreshold_flags <- TADA_FlagResultAboveThreshold(Nutrients_Utah, clean = FALSE)
+#' WQXUpperThreshold_flags <- TADA_FlagAboveThreshold(Nutrients_Utah, clean = FALSE)
 #' 
 #' # Show only data flagged as above the upper WQX threshold:
-#' WQXUpperThreshold_flagsonly <- TADA_FlagResultAboveThreshold(Nutrients_Utah, 
+#' WQXUpperThreshold_flagsonly <- TADA_FlagAboveThreshold(Nutrients_Utah, 
 #' clean = FALSE, errorsonly = TRUE)
 #' 
 
-TADA_FlagResultAboveThreshold <- function(.data, clean = TRUE, errorsonly = FALSE) {
+TADA_FlagAboveThreshold <- function(.data, clean = TRUE, errorsonly = FALSE) {
   # check .data is data.frame
   TADA_CheckType(.data, "data.frame", "Input object")
   # check clean is boolean
@@ -445,18 +445,18 @@ TADA_FlagResultAboveThreshold <- function(.data, clean = TRUE, errorsonly = FALS
 #' data(Nutrients_Utah)
 #' 
 #' # Remove data that is below the lower WQX threshold from the dataframe:
-#' WQXLowerThreshold_clean <- TADA_FlagResultBelowThreshold(Nutrients_Utah)
+#' WQXLowerThreshold_clean <- TADA_FlagBelowThreshold(Nutrients_Utah)
 #' 
 #' # Flag, but do not remove, data that is below the lower WQX threshold in
 #' # new column titled "TADA.ResultValueBelowLowerThreshold.Flag":
-#' WQXLowerThreshold_flags <- TADA_FlagResultBelowThreshold(Nutrients_Utah, clean = FALSE)
+#' WQXLowerThreshold_flags <- TADA_FlagBelowThreshold(Nutrients_Utah, clean = FALSE)
 #' 
 #' # Show only data that is below the lower WQX threshold:
-#' WQXLowerThreshold_flagsonly <- TADA_FlagResultBelowThreshold(Nutrients_Utah,
+#' WQXLowerThreshold_flagsonly <- TADA_FlagBelowThreshold(Nutrients_Utah,
 #' clean = FALSE, errorsonly = TRUE)
 #' 
 
-TADA_FlagResultBelowThreshold <- function(.data, clean = TRUE, errorsonly = FALSE) {
+TADA_FlagBelowThreshold <- function(.data, clean = TRUE, errorsonly = FALSE) {
   # check .data is data.frame
   TADA_CheckType(.data, "data.frame", "Input object")
   # check clean is boolean
@@ -566,7 +566,7 @@ TADA_FlagResultBelowThreshold <- function(.data, clean = TRUE, errorsonly = FALS
 #' Some organizations submit data for this field to indicate if the data
 #' produced has an approved Quality Assurance Project Plan (QAPP) or not.
 #' Y indicates yes, N indicates no.  This function has three default inputs:
-#' clean = TRUE, cleanNA = FALSE, and errorsonly == FALSE. The default removes 
+#' clean = TRUE, cleanNA = FALSE, and errorsonly == FALSE. The default flags 
 #' rows of data where the QAPPApprovedIndicator equals "N". Users could 
 #' remove NA's in addition to N's using the inputs clean = TRUE, cleanNA = TRUE,
 #' and errorsonly = FALSE. If errorsonly = TRUE, the function will filter out all
@@ -618,24 +618,24 @@ TADA_FlagResultBelowThreshold <- function(.data, clean = TRUE, errorsonly = FALS
 #' data(Nutrients_Utah)
 #' 
 #' # Show data where the QAPPApprovedIndicator equals "Y" or "NA":
-#' QAPPapproved_clean <- TADA_QAPPapproved(Nutrients_Utah)
+#' QAPPapproved_clean <- TADA_FindQAPPApproval(Nutrients_Utah)
 #' 
 #' # Show only data where the QAPPApprovedIndicator equals "Y":
-#' QAPPapproved_cleanNAs <- TADA_QAPPapproved(Nutrients_Utah, cleanNA = TRUE)
+#' QAPPapproved_cleanNAs <- TADA_FindQAPPApproval(Nutrients_Utah, cleanNA = TRUE)
 #' 
 #' # Show data where the QAPPApprovedIndicator equals "N" or "NA":
-#' QAPPIndicator_N_NA <- TADA_QAPPapproved(Nutrients_Utah, clean = FALSE, 
+#' QAPPIndicator_N_NA <- TADA_FindQAPPApproval(Nutrients_Utah, clean = FALSE, 
 #' cleanNA = FALSE, errorsonly = TRUE)
 #' 
 #' # Show data where the QAPPApprovedIndicator equals "N":
-#' QAPPIndicator_N <- TADA_QAPPapproved(Nutrients_Utah, clean = FALSE, 
+#' QAPPIndicator_N <- TADA_FindQAPPApproval(Nutrients_Utah, clean = FALSE, 
 #' cleanNA = TRUE, errorsonly = TRUE)
 #'
 #' # Note: When clean = FALSE, cleanNA = FALSE, and errorsonly = FALSE, no data is removed
 #' # Note: When clean = TRUE, cleanNA = TRUE, and errorsonly = TRUE, an error message is returned
 #' 
 
-TADA_QAPPapproved <- function(.data, clean = TRUE, cleanNA = FALSE, errorsonly = FALSE) {
+TADA_FindQAPPApproval <- function(.data, clean = FALSE, cleanNA = FALSE, errorsonly = FALSE) {
   # check .data is data.frame
   TADA_CheckType(.data, "data.frame", "Input object")
   # check clean is boolean
@@ -734,13 +734,13 @@ TADA_QAPPapproved <- function(.data, clean = TRUE, cleanNA = FALSE, errorsonly =
 #' 
 #' # Flag, but do not remove, data without an associated QAPP document in
 #' # new column titled "TADA.QAPPDocAvailable":
-#' FlagData_MissingQAPPDocURLs <- TADA_QAPPDocAvailable(Nutrients_Utah)
+#' FlagData_MissingQAPPDocURLs <- TADA_FindQAPPDoc(Nutrients_Utah)
 #' 
 #' # Remove data without an associated QAPP document available:
-#' RemoveData_MissingQAPPDocURLs <- TADA_QAPPDocAvailable(Nutrients_Utah, clean = TRUE)
+#' RemoveData_MissingQAPPDocURLs <- TADA_FindQAPPDoc(Nutrients_Utah, clean = TRUE)
 #' 
 
-TADA_QAPPDocAvailable <- function(.data, clean = FALSE) {
+TADA_FindQAPPDoc <- function(.data, clean = FALSE) {
   # check .data is data.frame
   TADA_CheckType(.data, "data.frame", "Input object")
   # check clean is boolean
