@@ -19,27 +19,29 @@ WQXCharValRef_Cached <- NULL
 #' @export
 
 TADA_GetWQXCharValRef <- function() {
-
   # If there is a cached table available return it
   if (!is.null(WQXCharValRef_Cached)) {
     return(WQXCharValRef_Cached)
   }
 
   # Try to download up-to-date raw data
-  raw.data <- tryCatch({
-    # read raw csv from url
-    utils::read.csv(url("https://cdx.epa.gov/wqx/download/DomainValues/QAQCCharacteristicValidation.CSV"))
-  }, error = function(err) {
-    NULL
-  })
+  raw.data <- tryCatch(
+    {
+      # read raw csv from url
+      utils::read.csv(url("https://cdx.epa.gov/wqx/download/DomainValues/QAQCCharacteristicValidation.CSV"))
+    },
+    error = function(err) {
+      NULL
+    }
+  )
 
   # If the download failed fall back to internal data (and report it)
   if (is.null(raw.data)) {
-    message('Downloading latest Validation Reference Table failed!')
-    message('Falling back to (possibly outdated) internal file.')
+    message("Downloading latest Validation Reference Table failed!")
+    message("Falling back to (possibly outdated) internal file.")
     return(utils::read.csv(system.file("extdata", "WQXcharValRef.csv", package = "TADA")))
   }
-  
+
   # filter data to include only accepted (valid) values and remove extraneous columns
   WQXcharValRef <- raw.data %>%
     dplyr::select(-c(
@@ -47,14 +49,19 @@ TADA_GetWQXCharValRef <- function() {
       "Last.Change.Date"
     ))
   # replace "Status" values with Valid, Invalid, Unknown
-  WQXcharValRef$Status2 = ifelse(WQXcharValRef$Status%in%c("Accepted"),"Valid","Invalid")
-  WQXcharValRef$Status2 = ifelse(WQXcharValRef$Status%in%c("NonStandardized",
-                                                           "Nonstandardized",
-                                                           "InvalidMediaUnit",
-                                                           "InvalidChar",
-                                                           "MethodNeeded"),"Nonstandardized",WQXcharValRef$Status2)
-  
-  WQXcharValRef = WQXcharValRef%>%dplyr::select(-Status)%>%dplyr::rename(Status = Status2)%>%dplyr::distinct()
+  WQXcharValRef$Status2 <- ifelse(WQXcharValRef$Status %in% c("Accepted"), "Valid", "Invalid")
+  WQXcharValRef$Status2 <- ifelse(WQXcharValRef$Status %in% c(
+    "NonStandardized",
+    "Nonstandardized",
+    "InvalidMediaUnit",
+    "InvalidChar",
+    "MethodNeeded"
+  ), "Nonstandardized", WQXcharValRef$Status2)
+
+  WQXcharValRef <- WQXcharValRef %>%
+    dplyr::select(-Status) %>%
+    dplyr::rename(Status = Status2) %>%
+    dplyr::distinct()
 
   # Save updated table in cache
   WQXCharValRef_Cached <- WQXcharValRef
@@ -62,7 +69,7 @@ TADA_GetWQXCharValRef <- function() {
   WQXcharValRef
 }
 
-#' Update Characteristic Validation Reference Table internal file 
+#' Update Characteristic Validation Reference Table internal file
 #' (for internal use only)
 
 TADA_UpdateWQXCharValRef <- function() {
@@ -76,7 +83,7 @@ WQXunitRef_Cached <- NULL
 
 #' Update Measure Unit Reference Table
 #'
-#' Function downloads and returns in the latest WQX MeasureUnit Domain table, 
+#' Function downloads and returns in the latest WQX MeasureUnit Domain table,
 #' adds additional target unit information, and writes the data to sysdata.rda.
 #'
 #' This function caches the table after it has been called once
@@ -89,24 +96,26 @@ WQXunitRef_Cached <- NULL
 #'
 
 TADA_GetMeasureUnitRef <- function() {
-
   # If there is a cached table available return it
   if (!is.null(WQXunitRef_Cached)) {
     return(WQXunitRef_Cached)
   }
 
   # Try to download up-to-date raw data
-  raw.data <- tryCatch({
-    # read raw csv from url
-    utils::read.csv(url("https://cdx.epa.gov/wqx/download/DomainValues/MeasureUnit.CSV"))
-  }, error = function(err) {
-    NULL
-  })
+  raw.data <- tryCatch(
+    {
+      # read raw csv from url
+      utils::read.csv(url("https://cdx.epa.gov/wqx/download/DomainValues/MeasureUnit.CSV"))
+    },
+    error = function(err) {
+      NULL
+    }
+  )
 
   # If the download failed fall back to internal data (and report it)
   if (is.null(raw.data)) {
-    message('Downloading latest Measure Unit Reference Table failed!')
-    message('Falling back to (possibly outdated) internal file.')
+    message("Downloading latest Measure Unit Reference Table failed!")
+    message("Falling back to (possibly outdated) internal file.")
     return(utils::read.csv(system.file("extdata", "WQXunitRef.csv", package = "TADA")))
   }
 
@@ -178,7 +187,7 @@ TADA_GetMeasureUnitRef <- function() {
     Conversion.Coefficient = rep(0, 13)
   )
   # add data to WQXunitRef
-  WQXunitRef <- plyr::rbind.fill(WQXunitRef, target.m, target.ft)%>%dplyr::distinct()
+  WQXunitRef <- plyr::rbind.fill(WQXunitRef, target.m, target.ft) %>% dplyr::distinct()
 
   # Save updated table in cache
   WQXunitRef_Cached <- WQXunitRef
@@ -198,7 +207,7 @@ WQXDetCondRef_Cached <- NULL
 
 #' Update Result Detection Condition Reference Table
 #'
-#' Function downloads and returns in the latest WQX ResultDetectionCondition Domain table, 
+#' Function downloads and returns in the latest WQX ResultDetectionCondition Domain table,
 #' adds additional target unit information, and writes the data to sysdata.rda.
 #'
 #' This function caches the table after it has been called once
@@ -210,37 +219,40 @@ WQXDetCondRef_Cached <- NULL
 #'
 
 TADA_GetDetCondRef <- function() {
-  
   # If there is a cached table available return it
   if (!is.null(WQXDetCondRef_Cached)) {
     return(WQXDetCondRef_Cached)
   }
-  
+
   # Try to download up-to-date raw data
-  raw.data <- tryCatch({
-    # read raw csv from url
-    utils::read.csv(url("https://cdx.epa.gov/wqx/download/DomainValues/ResultDetectionCondition.CSV"))
-  }, error = function(err) {
-    NULL
-  })
-  
+  raw.data <- tryCatch(
+    {
+      # read raw csv from url
+      utils::read.csv(url("https://cdx.epa.gov/wqx/download/DomainValues/ResultDetectionCondition.CSV"))
+    },
+    error = function(err) {
+      NULL
+    }
+  )
+
   # If the download failed fall back to internal data (and report it)
   if (is.null(raw.data)) {
-    message('Downloading latest Measure Unit Reference Table failed!')
-    message('Falling back to (possibly outdated) internal file.')
+    message("Downloading latest Measure Unit Reference Table failed!")
+    message("Falling back to (possibly outdated) internal file.")
     return(utils::read.csv(system.file("extdata", "WQXResultDetectionConditionRef.csv", package = "TADA")))
   }
-  
-  WQXDetCondRef <- raw.data%>%
+
+  WQXDetCondRef <- raw.data %>%
     dplyr::mutate(TADA.Detection_Type = dplyr::case_when(
-      Name%in%c("Above Operating Range","Present Above Quantification Limit") ~ as.character("Over-Detect"),
-      Name%in%c("Value Decensored","Reported in Raw Data (attached)","High Moisture") ~ as.character("Other"),
+      Name %in% c("Above Operating Range", "Present Above Quantification Limit") ~ as.character("Over-Detect"),
+      Name %in% c("Value Decensored", "Reported in Raw Data (attached)", "High Moisture") ~ as.character("Other"),
       TRUE ~ as.character("Non-Detect")
-    ))%>%dplyr::distinct()
-  
+    )) %>%
+    dplyr::distinct()
+
   # Save updated table in cache
   WQXDetCondRef_Cached <- WQXDetCondRef
-  
+
   WQXDetCondRef
 }
 
@@ -256,7 +268,7 @@ WQXDetLimitRef_Cached <- NULL
 
 #' Update Detection Quantitation Limit Type Reference Table
 #'
-#' Function downloads and returns in the latest WQX DetectionQuantitationLimitType Domain table, 
+#' Function downloads and returns in the latest WQX DetectionQuantitationLimitType Domain table,
 #' adds additional target unit information, and writes the data to sysdata.rda.
 #'
 #' This function caches the table after it has been called once
@@ -268,45 +280,50 @@ WQXDetLimitRef_Cached <- NULL
 #' @export
 
 TADA_GetDetLimitRef <- function() {
-  
   # If there is a cached table available return it
   if (!is.null(WQXDetLimitRef_Cached)) {
     return(WQXDetLimitRef_Cached)
   }
-  
+
   # Try to download up-to-date raw data
-  raw.data <- tryCatch({
-    # read raw csv from url
-    utils::read.csv(url("https://cdx.epa.gov/wqx/download/DomainValues/DetectionQuantitationLimitType.CSV"))
-  }, error = function(err) {
-    NULL
-  })
-  
+  raw.data <- tryCatch(
+    {
+      # read raw csv from url
+      utils::read.csv(url("https://cdx.epa.gov/wqx/download/DomainValues/DetectionQuantitationLimitType.CSV"))
+    },
+    error = function(err) {
+      NULL
+    }
+  )
+
   # If the download failed fall back to internal data (and report it)
   if (is.null(raw.data)) {
-    message('Downloading latest Measure Unit Reference Table failed!')
-    message('Falling back to (possibly outdated) internal file.')
+    message("Downloading latest Measure Unit Reference Table failed!")
+    message("Falling back to (possibly outdated) internal file.")
     return(utils::read.csv(system.file("extdata", "WQXDetectionQuantitationLimitTypeRef.csv", package = "TADA")))
   }
-  
-  WQXDetLimitRef <- raw.data%>%
+
+  WQXDetLimitRef <- raw.data %>%
     dplyr::mutate(TADA.Limit_Type = dplyr::case_when(
-      Name%in%c("Upper Quantitation Limit","Upper Reporting Limit","Upper Calibration Limit") ~ as.character("Over-Detect"),
-      Name%in%c("Drinking Water Maximum","Field Holding Time Limit","Specified in workplan","Statistical Uncertainty","Systematic Uncertainty","Taxonomic Loss Threshold","Water Quality Standard or Criteria","Upper 95% Confidence Limit","Lower 95% Confidence Limit") ~ as.character("Other"),
+      Name %in% c("Upper Quantitation Limit", "Upper Reporting Limit", "Upper Calibration Limit") ~ as.character("Over-Detect"),
+      Name %in% c("Drinking Water Maximum", "Field Holding Time Limit", "Specified in workplan", "Statistical Uncertainty", "Systematic Uncertainty", "Taxonomic Loss Threshold", "Water Quality Standard or Criteria", "Upper 95% Confidence Limit", "Lower 95% Confidence Limit") ~ as.character("Other"),
       TRUE ~ as.character("Non-Detect")
-    ))%>%dplyr::distinct()
-  
+    )) %>%
+    dplyr::distinct()
+
   ## Add USGS limits not in WQX domain table
-  usgs = data.frame(Name = c("Elevated Detection Limit","Historical Lower Reporting Limit","Method Detection Limit (MDL)"),
-                    Description = c("USGS hard-coded limit","USGS hard-coded limit","USGS hard-coded limit"),
-                    TADA.Limit_Type = c("Non-Detect","Non-Detect","Non-Detect"),
-                    Last.Change.Date = rep("4/6/2023 12:00:00 PM",3))
-  
-  WQXDetLimitRef = plyr::rbind.fill(WQXDetLimitRef, usgs)
-  
+  usgs <- data.frame(
+    Name = c("Elevated Detection Limit", "Historical Lower Reporting Limit", "Method Detection Limit (MDL)"),
+    Description = c("USGS hard-coded limit", "USGS hard-coded limit", "USGS hard-coded limit"),
+    TADA.Limit_Type = c("Non-Detect", "Non-Detect", "Non-Detect"),
+    Last.Change.Date = rep("4/6/2023 12:00:00 PM", 3)
+  )
+
+  WQXDetLimitRef <- plyr::rbind.fill(WQXDetLimitRef, usgs)
+
   # Save updated table in cache
   WQXDetLimitRef_Cached <- WQXDetLimitRef
-  
+
   WQXDetLimitRef
 }
 
@@ -322,7 +339,7 @@ WQXActivityTypeRef_Cached <- NULL
 
 #' Update Activity Type Reference Table
 #'
-#' Function downloads and returns in the latest WQX ActivityType Domain table, 
+#' Function downloads and returns in the latest WQX ActivityType Domain table,
 #' adds QC category information, and writes the data to sysdata.rda.
 #'
 #' This function caches the table after it has been called once
@@ -333,98 +350,107 @@ WQXActivityTypeRef_Cached <- NULL
 #' @export
 
 TADA_GetActivityTypeRef <- function() {
-  
   # If there is a cached table available return it
   if (!is.null(WQXActivityTypeRef_Cached)) {
     return(WQXActivityType_Cached)
   }
-  
+
   # Try to download up-to-date raw data
-  raw.data <- tryCatch({
-    # read raw csv from url
-    utils::read.csv(url("https://cdx.epa.gov/wqx/download/DomainValues/ActivityType.CSV"))
-  }, error = function(err) {
-    NULL
-  })
-  
+  raw.data <- tryCatch(
+    {
+      # read raw csv from url
+      utils::read.csv(url("https://cdx.epa.gov/wqx/download/DomainValues/ActivityType.CSV"))
+    },
+    error = function(err) {
+      NULL
+    }
+  )
+
   # If the download failed fall back to internal data (and report it)
   if (is.null(raw.data)) {
-    message('Downloading latest Activity Type Reference Table failed!')
-    message('Falling back to (possibly outdated) internal file.')
+    message("Downloading latest Activity Type Reference Table failed!")
+    message("Falling back to (possibly outdated) internal file.")
     return(utils::read.csv(system.file("extdata", "WQXActivityTypeRef.csv", package = "TADA")))
   }
-  
+
   # Categorize Activity Types
-  dup <- c("Quality Control Alternative Measurement Sensitivity",
-           "Quality Control Alternative Measurement Sensitivity Plus",
-           "Quality Control Field Replicate Habitat Assessment",
-           "Quality Control Field Replicate Msr/Obs",
-           "Quality Control Field Replicate Portable Data Logger",
-           "Quality Control Field Replicate Sample-Composite",
-           "Quality Control Sample-Blind Duplicate",
-           "Quality Control Sample-Field Replicate",
-           "Quality Control Sample-Inter-lab Split",
-           "Quality Control Sample-Lab Duplicate",
-           "Quality Control Sample-Lab Duplicate 2",
-           "Quality Control Sample-Lab Re-Analysis",
-           "Quality Control Sample-Lab Split",
-           "Quality Control-Meter Lab Duplicate",
-           "Quality Control-Meter Lab Duplicate 2",
-           "Sample-Routine Resample")
-  blank <- c("Quality Control Field Sample Equipment Rinsate Blank",
-             "Quality Control Lab Sample Equipment Rinsate Blank",
-             "Quality Control Sample-Equipment Blank",
-             "Quality Control Sample-Field Ambient Conditions Blank",
-             "Quality Control Sample-Field Blank",
-             "Quality Control Sample-Lab Blank",
-             "Quality Control Sample-Post-preservative Blank",
-             "Quality Control Sample-Pre-preservative Blank",
-             "Quality Control Sample-Reagent Blank",
-             "Quality Control Sample-Trip Blank",
-             "Quality Control-Meter Lab Blank",
-             "Quality Control-Negative Control",
-             "Sample-Depletion Replicate",
-             "Sample-Negative Control")
-  cal <- c("Quality Control Field Calibration Check",
-           "Quality Control Field Msr/Obs Post-Calibration",
-           "Quality Control Field Msr/Obs Pre-Calibration",
-           "Quality Control Sample-Field Spike",
-           "Quality Control Sample-Field Surrogate Spike",
-           "Quality Control Sample-Lab Continuing Calibration Verification",
-           "Quality Control Sample-Lab Control Sample/Blank Spike",
-           "Quality Control Sample-Lab Control Sample/Blank Spike Duplicate",
-           "Quality Control Sample-Lab Control Standard",
-           "Quality Control Sample-Lab Control Standard Duplicate",
-           "Quality Control Sample-Lab Initial Calib Certified Reference Material",
-           "Quality Control Sample-Lab Initial Calibration Verification",
-           "Quality Control Sample-Lab Matrix Spike",
-           "Quality Control Sample-Lab Matrix Spike Duplicate",
-           "Quality Control Sample-Lab Spike",
-           "Quality Control Sample-Lab Spike Duplicate",
-           "Quality Control Sample-Lab Spike Target",
-           "Quality Control Sample-Lab Spike of a Lab Blank",
-           "Quality Control Sample-Lab Surrogate Control Standard",
-           "Quality Control Sample-Lab Surrogate Control Standard Duplicate",
-           "Quality Control Sample-Lab Surrogate Method Blank",
-           "Quality Control Sample-Measurement Precision Sample",
-           "Quality Control Sample-Reference Sample",
-           "Quality Control-Calibration Check",
-           "Quality Control-Calibration Check Buffer",
-           "Sample-Positive Control")
+  dup <- c(
+    "Quality Control Alternative Measurement Sensitivity",
+    "Quality Control Alternative Measurement Sensitivity Plus",
+    "Quality Control Field Replicate Habitat Assessment",
+    "Quality Control Field Replicate Msr/Obs",
+    "Quality Control Field Replicate Portable Data Logger",
+    "Quality Control Field Replicate Sample-Composite",
+    "Quality Control Sample-Blind Duplicate",
+    "Quality Control Sample-Field Replicate",
+    "Quality Control Sample-Inter-lab Split",
+    "Quality Control Sample-Lab Duplicate",
+    "Quality Control Sample-Lab Duplicate 2",
+    "Quality Control Sample-Lab Re-Analysis",
+    "Quality Control Sample-Lab Split",
+    "Quality Control-Meter Lab Duplicate",
+    "Quality Control-Meter Lab Duplicate 2",
+    "Sample-Routine Resample"
+  )
+  blank <- c(
+    "Quality Control Field Sample Equipment Rinsate Blank",
+    "Quality Control Lab Sample Equipment Rinsate Blank",
+    "Quality Control Sample-Equipment Blank",
+    "Quality Control Sample-Field Ambient Conditions Blank",
+    "Quality Control Sample-Field Blank",
+    "Quality Control Sample-Lab Blank",
+    "Quality Control Sample-Post-preservative Blank",
+    "Quality Control Sample-Pre-preservative Blank",
+    "Quality Control Sample-Reagent Blank",
+    "Quality Control Sample-Trip Blank",
+    "Quality Control-Meter Lab Blank",
+    "Quality Control-Negative Control",
+    "Sample-Depletion Replicate",
+    "Sample-Negative Control"
+  )
+  cal <- c(
+    "Quality Control Field Calibration Check",
+    "Quality Control Field Msr/Obs Post-Calibration",
+    "Quality Control Field Msr/Obs Pre-Calibration",
+    "Quality Control Sample-Field Spike",
+    "Quality Control Sample-Field Surrogate Spike",
+    "Quality Control Sample-Lab Continuing Calibration Verification",
+    "Quality Control Sample-Lab Control Sample/Blank Spike",
+    "Quality Control Sample-Lab Control Sample/Blank Spike Duplicate",
+    "Quality Control Sample-Lab Control Standard",
+    "Quality Control Sample-Lab Control Standard Duplicate",
+    "Quality Control Sample-Lab Initial Calib Certified Reference Material",
+    "Quality Control Sample-Lab Initial Calibration Verification",
+    "Quality Control Sample-Lab Matrix Spike",
+    "Quality Control Sample-Lab Matrix Spike Duplicate",
+    "Quality Control Sample-Lab Spike",
+    "Quality Control Sample-Lab Spike Duplicate",
+    "Quality Control Sample-Lab Spike Target",
+    "Quality Control Sample-Lab Spike of a Lab Blank",
+    "Quality Control Sample-Lab Surrogate Control Standard",
+    "Quality Control Sample-Lab Surrogate Control Standard Duplicate",
+    "Quality Control Sample-Lab Surrogate Method Blank",
+    "Quality Control Sample-Measurement Precision Sample",
+    "Quality Control Sample-Reference Sample",
+    "Quality Control-Calibration Check",
+    "Quality Control-Calibration Check Buffer",
+    "Sample-Positive Control"
+  )
   other <- c("Quality Control Sample-Other")
-  
-  WQXActivityTypeRef <- raw.data%>%
+
+  WQXActivityTypeRef <- raw.data %>%
     dplyr::mutate(TADA.ActivityType.Flag = dplyr::case_when(
       Code %in% dup ~ "QC_duplicate",
       Code %in% blank ~ "QC_blank",
       Code %in% cal ~ "QC_calibration",
       Code %in% other ~ "QC_other",
       TRUE ~ as.character("Non_QC")
-    ))%>%dplyr::distinct()
-  
+    )) %>%
+    dplyr::distinct()
+
   # Save updated table in cache
   WQXActivityTypeRef_Cached <- WQXActivityTypeRef
-  
+
   return(WQXActivityTypeRef)
 }
 
@@ -451,33 +477,37 @@ WQXCharacteristicRef_Cached <- NULL
 #'
 
 TADA_GetCharacteristicRef <- function() {
-  
   # If there is a cached table available return it
   if (!is.null(WQXCharacteristicRef_Cached)) {
     return(WQXCharacteristicRef_Cached)
   }
-  
+
   # Try to download up-to-date raw data
-  raw.data <- tryCatch({
-    # read raw csv from url
-    utils::read.csv(url("https://cdx.epa.gov/wqx/download/DomainValues/Characteristic.CSV"))
-  }, error = function(err) {
-    NULL
-  })
-  
+  raw.data <- tryCatch(
+    {
+      # read raw csv from url
+      utils::read.csv(url("https://cdx.epa.gov/wqx/download/DomainValues/Characteristic.CSV"))
+    },
+    error = function(err) {
+      NULL
+    }
+  )
+
   # If the download failed fall back to internal data (and report it)
   if (is.null(raw.data)) {
-    message('Downloading latest Measure Unit Reference Table failed!')
-    message('Falling back to (possibly outdated) internal file.')
+    message("Downloading latest Measure Unit Reference Table failed!")
+    message("Falling back to (possibly outdated) internal file.")
     return(utils::read.csv(system.file("extdata", "WQXCharacteristicRef.csv", package = "TADA")))
   }
-  
+
   # rename some columns
-  WQXCharacteristicRef = raw.data%>%dplyr::rename(CharacteristicName = Name, Char_Flag = Domain.Value.Status)%>%dplyr::select(CharacteristicName, Char_Flag, Comparable.Name)
-  
+  WQXCharacteristicRef <- raw.data %>%
+    dplyr::rename(CharacteristicName = Name, Char_Flag = Domain.Value.Status) %>%
+    dplyr::select(CharacteristicName, Char_Flag, Comparable.Name)
+
   # Save updated table in cache
   WQXCharacteristicRef_Cached <- WQXCharacteristicRef
-  
+
   WQXCharacteristicRef
 }
 
