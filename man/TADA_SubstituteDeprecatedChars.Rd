@@ -15,7 +15,11 @@ TADA.CharacteristicName column. Original columns are unchanged.
 }
 \description{
 This utility function uses the WQX Characteristic domain table to substitute
-deprecated characteristic names with the new name in the
-TADA.CharacteristicName column. Used in TADA_Autoclean function on data
-pulled from the WQP.
+deprecated (i.e. retired and/or invalid) characteristic names with the new
+name in the TADA.CharacteristicName column. TADA_SubstituteDeprecatedChars is
+run within TADA_Autoclean, which runs within TADA_DataRetreival and (if autoclean = TRUE)
+in TADA_BigDataRetrieval. Therefore, deprecated characteristic names are
+harmonized to their current name automatically upon data retrieval.
+TADA_SubstituteDeprecatedChars can also be used by itself on a user supplied
+dataset that is in the WQX format, if desired.
 }
