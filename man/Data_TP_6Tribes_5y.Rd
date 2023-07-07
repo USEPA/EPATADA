@@ -12,7 +12,7 @@ data(Data_TP_6Tribes_5y)
 }
 \description{
 A dataset containing Total Phosphorus (TP) data from tribal organizations
-(see ?TribalData for more information). Data was cleaned using the
+(see ?Data_6Tribes_5y for more information). Data was cleaned using the
 TADA Module 1 vignette
 (see: https://usepa.github.io/TADA/articles/TADAModule1.html).
 Data is filtered down to "Total Phosphorus, Mixed Forms".
