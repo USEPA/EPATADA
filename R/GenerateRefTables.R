@@ -1,4 +1,4 @@
-#' Used to store cached WQX QAQC Characteristic Validation Reference Table
+# Used to store cached WQX QAQC Characteristic Validation Reference Table
 WQXCharValRef_Cached <- NULL
 
 
@@ -77,8 +77,7 @@ TADA_UpdateWQXCharValRef <- function() {
 }
 
 
-#' Used to store cached Measure Unit Reference Table
-
+# Used to store cached Measure Unit Reference Table
 WQXunitRef_Cached <- NULL
 
 #' Update Measure Unit Reference Table
@@ -201,8 +200,7 @@ TADA_UpdateMeasureUnitRef <- function() {
   utils::write.csv(TADA_GetMeasureUnitRef(), file = "inst/extdata/WQXunitRef.csv", row.names = FALSE)
 }
 
-#' Used to store cached Result Detection Condition Reference Table
-
+# Used to store cached Result Detection Condition Reference Table
 WQXDetCondRef_Cached <- NULL
 
 #' Update Result Detection Condition Reference Table
@@ -262,8 +260,7 @@ TADA_UpdateDetCondRef <- function() {
   utils::write.csv(TADA_GetDetCondRef(), file = "inst/extdata/WQXResultDetectionConditionRef.csv", row.names = FALSE)
 }
 
-#' Used to store cached Result Detection Condition Reference Table
-
+# Used to store cached Result Detection Condition Reference Table
 WQXDetLimitRef_Cached <- NULL
 
 #' Update Detection Quantitation Limit Type Reference Table
@@ -333,8 +330,7 @@ TADA_UpdateDetLimitRef <- function() {
   utils::write.csv(TADA_GetDetLimitRef(), file = "inst/extdata/WQXDetectionQuantitationLimitTypeRef.csv", row.names = FALSE)
 }
 
-#' Used to store cached Activity Type Reference Table
-
+# Used to store cached Activity Type Reference Table
 WQXActivityTypeRef_Cached <- NULL
 
 #' Update Activity Type Reference Table
