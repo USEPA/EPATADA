@@ -1,0 +1,56 @@
+﻿Domain,Unique Identifier,Code,Description,Last Change Date,Target Unit,Target Speciation,Conversion Factor
+Measurement Unit(MeasureUnitCode),NA,mg/l SiO2,,,ug/L,as SiO2,1000
+Measurement Unit(MeasureUnitCode),NA,mg/l CaCO3,,,ug/L,as CaCO3,1000
+Measurement Unit(MeasureUnitCode),NA,mg/l as N,,,ug/L,as N,1000
+Measurement Unit(MeasureUnitCode),NA,mg/kg as N,,,ug/kg,as N,1000
+Measurement Unit(MeasureUnitCode),NA,mg/l asPO4,,,ug/L,as PO4,1000
+Measurement Unit(MeasureUnitCode),NA,ug/l as P,,,ug/L,as P,1
+Measurement Unit(MeasureUnitCode),NA,mg/l as P,,,ug/L,as P,1000
+Measurement Unit(MeasureUnitCode),NA,mg/kg as P,,,ug/kg,as P,1000
+Measurement Unit(MeasureUnitCode),NA,mg/l as Na,,,ug/L,as Na,1000
+Measurement Unit(MeasureUnitCode),NA,ug/l as Cr,,,ug/L,as Cr,1
+Measurement Unit(MeasureUnitCode),NA,ug/L U3O8,,,ug/L,as U3O8,1
+Measurement Unit(MeasureUnitCode),NA,ug/l QSE,,,ug/L,as QSE,1
+Measurement Unit(MeasureUnitCode),NA,ug/L PTSA,,,ug/L,as PTSA,1
+Measurement Unit(MeasureUnitCode),NA,ugAtrazn/L,,,ug/L,as Atrazine,1
+Measurement Unit(MeasureUnitCode),NA,ugAtrzn/kg,,,ug/kg,as Atrazine,1
+Measurement Unit(MeasureUnitCode),NA,mg/kg asCl,,,ug/kg,as Cl,1000
+Measurement Unit(MeasureUnitCode),NA,ton/d as N,,,lb/day,as N,2000
+Measurement Unit(MeasureUnitCode),NA,mg/kg DPA,,,ug/kg,as DPA,1000
+Measurement Unit(MeasureUnitCode),NA,ug/L as As,,,ug/L,as As,1
+Measurement Unit(MeasureUnitCode),NA,mg/kg PO4,,,ug/kg,as PO4,1000
+Measurement Unit(MeasureUnitCode),NA,mg/l as Cr,,,ug/L,as Cr,1000
+Measurement Unit(MeasureUnitCode),NA,mg/100mgOC,"USGS only value, EPA does not use",,mg/100mgOC,,1
+Measurement Unit(MeasureUnitCode),NA,in/Hg,"USGS only value, EPA does not use",,in/Hg,,1
+Measurement Unit(MeasureUnitCode),NA,in/H2O,"USGS only value, EPA does not use",,in/H2O,,1
+Measurement Unit(MeasureUnitCode),NA,g H2O/g,"USGS only value, EPA does not use",,g H2O/g,,1
+Measurement Unit(MeasureUnitCode),NA,lb/d as N,,,lb/day,as N,1
+Measurement Unit(MeasureUnitCode),NA,L/mgDOC*m,"USGS only value, EPA does not use",,L/mgDOC*m,,1
+Measurement Unit(MeasureUnitCode),NA,ug/L as N,,,ug/L,as N,1
+Measurement Unit(MeasureUnitCode),NA,mg O2/g/hr,"USGS only value, EPA does not use",,mg O2/g/hr,,1
+Measurement Unit(MeasureUnitCode),NA,"ug/L 2,4-D",,,ug/L,"as 2,4-D",1
+Measurement Unit(MeasureUnitCode),NA,ug/kg DPA,,,ug/kg,as DPA,1
+Measurement Unit(MeasureUnitCode),NA,mg O2/m3/d,"USGS only value, EPA does not use",,mg O2/m3/d,,1
+Measurement Unit(MeasureUnitCode),NA,mg O2/m2/d,"USGS only value, EPA does not use",,mg O2/m2/d,,1
+Measurement Unit(MeasureUnitCode),NA,mg C/m3/d,"USGS only value, EPA does not use",,mg C/m3/d,,1
+Measurement Unit(MeasureUnitCode),NA,mg C/m2/d,"USGS only value, EPA does not use",,mg C/m2/d,,1
+Measurement Unit(MeasureUnitCode),NA,mg/l as H,,,ug/L,as H,1000
+Measurement Unit(MeasureUnitCode),NA,mg/l NH4,,,ug/L,as NH4,1000
+Measurement Unit(MeasureUnitCode),NA,mg/l asNO3,,,ug/L,as NO3,1000
+Measurement Unit(MeasureUnitCode),NA,mg/l asNO2,,,ug/L,as NO2,1000
+Measurement Unit(MeasureUnitCode),NA,mg/l PO4,,,ug/L,as PO4,1000
+Measurement Unit(MeasureUnitCode),NA,mg/l NO3,,,ug/L,as NO3,1000
+Measurement Unit(MeasureUnitCode),NA,ft of H2O,,,ft,as H2O,1
+Measurement Unit(MeasureUnitCode),NA,ug/L as Cl,,,ug/L,as Cl,1
+Measurement Unit(MeasureUnitCode),NA,mg/kg NH4,,,ug/kg,as NH4,1000
+Measurement Unit(MeasureUnitCode),NA,mg C/m2,,,g/m2,as C,0.001
+Measurement Unit(MeasureUnitCode),NA,mg/m2 as N,,,g/m2,as N,0.001
+Measurement Unit(MeasureUnitCode),NA,mg/m2 NH4,,,g/m2,as NH4,0.001
+Measurement Unit(MeasureUnitCode),NA,mg/m2 NO3,,,g/m2,as NO3,0.001
+Measurement Unit(MeasureUnitCode),NA,mg/m2 as P,,,g/m2,as P,0.001
+Measurement Unit(MeasureUnitCode),NA,mg/l as S,,,ug/L,as S,1000
+Measurement Unit(MeasureUnitCode),NA,mg/m2 as S,,,g/m2,as S,0.001
+Measurement Unit(MeasureUnitCode),NA,lb/d as P,,,lb/day,as P,1
+Measurement Unit(MeasureUnitCode),NA,lb/d asPO4,,,lb/day,as PO4,1
+Measurement Unit(MeasureUnitCode),NA,mg/s as N,,,lb/day,as N,0.190479427
+Measurement Unit(MeasureUnitCode),NA,mgC3H6O2/L,,,ug/L,as C3H6O2,1000
