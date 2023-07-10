@@ -74,7 +74,7 @@ TADA_ConvertResultUnits <- function(.data, transform = TRUE) {
   unit.ref = subset(unit.ref, !is.na(unit.ref$Unique.Identifier)&!grepl("Length Distance",unit.ref$Description))
   
   # add usgs unit/speciations - this table was created by Elise Hinman and Cristina Mullin in 07/2023 using the pcodes domain table from NWIS and copying units with speciations in them into the same format as the measure unit domain table for WQX.
-  usgs.ref = read.csv("inst/extdata/USGS_units_speciation.csv")
+  usgs.ref = read.csv(system.file("extdata", "USGS_units_speciation.csv", package = "TADA"))
   
   unit.ref = plyr::rbind.fill(unit.ref, usgs.ref)
   
