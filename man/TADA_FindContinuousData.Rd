@@ -46,17 +46,17 @@ and errorsonly = FALSE.
 }
 \examples{
 # Load example dataset
-data(Nutrients_Utah)
+data(Data_Nutrients_UT)
 
 # Remove aggregated continuous data from dataframe:
-AggContinuous_clean <- TADA_FindContinuousData(Nutrients_Utah)
+AggContinuous_clean <- TADA_FindContinuousData(Data_Nutrients_UT)
 
 # Flag, but do not remove, aggregated continuous data in new column
 # titled "TADA.AggregatedContinuousData.Flag":
-AggContinuous_flags <- TADA_FindContinuousData(Nutrients_Utah, clean = FALSE)
+AggContinuous_flags <- TADA_FindContinuousData(Data_Nutrients_UT, clean = FALSE)
 
 # Show only rows flagged for aggregated continuous data:
-AggContinuous_errorsonly <- TADA_FindContinuousData(Nutrients_Utah, 
+AggContinuous_errorsonly <- TADA_FindContinuousData(Data_Nutrients_UT, 
 clean = FALSE, errorsonly = TRUE)
 
 }
