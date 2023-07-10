@@ -48,27 +48,27 @@ Default is errorsonly = FALSE.
 }
 \examples{
 # Load example dataset:
-data(Data_Nutrients_UT)
+data(Nutrients_Utah)
 
 # Remove data with invalid characteristic-media-result unit combinations from dataframe, 
 # but retain nonstandardized combinations flagged in new column 'TADA.ResultUnit.Flag':
-InvalidUnit_clean <- TADA_FlagResultUnit(Data_Nutrients_UT)
+InvalidUnit_clean <- TADA_FlagResultUnit(Nutrients_Utah)
 
 # Remove data with nonstandardized characteristic-media-result unit combinations 
 # from dataframe but retain invalid combinations flagged in new column 'TADA.ResultUnit.Flag:
-NonstandardUnit_clean <- TADA_FlagResultUnit(Data_Nutrients_UT, clean = "nonstandardized_only")
+NonstandardUnit_clean <- TADA_FlagResultUnit(Nutrients_Utah, clean = "nonstandardized_only")
 
 # Remove both invalid and nonstandardized characteristic-media-result unit combinations
 # from dataframe:
-ResultUnit_clean <- TADA_FlagResultUnit(Data_Nutrients_UT, clean = "both")
+ResultUnit_clean <- TADA_FlagResultUnit(Nutrients_Utah, clean = "both")
 
 # Flag, but do not remove, data with invalid or nonstandardized characteristic-media-result unit
 # combinations in new column titled "TADA.ResultUnit.Flag":
-InvalidUnit_flags <- TADA_FlagResultUnit(Data_Nutrients_UT, clean = "none")
+InvalidUnit_flags <- TADA_FlagResultUnit(Nutrients_Utah, clean = "none")
 
 # Show only invalid characteristic-media-result unit combinations:
-InvalidUnit_errorsonly <- TADA_FlagResultUnit(Data_Nutrients_UT, clean = "nonstandardized_only", errorsonly = TRUE)
+InvalidUnit_errorsonly <- TADA_FlagResultUnit(Nutrients_Utah, clean = "nonstandardized_only", errorsonly = TRUE)
 
 # Show only nonstandardized characteristic-media-result unit combinations:
-NonstandardUnit_errorsonly <- TADA_FlagResultUnit(Data_Nutrients_UT, clean = "invalid_only", errorsonly = TRUE)
+NonstandardUnit_errorsonly <- TADA_FlagResultUnit(Nutrients_Utah, clean = "invalid_only", errorsonly = TRUE)
 }

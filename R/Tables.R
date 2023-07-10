@@ -43,12 +43,12 @@ TADA_SummarizeColumn <- function(.data,col="TADA.CharacteristicName"){
 #' 
 #' @examples
 #' # Load example dataset:
-#' data(Data_TP_6Tribes_5y)
-#' # Data_TP_6Tribes_5y dataframe is clean, harmonized, and filtered
+#' data(TADAProfileCleanTP)
+#' # TADAProfileCleanTP dataframe is clean, harmonized, and filtered
 #' # down to one Comparable Data Identifier
 #' 
 #' # Create stats table:
-#' Data_TP_6Tribes_5y_stats <- TADA_Stats(Data_TP_6Tribes_5y)
+#' TADAProfileCleanTP_stats <- TADA_Stats(TADAProfileCleanTP)
 #' 
 
 TADA_Stats <- function(.data){
@@ -103,12 +103,12 @@ TADA_Stats <- function(.data){
 #' 
 #' @examples
 #' # Load example dataset:
-#' data(Data_TP_6Tribes_5y)
-#' # Data_TP_6Tribes_5y dataframe is clean, harmonized, and filtered
+#' data(TADAProfileCleanTP)
+#' # TADAProfileCleanTP dataframe is clean, harmonized, and filtered
 #' # down to one Comparable Data Identifier
 #' 
 #' # Create TADA_SummarizeCensoredData table:
-#' Data_TP_6Tribes_5y_TADA_SummarizeCensoredData <- TADA_SummarizeCensoredData(Data_TP_6Tribes_5y)
+#' TADAProfileCleanTP_TADA_SummarizeCensoredData <- TADA_SummarizeCensoredData(TADAProfileCleanTP)
 #' 
 
 TADA_SummarizeCensoredData <- function(.data, spec_cols = c("TADA.CharacteristicName","TADA.ResultMeasure.MeasureUnitCode","TADA.ResultSampleFractionText","TADA.MethodSpecificationName")){

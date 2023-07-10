@@ -21,11 +21,11 @@ Generate Statistics Table
 }
 \examples{
 # Load example dataset:
-data(Data_TP_6Tribes_5y)
-# Data_TP_6Tribes_5y dataframe is clean, harmonized, and filtered
+data(TADAProfileCleanTP)
+# TADAProfileCleanTP dataframe is clean, harmonized, and filtered
 # down to one Comparable Data Identifier
 
 # Create stats table:
-Data_TP_6Tribes_5y_stats <- TADA_Stats(Data_TP_6Tribes_5y)
+TADAProfileCleanTP_stats <- TADA_Stats(TADAProfileCleanTP)
 
 }

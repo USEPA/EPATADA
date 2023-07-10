@@ -35,7 +35,7 @@
 #' @param endDate End Date string in the format YYYY-MM-DD, for example, "2020-01-01"
 #' @param countycode FIPS county name. Note that a state code must also be supplied (e.g. statecode = "AL", countycode = "Chilton").
 #' @param huc A numeric code denoting a hydrologic unit. Example: "04030202". Different size hucs can be entered.
-#' @param siteid Unique monitoring location identifier
+#' @param siteid Unique monitoring station identifier
 #' @param siteType Type of waterbody
 #' @param characteristicName Name of parameter
 #' @param characteristicType Groups of environmental measurements/parameters.
@@ -53,29 +53,31 @@
 #' \dontrun{
 #' tada1 <- TADA_DataRetrieval(statecode = "WI", countycode = "Dane", characteristicName = "Phosphorus")
 #'
-#' tada2 <- TADA_DataRetrieval(statecode = "UT", characteristicName = c("Ammonia", "Nitrate", "Nitrogen")) 
+#' tada2 <- TADA_DataRetrieval(project = "Anchorage Bacteria 20-21")
+#' 
+#' tada3 <- TADA_DataRetrieval(statecode = "UT", characteristicName = c("Ammonia", "Nitrate", "Nitrogen")) 
 #'
-#' tada3 <- TADA_DataRetrieval(statecode = "SC", countycode  = "Abbeville")
+#' tada4 <- TADA_DataRetrieval(statecode = "SC", countycode  = "Abbeville")
 #' 
 #' # example for CT
-#' tada4 <- TADA_DataRetrieval(statecode = "CT", startDate = "2020-10-01")
+#' tada5 <- TADA_DataRetrieval(statecode = "CT", startDate = "2020-10-01")
 #' 
 #'
 #' # note that countycode queries require a statecode (see example below)
-#' tada5 <- TADA_DataRetrieval(countycode = "US:02:020")
+#' tada6 <- TADA_DataRetrieval(countycode = "US:02:020")
 #' 
 #' # example for NM
-#' tada6 <- TADA_DataRetrieval(statecode = "NM", 
+#' tada7 <- TADA_DataRetrieval(statecode = "NM", 
 #'                            characteristicName = c("Ammonia",
 #'                                                   "Nitrate", 
 #'                                                   "Nitrogen"), 
 #'                            startDate = "2020-05-01")
 #'                            
-#' # example for AK project
-#' tada7 <- TADA_DataRetrieval(project = "Anchorage Bacteria 20-21")
+#' # example for AK
+#' tada8 <- TADA_DataRetrieval(project = "Anchorage Bacteria 20-21")
 #' 
 #' # another example for AK
-#' tada8 <- TADA_DataRetrieval(statecode = "AK", 
+#' tada9 <- TADA_DataRetrieval(statecode = "AK", 
 #'                            characteristicName = c("Fecal Coliform",
 #'                                                   "Escherichia coli",
 #'                                                   "Enterococcus", 
@@ -108,7 +110,7 @@
 #' # Wyandotte Nation "WNENVDPT_WQX"
 #' # Pueblo of Pojoaque "PUEBLO_POJOAQUE"
 #' 
-#' tada9 <- TADA_DataRetrieval(organization = c("SFNOES_WQX",
+#' tada10 <- TADA_DataRetrieval(organization = c("SFNOES_WQX",
 #'                                              "CPNWATER",
 #'                                              "DELAWARENATION",
 #'                                              "HVTEPA_WQX",
@@ -649,7 +651,7 @@ TADA_BigDataRetrieval <- function(startDate = "null",
 #' @export
 #'
 #' @examples
-#' join = TADA::TADA_JoinWQPProfiles(FullPhysChem = Data_PhysChem_5d, Sites = Data_Site_5d, Narrow = Data_Narrow_5d)
+#' join = TADA::TADA_JoinWQPProfiles(FullPhysChem = resultphyschem, Sites = station, Narrow = narrow)
 #'
 
 TADA_JoinWQPProfiles <- function(FullPhysChem = "null",

@@ -42,7 +42,7 @@ utils::globalVariables(c("TADA.ResultValueAboveUpperThreshold.Flag", "ActivityId
                          "tot_n", "MonitoringLocationName", "TADA.LatitudeMeasure", 
                          "TADA.LongitudeMeasure", "median", "sd", "TADA.ComparableDataIdentifier", 
                          "desc", "Legend", "roundRV", "TADA.DuplicateID", "maxRV", "within10", 
-                         "AllGroups", "Domain.Value.Status", "Char_Flag", "Comparable.Name"))
+                         "AllGroups"))
 
 
 
@@ -627,8 +627,8 @@ TADA_CreateComparableID <- function(.data){
 #' 
 
 TADA_GetTemplate <- function(){
-  colsreq = names(TADA::Data_Nutrients_UT)[!grepl("TADA.",names(TADA::Data_Nutrients_UT))]
-  writexl::write_xlsx(TADA::Data_Nutrients_UT[1,colsreq], path = "TADATemplate.xlsx")
+  colsreq = names(TADA::Nutrients_Utah)[!grepl("TADA.",names(TADA::Nutrients_Utah))]
+  writexl::write_xlsx(TADA::Nutrients_Utah[1,colsreq], path = "TADATemplate.xlsx")
 }
 
 

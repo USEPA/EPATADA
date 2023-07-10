@@ -37,16 +37,16 @@ errorsonly = FALSE.
 }
 \examples{
 # Load example dataset
-data(Data_Nutrients_UT)
+data(Nutrients_Utah)
 
 # Remove invalid characteristic-analytical method combinations from dataframe:
-InvalidMethod_clean <- TADA_FlagMethod(Data_Nutrients_UT)
+InvalidMethod_clean <- TADA_FlagMethod(Nutrients_Utah)
 
 # Flag, but do not remove, invalid characteristic-analytical method combinations
 # in new column titled "TADA.AnalyticalMethod.Flag":
-InvalidMethod_flags <- TADA_FlagMethod(Data_Nutrients_UT, clean = FALSE)
+InvalidMethod_flags <- TADA_FlagMethod(Nutrients_Utah, clean = FALSE)
 
 # Show only invalid characteristic-analytical method combinations:
-InvalidMethod_errorsonly <- TADA_FlagMethod(Data_Nutrients_UT, clean = FALSE, errorsonly = TRUE)
+InvalidMethod_errorsonly <- TADA_FlagMethod(Nutrients_Utah, clean = FALSE, errorsonly = TRUE)
 
 }

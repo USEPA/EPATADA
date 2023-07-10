@@ -29,11 +29,11 @@ Create Boxplot
 }
 \examples{
 # Load example dataset:
-data(Data_TP_6Tribes_5y)
-# Data_TP_6Tribes_5y dataframe is clean, harmonized, and filtered
+data(TADAProfileCleanTP)
+# TADAProfileCleanTP dataframe is clean, harmonized, and filtered
 # down to one Comparable Data Identifier
 
 # Create boxplot:
-TADA_Boxplot(Data_TP_6Tribes_5y, id_col = "TADA.ComparableDataIdentifier")
+TADA_Boxplot(TADAProfileCleanTP, id_col = "TADA.ComparableDataIdentifier")
 
 }

@@ -25,9 +25,9 @@ Create Overview Map
 }
 \examples{
 # Load example dataset:
-data("Data_Nutrients_UT.rda")
+data("Nutrients_Utah.rda")
 
 # Create map:
-TADA_OverviewMap(Data_Nutrients_UT)
+TADA_OverviewMap(Nutrients_Utah)
 
 }

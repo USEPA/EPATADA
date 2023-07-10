@@ -24,15 +24,15 @@ edit the reference file to meet their needs.
 }
 \examples{
 # Load example dataset:
-data(Data_Nutrients_UT)
+data(Nutrients_Utah)
 
 # Create a harmonization reference table for dataframe:
-CreateRefTable <- TADA_GetSynonymRef(Data_Nutrients_UT)
+CreateRefTable <- TADA_GetSynonymRef(Nutrients_Utah)
 
 # Create and download (to your working directory) a harmonization reference
 # table for dataframe: 
 \dontrun{
-DownloadRefTable <- TADA_GetSynonymRef(Data_Nutrients_UT, download = TRUE)
+DownloadRefTable <- TADA_GetSynonymRef(Nutrients_Utah, download = TRUE)
 }
 
 }

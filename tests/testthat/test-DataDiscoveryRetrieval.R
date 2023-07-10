@@ -177,21 +177,25 @@ test_that("TADA_JoinWQPProfiles_works", {
   
   stations = readRDS(testthat::test_path("testdata/Cyan_Stations.rds"))
   
-  add_sites_metadata <- TADA_JoinWQPProfiles(Sites = Data_Site_5d, 
-                                        FullPhysChem = Data_PhysChem_5d)
+  add_sites_metadata <- TADA_JoinWQPProfiles(Sites = stations, 
+                                        FullPhysChem = physchemresults)
   
   expect_true(ncol(add_sites_metadata) == 113)
 })
 
 
 test_that("TADA_JoinWQPProfiles_columns", {
-  data(Data_Site_5d)
-  data(Data_Narrow_5d)
-  data(Data_PhysChem_5d)
+  data(station)
+  data(narrow)
+  data(resultphyschem)
   
-  join = TADA::TADA_JoinWQPProfiles(FullPhysChem = Data_PhysChem_5d, 
-                               Sites = Data_Site_5d, 
-                               Narrow = Data_Narrow_5d)
+  #narrow = readRDS(testthat::test_path("testdata/narrow_raw.rds"))
+  #resultphyschem = readRDS(testthat::test_path("testdata/resultphyschem_raw.rds"))
+  #station = readRDS(testthat::test_path("testdata/station_raw.rds"))
+  
+  join = TADA::TADA_JoinWQPProfiles(FullPhysChem = resultphyschem, 
+                               Sites = station, 
+                               Narrow = narrow)
   # update in future to pick the important columns:
   expect_true(all(c("OrganizationIdentifier",                           
                     "OrganizationFormalName",                           

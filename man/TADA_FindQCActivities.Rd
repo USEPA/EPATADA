@@ -45,14 +45,14 @@ or spiked samples as "QC_calibration", and other QC samples as "QC_other".
 }
 \examples{
 # Load example dataset:
-data(Data_Nutrients_UT)
+data(Nutrients_Utah)
 
 # Flag and keep all QC samples:
-QC_flagged <- TADA_FindQCActivities(Data_Nutrients_UT)
+QC_flagged <- TADA_FindQCActivities(Nutrients_Utah)
 
 # Flag QC samples and filter to flagged data only:
-QC_flags_only <- TADA_FindQCActivities(Data_Nutrients_UT, errorsonly = TRUE)
+QC_flags_only <- TADA_FindQCActivities(Nutrients_Utah, errorsonly = TRUE)
 
 # Remove all QC samples:
-QC_clean <- TADA_FindQCActivities(Data_Nutrients_UT, clean = TRUE)
+QC_clean <- TADA_FindQCActivities(Nutrients_Utah, clean = TRUE)
 }

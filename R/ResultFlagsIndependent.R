@@ -28,17 +28,17 @@
 #'
 #' @examples 
 #' # Load example dataset
-#' data(Data_Nutrients_UT)
+#' data(Nutrients_Utah)
 #' 
 #' # Remove invalid characteristic-analytical method combinations from dataframe:
-#' InvalidMethod_clean <- TADA_FlagMethod(Data_Nutrients_UT)
+#' InvalidMethod_clean <- TADA_FlagMethod(Nutrients_Utah)
 #' 
 #' # Flag, but do not remove, invalid characteristic-analytical method combinations
 #' # in new column titled "TADA.AnalyticalMethod.Flag":
-#' InvalidMethod_flags <- TADA_FlagMethod(Data_Nutrients_UT, clean = FALSE)
+#' InvalidMethod_flags <- TADA_FlagMethod(Nutrients_Utah, clean = FALSE)
 #' 
 #' # Show only invalid characteristic-analytical method combinations:
-#' InvalidMethod_errorsonly <- TADA_FlagMethod(Data_Nutrients_UT, clean = FALSE, errorsonly = TRUE)
+#' InvalidMethod_errorsonly <- TADA_FlagMethod(Nutrients_Utah, clean = FALSE, errorsonly = TRUE)
 #' 
 
 TADA_FlagMethod <- function(.data, clean = TRUE, errorsonly = FALSE) {
@@ -166,17 +166,17 @@ TADA_FlagMethod <- function(.data, clean = TRUE, errorsonly = FALSE) {
 #' 
 #' @examples 
 #' # Load example dataset
-#' data(Data_Nutrients_UT)
+#' data(Nutrients_Utah)
 #' 
 #' # Remove aggregated continuous data from dataframe:
-#' AggContinuous_clean <- TADA_FindContinuousData(Data_Nutrients_UT)
+#' AggContinuous_clean <- TADA_FindContinuousData(Nutrients_Utah)
 #' 
 #' # Flag, but do not remove, aggregated continuous data in new column
 #' # titled "TADA.AggregatedContinuousData.Flag":
-#' AggContinuous_flags <- TADA_FindContinuousData(Data_Nutrients_UT, clean = FALSE)
+#' AggContinuous_flags <- TADA_FindContinuousData(Nutrients_Utah, clean = FALSE)
 #' 
 #' # Show only rows flagged for aggregated continuous data:
-#' AggContinuous_errorsonly <- TADA_FindContinuousData(Data_Nutrients_UT, 
+#' AggContinuous_errorsonly <- TADA_FindContinuousData(Nutrients_Utah, 
 #' clean = FALSE, errorsonly = TRUE)
 #' 
 
@@ -289,17 +289,17 @@ TADA_FindContinuousData <- function(.data, clean = TRUE, errorsonly = FALSE) {
 #' 
 #' @examples 
 #' # Load example dataset:
-#' data(Data_Nutrients_UT)
+#' data(Nutrients_Utah)
 #' 
 #' # Remove data that is above the upper WQX threshold from dataframe:
-#' WQXUpperThreshold_clean <- TADA_FlagAboveThreshold(Data_Nutrients_UT)
+#' WQXUpperThreshold_clean <- TADA_FlagAboveThreshold(Nutrients_Utah)
 #' 
 #' # Flag, but do not remove, data that is above the upper WQX threshold in
 #' # new column titled "TADA.ResultValueAboveUpperThreshold.Flag":
-#' WQXUpperThreshold_flags <- TADA_FlagAboveThreshold(Data_Nutrients_UT, clean = FALSE)
+#' WQXUpperThreshold_flags <- TADA_FlagAboveThreshold(Nutrients_Utah, clean = FALSE)
 #' 
 #' # Show only data flagged as above the upper WQX threshold:
-#' WQXUpperThreshold_flagsonly <- TADA_FlagAboveThreshold(Data_Nutrients_UT, 
+#' WQXUpperThreshold_flagsonly <- TADA_FlagAboveThreshold(Nutrients_Utah, 
 #' clean = FALSE, errorsonly = TRUE)
 #' 
 
@@ -442,17 +442,17 @@ TADA_FlagAboveThreshold <- function(.data, clean = TRUE, errorsonly = FALSE) {
 #' 
 #' @examples 
 #' # Load example dataset:
-#' data(Data_Nutrients_UT)
+#' data(Nutrients_Utah)
 #' 
 #' # Remove data that is below the lower WQX threshold from the dataframe:
-#' WQXLowerThreshold_clean <- TADA_FlagBelowThreshold(Data_Nutrients_UT)
+#' WQXLowerThreshold_clean <- TADA_FlagBelowThreshold(Nutrients_Utah)
 #' 
 #' # Flag, but do not remove, data that is below the lower WQX threshold in
 #' # new column titled "TADA.ResultValueBelowLowerThreshold.Flag":
-#' WQXLowerThreshold_flags <- TADA_FlagBelowThreshold(Data_Nutrients_UT, clean = FALSE)
+#' WQXLowerThreshold_flags <- TADA_FlagBelowThreshold(Nutrients_Utah, clean = FALSE)
 #' 
 #' # Show only data that is below the lower WQX threshold:
-#' WQXLowerThreshold_flagsonly <- TADA_FlagBelowThreshold(Data_Nutrients_UT,
+#' WQXLowerThreshold_flagsonly <- TADA_FlagBelowThreshold(Nutrients_Utah,
 #' clean = FALSE, errorsonly = TRUE)
 #' 
 
@@ -615,20 +615,20 @@ TADA_FlagBelowThreshold <- function(.data, clean = TRUE, errorsonly = FALSE) {
 #' 
 #' @examples 
 #' # Load example dataset:
-#' data(Data_Nutrients_UT)
+#' data(Nutrients_Utah)
 #' 
 #' # Show data where the QAPPApprovedIndicator equals "Y" or "NA":
-#' QAPPapproved_clean <- TADA_FindQAPPApproval(Data_Nutrients_UT)
+#' QAPPapproved_clean <- TADA_FindQAPPApproval(Nutrients_Utah)
 #' 
 #' # Show only data where the QAPPApprovedIndicator equals "Y":
-#' QAPPapproved_cleanNAs <- TADA_FindQAPPApproval(Data_Nutrients_UT, cleanNA = TRUE)
+#' QAPPapproved_cleanNAs <- TADA_FindQAPPApproval(Nutrients_Utah, cleanNA = TRUE)
 #' 
 #' # Show data where the QAPPApprovedIndicator equals "N" or "NA":
-#' QAPPIndicator_N_NA <- TADA_FindQAPPApproval(Data_Nutrients_UT, clean = FALSE, 
+#' QAPPIndicator_N_NA <- TADA_FindQAPPApproval(Nutrients_Utah, clean = FALSE, 
 #' cleanNA = FALSE, errorsonly = TRUE)
 #' 
 #' # Show data where the QAPPApprovedIndicator equals "N":
-#' QAPPIndicator_N <- TADA_FindQAPPApproval(Data_Nutrients_UT, clean = FALSE, 
+#' QAPPIndicator_N <- TADA_FindQAPPApproval(Nutrients_Utah, clean = FALSE, 
 #' cleanNA = TRUE, errorsonly = TRUE)
 #'
 #' # Note: When clean = FALSE, cleanNA = FALSE, and errorsonly = FALSE, no data is removed
@@ -730,14 +730,14 @@ TADA_FindQAPPApproval <- function(.data, clean = FALSE, cleanNA = FALSE, errorso
 #' 
 #' @examples 
 #' # Load example dataset:
-#' data(Data_Nutrients_UT)
+#' data(Nutrients_Utah)
 #' 
 #' # Flag, but do not remove, data without an associated QAPP document in
 #' # new column titled "TADA.QAPPDocAvailable":
-#' FlagData_MissingQAPPDocURLs <- TADA_FindQAPPDoc(Data_Nutrients_UT)
+#' FlagData_MissingQAPPDocURLs <- TADA_FindQAPPDoc(Nutrients_Utah)
 #' 
 #' # Remove data without an associated QAPP document available:
-#' RemoveData_MissingQAPPDocURLs <- TADA_FindQAPPDoc(Data_Nutrients_UT, clean = TRUE)
+#' RemoveData_MissingQAPPDocURLs <- TADA_FindQAPPDoc(Nutrients_Utah, clean = TRUE)
 #' 
 
 TADA_FindQAPPDoc <- function(.data, clean = FALSE) {
@@ -845,34 +845,34 @@ TADA_FindQAPPDoc <- function(.data, clean = FALSE) {
 #' 
 #' @examples 
 #' # Load example dataset:
-#' data(Data_Nutrients_UT)
+#' data(Nutrients_Utah)
 #' 
 #' # Flag, but do not remove, data with invalid coordinates in new column 
 #' # titled "TADA.InvalidCoordinates.Flag":
 #' # Return ALL data:
-#' InvalidCoord_flags <- TADA_FlagCoordinates(Data_Nutrients_UT)
+#' InvalidCoord_flags <- TADA_FlagCoordinates(Nutrients_Utah)
 #' 
 #' # Flag, but do not remove, data with invalid coordinates in new column 
 #' # titled "TADA.InvalidCoordinates.Flag"
 #' # Return ONLY the flagged data:
-#' InvalidCoord_flags_errorsonly <- TADA_FlagCoordinates(Data_Nutrients_UT, errorsonly = TRUE)
+#' InvalidCoord_flags_errorsonly <- TADA_FlagCoordinates(Nutrients_Utah, errorsonly = TRUE)
 #' 
 #' # Remove data with coordinates outside the USA, but keep flagged data with 
 #' # imprecise coordinates:
-#' OutsideUSACoord_removed <- TADA_FlagCoordinates(Data_Nutrients_UT, clean_outsideUSA = "remove")
+#' OutsideUSACoord_removed <- TADA_FlagCoordinates(Nutrients_Utah, clean_outsideUSA = "remove")
 #' 
 #' # Change the sign of coordinates flagged as outside the USA and keep all
 #' # flagged data:
-#' OutsideUSACoord_changed <- TADA_FlagCoordinates(Data_Nutrients_UT, clean_outsideUSA = "change sign")
+#' OutsideUSACoord_changed <- TADA_FlagCoordinates(Nutrients_Utah, clean_outsideUSA = "change sign")
 #' 
 #' # Remove data with imprecise coordinates, but keep flagged data with coordinates outside the USA;
 #' # imprecise data may include a series of 999's to the right of the decimal points;
 #' # alternatively, imprecise data may have less than 3 significant figures to the right
 #' # of the decimal point:
-#' ImpreciseCoord_removed <- TADA_FlagCoordinates(Data_Nutrients_UT, clean_imprecise = TRUE)
+#' ImpreciseCoord_removed <- TADA_FlagCoordinates(Nutrients_Utah, clean_imprecise = TRUE)
 #' 
 #' # Remove data with imprecise coordinates or coordinates outside the USA from the dataframe:
-#' InvalidCoord_removed <- TADA_FlagCoordinates(Data_Nutrients_UT, clean_outsideUSA = "remove", clean_imprecise = TRUE)
+#' InvalidCoord_removed <- TADA_FlagCoordinates(Nutrients_Utah, clean_outsideUSA = "remove", clean_imprecise = TRUE)
 #' 
 
 TADA_FlagCoordinates <- function(.data, 

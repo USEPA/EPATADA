@@ -17,15 +17,15 @@
 #' 
 #' @examples 
 #' # Load example dataset:
-#' data(Data_Nutrients_UT)
+#' data(Nutrients_Utah)
 #' 
 #' # Create a harmonization reference table for dataframe:
-#' CreateRefTable <- TADA_GetSynonymRef(Data_Nutrients_UT)
+#' CreateRefTable <- TADA_GetSynonymRef(Nutrients_Utah)
 #' 
 #' # Create and download (to your working directory) a harmonization reference
 #' # table for dataframe: 
 #' \dontrun{
-#' DownloadRefTable <- TADA_GetSynonymRef(Data_Nutrients_UT, download = TRUE)
+#' DownloadRefTable <- TADA_GetSynonymRef(Nutrients_Utah, download = TRUE)
 #' }
 #' 
 
@@ -134,24 +134,24 @@ TADA_GetSynonymRef <- function(.data, download = FALSE) {
 #' 
 #' @examples 
 #' # Load example dataset:
-#' data(Data_Nutrients_UT)
+#' data(Nutrients_Utah)
 #' 
 #' # Append harmonization reference table columns to dataframe and transform/convert
 #' # data to the reference table values:
-#' Nutrients_Harmonized <- TADA_HarmonizeSynonyms(Data_Nutrients_UT)
+#' Nutrients_Harmonized <- TADA_HarmonizeSynonyms(Nutrients_Utah)
 #' 
 #' # Transform/convert data to the harmonization reference table values, but
 #' # do not append any columns to dataframe:
-#' Nutrients_Harmonized_noflags <- TADA_HarmonizeSynonyms(Data_Nutrients_UT, flag = FALSE)
+#' Nutrients_Harmonized_noflags <- TADA_HarmonizeSynonyms(Nutrients_Utah, flag = FALSE)
 #' 
 #' # Append harmonization reference table columns to dataframe, but do not
 #' # transform/convert data to the reference table values:
-#' Nutrients_NotHarmonized <- TADA_HarmonizeSynonyms(Data_Nutrients_UT, transform = FALSE)
+#' Nutrients_NotHarmonized <- TADA_HarmonizeSynonyms(Nutrients_Utah, transform = FALSE)
 #' 
 #' # Append harmonization reference table columns to dataframe and transform/convert
 #' # data to the USER SUPPLIED reference table values:
-#' UniqueHarmonizationRef <- TADA_GetSynonymRef(Data_Nutrients_UT, download = FALSE)
-#' Nutrients_Harmonized_UserSuppliedRef <- TADA_HarmonizeSynonyms(Data_Nutrients_UT, ref = UniqueHarmonizationRef)
+#' UniqueHarmonizationRef <- TADA_GetSynonymRef(Nutrients_Utah, download = FALSE)
+#' Nutrients_Harmonized_UserSuppliedRef <- TADA_HarmonizeSynonyms(Nutrients_Utah, ref = UniqueHarmonizationRef)
 
 TADA_HarmonizeSynonyms <- function(.data, ref, transform = TRUE, flag = TRUE) {
   # check .data is data.frame

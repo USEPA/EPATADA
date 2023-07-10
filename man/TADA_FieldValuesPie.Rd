@@ -21,10 +21,10 @@ Function creates a ggplot2 pie chart showing the relative proportions of values 
 }
 \examples{
 # Load example dataset:
-data(Data_Nutrients_UT)
+data(Nutrients_Utah)
 
 # Create a list of parameters in the dataset and the number of records of
 # each parameter: 
-TADA_FieldValuesPie(Data_Nutrients_UT, field = "TADA.CharacteristicName")
+TADA_FieldValuesPie(Nutrients_Utah, field = "TADA.CharacteristicName")
 
 }

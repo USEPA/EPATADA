@@ -1,89 +1,89 @@
-#' Data_WaterT_US
+#' Lake Water Temperature
 #'
-#' Example data containing all lake water temperature data in the US
-#' from Jan 2000 to Jul 2022. This dataset can be reproduced 
-#' with the following TADA_BigDataRetrieval call: 
+#' TADA example dataset containing all lake water temperature data in the U.S.
+#' from Jan. 2000 to July 2022. This dataset can be reproduced 
+#' with the following TADABigdataRetrieval call: 
 #' 
-#' Data_WaterT_US <- TADA_BigDataRetrieval(startDate = "2000-01-01", 
+#' AllWaterTempData <- TADA_BigDataRetrieval(startDate = "2000-01-01", 
 #' endDate = "2022-07-01", 
 #' characteristicName = "Temperature, water",
 #' siteType = "Lake, Reservoir, Impoundment")
 #'
 #' @docType data
 #' @keywords datasets
-#' @name Data_WaterT_US
-#' @usage data(Data_WaterT_US)
+#' @name WaterTemp_US
+#' @usage data(WaterTemp_US)
 #' @format A data frame with 14237 rows and 103 variables
 NULL
 
-#' Data_Nutrients_UT
+#' Utah Nutrient Data
 #'
 #' A dataset containing Ammonia, Nitrate, and Nitrogen data from Utah:
 #'  
-#' Data_Nutrients_UT <- TADA_DataRetrieval(statecode = "UT",
+#' Nutrients_Utah <- TADA_DataRetrieval(statecode = "UT",
 #' characteristicName = c("Ammonia", "Nitrate", "Nitrogen"),
 #' startDate = "2020-10-01",
 #' endDate = "2022-09-30")
 #'
 #' @docType data
 #' @keywords datasets
-#' @name Data_Nutrients_UT
-#' @usage data(Data_Nutrients_UT)
+#' @name Nutrients_Utah
+#' @usage data(Nutrients_Utah)
 #' @format A data frame with 14587 rows and 148 variables
 NULL
 
-#' Data_Narrow_5d
+#' narrow
 #'
-#' Sample Results (narrow) WQP profile containing results for a 5 day period from 1/5/2023-1/10/2023.
+#' narrow dataset containing all WQP data for a 5 day period from 1/5/2023-1/10/2023
 #'  
 #' @docType data
 #' @keywords datasets
-#' @name Data_Narrow_5d
-#' @usage data(Data_Narrow_5d)
+#' @name narrow
+#' @usage data(narrow)
 #' @format A data frame with 898 rows and 78 variables
 NULL
 
-#' Data_PhysChem_5d
+#' resultphyschem
 #'
-#' Sample Results (physical/chemical metadata) profile containing data for a 5 day period from 1/5/2023-1/10/2023.
+#' resultphyschem dataset containing all WQP data for a 5 day period from 1/5/2023-1/10/2023
 #'  
 #' @docType data
 #' @keywords datasets
-#' @name Data_PhysChem_5d
-#' @usage data(Data_PhysChem_5d)
+#' @name resultphyschem
+#' @usage data(resultphyschem)
 #' @format A data frame with 898 rows and 81 variables
 NULL
 
-#' Data_Site_5d
+#' station
 #'
-#' Site Data Only WQP profile containing all data for a 5 day period from 1/5/2023-1/10/2023.
+#' station dataset containing all WQP data for a 5 day period from 1/5/2023-1/10/2023
 #'  
 #' @docType data
 #' @keywords datasets
-#' @name Data_Site_5d
-#' @usage data(Data_Site_5d)
+#' @name station
+#' @usage data(station)
 #' @format A data frame with 55 rows and 37 variables
 NULL
 
-#' Data_TP_6Tribes_5y
+#' TADAProfileCleanTP
 #' 
-#' A dataset containing Total Phosphorus (TP) data from tribal organizations
-#' (see ?Data_6Tribes_5y for more information). Data was cleaned using the
-#' TADA Module 1 vignette 
-#' (see: https://usepa.github.io/TADA/articles/TADAModule1.html).
-#' Data is filtered down to "Total Phosphorus, Mixed Forms".
+#' A dataset containing Total Phosphorus data from Tribal Data (see ?TribalData for more information):
+#'
+#'
+#' Data was cleaned using the TADA harmonize vignette. Data is filtered down to 
+#' only Total Phosphorus, Mixed Forms.
 #'  
 #' @docType data
 #' @keywords datasets
-#' @name Data_TP_6Tribes_5y
-#' @usage data(Data_TP_6Tribes_5y)
+#' @name TADAProfileCleanTP
+#' @usage data(TADAProfileCleanTP)
 #' @format A data frame with 2498 rows and 172 variables
 NULL
 
-#' Data_6Tribes_5y
+#' Tribal Data
 #'
 #' Original pull:  
-#' Data_6Tribes_5y <- TADA_DataRetrieval(organization = c("REDLAKE_WQX", 
+#' TribalData <- TADA_DataRetrieval(organization = c("REDLAKE_WQX", 
 #'                                                  "SFNOES_WQX", 
 #'                                                  "PUEBLO_POJOAQUE",
 #'                                                  "FONDULAC_WQX",
@@ -100,17 +100,18 @@ NULL
 #' 5) Pueblo of Tesuque, and
 #' 6) The Chickasaw Nation
 #'
+#'  
 #' @docType data
 #' @keywords datasets
-#' @name Data_6Tribes_5y
-#' @usage data(Data_6Tribes_5y)
+#' @name TribalData
+#' @usage data(TribalData)
 #' @format A data frame with 131906 rows and 151 variables
 NULL
 
-#' Data_NCTCShepherdstown_HUC12
+#' Shepherdstown 2023 Training Dataset
 #'
-#' Original pull:  
-#' Data_NCTCShepherdstown_HUC12 = TADA::TADA_DataRetrieval(
+#' #' Original pull:  
+#' NCTCShepherdstown_HUC12 = TADA::TADA_DataRetrieval(
 #'   startDate = "2020-03-14",
 #'   endDate = "null",
 #'   countycode = "null",
@@ -128,7 +129,7 @@ NULL
 #'  
 #' @docType data
 #' @keywords datasets
-#' @name Data_NCTCShepherdstown_HUC12
-#' @usage data(Data_NCTCShepherdstown_HUC12)
+#' @name NCTCShepherdstown_HUC12
+#' @usage data(NCTCShepherdstown_HUC12)
 #' @format A data frame with 34330 rows and 151 variables
 NULL

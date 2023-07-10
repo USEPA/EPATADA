@@ -38,15 +38,15 @@
 # return A table of fields and the count of unique values in each field.
 # examples
 # # Load example dataset:
-# data(Data_Nutrients_UT)
+# data(Nutrients_Utah)
 # 
 # # Create a table of fields and count of unique values in each field:
-# Fields_Data_Nutrients_UT <- FilterFields(Data_Nutrients_UT)
+# Fields_Nutrients_Utah <- FilterFields(Nutrients_Utah)
 # 
 
 FilterFields <- function(.data) {
   # check .data is data.frame
-  TADA_TADA_CheckType(.data, "data.frame", "Input object")
+  checkType(.data, "data.frame", "Input object")
   
   # CREATE LIST OF FIELDS
   # Find count of unique values in each column
@@ -154,16 +154,16 @@ FilterFields <- function(.data) {
 # 
 # examples
 # # Load example dataset:
-# data(Data_Nutrients_UT)
+# data(Nutrients_Utah)
 # 
 # # Create table and pie chart of "Hydrologic Condition" unique values and counts:
-# FieldReview_HydrologicCondition <- FilterFieldReview(field = "HydrologicCondition", Data_Nutrients_UT)
+# FieldReview_HydrologicCondition <- FilterFieldReview(field = "HydrologicCondition", Nutrients_Utah)
 
 
 FilterFieldReview <- function(field, .data) {
   # if provided, check .data is data.frame
   if (!missing(.data)) {
-    TADA_TADA_CheckType(.data, "data.frame", "Input object")
+    checkType(.data, "data.frame", "Input object")
   }
   # execute function after checks are passed
   
@@ -213,11 +213,11 @@ FilterFieldReview <- function(field, .data) {
 # return A list of unique values in TADA.CharacteristicName and their counts
 # examples
 # # Load example dataset:
-# data(Data_Nutrients_UT)
+# data(Nutrients_Utah)
 # 
 # # Create a list of parameters in the dataset and the number of records of
 # # each parameter:
-# ParameterList <- FilterParList(Data_Nutrients_UT)
+# ParameterList <- FilterParList(Nutrients_Utah)
 # 
 
 FilterParList <- function(.data) {
@@ -281,17 +281,17 @@ FilterParList <- function(.data) {
 # 
 # examples
 # # Load example dataset:
-# data(Data_Nutrients_UT)
+# data(Nutrients_Utah)
 # 
 # # Create list of fields for parameter "AMMONIA" with number of unique values in each field:
-# AmmoniaFields <- FilterParFields(Data_Nutrients_UT, parameter = "AMMONIA")
+# AmmoniaFields <- FilterParFields(Nutrients_Utah, parameter = "AMMONIA")
 # 
 
 FilterParFields <- function(.data, parameter) {
   # check .data is data.frame
-  TADA_TADA_CheckType(.data, "data.frame", "Input object")
+  checkType(.data, "data.frame", "Input object")
   # check .data has required columns
-  TADA_CheckColumns(.data, "TADA.CharacteristicName")
+  checkColumns(.data, "TADA.CharacteristicName")
   
   # check parameter is in .data
   if ((parameter %in% .data$TADA.CharacteristicName) == FALSE) {
@@ -433,16 +433,16 @@ FilterParFields <- function(.data, parameter) {
 # 
 # examples
 # # Load example dataset:
-# data(Data_Nutrients_UT)
+# data(Nutrients_Utah)
 # 
 # # Create table and pie chart of monitoring locations for the parameter "AMMONIA" in dataframe:
-# AmmoniaMonitoringLocations <- FilterParFieldReview(field = "MonitoringLocationIdentifier", Data_Nutrients_UT, parameter = "AMMONIA")
+# AmmoniaMonitoringLocations <- FilterParFieldReview(field = "MonitoringLocationIdentifier", Nutrients_Utah, parameter = "AMMONIA")
 # 
 
 FilterParFieldReview <- function(field, .data, parameter) {
   # if provided, check .data is data.frame
   if (!missing(.data)) {
-    TADA_TADA_CheckType(.data, "data.frame", "Input object")
+    checkType(.data, "data.frame", "Input object")
   }
   # check parameter is in .data
   if (!missing(parameter)) {
@@ -513,12 +513,12 @@ MeasureValueSpecialCharacters <- function(.data) {
   warning("This function is deprecated and does not return the correct column names. Please use TADA_ConvertSpecialChars() function instead.")
   
   # check .data is data.frame
-  TADA_TADA_CheckType(.data, "data.frame", "Input object")
+  checkType(.data, "data.frame", "Input object")
   
   # .data required columns
   required_cols <- c("ResultMeasureValue", "DetectionQuantitationLimitMeasure.MeasureValue")
   # check .data has required columns
-  TADA_CheckColumns(.data, required_cols)
+  checkColumns(.data, required_cols)
   
   # execute function after checks are passed
   # define check.data
@@ -785,24 +785,24 @@ TADAprofileCheck <- function(.data) {
 #
 # @examples
 # # Load example dataset:
-# data(Data_Nutrients_UT)
+# data(Nutrients_Utah)
 # 
 # # Remove potential duplicate data from dataframe:
-# PotentialDup_clean <- PotentialDuplicateRowID(Data_Nutrients_UT)
+# PotentialDup_clean <- PotentialDuplicateRowID(Nutrients_Utah)
 #
 # # Flag, but do not remove, potential duplicate data in new column titled "TADA.PotentialDupRowIDs.Flag":
-# PotentialDup_flagcolumnadded <- PotentialDuplicateRowID(Data_Nutrients_UT, clean = FALSE)
+# PotentialDup_flagcolumnadded <- PotentialDuplicateRowID(Nutrients_Utah, clean = FALSE)
 # 
 # # Flag and review potential duplicate data only:
-# PotentialDup_reviewduplicatesonly <- PotentialDuplicateRowID(Data_Nutrients_UT, clean = FALSE, errorsonly = TRUE)
+# PotentialDup_reviewduplicatesonly <- PotentialDuplicateRowID(Nutrients_Utah, clean = FALSE, errorsonly = TRUE)
 
 PotentialDuplicateRowID <- function(.data, clean = TRUE, errorsonly = FALSE) {
   # check .data is data.frame
-  TADA_CheckType(.data, "data.frame", "Input object")
+  checkType(.data, "data.frame", "Input object")
   # check clean is boolean
-  TADA_CheckType(clean, "logical")
+  checkType(clean, "logical")
   # check errorsonly is boolean
-  TADA_CheckType(errorsonly, "logical")
+  checkType(errorsonly, "logical")
   # check .data has required columns
   required_cols <- c(
     "ActivityIdentifier", "ActivityConductingOrganizationText",
@@ -810,7 +810,7 @@ PotentialDuplicateRowID <- function(.data, clean = TRUE, errorsonly = FALSE) {
     "ProjectIdentifier", "ResultCommentText",
     "ActivityCommentText"
   )
-  TADA_CheckColumns(.data, required_cols)
+  checkColumns(.data, required_cols)
   # check that clean and errorsonly are not both TRUE
   if (clean == TRUE & errorsonly == TRUE) {
     stop("Function not executed because clean and errorsonly cannot both be TRUE")

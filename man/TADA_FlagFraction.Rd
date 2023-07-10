@@ -34,16 +34,16 @@ invalid characteristic-fraction combinations are returned. Default is errorsonly
 }
 \examples{
 # Load example dataset:
-data(Data_Nutrients_UT)
+data(Nutrients_Utah)
 
 # Remove data with invalid characteristic-fraction combinations:
-InvalidFraction_clean <- TADA_FlagFraction(Data_Nutrients_UT)
+InvalidFraction_clean <- TADA_FlagFraction(Nutrients_Utah)
 
 # Flag, but do not remove, data with invalid characteristic-fraction combinations
 # in new column titled "TADA.SampleFraction.Flag":
-InvalidFraction_flags <- TADA_FlagFraction(Data_Nutrients_UT, clean = FALSE)
+InvalidFraction_flags <- TADA_FlagFraction(Nutrients_Utah, clean = FALSE)
 
 # Show only invalid characteristic-fraction combinations:
-InvalidFraction_errorsonly <- TADA_FlagFraction(Data_Nutrients_UT, clean = FALSE, errorsonly = TRUE)
+InvalidFraction_errorsonly <- TADA_FlagFraction(Nutrients_Utah, clean = FALSE, errorsonly = TRUE)
 
 }

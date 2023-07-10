@@ -68,20 +68,20 @@ submitted to WQP is NA.
 }
 \examples{
 # Load example dataset:
-data(Data_Nutrients_UT)
+data(Nutrients_Utah)
 
 # Show data where the QAPPApprovedIndicator equals "Y" or "NA":
-QAPPapproved_clean <- TADA_FindQAPPApproval(Data_Nutrients_UT)
+QAPPapproved_clean <- TADA_FindQAPPApproval(Nutrients_Utah)
 
 # Show only data where the QAPPApprovedIndicator equals "Y":
-QAPPapproved_cleanNAs <- TADA_FindQAPPApproval(Data_Nutrients_UT, cleanNA = TRUE)
+QAPPapproved_cleanNAs <- TADA_FindQAPPApproval(Nutrients_Utah, cleanNA = TRUE)
 
 # Show data where the QAPPApprovedIndicator equals "N" or "NA":
-QAPPIndicator_N_NA <- TADA_FindQAPPApproval(Data_Nutrients_UT, clean = FALSE, 
+QAPPIndicator_N_NA <- TADA_FindQAPPApproval(Nutrients_Utah, clean = FALSE, 
 cleanNA = FALSE, errorsonly = TRUE)
 
 # Show data where the QAPPApprovedIndicator equals "N":
-QAPPIndicator_N <- TADA_FindQAPPApproval(Data_Nutrients_UT, clean = FALSE, 
+QAPPIndicator_N <- TADA_FindQAPPApproval(Nutrients_Utah, clean = FALSE, 
 cleanNA = TRUE, errorsonly = TRUE)
 
 # Note: When clean = FALSE, cleanNA = FALSE, and errorsonly = FALSE, no data is removed
