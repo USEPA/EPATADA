@@ -4,20 +4,40 @@
 \alias{TADA_Stats}
 \title{Generate Statistics Table}
 \usage{
-TADA_Stats(.data)
+TADA_Stats(.data, group_cols = c("TADA.ComparableDataIdentifier"))
 }
 \arguments{
-\item{.data}{TADA data frame containing the data downloaded from the WQP, where
-each row represents a unique data record. Data frame must include the columns
-'TADA.ComparableDataIdentifier" and 'MonitoringLocationIdentifier' to run
-this function. The 'TADA.ComparableDataIdentifier' can be added to the data
-frame by running the function HarmonizeData().}
+\item{.data}{TADA data frame containing the data downloaded from the WQP,
+where each row represents a unique data record. Data frame must include the
+columns 'TADA.ComparableDataIdentifier', 'TADA.CensoredData.Flag',
+'DetectionQuantitationLimitTypeName', and 'MonitoringLocationIdentifier' to
+run this function. The 'TADA.ComparableDataIdentifier' can be added to the
+data frame by running the function TADA_CreateComparableID().}
+
+\item{group_cols}{This function automatically uses
+'TADA.ComparableDataIdentifier' as a grouping column. However, the user may
+want to summarize their dataset by additional grouping columns. For
+example, a user may want to create a summary table where each row is
+specific to one comparable data identifier AND one monitoring location.
+This input would look like: group_cols = c("MonitoringLocationIdentifier")}
 }
 \value{
 stats table
 }
 \description{
-Generate Statistics Table
+This function creates a summary table of the dataset based on grouping
+columns. The 'TADA.ComparableDataIdentifier' column is the required and
+default grouping column, but the user may include additional columns if
+desired. The summary table includes the measurement count, location count,
+censored data stats, min, max, and percentile stats, and a suggested
+non-detect estimation method. The estimation method is based on the following
+article: Baseline Assessment of Left-Censored Environmental Data Using R Tech
+Note. More info can be found here:
+https://www.epa.gov/sites/default/files/2016-05/documents/tech_notes_10_jun2014_r.pdf
+Suggested methods are based on the measurement count, the number of
+non-detects in the dataset, and the number of censoring levels (detection
+limit types) and methods include Maximum Likelihood Estimation, Robust ROS
+and Kaplan Meier.
 }
 \examples{
 # Load example dataset:
