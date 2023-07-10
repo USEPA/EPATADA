@@ -62,8 +62,8 @@ TADA_GetWQXCharValRef <- function() {
   WQXcharValRef
 }
 
-#' Update Characteristic Validation Reference Table internal file 
-#' (for internal use only)
+# Update Characteristic Validation Reference Table internal file 
+# (for internal use only)
 
 TADA_UpdateWQXCharValRef <- function() {
   utils::write.csv(TADA_GetWQXCharValRef(), file = "inst/extdata/WQXcharValRef.csv", row.names = FALSE)
@@ -185,7 +185,7 @@ TADA_GetMeasureUnitRef <- function() {
   WQXunitRef
 }
 
-#' Update Measure Unit Reference Table internal file (for internal use only)
+# Update Measure Unit Reference Table internal file (for internal use only)
 
 TADA_UpdateMeasureUnitRef <- function() {
   utils::write.csv(TADA_GetMeasureUnitRef(), file = "inst/extdata/WQXunitRef.csv", row.names = FALSE)
@@ -242,7 +242,7 @@ TADA_GetDetCondRef <- function() {
   WQXDetCondRef
 }
 
-#' Update Measure Unit Reference Table internal file (for internal use only)
+# Update Measure Unit Reference Table internal file (for internal use only)
 
 TADA_UpdateDetCondRef <- function() {
   utils::write.csv(TADA_GetDetCondRef(), file = "inst/extdata/WQXResultDetectionConditionRef.csv", row.names = FALSE)
@@ -307,7 +307,7 @@ TADA_GetDetLimitRef <- function() {
   WQXDetLimitRef
 }
 
-#' Update Measure Unit Reference Table internal file (for internal use only)
+# Update Measure Unit Reference Table internal file (for internal use only)
 
 TADA_UpdateDetLimitRef <- function() {
   utils::write.csv(TADA_GetDetLimitRef(), file = "inst/extdata/WQXDetectionQuantitationLimitTypeRef.csv", row.names = FALSE)
@@ -424,13 +424,13 @@ TADA_GetActivityTypeRef <- function() {
   return(WQXActivityTypeRef)
 }
 
-#' Update Activity Type Reference Table internal file (for internal use only)
+# Update Activity Type Reference Table internal file (for internal use only)
 
 TADA_UpdateActivityTypeRef <- function() {
   utils::write.csv(TADA_GetActivityTypeRef(), file = "inst/extdata/WQXActivityTypeRef.csv", row.names = FALSE)
 }
 
-#' Used to store cached Characteristic Reference Table
+# Used to store cached Characteristic Reference Table
 
 WQXCharacteristicRef_Cached <- NULL
 
@@ -477,7 +477,7 @@ TADA_GetCharacteristicRef <- function() {
   WQXCharacteristicRef
 }
 
-#' Update Characteristic Reference Table internal file (for internal use only)
+# Update Characteristic Reference Table internal file (for internal use only)
 
 TADA_UpdateCharacteristicRef <- function() {
   utils::write.csv(TADA_GetCharacteristicRef(), file = "inst/extdata/WQXCharacteristicRef.csv", row.names = FALSE)
