@@ -51,7 +51,6 @@ NUTRIENT,,,,,,WATER,NITRITE,NITRITE,,DISSOLVED,FILTERABLE,Assumes Filterable equ
 NUTRIENT,,,,,,,NITRATE,NITRATE,,TOTAL,TOTAL,,AS N,AS N,,,,,,,INVALID,,,,
 NUTRIENT,,,,,,WATER,ORTHOPHOSPHATE,ORTHOPHOSPHATE,,FILTERABLE,FILTERABLE,Assumes Filterable equals Dissolved,AS PO4,AS P,Convert PO4 to P,0.326,UG/L,UG/L,,,,Orthophosphate_Filterable_as P_ug/L,,,
 NUTRIENT,,,,,,WATER,"TOTAL NITROGEN, MIXED FORMS","TOTAL NITROGEN, MIXED FORMS","Assumed synonymous with ""Total Nitrogen, mixed forms""","FILTERED, FIELD",TOTAL,,AS N,AS N,,,MG/L,MG/L,,,,Total Nitrogen_as N_mg/L,Total Nitrogen,TN,Use Total N if present
-NUTRIENT,,,,,,WATER,"TOTAL NITROGEN, MIXED FORMS","TOTAL NITROGEN, MIXED FORMS",,,TOTAL,Assumed Total N is derived from multiple N subspecies,,AS N,Assumed as N,,,,,,,,,,
 NUTRIENT,,,,,,WATER,"TOTAL NITROGEN, MIXED FORMS","TOTAL NITROGEN, MIXED FORMS",,,TOTAL,Assumed Total N is derived from multiple N subspecies,,AS N,Assumed as N,,UG/KG,MG/L,0.001,,VALID,"Total Nitrogen, Mixed Forms_as N_mg/L",,,
 NUTRIENT,,,,,,WATER,"TOTAL NITROGEN, MIXED FORMS","TOTAL NITROGEN, MIXED FORMS",,,TOTAL,Assumed Total N is derived from multiple N subspecies,,AS N,Assumed as N,,UG/L,MG/L,0.001,,VALID,"Total Nitrogen, Mixed Forms_as N_mg/L",,,
 NUTRIENT,,,,,,WATER,"TOTAL NITROGEN, MIXED FORMS (NH3), (NH4), ORGANIC, (NO2) AND (NO3)","TOTAL NITROGEN, MIXED FORMS",,,TOTAL,Assumed Total N is derived from multiple N subspecies,AS N,AS N,,,UG/L,MG/L,0.001,,VALID,"Total Nitrogen, Mixed Forms_as N_mg/L",,,
@@ -67,7 +66,6 @@ NUTRIENT,,,,,,WATER,TOTAL PARTICULATE NITROGEN,"TOTAL NITROGEN, MIXED FORMS","As
 NUTRIENT,,,,,,WATER,ORGANIC NITROGEN,ORGANIC NITROGEN ,,,,,AS N,AS N,,,,MG/L,,,,,Total Nitrogen,N19,
 NUTRIENT,,,,,,WATER,NITROGEN,"TOTAL NITROGEN, MIXED FORMS","Assumed synonymous with ""Total Nitrogen, mixed forms""",TOTAL,TOTAL,"Assumed ""Total"" means Total N is derived from multiple N subspecies",AS N,AS N,,,MG/L,MG/L,,,VALID,"Total Nitrogen, Mixed Forms_as N_mg/L",Total Nitrogen,TN,Use Total N if present
 WQINDICATOR,,,,,,WATER,DISSOLVED OXYGEN (DO),DISSOLVED OXYGEN (DO),,,,,,,,,UG/L,MG/L,0.001,,VALID,Dissolved Oxygen (DO)_mg/L,,,
-NUTRIENT,,,,,,WATER,NITROGEN,"TOTAL NITROGEN, MIXED FORMS","Assumed synonymous with ""Total Nitrogen, mixed forms""",TOTAL,TOTAL,,AS N,AS N,,,MG/L,MG/L,,,VALID,"Total Nitrogen, Mixed Forms_as N_mg/L",Total Nitrogen,TN,Use Total N if present
 NUTRIENT,,,,,,WATER,AMMONIA,AMMONIA,,DISSOLVED,FILTERABLE,Assumes Filterable equals Dissolved,AS N,AS N,,,UG/L,MG/L,0.001,,VALID,Ammonia_Filterable_as N_mg/L,Total Nitrogen_mg/L,N5,Derive values for total N from N subspecies
 NUTRIENT,,,,,,,NITRATE,NITRATE,,UNFILTERED,UNFILTERED,,AS N,AS N,,,UG/L,MG/L,0.001,,VALID,Nitrate_Unfiltered_as N_mg/L,,,
 NUTRIENT,,,,,,,NITRATE,NITRATE,,UNFILTERED,UNFILTERED,,AS N,AS N,,,,,,,INVALID,,,,
