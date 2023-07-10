@@ -17,12 +17,12 @@
 #' 
 #' @examples
 #' # Load example dataset:
-#' data(TADAProfileCleanTP)
-#' # TADAProfileCleanTP dataframe is clean, harmonized, and filtered
+#' data(Data_TP_6Tribes_5y)
+#' # Data_TP_6Tribes_5y dataframe is clean, harmonized, and filtered
 #' # down to one Comparable Data Identifier
 #' 
 #' # Create boxplot:
-#' TADA_Boxplot(TADAProfileCleanTP, id_col = "TADA.ComparableDataIdentifier")
+#' TADA_Boxplot(Data_TP_6Tribes_5y, id_col = "TADA.ComparableDataIdentifier")
 #' 
 
 TADA_Boxplot <- function(filtered.data, id_col = c("TADA.CharacteristicName", "TADA.ComparableDataIdentifier")) {
@@ -119,12 +119,12 @@ TADA_Boxplot <- function(filtered.data, id_col = c("TADA.CharacteristicName", "T
 #' 
 #' @examples
 #' # Load example dataset:
-#' data(TADAProfileCleanTP)
-#' # TADAProfileCleanTP dataframe is clean, harmonized, and filtered
+#' data(Data_TP_6Tribes_5y)
+#' # Data_TP_6Tribes_5y dataframe is clean, harmonized, and filtered
 #' # down to one Comparable Data Identifier
 #' 
 #' # Create histogram:
-#' TADA_Histogram(TADAProfileCleanTP, id_col = "TADA.ComparableDataIdentifier")
+#' TADA_Histogram(Data_TP_6Tribes_5y, id_col = "TADA.ComparableDataIdentifier")
 
 TADA_Histogram <- function(filtered.data, id_col = c("TADA.CharacteristicName", "TADA.ComparableDataIdentifier")) {
   # check .data is data.frame
@@ -222,10 +222,10 @@ TADA_Histogram <- function(filtered.data, id_col = c("TADA.CharacteristicName", 
 #' 
 #' @examples
 #' # Load example dataset:
-#' data("Nutrients_Utah.rda")
+#' data("Data_Nutrients_UT.rda")
 #' 
 #' # Create map:
-#' TADA_OverviewMap(Nutrients_Utah)
+#' TADA_OverviewMap(Data_Nutrients_UT)
 #' 
 
 TADA_OverviewMap <- function(.data){
@@ -290,11 +290,11 @@ TADA_OverviewMap <- function(.data){
 #' 
 #' @examples 
 #' # Load example dataset:
-#' data(Nutrients_Utah)
+#' data(Data_Nutrients_UT)
 #' 
 #' # Create a list of parameters in the dataset and the number of records of
 #' # each parameter: 
-#' TADA_FieldValuesPie(Nutrients_Utah, field = "TADA.CharacteristicName")
+#' TADA_FieldValuesPie(Data_Nutrients_UT, field = "TADA.CharacteristicName")
 #' 
 
 

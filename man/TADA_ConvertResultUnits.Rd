@@ -60,12 +60,12 @@ Adds: "WQX.ConversionFactor" and "WQX.TargetUnit".
 }
 \examples{
 # Load example dataset:
-data(Nutrients_Utah)
+data(Data_Nutrients_UT)
 
-ResultUnitsConverted <- (Nutrients_Utah)
+ResultUnitsConverted <- (Data_Nutrients_UT)
 
 # Do not convert result values and units, but add two new columns titled
 # "WQX.ConversionFactor" and "WQX.TargetUnit":
-ResultUnitsNotConverted <- TADA_ConvertResultUnits(Nutrients_Utah, transform = FALSE)
+ResultUnitsNotConverted <- TADA_ConvertResultUnits(Data_Nutrients_UT, transform = FALSE)
 
 }

@@ -76,14 +76,14 @@ All TADA R package functions have their own individual help pages, listed on the
 
 Now let's start using the TADA R package functions. The first step is to bring a dataset into the R environment. TADA is designed to work with [Water Quality Portal](https://www.waterqualitydata.us/) (WQP) data. This means that all of its functions will look for WQP column names and create new TADA-specific columns based on these elements. Users may upload their own custom dataset into R for use with TADA by ensuring their column names and data formats (e.g. numeric, character) align with WQP profiles.
 
-If you are interested in reviewing the column headers and formats required to run TADA, use the function below, which saves an example spreadsheet to the user's working directory. You can also take a look at an example dataset, like `TADA::Nutrients_Utah` to get an idea of the data structure and format.
+If you are interested in reviewing the column headers and formats required to run TADA, use the function below, which saves an example spreadsheet to the user's working directory. You can also take a look at an example dataset, like `TADA::Data_Nutrients_UT` to get an idea of the data structure and format.
 
 ```{r}
 getwd() # find your working directory
 TADA::TADA_GetTemplate() # download template to working directory
 
 # uncomment below to review example dataset
-# Nutrients_Utah <- TADA::Nutrients_Utah 
+# Data_Nutrients_UT <- TADA::Data_Nutrients_UT 
 ```
 
 `TADA_DataRetrieval` is built upon USGS's `readWQPdata` function within the dataRetrieval package, which uses web service calls to bring WQP data into the R environment. Additionally, `TADA_DataRetrieval` performs some basic quality control checks on the data using new TADA-specific columns to preserve the original dataset:
@@ -120,7 +120,7 @@ Let's give it a try. `TADA_DataRetrieval` follows similar parameterization to `r
 # )
 
 # For brevity, we'll skip pinging the WQP and instead load the example dataset:
-dataset_0 = TADA::NCTCShepherdstown_HUC12
+dataset_0 = TADA::Data_NCTCShepherdstown_HUC12
 
 # Let's take a look at all of the TADA-created columns:
 names(dataset_0)[grepl("TADA.",names(dataset_0))]
