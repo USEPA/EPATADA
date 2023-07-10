@@ -810,26 +810,14 @@ domain tables. - Detection condition is missing and required for
 censored data ID. - Result needs more information before being
 categorized.
 
-In the example below, we first summarize the censored data in the
-dataset using the default grouping variables *TADA.CharacteristicName*,
-*TADA.ResultMeasure.MeasureUnitCode*,*TADA.ResultSampleFractionText*,
-and *TADA.MethodSpecificationName*. The user can specify any columns in
-the TADA dataframe they'd like to use to aggregate their censored data
-counts. For example, some may want to aggregate both by characteristic
-and HUC or characteristic and monitoring location.
-
 The next step we take in this example is to perform simple conversions
 to the censored data in the dataset: we keep over-detects as is (no
 conversion made) and convert non-detect values to 0.5 times the
 detection limit (half the detection limit). Please review
-**?TADA_SummarizeCensoredData** and **?TADA_SimpleCensoredMethods** for more
+**?TADA_Stats** and **?TADA_SimpleCensoredMethods** for more
 information.
 
 ```{r SummarizeCensoredData}
-TADAProfileClean_censoredSummary <- TADA_SummarizeCensoredData(TADAProfileClean4, spec_cols = c("TADA.CharacteristicName", "TADA.ResultMeasure.MeasureUnitCode", "TADA.ResultSampleFractionText", "TADA.MethodSpecificationName"))
-
-TADAProfileClean_censoredSummary
-
 TADAProfileClean4 = TADA_SimpleCensoredMethods(TADAProfileClean4,
                                            nd_method = "multiplier",
                                            nd_multiplier = 0.5,
