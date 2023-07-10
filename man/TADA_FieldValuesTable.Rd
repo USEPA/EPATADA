@@ -21,10 +21,10 @@ Function creates a dataframe containing the relative proportions of values in a 
 }
 \examples{
 # Load example dataset:
-data(Nutrients_Utah)
+data(Data_Nutrients_UT)
 
 # Create a list of parameters in the dataset and the number of records of
 # each parameter:
-TADA_FieldValuesTable(Nutrients_Utah, field = "TADA.CharacteristicName")
+TADA_FieldValuesTable(Data_Nutrients_UT, field = "TADA.CharacteristicName")
 
 }

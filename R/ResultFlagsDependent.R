@@ -25,17 +25,17 @@
 #' 
 #' @examples
 #' # Load example dataset:
-#' data(Nutrients_Utah)
+#' data(Data_Nutrients_UT)
 #' 
 #' # Remove data with invalid characteristic-fraction combinations:
-#' InvalidFraction_clean <- TADA_FlagFraction(Nutrients_Utah)
+#' InvalidFraction_clean <- TADA_FlagFraction(Data_Nutrients_UT)
 #' 
 #' # Flag, but do not remove, data with invalid characteristic-fraction combinations
 #' # in new column titled "TADA.SampleFraction.Flag":
-#' InvalidFraction_flags <- TADA_FlagFraction(Nutrients_Utah, clean = FALSE)
+#' InvalidFraction_flags <- TADA_FlagFraction(Data_Nutrients_UT, clean = FALSE)
 #' 
 #' # Show only invalid characteristic-fraction combinations:
-#' InvalidFraction_errorsonly <- TADA_FlagFraction(Nutrients_Utah, clean = FALSE, errorsonly = TRUE)
+#' InvalidFraction_errorsonly <- TADA_FlagFraction(Data_Nutrients_UT, clean = FALSE, errorsonly = TRUE)
 #' 
 
 TADA_FlagFraction <- function(.data, clean = TRUE, errorsonly = FALSE) {
@@ -156,29 +156,29 @@ TADA_FlagFraction <- function(.data, clean = TRUE, errorsonly = FALSE) {
 #'
 #' @examples
 #' # Load example dataset:
-#' data(Nutrients_Utah)
+#' data(Data_Nutrients_UT)
 #' 
 #' # Remove data with invalid characteristic-method speciation combinations from dataframe, 
 #' # but retain nonstandardized combinations flagged in new column 'TADA.MethodSpeciation.Flag':
-#' InvalidSpeciation_clean <- TADA_FlagSpeciation(Nutrients_Utah)
+#' InvalidSpeciation_clean <- TADA_FlagSpeciation(Data_Nutrients_UT)
 #' 
 #' # Remove data with nonstandardized characteristic-method speciation combinations 
 #' # from dataframe but retain invalid combinations flagged in new column 'TADA.MethodSpeciation.Flag':
-#' NonstandardSpeciation_clean <- TADA_FlagSpeciation(Nutrients_Utah, clean = "nonstandardized_only")
+#' NonstandardSpeciation_clean <- TADA_FlagSpeciation(Data_Nutrients_UT, clean = "nonstandardized_only")
 #' 
 #' # Remove both invalid and nonstandardized characteristic-method speciation combinations
 #' # from dataframe:
-#' Speciation_clean <- TADA_FlagSpeciation(Nutrients_Utah, clean = "both")
+#' Speciation_clean <- TADA_FlagSpeciation(Data_Nutrients_UT, clean = "both")
 #' 
 #' # Flag, but do not remove, data with invalid or nonstandardized characteristic-method speciation
 #' # combinations in new column titled "TADA.MethodSpeciation.Flag":
-#' InvalidSpeciation_flags <- TADA_FlagSpeciation(Nutrients_Utah, clean = "none")
+#' InvalidSpeciation_flags <- TADA_FlagSpeciation(Data_Nutrients_UT, clean = "none")
 #' 
 #' # Show only invalid characteristic-method speciation combinations:
-#' InvalidSpeciation_errorsonly <- TADA_FlagSpeciation(Nutrients_Utah, clean = "nonstandardized_only", errorsonly = TRUE)
+#' InvalidSpeciation_errorsonly <- TADA_FlagSpeciation(Data_Nutrients_UT, clean = "nonstandardized_only", errorsonly = TRUE)
 #' 
 #' # Show only nonstandardized characteristic-method speciation combinations:
-#' NonstandardSpeciation_errorsonly <- TADA_FlagSpeciation(Nutrients_Utah, clean = "invalid_only", errorsonly = TRUE)
+#' NonstandardSpeciation_errorsonly <- TADA_FlagSpeciation(Data_Nutrients_UT, clean = "invalid_only", errorsonly = TRUE)
 #' 
 
 TADA_FlagSpeciation <- function(.data, clean = c("invalid_only", "nonstandardized_only", "both", "none"), errorsonly = FALSE) {
@@ -310,29 +310,29 @@ TADA_FlagSpeciation <- function(.data, clean = c("invalid_only", "nonstandardize
 #'
 #' @examples 
 #' # Load example dataset:
-#' data(Nutrients_Utah)
+#' data(Data_Nutrients_UT)
 #' 
 #' # Remove data with invalid characteristic-media-result unit combinations from dataframe, 
 #' # but retain nonstandardized combinations flagged in new column 'TADA.ResultUnit.Flag':
-#' InvalidUnit_clean <- TADA_FlagResultUnit(Nutrients_Utah)
+#' InvalidUnit_clean <- TADA_FlagResultUnit(Data_Nutrients_UT)
 #' 
 #' # Remove data with nonstandardized characteristic-media-result unit combinations 
 #' # from dataframe but retain invalid combinations flagged in new column 'TADA.ResultUnit.Flag:
-#' NonstandardUnit_clean <- TADA_FlagResultUnit(Nutrients_Utah, clean = "nonstandardized_only")
+#' NonstandardUnit_clean <- TADA_FlagResultUnit(Data_Nutrients_UT, clean = "nonstandardized_only")
 #' 
 #' # Remove both invalid and nonstandardized characteristic-media-result unit combinations
 #' # from dataframe:
-#' ResultUnit_clean <- TADA_FlagResultUnit(Nutrients_Utah, clean = "both")
+#' ResultUnit_clean <- TADA_FlagResultUnit(Data_Nutrients_UT, clean = "both")
 #' 
 #' # Flag, but do not remove, data with invalid or nonstandardized characteristic-media-result unit
 #' # combinations in new column titled "TADA.ResultUnit.Flag":
-#' InvalidUnit_flags <- TADA_FlagResultUnit(Nutrients_Utah, clean = "none")
+#' InvalidUnit_flags <- TADA_FlagResultUnit(Data_Nutrients_UT, clean = "none")
 #' 
 #' # Show only invalid characteristic-media-result unit combinations:
-#' InvalidUnit_errorsonly <- TADA_FlagResultUnit(Nutrients_Utah, clean = "nonstandardized_only", errorsonly = TRUE)
+#' InvalidUnit_errorsonly <- TADA_FlagResultUnit(Data_Nutrients_UT, clean = "nonstandardized_only", errorsonly = TRUE)
 #' 
 #' # Show only nonstandardized characteristic-media-result unit combinations:
-#' NonstandardUnit_errorsonly <- TADA_FlagResultUnit(Nutrients_Utah, clean = "invalid_only", errorsonly = TRUE)
+#' NonstandardUnit_errorsonly <- TADA_FlagResultUnit(Data_Nutrients_UT, clean = "invalid_only", errorsonly = TRUE)
 
 TADA_FlagResultUnit <- function(.data, clean = c("invalid_only", "nonstandardized_only", "both", "none"), errorsonly = FALSE) {
   # check .data is data.frame
@@ -463,16 +463,16 @@ TADA_FlagResultUnit <- function(.data, clean = c("invalid_only", "nonstandardize
 #' 
 #' @examples 
 #' # Load example dataset:
-#' data(Nutrients_Utah)
+#' data(Data_Nutrients_UT)
 #' 
 #' # Flag and keep all QC samples:
-#' QC_flagged <- TADA_FindQCActivities(Nutrients_Utah)
+#' QC_flagged <- TADA_FindQCActivities(Data_Nutrients_UT)
 #' 
 #' # Flag QC samples and filter to flagged data only:
-#' QC_flags_only <- TADA_FindQCActivities(Nutrients_Utah, errorsonly = TRUE)
+#' QC_flags_only <- TADA_FindQCActivities(Data_Nutrients_UT, errorsonly = TRUE)
 #' 
 #' # Remove all QC samples:
-#' QC_clean <- TADA_FindQCActivities(Nutrients_Utah, clean = TRUE)
+#' QC_clean <- TADA_FindQCActivities(Data_Nutrients_UT, clean = TRUE)
 
 TADA_FindQCActivities <- function(.data, clean = FALSE, errorsonly = FALSE) {
   # check .data is data.frame
