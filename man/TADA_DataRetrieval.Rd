@@ -29,7 +29,7 @@ TADA_DataRetrieval(
 
 \item{huc}{A numeric code denoting a hydrologic unit. Example: "04030202". Different size hucs can be entered.}
 
-\item{siteid}{Unique monitoring station identifier}
+\item{siteid}{Unique monitoring location identifier}
 
 \item{siteType}{Type of waterbody}
 

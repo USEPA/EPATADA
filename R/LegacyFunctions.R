@@ -38,10 +38,10 @@
 # return A table of fields and the count of unique values in each field.
 # examples
 # # Load example dataset:
-# data(Nutrients_Utah)
+# data(Data_Nutrients_UT)
 # 
 # # Create a table of fields and count of unique values in each field:
-# Fields_Nutrients_Utah <- FilterFields(Nutrients_Utah)
+# Fields_Data_Nutrients_UT <- FilterFields(Data_Nutrients_UT)
 # 
 
 FilterFields <- function(.data) {
@@ -154,10 +154,10 @@ FilterFields <- function(.data) {
 # 
 # examples
 # # Load example dataset:
-# data(Nutrients_Utah)
+# data(Data_Nutrients_UT)
 # 
 # # Create table and pie chart of "Hydrologic Condition" unique values and counts:
-# FieldReview_HydrologicCondition <- FilterFieldReview(field = "HydrologicCondition", Nutrients_Utah)
+# FieldReview_HydrologicCondition <- FilterFieldReview(field = "HydrologicCondition", Data_Nutrients_UT)
 
 
 FilterFieldReview <- function(field, .data) {
@@ -213,11 +213,11 @@ FilterFieldReview <- function(field, .data) {
 # return A list of unique values in TADA.CharacteristicName and their counts
 # examples
 # # Load example dataset:
-# data(Nutrients_Utah)
+# data(Data_Nutrients_UT)
 # 
 # # Create a list of parameters in the dataset and the number of records of
 # # each parameter:
-# ParameterList <- FilterParList(Nutrients_Utah)
+# ParameterList <- FilterParList(Data_Nutrients_UT)
 # 
 
 FilterParList <- function(.data) {
@@ -281,10 +281,10 @@ FilterParList <- function(.data) {
 # 
 # examples
 # # Load example dataset:
-# data(Nutrients_Utah)
+# data(Data_Nutrients_UT)
 # 
 # # Create list of fields for parameter "AMMONIA" with number of unique values in each field:
-# AmmoniaFields <- FilterParFields(Nutrients_Utah, parameter = "AMMONIA")
+# AmmoniaFields <- FilterParFields(Data_Nutrients_UT, parameter = "AMMONIA")
 # 
 
 FilterParFields <- function(.data, parameter) {
@@ -433,10 +433,10 @@ FilterParFields <- function(.data, parameter) {
 # 
 # examples
 # # Load example dataset:
-# data(Nutrients_Utah)
+# data(Data_Nutrients_UT)
 # 
 # # Create table and pie chart of monitoring locations for the parameter "AMMONIA" in dataframe:
-# AmmoniaMonitoringLocations <- FilterParFieldReview(field = "MonitoringLocationIdentifier", Nutrients_Utah, parameter = "AMMONIA")
+# AmmoniaMonitoringLocations <- FilterParFieldReview(field = "MonitoringLocationIdentifier", Data_Nutrients_UT, parameter = "AMMONIA")
 # 
 
 FilterParFieldReview <- function(field, .data, parameter) {
@@ -785,16 +785,16 @@ TADAprofileCheck <- function(.data) {
 #
 # @examples
 # # Load example dataset:
-# data(Nutrients_Utah)
+# data(Data_Nutrients_UT)
 # 
 # # Remove potential duplicate data from dataframe:
-# PotentialDup_clean <- PotentialDuplicateRowID(Nutrients_Utah)
+# PotentialDup_clean <- PotentialDuplicateRowID(Data_Nutrients_UT)
 #
 # # Flag, but do not remove, potential duplicate data in new column titled "TADA.PotentialDupRowIDs.Flag":
-# PotentialDup_flagcolumnadded <- PotentialDuplicateRowID(Nutrients_Utah, clean = FALSE)
+# PotentialDup_flagcolumnadded <- PotentialDuplicateRowID(Data_Nutrients_UT, clean = FALSE)
 # 
 # # Flag and review potential duplicate data only:
-# PotentialDup_reviewduplicatesonly <- PotentialDuplicateRowID(Nutrients_Utah, clean = FALSE, errorsonly = TRUE)
+# PotentialDup_reviewduplicatesonly <- PotentialDuplicateRowID(Data_Nutrients_UT, clean = FALSE, errorsonly = TRUE)
 
 PotentialDuplicateRowID <- function(.data, clean = TRUE, errorsonly = FALSE) {
   # check .data is data.frame

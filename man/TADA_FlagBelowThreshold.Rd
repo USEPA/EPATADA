@@ -41,17 +41,17 @@ errorsonly = FALSE
 }
 \examples{
 # Load example dataset:
-data(Nutrients_Utah)
+data(Data_Nutrients_UT)
 
 # Remove data that is below the lower WQX threshold from the dataframe:
-WQXLowerThreshold_clean <- TADA_FlagBelowThreshold(Nutrients_Utah)
+WQXLowerThreshold_clean <- TADA_FlagBelowThreshold(Data_Nutrients_UT)
 
 # Flag, but do not remove, data that is below the lower WQX threshold in
 # new column titled "TADA.ResultValueBelowLowerThreshold.Flag":
-WQXLowerThreshold_flags <- TADA_FlagBelowThreshold(Nutrients_Utah, clean = FALSE)
+WQXLowerThreshold_flags <- TADA_FlagBelowThreshold(Data_Nutrients_UT, clean = FALSE)
 
 # Show only data that is below the lower WQX threshold:
-WQXLowerThreshold_flagsonly <- TADA_FlagBelowThreshold(Nutrients_Utah,
+WQXLowerThreshold_flagsonly <- TADA_FlagBelowThreshold(Data_Nutrients_UT,
 clean = FALSE, errorsonly = TRUE)
 
 }

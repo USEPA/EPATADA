@@ -35,7 +35,7 @@
 #' @param endDate End Date string in the format YYYY-MM-DD, for example, "2020-01-01"
 #' @param countycode FIPS county name. Note that a state code must also be supplied (e.g. statecode = "AL", countycode = "Chilton").
 #' @param huc A numeric code denoting a hydrologic unit. Example: "04030202". Different size hucs can be entered.
-#' @param siteid Unique monitoring station identifier
+#' @param siteid Unique monitoring location identifier
 #' @param siteType Type of waterbody
 #' @param characteristicName Name of parameter
 #' @param characteristicType Groups of environmental measurements/parameters.
@@ -651,7 +651,7 @@ TADA_BigDataRetrieval <- function(startDate = "null",
 #' @export
 #'
 #' @examples
-#' join = TADA::TADA_JoinWQPProfiles(FullPhysChem = resultphyschem, Sites = station, Narrow = narrow)
+#' join = TADA::TADA_JoinWQPProfiles(FullPhysChem = Data_PhysChem_5d, Sites = Data_Site_5d, Narrow = Data_Narrow_5d)
 #'
 
 TADA_JoinWQPProfiles <- function(FullPhysChem = "null",

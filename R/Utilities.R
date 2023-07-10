@@ -627,8 +627,8 @@ TADA_CreateComparableID <- function(.data){
 #' 
 
 TADA_GetTemplate <- function(){
-  colsreq = names(TADA::Nutrients_Utah)[!grepl("TADA.",names(TADA::Nutrients_Utah))]
-  writexl::write_xlsx(TADA::Nutrients_Utah[1,colsreq], path = "TADATemplate.xlsx")
+  colsreq = names(TADA::Data_Nutrients_UT)[!grepl("TADA.",names(TADA::Data_Nutrients_UT))]
+  writexl::write_xlsx(TADA::Data_Nutrients_UT[1,colsreq], path = "TADATemplate.xlsx")
 }
 
 
