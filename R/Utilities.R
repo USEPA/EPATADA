@@ -42,7 +42,7 @@ utils::globalVariables(c("TADA.ResultValueAboveUpperThreshold.Flag", "ActivityId
                          "tot_n", "MonitoringLocationName", "TADA.LatitudeMeasure", 
                          "TADA.LongitudeMeasure", "median", "sd", "TADA.ComparableDataIdentifier", 
                          "desc", "Legend", "roundRV", "TADA.DuplicateID", "maxRV", "within10", 
-                         "AllGroups"))
+                         "AllGroups", "Domain.Value.Status", "Char_Flag", "Comparable.Name"))
 
 
 

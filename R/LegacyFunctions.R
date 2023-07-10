@@ -46,7 +46,7 @@
 
 FilterFields <- function(.data) {
   # check .data is data.frame
-  checkType(.data, "data.frame", "Input object")
+  TADA_TADA_CheckType(.data, "data.frame", "Input object")
   
   # CREATE LIST OF FIELDS
   # Find count of unique values in each column
@@ -163,7 +163,7 @@ FilterFields <- function(.data) {
 FilterFieldReview <- function(field, .data) {
   # if provided, check .data is data.frame
   if (!missing(.data)) {
-    checkType(.data, "data.frame", "Input object")
+    TADA_TADA_CheckType(.data, "data.frame", "Input object")
   }
   # execute function after checks are passed
   
@@ -289,9 +289,9 @@ FilterParList <- function(.data) {
 
 FilterParFields <- function(.data, parameter) {
   # check .data is data.frame
-  checkType(.data, "data.frame", "Input object")
+  TADA_TADA_CheckType(.data, "data.frame", "Input object")
   # check .data has required columns
-  checkColumns(.data, "TADA.CharacteristicName")
+  TADA_CheckColumns(.data, "TADA.CharacteristicName")
   
   # check parameter is in .data
   if ((parameter %in% .data$TADA.CharacteristicName) == FALSE) {
@@ -442,7 +442,7 @@ FilterParFields <- function(.data, parameter) {
 FilterParFieldReview <- function(field, .data, parameter) {
   # if provided, check .data is data.frame
   if (!missing(.data)) {
-    checkType(.data, "data.frame", "Input object")
+    TADA_TADA_CheckType(.data, "data.frame", "Input object")
   }
   # check parameter is in .data
   if (!missing(parameter)) {
@@ -513,12 +513,12 @@ MeasureValueSpecialCharacters <- function(.data) {
   warning("This function is deprecated and does not return the correct column names. Please use TADA_ConvertSpecialChars() function instead.")
   
   # check .data is data.frame
-  checkType(.data, "data.frame", "Input object")
+  TADA_TADA_CheckType(.data, "data.frame", "Input object")
   
   # .data required columns
   required_cols <- c("ResultMeasureValue", "DetectionQuantitationLimitMeasure.MeasureValue")
   # check .data has required columns
-  checkColumns(.data, required_cols)
+  TADA_CheckColumns(.data, required_cols)
   
   # execute function after checks are passed
   # define check.data
@@ -798,11 +798,11 @@ TADAprofileCheck <- function(.data) {
 
 PotentialDuplicateRowID <- function(.data, clean = TRUE, errorsonly = FALSE) {
   # check .data is data.frame
-  checkType(.data, "data.frame", "Input object")
+  TADA_CheckType(.data, "data.frame", "Input object")
   # check clean is boolean
-  checkType(clean, "logical")
+  TADA_CheckType(clean, "logical")
   # check errorsonly is boolean
-  checkType(errorsonly, "logical")
+  TADA_CheckType(errorsonly, "logical")
   # check .data has required columns
   required_cols <- c(
     "ActivityIdentifier", "ActivityConductingOrganizationText",
@@ -810,7 +810,7 @@ PotentialDuplicateRowID <- function(.data, clean = TRUE, errorsonly = FALSE) {
     "ProjectIdentifier", "ResultCommentText",
     "ActivityCommentText"
   )
-  checkColumns(.data, required_cols)
+  TADA_CheckColumns(.data, required_cols)
   # check that clean and errorsonly are not both TRUE
   if (clean == TRUE & errorsonly == TRUE) {
     stop("Function not executed because clean and errorsonly cannot both be TRUE")
