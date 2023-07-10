@@ -3,12 +3,12 @@
 \docType{data}
 \name{Data_Narrow_5d}
 \alias{Data_Narrow_5d}
-\title{Data_Narrow_5Days}
+\title{Data_Narrow_5d}
 \format{
 A data frame with 898 rows and 78 variables
 }
 \usage{
-data(Data_Narrow_5Days)
+data(Data_Narrow_5d)
 }
 \description{
 Sample Results (narrow) WQP profile containing results for a 5 day period from 1/5/2023-1/10/2023.

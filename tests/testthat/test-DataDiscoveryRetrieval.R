@@ -186,12 +186,12 @@ test_that("TADA_JoinWQPProfiles_works", {
 
 test_that("TADA_JoinWQPProfiles_columns", {
   data(Data_Site_5d)
-  data(Data_Narrow_5Days)
+  data(Data_Narrow_5d)
   data(Data_PhysChem_5d)
   
   join = TADA::TADA_JoinWQPProfiles(FullPhysChem = Data_PhysChem_5d, 
                                Sites = Data_Site_5d, 
-                               Narrow = Data_Narrow_5Days)
+                               Narrow = Data_Narrow_5d)
   # update in future to pick the important columns:
   expect_true(all(c("OrganizationIdentifier",                           
                     "OrganizationFormalName",                           

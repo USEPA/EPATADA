@@ -32,14 +32,14 @@ NULL
 #' @format A data frame with 14587 rows and 148 variables
 NULL
 
-#' Data_Narrow_5Days
+#' Data_Narrow_5d
 #'
 #' Sample Results (narrow) WQP profile containing results for a 5 day period from 1/5/2023-1/10/2023.
 #'  
 #' @docType data
 #' @keywords datasets
 #' @name Data_Narrow_5d
-#' @usage data(Data_Narrow_5Days)
+#' @usage data(Data_Narrow_5d)
 #' @format A data frame with 898 rows and 78 variables
 NULL
 
