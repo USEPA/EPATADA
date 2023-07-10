@@ -28,10 +28,10 @@ Create Histogram
 }
 \examples{
 # Load example dataset:
-data(TADAProfileCleanTP)
-# TADAProfileCleanTP dataframe is clean, harmonized, and filtered
+data(Data_TP_6Tribes_5y)
+# Data_TP_6Tribes_5y dataframe is clean, harmonized, and filtered
 # down to one Comparable Data Identifier
 
 # Create histogram:
-TADA_Histogram(TADAProfileCleanTP, id_col = "TADA.ComparableDataIdentifier")
+TADA_Histogram(Data_TP_6Tribes_5y, id_col = "TADA.ComparableDataIdentifier")
 }

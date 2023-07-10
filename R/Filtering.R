@@ -14,11 +14,11 @@
 #'
 #' @examples
 #' # Load example dataset:
-#' data(Nutrients_Utah)
-#' # Count table of key fields in Nutrients_Utah dataset
-#' fieldCountUT <- TADA_FieldCounts(Nutrients_Utah)
-#' # Count table of most fields in Nutrients_Utah, filtered to only AMMONIA results.
-#' fieldCountUTAmmonia <- TADA_FieldCounts(Nutrients_Utah, display = "most", characteristicName = "AMMONIA")
+#' data(Data_Nutrients_UT)
+#' # Count table of key fields in Data_Nutrients_UT dataset
+#' fieldCountUT <- TADA_FieldCounts(Data_Nutrients_UT)
+#' # Count table of most fields in Data_Nutrients_UT, filtered to only AMMONIA results.
+#' fieldCountUTAmmonia <- TADA_FieldCounts(Data_Nutrients_UT, display = "most", characteristicName = "AMMONIA")
 
 TADA_FieldCounts <- function(.data, display = c("key","most", "all"), characteristicName = "null"){
   # check .data is data.frame
@@ -201,11 +201,11 @@ TADA_FieldCounts <- function(.data, display = c("key","most", "all"), characteri
 #'
 #' @examples
 #' # Load example dataset:
-#' data(Nutrients_Utah)
+#' data(Data_Nutrients_UT)
 #'
 #' # Create a list of parameters in the dataset and the number of records of
 #' # each parameter:
-#' TADA_FieldValuesTable(Nutrients_Utah, field = "TADA.CharacteristicName")
+#' TADA_FieldValuesTable(Data_Nutrients_UT, field = "TADA.CharacteristicName")
 #'
 
 

@@ -57,33 +57,33 @@ with changing raw data, email the WQX help desk: \email{WQX@epa.gov}
 }
 \examples{
 # Load example dataset:
-data(Nutrients_Utah)
+data(Data_Nutrients_UT)
 
 # Flag, but do not remove, data with invalid coordinates in new column 
 # titled "TADA.InvalidCoordinates.Flag":
 # Return ALL data:
-InvalidCoord_flags <- TADA_FlagCoordinates(Nutrients_Utah)
+InvalidCoord_flags <- TADA_FlagCoordinates(Data_Nutrients_UT)
 
 # Flag, but do not remove, data with invalid coordinates in new column 
 # titled "TADA.InvalidCoordinates.Flag"
 # Return ONLY the flagged data:
-InvalidCoord_flags_errorsonly <- TADA_FlagCoordinates(Nutrients_Utah, errorsonly = TRUE)
+InvalidCoord_flags_errorsonly <- TADA_FlagCoordinates(Data_Nutrients_UT, errorsonly = TRUE)
 
 # Remove data with coordinates outside the USA, but keep flagged data with 
 # imprecise coordinates:
-OutsideUSACoord_removed <- TADA_FlagCoordinates(Nutrients_Utah, clean_outsideUSA = "remove")
+OutsideUSACoord_removed <- TADA_FlagCoordinates(Data_Nutrients_UT, clean_outsideUSA = "remove")
 
 # Change the sign of coordinates flagged as outside the USA and keep all
 # flagged data:
-OutsideUSACoord_changed <- TADA_FlagCoordinates(Nutrients_Utah, clean_outsideUSA = "change sign")
+OutsideUSACoord_changed <- TADA_FlagCoordinates(Data_Nutrients_UT, clean_outsideUSA = "change sign")
 
 # Remove data with imprecise coordinates, but keep flagged data with coordinates outside the USA;
 # imprecise data may include a series of 999's to the right of the decimal points;
 # alternatively, imprecise data may have less than 3 significant figures to the right
 # of the decimal point:
-ImpreciseCoord_removed <- TADA_FlagCoordinates(Nutrients_Utah, clean_imprecise = TRUE)
+ImpreciseCoord_removed <- TADA_FlagCoordinates(Data_Nutrients_UT, clean_imprecise = TRUE)
 
 # Remove data with imprecise coordinates or coordinates outside the USA from the dataframe:
-InvalidCoord_removed <- TADA_FlagCoordinates(Nutrients_Utah, clean_outsideUSA = "remove", clean_imprecise = TRUE)
+InvalidCoord_removed <- TADA_FlagCoordinates(Data_Nutrients_UT, clean_outsideUSA = "remove", clean_imprecise = TRUE)
 
 }

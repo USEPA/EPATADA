@@ -48,28 +48,28 @@ Default is errorsonly = FALSE.
 }
 \examples{
 # Load example dataset:
-data(Nutrients_Utah)
+data(Data_Nutrients_UT)
 
 # Remove data with invalid characteristic-method speciation combinations from dataframe, 
 # but retain nonstandardized combinations flagged in new column 'TADA.MethodSpeciation.Flag':
-InvalidSpeciation_clean <- TADA_FlagSpeciation(Nutrients_Utah)
+InvalidSpeciation_clean <- TADA_FlagSpeciation(Data_Nutrients_UT)
 
 # Remove data with nonstandardized characteristic-method speciation combinations 
 # from dataframe but retain invalid combinations flagged in new column 'TADA.MethodSpeciation.Flag':
-NonstandardSpeciation_clean <- TADA_FlagSpeciation(Nutrients_Utah, clean = "nonstandardized_only")
+NonstandardSpeciation_clean <- TADA_FlagSpeciation(Data_Nutrients_UT, clean = "nonstandardized_only")
 
 # Remove both invalid and nonstandardized characteristic-method speciation combinations
 # from dataframe:
-Speciation_clean <- TADA_FlagSpeciation(Nutrients_Utah, clean = "both")
+Speciation_clean <- TADA_FlagSpeciation(Data_Nutrients_UT, clean = "both")
 
 # Flag, but do not remove, data with invalid or nonstandardized characteristic-method speciation
 # combinations in new column titled "TADA.MethodSpeciation.Flag":
-InvalidSpeciation_flags <- TADA_FlagSpeciation(Nutrients_Utah, clean = "none")
+InvalidSpeciation_flags <- TADA_FlagSpeciation(Data_Nutrients_UT, clean = "none")
 
 # Show only invalid characteristic-method speciation combinations:
-InvalidSpeciation_errorsonly <- TADA_FlagSpeciation(Nutrients_Utah, clean = "nonstandardized_only", errorsonly = TRUE)
+InvalidSpeciation_errorsonly <- TADA_FlagSpeciation(Data_Nutrients_UT, clean = "nonstandardized_only", errorsonly = TRUE)
 
 # Show only nonstandardized characteristic-method speciation combinations:
-NonstandardSpeciation_errorsonly <- TADA_FlagSpeciation(Nutrients_Utah, clean = "invalid_only", errorsonly = TRUE)
+NonstandardSpeciation_errorsonly <- TADA_FlagSpeciation(Data_Nutrients_UT, clean = "invalid_only", errorsonly = TRUE)
 
 }

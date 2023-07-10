@@ -44,22 +44,22 @@ transform = TRUE and flag = TRUE.
 }
 \examples{
 # Load example dataset:
-data(Nutrients_Utah)
+data(Data_Nutrients_UT)
 
 # Append harmonization reference table columns to dataframe and transform/convert
 # data to the reference table values:
-Nutrients_Harmonized <- TADA_HarmonizeSynonyms(Nutrients_Utah)
+Nutrients_Harmonized <- TADA_HarmonizeSynonyms(Data_Nutrients_UT)
 
 # Transform/convert data to the harmonization reference table values, but
 # do not append any columns to dataframe:
-Nutrients_Harmonized_noflags <- TADA_HarmonizeSynonyms(Nutrients_Utah, flag = FALSE)
+Nutrients_Harmonized_noflags <- TADA_HarmonizeSynonyms(Data_Nutrients_UT, flag = FALSE)
 
 # Append harmonization reference table columns to dataframe, but do not
 # transform/convert data to the reference table values:
-Nutrients_NotHarmonized <- TADA_HarmonizeSynonyms(Nutrients_Utah, transform = FALSE)
+Nutrients_NotHarmonized <- TADA_HarmonizeSynonyms(Data_Nutrients_UT, transform = FALSE)
 
 # Append harmonization reference table columns to dataframe and transform/convert
 # data to the USER SUPPLIED reference table values:
-UniqueHarmonizationRef <- TADA_GetSynonymRef(Nutrients_Utah, download = FALSE)
-Nutrients_Harmonized_UserSuppliedRef <- TADA_HarmonizeSynonyms(Nutrients_Utah, ref = UniqueHarmonizationRef)
+UniqueHarmonizationRef <- TADA_GetSynonymRef(Data_Nutrients_UT, download = FALSE)
+Nutrients_Harmonized_UserSuppliedRef <- TADA_HarmonizeSynonyms(Data_Nutrients_UT, ref = UniqueHarmonizationRef)
 }

@@ -64,12 +64,12 @@ TADA_SummarizeColumn <- function(.data,col="TADA.CharacteristicName"){
 #' 
 #' @examples
 #' # Load example dataset:
-#' data(TADAProfileCleanTP)
-#' # TADAProfileCleanTP dataframe is clean, harmonized, and filtered
+#' data(Data_TP_6Tribes_5y)
+#' # Data_TP_6Tribes_5y dataframe is clean, harmonized, and filtered
 #' # down to one Comparable Data Identifier
 #' 
 #' # Create stats table:
-#' TADAProfileCleanTP_stats <- TADA_Stats(TADAProfileCleanTP)
+#' Data_TP_6Tribes_5y_stats <- TADA_Stats(Data_TP_6Tribes_5y)
 #' 
 
 TADA_Stats <- function(.data, group_cols=c("TADA.ComparableDataIdentifier")){
@@ -125,3 +125,4 @@ TADA_Stats <- function(.data, group_cols=c("TADA.ComparableDataIdentifier")){
   
   return(StatsTable)
 }
+
