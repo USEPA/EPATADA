@@ -964,7 +964,7 @@ TADA_FlagCoordinates <- function(.data,
   return(.data)
 }
 
-#' Identify Potential Duplicate Data Uploads (UNDER ACTIVE DEVELOPMENT)
+#' Identify Potential Duplicate Data Uploads Between Organizations (UNDER ACTIVE DEVELOPMENT)
 #' 
 #' Identifies data records uploaded by different organizations with the same date,
 #' time, characteristic name, and result value within X meters of each other and
@@ -987,16 +987,12 @@ TADA_FlagCoordinates <- function(.data,
 #' @export
 #' 
 
-TADA_FindPotentialDuplicates <- function(.data, dist_buffer = 100){
+TADA_FindPotentialDuplicatesBetweenOrgs <- function(.data, dist_buffer = 100){
   # get all data that are not NA and round to 2 digits
   dupsprep = .data%>%dplyr::select(OrganizationIdentifier,ResultIdentifier,ActivityStartDate, ActivityStartTime.Time, TADA.CharacteristicName,TADA.ResultMeasureValue)%>%dplyr::filter(!is.na(TADA.ResultMeasureValue))%>%dplyr::mutate(roundRV = round(TADA.ResultMeasureValue,digits=2))
   # group by date, time, characteristic, and rounded result value and summarise the number of organizations that have those same row values, and filter to those summary rows with more than one organization
   dups_sum = dupsprep%>%dplyr::group_by(ActivityStartDate, ActivityStartTime.Time, TADA.CharacteristicName,roundRV)%>%dplyr::summarise(numorgs = length(unique(OrganizationIdentifier)))%>%dplyr::filter(numorgs>1)
-  # group by organization, date, time, characteristic, fraction, result value, and depth columns and summarize the number of measurements
-  depthcols = names(.data)[grepl("^TADA.*DepthHeightMeasure.MeasureValue$", names(.data))]
-  colss = c("OrganizationIdentifier", "MonitoringLocationIdentifier", "ActivityStartDate", "ActivityStartTime.Time", "TADA.CharacteristicName", "TADA.ResultSampleFractionText","TADA.ResultMeasureValue", depthcols)
-  dups_sum_org = .data%>%dplyr::group_by(dplyr::across(colss))%>%dplyr::summarise(numres = length(unique(ResultIdentifier)))%>%dplyr::filter(numres>1)
-  
+   
   # if there are potential duplicates based on grouping above, check if sites are nearby
   if(dim(dups_sum)[1]>0){
     # give potential duplicates a grouping ID
@@ -1070,4 +1066,71 @@ TADA_FindPotentialDuplicates <- function(.data, dist_buffer = 100){
   .data = TADA_OrderCols(.data)
   
   return(.data)
+}
+
+#' Identify Potential Duplicate Data Uploads Within An Organization (UNDER ACTIVE DEVELOPMENT)
+#' 
+#' Identifies data records uploaded by the same organization with the same date,
+#' time, monitoring location, activity type, characteristic name, fraction,
+#' taxonomic name, depth columns, and result value and flags as potential
+#' duplicates. However, it is at the discretion of the data user to determine if
+#' the data records are unique or represent overlap that could cause issues in
+#' the data analysis.
+#' 
+#' @param .data TADA dataframe
+#' @param handling_method Defaults to 'none'. When input is 'none', function
+#'   flags groups of potentially duplicated results, but makes no decisions on
+#'   which (if any) should be selected/excluded. Alternatively, user may
+#'   populate handling_method = 'pick_one' and function will randomly select one
+#'   result in each group and flag all others as duplicates.
+#' 
+#' @return The same input TADA dataframe with additional columns: a
+#'   TADA.ProbableDuplicate column indicating if there is evidence that two or
+#'   more results are duplicated, a TADA.DuplicateID column, containing a
+#'   number unique to results that may represent duplicated measurement events,
+#'   and one or more TADA.SiteGroup columns indicating monitoring locations
+#'   within the distance buffer from each other.
+#'   
+#' @export
+#' 
+#' 
+
+TADA_FindPotentialDuplicatesWithinOrg <- function(.data, handling_method = 'none'){
+  
+  # find the depth columns in the dataset
+  depthcols = names(.data)[grepl("^TADA.*DepthHeightMeasure.MeasureValue$", names(.data))]
+  
+  # tack depth columns onto additional grouping columns
+  colss = c("OrganizationIdentifier", "MonitoringLocationIdentifier", "ActivityStartDate", "ActivityStartTime.Time", "ActivityTypeCode", "TADA.CharacteristicName", "SubjectTaxonomicName", "TADA.ResultSampleFractionText","TADA.ResultMeasureValue", depthcols)
+  
+  # find where the grouping using the columns above results in more than result identifier
+  dups_sum_org = .data%>%dplyr::group_by(dplyr::across(dplyr::any_of(colss)))%>%dplyr::summarise(numres = length(unique(ResultIdentifier)))%>%dplyr::filter(numres>1)%>%dplyr::mutate(TADA.WithinOrgDupGroupID = dplyr::cur_group_id())
+  
+  if(dim(dups_sum_org)[1]>0){
+    # apply to .data and remove numres column
+    .data = merge(.data, dups_sum_org, all.x = TRUE)
+    .data = .data %>% dplyr::select(-numres)
+
+    # if handling_method = 'pick_one', randomly select
+    if(handling_method=="pick_one"){
+      dup_rids = subset(.data, !is.na(.data$TADA.WithinOrgDupGroupID))$ResultIdentifier
+      picks = .data %>% dplyr::filter(!is.na(TADA.WithinOrgDupGroupID)) %>% dplyr::group_by(TADA.WithinOrgDupGroupID) %>% dplyr::slice_sample(n = 1)
+      not_picked_rids = dup_rids[!dup_rids%in%picks$ResultIdentifier]
+      .data$TADA.ResultSelectedWithinOrg = TRUE
+      .data$TADA.ResultSelectedWithinOrg = ifelse(.data$ResultIdentifier%in%not_picked_rids,FALSE,.data$TADA.ResultSelectedWithinOrg)
+      print(paste0(dim(dups_sum_org)[1]," potentially duplicated results found in dataset. These have been placed into duplicate groups in the TADA.WithinOrgDupGroupID column and the function randomly selected one result from each group to represent a single, unduplicated value. Selected values are indicated in the TADA.ResultSelectedWithinOrg as TRUE, while duplicates are flagged as FALSE for easy filtering."))
+    }else{
+        .data$TADA.ResultSelectedWithinOrg = TRUE
+        print(paste0(dim(dups_sum_org)[1]," potentially duplicated results found in dataset. These have been placed into duplicate groups in the TADA.WithinOrgDupGroupID column."))
+    }
+
+  }else{
+    .data$TADA.WithinOrgDupGroupID = "No duplicates detected"
+    .data$TADA.ResultSelectedWithinOrg = TRUE
+    print("No duplicates detected within organizations in the dataset. 'TADA.WithinOrgDupGroupID' column set to 'No duplicates detected' and 'TADA.ResultSelectedWithinOrg' set to TRUE for all results.")
+  }
+  
+  .data = TADA_OrderCols(.data)
+  return(.data)
+  
 }
