@@ -992,6 +992,11 @@ TADA_FindPotentialDuplicates <- function(.data, dist_buffer = 100){
   dupsprep = .data%>%dplyr::select(OrganizationIdentifier,ResultIdentifier,ActivityStartDate, ActivityStartTime.Time, TADA.CharacteristicName,TADA.ResultMeasureValue)%>%dplyr::filter(!is.na(TADA.ResultMeasureValue))%>%dplyr::mutate(roundRV = round(TADA.ResultMeasureValue,digits=2))
   # group by date, time, characteristic, and rounded result value and summarise the number of organizations that have those same row values, and filter to those summary rows with more than one organization
   dups_sum = dupsprep%>%dplyr::group_by(ActivityStartDate, ActivityStartTime.Time, TADA.CharacteristicName,roundRV)%>%dplyr::summarise(numorgs = length(unique(OrganizationIdentifier)))%>%dplyr::filter(numorgs>1)
+  # group by organization, date, time, characteristic, fraction, result value, and depth columns and summarize the number of measurements
+  depthcols = names(.data)[grepl("^TADA.*DepthHeightMeasure.MeasureValue$", names(.data))]
+  colss = c("OrganizationIdentifier", "MonitoringLocationIdentifier", "ActivityStartDate", "ActivityStartTime.Time", "TADA.CharacteristicName", "TADA.ResultSampleFractionText","TADA.ResultMeasureValue", depthcols)
+  dups_sum_org = .data%>%dplyr::group_by(dplyr::across(colss))%>%dplyr::summarise(numres = length(unique(ResultIdentifier)))%>%dplyr::filter(numres>1)
+  
   # if there are potential duplicates based on grouping above, check if sites are nearby
   if(dim(dups_sum)[1]>0){
     # give potential duplicates a grouping ID
