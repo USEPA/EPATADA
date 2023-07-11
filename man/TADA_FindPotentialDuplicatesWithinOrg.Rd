@@ -17,11 +17,13 @@ result in each group and flag all others as duplicates.}
 }
 \value{
 The same input TADA dataframe with additional columns: a
-TADA.ProbableDuplicate column indicating if there is evidence that two or
-more results are duplicated, a TADA.DuplicateID column, containing a
-number unique to results that may represent duplicated measurement events,
-and one or more TADA.SiteGroup columns indicating monitoring locations
-within the distance buffer from each other.
+TADA.WithinOrgDupGroupID column indicating whether a result is part of a
+group that shares the same date, time, location, characteristic, etc. and
+TADA.ResultSelectedWithinOrg, which defaults to TRUE (all results
+selected), unless the user specifies the handling method as 'pick_one', in
+which case there exists one result in each duplicate group where
+TADA.ResultSelectedWithinOrg = TRUE and for all other results in the group
+TADA.ResultSelectedWithinOrg = FALSE.
 }
 \description{
 Identifies data records uploaded by the same organization with the same date,

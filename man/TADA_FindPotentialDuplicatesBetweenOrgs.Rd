@@ -15,8 +15,8 @@ be flagged as potential duplicates.}
 }
 \value{
 The same input TADA dataframe with additional columns: a
-TADA.ProbableDuplicate column indicating if there is evidence that two or
-more results are duplicated, a TADA.DuplicateID column, containing a
+TADA.ProbableBetweenOrgDuplicate column indicating if there is evidence that two or
+more results are duplicated, a TADA.BetweenOrgDupGroupID column, containing a
 number unique to results that may represent duplicated measurement events,
 and one or more TADA.SiteGroup columns indicating monitoring locations
 within the distance buffer from each other.

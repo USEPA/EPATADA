@@ -978,8 +978,8 @@ TADA_FlagCoordinates <- function(.data,
 #' be flagged as potential duplicates.
 #'
 #' @return The same input TADA dataframe with additional columns: a
-#'   TADA.ProbableDuplicate column indicating if there is evidence that two or
-#'   more results are duplicated, a TADA.DuplicateID column, containing a
+#'   TADA.ProbableBetweenOrgDuplicate column indicating if there is evidence that two or
+#'   more results are duplicated, a TADA.BetweenOrgDupGroupID column, containing a
 #'   number unique to results that may represent duplicated measurement events,
 #'   and one or more TADA.SiteGroup columns indicating monitoring locations
 #'   within the distance buffer from each other.
@@ -996,11 +996,11 @@ TADA_FindPotentialDuplicatesBetweenOrgs <- function(.data, dist_buffer = 100){
   # if there are potential duplicates based on grouping above, check if sites are nearby
   if(dim(dups_sum)[1]>0){
     # give potential duplicates a grouping ID
-    dups_sum$TADA.DuplicateID = seq(1:dim(dups_sum)[1])
+    dups_sum$TADA.BetweenOrgDupGroupID = seq(1:dim(dups_sum)[1])
     # merge to narrow dataset to match to true result value
     dupsdat = merge(dups_sum, dupsprep, all.x = TRUE)
     # make sure potential dupes are within 10% of the max value in the group
-    dupsdat = dupsdat%>%dplyr::group_by(TADA.DuplicateID)%>%dplyr::mutate(maxRV = max(TADA.ResultMeasureValue))%>%dplyr::mutate(within10 = ifelse(min(TADA.ResultMeasureValue)>=0.9*maxRV,"Y","N"))%>%dplyr::filter(within10=="Y")%>%dplyr::select(!c(roundRV,maxRV,within10,numorgs))%>%dplyr::ungroup()
+    dupsdat = dupsdat%>%dplyr::group_by(TADA.BetweenOrgDupGroupID)%>%dplyr::mutate(maxRV = max(TADA.ResultMeasureValue))%>%dplyr::mutate(within10 = ifelse(min(TADA.ResultMeasureValue)>=0.9*maxRV,"Y","N"))%>%dplyr::filter(within10=="Y")%>%dplyr::select(!c(roundRV,maxRV,within10,numorgs))%>%dplyr::ungroup()
     
     # merge to data
     dupsdat = dplyr::left_join(dupsdat, .data)
@@ -1022,19 +1022,19 @@ TADA_FindPotentialDuplicatesBetweenOrgs <- function(.data, dist_buffer = 100){
       
       if(dim(dupsdat)[1]>0){ # nearby sites exist but do not overlap with potentially duplicated result values
         sitecomp = dupsites%>%dplyr::select(MonitoringLocationIdentifier,dplyr::all_of(dupsitesids))%>%tidyr::pivot_longer(dplyr::all_of(dupsitesids), values_to = "AllGroups")%>%dplyr::filter(!is.na(AllGroups))%>%dplyr::distinct() # get unique groups in dataset
-        dupids = unique(dupsdat$TADA.DuplicateID) # will loop by ID
+        dupids = unique(dupsdat$TADA.BetweenOrgDupGroupID) # will loop by ID
         
         # create empty dataframe to hold result of spatial grouping tests
         dupdata = data.frame()
         
         for(i in 1:length(dupids)){ # loop through each duplicate group
-          dat = subset(dupsdat, dupsdat$TADA.DuplicateID==dupids[i])
+          dat = subset(dupsdat, dupsdat$TADA.BetweenOrgDupGroupID==dupids[i])
           if(dim(dat)[1]>1&length(unique(dat$OrganizationIdentifier))>1){ # if more than one result in dataset and multiple organizations
             sitecompj = subset(sitecomp, sitecomp$MonitoringLocationIdentifier%in%dat$MonitoringLocationIdentifier)  
             for(j in 1:length(unique(sitecompj$AllGroups))){ # loop through each group
               sitegp = subset(sitecompj, sitecompj$AllGroups==unique(sitecompj$AllGroups)[j])
               if(dim(sitegp)[1]>1){
-                dat$TADA.ProbableDuplicate = ifelse(dat$MonitoringLocationIdentifier%in%sitegp$MonitoringLocationIdentifier,"Y","N") # mark as "Y" probable duplicate if sites in dup id subset are in group id subset.
+                dat$TADA.ProbableBetweenOrgDuplicate = ifelse(dat$MonitoringLocationIdentifier%in%sitegp$MonitoringLocationIdentifier,"Y","N") # mark as "Y" probable duplicate if sites in dup id subset are in group id subset.
                 dupdata = plyr::rbind.fill(dupdata, dat) #bind to all other potential duplicate results
               }
             }
@@ -1042,24 +1042,24 @@ TADA_FindPotentialDuplicatesBetweenOrgs <- function(.data, dist_buffer = 100){
           # print(i)
         }
         
-        dupdata = subset(dupdata, dupdata$TADA.ProbableDuplicate=="Y")
+        dupdata = subset(dupdata, dupdata$TADA.ProbableBetweenOrgDuplicate=="Y")
         # connect back to original dataset
-        .data = merge(.data, dupdata[,c("ResultIdentifier","TADA.DuplicateID","TADA.ProbableDuplicate")], all.x = TRUE)
-        .data$TADA.ProbableDuplicate[is.na(.data$TADA.ProbableDuplicate)] = "N"
-        .data$TADA.DuplicateID[is.na(.data$TADA.ProbableDuplicate)] = NA
+        .data = merge(.data, dupdata[,c("ResultIdentifier","TADA.BetweenOrgDupGroupID","TADA.ProbableBetweenOrgDuplicate")], all.x = TRUE)
+        .data$TADA.ProbableBetweenOrgDuplicate[is.na(.data$TADA.ProbableBetweenOrgDuplicate)] = "N"
+        .data$TADA.BetweenOrgDupGroupID[is.na(.data$TADA.ProbableBetweenOrgDuplicate)] = NA
       }else{
-        .data$TADA.DuplicateID = NA
-        .data$TADA.ProbableDuplicate = "N"
+        .data$TADA.BetweenOrgDupGroupID = NA
+        .data$TADA.ProbableBetweenOrgDuplicate = "N"
         print("No duplicate results detected. Returning input dataframe with duplicate flagging columns set to N.")
       }
     }else{ # if no site duplicates detected
-      .data$TADA.DuplicateID = NA
-      .data$TADA.ProbableDuplicate = "N"
+      .data$TADA.BetweenOrgDupGroupID = NA
+      .data$TADA.ProbableBetweenOrgDuplicate = "N"
       print("No duplicate results detected. Returning input dataframe with duplicate flagging columns set to N.")
     }
   }else{ # if no result/org duplicates detected
-    .data$TADA.DuplicateID = NA
-    .data$TADA.ProbableDuplicate = "N"
+    .data$TADA.BetweenOrgDupGroupID = NA
+    .data$TADA.ProbableBetweenOrgDuplicate = "N"
     print("No duplicate results detected. Returning input dataframe with duplicate flagging columns set to N.")
   }
   
@@ -1085,14 +1085,15 @@ TADA_FindPotentialDuplicatesBetweenOrgs <- function(.data, dist_buffer = 100){
 #'   result in each group and flag all others as duplicates.
 #' 
 #' @return The same input TADA dataframe with additional columns: a
-#'   TADA.ProbableDuplicate column indicating if there is evidence that two or
-#'   more results are duplicated, a TADA.DuplicateID column, containing a
-#'   number unique to results that may represent duplicated measurement events,
-#'   and one or more TADA.SiteGroup columns indicating monitoring locations
-#'   within the distance buffer from each other.
-#'   
-#' @export
+#'   TADA.WithinOrgDupGroupID column indicating whether a result is part of a
+#'   group that shares the same date, time, location, characteristic, etc. and
+#'   TADA.ResultSelectedWithinOrg, which defaults to TRUE (all results
+#'   selected), unless the user specifies the handling method as 'pick_one', in
+#'   which case there exists one result in each duplicate group where
+#'   TADA.ResultSelectedWithinOrg = TRUE and for all other results in the group
+#'   TADA.ResultSelectedWithinOrg = FALSE.
 #' 
+#' @export
 #' 
 
 TADA_FindPotentialDuplicatesWithinOrg <- function(.data, handling_method = 'none'){
@@ -1110,6 +1111,7 @@ TADA_FindPotentialDuplicatesWithinOrg <- function(.data, handling_method = 'none
     # apply to .data and remove numres column
     .data = merge(.data, dups_sum_org, all.x = TRUE)
     .data = .data %>% dplyr::select(-numres)
+    .data$TADA.WithinOrgDupGroupID[is.na(.data$TADA.WithinOrgDupGroupID)] = "Not a duplicate"
 
     # if handling_method = 'pick_one', randomly select
     if(handling_method=="pick_one"){
@@ -1125,9 +1127,9 @@ TADA_FindPotentialDuplicatesWithinOrg <- function(.data, handling_method = 'none
     }
 
   }else{
-    .data$TADA.WithinOrgDupGroupID = "No duplicates detected"
+    .data$TADA.WithinOrgDupGroupID = "Not a duplicate"
     .data$TADA.ResultSelectedWithinOrg = TRUE
-    print("No duplicates detected within organizations in the dataset. 'TADA.WithinOrgDupGroupID' column set to 'No duplicates detected' and 'TADA.ResultSelectedWithinOrg' set to TRUE for all results.")
+    print("No duplicates detected within organizations in the dataset. 'TADA.WithinOrgDupGroupID' column set to 'Not a duplicate' and 'TADA.ResultSelectedWithinOrg' set to TRUE for all results.")
   }
   
   .data = TADA_OrderCols(.data)

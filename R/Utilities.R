@@ -535,8 +535,10 @@ TADA_OrderCols <- function(.data){
            "WQXConversionFactor.ActivityTopDepthHeightMeasure",
            "WQXConversionFactor.ActivityBottomDepthHeightMeasure",
            "WQXConversionFactor.ResultDepthHeightMeasure",
-           "TADA.ProbableDuplicate",
-           "TADA.DuplicateID",
+           "TADA.ProbableBetweenOrgDuplicate",
+           "TADA.BetweenOrgDupGroupID",
+           "TADA.WithinOrgDupGroupID",
+           "TADA.ResultSelectedWithinOrg",
            "TADA.Remove",
            "TADA.RemovalReason",
            "TADAShiny.tab"
@@ -719,4 +721,26 @@ TADA_FindNearbySites <- function(.data, dist_buffer=100){
   .data = .data%>%dplyr::relocate(dplyr::all_of(grpcols), .after="TADA.LongitudeMeasure")
   
   return(.data)
+}
+
+# Generate a random data retrieval dataset (internal, for testthat's)
+# samples a random state and a random 3 months in the past 10 years using
+# TADA_DataRetrieval. Built to use in testthat and for developer testing of new
+# functions on random datasets.
+
+TADA_RandomTestingSet <- function(number_of_days = 90){
+  
+  load(system.file("extdata", "statecodes_df.Rdata", package = "TADA"))
+  state = sample(statecodes_df$STUSAB,1)
+  ten_yrs_ago = Sys.Date()-10*365
+  random_start_date = ten_yrs_ago + sample(10*365,1)
+  end_date = random_start_date + number_of_days
+  
+  dat = TADA_DataRetrieval(startDate = as.character(random_start_date), endDate = as.character(end_date), statecode = state, sampleMedia = "Water")
+  
+  if(dim(dat)[1]<1){
+    dat = Data_NCTCShepherdstown_HUC12
+  }
+  
+  return(dat)
 }
