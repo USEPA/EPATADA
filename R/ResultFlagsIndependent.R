@@ -1039,26 +1039,26 @@ TADA_FindPotentialDuplicatesBetweenOrgs <- function(.data, dist_buffer = 100){
               }
             }
           }
-          # print(i)
         }
         
         dupdata = subset(dupdata, dupdata$TADA.ProbableBetweenOrgDuplicate=="Y")
         # connect back to original dataset
         .data = merge(.data, dupdata[,c("ResultIdentifier","TADA.BetweenOrgDupGroupID","TADA.ProbableBetweenOrgDuplicate")], all.x = TRUE)
         .data$TADA.ProbableBetweenOrgDuplicate[is.na(.data$TADA.ProbableBetweenOrgDuplicate)] = "N"
-        .data$TADA.BetweenOrgDupGroupID[is.na(.data$TADA.ProbableBetweenOrgDuplicate)] = NA
+        .data$TADA.BetweenOrgDupGroupID[is.na(.data$TADA.ProbableBetweenOrgDuplicate)] = "Not a duplicate"
+        print(paste0(length(dupdata$TADA.ProbableBetweenOrgDuplicate[dupdata$TADA.ProbableBetweenOrgDuplicate%in%c("Y")]), " potentially duplicated results found in dataset. These have been placed into duplicate groups in the TADA.BetweenOrgDupGroupID column and the TADA.ProbableBetweenOrgDuplicate column is set to 'Y' (yes)."))
       }else{
-        .data$TADA.BetweenOrgDupGroupID = NA
+        .data$TADA.BetweenOrgDupGroupID = "Not a duplicate"
         .data$TADA.ProbableBetweenOrgDuplicate = "N"
         print("No duplicate results detected. Returning input dataframe with duplicate flagging columns set to N.")
       }
     }else{ # if no site duplicates detected
-      .data$TADA.BetweenOrgDupGroupID = NA
+      .data$TADA.BetweenOrgDupGroupID = "Not a duplicate"
       .data$TADA.ProbableBetweenOrgDuplicate = "N"
       print("No duplicate results detected. Returning input dataframe with duplicate flagging columns set to N.")
     }
   }else{ # if no result/org duplicates detected
-    .data$TADA.BetweenOrgDupGroupID = NA
+    .data$TADA.BetweenOrgDupGroupID = "Not a duplicate"
     .data$TADA.ProbableBetweenOrgDuplicate = "N"
     print("No duplicate results detected. Returning input dataframe with duplicate flagging columns set to N.")
   }
