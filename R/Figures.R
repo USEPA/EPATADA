@@ -1,17 +1,22 @@
-#' Create Boxplot
+#' Create Boxplot(s)
 #' 
-#' @param filtered.data TADA data frame containing the data downloaded from the WQP, where
-#' each row represents a unique data record. Data frame must include the columns 'TADA.CharacteristicName' OR
-#' 'TADA.ComparableDataIdentifier', 'TADA.ResultMeasureValue', and
-#' 'TADA.ResultMeasure.MeasureUnitCode' to run this function. 'TADA.ComparableDataIdentifier' can 
-#' be added to the data frame by running the function HarmonizeData(). The data frame
-#' must be filtered down to a single characteristic with a consistent unit or comparable data identifier to run this function.
-#' 
-#' @param id_col The column in the dataset used to identify the characteristic plotted in the boxplot. May be set to "TADA.CharacteristicName" or "TADA.ComparableDataIdentifier" if user would rather use a post-harmonization dataset that groups multiple TADA.CharacteristicNames into one. 
-#' 
-#' @return A plotly boxplot figure showing the median, 25th percentile, 75th percentile, 
-#' upper fence, lower fence, minimum, maximum, and data outliers for the given 
-#' characteristic or comparable data identifier.
+#' @param .data TADA data frame containing the data downloaded from the
+#'   WQP, where each row represents a unique data record. Data frame must
+#'   include the columns 'TADA.ComparableDataIdentifier',
+#'   'TADA.ResultMeasureValue', and 'TADA.ResultMeasure.MeasureUnitCode' to run
+#'   this function. 'TADA.ComparableDataIdentifier' can be added to the data
+#'   frame by running the function HarmonizeData(). The user can include
+#'   additional grouping columns in the id_col input. If more than one group
+#'   exists in the dataset (i.e. two or more unique comparable data
+#'   identifiers), the function creates a list of plots, where each list element
+#'   name is a unique group identifier.
+#'
+#' @param id_cols The column(S) in the dataset used to identify the unique groups
+#'   to be plotted. Defaults to 'TADA.ComparableDataIdentifier'.
+#'
+#' @return A list of plotly boxplot figures showing the median, 25th percentile,
+#'   75th percentile, upper fence, lower fence, minimum, maximum, and data
+#'   outliers for each unique data group.
 #' 
 #' @export
 #' 
@@ -25,95 +30,127 @@
 #' TADA_Boxplot(Data_TP_6Tribes_5y, id_col = "TADA.ComparableDataIdentifier")
 #' 
 
-TADA_Boxplot <- function(filtered.data, id_col = c("TADA.CharacteristicName", "TADA.ComparableDataIdentifier")) {
+TADA_Boxplot <- function(.data, id_cols = c("TADA.ComparableDataIdentifier")) {
   # check .data is data.frame
-  TADA_CheckType(filtered.data, "data.frame", "Input object")
-  # check id_col matches one of the options
-  id_col <- match.arg(id_col)
+  TADA_CheckType(.data, "data.frame", "Input object")
+  
+  # ensure comparable data identifier is in the id_col vector
+  id_cols = unique(c("TADA.ComparableDataIdentifier",id_cols))
+  
   # check .data has required columns
-  TADA_CheckColumns(filtered.data, id_col)
+  TADA_CheckColumns(.data, id_cols)
+  
   # check .data has required columns
-  TADA_CheckColumns(filtered.data, c("TADA.ResultMeasureValue", "TADA.ResultMeasure.MeasureUnitCode"))
-  # check id_col is filtered to one characteristic or identifier
-  if (length(unique(filtered.data[,id_col])) > 1) {
-    stop(paste0(id_col, " field contains more than one unique value. Boxplot function cannot run with more than 1 unique characteristic or comparable data identifier. Please filter dataframe and rerun function."))
-  }
-  # check that units are the same across all data points
-  if (length(unique(filtered.data$TADA.ResultMeasure.MeasureUnitCode)) > 1) {
-    warning("Dataset contains more than one result unit. Plotting results with multiple units in one boxplot is not advised. Please filter or harmonize dataframe and rerun function.")
+  TADA_CheckColumns(.data, c("TADA.ResultMeasureValue", "TADA.ResultMeasure.MeasureUnitCode"))
+  
+  start = dim(.data)[1]
+  
+  .data = subset(.data, !is.na(.data$TADA.ResultMeasureValue))
+  
+  end = dim(.data)[1]
+  
+  if(!start==end){
+    net = start - end
+    print(paste0("Plotting function removed ", net," results where TADA.ResultMeasureValue = NA. These results cannot be plotted."))
   }
   
-  # execute function after checks have passed
+  .data = .data %>% dplyr::group_by(dplyr::across(dplyr::all_of(id_cols))) %>% dplyr::mutate(Group = dplyr::cur_group_id())
+  
+  boxplots = list()
+  
+  for(i in 1:max(.data$Group)){
+    plot.data = subset(.data, .data$Group==i)
+    groupid = paste0(unique(plot.data[,id_cols]), collapse = "-")
 
-  # units
-  unit <- unique(filtered.data$TADA.ResultMeasure.MeasureUnitCode)
-  char <- unique(filtered.data[,id_col])
-  y_label <- paste0(char, " (", unit, ")")
+    # units
+    unit <- unique(plot.data$TADA.ResultMeasure.MeasureUnitCode)
+    
+    # boxplot stats
+    values <- plot.data$TADA.ResultMeasureValue
+    # 25th percentile (calculated using "type 7" method which is default for quantile function,
+    # but ATSDR tool uses "type 6")
+    quant_25 <- signif(stats::quantile(values, 0.25, type = 7), 5)
+    # 75th percentile (see note above)
+    quant_75 <- signif(stats::quantile(values, 0.75, type = 7), 5)
+    # median for box center line
+    box_median <- stats::median(values)
+    # mean
+    box_mean <- mean(values)
+    # standard deviation
+    box_sd <- stats::sd(values)
+    # interquantile range (length of box)
+    box_iqr <- quant_75 - quant_25
+    # upper threshold for upper whisker
+    upper_thresh <- quant_75 + 1.5*box_iqr
+    # lower threshold for lower whisker
+    lower_thresh <- quant_25 - 1.5*box_iqr
+    # find max of values below upper threshold
+    if(suppressWarnings(is.infinite(max(values[values <= upper_thresh])))){
+      box_upper = max(values)
+    }else{
+      box_upper_row <- which(values == max(values[values <= upper_thresh]))
+      box_upper <- values[[box_upper_row[[1]]]]
+    }
+    # find min of values above lower threshold
+    if(suppressWarnings(is.infinite(min(values[values >= lower_thresh])))){
+      box_lower = min(values)
+    }else{
+      box_lower_row <- which(values == min(values[values >= lower_thresh]))
+      box_lower <- values[[box_lower_row[[1]]]]
+    }
+    # construct plotly boxplot
+    base_boxplot <- plotly::plot_ly(y = list(values), type = "box", 
+                                    q1 = quant_25, median = box_median,
+                                    q3 = quant_75, lowerfence = box_lower,
+                                    hoverinfo = 'y',
+                                    upperfence = box_upper, boxpoints = "outliers",
+                                    marker = list(color = "#00bde3"),
+                                    stroke = I("#005ea2"))
+    
+    # boxplot layout and labels
+    base_boxplot <- base_boxplot %>% 
+      plotly::layout(
+        xaxis = list(showticklabels = FALSE),
+        yaxis = list(title = unit, titlefont = list(size = 16, family = "Arial"), tickfont = list(size = 16, family = "Arial"),
+                     hoverformat = ',.4r', linecolor = "black", rangemode = 'tozero', 
+                     showgrid = FALSE, tickcolor= "black"),
+        hoverlabel=list(bgcolor="white"),
+        title = paste0("Boxplot of ", groupid), 
+        plot_bgcolor = "#e5ecf6"
+      ) %>% 
+      plotly::config(displayModeBar = FALSE)
+    
+    boxplots[[i]] = base_boxplot
+    
+    names(boxplots)[i] = groupid
+    
+  }
   
-  # boxplot stats
-  values <- filtered.data$TADA.ResultMeasureValue
-  # 25th percentile (calculated using "type 7" method which is default for quantile function,
-  # but ATSDR tool uses "type 6")
-  quant_25 <- signif(stats::quantile(values, 0.25, type = 7), 5)
-  # 75th percentile (see note above)
-  quant_75 <- signif(stats::quantile(values, 0.75, type = 7), 5)
-  # median for box center line
-  box_median <- stats::median(values)
-  # mean
-  box_mean <- mean(values)
-  # standard deviation
-  box_sd <- stats::sd(values)
-  # interquantile range (length of box)
-  box_iqr <- quant_75 - quant_25
-  # upper threshold for upper whisker
-  upper_thresh <- quant_75 + 1.5*box_iqr
-  # lower threshold for lower whisker
-  lower_thresh <- quant_25 - 1.5*box_iqr
-  # find max of values below upper threshold
-  box_upper_row <- which(values == max(values[values <= upper_thresh]))
-  box_upper <- values[[box_upper_row[[1]]]]
-  # find min of values above lower threshold
-  box_lower_row <- which(values == min(values[values >= lower_thresh]))
-  box_lower <- values[[box_lower_row[[1]]]]
+  if(length(boxplots)==1){
+    boxplots = boxplots[[1]]
+  }
   
-  # construct plotly boxplot
-  base_boxplot <- plotly::plot_ly(y = list(values), type = "box", 
-                                  q1 = quant_25, median = box_median,
-                                  q3 = quant_75, lowerfence = box_lower,
-                                  hoverinfo = 'y',
-                                  upperfence = box_upper, boxpoints = "outliers",
-                                  marker = list(color = "#00bde3"),
-                                  stroke = I("#005ea2"))
-  
-  # boxplot layout and labels
-  base_boxplot <- base_boxplot %>% 
-    plotly::layout(
-      xaxis = list(showticklabels = FALSE),
-      yaxis = list(title = y_label, titlefont = list(size = 16, family = "Arial"), tickfont = list(size = 16, family = "Arial"),
-                   hoverformat = ',.4r', linecolor = "black", rangemode = 'tozero', 
-                   showgrid = FALSE, tickcolor= "black"),
-      hoverlabel=list(bgcolor="white"),
-      title = paste0("Boxplot of ", char, " (", unit, ")"), 
-      plot_bgcolor = "#e5ecf6"
-    ) %>% 
-    plotly::config(displayModeBar = FALSE)
-  
-  return(base_boxplot)
+  return(boxplots)
 }
 
-#' Create Histogram
+#' Create Histogram(s)
 #' 
-#' @param filtered.data TADA data frame containing the data downloaded from the WQP, where
-#' each row represents a unique data record. Data frame must include the columns 'TADA.CharacteristicName' OR
-#' 'TADA.ComparableDataIdentifier', 'TADA.ResultMeasureValue', and
-#' 'TADA.ResultMeasure.MeasureUnitCode' to run this function. 'TADA.ComparableDataIdentifier' can  
-#' be added to the data frame by running the function HarmonizeData(). The data frame
-#' must be filtered down to a single characteristic with a consistent unit or comparable data identifier to run this function.
+#' @param .data TADA data frame containing the data downloaded from the
+#'   WQP, where each row represents a unique data record. Data frame must
+#'   include the columns 'TADA.ComparableDataIdentifier',
+#'   'TADA.ResultMeasureValue', and 'TADA.ResultMeasure.MeasureUnitCode' to run
+#'   this function. 'TADA.ComparableDataIdentifier' can be added to the data
+#'   frame by running the function HarmonizeData(). The user can include
+#'   additional grouping columns in the id_col input. If more than one group
+#'   exists in the dataset (i.e. two or more unique comparable data
+#'   identifiers), the function creates a list of plots, where each list element
+#'   name is a unique group identifier.
+#'
+#' @param id_cols The column(S) in the dataset used to identify the unique groups
+#'   to be plotted. Defaults to 'TADA.ComparableDataIdentifier'.
 #' 
-#' @param id_col The column in the dataset used to identify the characteristic plotted in the histogram. May be set to "TADA.CharacteristicName" or "TADA.ComparableDataIdentifier" if user would rather use a post-harmonization dataset that groups multiple TADA.CharacteristicNames into one. 
-#' 
-#' @return A plotly histogram figure showing the distribution of sample values 
-#' for the given characteristic or comparable data identifier.
+#' @return A list of plotly histogram figures showing the distribution of sample values 
+#' for each data group.
 #' 
 #' @export
 #' 
@@ -124,84 +161,116 @@ TADA_Boxplot <- function(filtered.data, id_col = c("TADA.CharacteristicName", "T
 #' # down to one Comparable Data Identifier
 #' 
 #' # Create histogram:
-#' TADA_Histogram(Data_TP_6Tribes_5y, id_col = "TADA.ComparableDataIdentifier")
+#' TADA_Histogram(Data_TP_6Tribes_5y, id_cols = "TADA.ComparableDataIdentifier")
 
-TADA_Histogram <- function(filtered.data, id_col = c("TADA.CharacteristicName", "TADA.ComparableDataIdentifier")) {
+TADA_Histogram <- function(.data, id_cols = c("TADA.ComparableDataIdentifier")) {
   # check .data is data.frame
-  TADA_CheckType(filtered.data, "data.frame", "Input object")
-  # check id_col matches one of the options
-  id_col <- match.arg(id_col)
+  TADA_CheckType(.data, "data.frame", "Input object")
+  
+  # ensure comparable data identifier is in the id_col vector
+  id_cols = unique(c("TADA.ComparableDataIdentifier",id_cols))
+  
   # check .data has required columns
-  TADA_CheckColumns(filtered.data, id_col)
-  TADA_CheckColumns(filtered.data, c("TADA.ResultMeasureValue", "TADA.ResultMeasure.MeasureUnitCode"))
-  # check id_col is filtered to one characteristic or identifier
-  if (length(unique(filtered.data[,id_col])) > 1) {
-    stop(paste0(id_col, " field contains more than one unique value. Histogram function cannot run with more than 1 unique characteristic or comparable data identifier. Please filter dataframe and rerun function."))
+  TADA_CheckColumns(.data, id_cols)
+  
+  # check .data has required columns
+  TADA_CheckColumns(.data, c("TADA.ResultMeasureValue", "TADA.ResultMeasure.MeasureUnitCode"))
+  
+  start = dim(.data)[1]
+  
+  .data = subset(.data, !is.na(.data$TADA.ResultMeasureValue))
+  
+  end = dim(.data)[1]
+  
+  if(!start==end){
+    net = start - end
+    print(paste0("Plotting function removed ", net," results where TADA.ResultMeasureValue = NA. These results cannot be plotted."))
   }
-  # check that units are the same across all data points
-  if (length(unique(filtered.data$TADA.ResultMeasure.MeasureUnitCode)) > 1) {
-    warning("Dataset contains more than one result unit. Plotting results with multiple units in one histogram is not advised. Please filter or harmonize dataframe and rerun function.")
+  
+  .data = .data %>% dplyr::group_by(dplyr::across(dplyr::all_of(id_cols))) %>% dplyr::mutate(Group = dplyr::cur_group_id())
+  
+  histograms = list()
+  
+  for(i in 1:max(.data$Group)){
+    plot.data = subset(.data, .data$Group==i)
+    groupid = paste0(unique(plot.data[,id_cols]), collapse = "-")
+
+    # units
+    unit <- unique(plot.data$TADA.ResultMeasure.MeasureUnitCode)
+    y_label <- "Frequency"
+    
+    # histogram stats
+    # data for remove_outliers trace
+    values <- plot.data$TADA.ResultMeasureValue
+    quant_25 <- stats::quantile(values, 0.25, type = 7)
+    quant_75 <- stats::quantile(values, 0.75, type = 7)
+    box_iqr <- quant_75 - quant_25
+    upper_thresh <- quant_75 + 1.5*box_iqr
+    lower_thresh <- quant_25 - 1.5*box_iqr
+    # find max of values below upper threshold
+    if(suppressWarnings(is.infinite(max(values[values <= upper_thresh])))){
+      box_upper = max(values)
+    }else{
+      box_upper_row <- which(values == max(values[values <= upper_thresh]))
+      box_upper <- values[[box_upper_row[[1]]]]
+    }
+    # find min of values above lower threshold
+    if(suppressWarnings(is.infinite(min(values[values >= lower_thresh])))){
+      box_lower = min(values)
+    }else{
+      box_lower_row <- which(values == min(values[values >= lower_thresh]))
+      box_lower <- values[[box_lower_row[[1]]]]
+    }
+    no_outliers <- subset(plot.data, plot.data$TADA.ResultMeasureValue>=box_lower & plot.data$TADA.ResultMeasureValue<=box_upper)
+    
+    histogram <- plotly::plot_ly() %>%
+      plotly::add_histogram(x = plot.data$TADA.ResultMeasureValue,
+                            xbins = list(start = min(plot.data$TADA.ResultMeasureValue)),
+                            marker = list(color = "#00bde3"),
+                            stroke = I("#005ea2"),
+                            bingroup = 1,
+                            name = "<b>All Data<b>"
+      )
+    if(dim(no_outliers)[1]>0){
+      histogram = histogram %>%
+        plotly::add_histogram(x = no_outliers$TADA.ResultMeasureValue,
+                              xbins = list(start = min(plot.data$TADA.ResultMeasureValue)),
+                              marker = list(color = "#00bde3"),
+                              stroke = I("#005ea2"),
+                              bingroup = 1,
+                              name = paste0("<b>Outliers Removed</b>", "\nUpper Threshold: ", box_upper, "\nLower Threshold: ", box_lower),
+                              visible = "legendonly"
+        )
+    }
+    # histogram layout and labels
+    histogram <- histogram %>% 
+      plotly::layout(
+        xaxis = list(title = unit, titlefont = list(size = 16, family = "Arial"), tickfont = list(size = 16, family = "Arial"),
+                     hoverformat = ',.4r', linecolor = "black", rangemode = 'tozero', 
+                     showgrid = FALSE, tickcolor= "black"),
+        yaxis = list(title = y_label, titlefont = list(size = 16, family = "Arial"), tickfont = list(size = 16, family = "Arial"),
+                     hoverformat = ',.4r', linecolor = "black", rangemode = 'tozero', 
+                     showgrid = FALSE, tickcolor= "black"), 
+        hoverlabel=list(bgcolor="white"),
+        title = groupid, 
+        plot_bgcolor = "#e5ecf6",
+        barmode = "overlay",
+        legend = list(title = list(text = "<b>Select 'Outliers Removed' \nand Deselect 'All Data' \nto View a Subset of the Data<b>"))
+      ) %>% 
+      plotly::config(displayModeBar = TRUE)
+
+    
+    histograms[[i]] = histogram
+    
+    names(histograms)[i] = groupid
+    
   }
   
-  # execute function after checks have passed
+  if(length(histograms)==1){
+    histograms = histograms[[1]]
+  }
   
-  # units
-  unit <- unique(filtered.data$TADA.ResultMeasure.MeasureUnitCode)
-  char <- unique(filtered.data[,id_col])
-  x_label <- paste0(char, " (", unit, ")")
-  y_label <- paste0("Frequency
-  (Total of ", nrow(filtered.data), " Samples)")
-  
-  # data for all_data trace
-  all_data <- filtered.data
-  # data for remove_outliers trace
-  values <- filtered.data$TADA.ResultMeasureValue
-  quant_25 <- stats::quantile(all_data$TADA.ResultMeasureValue, 0.25, type = 7)
-  quant_75 <- stats::quantile(all_data$TADA.ResultMeasureValue, 0.75, type = 7)
-  box_iqr <- quant_75 - quant_25
-  upper_thresh <- quant_75 + 1.5*box_iqr
-  lower_thresh <- quant_25 - 1.5*box_iqr
-  box_upper_row <- which(values == max(values[values <= upper_thresh]))
-  box_upper <- values[[box_upper_row[[1]]]]
-  box_lower_row <- which(values == min(values[values >= lower_thresh]))
-  box_lower <- values[[box_lower_row[[1]]]]
-  no_outliers <- subset(filtered.data, filtered.data$TADA.ResultMeasureValue>=box_lower & filtered.data$TADA.ResultMeasureValue<=box_upper)
-  
-  histogram <- plotly::plot_ly() %>%
-    plotly::add_histogram(x = all_data$TADA.ResultMeasureValue,
-              xbins = list(start = min(all_data$TADA.ResultMeasureValue)),
-              marker = list(color = "#00bde3"),
-              stroke = I("#005ea2"),
-              bingroup = 1,
-              name = "<b>All Data<b>"
-              ) %>%
-    plotly::add_histogram(x = no_outliers$TADA.ResultMeasureValue,
-              xbins = list(start = min(all_data$TADA.ResultMeasureValue)),
-              marker = list(color = "#00bde3"),
-              stroke = I("#005ea2"),
-              bingroup = 1,
-              name = paste0("<b>Outliers Removed</b>", "\nUpper Threshold: ", box_upper, "\nLower Threshold: ", box_lower),
-              visible = "legendonly"
-              )
-  
-  # histogram layout and labels
-  histogram <- histogram %>% 
-  plotly::layout(
-    xaxis = list(title = x_label, titlefont = list(size = 16, family = "Arial"), tickfont = list(size = 16, family = "Arial"),
-                 hoverformat = ',.4r', linecolor = "black", rangemode = 'tozero', 
-                 showgrid = FALSE, tickcolor= "black"),
-    yaxis = list(title = y_label, titlefont = list(size = 16, family = "Arial"), tickfont = list(size = 16, family = "Arial"),
-                 hoverformat = ',.4r', linecolor = "black", rangemode = 'tozero', 
-                 showgrid = FALSE, tickcolor= "black"), 
-    hoverlabel=list(bgcolor="white"),
-    title = paste0(char, " vs. Frequency"), 
-    plot_bgcolor = "#e5ecf6",
-    barmode = "overlay",
-    legend = list(title = list(text = "<b>Select 'Outliers Removed' \nand Deselect 'All Data' \nto View a Subset of the Data<b>"))
-  ) %>% 
-    plotly::config(displayModeBar = TRUE)
-  
-  return(histogram)
+  return(histograms)
 }
 
 #' Create Overview Map

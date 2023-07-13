@@ -2,29 +2,31 @@
 % Please edit documentation in R/Figures.R
 \name{TADA_Histogram}
 \alias{TADA_Histogram}
-\title{Create Histogram}
+\title{Create Histogram(s)}
 \usage{
-TADA_Histogram(
-  filtered.data,
-  id_col = c("TADA.CharacteristicName", "TADA.ComparableDataIdentifier")
-)
+TADA_Histogram(.data, id_cols = c("TADA.ComparableDataIdentifier"))
 }
 \arguments{
-\item{filtered.data}{TADA data frame containing the data downloaded from the WQP, where
-each row represents a unique data record. Data frame must include the columns 'TADA.CharacteristicName' OR
-'TADA.ComparableDataIdentifier', 'TADA.ResultMeasureValue', and
-'TADA.ResultMeasure.MeasureUnitCode' to run this function. 'TADA.ComparableDataIdentifier' can
-be added to the data frame by running the function HarmonizeData(). The data frame
-must be filtered down to a single characteristic with a consistent unit or comparable data identifier to run this function.}
+\item{.data}{TADA data frame containing the data downloaded from the
+WQP, where each row represents a unique data record. Data frame must
+include the columns 'TADA.ComparableDataIdentifier',
+'TADA.ResultMeasureValue', and 'TADA.ResultMeasure.MeasureUnitCode' to run
+this function. 'TADA.ComparableDataIdentifier' can be added to the data
+frame by running the function HarmonizeData(). The user can include
+additional grouping columns in the id_col input. If more than one group
+exists in the dataset (i.e. two or more unique comparable data
+identifiers), the function creates a list of plots, where each list element
+name is a unique group identifier.}
 
-\item{id_col}{The column in the dataset used to identify the characteristic plotted in the histogram. May be set to "TADA.CharacteristicName" or "TADA.ComparableDataIdentifier" if user would rather use a post-harmonization dataset that groups multiple TADA.CharacteristicNames into one.}
+\item{id_cols}{The column(S) in the dataset used to identify the unique groups
+to be plotted. Defaults to 'TADA.ComparableDataIdentifier'.}
 }
 \value{
-A plotly histogram figure showing the distribution of sample values
-for the given characteristic or comparable data identifier.
+A list of plotly histogram figures showing the distribution of sample values
+for each data group.
 }
 \description{
-Create Histogram
+Create Histogram(s)
 }
 \examples{
 # Load example dataset:
@@ -33,5 +35,5 @@ data(Data_TP_6Tribes_5y)
 # down to one Comparable Data Identifier
 
 # Create histogram:
-TADA_Histogram(Data_TP_6Tribes_5y, id_col = "TADA.ComparableDataIdentifier")
+TADA_Histogram(Data_TP_6Tribes_5y, id_cols = "TADA.ComparableDataIdentifier")
 }
