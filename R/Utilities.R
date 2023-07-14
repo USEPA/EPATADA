@@ -476,6 +476,7 @@ TADA_OrderCols <- function(.data){
   
   tadacols = c("TADA.LatitudeMeasure",
            "TADA.LongitudeMeasure",
+           "TADA.NearbySiteGroups",
            "TADA.InvalidCoordinates.Flag",
            "TADA.QAPPDocAvailable",
            "TADA.ActivityMediaName", 
@@ -535,10 +536,11 @@ TADA_OrderCols <- function(.data){
            "WQXConversionFactor.ActivityTopDepthHeightMeasure",
            "WQXConversionFactor.ActivityBottomDepthHeightMeasure",
            "WQXConversionFactor.ResultDepthHeightMeasure",
-           "TADA.ProbableBetweenOrgDuplicate",
-           "TADA.BetweenOrgDupGroupID",
-           "TADA.WithinOrgDupGroupID",
-           "TADA.ResultSelectedWithinOrg",
+           "TADA.TADA.MultipleOrgDuplicate",
+           "TADA.TADA.MultipleOrgDupGroupID",
+           "TADA.ResultSelectedMultipleOrg",
+           "TADA.SingleOrgDupGroupID",
+           "TADA.ResultSelectedSingleOrg",
            "TADA.Remove",
            "TADA.RemovalReason",
            "TADAShiny.tab"
@@ -636,12 +638,17 @@ TADA_GetTemplate <- function(){
 
 #' Identify and group nearby monitoring locations (UNDER ACTIVE DEVELOPMENT)
 #'
-#' This function takes a TADA dataset and creates a distance matrix for all sites in the dataset. It then uses the buffer input value to determine which sites are within the buffer and should be identified as part of a nearby site group.
+#' This function takes a TADA dataset and creates a distance matrix for all
+#' sites in the dataset. It then uses the buffer input value to determine which
+#' sites are within the buffer and should be identified as part of a nearby site
+#' group.
 #'
 #' @param .data TADA dataframe OR TADA sites dataframe
-#' @param dist_buffer Numeric. The maximum distance (in meters) two sites can be from one another to be considered "nearby" and grouped together.
+#' @param dist_buffer Numeric. The maximum distance (in meters) two sites can be
+#'   from one another to be considered "nearby" and grouped together.
 #'
-#' @return Input dataframe with one or more TADA.SiteGroup columns (depending upon if a site belongs to more than one nearby group), which identify each site group as "Group_#" for easy filtering. 
+#' @return Input dataframe with a TADA.NearbySiteGroups column that indicates
+#'   the nearby site groups each monitoring location belongs to.
 #'
 #' @export
 
@@ -703,7 +710,6 @@ TADA_FindNearbySites <- function(.data, dist_buffer=100){
     # pivot wider if a site belongs to multiple groups
     groups_wide = merge(groups, summ_sites, all.x = TRUE)
     groups_wide = tidyr::pivot_wider(groups_wide, id_cols = "MonitoringLocationIdentifier",names_from = "GroupCount", names_prefix = "TADA.SiteGroup",values_from = "TADA.SiteGroupID")
-    
     # merge data to site groupings
     .data = merge(.data, groups_wide, all.x = TRUE)
   }else{ # if no groups, give a TADA.SiteGroup1 column filled with NA
@@ -711,14 +717,17 @@ TADA_FindNearbySites <- function(.data, dist_buffer=100){
     print("No nearby sites detected using input buffer distance.")
   }
   
+  # concatenate and move site id cols to right place
+  grpcols = names(.data)[grepl("TADA.SiteGroup",names(.data))]
+  
+  .data = .data %>% tidyr::unite(col = TADA.NearbySiteGroups, dplyr::all_of(grpcols), sep = ", ", na.rm = TRUE)
+  .data$TADA.NearbySiteGroups[.data$TADA.NearbySiteGroups==""] = "No nearby sites"
+  
   # order columns
   .data = TADA_OrderCols(.data)
   
-  # move site id cols to right place
-  grpcols = names(.data)[grepl("TADA.SiteGroup",names(.data))]
-  
-  # relocate site group columns to TADA area
-  .data = .data%>%dplyr::relocate(dplyr::all_of(grpcols), .after="TADA.LongitudeMeasure")
+  # # relocate site group columns to TADA area
+  # .data = .data%>%dplyr::relocate(dplyr::all_of(grpcols), .after="TADA.LongitudeMeasure")
   
   return(.data)
 }

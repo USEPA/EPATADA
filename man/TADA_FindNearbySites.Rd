@@ -9,11 +9,16 @@ TADA_FindNearbySites(.data, dist_buffer = 100)
 \arguments{
 \item{.data}{TADA dataframe OR TADA sites dataframe}
 
-\item{dist_buffer}{Numeric. The maximum distance (in meters) two sites can be from one another to be considered "nearby" and grouped together.}
+\item{dist_buffer}{Numeric. The maximum distance (in meters) two sites can be
+from one another to be considered "nearby" and grouped together.}
 }
 \value{
-Input dataframe with one or more TADA.SiteGroup columns (depending upon if a site belongs to more than one nearby group), which identify each site group as "Group_#" for easy filtering.
+Input dataframe with a TADA.NearbySiteGroups column that indicates
+the nearby site groups each monitoring location belongs to.
 }
 \description{
-This function takes a TADA dataset and creates a distance matrix for all sites in the dataset. It then uses the buffer input value to determine which sites are within the buffer and should be identified as part of a nearby site group.
+This function takes a TADA dataset and creates a distance matrix for all
+sites in the dataset. It then uses the buffer input value to determine which
+sites are within the buffer and should be identified as part of a nearby site
+group.
 }

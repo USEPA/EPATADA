@@ -7,7 +7,7 @@
 TADA_FindPotentialDuplicatesMultipleOrgs(
   .data,
   dist_buffer = 100,
-  org_hierarchy = ""
+  org_hierarchy = "none"
 )
 }
 \arguments{
