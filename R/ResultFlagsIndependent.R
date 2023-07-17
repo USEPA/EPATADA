@@ -406,8 +406,6 @@ TADA_FlagAboveThreshold <- function(.data, clean = TRUE, errorsonly = FALSE) {
   }
 }
 
-
-
 #' Check Result Value Against WQX Lower Threshold
 #'
 #' EPA's Water Quality Exchange (WQX) has generated statistics and data from
@@ -991,6 +989,14 @@ TADA_FlagCoordinates <- function(.data,
 #'   
 #' @export
 #' 
+#' @examples 
+#' # Load dataset
+#' dat = TADA_DataRetrieval(startDate = "2022-09-01", endDate = "2023-05-01", statecode = "PA", sampleMedia = "Water")
+#' unique(dat$OrganizationIdentifier)
+#' # If duplicates across organizations exist, pick the result belonging to "21PA_WQX" if available.
+#' dat1 = TADA_FindPotentialDuplicatesMultipleOrgs(dat, dist_buffer = 100, org_hierarchy = c("21PA_WQX"))
+#' table(dat1$TADA.ResultSelectedMultipleOrgs)
+#' 
 
 TADA_FindPotentialDuplicatesMultipleOrgs <- function(.data, dist_buffer = 100, org_hierarchy = "none"){
   # get all data that are not NA and round to 2 digits
@@ -1140,6 +1146,13 @@ TADA_FindPotentialDuplicatesMultipleOrgs <- function(.data, dist_buffer = 100, o
 #' 
 #' @export
 #' 
+#' @examples 
+#' # Load dataset
+#' data(Data_6Tribes_5y)
+#' # If duplicates across organizations exist, pick the result belonging to "21PA_WQX" if available.
+#' Data_6Tribes_5y_dups = TADA_FindPotentialDuplicatesSingleOrg(Data_6Tribes_5y, handling_method = 'pick_one')
+#' table(Data_6Tribes_5y_dups$TADA.ResultSelectedSingleOrg)
+#' 
 
 TADA_FindPotentialDuplicatesSingleOrg <- function(.data, handling_method = 'none'){
   
@@ -1162,13 +1175,12 @@ TADA_FindPotentialDuplicatesSingleOrg <- function(.data, handling_method = 'none
     if(handling_method=="pick_one"){
       dup_rids = subset(.data, !is.na(.data$TADA.SingleOrgDupGroupID))$ResultIdentifier
       picks = .data %>% dplyr::filter(!is.na(TADA.SingleOrgDupGroupID)) %>% dplyr::group_by(TADA.SingleOrgDupGroupID) %>% dplyr::slice_sample(n = 1)
-      not_picked_rids = dup_rids[!dup_rids%in%picks$ResultIdentifier]
       .data$TADA.ResultSelectedSingleOrg = TRUE
-      .data$TADA.ResultSelectedSingleOrg = ifelse(.data$ResultIdentifier%in%not_picked_rids,FALSE,.data$TADA.ResultSelectedSingleOrg)
-      print(paste0(dim(dups_sum_org)[1]," potentially duplicated results found in dataset. These have been placed into duplicate groups in the TADA.SingleOrgDupGroupID column and the function randomly selected one result from each group to represent a single, unduplicated value. Selected values are indicated in the TADA.ResultSelectedSingleOrg as TRUE, while duplicates are flagged as FALSE for easy filtering."))
+      .data$TADA.ResultSelectedSingleOrg = ifelse(.data$ResultIdentifier%in%picks$ResultIdentifier,FALSE,.data$TADA.ResultSelectedSingleOrg)
+      print(paste0(dim(dups_sum_org)[1]," groups of potentially duplicated results found in dataset. These have been placed into duplicate groups in the TADA.SingleOrgDupGroupID column and the function randomly selected one result from each group to represent a single, unduplicated value. Selected values are indicated in the TADA.ResultSelectedSingleOrg as TRUE, while duplicates are flagged as FALSE for easy filtering."))
     }else{
         .data$TADA.ResultSelectedSingleOrg = TRUE
-        print(paste0(dim(dups_sum_org)[1]," potentially duplicated results found in dataset. These have been placed into duplicate groups in the TADA.SingleOrgDupGroupID column."))
+        print(paste0(dim(dups_sum_org)[1]," groups of potentially duplicated results found in dataset. These have been placed into duplicate groups in the TADA.SingleOrgDupGroupID column."))
     }
 
   }else{
