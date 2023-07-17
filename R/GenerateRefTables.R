@@ -351,14 +351,14 @@ TADA_GetActivityTypeRef <- function() {
   }
   
   # Categorize Activity Types
-  dup <- c("Quality Control Alternative Measurement Sensitivity",
-           "Quality Control Alternative Measurement Sensitivity Plus",
-           "Quality Control Field Replicate Habitat Assessment",
+  rep <- c("Quality Control Field Replicate Habitat Assessment",
            "Quality Control Field Replicate Msr/Obs",
            "Quality Control Field Replicate Portable Data Logger",
            "Quality Control Field Replicate Sample-Composite",
+           "Quality Control Sample-Field Replicate")
+  dup <- c("Quality Control Alternative Measurement Sensitivity",
+           "Quality Control Alternative Measurement Sensitivity Plus",
            "Quality Control Sample-Blind Duplicate",
-           "Quality Control Sample-Field Replicate",
            "Quality Control Sample-Inter-lab Split",
            "Quality Control Sample-Lab Duplicate",
            "Quality Control Sample-Lab Duplicate 2",
@@ -411,6 +411,7 @@ TADA_GetActivityTypeRef <- function() {
   
   WQXActivityTypeRef <- raw.data%>%
     dplyr::mutate(TADA.ActivityType.Flag = dplyr::case_when(
+      Code %in% rep ~ "QC_replicate",
       Code %in% dup ~ "QC_duplicate",
       Code %in% blank ~ "QC_blank",
       Code %in% cal ~ "QC_calibration",
