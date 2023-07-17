@@ -1,4 +1,4 @@
-#' Used to store cached WQX QAQC Characteristic Validation Reference Table
+# Used to store cached WQX QAQC Characteristic Validation Reference Table
 WQXCharValRef_Cached <- NULL
 
 
@@ -18,7 +18,7 @@ WQXCharValRef_Cached <- NULL
 #'
 #' @export
 
-GetWQXCharValRef <- function() {
+TADA_GetWQXCharValRef <- function() {
 
   # If there is a cached table available return it
   if (!is.null(WQXCharValRef_Cached)) {
@@ -62,16 +62,15 @@ GetWQXCharValRef <- function() {
   WQXcharValRef
 }
 
-#' Update Characteristic Validation Reference Table internal file 
-#' (for internal use only)
+# Update Characteristic Validation Reference Table internal file 
+# (for internal use only)
 
-UpdateWQXCharValRef <- function() {
-  utils::write.csv(GetWQXCharValRef(), file = "inst/extdata/WQXcharValRef.csv", row.names = FALSE)
+TADA_UpdateWQXCharValRef <- function() {
+  utils::write.csv(TADA_GetWQXCharValRef(), file = "inst/extdata/WQXcharValRef.csv", row.names = FALSE)
 }
 
 
-#' Used to store cached Measure Unit Reference Table
-
+# Used to store cached Measure Unit Reference Table
 WQXunitRef_Cached <- NULL
 
 #' Update Measure Unit Reference Table
@@ -88,7 +87,7 @@ WQXunitRef_Cached <- NULL
 #' @export
 #'
 
-GetMeasureUnitRef <- function() {
+TADA_GetMeasureUnitRef <- function() {
 
   # If there is a cached table available return it
   if (!is.null(WQXunitRef_Cached)) {
@@ -186,14 +185,13 @@ GetMeasureUnitRef <- function() {
   WQXunitRef
 }
 
-#' Update Measure Unit Reference Table internal file (for internal use only)
+# Update Measure Unit Reference Table internal file (for internal use only)
 
-UpdateMeasureUnitRef <- function() {
-  utils::write.csv(GetMeasureUnitRef(), file = "inst/extdata/WQXunitRef.csv", row.names = FALSE)
+TADA_UpdateMeasureUnitRef <- function() {
+  utils::write.csv(TADA_GetMeasureUnitRef(), file = "inst/extdata/WQXunitRef.csv", row.names = FALSE)
 }
 
-#' Used to store cached Result Detection Condition Reference Table
-
+# Used to store cached Result Detection Condition Reference Table
 WQXDetCondRef_Cached <- NULL
 
 #' Update Result Detection Condition Reference Table
@@ -209,7 +207,7 @@ WQXDetCondRef_Cached <- NULL
 #' @export
 #'
 
-GetDetCondRef <- function() {
+TADA_GetDetCondRef <- function() {
   
   # If there is a cached table available return it
   if (!is.null(WQXDetCondRef_Cached)) {
@@ -244,14 +242,13 @@ GetDetCondRef <- function() {
   WQXDetCondRef
 }
 
-#' Update Measure Unit Reference Table internal file (for internal use only)
+# Update Measure Unit Reference Table internal file (for internal use only)
 
-UpdateDetCondRef <- function() {
-  utils::write.csv(GetDetCondRef(), file = "inst/extdata/WQXResultDetectionConditionRef.csv", row.names = FALSE)
+TADA_UpdateDetCondRef <- function() {
+  utils::write.csv(TADA_GetDetCondRef(), file = "inst/extdata/WQXResultDetectionConditionRef.csv", row.names = FALSE)
 }
 
-#' Used to store cached Result Detection Condition Reference Table
-
+# Used to store cached Result Detection Condition Reference Table
 WQXDetLimitRef_Cached <- NULL
 
 #' Update Detection Quantitation Limit Type Reference Table
@@ -267,7 +264,7 @@ WQXDetLimitRef_Cached <- NULL
 #'
 #' @export
 
-GetDetLimitRef <- function() {
+TADA_GetDetLimitRef <- function() {
   
   # If there is a cached table available return it
   if (!is.null(WQXDetLimitRef_Cached)) {
@@ -310,14 +307,13 @@ GetDetLimitRef <- function() {
   WQXDetLimitRef
 }
 
-#' Update Measure Unit Reference Table internal file (for internal use only)
+# Update Measure Unit Reference Table internal file (for internal use only)
 
-UpdateDetLimitRef <- function() {
-  utils::write.csv(GetDetLimitRef(), file = "inst/extdata/WQXDetectionQuantitationLimitTypeRef.csv", row.names = FALSE)
+TADA_UpdateDetLimitRef <- function() {
+  utils::write.csv(TADA_GetDetLimitRef(), file = "inst/extdata/WQXDetectionQuantitationLimitTypeRef.csv", row.names = FALSE)
 }
 
-#' Used to store cached Activity Type Reference Table
-
+# Used to store cached Activity Type Reference Table
 WQXActivityTypeRef_Cached <- NULL
 
 #' Update Activity Type Reference Table
@@ -332,7 +328,7 @@ WQXActivityTypeRef_Cached <- NULL
 #'
 #' @export
 
-GetActivityTypeRef <- function() {
+TADA_GetActivityTypeRef <- function() {
   
   # If there is a cached table available return it
   if (!is.null(WQXActivityTypeRef_Cached)) {
@@ -429,8 +425,61 @@ GetActivityTypeRef <- function() {
   return(WQXActivityTypeRef)
 }
 
-#' Update Activity Type Reference Table internal file (for internal use only)
+# Update Activity Type Reference Table internal file (for internal use only)
 
-UpdateActivityTypeRef <- function() {
-  utils::write.csv(GetActivityTypeRef(), file = "inst/extdata/WQXActivityTypeRef.csv", row.names = FALSE)
+TADA_UpdateActivityTypeRef <- function() {
+  utils::write.csv(TADA_GetActivityTypeRef(), file = "inst/extdata/WQXActivityTypeRef.csv", row.names = FALSE)
+}
+
+# Used to store cached Characteristic Reference Table
+
+WQXCharacteristicRef_Cached <- NULL
+
+#' Update Characteristic Reference Table
+#'
+#' Function downloads and returns in the latest WQX Characteristic Domain table and writes the data to sysdata.rda.
+#'
+#' This function caches the table after it has been called once
+#' so subsequent calls will be faster.
+#'
+#' @return sysdata.rda with updated WQXCharacteristicRef object (characteristic reference
+#' table)
+#' @export
+#'
+
+TADA_GetCharacteristicRef <- function() {
+  
+  # If there is a cached table available return it
+  if (!is.null(WQXCharacteristicRef_Cached)) {
+    return(WQXCharacteristicRef_Cached)
+  }
+  
+  # Try to download up-to-date raw data
+  raw.data <- tryCatch({
+    # read raw csv from url
+    utils::read.csv(url("https://cdx.epa.gov/wqx/download/DomainValues/Characteristic.CSV"))
+  }, error = function(err) {
+    NULL
+  })
+  
+  # If the download failed fall back to internal data (and report it)
+  if (is.null(raw.data)) {
+    message('Downloading latest Measure Unit Reference Table failed!')
+    message('Falling back to (possibly outdated) internal file.')
+    return(utils::read.csv(system.file("extdata", "WQXCharacteristicRef.csv", package = "TADA")))
+  }
+  
+  # rename some columns
+  WQXCharacteristicRef = raw.data%>%dplyr::rename(CharacteristicName = Name, Char_Flag = Domain.Value.Status)%>%dplyr::select(CharacteristicName, Char_Flag, Comparable.Name)
+  
+  # Save updated table in cache
+  WQXCharacteristicRef_Cached <- WQXCharacteristicRef
+  
+  WQXCharacteristicRef
+}
+
+# Update Characteristic Reference Table internal file (for internal use only)
+
+TADA_UpdateCharacteristicRef <- function() {
+  utils::write.csv(TADA_GetCharacteristicRef(), file = "inst/extdata/WQXCharacteristicRef.csv", row.names = FALSE)
 }

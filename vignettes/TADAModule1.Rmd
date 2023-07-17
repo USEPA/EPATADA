@@ -31,12 +31,23 @@ pre[class] {
 }
 ```
 
+## Download this Article from GitHub
+
+Go to:
+<https://github.com/USEPA/TADA/blob/develop/vignettes/TADAModule1.Rmd>
+
+[![Click the highlighted icon to download TADAModule1.Rmd from GitHub.
+Open this file in R Studio to follow along. Alternatively, you can copy
+and paste desired lines of code herein into your own
+script.](images/DownloadModule1.jpg)](https://github.com/USEPA/TADA/blob/develop/vignettes/TADAModule1.Rmd)
+
 ## Overview
 
-This vignette will walk through how to discover and clean (i.e.,
-wrangle, Quality Assure and Quality Control (QAQC), and harmonize)
-[Water Quality Portal (WQP)](https://www.waterqualitydata.us/) data from
-multiple organizations.
+This vignette walks through how to use the TADA R Package to discover
+and clean (i.e., wrangle, Quality Assure and Quality Control (QAQC), and
+harmonize) [Water Quality Portal
+(WQP)](https://www.waterqualitydata.us/) data from multiple
+organizations.
 
 ## Install and load packages
 
@@ -66,7 +77,7 @@ desired (un-comment).
 # options(download.file.method = "wininet")
 
 remotes::install_github("USEPA/TADA", 
-                        ref = "develop",
+                        ref = "update-exported",
                         dependencies = TRUE)
 library(TADA)
 
@@ -75,7 +86,7 @@ library(TADA)
 ## Retrieve WQP data
 
 WQP data is retrieved and processed for compatibility with TADA. This
-function, **TADAdataRetrieval**, builds on the USGS dataRetrieval
+function, **TADA_DataRetrieval**, builds on the USGS dataRetrieval
 package functions. It joins four WQP profiles (i.e., Site metadata,
 Sample Results (narrow), Sample Results (physical/chemical metadata),
 and Project metadata. In addition, it changes all data in the
@@ -116,14 +127,15 @@ Data retrieval filters include:
 
 -   characteristicType
 
-Please be aware that the default TADAdataRetrieval function
-automatically runs the TADA **TADA_AutoClean** and **TADA_ConvertSpecialChars**
-functions. Both are both required for subsequent functions within the
-TADA R package to run. As a general rule, TADA functions do not change
-any contents in the WQP-served columns (enter *?TADA_ConvertSpecialChars* and
-*?TADA_AutoClean* into the console for more details). Instead, they add new
-columns with the prefix "TADA." The following columns are numeric
-versions of their WQP origins:
+Please be aware that the default TADA_DataRetrieval function
+automatically runs the TADA **TADA_AutoClean** and
+**TADA_ConvertSpecialChars** functions. Both are both required for
+subsequent functions within the TADA R package to run. As a general
+rule, TADA functions do not change any contents in the WQP-served
+columns (enter *?TADA_ConvertSpecialChars* and *?TADA_AutoClean* into
+the console for more details). Instead, they add new columns with the
+prefix "TADA." The following columns are numeric versions of their WQP
+origins:
 
     -   TADA.ResultMeasureValue
 
@@ -141,7 +153,7 @@ censored data later on (i.e., nondetections). Specifically, these new
 columns flag if special characters are included in result values, and
 specifies what the special characters are.
 
-Downloads using TADAdataRetrieval will have the same columns each time,
+Downloads using TADA_DataRetrieval will have the same columns each time,
 but be aware that data are uploaded to the Water Quality Portal by
 individual organizations, which may or may not follow the same
 conventions. Data and metadata quality are not guaranteed! Make sure to
@@ -181,7 +193,7 @@ Tips:
 Additional resources:
 
 -   Review function documentation by entering the following code into
-    the console: ?TADAdataRetrieval
+    the console: ?TADA_DataRetrieval
 
 -   [Introduction to the dataRetrieval
     package](https://CRAN.R-project.org/package=dataRetrieval)
@@ -197,15 +209,15 @@ Additional resources:
 ## dataRetrieval
 
 Uncomment below if you would like to review differences between the
-profiles you would get using readWQPdata vs. TADAdataRetrieval. The
-profiles are different because TADAdataRetrieval automatically joins in
+profiles you would get using readWQPdata vs. TADA_DataRetrieval. The
+profiles are different because TADA_DataRetrieval automatically joins in
 data from multiple WQP profiles, and does some additional data cleaning
 as part of the data retrieval process.
 
-This example includes monitoring data collected from Jan 2018 to Jan 2019
-by six organizations: 1) Red Lake Band of Chippewa Indians, 2) Sac & Fox
-Nation, 3) Pueblo of Pojoaque, 4) Minnesota Chippewa Tribe (Fond du Lac
-Band), 5) Pueblo of Tesuque, and 6) The Chickasaw Nation
+This example includes monitoring data collected from Jan 2018 to Jan
+2019 by six organizations: 1) Red Lake Band of Chippewa Indians, 2) Sac
+& Fox Nation, 3) Pueblo of Pojoaque, 4) Minnesota Chippewa Tribe (Fond
+du Lac Band), 5) Pueblo of Tesuque, and 6) The Chickasaw Nation
 
 We will move forward with this example in the remainder of the vignette.
 
@@ -214,23 +226,23 @@ We will move forward with this example in the remainder of the vignette.
 ```
 
 Use the code below to download data from the WQP using
-TADAdataRetrieval. Edit the code chuck below to define your own WQP
+TADA_DataRetrieval. Edit the code chuck below to define your own WQP
 query inputs.
 
-Note: TADAdataRetrieval (by leveraging dataRetrieval), automatically
+Note: TADA_DataRetrieval (by leveraging dataRetrieval), automatically
 converts the date times to UTC. It also automatically converts the data
 to dates, datetimes, and numerics based on a standard algorithm.
 
-Enter ?TADAdataRetrieval into the console to review more example queries
+Enter ?TADA_DataRetrieval into the console to review more example queries
 and additional information.
 
-```{r TADAdataRetrieval}
-TADAProfile <- TADAdataRetrieval(organization = c("REDLAKE_WQX", "SFNOES_WQX", "PUEBLO_POJOAQUE", "FONDULAC_WQX", "PUEBLOOFTESUQUE", "CNENVSER"), startDate = "2018-01-01", endDate = "2019-01-01")
+```{r TADA_DataRetrieval}
+TADAProfile <- TADA_DataRetrieval(organization = c("REDLAKE_WQX", "SFNOES_WQX", "PUEBLO_POJOAQUE", "FONDULAC_WQX", "PUEBLOOFTESUQUE", "CNENVSER"), startDate = "2018-01-01", endDate = "2019-01-01")
 ```
 
 If you need to download a large amount of data from across a large area,
-and the TADAdataRetrieval function is not working due to WQP timeout
-issues, then the **TADABigdataRetrieval** function may work better.
+and the TADA_DataRetrieval function is not working due to WQP timeout
+issues, then the **TADA_BigDataRetrieval** function may work better.
 
 This function does multiple synchronous data calls to the WQP
 (waterqualitydata.us). It uses the WQP summary service to limit the
@@ -238,28 +250,28 @@ sites downloaded to only those with relevant data. It pulls back data
 from set number of stations at a time and then joins the data back
 together to produce a single TADA compatible dataframe as the output.
 
-See ?TADABigdataRetrieval for more details. WARNING, some of the
+See ?TADA_BigDataRetrieval for more details. WARNING, some of the
 examples below can take multiple HOURS to run. The total run time
 depends on your query inputs.
 
 ```{r BigdataRetrieval}
-# AK_AL_WaterTemp <- TADABigdataRetrieval(startDate = "2000-01-01", endDate = "2022-12-31", characteristicName = "Temperature, water", statecode = c("AK","AL"))
+# AK_AL_WaterTemp <- TADA_BigDataRetrieval(startDate = "2000-01-01", endDate = "2022-12-31", characteristicName = "Temperature, water", statecode = c("AK","AL"))
 
-# AllWaterTemp <- TADABigdataRetrieval(characteristicName = "Temperature, water")
+# AllWaterTemp <- TADA_BigDataRetrieval(characteristicName = "Temperature, water")
 
-# AllPhosphorus <- TADABigdataRetrieval(characteristicName = "Phosphorus")
+# AllPhosphorus <- TADA_BigDataRetrieval(characteristicName = "Phosphorus")
 
-# AllCT <- TADABigdataRetrieval(statecode = "CT")
+# AllCT <- TADA_BigDataRetrieval(statecode = "CT")
 ```
 
 Review all column names in the TADA Profile. Remove results that are not
 water samples or measurements (TADA is recommended for use with water
 data only).
 
-```{r TADA_summarizeColumn}
+```{r TADA_SummarizeColumn}
 colnames(TADAProfile)
 
-TADAProfile_CharSummary <- TADA_summarizeColumn(TADAProfile, "TADA.CharacteristicName")
+TADAProfile_CharSummary <- TADA_SummarizeColumn(TADAProfile, "TADA.CharacteristicName")
 
 TADAProfile_CharSummary
 
@@ -271,7 +283,7 @@ TADAProfile <- dplyr::filter(TADAProfile, TADA.ActivityMediaName == "WATER")
 ## Invalid coordinates
 
 Review station locations and summary information using the
-**TADAOverviewMap** function. **TADAOverviewMap** counts the number of
+**TADA_OverviewMap** function. **TADA_OverviewMap** counts the number of
 unique results, characteristics, and organizations at each monitoring
 location in the dataset and creates a tidy map for reviewing summary
 stats spatially. Larger point sizes indicate more results collected at a
@@ -282,10 +294,10 @@ organizations that reported results at that site. This map may inform a
 user's decision to remove/correct sites that are outside the US.
 
 ```{r Map, fig.width=6, fig.height=6, fig.fullwidth=TRUE}
-TADAOverviewMap(TADAProfile)
+TADA_OverviewMap(TADAProfile)
 ```
 
-The TADA **InvalidCoordinates** function identifies and flags
+The TADA **TADA_FlagCoordinates** function identifies and flags
 potentially invalid coordinate data. While its functionality is
 showcased here, it is always important to review any invalid outputs
 before cleaning to reduce the risk of leaving out usable data/sites.
@@ -330,9 +342,9 @@ following flags (if relevant to dataframe):
     numbers to the right of the decimal point, the row will be flagged
     as "Imprecise".
 
-```{r InvalidCoordinates}
+```{r TADA_FlagCoordinates}
 # flag only
-TADAProfileClean1 <- InvalidCoordinates(TADAProfile, clean_outsideUSA = "no", clean_imprecise = FALSE, errorsonly = FALSE)
+TADAProfileClean1 <- TADA_FlagCoordinates(TADAProfile, clean_outsideUSA = "no", clean_imprecise = FALSE, errorsonly = FALSE)
 
 # review unique flags in TADAProfileClean1
 unique(TADAProfileClean1$TADA.InvalidCoordinates.Flag)
@@ -362,14 +374,14 @@ Unique_InvalidCoordinateFlags
 
 # if needed, un-comment below to change the sign for all data for sites flagged as outside the USA. You can also change FALSE to TRUE if you want to remove sites outside of the US or sites with imprecise lat/longs
 
-# TADAProfileClean1 <- InvalidCoordinates(TADAProfile, clean_outsideUSA = "change sign", clean_imprecise = FALSE, errorsonly = FALSE)
+# TADAProfileClean1 <- TADA_FlagCoordinates(TADAProfile, clean_outsideUSA = "change sign", clean_imprecise = FALSE, errorsonly = FALSE)
 ```
 
 ## Depth unit conversions
 
-The **TADA_ConvertDepthUnits** function converts depth units to a consistent
-unit. Depth values and units are most commonly associated with lake
-data, and are populated in the *ActivityDepthHeightMeasure*,
+The **TADA_ConvertDepthUnits** function converts depth units to a
+consistent unit. Depth values and units are most commonly associated
+with lake data, and are populated in the *ActivityDepthHeightMeasure*,
 *ActivityTopDepthHeightMeasure*, *ActivityBottomDepthHeightMeasure*, and
 *ResultDepthHeightMeasure* Result Value/Unit columns.
 
@@ -377,7 +389,11 @@ Allowable values for 'unit' are either 'm' (meter), 'ft' (feet), or 'in'
 (inch). 'unit' accepts only one allowable value as an input. Default is
 unit = "m".
 
-Note that upon download using **TADAdataRetrieval**, all depth columns are converted to meters by default. However, the user may choose to run the **TADA_ConvertDepthUnits** function on their dataset to convert to another unit. See function documentation for additional input options by entering the following code in the console: ?TADA_ConvertDepthUnits
+Note that upon download using **TADA_DataRetrieval**, all depth columns
+are converted to meters by default. However, the user may choose to run
+the **TADA_ConvertDepthUnits** function on their dataset to convert to
+another unit. See function documentation for additional input options by
+entering the following code in the console: ?TADA_ConvertDepthUnits
 
 ```{r TADA_ConvertDepthUnits}
 #converts all depth profile data to meters
@@ -388,7 +404,7 @@ TADAProfileClean1 <- TADA_ConvertDepthUnits(TADAProfileClean1,
 
 ## Statistically aggregated data
 
-The **AggregatedContinuousData** function checks for and removes
+The **TADA_FindContinuousData** function checks for and removes
 statistically aggregated high frequency (i.e., continuous) data, if
 present.
 
@@ -420,14 +436,14 @@ of data regardless of flag status. Assigning errorsonly = TRUE filters
 the dataframe to show only rows of data which are flagged "Y".
 
 See function documentation for additional function options by entering
-the following code in the console: ?AggregatedContinuousData
+the following code in the console: ?TADA_FindContinuousData
 
 ```{r AggregatedContinuousData}
-TADAProfileClean1 <- AggregatedContinuousData(TADAProfileClean1, clean = FALSE)
+TADAProfileClean1 <- TADA_FindContinuousData(TADAProfileClean1, clean = FALSE)
 
 # uncomment below to create a dataframe of only the aggregated continuous data
 
-# TADAProfile_aggcont <- AggregatedContinuousData(TADAProfileClean3, clean = FALSE, errorsonly = TRUE)
+# TADAProfile_aggcont <- TADA_FindContinuousData(TADAProfileClean3, clean = FALSE, errorsonly = TRUE)
 ```
 
 ## WQX Quality Assurance and Quality Control (QAQC) Service Result Flags
@@ -439,7 +455,7 @@ FALSE to flag results, but not remove them.
 
 See documentation for more details:
 
--   ?**InvalidMethod**
+-   ?**TADA_FlagMethod**
 
     -   When clean = FALSE, this function adds the following column to
         your dataframe: TADA.AnalyticalMethod.Flag. This column flags
@@ -454,7 +470,7 @@ See documentation for more details:
     -   When errorsonly = TRUE, the dataframe is filtered to only the
         rows flagged as "Invalid"; default is errorsonly = FALSE.
 
--   ?**InvalidSpeciation**
+-   ?**TADA_FlagSpeciation**
 
     -   When clean = "none", this function adds the following column to
         your dataframe: TADA.MethodSpeciation.Flag. This column flags
@@ -477,7 +493,7 @@ See documentation for more details:
         rows flagged as "Invalid" or "Nonstandardized"; default is
         errorsonly = FALSE.
 
--   ?**InvalidResultUnit**
+-   ?**TADA_FlagResultUnit**
 
     -   When clean = FALSE, the following column will be added to your
         dataframe: TADA.ResultUnit.Flag. This column flags each
@@ -491,7 +507,7 @@ See documentation for more details:
     -   When errorsonly = TRUE, the dataframe is filtered to only the
         rows flagged as "Invalid"; default is errorsonly = FALSE.
 
--   ?**InvalidFraction**
+-   ?**TADA_FlagFraction**
 
     -   When clean = FALSE, this function adds the following column to
         your dataframe: TADA.SampleFraction.Flag. This column flags each
@@ -504,13 +520,13 @@ See documentation for more details:
         rows flagged as "Invalid"; default is errorsonly = FALSE.
 
 ```{r Invalid_Method_Fraction_Speciation_ResultUnit}
-TADAProfileClean2 <- InvalidMethod(TADAProfileClean1, clean = TRUE)
+TADAProfileClean2 <- TADA_FlagMethod(TADAProfileClean1, clean = TRUE)
 
-TADAProfileClean2 <- InvalidFraction(TADAProfileClean2, clean = TRUE)
+TADAProfileClean2 <- TADA_FlagFraction(TADAProfileClean2, clean = TRUE)
 
-TADAProfileClean2 <- InvalidSpeciation(TADAProfileClean2, clean = "invalid_only")
+TADAProfileClean2 <- TADA_FlagSpeciation(TADAProfileClean2, clean = "invalid_only")
 
-TADAProfileClean2 <- InvalidResultUnit(TADAProfileClean2, clean = "invalid_only")
+TADAProfileClean2 <- TADA_FlagResultUnit(TADAProfileClean2, clean = "invalid_only")
 ```
 
 ## WQX national upper and lower thresholds
@@ -519,7 +535,7 @@ Run the following code to flag or remove results that are above or below
 the national upper and lower bound for each characteristic and unit
 combination. See documentation for more details:
 
--   ?**AboveNationalWQXUpperThreshold**
+-   ?**TADA_FlagAboveThreshold**
 
     -   When clean = FALSE, the following column is added to your
         dataframe: TADA.ResultValueAboveUpperThreshold.Flag. This column
@@ -532,7 +548,7 @@ combination. See documentation for more details:
         rows flagged as above the upper WQX threshold; default is
         errorsonly = FALSE.
 
--   ?**BelowNationalWQXLowerThreshold**
+-   ?**TADA_FlagBelowThreshold**
 
     -   When clean = FALSE, the following column is added to your
         dataframe: TADA.ResultValueBelowLowerThreshold.Flag. This column
@@ -546,45 +562,32 @@ combination. See documentation for more details:
         errorsonly = FALSE.
 
 ```{r WQX_Thresholds}
-TADAProfileClean3 <- AboveNationalWQXUpperThreshold(TADAProfileClean2, clean = TRUE)
+TADAProfileClean3 <- TADA_FlagAboveThreshold(TADAProfileClean2, clean = TRUE)
 
-TADAProfileClean3 <- BelowNationalWQXLowerThreshold(TADAProfileClean3, clean = TRUE)
+TADAProfileClean3 <- TADA_FlagBelowThreshold(TADAProfileClean3, clean = TRUE)
 ```
 
 ## Potential duplicates
 
 Sometimes multiple organizations submit the exact same data to Water
 Quality Portal (WQP), which can affect water quality analyses and
-assessments. This function checks for and identifies data that is
-identical in all fields excluding organization-specific and comment text
-fields. Each pair or group of potential duplicate rows is flagged with a
+assessments. Similarly, organizations occasionally submit the same data multiple times to the Portal. The following functions check for and identify data that may be duplicates based on date, time, characteristic, result value, and a distance buffer. Each pair or group of potential duplicate rows is flagged with a
 unique ID. For more information, review the documentation by entering
 the following into the console:
 
--   ?**PotentialDuplicateRowID**
+-   ?**TADA_FindPotentialDuplicatesMultipleOrgs**
+-   ?**TADA_FindPotentialDuplicatesSingleOrg**
 
-    -   When clean = FALSE, the following column will be added to you
-        dataframe: TADA.PotentialDupRowIDs.Flag. This column flags
-        potential duplicate rows of data in your dataframe, and assigns
-        each potential duplicate combination a unique number linking the
-        two potential duplication rows.
-
-    -   When clean = TRUE, the function retains the first occurrence of
-        each potential duplicate in the dataframe and removes potential
-        duplicate rows. No column is appended. The default is clean =
-        TRUE.
-
-    -   When errorsonly = TRUE, the dataframe is filtered to only the
-        rows flagged as potential duplicates; default is errorsonly =
-        FALSE.
 
 ```{r PotentialDuplicateRowID}
-TADAProfileClean3 <- PotentialDuplicateRowID(TADAProfileClean3, clean = TRUE, errorsonly = FALSE)
+TADAProfileClean3 <- TADA_FindPotentialDuplicatesMultipleOrgs(TADAProfileClean3, dist_buffer = 100)
+
+TADAProfileClean3 <- TADA_FindPotentialDuplicatesSingleOrg(TADAProfileClean3, handling_method = 'pick_one')
 ```
 
 ## Review QAPP information
 
-The **QAPPapproved** function checks data for an approved QAPP.
+The **TADA_FindQAPPApproval** function checks data for an approved QAPP.
 
 This function checks to see if there is any information in the column
 "QAPPApprovedIndicator". Some organizations submit data for this field
@@ -605,11 +608,11 @@ inputs clean = FALSE, cleanNA = FALSE, and errorsonly = TRUE.
 If clean = FALSE, cleanNA = FALSE, and errorsonly = FALSE, the function
 will not do anything.
 
-```{r QAPPapproved}
-TADAProfileClean3 <- QAPPapproved(TADAProfileClean3, clean = FALSE, cleanNA = FALSE)
+```{r TADA_FindQAPPApproval}
+TADAProfileClean3 <- TADA_FindQAPPApproval(TADAProfileClean3, clean = FALSE, cleanNA = FALSE)
 ```
 
-The **QAPPDocAvailable** function checks to see if a QAPP Doc is
+The **TADA_FindQAPPDoc** function checks to see if a QAPP Doc is
 Available
 
 This function checks data submitted under the "ProjectFileUrl" column to
@@ -623,8 +626,8 @@ defaults are clean = FALSE and errorsonly = FALSE. This function should
 only be used to remove data if an accompanying QAPP document is required
 to use data in assessments.
 
-```{r QAPPDocAvailable}
-TADAProfileClean3 <- QAPPDocAvailable(TADAProfileClean3,
+```{r TADA_FindQAPPDoc}
+TADAProfileClean3 <- TADA_FindQAPPDoc(TADAProfileClean3,
                                        clean = FALSE)
 ```
 
@@ -634,7 +637,7 @@ In this section a TADA user will want to review the unique values in
 specific fields and may choose to remove data with particular values.
 
 To start, review the list of common fields used for filtering, and the
-number of unique values in each field using the **fieldCounts**
+number of unique values in each field using the **TADA_FieldCounts**
 function.
 
 This function returns counts for you entire data frame for each of the
@@ -681,32 +684,35 @@ NA's are not included in the output):
 
 -   "LaboratoryName"
 
-```{r fieldCounts_all}
+```{r TADA_FieldCounts_all}
 # multiple options
 
 # print table to console
-fieldCounts(TADAProfileClean3)
+TADA_FieldCounts(TADAProfileClean3)
 
 # create object of table
-fieldCounts_Table <- fieldCounts(TADAProfileClean3)
+fieldCounts_Table <- TADA_FieldCounts(TADAProfileClean3)
 
 ```
 
-Next, choose a field from the list generated above to view a summary table or pie chart of the counts of unique values in that field using **fieldValuesTable** or **fieldValuesPie**. We'll start with ActivityTypeCode.
+Next, choose a field from the list generated above to view a summary
+table or pie chart of the counts of unique values in that field using
+**TADA_FieldValuesTable** or **TADA_FieldValuesPie**. We'll start with
+ActivityTypeCode.
 
 ```{r fieldValues_all, fig.width=6, fig.height=2, fig.fullwidth=TRUE}
-fieldValuesTable(TADAProfileClean3, field = "ActivityTypeCode")
-fieldValuesPie(TADAProfileClean3, field = "ActivityTypeCode")
+TADA_FieldValuesTable(TADAProfileClean3, field = "ActivityTypeCode")
+TADA_FieldValuesPie(TADAProfileClean3, field = "ActivityTypeCode")
 ```
 
 The ActivityTypeCode field has multiple unique values. In this example
-we remove Quality Control (QC) values using the TADA
-QualityControlActivity function.
+we remove Quality Control (QC) values using the
+TADA_FindQCActivities function.
 
-```{r QualityControlActivity}
-# Remove all QC samples using the TADA QualityControlActivity function:
-# enter ?QualityControlActivity into the console for more information
-TADAProfileClean4 <- QualityControlActivity(TADAProfileClean3, clean = TRUE)
+```{r TADA_FindQCActivities}
+# Remove all QC samples using the TADA_FindQCActivities function:
+# enter ?TADA_FindQCActivities into the console for more information
+TADAProfileClean4 <- TADA_FindQCActivities(TADAProfileClean3, clean = TRUE)
 
 # See WQX domain file to review all the ActivityTypeCode allowable values:
 # https://cdx.epa.gov/wqx/download/DomainValues/ActivityType.CSV
@@ -715,8 +721,8 @@ TADAProfileClean4 <- QualityControlActivity(TADAProfileClean3, clean = TRUE)
 # https://www.epa.gov/waterdata/storage-and-retrieval-and-water-quality-exchange-domain-services-and-downloads
 
 # regenerate table and pie chart
-fieldValuesTable(TADAProfileClean4, "ActivityTypeCode")
-fieldValuesPie(TADAProfileClean4, "ActivityTypeCode")
+TADA_FieldValuesTable(TADAProfileClean4, "ActivityTypeCode")
+TADA_FieldValuesPie(TADAProfileClean4, "ActivityTypeCode")
 
 ```
 
@@ -729,7 +735,7 @@ In this next example, there are multiple MeasureQualifierCode values to
 review.
 
 ```{r MeasureQualifierCodeReview, fig.width=6, fig.height=2, fig.fullwidth=TRUE}
-fieldValuesPie(TADAProfileClean4, "MeasureQualifierCode")
+TADA_FieldValuesPie(TADAProfileClean4, "MeasureQualifierCode")
 ```
 
 MeasureQualifierCode definitions are available
@@ -764,7 +770,7 @@ the pie chart.
 TADAProfileClean4 <- dplyr::filter(TADAProfileClean4, !(MeasureQualifierCode %in% c("D", "H", "ICA", "*")))
 
 # regenerate table and pie chart
-fieldValuesPie(TADAProfileClean4, field = "MeasureQualifierCode")
+TADA_FieldValuesPie(TADAProfileClean4, field = "MeasureQualifierCode")
 ```
 
 ## Censored data
@@ -786,51 +792,46 @@ incidence in the dataset and perform simple substitutions of censored
 data values, including x times the detection limit and random selection
 of a value between 0 and the detection limit. The user may specify the
 methods used for non-detects and over-detects separately in the input to
-the **simpleCensoredMethods** function.
+the **TADA_SimpleCensoredMethods** function.
 
-All censored data functions depend first on the **idCensoredData**
+All censored data functions depend first on the **TADA_IDCensoredData**
 utility function, which assigns a *TADA.CensoredData.Flag* to all data
 records and identifies over-detects from non-detects using the
 *ResultDetectionConditionText* and *DetectionQuantitationLimitTypeName*.
-This utility function is automatically run  within the TADAdataRetrieval function and produces the *TADA.CensoredData.Flag* column. All records receive one of the following
-classifications: - Uncensored - Not filled with detection limit value; a
-detection. - Non-Detect - Left-censored - Over-Detect - Right-censored -
-Other Condition/Limit Populated - detection condition or limit type are
-ambiguous or not associated with a lower/upper detection limit. -
-Conflict between Condition and Limit - detection condition and limit
-type for a single record do not agree, e.g. one suggests over-detect and
-the other suggests non-detect. - Detection condition or detection limit is not documented in TADA reference tables. -
-detection condition or limit type is not characterized in the TADA
-reference tables, which are based on WQX domain tables. - Detection condition is missing and required for censored data ID. - Result needs more information before being categorized.
-
-In the example below, we first summarize the censored data in the
-dataset using the default grouping variables *TADA.CharacteristicName*,
-*TADA.ResultMeasure.MeasureUnitCode*,*TADA.ResultSampleFractionText*,
-and *TADA.MethodSpecificationName*. The user can specify any columns in
-the TADA dataframe they'd like to use to aggregate their censored data
-counts. For example, some may want to aggregate both by characteristic
-and HUC or characteristic and monitoring location.
+This utility function is automatically run within the TADA_DataRetrieval
+function and produces the *TADA.CensoredData.Flag* column. All records
+receive one of the following classifications: - Uncensored - Not filled
+with detection limit value; a detection. - Non-Detect - Left-censored -
+Over-Detect - Right-censored - Other Condition/Limit Populated -
+detection condition or limit type are ambiguous or not associated with a
+lower/upper detection limit. - Conflict between Condition and Limit -
+detection condition and limit type for a single record do not agree,
+e.g. one suggests over-detect and the other suggests non-detect. -
+Detection condition or detection limit is not documented in TADA
+reference tables. - detection condition or limit type is not
+characterized in the TADA reference tables, which are based on WQX
+domain tables. - Detection condition is missing and required for
+censored data ID. - Result needs more information before being
+categorized.
 
 The next step we take in this example is to perform simple conversions
 to the censored data in the dataset: we keep over-detects as is (no
 conversion made) and convert non-detect values to 0.5 times the
 detection limit (half the detection limit). Please review
-**?summarizeCensoredData** and **?simpleCensoredMethods** for more
+**?TADA_Stats** and **?TADA_SimpleCensoredMethods** for more
 information.
 
 ```{r SummarizeCensoredData}
-TADAProfileClean_censoredSummary <- summarizeCensoredData(TADAProfileClean4, spec_cols = c("TADA.CharacteristicName", "TADA.ResultMeasure.MeasureUnitCode", "TADA.ResultSampleFractionText", "TADA.MethodSpecificationName"))
-
-TADAProfileClean_censoredSummary
-
-TADAProfileClean4 = simpleCensoredMethods(TADAProfileClean4,
+TADAProfileClean4 = TADA_SimpleCensoredMethods(TADAProfileClean4,
                                            nd_method = "multiplier",
                                            nd_multiplier = 0.5,
                                            od_method = "as-is",
                                            od_multiplier = "null")
 ```
 
-Next, review  unique values within the TADA.CensoredData.Flag, DetectionQuantitationLimitTypeName, and ResultDetectionConditionText columns. 
+Next, review unique values within the TADA.CensoredData.Flag,
+DetectionQuantitationLimitTypeName, and ResultDetectionConditionText
+columns.
 
 ```{r uniquevalues}
 # review unique values
@@ -839,17 +840,23 @@ unique(TADAProfileClean4$DetectionQuantitationLimitTypeName)
 unique(TADAProfileClean4$ResultDetectionConditionText)
 ```
 
-Also, review the TADA.ResultMeasureValueDataTypes.Flag to see if any NA's or ND's (non-detects) remain. 
+Also, review the TADA.ResultMeasureValueDataTypes.Flag to see if any
+NA's or ND's (non-detects) remain.
+
 ```{r ResultMeasureValueDataTypes.Flag_uniquevalues}
 unique(TADAProfileClean4$TADA.ResultMeasureValueDataTypes.Flag)
 ```
 
-Count how many NA's remain in the TADA.ResultMeasureValue. 
+Count how many NA's remain in the TADA.ResultMeasureValue.
+
 ```{r Review_NA_MeasureValues}
 sum(is.na(TADAProfileClean4$TADA.ResultMeasureValue))
 ```
 
-Filter down to only numeric data. Remove data where the TADA.ResultMeasureValueDataTypes.Flag = "Text","Coerced to NA","ND or NA".
+Filter down to only numeric data. Remove data where the
+TADA.ResultMeasureValueDataTypes.Flag = "Text","Coerced to NA","ND or
+NA".
+
 ```{r filter_out_NAs}
 # Filter down to only numeric data. Remove "Text","Coerced to NA","ND or NA"  
 TADAProfileClean5 <- dplyr::filter(TADAProfileClean4, 
@@ -859,13 +866,14 @@ TADAProfileClean5 <- dplyr::filter(TADAProfileClean4,
 ```
 
 Double check to make sure no NA's or ND's remain.
+
 ```{r check_for_NAs_again}
 unique(TADAProfileClean5$TADA.ResultMeasureValueDataTypes.Flag)
 ```
 
 ## Transform Characteristic, Speciation, and Unit values to TADA Standards
 
-The **HarmonizeRefTable** function generates a harmonization reference
+The **TADA_HarmonizeRefTable** function generates a harmonization reference
 table that is specific to the input dataframe. Users can review how
 their input data relates to standard TADA values for the following
 elements:
@@ -878,7 +886,7 @@ elements:
 
 -   TADA.ResultMeasure.MeasureUnitCode
 
-The **HarmonizeData** function then compares the input dataframe to the
+The **TADA_HarmonizeSynonyms** function then compares the input dataframe to the
 TADA Harmonization Reference Table. The purpose of the function is to
 make similar data consistent and therefore easier to compare and
 analyze.
@@ -899,7 +907,7 @@ Optional outputs include:
 3.  the four fields converted with most Harmonization Reference Table
     columns appended. Default is transform = TRUE and flag = TRUE.
 
-Here are some examples of how the HarmonizeData function can be used:
+Here are some examples of how the TADA_HarmonizeSynonyms function can be used:
 
 1.  TADA.ResultSampleFractionText specifies forms of constituents. In
     some cases, a single \*TADA.CharacteristicName\*\* will have both
@@ -912,14 +920,14 @@ Here are some examples of how the HarmonizeData function can be used:
 
 2.  Some variables have different names but represent the same
     constituent (e.g., "Total Kjeldahl nitrogen (Organic N & NH3)" and
-    "Kjeldahl nitrogen"). The HarmonizeData function gives a consistent
+    "Kjeldahl nitrogen"). The TADA_HarmonizeSynonyms function gives a consistent
     name (and identifier) to synonyms.
 
-```{r HarmonizeData}
-UniqueHarmonizationRef <- HarmonizationRefTable(TADAProfileClean5,
+```{r TADA_HarmonizeSynonyms}
+UniqueHarmonizationRef <- TADA_GetSynonymRef(TADAProfileClean5,
                                                 download = FALSE)
 
-TADAProfileClean5 <- HarmonizeData(TADAProfileClean5,
+TADAProfileClean5 <- TADA_HarmonizeSynonyms(TADAProfileClean5,
                                     ref = UniqueHarmonizationRef,
                                     transform = TRUE,
                                     flag = TRUE)
@@ -932,15 +940,17 @@ unique values in specified fields. You may then choose to remove
 particular values by filtering.
 
 To start, review the list of parameters in the dataframe using the
-**fieldValuesTable** function.
+**TADA_FieldValuesTable** function.
 
-Enter ?fieldValuesTable into the console for more information.
+Enter ?TADA_FieldValuesTable into the console for more information.
 
-```{r fieldValuesTable_chars}
-fieldValuesTable(TADAProfileClean5, field = "TADA.CharacteristicName")
+```{r TADA_FieldValuesTable_chars}
+TADA_FieldValuesTable(TADAProfileClean5, field = "TADA.CharacteristicName")
 ```
 
-Next, we can revisit the **fieldCounts** function at the characteristic level to review how many unique allowable values are included within each of the following fields:
+Next, we can revisit the **TADA_FieldCounts** function at the characteristic
+level to review how many unique allowable values are included within
+each of the following fields:
 
 -   "ActivityCommentText"
 
@@ -1004,8 +1014,8 @@ Next, we can revisit the **fieldCounts** function at the characteristic level to
 
 -   "DetectionQuantitationLimitTypeName"
 
-```{r fieldCounts_char}
-fieldCounts(TADAProfileClean5, display = "most", characteristicName = "TOTAL PHOSPHORUS, MIXED FORMS")
+```{r TADA_FieldCounts_char}
+TADA_FieldCounts(TADAProfileClean5, display = "most", characteristicName = "TOTAL PHOSPHORUS, MIXED FORMS")
 ```
 
 Selecting a parameter generates the list above, which is subset by the
@@ -1017,12 +1027,13 @@ Next, choose a field from the list.
 Review the WQX domain files for definitions:
 <https://www.epa.gov/waterdata/storage-and-retrieval-and-water-quality-exchange-domain-services-and-downloads>
 
-Now, we'll use **fieldValuesTable** and **fieldValuesPie** at the characteristic-level to review a column of interest.
+Now, we'll use **TADA_FieldValuesTable** and **TADA_FieldValuesPie** at the
+characteristic-level to review a column of interest.
 
-```{r fieldValuesTable_Pie_char, fig.width=6, fig.height=2, fig.fullwidth=TRUE}
+```{r TADA_FieldValuesTable_Pie_char, fig.width=6, fig.height=2, fig.fullwidth=TRUE}
 # In this example we review values from the SampleCollectionMethod.MethodName field
-fieldValuesTable(TADAProfileClean5, field = "SampleCollectionMethod.MethodName",  characteristicName = "TOTAL PHOSPHORUS, MIXED FORMS")
-fieldValuesPie(TADAProfileClean5, field = "SampleCollectionMethod.MethodName",  characteristicName = "TOTAL PHOSPHORUS, MIXED FORMS")
+TADA_FieldValuesTable(TADAProfileClean5, field = "SampleCollectionMethod.MethodName",  characteristicName = "TOTAL PHOSPHORUS, MIXED FORMS")
+TADA_FieldValuesPie(TADAProfileClean5, field = "SampleCollectionMethod.MethodName",  characteristicName = "TOTAL PHOSPHORUS, MIXED FORMS")
 
 ```
 
@@ -1038,12 +1049,12 @@ unique(TADAProfileClean5$TADA.ComparableDataIdentifier)
 TADAProfileCleanTP <- dplyr::filter(TADAProfileClean5, TADA.ComparableDataIdentifier == "Total Phosphorus_as P_ug/L")
 
 # generate stats table
-TADAProfileCleanTP_stats <- TADA::TADA_stats(TADAProfileCleanTP)
+TADAProfileCleanTP_stats <- TADA::TADA_Stats(TADAProfileCleanTP)
 
 TADAProfileCleanTP_stats
 
 # generate a histogram
-TADA_hist(TADAProfileCleanTP, id_col = "TADA.ComparableDataIdentifier")
+TADA_Histogram(TADAProfileCleanTP, id_col = "TADA.ComparableDataIdentifier")
 
 ```
 
@@ -1051,6 +1062,29 @@ Generate interactive box plot.
 
 ```{r boxplot, fig.width=6, fig.height=6, fig.fullwidth=TRUE}
 
-TADA::TADA_boxplot(TADAProfileCleanTP, id_col = "TADA.ComparableDataIdentifier")
+TADA::TADA_Boxplot(TADAProfileCleanTP, id_col = "TADA.ComparableDataIdentifier")
 
 ```
+
+## TADA Shiny Application
+
+Finally, take a look at an alternative workflow, TADA Shiny Module 1:
+Data Discovery and Cleaning. This is a Shiny application that runs many
+of the TADA functions covered in this document behind a graphical user
+interface. The shiny application queries the WQP, contains maps and data
+visualizations, flags suspect data results, handles censored data, and
+more. You can launch it using the code below.
+
+```{r, eval = F}
+# download TADA Shiny repository
+remotes::install_github("USEPA/TADAShiny", 
+                        ref = "develop", 
+                        dependencies = TRUE)
+
+# launch the app locally.
+TADAShiny::run_app()
+```
+
+DRAFT [Module 1](https://owshiny-dev.app.cloud.gov/tada-dev/) is also
+currently hosted on the web with minimal server memory/storage
+allocated.

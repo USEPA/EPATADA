@@ -103,8 +103,13 @@ Package for use with data retrieved from the WQP:
             -   See TADA Function:
                 [BelowNationalWQXLowerThreshold()](https://usepa.github.io/TADA/reference/BelowNationalWQXLowerThreshold.html)
 
-[![](images/IQR.png){width="428"
-height="467"}](https://en.wikipedia.org/wiki/Interquartile_range)
+[![[Boxplot](https://en.wikipedia.org/wiki/Boxplot "Boxplot") (with an
+interquartile range) and a [probability density
+function](https://en.wikipedia.org/wiki/Probability_density_function "Probability density function")
+(pdf) of a Normal N(0,σ^2^) Population. Attribution: Jhguch at
+en.wikipedia, [CC BY-SA
+2.5](https://creativecommons.org/licenses/by-sa/2.5), via Wikimedia
+Commons.](images/IQR.png)](https://commons.wikimedia.org/wiki/File:Boxplot_vs_PDF.svg)
 
 Additional tests only available in WQX Web and Node Submissions (for
 now):

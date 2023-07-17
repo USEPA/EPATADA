@@ -71,10 +71,10 @@ test_that("TADA_ConvertDepthUnits convert ft to m", {
 
 # meters to m in depth columns
 test_that("TADA_ConvertDepthUnits converts meters to m", {
-  check_depth_meters <- TADAdataRetrieval(statecode = "UT",
+  check_depth_meters <- TADA_DataRetrieval(statecode = "UT",
                                           organization = "USGS-UT",
                                           characteristicName = c("Ammonia", "Nitrate", "Nitrogen"),
-                                          startDate = "2021-01-01")
+                                          startDate = "2023-01-01")
   check_depth_meters = TADA_ConvertDepthUnits(check_depth_meters)
   expect_false("meters"%in%check_depth_meters$TADA.ActivityDepthHeightMeasure.MeasureUnitCode)
 })

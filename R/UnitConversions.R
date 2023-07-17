@@ -1,44 +1,35 @@
 #' Transform Units to WQX Target Units
 #'
 #' This function compares measure units in the input data to the Water Quality
-#' Exchange (WQX) 3.0 QAQC Characteristic Validation table.
+#' Exchange (WQX) 3.0 Measure Unit domain table. It also takes common USGS units
+#' that include speciation information and transfers the speciation information
+#' to the TADA.MethodSpecificationName field.
 #'
-#' This function will ALWAYS add the following two columns to the input dataframe:
-#' 1) "WQX.ResultMeasureValue.UnitConversion",
-#' 2) "WQX.DetectionLimitMeasureValue.UnitConversion"
-#' These two fields indicate if data can be converted."NoResultValue" means data
+#' This function will ALWAYS add "WQX.ResultMeasureValue.UnitConversion" to the input dataframe.
+#' 
+#' This field indicates if data can be converted."NoResultValue" means data
 #' cannot be converted because there is no ResultMeasureValue, and "NoTargetUnit"
 #' means data cannot be converted because the original unit is not associated with a target unit in WQX.
 #' "Convert" means the data can be transformed, and "Converted" means that this function
 #' has been run with the input transform = TRUE, and the values were already converted.
 #'
-#' It also uses the following six fields from an autocleaned input dataframe:
-#' 1) "TADA.CharacteristicName",
-#' 2) "TADA.ActivityMediaName",
-#' 3) "TADA.ResultMeasureValue",
-#' 4) "TADA.ResultMeasure.MeasureUnitCode",
-#' 5) "TADA.DetectionQuantitationLimitMeasure.MeasureValue",
-#' 6) "TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode"
+#' It also uses the"TADA.ResultMeasureValue" and
+#' "TADA.ResultMeasure.MeasureUnitCode" fields from an autocleaned input
+#' dataframe to perform conversions as necessary when transform = TRUE.
 #'
-#'
-#' This function adds the following two fields ONLY when transform=FALSE:
-#' Adds: "WQX.ConversionFactor" and "WQX.TargetUnit".
+#' This function adds the following three fields ONLY when transform=FALSE:
+#' Adds: "WQX.ConversionFactor", "WQX.TargetUnit", and "USGS.SpeciationConversion".
 #'
 #' @param .data TADA dataframe
 #'
 #' @param transform Boolean argument with two possible values, “TRUE” and “FALSE”.
 #' Default is transform = TRUE.
 #'
-#' @return When transform=TRUE, result values and units are converted to WQX target units.
-#' This function changes the values within the "TADA.ResultMeasure.MeasureUnitCode"
-#' and "TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode" to the WQX target units and
-#' converts respective values within the "TADA.ResultMeasureValue" and "TADA.DetectionQuantitationLimitMeasure.MeasureValue"
-#' fields. In addition to "WQX.ResultMeasureValue.UnitConversion"
-#' and "WQX.DetectionLimitMeasureValue.UnitConversion", transform=TRUE will add
-#' the following two fields to the input dataframe, "ResultMeasureUnitCode.Original",
-#' and "DetectionLimitMeasureUnitCode.Original", to retain the original result
-#' and unit values.
-#'
+#' @return When transform=TRUE, result values and units are converted to WQX
+#'   target units. This function changes the values within the
+#'   "TADA.ResultMeasure.MeasureUnitCode" to the WQX target units and converts
+#'   respective values within the "TADA.ResultMeasureValue" field.
+#' 
 #' When transform = FALSE, result values and units are NOT converted to WQX target units,
 #' but columns are appended to indicate what the target units and conversion factors are,
 #' and if the data can be converted. In addition to "WQX.ResultMeasureValue.UnitConversion"
@@ -49,20 +40,20 @@
 #' 
 #' @examples 
 #' # Load example dataset:
-#' data(Nutrients_Utah)
+#' data(Data_Nutrients_UT)
 #' 
-#' ResultUnitsConverted <- (Nutrients_Utah)
+#' ResultUnitsConverted <- (Data_Nutrients_UT)
 #' 
 #' # Do not convert result values and units, but add two new columns titled
 #' # "WQX.ConversionFactor" and "WQX.TargetUnit":
-#' ResultUnitsNotConverted <- TADA_ConvertResultUnits(Nutrients_Utah, transform = FALSE)
+#' ResultUnitsNotConverted <- TADA_ConvertResultUnits(Data_Nutrients_UT, transform = FALSE)
 #' 
 
 TADA_ConvertResultUnits <- function(.data, transform = TRUE) {
   # check .data is data.frame
-  checkType(.data, "data.frame", "Input object")
+  TADA_CheckType(.data, "data.frame", "Input object")
   # check transform is boolean
-  checkType(transform, "logical")
+  TADA_CheckType(transform, "logical")
   # check .data has all of the required columns
   
   expected_cols <- c(
@@ -72,27 +63,40 @@ TADA_ConvertResultUnits <- function(.data, transform = TRUE) {
     "TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode"
   )
   
-  checkColumns(.data, expected_cols)
+  TADA_CheckColumns(.data, expected_cols)
   
   # execute function after checks are passed
   
   # filter WQXcharValRef to include only valid CharacteristicUnit in water media
-  unit.ref <- GetWQXCharValRef() %>%
-    dplyr::filter(Type == "CharacteristicUnit" & Source == "WATER" &
-                    Status == "Valid")
+  unit.ref <- TADA_GetMeasureUnitRef()
+  
+  # filter out added distance rows of unit ref table - denoted 
+  unit.ref = subset(unit.ref, !is.na(unit.ref$Unique.Identifier)&!grepl("Length Distance",unit.ref$Description))
+  
+  # add usgs unit/speciations - this table was created by Elise Hinman and Cristina Mullin in 07/2023 using the pcodes domain table from NWIS and copying units with speciations in them into the same format as the measure unit domain table for WQX.
+  usgs.ref = read.csv(system.file("extdata", "USGS_units_speciation.csv", package = "TADA"))
+  
+  unit.ref = plyr::rbind.fill(unit.ref, usgs.ref)
+  
+  unit.ref$TADA.ResultMeasure.MeasureUnitCode = toupper(unit.ref$Code)
+  unit.ref$Target.Unit = toupper(unit.ref$Target.Unit)
+  unit.ref$Target.Speciation = toupper(unit.ref$Target.Speciation)
+  
+  unit.ref = unique(unit.ref[,names(unit.ref)%in%c(
+    "TADA.ResultMeasure.MeasureUnitCode", 
+    "Target.Unit",
+    "Conversion.Factor",
+    "Target.Speciation"
+  )])
+  
   # join unit.ref to .data
-  check.data <- merge(.data, unit.ref[, c(
-    "Characteristic", "Source",
-    "Value", "Value.Unit",
-    "Conversion.Factor"
-  )],
-  by.x = c("TADA.CharacteristicName", "TADA.ActivityMediaName", "TADA.ResultMeasure.MeasureUnitCode"), # note: only joins on ResultMeasure.MeasureUnitCode, so will not join to detection limit units
-  by.y = c("Characteristic", "Source", "Value"), all.x = TRUE
-  )
+  check.data <- merge(.data, unit.ref, all.x = TRUE)
+  
   # rename columns
   flag.data <- check.data %>%
-    dplyr::rename(WQX.TargetUnit = Value.Unit) %>%
-    dplyr::rename(WQX.ConversionFactor = Conversion.Factor)
+    dplyr::rename(WQX.TargetUnit = Target.Unit) %>%
+    dplyr::rename(WQX.ConversionFactor = Conversion.Factor) %>%
+    dplyr::rename(USGS.SpeciationConversion = Target.Speciation)
   
   # if temp data exists, calculate conversion factor
   # EDH I THINK THIS RUNS IF THERE IS ONE OR MORE NA'S IN THE DATASET
@@ -148,6 +152,14 @@ TADA_ConvertResultUnits <- function(.data, transform = TRUE) {
         !is.na(WQX.TargetUnit) ~ WQX.TargetUnit,
         is.na(WQX.TargetUnit) ~ TADA.ResultMeasure.MeasureUnitCode
       ))
+    
+    # Convert method speciation column for USGS data
+    check = subset(flag.data, !is.na(flag.data$USGS.SpeciationConversion)&!is.na(flag.data$TADA.MethodSpecificationName))
+    if(dim(check)[1]>0){
+      print(paste0("NOTE: Dataset contains ", dim(check)[1]," USGS results with speciation information in both the result unit and method speciation columns. This function overwrites the TADA method speciation column with the speciation provided in the result unit column."))
+    }
+    
+    clean.data$TADA.MethodSpecificationName = ifelse(!is.na(clean.data$USGS.SpeciationConversion), clean.data$USGS.SpeciationConversion, clean.data$TADA.MethodSpecificationName)
    
     # edit WQX.ResultMeasureValue.UnitConversion column
     clean.data <- clean.data %>%
@@ -162,10 +174,10 @@ TADA_ConvertResultUnits <- function(.data, transform = TRUE) {
     
     # remove extraneous columns, fix field names
     clean.data <- clean.data %>%
-      dplyr::select(-c("WQX.ConversionFactor", "WQX.TargetUnit"))
+      dplyr::select(-c("WQX.ConversionFactor", "WQX.TargetUnit","USGS.SpeciationConversion"))
     
     # create new comparable data identifier column following conversion
-    clean.data = createComparableId(clean.data)
+    clean.data = TADA_CreateComparableID(clean.data)
 
   }
   # reorder cols
@@ -235,21 +247,21 @@ TADA_ConvertResultUnits <- function(.data, transform = TRUE) {
 #' 
 #' @examples 
 #' # Load example dataset:
-#' data(Nutrients_Utah)
+#' data(Data_Nutrients_UT)
 #' 
 #' # Convert all depth units to meters:
-#' DepthUnitsConverted_m <- TADA_ConvertDepthUnits(Nutrients_Utah)
+#' DepthUnitsConverted_m <- TADA_ConvertDepthUnits(Data_Nutrients_UT)
 #' 
 #' # Convert all depth units to feet:
-#' DepthUnitsConverted_ft <- TADA_ConvertDepthUnits(Nutrients_Utah, unit = "ft")
+#' DepthUnitsConverted_ft <- TADA_ConvertDepthUnits(Data_Nutrients_UT, unit = "ft")
 #' 
 #' # Convert only the "TADA.ActivityTopDepthHeightMeasure" field to inches:
-#' TopDepthUnitsConverted_in <- TADA_ConvertDepthUnits(Nutrients_Utah, 
+#' TopDepthUnitsConverted_in <- TADA_ConvertDepthUnits(Data_Nutrients_UT, 
 #' unit = "in", fields = "ActivityTopDepthHeightMeasure")
 #' 
 #' # Do not convert any depth units, but add columns for target units and 
 #' # conversion factors for each depth measure:
-#' DepthUnitsNotConverted <- TADA_ConvertDepthUnits(Nutrients_Utah, transform = FALSE)
+#' DepthUnitsNotConverted <- TADA_ConvertDepthUnits(Data_Nutrients_UT, transform = FALSE)
 #' 
 
 TADA_ConvertDepthUnits <- function(.data,
@@ -260,9 +272,9 @@ TADA_ConvertDepthUnits <- function(.data,
                                          "ResultDepthHeightMeasure"),
                               transform = TRUE) {
   # check .data is data.frame
-  checkType(.data, "data.frame", "Input object")
+  TADA_CheckType(.data, "data.frame", "Input object")
   # check unit is character
-  checkType(unit, "character")
+  TADA_CheckType(unit, "character")
   # check unit argument for valid number of inputs (e.g., vector of character)
   if (length(unit) != 1) {
     stop("Invalid 'unit' argument. 'unit' accepts only one allowable value as an
@@ -284,7 +296,7 @@ TADA_ConvertDepthUnits <- function(.data,
     'ActivityBottomDepthHeightMeasure,' and/or 'ResultDepthHeightMeasure.'")
   }
   # check transform is boolean
-  checkType(transform, "logical")
+  TADA_CheckType(transform, "logical")
   
   # .data required columns
   expected_cols <-c(
@@ -297,7 +309,7 @@ TADA_ConvertDepthUnits <- function(.data,
     "ResultDepthHeightMeasure.MeasureValue",
     "ResultDepthHeightMeasure.MeasureUnitCode"
   )
-  checkColumns(.data, expected_cols)
+  TADA_CheckColumns(.data, expected_cols)
   
   tadacols = c("TADA.ActivityDepthHeightMeasure.MeasureValue",
                "TADA.ActivityDepthHeightMeasure.MeasureUnitCode",
@@ -326,7 +338,7 @@ TADA_ConvertDepthUnits <- function(.data,
                "WQXConversionFactor.ResultDepthHeightMeasure")
   
   # read in unit conversion reference table from extdata
-  unit.ref <- GetMeasureUnitRef()
+  unit.ref <- TADA_GetMeasureUnitRef()
   
   # subset to include only "Length Distance" units; filter by target unit defined in 'unit' argument
   unit.ref <- unit.ref %>%

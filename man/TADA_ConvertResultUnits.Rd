@@ -13,15 +13,10 @@ TADA_ConvertResultUnits(.data, transform = TRUE)
 Default is transform = TRUE.}
 }
 \value{
-When transform=TRUE, result values and units are converted to WQX target units.
-This function changes the values within the "TADA.ResultMeasure.MeasureUnitCode"
-and "TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode" to the WQX target units and
-converts respective values within the "TADA.ResultMeasureValue" and "TADA.DetectionQuantitationLimitMeasure.MeasureValue"
-fields. In addition to "WQX.ResultMeasureValue.UnitConversion"
-and "WQX.DetectionLimitMeasureValue.UnitConversion", transform=TRUE will add
-the following two fields to the input dataframe, "ResultMeasureUnitCode.Original",
-and "DetectionLimitMeasureUnitCode.Original", to retain the original result
-and unit values.
+When transform=TRUE, result values and units are converted to WQX
+target units. This function changes the values within the
+"TADA.ResultMeasure.MeasureUnitCode" to the WQX target units and converts
+respective values within the "TADA.ResultMeasureValue" field.
 
 When transform = FALSE, result values and units are NOT converted to WQX target units,
 but columns are appended to indicate what the target units and conversion factors are,
@@ -31,41 +26,34 @@ following two fields to the input dataframe: "WQX.ConversionFactor" and "WQX.Tar
 }
 \description{
 This function compares measure units in the input data to the Water Quality
-Exchange (WQX) 3.0 QAQC Characteristic Validation table.
+Exchange (WQX) 3.0 Measure Unit domain table. It also takes common USGS units
+that include speciation information and transfers the speciation information
+to the TADA.MethodSpecificationName field.
 }
 \details{
-This function will ALWAYS add the following two columns to the input dataframe:
-\enumerate{
-\item "WQX.ResultMeasureValue.UnitConversion",
-\item "WQX.DetectionLimitMeasureValue.UnitConversion"
-These two fields indicate if data can be converted."NoResultValue" means data
+This function will ALWAYS add "WQX.ResultMeasureValue.UnitConversion" to the input dataframe.
+
+This field indicates if data can be converted."NoResultValue" means data
 cannot be converted because there is no ResultMeasureValue, and "NoTargetUnit"
 means data cannot be converted because the original unit is not associated with a target unit in WQX.
 "Convert" means the data can be transformed, and "Converted" means that this function
 has been run with the input transform = TRUE, and the values were already converted.
-}
 
-It also uses the following six fields from an autocleaned input dataframe:
-\enumerate{
-\item "TADA.CharacteristicName",
-\item "TADA.ActivityMediaName",
-\item "TADA.ResultMeasureValue",
-\item "TADA.ResultMeasure.MeasureUnitCode",
-\item "TADA.DetectionQuantitationLimitMeasure.MeasureValue",
-\item "TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode"
-}
+It also uses the"TADA.ResultMeasureValue" and
+"TADA.ResultMeasure.MeasureUnitCode" fields from an autocleaned input
+dataframe to perform conversions as necessary when transform = TRUE.
 
-This function adds the following two fields ONLY when transform=FALSE:
-Adds: "WQX.ConversionFactor" and "WQX.TargetUnit".
+This function adds the following three fields ONLY when transform=FALSE:
+Adds: "WQX.ConversionFactor", "WQX.TargetUnit", and "USGS.SpeciationConversion".
 }
 \examples{
 # Load example dataset:
-data(Nutrients_Utah)
+data(Data_Nutrients_UT)
 
-ResultUnitsConverted <- (Nutrients_Utah)
+ResultUnitsConverted <- (Data_Nutrients_UT)
 
 # Do not convert result values and units, but add two new columns titled
 # "WQX.ConversionFactor" and "WQX.TargetUnit":
-ResultUnitsNotConverted <- TADA_ConvertResultUnits(Nutrients_Utah, transform = FALSE)
+ResultUnitsNotConverted <- TADA_ConvertResultUnits(Data_Nutrients_UT, transform = FALSE)
 
 }

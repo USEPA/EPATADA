@@ -28,32 +28,32 @@
 #'
 #' @examples 
 #' # Load example dataset
-#' data(Nutrients_Utah)
+#' data(Data_Nutrients_UT)
 #' 
 #' # Remove invalid characteristic-analytical method combinations from dataframe:
-#' InvalidMethod_clean <- InvalidMethod(Nutrients_Utah)
+#' InvalidMethod_clean <- TADA_FlagMethod(Data_Nutrients_UT)
 #' 
 #' # Flag, but do not remove, invalid characteristic-analytical method combinations
 #' # in new column titled "TADA.AnalyticalMethod.Flag":
-#' InvalidMethod_flags <- InvalidMethod(Nutrients_Utah, clean = FALSE)
+#' InvalidMethod_flags <- TADA_FlagMethod(Data_Nutrients_UT, clean = FALSE)
 #' 
 #' # Show only invalid characteristic-analytical method combinations:
-#' InvalidMethod_errorsonly <- InvalidMethod(Nutrients_Utah, clean = FALSE, errorsonly = TRUE)
+#' InvalidMethod_errorsonly <- TADA_FlagMethod(Data_Nutrients_UT, clean = FALSE, errorsonly = TRUE)
 #' 
 
-InvalidMethod <- function(.data, clean = TRUE, errorsonly = FALSE) {
+TADA_FlagMethod <- function(.data, clean = TRUE, errorsonly = FALSE) {
   # check .data is data.frame
-  checkType(.data, "data.frame", "Input object")
+  TADA_CheckType(.data, "data.frame", "Input object")
   # check clean is boolean
-  checkType(clean, "logical")
+  TADA_CheckType(clean, "logical")
   # check errorsonly is boolean
-  checkType(errorsonly, "logical")
+  TADA_CheckType(errorsonly, "logical")
   # check .data has required columns
   required_cols <- c(
     "TADA.CharacteristicName", "ResultAnalyticalMethod.MethodIdentifier",
     "ResultAnalyticalMethod.MethodIdentifierContext"
   )
-  checkColumns(.data, required_cols)
+  TADA_CheckColumns(.data, required_cols)
   # check that clean and errorsonly are not both TRUE
   if (clean == TRUE & errorsonly == TRUE) {
     stop("Function not executed because clean and errorsonly cannot both be TRUE")
@@ -65,7 +65,7 @@ InvalidMethod <- function(.data, clean = TRUE, errorsonly = FALSE) {
     .data <- dplyr::select(.data, -TADA.AnalyticalMethod.Flag)
   }
   # read in speciation reference table from sysdata.rda and filter
-  meth.ref <- GetWQXCharValRef() %>%
+  meth.ref <- TADA_GetWQXCharValRef() %>%
     dplyr::filter(Type == "CharacteristicMethod")
   
   # join "Status" column to .data by CharacteristicName, Source (Media), and Value (unit)
@@ -166,29 +166,29 @@ InvalidMethod <- function(.data, clean = TRUE, errorsonly = FALSE) {
 #' 
 #' @examples 
 #' # Load example dataset
-#' data(Nutrients_Utah)
+#' data(Data_Nutrients_UT)
 #' 
 #' # Remove aggregated continuous data from dataframe:
-#' AggContinuous_clean <- AggregatedContinuousData(Nutrients_Utah)
+#' AggContinuous_clean <- TADA_FindContinuousData(Data_Nutrients_UT)
 #' 
 #' # Flag, but do not remove, aggregated continuous data in new column
 #' # titled "TADA.AggregatedContinuousData.Flag":
-#' AggContinuous_flags <- AggregatedContinuousData(Nutrients_Utah, clean = FALSE)
+#' AggContinuous_flags <- TADA_FindContinuousData(Data_Nutrients_UT, clean = FALSE)
 #' 
 #' # Show only rows flagged for aggregated continuous data:
-#' AggContinuous_errorsonly <- AggregatedContinuousData(Nutrients_Utah, 
+#' AggContinuous_errorsonly <- TADA_FindContinuousData(Data_Nutrients_UT, 
 #' clean = FALSE, errorsonly = TRUE)
 #' 
 
-AggregatedContinuousData <- function(.data, clean = TRUE, errorsonly = FALSE) {
+TADA_FindContinuousData <- function(.data, clean = TRUE, errorsonly = FALSE) {
   # check .data is data.frame
-  checkType(.data, "data.frame", "Input object")
+  TADA_CheckType(.data, "data.frame", "Input object")
   # check clean is boolean
-  checkType(clean, "logical")
+  TADA_CheckType(clean, "logical")
   # check errorsonly is boolean
-  checkType(errorsonly, "logical")
+  TADA_CheckType(errorsonly, "logical")
   # check .data has required columns
-  checkColumns(.data, "ResultDetectionConditionText")
+  TADA_CheckColumns(.data, "ResultDetectionConditionText")
   # check that clean and errorsonly are not both TRUE
   if (clean == TRUE & errorsonly == TRUE) {
     stop("Function not executed because clean and errorsonly cannot both be TRUE")
@@ -200,7 +200,7 @@ AggregatedContinuousData <- function(.data, clean = TRUE, errorsonly = FALSE) {
   # execute function after checks are passed
   # flag continuous data
   # make cont.data data frame
-  # with new profiles might want to check for zip files? Do these columns show up in TADAdataRetrieval?
+  # with new profiles might want to check for zip files? Do these columns show up in TADA_DataRetrieval?
   cont.data = .data%>%dplyr::filter((ActivityTypeCode=="Field Msr/Obs"&ResultDetectionConditionText=="Reported in Raw Data (attached)")|(ActivityTypeCode=="Field Msr/Obs"&SampleCollectionEquipmentName=="Probe/Sensor"&!is.na(ResultTimeBasisText)&!is.na(StatisticalBaseCode)&ResultValueTypeName=="Calculated"))
   
   # everything not in cont dataframe
@@ -255,154 +255,6 @@ AggregatedContinuousData <- function(.data, clean = TRUE, errorsonly = FALSE) {
   }
 }
 
-
-
-#' Check for Potential Duplicates
-#'
-#' Sometimes multiple organizations submit the exact same data set to the 
-#' Water Quality Portal (WQP), which can affect water quality analyses. This
-#' function checks for and identifies data that is identical in all fields
-#' excluding organization-specific and comment text fields. When clean = FALSE,
-#' a column titled "TADA.PotentialDupRowIDs.Flag" is added to the dataframe which
-#' assigns each pair of potential duplicates a unique ID for review.
-#' When clean = TRUE, the function retains the first occurrence of each 
-#' potential duplicate in the dataframe. Default is clean = TRUE.
-#'
-#' @param .data TADA dataframe
-#' @param clean Boolean argument; removes potential duplicate data from
-#' the dataframe when clean = TRUE. When clean = FALSE,
-#' a column titled "TADA.PotentialDupRowIDs.Flag" is added to the dataframe which
-#' assigns each pair of potential duplicates a unique ID for review.
-#' Default is clean = TRUE.
-#' @param errorsonly Boolean argument; filters dataframe to show only potential 
-#' duplicate rows of data when errorsonly = TRUE. Default is errorsonly = FALSE.
-#'
-#' @return When clean = FALSE, the following column will be added to you dataframe: 
-#' TADA.PotentialDupRowIDs.Flag. This column flags potential duplicate rows of data 
-#' in your dataframe, and assigns each potential duplicate combination a unique number
-#' linking the two potential duplication rows. When clean = FALSE the first of
-#' each group of potential duplicate rows will be removed from the dataframe
-#' and no column is appended.
-#'
-#' @export
-#' 
-#' @examples 
-#' # Load example dataset:
-#' data(Nutrients_Utah)
-#' 
-#' # Remove potential duplicate data from dataframe:
-#' PotentialDup_clean <- PotentialDuplicateRowID(Nutrients_Utah)
-#' 
-#' # Flag, but do not remove, potential duplicate data in new column titled "TADA.PotentialDupRowIDs.Flag":
-#' PotentialDup_flagcolumnadded <- PotentialDuplicateRowID(Nutrients_Utah, clean = FALSE)
-#' 
-#' # Flag and review potential duplicate data only:
-#' PotentialDup_reviewduplicatesonly <- PotentialDuplicateRowID(Nutrients_Utah, clean = FALSE, errorsonly = TRUE) 
-#' 
-
-PotentialDuplicateRowID <- function(.data, clean = TRUE, errorsonly = FALSE) {
-  # check .data is data.frame
-  checkType(.data, "data.frame", "Input object")
-  # check clean is boolean
-  checkType(clean, "logical")
-  # check errorsonly is boolean
-  checkType(errorsonly, "logical")
-  # check .data has required columns
-  required_cols <- c(
-    "ActivityIdentifier", "ActivityConductingOrganizationText",
-    "OrganizationFormalName", "OrganizationIdentifier",
-    "ProjectIdentifier", "ResultCommentText",
-    "ActivityCommentText"
-    )
-  checkColumns(.data, required_cols)
-  # check that clean and errorsonly are not both TRUE
-  if (clean == TRUE & errorsonly == TRUE) {
-    stop("Function not executed because clean and errorsonly cannot both be TRUE")
-  }
-
-  # execute function after checks are passed
-  # get list of field names in .data
-  field.names <- colnames(.data)
-  # create list of fields to exclude when looking for duplicate rows
-  excluded.fields <- c(
-    "ActivityIdentifier", "ActivityConductingOrganizationText",
-    "OrganizationFormalName", "OrganizationIdentifier",
-    "ProjectIdentifier", "ResultCommentText", "ActivityCommentText"
-  )
-  # create list of fields to check for duplicates across
-  dupe.fields <- field.names[!field.names %in% excluded.fields]
-  
-  # subset list of duplicate rows
-  dupe.data <- .data[duplicated(.data[dupe.fields]), ]
-  
-  # if no potential duplicates are found
-  if (nrow(dupe.data) == 0) {
-    if (errorsonly == FALSE) {
-      print("No potential duplicates found in your dataframe.")
-      .data <- TADA_OrderCols(.data)
-      return(.data)
-    }
-    if (errorsonly == TRUE) {
-      print("This dataframe is empty because we did not find any potential duplicates in your dataframe")
-      dupe.data <- TADA_OrderCols(dupe.data)
-      return(dupe.data)
-    }
-  }
-  
-  # if potential duplicates are found
-  if (nrow(dupe.data) != 0) {
-    
-    # flag potential duplicates
-    dupe.data$TADA.PotentialDupRowIDs.Flag <- as.integer(seq_len(nrow(dupe.data)))
-    
-    # merge flag column into .data
-    flag.data <- merge(.data, dupe.data, by = dupe.fields, all.x = TRUE)
-    
-    # remove extraneous columns, fix field names
-    flag.data <- flag.data %>%
-      # remove ".x" suffix from column names
-      dplyr::rename_at(
-        dplyr::vars(dplyr::ends_with(".x")),
-        ~ stringr::str_replace(., "\\..$", "")
-      ) %>%
-      # remove columns with ".y" suffix
-      dplyr::select_at(dplyr::vars(-dplyr::ends_with(".y")))
-    
-    # flagged output, all data
-    if (clean == FALSE & errorsonly == FALSE) {
-      flag.data <- TADA_OrderCols(flag.data)
-      return(flag.data)
-    }
-    
-    # clean output
-    if (clean == TRUE & errorsonly == FALSE) {
-      # remove duplicate rows
-      # seperate data into 2 dataframes by TADA.PotentialDupRowIDs.Flag (no NAs and NAs)
-      dup.data <- flag.data[!is.na(flag.data$TADA.PotentialDupRowIDs.Flag), ]
-      NAdup.data <- flag.data[is.na(flag.data$TADA.PotentialDupRowIDs.Flag), ]
-      
-      nodup.data <- dup.data[!duplicated(dup.data$TADA.PotentialDupRowIDs.Flag), ]
-      
-      clean.data <- rbind(nodup.data, NAdup.data)
-      
-      # remove TADA.PotentialDupRowID column
-      clean.data <- dplyr::select(clean.data, -TADA.PotentialDupRowIDs.Flag)
-      clean.data <- TADA_OrderCols(clean.data)
-      return(clean.data)
-    }
-    
-    # flagged data, errors only
-    if (clean == FALSE & errorsonly == TRUE) {
-      # filter to show duplicate data only
-      dup.data <- flag.data[!is.na(flag.data$TADA.PotentialDupRowIDs.Flag), ]
-      dup.data <- TADA_OrderCols(dup.data)
-      return(dup.data)
-    }
-  }
-}
-
-
-
 #' Check Result Value Against WQX Upper Threshold
 #'
 #' EPA's Water Quality Exchange (WQX) has generated statistics and data from
@@ -437,33 +289,33 @@ PotentialDuplicateRowID <- function(.data, clean = TRUE, errorsonly = FALSE) {
 #' 
 #' @examples 
 #' # Load example dataset:
-#' data(Nutrients_Utah)
+#' data(Data_Nutrients_UT)
 #' 
 #' # Remove data that is above the upper WQX threshold from dataframe:
-#' WQXUpperThreshold_clean <- AboveNationalWQXUpperThreshold(Nutrients_Utah)
+#' WQXUpperThreshold_clean <- TADA_FlagAboveThreshold(Data_Nutrients_UT)
 #' 
 #' # Flag, but do not remove, data that is above the upper WQX threshold in
 #' # new column titled "TADA.ResultValueAboveUpperThreshold.Flag":
-#' WQXUpperThreshold_flags <- AboveNationalWQXUpperThreshold(Nutrients_Utah, clean = FALSE)
+#' WQXUpperThreshold_flags <- TADA_FlagAboveThreshold(Data_Nutrients_UT, clean = FALSE)
 #' 
 #' # Show only data flagged as above the upper WQX threshold:
-#' WQXUpperThreshold_flagsonly <- AboveNationalWQXUpperThreshold(Nutrients_Utah, 
+#' WQXUpperThreshold_flagsonly <- TADA_FlagAboveThreshold(Data_Nutrients_UT, 
 #' clean = FALSE, errorsonly = TRUE)
 #' 
 
-AboveNationalWQXUpperThreshold <- function(.data, clean = TRUE, errorsonly = FALSE) {
+TADA_FlagAboveThreshold <- function(.data, clean = TRUE, errorsonly = FALSE) {
   # check .data is data.frame
-  checkType(.data, "data.frame", "Input object")
+  TADA_CheckType(.data, "data.frame", "Input object")
   # check clean is boolean
-  checkType(clean, "logical")
+  TADA_CheckType(clean, "logical")
   # check errorsonly is boolean
-  checkType(errorsonly, "logical")
+  TADA_CheckType(errorsonly, "logical")
   # check .data has required columns
   required_cols <- c(
     "TADA.CharacteristicName", "TADA.ActivityMediaName", "TADA.ResultMeasureValue",
     "TADA.ResultMeasure.MeasureUnitCode"
   )
-  checkColumns(.data, required_cols)
+  TADA_CheckColumns(.data, required_cols)
   # check that clean and errorsonly are not both TRUE
   if (clean == TRUE & errorsonly == TRUE) {
     stop("Function not executed because clean and errorsonly cannot both be TRUE")
@@ -482,7 +334,7 @@ AboveNationalWQXUpperThreshold <- function(.data, clean = TRUE, errorsonly = FAL
   }
   
   # filter WQXcharVal.ref to include only valid CharacteristicUnit in water media
-  unit.ref <- GetWQXCharValRef() %>%
+  unit.ref <- TADA_GetWQXCharValRef() %>%
     dplyr::filter(Type == "CharacteristicUnit" & Source == "WATER" &
                     Status == "Valid")
   
@@ -590,33 +442,33 @@ AboveNationalWQXUpperThreshold <- function(.data, clean = TRUE, errorsonly = FAL
 #' 
 #' @examples 
 #' # Load example dataset:
-#' data(Nutrients_Utah)
+#' data(Data_Nutrients_UT)
 #' 
 #' # Remove data that is below the lower WQX threshold from the dataframe:
-#' WQXLowerThreshold_clean <- BelowNationalWQXLowerThreshold(Nutrients_Utah)
+#' WQXLowerThreshold_clean <- TADA_FlagBelowThreshold(Data_Nutrients_UT)
 #' 
 #' # Flag, but do not remove, data that is below the lower WQX threshold in
 #' # new column titled "TADA.ResultValueBelowLowerThreshold.Flag":
-#' WQXLowerThreshold_flags <- BelowNationalWQXLowerThreshold(Nutrients_Utah, clean = FALSE)
+#' WQXLowerThreshold_flags <- TADA_FlagBelowThreshold(Data_Nutrients_UT, clean = FALSE)
 #' 
 #' # Show only data that is below the lower WQX threshold:
-#' WQXLowerThreshold_flagsonly <- BelowNationalWQXLowerThreshold(Nutrients_Utah,
+#' WQXLowerThreshold_flagsonly <- TADA_FlagBelowThreshold(Data_Nutrients_UT,
 #' clean = FALSE, errorsonly = TRUE)
 #' 
 
-BelowNationalWQXLowerThreshold <- function(.data, clean = TRUE, errorsonly = FALSE) {
+TADA_FlagBelowThreshold <- function(.data, clean = TRUE, errorsonly = FALSE) {
   # check .data is data.frame
-  checkType(.data, "data.frame", "Input object")
+  TADA_CheckType(.data, "data.frame", "Input object")
   # check clean is boolean
-  checkType(clean, "logical")
+  TADA_CheckType(clean, "logical")
   # check errorsonly is boolean
-  checkType(errorsonly, "logical")
+  TADA_CheckType(errorsonly, "logical")
   # check .data has required columns
   required_cols <- c(
     "TADA.CharacteristicName", "TADA.ActivityMediaName", "TADA.ResultMeasureValue",
     "TADA.ResultMeasure.MeasureUnitCode"
   )
-  checkColumns(.data, required_cols)
+  TADA_CheckColumns(.data, required_cols)
   # check that clean and errorsonly are not both TRUE
   if (clean == TRUE & errorsonly == TRUE) {
     stop("Function not executed because clean and errorsonly cannot both be TRUE")
@@ -634,7 +486,7 @@ BelowNationalWQXLowerThreshold <- function(.data, clean = TRUE, errorsonly = FAL
   }
   
   # filter WQXcharVal.ref to include only valid CharacteristicUnit in water media
-  unit.ref <- GetWQXCharValRef() %>%
+  unit.ref <- TADA_GetWQXCharValRef() %>%
     dplyr::filter(Type == "CharacteristicUnit" & Source == "WATER" &
                     Status == "Valid")
   
@@ -714,7 +566,7 @@ BelowNationalWQXLowerThreshold <- function(.data, clean = TRUE, errorsonly = FAL
 #' Some organizations submit data for this field to indicate if the data
 #' produced has an approved Quality Assurance Project Plan (QAPP) or not.
 #' Y indicates yes, N indicates no.  This function has three default inputs:
-#' clean = TRUE, cleanNA = FALSE, and errorsonly == FALSE. The default removes 
+#' clean = TRUE, cleanNA = FALSE, and errorsonly == FALSE. The default flags 
 #' rows of data where the QAPPApprovedIndicator equals "N". Users could 
 #' remove NA's in addition to N's using the inputs clean = TRUE, cleanNA = TRUE,
 #' and errorsonly = FALSE. If errorsonly = TRUE, the function will filter out all
@@ -763,37 +615,37 @@ BelowNationalWQXLowerThreshold <- function(.data, clean = TRUE, errorsonly = FAL
 #' 
 #' @examples 
 #' # Load example dataset:
-#' data(Nutrients_Utah)
+#' data(Data_Nutrients_UT)
 #' 
 #' # Show data where the QAPPApprovedIndicator equals "Y" or "NA":
-#' QAPPapproved_clean <- QAPPapproved(Nutrients_Utah)
+#' QAPPapproved_clean <- TADA_FindQAPPApproval(Data_Nutrients_UT)
 #' 
 #' # Show only data where the QAPPApprovedIndicator equals "Y":
-#' QAPPapproved_cleanNAs <- QAPPapproved(Nutrients_Utah, cleanNA = TRUE)
+#' QAPPapproved_cleanNAs <- TADA_FindQAPPApproval(Data_Nutrients_UT, cleanNA = TRUE)
 #' 
 #' # Show data where the QAPPApprovedIndicator equals "N" or "NA":
-#' QAPPIndicator_N_NA <- QAPPapproved(Nutrients_Utah, clean = FALSE, 
+#' QAPPIndicator_N_NA <- TADA_FindQAPPApproval(Data_Nutrients_UT, clean = FALSE, 
 #' cleanNA = FALSE, errorsonly = TRUE)
 #' 
 #' # Show data where the QAPPApprovedIndicator equals "N":
-#' QAPPIndicator_N <- QAPPapproved(Nutrients_Utah, clean = FALSE, 
+#' QAPPIndicator_N <- TADA_FindQAPPApproval(Data_Nutrients_UT, clean = FALSE, 
 #' cleanNA = TRUE, errorsonly = TRUE)
 #'
 #' # Note: When clean = FALSE, cleanNA = FALSE, and errorsonly = FALSE, no data is removed
 #' # Note: When clean = TRUE, cleanNA = TRUE, and errorsonly = TRUE, an error message is returned
 #' 
 
-QAPPapproved <- function(.data, clean = TRUE, cleanNA = FALSE, errorsonly = FALSE) {
+TADA_FindQAPPApproval <- function(.data, clean = FALSE, cleanNA = FALSE, errorsonly = FALSE) {
   # check .data is data.frame
-  checkType(.data, "data.frame", "Input object")
+  TADA_CheckType(.data, "data.frame", "Input object")
   # check clean is boolean
-  checkType(clean, "logical")
+  TADA_CheckType(clean, "logical")
   # check cleanNA is boolean
-  checkType(cleanNA, "logical") 
+  TADA_CheckType(cleanNA, "logical") 
   # check errorsonly is boolean
-  checkType(errorsonly, "logical")
+  TADA_CheckType(errorsonly, "logical")
   # check .data has required columns
-  checkColumns(.data, "QAPPApprovedIndicator")
+  TADA_CheckColumns(.data, "QAPPApprovedIndicator")
   # check that clean, cleanNA and errorsonly are not all TRUE
   if (clean == TRUE & cleanNA == TRUE & errorsonly == TRUE) {
     stop("Function not executed because clean, cleanNA, and errorsonly cannot all be TRUE")
@@ -878,23 +730,23 @@ QAPPapproved <- function(.data, clean = TRUE, cleanNA = FALSE, errorsonly = FALS
 #' 
 #' @examples 
 #' # Load example dataset:
-#' data(Nutrients_Utah)
+#' data(Data_Nutrients_UT)
 #' 
 #' # Flag, but do not remove, data without an associated QAPP document in
 #' # new column titled "TADA.QAPPDocAvailable":
-#' FlagData_MissingQAPPDocURLs <- QAPPDocAvailable(Nutrients_Utah)
+#' FlagData_MissingQAPPDocURLs <- TADA_FindQAPPDoc(Data_Nutrients_UT)
 #' 
 #' # Remove data without an associated QAPP document available:
-#' RemoveData_MissingQAPPDocURLs <- QAPPDocAvailable(Nutrients_Utah, clean = TRUE)
+#' RemoveData_MissingQAPPDocURLs <- TADA_FindQAPPDoc(Data_Nutrients_UT, clean = TRUE)
 #' 
 
-QAPPDocAvailable <- function(.data, clean = FALSE) {
+TADA_FindQAPPDoc <- function(.data, clean = FALSE) {
   # check .data is data.frame
-  checkType(.data, "data.frame", "Input object")
+  TADA_CheckType(.data, "data.frame", "Input object")
   # check clean is boolean
-  checkType(clean, "logical")
+  TADA_CheckType(clean, "logical")
   # check .data has required columns
-  checkColumns(.data, "ProjectFileUrl")
+  TADA_CheckColumns(.data, "ProjectFileUrl")
   
   # default flag column
   .data$TADA.QAPPDocAvailable = "N"
@@ -993,48 +845,48 @@ QAPPDocAvailable <- function(.data, clean = FALSE) {
 #' 
 #' @examples 
 #' # Load example dataset:
-#' data(Nutrients_Utah)
+#' data(Data_Nutrients_UT)
 #' 
 #' # Flag, but do not remove, data with invalid coordinates in new column 
 #' # titled "TADA.InvalidCoordinates.Flag":
 #' # Return ALL data:
-#' InvalidCoord_flags <- InvalidCoordinates(Nutrients_Utah)
+#' InvalidCoord_flags <- TADA_FlagCoordinates(Data_Nutrients_UT)
 #' 
 #' # Flag, but do not remove, data with invalid coordinates in new column 
 #' # titled "TADA.InvalidCoordinates.Flag"
 #' # Return ONLY the flagged data:
-#' InvalidCoord_flags_errorsonly <- InvalidCoordinates(Nutrients_Utah, errorsonly = TRUE)
+#' InvalidCoord_flags_errorsonly <- TADA_FlagCoordinates(Data_Nutrients_UT, errorsonly = TRUE)
 #' 
 #' # Remove data with coordinates outside the USA, but keep flagged data with 
 #' # imprecise coordinates:
-#' OutsideUSACoord_removed <- InvalidCoordinates(Nutrients_Utah, clean_outsideUSA = "remove")
+#' OutsideUSACoord_removed <- TADA_FlagCoordinates(Data_Nutrients_UT, clean_outsideUSA = "remove")
 #' 
 #' # Change the sign of coordinates flagged as outside the USA and keep all
 #' # flagged data:
-#' OutsideUSACoord_changed <- InvalidCoordinates(Nutrients_Utah, clean_outsideUSA = "change sign")
+#' OutsideUSACoord_changed <- TADA_FlagCoordinates(Data_Nutrients_UT, clean_outsideUSA = "change sign")
 #' 
 #' # Remove data with imprecise coordinates, but keep flagged data with coordinates outside the USA;
 #' # imprecise data may include a series of 999's to the right of the decimal points;
 #' # alternatively, imprecise data may have less than 3 significant figures to the right
 #' # of the decimal point:
-#' ImpreciseCoord_removed <- InvalidCoordinates(Nutrients_Utah, clean_imprecise = TRUE)
+#' ImpreciseCoord_removed <- TADA_FlagCoordinates(Data_Nutrients_UT, clean_imprecise = TRUE)
 #' 
 #' # Remove data with imprecise coordinates or coordinates outside the USA from the dataframe:
-#' InvalidCoord_removed <- InvalidCoordinates(Nutrients_Utah, clean_outsideUSA = "remove", clean_imprecise = TRUE)
+#' InvalidCoord_removed <- TADA_FlagCoordinates(Data_Nutrients_UT, clean_outsideUSA = "remove", clean_imprecise = TRUE)
 #' 
 
-InvalidCoordinates <- function(.data, 
+TADA_FlagCoordinates <- function(.data, 
                                clean_outsideUSA = c("no", "remove", "change sign"), 
                                clean_imprecise = FALSE, 
                                errorsonly = FALSE) {
   # check .data is data.frame
-  checkType(.data, "data.frame", "Input object")
+  TADA_CheckType(.data, "data.frame", "Input object")
   # check clean_outsideUSA is character
-  checkType(clean_outsideUSA, "character")
+  TADA_CheckType(clean_outsideUSA, "character")
   # check clean_imprecise is boolean
-  checkType(clean_imprecise, "logical")
+  TADA_CheckType(clean_imprecise, "logical")
   # check .data has required columns
-  checkColumns(.data, c("TADA.LatitudeMeasure", "TADA.LongitudeMeasure"))
+  TADA_CheckColumns(.data, c("TADA.LatitudeMeasure", "TADA.LongitudeMeasure"))
   # check lat and long are "numeric"
   if (!is.numeric(.data$TADA.LongitudeMeasure)) {
     warning("TADA.LongitudeMeasure field must be numeric")
@@ -1061,8 +913,8 @@ InvalidCoordinates <- function(.data,
       # for below, lat and long fields must be numeric
       # this checks if there are at least 3 significant figures to the 
       # right of the decimal point
-      sapply(.data$TADA.LatitudeMeasure, decimalplaces) < 3 
-      | sapply(.data$TADA.LongitudeMeasure, decimalplaces) < 3 ~ "Imprecise_lessthan3decimaldigits"
+      sapply(.data$TADA.LatitudeMeasure, TADA_DecimalPlaces) < 3 
+      | sapply(.data$TADA.LongitudeMeasure, TADA_DecimalPlaces) < 3 ~ "Imprecise_lessthan3decimaldigits"
     ))
   
   # Fill in flag for coordinates that appear OK/PASS tests
@@ -1112,7 +964,7 @@ InvalidCoordinates <- function(.data,
   return(.data)
 }
 
-#' Identify Potential Duplicate Data Uploads
+#' Identify Potentially Duplicated Data Uploads by Multiple Organizations (UNDER ACTIVE DEVELOPMENT)
 #' 
 #' Identifies data records uploaded by different organizations with the same date,
 #' time, characteristic name, and result value within X meters of each other and
@@ -1124,37 +976,208 @@ InvalidCoordinates <- function(.data,
 #' @param dist_buffer Numeric. The distance in meters below which two sites with 
 #' measurements at the same time on the same day of the same parameter will
 #' be flagged as potential duplicates.
+#' @param org_hierarchy Vector of organization identifiers that acts as the
+#'   order in which the function should select a result as the representative
+#'   duplicate, based on the organization that collected the data. If left
+#'   blank, the function chooses the representative duplicate result at random.
 #' 
-#' @return The same TADA dataframe with two additional columns, a duplicate flag
-#' column, and a distance between sites (in meters) column.
+#' @return The same input TADA dataframe with additional columns: a
+#'   TADA.MultipleOrgDuplicate column indicating if there is evidence that
+#'   results are likely duplicated due to submission of the same dataset by two
+#'   or more different organizations, a TADA.MultipleOrgDupGroupID column,
+#'   containing a number unique to results that may represent duplicated
+#'   measurement events, and one or more TADA.SiteGroup columns indicating
+#'   monitoring locations within the distance buffer from each other.
+#'   
+#' @export
+#' 
+
+TADA_FindPotentialDuplicatesMultipleOrgs <- function(.data, dist_buffer = 100, org_hierarchy = "none"){
+  # get all data that are not NA and round to 2 digits
+  dupsprep = .data%>%dplyr::select(OrganizationIdentifier,ResultIdentifier,ActivityStartDate, ActivityStartTime.Time, TADA.CharacteristicName,TADA.ResultMeasureValue)%>%dplyr::filter(!is.na(TADA.ResultMeasureValue))%>%dplyr::mutate(roundRV = round(TADA.ResultMeasureValue,digits=2))
+  # group by date, time, characteristic, and rounded result value and summarise the number of organizations that have those same row values, and filter to those summary rows with more than one organization
+  dups_sum = dupsprep%>%dplyr::group_by(ActivityStartDate, ActivityStartTime.Time, TADA.CharacteristicName,roundRV)%>%dplyr::summarise(numorgs = length(unique(OrganizationIdentifier)))%>%dplyr::filter(numorgs>1)
+   
+  # if there are potential duplicates based on grouping above, check if sites are nearby
+  if(dim(dups_sum)[1]>0){
+    # give potential duplicates a grouping ID
+    dups_sum$TADA.MultipleOrgDupGroupID = seq(1:dim(dups_sum)[1])
+    # merge to narrow dataset to match to true result value
+    dupsdat = merge(dups_sum, dupsprep, all.x = TRUE)
+    # make sure potential dupes are within 10% of the max value in the group
+    dupsdat = dupsdat%>%dplyr::group_by(TADA.MultipleOrgDupGroupID)%>%dplyr::mutate(maxRV = max(TADA.ResultMeasureValue))%>%dplyr::mutate(within10 = ifelse(min(TADA.ResultMeasureValue)>=0.9*maxRV,"Y","N"))%>%dplyr::filter(within10=="Y")%>%dplyr::select(!c(roundRV,maxRV,within10,numorgs))%>%dplyr::ungroup()
+    
+    # merge to data
+    dupsdat = dplyr::left_join(dupsdat, .data)
+    
+    rm(dupsprep)
+    
+    # from those datapoints, determine which are in adjacent sites
+    if(!"TADA.NearbySiteGroups"%in%names(.data)){
+      .data = TADA_FindNearbySites(.data, dist_buffer = dist_buffer)
+    }
+    
+    dupsites = unique(.data[,c("MonitoringLocationIdentifier","TADA.LatitudeMeasure","TADA.LongitudeMeasure","TADA.NearbySiteGroups")])
+    
+    # get rid of results with no site group added - not duplicated spatially
+    dupsites = subset(dupsites, !dupsites$TADA.NearbySiteGroups%in%c("No nearby sites"))
+    
+    if(dim(dupsites)[1]>0){ # if results are potentially duplicated temporally and spatially, determine if they share site group membership
+      # narrow down dataset more
+      dupsdat = subset(dupsdat, dupsdat$MonitoringLocationIdentifier%in%dupsites$MonitoringLocationIdentifier)
+      
+      if(dim(dupsdat)[1]>0){ # nearby sites exist but do not overlap with potentially duplicated result values
+        colnum = max(stringr::str_count(dupsites$TADA.NearbySiteGroups,","), na.rm = TRUE) + 1
+        colnam = paste0("TADA.SiteGroup",1:colnum)
+        sitecomp = suppressWarnings(dupsites%>%dplyr::select(MonitoringLocationIdentifier,TADA.NearbySiteGroups)%>%
+          tidyr::separate(TADA.NearbySiteGroups,into = colnam, sep = ", ") %>% 
+          tidyr::pivot_longer(dplyr::all_of(colnam), values_to = "AllGroups")%>%
+          dplyr::filter(!is.na(AllGroups))%>%
+          dplyr::distinct()) # get unique groups in dataset
+        
+        dupids = unique(dupsdat$TADA.MultipleOrgDupGroupID) # will loop by ID
+        
+        # create empty dataframe to hold result of spatial grouping tests
+        dupdata = data.frame()
+        
+        for(i in 1:length(dupids)){ # loop through each duplicate group
+          dat = subset(dupsdat, dupsdat$TADA.MultipleOrgDupGroupID==dupids[i])
+          if(dim(dat)[1]>1&length(unique(dat$OrganizationIdentifier))>1){ # if more than one result in dataset and multiple organizations
+            sitecompj = subset(sitecomp, sitecomp$MonitoringLocationIdentifier%in%dat$MonitoringLocationIdentifier) # grab all sites in data subset and the nearby site groups in which they belong
+            for(j in 1:length(unique(sitecompj$AllGroups))){ # loop through each group
+              sitegp = subset(sitecompj, sitecompj$AllGroups==unique(sitecompj$AllGroups)[j]) # grab all sites within each group
+              if(dim(sitegp)[1]>1){ # if there's more than one site in this group (indicating that the potential duplicates are from nearby sites that share the same nearby group)
+                dat$TADA.MultipleOrgDuplicate = ifelse(dat$MonitoringLocationIdentifier%in%sitegp$MonitoringLocationIdentifier,"Y","N") # mark as "Y" probable duplicate if sites in dup id subset are in group id subset.
+                dupdata = plyr::rbind.fill(dupdata, dat) #bind to all other potential duplicate results - note that this will result in duplicated result identifiers if the potential duplicate result sites belong to multiple nearby site groups.
+              }
+            }
+          }
+        }
+        
+        if(dim(dupdata)[1]>0){
+          dupdata = subset(dupdata, dupdata$TADA.MultipleOrgDuplicate=="Y") %>% dplyr::distinct() # subset to those potential duplicate results that are at nearby sites and remove duplicated result identifiers that may appear in this df multiple times due to more than 1 nearby group membership.
+          # make a selection of a representative result
+          if(!any(org_hierarchy=="none")){ # if there is an org hierarchy, use that to pick result with lowest rank in hierarchy
+            data_orgs = unique(.data$OrganizationIdentifier)
+            if(any(!org_hierarchy%in%data_orgs)){
+              print("One or more organizations in input hierarchy are not present in the input dataset.")
+            }
+            hierarchy_df = data.frame("OrganizationIdentifier" = org_hierarchy, "rank" = 1:length(org_hierarchy))
+            dupranks = dupdata %>% dplyr::select(ResultIdentifier, OrganizationIdentifier ,TADA.MultipleOrgDupGroupID) %>% dplyr::left_join(hierarchy_df)
+          }else{
+            dupranks = dupdata %>% dplyr::select(ResultIdentifier,TADA.MultipleOrgDupGroupID) %>% dplyr::mutate(rank = 99)
+          }
+          
+          dupranks$rank[is.na(dupranks$rank)] = 99
+          duppicks = dupranks %>% dplyr::select(ResultIdentifier,TADA.MultipleOrgDupGroupID, rank) %>% dplyr::group_by(TADA.MultipleOrgDupGroupID) %>% dplyr::slice_min(rank) %>% dplyr::slice_sample(n = 1)
+          
+          dupdata$TADA.ResultSelectedMultipleOrg = FALSE
+          dupdata$TADA.ResultSelectedMultipleOrg = ifelse(dupdata$ResultIdentifier%in%duppicks$ResultIdentifier, TRUE, dupdata$TADA.ResultSelectedMultipleOrg)
+          
+          # connect back to original dataset
+          .data = merge(.data, dupdata[,c("ResultIdentifier","TADA.MultipleOrgDupGroupID","TADA.MultipleOrgDuplicate","TADA.ResultSelectedMultipleOrg")], all.x = TRUE)
+          .data$TADA.MultipleOrgDuplicate[is.na(.data$TADA.MultipleOrgDuplicate)] = "N"
+          .data$TADA.MultipleOrgDupGroupID[.data$TADA.MultipleOrgDuplicate=="N"] = "Not a duplicate"
+          .data$TADA.ResultSelectedMultipleOrg[is.na(.data$TADA.ResultSelectedMultipleOrg)] = TRUE
+          
+          print(paste0(length(dupdata$TADA.MultipleOrgDuplicate[dupdata$TADA.MultipleOrgDuplicate%in%c("Y")]), " potentially duplicated results found in dataset. These have been placed into duplicate groups in the TADA.MultipleOrgDupGroupID column and the TADA.MultipleOrgDuplicate column is set to 'Y' (yes). If you provided an organization hierarchy, the result with the lowest ranked organization identifier was selected as the representative result in the TADA.ResultSelectedMultipleOrg (this column is set to TRUE for all results either selected or not considered duplicates)."))
+        }else{ # potential dup results at nearby sites but no actual duplicates at nearby sites comparing on day, time, characteristic, etc.
+          .data$TADA.MultipleOrgDupGroupID = "Not a duplicate"
+          .data$TADA.MultipleOrgDuplicate = "N"
+          .data$TADA.ResultSelectedMultipleOrg = TRUE
+          print("No duplicate results detected. Returning input dataframe with duplicate flagging columns set to N.")
+        }
+              }else{ # no overlap between dup results and dup sites
+        .data$TADA.MultipleOrgDupGroupID = "Not a duplicate"
+        .data$TADA.MultipleOrgDuplicate = "N"
+        .data$TADA.ResultSelectedMultipleOrg = TRUE
+        print("No duplicate results detected. Returning input dataframe with duplicate flagging columns set to N.")
+      }
+    }else{ # if no site duplicates detected
+      .data$TADA.MultipleOrgDupGroupID = "Not a duplicate"
+      .data$TADA.MultipleOrgDuplicate = "N"
+      .data$TADA.ResultSelectedMultipleOrg = TRUE
+      print("No duplicate results detected. Returning input dataframe with duplicate flagging columns set to N.")
+    }
+  }else{ # if no result/org duplicates detected
+    .data$TADA.MultipleOrgDupGroupID = "Not a duplicate"
+    .data$TADA.MultipleOrgDuplicate = "N"
+    .data$TADA.ResultSelectedMultipleOrg = TRUE
+    print("No duplicate results detected. Returning input dataframe with duplicate flagging columns set to N.")
+  }
+  
+  .data = TADA_OrderCols(.data)
+  
+  return(.data)
+}
+
+#' Identify Potentially Duplicated Data Uploads by a Single Organization (UNDER ACTIVE DEVELOPMENT)
+#' 
+#' Identifies data records uploaded by the same organization with the same date,
+#' time, monitoring location, activity type, characteristic name, fraction,
+#' taxonomic name, depth columns, and result value and flags as potential
+#' duplicates. However, it is at the discretion of the data user to determine if
+#' the data records are unique or represent overlap that could cause issues in
+#' the data analysis. Note, the dataset may contain data from multiple
+#' organizations: the function performs the same analysis on data from each
+#' organization.
+#' 
+#' @param .data TADA dataframe
+#' @param handling_method Defaults to 'none'. When input is 'none', function
+#'   flags groups of potentially duplicated results, but makes no decisions on
+#'   which (if any) should be selected/excluded. Alternatively, user may
+#'   populate handling_method = 'pick_one' and function will randomly select one
+#'   result in each group and flag all others as duplicates.
+#' 
+#' @return The same input TADA dataframe with additional columns: a
+#'   TADA.SingleOrgDupGroupID column indicating whether a result is part of a
+#'   group that shares the same date, time, location, characteristic, etc. and
+#'   TADA.ResultSelectedSingleOrg, which defaults to TRUE (all results
+#'   selected), unless the user specifies the handling method as 'pick_one', in
+#'   which case there exists one result (selected at random) in each duplicate group where
+#'   TADA.ResultSelectedSingleOrg = TRUE and for all other results in the group
+#'   TADA.ResultSelectedSingleOrg = FALSE.
 #' 
 #' @export
 #' 
 
-identifyPotentialDuplicates <- function(.data, dist_buffer = 100){
-  dat = .data
-  dups = dat%>%dplyr::filter(!is.na(ResultMeasureValue))%>%dplyr::mutate(roundRV = round(ResultMeasureValue,digits=2))%>%dplyr::group_by(ActivityStartDate, ActivityStartTime.Time, CharacteristicName,ResultMeasureValue)%>%dplyr::summarise(numorgs = length(unique(OrganizationIdentifier)))%>%dplyr::filter(numorgs>1)
-  dups$dup_id = seq(1:dim(dups)[1])
+TADA_FindPotentialDuplicatesSingleOrg <- function(.data, handling_method = 'none'){
   
-  tdups = dplyr::left_join(dups, dat)
-  tdups$LatitudeMeasure = as.numeric(tdups$LatitudeMeasure)
-  tdups$LongitudeMeasure = as.numeric(tdups$LongitudeMeasure)
+  # find the depth columns in the dataset
+  depthcols = names(.data)[grepl("^TADA.*DepthHeightMeasure.MeasureValue$", names(.data))]
   
-  distances = tdups%>%dplyr::ungroup()%>%dplyr::select(dup_id,LatitudeMeasure,LongitudeMeasure)
-  dcoords = sf::st_as_sf(x = distances, coords = c("LongitudeMeasure","LatitudeMeasure"), crs="EPSG:4326")
+  # tack depth columns onto additional grouping columns
+  colss = c("OrganizationIdentifier", "MonitoringLocationIdentifier", "ActivityStartDate", "ActivityStartTime.Time", "ActivityTypeCode", "TADA.CharacteristicName", "SubjectTaxonomicName", "TADA.ResultSampleFractionText","TADA.ResultMeasureValue", depthcols)
   
-  dists = data.frame()
-  for(i in 1:max(dcoords$dup_id)){
-    ds = subset(dcoords, dcoords$dup_id==i)
-    dist = as.numeric(sf::st_distance(ds$geometry[1],ds$geometry[2]))
-    dsdist = data.frame(dup_id = i, distance_m = as.numeric(dist))
-    dsdist$TADA.idPotentialDuplicates.Flag = ifelse(dist<=dist_buffer,"POTENTIAL DUPLICATE DATAPOINT",NA)
-    dists = rbind(dists, dsdist)
+  # find where the grouping using the columns above results in more than result identifier
+  dups_sum_org = .data%>%dplyr::group_by(dplyr::across(dplyr::any_of(colss)))%>%dplyr::summarise(numres = length(unique(ResultIdentifier)))%>%dplyr::filter(numres>1)%>%dplyr::mutate(TADA.SingleOrgDupGroupID = dplyr::cur_group_id())
+  
+  if(dim(dups_sum_org)[1]>0){
+    # apply to .data and remove numres column
+    .data = merge(.data, dups_sum_org, all.x = TRUE)
+    .data = .data %>% dplyr::select(-numres)
+    .data$TADA.SingleOrgDupGroupID[is.na(.data$TADA.SingleOrgDupGroupID)] = "Not a duplicate"
+
+    # if handling_method = 'pick_one', randomly select
+    if(handling_method=="pick_one"){
+      dup_rids = subset(.data, !is.na(.data$TADA.SingleOrgDupGroupID))$ResultIdentifier
+      picks = .data %>% dplyr::filter(!is.na(TADA.SingleOrgDupGroupID)) %>% dplyr::group_by(TADA.SingleOrgDupGroupID) %>% dplyr::slice_sample(n = 1)
+      not_picked_rids = dup_rids[!dup_rids%in%picks$ResultIdentifier]
+      .data$TADA.ResultSelectedSingleOrg = TRUE
+      .data$TADA.ResultSelectedSingleOrg = ifelse(.data$ResultIdentifier%in%not_picked_rids,FALSE,.data$TADA.ResultSelectedSingleOrg)
+      print(paste0(dim(dups_sum_org)[1]," potentially duplicated results found in dataset. These have been placed into duplicate groups in the TADA.SingleOrgDupGroupID column and the function randomly selected one result from each group to represent a single, unduplicated value. Selected values are indicated in the TADA.ResultSelectedSingleOrg as TRUE, while duplicates are flagged as FALSE for easy filtering."))
+    }else{
+        .data$TADA.ResultSelectedSingleOrg = TRUE
+        print(paste0(dim(dups_sum_org)[1]," potentially duplicated results found in dataset. These have been placed into duplicate groups in the TADA.SingleOrgDupGroupID column."))
+    }
+
+  }else{
+    .data$TADA.SingleOrgDupGroupID = "Not a duplicate"
+    .data$TADA.ResultSelectedSingleOrg = TRUE
+    print("No duplicates detected within organizations in the dataset. 'TADA.SingleOrgDupGroupID' column set to 'Not a duplicate' and 'TADA.ResultSelectedSingleOrg' set to TRUE for all results.")
   }
   
-  tdups1 = merge(tdups, dists, all.x = TRUE)
-  tdups1 = tdups1[,!names(tdups1)%in%c("dup_id","numorgs")]
-  dat1 = merge(dat, tdups1, all.x = TRUE)
+  .data = TADA_OrderCols(.data)
+  return(.data)
   
-  return(dat1)
 }

@@ -38,15 +38,15 @@
 # return A table of fields and the count of unique values in each field.
 # examples
 # # Load example dataset:
-# data(Nutrients_Utah)
+# data(Data_Nutrients_UT)
 # 
 # # Create a table of fields and count of unique values in each field:
-# Fields_Nutrients_Utah <- FilterFields(Nutrients_Utah)
+# Fields_Data_Nutrients_UT <- FilterFields(Data_Nutrients_UT)
 # 
 
 FilterFields <- function(.data) {
   # check .data is data.frame
-  checkType(.data, "data.frame", "Input object")
+  TADA_TADA_CheckType(.data, "data.frame", "Input object")
   
   # CREATE LIST OF FIELDS
   # Find count of unique values in each column
@@ -154,16 +154,16 @@ FilterFields <- function(.data) {
 # 
 # examples
 # # Load example dataset:
-# data(Nutrients_Utah)
+# data(Data_Nutrients_UT)
 # 
 # # Create table and pie chart of "Hydrologic Condition" unique values and counts:
-# FieldReview_HydrologicCondition <- FilterFieldReview(field = "HydrologicCondition", Nutrients_Utah)
+# FieldReview_HydrologicCondition <- FilterFieldReview(field = "HydrologicCondition", Data_Nutrients_UT)
 
 
 FilterFieldReview <- function(field, .data) {
   # if provided, check .data is data.frame
   if (!missing(.data)) {
-    checkType(.data, "data.frame", "Input object")
+    TADA_TADA_CheckType(.data, "data.frame", "Input object")
   }
   # execute function after checks are passed
   
@@ -213,11 +213,11 @@ FilterFieldReview <- function(field, .data) {
 # return A list of unique values in TADA.CharacteristicName and their counts
 # examples
 # # Load example dataset:
-# data(Nutrients_Utah)
+# data(Data_Nutrients_UT)
 # 
 # # Create a list of parameters in the dataset and the number of records of
 # # each parameter:
-# ParameterList <- FilterParList(Nutrients_Utah)
+# ParameterList <- FilterParList(Data_Nutrients_UT)
 # 
 
 FilterParList <- function(.data) {
@@ -281,17 +281,17 @@ FilterParList <- function(.data) {
 # 
 # examples
 # # Load example dataset:
-# data(Nutrients_Utah)
+# data(Data_Nutrients_UT)
 # 
 # # Create list of fields for parameter "AMMONIA" with number of unique values in each field:
-# AmmoniaFields <- FilterParFields(Nutrients_Utah, parameter = "AMMONIA")
+# AmmoniaFields <- FilterParFields(Data_Nutrients_UT, parameter = "AMMONIA")
 # 
 
 FilterParFields <- function(.data, parameter) {
   # check .data is data.frame
-  checkType(.data, "data.frame", "Input object")
+  TADA_TADA_CheckType(.data, "data.frame", "Input object")
   # check .data has required columns
-  checkColumns(.data, "TADA.CharacteristicName")
+  TADA_CheckColumns(.data, "TADA.CharacteristicName")
   
   # check parameter is in .data
   if ((parameter %in% .data$TADA.CharacteristicName) == FALSE) {
@@ -433,16 +433,16 @@ FilterParFields <- function(.data, parameter) {
 # 
 # examples
 # # Load example dataset:
-# data(Nutrients_Utah)
+# data(Data_Nutrients_UT)
 # 
 # # Create table and pie chart of monitoring locations for the parameter "AMMONIA" in dataframe:
-# AmmoniaMonitoringLocations <- FilterParFieldReview(field = "MonitoringLocationIdentifier", Nutrients_Utah, parameter = "AMMONIA")
+# AmmoniaMonitoringLocations <- FilterParFieldReview(field = "MonitoringLocationIdentifier", Data_Nutrients_UT, parameter = "AMMONIA")
 # 
 
 FilterParFieldReview <- function(field, .data, parameter) {
   # if provided, check .data is data.frame
   if (!missing(.data)) {
-    checkType(.data, "data.frame", "Input object")
+    TADA_TADA_CheckType(.data, "data.frame", "Input object")
   }
   # check parameter is in .data
   if (!missing(parameter)) {
@@ -513,12 +513,12 @@ MeasureValueSpecialCharacters <- function(.data) {
   warning("This function is deprecated and does not return the correct column names. Please use TADA_ConvertSpecialChars() function instead.")
   
   # check .data is data.frame
-  checkType(.data, "data.frame", "Input object")
+  TADA_TADA_CheckType(.data, "data.frame", "Input object")
   
   # .data required columns
   required_cols <- c("ResultMeasureValue", "DetectionQuantitationLimitMeasure.MeasureValue")
   # check .data has required columns
-  checkColumns(.data, required_cols)
+  TADA_CheckColumns(.data, required_cols)
   
   # execute function after checks are passed
   # define check.data
@@ -598,6 +598,52 @@ MeasureValueSpecialCharacters <- function(.data) {
   return(clean.data)
 }
 
+#Identify Potential Duplicate Data Uploads
+# 
+# Identifies data records uploaded by different organizations with the same date,
+#time, characteristic name, and result value within X meters of each other and
+# flags as potential duplicates. However, it is at the discretion of the data user
+# to determine if the data records are unique or represent overlap that could cause
+# issues in the data analysis.
+# 
+# @param .data TADA dataframe
+# @param dist_buffer Numeric. The distance in meters below which two sites with 
+# measurements at the same time on the same day of the same parameter will
+# be flagged as potential duplicates.
+# 
+# @return The same TADA dataframe with two additional columns, a duplicate flag
+# column, and a distance between sites (in meters) column.
+#
+# @export
+# 
+
+identifyPotentialDuplicates <- function(.data, dist_buffer = 100){
+  dat = .data
+  dups = dat%>%dplyr::filter(!is.na(ResultMeasureValue))%>%dplyr::mutate(roundRV = round(ResultMeasureValue,digits=2))%>%dplyr::group_by(ActivityStartDate, ActivityStartTime.Time, CharacteristicName,ResultMeasureValue)%>%dplyr::summarise(numorgs = length(unique(OrganizationIdentifier)))%>%dplyr::filter(numorgs>1)
+  dups$dup_id = seq(1:dim(dups)[1])
+  
+  tdups = dplyr::left_join(dups, dat)
+  tdups$LatitudeMeasure = as.numeric(tdups$LatitudeMeasure)
+  tdups$LongitudeMeasure = as.numeric(tdups$LongitudeMeasure)
+  
+  distances = tdups%>%dplyr::ungroup()%>%dplyr::select(dup_id,LatitudeMeasure,LongitudeMeasure)
+  dcoords = sf::st_as_sf(x = distances, coords = c("LongitudeMeasure","LatitudeMeasure"), crs="EPSG:4326")
+  
+  dists = data.frame()
+  for(i in 1:max(dcoords$dup_id)){
+    ds = subset(dcoords, dcoords$dup_id==i)
+    dist = as.numeric(sf::st_distance(ds$geometry[1],ds$geometry[2]))
+    dsdist = data.frame(dup_id = i, distance_m = as.numeric(dist))
+    dsdist$TADA.idPotentialDuplicates.Flag = ifelse(dist<=dist_buffer,"POTENTIAL DUPLICATE DATAPOINT",NA)
+    dists = rbind(dists, dsdist)
+  }
+  
+  tdups1 = merge(tdups, dists, all.x = TRUE)
+  tdups1 = tdups1[,!names(tdups1)%in%c("dup_id","numorgs")]
+  dat1 = merge(dat, tdups1, all.x = TRUE)
+  
+  return(dat1)
+}
 
 
 # AutoFilter
@@ -705,5 +751,148 @@ TADAprofileCheck <- function(.data) {
     TRUE
   } else {
     stop("The dataframe does not contain the required fields to use TADA. Use either the full physical/chemical profile downloaded from WQP or download the TADA profile template available on the EPA TADA webpage.")
+  }
+}
+
+# Check for Potential Duplicates
+# 
+# Sometimes multiple organizations submit the exact same data set to the
+# Water Quality Portal (WQP), which can affect water quality analyses. This
+# function checks for and identifies data that is identical in all fields
+# excluding organization-specific and comment text fields. When clean = FALSE,
+# a column titled "TADA.PotentialDupRowIDs.Flag" is added to the dataframe which
+# assigns each pair of potential duplicates a unique ID for review.
+# When clean = TRUE, the function retains the first occurrence of each
+# potential duplicate in the dataframe. Default is clean = TRUE.
+# 
+# @param .data TADA dataframe
+# @param clean Boolean argument; removes potential duplicate data from
+# the dataframe when clean = TRUE. When clean = FALSE,
+# a column titled "TADA.PotentialDupRowIDs.Flag" is added to the dataframe which
+# assigns each pair of potential duplicates a unique ID for review.
+# Default is clean = TRUE.
+# @param errorsonly Boolean argument; filters dataframe to show only potential
+# duplicate rows of data when errorsonly = TRUE. Default is errorsonly = FALSE.
+# 
+# @return When clean = FALSE, the following column will be added to you dataframe:
+# TADA.PotentialDupRowIDs.Flag. This column flags potential duplicate rows of data
+# in your dataframe, and assigns each potential duplicate combination a unique number
+# linking the two potential duplication rows. When clean = FALSE the first of
+# each group of potential duplicate rows will be removed from the dataframe
+# and no column is appended.
+# 
+# @export
+#
+# @examples
+# # Load example dataset:
+# data(Data_Nutrients_UT)
+# 
+# # Remove potential duplicate data from dataframe:
+# PotentialDup_clean <- PotentialDuplicateRowID(Data_Nutrients_UT)
+#
+# # Flag, but do not remove, potential duplicate data in new column titled "TADA.PotentialDupRowIDs.Flag":
+# PotentialDup_flagcolumnadded <- PotentialDuplicateRowID(Data_Nutrients_UT, clean = FALSE)
+# 
+# # Flag and review potential duplicate data only:
+# PotentialDup_reviewduplicatesonly <- PotentialDuplicateRowID(Data_Nutrients_UT, clean = FALSE, errorsonly = TRUE)
+
+PotentialDuplicateRowID <- function(.data, clean = TRUE, errorsonly = FALSE) {
+  # check .data is data.frame
+  TADA_CheckType(.data, "data.frame", "Input object")
+  # check clean is boolean
+  TADA_CheckType(clean, "logical")
+  # check errorsonly is boolean
+  TADA_CheckType(errorsonly, "logical")
+  # check .data has required columns
+  required_cols <- c(
+    "ActivityIdentifier", "ActivityConductingOrganizationText",
+    "OrganizationFormalName", "OrganizationIdentifier",
+    "ProjectIdentifier", "ResultCommentText",
+    "ActivityCommentText"
+  )
+  TADA_CheckColumns(.data, required_cols)
+  # check that clean and errorsonly are not both TRUE
+  if (clean == TRUE & errorsonly == TRUE) {
+    stop("Function not executed because clean and errorsonly cannot both be TRUE")
+  }
+  
+  # execute function after checks are passed
+  # get list of field names in .data
+  field.names <- colnames(.data)
+  # create list of fields to exclude when looking for duplicate rows
+  excluded.fields <- c(
+    "ActivityIdentifier", "ActivityConductingOrganizationText",
+    "OrganizationFormalName", "OrganizationIdentifier",
+    "ProjectIdentifier", "ResultCommentText", "ActivityCommentText"
+  )
+  # create list of fields to check for duplicates across
+  dupe.fields <- field.names[!field.names %in% excluded.fields]
+  
+  # subset list of duplicate rows
+  dupe.data <- .data[duplicated(.data[dupe.fields]), ]
+  
+  # if no potential duplicates are found
+  if (nrow(dupe.data) == 0) {
+    if (errorsonly == FALSE) {
+      print("No potential duplicates found in your dataframe.")
+      .data <- TADA_OrderCols(.data)
+      return(.data)
+    }
+    if (errorsonly == TRUE) {
+      print("This dataframe is empty because we did not find any potential duplicates in your dataframe")
+      dupe.data <- TADA_OrderCols(dupe.data)
+      return(dupe.data)
+    }
+  }
+  
+  # if potential duplicates are found
+  if (nrow(dupe.data) != 0) {
+    
+    # flag potential duplicates
+    dupe.data$TADA.PotentialDupRowIDs.Flag <- as.integer(seq_len(nrow(dupe.data)))
+    
+    # merge flag column into .data
+    flag.data <- merge(.data, dupe.data, by = dupe.fields, all.x = TRUE)
+    
+    # remove extraneous columns, fix field names
+    flag.data <- flag.data %>%
+      # remove ".x" suffix from column names
+      dplyr::rename_at(
+        dplyr::vars(dplyr::ends_with(".x")),
+        ~ stringr::str_replace(., "\\..$", "")
+      ) %>%
+      # remove columns with ".y" suffix
+      dplyr::select_at(dplyr::vars(-dplyr::ends_with(".y")))
+    
+    # flagged output, all data
+    if (clean == FALSE & errorsonly == FALSE) {
+      flag.data <- TADA_OrderCols(flag.data)
+      return(flag.data)
+    }
+    
+    # clean output
+    if (clean == TRUE & errorsonly == FALSE) {
+      # remove duplicate rows
+      # seperate data into 2 dataframes by TADA.PotentialDupRowIDs.Flag (no NAs and NAs)
+      dup.data <- flag.data[!is.na(flag.data$TADA.PotentialDupRowIDs.Flag), ]
+      NAdup.data <- flag.data[is.na(flag.data$TADA.PotentialDupRowIDs.Flag), ]
+      
+      nodup.data <- dup.data[!duplicated(dup.data$TADA.PotentialDupRowIDs.Flag), ]
+      
+      clean.data <- rbind(nodup.data, NAdup.data)
+      
+      # remove TADA.PotentialDupRowID column
+      clean.data <- dplyr::select(clean.data, -TADA.PotentialDupRowIDs.Flag)
+      clean.data <- TADA_OrderCols(clean.data)
+      return(clean.data)
+    }
+    
+    # flagged data, errors only
+    if (clean == FALSE & errorsonly == TRUE) {
+      # filter to show duplicate data only
+      dup.data <- flag.data[!is.na(flag.data$TADA.PotentialDupRowIDs.Flag), ]
+      dup.data <- TADA_OrderCols(dup.data)
+      return(dup.data)
+    }
   }
 }

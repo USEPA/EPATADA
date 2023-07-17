@@ -17,23 +17,23 @@
 #' 
 #' @examples
 #' # Load example dataset:
-#' data(TADAProfileCleanTP)
-#' # TADAProfileCleanTP dataframe is clean, harmonized, and filtered
+#' data(Data_TP_6Tribes_5y)
+#' # Data_TP_6Tribes_5y dataframe is clean, harmonized, and filtered
 #' # down to one Comparable Data Identifier
 #' 
 #' # Create boxplot:
-#' TADA_boxplot(TADAProfileCleanTP, id_col = "TADA.ComparableDataIdentifier")
+#' TADA_Boxplot(Data_TP_6Tribes_5y, id_col = "TADA.ComparableDataIdentifier")
 #' 
 
-TADA_boxplot <- function(filtered.data, id_col = c("TADA.CharacteristicName", "TADA.ComparableDataIdentifier")) {
+TADA_Boxplot <- function(filtered.data, id_col = c("TADA.CharacteristicName", "TADA.ComparableDataIdentifier")) {
   # check .data is data.frame
-  checkType(filtered.data, "data.frame", "Input object")
+  TADA_CheckType(filtered.data, "data.frame", "Input object")
   # check id_col matches one of the options
   id_col <- match.arg(id_col)
   # check .data has required columns
-  checkColumns(filtered.data, id_col)
+  TADA_CheckColumns(filtered.data, id_col)
   # check .data has required columns
-  checkColumns(filtered.data, c("TADA.ResultMeasureValue", "TADA.ResultMeasure.MeasureUnitCode"))
+  TADA_CheckColumns(filtered.data, c("TADA.ResultMeasureValue", "TADA.ResultMeasure.MeasureUnitCode"))
   # check id_col is filtered to one characteristic or identifier
   if (length(unique(filtered.data[,id_col])) > 1) {
     stop(paste0(id_col, " field contains more than one unique value. Boxplot function cannot run with more than 1 unique characteristic or comparable data identifier. Please filter dataframe and rerun function."))
@@ -119,21 +119,21 @@ TADA_boxplot <- function(filtered.data, id_col = c("TADA.CharacteristicName", "T
 #' 
 #' @examples
 #' # Load example dataset:
-#' data(TADAProfileCleanTP)
-#' # TADAProfileCleanTP dataframe is clean, harmonized, and filtered
+#' data(Data_TP_6Tribes_5y)
+#' # Data_TP_6Tribes_5y dataframe is clean, harmonized, and filtered
 #' # down to one Comparable Data Identifier
 #' 
 #' # Create histogram:
-#' TADA_hist(TADAProfileCleanTP, id_col = "TADA.ComparableDataIdentifier")
+#' TADA_Histogram(Data_TP_6Tribes_5y, id_col = "TADA.ComparableDataIdentifier")
 
-TADA_hist <- function(filtered.data, id_col = c("TADA.CharacteristicName", "TADA.ComparableDataIdentifier")) {
+TADA_Histogram <- function(filtered.data, id_col = c("TADA.CharacteristicName", "TADA.ComparableDataIdentifier")) {
   # check .data is data.frame
-  checkType(filtered.data, "data.frame", "Input object")
+  TADA_CheckType(filtered.data, "data.frame", "Input object")
   # check id_col matches one of the options
   id_col <- match.arg(id_col)
   # check .data has required columns
-  checkColumns(filtered.data, id_col)
-  checkColumns(filtered.data, c("TADA.ResultMeasureValue", "TADA.ResultMeasure.MeasureUnitCode"))
+  TADA_CheckColumns(filtered.data, id_col)
+  TADA_CheckColumns(filtered.data, c("TADA.ResultMeasureValue", "TADA.ResultMeasure.MeasureUnitCode"))
   # check id_col is filtered to one characteristic or identifier
   if (length(unique(filtered.data[,id_col])) > 1) {
     stop(paste0(id_col, " field contains more than one unique value. Histogram function cannot run with more than 1 unique characteristic or comparable data identifier. Please filter dataframe and rerun function."))
@@ -215,47 +215,65 @@ TADA_hist <- function(filtered.data, id_col = c("TADA.CharacteristicName", "TADA
 #' @return A leaflet map that shows all sites in the data frame, where larger point sizes
 #' indicate more results collected at a site, and darker point colors indicate more
 #' characteristics measured at that site. Users can click on points on the map to see
-#' a pop-up window with exact counts for results, characteristics, and organizations
+#' a pop-up window with exact counts for measurements, visits, and characteristics
 #' associated with each site.
 #' 
 #' @export
 #' 
 #' @examples
 #' # Load example dataset:
-#' data("Nutrients_Utah.rda")
+#' data("Data_Nutrients_UT.rda")
 #' 
 #' # Create map:
-#' TADAOverviewMap(Nutrients_Utah)
+#' TADA_OverviewMap(Data_Nutrients_UT)
 #' 
 
-TADAOverviewMap <- function(.data){
-  sumdat = .data%>%dplyr::group_by(MonitoringLocationIdentifier,MonitoringLocationName,TADA.LatitudeMeasure, TADA.LongitudeMeasure)%>%dplyr::summarise("Sample_Count" = length(unique(ResultIdentifier)), "Visit_Count" = length(unique(ActivityStartDate)), "Parameter_Count" = length(unique(TADA.CharacteristicName)), "Organization_Count" = length(unique(OrganizationIdentifier)))
-  sumdat$radius = 3
-  sumdat$radius = ifelse(sumdat$Sample_Count>10,5,sumdat$radius)
-  sumdat$radius = ifelse(sumdat$Sample_Count>50,8,sumdat$radius)
-  sumdat$radius = ifelse(sumdat$Sample_Count>100,10,sumdat$radius)
-  sumdat$radius = ifelse(sumdat$Sample_Count>200,15,sumdat$radius)
-  sumdat$radius = ifelse(sumdat$Sample_Count>500,20,sumdat$radius)
-  sumdat$radius = ifelse(sumdat$Sample_Count>1500,30,sumdat$radius)
-  
-  pal <- leaflet::colorBin(
-    palette = "Blues",
-    domain = sumdat$Parameter_Count)
-  map = leaflet::leaflet()%>%
-    leaflet::addProviderTiles("Esri.WorldTopoMap", group = "World topo", options = leaflet::providerTileOptions(updateWhenZooming = FALSE,updateWhenIdle = TRUE))%>%
-    leaflet::clearShapes()%>% # get rid of whatever was there before if loading a second dataset
-    leaflet::fitBounds(lng1 = min(sumdat$TADA.LongitudeMeasure), lat1 = min(sumdat$TADA.LatitudeMeasure), lng2 = max(sumdat$TADA.LongitudeMeasure), lat2 = max(sumdat$TADA.LatitudeMeasure))%>% # fit to bounds of data in tadat$raw
-    leaflet::addCircleMarkers(data = sumdat, lng=~TADA.LongitudeMeasure, lat=~TADA.LatitudeMeasure, color="black",fillColor=~pal(Parameter_Count), fillOpacity = 0.7, stroke = TRUE, weight = 1.5, radius=sumdat$radius,
-                              popup = paste0("Site ID: ", sumdat$MonitoringLocationIdentifier,
-                                             "<br> Site Name: ", sumdat$MonitoringLocationName,
-                                             "<br> Sample Count: ", sumdat$Sample_Count,
-                                             "<br> Visit Count: ", sumdat$Visit_Count,
-                                             "<br> Parameter Count: ", sumdat$Parameter_Count))%>%
-    leaflet::addLegend("bottomright", pal = pal, values =sumdat$Parameter_Count,
-                       title = "Characteristics",
-                       opacity = 0.5
-    )
-  return(map)
+TADA_OverviewMap <- function(.data){
+  suppressWarnings({
+    
+    # taken from this stackoverflow: https://stackoverflow.com/questions/58505589/circles-in-legend-for-leaflet-map-with-addcirclemarkers-in-r-without-shiny
+    addLegendCustom <- function(map, colors, labels, sizes, opacity = 0.5){
+      colorAdditions <- paste0(colors, "; border-radius: 50%; width:", sizes, "px; height:", sizes, "px")
+      labelAdditions <- paste0("<div style='display: inline-block;height: ", sizes, "px;margin-top: 4px;line-height: ", sizes, "px;'>", labels, "</div>")
+      
+      return(leaflet::addLegend(map, colors = colorAdditions, labels = labelAdditions, opacity = opacity, title = "Measurements"))
+    }
+    
+    site_size = data.frame(Sample_n = c("<9",">10",">50",">100",">200",">500",">1500"),Point_size = c(3,5,8,10,15,20,30))
+    
+    sumdat = .data%>%dplyr::group_by(MonitoringLocationIdentifier,MonitoringLocationName,TADA.LatitudeMeasure, TADA.LongitudeMeasure)%>%dplyr::summarise("Sample_Count" = length(unique(ResultIdentifier)), "Visit_Count" = length(unique(ActivityStartDate)), "Parameter_Count" = length(unique(TADA.CharacteristicName)), "Organization_Count" = length(unique(OrganizationIdentifier)))
+    sumdat$radius = 3
+    sumdat$radius = ifelse(sumdat$Sample_Count>10,5,sumdat$radius)
+    sumdat$radius = ifelse(sumdat$Sample_Count>50,8,sumdat$radius)
+    sumdat$radius = ifelse(sumdat$Sample_Count>100,10,sumdat$radius)
+    sumdat$radius = ifelse(sumdat$Sample_Count>200,15,sumdat$radius)
+    sumdat$radius = ifelse(sumdat$Sample_Count>500,20,sumdat$radius)
+    sumdat$radius = ifelse(sumdat$Sample_Count>1500,30,sumdat$radius)
+    
+    site_legend = subset(site_size, site_size$Point_size%in%unique(sumdat$radius))
+    
+    pal <- leaflet::colorBin(
+      palette = "Blues",
+      domain = sumdat$Parameter_Count)
+    
+    map = leaflet::leaflet()%>%
+      leaflet::addProviderTiles("Esri.WorldTopoMap", group = "World topo", options = leaflet::providerTileOptions(updateWhenZooming = FALSE,updateWhenIdle = TRUE))%>%
+      leaflet::clearShapes()%>% # get rid of whatever was there before if loading a second dataset
+      leaflet::fitBounds(lng1 = min(sumdat$TADA.LongitudeMeasure), lat1 = min(sumdat$TADA.LatitudeMeasure), lng2 = max(sumdat$TADA.LongitudeMeasure), lat2 = max(sumdat$TADA.LatitudeMeasure))%>% # fit to bounds of data in tadat$raw
+      leaflet::addCircleMarkers(data = sumdat, lng=~TADA.LongitudeMeasure, lat=~TADA.LatitudeMeasure, color="black",fillColor=~pal(Parameter_Count), fillOpacity = 0.7, stroke = TRUE, weight = 1.5, radius=sumdat$radius,
+                                popup = paste0("Site ID: ", sumdat$MonitoringLocationIdentifier,
+                                               "<br> Site Name: ", sumdat$MonitoringLocationName,
+                                               "<br> Measurement Count: ", sumdat$Sample_Count,
+                                               "<br> Visit Count: ", sumdat$Visit_Count,
+                                               "<br> Characteristic Count: ", sumdat$Parameter_Count))%>%
+      leaflet::addLegend("bottomright", pal = pal, values =sumdat$Parameter_Count,
+                         title = "Characteristics",
+                         opacity = 0.5
+      )%>%
+      addLegendCustom(colors = "black", 
+                      labels = site_legend$Sample_n, sizes = site_legend$Point_size*2)
+    return(map)
+  })
 }
 
 #' Field Values Pie Chart
@@ -272,19 +290,19 @@ TADAOverviewMap <- function(.data){
 #' 
 #' @examples 
 #' # Load example dataset:
-#' data(Nutrients_Utah)
+#' data(Data_Nutrients_UT)
 #' 
 #' # Create a list of parameters in the dataset and the number of records of
 #' # each parameter: 
-#' fieldValuesPie(Nutrients_Utah, field = "TADA.CharacteristicName")
+#' TADA_FieldValuesPie(Data_Nutrients_UT, field = "TADA.CharacteristicName")
 #' 
 
 
-fieldValuesPie <- function(.data,field="null",characteristicName="null"){
+TADA_FieldValuesPie <- function(.data,field="null",characteristicName="null"){
   
-  dat = fieldValuesTable(.data = .data, field = field, characteristicName = characteristicName)
+  dat = TADA_FieldValuesTable(.data = .data, field = field, characteristicName = characteristicName)
 
-  dat$Legend = paste0(dat$Var, " - ", dat$Count, " results")
+  dat$Legend = paste0(dat$Value, " - ", dat$Count, " results")
   
   # define number of colors required for pie chart
   colorCount <- length(unique(dat$Legend))

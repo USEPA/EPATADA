@@ -1,10 +1,10 @@
 test_that("InvalidCoordinates works", {
 
   #use example dataset
-  data(Nutrients_Utah)
+  data(Data_Nutrients_UT)
   
   #flagonly
-  InvalidCoord_flags <- InvalidCoordinates(Nutrients_Utah)
+  InvalidCoord_flags <- TADA_FlagCoordinates(Data_Nutrients_UT)
   unique(InvalidCoord_flags$TADA.InvalidCoordinates)
   reviewselectcolumns <- InvalidCoord_flags %>% dplyr::select(TADA.InvalidCoordinates.Flag, TADA.LatitudeMeasure, TADA.LongitudeMeasure)
   reviewflagsonly <- dplyr::filter(reviewselectcolumns, 
@@ -12,7 +12,7 @@ test_that("InvalidCoordinates works", {
   unique(reviewflagsonly$TADA.InvalidCoordinates.Flag)
 
   #removeimprecise
-  ImpreciseCoord_removed <- InvalidCoordinates(Nutrients_Utah, clean_imprecise = TRUE)
+  ImpreciseCoord_removed <- TADA_FlagCoordinates(Data_Nutrients_UT, clean_imprecise = TRUE)
   unique(ImpreciseCoord_removed$TADA.InvalidCoordinates.Flag)
   
   expect_true(any(ImpreciseCoord_removed$TADA.InvalidCoordinates.Flag!="Imprecise_Latincludes999" 
@@ -20,14 +20,14 @@ test_that("InvalidCoordinates works", {
               | ImpreciseCoord_removed$TADA.InvalidCoordinates.Flag!="Imprecise_lessthan3decimaldigits"))
   
   # Remove data with coordinates outside the USA, but keep flagged data with imprecise coordinates:
-  OutsideUSACoord_removed <- InvalidCoordinates(Nutrients_Utah, clean_outsideUSA = "remove")
+  OutsideUSACoord_removed <- TADA_FlagCoordinates(Data_Nutrients_UT, clean_outsideUSA = "remove")
   unique(OutsideUSACoord_removed$TADA.InvalidCoordinates.Flag)
   
   expect_true(any(OutsideUSACoord_removed$TADA.InvalidCoordinates.Flag!="LONG_OutsideUSA" 
                   | OutsideUSACoord_removed$TADA.InvalidCoordinates.Flag!="LAT_OutsideUSA"))
   
   ## Remove data with imprecise coordinates or coordinates outside the USA from the dataframe:
-  Invalid_removed <- InvalidCoordinates(Nutrients_Utah, clean_outsideUSA = "remove", clean_imprecise = TRUE)
+  Invalid_removed <- TADA_FlagCoordinates(Data_Nutrients_UT, clean_outsideUSA = "remove", clean_imprecise = TRUE)
   unique(Invalid_removed$TADA.InvalidCoordinates.Flag)
   
 })
@@ -36,50 +36,56 @@ test_that("InvalidCoordinates works", {
 test_that("Imprecise_lessthan3decimaldigits works", {
   
   #use example dataset
-  data(Nutrients_Utah)
+  data(Data_Nutrients_UT)
   
   #flagonly
-  FLAGSONLY <- InvalidCoordinates(Nutrients_Utah)
+  FLAGSONLY <- TADA_FlagCoordinates(Data_Nutrients_UT)
   FLAGSONLY <- FLAGSONLY %>% dplyr::select(TADA.InvalidCoordinates.Flag, TADA.LatitudeMeasure, TADA.LongitudeMeasure)
   FLAGSONLY <- dplyr::filter(FLAGSONLY, FLAGSONLY$TADA.InvalidCoordinates.Flag == "Imprecise_lessthan3decimaldigits")
-  FLAGSONLY <- dplyr::filter(FLAGSONLY, sapply(FLAGSONLY$TADA.LongitudeMeasure, decimalplaces) < 3)%>%dplyr::distinct()
+  FLAGSONLY <- dplyr::filter(FLAGSONLY, sapply(FLAGSONLY$TADA.LongitudeMeasure, TADA_DecimalPlaces) < 3)%>%dplyr::distinct()
   
-  expect_true(all(sapply(FLAGSONLY$TADA.LongitudeMeasure, decimalplaces) < 4))
+  expect_true(all(sapply(FLAGSONLY$TADA.LongitudeMeasure, TADA_DecimalPlaces) < 4))
   
 })
 
 test_that("Imprecise_lessthan3decimaldigits works again", {
   
   #use example dataset
-  data(Nutrients_Utah)
+  data(Data_Nutrients_UT)
   
   #flagonly
-  FLAGSONLY <- InvalidCoordinates(Nutrients_Utah)
+  FLAGSONLY <- TADA_FlagCoordinates(Data_Nutrients_UT)
   FLAGSONLY <- FLAGSONLY %>% dplyr::select(TADA.InvalidCoordinates.Flag, TADA.LatitudeMeasure, TADA.LongitudeMeasure)
   FLAGSONLY <- dplyr::filter(FLAGSONLY, FLAGSONLY$TADA.InvalidCoordinates.Flag == "Imprecise_lessthan3decimaldigits")
-  FLAGSONLY <- dplyr::filter(FLAGSONLY, sapply(FLAGSONLY$TADA.LatitudeMeasure, decimalplaces) < 3) %>% dplyr::distinct()
+  FLAGSONLY <- dplyr::filter(FLAGSONLY, sapply(FLAGSONLY$TADA.LatitudeMeasure, TADA_DecimalPlaces) < 3) %>% dplyr::distinct()
   
-  expect_true(all(sapply(FLAGSONLY$TADA.LatitudeMeasure, decimalplaces) < 4))
+  expect_true(all(sapply(FLAGSONLY$TADA.LatitudeMeasure, TADA_DecimalPlaces) < 4))
 })
 
 test_that("No NA's in independent flag columns", {
-  today = Sys.Date()
-  twoago = as.character(today-2*365)
-  testdat = TADAdataRetrieval(statecode = "UT", startDate = twoago, characteristicName = c("Nitrate","Copper"), sampleMedia = "Water")
+  testdat = TADA_RandomTestingSet()
   testdat = TADA_ConvertResultUnits(testdat, transform = TRUE)
   
-  testdat = suppressWarnings(InvalidMethod(testdat, clean = FALSE, errorsonly=FALSE))
+  testdat = suppressWarnings(TADA_FlagMethod(testdat, clean = FALSE, errorsonly=FALSE))
   expect_false(any(is.na(testdat$TADA.AnalyticalMethod.Flag)))
   
-  testdat = AggregatedContinuousData(testdat, clean = FALSE, errorsonly=FALSE)
+  testdat = TADA_FindContinuousData(testdat, clean = FALSE, errorsonly=FALSE)
   expect_false(any(is.na(testdat$TADA.AggregatedContinuousData.Flag)))
   
-  testdat = AboveNationalWQXUpperThreshold(testdat, clean = FALSE, errorsonly=FALSE)
+  testdat = TADA_FlagAboveThreshold(testdat, clean = FALSE, errorsonly=FALSE)
   expect_false(any(is.na(testdat$TADA.ResultValueAboveUpperThreshold.Flag)))
   
-  testdat = BelowNationalWQXLowerThreshold(testdat, clean = FALSE, errorsonly=FALSE)
+  testdat = TADA_FlagBelowThreshold(testdat, clean = FALSE, errorsonly=FALSE)
   expect_false(any(is.na(testdat$TADA.ResultValueBelowLowerThreshold.Flag)))
   
-  testdat = QAPPDocAvailable(testdat, clean = FALSE)
-  expect_false(any(is.na(testdat$TADA.QAPPDocAvailable)))
+  testdat = TADA_FindQAPPDoc(testdat, clean = FALSE)
+  expect_false(any(is.na(testdat$TADA_FindQAPPDoc)))
   })
+
+test_that("TADA_FindPotentialDuplicates functions do not grow dataset",{
+  testdat = TADA_RandomTestingSet()
+  testdat1 = TADA_FindPotentialDuplicatesSingleOrg(testdat)
+  testdat2 = TADA_FindPotentialDuplicatesMultipleOrgs(testdat)
+  expect_true(dim(testdat)[1]==dim(testdat1)[1])
+  expect_true(dim(testdat)[1]==dim(testdat2)[1])
+})
