@@ -2,38 +2,46 @@
 % Please edit documentation in R/Figures.R
 \name{TADA_Boxplot}
 \alias{TADA_Boxplot}
-\title{Create Boxplot}
+\title{Create Boxplot(s)}
 \usage{
-TADA_Boxplot(
-  filtered.data,
-  id_col = c("TADA.CharacteristicName", "TADA.ComparableDataIdentifier")
-)
+TADA_Boxplot(.data, id_cols = c("TADA.ComparableDataIdentifier"))
 }
 \arguments{
-\item{filtered.data}{TADA data frame containing the data downloaded from the WQP, where
-each row represents a unique data record. Data frame must include the columns 'TADA.CharacteristicName' OR
-'TADA.ComparableDataIdentifier', 'TADA.ResultMeasureValue', and
-'TADA.ResultMeasure.MeasureUnitCode' to run this function. 'TADA.ComparableDataIdentifier' can
-be added to the data frame by running the function HarmonizeData(). The data frame
-must be filtered down to a single characteristic with a consistent unit or comparable data identifier to run this function.}
+\item{.data}{TADA data frame containing the data downloaded from the
+WQP, where each row represents a unique data record. Data frame must
+include the columns 'TADA.ComparableDataIdentifier',
+'TADA.ResultMeasureValue', and 'TADA.ResultMeasure.MeasureUnitCode' to run
+this function. 'TADA.ComparableDataIdentifier' can be added to the data
+frame by running the function HarmonizeData(). The user can include
+additional grouping columns in the id_col input. If more than one group
+exists in the dataset (i.e. two or more unique comparable data
+identifiers), the function creates a list of plots, where each list element
+name is a unique group identifier.}
 
-\item{id_col}{The column in the dataset used to identify the characteristic plotted in the boxplot. May be set to "TADA.CharacteristicName" or "TADA.ComparableDataIdentifier" if user would rather use a post-harmonization dataset that groups multiple TADA.CharacteristicNames into one.}
+\item{id_cols}{The column(S) in the dataset used to identify the unique groups
+to be plotted. Defaults to 'TADA.ComparableDataIdentifier'.}
 }
 \value{
-A plotly boxplot figure showing the median, 25th percentile, 75th percentile,
-upper fence, lower fence, minimum, maximum, and data outliers for the given
-characteristic or comparable data identifier.
+A list of plotly boxplot figures showing the median, 25th percentile,
+75th percentile, upper fence, lower fence, minimum, maximum, and data
+outliers for each unique data group.
 }
 \description{
-Create Boxplot
+Create Boxplot(s)
 }
 \examples{
+# Create boxplot using defaults, and view first plot in list:
 # Load example dataset:
 data(Data_TP_6Tribes_5y)
-# Data_TP_6Tribes_5y dataframe is clean, harmonized, and filtered
-# down to one Comparable Data Identifier
 
-# Create boxplot:
-TADA_Boxplot(Data_TP_6Tribes_5y, id_col = "TADA.ComparableDataIdentifier")
+Boxplot_output = TADA_Boxplot(Data_TP_6Tribes_5y, id_cols = "TADA.ComparableDataIdentifier")
+Boxplot_output[[1]]
+
+# Create boxplot with additional grouping columns and view first plot in list. In this example, we will group by both the comparable data identifier and the monitoring location type (e.g. stream, reservoir, canal, etc.)
+# Load example dataset:
+data(Data_Nutrients_Utah)
+
+Boxplot_output = TADA_Boxplot(Data_Nutrients_UT, id_cols = c("TADA.ComparableDataIdentifier","MonitoringLocationTypeName"))
+Boxplot_output[[1]]
 
 }

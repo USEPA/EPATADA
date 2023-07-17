@@ -1037,9 +1037,9 @@ TADA_FieldValuesPie(TADAProfileClean5, field = "SampleCollectionMethod.MethodNam
 
 ```
 
-Summarize results for a single comparable data group using the
+Now we will summarize results for a single comparable data group using the
 TADA.ComparableDataIdentifier (i.e., comparable characteristic, unit,
-speciation, and fraction combination)
+speciation, and fraction combination) using **TADA_Histogram** and **TADA_Boxplot**. Note that users may generate a list output of multiple plots if their input dataset has more than one unique comparable data group.
 
 ```{r ComparableDataIdentifier_stats_and_histogram, fig.width=6, fig.height=6, fig.fullwidth=TRUE}
 # review TADA.ComparableDataIdentifier
@@ -1054,7 +1054,9 @@ TADAProfileCleanTP_stats <- TADA::TADA_Stats(TADAProfileCleanTP)
 TADAProfileCleanTP_stats
 
 # generate a histogram
-TADA_Histogram(TADAProfileCleanTP, id_col = "TADA.ComparableDataIdentifier")
+TP_Histogram = TADA_Histogram(TADAProfileCleanTP, id_cols = "TADA.ComparableDataIdentifier")
+
+TP_Histogram
 
 ```
 
@@ -1062,7 +1064,9 @@ Generate interactive box plot.
 
 ```{r boxplot, fig.width=6, fig.height=6, fig.fullwidth=TRUE}
 
-TADA::TADA_Boxplot(TADAProfileCleanTP, id_col = "TADA.ComparableDataIdentifier")
+TP_Boxplot = TADA::TADA_Boxplot(TADAProfileCleanTP, id_cols = "TADA.ComparableDataIdentifier")
+
+TP_Boxplot
 
 ```
 
