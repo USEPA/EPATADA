@@ -21,13 +21,19 @@
 #' @export
 #' 
 #' @examples
+#' # Create boxplot using defaults, and view first plot in list:
 #' # Load example dataset:
 #' data(Data_TP_6Tribes_5y)
-#' # Data_TP_6Tribes_5y dataframe is clean, harmonized, and filtered
-#' # down to one Comparable Data Identifier
 #' 
-#' # Create boxplot:
-#' TADA_Boxplot(Data_TP_6Tribes_5y, id_col = "TADA.ComparableDataIdentifier")
+#' Boxplot_output = TADA_Boxplot(Data_TP_6Tribes_5y, id_cols = "TADA.ComparableDataIdentifier")
+#' Boxplot_output[[1]]
+#' 
+#' # Create boxplot with additional grouping columns and view first plot in list. In this example, we will group by both the comparable data identifier and the monitoring location type (e.g. stream, reservoir, canal, etc.)
+#' # Load example dataset:
+#' data(Data_Nutrients_Utah)
+#' 
+#' Boxplot_output = TADA_Boxplot(Data_Nutrients_UT, id_cols = c("TADA.ComparableDataIdentifier","MonitoringLocationTypeName"))
+#' Boxplot_output[[1]]
 #' 
 
 TADA_Boxplot <- function(.data, id_cols = c("TADA.ComparableDataIdentifier")) {
@@ -155,13 +161,20 @@ TADA_Boxplot <- function(.data, id_cols = c("TADA.ComparableDataIdentifier")) {
 #' @export
 #' 
 #' @examples
+#' # Create histogram using defaults, and view first plot in list:
 #' # Load example dataset:
 #' data(Data_TP_6Tribes_5y)
-#' # Data_TP_6Tribes_5y dataframe is clean, harmonized, and filtered
-#' # down to one Comparable Data Identifier
 #' 
-#' # Create histogram:
-#' TADA_Histogram(Data_TP_6Tribes_5y, id_cols = "TADA.ComparableDataIdentifier")
+#' Histogram_output = TADA_Histogram(Data_TP_6Tribes_5y, id_cols = "TADA.ComparableDataIdentifier")
+#' Histogram_output[[1]]
+#' 
+#' # Create histogram with additional grouping columns and view first plot in list. In this example, we will group by both the comparable data identifier and the monitoring location type (e.g. stream, reservoir, canal, etc.)
+#' # Load example dataset:
+#' data(Data_Nutrients_Utah)
+#' 
+#' Histogram_output = TADA_Histogram(Data_Nutrients_UT, id_cols = c("TADA.ComparableDataIdentifier","MonitoringLocationTypeName"))
+#' Histogram_output[[1]]
+#' 
 
 TADA_Histogram <- function(.data, id_cols = c("TADA.ComparableDataIdentifier")) {
   # check .data is data.frame
@@ -291,7 +304,7 @@ TADA_Histogram <- function(.data, id_cols = c("TADA.ComparableDataIdentifier")) 
 #' 
 #' @examples
 #' # Load example dataset:
-#' data("Data_Nutrients_UT.rda")
+#' data(Data_Nutrients_UT)
 #' 
 #' # Create map:
 #' TADA_OverviewMap(Data_Nutrients_UT)

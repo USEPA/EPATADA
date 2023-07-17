@@ -30,12 +30,18 @@ outliers for each unique data group.
 Create Boxplot(s)
 }
 \examples{
+# Create boxplot using defaults, and view first plot in list:
 # Load example dataset:
 data(Data_TP_6Tribes_5y)
-# Data_TP_6Tribes_5y dataframe is clean, harmonized, and filtered
-# down to one Comparable Data Identifier
 
-# Create boxplot:
-TADA_Boxplot(Data_TP_6Tribes_5y, id_col = "TADA.ComparableDataIdentifier")
+Boxplot_output = TADA_Boxplot(Data_TP_6Tribes_5y, id_cols = "TADA.ComparableDataIdentifier")
+Boxplot_output[[1]]
+
+# Create boxplot with additional grouping columns and view first plot in list. In this example, we will group by both the comparable data identifier and the monitoring location type (e.g. stream, reservoir, canal, etc.)
+# Load example dataset:
+data(Data_Nutrients_Utah)
+
+Boxplot_output = TADA_Boxplot(Data_Nutrients_UT, id_cols = c("TADA.ComparableDataIdentifier","MonitoringLocationTypeName"))
+Boxplot_output[[1]]
 
 }
