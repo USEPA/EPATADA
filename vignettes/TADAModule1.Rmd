@@ -571,14 +571,18 @@ TADAProfileClean3 <- TADA_FlagBelowThreshold(TADAProfileClean3, clean = TRUE)
 
 Sometimes multiple organizations submit the exact same data to Water
 Quality Portal (WQP), which can affect water quality analyses and
-assessments. This function checks for and identifies data that may be duplicates based on date, time, characteristic, result value, and a distance buffer. Each pair or group of potential duplicate rows is flagged with a
+assessments. Similarly, organizations occasionally submit the same data multiple times to the Portal. The following functions check for and identify data that may be duplicates based on date, time, characteristic, result value, and a distance buffer. Each pair or group of potential duplicate rows is flagged with a
 unique ID. For more information, review the documentation by entering
 the following into the console:
 
--   ?**TADA_FindPotentialDuplicates**
+-   ?**TADA_FindPotentialDuplicatesMultipleOrgs**
+-   ?**TADA_FindPotentialDuplicatesSingleOrg**
+
 
 ```{r PotentialDuplicateRowID}
-TADAProfileClean3 <- TADA_FindPotentialDuplicates(TADAProfileClean3, dist_buffer = 100)
+TADAProfileClean3 <- TADA_FindPotentialDuplicatesMultipleOrgs(TADAProfileClean3, dist_buffer = 100)
+
+TADAProfileClean3 <- TADA_FindPotentialDuplicatesSingleOrg(TADAProfileClean3, handling_method = 'pick_one')
 ```
 
 ## Review QAPP information

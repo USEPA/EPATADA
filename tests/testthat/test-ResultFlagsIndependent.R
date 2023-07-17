@@ -63,9 +63,7 @@ test_that("Imprecise_lessthan3decimaldigits works again", {
 })
 
 test_that("No NA's in independent flag columns", {
-  today = Sys.Date()
-  twoago = as.character(today-2*365)
-  testdat = TADA_DataRetrieval(statecode = "UT", startDate = twoago, characteristicName = c("Nitrate","Copper"), sampleMedia = "Water")
+  testdat = TADA_RandomTestingSet()
   testdat = TADA_ConvertResultUnits(testdat, transform = TRUE)
   
   testdat = suppressWarnings(TADA_FlagMethod(testdat, clean = FALSE, errorsonly=FALSE))
@@ -83,3 +81,11 @@ test_that("No NA's in independent flag columns", {
   testdat = TADA_FindQAPPDoc(testdat, clean = FALSE)
   expect_false(any(is.na(testdat$TADA_FindQAPPDoc)))
   })
+
+test_that("TADA_FindPotentialDuplicates functions do not grow dataset",{
+  testdat = TADA_RandomTestingSet()
+  testdat1 = TADA_FindPotentialDuplicatesSingleOrg(testdat)
+  testdat2 = TADA_FindPotentialDuplicatesMultipleOrgs(testdat)
+  expect_true(dim(testdat)[1]==dim(testdat1)[1])
+  expect_true(dim(testdat)[1]==dim(testdat2)[1])
+})
