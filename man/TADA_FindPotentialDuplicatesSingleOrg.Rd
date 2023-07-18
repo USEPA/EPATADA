@@ -35,3 +35,11 @@ the data analysis. Note, the dataset may contain data from multiple
 organizations: the function performs the same analysis on data from each
 organization.
 }
+\examples{
+# Load dataset
+data(Data_6Tribes_5y)
+# If duplicates across organizations exist, pick the result belonging to "21PA_WQX" if available.
+Data_6Tribes_5y_dups = TADA_FindPotentialDuplicatesSingleOrg(Data_6Tribes_5y, handling_method = 'pick_one')
+table(Data_6Tribes_5y_dups$TADA.ResultSelectedSingleOrg)
+
+}
