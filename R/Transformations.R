@@ -37,6 +37,7 @@ TADA_GetSynonymRef <- function(.data, download = FALSE) {
   
   # check .data has the required columns
   expected_cols <- c(
+    "TADA.ActivityMediaName",
     "TADA.CharacteristicName", "TADA.ResultSampleFractionText",
     "TADA.MethodSpecificationName",
     "TADA.ResultMeasure.MeasureUnitCode"
@@ -47,22 +48,22 @@ TADA_GetSynonymRef <- function(.data, download = FALSE) {
   # define raw harmonization table as an object
   harm.raw <- utils::read.csv(system.file("extdata", "HarmonizationTemplate.csv", package = "TADA"))
   
-  # columns to keep from .data if exist
-  harmonization_cols <- c(
-    "TADA.SampleFraction.Flag", "TADA.MethodSpeciation.Flag",
-    "TADA.ResultUnit.Flag", "TADA.AnalyticalMethod.Flag"
-  )
+  # # columns to keep from .data if exist
+  # harmonization_cols <- c(
+  #   "TADA.SampleFraction.Flag", "TADA.MethodSpeciation.Flag",
+  #   "TADA.ResultUnit.Flag", "TADA.AnalyticalMethod.Flag"
+  # )
+  # 
+  # # join to harmonization table
+  # # if WQX QA Char Val flags are in .data, include them in the join
+  # if (all(harmonization_cols %in% colnames(.data)) == TRUE) {
+  #   datcols = unique(.data[, c(expected_cols, harmonization_cols)])
+  #   # otherwise, execute the join with no additional columns
+  # } else {
+  #   datcols = unique(.data[, expected_cols])
+  # }
   
-  # join to harmonization table
-  # if WQX QA Char Val flags are in .data, include them in the join
-  if (all(harmonization_cols %in% colnames(.data)) == TRUE) {
-    datcols = unique(.data[, c(expected_cols, harmonization_cols)])
-    # otherwise, execute the join with no additional columns
-  } else {
-    datcols = unique(.data[, expected_cols])
-  }
-  
-  join.data <- merge(datcols,
+  join.data <- merge(unique(.data[, expected_cols]),
                      harm.raw,
                      # by.x = expected_cols,
                      # by.y = expected_cols, EDH - are these needed?
@@ -71,23 +72,7 @@ TADA_GetSynonymRef <- function(.data, download = FALSE) {
   # trim join.data to include only unique combos of char-frac-spec-unit
   unique.data <- join.data %>% dplyr::distinct()
   
-  unique.data$TADA.ComparableDataIdentifier = ifelse(is.na(unique.data$TADA.ComparableDataIdentifier),paste(unique.data$TADA.CharacteristicName,unique.data$TADA.ResultSampleFractionText, unique.data$TADA.MethodSpecificationName, unique.data$TADA.ResultMeasure.MeasureUnitCode,sep = "_"),unique.data$TADA.ComparableDataIdentifier)
-  
-  # reorder columns to match harm.raw
-  # include WQX QA flag columns, if they exist
-  if (all(harmonization_cols %in% colnames(.data)) == TRUE) {
-    # get .data column names
-    col.order <- colnames(harm.raw)
-    # add WQX.SampleFractionValidity column to the list
-    col.order <- append(col.order, harmonization_cols)
-    # reorder columns in flag.data
-    unique.data <- unique.data[, col.order]
-  } else {
-    unique.data <- unique.data[, colnames(harm.raw)]
-  }
-  
-  # remove extraneous characters in first column
-  colnames(unique.data)[1] <- gsub("^", "", colnames(unique.data)[1])
+  unique.data = unique.data[,names(harm.raw)]
   
   # if download = TRUE, download unique.data as a csv to the working directory
   if (download == TRUE) {
