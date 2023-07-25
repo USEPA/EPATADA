@@ -871,9 +871,9 @@ Double check to make sure no NA's or ND's remain.
 unique(TADAProfileClean5$TADA.ResultMeasureValueDataTypes.Flag)
 ```
 
-## Transform Characteristic, Speciation, and Unit values to TADA Standards
+## Convert synonymous characteristic, fraction, speciation, and unit values to a consistent convention based on user-defined/TADA standards
 
-The **TADA_HarmonizeRefTable** function generates a harmonization reference
+The **TADA_GetSynonymRef** function generates a synonym reference
 table that is specific to the input dataframe. Users can review how
 their input data relates to standard TADA values for the following
 elements:
@@ -886,26 +886,17 @@ elements:
 
 -   TADA.ResultMeasure.MeasureUnitCode
 
-The **TADA_HarmonizeSynonyms** function then compares the input dataframe to the
-TADA Harmonization Reference Table. The purpose of the function is to
-make similar data consistent and therefore easier to compare and
-analyze.
-
 Users can also edit the reference file to meet their needs if desired.
 The download argument can be used to save the harmonization file to your
 current working directory when download = TRUE, the default is download
 = FALSE.
 
-Optional outputs include:
-
-1.  the dataframe with Harmonization columns appended,
-
-2.  the dataframe with TADA.CharacteristicName,
-    TADA.ResultSampleFractionText, TADA.MethodSpecificationName, and
-    TADA.ResultMeasure.MeasureUnitCode converted to TADA standards or
-
-3.  the four fields converted with most Harmonization Reference Table
-    columns appended. Default is transform = TRUE and flag = TRUE.
+The **TADA_HarmonizeSynonyms** function then compares the input dataframe to the
+TADA Synonym Reference Table and makes conversions where target
+characteristics/fractions/speciations/units are provided. This function also
+appends a column called TADA.Harmonized.Flag, indicating which results had
+metadata changed/converted in this function. The purpose of this function is to
+make similar data consistent and therefore easier to compare and analyze.
 
 Here are some examples of how the TADA_HarmonizeSynonyms function can be used:
 
@@ -928,9 +919,7 @@ UniqueHarmonizationRef <- TADA_GetSynonymRef(TADAProfileClean5,
                                                 download = FALSE)
 
 TADAProfileClean5 <- TADA_HarmonizeSynonyms(TADAProfileClean5,
-                                    ref = UniqueHarmonizationRef,
-                                    transform = TRUE,
-                                    flag = TRUE)
+                                    ref = UniqueHarmonizationRef)
 ```
 
 ## Parameter Level Filtering
