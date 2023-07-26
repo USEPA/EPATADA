@@ -1056,7 +1056,7 @@ speciation, and fraction combination) using **TADA_Histogram** and **TADA_Boxplo
 unique(TADAProfileClean5$TADA.ComparableDataIdentifier)
 
 # filter dataframe to only "TOTAL PHOSPHORUS, MIXED FORMS"
-TADAProfileCleanTP <- dplyr::filter(TADAProfileClean5, TADA.ComparableDataIdentifier == "Total Phosphorus_as P_ug/L")
+TADAProfileCleanTP <- dplyr::filter(TADAProfileClean5, TADA.ComparableDataIdentifier == "TOTAL PHOSPHORUS, MIXED FORMS_UNFILTERED_AS P_UG/L")
 
 # generate stats table
 TADAProfileCleanTP_stats <- TADA::TADA_Stats(TADAProfileCleanTP)
