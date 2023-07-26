@@ -35,15 +35,20 @@ run TADA_FlagFraction, TADA_FlagSpeciation, TADA_FlagResultUnit, etc.).
 }
 \examples{
 # Load example dataset:
-data(Data_Nutrients_UT)
+data(Data_6Tribes_5y)
 
-# Create a synonym reference table for dataframe:
-CreateRefTable <- TADA_GetSynonymRef(Data_Nutrients_UT)
+# Create a synonym reference table for flagged, cleaned dataframe:
+Data_6Tribes_5yClean = subset(Data_6Tribes_5y, !is.na(Data_6Tribes_5y$TADA.ResultMeasureValue))
+Data_6Tribes_5yClean = TADA_FlagFraction(Data_6Tribes_5yClean, clean = TRUE)
+Data_6Tribes_5yClean = TADA_FlagResultUnit(Data_6Tribes_5yClean, clean = "invalid_only")
+Data_6Tribes_5yClean = TADA_FlagSpeciation(Data_6Tribes_5yClean, clean = "invalid_only")
+Data_6Tribes_5yClean = TADA_FlagMethod(Data_6Tribes_5yClean, clean = TRUE)
+CreateRefTable <- TADA_GetSynonymRef(Data_6Tribes_5yClean)
 
 # Create and download (to your working directory) a synonym reference
 # table for dataframe: 
 \dontrun{
-DownloadRefTable <- TADA_GetSynonymRef(Data_Nutrients_UT, download = TRUE)
+DownloadRefTable <- TADA_GetSynonymRef(Data_6Tribes_5yClean, download = TRUE)
 }
 
 }
