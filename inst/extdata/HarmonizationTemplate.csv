@@ -1,4 +1,4 @@
-﻿TADA.ActivityMediame,TADA.CharacteristicName,Target.TADA.Characteristicme,TADA.CharacteristicmeAssumptions,TADA.ResultSampleFractionText,Target.TADA.ResultSampleFractionText,TADA.Fractiossumptions,TADA.MethodSpecificationme,Target.TADA.MethodSpecificationme,TADA.Speciatiossumptions,Target.TADA.SpeciationConversionFactor,TADA.ResultMeasure.MeasureUnitCode,Target.TADA.ResultMeasure.MeasureUnitCode,Target.TADA.UnitConversionFactor,Summation,Rank
+﻿TADA.ActivityMediaName,TADA.CharacteristicName,Target.TADA.CharacteristicName,TADA.CharacteristicNameAssumptions,TADA.ResultSampleFractionText,Target.TADA.ResultSampleFractionText,TADA.Fractiossumptions,TADA.MethodSpecificationName,Target.TADA.MethodSpecificationName,TADA.SpeciationAssumptions,Target.TADA.SpeciationConversionFactor,TADA.ResultMeasure.MeasureUnitCode,Target.TADA.ResultMeasure.MeasureUnitCode,Target.TADA.UnitConversionFactor,Summation,Rank
 WATER,KJELDAHL NITROGEN,,,TOTAL,,,AS N,,,,UG/L,MG/L,0.001,TN,2
 WATER,NITROGEN KJELDAHL,KJELDAHL NITROGEN,Assumed Nitrogen Kjeldahl is equal to Kjeldahl Nitrogen,TOTAL,,,AS N,,,,UG/L,MG/L,0.001,TN,2
 WATER,AMMONIA-NITROGEN,,,TOTAL,,,AS N,,,,UG/L,MG/L,0.001,TN,2

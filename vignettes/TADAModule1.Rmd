@@ -58,7 +58,7 @@ First, install and load the "remotes" package specifying the repo. This
 is needed before installing TADA because it is only available on GitHub
 (not CRAN).
 
-```{r install_remotes, results = 'hide', message = FALSE, warning = FALSE}
+```{r install_remotes, eval = F, results = 'hide', message = FALSE, warning = FALSE}
 install.packages("remotes", 
                  repos = "http://cran.us.r-project.org")
 library(remotes)
@@ -69,7 +69,7 @@ dependencies will also be downloaded from CRAN with the TADA install,
 but the development version can be downloaded directly from GitHub if
 desired (un-comment).
 
-```{r install_TADA, results = 'hide', message = FALSE, warning = FALSE}
+```{r install_TADA, eval = F, results = 'hide', message = FALSE, warning = FALSE}
 # remotes::install_github("USGS-R/dataRetrieval", dependencies=TRUE)
 
 # if you experience any issues installing TADA, try un-commenting and running
@@ -77,11 +77,16 @@ desired (un-comment).
 # options(download.file.method = "wininet")
 
 remotes::install_github("USEPA/TADA", 
-                        ref = "harmonization_updates_eh",
+                        ref = "develop",
                         dependencies = TRUE)
-library(TADA)
-
 ```
+
+Finally, we will use the **library()** function to load the TADA package into the vignette environment.
+
+```{r library, results = 'hide', message = FALSE, warning = FALSE}
+library(TADA)
+```
+
 
 ## Retrieve WQP data
 
