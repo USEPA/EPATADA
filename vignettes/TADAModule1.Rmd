@@ -77,7 +77,7 @@ desired (un-comment).
 # options(download.file.method = "wininet")
 
 remotes::install_github("USEPA/TADA", 
-                        ref = "update-exported",
+                        ref = "harmonization_updates_eh",
                         dependencies = TRUE)
 library(TADA)
 
@@ -127,15 +127,22 @@ Data retrieval filters include:
 
 -   characteristicType
 
-Please be aware that the default TADA_DataRetrieval function
-automatically runs the TADA **TADA_AutoClean** and
-**TADA_ConvertSpecialChars** functions. Both are both required for
-subsequent functions within the TADA R package to run. As a general
-rule, TADA functions do not change any contents in the WQP-served
-columns (enter *?TADA_ConvertSpecialChars* and *?TADA_AutoClean* into
-the console for more details). Instead, they add new columns with the
-prefix "TADA." The following columns are numeric versions of their WQP
-origins:
+The default TADA_DataRetrieval function
+automatically runs the **TADA_AutoClean** function, which runs the following functions on the data retrieved from the WQP:
+
+-   **TADA_ConvertSpecialChars** - converts result value columns to numeric and flags non-numeric values that could not be converted.
+
+-   **TADA_ConvertResultUnits** - unifies result units for easier quality control and review
+
+-   **TADA_ConvertDepthUnits** - converts depth units to a consistent unit (meters).
+
+-   **TADA_IDCensoredData** - categorizes detection limit data and identifies mismatches in result detection condition and result detection limit type. 
+
+-   Other helpful actions - converts important text columns to all upper-case letters, removed true duplicates, and uses WQX format rules to harmonize specific NWIS metadata conventions (e.g. move characteristic speciation from the TADA.ResultMeasure.MeasureUnitCode column to the TADA.MethodSpecificationName column)
+
+As a general rule, TADA functions do not change any contents in the WQP-served
+columns. Instead, they add new columns with the prefix "TADA." The following
+columns are numeric versions of their WQP origins:
 
     -   TADA.ResultMeasureValue
 

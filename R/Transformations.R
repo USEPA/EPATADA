@@ -279,5 +279,4 @@ TADA_HarmonizeSynonyms <- function(.data, ref) {
   clean.data = TADA_CreateComparableID(clean.data)
   clean.data <- TADA_OrderCols(clean.data)
   return(clean.data)
-  
 }

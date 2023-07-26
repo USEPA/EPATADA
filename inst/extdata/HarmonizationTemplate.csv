@@ -1,62 +1,124 @@
-﻿TADA.ActivityMediaName,TADA.CharacteristicName,Target.TADA.CharacteristicName,TADA.CharacteristicNameAssumptions,TADA.ResultSampleFractionText,Target.TADA.ResultSampleFractionText,TADA.FractionAssumptions,TADA.MethodSpecificationName,Target.TADA.MethodSpecificationName,TADA.SpeciationAssumptions,Target.TADA.SpeciationConversionFactor,TADA.ResultMeasure.MeasureUnitCode,Target.TADA.ResultMeasure.MeasureUnitCode,Target.TADA.UnitConversionFactor,Summation,Rank
-WATER,KJELDAHL NITROGEN,KJELDAHL NITROGEN,,TOTAL,TOTAL,,AS N,AS N,,,UG/L,MG/L,0.001,TN,2
-WATER,NITROGEN KJELDAHL,KJELDAHL NITROGEN,Assumed Nitrogen Kjeldahl is equal to Kjeldahl Nitrogen,TOTAL,TOTAL,,AS N,AS N,,,UG/L,MG/L,0.001,TN,2
-WATER,AMMONIA-NITROGEN,AMMONIA-NITROGEN,,TOTAL,TOTAL,,AS N,AS N,,,UG/L,MG/L,0.001,TN,2
-WATER,AMMONIA-NITROGEN,AMMONIA-NITROGEN,,TOTAL,TOTAL,,,AS N,Assumed as N,,UG/L,MG/L,0.001,TN,2
-WATER,AMMONIA AND AMMONIUM,AMMONIA AND AMMONIUM,,TOTAL,TOTAL,,AS N,AS N,,,UG/L,MG/L,0.001,TN,2
-WATER,AMMONIA,AMMONIA,,TOTAL,TOTAL,,AS N,AS N,,,UG/L,MG/L,0.001,TN,2
-WATER,NITRATE,NITRATE,,DISSOLVED,FILTERABLE,Assumes Filterable equals Dissolved,AS N,AS N,,,UG/L,MG/L,0.001,TN,2
+﻿TADA.ActivityMediame,TADA.CharacteristicName,Target.TADA.Characteristicme,TADA.CharacteristicmeAssumptions,TADA.ResultSampleFractionText,Target.TADA.ResultSampleFractionText,TADA.Fractiossumptions,TADA.MethodSpecificationme,Target.TADA.MethodSpecificationme,TADA.Speciatiossumptions,Target.TADA.SpeciationConversionFactor,TADA.ResultMeasure.MeasureUnitCode,Target.TADA.ResultMeasure.MeasureUnitCode,Target.TADA.UnitConversionFactor,Summation,Rank
+WATER,KJELDAHL NITROGEN,,,TOTAL,,,AS N,,,,UG/L,MG/L,0.001,TN,2
+WATER,NITROGEN KJELDAHL,KJELDAHL NITROGEN,Assumed Nitrogen Kjeldahl is equal to Kjeldahl Nitrogen,TOTAL,,,AS N,,,,UG/L,MG/L,0.001,TN,2
+WATER,AMMONIA-NITROGEN,,,TOTAL,,,AS N,,,,UG/L,MG/L,0.001,TN,2
+WATER,AMMONIA-NITROGEN,,,TOTAL,,,,AS N,Assumed as N,,UG/L,MG/L,0.001,TN,2
+WATER,AMMONIA AND AMMONIUM,,,TOTAL,,,AS N,,,,UG/L,MG/L,0.001,TN,2
+WATER,AMMONIA,,,TOTAL,,,AS N,,,,UG/L,MG/L,0.001,TN,2
+WATER,NITRATE,,,DISSOLVED,FILTERABLE,Assumes Filterable equals Dissolved,AS N,,,,UG/L,MG/L,0.001,TN,2
 WATER,"NITROGEN, MIXED FORMS (NH3), (NH4), ORGANIC, (NO2) AND (NO3)","TOTAL NITROGEN, MIXED FORMS",,DISSOLVED,FILTERABLE,Assumes Filterable equals Dissolved,,AS N,Assumed as N,,UG/L,MG/L,0.001,TN,1
-WATER,NITROGEN KJELDAHL,KJELDAHL NITROGEN,,DISSOLVED,FILTERABLE,Assumes Filterable equals Dissolved,AS N,AS N,,,UG/L,MG/L,0.001,TN,2
-WATER,KJELDAHL NITROGEN,KJELDAHL NITROGEN,,DISSOLVED,FILTERABLE,Assumes Filterable equals Dissolved,AS N,AS N,,,UG/L,MG/L,0.001,TN,2
-WATER,AMMONIA,AMMONIA,,DISSOLVED,FILTERABLE,Assumes Filterable equals Dissolved,AS N,AS N,,,UG/L,MG/L,0.001,TN,2
-WATER,AMMONIA,AMMONIA,,FILTERABLE,FILTERABLE,Assumes Filterable equals Dissolved,AS N,AS N,,,UG/L,MG/L,0.001,TN,2
-WATER,AMMONIUM,AMMONIUM,,FILTERABLE,FILTERABLE,Assumes Filterable equals Dissolved,AS NH4,AS N,Convert NH4 to N,0.776,UG/L,MG/L,0.001,TN,2
-WATER,AMMONIUM    ,AMMONIUM    ,,FILTERABLE,FILTERABLE,Assumes Filterable equals Dissolved,AS N,AS N,,,UG/L,MG/L,0.001,TN,2
-WATER,INORGANIC NITROGEN (NITRATE & NITRITE),INORGANIC NITROGEN,,DISSOLVED,FILTERABLE,Assumes Filterable equals Dissolved,AS N,AS N,,,UG/L,MG/L,0.001,TN,2
-WATER,AMMONIA AND AMMONIUM,AMMONIA AND AMMONIUM,,DISSOLVED,FILTERABLE,Assumes Filterable equals Dissolved,AS N,AS N,,,UG/L,MG/L,0.001,TN,2
-WATER,NITRATE,NITRATE,,TOTAL,TOTAL,,AS N,AS N,,,UG/L,MG/L,0.001,TN,2
-WATER,NITRITE,NITRITE,,DISSOLVED,FILTERABLE,Assumes Filterable equals Dissolved,AS N,AS N,,,UG/L,MG/L,0.001,TN,2
-WATER,ORGANIC NITROGEN,ORGANIC NITROGEN,,DISSOLVED,FILTERABLE,Assumes Filterable equals Dissolved,,AS N,Assumed as N,,UG/L,MG/L,0.001,TN,2
-WATER,NITROGEN,NITROGEN,,DISSOLVED,FILTERABLE,Assumes Filterable equals Dissolved,,AS N,Assumed as N,,UG/L,MG/L,0.001,TN,2
+WATER,NITROGEN KJELDAHL,KJELDAHL NITROGEN,,DISSOLVED,FILTERABLE,Assumes Filterable equals Dissolved,AS N,,,,UG/L,MG/L,0.001,TN,2
+WATER,KJELDAHL NITROGEN,,,DISSOLVED,FILTERABLE,Assumes Filterable equals Dissolved,AS N,,,,UG/L,MG/L,0.001,TN,2
+WATER,AMMONIA,,,DISSOLVED,FILTERABLE,Assumes Filterable equals Dissolved,AS N,,,,UG/L,MG/L,0.001,TN,2
+WATER,AMMONIA,,,FILTERABLE,,Assumes Filterable equals Dissolved,AS N,,,,UG/L,MG/L,0.001,TN,2
+WATER,AMMONIUM,,,FILTERABLE,,Assumes Filterable equals Dissolved,AS NH4,AS N,Convert NH4 to N,0.776,UG/L,MG/L,0.001,TN,2
+WATER,AMMONIUM    ,,,FILTERABLE,,Assumes Filterable equals Dissolved,AS N,,,,UG/L,MG/L,0.001,TN,2
+WATER,INORGANIC NITROGEN (NITRATE & NITRITE),INORGANIC NITROGEN,,DISSOLVED,FILTERABLE,Assumes Filterable equals Dissolved,AS N,,,,UG/L,MG/L,0.001,TN,2
+WATER,AMMONIA AND AMMONIUM,,,DISSOLVED,FILTERABLE,Assumes Filterable equals Dissolved,AS N,,,,UG/L,MG/L,0.001,TN,2
+WATER,NITRATE,,,TOTAL,,,AS N,,,,UG/L,MG/L,0.001,TN,2
+WATER,NITRITE,,,DISSOLVED,FILTERABLE,Assumes Filterable equals Dissolved,AS N,,,,UG/L,MG/L,0.001,TN,2
+WATER,ORGANIC NITROGEN,,,DISSOLVED,FILTERABLE,Assumes Filterable equals Dissolved,,AS N,Assumed as N,,UG/L,MG/L,0.001,TN,2
+WATER,NITROGEN,,,DISSOLVED,FILTERABLE,Assumes Filterable equals Dissolved,,AS N,Assumed as N,,UG/L,MG/L,0.001,TN,2
 WATER,"NITROGEN, MIXED FORMS (NH3), (NH4), ORGANIC, (NO2) AND (NO3)","TOTAL NITROGEN, MIXED FORMS","Assumed synonymous with ""Total Nitrogen, mixed forms""",TOTAL,,"Assumed ""Total"" means Total N is derived from multiple N subspecies",,AS N,Assumed as N,,UG/L,MG/L,0.001,TN,1
-WATER,NITROGEN,NITROGEN,,SUSPENDED,SUSPENDED,,,AS N,Assumed as N,,UG/L,MG/L,0.001,TN,2
-WATER,PHOSPHORUS,"TOTAL PHOSPHORUS, MIXED FORMS","Assumed synonymous with ""Total Phosphorus, mixed forms""",TOTAL,,"Assumed ""Total"" was derived from multiple P subspecies",AS P,AS P,,,UG/L,MG/L,0.001,TP,1
+WATER,NITROGEN,,,SUSPENDED,,,,AS N,Assumed as N,,UG/L,MG/L,0.001,TN,2
+WATER,PHOSPHORUS,"TOTAL PHOSPHORUS, MIXED FORMS","Assumed synonymous with ""Total Phosphorus, mixed forms""",TOTAL,,"Assumed ""Total"" was derived from multiple P subspecies",AS P,,,,UG/L,MG/L,0.001,TP,1
 WATER,PHOSPHORUS,"TOTAL PHOSPHORUS, MIXED FORMS","Assumed synonymous with ""Total Phosphorus, mixed forms""",TOTAL,,"Assumed ""Total"" was derived from multiple P subspecies",,AS P,Assumed as P,,UG/L,MG/L,0.001,TP,1
 WATER,PHOSPHORUS,"TOTAL PHOSPHORUS, MIXED FORMS","Assumed synonymous with ""Total Phosphorus, mixed forms""",,TOTAL,"Assumed ""Total"" was derived from multiple P subspecies",,AS P,Assumed as P,,UG/L,MG/L,0.001,TP,1
-WATER,PHOSPHATE-PHOSPHORUS,"TOTAL PHOSPHORUS, MIXED FORMS","Assumed synonymous with ""Total Phosphorus, mixed forms""",TOTAL,,"Assumed ""Total"" was derived from multiple P subspecies",AS P,AS P,,,UG/L,MG/L,0.001,TP,1
+WATER,PHOSPHATE-PHOSPHORUS,"TOTAL PHOSPHORUS, MIXED FORMS","Assumed synonymous with ""Total Phosphorus, mixed forms""",TOTAL,,"Assumed ""Total"" was derived from multiple P subspecies",AS P,,,,UG/L,MG/L,0.001,TP,1
 WATER,PHOSPHATE-PHOSPHORUS,"TOTAL PHOSPHORUS, MIXED FORMS","Assumed synonymous with ""Total Phosphorus, mixed forms""",TOTAL,,"Assumed ""Total"" was derived from multiple P subspecies",,AS P,Assumed as P,,UG/L,MG/L,0.001,TP,1
-WATER,PHOSPHORUS,"TOTAL PHOSPHORUS, MIXED FORMS","Assumed synonymous with ""Total Phosphorus, mixed forms""",DISSOLVED,FILTERABLE,Assumes Filterable equals Dissolved,AS P,AS P,,,UG/L,MG/L,0.001,TP,1
-WATER,PHOSPHORUS,"TOTAL PHOSPHORUS, MIXED FORMS","Assumed synonymous with ""Total Phosphorus, mixed forms""",,TOTAL,"Assumed ""Total"" was derived from multiple P subspecies",AS P,AS P,,,UG/L,MG/L,0.001,TP,1
+WATER,PHOSPHORUS,"TOTAL PHOSPHORUS, MIXED FORMS","Assumed synonymous with ""Total Phosphorus, mixed forms""",DISSOLVED,FILTERABLE,Assumes Filterable equals Dissolved,AS P,,,,UG/L,MG/L,0.001,TP,1
+WATER,PHOSPHORUS,"TOTAL PHOSPHORUS, MIXED FORMS","Assumed synonymous with ""Total Phosphorus, mixed forms""",,TOTAL,"Assumed ""Total"" was derived from multiple P subspecies",AS P,,,,UG/L,MG/L,0.001,TP,1
 WATER,PHOSPHATE-PHOSPHORUS,PHOSPHATE,"Assumes ""Phosphate-Phosphorus” and ""Phosphate"" are synonymous",DISSOLVED,FILTERABLE,Assumes Filterable equals Dissolved,,AS P,Assumed as P,,UG/L,MG/L,0.001,TP,2
-WATER,PHOSPHATE-PHOSPHORUS,PHOSPHATE,"Assumes ""Phosphate-Phosphorus” and ""Phosphate"" are synonymous",DISSOLVED,FILTERABLE,Assumes Filterable equals Dissolved,AS P,AS P,,,UG/L,MG/L,0.001,TP,2
+WATER,PHOSPHATE-PHOSPHORUS,PHOSPHATE,"Assumes ""Phosphate-Phosphorus” and ""Phosphate"" are synonymous",DISSOLVED,FILTERABLE,Assumes Filterable equals Dissolved,AS P,,,,UG/L,MG/L,0.001,TP,2
 WATER,PHOSPHATE-PHOSPHORUS,PHOSPHATE,"Assumes ""Phosphate-Phosphorus” and ""Phosphate"" are synonymous",,,,,AS P,Assumed as P,,UG/L,MG/L,0.001,TP,2
-WATER,PHOSPHATE-PHOSPHORUS,PHOSPHATE,"Assumes ""Phosphate-Phosphorus” and ""Phosphate"" are synonymous",,,,AS P,AS P,,,UG/L,MG/L,0.001,TP,2
-WATER,PHOSPHATE,PHOSPHATE,,DISSOLVED,FILTERABLE,Assumes Filterable equals Dissolved,AS P,AS P,,,UG/L,MG/L,0.001,TP,2
-WATER,PHOSPHATE,PHOSPHATE,,DISSOLVED,FILTERABLE,Assumes Filterable equals Dissolved,,AS P,Assumed as P,,UG/L,MG/L,0.001,TP,2
-WATER,ORTHOPHOSPHATE,ORTHOPHOSPHATE,,TOTAL,TOTAL,"Assumed ""Total"" was derived from multiple P subspecies",AS P,AS P,,,UG/L,MG/L,0.001,TP,2
-WATER,ORTHOPHOSPHATE,ORTHOPHOSPHATE,,DISSOLVED,FILTERABLE,Assumes Filterable equals Dissolved,,AS P,Assumed as P,,UG/L,MG/L,0.001,TP,2
-WATER,ORTHOPHOSPHATE,ORTHOPHOSPHATE,,DISSOLVED,FILTERABLE,Assumes Filterable equals Dissolved,AS P,AS P,,,UG/L,MG/L,0.001,TP,2
-WATER,ORTHOPHOSPHATE,ORTHOPHOSPHATE,,,,,AS P,AS P,,,UG/L,MG/L,0.001,TP,2
-WATER,"TOTAL NITROGEN, MIXED FORMS","TOTAL NITROGEN, MIXED FORMS","Assumed synonymous with ""Total Nitrogen, mixed forms""",TOTAL,,,AS N,AS N,,,UG/L,MG/L,0.001,TN,1
-WATER,"TOTAL PHOSPHORUS, MIXED FORMS","TOTAL PHOSPHORUS, MIXED FORMS","Assumed synonymous with ""Total Phosphorus, mixed forms""",TOTAL,,,AS P,AS P,,,UG/L,MG/L,0.001,TP,1
-WATER,"INORGANIC NITROGEN (AMMONIA, NITRATE AND NITRITE)",INORGANIC NITROGEN,,DISSOLVED,FILTERABLE,Assumes Filterable equals Dissolved,AS N,AS N,,,UG/L,MG/L,0.001,TN,2
-WATER,AMMONIA,AMMONIA,,FILTERABLE,FILTERABLE,Assumes Filterable equals Dissolved,AS NH3,AS N,Convert NH3 to N,0.822,UG/L,MG/L,0.001,TN,2
-WATER,AMMONIUM,AMMONIUM,,DISSOLVED,FILTERABLE,Assumes Filterable equals Dissolved,AS NH4,AS N,Convert NH4 to N,0.776,UG/L,MG/L,0.001,TN,2
-WATER,NITRITE,NITRITE,,DISSOLVED,FILTERABLE,Assumes Filterable equals Dissolved,AS NO2,AS N,Convert NO2 to N,0.304,UG/L,MG/L,0.001,TN,2
-WATER,ORTHOPHOSPHATE,ORTHOPHOSPHATE,,FILTERABLE,FILTERABLE,Assumes Filterable equals Dissolved,AS PO4,AS P,Convert PO4 to P,0.326,UG/L,MG/L,0.001,TP,2
-WATER,"TOTAL NITROGEN, MIXED FORMS","TOTAL NITROGEN, MIXED FORMS","Assumed synonymous with ""Total Nitrogen, mixed forms""","FILTERED, FIELD",TOTAL,,AS N,AS N,,,UG/L,MG/L,0.001,TN,1
-WATER,"TOTAL NITROGEN, MIXED FORMS","TOTAL NITROGEN, MIXED FORMS",,,TOTAL,Assumed Total N is derived from multiple N subspecies,,AS N,Assumed as N,,UG/KG,MG/L,0.001,TN,1
-WATER,"TOTAL NITROGEN, MIXED FORMS","TOTAL NITROGEN, MIXED FORMS",,,TOTAL,Assumed Total N is derived from multiple N subspecies,,AS N,Assumed as N,,UG/L,MG/L,0.001,TN,1
-WATER,"TOTAL NITROGEN, MIXED FORMS (NH3), (NH4), ORGANIC, (NO2) AND (NO3)","TOTAL NITROGEN, MIXED FORMS",,,TOTAL,Assumed Total N is derived from multiple N subspecies,AS N,AS N,,,UG/L,MG/L,0.001,TN,1
-WATER,"TOTAL NITROGEN, MIXED FORMS","TOTAL NITROGEN, MIXED FORMS",,,TOTAL,Assumed Total N is derived from multiple N subspecies,AS N,AS N,,,UG/KG,MG/L,0.001,TN,1
-WATER,"TOTAL NITROGEN, MIXED FORMS","TOTAL NITROGEN, MIXED FORMS",,,TOTAL,Assumed Total N is derived from multiple N subspecies,AS N,AS N,,,UG/L,MG/L,0.001,TN,1
-WATER,TOTAL NITROGEN/TOTAL PHOSPHORUS RATIO (TN:TP),TOTAL NITROGEN/TOTAL PHOSPHORUS RATIO (TN:TP),,,,,,,,,NONE,NONE,,,
-WATER,NUTRIENT-NITROGEN,"TOTAL NITROGEN, MIXED FORMS","Assumed synonymous with ""Total Nitrogen, mixed forms""",,TOTAL,Assumed Total N is derived from multiple N subspecies,AS N,AS N,,,UG/L,MG/L,0.001,TN,1
-WATER,TOTAL PARTICULATE NITROGEN,"TOTAL NITROGEN, MIXED FORMS","Assumed synonymous with ""Total Nitrogen, mixed forms""",,TOTAL,Assumed Total N is derived from multiple N subspecies,AS N,AS N,,,UG/L,MG/L,0.001,TN,1
-WATER,NITROGEN,"TOTAL NITROGEN, MIXED FORMS","Assumed synonymous with ""Total Nitrogen, mixed forms""",TOTAL,TOTAL,"Assumed ""Total"" means Total N is derived from multiple N subspecies",AS N,AS N,,,UG/L,MG/L,0.001,TN,1
-WATER,DISSOLVED OXYGEN (DO),DISSOLVED OXYGEN (DO),,,,,,,,,UG/L,MG/L,0.001,,
-WATER,NITRATE,NITRATE,,DISSOLVED,FILTERABLE,Assumes Filterable equals Dissolved,AS NO3,AS N,Convert NO3 to N,0.225,UG/L,MG/L,0.001,TN,2
-WATER,NITRATE,NITRATE,,FILTERABLE,FILTERABLE,Assumes Filterable equals Dissolved,AS NO3,AS N,Convert NO3 to N,0.225,UG/L,MG/L,0.001,TN,2
-WATER,NITROGEN,"TOTAL NITROGEN, MIXED FORMS","Assumed synonymous with ""Total Nitrogen, mixed forms""",TOTAL,TOTAL,"Assumed ""Total"" means Total N is derived from multiple N subspecies",,,,,UG/L,MG/L,0.001,TN,1
+WATER,PHOSPHATE-PHOSPHORUS,PHOSPHATE,"Assumes ""Phosphate-Phosphorus” and ""Phosphate"" are synonymous",,,,AS P,,,,UG/L,MG/L,0.001,TP,2
+WATER,PHOSPHATE,,,DISSOLVED,FILTERABLE,Assumes Filterable equals Dissolved,AS P,,,,UG/L,MG/L,0.001,TP,2
+WATER,PHOSPHATE,,,DISSOLVED,FILTERABLE,Assumes Filterable equals Dissolved,,AS P,Assumed as P,,UG/L,MG/L,0.001,TP,2
+WATER,ORTHOPHOSPHATE,,,TOTAL,,"Assumed ""Total"" was derived from multiple P subspecies",AS P,,,,UG/L,MG/L,0.001,TP,2
+WATER,ORTHOPHOSPHATE,,,DISSOLVED,FILTERABLE,Assumes Filterable equals Dissolved,,AS P,Assumed as P,,UG/L,MG/L,0.001,TP,2
+WATER,ORTHOPHOSPHATE,,,DISSOLVED,FILTERABLE,Assumes Filterable equals Dissolved,AS P,,,,UG/L,MG/L,0.001,TP,2
+WATER,ORTHOPHOSPHATE,,,,,,AS P,,,,UG/L,MG/L,0.001,TP,2
+WATER,"TOTAL NITROGEN, MIXED FORMS",,"Assumed synonymous with ""Total Nitrogen, mixed forms""",TOTAL,,,AS N,,,,UG/L,MG/L,0.001,TN,1
+WATER,"TOTAL PHOSPHORUS, MIXED FORMS",,"Assumed synonymous with ""Total Phosphorus, mixed forms""",TOTAL,,,AS P,,,,UG/L,MG/L,0.001,TP,1
+WATER,"INORGANIC NITROGEN (AMMONIA, NITRATE AND NITRITE)",INORGANIC NITROGEN,,DISSOLVED,FILTERABLE,Assumes Filterable equals Dissolved,AS N,,,,UG/L,MG/L,0.001,TN,2
+WATER,AMMONIA,,,FILTERABLE,,Assumes Filterable equals Dissolved,AS NH3,AS N,Convert NH3 to N,0.822,UG/L,MG/L,0.001,TN,2
+WATER,AMMONIUM,,,DISSOLVED,FILTERABLE,Assumes Filterable equals Dissolved,AS NH4,AS N,Convert NH4 to N,0.776,UG/L,MG/L,0.001,TN,2
+WATER,NITRITE,,,DISSOLVED,FILTERABLE,Assumes Filterable equals Dissolved,AS NO2,AS N,Convert NO2 to N,0.304,UG/L,MG/L,0.001,TN,2
+WATER,ORTHOPHOSPHATE,,,FILTERABLE,,Assumes Filterable equals Dissolved,AS PO4,AS P,Convert PO4 to P,0.326,UG/L,MG/L,0.001,TP,2
+WATER,"TOTAL NITROGEN, MIXED FORMS",,"Assumed synonymous with ""Total Nitrogen, mixed forms""","FILTERED, FIELD",TOTAL,,AS N,,,,UG/L,MG/L,0.001,TN,1
+WATER,"TOTAL NITROGEN, MIXED FORMS",,,,TOTAL,Assumed Total N is derived from multiple N subspecies,,AS N,Assumed as N,,UG/KG,MG/L,0.001,TN,1
+WATER,"TOTAL NITROGEN, MIXED FORMS",,,,TOTAL,Assumed Total N is derived from multiple N subspecies,,AS N,Assumed as N,,UG/L,MG/L,0.001,TN,1
+WATER,"TOTAL NITROGEN, MIXED FORMS (NH3), (NH4), ORGANIC, (NO2) AND (NO3)","TOTAL NITROGEN, MIXED FORMS",,,TOTAL,Assumed Total N is derived from multiple N subspecies,AS N,,,,UG/L,MG/L,0.001,TN,1
+WATER,"TOTAL NITROGEN, MIXED FORMS",,,,TOTAL,Assumed Total N is derived from multiple N subspecies,AS N,,,,UG/KG,MG/L,0.001,TN,1
+WATER,"TOTAL NITROGEN, MIXED FORMS",,,,TOTAL,Assumed Total N is derived from multiple N subspecies,AS N,,,,UG/L,MG/L,0.001,TN,1
+WATER,TOTAL NITROGEN/TOTAL PHOSPHORUS RATIO (TN:TP),,,,,,,,,,NONE,NONE,,,
+WATER,NUTRIENT-NITROGEN,"TOTAL NITROGEN, MIXED FORMS","Assumed synonymous with ""Total Nitrogen, mixed forms""",,TOTAL,Assumed Total N is derived from multiple N subspecies,AS N,,,,UG/L,MG/L,0.001,TN,1
+WATER,TOTAL PARTICULATE NITROGEN,"TOTAL NITROGEN, MIXED FORMS","Assumed synonymous with ""Total Nitrogen, mixed forms""",,TOTAL,Assumed Total N is derived from multiple N subspecies,AS N,,,,UG/L,MG/L,0.001,TN,1
+WATER,NITROGEN,"TOTAL NITROGEN, MIXED FORMS","Assumed synonymous with ""Total Nitrogen, mixed forms""",TOTAL,,"Assumed ""Total"" means Total N is derived from multiple N subspecies",AS N,,,,UG/L,MG/L,0.001,TN,1
+WATER,DISSOLVED OXYGEN (DO),,,,,,,,,,UG/L,MG/L,0.001,,
+WATER,NITRATE,,,DISSOLVED,FILTERABLE,Assumes Filterable equals Dissolved,AS NO3,AS N,Convert NO3 to N,0.225,UG/L,MG/L,0.001,TN,2
+WATER,NITRATE,,,FILTERABLE,,Assumes Filterable equals Dissolved,AS NO3,AS N,Convert NO3 to N,0.225,UG/L,MG/L,0.001,TN,2
+WATER,NITROGEN,"TOTAL NITROGEN, MIXED FORMS","Assumed synonymous with ""Total Nitrogen, mixed forms""",TOTAL,,"Assumed ""Total"" means Total N is derived from multiple N subspecies",,,,,UG/L,MG/L,0.001,TN,1
 WATER,NITROGEN,"TOTAL NITROGEN, MIXED FORMS",,,TOTAL,Assumed Total N is derived from multiple N subspecies,,AS N,Assumed as N,,G,MG/L,1000,TN,1
+WATER,"TEMPERATURE, WATER",,,TOTAL,NONE,,,NONE,,,DEG C,,,,
+WATER,"TEMPERATURE, WATER",,,,NONE,,,NONE,,,DEG C,,,,
+WATER,TEMPERATURE,"TEMPERATURE, WATER",,,NONE,,,NONE,,,DEG C,,,,
+WATER,"TEMPERATURE, WATER",,,NONE,,,,NONE,,,DEG C,,,,
+WATER,"TEMPERATURE, WATER",,,,NONE,,NONE,,,,DEG C,,,,
+WATER,"TEMPERATURE, WATER",,,TOTAL,NONE,,NONE,,,,DEG C,,,,
+WATER,"TEMPERATURE, WATER, DEG F","TEMPERATURE, WATER",,,NONE,,,NONE,,,DEG C,,,,
+WATER,DISSOLVED OXYGEN (DO),,,DISSOLVED,,,,NONE,,,UG/L,MG/L,0.001,,
+WATER,DISSOLVED OXYGEN (DO),,,TOTAL,DISSOLVED,,,NONE,,,UG/L,MG/L,0.001,,
+WATER,DISSOLVED OXYGEN (DO),,,,DISSOLVED,,,NONE,,,G,,,,
+WATER,DISSOLVED OXYGEN (DO),,,,DISSOLVED,,,NONE,,,UG/L,MG/L,0.001,,
+WATER,DISSOLVED OXYGEN SATURATION,,,TOTAL,DISSOLVED,,,NONE,,,%,,,,
+WATER,DISSOLVED OXYGEN SATURATION,,,,DISSOLVED,,,NONE,,,%,,,,
+WATER,DISSOLVED OXYGEN (DO),,,,DISSOLVED,,,NONE,,,UG/KG,,,,
+WATER,DISSOLVED OXYGEN (DO),,,DISSOLVED,,,NONE,,,,UG/L,MG/L,0.001,,
+WATER,DISSOLVED OXYGEN SATURATION,,,,DISSOLVED,,,NONE,,,UG/L,MG/L,0.001,,
+WATER,DISSOLVED OXYGEN (DO),,,DISSOLVED,,,AS O2,NONE,,,UG/L,MG/L,0.001,,
+WATER,DISSOLVED OXYGEN (DO),,,TOTAL,DISSOLVED,,NONE,,,,UG/L,MG/L,0.001,,
+WATER,DISSOLVED OXYGEN SATURATION,,,TOTAL,DISSOLVED,,NONE,,,,%,,,,
+WATER,DISSOLVED OXYGEN (DO),,,,DISSOLVED,,AS O2,NONE,,,UG/L,MG/L,0.001,,
+WATER,DISSOLVED OXYGEN,DISSOLVED OXYGEN (DO),,TOTAL,DISSOLVED,,,NONE,,,UG/L,MG/L,0.001,,
+WATER,PH,,,DISSOLVED,NONE,,,NONE,,,NONE,,,,
+WATER,PH,,,DISSOLVED,NONE,,,NONE,,,STD UNITS,NONE,,,
+WATER,PH,,,TOTAL,NONE,,,NONE,,,NONE,,,,
+WATER,PH,,,TOTAL,NONE,,,NONE,,,STD UNITS,NONE,,,
+WATER,PH,,,,NONE,,,NONE,,,NONE,,,,
+WATER,PH,,,TOTAL,NONE,,NONE,,,,NONE,,,,
+WATER,PH,,,,NONE,,NONE,,,,NONE,,,,
+WATER,TURBIDITY,,,TOTAL,,,,NONE,,,FTU,,,,
+WATER,TURBIDITY,,,TOTAL,,,,NONE,,,NTRU,,,,
+WATER,TURBIDITY,,,,TOTAL,,,NONE,,,FTU,,,,
+WATER,TURBIDITY,,,TOTAL,,,,NONE,,,FNU,,,,
+WATER,TURBIDITY,,,,TOTAL,,,NONE,,,FNU,,,,
+WATER,TURBIDITY,,,TOTAL,,,,NONE,,,CM,,,,
+WATER,TURBIDITY,,,,TOTAL,,,NONE,,,NM,,,,
+WATER,TURBIDITY,,,TOTAL,,,NONE,,,,FTU,,,,
+WATER,TURBIDITY,,,"FILTERED, FIELD",TOTAL,,,NONE,,,FTU,,,,
+WATER,ESCHERICHIA COLI,,,TOTAL,NONE,,,NONE,,,#/100ML,MPN/100ML,1,,
+WATER,ESCHERICHIA COLI,,,,NONE,,,NONE,,,CFU/100ML,,,,
+WATER,ESCHERICHIA COLI,,,TOTAL,NONE,,,NONE,,,CFU/100ML,,,,
+WATER,ESCHERICHIA COLI,,,,NONE,,,NONE,,,#/100ML,MPN/100ML,1,,
+WATER,ESCHERICHIA COLI,,,,NONE,,,NONE,,,MPN/100 ML,MPN/100ML,1,,
+WATER,ESCHERICHIA COLI,,,,NONE,,,NONE,,,MPN/100ML,,,,
+WATER,ESCHERICHIA COLI,,,TOTAL,NONE,,,NONE,,,MPN/100ML,,,,
+WATER,ESCHERICHIA COLI,,,,NONE,,NONE,,,,MPN/100ML,,,,
+WATER,ESCHERICHIA COLI,,,,NONE,,,NONE,,,CCE/100ML,,,,
+WATER,ESCHERICHIA COLI,,,FILTERABLE,NONE,,,NONE,,,CFU,,,,
+WATER,ESCHERICHIA COLI,,,TOTAL,NONE,,NONE,,,,CFU/100ML,,,,
+WATER,FECAL COLIFORM,,,TOTAL,NONE,,,,,,#/100ML,MPN/100ML,1,,
+WATER,FECAL COLIFORM,,,,NONE,,,,,,CFU/100ML,,,,
+WATER,FECAL COLIFORM,,,TOTAL,NONE,,,,,,CFU/100ML,,,,
+WATER,FECAL COLIFORM,,,FILTERABLE,NONE,,,,,,CFU,,,,
+WATER,CHLOROPHYLL A,,,TOTAL,,,,NONE,,,UG/L,,,,
+WATER,CHLOROPHYLL A,,,,TOTAL,,,NONE,,,UG/L,,,,
+WATER,CHLOROPHYLL A (PROBE RELATIVE FLUORESCENCE),CHLOROPHYLL A,,TOTAL,,,,NONE,,,UG/L,,,,
+WATER,CHLOROPHYLL A,,,NON-FILTERABLE (PARTICLE),TOTAL,,,NONE,,,UG/L,,,,
+WATER,CHLOROPHYLL A (PROBE RELATIVE FLUORESCENCE),CHLOROPHYLL A,,,TOTAL,,,NONE,,,UG/L,,,,
+WATER,CHLOROPHYLL A,,,NON-FILTERABLE (PARTICLE),TOTAL,,NONE,,,,UG/L,,,,
+WATER,CHLOROPHYLL A,,,TOTAL,TOTAL,,NONE,,,,UG/L,,,,
+WATER,CHLOROPHYLL A,,,"FILTERED, LAB",TOTAL,,,NONE,,,UG/L,,,,
+WATER,CHLOROPHYLL A (PROBE),CHLOROPHYLL A,,,TOTAL,,,NONE,,,UG/L,,,,
+WATER,AMMONIA,,,DISSOLVED,,,,AS N,,,UG/L,,,,
