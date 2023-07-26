@@ -81,6 +81,15 @@ remotes::install_github("USEPA/TADA",
                         dependencies = TRUE)
 ```
 
+```{r for-development-only, echo = F}
+# when developing the package, update this chunk to the current repository, so it runs with all of the new features prior to a PR to develop
+
+remotes::install_github("USEPA/TADA", 
+                        ref = "harmonization_updates_eh",
+                        dependencies = TRUE)
+
+```
+
 Finally, we will use the **library()** function to load the TADA package into the vignette environment.
 
 ```{r library, results = 'hide', message = FALSE, warning = FALSE}
