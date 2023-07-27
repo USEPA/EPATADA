@@ -35,8 +35,7 @@ WATER,"TOTAL PHOSPHORUS, MIXED FORMS",NA,NA,UNFILTERED,TOTAL,Assumes Unfiltered 
 WATER,"TOTAL PHOSPHORUS, MIXED FORMS",NA,NA,UNFILTERED,TOTAL,Assumes Unfiltered is equivalent to Total,NA,AS P,Assumed as P,NA,UG/L,NA,NA,TP,2
 WATER,"TOTAL PHOSPHORUS, MIXED FORMS",NA,NA,UNFILTERED,TOTAL,Assumes Unfiltered is equivalent to Total,AS PO4,AS P,Convert PO4 to P,0.326,UG/L,NA,NA,TP,2
 WATER,NITROGEN,"TOTAL NITROGEN, MIXED FORMS","Assumed synonymous with ""Total Nitrogen, mixed forms""",TOTAL,NA,Assumes Total fraction means Total N derived from multiple N subspecies,AS N,NA,NA,NA,UG/L,MG/L,0.001,TN,1
-WATER,NITROGEN,"TOTAL NITROGEN, MIXED FORMS","Assumed synonymous with ""Total Nitrogen, mixed forms""",TOTAL,NA,Assumes Total fraction means Total N derived from multiple N subspecies,NA,NA,NA,NA,UG/L,MG/L,0.001,TN,1
-WATER,NITROGEN,"TOTAL NITROGEN, MIXED FORMS","Assumed synonymous with ""Total Nitrogen, mixed forms""",TOTAL,NA,Assumes Total fraction means Total N derived from multiple N subspecies,NA,AS N,Assumed as N,NA,UG/L,MG/L,1000,TN,1
+WATER,NITROGEN,"TOTAL NITROGEN, MIXED FORMS","Assumed synonymous with ""Total Nitrogen, mixed forms""",TOTAL,NA,Assumes Total fraction means Total N derived from multiple N subspecies,NA,AS N,Assumed as N,NA,UG/L,MG/L,0.001,TN,1
 WATER,"NITROGEN, MIXED FORMS (NH3), (NH4), ORGANIC, (NO2) AND (NO3)","TOTAL NITROGEN, MIXED FORMS","Assumed synonymous with ""Total Nitrogen, mixed forms""",TOTAL,NA,Assumes Total fraction means Total N derived from multiple N subspecies,NA,AS N,Assumed as N,NA,UG/L,MG/L,0.001,TN,1
 WATER,"NITROGEN, MIXED FORMS (NH3), (NH4), ORGANIC, (NO2) AND (NO3)","TOTAL NITROGEN, MIXED FORMS","Assumed synonymous with ""Total Nitrogen, mixed forms""",TOTAL,NA,Assumes Total fraction means Total N derived from multiple N subspecies,AS NO3,AS N,Convert NO3 to N,0.225,UG/L,MG/L,0.001,TN,1
 WATER,"NITROGEN, MIXED FORMS (NH3), (NH4), ORGANIC, (NO2) AND (NO3)","TOTAL NITROGEN, MIXED FORMS","Assumed synonymous with ""Total Nitrogen, mixed forms""",TOTAL,NA,Assumes Total fraction means Total N derived from multiple N subspecies,AS N,NA,NA,NA,UG/L,MG/L,0.001,TN,1
@@ -87,7 +86,6 @@ WATER,CHLOROPHYLL A (PROBE RELATIVE FLUORESCENCE),CHLOROPHYLL A,NA,TOTAL,NA,NA,N
 WATER,CHLOROPHYLL A (PROBE RELATIVE FLUORESCENCE),CHLOROPHYLL A,NA,NA,TOTAL,NA,NA,NONE,NA,NA,UG/L,NA,NA,NA,NA
 WATER,CHLOROPHYLL A (PROBE),CHLOROPHYLL A,NA,NA,TOTAL,NA,NA,NONE,NA,NA,UG/L,NA,NA,NA,NA
 WATER,DISSOLVED OXYGEN,DISSOLVED OXYGEN (DO),NA,TOTAL,DISSOLVED,NA,NA,NONE,NA,NA,UG/L,MG/L,0.001,NA,NA
-WATER,DISSOLVED OXYGEN (DO),NA,NA,NA,NA,NA,NA,NA,NA,NA,UG/L,MG/L,0.001,NA,NA
 WATER,DISSOLVED OXYGEN (DO),NA,NA,DISSOLVED,FILTERED,Assumes Dissolved is equivalent to Filtered,NA,NONE,NA,NA,UG/L,MG/L,0.001,NA,NA
 WATER,DISSOLVED OXYGEN (DO),NA,NA,TOTAL,DISSOLVED,NA,NA,NONE,NA,NA,UG/L,MG/L,0.001,NA,NA
 WATER,DISSOLVED OXYGEN (DO),NA,NA,NA,DISSOLVED,NA,NA,NONE,NA,NA,G,NA,NA,NA,NA
@@ -153,7 +151,6 @@ WATER,NITROGEN,NA,NA,SUSPENDED,NA,NA,NA,AS N,Assumed as N,NA,UG/L,MG/L,0.001,TN,
 WATER,NITROGEN,NA,NA,DISSOLVED,FILTERED,Assumes Dissolved is equivalent to Filtered,AS N,NA,NA,NA,UG/L,MG/L,0.001,TN,2
 WATER,NITROGEN KJELDAHL,KJELDAHL NITROGEN,Assumed Nitrogen Kjeldahl is equal to Kjeldahl Nitrogen,TOTAL,NA,NA,AS N,NA,NA,NA,UG/L,MG/L,0.001,TN,2
 WATER,NITROGEN KJELDAHL,KJELDAHL NITROGEN,NA,DISSOLVED,FILTERED,Assumes Dissolved is equivalent to Filtered,AS N,NA,NA,NA,UG/L,MG/L,0.001,TN,2
-WATER,"NITROGEN, MIXED FORMS (NH3), (NH4), ORGANIC, (NO2) AND (NO3)","TOTAL NITROGEN, MIXED FORMS",NA,DISSOLVED,FILTERED,Assumes Dissolved is equivalent to Filtered,NA,AS N,Assumed as N,NA,UG/L,MG/L,0.001,TN,1
 WATER,"NITROGEN, MIXED FORMS (NH3), (NH4), ORGANIC, (NO2) AND (NO3)","TOTAL NITROGEN, MIXED FORMS","Assumed synonymous with ""Total Nitrogen, mixed forms""",DISSOLVED,FILTERED,Assumes Dissolved is equivalent to Filtered,NA,AS N,Assumed as N,NA,UG/L,MG/L,0.001,TN,1
 WATER,ORGANIC NITROGEN,NA,NA,DISSOLVED,FILTERED,Assumes Dissolved is equivalent to Filtered,NA,AS N,Assumed as N,NA,UG/L,MG/L,0.001,TN,2
 WATER,ORGANIC NITROGEN,NA,NA,TOTAL,NA,NA,NA,AS N,Assumed as N,NA,UG/L,MG/L,0.001,TN,2
