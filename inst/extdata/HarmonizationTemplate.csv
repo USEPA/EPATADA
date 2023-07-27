@@ -38,7 +38,6 @@ WATER,NITROGEN,"TOTAL NITROGEN, MIXED FORMS","Assumed synonymous with ""Total Ni
 WATER,NITROGEN,"TOTAL NITROGEN, MIXED FORMS","Assumed synonymous with ""Total Nitrogen, mixed forms""",TOTAL,NA,Assumes Total fraction means Total N derived from multiple N subspecies,NA,NA,NA,NA,UG/L,MG/L,0.001,TN,1
 WATER,NITROGEN,"TOTAL NITROGEN, MIXED FORMS","Assumed synonymous with ""Total Nitrogen, mixed forms""",TOTAL,NA,Assumes Total fraction means Total N derived from multiple N subspecies,NA,AS N,Assumed as N,NA,UG/L,MG/L,1000,TN,1
 WATER,"NITROGEN, MIXED FORMS (NH3), (NH4), ORGANIC, (NO2) AND (NO3)","TOTAL NITROGEN, MIXED FORMS","Assumed synonymous with ""Total Nitrogen, mixed forms""",TOTAL,NA,Assumes Total fraction means Total N derived from multiple N subspecies,NA,AS N,Assumed as N,NA,UG/L,MG/L,0.001,TN,1
-WATER,"NITROGEN, MIXED FORMS (NH3), (NH4), ORGANIC, (NO2) AND (NO3)","TOTAL NITROGEN, MIXED FORMS","Assumed synonymous with ""Total Nitrogen, mixed forms""",TOTAL,NA,Assumes Total fraction means Total N derived from multiple N subspecies,NA,AS N,Assumed as N,NA,UG/L,MG/L,0.001,TN,1
 WATER,"NITROGEN, MIXED FORMS (NH3), (NH4), ORGANIC, (NO2) AND (NO3)","TOTAL NITROGEN, MIXED FORMS","Assumed synonymous with ""Total Nitrogen, mixed forms""",TOTAL,NA,Assumes Total fraction means Total N derived from multiple N subspecies,AS NO3,AS N,Convert NO3 to N,0.225,UG/L,MG/L,0.001,TN,1
 WATER,"NITROGEN, MIXED FORMS (NH3), (NH4), ORGANIC, (NO2) AND (NO3)","TOTAL NITROGEN, MIXED FORMS","Assumed synonymous with ""Total Nitrogen, mixed forms""",TOTAL,NA,Assumes Total fraction means Total N derived from multiple N subspecies,AS N,NA,NA,NA,UG/L,MG/L,0.001,TN,1
 WATER,ORTHOPHOSPHATE,NA,NA,TOTAL,NA,Assumes Total fraction means Total P derived from multiple P subspecies,AS P,NA,NA,NA,UG/L,NA,NA,TP,2
@@ -152,8 +151,6 @@ WATER,NITRITE,NA,NA,DISSOLVED,FILTERED,Assumes Dissolved is equivalent to Filter
 WATER,NITROGEN,NA,NA,DISSOLVED,FILTERED,Assumes Dissolved is equivalent to Filtered,NA,AS N,Assumed as N,NA,UG/L,MG/L,0.001,TN,2
 WATER,NITROGEN,NA,NA,SUSPENDED,NA,NA,NA,AS N,Assumed as N,NA,UG/L,MG/L,0.001,TN,2
 WATER,NITROGEN,NA,NA,DISSOLVED,FILTERED,Assumes Dissolved is equivalent to Filtered,AS N,NA,NA,NA,UG/L,MG/L,0.001,TN,2
-WATER,NITROGEN,NA,NA,SUSPENDED,NA,NA,NA,AS N,Assumed as N,NA,UG/L,MG/L,0.001,TN,2
-WATER,NITROGEN,NA,NA,DISSOLVED,FILTERED,Assumes Dissolved is equivalent to Filtered,NA,AS N,Assumed as N,NA,UG/L,MG/L,0.001,TN,2
 WATER,NITROGEN KJELDAHL,KJELDAHL NITROGEN,Assumed Nitrogen Kjeldahl is equal to Kjeldahl Nitrogen,TOTAL,NA,NA,AS N,NA,NA,NA,UG/L,MG/L,0.001,TN,2
 WATER,NITROGEN KJELDAHL,KJELDAHL NITROGEN,NA,DISSOLVED,FILTERED,Assumes Dissolved is equivalent to Filtered,AS N,NA,NA,NA,UG/L,MG/L,0.001,TN,2
 WATER,"NITROGEN, MIXED FORMS (NH3), (NH4), ORGANIC, (NO2) AND (NO3)","TOTAL NITROGEN, MIXED FORMS",NA,DISSOLVED,FILTERED,Assumes Dissolved is equivalent to Filtered,NA,AS N,Assumed as N,NA,UG/L,MG/L,0.001,TN,1
