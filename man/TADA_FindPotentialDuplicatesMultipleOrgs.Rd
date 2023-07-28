@@ -38,3 +38,12 @@ flags as potential duplicates. However, it is at the discretion of the data user
 to determine if the data records are unique or represent overlap that could cause
 issues in the data analysis.
 }
+\examples{
+# Load dataset
+dat = TADA_DataRetrieval(startDate = "2022-09-01", endDate = "2023-05-01", statecode = "PA", sampleMedia = "Water")
+unique(dat$OrganizationIdentifier)
+# If duplicates across organizations exist, pick the result belonging to "21PA_WQX" if available.
+dat1 = TADA_FindPotentialDuplicatesMultipleOrgs(dat, dist_buffer = 100, org_hierarchy = c("21PA_WQX"))
+table(dat1$TADA.ResultSelectedMultipleOrgs)
+
+}

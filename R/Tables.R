@@ -123,7 +123,7 @@ TADA_Stats <- function(.data, group_cols=c("TADA.ComparableDataIdentifier")){
       Measurement_Count >= 50 ~ as.character("Maximum Likelihood Estimation"), # 50%-80% censored, 50 or more measurements
       Measurement_Count < 50 ~ as.character("Robust Regression Order Statistics"))) # 50%-80% censored, less than 50 measures
   
- StatsTable = StatsTable[,!names(StatsTable)%in%c("Non_Detect_Pct","Non_Detect_Lvls","Over_Detect_Pct")]
+ # StatsTable = StatsTable[,!names(StatsTable)%in%c("Non_Detect_Pct","Non_Detect_Lvls","Over_Detect_Pct")]
   
   return(StatsTable)
 }

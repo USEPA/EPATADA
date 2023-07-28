@@ -528,7 +528,7 @@ TADA_OrderCols <- function(.data){
            "WQXConversionFactor.ResultDepthHeightMeasure",
            "TADA.TADA.MultipleOrgDuplicate",
            "TADA.TADA.MultipleOrgDupGroupID",
-           "TADA.ResultSelectedMultipleOrg",
+           "TADA.ResultSelectedMultipleOrgs",
            "TADA.SingleOrgDupGroupID",
            "TADA.ResultSelectedSingleOrg",
            "TADA.Harmonized.Flag",
