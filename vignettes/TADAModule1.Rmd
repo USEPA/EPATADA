@@ -1057,7 +1057,7 @@ speciation, and fraction combination) using **TADA_Histogram** and **TADA_Boxplo
 unique(TADAProfileClean5$TADA.ComparableDataIdentifier)
 
 # filter dataframe to only "TOTAL PHOSPHORUS, MIXED FORMS"
-TADAProfileCleanTP <- dplyr::filter(TADAProfileClean5, TADA.ComparableDataIdentifier == "TOTAL PHOSPHORUS, MIXED FORMS_TOTAL_AS P_UG/L")
+TADAProfileCleanTP <- dplyr::filter(TADAProfileClean5, TADA.ComparableDataIdentifier == "TOTAL PHOSPHORUS, MIXED FORMS_UNFILTERED_AS P_UG/L")
 
 # generate stats table
 TADAProfileCleanTP_stats <- TADA::TADA_Stats(TADAProfileCleanTP)
@@ -1065,8 +1065,9 @@ TADAProfileCleanTP_stats <- TADA::TADA_Stats(TADAProfileCleanTP)
 TADAProfileCleanTP_stats
 
 # generate a histogram
-TP_Histogram = TADA_Histogram(TADAProfileCleanTP, id_cols = "TADA.ComparableDataIdentifier")
+TP_Histogram <- TADA_Histogram(TADAProfileCleanTP, id_cols = "TADA.ComparableDataIdentifier")
 
+# view histogram
 TP_Histogram
 
 ```
