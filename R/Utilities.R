@@ -712,8 +712,8 @@ TADA_FindNearbySites <- function(.data, dist_buffer=100){
     groups_wide = tidyr::pivot_wider(groups_wide, id_cols = "MonitoringLocationIdentifier",names_from = "GroupCount", names_prefix = "TADA.SiteGroup",values_from = "TADA.SiteGroupID")
     # merge data to site groupings
     .data = merge(.data, groups_wide, all.x = TRUE)
-  }else{ # if no groups, give a TADA.SiteGroup1 column filled with NA
-    .data$TADA.SiteGroup1 = NA
+  }else{ # if no groups, give a TADA.NearbySiteGroups column filled with NA
+    .data$TADA.NearbySiteGroups = "No nearby sites"
     print("No nearby sites detected using input buffer distance.")
   }
   
@@ -722,9 +722,11 @@ TADA_FindNearbySites <- function(.data, dist_buffer=100){
   
   .data = .data %>% tidyr::unite(col = TADA.NearbySiteGroups, dplyr::all_of(grpcols), sep = ", ", na.rm = TRUE)
   .data$TADA.NearbySiteGroups[.data$TADA.NearbySiteGroups==""] = "No nearby sites"
-  
+
   # order columns
-  .data = TADA_OrderCols(.data)
+  if("ResultIdentifier"%in%names(.data)){
+    .data = TADA_OrderCols(.data)
+  }
   
   # # relocate site group columns to TADA area
   # .data = .data%>%dplyr::relocate(dplyr::all_of(grpcols), .after="TADA.LongitudeMeasure")
@@ -753,3 +755,36 @@ TADA_RandomTestingSet <- function(number_of_days = 90){
   
   return(dat)
 }
+
+#' Aggregate multiple measurements to a min, max, or mean
+#'
+#' This function groups TADA data by user-defined columns and aggregates the
+#' TADA.ResultMeasureValue to a daily minimum, maximum, or average value.
+#'
+#' @param .data A TADA dataframe
+#' @param grouping_cols The column names used to group the data
+#' @param agg_fun The aggregation function used on the grouped data. This can
+#'   either be 'min', 'max', or 'mean'. Defaults to 'max'.
+#'
+#' @return A TADA dataframe with aggregated values combined into one row. If the
+#'   agg_fun is 'min' or 'max', the function will select the row matching the
+#'   aggregation condition. If the agg_fun is 'mean', the function will select a
+#'   random row from the aggregated rows to represent the metadata associated
+#'   with the mean value.
+#'   
+#' @export
+#' 
+
+TADA_AggregateDailyMeasurements <- function(.data, grouping_cols = c("ActivityStartDate","MonitoringLocationIdentifier","TADA.CharacteristicName","TADA.ResultSampleFractionText","TADA.MethodSpecificationName","TADA.ResultMeasure.MeasureUnitCode"), agg_fun = 'max'){
+  
+  
+  
+  
+  
+  
+  
+}
+  
+  
+  
+  

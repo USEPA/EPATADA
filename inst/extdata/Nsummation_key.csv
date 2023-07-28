@@ -1,0 +1,96 @@
+TADA.ActivityMediaName,TADA.CharacteristicName,TADA.ResultSampleFractionText,SummationFractionNotes,TADA.MethodSpecificationName,SummationSpeciationNotes,SummationSpeciationConversionFactor,TADA.ResultMeasure.MeasureUnitCode,SummationName,SummationRank,SummationNote
+WATER,AMMONIA,TOTAL RECOVERABLE,Assumes Total Recoverable is equivalent to Total.,AS N,NA,NA,UG/L,AMMON,1,
+WATER,AMMONIA,UNFILTERED,Assumes Unfiltered is equivalent to Total,AS N,NA,NA,UG/L,AMMON,1,
+WATER,AMMONIA,TOTAL,NA,AS N,NA,NA,UG/L,AMMON,1,
+WATER,AMMONIA-NITROGEN,TOTAL,NA,AS N,NA,NA,UG/L,AMMON,1,
+WATER,AMMONIA-NITROGEN,TOTAL,NA,NA,Assumed as N,NA,UG/L,AMMON,2,
+WATER,AMMONIA,TOTAL,NA,AS NH3,Convert NH3 to N,0.822,UG/L,AMMON,5,
+WATER,AMMONIA,FILTERABLE,Assume filtered/filterable equals dissolved fraction,AS N,NA,NA,UG/L,AMMON,9,
+WATER,AMMONIA,DISSOLVED,,AS N,NA,NA,UG/L,AMMON,9,
+WATER,AMMONIA AND AMMONIUM,TOTAL,NA,AS N,NA,NA,UG/L,AMMON,10,
+WATER,AMMONIUM,UNFILTERED,Assumes Unfiltered is equivalent to Total,AS N,NA,NA,UG/L,AMMON,11,
+WATER,AMMONIA AND AMMONIUM,TOTAL,NA,AS NH4,Convert NH4 to N,0.776,UG/L,AMMON,11,"Not explicity included in Nutrient Aggregation Sheet, but given rank anyway."
+WATER,AMMONIUM,"FILTERED, LAB",Assume filtered/filterable equals dissolved fraction,AS N,NA,NA,UG/L,AMMON,12,"Not explicity included in Nutrient Aggregation Sheet, but given rank anyway."
+WATER,AMMONIA,FILTERABLE,Assume filtered/filterable equals dissolved fraction,AS NH3,Convert NH3 to N,0.822,UG/L,AMMON,9,
+WATER,AMMONIUM,FILTERABLE,Assume filtered/filterable equals dissolved fraction,AS NH4,Convert NH4 to N,0.776,UG/L,AMMON,12,"Not explicity included in Nutrient Aggregation Sheet, but given rank anyway."
+WATER,AMMONIUM    ,FILTERABLE,Assume filtered/filterable equals dissolved fraction,AS N,NA,NA,UG/L,AMMON,12,"Not explicity included in Nutrient Aggregation Sheet, but given rank anyway."
+WATER,AMMONIA,DISSOLVED,,AS NH4,Convert NH4 to N,0.776,UG/L,AMMON,12,"Not explicity included in Nutrient Aggregation Sheet, but given rank anyway."
+WATER,AMMONIA AND AMMONIUM,DISSOLVED,,AS N,NA,NA,UG/L,AMMON,12,
+WATER,AMMONIA AND AMMONIUM,DISSOLVED,,AS NH4,Convert NH4 to N,0.776,UG/L,AMMON,12,"Not explicity included in Nutrient Aggregation Sheet, but given rank anyway."
+WATER,AMMONIUM,DISSOLVED,,AS NH4,Convert NH4 to N,0.776,UG/L,AMMON,12,"Not explicity included in Nutrient Aggregation Sheet, but given rank anyway."
+WATER,AMMONIUM,DISSOLVED,,AS N,NA,NA,UG/L,AMMON,12,"Not explicity included in Nutrient Aggregation Sheet, but given rank anyway."
+WATER,AMMONIA,DISSOLVED,,NA,NA,NA,UG/L,AMMON,,"Not used, speciation not reported and could not be inferred"
+WATER,AMMONIA,TOTAL,NA,NA,NA,NA,UG/L,AMMON,,"Not used, speciation not reported and could not be inferred"
+WATER,AMMONIA,TOTAL SOLUBLE,Assume filtered/filterable equals dissolved fraction,NA,NA,NA,UG/L,AMMON,,"Not used, speciation not reported and could not be inferred"
+WATER,AMMONIUM,TOTAL,NA,NA,NA,NA,UG/L,AMMON,,"Not used, speciation not reported and could not be inferred"
+WATER,NITRATE,UNFILTERED,Assumes Unfiltered is equivalent to Total,AS N,NA,NA,UG/L,NITRATE,1,
+WATER,NITRATE,TOTAL,NA,AS N,NA,NA,UG/L,NITRATE,1,
+WATER,NITRATE,UNFILTERED,Assumes Unfiltered is equivalent to Total,AS NO3,Convert NO3 to N,0.225,UG/L,NITRATE,2,
+WATER,NITRATE,TOTAL,NA,AS NO3,Convert NO3 to N,0.225,UG/L,NITRATE,2,
+WATER,"NITROGEN, MIXED FORMS (NH3), (NH4), ORGANIC, (NO2) AND (NO3)",TOTAL,Assumes Total fraction means Total N derived from multiple N subspecies,AS NO3,Convert NO3 to N,0.225,UG/L,NITRATE,3,
+WATER,NITRATE,"FILTERED, FIELD",Assume filtered/filterable equals dissolved fraction,AS N,NA,NA,UG/L,NITRATE,5,"Not explicity included in Nutrient Aggregation Sheet, but given rank anyway."
+WATER,NITRATE,"FILTERED, LAB",Assume filtered/filterable equals dissolved fraction,AS N,NA,NA,UG/L,NITRATE,5,"Not explicity included in Nutrient Aggregation Sheet, but given rank anyway."
+WATER,NITRATE,FILTERABLE,Assume filtered/filterable equals dissolved fraction,AS NO3,Convert NO3 to N,0.225,UG/L,NITRATE,5,"Not explicity included in Nutrient Aggregation Sheet, but given rank anyway."
+WATER,NITRATE,DISSOLVED,,AS N,NA,NA,UG/L,NITRATE,5,"Not explicity included in Nutrient Aggregation Sheet, but given rank anyway."
+WATER,NITRATE,DISSOLVED,,AS NO3,Convert NO3 to N,0.225,UG/L,NITRATE,5,"Not explicity included in Nutrient Aggregation Sheet, but given rank anyway."
+WATER,NITRATE,TOTAL,NA,NA,NA,NA,UG/L,NITRATE,,"Not used, speciation not reported and could not be inferred"
+WATER,NITRATE,TOTAL,NA,NONE,NA,NA,UG/L,NITRATE,,"Not used, speciation not reported and could not be inferred"
+WATER,NITRATE,DISSOLVED,,NA,NA,NA,UG/L,NITRATE,,"Not used, speciation not reported and could not be inferred"
+WATER,NITRATE + NITRITE,UNFILTERED,Assumes Unfiltered is equivalent to Total,AS N,NA,NA,UG/L,NITRATE + NITRITE,1,
+WATER,INORGANIC NITROGEN (NITRATE AND NITRITE),TOTAL,NA,AS N,NA,NA,UG/L,NITRATE + NITRITE,1,
+WATER,NITRATE + NITRITE,TOTAL,NA,AS N,NA,NA,UG/L,NITRATE + NITRITE,1,
+WATER,NITRATE + NITRITE,"FILTERED, LAB",Assume filtered/filterable equals dissolved fraction,AS N,NA,NA,UG/L,NITRATE + NITRITE,3,
+WATER,INORGANIC NITROGEN (NITRATE & NITRITE),DISSOLVED,,AS N,NA,NA,UG/L,NITRATE + NITRITE,3,
+WATER,INORGANIC NITROGEN (NITRATE AND NITRITE),DISSOLVED,,AS N,NA,NA,UG/L,NITRATE + NITRITE,3,
+WATER,NITRATE + NITRITE,DISSOLVED,,AS N,NA,NA,UG/L,NITRATE + NITRITE,3,
+WATER,NITRATE + NITRITE,FILTERABLE,Assume filtered/filterable equals dissolved fraction,AS N,NA,NA,UG/L,NITRATE + NITRITE,3,
+WATER,NITRATE + NITRITE,UNFILTERED,Assumes Unfiltered is equivalent to Total,NONE,NA,NA,UG/L,NITRATE + NITRITE,,"Not used, speciation not reported and could not be inferred"
+WATER,NITRATE + NITRITE,DISSOLVED,,NA,NA,NA,UG/L,NITRATE + NITRITE,,"Not used, speciation not reported and could not be inferred"
+WATER,NITRATE + NITRITE,TOTAL,NA,NA,NA,NA,UG/L,NITRATE + NITRITE,,"Not used, speciation not reported and could not be inferred"
+WATER,NITRATE + NITRITE,NONE,NA,NONE,NA,NA,UG/L,NITRATE + NITRITE,,"Not used, speciation not reported and could not be inferred"
+WATER,NITRATE + NITRITE,TOTAL,NA,NONE,NA,NA,UG/L,NITRATE + NITRITE,,"Not used, speciation not reported and could not be inferred"
+WATER,NITRITE,UNFILTERED,Assumes Unfiltered is equivalent to Total,AS N,NA,NA,UG/L,NITRITE,1,
+WATER,NITRITE,TOTAL,NA,AS N,NA,NA,UG/L,NITRITE,1,
+WATER,NITRITE,UNFILTERED,Assumes Unfiltered is equivalent to Total,NONE,NA,NA,UG/L,NITRITE,,"Not used, speciation not reported and could not be inferred"
+WATER,NITRITE,"FILTERED, FIELD",Assume filtered/filterable equals dissolved fraction,AS N,NA,NA,UG/L,NITRITE,3,
+WATER,NITRITE,"FILTERED, LAB",Assume filtered/filterable equals dissolved fraction,AS N,NA,NA,UG/L,NITRITE,3,
+WATER,NITRITE,DISSOLVED,,AS N,NA,NA,UG/L,NITRITE,3,
+WATER,NITRITE,TOTAL,NA,AS NO2,Convert NO2 to N,0.304,UG/L,NITRITE,4,
+WATER,NITRITE,DISSOLVED,,AS NO2,Convert NO2 to N,0.304,UG/L,NITRITE,5,"Not explicity included in Nutrient Aggregation Sheet, but given rank anyway."
+WATER,NITRITE,TOTAL,NA,NA,NA,NA,UG/L,NITRITE,,"Not used, speciation not reported and could not be inferred"
+WATER,NITRITE,DISSOLVED,,NA,NA,NA,UG/L,NITRITE,,"Not used, speciation not reported and could not be inferred"
+WATER,TOTAL PARTICULATE NITROGEN,NA,Assumes Total fraction means Total N derived from multiple N subspecies,AS N,NA,NA,UG/L,ORG N,1,Assume synonymous with Pcode 00605 in Nutrient Aggregation Sheet
+WATER,ORGANIC NITROGEN,TOTAL,NA,NA,Assumed as N,NA,UG/L,ORG N,1,
+WATER,ORGANIC NITROGEN,DISSOLVED,,NA,Assumed as N,NA,UG/L,ORG N,2,
+WATER,ORGANIC NITROGEN,NON-FILTERABLE (PARTICLE),NA,AS N,NA,NA,UG/L,ORG N,3,"Not explicity included in Nutrient Aggregation Sheet, but given rank anyway."
+WATER,PARTICULATE ORGANIC NITROGEN AND PARTICULATE NITROGEN,NONE,NA,NA,Assumed as N,NA,UG/L,ORG N,3,"Not explicity included in Nutrient Aggregation Sheet, but given rank anyway."
+WATER,KJELDAHL NITROGEN,UNFILTERED,Assumes Unfiltered is equivalent to Total,AS N,NA,NA,UG/L,TKN,1,
+WATER,TOTAL KJELDAHL NITROGEN (ORGANIC N & NH3),UNFILTERED,Assumes Unfiltered is equivalent to Total,AS N,NA,NA,UG/L,TKN,1,
+WATER,KJELDAHL NITROGEN,TOTAL,NA,AS N,NA,NA,UG/L,TKN,1,
+WATER,NITROGEN KJELDAHL,TOTAL,NA,AS N,NA,NA,UG/L,TKN,1,
+WATER,TOTAL KJELDAHL NITROGEN,UNFILTERED,Assumes Unfiltered is equivalent to Total,NA,Assumed as N,NA,UG/L,TKN,2,
+WATER,KJELDAHL NITROGEN,TOTAL,NA,NA,Assumed as N,NA,UG/L,TKN,2,
+WATER,KJELDAHL NITROGEN,TOTAL,NA,NONE,Assumed as N,NA,UG/L,TKN,2,
+WATER,TOTAL KJELDAHL NITROGEN (ORGANIC N & NH3),TOTAL,NA,NA,Assumed as N,NA,UG/L,TKN,2,
+WATER,KJELDAHL NITROGEN,NONE,NA,NONE,Assumed as N,NA,UG/L,TKN,4,
+WATER,TOTAL KJELDAHL NITROGEN,NONE,NA,NA,Assumed as N,NA,UG/L,TKN,2,
+WATER,KJELDAHL NITROGEN,DISSOLVED,,AS N,NA,NA,UG/L,TKN,7,
+WATER,KJELDAHL NITROGEN,DISSOLVED,,NA,Assumed as N,NA,UG/L,TKN,7,
+WATER,NITROGEN KJELDAHL,DISSOLVED,,AS N,NA,NA,UG/L,TKN,7,
+WATER,KJELDAHL NITROGEN,TOTAL,NA,AS NH4,Convert NH4 to N,0.776,UG/L,TKN,8,"Not explicity included in Nutrient Aggregation Sheet, but given rank anyway."
+WATER,NITROGEN,UNFILTERED,Assumes Unfiltered is equivalent to Total,AS N,NA,NA,UG/L,TOTAL N,1,
+WATER,NITROGEN,TOTAL,Assumes Total fraction means Total N derived from multiple N subspecies,AS N,NA,NA,UG/L,TOTAL N,1,
+WATER,"NITROGEN, MIXED FORMS (NH3), (NH4), ORGANIC, (NO2) AND (NO3)",TOTAL,Assumes Total fraction means Total N derived from multiple N subspecies,AS N,NA,NA,UG/L,TOTAL N,1,
+WATER,"TOTAL NITROGEN, MIXED FORMS",NA,Assumes Total fraction means Total N derived from multiple N subspecies,AS N,NA,NA,UG/L,TOTAL N,1,
+WATER,"TOTAL NITROGEN, MIXED FORMS (NH3), (NH4), ORGANIC, (NO2) AND (NO3)",NA,Assumes Total fraction means Total N derived from multiple N subspecies,AS N,NA,NA,UG/L,TOTAL N,1,
+WATER,"TOTAL NITROGEN, MIXED FORMS",TOTAL,NA,AS N,NA,NA,UG/L,TOTAL N,1,
+WATER,NITROGEN,TOTAL,Assumes Total fraction means Total N derived from multiple N subspecies,NA,Assumed as N,NA,UG/L,TOTAL N,2,
+WATER,"NITROGEN, MIXED FORMS (NH3), (NH4), ORGANIC, (NO2) AND (NO3)",TOTAL,Assumes Total fraction means Total N derived from multiple N subspecies,NA,Assumed as N,NA,UG/L,TOTAL N,2,
+WATER,"TOTAL NITROGEN, MIXED FORMS",NA,Assumes Total fraction means Total N derived from multiple N subspecies,NA,Assumed as N,NA,UG/L,TOTAL N,2,
+WATER,"TOTAL NITROGEN, MIXED FORMS","FILTERED, FIELD",Assume filtered/filterable equals dissolved fraction,AS N,NA,NA,UG/L,TOTAL N,3,Assume synonymous with Pcode 51084 in Nutrient Aggregation Sheet
+WATER,NITROGEN,DISSOLVED,,NA,Assumed as N,NA,UG/L,TOTAL N,3,Assume synonymous with Pcode 51084 in Nutrient Aggregation Sheet
+WATER,NITROGEN,SUSPENDED,NA,NA,Assumed as N,NA,UG/L,TOTAL N,3,Assume synonymous with Pcode 51084 in Nutrient Aggregation Sheet
+WATER,NITROGEN,DISSOLVED,,AS N,NA,NA,UG/L,TOTAL N,3,Assume synonymous with Pcode 51084 in Nutrient Aggregation Sheet
+WATER,"NITROGEN, MIXED FORMS (NH3), (NH4), ORGANIC, (NO2) AND (NO3)",DISSOLVED,,NA,Assumed as N,NA,UG/L,TOTAL N,3,Assume synonymous with Pcode 51084 in Nutrient Aggregation Sheet
+WATER,"INORGANIC NITROGEN (AMMONIA, NITRATE AND NITRITE)",DISSOLVED,,AS N,NA,NA,UG/L,TOTAL N,4,Contains all elements of Equation 4 of Nutrient Aggregation Sheet
+WATER,NUTRIENT-NITROGEN,NA,Assumes Total fraction means Total N derived from multiple N subspecies,AS N,NA,NA,UG/L,,,"Not used, metadata not specific enough for summation"

@@ -30,6 +30,13 @@
 #' 
 
 TADA_GetSynonymRef <- function(.data, download = FALSE) {
+  
+  # return default synonym table if no data input
+  if(missing(.data)){
+    harm.raw <- utils::read.csv(system.file("extdata", "HarmonizationTemplate.csv", package = "TADA"))
+    return(harm.raw)
+  }
+  
   # check .data is data.frame
   TADA_CheckType(.data, "data.frame", "Input object")
   # check download is boolean
@@ -350,3 +357,71 @@ TADA_HarmonizeSynonyms <- function(.data, ref, transform = TRUE, flag = TRUE) {
     }
   # }
 }
+
+#' Calculate Total Nitrogen Summations
+#' 
+#' This function uses the [Nutrient Aggregation logic](https://echo.epa.gov/trends/loading-tool/resources/nutrient-aggregation#nitrogen)
+#' from ECHO's Water Pollutant Loading Tool to add nitrogen subspecies together
+#' to approximate a total nitrogen value on a single day at a single site. Where
+#' necessary, it uses conversion factors to convert nitrogen subspecies
+#' expressed as nitrate, nitrite, ammonia, ammonium, etc. to as nitrogen based
+#' on the atomic weights of the different elements in the compound. The
+#' reference table is contained within the package but may be edited/customized
+#' by users.
+#' 
+#' @param .data TADA dataframe. If user wants to consider grouping nitrogen
+#'   subspecies across multiple organizations, user should have run
+#'   TADA_FindNearbySites and grouped all nearby sites to one common
+#'   MonitoringLocationIdentifier, TADA.LatitudeMeasure, TADA.LonigtudeMeasure,
+#'   etc.
+#' @param sum_ref Optional. A custom summation reference dataframe the user has
+#'   loaded into the R environment. Dataframe must have same columns as default
+#'   TADA.summation reference table.
+#' @param daily_agg The function used to aggregate to a single
+#'   characteristic-unit-fraction-speciation at the same location and depth on
+#'   the same day for multiple measurements. Defaults to 'max', but can be set
+#'   to 'min' or 'mean'.
+#' 
+#' @return Input TADA dataframe with additional rows representing total N
+#'   summation values from adding up subspecies. These new rows share the same
+#'   date and monitoring location as the subspecies, but an additional note is
+#'   added in the TADA.NSummation.Flag column describing how the total was
+#'   derived.
+#'   @export
+#'   
+
+TADA_CalculateTotalNitrogen <- function(.data, sum_ref, daily_agg){
+  
+  # check required columns for TADA dataset
+  req_cols = c("TADA.CharacteristicName","TADA.ResultSampleFractionText","TADA.MethodSpecificationName","TADA.ResultMeasure.MeasureUnitCode","TADA.ResultMeasureValue")
+  TADA_CheckColumns(.data, expected_cols = req_cols)
+  
+  # bring in custom reference df if provided
+  if(!missing(sum_ref)){
+    ref_cols = names(TADA_GetNutrientSummationRef())
+    TADA_CheckColumns(sum_ref, expected_cols = ref_cols)
+  }else{
+    sum_ref = TADA_GetNutrientSummationRef()
+  }
+  
+  # join data to summation table
+  sum_dat = merge(.data, sum_ref, all.x = TRUE)
+  sum_dat = subset(sum_dat, !is.na(sum_dat$SummationRank))
+  
+  # # find nearby sites
+  # nearsites = unique(sum_dat[,c("MonitoringLocationIdentifier","TADA.LatitudeMeasure","TADA.LongitudeMeasure")])
+  # nearsites = TADA_FindNearbySites(nearsites)
+  # nearsites = subset(nearsites, !nearsites$TADA.NearbySiteGroups%in%c("No nearby sites"))
+  
+  # create nitrogen groups by site, date, and depth
+  depths = names(sum_dat)[grepl("DepthHeightMeasure", names(sum_dat))]
+  depths = depths[grepl("TADA.", depths)]
+  thecols = c("ActivityStartDate", "MonitoringLocationIdentifier", depths)
+  sum_grps = sum_dat %>% dplyr::group_by(dplyr::across(dplyr::all_of(thecols))) %>% dplyr::summarise(Count = length(ResultIdentifier)) %>% dplyr::mutate(group = dplyr::cur_group_id())
+  
+  sum_dat = merge(sum_dat, sum_grps, all.x = TRUE)
+  
+  
+}
+
+
