@@ -490,6 +490,7 @@ TADA_OrderCols <- function(.data){
            "TADA.TotalN_TotalP_ComboLogic",
            "TADA.AggregatedContinuousData.Flag",
            "TADA.ResultMeasureValue",
+           "TADA.ResultValueAggregation.Flag",
            "TADA.ResultMeasureValueDataTypes.Flag",
            "TADA.CensoredData.Flag",
            "TADA.CensoredMethod",
@@ -536,8 +537,8 @@ TADA_OrderCols <- function(.data){
            "WQXConversionFactor.ActivityTopDepthHeightMeasure",
            "WQXConversionFactor.ActivityBottomDepthHeightMeasure",
            "WQXConversionFactor.ResultDepthHeightMeasure",
-           "TADA.TADA.MultipleOrgDuplicate",
-           "TADA.TADA.MultipleOrgDupGroupID",
+           "TADA.MultipleOrgDuplicate",
+           "TADA.MultipleOrgDupGroupID",
            "TADA.ResultSelectedMultipleOrgs",
            "TADA.SingleOrgDupGroupID",
            "TADA.ResultSelectedSingleOrg",
@@ -759,32 +760,81 @@ TADA_RandomTestingSet <- function(number_of_days = 90){
 #' Aggregate multiple measurements to a min, max, or mean
 #'
 #' This function groups TADA data by user-defined columns and aggregates the
-#' TADA.ResultMeasureValue to a daily minimum, maximum, or average value.
+#' TADA.ResultMeasureValue to a minimum, maximum, or average value.
 #'
 #' @param .data A TADA dataframe
 #' @param grouping_cols The column names used to group the data
 #' @param agg_fun The aggregation function used on the grouped data. This can
-#'   either be 'min', 'max', or 'mean'. Defaults to 'max'.
-#'
+#'   either be 'min', 'max', or 'mean'.
+#' @param clean Boolean. Determines whether other measurements from the group
+#'   aggregation should be removed or kept in the dataframe. If clean = FALSE,
+#'   additional measurements are indicated in the
+#'   TADA.ResultValueAggregation.Flag as "Used in aggregation function but not
+#'   selected".
+#' 
 #' @return A TADA dataframe with aggregated values combined into one row. If the
 #'   agg_fun is 'min' or 'max', the function will select the row matching the
-#'   aggregation condition. If the agg_fun is 'mean', the function will select a
-#'   random row from the aggregated rows to represent the metadata associated
-#'   with the mean value.
-#'   
+#'   aggregation condition and flag it as the selected measurement. If the
+#'   agg_fun is 'mean', the function will select a random row from the
+#'   aggregated rows to represent the metadata associated with the mean value,
+#'   and gives the row a unique ResultIdentifier: the original ResultIdentifier
+#'   with the prefix "TADA-". Function adds a TADA.ResultValueAggregation.Flag
+#'   to indicate which rows have been aggregated.
+#' 
 #' @export
 #' 
+#' @examples 
+#' # Load example dataset
+#' data(Data_6Tribes_5y)
+#' # Select maximum value per day, site, comparable data identifier, result detection condition, and activity type code. Clean all non-maximum measurements from grouped data.
+#' Data_6Tribes_5y_agg = TADA_AggregateMeasurements(Data_6Tribes_5y, grouping_cols = c("ActivityStartDate","MonitoringLocationIdentifier","TADA.ComparableDataIdentifier","ResultDetectionConditionText","ActivityTypeCode"), agg_fun = 'max', clean = TRUE)
+#' 
+#' # Calculate a mean value per day, site, comparable data identifier, result detection condition, and activity type code. Keep all measurements used to calculate mean measurement.
+#' Data_6Tribes_5y_agg = TADA_AggregateMeasurements(Data_6Tribes_5y, grouping_cols = c("ActivityStartDate","MonitoringLocationIdentifier","TADA.ComparableDataIdentifier","ResultDetectionConditionText","ActivityTypeCode"), agg_fun = 'mean', clean = FALSE)
 
-TADA_AggregateDailyMeasurements <- function(.data, grouping_cols = c("ActivityStartDate","MonitoringLocationIdentifier","TADA.CharacteristicName","TADA.ResultSampleFractionText","TADA.MethodSpecificationName","TADA.ResultMeasure.MeasureUnitCode"), agg_fun = 'max'){
+TADA_AggregateMeasurements <- function(.data, grouping_cols = c("ActivityStartDate","MonitoringLocationIdentifier","TADA.ComparableDataIdentifier","ResultDetectionConditionText","ActivityTypeCode"), agg_fun = c('max','min','mean'), clean = TRUE){
   
+  TADA_CheckColumns(.data, grouping_cols)
+  agg_fun = match.arg(agg_fun)
   
+  # Find multiple values in groups
+  ncount = .data %>% dplyr::group_by(dplyr::across(dplyr::all_of(grouping_cols))) %>% dplyr::summarise(ncount = length(ResultIdentifier))
   
-  
-  
-  
+  if(max(ncount$ncount)<2){
+    print("No rows to aggregate.")
+    return(.data)
+  }else{
+    dat = merge(.data, ncount, all.x = TRUE)
+    dat$TADA.ResultValueAggregation.Flag = ifelse(dat$ncount==1, "No aggregation needed",paste0("Used in ", agg_fun, " aggregation function but not selected"))
+    multiples = dat %>% dplyr::filter(ncount>1)
+    
+    dat = dat %>% dplyr::select(-ncount)
+    
+    if(agg_fun == "max"){
+      out = multiples %>% dplyr::group_by(dplyr::across(dplyr::all_of(grouping_cols))) %>% dplyr::slice_max(order_by = TADA.ResultMeasureValue, n = 1, with_ties = FALSE)
+      dat$TADA.ResultValueAggregation.Flag = ifelse(dat$ResultIdentifier%in%out$ResultIdentifier,paste0("Selected as ", agg_fun, " aggregate value"), dat$TADA.ResultValueAggregation.Flag)
+    }
+    if(agg_fun == "min"){
+      out = multiples %>% dplyr::group_by(dplyr::across(dplyr::all_of(grouping_cols))) %>% dplyr::slice_min(order_by = TADA.ResultMeasureValue, n = 1, with_ties = FALSE)
+      dat$TADA.ResultValueAggregation.Flag = ifelse(dat$ResultIdentifier%in%out$ResultIdentifier,paste0("Selected as ", agg_fun, " aggregate value"), dat$TADA.ResultValueAggregation.Flag)
+    }
+    if(agg_fun == "mean"){
+      out = multiples %>% dplyr::group_by(dplyr::across(dplyr::all_of(grouping_cols))) %>% dplyr::mutate(TADA.ResultMeasureValue1 = mean(TADA.ResultMeasureValue, na.rm = TRUE)) %>% dplyr::slice_sample(n = 1) %>% dplyr::mutate(TADA.ResultValueAggregation.Flag = paste0("Selected as ", agg_fun, " aggregate value, with randomly selected metadata from a row in the aggregate group"))
+      out = out %>% dplyr::select(-TADA.ResultMeasureValue) %>% dplyr::rename(TADA.ResultMeasureValue = TADA.ResultMeasureValue1) %>% dplyr::mutate(ResultIdentifier = paste0("TADA-",ResultIdentifier))
+      dat = plyr::rbind.fill(dat, out)
+    }
+    
+    if(clean == TRUE){
+      dat = subset(dat, !dat$TADA.ResultValueAggregation.Flag%in%c(paste0("Used in ", agg_fun, " aggregation function but not selected")))
+    }
+    
+    dat = TADA_OrderCols(dat)
+    print("Aggregation results:")
+    print(table(dat$TADA.ResultValueAggregation.Flag))
+    return(dat)
+  }
   
 }
   
-  
-  
+
   
