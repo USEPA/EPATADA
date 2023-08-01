@@ -4,7 +4,7 @@
 \alias{TADA_HarmonizeSynonyms}
 \title{Harmonize Synonyms}
 \usage{
-TADA_HarmonizeSynonyms(.data, ref)
+TADA_HarmonizeSynonyms(.data, ref, np_speciation = TRUE)
 }
 \arguments{
 \item{.data}{TADA dataframe}
@@ -13,6 +13,12 @@ TADA_HarmonizeSynonyms(.data, ref)
 file. The primary use for this argument is when a user has generated a
 synonym reference file unique to their data, and they made changes to
 that file.}
+
+\item{np_speciation}{Boolean. Determines whether the user wants to convert
+nitrogen and phosphorus subspecies to speciation 'as N' and 'as P', where
+speciation conversions are provided. Defaults to TRUE. For example, if
+np_speciation is TRUE, all Nitrate with TADA.MethodSpecificationName = as
+NO3 will be converted to as N using molecular weight conversion factors.}
 }
 \value{
 The input TADA dataframe with the TADA.CharacteristicName,

@@ -7,7 +7,7 @@
 TADA_GetSynonymRef(.data, download = FALSE)
 }
 \arguments{
-\item{.data}{TADA dataframe}
+\item{.data}{TADA dataframe. If a data frame is not provided, the function will return the default internal reference table.}
 
 \item{download}{Boolean argument; when download = TRUE, the output is
 downloaded to the current working directory.}
@@ -51,4 +51,6 @@ CreateRefTable <- TADA_GetSynonymRef(Data_6Tribes_5yClean)
 DownloadRefTable <- TADA_GetSynonymRef(Data_6Tribes_5yClean, download = TRUE)
 }
 
+# Get internal synonym reference table
+reference <- TADA_GetSynonymRef()
 }

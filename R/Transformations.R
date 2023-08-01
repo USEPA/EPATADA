@@ -17,7 +17,7 @@
 #' characteristic-unit-fraction-speciation combinations (i.e. user has already
 #' run TADA_FlagFraction, TADA_FlagSpeciation, TADA_FlagResultUnit, etc.).
 #' 
-#' @param .data TADA dataframe
+#' @param .data TADA dataframe. If a data frame is not provided, the function will return the default internal reference table.
 #' 
 #' @param download Boolean argument; when download = TRUE, the output is
 #' downloaded to the current working directory.
@@ -44,8 +44,16 @@
 #' DownloadRefTable <- TADA_GetSynonymRef(Data_6Tribes_5yClean, download = TRUE)
 #' }
 #' 
+#' # Get internal synonym reference table
+#' reference <- TADA_GetSynonymRef()
 
 TADA_GetSynonymRef <- function(.data, download = FALSE) {
+  
+  if(missing(.data)){
+    ref = utils::read.csv(system.file("extdata", "HarmonizationTemplate.csv", package = "TADA"))
+    return(ref)
+  }
+  
   # check .data is data.frame
   TADA_CheckType(.data, "data.frame", "Input object")
   # check download is boolean
@@ -117,7 +125,12 @@ TADA_GetSynonymRef <- function(.data, download = FALSE) {
 #' file. The primary use for this argument is when a user has generated a
 #' synonym reference file unique to their data, and they made changes to
 #' that file.
-#'
+#' @param np_speciation Boolean. Determines whether the user wants to convert
+#'   nitrogen and phosphorus subspecies to speciation 'as N' and 'as P', where
+#'   speciation conversions are provided. Defaults to TRUE. For example, if
+#'   np_speciation is TRUE, all Nitrate with TADA.MethodSpecificationName = as
+#'   NO3 will be converted to as N using molecular weight conversion factors.
+#' 
 #' @return The input TADA dataframe with the TADA.CharacteristicName,
 #'   TADA.ResultSampleFractionText, TADA.MethodSpecificationName, and
 #'   TADA.ResultMeasure.MeasureUnitCode columns converted to the target values,
@@ -145,7 +158,7 @@ TADA_GetSynonymRef <- function(.data, download = FALSE) {
 #' # data to the USER SUPPLIED reference table values:
 #' Data_6Tribes_5yClean_Harmonized <- TADA_HarmonizeSynonyms(Data_6Tribes_5yClean, ref = CreateRefTable)
 
-TADA_HarmonizeSynonyms <- function(.data, ref) {
+TADA_HarmonizeSynonyms <- function(.data, ref, np_speciation = TRUE) {
   # check .data is data.frame
   TADA_CheckType(.data, "data.frame", "Input object")
   
@@ -257,19 +270,30 @@ TADA_HarmonizeSynonyms <- function(.data, ref) {
   
   # TADA.MethodSpecificationName
   # replace MethodSpecificationName with Target.TADA.MethodSpecificationName
-  clean.data <- clean.data %>%
-    # use TADA suggested spec where there is a suggested spec, use original spec if no suggested spec
-    dplyr::mutate(TADA.MethodSpecificationName = dplyr::case_when(
-      !is.na(Target.TADA.MethodSpecificationName) ~ Target.TADA.MethodSpecificationName,
-      is.na(Target.TADA.MethodSpecificationName) ~ TADA.MethodSpecificationName
-    )) %>%
-    # if conversion factor exists, multiply by ResultMeasureValue
-    dplyr::rowwise() %>%
-    dplyr::mutate(TADA.ResultMeasureValue = dplyr::case_when(
-      !is.na(Target.TADA.SpeciationConversionFactor) ~
-        (Target.TADA.SpeciationConversionFactor * TADA.ResultMeasureValue),
-      is.na(Target.TADA.SpeciationConversionFactor) ~ TADA.ResultMeasureValue
-    ))
+  
+  if(np_speciation==TRUE){
+    clean.data <- clean.data %>%
+      # use TADA suggested spec where there is a suggested spec, use original spec if no suggested spec
+      dplyr::mutate(TADA.MethodSpecificationName = dplyr::case_when(
+        !is.na(Target.TADA.MethodSpecificationName) ~ Target.TADA.MethodSpecificationName,
+        is.na(Target.TADA.MethodSpecificationName) ~ TADA.MethodSpecificationName
+      )) %>%
+      # if conversion factor exists, multiply by ResultMeasureValue
+      dplyr::rowwise() %>%
+      dplyr::mutate(TADA.ResultMeasureValue = dplyr::case_when(
+        !is.na(Target.TADA.SpeciationConversionFactor) ~
+          (Target.TADA.SpeciationConversionFactor * TADA.ResultMeasureValue),
+        is.na(Target.TADA.SpeciationConversionFactor) ~ TADA.ResultMeasureValue
+      ))
+      
+  }else{
+    clean.data <- clean.data %>%
+      # use TADA suggested spec where there is a suggested spec, use original spec if no suggested spec
+      dplyr::mutate(TADA.MethodSpecificationName = dplyr::case_when(
+        !is.na(Target.TADA.MethodSpecificationName) & is.na(Target.TADA.SpeciationConversionFactor) ~ Target.TADA.MethodSpecificationName,
+        is.na(Target.TADA.MethodSpecificationName) ~ TADA.MethodSpecificationName
+      ))
+  }
   
   # remove conversion columns
   clean.data <- clean.data %>%
@@ -281,7 +305,8 @@ TADA_HarmonizeSynonyms <- function(.data, ref) {
       "Target.TADA.SpeciationConversionFactor",
       "Target.TADA.UnitConversionFactor",
       "Target.TADA.SpeciationConversionFactor",
-      "Target.TADA.UnitConversionFactor"
+      "Target.TADA.UnitConversionFactor",
+      "HarmonizationGroup"
     ))
   
   # return clean.data
