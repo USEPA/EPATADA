@@ -58,7 +58,7 @@ First, install and load the "remotes" package specifying the repo. This
 is needed before installing TADA because it is only available on GitHub
 (not CRAN).
 
-```{r install_remotes, results = 'hide', message = FALSE, warning = FALSE}
+```{r install_remotes, eval = F, results = 'hide', message = FALSE, warning = FALSE}
 install.packages("remotes", 
                  repos = "http://cran.us.r-project.org")
 library(remotes)
@@ -69,7 +69,7 @@ dependencies will also be downloaded from CRAN with the TADA install,
 but the development version can be downloaded directly from GitHub if
 desired (un-comment).
 
-```{r install_TADA, results = 'hide', message = FALSE, warning = FALSE}
+```{r install_TADA, eval = F, results = 'hide', message = FALSE, warning = FALSE}
 # remotes::install_github("USGS-R/dataRetrieval", dependencies=TRUE)
 
 # if you experience any issues installing TADA, try un-commenting and running
@@ -77,11 +77,26 @@ desired (un-comment).
 # options(download.file.method = "wininet")
 
 remotes::install_github("USEPA/TADA", 
-                        ref = "update-exported",
+                        ref = "develop",
                         dependencies = TRUE)
-library(TADA)
+```
+
+```{r for-development-only, echo = F}
+# IF YOU ARE NOT DEVELOPING TADA, SKIP THIS CODE CHUNK
+# when developing the package, update this chunk to the current repository, so it runs with all of the new features prior to a PR to develop
+
+remotes::install_github("USEPA/TADA", 
+                        ref = "harmonization_updates_eh",
+                        dependencies = TRUE)
 
 ```
+
+Finally, we will use the **library()** function to load the TADA package into the vignette environment.
+
+```{r library, results = 'hide', message = FALSE, warning = FALSE}
+library(TADA)
+```
+
 
 ## Retrieve WQP data
 
@@ -127,15 +142,22 @@ Data retrieval filters include:
 
 -   characteristicType
 
-Please be aware that the default TADA_DataRetrieval function
-automatically runs the TADA **TADA_AutoClean** and
-**TADA_ConvertSpecialChars** functions. Both are both required for
-subsequent functions within the TADA R package to run. As a general
-rule, TADA functions do not change any contents in the WQP-served
-columns (enter *?TADA_ConvertSpecialChars* and *?TADA_AutoClean* into
-the console for more details). Instead, they add new columns with the
-prefix "TADA." The following columns are numeric versions of their WQP
-origins:
+The default TADA_DataRetrieval function
+automatically runs the **TADA_AutoClean** function, which runs the following functions on the data retrieved from the WQP:
+
+-   **TADA_ConvertSpecialChars** - converts result value columns to numeric and flags non-numeric values that could not be converted.
+
+-   **TADA_ConvertResultUnits** - unifies result units for easier quality control and review
+
+-   **TADA_ConvertDepthUnits** - converts depth units to a consistent unit (meters).
+
+-   **TADA_IDCensoredData** - categorizes detection limit data and identifies mismatches in result detection condition and result detection limit type. 
+
+-   Other helpful actions - converts important text columns to all upper-case letters, removed true duplicates, and uses WQX format rules to harmonize specific NWIS metadata conventions (e.g. move characteristic speciation from the TADA.ResultMeasure.MeasureUnitCode column to the TADA.MethodSpecificationName column)
+
+As a general rule, TADA functions do not change any contents in the WQP-served
+columns. Instead, they add new columns with the prefix "TADA." The following
+columns are numeric versions of their WQP origins:
 
     -   TADA.ResultMeasureValue
 
@@ -871,9 +893,9 @@ Double check to make sure no NA's or ND's remain.
 unique(TADAProfileClean5$TADA.ResultMeasureValueDataTypes.Flag)
 ```
 
-## Transform Characteristic, Speciation, and Unit values to TADA Standards
+## Convert synonymous characteristic, fraction, speciation, and unit values to a consistent convention based on user-defined/TADA standards
 
-The **TADA_HarmonizeRefTable** function generates a harmonization reference
+The **TADA_GetSynonymRef** function generates a synonym reference
 table that is specific to the input dataframe. Users can review how
 their input data relates to standard TADA values for the following
 elements:
@@ -886,26 +908,17 @@ elements:
 
 -   TADA.ResultMeasure.MeasureUnitCode
 
-The **TADA_HarmonizeSynonyms** function then compares the input dataframe to the
-TADA Harmonization Reference Table. The purpose of the function is to
-make similar data consistent and therefore easier to compare and
-analyze.
-
 Users can also edit the reference file to meet their needs if desired.
 The download argument can be used to save the harmonization file to your
 current working directory when download = TRUE, the default is download
 = FALSE.
 
-Optional outputs include:
-
-1.  the dataframe with Harmonization columns appended,
-
-2.  the dataframe with TADA.CharacteristicName,
-    TADA.ResultSampleFractionText, TADA.MethodSpecificationName, and
-    TADA.ResultMeasure.MeasureUnitCode converted to TADA standards or
-
-3.  the four fields converted with most Harmonization Reference Table
-    columns appended. Default is transform = TRUE and flag = TRUE.
+The **TADA_HarmonizeSynonyms** function then compares the input dataframe to the
+TADA Synonym Reference Table and makes conversions where target
+characteristics/fractions/speciations/units are provided. This function also
+appends a column called TADA.Harmonized.Flag, indicating which results had
+metadata changed/converted in this function. The purpose of this function is to
+make similar data consistent and therefore easier to compare and analyze.
 
 Here are some examples of how the TADA_HarmonizeSynonyms function can be used:
 
@@ -928,9 +941,7 @@ UniqueHarmonizationRef <- TADA_GetSynonymRef(TADAProfileClean5,
                                                 download = FALSE)
 
 TADAProfileClean5 <- TADA_HarmonizeSynonyms(TADAProfileClean5,
-                                    ref = UniqueHarmonizationRef,
-                                    transform = TRUE,
-                                    flag = TRUE)
+                                    ref = UniqueHarmonizationRef)
 ```
 
 ## Parameter Level Filtering
@@ -1046,7 +1057,7 @@ speciation, and fraction combination) using **TADA_Histogram** and **TADA_Boxplo
 unique(TADAProfileClean5$TADA.ComparableDataIdentifier)
 
 # filter dataframe to only "TOTAL PHOSPHORUS, MIXED FORMS"
-TADAProfileCleanTP <- dplyr::filter(TADAProfileClean5, TADA.ComparableDataIdentifier == "Total Phosphorus_as P_ug/L")
+TADAProfileCleanTP <- dplyr::filter(TADAProfileClean5, TADA.ComparableDataIdentifier == "TOTAL PHOSPHORUS, MIXED FORMS_UNFILTERED_AS P_UG/L")
 
 # generate stats table
 TADAProfileCleanTP_stats <- TADA::TADA_Stats(TADAProfileCleanTP)
@@ -1054,8 +1065,9 @@ TADAProfileCleanTP_stats <- TADA::TADA_Stats(TADAProfileCleanTP)
 TADAProfileCleanTP_stats
 
 # generate a histogram
-TP_Histogram = TADA_Histogram(TADAProfileCleanTP, id_cols = "TADA.ComparableDataIdentifier")
+TP_Histogram <- TADA_Histogram(TADAProfileCleanTP, id_cols = "TADA.ComparableDataIdentifier")
 
+# view histogram
 TP_Histogram
 
 ```
