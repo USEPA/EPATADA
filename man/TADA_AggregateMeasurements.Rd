@@ -2,7 +2,7 @@
 % Please edit documentation in R/Utilities.R
 \name{TADA_AggregateMeasurements}
 \alias{TADA_AggregateMeasurements}
-\title{Aggregate multiple measurements to a min, max, or mean}
+\title{Aggregate multiple result values to a min, max, or mean}
 \usage{
 TADA_AggregateMeasurements(
   .data,

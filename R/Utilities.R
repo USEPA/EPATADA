@@ -757,7 +757,7 @@ TADA_RandomTestingSet <- function(number_of_days = 90){
   return(dat)
 }
 
-#' Aggregate multiple measurements to a min, max, or mean
+#' Aggregate multiple result values to a min, max, or mean
 #'
 #' This function groups TADA data by user-defined columns and aggregates the
 #' TADA.ResultMeasureValue to a minimum, maximum, or average value.
@@ -805,6 +805,11 @@ TADA_AggregateMeasurements <- function(.data, grouping_cols = c("ActivityStartDa
     return(.data)
   }else{
     dat = merge(.data, ncount, all.x = TRUE)
+    
+    if(any(is.na(dat$TADA.ResultMeasureValue))){
+      "Warning: your dataset contains one or more rows where TADA.ResultMeasureValue = NA. Recommend removing these rows before proceeding. Otherwise, the function will not consider NAs in its calculations."
+    }
+    
     dat$TADA.ResultValueAggregation.Flag = ifelse(dat$ncount==1, "No aggregation needed",paste0("Used in ", agg_fun, " aggregation function but not selected"))
     multiples = dat %>% dplyr::filter(ncount>1)
     
@@ -836,5 +841,45 @@ TADA_AggregateMeasurements <- function(.data, grouping_cols = c("ActivityStartDa
   
 }
   
+#' Run key flagging functions
+#'
+#' This is a shortcut function to run all of the most important flagging functions on a TADA dataset. See ?function documentation for TADA_FlagResultUnit, TADA_FlagFraction, TADA_FindQCActivities, and TADA_FlagSpeciation for more information.
+#'
+#' @param .data A TADA dataframe
+#' @param remove_na Boolean, Determines whether to keep TADA.ResultMeasureValues that are NA. Defaults to TRUE.
+#' @param clean Boolean. Determines whether to keep the Invalid rows in the dataset following each flagging function. Defaults to TRUE.
+#' 
+#' @return A TADA dataframe with the following flagging columns:TADA.ResultUnit.Flag, TADA.MethodSpeciation.Flag, TADA.SampleFraction.Flag, and TADA.ActivityType.Flag
+#' 
+#' @export
+#' 
+#' @examples 
+#' # Load example dataset
+#' data(Data_6Tribes_5y)
+#' # Run flagging functions, keeping all rows
+#' Data_6Tribes_5y_ALL = TADA_RunKeyFlagFunctions(Data_6Tribes_5y, remove_na = FALSE, clean = FALSE)
+#' 
+#' # Run flagging functions, removing NA's and Invalid rows
+#' Data_6Tribes_5y_CLEAN = TADA_RunKeyFlagFunctions(Data_6Tribes_5y, remove_na = TRUE, clean = TRUE)
 
+TADA_RunKeyFlagFunctions <- function(.data, remove_na = TRUE, clean = TRUE){
+  
+  if(remove_na == TRUE){
+    .data = .data %>% dplyr::filter(!is.na(TADA.ResultMeasureValue))
+  }
+  
+  if(clean == TRUE){
+    .data = TADA_FlagResultUnit(.data, clean = "invalid_only")
+    .data = TADA_FlagFraction(.data, clean = TRUE)
+    .data = TADA_FlagSpeciation(.data, clean = "invalid_only")
+    .data = TADA_FindQCActivities(.data, clean = TRUE)
+  }else{
+    .data = TADA_FlagResultUnit(.data, clean = "none")
+    .data = TADA_FlagFraction(.data, clean = FALSE)
+    .data = TADA_FlagSpeciation(.data, clean = "none")
+    .data = TADA_FindQCActivities(.data, clean = FALSE)
+  }
+ 
+  return(.data)
+}
   

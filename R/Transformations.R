@@ -393,7 +393,14 @@ TADA_HarmonizeSynonyms <- function(.data, ref, transform = TRUE, flag = TRUE) {
 TADA_CalculateTotalNitrogen <- function(.data, sum_ref, daily_agg){
   
   # check required columns for TADA dataset
-  req_cols = c("TADA.CharacteristicName","TADA.ResultSampleFractionText","TADA.MethodSpecificationName","TADA.ResultMeasure.MeasureUnitCode","TADA.ResultMeasureValue")
+  req_cols = c("TADA.CharacteristicName",
+               "TADA.ResultSampleFractionText",
+               "TADA.MethodSpecificationName",
+               "TADA.ResultMeasure.MeasureUnitCode",
+               "TADA.ResultMeasureValue",
+               "ActivityStartDate",
+               "MonitoringLocationIdentifier",
+               "ActivityTypeCode")
   TADA_CheckColumns(.data, expected_cols = req_cols)
   
   # bring in custom reference df if provided
