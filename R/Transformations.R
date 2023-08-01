@@ -369,22 +369,58 @@ TADA_CalculateTotalNitrogen <- function(.data, sum_ref, daily_agg){
     sum_ref = TADA_GetNutrientSummationRef()
   }
   
-  # join data to summation table
-  sum_dat = merge(.data, sum_ref, all.x = TRUE)
-  sum_dat = subset(sum_dat, !is.na(sum_dat$SummationRank))
-  
-  # # find nearby sites
-  # nearsites = unique(sum_dat[,c("MonitoringLocationIdentifier","TADA.LatitudeMeasure","TADA.LongitudeMeasure")])
-  # nearsites = TADA_FindNearbySites(nearsites)
-  # nearsites = subset(nearsites, !nearsites$TADA.NearbySiteGroups%in%c("No nearby sites"))
-  
+  # Get grouping cols for daily aggregation and then nutrient summation
   # create nitrogen groups by site, date, and depth
   depths = names(sum_dat)[grepl("DepthHeightMeasure", names(sum_dat))]
   depths = depths[grepl("TADA.", depths)]
-  thecols = c("ActivityStartDate", "MonitoringLocationIdentifier", depths)
-  sum_grps = sum_dat %>% dplyr::group_by(dplyr::across(dplyr::all_of(thecols))) %>% dplyr::summarise(Count = length(ResultIdentifier)) %>% dplyr::mutate(group = dplyr::cur_group_id())
+  grpcols = c("ActivityStartDate", "MonitoringLocationIdentifier","TADA.ComparableDataIdentifier","ActivityTypeCode","TADA.ResultMeasure.MeasureUnitCode",depths)
   
-  sum_dat = merge(sum_dat, sum_grps, all.x = TRUE)
+  dat = TADA_AggregateMeasurements(.data, grouping_cols = grpcols, agg_fun = daily_agg, clean = TRUE)
+
   
+  # join data to summation table
+  sum_dat = merge(dat, sum_ref, all.x = TRUE)
+  sum_dat = subset(sum_dat, !is.na(sum_dat$SummationRank))
+  
+  if(dim(sum_dat)[1]>0){
+    
+    thecols = grpcols[!grpcols%in%c("TADA.ComparableDataIdentifier")]
+    # # find nearby sites
+    # nearsites = unique(sum_dat[,c("MonitoringLocationIdentifier","TADA.LatitudeMeasure","TADA.LongitudeMeasure")])
+    # nearsites = TADA_FindNearbySites(nearsites)
+    # nearsites = subset(nearsites, !nearsites$TADA.NearbySiteGroups%in%c("No nearby sites"))
+    
+    sum_grps = sum_dat %>% dplyr::group_by(dplyr::across(dplyr::all_of(thecols))) %>% dplyr::summarise(Count = length(ResultIdentifier)) %>% dplyr::mutate(group = dplyr::cur_group_id())
+    
+    sum_dat1 = merge(sum_grps, sum_dat, all.x = TRUE)
+    
+    # TOTAL N
+    EQ1 = sum_dat1 %>% dplyr::group_by(group) %>% dplyr::filter(SummationName == "TOTAL N") %>% dplyr::slice_min(SummationRank)
+    grps = unique(EQ1$group)
+    # TKN + NITRATE + NITRITE
+    EQ2 = sum_dat1 %>% dplyr::filter(!group%in%grps) %>% dplyr::group_by(group) %>% dplyr::filter(all(c("TKN","NITRATE","NITRITE")%in%SummationName))
+    EQ2 = EQ2 %>% dplyr::group_by(group, SummationRank) %>% dplyr::slice_min(SummationRank)
+    grps = c(grps, unique(EQ2$group))
+    # TKN + (NITRATE + NITRITE)
+    EQ2_a = sum_dat1 %>% dplyr::filter(!group%in%grps) %>% dplyr::group_by(group) %>% dplyr::filter(all(c("TKN","NITRATE + NITRITE")%in%SummationName))
+    EQ2_a = EQ2_a %>% dplyr::group_by(group, SummationRank) %>% dplyr::slice_min(SummationRank)
+    grps = c(grps, unique(EQ2_a$group))
+    # ORG N + AMMON + NITRATE + NITRITE
+    EQ3 = sum_dat1 %>% dplyr::filter(!group%in%grps) %>% dplyr::group_by(group) %>% dplyr::filter(all(c("ORG N","AMMON","NITRATE","NITRITE")%in%SummationName)) 
+    EQ3 = EQ3 %>% dplyr::group_by(group, SummationRank) %>% dplyr::slice_min(SummationRank)
+    grps = c(grps, unique(EQ3$group))
+    # ORG N + AMMON + (NITRATE + NITRITE)
+    EQ3_a = sum_dat1 %>% dplyr::filter(!group%in%grps) %>% dplyr::group_by(group) %>% dplyr::filter(all(c("ORG N","AMMON","NITRATE + NITRITE")%in%SummationName))
+    EQ3_a = EQ3_a %>% dplyr::group_by(group, SummationRank) %>% dplyr::slice_min(SummationRank)
+    grps = c(grps, unique(EQ3_a$group))
+    # AMMON + NITRATE + NITRITE
+    EQ4 = sum_dat1 %>% dplyr::filter(!group%in%grps) %>% dplyr::group_by(group) %>% dplyr::filter(all(c("AMMON","NITRATE","NITRITE")%in%SummationName)) 
+    EQ4 = EQ4 %>% dplyr::group_by(group, SummationRank) %>% dplyr::slice_min(SummationRank)
+    grps = c(grps, unique(EQ4$group))
+    # AMMON + (NITRATE + NITRITE)
+    EQ4_a = sum_dat1 %>% dplyr::filter(!group%in%grps) %>% dplyr::group_by(group) %>% dplyr::filter(all(c("AMMON","NITRATE + NITRITE")%in%SummationName)) 
+    EQ4_a = EQ4_a %>% dplyr::group_by(group, SummationRank) %>% dplyr::slice_min(SummationRank)
+  }
+
   
 }
