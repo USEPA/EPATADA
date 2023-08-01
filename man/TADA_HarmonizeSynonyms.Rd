@@ -2,64 +2,61 @@
 % Please edit documentation in R/Transformations.R
 \name{TADA_HarmonizeSynonyms}
 \alias{TADA_HarmonizeSynonyms}
-\title{Transform CharacteristicName, ResultSampleFractionText, MethodSpecificationName,
-and ResultMeasure.MeasureUnitCode values to TADA standards.}
+\title{Harmonize Synonyms}
 \usage{
-TADA_HarmonizeSynonyms(.data, ref, transform = TRUE, flag = TRUE)
+TADA_HarmonizeSynonyms(.data, ref, np_speciation = TRUE)
 }
 \arguments{
 \item{.data}{TADA dataframe}
 
 \item{ref}{Optional argument to specify which dataframe to use as a reference
 file. The primary use for this argument is when a user has generated a
-harmonization reference file unique to their data, and they made changes to
+synonym reference file unique to their data, and they made changes to
 that file.}
 
-\item{transform}{Boolean argument; transforms and/or converts original values
-in the dataframe to the TADA Harmonization Reference Table values for the
-following fields: CharacteristicName, ResultSampleFractionText,
-MethodSpecificationName, and ResultMeasure.MeasureUnitCode. Default is
-transform = TRUE.}
-
-\item{flag}{Boolean argument; appends all columns from the TADA Harmonization
-Reference Table to the dataframe. Default is flag = TRUE.}
+\item{np_speciation}{Boolean. Determines whether the user wants to convert
+nitrogen and phosphorus subspecies to speciation 'as N' and 'as P', where
+speciation conversions are provided. Defaults to TRUE. For example, if
+np_speciation is TRUE, all Nitrate with TADA.MethodSpecificationName = as
+NO3 will be converted to as N using molecular weight conversion factors.}
 }
 \value{
-When transform = FALSE and flag = TRUE, Harmonization Reference Table
-columns are appended to the dataframe only. When transform = TRUE and flag = TRUE,
-Harmonization columns are appended to the dataframe and transformations are
-executed. When transform = TRUE and flag = FALSE, transformations are executed
-only. When transform = FALSE and flag = FALSE, an error is returned (function
-would return the input dataframe unchanged if input was allowed).
+The input TADA dataframe with the TADA.CharacteristicName,
+TADA.ResultSampleFractionText, TADA.MethodSpecificationName, and
+TADA.ResultMeasure.MeasureUnitCode columns converted to the target values,
+if supplied. Also includes additional columns
+TADA.CharacteristicNameAssumptions, TADA.FractionAssumptions, and
+TADA.SpeciationAssumptions populated with additional notes about the conversion
+logic, and a TADA.Harmonized.Flag, indicating whether TADA columns were
+changed in this function.
 }
 \description{
-Function compares input dataframe to the TADA Harmonization Reference Table, and makes
-synonymous data consistent.
-Optional outputs include: 1) the dataframe with
-Harmonization columns appended, 2) the dataframe with CharacteristicName,
-ResultSampleFractionText, MethodSpecificationName, and
-ResultMeasure.MeasureUnitCode converted to TADA standards or 3) the four fields
-converted with most Harmonization Reference Table columns appended. Default is
-transform = TRUE and flag = TRUE.
+This function joins a synonym reference table to the dataset to convert
+synonymous data to a unified naming format for easier aggregation, analysis,
+and visualization. Users may populate the function with a dataset-specific
+synonym table created from TADA_GetSynonymRef and reviewed/customized by the
+user (recommended), or the default TADA-provided synonym table, containing
+suggested synonym naming for some priority characteristics. Where a suggested
+characteristic name, fraction, speciation, or unit is present, the function
+will convert the TADA.CharacteristicName, TADA.ResultSampleFractionText,
+TADA.MethodSpecificationName, and/or TADA.ResultMeasure.MeasureUnitCode to
+the target format. In cases where a target unit or speciation differs from
+the existing unit or speciation, the reference table will also apply
+multiplication conversion factors to the TADA.ResultMeasureValue.
 }
 \examples{
 # Load example dataset:
-data(Data_Nutrients_UT)
+data(Data_6Tribes_5y)
 
-# Append harmonization reference table columns to dataframe and transform/convert
-# data to the reference table values:
-Nutrients_Harmonized <- TADA_HarmonizeSynonyms(Data_Nutrients_UT)
+# Create a synonym reference table for flagged, cleaned dataframe:
+Data_6Tribes_5yClean = subset(Data_6Tribes_5y, !is.na(Data_6Tribes_5y$TADA.ResultMeasureValue))
+Data_6Tribes_5yClean = TADA_FlagFraction(Data_6Tribes_5yClean, clean = TRUE)
+Data_6Tribes_5yClean = TADA_FlagResultUnit(Data_6Tribes_5yClean, clean = "invalid_only")
+Data_6Tribes_5yClean = TADA_FlagSpeciation(Data_6Tribes_5yClean, clean = "invalid_only")
+Data_6Tribes_5yClean = TADA_FlagMethod(Data_6Tribes_5yClean, clean = TRUE)
+CreateRefTable <- TADA_GetSynonymRef(Data_6Tribes_5yClean)
 
-# Transform/convert data to the harmonization reference table values, but
-# do not append any columns to dataframe:
-Nutrients_Harmonized_noflags <- TADA_HarmonizeSynonyms(Data_Nutrients_UT, flag = FALSE)
-
-# Append harmonization reference table columns to dataframe, but do not
-# transform/convert data to the reference table values:
-Nutrients_NotHarmonized <- TADA_HarmonizeSynonyms(Data_Nutrients_UT, transform = FALSE)
-
-# Append harmonization reference table columns to dataframe and transform/convert
+# Append synonym reference table columns to dataframe and transform/convert
 # data to the USER SUPPLIED reference table values:
-UniqueHarmonizationRef <- TADA_GetSynonymRef(Data_Nutrients_UT, download = FALSE)
-Nutrients_Harmonized_UserSuppliedRef <- TADA_HarmonizeSynonyms(Data_Nutrients_UT, ref = UniqueHarmonizationRef)
+Data_6Tribes_5yClean_Harmonized <- TADA_HarmonizeSynonyms(Data_6Tribes_5yClean, ref = CreateRefTable)
 }
