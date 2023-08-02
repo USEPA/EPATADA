@@ -65,19 +65,18 @@ NULL
 #' @format A data frame with 55 rows and 37 variables
 NULL
 
-#' Data_TP_6Tribes_5y
+#' Data_6Tribes_5y_Harmonized
 #' 
-#' A dataset containing Total Phosphorus (TP) data from tribal organizations
+#' A dataset containing data from tribal organizations
 #' (see ?Data_6Tribes_5y for more information). Data was cleaned using the
 #' TADA Module 1 vignette 
 #' (see: https://usepa.github.io/TADA/articles/TADAModule1.html).
-#' Data is filtered down to "Total Phosphorus, Mixed Forms".
 #'  
 #' @docType data
 #' @keywords datasets
-#' @name Data_TP_6Tribes_5y
-#' @usage data(Data_TP_6Tribes_5y)
-#' @format A data frame with 2498 rows and 172 variables
+#' @name Data_6Tribes_5y_Harmonized
+#' @usage data(Data_6Tribes_5y_Harmonized)
+#' @format A data frame with 120747 rows and 163 variables
 NULL
 
 #' Data_6Tribes_5y

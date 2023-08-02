@@ -29,11 +29,17 @@ for each data group.
 Create Histogram(s)
 }
 \examples{
-# Create a single histogram using defaults. The input dataframe in this example
-# includes only one unique TADA.ComparableDataIdentifier:
 # Load example dataset:
-data(Data_TP_6Tribes_5y)
-TADA_Histogram(Data_TP_6Tribes_5y, id_cols = "TADA.ComparableDataIdentifier")
+data(Data_6Tribes_5y_Harmonized)
+
+# Create a histogram for each comparable data group (TADA.ComparableDataIdentifier)
+# in the input dataframe:
+TADA_Histogram(Data_6Tribes_5y_Harmonized, id_cols = "TADA.ComparableDataIdentifier")
+
+# Create a single histogram using defaults. The input dataframe in this example
+# is filtered so it includes only one TADA.ComparableDataIdentifier
+df = dplyr::filter(Data_6Tribes_5y_Harmonized, TADA.ComparableDataIdentifier == "TOTAL PHOSPHORUS, MIXED FORMS_UNFILTERED_AS P_UG/L")
+TADA_Histogram(df, id_cols = "TADA.ComparableDataIdentifier")
 
 # Create multiple histograms with additional grouping columns and view the first
 # plot in list. In this example, we will group by both TADA.ComparableDataIdentifier
