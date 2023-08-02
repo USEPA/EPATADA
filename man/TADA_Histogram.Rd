@@ -29,18 +29,21 @@ for each data group.
 Create Histogram(s)
 }
 \examples{
-# Create histogram using defaults, and view first plot in list:
+# Create a single histogram using defaults. The input dataframe in this example
+# includes only one unique TADA.ComparableDataIdentifier:
 # Load example dataset:
 data(Data_TP_6Tribes_5y)
+TADA_Histogram(Data_TP_6Tribes_5y, id_cols = "TADA.ComparableDataIdentifier")
 
-Histogram_output = TADA_Histogram(Data_TP_6Tribes_5y, id_cols = "TADA.ComparableDataIdentifier")
-Histogram_output[[1]]
-
-# Create histogram with additional grouping columns and view first plot in list. In this example, we will group by both the comparable data identifier and the monitoring location type (e.g. stream, reservoir, canal, etc.)
+# Create multiple histograms with additional grouping columns and view the first
+# plot in list. In this example, we will group by both TADA.ComparableDataIdentifier
+# and MonitoringLocationTypeName (e.g. stream, reservoir, canal, etc.)
 # Load example dataset:
 data(Data_Nutrients_Utah)
-
 Histogram_output = TADA_Histogram(Data_Nutrients_UT, id_cols = c("TADA.ComparableDataIdentifier","MonitoringLocationTypeName"))
-Histogram_output[[1]]
+# This example generates 45 histograms
+Histogram_output[[10]]
+Histogram_output[[25]]
+Histogram_output[[35]]
 
 }
