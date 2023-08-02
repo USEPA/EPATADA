@@ -347,8 +347,8 @@ TADA_HarmonizeSynonyms <- function(.data, ref, np_speciation = TRUE) {
 #'   date and monitoring location as the subspecies, but an additional note is
 #'   added in the TADA.NutrientSummation.Flag column describing how the total was
 #'   derived.
-#'   @export
 #'   
+#' @export
 
 TADA_CalculateTotalNP <- function(.data, sum_ref, daily_agg){
   

@@ -28,7 +28,6 @@ summation values from adding up subspecies. These new rows share the same
 date and monitoring location as the subspecies, but an additional note is
 added in the TADA.NutrientSummation.Flag column describing how the total was
 derived.
-@export
 }
 \description{
 This function uses the \href{https://echo.epa.gov/trends/loading-tool/resources/nutrient-aggregation#nitrogen}{Nutrient Aggregation logic}
