@@ -21,19 +21,24 @@
 #' @export
 #' 
 #' @examples
-#' # Create boxplot using defaults, and view first plot in list:
+#' # Create a single boxplot using defaults. The input dataframe in this example
+#' # includes only one unique TADA.ComparableDataIdentifier: 
 #' # Load example dataset:
 #' data(Data_TP_6Tribes_5y)
+#' TADA_Boxplot(Data_TP_6Tribes_5y, id_cols = "TADA.ComparableDataIdentifier")
 #' 
-#' Boxplot_output = TADA_Boxplot(Data_TP_6Tribes_5y, id_cols = "TADA.ComparableDataIdentifier")
-#' Boxplot_output[[1]]
 #' 
-#' # Create boxplot with additional grouping columns and view first plot in list. In this example, we will group by both the comparable data identifier and the monitoring location type (e.g. stream, reservoir, canal, etc.)
+#' # Create multiple boxplots with additional grouping columns and view the first
+#' # plot in list. In this example, we will group data in the input dataframe
+#' # by both the TADA.ComparableDataIdentifier and the MonitoringLocationTypeName 
+#' # (e.g. stream, reservoir, canal, etc.)
 #' # Load example dataset:
 #' data(Data_Nutrients_Utah)
-#' 
 #' Boxplot_output = TADA_Boxplot(Data_Nutrients_UT, id_cols = c("TADA.ComparableDataIdentifier","MonitoringLocationTypeName"))
-#' Boxplot_output[[1]]
+#' # This example generates 45 box plots.
+#' Boxplot_output[[2]]
+#' Boxplot_output[[25]]
+#' Boxplot_output[[40]]
 #' 
 
 TADA_Boxplot <- function(.data, id_cols = c("TADA.ComparableDataIdentifier")) {
@@ -66,7 +71,7 @@ TADA_Boxplot <- function(.data, id_cols = c("TADA.ComparableDataIdentifier")) {
   
   for(i in 1:max(.data$Group)){
     plot.data = subset(.data, .data$Group==i)
-    groupid = paste0(unique(plot.data[,id_cols]), collapse = "-")
+    groupid = paste0(unique(plot.data[,id_cols]), collapse = "_")
 
     # units
     unit <- unique(plot.data$TADA.ResultMeasure.MeasureUnitCode)
@@ -113,6 +118,11 @@ TADA_Boxplot <- function(.data, id_cols = c("TADA.ComparableDataIdentifier")) {
                                     marker = list(color = "#00bde3"),
                                     stroke = I("#005ea2"))
     
+    # figure margin
+    mrg <- list(l = 50, r = 20,
+                b = 20, t = 55,
+                pad = 0)
+    
     # boxplot layout and labels
     base_boxplot <- base_boxplot %>% 
       plotly::layout(
@@ -121,11 +131,13 @@ TADA_Boxplot <- function(.data, id_cols = c("TADA.ComparableDataIdentifier")) {
                      hoverformat = ',.4r', linecolor = "black", rangemode = 'tozero', 
                      showgrid = FALSE, tickcolor= "black"),
         hoverlabel=list(bgcolor="white"),
-        title = paste0("Boxplot of ", groupid), 
-        plot_bgcolor = "#e5ecf6"
+        title = paste0("Boxplot of \n", groupid), 
+        plot_bgcolor = "#e5ecf6",
+        margin = mrg
       ) %>% 
       plotly::config(displayModeBar = FALSE)
     
+    #create boxplot for all groupid's 
     boxplots[[i]] = base_boxplot
     
     names(boxplots)[i] = groupid
@@ -161,19 +173,22 @@ TADA_Boxplot <- function(.data, id_cols = c("TADA.ComparableDataIdentifier")) {
 #' @export
 #' 
 #' @examples
-#' # Create histogram using defaults, and view first plot in list:
+#' # Create a single histogram using defaults. The input dataframe in this example
+#' # includes only one unique TADA.ComparableDataIdentifier:
 #' # Load example dataset:
 #' data(Data_TP_6Tribes_5y)
+#' TADA_Histogram(Data_TP_6Tribes_5y, id_cols = "TADA.ComparableDataIdentifier")
 #' 
-#' Histogram_output = TADA_Histogram(Data_TP_6Tribes_5y, id_cols = "TADA.ComparableDataIdentifier")
-#' Histogram_output[[1]]
-#' 
-#' # Create histogram with additional grouping columns and view first plot in list. In this example, we will group by both the comparable data identifier and the monitoring location type (e.g. stream, reservoir, canal, etc.)
+#' # Create multiple histograms with additional grouping columns and view the first
+#' # plot in list. In this example, we will group by both TADA.ComparableDataIdentifier
+#' # and MonitoringLocationTypeName (e.g. stream, reservoir, canal, etc.)
 #' # Load example dataset:
 #' data(Data_Nutrients_Utah)
-#' 
 #' Histogram_output = TADA_Histogram(Data_Nutrients_UT, id_cols = c("TADA.ComparableDataIdentifier","MonitoringLocationTypeName"))
-#' Histogram_output[[1]]
+#' # This example generates 45 histograms
+#' Histogram_output[[10]]
+#' Histogram_output[[25]]
+#' Histogram_output[[35]]
 #' 
 
 TADA_Histogram <- function(.data, id_cols = c("TADA.ComparableDataIdentifier")) {
@@ -206,7 +221,7 @@ TADA_Histogram <- function(.data, id_cols = c("TADA.ComparableDataIdentifier")) 
   
   for(i in 1:max(.data$Group)){
     plot.data = subset(.data, .data$Group==i)
-    groupid = paste0(unique(plot.data[,id_cols]), collapse = "-")
+    groupid = paste0(unique(plot.data[,id_cols]), collapse = "_")
 
     # units
     unit <- unique(plot.data$TADA.ResultMeasure.MeasureUnitCode)
@@ -255,6 +270,11 @@ TADA_Histogram <- function(.data, id_cols = c("TADA.ComparableDataIdentifier")) 
                               visible = "legendonly"
         )
     }
+    
+    mrg <- list(l = 50, r = 20,
+                b = 20, t = 55,
+                pad = 0)
+    
     # histogram layout and labels
     histogram <- histogram %>% 
       plotly::layout(
@@ -265,10 +285,11 @@ TADA_Histogram <- function(.data, id_cols = c("TADA.ComparableDataIdentifier")) 
                      hoverformat = ',.4r', linecolor = "black", rangemode = 'tozero', 
                      showgrid = FALSE, tickcolor= "black"), 
         hoverlabel=list(bgcolor="white"),
-        title = groupid, 
+        title = paste0("Histogram of \n", groupid), 
         plot_bgcolor = "#e5ecf6",
         barmode = "overlay",
-        legend = list(title = list(text = "<b>Select 'Outliers Removed' \nand Deselect 'All Data' \nto View a Subset of the Data<b>"))
+        legend = list(title = list(text = "<b>Select 'Outliers Removed' \nand Deselect 'All Data' \nto View a Subset of the Data<b>")),
+        margin = mrg
       ) %>% 
       plotly::config(displayModeBar = TRUE)
 
