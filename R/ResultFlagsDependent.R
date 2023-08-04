@@ -578,7 +578,7 @@ TADA_AutoFilter <- function(.data){
                              "TADA.ResultMeasureValue", "TADA.ActivityMediaName",
                              "ActivityTypeCode"))
   
-  autofilter = plyr::filter(.data, TADA.ResultMeasureValueDataTypes.Flag != "ND or NA" &
+  autofilter = dplyr::filter(.data, TADA.ResultMeasureValueDataTypes.Flag != "ND or NA" &
                               TADA.ResultMeasureValueDataTypes.Flag != "Text" &
                               TADA.ResultMeasureValueDataTypes.Flag != "Coerced to NA" &
                               !is.na(TADA.ResultMeasureValue) & 
