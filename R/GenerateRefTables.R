@@ -483,3 +483,20 @@ TADA_GetCharacteristicRef <- function() {
 TADA_UpdateCharacteristicRef <- function() {
   utils::write.csv(TADA_GetCharacteristicRef(), file = "inst/extdata/WQXCharacteristicRef.csv", row.names = FALSE)
 }
+
+#' Nutrient Summation Reference Key
+#'
+#' Function downloads and returns the newest available nutrient summation
+#' reference dataframe. This dataframe is used in TADA_CalculateTotalNitrogen as
+#' the basis for the combinations added together to get total nitrogen. Users
+#' may customize this reference table for their own dataset and use the custom
+#' dataframe as an input in TADA_CalculateTotalNitrogen.
+#'
+#' @return Dataframe of nutrient summation combinations
+#'
+#' @export
+
+TADA_GetNutrientSummationRef <- function(){
+  ref = utils::read.csv(system.file("extdata", "Nsummation_key.csv", package = "TADA"))
+  return(ref)
+}
