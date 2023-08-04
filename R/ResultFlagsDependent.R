@@ -545,3 +545,160 @@ TADA_FindQCActivities <- function(.data, clean = FALSE, errorsonly = FALSE) {
   # return final dataframe
   return(final.data)
 }
+
+
+#' AutoFilter
+#'
+#' This function Auto-Filters a dataframe so it only includes results that are 
+#' ready to use for analyses. Ideally, this function should be run after data
+#' other data cleaning, QA/QC, and harmonization steps are completed using other 
+#' TADA package functions, or manually.
+#'
+#' @param .data TADA dataframe OR TADA sites dataframe
+#'
+#' @return .data with rows removed where result values are not quantitative (NA or text),
+#' the media is not water, or the results have other issues that are not dealt with elsewhere.
+#'
+#' @export
+#' 
+#' @examples 
+#' # Load example dataset:
+#' data(Data_Nutrients_UT)
+#' 
+#' # Remove all:
+#' TADA_filtered <- TADA_AutoFilter(Data_Nutrients_UT)
+#' 
+
+TADA_AutoFilter <- function(.data){
+  
+  # check .data is data.frame
+  TADA_CheckType(.data, "data.frame", "Input object")
+  TADA_CheckColumns(.data, c("ActivityTypeCode", "MeasureQualifierCode",
+                             "TADA.ResultMeasureValueDataTypes.Flag", 
+                             "TADA.ResultMeasureValue", "TADA.ActivityMediaName",
+                             "ActivityTypeCode"))
+  
+  autofilter = plyr::filter(.data, TADA.ResultMeasureValueDataTypes.Flag != "ND or NA" &
+                              TADA.ResultMeasureValueDataTypes.Flag != "Text" &
+                              TADA.ResultMeasureValueDataTypes.Flag != "Coerced to NA" &
+                              !is.na(TADA.ResultMeasureValue) & 
+                              TADA.ActivityMediaName == "WATER")
+  
+  # filter out QA/QC ActivityTypeCode's
+  autofilter2 = TADA_FindQCActivities(autofilter, clean = TRUE)
+  
+  # measure qualifier code
+  
+  return(autofilter2)
+  
+}
+
+
+
+#' Check for results with suspect Result Measure Qualifier Codes
+#' 
+#' This function checks for and flags or removes samples denoted as suspect
+#' based on the 'MeasureQualifierCode' column. The function will flag 
+#' suspect samples as "SUSPECT" and passing samples as "PASS". 
+#'
+#' @param .data TADA dataframe which must include the column 'MeasureQualifierCode'
+#' @param clean Boolean argument with options "TRUE" or "FALSE". The default is
+#' clean = "FALSE" which does not remove any rows of data. When clean = "TRUE", 
+#' any rows of data flagged as "a Quality Control sample "SUSPECT" will be removed. 
+#' @param errorsonly Boolean argument; the default is errorsonly = FALSE. When
+#' errorsonly = TRUE, the function will filter the dataframe to show only the
+#' rows of data flagged as Quality Control samples.
+#' 
+#' @return This function adds the column "TADA.ResultMeasureQualifier.Flag" to the dataframe
+#' which flags quality control samples based on the "MeasureQualifierCode" column. When
+#' clean = "FALSE", all flagged data are kept in the dataframe. When clean = "TRUE",
+#' all flagged data are removed from the dataframe. When errorsonly = TRUE, the dataframe 
+#' is filtered to show only the flagged data. When errorsonly = FALSE, the full,
+#' cleaned dataframe is returned. The default is clean = "none" and errorsonly = FALSE.
+#' 
+#' @export
+#' 
+#' @examples 
+#' # Load example dataset:
+#' data(Data_Nutrients_UT)
+#' 
+#' # Flag and keep all QC samples:
+#' MeasureQualifierCode_flagged <- TADA_FlagResultMeasureQualifier(Data_Nutrients_UT)
+#' 
+#' # Flag QC samples and filter to flagged data only:
+#' MeasureQualifierCode_flags_only <- TADA_FlagResultMeasureQualifier(Data_Nutrients_UT, errorsonly = TRUE)
+#' 
+#' # Remove all QC samples:
+#' MeasureQualifierCode_clean <- TADA_FlagResultMeasureQualifier(Data_Nutrients_UT, clean = TRUE)
+
+TADA_FlagResultMeasureQualifier <- function(.data, clean = FALSE, errorsonly = FALSE) {
+  # check .data is data.frame
+  TADA_CheckType(.data, "data.frame", "Input object")
+  # check that clean is boolean
+  TADA_CheckType(clean, "logical")
+  # check errorsonly is boolean
+  TADA_CheckType(errorsonly, "logical")
+  # check .data has required columns
+  TADA_CheckColumns(.data, c("MeasureQualifierCode"))
+  
+  # execute function after checks are passed
+  # delete existing flag column
+  if (("TADA.ResultMeasureQualifier.Flag" %in% colnames(.data)) == TRUE) {
+    .data <- dplyr::select(.data, -TADA.ResultMeasureQualifier.Flag)
+  }
+  
+  # load in ResultMeasureQualifier Flag Table
+  qc.ref <- TADA_GetResultMeasureQualifierRef() %>%
+    dplyr::rename(MeasureQualifierCode = Code) %>%
+    dplyr::select(MeasureQualifierCode, TADA.ResultMeasureQualifier.Flag)
+  
+  # identify any Activity Type Codes not in reference table
+  codes = unique(.data$MeasureQualifierCode)
+  if(any(!codes %in% qc.ref$MeasureQualifierCode)){
+    missing_codes = codes[!codes %in% qc.ref$MeasureQualifierCode]
+    missing_codes_df <- data.frame(MeasureQualifierCode = missing_codes,
+                                   TADA.ResultMeasureQualifier.Flag = "uncategorized")
+    qc.ref <- rbind(qc.ref, missing_codes_df)
+    missing_codes = paste(missing_codes, collapse = ", ")
+    print(paste0("MeasureQualifierCode column in dataset contains value(s) ",missing_codes, " which is/are not represented in the MeasureQualifierCode WQX domain table. These data records are placed under the TADA.MeasureQualifierCode.Flag: 'uncategorized'. Please contact TADA administrators to resolve."))
+  }
+  
+  # populate flag column in data
+  flag.data <- dplyr::left_join(.data, qc.ref, by = "MeasureQualifierCode")
+  flag.data = flag.data %>% dplyr::distinct()
+  
+  # clean dataframe
+  # if clean = FALSE, return full dataframe
+  if(clean == FALSE) {
+    clean.data <- flag.data
+  } 
+  # if clean = TRUE, remove flagged data
+  if(clean == TRUE) {
+    clean.data <- dplyr::filter(flag.data, flag.data$TADA.ResultMeasureQualifier.Flag == "PASS")
+  }
+  
+  # if errorsonly = FALSE, return full clean dataframe
+  if(errorsonly == FALSE) {
+    final.data <- clean.data
+    # if the dataframe is empty, print message
+    if(nrow(final.data) == 0) {
+      print("This dataframe is empty because all rows contained SUSPECT samples that were removed")
+    }
+    # if there are no flags, print message
+    if(sum(final.data$TADA.ResultMeasureQualifier.Flag != "Non_QC") == 0) {
+      print("SUSPECT samples have been removed or were not present in the input dataframe. Returning dataframe with TADA.MeasureQualifierCode.Flag column for tracking.")
+    }
+  }
+  
+  # if errorsonly = TRUE, return clean dataframe filtered to only the flagged rows
+  if(errorsonly == TRUE) {
+    final.data <- clean.data[!is.na(clean.data$TADA.ResultMeasureQualifier.Flag),]
+    # if the dataframe is empty, print message
+    if(nrow(final.data) == 0) {
+      print("This dataframe is empty because either we did not find any SUSPECT samples or because they were all removed")
+    }
+  }
+  
+  # return final dataframe
+  return(final.data)
+}

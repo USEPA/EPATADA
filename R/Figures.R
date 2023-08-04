@@ -32,7 +32,7 @@
 #' 
 #' # Create multiple boxplots with additional grouping columns and view the first
 #' # plot in list. In this example, we will group data in the input dataframe
-#' by both the TADA.ComparableDataIdentifier and the OrganizationIdentifier
+#' # by both the TADA.ComparableDataIdentifier and the OrganizationIdentifier
 #' Boxplots_TPbyOrg = TADA_Boxplot(df, id_cols = c("TADA.ComparableDataIdentifier","OrganizationIdentifier"))
 #' # This example generates 4 box plots.
 #' Boxplots_TPbyOrg[[1]]
