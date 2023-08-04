@@ -482,8 +482,12 @@ TADA_OrderCols <- function(.data){
            "TADA.ActivityMediaName", 
            "TADA.CharacteristicName",
            "TADA.CharacteristicNameAssumptions",
+           "TADA.NutrientSummationGroup",
+           "TADA.NutrientSummationEquation",
            "TADA.AggregatedContinuousData.Flag",
            "TADA.ResultMeasureValue",
+           "TADA.ResultValueAggregation.Flag",
+           "TADA.NutrientSummation.Flag",
            "TADA.ResultMeasureValueDataTypes.Flag",
            "TADA.CensoredData.Flag",
            "TADA.CensoredMethod",
@@ -526,8 +530,8 @@ TADA_OrderCols <- function(.data){
            "WQXConversionFactor.ActivityTopDepthHeightMeasure",
            "WQXConversionFactor.ActivityBottomDepthHeightMeasure",
            "WQXConversionFactor.ResultDepthHeightMeasure",
-           "TADA.TADA.MultipleOrgDuplicate",
-           "TADA.TADA.MultipleOrgDupGroupID",
+           "TADA.MultipleOrgDuplicate",
+           "TADA.MultipleOrgDupGroupID",
            "TADA.ResultSelectedMultipleOrgs",
            "TADA.SingleOrgDupGroupID",
            "TADA.ResultSelectedSingleOrg",
@@ -703,8 +707,8 @@ TADA_FindNearbySites <- function(.data, dist_buffer=100){
     groups_wide = tidyr::pivot_wider(groups_wide, id_cols = "MonitoringLocationIdentifier",names_from = "GroupCount", names_prefix = "TADA.SiteGroup",values_from = "TADA.SiteGroupID")
     # merge data to site groupings
     .data = merge(.data, groups_wide, all.x = TRUE)
-  }else{ # if no groups, give a TADA.SiteGroup1 column filled with NA
-    .data$TADA.SiteGroup1 = NA
+  }else{ # if no groups, give a TADA.NearbySiteGroups column filled with NA
+    .data$TADA.NearbySiteGroups = "No nearby sites"
     print("No nearby sites detected using input buffer distance.")
   }
   
@@ -713,9 +717,11 @@ TADA_FindNearbySites <- function(.data, dist_buffer=100){
   
   .data = .data %>% tidyr::unite(col = TADA.NearbySiteGroups, dplyr::all_of(grpcols), sep = ", ", na.rm = TRUE)
   .data$TADA.NearbySiteGroups[.data$TADA.NearbySiteGroups==""] = "No nearby sites"
-  
+
   # order columns
-  .data = TADA_OrderCols(.data)
+  if("ResultIdentifier"%in%names(.data)){
+    .data = TADA_OrderCols(.data)
+  }
   
   # # relocate site group columns to TADA area
   # .data = .data%>%dplyr::relocate(dplyr::all_of(grpcols), .after="TADA.LongitudeMeasure")
@@ -744,4 +750,132 @@ TADA_RandomTestingSet <- function(number_of_days = 90){
   
   return(dat)
 }
+
+
+#' Aggregate multiple result values to a min, max, or mean
+#'
+#' This function groups TADA data by user-defined columns and aggregates the
+#' TADA.ResultMeasureValue to a minimum, maximum, or average value.
+#'
+#' @param .data A TADA dataframe
+#' @param grouping_cols The column names used to group the data
+#' @param agg_fun The aggregation function used on the grouped data. This can
+#'   either be 'min', 'max', or 'mean'.
+#' @param clean Boolean. Determines whether other measurements from the group
+#'   aggregation should be removed or kept in the dataframe. If clean = FALSE,
+#'   additional measurements are indicated in the
+#'   TADA.ResultValueAggregation.Flag as "Used in aggregation function but not
+#'   selected".
+#' 
+#' @return A TADA dataframe with aggregated values combined into one row. If the
+#'   agg_fun is 'min' or 'max', the function will select the row matching the
+#'   aggregation condition and flag it as the selected measurement. If the
+#'   agg_fun is 'mean', the function will select a random row from the
+#'   aggregated rows to represent the metadata associated with the mean value,
+#'   and gives the row a unique ResultIdentifier: the original ResultIdentifier
+#'   with the prefix "TADA-". Function adds a TADA.ResultValueAggregation.Flag
+#'   to indicate which rows have been aggregated.
+#' 
+#' @export
+#' 
+#' @examples 
+#' # Load example dataset
+#' data(Data_6Tribes_5y)
+#' # Select maximum value per day, site, comparable data identifier, result detection condition, and activity type code. Clean all non-maximum measurements from grouped data.
+#' Data_6Tribes_5y_agg = TADA_AggregateMeasurements(Data_6Tribes_5y, grouping_cols = c("ActivityStartDate","MonitoringLocationIdentifier","TADA.ComparableDataIdentifier","ResultDetectionConditionText","ActivityTypeCode"), agg_fun = 'max', clean = TRUE)
+#' 
+#' # Calculate a mean value per day, site, comparable data identifier, result detection condition, and activity type code. Keep all measurements used to calculate mean measurement.
+#' Data_6Tribes_5y_agg = TADA_AggregateMeasurements(Data_6Tribes_5y, grouping_cols = c("ActivityStartDate","MonitoringLocationIdentifier","TADA.ComparableDataIdentifier","ResultDetectionConditionText","ActivityTypeCode"), agg_fun = 'mean', clean = FALSE)
+
+TADA_AggregateMeasurements <- function(.data, grouping_cols = c("ActivityStartDate","MonitoringLocationIdentifier","TADA.ComparableDataIdentifier","ResultDetectionConditionText","ActivityTypeCode"), agg_fun = c('max','min','mean'), clean = TRUE){
+  
+  TADA_CheckColumns(.data, grouping_cols)
+  agg_fun = match.arg(agg_fun)
+  
+  # Find multiple values in groups
+  ncount = .data %>% dplyr::group_by(dplyr::across(dplyr::all_of(grouping_cols))) %>% dplyr::summarise(ncount = length(ResultIdentifier))
+  
+  if(max(ncount$ncount)<2){
+    print("No rows to aggregate.")
+    return(.data)
+  }else{
+    dat = merge(.data, ncount, all.x = TRUE)
+    
+    if(any(is.na(dat$TADA.ResultMeasureValue))){
+      "Warning: your dataset contains one or more rows where TADA.ResultMeasureValue = NA. Recommend removing these rows before proceeding. Otherwise, the function will not consider NAs in its calculations."
+    }
+    
+    dat$TADA.ResultValueAggregation.Flag = ifelse(dat$ncount==1, "No aggregation needed",paste0("Used in ", agg_fun, " aggregation function but not selected"))
+    multiples = dat %>% dplyr::filter(ncount>1)
+    
+    dat = dat %>% dplyr::select(-ncount)
+    
+    if(agg_fun == "max"){
+      out = multiples %>% dplyr::group_by(dplyr::across(dplyr::all_of(grouping_cols))) %>% dplyr::slice_max(order_by = TADA.ResultMeasureValue, n = 1, with_ties = FALSE)
+      dat$TADA.ResultValueAggregation.Flag = ifelse(dat$ResultIdentifier%in%out$ResultIdentifier,paste0("Selected as ", agg_fun, " aggregate value"), dat$TADA.ResultValueAggregation.Flag)
+    }
+    if(agg_fun == "min"){
+      out = multiples %>% dplyr::group_by(dplyr::across(dplyr::all_of(grouping_cols))) %>% dplyr::slice_min(order_by = TADA.ResultMeasureValue, n = 1, with_ties = FALSE)
+      dat$TADA.ResultValueAggregation.Flag = ifelse(dat$ResultIdentifier%in%out$ResultIdentifier,paste0("Selected as ", agg_fun, " aggregate value"), dat$TADA.ResultValueAggregation.Flag)
+    }
+    if(agg_fun == "mean"){
+      out = multiples %>% dplyr::group_by(dplyr::across(dplyr::all_of(grouping_cols))) %>% dplyr::mutate(TADA.ResultMeasureValue1 = mean(TADA.ResultMeasureValue, na.rm = TRUE)) %>% dplyr::slice_sample(n = 1) %>% dplyr::mutate(TADA.ResultValueAggregation.Flag = paste0("Selected as ", agg_fun, " aggregate value, with randomly selected metadata from a row in the aggregate group"))
+      out = out %>% dplyr::select(-TADA.ResultMeasureValue) %>% dplyr::rename(TADA.ResultMeasureValue = TADA.ResultMeasureValue1) %>% dplyr::mutate(ResultIdentifier = paste0("TADA-",ResultIdentifier))
+      dat = plyr::rbind.fill(dat, out)
+    }
+    
+    if(clean == TRUE){
+      dat = subset(dat, !dat$TADA.ResultValueAggregation.Flag%in%c(paste0("Used in ", agg_fun, " aggregation function but not selected")))
+    }
+    
+    dat = TADA_OrderCols(dat)
+    print("Aggregation results:")
+    print(table(dat$TADA.ResultValueAggregation.Flag))
+    return(dat)
+  }
+  
+}
+  
+#' Run key flagging functions
+#'
+#' This is a shortcut function to run all of the most important flagging functions on a TADA dataset. See ?function documentation for TADA_FlagResultUnit, TADA_FlagFraction, TADA_FindQCActivities, and TADA_FlagSpeciation for more information.
+#'
+#' @param .data A TADA dataframe
+#' @param remove_na Boolean, Determines whether to keep TADA.ResultMeasureValues that are NA. Defaults to TRUE.
+#' @param clean Boolean. Determines whether to keep the Invalid rows in the dataset following each flagging function. Defaults to TRUE.
+#' 
+#' @return A TADA dataframe with the following flagging columns:TADA.ResultUnit.Flag, TADA.MethodSpeciation.Flag, TADA.SampleFraction.Flag, and TADA.ActivityType.Flag
+#' 
+#' @export
+#' 
+#' @examples 
+#' # Load example dataset
+#' data(Data_6Tribes_5y)
+#' # Run flagging functions, keeping all rows
+#' Data_6Tribes_5y_ALL = TADA_RunKeyFlagFunctions(Data_6Tribes_5y, remove_na = FALSE, clean = FALSE)
+#' 
+#' # Run flagging functions, removing NA's and Invalid rows
+#' Data_6Tribes_5y_CLEAN = TADA_RunKeyFlagFunctions(Data_6Tribes_5y, remove_na = TRUE, clean = TRUE)
+
+TADA_RunKeyFlagFunctions <- function(.data, remove_na = TRUE, clean = TRUE){
+  
+  if(remove_na == TRUE){
+    .data = .data %>% dplyr::filter(!is.na(TADA.ResultMeasureValue))
+  }
+  
+  if(clean == TRUE){
+    .data = TADA_FlagResultUnit(.data, clean = "invalid_only")
+    .data = TADA_FlagFraction(.data, clean = TRUE)
+    .data = TADA_FlagSpeciation(.data, clean = "invalid_only")
+    .data = TADA_FindQCActivities(.data, clean = TRUE)
+  }else{
+    .data = TADA_FlagResultUnit(.data, clean = "none")
+    .data = TADA_FlagFraction(.data, clean = FALSE)
+    .data = TADA_FlagSpeciation(.data, clean = "none")
+    .data = TADA_FindQCActivities(.data, clean = FALSE)
+  }
+ 
+  return(.data)
+}
+  
 
