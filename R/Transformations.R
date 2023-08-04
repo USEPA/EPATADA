@@ -318,7 +318,7 @@ TADA_HarmonizeSynonyms <- function(.data, ref, np_speciation = TRUE) {
 }
 
 
-#' Calculate Total Nitrogen or Phosphorus
+#' Calculate Total Nitrogen or (eventually) Phosphorus 
 #' 
 #' This function uses the [Nutrient Aggregation logic](https://echo.epa.gov/trends/loading-tool/resources/nutrient-aggregation#nitrogen)
 #' from ECHO's Water Pollutant Loading Tool to add nitrogen subspecies together
@@ -329,11 +329,11 @@ TADA_HarmonizeSynonyms <- function(.data, ref, np_speciation = TRUE) {
 #' reference table is contained within the package but may be edited/customized
 #' by users. Future development may include total P summations as well.
 #' 
-#' @param .data TADA dataframe. If user wants to consider grouping nitrogen
-#'   subspecies across multiple organizations, user should have run
-#'   TADA_FindNearbySites and grouped all nearby sites to one common
-#'   MonitoringLocationIdentifier, TADA.LatitudeMeasure, TADA.LonigtudeMeasure,
-#'   etc.
+#' @param .data TADA dataframe, ideally harmonized using TADA_HarmonizeSynonyms.
+#'   If user wants to consider grouping N or P subspecies across multiple
+#'   organizations, user should have run TADA_FindNearbySites and grouped all
+#'   nearby sites to one common MonitoringLocationIdentifier,
+#'   TADA.LatitudeMeasure, TADA.LongitudeMeasure, etc.
 #' @param sum_ref Optional. A custom summation reference dataframe the user has
 #'   loaded into the R environment. Dataframe must have same columns as default
 #'   TADA.summation reference table.
@@ -346,11 +346,14 @@ TADA_HarmonizeSynonyms <- function(.data, ref, np_speciation = TRUE) {
 #'   summation values from adding up subspecies. These new rows share the same
 #'   date and monitoring location as the subspecies, but an additional note is
 #'   added in the TADA.NutrientSummation.Flag column describing how the total was
-#'   derived.
+#'   derived. Also adds TADA.NutrientSummationGroup and TADA.NutrientSummationEquation columns.
 #'   
 #' @export
 
-TADA_CalculateTotalNP <- function(.data, sum_ref, daily_agg){
+TADA_CalculateTotalNP <- function(.data, sum_ref, daily_agg = c("max","min","mean")){
+  
+  # check to make sure daily_agg is populated with allowable value
+  daily_agg <- match.arg(daily_agg)
   
   # check required columns for TADA dataset
   req_cols = c("TADA.CharacteristicName",
@@ -374,11 +377,16 @@ TADA_CalculateTotalNP <- function(.data, sum_ref, daily_agg){
     sum_ref = TADA_GetNutrientSummationRef()
   }
   
+  # check if QC flag function run and print warning if not
+  if(!"TADA.ActivityType.Flag" %in% names(.data)){
+    "Warning: TADA dataset does not have the TADA.ActivityType.Flag column, which indicates QC replicates have not been handled/reviewed. This function is not built to handle QC replicate samples and will use them to aggregate to a daily max and total nutrient value."
+  }
+  
   # Get grouping cols for daily aggregation
   # create nutrient groups by site, date, and depth
   depths = names(.data)[grepl("DepthHeightMeasure", names(.data))]
   depths = depths[grepl("TADA.", depths)]
-  grpcols = c("ActivityStartDate", "MonitoringLocationIdentifier","ActivityMediaSubdivisionName","TADA.ComparableDataIdentifier","ActivityTypeCode","TADA.ResultMeasure.MeasureUnitCode",depths)
+  grpcols = c("ActivityStartDate", "MonitoringLocationIdentifier","ActivityMediaSubdivisionName","TADA.ComparableDataIdentifier","TADA.ResultMeasure.MeasureUnitCode",depths)
   
   dat = TADA_AggregateMeasurements(.data, grouping_cols = grpcols, agg_fun = daily_agg, clean = TRUE)
 
@@ -424,6 +432,9 @@ TADA_CalculateTotalNP <- function(.data, sum_ref, daily_agg){
       summeddata = plyr::rbind.fill(summeddata, out)
       grps = c(grps, unique(out$TADA.NutrientSummationGroup))
     }
+    
+    # check to make sure group isn't entirely non-detects
+    
     
     # Convert speciation if needed
     summeddata$TADA.ResultMeasureValue = ifelse(!is.na(summeddata$SummationSpeciationConversionFactor), summeddata$TADA.ResultMeasureValue * summeddata$SummationSpeciationConversionFactor, summeddata$TADA.ResultMeasureValue)

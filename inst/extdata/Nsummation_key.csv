@@ -23,6 +23,7 @@ WATER,AMMONIA,DISSOLVED,,NA,NA,NA,AMMON,,"Not used, speciation not reported and 
 WATER,AMMONIA,TOTAL,NA,NA,NA,NA,AMMON,,"Not used, speciation not reported and could not be inferred"
 WATER,AMMONIA,TOTAL SOLUBLE,Assume filtered/filterable equals dissolved fraction,NA,NA,NA,AMMON,,"Not used, speciation not reported and could not be inferred"
 WATER,AMMONIUM,TOTAL,NA,NA,NA,NA,AMMON,,"Not used, speciation not reported and could not be inferred"
+WATER,NITRATE,ACID SOLUBLE,Assumes acid soluble equals the dissolved fraction,NA,NA,NA,NITRATE,,"Not used, speciation not reported and could not be inferred"
 WATER,NITRATE,UNFILTERED,Assumes Unfiltered is equivalent to Total,AS N,NA,NA,NITRATE,1,
 WATER,NITRATE,TOTAL,NA,AS N,NA,NA,NITRATE,1,
 WATER,NITRATE,UNFILTERED,Assumes Unfiltered is equivalent to Total,AS NO3,Convert NO3 to N,0.225,NITRATE,2,
@@ -42,6 +43,7 @@ WATER,NITRATE + NITRITE,TOTAL,NA,AS N,NA,NA,NITRATE + NITRITE,1,
 WATER,NITRATE + NITRITE,"FILTERED, LAB",Assume filtered/filterable equals dissolved fraction,AS N,NA,NA,NITRATE + NITRITE,3,
 WATER,INORGANIC NITROGEN (NITRATE & NITRITE),DISSOLVED,,AS N,NA,NA,NITRATE + NITRITE,3,
 WATER,INORGANIC NITROGEN (NITRATE AND NITRITE),DISSOLVED,,AS N,NA,NA,NITRATE + NITRITE,3,
+WATER,INORGANIC NITROGEN (NITRATE AND NITRITE),NA,,AS N,NA,NA,NITRATE + NITRITE,,"Not used, fraction not reported and could not be inferred"
 WATER,NITRATE + NITRITE,DISSOLVED,,AS N,NA,NA,NITRATE + NITRITE,3,
 WATER,NITRATE + NITRITE,FILTERABLE,Assume filtered/filterable equals dissolved fraction,AS N,NA,NA,NITRATE + NITRITE,3,
 WATER,NITRATE + NITRITE,UNFILTERED,Assumes Unfiltered is equivalent to Total,NONE,NA,NA,NITRATE + NITRITE,,"Not used, speciation not reported and could not be inferred"
