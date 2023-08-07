@@ -53,11 +53,14 @@ TADA_IDCensoredData <- function(.data){
     ## Fill in detection type when result measure value = "ND"
     cens$TADA.Detection_Type = ifelse(cens$ResultMeasureValue%in%c("ND"),"Non-Detect", cens$TADA.Detection_Type)
     
-    if(any(cens$TADA.Detection_Type=="ResultDetectionConditionText missing")){
+    ## Let user know when detection condition text is missing from one or more results
+    # NOTE that at this point, TADA.Detection_Type may be NA if there are detection conditions in dataset that are not present in domain table
+    if(any(cens$TADA.Detection_Type[!is.na(cens$TADA.Detection_Type)]=="ResultDetectionConditionText missing")){
       missing_detcond = length(cens$TADA.Detection_Type[cens$TADA.Detection_Type=="ResultDetectionConditionText missing"])
       print(paste0("TADA_IDCensoredData: There are ", missing_detcond," results in your dataset that are missing ResultDetectionConditionText. Unless the ResultMeasureValue = 'ND' (indicating non-detect), TADA requires BOTH ResultDetectionConditionText and DetectionQuantitationLimitTypeName fields to be populated in order to categorize censored data. Please contact the TADA Admins to resolve."))
     }
     
+    ## Let user know when one or more result detection conditions are not in the ref table
     conds = unique(cens$ResultDetectionConditionText[!is.na(cens$ResultDetectionConditionText)])
     if(any(!conds%in%cond.ref$ResultDetectionConditionText)){
       missing_conds = conds[!conds%in%cond.ref$ResultDetectionConditionText]
