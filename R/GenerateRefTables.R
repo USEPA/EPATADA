@@ -494,11 +494,11 @@ TADA_UpdateCharacteristicRef <- function() {
 
 
 
-# Used to store cached WQXResultMeasureQualifierRef Ref Table
-WQXResultMeasureQualifierRef_Cached <- NULL
+# Used to store cached WQXMeasureQualifierCodeRef Ref Table
+WQXMeasureQualifierCodeRef_Cached <- NULL
 
 
-#' Update Result Measure Qualifier Reference Table
+#' Update result Measure Qualifier Code Reference Table
 #'
 #' Function downloads and returns in the latest WQX ResultMeasureQualifier Domain table, 
 #' adds category information, and writes the data to sysdata.rda.
@@ -506,15 +506,15 @@ WQXResultMeasureQualifierRef_Cached <- NULL
 #' This function caches the table after it has been called once
 #' so subsequent calls will be faster.
 #'
-#' @return sysdata.rda with updated WQXResultMeasureQualifierRef object
+#' @return sysdata.rda with updated WQXMeasureQualifierCodeRef object
 #'
 #' @export
 
-TADA_GetResultMeasureQualifierRef <- function() {
+TADA_GetMeasureQualifierCodeRef <- function() {
   
   # If there is a cached table available return it
-  if (!is.null(WQXResultMeasureQualifierRef_Cached)) {
-    return(WQXResultMeasureQualifierRef_Cached)
+  if (!is.null(WQXMeasureQualifierCodeRef_Cached)) {
+    return(WQXMeasureQualifierCodeRef_Cached)
   }
   
   # Try to download up-to-date raw data
@@ -527,9 +527,9 @@ TADA_GetResultMeasureQualifierRef <- function() {
   
   # If the download failed fall back to internal data (and report it)
   if (is.null(raw.data)) {
-    message('Downloading latest Result Measure Qualifier Reference Table failed!')
+    message('Downloading latest Measure Qualifier Code Reference Table failed!')
     message('Falling back to (possibly outdated) internal file.')
-    return(utils::read.csv(system.file("extdata", "WQXResultMeasureQualifierRef.csv", package = "TADA")))
+    return(utils::read.csv(system.file("extdata", "WQXMeasureQualifierCodeRef.csv", package = "TADA")))
   }
   
   # Categorize Result Measure Qualifiers
@@ -544,38 +544,51 @@ TADA_GetResultMeasureQualifierRef <- function() {
            "MI", "MSR", "NAI", "NLBL", "NLRO", "NN", "NPNF", "NRB", "NRO", 
            "NRP", "NRR", "NRS", "NSQ", "P", "PNQ", "PP", "Q", "QC", "R", "RA",
            "RPO", "S2", "SCA", "SCF", "SCP", "SCX", "SD%EL", "SDROL", "SSR", 
-           "SUS", "V", "^")
-  keep <- c("&", ")", "*", "2-5B", "<2B", "=", "A", "AC", "AL", "ALK", "ALT", 
-           "AP", "B", "BAC", "BQL", "BRL", "C25", "CAJ", "CBG", "CBL", "CC", 
+           "SUS", "V", "^", "F", "FEQ", "G", "UDL", "MDL")
+  keep <- c("&", ")", "*", "=", "A", "AC", "AL", "ALK", "ALT", 
+           "AP", "B", "BAC",  "C25", "CAJ", "CBG", "CBL", "CC", 
            "CDI", "CG", "CKB", "CKBJ", "CKG", "CKJ", "CLC", "CNT", "CON", "CUG",
-           "D", "D>T", "DEC", "DI", "DL", "DOM", "DT", "E", "ECI", "EE", "EMPC",
-           "ESD", "EST", "EVA", "EVAD", "EVID", "F", "FEQ", "G", "GR4", "GT",
-           "GXB", "HLBL", "HQ", "HVER", "IDL",  "J", "J+", "J-", "J-R", "JCN",
-           "K",  "L", "LCS", "LF", "LIS", "LL", "LLBL", "LLS", "LMSR", "LNRO",
-           "LR", "LT", "LTGTE",  "MDL", "MSD", "N", "NA", "NFNS", "NHS",  "NW",
+           "D",  "DEC", "DI",  "DOM", "DT",  "ECI", "EMPC",
+           "ESD", "EST", "EVA", "EVAD", "EVID", "GR4",
+           "GXB", "HLBL", "HQ", "HVER",  "J", "J+", "J-", "J-R", "JCN",
+           "L", "LCS", "LF", "LIS", "LL", "LLBL", "LLS", "LMSR", "LNRO",
+           "LR", "LT", "MSD", "N", "NA", "NFNS", "NHS",  "NW",
            "O",  "OA3", "OS3", "OTHER", "OUT", "PB", "PK", "PPD", "PQL",  "PRE",
-           "QCI", "RC", "REX", "RIN", "RLRS", "RMAX", "RNAF", "RNON", "RP", 
+           "QCI", "RC", "REX", "RIN", "RLRS", "RMAX", "RNAF", "RP", 
            "RPDX", "RR", "RV", "RVB", "SBB", "SLB", "SM", "SS", "SSRV", "T", 
-           "TMLF", "TOC", "TT", "U", "UDL", "UDQ", "UNC", "VS", "VVRR", "VVRR2")
-
+           "TMLF", "TOC", "TT", "UNC", "VS", "VVRR", "VVRR2", "UDQ")
+  nondetect <- c("BQL", "2-5B", "RNON", "U","LTGTE", "K", "IDL", "<2B", "BRL", "D>T", "DL")
+  overdetect <- c("E", "EE", "GT")
   
-  WQXResultMeasureQualifierRef <- raw.data%>%
-    dplyr::mutate(TADA.ResultMeasureQualifier.Flag = dplyr::case_when(
-      Code %in% suspect ~ "SUSPECT",
-      Code %in% keep ~ "PASS",
-      TRUE ~ as.character("PASS")
+  WQXMeasureQualifierCodeRef <- raw.data%>%
+    dplyr::mutate(TADA.MeasureQualifierCode.Flag = dplyr::case_when(
+      Code %in% nondetect ~ "Non-Detect",
+      Code %in% overdetect ~ "Over-Detect",
+      Code %in% suspect ~ "Suspect",
+      Code %in% keep ~ "Pass",
+      Code %in% NA ~ "Pass",
+      TRUE ~ as.character("Non-Detect"),
+      TRUE ~ as.character("Over-Detect")
     ))%>%dplyr::distinct()
   
-  # Save updated table in cache
-  WQXResultMeasureQualifierRef_Cached <- WQXResultMeasureQualifierRef
+  ## Add detection conditions not in WQX domain table
+  others = data.frame(Code = c("H;J", "LT;MDL"),
+                      Description = c("Hard-coded combination", "Hard-coded combination"),
+                      TADA.MeasureQualifierCode.Flag = c("Pass", "Non-Detect"),
+                      Last.Change.Date = c("8/7/2023 02:36:00 PM", "8/7/2023 05:00:00 PM"))
   
-  return(WQXResultMeasureQualifierRef)
+  WQXMeasureQualifierCodeRef = plyr::rbind.fill(WQXMeasureQualifierCodeRef, others)
+  
+  # Save updated table in cache
+  WQXMeasureQualifierCodeRef_Cached <- WQXMeasureQualifierCodeRef
+  
+  return(WQXMeasureQualifierCodeRef)
 }
 
 # Update WQX ResultMeasureQualifier Reference Table internal file (for internal use only)
 
-TADA_UpdateResultMeasureQualifierRef <- function() {
-  utils::write.csv(TADA_GetResultMeasureQualifierRef(), file = "inst/extdata/WQXResultMeasureQualifierRef.csv", row.names = FALSE)
+TADA_UpdateMeasureQualifierCodeRef <- function() {
+  utils::write.csv(TADA_GetMeasureQualifierCodeRef(), file = "inst/extdata/WQXMeasureQualifierCodeRef.csv", row.names = FALSE)
 }
 
 

@@ -34,9 +34,9 @@ test_that("Is TADA_GetActivityTypeRef up to date?", {
 
 
 # Test that new codes have not been added to ResultMeasureQualifier domain table
-test_that("Is TADA_GetResultMeasureQualifierRef up to date?", {
+test_that("Is TADA_GetMeasureQualifierCodeRef up to date?", {
   # Check for any new domain values that may not follow above logic and warn.
-  old = utils::read.csv(system.file("extdata", "WQXResultMeasureQualifierRef.csv", package = "TADA"))
+  old = utils::read.csv(system.file("extdata", "WQXMeasureQualifierCodeRef.csv", package = "TADA"))
   old_latedate = max(as.Date(old$Last.Change.Date, "%m/%d/%Y"))
   ref = TADA_GetResultMeasureQualifierRef()
   new_latedate = max(as.Date(ref$Last.Change.Date, "%m/%d/%Y"))

@@ -76,7 +76,7 @@ remotes::install_github("USEPA/TADA",
 # when developing the package, update this chunk to the current repository, so it runs with all of the new features prior to a PR to develop
 
 remotes::install_github("USEPA/TADA", 
-                        ref = "harmonization_updates_eh",
+                        ref = "figures",
                         dependencies = TRUE)
 
 ```
@@ -752,34 +752,17 @@ TADA_FieldValuesPie(TADAProfileClean4, "MeasureQualifierCode")
 
 MeasureQualifierCode definitions are available
 [here](https://cdx.epa.gov/wqx/download/DomainValues/ResultMeasureQualifier.CSV){style="font-size: 12pt;"}.
-Values and definitions relevant to this example data frame are included
-below:
 
--   D: Contract Required Quantitation Limit (CRQL) not met due to sample
-    matrix interference, dilution required
-
--   H: Holding time exceeded
-
--   ICA: Incorrect Initial Calibration Associated with Sample
-
--   \*: Sample was warm when received
-
--   E: Concentration of analyte being analyzed exceeded calibration
-    range of instrument.
-
--   J: Estimated: The analyte was positively identified and the
-    associated numerical value is the approximate concentration of the
-    analyte in the sample.
-
--   U: Not Detected: The analyte was analyzed for, but was not detected
-    at a level greater than or equal to the level of the adjusted
-    Contract Required Quantitation Limit (CRQL) for sample and method.
-
-In this example, we show how to remove specific values and regenerate
-the pie chart.
+In this example, we show how to use the function TADA_FlagMeasureQualifierCode to remove rows with specific ResultMeasureQualifier that are flagged as "SUSPECT". 
+See ?TADA_FlagMeasureQualifierCode for more information. 
 
 ```{r FilterMeasureQualifierCodes}
-TADAProfileClean4 <- dplyr::filter(TADAProfileClean4, !(MeasureQualifierCode %in% c("D", "H", "ICA", "*")))
+Review_TADAProfileClean4 <- TADA_FlagMeasureQualifierCode(TADAProfileClean4, 
+                                                          clean = FALSE, 
+                                                          errorsonly = TRUE)
+
+TADAProfileClean4 <- TADA_FlagMeasureQualifierCode(TADAProfileClean4, 
+                                                   clean = TRUE)
 
 # regenerate table and pie chart
 TADA_FieldValuesPie(TADAProfileClean4, field = "MeasureQualifierCode")
