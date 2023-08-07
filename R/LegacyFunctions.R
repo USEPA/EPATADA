@@ -46,7 +46,7 @@
 
 FilterFields <- function(.data) {
   # check .data is data.frame
-  TADA_TADA_CheckType(.data, "data.frame", "Input object")
+  TADA_CheckType(.data, "data.frame", "Input object")
   
   # CREATE LIST OF FIELDS
   # Find count of unique values in each column
@@ -163,7 +163,7 @@ FilterFields <- function(.data) {
 FilterFieldReview <- function(field, .data) {
   # if provided, check .data is data.frame
   if (!missing(.data)) {
-    TADA_TADA_CheckType(.data, "data.frame", "Input object")
+    TADA_CheckType(.data, "data.frame", "Input object")
   }
   # execute function after checks are passed
   
@@ -289,7 +289,7 @@ FilterParList <- function(.data) {
 
 FilterParFields <- function(.data, parameter) {
   # check .data is data.frame
-  TADA_TADA_CheckType(.data, "data.frame", "Input object")
+  TADA_CheckType(.data, "data.frame", "Input object")
   # check .data has required columns
   TADA_CheckColumns(.data, "TADA.CharacteristicName")
   
@@ -442,7 +442,7 @@ FilterParFields <- function(.data, parameter) {
 FilterParFieldReview <- function(field, .data, parameter) {
   # if provided, check .data is data.frame
   if (!missing(.data)) {
-    TADA_TADA_CheckType(.data, "data.frame", "Input object")
+    TADA_CheckType(.data, "data.frame", "Input object")
   }
   # check parameter is in .data
   if (!missing(parameter)) {
@@ -513,7 +513,7 @@ MeasureValueSpecialCharacters <- function(.data) {
   warning("This function is deprecated and does not return the correct column names. Please use TADA_ConvertSpecialChars() function instead.")
   
   # check .data is data.frame
-  TADA_TADA_CheckType(.data, "data.frame", "Input object")
+  TADA_CheckType(.data, "data.frame", "Input object")
   
   # .data required columns
   required_cols <- c("ResultMeasureValue", "DetectionQuantitationLimitMeasure.MeasureValue")

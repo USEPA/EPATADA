@@ -31,16 +31,6 @@ pre[class] {
 }
 ```
 
-## Download this Article from GitHub
-
-Go to:
-<https://github.com/USEPA/TADA/blob/develop/vignettes/TADAModule1.Rmd>
-
-[![Click the highlighted icon to download TADAModule1.Rmd from GitHub.
-Open this file in R Studio to follow along. Alternatively, you can copy
-and paste desired lines of code herein into your own
-script.](images/DownloadModule1.jpg)](https://github.com/USEPA/TADA/blob/develop/vignettes/TADAModule1.Rmd)
-
 ## Overview
 
 This vignette walks through how to use the TADA R Package to discover
@@ -315,7 +305,7 @@ a pop-up with this summary information, including the number of
 organizations that reported results at that site. This map may inform a
 user's decision to remove/correct sites that are outside the US.
 
-```{r Map, fig.width=6, fig.height=6, fig.fullwidth=TRUE}
+```{r Map, fig.width=8, fig.height=6, fig.fullwidth=TRUE}
 TADA_OverviewMap(TADAProfile)
 ```
 
@@ -722,7 +712,7 @@ table or pie chart of the counts of unique values in that field using
 **TADA_FieldValuesTable** or **TADA_FieldValuesPie**. We'll start with
 ActivityTypeCode.
 
-```{r fieldValues_all, fig.width=6, fig.height=2, fig.fullwidth=TRUE}
+```{r fieldValues_all, fig.width=6, fig.height=3, fig.fullwidth=TRUE}
 TADA_FieldValuesTable(TADAProfileClean3, field = "ActivityTypeCode")
 TADA_FieldValuesPie(TADAProfileClean3, field = "ActivityTypeCode")
 ```
@@ -731,7 +721,7 @@ The ActivityTypeCode field has multiple unique values. In this example
 we remove Quality Control (QC) values using the
 TADA_FindQCActivities function.
 
-```{r TADA_FindQCActivities}
+```{r TADA_FindQCActivities, fig.width=6, fig.height=4, fig.fullwidth=TRUE}
 # Remove all QC samples using the TADA_FindQCActivities function:
 # enter ?TADA_FindQCActivities into the console for more information
 TADAProfileClean4 <- TADA_FindQCActivities(TADAProfileClean3, clean = TRUE)
@@ -756,7 +746,7 @@ that we want to remove.
 In this next example, there are multiple MeasureQualifierCode values to
 review.
 
-```{r MeasureQualifierCodeReview, fig.width=6, fig.height=2, fig.fullwidth=TRUE}
+```{r MeasureQualifierCodeReview, fig.width=6, fig.height=4, fig.fullwidth=TRUE}
 TADA_FieldValuesPie(TADAProfileClean4, "MeasureQualifierCode")
 ```
 
@@ -880,17 +870,21 @@ TADA.ResultMeasureValueDataTypes.Flag = "Text","Coerced to NA","ND or
 NA".
 
 ```{r filter_out_NAs}
-# Filter down to only numeric data. Remove "Text","Coerced to NA","ND or NA"  
+# Filter down to only numeric data. Remove "Text","Coerced to NA","ND or NA". 
+# Removes rows with any remaining NA's in the TADA.ResultMeasureValue column
 TADAProfileClean5 <- dplyr::filter(TADAProfileClean4, 
                   TADA.ResultMeasureValueDataTypes.Flag != "ND or NA" &
                   TADA.ResultMeasureValueDataTypes.Flag != "Text" &
-                  TADA.ResultMeasureValueDataTypes.Flag != "Coerced to NA")
+                  TADA.ResultMeasureValueDataTypes.Flag != "Coerced to NA" & 
+                  !is.na(TADA.ResultMeasureValue))
 ```
 
 Double check to make sure no NA's or ND's remain.
 
 ```{r check_for_NAs_again}
 unique(TADAProfileClean5$TADA.ResultMeasureValueDataTypes.Flag)
+
+sum(is.na(TADAProfileClean5$TADA.ResultMeasureValue))
 ```
 
 ## Convert synonymous characteristic, fraction, speciation, and unit values to a consistent convention based on user-defined/TADA standards
@@ -1041,7 +1035,7 @@ Review the WQX domain files for definitions:
 Now, we'll use **TADA_FieldValuesTable** and **TADA_FieldValuesPie** at the
 characteristic-level to review a column of interest.
 
-```{r TADA_FieldValuesTable_Pie_char, fig.width=6, fig.height=2, fig.fullwidth=TRUE}
+```{r TADA_FieldValuesTable_Pie_char, fig.width=6, fig.height=4, fig.fullwidth=TRUE}
 # In this example we review values from the SampleCollectionMethod.MethodName field
 TADA_FieldValuesTable(TADAProfileClean5, field = "SampleCollectionMethod.MethodName",  characteristicName = "TOTAL PHOSPHORUS, MIXED FORMS")
 TADA_FieldValuesPie(TADAProfileClean5, field = "SampleCollectionMethod.MethodName",  characteristicName = "TOTAL PHOSPHORUS, MIXED FORMS")
@@ -1052,7 +1046,7 @@ Now we will summarize results for a single comparable data group using the
 TADA.ComparableDataIdentifier (i.e., comparable characteristic, unit,
 speciation, and fraction combination) using **TADA_Histogram** and **TADA_Boxplot**. Note that users may generate a list output of multiple plots if their input dataset has more than one unique comparable data group.
 
-```{r ComparableDataIdentifier_stats_and_histogram, fig.width=6, fig.height=6, fig.fullwidth=TRUE}
+```{r ComparableDataIdentifier_stats_and_histogram, fig.width=10, fig.height=6, fig.fullwidth=TRUE}
 # review TADA.ComparableDataIdentifier
 unique(TADAProfileClean5$TADA.ComparableDataIdentifier)
 
@@ -1074,7 +1068,7 @@ TP_Histogram
 
 Generate interactive box plot.
 
-```{r boxplot, fig.width=6, fig.height=6, fig.fullwidth=TRUE}
+```{r boxplot, fig.width=10, fig.height=6, fig.fullwidth=TRUE}
 
 TP_Boxplot = TADA::TADA_Boxplot(TADAProfileCleanTP, id_cols = "TADA.ComparableDataIdentifier")
 
@@ -1091,6 +1085,10 @@ interface. The shiny application queries the WQP, contains maps and data
 visualizations, flags suspect data results, handles censored data, and
 more. You can launch it using the code below.
 
+DRAFT [Module 1](https://owshiny-dev.app.cloud.gov/tada-dev/) is also
+currently hosted on the web with minimal server memory/storage
+allocated.
+
 ```{r, eval = F}
 # download TADA Shiny repository
 remotes::install_github("USEPA/TADAShiny", 
@@ -1101,6 +1099,12 @@ remotes::install_github("USEPA/TADAShiny",
 TADAShiny::run_app()
 ```
 
-DRAFT [Module 1](https://owshiny-dev.app.cloud.gov/tada-dev/) is also
-currently hosted on the web with minimal server memory/storage
-allocated.
+## Download this Article from GitHub
+
+Go to:
+<https://github.com/USEPA/TADA/blob/develop/vignettes/TADAModule1.Rmd>
+
+[![Click the highlighted icon to download TADAModule1.Rmd from GitHub.
+Open this file in R Studio to follow along. Alternatively, you can copy
+and paste desired lines of code from here into your own
+script. Note: You must have a GitHub account to download TADAModule1.Rmd from GitHub ](images/DownloadModule1.jpg)](https://github.com/USEPA/TADA/blob/develop/vignettes/TADAModule1.Rmd)

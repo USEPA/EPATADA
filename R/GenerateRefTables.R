@@ -484,6 +484,93 @@ TADA_UpdateCharacteristicRef <- function() {
   utils::write.csv(TADA_GetCharacteristicRef(), file = "inst/extdata/WQXCharacteristicRef.csv", row.names = FALSE)
 }
 
+
+
+# Used to store cached WQXResultMeasureQualifierRef Ref Table
+WQXResultMeasureQualifierRef_Cached <- NULL
+
+
+#' Update Result Measure Qualifier Reference Table
+#'
+#' Function downloads and returns in the latest WQX ResultMeasureQualifier Domain table, 
+#' adds category information, and writes the data to sysdata.rda.
+#'
+#' This function caches the table after it has been called once
+#' so subsequent calls will be faster.
+#'
+#' @return sysdata.rda with updated WQXResultMeasureQualifierRef object
+#'
+#' @export
+
+TADA_GetResultMeasureQualifierRef <- function() {
+  
+  # If there is a cached table available return it
+  if (!is.null(WQXResultMeasureQualifierRef_Cached)) {
+    return(WQXResultMeasureQualifierRef_Cached)
+  }
+  
+  # Try to download up-to-date raw data
+  raw.data <- tryCatch({
+    # read raw csv from url
+    utils::read.csv(url("https://cdx.epa.gov/wqx/download/DomainValues/ResultMeasureQualifier.CSV"))
+  }, error = function(err) {
+    NULL
+  })
+  
+  # If the download failed fall back to internal data (and report it)
+  if (is.null(raw.data)) {
+    message('Downloading latest Result Measure Qualifier Reference Table failed!')
+    message('Falling back to (possibly outdated) internal file.')
+    return(utils::read.csv(system.file("extdata", "WQXResultMeasureQualifierRef.csv", package = "TADA")))
+  }
+  
+  # Categorize Result Measure Qualifiers
+  suspect <- c("$", "(", "+", "AR", "BS", "BSR", "BT", "BVER", "C", "CAN", "CBC", 
+           "CSR" , "DE", "EER", "EFAI", "FDB", "FDC", "FDL", "FFB", "FFD", 
+           "FFS", "FFT", "FH", "FIS", "FL", "FLA", "FLC", "FLD", "FLS", "FMD", 
+           "FMS", "FPC", "FPP", "FPR", "FQC", "FRS", "FSD", "FSL", "FSP", "FUB", 
+           "H", "H2", "H3", "HE", "HH", "HIB", "HICC", "HIM", "HMSD", "HMSR", 
+           "HNRO", "HTH", "I", "ICA", "INT", "IQCOL", "IS", "ISAC", "ISP", 
+           "ISR**", "ITNA", "ITNM", "JCW", "KCF", "KCX", "KK", "LAC", "LBF", 
+           "LICC", "LMSD", "LO", "LOB", "LOPR", "LQ", "LSSR", "LVER", "M6F", 
+           "MI", "MSR", "NAI", "NLBL", "NLRO", "NN", "NPNF", "NRB", "NRO", 
+           "NRP", "NRR", "NRS", "NSQ", "P", "PNQ", "PP", "Q", "QC", "R", "RA",
+           "RPO", "S2", "SCA", "SCF", "SCP", "SCX", "SD%EL", "SDROL", "SSR", 
+           "SUS", "V", "^")
+  keep <- c("&", ")", "*", "2-5B", "<2B", "=", "A", "AC", "AL", "ALK", "ALT", 
+           "AP", "B", "BAC", "BQL", "BRL", "C25", "CAJ", "CBG", "CBL", "CC", 
+           "CDI", "CG", "CKB", "CKBJ", "CKG", "CKJ", "CLC", "CNT", "CON", "CUG",
+           "D", "D>T", "DEC", "DI", "DL", "DOM", "DT", "E", "ECI", "EE", "EMPC",
+           "ESD", "EST", "EVA", "EVAD", "EVID", "F", "FEQ", "G", "GR4", "GT",
+           "GXB", "HLBL", "HQ", "HVER", "IDL",  "J", "J+", "J-", "J-R", "JCN",
+           "K",  "L", "LCS", "LF", "LIS", "LL", "LLBL", "LLS", "LMSR", "LNRO",
+           "LR", "LT", "LTGTE",  "MDL", "MSD", "N", "NA", "NFNS", "NHS",  "NW",
+           "O",  "OA3", "OS3", "OTHER", "OUT", "PB", "PK", "PPD", "PQL",  "PRE",
+           "QCI", "RC", "REX", "RIN", "RLRS", "RMAX", "RNAF", "RNON", "RP", 
+           "RPDX", "RR", "RV", "RVB", "SBB", "SLB", "SM", "SS", "SSRV", "T", 
+           "TMLF", "TOC", "TT", "U", "UDL", "UDQ", "UNC", "VS", "VVRR", "VVRR2")
+
+  
+  WQXResultMeasureQualifierRef <- raw.data%>%
+    dplyr::mutate(TADA.ResultMeasureQualifier.Flag = dplyr::case_when(
+      Code %in% suspect ~ "SUSPECT",
+      Code %in% keep ~ "PASS",
+      TRUE ~ as.character("PASS")
+    ))%>%dplyr::distinct()
+  
+  # Save updated table in cache
+  WQXResultMeasureQualifierRef_Cached <- WQXResultMeasureQualifierRef
+  
+  return(WQXResultMeasureQualifierRef)
+}
+
+# Update WQX ResultMeasureQualifier Reference Table internal file (for internal use only)
+
+TADA_UpdateResultMeasureQualifierRef <- function() {
+  utils::write.csv(TADA_GetResultMeasureQualifierRef(), file = "inst/extdata/WQXResultMeasureQualifierRef.csv", row.names = FALSE)
+}
+
+
 #' Nutrient Summation Reference Key
 #'
 #' Function downloads and returns the newest available nutrient summation
@@ -500,3 +587,4 @@ TADA_GetNutrientSummationRef <- function(){
   ref = utils::read.csv(system.file("extdata", "Nsummation_key.csv", package = "TADA"))
   return(ref)
 }
+

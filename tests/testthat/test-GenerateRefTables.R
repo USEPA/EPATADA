@@ -31,6 +31,20 @@ test_that("Is TADA_GetActivityTypeRef up to date?", {
   expect_true(old_latedate==new_latedate)
 })
 
+
+
+# Test that new codes have not been added to ResultMeasureQualifier domain table
+test_that("Is TADA_GetResultMeasureQualifierRef up to date?", {
+  # Check for any new domain values that may not follow above logic and warn.
+  old = utils::read.csv(system.file("extdata", "WQXResultMeasureQualifierRef.csv", package = "TADA"))
+  old_latedate = max(as.Date(old$Last.Change.Date, "%m/%d/%Y"))
+  ref = TADA_GetResultMeasureQualifierRef()
+  new_latedate = max(as.Date(ref$Last.Change.Date, "%m/%d/%Y"))
+  
+  expect_true(old_latedate==new_latedate)
+  
+})  
+
 # test_that("There aren't any char-frac-spec-unit combos not present in synonym reference",{
 #   test = TADA_RandomTestingSet()
 #   test1 = TADA_RunKeyFlagFunctions(test)
@@ -59,4 +73,5 @@ test_that("No combos were missed in NP key from harmonization table",{
     print(orphs)
   }
   expect_true(dim(orphs)[1]==0)
+
 })

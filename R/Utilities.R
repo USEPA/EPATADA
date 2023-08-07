@@ -751,6 +751,7 @@ TADA_RandomTestingSet <- function(number_of_days = 90){
   return(dat)
 }
 
+
 #' Aggregate multiple result values to a min, max, or mean
 #'
 #' This function groups TADA data by user-defined columns and aggregates the
@@ -877,3 +878,4 @@ TADA_RunKeyFlagFunctions <- function(.data, remove_na = TRUE, clean = TRUE){
   return(.data)
 }
   
+

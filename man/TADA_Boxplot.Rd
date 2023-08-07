@@ -30,18 +30,34 @@ outliers for each unique data group.
 Create Boxplot(s)
 }
 \examples{
-# Create boxplot using defaults, and view first plot in list:
+# Create a single boxplot using defaults. The input dataframe in this example
+# includes only one unique TADA.ComparableDataIdentifier: 
 # Load example dataset:
-data(Data_TP_6Tribes_5y)
+data(Data_6Tribes_5y_Harmonized)
+# Filter data down to a single TADA.ComparableDataIdentifier
+df = dplyr::filter(Data_6Tribes_5y_Harmonized, TADA.ComparableDataIdentifier == "TOTAL PHOSPHORUS, MIXED FORMS_UNFILTERED_AS P_UG/L")
+# Generate single boxplot
+TADA_Boxplot(df, id_cols = "TADA.ComparableDataIdentifier")
 
-Boxplot_output = TADA_Boxplot(Data_TP_6Tribes_5y, id_cols = "TADA.ComparableDataIdentifier")
-Boxplot_output[[1]]
-
-# Create boxplot with additional grouping columns and view first plot in list. In this example, we will group by both the comparable data identifier and the monitoring location type (e.g. stream, reservoir, canal, etc.)
+# Create multiple boxplots with additional grouping columns and view the first
+# plot in list. In this example, we will group data in the input dataframe
+# by both the TADA.ComparableDataIdentifier and the OrganizationIdentifier
+Boxplots_TPbyOrg = TADA_Boxplot(df, id_cols = c("TADA.ComparableDataIdentifier","OrganizationIdentifier"))
+# This example generates 4 box plots.
+Boxplots_TPbyOrg[[1]]
+Boxplots_TPbyOrg[[2]]
+Boxplots_TPbyOrg[[3]]
+ 
+# Create multiple boxplots with additional grouping columns and view the first
+# plot in list. In this example, we will group data in the input dataframe
+# by both the TADA.ComparableDataIdentifier and the MonitoringLocationTypeName 
+# (e.g. stream, reservoir, canal, etc.)
 # Load example dataset:
 data(Data_Nutrients_Utah)
-
 Boxplot_output = TADA_Boxplot(Data_Nutrients_UT, id_cols = c("TADA.ComparableDataIdentifier","MonitoringLocationTypeName"))
-Boxplot_output[[1]]
+# This example generates 45 box plots.
+Boxplot_output[[2]]
+Boxplot_output[[25]]
+Boxplot_output[[40]]
 
 }
