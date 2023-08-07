@@ -730,24 +730,30 @@ TADA_FindNearbySites <- function(.data, dist_buffer=100){
 }
 
 # Generate a random data retrieval dataset (internal, for testthat's)
-# samples a random state and a random 3 months in the past 10 years using
+# samples a random state and a random 2 months in the past 20 years using
 # TADA_DataRetrieval. Built to use in testthat and for developer testing of new
 # functions on random datasets.
 
-TADA_RandomTestingSet <- function(number_of_days = 90){
+TADA_RandomTestingSet <- function(number_of_days = 4){
   
   load(system.file("extdata", "statecodes_df.Rdata", package = "TADA"))
-  state = sample(statecodes_df$STUSAB,1)
-  ten_yrs_ago = Sys.Date()-10*365
-  random_start_date = ten_yrs_ago + sample(10*365,1)
+  #removed state
+  #state = sample(statecodes_df$STUSAB,1)
+  #changed to 20 years ago instead of 10
+  twenty_yrs_ago = Sys.Date()-20*365
+  random_start_date = twenty_yrs_ago + sample(20*365,1)
+  #changed default to 4 days instead of 90
   end_date = random_start_date + number_of_days
   
-  dat = TADA_DataRetrieval(startDate = as.character(random_start_date), endDate = as.character(end_date), statecode = state, sampleMedia = "Water")
+  print(c(startDate = as.character(random_start_date), endDate = as.character(end_date)))
+  
+  #removed state input
+  dat = TADA_DataRetrieval(startDate = as.character(random_start_date), endDate = as.character(end_date))
   
   if(dim(dat)[1]<1){
     dat = Data_NCTCShepherdstown_HUC12
   }
-  
+
   return(dat)
 }
 
@@ -878,4 +884,28 @@ TADA_RunKeyFlagFunctions <- function(.data, remove_na = TRUE, clean = TRUE){
   return(.data)
 }
   
+
+#' TADA_OvernightTesting
+#'  
+#' @return console inputs and outputs
+#' 
+
+TADA_OvernightTesting <- function(){
+  
+  testing_log <- file("testing_log.txt") # File name of output log
+  
+  sink(testing_log, append = TRUE, type = "output") # Writing console output to log file
+  sink(testing_log, append = TRUE, type = "message")
+  
+  #cat(readChar(rstudioapi::getSourceEditorContext()$path, # Writing currently opened R script to file
+  #             file.info(rstudioapi::getSourceEditorContext()$path)$size))
+  
+  TADA_RandomTestingSet()
+  TADA_RandomTestingSet()
+  
+  closeAllConnections() # Close connection to log file
+  
+  return(testing_log)
+
+  }
 
