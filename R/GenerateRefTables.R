@@ -236,6 +236,14 @@ TADA_GetDetCondRef <- function() {
       TRUE ~ as.character("Non-Detect")
     ))%>%dplyr::distinct()
   
+  ## Add detection conditions not in WQX domain table
+  others = data.frame(Name = c("*Non-detect"),
+                    Description = c("Hard-coded legacy detection condition"),
+                    TADA.Detection_Type = c("Non-Detect"),
+                    Last.Change.Date = c("8/7/2023 12:00:00 PM"))
+  
+  WQXDetCondRef = plyr::rbind.fill(WQXDetCondRef, others)
+  
   # Save updated table in cache
   WQXDetCondRef_Cached <- WQXDetCondRef
   
