@@ -572,10 +572,41 @@ TADA_GetMeasureQualifierCodeRef <- function() {
     ))%>%dplyr::distinct()
   
   ## Add detection conditions not in WQX domain table
-  others = data.frame(Code = c("H;J", "LT;MDL"),
-                      Description = c("Hard-coded combination", "Hard-coded combination"),
-                      TADA.MeasureQualifierCode.Flag = c("Pass", "Non-Detect"),
-                      Last.Change.Date = c("8/7/2023 02:36:00 PM", "8/7/2023 05:00:00 PM"))
+  others = data.frame(Code = c("H;J", "LT;MDL", "HMSR;J", "J;QC", "D;H", "J;U", "H;LAC", 
+                               "FQC;J", "B;J", "FMS;J", "D;U"),
+                      Description = c("Hard-coded combination", 
+                                      "Hard-coded combination", 
+                                      "Hard-coded combination", 
+                                      "Hard-coded combination",
+                                      "Hard-coded combination",
+                                      "Hard-coded combination",
+                                      "Hard-coded combination", 
+                                      "Hard-coded combination",
+                                      "Hard-coded combination",
+                                      "Hard-coded combination",
+                                      "Hard-coded combination"),
+                      TADA.MeasureQualifierCode.Flag = c("Pass",
+                                                         "Non-Detect",
+                                                         "Suspect", 
+                                                         "Suspect", 
+                                                         "Suspect", 
+                                                         "Non-Detect", 
+                                                         "Suspect", 
+                                                         "Suspect",
+                                                         "Suspect",
+                                                         "Suspect",
+                                                         "Non-Detect"),
+                      Last.Change.Date = c("8/7/2023 02:36:00 PM",
+                                           "8/7/2023 05:00:00 PM",
+                                           "8/7/2023 07:42:00 PM",
+                                           "8/7/2023 07:42:00 PM",
+                                           "8/7/2023 07:42:00 PM",
+                                           "8/7/2023 07:42:00 PM",
+                                           "8/7/2023 07:42:00 PM",
+                                           "8/7/2023 07:42:00 PM",
+                                           "8/7/2023 07:42:00 PM",
+                                           "8/7/2023 07:42:00 PM",
+                                           "8/7/2023 07:42:00 PM"))
   
   WQXMeasureQualifierCodeRef = plyr::rbind.fill(WQXMeasureQualifierCodeRef, others)
   

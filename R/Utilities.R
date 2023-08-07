@@ -730,11 +730,11 @@ TADA_FindNearbySites <- function(.data, dist_buffer=100){
 }
 
 # Generate a random data retrieval dataset (internal, for testthat's)
-# samples a random state and a random 2 months in the past 20 years using
+# samples a random 2 days in the past 20 years using
 # TADA_DataRetrieval. Built to use in testthat and for developer testing of new
 # functions on random datasets.
 
-TADA_RandomTestingSet <- function(number_of_days = 4){
+TADA_RandomTestingSet <- function(number_of_days = 2){
   
   load(system.file("extdata", "statecodes_df.Rdata", package = "TADA"))
   #removed state
@@ -742,7 +742,7 @@ TADA_RandomTestingSet <- function(number_of_days = 4){
   #changed to 20 years ago instead of 10
   twenty_yrs_ago = Sys.Date()-20*365
   random_start_date = twenty_yrs_ago + sample(20*365,1)
-  #changed default to 4 days instead of 90
+  #changed default to 2 days instead of 90
   end_date = random_start_date + number_of_days
   
   print(c(startDate = as.character(random_start_date), endDate = as.character(end_date)))
@@ -900,6 +900,10 @@ TADA_OvernightTesting <- function(){
   #cat(readChar(rstudioapi::getSourceEditorContext()$path, # Writing currently opened R script to file
   #             file.info(rstudioapi::getSourceEditorContext()$path)$size))
   
+  TADA_RandomTestingSet()
+  TADA_RandomTestingSet()
+  TADA_RandomTestingSet()
+  TADA_RandomTestingSet()
   TADA_RandomTestingSet()
   TADA_RandomTestingSet()
   

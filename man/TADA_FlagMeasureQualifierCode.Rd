@@ -29,18 +29,20 @@ cleaned dataframe is returned. The default is clean = FALSE and errorsonly = FAL
 \description{
 This function checks for and flags or removes samples denoted as suspect
 based on the 'MeasureQualifierCode' column. The function will flag
-suspect samples as "Suspect" and passing samples as "Pass".
+suspect samples as "Suspect" and passing samples as "Pass". This function also
+flags censored data as "Over-Detect" or "Non-Detect" for later use in the
+censored data function, TADA_SimpleCensoredMethods.
 }
 \examples{
 # Load example dataset:
-data(Data_NCTCShepherdstown_HUC12)
+data(Data_6Tribes_5y)
 
 # Flag and keep all suspect samples:
-MeasureQualifierCode_flagged <- TADA_FlagMeasureQualifierCode(Data_NCTCShepherdstown_HUC12)
+MeasureQualifierCode_flagged <- TADA_FlagMeasureQualifierCode(Data_6Tribes_5y)
 
 # Flag suspect samples and filter to suspect data only:
-MeasureQualifierCode_flags_only <- TADA_FlagMeasureQualifierCode(Data_NCTCShepherdstown_HUC12, errorsonly = TRUE)
+MeasureQualifierCode_flags_only <- TADA_FlagMeasureQualifierCode(Data_6Tribes_5y, errorsonly = TRUE)
 
 # Remove all suspect samples:
-MeasureQualifierCode_clean <- TADA_FlagMeasureQualifierCode(Data_NCTCShepherdstown_HUC12, clean = TRUE)
+MeasureQualifierCode_clean <- TADA_FlagMeasureQualifierCode(Data_6Tribes_5y, clean = TRUE)
 }

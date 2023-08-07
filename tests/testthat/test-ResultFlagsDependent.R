@@ -15,4 +15,14 @@ test_that("No NA's in dependent flag columns", {
   })
 
 
-
+test_that("TADA_FlagMeasureQualifierCode includes all combinations", {
+  testing <- TADA_RandomTestingSet()
+  
+  testing2 <- TADA_FlagMeasureQualifierCode(testing)
+  
+  expect_true(all(testing2$TADA.MeasureQualifierCode.Flag != "uncategorized"))
+  
+  print(unique(testing2$TADA_FlagMeasureQualifierCode))
+  print(unique(testing2$MeasureQualifierCode))
+  
+})

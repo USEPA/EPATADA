@@ -753,13 +753,14 @@ TADA_FieldValuesPie(TADAProfileClean4, "MeasureQualifierCode")
 MeasureQualifierCode definitions are available
 [here](https://cdx.epa.gov/wqx/download/DomainValues/ResultMeasureQualifier.CSV){style="font-size: 12pt;"}.
 
-In this example, we show how to use the function TADA_FlagMeasureQualifierCode to remove rows with specific ResultMeasureQualifier that are flagged as "SUSPECT". 
+In this example, we show how to use the function TADA_FlagMeasureQualifierCode to remove rows with specific ResultMeasureQualifier that are flagged as "SUSPECT". There 
 See ?TADA_FlagMeasureQualifierCode for more information. 
 
 ```{r FilterMeasureQualifierCodes}
 Review_TADAProfileClean4 <- TADA_FlagMeasureQualifierCode(TADAProfileClean4, 
                                                           clean = FALSE, 
                                                           errorsonly = TRUE)
+# Review_TADAProfileClean4 is empty because we did not find any Suspect samples 
 
 TADAProfileClean4 <- TADA_FlagMeasureQualifierCode(TADAProfileClean4, 
                                                    clean = TRUE)
