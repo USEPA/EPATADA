@@ -4,7 +4,7 @@
 \alias{TADA_FindQCActivities}
 \title{Check for Quality Control Samples}
 \usage{
-TADA_FindQCActivities(.data, clean = FALSE, errorsonly = FALSE)
+TADA_FindQCActivities(.data, clean = FALSE, flaggedonly = FALSE)
 }
 \arguments{
 \item{.data}{TADA dataframe which must include the column 'ActivityTypeCode'}
@@ -20,8 +20,8 @@ rows of data flagged as a calibration check or spiked Quality Control sample
 will be removed. And when clean = "other", any rows of data flagged as some
 other type of Quality Control sample will be removed.}
 
-\item{errorsonly}{Boolean argument; the default is errorsonly = FALSE. When
-errorsonly = TRUE, the function will filter the dataframe to show only the
+\item{flaggedonly}{Boolean argument; the default is flaggedonly = FALSE. When
+flaggedonly = TRUE, the function will filter the dataframe to show only the
 rows of data flagged as Quality Control samples.}
 }
 \value{
@@ -33,9 +33,9 @@ data flagged as QC duplicates are removed from the dataframe. When clean =
 "blanks", data flagged as QC blanks are removed from the dataframe. When
 clean = "calibrations", data flagged as QC calibration checks or spikes are
 removed from the dataframe. When clean = "other", data flagged as other QC
-samples are removed from the dataframe. When errorsonly = TRUE, the dataframe
-is filtered to show only the flagged data. When errorsonly = FALSE, the full,
-cleaned dataframe is returned. The default is clean = "none" and errorsonly = FALSE.
+samples are removed from the dataframe. When flaggedonly = TRUE, the dataframe
+is filtered to show only the flagged data. When flaggedonly = FALSE, the full,
+cleaned dataframe is returned. The default is clean = "none" and flaggedonly = FALSE.
 }
 \description{
 This function checks for and flags or removes samples denoted as quality control
@@ -51,7 +51,7 @@ data(Data_Nutrients_UT)
 QC_flagged <- TADA_FindQCActivities(Data_Nutrients_UT)
 
 # Flag QC samples and filter to flagged data only:
-QC_flags_only <- TADA_FindQCActivities(Data_Nutrients_UT, errorsonly = TRUE)
+QC_flags_only <- TADA_FindQCActivities(Data_Nutrients_UT, flaggedonly = TRUE)
 
 # Remove all QC samples:
 QC_clean <- TADA_FindQCActivities(Data_Nutrients_UT, clean = TRUE)

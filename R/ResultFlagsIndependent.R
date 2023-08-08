@@ -3,25 +3,25 @@
 #' Function checks the validity of each characteristic-analytical method
 #' combination in the dataframe. When clean = TRUE, rows with invalid
 #' characteristic-analytical method combinations are removed. Default is
-#' clean = TRUE. When errorsonly = TRUE, dataframe is filtered to show only
+#' clean = TRUE. When flaggedonly = TRUE, dataframe is filtered to show only
 #' invalid characteristic-analytical method combinations. Default is
-#' errorsonly = FALSE.
+#' flaggedonly = FALSE.
 #' 
 #' @param .data TADA dataframe
 #' @param clean Boolean argument; removes "Invalid" characteristic-analytical
 #' method combinations from the dataframe when clean = TRUE. Default is
 #' clean = TRUE.
-#' @param errorsonly Boolean argument; filters dataframe to show only "Invalid"
-#' characteristic-analytical method combinations when errorsonly = TRUE. Default
-#' is errorsonly = FALSE.
+#' @param flaggedonly Boolean argument; filters dataframe to show only "Invalid"
+#' characteristic-analytical method combinations when flaggedonly = TRUE. Default
+#' is flaggedonly = FALSE.
 #' 
 #' @return This function adds the TADA.AnalyticalMethod.Flag to a TADA dataframe. This column 
 #' flags invalid CharacteristicName, ResultAnalyticalMethod/MethodIdentifier,
 #' and ResultAnalyticalMethod/MethodIdentifierContext combinations in your dataframe
 #' as either "Nonstandardized", "Invalid", or "Valid". When clean = FALSE and 
-#' errorsonly = TRUE, the dataframe is filtered to show only "Invalid" 
+#' flaggedonly = TRUE, the dataframe is filtered to show only "Invalid" 
 #' characteristic-analytical method combinations; the column TADA.AnalyticalMethod.Flag
-#' is still appended. When clean = TRUE and errorsonly = FALSE, "Invalid" rows 
+#' is still appended. When clean = TRUE and flaggedonly = FALSE, "Invalid" rows 
 #' are removed from the dataframe and no column will be appended.
 #' 
 #' @export
@@ -38,25 +38,25 @@
 #' InvalidMethod_flags <- TADA_FlagMethod(Data_Nutrients_UT, clean = FALSE)
 #' 
 #' # Show only invalid characteristic-analytical method combinations:
-#' InvalidMethod_errorsonly <- TADA_FlagMethod(Data_Nutrients_UT, clean = FALSE, errorsonly = TRUE)
+#' InvalidMethod_flaggedonly <- TADA_FlagMethod(Data_Nutrients_UT, clean = FALSE, flaggedonly = TRUE)
 #' 
 
-TADA_FlagMethod <- function(.data, clean = TRUE, errorsonly = FALSE) {
+TADA_FlagMethod <- function(.data, clean = TRUE, flaggedonly = FALSE) {
   # check .data is data.frame
   TADA_CheckType(.data, "data.frame", "Input object")
   # check clean is boolean
   TADA_CheckType(clean, "logical")
-  # check errorsonly is boolean
-  TADA_CheckType(errorsonly, "logical")
+  # check flaggedonly is boolean
+  TADA_CheckType(flaggedonly, "logical")
   # check .data has required columns
   required_cols <- c(
     "TADA.CharacteristicName", "ResultAnalyticalMethod.MethodIdentifier",
     "ResultAnalyticalMethod.MethodIdentifierContext"
   )
   TADA_CheckColumns(.data, required_cols)
-  # check that clean and errorsonly are not both TRUE
-  if (clean == TRUE & errorsonly == TRUE) {
-    stop("Function not executed because clean and errorsonly cannot both be TRUE")
+  # check that clean and flaggedonly are not both TRUE
+  if (clean == TRUE & flaggedonly == TRUE) {
+    stop("Function not executed because clean and flaggedonly cannot both be TRUE")
   }
 
   # execute function after checks are passed - removes flag column in case reference table has changed.
@@ -83,7 +83,7 @@ TADA_FlagMethod <- function(.data, clean = TRUE, errorsonly = FALSE) {
   # rename NA values to Nonstandardized in WQX.AnalyticalMethodValidity column
   check.data["TADA.AnalyticalMethod.Flag"][is.na(check.data["TADA.AnalyticalMethod.Flag"])] <- "Nonstandardized"
   
-  if (errorsonly == FALSE) {
+  if (flaggedonly == FALSE) {
     
     #if all rows are "Valid" or NA "Nonstandardized", return input unchanged
     ##note: Cristina edited this on 9/19/22 to keep Nonstandardized/NA data when clean = TRUE. Now only Invalid data is removed.
@@ -113,7 +113,7 @@ TADA_FlagMethod <- function(.data, clean = TRUE, errorsonly = FALSE) {
   }
 
   # flagged output, errors only
-  if (clean == FALSE & errorsonly == TRUE) {
+  if (clean == FALSE & flaggedonly == TRUE) {
     # filter to show only invalid characteristic-unit-method combinations
     invalid.data <- dplyr::filter(check.data, TADA.AnalyticalMethod.Flag == "Invalid")
     if (nrow(invalid.data) == 0) {
@@ -139,28 +139,28 @@ TADA_FlagMethod <- function(.data, clean = TRUE, errorsonly = FALSE) {
 #' water quality data for assessments. Therefore, this function uses metadata 
 #' submitted by data providers to flag rows with aggregated continuous data. 
 #' This is done by flagging results where the ResultDetectionConditionText = 
-#' "Reported in Raw Data (attached)". When clean = FALSE and errorsonly = FALSE, a column titled 
+#' "Reported in Raw Data (attached)". When clean = FALSE and flaggedonly = FALSE, a column titled 
 #' "TADA.AggregatedContinuousData.Flag" is added to the dataframe to indicate if the row 
 #' includes aggregated continuous data, "Y", or not,  "N". When clean = FALSE and
-#' errorsonly = TRUE, the dataframe will be filtered to show only the rows flagged 
-#' "Y" for aggregated continuous data. When clean = TRUE and errorsonly = FALSE,
+#' flaggedonly = TRUE, the dataframe will be filtered to show only the rows flagged 
+#' "Y" for aggregated continuous data. When clean = TRUE and flaggedonly = FALSE,
 #' rows with aggregated continuous data are removed from the dataframe and no 
-#' column will be appended. When clean = TRUE and errorsonly = TRUE, the function 
+#' column will be appended. When clean = TRUE and flaggedonly = TRUE, the function 
 #' does not execute and an error message is returned. The default is clean = TRUE
-#' and errorsonly = FALSE.
+#' and flaggedonly = FALSE.
 #'
 #' @param .data TADA dataframe
 #' @param clean Boolean argument; removes aggregated continuous data from
 #' the dataframe when clean = TRUE. Default is clean = TRUE.
-#' @param errorsonly Boolean argument; filters dataframe to show only aggregated
-#' continuous data when errorsonly = TRUE. Default is errorsonly = FALSE.
+#' @param flaggedonly Boolean argument; filters dataframe to show only aggregated
+#' continuous data when flaggedonly = TRUE. Default is flaggedonly = FALSE.
 #'
-#' @return When clean = FALSE and errorsonly = FALSE, a column flagging rows with 
+#' @return When clean = FALSE and flaggedonly = FALSE, a column flagging rows with 
 #' aggregated continuous data is appended to the input data set. When clean = FALSE
-#' and errorsonly = TRUE, the dataframe is filtered to show only the flagged
+#' and flaggedonly = TRUE, the dataframe is filtered to show only the flagged
 #' aggregated continuous data and flag column is still appended. When clean = TRUE
-#' and errorsonly = FALSE, aggregated continuous data is removed from the dataframe
-#' and no column is appended. The default is clean = TRUE and errorsonly = FALSE.
+#' and flaggedonly = FALSE, aggregated continuous data is removed from the dataframe
+#' and no column is appended. The default is clean = TRUE and flaggedonly = FALSE.
 #'
 #' @export
 #' 
@@ -176,22 +176,22 @@ TADA_FlagMethod <- function(.data, clean = TRUE, errorsonly = FALSE) {
 #' AggContinuous_flags <- TADA_FindContinuousData(Data_Nutrients_UT, clean = FALSE)
 #' 
 #' # Show only rows flagged for aggregated continuous data:
-#' AggContinuous_errorsonly <- TADA_FindContinuousData(Data_Nutrients_UT, 
-#' clean = FALSE, errorsonly = TRUE)
+#' AggContinuous_flaggedonly <- TADA_FindContinuousData(Data_Nutrients_UT, 
+#' clean = FALSE, flaggedonly = TRUE)
 #' 
 
-TADA_FindContinuousData <- function(.data, clean = TRUE, errorsonly = FALSE) {
+TADA_FindContinuousData <- function(.data, clean = TRUE, flaggedonly = FALSE) {
   # check .data is data.frame
   TADA_CheckType(.data, "data.frame", "Input object")
   # check clean is boolean
   TADA_CheckType(clean, "logical")
-  # check errorsonly is boolean
-  TADA_CheckType(errorsonly, "logical")
+  # check flaggedonly is boolean
+  TADA_CheckType(flaggedonly, "logical")
   # check .data has required columns
   TADA_CheckColumns(.data, "ResultDetectionConditionText")
-  # check that clean and errorsonly are not both TRUE
-  if (clean == TRUE & errorsonly == TRUE) {
-    stop("Function not executed because clean and errorsonly cannot both be TRUE")
+  # check that clean and flaggedonly are not both TRUE
+  if (clean == TRUE & flaggedonly == TRUE) {
+    stop("Function not executed because clean and flaggedonly cannot both be TRUE")
   }
   
   # set default flag to "unknown"
@@ -214,13 +214,13 @@ TADA_FindContinuousData <- function(.data, clean = TRUE, errorsonly = FALSE) {
     flag.data <- plyr::rbind.fill(cont.data, noncont.data)
     
     # flagged output, all data
-    if (clean == FALSE & errorsonly == FALSE) {
+    if (clean == FALSE & flaggedonly == FALSE) {
       flag.data <- TADA_OrderCols(flag.data)
       return(flag.data)
     }
     
     # clean output
-    if (clean == TRUE & errorsonly == FALSE) {
+    if (clean == TRUE & flaggedonly == FALSE) {
       # filter out invalid characteristic-unit-media combinations
       clean.data <- dplyr::filter(flag.data, !(TADA.AggregatedContinuousData.Flag %in% "Y"))
       
@@ -231,7 +231,7 @@ TADA_FindContinuousData <- function(.data, clean = TRUE, errorsonly = FALSE) {
     }
     
     # flagged output, only aggregated continuous data
-    if (clean == FALSE & errorsonly == TRUE) {
+    if (clean == FALSE & flaggedonly == TRUE) {
       #filter to show only invalid characteristic-unit-media combinations
       aggcont.data <- dplyr::filter(flag.data, TADA.AggregatedContinuousData.Flag == "Y")
       aggcont.data <- TADA_OrderCols(aggcont.data)
@@ -241,13 +241,13 @@ TADA_FindContinuousData <- function(.data, clean = TRUE, errorsonly = FALSE) {
   
   # if no aggregated continuous data is in the data set
   if (nrow(cont.data) == 0) {
-    if (errorsonly == FALSE) {
+    if (flaggedonly == FALSE) {
       print("No evidence of aggregated continuous data in your dataframe. Returning the input dataframe with TADA.AggregatedContinuousData.Flag column for tracking.")
       .data <- TADA_OrderCols(.data)
       return(.data)
     }
     
-    if (errorsonly == TRUE) {
+    if (flaggedonly == TRUE) {
       print("This dataframe is empty because we did not find any aggregated continuous data in your dataframe")
       cont.data <- TADA_OrderCols(cont.data)
       return(cont.data)
@@ -261,29 +261,29 @@ TADA_FindContinuousData <- function(.data, clean = TRUE, errorsonly = FALSE) {
 #' millions of water quality data points around the country. This function
 #' leverages the statistical data from WQX to flag any data that is above the
 #' upper threshold of result values submitted to WQX for a given characteristic.
-#' When clean = FALSE and errorsonly = FALSE, a column which flags data above 
+#' When clean = FALSE and flaggedonly = FALSE, a column which flags data above 
 #' the upper WQX threshold is appended to the dataframe. When clean = FALSE and 
-#' errorsonly = TRUE, the dataframe is filtered to show only data found above 
-#' the WQX threshold. When clean = TRUE and errorsonly = FALSE, rows with values 
+#' flaggedonly = TRUE, the dataframe is filtered to show only data found above 
+#' the WQX threshold. When clean = TRUE and flaggedonly = FALSE, rows with values 
 #' that are above the upper WQX threshold are removed from the dataframe and no 
-#' column is appended. When clean = TRUE and and errorsonly = TRUE, the function 
+#' column is appended. When clean = TRUE and and flaggedonly = TRUE, the function 
 #' is not executed and an error message is returned. Defaults are clean = TRUE 
-#' and errorsonly = FALSE.
+#' and flaggedonly = FALSE.
 #'
 #' @param .data TADA dataframe
 #' @param clean Boolean argument; removes data that is above the upper WQX
 #' threshold from the dataframe when clean = TRUE. Default is clean = TRUE.
-#' @param errorsonly Boolean argument; filters dataframe to show only the data
-#' flagged as above the upper WQX threshold. Default is errorsonly = FALSE.
+#' @param flaggedonly Boolean argument; filters dataframe to show only the data
+#' flagged as above the upper WQX threshold. Default is flaggedonly = FALSE.
 #'
 #' @return The input TADA dataset with the added
 #'   TADA.AboveNationalWQXUpperThreshold column. When clean = FALSE and
-#'   errorsonly = TRUE, the dataframe is filtered to show only data found above
-#'   the WQX threshold. When clean = TRUE and errorsonly = FALSE, rows with
+#'   flaggedonly = TRUE, the dataframe is filtered to show only data found above
+#'   the WQX threshold. When clean = TRUE and flaggedonly = FALSE, rows with
 #'   values that are above the upper WQX threshold are removed from the
 #'   dataframe and no column is appended. When clean = TRUE and and 
-#'   errorsonly = TRUE, the function is not executed and an error message 
-#'   is returned. Defaults are clean = TRUE and errorsonly = FALSE.
+#'   flaggedonly = TRUE, the function is not executed and an error message 
+#'   is returned. Defaults are clean = TRUE and flaggedonly = FALSE.
 #'
 #' @export
 #' 
@@ -300,25 +300,25 @@ TADA_FindContinuousData <- function(.data, clean = TRUE, errorsonly = FALSE) {
 #' 
 #' # Show only data flagged as above the upper WQX threshold:
 #' WQXUpperThreshold_flagsonly <- TADA_FlagAboveThreshold(Data_Nutrients_UT, 
-#' clean = FALSE, errorsonly = TRUE)
+#' clean = FALSE, flaggedonly = TRUE)
 #' 
 
-TADA_FlagAboveThreshold <- function(.data, clean = TRUE, errorsonly = FALSE) {
+TADA_FlagAboveThreshold <- function(.data, clean = TRUE, flaggedonly = FALSE) {
   # check .data is data.frame
   TADA_CheckType(.data, "data.frame", "Input object")
   # check clean is boolean
   TADA_CheckType(clean, "logical")
-  # check errorsonly is boolean
-  TADA_CheckType(errorsonly, "logical")
+  # check flaggedonly is boolean
+  TADA_CheckType(flaggedonly, "logical")
   # check .data has required columns
   required_cols <- c(
     "TADA.CharacteristicName", "TADA.ActivityMediaName", "TADA.ResultMeasureValue",
     "TADA.ResultMeasure.MeasureUnitCode"
   )
   TADA_CheckColumns(.data, required_cols)
-  # check that clean and errorsonly are not both TRUE
-  if (clean == TRUE & errorsonly == TRUE) {
-    stop("Function not executed because clean and errorsonly cannot both be TRUE")
+  # check that clean and flaggedonly are not both TRUE
+  if (clean == TRUE & flaggedonly == TRUE) {
+    stop("Function not executed because clean and flaggedonly cannot both be TRUE")
   }
 
   # check ResultMeasureValue column is of class numeric
@@ -366,12 +366,12 @@ TADA_FlagAboveThreshold <- function(.data, clean = TRUE, errorsonly = FALSE) {
   # if no data above WQX threshold is found
   if (any("Y" %in%
           unique(flag.data$TADA.ResultValueAboveUpperThreshold.Flag)) == FALSE) {
-    if (errorsonly == FALSE) {
+    if (flaggedonly == FALSE) {
       print("No data above the WQX Upper Threshold was found in your dataframe. Returning the input dataframe with TADA.ResultAboveUpperThreshold.Flag column for tracking.")
       flag.data <- TADA_OrderCols(flag.data)
       return(flag.data)
     }
-    if (errorsonly == TRUE) {
+    if (flaggedonly == TRUE) {
       print("This dataframe is empty because no data above the WQX Upper Threshold was found in your dataframe")
       emptyflag.data <- dplyr::filter(flag.data, TADA.ResultValueAboveUpperThreshold.Flag %in% "Y")
       # emptyflag.data <- dplyr::select(emptyflag.data, -TADA.ResultValueAboveUpperThreshold.Flag)
@@ -381,13 +381,13 @@ TADA_FlagAboveThreshold <- function(.data, clean = TRUE, errorsonly = FALSE) {
   }
   
   # flagged, all data
-  if (clean == FALSE & errorsonly == FALSE) {
+  if (clean == FALSE & flaggedonly == FALSE) {
     flag.data <- TADA_OrderCols(flag.data)
     return(flag.data)
   }
   
   # clean data
-  if (clean == TRUE & errorsonly == FALSE) {
+  if (clean == TRUE & flaggedonly == FALSE) {
     # filter out rows where TADA.ResultValueAboveUpperThreshold.Flag = Y; remove TADA.ResultValueAboveUpperThreshold.Flag column
     clean.data <- flag.data %>%
       dplyr::filter(!(TADA.ResultValueAboveUpperThreshold.Flag %in% "Y")) #%>%
@@ -397,7 +397,7 @@ TADA_FlagAboveThreshold <- function(.data, clean = TRUE, errorsonly = FALSE) {
   }
   
   # flagged, errors only
-  if (clean == FALSE & errorsonly == TRUE) {
+  if (clean == FALSE & flaggedonly == TRUE) {
     # filter to show only rows above WQX upper threshold
     flagsonly.data <- flag.data %>%
       dplyr::filter(TADA.ResultValueAboveUpperThreshold.Flag %in% "Y")
@@ -414,27 +414,27 @@ TADA_FlagAboveThreshold <- function(.data, clean = TRUE, errorsonly = FALSE) {
 #' lower threshold of result values submitted to WQX for a given characteristic.
 #' When clean = TRUE, rows with values that are below the lower WQX threshold
 #' are removed from the dataframe and no column will be appended. Default is
-#' clean = TRUE. When errorsonly = TRUE, the dataframe is filtered to show only
+#' clean = TRUE. When flaggedonly = TRUE, the dataframe is filtered to show only
 #' rows with values that are flagged below the lower WQX threshold. Default is 
-#' errorsonly = FALSE
+#' flaggedonly = FALSE
 #'
 #' @param .data TADA dataframe
 #' @param clean Boolean argument; removes data that is below the lower WQX
 #' threshold from the dataframe when clean = TRUE. Default is clean = TRUE.
-#' @param errorsonly Boolean argument; filters data to show only the values
-#' flagged as below the lower WQX threshold when errorsonly = TRUE. Default is
-#' errorsonly = FALSE.
+#' @param flaggedonly Boolean argument; filters data to show only the values
+#' flagged as below the lower WQX threshold when flaggedonly = TRUE. Default is
+#' flaggedonly = FALSE.
 #'
 #' @return The input TADA dataset with the added
 #'   TADA.BelowNationalWQXLowerThreshold column. This column flags rows with
 #'   data that are below the lower WQX threshold. When clean = FALSE and
-#'   errorsonly = TRUE, the dataframe is filtered to show only the rows which
+#'   flaggedonly = TRUE, the dataframe is filtered to show only the rows which
 #'   are flagged as below the WQX threshold; the column
 #'   TADA.ResultValueBelowLowerThreshold.Flag is still appended. When clean =
-#'   TRUE and errorsonly = FALSE, data that is below the lower WQX threshold is
-#'   removed from the dataframe. When clean = TRUE and errorsonly = TRUE, the
+#'   TRUE and flaggedonly = FALSE, data that is below the lower WQX threshold is
+#'   removed from the dataframe. When clean = TRUE and flaggedonly = TRUE, the
 #'   function does not execute and an error message is returned. The defaults
-#'   are clean = TRUE and errorsonly = FALSE.
+#'   are clean = TRUE and flaggedonly = FALSE.
 #' 
 #' @export
 #' 
@@ -451,25 +451,25 @@ TADA_FlagAboveThreshold <- function(.data, clean = TRUE, errorsonly = FALSE) {
 #' 
 #' # Show only data that is below the lower WQX threshold:
 #' WQXLowerThreshold_flagsonly <- TADA_FlagBelowThreshold(Data_Nutrients_UT,
-#' clean = FALSE, errorsonly = TRUE)
+#' clean = FALSE, flaggedonly = TRUE)
 #' 
 
-TADA_FlagBelowThreshold <- function(.data, clean = TRUE, errorsonly = FALSE) {
+TADA_FlagBelowThreshold <- function(.data, clean = TRUE, flaggedonly = FALSE) {
   # check .data is data.frame
   TADA_CheckType(.data, "data.frame", "Input object")
   # check clean is boolean
   TADA_CheckType(clean, "logical")
-  # check errorsonly is boolean
-  TADA_CheckType(errorsonly, "logical")
+  # check flaggedonly is boolean
+  TADA_CheckType(flaggedonly, "logical")
   # check .data has required columns
   required_cols <- c(
     "TADA.CharacteristicName", "TADA.ActivityMediaName", "TADA.ResultMeasureValue",
     "TADA.ResultMeasure.MeasureUnitCode"
   )
   TADA_CheckColumns(.data, required_cols)
-  # check that clean and errorsonly are not both TRUE
-  if (clean == TRUE & errorsonly == TRUE) {
-    stop("Function not executed because clean and errorsonly cannot both be TRUE")
+  # check that clean and flaggedonly are not both TRUE
+  if (clean == TRUE & flaggedonly == TRUE) {
+    stop("Function not executed because clean and flaggedonly cannot both be TRUE")
   }
 
   # check ResultMeasureValue column is of class numeric
@@ -516,12 +516,12 @@ TADA_FlagBelowThreshold <- function(.data, clean = TRUE, errorsonly = FALSE) {
   # if no data below WQX lower threshold is found
   if (any("Y" %in%
           unique(flag.data$TADA.ResultValueBelowLowerThreshold.Flag)) == FALSE) {
-    if (errorsonly == FALSE) {
+    if (flaggedonly == FALSE) {
       print("No data below the WQX Lower Threshold were found in your dataframe. Returning the input dataframe with TADA.ResultValueBelowLowerThreshold.Flag column for tracking.")
       flag.data <- TADA_OrderCols(flag.data)
       return(flag.data)
     }
-    if (errorsonly == TRUE) {
+    if (flaggedonly == TRUE) {
       print("This dataframe is empty because no data below the WQX Lower Threshold was found in your dataframe")
       emptyflag.data <- dplyr::filter(flag.data, TADA.ResultValueBelowLowerThreshold.Flag %in% "Y")
       # emptyflag.data <- dplyr::select(emptyflag.data, -TADA.ResultValueBelowLowerThreshold.Flag)
@@ -531,13 +531,13 @@ TADA_FlagBelowThreshold <- function(.data, clean = TRUE, errorsonly = FALSE) {
   }
   
   # flagged, all data
-  if (clean == FALSE & errorsonly == FALSE) {
+  if (clean == FALSE & flaggedonly == FALSE) {
     flag.data = TADA_OrderCols(flag.data)
     return(flag.data)
   }
   
   # clean data
-  if (clean == TRUE & errorsonly == FALSE) {
+  if (clean == TRUE & flaggedonly == FALSE) {
     # filter out rows where TADA.ResultValueBelowLowerThreshold.Flag = Y; remove TADA.ResultValueBelowLowerThreshold.Flag column
     clean.data <- flag.data %>%
       dplyr::filter(!(TADA.ResultValueBelowLowerThreshold.Flag %in% "Y")) #%>%
@@ -547,7 +547,7 @@ TADA_FlagBelowThreshold <- function(.data, clean = TRUE, errorsonly = FALSE) {
   }
   
   # only flagged data
-  if (clean == FALSE & errorsonly == TRUE) {
+  if (clean == FALSE & flaggedonly == TRUE) {
     # filter to show only rows where TADA.ResultValueBelowLowerThreshold.Flag = Y
     flagsonly.data <- flag.data %>%
       dplyr::filter(TADA.ResultValueBelowLowerThreshold.Flag %in% "Y")
@@ -564,12 +564,12 @@ TADA_FlagBelowThreshold <- function(.data, clean = TRUE, errorsonly = FALSE) {
 #' Some organizations submit data for this field to indicate if the data
 #' produced has an approved Quality Assurance Project Plan (QAPP) or not.
 #' Y indicates yes, N indicates no.  This function has three default inputs:
-#' clean = TRUE, cleanNA = FALSE, and errorsonly == FALSE. The default flags 
+#' clean = TRUE, cleanNA = FALSE, and flaggedonly == FALSE. The default flags 
 #' rows of data where the QAPPApprovedIndicator equals "N". Users could 
 #' remove NA's in addition to N's using the inputs clean = TRUE, cleanNA = TRUE,
-#' and errorsonly = FALSE. If errorsonly = TRUE, the function will filter out all
+#' and flaggedonly = FALSE. If flaggedonly = TRUE, the function will filter out all
 #' rows where the QAPPApprovedIndicator is 'Y'. If clean = FALSE, cleanNA = FALSE, 
-#' and errorsonly = FALSE, the function will not make any changes to the data.
+#' and flaggedonly = FALSE, the function will not make any changes to the data.
 #'
 #' Note: This is not a required field, so it is often left blank (NA) even if
 #' the data has an associated QAPP. All states and tribes that collect
@@ -587,25 +587,25 @@ TADA_FlagBelowThreshold <- function(.data, clean = TRUE, errorsonly = FALSE) {
 #' "FALSE". When cleanNA=TRUE, rows of data where the QAPPApprovedIndicator
 #' equals "NA" will be removed. When, cleanNA=FALSE, rows of data where the
 #' the QAPPApprovedIndicator equals "NA" will be retained.
-#' @param errorsonly Boolean argument; when errorsonly = TRUE, the dataframe will
+#' @param flaggedonly Boolean argument; when flaggedonly = TRUE, the dataframe will
 #' be filtered to remove any rows where the QAPPApprovedIndicator equals "Y".
 #'
 #' @return Several combinations of inputs are possible:
-#' When clean = TRUE, cleanNA = FALSE, and errorsonly = FALSE, the dataframe will
+#' When clean = TRUE, cleanNA = FALSE, and flaggedonly = FALSE, the dataframe will
 #' be filtered to show only rows where QAPPAprrovedIndicator is "Y" or "NA";
-#' When clean = TRUE, cleanNA = TRUE, and errorsonly = FALSE, the dataframe will
+#' When clean = TRUE, cleanNA = TRUE, and flaggedonly = FALSE, the dataframe will
 #' be filtered to show only rows where QAPPApprovedIndicator is "Y";
-#' When clean = FALSE, cleanNA = TRUE, and errorsonly = FALSE, the dataframe will
+#' When clean = FALSE, cleanNA = TRUE, and flaggedonly = FALSE, the dataframe will
 #' be filtered to show only rows where QAPPApprovedIndicator is "Y" or "N";
-#' When clean = FALSE, cleanNA = FALSE, and errorsonly = FALSE, no rows are
+#' When clean = FALSE, cleanNA = FALSE, and flaggedonly = FALSE, no rows are
 #' removed from the dataframe;
-#' When clean = TRUE, cleanNA = TRUE, and errorsonly = TRUE, the function will
+#' When clean = TRUE, cleanNA = TRUE, and flaggedonly = TRUE, the function will
 #' not execute and an error message will be returned;
-#' When clean = TRUE, cleanNA = FALSE, and errorsonly = TRUE, the dataframe will
+#' When clean = TRUE, cleanNA = FALSE, and flaggedonly = TRUE, the dataframe will
 #' be filtered to show only rows where QAPPApprovedIndicator is "NA";
-#' When clean = FALSE, cleanNA = TRUE, and errorsonly = TRUE, the dataframe will
+#' When clean = FALSE, cleanNA = TRUE, and flaggedonly = TRUE, the dataframe will
 #' be filtered to show only rows where QAPPApprovedIndicator is "N";
-#' When clean = FALSE, cleanNA = FALSE, and errorsonly = TRUE, the dataframe will
+#' When clean = FALSE, cleanNA = FALSE, and flaggedonly = TRUE, the dataframe will
 #' be filtered to show only rows where QAPPApprovedIndicator is "N" or "NA"
 #' 
 #'
@@ -623,36 +623,36 @@ TADA_FlagBelowThreshold <- function(.data, clean = TRUE, errorsonly = FALSE) {
 #' 
 #' # Show data where the QAPPApprovedIndicator equals "N" or "NA":
 #' QAPPIndicator_N_NA <- TADA_FindQAPPApproval(Data_Nutrients_UT, clean = FALSE, 
-#' cleanNA = FALSE, errorsonly = TRUE)
+#' cleanNA = FALSE, flaggedonly = TRUE)
 #' 
 #' # Show data where the QAPPApprovedIndicator equals "N":
 #' QAPPIndicator_N <- TADA_FindQAPPApproval(Data_Nutrients_UT, clean = FALSE, 
-#' cleanNA = TRUE, errorsonly = TRUE)
+#' cleanNA = TRUE, flaggedonly = TRUE)
 #'
-#' # Note: When clean = FALSE, cleanNA = FALSE, and errorsonly = FALSE, no data is removed
-#' # Note: When clean = TRUE, cleanNA = TRUE, and errorsonly = TRUE, an error message is returned
+#' # Note: When clean = FALSE, cleanNA = FALSE, and flaggedonly = FALSE, no data is removed
+#' # Note: When clean = TRUE, cleanNA = TRUE, and flaggedonly = TRUE, an error message is returned
 #' 
 
-TADA_FindQAPPApproval <- function(.data, clean = FALSE, cleanNA = FALSE, errorsonly = FALSE) {
+TADA_FindQAPPApproval <- function(.data, clean = FALSE, cleanNA = FALSE, flaggedonly = FALSE) {
   # check .data is data.frame
   TADA_CheckType(.data, "data.frame", "Input object")
   # check clean is boolean
   TADA_CheckType(clean, "logical")
   # check cleanNA is boolean
   TADA_CheckType(cleanNA, "logical") 
-  # check errorsonly is boolean
-  TADA_CheckType(errorsonly, "logical")
+  # check flaggedonly is boolean
+  TADA_CheckType(flaggedonly, "logical")
   # check .data has required columns
   TADA_CheckColumns(.data, "QAPPApprovedIndicator")
-  # check that clean, cleanNA and errorsonly are not all TRUE
-  if (clean == TRUE & cleanNA == TRUE & errorsonly == TRUE) {
-    stop("Function not executed because clean, cleanNA, and errorsonly cannot all be TRUE")
+  # check that clean, cleanNA and flaggedonly are not all TRUE
+  if (clean == TRUE & cleanNA == TRUE & flaggedonly == TRUE) {
+    stop("Function not executed because clean, cleanNA, and flaggedonly cannot all be TRUE")
   }
 
   # execute function after checks are passed
   
-  # if errorsonly = FALSE
-  if (errorsonly == FALSE) {
+  # if flaggedonly = FALSE
+  if (flaggedonly == FALSE) {
     if (clean == TRUE) {
       .data <- dplyr::filter(.data, is.na(QAPPApprovedIndicator) == TRUE | QAPPApprovedIndicator == "Y")
       
@@ -676,8 +676,8 @@ TADA_FindQAPPApproval <- function(.data, clean = FALSE, cleanNA = FALSE, errorso
     return(.data)
   }
   
-  # if errorsonly = TRUE
-  if (errorsonly == TRUE & clean == TRUE & cleanNA == FALSE) {
+  # if flaggedonly = TRUE
+  if (flaggedonly == TRUE & clean == TRUE & cleanNA == FALSE) {
     NA.data <- dplyr::filter(.data, is.na(QAPPApprovedIndicator) == TRUE)
     if (nrow(NA.data) == 0) {
       warning("All QAPPApprovedIndicator data is 'Y' or 'N'")
@@ -685,7 +685,7 @@ TADA_FindQAPPApproval <- function(.data, clean = FALSE, cleanNA = FALSE, errorso
     NA.data = TADA_OrderCols(NA.data)
     return(NA.data)
   }
-  if (errorsonly == TRUE & clean == FALSE & cleanNA == TRUE) {
+  if (flaggedonly == TRUE & clean == FALSE & cleanNA == TRUE) {
     N.data <- dplyr::filter(.data, QAPPApprovedIndicator == "N")
     if (nrow(N.data) == 0) {
       warning("All QAPPApprovedIndicator data is NA or 'Y'")
@@ -693,7 +693,7 @@ TADA_FindQAPPApproval <- function(.data, clean = FALSE, cleanNA = FALSE, errorso
     N.data <- TADA_OrderCols(N.data)
     return(N.data)
   }
-  if (errorsonly == TRUE & clean == FALSE & cleanNA == FALSE) {
+  if (flaggedonly == TRUE & clean == FALSE & cleanNA == FALSE) {
     NAorN.data <- dplyr::filter(.data, is.na(QAPPApprovedIndicator) == TRUE | QAPPApprovedIndicator == "N")
     if (nrow(NAorN.data) == 0) {
       warning("All QAPPApprovedIndicator data is 'Y'")
@@ -827,17 +827,17 @@ TADA_FindQAPPDoc <- function(.data, clean = FALSE) {
 #' clean_outside = "change sign"; Default is clean_outsideUSA = "no".
 #' @param clean_imprecise Boolean argument; removes imprecise data when
 #' clean_imprecise = TRUE. Default is clean_imprecise = FALSE.
-#' @param errorsonly Boolean argument; Return only flagged data when errorsonly = TRUE;
-#' default is errorsonly = FALSE.
+#' @param flaggedonly Boolean argument; Return only flagged data when flaggedonly = TRUE;
+#' default is flaggedonly = FALSE.
 #'
 #' @return Returns input TADA dataset with the added "TADA.InvalidCoordinates.Flag" column.
 #' When clean_outsideUSA is "no", "change sign", or clean_imprecise argument is FALSE,
 #' a column flagging rows with the respective QA check is appended to the input
 #' dataframe. When clean_outsideUSA is "remove" or clean_imprecise is TRUE, 
-#' "invalid" or "imprecise" data is removed, respectively. When errorsonly is TRUE, 
+#' "invalid" or "imprecise" data is removed, respectively. When flaggedonly is TRUE, 
 #' the dataframe will be filtered to show only the data flagged as invalid, imprecise, 
 #' or out of the United States. Defaults are clean_outsideUSA = "no", 
-#' clean_imprecise = FALSE, and errorsonly = FALSE.
+#' clean_imprecise = FALSE, and flaggedonly = FALSE.
 #'
 #' @export
 #' 
@@ -853,7 +853,7 @@ TADA_FindQAPPDoc <- function(.data, clean = FALSE) {
 #' # Flag, but do not remove, data with invalid coordinates in new column 
 #' # titled "TADA.InvalidCoordinates.Flag"
 #' # Return ONLY the flagged data:
-#' InvalidCoord_flags_errorsonly <- TADA_FlagCoordinates(Data_Nutrients_UT, errorsonly = TRUE)
+#' InvalidCoord_flags_flaggedonly <- TADA_FlagCoordinates(Data_Nutrients_UT, flaggedonly = TRUE)
 #' 
 #' # Remove data with coordinates outside the USA, but keep flagged data with 
 #' # imprecise coordinates:
@@ -876,7 +876,7 @@ TADA_FindQAPPDoc <- function(.data, clean = FALSE) {
 TADA_FlagCoordinates <- function(.data, 
                                clean_outsideUSA = c("no", "remove", "change sign"), 
                                clean_imprecise = FALSE, 
-                               errorsonly = FALSE) {
+                               flaggedonly = FALSE) {
   # check .data is data.frame
   TADA_CheckType(.data, "data.frame", "Input object")
   # check clean_outsideUSA is character
@@ -946,8 +946,8 @@ TADA_FlagCoordinates <- function(.data,
       )
   }
   
-  # return only flagged data if errorsonly = true
-  if ((errorsonly == TRUE)) {
+  # return only flagged data if flaggedonly = true
+  if ((flaggedonly == TRUE)) {
     .data <- dplyr::filter(.data, !TADA.InvalidCoordinates.Flag%in%c("OK"))
   }
   

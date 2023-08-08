@@ -330,9 +330,9 @@ FALSE which flags rows of data with invalid or imprecise coordinates
 without removing them. Assigning clean_imprecise = TRUE will remove rows
 of data with invalid or imprecise coordinates.
 
-Allowable values for errorsonly are TRUE or FALSE. The default is FALSE
+Allowable values for flaggedonly are TRUE or FALSE. The default is FALSE
 which keeps all rows of data regardless of flag status. Assigning
-errorsonly = TRUE filters the dataframe to show only rows of data which
+flaggedonly = TRUE filters the dataframe to show only rows of data which
 are flagged.
 
 When clean_outsideUSA = "no" and/or clean_imprecise = FALSE, a column
@@ -356,7 +356,7 @@ following flags (if relevant to dataframe):
 
 ```{r TADA_FlagCoordinates}
 # flag only
-TADAProfileClean1 <- TADA_FlagCoordinates(TADAProfile, clean_outsideUSA = "no", clean_imprecise = FALSE, errorsonly = FALSE)
+TADAProfileClean1 <- TADA_FlagCoordinates(TADAProfile, clean_outsideUSA = "no", clean_imprecise = FALSE, flaggedonly = FALSE)
 
 # review unique flags in TADAProfileClean1
 unique(TADAProfileClean1$TADA.InvalidCoordinates.Flag)
@@ -386,7 +386,7 @@ Unique_InvalidCoordinateFlags
 
 # if needed, un-comment below to change the sign for all data for sites flagged as outside the USA. You can also change FALSE to TRUE if you want to remove sites outside of the US or sites with imprecise lat/longs
 
-# TADAProfileClean1 <- TADA_FlagCoordinates(TADAProfile, clean_outsideUSA = "change sign", clean_imprecise = FALSE, errorsonly = FALSE)
+# TADAProfileClean1 <- TADA_FlagCoordinates(TADAProfile, clean_outsideUSA = "change sign", clean_imprecise = FALSE, flaggedonly = FALSE)
 ```
 
 ## Depth unit conversions
@@ -441,21 +441,23 @@ ResultDetectionConditionText = "Reported in Raw Data (attached)".
     from the dataframe and no column will be appended. The default is
     clean = TRUE.
 
-An additional input called errorsonly will allow the user to filter data
+An additional input called flaggedonly will allow the user to filter data
 to show only rows of aggregated continuous data. Allowable values for
-errorsonly are TRUE or FALSE. The default is FALSE which keeps all rows
-of data regardless of flag status. Assigning errorsonly = TRUE filters
+flaggedonly are TRUE or FALSE. The default is FALSE which keeps all rows
+of data regardless of flag status. Assigning flaggedonly = TRUE filters
 the dataframe to show only rows of data which are flagged "Y".
 
 See function documentation for additional function options by entering
 the following code in the console: ?TADA_FindContinuousData
 
 ```{r AggregatedContinuousData}
-TADAProfileClean1 <- TADA_FindContinuousData(TADAProfileClean1, clean = FALSE)
+TADAProfileClean1 <- TADA_FindContinuousData(TADAProfileClean1, 
+                                             clean = FALSE, 
+                                             flaggedonly = TRUE)
 
 # uncomment below to create a dataframe of only the aggregated continuous data
 
-# TADAProfile_aggcont <- TADA_FindContinuousData(TADAProfileClean3, clean = FALSE, errorsonly = TRUE)
+# TADAProfile_aggcont <- TADA_FindContinuousData(TADAProfileClean3, clean = FALSE, flaggedonly = TRUE)
 ```
 
 ## WQX Quality Assurance and Quality Control (QAQC) Service Result Flags
@@ -479,8 +481,8 @@ See documentation for more details:
     -   When clean = TRUE, "Invalid" rows are removed from the dataframe
         and no column will be appended.
 
-    -   When errorsonly = TRUE, the dataframe is filtered to only the
-        rows flagged as "Invalid"; default is errorsonly = FALSE.
+    -   When flaggedonly = TRUE, the dataframe is filtered to only the
+        rows flagged as "Invalid"; default is flaggedonly = FALSE.
 
 -   ?**TADA_FlagSpeciation**
 
@@ -501,9 +503,9 @@ See documentation for more details:
 
     -   When clean = "none", no rows are removed from the dataframe.
 
-    -   When errorsonly = TRUE, the dataframe is filtered to only the
+    -   When flaggedonly = TRUE, the dataframe is filtered to only the
         rows flagged as "Invalid" or "Nonstandardized"; default is
-        errorsonly = FALSE.
+        flaggedonly = FALSE.
 
 -   ?**TADA_FlagResultUnit**
 
@@ -516,8 +518,8 @@ See documentation for more details:
     -   When clean = TRUE, "Invalid" rows are removed from the dataframe
         and no column will be appended.
 
-    -   When errorsonly = TRUE, the dataframe is filtered to only the
-        rows flagged as "Invalid"; default is errorsonly = FALSE.
+    -   When flaggedonly = TRUE, the dataframe is filtered to only the
+        rows flagged as "Invalid"; default is flaggedonly = FALSE.
 
 -   ?**TADA_FlagFraction**
 
@@ -528,8 +530,8 @@ See documentation for more details:
         "Invalid", or "Valid".
     -   When clean = TRUE, "Invalid" rows are removed from the dataframe
         and no column will be appended.
-    -   When errorsonly = TRUE, the dataframe is filtered to only the
-        rows flagged as "Invalid"; default is errorsonly = FALSE.
+    -   When flaggedonly = TRUE, the dataframe is filtered to only the
+        rows flagged as "Invalid"; default is flaggedonly = FALSE.
 
 ```{r Invalid_Method_Fraction_Speciation_ResultUnit}
 TADAProfileClean2 <- TADA_FlagMethod(TADAProfileClean1, clean = TRUE)
@@ -556,9 +558,9 @@ combination. See documentation for more details:
     -   When clean = TRUE, data that is above the upper WQX threshold is
         removed from the dataframe. The default is clean = TRUE.
 
-    -   When errorsonly = TRUE, the dataframe is filtered to only the
+    -   When flaggedonly = TRUE, the dataframe is filtered to only the
         rows flagged as above the upper WQX threshold; default is
-        errorsonly = FALSE.
+        flaggedonly = FALSE.
 
 -   ?**TADA_FlagBelowThreshold**
 
@@ -569,9 +571,9 @@ combination. See documentation for more details:
     -   When clean = TRUE, data that is below the lower WQX threshold is
         removed from the dataframe. The default is clean = TRUE.
 
-    -   When errorsonly = TRUE, the dataframe is filtered to only the
+    -   When flaggedonly = TRUE, the dataframe is filtered to only the
         rows flagged as below the lower WQX threshold; default is
-        errorsonly = FALSE.
+        flaggedonly = FALSE.
 
 ```{r WQX_Thresholds}
 TADAProfileClean3 <- TADA_FlagAboveThreshold(TADAProfileClean2, clean = TRUE)
@@ -608,16 +610,16 @@ Project Plan (QAPP) or not. In this field, Y indicates yes, N indicates
 no.
 
 This function has three default inputs: clean = TRUE, cleanNA = FALSE,
-and errorsonly = FALSE. These defaults remove rows of data where the
+and flaggedonly = FALSE. These defaults remove rows of data where the
 QAPPApprovedIndicator equals "N".
 
 Users could alternatively remove both N's and NA's using the inputs
-clean = TRUE, cleanNA = TRUE, and errorsonly = FALSE.
+clean = TRUE, cleanNA = TRUE, and flaggedonly = FALSE.
 
 Additionally, users could filter to show only N's and NA's by using the
-inputs clean = FALSE, cleanNA = FALSE, and errorsonly = TRUE.
+inputs clean = FALSE, cleanNA = FALSE, and flaggedonly = TRUE.
 
-If clean = FALSE, cleanNA = FALSE, and errorsonly = FALSE, the function
+If clean = FALSE, cleanNA = FALSE, and flaggedonly = FALSE, the function
 will not do anything.
 
 ```{r TADA_FindQAPPApproval}
@@ -632,9 +634,9 @@ determine if a QAPP document is available to review. When clean = FALSE,
 a column will be appended to flag results that do have an associated
 QAPP document URL provided. When clean = TRUE, rows that do not have an
 associated QAPP document are removed from the dataframe and no column
-will be appended. When errorsonly = TRUE, the dataframe is filtered to
+will be appended. When flaggedonly = TRUE, the dataframe is filtered to
 show only rows that do not have an associated QAPP document. The
-defaults are clean = FALSE and errorsonly = FALSE. This function should
+defaults are clean = FALSE and flaggedonly = FALSE. This function should
 only be used to remove data if an accompanying QAPP document is required
 to use data in assessments.
 
@@ -759,7 +761,7 @@ See ?TADA_FlagMeasureQualifierCode for more information.
 ```{r FilterMeasureQualifierCodes}
 Review_TADAProfileClean4 <- TADA_FlagMeasureQualifierCode(TADAProfileClean4, 
                                                           clean = FALSE, 
-                                                          errorsonly = TRUE)
+                                                          flaggedonly = TRUE)
 # Review_TADAProfileClean4 is empty because we did not find any Suspect samples 
 
 TADAProfileClean4 <- TADA_FlagMeasureQualifierCode(TADAProfileClean4, 

@@ -2,23 +2,23 @@
 #'
 #' Function checks the validity of each characteristic-fraction combination
 #' in the dataframe. When clean = TRUE, rows with invalid characteristic-fraction
-#' combinations are removed. Default is clean = TRUE. When errorsonly = TRUE, only
-#' invalid characteristic-fraction combinations are returned. Default is errorsonly = FALSE.
+#' combinations are removed. Default is clean = TRUE. When flaggedonly = TRUE, only
+#' invalid characteristic-fraction combinations are returned. Default is flaggedonly = FALSE.
 #'
 #' @param .data TADA dataframe
 #' @param clean Boolean argument; removes "Invalid" characteristic-fraction
 #' combinations from the dataframe when clean = TRUE. Default is clean = TRUE.
-#' @param errorsonly Boolean argument; filters to show only the "Invalid"
-#' characteristic-fraction combinations in the dataframe when errorsonly = TRUE.
-#' Default is errorsonly = FALSE.
+#' @param flaggedonly Boolean argument; filters to show only the "Invalid"
+#' characteristic-fraction combinations in the dataframe when flaggedonly = TRUE.
+#' Default is flaggedonly = FALSE.
 #'
 #' @return This function adds the following column to your dataframe:
 #'   TADA.SampleFraction.Flag, which flags each CharacteristicName and
 #'   ResultSampleFractionText combination in your dataframe as either
-#'   "Nonstandardized", "Invalid", or "Valid". When clean = FALSE and errorsonly
+#'   "Nonstandardized", "Invalid", or "Valid". When clean = FALSE and flaggedonly
 #'   = TRUE, the data are filtered to show the "Invalid" rows only. When clean =
-#'   TRUE and errorsonly = FALSE, "Invalid" rows are removed from the dataframe
-#'   and no column will be appended. When clean = TRUE and errorsonly = TRUE,
+#'   TRUE and flaggedonly = FALSE, "Invalid" rows are removed from the dataframe
+#'   and no column will be appended. When clean = TRUE and flaggedonly = TRUE,
 #'   the function does not execute and an error message is returned.
 #'
 #' @export
@@ -35,21 +35,21 @@
 #' InvalidFraction_flags <- TADA_FlagFraction(Data_Nutrients_UT, clean = FALSE)
 #' 
 #' # Show only invalid characteristic-fraction combinations:
-#' InvalidFraction_errorsonly <- TADA_FlagFraction(Data_Nutrients_UT, clean = FALSE, errorsonly = TRUE)
+#' InvalidFraction_flaggedonly <- TADA_FlagFraction(Data_Nutrients_UT, clean = FALSE, flaggedonly = TRUE)
 #' 
 
-TADA_FlagFraction <- function(.data, clean = TRUE, errorsonly = FALSE) {
+TADA_FlagFraction <- function(.data, clean = TRUE, flaggedonly = FALSE) {
   # check .data is data.frame
   TADA_CheckType(.data, "data.frame", "Input object")
   # check clean is boolean
   TADA_CheckType(clean, "logical")
-  # check errorsonly is boolean
-  TADA_CheckType(errorsonly, "logical")
+  # check flaggedonly is boolean
+  TADA_CheckType(flaggedonly, "logical")
   # check .data has required columns
   TADA_CheckColumns(.data, c("TADA.CharacteristicName", "TADA.ResultSampleFractionText"))
-  # check that both clean and errorsonly are not TRUE
-  if (clean == TRUE & errorsonly == TRUE) {
-    stop("Function not executed because clean and errorsonly cannot both be TRUE")
+  # check that both clean and flaggedonly are not TRUE
+  if (clean == TRUE & flaggedonly == TRUE) {
+    stop("Function not executed because clean and flaggedonly cannot both be TRUE")
   }
   
   # execute function after checks are passed - removes flag column in case reference table has changed.
@@ -78,12 +78,12 @@ TADA_FlagFraction <- function(.data, clean = TRUE, errorsonly = FALSE) {
   # if all rows are "Valid", return input unchanged
   if (any(c("Nonstandardized", "Invalid") %in%
           unique(check.data$TADA.SampleFraction.Flag)) == FALSE) {
-    if (errorsonly == FALSE) {
+    if (flaggedonly == FALSE) {
       print("All characteristic/fraction combinations are valid in your dataframe. Returning input dataframe with TADA.SampleFraction.Flag column for tracking.")
       check.data = TADA_OrderCols(check.data)
       return(check.data)
     }
-    if (errorsonly == TRUE) {
+    if (flaggedonly == TRUE) {
       print("This dataframe is empty because we did not find any invalid fraction/characteristic combinations in your dataframe")
       empty.data <- dplyr::filter(check.data, TADA.SampleFraction.Flag == "Invalid")
       # empty.data <- dplyr::select(empty.data, -TADA.SampleFraction.Flag)
@@ -93,14 +93,14 @@ TADA_FlagFraction <- function(.data, clean = TRUE, errorsonly = FALSE) {
   }
   
   # flagged output, all data
-  if (clean == FALSE & errorsonly == FALSE) {
+  if (clean == FALSE & flaggedonly == FALSE) {
     print("Rows with invalid sample fractions have been flagged but retained. Review these rows before proceeding and/or set clean = TRUE.")
     check.data = TADA_OrderCols(check.data)
     return(check.data)
       }
   
   # clean output
-  if (clean == TRUE & errorsonly == FALSE) {
+  if (clean == TRUE & flaggedonly == FALSE) {
     # filter out invalid characteristic-fraction combinations
     clean.data <- dplyr::filter(check.data, TADA.SampleFraction.Flag != "Invalid")
     
@@ -111,7 +111,7 @@ TADA_FlagFraction <- function(.data, clean = TRUE, errorsonly = FALSE) {
   }
   
   # flagged output, errors only
-  if (clean == FALSE & errorsonly == TRUE) {
+  if (clean == FALSE & flaggedonly == TRUE) {
     # filter out valid characteristic-fraction combinations
     invalid.data <- dplyr::filter(check.data, TADA.SampleFraction.Flag == "Invalid")
     invalid.data = TADA_OrderCols(invalid.data)
@@ -124,9 +124,9 @@ TADA_FlagFraction <- function(.data, clean = TRUE, errorsonly = FALSE) {
 #' Function checks the validity of each characteristic-method
 #' speciation combination in the dataframe. When clean = "invalid_only", rows with invalid
 #' characteristic-method speciation combinations are removed. Default is
-#' clean = "invalid_only". When errorsonly = TRUE, dataframe is filtered to show only
+#' clean = "invalid_only". When flaggedonly = TRUE, dataframe is filtered to show only
 #' rows with invalid or nonstandardized characteristic-method speciation combinations. 
-#' Default is errorsonly = FALSE.
+#' Default is flaggedonly = FALSE.
 #'
 #' @param .data TADA dataframe
 #' @param clean Character argument with options "invalid_only", "nonstandardized_only", 
@@ -137,20 +137,20 @@ TADA_FlagFraction <- function(.data, clean = TRUE, errorsonly = FALSE) {
 #' clean = "both", the function removes rows of data flagged as either "Invalid" or
 #' "Nonstandardized". And when clean = "none", the function does not remove any "Invalid"
 #' or "Nonstandardized" rows of data.
-#' @param errorsonly Boolean argument; filters to show only the "Invalid" 
+#' @param flaggedonly Boolean argument; filters to show only the "Invalid" 
 #' characteristic-method speciation combinations from the dataframe when 
-#' errorsonly = TRUE. Default is errorsonly = FALSE.
+#' flaggedonly = TRUE. Default is flaggedonly = FALSE.
 #'
 #' @return This function adds TADA.MethodSpeciation.Flag to the dataframe. This column 
 #' flags each TADA.CharacteristicName and MethodSpecificationName combination in your 
 #' dataframe as either "Nonstandardized", "Invalid", or "Valid". When clean = "none" 
-#' and errorsonly = TRUE, the dataframe is filtered to show only the "Invalid" and
+#' and flaggedonly = TRUE, the dataframe is filtered to show only the "Invalid" and
 #' "Nonstandardized data; the column TADA.MethodSpeciation.Flag is still appended. 
-#' When clean = "invalid_only" and errorsonly = FALSE, "Invalid" rows are removed 
+#' When clean = "invalid_only" and flaggedonly = FALSE, "Invalid" rows are removed 
 #' from the dataframe, but "Nonstandardized" rows are retained. When
-#' clean = "nonstandardized_only" and errorsonly = FALSE, "Nonstandardized" rows
+#' clean = "nonstandardized_only" and flaggedonly = FALSE, "Nonstandardized" rows
 #' are removed, but "Invalid" rows are retained. The default is clean = "invalid_only"
-#' and errorsonly = FALSE.
+#' and flaggedonly = FALSE.
 #'
 #' @export
 #'
@@ -175,19 +175,19 @@ TADA_FlagFraction <- function(.data, clean = TRUE, errorsonly = FALSE) {
 #' InvalidSpeciation_flags <- TADA_FlagSpeciation(Data_Nutrients_UT, clean = "none")
 #' 
 #' # Show only invalid characteristic-method speciation combinations:
-#' InvalidSpeciation_errorsonly <- TADA_FlagSpeciation(Data_Nutrients_UT, clean = "nonstandardized_only", errorsonly = TRUE)
+#' InvalidSpeciation_flaggedonly <- TADA_FlagSpeciation(Data_Nutrients_UT, clean = "nonstandardized_only", flaggedonly = TRUE)
 #' 
 #' # Show only nonstandardized characteristic-method speciation combinations:
-#' NonstandardSpeciation_errorsonly <- TADA_FlagSpeciation(Data_Nutrients_UT, clean = "invalid_only", errorsonly = TRUE)
+#' NonstandardSpeciation_flaggedonly <- TADA_FlagSpeciation(Data_Nutrients_UT, clean = "invalid_only", flaggedonly = TRUE)
 #' 
 
-TADA_FlagSpeciation <- function(.data, clean = c("invalid_only", "nonstandardized_only", "both", "none"), errorsonly = FALSE) {
+TADA_FlagSpeciation <- function(.data, clean = c("invalid_only", "nonstandardized_only", "both", "none"), flaggedonly = FALSE) {
   # check .data is data.frame
   TADA_CheckType(.data, "data.frame", "Input object")
   # check clean is boolean
   TADA_CheckType(clean, "character")
-  # check errorsonly is boolean
-  TADA_CheckType(errorsonly, "logical")
+  # check flaggedonly is boolean
+  TADA_CheckType(flaggedonly, "logical")
   # check .data has required columns
   TADA_CheckColumns(.data, c("TADA.CharacteristicName", "TADA.MethodSpecificationName"))
   # check that clean is either "invalid_only", "nonstandardized_only", "both", or "none"
@@ -223,7 +223,7 @@ TADA_FlagSpeciation <- function(.data, clean = c("invalid_only", "nonstandardize
   }
   
   # flagged output, all data
-  if (clean == "none" & errorsonly == FALSE) {
+  if (clean == "none" & flaggedonly == FALSE) {
     print("Rows with invalid speciations have been flagged but retained. Review these rows before proceeding and/or set clean = 'invalid_only' or 'both'.")
   }
   
@@ -251,14 +251,14 @@ TADA_FlagSpeciation <- function(.data, clean = c("invalid_only", "nonstandardize
     clean.data <- check.data
   }
   
-  # when errorsonly = FALSE
-  if (errorsonly == FALSE) {
+  # when flaggedonly = FALSE
+  if (flaggedonly == FALSE) {
     clean.data = TADA_OrderCols(clean.data)
     return(clean.data)
   }
   
-  # when errorsonly = TRUE
-  if (errorsonly == TRUE) {
+  # when flaggedonly = TRUE
+  if (flaggedonly == TRUE) {
     # filter to show only invalid and/or nonstandardized characteristic-method speciation combinations
     error.data <- dplyr::filter(clean.data, TADA.MethodSpeciation.Flag == "Invalid" | TADA.MethodSpeciation.Flag == "Nonstandardized")
     # if there are no errors
@@ -278,9 +278,9 @@ TADA_FlagSpeciation <- function(.data, clean = c("invalid_only", "nonstandardize
 #' Function checks the validity of each characteristic-media-result unit
 #' combination in the dataframe. When clean = "invalid_only", rows with invalid
 #' characteristic-media-result unit combinations are removed. Default is
-#' clean = "invalid_only". When errorsonly = TRUE, dataframe is filtered to show only
+#' clean = "invalid_only". When flaggedonly = TRUE, dataframe is filtered to show only
 #' rows with invalid or nonstandardized characteristic-media-result unit combinations. 
-#' Default is errorsonly = FALSE.
+#' Default is flaggedonly = FALSE.
 #'
 #' @param .data TADA dataframe
 #' @param clean Character argument with options "invalid_only", "nonstandardized_only", 
@@ -291,20 +291,20 @@ TADA_FlagSpeciation <- function(.data, clean = c("invalid_only", "nonstandardize
 #' clean = "both", the function removes rows of data flagged as either "Invalid" or
 #' "Nonstandardized". And when clean = "none", the function does not remove any "Invalid"
 #' or "Nonstandardized" rows of data.
-#' @param errorsonly Boolean argument; filters dataframe to show only "Invalid"
-#' characteristic-media-result unit combinations when errorsonly = TRUE. Default
-#' is errorsonly = FALSE.
+#' @param flaggedonly Boolean argument; filters dataframe to show only "Invalid"
+#' characteristic-media-result unit combinations when flaggedonly = TRUE. Default
+#' is flaggedonly = FALSE.
 #'
 #' @return This function adds the TADA.ResultUnit.Flag to a TADA dataframe. This column 
 #' flags each CharacteristicName, ActivityMediaName, and ResultMeasure/MeasureUnitCode
 #' combination in your dataframe as either "Nonstandardized", "Invalid", or "Valid". 
-#' When clean = "none" and errorsonly = TRUE, the dataframe is filtered to show only 
+#' When clean = "none" and flaggedonly = TRUE, the dataframe is filtered to show only 
 #' the "Invalid" and "Nonstandardized data; the column TADA.ResultUnit.Flag is 
-#' still appended. When clean = "invalid_only" and errorsonly = FALSE, "Invalid" 
+#' still appended. When clean = "invalid_only" and flaggedonly = FALSE, "Invalid" 
 #' rows are removed from the dataframe, but "Nonstandardized" rows are retained. When
-#' clean = "nonstandardized_only" and errorsonly = FALSE, "Nonstandardized" rows
+#' clean = "nonstandardized_only" and flaggedonly = FALSE, "Nonstandardized" rows
 #' are removed, but "Invalid" rows are retained. The default is clean = "invalid_only"
-#' and errorsonly = FALSE.
+#' and flaggedonly = FALSE.
 #'
 #' @export
 #'
@@ -329,18 +329,18 @@ TADA_FlagSpeciation <- function(.data, clean = c("invalid_only", "nonstandardize
 #' InvalidUnit_flags <- TADA_FlagResultUnit(Data_Nutrients_UT, clean = "none")
 #' 
 #' # Show only invalid characteristic-media-result unit combinations:
-#' InvalidUnit_errorsonly <- TADA_FlagResultUnit(Data_Nutrients_UT, clean = "nonstandardized_only", errorsonly = TRUE)
+#' InvalidUnit_flaggedonly <- TADA_FlagResultUnit(Data_Nutrients_UT, clean = "nonstandardized_only", flaggedonly = TRUE)
 #' 
 #' # Show only nonstandardized characteristic-media-result unit combinations:
-#' NonstandardUnit_errorsonly <- TADA_FlagResultUnit(Data_Nutrients_UT, clean = "invalid_only", errorsonly = TRUE)
+#' NonstandardUnit_flaggedonly <- TADA_FlagResultUnit(Data_Nutrients_UT, clean = "invalid_only", flaggedonly = TRUE)
 
-TADA_FlagResultUnit <- function(.data, clean = c("invalid_only", "nonstandardized_only", "both", "none"), errorsonly = FALSE) {
+TADA_FlagResultUnit <- function(.data, clean = c("invalid_only", "nonstandardized_only", "both", "none"), flaggedonly = FALSE) {
   # check .data is data.frame
   TADA_CheckType(.data, "data.frame", "Input object")
   # check clean is character
   TADA_CheckType(clean, "character")
-  # check errorsonly is boolean
-  TADA_CheckType(errorsonly, "logical")
+  # check flaggedonly is boolean
+  TADA_CheckType(flaggedonly, "logical")
   # check .data has required columns
   TADA_CheckColumns(.data, c("TADA.CharacteristicName", "TADA.ResultMeasure.MeasureUnitCode", "TADA.ActivityMediaName"))
   # check that clean is either "invalid_only", "nonstandardized_only", "both", or "none"
@@ -376,7 +376,7 @@ TADA_FlagResultUnit <- function(.data, clean = c("invalid_only", "nonstandardize
   }
   
   # flagged output, all data
-  if (clean == "none" & errorsonly == FALSE) {
+  if (clean == "none" & flaggedonly == FALSE) {
     print("Rows with invalid result value units have been flagged but retained. Review these rows before proceeding and/or set clean = 'invalid_only' or 'both'.")
   }
   
@@ -404,14 +404,14 @@ TADA_FlagResultUnit <- function(.data, clean = c("invalid_only", "nonstandardize
     clean.data <- check.data
   }
   
-  # when errorsonly = FALSE
-  if (errorsonly == FALSE) {
+  # when flaggedonly = FALSE
+  if (flaggedonly == FALSE) {
     clean.data = TADA_OrderCols(clean.data)
     return(clean.data)
   }
   
-  # when errorsonly = TRUE
-  if (errorsonly == TRUE) {
+  # when flaggedonly = TRUE
+  if (flaggedonly == TRUE) {
     # filter to show only invalid and/or nonstandardized characteristic-method speciation combinations
     error.data <- dplyr::filter(clean.data, TADA.ResultUnit.Flag == "Invalid" | TADA.ResultUnit.Flag == "Nonstandardized")
     # if there are no errors
@@ -443,8 +443,8 @@ TADA_FlagResultUnit <- function(.data, clean = c("invalid_only", "nonstandardize
 #' rows of data flagged as a calibration check or spiked Quality Control sample
 #' will be removed. And when clean = "other", any rows of data flagged as some
 #' other type of Quality Control sample will be removed.
-#' @param errorsonly Boolean argument; the default is errorsonly = FALSE. When
-#' errorsonly = TRUE, the function will filter the dataframe to show only the
+#' @param flaggedonly Boolean argument; the default is flaggedonly = FALSE. When
+#' flaggedonly = TRUE, the function will filter the dataframe to show only the
 #' rows of data flagged as Quality Control samples.
 #' 
 #' @return This function adds the column "TADA.ActivityType.Flag" to the dataframe
@@ -455,9 +455,9 @@ TADA_FlagResultUnit <- function(.data, clean = c("invalid_only", "nonstandardize
 #' "blanks", data flagged as QC blanks are removed from the dataframe. When 
 #' clean = "calibrations", data flagged as QC calibration checks or spikes are 
 #' removed from the dataframe. When clean = "other", data flagged as other QC
-#' samples are removed from the dataframe. When errorsonly = TRUE, the dataframe 
-#' is filtered to show only the flagged data. When errorsonly = FALSE, the full,
-#' cleaned dataframe is returned. The default is clean = "none" and errorsonly = FALSE.
+#' samples are removed from the dataframe. When flaggedonly = TRUE, the dataframe 
+#' is filtered to show only the flagged data. When flaggedonly = FALSE, the full,
+#' cleaned dataframe is returned. The default is clean = "none" and flaggedonly = FALSE.
 #' 
 #' @export
 #' 
@@ -469,18 +469,18 @@ TADA_FlagResultUnit <- function(.data, clean = c("invalid_only", "nonstandardize
 #' QC_flagged <- TADA_FindQCActivities(Data_Nutrients_UT)
 #' 
 #' # Flag QC samples and filter to flagged data only:
-#' QC_flags_only <- TADA_FindQCActivities(Data_Nutrients_UT, errorsonly = TRUE)
+#' QC_flags_only <- TADA_FindQCActivities(Data_Nutrients_UT, flaggedonly = TRUE)
 #' 
 #' # Remove all QC samples:
 #' QC_clean <- TADA_FindQCActivities(Data_Nutrients_UT, clean = TRUE)
 
-TADA_FindQCActivities <- function(.data, clean = FALSE, errorsonly = FALSE) {
+TADA_FindQCActivities <- function(.data, clean = FALSE, flaggedonly = FALSE) {
   # check .data is data.frame
   TADA_CheckType(.data, "data.frame", "Input object")
   # check that clean is boolean
   TADA_CheckType(clean, "logical")
-  # check errorsonly is boolean
-  TADA_CheckType(errorsonly, "logical")
+  # check flaggedonly is boolean
+  TADA_CheckType(flaggedonly, "logical")
   # check .data has required columns
   TADA_CheckColumns(.data, c("ActivityTypeCode"))
 
@@ -520,8 +520,8 @@ TADA_FindQCActivities <- function(.data, clean = FALSE, errorsonly = FALSE) {
     clean.data <- dplyr::filter(flag.data, flag.data$TADA.ActivityType.Flag == "Non_QC")
   }
 
-  # if errorsonly = FALSE, return full clean dataframe
-  if(errorsonly == FALSE) {
+  # if flaggedonly = FALSE, return full clean dataframe
+  if(flaggedonly == FALSE) {
     final.data <- clean.data
     # if the dataframe is empty, print message
     if(nrow(final.data) == 0) {
@@ -533,8 +533,8 @@ TADA_FindQCActivities <- function(.data, clean = FALSE, errorsonly = FALSE) {
     }
   }
   
-  # if errorsonly = TRUE, return clean dataframe filtered to only the flagged rows
-  if(errorsonly == TRUE) {
+  # if flaggedonly = TRUE, return clean dataframe filtered to only the flagged rows
+  if(flaggedonly == TRUE) {
     final.data <- clean.data[!is.na(clean.data$TADA.ActivityType.Flag),]
     # if the dataframe is empty, print message
     if(nrow(final.data) == 0) {
@@ -607,16 +607,16 @@ TADA_AutoFilter <- function(.data){
 #' any rows of data flagged as "Suspect" based on the MeasureQualifierCode
 #' will be removed. 
 #' 
-#' @param errorsonly Boolean argument; the default is errorsonly = FALSE. When
-#' errorsonly = TRUE, the function will filter the dataframe to show only the
+#' @param flaggedonly Boolean argument; the default is flaggedonly = FALSE. When
+#' flaggedonly = TRUE, the function will filter the dataframe to show only the
 #' rows of data flagged as Suspect.
 #' 
 #' @return This function adds the column "TADA.MeasureQualifierCode.Flag" to the dataframe
 #' which flags suspect samples based on the "MeasureQualifierCode" column. When
 #' clean = "FALSE", all suspect data are kept in the dataframe. When clean = "TRUE",
-#' all suspect data are removed from the dataframe. When errorsonly = TRUE, the dataframe 
-#' is filtered to show only the suspect data. When errorsonly = FALSE, the full,
-#' cleaned dataframe is returned. The default is clean = FALSE and errorsonly = FALSE.
+#' all suspect data are removed from the dataframe. When flaggedonly = TRUE, the dataframe 
+#' is filtered to show only the suspect data. When flaggedonly = FALSE, the full,
+#' cleaned dataframe is returned. The default is clean = FALSE and flaggedonly = FALSE.
 #' 
 #' @export
 #' 
@@ -628,18 +628,18 @@ TADA_AutoFilter <- function(.data){
 #' MeasureQualifierCode_flagged <- TADA_FlagMeasureQualifierCode(Data_6Tribes_5y)
 #' 
 #' # Flag suspect samples and filter to suspect data only:
-#' MeasureQualifierCode_flags_only <- TADA_FlagMeasureQualifierCode(Data_6Tribes_5y, errorsonly = TRUE)
+#' MeasureQualifierCode_flags_only <- TADA_FlagMeasureQualifierCode(Data_6Tribes_5y, flaggedonly = TRUE)
 #' 
 #' # Remove all suspect samples:
 #' MeasureQualifierCode_clean <- TADA_FlagMeasureQualifierCode(Data_6Tribes_5y, clean = TRUE)
 
-TADA_FlagMeasureQualifierCode <- function(.data, clean = FALSE, errorsonly = FALSE) {
+TADA_FlagMeasureQualifierCode <- function(.data, clean = FALSE, flaggedonly = FALSE) {
   # check .data is data.frame
   TADA_CheckType(.data, "data.frame", "Input object")
   # check that clean is boolean
   TADA_CheckType(clean, "logical")
-  # check errorsonly is boolean
-  TADA_CheckType(errorsonly, "logical")
+  # check flaggedonly is boolean
+  TADA_CheckType(flaggedonly, "logical")
   # check .data has required columns
   TADA_CheckColumns(.data, "MeasureQualifierCode")
   
@@ -683,8 +683,8 @@ TADA_FlagMeasureQualifierCode <- function(.data, clean = FALSE, errorsonly = FAL
     clean.data <- dplyr::filter(flag.data, flag.data$TADA.MeasureQualifierCode.Flag != "Suspect")
   }
   
-  # if errorsonly = FALSE, return full clean dataframe
-  if(errorsonly == FALSE) {
+  # if flaggedonly = FALSE, return full clean dataframe
+  if(flaggedonly == FALSE) {
     final.data <- clean.data
     # if the dataframe is empty, print message
     if(nrow(final.data) == 0) {
@@ -696,8 +696,8 @@ TADA_FlagMeasureQualifierCode <- function(.data, clean = FALSE, errorsonly = FAL
     }
   }
   
-  # if errorsonly = TRUE, return clean dataframe filtered to only the flagged rows
-  if(errorsonly == TRUE) {
+  # if flaggedonly = TRUE, return clean dataframe filtered to only the flagged rows
+  if(flaggedonly == TRUE) {
     final.data <- dplyr::filter(clean.data, TADA.MeasureQualifierCode.Flag == "Suspect")
     
     # if the dataframe is empty, print message

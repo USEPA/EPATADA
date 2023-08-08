@@ -8,7 +8,7 @@ TADA_FlagCoordinates(
   .data,
   clean_outsideUSA = c("no", "remove", "change sign"),
   clean_imprecise = FALSE,
-  errorsonly = FALSE
+  flaggedonly = FALSE
 )
 }
 \arguments{
@@ -23,18 +23,18 @@ clean_outside = "change sign"; Default is clean_outsideUSA = "no".}
 \item{clean_imprecise}{Boolean argument; removes imprecise data when
 clean_imprecise = TRUE. Default is clean_imprecise = FALSE.}
 
-\item{errorsonly}{Boolean argument; Return only flagged data when errorsonly = TRUE;
-default is errorsonly = FALSE.}
+\item{flaggedonly}{Boolean argument; Return only flagged data when flaggedonly = TRUE;
+default is flaggedonly = FALSE.}
 }
 \value{
 Returns input TADA dataset with the added "TADA.InvalidCoordinates.Flag" column.
 When clean_outsideUSA is "no", "change sign", or clean_imprecise argument is FALSE,
 a column flagging rows with the respective QA check is appended to the input
 dataframe. When clean_outsideUSA is "remove" or clean_imprecise is TRUE,
-"invalid" or "imprecise" data is removed, respectively. When errorsonly is TRUE,
+"invalid" or "imprecise" data is removed, respectively. When flaggedonly is TRUE,
 the dataframe will be filtered to show only the data flagged as invalid, imprecise,
 or out of the United States. Defaults are clean_outsideUSA = "no",
-clean_imprecise = FALSE, and errorsonly = FALSE.
+clean_imprecise = FALSE, and flaggedonly = FALSE.
 }
 \description{
 This function identifies and flags invalid coordinate data. When
@@ -67,7 +67,7 @@ InvalidCoord_flags <- TADA_FlagCoordinates(Data_Nutrients_UT)
 # Flag, but do not remove, data with invalid coordinates in new column 
 # titled "TADA.InvalidCoordinates.Flag"
 # Return ONLY the flagged data:
-InvalidCoord_flags_errorsonly <- TADA_FlagCoordinates(Data_Nutrients_UT, errorsonly = TRUE)
+InvalidCoord_flags_flaggedonly <- TADA_FlagCoordinates(Data_Nutrients_UT, flaggedonly = TRUE)
 
 # Remove data with coordinates outside the USA, but keep flagged data with 
 # imprecise coordinates:

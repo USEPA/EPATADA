@@ -4,7 +4,7 @@
 \alias{TADA_FlagMeasureQualifierCode}
 \title{Check for results with suspect result Measure Qualifier Codes}
 \usage{
-TADA_FlagMeasureQualifierCode(.data, clean = FALSE, errorsonly = FALSE)
+TADA_FlagMeasureQualifierCode(.data, clean = FALSE, flaggedonly = FALSE)
 }
 \arguments{
 \item{.data}{TADA dataframe which must include the column 'MeasureQualifierCode'}
@@ -14,17 +14,17 @@ clean = "FALSE" which does not remove any rows of data. When clean = "TRUE",
 any rows of data flagged as "Suspect" based on the MeasureQualifierCode
 will be removed.}
 
-\item{errorsonly}{Boolean argument; the default is errorsonly = FALSE. When
-errorsonly = TRUE, the function will filter the dataframe to show only the
+\item{flaggedonly}{Boolean argument; the default is flaggedonly = FALSE. When
+flaggedonly = TRUE, the function will filter the dataframe to show only the
 rows of data flagged as Suspect.}
 }
 \value{
 This function adds the column "TADA.MeasureQualifierCode.Flag" to the dataframe
 which flags suspect samples based on the "MeasureQualifierCode" column. When
 clean = "FALSE", all suspect data are kept in the dataframe. When clean = "TRUE",
-all suspect data are removed from the dataframe. When errorsonly = TRUE, the dataframe
-is filtered to show only the suspect data. When errorsonly = FALSE, the full,
-cleaned dataframe is returned. The default is clean = FALSE and errorsonly = FALSE.
+all suspect data are removed from the dataframe. When flaggedonly = TRUE, the dataframe
+is filtered to show only the suspect data. When flaggedonly = FALSE, the full,
+cleaned dataframe is returned. The default is clean = FALSE and flaggedonly = FALSE.
 }
 \description{
 This function checks for and flags or removes samples denoted as suspect
@@ -41,7 +41,7 @@ data(Data_6Tribes_5y)
 MeasureQualifierCode_flagged <- TADA_FlagMeasureQualifierCode(Data_6Tribes_5y)
 
 # Flag suspect samples and filter to suspect data only:
-MeasureQualifierCode_flags_only <- TADA_FlagMeasureQualifierCode(Data_6Tribes_5y, errorsonly = TRUE)
+MeasureQualifierCode_flags_only <- TADA_FlagMeasureQualifierCode(Data_6Tribes_5y, flaggedonly = TRUE)
 
 # Remove all suspect samples:
 MeasureQualifierCode_clean <- TADA_FlagMeasureQualifierCode(Data_6Tribes_5y, clean = TRUE)

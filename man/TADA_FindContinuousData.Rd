@@ -4,7 +4,7 @@
 \alias{TADA_FindContinuousData}
 \title{Check for Aggregated Continuous Data}
 \usage{
-TADA_FindContinuousData(.data, clean = TRUE, errorsonly = FALSE)
+TADA_FindContinuousData(.data, clean = TRUE, flaggedonly = FALSE)
 }
 \arguments{
 \item{.data}{TADA dataframe}
@@ -12,16 +12,16 @@ TADA_FindContinuousData(.data, clean = TRUE, errorsonly = FALSE)
 \item{clean}{Boolean argument; removes aggregated continuous data from
 the dataframe when clean = TRUE. Default is clean = TRUE.}
 
-\item{errorsonly}{Boolean argument; filters dataframe to show only aggregated
-continuous data when errorsonly = TRUE. Default is errorsonly = FALSE.}
+\item{flaggedonly}{Boolean argument; filters dataframe to show only aggregated
+continuous data when flaggedonly = TRUE. Default is flaggedonly = FALSE.}
 }
 \value{
-When clean = FALSE and errorsonly = FALSE, a column flagging rows with
+When clean = FALSE and flaggedonly = FALSE, a column flagging rows with
 aggregated continuous data is appended to the input data set. When clean = FALSE
-and errorsonly = TRUE, the dataframe is filtered to show only the flagged
+and flaggedonly = TRUE, the dataframe is filtered to show only the flagged
 aggregated continuous data and flag column is still appended. When clean = TRUE
-and errorsonly = FALSE, aggregated continuous data is removed from the dataframe
-and no column is appended. The default is clean = TRUE and errorsonly = FALSE.
+and flaggedonly = FALSE, aggregated continuous data is removed from the dataframe
+and no column is appended. The default is clean = TRUE and flaggedonly = FALSE.
 }
 \description{
 The Water Quality Portal (WQP) is not currently designed to store high-frequency
@@ -34,15 +34,15 @@ This type of high frequency data may (or may not) be suitable for integration wi
 water quality data for assessments. Therefore, this function uses metadata
 submitted by data providers to flag rows with aggregated continuous data.
 This is done by flagging results where the ResultDetectionConditionText =
-"Reported in Raw Data (attached)". When clean = FALSE and errorsonly = FALSE, a column titled
+"Reported in Raw Data (attached)". When clean = FALSE and flaggedonly = FALSE, a column titled
 "TADA.AggregatedContinuousData.Flag" is added to the dataframe to indicate if the row
 includes aggregated continuous data, "Y", or not,  "N". When clean = FALSE and
-errorsonly = TRUE, the dataframe will be filtered to show only the rows flagged
-"Y" for aggregated continuous data. When clean = TRUE and errorsonly = FALSE,
+flaggedonly = TRUE, the dataframe will be filtered to show only the rows flagged
+"Y" for aggregated continuous data. When clean = TRUE and flaggedonly = FALSE,
 rows with aggregated continuous data are removed from the dataframe and no
-column will be appended. When clean = TRUE and errorsonly = TRUE, the function
+column will be appended. When clean = TRUE and flaggedonly = TRUE, the function
 does not execute and an error message is returned. The default is clean = TRUE
-and errorsonly = FALSE.
+and flaggedonly = FALSE.
 }
 \examples{
 # Load example dataset
@@ -56,7 +56,7 @@ AggContinuous_clean <- TADA_FindContinuousData(Data_Nutrients_UT)
 AggContinuous_flags <- TADA_FindContinuousData(Data_Nutrients_UT, clean = FALSE)
 
 # Show only rows flagged for aggregated continuous data:
-AggContinuous_errorsonly <- TADA_FindContinuousData(Data_Nutrients_UT, 
-clean = FALSE, errorsonly = TRUE)
+AggContinuous_flaggedonly <- TADA_FindContinuousData(Data_Nutrients_UT, 
+clean = FALSE, flaggedonly = TRUE)
 
 }

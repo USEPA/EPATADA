@@ -771,8 +771,8 @@ TADAprofileCheck <- function(.data) {
 # a column titled "TADA.PotentialDupRowIDs.Flag" is added to the dataframe which
 # assigns each pair of potential duplicates a unique ID for review.
 # Default is clean = TRUE.
-# @param errorsonly Boolean argument; filters dataframe to show only potential
-# duplicate rows of data when errorsonly = TRUE. Default is errorsonly = FALSE.
+# @param flaggedonly Boolean argument; filters dataframe to show only potential
+# duplicate rows of data when flaggedonly = TRUE. Default is flaggedonly = FALSE.
 # 
 # @return When clean = FALSE, the following column will be added to you dataframe:
 # TADA.PotentialDupRowIDs.Flag. This column flags potential duplicate rows of data
@@ -794,15 +794,15 @@ TADAprofileCheck <- function(.data) {
 # PotentialDup_flagcolumnadded <- PotentialDuplicateRowID(Data_Nutrients_UT, clean = FALSE)
 # 
 # # Flag and review potential duplicate data only:
-# PotentialDup_reviewduplicatesonly <- PotentialDuplicateRowID(Data_Nutrients_UT, clean = FALSE, errorsonly = TRUE)
+# PotentialDup_reviewduplicatesonly <- PotentialDuplicateRowID(Data_Nutrients_UT, clean = FALSE, flaggedonly = TRUE)
 
-PotentialDuplicateRowID <- function(.data, clean = TRUE, errorsonly = FALSE) {
+PotentialDuplicateRowID <- function(.data, clean = TRUE, flaggedonly = FALSE) {
   # check .data is data.frame
   TADA_CheckType(.data, "data.frame", "Input object")
   # check clean is boolean
   TADA_CheckType(clean, "logical")
-  # check errorsonly is boolean
-  TADA_CheckType(errorsonly, "logical")
+  # check flaggedonly is boolean
+  TADA_CheckType(flaggedonly, "logical")
   # check .data has required columns
   required_cols <- c(
     "ActivityIdentifier", "ActivityConductingOrganizationText",
@@ -811,9 +811,9 @@ PotentialDuplicateRowID <- function(.data, clean = TRUE, errorsonly = FALSE) {
     "ActivityCommentText"
   )
   TADA_CheckColumns(.data, required_cols)
-  # check that clean and errorsonly are not both TRUE
-  if (clean == TRUE & errorsonly == TRUE) {
-    stop("Function not executed because clean and errorsonly cannot both be TRUE")
+  # check that clean and flaggedonly are not both TRUE
+  if (clean == TRUE & flaggedonly == TRUE) {
+    stop("Function not executed because clean and flaggedonly cannot both be TRUE")
   }
   
   # execute function after checks are passed
@@ -833,12 +833,12 @@ PotentialDuplicateRowID <- function(.data, clean = TRUE, errorsonly = FALSE) {
   
   # if no potential duplicates are found
   if (nrow(dupe.data) == 0) {
-    if (errorsonly == FALSE) {
+    if (flaggedonly == FALSE) {
       print("No potential duplicates found in your dataframe.")
       .data <- TADA_OrderCols(.data)
       return(.data)
     }
-    if (errorsonly == TRUE) {
+    if (flaggedonly == TRUE) {
       print("This dataframe is empty because we did not find any potential duplicates in your dataframe")
       dupe.data <- TADA_OrderCols(dupe.data)
       return(dupe.data)
@@ -865,13 +865,13 @@ PotentialDuplicateRowID <- function(.data, clean = TRUE, errorsonly = FALSE) {
       dplyr::select_at(dplyr::vars(-dplyr::ends_with(".y")))
     
     # flagged output, all data
-    if (clean == FALSE & errorsonly == FALSE) {
+    if (clean == FALSE & flaggedonly == FALSE) {
       flag.data <- TADA_OrderCols(flag.data)
       return(flag.data)
     }
     
     # clean output
-    if (clean == TRUE & errorsonly == FALSE) {
+    if (clean == TRUE & flaggedonly == FALSE) {
       # remove duplicate rows
       # seperate data into 2 dataframes by TADA.PotentialDupRowIDs.Flag (no NAs and NAs)
       dup.data <- flag.data[!is.na(flag.data$TADA.PotentialDupRowIDs.Flag), ]
@@ -888,7 +888,7 @@ PotentialDuplicateRowID <- function(.data, clean = TRUE, errorsonly = FALSE) {
     }
     
     # flagged data, errors only
-    if (clean == FALSE & errorsonly == TRUE) {
+    if (clean == FALSE & flaggedonly == TRUE) {
       # filter to show duplicate data only
       dup.data <- flag.data[!is.na(flag.data$TADA.PotentialDupRowIDs.Flag), ]
       dup.data <- TADA_OrderCols(dup.data)

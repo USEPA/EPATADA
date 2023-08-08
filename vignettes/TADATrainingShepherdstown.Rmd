@@ -279,10 +279,10 @@ unique(qaqc_ref$Type)
 TADA joins this validation table to the data and uses the "Valid" and "Invalid" labels in the Status column to create easily understandable flagging columns for each function. Let's run these four flagging functions.
 
 ```{r}
-dataset_flags = TADA::TADA_FlagFraction(dataset, clean = FALSE, errorsonly = FALSE)
-dataset_flags = TADA::TADA_FlagSpeciation(dataset_flags, clean = "none", errorsonly = FALSE)
-dataset_flags = TADA::TADA_FlagResultUnit(dataset_flags, clean = "none", errorsonly = FALSE)
-dataset_flags = TADA::TADA_FindQCActivities(dataset_flags, clean = FALSE, errorsonly = FALSE)
+dataset_flags = TADA::TADA_FlagFraction(dataset, clean = FALSE, flaggedonly = FALSE)
+dataset_flags = TADA::TADA_FlagSpeciation(dataset_flags, clean = "none", flaggedonly = FALSE)
+dataset_flags = TADA::TADA_FlagResultUnit(dataset_flags, clean = "none", flaggedonly = FALSE)
+dataset_flags = TADA::TADA_FindQCActivities(dataset_flags, clean = FALSE, flaggedonly = FALSE)
 
 dimCheck(all_result_num, dataset_flags, removed, checkName = "Run Flag Functions")
 ```
