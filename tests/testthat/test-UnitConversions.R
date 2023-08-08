@@ -56,8 +56,8 @@ test_that("TADA_ConvertDepthUnits check fields argument for valid inputs", {
 test_that("TADA_ConvertDepthUnits all value columns NaN", {
   # Replace units col w/ NaN
   TADAProfile$ActivityDepthHeightMeasure.MeasureUnitCode <- c(NaN, NaN)
-  warn <- "No action taken: the dataframe does not have any depth data in ActivityTop/BottomDepthHeight or ResultDepthHeight columns."
-  expect_warning(TADA_ConvertDepthUnits(TADAProfile), warn)
+  printy <- "No action taken: the dataframe does not have any depth data in ActivityTop/BottomDepthHeight or ResultDepthHeight columns."
+  expect_output(TADA_ConvertDepthUnits(TADAProfile), printy)
 })
 
 # Conversion correct

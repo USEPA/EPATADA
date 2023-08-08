@@ -38,7 +38,7 @@ test_that("Is TADA_GetMeasureQualifierCodeRef up to date?", {
   # Check for any new domain values that may not follow above logic and warn.
   old = utils::read.csv(system.file("extdata", "WQXMeasureQualifierCodeRef.csv", package = "TADA"))
   old_latedate = max(as.Date(old$Last.Change.Date, "%m/%d/%Y"))
-  ref = TADA_GetResultMeasureQualifierRef()
+  ref = TADA_GetMeasureQualifierCodeRef()
   new_latedate = max(as.Date(ref$Last.Change.Date, "%m/%d/%Y"))
   
   expect_true(old_latedate==new_latedate)

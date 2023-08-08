@@ -385,7 +385,7 @@ TADA_ConvertDepthUnits <- function(.data,
   
   # check if any Conversion Factor columns were appended
   if (all(is.na(match(appCols, colnames(check.data)))) == TRUE) {
-    warning("No action taken: the dataframe does not have any depth data in ActivityTop/BottomDepthHeight or ResultDepthHeight columns.")
+    print("No action taken: the dataframe does not have any depth data in ActivityTop/BottomDepthHeight or ResultDepthHeight columns.")
     check.data <- TADA_OrderCols(check.data)
     return(check.data)
   }
