@@ -2,16 +2,16 @@
 % Please edit documentation in R/Transformations.R
 \name{TADA_CalculateTotalNP}
 \alias{TADA_CalculateTotalNP}
-\title{Calculate Total Nitrogen or Phosphorus}
+\title{Calculate Total Nitrogen and Phosphorus}
 \usage{
-TADA_CalculateTotalNP(.data, sum_ref, daily_agg)
+TADA_CalculateTotalNP(.data, sum_ref, daily_agg = c("max", "min", "mean"))
 }
 \arguments{
-\item{.data}{TADA dataframe. If user wants to consider grouping nitrogen
-subspecies across multiple organizations, user should have run
-TADA_FindNearbySites and grouped all nearby sites to one common
-MonitoringLocationIdentifier, TADA.LatitudeMeasure, TADA.LonigtudeMeasure,
-etc.}
+\item{.data}{TADA dataframe, ideally harmonized using TADA_HarmonizeSynonyms.
+If user wants to consider grouping N or P subspecies across multiple
+organizations, user should have run TADA_FindNearbySites and grouped all
+nearby sites to one common MonitoringLocationIdentifier,
+TADA.LatitudeMeasure, TADA.LongitudeMeasure, etc.}
 
 \item{sum_ref}{Optional. A custom summation reference dataframe the user has
 loaded into the R environment. Dataframe must have same columns as default
@@ -23,11 +23,11 @@ the same day for multiple measurements. Defaults to 'max', but can be set
 to 'min' or 'mean'.}
 }
 \value{
-Input TADA dataframe with additional rows representing total N
+Input TADA dataframe with additional rows representing total N and P
 summation values from adding up subspecies. These new rows share the same
 date and monitoring location as the subspecies, but an additional note is
 added in the TADA.NutrientSummation.Flag column describing how the total was
-derived.
+derived. Also adds TADA.NutrientSummationGroup and TADA.NutrientSummationEquation columns.
 }
 \description{
 This function uses the \href{https://echo.epa.gov/trends/loading-tool/resources/nutrient-aggregation#nitrogen}{Nutrient Aggregation logic}

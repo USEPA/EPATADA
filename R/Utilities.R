@@ -146,10 +146,15 @@ TADA_AutoClean <- function(.data) {
   .data$TADA.LatitudeMeasure <- as.numeric(.data$LatitudeMeasure)
   .data$TADA.LongitudeMeasure <- as.numeric(.data$LongitudeMeasure)
   
+  # Change NONE in unit, fraction, and speciation to NA for better harmonization
+  .data = .data %>% dplyr::mutate(TADA.ResultSampleFractionText = replace(TADA.ResultSampleFractionText, TADA.ResultSampleFractionText%in%c("NONE"),NA),
+                                  TADA.MethodSpecificationName = replace(TADA.MethodSpecificationName, TADA.MethodSpecificationName%in%c("NONE"),NA),
+                                  TADA.ResultMeasure.MeasureUnitCode = replace(TADA.ResultMeasure.MeasureUnitCode, TADA.ResultMeasure.MeasureUnitCode%in%c("NONE"),NA))
+  
   # Implement unit harmonization
   print("TADA_Autoclean: harmonizing result and depth units.")
-  .data = TADA_ConvertResultUnits(.data, transform = TRUE)
-  .data = TADA_ConvertDepthUnits(.data, unit = "m")
+  .data = suppressWarnings(TADA_ConvertResultUnits(.data, transform = TRUE))
+  .data = suppressWarnings(TADA_ConvertDepthUnits(.data, unit = "m"))
   
   # #convert 'meters' to 'm' - EDH MOVED TO CONVERT DEPTH UNITS
   # .data$TADA.ActivityDepthHeightMeasure.MeasureUnitCode[.data$ActivityDepthHeightMeasure.MeasureUnitCode == 'meters'] <- 'm'
@@ -878,4 +883,75 @@ TADA_RunKeyFlagFunctions <- function(.data, remove_na = TRUE, clean = TRUE){
   return(.data)
 }
   
+
+## FUNCTION TO UPDATE EXAMPLE DATA
+
+TADA_UpdateExampleData <- function(){
+  
+  Data_Nutrients_UT <- TADA_DataRetrieval(statecode = "UT",
+  characteristicName = c("Ammonia", "Nitrate", "Nitrogen"),
+  startDate = "2020-10-01",
+  endDate = "2022-09-30")
+  print("Data_Nutrients_UT")
+  print(dim(Data_Nutrients_UT))
+  save(Data_Nutrients_UT, file = "Data_Nutrients_UT.rda")
+  rm(Data_Nutrients_UT)
+  
+  Data_6Tribes_5y <- TADA_DataRetrieval(organization = c("REDLAKE_WQX",
+                                                   "SFNOES_WQX",
+                                                   "PUEBLO_POJOAQUE",
+                                                   "FONDULAC_WQX",
+                                                   "PUEBLOOFTESUQUE",
+                                                   "CNENVSER"),
+                                  startDate = "2018-01-01")
+  print("Data_6Tribes_5y:")
+  print(dim(Data_6Tribes_5y))
+  save(Data_6Tribes_5y, file = "inst/extdata/Data_6Tribes_5y.rda")
+  
+  y = subset(Data_6Tribes_5y, Data_6Tribes_5y$TADA.ActivityMediaName%in%c("WATER"))
+  y = TADA_RunKeyFlagFunctions(Data_6Tribes_5y)
+  rm(Data_6Tribes_5y)
+  y = TADA_FlagMethod(y, clean = TRUE)
+  y <- TADA_FlagAboveThreshold(y, clean = TRUE)
+  y <- TADA_FlagBelowThreshold(y, clean = TRUE)
+  y <- TADA_FindPotentialDuplicatesMultipleOrgs(y, dist_buffer = 100)
+  y <- TADA_FindPotentialDuplicatesSingleOrg(y, handling_method = 'pick_one')
+  y <- dplyr::filter(y, !(MeasureQualifierCode %in% c("D", "H", "ICA", "*")))
+  y = TADA_SimpleCensoredMethods(y,
+                                                 nd_method = "multiplier",
+                                                 nd_multiplier = 0.5,
+                                                 od_method = "as-is",
+                                                 od_multiplier = "null")
+  y <- dplyr::filter(y,TADA.ResultMeasureValueDataTypes.Flag != "ND or NA" &
+                                       TADA.ResultMeasureValueDataTypes.Flag != "Text" &
+                                       TADA.ResultMeasureValueDataTypes.Flag != "Coerced to NA" & 
+                                       !is.na(TADA.ResultMeasureValue))
+  Data_6Tribes_5y_Harmonized <- TADA_HarmonizeSynonyms(y, ref = TADA_GetSynonymRef())
+  print("Data_6Tribes_5y_Harmonized:")
+  print(dim(Data_6Tribes_5y_Harmonized))
+  save(Data_6Tribes_5y_Harmonized, file = "inst/extdata/Data_6Tribes_5y_Harmonized.rda")
+  rm(Data_6Tribes_5y_Harmonized)
+  
+  Data_NCTCShepherdstown_HUC12 = TADA::TADA_DataRetrieval(
+    startDate = "2020-03-14",
+    endDate = "null",
+    countycode = "null",
+    huc = "02070004",
+    siteid = "null",
+    siteType = "null",
+    characteristicName = "null",
+    characteristicType = "null",
+    sampleMedia = "null",
+    statecode = "null",
+    organization = "null",
+    project = "null",
+    applyautoclean = TRUE
+  )
+  print("Data_NCTCShepherdstown_HUC12:")
+  print(dim(Data_NCTCShepherdstown_HUC12))
+  save(Data_NCTCShepherdstown_HUC12, file = "inst/extdata/Data_NCTCShepherdstown_HUC12.rda")
+  rm(Data_NCTCShepherdstown_HUC12)
+ 
+}
+
 
