@@ -924,15 +924,25 @@ TADA_OvernightTesting <- function(){
     missing_codes_df <- data.frame(MeasureQualifierCode = missing_codes,
                                    TADA.MeasureQualifierCode.Flag = "uncategorized")
     
+    View(missing_codes_df)
+    
     new_missing_codes_df <- missing_codes_df
     
-    master_missing_codes_df <- dplyr::left_join(new_missing_codes_df, master_missing_codes_df, by = "MeasureQualifierCode", copy = TRUE)
+    View(new_missing_codes_df)
+    
+    master_missing_codes_df <- dplyr::full_join(new_missing_codes_df, missing_codes_df, by = c("MeasureQualifierCode", "TADA.MeasureQualifierCode.Flag"), copy = TRUE)
+    
+    View(master_missing_codes_df)
     
     }
   
-  aster_missing_codes_distinct = master_missing_codes_df %>% dplyr::distinct()
+  master_missing_codes_distinct = master_missing_codes_df %>% dplyr::distinct()
+  
+  View(master_missing_codes_distinct)
   
   master_missing_codes_freq = as.data.frame(table(master_missing_codes_df))
+  
+  View(master_missing_codes_freq)
 
   closeAllConnections() # Close connection to log file
   
