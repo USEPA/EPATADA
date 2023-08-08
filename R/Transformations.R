@@ -385,7 +385,7 @@ TADA_CalculateTotalNP <- function(.data, sum_ref, daily_agg = c("max","min","mea
   depths = depths[grepl("TADA.", depths)]
   grpcols = c("ActivityStartDate", "MonitoringLocationIdentifier","ActivityMediaSubdivisionName","TADA.ComparableDataIdentifier","TADA.ResultMeasure.MeasureUnitCode",depths)
   
-  dat = TADA_AggregateMeasurements(.data, grouping_cols = grpcols, agg_fun = daily_agg, clean = TRUE)
+  dat = suppressMessages(TADA_AggregateMeasurements(.data, grouping_cols = grpcols, agg_fun = daily_agg, clean = TRUE))
 
   # join data to summation table and keep only those that match for summations
   sum_dat = merge(dat, sum_ref, all.x = TRUE)
