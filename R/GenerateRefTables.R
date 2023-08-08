@@ -573,7 +573,8 @@ TADA_GetMeasureQualifierCodeRef <- function() {
   
   ## Add detection conditions not in WQX domain table
   others = data.frame(Code = c("H;J", "LT;MDL", "HMSR;J", "J;QC", "D;H", "J;U", "H;LAC", 
-                               "FQC;J", "B;J", "FMS;J", "D;U"),
+                               "FQC;J", "B;J", "FMS;J", "D;U", "FSL;J" 
+                               ),
                       Description = c("Hard-coded combination", 
                                       "Hard-coded combination", 
                                       "Hard-coded combination", 
@@ -581,6 +582,7 @@ TADA_GetMeasureQualifierCodeRef <- function() {
                                       "Hard-coded combination",
                                       "Hard-coded combination",
                                       "Hard-coded combination", 
+                                      "Hard-coded combination",
                                       "Hard-coded combination",
                                       "Hard-coded combination",
                                       "Hard-coded combination",
@@ -595,7 +597,8 @@ TADA_GetMeasureQualifierCodeRef <- function() {
                                                          "Suspect",
                                                          "Suspect",
                                                          "Suspect",
-                                                         "Non-Detect"),
+                                                         "Non-Detect",
+                                                         "Suspect"),
                       Last.Change.Date = c("8/7/2023 02:36:00 PM",
                                            "8/7/2023 05:00:00 PM",
                                            "8/7/2023 07:42:00 PM",
@@ -606,7 +609,8 @@ TADA_GetMeasureQualifierCodeRef <- function() {
                                            "8/7/2023 07:42:00 PM",
                                            "8/7/2023 07:42:00 PM",
                                            "8/7/2023 07:42:00 PM",
-                                           "8/7/2023 07:42:00 PM"))
+                                           "8/7/2023 07:42:00 PM",
+                                           "8/7/2023 08:14:00 PM"))
   
   WQXMeasureQualifierCodeRef = plyr::rbind.fill(WQXMeasureQualifierCodeRef, others)
   
@@ -619,7 +623,9 @@ TADA_GetMeasureQualifierCodeRef <- function() {
 # Update WQX ResultMeasureQualifier Reference Table internal file (for internal use only)
 
 TADA_UpdateMeasureQualifierCodeRef <- function() {
-  utils::write.csv(TADA_GetMeasureQualifierCodeRef(), file = "inst/extdata/WQXMeasureQualifierCodeRef.csv", row.names = FALSE)
+  utils::write.csv(TADA_GetMeasureQualifierCodeRef(), 
+                   file = "inst/extdata/WQXMeasureQualifierCodeRef.csv", 
+                   row.names = FALSE)
 }
 
 

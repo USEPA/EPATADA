@@ -900,13 +900,40 @@ TADA_OvernightTesting <- function(){
   #cat(readChar(rstudioapi::getSourceEditorContext()$path, # Writing currently opened R script to file
   #             file.info(rstudioapi::getSourceEditorContext()$path)$size))
   
-  TADA_RandomTestingSet()
-  TADA_RandomTestingSet()
-  TADA_RandomTestingSet()
-  TADA_RandomTestingSet()
-  TADA_RandomTestingSet()
-  TADA_RandomTestingSet()
+  num_iterations=2
+
+  for (i in 1:num_iterations) {
+    
+    testing <- TADA_RandomTestingSet()
+    
+    testing2 <- TADA_FlagMeasureQualifierCode(testing)
+    
+    #expect_true(all(testing2$TADA.MeasureQualifierCode.Flag != "uncategorized"))
+    
+    #print(unique(testing2$TADA_FlagMeasureQualifierCode))
+    #print(unique(testing2$MeasureQualifierCode))
+    
+    # load in ResultMeasureQualifier Flag Table
+    qc.ref <- TADA_GetMeasureQualifierCodeRef() %>%
+      dplyr::rename(MeasureQualifierCode = Code) %>%
+      dplyr::select(MeasureQualifierCode, TADA.MeasureQualifierCode.Flag)
+    
+    codes = unique(testing2$MeasureQualifierCode)
+    missing_codes = codes[!codes %in% qc.ref$MeasureQualifierCode]
+    
+    missing_codes_df <- data.frame(MeasureQualifierCode = missing_codes,
+                                   TADA.MeasureQualifierCode.Flag = "uncategorized")
+    
+    new_missing_codes_df <- missing_codes_df
+    
+    master_missing_codes_df <- dplyr::left_join(new_missing_codes_df, master_missing_codes_df, by = "MeasureQualifierCode", copy = TRUE)
+    
+    }
   
+  aster_missing_codes_distinct = master_missing_codes_df %>% dplyr::distinct()
+  
+  master_missing_codes_freq = as.data.frame(table(master_missing_codes_df))
+
   closeAllConnections() # Close connection to log file
   
   return(testing_log)
