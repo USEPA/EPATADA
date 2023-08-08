@@ -2,7 +2,7 @@
 % Please edit documentation in R/Transformations.R
 \name{TADA_CalculateTotalNP}
 \alias{TADA_CalculateTotalNP}
-\title{Calculate Total Nitrogen or (eventually) Phosphorus}
+\title{Calculate Total Nitrogen and Phosphorus}
 \usage{
 TADA_CalculateTotalNP(.data, sum_ref, daily_agg = c("max", "min", "mean"))
 }
@@ -23,7 +23,7 @@ the same day for multiple measurements. Defaults to 'max', but can be set
 to 'min' or 'mean'.}
 }
 \value{
-Input TADA dataframe with additional rows representing total N
+Input TADA dataframe with additional rows representing total N and P
 summation values from adding up subspecies. These new rows share the same
 date and monitoring location as the subspecies, but an additional note is
 added in the TADA.NutrientSummation.Flag column describing how the total was

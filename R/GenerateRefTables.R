@@ -56,6 +56,11 @@ TADA_GetWQXCharValRef <- function() {
   
   WQXcharValRef = WQXcharValRef%>%dplyr::select(-Status)%>%dplyr::rename(Status = Status2)%>%dplyr::distinct()
 
+  # Convert all NONE to NA in Value and Value.Unit columns
+  WQXcharValRef = WQXcharValRef %>% dplyr::mutate(Value = replace(Value, Value%in%c("NONE"),NA),
+                                                  Value.Unit = replace(Value.Unit, Value.Unit%in%c("NONE"),NA)) %>% dplyr::distinct()
+  
+  
   # Save updated table in cache
   WQXCharValRef_Cached <- WQXcharValRef
 
@@ -179,6 +184,10 @@ TADA_GetMeasureUnitRef <- function() {
   # add data to WQXunitRef
   WQXunitRef <- plyr::rbind.fill(WQXunitRef, target.m, target.ft)%>%dplyr::distinct()
 
+  # Convert NONE to NA in ref table
+  WQXunitRef = WQXunitRef %>% dplyr::mutate(Code = replace(Code, Code%in%c("None"),NA),
+                Target.Unit = replace(Target.Unit, Target.Unit%in%c("None"),NA)) %>% dplyr::distinct()
+  
   # Save updated table in cache
   WQXunitRef_Cached <- WQXunitRef
 

@@ -5,7 +5,7 @@
 \alias{Data_6Tribes_5y_Harmonized}
 \title{Data_6Tribes_5y_Harmonized}
 \format{
-A data frame with 120747 rows and 163 variables
+A data frame with 122388 rows and 168 variables
 }
 \usage{
 data(Data_6Tribes_5y_Harmonized)

@@ -29,7 +29,7 @@ NULL
 #' @keywords datasets
 #' @name Data_Nutrients_UT
 #' @usage data(Data_Nutrients_UT)
-#' @format A data frame with 14587 rows and 148 variables
+#' @format A data frame with 14589 rows and 148 variables
 NULL
 
 #' Data_Narrow_5d
@@ -76,7 +76,7 @@ NULL
 #' @keywords datasets
 #' @name Data_6Tribes_5y_Harmonized
 #' @usage data(Data_6Tribes_5y_Harmonized)
-#' @format A data frame with 120747 rows and 163 variables
+#' @format A data frame with 122388 rows and 168 variables
 NULL
 
 #' Data_6Tribes_5y
@@ -103,7 +103,7 @@ NULL
 #' @keywords datasets
 #' @name Data_6Tribes_5y
 #' @usage data(Data_6Tribes_5y)
-#' @format A data frame with 131906 rows and 151 variables
+#' @format A data frame with 139033 rows and 151 variables
 NULL
 
 #' Data_NCTCShepherdstown_HUC12
@@ -129,5 +129,5 @@ NULL
 #' @keywords datasets
 #' @name Data_NCTCShepherdstown_HUC12
 #' @usage data(Data_NCTCShepherdstown_HUC12)
-#' @format A data frame with 34330 rows and 151 variables
+#' @format A data frame with 39236 rows and 151 variables
 NULL
