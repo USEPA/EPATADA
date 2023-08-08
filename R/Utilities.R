@@ -890,63 +890,59 @@ TADA_RunKeyFlagFunctions <- function(.data, remove_na = TRUE, clean = TRUE){
 #' @return console inputs and outputs
 #' 
 
-TADA_OvernightTesting <- function(){
-  
-  testing_log <- file("testing_log.txt") # File name of output log
-  
-  sink(testing_log, append = TRUE, type = "output") # Writing console output to log file
-  sink(testing_log, append = TRUE, type = "message")
-  
-  #cat(readChar(rstudioapi::getSourceEditorContext()$path, # Writing currently opened R script to file
-  #             file.info(rstudioapi::getSourceEditorContext()$path)$size))
-  
-  num_iterations=2
-
-  for (i in 1:num_iterations) {
-    
-    testing <- TADA_RandomTestingSet()
-    
-    testing2 <- TADA_FlagMeasureQualifierCode(testing)
-    
-    #expect_true(all(testing2$TADA.MeasureQualifierCode.Flag != "uncategorized"))
-    
-    #print(unique(testing2$TADA_FlagMeasureQualifierCode))
-    #print(unique(testing2$MeasureQualifierCode))
-    
-    # load in ResultMeasureQualifier Flag Table
-    qc.ref <- TADA_GetMeasureQualifierCodeRef() %>%
-      dplyr::rename(MeasureQualifierCode = Code) %>%
-      dplyr::select(MeasureQualifierCode, TADA.MeasureQualifierCode.Flag)
-    
-    codes = unique(testing2$MeasureQualifierCode)
-    missing_codes = codes[!codes %in% qc.ref$MeasureQualifierCode]
-    
-    missing_codes_df <- data.frame(MeasureQualifierCode = missing_codes,
-                                   TADA.MeasureQualifierCode.Flag = "uncategorized")
-    
-    View(missing_codes_df)
-    
-    new_missing_codes_df <- missing_codes_df
-    
-    View(new_missing_codes_df)
-    
-    master_missing_codes_df <- dplyr::full_join(new_missing_codes_df, missing_codes_df, by = c("MeasureQualifierCode", "TADA.MeasureQualifierCode.Flag"), copy = TRUE)
-    
-    View(master_missing_codes_df)
-    
-    }
-  
-  master_missing_codes_distinct = master_missing_codes_df %>% dplyr::distinct()
-  
-  View(master_missing_codes_distinct)
-  
-  master_missing_codes_freq = as.data.frame(table(master_missing_codes_df))
-  
-  View(master_missing_codes_freq)
-
-  closeAllConnections() # Close connection to log file
-  
-  return(testing_log)
-
-  }
+# TADA_OvernightTesting <- function(){
+#   
+#   testing_log <- file("testing_log.txt") # File name of output log
+#   
+#   sink(testing_log, append = TRUE, type = "output") # Writing console output to log file
+#   sink(testing_log, append = TRUE, type = "message")
+#   
+#   #cat(readChar(rstudioapi::getSourceEditorContext()$path, # Writing currently opened R script to file
+#   #             file.info(rstudioapi::getSourceEditorContext()$path)$size))
+#   
+#   num_iterations=2
+#   master_missing_codes_df <- data.frame(MeasureQualifierCode = NA, TADA.MeasureQualifierCode.Flag = NA)
+# 
+#   for (i in 1:num_iterations) {
+#     
+#     testing <- TADA_RandomTestingSet()
+#     
+#     testing2 <- TADA_FlagMeasureQualifierCode(testing)
+#     
+#     #expect_true(all(testing2$TADA.MeasureQualifierCode.Flag != "uncategorized"))
+#     
+#     #print(unique(testing2$TADA_FlagMeasureQualifierCode))
+#     #print(unique(testing2$MeasureQualifierCode))
+#     
+#     # load in ResultMeasureQualifier Flag Table
+#     qc.ref <- TADA_GetMeasureQualifierCodeRef() %>%
+#       dplyr::rename(MeasureQualifierCode = Code) %>%
+#       dplyr::select(MeasureQualifierCode, TADA.MeasureQualifierCode.Flag)
+#     
+#     codes = unique(testing2$MeasureQualifierCode)
+#     missing_codes = codes[!codes %in% qc.ref$MeasureQualifierCode]
+#     
+#     missing_codes_df <- data.frame(MeasureQualifierCode = missing_codes, TADA.MeasureQualifierCode.Flag = "uncategorized")
+#      
+#     View(missing_codes_df)
+#     
+#     master_missing_codes_df <- dplyr::full_join(missing_codes_df, master_missing_codes_df, by = c("MeasureQualifierCode", "TADA.MeasureQualifierCode.Flag"), copy = TRUE)
+#     
+#     View(master_missing_codes_df)
+#     
+#     }
+#   
+#   master_missing_codes_distinct = master_missing_codes_df %>% dplyr::distinct()
+#   
+#   View(master_missing_codes_distinct)
+#   
+#   master_missing_codes_freq = as.data.frame(table(master_missing_codes_df))
+#   
+#   View(master_missing_codes_freq)
+# 
+#   closeAllConnections() # Close connection to log file
+#   
+#   return(testing_log)
+# 
+#   }
 
