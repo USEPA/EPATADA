@@ -1070,7 +1070,7 @@ TP_Boxplot
 
 Generate interactive scatterplot.
 
-```{r boxplot, fig.width=8, fig.height=6, fig.fullwidth=TRUE}
+```{r scatterplot, fig.width=8, fig.height=6, fig.fullwidth=TRUE}
 TADAProfileCleanTP_dailymax <- TADA_AggregateMeasurements(TADAProfileCleanTP, 
                                                           agg_fun = c("max"), 
                                                           clean = TRUE)
