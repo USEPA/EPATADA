@@ -12,7 +12,7 @@ WQP, where each row represents a unique data record. Data frame must
 include the columns 'TADA.ComparableDataIdentifier',
 'TADA.ResultMeasureValue', and 'TADA.ResultMeasure.MeasureUnitCode' to run
 this function. 'TADA.ComparableDataIdentifier' can be added to the data
-frame by running the function HarmonizeData(). The user can include
+frame by running the function TADA_HarmonizeSynonyms(). The user can include
 additional grouping columns in the id_col input. If more than one group
 exists in the dataset (i.e. two or more unique comparable data
 identifiers), the function creates a list of plots, where each list element

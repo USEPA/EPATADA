@@ -1068,6 +1068,18 @@ TP_Boxplot <- TADA::TADA_Boxplot(TADAProfileCleanTP, id_cols = "TADA.ComparableD
 TP_Boxplot
 ```
 
+Generate interactive scatterplot.
+
+```{r boxplot, fig.width=8, fig.height=6, fig.fullwidth=TRUE}
+TADAProfileCleanTP_dailymax <- TADA_AggregateMeasurements(TADAProfileCleanTP, 
+                                                          agg_fun = c("max"), 
+                                                          clean = TRUE)
+
+TP_Scatterplot <- TADA::TADA_Scatterplot(TADAProfileCleanTP_dailymax, id_cols = "TADA.ComparableDataIdentifier")
+
+TP_Scatterplot
+```
+
 ## TADA Shiny Application
 
 Finally, take a look at an alternative workflow, TADA Shiny Module 1:
