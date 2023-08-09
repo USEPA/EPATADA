@@ -56,7 +56,8 @@ AggContinuous_clean <- TADA_FindContinuousData(Data_Nutrients_UT)
 AggContinuous_flags <- TADA_FindContinuousData(Data_Nutrients_UT, clean = FALSE)
 
 # Show only rows flagged for aggregated continuous data:
-AggContinuous_flaggedonly <- TADA_FindContinuousData(Data_Nutrients_UT, 
-clean = FALSE, flaggedonly = TRUE)
+AggContinuous_flaggedonly <- TADA_FindContinuousData(Data_Nutrients_UT,
+  clean = FALSE, flaggedonly = TRUE
+)
 
 }

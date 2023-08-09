@@ -19,7 +19,8 @@ Data_6Tribes_5y <- TADA_DataRetrieval(organization = c("REDLAKE_WQX",
 "PUEBLOOFTESUQUE",
 "CNENVSER"),
 startDate = "2018-01-01")
-
+}
+\details{
 This example includes monitoring data collected from Jan 2018 to present
 by six organizations:
 \enumerate{

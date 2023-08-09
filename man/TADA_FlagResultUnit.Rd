@@ -50,11 +50,11 @@ Default is flaggedonly = FALSE.
 # Load example dataset:
 data(Data_Nutrients_UT)
 
-# Remove data with invalid characteristic-media-result unit combinations from dataframe, 
+# Remove data with invalid characteristic-media-result unit combinations from dataframe,
 # but retain nonstandardized combinations flagged in new column 'TADA.ResultUnit.Flag':
 InvalidUnit_clean <- TADA_FlagResultUnit(Data_Nutrients_UT)
 
-# Remove data with nonstandardized characteristic-media-result unit combinations 
+# Remove data with nonstandardized characteristic-media-result unit combinations
 # from dataframe but retain invalid combinations flagged in new column 'TADA.ResultUnit.Flag:
 NonstandardUnit_clean <- TADA_FlagResultUnit(Data_Nutrients_UT, clean = "nonstandardized_only")
 

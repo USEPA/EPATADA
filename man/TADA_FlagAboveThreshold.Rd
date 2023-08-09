@@ -51,7 +51,8 @@ WQXUpperThreshold_clean <- TADA_FlagAboveThreshold(Data_Nutrients_UT)
 WQXUpperThreshold_flags <- TADA_FlagAboveThreshold(Data_Nutrients_UT, clean = FALSE)
 
 # Show only data flagged as above the upper WQX threshold:
-WQXUpperThreshold_flagsonly <- TADA_FlagAboveThreshold(Data_Nutrients_UT, 
-clean = FALSE, flaggedonly = TRUE)
+WQXUpperThreshold_flagsonly <- TADA_FlagAboveThreshold(Data_Nutrients_UT,
+  clean = FALSE, flaggedonly = TRUE
+)
 
 }

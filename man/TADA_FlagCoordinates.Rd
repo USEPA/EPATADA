@@ -59,17 +59,17 @@ with changing raw data, email the WQX help desk: \email{WQX@epa.gov}
 # Load example dataset:
 data(Data_Nutrients_UT)
 
-# Flag, but do not remove, data with invalid coordinates in new column 
+# Flag, but do not remove, data with invalid coordinates in new column
 # titled "TADA.InvalidCoordinates.Flag":
 # Return ALL data:
 InvalidCoord_flags <- TADA_FlagCoordinates(Data_Nutrients_UT)
 
-# Flag, but do not remove, data with invalid coordinates in new column 
+# Flag, but do not remove, data with invalid coordinates in new column
 # titled "TADA.InvalidCoordinates.Flag"
 # Return ONLY the flagged data:
 InvalidCoord_flags_flaggedonly <- TADA_FlagCoordinates(Data_Nutrients_UT, flaggedonly = TRUE)
 
-# Remove data with coordinates outside the USA, but keep flagged data with 
+# Remove data with coordinates outside the USA, but keep flagged data with
 # imprecise coordinates:
 OutsideUSACoord_removed <- TADA_FlagCoordinates(Data_Nutrients_UT, clean_outsideUSA = "remove")
 

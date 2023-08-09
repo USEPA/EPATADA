@@ -52,6 +52,7 @@ WQXLowerThreshold_flags <- TADA_FlagBelowThreshold(Data_Nutrients_UT, clean = FA
 
 # Show only data that is below the lower WQX threshold:
 WQXLowerThreshold_flagsonly <- TADA_FlagBelowThreshold(Data_Nutrients_UT,
-clean = FALSE, flaggedonly = TRUE)
+  clean = FALSE, flaggedonly = TRUE
+)
 
 }

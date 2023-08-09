@@ -24,7 +24,7 @@ Function creates a ggplot2 pie chart showing the relative proportions of values 
 data(Data_Nutrients_UT)
 
 # Create a list of parameters in the dataset and the number of records of
-# each parameter: 
+# each parameter:
 TADA_FieldValuesPie(Data_Nutrients_UT, field = "TADA.CharacteristicName")
 
 }

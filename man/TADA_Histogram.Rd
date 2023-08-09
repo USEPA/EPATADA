@@ -38,7 +38,7 @@ TADA_Histogram(Data_6Tribes_5y_Harmonized, id_cols = "TADA.ComparableDataIdentif
 
 # Create a single histogram using defaults. The input dataframe in this example
 # is filtered so it includes only one TADA.ComparableDataIdentifier
-df = dplyr::filter(Data_6Tribes_5y_Harmonized, TADA.ComparableDataIdentifier == "TOTAL PHOSPHORUS, MIXED FORMS_UNFILTERED_AS P_UG/L")
+df <- dplyr::filter(Data_6Tribes_5y_Harmonized, TADA.ComparableDataIdentifier == "TOTAL PHOSPHORUS, MIXED FORMS_UNFILTERED_AS P_UG/L")
 TADA_Histogram(df, id_cols = "TADA.ComparableDataIdentifier")
 
 # Create multiple histograms with additional grouping columns and view the first
@@ -46,7 +46,7 @@ TADA_Histogram(df, id_cols = "TADA.ComparableDataIdentifier")
 # and MonitoringLocationTypeName (e.g. stream, reservoir, canal, etc.)
 # Load example dataset:
 data(Data_Nutrients_Utah)
-Histogram_output = TADA_Histogram(Data_Nutrients_UT, id_cols = c("TADA.ComparableDataIdentifier","MonitoringLocationTypeName"))
+Histogram_output <- TADA_Histogram(Data_Nutrients_UT, id_cols = c("TADA.ComparableDataIdentifier", "MonitoringLocationTypeName"))
 # This example generates 45 histograms
 Histogram_output[[10]]
 Histogram_output[[25]]

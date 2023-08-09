@@ -50,11 +50,11 @@ Default is flaggedonly = FALSE.
 # Load example dataset:
 data(Data_Nutrients_UT)
 
-# Remove data with invalid characteristic-method speciation combinations from dataframe, 
+# Remove data with invalid characteristic-method speciation combinations from dataframe,
 # but retain nonstandardized combinations flagged in new column 'TADA.MethodSpeciation.Flag':
 InvalidSpeciation_clean <- TADA_FlagSpeciation(Data_Nutrients_UT)
 
-# Remove data with nonstandardized characteristic-method speciation combinations 
+# Remove data with nonstandardized characteristic-method speciation combinations
 # from dataframe but retain invalid combinations flagged in new column 'TADA.MethodSpeciation.Flag':
 NonstandardSpeciation_clean <- TADA_FlagSpeciation(Data_Nutrients_UT, clean = "nonstandardized_only")
 

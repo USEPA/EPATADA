@@ -77,12 +77,16 @@ QAPPapproved_clean <- TADA_FindQAPPApproval(Data_Nutrients_UT)
 QAPPapproved_cleanNAs <- TADA_FindQAPPApproval(Data_Nutrients_UT, cleanNA = TRUE)
 
 # Show data where the QAPPApprovedIndicator equals "N" or "NA":
-QAPPIndicator_N_NA <- TADA_FindQAPPApproval(Data_Nutrients_UT, clean = FALSE, 
-cleanNA = FALSE, flaggedonly = TRUE)
+QAPPIndicator_N_NA <- TADA_FindQAPPApproval(Data_Nutrients_UT,
+  clean = FALSE,
+  cleanNA = FALSE, flaggedonly = TRUE
+)
 
 # Show data where the QAPPApprovedIndicator equals "N":
-QAPPIndicator_N <- TADA_FindQAPPApproval(Data_Nutrients_UT, clean = FALSE, 
-cleanNA = TRUE, flaggedonly = TRUE)
+QAPPIndicator_N <- TADA_FindQAPPApproval(Data_Nutrients_UT,
+  clean = FALSE,
+  cleanNA = TRUE, flaggedonly = TRUE
+)
 
 # Note: When clean = FALSE, cleanNA = FALSE, and flaggedonly = FALSE, no data is removed
 # Note: When clean = TRUE, cleanNA = TRUE, and flaggedonly = TRUE, an error message is returned

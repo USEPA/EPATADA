@@ -49,8 +49,9 @@ is needed before installing TADA because it is only available on GitHub
 (not CRAN).
 
 ```{r install_remotes, eval = F, results = 'hide', message = FALSE, warning = FALSE}
-install.packages("remotes", 
-                 repos = "http://cran.us.r-project.org")
+install.packages("remotes",
+  repos = "http://cran.us.r-project.org"
+)
 library(remotes)
 ```
 
@@ -66,19 +67,20 @@ desired (un-comment).
 # the line below before the install
 # options(download.file.method = "wininet")
 
-remotes::install_github("USEPA/TADA", 
-                        ref = "develop",
-                        dependencies = TRUE)
+remotes::install_github("USEPA/TADA",
+  ref = "develop",
+  dependencies = TRUE
+)
 ```
 
 ```{r for-development-only, echo = F}
 # IF YOU ARE NOT DEVELOPING TADA, SKIP THIS CODE CHUNK
 # when developing the package, update this chunk to the current repository, so it runs with all of the new features prior to a PR to develop
 
-remotes::install_github("USEPA/TADA", 
-                        ref = "figures",
-                        dependencies = TRUE)
-
+remotes::install_github("USEPA/TADA",
+  ref = "figures",
+  dependencies = TRUE
+)
 ```
 
 Finally, we will use the **library()** function to load the TADA package into the vignette environment.
@@ -289,7 +291,6 @@ TADAProfile_CharSummary
 
 # Remove data for non-water media types
 TADAProfile <- dplyr::filter(TADAProfile, TADA.ActivityMediaName == "WATER")
-
 ```
 
 ## Invalid coordinates
@@ -365,21 +366,23 @@ unique(TADAProfileClean1$TADA.InvalidCoordinates.Flag)
 unique(TADAProfileClean1$MonitoringLocationIdentifier)
 
 Unique_InvalidCoordinateFlags <- TADAProfileClean1 %>%
-  dplyr::select('MonitoringLocationIdentifier',
-                'MonitoringLocationName',
-                'TADA.InvalidCoordinates.Flag',
-                'OrganizationIdentifier',
-                'TADA.LongitudeMeasure',
-                'TADA.LatitudeMeasure',
-                'MonitoringLocationTypeName',
-                'CountryCode',
-                'StateCode',
-                'CountyCode',
-                'HUCEightDigitCode',
-                'MonitoringLocationDescriptionText',
-                'ProjectName',
-                'ProjectIdentifier',
-                'OrganizationFormalName') %>%
+  dplyr::select(
+    "MonitoringLocationIdentifier",
+    "MonitoringLocationName",
+    "TADA.InvalidCoordinates.Flag",
+    "OrganizationIdentifier",
+    "TADA.LongitudeMeasure",
+    "TADA.LatitudeMeasure",
+    "MonitoringLocationTypeName",
+    "CountryCode",
+    "StateCode",
+    "CountyCode",
+    "HUCEightDigitCode",
+    "MonitoringLocationDescriptionText",
+    "ProjectName",
+    "ProjectIdentifier",
+    "OrganizationFormalName"
+  ) %>%
   dplyr::distinct()
 
 Unique_InvalidCoordinateFlags
@@ -408,10 +411,11 @@ another unit. See function documentation for additional input options by
 entering the following code in the console: ?TADA_ConvertDepthUnits
 
 ```{r TADA_ConvertDepthUnits}
-#converts all depth profile data to meters
+# converts all depth profile data to meters
 TADAProfileClean1 <- TADA_ConvertDepthUnits(TADAProfileClean1,
-                                       unit = "ft",
-                                       transform = TRUE)
+  unit = "ft",
+  transform = TRUE
+)
 ```
 
 ## Statistically aggregated data
@@ -451,8 +455,9 @@ See function documentation for additional function options by entering
 the following code in the console: ?TADA_FindContinuousData
 
 ```{r AggregatedContinuousData}
-TADAProfileClean1 <- TADA_FindContinuousData(TADAProfileClean1, 
-                                             clean = FALSE)
+TADAProfileClean1 <- TADA_FindContinuousData(TADAProfileClean1,
+  clean = FALSE
+)
 
 # uncomment below to create a dataframe of only the aggregated continuous data
 
@@ -595,7 +600,7 @@ the following into the console:
 ```{r FindPotentialDuplicates}
 TADAProfileClean3 <- TADA_FindPotentialDuplicatesMultipleOrgs(TADAProfileClean3, dist_buffer = 100)
 
-TADAProfileClean3 <- TADA_FindPotentialDuplicatesSingleOrg(TADAProfileClean3, handling_method = 'pick_one')
+TADAProfileClean3 <- TADA_FindPotentialDuplicatesSingleOrg(TADAProfileClean3, handling_method = "pick_one")
 ```
 
 ## Review QAPP information
@@ -641,7 +646,8 @@ to use data in assessments.
 
 ```{r TADA_FindQAPPDoc}
 TADAProfileClean3 <- TADA_FindQAPPDoc(TADAProfileClean3,
-                                       clean = FALSE)
+  clean = FALSE
+)
 ```
 
 ## Full Dataframe Filtering
@@ -705,7 +711,6 @@ TADA_FieldCounts(TADAProfileClean3)
 
 # create object of table
 fieldCounts_Table <- TADA_FieldCounts(TADAProfileClean3)
-
 ```
 
 Next, choose a field from the list generated above to view a summary
@@ -736,7 +741,6 @@ TADAProfileClean4 <- TADA_FindQCActivities(TADAProfileClean3, clean = TRUE)
 # regenerate table and pie chart
 TADA_FieldValuesTable(TADAProfileClean4, "ActivityTypeCode")
 TADA_FieldValuesPie(TADAProfileClean4, "ActivityTypeCode")
-
 ```
 
 We've completed our review of the ActivityTypeCode.
@@ -758,13 +762,15 @@ In this example, we show how to use the function TADA_FlagMeasureQualifierCode t
 See ?TADA_FlagMeasureQualifierCode for more information. 
 
 ```{r FilterMeasureQualifierCodes}
-Review_TADAProfileClean4 <- TADA_FlagMeasureQualifierCode(TADAProfileClean4, 
-                                                          clean = FALSE, 
-                                                          flaggedonly = TRUE)
-# Review_TADAProfileClean4 is empty because we did not find any Suspect samples 
+Review_TADAProfileClean4 <- TADA_FlagMeasureQualifierCode(TADAProfileClean4,
+  clean = FALSE,
+  flaggedonly = TRUE
+)
+# Review_TADAProfileClean4 is empty because we did not find any Suspect samples
 
-TADAProfileClean4 <- TADA_FlagMeasureQualifierCode(TADAProfileClean4, 
-                                                   clean = TRUE)
+TADAProfileClean4 <- TADA_FlagMeasureQualifierCode(TADAProfileClean4,
+  clean = TRUE
+)
 
 # regenerate table and pie chart
 TADA_FieldValuesPie(TADAProfileClean4, field = "MeasureQualifierCode")
@@ -819,11 +825,12 @@ detection limit (half the detection limit). Please review
 information.
 
 ```{r SummarizeCensoredData}
-TADAProfileClean4 = TADA_SimpleCensoredMethods(TADAProfileClean4,
-                                           nd_method = "multiplier",
-                                           nd_multiplier = 0.5,
-                                           od_method = "as-is",
-                                           od_multiplier = "null")
+TADAProfileClean4 <- TADA_SimpleCensoredMethods(TADAProfileClean4,
+  nd_method = "multiplier",
+  nd_multiplier = 0.5,
+  od_method = "as-is",
+  od_multiplier = "null"
+)
 ```
 
 Next, review unique values within the TADA.CensoredData.Flag,
@@ -855,13 +862,15 @@ TADA.ResultMeasureValueDataTypes.Flag = "Text","Coerced to NA","ND or
 NA".
 
 ```{r filter_out_NAs}
-# Filter down to only numeric data. Remove "Text","Coerced to NA","ND or NA". 
+# Filter down to only numeric data. Remove "Text","Coerced to NA","ND or NA".
 # Removes rows with any remaining NA's in the TADA.ResultMeasureValue column
-TADAProfileClean5 <- dplyr::filter(TADAProfileClean4, 
-                  TADA.ResultMeasureValueDataTypes.Flag != "ND or NA" &
-                  TADA.ResultMeasureValueDataTypes.Flag != "Text" &
-                  TADA.ResultMeasureValueDataTypes.Flag != "Coerced to NA" & 
-                  !is.na(TADA.ResultMeasureValue))
+TADAProfileClean5 <- dplyr::filter(
+  TADAProfileClean4,
+  TADA.ResultMeasureValueDataTypes.Flag != "ND or NA" &
+    TADA.ResultMeasureValueDataTypes.Flag != "Text" &
+    TADA.ResultMeasureValueDataTypes.Flag != "Coerced to NA" &
+    !is.na(TADA.ResultMeasureValue)
+)
 ```
 
 Double check to make sure no NA's or ND's remain.
@@ -917,10 +926,12 @@ Here are some examples of how the TADA_HarmonizeSynonyms function can be used:
 
 ```{r TADA_HarmonizeSynonyms}
 UniqueHarmonizationRef <- TADA_GetSynonymRef(TADAProfileClean5,
-                                                download = FALSE)
+  download = FALSE
+)
 
 TADAProfileClean5 <- TADA_HarmonizeSynonyms(TADAProfileClean5,
-                                    ref = UniqueHarmonizationRef)
+  ref = UniqueHarmonizationRef
+)
 ```
 
 ## Parameter Level Filtering
@@ -1022,9 +1033,8 @@ characteristic-level to review a column of interest.
 
 ```{r TADA_FieldValuesTable_Pie_char, fig.width=8, fig.height=6, fig.fullwidth=TRUE}
 # In this example we review values from the SampleCollectionMethod.MethodName field
-TADA_FieldValuesTable(TADAProfileClean5, field = "SampleCollectionMethod.MethodName",  characteristicName = "TOTAL PHOSPHORUS, MIXED FORMS")
-TADA_FieldValuesPie(TADAProfileClean5, field = "SampleCollectionMethod.MethodName",  characteristicName = "TOTAL PHOSPHORUS, MIXED FORMS")
-
+TADA_FieldValuesTable(TADAProfileClean5, field = "SampleCollectionMethod.MethodName", characteristicName = "TOTAL PHOSPHORUS, MIXED FORMS")
+TADA_FieldValuesPie(TADAProfileClean5, field = "SampleCollectionMethod.MethodName", characteristicName = "TOTAL PHOSPHORUS, MIXED FORMS")
 ```
 
 Now we will summarize results for a single comparable data group using the
@@ -1048,17 +1058,14 @@ TP_Histogram <- TADA_Histogram(TADAProfileCleanTP, id_cols = "TADA.ComparableDat
 
 # view histogram
 TP_Histogram
-
 ```
 
 Generate interactive box plot.
 
 ```{r boxplot, fig.width=8, fig.height=6, fig.fullwidth=TRUE}
-
-TP_Boxplot = TADA::TADA_Boxplot(TADAProfileCleanTP, id_cols = "TADA.ComparableDataIdentifier")
+TP_Boxplot <- TADA::TADA_Boxplot(TADAProfileCleanTP, id_cols = "TADA.ComparableDataIdentifier")
 
 TP_Boxplot
-
 ```
 
 ## TADA Shiny Application
@@ -1076,9 +1083,10 @@ allocated.
 
 ```{r, eval = F}
 # download TADA Shiny repository
-remotes::install_github("USEPA/TADAShiny", 
-                        ref = "develop", 
-                        dependencies = TRUE)
+remotes::install_github("USEPA/TADAShiny",
+  ref = "develop",
+  dependencies = TRUE
+)
 
 # launch the app locally.
 TADAShiny::run_app()
