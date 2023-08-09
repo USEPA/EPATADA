@@ -494,6 +494,7 @@ TADA_OrderCols <- function(.data){
            "TADA.ResultValueAggregation.Flag",
            "TADA.NutrientSummation.Flag",
            "TADA.ResultMeasureValueDataTypes.Flag",
+           "TADA.MeasureQualifierCode.Flag",
            "TADA.CensoredData.Flag",
            "TADA.CensoredMethod",
            "TADA.ResultMeasure.MeasureUnitCode",
