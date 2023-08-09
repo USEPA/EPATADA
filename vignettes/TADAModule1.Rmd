@@ -452,8 +452,7 @@ the following code in the console: ?TADA_FindContinuousData
 
 ```{r AggregatedContinuousData}
 TADAProfileClean1 <- TADA_FindContinuousData(TADAProfileClean1, 
-                                             clean = FALSE, 
-                                             flaggedonly = TRUE)
+                                             clean = FALSE)
 
 # uncomment below to create a dataframe of only the aggregated continuous data
 
