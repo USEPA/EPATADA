@@ -24,18 +24,25 @@ to 'min' or 'mean'.}
 }
 \value{
 Input TADA dataframe with additional rows representing total N and P
-summation values from adding up subspecies. These new rows share the same
-date and monitoring location as the subspecies, but an additional note is
-added in the TADA.NutrientSummation.Flag column describing how the total was
-derived. Also adds TADA.NutrientSummationGroup and TADA.NutrientSummationEquation columns.
+summation values from adding up subspecies. Note that for total phosphorus,
+these additional rows are simply a re-classification of phosphorus or
+phosphate into the total phosphorus as P format. These new rows share the
+same date and monitoring location as the subspecies, but an additional note
+is added in the TADA.NutrientSummation.Flag column describing how the total
+was derived. Also adds TADA.NutrientSummationGroup and
+TADA.NutrientSummationEquation columns, which can be used to trace how the
+total was calculated and from which subspecies.
 }
 \description{
 This function uses the \href{https://echo.epa.gov/trends/loading-tool/resources/nutrient-aggregation#nitrogen}{Nutrient Aggregation logic}
 from ECHO's Water Pollutant Loading Tool to add nitrogen subspecies together
-to approximate a total nitrogen value on a single day at a single site. Where
-necessary, it uses conversion factors to convert nitrogen subspecies
-expressed as nitrate, nitrite, ammonia, ammonium, etc. to as nitrogen based
-on the atomic weights of the different elements in the compound. The
-reference table is contained within the package but may be edited/customized
-by users. Future development may include total P summations as well.
+to approximate a total nitrogen value on a single day at a single site.
+Before summing subspecies, this function runs TADA_AggregateMeasurements to
+obtain the max value of a characteristic-fraction-speciation at a given site,
+date, and depth. Where necessary, it uses conversion factors to convert
+nitrogen subspecies expressed as nitrate, nitrite, ammonia, ammonium, etc. to
+as nitrogen based on the atomic weights of the different elements in the
+compound. The reference table is contained within the package but may be
+edited/customized by users. Future development may include total P summations
+as well.
 }
