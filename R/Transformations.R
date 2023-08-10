@@ -74,10 +74,10 @@ TADA_GetSynonymRef <- function(.data, download = FALSE) {
   
   # check to see if any invalid data flags exist
   check_inv = .data[,names(.data)%in%c("TADA.MethodSpeciation.Flag","TADA.SampleFraction.Flag","TADA.ResultUnit.Flag")]
-  check_inv = check_inv %>% tidyr::pivot_longer(cols = names(check_inv), names_to = "Flag Column") %>% dplyr::filter(value == "Invalid")
+  check_inv = check_inv %>% tidyr::pivot_longer(cols = names(check_inv), names_to = "Flag_Column") %>% dplyr::filter(value == "Invalid")
   
   if(dim(check_inv)[1]>0){
-    check_inv = check_inv %>% dplyr::group_by(Flag) %>% dplyr::summarise("Result Count" = length(value))
+    check_inv = check_inv %>% dplyr::group_by(Flag_Column) %>% dplyr::summarise("Result Count" = length(value))
     print("Warning: Your dataframe contains invalid metadata combinations in the following flag columns:")
     print(as.data.frame(check_inv))
   }
@@ -322,12 +322,15 @@ TADA_HarmonizeSynonyms <- function(.data, ref, np_speciation = TRUE) {
 #' 
 #' This function uses the [Nutrient Aggregation logic](https://echo.epa.gov/trends/loading-tool/resources/nutrient-aggregation#nitrogen)
 #' from ECHO's Water Pollutant Loading Tool to add nitrogen subspecies together
-#' to approximate a total nitrogen value on a single day at a single site. Where
-#' necessary, it uses conversion factors to convert nitrogen subspecies
-#' expressed as nitrate, nitrite, ammonia, ammonium, etc. to as nitrogen based
-#' on the atomic weights of the different elements in the compound. The
-#' reference table is contained within the package but may be edited/customized
-#' by users. Future development may include total P summations as well.
+#' to approximate a total nitrogen value on a single day at a single site.
+#' Before summing subspecies, this function runs TADA_AggregateMeasurements to
+#' obtain the max value of a characteristic-fraction-speciation at a given site,
+#' date, and depth. Where necessary, it uses conversion factors to convert
+#' nitrogen subspecies expressed as nitrate, nitrite, ammonia, ammonium, etc. to
+#' as nitrogen based on the atomic weights of the different elements in the
+#' compound. The reference table is contained within the package but may be
+#' edited/customized by users. Future development may include total P summations
+#' as well.
 #' 
 #' @param .data TADA dataframe, ideally harmonized using TADA_HarmonizeSynonyms.
 #'   If user wants to consider grouping N or P subspecies across multiple
@@ -343,10 +346,14 @@ TADA_HarmonizeSynonyms <- function(.data, ref, np_speciation = TRUE) {
 #'   to 'min' or 'mean'.
 #' 
 #' @return Input TADA dataframe with additional rows representing total N and P
-#'   summation values from adding up subspecies. These new rows share the same
-#'   date and monitoring location as the subspecies, but an additional note is
-#'   added in the TADA.NutrientSummation.Flag column describing how the total was
-#'   derived. Also adds TADA.NutrientSummationGroup and TADA.NutrientSummationEquation columns.
+#'   summation values from adding up subspecies. Note that for total phosphorus,
+#'   these additional rows are simply a re-classification of phosphorus or
+#'   phosphate into the total phosphorus as P format. These new rows share the
+#'   same date and monitoring location as the subspecies, but an additional note
+#'   is added in the TADA.NutrientSummation.Flag column describing how the total
+#'   was derived. Also adds TADA.NutrientSummationGroup and
+#'   TADA.NutrientSummationEquation columns, which can be used to trace how the
+#'   total was calculated and from which subspecies.
 #'   
 #' @export
 
@@ -383,7 +390,7 @@ TADA_CalculateTotalNP <- function(.data, sum_ref, daily_agg = c("max","min","mea
   # create nutrient groups by site, date, and depth
   depths = names(.data)[grepl("DepthHeightMeasure", names(.data))]
   depths = depths[grepl("TADA.", depths)]
-  grpcols = c("ActivityStartDate", "MonitoringLocationIdentifier","ActivityMediaSubdivisionName","TADA.ComparableDataIdentifier","TADA.ResultMeasure.MeasureUnitCode",depths)
+  grpcols = c("ActivityStartDate", "MonitoringLocationIdentifier", "TADA.LongitudeMeasure", "TADA.LatitudeMeasure", "ActivityMediaSubdivisionName","TADA.ComparableDataIdentifier","TADA.ResultMeasure.MeasureUnitCode",depths)
   
   dat = suppressMessages(TADA_AggregateMeasurements(.data, grouping_cols = grpcols, agg_fun = daily_agg, clean = TRUE))
 
@@ -448,11 +455,13 @@ TADA_CalculateTotalNP <- function(.data, sum_ref, daily_agg = c("max","min","mea
     
     # Get to total N or P
     totncols = c(thecols, "TADA.NutrientSummationGroup","TADA.NutrientSummationEquation")
-    TotalN = summeddata %>% dplyr::filter(nutrient=="Total Nitrogen as N") %>% dplyr::group_by(dplyr::across(dplyr::all_of(totncols))) %>% dplyr::summarise(TADA.ResultMeasureValue = sum(TADA.ResultMeasureValue)) %>% dplyr::mutate(TADA.CharacteristicName = "TOTAL NITROGEN, MIXED FORMS", TADA.ResultSampleFractionText = "UNFILTERED",TADA.MethodSpecificationName = "AS N", TADA.NutrientSummation.Flag = "Nutrient summation from subspecies.")
-    TotalP = summeddata %>% dplyr::filter(nutrient=="Total Phosphorus as P") %>% dplyr::group_by(dplyr::across(dplyr::all_of(totncols))) %>% dplyr::summarise(TADA.ResultMeasureValue = sum(TADA.ResultMeasureValue)) %>% dplyr::mutate(TADA.CharacteristicName = "TOTAL PHOSPHORUS, MIXED FORMS", TADA.ResultSampleFractionText = "UNFILTERED",TADA.MethodSpecificationName = "AS P", TADA.NutrientSummation.Flag = "Nutrient summation from subspecies.")
+    TotalN = summeddata %>% dplyr::filter(nutrient=="Total Nitrogen as N") %>% dplyr::group_by(dplyr::across(dplyr::all_of(totncols))) %>% dplyr::summarise(TADA.ResultMeasureValue = sum(TADA.ResultMeasureValue)) %>% dplyr::mutate(TADA.CharacteristicName = "TOTAL NITROGEN, MIXED FORMS", TADA.ResultSampleFractionText = "UNFILTERED",TADA.MethodSpecificationName = "AS N", TADA.NutrientSummation.Flag = "Nutrient summation from one or more subspecies.")
+    TotalP = summeddata %>% dplyr::filter(nutrient=="Total Phosphorus as P") %>% dplyr::group_by(dplyr::across(dplyr::all_of(totncols))) %>% dplyr::summarise(TADA.ResultMeasureValue = sum(TADA.ResultMeasureValue)) %>% dplyr::mutate(TADA.CharacteristicName = "TOTAL PHOSPHORUS, MIXED FORMS", TADA.ResultSampleFractionText = "UNFILTERED",TADA.MethodSpecificationName = "AS P", TADA.NutrientSummation.Flag = "Nutrient summation from one subspecies.")
+    
+    # if summation is zero....include anyway?
     
     Totals = plyr::rbind.fill(TotalN, TotalP)
-    Totals$ResultIdentifier = paste0("TADA-",sample(100000000:1000000000,dim(Totals)[1]))
+    Totals$ResultIdentifier = paste0("TADA-",sample(100000000:1000000000,dim(Totals)[1])) # give TADA ResultIdentifier
     
     # combine all data back into input dataset and get rid of unneeded columns
     .data = merge(.data, summeddata, all.x = TRUE)

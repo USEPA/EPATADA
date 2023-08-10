@@ -82,6 +82,10 @@ TADA_Stats <- function(.data, group_cols=c("TADA.ComparableDataIdentifier")){
     .data = TADA_IDCensoredData(.data)
   }
   
+  if("TADA.NutrientSummation.Flag"%in%names(.data)){
+    print("Note: Your dataset contains TADA-generated total nutrient results, which have fewer columns populated with metadata. This might affect how groups are displayed in the stats table.")
+  }
+  
   group_cols = unique(c("TADA.ComparableDataIdentifier", group_cols))
 
   StatsTable <- .data %>%
