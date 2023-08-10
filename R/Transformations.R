@@ -71,11 +71,15 @@ TADA_GetSynonymRef <- function(.data, download = FALSE) {
   }
 
   # check to see if any invalid data flags exist
-  check_inv = .data[,names(.data)%in%c("TADA.MethodSpeciation.Flag","TADA.SampleFraction.Flag","TADA.ResultUnit.Flag")]
-  check_inv = check_inv %>% tidyr::pivot_longer(cols = names(check_inv), names_to = "Flag_Column") %>% dplyr::filter(value == "Invalid")
-  
-  if(dim(check_inv)[1]>0){
-    check_inv = check_inv %>% dplyr::group_by(Flag_Column) %>% dplyr::summarise("Result Count" = length(value))
+  check_inv <- .data[, names(.data) %in% c("TADA.MethodSpeciation.Flag", "TADA.SampleFraction.Flag", "TADA.ResultUnit.Flag")]
+  check_inv <- check_inv %>%
+    tidyr::pivot_longer(cols = names(check_inv), names_to = "Flag_Column") %>%
+    dplyr::filter(value == "Invalid")
+
+  if (dim(check_inv)[1] > 0) {
+    check_inv <- check_inv %>%
+      dplyr::group_by(Flag_Column) %>%
+      dplyr::summarise("Result Count" = length(value))
     print("Warning: Your dataframe contains invalid metadata combinations in the following flag columns:")
     print(as.data.frame(check_inv))
   }
@@ -327,7 +331,7 @@ TADA_HarmonizeSynonyms <- function(.data, ref, np_speciation = TRUE) {
 #' compound. The reference table is contained within the package but may be
 #' edited/customized by users. Future development may include total P summations
 #' as well.
-#' 
+#'
 #' @param .data TADA dataframe, ideally harmonized using TADA_HarmonizeSynonyms.
 #'   If user wants to consider grouping N or P subspecies across multiple
 #'   organizations, user should have run TADA_FindNearbySites and grouped all
@@ -350,7 +354,7 @@ TADA_HarmonizeSynonyms <- function(.data, ref, np_speciation = TRUE) {
 #'   was derived. Also adds TADA.NutrientSummationGroup and
 #'   TADA.NutrientSummationEquation columns, which can be used to trace how the
 #'   total was calculated and from which subspecies.
-#'   
+#'
 #' @export
 
 TADA_CalculateTotalNP <- function(.data, sum_ref, daily_agg = c("max", "min", "mean")) {
@@ -385,11 +389,11 @@ TADA_CalculateTotalNP <- function(.data, sum_ref, daily_agg = c("max", "min", "m
 
   # Get grouping cols for daily aggregation
   # create nutrient groups by site, date, and depth
-  depths = names(.data)[grepl("DepthHeightMeasure", names(.data))]
-  depths = depths[grepl("TADA.", depths)]
-  grpcols = c("ActivityStartDate", "MonitoringLocationIdentifier", "TADA.LongitudeMeasure", "TADA.LatitudeMeasure", "ActivityMediaSubdivisionName","TADA.ComparableDataIdentifier","TADA.ResultMeasure.MeasureUnitCode",depths)
-  
-  dat = suppressMessages(TADA_AggregateMeasurements(.data, grouping_cols = grpcols, agg_fun = daily_agg, clean = TRUE))
+  depths <- names(.data)[grepl("DepthHeightMeasure", names(.data))]
+  depths <- depths[grepl("TADA.", depths)]
+  grpcols <- c("ActivityStartDate", "MonitoringLocationIdentifier", "TADA.LongitudeMeasure", "TADA.LatitudeMeasure", "ActivityMediaSubdivisionName", "TADA.ComparableDataIdentifier", "TADA.ResultMeasure.MeasureUnitCode", depths)
+
+  dat <- suppressMessages(TADA_AggregateMeasurements(.data, grouping_cols = grpcols, agg_fun = daily_agg, clean = TRUE))
 
   # join data to summation table and keep only those that match for summations
   sum_dat <- merge(dat, sum_ref, all.x = TRUE)
@@ -464,15 +468,23 @@ TADA_CalculateTotalNP <- function(.data, sum_ref, daily_agg = c("max", "min", "m
 
     # Get to total N or P
 
-    totncols = c(thecols, "TADA.NutrientSummationGroup","TADA.NutrientSummationEquation")
-    TotalN = summeddata %>% dplyr::filter(nutrient=="Total Nitrogen as N") %>% dplyr::group_by(dplyr::across(dplyr::all_of(totncols))) %>% dplyr::summarise(TADA.ResultMeasureValue = sum(TADA.ResultMeasureValue)) %>% dplyr::mutate(TADA.CharacteristicName = "TOTAL NITROGEN, MIXED FORMS", TADA.ResultSampleFractionText = "UNFILTERED",TADA.MethodSpecificationName = "AS N", TADA.NutrientSummation.Flag = "Nutrient summation from one or more subspecies.")
-    TotalP = summeddata %>% dplyr::filter(nutrient=="Total Phosphorus as P") %>% dplyr::group_by(dplyr::across(dplyr::all_of(totncols))) %>% dplyr::summarise(TADA.ResultMeasureValue = sum(TADA.ResultMeasureValue)) %>% dplyr::mutate(TADA.CharacteristicName = "TOTAL PHOSPHORUS, MIXED FORMS", TADA.ResultSampleFractionText = "UNFILTERED",TADA.MethodSpecificationName = "AS P", TADA.NutrientSummation.Flag = "Nutrient summation from one subspecies.")
-    
+    totncols <- c(thecols, "TADA.NutrientSummationGroup", "TADA.NutrientSummationEquation")
+    TotalN <- summeddata %>%
+      dplyr::filter(nutrient == "Total Nitrogen as N") %>%
+      dplyr::group_by(dplyr::across(dplyr::all_of(totncols))) %>%
+      dplyr::summarise(TADA.ResultMeasureValue = sum(TADA.ResultMeasureValue)) %>%
+      dplyr::mutate(TADA.CharacteristicName = "TOTAL NITROGEN, MIXED FORMS", TADA.ResultSampleFractionText = "UNFILTERED", TADA.MethodSpecificationName = "AS N", TADA.NutrientSummation.Flag = "Nutrient summation from one or more subspecies.")
+    TotalP <- summeddata %>%
+      dplyr::filter(nutrient == "Total Phosphorus as P") %>%
+      dplyr::group_by(dplyr::across(dplyr::all_of(totncols))) %>%
+      dplyr::summarise(TADA.ResultMeasureValue = sum(TADA.ResultMeasureValue)) %>%
+      dplyr::mutate(TADA.CharacteristicName = "TOTAL PHOSPHORUS, MIXED FORMS", TADA.ResultSampleFractionText = "UNFILTERED", TADA.MethodSpecificationName = "AS P", TADA.NutrientSummation.Flag = "Nutrient summation from one subspecies.")
+
     # if summation is zero....include anyway?
-    
-    Totals = plyr::rbind.fill(TotalN, TotalP)
-    Totals$ResultIdentifier = paste0("TADA-",sample(100000000:1000000000,dim(Totals)[1])) # give TADA ResultIdentifier
-    
+
+    Totals <- plyr::rbind.fill(TotalN, TotalP)
+    Totals$ResultIdentifier <- paste0("TADA-", sample(100000000:1000000000, dim(Totals)[1])) # give TADA ResultIdentifier
+
     # combine all data back into input dataset and get rid of unneeded columns
     .data <- merge(.data, summeddata, all.x = TRUE)
     .data <- plyr::rbind.fill(.data, Totals)

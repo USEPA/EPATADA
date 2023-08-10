@@ -465,21 +465,21 @@ TADA_FieldValuesPie <- function(.data, field = "null", characteristicName = "nul
 #'
 #' @param .data TADA data frame containing the data downloaded from the
 #'   WQP, where each row represents a unique data record. Data frame must
-#'   include the columns 'TADA.ComparableDataIdentifier', 
+#'   include the columns 'TADA.ComparableDataIdentifier',
 #'   'TADA.ResultMeasureValue', and 'TADA.ResultMeasure.MeasureUnitCode' to run
 #'   this function. The 'TADA.ComparableDataIdentifier' column is added to the
-#'   data frame automatically when WQP data is retrieved using TADADataRetrieval. 
+#'   data frame automatically when WQP data is retrieved using TADADataRetrieval.
 #'   This TADA.ComparableDataIdentifier can be updated to harmonize synonyms
 #'   by running the function TADA_HarmonizeSynonyms(). You can also include
 #'   additional grouping columns in the id_col input if desired. If more than
-#'   one TADA.ComparableDataIdentifier exists in the dataset, the function 
-#'   creates a list of plots, where each list element name is a unique 
+#'   one TADA.ComparableDataIdentifier exists in the dataset, the function
+#'   creates a list of plots, where each list element name is a unique
 #'   TADA.ComparableDataIdentifier.
 #'
 #' @param id_cols The column(S) in the dataset used to identify the unique groups
 #'   to be plotted. Defaults to 'TADA.ComparableDataIdentifier'.
 #'
-#' @return A list of plotly scatterplot figures showing the distribution of 
+#' @return A list of plotly scatterplot figures showing the distribution of
 #' sample values for each comparable data group (TADA.ComparableDataIdentifier).
 #'
 #' @export
@@ -492,7 +492,7 @@ TADA_FieldValuesPie <- function(.data, field = "null", characteristicName = "nul
 #' # in the input dataframe:
 #' TADA_Scatterplot(Data_6Tribes_5y_Harmonized, id_cols = "TADA.ComparableDataIdentifier")
 #'
-#' # Create a single scatterplot using defaults. The input dataframe in this 
+#' # Create a single scatterplot using defaults. The input dataframe in this
 #' # example is filtered so it includes only one TADA.ComparableDataIdentifier
 #' df <- dplyr::filter(Data_6Tribes_5y_Harmonized, TADA.ComparableDataIdentifier == "TOTAL PHOSPHORUS, MIXED FORMS_UNFILTERED_AS P_UG/L")
 #' TADA_Scatterplot(df, id_cols = "TADA.ComparableDataIdentifier")
@@ -511,62 +511,64 @@ TADA_FieldValuesPie <- function(.data, field = "null", characteristicName = "nul
 TADA_Scatterplot <- function(.data, id_cols = c("TADA.ComparableDataIdentifier")) {
   # check .data is data.frame
   TADA_CheckType(.data, "data.frame", "Input object")
-  
+
   # ensure comparable data identifier is in the id_col vector
   id_cols <- unique(c("TADA.ComparableDataIdentifier", id_cols))
-  
+
   # check .data has required columns
   TADA_CheckColumns(.data, id_cols)
-  
+
   # check .data has required columns
   TADA_CheckColumns(.data, c("TADA.ResultMeasureValue", "TADA.ResultMeasure.MeasureUnitCode"))
-  
+
   start <- dim(.data)[1]
-  
+
   .data <- subset(.data, !is.na(.data$TADA.ResultMeasureValue))
-  
+
   end <- dim(.data)[1]
-  
+
   if (!start == end) {
     net <- start - end
     print(paste0("Plotting function removed ", net, " results where TADA.ResultMeasureValue = NA. These results cannot be plotted."))
   }
-  
+
   .data <- .data %>%
     dplyr::group_by(dplyr::across(dplyr::all_of(id_cols))) %>%
     dplyr::mutate(Group = dplyr::cur_group_id())
-  
+
   all_scatterplots <- list()
-  
+
   for (i in 1:max(.data$Group)) {
     plot.data <- subset(.data, .data$Group == i)
     groupid <- paste0(unique(plot.data[, id_cols]), collapse = "_")
-    
+
     # units lable for y axis
     unit <- unique(plot.data$TADA.ResultMeasure.MeasureUnitCode)
     y_label <- "Activity Start Date and Time"
-    
-    #include depth in hover info
+
+    # include depth in hover info
     depth <- plot.data$ResultDepthHeightMeasure.MeasureValue
-    plot.data$TADA.DateTime <- as.POSIXct(paste(plot.data$ActivityStartDate, plot.data$ActivityStartTime.Time), format="%Y-%m-%d %H:%M:%S")
+    plot.data$TADA.DateTime <- as.POSIXct(paste(plot.data$ActivityStartDate, plot.data$ActivityStartTime.Time), format = "%Y-%m-%d %H:%M:%S")
 
     # construct plotly scatterplot
     one_scatterplot <- plotly::plot_ly(
-        data = plot.data, 
-        type = "scatter", 
-        mode = "markers",
-        x = plot.data$TADA.DateTime, 
-        y = plot.data$TADA.ResultMeasureValue,
-        #color = plot.data$TADA.ResultMeasureValue,
-        marker = list(color = "#00bde3"),
-        stroke = I("#005ea2"),
-        name = "<b>All Data<b>",
-        hoverinfo = "text",
-        hovertext = paste("Result:", plot.data$TADA.ResultMeasureValue, "<br>",
-                        "DateTime:", plot.data$TADA.DateTime, "<br>",
-                        "ResultDepth:", depth)
+      data = plot.data,
+      type = "scatter",
+      mode = "markers",
+      x = plot.data$TADA.DateTime,
+      y = plot.data$TADA.ResultMeasureValue,
+      # color = plot.data$TADA.ResultMeasureValue,
+      marker = list(color = "#00bde3"),
+      stroke = I("#005ea2"),
+      name = "<b>All Data<b>",
+      hoverinfo = "text",
+      hovertext = paste(
+        "Result:", plot.data$TADA.ResultMeasureValue, "<br>",
+        "DateTime:", plot.data$TADA.DateTime, "<br>",
+        "ResultDepth:", depth
       )
-    
+    )
+
     # figure margin
     mrg <- list(
       l = 50, r = 20,
@@ -578,7 +580,7 @@ TADA_Scatterplot <- function(.data, id_cols = c("TADA.ComparableDataIdentifier")
     one_scatterplot <- one_scatterplot %>%
       plotly::layout(
         yaxis = list(
-          title = unit, titlefont = list(size = 16, family = "Arial"), 
+          title = unit, titlefont = list(size = 16, family = "Arial"),
           tickfont = list(size = 16, family = "Arial"),
           hoverformat = ",.4r", linecolor = "black", rangemode = "tozero",
           showgrid = FALSE, tickcolor = "black"
@@ -593,17 +595,17 @@ TADA_Scatterplot <- function(.data, id_cols = c("TADA.ComparableDataIdentifier")
         plot_bgcolor = "#e5ecf6",
         margin = mrg
       ) %>%
-      plotly::config(displayModeBar = FALSE) #changed to FALSE 
-    
+      plotly::config(displayModeBar = FALSE) # changed to FALSE
+
     # create plot for all groupid's
     all_scatterplots[[i]] <- one_scatterplot
-    
+
     names(all_scatterplots)[i] <- groupid
   }
-  
+
   if (length(all_scatterplots) == 1) {
     all_scatterplots <- all_scatterplots[[1]]
   }
-  
+
   return(all_scatterplots)
 }
