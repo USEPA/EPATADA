@@ -4,7 +4,7 @@
 \alias{TADA_FlagMethod}
 \title{Check for Invalid Analytical Methods}
 \usage{
-TADA_FlagMethod(.data, clean = TRUE, errorsonly = FALSE)
+TADA_FlagMethod(.data, clean = TRUE, flaggedonly = FALSE)
 }
 \arguments{
 \item{.data}{TADA dataframe}
@@ -13,27 +13,27 @@ TADA_FlagMethod(.data, clean = TRUE, errorsonly = FALSE)
 method combinations from the dataframe when clean = TRUE. Default is
 clean = TRUE.}
 
-\item{errorsonly}{Boolean argument; filters dataframe to show only "Invalid"
-characteristic-analytical method combinations when errorsonly = TRUE. Default
-is errorsonly = FALSE.}
+\item{flaggedonly}{Boolean argument; filters dataframe to show only "Invalid"
+characteristic-analytical method combinations when flaggedonly = TRUE. Default
+is flaggedonly = FALSE.}
 }
 \value{
 This function adds the TADA.AnalyticalMethod.Flag to a TADA dataframe. This column
 flags invalid CharacteristicName, ResultAnalyticalMethod/MethodIdentifier,
 and ResultAnalyticalMethod/MethodIdentifierContext combinations in your dataframe
 as either "Nonstandardized", "Invalid", or "Valid". When clean = FALSE and
-errorsonly = TRUE, the dataframe is filtered to show only "Invalid"
+flaggedonly = TRUE, the dataframe is filtered to show only "Invalid"
 characteristic-analytical method combinations; the column TADA.AnalyticalMethod.Flag
-is still appended. When clean = TRUE and errorsonly = FALSE, "Invalid" rows
+is still appended. When clean = TRUE and flaggedonly = FALSE, "Invalid" rows
 are removed from the dataframe and no column will be appended.
 }
 \description{
 Function checks the validity of each characteristic-analytical method
 combination in the dataframe. When clean = TRUE, rows with invalid
 characteristic-analytical method combinations are removed. Default is
-clean = TRUE. When errorsonly = TRUE, dataframe is filtered to show only
+clean = TRUE. When flaggedonly = TRUE, dataframe is filtered to show only
 invalid characteristic-analytical method combinations. Default is
-errorsonly = FALSE.
+flaggedonly = FALSE.
 }
 \examples{
 # Load example dataset
@@ -47,6 +47,6 @@ InvalidMethod_clean <- TADA_FlagMethod(Data_Nutrients_UT)
 InvalidMethod_flags <- TADA_FlagMethod(Data_Nutrients_UT, clean = FALSE)
 
 # Show only invalid characteristic-analytical method combinations:
-InvalidMethod_errorsonly <- TADA_FlagMethod(Data_Nutrients_UT, clean = FALSE, errorsonly = TRUE)
+InvalidMethod_flaggedonly <- TADA_FlagMethod(Data_Nutrients_UT, clean = FALSE, flaggedonly = TRUE)
 
 }

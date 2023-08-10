@@ -12,7 +12,8 @@ data(Data_Nutrients_UT)
 }
 \description{
 A dataset containing Ammonia, Nitrate, and Nitrogen data from Utah:
-
+}
+\details{
 Data_Nutrients_UT <- TADA_DataRetrieval(statecode = "UT",
 characteristicName = c("Ammonia", "Nitrate", "Nitrogen"),
 startDate = "2020-10-01",

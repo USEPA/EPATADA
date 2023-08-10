@@ -12,7 +12,7 @@ WQP, where each row represents a unique data record. Data frame must
 include the columns 'TADA.ComparableDataIdentifier',
 'TADA.ResultMeasureValue', and 'TADA.ResultMeasure.MeasureUnitCode' to run
 this function. 'TADA.ComparableDataIdentifier' can be added to the data
-frame by running the function HarmonizeData(). The user can include
+frame by running the function TADA_HarmonizeSynonyms(). The user can include
 additional grouping columns in the id_col input. If more than one group
 exists in the dataset (i.e. two or more unique comparable data
 identifiers), the function creates a list of plots, where each list element
@@ -31,30 +31,30 @@ Create Boxplot(s)
 }
 \examples{
 # Create a single boxplot using defaults. The input dataframe in this example
-# includes only one unique TADA.ComparableDataIdentifier: 
+# includes only one unique TADA.ComparableDataIdentifier:
 # Load example dataset:
 data(Data_6Tribes_5y_Harmonized)
 # Filter data down to a single TADA.ComparableDataIdentifier
-df = dplyr::filter(Data_6Tribes_5y_Harmonized, TADA.ComparableDataIdentifier == "TOTAL PHOSPHORUS, MIXED FORMS_UNFILTERED_AS P_UG/L")
+df <- dplyr::filter(Data_6Tribes_5y_Harmonized, TADA.ComparableDataIdentifier == "TOTAL PHOSPHORUS, MIXED FORMS_UNFILTERED_AS P_UG/L")
 # Generate single boxplot
 TADA_Boxplot(df, id_cols = "TADA.ComparableDataIdentifier")
 
 # Create multiple boxplots with additional grouping columns and view the first
 # plot in list. In this example, we will group data in the input dataframe
 # by both the TADA.ComparableDataIdentifier and the OrganizationIdentifier
-Boxplots_TPbyOrg = TADA_Boxplot(df, id_cols = c("TADA.ComparableDataIdentifier","OrganizationIdentifier"))
+Boxplots_TPbyOrg <- TADA_Boxplot(df, id_cols = c("TADA.ComparableDataIdentifier", "OrganizationIdentifier"))
 # This example generates 4 box plots.
 Boxplots_TPbyOrg[[1]]
 Boxplots_TPbyOrg[[2]]
 Boxplots_TPbyOrg[[3]]
- 
+
 # Create multiple boxplots with additional grouping columns and view the first
 # plot in list. In this example, we will group data in the input dataframe
-# by both the TADA.ComparableDataIdentifier and the MonitoringLocationTypeName 
+# by both the TADA.ComparableDataIdentifier and the MonitoringLocationTypeName
 # (e.g. stream, reservoir, canal, etc.)
 # Load example dataset:
 data(Data_Nutrients_Utah)
-Boxplot_output = TADA_Boxplot(Data_Nutrients_UT, id_cols = c("TADA.ComparableDataIdentifier","MonitoringLocationTypeName"))
+Boxplot_output <- TADA_Boxplot(Data_Nutrients_UT, id_cols = c("TADA.ComparableDataIdentifier", "MonitoringLocationTypeName"))
 # This example generates 45 box plots.
 Boxplot_output[[2]]
 Boxplot_output[[25]]

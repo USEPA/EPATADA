@@ -16,9 +16,11 @@ editor_options:
 ```{r setup, include=FALSE}
 library(knitr)
 
-knitr::opts_chunk$set(echo = TRUE,
-               warning = FALSE,
-               message = FALSE)
+knitr::opts_chunk$set(
+  echo = TRUE,
+  warning = FALSE,
+  message = FALSE
+)
 ```
 
 ## Contribute to TADA!

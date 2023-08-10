@@ -23,8 +23,8 @@ This is a shortcut function to run all of the most important flagging functions 
 # Load example dataset
 data(Data_6Tribes_5y)
 # Run flagging functions, keeping all rows
-Data_6Tribes_5y_ALL = TADA_RunKeyFlagFunctions(Data_6Tribes_5y, remove_na = FALSE, clean = FALSE)
+Data_6Tribes_5y_ALL <- TADA_RunKeyFlagFunctions(Data_6Tribes_5y, remove_na = FALSE, clean = FALSE)
 
 # Run flagging functions, removing NA's and Invalid rows
-Data_6Tribes_5y_CLEAN = TADA_RunKeyFlagFunctions(Data_6Tribes_5y, remove_na = TRUE, clean = TRUE)
+Data_6Tribes_5y_CLEAN <- TADA_RunKeyFlagFunctions(Data_6Tribes_5y, remove_na = TRUE, clean = TRUE)
 }

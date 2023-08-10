@@ -44,8 +44,8 @@ TADA.ResultMeasureValue to a minimum, maximum, or average value.
 # Load example dataset
 data(Data_6Tribes_5y)
 # Select maximum value per day, site, comparable data identifier, result detection condition, and activity type code. Clean all non-maximum measurements from grouped data.
-Data_6Tribes_5y_agg = TADA_AggregateMeasurements(Data_6Tribes_5y, grouping_cols = c("ActivityStartDate","MonitoringLocationIdentifier","TADA.ComparableDataIdentifier","ResultDetectionConditionText","ActivityTypeCode"), agg_fun = 'max', clean = TRUE)
+Data_6Tribes_5y_agg <- TADA_AggregateMeasurements(Data_6Tribes_5y, grouping_cols = c("ActivityStartDate", "MonitoringLocationIdentifier", "TADA.ComparableDataIdentifier", "ResultDetectionConditionText", "ActivityTypeCode"), agg_fun = "max", clean = TRUE)
 
 # Calculate a mean value per day, site, comparable data identifier, result detection condition, and activity type code. Keep all measurements used to calculate mean measurement.
-Data_6Tribes_5y_agg = TADA_AggregateMeasurements(Data_6Tribes_5y, grouping_cols = c("ActivityStartDate","MonitoringLocationIdentifier","TADA.ComparableDataIdentifier","ResultDetectionConditionText","ActivityTypeCode"), agg_fun = 'mean', clean = FALSE)
+Data_6Tribes_5y_agg <- TADA_AggregateMeasurements(Data_6Tribes_5y, grouping_cols = c("ActivityStartDate", "MonitoringLocationIdentifier", "TADA.ComparableDataIdentifier", "ResultDetectionConditionText", "ActivityTypeCode"), agg_fun = "mean", clean = FALSE)
 }

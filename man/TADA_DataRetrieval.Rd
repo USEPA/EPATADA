@@ -86,9 +86,9 @@ datetimes, numerics based on a standard algorithm. See: ?dataRetrieval::readWQPd
 \dontrun{
 tada1 <- TADA_DataRetrieval(statecode = "WI", countycode = "Dane", characteristicName = "Phosphorus")
 
-tada2 <- TADA_DataRetrieval(statecode = "UT", characteristicName = c("Ammonia", "Nitrate", "Nitrogen")) 
+tada2 <- TADA_DataRetrieval(statecode = "UT", characteristicName = c("Ammonia", "Nitrate", "Nitrogen"))
 
-tada3 <- TADA_DataRetrieval(statecode = "SC", countycode  = "Abbeville")
+tada3 <- TADA_DataRetrieval(statecode = "SC", countycode = "Abbeville")
 
 # example for CT
 tada4 <- TADA_DataRetrieval(statecode = "CT", startDate = "2020-10-01")
@@ -98,30 +98,38 @@ tada4 <- TADA_DataRetrieval(statecode = "CT", startDate = "2020-10-01")
 tada5 <- TADA_DataRetrieval(countycode = "US:02:020")
 
 # example for NM
-tada6 <- TADA_DataRetrieval(statecode = "NM", 
-                           characteristicName = c("Ammonia",
-                                                  "Nitrate", 
-                                                  "Nitrogen"), 
-                           startDate = "2020-05-01")
-                           
+tada6 <- TADA_DataRetrieval(
+  statecode = "NM",
+  characteristicName = c(
+    "Ammonia",
+    "Nitrate",
+    "Nitrogen"
+  ),
+  startDate = "2020-05-01"
+)
+
 # example for AK project
 tada7 <- TADA_DataRetrieval(project = "Anchorage Bacteria 20-21")
 
 # another example for AK
-tada8 <- TADA_DataRetrieval(statecode = "AK", 
-                           characteristicName = c("Fecal Coliform",
-                                                  "Escherichia coli",
-                                                  "Enterococcus", 
-                                                  "Ammonia", 
-                                                  "Nitrate", 
-                                                  "Nitrogen"),
-                           startDate = "2018-05-01")
+tada8 <- TADA_DataRetrieval(
+  statecode = "AK",
+  characteristicName = c(
+    "Fecal Coliform",
+    "Escherichia coli",
+    "Enterococcus",
+    "Ammonia",
+    "Nitrate",
+    "Nitrogen"
+  ),
+  startDate = "2018-05-01"
+)
 
 # example for tribes
 # Download data for many of the ATTAINS participating tribes
 # Note this query may take about a half hour to run
 # https://www.itecmembers.org/attains/
-# ATTAINS participating tribes also have tribal pages in EPA's 
+# ATTAINS participating tribes also have tribal pages in EPA's
 # How's My Waterway Application
 # Example: https://mywaterway.epa.gov/tribe/SFNOES
 #
@@ -141,21 +149,23 @@ tada8 <- TADA_DataRetrieval(statecode = "AK",
 # Wyandotte Nation "WNENVDPT_WQX"
 # Pueblo of Pojoaque "PUEBLO_POJOAQUE"
 
-tada9 <- TADA_DataRetrieval(organization = c("SFNOES_WQX",
-                                             "CPNWATER",
-                                             "DELAWARENATION",
-                                             "HVTEPA_WQX",
-                                             "O_MTRIBE_WQX",
-                                             "FONDULAC_WQX",
-                                             "SANILDEFONSODECP",
-                                             "PUEBLO_SANTAANA",
-                                             "PUEBLOOFTESUQUE",
-                                             "REDLAKE_WQX",
-                                             "SCEQ",
-                                             "CNENVSER",
-                                             "CHOCNATWQX",
-                                             "WNENVDPT_WQX",
-                                             "PUEBLO_POJOAQUE"))
+tada9 <- TADA_DataRetrieval(organization = c(
+  "SFNOES_WQX",
+  "CPNWATER",
+  "DELAWARENATION",
+  "HVTEPA_WQX",
+  "O_MTRIBE_WQX",
+  "FONDULAC_WQX",
+  "SANILDEFONSODECP",
+  "PUEBLO_SANTAANA",
+  "PUEBLOOFTESUQUE",
+  "REDLAKE_WQX",
+  "SCEQ",
+  "CNENVSER",
+  "CHOCNATWQX",
+  "WNENVDPT_WQX",
+  "PUEBLO_POJOAQUE"
+))
 }
 
 }
