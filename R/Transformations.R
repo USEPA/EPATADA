@@ -74,10 +74,10 @@ TADA_GetSynonymRef <- function(.data, download = FALSE) {
   
   # check to see if any invalid data flags exist
   check_inv = .data[,names(.data)%in%c("TADA.MethodSpeciation.Flag","TADA.SampleFraction.Flag","TADA.ResultUnit.Flag")]
-  check_inv = check_inv %>% tidyr::pivot_longer(cols = names(check_inv), names_to = "Flag Column") %>% dplyr::filter(value == "Invalid")
+  check_inv = check_inv %>% tidyr::pivot_longer(cols = names(check_inv), names_to = "Flag_Column") %>% dplyr::filter(value == "Invalid")
   
   if(dim(check_inv)[1]>0){
-    check_inv = check_inv %>% dplyr::group_by(Flag) %>% dplyr::summarise("Result Count" = length(value))
+    check_inv = check_inv %>% dplyr::group_by(Flag_Column) %>% dplyr::summarise("Result Count" = length(value))
     print("Warning: Your dataframe contains invalid metadata combinations in the following flag columns:")
     print(as.data.frame(check_inv))
   }
