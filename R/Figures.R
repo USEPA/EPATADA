@@ -442,6 +442,7 @@ TADA_FieldValuesPie <- function(.data, field = "null", characteristicName = "nul
   dat <- TADA_FieldValuesTable(.data = .data, field = field, characteristicName = characteristicName)
 
   dat$Legend <- paste0(dat$Value, " - ", dat$Count, " results")
+  dat = dat %>% dplyr::rowwise() %>% dplyr::mutate(Legend = TADA_InsertBreaks(Legend))
 
   # define number of colors required for pie chart
   colorCount <- length(unique(dat$Legend))
