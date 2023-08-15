@@ -38,7 +38,7 @@ data(Data_6Tribes_5y_Harmonized)
 # in the input dataframe:
 TADA_Scatterplot(Data_6Tribes_5y_Harmonized, id_cols = "TADA.ComparableDataIdentifier")
 
-# Create a single scatterplot using defaults. The input dataframe in this 
+# Create a single scatterplot using defaults. The input dataframe in this
 # example is filtered so it includes only one TADA.ComparableDataIdentifier
 df <- dplyr::filter(Data_6Tribes_5y_Harmonized, TADA.ComparableDataIdentifier == "TOTAL PHOSPHORUS, MIXED FORMS_UNFILTERED_AS P_UG/L")
 TADA_Scatterplot(df, id_cols = "TADA.ComparableDataIdentifier")

@@ -202,6 +202,33 @@ TADA_DecimalPlaces <- function(x) {
   }
 }
 
+#' Insert Breaks
+#'
+#' This function inserts a new line into a string when it exceeds a
+#' user-specified length. New lines are added to spaces in the string. This is
+#' intended to make plot legends more readable and tidy.
+#'
+#' @param x A vector of strings
+#' @param len The maximum character length a string can be before the function
+#'   searches for the best space to insert a new line.
+#'
+#' @return The same vector of strings with new lines added where appropriate.
+#' @export
+
+TADA_InsertBreaks <- function(x, len = 50){
+    if(nchar(x)>len){
+      multiples = floor(nchar(x)/len)
+      lens = seq(len, len*multiples, by = len)
+      spaces = unlist(gregexpr(' ', x))
+      if(max(spaces)>len){
+        spots = sapply(lens, function(x) spaces[min(which(spaces>x))])
+        for(i in 1:length(spots)){
+          stringi::stri_sub(x, spots[i]+(i-1), spots[i]) <- "\n "
+        }
+      }
+    }
+  return(x)
+}
 
 
 #' Check Type
@@ -362,8 +389,8 @@ TADA_ConvertSpecialChars <- function(.data, col) {
 
 TADA_OrderCols <- function(.data) {
   dretcols <- c(
-    "OrganizationIdentifier", "
-              OrganizationFormalName",
+    "OrganizationIdentifier", 
+    "OrganizationFormalName",
     "ActivityIdentifier",
     "ActivityTypeCode",
     "ActivityMediaName",
@@ -760,7 +787,7 @@ TADA_FindNearbySites <- function(.data, dist_buffer = 100) {
 # TADA_DataRetrieval. Built to use in testthat and for developer testing of new
 # functions on random datasets.
 
-TADA_RandomTestingSet <- function(number_of_days = 2) {
+TADA_RandomNationalTestingSet <- function(number_of_days = 2) {
   load(system.file("extdata", "statecodes_df.Rdata", package = "TADA"))
   # removed state
   # state = sample(statecodes_df$STUSAB,1)
@@ -779,6 +806,31 @@ TADA_RandomTestingSet <- function(number_of_days = 2) {
     dat <- Data_NCTCShepherdstown_HUC12
   }
 
+  return(dat)
+}
+
+# Generate a random data retrieval dataset (internal, for testthat's)
+# samples a random 90 days in the past 20 years using
+# TADA_DataRetrieval. Built to use in testthat and for developer testing of new
+# functions on random datasets.
+
+TADA_RandomStateTestingSet <- function(number_of_days = 90) {
+  load(system.file("extdata", "statecodes_df.Rdata", package = "TADA"))
+  state = sample(statecodes_df$STUSAB,1)
+  twenty_yrs_ago <- Sys.Date() - 20 * 365
+  random_start_date <- twenty_yrs_ago + sample(20 * 365, 1)
+  # changed default to 2 days instead of 90
+  end_date <- random_start_date + number_of_days
+  
+  print(paste0(state," from ",random_start_date," to ", end_date))
+  
+  # removed state input
+  dat <- TADA_DataRetrieval(startDate = as.character(random_start_date), endDate = as.character(end_date), statecode = state)
+  
+  if (dim(dat)[1] < 1) {
+    dat <- Data_NCTCShepherdstown_HUC12
+  }
+  
   return(dat)
 }
 
