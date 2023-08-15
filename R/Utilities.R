@@ -362,8 +362,8 @@ TADA_ConvertSpecialChars <- function(.data, col) {
 
 TADA_OrderCols <- function(.data) {
   dretcols <- c(
-    "OrganizationIdentifier", "
-              OrganizationFormalName",
+    "OrganizationIdentifier", 
+    "OrganizationFormalName",
     "ActivityIdentifier",
     "ActivityTypeCode",
     "ActivityMediaName",
@@ -918,10 +918,10 @@ TADA_RunKeyFlagFunctions <- function(.data, remove_na = TRUE, clean = TRUE) {
 }
 
 
-#' TADA_OvernightTesting
-#'
-#' @return console inputs and outputs
-#'
+# TADA_OvernightTesting
+#
+# @return console inputs and outputs
+#
 
 # TADA_OvernightTesting <- function(){
 #
@@ -1053,4 +1053,222 @@ TADA_UpdateExampleData <- function() {
   print(dim(Data_NCTCShepherdstown_HUC12))
   save(Data_NCTCShepherdstown_HUC12, file = "inst/extdata/Data_NCTCShepherdstown_HUC12.rda")
   rm(Data_NCTCShepherdstown_HUC12)
+}
+
+
+
+#' TADA Module 1 Required Fields Check
+#'
+#' This function checks if all required fields for TADA Module 1 are 
+#' included in the input dataframe.
+#'
+#' @param .data A dataframe
+#'
+#' @return Boolean result indicating whether or not the input dataframe contains
+#' all of the TADA profile fields.
+#'
+
+TADA_CheckRequiredFields <- function(.data) {
+  TADA.fields <- c(
+    "OrganizationIdentifier", 
+    "OrganizationFormalName",
+    "ActivityIdentifier",
+    "ActivityTypeCode",
+    "ActivityMediaName",
+    "ActivityMediaSubdivisionName",
+    "ActivityStartDate",
+    "ActivityStartTime.Time",
+    "ActivityStartTime.TimeZoneCode",
+    #"ActivityEndDate",
+    #"ActivityEndTime.Time",
+    #"ActivityEndTime.TimeZoneCode",
+    "ActivityRelativeDepthName",
+    "ActivityDepthHeightMeasure.MeasureValue",
+    "ActivityDepthHeightMeasure.MeasureUnitCode",
+    "ActivityDepthAltitudeReferencePointText",
+    "ActivityTopDepthHeightMeasure.MeasureValue",
+    "ActivityTopDepthHeightMeasure.MeasureUnitCode",
+    "ActivityBottomDepthHeightMeasure.MeasureValue",
+    "ActivityBottomDepthHeightMeasure.MeasureUnitCode",
+    "ProjectIdentifier",
+    "ProjectName",
+    #"ActivityConductingOrganizationText",
+    "MonitoringLocationIdentifier",
+    "MonitoringLocationName",
+    "ActivityCommentText",
+    #"SampleAquifer",
+    "HydrologicCondition",
+    "HydrologicEvent",
+    #"ActivityLocation.LatitudeMeasure",
+    #"ActivityLocation.LongitudeMeasure",
+    "SampleCollectionMethod.MethodIdentifier",
+    "SampleCollectionMethod.MethodIdentifierContext",
+    "SampleCollectionMethod.MethodName",
+    "SampleCollectionMethod.MethodDescriptionText",
+    "SampleCollectionEquipmentName",
+    "ResultIdentifier",
+    "ResultDetectionConditionText",
+    "MethodSpeciationName",
+    "CharacteristicName",
+    "ResultSampleFractionText",
+    "ResultMeasureValue",
+    "ResultMeasure.MeasureUnitCode",
+    "MeasureQualifierCode",
+    #"ResultStatusIdentifier",
+    "StatisticalBaseCode",
+    "ResultValueTypeName",
+    #"ResultWeightBasisText",
+    #"ResultTimeBasisText",
+    #"ResultTemperatureBasisText",
+    #"ResultParticleSizeBasisText",
+    "DataQuality.PrecisionValue",
+    "DataQuality.BiasValue",
+    "DataQuality.ConfidenceIntervalValue",
+    "DataQuality.UpperConfidenceLimitValue",
+    "DataQuality.LowerConfidenceLimitValue",
+    "ResultCommentText",
+    #"USGSPCode",
+    "ResultDepthHeightMeasure.MeasureValue",
+    "ResultDepthHeightMeasure.MeasureUnitCode",
+    "ResultDepthAltitudeReferencePointText",
+    "SubjectTaxonomicName",
+    "SampleTissueAnatomyName",
+    #"BinaryObjectFileName",
+    #"BinaryObjectFileTypeCode",
+    #"ResultFileUrl",
+    "ResultAnalyticalMethod.MethodIdentifier",
+    "ResultAnalyticalMethod.MethodIdentifierContext",
+    "ResultAnalyticalMethod.MethodName",
+    "ResultAnalyticalMethod.MethodUrl",
+    "ResultAnalyticalMethod.MethodDescriptionText",
+    "LaboratoryName",
+    #"AnalysisStartDate",
+    "ResultLaboratoryCommentText",
+    #"ResultDetectionQuantitationLimitUrl",
+    "DetectionQuantitationLimitTypeName",
+    "DetectionQuantitationLimitMeasure.MeasureValue",
+    "DetectionQuantitationLimitMeasure.MeasureUnitCode",
+    #"LabSamplePreparationUrl",
+    "LastUpdated",
+    "ProviderName",
+    #"timeZoneStart",
+    #"timeZoneEnd",
+    "ActivityStartDateTime",
+    #"ActivityEndDateTime",
+    "MonitoringLocationTypeName",
+    "MonitoringLocationDescriptionText",
+    "HUCEightDigitCode",
+    "DrainageAreaMeasure.MeasureValue",
+    "DrainageAreaMeasure.MeasureUnitCode",
+    "ContributingDrainageAreaMeasure.MeasureValue",
+    "ContributingDrainageAreaMeasure.MeasureUnitCode",
+    "LatitudeMeasure",
+    "LongitudeMeasure",
+    #"SourceMapScaleNumeric",
+    #"HorizontalAccuracyMeasure.MeasureValue",
+    #"HorizontalAccuracyMeasure.MeasureUnitCode",
+    #"HorizontalCollectionMethodName",
+    #"HorizontalCoordinateReferenceSystemDatumName",
+    #"VerticalMeasure.MeasureValue",
+    #"VerticalMeasure.MeasureUnitCode",
+    #"VerticalAccuracyMeasure.MeasureValue",
+    #"VerticalAccuracyMeasure.MeasureUnitCode",
+    #"VerticalCollectionMethodName",
+    #"VerticalCoordinateReferenceSystemDatumName",
+    "CountryCode",
+    "StateCode",
+    "CountyCode",
+    "AquiferName",
+    "LocalAqfrName",
+    "FormationTypeText",
+    "AquiferTypeName",
+    "ConstructionDateText",
+    #"WellDepthMeasure.MeasureValue",
+    #"WellDepthMeasure.MeasureUnitCode",
+    #"WellHoleDepthMeasure.MeasureValue",
+    #"WellHoleDepthMeasure.MeasureUnitCode",
+    "MethodSpecificationName",
+    "ProjectDescriptionText",
+    "SamplingDesignTypeCode",
+    "QAPPApprovedIndicator",
+    "QAPPApprovalAgencyName",
+    "ProjectFileUrl",
+    "ProjectMonitoringLocationWeightingUrl",
+    "TADA.LatitudeMeasure",
+    "TADA.LongitudeMeasure",
+    "TADA.NearbySiteGroups",
+    "TADA.InvalidCoordinates.Flag",
+    "TADA.QAPPDocAvailable",
+    "TADA.ActivityMediaName",
+    "TADA.CharacteristicName",
+    "TADA.CharacteristicNameAssumptions",
+    "TADA.NutrientSummationGroup",
+    "TADA.NutrientSummationEquation",
+    "TADA.AggregatedContinuousData.Flag",
+    "TADA.ResultMeasureValue",
+    "TADA.ResultValueAggregation.Flag",
+    "TADA.NutrientSummation.Flag",
+    "TADA.ResultMeasureValueDataTypes.Flag",
+    "TADA.MeasureQualifierCode.Flag",
+    "TADA.CensoredData.Flag",
+    "TADA.CensoredMethod",
+    "TADA.ResultMeasure.MeasureUnitCode",
+    "WQX.TargetUnit",
+    "WQX.ConversionFactor",
+    "WQX.ResultMeasureValue.UnitConversion",
+    "TADA.UnitConversionFactor",
+    "WQX.DetectionLimitMeasureValue.UnitConversion",
+    "AboveWQXUpperThreshold",
+    "BelowWQXLowerThreshold",
+    "TADA.ResultUnit.Flag",
+    "CombinationValidity",
+    "WQX.ResultMeasureValue.UnitConversion",
+    "TADA.MethodSpecificationName",
+    "TADA.AnalyticalMethod.Flag",
+    "TADA.MethodSpeciation.Flag",
+    "TADA.SpeciationAssumptions",
+    "TADA.SpeciationConversionFactor",
+    "TADA.ResultSampleFractionText",
+    "TADA.SampleFraction.Flag",
+    "TADA.FractionAssumptions",
+    "TADA.ComparableDataIdentifier",
+    "TADA.DetectionQuantitationLimitMeasure.MeasureValue",
+    "TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode",
+    "TADA.DetectionQuantitationLimitMeasure.MeasureValueDataTypes.Flag",
+    "TADA.ActivityDepthHeightMeasure.MeasureValue",
+    "TADA.ActivityDepthHeightMeasure.MeasureUnitCode",
+    "TADA.ActivityDepthHeightMeasure.MeasureValueDataTypes.Flag",
+    "TADA.ActivityTopDepthHeightMeasure.MeasureValue",
+    "TADA.ActivityTopDepthHeightMeasure.MeasureUnitCode",
+    "TADA.ActivityTopDepthHeightMeasure.MeasureValueDataTypes.Flag",
+    "TADA.ActivityBottomDepthHeightMeasure.MeasureValue",
+    "TADA.ActivityBottomDepthHeightMeasure.MeasureUnitCode",
+    "TADA.ActivityBottomDepthHeightMeasure.MeasureValueDataTypes.Flag",
+    "TADA.ResultDepthHeightMeasure.MeasureValue",
+    "TADA.ResultDepthHeightMeasure.MeasureUnitCode",
+    "TADA.ResultDepthHeightMeasure.MeasureValueDataTypes.Flag",
+    "WQXConversionFactor.ActivityDepthHeightMeasure",
+    "WQXConversionFactor.ActivityTopDepthHeightMeasure",
+    "WQXConversionFactor.ActivityBottomDepthHeightMeasure",
+    "WQXConversionFactor.ResultDepthHeightMeasure",
+    "TADA.MultipleOrgDuplicate",
+    "TADA.MultipleOrgDupGroupID",
+    "TADA.ResultSelectedMultipleOrgs",
+    "TADA.SingleOrgDupGroupID",
+    "TADA.ResultSelectedSingleOrg",
+    "TADA.Harmonized.Flag",
+    "TADA.Remove",
+    "TADA.RemovalReason",
+    "TADAShiny.tab"
+  )
+
+  if (("data.frame" %in% class(.data)) == FALSE) {
+    stop("Input object must be of class 'data.frame'")
+  }
+
+  if (all(TADA.fields %in% colnames(.data)) == TRUE) {
+    TRUE
+  } else {
+    stop("The dataframe does not contain the required fields to use TADA Module 1.")
+  }
 }
