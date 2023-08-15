@@ -1105,39 +1105,39 @@ TADA_FindPotentialDuplicatesMultipleOrgs <- function(.data, dist_buffer = 100, o
             dplyr::slice_min(rank) %>%
             dplyr::slice_sample(n = 1)
 
-          dupdata$TADA.ResultSelectedMultipleOrgs <- FALSE
-          dupdata$TADA.ResultSelectedMultipleOrgs <- ifelse(dupdata$ResultIdentifier %in% duppicks$ResultIdentifier, TRUE, dupdata$TADA.ResultSelectedMultipleOrgs)
+          dupdata$TADA.ResultSelectedMultipleOrgs <- "N"
+          dupdata$TADA.ResultSelectedMultipleOrgs <- ifelse(dupdata$ResultIdentifier %in% duppicks$ResultIdentifier, "Y", dupdata$TADA.ResultSelectedMultipleOrgs)
 
           # connect back to original dataset
           .data <- merge(.data, dupdata[, c("ResultIdentifier", "TADA.MultipleOrgDupGroupID", "TADA.MultipleOrgDuplicate", "TADA.ResultSelectedMultipleOrgs")], all.x = TRUE)
           .data$TADA.MultipleOrgDuplicate[is.na(.data$TADA.MultipleOrgDuplicate)] <- "N"
           .data$TADA.MultipleOrgDupGroupID[.data$TADA.MultipleOrgDuplicate == "N"] <- "Not a duplicate"
-          .data$TADA.ResultSelectedMultipleOrgs[is.na(.data$TADA.ResultSelectedMultipleOrgs)] <- TRUE
+          .data$TADA.ResultSelectedMultipleOrgs[is.na(.data$TADA.ResultSelectedMultipleOrgs)] <- "Y"
 
-          print(paste0(length(dupdata$TADA.MultipleOrgDuplicate[dupdata$TADA.MultipleOrgDuplicate %in% c("Y")]), " potentially duplicated results found in dataset. These have been placed into duplicate groups in the TADA.MultipleOrgDupGroupID column and the TADA.MultipleOrgDuplicate column is set to 'Y' (yes). If you provided an organization hierarchy, the result with the lowest ranked organization identifier was selected as the representative result in the TADA.ResultSelectedMultipleOrgs (this column is set to TRUE for all results either selected or not considered duplicates)."))
+          print(paste0(length(dupdata$TADA.MultipleOrgDuplicate[dupdata$TADA.MultipleOrgDuplicate %in% c("Y")]), " potentially duplicated results found in dataset. These have been placed into duplicate groups in the TADA.MultipleOrgDupGroupID column and the TADA.MultipleOrgDuplicate column is set to 'Y' (yes). If you provided an organization hierarchy, the result with the lowest ranked organization identifier was selected as the representative result in the TADA.ResultSelectedMultipleOrgs (this column is set to 'Y' for all results either selected or not considered duplicates)."))
         } else { # potential dup results at nearby sites but no actual duplicates at nearby sites comparing on day, time, characteristic, etc.
           .data$TADA.MultipleOrgDupGroupID <- "Not a duplicate"
           .data$TADA.MultipleOrgDuplicate <- "N"
-          .data$TADA.ResultSelectedMultipleOrgs <- TRUE
-          print("No duplicate results detected. Returning input dataframe with duplicate flagging columns set to N.")
+          .data$TADA.ResultSelectedMultipleOrgs <- "Y"
+          print("No duplicate results detected. Returning input dataframe with duplicate flagging columns set to 'N'.")
         }
       } else { # no overlap between dup results and dup sites
         .data$TADA.MultipleOrgDupGroupID <- "Not a duplicate"
         .data$TADA.MultipleOrgDuplicate <- "N"
-        .data$TADA.ResultSelectedMultipleOrgs <- TRUE
-        print("No duplicate results detected. Returning input dataframe with duplicate flagging columns set to N.")
+        .data$TADA.ResultSelectedMultipleOrgs <- "Y"
+        print("No duplicate results detected. Returning input dataframe with duplicate flagging columns set to 'N'.")
       }
     } else { # if no site duplicates detected
       .data$TADA.MultipleOrgDupGroupID <- "Not a duplicate"
       .data$TADA.MultipleOrgDuplicate <- "N"
-      .data$TADA.ResultSelectedMultipleOrgs <- TRUE
-      print("No duplicate results detected. Returning input dataframe with duplicate flagging columns set to N.")
+      .data$TADA.ResultSelectedMultipleOrgs <- "Y"
+      print("No duplicate results detected. Returning input dataframe with duplicate flagging columns set to 'N'.")
     }
   } else { # if no result/org duplicates detected
     .data$TADA.MultipleOrgDupGroupID <- "Not a duplicate"
     .data$TADA.MultipleOrgDuplicate <- "N"
-    .data$TADA.ResultSelectedMultipleOrgs <- TRUE
-    print("No duplicate results detected. Returning input dataframe with duplicate flagging columns set to N.")
+    .data$TADA.ResultSelectedMultipleOrgs <- "Y"
+    print("No duplicate results detected. Returning input dataframe with duplicate flagging columns set to 'N'.")
   }
 
   .data <- TADA_OrderCols(.data)
@@ -1166,11 +1166,11 @@ TADA_FindPotentialDuplicatesMultipleOrgs <- function(.data, dist_buffer = 100, o
 #' @return The same input TADA dataframe with additional columns: a
 #'   TADA.SingleOrgDupGroupID column indicating whether a result is part of a
 #'   group that shares the same date, time, location, characteristic, etc. and
-#'   TADA.ResultSelectedSingleOrg, which defaults to TRUE (all results
+#'   TADA.ResultSelectedSingleOrg, which defaults to 'Y' (all results
 #'   selected), unless the user specifies the handling method as 'pick_one', in
 #'   which case there exists one result (selected at random) in each duplicate group where
-#'   TADA.ResultSelectedSingleOrg = TRUE and for all other results in the group
-#'   TADA.ResultSelectedSingleOrg = FALSE.
+#'   TADA.ResultSelectedSingleOrg = 'Y' and for all other results in the group
+#'   TADA.ResultSelectedSingleOrg = 'N'.
 #'
 #' @export
 #'
@@ -1208,17 +1208,17 @@ TADA_FindPotentialDuplicatesSingleOrg <- function(.data, handling_method = "none
         dplyr::filter(!is.na(TADA.SingleOrgDupGroupID)) %>%
         dplyr::group_by(TADA.SingleOrgDupGroupID) %>%
         dplyr::slice_sample(n = 1)
-      .data$TADA.ResultSelectedSingleOrg <- TRUE
-      .data$TADA.ResultSelectedSingleOrg <- ifelse(.data$ResultIdentifier %in% picks$ResultIdentifier, FALSE, .data$TADA.ResultSelectedSingleOrg)
-      print(paste0(dim(dups_sum_org)[1], " groups of potentially duplicated results found in dataset. These have been placed into duplicate groups in the TADA.SingleOrgDupGroupID column and the function randomly selected one result from each group to represent a single, unduplicated value. Selected values are indicated in the TADA.ResultSelectedSingleOrg as TRUE, while duplicates are flagged as FALSE for easy filtering."))
+      .data$TADA.ResultSelectedSingleOrg <- "Y"
+      .data$TADA.ResultSelectedSingleOrg <- ifelse(.data$ResultIdentifier %in% picks$ResultIdentifier, "N", .data$TADA.ResultSelectedSingleOrg)
+      print(paste0(dim(dups_sum_org)[1], " groups of potentially duplicated results found in dataset. These have been placed into duplicate groups in the TADA.SingleOrgDupGroupID column and the function randomly selected one result from each group to represent a single, unduplicated value. Selected values are indicated in the TADA.ResultSelectedSingleOrg as 'Y', while duplicates are flagged as 'N' for easy filtering."))
     } else {
-      .data$TADA.ResultSelectedSingleOrg <- TRUE
+      .data$TADA.ResultSelectedSingleOrg <- "Y"
       print(paste0(dim(dups_sum_org)[1], " groups of potentially duplicated results found in dataset. These have been placed into duplicate groups in the TADA.SingleOrgDupGroupID column."))
     }
   } else {
     .data$TADA.SingleOrgDupGroupID <- "Not a duplicate"
-    .data$TADA.ResultSelectedSingleOrg <- TRUE
-    print("No duplicates detected within organizations in the dataset. 'TADA.SingleOrgDupGroupID' column set to 'Not a duplicate' and 'TADA.ResultSelectedSingleOrg' set to TRUE for all results.")
+    .data$TADA.ResultSelectedSingleOrg <- "Y"
+    print("No duplicates detected within organizations in the dataset. 'TADA.SingleOrgDupGroupID' column set to 'Not a duplicate' and 'TADA.ResultSelectedSingleOrg' set to 'Y' for all results.")
   }
 
   .data <- TADA_OrderCols(.data)

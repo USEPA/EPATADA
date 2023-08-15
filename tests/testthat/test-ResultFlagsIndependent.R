@@ -60,7 +60,7 @@ test_that("Imprecise_lessthan3decimaldigits works again", {
 })
 
 test_that("No NA's in independent flag columns", {
-  testdat <- TADA_RandomTestingSet()
+  testdat <- TADA_RandomNationalTestingSet()
   testdat <- TADA_ConvertResultUnits(testdat, transform = TRUE)
 
   testdat <- suppressWarnings(TADA_FlagMethod(testdat, clean = FALSE, flaggedonly = FALSE))
@@ -80,7 +80,7 @@ test_that("No NA's in independent flag columns", {
 })
 
 test_that("TADA_FindPotentialDuplicates functions do not grow dataset", {
-  testdat <- TADA_RandomTestingSet()
+  testdat <- TADA_RandomNationalTestingSet()
   testdat1 <- TADA_FindPotentialDuplicatesSingleOrg(testdat)
   testdat2 <- TADA_FindPotentialDuplicatesMultipleOrgs(testdat)
   expect_true(dim(testdat)[1] == dim(testdat1)[1])
