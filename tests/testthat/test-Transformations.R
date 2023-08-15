@@ -1,5 +1,5 @@
 test_that("harmonization works", {
-  dat <- TADA_RandomTestingSet()
+  dat <- TADA_RandomNationalTestingSet()
   dat <- subset(dat, !is.na(dat$TADA.ResultMeasureValue))
   dat <- TADA_FlagFraction(dat, clean = TRUE)
   dat <- TADA_FlagResultUnit(dat, clean = "invalid_only")
