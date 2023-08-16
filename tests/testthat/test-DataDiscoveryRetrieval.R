@@ -136,7 +136,7 @@ test_that("TADA_DataRetrieval", {
   ) %in% names(tada1)))
 })
 
-# testing that "meters" is successfully replaced with "m". This feature is part of the TADA_AutoClean function
+# testing that NWIS USGS only domain value "meters" is successfully replaced with "m". This feature is part of the TADA_AutoClean function
 # which runs automatically when TADA_DataRetrieval runs
 test_that("TADA_DataRetrieval", {
   check_autoclean_meters_works <- TADA_DataRetrieval(
