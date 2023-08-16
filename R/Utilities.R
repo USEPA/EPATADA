@@ -89,7 +89,9 @@ TADA_AutoClean <- function(.data) {
   required_cols <- c(
     "ActivityMediaName", "ResultMeasureValue", "ResultMeasure.MeasureUnitCode",
     "CharacteristicName", "ResultSampleFractionText", "MethodSpecificationName",
-    "DetectionQuantitationLimitMeasure.MeasureUnitCode", "ResultDetectionConditionText"
+    "DetectionQuantitationLimitMeasure.MeasureUnitCode", "ResultDetectionConditionText", 
+    "ResultIdentifier", "DetectionQuantitationLimitMeasure.MeasureValue", 
+    "LatitudeMeasure", "LongitudeMeasure"
   )
 
   # check .data has required columns
@@ -527,6 +529,7 @@ TADA_OrderCols <- function(.data) {
     "TADA.UnitConversionFactor",
     "TADA.ResultMeasureValueDataTypes.Flag",
     "TADA.ResultValueAggregation.Flag",
+    
     
     "TADA.MeasureQualifierCode.Flag",
     "TADA.CensoredData.Flag",
@@ -1136,7 +1139,6 @@ TADA_CheckRequiredFields <- function(.data) {
     #"ActivityLocation.LongitudeMeasure",
     #"ResultStatusIdentifier",
     #"ResultWeightBasisText",
-    #"ResultTimeBasisText",
     #"ResultTemperatureBasisText",
     #"ResultParticleSizeBasisText",
     #"USGSPCode",
@@ -1163,12 +1165,6 @@ TADA_CheckRequiredFields <- function(.data) {
     #"AquiferName",
     #"LocalAqfrName",
     #"FormationTypeText",
-    #"AquiferTypeName",
-    #"ConstructionDateText",
-    #"WellDepthMeasure.MeasureValue",
-    #"WellDepthMeasure.MeasureUnitCode",
-    #"WellHoleDepthMeasure.MeasureValue",
-    #"WellHoleDepthMeasure.MeasureUnitCode",
     #"ProjectMonitoringLocationWeightingUrl",
     #"DrainageAreaMeasure.MeasureValue",
     #"DrainageAreaMeasure.MeasureUnitCode",
@@ -1193,9 +1189,7 @@ TADA_CheckRequiredFields <- function(.data) {
     "SampleCollectionMethod.MethodIdentifierContext",
     "SampleCollectionMethod.MethodName",
     "SampleCollectionMethod.MethodDescriptionText",
-    "SampleCollectionEquipmentName",
     "ActivityMediaSubdivisionName",
-    "StatisticalBaseCode",
     "DataQuality.PrecisionValue",
     "DataQuality.BiasValue",
     "DataQuality.ConfidenceIntervalValue",
@@ -1209,15 +1203,29 @@ TADA_CheckRequiredFields <- function(.data) {
     "ResultAnalyticalMethod.MethodUrl",
     "ResultAnalyticalMethod.MethodDescriptionText",
     "ResultCommentText",
-    "LastUpdated",
-    "ProviderName",
-    "ResultValueTypeName",
     "LaboratoryName",
     "ResultLaboratoryCommentText",
     "MonitoringLocationDescriptionText",
     "HUCEightDigitCode",
+    "AquiferTypeName", # can be used to remove groundwater sites
+    "ConstructionDateText", # can be used to remove groundwater sites
+    "WellDepthMeasure.MeasureValue", # can be used to remove groundwater sites
+    "WellDepthMeasure.MeasureUnitCode", # can be used to remove groundwater sites
+    "WellHoleDepthMeasure.MeasureValue", # can be used to remove groundwater sites
+    "WellHoleDepthMeasure.MeasureUnitCode", # can be used to remove groundwater sites
+    "ProviderName",
+    "LastUpdated",
     
     # required 
+    "TADA.CharacteristicName",
+    "TADA.ResultSampleFractionText",
+    "TADA.MethodSpecificationName",
+    "TADA.ResultMeasure.MeasureUnitCode",
+    "TADA.ActivityMediaName",
+    "TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode",
+    "TADA.ResultMeasureValueDataTypes.Flag",
+    "TADA.LatitudeMeasure",
+    "TADA.LongitudeMeasure",
     "OrganizationFormalName",
     "ActivityTypeCode",
     "ActivityMediaName",
@@ -1250,6 +1258,10 @@ TADA_CheckRequiredFields <- function(.data) {
     "QAPPApprovalAgencyName",
     "ProjectFileUrl",
     "MeasureQualifierCode",
+    "SampleCollectionEquipmentName", #required for continuous flag
+    "StatisticalBaseCode", #required for continuous flag
+    "ResultTimeBasisText", #required for continuous flag
+    "ResultValueTypeName", #required for continuous flag
     "ActivityIdentifier",
     "ProjectIdentifier",
     "MonitoringLocationIdentifier",
