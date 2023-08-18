@@ -402,13 +402,14 @@ TADA_CalculateTotalNP <- function(.data, sum_ref, daily_agg = c("max", "min", "m
 
   # join data to summation table and keep only those that match for summations
   sum_dat <- merge(dat, sum_ref, all.x = TRUE)
-  sum_dat <- subset(sum_dat, !is.na(sum_dat$SummationRank))
+  sum_dat <- subset(sum_dat, !is.na(sum_dat$NutrientGroup))
 
   ## REMINDER FOR TADA TEAM: NEED TO ENSURE ALL COMBOS PRESENT IN TABLE
 
   # If the join results in matching rows
   if (dim(sum_dat)[1] > 0) {
     thecols <- grpcols[!grpcols %in% c("TADA.ComparableDataIdentifier")]
+    
     # # find nearby sites
     # nearsites = unique(sum_dat[,c("MonitoringLocationIdentifier","TADA.LatitudeMeasure","TADA.LongitudeMeasure")])
     # nearsites = TADA_FindNearbySites(nearsites)
@@ -418,21 +419,24 @@ TADA_CalculateTotalNP <- function(.data, sum_ref, daily_agg = c("max", "min", "m
     sum_dat <- sum_dat %>%
       dplyr::group_by(dplyr::across(dplyr::all_of(thecols))) %>%
       dplyr::mutate(TADA.NutrientSummationGroup = dplyr::cur_group_id())
-
+    
     # Create list of summation equations in order of preference, can also accommodate phosphorus
     eqns <- list(
       "N" = list(
-        N1 = "TOTAL N",
+        N0 = "TOTAL N (UNFILTERED)",
+        N1 = c("TOTAL N (FILTERED)", "TOTAL N (PARTICLE)"),
         N2 = c("TKN", "NITRATE", "NITRITE"),
         N2_a = c("TKN", "NITRATE + NITRITE"),
         N3 = c("ORG N", "AMMON", "NITRATE", "NITRITE"),
         N3_a = c("ORG N", "AMMON", "NITRATE + NITRITE"),
         N4 = c("AMMON", "NITRATE", "NITRITE"),
-        N4_a = c("AMMON", "NITRATE + NITRITE")
+        N4_a = c("AMMON", "NITRATE + NITRITE"),
+        N5 = "OTHER N"
       ),
       "P" = list(
         P1 = c("PHOSP"),
-        P2 = c("PO4")
+        P2 = c("PO4"),
+        P3 = "OTHER P"
       )
     )
 
@@ -444,15 +448,17 @@ TADA_CalculateTotalNP <- function(.data, sum_ref, daily_agg = c("max", "min", "m
       eq <- eqns[[i]]
       for (j in 1:length(eq)) {
         eq1 <- eq[[j]]
+        eqname <- names(eq[j])
         nutrient <- ifelse(grepl("N", names(eq[j])), "Total Nitrogen as N", "Total Phosphorus as P")
         # for each equation, see if any groups contain all required subspecies, and for each pick the variant with the lowest rank.
         # combine group with other groups and remove group ID from consideration for the next equation
         out <- sum_dat %>%
           dplyr::filter(!TADA.NutrientSummationGroup %in% grps) %>%
           dplyr::group_by(TADA.NutrientSummationGroup) %>%
-          dplyr::filter(all(eq1 %in% SummationName)) %>%
-          dplyr::filter(SummationName %in% eq1) %>%
-          dplyr::mutate(TADA.NutrientSummationEquation = paste0(eq1, collapse = " + "))
+          # dplyr::filter(all(eq1 %in% SummationName)) %>% # this line ensures that ALL subspecies are present within an equation group, not just one or more
+          dplyr::filter(SummationName %in% eq1) %>% 
+          dplyr::mutate(TADA.NutrientSummationEquation = paste0(unique(SummationName), collapse = " + "))
+        
         out <- out %>%
           dplyr::group_by(TADA.NutrientSummationGroup, SummationName) %>%
           dplyr::slice_min(SummationRank, with_ties = FALSE)
@@ -493,7 +499,7 @@ TADA_CalculateTotalNP <- function(.data, sum_ref, daily_agg = c("max", "min", "m
     # combine all data back into input dataset and get rid of unneeded columns
     .data <- merge(.data, summeddata, all.x = TRUE)
     .data <- plyr::rbind.fill(.data, Totals)
-    .data <- .data %>% dplyr::select(-c(SummationFractionNotes, SummationSpeciationNotes, SummationSpeciationConversionFactor, SummationName, SummationRank, SummationNote, nutrient))
+    .data <- .data %>% dplyr::select(-c(SummationFractionNotes, SummationSpeciationNotes, SummationSpeciationConversionFactor, SummationName, SummationRank, SummationNote, nutrient, NutrientGroup))
     .data$TADA.NutrientSummation.Flag[is.na(.data$TADA.NutrientSummation.Flag)] <- "Not used to calculate Total N or P."
   } else {
     # if there are no data to sum
