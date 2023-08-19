@@ -5,7 +5,7 @@
 #' that include speciation information and transfers the speciation information
 #' to the TADA.MethodSpecificationName field.
 #'
-#' This function will ALWAYS add "WQX.ResultMeasureValue.UnitConversion" to the input dataframe.
+#' This function will ALWAYS add "TADA.WQXResultUnitConversion" to the input dataframe.
 #'
 #' This field indicates if data can be converted."NoResultValue" means data
 #' cannot be converted because there is no ResultMeasureValue, and "NoTargetUnit"
@@ -18,7 +18,7 @@
 #' dataframe to perform conversions as necessary when transform = TRUE.
 #'
 #' This function adds the following three fields ONLY when transform=FALSE:
-#' Adds: "WQX.ConversionFactor", "WQX.TargetUnit", and "USGS.SpeciationConversion".
+#' Adds: "TADA.WQXUnitConversionFactor", "TADA.WQXTargetUnit", and "USGS.SpeciationConversion".
 #'
 #' @param .data TADA dataframe
 #'
@@ -32,9 +32,9 @@
 #'
 #' When transform = FALSE, result values and units are NOT converted to WQX target units,
 #' but columns are appended to indicate what the target units and conversion factors are,
-#' and if the data can be converted. In addition to "WQX.ResultMeasureValue.UnitConversion"
-#' and "WQX.DetectionLimitMeasureValue.UnitConversion",  transform=FALSE will add the
-#' following two fields to the input dataframe: "WQX.ConversionFactor" and "WQX.TargetUnit".
+#' and if the data can be converted. In addition to "TADA.WQXResultUnitConversion"
+#' and "TADA.WQXDetectionLimitUnitConversion",  transform=FALSE will add the
+#' following two fields to the input dataframe: "TADA.WQXUnitConversionFactor" and "TADA.WQXTargetUnit".
 #'
 #' @export
 #'
@@ -45,7 +45,7 @@
 #' ResultUnitsConverted <- (Data_Nutrients_UT)
 #'
 #' # Do not convert result values and units, but add two new columns titled
-#' # "WQX.ConversionFactor" and "WQX.TargetUnit":
+#' # "TADA.WQXUnitConversionFactor" and "TADA.WQXTargetUnit":
 #' ResultUnitsNotConverted <- TADA_ConvertResultUnits(Data_Nutrients_UT, transform = FALSE)
 #'
 TADA_ConvertResultUnits <- function(.data, transform = TRUE) {
@@ -93,8 +93,8 @@ TADA_ConvertResultUnits <- function(.data, transform = TRUE) {
 
   # rename columns
   flag.data <- check.data %>%
-    dplyr::rename(WQX.TargetUnit = Target.Unit) %>%
-    dplyr::rename(WQX.ConversionFactor = Conversion.Factor) %>%
+    dplyr::rename(TADA.WQXTargetUnit = Target.Unit) %>%
+    dplyr::rename(TADA.WQXUnitConversionFactor = Conversion.Factor) %>%
     dplyr::rename(USGS.SpeciationConversion = Target.Speciation)
 
   # if temp data exists, calculate conversion factor
@@ -106,22 +106,22 @@ TADA_ConvertResultUnits <- function(.data, transform = TRUE) {
     # Calculate deg F and deg C, replace Conversion factor values
     flag.data <- flag.data %>%
       # create flag column
-      dplyr::mutate(WQX.ConversionFactor = dplyr::case_when(
+      dplyr::mutate(TADA.WQXUnitConversionFactor = dplyr::case_when(
         TADA.ResultMeasure.MeasureUnitCode == "deg F" ~
           as.numeric(((TADA.ResultMeasureValue - 32) * (5 / 9)) / TADA.ResultMeasureValue),
         TADA.ResultMeasure.MeasureUnitCode == "deg K" ~
           as.numeric((TADA.ResultMeasureValue - 273.15) / TADA.ResultMeasureValue),
-        TRUE ~ WQX.ConversionFactor
+        TRUE ~ TADA.WQXUnitConversionFactor
       ))
   }
 
-  # add WQX.ResultMeasureValue.UnitConversion column
+  # add TADA.WQXResultUnitConversion column
   flag.data <- flag.data %>%
     # create flag column
-    dplyr::mutate(WQX.ResultMeasureValue.UnitConversion = dplyr::case_when(
-      (!is.na(TADA.ResultMeasureValue) & !is.na(WQX.TargetUnit)) ~ as.character("Convert"),
+    dplyr::mutate(TADA.WQXResultUnitConversion = dplyr::case_when(
+      (!is.na(TADA.ResultMeasureValue) & !is.na(TADA.WQXTargetUnit)) ~ as.character("Convert"),
       is.na(TADA.ResultMeasureValue) ~ as.character("No Result Value"),
-      is.na(WQX.TargetUnit) ~ as.character("No Target Unit")
+      is.na(TADA.WQXTargetUnit) ~ as.character("No Target Unit")
     ))
 
   if (transform == FALSE) {
@@ -137,17 +137,17 @@ TADA_ConvertResultUnits <- function(.data, transform = TRUE) {
       # apply conversions where there is a target unit, use original value if no target unit
       dplyr::mutate(TADA.ResultMeasureValue = dplyr::case_when(
         is.na(TADA.ResultMeasureValue) ~ TADA.ResultMeasureValue,
-        !is.na(WQX.TargetUnit) ~
-          (TADA.ResultMeasureValue * WQX.ConversionFactor),
-        is.na(WQX.TargetUnit) ~ TADA.ResultMeasureValue
+        !is.na(TADA.WQXTargetUnit) ~
+          (TADA.ResultMeasureValue * TADA.WQXUnitConversionFactor),
+        is.na(TADA.WQXTargetUnit) ~ TADA.ResultMeasureValue
       ))
 
     # populate ResultMeasure.MeasureUnitCode
     clean.data <- clean.data %>%
       # use target unit where there is a target unit, use original unit if no target unit
       dplyr::mutate(TADA.ResultMeasure.MeasureUnitCode = dplyr::case_when(
-        !is.na(WQX.TargetUnit) ~ WQX.TargetUnit,
-        is.na(WQX.TargetUnit) ~ TADA.ResultMeasure.MeasureUnitCode
+        !is.na(TADA.WQXTargetUnit) ~ TADA.WQXTargetUnit,
+        is.na(TADA.WQXTargetUnit) ~ TADA.ResultMeasure.MeasureUnitCode
       ))
 
     # Convert method speciation column for USGS data
@@ -158,20 +158,20 @@ TADA_ConvertResultUnits <- function(.data, transform = TRUE) {
 
     clean.data$TADA.MethodSpecificationName <- ifelse(!is.na(clean.data$USGS.SpeciationConversion), clean.data$USGS.SpeciationConversion, clean.data$TADA.MethodSpecificationName)
 
-    # edit WQX.ResultMeasureValue.UnitConversion column
+    # edit TADA.WQXResultUnitConversion column
     clean.data <- clean.data %>%
       # apply function row by row- EDH - I don't think this is needed (I think default behavior of case_when is row by row)?
       # dplyr::rowwise() %>%
       # create flag column
-      dplyr::mutate(WQX.ResultMeasureValue.UnitConversion = dplyr::case_when(
-        (WQX.ConversionFactor == 1) ~ as.character("No Conversion Needed"),
-        (!is.na(TADA.ResultMeasureValue) & !is.na(WQX.TargetUnit)) ~ as.character("Converted"),
-        TRUE ~ WQX.ResultMeasureValue.UnitConversion
+      dplyr::mutate(TADA.WQXResultUnitConversion = dplyr::case_when(
+        (TADA.WQXUnitConversionFactor == 1) ~ as.character("No Conversion Needed"),
+        (!is.na(TADA.ResultMeasureValue) & !is.na(TADA.WQXTargetUnit)) ~ as.character("Converted"),
+        TRUE ~ TADA.WQXResultUnitConversion
       ))
 
     # remove extraneous columns, fix field names
     clean.data <- clean.data %>%
-      dplyr::select(-c("WQX.ConversionFactor", "WQX.TargetUnit", "USGS.SpeciationConversion"))
+      dplyr::select(-c("TADA.WQXUnitConversionFactor", "TADA.WQXTargetUnit", "USGS.SpeciationConversion"))
 
     # create new comparable data identifier column following conversion
     clean.data <- TADA_CreateComparableID(clean.data)

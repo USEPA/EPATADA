@@ -559,20 +559,16 @@ TADA_Scatterplot <- function(.data, id_cols = c("TADA.ComparableDataIdentifier")
     plot.data <- subset(.data, .data$Group == i)
     groupid <- paste0(unique(plot.data[, id_cols]), collapse = "_")
 
-    # units lable for y axis
+    # units label for y axis
     unit <- unique(plot.data$TADA.ResultMeasure.MeasureUnitCode)
     y_label <- "Activity Start Date and Time"
-
-    # include depth in hover info
-    depth <- plot.data$ResultDepthHeightMeasure.MeasureValue
-    plot.data$TADA.DateTime <- as.POSIXct(paste(plot.data$ActivityStartDate, plot.data$ActivityStartTime.Time), format = "%Y-%m-%d %H:%M:%S")
-
+  
     # construct plotly scatterplot
     one_scatterplot <- plotly::plot_ly(
       data = plot.data,
       type = "scatter",
       mode = "markers",
-      x = plot.data$TADA.DateTime,
+      x = plot.data$ActivityStartDateTime, # currently uses start date and time, may want to change to just ActivityStartDate after aggregation functions are written
       y = plot.data$TADA.ResultMeasureValue,
       # color = plot.data$TADA.ResultMeasureValue,
       marker = list(color = "#00bde3"),
@@ -580,12 +576,19 @@ TADA_Scatterplot <- function(.data, id_cols = c("TADA.ComparableDataIdentifier")
       name = "<b>All Data<b>",
       hoverinfo = "text",
       hovertext = paste(
-        "Result:", plot.data$TADA.ResultMeasureValue, "<br>",
-        "DateTime:", plot.data$TADA.DateTime, "<br>",
-        "ResultDepth:", depth
-      )
+        "Result:", paste0(plot.data$TADA.ResultMeasureValue, " ", plot.data$TADA.ResultMeasure.MeasureUnitCode), "<br>",
+        "Date Time:", plot.data$ActivityStartDateTime, "<br>",
+        "Result Depth:", paste0(plot.data$TADA.ResultDepthHeightMeasure.MeasureValue, " ",
+                                plot.data$TADA.ResultDepthHeightMeasure.MeasureUnitCode), "<br>",
+        "Activity Relative Depth Name:", plot.data$ActivityRelativeDepthName, "<br>",
+        "Activity Depth:", paste0(plot.data$TADA.ActivityDepthHeightMeasure.MeasureValue, " ",
+                                 plot.data$TADA.ActivityDepthHeightMeasure.MeasureUnitCode), "<br>",
+        "Activity Top Depth:", paste0(plot.data$TADA.ActivityTopDepthHeightMeasure.MeasureValue, " ",
+                                plot.data$TADA.ActivityTopDepthHeightMeasure.MeasureUnitCode), "<br>",
+        "Activity Bottom Depth:", paste0(plot.data$TADA.ActivityBottomDepthHeightMeasure.MeasureValue, " ",
+                                  plot.data$TADA.ActivityBottomDepthHeightMeasure.MeasureUnitCode), "<br>")
     )
-
+    
     # figure margin
     mrg <- list(
       l = 50, r = 20,
