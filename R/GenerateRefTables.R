@@ -715,6 +715,6 @@ TADA_UpdateMeasureQualifierCodeRef <- function() {
 #' @export
 
 TADA_GetNutrientSummationRef <- function() {
-  ref <- utils::read.csv(system.file("extdata", "Nsummation_key.csv", package = "TADA"))
+  ref <- utils::read.csv(system.file("extdata", "NPsummation_key.csv", package = "TADA"))
   return(ref)
 }

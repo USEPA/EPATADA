@@ -34,7 +34,7 @@ TADA.NutrientSummationEquation columns, which can be used to trace how the
 total was calculated and from which subspecies.
 }
 \description{
-This function uses the \href{https://echo.epa.gov/trends/loading-tool/resources/nutrient-aggregation#nitrogen}{Nutrient Aggregation logic}
+This function applies the \href{https://echo.epa.gov/trends/loading-tool/resources/nutrient-aggregation#nitrogen}{Nutrient Aggregation logic}
 from ECHO's Water Pollutant Loading Tool to add nitrogen subspecies together
 to approximate a total nitrogen value on a single day at a single site.
 Before summing subspecies, this function runs TADA_AggregateMeasurements to
@@ -43,6 +43,31 @@ date, and depth. Where necessary, it uses conversion factors to convert
 nitrogen subspecies expressed as nitrate, nitrite, ammonia, ammonium, etc. to
 as nitrogen based on the atomic weights of the different elements in the
 compound. The reference table is contained within the package but may be
-edited/customized by users. Future development may include total P summations
-as well.
+edited/customized by users. Nutrient equations are as follows:
+}
+\details{
+NITROGEN:
+\enumerate{
+\item TOTAL N (UNFILTERED)
+\item TOTAL N (FILTERED) + TOTAL N (PARTICULE)
+\item TOTAL KJELDAHL NITROGEN + NITRATE + NITRITE
+\item ORGANIC N + AMMONIA + NITRATE + NITRITE
+\item OTHER NITROGEN FORMS
+}
+
+PHOSPHORUS:
+\enumerate{
+\item TOTAL PHOSPHORUS
+\item PHOSPHATE
+\item OTHER PHOSPHORUS FORMS
+}
+
+Equations are applied in the order above. The function looks for groups of
+nutrients that exactly match each equation before looking for every
+combination within each equation (for example, a group of nitrogen subspecies
+including AMMONIA and NITRATE will be passed over in an intial sweep of
+groups of subspecies containing ORG N, AMMONIA, NITRATE, and NITRITE, but
+will be caught as the function moves down the hierarchy of equations to fewer
+and fewer subspecies). Eventually, even groups with only one subspecies will
+be used to represent a TOTAL N value for that site/day/depth.
 }
