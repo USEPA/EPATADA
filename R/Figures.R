@@ -56,7 +56,12 @@ TADA_Boxplot <- function(.data, id_cols = c("TADA.ComparableDataIdentifier")) {
   TADA_CheckType(.data, "data.frame", "Input object")
 
   # ensure comparable data identifier is in the id_col vector
-  id_cols <- unique(c("TADA.ComparableDataIdentifier", id_cols))
+  if(is.null(id_cols)){
+    id_cols = "TADA.ComparableDataIdentifier"
+  }
+  if(!"TADA.ComparableDataIdentifier"%in%id_cols){
+    print("TADA.ComparableDataIdentifier not found in id_cols argument and is highly recommended: plotting without it may produce errors in the plot.")
+  }
 
   # check .data has required columns
   TADA_CheckColumns(.data, id_cols)
@@ -218,7 +223,12 @@ TADA_Histogram <- function(.data, id_cols = c("TADA.ComparableDataIdentifier")) 
   TADA_CheckType(.data, "data.frame", "Input object")
 
   # ensure comparable data identifier is in the id_col vector
-  id_cols <- unique(c("TADA.ComparableDataIdentifier", id_cols))
+  if(is.null(id_cols)){
+    id_cols = "TADA.ComparableDataIdentifier"
+  }
+  if(!"TADA.ComparableDataIdentifier"%in%id_cols){
+    print("TADA.ComparableDataIdentifier not found in id_cols argument and is highly recommended: plotting without it may produce errors in the plot.")
+  }
 
   # check .data has required columns
   TADA_CheckColumns(.data, id_cols)
@@ -514,13 +524,19 @@ TADA_Scatterplot <- function(.data, id_cols = c("TADA.ComparableDataIdentifier")
   TADA_CheckType(.data, "data.frame", "Input object")
 
   # ensure comparable data identifier is in the id_col vector
-  id_cols <- unique(c("TADA.ComparableDataIdentifier", id_cols))
+  if(is.null(id_cols)){
+    id_cols = "TADA.ComparableDataIdentifier"
+  }
+  
+  if(!"TADA.ComparableDataIdentifier"%in%id_cols){
+    print("TADA.ComparableDataIdentifier not found in id_cols argument and is highly recommended: plotting without it may produce errors in the plot.")
+  }
 
   # check .data has required columns
   TADA_CheckColumns(.data, id_cols)
 
   # check .data has required columns
-  TADA_CheckColumns(.data, c("TADA.ResultMeasureValue", "TADA.ResultMeasure.MeasureUnitCode"))
+  TADA_CheckColumns(.data, c("TADA.ResultMeasureValue", "TADA.ResultMeasure.MeasureUnitCode","ResultDepthHeightMeasure.MeasureValue", "ActivityStartDate", "ActivityStartTime.Time"))
 
   start <- dim(.data)[1]
 

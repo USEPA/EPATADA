@@ -325,7 +325,7 @@ TADA_HarmonizeSynonyms <- function(.data, ref, np_speciation = TRUE) {
 
 #' Calculate Total Nitrogen and Phosphorus
 #'
-#' This function uses the [Nutrient Aggregation logic](https://echo.epa.gov/trends/loading-tool/resources/nutrient-aggregation#nitrogen)
+#' This function applies the [Nutrient Aggregation logic](https://echo.epa.gov/trends/loading-tool/resources/nutrient-aggregation#nitrogen)
 #' from ECHO's Water Pollutant Loading Tool to add nitrogen subspecies together
 #' to approximate a total nitrogen value on a single day at a single site.
 #' Before summing subspecies, this function runs TADA_AggregateMeasurements to
@@ -334,9 +334,29 @@ TADA_HarmonizeSynonyms <- function(.data, ref, np_speciation = TRUE) {
 #' nitrogen subspecies expressed as nitrate, nitrite, ammonia, ammonium, etc. to
 #' as nitrogen based on the atomic weights of the different elements in the
 #' compound. The reference table is contained within the package but may be
-#' edited/customized by users. Future development may include total P summations
-#' as well.
-#'
+#' edited/customized by users. Nutrient equations are as follows:
+#' 
+#' NITROGEN:
+#' 1. TOTAL N (UNFILTERED)
+#' 2. TOTAL N (FILTERED) + TOTAL N (PARTICULE)
+#' 3. TOTAL KJELDAHL NITROGEN + NITRATE + NITRITE
+#' 4. ORGANIC N + AMMONIA + NITRATE + NITRITE
+#' 5. OTHER NITROGEN FORMS 
+#' 
+#' PHOSPHORUS:
+#' 1. TOTAL PHOSPHORUS
+#' 2. PHOSPHATE
+#' 3. OTHER PHOSPHORUS FORMS
+#' 
+#' Equations are applied in the order above. The function looks for groups of
+#' nutrients that exactly match each equation before looking for every
+#' combination within each equation (for example, a group of nitrogen subspecies
+#' including AMMONIA and NITRATE will be passed over in an intial sweep of
+#' groups of subspecies containing ORG N, AMMONIA, NITRATE, and NITRITE, but
+#' will be caught as the function moves down the hierarchy of equations to fewer
+#' and fewer subspecies). Eventually, even groups with only one subspecies will
+#' be used to represent a TOTAL N value for that site/day/depth.
+#' 
 #' @param .data TADA dataframe, ideally harmonized using TADA_HarmonizeSynonyms.
 #'   If user wants to consider grouping N or P subspecies across multiple
 #'   organizations, user should have run TADA_FindNearbySites and grouped all
@@ -402,13 +422,14 @@ TADA_CalculateTotalNP <- function(.data, sum_ref, daily_agg = c("max", "min", "m
 
   # join data to summation table and keep only those that match for summations
   sum_dat <- merge(dat, sum_ref, all.x = TRUE)
-  sum_dat <- subset(sum_dat, !is.na(sum_dat$SummationRank))
+  sum_dat <- subset(sum_dat, !is.na(sum_dat$NutrientGroup))
 
   ## REMINDER FOR TADA TEAM: NEED TO ENSURE ALL COMBOS PRESENT IN TABLE
 
   # If the join results in matching rows
   if (dim(sum_dat)[1] > 0) {
     thecols <- grpcols[!grpcols %in% c("TADA.ComparableDataIdentifier")]
+    
     # # find nearby sites
     # nearsites = unique(sum_dat[,c("MonitoringLocationIdentifier","TADA.LatitudeMeasure","TADA.LongitudeMeasure")])
     # nearsites = TADA_FindNearbySites(nearsites)
@@ -418,41 +439,31 @@ TADA_CalculateTotalNP <- function(.data, sum_ref, daily_agg = c("max", "min", "m
     sum_dat <- sum_dat %>%
       dplyr::group_by(dplyr::across(dplyr::all_of(thecols))) %>%
       dplyr::mutate(TADA.NutrientSummationGroup = dplyr::cur_group_id())
+    
+    # bring in equations
+    eqns = utils::read.csv(system.file("extdata","NP_equations.csv", package = "TADA"))
 
-    # Create list of summation equations in order of preference, can also accommodate phosphorus
-    eqns <- list(
-      "N" = list(
-        N1 = "TOTAL N",
-        N2 = c("TKN", "NITRATE", "NITRITE"),
-        N2_a = c("TKN", "NITRATE + NITRITE"),
-        N3 = c("ORG N", "AMMON", "NITRATE", "NITRITE"),
-        N3_a = c("ORG N", "AMMON", "NITRATE + NITRITE"),
-        N4 = c("AMMON", "NITRATE", "NITRITE"),
-        N4_a = c("AMMON", "NITRATE + NITRITE")
-      ),
-      "P" = list(
-        P1 = c("PHOSP"),
-        P2 = c("PO4")
-      )
-    )
 
     # dataframe to hold results
     summeddata <- data.frame()
     grps <- vector()
 
-    for (i in 1:length(eqns)) {
-      eq <- eqns[[i]]
-      for (j in 1:length(eq)) {
-        eq1 <- eq[[j]]
-        nutrient <- ifelse(grepl("N", names(eq[j])), "Total Nitrogen as N", "Total Phosphorus as P")
+    for (i in 1:length(unique(eqns$Nutrient))) {
+      nut = unique(eqns$Nutrient)[i]
+      nutqns = subset(eqns, eqns$Nutrient==nut)
+      for (j in 1:length(unique(nutqns$EQN))) {
+        eqnum = unique(nutqns$EQN)[j]
+        eqn = subset(nutqns, nutqns$EQN==eqnum)$SummationName
+        nutrient <- ifelse(nut=="N", "Total Nitrogen as N", "Total Phosphorus as P")
         # for each equation, see if any groups contain all required subspecies, and for each pick the variant with the lowest rank.
         # combine group with other groups and remove group ID from consideration for the next equation
         out <- sum_dat %>%
           dplyr::filter(!TADA.NutrientSummationGroup %in% grps) %>%
           dplyr::group_by(TADA.NutrientSummationGroup) %>%
-          dplyr::filter(all(eq1 %in% SummationName)) %>%
-          dplyr::filter(SummationName %in% eq1) %>%
-          dplyr::mutate(TADA.NutrientSummationEquation = paste0(eq1, collapse = " + "))
+          dplyr::filter(all(eqn %in% SummationName)) %>% # this line ensures that ALL subspecies are present within an equation group, not just one or more
+          dplyr::filter(SummationName %in% eqn) %>% 
+          dplyr::mutate(TADA.NutrientSummationEquation = paste0(unique(SummationName), collapse = " + "))
+        
         out <- out %>%
           dplyr::group_by(TADA.NutrientSummationGroup, SummationName) %>%
           dplyr::slice_min(SummationRank, with_ties = FALSE)
@@ -493,7 +504,7 @@ TADA_CalculateTotalNP <- function(.data, sum_ref, daily_agg = c("max", "min", "m
     # combine all data back into input dataset and get rid of unneeded columns
     .data <- merge(.data, summeddata, all.x = TRUE)
     .data <- plyr::rbind.fill(.data, Totals)
-    .data <- .data %>% dplyr::select(-c(SummationFractionNotes, SummationSpeciationNotes, SummationSpeciationConversionFactor, SummationName, SummationRank, SummationNote, nutrient))
+    .data <- .data %>% dplyr::select(-c(SummationFractionNotes, SummationSpeciationNotes, SummationSpeciationConversionFactor, SummationName, SummationRank, SummationNote, nutrient, NutrientGroup))
     .data$TADA.NutrientSummation.Flag[is.na(.data$TADA.NutrientSummation.Flag)] <- "Not used to calculate Total N or P."
   } else {
     # if there are no data to sum
