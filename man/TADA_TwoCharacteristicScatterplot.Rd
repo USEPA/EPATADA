@@ -39,10 +39,10 @@ Create A Two-Characteric Scatterplot
 }
 \examples{
 # Load example dataset:
-data(Data_6Tribes_5y_Harmonized)
+data(Data_Nutrients_UT)
 
 # Create a scatterplot for each comparable data group (TADA.ComparableDataIdentifier)
 # in the input dataframe:
-TADA_TwoCharacteristicScatterplot(Data_6Tribes_5y_Harmonized, id_col = "TADA.ComparableDataIdentifier", groups = c("DISSOLVED OXYGEN (DO)_NA_NA_MG/L","TEMPERATURE, WATER_NA_NA_DEG C"))
+TADA_TwoCharacteristicScatterplot(Data_Nutrients_UT, id_col = "TADA.ComparableDataIdentifier", groups = c("AMMONIA_UNFILTERED_AS N_UG/L","NITRATE_UNFILTERED_AS N_UG/L"))
 
 }
