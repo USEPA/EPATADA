@@ -547,6 +547,7 @@ TADA_FindQCActivities <- function(.data, clean = FALSE, flaggedonly = FALSE) {
   return(final.data)
 }
 
+
 #' Pair Replicates with Original Samples
 #' 
 #' This function looks for replicate samples and pairs them to their original or
@@ -665,6 +666,7 @@ TADA_PairReplicates <- function(.data, type = c("QC_replicate"), time_window = 3
   }
   return(.data)
 }
+
 
 #' AutoFilter
 #'
