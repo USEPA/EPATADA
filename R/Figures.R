@@ -90,7 +90,7 @@ TADA_Boxplot <- function(.data, id_cols = c("TADA.ComparableDataIdentifier")) {
     plot.data <- subset(.data, .data$Group == i)
     groupid <- paste0(unique(plot.data[, id_cols]), collapse = " ")
     groupid = gsub("_NA","",groupid)
-    groupid = gsub("_","", groupid)
+    groupid = gsub("_"," ", groupid)
 
     # units
     unit <- unique(plot.data$TADA.ResultMeasure.MeasureUnitCode)
@@ -259,7 +259,7 @@ TADA_Histogram <- function(.data, id_cols = c("TADA.ComparableDataIdentifier")) 
     plot.data <- subset(.data, .data$Group == i)
     groupid <- paste0(unique(plot.data[, id_cols]), collapse = " ")
     groupid = gsub("_NA","",groupid)
-    groupid = gsub("_","", groupid)
+    groupid = gsub("_"," ", groupid)
 
     # units
     unit <- unique(plot.data$TADA.ResultMeasure.MeasureUnitCode)
@@ -563,7 +563,7 @@ TADA_Scatterplot <- function(.data, id_cols = c("TADA.ComparableDataIdentifier")
     plot.data <- subset(.data, .data$Group == i)
     groupid <- paste0(unique(plot.data[, id_cols]), collapse = " ")
     groupid = gsub("_NA","",groupid)
-    groupid = gsub("_","", groupid)
+    groupid = gsub("_"," ", groupid)
 
     # units label for y axis
     unit <- unique(plot.data$TADA.ResultMeasure.MeasureUnitCode)
