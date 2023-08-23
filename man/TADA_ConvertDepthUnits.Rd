@@ -83,10 +83,11 @@ DepthUnitsConverted_m <- TADA_ConvertDepthUnits(Data_Nutrients_UT)
 DepthUnitsConverted_ft <- TADA_ConvertDepthUnits(Data_Nutrients_UT, unit = "ft")
 
 # Convert only the "TADA.ActivityTopDepthHeightMeasure" field to inches:
-TopDepthUnitsConverted_in <- TADA_ConvertDepthUnits(Data_Nutrients_UT, 
-unit = "in", fields = "ActivityTopDepthHeightMeasure")
+TopDepthUnitsConverted_in <- TADA_ConvertDepthUnits(Data_Nutrients_UT,
+  unit = "in", fields = "ActivityTopDepthHeightMeasure"
+)
 
-# Do not convert any depth units, but add columns for target units and 
+# Do not convert any depth units, but add columns for target units and
 # conversion factors for each depth measure:
 DepthUnitsNotConverted <- TADA_ConvertDepthUnits(Data_Nutrients_UT, transform = FALSE)
 

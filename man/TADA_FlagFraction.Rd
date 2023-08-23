@@ -4,7 +4,7 @@
 \alias{TADA_FlagFraction}
 \title{Check Sample Fraction Validity}
 \usage{
-TADA_FlagFraction(.data, clean = TRUE, errorsonly = FALSE)
+TADA_FlagFraction(.data, clean = TRUE, flaggedonly = FALSE)
 }
 \arguments{
 \item{.data}{TADA dataframe}
@@ -12,25 +12,25 @@ TADA_FlagFraction(.data, clean = TRUE, errorsonly = FALSE)
 \item{clean}{Boolean argument; removes "Invalid" characteristic-fraction
 combinations from the dataframe when clean = TRUE. Default is clean = TRUE.}
 
-\item{errorsonly}{Boolean argument; filters to show only the "Invalid"
-characteristic-fraction combinations in the dataframe when errorsonly = TRUE.
-Default is errorsonly = FALSE.}
+\item{flaggedonly}{Boolean argument; filters to show only the "Invalid"
+characteristic-fraction combinations in the dataframe when flaggedonly = TRUE.
+Default is flaggedonly = FALSE.}
 }
 \value{
 This function adds the following column to your dataframe:
 TADA.SampleFraction.Flag, which flags each CharacteristicName and
 ResultSampleFractionText combination in your dataframe as either
-"Nonstandardized", "Invalid", or "Valid". When clean = FALSE and errorsonly
+"Nonstandardized", "Invalid", or "Valid". When clean = FALSE and flaggedonly
 = TRUE, the data are filtered to show the "Invalid" rows only. When clean =
-TRUE and errorsonly = FALSE, "Invalid" rows are removed from the dataframe
-and no column will be appended. When clean = TRUE and errorsonly = TRUE,
+TRUE and flaggedonly = FALSE, "Invalid" rows are removed from the dataframe
+and no column will be appended. When clean = TRUE and flaggedonly = TRUE,
 the function does not execute and an error message is returned.
 }
 \description{
 Function checks the validity of each characteristic-fraction combination
 in the dataframe. When clean = TRUE, rows with invalid characteristic-fraction
-combinations are removed. Default is clean = TRUE. When errorsonly = TRUE, only
-invalid characteristic-fraction combinations are returned. Default is errorsonly = FALSE.
+combinations are removed. Default is clean = TRUE. When flaggedonly = TRUE, only
+invalid characteristic-fraction combinations are returned. Default is flaggedonly = FALSE.
 }
 \examples{
 # Load example dataset:
@@ -44,6 +44,6 @@ InvalidFraction_clean <- TADA_FlagFraction(Data_Nutrients_UT)
 InvalidFraction_flags <- TADA_FlagFraction(Data_Nutrients_UT, clean = FALSE)
 
 # Show only invalid characteristic-fraction combinations:
-InvalidFraction_errorsonly <- TADA_FlagFraction(Data_Nutrients_UT, clean = FALSE, errorsonly = TRUE)
+InvalidFraction_flaggedonly <- TADA_FlagFraction(Data_Nutrients_UT, clean = FALSE, flaggedonly = TRUE)
 
 }

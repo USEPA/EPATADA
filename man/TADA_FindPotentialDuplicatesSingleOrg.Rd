@@ -19,11 +19,11 @@ result in each group and flag all others as duplicates.}
 The same input TADA dataframe with additional columns: a
 TADA.SingleOrgDupGroupID column indicating whether a result is part of a
 group that shares the same date, time, location, characteristic, etc. and
-TADA.ResultSelectedSingleOrg, which defaults to TRUE (all results
+TADA.ResultSelectedSingleOrg, which defaults to 'Y' (all results
 selected), unless the user specifies the handling method as 'pick_one', in
 which case there exists one result (selected at random) in each duplicate group where
-TADA.ResultSelectedSingleOrg = TRUE and for all other results in the group
-TADA.ResultSelectedSingleOrg = FALSE.
+TADA.ResultSelectedSingleOrg = 'Y' and for all other results in the group
+TADA.ResultSelectedSingleOrg = 'N'.
 }
 \description{
 Identifies data records uploaded by the same organization with the same date,
@@ -39,7 +39,7 @@ organization.
 # Load dataset
 data(Data_6Tribes_5y)
 # If duplicates across organizations exist, pick the result belonging to "21PA_WQX" if available.
-Data_6Tribes_5y_dups = TADA_FindPotentialDuplicatesSingleOrg(Data_6Tribes_5y, handling_method = 'pick_one')
+Data_6Tribes_5y_dups <- TADA_FindPotentialDuplicatesSingleOrg(Data_6Tribes_5y, handling_method = "pick_one")
 table(Data_6Tribes_5y_dups$TADA.ResultSelectedSingleOrg)
 
 }

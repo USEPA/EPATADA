@@ -4,7 +4,7 @@
 \alias{TADA_FlagBelowThreshold}
 \title{Check Result Value Against WQX Lower Threshold}
 \usage{
-TADA_FlagBelowThreshold(.data, clean = TRUE, errorsonly = FALSE)
+TADA_FlagBelowThreshold(.data, clean = TRUE, flaggedonly = FALSE)
 }
 \arguments{
 \item{.data}{TADA dataframe}
@@ -12,21 +12,21 @@ TADA_FlagBelowThreshold(.data, clean = TRUE, errorsonly = FALSE)
 \item{clean}{Boolean argument; removes data that is below the lower WQX
 threshold from the dataframe when clean = TRUE. Default is clean = TRUE.}
 
-\item{errorsonly}{Boolean argument; filters data to show only the values
-flagged as below the lower WQX threshold when errorsonly = TRUE. Default is
-errorsonly = FALSE.}
+\item{flaggedonly}{Boolean argument; filters data to show only the values
+flagged as below the lower WQX threshold when flaggedonly = TRUE. Default is
+flaggedonly = FALSE.}
 }
 \value{
 The input TADA dataset with the added
 TADA.BelowNationalWQXLowerThreshold column. This column flags rows with
 data that are below the lower WQX threshold. When clean = FALSE and
-errorsonly = TRUE, the dataframe is filtered to show only the rows which
+flaggedonly = TRUE, the dataframe is filtered to show only the rows which
 are flagged as below the WQX threshold; the column
 TADA.ResultValueBelowLowerThreshold.Flag is still appended. When clean =
-TRUE and errorsonly = FALSE, data that is below the lower WQX threshold is
-removed from the dataframe. When clean = TRUE and errorsonly = TRUE, the
+TRUE and flaggedonly = FALSE, data that is below the lower WQX threshold is
+removed from the dataframe. When clean = TRUE and flaggedonly = TRUE, the
 function does not execute and an error message is returned. The defaults
-are clean = TRUE and errorsonly = FALSE.
+are clean = TRUE and flaggedonly = FALSE.
 }
 \description{
 EPA's Water Quality Exchange (WQX) has generated statistics and data from
@@ -35,9 +35,9 @@ leverages that statistical data from WQX to flag any data that is below the
 lower threshold of result values submitted to WQX for a given characteristic.
 When clean = TRUE, rows with values that are below the lower WQX threshold
 are removed from the dataframe and no column will be appended. Default is
-clean = TRUE. When errorsonly = TRUE, the dataframe is filtered to show only
+clean = TRUE. When flaggedonly = TRUE, the dataframe is filtered to show only
 rows with values that are flagged below the lower WQX threshold. Default is
-errorsonly = FALSE
+flaggedonly = FALSE
 }
 \examples{
 # Load example dataset:
@@ -52,6 +52,7 @@ WQXLowerThreshold_flags <- TADA_FlagBelowThreshold(Data_Nutrients_UT, clean = FA
 
 # Show only data that is below the lower WQX threshold:
 WQXLowerThreshold_flagsonly <- TADA_FlagBelowThreshold(Data_Nutrients_UT,
-clean = FALSE, errorsonly = TRUE)
+  clean = FALSE, flaggedonly = TRUE
+)
 
 }
