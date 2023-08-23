@@ -1,0 +1,253 @@
+TADA.ActivityMediaName,TADA.CharacteristicName,TADA.ResultSampleFractionText,SummationFractionNotes,TADA.MethodSpecificationName,SummationSpeciationNotes,SummationSpeciationConversionFactor,SummationName,SummationRank,SummationNote,NutrientGroup
+WATER,AMMONIA,DISSOLVED,NA,AS N,NA,NA,AMMON,9,NA,Nitrogen
+WATER,AMMONIA,DISSOLVED,NA,AS NH3,Convert NH3 to N,0.822,AMMON,9,NA,Nitrogen
+WATER,AMMONIA,DISSOLVED,NA,AS NH4,Convert NH4 to N,0.776,AMMON,12,"Not explicity included in Nutrient Aggregation Sheet, but similar enough to EDH to be given rank anyway. Expert review suggested.",Nitrogen
+WATER,AMMONIA,DISSOLVED,NA,NA,NA,NA,OTHER N,999,"Not used, speciation not reported and could not be inferred",Nitrogen
+WATER,AMMONIA,FILTERABLE,Assume filtered/filterable equals dissolved fraction,AS N,NA,NA,AMMON,9,NA,Nitrogen
+WATER,AMMONIA,FILTERABLE,Assume filtered/filterable equals dissolved fraction,AS NH3,Convert NH3 to N,0.822,AMMON,9,NA,Nitrogen
+WATER,AMMONIA,FILTERED,Assume filtered/filterable equals dissolved fraction,AS N,NA,NA,AMMON,9,NA,Nitrogen
+WATER,AMMONIA,FILTERED,Assume filtered/filterable equals dissolved fraction,NA,NA,NA,OTHER N,999,"Not used, speciation not reported and could not be inferred",Nitrogen
+WATER,AMMONIA,"FILTERED, FIELD",Assume filtered/filterable equals dissolved fraction,AS N,NA,NA,AMMON,9,NA,Nitrogen
+WATER,AMMONIA,"FILTERED, LAB",Assume filtered/filterable equals dissolved fraction,AS N,NA,NA,AMMON,9,NA,Nitrogen
+WATER,AMMONIA,INORGANIC,NA,AS N,NA,NA,OTHER N,999,"Not used, cannot infer fraction from ""INORGANIC"".",Nitrogen
+WATER,AMMONIA,NA,NA,AS N,NA,NA,OTHER N,999,"Not used, fraction not reported and could not be inferred",Nitrogen
+WATER,AMMONIA,NA,NA,AS NH3,Convert NH3 to N,0.822,OTHER N,999,"Not used, fraction not reported and could not be inferred",Nitrogen
+WATER,AMMONIA,SUPERNATE,NA,AS N,NA,NA,OTHER N,999,"Not used, do not know how to deal with fraction SUPERNATE",Nitrogen
+WATER,AMMONIA,TOTAL,NA,AS N,NA,NA,AMMON,1,NA,Nitrogen
+WATER,AMMONIA,TOTAL,NA,AS NH3,Convert NH3 to N,0.822,AMMON,5,NA,Nitrogen
+WATER,AMMONIA,TOTAL,NA,AS NH4,Convert NH4 to N,0.776,AMMON,11,NA,Nitrogen
+WATER,AMMONIA,TOTAL,NA,NA,NA,NA,OTHER N,999,"Not used, speciation not reported and could not be inferred",Nitrogen
+WATER,AMMONIA,TOTAL RECOVERABLE,Assumes Total Recoverable is equivalent to Total.,AS N,NA,NA,AMMON,1,NA,Nitrogen
+WATER,AMMONIA,TOTAL SOLUBLE,Assume filtered/filterable equals dissolved fraction,NA,NA,NA,OTHER N,999,"Not used, speciation not reported and could not be inferred",Nitrogen
+WATER,AMMONIA,UNFILTERED,Assumes Unfiltered is equivalent to Total,AS N,NA,NA,AMMON,1,NA,Nitrogen
+WATER,AMMONIA,UNFILTERED,Assumes Unfiltered is equivalent to Total,AS NH3,Convert NH3 to N,0.822,AMMON,5,NA,Nitrogen
+WATER,AMMONIA,UNFILTERED,Assumes Unfiltered is equivalent to Total,NA,NA,NA,OTHER N,999,"Not used, speciation not reported and could not be inferred",Nitrogen
+WATER,AMMONIA AND AMMONIUM,DISSOLVED,NA,AS N,NA,NA,AMMON,12,"Not explicity included in Nutrient Aggregation Sheet, but similar enough to EDH to be given rank anyway. Expert review suggested.",Nitrogen
+WATER,AMMONIA AND AMMONIUM,DISSOLVED,NA,AS NH4,Convert NH4 to N,0.776,AMMON,12,"Not explicity included in Nutrient Aggregation Sheet, but similar enough to EDH to be given rank anyway. Expert review suggested.",Nitrogen
+WATER,AMMONIA AND AMMONIUM,FILTERED,Assume filtered/filterable equals dissolved fraction,AS N,NA,NA,AMMON,9,NA,Nitrogen
+WATER,AMMONIA AND AMMONIUM,TOTAL,NA,AS N,NA,NA,AMMON,10,NA,Nitrogen
+WATER,AMMONIA AND AMMONIUM,TOTAL,NA,AS NH4,Convert NH4 to N,0.776,AMMON,11,"Not explicity included in Nutrient Aggregation Sheet, but similar enough to EDH to be given rank anyway. Expert review suggested.",Nitrogen
+WATER,AMMONIA-NITROGEN,DISSOLVED,NA,AS N,NA,NA,AMMON,12,"Not explicity included in Nutrient Aggregation Sheet, but similar enough to EDH to be given rank anyway. Expert review suggested.",Nitrogen
+WATER,AMMONIA-NITROGEN,DISSOLVED,NA,AS NH3,Convert NH3 to N,0.822,AMMON,9,NA,Nitrogen
+WATER,AMMONIA-NITROGEN,DISSOLVED,NA,AS NH4,Convert NH4 to N,0.776,AMMON,12,"Not explicity included in Nutrient Aggregation Sheet, but similar enough to EDH to be given rank anyway. Expert review suggested.",Nitrogen
+WATER,AMMONIA-NITROGEN,DISSOLVED,NA,NA,NA,NA,OTHER N,999,"Not used, speciation not reported and could not be inferred",Nitrogen
+WATER,AMMONIA-NITROGEN,"FILTERED, LAB",Assume filtered/filterable equals dissolved fraction,AS N,NA,NA,AMMON,12,"Not explicity included in Nutrient Aggregation Sheet, but similar enough to EDH to be given rank anyway. Expert review suggested.",Nitrogen
+WATER,AMMONIA-NITROGEN,NA,NA,AS N,NA,NA,OTHER N,999,"Not used, fraction not reported and could not be inferred",Nitrogen
+WATER,AMMONIA-NITROGEN,NA,NA,AS NH3,Convert NH3 to N,0.822,OTHER N,999,"Not used, fraction not reported and could not be inferred",Nitrogen
+WATER,AMMONIA-NITROGEN,SUPERNATE,NA,AS N,NA,NA,OTHER N,999,"Not used, do not know how to deal with fraction SUPERNATE",Nitrogen
+WATER,AMMONIA-NITROGEN,TOTAL,NA,AS N,NA,NA,AMMON,1,NA,Nitrogen
+WATER,AMMONIA-NITROGEN,TOTAL,NA,AS NH3,Convert NH3 to N,0.822,AMMON,5,NA,Nitrogen
+WATER,AMMONIA-NITROGEN,TOTAL,NA,NA,Assumed as N,NA,AMMON,2,NA,Nitrogen
+WATER,AMMONIA-NITROGEN,UNFILTERED,Assumes Unfiltered is equivalent to Total,AS N,NA,NA,AMMON,2,NA,Nitrogen
+WATER,AMMONIUM,DISSOLVED,NA,AS N,NA,NA,AMMON,12,"Not explicity included in Nutrient Aggregation Sheet, but similar enough to EDH to be given rank anyway. Expert review suggested.",Nitrogen
+WATER,AMMONIUM,DISSOLVED,NA,AS NH4,Convert NH4 to N,0.776,AMMON,12,"Not explicity included in Nutrient Aggregation Sheet, but similar enough to EDH to be given rank anyway. Expert review suggested.",Nitrogen
+WATER,AMMONIUM,FILTERABLE,Assume filtered/filterable equals dissolved fraction,AS NH4,Convert NH4 to N,0.776,AMMON,12,"Not explicity included in Nutrient Aggregation Sheet, but similar enough to EDH to be given rank anyway. Expert review suggested.",Nitrogen
+WATER,AMMONIUM,FILTERED,Assume filtered/filterable equals dissolved fraction,AS N,NA,NA,AMMON,12,"Not explicity included in Nutrient Aggregation Sheet, but similar enough to EDH to be given rank anyway. Expert review suggested.",Nitrogen
+WATER,AMMONIUM,"FILTERED, LAB",Assume filtered/filterable equals dissolved fraction,AS N,NA,NA,AMMON,12,"Not explicity included in Nutrient Aggregation Sheet, but similar enough to EDH to be given rank anyway. Expert review suggested.",Nitrogen
+WATER,AMMONIUM,TOTAL,NA,NA,NA,NA,OTHER N,999,"Not used, speciation not reported and could not be inferred",Nitrogen
+WATER,AMMONIUM,UNFILTERED,Assumes Unfiltered is equivalent to Total,AS N,NA,NA,AMMON,11,NA,Nitrogen
+WATER,AMMONIUM    ,FILTERABLE,Assume filtered/filterable equals dissolved fraction,AS N,NA,NA,AMMON,12,"Not explicity included in Nutrient Aggregation Sheet, but similar enough to EDH to be given rank anyway. Expert review suggested.",Nitrogen
+WATER,AMMONIUM    ,FILTERED,Assume filtered/filterable equals dissolved fraction,AS N,NA,NA,AMMON,12,"Not explicity included in Nutrient Aggregation Sheet, but similar enough to EDH to be given rank anyway. Expert review suggested.",Nitrogen
+WATER,NITROGEN,TOTAL,Assumes Total fraction means Total N derived from multiple N subspecies,AS N,NA,NA,TOTAL N (UNFILTERED),1,"Not explicity included in Nutrient Aggregation Sheet, but similar enough to EDH to be given rank anyway. Expert review suggested.",Nitrogen
+WATER,INORGANIC NITROGEN (NITRATE & NITRITE),DISSOLVED,NA,AS N,NA,NA,NITRATE + NITRITE,3,NA,Nitrogen
+WATER,INORGANIC NITROGEN (NITRATE AND NITRITE),DISSOLVED,NA,AS N,NA,NA,NITRATE + NITRITE,3,NA,Nitrogen
+WATER,INORGANIC NITROGEN (NITRATE AND NITRITE),NA,NA,AS N,NA,NA,OTHER N,999,"Not used, fraction not reported and could not be inferred",Nitrogen
+WATER,INORGANIC NITROGEN (NITRATE AND NITRITE),TOTAL,NA,AS N,NA,NA,NITRATE + NITRITE,1,NA,Nitrogen
+WATER,NITROGEN,UNFILTERED,Assumes Unfiltered is equivalent to Total,AS N,NA,NA,TOTAL N (UNFILTERED),1,"Not explicity included in Nutrient Aggregation Sheet, but similar enough to EDH to be given rank anyway. Expert review suggested.",Nitrogen
+WATER,"NITROGEN, MIXED FORMS (NH3), (NH4), ORGANIC, (NO2) AND (NO3)",TOTAL,Assumes Total fraction means Total N derived from multiple N subspecies,AS N,NA,NA,TOTAL N (UNFILTERED),1,"Not explicity included in Nutrient Aggregation Sheet, but similar enough to EDH to be given rank anyway. Expert review suggested.",Nitrogen
+WATER,"TOTAL NITROGEN, MIXED FORMS",NA,Assumes Total fraction means Total N derived from multiple N subspecies,AS N,NA,NA,TOTAL N (UNFILTERED),1,"Not explicity included in Nutrient Aggregation Sheet, but similar enough to EDH to be given rank anyway. Expert review suggested.",Nitrogen
+WATER,"TOTAL NITROGEN, MIXED FORMS",TOTAL,NA,AS N,NA,NA,TOTAL N (UNFILTERED),1,"Not explicity included in Nutrient Aggregation Sheet, but similar enough to EDH to be given rank anyway. Expert review suggested.",Nitrogen
+WATER,INORGANIC PHOSPHORUS,FILTERED,Assume filtered/filterable equals dissolved fraction,AS P,NA,NA,PHOSP,7,"Not explicity included in Nutrient Aggregation Sheet, but similar enough to EDH to be given rank anyway. Expert review suggested.",Phosphorus
+WATER,INORGANIC PHOSPHORUS,"FILTERED, FIELD",Assume filtered/filterable equals dissolved fraction,AS P,NA,NA,PHOSP,7,"Not explicity included in Nutrient Aggregation Sheet, but similar enough to EDH to be given rank anyway. Expert review suggested.",Phosphorus
+WATER,KJELDAHL NITROGEN,DISSOLVED,NA,AS N,NA,NA,TKN,7,NA,Nitrogen
+WATER,KJELDAHL NITROGEN,DISSOLVED,NA,NA,Assumed as N,NA,TKN,7,NA,Nitrogen
+WATER,KJELDAHL NITROGEN,FILTERED,Assume filtered/filterable equals dissolved fraction,AS N,NA,NA,TKN,7,NA,Nitrogen
+WATER,KJELDAHL NITROGEN,NA,NA,NA,Assumed as N,NA,TKN,4,NA,Nitrogen
+WATER,KJELDAHL NITROGEN,TOTAL,NA,AS N,NA,NA,TKN,1,NA,Nitrogen
+WATER,KJELDAHL NITROGEN,TOTAL,NA,AS NH4,Convert NH4 to N,0.776,TKN,8,"Not explicity included in Nutrient Aggregation Sheet, but similar enough to EDH to be given rank anyway. Expert review suggested.",Nitrogen
+WATER,KJELDAHL NITROGEN,TOTAL,NA,NA,Assumed as N,NA,TKN,2,NA,Nitrogen
+WATER,KJELDAHL NITROGEN,TOTAL RECOVERABLE,NA,AS N,NA,NA,TKN,6,NA,Nitrogen
+WATER,KJELDAHL NITROGEN,UNFILTERED,Assumes Unfiltered is equivalent to Total,AS N,NA,NA,TKN,1,NA,Nitrogen
+WATER,NITRATE,ACID SOLUBLE,Assumes acid soluble equals the dissolved fraction,NA,NA,NA,OTHER N,999,"Not used, speciation not reported and could not be inferred",Nitrogen
+WATER,NITRATE,DISSOLVED,NA,AS N,NA,NA,NITRATE,5,"Not explicity included in Nutrient Aggregation Sheet, but similar enough to EDH to be given rank anyway. Expert review suggested.",Nitrogen
+WATER,NITRATE,DISSOLVED,NA,AS NO3,Convert NO3 to N,0.225,NITRATE,5,"Not explicity included in Nutrient Aggregation Sheet, but similar enough to EDH to be given rank anyway. Expert review suggested.",Nitrogen
+WATER,NITRATE,DISSOLVED,NA,NA,NA,NA,OTHER N,999,"Not used, speciation not reported and could not be inferred",Nitrogen
+WATER,NITRATE,FILTERABLE,Assume filtered/filterable equals dissolved fraction,AS NO3,Convert NO3 to N,0.225,NITRATE,5,"Not explicity included in Nutrient Aggregation Sheet, but similar enough to EDH to be given rank anyway. Expert review suggested.",Nitrogen
+WATER,NITRATE,FILTERED,Assume filtered/filterable equals dissolved fraction,AS N,NA,NA,NITRATE,5,"Not explicity included in Nutrient Aggregation Sheet, but similar enough to EDH to be given rank anyway. Expert review suggested.",Nitrogen
+WATER,NITRATE,FILTERED,Assume filtered/filterable equals dissolved fraction,NA,NA,NA,OTHER N,999,"Not used, speciation not reported and could not be inferred",Nitrogen
+WATER,NITRATE,"FILTERED, FIELD",Assume filtered/filterable equals dissolved fraction,AS N,NA,NA,NITRATE,5,"Not explicity included in Nutrient Aggregation Sheet, but similar enough to EDH to be given rank anyway. Expert review suggested.",Nitrogen
+WATER,NITRATE,"FILTERED, LAB",Assume filtered/filterable equals dissolved fraction,AS N,NA,NA,NITRATE,5,"Not explicity included in Nutrient Aggregation Sheet, but similar enough to EDH to be given rank anyway. Expert review suggested.",Nitrogen
+WATER,NITRATE,"FILTERED, LAB",Assume filtered/filterable equals dissolved fraction,AS NO3,Convert NO3 to N,0.225,NITRATE,5,"Not explicity included in Nutrient Aggregation Sheet, but similar enough to EDH to be given rank anyway. Expert review suggested.",Nitrogen
+WATER,NITRATE,INORGANIC,NA,AS N,NA,NA,OTHER N,999,"Not used, cannot infer fraction from ""INORGANIC"".",Nitrogen
+WATER,NITRATE,INORGANIC,NA,AS NO3,Convert NO3 to N,0.225,OTHER N,999,"Not used, cannot infer fraction from ""INORGANIC"".",Nitrogen
+WATER,NITRATE,NA,NA,AS N,NA,NA,OTHER N,999,"Not used, fraction not reported and could not be inferred",Nitrogen
+WATER,NITRATE,NA,NA,AS NO3,Convert NO3 to N,0.225,OTHER N,999,"Not used, fraction not reported and could not be inferred",Nitrogen
+WATER,NITRATE,TOTAL,NA,AS N,NA,NA,NITRATE,1,NA,Nitrogen
+WATER,NITRATE,TOTAL,NA,AS NO3,Convert NO3 to N,0.225,NITRATE,2,NA,Nitrogen
+WATER,NITRATE,TOTAL,NA,NA,NA,NA,OTHER N,999,"Not used, speciation not reported and could not be inferred",Nitrogen
+WATER,NITRATE,TOTAL RECOVERABLE,NA,AS N,NA,NA,NITRATE,5,"Not explicity included in Nutrient Aggregation Sheet, but similar enough to EDH to be given rank anyway. Expert review suggested.",Nitrogen
+WATER,NITRATE,UNFILTERED,Assumes Unfiltered is equivalent to Total,AS N,NA,NA,NITRATE,1,NA,Nitrogen
+WATER,NITRATE,UNFILTERED,Assumes Unfiltered is equivalent to Total,AS NO3,Convert NO3 to N,0.225,NITRATE,2,NA,Nitrogen
+WATER,NITRATE,UNFILTERED,Assumes Unfiltered is equivalent to Total,NA,NA,NA,OTHER N,999,"Not used, speciation not reported and could not be inferred",Nitrogen
+WATER,NITRATE + NITRITE,DISSOLVED,NA,AS N,NA,NA,NITRATE + NITRITE,3,NA,Nitrogen
+WATER,NITRATE + NITRITE,DISSOLVED,NA,NA,Assumed as N,NA,NITRATE + NITRITE,3,NA,Nitrogen
+WATER,NITRATE + NITRITE,FILTERABLE,Assume filtered/filterable equals dissolved fraction,AS N,NA,NA,NITRATE + NITRITE,3,NA,Nitrogen
+WATER,NITRATE + NITRITE,FILTERED,Assume filtered/filterable equals dissolved fraction,AS N,NA,NA,NITRATE + NITRITE,3,NA,Nitrogen
+WATER,NITRATE + NITRITE,FILTERED,Assume filtered/filterable equals dissolved fraction,AS NO2+NO3,NA,NA,OTHER N,999,"Not used, speciation is ambiguous",Nitrogen
+WATER,NITRATE + NITRITE,FILTERED,Assume filtered/filterable equals dissolved fraction,NA,Assumed as N,NA,NITRATE + NITRITE,3,NA,Nitrogen
+WATER,NITRATE + NITRITE,"FILTERED, FIELD",Assume filtered/filterable equals dissolved fraction,AS N,NA,NA,NITRATE + NITRITE,3,NA,Nitrogen
+WATER,NITRATE + NITRITE,"FILTERED, LAB",Assume filtered/filterable equals dissolved fraction,AS N,NA,NA,NITRATE + NITRITE,3,NA,Nitrogen
+WATER,NITRATE + NITRITE,"FILTERED, LAB",Assume filtered/filterable equals dissolved fraction,AS NO2+NO3,NA,NA,OTHER N,999,"Not used, speciation is ambiguous",Nitrogen
+WATER,NITRATE + NITRITE,INORGANIC,NA,AS N,NA,NA,OTHER N,999,"Not used, cannot infer fraction from ""INORGANIC"".",Nitrogen
+WATER,NITRATE + NITRITE,NA,NA,AS N,NA,NA,OTHER N,999,"Not used, fraction not reported and could not be inferred",Nitrogen
+WATER,NITRATE + NITRITE,NA,NA,NA,Assumed as N,NA,OTHER N,999,"Not used, fraction not reported and could not be inferred",Nitrogen
+WATER,NITRATE + NITRITE,TOTAL,NA,AS N,NA,NA,NITRATE + NITRITE,1,NA,Nitrogen
+WATER,NITRATE + NITRITE,TOTAL,NA,NA,Assumed as N,NA,NITRATE + NITRITE,1,NA,Nitrogen
+WATER,NITRATE + NITRITE,TOTAL RECOVERABLE,NA,AS N,NA,NA,NITRATE + NITRITE,2,NA,Nitrogen
+WATER,NITRATE + NITRITE,UNFILTERED,Assumes Unfiltered is equivalent to Total,AS N,NA,NA,NITRATE + NITRITE,1,NA,Nitrogen
+WATER,NITRATE + NITRITE,UNFILTERED,Assumes Unfiltered is equivalent to Total,NA,Assumed as N,NA,NITRATE + NITRITE,1,NA,Nitrogen
+WATER,NITRITE,DISSOLVED,NA,AS N,NA,NA,NITRITE,3,NA,Nitrogen
+WATER,NITRITE,DISSOLVED,NA,AS NO2,Convert NO2 to N,0.304,NITRITE,5,"Not explicity included in Nutrient Aggregation Sheet, but similar enough to EDH to be given rank anyway. Expert review suggested.",Nitrogen
+WATER,NITRITE,DISSOLVED,NA,NA,NA,NA,OTHER N,999,"Not used, speciation not reported and could not be inferred",Nitrogen
+WATER,NITRITE,FILTERED,Assume filtered/filterable equals dissolved fraction,AS N,NA,NA,NITRITE,3,NA,Nitrogen
+WATER,NITRITE,FILTERED,Assume filtered/filterable equals dissolved fraction,NA,NA,NA,OTHER N,999,"Not used, speciation not reported and could not be inferred",Nitrogen
+WATER,NITRITE,"FILTERED, FIELD",Assume filtered/filterable equals dissolved fraction,AS N,NA,NA,NITRITE,3,NA,Nitrogen
+WATER,NITRITE,"FILTERED, LAB",Assume filtered/filterable equals dissolved fraction,AS N,NA,NA,NITRITE,3,NA,Nitrogen
+WATER,NITRITE,INORGANIC,NA,AS N,NA,NA,OTHER N,999,"Not used, cannot infer fraction from ""INORGANIC"".",Nitrogen
+WATER,NITRITE,NA,NA,AS N,NA,NA,OTHER N,999,"Not used, fraction not reported and could not be inferred",Nitrogen
+WATER,NITRITE,NA,NA,AS NO2,Convert NO2 to N,0.304,OTHER N,999,"Not used, fraction not reported and could not be inferred",Nitrogen
+WATER,NITRITE,TOTAL,NA,AS N,NA,NA,NITRITE,1,NA,Nitrogen
+WATER,NITRITE,TOTAL,NA,AS NO2,Convert NO2 to N,0.304,NITRITE,4,NA,Nitrogen
+WATER,NITRITE,TOTAL,NA,NA,NA,NA,OTHER N,999,"Not used, speciation not reported and could not be inferred",Nitrogen
+WATER,NITRITE,TOTAL RECOVERABLE,NA,AS N,NA,NA,NITRITE,5,"Not explicity included in Nutrient Aggregation Sheet, but similar enough to EDH to be given rank anyway. Expert review suggested.",Nitrogen
+WATER,NITRITE,UNFILTERED,Assumes Unfiltered is equivalent to Total,AS N,NA,NA,NITRITE,1,NA,Nitrogen
+WATER,NITRITE,UNFILTERED,Assumes Unfiltered is equivalent to Total,AS NO2,Convert NO2 to N,0.304,NITRITE,4,NA,Nitrogen
+WATER,NITRITE,UNFILTERED,Assumes Unfiltered is equivalent to Total,NA,NA,NA,OTHER N,999,"Not used, speciation not reported and could not be inferred",Nitrogen
+WATER,"TOTAL NITROGEN, MIXED FORMS",UNFILTERED,Assumes Unfiltered is equivalent to Total,AS N,NA,NA,TOTAL N (UNFILTERED),1,"Not explicity included in Nutrient Aggregation Sheet, but similar enough to EDH to be given rank anyway. Expert review suggested.",Nitrogen
+WATER,NITROGEN,DISSOLVED,NA,AS NO3,Convert NO3 to N,0.225,NITRATE,2,NA,Nitrogen
+WATER,"TOTAL NITROGEN, MIXED FORMS",UNFILTERED,Assumes Unfiltered is equivalent to Total,NA,Assumed as N,NA,TOTAL N (UNFILTERED),1,"Not explicity included in Nutrient Aggregation Sheet, but similar enough to EDH to be given rank anyway. Expert review suggested.",Nitrogen
+WATER,"TOTAL NITROGEN, MIXED FORMS (NH3), (NH4), ORGANIC, (NO2) AND (NO3)",NA,Assumes Total fraction means Total N derived from multiple N subspecies,AS N,NA,NA,TOTAL N (UNFILTERED),1,"Not explicity included in Nutrient Aggregation Sheet, but similar enough to EDH to be given rank anyway. Expert review suggested.",Nitrogen
+WATER,"TOTAL NITROGEN, MIXED FORMS (NH3), (NH4), ORGANIC, (NO2) AND (NO3)",TOTAL,NA,AS N,NA,NA,TOTAL N (UNFILTERED),1,"Not explicity included in Nutrient Aggregation Sheet, but similar enough to EDH to be given rank anyway. Expert review suggested.",Nitrogen
+WATER,NITROGEN,NON-FILTERABLE (PARTICLE),NA,AS N,NA,NA,TOTAL N (PARTICLE),5,"Not explicity included in Nutrient Aggregation Sheet, but similar enough to EDH to be given rank anyway. Expert review suggested.",Nitrogen
+WATER,NITROGEN,TOTAL,Assumes Total fraction means Total N derived from multiple N subspecies,NA,Assumed as N,NA,TOTAL N (UNFILTERED),2,"Not explicity included in Nutrient Aggregation Sheet, but similar enough to EDH to be given rank anyway. Expert review suggested.",Nitrogen
+WATER,"NITROGEN, MIXED FORMS (NH3), (NH4), ORGANIC, (NO2) AND (NO3)",TOTAL,Assumes Total fraction means Total N derived from multiple N subspecies,NA,Assumed as N,NA,TOTAL N (UNFILTERED),2,"Not explicity included in Nutrient Aggregation Sheet, but similar enough to EDH to be given rank anyway. Expert review suggested.",Nitrogen
+WATER,"TOTAL NITROGEN, MIXED FORMS",NA,Assumes Total fraction means Total N derived from multiple N subspecies,NA,Assumed as N,NA,TOTAL N (UNFILTERED),2,"Not explicity included in Nutrient Aggregation Sheet, but similar enough to EDH to be given rank anyway. Expert review suggested.",Nitrogen
+WATER,NITROGEN,DISSOLVED,NA,AS N,NA,NA,TOTAL N (FILTERED),3,Assume synonymous with Pcode 51084 in Nutrient Aggregation Sheet,Nitrogen
+WATER,NITROGEN KJELDAHL,DISSOLVED,NA,AS N,NA,NA,TKN,7,NA,Nitrogen
+WATER,NITROGEN KJELDAHL,TOTAL,NA,AS N,NA,NA,TKN,1,NA,Nitrogen
+WATER,NITROGEN,DISSOLVED,NA,NA,Assumed as N,NA,TOTAL N (FILTERED),3,Assume synonymous with Pcode 51084 in Nutrient Aggregation Sheet,Nitrogen
+WATER,NITROGEN,FILTERED,Assume filtered/filterable equals dissolved fraction,AS N,NA,NA,TOTAL N (FILTERED),3,Assume synonymous with Pcode 51084 in Nutrient Aggregation Sheet,Nitrogen
+WATER,NITROGEN,SUSPENDED,NA,NA,Assumed as N,NA,TOTAL N (PARTICLE),3,Assume synonymous with Pcode 51084 in Nutrient Aggregation Sheet,Nitrogen
+WATER,"NITROGEN, MIXED FORMS (NH3), (NH4), ORGANIC, (NO2) AND (NO3)",TOTAL,Assumes Total fraction means Total N derived from multiple N subspecies,AS NO3,Convert NO3 to N,0.225,NITRATE,3,NA,Nitrogen
+WATER,"NITROGEN, MIXED FORMS (NH3), (NH4), ORGANIC, (NO2) AND (NO3)",DISSOLVED,NA,AS N,NA,NA,TOTAL N (FILTERED),3,Assume synonymous with Pcode 51084 in Nutrient Aggregation Sheet,Nitrogen
+WATER,NUTRIENT-NITROGEN,NA,Assumes Total fraction means Total N derived from multiple N subspecies,AS N,NA,NA,OTHER N,999,"Not used, metadata not specific enough for summation",Nitrogen
+WATER,ORGANIC NITROGEN,DISSOLVED,NA,AS N,NA,NA,ORG N,2,NA,Nitrogen
+WATER,ORGANIC NITROGEN,DISSOLVED,NA,NA,Assumed as N,NA,ORG N,2,NA,Nitrogen
+WATER,ORGANIC NITROGEN,FILTERED,Assume filtered/filterable equals dissolved fraction,AS N,NA,NA,ORG N,2,NA,Nitrogen
+WATER,ORGANIC NITROGEN,NON-FILTERABLE (PARTICLE),NA,AS N,NA,NA,ORG N,3,"Not explicity included in Nutrient Aggregation Sheet, but similar enough to EDH to be given rank anyway. Expert review suggested.",Nitrogen
+WATER,ORGANIC NITROGEN,ORGANIC,NA,AS N,NA,NA,OTHER N,999,"Not used, cannot infer fraction from ORGANIC",Nitrogen
+WATER,ORGANIC NITROGEN,TOTAL,NA,AS N,NA,NA,ORG N,1,NA,Nitrogen
+WATER,ORGANIC NITROGEN,TOTAL,NA,NA,Assumed as N,NA,ORG N,1,NA,Nitrogen
+WATER,ORGANIC NITROGEN,UNFILTERED,Assumes Unfiltered is equivalent to Total,AS N,NA,NA,ORG N,1,NA,Nitrogen
+WATER,ORGANIC PHOSPHORUS,DISSOLVED,NA,AS P,NA,NA,PHOSP,7,"Not explicity included in Nutrient Aggregation Sheet, but similar enough to EDH to be given rank anyway. Expert review suggested.",Phosphorus
+WATER,ORGANIC PHOSPHORUS,FILTERED,Assume filtered/filterable equals dissolved fraction,AS P,NA,NA,PHOSP,7,"Not explicity included in Nutrient Aggregation Sheet, but similar enough to EDH to be given rank anyway. Expert review suggested.",Phosphorus
+WATER,ORGANIC PHOSPHORUS,TOTAL,NA,AS P,NA,NA,PHOSP,4,NA,Phosphorus
+WATER,ORGANIC PHOSPHORUS,UNFILTERED,Assumes Unfiltered is equivalent to Total,AS P,NA,NA,PHOSP,4,NA,Phosphorus
+WATER,ORTHOPHOSPHATE,DISSOLVED,NA,AS P,NA,NA,OTHER P,999,NA,Phosphorus
+WATER,ORTHOPHOSPHATE,DISSOLVED,NA,AS PO4,Convert AS PO4 to AS P,0.326,PO4,2,NA,Phosphorus
+WATER,ORTHOPHOSPHATE,DISSOLVED,NA,NA,Assumed as P,NA,OTHER P,999,"Not used, speciation missing and could not be inferred",Phosphorus
+WATER,ORTHOPHOSPHATE,FILTERABLE,Assume filtered/filterable equals dissolved fraction,AS P,NA,NA,PHOSP,7,"Not explicity included in Nutrient Aggregation Sheet, but similar enough to EDH to be given rank anyway. Expert review suggested.",Phosphorus
+WATER,ORTHOPHOSPHATE,FILTERABLE,Assume filtered/filterable equals dissolved fraction,AS PO4,Convert AS PO4 to AS P,0.326,PO4,2,NA,Phosphorus
+WATER,ORTHOPHOSPHATE,FILTERED,Assume filtered/filterable equals dissolved fraction,AS P,NA,NA,PHOSP,7,"Not explicity included in Nutrient Aggregation Sheet, but similar enough to EDH to be given rank anyway. Expert review suggested.",Phosphorus
+WATER,ORTHOPHOSPHATE,"FILTERED, FIELD",Assume filtered/filterable equals dissolved fraction,AS P,NA,NA,PHOSP,7,"Not explicity included in Nutrient Aggregation Sheet, but similar enough to EDH to be given rank anyway. Expert review suggested.",Phosphorus
+WATER,ORTHOPHOSPHATE,"FILTERED, FIELD",Assume filtered/filterable equals dissolved fraction,AS PO4,Convert AS PO4 to AS P,0.326,PO4,2,NA,Phosphorus
+WATER,ORTHOPHOSPHATE,"FILTERED, LAB",Assume filtered/filterable equals dissolved fraction,AS P,NA,NA,PHOSP,7,"Not explicity included in Nutrient Aggregation Sheet, but similar enough to EDH to be given rank anyway. Expert review suggested.",Phosphorus
+WATER,ORTHOPHOSPHATE,"FILTERED, LAB",Assume filtered/filterable equals dissolved fraction,AS PO4,Convert AS PO4 to AS P,0.326,PO4,2,NA,Phosphorus
+WATER,ORTHOPHOSPHATE,INORGANIC,NA,AS P,NA,NA,OTHER P,999,"Not used, cannot infer fraction from ""INORGANIC"".",Phosphorus
+WATER,ORTHOPHOSPHATE,NA,NA,AS P,NA,NA,OTHER P,999,"Not used, fraction not reported and could not be inferred",Phosphorus
+WATER,ORTHOPHOSPHATE,NON-FILTERABLE (PARTICLE),NA,AS P,NA,NA,OTHER P,999,"Not used, not present in any of the equations.",Phosphorus
+WATER,ORTHOPHOSPHATE,TOTAL,NA,AS P,NA,NA,PHOSP,3,NA,Phosphorus
+WATER,ORTHOPHOSPHATE,TOTAL,NA,AS PO4,Convert AS PO4 to AS P,0.326,PO4,2,NA,Phosphorus
+WATER,ORTHOPHOSPHATE,TOTAL,NA,NA,NA,NA,OTHER P,999,"Not used, speciation missing and could not be inferred",Phosphorus
+WATER,ORTHOPHOSPHATE,UNFILTERED,Assumes Unfiltered is equivalent to Total,AS P,NA,NA,PHOSP,3,NA,Phosphorus
+WATER,ORTHOPHOSPHATE,UNFILTERED,Assumes Unfiltered is equivalent to Total,AS PO4,Convert AS PO4 to AS P,0.326,PO4,2,NA,Phosphorus
+WATER,PARTICULATE ORGANIC NITROGEN AND PARTICULATE NITROGEN,NA,NA,AS N,NA,NA,OTHER N,999,"Not used, not present in any of the equations.",Nitrogen
+WATER,PARTICULATE ORGANIC NITROGEN AND PARTICULATE NITROGEN,NA,NA,NA,Assumed as N,NA,OTHER N,999,"Not used, not present in any of the equations.",Nitrogen
+WATER,PHOSPHATE,DISSOLVED,NA,AS P,NA,NA,OTHER P,999,"Not used, not present in any of the equations.",Phosphorus
+WATER,PHOSPHATE,DISSOLVED,NA,NA,Assumed as P,NA,OTHER P,999,"Not used, not present in any of the equations.",Phosphorus
+WATER,PHOSPHATE,FILTERED,Assume filtered/filterable equals dissolved fraction,AS P,NA,NA,OTHER P,999,"Not used, not present in any of the equations.",Phosphorus
+WATER,PHOSPHATE,NA,NA,AS P,NA,NA,OTHER P,999,"Not used, not present in any of the equations.",Phosphorus
+WATER,PHOSPHATE,UNFILTERED,Assumes Unfiltered is equivalent to Total,AS P,NA,NA,PHOSP,7,"Not explicity included in Nutrient Aggregation Sheet, but similar enough to EDH to be given rank anyway. Expert review suggested.",Phosphorus
+WATER,PHOSPHATE-PHOSPHORUS,DISSOLVED,NA,AS P,NA,NA,OTHER P,999,"Not used, not present in any of the equations.",Phosphorus
+WATER,PHOSPHATE-PHOSPHORUS,DISSOLVED,NA,NA,Assumed as P,NA,OTHER P,999,"Not used, not present in any of the equations.",Phosphorus
+WATER,PHOSPHATE-PHOSPHORUS,NA,NA,AS P,NA,NA,OTHER P,999,"Not used, not present in any of the equations.",Phosphorus
+WATER,PHOSPHATE-PHOSPHORUS,NA,NA,NA,Assumed as P,NA,OTHER P,999,"Not used, not present in any of the equations.",Phosphorus
+WATER,PHOSPHATE-PHOSPHORUS,TOTAL,NA,AS P,NA,NA,PHOSP,7,NA,Phosphorus
+WATER,PHOSPHATE-PHOSPHORUS,TOTAL,NA,NA,Assumed as P,NA,PHOSP,7,NA,Phosphorus
+WATER,PHOSPHORUS,ACID SOLUBLE,NA,NA,Assumed as P,NA,PHOSP,6,NA,Phosphorus
+WATER,PHOSPHORUS,DISSOLVED,NA,AS P,NA,NA,PHOSP,6,NA,Phosphorus
+WATER,PHOSPHORUS,DISSOLVED,NA,AS PO4,Convert AS PO4 to AS P,0.326,PO4,6,"Not explicity included in Nutrient Aggregation Sheet, but similar enough to EDH to be given rank anyway. Expert review suggested.",Phosphorus
+WATER,PHOSPHORUS,INORGANIC,NA,AS P,NA,NA,OTHER P,999,"Not used, cannot infer fraction from ""INORGANIC"".",Phosphorus
+WATER,PHOSPHORUS,NA,NA,AS P,NA,NA,OTHER P,999,"Not used, fraction not reported and could not be inferred",Phosphorus
+WATER,PHOSPHORUS,NA,NA,NA,Assumed as P,NA,OTHER P,999,"Not used, fraction not reported and could not be inferred",Phosphorus
+WATER,PHOSPHORUS,NON-FILTERABLE (PARTICLE),NA,AS P,NA,NA,OTHER P,999,"Not used, not present in any of the equations.",Phosphorus
+WATER,PHOSPHORUS,NON-FILTERABLE (PARTICLE),NA,AS PO4,Convert AS PO4 to AS P,0.326,OTHER P,999,"Not used, not present in any of the equations.",Phosphorus
+WATER,PHOSPHORUS,SUSPENDED,NA,AS P,NA,NA,OTHER P,999,"Not used, not present in any of the equations.",Phosphorus
+WATER,PHOSPHORUS,TOTAL,NA,AS P,NA,NA,PHOSP,1,NA,Phosphorus
+WATER,PHOSPHORUS,TOTAL,NA,AS PO4,Convert AS PO4 to AS P,0.326,PO4,1,NA,Phosphorus
+WATER,PHOSPHORUS,TOTAL,NA,NA,Assumed as P,NA,PHOSP,2,NA,Phosphorus
+WATER,PHOSPHORUS,TOTAL RECOVERABLE,NA,AS P,NA,NA,PHOSP,5,NA,Phosphorus
+WATER,PHOSPHORUS,UNFILTERED,Assumes Unfiltered is equivalent to Total,AS P,NA,NA,PHOSP,1,NA,Phosphorus
+WATER,"PHOSPHORUS, HYDROLYZABLE",TOTAL,NA,AS P,NA,NA,OTHER P,999,"Not used, not present in any of the equations.",Phosphorus
+WATER,"PHOSPHORUS, PARTICULATE ORGANIC",NA,NA,AS P,NA,NA,OTHER P,999,"Not used, not present in any of the equations.",Phosphorus
+WATER,"PHOSPHORUS, PARTICULATE ORGANIC",NON-FILTERABLE (PARTICLE),NA,AS P,NA,NA,OTHER P,999,"Not used, not present in any of the equations.",Phosphorus
+WATER,"PHOSPHORUS, PARTICULATE ORGANIC",SUSPENDED,NA,AS P,NA,NA,OTHER P,999,"Not used, not present in any of the equations.",Phosphorus
+WATER,POLYPHOSPHATE,DISSOLVED,NA,AS P,NA,NA,OTHER P,999,"Not used, not present in any of the equations.",Phosphorus
+WATER,POLYPHOSPHATE,NON-FILTERABLE (PARTICLE),NA,AS P,NA,NA,OTHER P,999,"Not used, not present in any of the equations.",Phosphorus
+WATER,POLYPHOSPHATE,TOTAL,NA,AS P,NA,NA,PHOSP,7,"Not explicity included in Nutrient Aggregation Sheet, but similar enough to EDH to be given rank anyway. Expert review suggested.",Phosphorus
+WATER,SOLUBLE REACTIVE PHOSPHORUS (SRP),DISSOLVED,NA,AS P,NA,NA,PHOSP,7,"Not explicity included in Nutrient Aggregation Sheet, but given rank anyway. See: https://www.nalms.org/secchidipin/monitoring-methods/phosphorus/",Phosphorus
+WATER,SOLUBLE REACTIVE PHOSPHORUS (SRP),"FILTERED, FIELD",Assume filtered/filterable equals dissolved fraction,AS P,NA,NA,PHOSP,7,"Not explicity included in Nutrient Aggregation Sheet, but given rank anyway. See: https://www.nalms.org/secchidipin/monitoring-methods/phosphorus/",Phosphorus
+WATER,SOLUBLE REACTIVE PHOSPHORUS (SRP),"FILTERED, LAB",Assume filtered/filterable equals dissolved fraction,AS P,NA,NA,PHOSP,7,"Not explicity included in Nutrient Aggregation Sheet, but given rank anyway. See: https://www.nalms.org/secchidipin/monitoring-methods/phosphorus/",Phosphorus
+WATER,SOLUBLE REACTIVE PHOSPHORUS (SRP),NA,NA,AS P,NA,NA,OTHER P,999,"Not explicity included in Nutrient Aggregation Sheet, but given rank anyway. See: https://www.nalms.org/secchidipin/monitoring-methods/phosphorus/",Phosphorus
+WATER,SOLUBLE REACTIVE PHOSPHORUS (SRP),TOTAL,NA,AS P,NA,NA,PHOSP,7,"Not explicity included in Nutrient Aggregation Sheet, but given rank anyway. See: https://www.nalms.org/secchidipin/monitoring-methods/phosphorus/",Phosphorus
+WATER,TOTAL KJELDAHL NITROGEN,"FILTERED, LAB",Assume filtered/filterable equals dissolved fraction,AS N,NA,NA,TKN,7,NA,Nitrogen
+WATER,TOTAL KJELDAHL NITROGEN,NA,Assume fraction is total,AS N,NA,NA,TKN,1,NA,Nitrogen
+WATER,TOTAL KJELDAHL NITROGEN,NA,Assume fraction is total,NA,Assumed as N,NA,TKN,8,"Not explicity included in Nutrient Aggregation Sheet, but similar enough to EDH to be given rank anyway. Expert review suggested.",Nitrogen
+WATER,TOTAL KJELDAHL NITROGEN,TOTAL,NA,AS N,NA,NA,TKN,1,NA,Nitrogen
+WATER,TOTAL KJELDAHL NITROGEN,UNFILTERED,Assumes Unfiltered is equivalent to Total,AS N,NA,NA,TKN,1,NA,Nitrogen
+WATER,TOTAL KJELDAHL NITROGEN,UNFILTERED,Assumes Unfiltered is equivalent to Total,NA,Assumed as N,NA,TKN,2,NA,Nitrogen
+WATER,TOTAL KJELDAHL NITROGEN (ORGANIC N & NH3),DISSOLVED,NA,AS N,NA,NA,TKN,7,NA,Nitrogen
+WATER,TOTAL KJELDAHL NITROGEN (ORGANIC N & NH3),FILTERED,Assume filtered/filterable equals dissolved fraction,AS N,NA,NA,TKN,7,NA,Nitrogen
+WATER,TOTAL KJELDAHL NITROGEN (ORGANIC N & NH3),"FILTERED, FIELD",Assume filtered/filterable equals dissolved fraction,AS N,NA,NA,TKN,7,NA,Nitrogen
+WATER,TOTAL KJELDAHL NITROGEN (ORGANIC N & NH3),TOTAL,NA,AS N,NA,NA,TKN,1,NA,Nitrogen
+WATER,TOTAL KJELDAHL NITROGEN (ORGANIC N & NH3),TOTAL,NA,NA,Assumed as N,NA,TKN,2,NA,Nitrogen
+WATER,TOTAL KJELDAHL NITROGEN (ORGANIC N & NH3),UNFILTERED,Assumes Unfiltered is equivalent to Total,AS N,NA,NA,TKN,1,NA,Nitrogen
+WATER,"NITROGEN, MIXED FORMS (NH3), (NH4), ORGANIC, (NO2) AND (NO3)",DISSOLVED,NA,NA,Assumed as N,NA,TOTAL N (FILTERED),3,Assume synonymous with Pcode 51084 in Nutrient Aggregation Sheet,Nitrogen
+WATER,"TOTAL NITROGEN, MIXED FORMS",DISSOLVED,NA,AS N,NA,NA,TOTAL N (FILTERED),3,Assume synonymous with Pcode 51084 in Nutrient Aggregation Sheet,Nitrogen
+WATER,"TOTAL NITROGEN, MIXED FORMS",FILTERED,Assume filtered/filterable equals dissolved fraction,AS N,NA,NA,TOTAL N (FILTERED),3,Assume synonymous with Pcode 51084 in Nutrient Aggregation Sheet,Nitrogen
+WATER,"TOTAL NITROGEN, MIXED FORMS","FILTERED, FIELD",Assume filtered/filterable equals dissolved fraction,AS N,NA,NA,TOTAL N (FILTERED),3,Assume synonymous with Pcode 51084 in Nutrient Aggregation Sheet,Nitrogen
+WATER,"TOTAL NITROGEN, MIXED FORMS","FILTERED, LAB",Assume filtered/filterable equals dissolved fraction,AS N,NA,NA,TOTAL N (FILTERED),3,Assume synonymous with Pcode 51084 in Nutrient Aggregation Sheet,Nitrogen
+WATER,"INORGANIC NITROGEN (AMMONIA, NITRATE AND NITRITE)",DISSOLVED,NA,AS N,NA,NA,TOTAL N (FILTERED),4,Contains all elements of Equation 4 of Nutrient Aggregation Sheet,Nitrogen
+WATER,"TOTAL NITROGEN, MIXED FORMS",NON-FILTERABLE (PARTICLE),NA,AS N,NA,NA,TOTAL N (PARTICLE),5,"Not used, not present in any of the equations.",Nitrogen
+WATER,"INORGANIC NITROGEN (NO2, NO3, & NH3)",DISSOLVED,NA,AS N,NA,NA,TOTAL N (FILTERED),4,Contains all elements of Equation 4 of Nutrient Aggregation Sheet,Nitrogen
+WATER,"INORGANIC NITROGEN (NO2, NO3, & NH3)",FILTERED,Assume filtered/filterable equals dissolved fraction,AS N,NA,NA,TOTAL N (FILTERED),4,Contains all elements of Equation 4 of Nutrient Aggregation Sheet,Nitrogen
+WATER,"INORGANIC NITROGEN (NO2, NO3, & NH3)",TOTAL,NA,AS N,NA,NA,TOTAL N (UNFILTERED),4,Contains all elements of Equation 4 of Nutrient Aggregation Sheet,Nitrogen
+WATER,"INORGANIC NITROGEN (NO2, NO3, & NH3)",UNFILTERED,Assumes Unfiltered is equivalent to Total,AS N,NA,NA,TOTAL N (UNFILTERED),4,Contains all elements of Equation 4 of Nutrient Aggregation Sheet,Nitrogen
+WATER,NITROGEN,INORGANIC,NA,AS N,NA,NA,TOTAL N (FILTERED),4,"Assume same as INORGANIC NITROGEN (NO3, NO2, NH4) variants.",Nitrogen
+WATER,"TOTAL NITROGEN, MIXED FORMS",TOTAL RECOVERABLE,NA,AS N,NA,NA,TOTAL N (UNFILTERED),4,"Not explicity included in Nutrient Aggregation Sheet, but similar enough to EDH to be given rank anyway. Expert review suggested.",Nitrogen
+WATER,TOTAL PARTICULATE NITROGEN,NA,Assumes Total fraction means Total N derived from multiple N subspecies,AS N,NA,NA,ORG N,1,Assume synonymous with Pcode 00605 in Nutrient Aggregation Sheet,Nitrogen
+WATER,"TOTAL PHOSPHORUS, MIXED FORMS",DISSOLVED,NA,AS P,NA,NA,PHOSP,6,NA,Phosphorus
+WATER,"TOTAL PHOSPHORUS, MIXED FORMS",DISSOLVED,NA,NA,Assumed as P,NA,PHOSP,6,NA,Phosphorus
+WATER,"TOTAL PHOSPHORUS, MIXED FORMS",FILTERED,Assume filtered/filterable equals dissolved fraction,AS P,NA,NA,PHOSP,6,NA,Phosphorus
+WATER,"TOTAL PHOSPHORUS, MIXED FORMS","FILTERED, FIELD",Assume filtered/filterable equals dissolved fraction,AS P,NA,NA,PHOSP,6,NA,Phosphorus
+WATER,"TOTAL PHOSPHORUS, MIXED FORMS","FILTERED, LAB",Assume filtered/filterable equals dissolved fraction,AS P,NA,NA,PHOSP,6,NA,Phosphorus
+WATER,"TOTAL PHOSPHORUS, MIXED FORMS","FILTERED, LAB",Assume filtered/filterable equals dissolved fraction,AS PO4,Convert AS PO4 to AS P,0.326,PHOSP,8,"Not explicity included in Nutrient Aggregation Sheet, but similar enough to EDH to be given rank anyway. Expert review suggested.",Phosphorus
+WATER,"TOTAL PHOSPHORUS, MIXED FORMS",NA,Assume fraction is total,AS P,NA,NA,PHOSP,1,NA,Phosphorus
+WATER,"TOTAL PHOSPHORUS, MIXED FORMS",NA,Assume fraction is total,NA,Assumed as P,NA,PHOSP,1,NA,Phosphorus
+WATER,"TOTAL PHOSPHORUS, MIXED FORMS",NON-FILTERABLE (PARTICLE),NA,AS P,NA,NA,OTHER P,999,"Not used, not present in any of the equations.",Phosphorus
+WATER,"TOTAL PHOSPHORUS, MIXED FORMS",TOTAL,NA,AS P,NA,NA,PHOSP,1,NA,Phosphorus
+WATER,"TOTAL PHOSPHORUS, MIXED FORMS",TOTAL,NA,AS PO4,Convert AS PO4 to AS P,0.326,PO4,7,"Not explicity included in Nutrient Aggregation Sheet, but similar enough to EDH to be given rank anyway. Expert review suggested.",Phosphorus
+WATER,"TOTAL PHOSPHORUS, MIXED FORMS",TOTAL,NA,NA,Assumed as P,NA,PHOSP,2,NA,Phosphorus
+WATER,"TOTAL PHOSPHORUS, MIXED FORMS",UNFILTERED,Assumes Unfiltered is equivalent to Total,AS P,NA,NA,PHOSP,1,NA,Phosphorus
+WATER,"TOTAL PHOSPHORUS, MIXED FORMS",UNFILTERED,Assumes Unfiltered is equivalent to Total,AS PO4,Convert AS PO4 to AS P,0.326,PO4,7,"Not explicity included in Nutrient Aggregation Sheet, but similar enough to EDH to be given rank anyway. Expert review suggested.",Phosphorus
+WATER,"TOTAL PHOSPHORUS, MIXED FORMS",UNFILTERED,Assumes Unfiltered is equivalent to Total,NA,Assumed as P,NA,PHOSP,2,NA,Phosphorus

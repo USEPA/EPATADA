@@ -12,7 +12,7 @@ WQP, where each row represents a unique data record. Data frame must
 include the columns 'TADA.ComparableDataIdentifier',
 'TADA.ResultMeasureValue', and 'TADA.ResultMeasure.MeasureUnitCode' to run
 this function. 'TADA.ComparableDataIdentifier' can be added to the data
-frame by running the function HarmonizeData(). The user can include
+frame by running the function TADA_HarmonizeSynonyms(). The user can include
 additional grouping columns in the id_col input. If more than one group
 exists in the dataset (i.e. two or more unique comparable data
 identifiers), the function creates a list of plots, where each list element
@@ -29,18 +29,27 @@ for each data group.
 Create Histogram(s)
 }
 \examples{
-# Create histogram using defaults, and view first plot in list:
 # Load example dataset:
-data(Data_TP_6Tribes_5y)
+data(Data_6Tribes_5y_Harmonized)
 
-Histogram_output = TADA_Histogram(Data_TP_6Tribes_5y, id_cols = "TADA.ComparableDataIdentifier")
-Histogram_output[[1]]
+# Create a histogram for each comparable data group (TADA.ComparableDataIdentifier)
+# in the input dataframe:
+TADA_Histogram(Data_6Tribes_5y_Harmonized, id_cols = "TADA.ComparableDataIdentifier")
 
-# Create histogram with additional grouping columns and view first plot in list. In this example, we will group by both the comparable data identifier and the monitoring location type (e.g. stream, reservoir, canal, etc.)
+# Create a single histogram using defaults. The input dataframe in this example
+# is filtered so it includes only one TADA.ComparableDataIdentifier
+df <- dplyr::filter(Data_6Tribes_5y_Harmonized, TADA.ComparableDataIdentifier == "TOTAL PHOSPHORUS, MIXED FORMS_UNFILTERED_AS P_UG/L")
+TADA_Histogram(df, id_cols = "TADA.ComparableDataIdentifier")
+
+# Create multiple histograms with additional grouping columns and view the first
+# plot in list. In this example, we will group by both TADA.ComparableDataIdentifier
+# and MonitoringLocationTypeName (e.g. stream, reservoir, canal, etc.)
 # Load example dataset:
 data(Data_Nutrients_Utah)
-
-Histogram_output = TADA_Histogram(Data_Nutrients_UT, id_cols = c("TADA.ComparableDataIdentifier","MonitoringLocationTypeName"))
-Histogram_output[[1]]
+Histogram_output <- TADA_Histogram(Data_Nutrients_UT, id_cols = c("TADA.ComparableDataIdentifier", "MonitoringLocationTypeName"))
+# This example generates 45 histograms
+Histogram_output[[10]]
+Histogram_output[[25]]
+Histogram_output[[35]]
 
 }
