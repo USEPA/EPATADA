@@ -1,6 +1,7 @@
 "Domain","Unique.Identifier","Name","Description","Last.Change.Date","TADA.Limit_Type"
 "Detection/Quantitation Limit Type(DetectionQuantitationLimitTypeName)",22,"Blank-adjusted method detect limit","Blank-adjusted method detect limit","12/21/2015 2:28:18 PM","Non-Detect"
 "Detection/Quantitation Limit Type(DetectionQuantitationLimitTypeName)",33,"Blank-adjusted reporting limit","Greater than or equal to two times the blank-adjusted method detect limit. The probability of falsely reporting a non-detection blank-adjusted limit is predicted to be less than or equal to 1 percent.","12/13/2022 12:24:18 PM","Non-Detect"
+"Detection/Quantitation Limit Type(DetectionQuantitationLimitTypeName)",39,"Censoring level","Lower or upper value at which the result is censored","7/31/2023 9:03:19 AM","Non-Detect"
 "Detection/Quantitation Limit Type(DetectionQuantitationLimitTypeName)",31,"Contract Detection Limit","Minimum level of detection acceptable under the contract Statement of Work (SOW). However, laboratory-derived IDLs (adjusted for sample size, dilution and moisture) are used for reporting limits","6/16/2016 10:11:16 AM","Non-Detect"
 "Detection/Quantitation Limit Type(DetectionQuantitationLimitTypeName)",19,"Contract Quantitation Limit","- Minimum level of reliable quantitation acceptable under the contract Statement of Work (SOW).","12/21/2015 2:28:18 PM","Non-Detect"
 "Detection/Quantitation Limit Type(DetectionQuantitationLimitTypeName)",20,"Daily detection limit","Daily detection limit","12/21/2015 2:28:18 PM","Non-Detect"
