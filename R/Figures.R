@@ -540,7 +540,7 @@ TADA_Scatterplot <- function(.data, id_cols = c("TADA.ComparableDataIdentifier")
   TADA_CheckColumns(.data, id_cols)
 
   # check .data has required columns
-  TADA_CheckColumns(.data, c("TADA.ResultMeasureValue", "TADA.ResultMeasure.MeasureUnitCode","ResultDepthHeightMeasure.MeasureValue", "ActivityStartDate", "ActivityStartTime.Time"))
+  TADA_CheckColumns(.data, c("TADA.ResultMeasureValue", "TADA.ResultMeasure.MeasureUnitCode","ResultDepthHeightMeasure.MeasureValue", "ActivityStartDate", "ActivityStartDateTime"))
 
   start <- dim(.data)[1]
 
@@ -684,13 +684,13 @@ TADA_TwoCharacteristicScatterplot <- function(.data, id_col = "TADA.ComparableDa
     stop("The 'groups' vector contains one or more inputs that are not found within your input dataset. Check spelling and try again.")
   }
   
+  depthcols = names(.data)[grepl("DepthHeightMeasure",names(.data))]
+  depthcols = depthcols[grepl("TADA.",depthcols)]
+  
   # check .data has required columns
-  TADA_CheckColumns(.data, c("TADA.ResultMeasureValue", "TADA.ResultMeasure.MeasureUnitCode","ResultDepthHeightMeasure.MeasureValue", "ActivityStartDate", "ActivityStartTime.Time"))
+  TADA_CheckColumns(.data, c("TADA.ResultMeasureValue", "TADA.ResultMeasure.MeasureUnitCode","ResultDepthHeightMeasure.MeasureValue", "ActivityStartDate", "ActivityStartDateTime"))
   
   plot.data = as.data.frame(.data)
-  
-  depthcols = names(plot.data)[grepl("DepthHeightMeasure",names(plot.data))]
-  depthcols = depthcols[grepl("TADA.",depthcols)]
   
   plot.data = subset(plot.data, plot.data[,id_col]%in%groups)[,c(id_col,"TADA.ResultMeasureValue", "TADA.ResultMeasure.MeasureUnitCode","ResultDepthHeightMeasure.MeasureValue", "ActivityStartDate", "ActivityStartDateTime", depthcols)]
   plot.data$name = gsub("_NA","", plot.data[,id_col])
