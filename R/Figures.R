@@ -60,7 +60,7 @@ TADA_Boxplot <- function(.data, id_cols = c("TADA.ComparableDataIdentifier")) {
     id_cols = "TADA.ComparableDataIdentifier"
   }
   if(!"TADA.ComparableDataIdentifier"%in%id_cols){
-    print("TADA.ComparableDataIdentifier not found in id_cols argument and is highly recommended: plotting without it may produce errors in the plot.")
+    warning("TADA.ComparableDataIdentifier not found in id_cols argument and is highly recommended: plotting without it may produce errors in the plot.")
   }
 
   # check .data has required columns
@@ -229,7 +229,7 @@ TADA_Histogram <- function(.data, id_cols = c("TADA.ComparableDataIdentifier")) 
     id_cols = "TADA.ComparableDataIdentifier"
   }
   if(!"TADA.ComparableDataIdentifier"%in%id_cols){
-    print("TADA.ComparableDataIdentifier not found in id_cols argument and is highly recommended: plotting without it may produce errors in the plot.")
+    warning("TADA.ComparableDataIdentifier not found in id_cols argument and is highly recommended: plotting without it may produce errors in the plot.")
   }
 
   # check .data has required columns
@@ -533,7 +533,7 @@ TADA_Scatterplot <- function(.data, id_cols = c("TADA.ComparableDataIdentifier")
   }
   
   if(!"TADA.ComparableDataIdentifier"%in%id_cols){
-    print("TADA.ComparableDataIdentifier not found in id_cols argument and is highly recommended: plotting without it may produce errors in the plot.")
+    warning("TADA.ComparableDataIdentifier not found in id_cols argument and is highly recommended: plotting without it may produce errors in the plot.")
   }
 
   # check .data has required columns
