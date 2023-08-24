@@ -687,12 +687,14 @@ TADA_TwoCharacteristicScatterplot <- function(.data, id_col = "TADA.ComparableDa
   depthcols = names(.data)[grepl("DepthHeightMeasure",names(.data))]
   depthcols = depthcols[grepl("TADA.",depthcols)]
   
+  reqcols = c("TADA.ResultMeasureValue", "TADA.ResultMeasure.MeasureUnitCode","ActivityRelativeDepthName", "ActivityStartDate", "ActivityStartDateTime")
+  
   # check .data has required columns
-  TADA_CheckColumns(.data, c("TADA.ResultMeasureValue", "TADA.ResultMeasure.MeasureUnitCode","ResultDepthHeightMeasure.MeasureValue", "ActivityStartDate", "ActivityStartDateTime"))
+  TADA_CheckColumns(.data, reqcols)
   
   plot.data = as.data.frame(.data)
   
-  plot.data = subset(plot.data, plot.data[,id_col]%in%groups)[,c(id_col,"TADA.ResultMeasureValue", "TADA.ResultMeasure.MeasureUnitCode","ResultDepthHeightMeasure.MeasureValue", "ActivityStartDate", "ActivityStartDateTime", depthcols)]
+  plot.data = subset(plot.data, plot.data[,id_col]%in%groups)[,c(id_col,reqcols, depthcols)]
   plot.data$name = gsub("_NA","", plot.data[,id_col])
   plot.data$name = gsub("_"," ", plot.data$name)
 
