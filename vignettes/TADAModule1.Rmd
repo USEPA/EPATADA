@@ -934,6 +934,19 @@ TADAProfileClean5 <- TADA_HarmonizeSynonyms(TADAProfileClean5,
 )
 ```
 
+## Total Nitrogen and Total Phosphorus Calculations
+
+This section covers summing nutrient subspecies to estimate total nitrogen and phosphorus. This can be a challenging endeavor because some subspecies/compounds overlap in total nutrient calculations. Thus, **TADA_CalculateTotalNP** uses the [Nutrient Aggregation logic](https://echo.epa.gov/trends/loading-tool/resources/nutrient-aggregation) to add together specific subspecies to obtain a total. TADA adds one more equation to the mix: total particulate nitrogen + total dissolved nitrogen. The function uses as many subspecies as possible to calculate a total for each given site, date, and depth group, but it will estimate total nitrogen with whatever subspecies are present. This function creates NEW total nutrient measurements (total nitrogen unfiltered as N and total phosphorus unfiltered as P) and adds them to the dataframe. 
+
+Users can use the default summation worksheet (see **TADA_GetNutrientSummationRef**) or customize it to suit their needs. The function also requires a daily aggregation value, either minimum, maximum, or mean. The default is 'max', which means that if multiple measurements of the same subspecies-fraction-speciation-unit occur on the same day at the same site and depth, the function will pick the maximum value to use in summation calculations.
+
+```{r, TADA_CalculateTotalNP}
+
+TADAProfileClean6 <- TADA_CalculateTotalNP(TADAProfileClean5, daily_agg = "max")
+
+```
+
+
 ## Parameter Level Filtering
 
 In this section, you can select a single parameter, and review the
@@ -946,7 +959,7 @@ To start, review the list of parameters in the dataframe using the
 Enter ?TADA_FieldValuesTable into the console for more information.
 
 ```{r TADA_FieldValuesTable_chars}
-TADA_FieldValuesTable(TADAProfileClean5, field = "TADA.CharacteristicName")
+TADA_FieldValuesTable(TADAProfileClean6, field = "TADA.CharacteristicName")
 ```
 
 Next, we can revisit the **TADA_FieldCounts** function at the characteristic
@@ -1016,7 +1029,7 @@ each of the following fields:
 -   "DetectionQuantitationLimitTypeName"
 
 ```{r TADA_FieldCounts_char}
-TADA_FieldCounts(TADAProfileClean5, display = "most", characteristicName = "TOTAL PHOSPHORUS, MIXED FORMS")
+TADA_FieldCounts(TADAProfileClean6, display = "most", characteristicName = "TOTAL PHOSPHORUS, MIXED FORMS")
 ```
 
 Selecting a parameter generates the list above, which is subset by the
@@ -1033,8 +1046,8 @@ characteristic-level to review a column of interest.
 
 ```{r TADA_FieldValuesTable_Pie_char, fig.width=8, fig.height=6, fig.fullwidth=TRUE}
 # In this example we review values from the SampleCollectionMethod.MethodName field
-TADA_FieldValuesTable(TADAProfileClean5, field = "SampleCollectionMethod.MethodName", characteristicName = "TOTAL PHOSPHORUS, MIXED FORMS")
-TADA_FieldValuesPie(TADAProfileClean5, field = "SampleCollectionMethod.MethodName", characteristicName = "TOTAL PHOSPHORUS, MIXED FORMS")
+TADA_FieldValuesTable(TADAProfileClean6, field = "SampleCollectionMethod.MethodName", characteristicName = "TOTAL PHOSPHORUS, MIXED FORMS")
+TADA_FieldValuesPie(TADAProfileClean6, field = "SampleCollectionMethod.MethodName", characteristicName = "TOTAL PHOSPHORUS, MIXED FORMS")
 ```
 
 Now we will summarize results for a single comparable data group using the
@@ -1046,7 +1059,7 @@ speciation, and fraction combination) using **TADA_Histogram** and **TADA_Boxplo
 unique(TADAProfileClean5$TADA.ComparableDataIdentifier)
 
 # filter dataframe to only "TOTAL PHOSPHORUS, MIXED FORMS"
-TADAProfileCleanTP <- dplyr::filter(TADAProfileClean5, TADA.ComparableDataIdentifier == "TOTAL PHOSPHORUS, MIXED FORMS_UNFILTERED_AS P_UG/L")
+TADAProfileCleanTP <- dplyr::filter(TADAProfileClean6, TADA.ComparableDataIdentifier == "TOTAL PHOSPHORUS, MIXED FORMS_UNFILTERED_AS P_UG/L")
 
 # generate stats table
 TADAProfileCleanTP_stats <- TADA::TADA_Stats(TADAProfileCleanTP)
