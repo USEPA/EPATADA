@@ -248,15 +248,18 @@ TADA_GetDetCondRef <- function() {
 
   # If the download failed fall back to internal data (and report it)
   if (is.null(raw.data)) {
-    message("Downloading latest Measure Unit Reference Table failed!")
+    message("Downloading latest Result Detection Condition Reference Table failed!")
     message("Falling back to (possibly outdated) internal file.")
     return(utils::read.csv(system.file("extdata", "WQXResultDetectionConditionRef.csv", package = "TADA")))
   }
 
+  # Add detection type for all domain values. New domains are automatically assigned to the 
+  # Non-Detect category. Review this closely when updating the reference table when new domains are added. 
   WQXDetCondRef <- raw.data %>%
     dplyr::mutate(TADA.Detection_Type = dplyr::case_when(
       Name %in% c("Above Operating Range", "Present Above Quantification Limit") ~ as.character("Over-Detect"),
-      Name %in% c("Value Decensored", "Reported in Raw Data (attached)", "High Moisture") ~ as.character("Other"),
+      Name %in% c("Value Decensored", "Reported in Raw Data (attached)", "High Moisture", 
+                  "Unable to Measure") ~ as.character("Other"),
       TRUE ~ as.character("Non-Detect")
     )) %>%
     dplyr::distinct()
@@ -607,7 +610,7 @@ TADA_GetMeasureQualifierCodeRef <- function() {
     "RPO", "S2", "SCA", "SCF", "SCP", "SCX", "SD%EL", "SDROL", "SSR",
     "SUS", "V", "^", "F", "FEQ", "G", "UDL", "MDL"
   )
-  keep <- c(
+  pass <- c(
     "&", ")", "*", "=", "A", "AC", "AL", "ALK", "ALT",
     "AP", "B", "BAC", "C25", "CAJ", "CBG", "CBL", "CC",
     "CDI", "CG", "CKB", "CKBJ", "CKG", "CKJ", "CLC", "CNT", "CON", "CUG",
@@ -619,7 +622,7 @@ TADA_GetMeasureQualifierCodeRef <- function() {
     "O", "OA3", "OS3", "OTHER", "OUT", "PB", "PK", "PPD", "PQL", "PRE",
     "QCI", "RC", "REX", "RIN", "RLRS", "RMAX", "RNAF", "RP",
     "RPDX", "RR", "RV", "RVB", "SBB", "SLB", "SM", "SS", "SSRV", "T",
-    "TMLF", "TOC", "TT", "UNC", "VS", "VVRR", "VVRR2", "UDQ"
+    "TMLF", "TOC", "TT", "UNC", "VS", "VVRR", "VVRR2", "UDQ", "ZZ"
   )
   nondetect <- c("BQL", "2-5B", "RNON", "U", "LTGTE", "K", "IDL", "<2B", "BRL", "D>T", "DL")
   overdetect <- c("E", "EE", "GT")
@@ -629,10 +632,9 @@ TADA_GetMeasureQualifierCodeRef <- function() {
       Code %in% nondetect ~ "Non-Detect",
       Code %in% overdetect ~ "Over-Detect",
       Code %in% suspect ~ "Suspect",
-      Code %in% keep ~ "Pass",
+      Code %in% pass ~ "Pass",
       Code %in% NA ~ "Pass",
-      TRUE ~ as.character("Non-Detect"),
-      TRUE ~ as.character("Over-Detect")
+      TRUE ~ as.character("NewValue_NeedsReview")
     )) %>%
     dplyr::distinct()
 
