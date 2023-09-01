@@ -66,8 +66,8 @@ TADA_GetWQXCharValRef <- function() {
   # # Convert all NONE to NA in Value and Value.Unit columns
   # WQXcharValRef = WQXcharValRef %>% dplyr::mutate(Value = replace(Value, Value%in%c("NONE"),NA),
   #                                                 Value.Unit = replace(Value.Unit, Value.Unit%in%c("NONE"),NA)) %>% dplyr::distinct()
-  # 
-  
+  #
+
   # Save updated table in cache
   WQXCharValRef_Cached <- WQXcharValRef
 
@@ -469,15 +469,17 @@ TADA_GetActivityTypeRef <- function() {
       TRUE ~ as.character("Non_QC")
     )) %>%
     dplyr::distinct()
-  
+
   # Hard-code add activity types from NWIS
   ## Add USGS limits not in WQX domain table
-  new.atcs = data.frame(Code = c("Quality Control Sample-Blind", "Unknown"),
-                        Description = c("Hard-coded activity type not in WQX domain","Hard-coded activity type not in WQX domain"),
-                        TADA.ActivityType.Flag = c("QC_duplicate","Non_QC"),
-                        Last.Change.Date = rep("8/11/2023 12:00:00 PM",2))
-  
-  WQXActivityTypeRef = plyr::rbind.fill(WQXActivityTypeRef, new.atcs)
+  new.atcs <- data.frame(
+    Code = c("Quality Control Sample-Blind", "Unknown"),
+    Description = c("Hard-coded activity type not in WQX domain", "Hard-coded activity type not in WQX domain"),
+    TADA.ActivityType.Flag = c("QC_duplicate", "Non_QC"),
+    Last.Change.Date = rep("8/11/2023 12:00:00 PM", 2)
+  )
+
+  WQXActivityTypeRef <- plyr::rbind.fill(WQXActivityTypeRef, new.atcs)
 
   # Save updated table in cache
   WQXActivityTypeRef_Cached <- WQXActivityTypeRef

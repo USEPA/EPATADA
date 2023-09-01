@@ -89,8 +89,8 @@ TADA_AutoClean <- function(.data) {
   required_cols <- c(
     "ActivityMediaName", "ResultMeasureValue", "ResultMeasure.MeasureUnitCode",
     "CharacteristicName", "ResultSampleFractionText", "MethodSpecificationName",
-    "DetectionQuantitationLimitMeasure.MeasureUnitCode", "ResultDetectionConditionText", 
-    "ResultIdentifier", "DetectionQuantitationLimitMeasure.MeasureValue", 
+    "DetectionQuantitationLimitMeasure.MeasureUnitCode", "ResultDetectionConditionText",
+    "ResultIdentifier", "DetectionQuantitationLimitMeasure.MeasureValue",
     "LatitudeMeasure", "LongitudeMeasure"
   )
 
@@ -217,18 +217,18 @@ TADA_DecimalPlaces <- function(x) {
 #' @return The same vector of strings with new lines added where appropriate.
 #' @export
 
-TADA_InsertBreaks <- function(x, len = 50){
-    if(nchar(x)>len){
-      multiples = floor(nchar(x)/len)
-      lens = seq(len, len*multiples, by = len)
-      spaces = unlist(gregexpr(' ', x))
-      if(max(spaces)>len){
-        spots = sapply(lens, function(x) spaces[min(which(spaces>x))])
-        for(i in 1:length(spots)){
-          stringi::stri_sub(x, spots[i]+(i-1), spots[i]) <- "\n "
-        }
+TADA_InsertBreaks <- function(x, len = 50) {
+  if (nchar(x) > len) {
+    multiples <- floor(nchar(x) / len)
+    lens <- seq(len, len * multiples, by = len)
+    spaces <- unlist(gregexpr(" ", x))
+    if (max(spaces) > len) {
+      spots <- sapply(lens, function(x) spaces[min(which(spaces > x))])
+      for (i in 1:length(spots)) {
+        stringi::stri_sub(x, spots[i] + (i - 1), spots[i]) <- "\n "
       }
     }
+  }
   return(x)
 }
 
@@ -391,7 +391,7 @@ TADA_ConvertSpecialChars <- function(.data, col) {
 
 TADA_OrderCols <- function(.data) {
   dretcols <- c(
-    "OrganizationIdentifier", 
+    "OrganizationIdentifier",
     "OrganizationFormalName",
     "ActivityIdentifier",
     "ActivityTypeCode",
@@ -529,25 +529,19 @@ TADA_OrderCols <- function(.data) {
     "TADA.UnitConversionFactor",
     "TADA.ResultMeasureValueDataTypes.Flag",
     "TADA.ResultValueAggregation.Flag",
-    
-    
     "TADA.MeasureQualifierCode.Flag",
     "TADA.CensoredData.Flag",
     "TADA.CensoredMethod",
-    
     "TADA.NutrientSummation.Flag",
     "TADA.NutrientSummationGroup",
     "TADA.NutrientSummationEquation",
-    
     "TADA.LatitudeMeasure",
     "TADA.LongitudeMeasure",
     "TADA.InvalidCoordinates.Flag",
     "TADA.NearbySiteGroups",
-    
     "TADA.QAPPDocAvailable",
     "TADA.AggregatedContinuousData.Flag",
     "TADA.ResultValueAboveUpperThreshold.Flag",
-
     "TADA.ResultUnit.Flag",
     "CombinationValidity",
     "TADA.MethodSpecificationName",
@@ -821,21 +815,21 @@ TADA_RandomNationalTestingSet <- function(number_of_days = 2) {
 
 TADA_RandomStateTestingSet <- function(number_of_days = 90) {
   load(system.file("extdata", "statecodes_df.Rdata", package = "TADA"))
-  state = sample(statecodes_df$STUSAB,1)
+  state <- sample(statecodes_df$STUSAB, 1)
   twenty_yrs_ago <- Sys.Date() - 20 * 365
   random_start_date <- twenty_yrs_ago + sample(20 * 365, 1)
   # changed default to 2 days instead of 90
   end_date <- random_start_date + number_of_days
-  
-  print(paste0(state," from ",random_start_date," to ", end_date))
-  
+
+  print(paste0(state, " from ", random_start_date, " to ", end_date))
+
   # removed state input
   dat <- TADA_DataRetrieval(startDate = as.character(random_start_date), endDate = as.character(end_date), statecode = state)
-  
+
   if (dim(dat)[1] < 1) {
     dat <- Data_NCTCShepherdstown_HUC12
   }
-  
+
   return(dat)
 }
 
@@ -1116,7 +1110,7 @@ TADA_UpdateExampleData <- function() {
 
 #' TADA Module 1 Required Fields Check
 #'
-#' This function checks if all required fields for TADA Module 1 are 
+#' This function checks if all required fields for TADA Module 1 are
 #' included in the input dataframe.
 #'
 #' @param .data A dataframe
@@ -1127,57 +1121,57 @@ TADA_UpdateExampleData <- function() {
 
 TADA_CheckRequiredFields <- function(.data) {
   TADA.fields <- c(
-    
+
     # consider deleting below from TADA profile
-    
-    #"ActivityEndDate",
-    #"ActivityEndTime.Time",
-    #"ActivityEndTime.TimeZoneCode",
-    #"ActivityConductingOrganizationText",
-    #"SampleAquifer",
-    #"ActivityLocation.LatitudeMeasure",
-    #"ActivityLocation.LongitudeMeasure",
-    #"ResultStatusIdentifier",
-    #"ResultWeightBasisText",
-    #"ResultTemperatureBasisText",
-    #"ResultParticleSizeBasisText",
-    #"USGSPCode",
-    #"BinaryObjectFileName",
-    #"BinaryObjectFileTypeCode",
-    #"ResultFileUrl",
-    #"AnalysisStartDate",
-    #"ResultDetectionQuantitationLimitUrl",
-    #"LabSamplePreparationUrl",
-    #"timeZoneStart",
-    #"timeZoneEnd",
-    #"ActivityEndDateTime",
-    #"SourceMapScaleNumeric",
-    #"HorizontalAccuracyMeasure.MeasureValue",
-    #"HorizontalAccuracyMeasure.MeasureUnitCode",
-    #"HorizontalCollectionMethodName",
-    #"HorizontalCoordinateReferenceSystemDatumName",
-    #"VerticalMeasure.MeasureValue",
-    #"VerticalMeasure.MeasureUnitCode",
-    #"VerticalAccuracyMeasure.MeasureValue",
-    #"VerticalAccuracyMeasure.MeasureUnitCode",
-    #"VerticalCollectionMethodName",
-    #"VerticalCoordinateReferenceSystemDatumName",
-    #"AquiferName",
-    #"LocalAqfrName",
-    #"FormationTypeText",
-    #"ProjectMonitoringLocationWeightingUrl",
-    #"DrainageAreaMeasure.MeasureValue",
-    #"DrainageAreaMeasure.MeasureUnitCode",
-    #"ContributingDrainageAreaMeasure.MeasureValue",
-    #"ContributingDrainageAreaMeasure.MeasureUnitCode",
-    
-    # carried through but are not currently needed to run functions, 
+
+    # "ActivityEndDate",
+    # "ActivityEndTime.Time",
+    # "ActivityEndTime.TimeZoneCode",
+    # "ActivityConductingOrganizationText",
+    # "SampleAquifer",
+    # "ActivityLocation.LatitudeMeasure",
+    # "ActivityLocation.LongitudeMeasure",
+    # "ResultStatusIdentifier",
+    # "ResultWeightBasisText",
+    # "ResultTemperatureBasisText",
+    # "ResultParticleSizeBasisText",
+    # "USGSPCode",
+    # "BinaryObjectFileName",
+    # "BinaryObjectFileTypeCode",
+    # "ResultFileUrl",
+    # "AnalysisStartDate",
+    # "ResultDetectionQuantitationLimitUrl",
+    # "LabSamplePreparationUrl",
+    # "timeZoneStart",
+    # "timeZoneEnd",
+    # "ActivityEndDateTime",
+    # "SourceMapScaleNumeric",
+    # "HorizontalAccuracyMeasure.MeasureValue",
+    # "HorizontalAccuracyMeasure.MeasureUnitCode",
+    # "HorizontalCollectionMethodName",
+    # "HorizontalCoordinateReferenceSystemDatumName",
+    # "VerticalMeasure.MeasureValue",
+    # "VerticalMeasure.MeasureUnitCode",
+    # "VerticalAccuracyMeasure.MeasureValue",
+    # "VerticalAccuracyMeasure.MeasureUnitCode",
+    # "VerticalCollectionMethodName",
+    # "VerticalCoordinateReferenceSystemDatumName",
+    # "AquiferName",
+    # "LocalAqfrName",
+    # "FormationTypeText",
+    # "ProjectMonitoringLocationWeightingUrl",
+    # "DrainageAreaMeasure.MeasureValue",
+    # "DrainageAreaMeasure.MeasureUnitCode",
+    # "ContributingDrainageAreaMeasure.MeasureValue",
+    # "ContributingDrainageAreaMeasure.MeasureUnitCode",
+
+    # carried through but are not currently needed to run functions,
     # with the EXCEPTION of filtering
     "ProjectDescriptionText",
     "SamplingDesignTypeCode",
     "ActivityStartDate",
     "ActivityStartTime.Time",
-    "ActivityStartTime.TimeZoneCode",   
+    "ActivityStartTime.TimeZoneCode",
     "ResultDepthAltitudeReferencePointText",
     "ActivityDepthAltitudeReferencePointText",
     "ProjectName",
@@ -1215,8 +1209,8 @@ TADA_CheckRequiredFields <- function(.data) {
     "WellHoleDepthMeasure.MeasureUnitCode", # can be used to remove groundwater sites
     "ProviderName",
     "LastUpdated",
-    
-    # required 
+
+    # required
     "TADA.CharacteristicName",
     "TADA.ResultSampleFractionText",
     "TADA.MethodSpecificationName",
@@ -1258,10 +1252,10 @@ TADA_CheckRequiredFields <- function(.data) {
     "QAPPApprovalAgencyName",
     "ProjectFileUrl",
     "MeasureQualifierCode",
-    "SampleCollectionEquipmentName", #required for continuous flag
-    "StatisticalBaseCode", #required for continuous flag
-    "ResultTimeBasisText", #required for continuous flag
-    "ResultValueTypeName", #required for continuous flag
+    "SampleCollectionEquipmentName", # required for continuous flag
+    "StatisticalBaseCode", # required for continuous flag
+    "ResultTimeBasisText", # required for continuous flag
+    "ResultValueTypeName", # required for continuous flag
     "ActivityIdentifier",
     "ProjectIdentifier",
     "MonitoringLocationIdentifier",

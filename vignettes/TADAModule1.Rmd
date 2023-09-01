@@ -941,9 +941,7 @@ This section covers summing nutrient subspecies to estimate total nitrogen and p
 Users can use the default summation worksheet (see **TADA_GetNutrientSummationRef**) or customize it to suit their needs. The function also requires a daily aggregation value, either minimum, maximum, or mean. The default is 'max', which means that if multiple measurements of the same subspecies-fraction-speciation-unit occur on the same day at the same site and depth, the function will pick the maximum value to use in summation calculations.
 
 ```{r, TADA_CalculateTotalNP}
-
 TADAProfileClean6 <- TADA_CalculateTotalNP(TADAProfileClean5, daily_agg = "max")
-
 ```
 
 
