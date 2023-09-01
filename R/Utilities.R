@@ -164,11 +164,8 @@ TADA_AutoClean <- function(.data) {
   .data <- suppressWarnings(TADA_ConvertResultUnits(.data, transform = TRUE))
   .data <- suppressWarnings(TADA_ConvertDepthUnits(.data, unit = "m"))
 
-  # #convert 'meters' to 'm' - EDH MOVED TO CONVERT DEPTH UNITS
-  # .data$TADA.ActivityDepthHeightMeasure.MeasureUnitCode[.data$ActivityDepthHeightMeasure.MeasureUnitCode == 'meters'] <- 'm'
-  # .data$TADA.ActivityTopDepthHeightMeasure.MeasureUnitCode[.data$ActivityTopDepthHeightMeasure.MeasureUnitCode == 'meters'] <- 'm'
-  # .data$TADA.ActivityBottomDepthHeightMeasure.MeasureUnitCode[.data$ActivityBottomDepthHeightMeasure.MeasureUnitCode == 'meters'] <- 'm'
-  # .data$TADA.ResultDepthHeightMeasure.MeasureUnitCode[.data$ResultDepthHeightMeasure.MeasureUnitCode == 'meters'] <- 'm'
+  # Automatically convert USGS only unit "meters" to "m"
+  # Suggest moving to TADA_ConvertResultUnits function in the future
   .data$TADA.ResultMeasure.MeasureUnitCode[.data$TADA.ResultMeasure.MeasureUnitCode == "meters"] <- "m"
 
   # Substitute updated characteristic name for deprecated names
@@ -568,10 +565,10 @@ TADA_OrderCols <- function(.data) {
     "TADA.ResultDepthHeightMeasure.MeasureValue",
     "TADA.ResultDepthHeightMeasure.MeasureUnitCode",
     "TADA.ResultDepthHeightMeasure.MeasureValueDataTypes.Flag",
-    "WQXConversionFactor.ActivityDepthHeightMeasure",
-    "WQXConversionFactor.ActivityTopDepthHeightMeasure",
-    "WQXConversionFactor.ActivityBottomDepthHeightMeasure",
-    "WQXConversionFactor.ResultDepthHeightMeasure",
+    "TADA.WQXConversionFactor.ActivityDepthHeightMeasure",
+    "TADA.WQXConversionFactor.ActivityTopDepthHeightMeasure",
+    "TADA.WQXConversionFactor.ActivityBottomDepthHeightMeasure",
+    "TADA.WQXConversionFactor.ResultDepthHeightMeasure",
     "TADA.MultipleOrgDuplicate",
     "TADA.MultipleOrgDupGroupID",
     "TADA.ResultSelectedMultipleOrgs",
