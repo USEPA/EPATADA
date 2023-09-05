@@ -73,7 +73,7 @@ TADA_ConvertResultUnits <- function(.data, transform = TRUE) {
   unit.ref <- subset(unit.ref, !is.na(unit.ref$Unique.Identifier) & !grepl("Length Distance", unit.ref$Description))
 
   # add usgs unit/speciations - this table was created by Elise Hinman and Cristina Mullin in 07/2023 using the pcodes domain table from NWIS and copying units with speciations in them into the same format as the measure unit domain table for WQX.
-  # https://help.waterdata.usgs.gov/codes-and-parameters/parameters Downloaded the .txt file of ALL parameters and then open in Excel using the delimiter utility. 
+  # https://help.waterdata.usgs.gov/codes-and-parameters/parameters Downloaded the .txt file of ALL parameters and then open in Excel using the delimiter utility.
   usgs.ref <- read.csv(system.file("extdata", "USGS_units_speciation.csv", package = "TADA"))
 
   unit.ref <- plyr::rbind.fill(unit.ref, usgs.ref)
@@ -202,7 +202,7 @@ TADA_ConvertResultUnits <- function(.data, transform = TRUE) {
 #' columns and the 'Depth Target Unit' column. When transform = TRUE, the output
 #' includes converted depth data in a column with the same name as the original,
 #' plus the prefix "TADA." and a 'Depth Target Unit' column, which acts as a
-#' flag indicating which rows have been converted. New TADA versions of all 
+#' flag indicating which rows have been converted. New TADA versions of all
 #' depth columns are always created. Default is transform = TRUE.
 #'
 #' The depth profile function can harmonize depth units across all the
@@ -232,8 +232,8 @@ TADA_ConvertResultUnits <- function(.data, transform = TRUE) {
 #' data converted to the target unit in new TADA-specific columns.
 #' When transform = FALSE, the input dataframe is returned with additional
 #' columns showing how the data would be handled if converted. A user can review
-#' the conversion factor information if desired by using this feature. 
-#' No conversions are made, but new TADA-specific columns are added as copies 
+#' the conversion factor information if desired by using this feature.
+#' No conversions are made, but new TADA-specific columns are added as copies
 #' of original columns, with unit synonyms addressed (e.g. "meters" is converted
 #' automatically to "m" for national consistency).
 #'
@@ -243,7 +243,7 @@ TADA_ConvertResultUnits <- function(.data, transform = TRUE) {
 #' # Load example dataset:
 #' data(Data_Nutrients_UT)
 #'
-#' # Convert all depth units to meters and review unit harmonization:  
+#' # Convert all depth units to meters and review unit harmonization:
 #' # "ActivityDepthHeightMeasure.MeasureUnitCode" and "ActivityDepthHeightMeasure.MeasureValue"
 #' # are harmonized to "TADA.ActivityDepthHeightMeasure.MeasureUnitCode" and "TADA.ActivityDepthHeightMeasure.MeasureValue"
 #' DepthUnitsConverted_m <- TADA_ConvertDepthUnits(Data_Nutrients_UT)
@@ -260,12 +260,12 @@ TADA_ConvertResultUnits <- function(.data, transform = TRUE) {
 #'
 TADA_ConvertDepthUnits <- function(.data,
                                    unit = "m",
-                                   #fields = c(
+                                   # fields = c(
                                    #  "ActivityDepthHeightMeasure",
                                    #   "ActivityTopDepthHeightMeasure",
                                    #  "ActivityBottomDepthHeightMeasure",
                                    #   "ResultDepthHeightMeasure"
-                                   #),
+                                   # ),
                                    transform = TRUE) {
   # check .data is data.frame
   TADA_CheckType(.data, "data.frame", "Input object")
@@ -288,14 +288,14 @@ TADA_ConvertDepthUnits <- function(.data,
     "ActivityBottomDepthHeightMeasure",
     "ResultDepthHeightMeasure"
   )
-  
+
   # removed fields input
   # if (all(is.na(match(valid_fields, fields))) == TRUE) {
   #  stop("Invalid 'fields' argument. 'fields' must include one or many of the
   #  following: 'ActivityDepthHeightMeasure,' 'ActivityTopDepthHeightMeasure,'
   #  'ActivityBottomDepthHeightMeasure,' and/or 'ResultDepthHeightMeasure.'")
-  #}
-  
+  # }
+
   # check transform is boolean
   TADA_CheckType(transform, "logical")
 
@@ -356,45 +356,45 @@ TADA_ConvertDepthUnits <- function(.data,
   # Loop over all supplied depth columns, create TADA columns, then join conversion table
   for (i in 1:length(valid_fields)) {
     field <- valid_fields[i]
-    #if ((field %in% fields) == TRUE) {
-      # OG unit column
-      unitCol <- paste(field, ".MeasureUnitCode", sep = "")
-      valCol <- paste0(field, ".MeasureValue")
-      # proceed only if unitCol has values other than NA
-      # requirement to proceed only if not all NA removed on 9/1/23, so that TADA depth cols are ALWAYS created
-      # this avoid downstream conflicts with figure and analysis functions that req TADA depth columns
-      #if (sum(!is.na(check.data[unitCol])) > 0) {
-        # new TADA column
-        unitCol2 <- paste0("TADA.", unitCol)
+    # if ((field %in% fields) == TRUE) {
+    # OG unit column
+    unitCol <- paste(field, ".MeasureUnitCode", sep = "")
+    valCol <- paste0(field, ".MeasureValue")
+    # proceed only if unitCol has values other than NA
+    # requirement to proceed only if not all NA removed on 9/1/23, so that TADA depth cols are ALWAYS created
+    # this avoid downstream conflicts with figure and analysis functions that req TADA depth columns
+    # if (sum(!is.na(check.data[unitCol])) > 0) {
+    # new TADA column
+    unitCol2 <- paste0("TADA.", unitCol)
 
-        # deal with any units that are "meters" and change to "m" (USGS convention)
-        check.data$new <- check.data[, unitCol]
-        check.data$new[check.data$new == "meters"] <- "m"
-        names(check.data)[names(check.data) == "new"] <- unitCol2
+    # deal with any units that are "meters" and change to "m" (USGS convention)
+    check.data$new <- check.data[, unitCol]
+    check.data$new[check.data$new == "meters"] <- "m"
+    names(check.data)[names(check.data) == "new"] <- unitCol2
 
-        # Join conversion factor from unit.ref to .data by unitCol
-        check.data <- merge(check.data, unit.ref[, c("Code", "Conversion.Factor")],
-          by.x = unitCol2,
-          by.y = "Code",
-          all.x = TRUE,
-          sort = FALSE
-        )
+    # Join conversion factor from unit.ref to .data by unitCol
+    check.data <- merge(check.data, unit.ref[, c("Code", "Conversion.Factor")],
+      by.x = unitCol2,
+      by.y = "Code",
+      all.x = TRUE,
+      sort = FALSE
+    )
 
-        # rename new columns
-        names(check.data)[names(check.data) == "Conversion.Factor"] <- paste("TADA.WQXConversionFactor.", field, sep = "")
-        check.data <- TADA_ConvertSpecialChars(check.data, valCol)
-      #}
-    #}
+    # rename new columns
+    names(check.data)[names(check.data) == "Conversion.Factor"] <- paste("TADA.WQXConversionFactor.", field, sep = "")
+    check.data <- TADA_ConvertSpecialChars(check.data, valCol)
+    # }
+    # }
   }
 
   # function should always run all code above
-  
-  # check if any Conversion Factor columns were appended. CM removed 9/1. Buggy now, not needed? 
-  #if (all(is.na(match(appCols, colnames(check.data)))) == TRUE) {
+
+  # check if any Conversion Factor columns were appended. CM removed 9/1. Buggy now, not needed?
+  # if (all(is.na(match(appCols, colnames(check.data)))) == TRUE) {
   #  print("Note: the dataframe does not have any depth data in ActivityTop/BottomDepthHeight or ResultDepthHeight columns.")
   #  check.data <- TADA_OrderCols(check.data)
   #  return(check.data)
-  #}
+  # }
 
   # if transform = FALSE, output data
   if (transform == FALSE) {
@@ -447,6 +447,5 @@ TADA_ConvertDepthUnits <- function(.data,
     # order columns
     clean.data <- TADA_OrderCols(clean.data)
     return(clean.data)
-    
   }
 }

@@ -253,13 +253,15 @@ TADA_GetDetCondRef <- function() {
     return(utils::read.csv(system.file("extdata", "WQXResultDetectionConditionRef.csv", package = "TADA")))
   }
 
-  # Add detection type for all domain values. New domains are automatically assigned to the 
-  # Non-Detect category. Review this closely when updating the reference table when new domains are added. 
+  # Add detection type for all domain values. New domains are automatically assigned to the
+  # Non-Detect category. Review this closely when updating the reference table when new domains are added.
   WQXDetCondRef <- raw.data %>%
     dplyr::mutate(TADA.Detection_Type = dplyr::case_when(
       Name %in% c("Above Operating Range", "Present Above Quantification Limit") ~ as.character("Over-Detect"),
-      Name %in% c("Value Decensored", "Reported in Raw Data (attached)", "High Moisture", 
-                  "Unable to Measure") ~ as.character("Other"),
+      Name %in% c(
+        "Value Decensored", "Reported in Raw Data (attached)", "High Moisture",
+        "Unable to Measure"
+      ) ~ as.character("Other"),
       TRUE ~ as.character("Non-Detect")
     )) %>%
     dplyr::distinct()
