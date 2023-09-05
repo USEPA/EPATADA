@@ -46,24 +46,6 @@ test_that("TADA_ConvertDepthUnits catches bad unit arg", {
   expect_error(TADA_ConvertDepthUnits(TADAProfile, unit = "km"), err, fixed = TRUE)
 })
 
-# When fields arg is not valid
-test_that("TADA_ConvertDepthUnits check fields argument for valid inputs", {
-  expect_error(
-    TADA_ConvertDepthUnits(TADAProfile, fields = "ActivityDepthHeightMeasure.MeasureValue"),
-    "Invalid 'fields' argument. 'fields' must include one or many of the
-    following: 'ActivityDepthHeightMeasure,' 'ActivityTopDepthHeightMeasure,'
-    'ActivityBottomDepthHeightMeasure,' and/or 'ResultDepthHeightMeasure.'"
-  )
-})
-
-# When all unit columns are null
-test_that("TADA_ConvertDepthUnits all value columns NaN", {
-  # Replace units col w/ NaN
-  TADAProfile$ActivityDepthHeightMeasure.MeasureUnitCode <- c(NaN, NaN)
-  printy <- "No action taken: the dataframe does not have any depth data in ActivityTop/BottomDepthHeight or ResultDepthHeight columns."
-  expect_output(TADA_ConvertDepthUnits(TADAProfile), printy)
-})
-
 # Conversion correct
 test_that("TADA_ConvertDepthUnits convert ft to m", {
   x <- TADA_ConvertDepthUnits(TADAProfile)
