@@ -164,37 +164,30 @@ TADA_HarmonizeSynonyms <- function(.data, ref, np_speciation = TRUE) {
   # check .data is data.frame
   TADA_CheckType(.data, "data.frame", "Input object")
 
-
   # check .data has the required columns
   expected_cols <- c(
-    "TADA.ActivityMediaName",
-    "TADA.CharacteristicName", "TADA.ResultSampleFractionText",
+    "TADA.CharacteristicName", 
+    "TADA.ResultSampleFractionText",
     "TADA.MethodSpecificationName",
     "TADA.ResultMeasureValue",
     "TADA.ResultMeasure.MeasureUnitCode"
   )
   TADA_CheckColumns(.data, expected_cols)
 
-  # additional columns that may be in harmonization ref
-  # columns to keep from .data if exist
-  # harmonization_cols <- c(
-  #   "TADA.SampleFraction.Flag", "TADA.MethodSpeciation.Flag",
-  #   "TADA.ResultUnit.Flag", "TADA.AnalyticalMethod.Flag"
-  # )
-
-
   # define which columns are expected in ref
   expected_ref_cols <- c(
-    "TADA.ActivityMediaName",
     "TADA.CharacteristicName",
-    "TADA.ResultSampleFractionText",
-    "TADA.MethodSpecificationName",
-    "TADA.ResultMeasure.MeasureUnitCode",
     "Target.TADA.CharacteristicName",
+    "TADA.CharacteristicNameAssumptions",
+    "TADA.ResultSampleFractionText",
     "Target.TADA.ResultSampleFractionText",
+    "TADA.FractionAssumptions",
+    "TADA.MethodSpecificationName",
     "Target.TADA.MethodSpecificationName",
-    "Target.TADA.ResultMeasure.MeasureUnitCode",
+    "TADA.SpeciationAssumptions",
     "Target.TADA.SpeciationConversionFactor",
+    "TADA.ResultMeasure.MeasureUnitCode",
+    "Target.TADA.ResultMeasure.MeasureUnitCode",
     "Target.TADA.UnitConversionFactor"
   )
 
@@ -221,7 +214,7 @@ TADA_HarmonizeSynonyms <- function(.data, ref, np_speciation = TRUE) {
     harm.ref <- TADA_GetSynonymRef(.data, download = FALSE)
   }
 
-  # find places where metadata will be changed and add FLAG column.
+  # find places where metadata will be changed and add targets
   harm.ref$TADA.Harmonized.Flag <- ifelse(!is.na(harm.ref$Target.TADA.CharacteristicName) | !is.na(harm.ref$Target.TADA.ResultSampleFractionText) | !is.na(harm.ref$Target.TADA.MethodSpecificationName) | !is.na(harm.ref$Target.TADA.ResultMeasure.MeasureUnitCode), TRUE, FALSE)
 
   .data <- .data[, !names(.data) %in% c("TADA.ComparableDataIdentifier")]
@@ -307,8 +300,6 @@ TADA_HarmonizeSynonyms <- function(.data, ref, np_speciation = TRUE) {
       "Target.TADA.ResultSampleFractionText",
       "Target.TADA.MethodSpecificationName",
       "Target.TADA.ResultMeasure.MeasureUnitCode",
-      "Target.TADA.SpeciationConversionFactor",
-      "Target.TADA.UnitConversionFactor",
       "Target.TADA.SpeciationConversionFactor",
       "Target.TADA.UnitConversionFactor",
       "HarmonizationGroup"
