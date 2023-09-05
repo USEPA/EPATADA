@@ -1076,7 +1076,8 @@ TADA_UpdateExampleData <- function() {
     TADA.ResultMeasureValueDataTypes.Flag != "Text" &
     TADA.ResultMeasureValueDataTypes.Flag != "Coerced to NA" &
     !is.na(TADA.ResultMeasureValue))
-  Data_6Tribes_5y_Harmonized <- TADA_HarmonizeSynonyms(y, ref = TADA_GetSynonymRef())
+  # uses default ref = TADA_GetSynonymRef()
+  Data_6Tribes_5y_Harmonized <- TADA_HarmonizeSynonyms(y)
   print("Data_6Tribes_5y_Harmonized:")
   print(dim(Data_6Tribes_5y_Harmonized))
   save(Data_6Tribes_5y_Harmonized, file = "inst/extdata/Data_6Tribes_5y_Harmonized.rda")
