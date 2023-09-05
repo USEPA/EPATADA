@@ -61,7 +61,7 @@ unit = "m".
 # Load example dataset:
 data(Data_Nutrients_UT)
 
-# Convert all depth units to meters and review unit harmonization:  
+# Convert all depth units to meters and review unit harmonization:
 # "ActivityDepthHeightMeasure.MeasureUnitCode" and "ActivityDepthHeightMeasure.MeasureValue"
 # are harmonized to "TADA.ActivityDepthHeightMeasure.MeasureUnitCode" and "TADA.ActivityDepthHeightMeasure.MeasureValue"
 DepthUnitsConverted_m <- TADA_ConvertDepthUnits(Data_Nutrients_UT)
