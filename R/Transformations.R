@@ -59,8 +59,8 @@ TADA_GetSynonymRef <- function(.data, download = FALSE) {
 
   # check .data has the required columns
   expected_cols <- c(
-    "TADA.ActivityMediaName",
-    "TADA.CharacteristicName", "TADA.ResultSampleFractionText",
+    "TADA.CharacteristicName", 
+    "TADA.ResultSampleFractionText",
     "TADA.MethodSpecificationName",
     "TADA.ResultMeasure.MeasureUnitCode"
   )
