@@ -20,4 +20,3 @@ test_that("np summation key matches nutrient harmonization ref", {
   check <- merge(harm, np, all.x = TRUE)
   expect_false(any(is.na(check$np)))
 })
-

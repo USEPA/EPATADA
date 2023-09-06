@@ -43,7 +43,15 @@ utils::globalVariables(c(
   "tot_n", "MonitoringLocationName", "TADA.LatitudeMeasure",
   "TADA.LongitudeMeasure", "median", "sd", "TADA.ComparableDataIdentifier",
   "desc", "Legend", "roundRV", "TADA.DuplicateID", "maxRV", "within10",
-  "AllGroups", "Domain.Value.Status", "Char_Flag", "Comparable.Name"
+  "AllGroups", "Domain.Value.Status", "Char_Flag", "Comparable.Name",
+  "TADA.ResultMeasureValue1", "TADA.ResultSampleFractionText",
+  "TADA.MethodSpecificationName", "TADA.ResultMeasure.MeasureUnitCode",
+  "TADA.ActivityMediaName", "TADA.NutrientSummationGroup",
+  "SummationName", "SummationRank", "SummationFractionNotes", "SummationSpeciationNotes",
+  "SummationSpeciationConversionFactor", "SummationNote", "NutrientGroup",
+  "Target.Speciation", "TADA.NearbySiteGroups", "numres", "TADA.SingleOrgDupGroupID",
+  "TADA.MeasureQualifierCode.Flag", "MeasureQualifierCode", "value", "Flag_Column",
+  "Data_NCTCShepherdstown_HUC12", "ActivityStartDateTime"
 ))
 
 

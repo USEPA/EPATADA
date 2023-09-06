@@ -74,7 +74,7 @@ TADA_ConvertResultUnits <- function(.data, transform = TRUE) {
 
   # add usgs unit/speciations - this table was created by Elise Hinman and Cristina Mullin in 07/2023 using the pcodes domain table from NWIS and copying units with speciations in them into the same format as the measure unit domain table for WQX.
   # https://help.waterdata.usgs.gov/codes-and-parameters/parameters Downloaded the .txt file of ALL parameters and then open in Excel using the delimiter utility.
-  usgs.ref <- read.csv(system.file("extdata", "USGS_units_speciation.csv", package = "TADA"))
+  usgs.ref <- utils::read.csv(system.file("extdata", "USGS_units_speciation.csv", package = "TADA"))
 
   unit.ref <- plyr::rbind.fill(unit.ref, usgs.ref)
 

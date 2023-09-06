@@ -59,7 +59,7 @@ TADA_GetSynonymRef <- function(.data, download = FALSE) {
 
   # check .data has the required columns
   expected_cols <- c(
-    "TADA.CharacteristicName", 
+    "TADA.CharacteristicName",
     "TADA.ResultSampleFractionText",
     "TADA.MethodSpecificationName",
     "TADA.ResultMeasure.MeasureUnitCode"
@@ -166,7 +166,7 @@ TADA_HarmonizeSynonyms <- function(.data, ref, np_speciation = TRUE) {
 
   # check .data has the required columns
   expected_cols <- c(
-    "TADA.CharacteristicName", 
+    "TADA.CharacteristicName",
     "TADA.ResultSampleFractionText",
     "TADA.MethodSpecificationName",
     "TADA.ResultMeasureValue",
