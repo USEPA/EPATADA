@@ -13,12 +13,10 @@ test_that("harmonization works", {
 })
 
 test_that("np summation key matches nutrient harmonization ref", {
-  
-  harm = TADA_GetSynonymRef()
-  harm = unique(subset(harm, harm$HarmonizationGroup%in%c("Phosphorus","Nitrogen"))[,c("TADA.CharacteristicName","TADA.ResultSampleFractionText","TADA.MethodSpecificationName")])
-  np = TADA_GetNutrientSummationRef()[,c("TADA.CharacteristicName","TADA.ResultSampleFractionText","TADA.MethodSpecificationName")]
-  np$np = 1
-  check = merge(harm, np, all.x = TRUE)
+  harm <- TADA_GetSynonymRef()
+  harm <- unique(subset(harm, harm$HarmonizationGroup %in% c("Phosphorus", "Nitrogen"))[, c("TADA.CharacteristicName", "TADA.ResultSampleFractionText", "TADA.MethodSpecificationName")])
+  np <- TADA_GetNutrientSummationRef()[, c("TADA.CharacteristicName", "TADA.ResultSampleFractionText", "TADA.MethodSpecificationName")]
+  np$np <- 1
+  check <- merge(harm, np, all.x = TRUE)
   expect_false(any(is.na(check$np)))
-  
-  })
+})

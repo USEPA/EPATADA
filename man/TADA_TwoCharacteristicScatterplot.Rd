@@ -43,6 +43,6 @@ data(Data_Nutrients_UT)
 
 # Create a scatterplot for each comparable data group (TADA.ComparableDataIdentifier)
 # in the input dataframe:
-TADA_TwoCharacteristicScatterplot(Data_Nutrients_UT, id_col = "TADA.ComparableDataIdentifier", groups = c("AMMONIA_UNFILTERED_AS N_UG/L","NITRATE_UNFILTERED_AS N_UG/L"))
+TADA_TwoCharacteristicScatterplot(Data_Nutrients_UT, id_col = "TADA.ComparableDataIdentifier", groups = c("AMMONIA_UNFILTERED_AS N_UG/L", "NITRATE_UNFILTERED_AS N_UG/L"))
 
 }
