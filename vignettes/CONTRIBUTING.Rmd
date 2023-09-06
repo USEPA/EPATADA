@@ -41,25 +41,41 @@ This article will walk through how to contribute to the TADA package via a pull 
 
 ## What is GitHub?
 
-GitHub is a third-party website that offers version-controlled repositories that developers and scientists can use to collaborate on projects (e.g., software, text, manuscripts, etc.) in real-time. GitHub also provides social networking features that allow developers to follow open-source projects, share code and learn how code changes are made throughout the development process. GitHub is so named because it utilizes the open-source version control system (VCS) known as Git.
+GitHub is a third-party website that offers version-controlled repositories that developers and scientists can use to collaborate on projects (e.g., software, text, manuscripts, etc.) in real-time. GitHub also provides social networking features that allow developers to follow open-source projects, share code and learn how code changes are made throughout the development process. GitHub is so named because it utilizes the open-source version control system (VCS) known as Git. There are multiple ways to interact with GitHub using Git.
 
--   [Setting Up Git](https://docs.github.com/articles/set-up-git/)
+-   Option 1: Interact with GitHub using a GUI instead of the command line or a web browser
 
--   [Git Basics](https://git-scm.com/book/ch1-3.html)
+    -   [Getting Started with GitHub Desktop](https://docs.github.com/en/desktop/installing-and-configuring-github-desktop/overview/getting-started-with-github-desktop)
 
--   [Comprehensive Guide: Happy Git and GitHub for the useR](https://happygitwithr.com/ "Great and comprehensive guide for Git with an R flair")
+-   Option 2: Interact with GitHub using the command line or a web browser
+
+    -   [Setting Up Git](https://docs.github.com/articles/set-up-git/)
+
+    -   [Git Basics](https://git-scm.com/book/ch1-3.html)
+
+    -   [Comprehensive Guide: Happy Git and GitHub for the useR](https://happygitwithr.com/ "Great and comprehensive guide for Git with an R flair")
 
 ## Required Installations
 
 There are several programs that are needed before any work can begin. With admin access to your computer, you can install all of these, otherwise create a ticket with your IT group with the following requests. The links provided assume a Windows computer. Adjustments might be needed for Mac or Linux OS:
 
--   [R](https://cran.r-project.org/bin/windows/base/)
+-   Recommend all three:
 
--   [RStudio](https://www.rstudio.com/products/rstudio/download/)
+    -   [R](https://cran.r-project.org/bin/windows/base/)
 
--   [Rtools](https://cran.r-project.org/bin/windows/Rtools/)
+    -   [RStudio](https://posit.co/download/rstudio-desktop/)
 
--   [Git](https://git-scm.com/downloads)
+    -   [Rtools](https://cran.r-project.org/bin/windows/Rtools/)
+
+-   Pick one:
+
+    -   [GitHub Desktop](https://desktop.github.com/)
+
+    -   [Git](https://git-scm.com/downloads)
+
+EPA Employees:
+
+Here are more specific instructions for EPA employees: <https://work.epa.gov/software/r-software>
 
 Once those have been installed, the following R packages will be needed for R-package development work:
 

@@ -4,26 +4,70 @@
 
 [![](https://github.com/USEPA/TADA/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/USEPA/TADA/actions/workflows/R-CMD-check.yaml)
 
-We encourage you to read this package's [CONTRIBUTING](https://usepa.github.io/TADA/articles/CONTRIBUTING.html), [LICENSE](https://usepa.github.io/TADA/LICENSE.html), and [README](https://usepa.github.io/TADA/index.html) files (you are here).
-
 Tools for Automated Data Analysis, or TADA, is a draft R package being developed to help States, Tribes, Tribal Nations, Pueblos, and other stakeholders more efficiently compile and evaluate [Water Quality Portal (WQP)](https://www.waterqualitydata.us/) data collected from surface water monitoring sites. TADA is both a stand-alone R package, and a building block to support development of the [TADA R Shiny application](https://github.com/USEPA/TADAShiny).
 
-We encourage stakeholders to test the functionality and provide feedback. Moreover, open source software provides an avenue for water quality data originators and users to develop and share code, and we welcome your contributions! More information on how to contribute can be found in the [CONTRIBUTING](https://usepa.github.io/TADA/articles/CONTRIBUTING.html) file. This file explains how users can contribute to the R package by submitting a pull request or issue to request a change or provide feedback. We hope to build a collaborative community dedicated to this effort where contributors can discover, share and build the package functionality over time.
+We encourage you to read this package's [LICENSE](https://usepa.github.io/TADA/LICENSE.html) and [README](https://usepa.github.io/TADA/index.html) files (you are here). In addition, all components of this package are documented and guidance on how to use it is provided [here](usepa.github.io/TADA/):
 
-[More about the TADA Project](https://www.epa.gov/waterdata/TADA)
+-   How to use TADA:
+
+    -   [Function Reference](https://usepa.github.io/TADA/reference/index.html)
+
+    -   Example Workflow 1: [Water Quality Portal Data Discovery and Cleaning](https://usepa.github.io/TADA/articles/TADAModule1.html) (Beginner)
+
+    -   Example Workflow 2: [2023 Shepherdstown Training](https://usepa.github.io/TADA/articles/TADATrainingShepherdstown.html) (Advanced)
+
+-   [How to Contribute](https://usepa.github.io/TADA/articles/CONTRIBUTING.html)
+
+    -   We encourage stakeholders to test the functionality and provide feedback. Moreover, open source software provides an avenue for water quality data originators and users to develop and share code, and we welcome your contributions! We hope to build a collaborative community dedicated to this effort where TADA users and contributors can discover, share and build the functionality over time.
+
+-   More information on how TADA leverages the [WQX QAQC Service](https://usepa.github.io/TADA/articles/WQXValidationService.html)
+
+-   [More about the TADA Project](https://www.epa.gov/waterdata/TADA)
 
 ## Installation
 
-You can install and load the most recent version of the TADA R Package from [GitHub](https://github.com/USEPA/TADA) by running:
+You must first have R and R Studio installed to use the TADA R Package (see instructions below if needed). You can install and load the most recent version of the TADA R Package on [GitHub](https://github.com/USEPA/TADA) by running:
 
-``` r
-library (remotes)
+```{r}
+if(!"remotes"%in%installed.packages()){
+install.packages("remotes")
+}
+
 remotes::install_github("USEPA/TADA", ref = "develop", dependencies = TRUE)
+```
+
+The TADA R Shiny application can be run [on the web](https://owshiny-dev.app.cloud.gov/tada-dev/) (R and R Studio install not required), or within R Studio. Run the following code within R Studio to install and run the most recent version of the TADA R Shiny application on [GitHub](https://github.com/USEPA/TADAShiny):
+
+```{r}
+if(!"remotes"%in%installed.packages()){
+install.packages("remotes")
+}
+
+remotes::install_github("USEPA/TADAShiny", ref = "develop", dependencies = TRUE)
+
+TADAShiny::run_app()
 ```
 
 ## Water Quality Portal
 
 In 2012, the WQP was deployed by the U.S. Geological Survey (USGS), the U.S. Environmental Protection Agency (USEPA), and the National Water Quality Monitoring Council to combine and serve water-quality data from numerous sources in a standardized format. The WQP holds over 420 million water quality sample results from over 1000 federal, state, tribal and other partners, and is the nation's largest source for single point of access for water-quality data. Participating organizations submit their data to the WQP using the EPA's Water Quality Exchange (WQX), a framework designed to map their data holdings to a common data structure.
+
+## Install R and R Studio
+
+1.  To download R: Go to <https://cran.r-project.org/> and click the link that describes your computer operating system in the first box in the menu entitled "Download and Install R".
+2.  Clicking your operating system will take you to a new page, which looks slightly different for PC (first image) and Macs (second image):
+
+![](images/Install1.png)
+
+![](images/Install2.png)
+
+3.  Download the program by clicking the appropriate link for your system, and click through the installer windows on your computer, accepting all defaults.
+
+4.  Next, go to the following link to download RStudio: <https://posit.co/download/rstudio-desktop/>, scroll down a little, and click download RStudio.
+
+![](images/Install3-01.png)
+
+3.  Again, download the installer, click through the prompts, and accept the defaults.
 
 ## Open-Source Code Policy
 

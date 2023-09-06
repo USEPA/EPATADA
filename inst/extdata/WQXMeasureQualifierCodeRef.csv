@@ -228,6 +228,7 @@
 "Result Measure Qualifier(MeasureQualifierCode)",1167,"VS","compound identified verified by 2nd method","8/16/2021 11:03:38 AM","Pass"
 "Result Measure Qualifier(MeasureQualifierCode)",758,"VVRR","Value verified by rerun","8/18/2020 1:54:00 PM","Pass"
 "Result Measure Qualifier(MeasureQualifierCode)",1172,"VVRR2","value verified by rerun, 2nd method","8/16/2021 11:08:55 AM","Pass"
+"Result Measure Qualifier(MeasureQualifierCode)",26,"ZZ","Blank-corrected data were indicated by the ""Z"" qualifier code. The laboratory reported the concentration of analyte to the nearest “” unit. These data were qualified as blank-corrected and as undetected when the blank correction resulted in a concentration below the DL.","8/31/2023 6:03:12 PM","Pass"
 "Result Measure Qualifier(MeasureQualifierCode)",311,"^","Yield outside of contractual acceptable range (USGS)","4/12/2017 3:14:21 PM","Suspect"
 NA,NA,"H;J","Hard-coded combination","8/7/2023 02:36:00 PM","Pass"
 NA,NA,"LT;MDL","Hard-coded combination","8/7/2023 05:00:00 PM","Non-Detect"
