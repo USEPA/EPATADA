@@ -360,7 +360,7 @@ TADA_FlagResultUnit <- function(.data, clean = c("invalid_only", "nonstandardize
   check.data <- check.data %>%
     dplyr::rename(TADA.ResultUnit.Flag = Status) %>%
     dplyr::distinct()
-  # rename NA values to Not Reviewed in WQX.ResultUnitValidity column
+  # rename NA values to Not Reviewed in TADA.ResultUnit.Flag column
   check.data["TADA.ResultUnit.Flag"][is.na(check.data["TADA.ResultUnit.Flag"])] <- "Not Reviewed"
 
   # if all rows are "Valid", return input with flag column
@@ -412,7 +412,7 @@ TADA_FlagResultUnit <- function(.data, clean = c("invalid_only", "nonstandardize
     error.data <- dplyr::filter(clean.data, TADA.ResultUnit.Flag == "Invalid" | TADA.ResultUnit.Flag == "NonStandardized")
     # if there are no errors
     if (nrow(error.data) == 0) {
-      print("This dataframe is empty because either we did not find any invalid/nonStandardized characteristic-media-result unit combinations or they were all filtered out")
+      print("This dataframe is empty because either we did not find any invalid/NonStandardized characteristic-media-result unit combinations or they were all filtered out")
       # error.data <- dplyr::select(error.data, -TADA.ResultUnit.Flag)
     }
     error.data <- TADA_OrderCols(error.data)

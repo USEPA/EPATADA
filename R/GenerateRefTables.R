@@ -57,8 +57,8 @@ TADA_GetWQXCharValRef <- function() {
   
   # Categorize status values
   notreviewed <- "Not Reviewed" 
-  valid <- "Accepted"
-  invalid <- "Rejected"
+  valid <- c("Accepted", "Y")
+  invalid <- c("Rejected", "Rejected ", "N")
   nonstandard <- c("NonStandardized",
                    "InvalidMediaUnit",
                    "InvalidChar",
