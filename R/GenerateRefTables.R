@@ -1,3 +1,16 @@
+#' Update TADA Reference Files
+#' @return Saves updated reference files
+#'
+TADA_UpdateAllRefs <- function () {
+  TADA_UpdateWQXCharValRef()
+  TADA_UpdateMeasureUnitRef()
+  TADA_UpdateDetCondRef()
+  TADA_UpdateDetLimitRef()
+  TADA_UpdateActivityTypeRef()
+  TADA_UpdateCharacteristicRef()
+  TADA_UpdateMeasureQualifierCodeRef()
+}
+
 # Used to store cached WQX QAQC Characteristic Validation Reference Table
 WQXCharValRef_Cached <- NULL
 
@@ -41,32 +54,25 @@ TADA_GetWQXCharValRef <- function() {
     message("Falling back to (possibly outdated) internal file.")
     return(utils::read.csv(system.file("extdata", "WQXcharValRef.csv", package = "TADA")))
   }
-
-  # filter data to include only accepted (valid) values and remove extraneous columns
+  
+  # Categorize status values
+  notreviewed <- "Not Reviewed" 
+  valid <- "Accepted"
+  invalid <- "Rejected"
+  nonstandard <- c("NonStandardized",
+                   "InvalidMediaUnit",
+                   "InvalidChar",
+                   "MethodNeeded")
+  
   WQXcharValRef <- raw.data %>%
-    dplyr::select(-c(
-      "Domain", "Unique.Identifier", "Note.Recommendation",
-      "Last.Change.Date"
-    ))
-  # replace "Status" values with Valid, Invalid, Unknown
-  WQXcharValRef$Status2 <- ifelse(WQXcharValRef$Status %in% c("Accepted"), "Valid", "Invalid")
-  WQXcharValRef$Status2 <- ifelse(WQXcharValRef$Status %in% c(
-    "NonStandardized",
-    "Nonstandardized",
-    "InvalidMediaUnit",
-    "InvalidChar",
-    "MethodNeeded"
-  ), "Nonstandardized", WQXcharValRef$Status2)
-
-  WQXcharValRef <- WQXcharValRef %>%
-    dplyr::select(-Status) %>%
-    dplyr::rename(Status = Status2) %>%
+    dplyr::mutate(TADA.WQXVal.Flag = dplyr::case_when(
+      Status %in% notreviewed ~ "Not Reviewed",
+      Status %in% valid ~ "Valid",
+      Status %in% invalid ~ "Invalid",
+      Status %in% nonstandard ~ "NonStandardized",
+      Status %in% NA ~ "Not Reviewed",
+    )) %>%
     dplyr::distinct()
-
-  # # Convert all NONE to NA in Value and Value.Unit columns
-  # WQXcharValRef = WQXcharValRef %>% dplyr::mutate(Value = replace(Value, Value%in%c("NONE"),NA),
-  #                                                 Value.Unit = replace(Value.Unit, Value.Unit%in%c("NONE"),NA)) %>% dplyr::distinct()
-  #
 
   # Save updated table in cache
   WQXCharValRef_Cached <- WQXcharValRef
@@ -394,7 +400,8 @@ TADA_GetActivityTypeRef <- function() {
   if (is.null(raw.data)) {
     message("Downloading latest Activity Type Reference Table failed!")
     message("Falling back to (possibly outdated) internal file.")
-    return(utils::read.csv(system.file("extdata", "WQXActivityTypeRef.csv", package = "TADA")))
+    return(utils::read.csv(system.file("extdata", "WQXActivityTypeRef.csv", 
+                                       package = "TADA")))
   }
 
   # Categorize Activity Types
@@ -635,8 +642,8 @@ TADA_GetMeasureQualifierCodeRef <- function() {
       Code %in% overdetect ~ "Over-Detect",
       Code %in% suspect ~ "Suspect",
       Code %in% pass ~ "Pass",
-      Code %in% NA ~ "Pass",
-      TRUE ~ as.character("NewValue_NeedsReview")
+      Code %in% NA ~ "Not Reviewed",
+      TRUE ~ as.character("Not Reviewed")
     )) %>%
     dplyr::distinct()
 

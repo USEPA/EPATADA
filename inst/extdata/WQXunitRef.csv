@@ -60,6 +60,7 @@
 "Measurement Unit(MeasureUnitCode)",104,"JCU","Light Intensity, Jackson Candle Units","7/26/2006 10:57:47 AM","JCU",1,0
 "Measurement Unit(MeasureUnitCode)",76,"JTU","Turbidity, Jackson Turbidity Units","7/26/2006 10:57:47 AM","FTU",0.4,0
 "Measurement Unit(MeasureUnitCode)",67,"Joules","Energy, Joules","7/26/2006 10:57:47 AM","kcal",0.0002388458966275,0
+"Measurement Unit(MeasureUnitCode)",411,"Kohm-cm","Electric Resistivity, Kilo-ohms - centimeter (symbol: KΩcm). Resistance R is expressed in Kilo Ohm (KΩ) and distances are expressed in centimeters (cm)","9/1/2023 12:00:00 AM","ohm-m",10,0
 "Measurement Unit(MeasureUnitCode)",200,"L","Volume, Liters","2/1/2023 8:46:30 AM","m3",0.001,0
 "Measurement Unit(MeasureUnitCode)",45,"L/day","Flow, Liters per day","7/26/2006 10:57:47 AM","cfs",4.087345685e-07,0
 "Measurement Unit(MeasureUnitCode)",121,"L/hr","Flow, Liters per hour","7/26/2006 10:57:47 AM","cfs",9.8096296449e-06,0
@@ -91,7 +92,7 @@
 "Measurement Unit(MeasureUnitCode)",300,"NTMU","Turbidity, Nephelometric Turbidity Multibeam Unit","3/3/2011 3:23:24 PM","NTMU",1,0
 "Measurement Unit(MeasureUnitCode)",299,"NTRU","Turbidity, Nephelometric Turbidity Ratio Unit","3/3/2011 3:23:24 PM","NTRU",1,0
 "Measurement Unit(MeasureUnitCode)",103,"NTU","Turbidity, Nephelometric Turbidity Units","7/26/2006 10:57:47 AM","FTU",1,0
-"Measurement Unit(MeasureUnitCode)",1,"None","Quantity, None","7/26/2006 10:57:47 AM","None",1,0
+"Measurement Unit(MeasureUnitCode)",1,NA,"Quantity, None","7/26/2006 10:57:47 AM",NA,1,0
 "Measurement Unit(MeasureUnitCode)",95,"Normal","Quantity, Normal","7/26/2006 10:57:47 AM","Normal",1,0
 "Measurement Unit(MeasureUnitCode)",33,"PCU","Picklist or Choicelist, Platinum Cobalt Units (color) - American Public Health Association Color Scale, APHA = Pt-Co = Hazen Color","7/26/2006 10:57:47 AM","PCU",1,0
 "Measurement Unit(MeasureUnitCode)",168,"PSS","Concentration Solution, Practical Salinity Scale","7/26/2006 10:57:47 AM","PSS",1,0
@@ -216,7 +217,7 @@
 "Measurement Unit(MeasureUnitCode)",70,"kcal","Energy, kilocalories","7/26/2006 10:57:47 AM","kcal",1,0
 "Measurement Unit(MeasureUnitCode)",7,"kg","Weight Mass, Kilograms","7/26/2006 10:57:47 AM","g",1000,0
 "Measurement Unit(MeasureUnitCode)",616,"kg/day","Flow Mass, Kilograms per day","5/19/2022 1:59:04 PM","kg/day",1,0
-"Measurement Unit(MeasureUnitCode)",377,"kg/ha","Concentration Solution, kilograms per hectare","7/12/2023 10:03:53 PM","kg/m2",1e-04,0
+"Measurement Unit(MeasureUnitCode)",377,"kg/ha","Concentration Solution, kilograms per hectare","7/12/2023 10:03:53 PM","g/m2",0.1,0
 "Measurement Unit(MeasureUnitCode)",81,"kg/m2","Concentration Solution, Kilograms per square meter","7/26/2006 10:57:47 AM","g/m2",1000,0
 "Measurement Unit(MeasureUnitCode)",21,"kg/m3","Density, Kilograms per cubic meter","7/26/2006 10:57:47 AM","ug/L",1e+06,0
 "Measurement Unit(MeasureUnitCode)",343,"kg/m3-1000","Density, Kilograms per cubic meter minus one thousand","9/27/2013 11:57:20 AM","Kg/m3-1000",1,0
@@ -342,7 +343,7 @@
 "Measurement Unit(MeasureUnitCode)",271,"nmol/hr/g","Viscosity, Nanomoles per hour per gram","11/24/2009 7:07:30 PM","nmol/hr/g",1,0
 "Measurement Unit(MeasureUnitCode)",163,"nmol/kg","Concentration Molar, Nanomoles per Kilogram","7/26/2006 10:57:47 AM","mmol/kg",1e-06,0
 "Measurement Unit(MeasureUnitCode)",371,"nmol/m3","Concentration Molar, Nanomoles per cubic meter","1/29/2016 12:37:35 PM","nmol/m3",1,0
-"Measurement Unit(MeasureUnitCode)",144,"nu","Concentration Percentage, Number or gage","7/26/2006 10:57:47 AM","None",1,0
+"Measurement Unit(MeasureUnitCode)",144,"nu","Concentration Percentage, Number or gage","7/26/2006 10:57:47 AM",NA,1,0
 "Measurement Unit(MeasureUnitCode)",315,"ohm","Electrical resistance, ohms (symbol: Ω)","1/11/2012 3:59:08 PM","ohm",1,0
 "Measurement Unit(MeasureUnitCode)",365,"ohm-cm","Electric Resistivity, ohms - centimeter (symbol: Ωcm)","4/15/2015 7:38:35 AM","ohm-m",0.01,0
 "Measurement Unit(MeasureUnitCode)",378,"ohm-m","Electric Resistivity, ohms - meter (symbol: Ωm).  Ohm-meter is a unit of resistivity","12/7/2017 8:13:48 AM","ohm-m",1,0
@@ -379,7 +380,7 @@
 "Measurement Unit(MeasureUnitCode)",231,"pt","Volume, Fluid pints","7/26/2006 10:57:47 AM","m3",0.0004731765,0
 "Measurement Unit(MeasureUnitCode)",232,"qt","Volume, Fluid quarts","7/26/2006 10:57:47 AM","m3",0.0009463529,0
 "Measurement Unit(MeasureUnitCode)",216,"seconds","Time, Seconds","7/26/2006 10:57:47 AM","minutes",0.0166666666666667,0
-"Measurement Unit(MeasureUnitCode)",400,"std*********","Quantity, Standard Unit***retired***use None","12/8/2021 12:37:30 PM","None",1,0
+"Measurement Unit(MeasureUnitCode)",400,"std*********","Quantity, Standard Unit***retired***use None","12/8/2021 12:37:30 PM",NA,1,0
 "Measurement Unit(MeasureUnitCode)",260,"tCaCO3/Kt***","Concentration Solution, Tons of calcium carbonate (CaCO3) per kiloton***retired***use tons/kt and speciation = CaCO3","3/22/2022 12:00:00 AM","t/Kt",1,0
 "Measurement Unit(MeasureUnitCode)",10,"tons","Weight Mass, Short tons","7/26/2006 10:57:47 AM","g",907184.74,0
 "Measurement Unit(MeasureUnitCode)",159,"tons/ac ft","Concentration Solution, Tons per acre feet","7/26/2006 10:57:47 AM","ug/L",735462.367317422,0
