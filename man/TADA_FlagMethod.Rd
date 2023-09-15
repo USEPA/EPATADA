@@ -21,7 +21,7 @@ is flaggedonly = FALSE.}
 This function adds the TADA.AnalyticalMethod.Flag to a TADA dataframe. This column
 flags invalid CharacteristicName, ResultAnalyticalMethod/MethodIdentifier,
 and ResultAnalyticalMethod/MethodIdentifierContext combinations in your dataframe
-as either "Nonstandardized", "Invalid", or "Valid". When clean = FALSE and
+as either "NonStandardized", "Invalid", or "Valid". When clean = FALSE and
 flaggedonly = TRUE, the dataframe is filtered to show only "Invalid"
 characteristic-analytical method combinations; the column TADA.AnalyticalMethod.Flag
 is still appended. When clean = TRUE and flaggedonly = FALSE, "Invalid" rows

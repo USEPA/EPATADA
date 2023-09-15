@@ -18,7 +18,7 @@
 #' @return This function adds the TADA.AnalyticalMethod.Flag to a TADA dataframe. This column
 #' flags invalid CharacteristicName, ResultAnalyticalMethod/MethodIdentifier,
 #' and ResultAnalyticalMethod/MethodIdentifierContext combinations in your dataframe
-#' as either "Nonstandardized", "Invalid", or "Valid". When clean = FALSE and
+#' as either "NonStandardized", "Invalid", or "Valid". When clean = FALSE and
 #' flaggedonly = TRUE, the dataframe is filtered to show only "Invalid"
 #' characteristic-analytical method combinations; the column TADA.AnalyticalMethod.Flag
 #' is still appended. When clean = TRUE and flaggedonly = FALSE, "Invalid" rows
@@ -80,12 +80,12 @@ TADA_FlagMethod <- function(.data, clean = TRUE, flaggedonly = FALSE) {
   check.data <- check.data %>%
     dplyr::rename(TADA.AnalyticalMethod.Flag = Status) %>%
     dplyr::distinct()
-  # rename NA values to Nonstandardized in WQX.AnalyticalMethodValidity column
-  check.data["TADA.AnalyticalMethod.Flag"][is.na(check.data["TADA.AnalyticalMethod.Flag"])] <- "Nonstandardized"
+  # rename NA values to NonStandardized in WQX.AnalyticalMethodValidity column
+  check.data["TADA.AnalyticalMethod.Flag"][is.na(check.data["TADA.AnalyticalMethod.Flag"])] <- "NonStandardized"
 
   if (flaggedonly == FALSE) {
-    # if all rows are "Valid" or NA "Nonstandardized", return input unchanged
-    ## note: Cristina edited this on 9/19/22 to keep Nonstandardized/NA data when clean = TRUE. Now only Invalid data is removed.
+    # if all rows are "Valid" or NA "NonStandardized", return input unchanged
+    ## note: Cristina edited this on 9/19/22 to keep NonStandardized/NA data when clean = TRUE. Now only Invalid data is removed.
     if (any("Invalid" %in%
       unique(check.data$TADA.AnalyticalMethod.Flag)) == FALSE) {
       print("No invalid method/characteristic combinations in your dataframe. Returning the input dataframe with TADA.AnalyticalMethod.Flag column for tracking.")
@@ -355,7 +355,7 @@ TADA_FlagAboveThreshold <- function(.data, clean = TRUE, flaggedonly = FALSE) {
     dplyr::mutate(TADA.ResultValueAboveUpperThreshold.Flag = dplyr::case_when(
       TADA.ResultMeasureValue >= Maximum ~ as.character("Y"),
       TADA.ResultMeasureValue < Maximum ~ as.character("N"),
-      TRUE ~ as.character("No threshold available") # this occurs when the char/unit combo is not in the table
+      TRUE ~ as.character("Not Reviewed") # this occurs when the char/unit combo is not in the table
     ))
 
   # remove extraneous columns, fix field names
@@ -506,7 +506,7 @@ TADA_FlagBelowThreshold <- function(.data, clean = TRUE, flaggedonly = FALSE) {
     dplyr::mutate(TADA.ResultValueBelowLowerThreshold.Flag = dplyr::case_when(
       TADA.ResultMeasureValue <= Minimum ~ as.character("Y"),
       TADA.ResultMeasureValue > Minimum ~ as.character("N"),
-      TRUE ~ as.character("No threshold available") # this occurs when the char/unit combo is not in the table
+      TRUE ~ as.character("Not Reviewed") # this occurs when the char/unit combo is not in the table
     ))
 
   # remove extraneous columns, fix field names
