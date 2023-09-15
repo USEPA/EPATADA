@@ -4,7 +4,7 @@
 
 [![](https://github.com/USEPA/TADA/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/USEPA/TADA/actions/workflows/R-CMD-check.yaml)
 
-Tools for Automated Data Analysis, or TADA, is a draft R package being developed to help States, Tribes, Tribal Nations, Pueblos, and other stakeholders more efficiently compile and evaluate [Water Quality Portal (WQP)](https://www.waterqualitydata.us/) data collected from surface water monitoring sites. TADA is both a stand-alone R package, and a building block to support development of the [TADA R Shiny application](https://github.com/USEPA/TADAShiny). We encourage you to read this package's [LICENSE](https://usepa.github.io/TADA/LICENSE.html) and [README](https://usepa.github.io/TADA/index.html) files (you are here).
+Tools for Automated Data Analysis, or TADA, is being developed to help States, Tribes (i.e., Tribal Nations, Pueblos, Bands, Rancherias, Communities, Colonies, Towns, Indians, Villages), federal partners, and any other [Water Quality Portal (WQP)](https://www.waterqualitydata.us/) users (e.g. researchers) efficiently compile and evaluate WQP data collected from water quality monitoring sites. TADA is both a stand-alone R package, and a building block to support development of the [TADA R Shiny application](https://github.com/USEPA/TADAShiny). We encourage you to read this package's [LICENSE](https://usepa.github.io/TADA/LICENSE.html) and [README](https://usepa.github.io/TADA/index.html) files (you are here).
 
 -   How to use TADA:
 

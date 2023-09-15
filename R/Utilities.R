@@ -51,7 +51,7 @@ utils::globalVariables(c(
   "SummationSpeciationConversionFactor", "SummationNote", "NutrientGroup",
   "Target.Speciation", "TADA.NearbySiteGroups", "numres", "TADA.SingleOrgDupGroupID",
   "TADA.MeasureQualifierCode.Flag", "MeasureQualifierCode", "value", "Flag_Column",
-  "Data_NCTCShepherdstown_HUC12", "ActivityStartDateTime"
+  "Data_NCTCShepherdstown_HUC12", "ActivityStartDateTime", "TADA.MultipleOrgDupGroupID"
 ))
 
 
