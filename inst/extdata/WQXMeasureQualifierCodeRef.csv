@@ -121,6 +121,7 @@
 "Result Measure Qualifier(MeasureQualifierCode)",1,"J","Estimated: The analyte was positively identified and the associated numerical value is the approximate concentration of the analyte in the sample.","8/11/2006 11:50:00 PM","Pass"
 "Result Measure Qualifier(MeasureQualifierCode)",7,"J+","Estimated: The analyte was positively identified and the associated numerical value... +++.","5/7/2009 1:08:20 PM","Pass"
 "Result Measure Qualifier(MeasureQualifierCode)",57,"J-","The analyte was positively identified; the associated numerical value is the approximate concentration of the analyte in the sample, and may have a potential negative bias.","2/19/2016 8:34:06 AM","Pass"
+"Result Measure Qualifier(MeasureQualifierCode)",68,"J-1","Estimated value. A full explanation is presented in the narrative.","9/28/2023 2:48:59 PM","Not Reviewed"
 "Result Measure Qualifier(MeasureQualifierCode)",64,"J-R","Approximate value result is below the reporting level but greater than the method detection limit","8/23/2021 11:04:25 AM","Pass"
 "Result Measure Qualifier(MeasureQualifierCode)",161,"JCN","Sample Container Damaged, no sample lost","3/16/2016 1:04:25 PM","Pass"
 "Result Measure Qualifier(MeasureQualifierCode)",162,"JCW","Sample Container Damaged, sample lost","3/16/2016 1:04:25 PM","Suspect"
