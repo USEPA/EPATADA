@@ -76,10 +76,10 @@ remotes::install_github("USEPA/TADA",
 
 ```{r for-development-only, echo = F, results = 'hide', message = FALSE, warning = FALSE}
 # IF YOU ARE NOT DEVELOPING TADA, SKIP THIS CODE CHUNK
-# when developing the package, update this chunk to the current repository, so it runs with all of the new features prior to a PR to develop
+# when developing the package, update this chunk to the current repository branch, so it runs with all of the new features prior to a PR to develop
 
 remotes::install_github("USEPA/TADA",
-  ref = "develop",
+  ref = "cm",
   dependencies = TRUE
 )
 ```
