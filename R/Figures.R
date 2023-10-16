@@ -544,10 +544,12 @@ TADA_Scatterplot <- function(.data, id_cols = c("TADA.ComparableDataIdentifier")
   # check .data has required columns
   TADA_CheckColumns(.data, c("TADA.ResultDepthHeightMeasure.MeasureValue",
                              "TADA.ResultDepthHeightMeasure.MeasureUnitCode",
+                             "TADA.CharacteristicName",
                              "ActivityStartDate",
                              "ActivityStartDateTime",
                              "TADA.ResultMeasureValue",
-                             "TADA.ResultMeasure.MeasureUnitCode"))
+                             "TADA.ResultMeasure.MeasureUnitCode",
+                             "TADA.ComparableDataIdentifier"))
 
   start <- dim(.data)[1]
 
