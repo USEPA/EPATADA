@@ -407,7 +407,16 @@ TADA_CalculateTotalNP <- function(.data, sum_ref, daily_agg = c("max", "min", "m
   # create nutrient groups by site, date, and depth
   depths <- names(.data)[grepl("DepthHeightMeasure", names(.data))]
   depths <- depths[grepl("TADA.", depths)]
-  grpcols <- c("ActivityStartDate", "MonitoringLocationIdentifier", "TADA.LongitudeMeasure", "TADA.LatitudeMeasure", "ActivityMediaSubdivisionName", "TADA.ComparableDataIdentifier", "TADA.ResultMeasure.MeasureUnitCode", depths)
+  grpcols <- c("ActivityStartDate", 
+               "ActivityStartDateTime",
+               "ActivityRelativeDepthName",
+               "MonitoringLocationIdentifier",
+               "TADA.LongitudeMeasure",
+               "TADA.LatitudeMeasure",
+               "ActivityMediaSubdivisionName",
+               "TADA.ComparableDataIdentifier",
+               "TADA.ResultMeasure.MeasureUnitCode",
+               depths)
 
   dat <- suppressMessages(TADA_AggregateMeasurements(.data, grouping_cols = grpcols, agg_fun = daily_agg, clean = TRUE))
 

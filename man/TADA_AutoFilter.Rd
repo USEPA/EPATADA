@@ -11,13 +11,16 @@ TADA_AutoFilter(.data)
 }
 \value{
 .data with rows removed where result values are not quantitative (NA or text),
-the media is not water, or the results have other issues that are not dealt with elsewhere.
+or the results have other issues that are not dealt with elsewhere.
 }
 \description{
-This function Auto-Filters a dataframe so it only includes results that are
-ready to use for analyses. Ideally, this function should be run after data
-other data cleaning, QA/QC, and harmonization steps are completed using other
-TADA package functions, or manually.
+This function removes rows where the result value is not numeric to
+prepare a dataframe for quantitative analyses. Ideally, this function should
+be run after other data cleaning, QA/QC, and harmonization steps are
+completed using other TADA package functions, or manually. Specifically, .
+this function removes rows with "Text","Coerced to NA", and "ND or NA"
+in the TADA.ResultMeasureValueDataTypes.Flag column, or NA in the
+TADA.ResultMeasureValue column.
 }
 \examples{
 # Load example dataset:

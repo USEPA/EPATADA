@@ -47,6 +47,7 @@
 "Measurement Unit(MeasureUnitCode)",338,"CCE/100mL","Concentration Solution, Calibrator Cell Equivalents per 100 Milliliters","12/20/2012 10:57:47 AM","CCE/100mL",1,0
 "Measurement Unit(MeasureUnitCode)",147,"CFU","Concentration Solution, Colony Forming Units. CFU (Colony Forming Unit) estimates the number of viable microorganisms by growing them in a solid agar.","7/26/2006 10:57:47 AM","CFU",1,0
 "Measurement Unit(MeasureUnitCode)",659,"CU","Picklist or Choicelist, One color unit (CU) is equivalent to one Hazen unit and to one Pt-Co unit","8/9/2019 7:00:07 PM","PCU",1,0
+"Measurement Unit(MeasureUnitCode)",412,"DOY","Time, Day of year (1-365, or 1-366 for leap years)","10/5/2023 6:14:24 PM","DOY",1,0
 "Measurement Unit(MeasureUnitCode)",110,"Deg","Direction or angle, degrees","7/26/2006 10:57:47 AM","Deg",1,0
 "Measurement Unit(MeasureUnitCode)",295,"FAU","Turbidity, Formazine Attenuation Units","3/3/2011 3:23:23 PM","FAU",1,0
 "Measurement Unit(MeasureUnitCode)",294,"FBU","Turbidity, Formazin Backscatter Unit","3/3/2011 3:23:23 PM","FBU",1,0
@@ -199,7 +200,7 @@
 "Measurement Unit(MeasureUnitCode)",410,"gc/uL","Concentration Solution, genomic copies per microliter","1/30/2023 7:37:52 PM","gc/uL",1,0
 "Measurement Unit(MeasureUnitCode)",720,"geu/100mL","Concentration Solution, Genomic Equivalent Units per 100 milliliters","1/3/2020 10:35:48 AM","geu/100mL",1,0
 "Measurement Unit(MeasureUnitCode)",718,"geu/g","Concentration Solution, Genomic Equivalent Units per gram","1/6/2020 5:12:18 PM","geu/g",1,0
-"Measurement Unit(MeasureUnitCode)",255,"gpg","Concentration Solution, Grains per gallon","7/26/2006 10:57:47 AM","ug/L",17118.0600684945,0
+"Measurement Unit(MeasureUnitCode)",255,"gpg","Concentration Solution, Grains per gallon (grains/gal)","7/26/2006 10:57:47 AM","ug/L",17118.0600684945,0
 "Measurement Unit(MeasureUnitCode)",358,"gpm*********","Flow, Gallons per minute ***deprecated***use gal/min","2/9/2021 9:59:35 AM","cfs",0.0022280092592592,0
 "Measurement Unit(MeasureUnitCode)",73,"gpm/ft","Drawdown capacity, gallons per minute per foot","7/26/2006 10:57:47 AM","gpm/ft",1,0
 "Measurement Unit(MeasureUnitCode)",308,"grains","Weight Mass, Grains","1/11/2012 3:59:08 PM","g",0.06479891,0
@@ -232,6 +233,7 @@
 "Measurement Unit(MeasureUnitCode)",198,"knots","Speed Velocity, Nautical miles per hour","7/26/2006 10:57:47 AM","m/sec",0.514444444444444,0
 "Measurement Unit(MeasureUnitCode)",64,"kw","Power, kilowatts","7/26/2006 10:57:47 AM","Mw",0.001,0
 "Measurement Unit(MeasureUnitCode)",9,"lb","Weight Mass, Pounds","7/26/2006 10:57:47 AM","g",453.59237,0
+"Measurement Unit(MeasureUnitCode)",384,"lb/ac-ft","Concentration Solution, pounds per acre feet","10/4/2023 1:57:31 PM","ug/L",367.731183659,0
 "Measurement Unit(MeasureUnitCode)",130,"lb/acre/yr","Viscosity, Pounds per acre per year","7/26/2006 10:57:47 AM","mg/m2/day",0.306871064953512,0
 "Measurement Unit(MeasureUnitCode)",190,"lb/day","Flow Mass, Pounds per day","7/26/2006 10:57:47 AM","lb/day",1,0
 "Measurement Unit(MeasureUnitCode)",721,"lb/ft2","Concentration Solution, pounds per square foot","11/2/2020 5:13:13 PM","lb/ft2",1,0

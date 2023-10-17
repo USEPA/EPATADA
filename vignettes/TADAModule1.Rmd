@@ -76,10 +76,10 @@ remotes::install_github("USEPA/TADA",
 
 ```{r for-development-only, echo = F, results = 'hide', message = FALSE, warning = FALSE}
 # IF YOU ARE NOT DEVELOPING TADA, SKIP THIS CODE CHUNK
-# when developing the package, update this chunk to the current repository, so it runs with all of the new features prior to a PR to develop
+# when developing the package, update this chunk to the current repository branch, so it runs with all of the new features prior to a PR to develop
 
 remotes::install_github("USEPA/TADA",
-  ref = "develop",
+  ref = "cm",
   dependencies = TRUE
 )
 ```
@@ -863,15 +863,8 @@ TADA.ResultMeasureValueDataTypes.Flag = "Text","Coerced to NA","ND or
 NA".
 
 ```{r filter_out_NAs}
-# Filter down to only numeric data. Remove "Text","Coerced to NA","ND or NA".
-# Removes rows with any remaining NA's in the TADA.ResultMeasureValue column
-TADAProfileClean5 <- dplyr::filter(
-  TADAProfileClean4,
-  TADA.ResultMeasureValueDataTypes.Flag != "ND or NA" &
-    TADA.ResultMeasureValueDataTypes.Flag != "Text" &
-    TADA.ResultMeasureValueDataTypes.Flag != "Coerced to NA" &
-    !is.na(TADA.ResultMeasureValue)
-)
+# Removes rows where the result value is not numeric. Specifically, removes rows with "Text","Coerced to NA", and "ND or NA" in the TADA.ResultMeasureValueDataTypes.Flag column, or NA in the TADA.ResultMeasureValue column.
+TADAProfileClean5 <- TADA_AutoFilter(TADAProfileClean4)
 ```
 
 Double check to make sure no NA's or ND's remain.

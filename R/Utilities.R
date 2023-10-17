@@ -1047,7 +1047,7 @@ TADA_UpdateExampleData <- function() {
   )
   print("Data_Nutrients_UT")
   print(dim(Data_Nutrients_UT))
-  save(Data_Nutrients_UT, file = "Data_Nutrients_UT.rda")
+  save(Data_Nutrients_UT, file = "data/Data_Nutrients_UT.rda")
   rm(Data_Nutrients_UT)
 
   Data_6Tribes_5y <- TADA_DataRetrieval(
@@ -1063,7 +1063,7 @@ TADA_UpdateExampleData <- function() {
   )
   print("Data_6Tribes_5y:")
   print(dim(Data_6Tribes_5y))
-  save(Data_6Tribes_5y, file = "inst/extdata/Data_6Tribes_5y.rda")
+  save(Data_6Tribes_5y, file = "data/Data_6Tribes_5y.rda")
 
   y <- subset(Data_6Tribes_5y, Data_6Tribes_5y$TADA.ActivityMediaName %in% c("WATER"))
   y <- TADA_RunKeyFlagFunctions(Data_6Tribes_5y)
@@ -1088,7 +1088,7 @@ TADA_UpdateExampleData <- function() {
   Data_6Tribes_5y_Harmonized <- TADA_HarmonizeSynonyms(y)
   print("Data_6Tribes_5y_Harmonized:")
   print(dim(Data_6Tribes_5y_Harmonized))
-  save(Data_6Tribes_5y_Harmonized, file = "inst/extdata/Data_6Tribes_5y_Harmonized.rda")
+  save(Data_6Tribes_5y_Harmonized, file = "data/Data_6Tribes_5y_Harmonized.rda")
   rm(Data_6Tribes_5y_Harmonized)
 
   Data_NCTCShepherdstown_HUC12 <- TADA::TADA_DataRetrieval(
@@ -1108,7 +1108,7 @@ TADA_UpdateExampleData <- function() {
   )
   print("Data_NCTCShepherdstown_HUC12:")
   print(dim(Data_NCTCShepherdstown_HUC12))
-  save(Data_NCTCShepherdstown_HUC12, file = "inst/extdata/Data_NCTCShepherdstown_HUC12.rda")
+  save(Data_NCTCShepherdstown_HUC12, file = "data/Data_NCTCShepherdstown_HUC12.rda")
   rm(Data_NCTCShepherdstown_HUC12)
 }
 
