@@ -150,11 +150,14 @@ TADA_AutoClean <- function(.data) {
   # Move detection limit value and unit to TADA Result Measure Value and Unit columns
   .data$TADA.ResultMeasureValue <- ifelse(is.na(.data$TADA.ResultMeasureValue) & !is.na(.data$TADA.DetectionQuantitationLimitMeasure.MeasureValue), .data$TADA.DetectionQuantitationLimitMeasure.MeasureValue, .data$TADA.ResultMeasureValue)
   .data$TADA.ResultMeasure.MeasureUnitCode <- ifelse(is.na(.data$TADA.ResultMeasure.MeasureUnitCode) & !is.na(.data$TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode), .data$TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode, .data$TADA.ResultMeasure.MeasureUnitCode)
-  .data$TADA.ResultMeasureValueDataTypes.Flag <- ifelse(.data$TADA.ResultMeasureValueDataTypes.Flag == "ND or NA" & !is.na(.data$TADA.DetectionQuantitationLimitMeasure.MeasureValue), "Result Value/Unit Copied from Detection Limit", .data$TADA.ResultMeasureValueDataTypes.Flag)
+  .data$TADA.ResultMeasureValueDataTypes.Flag <- ifelse(.data$TADA.ResultMeasureValueDataTypes.Flag == "Blank" & !is.na(.data$TADA.DetectionQuantitationLimitMeasure.MeasureValue), "Result Value/Unit Copied from Detection Limit", .data$TADA.ResultMeasureValueDataTypes.Flag)
 
   # Identify detection limit data
   print("TADA_Autoclean: identifying detection limit data.")
   .data <- TADA_IDCensoredData(.data)
+  
+  # Identify QC data
+  .data <- TADA_FindQCActivities(.data, clean = FALSE, flaggedonly = FALSE)
 
   # change latitude and longitude measures to class numeric
   .data$TADA.LatitudeMeasure <- as.numeric(.data$LatitudeMeasure)
@@ -328,7 +331,7 @@ TADA_ConvertSpecialChars <- function(.data, col) {
   if (is.numeric(chars.data$orig)) {
     clean.data <- chars.data %>%
       dplyr::mutate(flag = dplyr::case_when(
-        is.na(masked) ~ as.character("ND or NA"),
+        is.na(masked) ~ as.character("Blank"),
         TRUE ~ as.character("Numeric")
       ))
   } else {
@@ -338,8 +341,8 @@ TADA_ConvertSpecialChars <- function(.data, col) {
     # of the specific type of character/data type
     clean.data <- chars.data %>%
       dplyr::mutate(flag = dplyr::case_when(
-        is.na(masked) ~ as.character("ND or NA"),
-        (masked == "ND") ~ as.character("ND or NA"),
+        is.na(masked) ~ as.character("Blank"),
+        (masked == "ND") ~ as.character("Blank"),
         (!is.na(suppressWarnings(as.numeric(masked)) == TRUE)) ~ as.character("Numeric"),
         (grepl("<", masked) == TRUE) ~ as.character("Less Than"),
         (grepl(">", masked) == TRUE) ~ as.character("Greater Than"),
@@ -1080,7 +1083,7 @@ TADA_UpdateExampleData <- function() {
     od_method = "as-is",
     od_multiplier = "null"
   )
-  y <- dplyr::filter(y, TADA.ResultMeasureValueDataTypes.Flag != "ND or NA" &
+  y <- dplyr::filter(y, TADA.ResultMeasureValueDataTypes.Flag != "Blank" &
     TADA.ResultMeasureValueDataTypes.Flag != "Text" &
     TADA.ResultMeasureValueDataTypes.Flag != "Coerced to NA" &
     !is.na(TADA.ResultMeasureValue))
@@ -1278,4 +1281,49 @@ TADA_CheckRequiredFields <- function(.data) {
   } else {
     stop("The dataframe does not contain the required fields to use TADA Module 1.")
   }
+}
+
+
+#' AutoFilter
+#'
+#' This function removes rows where the result value is not numeric to 
+#' prepare a dataframe for quantitative analyses. Ideally, this function should
+#' be run after other data cleaning, QA/QC, and harmonization steps are 
+#' completed using other TADA package functions, or manually. Specifically, .
+#' this function removes rows with "Text","Coerced to NA", and "Blank" 
+#' in the TADA.ResultMeasureValueDataTypes.Flag column, or NA in the 
+#' TADA.ResultMeasureValue column.
+#'
+#' @param .data TADA dataframe OR TADA sites dataframe
+#'
+#' @return .data with rows removed where result values are not quantitative (NA or text),
+#' or the results have other issues that are not dealt with elsewhere.
+#'
+#' @export
+#'
+#' @examples
+#' # Load example dataset:
+#' data(Data_Nutrients_UT)
+#'
+#' # Remove all:
+#' TADA_filtered <- TADA_AutoFilter(Data_Nutrients_UT)
+#'
+TADA_AutoFilter <- function(.data) {
+  # check .data is data.frame
+  TADA_CheckType(.data, "data.frame", "Input object")
+  TADA_CheckColumns(.data, c(
+    "ActivityTypeCode", "MeasureQualifierCode",
+    "TADA.ResultMeasureValueDataTypes.Flag",
+    "TADA.ResultMeasureValue", "TADA.ActivityMediaName",
+    "ActivityTypeCode", "TADA.ActivityType.Flag"
+  ))
+  
+  .data <- dplyr::filter(.data, TADA.ResultMeasureValueDataTypes.Flag != "Blank" &
+                                TADA.ResultMeasureValueDataTypes.Flag != "Text" &
+                                TADA.ResultMeasureValueDataTypes.Flag != "Coerced to NA" &
+                                TADA.ActivityType.Flag == "Non_QC" & # filter out QA/QC ActivityTypeCode's
+                                !is.na(TADA.ResultMeasureValue))# &
+  #TADA.ActivityMediaName == "WATER")
+  
+  return(.data)
 }

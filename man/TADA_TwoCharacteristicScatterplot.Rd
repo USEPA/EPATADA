@@ -6,7 +6,7 @@
 \usage{
 TADA_TwoCharacteristicScatterplot(
   .data,
-  id_col = "TADA.ComparableDataIdentifier",
+  id_cols = "TADA.ComparableDataIdentifier",
   groups
 )
 }
@@ -16,7 +16,7 @@ where each row represents a unique data record. Data frame must include the
 columns 'TADA.ComparableDataIdentifier', 'TADA.ResultMeasureValue', and 'TADA.ResultMeasure.MeasureUnitCode'
 to run this function.}
 
-\item{id_col}{The column in the dataset used to identify the unique groups to
+\item{id_cols}{The column in the dataset used to identify the unique groups to
 be plotted. Defaults to 'TADA.ComparableDataIdentifier', which should be
 sufficient for most TADA use cases of this function. This input is flexible,
 however, for the specific use case in the TADAShiny app where a user might
@@ -24,8 +24,8 @@ create groups based on a concatenation of the comparable data identifier
 with other additional grouping variables (e.g. site type, year,
 organization, etc.)}
 
-\item{groups}{A vector of two identifiers from the id_col column. For
-example, if the id_col is 'TADA.ComparableDataIdentifier', the groups could
+\item{groups}{A vector of two identifiers from the id_cols column. For
+example, if the id_cols is 'TADA.ComparableDataIdentifier', the groups could
 be 'DISSOLVED OXYGEN (DO)_NA_NA_UG/L' and 'PH_NA_NA_NA'. These groups will
 be specific to your dataset.}
 }
@@ -43,6 +43,6 @@ data(Data_Nutrients_UT)
 
 # Create a scatterplot for each comparable data group (TADA.ComparableDataIdentifier)
 # in the input dataframe:
-TADA_TwoCharacteristicScatterplot(Data_Nutrients_UT, id_col = "TADA.ComparableDataIdentifier", groups = c("AMMONIA_UNFILTERED_AS N_UG/L", "NITRATE_UNFILTERED_AS N_UG/L"))
+TADA_TwoCharacteristicScatterplot(Data_Nutrients_UT, id_cols = "TADA.ComparableDataIdentifier", groups = c("AMMONIA_UNFILTERED_AS N_UG/L", "NITRATE_UNFILTERED_AS N_UG/L"))
 
 }
