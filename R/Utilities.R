@@ -58,11 +58,11 @@ utils::globalVariables(c(
 
 #' TADA_AutoClean
 #'
-#' Removes rows of data that are true duplicates. Creates new columns with
+#' Removes rows of data that are exact duplicates. Creates new columns with
 #' prefix "TADA." and capitalizes fields to harmonize data. This function runs
 #' "TADA_ConvertSpecialChars", "TADA_ConvertResultUnits",
 #' "TADA_ConvertDepthUnits", and "TADA_IDCensoredData" functions, which perform
-#' the following QA steps: remove true duplicates, convert result values to
+#' the following QA steps: remove exact duplicates, convert result values to
 #' numeric, harmonize result and depth units (note: all depth-related columns
 #' with populated values are converted to meters in a TADA-specific column),
 #' convert text to uppercase letters, substitute outdated (deprecated) characteristic names

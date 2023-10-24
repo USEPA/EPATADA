@@ -96,7 +96,7 @@ package functions. It joins four WQP profiles: Site,
 Sample Results (narrow), Sample Results (physical/chemical metadata),
 and Project. In addition, it changes all data in the
 Characteristic, Speciation, Fraction, and Unit fields to uppercase,
-removes true duplicates, and addresses result values that include
+removes exact duplicates, and addresses result values that include
 special characters.
 
 This function uses the same inputs as the dataRetrieval `readWQPdata`
@@ -141,7 +141,7 @@ automatically runs the **TADA_AutoClean** function, which runs the following fun
 
 -   **TADA_IDCensoredData** - categorizes detection limit data and identifies mismatches in result detection condition and result detection limit type. 
 
--   Other helpful actions - converts important text columns to all upper-case letters, removes true duplicates, and uses WQX format rules to harmonize specific NWIS metadata conventions (e.g. move characteristic speciation from the TADA.ResultMeasure.MeasureUnitCode column to the TADA.MethodSpecificationName column)
+-   Other helpful actions - converts important text columns to all upper-case letters, removes exact duplicates, and uses WQX format rules to harmonize specific NWIS metadata conventions (e.g. move characteristic speciation from the TADA.ResultMeasure.MeasureUnitCode column to the TADA.MethodSpecificationName column)
 
 As a general rule, TADA functions do not change any contents in the WQP-served
 columns. Instead, they add new columns with the prefix "TADA." The following
