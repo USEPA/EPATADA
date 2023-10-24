@@ -1309,8 +1309,10 @@ TADA_CheckRequiredFields <- function(.data) {
 #' TADA_filtered <- TADA_AutoFilter(Data_Nutrients_UT)
 #'
 TADA_AutoFilter <- function(.data) {
+  
   # check .data is data.frame
   TADA_CheckType(.data, "data.frame", "Input object")
+  
   TADA_CheckColumns(.data, c(
     "ActivityTypeCode", "MeasureQualifierCode",
     "TADA.ResultMeasureValueDataTypes.Flag",
@@ -1318,12 +1320,23 @@ TADA_AutoFilter <- function(.data) {
     "ActivityTypeCode", "TADA.ActivityType.Flag"
   ))
   
+  # keep track of starting and ending number of rows
+  start <- dim(.data)[1]
+  
+  # remove text, NAs and QC results
   .data <- dplyr::filter(.data, TADA.ResultMeasureValueDataTypes.Flag != "Blank" &
                                 TADA.ResultMeasureValueDataTypes.Flag != "Text" &
                                 TADA.ResultMeasureValueDataTypes.Flag != "Coerced to NA" &
                                 TADA.ActivityType.Flag == "Non_QC" & # filter out QA/QC ActivityTypeCode's
-                                !is.na(TADA.ResultMeasureValue))# &
-  #TADA.ActivityMediaName == "WATER")
+                                !is.na(TADA.ResultMeasureValue))
+  
+  end <- dim(.data)[1]
+  
+  # print number of results removed
+  if (!start == end) {
+    net <- start - end
+    print(paste0("Function removed ", net, " results. These results are either text or NA and cannot be plotted or represent quality control activities (not routine samples or measurements)."))
+  }
   
   return(.data)
 }

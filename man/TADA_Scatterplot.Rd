@@ -42,6 +42,8 @@ TADA_Scatterplot(Data_6Tribes_5y_Harmonized, id_cols = "TADA.ComparableDataIdent
 # example is filtered so it includes only one TADA.ComparableDataIdentifier
 df <- dplyr::filter(Data_6Tribes_5y_Harmonized, TADA.ComparableDataIdentifier == "TOTAL PHOSPHORUS, MIXED FORMS_UNFILTERED_AS P_UG/L")
 TADA_Scatterplot(df, id_cols = "TADA.ComparableDataIdentifier")
+# Creates a scatterplot for each monitoring location
+TADA_Scatterplot(df, id_cols = c("TADA.ComparableDataIdentifier", "MonitoringLocationName"))
 
 # Create multiple scatterplots with additional grouping columns and view the first
 # plot in list. In this example, we will group by both TADA.ComparableDataIdentifier
