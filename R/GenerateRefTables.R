@@ -411,7 +411,8 @@ TADA_GetActivityTypeRef <- function() {
     "Quality Control Field Replicate Msr/Obs",
     "Quality Control Field Replicate Portable Data Logger",
     "Quality Control Field Replicate Sample-Composite",
-    "Quality Control Sample-Field Replicate"
+    "Quality Control Sample-Field Replicate",
+    "Quality Control Field Replicate Sample-Field Subsample"
   )
   dup <- c(
     "Quality Control Alternative Measurement Sensitivity",
@@ -471,6 +472,24 @@ TADA_GetActivityTypeRef <- function() {
     "Sample-Positive Control"
   )
   other <- c("Quality Control Sample-Other")
+  
+  nonQC <- c("Field Msr/Obs",
+             "Field Msr/Obs-Continuous Time Series",
+             "Field Msr/Obs-Habitat Assessment",
+             "Field Msr/Obs-Incidental",
+             "Field Msr/Obs-Portable Data Logger",
+             "Sample-Composite With Parents",
+             "Sample-Composite Without Parents",
+             "Sample-Field Split",
+             "Sample-Field Subsample",
+             "Sample-Integrated Cross-Sectional Profile",
+             "Sample-Integrated Flow Proportioned",
+             "Sample-Integrated Horizontal Profile",
+             "Sample-Integrated Horizontal and Vertical Composite Profile",
+             "Sample-Integrated Time Series",
+             "Sample-Integrated Vertical Profile",
+             "Sample-Other",
+             "Sample-Routine")
 
   WQXActivityTypeRef <- raw.data %>%
     dplyr::mutate(TADA.ActivityType.Flag = dplyr::case_when(
@@ -479,7 +498,10 @@ TADA_GetActivityTypeRef <- function() {
       Code %in% blank ~ "QC_blank",
       Code %in% cal ~ "QC_calibration",
       Code %in% other ~ "QC_other",
-      TRUE ~ as.character("Non_QC")
+      Code %in% nonQC ~ "Non_QC",
+      TRUE ~ as.character("Not Reviewed"),
+      Code %in% NA ~ "Not Reviewed"
+      
     )) %>%
     dplyr::distinct()
 

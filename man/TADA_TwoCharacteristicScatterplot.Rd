@@ -2,11 +2,11 @@
 % Please edit documentation in R/Figures.R
 \name{TADA_TwoCharacteristicScatterplot}
 \alias{TADA_TwoCharacteristicScatterplot}
-\title{Create A Two-Characteric Scatterplot}
+\title{Create A Two-Characteristic Scatterplot}
 \usage{
 TADA_TwoCharacteristicScatterplot(
   .data,
-  id_col = "TADA.ComparableDataIdentifier",
+  id_cols = "TADA.ComparableDataIdentifier",
   groups
 )
 }
@@ -16,18 +16,19 @@ where each row represents a unique data record. Data frame must include the
 columns 'TADA.ComparableDataIdentifier', 'TADA.ResultMeasureValue', and 'TADA.ResultMeasure.MeasureUnitCode'
 to run this function.}
 
-\item{id_col}{The column in the dataset used to identify the unique groups to
+\item{id_cols}{The column in the dataset used to identify the unique groups to
 be plotted. Defaults to 'TADA.ComparableDataIdentifier', which should be
 sufficient for most TADA use cases of this function. This input is flexible,
 however, for the specific use case in the TADAShiny app where a user might
 create groups based on a concatenation of the comparable data identifier
-with other additional grouping variables (e.g. site type, year,
+with other additional grouping variables (e.g. site type, site name, year,
 organization, etc.)}
 
-\item{groups}{A vector of two identifiers from the id_col column. For
-example, if the id_col is 'TADA.ComparableDataIdentifier', the groups could
+\item{groups}{A vector of two identifiers from the id_cols column. For
+example, if the id_cols is 'TADA.ComparableDataIdentifier', the groups could
 be 'DISSOLVED OXYGEN (DO)_NA_NA_UG/L' and 'PH_NA_NA_NA'. These groups will
-be specific to your dataset.}
+be specific to your dataset. If the id_cols is 'MonitoringLocationName',
+the groups could be 'Upper Red Lake: West' and 'Upper Red Lake: West-Central'.}
 }
 \value{
 A single plotly scatterplot figure with one x-axis (Date/Time) and a
@@ -35,14 +36,19 @@ left and right y-axis showing the units of the two characteristic groups
 plotted on the same figure area.
 }
 \description{
-Create A Two-Characteric Scatterplot
+Create A Two-Characteristic Scatterplot
 }
 \examples{
 # Load example dataset:
 data(Data_Nutrients_UT)
+# Create a single scatterplot with two specified groups from TADA.ComparableDataIdentifier
+TADA_TwoCharacteristicScatterplot(Data_Nutrients_UT, id_cols = "TADA.ComparableDataIdentifier", groups = c("AMMONIA_UNFILTERED_AS N_UG/L", "NITRATE_UNFILTERED_AS N_UG/L"))
 
-# Create a scatterplot for each comparable data group (TADA.ComparableDataIdentifier)
-# in the input dataframe:
-TADA_TwoCharacteristicScatterplot(Data_Nutrients_UT, id_col = "TADA.ComparableDataIdentifier", groups = c("AMMONIA_UNFILTERED_AS N_UG/L", "NITRATE_UNFILTERED_AS N_UG/L"))
+# Load example dataset:
+data(Data_6Tribes_5y_Harmonized)
+# Filter the example data so it includes only one TADA.ComparableDataIdentifier
+df <- dplyr::filter(Data_6Tribes_5y_Harmonized, TADA.ComparableDataIdentifier == "TOTAL PHOSPHORUS, MIXED FORMS_UNFILTERED_AS P_UG/L")
+# Creates a scatterplot including the two specified sites in the same plot:
+TADA_TwoCharacteristicScatterplot(df, id_cols = "MonitoringLocationName", groups = c("Upper Red Lake: West", "Upper Red Lake: West-Central"))
 
 }

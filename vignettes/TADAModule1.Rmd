@@ -41,10 +41,7 @@ organizations.
 
 ## Install and load packages
 
-To install TADA, currently you need to install from GitHub using remotes
-(shown) or devtools.
-
-First, install and load the "remotes" package specifying the repo. This
+First, install and load the remotes package specifying the repo. This
 is needed before installing TADA because it is only available on GitHub
 (not CRAN).
 
@@ -55,10 +52,10 @@ install.packages("remotes",
 library(remotes)
 ```
 
-Next, install and load TADA. dataRetrieval and other TADA R Package
-dependencies will also be downloaded from CRAN with the TADA install,
-but the development version can be downloaded directly from GitHub if
-desired (un-comment).
+Next, install and load TADA using the remotes package. USGS's dataRetrieval and
+other TADA R Package dependencies will also be downloaded automatically from CRAN
+with the TADA install. If desired, the the development version of dataRetrieval
+can be downloaded directly from GitHub (un-comment).
 
 ```{r install_TADA, eval = F, results = 'hide', message = FALSE, warning = FALSE}
 remotes::install_github("USEPA/TADA",
@@ -79,12 +76,12 @@ remotes::install_github("USEPA/TADA",
 # when developing the package, update this chunk to the current repository branch, so it runs with all of the new features prior to a PR to develop
 
 remotes::install_github("USEPA/TADA",
-  ref = "cm",
+  ref = "figupdates",
   dependencies = TRUE
 )
 ```
 
-Finally, we will use the **library()** function to load the TADA package into the vignette environment.
+Finally, use the **library()** function to load the TADA R Package into your R session.
 
 ```{r library, results = 'hide', message = FALSE, warning = FALSE}
 library(TADA)
@@ -94,19 +91,17 @@ library(TADA)
 ## Retrieve WQP data
 
 WQP data is retrieved and processed for compatibility with TADA. This
-function, **TADA_DataRetrieval**, builds on the USGS dataRetrieval
-package functions. It joins four WQP profiles (i.e., Site metadata,
+function, **TADA_DataRetrieval**, builds on USGS's dataRetrieval R
+package functions. It joins four WQP profiles: Site,
 Sample Results (narrow), Sample Results (physical/chemical metadata),
-and Project metadata. In addition, it changes all data in the
+and Project. In addition, it changes all data in the
 Characteristic, Speciation, Fraction, and Unit fields to uppercase,
-removes true duplicates, and addressed result values that include
+removes true duplicates, and addresses result values that include
 special characters.
 
 This function uses the same inputs as the dataRetrieval `readWQPdata`
 function. `readWQPdata` does not restrict the characteristics pulled
-from [Water Quality Portal (WQP)](https://www.waterqualitydata.us/). You
-may specify the desired characteristics by using, for instance:
-characteristicName = "pH".
+from [Water Quality Portal (WQP)](https://www.waterqualitydata.us/). 
 
 Data retrieval filters include:
 
@@ -146,7 +141,7 @@ automatically runs the **TADA_AutoClean** function, which runs the following fun
 
 -   **TADA_IDCensoredData** - categorizes detection limit data and identifies mismatches in result detection condition and result detection limit type. 
 
--   Other helpful actions - converts important text columns to all upper-case letters, removed true duplicates, and uses WQX format rules to harmonize specific NWIS metadata conventions (e.g. move characteristic speciation from the TADA.ResultMeasure.MeasureUnitCode column to the TADA.MethodSpecificationName column)
+-   Other helpful actions - converts important text columns to all upper-case letters, removes true duplicates, and uses WQX format rules to harmonize specific NWIS metadata conventions (e.g. move characteristic speciation from the TADA.ResultMeasure.MeasureUnitCode column to the TADA.MethodSpecificationName column)
 
 As a general rule, TADA functions do not change any contents in the WQP-served
 columns. Instead, they add new columns with the prefix "TADA." The following
@@ -859,11 +854,10 @@ sum(is.na(TADAProfileClean4$TADA.ResultMeasureValue))
 ```
 
 Filter down to only numeric data. Remove data where the
-TADA.ResultMeasureValueDataTypes.Flag = "Text","Coerced to NA","ND or
-NA".
+TADA.ResultMeasureValueDataTypes.Flag = "Text","Coerced to NA",or "Blank".
 
 ```{r filter_out_NAs}
-# Removes rows where the result value is not numeric. Specifically, removes rows with "Text","Coerced to NA", and "ND or NA" in the TADA.ResultMeasureValueDataTypes.Flag column, or NA in the TADA.ResultMeasureValue column.
+# Removes rows where the result value is not numeric. Specifically, removes rows with "Text","Coerced to NA", or "Blank" in the TADA.ResultMeasureValueDataTypes.Flag column, or NA in the TADA.ResultMeasureValue column.
 TADAProfileClean5 <- TADA_AutoFilter(TADAProfileClean4)
 ```
 
@@ -1042,6 +1036,16 @@ TADA_FieldValuesTable(TADAProfileClean6, field = "SampleCollectionMethod.MethodN
 TADA_FieldValuesPie(TADAProfileClean6, field = "SampleCollectionMethod.MethodName", characteristicName = "TOTAL PHOSPHORUS, MIXED FORMS")
 ```
 
+Generate a scatterplot with two 
+```{r TADA_TwoCharacteristicScatterplot, fig.width=8, fig.height=6, fig.fullwidth=TRUE}
+# review unique identifiers
+unique(TADAProfileClean6$TADA.ComparableDataIdentifier)
+
+# choose two and generate scatterplot
+TADA_TwoCharacteristicScatterplot(TADAProfileClean6, id_cols = "TADA.ComparableDataIdentifier", groups = c("TOTAL NITROGEN, MIXED FORMS_UNFILTERED_AS N_MG/L", "TOTAL PHOSPHORUS, MIXED FORMS_UNFILTERED_AS P_UG/L"))
+```
+
+
 Now we will summarize results for a single comparable data group using the
 TADA.ComparableDataIdentifier (i.e., comparable characteristic, unit,
 speciation, and fraction combination) using **TADA_Histogram** and **TADA_Boxplot**. Note that users may generate a list output of multiple plots if their input dataset has more than one unique comparable data group.
@@ -1084,6 +1088,7 @@ TADAProfileCleanTP_dailymax <- TADA_AggregateMeasurements(TADAProfileCleanTP,
 TP_Scatterplot <- TADA::TADA_Scatterplot(TADAProfileCleanTP_dailymax, id_cols = "TADA.ComparableDataIdentifier")
 
 TP_Scatterplot
+
 ```
 
 ## TADA Shiny Application

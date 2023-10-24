@@ -427,11 +427,11 @@ plot_data <- subset(dataset_cens, dataset_cens$TADA.ComparableDataIdentifier %in
 ```
 
 ```{r}
-TADA::TADA_Histogram(plot_data, id_col = "TADA.ComparableDataIdentifier")
+TADA::TADA_Histogram(plot_data, id_cols = "TADA.ComparableDataIdentifier")
 ```
 
 ```{r}
-TADA::TADA_Boxplot(plot_data, id_col = "TADA.ComparableDataIdentifier")
+TADA::TADA_Boxplot(plot_data, id_cols = "TADA.ComparableDataIdentifier")
 
 View(TADA::TADA_Stats(plot_data))
 ```
