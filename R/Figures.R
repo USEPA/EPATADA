@@ -737,7 +737,7 @@ TADA_TwoCharacteristicScatterplot <- function(.data, id_cols = "TADA.ComparableD
   param1 <- subset(plot.data, plot.data[, id_cols] %in% groups[1])
   param2 <- subset(plot.data, plot.data[, id_cols] %in% groups[2])
 
-  title <- TADA::TADA_InsertBreaks(paste0("Scatterplot of ", param1$name[1], " and ", param2$name[1]))
+  title <- TADA::TADA_InsertBreaks(paste0("Scatterplot of ", param1$name[1], " and ", param2$name[1]), len = 60)
 
   # figure margin
   mrg <- list(
