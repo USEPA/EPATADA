@@ -670,7 +670,7 @@ TADA_PairReplicates <- function(.data, type = c("QC_replicate"), time_window = 3
 #' prepare a dataframe for quantitative analyses. Ideally, this function should
 #' be run after other data cleaning, QA/QC, and harmonization steps are 
 #' completed using other TADA package functions, or manually. Specifically, .
-#' this function removes rows with "Text","Coerced to NA", and "ND or NA" 
+#' this function removes rows with "Text","Coerced to NA", and "Blank" 
 #' in the TADA.ResultMeasureValueDataTypes.Flag column, or NA in the 
 #' TADA.ResultMeasureValue column.
 #'
@@ -698,7 +698,7 @@ TADA_AutoFilter <- function(.data) {
     "ActivityTypeCode"
   ))
 
-  autofilter <- dplyr::filter(.data, TADA.ResultMeasureValueDataTypes.Flag != "ND or NA" &
+  autofilter <- dplyr::filter(.data, TADA.ResultMeasureValueDataTypes.Flag != "Blank" &
     TADA.ResultMeasureValueDataTypes.Flag != "Text" &
     TADA.ResultMeasureValueDataTypes.Flag != "Coerced to NA" &
     !is.na(TADA.ResultMeasureValue))# &
