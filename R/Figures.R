@@ -67,7 +67,8 @@ TADA_Boxplot <- function(.data, id_cols = c("TADA.ComparableDataIdentifier")) {
   TADA_CheckColumns(.data, id_cols)
 
   # check .data has required columns
-  TADA_CheckColumns(.data, c("TADA.ResultMeasureValue", "TADA.ResultMeasure.MeasureUnitCode"))
+  TADA_CheckColumns(.data, c("TADA.ResultMeasureValue", 
+                             "TADA.ResultMeasure.MeasureUnitCode"))
 
   start <- dim(.data)[1]
 
@@ -232,21 +233,13 @@ TADA_Histogram <- function(.data, id_cols = c("TADA.ComparableDataIdentifier")) 
     warning("TADA.ComparableDataIdentifier not found in id_cols argument and is highly recommended: plotting without it may produce errors in the plot.")
   }
 
-  req_cols <- c(
-    "TADA.ComparableDataIdentifier", 
-    "TADA.CharacteristicName",
-    "TADA.ResultSampleFractionText",
-    "TADA.MethodSpecificationName",
-    "TADA.ResultMeasure.MeasureUnitCode",
-    "TADA.ResultMeasureValue",
-    "ActivityStartDate",
-    "MonitoringLocationIdentifier",
-    "ActivityTypeCode"
-  )
+  # check .data has required columns
+  TADA_CheckColumns(.data, id_cols)
   
   # check .data has required columns
-  TADA_CheckColumns(.data, expected_cols = req_cols)
-
+  TADA_CheckColumns(.data, c("TADA.ResultMeasureValue", 
+                             "TADA.ResultMeasure.MeasureUnitCode"))
+  
   start <- dim(.data)[1]
 
   .data <- subset(.data, !is.na(.data$TADA.ResultMeasureValue))
@@ -550,10 +543,12 @@ TADA_Scatterplot <- function(.data, id_cols = c("TADA.ComparableDataIdentifier")
   }
 
   # check .data has required columns
+  TADA_CheckColumns(.data, id_cols)
+  
+  # check .data has required columns
   TADA_CheckColumns(.data, c("ActivityStartDate",
                              "TADA.ResultMeasureValue",
-                             "TADA.ResultMeasure.MeasureUnitCode",
-                             "TADA.ComparableDataIdentifier"))
+                             "TADA.ResultMeasure.MeasureUnitCode"))
 
   .data <- .data %>%
     dplyr::group_by(dplyr::across(dplyr::all_of(id_cols))) %>%
@@ -590,11 +585,13 @@ TADA_Scatterplot <- function(.data, id_cols = c("TADA.ComparableDataIdentifier")
         "Activity Start Date:", plot.data$ActivityStartDate, "<br>",
         "Activity Start Date Time:", plot.data$ActivityStartDateTime, "<br>", 
         "Monitoring Location Name:", plot.data$MonitoringLocationName, "<br>", 
+        "Media:", plot.data$TADA.ActivityMediaName, "<br>",
+        "Media Subdivision:", plot.data$ActivityMediaSubdivisionName, "<br>",
         "Result Depth:", paste0(
           plot.data$TADA.ResultDepthHeightMeasure.MeasureValue, " ",
           plot.data$TADA.ResultDepthHeightMeasure.MeasureUnitCode
         ), "<br>",
-        "Activity Relative Depth Name:", plot.data$ActivityRelativeDepthName, "<br>",
+        "Activity Relative Depth:", plot.data$ActivityRelativeDepthName, "<br>",
         "Activity Depth:", paste0(
           plot.data$TADA.ActivityDepthHeightMeasure.MeasureValue, " ",
           plot.data$TADA.ActivityDepthHeightMeasure.MeasureUnitCode
@@ -697,13 +694,12 @@ TADA_TwoCharacteristicScatterplot <- function(.data, id_cols = "TADA.ComparableD
   TADA_CheckType(.data, "data.frame", "Input object")
 
   # check .data has required columns
+  TADA_CheckColumns(.data, id_cols)
   
+  # check .data has required columns
   reqcols <- c("TADA.ResultMeasureValue", 
                "TADA.ResultMeasure.MeasureUnitCode", 
-               "ActivityStartDate", 
-               "ActivityStartDateTime",
-               "TADA.ComparableDataIdentifier",
-               "MonitoringLocationName")
+               "ActivityStartDate")
   
   # check .data has required columns
   TADA_CheckColumns(.data, reqcols)
@@ -784,6 +780,8 @@ TADA_TwoCharacteristicScatterplot <- function(.data, id_cols = "TADA.ComparableD
         "Activity Start Date:", param1$ActivityStartDate, "<br>",
         "Activity Start Date Time:", param1$ActivityStartDateTime, "<br>", 
         "Monitoring Location Name:", param1$MonitoringLocationName, "<br>", 
+        "Media:", param1$TADA.ActivityMediaName, "<br>",
+        "Media Subdivision:", param1$ActivityMediaSubdivisionName, "<br>",
         "Result Depth:", paste0(
           param1$TADA.ResultDepthHeightMeasure.MeasureValue, " ",
           param1$TADA.ResultDepthHeightMeasure.MeasureUnitCode
@@ -811,6 +809,8 @@ TADA_TwoCharacteristicScatterplot <- function(.data, id_cols = "TADA.ComparableD
         "Activity Start Date:", param2$ActivityStartDate, "<br>",
         "Activity Start Date Time:", param2$ActivityStartDateTime, "<br>", 
         "Monitoring Location Name:", param2$MonitoringLocationName, "<br>", 
+        "Media:", param2$TADA.ActivityMediaName, "<br>",
+        "Media Subdivision:", param2$ActivityMediaSubdivisionName, "<br>",
         "Result Depth:", paste0(
           param2$TADA.ResultDepthHeightMeasure.MeasureValue, " ",
           param2$TADA.ResultDepthHeightMeasure.MeasureUnitCode
