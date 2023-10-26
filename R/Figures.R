@@ -709,9 +709,9 @@ TADA_TwoCharacteristicScatterplot <- function(.data, id_cols = "TADA.ComparableD
     id_cols <- "TADA.ComparableDataIdentifier"
   }
   
-  # if (!"TADA.ComparableDataIdentifier" %in% id_cols) {
-  #   warning("TADA.ComparableDataIdentifier not found in id_cols argument and is highly recommended: plotting without it may produce errors in the plot.")
-  # }
+  if (!"TADA.ComparableDataIdentifier" %in% id_cols) {
+    print("Note: TADA.ComparableDataIdentifier not found in id_cols argument and is highly recommended.")
+  }
   
   # check that groups are in id_cols
   id <- unlist(unique(.data[, id_cols]))
@@ -724,7 +724,8 @@ TADA_TwoCharacteristicScatterplot <- function(.data, id_cols = "TADA.ComparableD
 
   plot.data <- as.data.frame(.data)
 
-  plot.data <- subset(plot.data, plot.data[, id_cols] %in% groups)[, c(id_cols, reqcols, depthcols)]
+  # this subset must include all fields included in plot hover below
+  plot.data <- subset(plot.data, plot.data[, id_cols] %in% groups)[, c(id_cols, reqcols, depthcols, "ActivityStartDateTime", "MonitoringLocationName", "TADA.ActivityMediaName", "ActivityMediaSubdivisionName", "ActivityRelativeDepthName", "TADA.CharacteristicName")]
   plot.data$name <- gsub("_NA", "", plot.data[, id_cols])
   plot.data$name <- gsub("_", " ", plot.data$name)
 
@@ -733,7 +734,7 @@ TADA_TwoCharacteristicScatterplot <- function(.data, id_cols = "TADA.ComparableD
   param1 <- subset(plot.data, plot.data[, id_cols] %in% groups[1])
   param2 <- subset(plot.data, plot.data[, id_cols] %in% groups[2])
 
-  title <- TADA::TADA_InsertBreaks(paste0("Scatterplot of ", param1$name[1], " and ", param2$name[1]), len = 60)
+  title <- TADA::TADA_InsertBreaks(paste0("Scatterplot of ", param1$name[1], " and ", param2$name[1]), len = 40)
 
   # figure margin
   mrg <- list(
@@ -773,7 +774,13 @@ TADA_TwoCharacteristicScatterplot <- function(.data, id_cols = "TADA.ComparableD
     # config options https://plotly.com/r/configuration-options/
     plotly::config(displaylogo = FALSE) %>% #, displayModeBar = TRUE) # TRUE makes bar always visible
     plotly::add_trace(
-      data = param1, x = ~ActivityStartDate, y = ~TADA.ResultMeasureValue, name = param1$name, marker = list(size = 10, color = "#E34234", line = list(color = "#005ea2", width = 2)),
+      data = param1, 
+      x = ~ActivityStartDate, 
+      y = ~TADA.ResultMeasureValue, 
+      name = param1$TADA.CharacteristicName, 
+      marker = list(size = 10, 
+                    color = "#E34234", 
+      line = list(color = "#005ea2", width = 2)),
       hoverinfo = "text",
       hovertext = paste(
         "Result:", paste0(param1$TADA.ResultMeasureValue, " ", param1$TADA.ResultMeasure.MeasureUnitCode), "<br>",
@@ -802,7 +809,13 @@ TADA_TwoCharacteristicScatterplot <- function(.data, id_cols = "TADA.ComparableD
       )
     ) %>%
     plotly::add_trace(
-      data = param2, x = ~ActivityStartDate, y = ~TADA.ResultMeasureValue, name = param2$name, marker = list(size = 10, color = "#00bde3", line = list(color = "#005ea2", width = 2)), yaxis = "y2",
+      data = param2, 
+      x = ~ActivityStartDate, 
+      y = ~TADA.ResultMeasureValue, 
+      name = param2$TADA.CharacteristicName, 
+      marker = list(size = 10, color = "#00bde3",
+                    line = list(color = "#005ea2", width = 2)),
+      yaxis = "y2",
       hoverinfo = "text",
       hovertext = paste(
         "Result:", paste0(param2$TADA.ResultMeasureValue, " ", param2$TADA.ResultMeasure.MeasureUnitCode), "<br>",
