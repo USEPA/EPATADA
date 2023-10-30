@@ -408,12 +408,14 @@ TADA_CalculateTotalNP <- function(.data, sum_ref, daily_agg = c("max", "min", "m
   depths <- names(.data)[grepl("DepthHeightMeasure", names(.data))]
   depths <- depths[grepl("TADA.", depths)]
   grpcols <- c("ActivityStartDate", 
-               "ActivityStartDateTime",
+               #"ActivityStartDateTime", #does not make sense to include for daily agg
                "ActivityRelativeDepthName",
                "MonitoringLocationIdentifier",
+               "MonitoringLocationName",
                "TADA.LongitudeMeasure",
                "TADA.LatitudeMeasure",
                "ActivityMediaSubdivisionName",
+               "TADA.ActivityMediaName",
                "TADA.ComparableDataIdentifier",
                "TADA.ResultMeasure.MeasureUnitCode",
                depths)
