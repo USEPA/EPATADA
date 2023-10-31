@@ -1,7 +1,7 @@
 #' Update TADA Reference Files
 #' @return Saves updated reference files
 #'
-TADA_UpdateAllRefs <- function () {
+TADA_UpdateAllRefs <- function() {
   TADA_UpdateWQXCharValRef()
   TADA_UpdateMeasureUnitRef()
   TADA_UpdateDetCondRef()
@@ -24,7 +24,7 @@ TADA_UpdateExampleData <- function() {
   print(dim(Data_Nutrients_UT))
   save(Data_Nutrients_UT, file = "data/Data_Nutrients_UT.rda")
   rm(Data_Nutrients_UT)
-  
+
   Data_6Tribes_5y <- TADA_DataRetrieval(
     organization = c(
       "REDLAKE_WQX",
@@ -39,7 +39,7 @@ TADA_UpdateExampleData <- function() {
   print("Data_6Tribes_5y:")
   print(dim(Data_6Tribes_5y))
   save(Data_6Tribes_5y, file = "data/Data_6Tribes_5y.rda")
-  
+
   y <- subset(Data_6Tribes_5y, Data_6Tribes_5y$TADA.ActivityMediaName %in% c("WATER"))
   y <- TADA_RunKeyFlagFunctions(Data_6Tribes_5y)
   rm(Data_6Tribes_5y)
@@ -50,22 +50,22 @@ TADA_UpdateExampleData <- function() {
   y <- TADA_FindPotentialDuplicatesSingleOrg(y)
   y <- dplyr::filter(y, !(MeasureQualifierCode %in% c("D", "H", "ICA", "*")))
   y <- TADA_SimpleCensoredMethods(y,
-                                  nd_method = "multiplier",
-                                  nd_multiplier = 0.5,
-                                  od_method = "as-is",
-                                  od_multiplier = "null"
+    nd_method = "multiplier",
+    nd_multiplier = 0.5,
+    od_method = "as-is",
+    od_multiplier = "null"
   )
   y <- dplyr::filter(y, TADA.ResultMeasureValueDataTypes.Flag != "Blank" &
-                       TADA.ResultMeasureValueDataTypes.Flag != "Text" &
-                       TADA.ResultMeasureValueDataTypes.Flag != "Coerced to NA" &
-                       !is.na(TADA.ResultMeasureValue))
+    TADA.ResultMeasureValueDataTypes.Flag != "Text" &
+    TADA.ResultMeasureValueDataTypes.Flag != "Coerced to NA" &
+    !is.na(TADA.ResultMeasureValue))
   # uses default ref = TADA_GetSynonymRef()
   Data_6Tribes_5y_Harmonized <- TADA_HarmonizeSynonyms(y)
   print("Data_6Tribes_5y_Harmonized:")
   print(dim(Data_6Tribes_5y_Harmonized))
   save(Data_6Tribes_5y_Harmonized, file = "data/Data_6Tribes_5y_Harmonized.rda")
   rm(Data_6Tribes_5y_Harmonized)
-  
+
   Data_NCTCShepherdstown_HUC12 <- TADA::TADA_DataRetrieval(
     startDate = "2020-03-14",
     endDate = "null",
@@ -156,3 +156,7 @@ TADA_UpdateExampleData <- function() {
 # Run the following with defaults
 # library(styler)
 # style_pkg()
+
+# Run devtools check and test
+# devtools::check()
+# devtools::test()

@@ -151,8 +151,8 @@ test_that("TADA_DataRetrieval", {
 # cm edited to include start date on 2/27/23 because without this it takes too long to run
 # these tests, and may time out
 test_that("Reg&BigdataRetrieval", {
-  big <- TADA_BigDataRetrieval(characteristicName = "Algae, substrate rock/bank cover (choice list)", siteType = "Stream", startDate = "2020-01-01", applyautoclean = TRUE)
-  reg <- TADA_DataRetrieval(characteristicName = "Algae, substrate rock/bank cover (choice list)", sampleMedia = "Water", siteType = "Stream", startDate = "2020-01-01")
+  big <- TADA_BigDataRetrieval(characteristicName = "Algae, substrate rock/bank cover (choice list)", sampleMedia = "Water", siteType = "Stream", startDate = "2020-01-01", applyautoclean = FALSE)
+  reg <- TADA_DataRetrieval(characteristicName = "Algae, substrate rock/bank cover (choice list)", sampleMedia = "Water", siteType = "Stream", startDate = "2020-01-01", applyautoclean = FALSE)
 
   expect_equal(nrow(big), nrow(reg))
 })

@@ -31,7 +31,7 @@ aggregated data to the WQP through WQX. Alternatively, some organizations
 aggregate their high frequency data (15 min or 1 hour data)
 to 2 or 4 hour interval averages, and they also submit that data to the WQP through WQX.
 The raw continuous time series data is made available through a text file
-attachement at the activiy level. This type of high frequency data may
+attachement at the activity level. This type of high frequency data may
 (or may not) be suitable for integration with discrete
 water quality data for assessments. Therefore, this function uses metadata
 submitted by data providers to flag rows with aggregated continuous data.

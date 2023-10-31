@@ -68,7 +68,6 @@ remotes::install_github("USEPA/TADA",
 # if you experience any issues installing TADA, try un-commenting and running
 # the line below before the install
 # options(download.file.method = "wininet")
-
 ```
 
 ```{r for-development-only, echo = F, results = 'hide', message = FALSE, warning = FALSE}
@@ -594,8 +593,10 @@ the following into the console:
 
 
 ```{r FindPotentialDuplicates}
-TADAProfileClean3 <- TADA_FindPotentialDuplicatesMultipleOrgs(TADAProfileClean3, dist_buffer = 100, 
-                                                              org_hierarchy = "none")
+TADAProfileClean3 <- TADA_FindPotentialDuplicatesMultipleOrgs(TADAProfileClean3,
+  dist_buffer = 100,
+  org_hierarchy = "none"
+)
 
 TADAProfileClean3 <- TADA_FindPotentialDuplicatesSingleOrg(TADAProfileClean3)
 ```
@@ -1089,7 +1090,6 @@ TADAProfileCleanTP_dailymax <- TADA_AggregateMeasurements(TADAProfileCleanTP,
 TP_Scatterplot <- TADA::TADA_Scatterplot(TADAProfileCleanTP_dailymax, id_cols = "TADA.ComparableDataIdentifier")
 
 TP_Scatterplot
-
 ```
 
 ## TADA Shiny Application

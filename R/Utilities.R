@@ -51,7 +51,7 @@ utils::globalVariables(c(
   "SummationSpeciationConversionFactor", "SummationNote", "NutrientGroup",
   "Target.Speciation", "TADA.NearbySiteGroups", "numres", "TADA.SingleOrgDupGroupID",
   "TADA.MeasureQualifierCode.Flag", "MeasureQualifierCode", "value", "Flag_Column",
-  "Data_NCTCShepherdstown_HUC12", "ActivityStartDateTime", "TADA.MultipleOrgDupGroupID", 
+  "Data_NCTCShepherdstown_HUC12", "ActivityStartDateTime", "TADA.MultipleOrgDupGroupID",
   "TADA.WQXVal.Flag"
 ))
 
@@ -156,7 +156,7 @@ TADA_AutoClean <- function(.data) {
   # Identify detection limit data
   print("TADA_Autoclean: identifying detection limit data.")
   .data <- TADA_IDCensoredData(.data)
-  
+
   # Identify QC data
   .data <- TADA_FindQCActivities(.data, clean = FALSE, flaggedonly = FALSE)
 
@@ -1148,12 +1148,12 @@ TADA_CheckRequiredFields <- function(.data) {
 
 #' AutoFilter
 #'
-#' This function removes rows where the result value is not numeric to 
+#' This function removes rows where the result value is not numeric to
 #' prepare a dataframe for quantitative analyses. Ideally, this function should
-#' be run after other data cleaning, QA/QC, and harmonization steps are 
+#' be run after other data cleaning, QA/QC, and harmonization steps are
 #' completed using other TADA package functions, or manually. Specifically, .
-#' this function removes rows with "Text","Coerced to NA", and "Blank" 
-#' in the TADA.ResultMeasureValueDataTypes.Flag column, or NA in the 
+#' this function removes rows with "Text","Coerced to NA", and "Blank"
+#' in the TADA.ResultMeasureValueDataTypes.Flag column, or NA in the
 #' TADA.ResultMeasureValue column.
 #'
 #' @param .data TADA dataframe OR TADA sites dataframe
@@ -1171,34 +1171,33 @@ TADA_CheckRequiredFields <- function(.data) {
 #' TADA_filtered <- TADA_AutoFilter(Data_Nutrients_UT)
 #'
 TADA_AutoFilter <- function(.data) {
-  
   # check .data is data.frame
   TADA_CheckType(.data, "data.frame", "Input object")
-  
+
   TADA_CheckColumns(.data, c(
     "ActivityTypeCode", "MeasureQualifierCode",
     "TADA.ResultMeasureValueDataTypes.Flag",
     "TADA.ResultMeasureValue", "TADA.ActivityMediaName",
     "ActivityTypeCode", "TADA.ActivityType.Flag"
   ))
-  
+
   # keep track of starting and ending number of rows
   start <- dim(.data)[1]
-  
+
   # remove text, NAs and QC results
   .data <- dplyr::filter(.data, TADA.ResultMeasureValueDataTypes.Flag != "Blank" &
-                                TADA.ResultMeasureValueDataTypes.Flag != "Text" &
-                                TADA.ResultMeasureValueDataTypes.Flag != "Coerced to NA" &
-                                TADA.ActivityType.Flag == "Non_QC" & # filter out QA/QC ActivityTypeCode's
-                                !is.na(TADA.ResultMeasureValue))
-  
+    TADA.ResultMeasureValueDataTypes.Flag != "Text" &
+    TADA.ResultMeasureValueDataTypes.Flag != "Coerced to NA" &
+    TADA.ActivityType.Flag == "Non_QC" & # filter out QA/QC ActivityTypeCode's
+    !is.na(TADA.ResultMeasureValue))
+
   end <- dim(.data)[1]
-  
+
   # print number of results removed
   if (!start == end) {
     net <- start - end
     print(paste0("Function removed ", net, " results. These results are either text or NA and cannot be plotted or represent quality control activities (not routine samples or measurements)."))
   }
-  
+
   return(.data)
 }

@@ -4,9 +4,9 @@
 #' in the dataframe. When clean = TRUE, rows with invalid characteristic-fraction
 #' combinations are removed. Default is clean = TRUE. When flaggedonly = TRUE, only
 #' invalid characteristic-fraction combinations are returned. Default is flaggedonly = FALSE.
-#' 
-#' #' The “Not Reviewed” value within "TADA.ResultAboveUpperThreshold.Flag" means 
-#' that the EPA WQX team has not yet reviewed the combinations 
+#'
+#' #' The “Not Reviewed” value within "TADA.ResultAboveUpperThreshold.Flag" means
+#' that the EPA WQX team has not yet reviewed the combinations
 #' (see https://cdx.epa.gov/wqx/download/DomainValues/QAQCCharacteristicValidation.CSV).
 #' The WQX team plans to review and update these new combinations quarterly.
 #'
@@ -128,9 +128,9 @@ TADA_FlagFraction <- function(.data, clean = TRUE, flaggedonly = FALSE) {
 #' clean = "invalid_only". When flaggedonly = TRUE, dataframe is filtered to show only
 #' rows with invalid or nonstandardized characteristic-method speciation combinations.
 #' Default is flaggedonly = FALSE.
-#' 
-#' #' The “Not Reviewed” value within "TADA.ResultAboveUpperThreshold.Flag" means 
-#' that the EPA WQX team has not yet reviewed the combinations 
+#'
+#' #' The “Not Reviewed” value within "TADA.ResultAboveUpperThreshold.Flag" means
+#' that the EPA WQX team has not yet reviewed the combinations
 #' (see https://cdx.epa.gov/wqx/download/DomainValues/QAQCCharacteristicValidation.CSV).
 #' The WQX team plans to review and update these new combinations quarterly.
 #'
@@ -287,9 +287,9 @@ TADA_FlagSpeciation <- function(.data, clean = c("invalid_only", "nonstandardize
 #' clean = "invalid_only". When flaggedonly = TRUE, dataframe is filtered to show only
 #' rows with invalid or nonstandardized characteristic-media-result unit combinations.
 #' Default is flaggedonly = FALSE.
-#' 
-#' #' The “Not Reviewed” value within "TADA.ResultAboveUpperThreshold.Flag" means 
-#' that the EPA WQX team has not yet reviewed the combinations 
+#'
+#' #' The “Not Reviewed” value within "TADA.ResultAboveUpperThreshold.Flag" means
+#' that the EPA WQX team has not yet reviewed the combinations
 #' (see https://cdx.epa.gov/wqx/download/DomainValues/QAQCCharacteristicValidation.CSV).
 #' The WQX team plans to review and update these new combinations quarterly.
 #'
@@ -561,12 +561,12 @@ TADA_FindQCActivities <- function(.data, clean = FALSE, flaggedonly = FALSE) {
 
 #' AutoFilter
 #'
-#' This function removes rows where the result value is not numeric to 
+#' This function removes rows where the result value is not numeric to
 #' prepare a dataframe for quantitative analyses. Ideally, this function should
-#' be run after other data cleaning, QA/QC, and harmonization steps are 
+#' be run after other data cleaning, QA/QC, and harmonization steps are
 #' completed using other TADA package functions, or manually. Specifically, .
-#' this function removes rows with "Text","Coerced to NA", and "Blank" 
-#' in the TADA.ResultMeasureValueDataTypes.Flag column, or NA in the 
+#' this function removes rows with "Text","Coerced to NA", and "Blank"
+#' in the TADA.ResultMeasureValueDataTypes.Flag column, or NA in the
 #' TADA.ResultMeasureValue column.
 #'
 #' @param .data TADA dataframe OR TADA sites dataframe
@@ -596,8 +596,8 @@ TADA_AutoFilter <- function(.data) {
   autofilter <- dplyr::filter(.data, TADA.ResultMeasureValueDataTypes.Flag != "Blank" &
     TADA.ResultMeasureValueDataTypes.Flag != "Text" &
     TADA.ResultMeasureValueDataTypes.Flag != "Coerced to NA" &
-    !is.na(TADA.ResultMeasureValue))# &
-    #TADA.ActivityMediaName == "WATER")
+    !is.na(TADA.ResultMeasureValue)) # &
+  # TADA.ActivityMediaName == "WATER")
 
   # filter out QA/QC ActivityTypeCode's
   autofilter <- TADA_FindQCActivities(autofilter, clean = TRUE)
