@@ -7,6 +7,10 @@
 #' "Other Condition/Limit Populated", and flags records where there is a
 #' conflict between ResultDetectionConditionText and
 #' DetectionQuantitationLimitTypeName as "Conflict between Condition and Limit".
+#' A "Conflict between Condition and Limit" may occur if: A) the data submitter supplied 
+#' multiple detection limits and the wrong one is accidentally being associated 
+#' with the detection condition, or B) the data submitter accidentally choose
+#' the wrong detection limit or detection condition to associate with the result. 
 #' Detection limit results missing ResultDetectionConditionText are flagged as
 #' "Detection condition is missing and required for censored data ID." unless
 #' the ResultMeasureValue field is populated with "ND" (indicating non-detect).
@@ -123,6 +127,10 @@ TADA_IDCensoredData <- function(.data) {
 #' in the values as-is, X times the detection limit, or a random number between 0
 #' and the LOWER detection limit. These methods do NOT depend upon censored data frequency
 #' in the dataset.
+#' 
+#' This function runs TADA_IDCensoredData within it which add the column 
+#' TADA.CensoredData.Flag. Enter ?TADA_IDCensoredData into the console for more
+#' information.
 #'
 #' @param .data A TADA dataframe
 #' @param nd_method A text string indicating the type of method used to populate a non-detect (lower limit) data value. Can be set to "multiplier" (default),"randombelowlimit", or "as-is".

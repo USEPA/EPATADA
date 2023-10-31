@@ -44,8 +44,7 @@ flags: 1) If the latitude is less than zero, the row will be
 flagged with "LAT_OutsideUSA" (with the exception of American Samoa,
 Northern Mariana Islands, and Guam), 2) If the longitude is greater than zero AND less than 145,
 the row will be flagged as "LONG_OutsideUSA" (with the exception of
-American Samoa, Northern Mariana Islands, and Guam), 3) If the latitude or longitude
-contains the string, "999", the row will be flagged as invalid, and 4) Finally,
+American Samoa, Northern Mariana Islands, and Guam), and 3) Finally,
 precision can be measured by the number of decimal places in the latitude and longitude
 provided. If either the latitude or longitude does not have at least three numbers to the
 right of the decimal point, the row will be flagged as "Imprecise". Occasionally
@@ -78,8 +77,7 @@ OutsideUSACoord_removed <- TADA_FlagCoordinates(Data_Nutrients_UT, clean_outside
 OutsideUSACoord_changed <- TADA_FlagCoordinates(Data_Nutrients_UT, clean_outsideUSA = "change sign")
 
 # Remove data with imprecise coordinates, but keep flagged data with coordinates outside the USA;
-# imprecise data may include a series of 999's to the right of the decimal points;
-# alternatively, imprecise data may have less than 3 significant figures to the right
+# imprecise data may have less than 3 significant figures to the right
 # of the decimal point:
 ImpreciseCoord_removed <- TADA_FlagCoordinates(Data_Nutrients_UT, clean_imprecise = TRUE)
 

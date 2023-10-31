@@ -4,6 +4,11 @@
 #' in the dataframe. When clean = TRUE, rows with invalid characteristic-fraction
 #' combinations are removed. Default is clean = TRUE. When flaggedonly = TRUE, only
 #' invalid characteristic-fraction combinations are returned. Default is flaggedonly = FALSE.
+#' 
+#' #' The “Not Reviewed” value within "TADA.ResultAboveUpperThreshold.Flag" means 
+#' that the EPA WQX team has not yet reviewed the combinations 
+#' (see https://cdx.epa.gov/wqx/download/DomainValues/QAQCCharacteristicValidation.CSV).
+#' The WQX team plans to review and update these new combinations quarterly.
 #'
 #' @param .data TADA dataframe
 #' @param clean Boolean argument; removes "Invalid" characteristic-fraction
@@ -123,6 +128,11 @@ TADA_FlagFraction <- function(.data, clean = TRUE, flaggedonly = FALSE) {
 #' clean = "invalid_only". When flaggedonly = TRUE, dataframe is filtered to show only
 #' rows with invalid or nonstandardized characteristic-method speciation combinations.
 #' Default is flaggedonly = FALSE.
+#' 
+#' #' The “Not Reviewed” value within "TADA.ResultAboveUpperThreshold.Flag" means 
+#' that the EPA WQX team has not yet reviewed the combinations 
+#' (see https://cdx.epa.gov/wqx/download/DomainValues/QAQCCharacteristicValidation.CSV).
+#' The WQX team plans to review and update these new combinations quarterly.
 #'
 #' @param .data TADA dataframe
 #' @param clean Character argument with options "invalid_only", "nonstandardized_only",
@@ -277,6 +287,11 @@ TADA_FlagSpeciation <- function(.data, clean = c("invalid_only", "nonstandardize
 #' clean = "invalid_only". When flaggedonly = TRUE, dataframe is filtered to show only
 #' rows with invalid or nonstandardized characteristic-media-result unit combinations.
 #' Default is flaggedonly = FALSE.
+#' 
+#' #' The “Not Reviewed” value within "TADA.ResultAboveUpperThreshold.Flag" means 
+#' that the EPA WQX team has not yet reviewed the combinations 
+#' (see https://cdx.epa.gov/wqx/download/DomainValues/QAQCCharacteristicValidation.CSV).
+#' The WQX team plans to review and update these new combinations quarterly.
 #'
 #' @param .data TADA dataframe
 #' @param clean Character argument with options "invalid_only", "nonstandardized_only",

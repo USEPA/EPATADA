@@ -39,6 +39,12 @@ clean = TRUE. When flaggedonly = TRUE, the dataframe is filtered to show only
 rows with values that are flagged below the lower WQX threshold. Default is
 flaggedonly = FALSE
 }
+\details{
+#' The “Not Reviewed” value within "TADA.ResultAboveUpperThreshold.Flag" means
+that the EPA WQX team has not yet reviewed the combinations
+(see https://cdx.epa.gov/wqx/download/DomainValues/QAQCCharacteristicValidation.CSV).
+The WQX team plans to review and update these new combinations quarterly.
+}
 \examples{
 # Load example dataset:
 data(Data_Nutrients_UT)

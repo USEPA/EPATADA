@@ -76,7 +76,7 @@ remotes::install_github("USEPA/TADA",
 # when developing the package, update this chunk to the current repository branch, so it runs with all of the new features prior to a PR to develop
 
 remotes::install_github("USEPA/TADA",
-  ref = "figupdates",
+  ref = "10302023",
   dependencies = TRUE
 )
 ```
@@ -594,9 +594,10 @@ the following into the console:
 
 
 ```{r FindPotentialDuplicates}
-TADAProfileClean3 <- TADA_FindPotentialDuplicatesMultipleOrgs(TADAProfileClean3, dist_buffer = 100)
+TADAProfileClean3 <- TADA_FindPotentialDuplicatesMultipleOrgs(TADAProfileClean3, dist_buffer = 100, 
+                                                              org_hierarchy = "none")
 
-TADAProfileClean3 <- TADA_FindPotentialDuplicatesSingleOrg(TADAProfileClean3, handling_method = "pick_one")
+TADAProfileClean3 <- TADA_FindPotentialDuplicatesSingleOrg(TADAProfileClean3)
 ```
 
 ## Review QAPP information
