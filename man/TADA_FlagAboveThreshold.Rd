@@ -39,6 +39,12 @@ column is appended. When clean = TRUE and and flaggedonly = TRUE, the function
 is not executed and an error message is returned. Defaults are clean = TRUE
 and flaggedonly = FALSE.
 }
+\details{
+The “Not Reviewed” value within "TADA.ResultAboveUpperThreshold.Flag" means
+that the EPA WQX team has not yet reviewed the combinations
+(see https://cdx.epa.gov/wqx/download/DomainValues/QAQCCharacteristicValidation.CSV).
+The WQX team plans to review and update these new combinations quarterly.
+}
 \examples{
 # Load example dataset:
 data(Data_Nutrients_UT)

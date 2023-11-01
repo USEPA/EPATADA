@@ -2,7 +2,7 @@
 % Please edit documentation in R/ResultFlagsIndependent.R
 \name{TADA_FindPotentialDuplicatesMultipleOrgs}
 \alias{TADA_FindPotentialDuplicatesMultipleOrgs}
-\title{Identify Potentially Duplicated Data Uploads by Multiple Organizations (UNDER ACTIVE DEVELOPMENT)}
+\title{Identify Potentially Duplicated Data Uploads by Multiple Organizations}
 \usage{
 TADA_FindPotentialDuplicatesMultipleOrgs(
   .data,
@@ -37,6 +37,13 @@ time, characteristic name, and result value within X meters of each other and
 flags as potential duplicates. However, it is at the discretion of the data user
 to determine if the data records are unique or represent overlap that could cause
 issues in the data analysis.
+}
+\details{
+This function runs TADA_FindNearbySites within it which adds the
+TADA.NearbySiteGroups field. Duplicates are only flagged as duplicates if
+the distance between sites is less than the function input dist_buffer
+(default is 100m). Each group in the TADA.NearbySiteGroups field indicates
+that the sites within each group are within the specified distance from each other.
 }
 \examples{
 # Load dataset

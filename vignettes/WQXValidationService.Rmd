@@ -56,35 +56,29 @@ Package for use with data retrieved from the WQP:
         data if mg/L or °C was used for pH; flag if units were left
         blank, NA, None, etc. but are required for the characteristic)
 
-        -   See TADA Function:
-            [InvalidResultUnit()](https://usepa.github.io/TADA/reference/InvalidResultUnit.html)
+        -   [TADA_FlagResultUnit()](https://usepa.github.io/TADA/reference/TADA_FlagResultUnit.html)
 
     -   Flag data without methods, with uncommon methods, or with
         invalid methods for the characteristic. This is contingent on
         the activity type since some activity types don't require
         methods.
 
-        -   See TADA Function:
-            [InvalidMethod()](https://usepa.github.io/TADA/reference/InvalidMethod.html)
+        -   [TADA_FlagMethod()](https://usepa.github.io/TADA/reference/TADA_FlagMethod.html)
 
     -   Flag data with invalid characteristic and fraction cominations
 
-        -   See TADA Function:
-            [InvalidFraction()](https://usepa.github.io/TADA/reference/InvalidFraction.html)
+        -   [TADA_FlagFraction()](https://usepa.github.io/TADA/reference/TADA_FlagFraction.html)
 
     -   Flag data with invalid characteristic and speciation combination
 
-        -   See TADA Function:
-            [InvalidSpeciation()](https://usepa.github.io/TADA/reference/InvalidSpeciation.html)
+        -   [TADA_FlagSpeciation()](https://usepa.github.io/TADA/reference/TADA_FlagSpeciation.html)
 
     -   Flag results that do not have an approved QAPP and/or do not
         include a QAPP attachment
 
-        -   See TADA Function:
-            [QAPPDocAvailable()](https://usepa.github.io/TADA/reference/QAPPDocAvailable.html)
+        -   [TADA_FindQAPPDoc()](https://usepa.github.io/TADA/reference/TADA_FindQAPPDoc.html)
 
-        -   See TADA Function:
-            [QAPPapproved()](https://usepa.github.io/TADA/reference/QAPPapproved.html)
+        -   [TADA_FindQAPPApproval()](https://usepa.github.io/TADA/reference/TADA_FindQAPPApproval.html)
 
     -   Flag results above or below national thresholds using the
         Interquartile Range (IQR) method. The IQR method is defined as
@@ -94,20 +88,18 @@ Package for use with data retrieved from the WQP:
         -   Upper Threshold= 75th Percentile + 1.5 \* (75th percentile -
             25th percentile)
 
-            -   See TADA Function:
-                [AboveNationalWQXUpperThreshold()](https://usepa.github.io/TADA/reference/AboveNationalWQXUpperThreshold.html)
+            -   [TADA_FlagAboveThreshold()](https://usepa.github.io/TADA/reference/TADA_FlagAboveThreshold.html)
 
         -   Lower Threshold= 25th Percentile - 1.5 \* (75th percentile -
             25th percentile)
 
-            -   See TADA Function:
-                [BelowNationalWQXLowerThreshold()](https://usepa.github.io/TADA/reference/BelowNationalWQXLowerThreshold.html)
+            -   [TADA_FlagBelowThreshold()](https://usepa.github.io/TADA/reference/TADA_FlagBelowThreshold.html)
 
 [![[Boxplot](https://en.wikipedia.org/wiki/Boxplot "Boxplot") (with an
 interquartile range) and a [probability density
-function](https://en.wikipedia.org/wiki/Probability_density_function "Probability density function")
-(pdf) of a Normal N(0,σ^2^) Population. Attribution: Jhguch at
-en.wikipedia, [CC BY-SA
+function](https://en.wikipedia.org/wiki/Probability_density_function
+"Probability density function") (pdf) of a Normal N(0,σ2) Population.
+Attribution: Jhguch at en.wikipedia, [CC BY-SA
 2.5](https://creativecommons.org/licenses/by-sa/2.5), via Wikimedia
 Commons.](images/IQR.png)](https://commons.wikimedia.org/wiki/File:Boxplot_vs_PDF.svg)
 
@@ -141,19 +133,19 @@ TADA leverages many of the WQX domain tables.
     ([CSV)](https://cdx.epa.gov/wqx/download/DomainValues/QAQCCharacteristicValidation.CSV)
 
     -   Both WQX and TADA leverage the table above to flag invalid and
-        uncommon results. See relevant TADA functions:
+        uncommon results. This reference table is used in the following TADA functions:
 
-        -   [AboveNationalWQXUpperThreshold()](https://usepa.github.io/TADA/reference/AboveNationalWQXUpperThreshold.html)
+        -   [TADA_FlagAboveThreshold()](https://usepa.github.io/TADA/reference/TADA_FlagAboveThreshold.html)
+        
+        -   [TADA_FlagBelowThreshold()](https://usepa.github.io/TADA/reference/TADA_FlagBelowThreshold.html)
 
-        -   [BelowNationalWQXLowerThreshold()](https://usepa.github.io/TADA/reference/BelowNationalWQXLowerThreshold.html)
+        -   [TADA_FlagResultUnit()](https://usepa.github.io/TADA/reference/TADA_FlagResultUnit.html)
 
-        -   [InvalidResultUnit()](https://usepa.github.io/TADA/reference/InvalidResultUnit.html)
+        -   [TADA_FlagMethod()](https://usepa.github.io/TADA/reference/TADA_FlagMethod.html)
 
-        -   [InvalidMethod()](https://usepa.github.io/TADA/reference/InvalidMethod.html)
+        -   [TADA_FlagFraction()](https://usepa.github.io/TADA/reference/TADA_FlagFraction.html)
 
-        -   [InvalidFraction()](https://usepa.github.io/TADA/reference/InvalidFraction.html)
-
-        -   [InvalidSpeciation()](https://usepa.github.io/TADA/reference/InvalidSpeciation.html)
+        -   [TADA_FlagSpeciation()](https://usepa.github.io/TADA/reference/TADA_FlagSpeciation.html)
 
 -   [MeasureUnit
     (ZIP)](https://cdx.epa.gov/wqx/download/DomainValues/MeasureUnit_CSV.zip) \|
@@ -162,14 +154,14 @@ TADA leverages many of the WQX domain tables.
     -   Both WQX and TADA leverage the table above to convert all data
         for each unique characteristic to a consistent unit, so that
         results can then we assessed against the WQX upper and lower
-        thresholds in the validataion table. Target units for each
+        thresholds in the validation table. Target units for each
         charactersitic are included in the MeasureUnit domain table.
         TADA leverages this table to convert all data for each unique
         characteristic to a consistent target unit. See relevant TADA
         functions:
 
     -   See TADA Function:
-        [TADA_ConvertResultUnits()](https://usepa.github.io/TADA/reference/ConvertResultUnits.html)
+        [TADA_ConvertResultUnits()](https://usepa.github.io/TADA/reference/TADA_ConvertResultUnits.html)
 
 All TADA Reference and Validation Tables are also available in the R
 Package [HERE](https://github.com/USEPA/TADA/tree/develop/inst/extdata).
