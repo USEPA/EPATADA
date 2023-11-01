@@ -32,6 +32,12 @@ in the dataframe. When clean = TRUE, rows with invalid characteristic-fraction
 combinations are removed. Default is clean = TRUE. When flaggedonly = TRUE, only
 invalid characteristic-fraction combinations are returned. Default is flaggedonly = FALSE.
 }
+\details{
+#' The “Not Reviewed” value within "TADA.ResultAboveUpperThreshold.Flag" means
+that the EPA WQX team has not yet reviewed the combinations
+(see https://cdx.epa.gov/wqx/download/DomainValues/QAQCCharacteristicValidation.CSV).
+The WQX team plans to review and update these new combinations quarterly.
+}
 \examples{
 # Load example dataset:
 data(Data_Nutrients_UT)

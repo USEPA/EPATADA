@@ -67,8 +67,10 @@ TADA_Boxplot <- function(.data, id_cols = c("TADA.ComparableDataIdentifier")) {
   TADA_CheckColumns(.data, id_cols)
 
   # check .data has required columns
-  TADA_CheckColumns(.data, c("TADA.ResultMeasureValue", 
-                             "TADA.ResultMeasure.MeasureUnitCode"))
+  TADA_CheckColumns(.data, c(
+    "TADA.ResultMeasureValue",
+    "TADA.ResultMeasure.MeasureUnitCode"
+  ))
 
   start <- dim(.data)[1]
 
@@ -235,11 +237,13 @@ TADA_Histogram <- function(.data, id_cols = c("TADA.ComparableDataIdentifier")) 
 
   # check .data has required columns
   TADA_CheckColumns(.data, id_cols)
-  
+
   # check .data has required columns
-  TADA_CheckColumns(.data, c("TADA.ResultMeasureValue", 
-                             "TADA.ResultMeasure.MeasureUnitCode"))
-  
+  TADA_CheckColumns(.data, c(
+    "TADA.ResultMeasureValue",
+    "TADA.ResultMeasure.MeasureUnitCode"
+  ))
+
   start <- dim(.data)[1]
 
   .data <- subset(.data, !is.na(.data$TADA.ResultMeasureValue))
@@ -544,11 +548,13 @@ TADA_Scatterplot <- function(.data, id_cols = c("TADA.ComparableDataIdentifier")
 
   # check .data has required columns
   TADA_CheckColumns(.data, id_cols)
-  
+
   # check .data has required columns
-  TADA_CheckColumns(.data, c("ActivityStartDate",
-                             "TADA.ResultMeasureValue",
-                             "TADA.ResultMeasure.MeasureUnitCode"))
+  TADA_CheckColumns(.data, c(
+    "ActivityStartDate",
+    "TADA.ResultMeasureValue",
+    "TADA.ResultMeasure.MeasureUnitCode"
+  ))
 
   .data <- .data %>%
     dplyr::group_by(dplyr::across(dplyr::all_of(id_cols))) %>%
@@ -574,7 +580,7 @@ TADA_Scatterplot <- function(.data, id_cols = c("TADA.ComparableDataIdentifier")
       x = plot.data$ActivityStartDate, # currently uses start date only, may want to change to just ActivityStartDateTime in the future, but for now ActivityStartDateTime includes NAs when time is not available. Including ActivityStartDateTime in hover feature instead.
       y = plot.data$TADA.ResultMeasureValue,
       # consider adding color or shapes to make it easier to see sites and/or possible realtive result values
-      # color = ~MonitoringLocationName, 
+      # color = ~MonitoringLocationName,
       # colors = RColorBrewer::brewer.pal(3, "Set2"),
       marker = list(color = "#00bde3"), # marker color
       stroke = I("#005ea2"), # marker border color
@@ -583,8 +589,8 @@ TADA_Scatterplot <- function(.data, id_cols = c("TADA.ComparableDataIdentifier")
       hovertext = paste(
         "Result:", paste0(plot.data$TADA.ResultMeasureValue, " ", plot.data$TADA.ResultMeasure.MeasureUnitCode), "<br>",
         "Activity Start Date:", plot.data$ActivityStartDate, "<br>",
-        "Activity Start Date Time:", plot.data$ActivityStartDateTime, "<br>", 
-        "Monitoring Location Name:", plot.data$MonitoringLocationName, "<br>", 
+        "Activity Start Date Time:", plot.data$ActivityStartDateTime, "<br>",
+        "Monitoring Location Name:", plot.data$MonitoringLocationName, "<br>",
         "Media:", plot.data$TADA.ActivityMediaName, "<br>",
         "Media Subdivision:", plot.data$ActivityMediaSubdivisionName, "<br>",
         "Result Depth:", paste0(
@@ -634,7 +640,7 @@ TADA_Scatterplot <- function(.data, id_cols = c("TADA.ComparableDataIdentifier")
         margin = mrg
       ) %>%
       # config options https://plotly.com/r/configuration-options/
-      plotly::config(displaylogo = FALSE) #, displayModeBar = TRUE) # TRUE makes bar always visible
+      plotly::config(displaylogo = FALSE) # , displayModeBar = TRUE) # TRUE makes bar always visible
 
     # create plot for all groupid's
     all_scatterplots[[i]] <- one_scatterplot
@@ -667,7 +673,7 @@ TADA_Scatterplot <- function(.data, id_cols = c("TADA.ComparableDataIdentifier")
 #' @param groups A vector of two identifiers from the id_cols column. For
 #'   example, if the id_cols is 'TADA.ComparableDataIdentifier', the groups could
 #'   be 'DISSOLVED OXYGEN (DO)_NA_NA_UG/L' and 'PH_NA_NA_NA'. These groups will
-#'   be specific to your dataset. If the id_cols is 'MonitoringLocationName', 
+#'   be specific to your dataset. If the id_cols is 'MonitoringLocationName',
 #'   the groups could be 'Upper Red Lake: West' and 'Upper Red Lake: West-Central'.
 #'
 #' @return A single plotly scatterplot figure with one x-axis (Date/Time) and a
@@ -688,31 +694,33 @@ TADA_Scatterplot <- function(.data, id_cols = c("TADA.ComparableDataIdentifier")
 #' df <- dplyr::filter(Data_6Tribes_5y_Harmonized, TADA.ComparableDataIdentifier == "TOTAL PHOSPHORUS, MIXED FORMS_UNFILTERED_AS P_UG/L")
 #' # Creates a scatterplot including the two specified sites in the same plot:
 #' TADA_TwoCharacteristicScatterplot(df, id_cols = "MonitoringLocationName", groups = c("Upper Red Lake: West", "Upper Red Lake: West-Central"))
-#' 
+#'
 TADA_TwoCharacteristicScatterplot <- function(.data, id_cols = "TADA.ComparableDataIdentifier", groups) {
   # check .data is data.frame
   TADA_CheckType(.data, "data.frame", "Input object")
 
   # check .data has required columns
   TADA_CheckColumns(.data, id_cols)
-  
+
   # check .data has required columns
-  reqcols <- c("TADA.ResultMeasureValue", 
-               "TADA.ResultMeasure.MeasureUnitCode", 
-               "ActivityStartDate")
-  
+  reqcols <- c(
+    "TADA.ResultMeasureValue",
+    "TADA.ResultMeasure.MeasureUnitCode",
+    "ActivityStartDate"
+  )
+
   # check .data has required columns
   TADA_CheckColumns(.data, reqcols)
-  
+
   # if left blank, ensure comparable data identifier is in the id_cols vector
   if (is.null(id_cols)) {
     id_cols <- "TADA.ComparableDataIdentifier"
   }
-  
+
   if (!"TADA.ComparableDataIdentifier" %in% id_cols) {
     print("Note: TADA.ComparableDataIdentifier not found in id_cols argument and is highly recommended.")
   }
-  
+
   # check that groups are in id_cols
   id <- unlist(unique(.data[, id_cols]))
   if (any(!groups %in% id)) {
@@ -734,11 +742,15 @@ TADA_TwoCharacteristicScatterplot <- function(.data, id_cols = "TADA.ComparableD
   param1 <- subset(plot.data, plot.data[, id_cols] %in% groups[1])
   param2 <- subset(plot.data, plot.data[, id_cols] %in% groups[2])
 
-  title <- TADA::TADA_InsertBreaks(paste0(param1$TADA.CharacteristicName[1],
-                                          " and ", 
-                                          param2$TADA.CharacteristicName[1],  
-                                          " Over Time"), 
-                                   len = 45)
+  title <- TADA::TADA_InsertBreaks(
+    paste0(
+      param1$TADA.CharacteristicName[1],
+      " and ",
+      param2$TADA.CharacteristicName[1],
+      " Over Time"
+    ),
+    len = 45
+  )
 
   # figure margin
   mrg <- list(
@@ -750,7 +762,7 @@ TADA_TwoCharacteristicScatterplot <- function(.data, id_cols = "TADA.ComparableD
   scatterplot <- plotly::plot_ly(type = "scatter", mode = "markers") %>%
     plotly::layout(
       xaxis = list(
-        #title = "Activity Start Date", # not necessary?
+        # title = "Activity Start Date", # not necessary?
         titlefont = list(size = 16, family = "Arial"),
         tickfont = list(size = 16, family = "Arial"),
         hoverformat = ",.4r", linecolor = "black", rangemode = "tozero",
@@ -764,8 +776,8 @@ TADA_TwoCharacteristicScatterplot <- function(.data, id_cols = "TADA.ComparableD
         showgrid = FALSE, tickcolor = "black"
       ),
       yaxis2 = list(
-        side = "right", 
-        overlaying = "y", 
+        side = "right",
+        overlaying = "y",
         title = paste0(param2$TADA.CharacteristicName[1], "  ", param2$TADA.ResultMeasure.MeasureUnitCode[1]),
         titlefont = list(size = 16, family = "Arial"),
         tickfont = list(size = 16, family = "Arial"),
@@ -775,29 +787,35 @@ TADA_TwoCharacteristicScatterplot <- function(.data, id_cols = "TADA.ComparableD
       hoverlabel = list(bgcolor = "white"),
       title = title,
       plot_bgcolor = "#e5ecf6",
-      margin = mrg, 
-      legend = list(orientation = "h",
-                    xanchor = "center",
-                    x = 0.5)
+      margin = mrg,
+      legend = list(
+        orientation = "h",
+        xanchor = "center",
+        x = 0.5
+      )
     ) %>%
     # config options https://plotly.com/r/configuration-options/
-    plotly::config(displaylogo = FALSE) %>% #, displayModeBar = TRUE) # TRUE makes bar always visible
+    plotly::config(displaylogo = FALSE) %>% # , displayModeBar = TRUE) # TRUE makes bar always visible
     plotly::add_trace(
-      data = param1, 
-      x = ~ActivityStartDate, 
-      y = ~TADA.ResultMeasureValue, 
-      name = paste0(param1$TADA.ResultSampleFractionText, " ",
-                    param1$TADA.CharacteristicName, " ",
-                    param1$TADA.MethodSpecificationName),
-      marker = list(size = 10, 
-                    color = "#E34234", 
-      line = list(color = "#005ea2", width = 2)),
+      data = param1,
+      x = ~ActivityStartDate,
+      y = ~TADA.ResultMeasureValue,
+      name = paste0(
+        param1$TADA.ResultSampleFractionText, " ",
+        param1$TADA.CharacteristicName, " ",
+        param1$TADA.MethodSpecificationName
+      ),
+      marker = list(
+        size = 10,
+        color = "#E34234",
+        line = list(color = "#005ea2", width = 2)
+      ),
       hoverinfo = "text",
       hovertext = paste(
         "Result:", paste0(param1$TADA.ResultMeasureValue, " ", param1$TADA.ResultMeasure.MeasureUnitCode), "<br>",
         "Activity Start Date:", param1$ActivityStartDate, "<br>",
-        "Activity Start Date Time:", param1$ActivityStartDateTime, "<br>", 
-        "Monitoring Location Name:", param1$MonitoringLocationName, "<br>", 
+        "Activity Start Date Time:", param1$ActivityStartDateTime, "<br>",
+        "Monitoring Location Name:", param1$MonitoringLocationName, "<br>",
         "Media:", param1$TADA.ActivityMediaName, "<br>",
         "Media Subdivision:", param1$ActivityMediaSubdivisionName, "<br>",
         "Result Depth:", paste0(
@@ -820,21 +838,25 @@ TADA_TwoCharacteristicScatterplot <- function(.data, id_cols = "TADA.ComparableD
       )
     ) %>%
     plotly::add_trace(
-      data = param2, 
-      x = ~ActivityStartDate, 
-      y = ~TADA.ResultMeasureValue, 
-      name = paste0(param2$TADA.ResultSampleFractionText, " ",
-                    param2$TADA.CharacteristicName, " ",
-                    param2$TADA.MethodSpecificationName), 
-      marker = list(size = 10, color = "#00bde3",
-                    line = list(color = "#005ea2", width = 2)),
+      data = param2,
+      x = ~ActivityStartDate,
+      y = ~TADA.ResultMeasureValue,
+      name = paste0(
+        param2$TADA.ResultSampleFractionText, " ",
+        param2$TADA.CharacteristicName, " ",
+        param2$TADA.MethodSpecificationName
+      ),
+      marker = list(
+        size = 10, color = "#00bde3",
+        line = list(color = "#005ea2", width = 2)
+      ),
       yaxis = "y2",
       hoverinfo = "text",
       hovertext = paste(
         "Result:", paste0(param2$TADA.ResultMeasureValue, " ", param2$TADA.ResultMeasure.MeasureUnitCode), "<br>",
         "Activity Start Date:", param2$ActivityStartDate, "<br>",
-        "Activity Start Date Time:", param2$ActivityStartDateTime, "<br>", 
-        "Monitoring Location Name:", param2$MonitoringLocationName, "<br>", 
+        "Activity Start Date Time:", param2$ActivityStartDateTime, "<br>",
+        "Monitoring Location Name:", param2$MonitoringLocationName, "<br>",
         "Media:", param2$TADA.ActivityMediaName, "<br>",
         "Media Subdivision:", param2$ActivityMediaSubdivisionName, "<br>",
         "Result Depth:", paste0(
