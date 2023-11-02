@@ -416,7 +416,16 @@ TADA_OverviewMap <- function(.data) {
       leaflet::clearShapes() %>% # get rid of whatever was there before if loading a second dataset
       leaflet::fitBounds(lng1 = min(sumdat$TADA.LongitudeMeasure), lat1 = min(sumdat$TADA.LatitudeMeasure), lng2 = max(sumdat$TADA.LongitudeMeasure), lat2 = max(sumdat$TADA.LatitudeMeasure)) %>% # fit to bounds of data in tadat$raw
       leaflet::addCircleMarkers(
-        data = sumdat, lng = ~TADA.LongitudeMeasure, lat = ~TADA.LatitudeMeasure, color = "red", fillColor = ~ pal(Parameter_Count), fillOpacity = 0.7, stroke = TRUE, weight = 1.5, radius = sumdat$radius,
+        data = sumdat, 
+        lng = ~TADA.LongitudeMeasure, 
+        lat = ~TADA.LatitudeMeasure, 
+        # sets color of monitoring site circles 
+        color = "red", 
+        fillColor = ~ pal(Parameter_Count), 
+        fillOpacity = 0.7, 
+        stroke = TRUE, 
+        weight = 1.5, 
+        radius = sumdat$radius,
         popup = paste0(
           "Site ID: ", sumdat$MonitoringLocationIdentifier,
           "<br> Site Name: ", sumdat$MonitoringLocationName,
