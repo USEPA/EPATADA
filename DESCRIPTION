@@ -67,6 +67,7 @@ Imports:
     ggplot2, 
     sf,
     leaflet,
+    leaflet.extras,
     plotly,
     remotes,
     writexl

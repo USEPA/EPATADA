@@ -415,6 +415,7 @@ TADA_OverviewMap <- function(.data) {
       leaflet::addProviderTiles("Esri.WorldTopoMap", group = "World topo", options = leaflet::providerTileOptions(updateWhenZooming = FALSE, updateWhenIdle = TRUE)) %>%
       leaflet::clearShapes() %>% # get rid of whatever was there before if loading a second dataset
       leaflet::fitBounds(lng1 = min(sumdat$TADA.LongitudeMeasure), lat1 = min(sumdat$TADA.LatitudeMeasure), lng2 = max(sumdat$TADA.LongitudeMeasure), lat2 = max(sumdat$TADA.LatitudeMeasure)) %>% # fit to bounds of data in tadat$raw
+      leaflet.extras::addResetMapButton() %>% # button to reset to initial zoom and lat/long
       leaflet::addCircleMarkers(
         data = sumdat, 
         lng = ~TADA.LongitudeMeasure, 
