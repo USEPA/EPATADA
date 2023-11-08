@@ -51,7 +51,8 @@ utils::globalVariables(c(
   "SummationSpeciationConversionFactor", "SummationNote", "NutrientGroup",
   "Target.Speciation", "TADA.NearbySiteGroups", "numres", "TADA.SingleOrgDupGroupID",
   "TADA.MeasureQualifierCode.Flag", "MeasureQualifierCode", "value", "Flag_Column",
-  "Data_NCTCShepherdstown_HUC12", "ActivityStartDateTime", "TADA.MultipleOrgDupGroupID"
+  "Data_NCTCShepherdstown_HUC12", "ActivityStartDateTime", "TADA.MultipleOrgDupGroupID",
+  "TADA.WQXVal.Flag"
 ))
 
 
@@ -155,7 +156,7 @@ TADA_AutoClean <- function(.data) {
   # Identify detection limit data
   print("TADA_Autoclean: identifying detection limit data.")
   .data <- TADA_IDCensoredData(.data)
-  
+
   # Identify QC data
   .data <- TADA_FindQCActivities(.data, clean = FALSE, flaggedonly = FALSE)
 
@@ -546,7 +547,6 @@ TADA_OrderCols <- function(.data) {
     "TADA.LatitudeMeasure",
     "TADA.LongitudeMeasure",
     "TADA.InvalidCoordinates.Flag",
-    "TADA.NearbySiteGroups",
     "TADA.QAPPDocAvailable",
     "TADA.AggregatedContinuousData.Flag",
     "TADA.ResultValueAboveUpperThreshold.Flag",
@@ -580,11 +580,12 @@ TADA_OrderCols <- function(.data) {
     "TADA.WQXConversionFactor.ActivityTopDepthHeightMeasure",
     "TADA.WQXConversionFactor.ActivityBottomDepthHeightMeasure",
     "TADA.WQXConversionFactor.ResultDepthHeightMeasure",
+    "TADA.NearbySiteGroups",
     "TADA.MultipleOrgDuplicate",
     "TADA.MultipleOrgDupGroupID",
     "TADA.ResultSelectedMultipleOrgs",
     "TADA.SingleOrgDupGroupID",
-    "TADA.ResultSelectedSingleOrg",
+    "TADA.SingleOrgDup.Flag",
     "TADA.Harmonized.Flag",
     "TADA.Remove",
     "TADA.RemovalReason",
@@ -977,145 +978,6 @@ TADA_RunKeyFlagFunctions <- function(.data, remove_na = TRUE, clean = TRUE) {
 }
 
 
-# TADA_OvernightTesting
-#
-# @return console inputs and outputs
-#
-
-# TADA_OvernightTesting <- function(){
-#
-#   testing_log <- file("testing_log.txt") # File name of output log
-#
-#   sink(testing_log, append = TRUE, type = "output") # Writing console output to log file
-#   sink(testing_log, append = TRUE, type = "message")
-#
-#   #cat(readChar(rstudioapi::getSourceEditorContext()$path, # Writing currently opened R script to file
-#   #             file.info(rstudioapi::getSourceEditorContext()$path)$size))
-#
-#   num_iterations=2
-#   master_missing_codes_df <- data.frame(MeasureQualifierCode = NA, TADA.MeasureQualifierCode.Flag = NA)
-#
-#   for (i in 1:num_iterations) {
-#
-#     testing <- TADA_RandomTestingSet()
-#
-#     testing2 <- TADA_FlagMeasureQualifierCode(testing)
-#
-#     #expect_true(all(testing2$TADA.MeasureQualifierCode.Flag != "uncategorized"))
-#
-#     #print(unique(testing2$TADA_FlagMeasureQualifierCode))
-#     #print(unique(testing2$MeasureQualifierCode))
-#
-#     # load in ResultMeasureQualifier Flag Table
-#     qc.ref <- TADA_GetMeasureQualifierCodeRef() %>%
-#       dplyr::rename(MeasureQualifierCode = Code) %>%
-#       dplyr::select(MeasureQualifierCode, TADA.MeasureQualifierCode.Flag)
-#
-#     codes = unique(testing2$MeasureQualifierCode)
-#     missing_codes = codes[!codes %in% qc.ref$MeasureQualifierCode]
-#
-#     missing_codes_df <- data.frame(MeasureQualifierCode = missing_codes, TADA.MeasureQualifierCode.Flag = "uncategorized")
-#
-#     View(missing_codes_df)
-#
-#     master_missing_codes_df <- dplyr::full_join(missing_codes_df, master_missing_codes_df, by = c("MeasureQualifierCode", "TADA.MeasureQualifierCode.Flag"), copy = TRUE)
-#
-#     View(master_missing_codes_df)
-#
-#     }
-#
-#   master_missing_codes_distinct = master_missing_codes_df %>% dplyr::distinct()
-#
-#   View(master_missing_codes_distinct)
-#
-#   master_missing_codes_freq = as.data.frame(table(master_missing_codes_df))
-#
-#   View(master_missing_codes_freq)
-#
-#   closeAllConnections() # Close connection to log file
-#
-#   return(testing_log)
-#
-#   }
-
-
-## FUNCTION TO UPDATE EXAMPLE DATA
-
-TADA_UpdateExampleData <- function() {
-  Data_Nutrients_UT <- TADA_DataRetrieval(
-    statecode = "UT",
-    characteristicName = c("Ammonia", "Nitrate", "Nitrogen"),
-    startDate = "2020-10-01",
-    endDate = "2022-09-30"
-  )
-  print("Data_Nutrients_UT")
-  print(dim(Data_Nutrients_UT))
-  save(Data_Nutrients_UT, file = "data/Data_Nutrients_UT.rda")
-  rm(Data_Nutrients_UT)
-
-  Data_6Tribes_5y <- TADA_DataRetrieval(
-    organization = c(
-      "REDLAKE_WQX",
-      "SFNOES_WQX",
-      "PUEBLO_POJOAQUE",
-      "FONDULAC_WQX",
-      "PUEBLOOFTESUQUE",
-      "CNENVSER"
-    ),
-    startDate = "2018-01-01"
-  )
-  print("Data_6Tribes_5y:")
-  print(dim(Data_6Tribes_5y))
-  save(Data_6Tribes_5y, file = "data/Data_6Tribes_5y.rda")
-
-  y <- subset(Data_6Tribes_5y, Data_6Tribes_5y$TADA.ActivityMediaName %in% c("WATER"))
-  y <- TADA_RunKeyFlagFunctions(Data_6Tribes_5y)
-  rm(Data_6Tribes_5y)
-  y <- TADA_FlagMethod(y, clean = TRUE)
-  y <- TADA_FlagAboveThreshold(y, clean = TRUE)
-  y <- TADA_FlagBelowThreshold(y, clean = TRUE)
-  y <- TADA_FindPotentialDuplicatesMultipleOrgs(y, dist_buffer = 100)
-  y <- TADA_FindPotentialDuplicatesSingleOrg(y, handling_method = "pick_one")
-  y <- dplyr::filter(y, !(MeasureQualifierCode %in% c("D", "H", "ICA", "*")))
-  y <- TADA_SimpleCensoredMethods(y,
-    nd_method = "multiplier",
-    nd_multiplier = 0.5,
-    od_method = "as-is",
-    od_multiplier = "null"
-  )
-  y <- dplyr::filter(y, TADA.ResultMeasureValueDataTypes.Flag != "Blank" &
-    TADA.ResultMeasureValueDataTypes.Flag != "Text" &
-    TADA.ResultMeasureValueDataTypes.Flag != "Coerced to NA" &
-    !is.na(TADA.ResultMeasureValue))
-  # uses default ref = TADA_GetSynonymRef()
-  Data_6Tribes_5y_Harmonized <- TADA_HarmonizeSynonyms(y)
-  print("Data_6Tribes_5y_Harmonized:")
-  print(dim(Data_6Tribes_5y_Harmonized))
-  save(Data_6Tribes_5y_Harmonized, file = "data/Data_6Tribes_5y_Harmonized.rda")
-  rm(Data_6Tribes_5y_Harmonized)
-
-  Data_NCTCShepherdstown_HUC12 <- TADA::TADA_DataRetrieval(
-    startDate = "2020-03-14",
-    endDate = "null",
-    countycode = "null",
-    huc = "02070004",
-    siteid = "null",
-    siteType = "null",
-    characteristicName = "null",
-    characteristicType = "null",
-    sampleMedia = "null",
-    statecode = "null",
-    organization = "null",
-    project = "null",
-    applyautoclean = TRUE
-  )
-  print("Data_NCTCShepherdstown_HUC12:")
-  print(dim(Data_NCTCShepherdstown_HUC12))
-  save(Data_NCTCShepherdstown_HUC12, file = "data/Data_NCTCShepherdstown_HUC12.rda")
-  rm(Data_NCTCShepherdstown_HUC12)
-}
-
-
 
 #' TADA Module 1 Required Fields Check
 #'
@@ -1286,12 +1148,12 @@ TADA_CheckRequiredFields <- function(.data) {
 
 #' AutoFilter
 #'
-#' This function removes rows where the result value is not numeric to 
+#' This function removes rows where the result value is not numeric to
 #' prepare a dataframe for quantitative analyses. Ideally, this function should
-#' be run after other data cleaning, QA/QC, and harmonization steps are 
+#' be run after other data cleaning, QA/QC, and harmonization steps are
 #' completed using other TADA package functions, or manually. Specifically, .
-#' this function removes rows with "Text","Coerced to NA", and "Blank" 
-#' in the TADA.ResultMeasureValueDataTypes.Flag column, or NA in the 
+#' this function removes rows with "Text","Coerced to NA", and "Blank"
+#' in the TADA.ResultMeasureValueDataTypes.Flag column, or NA in the
 #' TADA.ResultMeasureValue column.
 #'
 #' @param .data TADA dataframe OR TADA sites dataframe
@@ -1309,34 +1171,33 @@ TADA_CheckRequiredFields <- function(.data) {
 #' TADA_filtered <- TADA_AutoFilter(Data_Nutrients_UT)
 #'
 TADA_AutoFilter <- function(.data) {
-  
   # check .data is data.frame
   TADA_CheckType(.data, "data.frame", "Input object")
-  
+
   TADA_CheckColumns(.data, c(
     "ActivityTypeCode", "MeasureQualifierCode",
     "TADA.ResultMeasureValueDataTypes.Flag",
     "TADA.ResultMeasureValue", "TADA.ActivityMediaName",
     "ActivityTypeCode", "TADA.ActivityType.Flag"
   ))
-  
+
   # keep track of starting and ending number of rows
   start <- dim(.data)[1]
-  
+
   # remove text, NAs and QC results
   .data <- dplyr::filter(.data, TADA.ResultMeasureValueDataTypes.Flag != "Blank" &
-                                TADA.ResultMeasureValueDataTypes.Flag != "Text" &
-                                TADA.ResultMeasureValueDataTypes.Flag != "Coerced to NA" &
-                                TADA.ActivityType.Flag == "Non_QC" & # filter out QA/QC ActivityTypeCode's
-                                !is.na(TADA.ResultMeasureValue))
-  
+    TADA.ResultMeasureValueDataTypes.Flag != "Text" &
+    TADA.ResultMeasureValueDataTypes.Flag != "Coerced to NA" &
+    TADA.ActivityType.Flag == "Non_QC" & # filter out QA/QC ActivityTypeCode's
+    !is.na(TADA.ResultMeasureValue))
+
   end <- dim(.data)[1]
-  
+
   # print number of results removed
   if (!start == end) {
     net <- start - end
     print(paste0("Function removed ", net, " results. These results are either text or NA and cannot be plotted or represent quality control activities (not routine samples or measurements)."))
   }
-  
+
   return(.data)
 }

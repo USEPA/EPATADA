@@ -33,6 +33,11 @@ in the values as-is, X times the detection limit, or a random number between 0
 and the LOWER detection limit. These methods do NOT depend upon censored data frequency
 in the dataset.
 }
+\details{
+This function runs TADA_IDCensoredData within it which add the column
+TADA.CensoredData.Flag. Enter ?TADA_IDCensoredData into the console for more
+information.
+}
 \examples{
 #' # Load example dataset:
 data(Data_Nutrients_UT)

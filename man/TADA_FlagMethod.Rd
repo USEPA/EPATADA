@@ -21,7 +21,7 @@ is flaggedonly = FALSE.}
 This function adds the TADA.AnalyticalMethod.Flag to a TADA dataframe. This column
 flags invalid CharacteristicName, ResultAnalyticalMethod/MethodIdentifier,
 and ResultAnalyticalMethod/MethodIdentifierContext combinations in your dataframe
-as either "NonStandardized", "Invalid", or "Valid". When clean = FALSE and
+as either "Not Reviewed", "Invalid", or "Valid". When clean = FALSE and
 flaggedonly = TRUE, the dataframe is filtered to show only "Invalid"
 characteristic-analytical method combinations; the column TADA.AnalyticalMethod.Flag
 is still appended. When clean = TRUE and flaggedonly = FALSE, "Invalid" rows
@@ -35,18 +35,24 @@ clean = TRUE. When flaggedonly = TRUE, dataframe is filtered to show only
 invalid characteristic-analytical method combinations. Default is
 flaggedonly = FALSE.
 }
+\details{
+The “Not Reviewed” value within "TADA.ResultAboveUpperThreshold.Flag" means
+that the EPA WQX team has not yet reviewed the combinations
+(see https://cdx.epa.gov/wqx/download/DomainValues/QAQCCharacteristicValidation.CSV).
+The WQX team plans to review and update these new combinations quarterly.
+}
 \examples{
 # Load example dataset
-data(Data_Nutrients_UT)
+data(Data_NCTCShepherdstown_HUC12)
 
 # Remove invalid characteristic-analytical method combinations from dataframe:
-InvalidMethod_clean <- TADA_FlagMethod(Data_Nutrients_UT)
+InvalidMethod_clean <- TADA_FlagMethod(Data_NCTCShepherdstown_HUC12)
 
 # Flag, but do not remove, invalid characteristic-analytical method combinations
 # in new column titled "TADA.AnalyticalMethod.Flag":
-InvalidMethod_flags <- TADA_FlagMethod(Data_Nutrients_UT, clean = FALSE)
+InvalidMethod_flags <- TADA_FlagMethod(Data_NCTCShepherdstown_HUC12, clean = FALSE)
 
 # Show only invalid characteristic-analytical method combinations:
-InvalidMethod_flaggedonly <- TADA_FlagMethod(Data_Nutrients_UT, clean = FALSE, flaggedonly = TRUE)
+InvalidMethod_flaggedonly <- TADA_FlagMethod(Data_NCTCShepherdstown_HUC12, clean = FALSE, flaggedonly = TRUE)
 
 }

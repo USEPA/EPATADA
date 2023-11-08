@@ -7,6 +7,11 @@
 #' invalid characteristic-analytical method combinations. Default is
 #' flaggedonly = FALSE.
 #'
+#' The “Not Reviewed” value within "TADA.ResultAboveUpperThreshold.Flag" means
+#' that the EPA WQX team has not yet reviewed the combinations
+#' (see https://cdx.epa.gov/wqx/download/DomainValues/QAQCCharacteristicValidation.CSV).
+#' The WQX team plans to review and update these new combinations quarterly.
+#'
 #' @param .data TADA dataframe
 #' @param clean Boolean argument; removes "Invalid" characteristic-analytical
 #' method combinations from the dataframe when clean = TRUE. Default is
@@ -18,7 +23,7 @@
 #' @return This function adds the TADA.AnalyticalMethod.Flag to a TADA dataframe. This column
 #' flags invalid CharacteristicName, ResultAnalyticalMethod/MethodIdentifier,
 #' and ResultAnalyticalMethod/MethodIdentifierContext combinations in your dataframe
-#' as either "NonStandardized", "Invalid", or "Valid". When clean = FALSE and
+#' as either "Not Reviewed", "Invalid", or "Valid". When clean = FALSE and
 #' flaggedonly = TRUE, the dataframe is filtered to show only "Invalid"
 #' characteristic-analytical method combinations; the column TADA.AnalyticalMethod.Flag
 #' is still appended. When clean = TRUE and flaggedonly = FALSE, "Invalid" rows
@@ -28,17 +33,17 @@
 #'
 #' @examples
 #' # Load example dataset
-#' data(Data_Nutrients_UT)
+#' data(Data_NCTCShepherdstown_HUC12)
 #'
 #' # Remove invalid characteristic-analytical method combinations from dataframe:
-#' InvalidMethod_clean <- TADA_FlagMethod(Data_Nutrients_UT)
+#' InvalidMethod_clean <- TADA_FlagMethod(Data_NCTCShepherdstown_HUC12)
 #'
 #' # Flag, but do not remove, invalid characteristic-analytical method combinations
 #' # in new column titled "TADA.AnalyticalMethod.Flag":
-#' InvalidMethod_flags <- TADA_FlagMethod(Data_Nutrients_UT, clean = FALSE)
+#' InvalidMethod_flags <- TADA_FlagMethod(Data_NCTCShepherdstown_HUC12, clean = FALSE)
 #'
 #' # Show only invalid characteristic-analytical method combinations:
-#' InvalidMethod_flaggedonly <- TADA_FlagMethod(Data_Nutrients_UT, clean = FALSE, flaggedonly = TRUE)
+#' InvalidMethod_flaggedonly <- TADA_FlagMethod(Data_NCTCShepherdstown_HUC12, clean = FALSE, flaggedonly = TRUE)
 #'
 TADA_FlagMethod <- function(.data, clean = TRUE, flaggedonly = FALSE) {
   # check .data is data.frame
@@ -63,12 +68,12 @@ TADA_FlagMethod <- function(.data, clean = TRUE, flaggedonly = FALSE) {
   if (("TADA.AnalyticalMethod.Flag" %in% colnames(.data)) == TRUE) {
     .data <- dplyr::select(.data, -TADA.AnalyticalMethod.Flag)
   }
-  # read in speciation reference table from sysdata.rda and filter
+  # read in WQX val reference table and filter
   meth.ref <- TADA_GetWQXCharValRef() %>%
     dplyr::filter(Type == "CharacteristicMethod")
 
-  # join "Status" column to .data by CharacteristicName, Source (Media), and Value (unit)
-  check.data <- merge(.data, meth.ref[, c("Characteristic", "Source", "Status", "Value")],
+  # join "TADA.WQXVal.Flag" column to .data by CharacteristicName, Source (Media), and Value (unit)
+  check.data <- merge(.data, meth.ref[, c("Characteristic", "Source", "Value", "TADA.WQXVal.Flag")],
     by.x = c(
       "TADA.CharacteristicName", "ResultAnalyticalMethod.MethodIdentifier",
       "ResultAnalyticalMethod.MethodIdentifierContext"
@@ -76,16 +81,16 @@ TADA_FlagMethod <- function(.data, clean = TRUE, flaggedonly = FALSE) {
     by.y = c("Characteristic", "Value", "Source"), all.x = TRUE
   )
 
-  # rename Status column to WQX.AnalyticalMethodValidity
+  # rename TADA.WQXVal.Flag column to WQX.AnalyticalMethodValidity
   check.data <- check.data %>%
-    dplyr::rename(TADA.AnalyticalMethod.Flag = Status) %>%
+    dplyr::rename(TADA.AnalyticalMethod.Flag = TADA.WQXVal.Flag) %>%
     dplyr::distinct()
   # rename NA values to NonStandardized in WQX.AnalyticalMethodValidity column
-  check.data["TADA.AnalyticalMethod.Flag"][is.na(check.data["TADA.AnalyticalMethod.Flag"])] <- "NonStandardized"
+  check.data["TADA.AnalyticalMethod.Flag"][is.na(check.data["TADA.AnalyticalMethod.Flag"])] <- "Not Reviewed"
 
   if (flaggedonly == FALSE) {
-    # if all rows are "Valid" or NA "NonStandardized", return input unchanged
-    ## note: Cristina edited this on 9/19/22 to keep NonStandardized/NA data when clean = TRUE. Now only Invalid data is removed.
+    # if all rows are "Valid" or NA "Not Reviewed", return input unchanged
+    ## note: Cristina edited this on 9/19/22 to keep Not Reviewed/NA data when clean = TRUE. Now only Invalid data is removed.
     if (any("Invalid" %in%
       unique(check.data$TADA.AnalyticalMethod.Flag)) == FALSE) {
       print("No invalid method/characteristic combinations in your dataframe. Returning the input dataframe with TADA.AnalyticalMethod.Flag column for tracking.")
@@ -128,21 +133,23 @@ TADA_FlagMethod <- function(.data, clean = TRUE, flaggedonly = FALSE) {
 
 #' Check for Aggregated Continuous Data
 #'
-#' The Water Quality Portal (WQP) is not currently designed to store high-frequency
-#' sensor data as typical result values. However, sometimes data providers
-#' choose to aggregate their continuous data to a daily avg, max, or min value,
-#' and then submit that aggregated data to the WQP through WQX. Alternatively,
-#' some organizations aggregate their high frequency data (15 min or 1 hour data)
+#' The Water Quality Portal (WQP) does not currently include a lot of high-frequency
+#' sensor data. However, sometimes data providers choose to aggregate their
+#' continuous data to a daily avg, max, or min value, and then submit that
+#' aggregated data to the WQP through WQX. Alternatively, some organizations
+#' aggregate their high frequency data (15 min or 1 hour data)
 #' to 2 or 4 hour interval averages, and they also submit that data to the WQP through WQX.
-#' This type of high frequency data may (or may not) be suitable for integration with discrete
+#' The raw continuous time series data is made available through a text file
+#' attachement at the activity level. This type of high frequency data may
+#' (or may not) be suitable for integration with discrete
 #' water quality data for assessments. Therefore, this function uses metadata
 #' submitted by data providers to flag rows with aggregated continuous data.
 #' This is done by flagging results where the ResultDetectionConditionText =
 #' "Reported in Raw Data (attached)". When clean = FALSE and flaggedonly = FALSE, a column titled
 #' "TADA.AggregatedContinuousData.Flag" is added to the dataframe to indicate if the row
-#' includes aggregated continuous data, "Y", or not,  "N". When clean = FALSE and
+#' includes aggregated continuous data, "Continuous", or not,  "Discrete". When clean = FALSE and
 #' flaggedonly = TRUE, the dataframe will be filtered to show only the rows flagged
-#' "Y" for aggregated continuous data. When clean = TRUE and flaggedonly = FALSE,
+#' "Continuous" for aggregated continuous data. When clean = TRUE and flaggedonly = FALSE,
 #' rows with aggregated continuous data are removed from the dataframe and no
 #' column will be appended. When clean = TRUE and flaggedonly = TRUE, the function
 #' does not execute and an error message is returned. The default is clean = TRUE
@@ -159,7 +166,7 @@ TADA_FlagMethod <- function(.data, clean = TRUE, flaggedonly = FALSE) {
 #' and flaggedonly = TRUE, the dataframe is filtered to show only the flagged
 #' aggregated continuous data and flag column is still appended. When clean = TRUE
 #' and flaggedonly = FALSE, aggregated continuous data is removed from the dataframe
-#' and no column is appended. The default is clean = TRUE and flaggedonly = FALSE.
+#' and no column is appended. The default is clean = FALSE and flaggedonly = FALSE.
 #'
 #' @export
 #'
@@ -167,8 +174,8 @@ TADA_FlagMethod <- function(.data, clean = TRUE, flaggedonly = FALSE) {
 #' # Load example dataset
 #' data(Data_Nutrients_UT)
 #'
-#' # Remove aggregated continuous data from dataframe:
-#' AggContinuous_clean <- TADA_FindContinuousData(Data_Nutrients_UT)
+#' # Remove aggregated continuous data in dataframe:
+#' AggContinuous_clean <- TADA_FindContinuousData(Data_Nutrients_UT, clean = TRUE)
 #'
 #' # Flag, but do not remove, aggregated continuous data in new column
 #' # titled "TADA.AggregatedContinuousData.Flag":
@@ -179,7 +186,7 @@ TADA_FlagMethod <- function(.data, clean = TRUE, flaggedonly = FALSE) {
 #'   clean = FALSE, flaggedonly = TRUE
 #' )
 #'
-TADA_FindContinuousData <- function(.data, clean = TRUE, flaggedonly = FALSE) {
+TADA_FindContinuousData <- function(.data, clean = FALSE, flaggedonly = FALSE) {
   # check .data is data.frame
   TADA_CheckType(.data, "data.frame", "Input object")
   # check clean is boolean
@@ -194,13 +201,19 @@ TADA_FindContinuousData <- function(.data, clean = TRUE, flaggedonly = FALSE) {
   }
 
   # set default flag to "unknown"
-  .data$TADA.AggregatedContinuousData.Flag <- "Unknown"
+  .data$TADA.AggregatedContinuousData.Flag <- "Discrete"
 
   # execute function after checks are passed
   # flag continuous data
   # make cont.data data frame
   # with new profiles might want to check for zip files? Do these columns show up in TADA_DataRetrieval?
-  cont.data <- .data %>% dplyr::filter((ActivityTypeCode == "Field Msr/Obs" & ResultDetectionConditionText == "Reported in Raw Data (attached)") | (ActivityTypeCode == "Field Msr/Obs" & SampleCollectionEquipmentName == "Probe/Sensor" & !is.na(ResultTimeBasisText) & !is.na(StatisticalBaseCode) & ResultValueTypeName == "Calculated"))
+  cont.data <- .data %>% dplyr::filter((ActivityTypeCode == "Field Msr/Obs" &
+    ResultDetectionConditionText == "Reported in Raw Data (attached)") |
+    (ActivityTypeCode == "Field Msr/Obs" &
+      SampleCollectionEquipmentName == "Probe/Sensor" &
+      !is.na(ResultTimeBasisText) &
+      !is.na(StatisticalBaseCode) &
+      ResultValueTypeName == "Calculated"))
 
   # everything not in cont dataframe
   noncont.data <- subset(.data, !.data$ResultIdentifier %in% cont.data$ResultIdentifier)
@@ -208,7 +221,7 @@ TADA_FindContinuousData <- function(.data, clean = TRUE, flaggedonly = FALSE) {
   # if there is aggregated continuous data is in the data set
   if (nrow(cont.data) != 0) {
     # change contents of ContDataFlag column
-    cont.data$TADA.AggregatedContinuousData.Flag <- "Y"
+    cont.data$TADA.AggregatedContinuousData.Flag <- "Continuous"
     # join cont.data to flag.data
     flag.data <- plyr::rbind.fill(cont.data, noncont.data)
 
@@ -221,7 +234,7 @@ TADA_FindContinuousData <- function(.data, clean = TRUE, flaggedonly = FALSE) {
     # clean output
     if (clean == TRUE & flaggedonly == FALSE) {
       # filter out invalid characteristic-unit-media combinations
-      clean.data <- dplyr::filter(flag.data, !(TADA.AggregatedContinuousData.Flag %in% "Y"))
+      clean.data <- dplyr::filter(flag.data, !(TADA.AggregatedContinuousData.Flag %in% "Continuous"))
 
       # remove TADA.AggregatedContinuousData column
       # clean.data <- dplyr::select(clean.data, -TADA.AggregatedContinuousData.Flag)
@@ -232,7 +245,7 @@ TADA_FindContinuousData <- function(.data, clean = TRUE, flaggedonly = FALSE) {
     # flagged output, only aggregated continuous data
     if (clean == FALSE & flaggedonly == TRUE) {
       # filter to show only invalid characteristic-unit-media combinations
-      aggcont.data <- dplyr::filter(flag.data, TADA.AggregatedContinuousData.Flag == "Y")
+      aggcont.data <- dplyr::filter(flag.data, TADA.AggregatedContinuousData.Flag == "Continuous")
       aggcont.data <- TADA_OrderCols(aggcont.data)
       return(aggcont.data)
     }
@@ -268,6 +281,11 @@ TADA_FindContinuousData <- function(.data, clean = TRUE, flaggedonly = FALSE) {
 #' column is appended. When clean = TRUE and and flaggedonly = TRUE, the function
 #' is not executed and an error message is returned. Defaults are clean = TRUE
 #' and flaggedonly = FALSE.
+#'
+#' The “Not Reviewed” value within "TADA.ResultAboveUpperThreshold.Flag" means
+#' that the EPA WQX team has not yet reviewed the combinations
+#' (see https://cdx.epa.gov/wqx/download/DomainValues/QAQCCharacteristicValidation.CSV).
+#' The WQX team plans to review and update these new combinations quarterly.
 #'
 #' @param .data TADA dataframe
 #' @param clean Boolean argument; removes data that is above the upper WQX
@@ -417,6 +435,11 @@ TADA_FlagAboveThreshold <- function(.data, clean = TRUE, flaggedonly = FALSE) {
 #' clean = TRUE. When flaggedonly = TRUE, the dataframe is filtered to show only
 #' rows with values that are flagged below the lower WQX threshold. Default is
 #' flaggedonly = FALSE
+#'
+#' #' The “Not Reviewed” value within "TADA.ResultAboveUpperThreshold.Flag" means
+#' that the EPA WQX team has not yet reviewed the combinations
+#' (see https://cdx.epa.gov/wqx/download/DomainValues/QAQCCharacteristicValidation.CSV).
+#' The WQX team plans to review and update these new combinations quarterly.
 #'
 #' @param .data TADA dataframe
 #' @param clean Boolean argument; removes data that is below the lower WQX
@@ -810,8 +833,7 @@ TADA_FindQAPPDoc <- function(.data, clean = FALSE) {
 #' flagged with "LAT_OutsideUSA" (with the exception of American Samoa,
 #' Northern Mariana Islands, and Guam), 2) If the longitude is greater than zero AND less than 145,
 #' the row will be flagged as "LONG_OutsideUSA" (with the exception of
-#' American Samoa, Northern Mariana Islands, and Guam), 3) If the latitude or longitude
-#' contains the string, "999", the row will be flagged as invalid, and 4) Finally,
+#' American Samoa, Northern Mariana Islands, and Guam), and 3) Finally,
 #' precision can be measured by the number of decimal places in the latitude and longitude
 #' provided. If either the latitude or longitude does not have at least three numbers to the
 #' right of the decimal point, the row will be flagged as "Imprecise". Occasionally
@@ -866,8 +888,7 @@ TADA_FindQAPPDoc <- function(.data, clean = FALSE) {
 #' OutsideUSACoord_changed <- TADA_FlagCoordinates(Data_Nutrients_UT, clean_outsideUSA = "change sign")
 #'
 #' # Remove data with imprecise coordinates, but keep flagged data with coordinates outside the USA;
-#' # imprecise data may include a series of 999's to the right of the decimal points;
-#' # alternatively, imprecise data may have less than 3 significant figures to the right
+#' # imprecise data may have less than 3 significant figures to the right
 #' # of the decimal point:
 #' ImpreciseCoord_removed <- TADA_FlagCoordinates(Data_Nutrients_UT, clean_imprecise = TRUE)
 #'
@@ -907,8 +928,8 @@ TADA_FlagCoordinates <- function(.data,
       TADA.LatitudeMeasure < 13.654383 & TADA.LatitudeMeasure > 13.234189 & TADA.LongitudeMeasure < 144.956712 & TADA.LongitudeMeasure > 144.618068 ~ NA_character_, # Guam
       TADA.LatitudeMeasure < 0 ~ "LAT_OutsideUSA",
       TADA.LongitudeMeasure > 0 & TADA.LongitudeMeasure < 145 ~ "LONG_OutsideUSA",
-      grepl("999", TADA.LatitudeMeasure) ~ "Imprecise_Latincludes999",
-      grepl("999", TADA.LongitudeMeasure) ~ "Imprecise_Longincludes999",
+      # grepl("999", TADA.LatitudeMeasure) ~ "Imprecise_Latincludes999",
+      # grepl("999", TADA.LongitudeMeasure) ~ "Imprecise_Longincludes999",
       # for below, lat and long fields must be numeric
       # this checks if there are at least 3 significant figures to the
       # right of the decimal point
@@ -924,8 +945,8 @@ TADA_FlagCoordinates <- function(.data,
     .data <- dplyr::filter(
       .data,
       !TADA.InvalidCoordinates.Flag %in% c(
-        "Imprecise_Latincludes999",
-        "Imprecise_Longincludes999",
+        # "Imprecise_Latincludes999",
+        # "Imprecise_Longincludes999",
         "Imprecise_lessthan3decimaldigits"
       )
     )
@@ -971,13 +992,19 @@ TADA_FlagCoordinates <- function(.data,
   return(.data)
 }
 
-#' Identify Potentially Duplicated Data Uploads by Multiple Organizations (UNDER ACTIVE DEVELOPMENT)
+#' Identify Potentially Duplicated Data Uploads by Multiple Organizations
 #'
 #' Identifies data records uploaded by different organizations with the same date,
 #' time, characteristic name, and result value within X meters of each other and
 #' flags as potential duplicates. However, it is at the discretion of the data user
 #' to determine if the data records are unique or represent overlap that could cause
 #' issues in the data analysis.
+#'
+#' This function runs TADA_FindNearbySites within it which adds the
+#' TADA.NearbySiteGroups field. Duplicates are only flagged as duplicates if
+#' the distance between sites is less than the function input dist_buffer
+#' (default is 100m). Each group in the TADA.NearbySiteGroups field indicates
+#' that the sites within each group are within the specified distance from each other.
 #'
 #' @param .data TADA dataframe
 #' @param dist_buffer Numeric. The distance in meters below which two sites with
@@ -1145,7 +1172,7 @@ TADA_FindPotentialDuplicatesMultipleOrgs <- function(.data, dist_buffer = 100, o
   return(.data)
 }
 
-#' Identify Potentially Duplicated Data Uploads by a Single Organization (UNDER ACTIVE DEVELOPMENT)
+#' Identify Potentially Duplicated Data Uploads by a Single Organization
 #'
 #' Identifies data records uploaded by the same organization with the same date,
 #' time, monitoring location, activity type, characteristic name, fraction,
@@ -1157,31 +1184,27 @@ TADA_FindPotentialDuplicatesMultipleOrgs <- function(.data, dist_buffer = 100, o
 #' organization.
 #'
 #' @param .data TADA dataframe
-#' @param handling_method Defaults to 'none'. When input is 'none', function
-#'   flags groups of potentially duplicated results, but makes no decisions on
-#'   which (if any) should be selected/excluded. Alternatively, user may
-#'   populate handling_method = 'pick_one' and function will randomly select one
-#'   result in each group and flag all others as duplicates.
-#'
 #' @return The same input TADA dataframe with additional columns: a
 #'   TADA.SingleOrgDupGroupID column indicating whether a result is part of a
-#'   group that shares the same date, time, location, characteristic, etc. and
-#'   TADA.ResultSelectedSingleOrg, which defaults to 'Y' (all results
-#'   selected), unless the user specifies the handling method as 'pick_one', in
-#'   which case there exists one result (selected at random) in each duplicate group where
-#'   TADA.ResultSelectedSingleOrg = 'Y' and for all other results in the group
-#'   TADA.ResultSelectedSingleOrg = 'N'.
+#'   group that shares the same date, time, location, characteristic, etc. If
+#'   multiple rows include duplicates within a single organization, the rows will
+#'   have the same number identifier in the TADA.SingleOrgDupGroupID column.
+#'   In addition, the column TADA.SingleOrgDup.Flag is added, which randomly
+#'   flags rows within each TADA.SingleOrgDupGroupID group for removal. Rows
+#'   randomly selected for potential removal within a duplicate group will have the
+#'   TADA.SingleOrgDup.Flag = 'Duplicate' and  all other results in the group will have
+#'   the value TADA.SingleOrgDup.Flag = 'Unique'.
 #'
 #' @export
 #'
 #' @examples
 #' # Load dataset
 #' data(Data_6Tribes_5y)
-#' # If duplicates across organizations exist, pick the result belonging to "21PA_WQX" if available.
-#' Data_6Tribes_5y_dups <- TADA_FindPotentialDuplicatesSingleOrg(Data_6Tribes_5y, handling_method = "pick_one")
-#' table(Data_6Tribes_5y_dups$TADA.ResultSelectedSingleOrg)
+#' # If duplicates exist, identify and flag them for removal
+#' Data_6Tribes_5y_dups <- TADA_FindPotentialDuplicatesSingleOrg(Data_6Tribes_5y)
+#' table(Data_6Tribes_5y_dups$TADA.SingleOrgDup.Flag)
 #'
-TADA_FindPotentialDuplicatesSingleOrg <- function(.data, handling_method = "none") {
+TADA_FindPotentialDuplicatesSingleOrg <- function(.data) {
   # find the depth columns in the dataset
   depthcols <- names(.data)[grepl("^TADA.*DepthHeightMeasure.MeasureValue$", names(.data))]
 
@@ -1196,29 +1219,23 @@ TADA_FindPotentialDuplicatesSingleOrg <- function(.data, handling_method = "none
     dplyr::mutate(TADA.SingleOrgDupGroupID = dplyr::cur_group_id())
 
   if (dim(dups_sum_org)[1] > 0) {
-    # apply to .data and remove numres column
+    # apply to .data and remove numbers column
     .data <- merge(.data, dups_sum_org, all.x = TRUE)
     .data <- .data %>% dplyr::select(-numres)
     .data$TADA.SingleOrgDupGroupID[is.na(.data$TADA.SingleOrgDupGroupID)] <- "Not a duplicate"
 
-    # if handling_method = 'pick_one', randomly select
-    if (handling_method == "pick_one") {
-      dup_rids <- subset(.data, !is.na(.data$TADA.SingleOrgDupGroupID))$ResultIdentifier
-      picks <- .data %>%
-        dplyr::filter(!is.na(TADA.SingleOrgDupGroupID)) %>%
-        dplyr::group_by(TADA.SingleOrgDupGroupID) %>%
-        dplyr::slice_sample(n = 1)
-      .data$TADA.ResultSelectedSingleOrg <- "Y"
-      .data$TADA.ResultSelectedSingleOrg <- ifelse(.data$ResultIdentifier %in% picks$ResultIdentifier, "N", .data$TADA.ResultSelectedSingleOrg)
-      print(paste0(dim(dups_sum_org)[1], " groups of potentially duplicated results found in dataset. These have been placed into duplicate groups in the TADA.SingleOrgDupGroupID column and the function randomly selected one result from each group to represent a single, unduplicated value. Selected values are indicated in the TADA.ResultSelectedSingleOrg as 'Y', while duplicates are flagged as 'N' for easy filtering."))
-    } else {
-      .data$TADA.ResultSelectedSingleOrg <- "Y"
-      print(paste0(dim(dups_sum_org)[1], " groups of potentially duplicated results found in dataset. These have been placed into duplicate groups in the TADA.SingleOrgDupGroupID column."))
-    }
-  } else {
-    .data$TADA.SingleOrgDupGroupID <- "Not a duplicate"
-    .data$TADA.ResultSelectedSingleOrg <- "Y"
-    print("No duplicates detected within organizations in the dataset. 'TADA.SingleOrgDupGroupID' column set to 'Not a duplicate' and 'TADA.ResultSelectedSingleOrg' set to 'Y' for all results.")
+    # flag rows randomly within a duplicate group for potential removal
+    dup_rids <- subset(.data, !is.na(.data$TADA.SingleOrgDupGroupID))$ResultIdentifier
+    picks <- .data %>%
+      dplyr::filter(!is.na(TADA.SingleOrgDupGroupID)) %>%
+      dplyr::group_by(TADA.SingleOrgDupGroupID) %>%
+      dplyr::slice_sample(n = 1)
+    .data$TADA.SingleOrgDup.Flag <- "Duplicate"
+    # flags potential duplicates as "Duplicate" for easy filtering
+    .data$TADA.SingleOrgDup.Flag <- ifelse(.data$ResultIdentifier %in% picks$ResultIdentifier, "Unique", .data$TADA.SingleOrgDup.Flag)
+    # flags non-duplicates as passing, cm removed 10/30
+    # data$TADA.SingleOrgDup.Flag <- ifelse(.data$TADA.SingleOrgDupGroupID == "Not a duplicate", "Unique", .data$TADA.SingleOrgDup.Flag)
+    print(paste0(dim(dups_sum_org)[1], " groups of potentially duplicated results found in dataset. These have been placed into duplicate groups in the TADA.SingleOrgDupGroupID column and the function randomly selected one result from each group to represent a single, unduplicated value. Selected values are indicated in the TADA.SingleOrgDup.Flag as 'Unique', while duplicates are flagged as 'Duplicate' for easy filtering."))
   }
 
   .data <- TADA_OrderCols(.data)

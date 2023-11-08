@@ -46,6 +46,12 @@ clean = "invalid_only". When flaggedonly = TRUE, dataframe is filtered to show o
 rows with invalid or nonstandardized characteristic-method speciation combinations.
 Default is flaggedonly = FALSE.
 }
+\details{
+#' The “Not Reviewed” value within "TADA.ResultAboveUpperThreshold.Flag" means
+that the EPA WQX team has not yet reviewed the combinations
+(see https://cdx.epa.gov/wqx/download/DomainValues/QAQCCharacteristicValidation.CSV).
+The WQX team plans to review and update these new combinations quarterly.
+}
 \examples{
 # Load example dataset:
 data(Data_Nutrients_UT)

@@ -1,16 +1,3 @@
-#' Update TADA Reference Files
-#' @return Saves updated reference files
-#'
-TADA_UpdateAllRefs <- function () {
-  TADA_UpdateWQXCharValRef()
-  TADA_UpdateMeasureUnitRef()
-  TADA_UpdateDetCondRef()
-  TADA_UpdateDetLimitRef()
-  TADA_UpdateActivityTypeRef()
-  TADA_UpdateCharacteristicRef()
-  TADA_UpdateMeasureQualifierCodeRef()
-}
-
 # Used to store cached WQX QAQC Characteristic Validation Reference Table
 WQXCharValRef_Cached <- NULL
 
@@ -38,7 +25,7 @@ TADA_GetWQXCharValRef <- function() {
   }
 
   # Try to download up-to-date raw data
-  
+
   raw.data <- tryCatch(
     {
       # read raw csv from url
@@ -55,16 +42,18 @@ TADA_GetWQXCharValRef <- function() {
     message("Falling back to (possibly outdated) internal file.")
     return(utils::read.csv(system.file("extdata", "WQXcharValRef.csv", package = "TADA")))
   }
-  
+
   # Categorize status values
-  notreviewed <- "Not Reviewed" 
+  notreviewed <- "Not Reviewed"
   valid <- c("Accepted", "Y")
   invalid <- c("Rejected", "Rejected ", "N")
-  nonstandard <- c("NonStandardized",
-                   "InvalidMediaUnit",
-                   "InvalidChar",
-                   "MethodNeeded")
-  
+  nonstandard <- c(
+    "NonStandardized",
+    "InvalidMediaUnit",
+    "InvalidChar",
+    "MethodNeeded"
+  )
+
   WQXcharValRef <- raw.data %>%
     dplyr::mutate(TADA.WQXVal.Flag = dplyr::case_when(
       Status %in% notreviewed ~ "Not Reviewed",
@@ -401,8 +390,9 @@ TADA_GetActivityTypeRef <- function() {
   if (is.null(raw.data)) {
     message("Downloading latest Activity Type Reference Table failed!")
     message("Falling back to (possibly outdated) internal file.")
-    return(utils::read.csv(system.file("extdata", "WQXActivityTypeRef.csv", 
-                                       package = "TADA")))
+    return(utils::read.csv(system.file("extdata", "WQXActivityTypeRef.csv",
+      package = "TADA"
+    )))
   }
 
   # Categorize Activity Types
@@ -472,24 +462,26 @@ TADA_GetActivityTypeRef <- function() {
     "Sample-Positive Control"
   )
   other <- c("Quality Control Sample-Other")
-  
-  nonQC <- c("Field Msr/Obs",
-             "Field Msr/Obs-Continuous Time Series",
-             "Field Msr/Obs-Habitat Assessment",
-             "Field Msr/Obs-Incidental",
-             "Field Msr/Obs-Portable Data Logger",
-             "Sample-Composite With Parents",
-             "Sample-Composite Without Parents",
-             "Sample-Field Split",
-             "Sample-Field Subsample",
-             "Sample-Integrated Cross-Sectional Profile",
-             "Sample-Integrated Flow Proportioned",
-             "Sample-Integrated Horizontal Profile",
-             "Sample-Integrated Horizontal and Vertical Composite Profile",
-             "Sample-Integrated Time Series",
-             "Sample-Integrated Vertical Profile",
-             "Sample-Other",
-             "Sample-Routine")
+
+  nonQC <- c(
+    "Field Msr/Obs",
+    "Field Msr/Obs-Continuous Time Series",
+    "Field Msr/Obs-Habitat Assessment",
+    "Field Msr/Obs-Incidental",
+    "Field Msr/Obs-Portable Data Logger",
+    "Sample-Composite With Parents",
+    "Sample-Composite Without Parents",
+    "Sample-Field Split",
+    "Sample-Field Subsample",
+    "Sample-Integrated Cross-Sectional Profile",
+    "Sample-Integrated Flow Proportioned",
+    "Sample-Integrated Horizontal Profile",
+    "Sample-Integrated Horizontal and Vertical Composite Profile",
+    "Sample-Integrated Time Series",
+    "Sample-Integrated Vertical Profile",
+    "Sample-Other",
+    "Sample-Routine"
+  )
 
   WQXActivityTypeRef <- raw.data %>%
     dplyr::mutate(TADA.ActivityType.Flag = dplyr::case_when(
@@ -501,7 +493,6 @@ TADA_GetActivityTypeRef <- function() {
       Code %in% nonQC ~ "Non_QC",
       TRUE ~ as.character("Not Reviewed"),
       Code %in% NA ~ "Not Reviewed"
-      
     )) %>%
     dplyr::distinct()
 
