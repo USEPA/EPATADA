@@ -17,6 +17,7 @@ TADA_DataRetrieval(
   statecode = "null",
   organization = "null",
   project = "null",
+  providers = "null",
   applyautoclean = TRUE
 )
 }
@@ -44,6 +45,8 @@ TADA_DataRetrieval(
 \item{organization}{A string of letters and/or numbers (some additional characters also possible) used to signify an organization with data in the Water Quality Portal}
 
 \item{project}{A string of letters and/or numbers (some additional characters also possible) used to signify a project with data in the Water Quality Portal}
+
+\item{providers}{Leave blank to include all, or specify "STEWARDS", "STORET" (i.e., WQX), and/or "NWIS".}
 
 \item{applyautoclean}{Logical, defaults to TRUE. Applies TADA_AutoClean function on the returned data profile.}
 }

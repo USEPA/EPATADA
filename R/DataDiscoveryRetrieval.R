@@ -43,6 +43,7 @@
 #' @param statecode FIPS state alpha code that identifies a state (e.g. statecode = "DE" for Delaware)
 #' @param organization A string of letters and/or numbers (some additional characters also possible) used to signify an organization with data in the Water Quality Portal
 #' @param project A string of letters and/or numbers (some additional characters also possible) used to signify a project with data in the Water Quality Portal
+#' @param providers Leave blank to include all, or specify "STEWARDS", "STORET" (i.e., WQX), and/or "NWIS".
 #' @param applyautoclean Logical, defaults to TRUE. Applies TADA_AutoClean function on the returned data profile.
 #'
 #' @return TADA-compatible dataframe
@@ -147,6 +148,7 @@ TADA_DataRetrieval <- function(startDate = "null",
                                statecode = "null",
                                organization = "null",
                                project = "null",
+                               providers = "null",
                                applyautoclean = TRUE) {
   # Set query parameters
   WQPquery <- list()
@@ -214,6 +216,12 @@ TADA_DataRetrieval <- function(startDate = "null",
     WQPquery <- c(WQPquery, project = list(project))
   } else if (project != "null") {
     WQPquery <- c(WQPquery, project = project)
+  }
+  
+  if (length(providers) > 1) {
+    WQPquery <- c(WQPquery, providers = list(providers))
+  } else if (providers != "null") {
+    WQPquery <- c(WQPquery, providers = providers)
   }
 
   if (length(organization) > 1) {
