@@ -1007,24 +1007,28 @@ TADA_FlagCoordinates <- function(.data,
 #' that the sites within each group are within the specified distance from each other.
 #'
 #' @param .data TADA dataframe
+#' 
 #' @param dist_buffer Numeric. The distance in meters below which two sites with
 #' measurements at the same time on the same day of the same parameter will
 #' be flagged as potential duplicates.
+#' 
 #' @param org_hierarchy Vector of organization identifiers that acts as the
 #'   order in which the function should select a result as the representative
 #'   duplicate, based on the organization that collected the data. If left
 #'   blank, the function chooses the representative duplicate result at random.
-#'
+#'   
 #' @return The same input TADA dataframe with additional columns: a
 #'   TADA.MultipleOrgDuplicate column indicating if there is evidence that
 #'   results are likely duplicated due to submission of the same dataset by two
-#'   or more different organizations, a TADA.MultipleOrgDupGroupID column,
+#'   or more different organizations, a TADA.MultipleOrgDupGroupID column
 #'   containing a number unique to results that may represent duplicated
-#'   measurement events, and one or more TADA.SiteGroup columns indicating
-#'   monitoring locations within the distance buffer from each other.
-#'
+#'   measurement events, a TADA.ResultSelectedMultipleOrgs column indicating 
+#'   which rows are selected to keep (Y) and remove (N) based on the 
+#'   org hierarchy, and a TADA.NearbySiteGroups column indicating which
+#'   monitoring locations are within the distance buffer from each other.
+#'   
 #' @export
-#'
+#' 
 #' @examples
 #' # Load dataset
 #' dat <- TADA_DataRetrieval(startDate = "2022-09-01", endDate = "2023-05-01", statecode = "PA", sampleMedia = "Water")
@@ -1061,7 +1065,13 @@ TADA_FindPotentialDuplicatesMultipleOrgs <- function(.data, dist_buffer = 100, o
       dplyr::ungroup()
 
     # merge to data
-    dupsdat <- dplyr::left_join(dupsdat, .data)
+    dupsdat <- dplyr::left_join(dupsdat, .data, by = c("ActivityStartDate",
+                                                       "ActivityStartTime.Time",
+                                                       "TADA.CharacteristicName",
+                                                       "ActivityTypeCode",
+                                                       "OrganizationIdentifier", 
+                                                       "ResultIdentifier", 
+                                                       "TADA.ResultMeasureValue"))
 
     rm(dupsprep)
 
@@ -1233,8 +1243,8 @@ TADA_FindPotentialDuplicatesSingleOrg <- function(.data) {
     .data$TADA.SingleOrgDup.Flag <- "Duplicate"
     # flags potential duplicates as "Duplicate" for easy filtering
     .data$TADA.SingleOrgDup.Flag <- ifelse(.data$ResultIdentifier %in% picks$ResultIdentifier, "Unique", .data$TADA.SingleOrgDup.Flag)
-    # flags non-duplicates as passing, cm removed 10/30
-    # data$TADA.SingleOrgDup.Flag <- ifelse(.data$TADA.SingleOrgDupGroupID == "Not a duplicate", "Unique", .data$TADA.SingleOrgDup.Flag)
+    # flags non-duplicates as passing
+    .data$TADA.SingleOrgDup.Flag <- ifelse(.data$TADA.SingleOrgDupGroupID == "Not a duplicate", "Unique", .data$TADA.SingleOrgDup.Flag)
     print(paste0(dim(dups_sum_org)[1], " groups of potentially duplicated results found in dataset. These have been placed into duplicate groups in the TADA.SingleOrgDupGroupID column and the function randomly selected one result from each group to represent a single, unduplicated value. Selected values are indicated in the TADA.SingleOrgDup.Flag as 'Unique', while duplicates are flagged as 'Duplicate' for easy filtering."))
   }
 
