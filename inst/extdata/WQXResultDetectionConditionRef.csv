@@ -1,24 +1,25 @@
-"Domain","Unique.Identifier","Name","Description","Last.Change.Date","TADA.Detection_Type"
-"Result Detection Condition(ResultDetectionConditionText)",15,"Above Operating Range","data valid but above Normal Operating Range reduces the chance of acceptance","4/26/2016 4:43:04 PM","Over-Detect"
-"Result Detection Condition(ResultDetectionConditionText)",13,"Below Daily Detection Limit","data that was found less than defined daily detection limits","4/26/2016 4:42:54 PM","Non-Detect"
-"Result Detection Condition(ResultDetectionConditionText)",12,"Below Detection Limit","data that was found less than defined detection limits","4/26/2016 4:42:49 PM","Non-Detect"
-"Result Detection Condition(ResultDetectionConditionText)",14,"Below Long-term Blank-basd Dt Limit","data that was found less than defined long-term blank based detection limits","4/26/2016 4:42:59 PM","Non-Detect"
-"Result Detection Condition(ResultDetectionConditionText)",20,"Below Method Detection Limit","data that was found less than defined laboratory method detection limits","4/26/2016 4:43:25 PM","Non-Detect"
-"Result Detection Condition(ResultDetectionConditionText)",16,"Below Reporting Limit","data that was found less than defined laboratory reporting limits","4/26/2016 4:43:10 PM","Non-Detect"
-"Result Detection Condition(ResultDetectionConditionText)",17,"Below Sample-specific Detect Limit","data that was found less than defined sample specific detection limits","4/26/2016 4:43:15 PM","Non-Detect"
-"Result Detection Condition(ResultDetectionConditionText)",18,"Below System Detection Limit","data that was found less than defined system detection limits","4/26/2016 4:43:21 PM","Non-Detect"
-"Result Detection Condition(ResultDetectionConditionText)",11,"Between Inst Detect and Quant Limit","between the lowest concentration at which the analyte can not only be reliably detected but at which some predefined goals for bias and imprecision and instrument.","4/26/2016 4:42:44 PM","Non-Detect"
-"Result Detection Condition(ResultDetectionConditionText)",1,"Detected Not Quantified","data that was found and not quanitified within defined laboratory reporting limits or method detection limits","7/26/2006 10:57:47 AM","Non-Detect"
-"Result Detection Condition(ResultDetectionConditionText)",21,"High Moisture","wet and allowed to ferment","2/3/2016 11:57:48 AM","Other"
-"Result Detection Condition(ResultDetectionConditionText)",4,"Not Detected","data was looked for but was not observed/detected within defined laboratory reporting limits or method detection limits","7/26/2006 10:57:47 AM","Non-Detect"
-"Result Detection Condition(ResultDetectionConditionText)",106,"Not Detected at Detection Limit","Not Detected at Detection Limit","11/6/2018 1:01:33 PM","Non-Detect"
-"Result Detection Condition(ResultDetectionConditionText)",107,"Not Detected at Reporting Limit","Not Detected at Reporting Limit","11/6/2018 1:01:48 PM","Non-Detect"
-"Result Detection Condition(ResultDetectionConditionText)",86,"Not Present","data that was looked for but not found and without laboratory reporting limits or method detection limits http://www.abcwua.org/Substances_Not_Found.aspx","11/30/2017 7:36:18 AM","Non-Detect"
-"Result Detection Condition(ResultDetectionConditionText)",2,"Not Reported","data was collected but not analyzed. (data has not been quantified)","7/26/2006 10:57:47 AM","Non-Detect"
-"Result Detection Condition(ResultDetectionConditionText)",3,"Present Above Quantification Limit","data was found greater than defined laboratory reporting limits or method detection limits. typically for colony count and rare occasions where value is above highest calibration curve point concentration.","7/26/2006 10:57:47 AM","Over-Detect"
-"Result Detection Condition(ResultDetectionConditionText)",5,"Present Below Quantification Limit","data was found less than defined laboratory reporting limits or method detection limits","7/26/2006 10:57:47 AM","Non-Detect"
-"Result Detection Condition(ResultDetectionConditionText)",10,"Reported in Raw Data (attached)","Continuous or time series sampling attached in raw data file","6/26/2015 2:48:40 AM","Other"
-"Result Detection Condition(ResultDetectionConditionText)",6,"Trace","a very small quantity, especially one too small to be accurately measured.","8/5/2015 2:54:11 PM","Non-Detect"
-"Result Detection Condition(ResultDetectionConditionText)",22,"Unable to Measure","Measurement or sample collection was attempted but unobtainable due to site conditions, equipment failure, or other circumstances","8/30/2023 2:03:01 PM","Other"
-"Result Detection Condition(ResultDetectionConditionText)",19,"Value Decensored","Value Decensored -  reconstruct or remove the objectionable values of a measurement set","12/21/2015 2:45:30 PM","Other"
-NA,NA,"*Non-detect","Hard-coded legacy detection condition","8/7/2023 12:00:00 PM","Non-Detect"
+Domain,Unique.Identifier,Name,Description,Last.Change.Date,TADA.Detection_Type
+Result Detection Condition(ResultDetectionConditionText),15,Above Operating Range,data valid but above Normal Operating Range reduces the chance of acceptance,4/26/2016 16:43,Over-Detect
+Result Detection Condition(ResultDetectionConditionText),13,Below Daily Detection Limit,data that was found less than defined daily detection limits,4/26/2016 16:42,Non-Detect
+Result Detection Condition(ResultDetectionConditionText),12,Below Detection Limit,data that was found less than defined detection limits,4/26/2016 16:42,Non-Detect
+Result Detection Condition(ResultDetectionConditionText),14,Below Long-term Blank-basd Dt Limit,data that was found less than defined long-term blank based detection limits,4/26/2016 16:42,Non-Detect
+Result Detection Condition(ResultDetectionConditionText),20,Below Method Detection Limit,data that was found less than defined laboratory method detection limits,4/26/2016 16:43,Non-Detect
+Result Detection Condition(ResultDetectionConditionText),16,Below Reporting Limit,data that was found less than defined laboratory reporting limits,4/26/2016 16:43,Non-Detect
+Result Detection Condition(ResultDetectionConditionText),17,Below Sample-specific Detect Limit,data that was found less than defined sample specific detection limits,4/26/2016 16:43,Non-Detect
+Result Detection Condition(ResultDetectionConditionText),18,Below System Detection Limit,data that was found less than defined system detection limits,4/26/2016 16:43,Non-Detect
+Result Detection Condition(ResultDetectionConditionText),11,Between Inst Detect and Quant Limit,between the lowest concentration at which the analyte can not only be reliably detected but at which some predefined goals for bias and imprecision and instrument.,4/26/2016 16:42,Non-Detect
+Result Detection Condition(ResultDetectionConditionText),1,Detected Not Quantified,data that was found and not quanitified within defined laboratory reporting limits or method detection limits,7/26/2006 10:57,Non-Detect
+Result Detection Condition(ResultDetectionConditionText),21,High Moisture,wet and allowed to ferment,2/3/2016 11:57,Other
+Result Detection Condition(ResultDetectionConditionText),4,Not Detected,data was looked for but was not observed/detected within defined laboratory reporting limits or method detection limits,7/26/2006 10:57,Non-Detect
+Result Detection Condition(ResultDetectionConditionText),106,Not Detected at Detection Limit,Not Detected at Detection Limit,11/6/2018 13:01,Non-Detect
+Result Detection Condition(ResultDetectionConditionText),107,Not Detected at Reporting Limit,Not Detected at Reporting Limit,11/6/2018 13:01,Non-Detect
+Result Detection Condition(ResultDetectionConditionText),86,Not Present,data that was looked for but not found and without laboratory reporting limits or method detection limits http://www.abcwua.org/Substances_Not_Found.aspx,11/30/2017 7:36,Non-Detect
+Result Detection Condition(ResultDetectionConditionText),2,Not Reported,data was collected but not analyzed. (data has not been quantified),7/26/2006 10:57,Non-Detect
+Result Detection Condition(ResultDetectionConditionText),3,Present Above Quantification Limit,data was found greater than defined laboratory reporting limits or method detection limits. typically for colony count and rare occasions where value is above highest calibration curve point concentration.,7/26/2006 10:57,Over-Detect
+Result Detection Condition(ResultDetectionConditionText),5,Present Below Quantification Limit,data was found less than defined laboratory reporting limits or method detection limits,7/26/2006 10:57,Non-Detect
+Result Detection Condition(ResultDetectionConditionText),10,Reported in Raw Data (attached),Continuous or time series sampling attached in raw data file,6/26/2015 2:48,Other
+Result Detection Condition(ResultDetectionConditionText),6,Trace,"a very small quantity, especially one too small to be accurately measured.",8/5/2015 14:54,Non-Detect
+Result Detection Condition(ResultDetectionConditionText),22,Unable to Measure,"Measurement or sample collection was attempted but unobtainable due to site conditions, equipment failure, or other circumstances",8/30/2023 14:03,Other
+Result Detection Condition(ResultDetectionConditionText),19,Value Decensored,Value Decensored -  reconstruct or remove the objectionable values of a measurement set,12/21/2015 14:45,Other
+Result Detection Condition(ResultDetectionConditionText),23,Value affected by contamination,Value affected by contamination as determined for USGS NWIS data; Analyte was detected in both the environmental sample and the associated blanks.,11/9/2023 21:50,Other
+NA,NA,*Non-detect,Hard-coded legacy detection condition,8/7/2023 12:00,Non-Detect
