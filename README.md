@@ -24,24 +24,24 @@ Tools for Automated Data Analysis, or TADA, is being developed to help States, T
 
 ## Installation
 
-You must first have R and R Studio installed to use the TADA R Package (see instructions below if needed). You can install and load the most recent version of the TADA R Package on [GitHub](https://github.com/USEPA/TADA) by running:
+You must first have R and R Studio installed to use the TADA R Package (see instructions below if needed). Our team is actively developing TADA, therefore we highly recommend that you update the TADA R Package and all of its dependency libraries each time you use the package. You can install and/or update the [TADA R Package](https://github.com/USEPA/TADA) and all dependencies by running:
 
 ```{r}
 if(!"remotes"%in%installed.packages()){
 install.packages("remotes")
 }
 
-remotes::install_github("USEPA/TADA", ref = "develop", dependencies = TRUE)
+remotes::install_github("USEPA/TADA", ref = "develop", dependencies = TRUE, force = TRUE)
 ```
 
-The TADA R Shiny application can be run [on the web](https://owshiny-dev.app.cloud.gov/tada-dev/) (R and R Studio install not required), or within R Studio. Run the following code within R Studio to install and run the most recent version of the TADA R Shiny application on [GitHub](https://github.com/USEPA/TADAShiny):
+The TADA R Shiny application can be run [on the web](https://owshiny-dev.app.cloud.gov/tada-dev/) (R and R Studio install not required), or within R Studio. Run the following code within R Studio to install or update and run the most recent version of the [TADA R Shiny](https://github.com/USEPA/TADAShiny) application:
 
 ```{r}
 if(!"remotes"%in%installed.packages()){
 install.packages("remotes")
 }
 
-remotes::install_github("USEPA/TADAShiny", ref = "develop", dependencies = TRUE)
+remotes::install_github("USEPA/TADAShiny", ref = "develop", dependencies = TRUE, force = TRUE)
 
 TADAShiny::run_app()
 ```
@@ -67,7 +67,7 @@ In 2012, the WQP was deployed by the U.S. Geological Survey (USGS), the U.S. Env
 
 3.  Again, download the installer, click through the prompts, and accept the defaults.
 
-Note: If you are an EPA employee, please follow the directions here instead of the instructions above: https://work.epa.gov/software/r-software.
+Note: If you are an EPA employee, please follow the directions here instead of the instructions above: <https://work.epa.gov/software/r-software>.
 
 ## Open-Source Code Policy
 
