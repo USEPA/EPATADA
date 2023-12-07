@@ -611,7 +611,7 @@ TADA_OrderCols <- function(.data) {
 #' in TADA_BigDataRetrieval. Therefore, deprecated characteristic names are
 #' harmonized to their current name automatically upon data retrieval.
 #' TADA_SubstituteDeprecatedChars can also be used by itself on a user supplied
-#' dataset that is in the WQX format, if desired.
+#' dataset that is in the WQX format, if desired. This solution works for both EPA WQX and USGS NWIS provided data.
 #'
 #' @param .data TADA dataframe
 #'
@@ -624,9 +624,23 @@ TADA_OrderCols <- function(.data) {
 TADA_SubstituteDeprecatedChars <- function(.data) {
   TADA_CheckColumns(.data, expected_cols = c("CharacteristicName", "TADA.CharacteristicName"))
 
-  # read in characteristic reference table with deprecation information and filter to deprecated terms
-  ref.table <- TADA_GetCharacteristicRef() %>% dplyr::filter(Char_Flag == "Deprecated")
+  # read in characteristic reference table with deprecation information, filter to deprecated terms and for "retired" in CharactersticName.
+  # remove all characters after first "*" in CharacteristicName and remove any leading or trailing white space to make compatible with deprecated NWIS CharactersticName.
+  nwis.table <- TADA_GetCharacteristicRef() %>%
+    dplyr::filter(
+      Char_Flag == "Deprecated",
+      grepl("retired", CharacteristicName)
+    ) %>%
+    dplyr::mutate(CharacteristicName = trimws(stringr::str_split(CharacteristicName, "\\*", simplify = T)[, 1]))
 
+  # read in characteristic reference table with deprecation information and filter to deprecated terms.
+  # join with deprecated NWIS CharacteristicName data.frame.
+  ref.table <- TADA_GetCharacteristicRef() %>%
+    dplyr::filter(Char_Flag == "Deprecated") %>%
+    rbind(nwis.table)
+
+  rm(nwis.table)
+  
   # merge to dataset
   .data <- merge(.data, ref.table, all.x = TRUE)
   # if CharacteristicName is deprecated and comparable name is not BLANK, use the provided Comparable.Name. Otherwise, keep TADA.CharacteristicName as-is.
