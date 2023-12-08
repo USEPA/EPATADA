@@ -186,15 +186,22 @@ TADA_SimpleCensoredMethods <- function(.data, nd_method = "multiplier", nd_multi
     print("Cannot apply simple censored methods to dataset with no censored data results. Returning input dataframe.")
     .data <- cens.data
   } else {
-    # split out over detects and non detects. create separate subsets for pathogen non-detects and NAs.
-    nd <- subset(cens.data, cens.data$TADA.CensoredData.Flag == "Non-Detect" & cens.data$CharacteristicName != "Fecal Coliform")
-    path_nd <- subset(cens.data, cens.data$TADA.CensoredData.Flag == "Non-Detect" & cens.data$CharacteristicName == "Fecal Coliform")
-    path_na <- subset(cens.data, is.na(cens.data$TADA.ResultMeasureValue) & cens.data$CharacteristicName == "Fecal Coliform")
-    path_comb <-  plyr::rbind.fill(path_nd, path_na)
-    od <- subset(cens.data, cens.data$TADA.CensoredData.Flag == "Over-Detect")
-    all_others <- subset(cens.data, !cens.data$ResultIdentifier %in% c(nd$ResultIdentifier, od$ResultIdentifier))
+    # split out over detects and non detects (excluding pathogens as they are handled separately). 
+    nd <- subset(cens.data, cens.data$TADA.CensoredData.Flag == "Non-Detect" & cens.data$TADA.CharacteristicName != "FECAL COLIFORM")
+    od <- subset(cens.data, cens.data$TADA.CensoredData.Flag == "Over-Detect" & cens.data$TADA.CharacteristicName != "FECAL COLIFORM")
     
-    rm(path_nd, path_na)
+    # create separate subsets for pathogen non-detects, coerced to NAs, and 0 or negative values.
+    path_nd <- subset(cens.data, cens.data$TADA.CensoredData.Flag == "Non-Detect" & cens.data$TADA.CharacteristicName == "FECAL COLIFORM")
+    path_na <- subset(cens.data, cens.data$TADA.CharacteristicName == "FECAL COLIFORM" & cens.data$TADA.ResultMeasureValueDataTypes.Flag == "Coerced to NA")
+    path_neg <-subset(cens.data, cens.data$TADA.CharacteristicName == "FECAL COLIFORM" & cens.data$TADA.ResultMeasureValue <= 0)
+    path_comb <-  plyr::rbind.fill(path_nd, path_na, path_neg)
+    
+    rm(path_nd, path_na, path_neg)
+    
+    #create subset of all results not included in the non detects, over detects, or pathogen subsets.
+    all_others <- subset(cens.data, !cens.data$ResultIdentifier %in% c(nd$ResultIdentifier, od$ResultIdentifier, path_comb$ResultIdentifier))
+    
+    
 
     # ND handling
     if (dim(nd)[1] > 0) {
@@ -230,10 +237,10 @@ TADA_SimpleCensoredMethods <- function(.data, nd_method = "multiplier", nd_multi
       if (pathogen == TRUE) {
         path_comb$TADA.ResultMeasureValue <- pathogen_value
         path_comb$TADA.CensoredMethod <- paste0("Non-Detect Substituted With ", pathogen_value)
-        path_comb$TADA.ResultMeasureValueDataTypes.Flag <- "Non-Detect Defaults to Small Number"
+        path_comb$TADA.ResultMeasureValueDataTypes.Flag <- "Non-Detect, Coerced NA, or Negative Value Defaults to Small Number"
       }
       if (pathogen == FALSE) {
-        path_comb$TADA.CensoredMethod <- "No Subsitution for Pathogen Non-Detect"
+        path_comb$TADA.CensoredMethod <- "Result Measure Value Unchanged"
       }
     }
 
