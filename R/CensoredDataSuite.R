@@ -96,6 +96,7 @@ TADA_IDCensoredData <- function(.data) {
     cens$TADA.CensoredData.Flag <- ifelse(cens$TADA.Detection_Type %in% c("Over-Detect") & cens$TADA.Limit_Type %in% c("Over-Detect"), "Over-Detect", cens$TADA.CensoredData.Flag)
     cens$TADA.CensoredData.Flag <- ifelse(cens$TADA.Detection_Type %in% c("Other") & cens$TADA.Limit_Type %in% c("Other"), "Other Condition/Limit Populated", cens$TADA.CensoredData.Flag)
     cens$TADA.CensoredData.Flag <- ifelse(cens$TADA.Detection_Type %in% c("Non-Detect", "Over-Detect", "Other") & cens$TADA.Limit_Type %in% c("Non-Detect", "Over-Detect", "Other") & !cens$TADA.Detection_Type == cens$TADA.Limit_Type, "Conflict between Condition and Limit", cens$TADA.CensoredData.Flag)
+    
 
     ## warn when some limit metadata may be problematic
     if ("Conflict between Condition and Limit" %in% cens$TADA.CensoredData.Flag) {
@@ -137,6 +138,8 @@ TADA_IDCensoredData <- function(.data) {
 #' @param nd_multiplier A number to be multiplied to the LOWER detection limit for each entry to obtain the censored data value. Must be supplied if nd_method = "multiplier". Defaults to 0.5, or half the detection limit.
 #' @param od_method A text string indicating the type of method used to populate an over-detect (upper limit) data value. Can be set to "multiplier" or "as-is" (default).
 #' @param od_multiplier A number to be multiplied to the UPPER detection limit for each entry to obtain the censored data value. Must be supplied if od_method = "multiplier". Defaults to 0.5, or half the detection limit.
+#' @param pathogen Boolean. Determines whether pathogen (update to include list of all characteristics should be included) non-detects should be set to a specified small value for use in calculation geometric means. If pathogen = TRUE (default), the substitution is applied. If pathogen = FALSE, no subtitution is applied.
+#' @param pathogen_value A number to be substituted when pathogen results are non-detects. Must be supplied if pathogen = TRUE. Defaults to 1.
 #'
 #' @return A TADA dataframe with additional columns named TADA.CensoredData.Flag, which indicates if there are disagreements in ResultDetectionCondition and DetectionQuantitationLimitTypeName, and TADA.CensoredMethod, which documents the method used to fill censored data values.
 #'
@@ -155,7 +158,7 @@ TADA_IDCensoredData <- function(.data) {
 #' # Check for agreement between detection condition and detection limit type, and in instances where the measurement is non-detect, set the result value to a random value between 0 and the detection limit value. For over-detect measurements, retain the detection limit value as the result value as-is.
 #' Data_Nutrients_UT_CensoredFlag <- TADA_SimpleCensoredMethods(Data_Nutrients_UT, nd_method = "randombelowlimit", nd_multiplier = "null", od_method = "as-is", od_multiplier = "null")
 #'
-TADA_SimpleCensoredMethods <- function(.data, nd_method = "multiplier", nd_multiplier = 0.5, od_method = "as-is", od_multiplier = "null") {
+TADA_SimpleCensoredMethods <- function(.data, nd_method = "multiplier", nd_multiplier = 0.5, od_method = "as-is", od_multiplier = "null", pathogen = TRUE, pathogen_value = 1) {
   # check .data has all of the required columns
   expected_cols <- c(
     "ResultDetectionConditionText",
@@ -183,10 +186,15 @@ TADA_SimpleCensoredMethods <- function(.data, nd_method = "multiplier", nd_multi
     print("Cannot apply simple censored methods to dataset with no censored data results. Returning input dataframe.")
     .data <- cens.data
   } else {
-    # split out over detects and non detects
-    nd <- subset(cens.data, cens.data$TADA.CensoredData.Flag == "Non-Detect")
+    # split out over detects and non detects. create separate subsets for pathogen non-detects and NAs.
+    nd <- subset(cens.data, cens.data$TADA.CensoredData.Flag == "Non-Detect" & cens.data$CharacteristicName != "Fecal Coliform")
+    path_nd <- subset(cens.data, cens.data$TADA.CensoredData.Flag == "Non-Detect" & cens.data$CharacteristicName == "Fecal Coliform")
+    path_na <- subset(cens.data, is.na(cens.data$TADA.ResultMeasureValue) & cens.data$CharacteristicName == "Fecal Coliform")
+    path_comb <-  plyr::rbind.fill(path_nd, path_na)
     od <- subset(cens.data, cens.data$TADA.CensoredData.Flag == "Over-Detect")
     all_others <- subset(cens.data, !cens.data$ResultIdentifier %in% c(nd$ResultIdentifier, od$ResultIdentifier))
+    
+    rm(path_nd, path_na)
 
     # ND handling
     if (dim(nd)[1] > 0) {
@@ -217,8 +225,19 @@ TADA_SimpleCensoredMethods <- function(.data, nd_method = "multiplier", nd_multi
         od$TADA.CensoredMethod <- "Detection Limit Value Unchanged"
       }
     }
+    # pathogen ND handling
+    if (dim(path_comb)[1] > 0) {
+      if (pathogen == TRUE) {
+        path_comb$TADA.ResultMeasureValue <- pathogen_value
+        path_comb$TADA.CensoredMethod <- paste0("Non-Detect Substituted With ", pathogen_value)
+        path_comb$TADA.ResultMeasureValueDataTypes.Flag <- "Non-Detect Defaults to Small Number"
+      }
+      if (pathogen == FALSE) {
+        path_comb$TADA.CensoredMethod <- "No Subsitution for Pathogen Non-Detect"
+      }
+    }
 
-    .data <- plyr::rbind.fill(nd, od, all_others)
+    .data <- plyr::rbind.fill(nd, od, path_comb, all_others)
     .data <- TADA_OrderCols(.data)
   }
   return(.data)
