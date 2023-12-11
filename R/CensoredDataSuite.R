@@ -194,18 +194,11 @@ TADA_SimpleCensoredMethods <- function(.data, nd_method = "multiplier", nd_multi
     nd <- subset(cens.data, cens.data$TADA.CensoredData.Flag == "Non-Detect" & cens.data$TADA.CharacteristicName != "FECAL COLIFORM")
     od <- subset(cens.data, cens.data$TADA.CensoredData.Flag == "Over-Detect" & cens.data$TADA.CharacteristicName != "FECAL COLIFORM")
 
-    # create separate subsets for pathogen non-detects, coerced to NAs, NAs, and 0 or negative values.
+    # create separate subsets for pathogen non-detects.
     path_nd <- subset(cens.data, cens.data$TADA.CensoredData.Flag == "Non-Detect" & cens.data$TADA.CharacteristicName == "FECAL COLIFORM")
-    path_co_na <- subset(cens.data, cens.data$TADA.CharacteristicName == "FECAL COLIFORM" & cens.data$TADA.ResultMeasureValueDataTypes.Flag == "Coerced to NA" & cens.data$TADA.CensoredData.Flag == "Uncensored")
-    path_na <- subset(cens.data, cens.data$TADA.CharacteristicName == "FECAL COLIFORM" & is.na(TADA.ResultMeasureValue) & cens.data$TADA.ResultMeasureValueDataTypes.Flag != "Coerced to NA" & cens.data$TADA.CensoredData.Flag == "Uncensored")
-    path_neg <- subset(cens.data, cens.data$TADA.CharacteristicName == "FECAL COLIFORM" & cens.data$TADA.ResultMeasureValue <= 0)
-    path_comb <- plyr::rbind.fill(path_nd, path_na, path_co_na, path_neg)
-
-    rm(path_nd, path_co_na, path_na, path_neg)
 
     # create subset of all results not included in the non detects, over detects, or pathogen subsets.
-    all_others <- subset(cens.data, !cens.data$ResultIdentifier %in% c(nd$ResultIdentifier, od$ResultIdentifier, path_comb$ResultIdentifier))
-
+    all_others <- subset(cens.data, !cens.data$ResultIdentifier %in% c(nd$ResultIdentifier, od$ResultIdentifier, path_nd$ResultIdentifier))
 
 
     # ND handling
@@ -238,18 +231,18 @@ TADA_SimpleCensoredMethods <- function(.data, nd_method = "multiplier", nd_multi
       }
     }
     # pathogen ND handling
-    if (dim(path_comb)[1] > 0) {
+    if (dim(path_nd)[1] > 0) {
       if (pathogen == TRUE) {
-        path_comb$TADA.ResultMeasureValue <- pathogen_value
-        path_comb$TADA.CensoredMethod <- paste0("Non-Detect, Coerced NA, NA, or Negative Value Substituted With ", pathogen_value)
-        path_comb$TADA.ResultMeasureValueDataTypes.Flag <- "Non-Detect, Coerced NA, NA, or Negative Value Defaults to Small Number"
+        path_nd$TADA.ResultMeasureValue <- pathogen_value
+        path_nd$TADA.CensoredMethod <- paste0("Non-Detect Substituted With ", pathogen_value)
+        path_nd$TADA.ResultMeasureValueDataTypes.Flag <- "Non-Detect Defaults to Small Number"
       }
       if (pathogen == FALSE) {
         path_comb$TADA.CensoredMethod <- "Result Measure Value Unchanged"
       }
     }
 
-    .data <- plyr::rbind.fill(nd, od, path_comb, all_others)
+    .data <- plyr::rbind.fill(nd, od, path_nd, all_others)
     .data <- TADA_OrderCols(.data)
   }
   return(.data)
