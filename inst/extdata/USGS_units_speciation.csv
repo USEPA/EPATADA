@@ -54,3 +54,4 @@ Measurement Unit(MeasureUnitCode),NA,lb/d as P,,,lb/day,as P,1
 Measurement Unit(MeasureUnitCode),NA,lb/d asPO4,,,lb/day,as PO4,1
 Measurement Unit(MeasureUnitCode),NA,mg/s as N,,,lb/day,as N,0.190479427
 Measurement Unit(MeasureUnitCode),NA,mgC3H6O2/L,,,ug/L,as C3H6O2,1000
+Measurement Unit(MeasureUnitCode),NA,MPN/100 ml,,,MPN/100ML,,1
