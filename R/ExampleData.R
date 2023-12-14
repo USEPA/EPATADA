@@ -29,7 +29,7 @@ NULL
 #' @keywords datasets
 #' @name Data_Nutrients_UT
 #' @usage data(Data_Nutrients_UT)
-#' @format A data frame with 14589 rows and 148 variables
+#' @format A data frame with 14592 rows and 152 variables
 NULL
 
 #' Data_Narrow_5d

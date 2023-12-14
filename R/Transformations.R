@@ -59,8 +59,8 @@ TADA_GetSynonymRef <- function(.data, download = FALSE) {
 
   # check .data has the required columns
   expected_cols <- c(
-    "TADA.ActivityMediaName",
-    "TADA.CharacteristicName", "TADA.ResultSampleFractionText",
+    "TADA.CharacteristicName",
+    "TADA.ResultSampleFractionText",
     "TADA.MethodSpecificationName",
     "TADA.ResultMeasure.MeasureUnitCode"
   )
@@ -164,37 +164,30 @@ TADA_HarmonizeSynonyms <- function(.data, ref, np_speciation = TRUE) {
   # check .data is data.frame
   TADA_CheckType(.data, "data.frame", "Input object")
 
-
   # check .data has the required columns
   expected_cols <- c(
-    "TADA.ActivityMediaName",
-    "TADA.CharacteristicName", "TADA.ResultSampleFractionText",
+    "TADA.CharacteristicName",
+    "TADA.ResultSampleFractionText",
     "TADA.MethodSpecificationName",
     "TADA.ResultMeasureValue",
     "TADA.ResultMeasure.MeasureUnitCode"
   )
   TADA_CheckColumns(.data, expected_cols)
 
-  # additional columns that may be in harmonization ref
-  # columns to keep from .data if exist
-  # harmonization_cols <- c(
-  #   "TADA.SampleFraction.Flag", "TADA.MethodSpeciation.Flag",
-  #   "TADA.ResultUnit.Flag", "TADA.AnalyticalMethod.Flag"
-  # )
-
-
   # define which columns are expected in ref
   expected_ref_cols <- c(
-    "TADA.ActivityMediaName",
     "TADA.CharacteristicName",
-    "TADA.ResultSampleFractionText",
-    "TADA.MethodSpecificationName",
-    "TADA.ResultMeasure.MeasureUnitCode",
     "Target.TADA.CharacteristicName",
+    "TADA.CharacteristicNameAssumptions",
+    "TADA.ResultSampleFractionText",
     "Target.TADA.ResultSampleFractionText",
+    "TADA.FractionAssumptions",
+    "TADA.MethodSpecificationName",
     "Target.TADA.MethodSpecificationName",
-    "Target.TADA.ResultMeasure.MeasureUnitCode",
+    "TADA.SpeciationAssumptions",
     "Target.TADA.SpeciationConversionFactor",
+    "TADA.ResultMeasure.MeasureUnitCode",
+    "Target.TADA.ResultMeasure.MeasureUnitCode",
     "Target.TADA.UnitConversionFactor"
   )
 
@@ -221,7 +214,7 @@ TADA_HarmonizeSynonyms <- function(.data, ref, np_speciation = TRUE) {
     harm.ref <- TADA_GetSynonymRef(.data, download = FALSE)
   }
 
-  # find places where metadata will be changed and add FLAG column.
+  # find places where metadata will be changed and add targets
   harm.ref$TADA.Harmonized.Flag <- ifelse(!is.na(harm.ref$Target.TADA.CharacteristicName) | !is.na(harm.ref$Target.TADA.ResultSampleFractionText) | !is.na(harm.ref$Target.TADA.MethodSpecificationName) | !is.na(harm.ref$Target.TADA.ResultMeasure.MeasureUnitCode), TRUE, FALSE)
 
   .data <- .data[, !names(.data) %in% c("TADA.ComparableDataIdentifier")]
@@ -253,11 +246,11 @@ TADA_HarmonizeSynonyms <- function(.data, ref, np_speciation = TRUE) {
       !is.na(TADA.ResultSampleFractionText) & is.na(Target.TADA.ResultSampleFractionText) & !is.na(TADA.FractionAssumptions) ~ Target.TADA.ResultSampleFractionText,
       is.na(Target.TADA.ResultSampleFractionText) ~ TADA.ResultSampleFractionText
     ))
-  
+
   # TADA.MethodSpecificationName
   # there are a couple of instances with DO where the speciation is listed "AS O2" but it should be NA
-  clean.data$TADA.MethodSpecificationName = ifelse(!is.na(clean.data$TADA.MethodSpecificationName) & is.na(clean.data$Target.TADA.MethodSpecificationName) & !is.na(clean.data$TADA.SpeciationAssumptions), clean.data$Target.TADA.MethodSpecificationName, clean.data$TADA.MethodSpecificationName)
-  
+  clean.data$TADA.MethodSpecificationName <- ifelse(!is.na(clean.data$TADA.MethodSpecificationName) & is.na(clean.data$Target.TADA.MethodSpecificationName) & !is.na(clean.data$TADA.SpeciationAssumptions), clean.data$Target.TADA.MethodSpecificationName, clean.data$TADA.MethodSpecificationName)
+
   # ResultMeasure.MeasureUnitCode
   # replace ResultMeasure.MeasureUnitCode with Target.TADA.ResultMeasure.MeasureUnitCode
   clean.data <- clean.data %>%
@@ -309,8 +302,6 @@ TADA_HarmonizeSynonyms <- function(.data, ref, np_speciation = TRUE) {
       "Target.TADA.ResultMeasure.MeasureUnitCode",
       "Target.TADA.SpeciationConversionFactor",
       "Target.TADA.UnitConversionFactor",
-      "Target.TADA.SpeciationConversionFactor",
-      "Target.TADA.UnitConversionFactor",
       "HarmonizationGroup"
     ))
 
@@ -335,19 +326,19 @@ TADA_HarmonizeSynonyms <- function(.data, ref, np_speciation = TRUE) {
 #' as nitrogen based on the atomic weights of the different elements in the
 #' compound. The reference table is contained within the package but may be
 #' edited/customized by users. Nutrient equations are as follows:
-#' 
+#'
 #' NITROGEN:
 #' 1. TOTAL N (UNFILTERED)
 #' 2. TOTAL N (FILTERED) + TOTAL N (PARTICULE)
 #' 3. TOTAL KJELDAHL NITROGEN + NITRATE + NITRITE
 #' 4. ORGANIC N + AMMONIA + NITRATE + NITRITE
-#' 5. OTHER NITROGEN FORMS 
-#' 
+#' 5. OTHER NITROGEN FORMS
+#'
 #' PHOSPHORUS:
 #' 1. TOTAL PHOSPHORUS
 #' 2. PHOSPHATE
 #' 3. OTHER PHOSPHORUS FORMS
-#' 
+#'
 #' Equations are applied in the order above. The function looks for groups of
 #' nutrients that exactly match each equation before looking for every
 #' combination within each equation (for example, a group of nitrogen subspecies
@@ -356,7 +347,7 @@ TADA_HarmonizeSynonyms <- function(.data, ref, np_speciation = TRUE) {
 #' will be caught as the function moves down the hierarchy of equations to fewer
 #' and fewer subspecies). Eventually, even groups with only one subspecies will
 #' be used to represent a TOTAL N value for that site/day/depth.
-#' 
+#'
 #' @param .data TADA dataframe, ideally harmonized using TADA_HarmonizeSynonyms.
 #'   If user wants to consider grouping N or P subspecies across multiple
 #'   organizations, user should have run TADA_FindNearbySites and grouped all
@@ -416,7 +407,20 @@ TADA_CalculateTotalNP <- function(.data, sum_ref, daily_agg = c("max", "min", "m
   # create nutrient groups by site, date, and depth
   depths <- names(.data)[grepl("DepthHeightMeasure", names(.data))]
   depths <- depths[grepl("TADA.", depths)]
-  grpcols <- c("ActivityStartDate", "MonitoringLocationIdentifier", "TADA.LongitudeMeasure", "TADA.LatitudeMeasure", "ActivityMediaSubdivisionName", "TADA.ComparableDataIdentifier", "TADA.ResultMeasure.MeasureUnitCode", depths)
+  grpcols <- c(
+    "ActivityStartDate",
+    # "ActivityStartDateTime", #does not make sense to include for daily agg
+    "ActivityRelativeDepthName",
+    "MonitoringLocationIdentifier",
+    "MonitoringLocationName",
+    "TADA.LongitudeMeasure",
+    "TADA.LatitudeMeasure",
+    "ActivityMediaSubdivisionName",
+    "TADA.ActivityMediaName",
+    "TADA.ComparableDataIdentifier",
+    "TADA.ResultMeasure.MeasureUnitCode",
+    depths
+  )
 
   dat <- suppressMessages(TADA_AggregateMeasurements(.data, grouping_cols = grpcols, agg_fun = daily_agg, clean = TRUE))
 
@@ -429,7 +433,7 @@ TADA_CalculateTotalNP <- function(.data, sum_ref, daily_agg = c("max", "min", "m
   # If the join results in matching rows
   if (dim(sum_dat)[1] > 0) {
     thecols <- grpcols[!grpcols %in% c("TADA.ComparableDataIdentifier")]
-    
+
     # # find nearby sites
     # nearsites = unique(sum_dat[,c("MonitoringLocationIdentifier","TADA.LatitudeMeasure","TADA.LongitudeMeasure")])
     # nearsites = TADA_FindNearbySites(nearsites)
@@ -439,9 +443,9 @@ TADA_CalculateTotalNP <- function(.data, sum_ref, daily_agg = c("max", "min", "m
     sum_dat <- sum_dat %>%
       dplyr::group_by(dplyr::across(dplyr::all_of(thecols))) %>%
       dplyr::mutate(TADA.NutrientSummationGroup = dplyr::cur_group_id())
-    
+
     # bring in equations
-    eqns = utils::read.csv(system.file("extdata","NP_equations.csv", package = "TADA"))
+    eqns <- utils::read.csv(system.file("extdata", "NP_equations.csv", package = "TADA"))
 
 
     # dataframe to hold results
@@ -449,21 +453,21 @@ TADA_CalculateTotalNP <- function(.data, sum_ref, daily_agg = c("max", "min", "m
     grps <- vector()
 
     for (i in 1:length(unique(eqns$Nutrient))) {
-      nut = unique(eqns$Nutrient)[i]
-      nutqns = subset(eqns, eqns$Nutrient==nut)
+      nut <- unique(eqns$Nutrient)[i]
+      nutqns <- subset(eqns, eqns$Nutrient == nut)
       for (j in 1:length(unique(nutqns$EQN))) {
-        eqnum = unique(nutqns$EQN)[j]
-        eqn = subset(nutqns, nutqns$EQN==eqnum)$SummationName
-        nutrient <- ifelse(nut=="N", "Total Nitrogen as N", "Total Phosphorus as P")
+        eqnum <- unique(nutqns$EQN)[j]
+        eqn <- subset(nutqns, nutqns$EQN == eqnum)$SummationName
+        nutrient <- ifelse(nut == "N", "Total Nitrogen as N", "Total Phosphorus as P")
         # for each equation, see if any groups contain all required subspecies, and for each pick the variant with the lowest rank.
         # combine group with other groups and remove group ID from consideration for the next equation
         out <- sum_dat %>%
           dplyr::filter(!TADA.NutrientSummationGroup %in% grps) %>%
           dplyr::group_by(TADA.NutrientSummationGroup) %>%
           dplyr::filter(all(eqn %in% SummationName)) %>% # this line ensures that ALL subspecies are present within an equation group, not just one or more
-          dplyr::filter(SummationName %in% eqn) %>% 
+          dplyr::filter(SummationName %in% eqn) %>%
           dplyr::mutate(TADA.NutrientSummationEquation = paste0(unique(SummationName), collapse = " + "))
-        
+
         out <- out %>%
           dplyr::group_by(TADA.NutrientSummationGroup, SummationName) %>%
           dplyr::slice_min(SummationRank, with_ties = FALSE)

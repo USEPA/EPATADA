@@ -43,18 +43,27 @@ utils::globalVariables(c(
   "tot_n", "MonitoringLocationName", "TADA.LatitudeMeasure",
   "TADA.LongitudeMeasure", "median", "sd", "TADA.ComparableDataIdentifier",
   "desc", "Legend", "roundRV", "TADA.DuplicateID", "maxRV", "within10",
-  "AllGroups", "Domain.Value.Status", "Char_Flag", "Comparable.Name"
+  "AllGroups", "Domain.Value.Status", "Char_Flag", "Comparable.Name",
+  "TADA.ResultMeasureValue1", "TADA.ResultSampleFractionText",
+  "TADA.MethodSpecificationName", "TADA.ResultMeasure.MeasureUnitCode",
+  "TADA.ActivityMediaName", "TADA.NutrientSummationGroup",
+  "SummationName", "SummationRank", "SummationFractionNotes", "SummationSpeciationNotes",
+  "SummationSpeciationConversionFactor", "SummationNote", "NutrientGroup",
+  "Target.Speciation", "TADA.NearbySiteGroups", "numres", "TADA.SingleOrgDupGroupID",
+  "TADA.MeasureQualifierCode.Flag", "MeasureQualifierCode", "value", "Flag_Column",
+  "Data_NCTCShepherdstown_HUC12", "ActivityStartDateTime", "TADA.MultipleOrgDupGroupID",
+  "TADA.WQXVal.Flag"
 ))
 
 
 
 #' TADA_AutoClean
 #'
-#' Removes rows of data that are true duplicates. Creates new columns with
+#' Removes rows of data that are exact duplicates. Creates new columns with
 #' prefix "TADA." and capitalizes fields to harmonize data. This function runs
 #' "TADA_ConvertSpecialChars", "TADA_ConvertResultUnits",
 #' "TADA_ConvertDepthUnits", and "TADA_IDCensoredData" functions, which perform
-#' the following QA steps: remove true duplicates, convert result values to
+#' the following QA steps: remove exact duplicates, convert result values to
 #' numeric, harmonize result and depth units (note: all depth-related columns
 #' with populated values are converted to meters in a TADA-specific column),
 #' convert text to uppercase letters, substitute outdated (deprecated) characteristic names
@@ -89,8 +98,8 @@ TADA_AutoClean <- function(.data) {
   required_cols <- c(
     "ActivityMediaName", "ResultMeasureValue", "ResultMeasure.MeasureUnitCode",
     "CharacteristicName", "ResultSampleFractionText", "MethodSpecificationName",
-    "DetectionQuantitationLimitMeasure.MeasureUnitCode", "ResultDetectionConditionText", 
-    "ResultIdentifier", "DetectionQuantitationLimitMeasure.MeasureValue", 
+    "DetectionQuantitationLimitMeasure.MeasureUnitCode", "ResultDetectionConditionText",
+    "ResultIdentifier", "DetectionQuantitationLimitMeasure.MeasureValue",
     "LatitudeMeasure", "LongitudeMeasure"
   )
 
@@ -142,11 +151,14 @@ TADA_AutoClean <- function(.data) {
   # Move detection limit value and unit to TADA Result Measure Value and Unit columns
   .data$TADA.ResultMeasureValue <- ifelse(is.na(.data$TADA.ResultMeasureValue) & !is.na(.data$TADA.DetectionQuantitationLimitMeasure.MeasureValue), .data$TADA.DetectionQuantitationLimitMeasure.MeasureValue, .data$TADA.ResultMeasureValue)
   .data$TADA.ResultMeasure.MeasureUnitCode <- ifelse(is.na(.data$TADA.ResultMeasure.MeasureUnitCode) & !is.na(.data$TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode), .data$TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode, .data$TADA.ResultMeasure.MeasureUnitCode)
-  .data$TADA.ResultMeasureValueDataTypes.Flag <- ifelse(.data$TADA.ResultMeasureValueDataTypes.Flag == "ND or NA" & !is.na(.data$TADA.DetectionQuantitationLimitMeasure.MeasureValue), "Result Value/Unit Copied from Detection Limit", .data$TADA.ResultMeasureValueDataTypes.Flag)
+  .data$TADA.ResultMeasureValueDataTypes.Flag <- ifelse(.data$TADA.ResultMeasureValueDataTypes.Flag == "Blank" & !is.na(.data$TADA.DetectionQuantitationLimitMeasure.MeasureValue), "Result Value/Unit Copied from Detection Limit", .data$TADA.ResultMeasureValueDataTypes.Flag)
 
   # Identify detection limit data
   print("TADA_Autoclean: identifying detection limit data.")
   .data <- TADA_IDCensoredData(.data)
+
+  # Identify QC data
+  .data <- TADA_FindQCActivities(.data, clean = FALSE, flaggedonly = FALSE)
 
   # change latitude and longitude measures to class numeric
   .data$TADA.LatitudeMeasure <- as.numeric(.data$LatitudeMeasure)
@@ -164,11 +176,8 @@ TADA_AutoClean <- function(.data) {
   .data <- suppressWarnings(TADA_ConvertResultUnits(.data, transform = TRUE))
   .data <- suppressWarnings(TADA_ConvertDepthUnits(.data, unit = "m"))
 
-  # #convert 'meters' to 'm' - EDH MOVED TO CONVERT DEPTH UNITS
-  # .data$TADA.ActivityDepthHeightMeasure.MeasureUnitCode[.data$ActivityDepthHeightMeasure.MeasureUnitCode == 'meters'] <- 'm'
-  # .data$TADA.ActivityTopDepthHeightMeasure.MeasureUnitCode[.data$ActivityTopDepthHeightMeasure.MeasureUnitCode == 'meters'] <- 'm'
-  # .data$TADA.ActivityBottomDepthHeightMeasure.MeasureUnitCode[.data$ActivityBottomDepthHeightMeasure.MeasureUnitCode == 'meters'] <- 'm'
-  # .data$TADA.ResultDepthHeightMeasure.MeasureUnitCode[.data$ResultDepthHeightMeasure.MeasureUnitCode == 'meters'] <- 'm'
+  # Automatically convert USGS only unit "meters" to "m"
+  # Suggest moving to TADA_ConvertResultUnits function in the future
   .data$TADA.ResultMeasure.MeasureUnitCode[.data$TADA.ResultMeasure.MeasureUnitCode == "meters"] <- "m"
 
   # Substitute updated characteristic name for deprecated names
@@ -217,18 +226,18 @@ TADA_DecimalPlaces <- function(x) {
 #' @return The same vector of strings with new lines added where appropriate.
 #' @export
 
-TADA_InsertBreaks <- function(x, len = 50){
-    if(nchar(x)>len){
-      multiples = floor(nchar(x)/len)
-      lens = seq(len, len*multiples, by = len)
-      spaces = unlist(gregexpr(' ', x))
-      if(max(spaces)>len){
-        spots = sapply(lens, function(x) spaces[min(which(spaces>x))])
-        for(i in 1:length(spots)){
-          stringi::stri_sub(x, spots[i]+(i-1), spots[i]) <- "\n "
-        }
+TADA_InsertBreaks <- function(x, len = 50) {
+  if (nchar(x) > len) {
+    multiples <- floor(nchar(x) / len)
+    lens <- seq(len, len * multiples, by = len)
+    spaces <- unlist(gregexpr(" ", x))
+    if (max(spaces) > len) {
+      spots <- sapply(lens, function(x) spaces[min(which(spaces > x))])
+      for (i in 1:length(spots)) {
+        stringi::stri_sub(x, spots[i] + (i - 1), spots[i]) <- "\n "
       }
     }
+  }
   return(x)
 }
 
@@ -323,7 +332,7 @@ TADA_ConvertSpecialChars <- function(.data, col) {
   if (is.numeric(chars.data$orig)) {
     clean.data <- chars.data %>%
       dplyr::mutate(flag = dplyr::case_when(
-        is.na(masked) ~ as.character("ND or NA"),
+        is.na(masked) ~ as.character("Blank"),
         TRUE ~ as.character("Numeric")
       ))
   } else {
@@ -333,8 +342,8 @@ TADA_ConvertSpecialChars <- function(.data, col) {
     # of the specific type of character/data type
     clean.data <- chars.data %>%
       dplyr::mutate(flag = dplyr::case_when(
-        is.na(masked) ~ as.character("ND or NA"),
-        (masked == "ND") ~ as.character("ND or NA"),
+        is.na(masked) ~ as.character("Blank"),
+        (masked == "ND") ~ as.character("Blank"),
         (!is.na(suppressWarnings(as.numeric(masked)) == TRUE)) ~ as.character("Numeric"),
         (grepl("<", masked) == TRUE) ~ as.character("Less Than"),
         (grepl(">", masked) == TRUE) ~ as.character("Greater Than"),
@@ -391,7 +400,7 @@ TADA_ConvertSpecialChars <- function(.data, col) {
 
 TADA_OrderCols <- function(.data) {
   dretcols <- c(
-    "OrganizationIdentifier", 
+    "OrganizationIdentifier",
     "OrganizationFormalName",
     "ActivityIdentifier",
     "ActivityTypeCode",
@@ -529,25 +538,18 @@ TADA_OrderCols <- function(.data) {
     "TADA.UnitConversionFactor",
     "TADA.ResultMeasureValueDataTypes.Flag",
     "TADA.ResultValueAggregation.Flag",
-    
-    
     "TADA.MeasureQualifierCode.Flag",
     "TADA.CensoredData.Flag",
     "TADA.CensoredMethod",
-    
     "TADA.NutrientSummation.Flag",
     "TADA.NutrientSummationGroup",
     "TADA.NutrientSummationEquation",
-    
     "TADA.LatitudeMeasure",
     "TADA.LongitudeMeasure",
     "TADA.InvalidCoordinates.Flag",
-    "TADA.NearbySiteGroups",
-    
     "TADA.QAPPDocAvailable",
     "TADA.AggregatedContinuousData.Flag",
     "TADA.ResultValueAboveUpperThreshold.Flag",
-
     "TADA.ResultUnit.Flag",
     "CombinationValidity",
     "TADA.MethodSpecificationName",
@@ -574,15 +576,16 @@ TADA_OrderCols <- function(.data) {
     "TADA.ResultDepthHeightMeasure.MeasureValue",
     "TADA.ResultDepthHeightMeasure.MeasureUnitCode",
     "TADA.ResultDepthHeightMeasure.MeasureValueDataTypes.Flag",
-    "WQXConversionFactor.ActivityDepthHeightMeasure",
-    "WQXConversionFactor.ActivityTopDepthHeightMeasure",
-    "WQXConversionFactor.ActivityBottomDepthHeightMeasure",
-    "WQXConversionFactor.ResultDepthHeightMeasure",
+    "TADA.WQXConversionFactor.ActivityDepthHeightMeasure",
+    "TADA.WQXConversionFactor.ActivityTopDepthHeightMeasure",
+    "TADA.WQXConversionFactor.ActivityBottomDepthHeightMeasure",
+    "TADA.WQXConversionFactor.ResultDepthHeightMeasure",
+    "TADA.NearbySiteGroups",
     "TADA.MultipleOrgDuplicate",
     "TADA.MultipleOrgDupGroupID",
     "TADA.ResultSelectedMultipleOrgs",
     "TADA.SingleOrgDupGroupID",
-    "TADA.ResultSelectedSingleOrg",
+    "TADA.SingleOrgDup.Flag",
     "TADA.Harmonized.Flag",
     "TADA.Remove",
     "TADA.RemovalReason",
@@ -821,21 +824,21 @@ TADA_RandomNationalTestingSet <- function(number_of_days = 2) {
 
 TADA_RandomStateTestingSet <- function(number_of_days = 90) {
   load(system.file("extdata", "statecodes_df.Rdata", package = "TADA"))
-  state = sample(statecodes_df$STUSAB,1)
+  state <- sample(statecodes_df$STUSAB, 1)
   twenty_yrs_ago <- Sys.Date() - 20 * 365
   random_start_date <- twenty_yrs_ago + sample(20 * 365, 1)
   # changed default to 2 days instead of 90
   end_date <- random_start_date + number_of_days
-  
-  print(paste0(state," from ",random_start_date," to ", end_date))
-  
+
+  print(paste0(state, " from ", random_start_date, " to ", end_date))
+
   # removed state input
   dat <- TADA_DataRetrieval(startDate = as.character(random_start_date), endDate = as.character(end_date), statecode = state)
-  
+
   if (dim(dat)[1] < 1) {
     dat <- Data_NCTCShepherdstown_HUC12
   }
-  
+
   return(dat)
 }
 
@@ -975,148 +978,10 @@ TADA_RunKeyFlagFunctions <- function(.data, remove_na = TRUE, clean = TRUE) {
 }
 
 
-# TADA_OvernightTesting
-#
-# @return console inputs and outputs
-#
-
-# TADA_OvernightTesting <- function(){
-#
-#   testing_log <- file("testing_log.txt") # File name of output log
-#
-#   sink(testing_log, append = TRUE, type = "output") # Writing console output to log file
-#   sink(testing_log, append = TRUE, type = "message")
-#
-#   #cat(readChar(rstudioapi::getSourceEditorContext()$path, # Writing currently opened R script to file
-#   #             file.info(rstudioapi::getSourceEditorContext()$path)$size))
-#
-#   num_iterations=2
-#   master_missing_codes_df <- data.frame(MeasureQualifierCode = NA, TADA.MeasureQualifierCode.Flag = NA)
-#
-#   for (i in 1:num_iterations) {
-#
-#     testing <- TADA_RandomTestingSet()
-#
-#     testing2 <- TADA_FlagMeasureQualifierCode(testing)
-#
-#     #expect_true(all(testing2$TADA.MeasureQualifierCode.Flag != "uncategorized"))
-#
-#     #print(unique(testing2$TADA_FlagMeasureQualifierCode))
-#     #print(unique(testing2$MeasureQualifierCode))
-#
-#     # load in ResultMeasureQualifier Flag Table
-#     qc.ref <- TADA_GetMeasureQualifierCodeRef() %>%
-#       dplyr::rename(MeasureQualifierCode = Code) %>%
-#       dplyr::select(MeasureQualifierCode, TADA.MeasureQualifierCode.Flag)
-#
-#     codes = unique(testing2$MeasureQualifierCode)
-#     missing_codes = codes[!codes %in% qc.ref$MeasureQualifierCode]
-#
-#     missing_codes_df <- data.frame(MeasureQualifierCode = missing_codes, TADA.MeasureQualifierCode.Flag = "uncategorized")
-#
-#     View(missing_codes_df)
-#
-#     master_missing_codes_df <- dplyr::full_join(missing_codes_df, master_missing_codes_df, by = c("MeasureQualifierCode", "TADA.MeasureQualifierCode.Flag"), copy = TRUE)
-#
-#     View(master_missing_codes_df)
-#
-#     }
-#
-#   master_missing_codes_distinct = master_missing_codes_df %>% dplyr::distinct()
-#
-#   View(master_missing_codes_distinct)
-#
-#   master_missing_codes_freq = as.data.frame(table(master_missing_codes_df))
-#
-#   View(master_missing_codes_freq)
-#
-#   closeAllConnections() # Close connection to log file
-#
-#   return(testing_log)
-#
-#   }
-
-
-## FUNCTION TO UPDATE EXAMPLE DATA
-
-TADA_UpdateExampleData <- function() {
-  Data_Nutrients_UT <- TADA_DataRetrieval(
-    statecode = "UT",
-    characteristicName = c("Ammonia", "Nitrate", "Nitrogen"),
-    startDate = "2020-10-01",
-    endDate = "2022-09-30"
-  )
-  print("Data_Nutrients_UT")
-  print(dim(Data_Nutrients_UT))
-  save(Data_Nutrients_UT, file = "Data_Nutrients_UT.rda")
-  rm(Data_Nutrients_UT)
-
-  Data_6Tribes_5y <- TADA_DataRetrieval(
-    organization = c(
-      "REDLAKE_WQX",
-      "SFNOES_WQX",
-      "PUEBLO_POJOAQUE",
-      "FONDULAC_WQX",
-      "PUEBLOOFTESUQUE",
-      "CNENVSER"
-    ),
-    startDate = "2018-01-01"
-  )
-  print("Data_6Tribes_5y:")
-  print(dim(Data_6Tribes_5y))
-  save(Data_6Tribes_5y, file = "inst/extdata/Data_6Tribes_5y.rda")
-
-  y <- subset(Data_6Tribes_5y, Data_6Tribes_5y$TADA.ActivityMediaName %in% c("WATER"))
-  y <- TADA_RunKeyFlagFunctions(Data_6Tribes_5y)
-  rm(Data_6Tribes_5y)
-  y <- TADA_FlagMethod(y, clean = TRUE)
-  y <- TADA_FlagAboveThreshold(y, clean = TRUE)
-  y <- TADA_FlagBelowThreshold(y, clean = TRUE)
-  y <- TADA_FindPotentialDuplicatesMultipleOrgs(y, dist_buffer = 100)
-  y <- TADA_FindPotentialDuplicatesSingleOrg(y, handling_method = "pick_one")
-  y <- dplyr::filter(y, !(MeasureQualifierCode %in% c("D", "H", "ICA", "*")))
-  y <- TADA_SimpleCensoredMethods(y,
-    nd_method = "multiplier",
-    nd_multiplier = 0.5,
-    od_method = "as-is",
-    od_multiplier = "null"
-  )
-  y <- dplyr::filter(y, TADA.ResultMeasureValueDataTypes.Flag != "ND or NA" &
-    TADA.ResultMeasureValueDataTypes.Flag != "Text" &
-    TADA.ResultMeasureValueDataTypes.Flag != "Coerced to NA" &
-    !is.na(TADA.ResultMeasureValue))
-  Data_6Tribes_5y_Harmonized <- TADA_HarmonizeSynonyms(y, ref = TADA_GetSynonymRef())
-  print("Data_6Tribes_5y_Harmonized:")
-  print(dim(Data_6Tribes_5y_Harmonized))
-  save(Data_6Tribes_5y_Harmonized, file = "inst/extdata/Data_6Tribes_5y_Harmonized.rda")
-  rm(Data_6Tribes_5y_Harmonized)
-
-  Data_NCTCShepherdstown_HUC12 <- TADA::TADA_DataRetrieval(
-    startDate = "2020-03-14",
-    endDate = "null",
-    countycode = "null",
-    huc = "02070004",
-    siteid = "null",
-    siteType = "null",
-    characteristicName = "null",
-    characteristicType = "null",
-    sampleMedia = "null",
-    statecode = "null",
-    organization = "null",
-    project = "null",
-    applyautoclean = TRUE
-  )
-  print("Data_NCTCShepherdstown_HUC12:")
-  print(dim(Data_NCTCShepherdstown_HUC12))
-  save(Data_NCTCShepherdstown_HUC12, file = "inst/extdata/Data_NCTCShepherdstown_HUC12.rda")
-  rm(Data_NCTCShepherdstown_HUC12)
-}
-
-
 
 #' TADA Module 1 Required Fields Check
 #'
-#' This function checks if all required fields for TADA Module 1 are 
+#' This function checks if all required fields for TADA Module 1 are
 #' included in the input dataframe.
 #'
 #' @param .data A dataframe
@@ -1127,57 +992,57 @@ TADA_UpdateExampleData <- function() {
 
 TADA_CheckRequiredFields <- function(.data) {
   TADA.fields <- c(
-    
+
     # consider deleting below from TADA profile
-    
-    #"ActivityEndDate",
-    #"ActivityEndTime.Time",
-    #"ActivityEndTime.TimeZoneCode",
-    #"ActivityConductingOrganizationText",
-    #"SampleAquifer",
-    #"ActivityLocation.LatitudeMeasure",
-    #"ActivityLocation.LongitudeMeasure",
-    #"ResultStatusIdentifier",
-    #"ResultWeightBasisText",
-    #"ResultTemperatureBasisText",
-    #"ResultParticleSizeBasisText",
-    #"USGSPCode",
-    #"BinaryObjectFileName",
-    #"BinaryObjectFileTypeCode",
-    #"ResultFileUrl",
-    #"AnalysisStartDate",
-    #"ResultDetectionQuantitationLimitUrl",
-    #"LabSamplePreparationUrl",
-    #"timeZoneStart",
-    #"timeZoneEnd",
-    #"ActivityEndDateTime",
-    #"SourceMapScaleNumeric",
-    #"HorizontalAccuracyMeasure.MeasureValue",
-    #"HorizontalAccuracyMeasure.MeasureUnitCode",
-    #"HorizontalCollectionMethodName",
-    #"HorizontalCoordinateReferenceSystemDatumName",
-    #"VerticalMeasure.MeasureValue",
-    #"VerticalMeasure.MeasureUnitCode",
-    #"VerticalAccuracyMeasure.MeasureValue",
-    #"VerticalAccuracyMeasure.MeasureUnitCode",
-    #"VerticalCollectionMethodName",
-    #"VerticalCoordinateReferenceSystemDatumName",
-    #"AquiferName",
-    #"LocalAqfrName",
-    #"FormationTypeText",
-    #"ProjectMonitoringLocationWeightingUrl",
-    #"DrainageAreaMeasure.MeasureValue",
-    #"DrainageAreaMeasure.MeasureUnitCode",
-    #"ContributingDrainageAreaMeasure.MeasureValue",
-    #"ContributingDrainageAreaMeasure.MeasureUnitCode",
-    
-    # carried through but are not currently needed to run functions, 
+
+    # "ActivityEndDate",
+    # "ActivityEndTime.Time",
+    # "ActivityEndTime.TimeZoneCode",
+    # "ActivityConductingOrganizationText",
+    # "SampleAquifer",
+    # "ActivityLocation.LatitudeMeasure",
+    # "ActivityLocation.LongitudeMeasure",
+    # "ResultStatusIdentifier",
+    # "ResultWeightBasisText",
+    # "ResultTemperatureBasisText",
+    # "ResultParticleSizeBasisText",
+    # "USGSPCode",
+    # "BinaryObjectFileName",
+    # "BinaryObjectFileTypeCode",
+    # "ResultFileUrl",
+    # "AnalysisStartDate",
+    # "ResultDetectionQuantitationLimitUrl",
+    # "LabSamplePreparationUrl",
+    # "timeZoneStart",
+    # "timeZoneEnd",
+    # "ActivityEndDateTime",
+    # "SourceMapScaleNumeric",
+    # "HorizontalAccuracyMeasure.MeasureValue",
+    # "HorizontalAccuracyMeasure.MeasureUnitCode",
+    # "HorizontalCollectionMethodName",
+    # "HorizontalCoordinateReferenceSystemDatumName",
+    # "VerticalMeasure.MeasureValue",
+    # "VerticalMeasure.MeasureUnitCode",
+    # "VerticalAccuracyMeasure.MeasureValue",
+    # "VerticalAccuracyMeasure.MeasureUnitCode",
+    # "VerticalCollectionMethodName",
+    # "VerticalCoordinateReferenceSystemDatumName",
+    # "AquiferName",
+    # "LocalAqfrName",
+    # "FormationTypeText",
+    # "ProjectMonitoringLocationWeightingUrl",
+    # "DrainageAreaMeasure.MeasureValue",
+    # "DrainageAreaMeasure.MeasureUnitCode",
+    # "ContributingDrainageAreaMeasure.MeasureValue",
+    # "ContributingDrainageAreaMeasure.MeasureUnitCode",
+
+    # carried through but are not currently needed to run functions,
     # with the EXCEPTION of filtering
     "ProjectDescriptionText",
     "SamplingDesignTypeCode",
     "ActivityStartDate",
     "ActivityStartTime.Time",
-    "ActivityStartTime.TimeZoneCode",   
+    "ActivityStartTime.TimeZoneCode",
     "ResultDepthAltitudeReferencePointText",
     "ActivityDepthAltitudeReferencePointText",
     "ProjectName",
@@ -1215,8 +1080,8 @@ TADA_CheckRequiredFields <- function(.data) {
     "WellHoleDepthMeasure.MeasureUnitCode", # can be used to remove groundwater sites
     "ProviderName",
     "LastUpdated",
-    
-    # required 
+
+    # required
     "TADA.CharacteristicName",
     "TADA.ResultSampleFractionText",
     "TADA.MethodSpecificationName",
@@ -1258,10 +1123,10 @@ TADA_CheckRequiredFields <- function(.data) {
     "QAPPApprovalAgencyName",
     "ProjectFileUrl",
     "MeasureQualifierCode",
-    "SampleCollectionEquipmentName", #required for continuous flag
-    "StatisticalBaseCode", #required for continuous flag
-    "ResultTimeBasisText", #required for continuous flag
-    "ResultValueTypeName", #required for continuous flag
+    "SampleCollectionEquipmentName", # required for continuous flag
+    "StatisticalBaseCode", # required for continuous flag
+    "ResultTimeBasisText", # required for continuous flag
+    "ResultValueTypeName", # required for continuous flag
     "ActivityIdentifier",
     "ProjectIdentifier",
     "MonitoringLocationIdentifier",
@@ -1278,4 +1143,61 @@ TADA_CheckRequiredFields <- function(.data) {
   } else {
     stop("The dataframe does not contain the required fields to use TADA Module 1.")
   }
+}
+
+
+#' AutoFilter
+#'
+#' This function removes rows where the result value is not numeric to
+#' prepare a dataframe for quantitative analyses. Ideally, this function should
+#' be run after other data cleaning, QA/QC, and harmonization steps are
+#' completed using other TADA package functions, or manually. Specifically, .
+#' this function removes rows with "Text","Coerced to NA", and "Blank"
+#' in the TADA.ResultMeasureValueDataTypes.Flag column, or NA in the
+#' TADA.ResultMeasureValue column.
+#'
+#' @param .data TADA dataframe OR TADA sites dataframe
+#'
+#' @return .data with rows removed where result values are not quantitative (NA or text),
+#' or the results have other issues that are not dealt with elsewhere.
+#'
+#' @export
+#'
+#' @examples
+#' # Load example dataset:
+#' data(Data_Nutrients_UT)
+#'
+#' # Remove all:
+#' TADA_filtered <- TADA_AutoFilter(Data_Nutrients_UT)
+#'
+TADA_AutoFilter <- function(.data) {
+  # check .data is data.frame
+  TADA_CheckType(.data, "data.frame", "Input object")
+
+  TADA_CheckColumns(.data, c(
+    "ActivityTypeCode", "MeasureQualifierCode",
+    "TADA.ResultMeasureValueDataTypes.Flag",
+    "TADA.ResultMeasureValue", "TADA.ActivityMediaName",
+    "ActivityTypeCode", "TADA.ActivityType.Flag"
+  ))
+
+  # keep track of starting and ending number of rows
+  start <- dim(.data)[1]
+
+  # remove text, NAs and QC results
+  .data <- dplyr::filter(.data, TADA.ResultMeasureValueDataTypes.Flag != "Blank" &
+    TADA.ResultMeasureValueDataTypes.Flag != "Text" &
+    TADA.ResultMeasureValueDataTypes.Flag != "Coerced to NA" &
+    TADA.ActivityType.Flag == "Non_QC" & # filter out QA/QC ActivityTypeCode's
+    !is.na(TADA.ResultMeasureValue))
+
+  end <- dim(.data)[1]
+
+  # print number of results removed
+  if (!start == end) {
+    net <- start - end
+    print(paste0("Function removed ", net, " results. These results are either text or NA and cannot be plotted or represent quality control activities (not routine samples or measurements)."))
+  }
+
+  return(.data)
 }

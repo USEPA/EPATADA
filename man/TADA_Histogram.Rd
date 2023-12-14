@@ -13,7 +13,7 @@ include the columns 'TADA.ComparableDataIdentifier',
 'TADA.ResultMeasureValue', and 'TADA.ResultMeasure.MeasureUnitCode' to run
 this function. 'TADA.ComparableDataIdentifier' can be added to the data
 frame by running the function TADA_HarmonizeSynonyms(). The user can include
-additional grouping columns in the id_col input. If more than one group
+additional grouping columns in the id_cols input. If more than one group
 exists in the dataset (i.e. two or more unique comparable data
 identifiers), the function creates a list of plots, where each list element
 name is a unique group identifier.}
@@ -45,7 +45,7 @@ TADA_Histogram(df, id_cols = "TADA.ComparableDataIdentifier")
 # plot in list. In this example, we will group by both TADA.ComparableDataIdentifier
 # and MonitoringLocationTypeName (e.g. stream, reservoir, canal, etc.)
 # Load example dataset:
-data(Data_Nutrients_Utah)
+data(Data_Nutrients_UT)
 Histogram_output <- TADA_Histogram(Data_Nutrients_UT, id_cols = c("TADA.ComparableDataIdentifier", "MonitoringLocationTypeName"))
 # This example generates 45 histograms
 Histogram_output[[10]]

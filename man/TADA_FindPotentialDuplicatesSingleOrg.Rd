@@ -2,28 +2,24 @@
 % Please edit documentation in R/ResultFlagsIndependent.R
 \name{TADA_FindPotentialDuplicatesSingleOrg}
 \alias{TADA_FindPotentialDuplicatesSingleOrg}
-\title{Identify Potentially Duplicated Data Uploads by a Single Organization (UNDER ACTIVE DEVELOPMENT)}
+\title{Identify Potentially Duplicated Data Uploads by a Single Organization}
 \usage{
-TADA_FindPotentialDuplicatesSingleOrg(.data, handling_method = "none")
+TADA_FindPotentialDuplicatesSingleOrg(.data)
 }
 \arguments{
 \item{.data}{TADA dataframe}
-
-\item{handling_method}{Defaults to 'none'. When input is 'none', function
-flags groups of potentially duplicated results, but makes no decisions on
-which (if any) should be selected/excluded. Alternatively, user may
-populate handling_method = 'pick_one' and function will randomly select one
-result in each group and flag all others as duplicates.}
 }
 \value{
 The same input TADA dataframe with additional columns: a
 TADA.SingleOrgDupGroupID column indicating whether a result is part of a
-group that shares the same date, time, location, characteristic, etc. and
-TADA.ResultSelectedSingleOrg, which defaults to 'Y' (all results
-selected), unless the user specifies the handling method as 'pick_one', in
-which case there exists one result (selected at random) in each duplicate group where
-TADA.ResultSelectedSingleOrg = 'Y' and for all other results in the group
-TADA.ResultSelectedSingleOrg = 'N'.
+group that shares the same date, time, location, characteristic, etc. If
+multiple rows include duplicates within a single organization, the rows will
+have the same number identifier in the TADA.SingleOrgDupGroupID column.
+In addition, the column TADA.SingleOrgDup.Flag is added, which randomly
+flags rows within each TADA.SingleOrgDupGroupID group for removal. Rows
+randomly selected for potential removal within a duplicate group will have the
+TADA.SingleOrgDup.Flag = 'Duplicate' and  all other results in the group will have
+the value TADA.SingleOrgDup.Flag = 'Unique'.
 }
 \description{
 Identifies data records uploaded by the same organization with the same date,
@@ -38,8 +34,8 @@ organization.
 \examples{
 # Load dataset
 data(Data_6Tribes_5y)
-# If duplicates across organizations exist, pick the result belonging to "21PA_WQX" if available.
-Data_6Tribes_5y_dups <- TADA_FindPotentialDuplicatesSingleOrg(Data_6Tribes_5y, handling_method = "pick_one")
-table(Data_6Tribes_5y_dups$TADA.ResultSelectedSingleOrg)
+# If duplicates exist, identify and flag them for removal
+Data_6Tribes_5y_dups <- TADA_FindPotentialDuplicatesSingleOrg(Data_6Tribes_5y)
+table(Data_6Tribes_5y_dups$TADA.SingleOrgDup.Flag)
 
 }

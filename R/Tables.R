@@ -75,7 +75,7 @@ TADA_SummarizeColumn <- function(.data, col = "TADA.CharacteristicName") {
 TADA_Stats <- function(.data, group_cols = c("TADA.ComparableDataIdentifier")) {
   if (any(is.na(.data$TADA.ResultMeasureValue))) {
     sumNAs <- length(.data$TADA.ResultMeasureValue[is.na(.data$TADA.ResultMeasureValue)])
-    warning(paste0("Dataset contains ", sumNAs, " results missing both a TADA result value and a detection limit. These values will not be represented in the summary table. Suggest removing or handling."))
+    print(paste0("Dataset contains ", sumNAs, " results missing both a TADA result value and a detection limit. These values will not be represented in the stats summary table. Suggest removing or handling."))
   }
 
   if (!"TADA.CensoredData.Flag" %in% names(.data)) {

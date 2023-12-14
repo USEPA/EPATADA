@@ -12,34 +12,34 @@ TADA_BigDataRetrieval(
   siteType = "null",
   characteristicName = "null",
   characteristicType = "null",
-  sampleMedia = "Water",
+  sampleMedia = "null",
   statecode = "null",
   maxrecs = 250000,
   applyautoclean = FALSE
 )
 }
 \arguments{
-\item{startDate}{Start Date string in the format YYYY-MM-DD, for example, "2020-01-01"}
+\item{startDate}{Start Date string in the format YYYY-MM-DD, for example, "2020-01-01".}
 
-\item{endDate}{End Date string in the format YYYY-MM-DD, for example, "2020-01-01"}
+\item{endDate}{End Date string in the format YYYY-MM-DD, for example, "2020-01-01".}
 
 \item{huc}{A numeric code denoting a hydrologic unit. Example: "04030202". Different size hucs can be entered.}
 
-\item{siteid}{Unique monitoring station identifier}
+\item{siteid}{Unique monitoring station identifier.}
 
-\item{siteType}{Type of waterbody}
+\item{siteType}{Type of waterbody.}
 
-\item{characteristicName}{Name of parameter}
+\item{characteristicName}{Name of parameter.}
 
 \item{characteristicType}{Groups of environmental measurements/parameters.}
 
-\item{sampleMedia}{Sampling substrate such as water, air, or sediment}
+\item{sampleMedia}{Sampling substrate such as water, air, or sediment.}
 
-\item{statecode}{Code that identifies a state}
+\item{statecode}{Code that identifies a state.}
 
 \item{maxrecs}{The maximum number of results queried within one call to dataRetrieval.}
 
-\item{applyautoclean}{Logical, defaults to TRUE. Applies TADA_AutoClean function on the returned data profile.}
+\item{applyautoclean}{Logical, defaults to FALSE. If TRUE, applies TADA_AutoClean function on the returned data profile.}
 }
 \value{
 TADA-compatible dataframe

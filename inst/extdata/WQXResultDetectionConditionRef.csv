@@ -19,5 +19,6 @@
 "Result Detection Condition(ResultDetectionConditionText)",5,"Present Below Quantification Limit","data was found less than defined laboratory reporting limits or method detection limits","7/26/2006 10:57:47 AM","Non-Detect"
 "Result Detection Condition(ResultDetectionConditionText)",10,"Reported in Raw Data (attached)","Continuous or time series sampling attached in raw data file","6/26/2015 2:48:40 AM","Other"
 "Result Detection Condition(ResultDetectionConditionText)",6,"Trace","a very small quantity, especially one too small to be accurately measured.","8/5/2015 2:54:11 PM","Non-Detect"
+"Result Detection Condition(ResultDetectionConditionText)",22,"Unable to Measure","Measurement or sample collection was attempted but unobtainable due to site conditions, equipment failure, or other circumstances","8/30/2023 2:03:01 PM","Other"
 "Result Detection Condition(ResultDetectionConditionText)",19,"Value Decensored","Value Decensored -  reconstruct or remove the objectionable values of a measurement set","12/21/2015 2:45:30 PM","Other"
 NA,NA,"*Non-detect","Hard-coded legacy detection condition","8/7/2023 12:00:00 PM","Non-Detect"

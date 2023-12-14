@@ -25,6 +25,7 @@ TADA_GetWQXCharValRef <- function() {
   }
 
   # Try to download up-to-date raw data
+
   raw.data <- tryCatch(
     {
       # read raw csv from url
@@ -42,32 +43,27 @@ TADA_GetWQXCharValRef <- function() {
     return(utils::read.csv(system.file("extdata", "WQXcharValRef.csv", package = "TADA")))
   }
 
-  # filter data to include only accepted (valid) values and remove extraneous columns
-  WQXcharValRef <- raw.data %>%
-    dplyr::select(-c(
-      "Domain", "Unique.Identifier", "Note.Recommendation",
-      "Last.Change.Date"
-    ))
-  # replace "Status" values with Valid, Invalid, Unknown
-  WQXcharValRef$Status2 <- ifelse(WQXcharValRef$Status %in% c("Accepted"), "Valid", "Invalid")
-  WQXcharValRef$Status2 <- ifelse(WQXcharValRef$Status %in% c(
+  # Categorize status values
+  notreviewed <- "Not Reviewed"
+  valid <- c("Accepted", "Y")
+  invalid <- c("Rejected", "Rejected ", "N")
+  nonstandard <- c(
     "NonStandardized",
-    "Nonstandardized",
     "InvalidMediaUnit",
     "InvalidChar",
     "MethodNeeded"
-  ), "Nonstandardized", WQXcharValRef$Status2)
+  )
 
-  WQXcharValRef <- WQXcharValRef %>%
-    dplyr::select(-Status) %>%
-    dplyr::rename(Status = Status2) %>%
+  WQXcharValRef <- raw.data %>%
+    dplyr::mutate(TADA.WQXVal.Flag = dplyr::case_when(
+      Status %in% notreviewed ~ "Not Reviewed",
+      Status %in% valid ~ "Valid",
+      Status %in% invalid ~ "Invalid",
+      Status %in% nonstandard ~ "NonStandardized",
+      Status %in% NA ~ "Not Reviewed",
+    )) %>%
     dplyr::distinct()
 
-  # # Convert all NONE to NA in Value and Value.Unit columns
-  # WQXcharValRef = WQXcharValRef %>% dplyr::mutate(Value = replace(Value, Value%in%c("NONE"),NA),
-  #                                                 Value.Unit = replace(Value.Unit, Value.Unit%in%c("NONE"),NA)) %>% dplyr::distinct()
-  # 
-  
   # Save updated table in cache
   WQXCharValRef_Cached <- WQXcharValRef
 
@@ -248,15 +244,20 @@ TADA_GetDetCondRef <- function() {
 
   # If the download failed fall back to internal data (and report it)
   if (is.null(raw.data)) {
-    message("Downloading latest Measure Unit Reference Table failed!")
+    message("Downloading latest Result Detection Condition Reference Table failed!")
     message("Falling back to (possibly outdated) internal file.")
     return(utils::read.csv(system.file("extdata", "WQXResultDetectionConditionRef.csv", package = "TADA")))
   }
 
+  # Add detection type for all domain values. New domains are automatically assigned to the
+  # Non-Detect category. Review this closely when updating the reference table when new domains are added.
   WQXDetCondRef <- raw.data %>%
     dplyr::mutate(TADA.Detection_Type = dplyr::case_when(
       Name %in% c("Above Operating Range", "Present Above Quantification Limit") ~ as.character("Over-Detect"),
-      Name %in% c("Value Decensored", "Reported in Raw Data (attached)", "High Moisture") ~ as.character("Other"),
+      Name %in% c(
+        "Value Decensored", "Reported in Raw Data (attached)", "High Moisture",
+        "Unable to Measure"
+      ) ~ as.character("Other"),
       TRUE ~ as.character("Non-Detect")
     )) %>%
     dplyr::distinct()
@@ -389,7 +390,9 @@ TADA_GetActivityTypeRef <- function() {
   if (is.null(raw.data)) {
     message("Downloading latest Activity Type Reference Table failed!")
     message("Falling back to (possibly outdated) internal file.")
-    return(utils::read.csv(system.file("extdata", "WQXActivityTypeRef.csv", package = "TADA")))
+    return(utils::read.csv(system.file("extdata", "WQXActivityTypeRef.csv",
+      package = "TADA"
+    )))
   }
 
   # Categorize Activity Types
@@ -398,7 +401,8 @@ TADA_GetActivityTypeRef <- function() {
     "Quality Control Field Replicate Msr/Obs",
     "Quality Control Field Replicate Portable Data Logger",
     "Quality Control Field Replicate Sample-Composite",
-    "Quality Control Sample-Field Replicate"
+    "Quality Control Sample-Field Replicate",
+    "Quality Control Field Replicate Sample-Field Subsample"
   )
   dup <- c(
     "Quality Control Alternative Measurement Sensitivity",
@@ -459,6 +463,26 @@ TADA_GetActivityTypeRef <- function() {
   )
   other <- c("Quality Control Sample-Other")
 
+  nonQC <- c(
+    "Field Msr/Obs",
+    "Field Msr/Obs-Continuous Time Series",
+    "Field Msr/Obs-Habitat Assessment",
+    "Field Msr/Obs-Incidental",
+    "Field Msr/Obs-Portable Data Logger",
+    "Sample-Composite With Parents",
+    "Sample-Composite Without Parents",
+    "Sample-Field Split",
+    "Sample-Field Subsample",
+    "Sample-Integrated Cross-Sectional Profile",
+    "Sample-Integrated Flow Proportioned",
+    "Sample-Integrated Horizontal Profile",
+    "Sample-Integrated Horizontal and Vertical Composite Profile",
+    "Sample-Integrated Time Series",
+    "Sample-Integrated Vertical Profile",
+    "Sample-Other",
+    "Sample-Routine"
+  )
+
   WQXActivityTypeRef <- raw.data %>%
     dplyr::mutate(TADA.ActivityType.Flag = dplyr::case_when(
       Code %in% rep ~ "QC_replicate",
@@ -466,18 +490,22 @@ TADA_GetActivityTypeRef <- function() {
       Code %in% blank ~ "QC_blank",
       Code %in% cal ~ "QC_calibration",
       Code %in% other ~ "QC_other",
-      TRUE ~ as.character("Non_QC")
+      Code %in% nonQC ~ "Non_QC",
+      TRUE ~ as.character("Not Reviewed"),
+      Code %in% NA ~ "Not Reviewed"
     )) %>%
     dplyr::distinct()
-  
+
   # Hard-code add activity types from NWIS
   ## Add USGS limits not in WQX domain table
-  new.atcs = data.frame(Code = c("Quality Control Sample-Blind", "Unknown"),
-                        Description = c("Hard-coded activity type not in WQX domain","Hard-coded activity type not in WQX domain"),
-                        TADA.ActivityType.Flag = c("QC_duplicate","Non_QC"),
-                        Last.Change.Date = rep("8/11/2023 12:00:00 PM",2))
-  
-  WQXActivityTypeRef = plyr::rbind.fill(WQXActivityTypeRef, new.atcs)
+  new.atcs <- data.frame(
+    Code = c("Quality Control Sample-Blind", "Unknown"),
+    Description = c("Hard-coded activity type not in WQX domain", "Hard-coded activity type not in WQX domain"),
+    TADA.ActivityType.Flag = c("QC_duplicate", "Non_QC"),
+    Last.Change.Date = rep("8/11/2023 12:00:00 PM", 2)
+  )
+
+  WQXActivityTypeRef <- plyr::rbind.fill(WQXActivityTypeRef, new.atcs)
 
   # Save updated table in cache
   WQXActivityTypeRef_Cached <- WQXActivityTypeRef
@@ -605,7 +633,7 @@ TADA_GetMeasureQualifierCodeRef <- function() {
     "RPO", "S2", "SCA", "SCF", "SCP", "SCX", "SD%EL", "SDROL", "SSR",
     "SUS", "V", "^", "F", "FEQ", "G", "UDL", "MDL"
   )
-  keep <- c(
+  pass <- c(
     "&", ")", "*", "=", "A", "AC", "AL", "ALK", "ALT",
     "AP", "B", "BAC", "C25", "CAJ", "CBG", "CBL", "CC",
     "CDI", "CG", "CKB", "CKBJ", "CKG", "CKJ", "CLC", "CNT", "CON", "CUG",
@@ -617,7 +645,7 @@ TADA_GetMeasureQualifierCodeRef <- function() {
     "O", "OA3", "OS3", "OTHER", "OUT", "PB", "PK", "PPD", "PQL", "PRE",
     "QCI", "RC", "REX", "RIN", "RLRS", "RMAX", "RNAF", "RP",
     "RPDX", "RR", "RV", "RVB", "SBB", "SLB", "SM", "SS", "SSRV", "T",
-    "TMLF", "TOC", "TT", "UNC", "VS", "VVRR", "VVRR2", "UDQ"
+    "TMLF", "TOC", "TT", "UNC", "VS", "VVRR", "VVRR2", "UDQ", "ZZ"
   )
   nondetect <- c("BQL", "2-5B", "RNON", "U", "LTGTE", "K", "IDL", "<2B", "BRL", "D>T", "DL")
   overdetect <- c("E", "EE", "GT")
@@ -627,10 +655,9 @@ TADA_GetMeasureQualifierCodeRef <- function() {
       Code %in% nondetect ~ "Non-Detect",
       Code %in% overdetect ~ "Over-Detect",
       Code %in% suspect ~ "Suspect",
-      Code %in% keep ~ "Pass",
-      Code %in% NA ~ "Pass",
-      TRUE ~ as.character("Non-Detect"),
-      TRUE ~ as.character("Over-Detect")
+      Code %in% pass ~ "Pass",
+      Code %in% NA ~ "Not Reviewed",
+      TRUE ~ as.character("Not Reviewed")
     )) %>%
     dplyr::distinct()
 

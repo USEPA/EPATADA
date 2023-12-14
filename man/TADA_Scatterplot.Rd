@@ -15,12 +15,12 @@ this function. The 'TADA.ComparableDataIdentifier' column is added to the
 data frame automatically when WQP data is retrieved using TADADataRetrieval.
 This TADA.ComparableDataIdentifier can be updated to harmonize synonyms
 by running the function TADA_HarmonizeSynonyms(). You can also include
-additional grouping columns in the id_col input if desired. If more than
+additional grouping columns in the id_cols input if desired. If more than
 one TADA.ComparableDataIdentifier exists in the dataset, the function
 creates a list of plots, where each list element name is a unique
 TADA.ComparableDataIdentifier.}
 
-\item{id_cols}{The column(S) in the dataset used to identify the unique groups
+\item{id_cols}{The column(s) in the dataset used to identify the unique groups
 to be plotted. Defaults to 'TADA.ComparableDataIdentifier'.}
 }
 \value{
@@ -42,12 +42,14 @@ TADA_Scatterplot(Data_6Tribes_5y_Harmonized, id_cols = "TADA.ComparableDataIdent
 # example is filtered so it includes only one TADA.ComparableDataIdentifier
 df <- dplyr::filter(Data_6Tribes_5y_Harmonized, TADA.ComparableDataIdentifier == "TOTAL PHOSPHORUS, MIXED FORMS_UNFILTERED_AS P_UG/L")
 TADA_Scatterplot(df, id_cols = "TADA.ComparableDataIdentifier")
+# Creates a scatterplot for each monitoring location
+TADA_Scatterplot(df, id_cols = c("TADA.ComparableDataIdentifier", "MonitoringLocationName"))
 
 # Create multiple scatterplots with additional grouping columns and view the first
 # plot in list. In this example, we will group by both TADA.ComparableDataIdentifier
 # and MonitoringLocationTypeName (e.g. stream, reservoir, canal, etc.)
 # Load example dataset:
-data(Data_Nutrients_Utah)
+data(Data_Nutrients_UT)
 Scatterplot_output <- TADA_Scatterplot(Data_Nutrients_UT, id_cols = c("TADA.ComparableDataIdentifier", "MonitoringLocationTypeName"))
 # This example generates 45 scatterplots
 Scatterplot_output[[10]]

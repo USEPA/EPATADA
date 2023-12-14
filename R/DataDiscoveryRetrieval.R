@@ -395,17 +395,17 @@ TADA_ReadWQPWebServices <- function(webservice) {
 #' the date times to UTC. It also automatically converts the data to dates,
 #' datetimes, numerics based on a standard algorithm. See: ?dataRetrieval::readWQPdata
 #'
-#' @param startDate Start Date string in the format YYYY-MM-DD, for example, "2020-01-01"
-#' @param endDate End Date string in the format YYYY-MM-DD, for example, "2020-01-01"
+#' @param startDate Start Date string in the format YYYY-MM-DD, for example, "2020-01-01".
+#' @param endDate End Date string in the format YYYY-MM-DD, for example, "2020-01-01".
 #' @param huc A numeric code denoting a hydrologic unit. Example: "04030202". Different size hucs can be entered.
-#' @param siteid Unique monitoring station identifier
-#' @param characteristicName Name of parameter
+#' @param siteid Unique monitoring station identifier.
+#' @param characteristicName Name of parameter.
 #' @param characteristicType Groups of environmental measurements/parameters.
-#' @param sampleMedia Sampling substrate such as water, air, or sediment
-#' @param siteType Type of waterbody
-#' @param statecode Code that identifies a state
+#' @param sampleMedia Sampling substrate such as water, air, or sediment.
+#' @param siteType Type of waterbody.
+#' @param statecode Code that identifies a state.
 #' @param maxrecs The maximum number of results queried within one call to dataRetrieval.
-#' @param applyautoclean Logical, defaults to TRUE. Applies TADA_AutoClean function on the returned data profile.
+#' @param applyautoclean Logical, defaults to FALSE. If TRUE, applies TADA_AutoClean function on the returned data profile.
 #'
 #' @return TADA-compatible dataframe
 #'
@@ -426,7 +426,7 @@ TADA_BigDataRetrieval <- function(startDate = "null",
                                   siteType = "null",
                                   characteristicName = "null",
                                   characteristicType = "null",
-                                  sampleMedia = "Water",
+                                  sampleMedia = "null",
                                   statecode = "null",
                                   maxrecs = 250000,
                                   applyautoclean = FALSE) {

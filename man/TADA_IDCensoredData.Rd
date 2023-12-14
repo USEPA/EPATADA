@@ -20,6 +20,10 @@ limits and conditions that cannot be grouped as over- or non-detects as
 "Other Condition/Limit Populated", and flags records where there is a
 conflict between ResultDetectionConditionText and
 DetectionQuantitationLimitTypeName as "Conflict between Condition and Limit".
+A "Conflict between Condition and Limit" may occur if: A) the data submitter supplied
+multiple detection limits and the wrong one is accidentally being associated
+with the detection condition, or B) the data submitter accidentally choose
+the wrong detection limit or detection condition to associate with the result.
 Detection limit results missing ResultDetectionConditionText are flagged as
 "Detection condition is missing and required for censored data ID." unless
 the ResultMeasureValue field is populated with "ND" (indicating non-detect).

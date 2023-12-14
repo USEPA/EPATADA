@@ -5,6 +5,11 @@
 #' combinations are removed. Default is clean = TRUE. When flaggedonly = TRUE, only
 #' invalid characteristic-fraction combinations are returned. Default is flaggedonly = FALSE.
 #'
+#' #' The “Not Reviewed” value within "TADA.ResultAboveUpperThreshold.Flag" means
+#' that the EPA WQX team has not yet reviewed the combinations
+#' (see https://cdx.epa.gov/wqx/download/DomainValues/QAQCCharacteristicValidation.CSV).
+#' The WQX team plans to review and update these new combinations quarterly.
+#'
 #' @param .data TADA dataframe
 #' @param clean Boolean argument; removes "Invalid" characteristic-fraction
 #' combinations from the dataframe when clean = TRUE. Default is clean = TRUE.
@@ -72,11 +77,11 @@ TADA_FlagFraction <- function(.data, clean = TRUE, flaggedonly = FALSE) {
   check.data <- check.data %>%
     dplyr::rename(TADA.SampleFraction.Flag = Status) %>%
     dplyr::distinct()
-  # rename NA values to Nonstandardized in TADA.SampleFraction.Flag column
-  check.data["TADA.SampleFraction.Flag"][is.na(check.data["TADA.SampleFraction.Flag"])] <- "Nonstandardized"
+  # rename NA values to "Not Reviewed" in TADA.SampleFraction.Flag column
+  check.data["TADA.SampleFraction.Flag"][is.na(check.data["TADA.SampleFraction.Flag"])] <- "Not Reviewed"
 
   # if all rows are "Valid", return input unchanged
-  if (any(c("Nonstandardized", "Invalid") %in%
+  if (any(c("Nonstandardized", "Invalid", "Not Reviewed") %in%
     unique(check.data$TADA.SampleFraction.Flag)) == FALSE) {
     if (flaggedonly == FALSE) {
       print("All characteristic/fraction combinations are valid in your dataframe. Returning input dataframe with TADA.SampleFraction.Flag column for tracking.")
@@ -86,7 +91,6 @@ TADA_FlagFraction <- function(.data, clean = TRUE, flaggedonly = FALSE) {
     if (flaggedonly == TRUE) {
       print("This dataframe is empty because we did not find any invalid fraction/characteristic combinations in your dataframe")
       empty.data <- dplyr::filter(check.data, TADA.SampleFraction.Flag == "Invalid")
-      # empty.data <- dplyr::select(empty.data, -TADA.SampleFraction.Flag)
       empty.data <- TADA_OrderCols(empty.data)
       return(empty.data)
     }
@@ -103,9 +107,6 @@ TADA_FlagFraction <- function(.data, clean = TRUE, flaggedonly = FALSE) {
   if (clean == TRUE & flaggedonly == FALSE) {
     # filter out invalid characteristic-fraction combinations
     clean.data <- dplyr::filter(check.data, TADA.SampleFraction.Flag != "Invalid")
-
-    # remove WQX.SampleFractionValidity column
-    # clean.data <- dplyr::select(clean.data, -TADA.SampleFraction.Flag)
     clean.data <- TADA_OrderCols(clean.data)
     return(clean.data)
   }
@@ -127,6 +128,11 @@ TADA_FlagFraction <- function(.data, clean = TRUE, flaggedonly = FALSE) {
 #' clean = "invalid_only". When flaggedonly = TRUE, dataframe is filtered to show only
 #' rows with invalid or nonstandardized characteristic-method speciation combinations.
 #' Default is flaggedonly = FALSE.
+#'
+#' #' The “Not Reviewed” value within "TADA.ResultAboveUpperThreshold.Flag" means
+#' that the EPA WQX team has not yet reviewed the combinations
+#' (see https://cdx.epa.gov/wqx/download/DomainValues/QAQCCharacteristicValidation.CSV).
+#' The WQX team plans to review and update these new combinations quarterly.
 #'
 #' @param .data TADA dataframe
 #' @param clean Character argument with options "invalid_only", "nonstandardized_only",
@@ -211,11 +217,11 @@ TADA_FlagSpeciation <- function(.data, clean = c("invalid_only", "nonstandardize
   check.data <- check.data %>%
     dplyr::rename(TADA.MethodSpeciation.Flag = Status) %>%
     dplyr::distinct()
-  # rename NA values to Nonstandardized in TADA.MethodSpeciation.Flag column
-  check.data["TADA.MethodSpeciation.Flag"][is.na(check.data["TADA.MethodSpeciation.Flag"])] <- "Nonstandardized"
+  # rename NA values to Not Reviewed in TADA.MethodSpeciation.Flag column
+  check.data["TADA.MethodSpeciation.Flag"][is.na(check.data["TADA.MethodSpeciation.Flag"])] <- "Not Reviewed"
 
   # if all rows are "Valid", return input with flag column
-  if (any(c("Nonstandardized", "Invalid") %in%
+  if (any(c("Not Reviewed", "Invalid", "NonStandardized") %in%
     unique(check.data$TADA.MethodSpeciation.Flag)) == FALSE) {
     print("All characteristic/method speciation combinations are valid in your dataframe. Returning input dataframe with TADA.MethodSpeciation.Flag column for tracking.")
     check.data <- TADA_OrderCols(check.data)
@@ -235,14 +241,14 @@ TADA_FlagSpeciation <- function(.data, clean = c("invalid_only", "nonstandardize
 
   # when clean = "nonstandardized_only"
   if (clean == "nonstandardized_only") {
-    # filter out only "Nonstandardized" characteristic-method speciation combinations
-    clean.data <- dplyr::filter(check.data, TADA.MethodSpeciation.Flag != "Nonstandardized")
+    # filter out only "NonStandardized" characteristic-method speciation combinations
+    clean.data <- dplyr::filter(check.data, TADA.MethodSpeciation.Flag != "NonStandardized")
   }
 
   # when clean = "both"
   if (clean == "both") {
-    # filter out both "Invalid" and "Nonstandardized" characteristic-method speciation combinations
-    clean.data <- dplyr::filter(check.data, TADA.MethodSpeciation.Flag != "Nonstandardized" & TADA.MethodSpeciation.Flag != "Invalid")
+    # filter out both "Invalid" and "NonStandardized" characteristic-method speciation combinations
+    clean.data <- dplyr::filter(check.data, TADA.MethodSpeciation.Flag != "NonStandardized" & TADA.MethodSpeciation.Flag != "Invalid")
   }
 
   # when clean = "none"
@@ -259,8 +265,8 @@ TADA_FlagSpeciation <- function(.data, clean = c("invalid_only", "nonstandardize
 
   # when flaggedonly = TRUE
   if (flaggedonly == TRUE) {
-    # filter to show only invalid and/or nonstandardized characteristic-method speciation combinations
-    error.data <- dplyr::filter(clean.data, TADA.MethodSpeciation.Flag == "Invalid" | TADA.MethodSpeciation.Flag == "Nonstandardized")
+    # filter to show only invalid and/or nonStandardized characteristic-method speciation combinations
+    error.data <- dplyr::filter(clean.data, TADA.MethodSpeciation.Flag == "Invalid" | TADA.MethodSpeciation.Flag == "NonStandardized")
     # if there are no errors
     if (nrow(error.data) == 0) {
       print("This dataframe is empty because either we did not find any invalid/nonstandardized characteristic-method speciation combinations or they were all filtered out")
@@ -281,6 +287,11 @@ TADA_FlagSpeciation <- function(.data, clean = c("invalid_only", "nonstandardize
 #' clean = "invalid_only". When flaggedonly = TRUE, dataframe is filtered to show only
 #' rows with invalid or nonstandardized characteristic-media-result unit combinations.
 #' Default is flaggedonly = FALSE.
+#'
+#' #' The “Not Reviewed” value within "TADA.ResultAboveUpperThreshold.Flag" means
+#' that the EPA WQX team has not yet reviewed the combinations
+#' (see https://cdx.epa.gov/wqx/download/DomainValues/QAQCCharacteristicValidation.CSV).
+#' The WQX team plans to review and update these new combinations quarterly.
 #'
 #' @param .data TADA dataframe
 #' @param clean Character argument with options "invalid_only", "nonstandardized_only",
@@ -364,11 +375,11 @@ TADA_FlagResultUnit <- function(.data, clean = c("invalid_only", "nonstandardize
   check.data <- check.data %>%
     dplyr::rename(TADA.ResultUnit.Flag = Status) %>%
     dplyr::distinct()
-  # rename NA values to Nonstandardized in WQX.ResultUnitValidity column
-  check.data["TADA.ResultUnit.Flag"][is.na(check.data["TADA.ResultUnit.Flag"])] <- "Nonstandardized"
+  # rename NA values to Not Reviewed in TADA.ResultUnit.Flag column
+  check.data["TADA.ResultUnit.Flag"][is.na(check.data["TADA.ResultUnit.Flag"])] <- "Not Reviewed"
 
   # if all rows are "Valid", return input with flag column
-  if (any(c("Nonstandardized", "Invalid") %in%
+  if (any(c("NonStandardized", "Invalid", "Not Reviewed") %in%
     unique(check.data$TADA.ResultUnit.Flag)) == FALSE) {
     print("All characteristic/unit combinations are valid in your dataframe. Returning input dataframe with TADA.ResultUnit.Flag column for tracking.")
     check.data <- TADA_OrderCols(check.data)
@@ -389,13 +400,13 @@ TADA_FlagResultUnit <- function(.data, clean = c("invalid_only", "nonstandardize
   # when clean = "nonstandardized_only"
   if (clean == "nonstandardized_only") {
     # filter out only "Nonstandardized" characteristic-method speciation combinations
-    clean.data <- dplyr::filter(check.data, TADA.ResultUnit.Flag != "Nonstandardized")
+    clean.data <- dplyr::filter(check.data, TADA.ResultUnit.Flag != "NonStandardized")
   }
 
   # when clean = "both"
   if (clean == "both") {
-    # filter out both "Invalid" and "Nonstandardized" characteristic-method speciation combinations
-    clean.data <- dplyr::filter(check.data, TADA.ResultUnit.Flag != "Nonstandardized" & TADA.ResultUnit.Flag != "Invalid")
+    # filter out both "Invalid" and "NonStandardized" characteristic-method speciation combinations
+    clean.data <- dplyr::filter(check.data, TADA.ResultUnit.Flag != "NonStandardized" & TADA.ResultUnit.Flag != "Invalid")
   }
 
   # when clean = "none"
@@ -412,11 +423,11 @@ TADA_FlagResultUnit <- function(.data, clean = c("invalid_only", "nonstandardize
 
   # when flaggedonly = TRUE
   if (flaggedonly == TRUE) {
-    # filter to show only invalid and/or nonstandardized characteristic-method speciation combinations
-    error.data <- dplyr::filter(clean.data, TADA.ResultUnit.Flag == "Invalid" | TADA.ResultUnit.Flag == "Nonstandardized")
+    # filter to show only invalid and/or nonStandardized characteristic-method speciation combinations
+    error.data <- dplyr::filter(clean.data, TADA.ResultUnit.Flag == "Invalid" | TADA.ResultUnit.Flag == "NonStandardized")
     # if there are no errors
     if (nrow(error.data) == 0) {
-      print("This dataframe is empty because either we did not find any invalid/nonstandardized characteristic-media-result unit combinations or they were all filtered out")
+      print("This dataframe is empty because either we did not find any invalid/NonStandardized characteristic-media-result unit combinations or they were all filtered out")
       # error.data <- dplyr::select(error.data, -TADA.ResultUnit.Flag)
     }
     error.data <- TADA_OrderCols(error.data)
@@ -672,15 +683,18 @@ TADA_PairReplicates <- function(.data, type = c("QC_replicate"), time_difference
 
 #' AutoFilter
 #'
-#' This function Auto-Filters a dataframe so it only includes results that are
-#' ready to use for analyses. Ideally, this function should be run after data
-#' other data cleaning, QA/QC, and harmonization steps are completed using other
-#' TADA package functions, or manually.
+#' This function removes rows where the result value is not numeric to
+#' prepare a dataframe for quantitative analyses. Ideally, this function should
+#' be run after other data cleaning, QA/QC, and harmonization steps are
+#' completed using other TADA package functions, or manually. Specifically, .
+#' this function removes rows with "Text","Coerced to NA", and "Blank"
+#' in the TADA.ResultMeasureValueDataTypes.Flag column, or NA in the
+#' TADA.ResultMeasureValue column.
 #'
 #' @param .data TADA dataframe OR TADA sites dataframe
 #'
 #' @return .data with rows removed where result values are not quantitative (NA or text),
-#' the media is not water, or the results have other issues that are not dealt with elsewhere.
+#' or the results have other issues that are not dealt with elsewhere.
 #'
 #' @export
 #'
@@ -701,11 +715,11 @@ TADA_AutoFilter <- function(.data) {
     "ActivityTypeCode"
   ))
 
-  autofilter <- dplyr::filter(.data, TADA.ResultMeasureValueDataTypes.Flag != "ND or NA" &
+  autofilter <- dplyr::filter(.data, TADA.ResultMeasureValueDataTypes.Flag != "Blank" &
     TADA.ResultMeasureValueDataTypes.Flag != "Text" &
     TADA.ResultMeasureValueDataTypes.Flag != "Coerced to NA" &
-    !is.na(TADA.ResultMeasureValue) &
-    TADA.ActivityMediaName == "WATER")
+    !is.na(TADA.ResultMeasureValue)) # &
+  # TADA.ActivityMediaName == "WATER")
 
   # filter out QA/QC ActivityTypeCode's
   autofilter <- TADA_FindQCActivities(autofilter, clean = TRUE)
