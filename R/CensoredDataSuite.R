@@ -37,12 +37,21 @@ TADA_IDCensoredData <- function(.data) {
     "TADA.ResultMeasureValueDataTypes.Flag"
   )
   TADA_CheckColumns(.data, expected_cols)
+  
+  ## Run TADA_FlagMeasureQualifierCode to add column TADA.MeasureQualifier.Flag to allow for using user-supplied Result Measure Qualifier codes to identify censored samples.
+ data_mq_flag <- TADA_FlagMeasureQualifierCode(.data)
+  
 
-  ## First step: identify censored data
-  cens <- .data %>% dplyr::filter(TADA.ResultMeasureValueDataTypes.Flag == "Result Value/Unit Copied from Detection Limit")
-  not_cens <- .data %>% dplyr::filter(!ResultIdentifier %in% cens$ResultIdentifier)
+  ## Identify censored data using TADA.ResultMeasureValueDataTypes.Flag and TADA.MeasureQualifierCode.Flag
+  cens_rm_flag <- data_mq_flag %>% dplyr::filter(TADA.ResultMeasureValueDataTypes.Flag == "Result Value/Unit Copied from Detection Limit")
+  cens_mq_flag <- data_mq_flag %>% dplyr::filter(TADA.MeasureQualifierCode.Flag == "Non-Detect") %>%
+    dplyr::filter(!ResultIdentifier %in% cens_rm_flag$ResultIdentifier)
+  cens <- cens_rm_flag %>%
+    rbind(cens_mq_flag)
+  not_cens <- data_mq_flag %>% dplyr::filter(!ResultIdentifier %in% cens$ResultIdentifier)
   not_cens$TADA.CensoredData.Flag <- "Uncensored"
-
+  
+  rm(cens_rm_flag, cens_mq_flag, data_mq_flag)
 
   if (dim(cens)[1] > 0) {
     ## Bring in det cond reference table
