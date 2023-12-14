@@ -4,7 +4,7 @@
 \alias{TADA_PairReplicates}
 \title{Pair Replicates with Original Samples}
 \usage{
-TADA_PairReplicates(.data, type = c("QC_replicate"), time_window = 300)
+TADA_PairReplicates(.data, type = c("QC_replicate"), time_difference = 600)
 }
 \arguments{
 \item{.data}{TADA dataframe which must include the columns 'OrganizationIdentifier', 'ActivityTypeCode',
@@ -21,7 +21,7 @@ to their parent samples. The default type is "QC_replicate", which includes Acti
 "Quality Control Sample-Field Replicate".}
 
 \item{time_difference}{Numeric argument defining the maximum time difference in seconds
-to search for parent samples. The default time window is 300 seconds or 5 minutes.}
+to search for parent samples. The default time window is 600 seconds or 10 minutes.}
 }
 \value{
 This function adds one column to the original data frame: 'TADA.ReplicateSampleID'.
@@ -52,6 +52,6 @@ df_all_pairs <- TADA_PairReplicates(df)
 # Find pairs for only data with ActivityTypeCode "Quality Control Sample-Field Replicate":
 df_fieldrep_pairs <- TADA_PairReplicates(df, type = "Quality Control Sample-Field Replicate")
 
-# Find pairs for all data flagged as "QC_replicate" with a 10-minute time window:
-df_all_pairs_10min <- TADA_PairReplicates(df, time_difference = 600)
+# Find pairs for all data flagged as "QC_replicate" with a 5-minute time window:
+df_all_pairs_5min <- TADA_PairReplicates(df, time_difference = 300)
 }
