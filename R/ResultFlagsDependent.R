@@ -555,7 +555,7 @@ TADA_FindQCActivities <- function(.data, clean = FALSE, flaggedonly = FALSE) {
 #' sample are flagged as orphan samples.
 #' 
 #' @param .data TADA dataframe which must include the columns 'OrganizationIdentifier', 'ActivityTypeCode',
-#' 'ActivityStartDate', 'ActivityStartTime.Time', 'TADA.LatitudeMeasure', 'TADA.LongitudeMeasure',
+#' 'ActivityStartDate', 'ActivityStartDateTime', 'TADA.LatitudeMeasure', 'TADA.LongitudeMeasure',
 #' 'TADA.ResultMeasureValue', 'TADA.ComparableDataIdentifier', 'TADA.ActivityType.Flag', 
 #' and 'TADA.ActivityDepthHeightMeasure.MeasureValue'.
 #' @param type Character argument identifying which Activity Types to look for while pairing replicates
@@ -565,16 +565,14 @@ TADA_FindQCActivities <- function(.data, clean = FALSE, flaggedonly = FALSE) {
 #' "Quality Control Field Replicate Portable Data Logger",
 #' "Quality Control Field Replicate Sample-Composite", and
 #' "Quality Control Sample-Field Replicate".
-#' @param time_window Numeric argument defining the time window in seconds within 
-#' which to search for parent samples. The default time window is 300 seconds or 5 minutes.
+#' @param time_difference Numeric argument defining the maximum time difference in seconds 
+#' to search for parent samples. The default time window is 600 seconds or 10 minutes.
 #' 
-#' @return This function adds two columns to the original data frame: 'TADA.DateTime' and 
-#' 'TADA.ReplicateSampleID'. 'TADA.DateTime' combines the columns 'ActivityStartDate' and 
-#' 'ActivityStartTime.Time' into one date-time of class POSIXct to enable the time window 
-#' search for parent samples. 'TADA.ReplicateSampleID' contains the 'ResultIdentifier' value 
-#' from the replicate sample if a parent sample match is identified. Both the replicate sample
-#' and the parent sample will have the same 'ResultIdentifier' code in this column, marking them
-#' as a pair. If a sample was identified as a replicate sample in the 'TADA.ActivityType.Flag' 
+#' @return This function adds one column to the original data frame: 'TADA.ReplicateSampleID'. 
+#' 'TADA.ReplicateSampleID' contains the 'ResultIdentifier' value from the replicate sample 
+#' if a parent sample match is identified. Both the replicate sample and the parent sample 
+#' will have the same 'ResultIdentifier' code in this column, marking them as a pair. 
+#' If a sample was identified as a replicate sample in the 'TADA.ActivityType.Flag' 
 #' column but does not have an associated parent sample in the data frame, the 'TADA.ReplicateSampleID'
 #' column will contain the flag 'Orphan'. If more than one parent sample is identified in the
 #' data frame, the 'TADA.ReplicateSampleID' column will contain the flag 'Further Review', and 
@@ -595,15 +593,15 @@ TADA_FindQCActivities <- function(.data, clean = FALSE, flaggedonly = FALSE) {
 #' # Find pairs for only data with ActivityTypeCode "Quality Control Sample-Field Replicate":
 #' df_fieldrep_pairs <- TADA_PairReplicates(df, type = "Quality Control Sample-Field Replicate")
 #' 
-#' # Find pairs for all data flagged as "QC_replicate" with a 10-minute time window:
-#' df_all_pairs_10min <- TADA_PairReplicates(df, time_window = 600)
+#' # Find pairs for all data flagged as "QC_replicate" with a 5-minute time window:
+#' df_all_pairs_5min <- TADA_PairReplicates(df, time_difference = 300)
 
-TADA_PairReplicates <- function(.data, type = c("QC_replicate"), time_window = 300){
+TADA_PairReplicates <- function(.data, type = c("QC_replicate"), time_difference = 600){
   # check .data is data.frame
   TADA_CheckType(.data, "data.frame", "Input object")
   # check .data has required columns
-  TADA_CheckColumns(.data, c("OrganizationIdentifier","ActivityTypeCode", "ActivityStartDate", 
-                             "ActivityStartTime.Time", "TADA.LatitudeMeasure", "TADA.LongitudeMeasure", 
+  TADA_CheckColumns(.data, c("OrganizationIdentifier","ActivityTypeCode", "ActivityStartDateTime", 
+                             "TADA.LatitudeMeasure", "TADA.LongitudeMeasure", 
                              "TADA.ResultMeasureValue", "TADA.ComparableDataIdentifier", 
                              "TADA.ActivityType.Flag", "TADA.ActivityDepthHeightMeasure.MeasureValue"))
   # check .data has replicates in the data frame
@@ -619,15 +617,10 @@ TADA_PairReplicates <- function(.data, type = c("QC_replicate"), time_window = 3
   # check type is character
   TADA_CheckType(type, "character")
   # check time_window is numeric
-  TADA_CheckType(time_window, "numeric")
+  TADA_CheckType(time_difference, "numeric")
   
   # execute function after checks are passed
-  # combine date, start time, and time zone columns
-  .data$TADA.DateTime <- with(.data, lubridate::ymd_hms(paste(ActivityStartDate, ActivityStartTime.Time)))
-  
-  # order samples by organization, comparable data identifier, latitude, longitude, and datetime
-  # ordered.data <- .data[order(.data$OrganizationIdentifier, .data$TADA.ComparableDataIdentifier, .data$TADA.LatitudeMeasure, .data$TADA.LongitudeMeasure, .data$TADA.DateTime),]
-  
+
   # create column for matching replicates to their parent sample
   .data$TADA.ReplicateSampleID <- NA
   
@@ -640,27 +633,36 @@ TADA_PairReplicates <- function(.data, type = c("QC_replicate"), time_window = 3
     }
     if(x %in% type) {
       
-      # find samples taken within 5 minutes of each other
-      time_match <- which(abs(difftime(.data$TADA.DateTime[i], .data$TADA.DateTime)) <= time_window)
-      
-      # find samples with the same lat/long, organization name, and comparable data identifier
-      info_match <- which(.data$TADA.LatitudeMeasure == .data$TADA.LatitudeMeasure[i] &
+      # find samples with the same date, lat/long, organization name, comparable data identifier, and depth
+      info_match <- which(.data$ActivityStartDate == .data$ActivityStartDate[i] &
+                            .data$TADA.LatitudeMeasure == .data$TADA.LatitudeMeasure[i] &
                             .data$TADA.LongitudeMeasure == .data$TADA.LongitudeMeasure[i] &
                             .data$OrganizationIdentifier == .data$OrganizationIdentifier[i] &
                             .data$TADA.ComparableDataIdentifier == .data$TADA.ComparableDataIdentifier[i] &
-                            .data$TADA.ActivityDepthHeightMeasure.MeasureValue == .data$TADA.ActivityDepthHeightMeasure.MeasureValue[i])
+                            ((.data$TADA.ActivityDepthHeightMeasure.MeasureValue == .data$TADA.ActivityDepthHeightMeasure.MeasureValue[i]) | (is.na(.data$TADA.ActivityDepthHeightMeasure.MeasureValue) & is.na(.data$TADA.ActivityDepthHeightMeasure.MeasureValue[i]))) &
+                            ((.data$ActivityRelativeDepthName == .data$ActivityRelativeDepthName[i]) | (is.na(.data$ActivityRelativeDepthName) & is.na(.data$ActivityRelativeDepthName[i]))))
       
-      # combine time matches and info matches to find pairs
-      full_match <- intersect(time_match, info_match)
-      
-      if(length(full_match) == 2) {
-        .data$TADA.ReplicateSampleID[full_match] <- .data$ResultIdentifier[i]
+      # if time field is not NA, find time difference between current sample and info_match samples
+      if(!is.na(.data$ActivityStartDateTime[i])) {
+        time_diff <- abs(difftime(.data$ActivityStartDateTime[i], .data$ActivityStartDateTime[info_match]))
+
+        # samples where the time differences is <= time_difference (default is 10 minutes)
+        within_window <- info_match[time_diff <= time_difference]
+
+        # keep the samples with times within the window
+        info_match <- intersect(info_match, within_window)
       }
-      if(length(full_match) <= 1) {
+      
+      # if 2 or more matches are identified (2 includes the replicate and the parent sample), 
+      # give all matches the result identifier of the replicate
+      if(length(info_match) >= 2) {
+        .data$TADA.ReplicateSampleID[info_match] <- .data$ResultIdentifier[i]
+      }
+      
+      # if less than 2 matches are identified (i.e. just the replicate, no parent sample),
+      # label the replicate as an orphan
+      if(length(info_match) <= 1) {
         .data$TADA.ReplicateSampleID[i] <- "Orphan"
-      }
-      if(length(full_match) > 2) {
-        .data$TADA.ReplicateSampleID[full_match] <- "Further Review"
       }
     }
   }

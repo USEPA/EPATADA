@@ -8,7 +8,7 @@ TADA_PairReplicates(.data, type = c("QC_replicate"), time_window = 300)
 }
 \arguments{
 \item{.data}{TADA dataframe which must include the columns 'OrganizationIdentifier', 'ActivityTypeCode',
-'ActivityStartDate', 'ActivityStartTime.Time', 'TADA.LatitudeMeasure', 'TADA.LongitudeMeasure',
+'ActivityStartDate', 'ActivityStartDateTime', 'TADA.LatitudeMeasure', 'TADA.LongitudeMeasure',
 'TADA.ResultMeasureValue', 'TADA.ComparableDataIdentifier', 'TADA.ActivityType.Flag',
 and 'TADA.ActivityDepthHeightMeasure.MeasureValue'.}
 
@@ -20,17 +20,15 @@ to their parent samples. The default type is "QC_replicate", which includes Acti
 "Quality Control Field Replicate Sample-Composite", and
 "Quality Control Sample-Field Replicate".}
 
-\item{time_window}{Numeric argument defining the time window in seconds within
-which to search for parent samples. The default time window is 300 seconds or 5 minutes.}
+\item{time_difference}{Numeric argument defining the maximum time difference in seconds
+to search for parent samples. The default time window is 300 seconds or 5 minutes.}
 }
 \value{
-This function adds two columns to the original data frame: 'TADA.DateTime' and
-'TADA.ReplicateSampleID'. 'TADA.DateTime' combines the columns 'ActivityStartDate' and
-'ActivityStartTime.Time' into one date-time of class POSIXct to enable the time window
-search for parent samples. 'TADA.ReplicateSampleID' contains the 'ResultIdentifier' value
-from the replicate sample if a parent sample match is identified. Both the replicate sample
-and the parent sample will have the same 'ResultIdentifier' code in this column, marking them
-as a pair. If a sample was identified as a replicate sample in the 'TADA.ActivityType.Flag'
+This function adds one column to the original data frame: 'TADA.ReplicateSampleID'.
+'TADA.ReplicateSampleID' contains the 'ResultIdentifier' value from the replicate sample
+if a parent sample match is identified. Both the replicate sample and the parent sample
+will have the same 'ResultIdentifier' code in this column, marking them as a pair.
+If a sample was identified as a replicate sample in the 'TADA.ActivityType.Flag'
 column but does not have an associated parent sample in the data frame, the 'TADA.ReplicateSampleID'
 column will contain the flag 'Orphan'. If more than one parent sample is identified in the
 data frame, the 'TADA.ReplicateSampleID' column will contain the flag 'Further Review', and
@@ -55,5 +53,5 @@ df_all_pairs <- TADA_PairReplicates(df)
 df_fieldrep_pairs <- TADA_PairReplicates(df, type = "Quality Control Sample-Field Replicate")
 
 # Find pairs for all data flagged as "QC_replicate" with a 10-minute time window:
-df_all_pairs_10min <- TADA_PairReplicates(df, time_window = 600)
+df_all_pairs_10min <- TADA_PairReplicates(df, time_difference = 600)
 }
