@@ -44,7 +44,7 @@ TADA_IDCensoredData <- function(.data) {
 
   ## Identify censored data using TADA.ResultMeasureValueDataTypes.Flag and TADA.MeasureQualifierCode.Flag
   cens_rm_flag <- data_mq_flag %>% dplyr::filter(TADA.ResultMeasureValueDataTypes.Flag == "Result Value/Unit Copied from Detection Limit")
-  cens_mq_flag <- data_mq_flag %>% dplyr::filter(TADA.MeasureQualifierCode.Flag == "Non-Detect") %>%
+  cens_mq_flag <- data_mq_flag %>% dplyr::filter(TADA.MeasureQualifierCode.Flag %in% c("Non-Detect", "Over-Detect")) %>%
     dplyr::filter(!ResultIdentifier %in% cens_rm_flag$ResultIdentifier)
   cens <- cens_rm_flag %>%
     rbind(cens_mq_flag)
@@ -62,7 +62,7 @@ TADA_IDCensoredData <- function(.data) {
     ## Join to censored data
     cens <- dplyr::left_join(cens, cond.ref, by = "ResultDetectionConditionText")
 
-    ## Flag censored data that does not havedet cond populated
+    ## Flag censored data that does not have det cond populated
     cens$TADA.Detection_Type <- ifelse(is.na(cens$ResultDetectionConditionText), "ResultDetectionConditionText missing", cens$TADA.Detection_Type)
 
     ## Fill in detection type when result measure value = "ND"
@@ -117,7 +117,7 @@ TADA_IDCensoredData <- function(.data) {
       print(paste0("TADA_IDCensoredData: ", num, " records in supplied dataset have detection conditions and/or limit types that are missing from TADA reference tables . These records will not be included in detection limit handling calculations."))
     }
 
-    cens <- cens %>% dplyr::select(-TADA.Detection_Type, -TADA.Limit_Type)
+    cens <- cens %>% dplyr::select(-TADA.Detection_Type, -TADA.Limit_Type, -TADA.MeasureQualifierCode.Flag)
 
     cens.check <- plyr::rbind.fill(cens, not_cens)
   } else {
