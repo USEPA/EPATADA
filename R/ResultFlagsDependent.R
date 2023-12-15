@@ -61,7 +61,7 @@ TADA_FlagFraction <- function(.data, clean = TRUE, flaggedonly = FALSE) {
     .data <- dplyr::select(.data, -TADA.SampleFraction.Flag)
   }
   # read in sample fraction reference table from extdata and filter
-  frac.ref <- TADA_GetWQXCharValRef() %>%
+  frac.ref <- utils::read.csv(system.file("extdata", "WQXcharValRef.csv", package = "TADA")) %>%
     dplyr::filter(Type == "CharacteristicFraction")
 
   # join "Status" column to .data by CharacteristicName and Value (SampleFraction)
@@ -204,7 +204,7 @@ TADA_FlagSpeciation <- function(.data, clean = c("invalid_only", "nonstandardize
   }
 
   # read in speciation reference table from extdata and filter
-  spec.ref <- TADA_GetWQXCharValRef() %>%
+  spec.ref <- utils::read.csv(system.file("extdata", "WQXcharValRef.csv", package = "TADA")) %>%
     dplyr::filter(Type == "CharacteristicSpeciation")
 
   # join "Status" column to .data by CharacteristicName and Value (Speciation)
@@ -362,7 +362,7 @@ TADA_FlagResultUnit <- function(.data, clean = c("invalid_only", "nonstandardize
   }
 
   # read in unit reference table from extdata and filter
-  unit.ref <- TADA_GetWQXCharValRef() %>%
+  unit.ref <- utils::read.csv(system.file("extdata", "WQXcharValRef.csv", package = "TADA")) %>%
     dplyr::filter(Type == "CharacteristicUnit")
 
   # join "Status" column to .data by CharacteristicName, Source (Media), and Value (unit)
@@ -501,7 +501,7 @@ TADA_FindQCActivities <- function(.data, clean = FALSE, flaggedonly = FALSE) {
   }
 
   # load in ActivityTypeRef Table
-  qc.ref <- TADA_GetActivityTypeRef() %>%
+  qc.ref <- utils::read.csv(system.file("extdata", "WQXActivityTypeRef.csv", package = "TADA")) %>%
     dplyr::rename(ActivityTypeCode = Code) %>%
     dplyr::select(ActivityTypeCode, TADA.ActivityType.Flag)
 
@@ -663,7 +663,7 @@ TADA_FlagMeasureQualifierCode <- function(.data, clean = FALSE, flaggedonly = FA
   }
 
   # load in ResultMeasureQualifier Flag Table
-  qc.ref <- TADA_GetMeasureQualifierCodeRef() %>%
+  qc.ref <- utils::read.csv(system.file("extdata", "WQXMeasureQualifierCodeRef.csv", package = "TADA")) %>%
     dplyr::rename(MeasureQualifierCode = Code) %>%
     dplyr::select(MeasureQualifierCode, TADA.MeasureQualifierCode.Flag)
 

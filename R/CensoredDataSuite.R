@@ -46,14 +46,14 @@ TADA_IDCensoredData <- function(.data) {
 
   if (dim(cens)[1] > 0) {
     ## Bring in det cond reference table
-    cond.ref <- TADA_GetDetCondRef() %>%
+    cond.ref <- utils::read.csv(system.file("extdata", "WQXResultDetectionConditionRef.csv", package = "TADA")) %>%
       dplyr::rename(ResultDetectionConditionText = Name) %>%
       dplyr::select(ResultDetectionConditionText, TADA.Detection_Type)
 
     ## Join to censored data
     cens <- dplyr::left_join(cens, cond.ref, by = "ResultDetectionConditionText")
 
-    ## Flag censored data that does not havedet cond populated
+    ## Flag censored data that does not have det cond populated
     cens$TADA.Detection_Type <- ifelse(is.na(cens$ResultDetectionConditionText), "ResultDetectionConditionText missing", cens$TADA.Detection_Type)
 
     ## Fill in detection type when result measure value = "ND"
@@ -75,7 +75,7 @@ TADA_IDCensoredData <- function(.data) {
     }
 
     ## Bring in det limit type reference table
-    limtype.ref <- TADA_GetDetLimitRef() %>%
+    limtype.ref <- utils::read.csv(system.file("extdata", "WQXDetectionQuantitationLimitTypeRef.csv", package = "TADA")) %>%
       dplyr::rename(DetectionQuantitationLimitTypeName = Name) %>%
       dplyr::select(DetectionQuantitationLimitTypeName, TADA.Limit_Type)
 

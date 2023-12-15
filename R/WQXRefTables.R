@@ -23,9 +23,9 @@ TADA_GetWQXCharValRef <- function() {
   if (!is.null(WQXCharValRef_Cached)) {
     return(WQXCharValRef_Cached)
   }
-
+  
   # Try to download up-to-date raw data
-
+  
   raw.data <- tryCatch(
     {
       # read raw csv from url
@@ -35,14 +35,14 @@ TADA_GetWQXCharValRef <- function() {
       NULL
     }
   )
-
+  
   # If the download failed fall back to internal data (and report it)
   if (is.null(raw.data)) {
     message("Downloading latest Validation Reference Table failed!")
     message("Falling back to (possibly outdated) internal file.")
     return(utils::read.csv(system.file("extdata", "WQXcharValRef.csv", package = "TADA")))
   }
-
+  
   # Categorize status values
   notreviewed <- "Not Reviewed"
   valid <- c("Accepted", "Y")
@@ -53,7 +53,7 @@ TADA_GetWQXCharValRef <- function() {
     "InvalidChar",
     "MethodNeeded"
   )
-
+  
   WQXcharValRef <- raw.data %>%
     dplyr::mutate(TADA.WQXVal.Flag = dplyr::case_when(
       Status %in% notreviewed ~ "Not Reviewed",
@@ -63,10 +63,10 @@ TADA_GetWQXCharValRef <- function() {
       Status %in% NA ~ "Not Reviewed",
     )) %>%
     dplyr::distinct()
-
+  
   # Save updated table in cache
   WQXCharValRef_Cached <- WQXcharValRef
-
+  
   WQXcharValRef
 }
 
@@ -100,7 +100,7 @@ TADA_GetMeasureUnitRef <- function() {
   if (!is.null(WQXunitRef_Cached)) {
     return(WQXunitRef_Cached)
   }
-
+  
   # Try to download up-to-date raw data
   raw.data <- tryCatch(
     {
@@ -111,14 +111,14 @@ TADA_GetMeasureUnitRef <- function() {
       NULL
     }
   )
-
+  
   # If the download failed fall back to internal data (and report it)
   if (is.null(raw.data)) {
     message("Downloading latest Measure Unit Reference Table failed!")
     message("Falling back to (possibly outdated) internal file.")
     return(utils::read.csv(system.file("extdata", "WQXunitRef.csv", package = "TADA")))
   }
-
+  
   WQXunitRef <- raw.data
   # add m and ft as target units for "Length Distance" (Description field) rows
   # target.unit = m
@@ -188,7 +188,7 @@ TADA_GetMeasureUnitRef <- function() {
   )
   # add data to WQXunitRef
   WQXunitRef <- plyr::rbind.fill(WQXunitRef, target.m, target.ft) %>% dplyr::distinct()
-
+  
   # Convert NONE to NA in ref table
   WQXunitRef <- WQXunitRef %>%
     dplyr::mutate(
@@ -196,10 +196,10 @@ TADA_GetMeasureUnitRef <- function() {
       Target.Unit = replace(Target.Unit, Target.Unit %in% c("None"), NA)
     ) %>%
     dplyr::distinct()
-
+  
   # Save updated table in cache
   WQXunitRef_Cached <- WQXunitRef
-
+  
   WQXunitRef
 }
 
@@ -230,7 +230,7 @@ TADA_GetDetCondRef <- function() {
   if (!is.null(WQXDetCondRef_Cached)) {
     return(WQXDetCondRef_Cached)
   }
-
+  
   # Try to download up-to-date raw data
   raw.data <- tryCatch(
     {
@@ -241,40 +241,48 @@ TADA_GetDetCondRef <- function() {
       NULL
     }
   )
-
+  
   # If the download failed fall back to internal data (and report it)
   if (is.null(raw.data)) {
     message("Downloading latest Result Detection Condition Reference Table failed!")
     message("Falling back to (possibly outdated) internal file.")
     return(utils::read.csv(system.file("extdata", "WQXResultDetectionConditionRef.csv", package = "TADA")))
   }
-
-  # Add detection type for all domain values. New domains are automatically assigned to the
-  # Non-Detect category. Review this closely when updating the reference table when new domains are added.
+  
+  # Add detection type for all domain values. Review new values when updating.
   WQXDetCondRef <- raw.data %>%
     dplyr::mutate(TADA.Detection_Type = dplyr::case_when(
-      Name %in% c("Above Operating Range", "Present Above Quantification Limit") ~ as.character("Over-Detect"),
-      Name %in% c(
-        "Value Decensored", "Reported in Raw Data (attached)", "High Moisture",
-        "Unable to Measure"
-      ) ~ as.character("Other"),
-      TRUE ~ as.character("Non-Detect")
+      Name %in% c("Above Operating Range", 
+                  "Present Above Quantification Limit") ~ as.character("Over-Detect"),
+      Name %in% c("Value Decensored",
+                  "Reported in Raw Data (attached)",
+                  "High Moisture",
+                  "Unable to Measure") ~ as.character("Other"),
+      Name %in% NA ~ "Not Reviewed"
     )) %>%
     dplyr::distinct()
-
-  ## Add detection conditions not in WQX domain table
+  
+  ## Add USGS detection conditions not in WQX domain table
   others <- data.frame(
-    Name = c("*Non-detect"),
-    Description = c("Hard-coded legacy detection condition"),
-    TADA.Detection_Type = c("Non-Detect"),
-    Last.Change.Date = c("8/7/2023 12:00:00 PM")
+    Name = c("*Non-detect", 
+             "*Present <QL", 
+             "*Present"),
+    Description = c("Hard-coded legacy detection condition", 
+                    "Hard-coded legacy detection condition", 
+                    "Hard-coded legacy detection condition"),
+    TADA.Detection_Type = c("Non-Detect", 
+                            "Non-Detect", 
+                            "Non-Detect"),
+    Last.Change.Date = c("8/7/2023 12:00:00 PM",
+                         "8/7/2023 12:00:00 PM",
+                         "12/14/2023 05:00:00 PM")
   )
-
+  
   WQXDetCondRef <- plyr::rbind.fill(WQXDetCondRef, others)
-
+  
   # Save updated table in cache
   WQXDetCondRef_Cached <- WQXDetCondRef
-
+  
   WQXDetCondRef
 }
 
@@ -305,7 +313,7 @@ TADA_GetDetLimitRef <- function() {
   if (!is.null(WQXDetLimitRef_Cached)) {
     return(WQXDetLimitRef_Cached)
   }
-
+  
   # Try to download up-to-date raw data
   raw.data <- tryCatch(
     {
@@ -316,35 +324,49 @@ TADA_GetDetLimitRef <- function() {
       NULL
     }
   )
-
+  
   # If the download failed fall back to internal data (and report it)
   if (is.null(raw.data)) {
     message("Downloading latest Measure Unit Reference Table failed!")
     message("Falling back to (possibly outdated) internal file.")
     return(utils::read.csv(system.file("extdata", "WQXDetectionQuantitationLimitTypeRef.csv", package = "TADA")))
   }
-
+  
   WQXDetLimitRef <- raw.data %>%
     dplyr::mutate(TADA.Limit_Type = dplyr::case_when(
-      Name %in% c("Upper Quantitation Limit", "Upper Reporting Limit", "Upper Calibration Limit") ~ as.character("Over-Detect"),
-      Name %in% c("Drinking Water Maximum", "Field Holding Time Limit", "Specified in workplan", "Statistical Uncertainty", "Systematic Uncertainty", "Taxonomic Loss Threshold", "Water Quality Standard or Criteria", "Upper 95% Confidence Limit", "Lower 95% Confidence Limit", "Censoring level") ~ as.character("Other"),
-      TRUE ~ as.character("Non-Detect")
+      Name %in% c("Upper Quantitation Limit", 
+                  "Upper Reporting Limit", 
+                  "Upper Calibration Limit") ~ as.character("Over-Detect"),
+      Name %in% c("Drinking Water Maximum", 
+                  "Field Holding Time Limit", 
+                  "Specified in workplan", 
+                  "Statistical Uncertainty", 
+                  "Systematic Uncertainty", 
+                  "Taxonomic Loss Threshold", 
+                  "Water Quality Standard or Criteria", 
+                  "Upper 95% Confidence Limit", 
+                  "Lower 95% Confidence Limit", 
+                  "Censoring level") ~ as.character("Other"),
+      Name %in% NA ~ "Not Reviewed"
     )) %>%
     dplyr::distinct()
-
+  
   ## Add USGS limits not in WQX domain table
   usgs <- data.frame(
-    Name = c("Elevated Detection Limit", "Historical Lower Reporting Limit", "Method Detection Limit (MDL)"),
-    Description = c("USGS hard-coded limit", "USGS hard-coded limit", "USGS hard-coded limit"),
-    TADA.Limit_Type = c("Non-Detect", "Non-Detect", "Non-Detect"),
-    Last.Change.Date = rep("4/6/2023 12:00:00 PM", 3)
+    Name = c("Elevated Detection Limit", "Historical Lower Reporting Limit",
+             "Method Detection Limit (MDL)", "Lab Reporting Limit, NA"),
+    Description = c("USGS hard-coded limit", "USGS hard-coded limit",
+                    "USGS hard-coded limit", "USGS hard-coded limit"),
+    TADA.Limit_Type = c("Non-Detect", "Non-Detect", "Non-Detect", "Non-Detect"),
+    Last.Change.Date = c("4/6/2023 12:00:00 PM", "4/6/2023 12:00:00 PM",
+                         "4/6/2023 12:00:00 PM", "12/14/2023 05:00:00 PM")
   )
-
+  
   WQXDetLimitRef <- plyr::rbind.fill(WQXDetLimitRef, usgs)
-
+  
   # Save updated table in cache
   WQXDetLimitRef_Cached <- WQXDetLimitRef
-
+  
   WQXDetLimitRef
 }
 
@@ -374,7 +396,7 @@ TADA_GetActivityTypeRef <- function() {
   if (!is.null(WQXActivityTypeRef_Cached)) {
     return(WQXActivityType_Cached)
   }
-
+  
   # Try to download up-to-date raw data
   raw.data <- tryCatch(
     {
@@ -385,16 +407,16 @@ TADA_GetActivityTypeRef <- function() {
       NULL
     }
   )
-
+  
   # If the download failed fall back to internal data (and report it)
   if (is.null(raw.data)) {
     message("Downloading latest Activity Type Reference Table failed!")
     message("Falling back to (possibly outdated) internal file.")
     return(utils::read.csv(system.file("extdata", "WQXActivityTypeRef.csv",
-      package = "TADA"
+                                       package = "TADA"
     )))
   }
-
+  
   # Categorize Activity Types
   rep <- c(
     "Quality Control Field Replicate Habitat Assessment",
@@ -462,7 +484,7 @@ TADA_GetActivityTypeRef <- function() {
     "Sample-Positive Control"
   )
   other <- c("Quality Control Sample-Other")
-
+  
   nonQC <- c(
     "Field Msr/Obs",
     "Field Msr/Obs-Continuous Time Series",
@@ -480,9 +502,11 @@ TADA_GetActivityTypeRef <- function() {
     "Sample-Integrated Time Series",
     "Sample-Integrated Vertical Profile",
     "Sample-Other",
-    "Sample-Routine"
+    "Sample-Routine",
+    # USGS only value
+    "Sample"
   )
-
+  
   WQXActivityTypeRef <- raw.data %>%
     dplyr::mutate(TADA.ActivityType.Flag = dplyr::case_when(
       Code %in% rep ~ "QC_replicate",
@@ -495,7 +519,7 @@ TADA_GetActivityTypeRef <- function() {
       Code %in% NA ~ "Not Reviewed"
     )) %>%
     dplyr::distinct()
-
+  
   # Hard-code add activity types from NWIS
   ## Add USGS limits not in WQX domain table
   new.atcs <- data.frame(
@@ -504,12 +528,12 @@ TADA_GetActivityTypeRef <- function() {
     TADA.ActivityType.Flag = c("QC_duplicate", "Non_QC"),
     Last.Change.Date = rep("8/11/2023 12:00:00 PM", 2)
   )
-
+  
   WQXActivityTypeRef <- plyr::rbind.fill(WQXActivityTypeRef, new.atcs)
-
+  
   # Save updated table in cache
   WQXActivityTypeRef_Cached <- WQXActivityTypeRef
-
+  
   return(WQXActivityTypeRef)
 }
 
@@ -540,7 +564,7 @@ TADA_GetCharacteristicRef <- function() {
   if (!is.null(WQXCharacteristicRef_Cached)) {
     return(WQXCharacteristicRef_Cached)
   }
-
+  
   # Try to download up-to-date raw data
   raw.data <- tryCatch(
     {
@@ -551,22 +575,22 @@ TADA_GetCharacteristicRef <- function() {
       NULL
     }
   )
-
+  
   # If the download failed fall back to internal data (and report it)
   if (is.null(raw.data)) {
     message("Downloading latest Measure Unit Reference Table failed!")
     message("Falling back to (possibly outdated) internal file.")
     return(utils::read.csv(system.file("extdata", "WQXCharacteristicRef.csv", package = "TADA")))
   }
-
+  
   # rename some columns
   WQXCharacteristicRef <- raw.data %>%
     dplyr::rename(CharacteristicName = Name, Char_Flag = Domain.Value.Status) %>%
     dplyr::select(CharacteristicName, Char_Flag, Comparable.Name)
-
+  
   # Save updated table in cache
   WQXCharacteristicRef_Cached <- WQXCharacteristicRef
-
+  
   WQXCharacteristicRef
 }
 
@@ -599,7 +623,7 @@ TADA_GetMeasureQualifierCodeRef <- function() {
   if (!is.null(WQXMeasureQualifierCodeRef_Cached)) {
     return(WQXMeasureQualifierCodeRef_Cached)
   }
-
+  
   # Try to download up-to-date raw data
   raw.data <- tryCatch(
     {
@@ -610,14 +634,14 @@ TADA_GetMeasureQualifierCodeRef <- function() {
       NULL
     }
   )
-
+  
   # If the download failed fall back to internal data (and report it)
   if (is.null(raw.data)) {
     message("Downloading latest Measure Qualifier Code Reference Table failed!")
     message("Falling back to (possibly outdated) internal file.")
     return(utils::read.csv(system.file("extdata", "WQXMeasureQualifierCodeRef.csv", package = "TADA")))
   }
-
+  
   # Categorize Result Measure Qualifiers
   suspect <- c(
     "$", "(", "+", "AR", "BS", "BSR", "BT", "BVER", "C", "CAN", "CBC",
@@ -649,7 +673,7 @@ TADA_GetMeasureQualifierCodeRef <- function() {
   )
   nondetect <- c("BQL", "2-5B", "RNON", "U", "LTGTE", "K", "IDL", "<2B", "BRL", "D>T", "DL")
   overdetect <- c("E", "EE", "GT")
-
+  
   WQXMeasureQualifierCodeRef <- raw.data %>%
     dplyr::mutate(TADA.MeasureQualifierCode.Flag = dplyr::case_when(
       Code %in% nondetect ~ "Non-Detect",
@@ -660,7 +684,7 @@ TADA_GetMeasureQualifierCodeRef <- function() {
       TRUE ~ as.character("Not Reviewed")
     )) %>%
     dplyr::distinct()
-
+  
   ## Add detection conditions not in WQX domain table
   others <- data.frame(
     Code = c(
@@ -710,12 +734,12 @@ TADA_GetMeasureQualifierCodeRef <- function() {
       "8/7/2023 08:14:00 PM"
     )
   )
-
+  
   WQXMeasureQualifierCodeRef <- plyr::rbind.fill(WQXMeasureQualifierCodeRef, others)
-
+  
   # Save updated table in cache
   WQXMeasureQualifierCodeRef_Cached <- WQXMeasureQualifierCodeRef
-
+  
   return(WQXMeasureQualifierCodeRef)
 }
 
@@ -723,25 +747,7 @@ TADA_GetMeasureQualifierCodeRef <- function() {
 
 TADA_UpdateMeasureQualifierCodeRef <- function() {
   utils::write.csv(TADA_GetMeasureQualifierCodeRef(),
-    file = "inst/extdata/WQXMeasureQualifierCodeRef.csv",
-    row.names = FALSE
+                   file = "inst/extdata/WQXMeasureQualifierCodeRef.csv",
+                   row.names = FALSE
   )
-}
-
-
-#' Nutrient Summation Reference Key
-#'
-#' Function downloads and returns the newest available nutrient summation
-#' reference dataframe. This dataframe is used in TADA_CalculateTotalNitrogen as
-#' the basis for the combinations added together to get total nitrogen. Users
-#' may customize this reference table for their own dataset and use the custom
-#' dataframe as an input in TADA_CalculateTotalNitrogen.
-#'
-#' @return Dataframe of nutrient summation combinations
-#'
-#' @export
-
-TADA_GetNutrientSummationRef <- function() {
-  ref <- utils::read.csv(system.file("extdata", "NPsummation_key.csv", package = "TADA"))
-  return(ref)
 }

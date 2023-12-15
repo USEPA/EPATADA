@@ -75,7 +75,7 @@ remotes::install_github("USEPA/TADA",
 # when developing the package, update this chunk to the current repository branch, so it runs with all of the new features prior to a PR to develop
 
 remotes::install_github("USEPA/TADA",
-  ref = "bugs-cm",
+  ref = "12-7-23-cm",
   dependencies = TRUE
 )
 ```
@@ -915,9 +915,7 @@ Here are some examples of how the TADA_HarmonizeSynonyms function can be used:
     name (and identifier) to synonyms.
 
 ```{r TADA_HarmonizeSynonyms}
-UniqueHarmonizationRef <- TADA_GetSynonymRef(TADAProfileClean5,
-  download = FALSE
-)
+UniqueHarmonizationRef <- TADA_GetSynonymRef(TADAProfileClean5)
 
 TADAProfileClean5 <- TADA_HarmonizeSynonyms(TADAProfileClean5,
   ref = UniqueHarmonizationRef

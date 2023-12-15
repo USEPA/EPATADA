@@ -171,14 +171,17 @@ TADA_AutoClean <- function(.data) {
     TADA.ResultMeasure.MeasureUnitCode = replace(TADA.ResultMeasure.MeasureUnitCode, TADA.ResultMeasure.MeasureUnitCode %in% c("NONE"), NA)
   )
 
+  # Automatically convert USGS only unit "meters" to "m"
+  .data$TADA.ResultMeasure.MeasureUnitCode[.data$TADA.ResultMeasure.MeasureUnitCode == "meters"] <- "m"
+  .data$ActivityDepthHeightMeasure.MeasureUnitCode[.data$ActivityDepthHeightMeasure.MeasureUnitCode == "meters"] <- "m"
+  .data$ActivityTopDepthHeightMeasure.MeasureUnitCode[.data$ActivityTopDepthHeightMeasure.MeasureUnitCode == "meters"] <- "m"
+  .data$ActivityBottomDepthHeightMeasure.MeasureUnitCode[.data$ActivityBottomDepthHeightMeasure.MeasureUnitCode == "meters"] <- "m"
+  .data$ResultDepthHeightMeasure.MeasureUnitCode[.data$ResultDepthHeightMeasure.MeasureUnitCode == "meters"] <- "m"
+
   # Implement unit harmonization
   print("TADA_Autoclean: harmonizing result and depth units.")
   .data <- suppressWarnings(TADA_ConvertResultUnits(.data, transform = TRUE))
   .data <- suppressWarnings(TADA_ConvertDepthUnits(.data, unit = "m"))
-
-  # Automatically convert USGS only unit "meters" to "m"
-  # Suggest moving to TADA_ConvertResultUnits function in the future
-  .data$TADA.ResultMeasure.MeasureUnitCode[.data$TADA.ResultMeasure.MeasureUnitCode == "meters"] <- "m"
 
   # Substitute updated characteristic name for deprecated names
   print("TADA_Autoclean: updating deprecated (i.e. retired) characteristic names.")
@@ -626,7 +629,7 @@ TADA_SubstituteDeprecatedChars <- function(.data) {
 
   # read in characteristic reference table with deprecation information, filter to deprecated terms and for "retired" in CharactersticName.
   # remove all characters after first "*" in CharacteristicName and remove any leading or trailing white space to make compatible with deprecated NWIS CharactersticName.
-  nwis.table <- TADA_GetCharacteristicRef() %>%
+  nwis.table <- utils::read.csv(system.file("extdata", "WQXCharacteristicRef.csv", package = "TADA")) %>%
     dplyr::filter(
       Char_Flag == "Deprecated",
       grepl("retired", CharacteristicName)
@@ -635,7 +638,7 @@ TADA_SubstituteDeprecatedChars <- function(.data) {
 
   # read in characteristic reference table with deprecation information and filter to deprecated terms.
   # join with deprecated NWIS CharacteristicName data.frame.
-  ref.table <- TADA_GetCharacteristicRef() %>%
+  ref.table <- utils::read.csv(system.file("extdata", "WQXCharacteristicRef.csv", package = "TADA")) %>%
     dplyr::filter(Char_Flag == "Deprecated") %>%
     rbind(nwis.table)
 
@@ -805,11 +808,11 @@ TADA_FindNearbySites <- function(.data, dist_buffer = 100) {
 }
 
 # Generate a random data retrieval dataset (internal, for testthat's)
-# samples a random 2 days in the past 20 years using
+# samples a random day in the past 20 years using
 # TADA_DataRetrieval. Built to use in testthat and for developer testing of new
 # functions on random datasets.
 
-TADA_RandomNationalTestingSet <- function(number_of_days = 2) {
+TADA_RandomNationalTestingSet <- function(number_of_days = 1) {
   load(system.file("extdata", "statecodes_df.Rdata", package = "TADA"))
   # removed state
   # state = sample(statecodes_df$STUSAB,1)
