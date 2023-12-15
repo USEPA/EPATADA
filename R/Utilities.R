@@ -149,10 +149,59 @@ TADA_AutoClean <- function(.data) {
   .data <- TADA_ConvertSpecialChars(.data, "DetectionQuantitationLimitMeasure.MeasureValue")
 
   # Move detection limit value and unit to TADA Result Measure Value and Unit columns
-  .data$TADA.ResultMeasureValue <- ifelse(is.na(.data$TADA.ResultMeasureValue) & !is.na(.data$TADA.DetectionQuantitationLimitMeasure.MeasureValue), .data$TADA.DetectionQuantitationLimitMeasure.MeasureValue, .data$TADA.ResultMeasureValue)
-  .data$TADA.ResultMeasure.MeasureUnitCode <- ifelse(is.na(.data$TADA.ResultMeasure.MeasureUnitCode) & !is.na(.data$TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode), .data$TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode, .data$TADA.ResultMeasure.MeasureUnitCode)
-  .data$TADA.ResultMeasureValueDataTypes.Flag <- ifelse(.data$TADA.ResultMeasureValueDataTypes.Flag == "Blank" & !is.na(.data$TADA.DetectionQuantitationLimitMeasure.MeasureValue), "Result Value/Unit Copied from Detection Limit", .data$TADA.ResultMeasureValueDataTypes.Flag)
-
+  # Consider moving this to ID censored data in the future?
+  # this first row copies all over when result is blank but 
+  # TADA.DetectionQuantitationLimitMeasure.MeasureValue is not and the 
+  # TADA.ResultMeasureValueDataTypes.Flag is not Text 
+  # Imp note: TADA result values are NA for text even though they are not NA in the original result value
+  .data$TADA.ResultMeasureValue <- ifelse(
+    is.na(.data$TADA.ResultMeasureValue)
+    & !is.na(.data$TADA.DetectionQuantitationLimitMeasure.MeasureValue)
+    & .data$TADA.ResultMeasureValueDataTypes.Flag != "Text",
+    .data$TADA.DetectionQuantitationLimitMeasure.MeasureValue, 
+    .data$TADA.ResultMeasureValue)
+  # this does the same as above for the units
+  .data$TADA.ResultMeasure.MeasureUnitCode <- ifelse(
+    is.na(.data$TADA.ResultMeasure.MeasureUnitCode)
+    & !is.na(.data$TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode)
+    & .data$TADA.ResultMeasureValueDataTypes.Flag != "Text", 
+    .data$TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode, 
+    .data$TADA.ResultMeasure.MeasureUnitCode)
+  .data$TADA.ResultMeasureValueDataTypes.Flag <- ifelse(
+    .data$TADA.ResultMeasureValueDataTypes.Flag == "Blank"
+    & !is.na(.data$TADA.DetectionQuantitationLimitMeasure.MeasureValue),
+    "Result Value/Unit Copied from Detection Limit",
+    .data$TADA.ResultMeasureValueDataTypes.Flag)
+  
+  # this copies det lim result value and unit over to TADA result value and unit 
+  # when the result value is TEXT but there is a specific text value that indicates 
+  # the result is censored (BPQL, BDL, ND)
+  # and the TADA.DetectionQuantitationLimitMeasure.MeasureValue provided
+  .data$TADA.ResultMeasureValueDataTypes.Flag <- ifelse(
+    .data$TADA.ResultMeasureValueDataTypes.Flag == "Text" &
+      .data$ResultMeasureValue == "BPQL" |
+      .data$ResultMeasureValue == "BDL" |
+      .data$ResultMeasureValue == "ND" & 
+      !is.na(.data$TADA.DetectionQuantitationLimitMeasure.MeasureValue),
+    "Result Value/Unit Copied from Detection Limit", 
+    .data$TADA.ResultMeasureValueDataTypes.Flag)
+  .data$TADA.ResultMeasureValue <- ifelse(
+    is.na(.data$TADA.ResultMeasureValue)
+    & !is.na(.data$TADA.DetectionQuantitationLimitMeasure.MeasureValue)
+    & .data$ResultMeasureValue == "BPQL" |
+      .data$ResultMeasureValue == "BDL" |
+      .data$ResultMeasureValue == "ND" ,
+    .data$TADA.DetectionQuantitationLimitMeasure.MeasureValue, 
+    .data$TADA.ResultMeasureValue)
+  # this does the same as above for the units
+  .data$TADA.ResultMeasure.MeasureUnitCode <- ifelse(
+    !is.na(.data$TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode)
+    & .data$ResultMeasureValue == "BPQL" |
+      .data$ResultMeasureValue == "BDL" |
+      .data$ResultMeasureValue == "ND" , 
+    .data$TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode, 
+    .data$TADA.ResultMeasure.MeasureUnitCode)
+  
   # Identify detection limit data
   print("TADA_Autoclean: identifying detection limit data.")
   .data <- TADA_IDCensoredData(.data)
@@ -171,14 +220,17 @@ TADA_AutoClean <- function(.data) {
     TADA.ResultMeasure.MeasureUnitCode = replace(TADA.ResultMeasure.MeasureUnitCode, TADA.ResultMeasure.MeasureUnitCode %in% c("NONE"), NA)
   )
 
+  # Automatically convert USGS only unit "meters" to "m"
+  .data$TADA.ResultMeasure.MeasureUnitCode[.data$TADA.ResultMeasure.MeasureUnitCode == "meters"] <- "m"
+  .data$ActivityDepthHeightMeasure.MeasureUnitCode[.data$ActivityDepthHeightMeasure.MeasureUnitCode == "meters"] <- "m"
+  .data$ActivityTopDepthHeightMeasure.MeasureUnitCode[.data$ActivityTopDepthHeightMeasure.MeasureUnitCode == "meters"] <- "m"
+  .data$ActivityBottomDepthHeightMeasure.MeasureUnitCode[.data$ActivityBottomDepthHeightMeasure.MeasureUnitCode == "meters"] <- "m"
+  .data$ResultDepthHeightMeasure.MeasureUnitCode[.data$ResultDepthHeightMeasure.MeasureUnitCode == "meters"] <- "m"
+
   # Implement unit harmonization
   print("TADA_Autoclean: harmonizing result and depth units.")
   .data <- suppressWarnings(TADA_ConvertResultUnits(.data, transform = TRUE))
   .data <- suppressWarnings(TADA_ConvertDepthUnits(.data, unit = "m"))
-
-  # Automatically convert USGS only unit "meters" to "m"
-  # Suggest moving to TADA_ConvertResultUnits function in the future
-  .data$TADA.ResultMeasure.MeasureUnitCode[.data$TADA.ResultMeasure.MeasureUnitCode == "meters"] <- "m"
 
   # Substitute updated characteristic name for deprecated names
   print("TADA_Autoclean: updating deprecated (i.e. retired) characteristic names.")
@@ -626,7 +678,7 @@ TADA_SubstituteDeprecatedChars <- function(.data) {
 
   # read in characteristic reference table with deprecation information, filter to deprecated terms and for "retired" in CharactersticName.
   # remove all characters after first "*" in CharacteristicName and remove any leading or trailing white space to make compatible with deprecated NWIS CharactersticName.
-  nwis.table <- TADA_GetCharacteristicRef() %>%
+  nwis.table <- utils::read.csv(system.file("extdata", "WQXCharacteristicRef.csv", package = "TADA")) %>%
     dplyr::filter(
       Char_Flag == "Deprecated",
       grepl("retired", CharacteristicName)
@@ -635,7 +687,7 @@ TADA_SubstituteDeprecatedChars <- function(.data) {
 
   # read in characteristic reference table with deprecation information and filter to deprecated terms.
   # join with deprecated NWIS CharacteristicName data.frame.
-  ref.table <- TADA_GetCharacteristicRef() %>%
+  ref.table <- utils::read.csv(system.file("extdata", "WQXCharacteristicRef.csv", package = "TADA")) %>%
     dplyr::filter(Char_Flag == "Deprecated") %>%
     rbind(nwis.table)
 
@@ -805,11 +857,11 @@ TADA_FindNearbySites <- function(.data, dist_buffer = 100) {
 }
 
 # Generate a random data retrieval dataset (internal, for testthat's)
-# samples a random 2 days in the past 20 years using
+# samples a random day in the past 20 years using
 # TADA_DataRetrieval. Built to use in testthat and for developer testing of new
 # functions on random datasets.
 
-TADA_RandomNationalTestingSet <- function(number_of_days = 2) {
+TADA_RandomNationalTestingSet <- function(number_of_days = 1) {
   load(system.file("extdata", "statecodes_df.Rdata", package = "TADA"))
   # removed state
   # state = sample(statecodes_df$STUSAB,1)

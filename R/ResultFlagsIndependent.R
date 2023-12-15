@@ -69,7 +69,7 @@ TADA_FlagMethod <- function(.data, clean = TRUE, flaggedonly = FALSE) {
     .data <- dplyr::select(.data, -TADA.AnalyticalMethod.Flag)
   }
   # read in WQX val reference table and filter
-  meth.ref <- TADA_GetWQXCharValRef() %>%
+  meth.ref <- utils::read.csv(system.file("extdata", "WQXcharValRef.csv", package = "TADA")) %>%
     dplyr::filter(Type == "CharacteristicMethod")
 
   # join "TADA.WQXVal.Flag" column to .data by CharacteristicName, Source (Media), and Value (unit)
@@ -350,21 +350,20 @@ TADA_FlagAboveThreshold <- function(.data, clean = TRUE, flaggedonly = FALSE) {
     .data <- dplyr::select(.data, -TADA.ResultValueAboveUpperThreshold.Flag)
   }
 
-  # filter WQXcharVal.ref to include only valid CharacteristicUnit in water media
-  unit.ref <- TADA_GetWQXCharValRef() %>%
-    dplyr::filter(Type == "CharacteristicUnit" & Source == "WATER" &
-      Status == "Valid")
+  # filter WQXcharVal.ref to include only valid CharacteristicUnit
+  unit.ref <- utils::read.csv(system.file("extdata", "WQXcharValRef.csv", package = "TADA")) %>%
+    dplyr::filter(Type == "CharacteristicUnit" & Status == "Accepted")
 
   # join unit.ref to raw.data
   check.data <- merge(.data, unit.ref[, c(
     "Characteristic", "Source",
-    "Value", "Maximum"
+    "Value.Unit", "Maximum"
   )],
   by.x = c(
     "TADA.CharacteristicName", "TADA.ActivityMediaName",
     "TADA.ResultMeasure.MeasureUnitCode"
   ),
-  by.y = c("Characteristic", "Source", "Value"), all.x = TRUE
+  by.y = c("Characteristic", "Source", "Value.Unit"), all.x = TRUE
   )
 
   # Create flag column, flag rows where ResultMeasureValue > Maximum
@@ -392,7 +391,6 @@ TADA_FlagAboveThreshold <- function(.data, clean = TRUE, flaggedonly = FALSE) {
     if (flaggedonly == TRUE) {
       print("This dataframe is empty because no data above the WQX Upper Threshold was found in your dataframe")
       emptyflag.data <- dplyr::filter(flag.data, TADA.ResultValueAboveUpperThreshold.Flag %in% "Y")
-      # emptyflag.data <- dplyr::select(emptyflag.data, -TADA.ResultValueAboveUpperThreshold.Flag)
       emptyflag.data <- TADA_OrderCols(emptyflag.data)
       return(emptyflag.data)
     }
@@ -507,20 +505,19 @@ TADA_FlagBelowThreshold <- function(.data, clean = TRUE, flaggedonly = FALSE) {
   }
 
   # filter WQXcharVal.ref to include only valid CharacteristicUnit in water media
-  unit.ref <- TADA_GetWQXCharValRef() %>%
-    dplyr::filter(Type == "CharacteristicUnit" & Source == "WATER" &
-      Status == "Valid")
+  unit.ref <- utils::read.csv(system.file("extdata", "WQXcharValRef.csv", package = "TADA")) %>%
+    dplyr::filter(Type == "CharacteristicUnit" & Status == "Accepted")
 
   # join unit.ref to raw.data
   check.data <- merge(.data, unit.ref[, c(
     "Characteristic", "Source",
-    "Value", "Minimum"
+    "Value.Unit", "Minimum"
   )],
   by.x = c(
     "TADA.CharacteristicName", "TADA.ActivityMediaName",
     "TADA.ResultMeasure.MeasureUnitCode"
   ),
-  by.y = c("Characteristic", "Source", "Value"), all.x = TRUE
+  by.y = c("Characteristic", "Source", "Value.Unit"), all.x = TRUE
   )
 
   # Create flag column, flag rows where TADA.ResultMeasureValue < Minimum
