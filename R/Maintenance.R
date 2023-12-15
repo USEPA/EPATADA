@@ -88,8 +88,9 @@ TADA_UpdateExampleData <- function() {
   rm(Data_NCTCShepherdstown_HUC12)
 }
 
-## Find char-frac-spec-unit combos not present in TADA HarmonizationTemplate. Add new combinations when found to the 
-## HarmonizationTemplate.csv and NPsummation_key.csv (if relevant to TN or TP summation).
+## Find char-frac-spec-unit combos not present in TADA HarmonizationTemplate. 
+## Add new combinations when found to the HarmonizationTemplate.csv and 
+## NPsummation_key.csv (if relevant to TN or TP summation).
 
 FindSynonyms <- function() {
   test <- TADA_RandomNationalTestingSet()

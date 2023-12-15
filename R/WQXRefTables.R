@@ -61,6 +61,7 @@ TADA_GetWQXCharValRef <- function() {
       Status %in% invalid ~ "Invalid",
       Status %in% nonstandard ~ "NonStandardized",
       Status %in% NA ~ "Not Reviewed",
+      TRUE ~ as.character("Not Reviewed")
     )) %>%
     dplyr::distinct()
   
@@ -252,13 +253,31 @@ TADA_GetDetCondRef <- function() {
   # Add detection type for all domain values. Review new values when updating.
   WQXDetCondRef <- raw.data %>%
     dplyr::mutate(TADA.Detection_Type = dplyr::case_when(
+      Name %in% c("Below Daily Detection Limit",
+                  "Below Detection Limit",
+                  "Below Long-term Blank-basd Dt Limit",
+                  "Below Method Detection Limit",
+                  "Below Reporting Limit",
+                  "Below Sample-specific Detect Limit",
+                  "Below System Detection Limit",
+                  "Between Inst Detect and Quant Limit",
+                  "Detected Not Quantified",
+                  "Not Detected",
+                  "Not Detected at Detection Limit",
+                  "Not Detected at Reporting Limit",
+                  "Not Present",
+                  "Not Reported",
+                  "Present Below Quantification Limit",
+                  "Trace") ~ as.character("Non-Detect"),
       Name %in% c("Above Operating Range", 
                   "Present Above Quantification Limit") ~ as.character("Over-Detect"),
       Name %in% c("Value Decensored",
                   "Reported in Raw Data (attached)",
                   "High Moisture",
-                  "Unable to Measure") ~ as.character("Other"),
-      Name %in% NA ~ "Not Reviewed"
+                  "Unable to Measure",
+                  "Value affected by contamination") ~ as.character("Other"),
+      Name %in% NA ~ "Not Reviewed",
+      TRUE ~ as.character("Not Reviewed")
     )) %>%
     dplyr::distinct()
   
@@ -334,10 +353,37 @@ TADA_GetDetLimitRef <- function() {
   
   WQXDetLimitRef <- raw.data %>%
     dplyr::mutate(TADA.Limit_Type = dplyr::case_when(
+      Name %in% c("Blank-adjusted method detect limit",
+                  "Blank-adjusted reporting limit",
+                  "Contract Detection Limit",
+                  "Contract Quantitation Limit",
+                  "Daily detection limit",
+                  "Detection limit by DQCALC",
+                  "Estimated Detection Level",
+                  "Estimated Quantitation Limit",
+                  "Instrument Detection Level",
+                  "Interim Reporting Level",
+                  "Laboratory Reporting Level",
+                  "Long Term Method Detection Level",
+                  "Lower Quantitation Limit",
+                  "Lower Reporting Limit",
+                  "Lower limit of detection",
+                  "Method Detection Level",
+                  "Minimum Reporting Level",
+                  "Practical Quantitation Limit",
+                  "Reporting limit",
+                  "Reporting limit by DQCALC",
+                  "Required detection limit",
+                  "Sample Detection Limit",
+                  "Sample-Specific Quantitation Limit",
+                  "Sample-specific critical level",
+                  "Sample-specific min detect conc") ~ as.character("Non-Detect"),
       Name %in% c("Upper Quantitation Limit", 
                   "Upper Reporting Limit", 
                   "Upper Calibration Limit") ~ as.character("Over-Detect"),
-      Name %in% c("Drinking Water Maximum", 
+      Name %in% c("Measurement Uncertainty",
+                  "Laboratory Holding Time Limit",
+                  "Drinking Water Maximum", 
                   "Field Holding Time Limit", 
                   "Specified in workplan", 
                   "Statistical Uncertainty", 
@@ -347,7 +393,8 @@ TADA_GetDetLimitRef <- function() {
                   "Upper 95% Confidence Limit", 
                   "Lower 95% Confidence Limit", 
                   "Censoring level") ~ as.character("Other"),
-      Name %in% NA ~ "Not Reviewed"
+      Name %in% NA ~ "Not Reviewed",
+      TRUE ~ as.character("Not Reviewed")
     )) %>%
     dplyr::distinct()
   
