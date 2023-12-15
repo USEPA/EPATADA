@@ -56,8 +56,11 @@ TADA_IDCensoredData <- function(.data) {
     ## Flag censored data that does not have det cond populated
     cens$TADA.Detection_Type <- ifelse(is.na(cens$ResultDetectionConditionText), "ResultDetectionConditionText missing", cens$TADA.Detection_Type)
 
-    ## Fill in detection type when result measure value = "ND"
-    cens$TADA.Detection_Type <- ifelse(cens$ResultMeasureValue %in% c("ND"), "Non-Detect", cens$TADA.Detection_Type)
+    ## Fill in detection type when text result measure value indicates it is a nondetect
+    cens$TADA.Detection_Type <- ifelse(cens$ResultMeasureValue %in% 
+                                         c("ND", "BPQL", "BDL"), 
+                                       "Non-Detect", 
+                                       cens$TADA.Detection_Type)
 
     ## Let user know when detection condition text is missing from one or more results
     # NOTE that at this point, TADA.Detection_Type may be NA if there are detection conditions in dataset that are not present in domain table
