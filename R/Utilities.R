@@ -50,7 +50,7 @@ utils::globalVariables(c(
   "SummationName", "SummationRank", "SummationFractionNotes", "SummationSpeciationNotes",
   "SummationSpeciationConversionFactor", "SummationNote", "NutrientGroup",
   "Target.Speciation", "TADA.NearbySiteGroups", "numres", "TADA.SingleOrgDupGroupID",
-  "TADA.MeasureQualifierCode.Flag", "MeasureQualifierCode", "TADA.MeasureQualifierCode" "value", "Flag_Column",
+  "TADA.MeasureQualifierCode.Flag", "MeasureQualifierCode", "TADA.MeasureQualifierCode", "value", "Flag_Column",
   "Data_NCTCShepherdstown_HUC12", "ActivityStartDateTime", "TADA.MultipleOrgDupGroupID",
   "TADA.WQXVal.Flag"
 ))
@@ -211,19 +211,18 @@ TADA_AutoClean <- function(.data) {
   
   # Create TADA.MeasureQualifierCode by concatenating MeasureQualifierCode with description from MeasureQualifierCodeRef.
   mqc.ref <-  utils::read.csv(system.file("extdata", "WQXMeasureQualifierCodeRef.csv", package = "TADA")) %>%
-    select(Code, Description) %>%
-    group_by(Code) %>%
-    mutate(Concat = paste(Code, "-", Description, collapse  ="")) %>%
-    select(Code, Concat) %>%
-    rename(MeasureQualifierCode = Code)
+    dplyr::select(Code, Description) %>%
+    dplyr::group_by(Code) %>%
+    dplyr::mutate(Concat = paste(Code, "-", Description, collapse  ="")) %>%
+    dplyr::select(Code, Concat) %>%
+    dplyr::rename(MeasureQualifierCode = Code)
   
   mqc.TADA <- .data %>%
-    mutate(MeasureQualifierCode = str_split(MeasureQualifierCode, ";")) %>%
-    unnest(MeasureQualifierCode) %>%
-    merge(mqc.try) %>%
-    group_by(ResultIdentifier) %>%
-    summarize(TADA.MeasureQualifierCode = paste(Concat, collapse = "; "))
-  
+    dplyr::mutate(MeasureQualifierCode = str_split(MeasureQualifierCode, ";")) %>%
+    tidyr::unnest(MeasureQualifierCode) %>%
+    merge(mqc.ref) %>%
+    dplyr::group_by(ResultIdentifier) %>%
+    dplyr::summarize(TADA.MeasureQualifierCode = paste(Concat, collapse = "; "))
   
   .data$TADA.MeasureQualifierCode <- mqc.TADA$TADA.MeasureQualifierCode[match(.data$ResultIdentifier, mqc.TADA$ResultIdentifier)]
   
