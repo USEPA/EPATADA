@@ -209,25 +209,6 @@ TADA_AutoClean <- function(.data) {
   # Identify QC data
   .data <- TADA_FindQCActivities(.data, clean = FALSE, flaggedonly = FALSE)
   
-  # Create TADA.MeasureQualifierCode by concatenating MeasureQualifierCode with description from MeasureQualifierCodeRef.
-  mqc.ref <-  utils::read.csv(system.file("extdata", "WQXMeasureQualifierCodeRef.csv", package = "TADA")) %>%
-    dplyr::select(Code, Description) %>%
-    dplyr::group_by(Code) %>%
-    dplyr::mutate(Concat = paste(Code, "-", Description, collapse  ="")) %>%
-    dplyr::select(Code, Concat) %>%
-    dplyr::rename(MeasureQualifierCode = Code)
-  
-  mqc.TADA <- .data %>%
-    dplyr::mutate(MeasureQualifierCode = str_split(MeasureQualifierCode, ";")) %>%
-    tidyr::unnest(MeasureQualifierCode) %>%
-    merge(mqc.ref) %>%
-    dplyr::group_by(ResultIdentifier) %>%
-    dplyr::summarize(TADA.MeasureQualifierCode = paste(Concat, collapse = "; "))
-  
-  .data$TADA.MeasureQualifierCode <- mqc.TADA$TADA.MeasureQualifierCode[match(.data$ResultIdentifier, mqc.TADA$ResultIdentifier)]
-  
-  rm(mqc.ref, mqc.TADA)
-  
   # change latitude and longitude measures to class numeric
   .data$TADA.LatitudeMeasure <- as.numeric(.data$LatitudeMeasure)
   .data$TADA.LongitudeMeasure <- as.numeric(.data$LongitudeMeasure)

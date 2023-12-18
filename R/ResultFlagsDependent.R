@@ -624,6 +624,11 @@ TADA_AutoFilter <- function(.data) {
 #' @param flaggedonly Boolean argument; the default is flaggedonly = FALSE. When
 #' flaggedonly = TRUE, the function will filter the dataframe to show only the
 #' rows of data flagged as Suspect.
+#' 
+#' @param define Boolean argument; the default is define = TRUE. When define = TRUE,
+#' the function will add an additional column (TADA.MethodQualifierCode) providing 
+#' all available definitions for the MethodQualifierCodes for each result. When 
+#' define = FALSE, no additional column is added.
 #'
 #' @return This function adds the column "TADA.MeasureQualifierCode.Flag" to the dataframe
 #' which flags suspect samples based on the "MeasureQualifierCode" column. When
@@ -646,7 +651,7 @@ TADA_AutoFilter <- function(.data) {
 #'
 #' # Remove all suspect samples:
 #' MeasureQualifierCode_clean <- TADA_FlagMeasureQualifierCode(Data_6Tribes_5y, clean = TRUE)
-TADA_FlagMeasureQualifierCode <- function(.data, clean = FALSE, flaggedonly = FALSE) {
+TADA_FlagMeasureQualifierCode <- function(.data, clean = FALSE, flaggedonly = FALSE, define = TRUE) {
   # check .data is data.frame
   TADA_CheckType(.data, "data.frame", "Input object")
   # check that clean is boolean
@@ -680,6 +685,32 @@ TADA_FlagMeasureQualifierCode <- function(.data, clean = FALSE, flaggedonly = FA
     missing_codes <- paste(missing_codes, collapse = ", ")
     print(paste0("MeasureQualifierCode column in dataset contains value(s) ", missing_codes, " which is/are not represented in the MeasureQualifierCode WQX domain table. These data records are placed under the TADA.MeasureQualifierCode.Flag: 'uncategorized'. Please contact TADA administrators to resolve."))
   }
+  
+  # add TADA.MeasureQualifierCode, qualifier code definitions
+ # Create TADA.MeasureQualifierCode by concatenating MeasureQualifierCode with description from MeasureQualifierCodeRef.
+ if (define == FALSE) {
+   .data <- .data
+ }
+
+ if (define == TRUE) {
+   mqc.ref <- utils::read.csv(system.file("extdata", "WQXMeasureQualifierCodeRef.csv", package = "TADA")) %>%
+     dplyr::select(Code, Description) %>%
+     dplyr::group_by(Code) %>%
+     dplyr::mutate(Concat = paste(Code, "-", Description, collapse = "")) %>%
+     dplyr::select(Code, Concat) %>%
+     dplyr::rename(MeasureQualifierCode = Code)
+
+   mqc.TADA <- .data %>%
+     dplyr::mutate(MeasureQualifierCode = str_split(MeasureQualifierCode, ";")) %>%
+     tidyr::unnest(MeasureQualifierCode) %>%
+     merge(mqc.ref) %>%
+     dplyr::group_by(ResultIdentifier) %>%
+     dplyr::summarize(TADA.MeasureQualifierCode = paste(Concat, collapse = "; "))
+
+   .data$TADA.MeasureQualifierCode <- mqc.TADA$TADA.MeasureQualifierCode[match(.data$ResultIdentifier, mqc.TADA$ResultIdentifier)]
+
+   rm(mqc.ref, mqc.TADA)
+ }
 
   # populate flag column in data
   flag.data <- dplyr::left_join(.data, qc.ref, by = "MeasureQualifierCode")
@@ -721,6 +752,7 @@ TADA_FlagMeasureQualifierCode <- function(.data, clean = FALSE, flaggedonly = FA
     }
   }
 
+  
   # return final dataframe
   return(final.data)
 }
