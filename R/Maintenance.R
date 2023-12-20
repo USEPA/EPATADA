@@ -1,5 +1,6 @@
 #' Update TADA Reference Files
 #' @return Saves updated reference files
+#' This is only needed for ref tables in WQXRefTables.R
 #'
 TADA_UpdateAllRefs <- function() {
   TADA_UpdateWQXCharValRef()
@@ -87,6 +88,24 @@ TADA_UpdateExampleData <- function() {
   rm(Data_NCTCShepherdstown_HUC12)
 }
 
+## Find char-frac-spec-unit combos not present in TADA HarmonizationTemplate. 
+## Add new combinations when found to the HarmonizationTemplate.csv and 
+## NPsummation_key.csv (if relevant to TN or TP summation).
+
+FindSynonyms <- function() {
+  test <- TADA_RandomNationalTestingSet()
+  test1 <- TADA_RunKeyFlagFunctions(test)
+  ref <- TADA_GetSynonymRef()
+  ref_chars <- unique(ref$TADA.CharacteristicName)
+  test_chars <- unique(subset(test1, test1$TADA.CharacteristicName%in%ref_chars)[,c("TADA.CharacteristicName","TADA.ResultSampleFractionText","TADA.MethodSpecificationName","TADA.ResultMeasure.MeasureUnitCode")])
+  test_chars_ref <- merge(test_chars, ref, all.x = TRUE)
+  new_combos <- subset(test_chars_ref, is.na(test_chars_ref$HarmonizationGroup))[,c("TADA.CharacteristicName","TADA.ResultSampleFractionText","TADA.MethodSpecificationName","TADA.ResultMeasure.MeasureUnitCode")]
+  if(dim(new_combos)[1]>0){
+    print("New combinations found in random dataset test.")
+  }
+  return(new_combos)
+}
+
 
 # TADA_OvernightTesting
 #
@@ -108,7 +127,7 @@ TADA_UpdateExampleData <- function() {
 #
 #   for (i in 1:num_iterations) {
 #
-#     testing <- TADA_RandomTestingSet()
+#     testing <- TADA_RandomNationalTestingSet()
 #
 #     testing2 <- TADA_FlagMeasureQualifierCode(testing)
 #

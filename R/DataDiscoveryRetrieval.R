@@ -493,7 +493,6 @@ TADA_BigDataRetrieval <- function(startDate = "null",
   }
 
   if (!"null" %in% statecode) {
-    # state_cd_cont = utils::read.csv(file = "inst/extdata/statecode.csv",colClasses=c("STATE"="character"))
     load(system.file("extdata", "statecodes_df.Rdata", package = "TADA"))
     statecode <- as.character(statecode)
     statecodes_sub <- statecodes_df %>% dplyr::filter(STUSAB %in% statecode)
@@ -744,6 +743,7 @@ TADA_JoinWQPProfiles <- function(FullPhysChem = "null",
   if (length(Projects.df) > 1) {
     if (nrow(Projects.df) > 0) {
       join3 <- join2 %>%
+        
         dplyr::left_join(
           dplyr::select(
             Projects.df, OrganizationIdentifier, OrganizationFormalName,
@@ -755,7 +755,9 @@ TADA_JoinWQPProfiles <- function(FullPhysChem = "null",
             "OrganizationIdentifier", "OrganizationFormalName",
             "ProjectIdentifier", "ProjectName"
           ),
-          multiple = "all"
+          multiple = "all",
+          # need to specify that this is expected to be a 1-to-many relationship 
+          relationship = "many-to-many"
         )
     } else {
       join3 <- join2

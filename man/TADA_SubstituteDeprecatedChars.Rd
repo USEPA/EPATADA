@@ -21,5 +21,5 @@ run within TADA_Autoclean, which runs within TADA_DataRetreival and (if autoclea
 in TADA_BigDataRetrieval. Therefore, deprecated characteristic names are
 harmonized to their current name automatically upon data retrieval.
 TADA_SubstituteDeprecatedChars can also be used by itself on a user supplied
-dataset that is in the WQX format, if desired.
+dataset that is in the WQX format, if desired. This solution works for both EPA WQX and USGS NWIS provided data.
 }

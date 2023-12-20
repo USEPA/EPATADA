@@ -251,3 +251,4 @@ WATER,"TOTAL PHOSPHORUS, MIXED FORMS",TOTAL,NA,NA,Assumed as P,NA,PHOSP,2,NA,Pho
 WATER,"TOTAL PHOSPHORUS, MIXED FORMS",UNFILTERED,Assumes Unfiltered is equivalent to Total,AS P,NA,NA,PHOSP,1,NA,Phosphorus
 WATER,"TOTAL PHOSPHORUS, MIXED FORMS",UNFILTERED,Assumes Unfiltered is equivalent to Total,AS PO4,Convert AS PO4 to AS P,0.326,PO4,7,"Not explicity included in Nutrient Aggregation Sheet, but similar enough to EDH to be given rank anyway. Expert review suggested.",Phosphorus
 WATER,"TOTAL PHOSPHORUS, MIXED FORMS",UNFILTERED,Assumes Unfiltered is equivalent to Total,NA,Assumed as P,NA,PHOSP,2,NA,Phosphorus
+WATER,AMMONIA-NITROGEN,"FILTERED, FIELD","Assumes FILTERED, FIELD is equals dissolved fraction",AS N,NA,NA,AMMON,12,"Not explicity included in Nutrient Aggregation Sheet, but similar enough CM to be given rank anyway. Expert review suggested.",Nitrogen

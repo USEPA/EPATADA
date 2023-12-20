@@ -8,6 +8,7 @@ TADA_UpdateAllRefs()
 }
 \value{
 Saves updated reference files
+This is only needed for ref tables in WQXRefTables.R
 }
 \description{
 Update TADA Reference Files
