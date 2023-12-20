@@ -50,7 +50,7 @@ utils::globalVariables(c(
   "SummationName", "SummationRank", "SummationFractionNotes", "SummationSpeciationNotes",
   "SummationSpeciationConversionFactor", "SummationNote", "NutrientGroup",
   "Target.Speciation", "TADA.NearbySiteGroups", "numres", "TADA.SingleOrgDupGroupID",
-  "TADA.MeasureQualifierCode.Flag", "MeasureQualifierCode", "TADA.MeasureQualifierCode", "value", "Flag_Column",
+  "TADA.MeasureQualifierCode.Flag", "MeasureQualifierCode", "TADA.MeasureQualifierCode.Define", "value", "Flag_Column",
   "Data_NCTCShepherdstown_HUC12", "ActivityStartDateTime", "TADA.MultipleOrgDupGroupID",
   "TADA.WQXVal.Flag"
 ))
@@ -591,7 +591,7 @@ TADA_OrderCols <- function(.data) {
     "TADA.ResultMeasureValueDataTypes.Flag",
     "TADA.ResultValueAggregation.Flag",
     "TADA.MeasureQualifierCode.Flag",
-    "TADA.MeasureQualifierCode",
+    "TADA.MeasureQualifierCode.Define",
     "TADA.CensoredData.Flag",
     "TADA.CensoredMethod",
     "TADA.NutrientSummation.Flag",
