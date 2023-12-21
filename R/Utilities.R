@@ -1158,6 +1158,8 @@ TADA_CheckRequiredFields <- function(.data) {
     "TADA.ResultMeasureValueDataTypes.Flag",
     "TADA.LatitudeMeasure",
     "TADA.LongitudeMeasure",
+    "TADA.MeasureQualifierCode.Def", 
+    "TADA.MeasureQualifierCode.Flag", 
     "OrganizationFormalName",
     "ActivityTypeCode",
     "ActivityMediaName",

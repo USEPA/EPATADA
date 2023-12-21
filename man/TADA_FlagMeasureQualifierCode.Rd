@@ -24,7 +24,7 @@ flaggedonly = TRUE, the function will filter the dataframe to show only the
 rows of data flagged as Suspect.}
 
 \item{define}{Boolean argument; the default is define = TRUE. When define = TRUE,
-the function will add an additional column (TADA.MethodQualifierCode.Def) providing
+the function will add an additional column (TADA.MeasureQualifierCode.Def) providing
 all available definitions for the MethodQualifierCodes for each result. When
 define = FALSE, no additional column is added.}
 }
