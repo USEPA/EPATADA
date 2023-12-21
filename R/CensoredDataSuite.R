@@ -65,9 +65,9 @@ TADA_IDCensoredData <- function(.data) {
     ## Flag censored data that does not have det cond populated
     cens$TADA.Detection_Type <- ifelse(is.na(cens$ResultDetectionConditionText), "ResultDetectionConditionText missing", cens$TADA.Detection_Type)
 
-    ## Fill in detection type when text result measure value indicates it is a nondetect
-    cens$TADA.Detection_Type <- ifelse(cens$ResultMeasureValue %in% 
-                                         c("ND", "BPQL", "BDL"), 
+    ## Fill in detection type when TADA.MeasureQualifierCode.Flag indicates it is a nondetect
+    cens$TADA.Detection_Type <- ifelse(cens$TADA.MeasureQualifierCode.Flag ==
+                                         "Non-Detect",
                                        "Non-Detect", 
                                        cens$TADA.Detection_Type)
 
@@ -104,6 +104,7 @@ TADA_IDCensoredData <- function(.data) {
     ## Create flag for condition and limit type combinations
     cens$TADA.CensoredData.Flag <- "Detection condition or detection limit is not documented in TADA reference tables."
     cens$TADA.CensoredData.Flag <- ifelse(cens$TADA.Detection_Type %in% c("ResultDetectionConditionText missing"), "Detection condition is missing and required for censored data ID.", cens$TADA.CensoredData.Flag)
+    cens$TADA.CensoredData.Flag <- ifelse(cens$TADA.Detection_Type %in% c("Non-Detect") & cens$TADA.Limit_Type %in% c("Non-Detect"), "Non-Detect", cens$TADA.CensoredData.Flag)
     cens$TADA.CensoredData.Flag <- ifelse(cens$TADA.Detection_Type %in% c("Non-Detect") & cens$TADA.Limit_Type %in% c("Non-Detect"), "Non-Detect", cens$TADA.CensoredData.Flag)
     cens$TADA.CensoredData.Flag <- ifelse(cens$TADA.Detection_Type %in% c("Over-Detect") & cens$TADA.Limit_Type %in% c("Over-Detect"), "Over-Detect", cens$TADA.CensoredData.Flag)
     cens$TADA.CensoredData.Flag <- ifelse(cens$TADA.Detection_Type %in% c("Other") & cens$TADA.Limit_Type %in% c("Other"), "Other Condition/Limit Populated", cens$TADA.CensoredData.Flag)
