@@ -65,10 +65,15 @@ TADA_IDCensoredData <- function(.data) {
     ## Flag censored data that does not have det cond populated
     cens$TADA.Detection_Type <- ifelse(is.na(cens$ResultDetectionConditionText), "ResultDetectionConditionText missing", cens$TADA.Detection_Type)
 
-    ## Fill in detection type when TADA.MeasureQualifierCode.Flag indicates it is a nondetect
-    cens$TADA.Detection_Type <- ifelse(cens$TADA.MeasureQualifierCode.Flag ==
-                                         "Non-Detect",
-                                       "Non-Detect", 
+    ## Fill in detection type when ResultMeasureValue indicates it is a nondetect
+    ## should be blank in result value so that the rest of the function can work 
+    nd.rmv.list <- utils::read.csv(system.file("extdata", "WQXMeasureQualifierCodeRef.csv", package = "TADA")) %>%
+      dplyr::filter(TADA.MeasureQualifierCode.Flag == "Non-Detect") %>%
+      dplyr::select(Code) %>% dplyr::pull()
+    
+    cens$TADA.Detection_Type <- ifelse(cens$ResultMeasureValue %in%
+                                         nd.rmv.list,
+                                       "Non-Detect",
                                        cens$TADA.Detection_Type)
 
     ## Let user know when detection condition text is missing from one or more results
