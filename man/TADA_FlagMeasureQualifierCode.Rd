@@ -4,7 +4,12 @@
 \alias{TADA_FlagMeasureQualifierCode}
 \title{Check for results with suspect result Measure Qualifier Codes}
 \usage{
-TADA_FlagMeasureQualifierCode(.data, clean = FALSE, flaggedonly = FALSE)
+TADA_FlagMeasureQualifierCode(
+  .data,
+  clean = FALSE,
+  flaggedonly = FALSE,
+  define = TRUE
+)
 }
 \arguments{
 \item{.data}{TADA dataframe which must include the column 'MeasureQualifierCode'}
@@ -17,6 +22,11 @@ will be removed.}
 \item{flaggedonly}{Boolean argument; the default is flaggedonly = FALSE. When
 flaggedonly = TRUE, the function will filter the dataframe to show only the
 rows of data flagged as Suspect.}
+
+\item{define}{Boolean argument; the default is define = TRUE. When define = TRUE,
+the function will add an additional column (TADA.MeasureQualifierCode.Def) providing
+all available definitions for the MethodQualifierCodes for each result. When
+define = FALSE, no additional column is added.}
 }
 \value{
 This function adds the column "TADA.MeasureQualifierCode.Flag" to the dataframe
