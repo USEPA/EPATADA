@@ -727,7 +727,7 @@ TADA_FlagMeasureQualifierCode <- function(.data, clean = FALSE, flaggedonly = FA
     missing_codes <- codes[!codes %in% qc.ref$MeasureQualifierCode]
     missing_codes_df <- data.frame(
       MeasureQualifierCode = missing_codes,
-      TADA.MeasureQualifierCode.Flag = "uncategorized",
+      TADA.MeasureQualifierCode.Flag = "Not Reviewed",
       Description = ""
     )
     qc.ref <- rbind(qc.ref, missing_codes_df)
