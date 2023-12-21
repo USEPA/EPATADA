@@ -75,6 +75,8 @@ TADA_IDCensoredData <- function(.data) {
                                          nd.rmv.list,
                                        "Non-Detect",
                                        cens$TADA.Detection_Type)
+    
+    rm(nd.rmv.list)
 
     ## Let user know when detection condition text is missing from one or more results
     # NOTE that at this point, TADA.Detection_Type may be NA if there are detection conditions in dataset that are not present in domain table
