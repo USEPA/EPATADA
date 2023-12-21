@@ -565,7 +565,7 @@ TADA_FindQCActivities <- function(.data, clean = FALSE, flaggedonly = FALSE) {
 #' prepare a dataframe for quantitative analyses. Ideally, this function should
 #' be run after other data cleaning, QA/QC, and harmonization steps are
 #' completed using other TADA package functions, or manually. Specifically, .
-#' this function removes rows with "Text","Coerced to NA", and "Blank"
+#' this function removes rows with "Text","Coerced to NA", and "NA - Not Applicable"
 #' in the TADA.ResultMeasureValueDataTypes.Flag column, or NA in the
 #' TADA.ResultMeasureValue column.
 #'
@@ -593,7 +593,7 @@ TADA_AutoFilter <- function(.data) {
     "ActivityTypeCode"
   ))
 
-  autofilter <- dplyr::filter(.data, TADA.ResultMeasureValueDataTypes.Flag != "Blank" &
+  autofilter <- dplyr::filter(.data, TADA.ResultMeasureValueDataTypes.Flag != "NA - Not Applicable" &
     TADA.ResultMeasureValueDataTypes.Flag != "Text" &
     TADA.ResultMeasureValueDataTypes.Flag != "Coerced to NA" &
     !is.na(TADA.ResultMeasureValue)) # &
@@ -651,6 +651,10 @@ TADA_AutoFilter <- function(.data) {
 #'
 #' # Remove all suspect samples:
 #' MeasureQualifierCode_clean <- TADA_FlagMeasureQualifierCode(Data_6Tribes_5y, clean = TRUE)
+#' 
+#' # Remove all suspect samples and DO NOT include a new column with 
+#' # qualifier definitions (TADA.MeasureQualifierCode.Def):
+#' MeasureQualifierCode_clean_nodefs <- TADA_FlagMeasureQualifierCode(Data_6Tribes_5y, clean = TRUE, define = FALSE)
 TADA_FlagMeasureQualifierCode <- function(.data, clean = FALSE, flaggedonly = FALSE, define = TRUE) {
   # check .data is data.frame
   TADA_CheckType(.data, "data.frame", "Input object")
@@ -734,9 +738,9 @@ TADA_FlagMeasureQualifierCode <- function(.data, clean = FALSE, flaggedonly = FA
     missing_codes <- paste(missing_codes, collapse = ", ")
     print(paste0("MeasureQualifierCode column in dataset contains value(s) ", missing_codes, " which is/are not represented in the MeasureQualifierCode WQX domain table. These data records are placed under the TADA.MeasureQualifierCode.Flag: 'uncategorized'. Please contact TADA administrators to resolve."))
   }
-
-  # rename ResultMeasureQualifier NA values to Pass in TADA.MeasureQualifierCode.Flag column, not needed?
-  # flag.data["TADA.MeasureQualifierCode.Flag"][is.na(flag.data["MeasureQualifierCode"])] <- "Pass"
+  
+  # rename ResultMeasureQualifier NA values to Pass in TADA.MeasureQualifierCode.Flag column
+  flag.data["TADA.MeasureQualifierCode.Flag"][is.na(flag.data["MeasureQualifierCode"])] <- "NA - Not Applicable"
 
   # clean dataframe
   # if clean = FALSE, return full dataframe
@@ -772,6 +776,7 @@ TADA_FlagMeasureQualifierCode <- function(.data, clean = FALSE, flaggedonly = FA
   }
 
   
+  final.data <- TADA_OrderCols(final.data)
   # return final dataframe
   return(final.data)
 }
