@@ -131,7 +131,7 @@ FindSynonyms <- function() {
 #
 #     testing2 <- TADA_FlagMeasureQualifierCode(testing)
 #
-#     #expect_true(all(testing2$TADA.MeasureQualifierCode.Flag != "uncategorized"))
+#     #expect_true(all(testing2$TADA.MeasureQualifierCode.Flag != "Not Reviewed"))
 #
 #     #print(unique(testing2$TADA_FlagMeasureQualifierCode))
 #     #print(unique(testing2$MeasureQualifierCode))
@@ -144,7 +144,7 @@ FindSynonyms <- function() {
 #     codes = unique(testing2$MeasureQualifierCode)
 #     missing_codes = codes[!codes %in% qc.ref$MeasureQualifierCode]
 #
-#     missing_codes_df <- data.frame(MeasureQualifierCode = missing_codes, TADA.MeasureQualifierCode.Flag = "uncategorized")
+#     missing_codes_df <- data.frame(MeasureQualifierCode = missing_codes, TADA.MeasureQualifierCode.Flag = "Not Reviewed")
 #
 #     View(missing_codes_df)
 #
