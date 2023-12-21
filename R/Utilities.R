@@ -50,7 +50,7 @@ utils::globalVariables(c(
   "SummationName", "SummationRank", "SummationFractionNotes", "SummationSpeciationNotes",
   "SummationSpeciationConversionFactor", "SummationNote", "NutrientGroup",
   "Target.Speciation", "TADA.NearbySiteGroups", "numres", "TADA.SingleOrgDupGroupID",
-  "TADA.MeasureQualifierCode.Flag", "MeasureQualifierCode", "TADA.MeasureQualifierCode.Define", "value", "Flag_Column",
+  "TADA.MeasureQualifierCode.Flag", "TADA.MeasureQualifierCode.Def", "MeasureQualifierCode", "value", "Flag_Column",
   "Data_NCTCShepherdstown_HUC12", "ActivityStartDateTime", "TADA.MultipleOrgDupGroupID",
   "TADA.WQXVal.Flag"
 ))
@@ -208,7 +208,7 @@ TADA_AutoClean <- function(.data) {
 
   # Identify QC data
   .data <- TADA_FindQCActivities(.data, clean = FALSE, flaggedonly = FALSE)
-  
+
   # change latitude and longitude measures to class numeric
   .data$TADA.LatitudeMeasure <- as.numeric(.data$LatitudeMeasure)
   .data$TADA.LongitudeMeasure <- as.numeric(.data$LongitudeMeasure)
@@ -591,7 +591,7 @@ TADA_OrderCols <- function(.data) {
     "TADA.ResultMeasureValueDataTypes.Flag",
     "TADA.ResultValueAggregation.Flag",
     "TADA.MeasureQualifierCode.Flag",
-    "TADA.MeasureQualifierCode.Define",
+    "TADA.MeasureQualifierCode.Def",
     "TADA.CensoredData.Flag",
     "TADA.CensoredMethod",
     "TADA.NutrientSummation.Flag",
