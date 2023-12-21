@@ -626,7 +626,7 @@ TADA_AutoFilter <- function(.data) {
 #' rows of data flagged as Suspect.
 #' 
 #' @param define Boolean argument; the default is define = TRUE. When define = TRUE,
-#' the function will add an additional column (TADA.MethodQualifierCode) providing 
+#' the function will add an additional column (TADA.MethodQualifierCode.Def) providing 
 #' all available definitions for the MethodQualifierCodes for each result. When 
 #' define = FALSE, no additional column is added.
 #'
@@ -690,9 +690,9 @@ TADA_FlagMeasureQualifierCode <- function(.data, clean = FALSE, flaggedonly = FA
      tidyr::unnest(MeasureQualifierCode) %>%
      merge(mqc.ref) %>%
      dplyr::group_by(ResultIdentifier) %>%
-     dplyr::summarize(TADA.MeasureQualifierCode.Define = paste(Concat, collapse = "; "))
+     dplyr::summarize(TADA.MeasureQualifierCode.Def = paste(Concat, collapse = "; "))
 
-   .data$TADA.MeasureQualifierCode.Define <- mqc.TADA$TADA.MeasureQualifierCode.Define[match(.data$ResultIdentifier, mqc.TADA$ResultIdentifier)]
+   .data$TADA.MeasureQualifierCode.Def <- mqc.TADA$TADA.MeasureQualifierCode.Def[match(.data$ResultIdentifier, mqc.TADA$ResultIdentifier)]
 
    rm(mqc.ref, mqc.TADA)
  }
