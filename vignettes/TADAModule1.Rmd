@@ -75,7 +75,7 @@ remotes::install_github("USEPA/TADA",
 # when developing the package, update this chunk to the current repository branch, so it runs with all of the new features prior to a PR to develop
 
 remotes::install_github("USEPA/TADA",
-  ref = "12-7-23-cm",
+  ref = "cm-harmonize",
   dependencies = TRUE
 )
 ```
@@ -754,15 +754,20 @@ TADA_FieldValuesPie(TADAProfileClean4, "MeasureQualifierCode")
 ```
 
 MeasureQualifierCode definitions are available
-[here](https://cdx.epa.gov/wqx/download/DomainValues/ResultMeasureQualifier.CSV){style="font-size: 12pt;"}.
+[here](https://cdx.epa.gov/wqx/download/DomainValues/ResultMeasureQualifier.CSV){style="font-size: 12pt;"}. TADA_FlagMeasureQualifierCode will automatically add applicable definitions to the input dataframe in a new column
+called "TADA.MeasureQualifierCode.Def". 
 
-In this example, we show how to use the function TADA_FlagMeasureQualifierCode to remove rows with specific ResultMeasureQualifier that are flagged as "SUSPECT". There 
+
+In this example, we show how to use the function TADA_FlagMeasureQualifierCode to add definitiond and flag and/or remove rows with specific codes under MeasureQualifierCode that are categorized as "SUSPECT". 
+
 See ?TADA_FlagMeasureQualifierCode for more information. 
 
 ```{r FilterMeasureQualifierCodes}
+# flag only 
 Review_TADAProfileClean4 <- TADA_FlagMeasureQualifierCode(TADAProfileClean4,
   clean = FALSE,
-  flaggedonly = TRUE
+  flaggedonly = TRUE, 
+  define = TRUE
 )
 # Review_TADAProfileClean4 is empty because we did not find any Suspect samples
 
@@ -856,10 +861,10 @@ sum(is.na(TADAProfileClean4$TADA.ResultMeasureValue))
 ```
 
 Filter down to only numeric data. Remove data where the
-TADA.ResultMeasureValueDataTypes.Flag = "Text","Coerced to NA",or "Blank".
+TADA.ResultMeasureValueDataTypes.Flag = "Text","Coerced to NA",or "NA - Not Applicable".
 
 ```{r filter_out_NAs}
-# Removes rows where the result value is not numeric. Specifically, removes rows with "Text","Coerced to NA", or "Blank" in the TADA.ResultMeasureValueDataTypes.Flag column, or NA in the TADA.ResultMeasureValue column.
+# Removes rows where the result value is not numeric. Specifically, removes rows with "Text","Coerced to NA", or "NA - Not Applicable" in the TADA.ResultMeasureValueDataTypes.Flag column, or NA in the TADA.ResultMeasureValue column.
 TADAProfileClean5 <- TADA_AutoFilter(TADAProfileClean4)
 ```
 

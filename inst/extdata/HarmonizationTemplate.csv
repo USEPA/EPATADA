@@ -2,30 +2,30 @@ TADA.CharacteristicName,Target.TADA.CharacteristicName,TADA.CharacteristicNameAs
 AMMONIA,NA,NA,DISSOLVED,FILTERED,Assumes DISSOLVED and TOTAL SOLUBLE are equivalent to FILTERED. FILTERED is precise and preferred.,AS N,NA,NA,NA,UG/L,MG/L,0.001,Nitrogen
 AMMONIA,NA,NA,DISSOLVED,FILTERED,Assumes DISSOLVED and TOTAL SOLUBLE are equivalent to FILTERED. FILTERED is precise and preferred.,AS NH3,AS N,Converts speciation and result values from AS NH3 to AS N,0.822,UG/L,MG/L,0.001,Nitrogen
 AMMONIA,NA,NA,DISSOLVED,FILTERED,Assumes DISSOLVED and TOTAL SOLUBLE are equivalent to FILTERED. FILTERED is precise and preferred.,AS NH4,AS N,Converts speciation and result values from AS NH4 to AS N,0.776,UG/L,MG/L,0.001,Nitrogen
-AMMONIA,NA,NA,DISSOLVED,FILTERED,Assumes DISSOLVED and TOTAL SOLUBLE are equivalent to FILTERED. FILTERED is precise and preferred.,NA,NA,NA,NA,UG/L,MG/L,0.001,Nitrogen
+AMMONIA,NA,NA,DISSOLVED,FILTERED,Assumes DISSOLVED and TOTAL SOLUBLE are equivalent to FILTERED. FILTERED is precise and preferred.,NA,AS N,Assumes original speciation for AMMONIA is AS NH3 and converts to AS N,0.822,UG/L,MG/L,0.001,Nitrogen
 AMMONIA,NA,NA,FILTERABLE,FILTERED,"Assumes FILTERED, LAB and FILTERED, FIELD are equivalent to FILTERABLE and FILTERED. FILTERED is precise and preferred.",AS N,NA,NA,NA,UG/L,MG/L,0.001,Nitrogen
 AMMONIA,NA,NA,FILTERABLE,FILTERED,"Assumes FILTERED, LAB and FILTERED, FIELD are equivalent to FILTERABLE and FILTERED. FILTERED is precise and preferred.",AS NH3,AS N,Converts speciation and result values from AS NH3 to AS N,0.822,UG/L,MG/L,0.001,Nitrogen
 AMMONIA,NA,NA,FILTERED,NA,NA,AS N,NA,NA,NA,UG/L,MG/L,0.001,Nitrogen
-AMMONIA,NA,NA,FILTERED,NA,NA,NA,NA,NA,NA,UG/L,MG/L,0.001,Nitrogen
+AMMONIA,NA,NA,FILTERED,NA,NA,NA,AS N,Assumes original speciation for AMMONIA is AS NH3 and converts to AS N,0.822,UG/L,MG/L,0.001,Nitrogen
 AMMONIA,NA,NA,"FILTERED, FIELD",FILTERED,"Assumes FILTERED, LAB and FILTERED, FIELD are equivalent to FILTERABLE and FILTERED. FILTERED is precise and preferred.",AS N,NA,NA,NA,UG/L,MG/L,0.001,Nitrogen
 AMMONIA,NA,NA,"FILTERED, LAB",FILTERED,"Assumes FILTERED, LAB and FILTERED, FIELD are equivalent to FILTERABLE and FILTERED. FILTERED is precise and preferred.",AS N,NA,NA,NA,UG/L,MG/L,0.001,Nitrogen
-AMMONIA,NA,NA,INORGANIC,NA,NA,AS N,NA,NA,NA,UG/L,MG/L,0.001,Nitrogen
+AMMONIA,NA,NA,INORGANIC,FILTERED,NA,AS N,NA,NA,NA,UG/L,MG/L,0.001,Nitrogen
 AMMONIA,NA,NA,SUPERNATE,NA,NA,AS N,NA,NA,NA,UG/L,MG/L,0.001,Nitrogen
 AMMONIA,NA,NA,TOTAL,UNFILTERED,"Assumes AMMONIA, TOTAL, AS N is synonymous to AMMONIA, UNFILTERED, AS N.",AS N,NA,NA,NA,UG/L,MG/L,0.001,Nitrogen
 AMMONIA,NA,NA,TOTAL,UNFILTERED,"Assumes AMMONIA, TOTAL, AS NH3 is synonymous to AMMONIA, UNFILTERED, AS N after conversion.",AS NH3,AS N,Converts speciation and result values from AS NH3 to AS N,0.822,UG/L,MG/L,0.001,Nitrogen
 AMMONIA,NA,NA,TOTAL,UNFILTERED,"Assumes AMMONIA, TOTAL, AS NH4 is synonymous to AMMONIA, UNFILTERED, AS N after conversion.",AS NH4,AS N,Converts speciation and result values from AS NH4 to AS N,0.776,UG/L,MG/L,0.001,Nitrogen
 AMMONIA,NA,NA,TOTAL,UNFILTERED,"Assumes AMMONIA, TOTAL is synonymous to AMMONIA, UNFILTERED, AS N.",NA,AS N,Assumes AS N,NA,UG/L,MG/L,0.001,Nitrogen
 AMMONIA,NA,NA,TOTAL RECOVERABLE,UNFILTERED,"Assumes AMMONIA, TOTAL RECOVERABLE, AS N is synonymous to AMMONIA, UNFILTERED, AS N.",AS N,NA,NA,NA,UG/L,MG/L,0.001,Nitrogen
-AMMONIA,NA,NA,TOTAL SOLUBLE,FILTERED,Assumes DISSOLVED and TOTAL SOLUBLE are equivalent to FILTERED. FILTERED is precise and preferred.,NA,NA,NA,NA,UG/L,MG/L,0.001,Nitrogen
+AMMONIA,NA,NA,TOTAL SOLUBLE,FILTERED,Assumes DISSOLVED and TOTAL SOLUBLE are equivalent to FILTERED. FILTERED is precise and preferred.,NA,AS N,Assumes original speciation for AMMONIA is AS NH3 and converts to AS N,0.822,UG/L,MG/L,0.001,Nitrogen
 AMMONIA,NA,NA,UNFILTERED,NA,NA,AS N,NA,NA,NA,UG/L,MG/L,0.001,Nitrogen
 AMMONIA,NA,NA,UNFILTERED,NA,NA,AS NH3,AS N,Converts speciation and result values from AS NH3 to AS N,0.822,UG/L,MG/L,0.001,Nitrogen
-AMMONIA,NA,NA,UNFILTERED,NA,NA,NA,NA,NA,NA,UG/L,MG/L,0.001,Nitrogen
+AMMONIA,NA,NA,UNFILTERED,NA,NA,NA,AS N,Assumes original speciation for AMMONIA is AS NH3 and converts to AS N,0.822,UG/L,MG/L,0.001,Nitrogen
 AMMONIA,NA,NA,NA,NA,NA,AS N,NA,NA,NA,UG/L,MG/L,0.001,Nitrogen
 AMMONIA,NA,NA,NA,NA,NA,AS NH3,AS N,Converts speciation and result values from AS NH3 to AS N,0.822,UG/L,MG/L,0.001,Nitrogen
 AMMONIA-NITROGEN,AMMONIA,Assumes AMMONIA-NITROGEN is synonymous to AMMONIA.,DISSOLVED,FILTERED,Assumes DISSOLVED and TOTAL SOLUBLE are equivalent to FILTERED. FILTERED is precise and preferred.,AS N,NA,NA,NA,UG/L,MG/L,0.001,Nitrogen
 AMMONIA-NITROGEN,AMMONIA,Assumes AMMONIA-NITROGEN is synonymous to AMMONIA.,DISSOLVED,FILTERED,Assumes DISSOLVED and TOTAL SOLUBLE are equivalent to FILTERED. FILTERED is precise and preferred.,AS NH3,AS N,Converts speciation and result values from AS NH3 to AS N,0.822,UG/L,MG/L,0.001,Nitrogen
 AMMONIA-NITROGEN,AMMONIA,Assumes AMMONIA-NITROGEN is synonymous to AMMONIA.,DISSOLVED,FILTERED,Assumes DISSOLVED and TOTAL SOLUBLE are equivalent to FILTERED. FILTERED is precise and preferred.,AS NH4,AS N,Converts speciation and result values from AS NH4 to AS N,0.776,UG/L,MG/L,0.001,Nitrogen
-AMMONIA-NITROGEN,AMMONIA,Assumes AMMONIA-NITROGEN is synonymous to AMMONIA.,DISSOLVED,FILTERED,Assumes DISSOLVED and TOTAL SOLUBLE are equivalent to FILTERED. FILTERED is precise and preferred.,NA,NA,NA,NA,UG/L,MG/L,0.001,Nitrogen
+AMMONIA-NITROGEN,AMMONIA,Assumes AMMONIA-NITROGEN is synonymous to AMMONIA.,DISSOLVED,FILTERED,Assumes DISSOLVED and TOTAL SOLUBLE are equivalent to FILTERED. FILTERED is precise and preferred.,NA,AS N,NA,NA,UG/L,MG/L,0.001,Nitrogen
 AMMONIA-NITROGEN,AMMONIA,Assumes AMMONIA-NITROGEN is synonymous to AMMONIA.,"FILTERED, LAB",FILTERED,"Assumes FILTERED, LAB and FILTERED are funtionally equivalent for data use.",AS N,NA,NA,NA,UG/L,MG/L,0.001,Nitrogen
 AMMONIA-NITROGEN,AMMONIA,Assumes AMMONIA-NITROGEN is synonymous to AMMONIA.,SUPERNATE,NA,NA,AS N,NA,NA,NA,UG/L,MG/L,0.001,Nitrogen
 AMMONIA-NITROGEN,AMMONIA,Assumes AMMONIA-NITROGEN is synonymous to AMMONIA.,TOTAL,UNFILTERED,"Assumes AMMONIA-NITROGEN, TOTAL is synonymous to AMMONIA, UNFILTERED",AS N,NA,NA,NA,UG/L,MG/L,0.001,Nitrogen
@@ -44,7 +44,7 @@ AMMONIUM,NA,NA,DISSOLVED,FILTERED,Assumes DISSOLVED and TOTAL SOLUBLE are equiva
 AMMONIUM,NA,NA,FILTERABLE,FILTERED,"Assumes FILTERED, LAB and FILTERED, FIELD are equivalent to FILTERABLE and FILTERED. FILTERED is precise and preferred.",AS NH4,AS N,Converts speciation and result values from AS NH4 to AS N,0.776,UG/L,MG/L,0.001,Nitrogen
 AMMONIUM,NA,NA,FILTERED,NA,NA,AS N,NA,NA,NA,UG/L,MG/L,0.001,Nitrogen
 AMMONIUM,NA,NA,"FILTERED, LAB",FILTERED,"Assumes FILTERED, LAB and FILTERED, FIELD are equivalent to FILTERABLE and FILTERED. FILTERED is precise and preferred.",AS N,NA,NA,NA,UG/L,MG/L,0.001,Nitrogen
-AMMONIUM,NA,NA,TOTAL,UNFILTERED,"Assumes AMMONIA AND AMMONIUM, TOTAL is synonymous to AMMONIA AND AMMONIUM, UNFILTERED.",NA,NA,NA,NA,UG/L,MG/L,0.001,Nitrogen
+AMMONIUM,NA,NA,TOTAL,UNFILTERED,"Assumes AMMONIA AND AMMONIUM, TOTAL is synonymous to AMMONIA AND AMMONIUM, UNFILTERED.",NA,AS N,Assumes original speciation for AMMONIUM is AS NH4 and converts values to AS N,0.776,UG/L,MG/L,0.001,Nitrogen
 AMMONIUM,NA,NA,UNFILTERED,NA,NA,AS N,NA,NA,NA,UG/L,MG/L,0.001,Nitrogen
 AMMONIUM    ,NA,NA,FILTERABLE,FILTERED,"Assumes FILTERED, LAB and FILTERED, FIELD are equivalent to FILTERABLE and FILTERED. FILTERED is precise and preferred.",AS N,NA,NA,NA,UG/L,MG/L,0.001,Nitrogen
 AMMONIUM    ,NA,NA,FILTERED,NA,NA,AS N,NA,NA,NA,UG/L,MG/L,0.001,Nitrogen
