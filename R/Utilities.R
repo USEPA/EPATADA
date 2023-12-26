@@ -1267,3 +1267,115 @@ TADA_AutoFilter <- function(.data) {
 
   return(.data)
 }
+
+#' TADA_RetainRequired
+#'
+#' This function removes all duplicate columns where TADA has created a new column with a TADA prefix.
+#' It retains all TADA prefixed columns as well as other original fields that are either required by
+#' other TADA functions or are commonly used filters.
+#' Using this function allows the user to accept all TADA created changes and reduce the size
+#' of the data set before using TADA mapping or data visualization features in the R package or Shiny app.
+#'
+#' @param .data A dataframe
+#'
+#' @return A dataframe containing all required fields for use with TADA as well as fields commonly used for filtering.
+#'
+
+TADA_RetainRequired <- function(.data) {
+  .data <- .data %>%
+    select(#can be used for filtering
+           "ProjectDescriptionText",
+           "SamplingDesignTypeCode",
+           "ActivityStartDate",
+           "ActivityStartTime.Time",
+           "ActivityStartTime.TimeZoneCode",
+           "ResultDepthAltitudeReferencePointText",
+           "ActivityDepthAltitudeReferencePointText",
+           "ProjectName",
+           "ActivityCommentText",
+           "HydrologicCondition",
+           "HydrologicEvent",
+           "MonitoringLocationName",
+           "SampleCollectionMethod.MethodIdentifier",
+           "SampleCollectionMethod.MethodIdentifierContext",
+           "SampleCollectionMethod.MethodName",
+           "SampleCollectionMethod.MethodDescriptionText",
+           "ActivityMediaSubdivisionName",
+           "DataQuality.PrecisionValue",
+           "DataQuality.BiasValue",
+           "DataQuality.ConfidenceIntervalValue",
+           "DataQuality.UpperConfidenceLimitValue",
+           "DataQuality.LowerConfidenceLimitValue",
+           "SubjectTaxonomicName",
+           "SampleTissueAnatomyName",
+           "ResultAnalyticalMethod.MethodIdentifier",
+           "ResultAnalyticalMethod.MethodIdentifierContext",
+           "ResultAnalyticalMethod.MethodName",
+           "ResultAnalyticalMethod.MethodUrl",
+           "ResultAnalyticalMethod.MethodDescriptionText",
+           "ResultCommentText",
+           "LaboratoryName",
+           "ResultLaboratoryCommentText",
+           "MonitoringLocationDescriptionText",
+           "HUCEightDigitCode",
+           "AquiferTypeName", # can be used to remove groundwater sites
+           "ConstructionDateText", # can be used to remove groundwater sites
+           "WellDepthMeasure.MeasureValue", # can be used to remove groundwater sites
+           "WellDepthMeasure.MeasureUnitCode", # can be used to remove groundwater sites
+           "WellHoleDepthMeasure.MeasureValue", # can be used to remove groundwater sites
+           "WellHoleDepthMeasure.MeasureUnitCode", # can be used to remove groundwater sites
+           "ProviderName",
+           "LastUpdated",
+           # required
+           "TADA.CharacteristicName",
+           "TADA.ResultSampleFractionText",
+           "TADA.MethodSpecificationName",
+           "TADA.ResultMeasure.MeasureUnitCode",
+           "TADA.ActivityMediaName",
+           "TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode",
+           "TADA.ResultMeasureValueDataTypes.Flag",
+           "TADA.LatitudeMeasure",
+           "TADA.LongitudeMeasure",
+           "OrganizationFormalName",
+           "ActivityTypeCode",
+           "ActivityMediaName",
+           "MonitoringLocationTypeName",
+           "ActivityStartDateTime",
+           "CharacteristicName",
+           "ResultSampleFractionText",
+           "MethodSpecificationName",
+           "ResultMeasureValue",
+           "ResultMeasure.MeasureUnitCode",
+           "ResultDetectionConditionText",
+           "DetectionQuantitationLimitTypeName",
+           "DetectionQuantitationLimitMeasure.MeasureValue",
+           "DetectionQuantitationLimitMeasure.MeasureUnitCode",
+           "ResultDepthHeightMeasure.MeasureValue",
+           "ResultDepthHeightMeasure.MeasureUnitCode",
+           "ActivityRelativeDepthName",
+           "ActivityDepthHeightMeasure.MeasureValue",
+           "ActivityDepthHeightMeasure.MeasureUnitCode",
+           "ActivityTopDepthHeightMeasure.MeasureValue",
+           "ActivityTopDepthHeightMeasure.MeasureUnitCode",
+           "ActivityBottomDepthHeightMeasure.MeasureValue",
+           "ActivityBottomDepthHeightMeasure.MeasureUnitCode",
+           "CountryCode",
+           "StateCode",
+           "CountyCode",
+           "LatitudeMeasure",
+           "LongitudeMeasure",
+           "QAPPApprovedIndicator",
+           "QAPPApprovalAgencyName",
+           "ProjectFileUrl",
+           "MeasureQualifierCode",
+           "SampleCollectionEquipmentName", # required for continuous flag
+           "StatisticalBaseCode", # required for continuous flag
+           "ResultTimeBasisText", # required for continuous flag
+           "ResultValueTypeName", # required for continuous flag
+           "ActivityIdentifier",
+           "ProjectIdentifier",
+           "MonitoringLocationIdentifier",
+           "ResultIdentifier",
+           "OrganizationIdentifier")
+}
+
