@@ -54,7 +54,7 @@ library(remotes)
 
 Next, install and load TADA using the remotes package. USGS's dataRetrieval and
 other TADA R Package dependencies will also be downloaded automatically from CRAN
-with the TADA install. If desired, the the development version of dataRetrieval
+with the TADA install. If desired, the development version of dataRetrieval
 can be downloaded directly from GitHub (un-comment).
 
 ```{r install_TADA, eval = F, results = 'hide', message = FALSE, warning = FALSE}
@@ -190,8 +190,8 @@ Tips:
         will get an error.
 
 2.  The "siteid" is a general term WQP uses to describe both Site IDs
-    from USGS databases and Monitoring Location Identifiers (from the
-    Water Quality Portal). Each monitoring location in the Water Quality
+    from USGS databases and Monitoring Location Identifiers (from WQX).
+    Each monitoring location in the Water Quality
     Portal (WQP) has a unique Monitoring Location Identifier, regardless
     of the database from which it derives. The Monitoring Location
     Identifier from the WQP is the concatenated Organization Identifier
