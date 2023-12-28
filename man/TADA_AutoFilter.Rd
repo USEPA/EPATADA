@@ -23,7 +23,7 @@ This function removes rows where the result value is not numeric to
 prepare a dataframe for quantitative analyses. Ideally, this function should
 be run after other data cleaning, QA/QC, and harmonization steps are
 completed using other TADA package functions, or manually. Specifically, .
-this function removes rows with "Text","Coerced to NA", and "Blank"
+this function removes rows with "Text","Coerced to NA", and "NA - Not Applicable"
 in the TADA.ResultMeasureValueDataTypes.Flag column, or NA in the
 TADA.ResultMeasureValue column.
 
@@ -31,7 +31,7 @@ This function removes rows where the result value is not numeric to
 prepare a dataframe for quantitative analyses. Ideally, this function should
 be run after other data cleaning, QA/QC, and harmonization steps are
 completed using other TADA package functions, or manually. Specifically, .
-this function removes rows with "Text","Coerced to NA", and "Blank"
+this function removes rows with "Text","Coerced to NA", and "NA - Not Applicable"
 in the TADA.ResultMeasureValueDataTypes.Flag column, or NA in the
 TADA.ResultMeasureValue column.
 }

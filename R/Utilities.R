@@ -50,9 +50,9 @@ utils::globalVariables(c(
   "SummationName", "SummationRank", "SummationFractionNotes", "SummationSpeciationNotes",
   "SummationSpeciationConversionFactor", "SummationNote", "NutrientGroup",
   "Target.Speciation", "TADA.NearbySiteGroups", "numres", "TADA.SingleOrgDupGroupID",
-  "TADA.MeasureQualifierCode.Flag", "MeasureQualifierCode", "value", "Flag_Column",
+  "TADA.MeasureQualifierCode.Flag", "TADA.MeasureQualifierCode.Def", "MeasureQualifierCode", "value", "Flag_Column",
   "Data_NCTCShepherdstown_HUC12", "ActivityStartDateTime", "TADA.MultipleOrgDupGroupID",
-  "TADA.WQXVal.Flag"
+  "TADA.WQXVal.Flag", "Concat", ".", "MeasureQualifierCode.Split"
 ))
 
 
@@ -150,7 +150,7 @@ TADA_AutoClean <- function(.data) {
 
   # Move detection limit value and unit to TADA Result Measure Value and Unit columns
   # Consider moving this to ID censored data in the future?
-  # this first row copies all over when result is blank but 
+  # this first row copies all over when result is blank (NA) but 
   # TADA.DetectionQuantitationLimitMeasure.MeasureValue is not and the 
   # TADA.ResultMeasureValueDataTypes.Flag is not Text 
   # Imp note: TADA result values are NA for text even though they are not NA in the original result value
@@ -168,7 +168,7 @@ TADA_AutoClean <- function(.data) {
     .data$TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode, 
     .data$TADA.ResultMeasure.MeasureUnitCode)
   .data$TADA.ResultMeasureValueDataTypes.Flag <- ifelse(
-    .data$TADA.ResultMeasureValueDataTypes.Flag == "Blank"
+    .data$TADA.ResultMeasureValueDataTypes.Flag == "NA - Not Applicable"
     & !is.na(.data$TADA.DetectionQuantitationLimitMeasure.MeasureValue),
     "Result Value/Unit Copied from Detection Limit",
     .data$TADA.ResultMeasureValueDataTypes.Flag)
@@ -384,7 +384,7 @@ TADA_ConvertSpecialChars <- function(.data, col) {
   if (is.numeric(chars.data$orig)) {
     clean.data <- chars.data %>%
       dplyr::mutate(flag = dplyr::case_when(
-        is.na(masked) ~ as.character("Blank"),
+        is.na(masked) ~ as.character("NA - Not Applicable"),
         TRUE ~ as.character("Numeric")
       ))
   } else {
@@ -394,8 +394,8 @@ TADA_ConvertSpecialChars <- function(.data, col) {
     # of the specific type of character/data type
     clean.data <- chars.data %>%
       dplyr::mutate(flag = dplyr::case_when(
-        is.na(masked) ~ as.character("Blank"),
-        (masked == "ND") ~ as.character("Blank"),
+        is.na(masked) ~ as.character("NA - Not Applicable"),
+        (masked == "ND") ~ as.character("NA - Not Applicable"),
         (!is.na(suppressWarnings(as.numeric(masked)) == TRUE)) ~ as.character("Numeric"),
         (grepl("<", masked) == TRUE) ~ as.character("Less Than"),
         (grepl(">", masked) == TRUE) ~ as.character("Greater Than"),
@@ -591,6 +591,7 @@ TADA_OrderCols <- function(.data) {
     "TADA.ResultMeasureValueDataTypes.Flag",
     "TADA.ResultValueAggregation.Flag",
     "TADA.MeasureQualifierCode.Flag",
+    "TADA.MeasureQualifierCode.Def",
     "TADA.CensoredData.Flag",
     "TADA.CensoredMethod",
     "TADA.NutrientSummation.Flag",
@@ -695,7 +696,7 @@ TADA_SubstituteDeprecatedChars <- function(.data) {
   
   # merge to dataset
   .data <- merge(.data, ref.table, all.x = TRUE)
-  # if CharacteristicName is deprecated and comparable name is not BLANK, use the provided Comparable.Name. Otherwise, keep TADA.CharacteristicName as-is.
+  # if CharacteristicName is deprecated and comparable name is not blank (NA), use the provided Comparable.Name. Otherwise, keep TADA.CharacteristicName as-is.
   .data$TADA.CharacteristicName <- ifelse(!is.na(.data$Char_Flag) & !.data$Comparable.Name %in% c(""), .data$Comparable.Name, .data$TADA.CharacteristicName)
 
   howmany <- length(.data$Char_Flag[!is.na(.data$Char_Flag)])
@@ -1157,6 +1158,8 @@ TADA_CheckRequiredFields <- function(.data) {
     "TADA.ResultMeasureValueDataTypes.Flag",
     "TADA.LatitudeMeasure",
     "TADA.LongitudeMeasure",
+    "TADA.MeasureQualifierCode.Def", 
+    "TADA.MeasureQualifierCode.Flag", 
     "OrganizationFormalName",
     "ActivityTypeCode",
     "ActivityMediaName",
@@ -1218,7 +1221,7 @@ TADA_CheckRequiredFields <- function(.data) {
 #' prepare a dataframe for quantitative analyses. Ideally, this function should
 #' be run after other data cleaning, QA/QC, and harmonization steps are
 #' completed using other TADA package functions, or manually. Specifically, .
-#' this function removes rows with "Text","Coerced to NA", and "Blank"
+#' this function removes rows with "Text","Coerced to NA", and "NA - Not Applicable"
 #' in the TADA.ResultMeasureValueDataTypes.Flag column, or NA in the
 #' TADA.ResultMeasureValue column.
 #'
@@ -1251,7 +1254,7 @@ TADA_AutoFilter <- function(.data) {
   start <- dim(.data)[1]
 
   # remove text, NAs and QC results
-  .data <- dplyr::filter(.data, TADA.ResultMeasureValueDataTypes.Flag != "Blank" &
+  .data <- dplyr::filter(.data, TADA.ResultMeasureValueDataTypes.Flag != "NA - Not Applicable" &
     TADA.ResultMeasureValueDataTypes.Flag != "Text" &
     TADA.ResultMeasureValueDataTypes.Flag != "Coerced to NA" &
     TADA.ActivityType.Flag == "Non_QC" & # filter out QA/QC ActivityTypeCode's
