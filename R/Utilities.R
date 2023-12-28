@@ -1215,7 +1215,7 @@ TADA_CheckRequiredFields <- function(.data) {
 }
 
 
-#' AutoFilter
+#' Autofilter
 #'
 #' This function removes rows where the result value is not numeric to
 #' prepare a dataframe for quantitative analyses. Ideally, this function should
@@ -1224,6 +1224,10 @@ TADA_CheckRequiredFields <- function(.data) {
 #' this function removes rows with "Text","Coerced to NA", and "Blank"
 #' in the TADA.ResultMeasureValueDataTypes.Flag column, or NA in the
 #' TADA.ResultMeasureValue column.
+#' 
+#' This function also removes any columns not required for TADA workflow where
+#' all values are equal to NA.It also provides a warning message identifying those
+#' any TADA required columns containing only NA values.
 #'
 #' @param .data TADA dataframe OR TADA sites dataframe
 #'
@@ -1315,19 +1319,43 @@ TADA_AutoFilter <- function(.data) {
                 "ResultIdentifier",
                 "OrganizationIdentifier")
   
-  # create list of columns to remove due to containing all NA values. Exclude required columns.
-  remove.cols <- .data %>% purrr::keep(~all(is.na(.x))) %>%
-   names() %>%
-  setdiff(req.cols)
+  # create list of columns containing all NA values. Exclude required columns.
+  na.cols <- .data %>% purrr::keep(~all(is.na(.x))) %>%
+   names()
   
-  rm(req.cols)
+  # create list of columns to removed by comparing columns containing all NA values to required columns.
+  # any required columns with all NA values will be excluded from the list of columns to remove.
+  remove.cols <-setdiff(na.cols, req.cols)
   
   # remove not required columns containing all NA values from data frame.
   data <- .data %>%
     dplyr::select(-dplyr::contains(remove.cols))
   
-  rm(na.cols)
+  # check to make sure required columns contain some data that is not NA
+  req.check <- intersect(req.cols, na.cols)
   
+  req.paste <- stringi::stri_replace_last_fixed(paste(as.character(req.check), collapse=", ",sep=""), ", ", " and ")
+
+  rm(req.cols, na.cols)
+  
+  remove.paste <- stringi::stri_replace_last_fixed(paste(as.character(remove.cols), collapse=", ",sep=""), ", ", " and ")
+  
+  # print list of columns removed from data frame
+  if (length(remove.cols) > 0) {
+    print(paste0("The following columns were removed as they contained only NAs: ", remove.paste, "."))
+  }else { 
+    print("All columns contained some non-NA values and were retained in the data frame.")}
+  
+  # remove columns that are not required for TADA workflow
+  print("TADA_Autofilter: checking required columns for non-NA values.")
+  
+  # if some required columns contain only NA values print a warning message.
+  if (length(req.check) > 0) {
+    print(paste0("TADA Required column(s) ", req.paste, " contain only NA values. This may impact other TADA functions."))
+    }else { 
+      print("All TADA Required columns contain some non-NA values.")}
+  
+  rm(req.paste)
   
 end <- dim(.data)[1]
 
