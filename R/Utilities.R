@@ -1259,8 +1259,77 @@ TADA_AutoFilter <- function(.data) {
     TADA.ResultMeasureValueDataTypes.Flag != "Coerced to NA" &
     TADA.ActivityType.Flag == "Non_QC" & # filter out QA/QC ActivityTypeCode's
     !is.na(TADA.ResultMeasureValue))
-
-  end <- dim(.data)[1]
+  
+  #remove columns that are not required for TADA workflow
+  print("TADA_Autofilter: removing columns not required for TADA workflow.")
+  
+  #create list of required columns that must be retained even if all values are NA
+  req.cols <- c("TADA.CharacteristicName",
+                "TADA.ResultSampleFractionText",
+                "TADA.MethodSpecificationName",
+                "TADA.ResultMeasure.MeasureUnitCode",
+                "TADA.ActivityMediaName",
+                "TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode",
+                "TADA.ResultMeasureValueDataTypes.Flag",
+                "TADA.LatitudeMeasure",
+                "TADA.LongitudeMeasure",
+                "OrganizationFormalName",
+                "ActivityTypeCode",
+                "ActivityMediaName",
+                "MonitoringLocationTypeName",
+                "ActivityStartDateTime",
+                "CharacteristicName",
+                "ResultSampleFractionText",
+                "MethodSpecificationName",
+                "ResultMeasureValue",
+                "ResultMeasure.MeasureUnitCode",
+                "ResultDetectionConditionText",
+                "DetectionQuantitationLimitTypeName",
+                "DetectionQuantitationLimitMeasure.MeasureValue",
+                "DetectionQuantitationLimitMeasure.MeasureUnitCode",
+                "ResultDepthHeightMeasure.MeasureValue",
+                "ResultDepthHeightMeasure.MeasureUnitCode",
+                "ActivityRelativeDepthName",
+                "ActivityDepthHeightMeasure.MeasureValue",
+                "ActivityDepthHeightMeasure.MeasureUnitCode",
+                "ActivityTopDepthHeightMeasure.MeasureValue",
+                "ActivityTopDepthHeightMeasure.MeasureUnitCode",
+                "ActivityBottomDepthHeightMeasure.MeasureValue",
+                "ActivityBottomDepthHeightMeasure.MeasureUnitCode",
+                "CountryCode",
+                "StateCode",
+                "CountyCode",
+                "LatitudeMeasure",
+                "LongitudeMeasure",
+                "QAPPApprovedIndicator",
+                "QAPPApprovalAgencyName",
+                "ProjectFileUrl",
+                "MeasureQualifierCode",
+                "SampleCollectionEquipmentName", # required for continuous flag
+                "StatisticalBaseCode", # required for continuous flag
+                "ResultTimeBasisText", # required for continuous flag
+                "ResultValueTypeName", # required for continuous flag
+                "ActivityIdentifier",
+                "ProjectIdentifier",
+                "MonitoringLocationIdentifier",
+                "ResultIdentifier",
+                "OrganizationIdentifier")
+  
+  # create list of columns to remove due to containing all NA values. Exclude required columns.
+  remove.cols <- .data %>% purrr::keep(~all(is.na(.x))) %>%
+   names() %>%
+  setdiff(req.cols)
+  
+  rm(req.cols)
+  
+  # remove not required columns containing all NA values from data frame.
+  data <- .data %>%
+    dplyr::select(-dplyr::contains(remove.cols))
+  
+  rm(na.cols)
+  
+  
+end <- dim(.data)[1]
 
   # print number of results removed
   if (!start == end) {
