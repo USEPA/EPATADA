@@ -129,7 +129,7 @@ TADA_FlagFraction <- function(.data, clean = TRUE, flaggedonly = FALSE) {
 #' rows with invalid or nonstandardized characteristic-method speciation combinations.
 #' Default is flaggedonly = FALSE.
 #'
-#' #' The “Not Reviewed” value within "TADA.ResultAboveUpperThreshold.Flag" means
+#' The “Not Reviewed” value within "TADA.ResultAboveUpperThreshold.Flag" means
 #' that the EPA WQX team has not yet reviewed the combinations
 #' (see https://cdx.epa.gov/wqx/download/DomainValues/QAQCCharacteristicValidation.CSV).
 #' The WQX team plans to review and update these new combinations quarterly.
@@ -506,16 +506,17 @@ TADA_FindQCActivities <- function(.data, clean = FALSE, flaggedonly = FALSE) {
     dplyr::select(ActivityTypeCode, TADA.ActivityType.Flag)
 
   # identify any Activity Type Codes not in reference table
+  # these are likely USGS only values
   codes <- unique(.data$ActivityTypeCode)
   if (any(!codes %in% qc.ref$ActivityTypeCode)) {
     missing_codes <- codes[!codes %in% qc.ref$ActivityTypeCode]
     missing_codes_df <- data.frame(
       ActivityTypeCode = missing_codes,
-      TADA.ActivityType.Flag = "QC_uncategorized"
+      TADA.ActivityType.Flag = "Not Reviewed"
     )
     qc.ref <- rbind(qc.ref, missing_codes_df)
     missing_codes <- paste(missing_codes, collapse = ", ")
-    print(paste0("ActivityTypeCode column in dataset contains value(s) ", missing_codes, " which is/are not represented in the ActivityType WQX domain table. These data records are placed under the TADA.ActivityType.Flag: 'QC_uncategorized'. Please contact TADA administrators to resolve."))
+    print(paste0("ActivityTypeCode column in dataset contains value(s) ", missing_codes, " which is/are not represented in the ActivityType WQX domain table. These data records are placed under the TADA.ActivityType.Flag: 'Not Reviewed'. Please contact TADA administrators to resolve."))
   }
 
   # populate flag column in data
@@ -564,8 +565,8 @@ TADA_FindQCActivities <- function(.data, clean = FALSE, flaggedonly = FALSE) {
 #' This function removes rows where the result value is not numeric to
 #' prepare a dataframe for quantitative analyses. Ideally, this function should
 #' be run after other data cleaning, QA/QC, and harmonization steps are
-#' completed using other TADA package functions, or manually. Specifically, .
-#' this function removes rows with "Text","Coerced to NA", and "NA - Not Applicable"
+#' completed using other TADA package functions, or manually. Specifically, 
+#' this function removes rows with "Text" and "NA - Not Available"
 #' in the TADA.ResultMeasureValueDataTypes.Flag column, or NA in the
 #' TADA.ResultMeasureValue column.
 #'
@@ -593,9 +594,9 @@ TADA_AutoFilter <- function(.data) {
     "ActivityTypeCode"
   ))
 
-  autofilter <- dplyr::filter(.data, TADA.ResultMeasureValueDataTypes.Flag != "NA - Not Applicable" &
+  autofilter <- dplyr::filter(.data, TADA.ResultMeasureValueDataTypes.Flag != "NA - Not Available" &
     TADA.ResultMeasureValueDataTypes.Flag != "Text" &
-    TADA.ResultMeasureValueDataTypes.Flag != "Coerced to NA" &
+    TADA.ResultMeasureValueDataTypes.Flag != "NA - Not Available" &
     !is.na(TADA.ResultMeasureValue)) # &
   # TADA.ActivityMediaName == "WATER")
 
@@ -740,7 +741,7 @@ TADA_FlagMeasureQualifierCode <- function(.data, clean = FALSE, flaggedonly = FA
   }
   
   # rename ResultMeasureQualifier NA values to Pass in TADA.MeasureQualifierCode.Flag column
-  flag.data["TADA.MeasureQualifierCode.Flag"][is.na(flag.data["MeasureQualifierCode"])] <- "NA - Not Applicable"
+  flag.data["TADA.MeasureQualifierCode.Flag"][is.na(flag.data["MeasureQualifierCode"])] <- "NA - Not Available"
 
   # clean dataframe
   # if clean = FALSE, return full dataframe
