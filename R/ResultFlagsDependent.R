@@ -594,8 +594,7 @@ TADA_AutoFilter <- function(.data) {
     "ActivityTypeCode"
   ))
 
-  autofilter <- dplyr::filter(.data, TADA.ResultMeasureValueDataTypes.Flag != "NA - Not Available" &
-    TADA.ResultMeasureValueDataTypes.Flag != "Text" &
+  autofilter <- dplyr::filter(.data, TADA.ResultMeasureValueDataTypes.Flag != "Text" &
     TADA.ResultMeasureValueDataTypes.Flag != "NA - Not Available" &
     !is.na(TADA.ResultMeasureValue)) # &
   # TADA.ActivityMediaName == "WATER")

@@ -318,15 +318,15 @@ TADA_ConvertSpecialChars <- function(.data, col) {
         is.na(masked) ~ as.character("NA - Not Available"),
         TRUE ~ as.character("Numeric")
       ))
+    
   } else {
+    
     chars.data$masked <- gsub(" ", "", chars.data$masked) # get rid of white space for subsequent sorting
-
-    # Detect special characters in column and populate new flag column with descriptor
+   # Detect special characters in column and populate new flag column with descriptor
     # of the specific type of character/data type
     clean.data <- chars.data %>%
       dplyr::mutate(flag = dplyr::case_when(
         is.na(masked) ~ as.character("NA - Not Available"),
-        # (masked == "ND") ~ as.character("NA - Not Available"),
         (!is.na(suppressWarnings(as.numeric(masked)) == TRUE)) ~ as.character("Numeric"),
         (grepl("<", masked) == TRUE) ~ as.character("Less Than"),
         (grepl(">", masked) == TRUE) ~ as.character("Greater Than"),
@@ -338,9 +338,9 @@ TADA_ConvertSpecialChars <- function(.data, col) {
         # because * is a special character you have to escape\\ it:
         (grepl("\\*", masked) == TRUE) ~ as.character("Approximate Value"),
         (!stringi::stri_enc_mark(masked) %in% c("ASCII")) ~ as.character("Non-ASCII Character(s)"),
-        TRUE ~ "NA - Not Available"
+        TRUE ~ "Coerced to NA"
       ))
-
+    
     # Result Values that are numeric ranges with the format #-# are converted to an average of the two numbers expressed in the range.
     if (any(clean.data$flag == "Numeric Range - Averaged")) {
       numrange <- subset(clean.data, clean.data$flag %in% c("Numeric Range - Averaged"))
@@ -353,18 +353,20 @@ TADA_ConvertSpecialChars <- function(.data, col) {
 
       clean.data <- plyr::rbind.fill(notnumrange, numrange)
     }
+    
     # In the new TADA column, convert to numeric and remove some specific special
     # characters.
     clean.data$masked <- suppressWarnings(as.numeric(stringr::str_replace_all(
-      clean.data$masked, c("<" = "", ">" = "", "~" = "", "," = "", "%" = "", "\\*" = "")
+      clean.data$masked, c("<" = "", ">" = "", "~" = "", "%" = "", "\\*" = "")
     )))
+    
   }
 
   # Rename to original column name, TADA column name, and flag column name
   names(clean.data)[names(clean.data) == "orig"] <- col
   names(clean.data)[names(clean.data) == "masked"] <- numcol
   names(clean.data)[names(clean.data) == "flag"] <- flagcol
-
+  
   clean.data <- TADA_OrderCols(clean.data)
 
   return(clean.data)
