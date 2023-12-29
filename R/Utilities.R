@@ -1226,7 +1226,7 @@ TADA_CheckRequiredFields <- function(.data) {
 #' TADA.ResultMeasureValue column.
 #' 
 #' This function also removes any columns not required for TADA workflow where
-#' all values are equal to NA.It also provides a warning message identifying those
+#' all values are equal to NA.It also provides a warning message identifying
 #' any TADA required columns containing only NA values.
 #'
 #' @param .data TADA dataframe OR TADA sites dataframe
@@ -1265,7 +1265,7 @@ TADA_AutoFilter <- function(.data) {
     !is.na(TADA.ResultMeasureValue))
   
   #remove columns that are not required for TADA workflow
-  print("TADA_Autofilter: removing columns not required for TADA workflow.")
+  print("TADA_Autofilter: removing columns not required for TADA workflow if they contain only NAs.")
   
   #create list of required columns that must be retained even if all values are NA
   req.cols <- c("TADA.CharacteristicName",
@@ -1319,7 +1319,7 @@ TADA_AutoFilter <- function(.data) {
                 "ResultIdentifier",
                 "OrganizationIdentifier")
   
-  # create list of columns containing all NA values. Exclude required columns.
+  # create list of columns containing all NA values. 
   na.cols <- .data %>% purrr::keep(~all(is.na(.x))) %>%
    names()
   
@@ -1334,15 +1334,18 @@ TADA_AutoFilter <- function(.data) {
   # check to make sure required columns contain some data that is not NA
   req.check <- intersect(req.cols, na.cols)
   
+  # create character string for list of required columns containing only NAs
   req.paste <- stringi::stri_replace_last_fixed(paste(as.character(req.check), collapse=", ",sep=""), ", ", " and ")
 
+  #remove column name lists
   rm(req.cols, na.cols)
   
+  # create character string for list of removed columns
   remove.paste <- stringi::stri_replace_last_fixed(paste(as.character(remove.cols), collapse=", ",sep=""), ", ", " and ")
   
   # print list of columns removed from data frame
   if (length(remove.cols) > 0) {
-    print(paste0("The following columns were removed as they contained only NAs: ", remove.paste, "."))
+    print(paste0("The following column(s) were removed as they contained only NAs: ", remove.paste, "."))
   }else { 
     print("All columns contained some non-NA values and were retained in the data frame.")}
   
