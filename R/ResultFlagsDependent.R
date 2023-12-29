@@ -148,7 +148,7 @@ TADA_FlagFraction <- function(.data, clean = TRUE, flaggedonly = FALSE) {
 #' flaggedonly = TRUE. Default is flaggedonly = FALSE.
 #'
 #' @return This function adds TADA.MethodSpeciation.Flag to the dataframe. This column
-#' flags each TADA.CharacteristicName and MethodSpecificationName combination in your
+#' flags each TADA.CharacteristicName and MethodSpeciationName combination in your
 #' dataframe as either "Nonstandardized", "Invalid", or "Valid". When clean = "none"
 #' and flaggedonly = TRUE, the dataframe is filtered to show only the "Invalid" and
 #' "Nonstandardized data; the column TADA.MethodSpeciation.Flag is still appended.

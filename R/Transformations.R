@@ -137,10 +137,6 @@ TADA_HarmonizeSynonyms <- function(.data, ref, np_speciation = TRUE) {
       is.na(Target.TADA.ResultSampleFractionText) ~ TADA.ResultSampleFractionText
     ))
 
-  # TADA.MethodSpecificationName
-  # there are a couple of instances with DO where the speciation is listed "AS O2" but it should be NA
-  clean.data$TADA.MethodSpecificationName <- ifelse(!is.na(clean.data$TADA.MethodSpecificationName) & is.na(clean.data$Target.TADA.MethodSpecificationName) & !is.na(clean.data$TADA.SpeciationAssumptions), clean.data$Target.TADA.MethodSpeciationName, clean.data$TADA.MethodSpeciationnName)
-
   # ResultMeasure.MeasureUnitCode
   # replace ResultMeasure.MeasureUnitCode with Target.TADA.ResultMeasure.MeasureUnitCode
   clean.data <- clean.data %>%

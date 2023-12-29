@@ -97,7 +97,7 @@ TADA_AutoClean <- function(.data) {
   # .data required columns
   required_cols <- c(
     "ActivityMediaName", "ResultMeasureValue", "ResultMeasure.MeasureUnitCode",
-    "CharacteristicName", "ResultSampleFractionText", "MethodSpecificationName",
+    "CharacteristicName", "ResultSampleFractionText", "MethodSpeciationName",
     "DetectionQuantitationLimitMeasure.MeasureUnitCode", "ResultDetectionConditionText",
     "ResultIdentifier", "DetectionQuantitationLimitMeasure.MeasureValue",
     "LatitudeMeasure", "LongitudeMeasure"
@@ -569,7 +569,7 @@ TADA_OrderCols <- function(.data) {
     "WellDepthMeasure.MeasureUnitCode",
     "WellHoleDepthMeasure.MeasureValue",
     "WellHoleDepthMeasure.MeasureUnitCode",
-    "MethodSpecificationName",
+    "MethodSpeciationName",
     "ProjectDescriptionText",
     "SamplingDesignTypeCode",
     "QAPPApprovedIndicator",
@@ -1164,7 +1164,7 @@ TADA_CheckRequiredFields <- function(.data) {
     "ActivityStartDateTime",
     "CharacteristicName",
     "ResultSampleFractionText",
-    "MethodSpecificationName",
+    "MethodSpeciationName",
     "ResultMeasureValue",
     "ResultMeasure.MeasureUnitCode",
     "ResultDetectionConditionText",
@@ -1347,7 +1347,7 @@ TADA_RetainRequired <- function(.data) {
                      "ActivityStartDateTime",
                      "CharacteristicName",
                      "ResultSampleFractionText",
-                     "MethodSpecificationName",
+                     "MethodSpeciationName",
                      "ResultMeasureValue",
                      "ResultMeasure.MeasureUnitCode",
                      "ResultDetectionConditionText",
