@@ -194,7 +194,7 @@ TADA_FlagSpeciation <- function(.data, clean = c("invalid_only", "nonstandardize
   # check flaggedonly is boolean
   TADA_CheckType(flaggedonly, "logical")
   # check .data has required columns
-  TADA_CheckColumns(.data, c("TADA.CharacteristicName", "TADA.MethodSpecificationName"))
+  TADA_CheckColumns(.data, c("TADA.CharacteristicName", "TADA.MethodSpeciationName"))
   # check that clean is either "invalid_only", "nonstandardized_only", "both", or "none"
   clean <- match.arg(clean)
 
@@ -209,7 +209,7 @@ TADA_FlagSpeciation <- function(.data, clean = c("invalid_only", "nonstandardize
 
   # join "Status" column to .data by CharacteristicName and Value (Speciation)
   check.data <- merge(.data, spec.ref[, c("Characteristic", "Status", "Value")],
-    by.x = c("TADA.CharacteristicName", "TADA.MethodSpecificationName"),
+    by.x = c("TADA.CharacteristicName", "TADA.MethodSpeciationName"),
     by.y = c("Characteristic", "Value"), all.x = TRUE
   )
 

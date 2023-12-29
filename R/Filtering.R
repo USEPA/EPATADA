@@ -155,7 +155,7 @@ TADA_FieldCounts <- function(.data, display = c("key", "most", "all"), character
       "TADA.CensoredData.Flag",
       "TADA.CensoredMethod",
       "TADA.ResultUnit.Flag",
-      "TADA.MethodSpecificationName",
+      "TADA.MethodSpeciationName",
       "TADA.AnalyticalMethod.Flag",
       "TADA.MethodSpeciation.Flag",
       "TADA.ResultSampleFractionText",
