@@ -130,7 +130,7 @@ TADA_FieldCounts <- function(.data, display = c("key", "most", "all"), character
       "FormationTypeText",
       "AquiferTypeName",
       "ConstructionDateText",
-      "MethodSpecificationName",
+      "MethodSpeciationName",
       "ProjectDescriptionText",
       "SamplingDesignTypeCode",
       "QAPPApprovedIndicator",
