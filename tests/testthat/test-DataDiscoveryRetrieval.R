@@ -132,7 +132,7 @@ test_that("TADA_DataRetrieval", {
     "WellDepthMeasure.MeasureUnitCode",
     "WellHoleDepthMeasure.MeasureValue",
     "WellHoleDepthMeasure.MeasureUnitCode",
-    "MethodSpeciationName"
+    "MethodSpecificationName"
   ) %in% names(tada1)))
 })
 
@@ -227,6 +227,6 @@ test_that("TADA_JoinWQPProfiles_columns", {
     "WellDepthMeasure.MeasureUnitCode",
     "WellHoleDepthMeasure.MeasureValue",
     "WellHoleDepthMeasure.MeasureUnitCode",
-    "MethodSpeciationName"
+    "MethodSpecificationName"
   ) %in% names(join)))
 })
