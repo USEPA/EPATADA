@@ -1215,7 +1215,7 @@ TADA_CheckRequiredFields <- function(.data) {
 }
 
 
-#' Autofilter
+#' AutoFilter
 #'
 #' This function removes rows where the result value is not numeric to
 #' prepare a dataframe for quantitative analyses. Ideally, this function should
