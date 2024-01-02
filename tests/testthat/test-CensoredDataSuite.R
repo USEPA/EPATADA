@@ -9,155 +9,72 @@ test_that("TADA_SimpleCensoredMethods doesn't drop data", {
   expect_equal(dim(testdat)[1], dim(cens.check)[1])
 })
 
+test_that("TADA_IDCensoredData copies det lim values to result values if applicable", {
+  copycheck = TADA_RandomNationalTestingSet()
+  
+  copycheck1 = TADA_IDCensoredData(copycheck)
+  
+  # let's look only at rows where the original result value = NA 
+  copycheck2 = subset(copycheck1, subset = is.na(copycheck1$ResultMeasureValue))
+  
+  # the TADA.ResultMeasureValueDataTypes.Flag should = one of these two options
+  expect_true(all(copycheck2$TADA.ResultMeasureValueDataTypes.Flag == "Result Value/Unit Copied from Detection Limit"
+              | copycheck2$TADA.ResultMeasureValueDataTypes.Flag == "NA - Not Available"))
+  
+  # subset df: TADA.DetectionQuantitationLimitMeasure.MeasureValue = NA or None
+  copycheck_NAs = subset(copycheck2, subset = (!is.na(copycheck2$TADA.DetectionQuantitationLimitMeasure.MeasureValue)))
+  
+  # for this subset, the TADA.ResultMeasureValueDataTypes.Flag should equal "Result Value/Unit Copied from Detection Limit"
+  expect_true(all((copycheck_NAs$TADA.ResultMeasureValueDataTypes.Flag == "Result Value/Unit Copied from Detection Limit")
+              & !is.na(copycheck_NAs$TADA.ResultMeasureValue)))
+  
+  # subset df: TADA.DetectionQuantitationLimitMeasure.MeasureValue does NOT = NA or None
+  copycheck_copies = subset(copycheck2, subset = (is.na(copycheck2$TADA.DetectionQuantitationLimitMeasure.MeasureValue)))
+  
+  # for this subset, the TADA.ResultMeasureValueDataTypes.Flag should equal "NA - Not Available"
+  expect_true(all((copycheck_copies$TADA.ResultMeasureValueDataTypes.Flag == "NA - Not Available")
+              & is.na(copycheck_copies$TADA.ResultMeasureValue)))
+})
 
-test = TADA_RandomNationalTestingSet()
-
-# Copy detection limit value and unit to TADA Result Measure Value and Unit columns
-# this first row copies all over when TADA.DetectionQuantitationLimitMeasure.MeasureValue is not NA and the 
-# TADA.ResultMeasureValueDataTypes.Flag is "NA - Not Available"
-# Imp note: TADA result values are NA for text and other values (coerced) even though they are not 
-# NA in the original result value
-test$TADA.ResultMeasureValue <- ifelse(
-  !is.na(test$TADA.DetectionQuantitationLimitMeasure.MeasureValue)
-  & test$TADA.ResultMeasureValueDataTypes.Flag == "NA - Not Available",
-  test$TADA.DetectionQuantitationLimitMeasure.MeasureValue, 
-  test$TADA.ResultMeasureValue)
-
-# this does the same as above for the units
-test$TADA.ResultMeasure.MeasureUnitCode <- ifelse(
-  !is.na(test$TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode)
-  & test$TADA.ResultMeasureValueDataTypes.Flag == "NA - Not Available", 
-  test$TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode, 
-  test$TADA.ResultMeasure.MeasureUnitCode)
-
-# this updates the TADA.ResultMeasureValueDataTypes.Flag 
-test$TADA.ResultMeasureValueDataTypes.Flag <- ifelse(
-  test$TADA.ResultMeasureValueDataTypes.Flag == "NA - Not Available"
-  & !is.na(test$TADA.DetectionQuantitationLimitMeasure.MeasureValue),
-  "Result Value/Unit Copied from Detection Limit",
-  test$TADA.ResultMeasureValueDataTypes.Flag)
-
-# this copies det lim result value and unit over to TADA result value and unit 
-# when the result value is TEXT but there is a specific text value that indicates 
-# the result is censored (BPQL, BDL, ND)
-# and the TADA.DetectionQuantitationLimitMeasure.MeasureValue provided
-# if more are added, they need to be included below as well (line 194)
-test$TADA.ResultMeasureValue <- ifelse(
-  is.na(test$TADA.ResultMeasureValue)
-  & !is.na(test$TADA.DetectionQuantitationLimitMeasure.MeasureValue)
-  & (test$ResultMeasureValue == "BPQL" |
-    test$ResultMeasureValue == "BDL" |
-    test$ResultMeasureValue == "ND") ,
-  test$TADA.DetectionQuantitationLimitMeasure.MeasureValue, 
-  test$TADA.ResultMeasureValue)
-
-# this does the same as above for the units
-test$TADA.ResultMeasure.MeasureUnitCode <- ifelse(
-  !is.na(test$TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode)
-  & (test$ResultMeasureValue == "BPQL" |
-    test$ResultMeasureValue == "BDL" |
-    test$ResultMeasureValue == "ND") , 
-  test$TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode, 
-  test$TADA.ResultMeasure.MeasureUnitCode)
-
-test$TADA.ResultMeasureValueDataTypes.Flag <- ifelse(
-  test$TADA.ResultMeasureValueDataTypes.Flag == "Text" &
-    (test$ResultMeasureValue == "BPQL" |
-    test$ResultMeasureValue == "BDL" |
-    test$ResultMeasureValue == "ND") & 
-    !is.na(test$TADA.DetectionQuantitationLimitMeasure.MeasureValue),
-  "Result Value/Unit Copied from Detection Limit", 
-  test$TADA.ResultMeasureValueDataTypes.Flag)
-
-# Result Measure Qualifier codes to identify censored samples. 
-if (!"TADA.MeasureQualifierCode.Flag" %in% names(test)) {
-  data_mq_flag <- TADA_FlagMeasureQualifierCode(test)
-} else {
-  data_mq_flag <- test
-}
-
-## Identify censored data using TADA.ResultMeasureValueDataTypes.Flag and TADA.MeasureQualifierCode.Flag
-cens_rm_flag <- data_mq_flag %>% dplyr::filter(TADA.ResultMeasureValueDataTypes.Flag == "Result Value/Unit Copied from Detection Limit")
-cens_mq_flag <- data_mq_flag %>% dplyr::filter(TADA.MeasureQualifierCode.Flag %in% c("Non-Detect", "Over-Detect")) %>%
-  dplyr::filter(!ResultIdentifier %in% cens_rm_flag$ResultIdentifier)
-cens <- cens_rm_flag %>%
-  rbind(cens_mq_flag)
-not_cens <- data_mq_flag %>% dplyr::filter(!ResultIdentifier %in% cens$ResultIdentifier)
-not_cens$TADA.CensoredData.Flag <- "Uncensored"
-
-rm(cens_rm_flag, cens_mq_flag, data_mq_flag)
-
-
-blah = dplyr::select(test, ActivityTypeCode, TADA.ActivityType.Flag,ResultDetectionConditionText,
-                     CharacteristicName,
-                     TADA.CharacteristicName,
-                     ResultMeasureValue,
-                     TADA.ResultMeasureValue,
-                     ResultMeasure.MeasureUnitCode,
-                     TADA.WQXResultUnitConversion,
-                     TADA.ResultMeasureValueDataTypes.Flag,
-                     TADA.ResultMeasure.MeasureUnitCode,
-                     DetectionQuantitationLimitTypeName,
-                     DetectionQuantitationLimitMeasure.MeasureValue,
-                     DetectionQuantitationLimitMeasure.MeasureUnitCode,
-                     TADA.DetectionQuantitationLimitMeasure.MeasureValue,
-                     TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode,
-                     #TADA.MeasureQualifierCode.Flag,
-                     ProviderName)
-write.csv(blah, "blah.csv")
-
-test1 = TADA_IDCensoredData(test)
-blah2 = dplyr::select(test1, 
-                      ActivityTypeCode, 
-                      TADA.ActivityType.Flag,
-                      ResultDetectionConditionText,
-                      CharacteristicName,
-                      TADA.CharacteristicName,
-                      ResultMeasureValue,
-                      TADA.ResultMeasureValue,
-                      ResultMeasure.MeasureUnitCode,
-                      TADA.WQXResultUnitConversion,
-                      TADA.ResultMeasureValueDataTypes.Flag,
-                      TADA.ResultMeasure.MeasureUnitCode,
-                      MeasureQualifierCode,
-                      TADA.MeasureQualifierCode.Flag, 
-                      TADA.MeasureQualifierCode.Def,
-                      DetectionQuantitationLimitTypeName,
-                      DetectionQuantitationLimitMeasure.MeasureValue,
-                      DetectionQuantitationLimitMeasure.MeasureUnitCode,
-                      TADA.DetectionQuantitationLimitMeasure.MeasureValue,
-                      TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode,
-                      TADA.DetectionQuantitationLimitMeasure.MeasureValueDataTypes.Flag,
-                      TADA.CensoredData.Flag,
-                      ProviderName
-)
-write.csv(blah2, "blah2.csv")
-
-test2 = TADA_SimpleCensoredMethods(test1)
-test3 = dplyr::select(test2, 
-                      ActivityTypeCode, 
-                      TADA.ActivityType.Flag,
-                      ResultDetectionConditionText,
-                      CharacteristicName,
-                      TADA.CharacteristicName,
-                      ResultMeasureValue,
-                      TADA.ResultMeasureValue,
-                      ResultMeasure.MeasureUnitCode,
-                      TADA.WQXResultUnitConversion,
-                      TADA.ResultMeasureValueDataTypes.Flag,
-                      TADA.ResultMeasure.MeasureUnitCode,
-                      MeasureQualifierCode,
-                      TADA.MeasureQualifierCode.Flag, 
-                      TADA.MeasureQualifierCode.Def,
-                      DetectionQuantitationLimitTypeName,
-                      DetectionQuantitationLimitMeasure.MeasureValue,
-                      DetectionQuantitationLimitMeasure.MeasureUnitCode,
-                      TADA.DetectionQuantitationLimitMeasure.MeasureValue,
-                      TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode,
-                      TADA.DetectionQuantitationLimitMeasure.MeasureValueDataTypes.Flag,
-                      TADA.CensoredData.Flag,
-                      TADA.CensoredMethod,
-                      ProviderName
-)
-
-write.csv(test3, "test3.csv")
+test_that("TADA_IDCensoredData correctly handles specific text values such as ND", {
+  df = TADA_DataRetrieval(startDate = "2022-12-19",
+                                 endDate = "2022-12-20")
+  
+  df1 = TADA_IDCensoredData(df)
+  
+  df2 = subset(df1, subset = df1$ResultMeasureValue == "BPQL" 
+                 | df1$ResultMeasureValue == "BDL"
+                 | df1$ResultMeasureValue == "ND")
+  
+  unique(df2$ResultMeasureValue)
+  
+  # subset df: TADA.DetectionQuantitationLimitMeasure.MeasureValue = NA or None
+  df3 = subset(df2, subset = (!is.na(df2$TADA.DetectionQuantitationLimitMeasure.MeasureValue)))
+  
+  df3_subset = dplyr::select(df3, 
+                            ActivityTypeCode, 
+                            TADA.ActivityType.Flag,
+                            ResultDetectionConditionText,
+                            CharacteristicName,
+                            TADA.CharacteristicName,
+                            ResultMeasureValue,
+                            TADA.ResultMeasureValue,
+                            ResultMeasure.MeasureUnitCode,
+                            TADA.WQXResultUnitConversion,
+                            TADA.ResultMeasureValueDataTypes.Flag,
+                            TADA.DetectionQuantitationLimitMeasure.MeasureValueDataTypes.Flag,
+                            TADA.ResultMeasure.MeasureUnitCode,
+                            DetectionQuantitationLimitTypeName,
+                            DetectionQuantitationLimitMeasure.MeasureValue,
+                            DetectionQuantitationLimitMeasure.MeasureUnitCode,
+                            TADA.DetectionQuantitationLimitMeasure.MeasureValue,
+                            TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode,
+                            ProviderName)
+  
+  expect_true(all(df3_subset$TADA.ResultMeasureValueDataTypes.Flag == "Result Value/Unit Copied from Detection Limit"))
+  
+  expect_true(all(!is.na(df3_subset$TADA.ResultMeasureValue)))
+  
+  expect_true(all(!is.na(df3_subset$TADA.ResultMeasure.MeasureUnitCode)))
+  
+})

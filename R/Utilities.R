@@ -88,6 +88,7 @@ utils::globalVariables(c(
 #'   conversion is necessary and no TADA depth columns are created.
 #'
 #' @export
+#' 
 #'
 
 TADA_AutoClean <- function(.data) {
@@ -295,6 +296,13 @@ TADA_CheckColumns <- function(.data, expected_cols) {
 #' and "Numeric Range - Averaged" (# - #)
 #'
 #' @export
+#' 
+#' @examples
+#' data(Data_Nutrients_UT)
+#' HandleSpecialChars_ResultMeasureValue = TADA_ConvertSpecialChars(Data_Nutrients_UT, "ResultMeasureValue")
+#' unique(HandleSpecialChars_ResultMeasureValue$TADA.ResultMeasureValueDataTypes.Flag)
+#' HandleSpecialChars_DetLimMeasureValue = TADA_ConvertSpecialChars(Data_Nutrients_UT, "TADA.DetectionQuantitationLimitMeasure.MeasureValue")
+#' unique(HandleSpecialChars_DetLimMeasureValue$TADA.DetectionQuantitationLimitMeasure.MeasureValueDataTypes.Flag)
 #'
 
 TADA_ConvertSpecialChars <- function(.data, col) {
@@ -362,6 +370,12 @@ TADA_ConvertSpecialChars <- function(.data, col) {
     
   }
 
+  # this updates the DataTypes.Flag to "NA - Not Available" if NA
+  clean.data$flag <- ifelse(
+    is.na(clean.data$flag),
+    "NA - Not Available",
+    clean.data$flag)
+  
   # Rename to original column name, TADA column name, and flag column name
   names(clean.data)[names(clean.data) == "orig"] <- col
   names(clean.data)[names(clean.data) == "masked"] <- numcol

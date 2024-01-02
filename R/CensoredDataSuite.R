@@ -27,6 +27,7 @@
 #' @return A TADA dataframe with additional column named TADA.CensoredData.Flag, which indicates if there are disagreements in ResultDetectionCondition and DetectionQuantitationLimitTypeName.
 #'
 #' @export
+#' 
 #'
 
 TADA_IDCensoredData <- function(.data) {
@@ -38,60 +39,74 @@ TADA_IDCensoredData <- function(.data) {
   )
   TADA_CheckColumns(.data, expected_cols)
  
- # Copy detection limit value and unit to TADA Result Measure Value and Unit columns
+  # this copies det lim result value and unit over to TADA result value and unit 
+  # when the result value is TEXT but there is a specific text value that indicates 
+  # the result is censored (BPQL, BDL, ND)
+  # and the TADA.DetectionQuantitationLimitMeasure.MeasureValue and unit is populated
+  # if more are added, they need to be included below as well (line 194)
+  
+  .data$TADA.ResultMeasureValue <- ifelse(
+    (.data$ResultMeasureValue == "BPQL"
+     | .data$ResultMeasureValue == "BDL"
+     | .data$ResultMeasureValue == "ND")
+    & !is.na(.data$TADA.DetectionQuantitationLimitMeasure.MeasureValue)
+    & !is.na(.data$TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode),
+    .data$TADA.DetectionQuantitationLimitMeasure.MeasureValue,
+    .data$TADA.ResultMeasureValue
+  )
+  
+  # this does the same as above for the units
+  .data$TADA.ResultMeasure.MeasureUnitCode <- ifelse(
+    (.data$ResultMeasureValue == "BPQL"
+     | .data$ResultMeasureValue == "BDL"
+     | .data$ResultMeasureValue == "ND")
+    & !is.na(.data$TADA.DetectionQuantitationLimitMeasure.MeasureValue)
+    & !is.na(.data$TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode),
+    .data$TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode,
+    .data$TADA.ResultMeasure.MeasureUnitCode
+  )
+  
+  # this updates the TADA.ResultMeasureValueDataTypes.Flag
+  .data$TADA.ResultMeasureValueDataTypes.Flag <- ifelse(
+    (.data$ResultMeasureValue == "BPQL" |
+       .data$ResultMeasureValue == "BDL" |
+       .data$ResultMeasureValue == "ND")
+    & !is.na(.data$TADA.DetectionQuantitationLimitMeasure.MeasureValue)
+    & !is.na(.data$TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode),
+    "Result Value/Unit Copied from Detection Limit",
+    .data$TADA.ResultMeasureValueDataTypes.Flag
+  )
+  
+  # Copy detection limit value and unit to TADA Result Measure Value and Unit columns
  # this first row copies all over when TADA.DetectionQuantitationLimitMeasure.MeasureValue is not NA and the 
  # TADA.ResultMeasureValueDataTypes.Flag is "NA - Not Available"
  # Imp note: TADA result values are NA for text and other values (coerced) even though they are not 
  # NA in the original result value
  .data$TADA.ResultMeasureValue <- ifelse(
    !is.na(.data$TADA.DetectionQuantitationLimitMeasure.MeasureValue)
-   & .data$TADA.ResultMeasureValueDataTypes.Flag == "NA - Not Available",
+   & (.data$TADA.ResultMeasureValueDataTypes.Flag == "NA - Not Available"
+      | is.na(.data$TADA.ResultMeasureValueDataTypes.Flag)),
    .data$TADA.DetectionQuantitationLimitMeasure.MeasureValue, 
-   .data$TADA.ResultMeasureValue)
+   .data$TADA.ResultMeasureValue
+   )
  
  # this does the same as above for the units
  .data$TADA.ResultMeasure.MeasureUnitCode <- ifelse(
    !is.na(.data$TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode)
-   & .data$TADA.ResultMeasureValueDataTypes.Flag == "NA - Not Available", 
+   & (.data$TADA.ResultMeasureValueDataTypes.Flag == "NA - Not Available"
+      | is.na(.data$TADA.ResultMeasureValueDataTypes.Flag)), 
    .data$TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode, 
-   .data$TADA.ResultMeasure.MeasureUnitCode)
+   .data$TADA.ResultMeasure.MeasureUnitCode
+   )
  
  # this updates the TADA.ResultMeasureValueDataTypes.Flag 
  .data$TADA.ResultMeasureValueDataTypes.Flag <- ifelse(
-   .data$TADA.ResultMeasureValueDataTypes.Flag == "NA - Not Available"
+   (.data$TADA.ResultMeasureValueDataTypes.Flag == "NA - Not Available"
+    | is.na(.data$TADA.ResultMeasureValueDataTypes.Flag))
    & !is.na(.data$TADA.DetectionQuantitationLimitMeasure.MeasureValue),
    "Result Value/Unit Copied from Detection Limit",
-   .data$TADA.ResultMeasureValueDataTypes.Flag)
- 
- # this copies det lim result value and unit over to TADA result value and unit 
- # when the result value is TEXT but there is a specific text value that indicates 
- # the result is censored (BPQL, BDL, ND)
- # and the TADA.DetectionQuantitationLimitMeasure.MeasureValue provided
- # if more are added, they need to be included below as well (line 194)
- # .data$TADA.ResultMeasureValue <- ifelse(
- #   !is.na(.data$TADA.DetectionQuantitationLimitMeasure.MeasureValue)
- #   & (.data$ResultMeasureValue == "BPQL" |
- #     .data$ResultMeasureValue == "BDL" |
- #     .data$ResultMeasureValue == "ND") ,
- #   .data$TADA.DetectionQuantitationLimitMeasure.MeasureValue, 
- #   .data$TADA.ResultMeasureValue)
- # 
- # # this does the same as above for the units
- # .data$TADA.ResultMeasure.MeasureUnitCode <- ifelse(
- #   !is.na(.data$TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode)
- #   & (.data$ResultMeasureValue == "BPQL" |
- #     .data$ResultMeasureValue == "BDL" |
- #     .data$ResultMeasureValue == "ND") , 
- #   .data$TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode, 
- #   .data$TADA.ResultMeasure.MeasureUnitCode)
- # 
- # # this updates the TADA.ResultMeasureValueDataTypes.Flag 
- # .data$TADA.ResultMeasureValueDataTypes.Flag <- ifelse(
- #   (.data$ResultMeasureValue == "BPQL" |
- #        .data$ResultMeasureValue == "BDL" |
- #        .data$ResultMeasureValue == "ND"),
- #   "Result Value/Unit Copied from Detection Limit", 
- #   .data$TADA.ResultMeasureValueDataTypes.Flag)
+   .data$TADA.ResultMeasureValueDataTypes.Flag
+   )
  
  # If user has not previously run TADA_FlagMeasureQualifierCode, run it here
  # to add column TADA.MeasureQualifier.Flag to allow for using user-supplied 
@@ -245,7 +260,7 @@ TADA_IDCensoredData <- function(.data) {
 #' @export
 #'
 #' @examples
-#' #' # Load example dataset:
+#' # Load example dataset:
 #' data(Data_Nutrients_UT)
 #' # Check for agreement between detection condition and detection limit type,
 #' # and in instances where the measurement is non-detect, set the result value
