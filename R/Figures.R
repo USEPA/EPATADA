@@ -743,7 +743,7 @@ TADA_TwoCharacteristicScatterplot <- function(.data, id_cols = "TADA.ComparableD
   plot.data <- as.data.frame(.data)
 
   # this subset must include all fields included in plot hover below
-  plot.data <- subset(plot.data, plot.data[, id_cols] %in% groups)[, c(id_cols, reqcols, depthcols, "ActivityStartDateTime", "MonitoringLocationName", "TADA.ActivityMediaName", "ActivityMediaSubdivisionName", "ActivityRelativeDepthName", "TADA.CharacteristicName", "TADA.MethodSpeciationName", "TADA.ResultSampleFractionText")]
+  plot.data <- subset(plot.data, plot.data[, id_cols] %in% groups)[, c(id_cols, reqcols, depthcols, "ActivityStartDateTime", "MonitoringLocationName", "TADA.ActivityMediaName", "ActivityMediaSubdivisionName", "ActivityRelativeDepthName", "TADA.CharacteristicName", "TADA.MethodSpecificationName", "TADA.ResultSampleFractionText")]
   plot.data$name <- gsub("_NA", "", plot.data[, id_cols])
   plot.data$name <- gsub("_", " ", plot.data$name)
 
@@ -813,7 +813,7 @@ TADA_TwoCharacteristicScatterplot <- function(.data, id_cols = "TADA.ComparableD
       name = paste0(
         param1$TADA.ResultSampleFractionText, " ",
         param1$TADA.CharacteristicName, " ",
-        param1$TADA.MethodSpeciationName
+        param1$TADA.MethodSpecificationName
       ),
       marker = list(
         size = 10,
@@ -854,7 +854,7 @@ TADA_TwoCharacteristicScatterplot <- function(.data, id_cols = "TADA.ComparableD
       name = paste0(
         param2$TADA.ResultSampleFractionText, " ",
         param2$TADA.CharacteristicName, " ",
-        param2$TADA.MethodSpeciationName
+        param2$TADA.MethodSpecificationName
       ),
       marker = list(
         size = 10, color = "#00bde3",

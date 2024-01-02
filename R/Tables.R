@@ -49,7 +49,7 @@ TADA_SummarizeColumn <- function(.data, col = "TADA.CharacteristicName") {
 #' @param .data TADA data frame containing the data downloaded from the WQP,
 #'   where each row represents a unique data record. Data frame must include the
 #'   columns 'TADA.ResultMeasureValue', 'TADA.ResultMeasure.MeasureUnitCode',
-#'   'TADA.ResultSampleFractionText', 'TADA.MethodSpeciationName',
+#'   'TADA.ResultSampleFractionText', 'TADA.MethodSpecificationName',
 #'   'TADA.ComparableDataIdentifier', 'TADA.CensoredData.Flag',
 #'   'DetectionQuantitationLimitTypeName', and 'MonitoringLocationIdentifier' to
 #'   run this function. The 'TADA.ComparableDataIdentifier' can be added to the
