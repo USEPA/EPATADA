@@ -1358,7 +1358,7 @@ TADA_AutoFilter <- function(.data) {
     }else { 
       print("All TADA Required columns contain some non-NA values.")}
   
-  rm(req.paste)
+  rm(req.paste, remove.cols, remove.paste, req.check)
   
 end <- dim(.data)[1]
 
