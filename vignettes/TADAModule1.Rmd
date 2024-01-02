@@ -475,7 +475,7 @@ See documentation for more details:
         invalid TADA.CharacteristicName,
         ResultAnalyticalMethod/MethodIdentifier, and
         ResultAnalyticalMethod/MethodIdentifierContext combinations in
-        your dataframe either "Nonstandardized", "Invalid", or "Valid".
+        your dataframe either "NonStandardized", "Invalid", or "Valid".
 
     -   When clean = TRUE, "Invalid" rows are removed from the dataframe
         and no column will be appended.
@@ -488,22 +488,22 @@ See documentation for more details:
     -   When clean = "none", this function adds the following column to
         your dataframe: TADA.MethodSpeciation.Flag. This column flags
         each TADA.CharacteristicName and MethodSpecificationName
-        combination in your dataframe as either "Nonstandardized",
+        combination in your dataframe as either "NonStandardized",
         "Invalid", or "Valid".
 
     -   When clean = "invalid_only", only "Invalid" rows are removed
         from the dataframe. Default is clean = "invalid_only".
 
-    -   When clean = "nonstandardized_only", only "Nonstandardized" rows
+    -   When clean = "nonstandardized_only", only "NonStandardized" rows
         are removed from the dataframe.
 
-    -   When clean = "both", "Invalid" and "Nonstandardized" rows are
+    -   When clean = "both", "Invalid" and "NonStandardized" rows are
         removed from the dataframe.
 
     -   When clean = "none", no rows are removed from the dataframe.
 
     -   When flaggedonly = TRUE, the dataframe is filtered to only the
-        rows flagged as "Invalid" or "Nonstandardized"; default is
+        rows flagged as "Invalid" or "NonStandardized"; default is
         flaggedonly = FALSE.
 
 -   ?**TADA_FlagResultUnit**
@@ -512,7 +512,7 @@ See documentation for more details:
         dataframe: TADA.ResultUnit.Flag. This column flags each
         TADA.CharacteristicName, TADA.ActivityMediaName, and
         TADA.ResultMeasure.MeasureUnitCode combination in your dataframe
-        as either "Nonstandardized", "Invalid", or "Valid".
+        as either "NonStandardized", "Invalid", or "Valid".
 
     -   When clean = TRUE, "Invalid" rows are removed from the dataframe
         and no column will be appended.
@@ -525,7 +525,7 @@ See documentation for more details:
     -   When clean = FALSE, this function adds the following column to
         your dataframe: TADA.SampleFraction.Flag. This column flags each
         TADA.CharacteristicName and TADA.ResultSampleFractionText
-        combination in your dataframe as either "Nonstandardized",
+        combination in your dataframe as either "NonStandardized",
         "Invalid", or "Valid".
     -   When clean = TRUE, "Invalid" rows are removed from the dataframe
         and no column will be appended.

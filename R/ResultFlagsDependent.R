@@ -20,7 +20,7 @@
 #' @return This function adds the following column to your dataframe:
 #'   TADA.SampleFraction.Flag, which flags each CharacteristicName and
 #'   ResultSampleFractionText combination in your dataframe as either
-#'   "Nonstandardized", "Invalid", or "Valid". When clean = FALSE and flaggedonly
+#'   "NonStandardized", "Invalid", "Valid", or "Not Reviewed". When clean = FALSE and flaggedonly
 #'   = TRUE, the data are filtered to show the "Invalid" rows only. When clean =
 #'   TRUE and flaggedonly = FALSE, "Invalid" rows are removed from the dataframe
 #'   and no column will be appended. When clean = TRUE and flaggedonly = TRUE,
@@ -81,7 +81,7 @@ TADA_FlagFraction <- function(.data, clean = TRUE, flaggedonly = FALSE) {
   check.data["TADA.SampleFraction.Flag"][is.na(check.data["TADA.SampleFraction.Flag"])] <- "Not Reviewed"
 
   # if all rows are "Valid", return input unchanged
-  if (any(c("Nonstandardized", "Invalid", "Not Reviewed") %in%
+  if (any(c("NonStandardized", "Invalid", "Not Reviewed") %in%
     unique(check.data$TADA.SampleFraction.Flag)) == FALSE) {
     if (flaggedonly == FALSE) {
       print("All characteristic/fraction combinations are valid in your dataframe. Returning input dataframe with TADA.SampleFraction.Flag column for tracking.")
@@ -126,7 +126,7 @@ TADA_FlagFraction <- function(.data, clean = TRUE, flaggedonly = FALSE) {
 #' speciation combination in the dataframe. When clean = "invalid_only", rows with invalid
 #' characteristic-method speciation combinations are removed. Default is
 #' clean = "invalid_only". When flaggedonly = TRUE, dataframe is filtered to show only
-#' rows with invalid or nonstandardized characteristic-method speciation combinations.
+#' rows with "Invalid" or "NonStandardized" characteristic-method speciation combinations.
 #' Default is flaggedonly = FALSE.
 #'
 #' The “Not Reviewed” value within "TADA.ResultAboveUpperThreshold.Flag" means
@@ -139,22 +139,22 @@ TADA_FlagFraction <- function(.data, clean = TRUE, flaggedonly = FALSE) {
 #' "both", or "none." The default is clean = "invalid_only" which removes rows of
 #' data flagged as having "Invalid" characteristic-method speciation combinations. When
 #' clean = "nonstandardized_only", the function removes rows of data flagged as
-#' having "Nonstandardized" characteristic-method speciation combinations. When
+#' having "NonStandardized" characteristic-method speciation combinations. When
 #' clean = "both", the function removes rows of data flagged as either "Invalid" or
-#' "Nonstandardized". And when clean = "none", the function does not remove any "Invalid"
-#' or "Nonstandardized" rows of data.
+#' "NonStandardized". And when clean = "none", the function does not remove any "Invalid"
+#' or "NonStandardized" rows of data.
 #' @param flaggedonly Boolean argument; filters to show only the "Invalid"
 #' characteristic-method speciation combinations from the dataframe when
 #' flaggedonly = TRUE. Default is flaggedonly = FALSE.
 #'
 #' @return This function adds TADA.MethodSpeciation.Flag to the dataframe. This column
 #' flags each TADA.CharacteristicName and MethodSpecificationName combination in your
-#' dataframe as either "Nonstandardized", "Invalid", or "Valid". When clean = "none"
+#' dataframe as either "NonStandardized", "Invalid", "Valid", or "Not Reviewed". When clean = "none"
 #' and flaggedonly = TRUE, the dataframe is filtered to show only the "Invalid" and
-#' "Nonstandardized data; the column TADA.MethodSpeciation.Flag is still appended.
+#' "NonStandardized data; the column TADA.MethodSpeciation.Flag is still appended.
 #' When clean = "invalid_only" and flaggedonly = FALSE, "Invalid" rows are removed
-#' from the dataframe, but "Nonstandardized" rows are retained. When
-#' clean = "nonstandardized_only" and flaggedonly = FALSE, "Nonstandardized" rows
+#' from the dataframe, but "NonStandardized" rows are retained. When
+#' clean = "nonstandardized_only" and flaggedonly = FALSE, "NonStandardized" rows
 #' are removed, but "Invalid" rows are retained. The default is clean = "invalid_only"
 #' and flaggedonly = FALSE.
 #'
@@ -165,25 +165,25 @@ TADA_FlagFraction <- function(.data, clean = TRUE, flaggedonly = FALSE) {
 #' data(Data_Nutrients_UT)
 #'
 #' # Remove data with invalid characteristic-method speciation combinations from dataframe,
-#' # but retain nonstandardized combinations flagged in new column 'TADA.MethodSpeciation.Flag':
+#' # but retain "NonStandardized" combinations flagged in new column 'TADA.MethodSpeciation.Flag':
 #' InvalidSpeciation_clean <- TADA_FlagSpeciation(Data_Nutrients_UT)
 #'
-#' # Remove data with nonstandardized characteristic-method speciation combinations
+#' # Remove data with "NonStandardized" characteristic-method speciation combinations
 #' # from dataframe but retain invalid combinations flagged in new column 'TADA.MethodSpeciation.Flag':
 #' NonstandardSpeciation_clean <- TADA_FlagSpeciation(Data_Nutrients_UT, clean = "nonstandardized_only")
 #'
-#' # Remove both invalid and nonstandardized characteristic-method speciation combinations
+#' # Remove both "Invalid" and "NonStandardized" characteristic-method speciation combinations
 #' # from dataframe:
 #' Speciation_clean <- TADA_FlagSpeciation(Data_Nutrients_UT, clean = "both")
 #'
-#' # Flag, but do not remove, data with invalid or nonstandardized characteristic-method speciation
+#' # Flag, but do not remove, data with "Invalid" or "NonStandardized" characteristic-method speciation
 #' # combinations in new column titled "TADA.MethodSpeciation.Flag":
 #' InvalidSpeciation_flags <- TADA_FlagSpeciation(Data_Nutrients_UT, clean = "none")
 #'
 #' # Show only invalid characteristic-method speciation combinations:
 #' InvalidSpeciation_flaggedonly <- TADA_FlagSpeciation(Data_Nutrients_UT, clean = "nonstandardized_only", flaggedonly = TRUE)
 #'
-#' # Show only nonstandardized characteristic-method speciation combinations:
+#' # Show only "NonStandardized" characteristic-method speciation combinations:
 #' NonstandardSpeciation_flaggedonly <- TADA_FlagSpeciation(Data_Nutrients_UT, clean = "invalid_only", flaggedonly = TRUE)
 #'
 TADA_FlagSpeciation <- function(.data, clean = c("invalid_only", "nonstandardized_only", "both", "none"), flaggedonly = FALSE) {
@@ -265,11 +265,11 @@ TADA_FlagSpeciation <- function(.data, clean = c("invalid_only", "nonstandardize
 
   # when flaggedonly = TRUE
   if (flaggedonly == TRUE) {
-    # filter to show only invalid and/or nonStandardized characteristic-method speciation combinations
+    # filter to show only invalid and/or NonStandardized characteristic-method speciation combinations
     error.data <- dplyr::filter(clean.data, TADA.MethodSpeciation.Flag == "Invalid" | TADA.MethodSpeciation.Flag == "NonStandardized")
     # if there are no errors
     if (nrow(error.data) == 0) {
-      print("This dataframe is empty because either we did not find any invalid/nonstandardized characteristic-method speciation combinations or they were all filtered out")
+      print("This dataframe is empty because either we did not find any Invalid/NonStandardized characteristic-method speciation combinations or they were all filtered out")
       # error.data <- dplyr::select(error.data, -TADA.MethodSpeciation.Flag)
     }
     error.data <- TADA_OrderCols(error.data)
@@ -285,7 +285,7 @@ TADA_FlagSpeciation <- function(.data, clean = c("invalid_only", "nonstandardize
 #' combination in the dataframe. When clean = "invalid_only", rows with invalid
 #' characteristic-media-result unit combinations are removed. Default is
 #' clean = "invalid_only". When flaggedonly = TRUE, dataframe is filtered to show only
-#' rows with invalid or nonstandardized characteristic-media-result unit combinations.
+#' rows with "Invalid" or "NonStandardized" characteristic-media-result unit combinations.
 #' Default is flaggedonly = FALSE.
 #'
 #' #' The “Not Reviewed” value within "TADA.ResultAboveUpperThreshold.Flag" means
@@ -298,22 +298,23 @@ TADA_FlagSpeciation <- function(.data, clean = c("invalid_only", "nonstandardize
 #' "both", or "none." The default is clean = "invalid_only" which removes rows of
 #' data flagged as having "Invalid" characteristic-media-result unit combinations. When
 #' clean = "nonstandardized_only", the function removes rows of data flagged as
-#' having "Nonstandardized" characteristic-media-result unit combinations. When
+#' having "NonStandardized" characteristic-media-result unit combinations. When
 #' clean = "both", the function removes rows of data flagged as either "Invalid" or
-#' "Nonstandardized". And when clean = "none", the function does not remove any "Invalid"
-#' or "Nonstandardized" rows of data.
+#' "NonStandardized". And when clean = "none", the function does not remove any "Invalid"
+#' or "NonStandardized" rows of data.
 #' @param flaggedonly Boolean argument; filters dataframe to show only "Invalid"
 #' characteristic-media-result unit combinations when flaggedonly = TRUE. Default
 #' is flaggedonly = FALSE.
 #'
 #' @return This function adds the TADA.ResultUnit.Flag to a TADA dataframe. This column
 #' flags each CharacteristicName, ActivityMediaName, and ResultMeasure/MeasureUnitCode
-#' combination in your dataframe as either "Nonstandardized", "Invalid", or "Valid".
+#' combination in your dataframe as either "NonStandardized", "Invalid", "Valid", or 
+#' "Not Reviewed".
 #' When clean = "none" and flaggedonly = TRUE, the dataframe is filtered to show only
-#' the "Invalid" and "Nonstandardized data; the column TADA.ResultUnit.Flag is
+#' the "Invalid" and "NonStandardized" data; the column TADA.ResultUnit.Flag is
 #' still appended. When clean = "invalid_only" and flaggedonly = FALSE, "Invalid"
-#' rows are removed from the dataframe, but "Nonstandardized" rows are retained. When
-#' clean = "nonstandardized_only" and flaggedonly = FALSE, "Nonstandardized" rows
+#' rows are removed from the dataframe, but "NonStandardized" rows are retained. When
+#' clean = "nonstandardized_only" and flaggedonly = FALSE, "NonStandardized" rows
 #' are removed, but "Invalid" rows are retained. The default is clean = "invalid_only"
 #' and flaggedonly = FALSE.
 #'
@@ -324,25 +325,25 @@ TADA_FlagSpeciation <- function(.data, clean = c("invalid_only", "nonstandardize
 #' data(Data_Nutrients_UT)
 #'
 #' # Remove data with invalid characteristic-media-result unit combinations from dataframe,
-#' # but retain nonstandardized combinations flagged in new column 'TADA.ResultUnit.Flag':
+#' # but retain "NonStandardized" combinations flagged in new column 'TADA.ResultUnit.Flag':
 #' InvalidUnit_clean <- TADA_FlagResultUnit(Data_Nutrients_UT)
 #'
-#' # Remove data with nonstandardized characteristic-media-result unit combinations
+#' # Remove data with "NonStandardized" characteristic-media-result unit combinations
 #' # from dataframe but retain invalid combinations flagged in new column 'TADA.ResultUnit.Flag:
 #' NonstandardUnit_clean <- TADA_FlagResultUnit(Data_Nutrients_UT, clean = "nonstandardized_only")
 #'
-#' # Remove both invalid and nonstandardized characteristic-media-result unit combinations
+#' # Remove both invalid and "NonStandardized" characteristic-media-result unit combinations
 #' # from dataframe:
 #' ResultUnit_clean <- TADA_FlagResultUnit(Data_Nutrients_UT, clean = "both")
 #'
-#' # Flag, but do not remove, data with invalid or nonstandardized characteristic-media-result unit
+#' # Flag, but do not remove, data with invalid or "NonStandardized" characteristic-media-result unit
 #' # combinations in new column titled "TADA.ResultUnit.Flag":
 #' InvalidUnit_flags <- TADA_FlagResultUnit(Data_Nutrients_UT, clean = "none")
 #'
 #' # Show only invalid characteristic-media-result unit combinations:
 #' InvalidUnit_flaggedonly <- TADA_FlagResultUnit(Data_Nutrients_UT, clean = "nonstandardized_only", flaggedonly = TRUE)
 #'
-#' # Show only nonstandardized characteristic-media-result unit combinations:
+#' # Show only "NonStandardized" characteristic-media-result unit combinations:
 #' NonstandardUnit_flaggedonly <- TADA_FlagResultUnit(Data_Nutrients_UT, clean = "invalid_only", flaggedonly = TRUE)
 TADA_FlagResultUnit <- function(.data, clean = c("invalid_only", "nonstandardized_only", "both", "none"), flaggedonly = FALSE) {
   # check .data is data.frame
@@ -399,7 +400,7 @@ TADA_FlagResultUnit <- function(.data, clean = c("invalid_only", "nonstandardize
 
   # when clean = "nonstandardized_only"
   if (clean == "nonstandardized_only") {
-    # filter out only "Nonstandardized" characteristic-method speciation combinations
+    # filter out only "NonStandardized" characteristic-method speciation combinations
     clean.data <- dplyr::filter(check.data, TADA.ResultUnit.Flag != "NonStandardized")
   }
 
