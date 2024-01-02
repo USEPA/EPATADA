@@ -1323,7 +1323,7 @@ TADA_AutoFilter <- function(.data) {
   na.cols <- .data %>% purrr::keep(~all(is.na(.x))) %>%
    names()
   
-  # create list of columns to removed by comparing columns containing all NA values to required columns.
+  # create list of columns to be removed by comparing columns containing all NA values to required columns.
   # any required columns with all NA values will be excluded from the list of columns to remove.
   remove.cols <-setdiff(na.cols, req.cols)
   
