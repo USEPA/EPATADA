@@ -140,7 +140,7 @@ automatically runs the **TADA_AutoClean** function, which runs the following fun
 
 -   **TADA_IDCensoredData** - categorizes detection limit data and identifies mismatches in result detection condition and result detection limit type. 
 
--   Other helpful actions - converts important text columns to all upper-case letters, removes exact duplicates, and uses WQX format rules to harmonize specific NWIS metadata conventions (e.g. move characteristic speciation from the TADA.ResultMeasure.MeasureUnitCode column to the TADA.MethodSpecificationName column)
+-   Other helpful actions - converts important text columns to all upper-case letters, removes exact duplicates, and uses WQX format rules to harmonize specific NWIS metadata conventions (e.g. move characteristic speciation from the TADA.ResultMeasure.MeasureUnitCode column to the TADA.MethodSpeciationName column)
 
 As a general rule, TADA functions do not change any contents in the WQP-served
 columns. Instead, they add new columns with the prefix "TADA." The following
@@ -487,7 +487,7 @@ See documentation for more details:
 
     -   When clean = "none", this function adds the following column to
         your dataframe: TADA.MethodSpeciation.Flag. This column flags
-        each TADA.CharacteristicName and MethodSpecificationName
+        each TADA.CharacteristicName and MethodSpeciationName
         combination in your dataframe as either "Nonstandardized",
         "Invalid", or "Valid".
 
@@ -882,7 +882,7 @@ elements:
 
 -   TADA.ResultSampleFractionText
 
--   TADA.MethodSpecificationName
+-   TADA.MethodSpeciationName
 
 -   TADA.ResultMeasure.MeasureUnitCode
 

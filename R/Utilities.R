@@ -20,7 +20,7 @@ utils::globalVariables(c(
   "TADA.ResultValueAboveUpperThreshold.Flag", "ActivityIdentifier", "ActivityMediaName",
   "ActivityStartDate", "TADA.ResultValueBelowUpperThreshold.Flag", "TADA.ResultValueBelowLowerThreshold.Flag", "CharacteristicName",
   "Conversion.Factor", "Count", "Description", "FieldName", "FieldValue",
-  "MethodSpecificationName", "MonitoringLocationIdentifier",
+  "MethodSpecationName", "MonitoringLocationIdentifier",
   "OrganizationFormalName", "OrganizationIdentifier", "ProjectDescriptionText",
   "ProjectFileUrl", "ProjectIdentifier",
   "ProjectMonitoringLocationWeightingUrl", "ProjectName",
@@ -45,7 +45,7 @@ utils::globalVariables(c(
   "desc", "Legend", "roundRV", "TADA.DuplicateID", "maxRV", "within10",
   "AllGroups", "Domain.Value.Status", "Char_Flag", "Comparable.Name",
   "TADA.ResultMeasureValue1", "TADA.ResultSampleFractionText",
-  "TADA.MethodSpecificationName", "TADA.ResultMeasure.MeasureUnitCode",
+  "TADA.MethodSpeciationName", "TADA.ResultMeasure.MeasureUnitCode",
   "TADA.ActivityMediaName", "TADA.NutrientSummationGroup",
   "SummationName", "SummationRank", "SummationFractionNotes", "SummationSpeciationNotes",
   "SummationSpeciationConversionFactor", "SummationNote", "NutrientGroup",
@@ -81,7 +81,7 @@ utils::globalVariables(c(
 #'   TADA.ActivityMediaName, TADA.CharacteristicName, TADA.ResultMeasureValue,
 #'   TADA.ResultMeasure.MeasureUnitCode, TADA.ResultMeasureValueDataTypes.Flag,
 #'   TADA.CensoredData.Flag, TADA.LatitudeMeasure, TADA.LongitudeMeasure,
-#'   TADA.ResultSampleFractionText, TADA.MethodSpecificationName, and more.
+#'   TADA.ResultSampleFractionText, TADA.MethodSpeciationName, and more.
 #'   Please note that the number of TADA-specific depth columns in the returned
 #'   dataframe depends upon the number of depth columns with one or more results
 #'   populated with a numeric value. If all depth columns contain only NA's, no
@@ -97,7 +97,7 @@ TADA_AutoClean <- function(.data) {
   # .data required columns
   required_cols <- c(
     "ActivityMediaName", "ResultMeasureValue", "ResultMeasure.MeasureUnitCode",
-    "CharacteristicName", "ResultSampleFractionText", "MethodSpecificationName",
+    "CharacteristicName", "ResultSampleFractionText", "MethodSpeciationName",
     "DetectionQuantitationLimitMeasure.MeasureUnitCode", "ResultDetectionConditionText",
     "ResultIdentifier", "DetectionQuantitationLimitMeasure.MeasureValue",
     "LatitudeMeasure", "LongitudeMeasure"
@@ -112,7 +112,7 @@ TADA_AutoClean <- function(.data) {
   print("TADA_Autoclean: creating TADA-specific columns.")
   .data$TADA.CharacteristicName <- toupper(.data$CharacteristicName)
   .data$TADA.ResultSampleFractionText <- toupper(.data$ResultSampleFractionText)
-  .data$TADA.MethodSpecificationName <- toupper(.data$MethodSpecificationName)
+  .data$TADA.MethodSpeciationName <- toupper(.data$MethodSpeciationName)
   .data$TADA.ResultMeasure.MeasureUnitCode <- toupper(.data$ResultMeasure.MeasureUnitCode)
   .data$TADA.ActivityMediaName <- toupper(.data$ActivityMediaName)
   .data$TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode <-
@@ -216,7 +216,7 @@ TADA_AutoClean <- function(.data) {
   # Change NONE in unit, fraction, and speciation to NA for better harmonization
   .data <- .data %>% dplyr::mutate(
     TADA.ResultSampleFractionText = replace(TADA.ResultSampleFractionText, TADA.ResultSampleFractionText %in% c("NONE"), NA),
-    TADA.MethodSpecificationName = replace(TADA.MethodSpecificationName, TADA.MethodSpecificationName %in% c("NONE"), NA),
+    TADA.MethodSpeciationName = replace(TADA.MethodSpeciationName, TADA.MethodSpeciationName %in% c("NONE"), NA),
     TADA.ResultMeasure.MeasureUnitCode = replace(TADA.ResultMeasure.MeasureUnitCode, TADA.ResultMeasure.MeasureUnitCode %in% c("NONE"), NA)
   )
 
@@ -569,7 +569,7 @@ TADA_OrderCols <- function(.data) {
     "WellDepthMeasure.MeasureUnitCode",
     "WellHoleDepthMeasure.MeasureValue",
     "WellHoleDepthMeasure.MeasureUnitCode",
-    "MethodSpecificationName",
+    "MethodSpeciationName",
     "ProjectDescriptionText",
     "SamplingDesignTypeCode",
     "QAPPApprovedIndicator",
@@ -604,7 +604,7 @@ TADA_OrderCols <- function(.data) {
     "TADA.ResultValueAboveUpperThreshold.Flag",
     "TADA.ResultUnit.Flag",
     "CombinationValidity",
-    "TADA.MethodSpecificationName",
+    "TADA.MethodSpeciationName",
     "TADA.AnalyticalMethod.Flag",
     "TADA.MethodSpeciation.Flag",
     "TADA.SpeciationAssumptions",
@@ -716,7 +716,7 @@ TADA_SubstituteDeprecatedChars <- function(.data) {
 #' Create TADA.ComparableDataIdentifier Column
 #'
 #' This utility function creates the TADA.ComparableDataIdentifier column by pasting
-#' together TADA.CharacteristicName, TADA.ResultSampleFractionText, TADA.MethodSpecificationName,
+#' together TADA.CharacteristicName, TADA.ResultSampleFractionText, TADA.MethodSpeciationName,
 #' and TADA.ResultMeasure.MeasureUnitCode.
 #'
 #' @param .data TADA dataframe
@@ -727,8 +727,8 @@ TADA_SubstituteDeprecatedChars <- function(.data) {
 #'
 
 TADA_CreateComparableID <- function(.data) {
-  TADA_CheckColumns(.data, expected_cols = c("TADA.CharacteristicName", "TADA.ResultSampleFractionText", "TADA.MethodSpecificationName", "TADA.ResultMeasure.MeasureUnitCode"))
-  .data$TADA.ComparableDataIdentifier <- paste(.data$TADA.CharacteristicName, .data$TADA.ResultSampleFractionText, .data$TADA.MethodSpecificationName, .data$TADA.ResultMeasure.MeasureUnitCode, sep = "_")
+  TADA_CheckColumns(.data, expected_cols = c("TADA.CharacteristicName", "TADA.ResultSampleFractionText", "TADA.MethodSpeciationName", "TADA.ResultMeasure.MeasureUnitCode"))
+  .data$TADA.ComparableDataIdentifier <- paste(.data$TADA.CharacteristicName, .data$TADA.ResultSampleFractionText, .data$TADA.MethodSpeciationName, .data$TADA.ResultMeasure.MeasureUnitCode, sep = "_")
   return(.data)
 }
 
@@ -1150,7 +1150,7 @@ TADA_CheckRequiredFields <- function(.data) {
     # required
     "TADA.CharacteristicName",
     "TADA.ResultSampleFractionText",
-    "TADA.MethodSpecificationName",
+    "TADA.MethodSpeciationName",
     "TADA.ResultMeasure.MeasureUnitCode",
     "TADA.ActivityMediaName",
     "TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode",
@@ -1164,7 +1164,7 @@ TADA_CheckRequiredFields <- function(.data) {
     "ActivityStartDateTime",
     "CharacteristicName",
     "ResultSampleFractionText",
-    "MethodSpecificationName",
+    "MethodSpeciationName",
     "ResultMeasureValue",
     "ResultMeasure.MeasureUnitCode",
     "ResultDetectionConditionText",
@@ -1347,7 +1347,7 @@ TADA_RetainRequired <- function(.data) {
                      "ActivityStartDateTime",
                      "CharacteristicName",
                      "ResultSampleFractionText",
-                     "MethodSpecificationName",
+                     "MethodSpeciationName",
                      "ResultMeasureValue",
                      "ResultMeasure.MeasureUnitCode",
                      "ResultDetectionConditionText",
