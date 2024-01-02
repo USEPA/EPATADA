@@ -487,7 +487,7 @@ See documentation for more details:
 
     -   When clean = "none", this function adds the following column to
         your dataframe: TADA.MethodSpeciation.Flag. This column flags
-        each TADA.CharacteristicName and MethodSpeciationName
+        each TADA.CharacteristicName and MethodSpecificationName
         combination in your dataframe as either "Nonstandardized",
         "Invalid", or "Valid".
 

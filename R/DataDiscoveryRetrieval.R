@@ -724,7 +724,7 @@ TADA_JoinWQPProfiles <- function(FullPhysChem = "null",
           dplyr::select(
             Narrow.df, ActivityIdentifier, MonitoringLocationIdentifier,
             CharacteristicName, ResultMeasureValue,
-            MethodSpeciationName, OrganizationIdentifier, ResultIdentifier
+            MethodSpecificationName, OrganizationIdentifier, ResultIdentifier
           ),
           by = c(
             "ActivityIdentifier", "MonitoringLocationIdentifier",
