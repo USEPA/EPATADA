@@ -80,7 +80,7 @@ utils::globalVariables(c(
 #' @return Input dataframe with several added TADA-specific columns, including:
 #'   TADA.ActivityMediaName, TADA.CharacteristicName, TADA.ResultMeasureValue,
 #'   TADA.ResultMeasure.MeasureUnitCode, TADA.ResultMeasureValueDataTypes.Flag,
-#'   TADA.CensoredData.Flag, TADA.LatitudeMeasure, TADA.LongitudeMeasure,
+#'   TADA.LatitudeMeasure, TADA.LongitudeMeasure,
 #'   TADA.ResultSampleFractionText, TADA.MethodSpecificationName, and more.
 #'   Please note that the number of TADA-specific depth columns in the returned
 #'   dataframe depends upon the number of depth columns with one or more results
@@ -88,6 +88,7 @@ utils::globalVariables(c(
 #'   conversion is necessary and no TADA depth columns are created.
 #'
 #' @export
+#' 
 #'
 
 TADA_AutoClean <- function(.data) {
@@ -126,85 +127,16 @@ TADA_AutoClean <- function(.data) {
   # later once new workflow for documenting "removed" data is set up. May not be needed for R package.
   # TADAProfile <- dplyr::filter(TADAProfile, TADA.ActivityMediaName == "WATER")
 
-  # Remove duplicate rows - turned into a test because duplicated() takes a long
-  # time acting on all columns in a large dataset.
-  # test relies only on ResultIdentifier to identify exact duplicates. It
-  # speeds the process up quite a bit.
-  print("TADA_Autoclean: checking for exact duplicates.")
-  if (!length(unique(.data$ResultIdentifier)) == dim(.data)[1]) {
-    print("Duplicate results may be present. Filtering to unique results. This may take a while on large datasets.")
-    dup_rids <- names(table(.data$ResultIdentifier)[table(.data$ResultIdentifier) > 1])
-    dup_check <- .data %>%
-      dplyr::filter(ResultIdentifier %in% dup_rids) %>%
-      dplyr::group_by(ResultIdentifier) %>%
-      dplyr::distinct()
-    not_dups <- .data %>% dplyr::filter(!ResultIdentifier %in% dup_rids)
-    .data <- plyr::rbind.fill(dup_check, not_dups)
-  }
-
   # run TADA_ConvertSpecialChars function
   # .data <- MeasureValueSpecialCharacters(.data)
   print("TADA_Autoclean: checking for special characters.")
   .data <- TADA_ConvertSpecialChars(.data, "ResultMeasureValue")
   .data <- TADA_ConvertSpecialChars(.data, "DetectionQuantitationLimitMeasure.MeasureValue")
 
-  # Move detection limit value and unit to TADA Result Measure Value and Unit columns
-  # Consider moving this to ID censored data in the future?
-  # this first row copies all over when result is blank (NA) but 
-  # TADA.DetectionQuantitationLimitMeasure.MeasureValue is not and the 
-  # TADA.ResultMeasureValueDataTypes.Flag is not Text 
-  # Imp note: TADA result values are NA for text even though they are not NA in the original result value
-  .data$TADA.ResultMeasureValue <- ifelse(
-    is.na(.data$TADA.ResultMeasureValue)
-    & !is.na(.data$TADA.DetectionQuantitationLimitMeasure.MeasureValue)
-    & .data$TADA.ResultMeasureValueDataTypes.Flag != "Text",
-    .data$TADA.DetectionQuantitationLimitMeasure.MeasureValue, 
-    .data$TADA.ResultMeasureValue)
-  # this does the same as above for the units
-  .data$TADA.ResultMeasure.MeasureUnitCode <- ifelse(
-    is.na(.data$TADA.ResultMeasure.MeasureUnitCode)
-    & !is.na(.data$TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode)
-    & .data$TADA.ResultMeasureValueDataTypes.Flag != "Text", 
-    .data$TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode, 
-    .data$TADA.ResultMeasure.MeasureUnitCode)
-  .data$TADA.ResultMeasureValueDataTypes.Flag <- ifelse(
-    .data$TADA.ResultMeasureValueDataTypes.Flag == "NA - Not Applicable"
-    & !is.na(.data$TADA.DetectionQuantitationLimitMeasure.MeasureValue),
-    "Result Value/Unit Copied from Detection Limit",
-    .data$TADA.ResultMeasureValueDataTypes.Flag)
-  
-  # this copies det lim result value and unit over to TADA result value and unit 
-  # when the result value is TEXT but there is a specific text value that indicates 
-  # the result is censored (BPQL, BDL, ND)
-  # and the TADA.DetectionQuantitationLimitMeasure.MeasureValue provided
-  .data$TADA.ResultMeasureValueDataTypes.Flag <- ifelse(
-    .data$TADA.ResultMeasureValueDataTypes.Flag == "Text" &
-      .data$ResultMeasureValue == "BPQL" |
-      .data$ResultMeasureValue == "BDL" |
-      .data$ResultMeasureValue == "ND" & 
-      !is.na(.data$TADA.DetectionQuantitationLimitMeasure.MeasureValue),
-    "Result Value/Unit Copied from Detection Limit", 
-    .data$TADA.ResultMeasureValueDataTypes.Flag)
-  .data$TADA.ResultMeasureValue <- ifelse(
-    is.na(.data$TADA.ResultMeasureValue)
-    & !is.na(.data$TADA.DetectionQuantitationLimitMeasure.MeasureValue)
-    & .data$ResultMeasureValue == "BPQL" |
-      .data$ResultMeasureValue == "BDL" |
-      .data$ResultMeasureValue == "ND" ,
-    .data$TADA.DetectionQuantitationLimitMeasure.MeasureValue, 
-    .data$TADA.ResultMeasureValue)
-  # this does the same as above for the units
-  .data$TADA.ResultMeasure.MeasureUnitCode <- ifelse(
-    !is.na(.data$TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode)
-    & .data$ResultMeasureValue == "BPQL" |
-      .data$ResultMeasureValue == "BDL" |
-      .data$ResultMeasureValue == "ND" , 
-    .data$TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode, 
-    .data$TADA.ResultMeasure.MeasureUnitCode)
-  
-  # Identify detection limit data
-  print("TADA_Autoclean: identifying detection limit data.")
-  .data <- TADA_IDCensoredData(.data)
+  # include only in TADA_SimpleCensoredMethods
+  # # Identify detection limit data
+  # print("TADA_Autoclean: identifying and copying detection limit data to result value if blank.")
+  # .data <- TADA_IDCensoredData(.data)
 
   # Identify QC data
   .data <- TADA_FindQCActivities(.data, clean = FALSE, flaggedonly = FALSE)
@@ -364,6 +296,13 @@ TADA_CheckColumns <- function(.data, expected_cols) {
 #' and "Numeric Range - Averaged" (# - #)
 #'
 #' @export
+#' 
+#' @examples
+#' data(Data_Nutrients_UT)
+#' HandleSpecialChars_ResultMeasureValue = TADA_ConvertSpecialChars(Data_Nutrients_UT, "ResultMeasureValue")
+#' unique(HandleSpecialChars_ResultMeasureValue$TADA.ResultMeasureValueDataTypes.Flag)
+#' HandleSpecialChars_DetLimMeasureValue = TADA_ConvertSpecialChars(Data_Nutrients_UT, "TADA.DetectionQuantitationLimitMeasure.MeasureValue")
+#' unique(HandleSpecialChars_DetLimMeasureValue$TADA.DetectionQuantitationLimitMeasure.MeasureValueDataTypes.Flag)
 #'
 
 TADA_ConvertSpecialChars <- function(.data, col) {
@@ -384,18 +323,18 @@ TADA_ConvertSpecialChars <- function(.data, col) {
   if (is.numeric(chars.data$orig)) {
     clean.data <- chars.data %>%
       dplyr::mutate(flag = dplyr::case_when(
-        is.na(masked) ~ as.character("NA - Not Applicable"),
+        is.na(masked) ~ as.character("NA - Not Available"),
         TRUE ~ as.character("Numeric")
       ))
+    
   } else {
+    
     chars.data$masked <- gsub(" ", "", chars.data$masked) # get rid of white space for subsequent sorting
-
-    # Detect special characters in column and populate new flag column with descriptor
+   # Detect special characters in column and populate new flag column with descriptor
     # of the specific type of character/data type
     clean.data <- chars.data %>%
       dplyr::mutate(flag = dplyr::case_when(
-        is.na(masked) ~ as.character("NA - Not Applicable"),
-        (masked == "ND") ~ as.character("NA - Not Applicable"),
+        is.na(masked) ~ as.character("NA - Not Available"),
         (!is.na(suppressWarnings(as.numeric(masked)) == TRUE)) ~ as.character("Numeric"),
         (grepl("<", masked) == TRUE) ~ as.character("Less Than"),
         (grepl(">", masked) == TRUE) ~ as.character("Greater Than"),
@@ -404,10 +343,12 @@ TADA_ConvertSpecialChars <- function(.data, col) {
         (grepl("%", masked) == TRUE) ~ as.character("Percentage"),
         (grepl(",", masked) == TRUE) ~ as.character("Comma-Separated Numeric"),
         (grepl("\\d\\-\\d", masked) == TRUE) ~ as.character("Numeric Range - Averaged"),
+        # because * is a special character you have to escape\\ it:
+        (grepl("\\*", masked) == TRUE) ~ as.character("Approximate Value"),
         (!stringi::stri_enc_mark(masked) %in% c("ASCII")) ~ as.character("Non-ASCII Character(s)"),
         TRUE ~ "Coerced to NA"
       ))
-
+    
     # Result Values that are numeric ranges with the format #-# are converted to an average of the two numbers expressed in the range.
     if (any(clean.data$flag == "Numeric Range - Averaged")) {
       numrange <- subset(clean.data, clean.data$flag %in% c("Numeric Range - Averaged"))
@@ -420,18 +361,26 @@ TADA_ConvertSpecialChars <- function(.data, col) {
 
       clean.data <- plyr::rbind.fill(notnumrange, numrange)
     }
+    
     # In the new TADA column, convert to numeric and remove some specific special
     # characters.
     clean.data$masked <- suppressWarnings(as.numeric(stringr::str_replace_all(
-      clean.data$masked, c("<" = "", ">" = "", "~" = "", "," = "", "%" = "")
+      clean.data$masked, c("<" = "", ">" = "", "~" = "", "%" = "", "\\*" = "")
     )))
+    
   }
 
+  # this updates the DataTypes.Flag to "NA - Not Available" if NA
+  clean.data$flag <- ifelse(
+    is.na(clean.data$flag),
+    "NA - Not Available",
+    clean.data$flag)
+  
   # Rename to original column name, TADA column name, and flag column name
   names(clean.data)[names(clean.data) == "orig"] <- col
   names(clean.data)[names(clean.data) == "masked"] <- numcol
   names(clean.data)[names(clean.data) == "flag"] <- flagcol
-
+  
   clean.data <- TADA_OrderCols(clean.data)
 
   return(clean.data)
@@ -491,6 +440,7 @@ TADA_OrderCols <- function(.data) {
     "ResultIdentifier",
     "ResultDetectionConditionText",
     "MethodSpeciationName",
+    "MethodSpecificationName",
     "CharacteristicName",
     "ResultSampleFractionText",
     "ResultMeasureValue",
@@ -569,7 +519,6 @@ TADA_OrderCols <- function(.data) {
     "WellDepthMeasure.MeasureUnitCode",
     "WellHoleDepthMeasure.MeasureValue",
     "WellHoleDepthMeasure.MeasureUnitCode",
-    "MethodSpecificationName",
     "ProjectDescriptionText",
     "SamplingDesignTypeCode",
     "QAPPApprovedIndicator",
@@ -606,8 +555,8 @@ TADA_OrderCols <- function(.data) {
     "TADA.ResultUnit.Flag",
     "CombinationValidity",
     "TADA.MethodSpecificationName",
-    "TADA.AnalyticalMethod.Flag",
     "TADA.MethodSpeciation.Flag",
+    "TADA.AnalyticalMethod.Flag",
     "TADA.SpeciationAssumptions",
     "TADA.SpeciationConversionFactor",
     "TADA.ResultSampleFractionText",
@@ -1221,7 +1170,7 @@ TADA_CheckRequiredFields <- function(.data) {
 #' prepare a dataframe for quantitative analyses. Ideally, this function should
 #' be run after other data cleaning, QA/QC, and harmonization steps are
 #' completed using other TADA package functions, or manually. Specifically, .
-#' this function removes rows with "Text","Coerced to NA", and "NA - Not Applicable"
+#' this function removes rows with "Text" and "NA - Not Available"
 #' in the TADA.ResultMeasureValueDataTypes.Flag column, or NA in the
 #' TADA.ResultMeasureValue column.
 #'
@@ -1254,9 +1203,8 @@ TADA_AutoFilter <- function(.data) {
   start <- dim(.data)[1]
 
   # remove text, NAs and QC results
-  .data <- dplyr::filter(.data, TADA.ResultMeasureValueDataTypes.Flag != "NA - Not Applicable" &
-    TADA.ResultMeasureValueDataTypes.Flag != "Text" &
-    TADA.ResultMeasureValueDataTypes.Flag != "Coerced to NA" &
+  .data <- dplyr::filter(.data, TADA.ResultMeasureValueDataTypes.Flag != "Text" &
+    TADA.ResultMeasureValueDataTypes.Flag != "NA - Not Available" &
     TADA.ActivityType.Flag == "Non_QC" & # filter out QA/QC ActivityTypeCode's
     !is.na(TADA.ResultMeasureValue))
 

@@ -304,7 +304,7 @@ TADA::TADA_FieldValuesPie(dataset_flags, field = "TADA.ResultUnit.Flag")
 TADA::TADA_FieldValuesPie(dataset_flags, field = "TADA.ActivityType.Flag")
 ```
 
-Any results flagged as "Invalid" are recognized in the QAQC Validation Table as having some data quality issue. "Nonstandardized" means that the format has not been fully vetted or processed, while "Valid" confirms that the characteristic combination is widely recognized as correctly formatted. Let's add any invalid results to the removed dataset for later review.
+Any results flagged as "Invalid" are recognized in the QAQC Validation Table as having some data quality issue. "NonStandardized" means that the format has not been fully vetted or processed, while "Valid" confirms that the characteristic combination is widely recognized as correctly formatted. Let's add any invalid results to the removed dataset for later review.
 
 **Note: if you find any errors in the QAQC Validation Table, please contact the WQX Help Desk at WQX\@epa.gov to help correct it. Thanks in advance!**
 

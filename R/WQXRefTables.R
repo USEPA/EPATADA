@@ -49,6 +49,7 @@ TADA_GetWQXCharValRef <- function() {
   invalid <- c("Rejected", "Rejected ", "N")
   nonstandard <- c(
     "NonStandardized",
+    "Nonstandardized",
     "InvalidMediaUnit",
     "InvalidChar",
     "MethodNeeded"
