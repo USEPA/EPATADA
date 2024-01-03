@@ -24,17 +24,27 @@
 #'
 #' @param transform Boolean argument with two possible values, “TRUE” and “FALSE”.
 #' Default is transform = TRUE.
+#' 
+#' @param detlimit Boolean arguement with two possible values, "TRUE" and "FALSE".
+#' Default is detlimit = TRUE.
 #'
 #' @return When transform=TRUE, result values and units are converted to WQX
 #'   target units. This function changes the values within the
 #'   "TADA.ResultMeasure.MeasureUnitCode" to the WQX target units and converts
 #'   respective values within the "TADA.ResultMeasureValue" field.
+#'   When detlimit = TRUE, detection limit values and units are converted to WQX
+#'   target units. This function changes the 
+#'   "TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode" to the WQX target
+#'   units and converts respective values within the 
+#'   "TADA.DetectionQuantitationLimitMeasure.MeasureValue" field. 
 #'
 #' When transform = FALSE, result values and units are NOT converted to WQX target units,
 #' but columns are appended to indicate what the target units and conversion factors are,
 #' and if the data can be converted. In addition to "TADA.WQXResultUnitConversion"
 #' and "TADA.WQXDetectionLimitUnitConversion",  transform=FALSE will add the
 #' following two fields to the input dataframe: "TADA.WQXUnitConversionFactor" and "TADA.WQXTargetUnit".
+#' When detlimit = FALSE, values and units for detection limit are not converted to WQX
+#' target units and no additional fields are added do the input dataframe.
 #'
 #' @export
 #'
@@ -48,7 +58,7 @@
 #' # "TADA.WQXUnitConversionFactor" and "TADA.WQXTargetUnit":
 #' ResultUnitsNotConverted <- TADA_ConvertResultUnits(Data_Nutrients_UT, transform = FALSE)
 #'
-TADA_ConvertResultUnits <- function(.data, transform = TRUE) {
+TADA_ConvertResultUnits <- function(.data, transform = TRUE, delimit = TRUE) {
   # check .data is data.frame
   TADA_CheckType(.data, "data.frame", "Input object")
   # check transform is boolean
@@ -90,10 +100,10 @@ TADA_ConvertResultUnits <- function(.data, transform = TRUE) {
   )])
 
   # join unit.ref to .data
-  check.data <- merge(.data, unit.ref, all.x = TRUE)
-
+  check.data.result <- merge(.data, unit.ref, all.x = TRUE)
+  
   # rename columns
-  flag.data <- check.data %>%
+  flag.data.result <- check.data %>%
     dplyr::rename(TADA.WQXTargetUnit = Target.Unit) %>%
     dplyr::rename(TADA.WQXUnitConversionFactor = Conversion.Factor) %>%
     dplyr::rename(USGS.SpeciationConversion = Target.Speciation)
