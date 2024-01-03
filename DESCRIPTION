@@ -55,6 +55,7 @@ Imports:
     data.table, 
     dplyr,
     tidyr,
+    purrr,
     grDevices,
     magrittr,
     stringr,
