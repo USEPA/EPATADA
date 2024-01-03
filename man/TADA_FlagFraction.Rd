@@ -20,7 +20,7 @@ Default is flaggedonly = FALSE.}
 This function adds the following column to your dataframe:
 TADA.SampleFraction.Flag, which flags each CharacteristicName and
 ResultSampleFractionText combination in your dataframe as either
-"Nonstandardized", "Invalid", or "Valid". When clean = FALSE and flaggedonly
+"NonStandardized", "Invalid", "Valid", or "Not Reviewed". When clean = FALSE and flaggedonly
 = TRUE, the data are filtered to show the "Invalid" rows only. When clean =
 TRUE and flaggedonly = FALSE, "Invalid" rows are removed from the dataframe
 and no column will be appended. When clean = TRUE and flaggedonly = TRUE,

@@ -32,3 +32,11 @@ containing any other text or non-numeric characters become NA in
 the newly created "TADA.COLUMN NAME" and labeled accordingly in "TADA.COLUMN
 NAME DataTypes.Flag".
 }
+\examples{
+data(Data_Nutrients_UT)
+HandleSpecialChars_ResultMeasureValue = TADA_ConvertSpecialChars(Data_Nutrients_UT, "ResultMeasureValue")
+unique(HandleSpecialChars_ResultMeasureValue$TADA.ResultMeasureValueDataTypes.Flag)
+HandleSpecialChars_DetLimMeasureValue = TADA_ConvertSpecialChars(Data_Nutrients_UT, "TADA.DetectionQuantitationLimitMeasure.MeasureValue")
+unique(HandleSpecialChars_DetLimMeasureValue$TADA.DetectionQuantitationLimitMeasure.MeasureValueDataTypes.Flag)
+
+}
