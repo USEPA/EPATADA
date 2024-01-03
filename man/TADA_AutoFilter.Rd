@@ -35,6 +35,11 @@ this function removes rows with "Text" and "NA - Not Available"
 in the TADA.ResultMeasureValueDataTypes.Flag column, or NA in the
 TADA.ResultMeasureValue column.
 }
+\details{
+This function also removes any columns not required for TADA workflow where
+all values are equal to NA.It also provides a warning message identifying
+any TADA required columns containing only NA values.
+}
 \examples{
 # Load example dataset:
 data(Data_Nutrients_UT)
