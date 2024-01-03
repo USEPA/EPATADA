@@ -4,19 +4,12 @@
 \alias{TADA_JoinWQPProfiles}
 \title{Join WQP Profiles}
 \usage{
-TADA_JoinWQPProfiles(
-  FullPhysChem = "null",
-  Sites = "null",
-  Narrow = "null",
-  Projects = "null"
-)
+TADA_JoinWQPProfiles(FullPhysChem = "null", Sites = "null", Projects = "null")
 }
 \arguments{
 \item{FullPhysChem}{Full physical chemical data profile}
 
 \item{Sites}{Sites data profile}
-
-\item{Narrow}{Full biological data profile}
 
 \item{Projects}{Projects data profile}
 }
@@ -29,6 +22,6 @@ function joins those profiles together into one dataframe.
 The FullPhysChem data input is required to run this function.
 }
 \examples{
-join <- TADA::TADA_JoinWQPProfiles(FullPhysChem = Data_PhysChem_5d, Sites = Data_Site_5d, Narrow = Data_Narrow_5d)
+join <- TADA::TADA_JoinWQPProfiles(FullPhysChem = Data_PhysChem_5d, Sites = Data_Site_5d)
 
 }

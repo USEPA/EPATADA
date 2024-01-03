@@ -23,16 +23,15 @@ data directly into R.
 }
 \details{
 We recommend retrieving data for all the following profiles
-(you can run this function four separate times to bring in all four profiles):
+(you can run this function three separate times to bring in all four profiles):
 \enumerate{
 \item Sample Results (physical/chemical metadata)
-\item Sample Results (narrow)
 \item Project Data
 \item Site Data Only
 }
 
-After you retrieve all four profiles, you can use TADA::TADA_JoinWQPProfiles to
-joining the four dataframes into a single dataframe.
+After you retrieve all three profiles, you can use TADA::TADA_JoinWQPProfiles to
+joining the three dataframes into a single dataframe.
 
 Note: It may be useful to save the Query URL from the WQP as well as a
 comment within your code. This URL let's you return to the WQP query page
@@ -56,7 +55,6 @@ stick with YYYY-MM-DD.
 physchemresults1 <- TADA_ReadWQPWebServices("https://www.waterqualitydata.us/data/Result/search?statecode=US\%3A09&sampleMedia=water&sampleMedia=Water&startDateLo=01-01-2021&mimeType=csv&zip=yes&dataProfile=biological&providers=NWIS&providers=STEWARDS&providers=STORET")
 sites1 <- TADA_ReadWQPWebServices("https://www.waterqualitydata.us/data/Station/search?statecode=US\%3A09&sampleMedia=water&sampleMedia=Water&startDateLo=01-01-2021&mimeType=csv&zip=yes&providers=NWIS&providers=STEWARDS&providers=STORET")
 projects1 <- TADA_ReadWQPWebServices("https://www.waterqualitydata.us/data/Project/search?statecode=US\%3A09&sampleMedia=water&sampleMedia=Water&startDateLo=01-01-2021&mimeType=csv&zip=yes&providers=NWIS&providers=STEWARDS&providers=STORET")
-narrow1 <- TADA_ReadWQPWebServices("https://www.waterqualitydata.us/data/Result/search?statecode=US\%3A09&sampleMedia=water&sampleMedia=Water&startDateLo=01-01-2021&mimeType=csv&zip=yes&dataProfile=narrowResult&providers=NWIS&providers=STEWARDS&providers=STORET")
 }
 
 }

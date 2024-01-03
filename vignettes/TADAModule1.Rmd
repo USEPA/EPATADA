@@ -91,8 +91,8 @@ library(TADA)
 
 WQP data is retrieved and processed for compatibility with TADA. This
 function, **TADA_DataRetrieval**, builds on USGS's dataRetrieval R
-package functions. It joins four WQP profiles: Site,
-Sample Results (narrow), Sample Results (physical/chemical metadata),
+package functions. It joins three WQP profiles: Site,
+Sample Results (physical/chemical metadata),
 and Project. In addition, it changes all data in the
 Characteristic, Speciation, Fraction, and Unit fields to uppercase,
 removes exact duplicates, and addresses result values that include

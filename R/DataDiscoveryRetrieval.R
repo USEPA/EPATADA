@@ -308,14 +308,13 @@ TADA_DataRetrieval <- function(startDate = "null",
 #' data directly into R.
 #'
 #' We recommend retrieving data for all the following profiles
-#' (you can run this function four separate times to bring in all four profiles):
+#' (you can run this function three separate times to bring in all four profiles):
 #' 1. Sample Results (physical/chemical metadata)
-#' 2. Sample Results (narrow)
-#' 3. Project Data
-#' 4. Site Data Only
+#' 2. Project Data
+#' 3. Site Data Only
 #'
-#' After you retrieve all four profiles, you can use TADA::TADA_JoinWQPProfiles to
-#' joining the four dataframes into a single dataframe.
+#' After you retrieve all three profiles, you can use TADA::TADA_JoinWQPProfiles to
+#' joining the three dataframes into a single dataframe.
 #'
 #' Note: It may be useful to save the Query URL from the WQP as well as a
 #' comment within your code. This URL let's you return to the WQP query page
@@ -345,7 +344,6 @@ TADA_DataRetrieval <- function(startDate = "null",
 #' physchemresults1 <- TADA_ReadWQPWebServices("https://www.waterqualitydata.us/data/Result/search?statecode=US%3A09&sampleMedia=water&sampleMedia=Water&startDateLo=01-01-2021&mimeType=csv&zip=yes&dataProfile=biological&providers=NWIS&providers=STEWARDS&providers=STORET")
 #' sites1 <- TADA_ReadWQPWebServices("https://www.waterqualitydata.us/data/Station/search?statecode=US%3A09&sampleMedia=water&sampleMedia=Water&startDateLo=01-01-2021&mimeType=csv&zip=yes&providers=NWIS&providers=STEWARDS&providers=STORET")
 #' projects1 <- TADA_ReadWQPWebServices("https://www.waterqualitydata.us/data/Project/search?statecode=US%3A09&sampleMedia=water&sampleMedia=Water&startDateLo=01-01-2021&mimeType=csv&zip=yes&providers=NWIS&providers=STEWARDS&providers=STORET")
-#' narrow1 <- TADA_ReadWQPWebServices("https://www.waterqualitydata.us/data/Result/search?statecode=US%3A09&sampleMedia=water&sampleMedia=Water&startDateLo=01-01-2021&mimeType=csv&zip=yes&dataProfile=narrowResult&providers=NWIS&providers=STEWARDS&providers=STORET")
 #' }
 #'
 TADA_ReadWQPWebServices <- function(webservice) {
@@ -657,7 +655,6 @@ TADA_BigDataRetrieval <- function(startDate = "null",
 #'
 #' @param FullPhysChem Full physical chemical data profile
 #' @param Sites Sites data profile
-#' @param Narrow Full biological data profile
 #' @param Projects Projects data profile
 #'
 #' @return TADA-compatible dataframe
@@ -665,7 +662,7 @@ TADA_BigDataRetrieval <- function(startDate = "null",
 #' @export
 #'
 #' @examples
-#' join <- TADA::TADA_JoinWQPProfiles(FullPhysChem = Data_PhysChem_5d, Sites = Data_Site_5d, Narrow = Data_Narrow_5d)
+#' join <- TADA::TADA_JoinWQPProfiles(FullPhysChem = Data_PhysChem_5d, Sites = Data_Site_5d)
 #'
 TADA_JoinWQPProfiles <- function(FullPhysChem = "null",
                                  Sites = "null",
