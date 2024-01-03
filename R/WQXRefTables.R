@@ -704,7 +704,7 @@ TADA_GetMeasureQualifierCodeRef <- function() {
     "MI", "MSR", "NAI", "NLBL", "NLRO", "NN",   "NRO",
     "NRP", "NRR",  "NSQ",  "PNQ",  "Q", "QC", "R", "RA",
     "RPO", "S2", "SCA", "SCF", "SCP", "SCX", "SD%EL", "SDROL", "SSR",
-    "SUS", "V", "^",    "RNON","B", "CBG"
+    "SUS", "V", "^",    "RNON","B", "CBG", "SSRV" # this is used by USGS for surrogates
   )
   pass <- c(
     "UDL","PP","P","NRS","NRB","NPNF","MDL","ITNM","I", "HIB", "HH", "HE", "G","FPP", "FLC", "FLA", "$", "FEQ", "&", ")", "*", "=", 
@@ -718,7 +718,7 @@ TADA_GetMeasureQualifierCodeRef <- function() {
     "LR", "LT", "MSD", "N", "NA", "NFNS", "NHS", "NW",
     "O", "OA3", "OS3", "OTHER", "OUT", "PB", "PK", "PPD", "PQL", "PRE",
     "QCI", "RC", "REX", "RIN", "RLRS", "RMAX", "RNAF", "RP",
-    "RPDX", "RR", "RV", "RVB", "SBB", "SLB", "SM", "SS", "SSRV", "T",
+    "RPDX", "RR", "RV", "RVB", "SBB", "SLB", "SM", "SS",  "T",
     "TMLF", "TOC", "TT", "UNC", "VS", "VVRR", "VVRR2", "UDQ", "ZZ",
     "J-1", "NA"
   )
