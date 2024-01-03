@@ -1173,6 +1173,10 @@ TADA_CheckRequiredFields <- function(.data) {
 #' this function removes rows with "Text" and "NA - Not Available"
 #' in the TADA.ResultMeasureValueDataTypes.Flag column, or NA in the
 #' TADA.ResultMeasureValue column.
+#' 
+#' This function also removes any columns not required for TADA workflow where
+#' all values are equal to NA.It also provides a warning message identifying
+#' any TADA required columns containing only NA values.
 #'
 #' @param .data TADA dataframe OR TADA sites dataframe
 #'
@@ -1207,8 +1211,104 @@ TADA_AutoFilter <- function(.data) {
     TADA.ResultMeasureValueDataTypes.Flag != "NA - Not Available" &
     TADA.ActivityType.Flag == "Non_QC" & # filter out QA/QC ActivityTypeCode's
     !is.na(TADA.ResultMeasureValue))
+  
+  #remove columns that are not required for TADA workflow
+  print("TADA_Autofilter: removing columns not required for TADA workflow if they contain only NAs.")
+  
+  #create list of required columns that must be retained even if all values are NA
+  req.cols <- c("TADA.CharacteristicName",
+                "TADA.ResultSampleFractionText",
+                "TADA.MethodSpecificationName",
+                "TADA.ResultMeasure.MeasureUnitCode",
+                "TADA.ActivityMediaName",
+                "TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode",
+                "TADA.ResultMeasureValueDataTypes.Flag",
+                "TADA.LatitudeMeasure",
+                "TADA.LongitudeMeasure",
+                "OrganizationFormalName",
+                "ActivityTypeCode",
+                "ActivityMediaName",
+                "MonitoringLocationTypeName",
+                "ActivityStartDateTime",
+                "CharacteristicName",
+                "ResultSampleFractionText",
+                "MethodSpecificationName",
+                "ResultMeasureValue",
+                "ResultMeasure.MeasureUnitCode",
+                "ResultDetectionConditionText",
+                "DetectionQuantitationLimitTypeName",
+                "DetectionQuantitationLimitMeasure.MeasureValue",
+                "DetectionQuantitationLimitMeasure.MeasureUnitCode",
+                "ResultDepthHeightMeasure.MeasureValue",
+                "ResultDepthHeightMeasure.MeasureUnitCode",
+                "ActivityRelativeDepthName",
+                "ActivityDepthHeightMeasure.MeasureValue",
+                "ActivityDepthHeightMeasure.MeasureUnitCode",
+                "ActivityTopDepthHeightMeasure.MeasureValue",
+                "ActivityTopDepthHeightMeasure.MeasureUnitCode",
+                "ActivityBottomDepthHeightMeasure.MeasureValue",
+                "ActivityBottomDepthHeightMeasure.MeasureUnitCode",
+                "CountryCode",
+                "StateCode",
+                "CountyCode",
+                "LatitudeMeasure",
+                "LongitudeMeasure",
+                "QAPPApprovedIndicator",
+                "QAPPApprovalAgencyName",
+                "ProjectFileUrl",
+                "MeasureQualifierCode",
+                "SampleCollectionEquipmentName", # required for continuous flag
+                "StatisticalBaseCode", # required for continuous flag
+                "ResultTimeBasisText", # required for continuous flag
+                "ResultValueTypeName", # required for continuous flag
+                "ActivityIdentifier",
+                "ProjectIdentifier",
+                "MonitoringLocationIdentifier",
+                "ResultIdentifier",
+                "OrganizationIdentifier")
+  
+  # create list of columns containing all NA values. 
+  na.cols <- .data %>% purrr::keep(~all(is.na(.x))) %>%
+   names()
+  
+  # create list of columns to be removed by comparing columns containing all NA values to required columns.
+  # any required columns with all NA values will be excluded from the list of columns to remove.
+  remove.cols <-setdiff(na.cols, req.cols)
+  
+  # remove not required columns containing all NA values from data frame.
+  data <- .data %>%
+    dplyr::select(-dplyr::contains(remove.cols))
+  
+  # check to make sure required columns contain some data that is not NA
+  req.check <- intersect(req.cols, na.cols)
+  
+  # create character string for list of required columns containing only NAs
+  req.paste <- stringi::stri_replace_last_fixed(paste(as.character(req.check), collapse=", ",sep=""), ", ", " and ")
 
-  end <- dim(.data)[1]
+  #remove column name lists
+  rm(req.cols, na.cols)
+  
+  # create character string for list of removed columns
+  remove.paste <- stringi::stri_replace_last_fixed(paste(as.character(remove.cols), collapse=", ",sep=""), ", ", " and ")
+  
+  # print list of columns removed from data frame
+  if (length(remove.cols) > 0) {
+    print(paste0("The following column(s) were removed as they contained only NAs: ", remove.paste, "."))
+  }else { 
+    print("All columns contained some non-NA values and were retained in the data frame.")}
+  
+  # remove columns that are not required for TADA workflow
+  print("TADA_Autofilter: checking required columns for non-NA values.")
+  
+  # if some required columns contain only NA values print a warning message.
+  if (length(req.check) > 0) {
+    print(paste0("TADA Required column(s) ", req.paste, " contain only NA values. This may impact other TADA functions."))
+    }else { 
+      print("All TADA Required columns contain some non-NA values.")}
+  
+  rm(req.paste, remove.cols, remove.paste, req.check)
+  
+end <- dim(.data)[1]
 
   # print number of results removed
   if (!start == end) {

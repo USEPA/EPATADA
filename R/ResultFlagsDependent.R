@@ -561,53 +561,6 @@ TADA_FindQCActivities <- function(.data, clean = FALSE, flaggedonly = FALSE) {
 }
 
 
-#' AutoFilter
-#'
-#' This function removes rows where the result value is not numeric to
-#' prepare a dataframe for quantitative analyses. Ideally, this function should
-#' be run after other data cleaning, QA/QC, and harmonization steps are
-#' completed using other TADA package functions, or manually. Specifically, 
-#' this function removes rows with "Text" and "NA - Not Available"
-#' in the TADA.ResultMeasureValueDataTypes.Flag column, or NA in the
-#' TADA.ResultMeasureValue column.
-#'
-#' @param .data TADA dataframe OR TADA sites dataframe
-#'
-#' @return .data with rows removed where result values are not quantitative (NA or text),
-#' or the results have other issues that are not dealt with elsewhere.
-#'
-#' @export
-#'
-#' @examples
-#' # Load example dataset:
-#' data(Data_Nutrients_UT)
-#'
-#' # Remove all:
-#' TADA_filtered <- TADA_AutoFilter(Data_Nutrients_UT)
-#'
-TADA_AutoFilter <- function(.data) {
-  # check .data is data.frame
-  TADA_CheckType(.data, "data.frame", "Input object")
-  TADA_CheckColumns(.data, c(
-    "ActivityTypeCode", "MeasureQualifierCode",
-    "TADA.ResultMeasureValueDataTypes.Flag",
-    "TADA.ResultMeasureValue", "TADA.ActivityMediaName",
-    "ActivityTypeCode"
-  ))
-
-  autofilter <- dplyr::filter(.data, TADA.ResultMeasureValueDataTypes.Flag != "Text" &
-    TADA.ResultMeasureValueDataTypes.Flag != "NA - Not Available" &
-    !is.na(TADA.ResultMeasureValue)) # &
-  # TADA.ActivityMediaName == "WATER")
-
-  # filter out QA/QC ActivityTypeCode's
-  autofilter <- TADA_FindQCActivities(autofilter, clean = TRUE)
-
-  return(autofilter)
-}
-
-
-
 #' Check for results with suspect result Measure Qualifier Codes
 #'
 #' This function checks for and flags or removes samples denoted as suspect
