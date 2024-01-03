@@ -56,9 +56,8 @@ TADA_UpdateExampleData <- function() {
     od_method = "as-is",
     od_multiplier = "null"
   )
-  y <- dplyr::filter(y, TADA.ResultMeasureValueDataTypes.Flag != "NA - Not Applicable" &
-    TADA.ResultMeasureValueDataTypes.Flag != "Text" &
-    TADA.ResultMeasureValueDataTypes.Flag != "Coerced to NA" &
+  y <- dplyr::filter(y, TADA.ResultMeasureValueDataTypes.Flag != "Text" &
+    TADA.ResultMeasureValueDataTypes.Flag != "NA - Not Available" &
     !is.na(TADA.ResultMeasureValue))
   # uses default ref = TADA_GetSynonymRef()
   Data_6Tribes_5y_Harmonized <- TADA_HarmonizeSynonyms(y)

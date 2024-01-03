@@ -23,6 +23,7 @@
 "Measurement Unit(MeasureUnitCode)",213,"#/mi2","Concentration Solution, Number per square mile","7/26/2006 10:57:47 AM","#/m2",3.861022e-07,0
 "Measurement Unit(MeasureUnitCode)",382,"#/min","Concentration Solution, number per minute","5/26/2022 12:00:00 AM","counts/sec",60,0
 "Measurement Unit(MeasureUnitCode)",385,"#/mm2","Concentration Solution, Number per square millimeter","12/4/2023 10:07:34 AM","#/mm2",1,0
+"Measurement Unit(MeasureUnitCode)",456,"#/mm2/week","The number of particles per mm2 (particle density) after a week.","12/21/2023 10:52:05 PM","#/mm2/week",1,0
 "Measurement Unit(MeasureUnitCode)",379,"#/sec*******","Concentration Solution, number (Counts) per second ***retired***use counts/sec","5/31/2022 9:04:20 AM","counts/sec",1,0
 "Measurement Unit(MeasureUnitCode)",375,"#/um3","Concentration Solution, Number per cubic micrometer","5/9/2016 9:21:38 AM","#/um3",1,0
 "Measurement Unit(MeasureUnitCode)",211,"#/yd2","Concentration Solution, Number per square yard","7/26/2006 10:57:47 AM","#/m2",1.19599004630108,0
@@ -53,6 +54,7 @@
 "Measurement Unit(MeasureUnitCode)",338,"CCE/100mL","Concentration Solution, Calibrator Cell Equivalents per 100 Milliliters","12/20/2012 10:57:47 AM","CCE/100mL",1,0
 "Measurement Unit(MeasureUnitCode)",391,"CE/100mL","Cell Equivalents per 100 milliliters","12/4/2023 10:07:34 AM","CE/100mL",1,0
 "Measurement Unit(MeasureUnitCode)",147,"CFU","Concentration Solution, Colony Forming Units. CFU (Colony Forming Unit) estimates the number of viable microorganisms by growing them in a solid agar.","7/26/2006 10:57:47 AM","CFU",1,0
+"Measurement Unit(MeasureUnitCode)",453,"COHS/1000ft","COHS/1,000 linear feet, represents the concentration of haze per 1000 linear feet of air sampled. One COH unit is the amount of dust. A linear foot is a 12-inch straight measurement of length","12/21/2023 10:17:47 PM","COHS/1000ft",1,0
 "Measurement Unit(MeasureUnitCode)",659,"CU","Picklist or Choicelist, One color unit (CU) is equivalent to one Hazen unit and to one Pt-Co unit","8/9/2019 7:00:07 PM","PCU",1,0
 "Measurement Unit(MeasureUnitCode)",412,"DOY","Time, Day of year is a number between 1 and 365 ( or 1-366 for leap years) : Number Day / Day Number","10/5/2023 6:14:24 PM","DOY",1,0
 "Measurement Unit(MeasureUnitCode)",393,"Da","Molecular mass, Daltons","12/4/2023 10:07:34 AM","Da",1,0
@@ -90,6 +92,8 @@
 "Measurement Unit(MeasureUnitCode)",292,"MPN/g","Concentration Solution, Most Probable Number per gram","8/4/2010 9:48:59 AM","MPN/g",1,0
 "Measurement Unit(MeasureUnitCode)",337,"MSC","Concentration Solution, Mean Standing Crop","5/24/2012 10:57:47 AM","MSC",1,0
 "Measurement Unit(MeasureUnitCode)",131,"MT/km2/yr","Viscosity, Metric tons per square kilometer per year","7/26/2006 10:57:47 AM","mg/m2/day",2.7378507871321,0
+"Measurement Unit(MeasureUnitCode)",450,"Megam-1","Concentration Solution, Inverse Megameters or per Mega meters","12/21/2023 3:58:40 PM","Megam-1",1,0
+"Measurement Unit(MeasureUnitCode)",451,"Mg/100cm2/d","Mega grams per 100 cm2 per day (d)","12/21/2023 3:58:40 PM","Mg/100cm2/d",1,0
 "Measurement Unit(MeasureUnitCode)",320,"Mgal","Volume, Million gallons","1/11/2012 3:59:08 PM","m3",3785.412,0
 "Measurement Unit(MeasureUnitCode)",610,"Mgal/day","Flow, Millions of gallons per day","5/18/2022 7:58:24 PM","Mgal/day",1,0
 "Measurement Unit(MeasureUnitCode)",177,"Mgal/mnth","Flow, Millions of gallons per month","7/26/2006 10:57:47 AM","cfs",0.0508329706716038,0
@@ -114,6 +118,7 @@
 "Measurement Unit(MeasureUnitCode)",366,"RFU","Light Intensity, Relative Fluorescence Units","12/14/2015 2:59:00 PM","RFU",1,0
 "Measurement Unit(MeasureUnitCode)",304,"RLU","Light Intensity, Relative light units","10/18/2011 11:15:02 AM","RLU",1,0
 "Measurement Unit(MeasureUnitCode)",433,"RU","Raman units","12/4/2023 10:07:36 AM","RU",1,0
+"Measurement Unit(MeasureUnitCode)",454,"RUDS/10000ft","Reflectance Units of Dirt Shade (RUDS). The soiling index or RUDS is the percentage reflectance obtained using a reflectometer when. 10,000 linear feet of air is drawn through the filter paper. ","12/21/2023 10:22:22 PM","RUDS/10000ft",1,0
 "Measurement Unit(MeasureUnitCode)",360,"RmV","Power, Relative millivolts","12/2/2014 8:51:42 AM","RmV",1,0
 "Measurement Unit(MeasureUnitCode)",165,"S/m","Electric Resistivity, Siemens per meter","7/26/2006 10:57:47 AM","uS/cm",10000,0
 "Measurement Unit(MeasureUnitCode)",434,"SBU","Turbidity, Styrene Divinylbenzene Beads (SDVB) backscatter units","12/4/2023 10:07:36 AM","SBU",1,0
@@ -123,6 +128,7 @@
 "Measurement Unit(MeasureUnitCode)",171,"TU","Toxic Units, dividing 100% by the LC50 (% effluent","7/26/2006 10:57:47 AM","TU",1,0
 "Measurement Unit(MeasureUnitCode)",267,"TUc","Toxic Units, chronic","6/22/2009 12:03:57 PM","TUc",1,0
 "Measurement Unit(MeasureUnitCode)",57,"Torr","Pressure, Torr units(vacuum)","7/26/2006 10:57:47 AM","g/m2",13595.0980644332,0
+"Measurement Unit(MeasureUnitCode)",452,"W/m2","Power, Watts per square meter","12/21/2023 10:03:37 PM","W/m2",1,0
 "Measurement Unit(MeasureUnitCode)",63,"Watts","Power, Watts","7/26/2006 10:57:47 AM","Mw",1e-06,0
 "Measurement Unit(MeasureUnitCode)",245,"ac","Area, Acres","7/26/2006 10:57:47 AM","m2",4046.8564224,0
 "Measurement Unit(MeasureUnitCode)",235,"ac-ft","Volume, Acre-feet","7/26/2006 10:57:47 AM","m3",1233.489,0
@@ -169,6 +175,7 @@
 "Measurement Unit(MeasureUnitCode)",395,"dddmmss","Degrees - minutes - seconds of latitude or longitude","12/4/2023 10:07:34 AM","dddmmss",1,0
 "Measurement Unit(MeasureUnitCode)",333,"decibar","Pressure, Decibar","5/24/2012 10:57:47 AM","g/m2",1019716.21297792,0
 "Measurement Unit(MeasureUnitCode)",246,"deg C","Temperature, Degrees Celsius (Centigrade)","7/26/2006 10:57:47 AM","deg C",1,0
+"Measurement Unit(MeasureUnitCode)",458,"deg C/100m","Temperature, Degrees Celsius (Centigrade) per 100 meters","12/21/2023 11:15:33 PM","deg C/100m",1,0
 "Measurement Unit(MeasureUnitCode)",247,"deg F","Temperature, Degrees Fahrenheit","7/26/2006 10:57:47 AM","deg C",0.555555555555555,-32
 "Measurement Unit(MeasureUnitCode)",248,"deg K","Temperature, Degrees Kelvin","7/26/2006 10:57:47 AM","deg C",1,-273.15
 "Measurement Unit(MeasureUnitCode)",136,"dm","Length Distance, Decimeters","7/26/2006 10:57:47 AM","in",3.93700787401575,0
@@ -207,6 +214,7 @@
 "Measurement Unit(MeasureUnitCode)",80,"g/m2","Concentration Solution, Grams per square meter","7/26/2006 10:57:47 AM","g/m2",1,0
 "Measurement Unit(MeasureUnitCode)",129,"g/m2/day","Viscosity, Grams per square meter per day","7/26/2006 10:57:47 AM","mg/m2/day",1000,0
 "Measurement Unit(MeasureUnitCode)",128,"g/m2/hr","Viscosity, Grams per square meter per hour","7/26/2006 10:57:47 AM","mg/m2/day",24000,0
+"Measurement Unit(MeasureUnitCode)",449,"g/m2/month","Viscosity, grams per metre squared per month mg/dm2/month","12/21/2023 3:39:39 PM","g/m2/month",1,0
 "Measurement Unit(MeasureUnitCode)",413,"g/m2/sec","Grams per square meter per second","12/4/2023 10:07:35 AM","g/m2/sec",1,0
 "Measurement Unit(MeasureUnitCode)",20,"g/m3","Concentration Solution, Density, Grams per cubic meter","7/26/2006 10:57:47 AM","ug/L",1000,0
 "Measurement Unit(MeasureUnitCode)",101,"g/m3/day","Viscosity, Grams per cubic meter per day","7/26/2006 10:57:47 AM","mg/m3/day",1000,0
@@ -449,6 +457,7 @@
 "Measurement Unit(MeasureUnitCode)",579,"ug/PUF","Concentration Solution, micrograms per polyurethane foam sample","1/31/2018 2:54:38 PM","ug/PUF",1,0
 "Measurement Unit(MeasureUnitCode)",291,"ug/cart","Concentration Solution, Micrograms per cartridge","7/19/2010 3:16:29 PM","ug/cart",1,0
 "Measurement Unit(MeasureUnitCode)",306,"ug/cm2","Concentration Solution, Micrograms per square centimeters","12/27/2011 10:09:21 AM","g/m2",0.01,0
+"Measurement Unit(MeasureUnitCode)",457,"ug/cm2/30day","Viscosity, Micrograms per square centimeter per 30 day","12/21/2023 11:10:58 PM","ug/cm2/30day",1,0
 "Measurement Unit(MeasureUnitCode)",160,"ug/cm2/day","Viscosity, Micrograms per square centimeter per day","7/26/2006 10:57:47 AM","mg/m2/day",10,0
 "Measurement Unit(MeasureUnitCode)",24,"ug/cm3","Density, Micrograms per cubic centimeter","7/26/2006 10:57:47 AM","ug/L",1000,0
 "Measurement Unit(MeasureUnitCode)",611,"ug/dm2/day","Viscosity, Micrograms per decimetre squared per month","5/19/2022 2:04:19 PM","ug/dm2/day",1,0
@@ -466,6 +475,7 @@
 "Measurement Unit(MeasureUnitCode)",438,"ug/sec","Micrograms per second","12/4/2023 10:07:37 AM","ug/sec",1,0
 "Measurement Unit(MeasureUnitCode)",582,"ug/wipe","Concentration Solution, micrograms per wipe sample","1/31/2018 2:54:39 PM","ug/wipe",1,0
 "Measurement Unit(MeasureUnitCode)",440,"um","Micrometers","12/4/2023 10:07:37 AM","um",1,0
+"Measurement Unit(MeasureUnitCode)",455,"um/yr","The micrometer (1 μm) is often called the micron. micron per year","12/21/2023 10:34:01 PM","um/yr",1,0
 "Measurement Unit(MeasureUnitCode)",370,"um3","Volume, Cubic micrometers","1/19/2016 11:12:28 AM","um3",1,0
 "Measurement Unit(MeasureUnitCode)",376,"um3/100mL","Concentration Percentage, Cubic micrometer per 100 milliliters","5/9/2016 9:43:33 AM","um3/100mL",1,0
 "Measurement Unit(MeasureUnitCode)",174,"um3/L","Concentration Percentage, Cubic microns per liter","7/26/2007 10:57:47 AM","mm3/L",1e-09,0

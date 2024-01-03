@@ -1218,7 +1218,7 @@ TADA_FindPotentialDuplicatesSingleOrg <- function(.data) {
   # tack depth columns onto additional grouping columns
   colss <- c("OrganizationIdentifier", "MonitoringLocationIdentifier", "ActivityStartDate", "ActivityStartTime.Time", "ActivityTypeCode", "TADA.CharacteristicName", "SubjectTaxonomicName", "TADA.ResultSampleFractionText", "TADA.ResultMeasureValue", depthcols)
 
-  # find where the grouping using the columns above results in more than result identifier
+  # find where the grouping using the columns above results in more than one result identifier
   dups_sum_org <- .data %>%
     dplyr::group_by(dplyr::across(dplyr::any_of(colss))) %>%
     dplyr::summarise(numres = length(unique(ResultIdentifier))) %>%

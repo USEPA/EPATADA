@@ -39,7 +39,7 @@ TADA.CensoredData.Flag. Enter ?TADA_IDCensoredData into the console for more
 information.
 }
 \examples{
-#' # Load example dataset:
+# Load example dataset:
 data(Data_Nutrients_UT)
 # Check for agreement between detection condition and detection limit type,
 # and in instances where the measurement is non-detect, set the result value
