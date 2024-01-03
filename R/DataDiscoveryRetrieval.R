@@ -263,11 +263,6 @@ TADA_DataRetrieval <- function(startDate = "null",
     print("Returning empty results dataframe: Your WQP query returned no results (no data available). Try a different query. Removing some of your query filters OR broadening your search area may help.")
     TADAprofile.clean <- results.DR
   } else {
-    narrow.DR <- dataRetrieval::readWQPdata(WQPquery,
-      dataProfile = "narrowResult",
-      ignore_attributes = TRUE
-    )
-
     sites.DR <- dataRetrieval::whatWQPsites(WQPquery)
 
     projects.DR <- dataRetrieval::readWQPdata(WQPquery,
@@ -278,28 +273,13 @@ TADA_DataRetrieval <- function(startDate = "null",
     TADAprofile <- TADA_JoinWQPProfiles(
       FullPhysChem = results.DR,
       Sites = sites.DR,
-      Narrow = narrow.DR,
       Projects = projects.DR
     )
 
     # need to specify this or throws error when trying to bind rows. Temporary fix for larger
     # issue where data structure for all columns should be specified.
-    cols <- names(TADAprofile)[names(TADAprofile) %in% c(
-      "ActivityDepthHeightMeasure.MeasureValue",
-      "ActivityTopDepthHeightMeasure.MeasureValue",
-      "ActivityBottomDepthHeightMeasure.MeasureValue",
-      "ResultMeasureValue",
-      "ResultDepthHeightMeasure.MeasureValue",
-      "DetectionQuantitationLimitMeasure.MeasureValue",
-      "DrainageAreaMeasure.MeasureValue",
-      "ContributingDrainageAreaMeasure.MeasureValue",
-      "HorizontalAccuracyMeasure.MeasureValue",
-      "VerticalMeasure.MeasureValue",
-      "VerticalAccuracyMeasure.MeasureValue",
-      "WellDepthMeasure.MeasureValue",
-      "WellHoleDepthMeasure.MeasureValue"
-    )]
-
+    cols <- names(TADAprofile)
+    
     TADAprofile <- TADAprofile %>% dplyr::mutate_at(cols, as.character)
 
     # run TADA_AutoClean function
@@ -689,13 +669,10 @@ TADA_BigDataRetrieval <- function(startDate = "null",
 #'
 TADA_JoinWQPProfiles <- function(FullPhysChem = "null",
                                  Sites = "null",
-                                 Narrow = "null",
                                  Projects = "null") {
   FullPhysChem.df <- FullPhysChem
 
   Sites.df <- Sites
-
-  Narrow.df <- Narrow
 
   Projects.df <- Projects
 
@@ -716,33 +693,11 @@ TADA_JoinWQPProfiles <- function(FullPhysChem = "null",
     join1 <- FullPhysChem.df
   }
 
-  # Add Speciation column from narrow
-  if (length(Narrow.df) > 1) {
-    if (nrow(Narrow.df) > 0) {
-      join2 <- join1 %>%
-        dplyr::left_join(
-          dplyr::select(
-            Narrow.df, ActivityIdentifier, MonitoringLocationIdentifier,
-            CharacteristicName, ResultMeasureValue,
-            MethodSpecificationName, OrganizationIdentifier, ResultIdentifier
-          ),
-          by = c(
-            "ActivityIdentifier", "MonitoringLocationIdentifier",
-            "CharacteristicName", "ResultMeasureValue", "OrganizationIdentifier",
-            "ResultIdentifier"
-          )
-        )
-    } else {
-      join2 <- join1
-    }
-  } else {
-    join2 <- join1
-  }
 
   # Add QAPP columns from project
   if (length(Projects.df) > 1) {
     if (nrow(Projects.df) > 0) {
-      join3 <- join2 %>%
+      join2 <- join1 %>%
         
         dplyr::left_join(
           dplyr::select(
@@ -760,10 +715,10 @@ TADA_JoinWQPProfiles <- function(FullPhysChem = "null",
           relationship = "many-to-many"
         )
     } else {
-      join3 <- join2
+      join2 <- join1
     }
   } else {
-    join3 <- join2
+    join2 <- join1
   }
-  return(join3)
+  return(join2)
 }
