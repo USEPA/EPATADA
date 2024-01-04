@@ -10,7 +10,7 @@ test_that("TADA_SimpleCensoredMethods doesn't drop data", {
 })
 
 test_that("TADA_IDCensoredData copies det lim values to result values if applicable", {
-  copycheck = TADA_RandomNationalTestingSet()
+  copycheck = TADA_RandomTestingData(choose_random_state = TRUE)
   
   copycheck1 = TADA_IDCensoredData(copycheck)
   

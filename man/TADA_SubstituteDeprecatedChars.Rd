@@ -30,7 +30,7 @@ deprecated names (Char_Flag). This can be used as a crosswalk between the deprec
 (CharacteristicName) and their new names (Comparable.Name).
 }
 \examples{
-
+\dontrun{
 # download nutrient data in MT from 2022 and set autoclean = FALSE
 df = TADA_DataRetrieval(startDate = "2022-01-01", endDate = "2022-12-31", characteristicType = "Nutrient", statecode = "MT", applyautoclean = FALSE)
 df2 = TADA_SubstituteDeprecatedChars(df)
@@ -45,5 +45,6 @@ df3 = TADA_DataRetrieval(startDate = "2022-01-01", endDate = "2022-12-31", chara
 df4 = TADA_SubstituteDeprecatedChars(df3)
 unique(df4$CharacteristicName)
 unique(df4$TADA.CharacteristicName)
+}
 
 }
