@@ -606,14 +606,19 @@ TADA_OrderCols <- function(.data) {
 
 #' Substitute Preferred Characteristic Name for Deprecated Names
 #'
-#' This utility function uses the WQX Characteristic domain table to substitute
-#' deprecated (i.e. retired and/or invalid) characteristic names with the new
+#' This function uses the WQX Characteristic domain table to substitute
+#' deprecated (i.e. retired and/or invalid) Characteristic Names with the new
 #' name in the TADA.CharacteristicName column. TADA_SubstituteDeprecatedChars is
 #' run within TADA_Autoclean, which runs within TADA_DataRetreival and (if autoclean = TRUE)
 #' in TADA_BigDataRetrieval. Therefore, deprecated characteristic names are
-#' harmonized to their current name automatically upon data retrieval.
+#' harmonized to the new name automatically upon data retrieval.
 #' TADA_SubstituteDeprecatedChars can also be used by itself on a user supplied
-#' dataset that is in the WQX format, if desired. This solution works for both EPA WQX and USGS NWIS provided data.
+#' dataset that is in the WQX/WQP format, if desired. This solution works for both 
+#' EPA WQX and USGS NWIS provided data.
+#' 
+#' Enter ?TADA_GetCharacteristicRef() to review a list of all WQX characteristics, the including 
+#' deprecated names (Char_Flag). This can be used as a crosswalk between the deprecated names 
+#' (CharacteristicName) and their new names (Comparable.Name).
 #'
 #' @param .data TADA dataframe
 #'
@@ -621,11 +626,37 @@ TADA_OrderCols <- function(.data) {
 #'   TADA.CharacteristicName column. Original columns are unchanged.
 #'
 #' @export
-#'
+#' 
+#' @examples
+#' \dontrun{
+#' # download nutrient data in MT from 2022 and set autoclean = FALSE
+#' df = TADA_DataRetrieval(startDate = "2022-01-01", endDate = "2022-12-31", characteristicType = "Nutrient", statecode = "MT", applyautoclean = FALSE)
+#' df2 = TADA_SubstituteDeprecatedChars(df)
+#' # in this example, "Inorganic nitrogen (nitrate and nitrite)" is a USGS NWIS characteristic that is 
+#' # deprecated and "Phosphate-phosphorus***retired***use Total Phosphorus, mixed forms" is a deprecated WQX
+#' # name. Both are are transformed to their new names.
+#' # review characteristic names before and after transformation
+#' unique(df2$CharacteristicName)
+#' unique(df2$TADA.CharacteristicName)
+#' 
+#' df3 = TADA_DataRetrieval(startDate = "2022-01-01", endDate = "2022-12-31", characteristicType = "Nutrient", statecode = "WY", applyautoclean = FALSE)
+#' df4 = TADA_SubstituteDeprecatedChars(df3)
+#' unique(df4$CharacteristicName)
+#' unique(df4$TADA.CharacteristicName)
+#' }
+#' 
 
 TADA_SubstituteDeprecatedChars <- function(.data) {
-  TADA_CheckColumns(.data, expected_cols = c("CharacteristicName", "TADA.CharacteristicName"))
-
+  TADA_CheckColumns(.data, expected_cols = c("CharacteristicName"))
+  
+  if("TADA.CharacteristicName" %in% colnames(.data))
+  {
+    .data = .data
+  } else {
+    #create uppercase version of original CharacteristicName
+    .data$TADA.CharacteristicName <- toupper(.data$CharacteristicName)
+  }
+  
   # read in characteristic reference table with deprecation information, filter to deprecated terms and for "retired" in CharactersticName.
   # remove all characters after first "*" in CharacteristicName and remove any leading or trailing white space to make compatible with deprecated NWIS CharactersticName.
   nwis.table <- utils::read.csv(system.file("extdata", "WQXCharacteristicRef.csv", package = "TADA")) %>%
@@ -806,25 +837,58 @@ TADA_FindNearbySites <- function(.data, dist_buffer = 100) {
   return(.data)
 }
 
-# Generate a random data retrieval dataset (internal, for testthat's)
-# samples a random day in the past 20 years using
-# TADA_DataRetrieval. Built to use in testthat and for developer testing of new
-# functions on random datasets.
+#' Generate a random WQP dataset 
+#' 
+#' Retrieves data for a period of time in the past 20 years using
+#' TADA_DataRetrieval. This function can be used for testing functions on 
+#' random datasets.
+#' 
+#' @param number_of_days Numeric. The default is 1, which will query and retrieve 
+#' data for a random two-day period (e.g.startDate = "2015-04-21", 
+#' endDate = "2015-04-22"). The user can change this number to select additional days 
+#' if desired.
+#' 
+#' @param choose_random_state Boolean (TRUE or FALSE). The default is FALSE. 
+#' If FALSE, the function will query all data in the WQP for the number_of_days 
+#' specified (national query). If TRUE, the function will select a random state 
+#' and only retrieve data for that state. 
+#'
+#' @return Random WQP dataset.
+#'
+#' @export
+#' 
+#' @examples
+#' \dontrun{
+#' df = TADA_RandomTestingData(number_of_days = 1, choose_random_state = FALSE)
+#' df = TADA_RandomTestingData(number_of_days = 10, choose_random_state = TRUE)
+#' }
+#' 
 
-TADA_RandomNationalTestingSet <- function(number_of_days = 1) {
-  load(system.file("extdata", "statecodes_df.Rdata", package = "TADA"))
-  # removed state
-  # state = sample(statecodes_df$STUSAB,1)
-  # changed to 20 years ago instead of 10
+TADA_RandomTestingData <- function(number_of_days = 1, choose_random_state = FALSE) {
+  
+  # choose a random day within the last 20 years
   twenty_yrs_ago <- Sys.Date() - 20 * 365
   random_start_date <- twenty_yrs_ago + sample(20 * 365, 1)
-  # changed default to 2 days instead of 90
+  # choose a random start date and add any number_of_days (set that as the end date)
   end_date <- random_start_date + number_of_days
 
-  print(c(startDate = as.character(random_start_date), endDate = as.character(end_date)))
+  if (choose_random_state == TRUE) {
+    load(system.file("extdata", "statecodes_df.Rdata", package = "TADA"))
+    state = sample(statecodes_df$STUSAB,1)
+  }
+  
+  if (choose_random_state == FALSE) {
+    state = "Not Applicable - National Query"
+  }
+  
+  print(c(startDate = as.character(random_start_date), 
+          endDate = as.character(end_date),
+          statecode = state))
 
-  # removed state input
-  dat <- TADA_DataRetrieval(startDate = as.character(random_start_date), endDate = as.character(end_date))
+  # retrieve data
+  dat <- TADA_DataRetrieval(startDate = as.character(random_start_date), 
+                            endDate = as.character(end_date),
+                            statecode = state)
 
   if (dim(dat)[1] < 1) {
     dat <- Data_NCTCShepherdstown_HUC12
