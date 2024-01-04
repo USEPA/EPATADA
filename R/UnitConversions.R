@@ -58,7 +58,7 @@
 #' # "TADA.WQXUnitConversionFactor" and "TADA.WQXTargetUnit":
 #' ResultUnitsNotConverted <- TADA_ConvertResultUnits(Data_Nutrients_UT, transform = FALSE)
 #'
-TADA_ConvertResultUnits <- function(.data, transform = TRUE, delimit = TRUE) {
+TADA_ConvertResultUnits <- function(.data, transform = TRUE, detlimit = TRUE) {
   # check .data is data.frame
   TADA_CheckType(.data, "data.frame", "Input object")
   # check transform is boolean
@@ -98,12 +98,12 @@ TADA_ConvertResultUnits <- function(.data, transform = TRUE, delimit = TRUE) {
     "Conversion.Factor",
     "Target.Speciation"
   )])
-
+    
   # join unit.ref to .data
-  check.data.result <- merge(.data, unit.ref, all.x = TRUE)
+  check.data <- merge(.data, unit.ref, all.x = TRUE)
   
   # rename columns
-  flag.data.result <- check.data %>%
+  flag.data <- check.data %>%
     dplyr::rename(TADA.WQXTargetUnit = Target.Unit) %>%
     dplyr::rename(TADA.WQXUnitConversionFactor = Conversion.Factor) %>%
     dplyr::rename(USGS.SpeciationConversion = Target.Speciation)
@@ -138,8 +138,7 @@ TADA_ConvertResultUnits <- function(.data, transform = TRUE, delimit = TRUE) {
   if (transform == FALSE) {
     print("Conversions required for range checks and TADATargetUnit conversions -- Unit conversions, data summaries, and data calculations may be affected.")
     # reorder columns
-    flag.data <- TADA_OrderCols(flag.data)
-    return(flag.data)
+    clean.data <- TADA_OrderCols(flag.data)
   }
 
   if (transform == TRUE) {
@@ -186,11 +185,68 @@ TADA_ConvertResultUnits <- function(.data, transform = TRUE, delimit = TRUE) {
 
     # create new comparable data identifier column following conversion
     clean.data <- TADA_CreateComparableID(clean.data)
+    
+    clean.data <- TADA_OrderCols(clean.data)
   }
+  
   # reorder cols
-  clean.data <- TADA_OrderCols(clean.data)
+  if (detlimit == FALSE) {
+    
+    return(clean.data)
+  }
+  
+  if(detlimit == TRUE) {
+  
+    det.ref <- unit.ref %>%
+      dplyr::select(TADA.ResultMeasure.MeasureUnitCode, Target.Unit, Conversion.Factor) %>%
+      dplyr::rename(TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode = TADA.ResultMeasure.MeasureUnitCode,
+                    Det.Target.Unit = Target.Unit,
+                    Det.Conversion.Factor = Conversion.Factor)
+    
+    # if temp data exists, calculate conversion factor
+    # EDH I THINK THIS RUNS IF THERE IS ONE OR MORE NA'S IN THE DATASET
+    if (all(is.na(match(
+      c("deg F", "deg K"),
+      clean.data$TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode
+    ))) == FALSE) {
+      # Calculate deg F and deg C, replace Conversion factor values
+      flag.det <- det.data %>%
+        # create flag column
+        dplyr::mutate(Det.Conversion.Factor = dplyr::case_when(
+          TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode == "deg F" ~
+            as.numeric(((TADA.DetectionQuantitationLimitMeasure.MeasureValue - 32) * (5 / 9)) / TADA.DetectionQuantitationLimitMeasure.MeasureValue,
+                       TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode == "deg K" ~
+                         as.numeric((TADA.DetectionQuantitationLimitMeasure.MeasureValue - 273.15) / TADA.DetectionQuantitationLimitMeasure.MeasureValue),
+                       TRUE ~ Det.Conversion.Factor
+            )))
+    }
+    
+    
+    det.data <- clean.data %>%
+      merge(det.ref, all.x = TRUE) %>%
+      # apply conversions where there is a target unit, use original value if no target unit
+      dplyr::mutate(TADA.DetectionQuantitationLimitMeasure.MeasureValue = dplyr::case_when(
+        is.na(TADA.DetectionQuantitationLimitMeasure.MeasureValue) ~ TADA.DetectionQuantitationLimitMeasure.MeasureValue,
+        !is.na(Det.Target.Unit) ~
+          (TADA.DetectionQuantitationLimitMeasure.MeasureValue * Det.Conversion.Factor),
+        is.na(Det.Target.Unit) ~ TADA.DetectionQuantitationLimitMeasure.MeasureValue
+      ))
+    
 
-  return(clean.data)
+    
+    # populate TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode
+    convert.data <- flag.det %>%
+      # use target unit where there is a target unit, use original unit if no target unit
+      dplyr::mutate(TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode = dplyr::case_when(
+        !is.na(Det.Target.Unit) ~ Det.Target.Unit,
+        is.na(Det.Target.Unit) ~ TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode
+      )) %>%
+      dplyr::select(-Det.Target.Unit, -Det.Conversion.Factor) %>%
+      TADA_OrderCols()
+    
+    return(convert.data)
+  }
+  
 }
 
 
