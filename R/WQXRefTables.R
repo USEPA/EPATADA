@@ -550,9 +550,7 @@ TADA_GetActivityTypeRef <- function() {
     "Sample-Integrated Time Series",
     "Sample-Integrated Vertical Profile",
     "Sample-Other",
-    "Sample-Routine",
-    # USGS only value
-    "Sample"
+    "Sample-Routine"
   )
   
   WQXActivityTypeRef <- raw.data %>%
@@ -571,10 +569,22 @@ TADA_GetActivityTypeRef <- function() {
   # Hard-code add activity types from NWIS
   ## Add USGS limits not in WQX domain table
   new.atcs <- data.frame(
-    Code = c("Quality Control Sample-Blind", "Unknown"),
-    Description = c("Hard-coded activity type not in WQX domain", "Hard-coded activity type not in WQX domain"),
-    TADA.ActivityType.Flag = c("QC_duplicate", "Non_QC"),
-    Last.Change.Date = rep("8/11/2023 12:00:00 PM", 2)
+    Code = c("Quality Control Sample-Blind", 
+             "Unknown", 
+             "Not determined",
+             "Sample"),
+    Description = c("Hard-coded activity type not in WQX domain",
+                    "Hard-coded activity type not in WQX domain", 
+                    "Hard-coded activity type not in WQX domain",
+                    "Hard-coded activity type not in WQX domain"),
+    TADA.ActivityType.Flag = c("QC_duplicate", 
+                               "Not Reviewed", 
+                               "Not Reviewed", 
+                               "Non_QC"),
+    Last.Change.Date = c("8/11/2023  12:00:00 PM",
+                         "8/11/2023  12:00:00 PM",
+                         "1/5/2024  12:00:00 PM",
+                         "1/5/2024  12:00:00 PM")
   )
   
   WQXActivityTypeRef <- plyr::rbind.fill(WQXActivityTypeRef, new.atcs)

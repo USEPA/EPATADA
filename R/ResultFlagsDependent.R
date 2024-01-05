@@ -517,7 +517,7 @@ TADA_FindQCActivities <- function(.data, clean = FALSE, flaggedonly = FALSE) {
     )
     qc.ref <- rbind(qc.ref, missing_codes_df)
     missing_codes <- paste(missing_codes, collapse = ", ")
-    print(paste0("ActivityTypeCode column in dataset contains value(s) ", missing_codes, " which is/are not represented in the ActivityType WQX domain table. These data records are placed under the TADA.ActivityType.Flag: 'Not Reviewed'. Please contact TADA administrators to resolve."))
+    print(paste0("ActivityTypeCode column in dataset contains value(s) ", missing_codes, " which is/are not in the ActivityType WQX domain table. These data records are USGS only values and placed under the TADA.ActivityType.Flag: 'Not Reviewed'. Please review these carefully to detemine data usability."))
   }
 
   # populate flag column in data
