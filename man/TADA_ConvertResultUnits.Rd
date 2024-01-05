@@ -4,25 +4,35 @@
 \alias{TADA_ConvertResultUnits}
 \title{Transform Units to WQX Target Units}
 \usage{
-TADA_ConvertResultUnits(.data, transform = TRUE)
+TADA_ConvertResultUnits(.data, transform = TRUE, detlimit = TRUE)
 }
 \arguments{
 \item{.data}{TADA dataframe}
 
 \item{transform}{Boolean argument with two possible values, “TRUE” and “FALSE”.
 Default is transform = TRUE.}
+
+\item{detlimit}{Boolean arguement with two possible values, "TRUE" and "FALSE".
+Default is detlimit = TRUE.}
 }
 \value{
 When transform=TRUE, result values and units are converted to WQX
 target units. This function changes the values within the
 "TADA.ResultMeasure.MeasureUnitCode" to the WQX target units and converts
 respective values within the "TADA.ResultMeasureValue" field.
+When detlimit = TRUE, detection limit values and units are converted to WQX
+target units. This function changes the
+"TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode" to the WQX target
+units and converts respective values within the
+"TADA.DetectionQuantitationLimitMeasure.MeasureValue" field.
 
 When transform = FALSE, result values and units are NOT converted to WQX target units,
 but columns are appended to indicate what the target units and conversion factors are,
 and if the data can be converted. In addition to "TADA.WQXResultUnitConversion"
 and "TADA.WQXDetectionLimitUnitConversion",  transform=FALSE will add the
 following two fields to the input dataframe: "TADA.WQXUnitConversionFactor" and "TADA.WQXTargetUnit".
+When detlimit = FALSE, values and units for detection limit are not converted to WQX
+target units and no additional fields are added do the input dataframe.
 }
 \description{
 This function compares measure units in the input data to the Water Quality
