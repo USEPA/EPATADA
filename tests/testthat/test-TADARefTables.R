@@ -1,5 +1,5 @@
 # test_that("There aren't any char-frac-spec-unit combos not present in synonym reference",{
-#   test <- TADA_RandomNationalTestingSet()
+#   test <- TADA_RandomTestingData(choose_random_state = TRUE)
 #   test1 <- TADA_RunKeyFlagFunctions(test)
 #   ref <- TADA_GetSynonymRef()
 #   ref_chars <- unique(ref$TADA.CharacteristicName)

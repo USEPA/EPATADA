@@ -56,9 +56,8 @@ TADA_UpdateExampleData <- function() {
     od_method = "as-is",
     od_multiplier = "null"
   )
-  y <- dplyr::filter(y, TADA.ResultMeasureValueDataTypes.Flag != "NA - Not Applicable" &
-    TADA.ResultMeasureValueDataTypes.Flag != "Text" &
-    TADA.ResultMeasureValueDataTypes.Flag != "Coerced to NA" &
+  y <- dplyr::filter(y, TADA.ResultMeasureValueDataTypes.Flag != "Text" &
+    TADA.ResultMeasureValueDataTypes.Flag != "NA - Not Available" &
     !is.na(TADA.ResultMeasureValue))
   # uses default ref = TADA_GetSynonymRef()
   Data_6Tribes_5y_Harmonized <- TADA_HarmonizeSynonyms(y)
@@ -93,7 +92,7 @@ TADA_UpdateExampleData <- function() {
 ## NPsummation_key.csv (if relevant to TN or TP summation).
 
 FindSynonyms <- function() {
-  test <- TADA_RandomNationalTestingSet()
+  test <- TADA_RandomTestingData()
   test1 <- TADA_RunKeyFlagFunctions(test)
   ref <- TADA_GetSynonymRef()
   ref_chars <- unique(ref$TADA.CharacteristicName)
@@ -127,7 +126,7 @@ FindSynonyms <- function() {
 #
 #   for (i in 1:num_iterations) {
 #
-#     testing <- TADA_RandomNationalTestingSet()
+#     testing <- TADA_RandomTestingData()
 #
 #     testing2 <- TADA_FlagMeasureQualifierCode(testing)
 #

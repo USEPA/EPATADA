@@ -925,8 +925,6 @@ TADA_FlagCoordinates <- function(.data,
       TADA.LatitudeMeasure < 13.654383 & TADA.LatitudeMeasure > 13.234189 & TADA.LongitudeMeasure < 144.956712 & TADA.LongitudeMeasure > 144.618068 ~ NA_character_, # Guam
       TADA.LatitudeMeasure < 0 ~ "LAT_OutsideUSA",
       TADA.LongitudeMeasure > 0 & TADA.LongitudeMeasure < 145 ~ "LONG_OutsideUSA",
-      # grepl("999", TADA.LatitudeMeasure) ~ "Imprecise_Latincludes999",
-      # grepl("999", TADA.LongitudeMeasure) ~ "Imprecise_Longincludes999",
       # for below, lat and long fields must be numeric
       # this checks if there are at least 3 significant figures to the
       # right of the decimal point
@@ -941,11 +939,7 @@ TADA_FlagCoordinates <- function(.data,
   if (clean_imprecise == TRUE) {
     .data <- dplyr::filter(
       .data,
-      !TADA.InvalidCoordinates.Flag %in% c(
-        # "Imprecise_Latincludes999",
-        # "Imprecise_Longincludes999",
-        "Imprecise_lessthan3decimaldigits"
-      )
+      !TADA.InvalidCoordinates.Flag %in% "Imprecise_lessthan3decimaldigits"
     )
   }
 
@@ -1218,7 +1212,7 @@ TADA_FindPotentialDuplicatesSingleOrg <- function(.data) {
   # tack depth columns onto additional grouping columns
   colss <- c("OrganizationIdentifier", "MonitoringLocationIdentifier", "ActivityStartDate", "ActivityStartTime.Time", "ActivityTypeCode", "TADA.CharacteristicName", "SubjectTaxonomicName", "TADA.ResultSampleFractionText", "TADA.ResultMeasureValue", depthcols)
 
-  # find where the grouping using the columns above results in more than result identifier
+  # find where the grouping using the columns above results in more than one result identifier
   dups_sum_org <- .data %>%
     dplyr::group_by(dplyr::across(dplyr::any_of(colss))) %>%
     dplyr::summarise(numres = length(unique(ResultIdentifier))) %>%

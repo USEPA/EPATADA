@@ -49,6 +49,7 @@ TADA_GetWQXCharValRef <- function() {
   invalid <- c("Rejected", "Rejected ", "N")
   nonstandard <- c(
     "NonStandardized",
+    "Nonstandardized",
     "InvalidMediaUnit",
     "InvalidChar",
     "MethodNeeded"
@@ -690,23 +691,25 @@ TADA_GetMeasureQualifierCodeRef <- function() {
   }
   
   # Categorize Result Measure Qualifiers
+  # Categorization should be conservative
   suspect <- c(
-    "$", "(", "+", "AR", "BS", "BSR", "BT", "BVER", "C", "CAN", "CBC",
+    "(", "+", "AR", "BS", "BSR", "BT", "BVER", "C", "CAN", "CBC",
     "CSR", "DE", "EER", "EFAI", "FDB", "FDC", "FDL", "FFB", "FFD",
-    "FFS", "FFT", "FH", "FIS", "FL", "FLA", "FLC", "FLD", "FLS", "FMD",
-    "FMS", "FPC", "FPP", "FPR", "FQC", "FRS", "FSD", "FSL", "FSP", "FUB",
-    "H", "H2", "H3", "HE", "HH", "HIB", "HICC", "HIM", "HMSD", "HMSR",
-    "HNRO", "HTH", "I", "ICA", "INT", "IQCOL", "IS", "ISAC", "ISP",
-    "ISR**", "ITNA", "ITNM", "JCW", "KCF", "KCX", "KK", "LAC", "LBF",
-    "LICC", "LMSD", "LO", "LOB", "LOPR", "LQ", "LSSR", "LVER", "M6F",
-    "MI", "MSR", "NAI", "NLBL", "NLRO", "NN", "NPNF", "NRB", "NRO",
-    "NRP", "NRR", "NRS", "NSQ", "P", "PNQ", "PP", "Q", "QC", "R", "RA",
+    "FFS", "FFT", "FH", "FIS", "FL", "FLD", "FLS", "FMD",
+    "FMS", "FPC", "FPR", "FQC", "FRS", "FSD", "FSL", "FSP", "FUB",
+    "H", "H2", "H3", "HMSD", 
+     "INT", "IQCOL",  "ISP",
+       "JCW", "KCF", "KCX", "KK", "LAC", "LBF",
+     "LO",     
+    "MI", "MSR", "NAI", "NLBL", "NLRO", "NN",   "NRO",
+    "NRP", "NRR",  "NSQ",  "PNQ",  "Q", "QC", "R", "RA",
     "RPO", "S2", "SCA", "SCF", "SCP", "SCX", "SD%EL", "SDROL", "SSR",
-    "SUS", "V", "^", "F", "FEQ", "G", "UDL", "MDL"
+    "SUS", "V", "^",    "RNON","B", "CBG", "SSRV" # this is used by USGS for surrogates
   )
   pass <- c(
-    "&", ")", "*", "=", "A", "AC", "AL", "ALK", "ALT",
-    "AP", "B", "BAC", "C25", "CAJ", "CBG", "CBL", "CC",
+    "UDL","PP","P","NRS","NRB","NPNF","MDL","ITNM","I", "HIB", "HH", "HE", "G","FPP", "FLC", "FLA", "$", "FEQ", "&", ")", "*", "=", 
+    "M6F","LVER","LSSR","LQ", "LOPR","LMSD","LICC", "ITNA","ICA", "F", "HTH", "HNRO", "HMSR", "HIM", "HICC", "A", "AC", "AL", "ALK", "ALT",
+    "LOB","ISR**","ISAC", "IS", "AP",  "BAC", "C25", "CAJ",  "CBL", "CC",
     "CDI", "CG", "CKB", "CKBJ", "CKG", "CKJ", "CLC", "CNT", "CON", "CUG",
     "D", "DEC", "DI", "DOM", "DT", "ECI", "EMPC",
     "ESD", "EST", "EVA", "EVAD", "EVID", "GR4",
@@ -715,10 +718,12 @@ TADA_GetMeasureQualifierCodeRef <- function() {
     "LR", "LT", "MSD", "N", "NA", "NFNS", "NHS", "NW",
     "O", "OA3", "OS3", "OTHER", "OUT", "PB", "PK", "PPD", "PQL", "PRE",
     "QCI", "RC", "REX", "RIN", "RLRS", "RMAX", "RNAF", "RP",
-    "RPDX", "RR", "RV", "RVB", "SBB", "SLB", "SM", "SS", "SSRV", "T",
-    "TMLF", "TOC", "TT", "UNC", "VS", "VVRR", "VVRR2", "UDQ", "ZZ"
+    "RPDX", "RR", "RV", "RVB", "SBB", "SLB", "SM", "SS",  "T",
+    "TMLF", "TOC", "TT", "UNC", "VS", "VVRR", "VVRR2", "UDQ", "ZZ",
+    "J-1", "NA"
   )
-  nondetect <- c("BQL", "2-5B", "RNON", "U", "LTGTE", "K", "IDL", "<2B", "BRL", "D>T", "DL")
+  nondetect <- c("BQL", "2-5B", "U", "LTGTE", "K", "IDL", "<2B", "BRL", "D>T", "DL")
+  
   overdetect <- c("E", "EE", "GT")
   
   WQXMeasureQualifierCodeRef <- raw.data %>%
@@ -727,62 +732,63 @@ TADA_GetMeasureQualifierCodeRef <- function() {
       Code %in% overdetect ~ "Over-Detect",
       Code %in% suspect ~ "Suspect",
       Code %in% pass ~ "Pass",
-      Code %in% NA ~ "Not Reviewed",
+      Code %in% NA ~ "Pass",
       TRUE ~ as.character("Not Reviewed")
     )) %>%
     dplyr::distinct()
   
-  ## Add detection conditions not in WQX domain table
-  others <- data.frame(
-    Code = c(
-      "H;J", "LT;MDL", "HMSR;J", "J;QC", "D;H", "J;U", "H;LAC",
-      "FQC;J", "B;J", "FMS;J", "D;U", "FSL;J"
-    ),
-    Description = c(
-      "Hard-coded combination",
-      "Hard-coded combination",
-      "Hard-coded combination",
-      "Hard-coded combination",
-      "Hard-coded combination",
-      "Hard-coded combination",
-      "Hard-coded combination",
-      "Hard-coded combination",
-      "Hard-coded combination",
-      "Hard-coded combination",
-      "Hard-coded combination",
-      "Hard-coded combination"
-    ),
-    TADA.MeasureQualifierCode.Flag = c(
-      "Pass",
-      "Non-Detect",
-      "Suspect",
-      "Suspect",
-      "Suspect",
-      "Non-Detect",
-      "Suspect",
-      "Suspect",
-      "Suspect",
-      "Suspect",
-      "Non-Detect",
-      "Suspect"
-    ),
-    Last.Change.Date = c(
-      "8/7/2023 02:36:00 PM",
-      "8/7/2023 05:00:00 PM",
-      "8/7/2023 07:42:00 PM",
-      "8/7/2023 07:42:00 PM",
-      "8/7/2023 07:42:00 PM",
-      "8/7/2023 07:42:00 PM",
-      "8/7/2023 07:42:00 PM",
-      "8/7/2023 07:42:00 PM",
-      "8/7/2023 07:42:00 PM",
-      "8/7/2023 07:42:00 PM",
-      "8/7/2023 07:42:00 PM",
-      "8/7/2023 08:14:00 PM"
-    )
-  )
-  
-  WQXMeasureQualifierCodeRef <- plyr::rbind.fill(WQXMeasureQualifierCodeRef, others)
+  # ## Add detection conditions not in WQX domain table
+  # ## No longer needed because these are handled in measure qualifier flag function
+  # others <- data.frame(
+  #   Code = c(
+  #     "H;J", "LT;MDL", "HMSR;J", "J;QC", "D;H", "J;U", "H;LAC",
+  #     "FQC;J", "B;J", "FMS;J", "D;U", "FSL;J"
+  #   ),
+  #   Description = c(
+  #     "Hard-coded combination",
+  #     "Hard-coded combination",
+  #     "Hard-coded combination",
+  #     "Hard-coded combination",
+  #     "Hard-coded combination",
+  #     "Hard-coded combination",
+  #     "Hard-coded combination",
+  #     "Hard-coded combination",
+  #     "Hard-coded combination",
+  #     "Hard-coded combination",
+  #     "Hard-coded combination",
+  #     "Hard-coded combination"
+  #   ),
+  #   TADA.MeasureQualifierCode.Flag = c(
+  #     "Pass",
+  #     "Non-Detect",
+  #     "Suspect",
+  #     "Suspect",
+  #     "Suspect",
+  #     "Non-Detect",
+  #     "Suspect",
+  #     "Suspect",
+  #     "Suspect",
+  #     "Suspect",
+  #     "Non-Detect",
+  #     "Suspect"
+  #   ),
+  #   Last.Change.Date = c(
+  #     "8/7/2023 02:36:00 PM",
+  #     "8/7/2023 05:00:00 PM",
+  #     "8/7/2023 07:42:00 PM",
+  #     "8/7/2023 07:42:00 PM",
+  #     "8/7/2023 07:42:00 PM",
+  #     "8/7/2023 07:42:00 PM",
+  #     "8/7/2023 07:42:00 PM",
+  #     "8/7/2023 07:42:00 PM",
+  #     "8/7/2023 07:42:00 PM",
+  #     "8/7/2023 07:42:00 PM",
+  #     "8/7/2023 07:42:00 PM",
+  #     "8/7/2023 08:14:00 PM"
+  #   )
+  # )
+  # 
+  # WQXMeasureQualifierCodeRef <- plyr::rbind.fill(WQXMeasureQualifierCodeRef, others)
   
   # Save updated table in cache
   WQXMeasureQualifierCodeRef_Cached <- WQXMeasureQualifierCodeRef

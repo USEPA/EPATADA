@@ -54,7 +54,7 @@ library(remotes)
 
 Next, install and load TADA using the remotes package. USGS's dataRetrieval and
 other TADA R Package dependencies will also be downloaded automatically from CRAN
-with the TADA install. If desired, the the development version of dataRetrieval
+with the TADA install. If desired, the development version of dataRetrieval
 can be downloaded directly from GitHub (un-comment).
 
 ```{r install_TADA, eval = F, results = 'hide', message = FALSE, warning = FALSE}
@@ -190,8 +190,8 @@ Tips:
         will get an error.
 
 2.  The "siteid" is a general term WQP uses to describe both Site IDs
-    from USGS databases and Monitoring Location Identifiers (from the
-    Water Quality Portal). Each monitoring location in the Water Quality
+    from USGS databases and Monitoring Location Identifiers (from WQX).
+    Each monitoring location in the Water Quality
     Portal (WQP) has a unique Monitoring Location Identifier, regardless
     of the database from which it derives. The Monitoring Location
     Identifier from the WQP is the concatenated Organization Identifier
@@ -475,7 +475,7 @@ See documentation for more details:
         invalid TADA.CharacteristicName,
         ResultAnalyticalMethod/MethodIdentifier, and
         ResultAnalyticalMethod/MethodIdentifierContext combinations in
-        your dataframe either "Nonstandardized", "Invalid", or "Valid".
+        your dataframe either "NonStandardized", "Invalid", or "Valid".
 
     -   When clean = TRUE, "Invalid" rows are removed from the dataframe
         and no column will be appended.
@@ -488,22 +488,23 @@ See documentation for more details:
     -   When clean = "none", this function adds the following column to
         your dataframe: TADA.MethodSpeciation.Flag. This column flags
         each TADA.CharacteristicName and MethodSpeciationName
-        combination in your dataframe as either "Nonstandardized",
+        combination in your dataframe as either "NonStandardized",
+
         "Invalid", or "Valid".
 
     -   When clean = "invalid_only", only "Invalid" rows are removed
         from the dataframe. Default is clean = "invalid_only".
 
-    -   When clean = "nonstandardized_only", only "Nonstandardized" rows
+    -   When clean = "nonstandardized_only", only "NonStandardized" rows
         are removed from the dataframe.
 
-    -   When clean = "both", "Invalid" and "Nonstandardized" rows are
+    -   When clean = "both", "Invalid" and "NonStandardized" rows are
         removed from the dataframe.
 
     -   When clean = "none", no rows are removed from the dataframe.
 
     -   When flaggedonly = TRUE, the dataframe is filtered to only the
-        rows flagged as "Invalid" or "Nonstandardized"; default is
+        rows flagged as "Invalid" or "NonStandardized"; default is
         flaggedonly = FALSE.
 
 -   ?**TADA_FlagResultUnit**
@@ -512,7 +513,7 @@ See documentation for more details:
         dataframe: TADA.ResultUnit.Flag. This column flags each
         TADA.CharacteristicName, TADA.ActivityMediaName, and
         TADA.ResultMeasure.MeasureUnitCode combination in your dataframe
-        as either "Nonstandardized", "Invalid", or "Valid".
+        as either "NonStandardized", "Invalid", or "Valid".
 
     -   When clean = TRUE, "Invalid" rows are removed from the dataframe
         and no column will be appended.
@@ -525,7 +526,7 @@ See documentation for more details:
     -   When clean = FALSE, this function adds the following column to
         your dataframe: TADA.SampleFraction.Flag. This column flags each
         TADA.CharacteristicName and TADA.ResultSampleFractionText
-        combination in your dataframe as either "Nonstandardized",
+        combination in your dataframe as either "NonStandardized",
         "Invalid", or "Valid".
     -   When clean = TRUE, "Invalid" rows are removed from the dataframe
         and no column will be appended.
@@ -861,10 +862,10 @@ sum(is.na(TADAProfileClean4$TADA.ResultMeasureValue))
 ```
 
 Filter down to only numeric data. Remove data where the
-TADA.ResultMeasureValueDataTypes.Flag = "Text","Coerced to NA",or "NA - Not Applicable".
+TADA.ResultMeasureValueDataTypes.Flag = "Text" or "NA - Not Available".
 
 ```{r filter_out_NAs}
-# Removes rows where the result value is not numeric. Specifically, removes rows with "Text","Coerced to NA", or "NA - Not Applicable" in the TADA.ResultMeasureValueDataTypes.Flag column, or NA in the TADA.ResultMeasureValue column.
+# Removes rows where the result value is not numeric. Specifically, removes rows with "Text" or "NA - Not Available" in the TADA.ResultMeasureValueDataTypes.Flag column, or NA in the TADA.ResultMeasureValue column.
 TADAProfileClean5 <- TADA_AutoFilter(TADAProfileClean4)
 ```
 
