@@ -56,7 +56,7 @@
 #'
 #' # Do not convert result values and units, but add two new columns titled
 #' # "TADA.WQXUnitConversionFactor" and "TADA.WQXTargetUnit":
-#' ResultUnitsNotConverted <- TADA_ConvertResultUnits(Data_Nutrients_UT, transform = FALSE)
+#' ResultUnitsNotConverted <- TADA_ConvertResultUnits(Data_Nutrients_UT, transform = FALSE, detlimit = FALSE)
 #'
 TADA_ConvertResultUnits <- function(.data, transform = TRUE, detlimit = TRUE) {
   # check .data is data.frame
