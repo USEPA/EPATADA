@@ -15,6 +15,7 @@ TADA_UpdateAllRefs <- function() {
 ## FUNCTION TO UPDATE EXAMPLE DATA
 
 TADA_UpdateExampleData <- function() {
+  # Generate Data_Nutrients_UT.rda
   Data_Nutrients_UT <- TADA_DataRetrieval(
     statecode = "UT",
     characteristicName = c("Ammonia", "Nitrate", "Nitrogen"),
@@ -26,6 +27,7 @@ TADA_UpdateExampleData <- function() {
   save(Data_Nutrients_UT, file = "data/Data_Nutrients_UT.rda")
   rm(Data_Nutrients_UT)
 
+  # Generate Data_6Tribes_5y.rda
   Data_6Tribes_5y <- TADA_DataRetrieval(
     organization = c(
       "REDLAKE_WQX",
@@ -41,6 +43,7 @@ TADA_UpdateExampleData <- function() {
   print(dim(Data_6Tribes_5y))
   save(Data_6Tribes_5y, file = "data/Data_6Tribes_5y.rda")
 
+  # Generate Data_6Tribes_5y_Harmonized.rda
   y <- subset(Data_6Tribes_5y, Data_6Tribes_5y$TADA.ActivityMediaName %in% c("WATER"))
   y <- TADA_RunKeyFlagFunctions(Data_6Tribes_5y)
   rm(Data_6Tribes_5y)
@@ -66,6 +69,7 @@ TADA_UpdateExampleData <- function() {
   save(Data_6Tribes_5y_Harmonized, file = "data/Data_6Tribes_5y_Harmonized.rda")
   rm(Data_6Tribes_5y_Harmonized)
 
+  # Generate Data_NCTCShepherdstown_HUC12
   Data_NCTCShepherdstown_HUC12 <- TADA::TADA_DataRetrieval(
     startDate = "2020-03-14",
     endDate = "null",

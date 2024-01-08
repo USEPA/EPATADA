@@ -23,7 +23,7 @@ data directly into R.
 }
 \details{
 We recommend retrieving data for all the following profiles
-(you can run this function three separate times to bring in all four profiles):
+(you can run this function three separate times to bring in all three profiles):
 \enumerate{
 \item Sample Results (physical/chemical metadata)
 \item Project Data
@@ -31,7 +31,7 @@ We recommend retrieving data for all the following profiles
 }
 
 After you retrieve all three profiles, you can use TADA::TADA_JoinWQPProfiles to
-joining the three dataframes into a single dataframe.
+join the three dataframes into a single dataframe.
 
 Note: It may be useful to save the Query URL from the WQP as well as a
 comment within your code. This URL let's you return to the WQP query page

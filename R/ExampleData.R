@@ -1,21 +1,3 @@
-#' Data_WaterT_US
-#'
-#' Example data containing all lake water temperature data in the US
-#' from Jan 2000 to Jul 2022. This dataset can be reproduced
-#' with the following TADA_BigDataRetrieval call:
-#'
-#' Data_WaterT_US <- TADA_BigDataRetrieval(startDate = "2000-01-01",
-#' endDate = "2022-07-01",
-#' characteristicName = "Temperature, water",
-#' siteType = "Lake, Reservoir, Impoundment")
-#'
-#' @docType data
-#' @keywords datasets
-#' @name Data_WaterT_US
-#' @usage data(Data_WaterT_US)
-#' @format A data frame with 14237 rows and 103 variables
-NULL
-
 #' Data_Nutrients_UT
 #'
 #' A dataset containing Ammonia, Nitrate, and Nitrogen data from Utah:
@@ -30,42 +12,6 @@ NULL
 #' @name Data_Nutrients_UT
 #' @usage data(Data_Nutrients_UT)
 #' @format A data frame with 14592 rows and 152 variables
-NULL
-
-#' Data_PhysChem_5d
-#'
-#' Sample Results (physical/chemical metadata) profile containing data for a 5 day period from 1/5/2023-1/10/2023.
-#'
-#' @docType data
-#' @keywords datasets
-#' @name Data_PhysChem_5d
-#' @usage data(Data_PhysChem_5d)
-#' @format A data frame with 898 rows and 81 variables
-NULL
-
-#' Data_Site_5d
-#'
-#' Site Data Only WQP profile containing all data for a 5 day period from 1/5/2023-1/10/2023.
-#'
-#' @docType data
-#' @keywords datasets
-#' @name Data_Site_5d
-#' @usage data(Data_Site_5d)
-#' @format A data frame with 55 rows and 37 variables
-NULL
-
-#' Data_6Tribes_5y_Harmonized
-#'
-#' A dataset containing data from tribal organizations
-#' (see ?Data_6Tribes_5y for more information). Data was cleaned using the
-#' TADA Module 1 vignette
-#' (see: https://usepa.github.io/TADA/articles/TADAModule1.html).
-#'
-#' @docType data
-#' @keywords datasets
-#' @name Data_6Tribes_5y_Harmonized
-#' @usage data(Data_6Tribes_5y_Harmonized)
-#' @format A data frame with 122388 rows and 168 variables
 NULL
 
 #' Data_6Tribes_5y
@@ -93,6 +39,20 @@ NULL
 #' @name Data_6Tribes_5y
 #' @usage data(Data_6Tribes_5y)
 #' @format A data frame with 139033 rows and 151 variables
+NULL
+
+#' Data_6Tribes_5y_Harmonized
+#'
+#' A dataset containing data from tribal organizations
+#' (see ?Data_6Tribes_5y for more information). Data was cleaned using the
+#' TADA Module 1 vignette
+#' (see: https://usepa.github.io/TADA/articles/TADAModule1.html).
+#'
+#' @docType data
+#' @keywords datasets
+#' @name Data_6Tribes_5y_Harmonized
+#' @usage data(Data_6Tribes_5y_Harmonized)
+#' @format A data frame with 122388 rows and 168 variables
 NULL
 
 #' Data_NCTCShepherdstown_HUC12
