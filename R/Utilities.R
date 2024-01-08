@@ -1394,11 +1394,21 @@ end <- dim(.data)[1]
 #'
 #' @return A dataframe containing all required fields for use with TADA as well as fields
 #' commonly used for filtering.
+#' 
+#' @export
+#' 
+#' @examples 
+#' data(Data_Nutrients_UT)
+#' reducedcols_Data_Nutrients_UT <- TADA_RetainRequired(Data_Nutrients_UT)
 #'
 
 TADA_RetainRequired <- function(.data) {
   
-  print("TADA_RetainRequired: removing columns not required for TADA workflow including original columns with TADA prefix duplicates.")
+  # check .data is data.frame
+  TADA_CheckType(.data, "data.frame", "Input object")
+  
+  # execute function after TADA_CheckType passes
+  print("TADA_RetainRequired: removing columns not required for TADA workflow including original columns that have been replaced with TADA prefix duplicates.")
   
   # create list of filtering columns to be retained in data frame
   filter.cols <- c("ProjectDescriptionText",
@@ -1435,12 +1445,12 @@ TADA_RetainRequired <- function(.data) {
                   "ResultLaboratoryCommentText",
                   "MonitoringLocationDescriptionText",
                   "HUCEightDigitCode",
-                  "AquiferTypeName", # can be used to remove groundwater sites
-                  "ConstructionDateText", # can be used to remove groundwater sites
-                  "WellDepthMeasure.MeasureValue", # can be used to remove groundwater sites
-                  "WellDepthMeasure.MeasureUnitCode", # can be used to remove groundwater sites
-                  "WellHoleDepthMeasure.MeasureValue", # can be used to remove groundwater sites
-                  "WellHoleDepthMeasure.MeasureUnitCode", # can be used to remove groundwater sites
+                  "AquiferTypeName", 
+                  "ConstructionDateText", 
+                  "WellDepthMeasure.MeasureValue", 
+                  "WellDepthMeasure.MeasureUnitCode", 
+                  "WellHoleDepthMeasure.MeasureValue", 
+                  "WellHoleDepthMeasure.MeasureUnitCode", 
                   "ProviderName",
                   "LastUpdated")
   
@@ -1514,6 +1524,8 @@ TADA_RetainRequired <- function(.data) {
   
   #print a message to list names for all removed columns
   print(paste("The following non-required columns were removed: ", remove.paste, ".", sep = ""))
+  
+  return(.data)
   
   #remove intermediate objects
   rm(filter.cols, keep.cols, original.cols, remove.cols, require.cols, remove.paste)

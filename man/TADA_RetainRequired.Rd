@@ -20,3 +20,8 @@ other TADA functions or are commonly used filters. Using this function allows th
 all TADA created changes and reduce the size of the data set before using TADA mapping or data
 visualization features in the TADA package or Shiny app.
 }
+\examples{
+data(Data_Nutrients_UT)
+reducedcols_Data_Nutrients_UT <- TADA_RetainRequired(Data_Nutrients_UT)
+
+}
