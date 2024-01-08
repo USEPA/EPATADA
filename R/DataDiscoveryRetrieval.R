@@ -663,6 +663,7 @@ TADA_BigDataRetrieval <- function(startDate = "null",
 #' @export
 #'
 #' @examples
+#' \dontrun{
 #' # Load WQP data
 #' WQP URL: https://www.waterqualitydata.us/#statecode=US%3A09&characteristicType=Nutrient&startDateLo=04-01-2023&startDateHi=11-01-2023&mimeType=csv&providers=NWIS&providers=STEWARDS&providers=STORET
 #' # Use TADA_ReadWQPWebServices to load each profile
@@ -672,7 +673,8 @@ TADA_BigDataRetrieval <- function(startDate = "null",
 #' 
 #' # Join all three profiles using TADA_JoinWQPProfiles
 #' Data_PhysChemProfile <- TADA_JoinWQPProfiles(FullPhysChem = "physchemProfile", Sites = "stationProfile", Projects = "projectProfile")
-#'
+#' }
+#' 
 TADA_JoinWQPProfiles <- function(FullPhysChem = "null",
                                  Sites = "null",
                                  Projects = "null") {
