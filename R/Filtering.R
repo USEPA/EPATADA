@@ -38,18 +38,26 @@ TADA_FieldCounts <- function(.data, display = c("key", "most", "all"), character
   df <- .data %>% dplyr::select(where(~ !all(is.na(.x))))
 
   if (display == "key") {
-    cols <- c(
-      "ActivityTypeCode", "TADA.ActivityMediaName",
+     cols <- c(
+      "ActivityTypeCode", 
+      "TADA.ActivityMediaName",
       "ActivityMediaSubdivisionName",
-      "ActivityCommentText", "MonitoringLocationTypeName",
-      "StateName", "TribalLandName",
-      "OrganizationFormalName", "TADA.CharacteristicName",
-      "HydrologicCondition", "HydrologicEvent",
-      "BiologicalIntentName", "TADA.MeasureQualifierCode.Ref",
-      "ActivityGroup", "AssemblageSampledName",
-      "ProjectName", "CharacteristicNameUserSupplied",
+      "ActivityCommentText", 
+      "MonitoringLocationTypeName",
+      "StateCode", 
+      "OrganizationFormalName", 
+      "TADA.CharacteristicName",
+      "TADA.MeasureQualifierCode.Def",
+      "HydrologicCondition", 
+      "HydrologicEvent",
+      "BiologicalIntentName", 
+      "ActivityGroup", 
+      "AssemblageSampledName",
+      "ProjectName", 
+      "CharacteristicNameUserSupplied",
       "DetectionQuantitationLimitTypeName",
-      "SampleTissueAnatomyName", "LaboratoryName"
+      "SampleTissueAnatomyName", 
+      "LaboratoryName"
     )
   }
   if (display == "most") {
@@ -171,7 +179,8 @@ TADA_FieldCounts <- function(.data, display = c("key", "most", "all"), character
     cols <- names(df)
   }
 
-  df <- df[, names(df) %in% cols]
+  df <-  df %>%
+    dplyr::select(dplyr::contains(cols))
 
   # CREATE LIST OF FIELDS
   # Find count of unique values in each column
