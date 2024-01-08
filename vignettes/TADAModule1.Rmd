@@ -672,9 +672,7 @@ NA's are not included in the output):
 
 -   "MonitoringLocationTypeName"
 
--   "StateName"
-
--   "TribalLandName"
+-   "StateCode"
 
 -   "OrganizationFormalName"
 
