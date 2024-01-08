@@ -92,7 +92,7 @@ TADA_UpdateExampleData <- function() {
 ## NPsummation_key.csv (if relevant to TN or TP summation).
 
 FindSynonyms <- function() {
-  test <- TADA_RandomNationalTestingSet()
+  test <- TADA_RandomTestingData()
   test1 <- TADA_RunKeyFlagFunctions(test)
   ref <- TADA_GetSynonymRef()
   ref_chars <- unique(ref$TADA.CharacteristicName)
@@ -126,7 +126,7 @@ FindSynonyms <- function() {
 #
 #   for (i in 1:num_iterations) {
 #
-#     testing <- TADA_RandomNationalTestingSet()
+#     testing <- TADA_RandomTestingData()
 #
 #     testing2 <- TADA_FlagMeasureQualifierCode(testing)
 #

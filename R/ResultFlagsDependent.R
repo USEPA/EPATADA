@@ -561,53 +561,6 @@ TADA_FindQCActivities <- function(.data, clean = FALSE, flaggedonly = FALSE) {
 }
 
 
-#' AutoFilter
-#'
-#' This function removes rows where the result value is not numeric to
-#' prepare a dataframe for quantitative analyses. Ideally, this function should
-#' be run after other data cleaning, QA/QC, and harmonization steps are
-#' completed using other TADA package functions, or manually. Specifically, 
-#' this function removes rows with "Text" and "NA - Not Available"
-#' in the TADA.ResultMeasureValueDataTypes.Flag column, or NA in the
-#' TADA.ResultMeasureValue column.
-#'
-#' @param .data TADA dataframe OR TADA sites dataframe
-#'
-#' @return .data with rows removed where result values are not quantitative (NA or text),
-#' or the results have other issues that are not dealt with elsewhere.
-#'
-#' @export
-#'
-#' @examples
-#' # Load example dataset:
-#' data(Data_Nutrients_UT)
-#'
-#' # Remove all:
-#' TADA_filtered <- TADA_AutoFilter(Data_Nutrients_UT)
-#'
-TADA_AutoFilter <- function(.data) {
-  # check .data is data.frame
-  TADA_CheckType(.data, "data.frame", "Input object")
-  TADA_CheckColumns(.data, c(
-    "ActivityTypeCode", "MeasureQualifierCode",
-    "TADA.ResultMeasureValueDataTypes.Flag",
-    "TADA.ResultMeasureValue", "TADA.ActivityMediaName",
-    "ActivityTypeCode"
-  ))
-
-  autofilter <- dplyr::filter(.data, TADA.ResultMeasureValueDataTypes.Flag != "Text" &
-    TADA.ResultMeasureValueDataTypes.Flag != "NA - Not Available" &
-    !is.na(TADA.ResultMeasureValue)) # &
-  # TADA.ActivityMediaName == "WATER")
-
-  # filter out QA/QC ActivityTypeCode's
-  autofilter <- TADA_FindQCActivities(autofilter, clean = TRUE)
-
-  return(autofilter)
-}
-
-
-
 #' Check for results with suspect result Measure Qualifier Codes
 #'
 #' This function checks for and flags or removes samples denoted as suspect
@@ -740,8 +693,8 @@ TADA_FlagMeasureQualifierCode <- function(.data, clean = FALSE, flaggedonly = FA
     print(paste0("MeasureQualifierCode column in dataset contains value(s) ", missing_codes, " which is/are not represented in the MeasureQualifierCode WQX domain table. These data records are placed under the TADA.MeasureQualifierCode.Flag: 'uncategorized'. Please contact TADA administrators to resolve."))
   }
   
-  # rename ResultMeasureQualifier NA values to Pass in TADA.MeasureQualifierCode.Flag column
-  flag.data["TADA.MeasureQualifierCode.Flag"][is.na(flag.data["MeasureQualifierCode"])] <- "NA - Not Available"
+  ## rename ResultMeasureQualifier NA values to Pass in TADA.MeasureQualifierCode.Flag column (no longer needed cm 1/4/24)
+  # flag.data["TADA.MeasureQualifierCode.Flag"][is.na(flag.data["MeasureQualifierCode"])] <- "Pass"
 
   # clean dataframe
   # if clean = FALSE, return full dataframe

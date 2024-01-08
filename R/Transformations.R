@@ -78,7 +78,8 @@ TADA_HarmonizeSynonyms <- function(.data, ref, np_speciation = TRUE) {
     "Target.TADA.SpeciationConversionFactor",
     "TADA.ResultMeasure.MeasureUnitCode",
     "Target.TADA.ResultMeasure.MeasureUnitCode",
-    "Target.TADA.UnitConversionFactor"
+    "Target.TADA.UnitConversionFactor",
+    "Target.TADA.UnitConversionCoefficient"
   )
 
   # if class(ResultMeasureValue) != numeric, run special char function - EDH - should not be needed at this point but doesn't hurt.
@@ -153,7 +154,7 @@ TADA_HarmonizeSynonyms <- function(.data, ref, np_speciation = TRUE) {
     dplyr::rowwise() %>%
     dplyr::mutate(TADA.ResultMeasureValue = dplyr::case_when(
       !is.na(Target.TADA.UnitConversionFactor) ~
-        (Target.TADA.UnitConversionFactor * TADA.ResultMeasureValue),
+        ((Target.TADA.UnitConversionFactor * TADA.ResultMeasureValue) + Target.TADA.UnitConversionCoefficient),
       is.na(Target.TADA.UnitConversionFactor) ~ TADA.ResultMeasureValue
     ))
 
