@@ -730,7 +730,7 @@ TADA_GetMeasureQualifierCodeRef <- function() {
     "QCI", "RC", "REX", "RIN", "RLRS", "RMAX", "RNAF", "RP",
     "RPDX", "RR", "RV", "RVB", "SBB", "SLB", "SM", "SS",  "T",
     "TMLF", "TOC", "TT", "UNC", "VS", "VVRR", "VVRR2", "UDQ", "ZZ",
-    "J-1", "NA"
+    "J-1", "NA", "TR"
   )
   nondetect <- c("BQL", "2-5B", "U", "LTGTE", "K", "IDL", "<2B", "BRL", "D>T", "DL")
   

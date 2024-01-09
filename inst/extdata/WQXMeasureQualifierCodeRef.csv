@@ -220,6 +220,7 @@
 "Result Measure Qualifier(MeasureQualifierCode)",108,"T","Hardness by Calculation Method - Standard Methods 2340B - 19th Ed ","9/3/2014 12:00:00 AM","Pass"
 "Result Measure Qualifier(MeasureQualifierCode)",707,"TMLF","Time missing in logger file.","7/30/2019 7:36:04 AM","Pass"
 "Result Measure Qualifier(MeasureQualifierCode)",112,"TOC","Temperature outside of criteria","4/9/2015 9:10:23 AM","Pass"
+"Result Measure Qualifier(MeasureQualifierCode)",839,"TR","Trace","1/8/2024 4:44:57 PM","Pass"
 "Result Measure Qualifier(MeasureQualifierCode)",192,"TT","analyte recalculated against alternate labeled compound(s)","6/15/2016 1:28:59 PM","Pass"
 "Result Measure Qualifier(MeasureQualifierCode)",3,"U","Not Detected: The analyte was analyzed for, but was not detected at a level greater than or equal to the level of the adjusted Contract Required Quantitation Limit (CRQL) for sample and method. ","8/11/2006 11:50:00 PM","Non-Detect"
 "Result Measure Qualifier(MeasureQualifierCode)",831,"UDL","Lab's detection limit is not known/available for validation or comparison to the result.","4/10/2020 6:07:22 PM","Pass"
