@@ -1,4 +1,4 @@
-TADA.CharacteristicName,Target.TADA.CharacteristicName,TADA.CharacteristicNameAssumptions,TADA.ResultSampleFractionText,Target.TADA.ResultSampleFractionText,TADA.FractionAssumptions,TADA.MethodSpecificationName,Target.TADA.MethodSpecificationName,TADA.SpeciationAssumptions,Target.TADA.SpeciationConversionFactor,TADA.ResultMeasure.MeasureUnitCode,Target.TADA.ResultMeasure.MeasureUnitCode,Target.TADA.UnitConversionFactor,Target.TADA.UnitConversionCoefficient,TADA.UnitConversionRef,HarmonizationGroup
+TADA.CharacteristicName,Target.TADA.CharacteristicName,TADA.CharacteristicNameAssumptions,TADA.ResultSampleFractionText,Target.TADA.ResultSampleFractionText,TADA.FractionAssumptions,TADA.MethodSpeciationName,Target.TADA.MethodSpeciationName,TADA.SpeciationAssumptions,Target.TADA.SpeciationConversionFactor,TADA.ResultMeasure.MeasureUnitCode,Target.TADA.ResultMeasure.MeasureUnitCode,Target.TADA.UnitConversionFactor,Target.TADA.UnitConversionCoefficient,TADA.UnitConversionRef,HarmonizationGroup
 AMMONIA,NA,NA,DISSOLVED,FILTERED,Assumes DISSOLVED and TOTAL SOLUBLE are equivalent to FILTERED. FILTERED is precise and preferred.,AS N,NA,NA,NA,UG/L,MG/L,0.001,NA,NA,Nitrogen
 AMMONIA,NA,NA,DISSOLVED,FILTERED,Assumes DISSOLVED and TOTAL SOLUBLE are equivalent to FILTERED. FILTERED is precise and preferred.,AS NH3,AS N,Converts speciation and result values from AS NH3 to AS N,0.822,UG/L,MG/L,0.001,NA,NA,Nitrogen
 AMMONIA,NA,NA,DISSOLVED,FILTERED,Assumes DISSOLVED and TOTAL SOLUBLE are equivalent to FILTERED. FILTERED is precise and preferred.,AS NH4,AS N,Converts speciation and result values from AS NH4 to AS N,0.776,UG/L,MG/L,0.001,NA,NA,Nitrogen
@@ -309,11 +309,11 @@ TOTAL SUSPENDED SOLIDS,NA,NA,NA,NON-FILTERABLE (PARTICLE),"All TOTAL SUSPENDED S
 TURBIDITY,NA,NA,NA,NA,NA,NA,NA,NA,NA,AU,NTU,1,NA,"See USGS Report Chapter A6. Section 6.7. Turbidity https://pubs.usgs.gov/twri/twri9a6/twri9a67/twri9a_Section6.7_v2.1.pdf     'NTU'  - 400-680nm (EPA 180.1), range 0.0-40.",TURBIDITY
 TURBIDITY,NA,NA,NA,NA,NA,NA,NA,NA,NA,BU,NTU,1,NA,NA,TURBIDITY
 TURBIDITY,NA,NA,TOTAL,NA,Fraction is NA to turbidity,NA,NA,NA,NA,CM,NA,NA,NA,cm to NTU (based on: https://extension.usu.edu/utahwaterwatch/monitoring/field-instructions/turbidity/turbiditytube/turbiditytubeconversionchart),TURBIDITY
-TURBIDITY,NA,NA,NA,NA,NA,NA,NA,NA,NA,FAU,NTU,1,NA,"FAU'  - 780-900nm, range 20-1000.    'NTU'  - 400-680nm (EPA 180.1), range 0.0-40.",TURBIDITY
+TURBIDITY,NA,NA,NA,NA,NA,NA,NA,NA,NA,FAU,NTU,1,NA,"FAU'? - 780-900nm, range 20-1000.    'NTU'  - 400-680nm (EPA 180.1), range 0.0-40.",TURBIDITY
 TURBIDITY,NA,NA,NA,NA,NA,NA,NA,NA,NA,FBU,NTU,1,NA,NA,TURBIDITY
 TURBIDITY,NA,NA,NA,NA,NA,NA,NA,NA,NA,FNMU,NTU,1,NA,NA,TURBIDITY
 TURBIDITY,NA,NA,NA,NA,NA,NA,NA,NA,NA,FNRU,NTU,1,NA,"FNRU' - 780-900nm (ISO 7027), range 0-10,000.    'NTU'  - 400-680nm (EPA 180.1), range 0.0-40.",TURBIDITY
-TURBIDITY,NA,NA,TOTAL,NA,Fraction is NA to turbidity,NA,NA,NA,NA,FNU,NTU,1.267,NA,"FNU'  - 780-900nm (ISO 7027), range 0-1000. 'NTU'  - 400-680nm (EPA 180.1), range 0.0-40.",TURBIDITY
+TURBIDITY,NA,NA,TOTAL,NA,Fraction is NA to turbidity,NA,NA,NA,NA,FNU,NTU,1.267,NA,"FNU'? - 780-900nm (ISO 7027), range 0-1000. 'NTU'  - 400-680nm (EPA 180.1), range 0.0-40.",TURBIDITY
 TURBIDITY,NA,NA,NA,NA,NA,NA,NA,NA,NA,FNU,NTU,1.267,NA,FNU_to_NTU: FNU * 1.267,TURBIDITY
 TURBIDITY,NA,NA,NA,NA,NA,NA,NA,NA,NA,FTU,NTU,1,NA,"Older method: 'FTU' - lacks instrumentation specificity.     'NTU'  - 400-680nm (EPA 180.1), range 0.0-40.",TURBIDITY
 TURBIDITY,NA,NA,DISSOLVED,NA,Fraction is NA to turbidity,NA,NA,NA,NA,FTU,NTU,1,NA,"Older method: 'FTU' - lacks instrumentation specificity.     'NTU'  - 400-680nm (EPA 180.1), range 0.0-40.",TURBIDITY

@@ -8,7 +8,7 @@
 #' suggested synonym naming for some priority characteristics. Where a suggested
 #' characteristic name, fraction, speciation, or unit is present, the function
 #' will convert the TADA.CharacteristicName, TADA.ResultSampleFractionText,
-#' TADA.MethodSpecificationName, and/or TADA.ResultMeasure.MeasureUnitCode to
+#' TADA.MethodSpeciationName, and/or TADA.ResultMeasure.MeasureUnitCode to
 #' the target format. In cases where a target unit or speciation differs from
 #' the existing unit or speciation, the reference table will also apply
 #' multiplication conversion factors to the TADA.ResultMeasureValue.
@@ -21,11 +21,11 @@
 #' @param np_speciation Boolean. Determines whether the user wants to convert
 #'   nitrogen and phosphorus subspecies to speciation 'as N' and 'as P', where
 #'   speciation conversions are provided. Defaults to TRUE. For example, if
-#'   np_speciation is TRUE, all Nitrate with TADA.MethodSpecificationName = as
+#'   np_speciation is TRUE, all Nitrate with TADA.MethodSpeciationName = as
 #'   NO3 will be converted to as N using molecular weight conversion factors.
 #'
 #' @return The input TADA dataframe with the TADA.CharacteristicName,
-#'   TADA.ResultSampleFractionText, TADA.MethodSpecificationName, and
+#'   TADA.ResultSampleFractionText, TADA.MethodSpeciationName, and
 #'   TADA.ResultMeasure.MeasureUnitCode columns converted to the target values,
 #'   if supplied. Also includes additional columns
 #'   TADA.CharacteristicNameAssumptions, TADA.FractionAssumptions, and
@@ -58,7 +58,7 @@ TADA_HarmonizeSynonyms <- function(.data, ref, np_speciation = TRUE) {
   expected_cols <- c(
     "TADA.CharacteristicName",
     "TADA.ResultSampleFractionText",
-    "TADA.MethodSpecificationName",
+    "TADA.MethodSpeciationName",
     "TADA.ResultMeasureValue",
     "TADA.ResultMeasure.MeasureUnitCode"
   )
@@ -72,8 +72,8 @@ TADA_HarmonizeSynonyms <- function(.data, ref, np_speciation = TRUE) {
     "TADA.ResultSampleFractionText",
     "Target.TADA.ResultSampleFractionText",
     "TADA.FractionAssumptions",
-    "TADA.MethodSpecificationName",
-    "Target.TADA.MethodSpecificationName",
+    "TADA.MethodSpeciationName",
+    "Target.TADA.MethodSpeciationName",
     "TADA.SpeciationAssumptions",
     "Target.TADA.SpeciationConversionFactor",
     "TADA.ResultMeasure.MeasureUnitCode",
@@ -106,7 +106,7 @@ TADA_HarmonizeSynonyms <- function(.data, ref, np_speciation = TRUE) {
   }
 
   # find places where metadata will be changed and add targets
-  harm.ref$TADA.Harmonized.Flag <- ifelse(!is.na(harm.ref$Target.TADA.CharacteristicName) | !is.na(harm.ref$Target.TADA.ResultSampleFractionText) | !is.na(harm.ref$Target.TADA.MethodSpecificationName) | !is.na(harm.ref$Target.TADA.ResultMeasure.MeasureUnitCode), TRUE, FALSE)
+  harm.ref$TADA.Harmonized.Flag <- ifelse(!is.na(harm.ref$Target.TADA.CharacteristicName) | !is.na(harm.ref$Target.TADA.ResultSampleFractionText) | !is.na(harm.ref$Target.TADA.MethodSpeciationName) | !is.na(harm.ref$Target.TADA.ResultMeasure.MeasureUnitCode), TRUE, FALSE)
 
   .data <- .data[, !names(.data) %in% c("TADA.ComparableDataIdentifier")]
 
@@ -138,9 +138,9 @@ TADA_HarmonizeSynonyms <- function(.data, ref, np_speciation = TRUE) {
       is.na(Target.TADA.ResultSampleFractionText) ~ TADA.ResultSampleFractionText
     ))
 
-  # TADA.MethodSpecificationName
+  # TADA.MethodSpeciationName
   # there are a couple of instances with DO where the speciation is listed "AS O2" but it should be NA
-  clean.data$TADA.MethodSpecificationName <- ifelse(!is.na(clean.data$TADA.MethodSpecificationName) & is.na(clean.data$Target.TADA.MethodSpecificationName) & !is.na(clean.data$TADA.SpeciationAssumptions), clean.data$Target.TADA.MethodSpecificationName, clean.data$TADA.MethodSpecificationName)
+  clean.data$TADA.MethodSpeciationName <- ifelse(!is.na(clean.data$TADA.MethodSpeciationName) & is.na(clean.data$Target.TADA.MethodSpeciationName) & !is.na(clean.data$TADA.SpeciationAssumptions), clean.data$Target.TADA.MethodSpeciationName, clean.data$TADA.MethodSpeciationName)
 
   # ResultMeasure.MeasureUnitCode
   # replace ResultMeasure.MeasureUnitCode with Target.TADA.ResultMeasure.MeasureUnitCode
@@ -158,15 +158,15 @@ TADA_HarmonizeSynonyms <- function(.data, ref, np_speciation = TRUE) {
       is.na(Target.TADA.UnitConversionFactor) ~ TADA.ResultMeasureValue
     ))
 
-  # TADA.MethodSpecificationName
-  # replace MethodSpecificationName with Target.TADA.MethodSpecificationName
+  # TADA.MethodSpeciationName
+  # replace MethodSpeciationName with Target.TADA.MethodSpeciationName
 
   if (np_speciation == TRUE) {
     clean.data <- clean.data %>%
       # use TADA suggested spec where there is a suggested spec, use original spec if no suggested spec
-      dplyr::mutate(TADA.MethodSpecificationName = dplyr::case_when(
-        !is.na(Target.TADA.MethodSpecificationName) ~ Target.TADA.MethodSpecificationName,
-        is.na(Target.TADA.MethodSpecificationName) ~ TADA.MethodSpecificationName
+      dplyr::mutate(TADA.MethodSpeciationName = dplyr::case_when(
+        !is.na(Target.TADA.MethodSpeciationName) ~ Target.TADA.MethodSpeciationName,
+        is.na(Target.TADA.MethodSpeciationName) ~ TADA.MethodSpeciationName
       )) %>%
       # if conversion factor exists, multiply by ResultMeasureValue
       dplyr::rowwise() %>%
@@ -178,9 +178,9 @@ TADA_HarmonizeSynonyms <- function(.data, ref, np_speciation = TRUE) {
   } else {
     clean.data <- clean.data %>%
       # use TADA suggested spec where there is a suggested spec, use original spec if no suggested spec
-      dplyr::mutate(TADA.MethodSpecificationName = dplyr::case_when(
-        !is.na(Target.TADA.MethodSpecificationName) & is.na(Target.TADA.SpeciationConversionFactor) ~ Target.TADA.MethodSpecificationName,
-        is.na(Target.TADA.MethodSpecificationName) ~ TADA.MethodSpecificationName
+      dplyr::mutate(TADA.MethodSpeciationName = dplyr::case_when(
+        !is.na(Target.TADA.MethodSpeciationName) & is.na(Target.TADA.SpeciationConversionFactor) ~ Target.TADA.MethodSpeciationName,
+        is.na(Target.TADA.MethodSpeciationName) ~ TADA.MethodSpeciationName
       ))
   }
 
@@ -189,7 +189,7 @@ TADA_HarmonizeSynonyms <- function(.data, ref, np_speciation = TRUE) {
     dplyr::select(-c(
       "Target.TADA.CharacteristicName",
       "Target.TADA.ResultSampleFractionText",
-      "Target.TADA.MethodSpecificationName",
+      "Target.TADA.MethodSpeciationName",
       "Target.TADA.ResultMeasure.MeasureUnitCode",
       "Target.TADA.SpeciationConversionFactor",
       "Target.TADA.UnitConversionFactor",
@@ -272,7 +272,7 @@ TADA_CalculateTotalNP <- function(.data, sum_ref, daily_agg = c("max", "min", "m
   req_cols <- c(
     "TADA.CharacteristicName",
     "TADA.ResultSampleFractionText",
-    "TADA.MethodSpecificationName",
+    "TADA.MethodSpeciationName",
     "TADA.ResultMeasure.MeasureUnitCode",
     "TADA.ResultMeasureValue",
     "ActivityStartDate",
@@ -374,8 +374,8 @@ TADA_CalculateTotalNP <- function(.data, sum_ref, daily_agg = c("max", "min", "m
 
     # Convert speciation if needed
     summeddata$TADA.ResultMeasureValue <- ifelse(!is.na(summeddata$SummationSpeciationConversionFactor), summeddata$TADA.ResultMeasureValue * summeddata$SummationSpeciationConversionFactor, summeddata$TADA.ResultMeasureValue)
-    summeddata$TADA.MethodSpecificationName <- ifelse(!is.na(summeddata$SummationSpeciationConversionFactor) & summeddata$nutrient == "Total Nitrogen as N", "AS N", summeddata$TADA.MethodSpecificationName)
-    summeddata$TADA.MethodSpecificationName <- ifelse(!is.na(summeddata$SummationSpeciationConversionFactor) & summeddata$nutrient == "Total Phosphorus as P", "AS P", summeddata$TADA.MethodSpecificationName)
+    summeddata$TADA.MethodSpeciationName <- ifelse(!is.na(summeddata$SummationSpeciationConversionFactor) & summeddata$nutrient == "Total Nitrogen as N", "AS N", summeddata$TADA.MethodSpeciationName)
+    summeddata$TADA.MethodSpeciationName <- ifelse(!is.na(summeddata$SummationSpeciationConversionFactor) & summeddata$nutrient == "Total Phosphorus as P", "AS P", summeddata$TADA.MethodSpeciationName)
 
     # Get to total N or P
 
@@ -384,12 +384,12 @@ TADA_CalculateTotalNP <- function(.data, sum_ref, daily_agg = c("max", "min", "m
       dplyr::filter(nutrient == "Total Nitrogen as N") %>%
       dplyr::group_by(dplyr::across(dplyr::all_of(totncols))) %>%
       dplyr::summarise(TADA.ResultMeasureValue = sum(TADA.ResultMeasureValue)) %>%
-      dplyr::mutate(TADA.CharacteristicName = "TOTAL NITROGEN, MIXED FORMS", TADA.ResultSampleFractionText = "UNFILTERED", TADA.MethodSpecificationName = "AS N", TADA.NutrientSummation.Flag = "Nutrient summation from one or more subspecies.")
+      dplyr::mutate(TADA.CharacteristicName = "TOTAL NITROGEN, MIXED FORMS", TADA.ResultSampleFractionText = "UNFILTERED", TADA.MethodSpeciationName = "AS N", TADA.NutrientSummation.Flag = "Nutrient summation from one or more subspecies.")
     TotalP <- summeddata %>%
       dplyr::filter(nutrient == "Total Phosphorus as P") %>%
       dplyr::group_by(dplyr::across(dplyr::all_of(totncols))) %>%
       dplyr::summarise(TADA.ResultMeasureValue = sum(TADA.ResultMeasureValue)) %>%
-      dplyr::mutate(TADA.CharacteristicName = "TOTAL PHOSPHORUS, MIXED FORMS", TADA.ResultSampleFractionText = "UNFILTERED", TADA.MethodSpecificationName = "AS P", TADA.NutrientSummation.Flag = "Nutrient summation from one subspecies.")
+      dplyr::mutate(TADA.CharacteristicName = "TOTAL PHOSPHORUS, MIXED FORMS", TADA.ResultSampleFractionText = "UNFILTERED", TADA.MethodSpeciationName = "AS P", TADA.NutrientSummation.Flag = "Nutrient summation from one subspecies.")
 
     # if summation is zero....include anyway?
 

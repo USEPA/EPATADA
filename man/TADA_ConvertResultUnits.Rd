@@ -28,7 +28,7 @@ following two fields to the input dataframe: "TADA.WQXUnitConversionFactor" and 
 This function compares measure units in the input data to the Water Quality
 Exchange (WQX) 3.0 Measure Unit domain table. It also takes common USGS units
 that include speciation information and transfers the speciation information
-to the TADA.MethodSpecificationName field.
+to the TADA.MethodSpeciationName field.
 }
 \details{
 This function will ALWAYS add "TADA.WQXResultUnitConversion" to the input dataframe.

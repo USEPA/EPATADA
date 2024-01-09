@@ -14,6 +14,6 @@ Input TADA dataframe with added TADA.ComparableDataIdentifier column.
 }
 \description{
 This utility function creates the TADA.ComparableDataIdentifier column by pasting
-together TADA.CharacteristicName, TADA.ResultSampleFractionText, TADA.MethodSpecificationName,
+together TADA.CharacteristicName, TADA.ResultSampleFractionText, TADA.MethodSpeciationName,
 and TADA.ResultMeasure.MeasureUnitCode.
 }

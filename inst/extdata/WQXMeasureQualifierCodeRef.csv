@@ -215,7 +215,7 @@
 "Result Measure Qualifier(MeasureQualifierCode)",757,"SM","same method (USGS)","8/18/2020 1:51:06 PM","Pass"
 "Result Measure Qualifier(MeasureQualifierCode)",833,"SS","Sample size difference","4/10/2020 6:07:23 PM","Pass"
 "Result Measure Qualifier(MeasureQualifierCode)",116,"SSR","Surrogate standard acceptance criteria not met","4/9/2015 9:10:24 AM","Suspect"
-"Result Measure Qualifier(MeasureQualifierCode)",1000,"SSRV","Surrogate or spike recovery value associated with sample analyte or analytes","5/23/2022 8:46:36 AM","Pass"
+"Result Measure Qualifier(MeasureQualifierCode)",1000,"SSRV","Surrogate or spike recovery value associated with sample analyte or analytes","5/23/2022 8:46:36 AM","Suspect"
 "Result Measure Qualifier(MeasureQualifierCode)",221,"SUS","Result value is defined as suspect by data owner. (HV) High variability: questionable precision and accuracy","8/30/2016 4:56:40 PM","Suspect"
 "Result Measure Qualifier(MeasureQualifierCode)",108,"T","Hardness by Calculation Method - Standard Methods 2340B - 19th Ed ","9/3/2014 12:00:00 AM","Pass"
 "Result Measure Qualifier(MeasureQualifierCode)",707,"TMLF","Time missing in logger file.","7/30/2019 7:36:04 AM","Pass"

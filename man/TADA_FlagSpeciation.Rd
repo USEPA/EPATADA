@@ -28,7 +28,7 @@ flaggedonly = TRUE. Default is flaggedonly = FALSE.}
 }
 \value{
 This function adds TADA.MethodSpeciation.Flag to the dataframe. This column
-flags each TADA.CharacteristicName and MethodSpecificationName combination in your
+flags each TADA.CharacteristicName and MethodSpeciationName combination in your
 dataframe as either "NonStandardized", "Invalid", "Valid", or "Not Reviewed". When clean = "none"
 and flaggedonly = TRUE, the dataframe is filtered to show only the "Invalid" and
 "NonStandardized data; the column TADA.MethodSpeciation.Flag is still appended.

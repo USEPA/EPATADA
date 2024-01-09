@@ -3,7 +3,7 @@
 #' This function compares measure units in the input data to the Water Quality
 #' Exchange (WQX) 3.0 Measure Unit domain table. It also takes common USGS units
 #' that include speciation information and transfers the speciation information
-#' to the TADA.MethodSpecificationName field.
+#' to the TADA.MethodSpeciationName field.
 #'
 #' This function will ALWAYS add "TADA.WQXResultUnitConversion" to the input dataframe.
 #'
@@ -152,12 +152,12 @@ TADA_ConvertResultUnits <- function(.data, transform = TRUE) {
       ))
 
     # Convert method speciation column for USGS data
-    check <- subset(flag.data, !is.na(flag.data$USGS.SpeciationConversion) & !is.na(flag.data$TADA.MethodSpecificationName))
+    check <- subset(flag.data, !is.na(flag.data$USGS.SpeciationConversion) & !is.na(flag.data$TADA.MethodSpeciationName))
     if (dim(check)[1] > 0) {
       print(paste0("NOTE: Dataset contains ", dim(check)[1], " USGS results with speciation information in both the result unit and method speciation columns. This function overwrites the TADA method speciation column with the speciation provided in the result unit column."))
     }
 
-    clean.data$TADA.MethodSpecificationName <- ifelse(!is.na(clean.data$USGS.SpeciationConversion), clean.data$USGS.SpeciationConversion, clean.data$TADA.MethodSpecificationName)
+    clean.data$TADA.MethodSpeciationName <- ifelse(!is.na(clean.data$USGS.SpeciationConversion), clean.data$USGS.SpeciationConversion, clean.data$TADA.MethodSpeciationName)
 
     # edit TADA.WQXResultUnitConversion column
     clean.data <- clean.data %>%

@@ -171,6 +171,7 @@
 "Measurement Unit(MeasureUnitCode)",286,"d/h/m/s","Time, Days/hours/minutes/seconds","7/19/2010 3:16:29 PM","d/h/m/s",1,0
 "Measurement Unit(MeasureUnitCode)",394,"dB","Decibels","12/4/2023 10:07:34 AM","dB",1,0
 "Measurement Unit(MeasureUnitCode)",202,"dL","Volume, Deciliters","7/26/2006 10:57:47 AM","m3",1e-04,0
+"Measurement Unit(MeasureUnitCode)",460,"dam3","Volume, cubic decameter","1/8/2024 11:54:58 AM","dam3",1,0
 "Measurement Unit(MeasureUnitCode)",219,"days","Time, Days","7/26/2006 10:57:47 AM","minutes",1440,0
 "Measurement Unit(MeasureUnitCode)",395,"dddmmss","Degrees - minutes - seconds of latitude or longitude","12/4/2023 10:07:34 AM","dddmmss",1,0
 "Measurement Unit(MeasureUnitCode)",333,"decibar","Pressure, Decibar","5/24/2012 10:57:47 AM","g/m2",1019716.21297792,0
@@ -254,6 +255,7 @@
 "Measurement Unit(MeasureUnitCode)",70,"kcal","Energy, kilocalories","7/26/2006 10:57:47 AM","kcal",1,0
 "Measurement Unit(MeasureUnitCode)",7,"kg","Weight Mass, Kilograms","7/26/2006 10:57:47 AM","g",1000,0
 "Measurement Unit(MeasureUnitCode)",616,"kg/day","Flow Mass, Kilograms per day","5/19/2022 1:59:04 PM","kg/day",1,0
+"Measurement Unit(MeasureUnitCode)",462,"kg/day/mi2","Yield, kilograms per day per square mile","1/8/2024 12:00:00 AM","kg/day/mi2",1,0
 "Measurement Unit(MeasureUnitCode)",377,"kg/ha","Concentration Solution, kilograms per hectare","7/12/2023 10:03:53 PM","g/m2",0.1,0
 "Measurement Unit(MeasureUnitCode)",81,"kg/m2","Concentration Solution, Kilograms per square meter","7/26/2006 10:57:47 AM","g/m2",1000,0
 "Measurement Unit(MeasureUnitCode)",21,"kg/m3","Density, Kilograms per cubic meter","7/26/2006 10:57:47 AM","ug/L",1e+06,0
@@ -272,6 +274,7 @@
 "Measurement Unit(MeasureUnitCode)",384,"lb/ac-ft","Concentration Solution, pounds per acre feet","10/4/2023 1:57:31 PM","ug/L",367.731183659,0
 "Measurement Unit(MeasureUnitCode)",130,"lb/acre/yr","Viscosity, Pounds per acre per year","7/26/2006 10:57:47 AM","mg/m2/day",0.306871064953512,0
 "Measurement Unit(MeasureUnitCode)",190,"lb/day","Flow Mass, Pounds per day","7/26/2006 10:57:47 AM","lb/day",1,0
+"Measurement Unit(MeasureUnitCode)",461,"lb/day/mi2","Yield, pounds per day per square mile","1/8/2024 12:00:00 AM","lb/day/mi2",1,0
 "Measurement Unit(MeasureUnitCode)",721,"lb/ft2","Concentration Solution, pounds per square foot","11/2/2020 5:13:13 PM","lb/ft2",1,0
 "Measurement Unit(MeasureUnitCode)",305,"lb/ft3","Density, Pounds per cubic foot","12/6/2011 1:57:04 PM","lb/ft3",1,0
 "Measurement Unit(MeasureUnitCode)",189,"lb/hr","Flow Mass, Pounds per hour","7/26/2006 10:57:47 AM","lb/day",24,0
@@ -285,7 +288,7 @@
 "Measurement Unit(MeasureUnitCode)",729,"log10 copies","Concentration Solution, Log10 copies (If Loga b = x, then a^x=b)","10/3/2022 12:00:00 AM","pct modern",1,0
 "Measurement Unit(MeasureUnitCode)",106,"lumens","Light Intensity, lumens","7/26/2006 10:57:47 AM","lm/m2",10.763910417,0
 "Measurement Unit(MeasureUnitCode)",137,"m","Length Distance, Meters","7/26/2006 10:57:47 AM","in",39.3700787401575,0
-"Measurement Unit(MeasureUnitCode)",367,"m-1","Concentration Solution, Inverse meters or per meters","1/19/2016 11:12:28 AM","per in",0.0254,0
+"Measurement Unit(MeasureUnitCode)",367,"m-1","Inverse meters or per meters","1/19/2016 11:12:28 AM","per in",0.0254,0
 "Measurement Unit(MeasureUnitCode)",192,"m/sec","Speed Velocity, Meters per second","7/26/2006 10:57:47 AM","m/sec",1,0
 "Measurement Unit(MeasureUnitCode)",288,"m/y","Time, Month/year","7/19/2010 3:16:29 PM","m/y",1,0
 "Measurement Unit(MeasureUnitCode)",238,"m2","Area, Square meters","7/26/2006 10:57:47 AM","m2",1,0
@@ -382,7 +385,7 @@
 "Measurement Unit(MeasureUnitCode)",17,"ng/m3","Density, Nanograms per cubic meter","7/26/2006 10:57:47 AM","ug/L",1e-06,0
 "Measurement Unit(MeasureUnitCode)",280,"ng/mL","Density, Nanograms per milliliter","6/4/2010 10:57:43 AM","ng/mL",1,0
 "Measurement Unit(MeasureUnitCode)",133,"nm","Length Distance, Nanometers","7/26/2006 10:57:47 AM","in",3.93700787e-08,0
-"Measurement Unit(MeasureUnitCode)",289,"nm-1","Concentration Solution, Inverse nanometers or per nanometers ***deprecated***use per nm","7/19/2010 3:16:29 PM","per in",25400000,0
+"Measurement Unit(MeasureUnitCode)",289,"nm-1","Inverse nanometers or per nanometers ***deprecated***use per nm","7/19/2010 3:16:29 PM","per in",25400000,0
 "Measurement Unit(MeasureUnitCode)",143,"nmi","Length Distance, Nautical miles","7/26/2006 10:57:47 AM","in",72913.38588,0
 "Measurement Unit(MeasureUnitCode)",250,"nmi2","Area, Square nautical miles","7/26/2006 10:57:47 AM","m2",3429904,0
 "Measurement Unit(MeasureUnitCode)",429,"nmol/L","Concentration Molar, Nanomoles per liter","12/4/2023 10:07:36 AM","nmol/L",1,0
@@ -403,9 +406,9 @@
 "Measurement Unit(MeasureUnitCode)",155,"pCi/mL","Density, Picocuries per milliliter","7/26/2006 10:57:47 AM","pCi/L",1000,0
 "Measurement Unit(MeasureUnitCode)",739,"pct modern","Concentration Percentage, Percent modern","4/14/2020 5:49:58 AM","pct modern",1,0
 "Measurement Unit(MeasureUnitCode)",430,"per day","Time, Inverse days or per day","12/4/2023 10:07:36 AM","per day",1,0
-"Measurement Unit(MeasureUnitCode)",42,"per m","Concentration Solution, Inverse meter or per meter","7/26/2006 10:57:47 AM","per in",0.0254,0
+"Measurement Unit(MeasureUnitCode)",42,"per m","Inverse meter or per meter","7/26/2006 10:57:47 AM","per in",0.0254,0
 "Measurement Unit(MeasureUnitCode)",357,"per mil","Concentration Percentage, Parts per thousand","2/16/2017 11:05:28 AM","ug/kg",1e+06,0
-"Measurement Unit(MeasureUnitCode)",509,"per nm","Concentration Solution, Inverse nanometers or per nanometers","2/9/2021 10:17:53 AM","per in",25400000,0
+"Measurement Unit(MeasureUnitCode)",509,"per nm","Inverse nanometers or per nanometers","2/9/2021 10:17:53 AM","per in",25400000,0
 "Measurement Unit(MeasureUnitCode)",431,"pfu/100L","Concentration Solution, Plaque Forming Units per 100 liters","12/4/2023 10:07:36 AM","pfu/100L",1,0
 "Measurement Unit(MeasureUnitCode)",257,"pfu/100mL","Concentration Solution, Plaque Forming Units per 100 milliliters","7/26/2006 10:57:47 AM","pfu/100mL",1,0
 "Measurement Unit(MeasureUnitCode)",432,"pfu/L","Concentration Solution, Plaque Forming Units per liter","12/4/2023 10:07:36 AM","pfu/L",1,0
@@ -431,13 +434,13 @@
 "Measurement Unit(MeasureUnitCode)",232,"qt","Volume, Fluid quarts","7/26/2006 10:57:47 AM","m3",0.0009463529,0
 "Measurement Unit(MeasureUnitCode)",216,"seconds","Time, Seconds","7/26/2006 10:57:47 AM","minutes",0.0166666666666667,0
 "Measurement Unit(MeasureUnitCode)",400,"std*********","Quantity, Standard Unit***retired***use None","12/8/2021 12:37:30 PM",NA,1,0
-"Measurement Unit(MeasureUnitCode)",260,"tCaCO3/Kt***","Concentration Solution, Tons of calcium carbonate (CaCO3) per kiloton***retired***use tons/kt and speciation = CaCO3","3/22/2022 12:00:00 AM","t/Kt",1,0
+"Measurement Unit(MeasureUnitCode)",260,"tCaCO3/Kt***","Concentration Solution, Short tons of calcium carbonate (CaCO3) per kiloton***retired***use tons/kt and speciation = CaCO3","3/22/2022 12:00:00 AM","t/Kt",1,0
 "Measurement Unit(MeasureUnitCode)",10,"tons","Weight Mass, Short tons","7/26/2006 10:57:47 AM","g",907184.74,0
-"Measurement Unit(MeasureUnitCode)",159,"tons/ac ft","Concentration Solution, Tons per acre feet","7/26/2006 10:57:47 AM","ug/L",735462.367317422,0
-"Measurement Unit(MeasureUnitCode)",156,"tons/day","Flow Mass, Tons per day","7/26/2006 10:57:47 AM","lb/day",2000,0
+"Measurement Unit(MeasureUnitCode)",159,"tons/ac ft","Concentration Solution, Short tons per acre feet","7/26/2006 10:57:47 AM","ug/L",735462.367317422,0
+"Measurement Unit(MeasureUnitCode)",156,"tons/day","Flow Mass, Short tons per day","7/26/2006 10:57:47 AM","lb/day",2000,0
 "Measurement Unit(MeasureUnitCode)",436,"tons/day/ft","Flow Mass, Short tons per day per foot","12/4/2023 10:07:36 AM","tons/day/ft",1,0
-"Measurement Unit(MeasureUnitCode)",448,"tons/ft2","Tons per square foot (tsf)","12/11/2023 1:07:14 PM","tons/ft2",1,0
-"Measurement Unit(MeasureUnitCode)",402,"tons/kt","Concentration Solution, Tons per kiloton","3/23/2022 12:06:14 PM","tons/kt",1,0
+"Measurement Unit(MeasureUnitCode)",448,"tons/ft2","Short tons per square foot (tsf)","12/11/2023 1:07:14 PM","tons/ft2",1,0
+"Measurement Unit(MeasureUnitCode)",402,"tons/kt","Concentration Solution, Short tons per kiloton","3/23/2022 12:06:14 PM","tons/kt",1,0
 "Measurement Unit(MeasureUnitCode)",435,"tons/sec","Flow Mass, Short tons per second","12/4/2023 10:07:36 AM","tons/sec",1,0
 "Measurement Unit(MeasureUnitCode)",719,"tsc/100mL","Concentration Solution, Target Sequence Copy per 100 milliliters","1/3/2020 10:35:04 AM","tsc/100mL",1,0
 "Measurement Unit(MeasureUnitCode)",717,"tsc/g","Concentration Solution, Target Sequence Copy per gram","1/6/2020 12:00:00 AM","tsc/g",1,0
