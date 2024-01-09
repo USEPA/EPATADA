@@ -24,7 +24,9 @@ TADA_UpdateExampleData <- function() {
   )
   print("Data_Nutrients_UT")
   print(dim(Data_Nutrients_UT))
-  save(Data_Nutrients_UT, file = "data/Data_Nutrients_UT.rda")
+  #save(Data_Nutrients_UT, file = "data/Data_Nutrients_UT.rda")
+  usethis::use_data(Data_Nutrients_UT,  internal = FALSE, overwrite = TRUE,
+                    compress = "xz",  version = 3,  ascii = FALSE) 
   rm(Data_Nutrients_UT)
 
   # Generate Data_6Tribes_5y.rda
@@ -41,7 +43,9 @@ TADA_UpdateExampleData <- function() {
   )
   print("Data_6Tribes_5y:")
   print(dim(Data_6Tribes_5y))
-  save(Data_6Tribes_5y, file = "data/Data_6Tribes_5y.rda")
+  # save(Data_6Tribes_5y, file = "data/Data_6Tribes_5y.rda")
+  usethis::use_data(Data_6Tribes_5y,  internal = FALSE, overwrite = TRUE,  
+                    compress = "xz",  version = 3,  ascii = FALSE) 
 
   # Generate Data_6Tribes_5y_Harmonized.rda
   y <- subset(Data_6Tribes_5y, Data_6Tribes_5y$TADA.ActivityMediaName %in% c("WATER"))
@@ -66,7 +70,9 @@ TADA_UpdateExampleData <- function() {
   Data_6Tribes_5y_Harmonized <- TADA_HarmonizeSynonyms(y)
   print("Data_6Tribes_5y_Harmonized:")
   print(dim(Data_6Tribes_5y_Harmonized))
-  save(Data_6Tribes_5y_Harmonized, file = "data/Data_6Tribes_5y_Harmonized.rda")
+  #save(Data_6Tribes_5y_Harmonized, file = "data/Data_6Tribes_5y_Harmonized.rda")
+  usethis::use_data(Data_6Tribes_5y_Harmonized,  internal = FALSE, overwrite = TRUE,  
+                    compress = "xz",  version = 3,  ascii = FALSE) 
   rm(Data_6Tribes_5y_Harmonized)
 
   # Generate Data_NCTCShepherdstown_HUC12
@@ -87,7 +93,8 @@ TADA_UpdateExampleData <- function() {
   )
   print("Data_NCTCShepherdstown_HUC12:")
   print(dim(Data_NCTCShepherdstown_HUC12))
-  save(Data_NCTCShepherdstown_HUC12, file = "data/Data_NCTCShepherdstown_HUC12.rda")
+  #save(Data_NCTCShepherdstown_HUC12, file = "data/Data_NCTCShepherdstown_HUC12.rda")
+  usethis::use_data(Data_NCTCShepherdstown_HUC12,  internal = FALSE, overwrite = TRUE,  compress = "xz",  version = 3,  ascii = FALSE) 
   rm(Data_NCTCShepherdstown_HUC12)
 }
 
