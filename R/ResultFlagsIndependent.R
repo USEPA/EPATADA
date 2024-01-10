@@ -1242,3 +1242,78 @@ TADA_FindPotentialDuplicatesSingleOrg <- function(.data) {
   .data <- TADA_OrderCols(.data)
   return(.data)
 }
+
+#' TADA.DepthCategory.Flag
+#'
+#' Creates a new column, TADA.DepthCategory.Flag with values: "No
+#' depth info", "Epilimnion-surface", "Hypolimnion-bottom", and
+#' "Metalimnion/Thermocline-middle". Categories can be defined to start as: 
+#' less than 2m depth = "Epilimnion", from bottom up to 2m from 
+#' bottom= "Hypolimnion-bottom", and the full depth profile for 
+#' "Metalimnion/Thermocline-middle".
+#' 
+#' ****HRM Notes: If results differ only by depth (all else if the same), 
+#' we likely need a user input to define which value to use for that day and 
+#' location (e.g., the average, max, or min value of the entire water column; 
+#' or the avg, max, or min of the "Epilimnion", "Hypolimnion", or 
+#' "Metalimnion/Thermocline" etc.).
+#' 
+#' @param .data TADA dataframe which must include the columns ADD DEPTH COLUMNS
+#' 
+#' @param singlevalue Character argument; with options "no", "ave", "min", or
+#' "max". The default is singlevalue = "all". When singlevalue = "no", all results
+#' will be retained. When singlevalue == "ave", the mean value in each group of 
+#' results (as determined by the by category param) will be determined for each
+#' MonitoringLocation, ActivityDate, and TADA.CharacteristicName combination.
+#' When singlevalue == "min" or when singlevalue == "max", the min or max
+#' value in each group of results (as determined by the by category param) will 
+#' be determined for each MonitoringLocation, ActivityDate, and TADA.CharacteristicName 
+#' combination.
+#' 
+#' @param bycategory Boolean argument with options "TRUE" or "FALSE". The default is
+#' by category = "FALSE" which means that any descriptive statistics calculated are
+#' based on the entire water column at a Monitoring Location. When bycategory = "TRUE",
+#' any calculated descriptive statistics are determined for each depth category for each
+#' Monitoring Location.
+#'
+#'@param  Boolean argument; the default is define = TRUE. When define = TRUE,
+#' the function will add an additional column (TADA.MeasureQualifierCode.Def) providing 
+#' all available definitions for the MethodQualifierCodes for each result. When 
+#' define = FALSE, no additional column is added.
+#'
+#' @param .data TADA dataframe
+#' @return The same input TADA dataframe with additional column TADA.DepthCategory.Flag.: a
+#'   TADA.SingleOrgDupGroupID column indicating whether a result is part of a
+#'   group that shares the same date, time, location, characteristic, etc. If
+#'   multiple rows include duplicates within a single organization, the rows will
+#'   have the same number identifier in the TADA.SingleOrgDupGroupID column.
+#'   In addition, the column TADA.SingleOrgDup.Flag is added, which randomly
+#'   flags rows within each TADA.SingleOrgDupGroupID group for removal. Rows
+#'   randomly selected for potential removal within a duplicate group will have the
+#'   TADA.SingleOrgDup.Flag = 'Duplicate' and  all other results in the group will have
+#'   the value TADA.SingleOrgDup.Flag = 'Unique'.
+#'
+#' @export
+#'
+#' @examples
+#' # Load dataset
+#' data(Data_6Tribes_5y)
+#'
+TADA_DepthCategory.Flag <- function(.data) {
+  
+  depth.count <- .data %>%
+    dplyr::filter(!is.na(TADA.ActivityDepthHeightMeasure.MeasureValue) |
+                    !is.na(TADA.ResultDepthHeightMeasure.MeasureValue)) %>%
+    nrow()
+  
+  if (depth.count > 0) {
+    print(paste("TADA_DepthCategory.Flag: checking data set for depth values. ",  depth.count, " results have depth values available.", sep = ""))
+    if (depth.count == 0) {
+      print(paste("TADA_DepthCategory.Flag: checking data set for depth values. No results have depth values available, TADA_DepthCategory.Flag cannot be used on this data set.", sep = ""))
+    }
+  }
+  
+  .data <- .data %>%
+    dplyr::
+    
+
