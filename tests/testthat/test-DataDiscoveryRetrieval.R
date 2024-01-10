@@ -132,7 +132,7 @@ test_that("TADA_DataRetrieval", {
     "WellDepthMeasure.MeasureUnitCode",
     "WellHoleDepthMeasure.MeasureValue",
     "WellHoleDepthMeasure.MeasureUnitCode",
-    "MethodSpecificationName"
+    "MethodSpeciationName"
   ) %in% names(tada1)))
 })
 
@@ -183,8 +183,8 @@ test_that("TADA_JoinWQPProfiles_works", {
   stations <- readRDS(testthat::test_path("testdata/Cyan_Stations.rds"))
 
   add_sites_metadata <- TADA_JoinWQPProfiles(
-    Sites = Data_Site_5d,
-    FullPhysChem = Data_PhysChem_5d
+    Sites = stations,
+    FullPhysChem = physchemresults
   )
 
   expect_true(ncol(add_sites_metadata) == 113)
@@ -192,16 +192,16 @@ test_that("TADA_JoinWQPProfiles_works", {
 
 
 test_that("TADA_JoinWQPProfiles_columns", {
-  data(Data_Site_5d)
-  data(Data_Narrow_5d)
-  data(Data_PhysChem_5d)
+  stationProfile <- TADA_ReadWQPWebServices("https://www.waterqualitydata.us/data/Station/search?statecode=US%3A09&characteristicType=Nutrient&startDateLo=04-01-2023&startDateHi=11-01-2023&mimeType=csv&zip=yes&providers=NWIS&providers=STEWARDS&providers=STORET")
+  physchemProfile <- TADA_ReadWQPWebServices("https://www.waterqualitydata.us/data/Result/search?statecode=US%3A09&characteristicType=Nutrient&startDateLo=04-01-2023&startDateHi=11-01-2023&mimeType=csv&zip=yes&dataProfile=resultPhysChem&providers=NWIS&providers=STEWARDS&providers=STORET")
+  projectProfile <- TADA_ReadWQPWebServices("https://www.waterqualitydata.us/data/Project/search?statecode=US%3A09&characteristicType=Nutrient&startDateLo=04-01-2023&startDateHi=11-01-2023&mimeType=csv&zip=yes&providers=NWIS&providers=STEWARDS&providers=STORET")
+   
+  # Join all three profiles using TADA_JoinWQPProfiles
+  join <- TADA::TADA_JoinWQPProfiles(FullPhysChem = physchemProfile, 
+                                     Sites = stationProfile, 
+                                     Projects = projectProfile)
 
-  join <- TADA::TADA_JoinWQPProfiles(
-    FullPhysChem = Data_PhysChem_5d,
-    Sites = Data_Site_5d,
-    Narrow = Data_Narrow_5d
-  )
-  # update in future to pick the important columns:
+  # note that / ar replaced with . in dataRetrieval:
   expect_true(all(c(
     "OrganizationIdentifier",
     "OrganizationFormalName",
@@ -210,9 +210,9 @@ test_that("TADA_JoinWQPProfiles_columns", {
     "ActivityMediaName",
     "ActivityMediaSubdivisionName",
     "ActivityStartDate",
-    "ActivityStartTime.Time",
-    "VerticalAccuracyMeasure.MeasureValue",
-    "VerticalAccuracyMeasure.MeasureUnitCode",
+    "ActivityStartTime/Time",
+    "VerticalAccuracyMeasure/MeasureValue",
+    "VerticalAccuracyMeasure/MeasureUnitCode",
     "VerticalCollectionMethodName",
     "VerticalCoordinateReferenceSystemDatumName",
     "CountryCode",
@@ -223,10 +223,10 @@ test_that("TADA_JoinWQPProfiles_columns", {
     "FormationTypeText",
     "AquiferTypeName",
     "ConstructionDateText",
-    "WellDepthMeasure.MeasureValue",
-    "WellDepthMeasure.MeasureUnitCode",
-    "WellHoleDepthMeasure.MeasureValue",
-    "WellHoleDepthMeasure.MeasureUnitCode",
-    "MethodSpecificationName"
+    "WellDepthMeasure/MeasureValue",
+    "WellDepthMeasure/MeasureUnitCode",
+    "WellHoleDepthMeasure/MeasureValue",
+    "WellHoleDepthMeasure/MeasureUnitCode",
+    "MethodSpeciationName"
   ) %in% names(join)))
 })

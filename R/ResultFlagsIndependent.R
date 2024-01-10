@@ -767,6 +767,17 @@ TADA_FindQAPPDoc <- function(.data, clean = FALSE) {
   # check clean is boolean
   TADA_CheckType(clean, "logical")
   # check .data has required columns
+  
+  # generate required column if it does not exist (there is no project data)
+  if("ProjectFileUrl" %in% colnames(.data))
+  {
+    .data = .data
+  } else {
+    #create empty ProjectFileUrl column
+    .data[ , 'ProjectFileUrl'] = NA
+  }
+  
+  # check .data has required columns
   TADA_CheckColumns(.data, "ProjectFileUrl")
 
   # default flag column
