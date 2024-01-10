@@ -1299,21 +1299,21 @@ TADA_FindPotentialDuplicatesSingleOrg <- function(.data) {
 #' # Load dataset
 #' data(Data_6Tribes_5y)
 #'
-TADA_DepthCategory.Flag <- function(.data) {
-  
-  depth.count <- .data %>%
-    dplyr::filter(!is.na(TADA.ActivityDepthHeightMeasure.MeasureValue) |
-                    !is.na(TADA.ResultDepthHeightMeasure.MeasureValue)) %>%
-    nrow()
-  
-  if (depth.count > 0) {
-    print(paste("TADA_DepthCategory.Flag: checking data set for depth values. ",  depth.count, " results have depth values available.", sep = ""))
-    if (depth.count == 0) {
-      print(paste("TADA_DepthCategory.Flag: checking data set for depth values. No results have depth values available, TADA_DepthCategory.Flag cannot be used on this data set.", sep = ""))
-    }
-  }
-  
-  .data <- .data %>%
-    dplyr::
+# TADA_DepthCategory.Flag <- function(.data) {
+#   
+#   depth.count <- .data %>%
+#     dplyr::filter(!is.na(TADA.ActivityDepthHeightMeasure.MeasureValue) |
+#                     !is.na(TADA.ResultDepthHeightMeasure.MeasureValue)) %>%
+#     nrow()
+#   
+#   if (depth.count > 0) {
+#     print(paste("TADA_DepthCategory.Flag: checking data set for depth values. ",  depth.count, " results have depth values available.", sep = ""))
+#     if (depth.count == 0) {
+#       print(paste("TADA_DepthCategory.Flag: checking data set for depth values. No results have depth values available, TADA_DepthCategory.Flag cannot be used on this data set.", sep = ""))
+#     }
+#   }
+#   
+#   .data <- .data %>%
+#     dplyr::
     
 
