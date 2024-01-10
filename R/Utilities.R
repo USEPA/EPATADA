@@ -877,7 +877,7 @@ TADA_RandomTestingData <- function(number_of_days = 1, choose_random_state = FAL
   }
   
   if (choose_random_state == FALSE) {
-    state = "Not Applicable - National Query"
+    state = "null"
   }
   
   print(c(startDate = as.character(random_start_date), 
