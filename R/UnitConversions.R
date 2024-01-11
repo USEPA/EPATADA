@@ -17,8 +17,9 @@
 #' "TADA.ResultMeasure.MeasureUnitCode" fields from an autocleaned input
 #' dataframe to perform conversions as necessary when transform = TRUE.
 #'
-#' This function adds the following three fields ONLY when transform=FALSE:
-#' Adds: "TADA.WQXUnitConversionFactor", "TADA.WQXTargetUnit", and "USGS.SpeciationConversion".
+#' This function adds the following three fields ONLY when transform = FALSE:
+#' Adds: "TADA.WQXUnitConversionFactor", "TADA.WQXTargetUnit", and 
+#' "TADA.SpeciationUnitConversion".
 #'
 #' @param .data TADA dataframe
 #'
@@ -28,7 +29,7 @@
 #' @param detlimit Boolean arguement with two possible values, "TRUE" and "FALSE".
 #' Default is detlimit = TRUE.
 #'
-#' @return When transform=TRUE, result values and units are converted to WQX
+#' @return When transform = TRUE, result values and units are converted to WQX
 #'   target units. This function changes the values within the
 #'   "TADA.ResultMeasure.MeasureUnitCode" to the WQX target units and converts
 #'   respective values within the "TADA.ResultMeasureValue" field.
@@ -41,10 +42,10 @@
 #' When transform = FALSE, result values and units are NOT converted to WQX target units,
 #' but columns are appended to indicate what the target units and conversion factors are,
 #' and if the data can be converted. In addition to "TADA.WQXResultUnitConversion"
-#' and "TADA.WQXDetectionLimitUnitConversion",  transform=FALSE will add the
+#' and "TADA.WQXDetectionLimitUnitConversion",  transform = FALSE will add the
 #' following two fields to the input dataframe: "TADA.WQXUnitConversionFactor" and "TADA.WQXTargetUnit".
 #' When detlimit = FALSE, values and units for detection limit are not converted to WQX
-#' target units and no additional fields are added do the input dataframe.
+#' target units and no additional fields are added to the input dataframe.
 #'
 #' @export
 #'
@@ -54,8 +55,8 @@
 #'
 #' ResultUnitsConverted <- (Data_Nutrients_UT)
 #'
-#' # Do not convert result values and units, but add two new columns titled
-#' # "TADA.WQXUnitConversionFactor" and "TADA.WQXTargetUnit":
+#' # Do not convert result values and units, but add three new columns titled
+#' # "TADA.WQXUnitConversionFactor", "TADA.WQXTargetUnit", and "TADA.SpeciationUnitConversion":
 #' ResultUnitsNotConverted <- TADA_ConvertResultUnits(Data_Nutrients_UT, transform = FALSE, detlimit = FALSE)
 #'
 TADA_ConvertResultUnits <- function(.data, transform = TRUE, detlimit = TRUE) {
@@ -106,7 +107,7 @@ TADA_ConvertResultUnits <- function(.data, transform = TRUE, detlimit = TRUE) {
   flag.data <- check.data %>%
     dplyr::rename(TADA.WQXTargetUnit = Target.Unit) %>%
     dplyr::rename(TADA.WQXUnitConversionFactor = Conversion.Factor) %>%
-    dplyr::rename(USGS.SpeciationConversion = Target.Speciation)
+    dplyr::rename(TADA.SpeciationUnitConversion = Target.Speciation)
 
   # if temp data exists, calculate conversion factor
   # EDH I THINK THIS RUNS IF THERE IS ONE OR MORE NA'S IN THE DATASET
@@ -161,12 +162,12 @@ TADA_ConvertResultUnits <- function(.data, transform = TRUE, detlimit = TRUE) {
       ))
 
     # Convert method speciation column for USGS data
-    check <- subset(flag.data, !is.na(flag.data$USGS.SpeciationConversion) & !is.na(flag.data$TADA.MethodSpeciationName))
+    check <- subset(flag.data, !is.na(flag.data$TADA.SpeciationUnitConversion) & !is.na(flag.data$TADA.MethodSpeciationName))
     if (dim(check)[1] > 0) {
       print(paste0("NOTE: Dataset contains ", dim(check)[1], " USGS results with speciation information in both the result unit and method speciation columns. This function overwrites the TADA method speciation column with the speciation provided in the result unit column."))
     }
 
-    clean.data$TADA.MethodSpeciationName <- ifelse(!is.na(clean.data$USGS.SpeciationConversion), clean.data$USGS.SpeciationConversion, clean.data$TADA.MethodSpeciationName)
+    clean.data$TADA.MethodSpeciationName <- ifelse(!is.na(clean.data$TADA.SpeciationUnitConversion), clean.data$TADA.SpeciationUnitConversion, clean.data$TADA.MethodSpeciationName)
 
     # edit TADA.WQXResultUnitConversion column
     clean.data <- clean.data %>%
@@ -181,7 +182,7 @@ TADA_ConvertResultUnits <- function(.data, transform = TRUE, detlimit = TRUE) {
 
     # remove extraneous columns, fix field names
     clean.data <- clean.data %>%
-      dplyr::select(-c("TADA.WQXUnitConversionFactor", "TADA.WQXTargetUnit", "USGS.SpeciationConversion"))
+      dplyr::select(-c("TADA.WQXUnitConversionFactor", "TADA.WQXTargetUnit", "TADA.SpeciationUnitConversion"))
 
     # create new comparable data identifier column following conversion
     clean.data <- TADA_CreateComparableID(clean.data)

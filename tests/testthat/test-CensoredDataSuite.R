@@ -61,6 +61,7 @@ test_that("TADA_IDCensoredData correctly handles specific text values such as ND
                             TADA.ResultMeasureValue,
                             ResultMeasure.MeasureUnitCode,
                             TADA.WQXResultUnitConversion,
+                            # TADA.WQXDetectionLimitUnitConversion, 
                             TADA.ResultMeasureValueDataTypes.Flag,
                             TADA.DetectionQuantitationLimitMeasure.MeasureValueDataTypes.Flag,
                             TADA.ResultMeasure.MeasureUnitCode,

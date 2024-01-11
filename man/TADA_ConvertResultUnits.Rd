@@ -16,7 +16,7 @@ Default is transform = TRUE.}
 Default is detlimit = TRUE.}
 }
 \value{
-When transform=TRUE, result values and units are converted to WQX
+When transform = TRUE, result values and units are converted to WQX
 target units. This function changes the values within the
 "TADA.ResultMeasure.MeasureUnitCode" to the WQX target units and converts
 respective values within the "TADA.ResultMeasureValue" field.
@@ -29,10 +29,10 @@ units and converts respective values within the
 When transform = FALSE, result values and units are NOT converted to WQX target units,
 but columns are appended to indicate what the target units and conversion factors are,
 and if the data can be converted. In addition to "TADA.WQXResultUnitConversion"
-and "TADA.WQXDetectionLimitUnitConversion",  transform=FALSE will add the
+and "TADA.WQXDetectionLimitUnitConversion",  transform = FALSE will add the
 following two fields to the input dataframe: "TADA.WQXUnitConversionFactor" and "TADA.WQXTargetUnit".
 When detlimit = FALSE, values and units for detection limit are not converted to WQX
-target units and no additional fields are added do the input dataframe.
+target units and no additional fields are added to the input dataframe.
 }
 \description{
 This function compares measure units in the input data to the Water Quality
@@ -53,8 +53,9 @@ It also uses the"TADA.ResultMeasureValue" and
 "TADA.ResultMeasure.MeasureUnitCode" fields from an autocleaned input
 dataframe to perform conversions as necessary when transform = TRUE.
 
-This function adds the following three fields ONLY when transform=FALSE:
-Adds: "TADA.WQXUnitConversionFactor", "TADA.WQXTargetUnit", and "USGS.SpeciationConversion".
+This function adds the following three fields ONLY when transform = FALSE:
+Adds: "TADA.WQXUnitConversionFactor", "TADA.WQXTargetUnit", and
+"TADA.SpeciationUnitConversion".
 }
 \examples{
 # Load example dataset:
@@ -62,8 +63,8 @@ data(Data_Nutrients_UT)
 
 ResultUnitsConverted <- (Data_Nutrients_UT)
 
-# Do not convert result values and units, but add two new columns titled
-# "TADA.WQXUnitConversionFactor" and "TADA.WQXTargetUnit":
+# Do not convert result values and units, but add three new columns titled
+# "TADA.WQXUnitConversionFactor", "TADA.WQXTargetUnit", and "TADA.SpeciationUnitConversion":
 ResultUnitsNotConverted <- TADA_ConvertResultUnits(Data_Nutrients_UT, transform = FALSE, detlimit = FALSE)
 
 }
