@@ -1326,5 +1326,17 @@ TADA_FindPotentialDuplicatesSingleOrg <- function(.data) {
 #   
 #   .data <- .data %>%
 #     dplyr::
-    
+#     
+# data <- cb %>%
+#   dplyr::select(TADA.ActivityDepthHeightMeasure.MeasureValue, TADA.ResultDepthHeightMeasure.MeasureValue,
+#                 TADA.ActivityBottomDepthHeightMeasure.MeasureValue) %>%
+#   dplyr::filter(!is.na(TADA.ActivityDepthHeightMeasure.MeasureValue)) %>%
+#   dplyr::mutate(Depth = ifelse(!is.na(TADA.ResultDepthHeightMeasure.MeasureValue), TADA.ResultDepthHeightMeasure.MeasureValue,
+#                                TADA.ActivityDepthHeightMeasure.MeasureValue),
+#                 TADA.DepthCategory.Flag = dplyr::case_when(
+#                   Depth <= 2 ~ "Epilimnion-surface",
+#                   Depth <= TADA.ActivityBottomDepthHeightMeasure.MeasureValue & Depth >= TADA.ActivityBottomDepthHeightMeasure.MeasureValue - 2 ~ "Hypolimnion-bottom",
+#                   Depth < 2  & Depth < TADA.ActivityBottomDepthHeightMeasure.MeasureValue - 2 ~ "Metalimnion/Thermocline-middle",
+#                   is.na(TADA.ActivityDepthHeightMeasure.MeasureValue) & is.na(TADA.ActivityBottomDepthHeightMeasure.MeasureValue) & is.na(TADA.ResultDepthHeightMeasure.MeasureValue) ~ "No depth info"),
+#                 TADA.DepthCategory.Flag = ifelse(is.na(TADA.DepthCategory.Flag), "Not enough depth info to determine depth category.", TADA.DepthCategory.Flag))
 
