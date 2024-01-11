@@ -5,28 +5,16 @@
 #' that include speciation information and transfers the speciation information
 #' to the TADA.MethodSpeciationName field.
 #'
-#' This function will ALWAYS add "TADA.WQXResultUnitConversion" to the input dataframe.
-#'
-#' This field indicates if data can be converted."NoResultValue" means data
-#' cannot be converted because there is no ResultMeasureValue, and "NoTargetUnit"
-#' means data cannot be converted because the original unit is not associated with a target unit in WQX.
-#' "Convert" means the data can be transformed, and "Converted" means that this function
-#' has been run with the input transform = TRUE, and the values were already converted.
-#'
 #' It also uses the"TADA.ResultMeasureValue" and
 #' "TADA.ResultMeasure.MeasureUnitCode" fields from an autocleaned input
 #' dataframe to perform conversions as necessary when transform = TRUE.
-#'
-#' This function adds the following three fields ONLY when transform = FALSE:
-#' Adds: "TADA.WQXUnitConversionFactor", "TADA.WQXTargetUnit", and 
-#' "TADA.SpeciationUnitConversion".
 #'
 #' @param .data TADA dataframe
 #'
 #' @param transform Boolean argument with two possible values, “TRUE” and “FALSE”.
 #' Default is transform = TRUE.
 #' 
-#' @param detlimit Boolean arguement with two possible values, "TRUE" and "FALSE".
+#' @param detlimit Boolean argument with two possible values, "TRUE" and "FALSE".
 #' Default is detlimit = TRUE.
 #'
 #' @return When transform = TRUE, result values and units are converted to WQX
@@ -41,12 +29,19 @@
 #'
 #' When transform = FALSE, result values and units are NOT converted to WQX target units,
 #' but columns are appended to indicate what the target units and conversion factors are,
-#' and if the data can be converted. In addition to "TADA.WQXResultUnitConversion"
-#' and "TADA.WQXDetectionLimitUnitConversion",  transform = FALSE will add the
-#' following two fields to the input dataframe: "TADA.WQXUnitConversionFactor" and "TADA.WQXTargetUnit".
-#' When detlimit = FALSE, values and units for detection limit are not converted to WQX
-#' target units and no additional fields are added to the input dataframe.
+#' and if the data can be converted. This function adds the following four fields ONLY 
+#' when transform = FALSE: "TADA.WQXUnitConversionFactor", "TADA.WQXTargetUnit",
+#' "TADA.SpeciationUnitConversion", and "TADA.WQXResultUnitConversion.
 #'
+#' "TADA.WQXResultUnitConversion" indicates if data can be converted."NoResultValue" means 
+#' data cannot be converted because there is no ResultMeasureValue, and "NoTargetUnit"
+#' means data cannot be converted because the original unit is not associated with 
+#' a target unit in WQX. "Convert" means the data can be transformed.
+#' 
+#' When detlimit = FALSE, values and units for detection limit are not converted to WQX
+#' target units and no additional fields related to detection limit values or units
+#'  are added to the input dataframe.
+#'  
 #' @export
 #'
 #' @examples
@@ -58,6 +53,9 @@
 #' # Do not convert result values and units, but add three new columns titled
 #' # "TADA.WQXUnitConversionFactor", "TADA.WQXTargetUnit", and "TADA.SpeciationUnitConversion":
 #' ResultUnitsNotConverted <- TADA_ConvertResultUnits(Data_Nutrients_UT, transform = FALSE, detlimit = FALSE)
+#' 
+#' #' # Convert values and units for results and detection limits:
+#' ResultUnitsNotConverted <- TADA_ConvertResultUnits(Data_Nutrients_UT, transform = TRUE, detlimit = TRUE)
 #'
 TADA_ConvertResultUnits <- function(.data, transform = TRUE, detlimit = TRUE) {
   # check .data is data.frame
@@ -169,20 +167,9 @@ TADA_ConvertResultUnits <- function(.data, transform = TRUE, detlimit = TRUE) {
 
     clean.data$TADA.MethodSpeciationName <- ifelse(!is.na(clean.data$TADA.SpeciationUnitConversion), clean.data$TADA.SpeciationUnitConversion, clean.data$TADA.MethodSpeciationName)
 
-    # edit TADA.WQXResultUnitConversion column
-    clean.data <- clean.data %>%
-      # apply function row by row- EDH - I don't think this is needed (I think default behavior of case_when is row by row)?
-      # dplyr::rowwise() %>%
-      # create flag column
-      dplyr::mutate(TADA.WQXResultUnitConversion = dplyr::case_when(
-        (TADA.WQXUnitConversionFactor == 1) ~ as.character("No Conversion Needed"),
-        (!is.na(TADA.ResultMeasureValue) & !is.na(TADA.WQXTargetUnit)) ~ as.character("Converted"),
-        TRUE ~ TADA.WQXResultUnitConversion
-      ))
-
     # remove extraneous columns, fix field names
     clean.data <- clean.data %>%
-      dplyr::select(-c("TADA.WQXUnitConversionFactor", "TADA.WQXTargetUnit", "TADA.SpeciationUnitConversion"))
+      dplyr::select(-c("TADA.WQXUnitConversionFactor", "TADA.WQXTargetUnit", "TADA.SpeciationUnitConversion", "TADA.WQXResultUnitConversion"))
 
     # create new comparable data identifier column following conversion
     clean.data <- TADA_CreateComparableID(clean.data)
