@@ -1385,12 +1385,12 @@ TADA_DepthCategory.Flag <- function(.data) {
       dplyr::group_by_at(group.list) %>%
       dplyr::mutate(DepthsByGroup = length(unique(Depth))) %>%
       dplyr::mutate(TADA.ResultValueAggregation.Flag = ifelse(DepthsByGroup > 1, "Used in average aggregation function but not selected ", "No aggregation needed"),
-                    TADA.ResultValueAggregation.Flag = ifelse(!TADA.DepthCategory.Flag %in% depthcat.list, "No aggregation needed", TADA.DepthCategory.Flag)) %>%
+                    TADA.ResultValueAggregation.Flag = ifelse(!TADA.DepthCategory.Flag %in% depthcat.list, "No aggregation needed", TADA.ResultValueAggregation.Flag)) %>%
       dplyr::select(-Depth, -Bottom)
 
     agg.data <- orig.data %>%
       dplyr::filter(DepthsByGroup > 1,
-                    TADA.DepthCategory.Flag %in% depthcat.list %>%
+                    TADA.DepthCategory.Flag %in% depthcat.list) %>%
       dplyr::mutate(TADA.ResultMeasureValue1 = mean(TADA.ResultMeasureValue, na.rm = TRUE)) %>%
       dplyr::slice_sample(n = 1) %>%
       dplyr::mutate(TADA.ResultValueAggregation.Flag = paste0("Calculated mean aggregate value, with randomly selected metadata from a row in the aggregate group")) %>%
@@ -1407,14 +1407,13 @@ TADA_DepthCategory.Flag <- function(.data) {
     orig.data <- .data %>%
       dplyr::group_by_at(group.list) %>%
       dplyr::mutate(DepthsByGroup = length(unique(Depth))) %>%
-      dplyr::mutate(TADA.ResultValueAggregation.Flag = ifelse(DepthsByGroup > 1, "Used in average aggregation function but not selected ", "No aggregation needed")) %>%
+      dplyr::mutate(TADA.ResultValueAggregation.Flag = ifelse(DepthsByGroup > 1, "Used in average aggregation function but not selected ", "No aggregation needed"),
+                    TADA.ResultValueAggregation.Flag = ifelse(!TADA.DepthCategory.Flag %in% depthcat.list, "No aggregation needed", TADA.ResultValueAggregation.Flag)) %>%
       dplyr::select(-Depth, -Bottom)
     
     agg.data <- orig.data %>%
       dplyr::filter(DepthsByGroup > 1,
-                    TADA.DepthCategory.Flag %in% c("Epilimnion-surface",
-                                                   "Hypolimnion-bottom",
-                                                   "Metalimnion/Thermocline-middle")) %>%
+                    TADA.DepthCategory.Flag %in% depthcat.list) %>%
       dplyr::slice_min(order_by = TADA.ResultMeasureValue, n = 1, with_ties = FALSE) %>%
       dplyr::mutate(TADA.ResultValueAggregation.Flag = paste0("Selected as min aggregate value")) %>%
       dplyr::mutate(ResultIdentifier = paste0("TADA-", ResultIdentifier))
