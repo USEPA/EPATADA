@@ -1289,22 +1289,9 @@ TADA_FindPotentialDuplicatesSingleOrg <- function(.data) {
 #' any calculated descriptive statistics are determined for each depth category for each
 #' Monitoring Location.
 #'
-#'@param  Boolean argument; the default is define = TRUE. When define = TRUE,
-#' the function will add an additional column (TADA.MeasureQualifierCode.Def) providing 
-#' all available definitions for the MethodQualifierCodes for each result. When 
-#' define = FALSE, no additional column is added.
-#'
 #' @param .data TADA dataframe
-#' @return The same input TADA dataframe with additional column TADA.DepthCategory.Flag.: a
-#'   TADA.SingleOrgDupGroupID column indicating whether a result is part of a
-#'   group that shares the same date, time, location, characteristic, etc. If
-#'   multiple rows include duplicates within a single organization, the rows will
-#'   have the same number identifier in the TADA.SingleOrgDupGroupID column.
-#'   In addition, the column TADA.SingleOrgDup.Flag is added, which randomly
-#'   flags rows within each TADA.SingleOrgDupGroupID group for removal. Rows
-#'   randomly selected for potential removal within a duplicate group will have the
-#'   TADA.SingleOrgDup.Flag = 'Duplicate' and  all other results in the group will have
-#'   the value TADA.SingleOrgDup.Flag = 'Unique'.
+#' 
+#' @return The same input TADA dataframe with additional column TADA.DepthCategory.Flag.
 #'
 #' @export
 #'
@@ -1312,7 +1299,7 @@ TADA_FindPotentialDuplicatesSingleOrg <- function(.data) {
 #' # Load dataset
 #' data(Data_6Tribes_5y)
 #'
-TADA_DepthCategory.Flag <- function(.data) {
+TADA_DepthCategory.Flag <- function(.data, bycategory = FALSE, daily_agg = "no") {
   
   depthcat.list <- c("Epilimnion-surface", "Hypolimnion-bottom", "Metalimnion/Thermocline-middle")
   
@@ -1321,7 +1308,7 @@ TADA_DepthCategory.Flag <- function(.data) {
                   ActivityRelativeDepthName = Name) %>%
     dplyr::select(ARD_Category, ActivityRelativeDepthName)
 
-  depth.count <- gl %>%
+  depth.count <- .data %>%
     dplyr::filter(!is.na(TADA.ActivityDepthHeightMeasure.MeasureValue) |
                     !is.na(TADA.ResultDepthHeightMeasure.MeasureValue)) %>%
     nrow()
@@ -1376,7 +1363,8 @@ TADA_DepthCategory.Flag <- function(.data) {
       dplyr::group_by_at(group.list) %>%
       dplyr::mutate(DepthsByGroup = length(unique(Depth))) %>%
       dplyr::mutate(TADA.ResultValueAggregation.Flag = ifelse(DepthsByGroup > 1, "No aggregation perfomed", "No aggregation needed")) %>%
-      dplyr::select(-Depth, -Bottom, -DepthsByGroup)
+      dplyr::select(-Depth, -Bottom, -DepthsByGroup) %>%
+     dplyr::ungroup()
 
     return(orig.data)
   }
@@ -1398,7 +1386,15 @@ TADA_DepthCategory.Flag <- function(.data) {
         dplyr::rename(TADA.ResultMeasureValue = TADA.ResultMeasureValue1) %>%
         dplyr::mutate(ResultIdentifier = paste0("TADA-", ResultIdentifier))
     
-    comb.data <- plyr::rbind.fill(orig.data, agg.data)
+    agg.list <- agg.data %>%
+      dplyr::select(ResultIdentifier) %>%
+      unique() %>%
+      dplyr::pull()
+    
+    comb.data <- orig.data %>%
+      dplyr::filter(!ResultIdentifier %in% agg.list) %>%
+      plyr::rbind.fill(agg.data) %>%
+      ungroup()
     
     return(comb.data)
 
@@ -1415,10 +1411,17 @@ TADA_DepthCategory.Flag <- function(.data) {
       dplyr::filter(DepthsByGroup > 1,
                     TADA.DepthCategory.Flag %in% depthcat.list) %>%
       dplyr::slice_min(order_by = TADA.ResultMeasureValue, n = 1, with_ties = FALSE) %>%
-      dplyr::mutate(TADA.ResultValueAggregation.Flag = paste0("Selected as min aggregate value")) %>%
-      dplyr::mutate(ResultIdentifier = paste0("TADA-", ResultIdentifier))
+      dplyr::mutate(TADA.ResultValueAggregation.Flag = paste0("Selected as min aggregate value")) 
     
-    comb.data <- plyr::rbind.fill(orig.data, agg.data)
+    agg.list <- agg.data %>%
+      dplyr::select(ResultIdentifier) %>%
+      unique() %>%
+      dplyr::pull()
+    
+    comb.data <- orig.data %>%
+      dplyr::filter(!ResultIdentifier %in% agg.list) %>%
+      plyr::rbind.fill(agg.data) %>%
+      dplyr::ungroup()
     
     return(comb.data)
     
@@ -1440,7 +1443,8 @@ if ((daily_agg == "max")) {
     dplyr::mutate(TADA.ResultValueAggregation.Flag = paste0("Selected as max aggregate value")) %>%
     dplyr::mutate(ResultIdentifier = paste0("TADA-", ResultIdentifier))
   
-  comb.data <- plyr::rbind.fill(orig.data, agg.data)
+  comb.data <- plyr::rbind.fill(orig.data, agg.data) %>%
+    dplyr::ungroup()
   
   return(comb.data)
   
