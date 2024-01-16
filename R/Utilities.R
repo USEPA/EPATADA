@@ -159,14 +159,14 @@ TADA_AutoClean <- function(.data) {
   .data$ActivityBottomDepthHeightMeasure.MeasureUnitCode[.data$ActivityBottomDepthHeightMeasure.MeasureUnitCode == "meters"] <- "m"
   .data$ResultDepthHeightMeasure.MeasureUnitCode[.data$ResultDepthHeightMeasure.MeasureUnitCode == "meters"] <- "m"
 
+  # Substitute updated characteristic name for deprecated names
+  print("TADA_Autoclean: updating deprecated (i.e. retired) characteristic names.")
+  .data <- TADA_SubstituteDeprecatedChars(.data)
+  
   # Implement unit harmonization
   print("TADA_Autoclean: harmonizing result and depth units.")
   .data <- suppressWarnings(TADA_ConvertResultUnits(.data, transform = TRUE))
   .data <- suppressWarnings(TADA_ConvertDepthUnits(.data, unit = "m"))
-
-  # Substitute updated characteristic name for deprecated names
-  print("TADA_Autoclean: updating deprecated (i.e. retired) characteristic names.")
-  .data <- TADA_SubstituteDeprecatedChars(.data)
 
   # create comparable data identifier column
   .data <- TADA_CreateComparableID(.data)
