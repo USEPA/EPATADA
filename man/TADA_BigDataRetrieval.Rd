@@ -78,6 +78,7 @@ tada1 <- TADA_BigDataRetrieval(startDate = "2019-01-01", endDate = "2021-12-31",
 tada2 <- TADA_BigDataRetrieval(startDate = "2016-10-01", endDate = "2022-09-30", statecode = "UT")
 tada3 <- TADA_BigDataRetrieval(huc = "04030202", characteristicName = "Escherichia coli")
 tada4 <- TADA_BigDataRetrieval(huc = c("04030202", "04030201"), characteristicName = "Temperature, water")
+tada5 <- TADA_BigDataRetrieval(startDate = "2000-01-01", endDate = "2022-07-01", characteristicName = "Temperature, water", siteType = "Lake, Reservoir, Impoundment")
 }
 
 }

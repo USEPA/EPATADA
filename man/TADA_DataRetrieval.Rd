@@ -17,6 +17,7 @@ TADA_DataRetrieval(
   statecode = "null",
   organization = "null",
   project = "null",
+  providers = "null",
   applyautoclean = TRUE
 )
 }
@@ -44,6 +45,8 @@ TADA_DataRetrieval(
 \item{organization}{A string of letters and/or numbers (some additional characters also possible) used to signify an organization with data in the Water Quality Portal}
 
 \item{project}{A string of letters and/or numbers (some additional characters also possible) used to signify a project with data in the Water Quality Portal}
+
+\item{providers}{Leave blank to include all, or specify "STEWARDS", "STORET" (i.e., WQX), and/or "NWIS".}
 
 \item{applyautoclean}{Logical, defaults to TRUE. Applies TADA_AutoClean function on the returned data profile.}
 }
@@ -166,6 +169,16 @@ tada9 <- TADA_DataRetrieval(organization = c(
   "WNENVDPT_WQX",
   "PUEBLO_POJOAQUE"
 ))
+
+# query only NWIS data for a 10 year period in CT
+tada10 = TADA_DataRetrieval(
+startDate = "2013-01-01", 
+endDate = "2022-12-31", 
+sampleMedia = c("Water", "water"),
+statecode = "CT", # consider downloading only 1 state at a time
+providers = "NWIS",
+applyautoclean = FALSE
+)
 }
 
 }

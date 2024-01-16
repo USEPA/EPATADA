@@ -69,7 +69,7 @@ TADA_FlagMethod <- function(.data, clean = TRUE, flaggedonly = FALSE) {
     .data <- dplyr::select(.data, -TADA.AnalyticalMethod.Flag)
   }
   # read in WQX val reference table and filter
-  meth.ref <- TADA_GetWQXCharValRef() %>%
+  meth.ref <- utils::read.csv(system.file("extdata", "WQXcharValRef.csv", package = "TADA")) %>%
     dplyr::filter(Type == "CharacteristicMethod")
 
   # join "TADA.WQXVal.Flag" column to .data by CharacteristicName, Source (Media), and Value (unit)
@@ -350,21 +350,20 @@ TADA_FlagAboveThreshold <- function(.data, clean = TRUE, flaggedonly = FALSE) {
     .data <- dplyr::select(.data, -TADA.ResultValueAboveUpperThreshold.Flag)
   }
 
-  # filter WQXcharVal.ref to include only valid CharacteristicUnit in water media
-  unit.ref <- TADA_GetWQXCharValRef() %>%
-    dplyr::filter(Type == "CharacteristicUnit" & Source == "WATER" &
-      Status == "Valid")
+  # filter WQXcharVal.ref to include only valid CharacteristicUnit
+  unit.ref <- utils::read.csv(system.file("extdata", "WQXcharValRef.csv", package = "TADA")) %>%
+    dplyr::filter(Type == "CharacteristicUnit" & Status == "Accepted")
 
   # join unit.ref to raw.data
   check.data <- merge(.data, unit.ref[, c(
     "Characteristic", "Source",
-    "Value", "Maximum"
+    "Value.Unit", "Maximum"
   )],
   by.x = c(
     "TADA.CharacteristicName", "TADA.ActivityMediaName",
     "TADA.ResultMeasure.MeasureUnitCode"
   ),
-  by.y = c("Characteristic", "Source", "Value"), all.x = TRUE
+  by.y = c("Characteristic", "Source", "Value.Unit"), all.x = TRUE
   )
 
   # Create flag column, flag rows where ResultMeasureValue > Maximum
@@ -392,7 +391,6 @@ TADA_FlagAboveThreshold <- function(.data, clean = TRUE, flaggedonly = FALSE) {
     if (flaggedonly == TRUE) {
       print("This dataframe is empty because no data above the WQX Upper Threshold was found in your dataframe")
       emptyflag.data <- dplyr::filter(flag.data, TADA.ResultValueAboveUpperThreshold.Flag %in% "Y")
-      # emptyflag.data <- dplyr::select(emptyflag.data, -TADA.ResultValueAboveUpperThreshold.Flag)
       emptyflag.data <- TADA_OrderCols(emptyflag.data)
       return(emptyflag.data)
     }
@@ -507,20 +505,19 @@ TADA_FlagBelowThreshold <- function(.data, clean = TRUE, flaggedonly = FALSE) {
   }
 
   # filter WQXcharVal.ref to include only valid CharacteristicUnit in water media
-  unit.ref <- TADA_GetWQXCharValRef() %>%
-    dplyr::filter(Type == "CharacteristicUnit" & Source == "WATER" &
-      Status == "Valid")
+  unit.ref <- utils::read.csv(system.file("extdata", "WQXcharValRef.csv", package = "TADA")) %>%
+    dplyr::filter(Type == "CharacteristicUnit" & Status == "Accepted")
 
   # join unit.ref to raw.data
   check.data <- merge(.data, unit.ref[, c(
     "Characteristic", "Source",
-    "Value", "Minimum"
+    "Value.Unit", "Minimum"
   )],
   by.x = c(
     "TADA.CharacteristicName", "TADA.ActivityMediaName",
     "TADA.ResultMeasure.MeasureUnitCode"
   ),
-  by.y = c("Characteristic", "Source", "Value"), all.x = TRUE
+  by.y = c("Characteristic", "Source", "Value.Unit"), all.x = TRUE
   )
 
   # Create flag column, flag rows where TADA.ResultMeasureValue < Minimum
@@ -770,6 +767,17 @@ TADA_FindQAPPDoc <- function(.data, clean = FALSE) {
   # check clean is boolean
   TADA_CheckType(clean, "logical")
   # check .data has required columns
+  
+  # generate required column if it does not exist (there is no project data)
+  if("ProjectFileUrl" %in% colnames(.data))
+  {
+    .data = .data
+  } else {
+    #create empty ProjectFileUrl column
+    .data[ , 'ProjectFileUrl'] = NA
+  }
+  
+  # check .data has required columns
   TADA_CheckColumns(.data, "ProjectFileUrl")
 
   # default flag column
@@ -928,8 +936,6 @@ TADA_FlagCoordinates <- function(.data,
       TADA.LatitudeMeasure < 13.654383 & TADA.LatitudeMeasure > 13.234189 & TADA.LongitudeMeasure < 144.956712 & TADA.LongitudeMeasure > 144.618068 ~ NA_character_, # Guam
       TADA.LatitudeMeasure < 0 ~ "LAT_OutsideUSA",
       TADA.LongitudeMeasure > 0 & TADA.LongitudeMeasure < 145 ~ "LONG_OutsideUSA",
-      # grepl("999", TADA.LatitudeMeasure) ~ "Imprecise_Latincludes999",
-      # grepl("999", TADA.LongitudeMeasure) ~ "Imprecise_Longincludes999",
       # for below, lat and long fields must be numeric
       # this checks if there are at least 3 significant figures to the
       # right of the decimal point
@@ -944,11 +950,7 @@ TADA_FlagCoordinates <- function(.data,
   if (clean_imprecise == TRUE) {
     .data <- dplyr::filter(
       .data,
-      !TADA.InvalidCoordinates.Flag %in% c(
-        # "Imprecise_Latincludes999",
-        # "Imprecise_Longincludes999",
-        "Imprecise_lessthan3decimaldigits"
-      )
+      !TADA.InvalidCoordinates.Flag %in% "Imprecise_lessthan3decimaldigits"
     )
   }
 
@@ -1007,24 +1009,28 @@ TADA_FlagCoordinates <- function(.data,
 #' that the sites within each group are within the specified distance from each other.
 #'
 #' @param .data TADA dataframe
+#' 
 #' @param dist_buffer Numeric. The distance in meters below which two sites with
 #' measurements at the same time on the same day of the same parameter will
 #' be flagged as potential duplicates.
+#' 
 #' @param org_hierarchy Vector of organization identifiers that acts as the
 #'   order in which the function should select a result as the representative
 #'   duplicate, based on the organization that collected the data. If left
 #'   blank, the function chooses the representative duplicate result at random.
-#'
+#'   
 #' @return The same input TADA dataframe with additional columns: a
 #'   TADA.MultipleOrgDuplicate column indicating if there is evidence that
 #'   results are likely duplicated due to submission of the same dataset by two
-#'   or more different organizations, a TADA.MultipleOrgDupGroupID column,
+#'   or more different organizations, a TADA.MultipleOrgDupGroupID column
 #'   containing a number unique to results that may represent duplicated
-#'   measurement events, and one or more TADA.SiteGroup columns indicating
-#'   monitoring locations within the distance buffer from each other.
-#'
+#'   measurement events, a TADA.ResultSelectedMultipleOrgs column indicating 
+#'   which rows are selected to keep (Y) and remove (N) based on the 
+#'   org hierarchy, and a TADA.NearbySiteGroups column indicating which
+#'   monitoring locations are within the distance buffer from each other.
+#'   
 #' @export
-#'
+#' 
 #' @examples
 #' # Load dataset
 #' dat <- TADA_DataRetrieval(startDate = "2022-09-01", endDate = "2023-05-01", statecode = "PA", sampleMedia = "Water")
@@ -1061,7 +1067,13 @@ TADA_FindPotentialDuplicatesMultipleOrgs <- function(.data, dist_buffer = 100, o
       dplyr::ungroup()
 
     # merge to data
-    dupsdat <- dplyr::left_join(dupsdat, .data)
+    dupsdat <- dplyr::left_join(dupsdat, .data, by = c("ActivityStartDate",
+                                                       "ActivityStartTime.Time",
+                                                       "TADA.CharacteristicName",
+                                                       "ActivityTypeCode",
+                                                       "OrganizationIdentifier", 
+                                                       "ResultIdentifier", 
+                                                       "TADA.ResultMeasureValue"))
 
     rm(dupsprep)
 
@@ -1211,7 +1223,7 @@ TADA_FindPotentialDuplicatesSingleOrg <- function(.data) {
   # tack depth columns onto additional grouping columns
   colss <- c("OrganizationIdentifier", "MonitoringLocationIdentifier", "ActivityStartDate", "ActivityStartTime.Time", "ActivityTypeCode", "TADA.CharacteristicName", "SubjectTaxonomicName", "TADA.ResultSampleFractionText", "TADA.ResultMeasureValue", depthcols)
 
-  # find where the grouping using the columns above results in more than result identifier
+  # find where the grouping using the columns above results in more than one result identifier
   dups_sum_org <- .data %>%
     dplyr::group_by(dplyr::across(dplyr::any_of(colss))) %>%
     dplyr::summarise(numres = length(unique(ResultIdentifier))) %>%
@@ -1233,8 +1245,8 @@ TADA_FindPotentialDuplicatesSingleOrg <- function(.data) {
     .data$TADA.SingleOrgDup.Flag <- "Duplicate"
     # flags potential duplicates as "Duplicate" for easy filtering
     .data$TADA.SingleOrgDup.Flag <- ifelse(.data$ResultIdentifier %in% picks$ResultIdentifier, "Unique", .data$TADA.SingleOrgDup.Flag)
-    # flags non-duplicates as passing, cm removed 10/30
-    # data$TADA.SingleOrgDup.Flag <- ifelse(.data$TADA.SingleOrgDupGroupID == "Not a duplicate", "Unique", .data$TADA.SingleOrgDup.Flag)
+    # flags non-duplicates as passing
+    .data$TADA.SingleOrgDup.Flag <- ifelse(.data$TADA.SingleOrgDupGroupID == "Not a duplicate", "Unique", .data$TADA.SingleOrgDup.Flag)
     print(paste0(dim(dups_sum_org)[1], " groups of potentially duplicated results found in dataset. These have been placed into duplicate groups in the TADA.SingleOrgDupGroupID column and the function randomly selected one result from each group to represent a single, unduplicated value. Selected values are indicated in the TADA.SingleOrgDup.Flag as 'Unique', while duplicates are flagged as 'Duplicate' for easy filtering."))
   }
 

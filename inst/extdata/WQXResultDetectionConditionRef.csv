@@ -21,4 +21,7 @@
 "Result Detection Condition(ResultDetectionConditionText)",6,"Trace","a very small quantity, especially one too small to be accurately measured.","8/5/2015 2:54:11 PM","Non-Detect"
 "Result Detection Condition(ResultDetectionConditionText)",22,"Unable to Measure","Measurement or sample collection was attempted but unobtainable due to site conditions, equipment failure, or other circumstances","8/30/2023 2:03:01 PM","Other"
 "Result Detection Condition(ResultDetectionConditionText)",19,"Value Decensored","Value Decensored -  reconstruct or remove the objectionable values of a measurement set","12/21/2015 2:45:30 PM","Other"
+"Result Detection Condition(ResultDetectionConditionText)",23,"Value affected by contamination","Value affected by contamination as determined for USGS NWIS data; Analyte was detected in both the environmental sample and the associated blanks.","11/9/2023 9:50:56 PM","Other"
 NA,NA,"*Non-detect","Hard-coded legacy detection condition","8/7/2023 12:00:00 PM","Non-Detect"
+NA,NA,"*Present <QL","Hard-coded legacy detection condition","8/7/2023 12:00:00 PM","Non-Detect"
+NA,NA,"*Present","Hard-coded legacy detection condition","12/14/2023 05:00:00 PM","Non-Detect"

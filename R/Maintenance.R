@@ -1,5 +1,6 @@
 #' Update TADA Reference Files
 #' @return Saves updated reference files
+#' This is only needed for ref tables in WQXRefTables.R
 #'
 TADA_UpdateAllRefs <- function() {
   TADA_UpdateWQXCharValRef()
@@ -14,6 +15,7 @@ TADA_UpdateAllRefs <- function() {
 ## FUNCTION TO UPDATE EXAMPLE DATA
 
 TADA_UpdateExampleData <- function() {
+  # Generate Data_Nutrients_UT.rda
   Data_Nutrients_UT <- TADA_DataRetrieval(
     statecode = "UT",
     characteristicName = c("Ammonia", "Nitrate", "Nitrogen"),
@@ -22,9 +24,12 @@ TADA_UpdateExampleData <- function() {
   )
   print("Data_Nutrients_UT")
   print(dim(Data_Nutrients_UT))
-  save(Data_Nutrients_UT, file = "data/Data_Nutrients_UT.rda")
+  #save(Data_Nutrients_UT, file = "data/Data_Nutrients_UT.rda")
+  usethis::use_data(Data_Nutrients_UT,  internal = FALSE, overwrite = TRUE,
+                    compress = "xz",  version = 3,  ascii = FALSE) 
   rm(Data_Nutrients_UT)
 
+  # Generate Data_6Tribes_5y.rda
   Data_6Tribes_5y <- TADA_DataRetrieval(
     organization = c(
       "REDLAKE_WQX",
@@ -38,8 +43,11 @@ TADA_UpdateExampleData <- function() {
   )
   print("Data_6Tribes_5y:")
   print(dim(Data_6Tribes_5y))
-  save(Data_6Tribes_5y, file = "data/Data_6Tribes_5y.rda")
+  # save(Data_6Tribes_5y, file = "data/Data_6Tribes_5y.rda")
+  usethis::use_data(Data_6Tribes_5y,  internal = FALSE, overwrite = TRUE,  
+                    compress = "xz",  version = 3,  ascii = FALSE) 
 
+  # Generate Data_6Tribes_5y_Harmonized.rda
   y <- subset(Data_6Tribes_5y, Data_6Tribes_5y$TADA.ActivityMediaName %in% c("WATER"))
   y <- TADA_RunKeyFlagFunctions(Data_6Tribes_5y)
   rm(Data_6Tribes_5y)
@@ -55,17 +63,19 @@ TADA_UpdateExampleData <- function() {
     od_method = "as-is",
     od_multiplier = "null"
   )
-  y <- dplyr::filter(y, TADA.ResultMeasureValueDataTypes.Flag != "Blank" &
-    TADA.ResultMeasureValueDataTypes.Flag != "Text" &
-    TADA.ResultMeasureValueDataTypes.Flag != "Coerced to NA" &
+  y <- dplyr::filter(y, TADA.ResultMeasureValueDataTypes.Flag != "Text" &
+    TADA.ResultMeasureValueDataTypes.Flag != "NA - Not Available" &
     !is.na(TADA.ResultMeasureValue))
   # uses default ref = TADA_GetSynonymRef()
   Data_6Tribes_5y_Harmonized <- TADA_HarmonizeSynonyms(y)
   print("Data_6Tribes_5y_Harmonized:")
   print(dim(Data_6Tribes_5y_Harmonized))
-  save(Data_6Tribes_5y_Harmonized, file = "data/Data_6Tribes_5y_Harmonized.rda")
+  #save(Data_6Tribes_5y_Harmonized, file = "data/Data_6Tribes_5y_Harmonized.rda")
+  usethis::use_data(Data_6Tribes_5y_Harmonized,  internal = FALSE, overwrite = TRUE,  
+                    compress = "xz",  version = 3,  ascii = FALSE) 
   rm(Data_6Tribes_5y_Harmonized)
 
+  # Generate Data_NCTCShepherdstown_HUC12
   Data_NCTCShepherdstown_HUC12 <- TADA::TADA_DataRetrieval(
     startDate = "2020-03-14",
     endDate = "null",
@@ -83,8 +93,27 @@ TADA_UpdateExampleData <- function() {
   )
   print("Data_NCTCShepherdstown_HUC12:")
   print(dim(Data_NCTCShepherdstown_HUC12))
-  save(Data_NCTCShepherdstown_HUC12, file = "data/Data_NCTCShepherdstown_HUC12.rda")
+  #save(Data_NCTCShepherdstown_HUC12, file = "data/Data_NCTCShepherdstown_HUC12.rda")
+  usethis::use_data(Data_NCTCShepherdstown_HUC12,  internal = FALSE, overwrite = TRUE,  compress = "xz",  version = 3,  ascii = FALSE) 
   rm(Data_NCTCShepherdstown_HUC12)
+}
+
+## Find char-frac-spec-unit combos not present in TADA HarmonizationTemplate. 
+## Add new combinations when found to the HarmonizationTemplate.csv and 
+## NPsummation_key.csv (if relevant to TN or TP summation).
+
+FindSynonyms <- function() {
+  test <- TADA_RandomTestingData()
+  test1 <- TADA_RunKeyFlagFunctions(test)
+  ref <- TADA_GetSynonymRef()
+  ref_chars <- unique(ref$TADA.CharacteristicName)
+  test_chars <- unique(subset(test1, test1$TADA.CharacteristicName%in%ref_chars)[,c("TADA.CharacteristicName","TADA.ResultSampleFractionText","TADA.MethodSpeciationName","TADA.ResultMeasure.MeasureUnitCode")])
+  test_chars_ref <- merge(test_chars, ref, all.x = TRUE)
+  new_combos <- subset(test_chars_ref, is.na(test_chars_ref$HarmonizationGroup))[,c("TADA.CharacteristicName","TADA.ResultSampleFractionText","TADA.MethodSpeciationName","TADA.ResultMeasure.MeasureUnitCode")]
+  if(dim(new_combos)[1]>0){
+    print("New combinations found in random dataset test.")
+  }
+  return(new_combos)
 }
 
 
@@ -108,11 +137,11 @@ TADA_UpdateExampleData <- function() {
 #
 #   for (i in 1:num_iterations) {
 #
-#     testing <- TADA_RandomTestingSet()
+#     testing <- TADA_RandomTestingData()
 #
 #     testing2 <- TADA_FlagMeasureQualifierCode(testing)
 #
-#     #expect_true(all(testing2$TADA.MeasureQualifierCode.Flag != "uncategorized"))
+#     #expect_true(all(testing2$TADA.MeasureQualifierCode.Flag != "Not Reviewed"))
 #
 #     #print(unique(testing2$TADA_FlagMeasureQualifierCode))
 #     #print(unique(testing2$MeasureQualifierCode))
@@ -125,7 +154,7 @@ TADA_UpdateExampleData <- function() {
 #     codes = unique(testing2$MeasureQualifierCode)
 #     missing_codes = codes[!codes %in% qc.ref$MeasureQualifierCode]
 #
-#     missing_codes_df <- data.frame(MeasureQualifierCode = missing_codes, TADA.MeasureQualifierCode.Flag = "uncategorized")
+#     missing_codes_df <- data.frame(MeasureQualifierCode = missing_codes, TADA.MeasureQualifierCode.Flag = "Not Reviewed")
 #
 #     View(missing_codes_df)
 #

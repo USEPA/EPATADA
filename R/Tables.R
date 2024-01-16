@@ -49,7 +49,7 @@ TADA_SummarizeColumn <- function(.data, col = "TADA.CharacteristicName") {
 #' @param .data TADA data frame containing the data downloaded from the WQP,
 #'   where each row represents a unique data record. Data frame must include the
 #'   columns 'TADA.ResultMeasureValue', 'TADA.ResultMeasure.MeasureUnitCode',
-#'   'TADA.ResultSampleFractionText', 'TADA.MethodSpecificationName',
+#'   'TADA.ResultSampleFractionText', 'TADA.MethodSpeciationName',
 #'   'TADA.ComparableDataIdentifier', 'TADA.CensoredData.Flag',
 #'   'DetectionQuantitationLimitTypeName', and 'MonitoringLocationIdentifier' to
 #'   run this function. The 'TADA.ComparableDataIdentifier' can be added to the
@@ -76,10 +76,6 @@ TADA_Stats <- function(.data, group_cols = c("TADA.ComparableDataIdentifier")) {
   if (any(is.na(.data$TADA.ResultMeasureValue))) {
     sumNAs <- length(.data$TADA.ResultMeasureValue[is.na(.data$TADA.ResultMeasureValue)])
     print(paste0("Dataset contains ", sumNAs, " results missing both a TADA result value and a detection limit. These values will not be represented in the stats summary table. Suggest removing or handling."))
-  }
-
-  if (!"TADA.CensoredData.Flag" %in% names(.data)) {
-    .data <- TADA_IDCensoredData(.data)
   }
 
   if (!"TADA.CensoredData.Flag" %in% names(.data)) {

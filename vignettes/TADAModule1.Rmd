@@ -54,7 +54,7 @@ library(remotes)
 
 Next, install and load TADA using the remotes package. USGS's dataRetrieval and
 other TADA R Package dependencies will also be downloaded automatically from CRAN
-with the TADA install. If desired, the the development version of dataRetrieval
+with the TADA install. If desired, the development version of dataRetrieval
 can be downloaded directly from GitHub (un-comment).
 
 ```{r install_TADA, eval = F, results = 'hide', message = FALSE, warning = FALSE}
@@ -75,7 +75,7 @@ remotes::install_github("USEPA/TADA",
 # when developing the package, update this chunk to the current repository branch, so it runs with all of the new features prior to a PR to develop
 
 remotes::install_github("USEPA/TADA",
-  ref = "10302023-cm",
+  ref = "336-original-vs-tada-columns-copies",
   dependencies = TRUE
 )
 ```
@@ -91,8 +91,8 @@ library(TADA)
 
 WQP data is retrieved and processed for compatibility with TADA. This
 function, **TADA_DataRetrieval**, builds on USGS's dataRetrieval R
-package functions. It joins four WQP profiles: Site,
-Sample Results (narrow), Sample Results (physical/chemical metadata),
+package functions. It joins three WQP profiles: Site,
+Sample Results (physical/chemical metadata),
 and Project. In addition, it changes all data in the
 Characteristic, Speciation, Fraction, and Unit fields to uppercase,
 removes exact duplicates, and addresses result values that include
@@ -140,7 +140,7 @@ automatically runs the **TADA_AutoClean** function, which runs the following fun
 
 -   **TADA_IDCensoredData** - categorizes detection limit data and identifies mismatches in result detection condition and result detection limit type. 
 
--   Other helpful actions - converts important text columns to all upper-case letters, removes exact duplicates, and uses WQX format rules to harmonize specific NWIS metadata conventions (e.g. move characteristic speciation from the TADA.ResultMeasure.MeasureUnitCode column to the TADA.MethodSpecificationName column)
+-   Other helpful actions - converts important text columns to all upper-case letters, removes exact duplicates, and uses WQX format rules to harmonize specific NWIS metadata conventions (e.g. move characteristic speciation from the TADA.ResultMeasure.MeasureUnitCode column to the TADA.MethodSpeciationName column)
 
 As a general rule, TADA functions do not change any contents in the WQP-served
 columns. Instead, they add new columns with the prefix "TADA." The following
@@ -190,8 +190,8 @@ Tips:
         will get an error.
 
 2.  The "siteid" is a general term WQP uses to describe both Site IDs
-    from USGS databases and Monitoring Location Identifiers (from the
-    Water Quality Portal). Each monitoring location in the Water Quality
+    from USGS databases and Monitoring Location Identifiers (from WQX).
+    Each monitoring location in the Water Quality
     Portal (WQP) has a unique Monitoring Location Identifier, regardless
     of the database from which it derives. The Monitoring Location
     Identifier from the WQP is the concatenated Organization Identifier
@@ -475,7 +475,7 @@ See documentation for more details:
         invalid TADA.CharacteristicName,
         ResultAnalyticalMethod/MethodIdentifier, and
         ResultAnalyticalMethod/MethodIdentifierContext combinations in
-        your dataframe either "Nonstandardized", "Invalid", or "Valid".
+        your dataframe either "NonStandardized", "Invalid", or "Valid".
 
     -   When clean = TRUE, "Invalid" rows are removed from the dataframe
         and no column will be appended.
@@ -487,23 +487,24 @@ See documentation for more details:
 
     -   When clean = "none", this function adds the following column to
         your dataframe: TADA.MethodSpeciation.Flag. This column flags
-        each TADA.CharacteristicName and MethodSpecificationName
-        combination in your dataframe as either "Nonstandardized",
+        each TADA.CharacteristicName and MethodSpeciationName
+        combination in your dataframe as either "NonStandardized",
+
         "Invalid", or "Valid".
 
     -   When clean = "invalid_only", only "Invalid" rows are removed
         from the dataframe. Default is clean = "invalid_only".
 
-    -   When clean = "nonstandardized_only", only "Nonstandardized" rows
+    -   When clean = "nonstandardized_only", only "NonStandardized" rows
         are removed from the dataframe.
 
-    -   When clean = "both", "Invalid" and "Nonstandardized" rows are
+    -   When clean = "both", "Invalid" and "NonStandardized" rows are
         removed from the dataframe.
 
     -   When clean = "none", no rows are removed from the dataframe.
 
     -   When flaggedonly = TRUE, the dataframe is filtered to only the
-        rows flagged as "Invalid" or "Nonstandardized"; default is
+        rows flagged as "Invalid" or "NonStandardized"; default is
         flaggedonly = FALSE.
 
 -   ?**TADA_FlagResultUnit**
@@ -512,7 +513,7 @@ See documentation for more details:
         dataframe: TADA.ResultUnit.Flag. This column flags each
         TADA.CharacteristicName, TADA.ActivityMediaName, and
         TADA.ResultMeasure.MeasureUnitCode combination in your dataframe
-        as either "Nonstandardized", "Invalid", or "Valid".
+        as either "NonStandardized", "Invalid", or "Valid".
 
     -   When clean = TRUE, "Invalid" rows are removed from the dataframe
         and no column will be appended.
@@ -525,7 +526,7 @@ See documentation for more details:
     -   When clean = FALSE, this function adds the following column to
         your dataframe: TADA.SampleFraction.Flag. This column flags each
         TADA.CharacteristicName and TADA.ResultSampleFractionText
-        combination in your dataframe as either "Nonstandardized",
+        combination in your dataframe as either "NonStandardized",
         "Invalid", or "Valid".
     -   When clean = TRUE, "Invalid" rows are removed from the dataframe
         and no column will be appended.
@@ -671,9 +672,7 @@ NA's are not included in the output):
 
 -   "MonitoringLocationTypeName"
 
--   "StateName"
-
--   "TribalLandName"
+-   "StateCode"
 
 -   "OrganizationFormalName"
 
@@ -754,15 +753,20 @@ TADA_FieldValuesPie(TADAProfileClean4, "MeasureQualifierCode")
 ```
 
 MeasureQualifierCode definitions are available
-[here](https://cdx.epa.gov/wqx/download/DomainValues/ResultMeasureQualifier.CSV){style="font-size: 12pt;"}.
+[here](https://cdx.epa.gov/wqx/download/DomainValues/ResultMeasureQualifier.CSV){style="font-size: 12pt;"}. TADA_FlagMeasureQualifierCode will automatically add applicable definitions to the input dataframe in a new column
+called "TADA.MeasureQualifierCode.Def". 
 
-In this example, we show how to use the function TADA_FlagMeasureQualifierCode to remove rows with specific ResultMeasureQualifier that are flagged as "SUSPECT". There 
+
+In this example, we show how to use the function TADA_FlagMeasureQualifierCode to add definitiond and flag and/or remove rows with specific codes under MeasureQualifierCode that are categorized as "SUSPECT". 
+
 See ?TADA_FlagMeasureQualifierCode for more information. 
 
 ```{r FilterMeasureQualifierCodes}
+# flag only 
 Review_TADAProfileClean4 <- TADA_FlagMeasureQualifierCode(TADAProfileClean4,
   clean = FALSE,
-  flaggedonly = TRUE
+  flaggedonly = TRUE, 
+  define = TRUE
 )
 # Review_TADAProfileClean4 is empty because we did not find any Suspect samples
 
@@ -856,10 +860,10 @@ sum(is.na(TADAProfileClean4$TADA.ResultMeasureValue))
 ```
 
 Filter down to only numeric data. Remove data where the
-TADA.ResultMeasureValueDataTypes.Flag = "Text","Coerced to NA",or "Blank".
+TADA.ResultMeasureValueDataTypes.Flag = "Text" or "NA - Not Available".
 
 ```{r filter_out_NAs}
-# Removes rows where the result value is not numeric. Specifically, removes rows with "Text","Coerced to NA", or "Blank" in the TADA.ResultMeasureValueDataTypes.Flag column, or NA in the TADA.ResultMeasureValue column.
+# Removes rows where the result value is not numeric. Specifically, removes rows with "Text" or "NA - Not Available" in the TADA.ResultMeasureValueDataTypes.Flag column, or NA in the TADA.ResultMeasureValue column.
 TADAProfileClean5 <- TADA_AutoFilter(TADAProfileClean4)
 ```
 
@@ -882,7 +886,7 @@ elements:
 
 -   TADA.ResultSampleFractionText
 
--   TADA.MethodSpecificationName
+-   TADA.MethodSpeciationName
 
 -   TADA.ResultMeasure.MeasureUnitCode
 
@@ -915,9 +919,7 @@ Here are some examples of how the TADA_HarmonizeSynonyms function can be used:
     name (and identifier) to synonyms.
 
 ```{r TADA_HarmonizeSynonyms}
-UniqueHarmonizationRef <- TADA_GetSynonymRef(TADAProfileClean5,
-  download = FALSE
-)
+UniqueHarmonizationRef <- TADA_GetSynonymRef(TADAProfileClean5)
 
 TADAProfileClean5 <- TADA_HarmonizeSynonyms(TADAProfileClean5,
   ref = UniqueHarmonizationRef

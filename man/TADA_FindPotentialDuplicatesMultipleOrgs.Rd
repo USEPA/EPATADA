@@ -26,10 +26,12 @@ blank, the function chooses the representative duplicate result at random.}
 The same input TADA dataframe with additional columns: a
 TADA.MultipleOrgDuplicate column indicating if there is evidence that
 results are likely duplicated due to submission of the same dataset by two
-or more different organizations, a TADA.MultipleOrgDupGroupID column,
+or more different organizations, a TADA.MultipleOrgDupGroupID column
 containing a number unique to results that may represent duplicated
-measurement events, and one or more TADA.SiteGroup columns indicating
-monitoring locations within the distance buffer from each other.
+measurement events, a TADA.ResultSelectedMultipleOrgs column indicating
+which rows are selected to keep (Y) and remove (N) based on the
+org hierarchy, and a TADA.NearbySiteGroups column indicating which
+monitoring locations are within the distance buffer from each other.
 }
 \description{
 Identifies data records uploaded by different organizations with the same date,

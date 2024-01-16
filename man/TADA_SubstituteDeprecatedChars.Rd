@@ -14,12 +14,37 @@ Input TADA dataframe with substituted characteristic names in
 TADA.CharacteristicName column. Original columns are unchanged.
 }
 \description{
-This utility function uses the WQX Characteristic domain table to substitute
-deprecated (i.e. retired and/or invalid) characteristic names with the new
+This function uses the WQX Characteristic domain table to substitute
+deprecated (i.e. retired and/or invalid) Characteristic Names with the new
 name in the TADA.CharacteristicName column. TADA_SubstituteDeprecatedChars is
 run within TADA_Autoclean, which runs within TADA_DataRetreival and (if autoclean = TRUE)
 in TADA_BigDataRetrieval. Therefore, deprecated characteristic names are
-harmonized to their current name automatically upon data retrieval.
+harmonized to the new name automatically upon data retrieval.
 TADA_SubstituteDeprecatedChars can also be used by itself on a user supplied
-dataset that is in the WQX format, if desired.
+dataset that is in the WQX/WQP format, if desired. This solution works for both
+EPA WQX and USGS NWIS provided data.
+}
+\details{
+Enter ?TADA_GetCharacteristicRef() to review a list of all WQX characteristics, the including
+deprecated names (Char_Flag). This can be used as a crosswalk between the deprecated names
+(CharacteristicName) and their new names (Comparable.Name).
+}
+\examples{
+\dontrun{
+# download nutrient data in MT from 2022 and set autoclean = FALSE
+df = TADA_DataRetrieval(startDate = "2022-01-01", endDate = "2022-12-31", characteristicType = "Nutrient", statecode = "MT", applyautoclean = FALSE)
+df2 = TADA_SubstituteDeprecatedChars(df)
+# in this example, "Inorganic nitrogen (nitrate and nitrite)" is a USGS NWIS characteristic that is 
+# deprecated and "Phosphate-phosphorus***retired***use Total Phosphorus, mixed forms" is a deprecated WQX
+# name. Both are are transformed to their new names.
+# review characteristic names before and after transformation
+unique(df2$CharacteristicName)
+unique(df2$TADA.CharacteristicName)
+
+df3 = TADA_DataRetrieval(startDate = "2022-01-01", endDate = "2022-12-31", characteristicType = "Nutrient", statecode = "WY", applyautoclean = FALSE)
+df4 = TADA_SubstituteDeprecatedChars(df3)
+unique(df4$CharacteristicName)
+unique(df4$TADA.CharacteristicName)
+}
+
 }

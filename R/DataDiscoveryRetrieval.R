@@ -43,6 +43,7 @@
 #' @param statecode FIPS state alpha code that identifies a state (e.g. statecode = "DE" for Delaware)
 #' @param organization A string of letters and/or numbers (some additional characters also possible) used to signify an organization with data in the Water Quality Portal
 #' @param project A string of letters and/or numbers (some additional characters also possible) used to signify a project with data in the Water Quality Portal
+#' @param providers Leave blank to include all, or specify "STEWARDS", "STORET" (i.e., WQX), and/or "NWIS".
 #' @param applyautoclean Logical, defaults to TRUE. Applies TADA_AutoClean function on the returned data profile.
 #'
 #' @return TADA-compatible dataframe
@@ -133,6 +134,16 @@
 #'   "WNENVDPT_WQX",
 #'   "PUEBLO_POJOAQUE"
 #' ))
+#' 
+#' # query only NWIS data for a 10 year period in CT
+#' tada10 = TADA_DataRetrieval(
+#' startDate = "2013-01-01", 
+#' endDate = "2022-12-31", 
+#' sampleMedia = c("Water", "water"),
+#' statecode = "CT", # consider downloading only 1 state at a time
+#' providers = "NWIS",
+#' applyautoclean = FALSE
+#' )
 #' }
 #'
 TADA_DataRetrieval <- function(startDate = "null",
@@ -147,6 +158,7 @@ TADA_DataRetrieval <- function(startDate = "null",
                                statecode = "null",
                                organization = "null",
                                project = "null",
+                               providers = "null",
                                applyautoclean = TRUE) {
   # Set query parameters
   WQPquery <- list()
@@ -215,6 +227,12 @@ TADA_DataRetrieval <- function(startDate = "null",
   } else if (project != "null") {
     WQPquery <- c(WQPquery, project = project)
   }
+  
+  if (length(providers) > 1) {
+    WQPquery <- c(WQPquery, providers = list(providers))
+  } else if (providers != "null") {
+    WQPquery <- c(WQPquery, providers = providers)
+  }
 
   if (length(organization) > 1) {
     WQPquery <- c(WQPquery, organization = list(organization))
@@ -245,11 +263,6 @@ TADA_DataRetrieval <- function(startDate = "null",
     print("Returning empty results dataframe: Your WQP query returned no results (no data available). Try a different query. Removing some of your query filters OR broadening your search area may help.")
     TADAprofile.clean <- results.DR
   } else {
-    narrow.DR <- dataRetrieval::readWQPdata(WQPquery,
-      dataProfile = "narrowResult",
-      ignore_attributes = TRUE
-    )
-
     sites.DR <- dataRetrieval::whatWQPsites(WQPquery)
 
     projects.DR <- dataRetrieval::readWQPdata(WQPquery,
@@ -260,28 +273,13 @@ TADA_DataRetrieval <- function(startDate = "null",
     TADAprofile <- TADA_JoinWQPProfiles(
       FullPhysChem = results.DR,
       Sites = sites.DR,
-      Narrow = narrow.DR,
       Projects = projects.DR
     )
 
     # need to specify this or throws error when trying to bind rows. Temporary fix for larger
     # issue where data structure for all columns should be specified.
-    cols <- names(TADAprofile)[names(TADAprofile) %in% c(
-      "ActivityDepthHeightMeasure.MeasureValue",
-      "ActivityTopDepthHeightMeasure.MeasureValue",
-      "ActivityBottomDepthHeightMeasure.MeasureValue",
-      "ResultMeasureValue",
-      "ResultDepthHeightMeasure.MeasureValue",
-      "DetectionQuantitationLimitMeasure.MeasureValue",
-      "DrainageAreaMeasure.MeasureValue",
-      "ContributingDrainageAreaMeasure.MeasureValue",
-      "HorizontalAccuracyMeasure.MeasureValue",
-      "VerticalMeasure.MeasureValue",
-      "VerticalAccuracyMeasure.MeasureValue",
-      "WellDepthMeasure.MeasureValue",
-      "WellHoleDepthMeasure.MeasureValue"
-    )]
-
+    cols <- names(TADAprofile)
+    
     TADAprofile <- TADAprofile %>% dplyr::mutate_at(cols, as.character)
 
     # run TADA_AutoClean function
@@ -310,14 +308,13 @@ TADA_DataRetrieval <- function(startDate = "null",
 #' data directly into R.
 #'
 #' We recommend retrieving data for all the following profiles
-#' (you can run this function four separate times to bring in all four profiles):
+#' (you can run this function three separate times to bring in all three profiles):
 #' 1. Sample Results (physical/chemical metadata)
-#' 2. Sample Results (narrow)
-#' 3. Project Data
-#' 4. Site Data Only
+#' 2. Project Data
+#' 3. Site Data Only
 #'
-#' After you retrieve all four profiles, you can use TADA::TADA_JoinWQPProfiles to
-#' joining the four dataframes into a single dataframe.
+#' After you retrieve all three profiles, you can use TADA::TADA_JoinWQPProfiles to
+#' join the three dataframes into a single dataframe.
 #'
 #' Note: It may be useful to save the Query URL from the WQP as well as a
 #' comment within your code. This URL let's you return to the WQP query page
@@ -347,7 +344,6 @@ TADA_DataRetrieval <- function(startDate = "null",
 #' physchemresults1 <- TADA_ReadWQPWebServices("https://www.waterqualitydata.us/data/Result/search?statecode=US%3A09&sampleMedia=water&sampleMedia=Water&startDateLo=01-01-2021&mimeType=csv&zip=yes&dataProfile=biological&providers=NWIS&providers=STEWARDS&providers=STORET")
 #' sites1 <- TADA_ReadWQPWebServices("https://www.waterqualitydata.us/data/Station/search?statecode=US%3A09&sampleMedia=water&sampleMedia=Water&startDateLo=01-01-2021&mimeType=csv&zip=yes&providers=NWIS&providers=STEWARDS&providers=STORET")
 #' projects1 <- TADA_ReadWQPWebServices("https://www.waterqualitydata.us/data/Project/search?statecode=US%3A09&sampleMedia=water&sampleMedia=Water&startDateLo=01-01-2021&mimeType=csv&zip=yes&providers=NWIS&providers=STEWARDS&providers=STORET")
-#' narrow1 <- TADA_ReadWQPWebServices("https://www.waterqualitydata.us/data/Result/search?statecode=US%3A09&sampleMedia=water&sampleMedia=Water&startDateLo=01-01-2021&mimeType=csv&zip=yes&dataProfile=narrowResult&providers=NWIS&providers=STEWARDS&providers=STORET")
 #' }
 #'
 TADA_ReadWQPWebServices <- function(webservice) {
@@ -417,6 +413,7 @@ TADA_ReadWQPWebServices <- function(webservice) {
 #' tada2 <- TADA_BigDataRetrieval(startDate = "2016-10-01", endDate = "2022-09-30", statecode = "UT")
 #' tada3 <- TADA_BigDataRetrieval(huc = "04030202", characteristicName = "Escherichia coli")
 #' tada4 <- TADA_BigDataRetrieval(huc = c("04030202", "04030201"), characteristicName = "Temperature, water")
+#' tada5 <- TADA_BigDataRetrieval(startDate = "2000-01-01", endDate = "2022-07-01", characteristicName = "Temperature, water", siteType = "Lake, Reservoir, Impoundment")
 #' }
 #'
 TADA_BigDataRetrieval <- function(startDate = "null",
@@ -475,7 +472,6 @@ TADA_BigDataRetrieval <- function(startDate = "null",
   }
 
   if (!"null" %in% statecode) {
-    # state_cd_cont = utils::read.csv(file = "inst/extdata/statecode.csv",colClasses=c("STATE"="character"))
     load(system.file("extdata", "statecodes_df.Rdata", package = "TADA"))
     statecode <- as.character(statecode)
     statecodes_sub <- statecodes_df %>% dplyr::filter(STUSAB %in% statecode)
@@ -660,7 +656,6 @@ TADA_BigDataRetrieval <- function(startDate = "null",
 #'
 #' @param FullPhysChem Full physical chemical data profile
 #' @param Sites Sites data profile
-#' @param Narrow Full biological data profile
 #' @param Projects Projects data profile
 #'
 #' @return TADA-compatible dataframe
@@ -668,17 +663,25 @@ TADA_BigDataRetrieval <- function(startDate = "null",
 #' @export
 #'
 #' @examples
-#' join <- TADA::TADA_JoinWQPProfiles(FullPhysChem = Data_PhysChem_5d, Sites = Data_Site_5d, Narrow = Data_Narrow_5d)
-#'
+#' \dontrun{
+#' # Load WQP data
+#' WQP URL: https://www.waterqualitydata.us/#statecode=US%3A09&characteristicType=Nutrient&startDateLo=04-01-2023&startDateHi=11-01-2023&mimeType=csv&providers=NWIS&providers=STEWARDS&providers=STORET
+#' # Use TADA_ReadWQPWebServices to load each profile
+#' stationProfile <- TADA_ReadWQPWebServices("https://www.waterqualitydata.us/data/Station/search?statecode=US%3A09&characteristicType=Nutrient&startDateLo=04-01-2023&startDateHi=11-01-2023&mimeType=csv&zip=yes&providers=NWIS&providers=STEWARDS&providers=STORET")
+#' physchemProfile <- TADA_ReadWQPWebServices("https://www.waterqualitydata.us/data/Result/search?statecode=US%3A09&characteristicType=Nutrient&startDateLo=04-01-2023&startDateHi=11-01-2023&mimeType=csv&zip=yes&dataProfile=resultPhysChem&providers=NWIS&providers=STEWARDS&providers=STORET")
+#' projectProfile <- TADA_ReadWQPWebServices("https://www.waterqualitydata.us/data/Project/search?statecode=US%3A09&characteristicType=Nutrient&startDateLo=04-01-2023&startDateHi=11-01-2023&mimeType=csv&zip=yes&providers=NWIS&providers=STEWARDS&providers=STORET")
+#' 
+#' # Join all three profiles using TADA_JoinWQPProfiles
+#' Data_PhysChemProfile <- TADA_JoinWQPProfiles(FullPhysChem = "physchemProfile", Sites = "stationProfile", Projects = "projectProfile")
+#' }
+#' 
 TADA_JoinWQPProfiles <- function(FullPhysChem = "null",
                                  Sites = "null",
-                                 Narrow = "null",
                                  Projects = "null") {
+  
   FullPhysChem.df <- FullPhysChem
 
   Sites.df <- Sites
-
-  Narrow.df <- Narrow
 
   Projects.df <- Projects
 
@@ -699,33 +702,12 @@ TADA_JoinWQPProfiles <- function(FullPhysChem = "null",
     join1 <- FullPhysChem.df
   }
 
-  # Add Speciation column from narrow
-  if (length(Narrow.df) > 1) {
-    if (nrow(Narrow.df) > 0) {
-      join2 <- join1 %>%
-        dplyr::left_join(
-          dplyr::select(
-            Narrow.df, ActivityIdentifier, MonitoringLocationIdentifier,
-            CharacteristicName, ResultMeasureValue,
-            MethodSpecificationName, OrganizationIdentifier, ResultIdentifier
-          ),
-          by = c(
-            "ActivityIdentifier", "MonitoringLocationIdentifier",
-            "CharacteristicName", "ResultMeasureValue", "OrganizationIdentifier",
-            "ResultIdentifier"
-          )
-        )
-    } else {
-      join2 <- join1
-    }
-  } else {
-    join2 <- join1
-  }
 
   # Add QAPP columns from project
   if (length(Projects.df) > 1) {
     if (nrow(Projects.df) > 0) {
-      join3 <- join2 %>%
+      join2 <- join1 %>%
+        
         dplyr::left_join(
           dplyr::select(
             Projects.df, OrganizationIdentifier, OrganizationFormalName,
@@ -737,13 +719,17 @@ TADA_JoinWQPProfiles <- function(FullPhysChem = "null",
             "OrganizationIdentifier", "OrganizationFormalName",
             "ProjectIdentifier", "ProjectName"
           ),
-          multiple = "all"
+          multiple = "all",
+          # need to specify that this is expected to be a 1-to-many relationship 
+          relationship = "many-to-many"
         )
     } else {
-      join3 <- join2
+      join2 <- join1
     }
   } else {
-    join3 <- join2
+    join2 <- join1
   }
-  return(join3)
+  
+  
+  return(join2)
 }

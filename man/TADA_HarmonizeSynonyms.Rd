@@ -17,12 +17,12 @@ that file.}
 \item{np_speciation}{Boolean. Determines whether the user wants to convert
 nitrogen and phosphorus subspecies to speciation 'as N' and 'as P', where
 speciation conversions are provided. Defaults to TRUE. For example, if
-np_speciation is TRUE, all Nitrate with TADA.MethodSpecificationName = as
+np_speciation is TRUE, all Nitrate with TADA.MethodSpeciationName = as
 NO3 will be converted to as N using molecular weight conversion factors.}
 }
 \value{
 The input TADA dataframe with the TADA.CharacteristicName,
-TADA.ResultSampleFractionText, TADA.MethodSpecificationName, and
+TADA.ResultSampleFractionText, TADA.MethodSpeciationName, and
 TADA.ResultMeasure.MeasureUnitCode columns converted to the target values,
 if supplied. Also includes additional columns
 TADA.CharacteristicNameAssumptions, TADA.FractionAssumptions, and
@@ -39,7 +39,7 @@ user (recommended), or the default TADA-provided synonym table, containing
 suggested synonym naming for some priority characteristics. Where a suggested
 characteristic name, fraction, speciation, or unit is present, the function
 will convert the TADA.CharacteristicName, TADA.ResultSampleFractionText,
-TADA.MethodSpecificationName, and/or TADA.ResultMeasure.MeasureUnitCode to
+TADA.MethodSpeciationName, and/or TADA.ResultMeasure.MeasureUnitCode to
 the target format. In cases where a target unit or speciation differs from
 the existing unit or speciation, the reference table will also apply
 multiplication conversion factors to the TADA.ResultMeasureValue.

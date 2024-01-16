@@ -13,8 +13,8 @@ TADA_AutoClean(.data)
 Input dataframe with several added TADA-specific columns, including:
 TADA.ActivityMediaName, TADA.CharacteristicName, TADA.ResultMeasureValue,
 TADA.ResultMeasure.MeasureUnitCode, TADA.ResultMeasureValueDataTypes.Flag,
-TADA.CensoredData.Flag, TADA.LatitudeMeasure, TADA.LongitudeMeasure,
-TADA.ResultSampleFractionText, TADA.MethodSpecificationName, and more.
+TADA.LatitudeMeasure, TADA.LongitudeMeasure,
+TADA.ResultSampleFractionText, TADA.MethodSpeciationName, and more.
 Please note that the number of TADA-specific depth columns in the returned
 dataframe depends upon the number of depth columns with one or more results
 populated with a numeric value. If all depth columns contain only NA's, no
