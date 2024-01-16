@@ -532,8 +532,9 @@ TADA_OrderCols <- function(.data) {
     "TADA.CharacteristicNameAssumptions",
     "TADA.ResultMeasureValue",
     "TADA.ResultMeasure.MeasureUnitCode",
-    "TADA.WQXResultUnitConversion",
-    "TADA.WQXTargetUnit",
+    "TADA.WQXResultUnitConversion", # only added when tranform = FALSE in TADA_ConvertResultUnits
+    "TADA.WQXTargetUnit", # only added when tranform = FALSE in TADA_ConvertResultUnits
+    "TADA.SpeciationUnitConversion", # only added when tranform = FALSE in TADA_ConvertResultUnits
     "TADA.WQXUnitConversionFactor",
     "TADA.UnitConversionFactor",
     "TADA.ResultMeasureValueDataTypes.Flag",
