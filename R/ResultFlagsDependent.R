@@ -571,7 +571,9 @@ TADA_FindQCActivities <- function(.data, clean = FALSE, flaggedonly = FALSE) {
 #' @param .data TADA dataframe which must include the columns 'OrganizationIdentifier', 'ActivityTypeCode',
 #' 'ActivityStartDate', 'ActivityStartDateTime', 'TADA.LatitudeMeasure', 'TADA.LongitudeMeasure',
 #' 'TADA.ResultMeasureValue', 'TADA.ComparableDataIdentifier', 'TADA.ActivityType.Flag', 
-#' and 'TADA.ActivityDepthHeightMeasure.MeasureValue'.
+#' 'TADA.ActivityDepthHeightMeasure.MeasureValue', 'TADA.ResultDepthHeightMeasure.MeasureValue', 
+#' 'TADA.ActivityTopDepthHeightMeasure.MeasureValue', 'TADA.ActivityBottomDepthHeightMeasure.MeasureValue',
+#' and 'ActivityRelativeDepthName'.
 #' @param type Character argument identifying which Activity Types to look for while pairing replicates
 #' to their parent samples. The default type is "QC_replicate", which includes Activity Type Codes: 
 #' "Quality Control Field Replicate Habitat Assessment",
@@ -581,6 +583,8 @@ TADA_FindQCActivities <- function(.data, clean = FALSE, flaggedonly = FALSE) {
 #' "Quality Control Sample-Field Replicate".
 #' @param time_difference Numeric argument defining the maximum time difference in seconds 
 #' to search for parent samples. The default time window is 600 seconds or 10 minutes.
+#' The time_difference can be as large as the user would like, but parent-replicate pairs will only be 
+#' identified if they were collected on the same date.
 #' 
 #' @return This function adds one column to the original data frame: 'TADA.ReplicateSampleID'. 
 #' 'TADA.ReplicateSampleID' contains the 'ResultIdentifier' value from the replicate sample 
@@ -588,9 +592,9 @@ TADA_FindQCActivities <- function(.data, clean = FALSE, flaggedonly = FALSE) {
 #' will have the same 'ResultIdentifier' code in this column, marking them as a pair. 
 #' If a sample was identified as a replicate sample in the 'TADA.ActivityType.Flag' 
 #' column but does not have an associated parent sample in the data frame, the 'TADA.ReplicateSampleID'
-#' column will contain the flag 'Orphan'. If more than one parent sample is identified in the
-#' data frame, the 'TADA.ReplicateSampleID' column will contain the flag 'Further Review', and 
-#' it may be necessary to rerun the analysis with a more narrow time window.
+#' column will contain the flag 'Orphan'. If more than one parent or replicate sample is identified 
+#' in the data frame, the 'TADA.ReplicateSampleID' column for all samples will contain the 
+#' 'ResultIdentifier' value from one of the replicate samples marking them as a grouping.
 #' 
 #' @export
 #' 
@@ -617,7 +621,9 @@ TADA_PairReplicates <- function(.data, type = c("QC_replicate"), time_difference
   TADA_CheckColumns(.data, c("OrganizationIdentifier","ActivityTypeCode", "ActivityStartDateTime", 
                              "TADA.LatitudeMeasure", "TADA.LongitudeMeasure", 
                              "TADA.ResultMeasureValue", "TADA.ComparableDataIdentifier", 
-                             "TADA.ActivityType.Flag", "TADA.ActivityDepthHeightMeasure.MeasureValue"))
+                             "TADA.ActivityType.Flag", "TADA.ActivityDepthHeightMeasure.MeasureValue",
+                             "TADA.ResultDepthHeightMeasure.MeasureValue", "TADA.ActivityTopDepthHeightMeasure.MeasureValue",
+                             "TADA.ActivityBottomDepthHeightMeasure.MeasureValue", "ActivityRelativeDepthName"))
   # check .data has replicates in the data frame
   if("QC_replicate" %in% type){
     if(nrow(dplyr::filter(.data, .data$TADA.ActivityType.Flag == "QC_replicate")) == 0) {
@@ -654,6 +660,9 @@ TADA_PairReplicates <- function(.data, type = c("QC_replicate"), time_difference
                             .data$OrganizationIdentifier == .data$OrganizationIdentifier[i] &
                             .data$TADA.ComparableDataIdentifier == .data$TADA.ComparableDataIdentifier[i] &
                             ((.data$TADA.ActivityDepthHeightMeasure.MeasureValue == .data$TADA.ActivityDepthHeightMeasure.MeasureValue[i]) | (is.na(.data$TADA.ActivityDepthHeightMeasure.MeasureValue) & is.na(.data$TADA.ActivityDepthHeightMeasure.MeasureValue[i]))) &
+                            ((.data$TADA.ResultDepthHeightMeasure.MeasureValue == .data$TADA.ResultDepthHeightMeasure.MeasureValue[i]) | (is.na(.data$TADA.ResultDepthHeightMeasure.MeasureValue) & is.na(.data$TADA.ResultDepthHeightMeasure.MeasureValue[i]))) &
+                            ((.data$TADA.ActivityTopDepthHeightMeasure.MeasureValue == .data$TADA.ActivityTopDepthHeightMeasure.MeasureValue[i]) | (is.na(.data$TADA.ActivityTopDepthHeightMeasure.MeasureValue) & is.na(.data$TADA.ActivityTopDepthHeightMeasure.MeasureValue[i]))) &
+                            ((.data$TADA.ActivityBottomDepthHeightMeasure.MeasureValue == .data$TADA.ActivityBottomDepthHeightMeasure.MeasureValue[i]) | (is.na(.data$TADA.ActivityBottomDepthHeightMeasure.MeasureValue) & is.na(.data$TADA.ActivityBottomDepthHeightMeasure.MeasureValue[i]))) &
                             ((.data$ActivityRelativeDepthName == .data$ActivityRelativeDepthName[i]) | (is.na(.data$ActivityRelativeDepthName) & is.na(.data$ActivityRelativeDepthName[i]))))
       
       # if time field is not NA, find time difference between current sample and info_match samples
