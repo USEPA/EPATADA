@@ -50,10 +50,8 @@ projectProfile <- TADA_ReadWQPWebServices("https://www.waterqualitydata.us/data/
 # Join all three profiles using TADA_JoinWQPProfiles
 TADAProfile <- TADA_JoinWQPProfiles(FullPhysChem = physchemProfile, Sites = stationProfile, Projects = projectProfile)
 
-# Run TADA_AutoClean 
+# Run TADA_AutoClean
 Autocleaned_TADAProfile <- TADA_AutoClean(TADAProfile)
-
 }
-
 
 }

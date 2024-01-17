@@ -13,7 +13,7 @@
 #'
 #' @param transform Boolean argument with two possible values, “TRUE” and “FALSE”.
 #' Default is transform = TRUE.
-#' 
+#'
 #' @param detlimit Boolean argument with two possible values, "TRUE" and "FALSE".
 #' Default is detlimit = TRUE.
 #'
@@ -22,26 +22,26 @@
 #'   "TADA.ResultMeasure.MeasureUnitCode" to the WQX target units and converts
 #'   respective values within the "TADA.ResultMeasureValue" field.
 #'   When detlimit = TRUE, detection limit values and units are converted to WQX
-#'   target units. This function changes the 
+#'   target units. This function changes the
 #'   "TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode" to the WQX target
-#'   units and converts respective values within the 
-#'   "TADA.DetectionQuantitationLimitMeasure.MeasureValue" field. 
+#'   units and converts respective values within the
+#'   "TADA.DetectionQuantitationLimitMeasure.MeasureValue" field.
 #'
 #' When transform = FALSE, result values and units are NOT converted to WQX target units,
 #' but columns are appended to indicate what the target units and conversion factors are,
-#' and if the data can be converted. This function adds the following four fields ONLY 
+#' and if the data can be converted. This function adds the following four fields ONLY
 #' when transform = FALSE: "TADA.WQXUnitConversionFactor", "TADA.WQXTargetUnit",
 #' "TADA.SpeciationUnitConversion", and "TADA.WQXResultUnitConversion.
 #'
-#' "TADA.WQXResultUnitConversion" indicates if data can be converted."NoResultValue" means 
+#' "TADA.WQXResultUnitConversion" indicates if data can be converted."NoResultValue" means
 #' data cannot be converted because there is no ResultMeasureValue, and "NoTargetUnit"
-#' means data cannot be converted because the original unit is not associated with 
+#' means data cannot be converted because the original unit is not associated with
 #' a target unit in WQX. "Convert" means the data can be transformed.
-#' 
+#'
 #' When detlimit = FALSE, values and units for detection limit are not converted to WQX
 #' target units and no additional fields related to detection limit values or units
 #'  are added to the input dataframe.
-#'  
+#'
 #' @export
 #'
 #' @examples
@@ -53,7 +53,7 @@
 #' # Do not convert result values and units, but add three new columns titled
 #' # "TADA.WQXUnitConversionFactor", "TADA.WQXTargetUnit", and "TADA.SpeciationUnitConversion":
 #' ResultUnitsNotConverted <- TADA_ConvertResultUnits(Data_Nutrients_UT, transform = FALSE, detlimit = FALSE)
-#' 
+#'
 #' #' # Convert values and units for results and detection limits:
 #' ResultUnitsNotConverted <- TADA_ConvertResultUnits(Data_Nutrients_UT, transform = TRUE, detlimit = TRUE)
 #'
@@ -97,10 +97,10 @@ TADA_ConvertResultUnits <- function(.data, transform = TRUE, detlimit = TRUE) {
     "Conversion.Factor",
     "Target.Speciation"
   )])
-    
+
   # join unit.ref to .data
   check.data <- merge(.data, unit.ref, all.x = TRUE)
-  
+
   # rename columns
   flag.data <- check.data %>%
     dplyr::rename(TADA.WQXTargetUnit = Target.Unit) %>%
@@ -173,22 +173,20 @@ TADA_ConvertResultUnits <- function(.data, transform = TRUE, detlimit = TRUE) {
 
     # create new comparable data identifier column following conversion
     clean.data <- TADA_CreateComparableID(clean.data)
-    
+
     clean.data <- TADA_OrderCols(clean.data)
   }
-  
+
   # reorder cols
   if (detlimit == FALSE) {
-    
     return(clean.data)
   }
-  
-  if(detlimit == TRUE) {
-  
+
+  if (detlimit == TRUE) {
     det.ref <- unit.ref %>%
       dplyr::select(TADA.ResultMeasure.MeasureUnitCode, Target.Unit, Conversion.Factor) %>%
       dplyr::rename(TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode = TADA.ResultMeasure.MeasureUnitCode)
-    
+
     # if temp data exists, calculate conversion factor for TADA.DetectionQuantitationLimitMeasure.MeasureValue
     # EDH I THINK THIS RUNS IF THERE IS ONE OR MORE NA'S IN THE DATASET
     if (all(is.na(match(
@@ -200,14 +198,16 @@ TADA_ConvertResultUnits <- function(.data, transform = TRUE, detlimit = TRUE) {
         # create flag column
         dplyr::mutate(Conversion.Factor = dplyr::case_when(
           TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode == "deg F" ~
-            as.numeric(((TADA.DetectionQuantitationLimitMeasure.MeasureValue - 32) * (5 / 9)) / TADA.DetectionQuantitationLimitMeasure.MeasureValue,
-                       TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode == "deg K" ~
-                         as.numeric((TADA.DetectionQuantitationLimitMeasure.MeasureValue - 273.15) / TADA.DetectionQuantitationLimitMeasure.MeasureValue),
-                       TRUE ~ Conversion.Factor
-            )))
+            as.numeric(
+              ((TADA.DetectionQuantitationLimitMeasure.MeasureValue - 32) * (5 / 9)) / TADA.DetectionQuantitationLimitMeasure.MeasureValue,
+              TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode == "deg K" ~
+                as.numeric((TADA.DetectionQuantitationLimitMeasure.MeasureValue - 273.15) / TADA.DetectionQuantitationLimitMeasure.MeasureValue),
+              TRUE ~ Conversion.Factor
+            )
+        ))
     }
-    
-    
+
+
     # Transform TADA.DetectionQuantitationLimitMeasure.MeasureValue value to Target Unit only if target unit exists
     det.data <- clean.data %>%
       merge(det.ref, all.x = TRUE) %>%
@@ -218,7 +218,7 @@ TADA_ConvertResultUnits <- function(.data, transform = TRUE, detlimit = TRUE) {
           (TADA.DetectionQuantitationLimitMeasure.MeasureValue * Conversion.Factor),
         is.na(Target.Unit) ~ TADA.DetectionQuantitationLimitMeasure.MeasureValue
       ))
-    
+
     # populate TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode
     convert.data <- det.data %>%
       # use target unit where there is a target unit, use original unit if no target unit
@@ -228,10 +228,9 @@ TADA_ConvertResultUnits <- function(.data, transform = TRUE, detlimit = TRUE) {
       )) %>%
       dplyr::select(-Target.Unit, -Conversion.Factor) %>%
       TADA_OrderCols()
-    
+
     return(convert.data)
   }
-  
 }
 
 

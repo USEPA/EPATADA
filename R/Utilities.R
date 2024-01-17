@@ -88,31 +88,28 @@ utils::globalVariables(c(
 #'   conversion is necessary and no TADA depth columns are created.
 #'
 #' @export
-#' 
-#' @examples 
+#'
+#' @examples
 #' \dontrun{
 #' # Find web service URLs for each Profile using WQP User Interface (https://www.waterqualitydata.us/)
 #' # Example WQP URL: https://www.waterqualitydata.us/#statecode=US%3A09&characteristicType=Nutrient&startDateLo=04-01-2023&startDateHi=11-01-2023&mimeType=csv&providers=NWIS&providers=STEWARDS&providers=STORET
-#' 
+#'
 #' # Use TADA_ReadWQPWebServices to load the Station, Project, and Phys-Chem Result profiles
 #' stationProfile <- TADA_ReadWQPWebServices("https://www.waterqualitydata.us/data/Station/search?statecode=US%3A09&characteristicType=Nutrient&startDateLo=04-01-2023&startDateHi=11-01-2023&mimeType=csv&zip=yes&providers=NWIS&providers=STEWARDS&providers=STORET")
 #' physchemProfile <- TADA_ReadWQPWebServices("https://www.waterqualitydata.us/data/Result/search?statecode=US%3A09&characteristicType=Nutrient&startDateLo=04-01-2023&startDateHi=11-01-2023&mimeType=csv&zip=yes&dataProfile=resultPhysChem&providers=NWIS&providers=STEWARDS&providers=STORET")
 #' projectProfile <- TADA_ReadWQPWebServices("https://www.waterqualitydata.us/data/Project/search?statecode=US%3A09&characteristicType=Nutrient&startDateLo=04-01-2023&startDateHi=11-01-2023&mimeType=csv&zip=yes&providers=NWIS&providers=STEWARDS&providers=STORET")
-#' 
+#'
 #' # Join all three profiles using TADA_JoinWQPProfiles
 #' TADAProfile <- TADA_JoinWQPProfiles(FullPhysChem = physchemProfile, Sites = stationProfile, Projects = projectProfile)
-#' 
-#' # Run TADA_AutoClean 
-#' Autocleaned_TADAProfile <- TADA_AutoClean(TADAProfile)
-#' 
-#' }
-#' 
 #'
-
+#' # Run TADA_AutoClean
+#' Autocleaned_TADAProfile <- TADA_AutoClean(TADAProfile)
+#' }
+#'
 TADA_AutoClean <- function(.data) {
   # check .data is data.frame
   TADA_CheckType(.data, "data.frame", "Input object")
-  
+
   # .data required columns
   required_cols <- c(
     "ActivityMediaName", "ResultMeasureValue", "ResultMeasure.MeasureUnitCode",
@@ -180,7 +177,7 @@ TADA_AutoClean <- function(.data) {
   # Substitute updated characteristic name for deprecated names
   print("TADA_Autoclean: updating deprecated (i.e. retired) characteristic names.")
   .data <- TADA_SubstituteDeprecatedChars(.data)
-  
+
   # Implement unit harmonization
   print("TADA_Autoclean: harmonizing result and depth units.")
   .data <- suppressWarnings(TADA_ConvertResultUnits(.data, transform = TRUE))
@@ -314,15 +311,14 @@ TADA_CheckColumns <- function(.data, expected_cols) {
 #' and "Numeric Range - Averaged" (# - #)
 #'
 #' @export
-#' 
+#'
 #' @examples
 #' data(Data_Nutrients_UT)
-#' HandleSpecialChars_ResultMeasureValue = TADA_ConvertSpecialChars(Data_Nutrients_UT, "ResultMeasureValue")
+#' HandleSpecialChars_ResultMeasureValue <- TADA_ConvertSpecialChars(Data_Nutrients_UT, "ResultMeasureValue")
 #' unique(HandleSpecialChars_ResultMeasureValue$TADA.ResultMeasureValueDataTypes.Flag)
-#' HandleSpecialChars_DetLimMeasureValue = TADA_ConvertSpecialChars(Data_Nutrients_UT, "TADA.DetectionQuantitationLimitMeasure.MeasureValue")
+#' HandleSpecialChars_DetLimMeasureValue <- TADA_ConvertSpecialChars(Data_Nutrients_UT, "TADA.DetectionQuantitationLimitMeasure.MeasureValue")
 #' unique(HandleSpecialChars_DetLimMeasureValue$TADA.DetectionQuantitationLimitMeasure.MeasureValueDataTypes.Flag)
 #'
-
 TADA_ConvertSpecialChars <- function(.data, col) {
   if (!col %in% names(.data)) {
     stop("Invalid column name specified for input dataset.")
@@ -344,11 +340,9 @@ TADA_ConvertSpecialChars <- function(.data, col) {
         is.na(masked) ~ as.character("NA - Not Available"),
         TRUE ~ as.character("Numeric")
       ))
-    
   } else {
-    
     chars.data$masked <- gsub(" ", "", chars.data$masked) # get rid of white space for subsequent sorting
-   # Detect special characters in column and populate new flag column with descriptor
+    # Detect special characters in column and populate new flag column with descriptor
     # of the specific type of character/data type
     clean.data <- chars.data %>%
       dplyr::mutate(flag = dplyr::case_when(
@@ -366,7 +360,7 @@ TADA_ConvertSpecialChars <- function(.data, col) {
         (!stringi::stri_enc_mark(masked) %in% c("ASCII")) ~ as.character("Non-ASCII Character(s)"),
         TRUE ~ "Coerced to NA"
       ))
-    
+
     # Result Values that are numeric ranges with the format #-# are converted to an average of the two numbers expressed in the range.
     if (any(clean.data$flag == "Numeric Range - Averaged")) {
       numrange <- subset(clean.data, clean.data$flag %in% c("Numeric Range - Averaged"))
@@ -379,26 +373,26 @@ TADA_ConvertSpecialChars <- function(.data, col) {
 
       clean.data <- plyr::rbind.fill(notnumrange, numrange)
     }
-    
+
     # In the new TADA column, convert to numeric and remove some specific special
     # characters.
     clean.data$masked <- suppressWarnings(as.numeric(stringr::str_replace_all(
       clean.data$masked, c("<" = "", ">" = "", "~" = "", "%" = "", "\\*" = "")
     )))
-    
   }
 
   # this updates the DataTypes.Flag to "NA - Not Available" if NA
   clean.data$flag <- ifelse(
     is.na(clean.data$flag),
     "NA - Not Available",
-    clean.data$flag)
-  
+    clean.data$flag
+  )
+
   # Rename to original column name, TADA column name, and flag column name
   names(clean.data)[names(clean.data) == "orig"] <- col
   names(clean.data)[names(clean.data) == "masked"] <- numcol
   names(clean.data)[names(clean.data) == "flag"] <- flagcol
-  
+
   clean.data <- TADA_OrderCols(clean.data)
 
   return(clean.data)
@@ -631,11 +625,11 @@ TADA_OrderCols <- function(.data) {
 #' in TADA_BigDataRetrieval. Therefore, deprecated characteristic names are
 #' harmonized to the new name automatically upon data retrieval.
 #' TADA_SubstituteDeprecatedChars can also be used by itself on a user supplied
-#' dataset that is in the WQX/WQP format, if desired. This solution works for both 
+#' dataset that is in the WQX/WQP format, if desired. This solution works for both
 #' EPA WQX and USGS NWIS provided data.
-#' 
-#' Enter ?TADA_GetCharacteristicRef() to review a list of all WQX characteristics, the including 
-#' deprecated names (Char_Flag). This can be used as a crosswalk between the deprecated names 
+#'
+#' Enter ?TADA_GetCharacteristicRef() to review a list of all WQX characteristics, the including
+#' deprecated names (Char_Flag). This can be used as a crosswalk between the deprecated names
 #' (CharacteristicName) and their new names (Comparable.Name).
 #'
 #' @param .data TADA dataframe
@@ -644,37 +638,35 @@ TADA_OrderCols <- function(.data) {
 #'   TADA.CharacteristicName column. Original columns are unchanged.
 #'
 #' @export
-#' 
+#'
 #' @examples
 #' \dontrun{
 #' # download nutrient data in MT from 2022 and set autoclean = FALSE
-#' df = TADA_DataRetrieval(startDate = "2022-01-01", endDate = "2022-12-31", characteristicType = "Nutrient", statecode = "MT", applyautoclean = FALSE)
-#' df2 = TADA_SubstituteDeprecatedChars(df)
-#' # in this example, "Inorganic nitrogen (nitrate and nitrite)" is a USGS NWIS characteristic that is 
+#' df <- TADA_DataRetrieval(startDate = "2022-01-01", endDate = "2022-12-31", characteristicType = "Nutrient", statecode = "MT", applyautoclean = FALSE)
+#' df2 <- TADA_SubstituteDeprecatedChars(df)
+#' # in this example, "Inorganic nitrogen (nitrate and nitrite)" is a USGS NWIS characteristic that is
 #' # deprecated and "Phosphate-phosphorus***retired***use Total Phosphorus, mixed forms" is a deprecated WQX
 #' # name. Both are are transformed to their new names.
 #' # review characteristic names before and after transformation
 #' unique(df2$CharacteristicName)
 #' unique(df2$TADA.CharacteristicName)
-#' 
-#' df3 = TADA_DataRetrieval(startDate = "2022-01-01", endDate = "2022-12-31", characteristicType = "Nutrient", statecode = "WY", applyautoclean = FALSE)
-#' df4 = TADA_SubstituteDeprecatedChars(df3)
+#'
+#' df3 <- TADA_DataRetrieval(startDate = "2022-01-01", endDate = "2022-12-31", characteristicType = "Nutrient", statecode = "WY", applyautoclean = FALSE)
+#' df4 <- TADA_SubstituteDeprecatedChars(df3)
 #' unique(df4$CharacteristicName)
 #' unique(df4$TADA.CharacteristicName)
 #' }
-#' 
-
+#'
 TADA_SubstituteDeprecatedChars <- function(.data) {
   TADA_CheckColumns(.data, expected_cols = c("CharacteristicName"))
-  
-  if("TADA.CharacteristicName" %in% colnames(.data))
-  {
-    .data = .data
+
+  if ("TADA.CharacteristicName" %in% colnames(.data)) {
+    .data <- .data
   } else {
-    #create uppercase version of original CharacteristicName
+    # create uppercase version of original CharacteristicName
     .data$TADA.CharacteristicName <- toupper(.data$CharacteristicName)
   }
-  
+
   # read in characteristic reference table with deprecation information, filter to deprecated terms and for "retired" in CharactersticName.
   # remove all characters after first "*" in CharacteristicName and remove any leading or trailing white space to make compatible with deprecated NWIS CharactersticName.
   nwis.table <- utils::read.csv(system.file("extdata", "WQXCharacteristicRef.csv", package = "TADA")) %>%
@@ -691,7 +683,7 @@ TADA_SubstituteDeprecatedChars <- function(.data) {
     rbind(nwis.table)
 
   rm(nwis.table)
-  
+
   # merge to dataset
   .data <- merge(.data, ref.table, all.x = TRUE)
   # if CharacteristicName is deprecated and comparable name is not blank (NA), use the provided Comparable.Name. Otherwise, keep TADA.CharacteristicName as-is.
@@ -855,35 +847,33 @@ TADA_FindNearbySites <- function(.data, dist_buffer = 100) {
   return(.data)
 }
 
-#' Generate a random WQP dataset 
-#' 
+#' Generate a random WQP dataset
+#'
 #' Retrieves data for a period of time in the past 20 years using
-#' TADA_DataRetrieval. This function can be used for testing functions on 
+#' TADA_DataRetrieval. This function can be used for testing functions on
 #' random datasets.
-#' 
-#' @param number_of_days Numeric. The default is 1, which will query and retrieve 
-#' data for a random two-day period (e.g.startDate = "2015-04-21", 
-#' endDate = "2015-04-22"). The user can change this number to select additional days 
+#'
+#' @param number_of_days Numeric. The default is 1, which will query and retrieve
+#' data for a random two-day period (e.g.startDate = "2015-04-21",
+#' endDate = "2015-04-22"). The user can change this number to select additional days
 #' if desired.
-#' 
-#' @param choose_random_state Boolean (TRUE or FALSE). The default is FALSE. 
-#' If FALSE, the function will query all data in the WQP for the number_of_days 
-#' specified (national query). If TRUE, the function will select a random state 
-#' and only retrieve data for that state. 
+#'
+#' @param choose_random_state Boolean (TRUE or FALSE). The default is FALSE.
+#' If FALSE, the function will query all data in the WQP for the number_of_days
+#' specified (national query). If TRUE, the function will select a random state
+#' and only retrieve data for that state.
 #'
 #' @return Random WQP dataset.
 #'
 #' @export
-#' 
+#'
 #' @examples
 #' \dontrun{
-#' df = TADA_RandomTestingData(number_of_days = 1, choose_random_state = FALSE)
-#' df = TADA_RandomTestingData(number_of_days = 10, choose_random_state = TRUE)
+#' df <- TADA_RandomTestingData(number_of_days = 1, choose_random_state = FALSE)
+#' df <- TADA_RandomTestingData(number_of_days = 10, choose_random_state = TRUE)
 #' }
-#' 
-
+#'
 TADA_RandomTestingData <- function(number_of_days = 1, choose_random_state = FALSE) {
-  
   # choose a random day within the last 20 years
   twenty_yrs_ago <- Sys.Date() - 20 * 365
   random_start_date <- twenty_yrs_ago + sample(20 * 365, 1)
@@ -892,21 +882,25 @@ TADA_RandomTestingData <- function(number_of_days = 1, choose_random_state = FAL
 
   if (choose_random_state == TRUE) {
     load(system.file("extdata", "statecodes_df.Rdata", package = "TADA"))
-    state = sample(statecodes_df$STUSAB,1)
+    state <- sample(statecodes_df$STUSAB, 1)
   }
-  
+
   if (choose_random_state == FALSE) {
-    state = "null"
+    state <- "null"
   }
-  
-  print(c(startDate = as.character(random_start_date), 
-          endDate = as.character(end_date),
-          statecode = state))
+
+  print(c(
+    startDate = as.character(random_start_date),
+    endDate = as.character(end_date),
+    statecode = state
+  ))
 
   # retrieve data
-  dat <- TADA_DataRetrieval(startDate = as.character(random_start_date), 
-                            endDate = as.character(end_date),
-                            statecode = state)
+  dat <- TADA_DataRetrieval(
+    startDate = as.character(random_start_date),
+    endDate = as.character(end_date),
+    statecode = state
+  )
 
   if (dim(dat)[1] < 1) {
     dat <- Data_NCTCShepherdstown_HUC12
@@ -1189,8 +1183,8 @@ TADA_CheckRequiredFields <- function(.data) {
     "TADA.ResultMeasureValueDataTypes.Flag",
     "TADA.LatitudeMeasure",
     "TADA.LongitudeMeasure",
-    "TADA.MeasureQualifierCode.Def", 
-    "TADA.MeasureQualifierCode.Flag", 
+    "TADA.MeasureQualifierCode.Def",
+    "TADA.MeasureQualifierCode.Flag",
     "OrganizationFormalName",
     "ActivityTypeCode",
     "ActivityMediaName",
@@ -1255,7 +1249,7 @@ TADA_CheckRequiredFields <- function(.data) {
 #' this function removes rows with "Text" and "NA - Not Available"
 #' in the TADA.ResultMeasureValueDataTypes.Flag column, or NA in the
 #' TADA.ResultMeasureValue column.
-#' 
+#'
 #' This function also removes any columns not required for TADA workflow where
 #' all values are equal to NA.It also provides a warning message identifying
 #' any TADA required columns containing only NA values.
@@ -1293,104 +1287,109 @@ TADA_AutoFilter <- function(.data) {
     TADA.ResultMeasureValueDataTypes.Flag != "NA - Not Available" &
     TADA.ActivityType.Flag == "Non_QC" & # filter out QA/QC ActivityTypeCode's
     !is.na(TADA.ResultMeasureValue))
-  
-  #remove columns that are not required for TADA workflow
+
+  # remove columns that are not required for TADA workflow
   print("TADA_Autofilter: removing columns not required for TADA workflow if they contain only NAs.")
-  
-  #create list of required columns that must be retained even if all values are NA
-  req.cols <- c("TADA.CharacteristicName",
-                "TADA.ResultSampleFractionText",
-                "TADA.MethodSpeciationName",
-                "TADA.ResultMeasure.MeasureUnitCode",
-                "TADA.ActivityMediaName",
-                "TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode",
-                "TADA.ResultMeasureValueDataTypes.Flag",
-                "TADA.LatitudeMeasure",
-                "TADA.LongitudeMeasure",
-                "OrganizationFormalName",
-                "ActivityTypeCode",
-                "ActivityMediaName",
-                "MonitoringLocationTypeName",
-                "ActivityStartDateTime",
-                "CharacteristicName",
-                "ResultSampleFractionText",
-                "MethodSpeciationName",
-                "ResultMeasureValue",
-                "ResultMeasure.MeasureUnitCode",
-                "ResultDetectionConditionText",
-                "DetectionQuantitationLimitTypeName",
-                "DetectionQuantitationLimitMeasure.MeasureValue",
-                "DetectionQuantitationLimitMeasure.MeasureUnitCode",
-                "ResultDepthHeightMeasure.MeasureValue",
-                "ResultDepthHeightMeasure.MeasureUnitCode",
-                "ActivityRelativeDepthName",
-                "ActivityDepthHeightMeasure.MeasureValue",
-                "ActivityDepthHeightMeasure.MeasureUnitCode",
-                "ActivityTopDepthHeightMeasure.MeasureValue",
-                "ActivityTopDepthHeightMeasure.MeasureUnitCode",
-                "ActivityBottomDepthHeightMeasure.MeasureValue",
-                "ActivityBottomDepthHeightMeasure.MeasureUnitCode",
-                "CountryCode",
-                "StateCode",
-                "CountyCode",
-                "LatitudeMeasure",
-                "LongitudeMeasure",
-                "QAPPApprovedIndicator",
-                "QAPPApprovalAgencyName",
-                "ProjectFileUrl",
-                "MeasureQualifierCode",
-                "SampleCollectionEquipmentName", # required for continuous flag
-                "StatisticalBaseCode", # required for continuous flag
-                "ResultTimeBasisText", # required for continuous flag
-                "ResultValueTypeName", # required for continuous flag
-                "ActivityIdentifier",
-                "ProjectIdentifier",
-                "MonitoringLocationIdentifier",
-                "ResultIdentifier",
-                "OrganizationIdentifier")
-  
-  # create list of columns containing all NA values. 
-  na.cols <- .data %>% purrr::keep(~all(is.na(.x))) %>%
-   names()
-  
+
+  # create list of required columns that must be retained even if all values are NA
+  req.cols <- c(
+    "TADA.CharacteristicName",
+    "TADA.ResultSampleFractionText",
+    "TADA.MethodSpeciationName",
+    "TADA.ResultMeasure.MeasureUnitCode",
+    "TADA.ActivityMediaName",
+    "TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode",
+    "TADA.ResultMeasureValueDataTypes.Flag",
+    "TADA.LatitudeMeasure",
+    "TADA.LongitudeMeasure",
+    "OrganizationFormalName",
+    "ActivityTypeCode",
+    "ActivityMediaName",
+    "MonitoringLocationTypeName",
+    "ActivityStartDateTime",
+    "CharacteristicName",
+    "ResultSampleFractionText",
+    "MethodSpeciationName",
+    "ResultMeasureValue",
+    "ResultMeasure.MeasureUnitCode",
+    "ResultDetectionConditionText",
+    "DetectionQuantitationLimitTypeName",
+    "DetectionQuantitationLimitMeasure.MeasureValue",
+    "DetectionQuantitationLimitMeasure.MeasureUnitCode",
+    "ResultDepthHeightMeasure.MeasureValue",
+    "ResultDepthHeightMeasure.MeasureUnitCode",
+    "ActivityRelativeDepthName",
+    "ActivityDepthHeightMeasure.MeasureValue",
+    "ActivityDepthHeightMeasure.MeasureUnitCode",
+    "ActivityTopDepthHeightMeasure.MeasureValue",
+    "ActivityTopDepthHeightMeasure.MeasureUnitCode",
+    "ActivityBottomDepthHeightMeasure.MeasureValue",
+    "ActivityBottomDepthHeightMeasure.MeasureUnitCode",
+    "CountryCode",
+    "StateCode",
+    "CountyCode",
+    "LatitudeMeasure",
+    "LongitudeMeasure",
+    "QAPPApprovedIndicator",
+    "QAPPApprovalAgencyName",
+    "ProjectFileUrl",
+    "MeasureQualifierCode",
+    "SampleCollectionEquipmentName", # required for continuous flag
+    "StatisticalBaseCode", # required for continuous flag
+    "ResultTimeBasisText", # required for continuous flag
+    "ResultValueTypeName", # required for continuous flag
+    "ActivityIdentifier",
+    "ProjectIdentifier",
+    "MonitoringLocationIdentifier",
+    "ResultIdentifier",
+    "OrganizationIdentifier"
+  )
+
+  # create list of columns containing all NA values.
+  na.cols <- .data %>%
+    purrr::keep(~ all(is.na(.x))) %>%
+    names()
+
   # create list of columns to be removed by comparing columns containing all NA values to required columns.
   # any required columns with all NA values will be excluded from the list of columns to remove.
-  remove.cols <-setdiff(na.cols, req.cols)
-  
+  remove.cols <- setdiff(na.cols, req.cols)
+
   # remove not required columns containing all NA values from data frame.
   data <- .data %>%
     dplyr::select(-dplyr::contains(remove.cols))
-  
+
   # check to make sure required columns contain some data that is not NA
   req.check <- intersect(req.cols, na.cols)
-  
-  # create character string for list of required columns containing only NAs
-  req.paste <- stringi::stri_replace_last_fixed(paste(as.character(req.check), collapse=", ",sep=""), ", ", " and ")
 
-  #remove column name lists
+  # create character string for list of required columns containing only NAs
+  req.paste <- stringi::stri_replace_last_fixed(paste(as.character(req.check), collapse = ", ", sep = ""), ", ", " and ")
+
+  # remove column name lists
   rm(req.cols, na.cols)
-  
+
   # create character string for list of removed columns
-  remove.paste <- stringi::stri_replace_last_fixed(paste(as.character(remove.cols), collapse=", ",sep=""), ", ", " and ")
-  
+  remove.paste <- stringi::stri_replace_last_fixed(paste(as.character(remove.cols), collapse = ", ", sep = ""), ", ", " and ")
+
   # print list of columns removed from data frame
   if (length(remove.cols) > 0) {
     print(paste0("The following column(s) were removed as they contained only NAs: ", remove.paste, "."))
-  }else { 
-    print("All columns contained some non-NA values and were retained in the data frame.")}
-  
+  } else {
+    print("All columns contained some non-NA values and were retained in the data frame.")
+  }
+
   # remove columns that are not required for TADA workflow
   print("TADA_Autofilter: checking required columns for non-NA values.")
-  
+
   # if some required columns contain only NA values print a warning message.
   if (length(req.check) > 0) {
     print(paste0("TADA Required column(s) ", req.paste, " contain only NA values. This may impact other TADA functions."))
-    }else { 
-      print("All TADA Required columns contain some non-NA values.")}
-  
+  } else {
+    print("All TADA Required columns contain some non-NA values.")
+  }
+
   rm(req.paste, remove.cols, remove.paste, req.check)
-  
-end <- dim(.data)[1]
+
+  end <- dim(.data)[1]
 
   # print number of results removed
   if (!start == end) {
@@ -1405,148 +1404,149 @@ end <- dim(.data)[1]
 #'
 #' This function removes all duplicate columns where TADA has created a new column with a TADA prefix.
 #' It retains all TADA prefixed columns as well as other original fields that are either required by
-#' other TADA functions or are commonly used filters. Using this function allows the user to accept 
-#' all TADA created changes and reduce the size of the data set before using TADA mapping or data 
+#' other TADA functions or are commonly used filters. Using this function allows the user to accept
+#' all TADA created changes and reduce the size of the data set before using TADA mapping or data
 #' visualization features in the TADA package or Shiny app.
 #'
 #' @param .data A dataframe
 #'
 #' @return A dataframe containing all required fields for use with TADA as well as fields
 #' commonly used for filtering.
-#' 
+#'
 #' @export
-#' 
-#' @examples 
+#'
+#' @examples
 #' data(Data_Nutrients_UT)
 #' reducedcols_Data_Nutrients_UT <- TADA_RetainRequired(Data_Nutrients_UT)
 #'
-
 TADA_RetainRequired <- function(.data) {
-  
   # check .data is data.frame
   TADA_CheckType(.data, "data.frame", "Input object")
-  
+
   # execute function after TADA_CheckType passes
   print("TADA_RetainRequired: removing columns not required for TADA workflow including original columns that have been replaced with TADA prefix duplicates.")
-  
+
   # create list of filtering columns to be retained in data frame
-  filter.cols <- c("ProjectDescriptionText",
-                  "SamplingDesignTypeCode",
-                  "ActivityStartDate",
-                  "ActivityStartTime.Time",
-                  "ActivityStartTime.TimeZoneCode",
-                  "ResultDepthAltitudeReferencePointText",
-                  "ActivityDepthAltitudeReferencePointText",
-                  "ProjectName",
-                  "ActivityCommentText",
-                  "HydrologicCondition",
-                  "HydrologicEvent",
-                  "MonitoringLocationName",
-                  "SampleCollectionMethod.MethodIdentifier",
-                  "SampleCollectionMethod.MethodIdentifierContext",
-                  "SampleCollectionMethod.MethodName",
-                  "SampleCollectionMethod.MethodDescriptionText",
-                  "ActivityMediaSubdivisionName",
-                  "DataQuality.PrecisionValue",
-                  "DataQuality.BiasValue",
-                  "DataQuality.ConfidenceIntervalValue",
-                  "DataQuality.UpperConfidenceLimitValue",
-                  "DataQuality.LowerConfidenceLimitValue",
-                  "SubjectTaxonomicName",
-                  "SampleTissueAnatomyName",
-                  "ResultAnalyticalMethod.MethodIdentifier",
-                  "ResultAnalyticalMethod.MethodIdentifierContext",
-                  "ResultAnalyticalMethod.MethodName",
-                  "ResultAnalyticalMethod.MethodUrl",
-                  "ResultAnalyticalMethod.MethodDescriptionText",
-                  "ResultCommentText",
-                  "LaboratoryName",
-                  "ResultLaboratoryCommentText",
-                  "MonitoringLocationDescriptionText",
-                  "HUCEightDigitCode",
-                  "AquiferTypeName", 
-                  "ConstructionDateText", 
-                  "WellDepthMeasure.MeasureValue", 
-                  "WellDepthMeasure.MeasureUnitCode", 
-                  "WellHoleDepthMeasure.MeasureValue", 
-                  "WellHoleDepthMeasure.MeasureUnitCode", 
-                  "ProviderName",
-                  "LastUpdated")
-  
+  filter.cols <- c(
+    "ProjectDescriptionText",
+    "SamplingDesignTypeCode",
+    "ActivityStartDate",
+    "ActivityStartTime.Time",
+    "ActivityStartTime.TimeZoneCode",
+    "ResultDepthAltitudeReferencePointText",
+    "ActivityDepthAltitudeReferencePointText",
+    "ProjectName",
+    "ActivityCommentText",
+    "HydrologicCondition",
+    "HydrologicEvent",
+    "MonitoringLocationName",
+    "SampleCollectionMethod.MethodIdentifier",
+    "SampleCollectionMethod.MethodIdentifierContext",
+    "SampleCollectionMethod.MethodName",
+    "SampleCollectionMethod.MethodDescriptionText",
+    "ActivityMediaSubdivisionName",
+    "DataQuality.PrecisionValue",
+    "DataQuality.BiasValue",
+    "DataQuality.ConfidenceIntervalValue",
+    "DataQuality.UpperConfidenceLimitValue",
+    "DataQuality.LowerConfidenceLimitValue",
+    "SubjectTaxonomicName",
+    "SampleTissueAnatomyName",
+    "ResultAnalyticalMethod.MethodIdentifier",
+    "ResultAnalyticalMethod.MethodIdentifierContext",
+    "ResultAnalyticalMethod.MethodName",
+    "ResultAnalyticalMethod.MethodUrl",
+    "ResultAnalyticalMethod.MethodDescriptionText",
+    "ResultCommentText",
+    "LaboratoryName",
+    "ResultLaboratoryCommentText",
+    "MonitoringLocationDescriptionText",
+    "HUCEightDigitCode",
+    "AquiferTypeName",
+    "ConstructionDateText",
+    "WellDepthMeasure.MeasureValue",
+    "WellDepthMeasure.MeasureUnitCode",
+    "WellHoleDepthMeasure.MeasureValue",
+    "WellHoleDepthMeasure.MeasureUnitCode",
+    "ProviderName",
+    "LastUpdated"
+  )
+
   # create list of TADA workflow required columns to be retained in data frame
-  require.cols <- c( "TADA.CharacteristicName",
-                     "TADA.ResultSampleFractionText",
-                     "TADA.MethodSpeciationName",
-                     "TADA.ResultMeasure.MeasureUnitCode",
-                     "TADA.ActivityMediaName",
-                     "TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode",
-                     "TADA.ResultMeasureValueDataTypes.Flag",
-                     "TADA.LatitudeMeasure",
-                     "TADA.LongitudeMeasure",
-                     "OrganizationFormalName",
-                     "ActivityTypeCode",
-                     "ActivityMediaName",
-                     "MonitoringLocationTypeName",
-                     "ActivityStartDateTime",
-                     "CharacteristicName",
-                     "ResultSampleFractionText",
-                     "MethodSpeciationName",
-                     "ResultMeasureValue",
-                     "ResultMeasure.MeasureUnitCode",
-                     "ResultDetectionConditionText",
-                     "DetectionQuantitationLimitTypeName",
-                     "DetectionQuantitationLimitMeasure.MeasureValue",
-                     "DetectionQuantitationLimitMeasure.MeasureUnitCode",
-                     "ResultDepthHeightMeasure.MeasureValue",
-                     "ResultDepthHeightMeasure.MeasureUnitCode",
-                     "ActivityRelativeDepthName",
-                     "ActivityDepthHeightMeasure.MeasureValue",
-                     "ActivityDepthHeightMeasure.MeasureUnitCode",
-                     "ActivityTopDepthHeightMeasure.MeasureValue",
-                     "ActivityTopDepthHeightMeasure.MeasureUnitCode",
-                     "ActivityBottomDepthHeightMeasure.MeasureValue",
-                     "ActivityBottomDepthHeightMeasure.MeasureUnitCode",
-                     "CountryCode",
-                     "StateCode",
-                     "CountyCode",
-                     "LatitudeMeasure",
-                     "LongitudeMeasure",
-                     "QAPPApprovedIndicator",
-                     "QAPPApprovalAgencyName",
-                     "ProjectFileUrl",
-                     "MeasureQualifierCode",
-                     "SampleCollectionEquipmentName", # required for continuous flag
-                     "StatisticalBaseCode", # required for continuous flag
-                     "ResultTimeBasisText", # required for continuous flag
-                     "ResultValueTypeName", # required for continuous flag
-                     "ActivityIdentifier",
-                     "ProjectIdentifier",
-                     "MonitoringLocationIdentifier",
-                     "ResultIdentifier",
-                     "OrganizationIdentifier")
-  
+  require.cols <- c(
+    "TADA.CharacteristicName",
+    "TADA.ResultSampleFractionText",
+    "TADA.MethodSpeciationName",
+    "TADA.ResultMeasure.MeasureUnitCode",
+    "TADA.ActivityMediaName",
+    "TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode",
+    "TADA.ResultMeasureValueDataTypes.Flag",
+    "TADA.LatitudeMeasure",
+    "TADA.LongitudeMeasure",
+    "OrganizationFormalName",
+    "ActivityTypeCode",
+    "ActivityMediaName",
+    "MonitoringLocationTypeName",
+    "ActivityStartDateTime",
+    "CharacteristicName",
+    "ResultSampleFractionText",
+    "MethodSpeciationName",
+    "ResultMeasureValue",
+    "ResultMeasure.MeasureUnitCode",
+    "ResultDetectionConditionText",
+    "DetectionQuantitationLimitTypeName",
+    "DetectionQuantitationLimitMeasure.MeasureValue",
+    "DetectionQuantitationLimitMeasure.MeasureUnitCode",
+    "ResultDepthHeightMeasure.MeasureValue",
+    "ResultDepthHeightMeasure.MeasureUnitCode",
+    "ActivityRelativeDepthName",
+    "ActivityDepthHeightMeasure.MeasureValue",
+    "ActivityDepthHeightMeasure.MeasureUnitCode",
+    "ActivityTopDepthHeightMeasure.MeasureValue",
+    "ActivityTopDepthHeightMeasure.MeasureUnitCode",
+    "ActivityBottomDepthHeightMeasure.MeasureValue",
+    "ActivityBottomDepthHeightMeasure.MeasureUnitCode",
+    "CountryCode",
+    "StateCode",
+    "CountyCode",
+    "LatitudeMeasure",
+    "LongitudeMeasure",
+    "QAPPApprovedIndicator",
+    "QAPPApprovalAgencyName",
+    "ProjectFileUrl",
+    "MeasureQualifierCode",
+    "SampleCollectionEquipmentName", # required for continuous flag
+    "StatisticalBaseCode", # required for continuous flag
+    "ResultTimeBasisText", # required for continuous flag
+    "ResultValueTypeName", # required for continuous flag
+    "ActivityIdentifier",
+    "ProjectIdentifier",
+    "MonitoringLocationIdentifier",
+    "ResultIdentifier",
+    "OrganizationIdentifier"
+  )
+
   # combine lists of required and filter columns to create list of all columns to be retained
   keep.cols <- require.cols %>% append(filter.cols)
-  
+
   # create list of all columns in original data set
   original.cols <- .data %>% names()
-  
+
   # create a list of columns that were removed by comparing original column and keep column lists
   remove.cols <- setdiff(original.cols, keep.cols)
-  
+
   # create a character string listing all removed columns
-  remove.paste <- stringi::stri_replace_last_fixed(paste(as.character(remove.cols), collapse=", ",sep=""), ", ", " and ")
+  remove.paste <- stringi::stri_replace_last_fixed(paste(as.character(remove.cols), collapse = ", ", sep = ""), ", ", " and ")
 
   # retain only columns identified as required or for filtering in the data frame
   .data <- .data %>%
     dplyr::select(dplyr::contains(keep.cols))
-  
-  #print a message to list names for all removed columns
+
+  # print a message to list names for all removed columns
   print(paste("The following non-required columns were removed: ", remove.paste, ".", sep = ""))
-  
+
   return(.data)
-  
-  #remove intermediate objects
+
+  # remove intermediate objects
   rm(filter.cols, keep.cols, original.cols, remove.cols, require.cols, remove.paste)
 }
-
