@@ -1415,6 +1415,7 @@ TADA_DepthCategory.Flag <- function(.data, bycategory = FALSE, daily_agg = "no")
     # combine original and aggregate data
     comb.data <-  plyr::rbind.fill(orig.data, agg.data) %>%
       dplyr::ungroup() %>%
+      dplyr::select(-DepthsByGroup) %>%
       TADA_OrderCols()
     
     return(comb.data)
@@ -1428,7 +1429,7 @@ TADA_DepthCategory.Flag <- function(.data, bycategory = FALSE, daily_agg = "no")
     orig.data <- .data %>%
       dplyr::group_by_at(group.list) %>%
       dplyr::mutate(DepthsByGroup = length(unique(Depth))) %>%
-      dplyr::mutate(TADA.ResultValueAggregation.Flag = ifelse(DepthsByGroup > 1, "Used in average aggregation function but not selected ", "No aggregation needed"),
+      dplyr::mutate(TADA.ResultValueAggregation.Flag = ifelse(DepthsByGroup > 1, "Used in minimum aggregation function but not selected ", "No aggregation needed"),
                     TADA.ResultValueAggregation.Flag = ifelse(!TADA.DepthCategory.Flag %in% depthcat.list, "No aggregation needed", TADA.ResultValueAggregation.Flag)) %>%
       dplyr::select(-Depth, -Bottom)
     
@@ -1450,7 +1451,9 @@ TADA_DepthCategory.Flag <- function(.data, bycategory = FALSE, daily_agg = "no")
      comb.data <- orig.data %>%
       dplyr::filter(!ResultIdentifier %in% agg.list) %>%
       plyr::rbind.fill(agg.data) %>%
-      dplyr::ungroup()
+      dplyr::ungroup() %>%
+      dplyr::select(-DepthsByGroup) %>%
+      TADA_OrderCols()
     
     return(comb.data)
     
@@ -1464,7 +1467,7 @@ if ((daily_agg == "max")) {
    orig.data <- .data %>%
     dplyr::group_by_at(group.list) %>%
     dplyr::mutate(DepthsByGroup = length(unique(Depth))) %>%
-    dplyr::mutate(TADA.ResultValueAggregation.Flag = ifelse(DepthsByGroup > 1, "Used in average aggregation function but not selected ", "No aggregation needed")) %>%
+    dplyr::mutate(TADA.ResultValueAggregation.Flag = ifelse(DepthsByGroup > 1, "Used in maximum aggregation function but not selected ", "No aggregation needed")) %>%
     dplyr::select(-Depth, -Bottom)
   
    # add TADA.ResultValue.Aggregation.Flag, remove necessary columns, and select maximum result value per group.
@@ -1488,7 +1491,9 @@ if ((daily_agg == "max")) {
    comb.data <- orig.data %>%
     dplyr::filter(!ResultIdentifier %in% agg.list) %>%
     plyr::rbind.fill(agg.data) %>%
-    dplyr::ungroup()
+    dplyr::ungroup() %>%
+    dplyr::select(-DepthsByGroup) %>%
+    TADA_OrderCols()
   
   return(comb.data)
   
