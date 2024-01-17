@@ -1362,7 +1362,7 @@ TADA_DepthCategory.Flag <- function(.data, bycategory = FALSE, daily_agg = "no")
     print("TADA_DepthCategory.Flag: Grouping results by MonitoringLocationIdentifier, OrganizationIdentifier, CharacteristicName, ActivityStartDate, and TADA.DepthCategory.Flag for aggregation.")
     
     group.list <- c("MonitoringLocationIdentifier", "OrganizationIdentifier",
-                    "CharacteristicName", "ActivityStartDate",
+                    "TADA.CharacteristicName", "ActivityStartDate",
                     "TADA.DepthCategory.Flag")
   }
   if ((bycategory == FALSE)) {
@@ -1370,7 +1370,7 @@ TADA_DepthCategory.Flag <- function(.data, bycategory = FALSE, daily_agg = "no")
     print("TADA_DepthCategory.Flag: Grouping results by MonitoringLocationIdentifier, OrganizationIdentifier, CharacteristicName, and ActivityStartDate for aggregation.")
     
     group.list <- c("MonitoringLocationIdentifier", "OrganizationIdentifier",
-                      "CharacteristicName", "ActivityStartDate")
+                      "TADA.CharacteristicName", "ActivityStartDate")
 
   }
 
