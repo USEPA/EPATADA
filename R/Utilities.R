@@ -1532,3 +1532,72 @@ TADA_RetainRequired <- function(.data) {
   rm(filter.cols, keep.cols, original.cols, remove.cols, require.cols, remove.paste)
 }
 
+#' TADA_AssessmentDataFilter
+#'
+#' This function will filter the data set and retain only the media types
+#' selected by the user. It uses ConstructionDateText, 
+#' WellDepthMeasure.MeasureValue, WellDepthMeasure.MeasureUnitCode,
+#' WellHoleDepthMeasure.MeasureValue, and WellHoleDepthMeasure.MeasureUnitCode
+#' to identify groundwater samples and creates a column "TADA.Groundwater.Flag".
+#' Users can select whether sediment, fish tissue and/or surface water should 
+#' be included in the data set. An additional column TADA.AssessmentData.Flag
+#' specifies whether each row should be included in the assessment workflow.
+#' Setting clean = TRUE, means that all results not flagged for use in 
+#' assessment workflow will be removed and the TADA.Groundwater.Flag and 
+#' TADA.AssessmentData.Flag columns will not be added.
+#'
+#'
+#' @param .data A TADA profile object
+#' 
+#' @param clean Boolean argument; removes all results not flagged for use in
+#' assessment workflow. TADA.Groundwater.Flag and TADA.AssessmentData.Flag 
+#' columns will not be added Default is clean = TRUE.
+#' 
+#' @param surface_water Boolean argument; specifies whether surface water
+#' results should be included in the returned data frame. Default is 
+#' surface_water = TRUE, surface water samples are retained in the data frame.
+#' 
+#' @param ground_water Boolean argument; specifies whether ground water
+#' results should be included in the returned data frame. Default is 
+#' ground_water = FALSE, ground water samples are  not retained in the data 
+#' frame.
+#' 
+#' @param sediment Boolean argument; specifies whether sediment results should 
+#' be included in the returned data frame. Default is sediment = FALSE, 
+#' sediment samples are not retained in the data frame.
+#' 
+#' @param fish_tissue Boolean argument; specifies whether fish tissue 
+#' results should be included in the returned data frame. Default is 
+#' fish_tissue = FALSE, fish tissue samples are not retained in the data frame.
+#'
+#' @return If clean = TRUE, returns the data frame with only the media types
+#' selected by the user. If clean = FALSE, returns the data frame with two
+#' additional columns, "TADA.Groundwater.Flag" and "TADA.AssessmentData.Flag",
+#' indicating which results should be excluded from assessments based on user
+#' input.
+#' 
+#' @export
+#' 
+#' @examples
+#' data(Data_Nutrients_UT)
+#' HandleSpecialChars_ResultMeasureValue = TADA_ConvertSpecialChars(Data_Nutrients_UT, "ResultMeasureValue")
+#' unique(HandleSpecialChars_ResultMeasureValue$TADA.ResultMeasureValueDataTypes.Flag)
+#' HandleSpecialChars_DetLimMeasureValue = TADA_ConvertSpecialChars(Data_Nutrients_UT, "TADA.DetectionQuantitationLimitMeasure.MeasureValue")
+#' unique(HandleSpecialChars_DetLimMeasureValue$TADA.DetectionQuantitationLimitMeasure.MeasureValueDataTypes.Flag)
+#'
+# 
+# TADA_AssessmentDataFilter <- function(.data, clean = TRUE, 
+#                                       surface_water = TRUE,
+#                                       ground_water = FALSE,
+#                                       sediment = FALSE
+#                                       fish_tissue = FALSE) {
+#   
+#   .data %>%
+#     dplyr::mutate(TADA.Groundwater.Flag = dplyr::case_when(ActivityMediaSubdivisionName == "Groundwater" ~ "Groundwater",
+#                                              !is.na(ConstructionDateText) | 
+#                                                !is.na(WellDepthMeasure.MeasureValue) |
+#                                                !is.na(WellDepthMeasure.MeasureUnitCode) |
+#                                                !is.na(WellHoleDepthMeasure.MeasureValue) |
+#                                                !is.na(WellHoleDepthMeasure.MeasureUnitCode) ~ "Groundwater",
+#                                               ActivityMediaSubdivisionName == "Surface Water" ~ "Surface Water"))
+#      
