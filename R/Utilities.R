@@ -1586,18 +1586,48 @@ TADA_RetainRequired <- function(.data) {
 #' unique(HandleSpecialChars_DetLimMeasureValue$TADA.DetectionQuantitationLimitMeasure.MeasureValueDataTypes.Flag)
 #'
 # 
-# TADA_AssessmentDataFilter <- function(.data, clean = TRUE, 
-#                                       surface_water = TRUE,
-#                                       ground_water = FALSE,
-#                                       sediment = FALSE
-#                                       fish_tissue = FALSE) {
-#   
-#   .data %>%
-#     dplyr::mutate(TADA.Groundwater.Flag = dplyr::case_when(ActivityMediaSubdivisionName == "Groundwater" ~ "Groundwater",
-#                                              !is.na(ConstructionDateText) | 
-#                                                !is.na(WellDepthMeasure.MeasureValue) |
-#                                                !is.na(WellDepthMeasure.MeasureUnitCode) |
-#                                                !is.na(WellHoleDepthMeasure.MeasureValue) |
-#                                                !is.na(WellHoleDepthMeasure.MeasureUnitCode) ~ "Groundwater",
-#                                               ActivityMediaSubdivisionName == "Surface Water" ~ "Surface Water"))
-#      
+TADA_AssessmentDataFilter <- function(.data, clean = TRUE,
+                                      surface_water = TRUE,
+                                      ground_water = FALSE,
+                                      sediment = FALSE
+                                      fish_tissue = FALSE) {
+
+  sw.sitetypes <- c(
+                    
+                    
+                    
+                    
+)
+
+  test <- data %>%
+    dplyr::mutate(TADA.Groundwater.Flag = dplyr::case_when(ActivityMediaSubdivisionName == "Groundwater" ~ "Groundwater",
+                                             !is.na(ConstructionDateText) |
+                                               !is.na(WellDepthMeasure.MeasureValue) |
+                                               !is.na(WellDepthMeasure.MeasureUnitCode) |
+                                               !is.na(WellHoleDepthMeasure.MeasureValue) |
+                                               !is.na(WellHoleDepthMeasure.MeasureUnitCode) ~ "Groundwater",
+                                              ActivityMediaSubdivisionName == "Surface Water" ~ "Surface Water"))
+
+ #add fish tissue, fix expressions, figure out the rest of the filter logic
+   { if (surface_water = TRUE)
+    }
+  
+  { if (surface_water = FALSE)
+  }
+  
+  
+  if (ground_water = TRUE) {
+    
+  }
+  
+  if (ground_water = FALSE) {
+    
+  }
+  if (sediment = TRUE) {
+    
+  }
+  
+  if (sediment = FALSE) {
+    
+  }
+}

@@ -23,3 +23,4 @@ docs
 
 testing_log.txt
 .RDataTmp
+inst/extdata/WQXActivityRelativeDepthRef.csv
