@@ -346,18 +346,34 @@ TADA_DataRetrieval <- function(startDate = "null",
 #' projects1 <- TADA_ReadWQPWebServices("https://www.waterqualitydata.us/data/Project/search?statecode=US%3A09&sampleMedia=water&sampleMedia=Water&startDateLo=01-01-2021&mimeType=csv&zip=yes&providers=NWIS&providers=STEWARDS&providers=STORET")
 #' }
 #'
+
 TADA_ReadWQPWebServices <- function(webservice) {
   # consider function dataRetrieval::getWebServiceData
   # read in csv from WQP web service
   if (grepl("zip=yes", webservice)) {
     webservice <- stringr::str_replace(webservice, "zip=yes", "zip=no")
-    return(data.table::fread(toString(webservice)))
-    # update when we switch to WQX 3.0
-    # return(TADA_AutoClean(data.table::fread(toString(webservice))))
+    
+    # download data
+    webservice = data.table::fread(toString(webservice))
+    
+    # if input df was not downloaded using USGS's dataRetrieval, then the 
+    # column names will include / separators instead of . and TADA uses .
+    # (e.g. ResultMeasure/MeasureUnitCode vs. ResultMeasure.MeasureUnitCode)
+    colnames(webservice) = gsub("/", ".", colnames(webservice))
+    
+    return(webservice)
+
   } else {
-    return(data.table::fread(webservice))
-    # update when we switch to WQX 3.0
-    # return(TADA_AutoClean(data.table::fread(webservice)))
+    # download data
+    webservice = data.table::fread(toString(webservice))
+    
+    # if input df was not downloaded using USGS's dataRetrieval, then the 
+    # column names will include / separators instead of . and TADA uses .
+    # (e.g. ResultMeasure/MeasureUnitCode vs. ResultMeasure.MeasureUnitCode)
+    colnames(webservice) = gsub("/", ".", colnames(webservice))
+    
+    return(webservice)
+
   }
 }
 
@@ -672,7 +688,7 @@ TADA_BigDataRetrieval <- function(startDate = "null",
 #' projectProfile <- TADA_ReadWQPWebServices("https://www.waterqualitydata.us/data/Project/search?statecode=US%3A09&characteristicType=Nutrient&startDateLo=04-01-2023&startDateHi=11-01-2023&mimeType=csv&zip=yes&providers=NWIS&providers=STEWARDS&providers=STORET")
 #' 
 #' # Join all three profiles using TADA_JoinWQPProfiles
-#' Data_PhysChemProfile <- TADA_JoinWQPProfiles(FullPhysChem = "physchemProfile", Sites = "stationProfile", Projects = "projectProfile")
+#' TADAProfile <- TADA_JoinWQPProfiles(FullPhysChem = physchemProfile, Sites = stationProfile, Projects = projectProfile)
 #' }
 #' 
 TADA_JoinWQPProfiles <- function(FullPhysChem = "null",
