@@ -404,11 +404,10 @@ TADA_OverviewMap <- function(.data) {
                   paste0(">",pt_sizes[4]))
     
     sumdat$radius <- 5
-    sumdat$radius <-ifelse(sumdat$Sample_Count <= pt_sizes[1], 5, sumdat$radius)
     sumdat$radius <-ifelse(sumdat$Sample_Count > pt_sizes[1], 10, sumdat$radius)
     sumdat$radius <-ifelse(sumdat$Sample_Count > pt_sizes[2], 15, sumdat$radius)
-    sumdat$radius = ifelse(sumdat$Sample_Count > pt_sizes[3], 20, sumdat$radius)
-    sumdat$radius = ifelse(sumdat$Sample_Count > pt_sizes[4], 30, sumdat$radius)
+    sumdat$radius <- ifelse(sumdat$Sample_Count > pt_sizes[3], 20, sumdat$radius)
+    sumdat$radius <- ifelse(sumdat$Sample_Count > pt_sizes[4], 30, sumdat$radius)
     
     site_size <- data.frame(Sample_n = pt_labels, Point_size = c(5, 10, 15, 20, 30))
   
