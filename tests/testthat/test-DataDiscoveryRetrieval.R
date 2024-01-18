@@ -203,7 +203,7 @@ test_that("TADA_JoinWQPProfiles_columns", {
     Projects = projectProfile
   )
 
-  # note that / ar replaced with . in dataRetrieval:
+  # note that / ar replaced with . in dataRetrieval, so we also do the same in TADA_JoinWQPProfiles:
   expect_true(all(c(
     "OrganizationIdentifier",
     "OrganizationFormalName",
@@ -212,9 +212,9 @@ test_that("TADA_JoinWQPProfiles_columns", {
     "ActivityMediaName",
     "ActivityMediaSubdivisionName",
     "ActivityStartDate",
-    "ActivityStartTime/Time",
-    "VerticalAccuracyMeasure/MeasureValue",
-    "VerticalAccuracyMeasure/MeasureUnitCode",
+    "ActivityStartTime.Time",
+    "VerticalAccuracyMeasure.MeasureValue",
+    "VerticalAccuracyMeasure.MeasureUnitCode",
     "VerticalCollectionMethodName",
     "VerticalCoordinateReferenceSystemDatumName",
     "CountryCode",
@@ -225,10 +225,10 @@ test_that("TADA_JoinWQPProfiles_columns", {
     "FormationTypeText",
     "AquiferTypeName",
     "ConstructionDateText",
-    "WellDepthMeasure/MeasureValue",
-    "WellDepthMeasure/MeasureUnitCode",
-    "WellHoleDepthMeasure/MeasureValue",
-    "WellHoleDepthMeasure/MeasureUnitCode",
+    "WellDepthMeasure.MeasureValue",
+    "WellDepthMeasure.MeasureUnitCode",
+    "WellHoleDepthMeasure.MeasureValue",
+    "WellHoleDepthMeasure.MeasureUnitCode",
     "MethodSpeciationName"
   ) %in% names(join)))
 })
