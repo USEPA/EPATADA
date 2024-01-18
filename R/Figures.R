@@ -391,19 +391,27 @@ TADA_OverviewMap <- function(.data) {
       return(leaflet::addLegend(map, colors = colorAdditions, labels = labelAdditions, opacity = opacity, title = "Measurements"))
     }
 
-    site_size <- data.frame(Sample_n = c("<9", ">10", ">50", ">100", ">200", ">500", ">1500"), Point_size = c(3, 5, 8, 10, 15, 20, 30))
 
     sumdat <- .data %>%
       dplyr::group_by(MonitoringLocationIdentifier, MonitoringLocationName, TADA.LatitudeMeasure, TADA.LongitudeMeasure) %>%
       dplyr::summarise("Sample_Count" = length(unique(ResultIdentifier)), "Visit_Count" = length(unique(ActivityStartDate)), "Parameter_Count" = length(unique(TADA.CharacteristicName)), "Organization_Count" = length(unique(OrganizationIdentifier)))
-    sumdat$radius <- 3
-    sumdat$radius <- ifelse(sumdat$Sample_Count > 10, 5, sumdat$radius)
-    sumdat$radius <- ifelse(sumdat$Sample_Count > 50, 8, sumdat$radius)
-    sumdat$radius <- ifelse(sumdat$Sample_Count > 100, 10, sumdat$radius)
-    sumdat$radius <- ifelse(sumdat$Sample_Count > 200, 15, sumdat$radius)
-    sumdat$radius <- ifelse(sumdat$Sample_Count > 500, 20, sumdat$radius)
-    sumdat$radius <- ifelse(sumdat$Sample_Count > 1500, 30, sumdat$radius)
-
+    
+    pt_sizes <- round(quantile(sumdat$Sample_Count, probs = c(0.1,0.25, 0.5, 0.75)), 0)
+    pt_labels <- c(paste0("<",pt_sizes[1]),
+                  paste0(">",pt_sizes[1]),
+                  paste0(">",pt_sizes[2]),
+                  paste0(">",pt_sizes[3]),
+                  paste0(">",pt_sizes[4]))
+    
+    sumdat$radius <- 5
+    sumdat$radius <-ifelse(sumdat$Sample_Count <= pt_sizes[1], 5, sumdat$radius)
+    sumdat$radius <-ifelse(sumdat$Sample_Count > pt_sizes[1], 10, sumdat$radius)
+    sumdat$radius <-ifelse(sumdat$Sample_Count > pt_sizes[2], 15, sumdat$radius)
+    sumdat$radius = ifelse(sumdat$Sample_Count > pt_sizes[3], 20, sumdat$radius)
+    sumdat$radius = ifelse(sumdat$Sample_Count > pt_sizes[4], 30, sumdat$radius)
+    
+    site_size <- data.frame(Sample_n = pt_labels, Point_size = c(5, 10, 15, 20, 30))
+  
     site_legend <- subset(site_size, site_size$Point_size %in% unique(sumdat$radius))
 
     pal <- leaflet::colorBin(
