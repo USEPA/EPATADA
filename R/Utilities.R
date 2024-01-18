@@ -565,7 +565,6 @@ TADA_OrderCols <- function(.data) {
     "TADA.AggregatedContinuousData.Flag",
     "TADA.ResultValueAboveUpperThreshold.Flag",
     "TADA.ResultUnit.Flag",
-    "CombinationValidity",
     "TADA.MethodSpeciationName",
     "TADA.MethodSpeciation.Flag",
     "TADA.AnalyticalMethod.Flag",
