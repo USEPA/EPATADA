@@ -4,7 +4,12 @@
 \alias{TADA_DepthCategory.Flag}
 \title{TADA.DepthCategory.Flag}
 \usage{
-TADA_DepthCategory.Flag(.data, bycategory = FALSE, daily_agg = "no")
+TADA_DepthCategory.Flag(
+  .data,
+  bycategory = FALSE,
+  daily_agg = "no",
+  clean = FALSE
+)
 }
 \arguments{
 \item{.data}{TADA dataframe}
@@ -23,14 +28,18 @@ MonitoringLocation, ActivityDate, Organization ID, and TADA.CharacteristicName c
 When daily_agg == "min" or when daily_agg == "max", the min or max
 value in each group of results (as determined by the by category param) will
 be determined for each MonitoringLocation, ActivityDate, and TADA.CharacteristicName
-combination. An additional column, TADA.ResultValueAggregation.Flag will be added
+combination. An additional column, TADA.ResultValueAggregation.DepthProfile.Flag will be added
 to describe aggregation.}
+
+\item{clean}{Boolean argument with options "TRUE" or "FALSE". The default is
+by category = "FALSE" which means that all results are returned. When clean
+= "TRUE", only aggregate values are returned.}
 }
 \value{
 The same input TADA dataframe with additional columns TADA.DepthCategory.Flag
-and TADA.ResultValueAggregation.Flag. If a daily_agg = "ave", "min", or "max",
-aggregated values will be identified in the TADA.ResultAggregation.Flag column.
-In the case of daily_agg = "ave", additional rows to display averages will be
+and TADA.ResultValueAggregation.DepthProfile.Flag. If a daily_agg = "ave",
+"min", or "max", aggregated values will be identified in the TADA.ResultAggregation.Flag
+column. In the case of daily_agg = "ave", additional rows to display averages will be
 added to the data frame. They can be identified by the prefix ("TADA-") of
 their result identifiers.
 }
