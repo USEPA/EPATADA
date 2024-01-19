@@ -315,7 +315,7 @@ TADA_GetTemplate <- function() {
 #' @return Boolean result indicating whether or not the input dataframe contains all of the TADA profile fields.
 #' 
 #' @examples 
-#' {\dontrun
+#' \dontrun{
 #' # Find web service URLs for each Profile using WQP User Interface (https://www.waterqualitydata.us/)
 #' # Example WQP URL: https://www.waterqualitydata.us/#statecode=US%3A09&characteristicType=Nutrient&startDateLo=04-01-2023&startDateHi=11-01-2023&mimeType=csv&providers=NWIS&providers=STEWARDS&providers=STORET
 #'

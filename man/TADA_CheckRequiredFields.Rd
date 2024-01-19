@@ -17,7 +17,7 @@ This function checks if all required fields for TADA Module 1 are
 included in the input dataframe.
 }
 \examples{
-{\dontrun
+\dontrun{
 # Find web service URLs for each Profile using WQP User Interface (https://www.waterqualitydata.us/)
 # Example WQP URL: https://www.waterqualitydata.us/#statecode=US\%3A09&characteristicType=Nutrient&startDateLo=04-01-2023&startDateHi=11-01-2023&mimeType=csv&providers=NWIS&providers=STEWARDS&providers=STORET
 
