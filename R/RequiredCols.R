@@ -412,7 +412,7 @@ TADA_AutoFilter <- function(.data) {
   remove.cols <- setdiff(na.cols, require.cols)
   
   # remove not required columns containing all NA values from data frame.
-  data <- .data %>%
+  .data <- .data %>%
     dplyr::select(-dplyr::contains(remove.cols))
   
   # check to make sure required columns contain some data that is not NA
