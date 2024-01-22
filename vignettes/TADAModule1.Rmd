@@ -75,7 +75,7 @@ remotes::install_github("USEPA/TADA",
 # when developing the package, update this chunk to the current repository branch, so it runs with all of the new features prior to a PR to develop
 
 remotes::install_github("USEPA/TADA",
-  ref = "336-original-vs-tada-columns-copies",
+  ref = "replicates_kh",
   dependencies = TRUE
 )
 ```
@@ -134,7 +134,7 @@ automatically runs the **TADA_AutoClean** function, which runs the following fun
 
 -   **TADA_ConvertSpecialChars** - converts result value columns to numeric and flags non-numeric values that could not be converted.
 
--   **TADA_ConvertResultUnits** - unifies result units for easier quality control and review
+-   **TADA_ConvertResultUnits** - unifies result and detection limit units for easier quality control and review.
 
 -   **TADA_ConvertDepthUnits** - converts depth units to a consistent unit (meters).
 
@@ -662,43 +662,43 @@ This function returns counts for you entire data frame for each of the
 following fields (if populated, columns that are populated only with
 NA's are not included in the output):
 
--   "ActivityTypeCode"
+-   *ActivityTypeCode*
 
--   "TADA.ActivityMediaName"
+-   *TADA.ActivityMediaName*
 
--   "ActivityMediaSubdivisionName"
+-   *ActivityMediaSubdivisionName*
 
--   "ActivityCommentText"
+-   *ActivityCommentText*
 
--   "MonitoringLocationTypeName"
+-   *MonitoringLocationTypeName*
 
--   "StateCode"
+-   *StateCode*
 
--   "OrganizationFormalName"
+-   *OrganizationFormalName*
 
--   "TADA.CharacteristicName"
+-   *TADA.CharacteristicName*
 
--   "HydrologicCondition"
+-   *HydrologicCondition*
 
--   "HydrologicEvent"
+-   *HydrologicEvent*
 
--   "BiologicalIntentName"
+-   *BiologicalIntentName*
 
--   "MeasureQualifierCode"
+-   *MeasureQualifierCode*
 
--   "ActivityGroup"
+-   *ActivityGroup*
 
--   "AssemblageSampledName"
+-   *AssemblageSampledName*
 
--   "ProjectName"
+-   *ProjectName*
 
--   "CharacteristicNameUserSupplied"
+-   *CharacteristicNameUserSupplied*
 
--   "DetectionQuantitationLimitTypeName"
+-   *DetectionQuantitationLimitTypeName*
 
--   "SampleTissueAnatomyName"
+-   *SampleTissueAnatomyName*
 
--   "LaboratoryName"
+-   *LaboratoryName*
 
 ```{r TADA_FieldCounts_all}
 # multiple options
@@ -713,27 +713,84 @@ fieldCounts_Table <- TADA_FieldCounts(TADAProfileClean3)
 Next, choose a field from the list generated above to view a summary
 table or pie chart of the counts of unique values in that field using
 **TADA_FieldValuesTable** or **TADA_FieldValuesPie**. We'll start with
-ActivityTypeCode.
+*ActivityTypeCode*.
 
 ```{r fieldValues_all, fig.width=8, fig.height=6, fig.fullwidth=TRUE}
 TADA_FieldValuesTable(TADAProfileClean3, field = "ActivityTypeCode")
 TADA_FieldValuesPie(TADAProfileClean3, field = "ActivityTypeCode")
 ```
 
-The ActivityTypeCode field has multiple unique values. In this example
-we remove Quality Control (QC) values using the
-TADA_FindQCActivities function.
+The *ActivityTypeCode* field has multiple unique values. Before we remove the 
+QC samples/measurements from this dataset to prepare for analyses, lets review 
+flagged Quality Control (QC) values using the
+**TADA_FindQCActivities** function, which adds a new TADA *TADA.ActivityType.Flag*
+column.
+
+For example, the new *QC_replicate* flag in **TADA.ActivityType.Flag** column 
+indicates that the flagged rows include any of the following replicate values:
+-   *Quality Control Field Replicate Habitat Assessment*
+-   *Quality Control Field Replicate Msr/Obs*
+-   *Quality Control Field Replicate Portable Data Logger*
+-   *Quality Control Field Replicate Sample-Composite*
+-   *Quality Control Sample-Field Replicate*
+
+See WQX domain file to review all the **ActivityTypeCode** allowable values:
+https://cdx.epa.gov/wqx/download/DomainValues/ActivityType.CSV
+
+```{r Run TADA_FindQCActivities to review replicates}
+# Review flagged QC samples using the TADA_FindQCActivities function:
+# enter ?TADA_FindQCActivities into the console for more information
+TADAProfileClean3a <- TADA_FindQCActivities(TADAProfileClean3,
+  clean = FALSE,
+  flaggedonly = TRUE
+)
+
+# Filter to review only data where the TADA.ActivityType.Flag = "QC_replicate"
+TADAProfileClean3a <- dplyr::filter(TADAProfileClean3a, TADA.ActivityType.Flag == "QC_replicate")
+```
+
+Now, let's run **TADA_PairReplicates** to see if any replicates in this 
+dataframe can be paired with their original (parent) samples/measurements.
+
+We found over 100 replicates in this dataframe that have a paired parent sample/measurement (based on a 10-minute time window, which can be adjusted if desired). Enter ?TADA_PairReplicates into the console for more details.
+
+What are replicate samples and how are they used in water analyses?
+
+Replicate field samples are samples taken to assess the reproducibility of the sampling technique or analytical method. They are independently carried through all the steps of the sampling and measurement process in an identical manner to their associated routine field sample and used to measure the precision of the total sampling method. 
+
+Theoretically, the analysis of a replicate field sample should yield a very similar result as its associated routine field sample. If the results are not the same or acceptably similar, it could signal possible contamination or other issues in the sampling chain. However, water quality can vary at very small scales. So, the field replicate can mix up analytical precision with small scale variability. Field replicates tell you the potential for your method to yield the same results at a single time and place, to the extent that you are actually in exactly the same place, and the few seconds (or any defined time window) from one sample to the next does not matter, and the water isn’t moving. Be careful about labeling data as imprecise or bad based on this alone.  
+
+Users of TADA have noted that it would be useful to incorporate replicate field samples into water quality data analysis by (a) flagging routine field sample measurements whose associated replicate field sample measurements are outside of a user-defined window of precision (relative percent difference or absolute difference) and/or (b) averaging or randomly replacing routine field sample measurements with their associated replicate field sample measurements. 
+
+For now, users can perform these subsequent analyses outside of TADA. A two-stage data-quality-indicator, where low values should be within the absolute difference limit and high values within the Relative Percent Difference (RPD) limit, may be appropriate. RPD is the calculated difference (RPD) between the routine sample result and its associated replicate sample result. For example, if the RPD/CV exceeds 20% some water quality, analysts consider that to be a potentially concerning lack of precision, especially for non-particulate analytes. However, depending on the characteristic being analyzed and the sampling method, acceptable RPDs can vary widely. Therefore, it is best for the user to define their own level of RPD acceptability. In addition, a tiered approach may be more appropriate, where the widely used 20% RPD for measurements can be used for results above XX-times the detection limit, but also an absolute difference approach can be used for those result-values near the detection limit, or lower than the detection limit (e.g., phosphorus). An absolute difference approach is more appropriate when implementing RPD for samples close to the detection limit, as even small absolute differences might show up as large relative percent differences that "fail" the 20% RPD test. 
+
+For example, when nutrient concentrations are close to detection limit, it becomes impossible to have a low RPD. In this scenario, high RPD's are acceptable because if you stand back and look at ALL the data, and not just the replicates, these data may be agreeing perfectly well that nutrients are very low. DO NOT throw out data if RPD is >20%, unless you have good reason, or you will potentially bias your data toward high concentrations. QA procedures should not bias statistical analyses of the data. Note that a modest error in a measurement will have a much smaller effect than implementing a QA process that builds in bias.
+
+```{r Run TADA_PairReplicates}
+# Run TADA_PairReplicates to add new TADA.ReplicateSampleID column
+TADAProfileClean3b <- TADA_PairReplicates(TADAProfileClean3)
+
+# Review unique values in TADA.ReplicateSampleID
+unique(TADAProfileClean3b$TADA.ReplicateSampleID)
+
+# Filter df to include only unique values that are paired replicate samples (parent-result and child-replicate).
+
+# Exclude NA's
+TADAProfileClean3b <- TADAProfileClean3b[!is.na(TADAProfileClean3b$TADA.ReplicateSampleID), ]
+# Exclude orphans
+TADAProfileClean3b <- dplyr::filter(TADAProfileClean3b, TADA.ReplicateSampleID != "Orphan")
+
+# Review unique values in TADA.ReplicateSampleID
+unique(TADAProfileClean3b$TADA.ReplicateSampleID)
+```
+
+Now, let's remove QC samples/measurements from the dataframe.
 
 ```{r TADA_FindQCActivities, fig.width=6, fig.height=6, fig.fullwidth=TRUE}
-# Remove all QC samples using the TADA_FindQCActivities function:
-# enter ?TADA_FindQCActivities into the console for more information
-TADAProfileClean4 <- TADA_FindQCActivities(TADAProfileClean3, clean = TRUE)
-
-# See WQX domain file to review all the ActivityTypeCode allowable values:
-# https://cdx.epa.gov/wqx/download/DomainValues/ActivityType.CSV
-
-# Access all WQX Domain Files
-# https://www.epa.gov/waterdata/storage-and-retrieval-and-water-quality-exchange-domain-services-and-downloads
+# Remove flagged QC samples using the TADA_FindQCActivities function:
+TADAProfileClean4 <- TADA_FindQCActivities(TADAProfileClean3,
+  clean = TRUE
+)
 
 # regenerate table and pie chart
 TADA_FieldValuesTable(TADAProfileClean4, "ActivityTypeCode")
@@ -753,11 +810,9 @@ TADA_FieldValuesPie(TADAProfileClean4, "MeasureQualifierCode")
 ```
 
 MeasureQualifierCode definitions are available
-[here](https://cdx.epa.gov/wqx/download/DomainValues/ResultMeasureQualifier.CSV){style="font-size: 12pt;"}. TADA_FlagMeasureQualifierCode will automatically add applicable definitions to the input dataframe in a new column
-called "TADA.MeasureQualifierCode.Def". 
+[here](https://cdx.epa.gov/wqx/download/DomainValues/ResultMeasureQualifier.CSV){style="font-size: 12pt;"}.
 
-
-In this example, we show how to use the function TADA_FlagMeasureQualifierCode to add definitiond and flag and/or remove rows with specific codes under MeasureQualifierCode that are categorized as "SUSPECT". 
+In this example, we show how to use the function **TADA_FlagMeasureQualifierCode** to add MeasureQualifierCode definitions and flag and/or remove rows with specific codes under MeasureQualifierCode that are categorized as "SUSPECT". 
 
 See ?TADA_FlagMeasureQualifierCode for more information. 
 
@@ -819,6 +874,8 @@ domain tables. - Detection condition is missing and required for
 censored data ID. - Result needs more information before being
 categorized.
 
+The **TADA_SimpleCensoredMethods** function also adds a *TADA.MeasureQualifierCode.Def* column which contains the *MeasureQualiferCode* concatenated with the WQX definition for each qualifier code. This provides additional information to the user which may assist in deciding which records to retain for analysis.
+
 The next step we take in this example is to perform simple conversions
 to the censored data in the dataset: we keep over-detects as is (no
 conversion made) and convert non-detect values to 0.5 times the
@@ -835,8 +892,8 @@ TADAProfileClean4 <- TADA_SimpleCensoredMethods(TADAProfileClean4,
 )
 ```
 
-Next, review unique values within the TADA.CensoredData.Flag,
-DetectionQuantitationLimitTypeName, and ResultDetectionConditionText
+Next, review unique values within the *TADA.CensoredData.Flag*,
+*DetectionQuantitationLimitTypeName*, and *ResultDetectionConditionText*
 columns.
 
 ```{r uniquevalues}
@@ -846,7 +903,7 @@ unique(TADAProfileClean4$DetectionQuantitationLimitTypeName)
 unique(TADAProfileClean4$ResultDetectionConditionText)
 ```
 
-Also, review the TADA.ResultMeasureValueDataTypes.Flag to see if any
+Also, review the *TADA.ResultMeasureValueDataTypes.Flag* to see if any
 NA's or ND's (non-detects) remain.
 
 ```{r ResultMeasureValueDataTypes.Flag_uniquevalues}
@@ -860,10 +917,10 @@ sum(is.na(TADAProfileClean4$TADA.ResultMeasureValue))
 ```
 
 Filter down to only numeric data. Remove data where the
-TADA.ResultMeasureValueDataTypes.Flag = "Text" or "NA - Not Available".
+TADA.ResultMeasureValueDataTypes.Flag = "Text" or "NA - Not Available". You can also remove any columns not required for the TADA workflow that contain only NAs. The **TADA_AutoFilter()** function removes non-numeric data and optional columns containing only NAs.
 
 ```{r filter_out_NAs}
-# Removes rows where the result value is not numeric. Specifically, removes rows with "Text" or "NA - Not Available" in the TADA.ResultMeasureValueDataTypes.Flag column, or NA in the TADA.ResultMeasureValue column.
+# Removes rows where the result value is not numeric. Specifically, removes rows with "Text" or "NA - Not Available" in the TADA.ResultMeasureValueDataTypes.Flag column, or NA in the TADA.ResultMeasureValue column. Removes optional columns containing only NAs.
 TADAProfileClean5 <- TADA_AutoFilter(TADAProfileClean4)
 ```
 
@@ -882,13 +939,13 @@ table that is specific to the input dataframe. Users can review how
 their input data relates to standard TADA values for the following
 elements:
 
--   TADA.CharacteristicName
+-   *TADA.CharacteristicName*
 
--   TADA.ResultSampleFractionText
+-   *TADA.ResultSampleFractionText*
 
--   TADA.MethodSpeciationName
+-   *TADA.MethodSpeciationName*
 
--   TADA.ResultMeasure.MeasureUnitCode
+-   *TADA.ResultMeasure.MeasureUnitCode*
 
 Users can also edit the reference file to meet their needs if desired.
 The download argument can be used to save the harmonization file to your
@@ -904,18 +961,18 @@ make similar data consistent and therefore easier to compare and analyze.
 
 Here are some examples of how the TADA_HarmonizeSynonyms function can be used:
 
-1.  TADA.ResultSampleFractionText specifies forms of constituents. In
-    some cases, a single \*TADA.CharacteristicName\*\* will have both
+1.  *TADA.ResultSampleFractionText* specifies forms of constituents. In
+    some cases, a single *TADA.CharacteristicName* will have both
     "Total" and "Dissolved" forms specified, which should not be
-    combined. In these cases, each TADA.CharacteristicName and
-    TADA.ResultSampleFractionText combination is given a different
+    combined. In these cases, each *TADA.CharacteristicName* and
+    *TADA.ResultSampleFractionText* combination is given a different
     identifier. This identifier can be used later on to identify
     comparable data groups for calculating statistics and creating
     figures for each combination.
 
 2.  Some variables have different names but represent the same
     constituent (e.g., "Total Kjeldahl nitrogen (Organic N & NH3)" and
-    "Kjeldahl nitrogen"). The TADA_HarmonizeSynonyms function gives a consistent
+    "Kjeldahl nitrogen"). The **TADA_HarmonizeSynonyms** function gives a consistent
     name (and identifier) to synonyms.
 
 ```{r TADA_HarmonizeSynonyms}
@@ -956,67 +1013,67 @@ Next, we can revisit the **TADA_FieldCounts** function at the characteristic
 level to review how many unique allowable values are included within
 each of the following fields:
 
--   "ActivityCommentText"
+-   *ActivityCommentText*
 
--   "ActivityTypeCode"
+-   *ActivityTypeCode*
 
--   "TADA.ActivityMediaName"
+-   *TADA.ActivityMediaName*
 
--   "ActivityMediaSubdivisionName"
+-   *ActivityMediaSubdivisionName*
 
--   "MeasureQualifierCode"
+-   *MeasureQualifierCode*
 
--   "MonitoringLocationTypeName"
+-   *MonitoringLocationTypeName*
 
--   "HydrologicCondition"
+-   *HydrologicCondition*
 
--   "HydrologicEvent"
+-   *HydrologicEvent*
 
--   "ResultStatusIdentifier"
+-   *ResultStatusIdentifier*
 
--   "MethodQualifierTypeName"
+-   *MethodQualifierTypeName*
 
--   "ResultCommentText"
+-   *ResultCommentText*
 
--   "ResultLaboratoryCommentText"
+-   *ResultLaboratoryCommentText*
 
--   "TADA.ResultMeasure.MeasureUnitCode"
+-   *TADA.ResultMeasure.MeasureUnitCode*
 
--   "TADA.ResultSampleFractionText"
+-   *TADA.ResultSampleFractionText*
 
--   "ResultTemperatureBasisText"
+-   *ResultTemperatureBasisText*
 
--   "ResultValueTypeName"
+-   *ResultValueTypeName*
 
--   "ResultWeightBasisText"
+-   *ResultWeightBasisText*
 
--   "SampleCollectionEquipmentName"
+-   *SampleCollectionEquipmentName*
 
--   "LaboratoryName"
+-   *LaboratoryName*
 
--   "MethodDescriptionText"
+-   *MethodDescriptionText*
 
--   "ResultParticleSizeBasisText"
+-   *ResultParticleSizeBasisText*
 
--   "SampleCollectionMethod.MethodIdentifier"
+-   *SampleCollectionMethod.MethodIdentifier*
 
--   "SampleCollectionMethod.MethodIdentifierContext"
+-   *SampleCollectionMethod.MethodIdentifierContext*
 
--   "SampleCollectionMethod.MethodName"
+-   *SampleCollectionMethod.MethodName*
 
--   "DataQuality.BiasValue"
+-   *DataQuality.BiasValue*
 
--   "MethodSpeciationName"
+-   *MethodSpeciationName*
 
--   "ResultAnalyticalMethod.MethodName"
+-   *ResultAnalyticalMethod.MethodName*
 
--   "ResultAnalyticalMethod.MethodIdentifier"
+-   *ResultAnalyticalMethod.MethodIdentifier*
 
--   "ResultAnalyticalMethod.MethodIdentifierContext"
+-   *ResultAnalyticalMethod.MethodIdentifierContext*
 
--   "AssemblageSampledName"
+-   *AssemblageSampledName*
 
--   "DetectionQuantitationLimitTypeName"
+-   *DetectionQuantitationLimitTypeName*
 
 ```{r TADA_FieldCounts_char}
 TADA_FieldCounts(TADAProfileClean6, display = "most", characteristicName = "TOTAL PHOSPHORUS, MIXED FORMS")
@@ -1092,6 +1149,13 @@ TADAProfileCleanTP_dailymax <- TADA_AggregateMeasurements(TADAProfileCleanTP,
 TP_Scatterplot <- TADA::TADA_Scatterplot(TADAProfileCleanTP_dailymax, id_cols = "TADA.ComparableDataIdentifier")
 
 TP_Scatterplot
+```
+
+## Retain TADA Required Columns
+Now we can review the "TADA" prefixed columns we have added to the data set. If we are satisfied with the conversions, filtering, flagging, etc. and the resulting "TADA" columns, we can use the **TADA_RetainRequired** function to remove any columns that are not required or used as filters in the TADA workflow. This reduces the size of the data frame.
+
+```{r retainrequired}
+TADAProfileClean7 <- TADA_RetainRequired(TADAProfileClean6)
 ```
 
 ## TADA Shiny Application

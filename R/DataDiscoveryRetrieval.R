@@ -702,10 +702,11 @@ TADA_JoinWQPProfiles <- function(FullPhysChem = "null",
     if (nrow(Sites.df) > 0) {
       join1 <- FullPhysChem.df %>%
         # join stations to results
-        dplyr::left_join(Sites.df, 
-                         by = "MonitoringLocationIdentifier", 
-                         multiple = "all",
-                         relationship = "many-to-many") %>%
+        dplyr::left_join(Sites.df,
+          by = "MonitoringLocationIdentifier",
+          multiple = "all",
+          relationship = "many-to-many"
+        ) %>%
         # remove ".x" suffix from column names
         dplyr::rename_at(dplyr::vars(dplyr::ends_with(".x")), ~ stringr::str_replace(., "\\..$", "")) %>%
         # remove columns with ".y" suffix

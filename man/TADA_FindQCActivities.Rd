@@ -42,6 +42,7 @@ This function checks for and flags or removes samples denoted as quality control
 activities based on the 'ActivityTypeCode' column. The function will flag
 duplicate samples as "QC_duplicate", blank samples as "QC_blank", calibration
 or spiked samples as "QC_calibration", and other QC samples as "QC_other".
+All other samples are flagged as "Non_QC".
 }
 \examples{
 # Load example dataset:
