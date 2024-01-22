@@ -7,12 +7,13 @@
 TADA_PairReplicates(.data, type = c("QC_replicate"), time_difference = 600)
 }
 \arguments{
-\item{.data}{TADA dataframe which must include the columns 'OrganizationIdentifier', 'ActivityTypeCode',
-'ActivityStartDate', 'ActivityStartDateTime', 'TADA.LatitudeMeasure', 'TADA.LongitudeMeasure',
+\item{.data}{TADA dataframe which must include the columns 'OrganizationIdentifier',
+'ActivityTypeCode', 'ActivityStartDate', 'ActivityStartDateTime', 'ResultIdentifier',
+'ActivityRelativeDepthName', 'TADA.LatitudeMeasure', 'TADA.LongitudeMeasure',
 'TADA.ResultMeasureValue', 'TADA.ComparableDataIdentifier', 'TADA.ActivityType.Flag',
 'TADA.ActivityDepthHeightMeasure.MeasureValue', 'TADA.ResultDepthHeightMeasure.MeasureValue',
-'TADA.ActivityTopDepthHeightMeasure.MeasureValue', 'TADA.ActivityBottomDepthHeightMeasure.MeasureValue',
-and 'ActivityRelativeDepthName'.}
+'TADA.ActivityTopDepthHeightMeasure.MeasureValue', and
+'TADA.ActivityBottomDepthHeightMeasure.MeasureValue'.}
 
 \item{type}{Character argument identifying which Activity Types to look for while pairing replicates
 to their parent samples. The default type is "QC_replicate", which includes Activity Type Codes:
@@ -47,15 +48,15 @@ sample are flagged as orphan samples.
 # Load example dataset:
 data(Data_NCTCShepherdstown_HUC12)
 
-# Run TADA_FindQCActivities:
+# Run TADA_FindQCActivities to add TADA.ActivityType.Flag column:
 df <- TADA_FindQCActivities(Data_NCTCShepherdstown_HUC12)
 
-# Find pairs for all data flagged as "QC_replicate":
+# Find pairs for all data flagged as "QC_replicate" in the TADA.ActivityType.Flag column:
 df_all_pairs <- TADA_PairReplicates(df)
 
 # Find pairs for only data with ActivityTypeCode "Quality Control Sample-Field Replicate":
 df_fieldrep_pairs <- TADA_PairReplicates(df, type = "Quality Control Sample-Field Replicate")
 
-# Find pairs for all data flagged as "QC_replicate" with a 5-minute time window:
+# Find pairs for all data flagged as "QC_replicate" within a 5-minute time window:
 df_all_pairs_5min <- TADA_PairReplicates(df, time_difference = 300)
 }

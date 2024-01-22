@@ -556,7 +556,8 @@ TADA_FindQCActivities <- function(.data, clean = FALSE, flaggedonly = FALSE) {
     }
   }
 
-  # return final dataframe
+  # order and return final dataframe
+  final.data <- TADA_OrderCols(final.data)
   return(final.data)
 }
 
@@ -568,12 +569,13 @@ TADA_FindQCActivities <- function(.data, clean = FALSE, flaggedonly = FALSE) {
 #' parent sample for further analysis. Replicate samples without an associated original
 #' sample are flagged as orphan samples.
 #' 
-#' @param .data TADA dataframe which must include the columns 'OrganizationIdentifier', 'ActivityTypeCode',
-#' 'ActivityStartDate', 'ActivityStartDateTime', 'TADA.LatitudeMeasure', 'TADA.LongitudeMeasure',
+#' @param .data TADA dataframe which must include the columns 'OrganizationIdentifier',
+#' 'ActivityTypeCode', 'ActivityStartDate', 'ActivityStartDateTime', 'ResultIdentifier',
+#' 'ActivityRelativeDepthName', 'TADA.LatitudeMeasure', 'TADA.LongitudeMeasure',
 #' 'TADA.ResultMeasureValue', 'TADA.ComparableDataIdentifier', 'TADA.ActivityType.Flag', 
 #' 'TADA.ActivityDepthHeightMeasure.MeasureValue', 'TADA.ResultDepthHeightMeasure.MeasureValue', 
-#' 'TADA.ActivityTopDepthHeightMeasure.MeasureValue', 'TADA.ActivityBottomDepthHeightMeasure.MeasureValue',
-#' and 'ActivityRelativeDepthName'.
+#' 'TADA.ActivityTopDepthHeightMeasure.MeasureValue', and 
+#' 'TADA.ActivityBottomDepthHeightMeasure.MeasureValue'.
 #' @param type Character argument identifying which Activity Types to look for while pairing replicates
 #' to their parent samples. The default type is "QC_replicate", which includes Activity Type Codes: 
 #' "Quality Control Field Replicate Habitat Assessment",
@@ -602,29 +604,32 @@ TADA_FindQCActivities <- function(.data, clean = FALSE, flaggedonly = FALSE) {
 #' # Load example dataset:
 #' data(Data_NCTCShepherdstown_HUC12)
 #' 
-#' # Run TADA_FindQCActivities:
+#' # Run TADA_FindQCActivities to add TADA.ActivityType.Flag column:
 #' df <- TADA_FindQCActivities(Data_NCTCShepherdstown_HUC12)
 #' 
-#' # Find pairs for all data flagged as "QC_replicate":
+#' # Find pairs for all data flagged as "QC_replicate" in the TADA.ActivityType.Flag column:
 #' df_all_pairs <- TADA_PairReplicates(df)
 #' 
 #' # Find pairs for only data with ActivityTypeCode "Quality Control Sample-Field Replicate":
 #' df_fieldrep_pairs <- TADA_PairReplicates(df, type = "Quality Control Sample-Field Replicate")
 #' 
-#' # Find pairs for all data flagged as "QC_replicate" with a 5-minute time window:
+#' # Find pairs for all data flagged as "QC_replicate" within a 5-minute time window:
 #' df_all_pairs_5min <- TADA_PairReplicates(df, time_difference = 300)
 
 TADA_PairReplicates <- function(.data, type = c("QC_replicate"), time_difference = 600){
   # check .data is data.frame
   TADA_CheckType(.data, "data.frame", "Input object")
   # check .data has required columns
-  TADA_CheckColumns(.data, c("OrganizationIdentifier","ActivityTypeCode", "ActivityStartDateTime", 
+  TADA_CheckColumns(.data, c("OrganizationIdentifier","ActivityTypeCode", 
+                             "ActivityStartDate", "ActivityStartDateTime", 
+                             "ResultIdentifier", "ActivityRelativeDepthName",
                              "TADA.LatitudeMeasure", "TADA.LongitudeMeasure", 
                              "TADA.ResultMeasureValue", "TADA.ComparableDataIdentifier", 
                              "TADA.ActivityType.Flag", "TADA.ActivityDepthHeightMeasure.MeasureValue",
-                             "TADA.ResultDepthHeightMeasure.MeasureValue", "TADA.ActivityTopDepthHeightMeasure.MeasureValue",
-                             "TADA.ActivityBottomDepthHeightMeasure.MeasureValue", "ActivityRelativeDepthName"))
-  # check .data has replicates in the data frame
+                             "TADA.ResultDepthHeightMeasure.MeasureValue", 
+                             "TADA.ActivityTopDepthHeightMeasure.MeasureValue",
+                             "TADA.ActivityBottomDepthHeightMeasure.MeasureValue"))
+  
   if("QC_replicate" %in% type){
     if(nrow(dplyr::filter(.data, .data$TADA.ActivityType.Flag == "QC_replicate")) == 0) {
       stop("Function not executed because no replicates found in data frame.")
@@ -689,6 +694,7 @@ TADA_PairReplicates <- function(.data, type = c("QC_replicate"), time_difference
       }
     }
   }
+  .data <- TADA_OrderCols(.data)
   return(.data)
 }
 
