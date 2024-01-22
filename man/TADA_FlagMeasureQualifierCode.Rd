@@ -56,7 +56,7 @@ MeasureQualifierCode_flags_only <- TADA_FlagMeasureQualifierCode(Data_6Tribes_5y
 # Remove all suspect samples:
 MeasureQualifierCode_clean <- TADA_FlagMeasureQualifierCode(Data_6Tribes_5y, clean = TRUE)
 
-# Remove all suspect samples and DO NOT include a new column with 
+# Remove all suspect samples and DO NOT include a new column with
 # qualifier definitions (TADA.MeasureQualifierCode.Def):
 MeasureQualifierCode_clean_nodefs <- TADA_FlagMeasureQualifierCode(Data_6Tribes_5y, clean = TRUE, define = FALSE)
 }

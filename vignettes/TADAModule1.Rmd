@@ -762,10 +762,10 @@ In this example, we show how to use the function TADA_FlagMeasureQualifierCode t
 See ?TADA_FlagMeasureQualifierCode for more information. 
 
 ```{r FilterMeasureQualifierCodes}
-# flag only 
+# flag only
 Review_TADAProfileClean4 <- TADA_FlagMeasureQualifierCode(TADAProfileClean4,
   clean = FALSE,
-  flaggedonly = TRUE, 
+  flaggedonly = TRUE,
   define = TRUE
 )
 # Review_TADAProfileClean4 is empty because we did not find any Suspect samples

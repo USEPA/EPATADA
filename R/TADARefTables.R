@@ -60,7 +60,7 @@ TADA_GetSynonymRef <- function(.data) {
     ref <- utils::read.csv(system.file("extdata", "HarmonizationTemplate.csv", package = "TADA"))
     return(ref)
   }
-  
+
   # check .data is data.frame
   TADA_CheckType(.data, "data.frame", "Input object")
 
@@ -72,17 +72,17 @@ TADA_GetSynonymRef <- function(.data) {
     "TADA.ResultMeasure.MeasureUnitCode"
   )
   TADA_CheckColumns(.data, expected_cols)
-  
+
   if (!any(c("TADA.MethodSpeciation.Flag", "TADA.SampleFraction.Flag", "TADA.ResultUnit.Flag") %in% names(.data))) {
     print("Warning: This dataframe is missing TADA QC flagging columns, indicating that you have not yet run the TADA_FlagResultUnit, TADA_FlagFraction, or TADA_FlagSpeciation functions. It is highly recommended you run these flagging functions and remove Invalid combinations before proceeding to this step.")
   }
-  
+
   # check to see if any invalid data flags exist
   check_inv <- .data[, names(.data) %in% c("TADA.MethodSpeciation.Flag", "TADA.SampleFraction.Flag", "TADA.ResultUnit.Flag")]
   check_inv <- check_inv %>%
     tidyr::pivot_longer(cols = names(check_inv), names_to = "Flag_Column") %>%
     dplyr::filter(value == "Invalid")
-  
+
   if (dim(check_inv)[1] > 0) {
     check_inv <- check_inv %>%
       dplyr::group_by(Flag_Column) %>%
@@ -90,22 +90,22 @@ TADA_GetSynonymRef <- function(.data) {
     print("Warning: Your dataframe contains invalid metadata combinations in the following flag columns:")
     print(as.data.frame(check_inv))
   }
-  
+
   # execute function after checks are passed
   # define raw harmonization table as an object
   harm.raw <- utils::read.csv(system.file("extdata", "HarmonizationTemplate.csv", package = "TADA"))
-  
+
   join.data <- merge(unique(.data[, expected_cols]),
-                     harm.raw,
-                     by = expected_cols,
-                     all.x = TRUE
+    harm.raw,
+    by = expected_cols,
+    all.x = TRUE
   )
-  
+
   # trim join.data to include only unique combos of char-frac-spec-unit
   unique.data <- join.data %>% dplyr::distinct()
-  
+
   unique.data <- unique.data[, names(harm.raw)]
-  
+
   # return unique.data
   return(unique.data)
 }
@@ -113,19 +113,19 @@ TADA_GetSynonymRef <- function(.data) {
 
 #' Nutrient Summation Reference Key
 #'
-#' This internal reference file includes USGS only units/speciations. It was 
-#' created in July 2023 using the pcodes domain table from NWIS 
-#' (https://help.waterdata.usgs.gov/codes-and-parameters/parameters). All USGS units 
-#' and speciations are given a target unit and speciation that is synonymous, but 
+#' This internal reference file includes USGS only units/speciations. It was
+#' created in July 2023 using the pcodes domain table from NWIS
+#' (https://help.waterdata.usgs.gov/codes-and-parameters/parameters). All USGS units
+#' and speciations are given a target unit and speciation that is synonymous, but
 #' adheres to the WQX schema (WQX measure unit domain table).
-#' 
-#' This reference file is used in the TADA_ConvertResultUnits() function where 
-#' synonymous units and speciations are harmonized before units are then also 
-#' harmonized/converted to WQX targets. 
-#' 
-#' 
-#' @return Dataframe of USGS only units and speciations and their WQX compatible 
-#' targets/synonyms. 
+#'
+#' This reference file is used in the TADA_ConvertResultUnits() function where
+#' synonymous units and speciations are harmonized before units are then also
+#' harmonized/converted to WQX targets.
+#'
+#'
+#' @return Dataframe of USGS only units and speciations and their WQX compatible
+#' targets/synonyms.
 #'
 #' @export
 
