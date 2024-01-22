@@ -171,13 +171,13 @@ tada9 <- TADA_DataRetrieval(organization = c(
 ))
 
 # query only NWIS data for a 10 year period in CT
-tada10 = TADA_DataRetrieval(
-startDate = "2013-01-01", 
-endDate = "2022-12-31", 
-sampleMedia = c("Water", "water"),
-statecode = "CT", # consider downloading only 1 state at a time
-providers = "NWIS",
-applyautoclean = FALSE
+tada10 <- TADA_DataRetrieval(
+  startDate = "2013-01-01",
+  endDate = "2022-12-31",
+  sampleMedia = c("Water", "water"),
+  statecode = "CT", # consider downloading only 1 state at a time
+  providers = "NWIS",
+  applyautoclean = FALSE
 )
 }
 

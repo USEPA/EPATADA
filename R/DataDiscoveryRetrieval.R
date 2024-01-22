@@ -134,15 +134,15 @@
 #'   "WNENVDPT_WQX",
 #'   "PUEBLO_POJOAQUE"
 #' ))
-#' 
+#'
 #' # query only NWIS data for a 10 year period in CT
-#' tada10 = TADA_DataRetrieval(
-#' startDate = "2013-01-01", 
-#' endDate = "2022-12-31", 
-#' sampleMedia = c("Water", "water"),
-#' statecode = "CT", # consider downloading only 1 state at a time
-#' providers = "NWIS",
-#' applyautoclean = FALSE
+#' tada10 <- TADA_DataRetrieval(
+#'   startDate = "2013-01-01",
+#'   endDate = "2022-12-31",
+#'   sampleMedia = c("Water", "water"),
+#'   statecode = "CT", # consider downloading only 1 state at a time
+#'   providers = "NWIS",
+#'   applyautoclean = FALSE
 #' )
 #' }
 #'
@@ -227,7 +227,7 @@ TADA_DataRetrieval <- function(startDate = "null",
   } else if (project != "null") {
     WQPquery <- c(WQPquery, project = project)
   }
-  
+
   if (length(providers) > 1) {
     WQPquery <- c(WQPquery, providers = list(providers))
   } else if (providers != "null") {
@@ -279,7 +279,7 @@ TADA_DataRetrieval <- function(startDate = "null",
     # need to specify this or throws error when trying to bind rows. Temporary fix for larger
     # issue where data structure for all columns should be specified.
     cols <- names(TADAprofile)
-    
+
     TADAprofile <- TADAprofile %>% dplyr::mutate_at(cols, as.character)
 
     # run TADA_AutoClean function
@@ -351,13 +351,26 @@ TADA_ReadWQPWebServices <- function(webservice) {
   # read in csv from WQP web service
   if (grepl("zip=yes", webservice)) {
     webservice <- stringr::str_replace(webservice, "zip=yes", "zip=no")
-    return(data.table::fread(toString(webservice)))
-    # update when we switch to WQX 3.0
-    # return(TADA_AutoClean(data.table::fread(toString(webservice))))
+
+    # download data
+    webservice <- data.table::fread(toString(webservice))
+
+    # if input df was not downloaded using USGS's dataRetrieval, then the
+    # column names will include / separators instead of . and TADA uses .
+    # (e.g. ResultMeasure/MeasureUnitCode vs. ResultMeasure.MeasureUnitCode)
+    colnames(webservice) <- gsub("/", ".", colnames(webservice))
+
+    return(webservice)
   } else {
-    return(data.table::fread(webservice))
-    # update when we switch to WQX 3.0
-    # return(TADA_AutoClean(data.table::fread(webservice)))
+    # download data
+    webservice <- data.table::fread(toString(webservice))
+
+    # if input df was not downloaded using USGS's dataRetrieval, then the
+    # column names will include / separators instead of . and TADA uses .
+    # (e.g. ResultMeasure/MeasureUnitCode vs. ResultMeasure.MeasureUnitCode)
+    colnames(webservice) <- gsub("/", ".", colnames(webservice))
+
+    return(webservice)
   }
 }
 
@@ -665,20 +678,19 @@ TADA_BigDataRetrieval <- function(startDate = "null",
 #' @examples
 #' \dontrun{
 #' # Load WQP data
-#' WQP URL: https://www.waterqualitydata.us/#statecode=US%3A09&characteristicType=Nutrient&startDateLo=04-01-2023&startDateHi=11-01-2023&mimeType=csv&providers=NWIS&providers=STEWARDS&providers=STORET
+#' # WQP URL: https://www.waterqualitydata.us/#statecode=US%3A09&characteristicType=Nutrient&startDateLo=04-01-2023&startDateHi=11-01-2023&mimeType=csv&providers=NWIS&providers=STEWARDS&providers=STORET
 #' # Use TADA_ReadWQPWebServices to load each profile
 #' stationProfile <- TADA_ReadWQPWebServices("https://www.waterqualitydata.us/data/Station/search?statecode=US%3A09&characteristicType=Nutrient&startDateLo=04-01-2023&startDateHi=11-01-2023&mimeType=csv&zip=yes&providers=NWIS&providers=STEWARDS&providers=STORET")
 #' physchemProfile <- TADA_ReadWQPWebServices("https://www.waterqualitydata.us/data/Result/search?statecode=US%3A09&characteristicType=Nutrient&startDateLo=04-01-2023&startDateHi=11-01-2023&mimeType=csv&zip=yes&dataProfile=resultPhysChem&providers=NWIS&providers=STEWARDS&providers=STORET")
 #' projectProfile <- TADA_ReadWQPWebServices("https://www.waterqualitydata.us/data/Project/search?statecode=US%3A09&characteristicType=Nutrient&startDateLo=04-01-2023&startDateHi=11-01-2023&mimeType=csv&zip=yes&providers=NWIS&providers=STEWARDS&providers=STORET")
-#' 
+#'
 #' # Join all three profiles using TADA_JoinWQPProfiles
-#' Data_PhysChemProfile <- TADA_JoinWQPProfiles(FullPhysChem = "physchemProfile", Sites = "stationProfile", Projects = "projectProfile")
+#' TADAProfile <- TADA_JoinWQPProfiles(FullPhysChem = physchemProfile, Sites = stationProfile, Projects = projectProfile)
 #' }
-#' 
+#'
 TADA_JoinWQPProfiles <- function(FullPhysChem = "null",
                                  Sites = "null",
                                  Projects = "null") {
-  
   FullPhysChem.df <- FullPhysChem
 
   Sites.df <- Sites
@@ -690,7 +702,10 @@ TADA_JoinWQPProfiles <- function(FullPhysChem = "null",
     if (nrow(Sites.df) > 0) {
       join1 <- FullPhysChem.df %>%
         # join stations to results
-        dplyr::left_join(Sites.df, by = "MonitoringLocationIdentifier", multiple = "all") %>%
+        dplyr::left_join(Sites.df, 
+                         by = "MonitoringLocationIdentifier", 
+                         multiple = "all",
+                         relationship = "many-to-many") %>%
         # remove ".x" suffix from column names
         dplyr::rename_at(dplyr::vars(dplyr::ends_with(".x")), ~ stringr::str_replace(., "\\..$", "")) %>%
         # remove columns with ".y" suffix
@@ -707,7 +722,6 @@ TADA_JoinWQPProfiles <- function(FullPhysChem = "null",
   if (length(Projects.df) > 1) {
     if (nrow(Projects.df) > 0) {
       join2 <- join1 %>%
-        
         dplyr::left_join(
           dplyr::select(
             Projects.df, OrganizationIdentifier, OrganizationFormalName,
@@ -720,7 +734,7 @@ TADA_JoinWQPProfiles <- function(FullPhysChem = "null",
             "ProjectIdentifier", "ProjectName"
           ),
           multiple = "all",
-          # need to specify that this is expected to be a 1-to-many relationship 
+          # need to specify that this is expected to be a 1-to-many relationship
           relationship = "many-to-many"
         )
     } else {
@@ -729,7 +743,7 @@ TADA_JoinWQPProfiles <- function(FullPhysChem = "null",
   } else {
     join2 <- join1
   }
-  
-  
+
+
   return(join2)
 }

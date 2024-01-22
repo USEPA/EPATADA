@@ -27,8 +27,8 @@ random datasets.
 }
 \examples{
 \dontrun{
-df = TADA_RandomTestingData(number_of_days = 1, choose_random_state = FALSE)
-df = TADA_RandomTestingData(number_of_days = 10, choose_random_state = TRUE)
+df <- TADA_RandomTestingData(number_of_days = 1, choose_random_state = FALSE)
+df <- TADA_RandomTestingData(number_of_days = 10, choose_random_state = TRUE)
 }
 
 }
