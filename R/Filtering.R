@@ -278,10 +278,6 @@ TADA_FieldValuesTable <- function(.data, field = "null", characteristicName = "n
 #' be included in the returned data frame. Default is sediment = FALSE, 
 #' sediment samples are not retained in the data frame.
 #' 
-#' @param fish_tissue Boolean argument; specifies whether fish tissue 
-#' results should be included in the returned data frame. Default is 
-#' fish_tissue = FALSE, fish tissue samples are not retained in the data frame.
-#'
 #' @return If clean = TRUE, returns the data frame with only the media types
 #' selected by the user. If clean = FALSE, returns the data frame with two
 #' additional columns, "TADA.Groundwater.Flag" and "TADA.AssessmentData.Flag",
