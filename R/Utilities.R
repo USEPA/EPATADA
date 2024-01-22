@@ -1545,6 +1545,9 @@ TADA_RetainRequired <- function(.data) {
 #' Setting clean = TRUE, means that all results not flagged for use in 
 #' assessment workflow will be removed and the TADA.Groundwater.Flag and 
 #' TADA.AssessmentData.Flag columns will not be added.
+#' 
+#' *Need to add fish tissue to this function once new WQX profiles are available.
+#' (HRM, 1/22/4)
 #'
 #'
 #' @param .data A TADA profile object
@@ -1579,98 +1582,111 @@ TADA_RetainRequired <- function(.data) {
 #' @export
 #' 
 #' @examples
-#' data(Data_Nutrients_UT)
-#' HandleSpecialChars_ResultMeasureValue = TADA_ConvertSpecialChars(Data_Nutrients_UT, "ResultMeasureValue")
-#' unique(HandleSpecialChars_ResultMeasureValue$TADA.ResultMeasureValueDataTypes.Flag)
-#' HandleSpecialChars_DetLimMeasureValue = TADA_ConvertSpecialChars(Data_Nutrients_UT, "TADA.DetectionQuantitationLimitMeasure.MeasureValue")
-#' unique(HandleSpecialChars_DetLimMeasureValue$TADA.DetectionQuantitationLimitMeasure.MeasureValueDataTypes.Flag)
-#'
-# 
-TADA_AssessmentDataFilter <- function(.data, clean = TRUE,
+#' Return data frame with only surface water results
+#' data(Data_6Tribes_5y_Harmonized)
+#' Data_6Tribes_Assessment <- TADA_AssessmentDataFilter(Data_6Tribes_5y_Harmonized)
+#' 
+#' Return data frame with surface water and sediment results
+#' Data_6Tribes_Assessment <- TADA_AssessmentDataFilter(Data_6Tribes_5y_Harmonized, clean = TRUE, surface_water = TRUE, ground_water = FALSE, sediment = TRUE)
+
+TADA_AssessmentDataFilter <- function(.data, 
+                                      clean = TRUE,
                                       surface_water = TRUE,
                                       ground_water = FALSE,
-                                      sediment = FALSE
-                                      fish_tissue = FALSE) {
+                                      sediment = FALSE) {
 
   # import MonitoringLocationTypeNames and TADA.Groundwater.Flags
   sw.sitetypes <- utils::read.csv(system.file("extdata", "WQXMonitoringLocationTypeNameRef.csv", package = "TADA")) %>%
     dplyr::select(MonitoringLocationTypeName, TADA.Groundwater.Flag) %>%
     dplyr::rename(ML.Groundwater.Flag = TADA.Groundwater.Flag)
-                    
+
 
   # add TADA.Groundwater.Flag column
-  test <- data %>%
+  test <- .data %>%
     # identify TADA.Groundwater.Flag using ActivityMediaSubdivisionName and columns related to groundwater
     dplyr::mutate(TADA.Groundwater.Flag = dplyr::case_when(ActivityMediaSubdivisionName == "Groundwater" ~ "Groundwater",
-                                             !is.na(ConstructionDateText) |
+                                              !is.na(AquiferName) |
+                                                !is.na(AquiferTypeName) |
+                                                !is.na(LocalAqfrName) |
+                                               !is.na(ConstructionDateText) |
                                                !is.na(WellDepthMeasure.MeasureValue) |
                                                !is.na(WellDepthMeasure.MeasureUnitCode) |
                                                !is.na(WellHoleDepthMeasure.MeasureValue) |
                                                !is.na(WellHoleDepthMeasure.MeasureUnitCode) ~ "Groundwater",
-                                              ActivityMediaSubdivisionName == "Surface Water" ~ "Surface Water")) %>%
+                                              ActivityMediaSubdivisionName == "Surface Water" ~ "Surface Water",
+                                              TADA.ActivityMediaName != "WATER" ~ "Not Water")) %>%
     # add TADA.Groundwater.Flag for additional rows based on MonitoringLocationTypeName
     dplyr::left_join(sw.sitetypes) %>%
     dplyr::mutate(TADA.Groundwater.Flag = ifelse(is.na(TADA.Groundwater.Flag),
-                                                 ML.Groundwater.Flag, TADA.Groundwater.Flag))
+                                                 ML.Groundwater.Flag, TADA.Groundwater.Flag)) %>%
+    dplyr::select(-ML.Groundwater.Flag)
+
     { if (surface_water == TRUE)
-     
+
      sur.water.data <- test %>%
-       filter(TADA.Groundwater.Flag == "Surface Water")
+       dplyr::filter(TADA.Groundwater.Flag == "Surface Water") %>%
+        dplyr::mutate(TADA.UseForAssessment.Flag = "Yes")
     }
-  
+
   { if (surface_water == FALSE)
-    
-    sur.water.data <- test [0, ]
-    
+
+    sur.water.data <- test %>%
+      dplyr::filter(TADA.Groundwater.Flag == "Surface Water") %>%
+      dplyr::mutate(TADA.UseForAssessment.Flag = "No")
+
   }
-  
-  
+
+
   if (ground_water == TRUE) {
-    
+
     gr.water.data <- test %>%
-      filter(TADA.Groundwater.Flag == "Groundwater")
-    
+      dplyr::filter(TADA.Groundwater.Flag == "Groundwater") %>%
+      dplyr::mutate(TADA.UseForAssessment.Flag = "Yes")
+
   }
-  
+
   if (ground_water == FALSE) {
-    gr.water.data <- test [0, ]
-    
+    gr.water.data <- test %>%
+      dplyr::filter(TADA.Groundwater.Flag == "Groundwater") %>%
+      dplyr::mutate(TADA.UseForAssessment.Flag = "No")
+
   }
   if (sediment == TRUE) {
     sed.data <- test %>%
-      dplyr::filter(TADA.ActivityMediaName == "SEDIMENT")
-    
-  }
-  
-  if (sediment == FALSE) {
-    sed.data <- test [0, ]
-  }
-  
-  if (fish_tissue == TRUE) {
-    fish.data <- test %>%
-      dplyr::filter(TADA.ActivityMediaName == "BIOLOGICAL")
-    
-  }
-  
-  if (fish_tissue == FALSE) {
-    fish.data <- test [0, ]
-}
+      dplyr::filter(TADA.ActivityMediaName == "SEDIMENT") %>%
+      dplyr::mutate(TADA.UseForAssessment.Flag = "Yes")
 
-  assessment.data <- sur.water.data %>%
-    merge(gr.water.data) %>%
-    merge(sed.data) %>%
-    merge(fish.data)
+  }
+
+  if (sediment == FALSE) {
+    sed.data <- test %>%
+      dplyr::filter(TADA.ActivityMediaName == "SEDIMENT") %>%
+      dplyr::mutate(TADA.UseForAssessment.Flag = "No")
+  }
   
-  rm(sur.water.data, gr.water.data, sed.data, fish.data)
-  
-  return(assessment.data)
+  if (clean == TRUE) {
+    
+    assessment.data <- sur.water.data %>%
+      merge(gr.water.data, all.x = TRUE) %>%
+      merge(sed.data, all.x = TRUE) %>%
+      dplyr::filter(TADA.UseForAssessment.Flag == "Yes") %>%
+      dplyr::select(-TADA.UseForAssessment.Flag)
+    
+    rm(sur.water.data, gr.water.data, sed.data)
+    
+    return(assessment.data)
+    
+    
+  }
+
+  if (clean == FALSE) {
+    
+    assessment.data <- sur.water.data %>%
+      merge(gr.water.data, all.x = TRUE) %>%
+      merge(sed.data, all.x = TRUE)
+    
+    rm(sur.water.data, gr.water.data, sed.data)
+   
+    return(assessment.data)
+  }
 }
-  # do we have any plans to include other biological data (macro invert)?
-  # is there a problem with pulling in another WQX profile?
-  # do I need to figure out how to ID fish tox data only with what is 
-  # already here?
-  # Should I wait until the 3.o profiles are ready
-  # I would like to use additional fields to id whether the tissue samples are
-  # fish and include them if they are
-  # think about filter for macroinvert data? quite a few states us this info
-  # in assessments?
