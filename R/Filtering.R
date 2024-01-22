@@ -38,25 +38,25 @@ TADA_FieldCounts <- function(.data, display = c("key", "most", "all"), character
   df <- .data %>% dplyr::select(where(~ !all(is.na(.x))))
 
   if (display == "key") {
-     cols <- c(
-      "ActivityTypeCode", 
+    cols <- c(
+      "ActivityTypeCode",
       "TADA.ActivityMediaName",
       "ActivityMediaSubdivisionName",
-      "ActivityCommentText", 
+      "ActivityCommentText",
       "MonitoringLocationTypeName",
-      "StateCode", 
-      "OrganizationFormalName", 
+      "StateCode",
+      "OrganizationFormalName",
       "TADA.CharacteristicName",
       "TADA.MeasureQualifierCode.Def",
-      "HydrologicCondition", 
+      "HydrologicCondition",
       "HydrologicEvent",
-      "BiologicalIntentName", 
-      "ActivityGroup", 
+      "BiologicalIntentName",
+      "ActivityGroup",
       "AssemblageSampledName",
-      "ProjectName", 
+      "ProjectName",
       "CharacteristicNameUserSupplied",
       "DetectionQuantitationLimitTypeName",
-      "SampleTissueAnatomyName", 
+      "SampleTissueAnatomyName",
       "LaboratoryName"
     )
   }
@@ -179,7 +179,7 @@ TADA_FieldCounts <- function(.data, display = c("key", "most", "all"), character
     cols <- names(df)
   }
 
-  df <-  df %>%
+  df <- df %>%
     dplyr::select(dplyr::contains(cols))
 
   # CREATE LIST OF FIELDS

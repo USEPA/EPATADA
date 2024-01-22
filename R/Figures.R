@@ -375,11 +375,15 @@ TADA_Histogram <- function(.data, id_cols = c("TADA.ComparableDataIdentifier")) 
 #' @export
 #'
 #' @examples
-#' # Load example dataset:
+#' # Load example datasets:
 #' data(Data_Nutrients_UT)
+#' data(Data_NCTCShepherdstown_HUC12)
+#' data(Data_6Tribes_5y_Harmonized)
 #'
-#' # Create map:
+#' # Create maps:
 #' TADA_OverviewMap(Data_Nutrients_UT)
+#' TADA_OverviewMap(Data_NCTCShepherdstown_HUC12)
+#' TADA_OverviewMap(Data_6Tribes_5y_Harmonized)
 #'
 TADA_OverviewMap <- function(.data) {
   suppressWarnings({
@@ -391,19 +395,26 @@ TADA_OverviewMap <- function(.data) {
       return(leaflet::addLegend(map, colors = colorAdditions, labels = labelAdditions, opacity = opacity, title = "Measurements"))
     }
 
-    site_size <- data.frame(Sample_n = c("<9", ">10", ">50", ">100", ">200", ">500", ">1500"), Point_size = c(3, 5, 8, 10, 15, 20, 30))
 
     sumdat <- .data %>%
       dplyr::group_by(MonitoringLocationIdentifier, MonitoringLocationName, TADA.LatitudeMeasure, TADA.LongitudeMeasure) %>%
       dplyr::summarise("Sample_Count" = length(unique(ResultIdentifier)), "Visit_Count" = length(unique(ActivityStartDate)), "Parameter_Count" = length(unique(TADA.CharacteristicName)), "Organization_Count" = length(unique(OrganizationIdentifier)))
-    sumdat$radius <- 3
-    sumdat$radius <- ifelse(sumdat$Sample_Count > 10, 5, sumdat$radius)
-    sumdat$radius <- ifelse(sumdat$Sample_Count > 50, 8, sumdat$radius)
-    sumdat$radius <- ifelse(sumdat$Sample_Count > 100, 10, sumdat$radius)
-    sumdat$radius <- ifelse(sumdat$Sample_Count > 200, 15, sumdat$radius)
-    sumdat$radius <- ifelse(sumdat$Sample_Count > 500, 20, sumdat$radius)
-    sumdat$radius <- ifelse(sumdat$Sample_Count > 1500, 30, sumdat$radius)
-
+    
+    pt_sizes <- round(quantile(sumdat$Sample_Count, probs = c(0.1,0.25, 0.5, 0.75)), 0)
+    pt_labels <- c(paste0("<=",pt_sizes[1]),
+                  paste0(">",pt_sizes[1]),
+                  paste0(">",pt_sizes[2]),
+                  paste0(">",pt_sizes[3]),
+                  paste0(">",pt_sizes[4]))
+    
+    sumdat$radius <- 5
+    sumdat$radius <-ifelse(sumdat$Sample_Count > pt_sizes[1], 10, sumdat$radius)
+    sumdat$radius <-ifelse(sumdat$Sample_Count > pt_sizes[2], 15, sumdat$radius)
+    sumdat$radius <- ifelse(sumdat$Sample_Count > pt_sizes[3], 20, sumdat$radius)
+    sumdat$radius <- ifelse(sumdat$Sample_Count > pt_sizes[4], 30, sumdat$radius)
+    
+    site_size <- data.frame(Sample_n = pt_labels, Point_size = c(5, 10, 15, 20, 30))
+  
     site_legend <- subset(site_size, site_size$Point_size %in% unique(sumdat$radius))
 
     pal <- leaflet::colorBin(
@@ -417,15 +428,15 @@ TADA_OverviewMap <- function(.data) {
       leaflet::fitBounds(lng1 = min(sumdat$TADA.LongitudeMeasure), lat1 = min(sumdat$TADA.LatitudeMeasure), lng2 = max(sumdat$TADA.LongitudeMeasure), lat2 = max(sumdat$TADA.LatitudeMeasure)) %>% # fit to bounds of data in tadat$raw
       leaflet.extras::addResetMapButton() %>% # button to reset to initial zoom and lat/long
       leaflet::addCircleMarkers(
-        data = sumdat, 
-        lng = ~TADA.LongitudeMeasure, 
-        lat = ~TADA.LatitudeMeasure, 
-        # sets color of monitoring site circles 
-        color = "red", 
-        fillColor = ~ pal(Parameter_Count), 
-        fillOpacity = 0.7, 
-        stroke = TRUE, 
-        weight = 1.5, 
+        data = sumdat,
+        lng = ~TADA.LongitudeMeasure,
+        lat = ~TADA.LatitudeMeasure,
+        # sets color of monitoring site circles
+        color = "red",
+        fillColor = ~ pal(Parameter_Count),
+        fillOpacity = 0.7,
+        stroke = TRUE,
+        weight = 1.5,
         radius = sumdat$radius,
         popup = paste0(
           "Site ID: ", sumdat$MonitoringLocationIdentifier,
