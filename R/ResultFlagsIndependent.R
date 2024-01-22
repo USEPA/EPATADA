@@ -1265,21 +1265,22 @@ TADA_FindPotentialDuplicatesSingleOrg <- function(.data) {
 #' "Metalimnion/Thermocline-middle".
 #'
 #' When more than one result is available for a MonitoringLocationIdentifier,
-#' ActivityStartDate, OrganizationIdentifier, and TADA.CharacteristicName,
-#' user input defines which value (average, max, or min value) to use for that
-#' day and location. User input also defines whether aggregation occurs over
-#' each depth category or for the entire depth profile.
+#' ActivityStartDate, OrganizationIdentifier, and TADA.CharacteristicName, the
+#' user can choose a single result value (average, max, or min value) to use for that
+#' day and location. If results vary with depth, the user may also define whether
+#' the daily aggregation occurs over each depth category (surface, middle, or bottom)
+#' or for the entire depth profile.
 #'
 #' @param .data TADA dataframe which must include the columns ADD DEPTH COLUMNS
 #'
-#' @param daily_agg Character argument; with options "no", "ave", "min", or
-#' "max". The default is daily_agg = "no". When daily_agg = "no", all results
-#' will be retained. When daily_agg == "ave", the mean value in each group of
-#' results (as determined by the by category param) will be determined for each
+#' @param daily_agg Character argument; with options "none", "avg", "min", or
+#' "max". The default is daily_agg = "none". When daily_agg = "none", all results
+#' will be retained. When daily_agg == "avg", the mean value in each group of
+#' results (as determined by the depth category) will be identified or calculated for each
 #' MonitoringLocation, ActivityDate, Organization ID, and TADA.CharacteristicName combination.
 #' When daily_agg == "min" or when daily_agg == "max", the min or max
-#' value in each group of results (as determined by the by category param) will
-#' be determined for each MonitoringLocation, ActivityDate, and TADA.CharacteristicName
+#' value in each group of results (as determined by the depth category) will
+#' be identified or calculated for each MonitoringLocation, ActivityDate, and TADA.CharacteristicName
 #' combination. An additional column, TADA.ResultValueAggregation.DepthProfile.Flag will be added
 #' to describe aggregation.
 #'
@@ -1296,9 +1297,9 @@ TADA_FindPotentialDuplicatesSingleOrg <- function(.data) {
 #' @param .data TADA dataframe
 #'
 #' @return The same input TADA dataframe with additional columns TADA.DepthCategory.Flag
-#' and TADA.ResultValueAggregation.DepthProfile.Flag. If a daily_agg = "ave",
+#' and TADA.ResultValueAggregation.DepthProfile.Flag. If a daily_agg = "avg",
 #' "min", or "max", aggregated values will be identified in the TADA.ResultAggregation.Flag
-#' column. In the case of daily_agg = "ave", additional rows to display averages will be
+#' column. In the case of daily_agg = "avg", additional rows to display averages will be
 #' added to the data frame. They can be identified by the prefix ("TADA-") of
 #' their result identifiers.
 #'
@@ -1312,9 +1313,9 @@ TADA_FindPotentialDuplicatesSingleOrg <- function(.data) {
 #' # Data_6Tribs_5y_DepthCat <- TADA_DepthCategory.Flag(Data_6Tribes_5y)
 #'
 #' # assign TADA.DepthCategory.Flag and determine average values by depth category
-#' Data_6Tribs_5y_Mean <- TADA_DepthCategory.Flag(Data_6Tribes_5y, bycategory = TRUE, daily_agg = "ave")
+#' Data_6Tribs_5y_Mean <- TADA_DepthCategory.Flag(Data_6Tribes_5y, bycategory = TRUE, daily_agg = "avg")
 #'
-TADA_DepthCategory.Flag <- function(.data, bycategory = FALSE, daily_agg = "no", clean = FALSE) {
+TADA_DepthCategory.Flag <- function(.data, bycategory = FALSE, daily_agg = "none", clean = FALSE) {
   depthcat.list <- c("Epilimnion-surface", "Hypolimnion-bottom", "Metalimnion/Thermocline-middle")
 
   ard.ref <- utils::read.csv(system.file("extdata", "WQXActivityRelativeDepthRef.csv", package = "TADA")) %>%
@@ -1350,7 +1351,7 @@ TADA_DepthCategory.Flag <- function(.data, bycategory = FALSE, daily_agg = "no",
       dplyr::ungroup() %>%
       # assign depth categories by using depth information
       dplyr::mutate(TADA.DepthCategory.Flag = dplyr::case_when(
-        !MonitoringLocationTypeName %in% c("Lake, Reservoir, Impoundment", "Great Lakes", "Lake", "Great Lake") ~ "Not Calculated For MonitoringLocationType",
+        !MonitoringLocationTypeName %in% c("Lake, Reservoir, Impoundment", "Great Lakes", "Lake", "Great Lake") ~ "Not Calculated for MonitoringLocationType",
         Depth <= 2 ~ "Epilimnion-surface",
         Depth <= Bottom & Depth >= Bottom - 2 ~ "Hypolimnion-bottom",
         Depth < 2 & Depth < Bottom - 2 ~ "Metalimnion/Thermocline-middle"
@@ -1389,7 +1390,7 @@ TADA_DepthCategory.Flag <- function(.data, bycategory = FALSE, daily_agg = "no",
     )
   }
 
-  if (daily_agg == "no") {
+  if (daily_agg == "none") {
     print("TADA_DepthCategory.Flag: No aggregation performed.")
 
     # add TADA.ResultValue.Aggregation.Flag, remove unecessary columns, and order columns
@@ -1409,7 +1410,7 @@ TADA_DepthCategory.Flag <- function(.data, bycategory = FALSE, daily_agg = "no",
       return(orig.data)
     }
   }
-  if ((daily_agg == "ave")) {
+  if ((daily_agg == "avg")) {
     print("TADA_DepthCategory.Flag: Calculating mean aggregate value with randomly selected metadata.")
 
     # add TADA.ResultValue.Aggregation.Flag and remove unnecessary columns in original data set
