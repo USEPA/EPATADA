@@ -713,27 +713,51 @@ fieldCounts_Table <- TADA_FieldCounts(TADAProfileClean3)
 Next, choose a field from the list generated above to view a summary
 table or pie chart of the counts of unique values in that field using
 **TADA_FieldValuesTable** or **TADA_FieldValuesPie**. We'll start with
-ActivityTypeCode.
+*ActivityTypeCode*.
 
 ```{r fieldValues_all, fig.width=8, fig.height=6, fig.fullwidth=TRUE}
 TADA_FieldValuesTable(TADAProfileClean3, field = "ActivityTypeCode")
 TADA_FieldValuesPie(TADAProfileClean3, field = "ActivityTypeCode")
 ```
 
-The ActivityTypeCode field has multiple unique values. In this example
-we remove Quality Control (QC) values using the
-TADA_FindQCActivities function.
+The *ActivityTypeCode* field has multiple unique values. In this example
+we review flagged Quality Control (QC) values using the
+**TADA_FindQCActivities** function, which adds a new TADA *TADA.ActivityType.Flag*
+column.
+
+For example, the new *QC_replicate* flag in **TADA.ActivityType.Flag** column 
+indicates that the flagged rows include any of the following replicate values:
+-   *Quality Control Field Replicate Habitat Assessment*
+-   *Quality Control Field Replicate Msr/Obs*
+-   *Quality Control Field Replicate Portable Data Logger*
+-   *Quality Control Field Replicate Sample-Composite*
+-   *Quality Control Sample-Field Replicate*
+
+See WQX domain file to review all the **ActivityTypeCode** allowable values:
+https://cdx.epa.gov/wqx/download/DomainValues/ActivityType.CSV
 
 ```{r TADA_FindQCActivities, fig.width=6, fig.height=6, fig.fullwidth=TRUE}
-# Remove all QC samples using the TADA_FindQCActivities function:
+# Review flagged QC samples using the TADA_FindQCActivities function:
 # enter ?TADA_FindQCActivities into the console for more information
-TADAProfileClean4 <- TADA_FindQCActivities(TADAProfileClean3, clean = TRUE)
+TADAProfileClean4 <- TADA_FindQCActivities(TADAProfileClean3, 
+                                           clean = FALSE,
+                                           flaggedonly = TRUE)
+```
 
-# See WQX domain file to review all the ActivityTypeCode allowable values:
-# https://cdx.epa.gov/wqx/download/DomainValues/ActivityType.CSV
+Before we remove the QC samples/measurements from this dataset to prepare for analyses,
+let's run **TADA_PairReplicates** to see if any replicates in this dataframe can be 
+paired with their original (parent) samples/measurements.
 
-# Access all WQX Domain Files
-# https://www.epa.gov/waterdata/storage-and-retrieval-and-water-quality-exchange-domain-services-and-downloads
+```{r}
+TADAProfileClean4 <- TADA_PairReplicates(TADAProfileClean4)
+```
+
+Now, let's remove QC samples/measurements from the dataframe.
+
+```{r TADA_FindQCActivities, fig.width=6, fig.height=6, fig.fullwidth=TRUE}
+# Remove flagged QC samples using the TADA_FindQCActivities function:
+TADAProfileClean4 <- TADA_FindQCActivities(TADAProfileClean4, 
+                                           clean = TRUE)
 
 # regenerate table and pie chart
 TADA_FieldValuesTable(TADAProfileClean4, "ActivityTypeCode")

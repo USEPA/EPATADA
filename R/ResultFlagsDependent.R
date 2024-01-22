@@ -442,7 +442,8 @@ TADA_FlagResultUnit <- function(.data, clean = c("invalid_only", "nonstandardize
 #' This function checks for and flags or removes samples denoted as quality control
 #' activities based on the 'ActivityTypeCode' column. The function will flag
 #' duplicate samples as "QC_duplicate", blank samples as "QC_blank", calibration
-#' or spiked samples as "QC_calibration", and other QC samples as "QC_other".
+#' or spiked samples as "QC_calibration", and other QC samples as "QC_other". 
+#' All other samples are flagged as "Non_QC". 
 #'
 #' @param .data TADA dataframe which must include the column 'ActivityTypeCode'
 #' @param clean Character argument with options "none", "all",
@@ -549,7 +550,10 @@ TADA_FindQCActivities <- function(.data, clean = FALSE, flaggedonly = FALSE) {
 
   # if flaggedonly = TRUE, return clean dataframe filtered to only the flagged rows
   if (flaggedonly == TRUE) {
-    final.data <- clean.data[!is.na(clean.data$TADA.ActivityType.Flag), ]
+    
+    # filter to review only samples that are not Non_QC
+    final.data <- dplyr::filter(clean.data, TADA.ActivityType.Flag != "Non_QC")
+    
     # if the dataframe is empty, print message
     if (nrow(final.data) == 0) {
       print("This dataframe is empty because either we did not find any QC samples or because they were all removed")
@@ -576,6 +580,7 @@ TADA_FindQCActivities <- function(.data, clean = FALSE, flaggedonly = FALSE) {
 #' 'TADA.ActivityDepthHeightMeasure.MeasureValue', 'TADA.ResultDepthHeightMeasure.MeasureValue', 
 #' 'TADA.ActivityTopDepthHeightMeasure.MeasureValue', and 
 #' 'TADA.ActivityBottomDepthHeightMeasure.MeasureValue'.
+#' 
 #' @param type Character argument identifying which Activity Types to look for while pairing replicates
 #' to their parent samples. The default type is "QC_replicate", which includes Activity Type Codes: 
 #' "Quality Control Field Replicate Habitat Assessment",
@@ -583,6 +588,7 @@ TADA_FindQCActivities <- function(.data, clean = FALSE, flaggedonly = FALSE) {
 #' "Quality Control Field Replicate Portable Data Logger",
 #' "Quality Control Field Replicate Sample-Composite", and
 #' "Quality Control Sample-Field Replicate".
+#' 
 #' @param time_difference Numeric argument defining the maximum time difference in seconds 
 #' to search for parent samples. The default time window is 600 seconds or 10 minutes.
 #' The time_difference can be as large as the user would like, but parent-replicate pairs will only be 
