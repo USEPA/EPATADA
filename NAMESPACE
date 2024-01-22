@@ -2,6 +2,7 @@
 
 export("%>%")
 export(TADA_AggregateMeasurements)
+export(TADA_AssessmentDataFilter)
 export(TADA_AutoClean)
 export(TADA_AutoFilter)
 export(TADA_BigDataRetrieval)

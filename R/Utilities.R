@@ -1666,11 +1666,12 @@ TADA_AssessmentDataFilter <- function(.data,
   
   if (clean == TRUE) {
     
-    assessment.data <- sur.water.data %>%
-      merge(gr.water.data, all.x = TRUE) %>%
-      merge(sed.data, all.x = TRUE) %>%
+    assessment.data <- test %>%
+      dplyr::left_join(sur.water.data) %>%
+      dplyr::left_join(gr.water.data) %>%
+      dplyr::left_join(sed.data) %>%
       dplyr::filter(TADA.UseForAssessment.Flag == "Yes") %>%
-      dplyr::select(-TADA.UseForAssessment.Flag)
+      dplyr::select(-TADA.UseForAssessment.Flag, -TADA.Groundwater.Flag)
     
     rm(sur.water.data, gr.water.data, sed.data)
     
@@ -1681,9 +1682,11 @@ TADA_AssessmentDataFilter <- function(.data,
 
   if (clean == FALSE) {
     
-    assessment.data <- sur.water.data %>%
-      merge(gr.water.data, all.x = TRUE) %>%
-      merge(sed.data, all.x = TRUE)
+    assessment.data <- test %>%
+      dplyr::left_join(sur.water.data) %>%
+      dplyr::left_join(gr.water.data) %>%
+      dplyr::left_join(sed.data) %>%
+      dplyr::mutate(TADA.UseForAssessment.Flag = ifelse(is.na(TADA.UseForAssessment.Flag), "No", TADA.UseForAssessment.Flag))
     
     rm(sur.water.data, gr.water.data, sed.data)
    
