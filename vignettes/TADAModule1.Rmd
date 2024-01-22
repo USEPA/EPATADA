@@ -740,11 +740,12 @@ https://cdx.epa.gov/wqx/download/DomainValues/ActivityType.CSV
 ```{r Run TADA_FindQCActivities to review replicates}
 # Review flagged QC samples using the TADA_FindQCActivities function:
 # enter ?TADA_FindQCActivities into the console for more information
-TADAProfileClean3a <- TADA_FindQCActivities(TADAProfileClean3, 
-                                           clean = FALSE,
-                                           flaggedonly = TRUE)
+TADAProfileClean3a <- TADA_FindQCActivities(TADAProfileClean3,
+  clean = FALSE,
+  flaggedonly = TRUE
+)
 
-# Filter to review only data where the TADA.ActivityType.Flag = "QC_replicate" 
+# Filter to review only data where the TADA.ActivityType.Flag = "QC_replicate"
 TADAProfileClean3a <- dplyr::filter(TADAProfileClean3a, TADA.ActivityType.Flag == "QC_replicate")
 ```
 
@@ -772,7 +773,7 @@ TADAProfileClean3b <- TADA_PairReplicates(TADAProfileClean3)
 # Review unique values in TADA.ReplicateSampleID
 unique(TADAProfileClean3b$TADA.ReplicateSampleID)
 
-# Filter df to include only unique values that are paired replicate samples (parent-result and child-replicate). 
+# Filter df to include only unique values that are paired replicate samples (parent-result and child-replicate).
 
 # Exclude NA's
 TADAProfileClean3b <- TADAProfileClean3b[!is.na(TADAProfileClean3b$TADA.ReplicateSampleID), ]
@@ -787,8 +788,9 @@ Now, let's remove QC samples/measurements from the dataframe.
 
 ```{r TADA_FindQCActivities, fig.width=6, fig.height=6, fig.fullwidth=TRUE}
 # Remove flagged QC samples using the TADA_FindQCActivities function:
-TADAProfileClean4 <- TADA_FindQCActivities(TADAProfileClean3, 
-                                           clean = TRUE)
+TADAProfileClean4 <- TADA_FindQCActivities(TADAProfileClean3,
+  clean = TRUE
+)
 
 # regenerate table and pie chart
 TADA_FieldValuesTable(TADAProfileClean4, "ActivityTypeCode")

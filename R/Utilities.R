@@ -834,4 +834,3 @@ TADA_RunKeyFlagFunctions <- function(.data, remove_na = TRUE, clean = TRUE) {
 
   return(.data)
 }
-
