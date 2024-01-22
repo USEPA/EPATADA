@@ -134,7 +134,7 @@ automatically runs the **TADA_AutoClean** function, which runs the following fun
 
 -   **TADA_ConvertSpecialChars** - converts result value columns to numeric and flags non-numeric values that could not be converted.
 
--   **TADA_ConvertResultUnits** - unifies result units for easier quality control and review
+-   **TADA_ConvertResultUnits** - unifies result and detection limit units for easier quality control and review.
 
 -   **TADA_ConvertDepthUnits** - converts depth units to a consistent unit (meters).
 
