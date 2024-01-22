@@ -12,6 +12,7 @@ TADA.Rproj
 
 # Session Data files
 .RData
+.RDataTmp
 
 .Rdata
 .httr-oauth
@@ -22,4 +23,3 @@ _snaps
 docs
 
 testing_log.txt
-.RDataTmp
