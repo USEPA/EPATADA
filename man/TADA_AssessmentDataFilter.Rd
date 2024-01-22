@@ -31,10 +31,6 @@ frame.}
 \item{sediment}{Boolean argument; specifies whether sediment results should
 be included in the returned data frame. Default is sediment = FALSE,
 sediment samples are not retained in the data frame.}
-
-\item{fish_tissue}{Boolean argument; specifies whether fish tissue
-results should be included in the returned data frame. Default is
-fish_tissue = FALSE, fish tissue samples are not retained in the data frame.}
 }
 \value{
 If clean = TRUE, returns the data frame with only the media types
