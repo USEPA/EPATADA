@@ -28,9 +28,9 @@ results respectively.}
 
 \item{bottomvalue}{numeric argument. The user enters how many meters from the
 bottom should be included in the "Hypolimnion-bottom" category. Default is
-bottom = 2.
+bottom = 2.}
 
-#' @param surfacevalue numeric argument. The user enters how many meters from the
+\item{surfacevalue}{numeric argument. The user enters how many meters from the
 top should be included in the "Hypolimnion-bottom" category. Default is
 top = 2.}
 

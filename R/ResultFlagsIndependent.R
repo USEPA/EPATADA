@@ -1302,7 +1302,7 @@ TADA_FindPotentialDuplicatesSingleOrg <- function(.data) {
 #' bottom should be included in the "Hypolimnion-bottom" category. Default is 
 #' bottom = 2.
 #' 
-#' #' @param surfacevalue numeric argument. The user enters how many meters from the 
+#' @param surfacevalue numeric argument. The user enters how many meters from the 
 #' top should be included in the "Hypolimnion-bottom" category. Default is 
 #' top = 2.
 #'
