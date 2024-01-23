@@ -1326,7 +1326,7 @@ TADA_FindPotentialDuplicatesSingleOrg <- function(.data) {
 #' # Data_6Tribs_5y_DepthCat <- TADA_DepthCategory.Flag(Data_6Tribes_5y)
 #'
 #' # assign TADA.DepthCategory.Flag and determine average values by depth category and returning only aggregate values
-#' Data_6Tribs_5y_Mean <- TADA_DepthCategory.Flag(Data_6Tribes_5y, bycategory = TRUE, dailyagg = "avg", aggregatedonly = FALSE)
+#' Data_6Tribs_5y_Mean <- TADA_DepthCategory.Flag(Data_6Tribes_5y, bycategory = "all", dailyagg = "avg", aggregatedonly = FALSE)
 #'
 TADA_DepthCategory.Flag <- function(.data, bycategory = "no", dailyagg = "none", aggregatedonly = FALSE, clean = FALSE) {
   depthcat.list <- c("Epilimnion-surface", "Hypolimnion-bottom", "Metalimnion/Thermocline-middle")
