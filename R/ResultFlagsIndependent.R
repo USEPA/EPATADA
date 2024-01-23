@@ -1297,6 +1297,14 @@ TADA_FindPotentialDuplicatesSingleOrg <- function(.data) {
 #' values are determined ONLY for results with TADA.DepthCategory.Flags
 #' "Epilimnion-surface", "Hypolimnion-bottom", or "Metalimnion/Thermocline-middle" 
 #' results respectively.
+#' 
+#' @param bottomvalue numeric argument. The user enters how many meters from the 
+#' bottom should be included in the "Hypolimnion-bottom" category. Default is 
+#' bottom = 2.
+#' 
+#' #' @param surfacevalue numeric argument. The user enters how many meters from the 
+#' top should be included in the "Hypolimnion-bottom" category. Default is 
+#' top = 2.
 #'
 #' @param aggregatedonly Boolean argument with options "TRUE" or "FALSE". The 
 #' default is aeggrgatedonly = "FALSE" which means that all results are returned.
@@ -1328,7 +1336,7 @@ TADA_FindPotentialDuplicatesSingleOrg <- function(.data) {
 #' # assign TADA.DepthCategory.Flag and determine average values by depth category and returning only aggregate values
 #' Data_6Tribs_5y_Mean <- TADA_DepthCategory.Flag(Data_6Tribes_5y, bycategory = "all", dailyagg = "avg", aggregatedonly = FALSE)
 #'
-TADA_DepthCategory.Flag <- function(.data, bycategory = "no", dailyagg = "none", aggregatedonly = FALSE, clean = FALSE) {
+TADA_DepthCategory.Flag <- function(.data, bycategory = "no", bottomvalue = 2, surfacevalue = 2, dailyagg = "none", aggregatedonly = FALSE, clean = FALSE) {
   depthcat.list <- c("Epilimnion-surface", "Hypolimnion-bottom", "Metalimnion/Thermocline-middle")
 
   ard.ref <- utils::read.csv(system.file("extdata", "WQXActivityRelativeDepthRef.csv", package = "TADA")) %>%
@@ -1364,10 +1372,9 @@ TADA_DepthCategory.Flag <- function(.data, bycategory = "no", dailyagg = "none",
       dplyr::ungroup() %>%
       # assign depth categories by using depth information
       dplyr::mutate(TADA.DepthCategory.Flag = dplyr::case_when(
-        !MonitoringLocationTypeName %in% c("Lake, Reservoir, Impoundment", "Great Lakes", "Lake", "Great Lake") ~ "Not Calculated for MonitoringLocationType",
-        Depth <= 2 ~ "Epilimnion-surface",
-        Depth <= Bottom & Depth >= Bottom - 2 ~ "Hypolimnion-bottom",
-        Depth < 2 & Depth < Bottom - 2 ~ "Metalimnion/Thermocline-middle"
+        Depth <= surfacevalue ~ "Epilimnion-surface",
+        Depth <= Bottom & Depth >= Bottom - bottomvalue ~ "Hypolimnion-bottom",
+        Depth < surfacevalue & Depth < Bottom - bottomvalue ~ "Metalimnion/Thermocline-middle"
       )) %>%
       # assign depth categories that could not be assigned using depth
       dplyr::left_join(ard.ref, by = "ActivityRelativeDepthName") %>%

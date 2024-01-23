@@ -7,6 +7,8 @@
 TADA_DepthCategory.Flag(
   .data,
   bycategory = "no",
+  bottomvalue = 2,
+  surfacevalue = 2,
   dailyagg = "none",
   aggregatedonly = FALSE,
   clean = FALSE
@@ -23,6 +25,14 @@ Monitoring Location. When bycategory = "surface", "middle", or "bottom", aggrega
 values are determined ONLY for results with TADA.DepthCategory.Flags
 "Epilimnion-surface", "Hypolimnion-bottom", or "Metalimnion/Thermocline-middle"
 results respectively.}
+
+\item{bottomvalue}{numeric argument. The user enters how many meters from the
+bottom should be included in the "Hypolimnion-bottom" category. Default is
+bottom = 2.
+
+#' @param surfacevalue numeric argument. The user enters how many meters from the
+top should be included in the "Hypolimnion-bottom" category. Default is
+top = 2.}
 
 \item{dailyagg}{Character argument; with options "none", "avg", "min", or
 "max". The default is daily_agg = "none". When daily_agg = "none", all results
