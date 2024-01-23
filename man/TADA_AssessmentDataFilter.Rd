@@ -41,7 +41,6 @@ input.
 }
 \description{
 This function will filter the data set and retain only the media types
-assessment workflow will be removed and the TADA.Groundwater.Flag and
 selected by the user. It uses ActivityMediaSubdivisionName, AquiferName,
 LocalAqfrName,ConstructionDateText, WellDepthMeasure.MeasureValue,
 WellDepthMeasure.MeasureUnitCode, WellHoleDepthMeasure.MeasureValue, and
