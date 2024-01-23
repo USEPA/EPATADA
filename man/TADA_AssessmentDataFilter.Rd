@@ -41,16 +41,16 @@ input.
 }
 \description{
 This function will filter the data set and retain only the media types
-selected by the user. It uses ConstructionDateText,
-WellDepthMeasure.MeasureValue, WellDepthMeasure.MeasureUnitCode,
-WellHoleDepthMeasure.MeasureValue, and WellHoleDepthMeasure.MeasureUnitCode
-to identify groundwater samples and creates a column "TADA.Groundwater.Flag".
-Users can select whether sediment, fish tissue and/or surface water should
-be included in the data set. An additional column TADA.AssessmentData.Flag
-specifies whether each row should be included in the assessment workflow.
-Setting clean = TRUE, means that all results not flagged for use in
 assessment workflow will be removed and the TADA.Groundwater.Flag and
-TADA.AssessmentData.Flag columns will not be added.
+selected by the user. It uses ActivityMediaSubdivisionName, AquiferName,
+LocalAqfrName,ConstructionDateText, WellDepthMeasure.MeasureValue,
+WellDepthMeasure.MeasureUnitCode, WellHoleDepthMeasure.MeasureValue, and
+WellHoleDepthMeasure.MeasureUnitCode to identify groundwater samples. Users
+can select whether sediment, fish tissue and/or surface water should be included. in the data set. An
+An additional column, TADA.AssessmentData.Flag, specifies whether each row should
+be included in the assessment workflow and why. Setting clean = TRUE, means
+that all results not flagged for use in assessment workflow will be removed
+and the TADA.AssessmentData.Flag column will not be added.
 }
 \details{
 *Need to add fish tissue to this function once new WQX profiles are available.
