@@ -244,16 +244,15 @@ TADA_FieldValuesTable <- function(.data, field = "null", characteristicName = "n
 #' TADA_AssessmentDataFilter
 #'
 #' This function will filter the data set and retain only the media types
-#' selected by the user. It uses ConstructionDateText, 
-#' WellDepthMeasure.MeasureValue, WellDepthMeasure.MeasureUnitCode,
-#' WellHoleDepthMeasure.MeasureValue, and WellHoleDepthMeasure.MeasureUnitCode
-#' to identify groundwater samples and creates a column "TADA.Groundwater.Flag".
-#' Users can select whether sediment, fish tissue and/or surface water should 
-#' be included in the data set. An additional column TADA.AssessmentData.Flag
-#' specifies whether each row should be included in the assessment workflow.
-#' Setting clean = TRUE, means that all results not flagged for use in 
-#' assessment workflow will be removed and the TADA.Groundwater.Flag and 
-#' TADA.AssessmentData.Flag columns will not be added.
+#' selected by the user. It uses ActivityMediaSubdivisionName, AquiferName, 
+#' LocalAqfrName,ConstructionDateText, WellDepthMeasure.MeasureValue,
+#' WellDepthMeasure.MeasureUnitCode, WellHoleDepthMeasure.MeasureValue, and
+#' WellHoleDepthMeasure.MeasureUnitCode to identify groundwater samples. Users 
+#' can select whether sediment, fish tissue and/or surface water should be included. in the data set. An 
+#' An additional column, TADA.AssessmentData.Flag, specifies whether each row should 
+#' be included in the assessment workflow and why. Setting clean = TRUE, means
+#' that all results not flagged for use in assessment workflow will be removed 
+#' and the TADA.AssessmentData.Flag column will not be added.
 #' 
 #' *Need to add fish tissue to this function once new WQX profiles are available.
 #' (HRM, 1/22/4)
@@ -391,7 +390,9 @@ TADA_AssessmentDataFilter <- function(.data,
       dplyr::left_join(sur.water.data) %>%
       dplyr::left_join(gr.water.data) %>%
       dplyr::left_join(sed.data) %>%
-      dplyr::mutate(TADA.UseForAssessment.Flag = ifelse(is.na(TADA.UseForAssessment.Flag), "No", TADA.UseForAssessment.Flag))
+      dplyr::mutate(TADA.UseForAssessment.Flag = paste(TADA.UseForAssessment.Flag, " - ", TADA.Groundwater.Flag, sep = ""),
+                    TADA.UseForAssessment.Flag = ifelse(is.na(TADA.UseForAssessment.Flag), "No - Other", TADA.UseForAssessment.Flag)) %>%
+      dplyr::select(-TADA.Groundwater.Flag)
     
     rm(sur.water.data, gr.water.data, sed.data)
     
