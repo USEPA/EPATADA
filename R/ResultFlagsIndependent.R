@@ -1278,7 +1278,7 @@ TADA_FindPotentialDuplicatesSingleOrg <- function(.data) {
 #' TADA.ActivityBottomDepthHeightMeasure.MeasureValue, ActivityRelativeDepthName,
 #' and MonitoringLocationTypeName.
 #'
-#' @param daily_agg Character argument; with options "none", "avg", "min", or
+#' @param dailyagg Character argument; with options "none", "avg", "min", or
 #' "max". The default is daily_agg = "none". When daily_agg = "none", all results
 #' will be retained. When daily_agg == "avg", the mean value in each group of
 #' results (as determined by the depth category) will be identified or calculated for each
@@ -1289,15 +1289,23 @@ TADA_FindPotentialDuplicatesSingleOrg <- function(.data) {
 #' combination. An additional column, TADA.DepthProfileAggregation.Flag will be added
 #' to describe aggregation.
 #'
-#' @param bycategory Boolean argument with options "TRUE" or "FALSE". The default is
-#' by category = "FALSE" which means that any descriptive statistics calculated are
-#' based on the entire water column at a Monitoring Location. When bycategory = "TRUE",
-#' any calculated descriptive statistics are determined for each depth category for each
-#' Monitoring Location.
+#' @param bycategory character argument with options "no", "all", "surface", "middle",
+#' "bottom". The default is bycategory = "no" which means that any aggregate values
+#' are based on the entire water column at a Monitoring Location. When bycategory
+#' = "all", any aggregate values are determined for each depth category for each 
+#' Monitoring Location. When bycategory = "surface", "middle", or "bottom", aggregate
+#' values are determined ONLY for results with TADA.DepthCategory.Flags
+#' "Epilimnion-surface", "Hypolimnion-bottom", or "Metalimnion/Thermocline-middle" 
+#' results respectively.
 #'
 #' @param aggregatedonly Boolean argument with options "TRUE" or "FALSE". The 
-#' default is aggregatedonly = "FALSE" which means that all results are returned.
+#' default is aeggrgatedonly = "FALSE" which means that all results are returned.
 #' When aggregatedonly = "TRUE", only aggregate values are returned.
+#' 
+#' @param clean Boolean argument with options "TRUE" or "FALSE". The 
+#' default is clean = "FALSE" which means that all results are returned.
+#' When clean = "TRUE", only aggregate results which can be assigned to a depth
+#' category are included in the returned dataframe.
 #'
 #' @param .data TADA dataframe
 #'
@@ -1320,7 +1328,7 @@ TADA_FindPotentialDuplicatesSingleOrg <- function(.data) {
 #' # assign TADA.DepthCategory.Flag and determine average values by depth category
 #' Data_6Tribs_5y_Mean <- TADA_DepthCategory.Flag(Data_6Tribes_5y, bycategory = TRUE, daily_agg = "avg")
 #'
-TADA_DepthCategory.Flag <- function(.data, bycategory = FALSE, daily_agg = "none", aggregatedonly = FALSE) {
+TADA_DepthCategory.Flag <- function(.data, bycategory = "no", dailyagg = "none", aggregatedonly = FALSE, clean = FALSE) {
   depthcat.list <- c("Epilimnion-surface", "Hypolimnion-bottom", "Metalimnion/Thermocline-middle")
 
   ard.ref <- utils::read.csv(system.file("extdata", "WQXActivityRelativeDepthRef.csv", package = "TADA")) %>%
@@ -1375,27 +1383,80 @@ TADA_DepthCategory.Flag <- function(.data, bycategory = FALSE, daily_agg = "none
 
       return(.data)
     }
+    
+  }
+  
+  if(clean == TRUE) {
+    
+    .data <- .data %>%
+    dplyr::filter(TADA.DepthCategory.Flag %in% depthcat.list)
+  }
+  
+  if(clean == FALSE) {
+    
+    .data <- .data 
   }
 
-  if (bycategory == TRUE) {
-    print("TADA_DepthCategory.Flag: Grouping results by MonitoringLocationIdentifier, OrganizationIdentifier, CharacteristicName, ActivityStartDate, and TADA.DepthCategory.Flag for aggregation.")
+  if (bycategory == "all") {
+    print("TADA_DepthCategory.Flag: Grouping results by MonitoringLocationIdentifier, OrganizationIdentifier, CharacteristicName, ActivityStartDate, and TADA.DepthCategory.Flag for aggregation by TADA.DepthCategory.Flag.")
 
     group.list <- c(
       "MonitoringLocationIdentifier", "OrganizationIdentifier",
       "TADA.CharacteristicName", "ActivityStartDate",
       "TADA.DepthCategory.Flag"
     )
+    
+    .data <- .data
   }
-  if (bycategory == FALSE) {
-    print("TADA_DepthCategory.Flag: Grouping results by MonitoringLocationIdentifier, OrganizationIdentifier, CharacteristicName, and ActivityStartDate for aggregation.")
+  
+  if (bycategory == "no") {
+    print("TADA_DepthCategory.Flag: Grouping results by MonitoringLocationIdentifier, OrganizationIdentifier, CharacteristicName, and ActivityStartDate for aggregation for entire water column.")
 
     group.list <- c(
       "MonitoringLocationIdentifier", "OrganizationIdentifier",
       "TADA.CharacteristicName", "ActivityStartDate"
     )
+    
+    .data <- .data
+  }
+  
+  if (bycategory == "surface") {
+    print("TADA_DepthCategory.Flag: Grouping results by MonitoringLocationIdentifier, OrganizationIdentifier, CharacteristicName, and ActivityStartDate for aggregation for surface samples only.")
+    
+    group.list <- c(
+      "MonitoringLocationIdentifier", "OrganizationIdentifier",
+      "TADA.CharacteristicName", "ActivityStartDate"
+    )
+    
+    .data <- .data %>%
+      dplyr::filter(TADA.DepthCategory.Flag == "Epilimnion-surface")
+  }
+  
+  if (bycategory == "middle") {
+    print("TADA_DepthCategory.Flag: Grouping results by MonitoringLocationIdentifier, OrganizationIdentifier, CharacteristicName, and ActivityStartDate for aggregation for middle samples only.")
+    
+    group.list <- c(
+      "MonitoringLocationIdentifier", "OrganizationIdentifier",
+      "TADA.CharacteristicName", "ActivityStartDate"
+    )
+    
+    .data <- .data %>%
+      dplyr::filter(TADA.DepthCategory.Flag == "Metalimnion/Thermocline-middle")
+  }
+  
+  if (bycategory == "bottom") {
+    print("TADA_DepthCategory.Flag: Grouping results by MonitoringLocationIdentifier, OrganizationIdentifier, CharacteristicName, and ActivityStartDate for aggregation for bottom samples only.")
+    
+    group.list <- c(
+      "MonitoringLocationIdentifier", "OrganizationIdentifier",
+      "TADA.CharacteristicName", "ActivityStartDate"
+    )
+    
+    .data <- .data %>%
+      dplyr::filter(TADA.DepthCategory.Flag == "Hypolimnion-bottom")
   }
 
-  if (daily_agg == "none") {
+  if (dailyagg == "none") {
     print("TADA_DepthCategory.Flag: No aggregation performed.")
 
     # add TADA.ResultValue.Aggregation.Flag, remove unecessary columns, and order columns
@@ -1415,7 +1476,7 @@ TADA_DepthCategory.Flag <- function(.data, bycategory = FALSE, daily_agg = "none
       return(orig.data)
     }
   }
-  if ((daily_agg == "avg")) {
+  if ((dailyagg == "avg")) {
     print("TADA_DepthCategory.Flag: Calculating mean aggregate value with randomly selected metadata.")
 
     # add TADA.ResultValue.Aggregation.Flag and remove unnecessary columns in original data set
@@ -1439,7 +1500,8 @@ TADA_DepthCategory.Flag <- function(.data, bycategory = FALSE, daily_agg = "none
       dplyr::mutate(TADA.DepthProfileAggregation.Flag = paste0("Calculated mean aggregate value, with randomly selected metadata from a row in the aggregate group")) %>%
       dplyr::select(-TADA.ResultMeasureValue, -DepthsByGroup) %>%
       dplyr::rename(TADA.ResultMeasureValue = TADA.ResultMeasureValue1) %>%
-      dplyr::mutate(ResultIdentifier = paste0("TADA-", ResultIdentifier))
+      dplyr::mutate(ResultIdentifier = paste0("TADA-", ResultIdentifier)) %>%
+      dplyr::ungroup()
 
     if (aggregatedonly == TRUE) {
       rm(orig.data)
@@ -1459,7 +1521,7 @@ TADA_DepthCategory.Flag <- function(.data, bycategory = FALSE, daily_agg = "none
       return(comb.data)
     }
   }
-  if ((daily_agg == "min")) {
+  if ((dailyagg == "min")) {
     print("TADA_DepthCategory.Flag: Selecting minimum aggregate value.")
 
     # add TADA.ResultValue.Aggregation.Flag and remove unnecessary columns in original data set
@@ -1480,7 +1542,8 @@ TADA_DepthCategory.Flag <- function(.data, bycategory = FALSE, daily_agg = "none
       ) %>%
       dplyr::slice_min(order_by = TADA.ResultMeasureValue, n = 1, with_ties = FALSE) %>%
       dplyr::mutate(TADA.DepthProfileAggregation.Flag = paste0("Selected as min aggregate value")) %>%
-      dplyr::select(-DepthsByGroup)
+      dplyr::select(-DepthsByGroup) %>%
+      dplyr::ungroup()
 
     if (aggregatedonly == TRUE) {
       rm(orig.data)
@@ -1510,7 +1573,7 @@ TADA_DepthCategory.Flag <- function(.data, bycategory = FALSE, daily_agg = "none
     }
   }
 
-  if ((daily_agg == "max")) {
+  if ((dailyagg == "max")) {
     print("TADA_DepthCategory.Flag: Selecting maximum aggregate value.")
 
     # add TADA.ResultValue.Aggregation.Flag and remove unnecessary columns in original data set
@@ -1524,16 +1587,13 @@ TADA_DepthCategory.Flag <- function(.data, bycategory = FALSE, daily_agg = "none
     agg.data <- orig.data %>%
       dplyr::filter(
         DepthsByGroup > 1,
-        TADA.DepthCategory.Flag %in% c(
-          "Epilimnion-surface",
-          "Hypolimnion-bottom",
-          "Metalimnion/Thermocline-middle"
-        )
+        TADA.DepthCategory.Flag %in% depthcat.list
       ) %>%
       dplyr::slice_max(order_by = TADA.ResultMeasureValue, n = 1, with_ties = FALSE) %>%
       dplyr::mutate(TADA.DepthProfileAggregation.Flag = paste0("Selected as max aggregate value")) %>%
       dplyr::mutate(ResultIdentifier = paste0("TADA-", ResultIdentifier)) %>%
-      dplyr::select(-DepthsByGroup)
+      dplyr::select(-DepthsByGroup) %>%
+      dplyr::ungroup()
 
     if (aggregatedonly == TRUE) {
       rm(orig.data)

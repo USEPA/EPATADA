@@ -6,21 +6,25 @@
 \usage{
 TADA_DepthCategory.Flag(
   .data,
-  bycategory = FALSE,
-  daily_agg = "none",
+  bycategory = "no",
+  dailyagg = "none",
+  aggregatedonly = FALSE,
   clean = FALSE
 )
 }
 \arguments{
 \item{.data}{TADA dataframe}
 
-\item{bycategory}{Boolean argument with options "TRUE" or "FALSE". The default is
-by category = "FALSE" which means that any descriptive statistics calculated are
-based on the entire water column at a Monitoring Location. When bycategory = "TRUE",
-any calculated descriptive statistics are determined for each depth category for each
-Monitoring Location.}
+\item{bycategory}{character argument with options "no", "all", "surface", "middle",
+"bottom". The default is bycategory = "no" which means that any aggregate values
+are based on the entire water column at a Monitoring Location. When bycategory
+= "all", any aggregate values are determined for each depth category for each
+Monitoring Location. When bycategory = "surface", "middle", or "bottom", aggregate
+values are determined ONLY for results with TADA.DepthCategory.Flags
+"Epilimnion-surface", "Hypolimnion-bottom", or "Metalimnion/Thermocline-middle"
+results respectively.}
 
-\item{daily_agg}{Character argument; with options "none", "avg", "min", or
+\item{dailyagg}{Character argument; with options "none", "avg", "min", or
 "max". The default is daily_agg = "none". When daily_agg = "none", all results
 will be retained. When daily_agg == "avg", the mean value in each group of
 results (as determined by the depth category) will be identified or calculated for each
@@ -28,28 +32,35 @@ MonitoringLocation, ActivityDate, Organization ID, and TADA.CharacteristicName c
 When daily_agg == "min" or when daily_agg == "max", the min or max
 value in each group of results (as determined by the depth category) will
 be identified or calculated for each MonitoringLocation, ActivityDate, and TADA.CharacteristicName
-combination. An additional column, TADA.ResultValueAggregation.DepthProfile.Flag will be added
+combination. An additional column, TADA.DepthProfileAggregation.Flag will be added
 to describe aggregation.}
 
-\item{clean}{Boolean argument with options "TRUE" or "FALSE". The default is
-by category = "FALSE" which means that all results are returned. When clean
-= "TRUE", only aggregate values are returned.}
+\item{aggregatedonly}{Boolean argument with options "TRUE" or "FALSE". The
+default is aeggrgatedonly = "FALSE" which means that all results are returned.
+When aggregatedonly = "TRUE", only aggregate values are returned.}
+
+\item{clean}{Boolean argument with options "TRUE" or "FALSE". The
+default is clean = "FALSE" which means that all results are returned.
+When clean = "TRUE", only aggregate results which can be assigned to a depth
+category are included in the returned dataframe.}
 }
 \value{
 The same input TADA dataframe with additional columns TADA.DepthCategory.Flag
-and TADA.ResultValueAggregation.DepthProfile.Flag. If a daily_agg = "avg",
+and TADA.DepthProfileAggregation.Flag. If a daily_agg = "avg",
 "min", or "max", aggregated values will be identified in the TADA.ResultAggregation.Flag
 column. In the case of daily_agg = "avg", additional rows to display averages will be
 added to the data frame. They can be identified by the prefix ("TADA-") of
 their result identifiers.
 }
 \description{
-Creates a new column, TADA.DepthCategory.Flag with values: "No
+This function creates a new column, TADA.DepthCategory.Flag with values: "No
 depth info", "Epilimnion-surface", "Hypolimnion-bottom", and
-"Metalimnion/Thermocline-middle". Categories can be defined to start as:
-less than 2m depth = "Epilimnion", from bottom up to 2m from
+"Metalimnion/Thermocline-middle" For results for with MonitoringLocationTypeName
+"Lake, Reservoir, Impoundment", "Great Lakes", "Lake", or "Great Lake".
+Categories are: less than 2m depth = "Epilimnion", from bottom up to 2m from
 bottom= "Hypolimnion-bottom", and the full depth profile for
-"Metalimnion/Thermocline-middle".
+"Metalimnion/Thermocline-middle". For results with other MonitoringLocationTypeNames
+the TADA.DepthCategory.Flag is "Not Calculated for MonitoringLocationType".
 }
 \details{
 When more than one result is available for a MonitoringLocationIdentifier,
