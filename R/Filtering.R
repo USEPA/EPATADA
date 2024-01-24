@@ -261,7 +261,7 @@ TADA_FieldValuesTable <- function(.data, field = "null", characteristicName = "n
 #' @param .data A TADA profile object
 #' 
 #' @param clean Boolean argument; removes all results not flagged for use in
-#' assessment workflow. TADA.Groundwater.Flag and TADA.AssessmentData.Flag 
+#' assessment workflow. TADA.Media.Flag and TADA.AssessmentData.Flag 
 #' columns will not be added Default is clean = TRUE.
 #' 
 #' @param surface_water Boolean argument; specifies whether surface water
@@ -279,7 +279,7 @@ TADA_FieldValuesTable <- function(.data, field = "null", characteristicName = "n
 #' 
 #' @return If clean = TRUE, returns the data frame with only the media types
 #' selected by the user. If clean = FALSE, returns the data frame with two
-#' additional columns, "TADA.Groundwater.Flag" and "TADA.AssessmentData.Flag",
+#' additional columns, "TADA.Media.Flag" and "TADA.AssessmentData.Flag",
 #' indicating which results should be excluded from assessments based on user
 #' input.
 #' 
@@ -299,16 +299,16 @@ TADA_AssessmentDataFilter <- function(.data,
                                       ground_water = FALSE,
                                       sediment = FALSE) {
   
-  # import MonitoringLocationTypeNames and TADA.Groundwater.Flags
+  # import MonitoringLocationTypeNames and TADA.Media.Flags
   sw.sitetypes <- utils::read.csv(system.file("extdata", "WQXMonitoringLocationTypeNameRef.csv", package = "TADA")) %>%
-    dplyr::select(MonitoringLocationTypeName, TADA.Groundwater.Flag) %>%
-    dplyr::rename(ML.Groundwater.Flag = TADA.Groundwater.Flag)
+    dplyr::select(MonitoringLocationTypeName, TADA.Media.Flag) %>%
+    dplyr::rename(ML.Media.Flag = TADA.Media.Flag)
   
   
-  # add TADA.Groundwater.Flag column
+  # add TADA.Media.Flag column
   .data <- .data %>%
-    # identify TADA.Groundwater.Flag using ActivityMediaSubdivisionName and columns related to groundwater
-    dplyr::mutate(TADA.Groundwater.Flag = dplyr::case_when(ActivityMediaSubdivisionName == "Groundwater" ~ "Groundwater",
+    # identify TADA.Media.Flag using ActivityMediaSubdivisionName and columns related to groundwater
+    dplyr::mutate(TADA.Media.Flag = dplyr::case_when(ActivityMediaSubdivisionName == "Groundwater" ~ "Groundwater",
                                                            !is.na(AquiferName) |
                                                              !is.na(AquiferTypeName) |
                                                              !is.na(LocalAqfrName) |
@@ -318,25 +318,32 @@ TADA_AssessmentDataFilter <- function(.data,
                                                              !is.na(WellHoleDepthMeasure.MeasureValue) |
                                                              !is.na(WellHoleDepthMeasure.MeasureUnitCode) ~ "Groundwater",
                                                            ActivityMediaSubdivisionName == "Surface Water" ~ "Surface Water",
-                                                           TADA.ActivityMediaName != "WATER" ~ "Not Water")) %>%
-    # add TADA.Groundwater.Flag for additional rows based on MonitoringLocationTypeName
+                                                           !ActivityMediaName %in% c("WATER", "Water", "water") ~ ActivityMediaName)) %>%
+    # add TADA.Media.Flag for additional rows based on MonitoringLocationTypeName
     dplyr::left_join(sw.sitetypes) %>%
-    dplyr::mutate(TADA.Groundwater.Flag = ifelse(is.na(TADA.Groundwater.Flag),
-                                                 ML.Groundwater.Flag, TADA.Groundwater.Flag)) %>%
-    dplyr::select(-ML.Groundwater.Flag)
+    dplyr::mutate(TADA.Media.Flag = ifelse(is.na(TADA.Media.Flag),
+                                                 ML.Media.Flag, TADA.Media.Flag)) %>%
+    dplyr::select(-ML.Media.Flag)
+  
+  print("TADA_AssessmentDataFilter: Identifying groundwater results.")
   
   { if (surface_water == TRUE)
     
     sur.water.data <- .data %>%
-      dplyr::filter(TADA.Groundwater.Flag == "Surface Water") %>%
+      dplyr::filter(TADA.Media.Flag == "Surface Water") %>%
       dplyr::mutate(TADA.UseForAssessment.Flag = "Yes")
+    
+    print("TADA_AssessmentDataFilter: Flagging surface water results to include in assessments.")
+    
     }
   
   { if (surface_water == FALSE)
     
     sur.water.data <- .data %>%
-      dplyr::filter(TADA.Groundwater.Flag == "Surface Water") %>%
+      dplyr::filter(TADA.Media.Flag == "Surface Water") %>%
       dplyr::mutate(TADA.UseForAssessment.Flag = "No")
+    
+    print("TADA_AssessmentDataFilter: Flagging surface water results to exclude from assessments.")
     
   }
   
@@ -344,40 +351,51 @@ TADA_AssessmentDataFilter <- function(.data,
   if (ground_water == TRUE) {
     
     gr.water.data <- .data %>%
-      dplyr::filter(TADA.Groundwater.Flag == "Groundwater") %>%
+      dplyr::filter(TADA.Media.Flag == "Groundwater") %>%
       dplyr::mutate(TADA.UseForAssessment.Flag = "Yes")
+    
+    print("TADA_AssessmentDataFilter: Flagging groundwater results to include in assessments.")
+    
     
   }
   
   if (ground_water == FALSE) {
     gr.water.data <- .data %>%
-      dplyr::filter(TADA.Groundwater.Flag == "Groundwater") %>%
+      dplyr::filter(TADA.Media.Flag == "Groundwater") %>%
       dplyr::mutate(TADA.UseForAssessment.Flag = "No")
+    
+    print("TADA_AssessmentDataFilter: Flagging groundwater results to exclude from assessments.")
     
   }
   if (sediment == TRUE) {
     sed.data <- .data %>%
-      dplyr::filter(TADA.ActivityMediaName == "SEDIMENT") %>%
+      dplyr::filter(ActivityMediaName %in% c("SEDIMENT", "Sediment", "sediment") %>%
       dplyr::mutate(TADA.UseForAssessment.Flag = "Yes")
+    
+    print("TADA_AssessmentDataFilter: Flagging sediment results to include in assessments.")
     
   }
   
   if (sediment == FALSE) {
     sed.data <- .data %>%
-      dplyr::filter(TADA.ActivityMediaName == "SEDIMENT") %>%
+      dplyr::filter(ActivityMediaName %in% c("SEDIMENT", "Sediment", "sediment")) %>%
       dplyr::mutate(TADA.UseForAssessment.Flag = "No")
+    
+    print("TADA_AssessmentDataFilter: Flagging sediment results to exclude from assessments.")
+    
   }
   
   if (clean == TRUE) {
     
-    assessment.data <- .data %>%
-      dplyr::left_join(sur.water.data) %>%
-      dplyr::left_join(gr.water.data) %>%
-      dplyr::left_join(sed.data) %>%
+    assessment.data <- sur.water.data %>%
+      dplyr::full_join(gr.water.data) %>%
+      dplyr::full_join(sed.data) %>%
       dplyr::filter(TADA.UseForAssessment.Flag == "Yes") %>%
-      dplyr::select(-TADA.UseForAssessment.Flag, -TADA.Groundwater.Flag)
+      dplyr::select(-TADA.UseForAssessment.Flag, -TADA.Media.Flag)
     
     rm(sur.water.data, gr.water.data, sed.data)
+    
+    print("TADA_AssessmentDataFilter: Removing results flagged for exclusion from assessments.")
     
     return(assessment.data)
     
@@ -386,15 +404,29 @@ TADA_AssessmentDataFilter <- function(.data,
   
   if (clean == FALSE) {
     
-    assessment.data <- .data %>%
-      dplyr::left_join(sur.water.data) %>%
-      dplyr::left_join(gr.water.data) %>%
-      dplyr::left_join(sed.data) %>%
-      dplyr::mutate(TADA.UseForAssessment.Flag = paste(TADA.UseForAssessment.Flag, " - ", TADA.Groundwater.Flag, sep = ""),
-                    TADA.UseForAssessment.Flag = ifelse(is.na(TADA.UseForAssessment.Flag), "No - Other", TADA.UseForAssessment.Flag)) %>%
-      dplyr::select(-TADA.Groundwater.Flag)
+    assessment.data <- sur.water.data %>%
+      dplyr::full_join(gr.water.data) %>%
+      dplyr::full_join(sed.data) %>%
+      dplyr::mutate(TADA.UseForAssessment.Flag = paste(TADA.UseForAssessment.Flag, " - ", toupper(TADA.Media.Flag), sep = "")) %>%
+      dplyr::select(-TADA.Media.Flag)
     
-    rm(sur.water.data, gr.water.data, sed.data)
+    assessment.list <- assessment.data %>%
+      dplyr::select(ResultIdentifier) %>%
+      dplyr::pull()
+    
+    other.data <- .data %>%
+      dplyr::filter(!ResultIdentifier %in% assessment.list) %>%
+      dplyr::mutate(TADA.Media.Flag = ifelse(TADA.Media.Flag == "" | is.na(TADA.Media.Flag), "OTHER", TADA.Media.Flag),
+                    TADA.UseForAssessment.Flag = "No",
+                    TADA.UseForAssessment.Flag = paste(TADA.UseForAssessment.Flag, " - ", toupper(TADA.Media.Flag), sep = "")) %>%
+      dplyr::select(-TADA.Media.Flag)
+    
+    all.data <- assessment.data %>%
+      dplyr::full_join(other.data)
+    
+    rm(sur.water.data, gr.water.data, sed.data, assessment.data, assessment.list)
+    
+    print("TADA_AssessmentDataFilter: Returning all results with TADA.UseForAssessment.Flag column indicating if result should be used for assessments.")
     
     return(assessment.data)
   }

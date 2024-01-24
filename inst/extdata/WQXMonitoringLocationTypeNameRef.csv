@@ -1,4 +1,4 @@
-﻿MonitoringLocationTypeName,Description,WQPSiteType,TADA.Groundwater.Flag
+﻿MonitoringLocationTypeName,Description,WQPSiteType,TADA.Media.Flag
 BEACH Program Site-Channelized stream,"The process of straightening or redirecting natural streams in an artificially modified or constructed stream bed. Channelization has been carried out for numerous reasons, most often to drain wetlands , direct water flow for agricultural use, and control flooding . While this process makes a stream more useful for human activities, it tends to interfere with natural river habitats and to destabilize stream banks by destroying riparian vegetation.",Ocean,Surface Water
 BEACH Program Site-Estuary,"a partially enclosed coastal body of brackish water with one or more rivers or streams flowing into it, and with a free connection to the open sea
 Estuaries form a transition zone between river environments and maritime environments.
@@ -69,7 +69,7 @@ Wetland Estuarine-Ditch,"Open water estuary, bay, sound Vegetated and non-vegeta
 Wetland Estuarine-Emergent,"Open water estuary, bay, sound Herbaceous marsh, fen, swale and wet meadow",Wetland,Surface Water
 BEACH Program Site-Land runoff,"Also known as overland flow is the flow of water that occurs when excess stormwater, meltwater, or other sources flows over the Earth's surface.",Ocean,
 BEACH Program Site-Land,"Land, sometimes referred to as dry land, is the solid surface of Earth that is not permanently covered by water.",Ocean,
-BEACH Program Site-Ocean,An ocean is a body of water that composes much of a planet's hydrosphere.,Ocean,
+BEACH Program Site-Ocean,An ocean is a body of water that composes much of a planet's hydrosphere.,Ocean,Surface Water
 Wetland Estuarine-Forested,"Open water estuary, bay, sound Vegetated brackish and saltwater forest",Wetland,Surface Water
 BEACH Program Site-Storm sewer,The storm sewer is a system designed to carry rainfall runoff and other drainage.,Ocean,
 BEACH Program Site-Waste sewer,"The wastewater from residences and institutions, carrying bodily wastes (primarily feces and urine), washing water, food preparation wastes, laundry wastes, and other waste products of normal living, are classed as domestic or sanitary sewage.",Ocean,
@@ -79,7 +79,7 @@ Wetland Estuarine-Pool,"Open water estuary, bay, sound Vegetated brackish and sa
 Leachate-Lysimeter,Is a measuring device which can be used to measure the amount of actual evapotranspiration which is released by plants (usually crops or trees),Land,
 Floodwater Urban,"A flood is an overflow of water that submerges land that is usually dry  In the sense of ""urban runoff water"". it may occur due to an accumulation of rainwater on saturated ground in an areal flood.",Stream,
 Floodwater non-Urban,"A flood is an overflow of water that submerges land that is usually dry  Flooding may occur as an overflow of water from water bodies, such as a river, lake, or ocean, in which the water overtops or breaks levees, resulting in some of that water escaping its usual boundaries",Stream,
-River/stream Effluent-Dominated,A stream or river that gets a significant portion of its flow from effulent discharge.,Stream,
+River/stream Effluent-Dominated,A stream or river that gets a significant portion of its flow from effulent discharge.,Stream,Surface Water
 Wetland Estuarine-Scrub-Shrub,"Open water estuary, bay, sound Vegetated brackish and saltwater scrub-shrub",Wetland,Surface Water
 Gas-Condensate,"Natural-gas condensate, also called natural gas liquids, is a low-density mixture of hydrocarbon liquids that are present as gaseous components in the raw natural gas produced from many natural gas fields.",Atmosphere,
 Gas-Engine,"A gas engine is an internal combustion engine that runs on a gaseous fuel, such as coal gas, producer gas, biogas, landfill gas or natural gas.",Atmosphere,
