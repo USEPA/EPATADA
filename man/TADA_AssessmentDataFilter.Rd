@@ -16,7 +16,7 @@ TADA_AssessmentDataFilter(
 \item{.data}{A TADA profile object}
 
 \item{clean}{Boolean argument; removes all results not flagged for use in
-assessment workflow. TADA.Groundwater.Flag and TADA.AssessmentData.Flag
+assessment workflow. TADA.Media.Flag and TADA.AssessmentData.Flag
 columns will not be added Default is clean = TRUE.}
 
 \item{surface_water}{Boolean argument; specifies whether surface water
@@ -35,7 +35,7 @@ sediment samples are not retained in the data frame.}
 \value{
 If clean = TRUE, returns the data frame with only the media types
 selected by the user. If clean = FALSE, returns the data frame with two
-additional columns, "TADA.Groundwater.Flag" and "TADA.AssessmentData.Flag",
+additional columns, "TADA.Media.Flag" and "TADA.AssessmentData.Flag",
 indicating which results should be excluded from assessments based on user
 input.
 }
@@ -60,6 +60,6 @@ Return data frame with only surface water results
 data(Data_6Tribes_5y_Harmonized)
 Data_6Tribes_Assessment <- TADA_AssessmentDataFilter(Data_6Tribes_5y_Harmonized)
 
-Return data frame with surface water and sediment results
-Data_6Tribes_Assessment <- TADA_AssessmentDataFilter(Data_6Tribes_5y_Harmonized, clean = TRUE, surface_water = TRUE, ground_water = FALSE, sediment = TRUE)
+Return data frame with surface water results and TADA.UseForAssessment.Flag column
+Data_6Tribes_Assessment <- TADA_AssessmentDataFilter(Data_6Tribes_5y_Harmonized, clean = FALSE)
 }

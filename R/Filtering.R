@@ -290,8 +290,8 @@ TADA_FieldValuesTable <- function(.data, field = "null", characteristicName = "n
 #' data(Data_6Tribes_5y_Harmonized)
 #' Data_6Tribes_Assessment <- TADA_AssessmentDataFilter(Data_6Tribes_5y_Harmonized)
 #' 
-#' Return data frame with surface water and sediment results
-#' Data_6Tribes_Assessment <- TADA_AssessmentDataFilter(Data_6Tribes_5y_Harmonized, clean = TRUE, surface_water = TRUE, ground_water = FALSE, sediment = TRUE)
+#' Return data frame with surface water results and TADA.UseForAssessment.Flag column
+#' Data_6Tribes_Assessment <- TADA_AssessmentDataFilter(Data_6Tribes_5y_Harmonized, clean = FALSE)
 
 TADA_AssessmentDataFilter <- function(.data, 
                                       clean = TRUE,
@@ -320,7 +320,7 @@ TADA_AssessmentDataFilter <- function(.data,
                                                            ActivityMediaSubdivisionName == "Surface Water" ~ "Surface Water",
                                                            !ActivityMediaName %in% c("WATER", "Water", "water") ~ ActivityMediaName)) %>%
     # add TADA.Media.Flag for additional rows based on MonitoringLocationTypeName
-    dplyr::left_join(sw.sitetypes) %>%
+    dplyr::left_join(sw.sitetypes, by = "MonitoringLocationTypeName") %>%
     dplyr::mutate(TADA.Media.Flag = ifelse(is.na(TADA.Media.Flag),
                                                  ML.Media.Flag, TADA.Media.Flag)) %>%
     dplyr::select(-ML.Media.Flag)
@@ -369,7 +369,7 @@ TADA_AssessmentDataFilter <- function(.data,
   }
   if (sediment == TRUE) {
     sed.data <- .data %>%
-      dplyr::filter(ActivityMediaName %in% c("SEDIMENT", "Sediment", "sediment") %>%
+      dplyr::filter(ActivityMediaName %in% c("SEDIMENT", "Sediment", "sediment")) %>%
       dplyr::mutate(TADA.UseForAssessment.Flag = "Yes")
     
     print("TADA_AssessmentDataFilter: Flagging sediment results to include in assessments.")
@@ -388,8 +388,8 @@ TADA_AssessmentDataFilter <- function(.data,
   if (clean == TRUE) {
     
     assessment.data <- sur.water.data %>%
-      dplyr::full_join(gr.water.data) %>%
-      dplyr::full_join(sed.data) %>%
+      suppressMessages(dplyr::full_join(gr.water.data)) %>%
+      suppressMessages(dplyr::full_join(sed.data)) %>%
       dplyr::filter(TADA.UseForAssessment.Flag == "Yes") %>%
       dplyr::select(-TADA.UseForAssessment.Flag, -TADA.Media.Flag)
     
@@ -405,10 +405,9 @@ TADA_AssessmentDataFilter <- function(.data,
   if (clean == FALSE) {
     
     assessment.data <- sur.water.data %>%
-      dplyr::full_join(gr.water.data) %>%
-      dplyr::full_join(sed.data) %>%
-      dplyr::mutate(TADA.UseForAssessment.Flag = paste(TADA.UseForAssessment.Flag, " - ", toupper(TADA.Media.Flag), sep = "")) %>%
-      dplyr::select(-TADA.Media.Flag)
+      suppressMessages(dplyr::full_join(gr.water.data)) %>%
+      suppressMessages(dplyr::full_join(sed.data)) %>%
+      dplyr::mutate(TADA.UseForAssessment.Flag = paste(TADA.UseForAssessment.Flag, " - ", toupper(TADA.Media.Flag), sep = ""))
     
     assessment.list <- assessment.data %>%
       dplyr::select(ResultIdentifier) %>%
@@ -418,16 +417,17 @@ TADA_AssessmentDataFilter <- function(.data,
       dplyr::filter(!ResultIdentifier %in% assessment.list) %>%
       dplyr::mutate(TADA.Media.Flag = ifelse(TADA.Media.Flag == "" | is.na(TADA.Media.Flag), "OTHER", TADA.Media.Flag),
                     TADA.UseForAssessment.Flag = "No",
-                    TADA.UseForAssessment.Flag = paste(TADA.UseForAssessment.Flag, " - ", toupper(TADA.Media.Flag), sep = "")) %>%
-      dplyr::select(-TADA.Media.Flag)
+                    TADA.UseForAssessment.Flag = paste(TADA.UseForAssessment.Flag, " - ", toupper(TADA.Media.Flag), sep = ""))
     
     all.data <- assessment.data %>%
-      dplyr::full_join(other.data)
+      suppressMessages(dplyr::full_join(other.data)) %>%
+      dplyr::select(-TADA.Media.Flag)
+      
     
     rm(sur.water.data, gr.water.data, sed.data, assessment.data, assessment.list)
     
     print("TADA_AssessmentDataFilter: Returning all results with TADA.UseForAssessment.Flag column indicating if result should be used for assessments.")
     
-    return(assessment.data)
+    return(all.data)
   }
 }
