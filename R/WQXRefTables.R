@@ -848,3 +848,96 @@ TADA_UpdateMeasureQualifierCodeRef <- function() {
     row.names = FALSE
   )
 }
+
+#' Update result Activity Relative Depth Reference Table
+#'
+#' Function downloads and returns in the latest WQX Activity Relative Depth
+#'  Domain table, adds depth category (TADA.DepthCategory.Flag) information, and
+#'  writes the data to sysdata.rda.
+#'
+#' This function caches the table after it has been called once
+#' so subsequent calls will be faster.
+#'
+#' @return sysdata.rda with updated WQXActivityRelativeDepthRef object
+#'
+#' @export
+
+TADA_GetActivityRelativeDepthRef <- function() {
+  # If there is a cached table available return it
+  if (!is.null(WQXActivityRelativeDepthRef_Cached)) {
+    return(WQXActivityRelativeDepthRef_Cached)
+  }
+  
+  # Try to download up-to-date raw data
+  raw.data <- tryCatch(
+    {
+      # read raw csv from url
+      utils::read.csv(url("https://cdx.epa.gov/wqx/download/DomainValues/ActivityRelativeDepth.CSV"))
+    },
+    error = function(err) {
+      NULL
+    }
+  )
+  
+  # If the download failed fall back to internal data (and report it)
+  if (is.null(raw.data)) {
+    message("Downloading latest Activity Relative Depth Reference Table failed!")
+    message("Falling back to (possibly outdated) internal file.")
+    return(utils::read.csv(system.file("extdata", "WQXActivityRelativeDepthRef.csv", package = "TADA")))
+  }
+  
+  # Categorize Activity Relative Depth
+  surface <- c(
+    "Above Euphotic",
+    "AboveThermoclin",
+    "Below Surface",
+    "Microlayer",
+    "Photic zone",
+    "Surface"
+    )
+  
+  middle <- c(
+    "Above Halocline",
+    "AbovePycnocline",
+    "Below Euphotic",
+    "Below Halocline",
+    "BelowPycnocline",
+    "Deep Chl Layer",
+    "Halocline",
+    "Midwater",
+    "Pycnocline",
+    "Whole Column",
+  )
+  
+  bottom <- c(
+    "BelowThermoclin",
+    "BenthcNephaloid",
+    "Bottom",
+    "Fixed Above Bot",
+    "Near Bottom",
+    "Sediment Water",
+  )
+  
+  WQXActivityRelativeDepthRef <- raw.data %>%
+    dplyr::mutate(TADA.DepthCategory.Flag = dplyr::case_when(
+      Name %in% surface ~ "Non-Detect",
+      Name %in% middle ~ "Over-Detect",
+      Name %in% bottom ~ "Suspect",
+      Name %in% pass ~ "Pass",
+      is.na(Name))) %>%
+    dplyr::distinct()
+  
+  # Save updated table in cache
+  WQXActivityRelativeDepthRef_Cached <- WQXActivityRelativeDepthRef
+  
+  return(WQXActivityRelativeDepthRef)
+}
+
+# Update WQX ResultMeasureQualifier Reference Table internal file (for internal use only)
+
+TADA_UpdateActivityRelativeDepthRef <- function() {
+  utils::write.csv(TADA_GetActivityRelativeDepthRef(),
+                   file = "inst/extdata/WQXActivityRelativeDepthRef.csv",
+                   row.names = FALSE
+  )
+}
