@@ -243,26 +243,13 @@ depends on your query inputs.
 # AllCT <- TADA_BigDataRetrieval(statecode = "CT")
 ```
 
-Review all column names in the TADA Profile. Remove results that you do not need for analysis. TADA was primarily designed to work with water data. You could remove all non-water results through filtering by TADA.ActivityMediaName. Uncomment below if you would like to try this option.
-
-```{r TADA_SummarizeColumn}
-colnames(TADAProfile)
-
-TADAProfile_CharSummary <- TADA_SummarizeColumn(TADAProfile, "TADA.CharacteristicName")
-
-TADAProfile_CharSummary
-
-# Remove data for non-water media types
-#TADAProfile <- dplyr::filter(TADAProfile, TADA.ActivityMediaName == "WATER")
-```
-
 Many TADA users are interested in using WQP data for Clean Water Act Assesssments. The **TADA_AssessmentDataFilter** function may assist in identifying results that should be included in the assessment process. 
 
 This function identifies surface water, groundwater, and sediment results. Users can  specify whether all results should be returned with a new column, *TADA.UseForAssessment.Flag*,identifying if the result should be included in assessments or if only results that should be in included in assessments are returned. 
 
-The defaults are to include surface water, exclude groundwater and sediment, and to return only the results that should be used for assessments (clean = TRUE). This is shown in the active example below.
+The defaults are to include surface water, exclude groundwater and sediment, and to return only the results that should be used for assessments (clean = TRUE). This is shown in the active example below. If you would like to see all results with the *TADA.UseForAssessment.Flag* column, you can uncomment the example where clean = FALSE.
 
-If you would like to see all results with the *TADA.UseForAssessment.Flag* column, you can uncomment the example where clean = FALSE.
+If you are not interested in using **TADA_AssessmentDataFilter**, but would like to filter by activity media, uncomment the example to filter for water data only by using dplyr::filter() with TADA.ActivityMediaName.
 
 ```{r TADA_AssessmentDataFilter}
 
@@ -272,11 +259,15 @@ TADAProfile <- TADA_AssessmentDataFilter(TADAProfile)
 # Add TADA.UseForAssessment.Flag column to identify which results should be used for assessments
 # TADAProfile <- TADA_AssessmentDataFilter(TADAProfile)
 
+# Remove data for non-water media types, alternate workflow without using TADA_AssessmentDataFilter()
+#TADAProfile <- dplyr::filter(TADAProfile, TADA.ActivityMediaName == "WATER")
+
 ```
+
 
 ## AutoClean
 
-Now **TADA_AutoClean** can be run on smaller dataset after unnecessary results have been removed. It performs the following functions on the data retrieved from the WQP:
+Now **TADA_AutoClean** can be run on a smaller dataset after unnecessary results have been removed. It performs the following functions on the data retrieved from the WQP:
 
 -   **TADA_ConvertSpecialChars** - converts result value columns to numeric and flags non-numeric values that could not be converted.
 
@@ -314,6 +305,20 @@ specifies what the special characters are.
 
 TADAProfile <- TADA_AutoClean(TADAProfile)
 
+```
+
+Review all column names in the TADA Profile to familiarize yourself with the dataset after TADA_AutoClean has added additional TADA prefixed columns. **TADA_SummarizeColumn** summarizes the data set based on the user specified column and returns a dataframe displaying the number of sites and number of records for each unique value in the specified column. The example below uses TADA.CharacteristicName. 
+
+```{r TADA_SummarizeColumn}
+
+# View column names for TADAProfile
+colnames(TADAProfile)
+
+# Review the number of sites and number of records for each CharacteristicName in TADAProfile
+TADAProfile_CharSummary <- TADA_SummarizeColumn(TADAProfile, "TADA.CharacteristicName")
+
+# View TADAProfile_CharSummary
+TADAProfile_CharSummary
 ```
 
 
