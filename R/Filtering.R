@@ -392,7 +392,8 @@ TADA_AssessmentDataFilter <- function(.data,
       suppressMessages(dplyr::full_join(gr.water.data)) %>%
       suppressMessages(dplyr::full_join(sed.data)) %>%
       dplyr::filter(TADA.UseForAssessment.Flag == "Yes") %>%
-      dplyr::select(-TADA.UseForAssessment.Flag, -TADA.Media.Flag)
+      dplyr::select(-TADA.UseForAssessment.Flag, -TADA.Media.Flag) %>%
+      TADA_OrderCols()
     
     rm(sur.water.data, gr.water.data, sed.data)
     
@@ -422,7 +423,8 @@ TADA_AssessmentDataFilter <- function(.data,
     
     all.data <- assessment.data %>%
       suppressMessages(dplyr::full_join(other.data)) %>%
-      dplyr::select(-TADA.Media.Flag)
+      dplyr::select(-TADA.Media.Flag) %>%
+      TADA_OrderCols()
       
     
     rm(sur.water.data, gr.water.data, sed.data, assessment.data, assessment.list)
