@@ -399,22 +399,24 @@ TADA_OverviewMap <- function(.data) {
     sumdat <- .data %>%
       dplyr::group_by(MonitoringLocationIdentifier, MonitoringLocationName, TADA.LatitudeMeasure, TADA.LongitudeMeasure) %>%
       dplyr::summarise("Sample_Count" = length(unique(ResultIdentifier)), "Visit_Count" = length(unique(ActivityStartDate)), "Parameter_Count" = length(unique(TADA.CharacteristicName)), "Organization_Count" = length(unique(OrganizationIdentifier)))
-    
-    pt_sizes <- round(quantile(sumdat$Sample_Count, probs = c(0.1,0.25, 0.5, 0.75)), 0)
-    pt_labels <- c(paste0("<=",pt_sizes[1]),
-                  paste0(">",pt_sizes[1]),
-                  paste0(">",pt_sizes[2]),
-                  paste0(">",pt_sizes[3]),
-                  paste0(">",pt_sizes[4]))
-    
+
+    pt_sizes <- round(quantile(sumdat$Sample_Count, probs = c(0.1, 0.25, 0.5, 0.75)), 0)
+    pt_labels <- c(
+      paste0("<=", pt_sizes[1]),
+      paste0(">", pt_sizes[1]),
+      paste0(">", pt_sizes[2]),
+      paste0(">", pt_sizes[3]),
+      paste0(">", pt_sizes[4])
+    )
+
     sumdat$radius <- 5
-    sumdat$radius <-ifelse(sumdat$Sample_Count > pt_sizes[1], 10, sumdat$radius)
-    sumdat$radius <-ifelse(sumdat$Sample_Count > pt_sizes[2], 15, sumdat$radius)
+    sumdat$radius <- ifelse(sumdat$Sample_Count > pt_sizes[1], 10, sumdat$radius)
+    sumdat$radius <- ifelse(sumdat$Sample_Count > pt_sizes[2], 15, sumdat$radius)
     sumdat$radius <- ifelse(sumdat$Sample_Count > pt_sizes[3], 20, sumdat$radius)
     sumdat$radius <- ifelse(sumdat$Sample_Count > pt_sizes[4], 30, sumdat$radius)
-    
+
     site_size <- data.frame(Sample_n = pt_labels, Point_size = c(5, 10, 15, 20, 30))
-  
+
     site_legend <- subset(site_size, site_size$Point_size %in% unique(sumdat$radius))
 
     pal <- leaflet::colorBin(
