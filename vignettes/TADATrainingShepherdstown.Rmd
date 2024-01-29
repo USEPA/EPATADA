@@ -56,7 +56,7 @@ library(TADA)
 # when developing the package, update this chunk to the current repository branch, so it runs with all of the new features prior to a PR to develop
 
 remotes::install_github("USEPA/TADA",
-  ref = "336-original-vs-tada-columns-copies",
+  ref = "replicates_kh",
   dependencies = TRUE
 )
 ```
