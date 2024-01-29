@@ -251,7 +251,7 @@ The defaults are to include surface water, exclude groundwater and sediment, and
 
 If you are not interested in using **TADA_AssessmentDataFilter**, but would like to filter by activity media, uncomment the example to filter for water data only by using dplyr::filter() with TADA.ActivityMediaName.
 
-```{r TADA_AssessmentDataFilter}
+```{r AssessmentDataFilter}
 
 # Filter to retain only results for use in assessments
 TADAProfile <- TADA_AssessmentDataFilter(TADAProfile)
