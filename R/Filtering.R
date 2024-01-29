@@ -286,11 +286,11 @@ TADA_FieldValuesTable <- function(.data, field = "null", characteristicName = "n
 #' @export
 #' 
 #' @examples
-#' Return data frame with only surface water results
+#' # Return data frame with only surface water results
 #' data(Data_6Tribes_5y_Harmonized)
 #' Data_6Tribes_Assessment <- TADA_AssessmentDataFilter(Data_6Tribes_5y_Harmonized)
 #' 
-#' Return data frame with surface water results and TADA.UseForAssessment.Flag column
+#' # Return data frame with surface water results and TADA.UseForAssessment.Flag column
 #' Data_6Tribes_Assessment <- TADA_AssessmentDataFilter(Data_6Tribes_5y_Harmonized, clean = FALSE)
 
 TADA_AssessmentDataFilter <- function(.data, 
