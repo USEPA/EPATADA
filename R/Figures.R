@@ -904,3 +904,261 @@ TADA_TwoCharacteristicScatterplot <- function(.data, id_cols = "TADA.ComparableD
 
   return(scatterplot)
 }
+
+#' Create A Two-Characteristic Depth Profile
+#'
+#' @param .data TADA data frame containing the data downloaded from the WQP,
+#'   where each row represents a unique data record. TADA_DepthCategory.Flag
+#'   has been run as data frame must include the columns TADA.DepthCategory.Flag, 
+#'   TADA.ResultDepthHeightMeasure.MeasureUnitCode, TADA.ActivityDepthHeightMeasure.MeasureUnitCode,
+#'   and TADA.ActivityDepthHeightMeasure.MeasureValue. Units for all depth fields
+#'   must be the same. This can be accomplished using TADA_AutoClean() or
+#'   TADA_ConvertDepthUnits.
+   
+#' @param id_cols The column in the dataset used to identify the unique groups to
+#'   be plotted. Defaults to 'TADA.ComparableDataIdentifier', which should be
+#'   sufficient for most TADA use cases of this function. This input is flexible,
+#'   however, for the specific use case in the TADAShiny app where a user might
+#'   create groups based on a concatenation of the comparable data identifier
+#'   with other additional grouping variables (e.g. site type, site name, year,
+#'   organization, etc.)
+#'
+#' @param groups A vector of two identifiers from the id_cols column. For
+#'   example, if the id_cols is 'TADA.ComparableDataIdentifier', the groups could
+#'   be 'DISSOLVED OXYGEN (DO)_NA_NA_UG/L' and 'PH_NA_NA_NA'. These groups will
+#'   be specific to your dataset. If the id_cols is 'MonitoringLocationName',
+#'   the groups could be 'Upper Red Lake: West' and 'Upper Red Lake: West-Central'.
+#'   
+#' @param location A single Monitoring Location to plot the depth profile.
+#'
+#' @return REWRITE FOR DEPTH PROFILE.
+#'
+#' @export
+#'
+#' @examples
+#' # Load example dataset:
+#' data(Data_Nutrients_UT)
+#' # Create a single scatterplot with two specified groups from TADA.ComparableDataIdentifier
+#' TADA_TwoCharacteristicScatterplot(Data_Nutrients_UT, id_cols = "TADA.ComparableDataIdentifier", groups = c("AMMONIA_UNFILTERED_AS N_UG/L", "NITRATE_UNFILTERED_AS N_UG/L"))
+#'
+#' # Load example dataset:
+#' data(Data_6Tribes_5y_Harmonized)
+#' # Filter the example data so it includes only one TADA.ComparableDataIdentifier
+#' df <- dplyr::filter(Data_6Tribes_5y_Harmonized, TADA.ComparableDataIdentifier == "TOTAL PHOSPHORUS, MIXED FORMS_UNFILTERED_AS P_UG/L")
+#' # Creates a scatterplot including the two specified sites in the same plot:
+#' TADA_TwoCharacteristicScatterplot(df, id_cols = "MonitoringLocationName", groups = c("Upper Red Lake: West", "Upper Red Lake: West-Central"))
+#'
+test <- TADA::Data_6Tribes_5y_Harmonized
+
+test_depth <- TADA_DepthCategory.Flag(test)
+
+reqcols <- c(
+  "TADA.ResultDepthHeightMeasure.MeasureValue",
+  "TADA.ResultDepthHeightMeasure.MeasureUnitCode",
+  "TADA.ActivityDepthHeightMeasure.MeasureUnitCode",
+  "TADA.ActivityDepthHeightMeasure.MeasureValue",
+  "TADA.DepthCategory.Flag",
+  "TADA.ResultMeasureValue",
+  "TADA.ResultMeasure.MeasureUnitCode",
+  "MonitoringLocationIdentifier",
+  "MonitoringLocationName",
+  "ActivityStartDate",
+  "ActivityStartDateTime"
+)
+
+id_cols = "TADA.ComparableDataIdentifier"
+
+groups = c('TEMPERATURE_NA_NA_DEG C', 'PH_NA_NA_NA', 'DEPTH, SECCHI DISK DEPTH_NA_NA_FT')
+
+location = "REDLAKE_WQX-ANKE"
+
+year_lower = 2018
+
+year_upper = 2018
+
+month_lower = 6
+
+month_upper = 11
+
+activity_date = "2018-07-31"
+
+
+# check that groups are in id_cols
+id <- unlist(unique(test_depth[, id_cols]))
+if (any(!groups %in% id)) {
+  stop("The 'groups' vector contains one or more inputs that are not found within your input dataset. Check spelling and try again.")
+}
+
+depthcols <- c(
+  "TADA.ResultDepthHeightMeasure.MeasureValue",
+  "TADA.ResultDepthHeightMeasure.MeasureUnitCode",
+  "TADA.ActivityDepthHeightMeasure.MeasureUnitCode",
+  "TADA.ActivityDepthHeightMeasure.MeasureValue",
+  "TADA.DepthCategory.Flag"
+)
+
+plot.data <- as.data.frame(test_depth) %>%
+  dplyr::mutate(Year = as.numeric(format.Date(ActivityStartDate, "%Y")),
+                Month = as.numeric(format.Date(ActivityStartDate, "%m"))) %>%
+  dplyr::filter(TADA.ActivityMediaName == "WATER",
+                TADA.DepthCategory.Flag != "No depth info",
+                MonitoringLocationIdentifier %in% location,
+                Year >= year_lower,
+                Year <= year_upper,
+                Month >= month_lower,
+                Month <= month_upper,
+                ActivityStartDate %in% activity_date)
+
+
+#this subset must include all fields included in plot hover below
+plot.data <- subset(plot.data, plot.data[, id_cols] %in% groups)[, c(id_cols, reqcols, depthcols, "ActivityStartDateTime", "MonitoringLocationName", "TADA.ActivityMediaName", "ActivityMediaSubdivisionName", "ActivityRelativeDepthName", "TADA.CharacteristicName", "TADA.MethodSpeciationName", "TADA.ResultSampleFractionText")] %>%
+  dplyr::mutate(Depth = ifelse(!is.na(TADA.ResultDepthHeightMeasure.MeasureValue), TADA.ResultDepthHeightMeasure.MeasureValue,
+                               TADA.ActivityDepthHeightMeasure.MeasureValue),
+                DepthUnit = ifelse(!is.na(TADA.ResultDepthHeightMeasure.MeasureUnitCode), TADA.ResultDepthHeightMeasure.MeasureUnitCode,
+                                   TADA.ActivityDepthHeightMeasure.MeasureUnitCode))
+
+
+plot.data$name <- gsub("_NA", "", plot.data[, id_cols])
+plot.data$name <- gsub("_", " ", plot.data$name)
+
+
+
+plot.data <- dplyr::arrange(plot.data, Depth)
+
+param1 <- subset(plot.data, plot.data[, id_cols] %in% groups[1])
+param2 <- subset(plot.data, plot.data[, id_cols] %in% groups[2])
+param3 <- subset(plot.data, plot.data[, id_cols] %in% groups[3])
+
+title <- TADA::TADA_InsertBreaks(
+  paste0(
+    param1$TADA.CharacteristicName[1],
+    " and ",
+    param2$TADA.CharacteristicName[1],
+    " Depth Profile for ",
+    #figure out addition of weird \n in name
+    plot.data$MonitoringLocationName[1]
+  ),
+  len = 45
+)
+
+# figure margin
+mrg <- list(
+  l = 50, r = 75,
+  b = 25, t = 75,
+  pad = 0
+)
+
+scatterplot <- plotly::plot_ly(type = "scatter", mode = "lines+markers") %>%
+  plotly::layout(
+    xaxis = list(
+      title = paste0(param1$TADA.CharacteristicName[1], " (", param1$TADA.ResultMeasure.MeasureUnitCode[1], ") and ",
+                     param2$TADA.CharacteristicName[1], " (", param2$TADA.ResultMeasure.MeasureUnitCode[1], ")"),
+      titlefont = list(size = 16, family = "Arial"),
+      tickfont = list(size = 16, family = "Arial"),
+      hoverformat = ",.4r", linecolor = "black", rangemode = "tozero",
+      showgrid = FALSE, tickcolor = "black"
+    ),
+    yaxis = list(
+      title = paste0("Depth", "  ", param1$DepthUnit[1]),
+      titlefont = list(size = 16, family = "Arial"),
+      tickfont = list(size = 16, family = "Arial"),
+      hoverformat = ",.4r", linecolor = "black", rangemode = "tozero",
+      showgrid = FALSE, tickcolor = "black"
+    ),
+    hoverlabel = list(bgcolor = "white"),
+    title = title,
+    plot_bgcolor = "#e5ecf6",
+    margin = mrg,
+    legend = list(x = 100, y = 0.5
+    )
+  ) %>%
+  # config options https://plotly.com/r/configuration-options/
+  plotly::config(displaylogo = FALSE) %>% # , displayModeBar = TRUE) # TRUE makes bar always visible
+  plotly::add_trace(
+    data = param1,
+    x = ~TADA.ResultMeasureValue,
+    y = ~Depth,
+    name = paste0(
+      param1$TADA.ResultSampleFractionText, " ",
+      param1$TADA.CharacteristicName, " ",
+      param1$TADA.MethodSpeciationName
+    ),
+    marker = list(
+      size = 10,
+      color = "red",
+      line = list(color = "red", width = 2)
+    ),
+    hoverinfo = "text",
+    hovertext = paste(
+      "Result:", paste0(param1$TADA.ResultMeasureValue, " ", param1$TADA.ResultMeasure.MeasureUnitCode), "<br>",
+      "Activity Start Date:", param1$ActivityStartDate, "<br>",
+      "Activity Start Date Time:", param1$ActivityStartDateTime, "<br>",
+      "Depth:", paste0(
+        param1$Depth, " ",
+        param1$DepthUnit
+      ), "<br>",
+      "Activity Relative Depth Name:", param1$ActivityRelativeDepthName, "<br>",
+      "TADA.DepthCategory.Flag:", paste0(
+        param1$TADA.DepthCategory.Flag
+      ), "<br>"
+    )
+  ) %>%
+  plotly::add_trace(
+    data = param2,
+    x = ~TADA.ResultMeasureValue,
+    y = ~Depth,
+    name = paste0(
+      param2$TADA.ResultSampleFractionText, " ",
+      param2$TADA.CharacteristicName, " ",
+      param2$TADA.MethodSpeciationName
+    ),
+    marker = list(
+      size = 10,
+      color = "blue",
+      line = list(color = "blue", width = 2)
+    ),
+    hoverinfo = "text",
+    hovertext = paste(
+      "Result:", paste0(param2$TADA.ResultMeasureValue, " ", param2$TADA.ResultMeasure.MeasureUnitCode), "<br>",
+      "Activity Start Date:", param2$ActivityStartDate, "<br>",
+      "Activity Start Date Time:", param2$ActivityStartDateTime, "<br>",
+      "Depth:", paste0(
+        param2$Depth, " ",
+        param2$DepthUnit
+      ), "<br>",
+      "Activity Relative Depth Name:", param2$ActivityRelativeDepthName, "<br>",
+      "TADA.DepthCategory.Flag:", paste0(
+        param2$TADA.DepthCategory.Flag
+      ), "<br>"
+    )
+  ) %>%
+  plotly::add_trace(
+    data = param3,
+    x = ~TADA.ResultMeasureValue,
+    y = ~Depth,
+    name = paste0(
+      param3$TADA.ResultSampleFractionText, " ",
+      param3$TADA.CharacteristicName, " ",
+      param3$TADA.MethodSpeciationName
+    ),
+    marker = list(
+      size = 10,
+      color = "darkgreen",
+      line = list(color = "darkgreen", width = 2)
+    ),
+    hoverinfo = "text",
+    hovertext = paste(
+      "Result:", paste0(param3$TADA.ResultMeasureValue, " ", param3$TADA.ResultMeasure.MeasureUnitCode), "<br>",
+      "Activity Start Date:", param3$ActivityStartDate, "<br>",
+      "Activity Start Date Time:", param3$ActivityStartDateTime, "<br>",
+      "Depth:", paste0(
+        param3$Depth, " ",
+        param3$DepthUnit
+      ), "<br>",
+      "Activity Relative Depth Name:", param3$ActivityRelativeDepthName, "<br>",
+      "TADA.DepthCategory.Flag:", paste0(
+        param3$TADA.DepthCategory.Flag
+      ), "<br>"
+    )
+  ) 
+# }
