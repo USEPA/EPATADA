@@ -126,7 +126,6 @@ TADA_GetMeasureUnitRef <- function() {
   # target.unit = m
   target.m <- data.frame(
     Domain = rep("Measurement Unit(MeasureUnitCode)", 13),
-    Unique.Identifier = rep(NA, 13),
     Code = c(
       "Angst", "cm", "dm", "feet", "ft", "in",
       "km", "m", "mi", "mm", "nm", "nmi", "yd"
@@ -146,50 +145,26 @@ TADA_GetMeasureUnitRef <- function() {
       "Length Distance, Nautical miles",
       "Length Distance, Yards"
     ),
-    Last.Change.Date = rep("3/24/2022 12:00:00 PM", 13),
-    Target.Unit = rep("m", 13),
-    Conversion.Factor = c(
+    Last.Change.Date.Length = rep("1/30/2024 11:30:00 AM", 13),
+    Target.Unit.Length = rep("m", 13),
+    Conversion.Factor.Length = c(
       1e-10, 0.01, 0.1, 0.3048, 0.3048,
       0.0254, 1000, 1, 1609.34, 0.001,
       1e-9, 1825, 0.9144
     ),
     Conversion.Coefficient = rep(0, 13)
   )
-  # target.unit = ft
-  target.ft <- data.frame(
-    Domain = rep("Measurement Unit(MeasureUnitCode)", 13),
-    Unique.Identifier = rep(NA, 13),
-    Code = c(
-      "Angst", "cm", "dm", "feet", "ft", "in",
-      "km", "m", "mi", "mm", "nm", "nmi", "yd"
-    ),
-    Description = c(
-      "Length Distance, Angstroms",
-      "Length Distance, Centimeters",
-      "Length Distance, Decimeters",
-      "Length Distance, Feet",
-      "Length Distance, Feet",
-      "Length Distance, Inches",
-      "Length Distance, Kilometers",
-      "Length Distance, Meters",
-      "Length Distance, Miles",
-      "Length Distance, Millimeters",
-      "Length Distance, Nanometers",
-      "Length Distance, Nautical miles",
-      "Length Distance, Yards"
-    ),
-    Last.Change.Date = rep("3/24/2022 12:00:00 PM", 13),
-    Target.Unit = rep("ft", 13),
-    Conversion.Factor = c(
-      3.28084e-10, 0.0328084, 0.328084,
-      1, 1, 0.08333, 3280.84, 3.28084,
-      5280, 0.00328084, 3.2808e-9,
-      6076.12, 3
-    ),
-    Conversion.Coefficient = rep(0, 13)
-  )
+
   # add data to WQXunitRef
-  WQXunitRef <- plyr::rbind.fill(WQXunitRef, target.m, target.ft) %>% dplyr::distinct()
+  WQXunitRef <- raw.data %>%
+    dplyr::left_join(target.m) %>%
+    dplyr::mutate(Target.Unit = ifelse(!is.na(Target.Unit.Length),
+                                       Target.Unit.Length, Target.Unit),
+                  Conversion.Factor = ifelse(!is.na(Conversion.Factor.Length),
+                                             Conversion.Factor.Length, Conversion.Factor),
+                  Last.Change.Date = ifelse(!is.na(Last.Change.Date.Length),
+                                            Last.Change.Date.Length, Last.Change.Date)) %>%
+    dplyr::select(-Target.Unit.Length, -Conversion.Factor.Length, -Last.Change.Date.Length)
 
   # Convert NONE to NA in ref table
   WQXunitRef <- WQXunitRef %>%

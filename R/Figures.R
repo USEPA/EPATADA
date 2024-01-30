@@ -1183,6 +1183,28 @@ scatterplot <- plotly::plot_ly(type = "scatter", mode = "lines+markers") %>%
     )
   ) 
 
+  # add horizontal lines for depth profile category
+
+cat.lines <- plot.data %>%
+  dplyr::select(TADA.DepthCategory.Flag, Depth)
+  dplyr::select(Depth) %>%
+  unique()
+  
+# determine value for depth category lines
+sur.line <- cat.lines %>%
+  dplyr::filter(TADA.DepthCategory.Flag == "Epilimnion-surface")%>%
+  unique() %>%
+  dplyr::slice_max(Depth) %>%
+  dplyr::select(Depth) %>%
+  dplyr::pull()
+  
+
+# determine value for line between bottom and middle
+# need to go back and add bottom depth info so this can be incorporated
+bot.line
+
+scatterplot <- scatterplot %>%
+  plotly::add_lines()
 
   # config options https://plotly.com/r/configuration-options/
   plotly::config(displaylogo = FALSE) %>% # , displayModeBar = TRUE) # TRUE makes bar always visible
