@@ -100,7 +100,7 @@ TADA_ConvertResultUnits <- function(.data, transform = TRUE, detlimit = TRUE) {
 
   # join unit.ref to .data
   check.data <- merge(.data, unit.ref, all.x = TRUE)
-
+  
   # rename columns
   flag.data <- check.data %>%
     dplyr::rename(TADA.WQXTargetUnit = Target.Unit) %>%
@@ -129,9 +129,9 @@ TADA_ConvertResultUnits <- function(.data, transform = TRUE, detlimit = TRUE) {
   flag.data <- flag.data %>%
     # create flag column
     dplyr::mutate(TADA.WQXResultUnitConversion = dplyr::case_when(
-      (!is.na(TADA.ResultMeasureValue) & !is.na(TADA.WQXTargetUnit)) ~ as.character("Convert"),
-      is.na(TADA.ResultMeasureValue) ~ as.character("No Result Value"),
-      is.na(TADA.WQXTargetUnit) ~ as.character("No Target Unit")
+        (!is.na(TADA.ResultMeasureValue) & !is.na(TADA.WQXTargetUnit)) ~ as.character("Convert"),
+        is.na(TADA.ResultMeasureValue) ~ as.character("No Result Value"),
+        is.na(TADA.WQXTargetUnit) ~ as.character("No Target Unit")
     ))
 
   if (transform == FALSE) {
