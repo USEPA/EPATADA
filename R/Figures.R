@@ -968,12 +968,12 @@ test3 <- test2 %>%
 testsubset <- test2 %>%
   dplyr::filter(TADA.CharacteristicName %in% c("DEPTH, SECCHI DISK DEPTH"))
 
-.data <- test2
+.data <- testsubset
 
 #test params
 id_cols = "TADA.ComparableDataIdentifier"
 
-groups = c('TEMPERATURE_NA_NA_DEG C', 'PH_NA_NA_NA', 'DEPTH, SECCHI DISK DEPTH_NA_NA_FT')
+groups = c('TEMPERATURE_NA_NA_DEG C', 'PH_NA_NA_NA', 'DEPTH, SECCHI DISK DEPTH_NA_NA_M')
 
 location = "REDLAKE_WQX-ANKE"
 
@@ -1016,11 +1016,13 @@ reqcols <- c(
 
 resunits.yaxis = c("CM", "IN", "FT", "M")
 
-depth.units <- c("m", "ft", "in", "m", "m", "ft", "ft", "in", "in", "m", "ft", "in")
+single.value.chars <- c("DEPTH, SECCHI DISK DEPTH")
 
-result.units <- c("M", "FT", "IN", "FT", "IN", "M", "IN", "M", "FT", "CM", "CM", "CM")
+#depth.units <- c("m", "ft", "in", "m", "m", "ft", "ft", "in", "in", "m", "ft", "in")
 
-convert.factor <- c("1", "1", "1", "0.3048", "0.0254", "3.281", "0.083", "39.3701", "12", "0.01", "0.032808", "0.39")
+#result.units <- c("M", "FT", "IN", "FT", "IN", "M", "IN", "M", "FT", "CM", "CM", "CM")
+
+#convert.factor <- c("1", "1", "1", "0.3048", "0.0254", "3.281", "0.083", "39.3701", "12", "0.01", "0.032808", "0.39")
 
 # secchi.conversion <- data.frame(result.units, depth.units, convert.factor) %>%
 #   dplyr::rename(TADA.ResultMeasure.MeasureUnitCode = result.units,
@@ -1028,12 +1030,9 @@ convert.factor <- c("1", "1", "1", "0.3048", "0.0254", "3.281", "0.083", "39.370
 #                 SecchiConversion = convert.factor
 #   )
 
+
 # identify depth profile data
 depthprofile.avail <- .data %>%
-  dplyr::mutate(TADA.ConsolidatedDepth.Unit = ifelse(TADA.ResultMeasure.MeasureUnitCode %in% resunits.yaxis,
-                                   TADA.ResultMeasure.MeasureUnitCode, TADA.ConsolidatedDepth.Unit),
-                TADA.ConsolidatedDepth = ifelse(TADA.ResultMeasure.MeasureUnitCode %in% resunits.yaxis,
-                                                TADA.ResultDepthHeightMeasure.MeasureValue, TADA.ConsolidatedDepth)) %>%
   dplyr::filter(!is.na(TADA.ConsolidatedDepth)) %>%
   dplyr::group_by(MonitoringLocationIdentifier, TADA.ComparableDataIdentifier,
                   ActivityStartDate, TADA.ConsolidatedDepth) %>%
@@ -1042,18 +1041,32 @@ depthprofile.avail <- .data %>%
   dplyr::group_by(MonitoringLocationIdentifier, TADA.ComparableDataIdentifier,
                   ActivityStartDate) %>%
   dplyr::mutate(N = length(TADA.ResultMeasureValue)) %>%
-  dplyr::filter(N > 2) %>%
+  dplyr::filter(N > 2 | TADA.CharacteristicName %in% single.value.chars) %>%
   dplyr::ungroup()
+ 
+  
+  # list of MonitoringLocationIdentifiers with depth profile data
+  profile.ml.list <- depthprofile.avail %>%
+    dplyr::select(MonitoringLocationIdentifier) %>%
+    unique() %>%
+    dplyr::pull()
+  
+  
+ # add secchi (and other???) results
+   singlevalue.avail <- .data %>%
+     filter(MonitoringLocationIdentifier %in% profile.ml.list,
+            TADA.CharacteristicName %in% singlevalue.avail) %>%
+     dplyr::mutate(TADA.ConsolidatedDepth.Unit = ifelse(TADA.ResultMeasure.MeasureUnitCode %in% resunits.yaxis,
+                                                        TADA.ResultMeasure.MeasureUnitCode, TADA.ConsolidatedDepth.Unit),
+                   TADA.ConsolidatedDepth = ifelse(TADA.ResultMeasure.MeasureUnitCode %in% resunits.yaxis,
+                                                   TADA.ResultDepthHeightMeasure.MeasureValue, TADA.ConsolidatedDepth))
+     
 
 print("TADA_DepthProfilePlot: Identifying available depth profile data.")
 
 # create lists of possible parameters for graph based on data
 
-# list of MonitoringLocationIdentifiers with depth profile data
-profile.ml.list <- depthprofile.avail %>%
-  dplyr::select(MonitoringLocationIdentifier) %>%
-  unique() %>%
-  dplyr::pull()
+
 
 # number of MonitoringLocationIdentifiers with depth profile data
 profile.ml.n <- length(profile.ml.list)
@@ -1093,24 +1106,8 @@ profile.date.string <- toString(profile.date.list, sep = ", ") %>%
 print(paste("TADA_DepthProfilePlot: For ", location, " there are ", profile.char.n, "date(s) with depth profile data: ",
             profile.date.string, "."))
 
-# set up reference for conversion for characteristics with depth as a unit
-
-resunits.yaxis = c("CM", "IN", "FT", "M")
-
-depth.units <- c("m", "ft", "in", "m", "m", "ft", "ft", "in", "in", "m", "ft", "in")
-
-result.units <- c("M", "FT", "IN", "FT", "IN", "M", "IN", "M", "FT", "CM", "CM", "CM")
-
-convert.factor <- c("1", "1", "1", "0.3048", "0.0254", "3.281", "0.083", "39.3701", "12", "0.01", "0.032808", "0.39")
-
-secchi.conversion <- data.frame(result.units, depth.units, convert.factor) %>%
-  dplyr::rename(TADA.ResultMeasure.MeasureUnitCode = result.units,
-                DepthUnit = depth.units,
-                SecchiConversion = convert.factor
-                )
-
 # check that groups are in id_cols
-id <- unlist(unique(test_depth[, id_cols]))
+id <- unlist(unique(depthprofile.avail[, id_cols]))
 if (any(!groups %in% id)) {
   stop("The 'groups' vector contains one or more inputs that are not found within your input dataset. Check spelling and try again.")
 }
