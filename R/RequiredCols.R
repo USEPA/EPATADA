@@ -68,6 +68,8 @@ require.cols <- c(
   "TADA.CensoredMethod",
 
   # Result Depth
+  "TADA.ConsolidatedDepth",
+  "TADA.ConsolidatedDepth.Unit",
   "ResultDepthHeightMeasure.MeasureValue",
   "TADA.ResultDepthHeightMeasure.MeasureValue",
   "TADA.ResultDepthHeightMeasure.MeasureValueDataTypes.Flag",
