@@ -960,6 +960,13 @@ TADA_TwoCharacteristicScatterplot <- function(.data, id_cols = "TADA.ComparableD
 #'
 # test <- TADA::Data_6Tribes_5y_Harmonized
 # 
+# test2 <- TADA_DepthCategory.Flag(test)
+
+# testsubset <- test2 %>%
+#   dplyr::filter(TADA.CharacteristicName %in% c("DEPTH, SECCHI DISK DEPTH"))
+# 
+# .data <- test2
+# 
 # #test params
 # id_cols = "TADA.ComparableDataIdentifier"
 # 
@@ -983,9 +990,9 @@ TADA_TwoCharacteristicScatterplot <- function(.data, id_cols = "TADA.ComparableD
 # TADA_DepthProfilePlot() <- function(.data, id_cols = "TADA.ComparableDataIdentifier", groups, location, depthcat) {
 #   # check .data is data.frame
 #   TADA_CheckType(.data, "data.frame", "Input object")
-#   
+# 
 #   #add check that all depth units are the same?
-#   
+# 
 #   # check .data has required columns
 #   TADA_CheckColumns(.data, id_cols)
 # 
@@ -1003,6 +1010,24 @@ TADA_TwoCharacteristicScatterplot <- function(.data, id_cols = "TADA.ComparableD
 #   "ActivityStartDate",
 #   "ActivityStartDateTime"
 # )
+# 
+# # create lists of possible parameters for graph based on data
+# profile.ml.list <- .data %>%
+#   dplyr::group_by(MonitoringLocation, TADA.ComparableIdentifier,
+#                   ActivityStartDate, TADA.ConsolidatedDepth) %>%
+#   dplyr::mutate(N = length(TADA.ResultMeasureValue)) %>%
+#   dplyr::select(MonitoringLocation, TADA.ComparableIdentifier,
+#          ActivityStartDate, TADA.ConsolidatedDepth) %>%
+#   unique()
+# 
+# 
+# profile.char.list <- .data %>%
+#   dplyr::select(TADA.ComparableIdentifier) %>%
+#   unique()
+# 
+# profile.date.list <- .data %>%
+#   dplyr::select(ActivityStartDate) %>%
+#   unique() %>%
 # 
 # 
 # # set up reference for conversion for characteristics with depth as a unit
@@ -1059,14 +1084,14 @@ TADA_TwoCharacteristicScatterplot <- function(.data, id_cols = "TADA.ComparableD
 # 
 # # conversion and create depth value for when result measure unit is depth
 # if (length(intersect(groups, secchi.list)) > 0) {
-#   
+# 
 #   # identify depth unit being used in graph
 #   fig.depth.unit <- plot.data %>%
 #     dplyr::select(DepthUnit) %>%
 #     dplyr::filter(!is.na(DepthUnit)) %>%
 #     unique() %>%
 #     dplyr::pull()
-#   
+# 
 #   # conversions for when result measure unit is depth
 #   plot.data <- plot.data %>%
 #     dplyr::mutate(DepthUnit = ifelse(TADA.ResultMeasure.MeasureUnitCode %in% resunits.yaxis,
@@ -1101,7 +1126,7 @@ TADA_TwoCharacteristicScatterplot <- function(.data, id_cols = "TADA.ComparableD
 # 
 # # title for three characteristics
 # if(length(groups) == 3) {
-#   
+# 
 #   title <- TADA::TADA_InsertBreaks(
 #     paste0(
 #       param1$TADA.CharacteristicName[1],
@@ -1115,12 +1140,12 @@ TADA_TwoCharacteristicScatterplot <- function(.data, id_cols = "TADA.ComparableD
 #     ),
 #     len = 45
 #   )
-#   
+# 
 # }
 # 
 # # title for two characteristics
 # if(length(groups) == 2) {
-#   
+# 
 #   title <- TADA::TADA_InsertBreaks(
 #     paste0(
 #       param1$TADA.CharacteristicName[1],
@@ -1132,12 +1157,12 @@ TADA_TwoCharacteristicScatterplot <- function(.data, id_cols = "TADA.ComparableD
 #     ),
 #     len = 45
 #   )
-#   
+# 
 # }
 # 
 # # title for one characteristic
 # if(length(groups) == 1) {
-#   
+# 
 #   title <- TADA::TADA_InsertBreaks(
 #     paste0(
 #       param1$TADA.CharacteristicName[1],
@@ -1147,7 +1172,7 @@ TADA_TwoCharacteristicScatterplot <- function(.data, id_cols = "TADA.ComparableD
 #     ),
 #     len = 45
 #   )
-#   
+# 
 # }
 # 
 # # figure margin
@@ -1181,7 +1206,7 @@ TADA_TwoCharacteristicScatterplot <- function(.data, id_cols = "TADA.ComparableD
 #     margin = mrg,
 #     legend = list(x = 100, y = 0.5
 #     )
-#   ) 
+#   )
 # 
 #   # add horizontal lines for depth profile category
 # # this all needs to run if depthcat = TRUE
@@ -1203,7 +1228,7 @@ TADA_TwoCharacteristicScatterplot <- function(.data, id_cols = "TADA.ComparableD
 #   dplyr::select(TADA.DepthCategory.Flag, Depth)
 #   dplyr::select(Depth) %>%
 #   unique()
-#   
+# 
 # # determine value for depth category lines
 # sur.line <- cat.lines %>%
 #   dplyr::filter(TADA.DepthCategory.Flag == "Epilimnion-surface")%>%
@@ -1211,7 +1236,7 @@ TADA_TwoCharacteristicScatterplot <- function(.data, id_cols = "TADA.ComparableD
 #   dplyr::slice_max(Depth) %>%
 #   dplyr::select(Depth) %>%
 #   dplyr::pull()
-#   
+# 
 # 
 # # determine value for line between bottom and middle
 # # need to go back and add bottom depth info so this can be incorporated

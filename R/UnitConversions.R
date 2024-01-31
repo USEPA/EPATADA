@@ -78,9 +78,6 @@ TADA_ConvertResultUnits <- function(.data, transform = TRUE, detlimit = TRUE) {
   # filter WQXcharValRef to include only valid CharacteristicUnit in water media
   unit.ref <- TADA_GetMeasureUnitRef()
 
-  # filter out added distance rows of unit ref table - denoted
-  unit.ref <- subset(unit.ref, !is.na(unit.ref$Unique.Identifier) & !grepl("Length Distance", unit.ref$Description))
-
   # add usgs unit/speciations - this table was created by Elise Hinman and Cristina Mullin in 07/2023 using the pcodes domain table from NWIS and copying units with speciations in them into the same format as the measure unit domain table for WQX.
   # https://help.waterdata.usgs.gov/codes-and-parameters/parameters Downloaded the .txt file of ALL parameters and then open in Excel using the delimiter utility.
   usgs.ref <- TADA_GetUSGSSynonymRef()
