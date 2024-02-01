@@ -994,8 +994,20 @@ TADA_DepthProfilePlot() <- function(.data, id_cols = "TADA.ComparableDataIdentif
   # check .data is data.frame
   TADA_CheckType(.data, "data.frame", "Input object")
 
-  #add check that all depth units are the same?
-  #add check that depth category flag function has been run, run it if it has not
+  # add check that depth category flag function has been run, run it if it has not
+  flag.func.cols <- c("TADA.ConsolidatedDepth", "TADA.ConsolidatedDepth.Unit",
+                      "TADA.ConsolidatedDepth.Bottom, TADA.DepthCategory.Flag")
+  
+  if (all(flag.func.cols %in% colnames(.data)) == TRUE) {
+    
+    print("TADA_DepthProfilePlot: Necessary columns from TADA_DepthCategoryFlag function are included in the data frame")
+    
+    if (all(flag.func.cols %in% colnames(.data)) == FALSE) {
+      
+    }
+  }
+  
+
 
   # check .data has required columns
   TADA_CheckColumns(.data, id_cols)
@@ -1270,7 +1282,7 @@ scatterplot <- plotly::plot_ly(type = "scatter", mode = "lines+markers") %>%
 if (depthcat == TRUE) {
 
 print("TADA_DepthProfilePlot: Adding surface delination to figure.")
-  
+
 # add depth category lines
 scatterplot <- scatterplot %>%
   plotly::layout(shapes = list(
@@ -1294,7 +1306,7 @@ if(bot.depth < 0 | is.na(bot.depth)) {
 
 if(bot.depth > 0) {
   print("TADA_DepthProfilePlot: Adding bottom delination to figure.")
-  
+
   scatterplot <- scatterplot %>%
   plotly::layout(shapes = list(
     type = "line",
@@ -1339,7 +1351,7 @@ if(length(groups) >= 1) {
         param1$TADA.DepthCategory.Flag
       ), "<br>"
     )
-  ) 
+  )
 }
 
 if(length(groups) >= 2)
