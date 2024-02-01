@@ -958,17 +958,13 @@ TADA_TwoCharacteristicScatterplot <- function(.data, id_cols = "TADA.ComparableD
 #' # Creates a scatterplot including the two specified sites in the same plot:
 #' TADA_TwoCharacteristicScatterplot(df, id_cols = "MonitoringLocationName", groups = c("Upper Red Lake: West", "Upper Red Lake: West-Central"))
 #'
+
+# add option to conver units?
 test <- TADA::Data_6Tribes_5y_Harmonized
 
 test2 <- TADA_DepthCategory.Flag(test)
 
-test3 <- test2 %>%
-  dplyr::filter(!is.na(TADA.ConsolidatedDepth.Unit))
-
-testsubset <- test2 %>%
-  dplyr::filter(TADA.CharacteristicName %in% c("DEPTH, SECCHI DISK DEPTH"))
-
-.data <- testsubset
+.data <- test2
 
 #test params
 id_cols = "TADA.ComparableDataIdentifier"
@@ -1009,8 +1005,10 @@ reqcols <- c(
   "MonitoringLocationIdentifier",
   "MonitoringLocationName",
   "ActivityStartDate",
-  "ActivityStartDateTime"
-)
+  "ActivityStartDateTime",
+  "TADA.ConsolidatedDepth",
+  "TADA.ConsolidatedDepth.Unit"
+  )
 
 # set up reference for conversion for characteristics with depth as a unit
 
@@ -1054,19 +1052,23 @@ depthprofile.avail <- .data %>%
   
  # add secchi (and other???) results
    singlevalue.avail <- .data %>%
-     filter(MonitoringLocationIdentifier %in% profile.ml.list,
-            TADA.CharacteristicName %in% singlevalue.avail) %>%
+     dplyr::filter(MonitoringLocationIdentifier %in% profile.ml.list,
+            TADA.CharacteristicName == single.value.chars) %>%
      dplyr::mutate(TADA.ConsolidatedDepth.Unit = ifelse(TADA.ResultMeasure.MeasureUnitCode %in% resunits.yaxis,
                                                         TADA.ResultMeasure.MeasureUnitCode, TADA.ConsolidatedDepth.Unit),
                    TADA.ConsolidatedDepth = ifelse(TADA.ResultMeasure.MeasureUnitCode %in% resunits.yaxis,
                                                    TADA.ResultDepthHeightMeasure.MeasureValue, TADA.ConsolidatedDepth))
+   
+   #what to do if more than one secchi value per depth/date/ml?
+   
+   # combine profile and single value data
+   
+   all.depth.profile <- depthprofile.avail %>%
+     dplyr::full_join(singlevalue.avail)
      
-
 print("TADA_DepthProfilePlot: Identifying available depth profile data.")
 
 # create lists of possible parameters for graph based on data
-
-
 
 # number of MonitoringLocationIdentifiers with depth profile data
 profile.ml.n <- length(profile.ml.list)
@@ -1112,17 +1114,8 @@ if (any(!groups %in% id)) {
   stop("The 'groups' vector contains one or more inputs that are not found within your input dataset. Check spelling and try again.")
 }
 
-# create list of depth columns (is this needed? or can this be built into required cols section)
-depthcols <- c(
-  "TADA.ResultDepthHeightMeasure.MeasureValue",
-  "TADA.ResultDepthHeightMeasure.MeasureUnitCode",
-  "TADA.ActivityDepthHeightMeasure.MeasureUnitCode",
-  "TADA.ActivityDepthHeightMeasure.MeasureValue",
-  "TADA.DepthCategory.Flag"
-)
-
 # initial filtering of data set based on user inputs --> need to figure out how to handle nulls/defaults
-plot.data <- as.data.frame(depthprofile.avail) %>%
+plot.data <- as.data.frame(all.depth.profile) %>%
   dplyr::mutate(Year = as.numeric(format.Date(ActivityStartDate, "%Y")),
                 Month = as.numeric(format.Date(ActivityStartDate, "%m"))) %>%
   dplyr::filter(TADA.ActivityMediaName == "WATER",
@@ -1135,31 +1128,28 @@ plot.data <- as.data.frame(depthprofile.avail) %>%
 
 
 # this subset must include all fields included in plot hover below
-plot.data <- subset(plot.data, plot.data[, id_cols] %in% groups)[, c(id_cols, reqcols, depthcols, "ActivityStartDateTime", "MonitoringLocationName", "TADA.ActivityMediaName", "ActivityMediaSubdivisionName", "ActivityRelativeDepthName", "TADA.CharacteristicName", "TADA.MethodSpeciationName", "TADA.ResultSampleFractionText")] %>%
-  dplyr::mutate(Depth = ifelse(!is.na(TADA.ResultDepthHeightMeasure.MeasureValue), TADA.ResultDepthHeightMeasure.MeasureValue,
-                               TADA.ActivityDepthHeightMeasure.MeasureValue),
-                DepthUnit = ifelse(!is.na(TADA.ResultDepthHeightMeasure.MeasureUnitCode), TADA.ResultDepthHeightMeasure.MeasureUnitCode,
-                                   TADA.ActivityDepthHeightMeasure.MeasureUnitCode))
+plot.data <- subset(plot.data, plot.data[, id_cols] %in% groups)[, c(id_cols, reqcols, "ActivityStartDateTime", "MonitoringLocationName", "TADA.ActivityMediaName", "ActivityMediaSubdivisionName", "ActivityRelativeDepthName", "TADA.CharacteristicName", "TADA.MethodSpeciationName", "TADA.ResultSampleFractionText")]
+
 
 # conversion and create depth value for when result measure unit is depth
 if (length(intersect(groups, secchi.list)) > 0) {
 
   # identify depth unit being used in graph
-  fig.depth.unit <- plot.data %>%
-    dplyr::select(DepthUnit) %>%
+  fig.depth.unit <- depthprofile.avail %>%
+    dplyr::select(TADA.ConsolidatedDepth.Unit) %>%
     dplyr::filter(!is.na(DepthUnit)) %>%
     unique() %>%
     dplyr::pull()
 
-  # conversions for when result measure unit is depth
-  plot.data <- plot.data %>%
-    dplyr::mutate(DepthUnit = ifelse(TADA.ResultMeasure.MeasureUnitCode %in% resunits.yaxis,
-                                                                         fig.depth.unit, DepthUnit)) %>%
-    dplyr::left_join(secchi.conversion, relationship = "many-to-many") %>%
-    dplyr::mutate(SecchiConversion = as.numeric(SecchiConversion),
-                  Depth = ifelse(TADA.ResultMeasure.MeasureUnitCode %in% resunits.yaxis,
-                                   TADA.ResultMeasureValue * SecchiConversion, Depth))
-}
+#   # conversions for when result measure unit is depth
+#   plot.data <- plot.data %>%
+#     dplyr::mutate(DepthUnit = ifelse(TADA.ResultMeasure.MeasureUnitCode %in% resunits.yaxis,
+#                                                                          fig.depth.unit, DepthUnit)) %>%
+#     dplyr::left_join(secchi.conversion, relationship = "many-to-many") %>%
+#     dplyr::mutate(SecchiConversion = as.numeric(SecchiConversion),
+#                   Depth = ifelse(TADA.ResultMeasure.MeasureUnitCode %in% resunits.yaxis,
+#                                    TADA.ResultMeasureValue * SecchiConversion, Depth))
+# }
 
 # no changes needed to data frame if no result measure units are depth
 if (length(intersect(groups, secchi.list)) < 1) {
@@ -1172,9 +1162,8 @@ plot.data$name <- gsub("_NA", "", plot.data[, id_cols])
 plot.data$name <- gsub("_", " ", plot.data$name)
 
 
-
 # arrange data by depth
-plot.data <- dplyr::arrange(plot.data, Depth)
+plot.data <- dplyr::arrange(plot.data, TADA.ConsolidatedDepth)
 
 # break into subsets for each parameter
 param1 <- subset(plot.data, plot.data[, id_cols] %in% groups[1])
@@ -1403,3 +1392,5 @@ list(type = "rect",line = list(color = "black"),
       ), "<br>"
     )
   )
+
+  
