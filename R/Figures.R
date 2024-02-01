@@ -983,12 +983,19 @@ month_upper = 11
 
 activity_date = "2018-10-04"
 
+surfacevalue = 2
 
-TADA_DepthProfilePlot() <- function(.data, id_cols = "TADA.ComparableDataIdentifier", groups, location, depthcat) {
+bottomvalue = 2
+
+
+TADA_DepthProfilePlot() <- function(.data, id_cols = "TADA.ComparableDataIdentifier",
+                                    groups, location, depthcat = TRUE,
+                                    surfacevalue = 2, bottomvalue = 2) {
   # check .data is data.frame
   TADA_CheckType(.data, "data.frame", "Input object")
 
   #add check that all depth units are the same?
+  #add check that depth category flag function has been run, run it if it has not
 
   # check .data has required columns
   TADA_CheckColumns(.data, id_cols)
@@ -1007,7 +1014,8 @@ reqcols <- c(
   "ActivityStartDate",
   "ActivityStartDateTime",
   "TADA.ConsolidatedDepth",
-  "TADA.ConsolidatedDepth.Unit"
+  "TADA.ConsolidatedDepth.Unit",
+  "TADA.ConsolidatedDepth.Bottom"
   )
 
 # set up reference for conversion for characteristics with depth as a unit
@@ -1041,15 +1049,15 @@ depthprofile.avail <- .data %>%
   dplyr::mutate(N = length(TADA.ResultMeasureValue)) %>%
   dplyr::filter(N > 2 | TADA.CharacteristicName %in% single.value.chars) %>%
   dplyr::ungroup()
- 
-  
+
+
   # list of MonitoringLocationIdentifiers with depth profile data
   profile.ml.list <- depthprofile.avail %>%
     dplyr::select(MonitoringLocationIdentifier) %>%
     unique() %>%
     dplyr::pull()
-  
-  
+
+
  # add secchi (and other???) results
    singlevalue.avail <- .data %>%
      dplyr::filter(MonitoringLocationIdentifier %in% profile.ml.list,
@@ -1058,14 +1066,14 @@ depthprofile.avail <- .data %>%
                                                         TADA.ResultMeasure.MeasureUnitCode, TADA.ConsolidatedDepth.Unit),
                    TADA.ConsolidatedDepth = ifelse(TADA.ResultMeasure.MeasureUnitCode %in% resunits.yaxis,
                                                    TADA.ResultDepthHeightMeasure.MeasureValue, TADA.ConsolidatedDepth))
-   
+
    #what to do if more than one secchi value per depth/date/ml?
-   
+
    # combine profile and single value data
-   
+
    all.depth.profile <- depthprofile.avail %>%
      dplyr::full_join(singlevalue.avail)
-     
+
 print("TADA_DepthProfilePlot: Identifying available depth profile data.")
 
 # create lists of possible parameters for graph based on data
@@ -1137,7 +1145,7 @@ if (length(intersect(groups, secchi.list)) > 0) {
   # identify depth unit being used in graph
   fig.depth.unit <- depthprofile.avail %>%
     dplyr::select(TADA.ConsolidatedDepth.Unit) %>%
-    dplyr::filter(!is.na(DepthUnit)) %>%
+    dplyr::filter(!is.na(TADA.ConsolidatedDepth.Unit)) %>%
     unique() %>%
     dplyr::pull()
 
@@ -1246,7 +1254,8 @@ scatterplot <- plotly::plot_ly(type = "scatter", mode = "lines+markers") %>%
       titlefont = list(size = 16, family = "Arial"),
       tickfont = list(size = 16, family = "Arial"),
       hoverformat = ",.4r", linecolor = "black", rangemode = "tozero",
-      showgrid = FALSE, tickcolor = "black"
+      showgrid = FALSE, tickcolor = "black",
+      autorange = "reversed"
     ),
     hoverlabel = list(bgcolor = "white"),
     title = title,
@@ -1256,59 +1265,56 @@ scatterplot <- plotly::plot_ly(type = "scatter", mode = "lines+markers") %>%
     )
   )
 
-  # add horizontal lines for depth profile category
+# add horizontal lines for depth profile category
 # this all needs to run if depthcat = TRUE
+if (depthcat == TRUE) {
 
-#create horizontal line function for showing depth categories
-hline <- function(y = 0, color = "black") {
-  list(
-    type = "line",
-    x0 = 0,
-    x1 = 1,
-    xref = "paper",
-    y0 = y,
-    y1 = y,
-    line = list(color = color)
-  )
-}
-
-cat.lines <- plot.data %>%
-  dplyr::select(TADA.DepthCategory.Flag, Depth)
-  dplyr::select(Depth) %>%
-  unique()
-
-# determine value for depth category lines
-sur.line <- cat.lines %>%
-  dplyr::filter(TADA.DepthCategory.Flag == "Epilimnion-surface")%>%
-  unique() %>%
-  dplyr::slice_max(Depth) %>%
-  dplyr::select(Depth) %>%
-  dplyr::pull()
-
-
-# determine value for line between bottom and middle
-# need to go back and add bottom depth info so this can be incorporated
-bot.line
-
+print("TADA_DepthProfilePlot: Adding surface delination to figure.")
+  
+# add depth category lines
 scatterplot <- scatterplot %>%
   plotly::layout(shapes = list(
     type = "line",
     x0 = 0,
     x1 = 1,
     xref = "paper",
-    y0 = sur.line,
-    y1 = sur.line,
-    line = list(color = "orange")))
+    y0 = surfacevalue,
+    y1 = surfacevalue,
+    line = list(color = "black", dash = "dot")))
 
-list(type = "rect",line = list(color = "black"),
-     x0 = 0.9, x1 = 2))
+bot.depth <- plot.data %>%
+  dplyr::select(TADA.ConsolidatedDepth.Bottom)%>%
+  unique() %>%
+  dplyr::slice_max(TADA.ConsolidatedDepth.Bottom) %>%
+  dplyr::pull()
 
+if(bot.depth < 0 | is.na(bot.depth)) {
+  print("TADA_DepthProfilePlot: No bottom depth recorded for this depth profile. Bottom delineation not added to figure.")
+}
+
+if(bot.depth > 0) {
+  print("TADA_DepthProfilePlot: Adding bottom delination to figure.")
+  
+  scatterplot <- scatterplot %>%
+  plotly::layout(shapes = list(
+    type = "line",
+    x0 = 0,
+    x1 = 1,
+    xref = "paper",
+    y0 = bot.depth - bottomvalue,
+    y1 = bot.depth - bottomvalue,
+    line = list(color = "black")))
+}
+}
+
+if(length(groups) >= 1) {
   # config options https://plotly.com/r/configuration-options/
+  scatterplot <- scatterplot %>%
   plotly::config(displaylogo = FALSE) %>% # , displayModeBar = TRUE) # TRUE makes bar always visible
   plotly::add_trace(
     data = param1,
     x = ~TADA.ResultMeasureValue,
-    y = ~Depth,
+    y = ~TADA.ConsolidatedDepth,
     name = paste0(
       param1$TADA.ResultSampleFractionText, " ",
       param1$TADA.CharacteristicName, " ",
@@ -1325,19 +1331,23 @@ list(type = "rect",line = list(color = "black"),
       "Activity Start Date:", param1$ActivityStartDate, "<br>",
       "Activity Start Date Time:", param1$ActivityStartDateTime, "<br>",
       "Depth:", paste0(
-        param1$Depth, " ",
-        param1$DepthUnit
+        param1$TADA.ConsolidatedDepth, " ",
+        param1$TADA.ConsolidatedDepth.Unit
       ), "<br>",
       "Activity Relative Depth Name:", param1$ActivityRelativeDepthName, "<br>",
       "TADA.DepthCategory.Flag:", paste0(
         param1$TADA.DepthCategory.Flag
       ), "<br>"
     )
-  ) %>%
+  ) 
+}
+
+if(length(groups) >= 2)
+
   plotly::add_trace(
     data = param2,
     x = ~TADA.ResultMeasureValue,
-    y = ~Depth,
+    y = ~TADA.ConsolidatedDepth,
     name = paste0(
       param2$TADA.ResultSampleFractionText, " ",
       param2$TADA.CharacteristicName, " ",
@@ -1354,8 +1364,8 @@ list(type = "rect",line = list(color = "black"),
       "Activity Start Date:", param2$ActivityStartDate, "<br>",
       "Activity Start Date Time:", param2$ActivityStartDateTime, "<br>",
       "Depth:", paste0(
-        param2$Depth, " ",
-        param2$DepthUnit
+        param2$TADA.ConsolidatedDepth, " ",
+        param2$TADA.ConsolidatedDepth.Unit
       ), "<br>",
       "Activity Relative Depth Name:", param2$ActivityRelativeDepthName, "<br>",
       "TADA.DepthCategory.Flag:", paste0(
@@ -1366,7 +1376,7 @@ list(type = "rect",line = list(color = "black"),
   plotly::add_trace(
     data = param3,
     x = ~TADA.ResultMeasureValue,
-    y = ~Depth,
+    y = ~TADA.ConsolidatedDepth,
     name = paste0(
       param3$TADA.ResultSampleFractionText, " ",
       param3$TADA.CharacteristicName, " ",
@@ -1383,8 +1393,8 @@ list(type = "rect",line = list(color = "black"),
       "Activity Start Date:", param3$ActivityStartDate, "<br>",
       "Activity Start Date Time:", param3$ActivityStartDateTime, "<br>",
       "Depth:", paste0(
-        param3$Depth, " ",
-        param3$DepthUnit
+        param3$TADA.ConsolidatedDepth, " ",
+        param3$TADA.ConsolidatedDepth.Unit
       ), "<br>",
       "Activity Relative Depth Name:", param3$ActivityRelativeDepthName, "<br>",
       "TADA.DepthCategory.Flag:", paste0(
@@ -1393,4 +1403,3 @@ list(type = "rect",line = list(color = "black"),
     )
   )
 
-  
