@@ -1362,7 +1362,8 @@ TADA_DepthCategory.Flag <- function(.data, bycategory = "no", bottomvalue = 2, s
         TADA.ConsolidatedDepth = ifelse(!is.na(TADA.ResultDepthHeightMeasure.MeasureValue), TADA.ResultDepthHeightMeasure.MeasureValue,
             TADA.ActivityDepthHeightMeasure.MeasureValue),
         TADA.ConsolidatedDepth.Unit = ifelse(!is.na(TADA.ResultDepthHeightMeasure.MeasureUnitCode),
-                                             TADA.ResultDepthHeightMeasure.MeasureUnitCode, TADA.ActivityDepthHeightMeasure.MeasureUnitCode)
+                                             TADA.ResultDepthHeightMeasure.MeasureUnitCode, TADA.ActivityDepthHeightMeasure.MeasureUnitCode),
+        TADA.ConsolidatedDepth.Unit = toupper(TADA.ConsolidatedDepth.Unit)
         ) %>%
       # use group_by to identify profile data
       dplyr::group_by(ActivityStartDate, MonitoringLocationIdentifier, OrganizationIdentifier) %>%
