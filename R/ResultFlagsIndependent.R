@@ -69,8 +69,9 @@ TADA_FlagMethod <- function(.data, clean = TRUE, flaggedonly = FALSE) {
     .data <- dplyr::select(.data, -TADA.AnalyticalMethod.Flag)
   }
   # read in WQX val reference table and filter
-  meth.ref <- utils::read.csv(system.file("extdata", "WQXcharValRef.csv", package = "TADA")) %>%
-    dplyr::filter(Type == "CharacteristicMethod")
+  load(file = "inst/extdata/WQXcharValRef.rda")
+  # meth.ref <- utils::read.csv(system.file("extdata", "WQXcharValRef.csv", package = "TADA")) %>%
+  meth.ref <- dplyr::filter(WQXcharValRef, Type == "CharacteristicMethod")
 
   # join "TADA.WQXVal.Flag" column to .data by CharacteristicName, Source (Media), and Value (unit)
   check.data <- merge(.data, meth.ref[, c("Characteristic", "Source", "Value", "TADA.WQXVal.Flag")],
@@ -351,8 +352,9 @@ TADA_FlagAboveThreshold <- function(.data, clean = TRUE, flaggedonly = FALSE) {
   }
 
   # filter WQXcharVal.ref to include only valid CharacteristicUnit
-  unit.ref <- utils::read.csv(system.file("extdata", "WQXcharValRef.csv", package = "TADA")) %>%
-    dplyr::filter(Type == "CharacteristicUnit" & Status == "Accepted")
+  load(file = "inst/extdata/WQXcharValRef.rda")
+  # unit.ref <- utils::read.csv(system.file("extdata", "WQXcharValRef.csv", package = "TADA")) %>%
+  unit.ref <- dplyr::filter(WQXcharValRef, Type == "CharacteristicUnit" & Status == "Accepted")
 
   # join unit.ref to raw.data
   check.data <- merge(.data, unit.ref[, c(
@@ -505,8 +507,9 @@ TADA_FlagBelowThreshold <- function(.data, clean = TRUE, flaggedonly = FALSE) {
   }
 
   # filter WQXcharVal.ref to include only valid CharacteristicUnit in water media
-  unit.ref <- utils::read.csv(system.file("extdata", "WQXcharValRef.csv", package = "TADA")) %>%
-    dplyr::filter(Type == "CharacteristicUnit" & Status == "Accepted")
+  load(file = "inst/extdata/WQXcharValRef.rda")
+  # unit.ref <- utils::read.csv(system.file("extdata", "WQXcharValRef.csv", package = "TADA")) %>%
+  unit.ref <- dplyr::filter(WQXcharValRef, Type == "CharacteristicUnit" & Status == "Accepted")
 
   # join unit.ref to raw.data
   check.data <- merge(.data, unit.ref[, c(
