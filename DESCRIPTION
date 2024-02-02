@@ -49,7 +49,7 @@ Copyright: This software is in the public domain because it contains materials
     that originally came from the U.S. Environmental Protection Agency.
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
-RoxygenNote: 7.2.3
+RoxygenNote: 7.3.1
 Imports:
     plyr, 
     data.table, 
@@ -91,4 +91,4 @@ Config/testthat/edition: 3
 Config/testthat/load-all: list(export_all = FALSE, helpers = FALSE)
 URL: https://usepa.github.io/TADA/, https://github.com/USEPA/TADA
 LazyData: true
-LazyDataCompression:xz
+LazyDataCompression: xz

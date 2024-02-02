@@ -10,6 +10,7 @@ TADA_UpdateAllRefs <- function() {
   TADA_UpdateActivityTypeRef()
   TADA_UpdateCharacteristicRef()
   TADA_UpdateMeasureQualifierCodeRef()
+  TADA_UpdateMonLocTypeRef()
 }
 
 ## FUNCTION TO UPDATE EXAMPLE DATA

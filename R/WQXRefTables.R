@@ -849,6 +849,9 @@ TADA_UpdateMeasureQualifierCodeRef <- function() {
   )
 }
 
+# Used to store cached WQXMonLocTypeRef
+WQXMonLocTypeRef_Cached <- NULL
+
 #' Update Monitoring Location Type Name Reference Table
 #'
 #' Function downloads and returns in the latest WQX MonitoringLocationTypeName 
@@ -908,6 +911,7 @@ TADA_GetMonLocTypeRef <- function() {
         "Ocean",
         "Other-Surface Water",
         "Pipe, Unspecified Source",
+        "Mine/Mine Discharge",
         "Pond",
         "Pond-Anchialine",
         "Pond-Stock",
@@ -934,7 +938,14 @@ TADA_GetMonLocTypeRef <- function() {
         "Wetland Palustrine-Moss-Lichen",
         "Wetland Palustrine-Shrub-Scrub",
         "Wetland Riverine-Emergent",
-        "Wetland Undifferentiated"
+        "Wetland Undifferentiated",
+        "Wetland Palustrine Pond",
+        "Channelized Stream",
+        "Estuary-Freshwater",
+        "Pond-Sediment",
+        "Pond-Stormwater",
+        "Spring"
+        
       ) ~ as.character("Surface Water"),
       Name %in% c(
         "Cave",
