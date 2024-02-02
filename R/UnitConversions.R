@@ -76,7 +76,7 @@ TADA_ConvertResultUnits <- function(.data, transform = TRUE, detlimit = TRUE) {
   # execute function after checks are passed
 
   # filter WQXcharValRef to include only valid CharacteristicUnit in water media
-  unit.ref <- TADA_GetMeasureUnitRef()
+  unit.ref <- utils::read.csv(system.file("extdata", "WQXunitRef.csv", package = "TADA"))
 
   # filter out added distance rows of unit ref table - denoted
   unit.ref <- subset(unit.ref, !is.na(unit.ref$Unique.Identifier) & !grepl("Length Distance", unit.ref$Description))
@@ -393,7 +393,7 @@ TADA_ConvertDepthUnits <- function(.data,
   )
 
   # read in unit conversion reference table from extdata
-  unit.ref <- TADA_GetMeasureUnitRef()
+  unit.ref <- utils::read.csv(system.file("extdata", "WQXunitRef.csv", package = "TADA"))
 
   # subset to include only "Length Distance" units; filter by target unit defined in 'unit' argument
   unit.ref <- unit.ref %>%

@@ -17,15 +17,19 @@ require.cols <- c(
   "ResultSampleFractionText", # required in Module 1 but is replaced by TADA version in future modules
   "TADA.ResultSampleFractionText", # generated/required/replaces original
   "TADA.SampleFraction.Flag",
+  "Target.TADA.ResultSampleFractionText",
   "TADA.FractionAssumptions",
   "CharacteristicName", # required in Module 1 but is replaced by TADA version in future modules
   "TADA.CharacteristicName", # generated/required/replaces original
+  "Target.TADA.CharacteristicName",
   "TADA.CharacteristicNameAssumptions", # generated
   "SubjectTaxonomicName",
   "SampleTissueAnatomyName",
   "MethodSpeciationName", # required in Module 1 but is replaced by TADA version in future modules
   "TADA.MethodSpeciationName", # generated/required/replaces original
   "TADA.MethodSpeciation.Flag", # generated
+  "Target.TADA.MethodSpeciationName",
+  "Target.TADA.SpeciationConversionFactor",
   "TADA.SpeciationAssumptions",
   "TADA.SpeciationConversionFactor",
   "TADA.ComparableDataIdentifier",
@@ -51,7 +55,10 @@ require.cols <- c(
   "TADA.ResultMeasure.MeasureUnitCode", # generated/required/replaces original
   "TADA.WQXResultUnitConversion", # generated, only added when transform = FALSE in TADA_ConvertResultUnits
   "TADA.WQXTargetUnit", # generated, only added when transform = FALSE in TADA_ConvertResultUnits
+  "Target.TADA.ResultMeasure.MeasureUnitCode", 
+  "Target.TADA.UnitConversionFactor", # generated when 
   "TADA.WQXUnitConversionFactor", # generated, only added when transform = FALSE in TADA_ConvertResultUnits
+  "Target.TADA.UnitConversionCoefficient",
   "TADA.UnitConversionFactor", # generated, added from TADA harmonization template
   "TADA.SpeciationUnitConversion", # generated, only added when transform = FALSE in TADA_ConvertResultUnits
   "TADA.ResultUnit.Flag", # generated
