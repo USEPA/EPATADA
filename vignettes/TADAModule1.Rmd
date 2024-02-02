@@ -243,23 +243,23 @@ depends on your query inputs.
 # AllCT <- TADA_BigDataRetrieval(statecode = "CT")
 ```
 
-Many TADA users are interested in using WQP data for Clean Water Act Assesssments. The **TADA_AssessmentDataFilter** function may assist in identifying results that should be included in the assessment process. 
+Some TADA users are interested in using WQP data for surface water only or for analysis of some non-water data. The **TADA_AnalysisDataFilter** function can assist in identifying results of interest. Multiple columns are used to identify groundwater results as different organizations may populate different combinations of fields in order to identify a result as groundwater.
 
-This function identifies surface water, groundwater, and sediment results. Users can  specify whether all results should be returned with a new column, *TADA.UseForAssessment.Flag*,identifying if the result should be included in assessments or if only results that should be in included in assessments are returned. 
+This function identifies surface water, groundwater, and sediment results. Users can  specify whether all results should be returned with a new column, *TADA.UseForAnalysis.Flag*,identifying if the result should be included in further analysis or if only results that should be in included are returned. 
 
-The defaults are to include surface water, exclude groundwater and sediment, and to return only the results that should be used for assessments (clean = TRUE). This is shown in the active example below. If you would like to see all results with the *TADA.UseForAssessment.Flag* column, you can uncomment the example where clean = FALSE.
+The defaults are to include surface water, exclude groundwater and sediment, and to return only the results that should be used for analysis (clean = TRUE). This is shown in the active example below. If you would like to see all results with the *TADA.UseForAnalysis.Flag* column, you can uncomment the example where clean = FALSE.
 
-If you are not interested in using **TADA_AssessmentDataFilter**, but would like to filter by activity media, uncomment the example to filter for water data only by using dplyr::filter() with TADA.ActivityMediaName.
+If you are not interested in using **TADA_AnalysisDataFilter**, but would like to filter by activity media, uncomment the example to filter for water data only by using dplyr::filter() with TADA.ActivityMediaName.
 
-```{r AssessmentDataFilter}
+```{r AnalysisDataFilter}
 
-# Filter to retain only results for use in assessments
-TADAProfile <- TADA_AssessmentDataFilter(TADAProfile)
+# Filter to retain only results for use in analysis
+TADAProfile <- TADA_AnalysisDataFilter(TADAProfile)
 
-# Add TADA.UseForAssessment.Flag column to identify which results should be used for assessments
-# TADAProfile <- TADA_AssessmentDataFilter(TADAProfile)
+# Add TADA.UseForAnalysis.Flag column to identify which results should be used for analysis
+# TADAProfile <- TADA_AnalysisDataFilter(TADAProfile)
 
-# Remove data for non-water media types, alternate workflow without using TADA_AssessmentDataFilter()
+# Remove data for non-water media types, alternate workflow without using TADA_AnalysisDataFilter()
 #TADAProfile <- dplyr::filter(TADAProfile, TADA.ActivityMediaName == "WATER")
 
 ```
