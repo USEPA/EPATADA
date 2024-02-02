@@ -71,7 +71,7 @@ TADA_UpdateExampleData <- function() {
   y <- dplyr::filter(y, TADA.ResultMeasureValueDataTypes.Flag != "Text" &
     TADA.ResultMeasureValueDataTypes.Flag != "NA - Not Available" &
     !is.na(TADA.ResultMeasureValue))
-  # uses default ref = TADA_GetSynonymRef()
+  # uses HarmonizationTemplate.csv in the extdata folder
   Data_6Tribes_5y_Harmonized <- TADA_HarmonizeSynonyms(y)
   print("Data_6Tribes_5y_Harmonized:")
   print(dim(Data_6Tribes_5y_Harmonized))

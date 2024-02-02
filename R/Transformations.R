@@ -79,7 +79,9 @@ TADA_HarmonizeSynonyms <- function(.data, ref, np_speciation = TRUE) {
     "TADA.ResultMeasure.MeasureUnitCode",
     "Target.TADA.ResultMeasure.MeasureUnitCode",
     "Target.TADA.UnitConversionFactor",
-    "Target.TADA.UnitConversionCoefficient"
+    "Target.TADA.UnitConversionCoefficient",
+    "TADA.UnitConversionRef",
+    "HarmonizationGroup"
   )
 
   # if class(ResultMeasureValue) != numeric, run special char function - EDH - should not be needed at this point but doesn't hurt.
@@ -101,7 +103,7 @@ TADA_HarmonizeSynonyms <- function(.data, ref, np_speciation = TRUE) {
 
   # if input for ref does not exist, use raw harmonization template
   if (missing(ref)) {
-    # use output of HarmonizationRefTable which uses the TADA HarmonizationTemplate.csv in the extdata folder
+    # use output of TADA_GetSynonymRef which uses the TADA HarmonizationTemplate.csv in the extdata folder
     harm.ref <- TADA_GetSynonymRef(.data)
   }
 
@@ -110,10 +112,7 @@ TADA_HarmonizeSynonyms <- function(.data, ref, np_speciation = TRUE) {
 
   .data <- .data[, !names(.data) %in% c("TADA.ComparableDataIdentifier")]
 
-  # # join by expected cols and (if in dataset) harmonization cols
-  # joincols = names(.data)[names(.data)%in%c(expected_cols, harmonization_cols)]
-
-  # join harm.ref to .data - EDH - there are some columns ("ResultAnalyticalMethod.MethodName","SampleCollectionMethod.MethodName","ResultCommentText","MonitoringLocationTypeName")in the example harmonization table that are also in .data that would result in erroneous joins if not excluded from join below
+  # join harm.ref to .data
   flag.data <- merge(.data, harm.ref,
     by = expected_cols[!expected_cols %in% "TADA.ResultMeasureValue"],
     all.x = TRUE
@@ -138,8 +137,7 @@ TADA_HarmonizeSynonyms <- function(.data, ref, np_speciation = TRUE) {
       is.na(Target.TADA.ResultSampleFractionText) ~ TADA.ResultSampleFractionText
     ))
 
-  # TADA.MethodSpeciationName
-  # there are a couple of instances with DO where the speciation is listed "AS O2" but it should be NA
+  # Handle instances with DO where the speciation is listed "AS O2" but it should be NA
   clean.data$TADA.MethodSpeciationName <- ifelse(!is.na(clean.data$TADA.MethodSpeciationName) & is.na(clean.data$Target.TADA.MethodSpeciationName) & !is.na(clean.data$TADA.SpeciationAssumptions), clean.data$Target.TADA.MethodSpeciationName, clean.data$TADA.MethodSpeciationName)
 
   # ResultMeasure.MeasureUnitCode
@@ -153,8 +151,12 @@ TADA_HarmonizeSynonyms <- function(.data, ref, np_speciation = TRUE) {
     # if conversion factor exists, multiply by ResultMeasureValue
     dplyr::rowwise() %>%
     dplyr::mutate(TADA.ResultMeasureValue = dplyr::case_when(
-      !is.na(Target.TADA.UnitConversionFactor) ~
-        ((Target.TADA.UnitConversionFactor * TADA.ResultMeasureValue) + Target.TADA.UnitConversionCoefficient),
+      !is.na(Target.TADA.UnitConversionFactor) & !is.na(Target.TADA.ResultMeasure.MeasureUnitCode) 
+      & !is.na(Target.TADA.UnitConversionCoefficient)
+      ~ ((Target.TADA.UnitConversionFactor * TADA.ResultMeasureValue) + Target.TADA.UnitConversionCoefficient),
+      !is.na(Target.TADA.UnitConversionFactor) & !is.na(Target.TADA.ResultMeasure.MeasureUnitCode) 
+      & is.na(Target.TADA.UnitConversionCoefficient)
+      ~ ((Target.TADA.UnitConversionFactor * TADA.ResultMeasureValue)),
       is.na(Target.TADA.UnitConversionFactor) ~ TADA.ResultMeasureValue
     ))
 
@@ -190,9 +192,11 @@ TADA_HarmonizeSynonyms <- function(.data, ref, np_speciation = TRUE) {
       "Target.TADA.CharacteristicName",
       "Target.TADA.ResultSampleFractionText",
       "Target.TADA.MethodSpeciationName",
-      "Target.TADA.ResultMeasure.MeasureUnitCode",
       "Target.TADA.SpeciationConversionFactor",
+      "Target.TADA.ResultMeasure.MeasureUnitCode",
       "Target.TADA.UnitConversionFactor",
+      "Target.TADA.UnitConversionCoefficient",
+      "TADA.UnitConversionRef",
       "HarmonizationGroup"
     ))
 
