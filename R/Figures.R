@@ -964,9 +964,9 @@ test <- TADA::Data_6Tribes_5y_Harmonized
 
 test2 <- TADA_DepthCategory.Flag(test)
 
-test3 <- test2 %>%
-  dplyr::filter(MonitoringLocationIdentifier == location) %>%
-  dplyr::select(TADA.ConsolidatedDepth, TADA.ConsolidatedDepth.Bottom,
+#test3 <- test2 %>%
+  #dplyr::filter(MonitoringLocationIdentifier == location) %>%
+  #dplyr::select(TADA.ConsolidatedDepth, TADA.ConsolidatedDepth.Bottom,
                 ActivityStartDate)
 
 .data <- test2
@@ -1177,27 +1177,25 @@ if(length(groups) == 3) {
     ),
     len = 45
   )
-  
+
   title.x <- TADA::TADA_InsertBreaks(
-    stringr::str_remove_all(paste0(
+    stringr::str_replace_all(stringr::str_remove_all(paste0(
       param1$TADA.CharacteristicName[1],
       " (",
       param1$TADA.ResultMeasure.MeasureUnitCode[1],
-      "), ",
+      "); ",
       param2$TADA.CharacteristicName[1],
       " (",
       param2$TADA.ResultMeasure.MeasureUnitCode[1],
-      ") and ", 
+      "); and ",
       param3$TADA.CharacteristicName[1],
       " (",
       param3$TADA.ResultMeasure.MeasureUnitCode[1],
-      ")"), "[(NA) ]"
-    ),
+      ")"), stringr::fixed("(NA)")
+    ), " ;", ";"),
     len = 45
   )
 
-  param1$TADA.CharacteristicName[1]
-  
 }
 
 # title for two characteristics
@@ -1212,6 +1210,20 @@ if(length(groups) == 2) {
       #figure out addition of weird \n in name
       plot.data$MonitoringLocationName[1]
     ),
+    len = 45
+  )
+  
+  title.x <- TADA::TADA_InsertBreaks(
+    stringr::str_replace_all(stringr::str_remove_all(paste0(
+      param1$TADA.CharacteristicName[1],
+      " (",
+      param1$TADA.ResultMeasure.MeasureUnitCode[1],
+      "); and ",
+      param2$TADA.CharacteristicName[1],
+      " (",
+      param2$TADA.ResultMeasure.MeasureUnitCode[1],
+      ")"), stringr::fixed("(NA)")
+    ), " ;", ";"),
     len = 45
   )
 
@@ -1229,6 +1241,15 @@ if(length(groups) == 1) {
     ),
     len = 45
   )
+  
+  title.x <- TADA::TADA_InsertBreaks(
+    paste0(
+      param1$TADA.CharacteristicName[1],
+      " (",
+      param1$TADA.ResultMeasure.MeasureUnitCode[1],
+      ")"), 
+    len = 45
+  )
 
 }
 
@@ -1243,14 +1264,14 @@ mrg <- list(
 scatterplot <- plotly::plot_ly(type = "scatter", mode = "lines+markers") %>%
   plotly::layout(
     xaxis = list(
-      title = title.depth,
+      title = title.x,
       titlefont = list(size = 16, family = "Arial"),
       tickfont = list(size = 16, family = "Arial"),
       hoverformat = ",.4r", linecolor = "black", rangemode = "tozero",
       showgrid = FALSE, tickcolor = "black"
     ),
     yaxis = list(
-      title = paste0("Depth", "  ", param1$TADA.ConsolidatedDepth.Unit[1]),
+      title = paste0("Depth", " (", param1$TADA.ConsolidatedDepth.Unit[1], ")"),
       titlefont = list(size = 16, family = "Arial"),
       tickfont = list(size = 16, family = "Arial"),
       hoverformat = ",.4r", linecolor = "black", rangemode = "tozero",
@@ -1275,14 +1296,16 @@ print("TADA_DepthProfilePlot: Adding surface delination to figure.")
 xmax <- max(plot.data$TADA.ResultMeasureValue)
 xrange <- c(0, xmax)
 
-scatterplot <- scatterplot %>% 
+#add surface line
+scatterplot <- scatterplot %>%
   plotly::add_lines(
   y = surfacevalue,
   x = xrange,
   inherit = FALSE,
   showlegend = FALSE,
   line = list(color = "black", dash = "dot"))
-
+           
+# find bottom depth
 bot.depth <- plot.data %>%
   dplyr::select(TADA.ConsolidatedDepth.Bottom)%>%
   unique() %>%
@@ -1291,19 +1314,85 @@ bot.depth <- plot.data %>%
 
 if(bot.depth < 0 | is.na(bot.depth)) {
   print("TADA_DepthProfilePlot: No bottom depth recorded for this depth profile. Bottom delineation not added to figure.")
-}
+
+  top_rec <- list(
+    type = "rect",
+    fillcolor = "cornflowerblue",
+    line = list(color = "cornflowerblue"), opacity = 0.4,
+    opacity = 0.4,
+    x0 = 0, 
+    x1 = xmax,
+    y0 = 0, 
+    y1 = surfacevalue
+  )
+  
+  bot_rec <- list(
+    type = "rect",
+    fillcolor = "blue",
+    line = list(color = "blue"), opacity = 0.3,
+    opacity = 0.3,
+    x0 = 0, 
+    x1 = xmax,
+    y0 = surfacevalue, 
+    y1 = max(plot.data$TADA.ConsolidatedDepth, na.rm = TRUE)
+  )
+  
+  scatterplot <- scatterplot %>%
+    plotly::layout(
+      shapes = list(top_rec, bot_rec)
+    )
+  
+  }
 
 if(bot.depth > 0) {
   print("TADA_DepthProfilePlot: Adding bottom delination to figure.")
 
-  scatterplot <- scatterplot %>% 
+  scatterplot <- scatterplot %>%
     plotly::add_lines(
       y = bot.depth - bottomvalue,
       x = xrange,
       inherit = FALSE,
       showlegend = FALSE,
       line = list(color = "black", dash = "dot"))
-}
+  
+  top_rec <- list(
+    type = "rect",
+    fillcolor = "cornflowerblue",
+    line = list(color = "cornflowerblue"), opacity = 0.4,
+    opacity = 0.4,
+    x0 = 0, 
+    x1 = xmax,
+    y0 = 0, 
+    y1 = surfacevalue
+  )
+  
+  mid_rec <- list(
+    type = "rect",
+    fillcolor = "blue",
+    line = list(color = "blue"), opacity = 0.4,
+    opacity = 0.4,
+    x0 = 0, 
+    x1 = xmax,
+    y0 = surfacevalue, 
+    y1 = bot.depth - bottomvalue
+  )
+  
+  bot_rec <- list(
+    type = "rect",
+    fillcolor = "navy",
+    line = list(color = "navy"), opacity = 0.4,
+    opacity = 0.4,
+    x0 = 0, 
+    x1 = xmax,
+    y0 = bot.depth,
+    y1 = bot.depth - bottomvalue
+  )
+  
+  scatterplot <- scatterplot %>%
+    plotly::layout(
+      shapes = list(top_rec, mid_rec, bot_rec)
+    )
+  }
 }
 
 if(length(groups) >= 1) {
@@ -1314,11 +1403,11 @@ if(length(groups) >= 1) {
     data = param1,
     x = ~TADA.ResultMeasureValue,
     y = ~TADA.ConsolidatedDepth,
-    name = paste0(
-      param1$TADA.ResultSampleFractionText, " ",
-      param1$TADA.CharacteristicName, " ",
-      param1$TADA.MethodSpeciationName
-    ),
+    name = stringr::str_remove_all(stringr::str_remove_all(paste0(
+      param1$TADA.ResultSampleFractionText[1], " ",
+      param1$TADA.CharacteristicName[1], " ",
+      param1$TADA.MethodSpeciationName[1]
+    ), "NA "), " NA"),
     marker = list(
       size = 10,
       color = "red",
@@ -1342,16 +1431,16 @@ if(length(groups) >= 1) {
 }
 
 if(length(groups) >= 2)
-
+scatterplot <- scatterplot %>%
   plotly::add_trace(
     data = param2,
     x = ~TADA.ResultMeasureValue,
     y = ~TADA.ConsolidatedDepth,
-    name = paste0(
-      param2$TADA.ResultSampleFractionText, " ",
-      param2$TADA.CharacteristicName, " ",
-      param2$TADA.MethodSpeciationName
-    ),
+    name = stringr::str_remove_all(stringr::str_remove_all(paste0(
+      param2$TADA.ResultSampleFractionText[1], " ",
+      param2$TADA.CharacteristicName[1], " ",
+      param2$TADA.MethodSpeciationName[1]
+    ), "NA "), " NA"),
     marker = list(
       size = 10,
       color = "blue",
@@ -1372,15 +1461,48 @@ if(length(groups) >= 2)
       ), "<br>"
     )
   )
+
+#add third paramater
+{if (param3 $ TADA.CharacteristicName %in% single.value.chars)}
+
+scatterplot <- scatterplot %>%
+  plotly::add_lines(
+    y = param3$TADA.ResultMeasureValue[1],
+    x = xrange,
+    name = stringr::str_remove_all(stringr::str_remove_all(paste0(
+      param3$TADA.ResultSampleFractionText[1], " ",
+      param3$TADA.CharacteristicName[1], " ",
+      param3$TADA.MethodSpeciationName[1]
+    ), "NA "), " NA"),
+    #inherit = FALSE,
+    showlegend = TRUE,
+    line = list(color = "darkgreen", dash = "dash"),
+    hoverinfo = "text",
+    hovertext = paste(
+      "Result:", paste0(param3$TADA.ResultMeasureValue, " ", param3$TADA.ResultMeasure.MeasureUnitCode), "<br>",
+      "Activity Start Date:", param3$ActivityStartDate, "<br>",
+      "Activity Start Date Time:", param3$ActivityStartDateTime, "<br>",
+      "Depth:", paste0(
+        param3$TADA.ConsolidatedDepth, " ",
+        param3$TADA.ConsolidatedDepth.Unit
+      ), "<br>",
+      "Activity Relative Depth Name:", param3$ActivityRelativeDepthName, "<br>",
+      "TADA.DepthCategory.Flag:", paste0(
+        param3$TADA.DepthCategory.Flag
+      ), "<br>"
+    ))
+
+
+scatterplot <- scatterplot %>%
   plotly::add_trace(
     data = param3,
-    x = ~TADA.ResultMeasureValue,
-    y = ~TADA.ConsolidatedDepth,
-    name = paste0(
-      param3$TADA.ResultSampleFractionText, " ",
-      param3$TADA.CharacteristicName, " ",
-      param3$TADA.MethodSpeciationName
-    ),
+    x = xrange,
+    y = ~TADA.ResultMeasureValue,
+    name = stringr::str_remove_all(stringr::str_remove_all(paste0(
+      param3$TADA.ResultSampleFractionText[1], " ",
+      param3$TADA.CharacteristicName[1], " ",
+      param3$TADA.MethodSpeciationName[1]
+    ), "NA "), " NA"),
     marker = list(
       size = 10,
       color = "darkgreen",
