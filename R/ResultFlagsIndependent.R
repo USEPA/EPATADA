@@ -1350,6 +1350,10 @@ TADA_DepthCategory.Flag <- function(.data, bycategory = "no", bottomvalue = 2, s
     dplyr::filter(!is.na(TADA.ActivityDepthHeightMeasure.MeasureValue) |
       !is.na(TADA.ResultDepthHeightMeasure.MeasureValue)) %>%
     nrow()
+  
+  length.units <- c("M", "FT", "IN")
+  
+  depth.params <- 
 
   if (depth.count > 0) {
     print(paste("TADA_DepthCategory.Flag: checking data set for depth values. ", depth.count, " results have depth values available.", sep = ""))

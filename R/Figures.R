@@ -960,626 +960,630 @@ TADA_TwoCharacteristicScatterplot <- function(.data, id_cols = "TADA.ComparableD
 #'
 
 # add option to conver units?
-test <- TADA::Data_6Tribes_5y_Harmonized
-
-test2 <- TADA_DepthCategory.Flag(test)
-
-#test3 <- test2 %>%
-  #dplyr::filter(MonitoringLocationIdentifier == location) %>%
-  #dplyr::select(TADA.ConsolidatedDepth, TADA.ConsolidatedDepth.Bottom,
-                ActivityStartDate)
-
-.data <- test2
-
-#test params
-id_cols = "TADA.ComparableDataIdentifier"
-
-groups = c('TEMPERATURE_NA_NA_DEG C', 'PH_NA_NA_NA', 'DEPTH, SECCHI DISK DEPTH_NA_NA_M')
-
-location = "REDLAKE_WQX-ANKE"
-
-#year_lower = 2018
-
-#year_upper = 2018
-
-#month_lower = 6
-
-#month_upper = 11
-
-activity_date = "2018-10-04"
-
-surfacevalue = 2
-
-bottomvalue = 2
-
-depthcat = TRUE
-
-
-TADA_DepthProfilePlot() <- function(.data, id_cols = "TADA.ComparableDataIdentifier",
-                                    groups, location, depthcat = TRUE,
-                                    surfacevalue = 2, bottomvalue = 2) {
-  # check .data is data.frame
-  TADA_CheckType(.data, "data.frame", "Input object")
-
-  # add check that depth category flag function has been run, run it if it has not
-  flag.func.cols <- c("TADA.ConsolidatedDepth", "TADA.ConsolidatedDepth.Unit",
-                      "TADA.ConsolidatedDepth.Bottom, TADA.DepthCategory.Flag")
-
-  if (all(flag.func.cols %in% colnames(.data)) == TRUE) {
-
-    print("TADA_DepthProfilePlot: Necessary columns from TADA_DepthCategoryFlag function are included in the data frame")
-
-    if (all(flag.func.cols %in% colnames(.data)) == FALSE) {
-
-      .data <- TADA_DepthCategory.Flag(.data)
-
-    }
-  }
-
-# list required columns
-reqcols <- c(
-  "TADA.ResultDepthHeightMeasure.MeasureValue",
-  "TADA.ResultDepthHeightMeasure.MeasureUnitCode",
-  "TADA.ActivityDepthHeightMeasure.MeasureUnitCode",
-  "TADA.ActivityDepthHeightMeasure.MeasureValue",
-  "TADA.DepthCategory.Flag",
-  "TADA.ResultMeasureValue",
-  "TADA.ResultMeasure.MeasureUnitCode",
-  "MonitoringLocationIdentifier",
-  "MonitoringLocationName",
-  "ActivityStartDate",
-  "ActivityStartDateTime",
-  "TADA.ConsolidatedDepth",
-  "TADA.ConsolidatedDepth.Unit",
-  "TADA.ConsolidatedDepth.Bottom"
-  )
-
-# check .data has required columns
-TADA_CheckColumns(.data, reqcols)
-
-print("TADA_DepthProfilePlot: Identifying available depth profile data.")
-
-# identify depth profile data
-single.value.chars <- c("DEPTH, SECCHI DISK DEPTH")
-
-depthprofile.avail <- .data %>%
-  dplyr::filter(!is.na(TADA.ConsolidatedDepth),
-                MonitoringLocationIdentifier %in% location,
-                ActivityStartDate %in% activity_date,
-                TADA.ActivityMediaName == "WATER",
-                !TADA.ComparableDataIdentifier %in% single.value.chars) %>%
-  dplyr::group_by(TADA.ComparableDataIdentifier,
-                  ActivityStartDate, TADA.ConsolidatedDepth) %>%
-  dplyr::slice_sample(n = 1) %>%
-  dplyr::ungroup() %>%
-  dplyr::group_by(MonitoringLocationIdentifier, TADA.ComparableDataIdentifier,
-                  ActivityStartDate) %>%
-  dplyr::mutate(N = length(TADA.ResultMeasureValue)) %>%
-  dplyr::filter(N > 2) %>%
-  dplyr::ungroup() %>%
-  dplyr::select(-N)
-
-  # identify depth unit being used in graph
-  fig.depth.unit <- depthprofile.avail %>%
-    dplyr::select(TADA.ConsolidatedDepth.Unit) %>%
-    dplyr::filter(!is.na(TADA.ConsolidatedDepth.Unit)) %>%
-    unique() %>%
-    dplyr::pull()
-
- # if any secchi or similar data
-
-  if (length(intersect(groups, single.value.chars)) < 1) {
-
-    single.value.string <- toString(single.value.chars, sep = "; ") %>%
-      stringi::stri_replace_last(" or ", fixed = "; ")
-
-    print(paste("TADA_DepthProfilePlot: There are no results for",
-                single.value.string, "available for this depth profile."))
-
-    profile.data <- depthprofile.avail
-
-    rm(single.value.string, depthprofile.avail)
-
-    else if (length(intersect(groups, single.value.chars)) > 0) {
-      # add secchi (and other???) results
-      single.value.string <- toString(single.value.chars, sep = "; ") %>%
-        stringi::stri_replace_last(" or ", fixed = "; ")
-
-      depth.units <- c("M", "FT", "IN", "M", "M", "FT", "FT", "IN", "IN", "M", "FT", "IN")
-
-      singlevalue.avail <- .data %>%
-        dplyr::filter(MonitoringLocationIdentifier %in% location,
-                      TADA.CharacteristicName %in% single.value.chars,
-                      ActivityStartDate %in% activity_date,
-                      TADA.ActivityMediaName == "WATER") %>%
-        dplyr::mutate(TADA.ConsolidatedDepth.Unit = ifelse(TADA.ResultMeasure.MeasureUnitCode %in% depth.units,
-                                                           TADA.ResultMeasure.MeasureUnitCode, TADA.ConsolidatedDepth.Unit),
-                      TADA.ConsolidatedDepth = ifelse(TADA.ResultMeasure.MeasureUnitCode %in% depth.units,
-                                                      TADA.ResultDepthHeightMeasure.MeasureValue, TADA.ConsolidatedDepth)) %>%
-        dplyr::group_by(TADA.CharacteristicName, ActivityStartDate, MonitoringLocationIdentifier) %>%
-        dplyr::slice_sample(n = 1) %>%
-        dplyr::ungroup()
-
-      if (unique(singlevalue.avail$TADA.ConsolidatedDepth.Unit) == toupper(fig.depth.unit)) {
-
-        print(paste("TADA_DepthProfilePlot: Any results for", single.value.string, "match the depth unit selected for the figure."))
-
-        singlevalue.avail <- singlevalue.avail
-      }
-
-      if (unique(singlevalue.avail$TADA.ConsolidatedDepth.Unit) != toupper(fig.depth.unit)) {
-
-        print(paste("TADA_DepthProfilePlot: Converting depth units for any results for",
-        single.value.string, "results to match depth units selected for the figure."))
-
-        depth.units <- c("M", "FT", "IN", "M", "M", "FT", "FT", "IN", "IN", "M", "FT", "IN")
-
-        result.units <- c("M", "FT", "IN", "FT", "IN", "M", "IN", "M", "FT", "CM", "CM", "CM")
-
-        convert.factor <- c("1", "1", "1", "0.3048", "0.0254", "3.281", "0.083", "39.3701", "12", "0.01", "0.032808", "0.39")
-
-        secchi.conversion <- data.frame(result.units, depth.units, convert.factor) %>%
-           dplyr::rename(TADA.ConsolidatedDepth.Unit = result.units,
-                        YAxis.DepthUnit = depth.units,
-                         SecchiConversion = convert.factor
-           )
-
-        singlevalue.avail <- singlevalue.avail %>%
-              dplyr::mutate(YAxis.DepthUnit = toupper(fig.depth.unit)) %>%
-              dplyr::left_join(secchi.conversion) %>%
-              dplyr::mutate(TADA.ConsolidatedDepth.Unit = toupper(fig.depth.unit),
-                            TADA.ConsolidatedDepth = TADA.ResultMeasureValue * as.numeric(SecchiConversion)) %>%
-              dplyr::select(-YAxis.DepthUnit, -SecchiConversion)
-
-      }
-
-      profile.data <- depthprofile.avail %>%
-        dplyr::full_join(singlevalue.avail)
-
-        rm(singlevalue.avail, depthprofile.avail, secchi.conversion,
-           single.value.string, depth.units, result.units, convert.factor)
-      }
-    }
-
-  # this subset must include all fields included in plot hover below
-plot.data <- profile.data %>%
-    dplyr::filter(if_any(id_cols, ~.x %in% groups)) %>%
-    dplyr::select(reqcols, id_cols, "ActivityStartDateTime", "MonitoringLocationName", "TADA.ActivityMediaName", "ActivityMediaSubdivisionName", "ActivityRelativeDepthName", "TADA.CharacteristicName", "TADA.MethodSpeciationName", "TADA.ResultSampleFractionText")
-
-  rm(profile.data)
-
-  # break into subsets for each parameter
-  param1 <- plot.data %>%
-    dplyr::filter(if_any(id_cols, ~.x %in% groups[1]))
-
-  param2 <- plot.data %>%
-    dplyr::filter(if_any(id_cols, ~.x %in% groups[2]))
-
-  param3 <- plot.data %>%
-    dplyr::filter(if_any(id_cols, ~.x %in% groups[3]))
-  }
-
-# create title for figure, conditional on number of groups/characteristics selected
-
-# title for three characteristics
-if(length(groups) == 3) {
-
-  title <- TADA::TADA_InsertBreaks(
-    paste0(
-      param1$TADA.CharacteristicName[1],
-      ", ",
-      param2$TADA.CharacteristicName[1],
-      " and ",
-      param3$TADA.CharacteristicName[1],
-" Depth Profile for ",
-      #figure out addition of weird \n in name
-      plot.data$MonitoringLocationName[1]
-    ),
-    len = 45
-  )
-
-  title.x <- TADA::TADA_InsertBreaks(
-    stringr::str_replace_all(stringr::str_remove_all(paste0(
-      param1$TADA.CharacteristicName[1],
-      " (",
-      param1$TADA.ResultMeasure.MeasureUnitCode[1],
-      "); ",
-      param2$TADA.CharacteristicName[1],
-      " (",
-      param2$TADA.ResultMeasure.MeasureUnitCode[1],
-      "); and ",
-      param3$TADA.CharacteristicName[1],
-      " (",
-      param3$TADA.ResultMeasure.MeasureUnitCode[1],
-      ")"), stringr::fixed("(NA)")
-    ), " ;", ";"),
-    len = 45
-  )
-
-}
-
-# title for two characteristics
-if(length(groups) == 2) {
-
-  title <- TADA::TADA_InsertBreaks(
-    paste0(
-      param1$TADA.CharacteristicName[1],
-      " and ",
-      param2$TADA.CharacteristicName[1],
-      " Depth Profile for ",
-      #figure out addition of weird \n in name
-      plot.data$MonitoringLocationName[1]
-    ),
-    len = 45
-  )
-
-  title.x <- TADA::TADA_InsertBreaks(
-    stringr::str_replace_all(stringr::str_remove_all(paste0(
-      param1$TADA.CharacteristicName[1],
-      " (",
-      param1$TADA.ResultMeasure.MeasureUnitCode[1],
-      "); and ",
-      param2$TADA.CharacteristicName[1],
-      " (",
-      param2$TADA.ResultMeasure.MeasureUnitCode[1],
-      ")"), stringr::fixed("(NA)")
-    ), " ;", ";"),
-    len = 45
-  )
-
-}
-
-# title for one characteristic
-if(length(groups) == 1) {
-
-  title <- TADA::TADA_InsertBreaks(
-    paste0(
-      param1$TADA.CharacteristicName[1],
-      " Depth Profile for ",
-      #figure out addition of weird \n in name
-      plot.data$MonitoringLocationName[1]
-    ),
-    len = 45
-  )
-
-  title.x <- TADA::TADA_InsertBreaks(
-    paste0(
-      param1$TADA.CharacteristicName[1],
-      " (",
-      param1$TADA.ResultMeasure.MeasureUnitCode[1],
-      ")"),
-    len = 45
-  )
-
-}
-
-# figure margin
-mrg <- list(
-  l = 50, r = 75,
-  b = 25, t = 75,
-  pad = 0
-)
-
-# determine x + y max and range for plotting
-xmax <- max(plot.data$TADA.ResultMeasureValue, na.rm = TRUE) + 5
-xrange <- c(0, xmax)
-
-ymax <- max(plot.data$TADA.ConsolidatedDepth, na.rm = TRUE) + 1
-yrange <- c(0, ymax)
-
-
-
-# create base of scatter plot
-scatterplot <- plotly::plot_ly(type = "scatter", mode = "lines+markers") %>%
-  plotly::layout(
-    xaxis = list(
-      title = title.x,
-      titlefont = list(size = 16, family = "Arial"),
-      tickfont = list(size = 16, family = "Arial"),
-      hoverformat = ",.4r", linecolor = "black", rangemode = "tozero",
-      showgrid = FALSE, tickcolor = "black"
-    ),
-    yaxis = list(
-      title = paste0("Depth", " (", param1$TADA.ConsolidatedDepth.Unit[1], ")"),
-      titlefont = list(size = 16, family = "Arial"),
-      tickfont = list(size = 16, family = "Arial"),
-      hoverformat = ",.4r", linecolor = "black", rangemode = "tozero",
-      showgrid = FALSE, tickcolor = "black",
-      autorange = "reversed"
-    ),
-    hoverlabel = list(bgcolor = "white"),
-    title = title,
-    plot_bgcolor = "#e5ecf6",
-    margin = mrg,
-    legend = list(x = 100, y = 0.5
-    )
-  )
-
-# first parameter has a depth profile
-if(length(groups) >= 1 & !param1$TADA.CharacteristicName[1] %in% single.value.chars) {
-  # config options https://plotly.com/r/configuration-options/
-  scatterplot <- scatterplot %>%
-    plotly::config(displaylogo = FALSE) %>% # , displayModeBar = TRUE) # TRUE makes bar always visible
-    plotly::add_trace(
-      data = param1,
-      x = ~TADA.ResultMeasureValue,
-      y = ~TADA.ConsolidatedDepth,
-      name = stringr::str_remove_all(stringr::str_remove_all(paste0(
-        param1$TADA.ResultSampleFractionText[1], " ",
-        param1$TADA.CharacteristicName[1], " ",
-        param1$TADA.MethodSpeciationName[1]
-      ), "NA "), " NA"),
-      marker = list(
-        size = 10,
-        color = "red",
-        line = list(color = "red", width = 2)
-      ),
-      hoverinfo = "text",
-      hovertext = paste(
-        "Result:", paste0(param1$TADA.ResultMeasureValue, " ", param1$TADA.ResultMeasure.MeasureUnitCode), "<br>",
-        "Activity Start Date:", param1$ActivityStartDate, "<br>",
-        "Activity Start Date Time:", param1$ActivityStartDateTime, "<br>",
-        "Depth:", paste0(
-          param1$TADA.ConsolidatedDepth, " ",
-          param1$TADA.ConsolidatedDepth.Unit
-        ), "<br>",
-        "Activity Relative Depth Name:", param1$ActivityRelativeDepthName, "<br>",
-        "TADA.DepthCategory.Flag:", paste0(
-          param1$TADA.DepthCategory.Flag
-        ), "<br>"
-      )
-    )
-}
-
-# first parameter has a single value where units are depth
-if(length(groups) >= 1 & param1$TADA.CharacteristicName[1] %in% single.value.chars) {
-  scatterplot <- scatterplot %>%
-    plotly::add_lines(
-      y = param1$TADA.ResultMeasureValue[1],
-      x = xrange,
-      name = stringr::str_remove_all(stringr::str_remove_all(paste0(
-        param1$TADA.ResultSampleFractionText[1], " ",
-        param1$TADA.CharacteristicName[1], " ",
-        param1$TADA.MethodSpeciationName[1]
-      ), "NA "), " NA"),
-      #inherit = FALSE,
-      showlegend = TRUE,
-      line = list(color = "red", dash = "dash"),
-      hoverinfo = "text",
-      hovertext = paste(
-        "Result:", paste0(param1$TADA.ResultMeasureValue, " ", param3$TADA.ResultMeasure.MeasureUnitCode), "<br>",
-        "Activity Start Date:", param1$ActivityStartDate, "<br>",
-        "Activity Start Date Time:", param1$ActivityStartDateTime, "<br>",
-        "Depth:", paste0(
-          param1$TADA.ConsolidatedDepth, " ",
-          param1$TADA.ConsolidatedDepth.Unit
-        ), "<br>",
-        "Activity Relative Depth Name:", param1$ActivityRelativeDepthName, "<br>",
-        "TADA.DepthCategory.Flag:", paste0(
-          param1$TADA.DepthCategory.Flag
-        ), "<br>"
-      ))
-  
-}
-
-# second parameter has a depth profile
-if(length(groups) >= 2 & !param1$TADA.CharacteristicName[1] %in% single.value.chars) {
-  scatterplot <- scatterplot %>%
-  plotly::add_trace(
-    data = param2,
-    x = ~TADA.ResultMeasureValue,
-    y = ~TADA.ConsolidatedDepth,
-    name = stringr::str_remove_all(stringr::str_remove_all(paste0(
-      param2$TADA.ResultSampleFractionText[1], " ",
-      param2$TADA.CharacteristicName[1], " ",
-      param2$TADA.MethodSpeciationName[1]
-    ), "NA "), " NA"),
-    marker = list(
-      size = 10,
-      color = "blue",
-      line = list(color = "blue", width = 2)
-    ),
-    hoverinfo = "text",
-    hovertext = paste(
-      "Result:", paste0(param2$TADA.ResultMeasureValue, " ", param2$TADA.ResultMeasure.MeasureUnitCode), "<br>",
-      "Activity Start Date:", param2$ActivityStartDate, "<br>",
-      "Activity Start Date Time:", param2$ActivityStartDateTime, "<br>",
-      "Depth:", paste0(
-        param2$TADA.ConsolidatedDepth, " ",
-        param2$TADA.ConsolidatedDepth.Unit
-      ), "<br>",
-      "Activity Relative Depth Name:", param2$ActivityRelativeDepthName, "<br>",
-      "TADA.DepthCategory.Flag:", paste0(
-        param2$TADA.DepthCategory.Flag
-      ), "<br>"
-    )
-  )
-}
-
-# second parameter has a single value where units are depth
-if(length(groups) >= 2 & param2$TADA.CharacteristicName[1] %in% single.value.chars) {
-  scatterplot <- scatterplot %>%
-    plotly::add_lines(
-      y = param2$TADA.ResultMeasureValue[1],
-      x = xrange,
-      name = stringr::str_remove_all(stringr::str_remove_all(paste0(
-        param2$TADA.ResultSampleFractionText[1], " ",
-        param2$TADA.CharacteristicName[1], " ",
-        param2$TADA.MethodSpeciationName[1]
-      ), "NA "), " NA"),
-      #inherit = FALSE,
-      showlegend = TRUE,
-      line = list(color = "blue", dash = "dash"),
-      hoverinfo = "text",
-      hovertext = paste(
-        "Result:", paste0(param2$TADA.ResultMeasureValue, " ", param3$TADA.ResultMeasure.MeasureUnitCode), "<br>",
-        "Activity Start Date:", param2$ActivityStartDate, "<br>",
-        "Activity Start Date Time:", param2$ActivityStartDateTime, "<br>",
-        "Depth:", paste0(
-          param2$TADA.ConsolidatedDepth, " ",
-          param2$TADA.ConsolidatedDepth.Unit
-        ), "<br>",
-        "Activity Relative Depth Name:", param2$ActivityRelativeDepthName, "<br>",
-        "TADA.DepthCategory.Flag:", paste0(
-          param2$TADA.DepthCategory.Flag
-        ), "<br>"
-      ))
-}
-
-# third parameter has a depth profile
-if(length(groups) >= 3 & !param3$TADA.CharacteristicName[1] %in% single.value.chars) {
-  scatterplot <- scatterplot %>%
-    plotly::add_trace(
-      data = param3,
-      x = ~TADA.ResultMeasureValue,
-      y = ~TADA.ConsolidatedDepth,
-      name = stringr::str_remove_all(stringr::str_remove_all(paste0(
-        param3$TADA.ResultSampleFractionText[1], " ",
-        param3$TADA.CharacteristicName[1], " ",
-        param3$TADA.MethodSpeciationName[1]
-      ), "NA "), " NA"),
-      marker = list(
-        size = 10,
-        color = "blue",
-        line = list(color = "blue", width = 2)
-      ),
-      hoverinfo = "text",
-      hovertext = paste(
-        "Result:", paste0(param3$TADA.ResultMeasureValue, " ", param2$TADA.ResultMeasure.MeasureUnitCode), "<br>",
-        "Activity Start Date:", param3$ActivityStartDate, "<br>",
-        "Activity Start Date Time:", param3$ActivityStartDateTime, "<br>",
-        "Depth:", paste0(
-          param2$TADA.ConsolidatedDepth, " ",
-          param2$TADA.ConsolidatedDepth.Unit
-        ), "<br>",
-        "Activity Relative Depth Name:", param3$ActivityRelativeDepthName, "<br>",
-        "TADA.DepthCategory.Flag:", paste0(
-          param3$TADA.DepthCategory.Flag
-        ), "<br>"
-      )
-    )
-}
-
-# third parameter has a single value where units are depth
-if (param3$TADA.CharacteristicName %in% single.value.chars){
-
-scatterplot <- scatterplot %>%
-  plotly::add_lines(
-    y = param3$TADA.ResultMeasureValue[1],
-    x = xrange,
-    name = stringr::str_remove_all(stringr::str_remove_all(paste0(
-      param3$TADA.ResultSampleFractionText[1], " ",
-      param3$TADA.CharacteristicName[1], " ",
-      param3$TADA.MethodSpeciationName[1]
-    ), "NA "), " NA"),
-    #inherit = FALSE,
-    showlegend = TRUE,
-    line = list(color = "darkgreen", dash = "dash"),
-    hoverinfo = "text",
-    hovertext = paste(
-      "Result:", paste0(param3$TADA.ResultMeasureValue, " ", param3$TADA.ResultMeasure.MeasureUnitCode), "<br>",
-      "Activity Start Date:", param3$ActivityStartDate, "<br>",
-      "Activity Start Date Time:", param3$ActivityStartDateTime, "<br>",
-      "Depth:", paste0(
-        param3$TADA.ConsolidatedDepth, " ",
-        param3$TADA.ConsolidatedDepth.Unit
-      ), "<br>",
-      "Activity Relative Depth Name:", param3$ActivityRelativeDepthName, "<br>",
-      "TADA.DepthCategory.Flag:", paste0(
-        param3$TADA.DepthCategory.Flag
-      ), "<br>"
-    ))
-}
-
-# add horizontal lines for depth profile category
-if (depthcat == TRUE) {
-
-print("TADA_DepthProfilePlot: Adding surface delination to figure.")
-
-#add surface line
-scatterplot <- scatterplot %>%
-  plotly::add_lines(
-  y = surfacevalue,
-  x = xrange,
-  inherit = FALSE,
-  showlegend = FALSE,
-  line = list(color = "black", dash = "dot"))
-
-# find bottom depth
-bot.depth <- plot.data %>%
-  dplyr::select(TADA.ConsolidatedDepth.Bottom)%>%
-  unique() %>%
-  dplyr::slice_max(TADA.ConsolidatedDepth.Bottom) %>%
-  dplyr::pull()
-
-
-print("TADA_DepthProfilePlot: Adding bottom delination to figure.")
-
-  scatterplot <- scatterplot %>%
-    plotly::add_lines(
-      y = bot.depth - bottomvalue,
-      x = xrange,
-      inherit = FALSE,
-      showlegend = FALSE,
-      line = list(color = "black", dash = "dot"))
-
-  top_rec <- list(
-    hoverinfo = "text",
-    hovertext = "Epilimion - surface",
-    type = "rect",
-    fillcolor = "lightskyblue",
-    line = list(color = "lightskyblue"), opacity = 0.4,
-    opacity = 0.4,
-    x0 = 0,
-    x1 = xmax,
-    y0 = 0,
-    y1 = surfacevalue, 
-    layer = 'below'
-  )
-
-  mid_rec <- list(
-    name = "Metalimnion/Thermocline - middle",
-    type = "rect",
-    fillcolor = "blue",
-    line = list(color = "blue"), opacity = 0.4,
-    opacity = 0.4,
-    x0 = 0,
-    x1 = xmax,
-    y0 = surfacevalue,
-    y1 = bot.depth - bottomvalue,
-    layer = 'below'
-  )
-
-  bot_rec <- list(
-    name = "Hypolimnion - bottom",
-    type = "rect",
-    fillcolor = "navy",
-    line = list(color = "navy"), opacity = 0.4,
-    opacity = 0.4,
-    x0 = 0,
-    x1 = xmax,
-    y0 = ymax,
-    y1 = bot.depth - bottomvalue,
-    layer = 'below'
-  )
-
-  scatterplot <- scatterplot %>%
-    plotly::layout(
-      shapes = list(top_rec, mid_rec, bot_rec))
-      
-      
-  scatterplot <- scatterplot %>%
-    plotly::add_annotations(list(x=1,
-                            y=3,
-                            xref = "x",
-                            yref = "y",
-                            text = "Left Anchor",
-                            xanchor = 'left',
-                            showarrow = F)
-                 
-      
-    )
-  }
+# test <- TADA::Data_6Tribes_5y_Harmonized
+# 
+# test2 <- TADA_DepthCategory.Flag(test)
+# 
+# test3 <- test2 %>%
+#   dplyr::filter(TADA.ResultMeasure.MeasureUnitCode %in% c("M", "FT", "IN", "CM"))
+# 
+# #test3 <- test2 %>%
+#   #dplyr::filter(MonitoringLocationIdentifier == location) %>%
+#   #dplyr::select(TADA.ConsolidatedDepth, TADA.ConsolidatedDepth.Bottom,
+#                 ActivityStartDate)
+# 
+# .data <- test2
+# 
+# #test params
+# id_cols = "TADA.ComparableDataIdentifier"
+# 
+# groups = c('TEMPERATURE_NA_NA_DEG C', 'PH_NA_NA_NA', 'DEPTH, SECCHI DISK DEPTH_NA_NA_M')
+# 
+# location = "REDLAKE_WQX-ANKE"
+# 
+# #year_lower = 2018
+# 
+# #year_upper = 2018
+# 
+# #month_lower = 6
+# 
+# #month_upper = 11
+# 
+# activity_date = "2018-10-04"
+# 
+# surfacevalue = 2
+# 
+# bottomvalue = 2
+# 
+# depthcat = TRUE
+# 
+# 
+# TADA_DepthProfilePlot() <- function(.data, id_cols = "TADA.ComparableDataIdentifier",
+#                                     groups, location, depthcat = TRUE,
+#                                     surfacevalue = 2, bottomvalue = 2) {
+#   # check .data is data.frame
+#   TADA_CheckType(.data, "data.frame", "Input object")
+# 
+#   # add check that depth category flag function has been run, run it if it has not
+#   flag.func.cols <- c("TADA.ConsolidatedDepth", "TADA.ConsolidatedDepth.Unit",
+#                       "TADA.ConsolidatedDepth.Bottom, TADA.DepthCategory.Flag")
+# 
+#   if (all(flag.func.cols %in% colnames(.data)) == TRUE) {
+# 
+#     print("TADA_DepthProfilePlot: Necessary columns from TADA_DepthCategoryFlag function are included in the data frame")
+# 
+#     if (all(flag.func.cols %in% colnames(.data)) == FALSE) {
+# 
+#       .data <- TADA_DepthCategory.Flag(.data)
+# 
+#     }
+#   }
+# 
+# # list required columns
+# reqcols <- c(
+#   "TADA.ResultDepthHeightMeasure.MeasureValue",
+#   "TADA.ResultDepthHeightMeasure.MeasureUnitCode",
+#   "TADA.ActivityDepthHeightMeasure.MeasureUnitCode",
+#   "TADA.ActivityDepthHeightMeasure.MeasureValue",
+#   "TADA.DepthCategory.Flag",
+#   "TADA.ResultMeasureValue",
+#   "TADA.ResultMeasure.MeasureUnitCode",
+#   "MonitoringLocationIdentifier",
+#   "MonitoringLocationName",
+#   "ActivityStartDate",
+#   "ActivityStartDateTime",
+#   "TADA.ConsolidatedDepth",
+#   "TADA.ConsolidatedDepth.Unit",
+#   "TADA.ConsolidatedDepth.Bottom"
+#   )
+# 
+# # check .data has required columns
+# TADA_CheckColumns(.data, reqcols)
+# 
+# print("TADA_DepthProfilePlot: Identifying available depth profile data.")
+# 
+# # identify depth profile data
+# single.value.chars <- c("DEPTH, SECCHI DISK DEPTH")
+# 
+# depthprofile.avail <- .data %>%
+#   dplyr::filter(!is.na(TADA.ConsolidatedDepth),
+#                 MonitoringLocationIdentifier %in% location,
+#                 ActivityStartDate %in% activity_date,
+#                 TADA.ActivityMediaName == "WATER",
+#                 !TADA.ComparableDataIdentifier %in% single.value.chars) %>%
+#   dplyr::group_by(TADA.ComparableDataIdentifier,
+#                   ActivityStartDate, TADA.ConsolidatedDepth) %>%
+#   dplyr::slice_sample(n = 1) %>%
+#   dplyr::ungroup() %>%
+#   dplyr::group_by(MonitoringLocationIdentifier, TADA.ComparableDataIdentifier,
+#                   ActivityStartDate) %>%
+#   dplyr::mutate(N = length(TADA.ResultMeasureValue)) %>%
+#   dplyr::filter(N > 2) %>%
+#   dplyr::ungroup() %>%
+#   dplyr::select(-N)
+# 
+#   # identify depth unit being used in graph
+#   fig.depth.unit <- depthprofile.avail %>%
+#     dplyr::select(TADA.ConsolidatedDepth.Unit) %>%
+#     dplyr::filter(!is.na(TADA.ConsolidatedDepth.Unit)) %>%
+#     unique() %>%
+#     dplyr::pull()
+# 
+#  # if any secchi or similar data
+# 
+#   if (length(intersect(groups, single.value.chars)) < 1) {
+# 
+#     single.value.string <- toString(single.value.chars, sep = "; ") %>%
+#       stringi::stri_replace_last(" or ", fixed = "; ")
+# 
+#     print(paste("TADA_DepthProfilePlot: There are no results for",
+#                 single.value.string, "available for this depth profile."))
+# 
+#     profile.data <- depthprofile.avail
+# 
+#     rm(single.value.string, depthprofile.avail)
+# 
+#     else if (length(intersect(groups, single.value.chars)) > 0) {
+#       # add secchi (and other???) results
+#       single.value.string <- toString(single.value.chars, sep = "; ") %>%
+#         stringi::stri_replace_last(" or ", fixed = "; ")
+# 
+#       depth.units <- c("M", "FT", "IN", "M", "M", "FT", "FT", "IN", "IN", "M", "FT", "IN")
+# 
+#       singlevalue.avail <- .data %>%
+#         dplyr::filter(MonitoringLocationIdentifier %in% location,
+#                       TADA.CharacteristicName %in% single.value.chars,
+#                       ActivityStartDate %in% activity_date,
+#                       TADA.ActivityMediaName == "WATER") %>%
+#         dplyr::mutate(TADA.ConsolidatedDepth.Unit = ifelse(TADA.ResultMeasure.MeasureUnitCode %in% depth.units,
+#                                                            TADA.ResultMeasure.MeasureUnitCode, TADA.ConsolidatedDepth.Unit),
+#                       TADA.ConsolidatedDepth = ifelse(TADA.ResultMeasure.MeasureUnitCode %in% depth.units,
+#                                                       TADA.ResultDepthHeightMeasure.MeasureValue, TADA.ConsolidatedDepth)) %>%
+#         dplyr::group_by(TADA.CharacteristicName, ActivityStartDate, MonitoringLocationIdentifier) %>%
+#         dplyr::slice_sample(n = 1) %>%
+#         dplyr::ungroup()
+# 
+#       if (unique(singlevalue.avail$TADA.ConsolidatedDepth.Unit) == toupper(fig.depth.unit)) {
+# 
+#         print(paste("TADA_DepthProfilePlot: Any results for", single.value.string, "match the depth unit selected for the figure."))
+# 
+#         singlevalue.avail <- singlevalue.avail
+#       }
+# 
+#       if (unique(singlevalue.avail$TADA.ConsolidatedDepth.Unit) != toupper(fig.depth.unit)) {
+# 
+#         print(paste("TADA_DepthProfilePlot: Converting depth units for any results for",
+#         single.value.string, "results to match depth units selected for the figure."))
+# 
+#         depth.units <- c("M", "FT", "IN", "M", "M", "FT", "FT", "IN", "IN", "M", "FT", "IN")
+# 
+#         result.units <- c("M", "FT", "IN", "FT", "IN", "M", "IN", "M", "FT", "CM", "CM", "CM")
+# 
+#         convert.factor <- c("1", "1", "1", "0.3048", "0.0254", "3.281", "0.083", "39.3701", "12", "0.01", "0.032808", "0.39")
+# 
+#         secchi.conversion <- data.frame(result.units, depth.units, convert.factor) %>%
+#            dplyr::rename(TADA.ConsolidatedDepth.Unit = result.units,
+#                         YAxis.DepthUnit = depth.units,
+#                          SecchiConversion = convert.factor
+#            )
+# 
+#         singlevalue.avail <- singlevalue.avail %>%
+#               dplyr::mutate(YAxis.DepthUnit = toupper(fig.depth.unit)) %>%
+#               dplyr::left_join(secchi.conversion) %>%
+#               dplyr::mutate(TADA.ConsolidatedDepth.Unit = toupper(fig.depth.unit),
+#                             TADA.ConsolidatedDepth = TADA.ResultMeasureValue * as.numeric(SecchiConversion)) %>%
+#               dplyr::select(-YAxis.DepthUnit, -SecchiConversion)
+# 
+#       }
+# 
+#       profile.data <- depthprofile.avail %>%
+#         dplyr::full_join(singlevalue.avail)
+# 
+#         rm(singlevalue.avail, depthprofile.avail, secchi.conversion,
+#            single.value.string, depth.units, result.units, convert.factor)
+#       }
+#     }
+# 
+#   # this subset must include all fields included in plot hover below
+# plot.data <- profile.data %>%
+#     dplyr::filter(if_any(id_cols, ~.x %in% groups)) %>%
+#     dplyr::select(reqcols, id_cols, "ActivityStartDateTime", "MonitoringLocationName", "TADA.ActivityMediaName", "ActivityMediaSubdivisionName", "ActivityRelativeDepthName", "TADA.CharacteristicName", "TADA.MethodSpeciationName", "TADA.ResultSampleFractionText")
+# 
+#   rm(profile.data)
+# 
+#   # break into subsets for each parameter
+#   param1 <- plot.data %>%
+#     dplyr::filter(if_any(id_cols, ~.x %in% groups[1]))
+# 
+#   param2 <- plot.data %>%
+#     dplyr::filter(if_any(id_cols, ~.x %in% groups[2]))
+# 
+#   param3 <- plot.data %>%
+#     dplyr::filter(if_any(id_cols, ~.x %in% groups[3]))
+#   }
+# 
+# # create title for figure, conditional on number of groups/characteristics selected
+# 
+# # title for three characteristics
+# if(length(groups) == 3) {
+# 
+#   title <- TADA::TADA_InsertBreaks(
+#     paste0(
+#       param1$TADA.CharacteristicName[1],
+#       ", ",
+#       param2$TADA.CharacteristicName[1],
+#       " and ",
+#       param3$TADA.CharacteristicName[1],
+# " Depth Profile for ",
+#       #figure out addition of weird \n in name
+#       plot.data$MonitoringLocationName[1]
+#     ),
+#     len = 45
+#   )
+# 
+#   title.x <- TADA::TADA_InsertBreaks(
+#     stringr::str_replace_all(stringr::str_remove_all(paste0(
+#       param1$TADA.CharacteristicName[1],
+#       " (",
+#       param1$TADA.ResultMeasure.MeasureUnitCode[1],
+#       "); ",
+#       param2$TADA.CharacteristicName[1],
+#       " (",
+#       param2$TADA.ResultMeasure.MeasureUnitCode[1],
+#       "); and ",
+#       param3$TADA.CharacteristicName[1],
+#       " (",
+#       param3$TADA.ResultMeasure.MeasureUnitCode[1],
+#       ")"), stringr::fixed("(NA)")
+#     ), " ;", ";"),
+#     len = 45
+#   )
+# 
+# }
+# 
+# # title for two characteristics
+# if(length(groups) == 2) {
+# 
+#   title <- TADA::TADA_InsertBreaks(
+#     paste0(
+#       param1$TADA.CharacteristicName[1],
+#       " and ",
+#       param2$TADA.CharacteristicName[1],
+#       " Depth Profile for ",
+#       #figure out addition of weird \n in name
+#       plot.data$MonitoringLocationName[1]
+#     ),
+#     len = 45
+#   )
+# 
+#   title.x <- TADA::TADA_InsertBreaks(
+#     stringr::str_replace_all(stringr::str_remove_all(paste0(
+#       param1$TADA.CharacteristicName[1],
+#       " (",
+#       param1$TADA.ResultMeasure.MeasureUnitCode[1],
+#       "); and ",
+#       param2$TADA.CharacteristicName[1],
+#       " (",
+#       param2$TADA.ResultMeasure.MeasureUnitCode[1],
+#       ")"), stringr::fixed("(NA)")
+#     ), " ;", ";"),
+#     len = 45
+#   )
+# 
+# }
+# 
+# # title for one characteristic
+# if(length(groups) == 1) {
+# 
+#   title <- TADA::TADA_InsertBreaks(
+#     paste0(
+#       param1$TADA.CharacteristicName[1],
+#       " Depth Profile for ",
+#       #figure out addition of weird \n in name
+#       plot.data$MonitoringLocationName[1]
+#     ),
+#     len = 45
+#   )
+# 
+#   title.x <- TADA::TADA_InsertBreaks(
+#     paste0(
+#       param1$TADA.CharacteristicName[1],
+#       " (",
+#       param1$TADA.ResultMeasure.MeasureUnitCode[1],
+#       ")"),
+#     len = 45
+#   )
+# 
+# }
+# 
+# # figure margin
+# mrg <- list(
+#   l = 50, r = 75,
+#   b = 25, t = 75,
+#   pad = 0
+# )
+# 
+# # determine x + y max and range for plotting
+# xmax <- max(plot.data$TADA.ResultMeasureValue, na.rm = TRUE) + 5
+# xrange <- c(0, xmax)
+# 
+# ymax <- max(plot.data$TADA.ConsolidatedDepth, na.rm = TRUE) + 1
+# yrange <- c(0, ymax)
+# 
+# 
+# 
+# # create base of scatter plot
+# scatterplot <- plotly::plot_ly(type = "scatter", mode = "lines+markers") %>%
+#   plotly::layout(
+#     xaxis = list(
+#       title = title.x,
+#       titlefont = list(size = 16, family = "Arial"),
+#       tickfont = list(size = 16, family = "Arial"),
+#       hoverformat = ",.4r", linecolor = "black", rangemode = "tozero",
+#       showgrid = FALSE, tickcolor = "black"
+#     ),
+#     yaxis = list(
+#       title = paste0("Depth", " (", param1$TADA.ConsolidatedDepth.Unit[1], ")"),
+#       titlefont = list(size = 16, family = "Arial"),
+#       tickfont = list(size = 16, family = "Arial"),
+#       hoverformat = ",.4r", linecolor = "black", rangemode = "tozero",
+#       showgrid = FALSE, tickcolor = "black",
+#       autorange = "reversed"
+#     ),
+#     hoverlabel = list(bgcolor = "white"),
+#     title = title,
+#     plot_bgcolor = "#e5ecf6",
+#     margin = mrg,
+#     legend = list(x = 100, y = 0.5
+#     )
+#   )
+# 
+# # first parameter has a depth profile
+# if(length(groups) >= 1 & !param1$TADA.CharacteristicName[1] %in% single.value.chars) {
+#   # config options https://plotly.com/r/configuration-options/
+#   scatterplot <- scatterplot %>%
+#     plotly::config(displaylogo = FALSE) %>% # , displayModeBar = TRUE) # TRUE makes bar always visible
+#     plotly::add_trace(
+#       data = param1,
+#       x = ~TADA.ResultMeasureValue,
+#       y = ~TADA.ConsolidatedDepth,
+#       name = stringr::str_remove_all(stringr::str_remove_all(paste0(
+#         param1$TADA.ResultSampleFractionText[1], " ",
+#         param1$TADA.CharacteristicName[1], " ",
+#         param1$TADA.MethodSpeciationName[1]
+#       ), "NA "), " NA"),
+#       marker = list(
+#         size = 10,
+#         color = "red",
+#         line = list(color = "red", width = 2)
+#       ),
+#       hoverinfo = "text",
+#       hovertext = paste(
+#         "Result:", paste0(param1$TADA.ResultMeasureValue, " ", param1$TADA.ResultMeasure.MeasureUnitCode), "<br>",
+#         "Activity Start Date:", param1$ActivityStartDate, "<br>",
+#         "Activity Start Date Time:", param1$ActivityStartDateTime, "<br>",
+#         "Depth:", paste0(
+#           param1$TADA.ConsolidatedDepth, " ",
+#           param1$TADA.ConsolidatedDepth.Unit
+#         ), "<br>",
+#         "Activity Relative Depth Name:", param1$ActivityRelativeDepthName, "<br>",
+#         "TADA.DepthCategory.Flag:", paste0(
+#           param1$TADA.DepthCategory.Flag
+#         ), "<br>"
+#       )
+#     )
+# }
+# 
+# # first parameter has a single value where units are depth
+# if(length(groups) >= 1 & param1$TADA.CharacteristicName[1] %in% single.value.chars) {
+#   scatterplot <- scatterplot %>%
+#     plotly::add_lines(
+#       y = param1$TADA.ResultMeasureValue[1],
+#       x = xrange,
+#       name = stringr::str_remove_all(stringr::str_remove_all(paste0(
+#         param1$TADA.ResultSampleFractionText[1], " ",
+#         param1$TADA.CharacteristicName[1], " ",
+#         param1$TADA.MethodSpeciationName[1]
+#       ), "NA "), " NA"),
+#       #inherit = FALSE,
+#       showlegend = TRUE,
+#       line = list(color = "red", dash = "dash"),
+#       hoverinfo = "text",
+#       hovertext = paste(
+#         "Result:", paste0(param1$TADA.ResultMeasureValue, " ", param3$TADA.ResultMeasure.MeasureUnitCode), "<br>",
+#         "Activity Start Date:", param1$ActivityStartDate, "<br>",
+#         "Activity Start Date Time:", param1$ActivityStartDateTime, "<br>",
+#         "Depth:", paste0(
+#           param1$TADA.ConsolidatedDepth, " ",
+#           param1$TADA.ConsolidatedDepth.Unit
+#         ), "<br>",
+#         "Activity Relative Depth Name:", param1$ActivityRelativeDepthName, "<br>",
+#         "TADA.DepthCategory.Flag:", paste0(
+#           param1$TADA.DepthCategory.Flag
+#         ), "<br>"
+#       ))
+# 
+# }
+# 
+# # second parameter has a depth profile
+# if(length(groups) >= 2 & !param1$TADA.CharacteristicName[1] %in% single.value.chars) {
+#   scatterplot <- scatterplot %>%
+#   plotly::add_trace(
+#     data = param2,
+#     x = ~TADA.ResultMeasureValue,
+#     y = ~TADA.ConsolidatedDepth,
+#     name = stringr::str_remove_all(stringr::str_remove_all(paste0(
+#       param2$TADA.ResultSampleFractionText[1], " ",
+#       param2$TADA.CharacteristicName[1], " ",
+#       param2$TADA.MethodSpeciationName[1]
+#     ), "NA "), " NA"),
+#     marker = list(
+#       size = 10,
+#       color = "blue",
+#       line = list(color = "blue", width = 2)
+#     ),
+#     hoverinfo = "text",
+#     hovertext = paste(
+#       "Result:", paste0(param2$TADA.ResultMeasureValue, " ", param2$TADA.ResultMeasure.MeasureUnitCode), "<br>",
+#       "Activity Start Date:", param2$ActivityStartDate, "<br>",
+#       "Activity Start Date Time:", param2$ActivityStartDateTime, "<br>",
+#       "Depth:", paste0(
+#         param2$TADA.ConsolidatedDepth, " ",
+#         param2$TADA.ConsolidatedDepth.Unit
+#       ), "<br>",
+#       "Activity Relative Depth Name:", param2$ActivityRelativeDepthName, "<br>",
+#       "TADA.DepthCategory.Flag:", paste0(
+#         param2$TADA.DepthCategory.Flag
+#       ), "<br>"
+#     )
+#   )
+# }
+# 
+# # second parameter has a single value where units are depth
+# if(length(groups) >= 2 & param2$TADA.CharacteristicName[1] %in% single.value.chars) {
+#   scatterplot <- scatterplot %>%
+#     plotly::add_lines(
+#       y = param2$TADA.ResultMeasureValue[1],
+#       x = xrange,
+#       name = stringr::str_remove_all(stringr::str_remove_all(paste0(
+#         param2$TADA.ResultSampleFractionText[1], " ",
+#         param2$TADA.CharacteristicName[1], " ",
+#         param2$TADA.MethodSpeciationName[1]
+#       ), "NA "), " NA"),
+#       #inherit = FALSE,
+#       showlegend = TRUE,
+#       line = list(color = "blue", dash = "dash"),
+#       hoverinfo = "text",
+#       hovertext = paste(
+#         "Result:", paste0(param2$TADA.ResultMeasureValue, " ", param3$TADA.ResultMeasure.MeasureUnitCode), "<br>",
+#         "Activity Start Date:", param2$ActivityStartDate, "<br>",
+#         "Activity Start Date Time:", param2$ActivityStartDateTime, "<br>",
+#         "Depth:", paste0(
+#           param2$TADA.ConsolidatedDepth, " ",
+#           param2$TADA.ConsolidatedDepth.Unit
+#         ), "<br>",
+#         "Activity Relative Depth Name:", param2$ActivityRelativeDepthName, "<br>",
+#         "TADA.DepthCategory.Flag:", paste0(
+#           param2$TADA.DepthCategory.Flag
+#         ), "<br>"
+#       ))
+# }
+# 
+# # third parameter has a depth profile
+# if(length(groups) >= 3 & !param3$TADA.CharacteristicName[1] %in% single.value.chars) {
+#   scatterplot <- scatterplot %>%
+#     plotly::add_trace(
+#       data = param3,
+#       x = ~TADA.ResultMeasureValue,
+#       y = ~TADA.ConsolidatedDepth,
+#       name = stringr::str_remove_all(stringr::str_remove_all(paste0(
+#         param3$TADA.ResultSampleFractionText[1], " ",
+#         param3$TADA.CharacteristicName[1], " ",
+#         param3$TADA.MethodSpeciationName[1]
+#       ), "NA "), " NA"),
+#       marker = list(
+#         size = 10,
+#         color = "blue",
+#         line = list(color = "blue", width = 2)
+#       ),
+#       hoverinfo = "text",
+#       hovertext = paste(
+#         "Result:", paste0(param3$TADA.ResultMeasureValue, " ", param2$TADA.ResultMeasure.MeasureUnitCode), "<br>",
+#         "Activity Start Date:", param3$ActivityStartDate, "<br>",
+#         "Activity Start Date Time:", param3$ActivityStartDateTime, "<br>",
+#         "Depth:", paste0(
+#           param2$TADA.ConsolidatedDepth, " ",
+#           param2$TADA.ConsolidatedDepth.Unit
+#         ), "<br>",
+#         "Activity Relative Depth Name:", param3$ActivityRelativeDepthName, "<br>",
+#         "TADA.DepthCategory.Flag:", paste0(
+#           param3$TADA.DepthCategory.Flag
+#         ), "<br>"
+#       )
+#     )
+# }
+# 
+# # third parameter has a single value where units are depth
+# if (param3$TADA.CharacteristicName %in% single.value.chars){
+# 
+# scatterplot <- scatterplot %>%
+#   plotly::add_lines(
+#     y = param3$TADA.ResultMeasureValue[1],
+#     x = xrange,
+#     name = stringr::str_remove_all(stringr::str_remove_all(paste0(
+#       param3$TADA.ResultSampleFractionText[1], " ",
+#       param3$TADA.CharacteristicName[1], " ",
+#       param3$TADA.MethodSpeciationName[1]
+#     ), "NA "), " NA"),
+#     #inherit = FALSE,
+#     showlegend = TRUE,
+#     line = list(color = "darkgreen", dash = "dash"),
+#     hoverinfo = "text",
+#     hovertext = paste(
+#       "Result:", paste0(param3$TADA.ResultMeasureValue, " ", param3$TADA.ResultMeasure.MeasureUnitCode), "<br>",
+#       "Activity Start Date:", param3$ActivityStartDate, "<br>",
+#       "Activity Start Date Time:", param3$ActivityStartDateTime, "<br>",
+#       "Depth:", paste0(
+#         param3$TADA.ConsolidatedDepth, " ",
+#         param3$TADA.ConsolidatedDepth.Unit
+#       ), "<br>",
+#       "Activity Relative Depth Name:", param3$ActivityRelativeDepthName, "<br>",
+#       "TADA.DepthCategory.Flag:", paste0(
+#         param3$TADA.DepthCategory.Flag
+#       ), "<br>"
+#     ))
+# }
+# 
+# # add horizontal lines for depth profile category
+# if (depthcat == TRUE) {
+# 
+# print("TADA_DepthProfilePlot: Adding surface delination to figure.")
+# 
+# #add surface line
+# scatterplot <- scatterplot %>%
+#   plotly::add_lines(
+#   y = surfacevalue,
+#   x = xrange,
+#   inherit = FALSE,
+#   showlegend = FALSE,
+#   line = list(color = "black", dash = "dot"))
+# 
+# # find bottom depth
+# bot.depth <- plot.data %>%
+#   dplyr::select(TADA.ConsolidatedDepth.Bottom)%>%
+#   unique() %>%
+#   dplyr::slice_max(TADA.ConsolidatedDepth.Bottom) %>%
+#   dplyr::pull()
+# 
+# 
+# print("TADA_DepthProfilePlot: Adding bottom delination to figure.")
+# 
+#   scatterplot <- scatterplot %>%
+#     plotly::add_lines(
+#       y = bot.depth - bottomvalue,
+#       x = xrange,
+#       inherit = FALSE,
+#       showlegend = FALSE,
+#       line = list(color = "black", dash = "dot"))
+# 
+#   top_rec <- list(
+#     hoverinfo = "text",
+#     hovertext = "Epilimion - surface",
+#     type = "rect",
+#     fillcolor = "lightskyblue",
+#     line = list(color = "lightskyblue"), opacity = 0.4,
+#     opacity = 0.4,
+#     x0 = 0,
+#     x1 = xmax,
+#     y0 = 0,
+#     y1 = surfacevalue,
+#     layer = 'below'
+#   )
+# 
+#   mid_rec <- list(
+#     name = "Metalimnion/Thermocline - middle",
+#     type = "rect",
+#     fillcolor = "blue",
+#     line = list(color = "blue"), opacity = 0.4,
+#     opacity = 0.4,
+#     x0 = 0,
+#     x1 = xmax,
+#     y0 = surfacevalue,
+#     y1 = bot.depth - bottomvalue,
+#     layer = 'below'
+#   )
+# 
+#   bot_rec <- list(
+#     name = "Hypolimnion - bottom",
+#     type = "rect",
+#     fillcolor = "navy",
+#     line = list(color = "navy"), opacity = 0.4,
+#     opacity = 0.4,
+#     x0 = 0,
+#     x1 = xmax,
+#     y0 = ymax,
+#     y1 = bot.depth - bottomvalue,
+#     layer = 'below'
+#   )
+# 
+#   scatterplot <- scatterplot %>%
+#     plotly::layout(
+#       shapes = list(top_rec, mid_rec, bot_rec))
+# 
+# 
+#   top_an <-
+#     list(x=1,
+#          y=3,
+#          xref = "x",
+#          yref = "y",
+#          text = "Left Anchor",
+#          xanchor = 'left',
+#          showarrow = F)
+# 
+# 
+#   scatterplot <- scatterplot %>%
+#     plotly::layout(annotations = top_an)
+#   }
 
 
 
