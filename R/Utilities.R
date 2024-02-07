@@ -52,7 +52,8 @@ utils::globalVariables(c(
   "Target.Speciation", "TADA.NearbySiteGroups", "numres", "TADA.SingleOrgDupGroupID",
   "TADA.MeasureQualifierCode.Flag", "TADA.MeasureQualifierCode.Def", "MeasureQualifierCode", "value", "Flag_Column",
   "Data_NCTCShepherdstown_HUC12", "ActivityStartDateTime", "TADA.MultipleOrgDupGroupID",
-  "TADA.WQXVal.Flag", "Concat", ".", "MeasureQualifierCode.Split"
+  "TADA.WQXVal.Flag", "Concat", ".", "MeasureQualifierCode.Split", "TADA.Media.Flag",
+  "TADA.UseForAssessment.Flag"
 ))
 
 
@@ -405,7 +406,7 @@ TADA_ConvertSpecialChars <- function(.data, col) {
 #' This function uses the WQX Characteristic domain table to substitute
 #' deprecated (i.e. retired and/or invalid) Characteristic Names with the new
 #' name in the TADA.CharacteristicName column. TADA_SubstituteDeprecatedChars is
-#' run within TADA_Autoclean, which runs within TADA_DataRetreival and (if autoclean = TRUE)
+#' run within TADA_AutoClean, which runs within TADA_DataRetreival and (if autoclean = TRUE)
 #' in TADA_BigDataRetrieval. Therefore, deprecated characteristic names are
 #' harmonized to the new name automatically upon data retrieval.
 #' TADA_SubstituteDeprecatedChars can also be used by itself on a user supplied
@@ -834,4 +835,3 @@ TADA_RunKeyFlagFunctions <- function(.data, remove_na = TRUE, clean = TRUE) {
 
   return(.data)
 }
-
