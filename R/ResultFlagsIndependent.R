@@ -386,7 +386,8 @@ TADA_FlagAboveThreshold <- function(.data, clean = TRUE, flaggedonly = FALSE) {
     dplyr::mutate(TADA.ResultValueAboveUpperThreshold.Flag = dplyr::case_when(
       TADA.ResultMeasureValue >= Maximum ~ as.character("Suspect"),
       TADA.ResultMeasureValue < Maximum ~ as.character("Pass"),
-      is.na(Maximum) ~ as.character("Not Reviewed")
+      is.na(Maximum) ~ as.character("Not Reviewed"), # in QAQC table, but not yet reviewed
+      TRUE ~ as.character("NA - Not Available") # this occurs when the char/unit/media combo is not in the WQX QAQC table at all
     ))
 
   # remove Maximum column
@@ -553,7 +554,9 @@ TADA_FlagBelowThreshold <- function(.data, clean = TRUE, flaggedonly = FALSE) {
     dplyr::mutate(TADA.ResultValueBelowLowerThreshold.Flag = dplyr::case_when(
       TADA.ResultMeasureValue < Minimum ~ as.character("Suspect"),
       TADA.ResultMeasureValue >= Minimum ~ as.character("Pass"),
-      is.na(Minimum) ~ as.character("Not Reviewed")
+      is.na(Minimum) ~ as.character("Not Reviewed"), # in QAQC table but not reviewed
+      TRUE ~ as.character("NA - Not Available") # this occurs when the char/unit/media combo is not in the WQX QAQC table at all
+      
     ))
 
   # remove Min column
