@@ -155,39 +155,6 @@ TADA_GetMeasureUnitRef <- function() {
     ),
     Conversion.Coefficient = rep(0, 13)
   )
-  # target.unit = ft
-  target.ft <- data.frame(
-    Domain = rep("Measurement Unit(MeasureUnitCode)", 13),
-    Unique.Identifier = rep(NA, 13),
-    Code = c(
-      "Angst", "cm", "dm", "feet", "ft", "in",
-      "km", "m", "mi", "mm", "nm", "nmi", "yd"
-    ),
-    Description = c(
-      "Length Distance, Angstroms",
-      "Length Distance, Centimeters",
-      "Length Distance, Decimeters",
-      "Length Distance, Feet",
-      "Length Distance, Feet",
-      "Length Distance, Inches",
-      "Length Distance, Kilometers",
-      "Length Distance, Meters",
-      "Length Distance, Miles",
-      "Length Distance, Millimeters",
-      "Length Distance, Nanometers",
-      "Length Distance, Nautical miles",
-      "Length Distance, Yards"
-    ),
-    Last.Change.Date = rep("3/24/2022 12:00:00 PM", 13),
-    Target.Unit = rep("ft", 13),
-    Conversion.Factor = c(
-      3.28084e-10, 0.0328084, 0.328084,
-      1, 1, 0.08333, 3280.84, 3.28084,
-      5280, 0.00328084, 3.2808e-9,
-      6076.12, 3
-    ),
-    Conversion.Coefficient = rep(0, 13)
-  )
   # add data to WQXunitRef
   WQXunitRef <- plyr::rbind.fill(WQXunitRef, target.m, target.ft) %>% dplyr::distinct()
   
