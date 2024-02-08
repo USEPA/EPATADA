@@ -18,7 +18,7 @@ flaggedonly = FALSE.}
 }
 \value{
 The input TADA dataset with the added
-TADA.BelowNationalWQXLowerThreshold column. This column flags rows with
+TADA.ResultValueBelowLowerThreshold.Flag column. This column flags rows with
 data that are below the lower WQX threshold. When clean = FALSE and
 flaggedonly = TRUE, the dataframe is filtered to show only the rows which
 are flagged as below the WQX threshold; the column
@@ -50,15 +50,13 @@ The WQX team plans to review and update these new combinations quarterly.
 data(Data_Nutrients_UT)
 
 # Remove data that is below the lower WQX threshold from the dataframe:
-WQXLowerThreshold_clean <- TADA_FlagBelowThreshold(Data_Nutrients_UT)
+WQXLowerThreshold_clean <- TADA_FlagBelowThreshold(Data_Nutrients_UT, clean = TRUE)
 
 # Flag, but do not remove, data that is below the lower WQX threshold in
 # new column titled "TADA.ResultValueBelowLowerThreshold.Flag":
 WQXLowerThreshold_flags <- TADA_FlagBelowThreshold(Data_Nutrients_UT, clean = FALSE)
 
 # Show only data that is below the lower WQX threshold:
-WQXLowerThreshold_flagsonly <- TADA_FlagBelowThreshold(Data_Nutrients_UT,
-  clean = FALSE, flaggedonly = TRUE
-)
+WQXLowerThreshold_flagsonly <- TADA_FlagBelowThreshold(Data_Nutrients_UT, clean = FALSE, flaggedonly = TRUE)
 
 }

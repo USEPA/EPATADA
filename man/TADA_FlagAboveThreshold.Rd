@@ -17,7 +17,8 @@ flagged as above the upper WQX threshold. Default is flaggedonly = FALSE.}
 }
 \value{
 The input TADA dataset with the added
-TADA.AboveNationalWQXUpperThreshold column. When clean = FALSE and
+TADA.AboveNationalWQXUpperThreshold column which is populated with the values
+"Pass", "Suspect", or "Not Reviewed". When clean = FALSE and
 flaggedonly = TRUE, the dataframe is filtered to show only data found above
 the WQX threshold. When clean = TRUE and flaggedonly = FALSE, rows with
 values that are above the upper WQX threshold are removed from the
@@ -50,15 +51,13 @@ The WQX team plans to review and update these new combinations quarterly.
 data(Data_Nutrients_UT)
 
 # Remove data that is above the upper WQX threshold from dataframe:
-WQXUpperThreshold_clean <- TADA_FlagAboveThreshold(Data_Nutrients_UT)
+WQXUpperThreshold_clean <- TADA_FlagAboveThreshold(Data_Nutrients_UT, clean = TRUE)
 
 # Flag, but do not remove, data that is above the upper WQX threshold in
 # new column titled "TADA.ResultValueAboveUpperThreshold.Flag":
 WQXUpperThreshold_flags <- TADA_FlagAboveThreshold(Data_Nutrients_UT, clean = FALSE)
 
 # Show only data flagged as above the upper WQX threshold:
-WQXUpperThreshold_flagsonly <- TADA_FlagAboveThreshold(Data_Nutrients_UT,
-  clean = FALSE, flaggedonly = TRUE
-)
+WQXUpperThreshold_flagsonly <- TADA_FlagAboveThreshold(Data_Nutrients_UT, clean = FALSE, flaggedonly = TRUE)
 
 }
