@@ -387,7 +387,7 @@ TADA_FlagAboveThreshold <- function(.data, clean = TRUE, flaggedonly = FALSE) {
       TADA.ResultMeasureValue >= Maximum ~ as.character("Suspect"),
       TADA.ResultMeasureValue < Maximum ~ as.character("Pass"),
       is.na(Maximum) ~ as.character("Not Reviewed"), # in QAQC table, but not yet reviewed
-      TRUE ~ as.character("NA - Not Available") # this occurs when the char/unit/media combo is not in the WQX QAQC table at all
+      TRUE ~ as.character("NA - Not Available") # this occurs when the char/unit/media combo is not in the WQX QAQC table at all. USGS data may not be in QAQC table because it does not adhere to the WQX domain tables.
     ))
 
   # remove Maximum column
@@ -555,7 +555,7 @@ TADA_FlagBelowThreshold <- function(.data, clean = TRUE, flaggedonly = FALSE) {
       TADA.ResultMeasureValue < Minimum ~ as.character("Suspect"),
       TADA.ResultMeasureValue >= Minimum ~ as.character("Pass"),
       is.na(Minimum) ~ as.character("Not Reviewed"), # in QAQC table but not reviewed
-      TRUE ~ as.character("NA - Not Available") # this occurs when the char/unit/media combo is not in the WQX QAQC table at all
+      TRUE ~ as.character("NA - Not Available") # this occurs when the char/unit/media combo is not in the WQX QAQC table at all. USGS data may not be in QAQC table because it does not adhere to the WQX domain tables.
       
     ))
 
