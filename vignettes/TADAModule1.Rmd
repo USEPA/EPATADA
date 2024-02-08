@@ -130,44 +130,7 @@ Data retrieval filters include:
 -   characteristicType
 
 The default TADA_DataRetrieval function
-automatically runs the **TADA_AutoClean** function, which runs the following functions on the data retrieved from the WQP:
-
--   **TADA_ConvertSpecialChars** - converts result value columns to numeric and flags non-numeric values that could not be converted.
-
--   **TADA_ConvertResultUnits** - unifies result and detection limit units for easier quality control and review.
-
--   **TADA_ConvertDepthUnits** - converts depth units to a consistent unit (meters).
-
--   **TADA_IDCensoredData** - categorizes detection limit data and identifies mismatches in result detection condition and result detection limit type. 
-
--   Other helpful actions - converts important text columns to all upper-case letters, removes exact duplicates, and uses WQX format rules to harmonize specific NWIS metadata conventions (e.g. move characteristic speciation from the TADA.ResultMeasure.MeasureUnitCode column to the TADA.MethodSpeciationName column)
-
-As a general rule, TADA functions do not change any contents in the WQP-served
-columns. Instead, they add new columns with the prefix "TADA." The following
-columns are numeric versions of their WQP origins:
-
-    -   TADA.ResultMeasureValue
-
-    -   TADA.DetectionQuantitationLimitMeasure.MeasureValue
-
-    -   TADA.LatitudeMeasure
-
-    -   TADA.LongitudeMeasure
-
-These functions also add the columns
-TADA.ResultMeasureValueDataTypes.Flag and
-TADA.DetectionQuantitationLimitMeasure.MeasureValueDataTypes.Flag, which
-provide information about the result values that is needed to address
-censored data later on (i.e., nondetections). Specifically, these new
-columns flag if special characters are included in result values, and
-specifies what the special characters are.
-
-Downloads using TADA_DataRetrieval will have the same columns each time,
-but be aware that data are uploaded to the Water Quality Portal by
-individual organizations, which may or may not follow the same
-conventions. Data and metadata quality are not guaranteed! Make sure to
-carefully explore any data and make conservative quality assurance
-decisions where information is limited.
+automatically runs the **TADA_AutoClean** function. In this example, we will set **TADA_AutoClean = FALSE** and run it as a separate step in the work flow.
 
 Tips:
 
@@ -238,6 +201,13 @@ Use the code below to download data from the WQP using
 TADA_DataRetrieval. Edit the code chuck below to define your own WQP
 query inputs.
 
+Downloads using TADA_DataRetrieval will have the same columns each time,
+but be aware that data are uploaded to the Water Quality Portal by
+individual organizations, which may or may not follow the same
+conventions. Data and metadata quality are not guaranteed! Make sure to
+carefully explore any data and make conservative quality assurance
+decisions where information is limited.
+
 Note: TADA_DataRetrieval (by leveraging dataRetrieval), automatically
 converts the date times to UTC. It also automatically converts the data
 to dates, datetimes, and numerics based on a standard algorithm.
@@ -246,7 +216,7 @@ Enter ?TADA_DataRetrieval into the console to review more example queries
 and additional information.
 
 ```{r TADA_DataRetrieval}
-TADAProfile <- TADA_DataRetrieval(organization = c("REDLAKE_WQX", "SFNOES_WQX", "PUEBLO_POJOAQUE", "FONDULAC_WQX", "PUEBLOOFTESUQUE", "CNENVSER"), startDate = "2018-01-01", endDate = "2019-01-01")
+TADAProfile <- TADA_DataRetrieval(organization = c("REDLAKE_WQX", "SFNOES_WQX", "PUEBLO_POJOAQUE", "FONDULAC_WQX", "PUEBLOOFTESUQUE", "CNENVSER"), startDate = "2018-01-01", endDate = "2019-01-01", applyautoclean = FALSE)
 ```
 
 If you need to download a large amount of data from across a large area,
@@ -273,20 +243,84 @@ depends on your query inputs.
 # AllCT <- TADA_BigDataRetrieval(statecode = "CT")
 ```
 
-Review all column names in the TADA Profile. Remove results that are not
-water samples or measurements (TADA is recommended for use with water
-data only).
+Some TADA users are interested in using WQP data for surface water only or for analysis of some non-water data. The **TADA_AnalysisDataFilter** function can assist in identifying results of interest. Multiple columns are used to identify groundwater results as different organizations may populate different combinations of fields in order to identify a result as groundwater.
+
+This function identifies surface water, groundwater, and sediment results. Users can  specify whether all results should be returned with a new column, *TADA.UseForAnalysis.Flag*,identifying if the result should be included in further analysis or if only results that should be in included are returned. 
+
+The defaults are to include surface water, exclude groundwater and sediment, and to return only the results that should be used for analysis (clean = TRUE). This is shown in the active example below. If you would like to see all results with the *TADA.UseForAnalysis.Flag* column, you can uncomment the example where clean = FALSE.
+
+If you are not interested in using **TADA_AnalysisDataFilter**, but would like to filter by activity media, uncomment the example to filter for water data only by using dplyr::filter() with TADA.ActivityMediaName.
+
+```{r AnalysisDataFilter}
+
+# Filter to retain only results for use in analysis
+TADAProfile <- TADA_AnalysisDataFilter(TADAProfile)
+
+# Add TADA.UseForAnalysis.Flag column to identify which results should be used for analysis
+# TADAProfile <- TADA_AnalysisDataFilter(TADAProfile)
+
+# Remove data for non-water media types, alternate workflow without using TADA_AnalysisDataFilter()
+#TADAProfile <- dplyr::filter(TADAProfile, TADA.ActivityMediaName == "WATER")
+
+```
+
+
+## AutoClean
+
+Now **TADA_AutoClean** can be run on a smaller dataset after unnecessary results have been removed. It performs the following functions on the data retrieved from the WQP:
+
+-   **TADA_ConvertSpecialChars** - converts result value columns to numeric and flags non-numeric values that could not be converted.
+
+-   **TADA_ConvertResultUnits** - unifies result units for easier quality control and review
+
+-   **TADA_ConvertDepthUnits** - converts depth units to a consistent unit (meters).
+
+-   **TADA_IDCensoredData** - categorizes detection limit data and identifies mismatches in result detection condition and result detection limit type. 
+
+-   Other helpful actions - converts important text columns to all upper-case letters, removes exact duplicates, and uses WQX format rules to harmonize specific NWIS metadata conventions (e.g. move characteristic speciation from the TADA.ResultMeasure.MeasureUnitCode column to the TADA.MethodSpeciationName column)
+
+As a general rule, TADA functions do not change any contents in the WQP-served
+columns. Instead, they add new columns with the prefix "TADA." The following
+columns are numeric versions of their WQP origins:
+
+    -   TADA.ResultMeasureValue
+
+    -   TADA.DetectionQuantitationLimitMeasure.MeasureValue
+
+    -   TADA.LatitudeMeasure
+
+    -   TADA.LongitudeMeasure
+
+These functions also add the columns
+TADA.ResultMeasureValueDataTypes.Flag and
+TADA.DetectionQuantitationLimitMeasure.MeasureValueDataTypes.Flag, which
+provide information about the result values that is needed to address
+censored data later on (i.e., nondetections). Specifically, these new
+columns flag if special characters are included in result values, and
+specifies what the special characters are.
+
+``` {r TADA_AutoClean}
+
+# run TADA_AutoClean on filtered dataset to convert special characters, result units, and depth units and identify censored data.
+
+TADAProfile <- TADA_AutoClean(TADAProfile)
+
+```
+
+Review all column names in the TADA Profile to familiarize yourself with the dataset after TADA_AutoClean has added additional TADA prefixed columns. **TADA_SummarizeColumn** summarizes the data set based on the user specified column and returns a dataframe displaying the number of sites and number of records for each unique value in the specified column. The example below uses TADA.CharacteristicName. 
 
 ```{r TADA_SummarizeColumn}
+
+# View column names for TADAProfile
 colnames(TADAProfile)
 
+# Review the number of sites and number of records for each CharacteristicName in TADAProfile
 TADAProfile_CharSummary <- TADA_SummarizeColumn(TADAProfile, "TADA.CharacteristicName")
 
+# View TADAProfile_CharSummary
 TADAProfile_CharSummary
-
-# Remove data for non-water media types
-TADAProfile <- dplyr::filter(TADAProfile, TADA.ActivityMediaName == "WATER")
 ```
+
 
 ## Invalid coordinates
 

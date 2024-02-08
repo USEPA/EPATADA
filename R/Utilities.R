@@ -52,7 +52,8 @@ utils::globalVariables(c(
   "Target.Speciation", "TADA.NearbySiteGroups", "numres", "TADA.SingleOrgDupGroupID",
   "TADA.MeasureQualifierCode.Flag", "TADA.MeasureQualifierCode.Def", "MeasureQualifierCode", "value", "Flag_Column",
   "Data_NCTCShepherdstown_HUC12", "ActivityStartDateTime", "TADA.MultipleOrgDupGroupID",
-  "TADA.WQXVal.Flag", "Concat", ".", "MeasureQualifierCode.Split"
+  "TADA.WQXVal.Flag", "Concat", ".", "MeasureQualifierCode.Split", "TADA.Media.Flag",
+  "TADA.UseForAssessment.Flag"
 ))
 
 
