@@ -46,7 +46,7 @@ The WQX team plans to review and update these new combinations quarterly.
 data(Data_NCTCShepherdstown_HUC12)
 
 # Remove invalid characteristic-analytical method combinations from dataframe:
-InvalidMethod_clean <- TADA_FlagMethod(Data_NCTCShepherdstown_HUC12)
+InvalidMethod_clean <- TADA_FlagMethod(Data_NCTCShepherdstown_HUC12, clean = TRUE)
 
 # Flag, but do not remove, invalid characteristic-analytical method combinations
 # in new column titled "TADA.AnalyticalMethod.Flag":
