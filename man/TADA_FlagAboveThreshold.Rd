@@ -4,47 +4,56 @@
 \alias{TADA_FlagAboveThreshold}
 \title{Check Result Value Against WQX Upper Threshold}
 \usage{
-TADA_FlagAboveThreshold(.data, clean = TRUE, flaggedonly = FALSE)
+TADA_FlagAboveThreshold(.data, clean = FALSE, flaggedonly = FALSE)
 }
 \arguments{
 \item{.data}{TADA dataframe}
 
 \item{clean}{Boolean argument; removes data that is above the upper WQX
-threshold from the dataframe when clean = TRUE. Default is clean = TRUE.}
+threshold from the dataframe when clean = TRUE. Default is clean = FALSE.}
 
 \item{flaggedonly}{Boolean argument; filters dataframe to show only the data
 flagged as above the upper WQX threshold. Default is flaggedonly = FALSE.}
 }
 \value{
-The input TADA dataset with the added
-TADA.AboveNationalWQXUpperThreshold column which is populated with the values
-"Pass", "Suspect", or "Not Reviewed". When clean = FALSE and
-flaggedonly = TRUE, the dataframe is filtered to show only data found above
-the WQX threshold. When clean = TRUE and flaggedonly = FALSE, rows with
-values that are above the upper WQX threshold are removed from the
-dataframe and no column is appended. When clean = TRUE and and
-flaggedonly = TRUE, the function is not executed and an error message
-is returned. Defaults are clean = TRUE and flaggedonly = FALSE.
+The input TADA dataset with the added "TADA.ResultAboveUpperThreshold.Flag"
+column which is populated with the values: "Pass", "Suspect", "Not Reviewed", or
+"NA - Not Available". Defaults are clean = FALSE and flaggedonly = FALSE.
+When clean = FALSE and flaggedonly = TRUE, the dataframe
+is filtered to show only data found above the WQX threshold. When clean = TRUE
+and flaggedonly = FALSE, rows with values that are above the upper WQX threshold
+are removed from the dataframe. When clean = TRUE and and flaggedonly = TRUE,
+the function is not executed and an error message is returned.
 }
 \description{
-EPA's Water Quality Exchange (WQX) has generated statistics and data from
-millions of water quality data points around the country. This function
-leverages the statistical data from WQX to flag any data that is above the
-upper threshold of result values submitted to WQX for a given characteristic.
+EPA's Water Quality Exchange (WQX) has generated maximum and minimum thresholds
+for each parameter and unit combination from millions of water quality data
+points around the country. This function leverages the WQX QAQC Validation Table
+to flag any data that is above the upper threshold of result values submitted
+to WQX for a given characteristic.
+}
+\details{
 When clean = FALSE and flaggedonly = FALSE, a column which flags data above
 the upper WQX threshold is appended to the dataframe. When clean = FALSE and
 flaggedonly = TRUE, the dataframe is filtered to show only data found above
 the WQX threshold. When clean = TRUE and flaggedonly = FALSE, rows with values
 that are above the upper WQX threshold are removed from the dataframe and no
 column is appended. When clean = TRUE and and flaggedonly = TRUE, the function
-is not executed and an error message is returned. Defaults are clean = TRUE
+is not executed and an error message is returned. Defaults are clean = FALSE
 and flaggedonly = FALSE.
-}
-\details{
-The “Not Reviewed” value within "TADA.ResultAboveUpperThreshold.Flag" means
-that the EPA WQX team has not yet reviewed the combinations
-(see https://cdx.epa.gov/wqx/download/DomainValues/QAQCCharacteristicValidation.CSV).
-The WQX team plans to review and update these new combinations quarterly.
+
+This function will add the column "TADA.ResultAboveUpperThreshold.Flag" which
+will be populated with the values: "Pass", "Suspect", "Not Reviewed", or
+"NA - Not Available". The “Not Reviewed” value means that the EPA WQX team
+has not yet reviewed the range yet for the characteristic and unit combination combination
+in that row (see https://cdx.epa.gov/wqx/download/DomainValues/QAQCCharacteristicValidation.CSV).
+The WQX team plans to review and update these new combinations quarterly. The
+"NA - Not Available" flag means that the characteristic, media, and/or unit combination
+for that row is not fully populated (is NA or does not match the WQX data standard)
+or the result value is NA.
+
+If this function is run more than once on the same dataframe,
+the flag column will be deleted and regenerated.
 }
 \examples{
 # Load example dataset:

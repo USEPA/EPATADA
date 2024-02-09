@@ -269,39 +269,47 @@ TADA_FindContinuousData <- function(.data, clean = FALSE, flaggedonly = FALSE) {
 
 #' Check Result Value Against WQX Upper Threshold
 #'
-#' EPA's Water Quality Exchange (WQX) has generated statistics and data from
-#' millions of water quality data points around the country. This function
-#' leverages the statistical data from WQX to flag any data that is above the
-#' upper threshold of result values submitted to WQX for a given characteristic.
+#' EPA's Water Quality Exchange (WQX) has generated maximum and minimum thresholds 
+#' for each parameter and unit combination from millions of water quality data 
+#' points around the country. This function leverages the WQX QAQC Validation Table
+#' to flag any data that is above the upper threshold of result values submitted 
+#' to WQX for a given characteristic.
+#' 
 #' When clean = FALSE and flaggedonly = FALSE, a column which flags data above
 #' the upper WQX threshold is appended to the dataframe. When clean = FALSE and
 #' flaggedonly = TRUE, the dataframe is filtered to show only data found above
 #' the WQX threshold. When clean = TRUE and flaggedonly = FALSE, rows with values
 #' that are above the upper WQX threshold are removed from the dataframe and no
 #' column is appended. When clean = TRUE and and flaggedonly = TRUE, the function
-#' is not executed and an error message is returned. Defaults are clean = TRUE
+#' is not executed and an error message is returned. Defaults are clean = FALSE
 #' and flaggedonly = FALSE.
 #'
-#' The “Not Reviewed” value within "TADA.ResultAboveUpperThreshold.Flag" means
-#' that the EPA WQX team has not yet reviewed the combinations
-#' (see https://cdx.epa.gov/wqx/download/DomainValues/QAQCCharacteristicValidation.CSV).
-#' The WQX team plans to review and update these new combinations quarterly.
+#' This function will add the column "TADA.ResultAboveUpperThreshold.Flag" which
+#' will be populated with the values: "Pass", "Suspect", "Not Reviewed", or 
+#' "NA - Not Available". The “Not Reviewed” value means that the EPA WQX team 
+#' has not yet reviewed the range yet for the characteristic and unit combination combination
+#' in that row (see https://cdx.epa.gov/wqx/download/DomainValues/QAQCCharacteristicValidation.CSV).
+#' The WQX team plans to review and update these new combinations quarterly. The
+#' "NA - Not Available" flag means that the characteristic, media, and/or unit combination 
+#' for that row is not fully populated (is NA or does not match the WQX data standard)
+#' or the result value is NA. 
+#' 
+#' If this function is run more than once on the same dataframe, 
+#' the flag column will be deleted and regenerated.
 #'
 #' @param .data TADA dataframe
 #' @param clean Boolean argument; removes data that is above the upper WQX
-#' threshold from the dataframe when clean = TRUE. Default is clean = TRUE.
+#' threshold from the dataframe when clean = TRUE. Default is clean = FALSE.
 #' @param flaggedonly Boolean argument; filters dataframe to show only the data
 #' flagged as above the upper WQX threshold. Default is flaggedonly = FALSE.
-#'
-#' @return The input TADA dataset with the added
-#'   TADA.AboveNationalWQXUpperThreshold column which is populated with the values 
-#'   "Pass", "Suspect", or "Not Reviewed". When clean = FALSE and
-#'   flaggedonly = TRUE, the dataframe is filtered to show only data found above
-#'   the WQX threshold. When clean = TRUE and flaggedonly = FALSE, rows with
-#'   values that are above the upper WQX threshold are removed from the
-#'   dataframe and no column is appended. When clean = TRUE and and
-#'   flaggedonly = TRUE, the function is not executed and an error message
-#'   is returned. Defaults are clean = TRUE and flaggedonly = FALSE.
+#' @return The input TADA dataset with the added "TADA.ResultAboveUpperThreshold.Flag"
+#' column which is populated with the values: "Pass", "Suspect", "Not Reviewed", or 
+#' "NA - Not Available". Defaults are clean = FALSE and flaggedonly = FALSE.
+#' When clean = FALSE and flaggedonly = TRUE, the dataframe
+#' is filtered to show only data found above the WQX threshold. When clean = TRUE
+#' and flaggedonly = FALSE, rows with values that are above the upper WQX threshold
+#' are removed from the dataframe. When clean = TRUE and and flaggedonly = TRUE,
+#' the function is not executed and an error message is returned. 
 #'
 #' @export
 #'
@@ -319,7 +327,7 @@ TADA_FindContinuousData <- function(.data, clean = FALSE, flaggedonly = FALSE) {
 #' # Show only data flagged as above the upper WQX threshold:
 #' WQXUpperThreshold_flagsonly <- TADA_FlagAboveThreshold(Data_Nutrients_UT, clean = FALSE, flaggedonly = TRUE)
 #'
-TADA_FlagAboveThreshold <- function(.data, clean = TRUE, flaggedonly = FALSE) {
+TADA_FlagAboveThreshold <- function(.data, clean = FALSE, flaggedonly = FALSE) {
   # check .data is data.frame
   TADA_CheckType(.data, "data.frame", "Input object")
   # check clean is boolean
@@ -438,40 +446,47 @@ TADA_FlagAboveThreshold <- function(.data, clean = TRUE, flaggedonly = FALSE) {
 
 #' Check Result Value Against WQX Lower Threshold
 #'
-#' EPA's Water Quality Exchange (WQX) has generated statistics and data from
-#' millions of water quality data points around the country. This functions
-#' leverages that statistical data from WQX to flag any data that is below the
-#' lower threshold of result values submitted to WQX for a given characteristic.
-#' When clean = TRUE, rows with values that are below the lower WQX threshold
-#' are removed from the dataframe and no column will be appended. Default is
-#' clean = TRUE. When flaggedonly = TRUE, the dataframe is filtered to show only
-#' rows with values that are flagged below the lower WQX threshold. Default is
-#' flaggedonly = FALSE
+#' EPA's Water Quality Exchange (WQX) has generated maximum and minimum thresholds 
+#' for each parameter and unit combination from millions of water quality data 
+#' points around the country. This function leverages the WQX QAQC Validation Table
+#' to flag any data that is below the lower threshold of result values submitted 
+#' to WQX for a given characteristic.
+#' 
+#' When clean = FALSE and flaggedonly = FALSE, a column which flags data below
+#' the lower WQX threshold is appended to the dataframe. When clean = FALSE and
+#' flaggedonly = TRUE, the dataframe is filtered to show only data found below
+#' the WQX threshold. When clean = TRUE and flaggedonly = FALSE, rows with values
+#' that are below the upper WQX threshold are removed from the dataframe and no
+#' column is appended. When clean = TRUE and and flaggedonly = TRUE, the function
+#' is not executed and an error message is returned. Defaults are clean = FALSE
+#' and flaggedonly = FALSE.
 #'
-#' #' The “Not Reviewed” value within "TADA.ResultAboveUpperThreshold.Flag" means
-#' that the EPA WQX team has not yet reviewed the combinations
-#' (see https://cdx.epa.gov/wqx/download/DomainValues/QAQCCharacteristicValidation.CSV).
-#' The WQX team plans to review and update these new combinations quarterly.
+#' This function will add the column "TADA.ResultValueBelowLowerThreshold.Flag" which
+#' will be populated with the values: "Pass", "Suspect", "Not Reviewed", or 
+#' "NA - Not Available". The “Not Reviewed” value means that the EPA WQX team 
+#' has not yet reviewed the range yet for the characteristic and unit combination combination
+#' in that row (see https://cdx.epa.gov/wqx/download/DomainValues/QAQCCharacteristicValidation.CSV).
+#' The WQX team plans to review and update these new combinations quarterly. The
+#' "NA - Not Available" flag means that the characteristic, media, and/or unit combination 
+#' for that row is not fully populated (is NA or does not match the WQX data standard)
+#' or the result value is NA. 
+#' 
+#' If this function is run more than once on the same dataframe, 
+#' the flag column will be deleted and regenerated.
 #'
 #' @param .data TADA dataframe
 #' @param clean Boolean argument; removes data that is below the lower WQX
-#' threshold from the dataframe when clean = TRUE. Default is clean = TRUE.
-#' @param flaggedonly Boolean argument; filters data to show only the values
-#' flagged as below the lower WQX threshold when flaggedonly = TRUE. Default is
-#' flaggedonly = FALSE.
-#'
-#' @return The input TADA dataset with the added
-#'   TADA.ResultValueBelowLowerThreshold.Flag column. This column flags rows with
-#'   data that are below the lower WQX threshold. When clean = FALSE and
-#'   flaggedonly = TRUE, the dataframe is filtered to show only the rows which
-#'   are flagged as below the WQX threshold; the column
-#'   TADA.ResultValueBelowLowerThreshold.Flag is still appended. When clean =
-#'   TRUE and flaggedonly = FALSE, data that is below the lower WQX threshold is
-#'   removed from the dataframe. When clean = TRUE and flaggedonly = TRUE, the
-#'   function does not execute and an error message is returned. The defaults
-#'   are clean = TRUE and flaggedonly = FALSE.
-#'
-#' @export
+#' threshold from the dataframe when clean = TRUE. Default is clean = FALSE.
+#' @param flaggedonly Boolean argument; filters dataframe to show only the data
+#' flagged as below the lower WQX threshold. Default is flaggedonly = FALSE.
+#' @return The input TADA dataset with the added "TADA.ResultValueBelowLowerThreshold.Flag"
+#' column which is populated with the values: "Pass", "Suspect", "Not Reviewed", or 
+#' "NA - Not Available". Defaults are clean = FALSE and flaggedonly = FALSE.
+#' When clean = FALSE and flaggedonly = TRUE, the dataframe
+#' is filtered to show only data found below the WQX threshold. When clean = TRUE
+#' and flaggedonly = FALSE, rows with values that are below the lower WQX threshold
+#' are removed from the dataframe. When clean = TRUE and and flaggedonly = TRUE,
+#' the function is not executed and an error message is returned. 
 #'
 #' @examples
 #' # Load example dataset:
@@ -487,7 +502,7 @@ TADA_FlagAboveThreshold <- function(.data, clean = TRUE, flaggedonly = FALSE) {
 #' # Show only data that is below the lower WQX threshold:
 #' WQXLowerThreshold_flagsonly <- TADA_FlagBelowThreshold(Data_Nutrients_UT, clean = FALSE, flaggedonly = TRUE)
 #'
-TADA_FlagBelowThreshold <- function(.data, clean = TRUE, flaggedonly = FALSE) {
+TADA_FlagBelowThreshold <- function(.data, clean = FALSE, flaggedonly = FALSE) {
   # check .data is data.frame
   TADA_CheckType(.data, "data.frame", "Input object")
   # check clean is boolean

@@ -588,9 +588,10 @@ combination. See documentation for more details:
     -   When clean = FALSE, the following column is added to your
         dataframe: TADA.ResultValueAboveUpperThreshold.Flag. This column
         flags rows with data that are above the upper WQX threshold.
+        The default is clean = FALSE.
 
     -   When clean = TRUE, data that is above the upper WQX threshold is
-        removed from the dataframe. The default is clean = TRUE.
+        removed from the dataframe. 
 
     -   When flaggedonly = TRUE, the dataframe is filtered to only the
         rows flagged as above the upper WQX threshold; default is
@@ -601,9 +602,10 @@ combination. See documentation for more details:
     -   When clean = FALSE, the following column is added to your
         dataframe: TADA.ResultValueBelowLowerThreshold.Flag. This column
         flags rows with data that are below the lower WQX threshold.
+        The default is clean = FALSE.
 
     -   When clean = TRUE, data that is below the lower WQX threshold is
-        removed from the dataframe. The default is clean = TRUE.
+        removed from the dataframe. 
 
     -   When flaggedonly = TRUE, the dataframe is filtered to only the
         rows flagged as below the lower WQX threshold; default is
