@@ -444,6 +444,8 @@ TADA_FlagAboveThreshold <- function(.data, clean = FALSE, flaggedonly = FALSE) {
   }
 }
 
+
+
 #' Check Result Value Against WQX Lower Threshold
 #'
 #' EPA's Water Quality Exchange (WQX) has generated maximum and minimum thresholds 
@@ -488,6 +490,8 @@ TADA_FlagAboveThreshold <- function(.data, clean = FALSE, flaggedonly = FALSE) {
 #' are removed from the dataframe. When clean = TRUE and and flaggedonly = TRUE,
 #' the function is not executed and an error message is returned. 
 #'
+#' @export
+#' 
 #' @examples
 #' # Load example dataset:
 #' data(Data_Nutrients_UT)
@@ -519,18 +523,18 @@ TADA_FlagBelowThreshold <- function(.data, clean = FALSE, flaggedonly = FALSE) {
   if (clean == TRUE & flaggedonly == TRUE) {
     stop("Function not executed because clean and flaggedonly cannot both be TRUE")
   }
-
+  
   # check ResultMeasureValue column is of class numeric
   if (!is.numeric(.data$TADA.ResultMeasureValue)) {
     stop("The ResultMeasureValue column must be of class 'numeric'.")
   }
-
+  
   # execute function after checks are passed - removes flag column in case reference table has changed.
   # delete existing flag column
   if (("TADA.ResultValueBelowLowerThreshold.Flag" %in% colnames(.data)) == TRUE) {
     .data <- dplyr::select(.data, -TADA.ResultValueBelowLowerThreshold.Flag)
   }
-
+  
   # get WQXcharVal.ref and filter to include only CharacteristicUnit
   # Note that status is not applicable to ranges.
   # Instead, we generate a validation flag later in this function
@@ -551,7 +555,7 @@ TADA_FlagBelowThreshold <- function(.data, clean = FALSE, flaggedonly = FALSE) {
                                         -Last.Change.Date,
                                         -Value,
                                         -Maximum))
-
+  
   unit.ref <- unique(unit.ref)
   
   check.data <- dplyr::left_join(.data, 
@@ -562,7 +566,7 @@ TADA_FlagBelowThreshold <- function(.data, clean = FALSE, flaggedonly = FALSE) {
                                  multiple = "any", # this should be "all" but the validation table has issues
                                  relationship = "many-to-many" # this should be "one-to-one" but the validation table has issues
   )
-
+  
   # Create flag column, flag rows where TADA.ResultMeasureValue < Minimum
   flag.data <- check.data %>%
     # create flag column
@@ -573,14 +577,14 @@ TADA_FlagBelowThreshold <- function(.data, clean = FALSE, flaggedonly = FALSE) {
       TRUE ~ as.character("NA - Not Available") # this occurs when the char/unit/media combo is not in the WQX QAQC table at all. USGS data may not be in QAQC table because it does not adhere to the WQX domain tables.
       
     ))
-
+  
   # remove Min column
   flag.data <- flag.data %>%
     dplyr::select(-"Minimum")
   
   # if no data below WQX lower threshold is found
   if (any("Suspect" %in%
-    unique(flag.data$TADA.ResultValueBelowLowerThreshold.Flag)) == FALSE) {
+          unique(flag.data$TADA.ResultValueBelowLowerThreshold.Flag)) == FALSE) {
     if (flaggedonly == FALSE) {
       print("No data below the WQX Lower Threshold were found in your dataframe. Returning the input dataframe with TADA.ResultValueBelowLowerThreshold.Flag column for tracking.")
       flag.data <- TADA_OrderCols(flag.data)
@@ -593,13 +597,13 @@ TADA_FlagBelowThreshold <- function(.data, clean = FALSE, flaggedonly = FALSE) {
       return(emptyflag.data)
     }
   }
-
+  
   # flagged, all data
   if (clean == FALSE & flaggedonly == FALSE) {
     flag.data <- TADA_OrderCols(flag.data)
     return(flag.data)
   }
-
+  
   # clean data
   if (clean == TRUE & flaggedonly == FALSE) {
     # filter out rows where TADA.ResultValueBelowLowerThreshold.Flag = Suspect; remove TADA.ResultValueBelowLowerThreshold.Flag column
@@ -608,7 +612,7 @@ TADA_FlagBelowThreshold <- function(.data, clean = FALSE, flaggedonly = FALSE) {
     clean.data <- TADA_OrderCols(clean.data)
     return(clean.data)
   }
-
+  
   # only flagged data
   if (clean == FALSE & flaggedonly == TRUE) {
     # filter to show only rows where TADA.ResultValueBelowLowerThreshold.Flag = Suspect
@@ -618,6 +622,7 @@ TADA_FlagBelowThreshold <- function(.data, clean = FALSE, flaggedonly = FALSE) {
     return(flagsonly.data)
   }
 }
+
 
 
 
