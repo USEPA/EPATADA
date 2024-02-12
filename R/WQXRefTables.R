@@ -121,7 +121,15 @@ TADA_GetMeasureUnitRef <- function() {
     return(utils::read.csv(system.file("extdata", "WQXunitRef.csv", package = "TADA")))
   }
   
-  WQXunitRef <- raw.data
+  #identify problematic length distance units to remove
+  length.distance.remove <- raw.data %>%
+    dplyr::filter(Code %in% c("Angst", "cm", "dm", "feet", "ft", "in",
+                  "km", "m", "mi", "mm", "nm", "nmi", "yd") &
+                    Target.Unit != "m") 
+  
+  WQXunitRef <- raw.data %>%
+    dplyr::anti_join(length.distance.remove)
+  
   # add m and ft as target units for "Length Distance" (Description field) rows
   # target.unit = m
   target.m <- data.frame(
@@ -156,7 +164,7 @@ TADA_GetMeasureUnitRef <- function() {
     Conversion.Coefficient = rep(0, 13)
   )
   # add data to WQXunitRef
-  WQXunitRef <- plyr::rbind.fill(WQXunitRef, target.m, target.ft) %>% dplyr::distinct()
+  WQXunitRef <- plyr::rbind.fill(WQXunitRef, target.m) %>% dplyr::distinct()
   
   # Convert NONE to NA in ref table
   WQXunitRef <- WQXunitRef %>%
