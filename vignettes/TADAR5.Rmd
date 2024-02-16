@@ -52,10 +52,8 @@ install.packages("remotes",
 library(remotes)
 ```
 
-Next, install and load TADA using the remotes package. USGS's dataRetrieval and
-other TADA R Package dependencies will also be downloaded automatically from CRAN
-with the TADA install. If desired, the development version of dataRetrieval
-can be downloaded directly from GitHub (un-comment).
+Next, install and load TADA using the remotes package. TADA R Package dependencies will also be downloaded automatically from CRAN
+with the TADA install.
 
 ```{r install_TADA, eval = F, results = 'hide', message = FALSE, warning = FALSE}
 remotes::install_github("USEPA/TADA",
@@ -63,11 +61,6 @@ remotes::install_github("USEPA/TADA",
   dependencies = TRUE
 )
 
-# remotes::install_github("USGS-R/dataRetrieval", dependencies=TRUE)
-
-# if you experience any issues installing TADA, try un-commenting and running
-# the line below before the install
-# options(download.file.method = "wininet")
 ```
 
 Finally, use the **library()** function to load the TADA R Package into your R session.
@@ -88,11 +81,8 @@ Characteristic, Speciation, Fraction, and Unit fields to uppercase,
 removes exact duplicates, and addresses result values that include
 special characters.
 
-This function uses the same inputs as the dataRetrieval `readWQPdata`
-function. `readWQPdata` does not restrict the characteristics pulled
-from [Water Quality Portal (WQP)](https://www.waterqualitydata.us/). 
-
-Data retrieval filters include:
+The characteristics pulled
+from [Water Quality Portal (WQP)](https://www.waterqualitydata.us/) are not restricted and can include: 
 
 -   startDate
 
@@ -146,36 +136,22 @@ Tips:
     from USGS databases and Monitoring Location Identifiers (from WQX).
     Each monitoring location in the Water Quality
     Portal (WQP) has a unique Monitoring Location Identifier, regardless
-    of the database from which it derives. The Monitoring Location
-    Identifier from the WQP is the concatenated Organization Identifier
-    plus the Site ID number. Site IDs that only include a number are
-    only unique identifiers for monitoring locations within USGS NWIS or
-    EPA's WQX databases separately.
-
+    of the database from which it derives. 
+    
 Additional resources:
 
 -   Review function documentation by entering the following code into
     the console: ?TADA_DataRetrieval
 
--   [Introduction to the dataRetrieval
-    package](https://CRAN.R-project.org/package=dataRetrieval)
-
--   [General Data Import from Water Quality
-    Portal](https://rdrr.io/cran/dataRetrieval/man/readWQPdata.html)
-
 -   [Water Quality Portal Web Services
     Guide](https://www.waterqualitydata.us/webservices_documentation/)
 
--   [dataRetrieval Tutorial](https://owi.usgs.gov/R/dataRetrieval.html)
+-   TADA Module 1 (ADD LINK)
 
 
-This example includes monitoring data for six??? parameters collected for one month (May 2019) by Region 5 state organizations(???) (Illinois, Indiana, Michigan, Minnesota, Ohio, and Wisconsin).
+This example includes monitoring data for six??? parameters collected for one month (May 2019) by Region 5 state organizations(???) (Illinois, Indiana, Michigan, Minnesota, Ohio, and Wisconsin). We will move forward with this example in the remainder of the vignette.
 
-We will move forward with this example in the remainder of the vignette.
-
-Use the code below to download data from the WQP using
-TADA_DataRetrieval. Edit the code chuck below to define your own WQP
-query inputs such as limiting the query to include data from only your state.
+For demonstration purposes, the R5 example data set had already been downloaded and can be accessed by uncommenting and running the TADA_DataRetrieval function below. If you're following along you can run the code chunk below to access the pre-downloaded data set.
 
 Downloads using TADA_DataRetrieval will have the same columns each time,
 but be aware that data are uploaded to the Water Quality Portal by
@@ -184,14 +160,14 @@ conventions. Data and metadata quality are not guaranteed! Make sure to
 carefully explore any data and make conservative quality assurance
 decisions where information is limited.
 
-Note: TADA_DataRetrieval (by leveraging dataRetrieval), automatically
-converts the date times to UTC. It also automatically converts the data
-to dates, datetimes, and numerics based on a standard algorithm.
+Note: TADA_DataRetrieval  automatically
+converts the date times to UTC and data
+to dates, datetimes, and numerics based on a standard algorithm. 
 
 Enter ?TADA_DataRetrieval into the console to review more example queries
 and additional information.
 
-For demonstration purposes, the R5 example data set had already been downloaded and can be accessed by uncommenting and running the TADA_DataRetrieval function below. If you're following along you can run the code chunk below to access the pre-downloaded data set.
+
 
 ```{r TADA_DataRetrieval}
 TADAProfile <- TADA_DataRetrieval(statecode = c("IL", "IN", "MI", "MN", "OH", "WI"), startDate = "2019-05-01", endDate = "2019-05-07", applyautoclean = FALSE)
@@ -201,19 +177,15 @@ load predownload
 
 If you s to download a large amount of data from across a large area,
 and the TADA_DataRetrieval function is not working due to WQP timeout
-issues, then the **TADA_BigDataRetrieval** function may work better. See ?TADA_BigDataRetrieval for more details or the TADA Module 1 for more details. WARNING, some of the
-examples below can take multiple HOURS to run. The total run time
-depends on your query inputs.
+issues, then the **TADA_BigDataRetrieval** function may work better. See ?TADA_BigDataRetrieval for more details or the TADA Module 1 for more details. 
 
 ## Filter for Analysis 
 
-Some TADA users are interested in using WQP data for surface water only or for analysis of some non-water data. The **TADA_AnalysisDataFilter** function can assist in identifying results of interest. Multiple columns are used to identify groundwater results as different organizations may populate different combinations of fields in order to identify a result as groundwater.
+Some TADA users are interested in using WQP data for surface water only or including some non-water data. The **TADA_AnalysisDataFilter** function can assist in identifying results of interest. Multiple columns are used to identify groundwater results as individual organizations may populate different combinations of fields in order to identify a result as groundwater.
 
-This function identifies surface water, groundwater, and sediment results. Users can  specify whether all results should be returned with a new column, *TADA.UseForAnalysis.Flag*,identifying if the result should be included in further analysis or if only results that should be in included are returned. 
+This function identifies surface water, groundwater, and sediment results. Users can  specify whether all results should be returned with a new column, *TADA.UseForAnalysis.Flag*,identifying if the result should be included in further analysis or if only results that should be included are returned. 
 
 The defaults are to include surface water, exclude groundwater and sediment, and to return only the results that should be used for analysis (clean = TRUE). This is shown in the active example below. If you would like to see all results with the *TADA.UseForAnalysis.Flag* column, you can uncomment the example where clean = FALSE.
-
-If you are not interested in using **TADA_AnalysisDataFilter**, but would like to filter by activity media, uncomment the example to filter for water data only by using dplyr::filter() with TADA.ActivityMediaName.
 
 ```{r AnalysisDataFilter}
 
@@ -222,9 +194,6 @@ TADAProfile <- TADA_AnalysisDataFilter(TADAProfile)
 
 # Add TADA.UseForAnalysis.Flag column to identify which results should be used for analysis
 # TADAProfile <- TADA_AnalysisDataFilter(TADAProfile)
-
-# Remove data for non-water media types, alternate workflow without using TADA_AnalysisDataFilter()
-#TADAProfile <- dplyr::filter(TADAProfile, TADA.ActivityMediaName == "WATER")
 
 ```
 
