@@ -61,7 +61,7 @@ AKAllotmentsUrl = "https://geopub.epa.gov/arcgis/rest/services/EMEF/Tribal/MapSe
 AKVillagesUrl = "https://geopub.epa.gov/arcgis/rest/services/EMEF/Tribal/MapServer/1/query"
 AmericanIndianUrl = "https://geopub.epa.gov/arcgis/rest/services/EMEF/Tribal/MapServer/2/query"
 OffReservationUrl = "https://geopub.epa.gov/arcgis/rest/services/EMEF/Tribal/MapServer/3/query"
-OKTribeUrl = "https://geopub.epa.gov/arcgis/rest/services/EMEF/Tribal/MapServer/4/query"
+OKTribeUrl = "https://geopub.epa.gov/arcgis/rest/services/EMEF/Tribal/MapServer/4/TADA_RandomStateTestingSet()query"
 VATribeUrl = "https://geopub.epa.gov/arcgis/rest/services/EMEF/Tribal/MapServer/5/query"
 
 #' TADA_AutoClean
@@ -851,7 +851,7 @@ TADA_RunKeyFlagFunctions <- function(.data, remove_na = TRUE, clean = TRUE) {
 #' # Load example dataset
 #' data(Data_6Tribes_5y)
 #' # Get the bounding box of the data
-#' bbox <- st_bbox(c(xmin = min(Data_6Tribes_5y$TADA.LongitudeMeasure),ymin = min(Data_6Tribes_5y$TADA.LatitudeMeasure),xmax = max(Data_6Tribes_5y$TADA.LongitudeMeasure),ymax = max(Data_6Tribes_5y$TADA.LatitudeMeasure)),crs = st_crs(Data_6Tribes_5y))
+#' bbox <- st_bbox(c(xmin = min(Data_6Tribes_5y$TADA.LongitudeMeasure),ymin = min(Data_6Tribes_5y$TADA.LatitudeMeasure),xmax = max(Data_6Tribes_5y$TADA.LongitudeMeasure),ymax = max(Data_6Tribes_5y$TADA.LatitudeMeasure)),crs = sf::st_crs(Data_6Tribes_5y))
 #' # Get a string containing the JSON of the bounding box
 #' getBboxJson(bbox)    
 
@@ -917,7 +917,7 @@ pchIcons = function(pch = 1,
 #' # Load example dataset
 #' data(Data_Nutrients_UT)
 #' # Get the bounding box of the data
-#' bbox <- st_bbox(c(xmin = min(Data_Nutrients_UT$TADA.LongitudeMeasure),ymin = min(Data_Nutrients_UT$TADA.LatitudeMeasure),xmax = max(Data_Nutrients_UT$TADA.LongitudeMeasure),ymax = max(Data_Nutrients_UT$TADA.LatitudeMeasure)),crs = st_crs(Data_Nutrients_UT))
+#' bbox <- st_bbox(c(xmin = min(Data_Nutrients_UT$TADA.LongitudeMeasure),ymin = min(Data_Nutrients_UT$TADA.LatitudeMeasure),xmax = max(Data_Nutrients_UT$TADA.LongitudeMeasure),ymax = max(Data_Nutrients_UT$TADA.LatitudeMeasure)),crs = sf::st_crs(Data_Nutrients_UT))
 #' # Get the American Indian Reservations feature layer, filtered by the bounding box for the Data_Nutrients_UT example dataset
 #' getFeatureLayer("https://geopub.epa.gov/arcgis/rest/services/EMEF/Tribal/MapServer/2/query", bbox)
 
@@ -927,15 +927,22 @@ getFeatureLayer <- function(url, bbox = NULL) {
   } else {
     inputGeom = getBboxJson(bbox)
   }
-  url <- parse_url(url)
-  url$query <- list(where = "1=1",
-                    outFields = "*",
-                    returnGeometry = "true",
-                    geometry = inputGeom,
-                    f = "geojson")
-  request <- build_url(url)
-  layer = read_sf(request)
-  return(layer)
+  params <- list(where = "1=1",
+                 outFields = "*",
+                 returnGeometry = "true",
+                 geometry = inputGeom,
+                 f = "geojson")
+  resp <- httr2::request(url) %>%
+    httr2::req_url_query(!!!params) %>%
+    httr2::req_perform()
+  
+  json <- httr2::resp_body_json(resp)
+  if (length(json$features) == 0) {
+    return (NULL)
+  }
+  resp_str <- httr2::resp_body_string(resp)
+  layer <- sf::read_sf(resp_str)
+  return (layer)
 }
 
 #' Get text for tribal marker popup
@@ -986,8 +993,11 @@ getPopup <- function(layer, layername) {
 #' lmap
 
 addPolys <- function(map, url, layergroup, layername, bbox = NULL) {
-  layer = getFeatureLayer(url, bbox)
-  lbbox <- st_bbox(layer)
+  layer <- getFeatureLayer(url, bbox)
+  if (is.null(layer)) {
+    return (map)
+  } 
+  lbbox <- sf::st_bbox(layer)
   if (is.na(lbbox[1])) {
     return (map)
   }
@@ -1005,13 +1015,13 @@ addPolys <- function(map, url, layergroup, layername, bbox = NULL) {
       opacity = 1.0,
       fillOpacity = 0.2,
       fillColor = ~ colorQuantile("Oranges", layer[[areaColumn]])(layer[[areaColumn]]),
-      highlightOptions = highlightOptions(
+      highlightOptions = leaflet::highlightOptions(
         color = "white",
         weight = 2,
         bringToFront = TRUE
       ),
-      popup = getPopup(layer, layername),
-      group = layergroup
+      popup <- getPopup(layer, layername),
+      group <- layergroup
     )
   return (map)
 }
@@ -1033,8 +1043,11 @@ addPolys <- function(map, url, layergroup, layername, bbox = NULL) {
 #' lmap
 
 addPoints <- function(map, url, layergroup, layername, bbox = NULL) {
-  layer = getFeatureLayer(url, bbox)
-  lbbox <- st_bbox(layer)
+  layer <- getFeatureLayer(url, bbox)
+  if (is.null(layer)) {
+    return (map)
+  }  
+  lbbox <- sf::st_bbox(layer)
   if (is.na(lbbox[1])) {
     return (map)
   }
@@ -1043,13 +1056,13 @@ addPoints <- function(map, url, layergroup, layername, bbox = NULL) {
   map <- leaflet::addMarkers(
     map,
     data = layer,
-    icon = ~ icons(
+    icon = ~ leaflet::icons(
       iconUrl = iconFiles[],
       popupAnchorX = 20,
       popupAnchorY = 0
     ),
-    popup = getPopup(layer, layername),
-    group = layergroup
+    popup <- getPopup(layer, layername),
+    group <- layergroup
   )
   return(map)
 }

@@ -424,11 +424,11 @@ TADA_OverviewMap <- function(.data) {
       domain = sumdat$Parameter_Count
     )
 
-    bbox <- st_bbox(c(xmin = min(sumdat$TADA.LongitudeMeasure),
+    bbox <- sf::st_bbox(c(xmin = min(sumdat$TADA.LongitudeMeasure),
                       ymin = min(sumdat$TADA.LatitudeMeasure),
                       xmax = max(sumdat$TADA.LongitudeMeasure),
                       ymax = max(sumdat$TADA.LatitudeMeasure)),
-                    crs = st_crs(sumdat))
+                    crs = sf::st_crs(sumdat))
     vbbox <- bbox %>%
       as.vector()    
     

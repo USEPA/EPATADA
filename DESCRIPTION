@@ -72,7 +72,7 @@ Imports:
     plotly,
     remotes,
     writexl,
-    httr
+    httr2
 Depends: 
     R (>= 3.5.0)
 Suggests: 
