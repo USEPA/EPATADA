@@ -424,10 +424,18 @@ TADA_OverviewMap <- function(.data) {
       domain = sumdat$Parameter_Count
     )
 
+    bbox <- st_bbox(c(xmin = min(sumdat$TADA.LongitudeMeasure),
+                      ymin = min(sumdat$TADA.LatitudeMeasure),
+                      xmax = max(sumdat$TADA.LongitudeMeasure),
+                      ymax = max(sumdat$TADA.LatitudeMeasure)),
+                    crs = st_crs(sumdat))
+    vbbox <- bbox %>%
+      as.vector()    
+    
     map <- leaflet::leaflet() %>%
       leaflet::addProviderTiles("Esri.WorldTopoMap", group = "World topo", options = leaflet::providerTileOptions(updateWhenZooming = FALSE, updateWhenIdle = TRUE)) %>%
       leaflet::clearShapes() %>% # get rid of whatever was there before if loading a second dataset
-      leaflet::fitBounds(lng1 = min(sumdat$TADA.LongitudeMeasure), lat1 = min(sumdat$TADA.LatitudeMeasure), lng2 = max(sumdat$TADA.LongitudeMeasure), lat2 = max(sumdat$TADA.LatitudeMeasure)) %>% # fit to bounds of data in tadat$raw
+      leaflet::fitBounds(lng1 = vbbox[1], lat1 = vbbox[2], lng2 = vbbox[3], lat2 = vbbox[4]) %>% # fit to bounds of data in tadat$raw
       leaflet.extras::addResetMapButton() %>% # button to reset to initial zoom and lat/long
       leaflet::addCircleMarkers(
         data = sumdat,
@@ -457,6 +465,16 @@ TADA_OverviewMap <- function(.data) {
         colors = "black",
         labels = site_legend$Sample_n, sizes = site_legend$Point_size * 2
       )
+    map <- addPolys(map, AKAllotmentsUrl, "Tribes", "Alaska Allotments", bbox)
+    map <- addPolys(map, AmericanIndianUrl, "Tribes", "American Indian", bbox)
+    map <- addPolys(map, OffReservationUrl, "Tribes", "Off Reservation", bbox)
+    map <- addPolys(map, OKTribeUrl, "Tribes", "Oklahoma Tribe", bbox)
+    map <- addPoints(map, AKVillagesUrl, "Tribes", "Alaska Native Villages", bbox)
+    map <- addPoints(map, VATribeUrl, "Tribes", "Virginia Tribe", bbox)
+    map <- addLayersControl(map,
+                            overlayGroups = c("Tribes"),
+                            options = layersControlOptions(collapsed = FALSE)  
+    )
     return(map)
   })
 }
