@@ -264,8 +264,7 @@ location in the dataset and creates a tidy map for reviewing summary
 stats spatially. Larger point sizes indicate more results collected at a
 given site, while darker blue colors indicate more unique
 characteristics collected at the site. Users may click on a site to view
-a pop-up with this summary information, including the number of
-organizations that reported results at that site. This map may inform a
+a pop-up with this summary information. This map may inform a
 user's decision to remove/correct sites that are outside the US.
 
 ```{r Map, fig.width=8, fig.height=6, fig.fullwidth=TRUE}
@@ -368,7 +367,7 @@ Allowable values for 'unit' are either 'm' (meter), 'ft' (feet), or 'in'
 (inch). 'unit' accepts only one allowable value as an input. Default is
 unit = "m".
 
-Note that upon download using **TADA_DataRetrieval**, all depth columns
+Note that upon download using **TADA_AutoClean**, all depth columns
 are converted to meters by default. However, the user may choose to run
 the **TADA_ConvertDepthUnits** function on their dataset to convert to
 another unit. See function documentation for additional input options by
