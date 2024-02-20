@@ -187,15 +187,7 @@ require.cols <- c(
   "WellDepthMeasure.MeasureValue", # filter
   "WellDepthMeasure.MeasureUnitCode", # filter
   "WellHoleDepthMeasure.MeasureValue", # filter
-  "WellHoleDepthMeasure.MeasureUnitCode", # filter
-
-  "ProviderName", # filter
-  "LastUpdated", # filter
-
-  # Only used in TADA Shiny
-  "TADA.Remove",
-  "TADA.RemovalReason",
-  "TADAShiny.tab"
+  "WellHoleDepthMeasure.MeasureUnitCode" # filter
 )
 
 # ordered list of non-essential columns that can be removed from df
@@ -240,6 +232,13 @@ extra.cols <- c(
   "ContributingDrainageAreaMeasure.MeasureUnitCode"
 )
 
+# Only used in TADA Shiny or should be at the end
+last.cols <- c("ProviderName",
+                "LastUpdated",
+                "TADA.Remove",
+                "TADA.RemovalReason",
+                "TADAShiny.tab")
+
 
 #' Order TADA Columns and Rows
 #'
@@ -274,10 +273,13 @@ TADA_OrderCols <- function(.data) {
   required_cols <- require.cols[require.cols %in% names(.data)]
 
   extra_cols <- extra.cols[extra.cols %in% names(.data)]
+  
+  last_cols <- last.cols[last.cols %in% names(.data)]
 
   rearranged <- .data %>%
-    dplyr::relocate(dplyr::any_of(required_cols)) %>%
-    dplyr::relocate(dplyr::any_of(extra_cols), .after = dplyr::last_col())
+    dplyr::relocate(any_of(required_cols)) %>%
+    dplyr::relocate(any_of(extra_cols), .after = required_cols) %>%
+    dplyr::relocate(any_of(last_cols), .after = extra_cols)
   rearranged <- rearranged[order(rearranged$ResultIdentifier), ]
 
   return(rearranged)
