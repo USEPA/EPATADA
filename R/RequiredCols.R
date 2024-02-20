@@ -491,7 +491,7 @@ TADA_RetainRequired <- function(.data) {
   print("TADA_RetainRequired: removing columns not required for TADA workflow including original columns that have been replaced with TADA prefix duplicates.")
 
   # Create list of all columns to be retained
-  keep.cols <- require.cols
+  keep.cols <- c(require.cols, last.cols)
 
   # create list of all columns in original data set
   original.cols <- .data %>% names()
