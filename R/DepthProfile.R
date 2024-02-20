@@ -1,13 +1,11 @@
 #' TADA_DepthCategory.Flag
 #'
 #'This function creates a new column, TADA.DepthCategory.Flag with values: "No
-#' depth info", "Epilimnion-surface", "Hypolimnion-bottom", and
-#' "Metalimnion/Thermocline-middle" For results for with MonitoringLocationTypeName
-#' "Lake, Reservoir, Impoundment", "Great Lakes", "Lake", or "Great Lake".
-#' Categories are: less than 2m depth = "Epilimnion", from bottom up to 2m from
-#' bottom= "Hypolimnion-bottom", and the full depth profile for
-#' "Metalimnion/Thermocline-middle". For results with other MonitoringLocationTypeNames
-#' the TADA.DepthCategory.Flag is "Not Calculated for MonitoringLocationType".
+#' depth info", "Surface", "Bottom", and
+#' "Middle" when multiple depths are available.
+#' Categories are: less than 2m (or user specified value) depth = "Surface", from 
+#' bottom up to 2m (or user specified value) from bottom = "Bottom", and all depths
+#' in between the Surface and Bottom are assigned to the "Middle" category.
 #'
 #' When more than one result is available for a MonitoringLocationIdentifier,
 #' ActivityStartDate, OrganizationIdentifier, and TADA.CharacteristicName, the
@@ -18,8 +16,7 @@
 #'
 #' @param .data TADA dataframe which must include the columns
 #' TADA.ActivityDepthHeightMeasure.MeasureValue, TADA.ResultDepthHeightMeasure.MeasureValue,
-#' TADA.ActivityBottomDepthHeightMeasure.MeasureValue, ActivityRelativeDepthName,
-#' and MonitoringLocationTypeName.
+#' TADA.ActivityBottomDepthHeightMeasure.MeasureValue, and ActivityRelativeDepthName.
 #'
 #' @param dailyagg Character argument; with options "none", "avg", "min", or
 #' "max". The default is dailyagg = "none". When dailyagg = "none", all results
@@ -39,16 +36,15 @@
 #' Monitoring Location. When bycategory = "surface", "middle", or "bottom", the data
 #' frame is filtered only to include results in the selected category and aggregate
 #' values are determined ONLY for results with TADA.DepthCategory.Flags
-#' "Epilimnion-surface", "Hypolimnion-bottom", or "Metalimnion/Thermocline-middle"
+#' "Surface", "Bottom", or "Middle"
 #' results respectively.
 #'
 #' @param bottomvalue numeric argument. The user enters how many meters from the
-#' bottom should be included in the "Hypolimnion-bottom" category. Default is
-#' bottom = 2.
+#' bottom should be included in the "Bottom" category. Default is
+#' bottomvalue = 2.
 #'
 #' @param surfacevalue numeric argument. The user enters how many meters from the
-#' top should be included in the "Hypolimnion-bottom" category. Default is
-#' top = 2.
+#' surface should be included in the "Surface" category. Default is surfacevalue = 2.
 #'
 #' @param aggregatedonly Boolean argument with options "TRUE" or "FALSE". The
 #' default is aeggrgatedonly = "FALSE" which means that all results are returned.
@@ -82,7 +78,7 @@
 #'
 TADA_DepthCategory.Flag <- function(.data, bycategory = "no", bottomvalue = 2, surfacevalue = 2, dailyagg = "none", aggregatedonly = FALSE, clean = FALSE) {
 
-  depthcat.list <- c("Epilimnion-surface", "Hypolimnion-bottom", "Metalimnion/Thermocline-middle")
+  depthcat.list <- c("Surface", "Bottom", "Middle")
 
   ard.ref <- utils::read.csv(system.file("extdata", "WQXActivityRelativeDepthRef.csv", package = "TADA")) %>%
     dplyr::rename(
@@ -110,15 +106,15 @@ TADA_DepthCategory.Flag <- function(.data, bycategory = "no", bottomvalue = 2, s
   }
 
   if(bycategory== "bottom") {
-    cattype <- "for Hypolimnion-bottom"
+    cattype <- "for Bottom"
   }
 
   if(bycategory== "middle") {
-    cattype <- "for Metalimnion/Thermocline-middle"
+    cattype <- "for Middle"
   }
 
   if(bycategory== "surface") {
-    cattype <- "for Epilimnion-surface"
+    cattype <- "for Surface"
   }
 
 
@@ -150,9 +146,9 @@ TADA_DepthCategory.Flag <- function(.data, bycategory = "no", bottomvalue = 2, s
         dplyr::ungroup() %>%
         # assign depth categories by using depth information
         dplyr::mutate(TADA.DepthCategory.Flag = dplyr::case_when(
-          TADA.ConsolidatedDepth <= surfacevalue ~ "Epilimnion-surface",
-          TADA.ConsolidatedDepth <= TADA.ConsolidatedDepth.Bottom & TADA.ConsolidatedDepth >= TADA.ConsolidatedDepth.Bottom - bottomvalue ~ "Hypolimnion-bottom",
-          TADA.ConsolidatedDepth < surfacevalue & TADA.ConsolidatedDepth < TADA.ConsolidatedDepth.Bottom - bottomvalue ~ "Metalimnion/Thermocline-middle"
+          TADA.ConsolidatedDepth <= surfacevalue ~ "Surface",
+          TADA.ConsolidatedDepth <= TADA.ConsolidatedDepth.Bottom & TADA.ConsolidatedDepth >= TADA.ConsolidatedDepth.Bottom - bottomvalue ~ "Bottom",
+          TADA.ConsolidatedDepth < surfacevalue & TADA.ConsolidatedDepth < TADA.ConsolidatedDepth.Bottom - bottomvalue ~ "Middle"
         )) %>%
         # assign depth categories that could not be assigned using depth
         dplyr::left_join(ard.ref, by = "ActivityRelativeDepthName") %>%
@@ -216,7 +212,7 @@ TADA_DepthCategory.Flag <- function(.data, bycategory = "no", bottomvalue = 2, s
     )
 
     .data <- .data %>%
-      dplyr::filter(TADA.DepthCategory.Flag == "Epilimnion-surface")
+      dplyr::filter(TADA.DepthCategory.Flag == "Surface")
   }
 
   if (bycategory == "middle") {
@@ -228,7 +224,7 @@ TADA_DepthCategory.Flag <- function(.data, bycategory = "no", bottomvalue = 2, s
     )
 
     .data <- .data %>%
-      dplyr::filter(TADA.DepthCategory.Flag == "Metalimnion/Thermocline-middle")
+      dplyr::filter(TADA.DepthCategory.Flag == "Middle")
   }
 
   if (bycategory == "bottom") {
@@ -240,7 +236,7 @@ TADA_DepthCategory.Flag <- function(.data, bycategory = "no", bottomvalue = 2, s
     )
 
     .data <- .data %>%
-      dplyr::filter(TADA.DepthCategory.Flag == "Hypolimnion-bottom")
+      dplyr::filter(TADA.DepthCategory.Flag == "Bottom")
   }
 
   if (dailyagg == "none") {
