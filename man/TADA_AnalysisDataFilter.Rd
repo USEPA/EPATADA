@@ -6,7 +6,7 @@
 \usage{
 TADA_AnalysisDataFilter(
   .data,
-  clean = TRUE,
+  clean = FALSE,
   surface_water = TRUE,
   ground_water = FALSE,
   sediment = FALSE
@@ -17,7 +17,7 @@ TADA_AnalysisDataFilter(
 
 \item{clean}{Boolean argument; removes all results not flagged for use in
 assessment workflow. TADA.Media.Flag and TADA.AssessmentData.Flag
-columns will not be added Default is clean = TRUE.}
+columns will not be added. Default is clean = FALSE.}
 
 \item{surface_water}{Boolean argument; specifies whether surface water
 results should be included in the returned data frame. Default is
@@ -25,7 +25,7 @@ surface_water = TRUE, surface water samples are retained in the data frame.}
 
 \item{ground_water}{Boolean argument; specifies whether ground water
 results should be included in the returned data frame. Default is
-ground_water = FALSE, ground water samples are  not retained in the data
+ground_water = FALSE, ground water samples are not retained in the data
 frame.}
 
 \item{sediment}{Boolean argument; specifies whether sediment results should
@@ -51,15 +51,12 @@ be included in the assessment workflow and why. Setting clean = TRUE, means
 that all results not flagged for use in assessment workflow will be removed
 and the TADA.AssessmentData.Flag column will not be added.
 }
-\details{
-*Need to add fish tissue to this function once new WQX profiles are available.
-(HRM, 1/22/4)
-}
 \examples{
-# Return data frame with only surface water results
 data(Data_6Tribes_5y_Harmonized)
-Data_6Tribes_Assessment <- TADA_AnalysisDataFilter(Data_6Tribes_5y_Harmonized)
+# Returns clean data frame with ONLY surface water results retained and no TADA.UseForAnalysis.Flag column
+Data_6Tribes_Assessment1 <- TADA_AnalysisDataFilter(Data_6Tribes_5y_Harmonized, clean = TRUE, surface_water = TRUE, ground_water = FALSE, sediment = FALSE)
 
-# Return data frame with surface water results and TADA.UseForAnalysis.Flag column
-Data_6Tribes_Assessment <- TADA_AnalysisDataFilter(Data_6Tribes_5y_Harmonized, clean = FALSE)
+# Returns data frame with ONLY surface water results and adds TADA.UseForAnalysis.Flag column.
+Data_6Tribes_Assessment2 <- TADA_AnalysisDataFilter(Data_6Tribes_5y_Harmonized, clean = FALSE, surface_water = TRUE, ground_water = FALSE, sediment = FALSE)
+
 }

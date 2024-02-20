@@ -89,6 +89,13 @@ TADA_HarmonizeSynonyms <- function(.data, ref, np_speciation = TRUE) {
     stop("TADA.ResultMeasureValue is not numeric. This column must be numeric before proceeding.")
   }
 
+  # Change NONE in unit, fraction, and speciation to NA for better harmonization
+  .data <- .data %>% dplyr::mutate(
+    TADA.ResultSampleFractionText = replace(TADA.ResultSampleFractionText, TADA.ResultSampleFractionText %in% c("NONE"), NA),
+    TADA.MethodSpeciationName = replace(TADA.MethodSpeciationName, TADA.MethodSpeciationName %in% c("NONE"), NA),
+    TADA.ResultMeasure.MeasureUnitCode = replace(TADA.ResultMeasure.MeasureUnitCode, TADA.ResultMeasure.MeasureUnitCode %in% c("NONE"), NA)
+  )
+  
   # define harm.ref
   # if input for ref exists, use that data
   if (!missing(ref)) {

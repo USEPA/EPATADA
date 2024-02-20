@@ -139,10 +139,6 @@ TADA_AutoClean <- function(.data) {
   # .data$TADA.BiologicalIntentName = toupper(.data$BiologicalIntentName)
   # TADAProfile = dplyr::filter(TADAProfile, TADA.BiologicalIntentName != "TISSUE" | "TOXICITY" | is.na(TADA.BiologicalIntentName) == TRUE)
 
-  # Remove data for non-water media types. Un-comment. Discuss possibly adding back
-  # later once new workflow for documenting "removed" data is set up. May not be needed for R package.
-  # TADAProfile <- dplyr::filter(TADAProfile, TADA.ActivityMediaName == "WATER")
-
   # run TADA_ConvertSpecialChars function
   # .data <- MeasureValueSpecialCharacters(.data)
   print("TADA_Autoclean: checking for special characters.")
@@ -154,19 +150,9 @@ TADA_AutoClean <- function(.data) {
   # print("TADA_Autoclean: identifying and copying detection limit data to result value if blank.")
   # .data <- TADA_IDCensoredData(.data)
 
-  # Identify QC data
-  .data <- TADA_FindQCActivities(.data, clean = FALSE, flaggedonly = FALSE)
-
   # change latitude and longitude measures to class numeric
   .data$TADA.LatitudeMeasure <- as.numeric(.data$LatitudeMeasure)
   .data$TADA.LongitudeMeasure <- as.numeric(.data$LongitudeMeasure)
-
-  # Change NONE in unit, fraction, and speciation to NA for better harmonization
-  .data <- .data %>% dplyr::mutate(
-    TADA.ResultSampleFractionText = replace(TADA.ResultSampleFractionText, TADA.ResultSampleFractionText %in% c("NONE"), NA),
-    TADA.MethodSpeciationName = replace(TADA.MethodSpeciationName, TADA.MethodSpeciationName %in% c("NONE"), NA),
-    TADA.ResultMeasure.MeasureUnitCode = replace(TADA.ResultMeasure.MeasureUnitCode, TADA.ResultMeasure.MeasureUnitCode %in% c("NONE"), NA)
-  )
 
   # Automatically convert USGS only unit "meters" to "m"
   .data$TADA.ResultMeasure.MeasureUnitCode[.data$TADA.ResultMeasure.MeasureUnitCode == "meters"] <- "m"

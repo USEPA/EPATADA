@@ -254,15 +254,12 @@ TADA_FieldValuesTable <- function(.data, field = "null", characteristicName = "n
 #' that all results not flagged for use in assessment workflow will be removed 
 #' and the TADA.AssessmentData.Flag column will not be added.
 #' 
-#' *Need to add fish tissue to this function once new WQX profiles are available.
-#' (HRM, 1/22/4)
-#'
 #'
 #' @param .data A TADA profile object
 #' 
 #' @param clean Boolean argument; removes all results not flagged for use in
 #' assessment workflow. TADA.Media.Flag and TADA.AssessmentData.Flag 
-#' columns will not be added Default is clean = TRUE.
+#' columns will not be added. Default is clean = FALSE.
 #' 
 #' @param surface_water Boolean argument; specifies whether surface water
 #' results should be included in the returned data frame. Default is 
@@ -270,7 +267,7 @@ TADA_FieldValuesTable <- function(.data, field = "null", characteristicName = "n
 #' 
 #' @param ground_water Boolean argument; specifies whether ground water
 #' results should be included in the returned data frame. Default is 
-#' ground_water = FALSE, ground water samples are  not retained in the data 
+#' ground_water = FALSE, ground water samples are not retained in the data 
 #' frame.
 #' 
 #' @param sediment Boolean argument; specifies whether sediment results should 
@@ -286,19 +283,23 @@ TADA_FieldValuesTable <- function(.data, field = "null", characteristicName = "n
 #' @export
 #' 
 #' @examples
-#' # Return data frame with only surface water results
 #' data(Data_6Tribes_5y_Harmonized)
-#' Data_6Tribes_Assessment <- TADA_AnalysisDataFilter(Data_6Tribes_5y_Harmonized)
+#' # Returns clean data frame with ONLY surface water results retained and no TADA.UseForAnalysis.Flag column
+#' Data_6Tribes_Assessment1 <- TADA_AnalysisDataFilter(Data_6Tribes_5y_Harmonized, clean = TRUE, surface_water = TRUE, ground_water = FALSE, sediment = FALSE)
 #' 
-#' # Return data frame with surface water results and TADA.UseForAnalysis.Flag column
-#' Data_6Tribes_Assessment <- TADA_AnalysisDataFilter(Data_6Tribes_5y_Harmonized, clean = FALSE)
+#' # Returns data frame with ONLY surface water results and adds TADA.UseForAnalysis.Flag column.
+#' Data_6Tribes_Assessment2 <- TADA_AnalysisDataFilter(Data_6Tribes_5y_Harmonized, clean = FALSE, surface_water = TRUE, ground_water = FALSE, sediment = FALSE)
+#' 
 
 TADA_AnalysisDataFilter <- function(.data, 
-                                      clean = TRUE,
-                                      surface_water = TRUE,
-                                      ground_water = FALSE,
-                                      sediment = FALSE) {
+                                    clean = FALSE,
+                                    surface_water = TRUE,
+                                    ground_water = FALSE,
+                                    sediment = FALSE) {
   
+  # *Need to add fish tissue to this function once new WQX profiles are available.
+  # (HRM, 1/22/4)
+   
   # import MonitoringLocationTypeNames and TADA.Media.Flags
   sw.sitetypes <- utils::read.csv(system.file("extdata", "WQXMonitoringLocationTypeNameRef.csv", package = "TADA")) %>%
     dplyr::select(Name, TADA.Media.Flag) %>%
@@ -328,7 +329,7 @@ TADA_AnalysisDataFilter <- function(.data,
   
   print("TADA_AnalysisDataFilter: Identifying groundwater results.")
   
-  { if (surface_water == TRUE)
+  if (surface_water == TRUE) {
     
     sur.water.data <- .data %>%
       dplyr::filter(TADA.Media.Flag == "Surface Water") %>%
@@ -338,7 +339,7 @@ TADA_AnalysisDataFilter <- function(.data,
     
     }
   
-  { if (surface_water == FALSE)
+  if (surface_water == FALSE) {
     
     sur.water.data <- .data %>%
       dplyr::filter(TADA.Media.Flag == "Surface Water") %>%
@@ -368,6 +369,7 @@ TADA_AnalysisDataFilter <- function(.data,
     print("TADA_AnalysisDataFilter: Flagging groundwater results to exclude from assessments.")
     
   }
+  
   if (sediment == TRUE) {
     sed.data <- .data %>%
       dplyr::filter(ActivityMediaName %in% c("SEDIMENT", "Sediment", "sediment")) %>%

@@ -254,13 +254,17 @@ If you are not interested in using **TADA_AnalysisDataFilter**, but would like t
 ```{r AnalysisDataFilter}
 
 # Filter to retain only results for use in analysis
-TADAProfile <- TADA_AnalysisDataFilter(TADAProfile)
+TADAProfile <- TADA_AnalysisDataFilter(TADAProfile, 
+                                       clean = TRUE,
+                                       surface_water = TRUE,
+                                       ground_water = FALSE,
+                                       sediment = FALSE)
 
 # Add TADA.UseForAnalysis.Flag column to identify which results should be used for analysis
-# TADAProfile <- TADA_AnalysisDataFilter(TADAProfile)
+# TADAProfile <- TADA_AnalysisDataFilter(TADAProfile, clean = FALSE)
 
 # Remove data for non-water media types, alternate workflow without using TADA_AnalysisDataFilter()
-#TADAProfile <- dplyr::filter(TADAProfile, TADA.ActivityMediaName == "WATER")
+# TADAProfile <- dplyr::filter(TADAProfile, TADA.ActivityMediaName == "WATER")
 
 ```
 
