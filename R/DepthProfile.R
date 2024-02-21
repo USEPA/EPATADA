@@ -789,7 +789,7 @@ TADA_DepthProfilePlot <- function(.data, id_cols = c("TADA.ComparableDataIdentif
 
   depth.params.groups <- .data %>%
     dplyr::filter(TADA.CharacteristicName %in% depth.params) %>%
-    dplyr::select(dplyr::dplyr::all_of(id_cols)) %>%
+    dplyr::select(dplyr::all_of(id_cols)) %>%
     unique()
 
   depthprofile.avail <- .data %>%
