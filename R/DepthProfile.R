@@ -806,13 +806,10 @@ TADA_DepthProfilePlot <- function(.data, id_cols = c("TADA.ComparableDataIdentif
 
   # if any secchi or similar data
 
-  if (length(intersect(groups, depth.params)) == 0) {
+  if (length(stringr::str_detect(groups, depth.params)) == 0) {
 
     depth.params.string <- toString(depth.params, sep = "; ") %>%
       stringi::stri_replace_last(" or ", fixed = "; ")
-
-    print(paste("TADA_DepthProfilePlot: There are no results for",
-                depth.params.string, "available for this depth profile."))
 
     profile.data <- depthprofile.avail
 
@@ -820,10 +817,7 @@ TADA_DepthProfilePlot <- function(.data, id_cols = c("TADA.ComparableDataIdentif
     rm(depth.params.string, depthprofile.avail)
     }
 
-    if (length(intersect(groups, depth.params)) > 0) {
-
-      print(paste("TADA_DepthProfilePlot: There are results for",
-                  depth.params.string, "available for this depth profile."))
+    if (length(stringr::str_detect(groups, depth.params)) > 0) {
 
       # add secchi (and other???) results
       depth.params.string <- toString(depth.params, sep = "; ") %>%
