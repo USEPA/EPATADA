@@ -48,6 +48,13 @@ no depth profile will be created.}
 categories should be shown on the depth profile figure. depthcat = TRUE is the
 default and displays solid black lines to delineate between surface, middle, and
 bottom samples and labels each section of the plot.}
+
+\item{surfacevalue}{numeric argument. The user enters how many meters from the
+surface should be included in the "Surface" category. Default is surfacevalue = 2.}
+
+\item{bottomvalue}{numeric argument. The user enters how many meters from the
+bottom should be included in the "Bottom" category. Default is
+bottomvalue = 2.}
 }
 \value{
 A depth profile plot displaying up to three parameters for a single

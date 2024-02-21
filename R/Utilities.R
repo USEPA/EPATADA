@@ -61,7 +61,8 @@ utils::globalVariables(c(
   "TADA.ConsolidatedDepth.Bottom", "DepthsByGroup", "TADA.DepthProfileAggregation.Flag",
   "N", "SecchiConversion", "YAxis.DepthUnit", "Unique.Identifier", "Domain",
   "Note.Recommendation", "Conversion.Coefficient", "Last.Change.Date", "Value", "Minimum",
-  "Maximum", "TADA.NResults", "MeanResults", "TADA.CharactersticsForDepthProfile"
+  "Maximum", "TADA.NResults", "MeanResults", "TADA.CharacteristicsForDepthProfile",
+  "MonitoringLocationTypeName"
 ))
 
 
