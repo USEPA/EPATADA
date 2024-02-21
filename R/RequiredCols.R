@@ -392,12 +392,21 @@ TADA_AutoFilter <- function(.data) {
     "ActivityTypeCode", "MeasureQualifierCode",
     "TADA.ResultMeasureValueDataTypes.Flag",
     "TADA.ResultMeasureValue", "TADA.ActivityMediaName",
-    "ActivityTypeCode", "TADA.ActivityType.Flag"
+    "ActivityTypeCode"
   ))
 
   # keep track of starting and ending number of rows
   start <- dim(.data)[1]
 
+  # run TADA_FindQCActivities if needed
+  if (("TADA.MeasureQualifierCode.Flag" %in% colnames(.data)) == TRUE) {
+    .data <- .data
+  }
+  
+  if (("TADA.MeasureQualifierCode.Flag" %in% colnames(.data)) == FALSE) {
+    .data <- TADA_FindQCActivities(.data, clean = FALSE, flaggedonly = FALSE)
+  }
+  
   # remove text, NAs and QC results
   .data <- dplyr::filter(.data, TADA.ResultMeasureValueDataTypes.Flag != "Text" &
     TADA.ResultMeasureValueDataTypes.Flag != "NA - Not Available" &
