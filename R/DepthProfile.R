@@ -1182,7 +1182,7 @@ if(length(groups) >= 3 & !param3$TADA.CharacteristicName[1] %in% depth.params) {
 }
 
 # third parameter has a single value where units are depth
-if (length(groups) >= 3 & param3$TADA.CharacteristicName %in% depth.params){
+if (length(groups) >= 3 & param3$TADA.CharacteristicName[1] %in% depth.params){
 
   scatterplot <- scatterplot %>%
     plotly::add_lines(
