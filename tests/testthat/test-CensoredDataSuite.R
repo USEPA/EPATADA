@@ -56,7 +56,6 @@ test_that("TADA_IDCensoredData correctly handles specific text values such as ND
   df3_subset <- dplyr::select(
     df3,
     ActivityTypeCode,
-    TADA.ActivityType.Flag,
     ResultDetectionConditionText,
     CharacteristicName,
     TADA.CharacteristicName,
