@@ -593,9 +593,9 @@ TADA_DepthCategory.Flag <- function(.data, bycategory = "no", bottomvalue = 2, s
  #' @param activity_date The date the depth profile results were collected.
  #'
  #' @param depthcat Boolean argument indicating whether delineation between depth
- #' categories should be shown on the depth profile figure. showcat = TRUE displays
- #' solid black lines to delineate between surface, middle, and bottom samples and
- #' labels each section of the plot.
+ #' categories should be shown on the depth profile figure. depthcat = TRUE is the
+ #' default and displays solid black lines to delineate between surface, middle, and 
+ #' bottom samples and labels each section of the plot.
  #'
  #' @return A depth profile plot displaying up to three parameters for a single
  #' MonitoringLocationIdentifier. Displaying depth categories is optional with the 
@@ -605,9 +605,16 @@ TADA_DepthCategory.Flag <- function(.data, bycategory = "no", bottomvalue = 2, s
  #'
  #' @examples
  #' # Load example dataset:
- #' data(Data_Nutrients_UT)
- #' # Create a single scatterplot with two specified groups from TADA.ComparableDataIdentifier
- #' TADA_DepthProfilePlot(Data_Nutrients_UT, id_cols = "TADA.ComparableDataIdentifier", groups = c("AMMONIA_UNFILTERED_AS N_UG/L", "NITRATE_UNFILTERED_AS N_UG/L"))
+ #' data(Data_6Tribes_5y)
+ #' # Create a depth profile figure with two parameters for a single monitoring location and date
+ #' TADA_DepthProfilePlot(Data_6Tribes_5y, 
+ #'                       id_cols = "TADA.ComparableDataIdentifier", 
+ #'                       groups = c('TEMPERATURE, WATER_NA_NA_DEG C', 'PH_NA_NA_NA', 'DEPTH, SECCHI DISK DEPTH_NA_NA_M'),
+ #'                       location = "REDLAKE_WQX-ANKE",
+ #'                       activity_date = "2018-10-04",
+                       surfacevalue = 2,
+                       bottomvalue = 2,
+                       depthcat = TRUE)
  #'
  #' # Load example dataset:
  #' data(Data_6Tribes_5y_Harmonized)
@@ -864,14 +871,15 @@ TADA_DepthProfilePlot <- function(.data, id_cols = c("TADA.ComparableDataIdentif
           dplyr::mutate(TADA.ConsolidatedDepth.Unit = fig.depth.unit,
                         TADA.ConsolidatedDepth = TADA.ResultMeasureValue * as.numeric(SecchiConversion)) %>%
           dplyr::select(-YAxis.DepthUnit, -SecchiConversion)
+        
+        rm(secchi.conversion, depth.params.string, depth.units, result.units, convert.factor)
       }
     }
 
       profile.data <- depthprofile.avail %>%
         dplyr::full_join(depth.params.avail)
 
-      rm(depth.params.avail, depthprofile.avail, secchi.conversion,
-         depth.params.string, depth.units, result.units, convert.factor)
+      rm(depth.params.avail, depthprofile.avail)
     }
 
 
@@ -1228,7 +1236,8 @@ if (depthcat == TRUE) {
       x = xrange,
       inherit = FALSE,
       showlegend = FALSE,
-      line = list(color = "black"))
+      line = list(color = "black"),
+      hoverinfo = "none")
 
   # find bottom depth
   bot.depth <- plot.data %>%
@@ -1246,7 +1255,8 @@ if (depthcat == TRUE) {
       x = xrange,
       inherit = FALSE,
       showlegend = FALSE,
-      line = list(color = "black"))
+      line = list(color = "black"),
+      hoverinfo = "none")
 
   depth_annotations <- list(
     list(x = 1,
