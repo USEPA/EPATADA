@@ -187,8 +187,6 @@ TADA_DepthCategory.Flag <- function(.data, bycategory = "no", bottomvalue = 2, s
       "TADA.DepthCategory.Flag"
     )
 
-    cat.type
-
     .data <- .data
   }
 
@@ -596,6 +594,13 @@ TADA_DepthCategory.Flag <- function(.data, bycategory = "no", bottomvalue = 2, s
  #' categories should be shown on the depth profile figure. depthcat = TRUE is the
  #' default and displays solid black lines to delineate between surface, middle, and 
  #' bottom samples and labels each section of the plot.
+ #' 
+ #' @param bottomvalue numeric argument. The user enters how many meters from the
+ #' bottom should be included in the "Bottom" category. Default is
+ #' bottomvalue = 2.
+ #'
+ #' @param surfacevalue numeric argument. The user enters how many meters from the
+ #' surface should be included in the "Surface" category. Default is surfacevalue = 2.
  #'
  #' @return A depth profile plot displaying up to three parameters for a single
  #' MonitoringLocationIdentifier. Displaying depth categories is optional with the 
@@ -784,7 +789,7 @@ TADA_DepthProfilePlot <- function(.data, id_cols = c("TADA.ComparableDataIdentif
 
   depth.params.groups <- .data %>%
     dplyr::filter(TADA.CharacteristicName %in% depth.params) %>%
-    dplyr::select(all_of(id_cols)) %>%
+    dplyr::select(dplyr::dplyr::all_of(id_cols)) %>%
     unique()
 
   depthprofile.avail <- .data %>%
@@ -885,8 +890,8 @@ TADA_DepthProfilePlot <- function(.data, id_cols = c("TADA.ComparableDataIdentif
 
   # this subset must include all fields included in plot hover below
   plot.data <- profile.data %>%
-    dplyr::filter(if_any(id_cols, ~.x %in% groups)) %>%
-    dplyr::select(all_of(reqcols), id_cols, "ActivityStartDateTime", "MonitoringLocationName", "TADA.ActivityMediaName", "ActivityMediaSubdivisionName", "ActivityRelativeDepthName", "TADA.CharacteristicName", "TADA.MethodSpeciationName", "TADA.ResultSampleFractionText") %>%
+    dplyr::filter(dplyr::if_any(id_cols, ~.x %in% groups)) %>%
+    dplyr::select(dplyr::all_of(reqcols), id_cols, "ActivityStartDateTime", "MonitoringLocationName", "TADA.ActivityMediaName", "ActivityMediaSubdivisionName", "ActivityRelativeDepthName", "TADA.CharacteristicName", "TADA.MethodSpeciationName", "TADA.ResultSampleFractionText") %>%
     dplyr::mutate(TADA.ResultMeasure.MeasureUnitCode = ifelse(is.na(TADA.ResultMeasure.MeasureUnitCode),
                                                               "NA", TADA.ResultMeasure.MeasureUnitCode))
 
@@ -894,13 +899,13 @@ TADA_DepthProfilePlot <- function(.data, id_cols = c("TADA.ComparableDataIdentif
 
   # break into subsets for each parameter
   param1 <- plot.data %>%
-    dplyr::filter(if_any(id_cols, ~.x %in% groups[1]))
+    dplyr::filter(dplyr::if_any(id_cols, ~.x %in% groups[1]))
 
   param2 <- plot.data %>%
-    dplyr::filter(if_any(id_cols, ~.x %in% groups[2]))
+    dplyr::filter(dplyr::if_any(id_cols, ~.x %in% groups[2]))
 
   param3 <- plot.data %>%
-    dplyr::filter(if_any(id_cols, ~.x %in% groups[3]))
+    dplyr::filter(dplyr::if_any(id_cols, ~.x %in% groups[3]))
 
 # create title for figure, conditional on number of groups/characteristics selected
 
