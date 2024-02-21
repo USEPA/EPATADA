@@ -606,22 +606,22 @@ TADA_DepthCategory.Flag <- function(.data, bycategory = "no", bottomvalue = 2, s
  #' @examples
  #' # Load example dataset:
  #' data(Data_6Tribes_5y)
- #' # Create a depth profile figure with two parameters for a single monitoring location and date
+ #' # Create a depth profile figure with three parameters for a single monitoring location and date
  #' TADA_DepthProfilePlot(Data_6Tribes_5y, 
  #'                       id_cols = "TADA.ComparableDataIdentifier", 
  #'                       groups = c('TEMPERATURE, WATER_NA_NA_DEG C', 'PH_NA_NA_NA', 'DEPTH, SECCHI DISK DEPTH_NA_NA_M'),
  #'                       location = "REDLAKE_WQX-ANKE",
- #'                       activity_date = "2018-10-04",
-                       surfacevalue = 2,
-                       bottomvalue = 2,
-                       depthcat = TRUE)
+ #'                       activity_date = "2018-10-04")
  #'
  #' # Load example dataset:
- #' data(Data_6Tribes_5y_Harmonized)
- #' # Filter the example data so it includes only one TADA.ComparableDataIdentifier
- #' df <- dplyr::filter(Data_6Tribes_5y_Harmonized, TADA.ComparableDataIdentifier == "TOTAL PHOSPHORUS, MIXED FORMS_UNFILTERED_AS P_UG/L")
- #' # Creates a scatterplot including the two specified sites in the same plot:
- #' TADA_TwoCharacteristicScatterplot(df, id_cols = "MonitoringLocationName", groups = c("Upper Red Lake: West", "Upper Red Lake: West-Central"))
+ #' data(Data_6Tribes_5y)
+ #' # Create a depth profile figure with two parameters for a single monitoring location and date without displaying depth categories
+ #' TADA_DepthProfilePlot(Data_6Tribes_5y, 
+ #'                       id_cols = "TADA.ComparableDataIdentifier", 
+ #'                       groups = c('CONDUCTIVITY_NA_NA_US/CM', 'DISSOLVED OXYGEN (DO)_NA_NA_UG/L'),
+ #'                       location = "REDLAKE_WQX-JOHN",
+ #'                       activity_date = "2018-07-31",
+ #'                       depthcat = FALSE)
 
 
 TADA_DepthProfilePlot <- function(.data, id_cols = c("TADA.ComparableDataIdentifier"),
@@ -1182,7 +1182,7 @@ if(length(groups) >= 3 & !param3$TADA.CharacteristicName[1] %in% depth.params) {
 }
 
 # third parameter has a single value where units are depth
-if (param3$TADA.CharacteristicName %in% depth.params){
+if (length(groups) >= 3 & param3$TADA.CharacteristicName %in% depth.params){
 
   scatterplot <- scatterplot %>%
     plotly::add_lines(
