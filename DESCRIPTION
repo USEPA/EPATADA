@@ -71,8 +71,7 @@ Imports:
     leaflet.extras,
     plotly,
     remotes,
-    writexl,
-    httr2
+    writexl
 Depends: 
     R (>= 3.5.0)
 Suggests: 

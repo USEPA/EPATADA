@@ -395,7 +395,6 @@ TADA_OverviewMap <- function(.data) {
       return(leaflet::addLegend(map, colors = colorAdditions, labels = labelAdditions, opacity = opacity, title = "Measurements"))
     }
 
-
     sumdat <- .data %>%
       dplyr::group_by(MonitoringLocationIdentifier, MonitoringLocationName, TADA.LatitudeMeasure, TADA.LongitudeMeasure) %>%
       dplyr::summarise("Sample_Count" = length(unique(ResultIdentifier)), "Visit_Count" = length(unique(ActivityStartDate)), "Parameter_Count" = length(unique(TADA.CharacteristicName)), "Organization_Count" = length(unique(OrganizationIdentifier)))

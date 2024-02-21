@@ -61,7 +61,7 @@ AKAllotmentsUrl = "https://geopub.epa.gov/arcgis/rest/services/EMEF/Tribal/MapSe
 AKVillagesUrl = "https://geopub.epa.gov/arcgis/rest/services/EMEF/Tribal/MapServer/1/query"
 AmericanIndianUrl = "https://geopub.epa.gov/arcgis/rest/services/EMEF/Tribal/MapServer/2/query"
 OffReservationUrl = "https://geopub.epa.gov/arcgis/rest/services/EMEF/Tribal/MapServer/3/query"
-OKTribeUrl = "https://geopub.epa.gov/arcgis/rest/services/EMEF/Tribal/MapServer/4/TADA_RandomStateTestingSet()query"
+OKTribeUrl = "https://geopub.epa.gov/arcgis/rest/services/EMEF/Tribal/MapServer/4/query"
 VATribeUrl = "https://geopub.epa.gov/arcgis/rest/services/EMEF/Tribal/MapServer/5/query"
 
 #' TADA_AutoClean
@@ -927,23 +927,11 @@ getFeatureLayer <- function(url, bbox = NULL) {
   } else {
     inputGeom = getBboxJson(bbox)
   }
-  params <- list(where = "1=1",
-                 outFields = "*",
-                 returnGeometry = "true",
-                 geometry = inputGeom,
-                 f = "geojson")
-  resp <- httr2::request(url) %>%
-    httr2::req_url_query(!!!params) %>%
-    httr2::req_perform()
-  
-  json <- httr2::resp_body_json(resp)
-  if (length(json$features) == 0) {
-    return (NULL)
-  }
-  resp_str <- httr2::resp_body_string(resp)
-  layer <- sf::read_sf(resp_str)
+  url <- paste0(url, "?where=1%3D1&outfields=*&returnGeometry=true&geometry=",inputGeom,"&f=geojson")
+  layer <- sf::read_sf(url)
   return (layer)
 }
+
 
 #' Get text for tribal marker popup
 #' 
@@ -996,7 +984,7 @@ addPolys <- function(map, url, layergroup, layername, bbox = NULL) {
   layer <- getFeatureLayer(url, bbox)
   if (is.null(layer)) {
     return (map)
-  } 
+  }
   lbbox <- sf::st_bbox(layer)
   if (is.na(lbbox[1])) {
     return (map)
@@ -1014,14 +1002,14 @@ addPolys <- function(map, url, layergroup, layername, bbox = NULL) {
       smoothFactor = 0.5,
       opacity = 1.0,
       fillOpacity = 0.2,
-      fillColor = ~ colorQuantile("Oranges", layer[[areaColumn]])(layer[[areaColumn]]),
+      fillColor = ~ leaflet::colorQuantile("Oranges", layer[[areaColumn]])(layer[[areaColumn]]),
       highlightOptions = leaflet::highlightOptions(
         color = "white",
         weight = 2,
         bringToFront = TRUE
       ),
-      popup <- getPopup(layer, layername),
-      group <- layergroup
+      popup = getPopup(layer, layername),
+      group = layergroup
     )
   return (map)
 }
@@ -1061,8 +1049,8 @@ addPoints <- function(map, url, layergroup, layername, bbox = NULL) {
       popupAnchorX = 20,
       popupAnchorY = 0
     ),
-    popup <- getPopup(layer, layername),
-    group <- layergroup
+    popup = getPopup(layer, layername),
+    group = layergroup
   )
   return(map)
 }
