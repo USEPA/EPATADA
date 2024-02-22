@@ -57,13 +57,11 @@ of results available for the characteristic in parentheses.
 # Load dataset
 data(Data_6Tribes_5y)
 
-# find depth profile data, including all aggregate values without showing number of results
-# Data_6Tribs_5y_DepthProfileID <- TADA_DepthCategory.Flag(Data_6Tribes_5y, dailyagg = "avg") \%>\%
-                             TADA_IDDepthProfiles(nresults = FALSE)
+# find depth profile data without showing number of results
+# Data_6Tribs_5y_DepthProfileID <- TADA_IDDepthProfiles(Data_6Tribes_5y, nresults = FALSE)
 
-# find depth profile data, excluding created aggregate values and showing number of results
-# Data_6Tribs_5y_DepthProfileID <- TADA_DepthCategory.Flag(Data_6Tribes_5y, dailyagg = "avg") \%>\%
-                             TADA_IDDepthProfiles()
+# find depth profile data showing number of results
+# Data_6Tribs_5y_DepthProfileID <- TADA_IDDepthProfiles(Data_6Tribes_5y)
 
 
 }
