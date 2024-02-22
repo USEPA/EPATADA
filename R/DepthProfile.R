@@ -455,13 +455,11 @@ TADA_DepthCategory.Flag <- function(.data, bycategory = "no", bottomvalue = 2, s
 #' # Load dataset
 #' data(Data_6Tribes_5y)
 #'
-#' # find depth profile data, including all aggregate values without showing number of results
-#' # Data_6Tribs_5y_DepthProfileID <- TADA_DepthCategory.Flag(Data_6Tribes_5y, dailyagg = "avg") %>%
-#'                              TADA_IDDepthProfiles(nresults = FALSE)
+#' # find depth profile data without showing number of results
+#' # Data_6Tribs_5y_DepthProfileID <- TADA_IDDepthProfiles(Data_6Tribes_5y, nresults = FALSE)
 #'
-#' # find depth profile data, excluding created aggregate values and showing number of results
-#' # Data_6Tribs_5y_DepthProfileID <- TADA_DepthCategory.Flag(Data_6Tribes_5y, dailyagg = "avg") %>%
-#'                              TADA_IDDepthProfiles()
+#' # find depth profile data showing number of results
+#' # Data_6Tribs_5y_DepthProfileID <- TADA_IDDepthProfiles(Data_6Tribes_5y)
 #'
 #'
  TADA_IDDepthProfiles <- function(.data, nresults = TRUE, nvalue = 2, aggregates = FALSE) {
