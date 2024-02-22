@@ -34,6 +34,7 @@ require.cols <- c(
   "TADA.SpeciationConversionFactor",
   "TADA.ComparableDataIdentifier",
   "TADA.Harmonized.Flag",
+  "TADA.UseForAnalysis.Flag",
 
   # Result Time
   "ActivityStartDate", # required
@@ -55,8 +56,8 @@ require.cols <- c(
   "TADA.ResultMeasure.MeasureUnitCode", # generated/required/replaces original
   "TADA.WQXResultUnitConversion", # generated, only added when transform = FALSE in TADA_ConvertResultUnits
   "TADA.WQXTargetUnit", # generated, only added when transform = FALSE in TADA_ConvertResultUnits
-  "Target.TADA.ResultMeasure.MeasureUnitCode", 
-  "Target.TADA.UnitConversionFactor", # generated when 
+  "Target.TADA.ResultMeasure.MeasureUnitCode",
+  "Target.TADA.UnitConversionFactor", # generated when
   "TADA.WQXUnitConversionFactor", # generated, only added when transform = FALSE in TADA_ConvertResultUnits
   "Target.TADA.UnitConversionCoefficient",
   "TADA.UnitConversionFactor", # generated, added from TADA harmonization template
@@ -187,15 +188,7 @@ require.cols <- c(
   "WellDepthMeasure.MeasureValue", # filter
   "WellDepthMeasure.MeasureUnitCode", # filter
   "WellHoleDepthMeasure.MeasureValue", # filter
-  "WellHoleDepthMeasure.MeasureUnitCode", # filter
-
-  "ProviderName", # filter
-  "LastUpdated", # filter
-
-  # Only used in TADA Shiny
-  "TADA.Remove",
-  "TADA.RemovalReason",
-  "TADAShiny.tab"
+  "WellHoleDepthMeasure.MeasureUnitCode" # filter
 )
 
 # ordered list of non-essential columns that can be removed from df
@@ -240,6 +233,13 @@ extra.cols <- c(
   "ContributingDrainageAreaMeasure.MeasureUnitCode"
 )
 
+# Only used in TADA Shiny or should be at the end
+last.cols <- c("ProviderName",
+                "LastUpdated",
+                "TADA.Remove",
+                "TADA.RemovalReason",
+                "TADAShiny.tab")
+
 
 #' Order TADA Columns and Rows
 #'
@@ -274,10 +274,13 @@ TADA_OrderCols <- function(.data) {
   required_cols <- require.cols[require.cols %in% names(.data)]
 
   extra_cols <- extra.cols[extra.cols %in% names(.data)]
+  
+  last_cols <- last.cols[last.cols %in% names(.data)]
 
   rearranged <- .data %>%
-    dplyr::relocate(dplyr::any_of(required_cols)) %>%
-    dplyr::relocate(dplyr::any_of(extra_cols), .after = dplyr::last_col())
+    dplyr::relocate(any_of(required_cols)) %>%
+    dplyr::relocate(any_of(extra_cols), .after = required_cols) %>%
+    dplyr::relocate(any_of(last_cols), .after = extra_cols)
   rearranged <- rearranged[order(rearranged$ResultIdentifier), ]
 
   return(rearranged)
@@ -287,26 +290,24 @@ TADA_OrderCols <- function(.data) {
 
 #' Get TADA spreadsheet template
 #'
-#' This function downloads a .xlsx template with all required columns for TADA
-#' to the user's computer to cater custom datasets to the TADA format.
-#' It contains one sample row to guide users when adding their own data to the
-#' spreadsheet. Please note that it downloads the spreadsheet to the user's current
-#' working directory.
+#' This function returns a blank TADA template data frame that can be used 
+#' as a starting point to reformat your own custom data set into the TADA format.
 #'
-#' @return A .xlsx spreadsheet to be saved in the user's working directory.
+#' @return A TADA template data frame with all required columns for the TADA workflow.
 #'
 #' @export
 #'
 #' @examples
-#' \dontrun{
-#' TADA_GetTemplate()
-#' }
+#' TADA_Template <- TADA_GetTemplate()
 #'
 TADA_GetTemplate <- function() {
-  data(Data_Nutrients_UT)
-  examplerow <- head(Data_Nutrients_UT, 1)
-  examplerow2 <- subset(examplerow, select = names(examplerow) %in% require.cols)
-  writexl::write_xlsx(examplerow2, path = "TADATemplate.xlsx")
+  # remove names with TADA. string from require.cols
+  template_cols = c(require.cols, last.cols)
+  template_cols <- Filter(function(x) !any(grepl("TADA.", x)), template_cols)
+  templatedata = data.frame()
+  templatedata = data.frame(matrix(nrow = 0, ncol = length(template_cols)))
+  colnames(templatedata) = template_cols
+  return(templatedata)
 }
 
 
@@ -390,12 +391,21 @@ TADA_AutoFilter <- function(.data) {
     "ActivityTypeCode", "MeasureQualifierCode",
     "TADA.ResultMeasureValueDataTypes.Flag",
     "TADA.ResultMeasureValue", "TADA.ActivityMediaName",
-    "ActivityTypeCode", "TADA.ActivityType.Flag"
+    "ActivityTypeCode"
   ))
 
   # keep track of starting and ending number of rows
   start <- dim(.data)[1]
 
+  # run TADA_FindQCActivities if needed
+  if (("TADA.MeasureQualifierCode.Flag" %in% colnames(.data)) == TRUE) {
+    .data <- .data
+  }
+  
+  if (("TADA.MeasureQualifierCode.Flag" %in% colnames(.data)) == FALSE) {
+    .data <- TADA_FindQCActivities(.data, clean = FALSE, flaggedonly = FALSE)
+  }
+  
   # remove text, NAs and QC results
   .data <- dplyr::filter(.data, TADA.ResultMeasureValueDataTypes.Flag != "Text" &
     TADA.ResultMeasureValueDataTypes.Flag != "NA - Not Available" &
@@ -489,7 +499,7 @@ TADA_RetainRequired <- function(.data) {
   print("TADA_RetainRequired: removing columns not required for TADA workflow including original columns that have been replaced with TADA prefix duplicates.")
 
   # Create list of all columns to be retained
-  keep.cols <- require.cols
+  keep.cols <- c(require.cols, last.cols)
 
   # create list of all columns in original data set
   original.cols <- .data %>% names()

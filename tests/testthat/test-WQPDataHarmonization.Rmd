@@ -1,7 +1,0 @@
-context("WQPDataHarmonization")
-
-
-test_that("WQPDataHarmonization works as expected", {
-
-
-})

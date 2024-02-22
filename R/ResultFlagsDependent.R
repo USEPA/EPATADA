@@ -630,12 +630,22 @@ TADA_PairReplicates <- function(.data, type = c("QC_replicate"), time_difference
     "ResultIdentifier", "ActivityRelativeDepthName",
     "TADA.LatitudeMeasure", "TADA.LongitudeMeasure",
     "TADA.ResultMeasureValue", "TADA.ComparableDataIdentifier",
-    "TADA.ActivityType.Flag", "TADA.ActivityDepthHeightMeasure.MeasureValue",
+    "TADA.ActivityDepthHeightMeasure.MeasureValue",
     "TADA.ResultDepthHeightMeasure.MeasureValue",
     "TADA.ActivityTopDepthHeightMeasure.MeasureValue",
     "TADA.ActivityBottomDepthHeightMeasure.MeasureValue"
   ))
 
+  # run TADA_FindQCActivities if needed
+  if (("TADA.MeasureQualifierCode.Flag" %in% colnames(.data)) == TRUE) {
+    .data <- .data
+  }
+  
+  if (("TADA.MeasureQualifierCode.Flag" %in% colnames(.data)) == FALSE) {
+    .data <- TADA_FindQCActivities(.data, clean = FALSE, flaggedonly = FALSE)
+  }
+  
+  # execute function after checks are passed
   if ("QC_replicate" %in% type) {
     if (nrow(dplyr::filter(.data, .data$TADA.ActivityType.Flag == "QC_replicate")) == 0) {
       stop("Function not executed because no replicates found in data frame.")
