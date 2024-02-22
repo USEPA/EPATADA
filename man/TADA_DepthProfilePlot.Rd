@@ -6,7 +6,6 @@
 \usage{
 TADA_DepthProfilePlot(
   .data,
-  id_cols = c("TADA.ComparableDataIdentifier"),
   groups = NULL,
   location = NULL,
   activity_date = NULL,
@@ -24,19 +23,10 @@ and TADA.ActivityDepthHeightMeasure.MeasureValue. Units for all depth fields
 must be the same. This can be accomplished using TADA_AutoClean() or
 TADA_ConvertDepthUnits.}
 
-\item{id_cols}{The column in the dataset used to identify the unique groups to
-be plotted. Defaults to 'TADA.ComparableDataIdentifier', which should be
-sufficient for most TADA use cases of this function. This input is flexible,
-however, for the specific use case in the TADAShiny app where a user might
-create groups based on a concatenation of the comparable data identifier
-with other additional grouping variables (e.g. site type, site name, year,
-organization, etc.)}
-
-\item{groups}{A vector of two identifiers from the id_cols column. For
-example, if the id_cols is 'TADA.ComparableDataIdentifier', the groups could
-be 'DISSOLVED OXYGEN (DO)_NA_NA_UG/L' and 'PH_NA_NA_NA'. These groups will
-be specific to your dataset. The TADA_IDDepthProfiles can be used to identify
-available groups.}
+\item{groups}{A vector of two identifiers from the TADA.ComparableDataIdentifier column.
+For example, the groups could be 'DISSOLVED OXYGEN (DO)_NA_NA_UG/L' and 'PH_NA_NA_NA'.
+These groups will be specific to your dataset. The TADA_IDDepthProfiles can be
+used to identify available groups.}
 
 \item{location}{A single MonitoringLocationIdentifier to plot the depth profile.
 A MonitoringLocationIdentifier must be entered or an error will be returned and
@@ -69,7 +59,6 @@ Create A Three-Characteristic Depth Profile
 data(Data_6Tribes_5y)
 # Create a depth profile figure with three parameters for a single monitoring location and date
 TADA_DepthProfilePlot(Data_6Tribes_5y, 
-                      id_cols = "TADA.ComparableDataIdentifier", 
                       groups = c('TEMPERATURE, WATER_NA_NA_DEG C', 'PH_NA_NA_NA', 'DEPTH, SECCHI DISK DEPTH_NA_NA_M'),
                       location = "REDLAKE_WQX-ANKE",
                       activity_date = "2018-10-04")
@@ -78,7 +67,6 @@ TADA_DepthProfilePlot(Data_6Tribes_5y,
 data(Data_6Tribes_5y)
 # Create a depth profile figure with two parameters for a single monitoring location and date without displaying depth categories
 TADA_DepthProfilePlot(Data_6Tribes_5y, 
-                      id_cols = "TADA.ComparableDataIdentifier", 
                       groups = c('CONDUCTIVITY_NA_NA_US/CM', 'DISSOLVED OXYGEN (DO)_NA_NA_UG/L'),
                       location = "REDLAKE_WQX-JOHN",
                       activity_date = "2018-07-31",
