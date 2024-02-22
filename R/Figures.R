@@ -423,14 +423,18 @@ TADA_OverviewMap <- function(.data) {
       domain = sumdat$Parameter_Count
     )
 
-    bbox <- sf::st_bbox(c(xmin = min(sumdat$TADA.LongitudeMeasure),
-                      ymin = min(sumdat$TADA.LatitudeMeasure),
-                      xmax = max(sumdat$TADA.LongitudeMeasure),
-                      ymax = max(sumdat$TADA.LatitudeMeasure)),
-                    crs = sf::st_crs(sumdat))
+    bbox <- sf::st_bbox(
+      c(
+        xmin = min(sumdat$TADA.LongitudeMeasure),
+        ymin = min(sumdat$TADA.LatitudeMeasure),
+        xmax = max(sumdat$TADA.LongitudeMeasure),
+        ymax = max(sumdat$TADA.LatitudeMeasure)
+      ),
+      crs = sf::st_crs(sumdat)
+    )
     vbbox <- bbox %>%
-      as.vector()    
-    
+      as.vector()
+
     map <- leaflet::leaflet() %>%
       leaflet::addProviderTiles("Esri.WorldTopoMap", group = "World topo", options = leaflet::providerTileOptions(updateWhenZooming = FALSE, updateWhenIdle = TRUE)) %>%
       leaflet::clearShapes() %>% # get rid of whatever was there before if loading a second dataset
@@ -470,9 +474,9 @@ TADA_OverviewMap <- function(.data) {
     map <- addPolys(map, OKTribeUrl, "Tribes", "Oklahoma Tribe", bbox)
     map <- addPoints(map, AKVillagesUrl, "Tribes", "Alaska Native Villages", bbox)
     map <- addPoints(map, VATribeUrl, "Tribes", "Virginia Tribe", bbox)
-    map <- addLayersControl(map,
-                            overlayGroups = c("Tribes"),
-                            options = layersControlOptions(collapsed = FALSE)  
+    map <- leaflet::addLayersControl(map,
+      overlayGroups = c("Tribes"),
+      options = leaflet::layersControlOptions(collapsed = FALSE)
     )
     return(map)
   })
