@@ -53,7 +53,10 @@ utils::globalVariables(c(
   "TADA.MeasureQualifierCode.Flag", "TADA.MeasureQualifierCode.Def", "MeasureQualifierCode", "value", "Flag_Column",
   "Data_NCTCShepherdstown_HUC12", "ActivityStartDateTime", "TADA.MultipleOrgDupGroupID",
   "TADA.WQXVal.Flag", "Concat", ".", "MeasureQualifierCode.Split", "TADA.Media.Flag",
-  "TADA.UseForAssessment.Flag"
+  "TADA.UseForAssessment.Flag", "ML.Media.Flag", "TADA.UseForAnalysis.Flag", 
+  "Unique.Identifier", "Domain", "Note.Recommendation", "Conversion.Coefficient", 
+  "Conversion.Coefficient", "Last.Change.Date", "Value", "Minimum", "Unique.Identifier",
+  "Domain"
 ))
 
 # global variables for tribal feature layers used in TADA_OverviewMap in Utilities.R
@@ -907,6 +910,8 @@ pchIcons <- function(pch = 1,
 #' bbox <- sf::st_bbox(c(xmin = min(Data_Nutrients_UT$TADA.LongitudeMeasure), ymin = min(Data_Nutrients_UT$TADA.LatitudeMeasure), xmax = max(Data_Nutrients_UT$TADA.LongitudeMeasure), ymax = max(Data_Nutrients_UT$TADA.LatitudeMeasure)), crs = sf::st_crs(Data_Nutrients_UT))
 #' # Get the American Indian Reservations feature layer, filtered by the bounding box for the Data_Nutrients_UT example dataset
 #' TADA:::getFeatureLayer("https://geopub.epa.gov/arcgis/rest/services/EMEF/Tribal/MapServer/2/query", bbox)
+#' 
+#' @export
 getFeatureLayer <- function(url, bbox = NULL) {
   if (is.null(bbox)) {
     inputGeom <- NULL
@@ -928,7 +933,7 @@ getFeatureLayer <- function(url, bbox = NULL) {
 #'
 #' @examples
 #' # Get the Oklahoma Tribal Statistical Areas feature layer
-#' layer <- getFeatureLayer("https://geopub.epa.gov/arcgis/rest/services/EMEF/Tribal/MapServer/4/query")
+#' layer <- TADA:::getFeatureLayer("https://geopub.epa.gov/arcgis/rest/services/EMEF/Tribal/MapServer/4/query")
 #' # Get popup text for individual markers
 #' TADA:::getPopup(layer, "Oklahoma Tribal Statistical Areas")
 getPopup <- function(layer, layername) {

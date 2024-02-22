@@ -290,26 +290,24 @@ TADA_OrderCols <- function(.data) {
 
 #' Get TADA spreadsheet template
 #'
-#' This function downloads a .xlsx template with all required columns for TADA
-#' to the user's computer to cater custom datasets to the TADA format.
-#' It contains one sample row to guide users when adding their own data to the
-#' spreadsheet. Please note that it downloads the spreadsheet to the user's current
-#' working directory.
+#' This function returns a blank TADA template data frame that can be used 
+#' as a starting point to reformat your own custom data set into the TADA format.
 #'
-#' @return A .xlsx spreadsheet to be saved in the user's working directory.
+#' @return A TADA template data frame with all required columns for the TADA workflow.
 #'
 #' @export
 #'
 #' @examples
-#' \dontrun{
-#' TADA_GetTemplate()
-#' }
+#' TADA_Template <- TADA_GetTemplate()
 #'
 TADA_GetTemplate <- function() {
-  data(Data_Nutrients_UT)
-  examplerow <- utils::head(Data_Nutrients_UT, 1)
-  examplerow2 <- subset(examplerow, select = names(examplerow) %in% require.cols)
-  writexl::write_xlsx(examplerow2, path = "TADATemplate.xlsx")
+  # remove names with TADA. string from require.cols
+  template_cols = c(require.cols, last.cols)
+  template_cols <- Filter(function(x) !any(grepl("TADA.", x)), template_cols)
+  templatedata = data.frame()
+  templatedata = data.frame(matrix(nrow = 0, ncol = length(template_cols)))
+  colnames(templatedata) = template_cols
+  return(templatedata)
 }
 
 

@@ -381,9 +381,9 @@ TADA_Histogram <- function(.data, id_cols = c("TADA.ComparableDataIdentifier")) 
 #' data(Data_6Tribes_5y_Harmonized)
 #'
 #' # Create maps:
-#' TADA_OverviewMap(Data_Nutrients_UT)
-#' TADA_OverviewMap(Data_NCTCShepherdstown_HUC12)
-#' TADA_OverviewMap(Data_6Tribes_5y_Harmonized)
+#' TADA:::TADA_OverviewMap(Data_Nutrients_UT)
+#' TADA:::TADA_OverviewMap(Data_NCTCShepherdstown_HUC12)
+#' TADA:::TADA_OverviewMap(Data_6Tribes_5y_Harmonized)
 #'
 TADA_OverviewMap <- function(.data) {
   suppressWarnings({

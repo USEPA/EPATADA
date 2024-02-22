@@ -243,42 +243,41 @@ TADA_FieldValuesTable <- function(.data, field = "null", characteristicName = "n
 
 #' TADA_AnalysisDataFilter
 #'
-#' This function will filter the data set and retain only the media types
+#' This function will filter the data frame and retain only the media types
 #' selected by the user. It uses ActivityMediaSubdivisionName, AquiferName, 
-#' LocalAqfrName,ConstructionDateText, WellDepthMeasure.MeasureValue,
+#' LocalAqfrName, ConstructionDateText, WellDepthMeasure.MeasureValue,
 #' WellDepthMeasure.MeasureUnitCode, WellHoleDepthMeasure.MeasureValue, and
 #' WellHoleDepthMeasure.MeasureUnitCode to identify groundwater samples. Users 
-#' can select whether sediment, groundwater and/or surface water should be included. in the data set. An 
-#' An additional column, TADA.AssessmentData.Flag, specifies whether each row should 
+#' can select whether sediment, groundwater and/or surface water should be included. 
+#' An additional column, TADA.UseForAnalysis.Flag, specifies whether each row should 
 #' be included in the analysis workflow and why. Setting clean = TRUE, means
-#' that all results not flagged for use in assessment workflow will be removed 
-#' and the TADA.AssessmentData.Flag column will not be added.
+#' that all results not flagged for use in the analysis workflow will be removed 
+#' and the ADA.UseForAnalysis.Flag column will not be added.
 #' 
-#'
 #' @param .data A TADA profile object
 #' 
 #' @param clean Boolean argument; TRUE removes all results not flagged for use in
-#' analysis workflow. TADA.UseForAnalysis columns displaying the media type (as
+#' analysis workflow. TADA.UseForAnalysis.Flag column displaying the media type (as
 #' determined by this function) and "Yes"/"No" will be added when clean = FALSE.
 #' Results flagged "Yes" are identified as usable for further analysis. Default = FALSE.
 #' 
 #' @param surface_water Boolean argument; specifies whether surface water
-#' results should be included in the returned data frame. Default is 
+#' results should be flagged or removed in the returned data frame. Default is 
 #' surface_water = TRUE, surface water results are identified as usable for analysis.
 #' 
 #' @param ground_water Boolean argument; specifies whether ground water
-#' results should be included in the returned data frame. Default is 
+#' results should be flagged or removed in the returned data frame. Default is 
 #' ground_water = FALSE, ground water results are identified as not usable for analysis.
 #' 
 #' @param sediment Boolean argument; specifies whether sediment results should 
-#' be included in the returned data frame. Default is sediment = FALSE, 
+#' be flagged or removed in the returned data frame. Default is sediment = FALSE, 
 #' sediment results are identified as not usable for analysis.
 #' 
 #' @return If clean = TRUE, returns the data frame with only the media types
-#' selected by the user. If clean = FALSE, returns the data frame an
-#' additional column, TADA.UseForAnalysis.Flag, indicating the media type (as
-#' determined by this function) and which results should be included or excluded
-#' from assessments based on user input.
+#' selected as usable (set to TRUE in function input) by the user. 
+#' If clean = FALSE, returns the data frame and an additional column, 
+#' TADA.UseForAnalysis.Flag, indicating the media type (as determined by this function)
+#' and which results should be included or excluded from assessments based on user input.
 #' 
 #' @export
 #' 
