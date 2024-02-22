@@ -248,46 +248,46 @@ TADA_FieldValuesTable <- function(.data, field = "null", characteristicName = "n
 #' LocalAqfrName,ConstructionDateText, WellDepthMeasure.MeasureValue,
 #' WellDepthMeasure.MeasureUnitCode, WellHoleDepthMeasure.MeasureValue, and
 #' WellHoleDepthMeasure.MeasureUnitCode to identify groundwater samples. Users 
-#' can select whether sediment, fish tissue and/or surface water should be included. in the data set. An 
+#' can select whether sediment, groundwater and/or surface water should be included. in the data set. An 
 #' An additional column, TADA.AssessmentData.Flag, specifies whether each row should 
-#' be included in the assessment workflow and why. Setting clean = TRUE, means
+#' be included in the analysis workflow and why. Setting clean = TRUE, means
 #' that all results not flagged for use in assessment workflow will be removed 
 #' and the TADA.AssessmentData.Flag column will not be added.
 #' 
 #'
 #' @param .data A TADA profile object
 #' 
-#' @param clean Boolean argument; removes all results not flagged for use in
-#' assessment workflow. TADA.Media.Flag and TADA.AssessmentData.Flag 
-#' columns will not be added. Default is clean = FALSE.
+#' @param clean Boolean argument; TRUE removes all results not flagged for use in
+#' analysis workflow. TADA.UseForAnalysis columns displaying the media type (as
+#' determined by this function) and "Yes"/"No" will be added when clean = FALSE.
+#' Results flagged "Yes" are identified as usable for further analysis. Default = FALSE.
 #' 
 #' @param surface_water Boolean argument; specifies whether surface water
 #' results should be included in the returned data frame. Default is 
-#' surface_water = TRUE, surface water samples are retained in the data frame.
+#' surface_water = TRUE, surface water results are identified as usable for analysis.
 #' 
 #' @param ground_water Boolean argument; specifies whether ground water
 #' results should be included in the returned data frame. Default is 
-#' ground_water = FALSE, ground water samples are not retained in the data 
-#' frame.
+#' ground_water = FALSE, ground water results are identified as not usable for analysis.
 #' 
 #' @param sediment Boolean argument; specifies whether sediment results should 
 #' be included in the returned data frame. Default is sediment = FALSE, 
-#' sediment samples are not retained in the data frame.
+#' sediment results are identified as not usable for analysis.
 #' 
 #' @return If clean = TRUE, returns the data frame with only the media types
-#' selected by the user. If clean = FALSE, returns the data frame with two
-#' additional columns, "TADA.Media.Flag" and "TADA.AssessmentData.Flag",
-#' indicating which results should be excluded from assessments based on user
-#' input.
+#' selected by the user. If clean = FALSE, returns the data frame an
+#' additional column, TADA.UseForAnalysis.Flag, indicating the media type (as
+#' determined by this function) and which results should be included or excluded
+#' from assessments based on user input.
 #' 
 #' @export
 #' 
 #' @examples
 #' data(Data_6Tribes_5y_Harmonized)
-#' # Returns clean data frame with ONLY surface water results retained and no TADA.UseForAnalysis.Flag column
+#' # Returns data with ONLY surface water results retained and no TADA.UseForAnalysis.Flag column
 #' Data_6Tribes_Assessment1 <- TADA_AnalysisDataFilter(Data_6Tribes_5y_Harmonized, clean = TRUE, surface_water = TRUE, ground_water = FALSE, sediment = FALSE)
 #' 
-#' # Returns data frame with ONLY surface water results and adds TADA.UseForAnalysis.Flag column.
+#' # Returns data frame with ONLY surface water results identified as usable and adds TADA.UseForAnalysis.Flag column.
 #' Data_6Tribes_Assessment2 <- TADA_AnalysisDataFilter(Data_6Tribes_5y_Harmonized, clean = FALSE, surface_water = TRUE, ground_water = FALSE, sediment = FALSE)
 #' 
 
@@ -296,7 +296,7 @@ TADA_AnalysisDataFilter <- function(.data,
                                     surface_water = TRUE,
                                     ground_water = FALSE,
                                     sediment = FALSE) {
-  
+
   # *Need to add fish tissue to this function once new WQX profiles are available.
   # (HRM, 1/22/4)
    
@@ -324,16 +324,15 @@ TADA_AnalysisDataFilter <- function(.data,
     # add TADA.Media.Flag for additional rows based on MonitoringLocationTypeName
     dplyr::left_join(sw.sitetypes, by = "MonitoringLocationTypeName") %>%
     dplyr::mutate(TADA.Media.Flag = ifelse(is.na(TADA.Media.Flag),
-                                                 ML.Media.Flag, TADA.Media.Flag)) %>%
+                                                 ML.Media.Flag, TADA.Media.Flag),
+                  TADA.Media.Flag = toupper(TADA.Media.Flag)) %>%
     dplyr::select(-ML.Media.Flag)
   
   print("TADA_AnalysisDataFilter: Identifying groundwater results.")
   
   if (surface_water == TRUE) {
     
-    sur.water.data <- .data %>%
-      dplyr::filter(TADA.Media.Flag == "Surface Water") %>%
-      dplyr::mutate(TADA.UseForAnalysis.Flag = "Yes")
+  sur.water.flag <- "Yes"
     
     print("TADA_AnalysisDataFilter: Flagging surface water results to include in assessments.")
     
@@ -341,9 +340,7 @@ TADA_AnalysisDataFilter <- function(.data,
   
   if (surface_water == FALSE) {
     
-    sur.water.data <- .data %>%
-      dplyr::filter(TADA.Media.Flag == "Surface Water") %>%
-      dplyr::mutate(TADA.UseForAnalysis.Flag = "No")
+    sur.water.flag <- "Yes"
     
     print("TADA_AnalysisDataFilter: Flagging surface water results to exclude from assessments.")
     
@@ -352,9 +349,7 @@ TADA_AnalysisDataFilter <- function(.data,
   
   if (ground_water == TRUE) {
     
-    gr.water.data <- .data %>%
-      dplyr::filter(TADA.Media.Flag == "Groundwater") %>%
-      dplyr::mutate(TADA.UseForAnalysis.Flag = "Yes")
+    gr.water.flag <- "Yes"
     
     print("TADA_AnalysisDataFilter: Flagging groundwater results to include in assessments.")
     
@@ -362,27 +357,24 @@ TADA_AnalysisDataFilter <- function(.data,
   }
   
   if (ground_water == FALSE) {
-    gr.water.data <- .data %>%
-      dplyr::filter(TADA.Media.Flag == "Groundwater") %>%
-      dplyr::mutate(TADA.UseForAnalysis.Flag = "No")
+   
+    gr.water.flag <- "No"
     
     print("TADA_AnalysisDataFilter: Flagging groundwater results to exclude from assessments.")
     
   }
   
   if (sediment == TRUE) {
-    sed.data <- .data %>%
-      dplyr::filter(ActivityMediaName %in% c("SEDIMENT", "Sediment", "sediment")) %>%
-      dplyr::mutate(TADA.UseForAnalysis.Flag = "Yes")
+    
+    sed.flag <- "Yes"
     
     print("TADA_AnalysisDataFilter: Flagging sediment results to include in assessments.")
     
   }
   
   if (sediment == FALSE) {
-    sed.data <- .data %>%
-      dplyr::filter(ActivityMediaName %in% c("SEDIMENT", "Sediment", "sediment")) %>%
-      dplyr::mutate(TADA.UseForAnalysis.Flag = "No")
+    
+    sed.flag <- "No"
     
     print("TADA_AnalysisDataFilter: Flagging sediment results to exclude from assessments.")
     
@@ -390,49 +382,39 @@ TADA_AnalysisDataFilter <- function(.data,
   
   if (clean == TRUE) {
     
-    assessment.data <- sur.water.data %>%
-      suppressMessages(dplyr::full_join(gr.water.data)) %>%
-      suppressMessages(dplyr::full_join(sed.data)) %>%
-      dplyr::filter(TADA.UseForAnalysis.Flag == "Yes") %>%
-      dplyr::select(-TADA.UseForAnalysis.Flag, -TADA.Media.Flag) %>%
+    .data <- .data %>%
+      dplyr::mutate(TADA.UseForAnalysis.Flag = dplyr::case_when(
+        TADA.Media.Flag == "SEDIMENT" ~ paste(sed.flag, " - ", TADA.Media.Flag, sep = ""),
+        TADA.Media.Flag == "SURFACE WATER" ~ paste(sur.water.flag, " - ", TADA.Media.Flag, sep = ""),
+        TADA.Media.Flag == "GROUNDWATER" ~ paste(gr.water.flag, " - ", TADA.Media.Flag, sep = ""),
+        is.na(TADA.Media.Flag) ~ "No - OTHER",
+        !TADA.Media.Flag %in% c("SEDIMENT", "SURFACE WATER", "GROUNDWATER", "OTHER") ~ paste("No - ", TADA.Media.Flag, sep = "")
+      )) %>%
+      dplyr::filter(stringr::str_detect(TADA.UseForAnalysis.Flag, "Yes")) %>%
+      dplyr::select(-TADA.UseForAnalysis.Flag) %>%
       TADA_OrderCols()
-    
-    rm(sur.water.data, gr.water.data, sed.data)
     
     print("TADA_AnalysisDataFilter: Removing results flagged for exclusion from assessments.")
     
-    return(assessment.data)
+    return(.data)
     
     
   }
   
   if (clean == FALSE) {
     
-    assessment.data <- sur.water.data %>%
-      suppressMessages(dplyr::full_join(gr.water.data)) %>%
-      suppressMessages(dplyr::full_join(sed.data)) %>%
-      dplyr::mutate(TADA.UseForAnalysis.Flag = paste(TADA.UseForAnalysis.Flag, " - ", toupper(TADA.Media.Flag), sep = ""))
-    
-    assessment.list <- assessment.data %>%
-      dplyr::select(ResultIdentifier) %>%
-      dplyr::pull()
-    
-    other.data <- .data %>%
-      dplyr::filter(!ResultIdentifier %in% assessment.list) %>%
-      dplyr::mutate(TADA.Media.Flag = ifelse(TADA.Media.Flag == "" | is.na(TADA.Media.Flag), "OTHER", TADA.Media.Flag),
-                    TADA.UseForAnalysis.Flag = "No",
-                    TADA.UseForAnalysis.Flag = paste(TADA.UseForAnalysis.Flag, " - ", toupper(TADA.Media.Flag), sep = ""))
-    
-    all.data <- assessment.data %>%
-      suppressMessages(dplyr::full_join(other.data)) %>%
-      dplyr::select(-TADA.Media.Flag) %>%
+    .data <- .data %>%
+      dplyr::mutate(TADA.UseForAnalysis.Flag = dplyr::case_when(
+        TADA.Media.Flag == "SEDIMENT" ~ paste(sed.flag, " - ", TADA.Media.Flag, sep = ""),
+        TADA.Media.Flag == "SURFACE WATER" ~ paste(sur.water.flag, " - ", TADA.Media.Flag, sep = ""),
+        TADA.Media.Flag == "GROUNDWATER" ~ paste(gr.water.flag, " - ", TADA.Media.Flag, sep = ""),
+        is.na(TADA.Media.Flag) ~ "No - OTHER",
+        !TADA.Media.Flag %in% c("SEDIMENT", "SURFACE WATER", "GROUNDWATER", "OTHER") ~ paste("No - ", TADA.Media.Flag, sep = ""))) %>%
       TADA_OrderCols()
       
     
-    rm(sur.water.data, gr.water.data, sed.data, assessment.data, assessment.list)
-    
     print("TADA_AnalysisDataFilter: Returning all results with TADA.UseForAnalysis.Flag column indicating if result should be used for assessments.")
     
-    return(all.data)
+    return(.data)
   }
 }
