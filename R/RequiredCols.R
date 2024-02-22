@@ -34,6 +34,7 @@ require.cols <- c(
   "TADA.SpeciationConversionFactor",
   "TADA.ComparableDataIdentifier",
   "TADA.Harmonized.Flag",
+  "TADA.UseForAnalysis.Flag",
 
   # Result Time
   "ActivityStartDate", # required

@@ -389,7 +389,8 @@ TADA_AnalysisDataFilter <- function(.data,
         !TADA.Media.Flag %in% c("SEDIMENT", "SURFACE WATER", "GROUNDWATER", "OTHER") ~ paste("No - ", TADA.Media.Flag, sep = "")
       )) %>%
       dplyr::filter(stringr::str_detect(TADA.UseForAnalysis.Flag, "Yes")) %>%
-      dplyr::select(-TADA.UseForAnalysis.Flag)
+      dplyr::select(-TADA.UseForAnalysis.Flag) %>%
+      TADA_OrderCols()
     
     print("TADA_AnalysisDataFilter: Removing results flagged for exclusion from assessments.")
     
@@ -406,7 +407,8 @@ TADA_AnalysisDataFilter <- function(.data,
         TADA.Media.Flag == "SURFACE WATER" ~ paste(sur.water.flag, " - ", TADA.Media.Flag, sep = ""),
         TADA.Media.Flag == "GROUNDWATER" ~ paste(gr.water.flag, " - ", TADA.Media.Flag, sep = ""),
         is.na(TADA.Media.Flag) ~ "No - OTHER",
-        !TADA.Media.Flag %in% c("SEDIMENT", "SURFACE WATER", "GROUNDWATER", "OTHER") ~ paste("No - ", TADA.Media.Flag, sep = "")))
+        !TADA.Media.Flag %in% c("SEDIMENT", "SURFACE WATER", "GROUNDWATER", "OTHER") ~ paste("No - ", TADA.Media.Flag, sep = ""))) %>%
+      TADA_OrderCols()
       
     
     print("TADA_AnalysisDataFilter: Returning all results with TADA.UseForAnalysis.Flag column indicating if result should be used for assessments.")
