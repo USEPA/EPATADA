@@ -399,7 +399,7 @@ TADA_OverviewMap <- function(.data) {
       dplyr::group_by(MonitoringLocationIdentifier, MonitoringLocationName, TADA.LatitudeMeasure, TADA.LongitudeMeasure) %>%
       dplyr::summarise("Sample_Count" = length(unique(ResultIdentifier)), "Visit_Count" = length(unique(ActivityStartDate)), "Parameter_Count" = length(unique(TADA.CharacteristicName)), "Organization_Count" = length(unique(OrganizationIdentifier)))
 
-    pt_sizes <- round(quantile(sumdat$Sample_Count, probs = c(0.1, 0.25, 0.5, 0.75)), 0)
+    pt_sizes <- round(stats::quantile(sumdat$Sample_Count, probs = c(0.1, 0.25, 0.5, 0.75)), 0)
     pt_labels <- c(
       paste0("<=", pt_sizes[1]),
       paste0(">", pt_sizes[1]),
@@ -471,13 +471,13 @@ TADA_OverviewMap <- function(.data) {
         colors = "black",
         labels = site_legend$Sample_n, sizes = site_legend$Point_size * 2
       )
-    # addPolys and addPoints are in Utilities.R
-    map <- addPolys(map, AKAllotmentsUrl, "Tribes", "Alaska Allotments", bbox)
-    map <- addPolys(map, AmericanIndianUrl, "Tribes", "American Indian", bbox)
-    map <- addPolys(map, OffReservationUrl, "Tribes", "Off Reservation", bbox)
-    map <- addPolys(map, OKTribeUrl, "Tribes", "Oklahoma Tribe", bbox)
-    map <- addPoints(map, AKVillagesUrl, "Tribes", "Alaska Native Villages", bbox)
-    map <- addPoints(map, VATribeUrl, "Tribes", "Virginia Tribe", bbox)
+    # TADA_addPolys and TADA_addPoints are in Utilities.R
+    map <- TADA_addPolys(map, AKAllotmentsUrl, "Tribes", "Alaska Allotments", bbox)
+    map <- TADA_addPolys(map, AmericanIndianUrl, "Tribes", "American Indian", bbox)
+    map <- TADA_addPolys(map, OffReservationUrl, "Tribes", "Off Reservation", bbox)
+    map <- TADA_addPolys(map, OKTribeUrl, "Tribes", "Oklahoma Tribe", bbox)
+    map <- TADA_addPoints(map, AKVillagesUrl, "Tribes", "Alaska Native Villages", bbox)
+    map <- TADA_addPoints(map, VATribeUrl, "Tribes", "Virginia Tribe", bbox)
     map <- leaflet::addLayersControl(map,
       overlayGroups = c("Tribes"),
       options = leaflet::layersControlOptions(collapsed = FALSE)

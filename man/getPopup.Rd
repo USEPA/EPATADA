@@ -3,7 +3,7 @@
 \name{getPopup}
 \alias{getPopup}
 \title{Get text for tribal marker popup
-getPopup is used within addPolys and addPoints}
+getPopup is used within TADA_addPolys and TADA_addPoints}
 \usage{
 getPopup(layer, layername)
 }
@@ -17,7 +17,7 @@ Vector of strings to be used as the text for the popups when clicking on a triba
 }
 \description{
 Get text for tribal marker popup
-getPopup is used within addPolys and addPoints
+getPopup is used within TADA_addPolys and TADA_addPoints
 }
 \examples{
 # Get the Oklahoma Tribal Statistical Areas feature layer

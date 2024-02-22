@@ -3,7 +3,7 @@
 \name{pchIcons}
 \alias{pchIcons}
 \title{Create icon(s) to be used to represent points on a map feature layer
-pchIcons is used within addPoints}
+pchIcons is used within TADA_addPoints}
 \usage{
 pchIcons(
   pch = 1,

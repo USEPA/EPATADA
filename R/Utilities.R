@@ -860,7 +860,7 @@ getBboxJson <- function(bbox) {
 }
 
 #' Create icon(s) to be used to represent points on a map feature layer
-#' pchIcons is used within addPoints
+#' pchIcons is used within TADA_addPoints
 #'
 #' Uses the different plotting symbols available in R to create PNG files that can be used as markers on a map feature layer.
 #'
@@ -885,14 +885,14 @@ pchIcons <- function(pch = 1,
   files <- character(n)
   for (i in seq_len(n)) {
     f <- tempfile(fileext = ".png")
-    png(f,
+    grDevices::png(f,
       width = width,
       height = height,
       bg = bg
     )
-    par(mar = c(0, 0, 0, 0))
-    plot.new()
-    points(
+    graphics::par(mar = c(0, 0, 0, 0))
+    graphics::plot.new()
+    graphics::points(
       .5,
       .5,
       pch = pch[i],
@@ -900,14 +900,14 @@ pchIcons <- function(pch = 1,
       cex = min(width, height) / 8,
       lwd = lwd
     )
-    dev.off()
+    grDevices::dev.off()
     files[i] <- f
   }
   files
 }
 
 #' Retrieve feature layer from ArcGIS REST service
-#' getFeatureLayer is used within addPolys and addPoints
+#' getFeatureLayer is used within TADA_addPolys and TADA_addPoints
 #'
 #' @param url URL of the layer REST service, ending with "/query". Example: https://geopub.epa.gov/arcgis/rest/services/EMEF/Tribal/MapServer/2/query (American Indian Reservations)
 #' @param bbox A bounding box from the sf function st_bbox; used to filter the query results. Optional; defaults to NULL.
@@ -933,7 +933,7 @@ getFeatureLayer <- function(url, bbox = NULL) {
 
 
 #' Get text for tribal marker popup
-#' getPopup is used within addPolys and addPoints
+#' getPopup is used within TADA_addPolys and TADA_addPoints
 #'
 #' @param layer A map feature layer
 #' @param layername Name of the layer
@@ -975,9 +975,11 @@ getPopup <- function(layer, layername) {
 #' # Create a leaflet map
 #' lmap <- leaflet::leaflet() %>% leaflet::addProviderTiles("Esri.WorldTopoMap", group = "World topo")
 #' # Add the American Indian Reservations feature layer to the map
-#' lmap <- addPolys(lmap, "https://geopub.epa.gov/arcgis/rest/services/EMEF/Tribal/MapServer/2/query", "Tribes", "American Indian Reservations")
+#' lmap <- TADA_addPolys(lmap, "https://geopub.epa.gov/arcgis/rest/services/EMEF/Tribal/MapServer/2/query", "Tribes", "American Indian Reservations")
 #' lmap
-addPolys <- function(map, url, layergroup, layername, bbox = NULL) {
+#' 
+#' @export
+TADA_addPolys <- function(map, url, layergroup, layername, bbox = NULL) {
   layer <- getFeatureLayer(url, bbox)
   if (is.null(layer)) {
     return(map)
@@ -1024,9 +1026,11 @@ addPolys <- function(map, url, layergroup, layername, bbox = NULL) {
 #' # Create a leaflet map
 #' lmap <- leaflet::leaflet() %>% leaflet::addProviderTiles("Esri.WorldTopoMap", group = "World topo")
 #' # Add the Virginia Federally Recognized Tribes feature layer to the map
-#' lmap <- addPoints(lmap, "https://geopub.epa.gov/arcgis/rest/services/EMEF/Tribal/MapServer/5/query", "Tribes", "Virginia Federally Recognized Tribes")
+#' lmap <- TADA_addPoints(lmap, "https://geopub.epa.gov/arcgis/rest/services/EMEF/Tribal/MapServer/5/query", "Tribes", "Virginia Federally Recognized Tribes")
 #' lmap
-addPoints <- function(map, url, layergroup, layername, bbox = NULL) {
+#' 
+#' @export
+TADA_addPoints <- function(map, url, layergroup, layername, bbox = NULL) {
   layer <- getFeatureLayer(url, bbox)
   if (is.null(layer)) {
     return(map)

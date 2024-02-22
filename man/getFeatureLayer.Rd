@@ -3,7 +3,7 @@
 \name{getFeatureLayer}
 \alias{getFeatureLayer}
 \title{Retrieve feature layer from ArcGIS REST service
-getFeatureLayer is used within addPolys and addPoints}
+getFeatureLayer is used within TADA_addPolys and TADA_addPoints}
 \usage{
 getFeatureLayer(url, bbox = NULL)
 }
@@ -17,7 +17,7 @@ ArcGIS feature layer
 }
 \description{
 Retrieve feature layer from ArcGIS REST service
-getFeatureLayer is used within addPolys and addPoints
+getFeatureLayer is used within TADA_addPolys and TADA_addPoints
 }
 \examples{
 # Load example dataset

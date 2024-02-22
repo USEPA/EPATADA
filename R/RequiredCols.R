@@ -304,7 +304,7 @@ TADA_OrderCols <- function(.data) {
 #'
 TADA_GetTemplate <- function() {
   data(Data_Nutrients_UT)
-  examplerow <- head(Data_Nutrients_UT, 1)
+  examplerow <- utils::head(Data_Nutrients_UT, 1)
   examplerow2 <- subset(examplerow, select = names(examplerow) %in% require.cols)
   writexl::write_xlsx(examplerow2, path = "TADATemplate.xlsx")
 }
