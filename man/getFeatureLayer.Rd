@@ -21,7 +21,7 @@ Retrieve feature layer from ArcGIS REST service
 # Load example dataset
 data(Data_Nutrients_UT)
 # Get the bounding box of the data
-bbox <- st_bbox(c(xmin = min(Data_Nutrients_UT$TADA.LongitudeMeasure),ymin = min(Data_Nutrients_UT$TADA.LatitudeMeasure),xmax = max(Data_Nutrients_UT$TADA.LongitudeMeasure),ymax = max(Data_Nutrients_UT$TADA.LatitudeMeasure)),crs = sf::st_crs(Data_Nutrients_UT))
+bbox <- st_bbox(c(xmin = min(Data_Nutrients_UT$TADA.LongitudeMeasure), ymin = min(Data_Nutrients_UT$TADA.LatitudeMeasure), xmax = max(Data_Nutrients_UT$TADA.LongitudeMeasure), ymax = max(Data_Nutrients_UT$TADA.LatitudeMeasure)), crs = sf::st_crs(Data_Nutrients_UT))
 # Get the American Indian Reservations feature layer, filtered by the bounding box for the Data_Nutrients_UT example dataset
 getFeatureLayer("https://geopub.epa.gov/arcgis/rest/services/EMEF/Tribal/MapServer/2/query", bbox)
 }

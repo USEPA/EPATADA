@@ -369,8 +369,8 @@ TADA_Histogram <- function(.data, id_cols = c("TADA.ComparableDataIdentifier")) 
 #' @return A leaflet map that shows all sites in the data frame, where larger point sizes
 #' indicate more results collected at a site, and darker point colors indicate more
 #' characteristics measured at that site. Users can click on points on the map to see
-#' a pop-up window with exact counts for measurements, visits, and characteristics
-#' associated with each site.
+#' a pop-up window with exact counts for measurements (i.e. number of rows),
+#' visits (number of unique Activity ID's), and characteristics associated with each site.
 #'
 #' @export
 #'
@@ -423,6 +423,9 @@ TADA_OverviewMap <- function(.data) {
       domain = sumdat$Parameter_Count
     )
 
+    # Tribal layers will load by default in the overview map, restricted by the bounding box of the current dataset
+    # They can be toggled on and off using a button (all layers work together and can't be turned on/off individually). 
+    # Colors and icons are as discussed previously (orange/tan colors and open triangle icons for points) but can be changed to match HMW if desired.
     bbox <- sf::st_bbox(
       c(
         xmin = min(sumdat$TADA.LongitudeMeasure),
