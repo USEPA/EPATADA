@@ -160,12 +160,21 @@ TADA_DataRetrieval <- function(startDate = "null",
                                project = "null",
                                providers = "null",
                                applyautoclean = TRUE) {
-  # Set query parameters
+ 
+   # Set query parameters
   WQPquery <- list()
-  if (length(statecode) > 1) {
-    WQPquery <- c(WQPquery, statecode = list(statecode))
-  } else if (statecode != "null") {
-    WQPquery <- c(WQPquery, statecode = statecode)
+  
+  if (!"null" %in% statecode) {
+    load(system.file("extdata", "statecodes_df.Rdata", package = "TADA"))
+    statecode <- as.character(statecode)
+    statecodes_sub <- statecodes_df %>% dplyr::filter(STUSAB %in% statecode)
+    statecd <- paste0("US:", statecodes_sub$STATE)
+    if (nrow(statecodes_sub) == 0) {
+      stop("State code is not valid. Check FIPS state/territory abbreviations.")
+    }
+    if (length(statecode) > 1) {
+      WQPquery <- c(WQPquery, statecode = statecd)
+    }
   }
 
   if (length(huc) > 1) {
