@@ -6,7 +6,7 @@
 \usage{
 TADA_AnalysisDataFilter(
   .data,
-  clean = TRUE,
+  clean = FALSE,
   surface_water = TRUE,
   ground_water = FALSE,
   sediment = FALSE
@@ -15,29 +15,29 @@ TADA_AnalysisDataFilter(
 \arguments{
 \item{.data}{A TADA profile object}
 
-\item{clean}{Boolean argument; removes all results not flagged for use in
-assessment workflow. TADA.Media.Flag and TADA.AssessmentData.Flag
-columns will not be added Default is clean = TRUE.}
+\item{clean}{Boolean argument; TRUE removes all results not flagged for use in
+assessment workflow. TADA.UseForAnalysis columns displaying the media type (as
+determined by this function) and "Yes"/"No" will be added when clean = FALSE.
+Results flagged "Yes" are identified as usable for further analysis. Default = FALSE.}
 
 \item{surface_water}{Boolean argument; specifies whether surface water
 results should be included in the returned data frame. Default is
-surface_water = TRUE, surface water samples are retained in the data frame.}
+surface_water = TRUE, surface water results are identified as usable for analysis.}
 
 \item{ground_water}{Boolean argument; specifies whether ground water
 results should be included in the returned data frame. Default is
-ground_water = FALSE, ground water samples are  not retained in the data
-frame.}
+ground_water = FALSE, ground water results are identified as not usable for analysis.}
 
 \item{sediment}{Boolean argument; specifies whether sediment results should
 be included in the returned data frame. Default is sediment = FALSE,
-sediment samples are not retained in the data frame.}
+sediment results are identified as not usable for analysis.}
 }
 \value{
 If clean = TRUE, returns the data frame with only the media types
-selected by the user. If clean = FALSE, returns the data frame with two
-additional columns, "TADA.Media.Flag" and "TADA.AssessmentData.Flag",
-indicating which results should be excluded from assessments based on user
-input.
+selected by the user. If clean = FALSE, returns the data frame an
+additional column, TADA.UseForAnalysis.Flag, indicating the media type (as
+determined by this function) and which results should be included or excluded
+from assessments based on user input.
 }
 \description{
 This function will filter the data set and retain only the media types
