@@ -801,8 +801,9 @@ TADA_DepthProfilePlot <- function(.data, groups = NULL,
 
   depth.params.groups <- .data %>%
     dplyr::filter(TADA.CharacteristicName %in% depth.params) %>%
-    dplyr::select(dplyr::all_of(TADA.ComparableDataIdentifier)) %>%
-    unique()
+    dplyr::select(TADA.ComparableDataIdentifier) %>%
+    unique() %>%
+    dplyr::pull()
 
   depthprofile.avail <- .data %>%
     dplyr::filter(!is.na(TADA.ConsolidatedDepth),
@@ -830,8 +831,8 @@ TADA_DepthProfilePlot <- function(.data, groups = NULL,
 
   # if any depth parameter (ex: secchi) data
 
-  if (length(stringr::str_detect(groups, depth.params)) == 0) {
-
+  if (sum(stringr::str_detect(groups, depth.params.groups), na.rm = TRUE) == 0) {
+    
     depth.params.string <- toString(depth.params, sep = "; ") %>%
       stringi::stri_replace_last(" or ", fixed = "; ")
 
@@ -841,7 +842,7 @@ TADA_DepthProfilePlot <- function(.data, groups = NULL,
     rm(depth.params.string, depthprofile.avail)
     }
 
-    if (length(stringr::str_detect(groups, depth.params)) > 0) {
+    if (sum(stringr::str_detect(groups, depth.params.groups), na.rm = TRUE) > 0) {
 
       # add depth param (ex: secchi) results
       depth.params.string <- toString(depth.params, sep = "; ") %>%
