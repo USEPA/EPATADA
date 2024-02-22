@@ -289,6 +289,7 @@ TADA_FieldValuesTable <- function(.data, field = "null", characteristicName = "n
 #' 
 #' # Returns data frame with ONLY surface water results identified as usable and adds TADA.UseForAnalysis.Flag column.
 #' Data_6Tribes_Assessment2 <- TADA_AnalysisDataFilter(Data_6Tribes_5y_Harmonized, clean = FALSE, surface_water = TRUE, ground_water = FALSE, sediment = FALSE)
+#' unique(Data_6Tribes_Assessment2$TADA.UseForAnalysis.Flag)
 #' 
 
 TADA_AnalysisDataFilter <- function(.data, 
@@ -391,7 +392,7 @@ TADA_AnalysisDataFilter <- function(.data,
         !TADA.Media.Flag %in% c("SEDIMENT", "SURFACE WATER", "GROUNDWATER", "OTHER") ~ paste("No - ", TADA.Media.Flag, sep = "")
       )) %>%
       dplyr::filter(stringr::str_detect(TADA.UseForAnalysis.Flag, "Yes")) %>%
-      dplyr::select(-TADA.UseForAnalysis.Flag) %>%
+      dplyr::select(c(-TADA.UseForAnalysis.Flag, -TADA.Media.Flag)) %>%
       TADA_OrderCols()
     
     print("TADA_AnalysisDataFilter: Removing results flagged for exclusion from assessments.")
@@ -410,6 +411,7 @@ TADA_AnalysisDataFilter <- function(.data,
         TADA.Media.Flag == "GROUNDWATER" ~ paste(gr.water.flag, " - ", TADA.Media.Flag, sep = ""),
         is.na(TADA.Media.Flag) ~ "No - OTHER",
         !TADA.Media.Flag %in% c("SEDIMENT", "SURFACE WATER", "GROUNDWATER", "OTHER") ~ paste("No - ", TADA.Media.Flag, sep = ""))) %>%
+      dplyr::select(-TADA.Media.Flag) %>%
       TADA_OrderCols()
       
     

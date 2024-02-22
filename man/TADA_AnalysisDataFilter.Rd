@@ -58,5 +58,6 @@ Data_6Tribes_Assessment1 <- TADA_AnalysisDataFilter(Data_6Tribes_5y_Harmonized, 
 
 # Returns data frame with ONLY surface water results identified as usable and adds TADA.UseForAnalysis.Flag column.
 Data_6Tribes_Assessment2 <- TADA_AnalysisDataFilter(Data_6Tribes_5y_Harmonized, clean = FALSE, surface_water = TRUE, ground_water = FALSE, sediment = FALSE)
+unique(Data_6Tribes_Assessment2$TADA.UseForAnalysis.Flag)
 
 }
