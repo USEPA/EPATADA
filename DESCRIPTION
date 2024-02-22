@@ -2,9 +2,10 @@ Package: TADA
 Type: Package
 Title: TADA (Tools for Automated Data Analysis) R Package
 Version: 0.0.1
-Organization: U.S. Environmental Protection Agency
 Authors@R: 
-  c(person(given = "Cristina",
+  c(person(given = "U.S. Environmental Protection Agency",
+           role = "aut"),
+    person(given = "Cristina",
            family = "Mullin",
            role = c("aut", "cre"),
            email = "mullin.cristina@epa.gov",
@@ -15,6 +16,9 @@ Authors@R:
     person(given = "Elise",
            family = "Hinman",
            role = "aut"), 
+    person(given = "Hillary",
+           family = "Marler",
+           role = "aut"), 
     person(given = "Kathleen",
            family = "Healy",
            role = "aut"), 
@@ -24,6 +28,9 @@ Authors@R:
     person(given = "Laura",
            family = "Decicco", 
            role = "ctb"),
+    person(given = "Renae",
+           family = "Myers",
+           role = "aut"), 
     person(given = "Brad",
            family = "Cooper", 
            role = "ctr"),

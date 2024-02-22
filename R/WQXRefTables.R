@@ -854,15 +854,15 @@ WQXMonLocTypeRef_Cached <- NULL
 
 #' Update Monitoring Location Type Name Reference Table
 #'
-#' Function downloads and returns in the latest WQX MonitoringLocationTypeName 
+#' Function downloads and returns in the latest WQX MonitoringLocationTypeName
 #' Domain table, adds additional information to assist in identifying groundwater
 #' and surface water samples, and writes the data to sysdata.rda.
 #'
 #' This function caches the table after it has been called once
 #' so subsequent calls will be faster.
 #'
-#' @return sysdata.rda with updated WQXMonitoringLocationTypeName object 
-#' (reference table for identifying surface water samples by 
+#' @return sysdata.rda with updated WQXMonitoringLocationTypeName object
+#' (reference table for identifying surface water samples by
 #' MonitoringLocationTypeName)
 #' @export
 #'
@@ -872,7 +872,7 @@ TADA_GetMonLocTypeRef <- function() {
   if (!is.null(WQXMonLocTypeRef_Cached)) {
     return(WQXMonLocTypeRef_Cached)
   }
-  
+
   # Try to download up-to-date raw data
   raw.data <- tryCatch(
     {
@@ -883,83 +883,84 @@ TADA_GetMonLocTypeRef <- function() {
       NULL
     }
   )
-  
+
   # If the download failed fall back to internal data (and report it)
   if (is.null(raw.data)) {
     message("Downloading latest Monitoring Location Type Name Reference Table failed!")
     message("Falling back to (possibly outdated) internal file.")
     return(utils::read.csv(system.file("extdata", "WQXMonitoringLocationTypeNameRef.csv", package = "TADA")))
   }
-  
+
   # Add TADA.Media.Flag for all domain values. Review new values when updating.
   MonLocTypeRef <- raw.data %>%
-    dplyr::mutate(TADA.Media.Flag = dplyr::case_when(
-      Name %in% c(
-        "BEACH Program Site-Channelized stream",
-        "BEACH Program Site-Estuary",
-        "BEACH Program Site-Great Lake",
-        "BEACH Program Site-Lake",
-        "BEACH Program Site-River/Stream",
-        "Canal Drainage",
-        "Canal Irrigation",
-        "Canal Transport",
-        "Constructed Wetland",
-        "Estuary",
-        "Great Lake",
-        "Intertidal",
-        "Lake",
-        "Ocean",
-        "Other-Surface Water",
-        "Pipe, Unspecified Source",
-        "Mine/Mine Discharge",
-        "Pond",
-        "Pond-Anchialine",
-        "Pond-Stock",
-        "Pond-Wastewater",
-        "Reservoir",
-        "River/Stream",
-        "River/Stream Ephemeral",
-        "River/Stream Intermittent",
-        "River/Stream Perennial",
-        "Riverine Impoundment",
-        "Subtidal",
-        "Wetland Estuarine-Ditch",
-        "Wetland Estuarine-Emergent",
-        "BEACH Program Site-Ocean",
-        "Wetland Estuarine-Forested",
-        "Wetland Estuarine-Marsh",
-        "Wetland Estuarine-Pool",
-        "River/stream Effluent-Dominated",
-        "Wetland Estuarine-Scrub-Shrub",
-        "Wetland Estuarine-Tidal Creek",
-        "Wetland Lacustrine-Emergent",
-        "Wetland Palustrine-Emergent",
-        "Wetland Palustrine-Forested",
-        "Wetland Palustrine-Moss-Lichen",
-        "Wetland Palustrine-Shrub-Scrub",
-        "Wetland Riverine-Emergent",
-        "Wetland Undifferentiated",
-        "Wetland Palustrine Pond",
-        "Channelized Stream",
-        "Estuary-Freshwater",
-        "Pond-Sediment",
-        "Pond-Stormwater",
-        "Spring"
-        
-      ) ~ as.character("Surface Water"),
-      Name %in% c(
-        "Cave",
-        "Well",
-        "Other-Ground Water"
-      ) ~ as.character("Groundwater")
+    dplyr::mutate(
+      TADA.Media.Flag = dplyr::case_when(
+        Name %in% c(
+          "BEACH Program Site-Channelized stream",
+          "BEACH Program Site-Estuary",
+          "BEACH Program Site-Great Lake",
+          "BEACH Program Site-Lake",
+          "BEACH Program Site-River/Stream",
+          "Canal Drainage",
+          "Canal Irrigation",
+          "Canal Transport",
+          "Constructed Wetland",
+          "Estuary",
+          "Great Lake",
+          "Intertidal",
+          "Lake",
+          "Ocean",
+          "Other-Surface Water",
+          "Pipe, Unspecified Source",
+          "Mine/Mine Discharge",
+          "Pond",
+          "Pond-Anchialine",
+          "Pond-Stock",
+          "Pond-Wastewater",
+          "Reservoir",
+          "River/Stream",
+          "River/Stream Ephemeral",
+          "River/Stream Intermittent",
+          "River/Stream Perennial",
+          "Riverine Impoundment",
+          "Subtidal",
+          "Wetland Estuarine-Ditch",
+          "Wetland Estuarine-Emergent",
+          "BEACH Program Site-Ocean",
+          "Wetland Estuarine-Forested",
+          "Wetland Estuarine-Marsh",
+          "Wetland Estuarine-Pool",
+          "River/stream Effluent-Dominated",
+          "Wetland Estuarine-Scrub-Shrub",
+          "Wetland Estuarine-Tidal Creek",
+          "Wetland Lacustrine-Emergent",
+          "Wetland Palustrine-Emergent",
+          "Wetland Palustrine-Forested",
+          "Wetland Palustrine-Moss-Lichen",
+          "Wetland Palustrine-Shrub-Scrub",
+          "Wetland Riverine-Emergent",
+          "Wetland Undifferentiated",
+          "Wetland Palustrine Pond",
+          "Channelized Stream",
+          "Estuary-Freshwater",
+          "Pond-Sediment",
+          "Pond-Stormwater",
+          "Spring"
+        ) ~ as.character("Surface Water"),
+        Name %in% c(
+          "Cave",
+          "Well",
+          "Other-Ground Water"
+        ) ~ as.character("Groundwater")
       ),
-      TADA.Media.Flag = ifelse(is.na(TADA.Media.Flag), "", TADA.Media.Flag)) %>%
+      TADA.Media.Flag = ifelse(is.na(TADA.Media.Flag), "", TADA.Media.Flag)
+    ) %>%
     dplyr::distinct()
 
-  
+
   # Save updated table in cache,
   WQXMonLocTypeRef_Cached <- MonLocTypeRef
-  
+
   return(WQXMonLocTypeRef_Cached)
 }
 
@@ -967,7 +968,7 @@ TADA_GetMonLocTypeRef <- function() {
 
 TADA_UpdateMonLocTypeRef <- function() {
   utils::write.csv(TADA_GetMonLocTypeRef(),
-                   file = "inst/extdata/WQXMonitoringLocationTypeNameRef.csv",
-                   row.names = FALSE
+    file = "inst/extdata/WQXMonitoringLocationTypeNameRef.csv",
+    row.names = FALSE
   )
 }

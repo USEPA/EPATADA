@@ -56,8 +56,8 @@ require.cols <- c(
   "TADA.ResultMeasure.MeasureUnitCode", # generated/required/replaces original
   "TADA.WQXResultUnitConversion", # generated, only added when transform = FALSE in TADA_ConvertResultUnits
   "TADA.WQXTargetUnit", # generated, only added when transform = FALSE in TADA_ConvertResultUnits
-  "Target.TADA.ResultMeasure.MeasureUnitCode", 
-  "Target.TADA.UnitConversionFactor", # generated when 
+  "Target.TADA.ResultMeasure.MeasureUnitCode",
+  "Target.TADA.UnitConversionFactor", # generated when
   "TADA.WQXUnitConversionFactor", # generated, only added when transform = FALSE in TADA_ConvertResultUnits
   "Target.TADA.UnitConversionCoefficient",
   "TADA.UnitConversionFactor", # generated, added from TADA harmonization template
@@ -307,7 +307,7 @@ TADA_OrderCols <- function(.data) {
 #'
 TADA_GetTemplate <- function() {
   data(Data_Nutrients_UT)
-  examplerow <- head(Data_Nutrients_UT, 1)
+  examplerow <- utils::head(Data_Nutrients_UT, 1)
   examplerow2 <- subset(examplerow, select = names(examplerow) %in% require.cols)
   writexl::write_xlsx(examplerow2, path = "TADATemplate.xlsx")
 }
