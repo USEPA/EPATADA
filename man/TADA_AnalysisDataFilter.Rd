@@ -16,7 +16,7 @@ TADA_AnalysisDataFilter(
 \item{.data}{A TADA profile object}
 
 \item{clean}{Boolean argument; TRUE removes all results not flagged for use in
-assessment workflow. TADA.UseForAnalysis columns displaying the media type (as
+analysis workflow. TADA.UseForAnalysis columns displaying the media type (as
 determined by this function) and "Yes"/"No" will be added when clean = FALSE.
 Results flagged "Yes" are identified as usable for further analysis. Default = FALSE.}
 
@@ -45,9 +45,9 @@ selected by the user. It uses ActivityMediaSubdivisionName, AquiferName,
 LocalAqfrName,ConstructionDateText, WellDepthMeasure.MeasureValue,
 WellDepthMeasure.MeasureUnitCode, WellHoleDepthMeasure.MeasureValue, and
 WellHoleDepthMeasure.MeasureUnitCode to identify groundwater samples. Users
-can select whether sediment, fish tissue and/or surface water should be included. in the data set. An
+can select whether sediment, groundwater and/or surface water should be included. in the data set. An
 An additional column, TADA.AssessmentData.Flag, specifies whether each row should
-be included in the assessment workflow and why. Setting clean = TRUE, means
+be included in the analysis workflow and why. Setting clean = TRUE, means
 that all results not flagged for use in assessment workflow will be removed
 and the TADA.AssessmentData.Flag column will not be added.
 }
@@ -58,8 +58,8 @@ and the TADA.AssessmentData.Flag column will not be added.
 \examples{
 # Return data frame with only surface water results
 data(Data_6Tribes_5y_Harmonized)
-Data_6Tribes_Assessment <- TADA_AnalysisDataFilter(Data_6Tribes_5y_Harmonized)
+Data_6Tribes_Analysis <- TADA_AnalysisDataFilter(Data_6Tribes_5y_Harmonized, clean = TRUE)
 
-# Return data frame with surface water results and TADA.UseForAnalysis.Flag column
-Data_6Tribes_Assessment <- TADA_AnalysisDataFilter(Data_6Tribes_5y_Harmonized, clean = FALSE)
+# Return data frame with only surface water results identified as usable and TADA.UseForAnalysis.Flag column
+Data_6Tribes_Analysis <- TADA_AnalysisDataFilter(Data_6Tribes_5y_Harmonized)
 }

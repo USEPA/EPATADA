@@ -248,9 +248,9 @@ TADA_FieldValuesTable <- function(.data, field = "null", characteristicName = "n
 #' LocalAqfrName,ConstructionDateText, WellDepthMeasure.MeasureValue,
 #' WellDepthMeasure.MeasureUnitCode, WellHoleDepthMeasure.MeasureValue, and
 #' WellHoleDepthMeasure.MeasureUnitCode to identify groundwater samples. Users 
-#' can select whether sediment, fish tissue and/or surface water should be included. in the data set. An 
+#' can select whether sediment, groundwater and/or surface water should be included. in the data set. An 
 #' An additional column, TADA.AssessmentData.Flag, specifies whether each row should 
-#' be included in the assessment workflow and why. Setting clean = TRUE, means
+#' be included in the analysis workflow and why. Setting clean = TRUE, means
 #' that all results not flagged for use in assessment workflow will be removed 
 #' and the TADA.AssessmentData.Flag column will not be added.
 #' 
@@ -261,7 +261,7 @@ TADA_FieldValuesTable <- function(.data, field = "null", characteristicName = "n
 #' @param .data A TADA profile object
 #' 
 #' @param clean Boolean argument; TRUE removes all results not flagged for use in
-#' assessment workflow. TADA.UseForAnalysis columns displaying the media type (as
+#' analysis workflow. TADA.UseForAnalysis columns displaying the media type (as
 #' determined by this function) and "Yes"/"No" will be added when clean = FALSE.
 #' Results flagged "Yes" are identified as usable for further analysis. Default = FALSE.
 #' 
@@ -380,7 +380,7 @@ TADA_AnalysisDataFilter <- function(.data,
   
   if (clean == TRUE) {
     
-    analysis.data <- .data %>%
+    .data <- .data %>%
       dplyr::mutate(TADA.UseForAnalysis.Flag = dplyr::case_when(
         TADA.Media.Flag == "SEDIMENT" ~ paste(sed.flag, " - ", TADA.Media.Flag, sep = ""),
         TADA.Media.Flag == "SURFACE WATER" ~ paste(sur.water.flag, " - ", TADA.Media.Flag, sep = ""),
@@ -393,14 +393,14 @@ TADA_AnalysisDataFilter <- function(.data,
     
     print("TADA_AnalysisDataFilter: Removing results flagged for exclusion from assessments.")
     
-    return(analysis.data)
+    return(.data)
     
     
   }
   
   if (clean == FALSE) {
     
-    analysis.data <- .data %>%
+    .data <- .data %>%
       dplyr::mutate(TADA.UseForAnalysis.Flag = dplyr::case_when(
         TADA.Media.Flag == "SEDIMENT" ~ paste(sed.flag, " - ", TADA.Media.Flag, sep = ""),
         TADA.Media.Flag == "SURFACE WATER" ~ paste(sur.water.flag, " - ", TADA.Media.Flag, sep = ""),
@@ -411,6 +411,6 @@ TADA_AnalysisDataFilter <- function(.data,
     
     print("TADA_AnalysisDataFilter: Returning all results with TADA.UseForAnalysis.Flag column indicating if result should be used for assessments.")
     
-    return(all.data)
+    return(.data)
   }
 }
