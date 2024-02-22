@@ -625,11 +625,11 @@ TADA_DepthProfilePlot <- function(.data, groups = NULL,
   
   #check to see if TADA.ComparableDataIdentifier column is present
   
-  if(TADA.ComparableDataIdentifier %in% names(.data)) {
+  if("TADA.ComparableDataIdentifier" %in% colnames(.data)) {
     
     .data <- .data
     
-    if(!TADA.ComparableDataIdentifier %in% names(.data)) {
+    if(!"TADA.ComparableDataIdentifier" %in% colnames(.data)) {
       
       print("TADA.ComparableDataIdentifier column not present in data set. Run TADA_CreateComparableID to create TADA.ComparableDataIdentifier.")
       
