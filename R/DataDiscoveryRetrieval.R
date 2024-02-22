@@ -172,8 +172,8 @@ TADA_DataRetrieval <- function(startDate = "null",
     if (nrow(statecodes_sub) == 0) {
       stop("State code is not valid. Check FIPS state/territory abbreviations.")
     }
-    if (length(statecode) > 1) {
-      WQPquery <- c(WQPquery, statecode = statecd)
+    if (length(statecode) >= 1) {
+      WQPquery <- c(WQPquery, statecode = list(statecd))
     }
   }
 
