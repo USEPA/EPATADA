@@ -903,7 +903,7 @@ TADA_DepthProfilePlot <- function(.data, groups = NULL,
 
   # this subset must include all fields included in plot hover below
   plot.data <- profile.data %>%
-    dplyr::filter(dplyr::if_any(TADA.ComarableDataIdentifier, ~.x %in% groups)) %>%
+    dplyr::filter(dplyr::if_any(TADA.ComparableDataIdentifier, ~.x %in% groups)) %>%
     dplyr::select(dplyr::all_of(reqcols), "TADA.ComparableDataIdentifier", "ActivityStartDateTime", "MonitoringLocationName", "TADA.ActivityMediaName", "ActivityMediaSubdivisionName", "ActivityRelativeDepthName", "TADA.CharacteristicName", "TADA.MethodSpeciationName", "TADA.ResultSampleFractionText") %>%
     dplyr::mutate(TADA.ResultMeasure.MeasureUnitCode = ifelse(is.na(TADA.ResultMeasure.MeasureUnitCode),
                                                               "NA", TADA.ResultMeasure.MeasureUnitCode))
