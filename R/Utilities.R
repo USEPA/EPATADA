@@ -57,12 +57,12 @@ utils::globalVariables(c(
 ))
 
 # global variables for tribal feature layers
-AKAllotmentsUrl = "https://geopub.epa.gov/arcgis/rest/services/EMEF/Tribal/MapServer/0/query"
-AKVillagesUrl = "https://geopub.epa.gov/arcgis/rest/services/EMEF/Tribal/MapServer/1/query"
-AmericanIndianUrl = "https://geopub.epa.gov/arcgis/rest/services/EMEF/Tribal/MapServer/2/query"
-OffReservationUrl = "https://geopub.epa.gov/arcgis/rest/services/EMEF/Tribal/MapServer/3/query"
-OKTribeUrl = "https://geopub.epa.gov/arcgis/rest/services/EMEF/Tribal/MapServer/4/query"
-VATribeUrl = "https://geopub.epa.gov/arcgis/rest/services/EMEF/Tribal/MapServer/5/query"
+AKAllotmentsUrl <- "https://geopub.epa.gov/arcgis/rest/services/EMEF/Tribal/MapServer/0/query"
+AKVillagesUrl <- "https://geopub.epa.gov/arcgis/rest/services/EMEF/Tribal/MapServer/1/query"
+AmericanIndianUrl <- "https://geopub.epa.gov/arcgis/rest/services/EMEF/Tribal/MapServer/2/query"
+OffReservationUrl <- "https://geopub.epa.gov/arcgis/rest/services/EMEF/Tribal/MapServer/3/query"
+OKTribeUrl <- "https://geopub.epa.gov/arcgis/rest/services/EMEF/Tribal/MapServer/4/query"
+VATribeUrl <- "https://geopub.epa.gov/arcgis/rest/services/EMEF/Tribal/MapServer/5/query"
 
 #' TADA_AutoClean
 #'
@@ -851,46 +851,45 @@ TADA_RunKeyFlagFunctions <- function(.data, remove_na = TRUE, clean = TRUE) {
 #' # Load example dataset
 #' data(Data_6Tribes_5y)
 #' # Get the bounding box of the data
-#' bbox <- st_bbox(c(xmin = min(Data_6Tribes_5y$TADA.LongitudeMeasure),ymin = min(Data_6Tribes_5y$TADA.LatitudeMeasure),xmax = max(Data_6Tribes_5y$TADA.LongitudeMeasure),ymax = max(Data_6Tribes_5y$TADA.LatitudeMeasure)),crs = sf::st_crs(Data_6Tribes_5y))
+#' bbox <- st_bbox(c(xmin = min(Data_6Tribes_5y$TADA.LongitudeMeasure), ymin = min(Data_6Tribes_5y$TADA.LatitudeMeasure), xmax = max(Data_6Tribes_5y$TADA.LongitudeMeasure), ymax = max(Data_6Tribes_5y$TADA.LatitudeMeasure)), crs = sf::st_crs(Data_6Tribes_5y))
 #' # Get a string containing the JSON of the bounding box
-#' getBboxJson(bbox)    
-
+#' getBboxJson(bbox)
 getBboxJson <- function(bbox) {
   json <- paste0('{"xmin":', bbox[1], ',"ymin":', bbox[2], ',"xmax":', bbox[3], ',"ymax":', bbox[4], "}")
-  return (json)
+  return(json)
 }
 
 #' Create icon(s) to be used to represent points on a map feature layer
-#' 
-#' Uses the different plotting symbols available in R to create PNG files that can be used as markers on a map feature layer. 
 #'
-#' @param pch Plot character code; either a single number or a vector of multiple numbers. Possible values available at http://www.sthda.com/english/wiki/r-plot-pch-symbols-the-different-point-shapes-available-in-r. Defaults to 1 (an open circle). 
+#' Uses the different plotting symbols available in R to create PNG files that can be used as markers on a map feature layer.
+#'
+#' @param pch Plot character code; either a single number or a vector of multiple numbers. Possible values available at http://www.sthda.com/english/wiki/r-plot-pch-symbols-the-different-point-shapes-available-in-r. Defaults to 1 (an open circle).
 #' @param width Width of the plot character. Defaults to 30 pixels.
 #' @param height Height of the plot character. Defaults to 30 pixels.
-#' @param bg Background color of the plot character Defaults to transparent. 
+#' @param bg Background color of the plot character Defaults to transparent.
 #' @param col Color(s) of the plot character(s). Defaults to black.
-#' @param lwd Line width. Optional, defaults to NULL. 
-#' @param ... 
+#' @param lwd Line width. Optional, defaults to NULL.
+#' @param ...
 #' @return Path(s) to PNG file(s) in a temp folder on user's computer.
 #'
 #' @examples
 #' # Create three PNG files, a red circle, blue triangle, and yellow "X", each on a green background.
-#' pchIcons(c(1,2,4), 40, 40, "green", c("red","blue","yellow"))
-
-pchIcons = function(pch = 1,
-                    width = 30,
-                    height = 30,
-                    bg = "transparent",
-                    col = "black",
-                    lwd = NULL) {
-  n = length(pch)
-  files = character(n)
+#' pchIcons(c(1, 2, 4), 40, 40, "green", c("red", "blue", "yellow"))
+pchIcons <- function(pch = 1,
+                     width = 30,
+                     height = 30,
+                     bg = "transparent",
+                     col = "black",
+                     lwd = NULL) {
+  n <- length(pch)
+  files <- character(n)
   for (i in seq_len(n)) {
-    f = tempfile(fileext = '.png')
+    f <- tempfile(fileext = ".png")
     png(f,
-        width = width,
-        height = height,
-        bg = bg)
+      width = width,
+      height = height,
+      bg = bg
+    )
     par(mar = c(0, 0, 0, 0))
     plot.new()
     points(
@@ -902,39 +901,38 @@ pchIcons = function(pch = 1,
       lwd = lwd
     )
     dev.off()
-    files[i] = f
+    files[i] <- f
   }
   files
 }
 
 #' Retrieve feature layer from ArcGIS REST service
-#' 
+#'
 #' @param url URL of the layer REST service, ending with "/query". Example: https://geopub.epa.gov/arcgis/rest/services/EMEF/Tribal/MapServer/2/query (American Indian Reservations)
-#' @param bbox A bounding box from the sf function st_bbox; used to filter the query results. Optional; defaults to NULL. 
+#' @param bbox A bounding box from the sf function st_bbox; used to filter the query results. Optional; defaults to NULL.
 #' @return ArcGIS feature layer
 #'
 #' @examples
 #' # Load example dataset
 #' data(Data_Nutrients_UT)
 #' # Get the bounding box of the data
-#' bbox <- st_bbox(c(xmin = min(Data_Nutrients_UT$TADA.LongitudeMeasure),ymin = min(Data_Nutrients_UT$TADA.LatitudeMeasure),xmax = max(Data_Nutrients_UT$TADA.LongitudeMeasure),ymax = max(Data_Nutrients_UT$TADA.LatitudeMeasure)),crs = sf::st_crs(Data_Nutrients_UT))
+#' bbox <- st_bbox(c(xmin = min(Data_Nutrients_UT$TADA.LongitudeMeasure), ymin = min(Data_Nutrients_UT$TADA.LatitudeMeasure), xmax = max(Data_Nutrients_UT$TADA.LongitudeMeasure), ymax = max(Data_Nutrients_UT$TADA.LatitudeMeasure)), crs = sf::st_crs(Data_Nutrients_UT))
 #' # Get the American Indian Reservations feature layer, filtered by the bounding box for the Data_Nutrients_UT example dataset
 #' getFeatureLayer("https://geopub.epa.gov/arcgis/rest/services/EMEF/Tribal/MapServer/2/query", bbox)
-
 getFeatureLayer <- function(url, bbox = NULL) {
   if (is.null(bbox)) {
-    inputGeom = NULL
+    inputGeom <- NULL
   } else {
-    inputGeom = getBboxJson(bbox)
+    inputGeom <- getBboxJson(bbox)
   }
-  url <- paste0(url, "?where=1%3D1&outfields=*&returnGeometry=true&geometry=",inputGeom,"&f=geojson")
+  url <- paste0(url, "?where=1%3D1&outfields=*&returnGeometry=true&geometry=", inputGeom, "&f=geojson")
   layer <- sf::read_sf(url)
-  return (layer)
+  return(layer)
 }
 
 
 #' Get text for tribal marker popup
-#' 
+#'
 #' @param layer A map feature layer
 #' @param layername Name of the layer
 #' @return Vector of strings to be used as the text for the popups when clicking on a tribal marker
@@ -944,7 +942,6 @@ getFeatureLayer <- function(url, bbox = NULL) {
 #' layer <- getFeatureLayer("https://geopub.epa.gov/arcgis/rest/services/EMEF/Tribal/MapServer/4/query")
 #' # Get popup text for individual markers
 #' getPopup(layer, "Oklahoma Tribal Statistical Areas")
-
 getPopup <- function(layer, layername) {
   text <- paste0("<strong>", layername, "</strong><p>")
   cols <-
@@ -954,44 +951,42 @@ getPopup <- function(layer, layername) {
       "EPA_ID" = "EPA ID",
       "TYPE" = "Type"
     )
-  
+
   for (i in seq(1, length(cols))) {
     if (names(cols[i]) %in% colnames(layer)) {
-      text = paste0(text, "<strong>", cols[i], "</strong>: ", layer[[names(cols[i])]], "<br>")
-      
+      text <- paste0(text, "<strong>", cols[i], "</strong>: ", layer[[names(cols[i])]], "<br>")
     }
   }
   return(text)
 }
 
 #' Add polygons from an ArcGIS feature layer to a leaflet map
-#' 
+#'
 #' @param map A leaflet map
 #' @param url URL of the ArcGIS REST service returning the tribal feature layer
 #' @param layergroup Name of the layer group
 #' @param layername Name of the layer
-#' @param bbox A bounding box from the sf function st_bbox; used to filter the query results. Optional; defaults to NULL. 
-#' @return The original map with polygon from the feature layer added to it. 
+#' @param bbox A bounding box from the sf function st_bbox; used to filter the query results. Optional; defaults to NULL.
+#' @return The original map with polygon from the feature layer added to it.
 #'
 #' @examples
 #' # Create a leaflet map
-#' lmap <- leaflet::leaflet() %>% leaflet::addProviderTiles("Esri.WorldTopoMap", group = "World topo") 
-#' # Add the American Indian Reservations feature layer to the map 
+#' lmap <- leaflet::leaflet() %>% leaflet::addProviderTiles("Esri.WorldTopoMap", group = "World topo")
+#' # Add the American Indian Reservations feature layer to the map
 #' lmap <- addPolys(lmap, "https://geopub.epa.gov/arcgis/rest/services/EMEF/Tribal/MapServer/2/query", "Tribes", "American Indian Reservations")
 #' lmap
-
 addPolys <- function(map, url, layergroup, layername, bbox = NULL) {
   layer <- getFeatureLayer(url, bbox)
   if (is.null(layer)) {
-    return (map)
+    return(map)
   }
   lbbox <- sf::st_bbox(layer)
   if (is.na(lbbox[1])) {
-    return (map)
+    return(map)
   }
   areaColumn <- "ALAND_KM"
   if (!(areaColumn %in% colnames(layer))) {
-    areaColumn = "AREA_KM"
+    areaColumn <- "AREA_KM"
   }
   map <-
     leaflet::addPolygons(
@@ -1011,36 +1006,35 @@ addPolys <- function(map, url, layergroup, layername, bbox = NULL) {
       popup = getPopup(layer, layername),
       group = layergroup
     )
-  return (map)
+  return(map)
 }
 
 #' Add points from an ArcGIS feature layer to a leaflet map
-#' 
+#'
 #' @param map A leaflet map
 #' @param url URL of the ArcGIS REST service returning the tribal feature layer
 #' @param layergroup Name of the layer group
 #' @param layername Name of the layer
-#' @param bbox A bounding box from the sf function st_bbox; used to filter the query results. Optional; defaults to NULL. 
-#' @return The original map with polygon from the feature layer added to it. 
+#' @param bbox A bounding box from the sf function st_bbox; used to filter the query results. Optional; defaults to NULL.
+#' @return The original map with polygon from the feature layer added to it.
 #'
 #' @examples
 #' # Create a leaflet map
-#' lmap <- leaflet::leaflet() %>% leaflet::addProviderTiles("Esri.WorldTopoMap", group = "World topo") 
-#' # Add the Virginia Federally Recognized Tribes feature layer to the map 
+#' lmap <- leaflet::leaflet() %>% leaflet::addProviderTiles("Esri.WorldTopoMap", group = "World topo")
+#' # Add the Virginia Federally Recognized Tribes feature layer to the map
 #' lmap <- addPoints(lmap, "https://geopub.epa.gov/arcgis/rest/services/EMEF/Tribal/MapServer/5/query", "Tribes", "Virginia Federally Recognized Tribes")
 #' lmap
-
 addPoints <- function(map, url, layergroup, layername, bbox = NULL) {
   layer <- getFeatureLayer(url, bbox)
   if (is.null(layer)) {
-    return (map)
-  }  
+    return(map)
+  }
   lbbox <- sf::st_bbox(layer)
   if (is.na(lbbox[1])) {
-    return (map)
+    return(map)
   }
-  shapes = c(2) # open triangle; for other options see http://www.statmethods.net/advgraphs/parameters.html
-  iconFiles = pchIcons(shapes, width = 20, height = 20, col = c("#CC7722"), lwd = 2)
+  shapes <- c(2) # open triangle; for other options see http://www.statmethods.net/advgraphs/parameters.html
+  iconFiles <- pchIcons(shapes, width = 20, height = 20, col = c("#CC7722"), lwd = 2)
   map <- leaflet::addMarkers(
     map,
     data = layer,

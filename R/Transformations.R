@@ -151,11 +151,11 @@ TADA_HarmonizeSynonyms <- function(.data, ref, np_speciation = TRUE) {
     # if conversion factor exists, multiply by ResultMeasureValue
     dplyr::rowwise() %>%
     dplyr::mutate(TADA.ResultMeasureValue = dplyr::case_when(
-      !is.na(Target.TADA.UnitConversionFactor) & !is.na(Target.TADA.ResultMeasure.MeasureUnitCode) 
-      & !is.na(Target.TADA.UnitConversionCoefficient)
+      !is.na(Target.TADA.UnitConversionFactor) & !is.na(Target.TADA.ResultMeasure.MeasureUnitCode) &
+        !is.na(Target.TADA.UnitConversionCoefficient)
       ~ ((Target.TADA.UnitConversionFactor * TADA.ResultMeasureValue) + Target.TADA.UnitConversionCoefficient),
-      !is.na(Target.TADA.UnitConversionFactor) & !is.na(Target.TADA.ResultMeasure.MeasureUnitCode) 
-      & is.na(Target.TADA.UnitConversionCoefficient)
+      !is.na(Target.TADA.UnitConversionFactor) & !is.na(Target.TADA.ResultMeasure.MeasureUnitCode) &
+        is.na(Target.TADA.UnitConversionCoefficient)
       ~ ((Target.TADA.UnitConversionFactor * TADA.ResultMeasureValue)),
       is.na(Target.TADA.UnitConversionFactor) ~ TADA.ResultMeasureValue
     ))

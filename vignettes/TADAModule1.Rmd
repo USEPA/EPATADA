@@ -252,7 +252,6 @@ The defaults are to include surface water, exclude groundwater and sediment, and
 If you are not interested in using **TADA_AnalysisDataFilter**, but would like to filter by activity media, uncomment the example to filter for water data only by using dplyr::filter() with TADA.ActivityMediaName.
 
 ```{r AnalysisDataFilter}
-
 # Filter to retain only results for use in analysis
 TADAProfile <- TADA_AnalysisDataFilter(TADAProfile)
 
@@ -260,8 +259,7 @@ TADAProfile <- TADA_AnalysisDataFilter(TADAProfile)
 # TADAProfile <- TADA_AnalysisDataFilter(TADAProfile)
 
 # Remove data for non-water media types, alternate workflow without using TADA_AnalysisDataFilter()
-#TADAProfile <- dplyr::filter(TADAProfile, TADA.ActivityMediaName == "WATER")
-
+# TADAProfile <- dplyr::filter(TADAProfile, TADA.ActivityMediaName == "WATER")
 ```
 
 
@@ -300,17 +298,14 @@ columns flag if special characters are included in result values, and
 specifies what the special characters are.
 
 ``` {r TADA_AutoClean}
-
 # run TADA_AutoClean on filtered dataset to convert special characters, result units, and depth units and identify censored data.
 
 TADAProfile <- TADA_AutoClean(TADAProfile)
-
 ```
 
 Review all column names in the TADA Profile to familiarize yourself with the dataset after TADA_AutoClean has added additional TADA prefixed columns. **TADA_SummarizeColumn** summarizes the data set based on the user specified column and returns a dataframe displaying the number of sites and number of records for each unique value in the specified column. The example below uses TADA.CharacteristicName. 
 
 ```{r TADA_SummarizeColumn}
-
 # View column names for TADAProfile
 colnames(TADAProfile)
 
