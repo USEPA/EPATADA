@@ -567,20 +567,11 @@ TADA_DepthCategory.Flag <- function(.data, bycategory = "no", bottomvalue = 2, s
  #'   and TADA.ActivityDepthHeightMeasure.MeasureValue. Units for all depth fields
  #'   must be the same. This can be accomplished using TADA_AutoClean() or
  #'   TADA_ConvertDepthUnits.
-
- #' @param id_cols The column in the dataset used to identify the unique groups to
- #'   be plotted. Defaults to 'TADA.ComparableDataIdentifier', which should be
- #'   sufficient for most TADA use cases of this function. This input is flexible,
- #'   however, for the specific use case in the TADAShiny app where a user might
- #'   create groups based on a concatenation of the comparable data identifier
- #'   with other additional grouping variables (e.g. site type, site name, year,
- #'   organization, etc.)
- #'
- #' @param groups A vector of two identifiers from the id_cols column. For
- #'   example, if the id_cols is 'TADA.ComparableDataIdentifier', the groups could
- #'   be 'DISSOLVED OXYGEN (DO)_NA_NA_UG/L' and 'PH_NA_NA_NA'. These groups will
- #'   be specific to your dataset. The TADA_IDDepthProfiles can be used to identify
- #'   available groups.
+ #'   
+ #' @param groups A vector of two identifiers from the TADA.ComparableDataIdentifier column.
+ #' For example, the groups could be 'DISSOLVED OXYGEN (DO)_NA_NA_UG/L' and 'PH_NA_NA_NA'.
+ #' These groups will be specific to your dataset. The TADA_IDDepthProfiles can be 
+ #' used to identify available groups.
  #'
  #' @param location A single MonitoringLocationIdentifier to plot the depth profile. 
  #' A MonitoringLocationIdentifier must be entered or an error will be returned and
@@ -611,7 +602,6 @@ TADA_DepthCategory.Flag <- function(.data, bycategory = "no", bottomvalue = 2, s
  #' data(Data_6Tribes_5y)
  #' # Create a depth profile figure with three parameters for a single monitoring location and date
  #' TADA_DepthProfilePlot(Data_6Tribes_5y, 
- #'                       id_cols = "TADA.ComparableDataIdentifier", 
  #'                       groups = c('TEMPERATURE, WATER_NA_NA_DEG C', 'PH_NA_NA_NA', 'DEPTH, SECCHI DISK DEPTH_NA_NA_M'),
  #'                       location = "REDLAKE_WQX-ANKE",
  #'                       activity_date = "2018-10-04")
@@ -620,17 +610,34 @@ TADA_DepthCategory.Flag <- function(.data, bycategory = "no", bottomvalue = 2, s
  #' data(Data_6Tribes_5y)
  #' # Create a depth profile figure with two parameters for a single monitoring location and date without displaying depth categories
  #' TADA_DepthProfilePlot(Data_6Tribes_5y, 
- #'                       id_cols = "TADA.ComparableDataIdentifier", 
  #'                       groups = c('CONDUCTIVITY_NA_NA_US/CM', 'DISSOLVED OXYGEN (DO)_NA_NA_UG/L'),
  #'                       location = "REDLAKE_WQX-JOHN",
  #'                       activity_date = "2018-07-31",
  #'                       depthcat = FALSE)
 
 
-TADA_DepthProfilePlot <- function(.data, id_cols = c("TADA.ComparableDataIdentifier"),
-                                  groups = NULL, location = NULL, activity_date = NULL,
-                                    depthcat = TRUE,
-                                    surfacevalue = 2, bottomvalue = 2) {
+TADA_DepthProfilePlot <- function(.data, groups = NULL, 
+                                  location = NULL, 
+                                  activity_date = NULL,
+                                  depthcat = TRUE,
+                                  surfacevalue = 2, 
+                                  bottomvalue = 2) {
+  
+  #check to see if TADA.ComparableDataIdentifier column is present
+  
+  if(TADA.ComparableDataIdentifier %in% names(.data)) {
+    
+    .data <- .data
+    
+    if(!TADA.ComparableDataIdentifier %in% names(.data)) {
+      
+      print("TADA.ComparableDataIdentifier column not present in data set. Run TADA_CreateComparableID to create TADA.ComparableDataIdentifier.")
+      
+      stop()
+    }
+  }
+  
+  
   # check .data is data.frame
   TADA_CheckType(.data, "data.frame", "Input object")
 
@@ -783,11 +790,18 @@ TADA_DepthProfilePlot <- function(.data, id_cols = c("TADA.ComparableDataIdentif
   print("TADA_DepthProfilePlot: Identifying available depth profile data.")
 
   # identify depth profile data
-  depth.params <- c("DEPTH, SECCHI DISK DEPTH")
+  depth.params <- c("DEPTH, SECCHI DISK DEPTH", 
+                    "DEPTH, SECCHI DISK DEPTH (CHOICE LIST)",
+                    "DEPTH, SECCHI DISK DEPTH REAPPEARS",
+                    "DEPTH, DATA-LOGGER (NON-PORTED)",
+                    "DEPTH, DATA-LOGGER (PORTED)",
+                    "RBP STREAM DEPTH - RIFFLE",
+                    "RBP STREAM DEPTH - RUN",
+                    "THALWEG DEPTH")
 
   depth.params.groups <- .data %>%
     dplyr::filter(TADA.CharacteristicName %in% depth.params) %>%
-    dplyr::select(dplyr::all_of(id_cols)) %>%
+    dplyr::select(dplyr::all_of(TADA.ComparableDataIdentifier)) %>%
     unique()
 
   depthprofile.avail <- .data %>%
@@ -814,7 +828,7 @@ TADA_DepthProfilePlot <- function(.data, id_cols = c("TADA.ComparableDataIdentif
     unique() %>%
     dplyr::pull()
 
-  # if any secchi or similar data
+  # if any depth parameter (ex: secchi) data
 
   if (length(stringr::str_detect(groups, depth.params)) == 0) {
 
@@ -829,7 +843,7 @@ TADA_DepthProfilePlot <- function(.data, id_cols = c("TADA.ComparableDataIdentif
 
     if (length(stringr::str_detect(groups, depth.params)) > 0) {
 
-      # add secchi (and other???) results
+      # add depth param (ex: secchi) results
       depth.params.string <- toString(depth.params, sep = "; ") %>%
         stringi::stri_replace_last(" or ", fixed = "; ")
 
@@ -888,8 +902,8 @@ TADA_DepthProfilePlot <- function(.data, id_cols = c("TADA.ComparableDataIdentif
 
   # this subset must include all fields included in plot hover below
   plot.data <- profile.data %>%
-    dplyr::filter(dplyr::if_any(id_cols, ~.x %in% groups)) %>%
-    dplyr::select(dplyr::all_of(reqcols), id_cols, "ActivityStartDateTime", "MonitoringLocationName", "TADA.ActivityMediaName", "ActivityMediaSubdivisionName", "ActivityRelativeDepthName", "TADA.CharacteristicName", "TADA.MethodSpeciationName", "TADA.ResultSampleFractionText") %>%
+    dplyr::filter(dplyr::if_any(TADA.ComarableDataIdentifier, ~.x %in% groups)) %>%
+    dplyr::select(dplyr::all_of(reqcols), "TADA.ComparableDataIdentifier", "ActivityStartDateTime", "MonitoringLocationName", "TADA.ActivityMediaName", "ActivityMediaSubdivisionName", "ActivityRelativeDepthName", "TADA.CharacteristicName", "TADA.MethodSpeciationName", "TADA.ResultSampleFractionText") %>%
     dplyr::mutate(TADA.ResultMeasure.MeasureUnitCode = ifelse(is.na(TADA.ResultMeasure.MeasureUnitCode),
                                                               "NA", TADA.ResultMeasure.MeasureUnitCode))
 
@@ -897,13 +911,13 @@ TADA_DepthProfilePlot <- function(.data, id_cols = c("TADA.ComparableDataIdentif
 
   # break into subsets for each parameter
   param1 <- plot.data %>%
-    dplyr::filter(dplyr::if_any(id_cols, ~.x %in% groups[1]))
+    dplyr::filter(dplyr::if_any(TADA.ComparableDataIdentifier, ~.x %in% groups[1]))
 
   param2 <- plot.data %>%
-    dplyr::filter(dplyr::if_any(id_cols, ~.x %in% groups[2]))
+    dplyr::filter(dplyr::if_any(TADA.ComparableDataIdentifier, ~.x %in% groups[2]))
 
   param3 <- plot.data %>%
-    dplyr::filter(dplyr::if_any(id_cols, ~.x %in% groups[3]))
+    dplyr::filter(dplyr::if_any(TADA.ComparableDataIdentifier, ~.x %in% groups[3]))
 
 # create title for figure, conditional on number of groups/characteristics selected
 
