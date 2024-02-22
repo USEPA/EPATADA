@@ -51,7 +51,7 @@ projectProfile <- TADA_ReadWQPWebServices("https://www.waterqualitydata.us/data/
 TADAProfile <- TADA_JoinWQPProfiles(FullPhysChem = physchemProfile, Sites = stationProfile, Projects = projectProfile)
 
 # Run TADA_AutoClean
-Autocleaned_TADAProfile <- TADA_AutoClean(TADAProfile)
+Autocleaned_TADAProfile <- TADA::TADA_AutoClean(TADAProfile)
 }
 
 }
