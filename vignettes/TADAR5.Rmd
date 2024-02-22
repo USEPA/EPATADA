@@ -31,19 +31,21 @@ pre[class] {
 }
 ```
 
-## Overview
+## Welcome
 
-This vignette walks through how to use the TADA R Package to discover
-and clean (i.e., wrangle, Quality Assure and Quality Control (QAQC), and
-harmonize) [Water Quality Portal
-(WQP)](https://www.waterqualitydata.us/) data from multiple
-organizations using data from EPA Region 5 as an example. For information on additional functions from TADA Module 1, see TADA Module 1: Water Quality Portal Data Discovery and Cleaning.
+Thank you for your interest in Tools for Automated Data Analysis (TADA). TADA is an open-source tool set built in the R programming language. This [RMarkdown](https://bookdown.org/yihui/rmarkdown/) document walks users through how to download the TADA R package from GitHub, access and parameterize several important functions with a sample dataset and create basic visualizations. The sample data set contains data from one week from
+all EPA Region 5 states submitted by multiple organizations.
+
+The workflow is similar to a funnel: at each decision point, data that fail QC checks are removed from the core dataset and placed in a separate dataframe, while data that pass are carried into the next step. At the end of the QC checks, the user should be confident that their data are properly documented and applicable to the analysis at hand.
+
+**Note: TADA is still under development. New functionality is added weekly, and sometimes we need to make bug fixes in response to tester and user feedback. We appreciate your feedback, patience, and interest in these helpful tools.**
+
+**If you are interested in contributing to TADA development, more information is available at [Contributing] (https://usepa.github.io/TADA/articles/CONTRIBUTING.html). We welcome collaboration with external partners.**
 
 ## Install and load packages
 
 First, install and load the remotes package specifying the repo. This
-is needed before installing TADA because it is only available on GitHub
-(not CRAN).
+is needed before installing TADA because it is only available on GitHub.
 
 ```{r install_remotes, eval = F, results = 'hide', message = FALSE, warning = FALSE}
 install.packages("remotes",
@@ -53,7 +55,7 @@ library(remotes)
 ```
 
 Next, install and load TADA using the remotes package. TADA R Package dependencies will also be downloaded automatically from CRAN
-with the TADA install.
+with the TADA install. You may be prompted in the console to update dependency packages that have more recent versions available. If you see this prompt, it is recommended to update all of them (enter 1 into the console).
 
 ```{r install_TADA, eval = F, results = 'hide', message = FALSE, warning = FALSE}
 remotes::install_github("USEPA/TADA",
@@ -69,6 +71,13 @@ Finally, use the **library()** function to load the TADA R Package into your R s
 library(TADA)
 ```
 
+## Help pages
+
+All TADA R package functions have their own individual help pages, listed on the [Function reference](https://usepa.github.io/TADA/reference/index.html) page on the GitHub site. Users can also access the help page for a given function in R or RStudio using the following format (example below): `?TADA::[name of TADA function]`
+
+```{r}
+?TADA::TADA_DataRetrieval
+```
 
 ## Retrieve WQP data
 
@@ -110,7 +119,7 @@ from [Water Quality Portal (WQP)](https://www.waterqualitydata.us/) are not rest
 -   characteristicType
 
 The default TADA_DataRetrieval function
-automatically runs the **TADA_AutoClean** function. In this example, we will set **TADA_AutoClean = FALSE** and run it as a separate step in the work flow.
+automatically runs the **TADA_AutoClean** function. In this example, we will set **TADA_AutoClean = FALSE** and run it as a separate step in the work flow. 
 
 Tips:
 
@@ -160,32 +169,37 @@ conventions. Data and metadata quality are not guaranteed! Make sure to
 carefully explore any data and make conservative quality assurance
 decisions where information is limited.
 
+Keep in mind that any columns with a "TADA" prefix were added during data retrieval.
+
 Note: TADA_DataRetrieval  automatically
 converts the date times to UTC and data
 to dates, datetimes, and numerics based on a standard algorithm. 
 
-Enter ?TADA_DataRetrieval into the console to review more example queries
-and additional information.
-
+**Note:** USGS and EPA are working together to create WQP 3.0 data profiles. Once released, one data profile will contain the columns critical to TADA, removing the need to combine profiles in this first step. TADA package users likely will not notice a difference in their usage of the `TADA_DataRetrieval` function, but it will simplify the steps needed to upload a custom or WQP GUI-downloaded dataset into the R package.
 
 
 ```{r TADA_DataRetrieval}
-TADAProfile <- TADA_DataRetrieval(statecode = c("IL", "IN", "MI", "MN", "OH", "WI"), startDate = "2019-05-01", endDate = "2019-05-07", applyautoclean = FALSE)
+# Uncomment query below to download data set from WQP
+# TADAProfile <- TADA_DataRetrieval(statecode = c("IL", "IN", "MI", "MN", "OH", "WI"), startDate = "2019-05-01", endDate = "2019-05-07", applyautoclean = FALSE)
 
-load predownload
+# For demo purposes, import pre-downloaded R5 data set
+
+R5Profile <- TADA::Data_R5_TADAPackageDemo
 ```
 
-If you s to download a large amount of data from across a large area,
+If you need to download a large amount of data from across a large area,
 and the TADA_DataRetrieval function is not working due to WQP timeout
 issues, then the **TADA_BigDataRetrieval** function may work better. See ?TADA_BigDataRetrieval for more details or the TADA Module 1 for more details. 
 
 ## Filter for Analysis 
 
-Some TADA users are interested in using WQP data for surface water only or including some non-water data. The **TADA_AnalysisDataFilter** function can assist in identifying results of interest. Multiple columns are used to identify groundwater results as individual organizations may populate different combinations of fields in order to identify a result as groundwater.
+Some TADA users are interested in using WQP data for surface water only or including some non-water data. The **TADA_AnalysisDataFilter** function can assist in identifying results of interest. Multiple columns are used to identify groundwater results as organizations may populate different combinations of fields in order to identify groundwater results.
 
-This function identifies surface water, groundwater, and sediment results. Users can  specify whether all results should be returned with a new column, *TADA.UseForAnalysis.Flag*,identifying if the result should be included in further analysis or if only results that should be included are returned. 
+This function identifies surface water, groundwater, and sediment results. Users can  specify whether all results should be returned with a new column, *TADA.UseForAnalysis.Flag*, providing information about the result's media type of and identifying if the result should be included in further analysis or if only results that should be included are returned. 
 
 The defaults are to include surface water, exclude groundwater and sediment, and to return only the results that should be used for analysis (clean = TRUE). This is shown in the active example below. If you would like to see all results with the *TADA.UseForAnalysis.Flag* column, you can uncomment the example where clean = FALSE.
+
+**Note:** When WQX 3.0 data profiles are released, this function will be modified to include fish tissue an option.
 
 ```{r AnalysisDataFilter}
 
