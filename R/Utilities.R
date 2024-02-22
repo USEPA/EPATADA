@@ -860,6 +860,7 @@ getBboxJson <- function(bbox) {
 }
 
 #' Create icon(s) to be used to represent points on a map feature layer
+#' pchIcons is used within addPoints
 #'
 #' Uses the different plotting symbols available in R to create PNG files that can be used as markers on a map feature layer.
 #'
@@ -869,7 +870,6 @@ getBboxJson <- function(bbox) {
 #' @param bg Background color of the plot character Defaults to transparent.
 #' @param col Color(s) of the plot character(s). Defaults to black.
 #' @param lwd Line width. Optional, defaults to NULL.
-#' @param ...
 #' @return Path(s) to PNG file(s) in a temp folder on user's computer.
 #'
 #' @examples
@@ -907,6 +907,7 @@ pchIcons <- function(pch = 1,
 }
 
 #' Retrieve feature layer from ArcGIS REST service
+#' getFeatureLayer is used within addPolys and addPoints
 #'
 #' @param url URL of the layer REST service, ending with "/query". Example: https://geopub.epa.gov/arcgis/rest/services/EMEF/Tribal/MapServer/2/query (American Indian Reservations)
 #' @param bbox A bounding box from the sf function st_bbox; used to filter the query results. Optional; defaults to NULL.
@@ -916,7 +917,7 @@ pchIcons <- function(pch = 1,
 #' # Load example dataset
 #' data(Data_Nutrients_UT)
 #' # Get the bounding box of the data
-#' bbox <- st_bbox(c(xmin = min(Data_Nutrients_UT$TADA.LongitudeMeasure), ymin = min(Data_Nutrients_UT$TADA.LatitudeMeasure), xmax = max(Data_Nutrients_UT$TADA.LongitudeMeasure), ymax = max(Data_Nutrients_UT$TADA.LatitudeMeasure)), crs = sf::st_crs(Data_Nutrients_UT))
+#' bbox <- sf::st_bbox(c(xmin = min(Data_Nutrients_UT$TADA.LongitudeMeasure), ymin = min(Data_Nutrients_UT$TADA.LatitudeMeasure), xmax = max(Data_Nutrients_UT$TADA.LongitudeMeasure), ymax = max(Data_Nutrients_UT$TADA.LatitudeMeasure)), crs = sf::st_crs(Data_Nutrients_UT))
 #' # Get the American Indian Reservations feature layer, filtered by the bounding box for the Data_Nutrients_UT example dataset
 #' getFeatureLayer("https://geopub.epa.gov/arcgis/rest/services/EMEF/Tribal/MapServer/2/query", bbox)
 getFeatureLayer <- function(url, bbox = NULL) {
@@ -932,6 +933,7 @@ getFeatureLayer <- function(url, bbox = NULL) {
 
 
 #' Get text for tribal marker popup
+#' getPopup is used within addPolys and addPoints
 #'
 #' @param layer A map feature layer
 #' @param layername Name of the layer

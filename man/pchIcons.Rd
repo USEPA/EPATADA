@@ -2,7 +2,8 @@
 % Please edit documentation in R/Utilities.R
 \name{pchIcons}
 \alias{pchIcons}
-\title{Create icon(s) to be used to represent points on a map feature layer}
+\title{Create icon(s) to be used to represent points on a map feature layer
+pchIcons is used within addPoints}
 \usage{
 pchIcons(
   pch = 1,

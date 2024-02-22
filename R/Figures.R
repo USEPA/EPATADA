@@ -471,6 +471,7 @@ TADA_OverviewMap <- function(.data) {
         colors = "black",
         labels = site_legend$Sample_n, sizes = site_legend$Point_size * 2
       )
+    # addPolys and addPoints are in Utilities.R
     map <- addPolys(map, AKAllotmentsUrl, "Tribes", "Alaska Allotments", bbox)
     map <- addPolys(map, AmericanIndianUrl, "Tribes", "American Indian", bbox)
     map <- addPolys(map, OffReservationUrl, "Tribes", "Off Reservation", bbox)
