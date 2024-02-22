@@ -9,7 +9,7 @@ TADA_addPolys(map, url, layergroup, layername, bbox = NULL)
 \arguments{
 \item{map}{A leaflet map}
 
-\item{url}{URL of the ArcGIS REST service returning the tribal feature layer}
+\item{url}{URL of the ArcGIS REST service returning the polygon feature layer}
 
 \item{layergroup}{Name of the layer group}
 
@@ -27,7 +27,7 @@ Add polygons from an ArcGIS feature layer to a leaflet map
 # Create a leaflet map
 lmap <- leaflet::leaflet() \%>\% leaflet::addProviderTiles("Esri.WorldTopoMap", group = "World topo")
 # Add the American Indian Reservations feature layer to the map
-lmap <- TADA::TADA_addPolys(lmap, "https://geopub.epa.gov/arcgis/rest/services/EMEF/Tribal/MapServer/2/query", "Tribes", "American Indian Reservations")
+lmap <- TADA:::TADA_addPolys(lmap, "https://geopub.epa.gov/arcgis/rest/services/EMEF/Tribal/MapServer/2/query", "Tribes", "American Indian Reservations")
 lmap
 
 }

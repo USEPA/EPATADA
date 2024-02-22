@@ -110,7 +110,7 @@ VATribeUrl <- "https://geopub.epa.gov/arcgis/rest/services/EMEF/Tribal/MapServer
 #' TADAProfile <- TADA_JoinWQPProfiles(FullPhysChem = physchemProfile, Sites = stationProfile, Projects = projectProfile)
 #'
 #' # Run TADA_AutoClean
-#' Autocleaned_TADAProfile <- TADA::TADA_AutoClean(TADAProfile)
+#' Autocleaned_TADAProfile <- TADA:::TADA_AutoClean(TADAProfile)
 #' }
 #'
 TADA_AutoClean <- function(.data) {
@@ -853,7 +853,8 @@ TADA_RunKeyFlagFunctions <- function(.data, remove_na = TRUE, clean = TRUE) {
 #' # Get the bounding box of the data
 #' bbox <- sf::st_bbox(c(xmin = min(Data_6Tribes_5y$TADA.LongitudeMeasure), ymin = min(Data_6Tribes_5y$TADA.LatitudeMeasure), xmax = max(Data_6Tribes_5y$TADA.LongitudeMeasure), ymax = max(Data_6Tribes_5y$TADA.LatitudeMeasure)), crs = sf::st_crs(Data_6Tribes_5y))
 #' # Get a string containing the JSON of the bounding box
-#' TADA::getBboxJson(bbox)
+#' TADA:::getBboxJson(bbox)
+#' 
 getBboxJson <- function(bbox) {
   json <- paste0('{"xmin":', bbox[1], ',"ymin":', bbox[2], ',"xmax":', bbox[3], ',"ymax":', bbox[4], "}")
   return(json)
@@ -874,7 +875,7 @@ getBboxJson <- function(bbox) {
 #'
 #' @examples
 #' # Create three PNG files, a red circle, blue triangle, and yellow "X", each on a green background.
-#' TADA::pchIcons(c(1, 2, 4), 40, 40, "green", c("red", "blue", "yellow"))
+#' TADA:::pchIcons(c(1, 2, 4), 40, 40, "green", c("red", "blue", "yellow"))
 pchIcons <- function(pch = 1,
                      width = 30,
                      height = 30,
@@ -919,7 +920,7 @@ pchIcons <- function(pch = 1,
 #' # Get the bounding box of the data
 #' bbox <- sf::st_bbox(c(xmin = min(Data_Nutrients_UT$TADA.LongitudeMeasure), ymin = min(Data_Nutrients_UT$TADA.LatitudeMeasure), xmax = max(Data_Nutrients_UT$TADA.LongitudeMeasure), ymax = max(Data_Nutrients_UT$TADA.LatitudeMeasure)), crs = sf::st_crs(Data_Nutrients_UT))
 #' # Get the American Indian Reservations feature layer, filtered by the bounding box for the Data_Nutrients_UT example dataset
-#' TADA::getFeatureLayer("https://geopub.epa.gov/arcgis/rest/services/EMEF/Tribal/MapServer/2/query", bbox)
+#' TADA:::getFeatureLayer("https://geopub.epa.gov/arcgis/rest/services/EMEF/Tribal/MapServer/2/query", bbox)
 getFeatureLayer <- function(url, bbox = NULL) {
   if (is.null(bbox)) {
     inputGeom <- NULL
@@ -943,7 +944,7 @@ getFeatureLayer <- function(url, bbox = NULL) {
 #' # Get the Oklahoma Tribal Statistical Areas feature layer
 #' layer <- getFeatureLayer("https://geopub.epa.gov/arcgis/rest/services/EMEF/Tribal/MapServer/4/query")
 #' # Get popup text for individual markers
-#' TADA::getPopup(layer, "Oklahoma Tribal Statistical Areas")
+#' TADA:::getPopup(layer, "Oklahoma Tribal Statistical Areas")
 getPopup <- function(layer, layername) {
   text <- paste0("<strong>", layername, "</strong><p>")
   cols <-
@@ -965,7 +966,7 @@ getPopup <- function(layer, layername) {
 #' Add polygons from an ArcGIS feature layer to a leaflet map
 #'
 #' @param map A leaflet map
-#' @param url URL of the ArcGIS REST service returning the tribal feature layer
+#' @param url URL of the ArcGIS REST service returning the polygon feature layer
 #' @param layergroup Name of the layer group
 #' @param layername Name of the layer
 #' @param bbox A bounding box from the sf function st_bbox; used to filter the query results. Optional; defaults to NULL.
@@ -975,7 +976,7 @@ getPopup <- function(layer, layername) {
 #' # Create a leaflet map
 #' lmap <- leaflet::leaflet() %>% leaflet::addProviderTiles("Esri.WorldTopoMap", group = "World topo")
 #' # Add the American Indian Reservations feature layer to the map
-#' lmap <- TADA::TADA_addPolys(lmap, "https://geopub.epa.gov/arcgis/rest/services/EMEF/Tribal/MapServer/2/query", "Tribes", "American Indian Reservations")
+#' lmap <- TADA:::TADA_addPolys(lmap, "https://geopub.epa.gov/arcgis/rest/services/EMEF/Tribal/MapServer/2/query", "Tribes", "American Indian Reservations")
 #' lmap
 #' 
 #' @export
@@ -1016,7 +1017,7 @@ TADA_addPolys <- function(map, url, layergroup, layername, bbox = NULL) {
 #' Add points from an ArcGIS feature layer to a leaflet map
 #'
 #' @param map A leaflet map
-#' @param url URL of the ArcGIS REST service returning the tribal feature layer
+#' @param url URL of the ArcGIS REST service returning the points feature layer
 #' @param layergroup Name of the layer group
 #' @param layername Name of the layer
 #' @param bbox A bounding box from the sf function st_bbox; used to filter the query results. Optional; defaults to NULL.
@@ -1026,7 +1027,7 @@ TADA_addPolys <- function(map, url, layergroup, layername, bbox = NULL) {
 #' # Create a leaflet map
 #' lmap <- leaflet::leaflet() %>% leaflet::addProviderTiles("Esri.WorldTopoMap", group = "World topo")
 #' # Add the Virginia Federally Recognized Tribes feature layer to the map
-#' lmap <- TADA::TADA_addPoints(lmap, "https://geopub.epa.gov/arcgis/rest/services/EMEF/Tribal/MapServer/5/query", "Tribes", "Virginia Federally Recognized Tribes")
+#' lmap <- TADA:::TADA_addPoints(lmap, "https://geopub.epa.gov/arcgis/rest/services/EMEF/Tribal/MapServer/5/query", "Tribes", "Virginia Federally Recognized Tribes")
 #' lmap
 #' 
 #' @export

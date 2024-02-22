@@ -9,7 +9,7 @@ TADA_addPoints(map, url, layergroup, layername, bbox = NULL)
 \arguments{
 \item{map}{A leaflet map}
 
-\item{url}{URL of the ArcGIS REST service returning the tribal feature layer}
+\item{url}{URL of the ArcGIS REST service returning the points feature layer}
 
 \item{layergroup}{Name of the layer group}
 
@@ -27,7 +27,7 @@ Add points from an ArcGIS feature layer to a leaflet map
 # Create a leaflet map
 lmap <- leaflet::leaflet() \%>\% leaflet::addProviderTiles("Esri.WorldTopoMap", group = "World topo")
 # Add the Virginia Federally Recognized Tribes feature layer to the map
-lmap <- TADA::TADA_addPoints(lmap, "https://geopub.epa.gov/arcgis/rest/services/EMEF/Tribal/MapServer/5/query", "Tribes", "Virginia Federally Recognized Tribes")
+lmap <- TADA:::TADA_addPoints(lmap, "https://geopub.epa.gov/arcgis/rest/services/EMEF/Tribal/MapServer/5/query", "Tribes", "Virginia Federally Recognized Tribes")
 lmap
 
 }
