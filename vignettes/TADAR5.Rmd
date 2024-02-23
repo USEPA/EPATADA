@@ -5,7 +5,7 @@ date: "`r Sys.Date()`"
 output: rmarkdown::html_vignette
 vignette: >
   %\usepackage[utf8]{inputenc}
-  %\VignetteIndexEntry{TADA Module 1: Water Quality Portal Data Discovery and Cleaning}
+  %\VignetteIndexEntry{TADA Package Training: A Markdown For Region 5 R Users Network}
   %\VignetteEngine{knitr::rmarkdown}
 editor_options: 
   chunk_output_type: console
@@ -34,9 +34,9 @@ pre[class] {
 ## Welcome
 
 Thank you for your interest in Tools for Automated Data Analysis (TADA). TADA is an open-source tool set built in the R programming language. This [RMarkdown](https://bookdown.org/yihui/rmarkdown/) document walks users through how to download the TADA R package from GitHub, access and parameterize several important functions with a sample dataset and create basic visualizations. The sample data set contains data from one week from
-all EPA Region 5 states submitted by multiple organizations.
+all EPA Region 5 states.
 
-The workflow is similar to a funnel: at each decision point, data that fail QC checks are removed from the core dataset and placed in a separate dataframe, while data that pass are carried into the next step. At the end of the QC checks, the user should be confident that their data are properly documented and applicable to the analysis at hand.
+This example workflow is similar to a funnel: at each decision point, data that fail QC checks are removed from the core dataset and placed in a separate dataframe, while data that pass are carried into the next step. At the end of the QC checks, the user should be confident that their data are properly documented and applicable to the analysis at hand.
 
 **Note: TADA is still under development. New functionality is added weekly, and sometimes we need to make bug fixes in response to tester and user feedback. We appreciate your feedback, patience, and interest in these helpful tools.**
 
@@ -203,11 +203,19 @@ The defaults are to include surface water, exclude groundwater and sediment, and
 
 ```{r AnalysisDataFilter}
 
-# Filter to retain only results for use in analysis
-TADAProfile <- TADA_AnalysisDataFilter(TADAProfile)
+# Filter to retain only results for use in analysis including only surface water results
+R5Profile <- TADA_AnalysisDataFilter(R5Profile, 
+                                     clean = TRUE,
+                                     surfacewater = TRUE,
+                                     groundwater = FALSE,
+                                     sediment = FALSE)
 
-# Add TADA.UseForAnalysis.Flag column to identify which results should be used for analysis
-# TADAProfile <- TADA_AnalysisDataFilter(TADAProfile)
+# Add TADA.UseForAnalysis.Flag column to identify which results should be used for analysis including only surface water results
+# R5Profile <- TADA_AnalysisDataFilter(R5Profile, 
+                                     # clean = TRUE,
+                                     # surfacewater = TRUE,
+                                     # groundwater = FALSE,
+                                     # sediment = FALSE))
 
 ```
 
@@ -250,7 +258,7 @@ specifies what the special characters are.
 
 # run TADA_AutoClean on filtered dataset to convert special characters, result units, and depth units and identify censored data.
 
-TADAProfile <- TADA_AutoClean(TADAProfile)
+R5Profile <- TADA_AutoClean(R5Profile)
 
 ```
 
@@ -259,13 +267,13 @@ Review all column names in the TADA Profile to familiarize yourself with the dat
 ```{r TADA_SummarizeColumn}
 
 # View column names for TADAProfile
-colnames(TADAProfile)
+colnames(R5Profile)
 
 # Review the number of sites and number of records for each CharacteristicName in TADAProfile
-TADAProfile_CharSummary <- TADA_SummarizeColumn(TADAProfile, "TADA.CharacteristicName")
+R5Profile_CharSummary <- TADA_SummarizeColumn(R5Profile, "TADA.CharacteristicName")
 
 # View TADAProfile_CharSummary
-TADAProfile_CharSummary
+R5Profile_CharSummary
 ```
 
 
@@ -282,7 +290,7 @@ a pop-up with this summary information. This map may inform a
 user's decision to remove/correct sites that are outside the US.
 
 ```{r Map, fig.width=8, fig.height=6, fig.fullwidth=TRUE}
-TADA_OverviewMap(TADAProfile)
+TADA_OverviewMap(R5Profile)
 ```
 
 The TADA **TADA_FlagCoordinates** function identifies and flags
@@ -332,7 +340,7 @@ following flags (if relevant to dataframe):
 
 ```{r TADA_FlagCoordinates}
 # flag and remove --> CHANGE THIS
-TADAProfileClean1 <- TADA_FlagCoordinates(TADAProfile, clean_outsideUSA = "no", clean_imprecise = FALSE, flaggedonly = FALSE)
+R5ProfileClean1 <- TADA_FlagCoordinates(R5Profile, clean_outsideUSA = "no", clean_imprecise = FALSE, flaggedonly = FALSE)
 
 # review unique flags in TADAProfileClean1
 unique(TADAProfileClean1$TADA.InvalidCoordinates.Flag)
