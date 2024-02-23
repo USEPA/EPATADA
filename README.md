@@ -55,15 +55,15 @@ In 2012, the WQP was deployed by the U.S. Geological Survey (USGS), the U.S. Env
 1.  To download R: Go to <https://cran.r-project.org/> and click the link that describes your computer operating system in the first box in the menu entitled "Download and Install R".
 2.  Clicking your operating system will take you to a new page, which looks slightly different for PC (first image) and Macs (second image):
 
-![](images/Install1.png)
+![](man/figures/Install1.png)
 
-![](images/Install2.png)
+![](man/figures/Install2.png)
 
 3.  Download the program by clicking the appropriate link for your system, and click through the installer windows on your computer, accepting all defaults.
 
 4.  Next, go to the following link to download RStudio: <https://posit.co/download/rstudio-desktop/>, scroll down a little, and click download RStudio.
 
-![](images/Install3-01.png)
+![](man/figures/Install3-01.png)
 
 3.  Again, download the installer, click through the prompts, and accept the defaults.
 
