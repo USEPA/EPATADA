@@ -7,18 +7,13 @@
 TADA_GetTemplate()
 }
 \value{
-A .xlsx spreadsheet to be saved in the user's working directory.
+A TADA template data frame with all required columns for the TADA workflow.
 }
 \description{
-This function downloads a .xlsx template with all required columns for TADA
-to the user's computer to cater custom datasets to the TADA format.
-It contains one sample row to guide users when adding their own data to the
-spreadsheet. Please note that it downloads the spreadsheet to the user's current
-working directory.
+This function returns a blank TADA template data frame that can be used
+as a starting point to reformat your own custom data set into the TADA format.
 }
 \examples{
-\dontrun{
-TADA_GetTemplate()
-}
+TADA_Template <- TADA_GetTemplate()
 
 }

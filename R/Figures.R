@@ -369,8 +369,8 @@ TADA_Histogram <- function(.data, id_cols = c("TADA.ComparableDataIdentifier")) 
 #' @return A leaflet map that shows all sites in the data frame, where larger point sizes
 #' indicate more results collected at a site, and darker point colors indicate more
 #' characteristics measured at that site. Users can click on points on the map to see
-#' a pop-up window with exact counts for measurements, visits, and characteristics
-#' associated with each site.
+#' a pop-up window with exact counts for measurements (i.e. number of rows),
+#' visits (number of unique Activity ID's), and characteristics associated with each site.
 #'
 #' @export
 #'
@@ -381,9 +381,9 @@ TADA_Histogram <- function(.data, id_cols = c("TADA.ComparableDataIdentifier")) 
 #' data(Data_6Tribes_5y_Harmonized)
 #'
 #' # Create maps:
-#' TADA_OverviewMap(Data_Nutrients_UT)
-#' TADA_OverviewMap(Data_NCTCShepherdstown_HUC12)
-#' TADA_OverviewMap(Data_6Tribes_5y_Harmonized)
+#' TADA:::TADA_OverviewMap(Data_Nutrients_UT)
+#' TADA:::TADA_OverviewMap(Data_NCTCShepherdstown_HUC12)
+#' TADA:::TADA_OverviewMap(Data_6Tribes_5y_Harmonized)
 #'
 TADA_OverviewMap <- function(.data) {
   suppressWarnings({
@@ -395,12 +395,11 @@ TADA_OverviewMap <- function(.data) {
       return(leaflet::addLegend(map, colors = colorAdditions, labels = labelAdditions, opacity = opacity, title = "Measurements"))
     }
 
-
     sumdat <- .data %>%
       dplyr::group_by(MonitoringLocationIdentifier, MonitoringLocationName, TADA.LatitudeMeasure, TADA.LongitudeMeasure) %>%
       dplyr::summarise("Sample_Count" = length(unique(ResultIdentifier)), "Visit_Count" = length(unique(ActivityStartDate)), "Parameter_Count" = length(unique(TADA.CharacteristicName)), "Organization_Count" = length(unique(OrganizationIdentifier)))
 
-    pt_sizes <- round(quantile(sumdat$Sample_Count, probs = c(0.1, 0.25, 0.5, 0.75)), 0)
+    pt_sizes <- round(stats::quantile(sumdat$Sample_Count, probs = c(0.1, 0.25, 0.5, 0.75)), 0)
     pt_labels <- c(
       paste0("<=", pt_sizes[1]),
       paste0(">", pt_sizes[1]),
@@ -424,10 +423,25 @@ TADA_OverviewMap <- function(.data) {
       domain = sumdat$Parameter_Count
     )
 
+    # Tribal layers will load by default in the overview map, restricted by the bounding box of the current dataset
+    # They can be toggled on and off using a button (all layers work together and can't be turned on/off individually). 
+    # Colors and icons are as discussed previously (orange/tan colors and open triangle icons for points) but can be changed to match HMW if desired.
+    bbox <- sf::st_bbox(
+      c(
+        xmin = min(sumdat$TADA.LongitudeMeasure),
+        ymin = min(sumdat$TADA.LatitudeMeasure),
+        xmax = max(sumdat$TADA.LongitudeMeasure),
+        ymax = max(sumdat$TADA.LatitudeMeasure)
+      ),
+      crs = sf::st_crs(sumdat)
+    )
+    vbbox <- bbox %>%
+      as.vector()
+
     map <- leaflet::leaflet() %>%
       leaflet::addProviderTiles("Esri.WorldTopoMap", group = "World topo", options = leaflet::providerTileOptions(updateWhenZooming = FALSE, updateWhenIdle = TRUE)) %>%
       leaflet::clearShapes() %>% # get rid of whatever was there before if loading a second dataset
-      leaflet::fitBounds(lng1 = min(sumdat$TADA.LongitudeMeasure), lat1 = min(sumdat$TADA.LatitudeMeasure), lng2 = max(sumdat$TADA.LongitudeMeasure), lat2 = max(sumdat$TADA.LatitudeMeasure)) %>% # fit to bounds of data in tadat$raw
+      leaflet::fitBounds(lng1 = vbbox[1], lat1 = vbbox[2], lng2 = vbbox[3], lat2 = vbbox[4]) %>% # fit to bounds of data in tadat$raw
       leaflet.extras::addResetMapButton() %>% # button to reset to initial zoom and lat/long
       leaflet::addCircleMarkers(
         data = sumdat,
@@ -457,6 +471,17 @@ TADA_OverviewMap <- function(.data) {
         colors = "black",
         labels = site_legend$Sample_n, sizes = site_legend$Point_size * 2
       )
+    # TADA_addPolys and TADA_addPoints are in Utilities.R
+    map <- TADA_addPolys(map, AKAllotmentsUrl, "Tribes", "Alaska Allotments", bbox)
+    map <- TADA_addPolys(map, AmericanIndianUrl, "Tribes", "American Indian", bbox)
+    map <- TADA_addPolys(map, OffReservationUrl, "Tribes", "Off Reservation", bbox)
+    map <- TADA_addPolys(map, OKTribeUrl, "Tribes", "Oklahoma Tribe", bbox)
+    map <- TADA_addPoints(map, AKVillagesUrl, "Tribes", "Alaska Native Villages", bbox)
+    map <- TADA_addPoints(map, VATribeUrl, "Tribes", "Virginia Tribe", bbox)
+    map <- leaflet::addLayersControl(map,
+      overlayGroups = c("Tribes"),
+      options = leaflet::layersControlOptions(collapsed = FALSE)
+    )
     return(map)
   })
 }
