@@ -225,7 +225,7 @@ TADA_FieldValuesPie(R5Profile, field = "ActivityMediaName")
 
 ```{r fieldvales_actmedia, echo = FALSE}
 
-n_media <- length(unique(fieldCounts_Table$Value))
+n_media <- length(unique(FieldValues_ActMedia$Value))
 
 unique_media <- FieldValues_ActMedia %>%
   dplyr::select(Value) %>%
@@ -350,14 +350,20 @@ R5Profile_CharSummary
 
 n_char_name <- length(unique(R5Profile_CharSummary$TADA.CharacteristicName))
 
-char_max_sites <- R5Profile_CharSummary %>%
-  dplyr::slice_max(n_sites)
+identify_max_sites <- R5Profile_CharSummary %>%
+  dplyr::slice_max(n_sites) 
+
+char_max_sites <- identify_max_sites %>%
+  dplyr::select(TADA.CharacteristicName)
 
 max_sites <- char_max_sites %>%
   dplyr::select(n_sites)
   
-char_max_results <-R5Profile_CharSummary %>%
+identify_max_results <-R5Profile_CharSummary %>%
   dplyr::slice_max(n_records)
+
+char_max_results <- identify_max_results %>%
+  dplyr::select(TADA.CharacteristicName)
 
 max_sites <- char_max_sites %>%
   dplyr::select(n_records)
@@ -430,16 +436,16 @@ following flags (if relevant to dataframe):
     as "Imprecise".
 
 ```{r TADA_FlagCoordinates}
-# flag and remove --> CHANGE THIS
+# flag only
 R5ProfileClean1 <- TADA_FlagCoordinates(R5Profile, clean_outsideUSA = "no", clean_imprecise = FALSE, flaggedonly = FALSE)
 
-# review unique flags in TADAProfileClean1
-unique(TADAProfileClean1$TADA.InvalidCoordinates.Flag)
+# review unique flags in R5ProfileClean1
+unique(R5ProfileClean1$TADA.InvalidCoordinates.Flag)
 
 # review unique MonitoringLocationIdentifiers in your flag dataframe
 unique(TADAProfileClean1$MonitoringLocationIdentifier)
 
-Unique_InvalidCoordinateFlags <- TADAProfileClean1 %>%
+Unique_CoordinateFlags <- R5ProfileClean1 %>%
   dplyr::select(
     "MonitoringLocationIdentifier",
     "MonitoringLocationName",
@@ -457,18 +463,46 @@ Unique_InvalidCoordinateFlags <- TADAProfileClean1 %>%
     "ProjectIdentifier",
     "OrganizationFormalName"
   ) %>%
-  dplyr::distinct()
+  dplyr::distinct() %>%
+  dplyr::filter(TADA.InvalidCoordinates.Flag != "OK")
 
-Unique_InvalidCoordinateFlags
+Unique_CoordinateFlags
 
 # if needed, un-comment below to change the sign for all data for sites flagged as outside the USA. You can also change FALSE to TRUE if you want to remove sites outside of the US or sites with imprecise lat/longs
 
-# TADAProfileClean1 <- TADA_FlagCoordinates(TADAProfile, clean_outsideUSA = "change sign", clean_imprecise = FALSE, flaggedonly = FALSE)
+# R5ProfileClean1 <- TADA_FlagCoordinates(R5Profile, clean_outsideUSA = "change sign", clean_imprecise = FALSE, flaggedonly = FALSE)
 
 
 ```
 
-## Depth unit conversions
+```{r qcoord, echo = FALSE}
+
+# review unique flags in R5ProfileClean1
+n_unique_coord_flag <- length(unique(R5ProfileClean1$TADA.InvalidCoordinates.Flag))
+
+unique_coord_flag <- paste(unique(R5ProfileClean1$TADA.InvalidCoordinates.Flag), collapse = ", ") %>%
+stringi::stri_replace_last(fixed = ", ", " and ")
+
+n_outside_US <- Unique_CoordinateFlags %>%
+  dplyr::filter(TADA.InvalidCoordinates.Flag %in%
+                  c("LONG_OutsideUSA", "LAT_OutsideUSA")) %>%
+  nrow()
+
+n_imprecise <- Unique_CoordinateFlags %>%
+  dplyr::filter(TADA.InvalidCoordinates.Flag == "Imprecise_lessthan3decimaldigits") %>%
+  nrow()
+  
+
+
+```
+
+**Question 4: How many unique coordinates flags were identified? How many Monitoring Locations in the data set had coordinates outside the US? How many Monitoring Locations were flagged with imprecise coordinates?**
+
+**Answer:**
+There are `r n_unique_coord_flag` unique coordinates flags (`r unique_coord_flag`). There are `r n_outside_US` Monitoring Locations with coordinates flagged outside the US. There are `r n_imprecise` Monitoring Locations with imprecise coordinates flagged
+
+
+## Depth unit conversions - REMOVE THIS?
 
 The **TADA_ConvertDepthUnits** function converts depth units to a
 consistent unit. Depth values and units are most commonly associated
@@ -488,7 +522,7 @@ entering the following code in the console: ?TADA_ConvertDepthUnits
 
 ```{r TADA_ConvertDepthUnits}
 # converts all depth profile data to feet
-TADAProfileClean1 <- TADA_ConvertDepthUnits(TADAProfileClean1,
+R5ProfileClean1 <- TADA_ConvertDepthUnits(R5ProfileClean1,
   unit = "ft",
   transform = TRUE
 )
@@ -527,14 +561,22 @@ See function documentation for additional function options by entering
 the following code in the console: ?TADA_FindContinuousData
 
 ```{r AggregatedContinuousData}
-TADAProfileClean1 <- TADA_FindContinuousData(TADAProfileClean1,
+R5ProfileClean1 <- TADA_FindContinuousData(R5ProfileClean1,
   clean = FALSE
 )
-
-# uncomment below to create a dataframe of only the aggregated continuous data
-
-# TADAProfile_aggcont <- TADA_FindContinuousData(TADAProfileClean3, clean = FALSE, flaggedonly = TRUE)
 ```
+
+```{r q5, echo = FALSE}
+
+n_cont_agg <- R5ProfileClean1 %>%
+  dplyr::filter(TADA.AggregatedContinuousData.Flag == "Y") %>%
+  nrow()
+```
+
+**Question 5: How many results are aggregated and associated with continuous data?**
+
+**Answer:**
+There are `r n_cont_aggS` results associated with aggregated continuous data.
 
 ## WQX Quality Assurance and Quality Control (QAQC) Service Result Flags
 
@@ -611,14 +653,29 @@ See documentation for more details:
         rows flagged as "Invalid"; default is flaggedonly = FALSE.
 
 ```{r Invalid_Method_Fraction_Speciation_ResultUnit}
-TADAProfileClean2 <- TADA_FlagMethod(TADAProfileClean1, clean = TRUE)
+R5ProfileClean2 <- TADA_FlagMethod(R5ProfileClean1, clean = TRUE)
 
-TADAProfileClean2 <- TADA_FlagFraction(TADAProfileClean2, clean = TRUE)
+R5ProfileClean2 <- TADA_FlagFraction(R5ProfileClean2, clean = TRUE)
 
-TADAProfileClean2 <- TADA_FlagSpeciation(TADAProfileClean2, clean = "invalid_only")
+R5ProfileClean2 <- TADA_FlagSpeciation(R5ProfileClean2, clean = "invalid_only")
 
-TADAProfileClean2 <- TADA_FlagResultUnit(TADAProfileClean2, clean = "invalid_only")
+R5ProfileClean2 <- TADA_FlagResultUnit(R5ProfileClean2, clean = "invalid_only")
+
+# Determine number of rows removed
+
+R5ProfileClean1_n <- nrow(R5ProfileClean1)
+
+R5ProfileClean2_n <- nrow(R5ProfileClean2)
+
+rows_removed_n <- R5ProfileClean1_n - R5ProfileClean2_n
+
+
 ```
+
+**Question 6: How many results were removed due to the WQX QAQC service functions? What might be a helpful first step in investigating why these removals occurred?**
+
+**Answer:**
+`r rows_removed_n` were removed from the data set as a result of TADA_FlagMethod, TADA_FlagFraction, TADA_FlagSpeciation, and TADA_FlagResultUnit. To learn more about specific methods, fractions, speciation, or result units that were flagged for removal, you could re-run the flag functions with clean = FALSE and filter by flag types.
 
 ## WQX national upper and lower thresholds
 
@@ -655,16 +712,50 @@ combination. See documentation for more details:
         flaggedonly = FALSE.
 
 ```{r WQX_Thresholds}
-TADAProfileClean3 <- TADA_FlagAboveThreshold(TADAProfileClean2, clean = TRUE)
+R5ProfileClean3 <- TADA_FlagAboveThreshold(R5ProfileClean2, clean = TRUE)
 
-TADAProfileClean3 <- TADA_FlagBelowThreshold(TADAProfileClean3, clean = TRUE)
+R5ProfileClean3 <- TADA_FlagBelowThreshold(R5ProfileClean3, clean = TRUE)
+
+R5ProfileClean2_n <- nrow(R5ProfileClean2)
+
+R5ProfileClean3_n <- nrow(R5ProfileClean3)
+
+threshold_removed_n <- R5ProfileClean2_n - R5ProfileClean3_n
 ```
+
+**Question 6: How many results were removed due to the WQX upper and lower thresholds?**
+
+**Answer:**
+`r threshold_removed_n` results were removed due to falling outside the WQX upper or lower thresholds.
+
 
 ## Potential duplicates
 
 Sometimes multiple organizations submit the exact same data to Water
 Quality Portal (WQP), which can affect water quality analyses and
-assessments. Similarly, organizations occasionally submit the same data multiple times to the Portal. The following functions check for and identify data that may be duplicates based on date, time, characteristic, result value, and a distance buffer. Each pair or group of potential duplicate rows is flagged with a
+assessments. Let;s start by looking at the submitting organizations for this data set and their relative contributions.
+
+```{r Organizations}
+FieldValues_Orgs <- TADA_FieldValuesTable(R5ProfileClean3, field = "OrganizationFormalName")
+
+TADA_FieldValuesPie(R5ProfileClean3, field = "OrganizationFormalName")
+```
+
+```{r q7, echo = FALSE}
+
+orgs_n <- length(unique(FieldValues_Orgs$Value))
+
+org_max <- dplyr::slice_max(FieldValues_Orgs, Count) 
+  
+org_min <- dplyr::slice_min(FieldValues_Orgs, Count) 
+```
+**Question 7: How many organizations submitted data? Which organization submitted the most results? Which organization submitted the fewest results?**
+
+**Answer:**
+`r orgs_n` unique organizations submitted data. `r org_max$Value` submitted the most results (n = `r org_max$Count`). `r org_min$Value` submitted the most results (n = `r org_min$Count`).
+
+
+Organizations occasionally submit the same data multiple times to the Portal. The following functions check for and identify data that may be duplicates based on date, time, characteristic, result value, and a distance buffer. Each pair or group of potential duplicate rows is flagged with a
 unique ID. For more information, review the documentation by entering
 the following into the console:
 
@@ -673,13 +764,33 @@ the following into the console:
 
 
 ```{r FindPotentialDuplicates}
-TADAProfileClean3 <- TADA_FindPotentialDuplicatesMultipleOrgs(TADAProfileClean3,
+R5ProfileClean3 <- TADA_FindPotentialDuplicatesMultipleOrgs(R5ProfileClean3,
   dist_buffer = 100,
   org_hierarchy = "none"
 )
 
-TADAProfileClean3 <- TADA_FindPotentialDuplicatesSingleOrg(TADAProfileClean3)
+R5ProfileClean3 <- TADA_FindPotentialDuplicatesSingleOrg(R5ProfileClean3)
+
+# Remove multiple and single org duplicates (random selection of single result)
+
+R5ProfileClean4 <- R5ProfileClean3 %>%
+  dplyr::filter(TADA.ResultSelectedMultipleOrgs == "Y",
+                TADA.SingleOrgDup.Flag == "Unique")
+
+# Determine how many duplicate results were removed
+
+R5ProfileClean3_n <- nrow(R5ProfileClean3)
+
+R5ProfileClean4_n <- nrow(R5ProfileClean4)
+
+duplicate_removed_n <- R5ProfileClean3_n - R5ProfileClean4_n
+  
 ```
+
+**Question 8: How many total duplicate results were removed? How could you prioritize retaining results from your organization when duplicate results are identified?**
+
+**Answer:**
+`r duplicate_removed_n` duplicates were identified by TADA_FindPotentialDuplicatesMultipleOrgs and TADA_FindPotentialDuplicatesSingleOrg. To priorize results from a particular agency or agencies see documentation for ?TADA_FindDuplicatesMultipleOrgs for information on using the org_hierarchy argument.
 
 ## Review QAPP information
 
@@ -705,28 +816,29 @@ If clean = FALSE, cleanNA = FALSE, and flaggedonly = FALSE, the function
 will not do anything.
 
 ```{r TADA_FindQAPPApproval}
-TADAProfileClean3 <- TADA_FindQAPPApproval(TADAProfileClean3, clean = FALSE, cleanNA = FALSE)
+R5ProfileClean4 <- TADA_FindQAPPApproval(R5ProfileClean4)
+
+# organizations with an approved QAPP
+approved_QAPP <- R5ProfileClean4 %>%
+  dplyr::filter(QAPPApprovedIndicator == "Y") %>%
+  dplyr::select(OrganizationFormalName) %>%
+  unique()
+
+approved_QAPP_orgs <- paste(unique(approved_QAPP$OrganizationFormalName), collapse = ", ") %>%
+  stringi::stri_replace_last(fixed = ", ", " and ")
+  
+approved_QAPP_org_n <- length(unique(approved_QAPP$OrganizationFormalName))
+
 ```
+
+**Question 9: How many organizations submitted results with an approved QAPP? What are the names of those organizations?**
+
+**Answer:**
+`r approved_QAPP_org_n` (`r approved_QAPP_orgs`) organization(s) submitted results with an approved QAPP. duplicates were identified by TADA_FindPotentialDuplicatesMultipleOrgs and TADA_FindPotentialDuplicatesSingleOrg. To priorize results from a particular agency or agencies see documentation for ?TADA_FindDuplicatesMultipleOrgs for information on using the org_hierarchy argument.
 
 The **TADA_FindQAPPDoc** function checks to see if a QAPP Doc is
-Available
-
-This function checks data submitted under the "ProjectFileUrl" column to
-determine if a QAPP document is available to review. When clean = FALSE,
-a column will be appended to flag results that do have an associated
-QAPP document URL provided. When clean = TRUE, rows that do not have an
-associated QAPP document are removed from the dataframe and no column
-will be appended. When flaggedonly = TRUE, the dataframe is filtered to
-show only rows that do not have an associated QAPP document. The
-defaults are clean = FALSE and flaggedonly = FALSE. This function should
-only be used to remove data if an accompanying QAPP document is required
-to use data in assessments.
-
-```{r TADA_FindQAPPDoc}
-TADAProfileClean3 <- TADA_FindQAPPDoc(TADAProfileClean3,
-  clean = FALSE
-)
-```
+Available. This function checks data submitted under the "ProjectFileUrl" column to
+determine if a QAPP document is available to review. See TADA Module 1 or ?TADA_FindQAPPDoc() for more information on this function.
 
 ## Full Dataframe Filtering
 
@@ -783,10 +895,10 @@ NA's are not included in the output):
 # multiple options
 
 # print table to console
-TADA_FieldCounts(TADAProfileClean3)
+TADA_FieldCounts(R5ProfileClean4)
 
 # create object of table
-fieldCounts_Table <- TADA_FieldCounts(TADAProfileClean3)
+R5_fieldCounts_Table <- TADA_FieldCounts(R5ProfileClean4)
 ```
 
 
@@ -810,58 +922,83 @@ https://cdx.epa.gov/wqx/download/DomainValues/ActivityType.CSV
 ```{r Run TADA_FindQCActivities to review replicates}
 # Review flagged QC samples using the TADA_FindQCActivities function:
 # enter ?TADA_FindQCActivities into the console for more information
-TADAProfileClean3a <- TADA_FindQCActivities(TADAProfileClean3,
+R5ProfileClean4a <- TADA_FindQCActivities(R5ProfileClean4,
   clean = FALSE,
   flaggedonly = TRUE
 )
 
 # Filter to review only data where the TADA.ActivityType.Flag = "QC_replicate"
-TADAProfileClean3a <- dplyr::filter(TADAProfileClean3a, TADA.ActivityType.Flag == "QC_replicate")
+R5ProfileClean4a <- dplyr::filter(R5ProfileClean4a, TADA.ActivityType.Flag == "QC_replicate")
 ```
 
 Now, let's run **TADA_PairReplicates** to see if any replicates in this 
 dataframe can be paired with their original (parent) samples/measurements.
 
-We found over CHECK IN NEW DATA SET FOR VALUE replicates in this dataframe that have a paired parent sample/measurement (based on a 10-minute time window, which can be adjusted if desired). Enter ?TADA_PairReplicates into the console for more details.
-
-Users of TADA have noted that it would be useful to incorporate replicate field samples into water quality data analysis by (a) flagging routine field sample measurements whose associated replicate field sample measurements are outside of a user-defined window of precision (relative percent difference or absolute difference) and/or (b) averaging or randomly replacing routine field sample measurements with their associated replicate field sample measurements. 
-
-For now, users can perform these subsequent analyses outside of TADA. See TADA Module 1 for more information about replicate field samples and additional analyses you may want to perform outside of TADA.
-
-MODIFY CODE JUST TO REMOVE REPLICATES
-
 ```{r Run TADA_PairReplicates}
 # Run TADA_PairReplicates to add new TADA.ReplicateSampleID column
-TADAProfileClean3b <- TADA_PairReplicates(TADAProfileClean3)
+R5ProfileClean4b <- TADA_PairReplicates(R5ProfileClean4)
 
 # Review unique values in TADA.ReplicateSampleID
-unique(TADAProfileClean3b$TADA.ReplicateSampleID)
+unique(R5ProfileClean4b$TADA.ReplicateSampleID)
 
 # Filter df to include only unique values that are paired replicate samples (parent-result and child-replicate).
 
 # Exclude NA's
-TADAProfileClean3b <- TADAProfileClean3b[!is.na(TADAProfileClean3b$TADA.ReplicateSampleID), ]
+R5ProfileClean4b <- R5ProfileClean4b[!is.na(R5ProfileClean4b$TADA.ReplicateSampleID), ]
 # Exclude orphans
-TADAProfileClean3b <- dplyr::filter(TADAProfileClean3b, TADA.ReplicateSampleID != "Orphan")
+R5ProfileClean4b <- dplyr::filter(R5ProfileClean4b, TADA.ReplicateSampleID != "Orphan")
+
+# Number of paired replicates
+
+paired_reps_n <- nrow(R5ProfileClean4b)
 
 # Review unique values in TADA.ReplicateSampleID
-unique(TADAProfileClean3b$TADA.ReplicateSampleID)
+unique(R5ProfileClean4b$TADA.ReplicateSampleID)
 ```
 
-Now, let's remove QC samples/measurements from the dataframe.
+**Question 9: How many replicates in this data set have a paired parent sample/measurement?**
+
+**Answer:**
+There are `r paired_reps_n` replicates in this data set with a paired parent sample/measurement based on the default 10-minute time window (this value can be adujsted, enter ?TADA_PairReplicates into the console for more information).
+
+Users of TADA have noted that it would be useful to incorporate replicate field samples into water quality data analysis. For now, users can perform these subsequent analyses outside of TADA. See TADA Module 1 for more information about replicate field samples and additional analyses you may want to perform outside of TADA.
+
+For now, let's remove QC samples/measurements from the dataframe.
 
 ```{r TADA_FindQCActivities, fig.width=6, fig.height=6, fig.fullwidth=TRUE}
 # Remove flagged QC samples using the TADA_FindQCActivities function:
-TADAProfileClean4 <- TADA_FindQCActivities(TADAProfileClean3,
+R5ProfileClean5 <- TADA_FindQCActivities(R5ProfileClean4,
   clean = TRUE
 )
 
 # regenerate table and pie chart
-TADA_FieldValuesTable(TADAProfileClean4, "ActivityTypeCode")
-TADA_FieldValuesPie(TADAProfileClean4, "ActivityTypeCode")
+TADA_FieldValuesTable(R5ProfileClean5, "ActivityTypeCode")
+
+TADA_FieldValuesPie(R5ProfileClean5, "ActivityTypeCode")
 ```
 
+```{r q10, fig.width=6, fig.height=6, fig.fullwidth=TRUE}
+# Number of ActivityTypeCodes
+
+activity_type_code_n <- length(unique(R5ProfileClean5$ActivityTypeCode))
+
+# List ActivityTypeCodes
+
+activity_type_list <- paste(unique(R5ProfileClean5$ActivityTypeCode), collapse = ", ") %>%
+  stringi::stri_replace_last(fixed = ", " , ", and ")
+
+# Most common Activity Type Code
+most_common_activity <- TADA_FieldValuesTable(R5ProfileClean5, "ActivityTypeCode") %>%
+  dplyr::slice_max(Count)
+```
+
+**Question 10: How many ActivityTypeCodes are present after removing QC samples? Which ActivityTypeCode is the most common?**
+
+**Answer:**
+There are `r` unique ActivityTypeCodes present after removing QC samples. `r most_common_activity$Value` is the most common ActivityTypeCode (n = `r most_common_activity$Count`)
+
 We've completed our review of the ActivityTypeCode.
+
 
 Now, let's move on to a different field and see if there are any values
 that we want to remove.
@@ -870,7 +1007,7 @@ In this next example, there are multiple MeasureQualifierCode values to
 review.
 
 ```{r MeasureQualifierCodeReview, fig.width=8, fig.height=6, fig.fullwidth=TRUE}
-TADA_FieldValuesPie(TADAProfileClean4, "MeasureQualifierCode")
+TADA_FieldValuesPie(R5ProfileClean5, "MeasureQualifierCode")
 ```
 
 MeasureQualifierCode definitions are available
@@ -882,20 +1019,26 @@ See ?TADA_FlagMeasureQualifierCode for more information.
 
 ```{r FilterMeasureQualifierCodes}
 # flag only
-Review_TADAProfileClean4 <- TADA_FlagMeasureQualifierCode(TADAProfileClean4,
+Review_R5ProfileClean5 <- TADA_FlagMeasureQualifierCode(R5ProfileClean5,
   clean = FALSE,
   flaggedonly = TRUE,
   define = TRUE
 )
-# Review_TADAProfileClean4 is empty because we did not find any Suspect samples
+# Review number of suspect results
 
-TADAProfileClean4 <- TADA_FlagMeasureQualifierCode(TADAProfileClean4,
-  clean = TRUE
-)
+suspect_n <- Review_R5ProfileClean5 %>%
+  dplyr::filter(TADA.MeasureQualifierCode.Flag == "SUSPECT") %>%
+  nrow()
 
-# regenerate table and pie chart
-TADA_FieldValuesPie(TADAProfileClean4, field = "MeasureQualifierCode")
+# Run function with clean = TRUE
+R5ProfileClean5 <- TADA_FlagMeasureQualifierCode(R5ProfileClean5,
+  clean = TRUE)
 ```
+
+**Question 10: How results were identified as "SUSPECT" based on the MeasureQualifierCode?**
+
+**Answer:**
+`r suspect_n` results were identified as suspect based on the MeasureQualifierCode.
 
 ## Censored data
 
@@ -922,7 +1065,7 @@ All censored data functions depend first on the **TADA_IDCensoredData**
 utility function, which assigns a *TADA.CensoredData.Flag* to all data
 records and identifies over-detects from non-detects using the
 *ResultDetectionConditionText* and *DetectionQuantitationLimitTypeName*.
-This utility function is automatically run within the TADA_DataRetrieval
+This utility function is automatically run within the TADA_AutoClean
 function and produces the *TADA.CensoredData.Flag* column. All records
 receive one of the following classifications: - Uncensored - Not filled
 with detection limit value; a detection. - Non-Detect - Left-censored -
