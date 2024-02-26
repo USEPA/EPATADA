@@ -36,7 +36,7 @@ pre[class] {
 Thank you for your interest in Tools for Automated Data Analysis (TADA). TADA is an open-source tool set built in the R programming language. This [RMarkdown](https://bookdown.org/yihui/rmarkdown/) document walks users through how to download the TADA R package from GitHub, access and parameterize several important functions with a sample dataset and create basic visualizations. The sample data set contains data from one week from
 all EPA Region 5 states.
 
-This example workflow is similar to a funnel: at each decision point, data that fail QC checks are removed from the core dataset and placed in a separate dataframe, while data that pass are carried into the next step. At the end of the QC checks, the user should be confident that their data are properly documented and applicable to the analysis at hand.
+This example workflow demonstrates how to use TADA package functions to  query and download Water Quality Portal data, filter it for records of interest, and run various QC checks. At the end of the QC checks, the user should be confident that their data are properly documented and applicable to the analysis at hand.
 
 **Note: TADA is still under development. New functionality is added weekly, and sometimes we need to make bug fixes in response to tester and user feedback. We appreciate your feedback, patience, and interest in these helpful tools.**
 
@@ -155,12 +155,12 @@ Additional resources:
 -   [Water Quality Portal Web Services
     Guide](https://www.waterqualitydata.us/webservices_documentation/)
 
--   TADA Module 1 (ADD LINK)
+-   TADA Module 1 (TADA Package Training: A Markdown For Region 5 R Users Network)
 
 
-This example includes monitoring data for six??? parameters collected for one month (May 2019) by Region 5 state organizations(???) (Illinois, Indiana, Michigan, Minnesota, Ohio, and Wisconsin). We will move forward with this example in the remainder of the vignette.
+The example dataset in this demo includes monitoring data from multiple organizations collected during one week (May 1, 2019 - May, 7 2019) in Region 5 states (Illinois, Indiana, Michigan, Minnesota, Ohio, and Wisconsin). 
 
-For demonstration purposes, the R5 example data set had already been downloaded and can be accessed by uncommenting and running the TADA_DataRetrieval function below. If you're following along you can run the code chunk below to access the pre-downloaded data set.
+For demonstration purposes, the R5 example data set has already been downloaded. If you're following along you can run the code chunk below to access the pre-downloaded data set. The original query has also been included and can be accessed by uncommenting and running the TADA_DataRetrieval function below.
 
 Downloads using TADA_DataRetrieval will have the same columns each time,
 but be aware that data are uploaded to the Water Quality Portal by
@@ -175,7 +175,7 @@ Note: TADA_DataRetrieval  automatically
 converts the date times to UTC and data
 to dates, datetimes, and numerics based on a standard algorithm. 
 
-**Note:** USGS and EPA are working together to create WQP 3.0 data profiles. Once released, one data profile will contain the columns critical to TADA, removing the need to combine profiles in this first step. TADA package users likely will not notice a difference in their usage of the `TADA_DataRetrieval` function, but it will simplify the steps needed to upload a custom or WQP GUI-downloaded dataset into the R package.
+**Note:** USGS and EPA are working together to create WQP 3.0 data profiles. Once released, one data profile will contain the columns critical to TADA, removing the need to combine profiles in this first step. TADA package users likely will not notice a difference in their usage of the `TADA_DataRetrieval` function, but it will simplify the steps needed to upload a custom or WQP GUI-downloaded data set into the R package.
 
 
 ```{r TADA_DataRetrieval}
@@ -185,38 +185,82 @@ to dates, datetimes, and numerics based on a standard algorithm.
 # For demo purposes, import pre-downloaded R5 data set
 
 R5Profile <- TADA::Data_R5_TADAPackageDemo
+
+# 
 ```
+
+**Question 1: How many results did TADA_DataRetrieval return?**
+
+```{r q1}
+
+R5_nresults <- nrow(R5Profile) # returns x and of x (as the numbers of rows and columns respectively)
+
+```
+
+**Answer: **
+There are `r R5_nresults` in the data set.
 
 If you need to download a large amount of data from across a large area,
 and the TADA_DataRetrieval function is not working due to WQP timeout
-issues, then the **TADA_BigDataRetrieval** function may work better. See ?TADA_BigDataRetrieval for more details or the TADA Module 1 for more details. 
+issues, then the **TADA_BigDataRetrieval** function may work better. See ?TADA_BigDataRetrieval for more details or the TADA Module 1 vignette for more details. 
 
-## Filter for Analysis 
+## Review and Filter By Media Type
+
+TADA is primarily designed to accommodate water data from the WQP. Let's see what activity media types are represented in the data set.
+
+To help answer this question, we can use TADA functions to create a 
+table or pie chart of the counts of unique values in a user-specified field with
+**TADA_FieldValuesTable** or **TADA_FieldValuesPie**. We'll start with
+*TADA.ActivityMediaName*.
+
+```{r fieldValues_all, fig.width=8, fig.height=6, fig.fullwidth=TRUE}
+
+FieldValues_ActMedia <- TADA_FieldValuesTable(R5Profile, field = "ActivityMediaName")
+
+TADA_FieldValuesPie(R5Profile, field = "ActivityMediaName")
+```
+
+
+**Question 2: How many unique 'ActivityMediaName' values exist in your dataset? Are there any media types that are not water?**
+
+```{r fieldvales_actmedia, echo = FALSE}
+
+n_media <- length(unique(fieldCounts_Table$Value))
+
+unique_media <- FieldValues_ActMedia %>%
+  dplyr::select(Value) %>%
+  dplyr::mutate(media = paste(Value, collapse = ", ")) %>%
+  dplyr::select(media) %>%
+  unique() %>%
+  stringi::stri_replace_last(fixed = ",", " and") 
+
+n_not_water <- FieldValues_ActMedia %>% 
+  dplyr::filter(Value != "Water")%>% 
+  dplyr::summarize(n_not_water = length(Value))
+
+```
+
+
+**Answer:**
+There are `r n_media` unique ActivityMediaNames in the data set. They are: `r unique_media`. `r n_not_water` of these are not water.
 
 Some TADA users are interested in using WQP data for surface water only or including some non-water data. The **TADA_AnalysisDataFilter** function can assist in identifying results of interest. Multiple columns are used to identify groundwater results as organizations may populate different combinations of fields in order to identify groundwater results.
 
 This function identifies surface water, groundwater, and sediment results. Users can  specify whether all results should be returned with a new column, *TADA.UseForAnalysis.Flag*, providing information about the result's media type of and identifying if the result should be included in further analysis or if only results that should be included are returned. 
 
-The defaults are to include surface water, exclude groundwater and sediment, and to return only the results that should be used for analysis (clean = TRUE). This is shown in the active example below. If you would like to see all results with the *TADA.UseForAnalysis.Flag* column, you can uncomment the example where clean = FALSE.
+The defaults are to include surface water, exclude groundwater and sediment, and to return all results with the added *TADA.UseForAnalysis.Flag* column (clean = FALSE). This is shown in the active example below. 
 
 **Note:** When WQX 3.0 data profiles are released, this function will be modified to include fish tissue an option.
 
 ```{r AnalysisDataFilter}
 
-# Filter to retain only results for use in analysis including only surface water results
-R5Profile <- TADA_AnalysisDataFilter(R5Profile, 
-                                     clean = TRUE,
-                                     surfacewater = TRUE,
-                                     groundwater = FALSE,
-                                     sediment = FALSE)
+# Filter to flag only surface water results for use in analysis 
 
-# Add TADA.UseForAnalysis.Flag column to identify which results should be used for analysis including only surface water results
-# R5Profile <- TADA_AnalysisDataFilter(R5Profile, 
-                                     # clean = TRUE,
-                                     # surfacewater = TRUE,
-                                     # groundwater = FALSE,
-                                     # sediment = FALSE))
+R5Profile <- TADA_AnalysisDataFilter(R5Profile, clean = FALSE)
 
+FieldValues_AnalysisFlag <- TADA_FieldValuesTable(R5Profile, field = "TADA.UseForAnalysis.Flag")
+
+TADA_FieldValuesPie(R5Profile, field = "TADA.UseForAnalysis.Flag")
 ```
 
 
