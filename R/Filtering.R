@@ -340,7 +340,7 @@ TADA_AnalysisDataFilter <- function(.data,
   
   if (surface_water == FALSE) {
     
-    sur.water.flag <- "Yes"
+    sur.water.flag <- "No"
     
     print("TADA_AnalysisDataFilter: Flagging surface water results to exclude from assessments.")
     
@@ -383,7 +383,7 @@ TADA_AnalysisDataFilter <- function(.data,
   if (clean == TRUE) {
     
     .data <- .data %>%
-      dplyr::mutate(TADA.MediaFlag = ifelse(is.na(TADA.Media.Flag), "OTHER", TADA.Media.Flag),
+      dplyr::mutate(TADA.Media.Flag = ifelse(TADA.Media.Flag == "", "OTHER", TADA.Media.Flag),
                     TADA.UseForAnalysis.Flag = dplyr::case_when(
         TADA.Media.Flag == "SEDIMENT" ~ paste(sed.flag, " - ", TADA.Media.Flag, sep = ""),
         TADA.Media.Flag == "SURFACE WATER" ~ paste(sur.water.flag, " - ", TADA.Media.Flag, sep = ""),
@@ -405,7 +405,7 @@ TADA_AnalysisDataFilter <- function(.data,
   if (clean == FALSE) {
     
     .data <- .data %>%
-      dplyr::mutate(TADA.MediaFlag = ifelse(is.na(TADA.Media.Flag), "OTHER", TADA.Media.Flag),
+      dplyr::mutate(TADA.Media.Flag = ifelse(TADA.Media.Flag == "", "OTHER", TADA.Media.Flag),
                     TADA.UseForAnalysis.Flag = dplyr::case_when(
                       TADA.Media.Flag == "SEDIMENT" ~ paste(sed.flag, " - ", TADA.Media.Flag, sep = ""),
                       TADA.Media.Flag == "SURFACE WATER" ~ paste(sur.water.flag, " - ", TADA.Media.Flag, sep = ""),
