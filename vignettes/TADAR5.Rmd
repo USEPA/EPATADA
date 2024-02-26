@@ -250,17 +250,19 @@ This function identifies surface water, groundwater, and sediment results. Users
 
 The defaults are to include surface water, exclude groundwater and sediment, and to return all results with the added *TADA.UseForAnalysis.Flag* column (clean = FALSE). This is shown in the active example below. 
 
+We can use TADA_FieldValuesTable and TADA_FieldValuesPie again to review this more specific breakdown of results by media type.
+
 **Note:** When WQX 3.0 data profiles are released, this function will be modified to include fish tissue an option.
 
 ```{r AnalysisDataFilter}
 
 # Filter to flag only surface water results for use in analysis 
 
-R5Profile <- TADA_AnalysisDataFilter(R5Profile, clean = FALSE)
+R5Profile2 <- TADA_AnalysisDataFilter(R5Profile, clean = FALSE)
 
-FieldValues_AnalysisFlag <- TADA_FieldValuesTable(R5Profile, field = "TADA.UseForAnalysis.Flag")
+FieldValues_AnalysisFlag <- TADA_FieldValuesTable(R5Profile2, field = "TADA.UseForAnalysis.Flag")
 
-TADA_FieldValuesPie(R5Profile, field = "TADA.UseForAnalysis.Flag")
+TADA_FieldValuesPie(R5Profile2, field = "TADA.UseForAnalysis.Flag")
 ```
 
 
