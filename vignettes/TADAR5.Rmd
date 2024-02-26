@@ -296,7 +296,7 @@ Now **TADA_AutoClean** can be run on the reduced data set. It performs the follo
 
 -   **TADA_ConvertResultUnits** - unifies result units for easier quality control and review
 
--   **TADA_ConvertDepthUnits** - converts depth units to a consistent unit (meters).
+-   **TADA_ConvertDepthUnits** - converts depth units to a consistent unit (meters). This function can also be run on its own, for example if you would like to convert depths from meters to feet later in the workflow.
 
 -   **TADA_IDCensoredData** - categorizes detection limit data and identifies mismatches in result detection condition and result detection limit type. 
 
@@ -500,33 +500,6 @@ n_imprecise <- Unique_CoordinateFlags %>%
 
 **Answer:**
 There are `r n_unique_coord_flag` unique coordinates flags (`r unique_coord_flag`). There are `r n_outside_US` Monitoring Locations with coordinates flagged outside the US. There are `r n_imprecise` Monitoring Locations with imprecise coordinates flagged
-
-
-## Depth unit conversions - REMOVE THIS?
-
-The **TADA_ConvertDepthUnits** function converts depth units to a
-consistent unit. Depth values and units are most commonly associated
-with lake data, and are populated in the *ActivityDepthHeightMeasure*,
-*ActivityTopDepthHeightMeasure*, *ActivityBottomDepthHeightMeasure*, and
-*ResultDepthHeightMeasure* Result Value/Unit columns.
-
-Allowable values for 'unit' are either 'm' (meter), 'ft' (feet), or 'in'
-(inch). 'unit' accepts only one allowable value as an input. Default is
-unit = "m".
-
-Note that upon download using **TADA_AutoClean**, all depth columns
-are converted to meters by default. However, the user may choose to run
-the **TADA_ConvertDepthUnits** function on their dataset to convert to
-another unit. See function documentation for additional input options by
-entering the following code in the console: ?TADA_ConvertDepthUnits
-
-```{r TADA_ConvertDepthUnits}
-# converts all depth profile data to feet
-R5ProfileClean1 <- TADA_ConvertDepthUnits(R5ProfileClean1,
-  unit = "ft",
-  transform = TRUE
-)
-```
 
 ## Statistically aggregated data
 
@@ -792,54 +765,6 @@ duplicate_removed_n <- R5ProfileClean3_n - R5ProfileClean4_n
 **Answer:**
 `r duplicate_removed_n` duplicates were identified by TADA_FindPotentialDuplicatesMultipleOrgs and TADA_FindPotentialDuplicatesSingleOrg. To priorize results from a particular agency or agencies see documentation for ?TADA_FindDuplicatesMultipleOrgs for information on using the org_hierarchy argument.
 
-## Review QAPP information
-
-The **TADA_FindQAPPApproval** function checks data for an approved QAPP.
-
-This function checks to see if there is any information in the column
-"QAPPApprovedIndicator". Some organizations submit data for this field
-to indicate if the data produced has an approved Quality Assurance
-Project Plan (QAPP) or not. In this field, Y indicates yes, N indicates
-no.
-
-This function has three default inputs: clean = TRUE, cleanNA = FALSE,
-and flaggedonly = FALSE. These defaults remove rows of data where the
-QAPPApprovedIndicator equals "N".
-
-Users could alternatively remove both N's and NA's using the inputs
-clean = TRUE, cleanNA = TRUE, and flaggedonly = FALSE.
-
-Additionally, users could filter to show only N's and NA's by using the
-inputs clean = FALSE, cleanNA = FALSE, and flaggedonly = TRUE.
-
-If clean = FALSE, cleanNA = FALSE, and flaggedonly = FALSE, the function
-will not do anything.
-
-```{r TADA_FindQAPPApproval}
-R5ProfileClean4 <- TADA_FindQAPPApproval(R5ProfileClean4)
-
-# organizations with an approved QAPP
-approved_QAPP <- R5ProfileClean4 %>%
-  dplyr::filter(QAPPApprovedIndicator == "Y") %>%
-  dplyr::select(OrganizationFormalName) %>%
-  unique()
-
-approved_QAPP_orgs <- paste(unique(approved_QAPP$OrganizationFormalName), collapse = ", ") %>%
-  stringi::stri_replace_last(fixed = ", ", " and ")
-  
-approved_QAPP_org_n <- length(unique(approved_QAPP$OrganizationFormalName))
-
-```
-
-**Question 9: How many organizations submitted results with an approved QAPP? What are the names of those organizations?**
-
-**Answer:**
-`r approved_QAPP_org_n` (`r approved_QAPP_orgs`) organization(s) submitted results with an approved QAPP. duplicates were identified by TADA_FindPotentialDuplicatesMultipleOrgs and TADA_FindPotentialDuplicatesSingleOrg. To priorize results from a particular agency or agencies see documentation for ?TADA_FindDuplicatesMultipleOrgs for information on using the org_hierarchy argument.
-
-The **TADA_FindQAPPDoc** function checks to see if a QAPP Doc is
-Available. This function checks data submitted under the "ProjectFileUrl" column to
-determine if a QAPP document is available to review. See TADA Module 1 or ?TADA_FindQAPPDoc() for more information on this function.
-
 ## Full Dataframe Filtering
 
 In this section a TADA user will want to review the unique values in
@@ -1035,7 +960,7 @@ R5ProfileClean5 <- TADA_FlagMeasureQualifierCode(R5ProfileClean5,
   clean = TRUE)
 ```
 
-**Question 10: How results were identified as "SUSPECT" based on the MeasureQualifierCode?**
+**Question 11: How many results were identified as "SUSPECT" based on the MeasureQualifierCode?**
 
 **Answer:**
 `r suspect_n` results were identified as suspect based on the MeasureQualifierCode.
@@ -1091,7 +1016,7 @@ detection limit (half the detection limit). Please review
 information.
 
 ```{r SummarizeCensoredData}
-TADAProfileClean4 <- TADA_SimpleCensoredMethods(TADAProfileClean4,
+R5ProfileClean5 <- TADA_SimpleCensoredMethods(R5ProfileClean5,
   nd_method = "multiplier",
   nd_multiplier = 0.5,
   od_method = "as-is",
@@ -1099,45 +1024,41 @@ TADAProfileClean4 <- TADA_SimpleCensoredMethods(TADAProfileClean4,
 )
 ```
 
-Next, review unique values within the *TADA.CensoredData.Flag*,
-*DetectionQuantitationLimitTypeName*, and *ResultDetectionConditionText*
-columns.
-
-```{r uniquevalues}
-# review unique values
-unique(TADAProfileClean4$TADA.CensoredData.Flag)
-unique(TADAProfileClean4$DetectionQuantitationLimitTypeName)
-unique(TADAProfileClean4$ResultDetectionConditionText)
-```
-
-Also, review the *TADA.ResultMeasureValueDataTypes.Flag* to see if any
-NA's or ND's (non-detects) remain.
-
-```{r ResultMeasureValueDataTypes.Flag_uniquevalues}
-unique(TADAProfileClean4$TADA.ResultMeasureValueDataTypes.Flag)
-```
-
-Count how many NA's remain in the TADA.ResultMeasureValue.
+**Question 12: How many NAs remain in the data set after running TADA_SimpleCensoredMethods?**
 
 ```{r Review_NA_MeasureValues}
-sum(is.na(TADAProfileClean4$TADA.ResultMeasureValue))
+result_na_n <- sum(is.na(TADAProfileClean4$TADA.ResultMeasureValue))
 ```
+
+**Answer:**
+There are `r result_na_n` TADA.ResultMeasureValue NAs remaining in the data set.
 
 Filter down to only numeric data. Remove data where the
 TADA.ResultMeasureValueDataTypes.Flag = "Text" or "NA - Not Available". You can also remove any columns not required for the TADA workflow that contain only NAs. The **TADA_AutoFilter()** function removes non-numeric data and optional columns containing only NAs.
 
 ```{r filter_out_NAs}
 # Removes rows where the result value is not numeric. Specifically, removes rows with "Text" or "NA - Not Available" in the TADA.ResultMeasureValueDataTypes.Flag column, or NA in the TADA.ResultMeasureValue column. Removes optional columns containing only NAs.
-TADAProfileClean5 <- TADA_AutoFilter(TADAProfileClean4)
+R5ProfileClean6 <- TADA_AutoFilter(R5ProfileClean5)
 ```
 
-Double check to make sure no NA's or ND's remain.
+**Question 13: How many NAs remain in the data set for TADA.ResultMeasureValue after running TADA_Autofilter? How many non-numeric values in TADA.ResultMeasureValueDataTypes.Flag remain in the data set? How many rows were removed from the data set?**
 
 ```{r check_for_NAs_again}
-unique(TADAProfileClean5$TADA.ResultMeasureValueDataTypes.Flag)
 
-sum(is.na(TADAProfileClean5$TADA.ResultMeasureValue))
+scm_result_nas_n <- sum(is.na(R5ProfileClean6$TADA.ResultMeasureValue))
+
+non_numeric_n <- sum(R5ProfileClean6$TADA.ResultMeasureValueDataTypes[TADA.ResultMeasureValueDataTypes != "Numeric"])
+
+R5ProfileClean5_n <- nrow(R5ProfileClean5)
+
+R5ProfileClean6_n <- nrow(R5ProfileClean6)
+
+autofilter_removed_n <- R5ProfileClean5_n - R5ProfileClean6_n
 ```
+
+**Answer:**
+There are `r scm_result_nas_n`results remaining where TADA.ResultMeasureValue is equal to NA after running TADA_AutoFilter. There are `r non-numeric_n` results remaining where TADA.ResultMeasureValueDataTypes is non-numeric. `r autofilter_removed_n` results where removed from the data set to ensure that only numeric results are retained.
+
 
 ## Convert synonymous characteristic, fraction, speciation, and unit values to a consistent convention based on user-defined/TADA standards
 
@@ -1183,9 +1104,9 @@ Here are some examples of how the TADA_HarmonizeSynonyms function can be used:
     name (and identifier) to synonyms.
 
 ```{r TADA_HarmonizeSynonyms}
-UniqueHarmonizationRef <- TADA_GetSynonymRef(TADAProfileClean5)
+UniqueHarmonizationRef <- TADA_GetSynonymRef(R5ProfileClean6)
 
-TADAProfileClean5 <- TADA_HarmonizeSynonyms(TADAProfileClean5,
+TADAProfileClean7 <- TADA_HarmonizeSynonyms(TADAProfileClean6,
   ref = UniqueHarmonizationRef
 )
 ```
@@ -1197,7 +1118,7 @@ This section covers summing nutrient subspecies to estimate total nitrogen and p
 Users can use the default summation worksheet (see **TADA_GetNutrientSummationRef**) or customize it to suit their needs. The function also requires a daily aggregation value, either minimum, maximum, or mean. The default is 'max', which means that if multiple measurements of the same subspecies-fraction-speciation-unit occur on the same day at the same site and depth, the function will pick the maximum value to use in summation calculations.
 
 ```{r, TADA_CalculateTotalNP}
-TADAProfileClean6 <- TADA_CalculateTotalNP(TADAProfileClean5, daily_agg = "max")
+R5ProfileClean7 <- TADA_CalculateTotalNP(R5ProfileClean6, daily_agg = "max")
 ```
 
 
@@ -1210,10 +1131,9 @@ particular values by filtering.
 To start, review the list of parameters in the dataframe using the
 **TADA_FieldValuesTable** function.
 
-Enter ?TADA_FieldValuesTable into the console for more information.
 
 ```{r TADA_FieldValuesTable_chars}
-TADA_FieldValuesTable(TADAProfileClean6, field = "TADA.CharacteristicName")
+R5_FieldValuesTable(R5ProfileClean6, field = "TADA.CharacteristicName")
 ```
 
 Next, we can revisit the **TADA_FieldCounts** function at the characteristic
@@ -1283,7 +1203,7 @@ each of the following fields:
 -   *DetectionQuantitationLimitTypeName*
 
 ```{r TADA_FieldCounts_char}
-TADA_FieldCounts(TADAProfileClean6, display = "most", characteristicName = "TOTAL PHOSPHORUS, MIXED FORMS")
+R5_FieldCounts_char <- TADA_FieldCounts(TADAProfileClean6, display = "most", characteristicName = "TOTAL PHOSPHORUS, MIXED FORMS")
 ```
 
 Selecting a parameter generates the list above, which is subset by the
@@ -1363,7 +1283,6 @@ Now we can review the "TADA" prefixed columns we have added to the data set. If 
 
 ```{r retainrequired}
 TADAProfileClean7 <- TADA_RetainRequired(TADAProfileClean6)
-```
 
 ## TADA Shiny Application
 
