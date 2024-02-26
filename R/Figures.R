@@ -746,50 +746,50 @@ TADA_Scatterplot <- function(.data, id_cols = c("TADA.ComparableDataIdentifier")
 TADA_TwoCharacteristicScatterplot <- function(.data, id_cols = "TADA.ComparableDataIdentifier", groups) {
   # check .data is data.frame
   TADA_CheckType(.data, "data.frame", "Input object")
-
+  
   # check .data has required columns
   TADA_CheckColumns(.data, id_cols)
-
+  
   # check .data has required columns
   reqcols <- c(
     "TADA.ResultMeasureValue",
     "TADA.ResultMeasure.MeasureUnitCode",
     "ActivityStartDate"
   )
-
+  
   # check .data has required columns
   TADA_CheckColumns(.data, reqcols)
-
+  
   # if left blank, ensure comparable data identifier is in the id_cols vector
   if (is.null(id_cols)) {
     id_cols <- "TADA.ComparableDataIdentifier"
   }
-
+  
   if (!"TADA.ComparableDataIdentifier" %in% id_cols) {
     print("Note: TADA.ComparableDataIdentifier not found in id_cols argument and is highly recommended.")
   }
-
+  
   # check that groups are in id_cols
   id <- unlist(unique(.data[, id_cols]))
   if (any(!groups %in% id)) {
     stop("The 'groups' vector contains one or more inputs that are not found within your input dataset. Check spelling and try again.")
   }
-
+  
   depthcols <- names(.data)[grepl("DepthHeightMeasure", names(.data))]
   depthcols <- depthcols[grepl("TADA.", depthcols)]
-
+  
   plot.data <- as.data.frame(.data)
-
+  
   # this subset must include all fields included in plot hover below
   plot.data <- subset(plot.data, plot.data[, id_cols] %in% groups)[, c(id_cols, reqcols, depthcols, "ActivityStartDateTime", "MonitoringLocationName", "TADA.ActivityMediaName", "ActivityMediaSubdivisionName", "ActivityRelativeDepthName", "TADA.CharacteristicName", "TADA.MethodSpeciationName", "TADA.ResultSampleFractionText")]
   plot.data$name <- gsub("_NA", "", plot.data[, id_cols])
   plot.data$name <- gsub("_", " ", plot.data$name)
-
+  
   plot.data <- dplyr::arrange(plot.data, ActivityStartDate)
-
+  
   param1 <- subset(plot.data, plot.data[, id_cols] %in% groups[1])
   param2 <- subset(plot.data, plot.data[, id_cols] %in% groups[2])
-
+  
   title <- TADA::TADA_InsertBreaks(
     paste0(
       param1$TADA.CharacteristicName[1],
@@ -799,14 +799,14 @@ TADA_TwoCharacteristicScatterplot <- function(.data, id_cols = "TADA.ComparableD
     ),
     len = 45
   )
-
+  
   # figure margin
   mrg <- list(
     l = 50, r = 75,
     b = 25, t = 75,
     pad = 0
   )
-
+  
   scatterplot <- plotly::plot_ly(type = "scatter", mode = "markers") %>%
     plotly::layout(
       xaxis = list(
@@ -839,14 +839,15 @@ TADA_TwoCharacteristicScatterplot <- function(.data, id_cols = "TADA.ComparableD
       legend = list(
         orientation = "h",
         xanchor = "center",
-        x = 0.5
+        x = 0.5,
+        y = -0.2
       )
     ) %>%
     # config options https://plotly.com/r/configuration-options/
     plotly::config(displaylogo = FALSE) %>% # , displayModeBar = TRUE) # TRUE makes bar always visible
     plotly::add_trace(
       data = param1,
-      x = ~ActivityStartDate,
+      x = ~as.Date(ActivityStartDate),
       y = ~TADA.ResultMeasureValue,
       name = paste0(
         param1$TADA.ResultSampleFractionText, " ",
@@ -887,7 +888,7 @@ TADA_TwoCharacteristicScatterplot <- function(.data, id_cols = "TADA.ComparableD
     ) %>%
     plotly::add_trace(
       data = param2,
-      x = ~ActivityStartDate,
+      x = ~as.Date(ActivityStartDate),
       y = ~TADA.ResultMeasureValue,
       name = paste0(
         param2$TADA.ResultSampleFractionText, " ",
@@ -926,6 +927,6 @@ TADA_TwoCharacteristicScatterplot <- function(.data, id_cols = "TADA.ComparableD
         ), "<br>"
       )
     )
-
+  
   return(scatterplot)
 }
