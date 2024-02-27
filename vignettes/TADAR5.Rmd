@@ -184,7 +184,7 @@ to dates, datetimes, and numerics based on a standard algorithm.
 
 # For demo purposes, import pre-downloaded R5 data set
 
-R5Profile <- TADA::Data_R5_TADAPackageDemo
+R5Profile <- TADA:::Data_R5_TADAPackageDemo 
 
 # 
 ```
