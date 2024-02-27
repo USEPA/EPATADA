@@ -122,7 +122,7 @@ Data_R5_TADAPackageDemo <- TADA::TADA_DataRetrieval(
 )
 print("Data_R5_TADAPackageDemo:")
 print(dim(Data_R5_TADAPackageDemo))
-# save(Data_NCTCShepherdstown_HUC12, file = "data/Data_R5_TADAPackageDemo.rda")
+# save(Data_R5_TADAPackageDemo, file = "data/Data_R5_TADAPackageDemo.rda")
 usethis::use_data(Data_R5_TADAPackageDemo, internal = FALSE, overwrite = TRUE, compress = "xz", version = 3, ascii = FALSE)
 rm(Data_R5_TADAPackageDemo)
 }
