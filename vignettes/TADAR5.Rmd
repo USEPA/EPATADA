@@ -31,6 +31,15 @@ pre[class] {
 }
 ```
 
+```{r for-development-only, echo = F, results = 'hide', message = FALSE, warning = FALSE}
+# IF YOU ARE NOT DEVELOPING TADA, SKIP THIS CODE CHUNK
+# when developing the package, update this chunk to the current repository branch, so it runs with all of the new features prior to a PR to develop
+remotes::install_github("USEPA/TADA",
+  ref = "R5_package_demo",
+  dependencies = TRUE
+)
+```
+
 ## Welcome
 
 Thank you for your interest in Tools for Automated Data Analysis (TADA). TADA is an open-source tool set built in the R programming language. This [RMarkdown](https://bookdown.org/yihui/rmarkdown/) document walks users through how to download the TADA R package from GitHub, access and parameterize several important functions with a sample dataset and create basic visualizations. The sample data set contains data from one week from
@@ -184,7 +193,7 @@ to dates, datetimes, and numerics based on a standard algorithm.
 
 # For demo purposes, import pre-downloaded R5 data set
 
-R5Profile <- TADA:::Data_R5_TADAPackageDemo 
+R5Profile <- load(Data_R5_TADAPackageDemo.rda)
 
 # 
 ```
