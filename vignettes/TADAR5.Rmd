@@ -356,7 +356,7 @@ identify_max_sites <- R5Profile_CharSummary %>%
 char_max_sites <- identify_max_sites %>%
   dplyr::select(TADA.CharacteristicName)
 
-max_sites <- char_max_sites %>%
+max_sites <- identify_max_sites %>%
   dplyr::select(n_sites)
   
 identify_max_results <-R5Profile_CharSummary %>%
@@ -365,14 +365,14 @@ identify_max_results <-R5Profile_CharSummary %>%
 char_max_results <- identify_max_results %>%
   dplyr::select(TADA.CharacteristicName)
 
-max_sites <- char_max_sites %>%
+max_sites <- identify_max_results %>%
   dplyr::select(n_records)
 ```
 
 **Question 4: How many unique values of TADA.CharacteristicName are included in the data set? Which TADA.CharactersticName was collected at the greatest number of sites? Which TADA.CharactersticName has the most results?**
 
 **Answer:**
-There are `r n_char_name` unique values of TADA.CharacteristicName in the R5 data set. `r char_max_sites` was collected at the greatest number of sites (n = `r max_sites`). `r char_max_records` has the most results (n = `r max_records`).
+There are `r n_char_name` unique values of TADA.CharacteristicName in the R5 data set. `r char_max_sites` was collected at the greatest number of sites (n = `r max_sites`). `r char_max_results` has the most results (n = `r max_results`).
 
 ## Invalid coordinates
 
