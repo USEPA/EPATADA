@@ -20,26 +20,6 @@ knitr::opts_chunk$set(
 )
 ```
 
-```{css, echo=FALSE}
-pre {
-  max-height: 300px;
-  overflow-y: auto;
-}
-
-pre[class] {
-  max-height: 100px;
-}
-```
-
-```{r for-development-only, echo = F, results = 'hide', message = FALSE, warning = FALSE}
-# IF YOU ARE NOT DEVELOPING TADA, SKIP THIS CODE CHUNK
-# when developing the package, update this chunk to the current repository branch, so it runs with all of the new features prior to a PR to develop
-remotes::install_github("USEPA/TADA",
-  ref = "R5_package_demo",
-  dependencies = TRUE
-)
-```
-
 ## Welcome
 
 Thank you for your interest in Tools for Automated Data Analysis (TADA). TADA is an open-source tool set built in the R programming language. This [RMarkdown](https://bookdown.org/yihui/rmarkdown/) document walks users through how to download the TADA R package from GitHub, access and parameterize several important functions with a sample dataset and create basic visualizations. The sample data set contains data from one week from
@@ -193,7 +173,7 @@ to dates, datetimes, and numerics based on a standard algorithm.
 
 # For demo purposes, import pre-downloaded R5 data set
 
-R5Profile <- load(Data_R5_TADAPackageDemo.rda)
+R5Profile <- TADA::Data_R5_TADAPackageDemo
 
 # 
 ```
@@ -452,7 +432,7 @@ R5ProfileClean1 <- TADA_FlagCoordinates(R5Profile, clean_outsideUSA = "no", clea
 unique(R5ProfileClean1$TADA.InvalidCoordinates.Flag)
 
 # review unique MonitoringLocationIdentifiers in your flag dataframe
-unique(TADAProfileClean1$MonitoringLocationIdentifier)
+unique(R5ProfileClean1$MonitoringLocationIdentifier)
 
 Unique_CoordinateFlags <- R5ProfileClean1 %>%
   dplyr::select(
@@ -1036,7 +1016,7 @@ R5ProfileClean5 <- TADA_SimpleCensoredMethods(R5ProfileClean5,
 **Question 12: How many NAs remain in the data set after running TADA_SimpleCensoredMethods?**
 
 ```{r Review_NA_MeasureValues}
-result_na_n <- sum(is.na(TADAProfileClean4$TADA.ResultMeasureValue))
+result_na_n <- sum(is.na(R5ProfileClean5$TADA.ResultMeasureValue))
 ```
 
 **Answer:**
@@ -1056,7 +1036,7 @@ R5ProfileClean6 <- TADA_AutoFilter(R5ProfileClean5)
 
 scm_result_nas_n <- sum(is.na(R5ProfileClean6$TADA.ResultMeasureValue))
 
-non_numeric_n <- sum(R5ProfileClean6$TADA.ResultMeasureValueDataTypes[TADA.ResultMeasureValueDataTypes != "Numeric"])
+non_numeric_n <- sum(!R5ProfileClean6$TADA.ResultMeasureValueDataTypes.Flag %in% c("Numeric", "Result Value/Unit Estimated from Detection Limit","Result Value/Unit Copied from Detection Limit"))
 
 R5ProfileClean5_n <- nrow(R5ProfileClean5)
 
@@ -1115,7 +1095,7 @@ Here are some examples of how the TADA_HarmonizeSynonyms function can be used:
 ```{r TADA_HarmonizeSynonyms}
 UniqueHarmonizationRef <- TADA_GetSynonymRef(R5ProfileClean6)
 
-TADAProfileClean7 <- TADA_HarmonizeSynonyms(TADAProfileClean6,
+R5ProfileClean7 <- TADA_HarmonizeSynonyms(R5ProfileClean6,
   ref = UniqueHarmonizationRef
 )
 ```
@@ -1127,7 +1107,7 @@ This section covers summing nutrient subspecies to estimate total nitrogen and p
 Users can use the default summation worksheet (see **TADA_GetNutrientSummationRef**) or customize it to suit their needs. The function also requires a daily aggregation value, either minimum, maximum, or mean. The default is 'max', which means that if multiple measurements of the same subspecies-fraction-speciation-unit occur on the same day at the same site and depth, the function will pick the maximum value to use in summation calculations.
 
 ```{r, TADA_CalculateTotalNP}
-R5ProfileClean7 <- TADA_CalculateTotalNP(R5ProfileClean6, daily_agg = "max")
+R5ProfileClean8 <- TADA_CalculateTotalNP(R5ProfileClean7, daily_agg = "max")
 ```
 
 
@@ -1142,7 +1122,7 @@ To start, review the list of parameters in the dataframe using the
 
 
 ```{r TADA_FieldValuesTable_chars}
-R5_FieldValuesTable(R5ProfileClean6, field = "TADA.CharacteristicName")
+FieldValuesTable_Chars <- TADA_FieldValuesTable(R5ProfileClean8, field = "TADA.CharacteristicName")
 ```
 
 Next, we can revisit the **TADA_FieldCounts** function at the characteristic
@@ -1212,7 +1192,7 @@ each of the following fields:
 -   *DetectionQuantitationLimitTypeName*
 
 ```{r TADA_FieldCounts_char}
-R5_FieldCounts_char <- TADA_FieldCounts(TADAProfileClean6, display = "most", characteristicName = "TOTAL PHOSPHORUS, MIXED FORMS")
+R5_FieldCounts_Chars <- TADA_FieldCounts(R5ProfileClean8, display = "most", characteristicName = "TOTAL PHOSPHORUS, MIXED FORMS")
 ```
 
 Selecting a parameter generates the list above, which is subset by the
@@ -1229,17 +1209,16 @@ characteristic-level to review a column of interest.
 
 ```{r TADA_FieldValuesTable_Pie_char, fig.width=8, fig.height=6, fig.fullwidth=TRUE}
 # In this example we review values from the SampleCollectionMethod.MethodName field
-TADA_FieldValuesTable(TADAProfileClean6, field = "SampleCollectionMethod.MethodName", characteristicName = "TOTAL PHOSPHORUS, MIXED FORMS")
-TADA_FieldValuesPie(TADAProfileClean6, field = "SampleCollectionMethod.MethodName", characteristicName = "TOTAL PHOSPHORUS, MIXED FORMS")
+TADA_FieldValuesTable(R5ProfileClean8, field = "SampleCollectionMethod.MethodName", characteristicName = "TOTAL PHOSPHORUS, MIXED FORMS")
 ```
 
 Generate a scatterplot with two 
 ```{r TADA_TwoCharacteristicScatterplot, fig.width=8, fig.height=6, fig.fullwidth=TRUE}
 # review unique identifiers
-unique(TADAProfileClean6$TADA.ComparableDataIdentifier)
+unique(R5ProfileClean8$TADA.ComparableDataIdentifier)
 
 # choose two and generate scatterplot
-TADA_TwoCharacteristicScatterplot(TADAProfileClean6, id_cols = "TADA.ComparableDataIdentifier", groups = c("TOTAL NITROGEN, MIXED FORMS_UNFILTERED_AS N_MG/L", "TOTAL PHOSPHORUS, MIXED FORMS_UNFILTERED_AS P_UG/L"))
+TADA_TwoCharacteristicScatterplot(R5ProfileClean8, id_cols = "TADA.ComparableDataIdentifier", groups = c("TEMPERATURE_NA_NA_DEG C", "PH_NA_NA_STD UNITS"))
 ```
 
 
@@ -1249,27 +1228,27 @@ speciation, and fraction combination) using **TADA_Histogram** and **TADA_Boxplo
 
 ```{r ComparableDataIdentifier_stats_and_histogram, fig.width=8, fig.height=6, fig.fullwidth=TRUE}
 # review TADA.ComparableDataIdentifier
-unique(TADAProfileClean5$TADA.ComparableDataIdentifier)
+unique(R5ProfileClean8$TADA.ComparableDataIdentifier)
 
 # filter dataframe to only "TOTAL PHOSPHORUS, MIXED FORMS"
-TADAProfileCleanTP <- dplyr::filter(TADAProfileClean6, TADA.ComparableDataIdentifier == "TOTAL PHOSPHORUS, MIXED FORMS_UNFILTERED_AS P_UG/L")
+R5ProfileCleanPH <- dplyr::filter(R5ProfileClean8, TADA.ComparableDataIdentifier == "PH_NA_NA_STD UNITS")
 
 # generate stats table
-TADAProfileCleanTP_stats <- TADA::TADA_Stats(TADAProfileCleanTP)
+R5ProfileCleanPH_stats <- TADA::TADA_Stats(R5ProfileCleanPH)
 
-TADAProfileCleanTP_stats
+R5ProfileCleanPH_stats
 
 # generate a histogram
-TP_Histogram <- TADA_Histogram(TADAProfileCleanTP, id_cols = "TADA.ComparableDataIdentifier")
+PH_Histogram <- TADA_Histogram(R5ProfileCleanPH, id_cols = "TADA.ComparableDataIdentifier")
 
 # view histogram
-TP_Histogram
+PH_Histogram
 ```
 
 Generate interactive box plot.
 
 ```{r boxplot, fig.width=8, fig.height=6, fig.fullwidth=TRUE}
-TP_Boxplot <- TADA::TADA_Boxplot(TADAProfileCleanTP, id_cols = "TADA.ComparableDataIdentifier")
+TP_Boxplot <- TADA::TADA_Boxplot(R5ProfileCleanPH, id_cols = "TADA.ComparableDataIdentifier")
 
 TP_Boxplot
 ```
@@ -1277,21 +1256,22 @@ TP_Boxplot
 Generate interactive scatterplot.
 
 ```{r scatterplot, fig.width=8, fig.height=6, fig.fullwidth=TRUE}
-TADAProfileCleanTP_dailymax <- TADA_AggregateMeasurements(TADAProfileCleanTP,
+R5ProfileCleanPH_dailymax <- TADA_AggregateMeasurements(R5ProfileCleanPH,
   agg_fun = c("max"),
   clean = TRUE
 )
 
-TP_Scatterplot <- TADA::TADA_Scatterplot(TADAProfileCleanTP_dailymax, id_cols = "TADA.ComparableDataIdentifier")
+PH_Scatterplot <- TADA::TADA_Scatterplot(R5ProfileCleanPH_dailymax, id_cols = "TADA.ComparableDataIdentifier")
 
-TP_Scatterplot
+PH_Scatterplot
 ```
 
 ## Retain TADA Required Columns
 Now we can review the "TADA" prefixed columns we have added to the data set. If we are satisfied with the conversions, filtering, flagging, etc. and the resulting "TADA" columns, we can use the **TADA_RetainRequired** function to remove any columns that are not required or used as filters in the TADA workflow. This reduces the size of the data frame.
 
 ```{r retainrequired}
-TADAProfileClean7 <- TADA_RetainRequired(TADAProfileClean6)
+R5ProfileClean9 <- TADA_RetainRequired(R5ProfileClean9)
+```
 
 ## TADA Shiny Application
 
@@ -1320,7 +1300,7 @@ TADAShiny::run_app()
 ## Download this Article from GitHub
 
 Go to:
-<https://github.com/USEPA/TADA/blob/develop/vignettes/TADAModule1.Rmd>
+<https://github.com/USEPA/TADA/blob/develop/vignettes/TADAR5.Rmd>
 
 [![Click the highlighted icon to download TADAR5.Rmd from GitHub.
 Open this file in R Studio to follow along. Alternatively, you can copy
