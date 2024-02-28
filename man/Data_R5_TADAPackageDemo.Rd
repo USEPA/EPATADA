@@ -14,7 +14,7 @@ data(Data_R5_TADAPackageDemo)
 Original pull:
 Data_R5_TADAPackageDemo <- TADA::TADA_DataRetrieval(
 startDate = "2019-05-01",
-endDate = "2019-05-01",
+endDate = "2019-05-07",
 countycode = "null",
 huc = "null",
 siteid = "null",

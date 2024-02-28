@@ -8,7 +8,7 @@ vignette: >
   %\VignetteIndexEntry{TADA Package Training: A Markdown For Region 5 R Users Network}
   %\VignetteEngine{knitr::rmarkdown}
 editor_options: 
-  chunk_output_type: console
+ # chunk_output_type: console
   markdown: 
     wrap: 72
 ---
@@ -64,8 +64,8 @@ library(TADA)
 
 All TADA R package functions have their own individual help pages, listed on the [Function reference](https://usepa.github.io/TADA/reference/index.html) page on the GitHub site. Users can also access the help page for a given function in R or RStudio using the following format (example below): `?TADA::[name of TADA function]`
 
-```{r}
-?TADA::TADA_DataRetrieval
+```{r help_pages}
+?TADA_DataRetrieval
 ```
 
 ## Retrieve WQP data
@@ -408,7 +408,7 @@ max_sites <- identify_max_results %>%
   dplyr::select(n_records)
 ```
 
-**Question 4: How many unique values of TADA.CharacteristicName are included in the data set? Which TADA.CharactersticName was collected at the greatest number of sites? Which TADA.CharactersticName has the most results?**
+**Question 5: How many unique values of TADA.CharacteristicName are included in the data set? Which TADA.CharactersticName was collected at the greatest number of sites? Which TADA.CharactersticName has the most results?**
 
 **Answer:**
 There are `r n_char_name` unique values of TADA.CharacteristicName in the R5 data set. `r char_max_sites` was collected at the greatest number of sites (n = `r max_sites`). `r char_max_results` has the most results (n = `r max_results`).
@@ -591,7 +591,7 @@ R5ProfileClean3_n <- nrow(R5ProfileClean3)
 threshold_removed_n <- R5ProfileClean2_n - R5ProfileClean3_n
 ```
 
-**Question 6: How many results were removed due to the WQX upper and lower thresholds?**
+**Question 7: How many results were removed due to the WQX upper and lower thresholds?**
 
 **Answer:**
 `r threshold_removed_n` results were removed due to falling outside the WQX upper or lower thresholds.
@@ -611,7 +611,7 @@ FieldValues_Orgs
 
 ```
 
-**Question 7: How many organizations submitted data? Which organization submitted the most results? Which organization submitted the fewest results?**
+**Question 8: How many organizations submitted data? Which organization submitted the most results? Which organization submitted the fewest results?**
 
 ```{r q7, echo = FALSE}
 
@@ -649,7 +649,7 @@ R5ProfileClean4 <- R5ProfileClean3 %>%
                 TADA.SingleOrgDup.Flag == "Unique")
 ```
 
-**Question 8: How many total duplicate results were removed? How could you prioritize retaining results from your organization when duplicate results are identified?**
+**Question 9: How many total duplicate results were removed? How could you prioritize retaining results from your organization when duplicate results are identified?**
 
 ```{r FindPotentialDuplicates q}
 # Determine how many duplicate results were removed
@@ -982,7 +982,7 @@ Users can use the default summation worksheet (see **TADA_GetNutrientSummationRe
 R5ProfileClean8 <- TADA_CalculateTotalNP(R5ProfileClean7, daily_agg = "max")
 ```
 
-**Question: How many nutrient aggregate rows were added? Can users customize aggregation summation?**
+**Question 14: How many nutrient aggregate rows were added? Can users customize aggregation summation?**
 
 ```{r, TADA_CalculateTotalNP}
 R5ProfileClean7_n <- nrow(R5ProfileClean7)
@@ -1152,7 +1152,7 @@ DO_Scatterplot <- TADA::TADA_Scatterplot(R5ProfileCleanDO_dailymax, id_cols = "T
 DO_Scatterplot
 ```
 
-**Question: Which figure generating functions can be used to visualize more than one characteristic? Which can be used to visualize only one characteristic?**
+**Question 15: Which figure generating functions can be used to visualize more than one characteristic? Which can be used to visualize only one characteristic?**
 
 **Answer:**
 **TADA_TwoCharacteristicScatterplot** can display up to two characteristics. **TADA_Boxplot**, **TADA_Histogram**, and **TADA_Scatterplot** will show only one characteristic per plot, but can be used to generate a a list output of multiple plots (if input contains more than one comparable data group).
@@ -1164,7 +1164,7 @@ Now we can review the "TADA" prefixed columns we have added to the data set. If 
 R5ProfileClean9 <- TADA_RetainRequired(R5ProfileClean8)
 ```
 
-**Question: How many columns were removed during TADA_RetainRequired?**
+**Question 16: How many columns were removed during TADA_RetainRequired?**
 
 ```{r, q TADA retain}
 R5ProfileClean8_n <- ncol(R5ProfileClean8)
@@ -1210,4 +1210,4 @@ Go to:
 [![Click the highlighted icon to download TADAR5.Rmd from GitHub.
 Open this file in R Studio to follow along. Alternatively, you can copy
 and paste desired lines of code from here into your own
-script. Note: You must have a GitHub account to download TADAModule1.Rmd from GitHub ](images/DownloadModule1.jpg)](https://github.com/USEPA/TADA/blob/develop/vignettes/TADAR5.Rmd)
+script. Note: You must have a GitHub account to download TADAR5.Rmd from GitHub ](images/DownloadModule1.jpg)](https://github.com/USEPA/TADA/blob/develop/vignettes/TADAR5.Rmd)
