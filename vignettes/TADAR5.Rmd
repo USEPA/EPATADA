@@ -8,7 +8,6 @@ vignette: >
   %\VignetteIndexEntry{TADA Package Training: A Markdown For Region 5 R Users Network}
   %\VignetteEngine{knitr::rmarkdown}
 editor_options: 
- # chunk_output_type: console
   markdown: 
     wrap: 72
 ---
@@ -404,7 +403,7 @@ identify_max_results <-R5Profile_CharSummary %>%
 char_max_results <- identify_max_results %>%
   dplyr::select(TADA.CharacteristicName)
 
-max_sites <- identify_max_results %>%
+max_results <- identify_max_results %>%
   dplyr::select(n_records)
 ```
 
@@ -920,7 +919,7 @@ autofilter_removed_n <- R5ProfileClean5_n - R5ProfileClean6_n
 ```
 
 **Answer:**
-There are `r scm_result_nas_n`results remaining where TADA.ResultMeasureValue is equal to NA after running TADA_AutoFilter. There are `r non-numeric_n` results remaining where TADA.ResultMeasureValueDataTypes is non-numeric. `r autofilter_removed_n` results where removed from the data set to ensure that only numeric results are retained.
+There are `r scm_result_nas_n`results remaining where TADA.ResultMeasureValue is equal to NA after running TADA_AutoFilter. There are `r non_numeric_n` results remaining where TADA.ResultMeasureValueDataTypes is non-numeric. `r autofilter_removed_n` results where removed from the data set to ensure that only numeric results are retained.
 
 
 ## Convert synonymous characteristic, fraction, speciation, and unit values to a consistent convention based on user-defined/TADA standards
@@ -1122,7 +1121,7 @@ unique(R5ProfileClean8$TADA.ComparableDataIdentifier)
 R5ProfileCleanDO <- dplyr::filter(R5ProfileClean8, TADA.ComparableDataIdentifier == "DISSOLVED OXYGEN (DO)_NA_NA_MG/L")
 
 # generate stats table
-R5ProfileCleanDO_stats <- TADA_Stats(R5ProfileCleanPH)
+R5ProfileCleanDO_stats <- TADA_Stats(R5ProfileCleanDO)
 
 R5ProfileCleanDO_stats
 
@@ -1130,15 +1129,15 @@ R5ProfileCleanDO_stats
 DO_Histogram <- TADA_Histogram(R5ProfileCleanDO, id_cols = "TADA.ComparableDataIdentifier")
 
 # view histogram
-PH_Histogram
+DO_Histogram
 ```
 
 Generate interactive box plot.
 
 ```{r boxplot, fig.width=8, fig.height=6, fig.fullwidth=TRUE}
-TP_Boxplot <- TADA::TADA_Boxplot(R5ProfileCleanDO, id_cols = "TADA.ComparableDataIdentifier")
+DO_Boxplot <- TADA::TADA_Boxplot(R5ProfileCleanDO, id_cols = "TADA.ComparableDataIdentifier")
 
-TP_Boxplot
+DO_Boxplot
 ```
 
 Generate interactive scatterplot.
