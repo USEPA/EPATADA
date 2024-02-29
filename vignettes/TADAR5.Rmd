@@ -24,8 +24,6 @@ knitr::opts_chunk$set(
 Thank you for your interest in Tools for Automated Data Analysis (TADA). TADA is an open-source tool set built in the R programming language. This [RMarkdown](https://bookdown.org/yihui/rmarkdown/) document walks users through how to download the TADA R package from GitHub, access and parameterize several important functions with a sample dataset and create basic visualizations. The sample data set contains data from one week from
 all EPA Region 5 states.
 
-This example workflow demonstrates how to use TADA package functions to  query and download Water Quality Portal data, filter it for records of interest, and run various QC checks. At the end of the QC checks, the user should be confident that their data are properly documented and applicable to the analysis at hand.
-
 **Note: TADA is still under development. New functionality is added weekly, and sometimes we need to make bug fixes in response to tester and user feedback. We appreciate your feedback, patience, and interest in these helpful tools.**
 
 **If you are interested in contributing to TADA development, more information is available at [Contributing] (https://usepa.github.io/TADA/articles/CONTRIBUTING.html). We welcome collaboration with external partners.**
@@ -63,7 +61,9 @@ library(TADA)
 
 All TADA R package functions have their own individual help pages, listed on the [Function reference](https://usepa.github.io/TADA/reference/index.html) page on the GitHub site. Users can also access the help page for a given function in R or RStudio using the following format (example below): `?TADA::[name of TADA function]`
 
-```{r help_pages}
+```{r help_pages, message = FALSE}
+# Access help page for TADA_DataRetrieval
+
 ?TADA_DataRetrieval
 ```
 
@@ -106,8 +106,8 @@ from [Water Quality Portal (WQP)](https://www.waterqualitydata.us/) are not rest
 
 -   characteristicType
 
-The default TADA_DataRetrieval function
-automatically runs the **TADA_AutoClean** function. In this example, we will set **TADA_AutoClean = FALSE** and run it as a separate step in the work flow. 
+The default **TADA_DataRetrieval** function
+automatically runs the **TADA_AutoClean** function. In this example, we will set **TADA_AutoClean** *= FALSE* and run it as a separate step in the work flow. 
 
 Tips:
 
@@ -135,33 +135,21 @@ Tips:
     Portal (WQP) has a unique Monitoring Location Identifier, regardless
     of the database from which it derives. 
     
-Additional resources:
-
--   Review function documentation by entering the following code into
-    the console: ?TADA_DataRetrieval
-
--   [Water Quality Portal Web Services
-    Guide](https://www.waterqualitydata.us/webservices_documentation/)
-
--   TADA Module 1 (TADA Package Training: A Markdown For Region 5 R Users Network)
-
-
 The example dataset in this demo includes monitoring data from multiple organizations collected during one week (May 1, 2019 - May, 7 2019) in Region 5 states (Illinois, Indiana, Michigan, Minnesota, Ohio, and Wisconsin). 
 
-For demonstration purposes, the R5 example data set has already been downloaded. If you're following along you can run the code chunk below to access the pre-downloaded data set. The original query has also been included and can be accessed by uncommenting and running the TADA_DataRetrieval function below.
+For demonstration purposes, the R5 example data set has already been downloaded. You can run the code chunk below to access the pre-downloaded data set. The original query has also been included and can be accessed by uncommenting and running the TADA_DataRetrieval function below.
 
-Downloads using TADA_DataRetrieval will have the same columns each time,
-but be aware that data are uploaded to the Water Quality Portal by
-individual organizations, which may or may not follow the same
-conventions. Data and metadata quality are not guaranteed! Make sure to
-carefully explore any data and make conservative quality assurance
-decisions where information is limited.
-
-Keep in mind that any columns with a "TADA" prefix were added during data retrieval.
-
-Note: TADA_DataRetrieval  automatically
+Downloads using TADA_DataRetrieval will have the same columns each time. Keep in mind that any columns with a "TADA" prefix were added during data retrieval. TADA_DataRetrieval  automatically
 converts the date times to UTC and data
 to dates, datetimes, and numerics based on a standard algorithm. 
+Be aware that data are uploaded to the Water Quality Portal by
+individual organizations, which may or may not follow the same
+conventions. Data and metadata quality are not guaranteed! Carefully explore any data and make conservative quality assurance
+decisions where information is limited.
+
+
+
+Note: 
 
 **Note:** USGS and EPA are working together to create WQP 3.0 data profiles. Once released, one data profile will contain the columns critical to TADA, removing the need to combine profiles in this first step. TADA package users likely will not notice a difference in their usage of the `TADA_DataRetrieval` function, but it will simplify the steps needed to upload a custom or WQP GUI-downloaded data set into the R package.
 
@@ -181,7 +169,9 @@ R5Profile <- TADA::Data_R5_TADAPackageDemo
 
 ```{r question1}
 
-R5_nresults <- nrow(R5Profile) # returns x and of x (as the numbers of rows and columns respectively)
+#determine number of rows in the data set
+
+R5_nresults <- nrow(R5Profile) 
 
 ```
 
@@ -204,6 +194,8 @@ table or pie chart of the counts of unique values in a user-specified field with
 ```{r fieldValues_actmedia, fig.width=8, fig.height=6, fig.fullwidth=TRUE}
 
 FieldValues_ActMedia <- TADA_FieldValuesTable(R5Profile, field = "ActivityMediaName")
+
+FieldValues_ActMedia
 
 TADA_FieldValuesPie(R5Profile, field = "ActivityMediaName")
 ```
@@ -242,13 +234,15 @@ We can use TADA_FieldValuesTable and TADA_FieldValuesPie again to review this mo
 
 **Note:** When WQX 3.0 data profiles are released, this function will be modified to include fish tissue an option.
 
-```{r AnalysisDataFilter}
+```{r AnalysisDataFilter, fig.width=8, fig.height=6, fig.fullwidth=TRUE}
 
 # Filter to flag only surface water results for use in analysis 
 
 R5Profile <- TADA_AnalysisDataFilter(R5Profile, clean = FALSE)
 
 FieldValues_AnalysisFlag <- TADA_FieldValuesTable(R5Profile, field = "TADA.UseForAnalysis.Flag")
+
+FieldValues_AnalysisFlag
 
 TADA_FieldValuesPie(R5Profile, field = "TADA.UseForAnalysis.Flag")
 ```
@@ -311,7 +305,6 @@ columns flag if special characters are included in result values, and
 specifies what the special characters are.
 
 ``` {r TADA_AutoClean}
-
 # run TADA_AutoClean on filtered dataset to convert special characters, result units, and depth units and identify censored data.
 
 R5Profile <- TADA_AutoClean(R5Profile)
@@ -322,11 +315,9 @@ R5Profile <- TADA_AutoClean(R5Profile)
 
 Now let's take a look at a breakdown of these monitoring location types. The previous function removed non-surface water results. Depending upon your program's goals and methods, you might want to further filter the monitoring location types in the data set..
 
-```{r MonitoringLocations}
-FieldValues_MLs_pie <- TADA_FieldValuesPie(R5Profile, field = "MonitoringLocationTypeName")
+```{r MonitoringLocations, fig.width=8, fig.height=6, fig.fullwidth=TRUE}
 
-FieldValues_MLs_pie
-
+TADA_FieldValuesPie(R5Profile, field = "MonitoringLocationTypeName")
 ```
 
 **Question 4: How many unique Monitoring Location Types (MonitoringLocationTypeName) are present? Which is the most common?**
@@ -364,11 +355,11 @@ TADA_OverviewMap(R5Profile)
 ```
 
 Another function, TADA_FlagCoordinates, identifies and flags
-potentially invalid coordinate data. Its functionality will not be showcased in this demo due to time contsraints. If you are interested in incorporating it into your workflow see TADA: Module 1 or enter ?TADA_FlagCoordinates in the R console for mroe information and examples.
+potentially invalid coordinate data. Its functionality will not be showcased in this demo due to time constraints. If you are interested in incorporating it into your workflow see TADA: Module 1 or enter ?TADA_FlagCoordinates in the R console for more information and examples.
 
 ## Summarize by Characteristic
 
-**TADA_SummarizeColumn** summarizes the data set based on the user specified column and returns a dataframe displaying the number of sites and number of records for each unique value in the specified column. This example  uses TADA.CharacteristicName. 
+**TADA_SummarizeColumn** summarizes the data set based on the user specified column and returns a data frame displaying the number of sites and number of records for each unique value in the specified column. This example  uses TADA.CharacteristicName. 
 
 ```{r TADA_SummarizeColumn}
 
@@ -381,6 +372,8 @@ R5Profile_CharSummary <- TADA_SummarizeColumn(R5Profile, "TADA.CharacteristicNam
 # View TADAProfile_CharSummary
 R5Profile_CharSummary
 ```
+
+**Question 5: How many unique values of TADA.CharacteristicName are included in the data set? Which TADA.CharactersticName was collected at the greatest number of sites? Which TADA.CharactersticName has the most results?**
 
 ```{r question5, echo = FALSE}
 
@@ -406,8 +399,6 @@ char_max_results <- identify_max_results %>%
 max_results <- identify_max_results %>%
   dplyr::select(n_records)
 ```
-
-**Question 5: How many unique values of TADA.CharacteristicName are included in the data set? Which TADA.CharactersticName was collected at the greatest number of sites? Which TADA.CharactersticName has the most results?**
 
 **Answer:**
 There are `r n_char_name` unique values of TADA.CharacteristicName in the R5 data set. `r char_max_sites` was collected at the greatest number of sites (n = `r max_sites`). `r char_max_results` has the most results (n = `r max_results`).
@@ -625,7 +616,7 @@ org_min <- dplyr::slice_min(FieldValues_Orgs, Count)
 
 
 **Answer:**
-`r orgs_n` unique organizations submitted data. `r org_max$Value` submitted the most results (n = `r org_max$Count`). `r org_min$Value` submitted the most results (n = `r org_min$Count`).
+`r orgs_n` unique organizations submitted data. `r org_max$Value` submitted the most results (n = `r org_max$Count`). `r org_min$Value` submitted the fewest results (n = `r org_min$Count`).
 
 Organizations occasionally submit the same data multiple times to the Portal. The following functions check for and identify data that may be duplicates based on date, time, characteristic, result value, and a distance buffer. Each pair or group of potential duplicate rows is flagged with a
 unique ID. For more information, review the documentation by entering
@@ -769,8 +760,7 @@ activity_type_code_n <- length(unique(R5ProfileClean5$ActivityTypeCode))
 
 # List ActivityTypeCodes
 
-activity_type_list <- paste(unique(R5ProfileClean5$ActivityTypeCode), collapse = ", ") %>%
-  stringi::stri_replace_last(fixed = ", " , ", and ")
+activity_n <- length(unique(R5ProfileClean5$ActivityTypeCode))
 
 # Most common Activity Type Code
 most_common_activity <- TADA_FieldValuesTable(R5ProfileClean5, "ActivityTypeCode") %>%
@@ -778,7 +768,7 @@ most_common_activity <- TADA_FieldValuesTable(R5ProfileClean5, "ActivityTypeCode
 ```
 
 **Answer:**
-There are `r` unique ActivityTypeCodes present after removing QC samples. `r most_common_activity$Value` is the most common ActivityTypeCode (n = `r most_common_activity$Count`)
+There are `r activity_n` unique ActivityTypeCodes present after removing QC samples. `r most_common_activity$Value` is the most common ActivityTypeCode (n = `r most_common_activity$Count`)
 
 We've completed our review of the ActivityTypeCode.
 
@@ -887,9 +877,6 @@ R5ProfileClean5 <- TADA_SimpleCensoredMethods(R5ProfileClean5,
 ```{r question12}
 result_na_n <- sum(is.na(R5ProfileClean5$TADA.ResultMeasureValue))
 
-unique_mqc <- unique(R5ProfileClean5$MeasureQualifierCode)
-
-unique_tada_mqc_def <- unique(R5ProfileClean5$TADA.MeasureQualifierCode.Def)
 ```
 
 **Answer:**
