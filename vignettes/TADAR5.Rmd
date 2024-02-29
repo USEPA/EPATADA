@@ -63,7 +63,6 @@ All TADA R package functions have their own individual help pages, listed on the
 
 ```{r help_pages, message = FALSE}
 # Access help page for TADA_DataRetrieval
-
 ?TADA_DataRetrieval
 ```
 
@@ -147,10 +146,6 @@ individual organizations, which may or may not follow the same
 conventions. Data and metadata quality are not guaranteed! Carefully explore any data and make conservative quality assurance
 decisions where information is limited.
 
-
-
-Note: 
-
 **Note:** USGS and EPA are working together to create WQP 3.0 data profiles. Once released, one data profile will contain the columns critical to TADA, removing the need to combine profiles in this first step. TADA package users likely will not notice a difference in their usage of the `TADA_DataRetrieval` function, but it will simplify the steps needed to upload a custom or WQP GUI-downloaded data set into the R package.
 
 
@@ -159,24 +154,27 @@ Note:
 # TADAProfile <- TADA_DataRetrieval(statecode = c("IL", "IN", "MI", "MN", "OH", "WI"), startDate = "2019-05-01", endDate = "2019-05-07", applyautoclean = FALSE)
 
 # For demo purposes, import pre-downloaded R5 data set
-
 R5Profile <- TADA::Data_R5_TADAPackageDemo
 
-# 
 ```
+
+**R5 Profile**
+
+`r rmarkdown::paged_table(R5Profile, options = list(max.print = 100, rows.print = 5))`
+
+*The table above shows the first 500 records from the R5 Water Quality Portal Query.*
+
 
 **Question 1: How many results did TADA_DataRetrieval return?**
 
 ```{r question1}
-
-#determine number of rows in the data set
-
+# Determine number of rows in the data set
 R5_nresults <- nrow(R5Profile) 
-
 ```
 
 **Answer: **
-There are `r R5_nresults` in the data set.
+*There are `r R5_nresults` results in the data set.*
+
 
 If you need to download a large amount of data from across a large area,
 and the TADA_DataRetrieval function is not working due to WQP timeout
@@ -193,12 +191,14 @@ table or pie chart of the counts of unique values in a user-specified field with
 
 ```{r fieldValues_actmedia, fig.width=8, fig.height=6, fig.fullwidth=TRUE}
 
-FieldValues_ActMedia <- TADA_FieldValuesTable(R5Profile, field = "ActivityMediaName")
-
-FieldValues_ActMedia
-
+# Create pie chart for ActivityMediaName
 TADA_FieldValuesPie(R5Profile, field = "ActivityMediaName")
+
+# Create table with count for each ActivityMediaName
+FieldValues_ActMedia <- TADA_FieldValuesTable(R5Profile, field = "ActivityMediaName")
 ```
+
+`r rmarkdown::paged_table(FieldValues_ActMedia)`
 
 
 **Question 2: How many unique 'ActivityMediaName' values exist in your dataset? Are there any media types that are not water?**
@@ -222,7 +222,9 @@ n_not_water <- FieldValues_ActMedia %>%
 
 
 **Answer:**
-There are `r n_media` unique ActivityMediaNames in the data set. They are: `r unique_media`. `r n_not_water` of these are not water.
+*There are `r n_media` unique ActivityMediaNames in the data set. They are: `r unique_media`. `r n_not_water` of these are not water.*
+
+## Filter for Surface Water Data
 
 Some TADA users are interested in using WQP data for surface water only or including some non-water data. The **TADA_AnalysisDataFilter** function can assist in identifying results of interest. Multiple columns are used to identify groundwater results as organizations may populate different combinations of fields in order to identify groundwater results.
 
@@ -232,20 +234,25 @@ The defaults are to include surface water, exclude groundwater and sediment, and
 
 We can use TADA_FieldValuesTable and TADA_FieldValuesPie again to review this more specific breakdown of results by media type.
 
-**Note:** When WQX 3.0 data profiles are released, this function will be modified to include fish tissue an option.
+**Note:** When WQX 3.0 data profiles are released, this function will be updated to include fish tissue a filter option.
 
 ```{r AnalysisDataFilter, fig.width=8, fig.height=6, fig.fullwidth=TRUE}
 
 # Filter to flag only surface water results for use in analysis 
-
 R5Profile <- TADA_AnalysisDataFilter(R5Profile, clean = FALSE)
+
+# Create pie chart for TADA.UseForAnalysis.Flag
+TADA_FieldValuesPie(R5Profile, field = "TADA.UseForAnalysis.Flag")
 
 FieldValues_AnalysisFlag <- TADA_FieldValuesTable(R5Profile, field = "TADA.UseForAnalysis.Flag")
 
-FieldValues_AnalysisFlag
 
-TADA_FieldValuesPie(R5Profile, field = "TADA.UseForAnalysis.Flag")
 ```
+
+`r rmarkdown::paged_table(FieldValues_AnalysisFlag)`
+
+
+**Question 3: How many SURFACE WATER results can we retain for further analysis**
 
 ```{r question3, echo = FALSE}
 
@@ -257,15 +264,11 @@ n_sur_water <- FieldValues_AnalysisFlag %>%
   
 ```
 
-**Question 3: How many SURFACE WATER results can we retain for further analysis**
-
 **Answer:**
-There are `r n_sur_water` surface water results in the R5 data set. Let's filter out any other results flagged "No" to reduce the size of the data set before continuing.
+*There are `r n_sur_water` surface water results in the R5 data set. Let's filter out any other results flagged "No" to reduce the size of the data set before continuing.*
 
 ```{r AnalysisDataFilter2}
-
 # Filter to retain only surface water results for use in analysis 
-
 R5Profile <- R5Profile %>%
   dplyr::filter(TADA.UseForAnalysis.Flag == "Yes - SURFACE WATER")
 ```
@@ -302,11 +305,10 @@ These functions also add the columns
 provide information about the result values that is needed to address
 censored data later on (i.e., nondetections). Specifically, these new
 columns flag if special characters are included in result values, and
-specifies what the special characters are.
+specify what the special characters are.
 
 ``` {r TADA_AutoClean}
 # run TADA_AutoClean on filtered dataset to convert special characters, result units, and depth units and identify censored data.
-
 R5Profile <- TADA_AutoClean(R5Profile)
 
 ```
@@ -332,9 +334,9 @@ mlt_most_common <- FieldValues_MLs_table %>%
 ```
 
 **Answer:**
-There are `r mlt_n` unique MonitoringLocationTypeNames the R5 data set. The most common is `r mlt_most_common$Value` (n = `r mlt_most_common$Count`).
+*There are `r mlt_n` unique MonitoringLocationTypeNames the R5 data set. The most common is `r mlt_most_common$Value` (n = `r mlt_most_common$Count`).*
 
-Now, let's filter by `r mlt_most_common$Value` and focus the rest of this demo on that subset of results.
+Now, let's filter by `r mlt_most_common$Value` and focus the rest of this demo on the River/Stream subset of results.
 
 ```{r MonitoringLocationsRiverStream}
 R5Profile <- R5Profile %>%
@@ -362,46 +364,34 @@ potentially invalid coordinate data. Its functionality will not be showcased in 
 **TADA_SummarizeColumn** summarizes the data set based on the user specified column and returns a data frame displaying the number of sites and number of records for each unique value in the specified column. This example  uses TADA.CharacteristicName. 
 
 ```{r TADA_SummarizeColumn}
-
 # View column names for TADAProfile
 colnames(R5Profile)
 
 # Review the number of sites and number of records for each CharacteristicName in TADAProfile
 R5Profile_CharSummary <- TADA_SummarizeColumn(R5Profile, "TADA.CharacteristicName")
-
-# View TADAProfile_CharSummary
-R5Profile_CharSummary
 ```
+
+`r rmarkdown::paged_table(R5Profile_CharSummary)`
+
 
 **Question 5: How many unique values of TADA.CharacteristicName are included in the data set? Which TADA.CharactersticName was collected at the greatest number of sites? Which TADA.CharactersticName has the most results?**
 
-```{r question5, echo = FALSE}
+```{r question5}
 
 # Number of unique values of TADA.CharacteristicName
-
 n_char_name <- length(unique(R5Profile_CharSummary$TADA.CharacteristicName))
 
-identify_max_sites <- R5Profile_CharSummary %>%
+# Filter for record with max number of sites per Character
+max_sites <- R5Profile_CharSummary %>%
   dplyr::slice_max(n_sites) 
 
-char_max_sites <- identify_max_sites %>%
-  dplyr::select(TADA.CharacteristicName)
-
-max_sites <- identify_max_sites %>%
-  dplyr::select(n_sites)
-  
-identify_max_results <-R5Profile_CharSummary %>%
+# Filter for record with max number of results per Character
+max_results <-R5Profile_CharSummary %>%
   dplyr::slice_max(n_records)
-
-char_max_results <- identify_max_results %>%
-  dplyr::select(TADA.CharacteristicName)
-
-max_results <- identify_max_results %>%
-  dplyr::select(n_records)
 ```
 
 **Answer:**
-There are `r n_char_name` unique values of TADA.CharacteristicName in the R5 data set. `r char_max_sites` was collected at the greatest number of sites (n = `r max_sites`). `r char_max_results` has the most results (n = `r max_results`).
+*There are `r n_char_name` unique values of TADA.CharacteristicName in the R5 data set. `r max_sites$Value` was collected at the greatest number of sites (n = `r max_sites$Count`). `r max_results$Value` has the most results (n = `r max_results$Count`).*
 
 
 ## Statistically Aggregated Data
@@ -520,7 +510,7 @@ R5ProfileClean2 <- TADA_FlagSpeciation(R5ProfileClean2, clean = "invalid_only")
 R5ProfileClean2 <- TADA_FlagResultUnit(R5ProfileClean2, clean = "invalid_only")
 ```
 
-**Question 6: How many results were removed due to the WQX QAQC service functions? What might be a helpful first step in investigating why these removals occurred?**
+**Question 6: How many rows were removed due to the WQX QAQC service functions? What might be a helpful first step in investigating why these removals occurred?**
 
 ```{r question6}
 # Determine number of rows removed
@@ -533,7 +523,7 @@ rows_removed_n <- R5ProfileClean1_n - R5ProfileClean2_n
 ```
 
 **Answer:**
-`r rows_removed_n` were removed from the data set as a result of TADA_FlagMethod, TADA_FlagFraction, TADA_FlagSpeciation, and TADA_FlagResultUnit. To learn more about specific methods, fractions, speciation, or result units that were flagged for removal, you could re-run the flag functions with clean = FALSE and filter by flag types.
+*`r rows_removed_n` rows were removed from the data set as a result of TADA_FlagMethod, TADA_FlagFraction, TADA_FlagSpeciation, and TADA_FlagResultUnit. To learn more about specific methods, fractions, speciation, or result units that were flagged for removal, you could re-run the flag functions with clean = FALSE and filter by flag types.*
 
 ## WQX national upper and lower thresholds
 
@@ -587,7 +577,7 @@ threshold_removed_n <- R5ProfileClean2_n - R5ProfileClean3_n
 ```
 
 **Answer:**
-`r threshold_removed_n` results were removed due to falling outside the WQX upper or lower thresholds.
+*`r threshold_removed_n` results were removed due to falling outside the WQX thresholds.*
 
 ## Potential duplicates
 
@@ -596,12 +586,11 @@ Quality Portal (WQP), which can affect water quality analyses and
 assessments. Let's start by looking at the submitting organizations for this data set and their relative contributions.
 
 ```{r Organizations}
-
+# Create data frame with result counts by organization
 FieldValues_Orgs <- TADA_FieldValuesTable(R5ProfileClean3, field = "OrganizationFormalName")
-
-FieldValues_Orgs
-
 ```
+
+`r rmarkdown::paged_table(FieldValues_Orgs)`
 
 **Question 8: How many organizations submitted data? Which organization submitted the most results? Which organization submitted the fewest results?**
 
@@ -627,15 +616,17 @@ the following into the console:
 
 
 ```{r FindPotentialDuplicates}
+
+# Flag potential duplicates from multiple organizations
 R5ProfileClean3 <- TADA_FindPotentialDuplicatesMultipleOrgs(R5ProfileClean3,
   dist_buffer = 100,
   org_hierarchy = "none"
 )
 
+#Flag potential duplicates from a single organization
 R5ProfileClean3 <- TADA_FindPotentialDuplicatesSingleOrg(R5ProfileClean3)
 
 # Remove multiple and single org duplicates (random selection of single result)
-
 R5ProfileClean4 <- R5ProfileClean3 %>%
   dplyr::filter(TADA.ResultSelectedMultipleOrgs == "Y",
                 TADA.SingleOrgDup.Flag == "Unique")
@@ -655,7 +646,7 @@ duplicate_removed_n <- R5ProfileClean3_n - R5ProfileClean4_n
 ```
 
 **Answer:**
-`r duplicate_removed_n` duplicates were identified by TADA_FindPotentialDuplicatesMultipleOrgs and TADA_FindPotentialDuplicatesSingleOrg. To priorize results from a particular agency or agencies see documentation for ?TADA_FindDuplicatesMultipleOrgs for information on using the org_hierarchy argument.
+*`r duplicate_removed_n` duplicates were identified by TADA_FindPotentialDuplicatesMultipleOrgs and TADA_FindPotentialDuplicatesSingleOrg. To priorize results from a particular agency or agencies see documentation for ?TADA_FindDuplicatesMultipleOrgs for information on using the org_hierarchy argument.*
 
 ## Full Dataframe Filtering
 
@@ -710,13 +701,11 @@ NA's are not included in the output):
 
 ```{r TADA_FieldCounts_all}
 
-# create object of table
+# Create table of field counts
 FieldCounts_Table_R5 <- TADA_FieldCounts(R5ProfileClean4)
-
-# print table
-FieldCounts_Table_R5
 ```
 
+`r rmarkdown::paged_table(FieldCounts_Table_R5)`
 
 The *ActivityTypeCode* field has multiple unique values. Before we remove the 
 QC samples/measurements from this dataset to prepare for analyses, lets review 
