@@ -180,7 +180,7 @@ R5Profile <- TADA::Data_R5_TADAPackageDemo
 
 **Question 1: How many results did TADA_DataRetrieval return?**
 
-```{r q1}
+```{r question1}
 
 R5_nresults <- nrow(R5Profile) # returns x and of x (as the numbers of rows and columns respectively)
 
@@ -202,7 +202,7 @@ table or pie chart of the counts of unique values in a user-specified field with
 **TADA_FieldValuesTable** or **TADA_FieldValuesPie**. We'll start with
 *TADA.ActivityMediaName*.
 
-```{r fieldValues_all, fig.width=8, fig.height=6, fig.fullwidth=TRUE}
+```{r fieldValues_actmedia, fig.width=8, fig.height=6, fig.fullwidth=TRUE}
 
 FieldValues_ActMedia <- TADA_FieldValuesTable(R5Profile, field = "ActivityMediaName")
 
@@ -212,7 +212,7 @@ TADA_FieldValuesPie(R5Profile, field = "ActivityMediaName")
 
 **Question 2: How many unique 'ActivityMediaName' values exist in your dataset? Are there any media types that are not water?**
 
-```{r fieldvales_actmedia, echo = FALSE}
+```{r question2, echo = FALSE}
 
 n_media <- length(unique(FieldValues_ActMedia$Value))
 
@@ -254,7 +254,7 @@ FieldValues_AnalysisFlag <- TADA_FieldValuesTable(R5Profile, field = "TADA.UseFo
 TADA_FieldValuesPie(R5Profile, field = "TADA.UseForAnalysis.Flag")
 ```
 
-```{r q3, echo = FALSE}
+```{r question3, echo = FALSE}
 
 # Filter to flag only surface water results for use in analysis 
 
@@ -332,7 +332,7 @@ FieldValues_MLs_pie
 
 **Question 4: How many unique Monitoring Location Types (MonitoringLocationTypeName) are present? Which is the most common?**
 
-```{r MonitoringLocations q}
+```{r question4}
 FieldValues_MLs_table <- TADA_FieldValuesTable(R5Profile, field = "MonitoringLocationTypeName")
 
 mlt_n <- length(unique(FieldValues_MLs_table$Value))
@@ -346,7 +346,7 @@ There are `r mlt_n` unique MonitoringLocationTypeNames the R5 data set. The most
 
 Now, let's filter by `r mlt_most_common$Value` and focus the rest of this demo on that subset of results.
 
-```{r MonitoringLocations River/Stream}
+```{r MonitoringLocationsRiverStream}
 R5Profile <- R5Profile %>%
   dplyr::filter(MonitoringLocationTypeName == "River/Stream")
 ```
@@ -383,7 +383,7 @@ R5Profile_CharSummary <- TADA_SummarizeColumn(R5Profile, "TADA.CharacteristicNam
 R5Profile_CharSummary
 ```
 
-```{r q4, echo = FALSE}
+```{r question5, echo = FALSE}
 
 # Number of unique values of TADA.CharacteristicName
 
@@ -528,7 +528,11 @@ R5ProfileClean2 <- TADA_FlagFraction(R5ProfileClean2, clean = TRUE)
 R5ProfileClean2 <- TADA_FlagSpeciation(R5ProfileClean2, clean = "invalid_only")
 
 R5ProfileClean2 <- TADA_FlagResultUnit(R5ProfileClean2, clean = "invalid_only")
+```
 
+**Question 6: How many results were removed due to the WQX QAQC service functions? What might be a helpful first step in investigating why these removals occurred?**
+
+```{r question6}
 # Determine number of rows removed
 
 R5ProfileClean1_n <- nrow(R5ProfileClean1)
@@ -536,11 +540,7 @@ R5ProfileClean1_n <- nrow(R5ProfileClean1)
 R5ProfileClean2_n <- nrow(R5ProfileClean2)
 
 rows_removed_n <- R5ProfileClean1_n - R5ProfileClean2_n
-
-
 ```
-
-**Question 6: How many results were removed due to the WQX QAQC service functions? What might be a helpful first step in investigating why these removals occurred?**
 
 **Answer:**
 `r rows_removed_n` were removed from the data set as a result of TADA_FlagMethod, TADA_FlagFraction, TADA_FlagSpeciation, and TADA_FlagResultUnit. To learn more about specific methods, fractions, speciation, or result units that were flagged for removal, you could re-run the flag functions with clean = FALSE and filter by flag types.
@@ -583,6 +583,11 @@ combination. See documentation for more details:
 R5ProfileClean3 <- TADA_FlagAboveThreshold(R5ProfileClean2, clean = TRUE)
 
 R5ProfileClean3 <- TADA_FlagBelowThreshold(R5ProfileClean3, clean = TRUE)
+```
+
+**Question 7: How many results were removed due to the WQX upper and lower thresholds?**
+
+```{r question7}
 
 R5ProfileClean2_n <- nrow(R5ProfileClean2)
 
@@ -591,11 +596,8 @@ R5ProfileClean3_n <- nrow(R5ProfileClean3)
 threshold_removed_n <- R5ProfileClean2_n - R5ProfileClean3_n
 ```
 
-**Question 7: How many results were removed due to the WQX upper and lower thresholds?**
-
 **Answer:**
 `r threshold_removed_n` results were removed due to falling outside the WQX upper or lower thresholds.
-
 
 ## Potential duplicates
 
@@ -613,7 +615,7 @@ FieldValues_Orgs
 
 **Question 8: How many organizations submitted data? Which organization submitted the most results? Which organization submitted the fewest results?**
 
-```{r q7, echo = FALSE}
+```{r question8, echo = FALSE}
 
 orgs_n <- length(unique(FieldValues_Orgs$Value))
 
@@ -651,7 +653,7 @@ R5ProfileClean4 <- R5ProfileClean3 %>%
 
 **Question 9: How many total duplicate results were removed? How could you prioritize retaining results from your organization when duplicate results are identified?**
 
-```{r FindPotentialDuplicates q}
+```{r question9}
 # Determine how many duplicate results were removed
 
 R5ProfileClean3_n <- nrow(R5ProfileClean3)
@@ -761,7 +763,7 @@ TADA_FieldValuesPie(R5ProfileClean5, "ActivityTypeCode")
 
 **Question 10: How many ActivityTypeCodes are present after removing QC samples? Which ActivityTypeCode is the most common?**
 
-```{r q10, fig.width=6, fig.height=6, fig.fullwidth=TRUE}
+```{r question10, fig.width=6, fig.height=6, fig.fullwidth=TRUE}
 # Number of ActivityTypeCodes
 
 activity_type_code_n <- length(unique(R5ProfileClean5$ActivityTypeCode))
@@ -883,7 +885,7 @@ R5ProfileClean5 <- TADA_SimpleCensoredMethods(R5ProfileClean5,
 
 **Question 12: How many NAs in the TADA.ResultMeasureValue column remain after running TADA_SimpleCensoredMethods? What is the difference between the values in the MeasureQualifierCode and TADA.MeasureQualifierCode.Def columns?**
 
-```{r Review_NA_MeasureValues}
+```{r question12}
 result_na_n <- sum(is.na(R5ProfileClean5$TADA.ResultMeasureValue))
 
 unique_mqc <- unique(R5ProfileClean5$MeasureQualifierCode)
@@ -904,7 +906,7 @@ R5ProfileClean6 <- TADA_AutoFilter(R5ProfileClean5)
 
 **Question 13: How many NAs remain in the data set for TADA.ResultMeasureValue after running TADA_Autofilter? How many non-numeric values in TADA.ResultMeasureValueDataTypes.Flag remain in the data set? How many rows were removed from the data set?**
 
-```{r check_for_NAs_again}
+```{r question13}
 
 scm_result_nas_n <- sum(is.na(R5ProfileClean6$TADA.ResultMeasureValue))
 
@@ -984,7 +986,7 @@ R5ProfileClean8 <- TADA_CalculateTotalNP(R5ProfileClean7, daily_agg = "max")
 
 **Question 14: How many nutrient aggregate rows were added? Can users customize aggregation summation?**
 
-```{r, TADA_CalculateTotalNP}
+```{r, question14}
 R5ProfileClean7_n <- nrow(R5ProfileClean7)
 
 R5ProfileClean8_n <- nrow(R5ProfileClean8)
@@ -1166,7 +1168,7 @@ R5ProfileClean9 <- TADA_RetainRequired(R5ProfileClean8)
 
 **Question 16: How many columns were removed during TADA_RetainRequired?**
 
-```{r, q TADA retain}
+```{r, question16}
 R5ProfileClean8_n <- ncol(R5ProfileClean8)
 
 R5ProfileClean9_n <- ncol(R5ProfileClean9)
