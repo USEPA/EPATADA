@@ -605,7 +605,7 @@ org_min <- dplyr::slice_min(FieldValues_Orgs, Count)
 
 
 **Answer:**
-`r orgs_n` unique organizations submitted data. `r org_max$Value` submitted the most results (n = `r org_max$Count`). `r org_min$Value` submitted the fewest results (n = `r org_min$Count`).
+*`r orgs_n` unique organizations submitted data. `r org_max$Value` submitted the most results (n = `r org_max$Count`). `r org_min$Value` submitted the fewest results (n = `r org_min$Count`).*
 
 Organizations occasionally submit the same data multiple times to the Portal. The following functions check for and identify data that may be duplicates based on date, time, characteristic, result value, and a distance buffer. Each pair or group of potential duplicate rows is flagged with a
 unique ID. For more information, review the documentation by entering
@@ -646,7 +646,7 @@ duplicate_removed_n <- R5ProfileClean3_n - R5ProfileClean4_n
 ```
 
 **Answer:**
-*`r duplicate_removed_n` duplicates were identified by TADA_FindPotentialDuplicatesMultipleOrgs and TADA_FindPotentialDuplicatesSingleOrg. To priorize results from a particular agency or agencies see documentation for ?TADA_FindDuplicatesMultipleOrgs for information on using the org_hierarchy argument.*
+*`r duplicate_removed_n` duplicates were identified by TADA_FindPotentialDuplicatesMultipleOrgs and TADA_FindPotentialDuplicatesSingleOrg. To prioritize results from a particular agency or agencies see documentation for ?TADA_FindDuplicatesMultipleOrgs for information on using the org_hierarchy argument.*
 
 ## Full Dataframe Filtering
 
@@ -856,12 +856,20 @@ R5ProfileClean5 <- TADA_SimpleCensoredMethods(R5ProfileClean5,
 **Question 12: How many NAs in the TADA.ResultMeasureValue column remain after running TADA_SimpleCensoredMethods? What is the difference between the values in the MeasureQualifierCode and TADA.MeasureQualifierCode.Def columns?**
 
 ```{r question12}
+# Determine number of NA results remaining
 result_na_n <- sum(is.na(R5ProfileClean5$TADA.ResultMeasureValue))
+
+# Show unique values of MeasureQualifierCode and TADA.MeasureQualifierCode.Def
+mqc <- R5ProfileClean5 %>%
+  select(MeasureQualifierCode, TADA.MeasureQualifierCode.Def) %>%
+  unique()
 
 ```
 
+`r rmarkdown::paged_table(mqc)`
+
 **Answer:**
-There are `r result_na_n` TADA.ResultMeasureValue NAs remaining in the data set. The MeasureQualifierCode column contains qualifier code abbreviations. TADA.MeasureQualifierCode.Def contains qualifier code abbreviations concatenated with their definition.
+*There are `r result_na_n` TADA.ResultMeasureValue NAs remaining in the data set. The MeasureQualifierCode column contains qualifier code abbreviations. TADA.MeasureQualifierCode.Def contains qualifier code abbreviations concatenated with their definition.*
 
 Next, we need to filter down to only numeric data. Remove data where the
 TADA.ResultMeasureValueDataTypes.Flag = "Text" or "NA - Not Available". You can also remove any columns not required for the TADA workflow that contain only NAs. The **TADA_AutoFilter()** function removes non-numeric data and optional columns containing only NAs.
@@ -887,7 +895,7 @@ autofilter_removed_n <- R5ProfileClean5_n - R5ProfileClean6_n
 ```
 
 **Answer:**
-There are `r scm_result_nas_n`results remaining where TADA.ResultMeasureValue is equal to NA after running TADA_AutoFilter. There are `r non_numeric_n` results remaining where TADA.ResultMeasureValueDataTypes is non-numeric. `r autofilter_removed_n` results where removed from the data set to ensure that only numeric results are retained.
+*There are `r scm_result_nas_n`results remaining where TADA.ResultMeasureValue is equal to NA after running TADA_AutoFilter. There are `r non_numeric_n` results remaining where TADA.ResultMeasureValueDataTypes is non-numeric. `r autofilter_removed_n` results where removed from the data set to ensure that only numeric results are retained.*
 
 
 ## Convert synonymous characteristic, fraction, speciation, and unit values to a consistent convention based on user-defined/TADA standards
@@ -962,7 +970,7 @@ nutrient_aggregate_n <- R5ProfileClean5_n - R5ProfileClean6_n
 ```
 
 **Answer:**
-`r nutrient_aggregate_n` nutrient aggregate rows were added. Users can review the summation worksheet (**TADA_GetNutrientSummationRef**) and update it to meet their requirements.
+*`r nutrient_aggregate_n` nutrient aggregate rows were added. Users can review the summation worksheet (**TADA_GetNutrientSummationRef**) and update it to meet their requirements.*
 
 ## Parameter Level Filtering
 
@@ -1145,7 +1153,7 @@ retain_required_n <- R5ProfileClean8_n - R5ProfileClean9_n
 
 **Answer:**
 
-`r retain_required_n`columns were removed by **TADA_RetainRequired**.
+*`r retain_required_n`columns were removed by **TADA_RetainRequired**.*
 
 ## TADA Shiny Application
 
