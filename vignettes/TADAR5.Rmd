@@ -734,9 +734,7 @@ R5ProfileClean5 <- TADA_FindQCActivities(R5ProfileClean4,
   clean = TRUE
 )
 
-# generate table and pie chart
-TADA_FieldValuesTable(R5ProfileClean5, "ActivityTypeCode")
-
+# Generate pie chart for ActivityTypeCode
 TADA_FieldValuesPie(R5ProfileClean5, "ActivityTypeCode")
 ```
 
@@ -757,15 +755,10 @@ most_common_activity <- TADA_FieldValuesTable(R5ProfileClean5, "ActivityTypeCode
 ```
 
 **Answer:**
-There are `r activity_n` unique ActivityTypeCodes present after removing QC samples. `r most_common_activity$Value` is the most common ActivityTypeCode (n = `r most_common_activity$Count`)
+*There are `r activity_n` unique ActivityTypeCodes present after removing QC samples. `r most_common_activity$Value` is the most common ActivityTypeCode (n = `r most_common_activity$Count`).*
 
-We've completed our review of the ActivityTypeCode.
-
-
-Now, let's move on to a different field and see if there are any values
-that we want to remove.
-
-In this next example, there are multiple MeasureQualifierCode values to
+We've completed our review of the ActivityTypeCode. Now, let's move on to a different field and see if there are any values
+that we want to remove. In this next example, there are multiple MeasureQualifierCode values to
 review.
 
 ```{r MeasureQualifierCodeReview, fig.width=8, fig.height=6, fig.fullwidth=TRUE}
@@ -787,7 +780,6 @@ Review_R5ProfileClean5 <- TADA_FlagMeasureQualifierCode(R5ProfileClean5,
   define = TRUE
 )
 # Review number of suspect results
-
 suspect_n <- Review_R5ProfileClean5 %>%
   dplyr::filter(TADA.MeasureQualifierCode.Flag == "SUSPECT") %>%
   nrow()
@@ -800,7 +792,7 @@ R5ProfileClean5 <- TADA_FlagMeasureQualifierCode(R5ProfileClean5,
 **Question 11: How many results were identified as "SUSPECT" based on the MeasureQualifierCode?**
 
 **Answer:**
-`r suspect_n` results were identified as suspect based on the MeasureQualifierCode.
+*`r suspect_n` results were identified as suspect based on the MeasureQualifierCode.*
 
 ## Censored data
 
