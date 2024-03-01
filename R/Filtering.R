@@ -340,7 +340,7 @@ TADA_AnalysisDataFilter <- function(.data,
   
   if (surface_water == FALSE) {
     
-    sur.water.flag <- "Yes"
+    sur.water.flag <- "No"
     
     print("TADA_AnalysisDataFilter: Flagging surface water results to exclude from assessments.")
     
@@ -383,11 +383,12 @@ TADA_AnalysisDataFilter <- function(.data,
   if (clean == TRUE) {
     
     .data <- .data %>%
-      dplyr::mutate(TADA.UseForAnalysis.Flag = dplyr::case_when(
+      dplyr::mutate(TADA.Media.Flag = ifelse(TADA.Media.Flag == "", "OTHER", TADA.Media.Flag),
+                    TADA.UseForAnalysis.Flag = dplyr::case_when(
         TADA.Media.Flag == "SEDIMENT" ~ paste(sed.flag, " - ", TADA.Media.Flag, sep = ""),
         TADA.Media.Flag == "SURFACE WATER" ~ paste(sur.water.flag, " - ", TADA.Media.Flag, sep = ""),
         TADA.Media.Flag == "GROUNDWATER" ~ paste(gr.water.flag, " - ", TADA.Media.Flag, sep = ""),
-        is.na(TADA.Media.Flag) ~ "No - OTHER",
+        TADA.Media.Flag == "OTHER" ~ "No - OTHER",
         !TADA.Media.Flag %in% c("SEDIMENT", "SURFACE WATER", "GROUNDWATER", "OTHER") ~ paste("No - ", TADA.Media.Flag, sep = "")
       )) %>%
       dplyr::filter(stringr::str_detect(TADA.UseForAnalysis.Flag, "Yes")) %>%
@@ -404,12 +405,14 @@ TADA_AnalysisDataFilter <- function(.data,
   if (clean == FALSE) {
     
     .data <- .data %>%
-      dplyr::mutate(TADA.UseForAnalysis.Flag = dplyr::case_when(
-        TADA.Media.Flag == "SEDIMENT" ~ paste(sed.flag, " - ", TADA.Media.Flag, sep = ""),
-        TADA.Media.Flag == "SURFACE WATER" ~ paste(sur.water.flag, " - ", TADA.Media.Flag, sep = ""),
-        TADA.Media.Flag == "GROUNDWATER" ~ paste(gr.water.flag, " - ", TADA.Media.Flag, sep = ""),
-        is.na(TADA.Media.Flag) ~ "No - OTHER",
-        !TADA.Media.Flag %in% c("SEDIMENT", "SURFACE WATER", "GROUNDWATER", "OTHER") ~ paste("No - ", TADA.Media.Flag, sep = ""))) %>%
+      dplyr::mutate(TADA.Media.Flag = ifelse(TADA.Media.Flag == "", "OTHER", TADA.Media.Flag),
+                    TADA.UseForAnalysis.Flag = dplyr::case_when(
+                      TADA.Media.Flag == "SEDIMENT" ~ paste(sed.flag, " - ", TADA.Media.Flag, sep = ""),
+                      TADA.Media.Flag == "SURFACE WATER" ~ paste(sur.water.flag, " - ", TADA.Media.Flag, sep = ""),
+                      TADA.Media.Flag == "GROUNDWATER" ~ paste(gr.water.flag, " - ", TADA.Media.Flag, sep = ""),
+                      TADA.Media.Flag == "OTHER" ~ "No - OTHER",
+                      !TADA.Media.Flag %in% c("SEDIMENT", "SURFACE WATER", "GROUNDWATER", "OTHER") ~ paste("No - ", TADA.Media.Flag, sep = "")
+                    )) %>%
       dplyr::select(-TADA.Media.Flag) %>%
       TADA_OrderCols()
       
