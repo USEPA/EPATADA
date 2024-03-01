@@ -56,12 +56,11 @@ It's that easy! The most stable branch for TADA right now is the develop branch.
 The following code block ensures the additional packages needed to run the code in this RMarkdown document are loaded. However, users may also use the `package name:: package function` notation to avoid the list of `library()` calls.
 
 ```{r, warning=FALSE,message=FALSE}
-list.of.packages <- c("tidyverse", "writexl")
+list.of.packages <- c("tidyverse")
 new.packages <- list.of.packages[!(list.of.packages %in% installed.packages()[, "Package"])]
 if (length(new.packages)) install.packages(new.packages)
 
 library(tidyverse)
-library(writexl)
 ```
 
 ## Help pages
@@ -436,12 +435,15 @@ TADA::TADA_Boxplot(plot_data, id_cols = "TADA.ComparableDataIdentifier")
 View(TADA::TADA_Stats(plot_data))
 ```
 
-Finally, we can download our PASS and FAIL datasets together into an Excel spreadsheet to see all of the TADA-related columns together. TADA-generated columns will occur at the far end of the dataset.
+Finally, we can download our PASS and FAIL datasets together into an Excel spreadsheet.
 
 ```{r}
 dataset_and_removed <- dplyr::bind_rows(dataset_cens, removed)
 
-writexl::write_xlsx(dataset_and_removed, "NCTCShepherdstownData.xlsx")
+# Un-comment to download Excel spreadsheet to your working directory
+# install.packages(writexl)
+# library(writexl)
+# writexl::write_xlsx(dataset_and_removed, "NCTCShepherdstownData.xlsx")
 ```
 
 ## TADA R Shiny Modules
