@@ -1173,13 +1173,3 @@ remotes::install_github("USEPA/TADAShiny",
 # launch the app locally.
 TADAShiny::run_app()
 ```
-
-## Download this Article from GitHub
-
-Go to:
-<https://github.com/USEPA/TADA/blob/develop/vignettes/TADAR5.Rmd>
-
-[![Click the highlighted icon to download TADAR5.Rmd from GitHub.
-Open this file in R Studio to follow along. Alternatively, you can copy
-and paste desired lines of code from here into your own
-script. Note: You must have a GitHub account to download TADAR5.Rmd from GitHub ](images/DownloadModule1.jpg)](https://github.com/USEPA/TADA/blob/develop/vignettes/TADAR5.Rmd)
