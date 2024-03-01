@@ -135,9 +135,9 @@ Tips:
     
 The example dataset in this demo includes monitoring data from multiple organizations collected during one week (May 1, 2019 - May, 7 2019) in Region 5 states (Illinois, Indiana, Michigan, Minnesota, Ohio, and Wisconsin). 
 
-For demonstration purposes, the R5 example data set has already been downloaded. You can run the code chunk below to access the pre-downloaded data set. The original query has also been included and can be accessed by uncommenting and running the TADA_DataRetrieval function below.
+For demonstration purposes, the R5 example data set has already been downloaded. You can run the code chunk below to access the pre-downloaded data set. The original query has also been included and can be accessed by uncommenting and running the **TADA_DataRetrieval** function below.
 
-Downloads using TADA_DataRetrieval will have the same columns each time. Any columns with a "TADA" prefix were added during data retrieval. TADA_DataRetrieval  automatically
+Downloads using **TADA_DataRetrieval** will have the same columns each time. Any columns with a "TADA" prefix were added during data retrieval. **TADA_DataRetrieval**  automatically
 converts the date times to UTC and data
 to dates, datetimes, and numerics based on a standard algorithm. 
 Data are uploaded to the Water Quality Portal by
@@ -145,7 +145,7 @@ individual organizations, which may or may not follow the same
 conventions. Data and metadata quality are not guaranteed! Carefully explore any data and make conservative quality assurance
 decisions where information is limited.
 
-**Note:** USGS and EPA are working together to create WQP 3.0 data profiles. Once released, one data profile will contain the columns critical to TADA, removing the need to combine profiles. TADA package users likely will not notice a difference in their usage of the `TADA_DataRetrieval` function, but it will simplify the steps needed to upload a custom or WQP GUI-downloaded data set into the R package.
+**Note:** USGS and EPA are working together to create WQP 3.0 data profiles. Once released, one data profile will contain the columns critical to TADA, removing the need to combine profiles. TADA package users likely will not notice a difference in their usage of the **TADA_DataRetrieval** function, but it will simplify the steps needed to upload a custom or WQP GUI-downloaded data set into the R package.
 
 
 ```{r TADA_DataRetrieval}
@@ -176,8 +176,8 @@ R5_nresults <- nrow(R5Profile)
 
 
 If you need to download a large amount of data from across a large area,
-and the TADA_DataRetrieval function is not working due to WQP timeout
-issues, then the **TADA_BigDataRetrieval** function may work better. See ?TADA_BigDataRetrieval for more details or the TADA Module 1 vignette for more details. 
+and the **TADA_DataRetrieval** function is not working due to WQP timeout
+issues, then the **TADA_BigDataRetrieval** function may work better. See **?TADA_BigDataRetrieval** for more details or the TADA Module 1 vignette for more details. 
 
 ## Review and Filter By Media Type
 
@@ -225,11 +225,11 @@ n_not_water <- FieldValues_ActMedia %>%
 
 ## Filter for Surface Water Data
 
-Some TADA users are interested in using WQP data for surface water only or including some non-water data. The **TADA_AnalysisDataFilter** function can assist in identifying results of interest. Multiple columns are used to identify groundwater results as organizations may populate different combinations of fields in order to identify groundwater results.
+Some TADA users are interested in using WQP data for surface water only or including some non-water data. The **TADA_AnalysisDataFilter** identifies surface water, groundwater, and sediment results. Multiple columns are used to identify groundwater results as organizations may populate different combinations of fields in order to identify groundwater results.
 
-This function identifies surface water, groundwater, and sediment results. Users can  specify whether all results should be returned with a new column, *TADA.UseForAnalysis.Flag*, providing information about the result's media type of and identifying if the result should be included in further analysis or if only results that should be included are returned. 
+ Users can  specify whether all results should be returned with a new column, *TADA.UseForAnalysis.Flag*, providing information about the result's media type and identifying if the result should be included in further analysis, or if only results that should be included are returned. 
 
-The defaults are to include surface water, exclude groundwater and sediment, and to return all results with the added *TADA.UseForAnalysis.Flag* column (clean = FALSE). This is shown in the active example below. 
+The defaults are to include surface water, exclude groundwater and sediment, and to return all results with the added *TADA.UseForAnalysis.Flag* column (clean = FALSE). This is shown in the example below. 
 
 We can use **TADA_FieldValuesTable** and **TADA_FieldValuesPie** again to review this more specific breakdown of results by media type.
 
@@ -283,25 +283,17 @@ Now **TADA_AutoClean** can be run on the surface water-only data set. It perform
 
 -   **TADA_IDCensoredData** - categorizes detection limit data and identifies mismatches in result detection condition and result detection limit type. 
 
--   Other helpful actions - converts important text columns to all upper-case letters, removes exact duplicates, and uses WQX format rules to harmonize specific NWIS metadata conventions (e.g. move characteristic speciation from the TADA.ResultMeasure.MeasureUnitCode column to the TADA.MethodSpeciationName column)
+-   Other helpful actions - converts important text columns to all upper-case letters, removes exact duplicates, and uses WQX format rules to harmonize specific NWIS metadata conventions (e.g. move characteristic speciation from the *TADA.ResultMeasure.MeasureUnitCode* column to the *TADA.MethodSpeciationName* column)
 
 As a general rule, TADA functions do not change any contents in the WQP-served
 columns. Instead, they add new columns with the prefix "TADA." The following
-columns are numeric versions of their WQP origins:
-
-    -   *TADA.ResultMeasureValue*
-
-    -   *TADA.DetectionQuantitationLimitMeasure.MeasureValue*
-
-    -   *TADA.LatitudeMeasure*
-
-    -   *TADA.LongitudeMeasure*
+columns are numeric versions of their WQP origins: *TADA.ResultMeasureValue*, *TADA.DetectionQuantitationLimitMeasure.MeasureValue*, *TADA.LatitudeMeasure*, and *TADA.LongitudeMeasure*.
 
 These functions also add the columns
 *TADA.ResultMeasureValueDataTypes.Flag* and
 *TADA.DetectionQuantitationLimitMeasure.MeasureValueDataTypes.Flag*, which
 provide information about the result values that is needed to address
-censored data later on (i.e., nondetections). Specifically, these new
+censored data later on. These new
 columns flag if special characters are included in result values, and
 specify what the special characters are.
 
@@ -337,9 +329,9 @@ mlt_most_common <- FieldValues_MLs_table %>%
 
 Now, let's filter by `r mlt_most_common[1]` and focus the rest of this demo on the `r mlt_most_common[1]` subset of results.
 
-```{r MonitoringLocationsRiverStream}
+```{r MonitoringLocationsMostCommon}
 R5Profile <- R5Profile %>%
-  dplyr::filter(MonitoringLocationTypeName == "River/Stream")
+  dplyr::filter(MonitoringLocationTypeName == dplyr::pull(mlt_most_common[1]))
 ```
 
 Next we can review station locations and summary information using the
@@ -356,16 +348,13 @@ TADA_OverviewMap(R5Profile)
 
 
 Another function, **TADA_FlagCoordinates**, identifies and flags
-potentially invalid coordinate data. Its functionality will not be showcased in this demo due to time constraints. For details see TADA: Module 1 or enter "?TADA_FlagCoordinates" in the R console for more information and examples.
+potentially invalid coordinate data. Its functionality will not be showcased in this demo due to time constraints. For details see TADA: Module 1 or enter *?TADA_FlagCoordinates* in the R console for more information and examples.
 
 ## Summarize by Characteristic
 
 **TADA_SummarizeColumn** summarizes the data set based on a user specified column and returns a data frame displaying the number of sites and number of records for each unique value in the specified column. This example uses *TADA.CharacteristicName*. 
 
 ```{r TADA_SummarizeColumn}
-# View column names for TADAProfile
-colnames(R5Profile)
-
 # Review the number of sites and number of records for each CharacteristicName in TADAProfile
 R5Profile_CharSummary <- TADA_SummarizeColumn(R5Profile, "TADA.CharacteristicName")
 ```
@@ -605,8 +594,8 @@ Organizations occasionally submit the same data multiple times to the Portal. Th
 unique ID. For more information, review the documentation by entering
 the following into the console:
 
--   ?**TADA_FindPotentialDuplicatesMultipleOrgs**
--   ?**TADA_FindPotentialDuplicatesSingleOrg**
+-   **?TADA_FindPotentialDuplicatesMultipleOrgs**
+-   **?TADA_FindPotentialDuplicatesSingleOrg**
 
 
 ```{r FindPotentialDuplicates}
@@ -754,9 +743,9 @@ TADA_FieldValuesPie(R5ProfileClean5, "MeasureQualifierCode")
 MeasureQualifierCode definitions are available
 [here](https://cdx.epa.gov/wqx/download/DomainValues/ResultMeasureQualifier.CSV){style="font-size: 12pt;"}.
 
-In this example, we show how to use the function **TADA_FlagMeasureQualifierCode** to add MeasureQualifierCode definitions and flag and/or remove rows with specific codes under MeasureQualifierCode that are categorized as "SUSPECT". 
+In this example, we show how to use the function **TADA_FlagMeasureQualifierCode** to add *MeasureQualifierCode* definitions and flag and/or remove rows with specific codes under *MeasureQualifierCode* that are categorized as "SUSPECT". 
 
-See ?TADA_FlagMeasureQualifierCode for more information. 
+See **?TADA_FlagMeasureQualifierCode** for more information. 
 
 ```{r FilterMeasureQualifierCodes}
 # Flag only
@@ -807,17 +796,8 @@ records and identifies over-detects from non-detects using the
 *ResultDetectionConditionText* and *DetectionQuantitationLimitTypeName*.
 This utility function is automatically run within the **TADA_AutoClean**
 function and produces the *TADA.CensoredData.Flag* column. All records
-receive one of the following classifications: 
-  - Uncensored - Not filled with detection limit value; a detection. 
-  - Non-Detect - Left-censored
-  - Over-Detect - Right-censored
-  - Other Condition/Limit Populated - detection condition or limit type are ambiguous or not associated with a lower/upper detection limit
-  - Conflict between Condition and Limit - detection condition and limit type for a single record do not agree
-  - Detection condition or detection limit is not documented in TADA
-reference tables - detection condition or limit type is not
-characterized in the TADA reference tables
-- Detection condition is missing and required for
-censored data ID - Result needs more information before being categorized
+receive one of the following classifications: Uncensored; Non-Detect; Over-Detect; Other Condition/Limit Populated; Conflict between Condition and Limit; Detection condition or detection limit is not documented in TADA; or  Detection condition is missing and required for
+censored data ID.
 
 The **TADA_SimpleCensoredMethods** function also adds a *TADA.MeasureQualifierCode.Def* column which contains the *MeasureQualiferCode* concatenated with the WQX definition for each qualifier code. This provides additional information to the user which may assist in deciding which records to retain for analysis.
 
@@ -904,11 +884,11 @@ current working directory when download = TRUE, the default is download
 The **TADA_HarmonizeSynonyms** function then compares the input dataframe to the
 TADA Synonym Reference Table and makes conversions where target
 characteristics/fractions/speciations/units are provided. This function also
-appends a column called TADA.Harmonized.Flag, indicating which results had
+appends a column called *TADA.Harmonized.Flag*, indicating which results had
 metadata changed/converted in this function. The purpose of this function is to
 make similar data consistent and therefore easier to compare and analyze.
 
-Here are some examples of how the TADA_HarmonizeSynonyms function can be used:
+Here are some examples of how the **TADA_HarmonizeSynonyms** can be useful:
 
 1.  *TADA.ResultSampleFractionText* specifies forms of constituents. In
     some cases, a single *TADA.CharacteristicName* will have both
@@ -916,7 +896,7 @@ Here are some examples of how the TADA_HarmonizeSynonyms function can be used:
     combined. In these cases, each *TADA.CharacteristicName* and
     *TADA.ResultSampleFractionText* combination is given a different
     identifier. This identifier can be used later on to identify
-    comparable data groups for calculating statistics and creating
+    comparable data groups (*TADA.ComparableDataIdentifier*) for calculating statistics and creating
     figures for each combination.
 
 2.  Some variables have different names but represent the same
@@ -962,7 +942,7 @@ total_N_P_subset <- R5ProfileClean8 %>%
 
 `r rmarkdown::paged_table(total_N_P_subset, options = list(max.print = 100, rows.print = 5))`
 
-*The table above shows the first 100 rows added by calculating Total N and P. Columns included in the table are TADA.CharacteristicName, TADA.ResultMeasureValue, TADA.ResultMeasure.MeasureUnitCode, TADA.NutrientSummation.Flag, TADA.NutrientSummationEquation, and TADA.NutrientSummationGroup.
+*The table above shows the first 100 rows added by calculating Total N and P. Columns included in the table are TADA.CharacteristicName, TADA.ResultMeasureValue, TADA.ResultMeasure.MeasureUnitCode, TADA.NutrientSummation.Flag, TADA.NutrientSummationEquation, and TADA.NutrientSummationGroup.*
 
 **Answer:**
 *`r nutrient_n` Total Nitrogen or Total Phosporus rows were added. Users can review the summation worksheet (**TADA_GetNutrientSummationRef**) and update it to meet their requirements.*
@@ -1061,14 +1041,19 @@ Review the WQX domain files for definitions:
 <https://www.epa.gov/waterdata/storage-and-retrieval-and-water-quality-exchange-domain-services-and-downloads>
 
 Now, we'll use **TADA_FieldValuesTable** and **TADA_FieldValuesPie** at the
-characteristic-level to review a column of interest.
+characteristic-level to review a column of interest. In this example we review values from the *SampleCollectionMethod.MethodName* field for Dissolved Oxygen (DO) results.
 
 ```{r TADA_FieldValuesTable_Pie_char, fig.width=8, fig.height=6, fig.fullwidth=TRUE}
-# In this example we review values from the SampleCollectionMethod.MethodName field
-TADA_FieldValuesTable(R5ProfileClean8, field = "SampleCollectionMethod.MethodName", characteristicName = "DISSOLVED OXYGEN (DO)")
-
+#C Create pie chart for SampleCollectionMethod.MethodName for Dissolved Oxygen (DO results)
 TADA_FieldValuesPie(R5ProfileClean8, field = "SampleCollectionMethod.MethodName", characteristicName = "DISSOLVED OXYGEN (DO)")
+
+# Create table for SampleCollectionMethod.MethodName for Dissolved Oxygen (DO results)
+FieldValuesTable_DO_scm <- TADA_FieldValuesTable(R5ProfileClean8, field = "SampleCollectionMethod.MethodName", characteristicName = "DISSOLVED OXYGEN (DO)")
+
+
 ```
+
+`r rmarkdown::paged_table(FieldValuesTable_DO_scm)`
 
 Generate a scatterplot with two 
 ```{r TADA_TwoCharacteristicScatterplot, fig.width=8, fig.height=6, fig.fullwidth=TRUE}
@@ -1084,31 +1069,29 @@ Now we will summarize results for a single comparable data group using the
 TADA.ComparableDataIdentifier (i.e., comparable characteristic, unit,
 speciation, and fraction combination) using **TADA_Histogram** and **TADA_Boxplot**. Note that users may generate a list output of multiple plots if their input dataset has more than one unique comparable data group.
 
-```{r ComparableDataIdentifier_stats_and_histogram, fig.width=8, fig.height=6, fig.fullwidth=TRUE}
-# review TADA.ComparableDataIdentifier
-unique(R5ProfileClean8$TADA.ComparableDataIdentifier)
+```{r ComparableDataIdentifier}
+# review TADA.ComparableDataIdentifier, show first 12 rows
+unique(R5ProfileClean8$TADA.ComparableDataIdentifier[1:12]) 
+```
 
+```{r Histogram, fig.width=8, fig.height=6, fig.fullwidth=TRUE}
 # filter dataframe to only "DISSOLVED OXYGEN (DO)_NA_NA_MG/L"
 R5ProfileCleanDO <- dplyr::filter(R5ProfileClean8, TADA.ComparableDataIdentifier == "DISSOLVED OXYGEN (DO)_NA_NA_MG/L")
 
+# generate a histogram
+TADA_Histogram(R5ProfileCleanDO, id_cols = "TADA.ComparableDataIdentifier")
+
+
 # generate stats table
 R5ProfileCleanDO_stats <- TADA_Stats(R5ProfileCleanDO)
-
-R5ProfileCleanDO_stats
-
-# generate a histogram
-DO_Histogram <- TADA_Histogram(R5ProfileCleanDO, id_cols = "TADA.ComparableDataIdentifier")
-
-# view histogram
-DO_Histogram
 ```
+
+`r rmarkdown::paged_table(R5ProfileCleanDO_stats)`
 
 Generate interactive box plot.
 
 ```{r boxplot, fig.width=8, fig.height=6, fig.fullwidth=TRUE}
-DO_Boxplot <- TADA::TADA_Boxplot(R5ProfileCleanDO, id_cols = "TADA.ComparableDataIdentifier")
-
-DO_Boxplot
+TADA_Boxplot(R5ProfileCleanDO, id_cols = "TADA.ComparableDataIdentifier")
 ```
 
 Generate interactive scatterplot.
@@ -1119,9 +1102,7 @@ R5ProfileCleanDO_dailymax <- TADA_AggregateMeasurements(R5ProfileCleanDO,
   clean = TRUE
 )
 
-DO_Scatterplot <- TADA::TADA_Scatterplot(R5ProfileCleanDO_dailymax, id_cols = "TADA.ComparableDataIdentifier")
-
-DO_Scatterplot
+TADA_Scatterplot(R5ProfileCleanDO_dailymax, id_cols = "TADA.ComparableDataIdentifier")
 ```
 
 **Question 15: Which figure generating functions can be used to visualize more than one characteristic? Which can be used to visualize only one characteristic?**
@@ -1148,7 +1129,7 @@ retain_required_n <- R5ProfileClean8_n - R5ProfileClean9_n
 
 **Answer:**
 
-*`r retain_required_n`columns were removed by **TADA_RetainRequired**.*
+*`r retain_required_n` columns were removed by **TADA_RetainRequired**.*
 
 ## TADA Shiny Application
 
