@@ -850,7 +850,7 @@ mqc <- R5ProfileClean5 %>%
 
 ```
 
-`r rmarkdown::paged_table(mqc, options = list(cols.print = 2))`
+`r rmarkdown::paged_table(mqc, options = list(rownames.print = FALSE))`
 
 **Answer:**
 *There are `r result_na_n` TADA.ResultMeasureValue NAs remaining in the data set. The MeasureQualifierCode column contains qualifier code abbreviations. TADA.MeasureQualifierCode.Def contains qualifier code abbreviations concatenated with their definition.*
@@ -932,7 +932,7 @@ R5ProfileClean7 <- TADA_HarmonizeSynonyms(R5ProfileClean6,
 )
 ```
 
-`r rmarkdown::paged_table(UniqueHarmonizationRef, options = list(max.print = 100, rows.print = 5)`
+`r rmarkdown::paged_table(UniqueHarmonizationRef, options = list(max.print = 100, rows.print = 5))`
 
 *The table above shows the first 100 rows of the UniqueHarmonizationRef table.*
 
@@ -957,12 +957,12 @@ nutrient_n <- R5ProfileClean8_n - R5ProfileClean7_n
 
 total_N_P_subset <- R5ProfileClean8 %>%
   dplyr::filter(TADA.NutrientSummation.Flag %in% c("Nutrient summation from one or more subspecies.", "Nutrient summation from one subspecies.")) %>%
-  dplyr::select(TADA.CharacteristicName, ResultMeasureValue, ResultMeasure.MeasureUnitCode, TADA.NutrientSummation.Flag, TADA.NutrientSummationEquation, TADA.NutrientSummationGroup)
+  dplyr::select(TADA.CharacteristicName, TADA.ResultMeasureValue, TADA.ResultMeasure.MeasureUnitCode, TADA.NutrientSummation.Flag, TADA.NutrientSummationEquation, TADA.NutrientSummationGroup)
 ```
 
 `r rmarkdown::paged_table(total_N_P_subset, options = list(max.print = 100, rows.print = 5))`
 
-*The table above shows the first 100 rows added by calculating Total N and P. Columns included in the table are TADA.CharacteristicName, ResultMeasureValue, ResultMeasure.MeasureUnitCode, TADA.NutrientSummation.Flag, TADA.NutrientSummationEquation, and TADA.NutrientSummationGroup.
+*The table above shows the first 100 rows added by calculating Total N and P. Columns included in the table are TADA.CharacteristicName, TADA.ResultMeasureValue, TADA.ResultMeasure.MeasureUnitCode, TADA.NutrientSummation.Flag, TADA.NutrientSummationEquation, and TADA.NutrientSummationGroup.
 
 **Answer:**
 *`r nutrient_n` Total Nitrogen or Total Phosporus rows were added. Users can review the summation worksheet (**TADA_GetNutrientSummationRef**) and update it to meet their requirements.*
