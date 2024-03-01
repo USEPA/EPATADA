@@ -424,7 +424,7 @@ TADA_OverviewMap <- function(.data) {
     )
 
     # Tribal layers will load by default in the overview map, restricted by the bounding box of the current dataset
-    # They can be toggled on and off using a button (all layers work together and can't be turned on/off individually). 
+    # They can be toggled on and off using a button (all layers work together and can't be turned on/off individually).
     # Colors and icons are as discussed previously (orange/tan colors and open triangle icons for points) but can be changed to match HMW if desired.
     bbox <- sf::st_bbox(
       c(
@@ -839,14 +839,15 @@ TADA_TwoCharacteristicScatterplot <- function(.data, id_cols = "TADA.ComparableD
       legend = list(
         orientation = "h",
         xanchor = "center",
-        x = 0.5
+        x = 0.5,
+        y = -0.2
       )
     ) %>%
     # config options https://plotly.com/r/configuration-options/
     plotly::config(displaylogo = FALSE) %>% # , displayModeBar = TRUE) # TRUE makes bar always visible
     plotly::add_trace(
       data = param1,
-      x = ~ActivityStartDate,
+      x = ~ as.Date(ActivityStartDate),
       y = ~TADA.ResultMeasureValue,
       name = paste0(
         param1$TADA.ResultSampleFractionText, " ",
@@ -887,7 +888,7 @@ TADA_TwoCharacteristicScatterplot <- function(.data, id_cols = "TADA.ComparableD
     ) %>%
     plotly::add_trace(
       data = param2,
-      x = ~ActivityStartDate,
+      x = ~ as.Date(ActivityStartDate),
       y = ~TADA.ResultMeasureValue,
       name = paste0(
         param2$TADA.ResultSampleFractionText, " ",
