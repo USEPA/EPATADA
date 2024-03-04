@@ -70,6 +70,16 @@ remotes::install_github("USEPA/TADA",
 # options(download.file.method = "wininet")
 ```
 
+```{r for-development-only, echo = F, results = 'hide', message = FALSE, warning = FALSE}
+# IF YOU ARE NOT DEVELOPING TADA, SKIP THIS CODE CHUNK
+# when developing the package, update this chunk to the current repository branch, so it runs with all of the new features prior to a PR to develop
+remotes::install_github("USEPA/TADA",
+  ref = "R5_package_demo",
+  dependencies = TRUE
+)
+
+```
+
 Finally, use the **library()** function to load the TADA R Package into your R session.
 
 ```{r library, results = 'hide', message = FALSE, warning = FALSE}

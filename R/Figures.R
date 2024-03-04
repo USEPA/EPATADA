@@ -399,7 +399,7 @@ TADA_OverviewMap <- function(.data) {
       dplyr::group_by(MonitoringLocationIdentifier, MonitoringLocationName, TADA.LatitudeMeasure, TADA.LongitudeMeasure) %>%
       dplyr::summarise("Sample_Count" = length(unique(ResultIdentifier)), "Visit_Count" = length(unique(ActivityStartDate)), "Parameter_Count" = length(unique(TADA.CharacteristicName)), "Organization_Count" = length(unique(OrganizationIdentifier)))
 
-    pt_sizes <- round(stats::quantile(sumdat$Sample_Count, probs = c(0.1, 0.25, 0.5, 0.75)), 0)
+    pt_sizes <- round(unique(stats::quantile(sumdat$Sample_Count, probs = c(0.1, 0.25, 0.5, 0.75)), 0))
     pt_labels <- c(
       paste0("<=", pt_sizes[1]),
       paste0(">", pt_sizes[1]),
