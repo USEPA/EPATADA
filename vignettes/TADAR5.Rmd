@@ -1059,10 +1059,12 @@ FieldValuesTable_DO_scm <- TADA_FieldValuesTable(R5ProfileClean8, field = "Sampl
 `r rmarkdown::paged_table(FieldValuesTable_DO_scm)`
 
 Generate a scatterplot with two characteristics.
-```{r TADA_TwoCharacteristicScatterplot, fig.width=8, fig.height=6, fig.fullwidth=TRUE}
+```{r review_identifiers, fig.width=8, fig.height=6, fig.fullwidth=TRUE}
 # review unique identifiers
 unique(R5ProfileClean8$TADA.ComparableDataIdentifier)
+```
 
+```{r TADA_TwoCharacteristicScatterplot, fig.width=8, fig.height=6, fig.fullwidth=TRUE}
 # choose two and generate scatterplot
 TADA_TwoCharacteristicScatterplot(R5ProfileClean8, id_cols = "TADA.ComparableDataIdentifier", groups = c("TEMPERATURE_NA_NA_DEG C", "DISSOLVED OXYGEN (DO)_NA_NA_MG/L"))
 ```
@@ -1072,13 +1074,14 @@ Now we will summarize results for a single comparable data group using the
 TADA.ComparableDataIdentifier (i.e., comparable characteristic, unit,
 speciation, and fraction combination) using **TADA_Histogram** and **TADA_Boxplot**. Note that users may generate a list output of multiple plots if their input dataset has more than one unique comparable data group.
 
-```{r Histogram, fig.width=8, fig.height=6, fig.fullwidth=TRUE}
+```{r filter_dataframe, fig.width=8, fig.height=6, fig.fullwidth=TRUE}
 # filter dataframe to only "DISSOLVED OXYGEN (DO)_NA_NA_MG/L"
 R5ProfileCleanDO <- dplyr::filter(R5ProfileClean8, TADA.ComparableDataIdentifier == "DISSOLVED OXYGEN (DO)_NA_NA_MG/L")
+```
 
+```{r Histogram, fig.width=8, fig.height=6, fig.fullwidth=TRUE}
 # generate a histogram
 TADA_Histogram(R5ProfileCleanDO, id_cols = "TADA.ComparableDataIdentifier")
-
 
 # generate stats table
 R5ProfileCleanDO_stats <- TADA_Stats(R5ProfileCleanDO)
@@ -1094,12 +1097,14 @@ TADA_Boxplot(R5ProfileCleanDO, id_cols = "TADA.ComparableDataIdentifier")
 
 Generate interactive scatterplot.
 
-```{r scatterplot, fig.width=8, fig.height=6, fig.fullwidth=TRUE}
+```{r DO_filtered}
 R5ProfileCleanDO_dailymax <- TADA_AggregateMeasurements(R5ProfileCleanDO,
   agg_fun = c("max"),
   clean = TRUE
 )
+```
 
+```{r scatterplot, fig.width=8, fig.height=6, fig.fullwidth=TRUE}
 TADA_Scatterplot(R5ProfileCleanDO_dailymax, id_cols = "TADA.ComparableDataIdentifier")
 ```
 
