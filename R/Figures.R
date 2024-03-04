@@ -418,9 +418,17 @@ TADA_OverviewMap <- function(.data) {
 
     site_legend <- subset(site_size, site_size$Point_size %in% unique(sumdat$radius))
 
+    
+    bins_n <- dplyr::case_when(max(sumdat$Parameter_Count) == 1 ~ 1,
+                               max(sumdat$Parameter_Count) == 2 ~ 2,
+                               max(sumdat$Parameter_Count) == 3 ~ 3,
+                               max(sumdat$Parameter_Count) == 4 ~ 4,
+                               max(sumdat$Parameter_Count) > 4 ~ 5)
+    
     pal <- leaflet::colorBin(
       palette = "Blues",
-      domain = sumdat$Parameter_Count
+      domain = sumdat$Parameter_Count,
+      n = bins_n
     )
 
     # Tribal layers will load by default in the overview map, restricted by the bounding box of the current dataset
