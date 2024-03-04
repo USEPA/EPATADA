@@ -1043,7 +1043,7 @@ Review the WQX domain files for definitions:
 Now, we'll use **TADA_FieldValuesTable** and **TADA_FieldValuesPie** at the
 characteristic-level to review a column of interest. In this example we review values from the *SampleCollectionMethod.MethodName* field for Dissolved Oxygen (DO) results.
 
-```{r TADA_FieldValuesTable_Pie_char, fig.width=8, fig.height=6, fig.fullwidth=TRUE}
+```{r DO_Method, fig.width=8, fig.height=6, fig.fullwidth=TRUE}
 #C Create pie chart for SampleCollectionMethod.MethodName for Dissolved Oxygen (DO results)
 TADA_FieldValuesPie(R5ProfileClean8, field = "SampleCollectionMethod.MethodName", characteristicName = "DISSOLVED OXYGEN (DO)")
 
@@ -1066,7 +1066,7 @@ comp_data_ids <-R5ProfileClean8 %>%
 TADA_TwoCharacteristicScatterplot(R5ProfileClean8, id_cols = "TADA.ComparableDataIdentifier", groups = c("TEMPERATURE_NA_NA_DEG C", "DISSOLVED OXYGEN (DO)_NA_NA_MG/L"))
 ```
 
-`r rmarkdown::paged_table(comp_data_ids, options = listc(rows.print = 10))`
+`r rmarkdown::paged_table(comp_data_ids, options = list = c(rows.print = 10))`
 
 Now we will summarize results for a single comparable data group using the
 TADA.ComparableDataIdentifier (i.e., comparable characteristic, unit,
