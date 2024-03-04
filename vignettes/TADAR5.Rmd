@@ -161,7 +161,7 @@ R5Profile <- TADA::Data_R5_TADAPackageDemo
 
 `r rmarkdown::paged_table(R5Profile, options = list(max.print = 100, rows.print = 5))`
 
-*The table above shows the first 500 records from the R5 Water Quality Portal Query.*
+*The table above shows the first 100 records from the R5 Water Quality Portal Query.*
 
 
 **Question 1: How many results did TADA_DataRetrieval return?**
@@ -905,14 +905,20 @@ Here are some examples of how the **TADA_HarmonizeSynonyms** can be useful:
     name (and identifier) to synonyms.
 
 ```{r TADA_HarmonizeSynonyms}
+# Get harmonization reference table
 UniqueHarmonizationRef <- TADA_GetSynonymRef(R5ProfileClean6)
 
+# Filter out records without target to display in table
+UniqueHarmonizationRef_no_na <- UniqueHarmonizationRef %>%
+  dplyr::filter(is.na(Target.TADA.CharacteristicName))
+
+# Harominze data set
 R5ProfileClean7 <- TADA_HarmonizeSynonyms(R5ProfileClean6,
   ref = UniqueHarmonizationRef
 )
 ```
 
-`r rmarkdown::paged_table(UniqueHarmonizationRef, options = list(max.print = 100, rows.print = 5))`
+`r rmarkdown::paged_table(UniqueHarmonizationRef_no_na, options = list(max.print = 100, rows.print = 5))`
 
 *The table above shows the first 100 rows of the UniqueHarmonizationRef table.*
 
@@ -1060,7 +1066,7 @@ Generate a scatterplot with two characteristics.
 # review unique identifiers
 comp_data_ids <-R5ProfileClean8 %>%
   dplyr::select(TADA.ComparableDataIdentifier) %>%
-  unique()%>%
+  unique()
 
 # choose two and generate scatterplot
 TADA_TwoCharacteristicScatterplot(R5ProfileClean8, id_cols = "TADA.ComparableDataIdentifier", groups = c("TEMPERATURE_NA_NA_DEG C", "DISSOLVED OXYGEN (DO)_NA_NA_MG/L"))
