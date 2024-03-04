@@ -967,6 +967,8 @@ To start, review the list of parameters in the dataframe using the
 FieldValuesTable_Chars <- TADA_FieldValuesTable(R5ProfileClean8, field = "TADA.CharacteristicName")
 ```
 
+`r rmarkdown::paged_table(FieldValuesTable_Chars)`
+
 Next, we can revisit the **TADA_FieldCounts** function at the characteristic
 level to review how many unique allowable values are included within
 each of the following fields:
