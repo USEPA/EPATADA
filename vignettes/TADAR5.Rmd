@@ -1055,24 +1055,22 @@ FieldValuesTable_DO_scm <- TADA_FieldValuesTable(R5ProfileClean8, field = "Sampl
 
 `r rmarkdown::paged_table(FieldValuesTable_DO_scm)`
 
-Generate a scatterplot with two 
+Generate a scatterplot with two characteristics.
 ```{r TADA_TwoCharacteristicScatterplot, fig.width=8, fig.height=6, fig.fullwidth=TRUE}
 # review unique identifiers
-unique(R5ProfileClean8$TADA.ComparableDataIdentifier)
+comp_data_ids <-R5ProfileClean8 %>%
+  dplyr::select(TADA.ComparableDataIdentifier) %>%
+  unique()%>%
 
 # choose two and generate scatterplot
 TADA_TwoCharacteristicScatterplot(R5ProfileClean8, id_cols = "TADA.ComparableDataIdentifier", groups = c("TEMPERATURE_NA_NA_DEG C", "DISSOLVED OXYGEN (DO)_NA_NA_MG/L"))
 ```
 
+`r rmarkdown::paged_table(comp_data_ids, options = listc(rows.print = 10))`
 
 Now we will summarize results for a single comparable data group using the
 TADA.ComparableDataIdentifier (i.e., comparable characteristic, unit,
 speciation, and fraction combination) using **TADA_Histogram** and **TADA_Boxplot**. Note that users may generate a list output of multiple plots if their input dataset has more than one unique comparable data group.
-
-```{r ComparableDataIdentifier}
-# review TADA.ComparableDataIdentifier, show first 12 rows
-unique(R5ProfileClean8$TADA.ComparableDataIdentifier[1:12]) 
-```
 
 ```{r Histogram, fig.width=8, fig.height=6, fig.fullwidth=TRUE}
 # filter dataframe to only "DISSOLVED OXYGEN (DO)_NA_NA_MG/L"
