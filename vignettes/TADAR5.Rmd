@@ -694,12 +694,7 @@ flagged Quality Control (QC) values using the
 column.
 
 For example, the new *QC_replicate* flag in *TADA.ActivityType.Flag* column 
-indicates that the flagged rows include any of the following replicate values:
-- Quality Control Field Replicate Habitat Assessment
-- Quality Control Field Replicate Msr/Obs
-- Quality Control Field Replicate Portable Data Logger
-- Quality Control Field Replicate Sample-Composite
-- Quality Control Sample-Field Replicate
+indicates that the flagged rows include any of the following replicate values: Quality Control Field Replicate Habitat Assessment, Quality Control Field Replicate Msr/Obs, Quality Control Field Replicate Portable Data Logger, Quality Control Field Replicate Sample-Composite and Quality Control Sample-Field Replicate.
 
 See WQX domain file to review all the **ActivityTypeCode** allowable values:
 https://cdx.epa.gov/wqx/download/DomainValues/ActivityType.CSV
@@ -1066,15 +1061,12 @@ FieldValuesTable_DO_scm <- TADA_FieldValuesTable(R5ProfileClean8, field = "Sampl
 Generate a scatterplot with two characteristics.
 ```{r TADA_TwoCharacteristicScatterplot, fig.width=8, fig.height=6, fig.fullwidth=TRUE}
 # review unique identifiers
-comp_data_ids <-R5ProfileClean8 %>%
-  dplyr::select(TADA.ComparableDataIdentifier) %>%
-  unique()
+unique(R5ProfileClean8$TADA.ComparableDataIdentifier)
 
 # choose two and generate scatterplot
 TADA_TwoCharacteristicScatterplot(R5ProfileClean8, id_cols = "TADA.ComparableDataIdentifier", groups = c("TEMPERATURE_NA_NA_DEG C", "DISSOLVED OXYGEN (DO)_NA_NA_MG/L"))
 ```
 
-`r rmarkdown::paged_table(comp_data_ids, options = list = c(rows.print = 10))`
 
 Now we will summarize results for a single comparable data group using the
 TADA.ComparableDataIdentifier (i.e., comparable characteristic, unit,
