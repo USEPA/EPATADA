@@ -425,11 +425,31 @@ TADA_OverviewMap <- function(.data) {
                                max(sumdat$Parameter_Count) == 4 ~ 4,
                                max(sumdat$Parameter_Count) > 4 ~ 5)
     
+    
+    if (bins_n < 5) {
+      values_cut <- dplyr::case_when(bins_n == 1 ~ c(0,1),
+                                     bins_n == 2 ~ c(0,1,2),
+                                     bins_n == 3 ~ c(0,1,2,3),
+                                     bins_n == 4 ~ c(0,1,2,3,4),
+                                     bins_n == 5 ~ c(0,1,2,3,4,5))
+      sumdat %>%
+        dplyr::mutate(bins_cat = cut(Parameter_Count, breaks = c(0,1,2)))
+    
+      
+      pal <- 
+       
+    }
+    
+    if (bins_n >= 5) {
+    
     pal <- leaflet::colorBin(
       palette = "Blues",
       domain = sumdat$Parameter_Count,
-      n = bins_n
+      2
     )
+    }
+    
+  
 
     # Tribal layers will load by default in the overview map, restricted by the bounding box of the current dataset
     # They can be toggled on and off using a button (all layers work together and can't be turned on/off individually).
