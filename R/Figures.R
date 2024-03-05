@@ -419,7 +419,8 @@ TADA_OverviewMap <- function(.data) {
     site_legend <- subset(site_size, site_size$Point_size %in% unique(sumdat$radius))
     
     # set breaks to occur only at integers
-    pretty.breaks <- unique(round(pretty(sumdat$Parameter_Count)))
+    #pretty.breaks <- unique(round(pretty(sumdat$Parameter_Count)))
+    pretty.breaks <- unique(pretty(sumdat$Parameter_Count))
     
     # set color palette
     pal <- leaflet::colorBin(
