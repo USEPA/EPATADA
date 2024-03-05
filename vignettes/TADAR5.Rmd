@@ -191,7 +191,9 @@ table or pie chart of the counts of unique values in a user-specified field with
 ```{r fieldValues_actmedia, fig.width=8, fig.height=6, fig.fullwidth=TRUE}
 
 # Create pie chart for ActivityMediaName
-TADA_FieldValuesPie(R5Profile, field = "ActivityMediaName")
+ActMedName_Pie <- TADA_FieldValuesPie(R5Profile, field = "ActivityMediaName")
+
+ActMedName_Pie
 
 # Create table with count for each ActivityMediaName
 FieldValues_ActMedia <- TADA_FieldValuesTable(R5Profile, field = "ActivityMediaName")
@@ -240,11 +242,11 @@ We can use **TADA_FieldValuesTable** and **TADA_FieldValuesPie** again to review
 R5Profile <- TADA_AnalysisDataFilter(R5Profile, clean = FALSE)
 
 # Create pie chart for TADA.UseForAnalysis.Flag
-TADA_FieldValuesPie(R5Profile, field = "TADA.UseForAnalysis.Flag")
+FieldVal_Pie <- TADA_FieldValuesPie(R5Profile, field = "TADA.UseForAnalysis.Flag")
+
+FieldVal_Pie
 
 FieldValues_AnalysisFlag <- TADA_FieldValuesTable(R5Profile, field = "TADA.UseForAnalysis.Flag")
-
-
 ```
 
 `r rmarkdown::paged_table(FieldValues_AnalysisFlag)`
@@ -300,7 +302,6 @@ specify what the special characters are.
 ``` {r TADA_AutoClean}
 # run TADA_AutoClean on filtered dataset to convert special characters, result units, and depth units and identify censored data.
 R5Profile <- TADA_AutoClean(R5Profile)
-
 ```
 
 ## Monitoring Location Review
@@ -308,7 +309,9 @@ R5Profile <- TADA_AutoClean(R5Profile)
 Now let's take a look at a breakdown of these monitoring location types. The previous function removed non-surface water results. Depending upon your program's goals and methods, you might want to further filter the monitoring location types in the data set..
 
 ```{r MonitoringLocations, fig.width=8, fig.height=6, fig.fullwidth=TRUE}
-TADA_FieldValuesPie(R5Profile, field = "MonitoringLocationTypeName")
+MonLocTypNam_Pie <- TADA_FieldValuesPie(R5Profile, field = "MonitoringLocationTypeName")
+
+MonLocTypNam_Pie
 ```
 
 **Question 4: How many unique Monitoring Location Types (MonitoringLocationTypeName) are present? Which is the most common?**
@@ -343,7 +346,9 @@ characteristics collected at the site. Users may click on a site to view
 a pop-up with this summary information. This can be a good first step in identifying incorrect coordinates that are outside of the desired state(s) of interest or outside of the US.
 
 ```{r Map, fig.width=8, fig.height=6, fig.fullwidth=TRUE}
-TADA_OverviewMap(R5Profile)
+OvwMap <- TADA_OverviewMap(R5Profile)
+
+OvwMap
 ```
 
 
@@ -710,7 +715,9 @@ R5ProfileClean5 <- TADA_FindQCActivities(R5ProfileClean4,
 )
 
 # Generate pie chart for ActivityTypeCode
-TADA_FieldValuesPie(R5ProfileClean5, "ActivityTypeCode")
+ActTypCod_Pie <- TADA_FieldValuesPie(R5ProfileClean5, "ActivityTypeCode")
+
+ActTypCod_Pie
 ```
 
 **Question 10: How many ActivityTypeCodes are present after removing QC samples? Which ActivityTypeCode is the most common?**
@@ -732,7 +739,9 @@ that we want to remove. In this next example, there are multiple MeasureQualifie
 review.
 
 ```{r MeasureQualifierCodeReview, fig.width=8, fig.height=6, fig.fullwidth=TRUE}
-TADA_FieldValuesPie(R5ProfileClean5, "MeasureQualifierCode")
+MQC_Pie <- TADA_FieldValuesPie(R5ProfileClean5, "MeasureQualifierCode")
+
+MQC_Pie
 ```
 
 MeasureQualifierCode definitions are available
@@ -959,7 +968,9 @@ To start, review the list of parameters in the dataframe using the
 
 
 ```{r TADA_FieldValuesTable_chars}
-FieldValuesTable_Chars <- TADA_FieldValuesTable(R5ProfileClean8, field = "TADA.CharacteristicName")
+Char_Pie <- FieldValuesTable_Chars <- TADA_FieldValuesTable(R5ProfileClean8, field = "TADA.CharacteristicName")
+
+Char_Pie
 ```
 
 `r rmarkdown::paged_table(FieldValuesTable_Chars)`
@@ -1048,25 +1059,27 @@ characteristic-level to review a column of interest. In this example we review v
 
 ```{r DO_Method, fig.width=8, fig.height=6, fig.fullwidth=TRUE}
 #C Create pie chart for SampleCollectionMethod.MethodName for Dissolved Oxygen (DO results)
-TADA_FieldValuesPie(R5ProfileClean8, field = "SampleCollectionMethod.MethodName", characteristicName = "DISSOLVED OXYGEN (DO)")
+DO_SCM_Pie <- TADA_FieldValuesPie(R5ProfileClean8, field = "SampleCollectionMethod.MethodName", characteristicName = "DISSOLVED OXYGEN (DO)")
+
+DO_SCM_Pie
 
 # Create table for SampleCollectionMethod.MethodName for Dissolved Oxygen (DO results)
 FieldValuesTable_DO_scm <- TADA_FieldValuesTable(R5ProfileClean8, field = "SampleCollectionMethod.MethodName", characteristicName = "DISSOLVED OXYGEN (DO)")
-
-
 ```
 
 `r rmarkdown::paged_table(FieldValuesTable_DO_scm)`
 
 Generate a scatterplot with two characteristics.
-```{r review_identifiers, fig.width=8, fig.height=6, fig.fullwidth=TRUE}
+```{r review_identifiers}
 # review unique identifiers
 unique(R5ProfileClean8$TADA.ComparableDataIdentifier)
 ```
 
 ```{r TADA_TwoCharacteristicScatterplot, echo=TRUE, fig.fullwidth=TRUE, fig.height=6, fig.width=8}
 # choose two and generate scatterplot
-TADA_TwoCharacteristicScatterplot(R5ProfileClean8, id_cols = "TADA.ComparableDataIdentifier", groups = c("TEMPERATURE_NA_NA_DEG C", "DISSOLVED OXYGEN (DO)_NA_NA_MG/L"))
+DO_Temp_Scatter <- TADA_TwoCharacteristicScatterplot(R5ProfileClean8, id_cols = "TADA.ComparableDataIdentifier", groups = c("TEMPERATURE_NA_NA_DEG C", "DISSOLVED OXYGEN (DO)_NA_NA_MG/L"))
+
+DO_Temp_Scatter
 ```
 
 
@@ -1074,14 +1087,16 @@ Now we will summarize results for a single comparable data group using the
 TADA.ComparableDataIdentifier (i.e., comparable characteristic, unit,
 speciation, and fraction combination) using **TADA_Histogram** and **TADA_Boxplot**. Note that users may generate a list output of multiple plots if their input dataset has more than one unique comparable data group.
 
-```{r filter_dataframe, echo=TRUE, fig.fullwidth=TRUE, fig.height=6, fig.width=8}
+```{r filter_dataframe, echo=TRUE}
 # filter dataframe to only "DISSOLVED OXYGEN (DO)_NA_NA_MG/L"
 R5ProfileCleanDO <- dplyr::filter(R5ProfileClean8, TADA.ComparableDataIdentifier == "DISSOLVED OXYGEN (DO)_NA_NA_MG/L")
 ```
 
 ```{r Histogram, echo=TRUE, fig.fullwidth=TRUE, fig.height=6, fig.width=8}
 # generate a histogram
-TADA_Histogram(R5ProfileCleanDO, id_cols = "TADA.ComparableDataIdentifier")
+DO_Hist <- TADA_Histogram(R5ProfileCleanDO, id_cols = "TADA.ComparableDataIdentifier")
+
+DO_Hist
 
 # generate stats table
 R5ProfileCleanDO_stats <- TADA_Stats(R5ProfileCleanDO)
@@ -1092,7 +1107,9 @@ R5ProfileCleanDO_stats <- TADA_Stats(R5ProfileCleanDO)
 Generate interactive box plot.
 
 ```{r boxplot, echo=TRUE, fig.fullwidth=TRUE, fig.height=6, fig.width=8}
-TADA_Boxplot(R5ProfileCleanDO, id_cols = "TADA.ComparableDataIdentifier")
+DO_Box <- TADA_Boxplot(R5ProfileCleanDO, id_cols = "TADA.ComparableDataIdentifier")
+
+DO_Box
 ```
 
 Generate interactive scatterplot.
@@ -1105,7 +1122,9 @@ R5ProfileCleanDO_dailymax <- TADA_AggregateMeasurements(R5ProfileCleanDO,
 ```
 
 ```{r scatterplot, echo=TRUE, fig.fullwidth=TRUE, fig.height=6, fig.width=8}
-TADA_Scatterplot(R5ProfileCleanDO_dailymax, id_cols = "TADA.ComparableDataIdentifier")
+DO_Scatter <- TADA_Scatterplot(R5ProfileCleanDO_dailymax, id_cols = "TADA.ComparableDataIdentifier")
+
+DO_Scatter
 ```
 
 **Question 15: Which figure generating functions can be used to visualize more than one characteristic? Which can be used to visualize only one characteristic?**
