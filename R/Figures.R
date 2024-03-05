@@ -427,7 +427,6 @@ TADA_OverviewMap <- function(.data) {
             bins = pretty.breaks
           )
   
-
     # Tribal layers will load by default in the overview map, restricted by the bounding box of the current dataset
     # They can be toggled on and off using a button (all layers work together and can't be turned on/off individually).
     # Colors and icons are as discussed previously (orange/tan colors and open triangle icons for points) but can be changed to match HMW if desired.
