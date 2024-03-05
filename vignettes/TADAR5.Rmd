@@ -161,7 +161,7 @@ R5Profile <- TADA::Data_R5_TADAPackageDemo
 
 `r rmarkdown::paged_table(R5Profile, options = list(max.print = 100, rows.print = 5))`
 
-*The table above shows the first 500 records from the R5 Water Quality Portal Query.*
+*The table above shows the first 100 records from the R5 Water Quality Portal Query.*
 
 
 **Question 1: How many results did TADA_DataRetrieval return?**
@@ -694,12 +694,7 @@ flagged Quality Control (QC) values using the
 column.
 
 For example, the new *QC_replicate* flag in *TADA.ActivityType.Flag* column 
-indicates that the flagged rows include any of the following replicate values:
-- Quality Control Field Replicate Habitat Assessment
-- Quality Control Field Replicate Msr/Obs
-- Quality Control Field Replicate Portable Data Logger
-- Quality Control Field Replicate Sample-Composite
-- Quality Control Sample-Field Replicate
+indicates that the flagged rows include any of the following replicate values: Quality Control Field Replicate Habitat Assessment, Quality Control Field Replicate Msr/Obs, Quality Control Field Replicate Portable Data Logger, Quality Control Field Replicate Sample-Composite and Quality Control Sample-Field Replicate.
 
 See WQX domain file to review all the **ActivityTypeCode** allowable values:
 https://cdx.epa.gov/wqx/download/DomainValues/ActivityType.CSV
@@ -905,14 +900,20 @@ Here are some examples of how the **TADA_HarmonizeSynonyms** can be useful:
     name (and identifier) to synonyms.
 
 ```{r TADA_HarmonizeSynonyms}
+# Get harmonization reference table
 UniqueHarmonizationRef <- TADA_GetSynonymRef(R5ProfileClean6)
 
+# Filter out records without target to display in table
+UniqueHarmonizationRef_no_na <- UniqueHarmonizationRef %>%
+  dplyr::filter(is.na(Target.TADA.CharacteristicName))
+
+# Harominze data set
 R5ProfileClean7 <- TADA_HarmonizeSynonyms(R5ProfileClean6,
   ref = UniqueHarmonizationRef
 )
 ```
 
-`r rmarkdown::paged_table(UniqueHarmonizationRef, options = list(max.print = 100, rows.print = 5))`
+`r rmarkdown::paged_table(UniqueHarmonizationRef_no_na, options = list(max.print = 100, rows.print = 5))`
 
 *The table above shows the first 100 rows of the UniqueHarmonizationRef table.*
 
@@ -960,6 +961,8 @@ To start, review the list of parameters in the dataframe using the
 ```{r TADA_FieldValuesTable_chars}
 FieldValuesTable_Chars <- TADA_FieldValuesTable(R5ProfileClean8, field = "TADA.CharacteristicName")
 ```
+
+`r rmarkdown::paged_table(FieldValuesTable_Chars)`
 
 Next, we can revisit the **TADA_FieldCounts** function at the characteristic
 level to review how many unique allowable values are included within
@@ -1043,7 +1046,7 @@ Review the WQX domain files for definitions:
 Now, we'll use **TADA_FieldValuesTable** and **TADA_FieldValuesPie** at the
 characteristic-level to review a column of interest. In this example we review values from the *SampleCollectionMethod.MethodName* field for Dissolved Oxygen (DO) results.
 
-```{r TADA_FieldValuesTable_Pie_char, fig.width=8, fig.height=6, fig.fullwidth=TRUE}
+```{r DO_Method, fig.width=8, fig.height=6, fig.fullwidth=TRUE}
 #C Create pie chart for SampleCollectionMethod.MethodName for Dissolved Oxygen (DO results)
 TADA_FieldValuesPie(R5ProfileClean8, field = "SampleCollectionMethod.MethodName", characteristicName = "DISSOLVED OXYGEN (DO)")
 
@@ -1055,11 +1058,13 @@ FieldValuesTable_DO_scm <- TADA_FieldValuesTable(R5ProfileClean8, field = "Sampl
 
 `r rmarkdown::paged_table(FieldValuesTable_DO_scm)`
 
-Generate a scatterplot with two 
-```{r TADA_TwoCharacteristicScatterplot, fig.width=8, fig.height=6, fig.fullwidth=TRUE}
+Generate a scatterplot with two characteristics.
+```{r review_identifiers, fig.width=8, fig.height=6, fig.fullwidth=TRUE}
 # review unique identifiers
 unique(R5ProfileClean8$TADA.ComparableDataIdentifier)
+```
 
+```{r TADA_TwoCharacteristicScatterplot, echo=TRUE, fig.fullwidth=TRUE, fig.height=6, fig.width=8}
 # choose two and generate scatterplot
 TADA_TwoCharacteristicScatterplot(R5ProfileClean8, id_cols = "TADA.ComparableDataIdentifier", groups = c("TEMPERATURE_NA_NA_DEG C", "DISSOLVED OXYGEN (DO)_NA_NA_MG/L"))
 ```
@@ -1069,18 +1074,14 @@ Now we will summarize results for a single comparable data group using the
 TADA.ComparableDataIdentifier (i.e., comparable characteristic, unit,
 speciation, and fraction combination) using **TADA_Histogram** and **TADA_Boxplot**. Note that users may generate a list output of multiple plots if their input dataset has more than one unique comparable data group.
 
-```{r ComparableDataIdentifier}
-# review TADA.ComparableDataIdentifier, show first 12 rows
-unique(R5ProfileClean8$TADA.ComparableDataIdentifier[1:12]) 
-```
-
-```{r Histogram, fig.width=8, fig.height=6, fig.fullwidth=TRUE}
+```{r filter_dataframe, echo=TRUE, fig.fullwidth=TRUE, fig.height=6, fig.width=8}
 # filter dataframe to only "DISSOLVED OXYGEN (DO)_NA_NA_MG/L"
 R5ProfileCleanDO <- dplyr::filter(R5ProfileClean8, TADA.ComparableDataIdentifier == "DISSOLVED OXYGEN (DO)_NA_NA_MG/L")
+```
 
+```{r Histogram, echo=TRUE, fig.fullwidth=TRUE, fig.height=6, fig.width=8}
 # generate a histogram
 TADA_Histogram(R5ProfileCleanDO, id_cols = "TADA.ComparableDataIdentifier")
-
 
 # generate stats table
 R5ProfileCleanDO_stats <- TADA_Stats(R5ProfileCleanDO)
@@ -1090,18 +1091,20 @@ R5ProfileCleanDO_stats <- TADA_Stats(R5ProfileCleanDO)
 
 Generate interactive box plot.
 
-```{r boxplot, fig.width=8, fig.height=6, fig.fullwidth=TRUE}
+```{r boxplot, echo=TRUE, fig.fullwidth=TRUE, fig.height=6, fig.width=8}
 TADA_Boxplot(R5ProfileCleanDO, id_cols = "TADA.ComparableDataIdentifier")
 ```
 
 Generate interactive scatterplot.
 
-```{r scatterplot, fig.width=8, fig.height=6, fig.fullwidth=TRUE}
+```{r DO_filtered, echo=TRUE}
 R5ProfileCleanDO_dailymax <- TADA_AggregateMeasurements(R5ProfileCleanDO,
   agg_fun = c("max"),
   clean = TRUE
 )
+```
 
+```{r scatterplot, echo=TRUE, fig.fullwidth=TRUE, fig.height=6, fig.width=8}
 TADA_Scatterplot(R5ProfileCleanDO_dailymax, id_cols = "TADA.ComparableDataIdentifier")
 ```
 
