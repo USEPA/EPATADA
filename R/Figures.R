@@ -398,7 +398,7 @@ TADA_OverviewMap <- function(.data) {
     sumdat <- .data %>%
       dplyr::group_by(MonitoringLocationIdentifier, MonitoringLocationName, TADA.LatitudeMeasure, TADA.LongitudeMeasure) %>%
       dplyr::summarise("Sample_Count" = length(unique(ResultIdentifier)), "Visit_Count" = length(unique(ActivityStartDate)), "Parameter_Count" = length(unique(TADA.CharacteristicName)), "Organization_Count" = length(unique(OrganizationIdentifier)))
-    
+
     param_counts <- sort(unique(sumdat$Parameter_Count))
     param_length <- length(param_counts)
     param_diff <- diff(param_counts)
@@ -421,29 +421,25 @@ TADA_OverviewMap <- function(.data) {
     site_size <- data.frame(Sample_n = pt_labels, Point_size = c(5, 10, 15, 20, 30))
 
     site_legend <- subset(site_size, site_size$Point_size %in% unique(sumdat$radius))
-    
-   
-    
+
+
+
     # set color palette
     if (length(unique(param_diff)) == 1 & param_length < 10) {
-      
       pal <- leaflet::colorFactor(
         palette = "Blues",
         levels = param_counts
-        )
+      )
+    } else {
+      # set breaks to occur only at integers
+      pretty.breaks <- unique(round(pretty(sumdat$Parameter_Count)))
+
+      pal <- leaflet::colorBin(
+        palette = "Blues",
+        bins = pretty.breaks
+      )
     }
-      
-      else {
-        
-        # set breaks to occur only at integers
-        pretty.breaks <- unique(round(pretty(sumdat$Parameter_Count)))
-        
-        pal <- leaflet::colorBin(
-          palette = "Blues",
-          bins = pretty.breaks
-        )
-        }
-  
+
     # Tribal layers will load by default in the overview map, restricted by the bounding box of the current dataset
     # They can be toggled on and off using a button (all layers work together and can't be turned on/off individually).
     # Colors and icons are as discussed previously (orange/tan colors and open triangle icons for points) but can be changed to match HMW if desired.
