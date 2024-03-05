@@ -1064,7 +1064,7 @@ Generate a scatterplot with two characteristics.
 unique(R5ProfileClean8$TADA.ComparableDataIdentifier)
 ```
 
-```{r TADA_TwoCharacteristicScatterplot, fig.width=8, fig.height=6, fig.fullwidth=TRUE}
+```{r TADA_TwoCharacteristicScatterplot, echo=TRUE, fig.fullwidth=TRUE, fig.height=6, fig.width=8}
 # choose two and generate scatterplot
 TADA_TwoCharacteristicScatterplot(R5ProfileClean8, id_cols = "TADA.ComparableDataIdentifier", groups = c("TEMPERATURE_NA_NA_DEG C", "DISSOLVED OXYGEN (DO)_NA_NA_MG/L"))
 ```
@@ -1074,12 +1074,12 @@ Now we will summarize results for a single comparable data group using the
 TADA.ComparableDataIdentifier (i.e., comparable characteristic, unit,
 speciation, and fraction combination) using **TADA_Histogram** and **TADA_Boxplot**. Note that users may generate a list output of multiple plots if their input dataset has more than one unique comparable data group.
 
-```{r filter_dataframe, fig.width=8, fig.height=6, fig.fullwidth=TRUE}
+```{r filter_dataframe, echo=TRUE, fig.fullwidth=TRUE, fig.height=6, fig.width=8}
 # filter dataframe to only "DISSOLVED OXYGEN (DO)_NA_NA_MG/L"
 R5ProfileCleanDO <- dplyr::filter(R5ProfileClean8, TADA.ComparableDataIdentifier == "DISSOLVED OXYGEN (DO)_NA_NA_MG/L")
 ```
 
-```{r Histogram, fig.width=8, fig.height=6, fig.fullwidth=TRUE}
+```{r Histogram, echo=TRUE, fig.fullwidth=TRUE, fig.height=6, fig.width=8}
 # generate a histogram
 TADA_Histogram(R5ProfileCleanDO, id_cols = "TADA.ComparableDataIdentifier")
 
@@ -1091,20 +1091,20 @@ R5ProfileCleanDO_stats <- TADA_Stats(R5ProfileCleanDO)
 
 Generate interactive box plot.
 
-```{r boxplot, fig.width=8, fig.height=6, fig.fullwidth=TRUE}
+```{r boxplot, echo=TRUE, fig.fullwidth=TRUE, fig.height=6, fig.width=8}
 TADA_Boxplot(R5ProfileCleanDO, id_cols = "TADA.ComparableDataIdentifier")
 ```
 
 Generate interactive scatterplot.
 
-```{r DO_filtered}
+```{r DO_filtered, echo=TRUE}
 R5ProfileCleanDO_dailymax <- TADA_AggregateMeasurements(R5ProfileCleanDO,
   agg_fun = c("max"),
   clean = TRUE
 )
 ```
 
-```{r scatterplot, fig.width=8, fig.height=6, fig.fullwidth=TRUE}
+```{r scatterplot, echo=TRUE, fig.fullwidth=TRUE, fig.height=6, fig.width=8}
 TADA_Scatterplot(R5ProfileCleanDO_dailymax, id_cols = "TADA.ComparableDataIdentifier")
 ```
 
