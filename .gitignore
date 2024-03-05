@@ -22,3 +22,7 @@ TADA.Rproj
 _snaps
 
 testing_log.txt
+
+# for automated github actions
+*.html
+*.rds
