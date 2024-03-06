@@ -131,7 +131,8 @@ TADA_HarmonizeSynonyms <- function(.data, ref, np_speciation = TRUE) {
     # use TADA suggested name where there is a suggested name, use original name if no suggested name
     dplyr::mutate(TADA.CharacteristicName = dplyr::case_when(
       !is.na(Target.TADA.CharacteristicName) ~ Target.TADA.CharacteristicName,
-      is.na(Target.TADA.CharacteristicName) ~ TADA.CharacteristicName
+      # is.na(Target.TADA.CharacteristicName) ~ TADA.CharacteristicName, 
+      .default = TADA.CharacteristicName
     ))
 
   # TADA.ResultSampleFractionText
@@ -141,7 +142,8 @@ TADA_HarmonizeSynonyms <- function(.data, ref, np_speciation = TRUE) {
     dplyr::mutate(TADA.ResultSampleFractionText = dplyr::case_when(
       !is.na(Target.TADA.ResultSampleFractionText) ~ Target.TADA.ResultSampleFractionText,
       !is.na(TADA.ResultSampleFractionText) & is.na(Target.TADA.ResultSampleFractionText) & !is.na(TADA.FractionAssumptions) ~ Target.TADA.ResultSampleFractionText,
-      is.na(Target.TADA.ResultSampleFractionText) ~ TADA.ResultSampleFractionText
+      # is.na(Target.TADA.ResultSampleFractionText) ~ TADA.ResultSampleFractionText
+      .default = TADA.ResultSampleFractionText
     ))
 
   # Handle instances with DO where the speciation is listed "AS O2" but it should be NA
@@ -153,7 +155,8 @@ TADA_HarmonizeSynonyms <- function(.data, ref, np_speciation = TRUE) {
     # use TADA suggested unit where there is a suggested unit, use original unit if no suggested unit
     dplyr::mutate(TADA.ResultMeasure.MeasureUnitCode = dplyr::case_when(
       !is.na(Target.TADA.ResultMeasure.MeasureUnitCode) ~ Target.TADA.ResultMeasure.MeasureUnitCode,
-      is.na(Target.TADA.ResultMeasure.MeasureUnitCode) ~ TADA.ResultMeasure.MeasureUnitCode
+      # is.na(Target.TADA.ResultMeasure.MeasureUnitCode) ~ TADA.ResultMeasure.MeasureUnitCode
+      .default = TADA.ResultMeasure.MeasureUnitCode
     )) %>%
     # if conversion factor exists, multiply by ResultMeasureValue
     dplyr::rowwise() %>%
@@ -164,7 +167,8 @@ TADA_HarmonizeSynonyms <- function(.data, ref, np_speciation = TRUE) {
       !is.na(Target.TADA.UnitConversionFactor) & !is.na(Target.TADA.ResultMeasure.MeasureUnitCode) &
         is.na(Target.TADA.UnitConversionCoefficient)
       ~ ((Target.TADA.UnitConversionFactor * TADA.ResultMeasureValue)),
-      is.na(Target.TADA.UnitConversionFactor) ~ TADA.ResultMeasureValue
+      # is.na(Target.TADA.UnitConversionFactor) ~ TADA.ResultMeasureValue
+      .default = TADA.ResultMeasureValue
     ))
 
   # TADA.MethodSpeciationName
@@ -175,21 +179,24 @@ TADA_HarmonizeSynonyms <- function(.data, ref, np_speciation = TRUE) {
       # use TADA suggested spec where there is a suggested spec, use original spec if no suggested spec
       dplyr::mutate(TADA.MethodSpeciationName = dplyr::case_when(
         !is.na(Target.TADA.MethodSpeciationName) ~ Target.TADA.MethodSpeciationName,
-        is.na(Target.TADA.MethodSpeciationName) ~ TADA.MethodSpeciationName
+        # is.na(Target.TADA.MethodSpeciationName) ~ TADA.MethodSpeciationName
+        .default = TADA.MethodSpeciationName
       )) %>%
       # if conversion factor exists, multiply by ResultMeasureValue
       dplyr::rowwise() %>%
       dplyr::mutate(TADA.ResultMeasureValue = dplyr::case_when(
         !is.na(Target.TADA.SpeciationConversionFactor) ~
           (Target.TADA.SpeciationConversionFactor * TADA.ResultMeasureValue),
-        is.na(Target.TADA.SpeciationConversionFactor) ~ TADA.ResultMeasureValue
+        # is.na(Target.TADA.SpeciationConversionFactor) ~ TADA.ResultMeasureValue
+        .default = TADA.ResultMeasureValue
       ))
   } else {
     clean.data <- clean.data %>%
       # use TADA suggested spec where there is a suggested spec, use original spec if no suggested spec
       dplyr::mutate(TADA.MethodSpeciationName = dplyr::case_when(
         !is.na(Target.TADA.MethodSpeciationName) & is.na(Target.TADA.SpeciationConversionFactor) ~ Target.TADA.MethodSpeciationName,
-        is.na(Target.TADA.MethodSpeciationName) ~ TADA.MethodSpeciationName
+        # is.na(Target.TADA.MethodSpeciationName) ~ TADA.MethodSpeciationName
+        .default = TADA.MethodSpeciationName
       ))
   }
 
