@@ -465,7 +465,7 @@ TADA_OverviewMap <- function(.data) {
     vbbox <- bbox %>%
       as.vector()
 
-    map <- leaflet::leaflet()
+    map <- leaflet::leaflet() %>%
       leaflet::addProviderTiles("Esri.WorldTopoMap", group = "World topo", options = leaflet::providerTileOptions(updateWhenZooming = FALSE, updateWhenIdle = TRUE)) %>%
       leaflet::clearShapes() %>% # get rid of whatever was there before if loading a second dataset
       leaflet::fitBounds(lng1 = vbbox[1], lat1 = vbbox[2], lng2 = vbbox[3], lat2 = vbbox[4]) %>% # fit to bounds of data in tadat$raw
@@ -494,6 +494,22 @@ TADA_OverviewMap <- function(.data) {
         labels = site_legend$Sample_n, sizes = site_legend$Point_size * 2
       )
     
+    # create conditional map legend
+    # create legend for single parameter count value data sets
+    if (length(param_diff) == 0) {
+      map <- map %>% leaflet::addLegend("bottomright",
+                                        color = "#2171b5", labels = as.data.frame(param_counts),
+                                        title = "Characteristics",
+                                        opacity = 0.5)
+    }
+    # create legend for data sets with multiple factors/bins for parameter count
+    if (length(param_diff) > 0) {
+      map <- map %>% leaflet::addLegend("bottomright",
+                                        pal = pal, values = sumdat$Parameter_Count,
+                                        title = "Characteristics",
+                                        opacity = 0.5)
+    }
+    
     # TADA_addPolys and TADA_addPoints are in Utilities.R
     map <- TADA_addPolys(map, AKAllotmentsUrl, "Tribes", "Alaska Allotments", bbox)
     map <- TADA_addPolys(map, AmericanIndianUrl, "Tribes", "American Indian", bbox)
@@ -506,21 +522,7 @@ TADA_OverviewMap <- function(.data) {
                                      options = leaflet::layersControlOptions(collapsed = FALSE)
     )
     
-  # create conditional map legend
-  # create legend for single parameter count value data sets
-  if (length(param_diff) == 0) {
-    map <- map %>% leaflet::addLegend("bottomright",
-                       color = "#2171b5", labels = as.data.frame(param_counts),
-                       title = "Characteristics",
-                       opacity = 0.5)
-  }
-    # create legend for data sets with multiple factors/bins for parameter count
-    if (length(param_diff) > 0) {
-     map <- map %>% leaflet::addLegend("bottomright",
-                                       pal = pal, values = sumdat$Parameter_Count,
-                                       title = "Characteristics",
-                                       opacity = 0.5)
-    }
+  
                        
   
     return(map)
