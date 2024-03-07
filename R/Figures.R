@@ -448,7 +448,7 @@ TADA_OverviewMap <- function(.data) {
       } else {
         return("#2171b5")
       }}
-    
+  
 
     # Tribal layers will load by default in the overview map, restricted by the bounding box of the current dataset
     # They can be toggled on and off using a button (all layers work together and can't be turned on/off individually).
@@ -492,7 +492,7 @@ TADA_OverviewMap <- function(.data) {
       addLegendCustom(
         colors = "black",
         labels = site_legend$Sample_n, sizes = site_legend$Point_size * 2
-      )
+      ) 
     
     # create conditional map legend
     # create legend for single parameter count value data sets
@@ -510,19 +510,19 @@ TADA_OverviewMap <- function(.data) {
                                         opacity = 0.5)
     }
     
-    # # TADA_addPolys and TADA_addPoints are in Utilities.R
-    # map2 <- TADA_addPolys(map, AKAllotmentsUrl, "Tribes", "Alaska Allotments", bbox)
-    # map2 <- TADA_addPolys(map2, AmericanIndianUrl, "Tribes", "American Indian", bbox)
-    # map2 <- TADA_addPolys(map2, OffReservationUrl, "Tribes", "Off Reservation", bbox)
-    # map2 <- TADA_addPolys(map2, OKTribeUrl, "Tribes", "Oklahoma Tribe", bbox)
-    # map2 <- TADA_addPoints(map2, AKVillagesUrl, "Tribes", "Alaska Native Villages", bbox)
-    # map2 <- TADA_addPoints(map2, VATribeUrl, "Tribes", "Virginia Tribe", bbox)
-    # map3 <- leaflet::addLayersControl(map2,
-    #                                  overlayGroups = c("Tribes"),
-    #                                  options = leaflet::layersControlOptions(collapsed = FALSE)
-    # )
-    # 
-    # 
+    # TADA_addPolys and TADA_addPoints are in Utilities.R
+    map2 <- TADA_addPolys(map, AKAllotmentsUrl, "Tribes", "Alaska Allotments", bbox)
+    map2 <- TADA_addPolys(map2, AmericanIndianUrl, "Tribes", "American Indian", bbox)
+    map2 <- TADA_addPolys(map2, OffReservationUrl, "Tribes", "Off Reservation", bbox)
+    map2 <- TADA_addPolys(map2, OKTribeUrl, "Tribes", "Oklahoma Tribe", bbox)
+    map2 <- TADA_addPoints(map2, AKVillagesUrl, "Tribes", "Alaska Native Villages", bbox)
+    map2 <- TADA_addPoints(map2, VATribeUrl, "Tribes", "Virginia Tribe", bbox)
+    map3 <- leaflet::addLayersControl(map2,
+                                     overlayGroups = c("Tribes"),
+                                     options = leaflet::layersControlOptions(collapsed = FALSE)
+    )
+
+
                        
   
     return(map)
