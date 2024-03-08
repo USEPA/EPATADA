@@ -984,6 +984,7 @@ TADA_addPolys <- function(map, url, layergroup, layername, bbox = NULL) {
   if (!(areaColumn %in% colnames(layer))) {
     areaColumn <- "AREA_KM"
   }
+  
   map <-
     leaflet::addPolygons(
       map,
@@ -993,7 +994,7 @@ TADA_addPolys <- function(map, url, layergroup, layername, bbox = NULL) {
       smoothFactor = 0.5,
       opacity = 1.0,
       fillOpacity = 0.2,
-      fillColor = ~ leaflet::colorQuantile("Oranges", layer[[areaColumn]])(layer[[areaColumn]]),
+      fillColor = ~ leaflet::colorNumeric("Oranges", layer[[areaColumn]])(layer[[areaColumn]]),
       highlightOptions = leaflet::highlightOptions(
         color = "white",
         weight = 2,

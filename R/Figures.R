@@ -422,8 +422,6 @@ TADA_OverviewMap <- function(.data) {
 
     site_legend <- subset(site_size, site_size$Point_size %in% unique(sumdat$radius))
 
-
-
     # set color palette
     # set color palette for small number of characteristics (even intervals, no bins)
     if (length(unique(param_diff)) == 1 & param_length < 10) {
@@ -431,7 +429,11 @@ TADA_OverviewMap <- function(.data) {
         palette = "Blues",
         levels = param_counts
       )
-    } else {
+    
+    } else if (length(unique(param_counts)) == 1) {
+      pal <- "orange"
+    
+      } else {
       # set breaks to occur only at integers for data sets requiring bins
       pretty.breaks <- unique(round(pretty(sumdat$Parameter_Count)))
 
@@ -498,7 +500,7 @@ TADA_OverviewMap <- function(.data) {
     # create legend for single parameter count value data sets
     if (length(param_diff) == 0) {
       map <- map %>% leaflet::addLegend("bottomright",
-                                        color = "#2171b5", labels = as.data.frame(param_counts),
+                                        color = "#2171b5", labels = param_counts,
                                         title = "Characteristics",
                                         opacity = 0.5)
     }
@@ -511,20 +513,17 @@ TADA_OverviewMap <- function(.data) {
     }
     
     # TADA_addPolys and TADA_addPoints are in Utilities.R
-    map2 <- TADA_addPolys(map, AKAllotmentsUrl, "Tribes", "Alaska Allotments", bbox)
-    map2 <- TADA_addPolys(map2, AmericanIndianUrl, "Tribes", "American Indian", bbox)
-    map2 <- TADA_addPolys(map2, OffReservationUrl, "Tribes", "Off Reservation", bbox)
-    map2 <- TADA_addPolys(map2, OKTribeUrl, "Tribes", "Oklahoma Tribe", bbox)
-    map2 <- TADA_addPoints(map2, AKVillagesUrl, "Tribes", "Alaska Native Villages", bbox)
-    map2 <- TADA_addPoints(map2, VATribeUrl, "Tribes", "Virginia Tribe", bbox)
-    map3 <- leaflet::addLayersControl(map2,
+    map <- TADA_addPolys(map, AKAllotmentsUrl, "Tribes", "Alaska Allotments", bbox)
+    map <- TADA_addPolys(map, AmericanIndianUrl, "Tribes", "American Indian", bbox)
+    map <- TADA_addPolys(map, OffReservationUrl, "Tribes", "Off Reservation", bbox)
+    map <- TADA_addPolys(map, OKTribeUrl, "Tribes", "Oklahoma Tribe", bbox)
+    map <- TADA_addPoints(map, AKVillagesUrl, "Tribes", "Alaska Native Villages", bbox)
+    map <- TADA_addPoints(map, VATribeUrl, "Tribes", "Virginia Tribe", bbox)
+    map <- leaflet::addLayersControl(map,
                                      overlayGroups = c("Tribes"),
                                      options = leaflet::layersControlOptions(collapsed = FALSE)
     )
 
-
-                       
-  
     return(map)
   })
 }
