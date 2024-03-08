@@ -4,12 +4,16 @@
 \alias{TADA_ConvertSpecialChars}
 \title{TADA_ConvertSpecialChars}
 \usage{
-TADA_ConvertSpecialChars(.data, col)
+TADA_ConvertSpecialChars(.data, col, percent.ave = TRUE)
 }
 \arguments{
 \item{.data}{A TADA profile object}
 
 \item{col}{A character column to be converted to numeric}
+
+\item{percent.ave}{Boolean argument; default is clean = TRUE. When clean = TRUE,
+any percent range values will be averaged. When clean = FALSE, percent range
+values will not be removed from the dataset.}
 }
 \value{
 Returns the original dataframe with two new columns: the input column
