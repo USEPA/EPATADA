@@ -299,6 +299,10 @@ TADA_CheckColumns <- function(.data, expected_cols) {
 #' @param .data A TADA profile object
 #' @param col A character column to be converted to numeric
 #'
+#' @param percent.ave Boolean argument; default is clean = TRUE. When clean = TRUE,
+#' any percent range values will be averaged. When clean = FALSE, percent range
+#' values will not be removed from the dataset.
+#'
 #' @return Returns the original dataframe with two new columns: the input column
 #' with the prefix "TADA.", which holds the numeric form of the original column,
 #' and "TADA.ResultValueDataTypes.Flag", which has text describing the type of data
@@ -315,7 +319,7 @@ TADA_CheckColumns <- function(.data, expected_cols) {
 #' HandleSpecialChars_DetLimMeasureValue <- TADA_ConvertSpecialChars(Data_Nutrients_UT, "TADA.DetectionQuantitationLimitMeasure.MeasureValue")
 #' unique(HandleSpecialChars_DetLimMeasureValue$TADA.DetectionQuantitationLimitMeasure.MeasureValueDataTypes.Flag)
 #'
-TADA_ConvertSpecialChars <- function(.data, col) {
+TADA_ConvertSpecialChars <- function(.data, col, percent.ave = TRUE) {
   if (!col %in% names(.data)) {
     stop("Invalid column name specified for input dataset.")
   }
@@ -348,24 +352,39 @@ TADA_ConvertSpecialChars <- function(.data, col) {
         (grepl(">", masked) == TRUE) ~ as.character("Greater Than"),
         (grepl("~", masked) == TRUE) ~ as.character("Approximate Value"),
         (grepl("[A-Za-z]", masked) == TRUE) ~ as.character("Text"),
+        (grepl("([1-9]|[1-9][0-9]|100)-([1-9]|[1-9][0-9]|100)%", masked) == TRUE) ~ as.character("Percentage Range - Averaged"),
         (grepl("%", masked) == TRUE) ~ as.character("Percentage"),
         (grepl(",", masked) == TRUE) ~ as.character("Comma-Separated Numeric"),
-        (grepl("\\d\\-\\d", masked) == TRUE) ~ as.character("Numeric Range - Averaged"),
+        # checks for ranges up to six figures
+        (grepl("([1-9]|[1-9][0-9][1-9]|[1-9][0-9]|100000)-([1-9]|[1-9][0-9][1-9]|[1-9][0-9]|100000)", masked) == TRUE) ~ as.character("Numeric Range - Averaged"),
         # because * is a special character you have to escape\\ it:
         (grepl("\\*", masked) == TRUE) ~ as.character("Approximate Value"),
         (!stringi::stri_enc_mark(masked) %in% c("ASCII")) ~ as.character("Non-ASCII Character(s)"),
         TRUE ~ "Coerced to NA"
       ))
+    
+    if (percent.ave == FALSE) {
+      
+      num.range.filter <- c("Numeric Range - Averaged")
+    }
+    
+    if (percent.ave == TRUE) {
+      
+      num.range.filter <- c("Numeric Range - Averaged", "Percentage Range - Averaged")
+    }
 
     # Result Values that are numeric ranges with the format #-# are converted to an average of the two numbers expressed in the range.
-    if (any(clean.data$flag == "Numeric Range - Averaged")) {
-      numrange <- subset(clean.data, clean.data$flag %in% c("Numeric Range - Averaged"))
-      notnumrange <- subset(clean.data, !clean.data$flag %in% c("Numeric Range - Averaged"))
+    if (any(clean.data$flag %in% num.range.filter)) {
+      numrange <- subset(clean.data, clean.data$flag %in% c("Numeric Range - Averaged", "Percentage Range - Averaged"))
+      notnumrange <- subset(clean.data, !clean.data$flag %in% c("Numeric Range - Averaged", "Percentage Range - Averaged"))
       numrange <- numrange %>%
+        dplyr::mutate(masked = stringr::str_remove(masked, "[1-9]\\)"),
+                      masked = stringr::str_remove(masked, "%")) %>%
         tidyr::separate(masked, into = c("num1", "num2"), sep = "-", remove = TRUE) %>%
         dplyr::mutate_at(c("num1", "num2"), as.numeric)
       numrange$masked <- as.character(rowMeans(numrange[, c("num1", "num2")], na.rm = TRUE))
-      numrange <- numrange[, !names(numrange) %in% c("num1", "num2")]
+      numrange <- numrange[, !names(numrange) %in% c("num1", "num2")] %>%
+        dplyr::mutate(masked = ifelse(flag == "Percentage Range - Average", paste(masked, "%", sep = ""), masked))
 
       clean.data <- plyr::rbind.fill(notnumrange, numrange)
     }
