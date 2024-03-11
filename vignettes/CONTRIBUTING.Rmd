@@ -84,7 +84,7 @@ need to create a GitHub account. Open GitHub Desktop and login in with your
 account. In the web browser go the main TADA page 
 (https://github.com/USEPA/TADA) and click on the "Code" button.
 
-Select the "Open With GitHub Desktop" option. When a pop-up windown appears in
+Select the "Open With GitHub Desktop" option. When a pop-up window appears in
 GitHub Desktop, click "Clone". As you do not have write access to the TADA
 repository, you will be prompted to create a fork. In the "How are you planning 
 to use this fork?" window you should select "To contribute to the parent 

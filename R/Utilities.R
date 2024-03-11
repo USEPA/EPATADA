@@ -113,7 +113,7 @@ VATribeUrl <- "https://geopub.epa.gov/arcgis/rest/services/EMEF/Tribal/MapServer
 #' TADAProfile <- TADA_JoinWQPProfiles(FullPhysChem = physchemProfile, Sites = stationProfile, Projects = projectProfile)
 #'
 #' # Run TADA_AutoClean
-#' Autocleaned_TADAProfile <- TADA:::TADA_AutoClean(TADAProfile)
+#' Autocleaned_TADAProfile <- TADA_AutoClean(TADAProfile)
 #' }
 #'
 TADA_AutoClean <- function(.data) {
@@ -220,7 +220,6 @@ TADA_DecimalPlaces <- function(x) {
 #'
 #' @return The same vector of strings with new lines added where appropriate.
 #' 
-
 TADA_InsertBreaks <- function(x, len = 50) {
   if (nchar(x) > len) {
     multiples <- floor(nchar(x) / len)
@@ -247,7 +246,6 @@ TADA_InsertBreaks <- function(x, len = 50) {
 #' @param type Expected class of input argument
 #' @param paramName Optional name for argument to use in error message
 #'
-
 TADA_CheckType <- function(arg, type, paramName) {
   if ((type %in% class(arg)) == FALSE) {
     # if optional parameter name not specified use arg in errorMessage
@@ -272,7 +270,6 @@ TADA_CheckType <- function(arg, type, paramName) {
 #' @param .data A dataframe
 #' @param expected_cols A vector of expected column names as strings
 #'
-
 TADA_CheckColumns <- function(.data, expected_cols) {
   if (all(expected_cols %in% colnames(.data)) == FALSE) {
     stop("The dataframe does not contain the required fields to use TADA. Use either the full physical/chemical profile downloaded from WQP or download the TADA profile template available on the EPA TADA webpage.")
@@ -496,7 +493,6 @@ TADA_SubstituteDeprecatedChars <- function(.data) {
 #'
 #' @export
 #'
-
 TADA_CreateComparableID <- function(.data) {
   TADA_CheckColumns(.data, expected_cols = c("TADA.CharacteristicName", "TADA.ResultSampleFractionText", "TADA.MethodSpeciationName", "TADA.ResultMeasure.MeasureUnitCode"))
   .data$TADA.ComparableDataIdentifier <- paste(.data$TADA.CharacteristicName, .data$TADA.ResultSampleFractionText, .data$TADA.MethodSpeciationName, .data$TADA.ResultMeasure.MeasureUnitCode, sep = "_")
@@ -520,7 +516,6 @@ TADA_CreateComparableID <- function(.data) {
 #'
 #' @export
 #' 
-
 TADA_FindNearbySites <- function(.data, dist_buffer = 100) {
   # check .data is data.frame
   TADA_CheckType(.data, "data.frame", "Input object")
@@ -676,7 +671,6 @@ TADA_RandomTestingData <- function(number_of_days = 1, choose_random_state = FAL
 # samples a random 90 days in the past 20 years using
 # TADA_DataRetrieval. Built to use in testthat and for developer testing of new
 # functions on random datasets.
-
 TADA_RandomStateTestingSet <- function(number_of_days = 90) {
   load(system.file("extdata", "statecodes_df.Rdata", package = "TADA"))
   state <- sample(statecodes_df$STUSAB, 1)

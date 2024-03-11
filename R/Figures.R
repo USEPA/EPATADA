@@ -381,9 +381,9 @@ TADA_Histogram <- function(.data, id_cols = c("TADA.ComparableDataIdentifier")) 
 #' data(Data_6Tribes_5y_Harmonized)
 #'
 #' # Create maps:
-#' TADA:::TADA_OverviewMap(Data_Nutrients_UT)
-#' TADA:::TADA_OverviewMap(Data_NCTCShepherdstown_HUC12)
-#' TADA:::TADA_OverviewMap(Data_6Tribes_5y_Harmonized)
+#' TADA_OverviewMap(Data_Nutrients_UT)
+#' TADA_OverviewMap(Data_NCTCShepherdstown_HUC12)
+#' TADA_OverviewMap(Data_6Tribes_5y_Harmonized)
 #'
 TADA_OverviewMap <- function(.data) {
   suppressWarnings({
@@ -832,7 +832,7 @@ TADA_TwoCharacteristicScatterplot <- function(.data, id_cols = "TADA.ComparableD
   param1 <- subset(plot.data, plot.data[, id_cols] %in% groups[1])
   param2 <- subset(plot.data, plot.data[, id_cols] %in% groups[2])
 
-  title <- TADA::TADA_InsertBreaks(
+  title <- TADA_InsertBreaks(
     paste0(
       param1$TADA.CharacteristicName[1],
       " and ",

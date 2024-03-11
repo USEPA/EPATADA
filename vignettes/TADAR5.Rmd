@@ -936,7 +936,7 @@ Users can use the default summation worksheet (see **TADA_GetNutrientSummationRe
 R5ProfileClean8 <- TADA_CalculateTotalNP(R5ProfileClean7, daily_agg = "max")
 ```
 
-**Question 14: How many new Total Nitrogen or Total Phosporus rows were added? Can users customize nutrient summation?**
+**Question 14: How many new Total Nitrogen or Total Phosphorus rows were added? Can users customize nutrient summation?**
 
 ```{r, question14}
 R5ProfileClean7_n <- nrow(R5ProfileClean7)
@@ -955,7 +955,7 @@ total_N_P_subset <- R5ProfileClean8 %>%
 *The table above shows the first 100 rows added by calculating Total N and P. Columns included in the table are TADA.CharacteristicName, TADA.ResultMeasureValue, TADA.ResultMeasure.MeasureUnitCode, TADA.NutrientSummation.Flag, TADA.NutrientSummationEquation, and TADA.NutrientSummationGroup.*
 
 **Answer:**
-*`r nutrient_n` Total Nitrogen or Total Phosporus rows were added. Users can review the summation worksheet (**TADA_GetNutrientSummationRef**) and update it to meet their requirements.*
+*`r nutrient_n` Total Nitrogen or Total Phosphorus rows were added. Users can review the summation worksheet (**TADA_GetNutrientSummationRef**) and update it to meet their requirements.*
 
 ## Parameter Level Filtering
 
