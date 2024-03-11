@@ -301,7 +301,7 @@ TADA_CheckColumns <- function(.data, expected_cols) {
 #'
 #' @param percent.ave Boolean argument; default is clean = TRUE. When clean = TRUE,
 #' any percent range values will be averaged. When clean = FALSE, percent range
-#' values will not be removed from the dataset.
+#' values are not averaged, but are flagged.
 #'
 #' @return Returns the original dataframe with two new columns: the input column
 #' with the prefix "TADA.", which holds the numeric form of the original column,
@@ -355,8 +355,8 @@ TADA_ConvertSpecialChars <- function(.data, col, percent.ave = TRUE) {
         (grepl("([1-9]|[1-9][0-9]|100)-([1-9]|[1-9][0-9]|100)%", masked) == TRUE) ~ as.character("Percentage Range - Averaged"),
         (grepl("%", masked) == TRUE) ~ as.character("Percentage"),
         (grepl(",", masked) == TRUE) ~ as.character("Comma-Separated Numeric"),
-        # checks for ranges up to six figures
-        (grepl("([1-9]|[1-9][0-9][1-9]|[1-9][0-9]|100000)-([1-9]|[1-9][0-9][1-9]|[1-9][0-9]|100000)", masked) == TRUE) ~ as.character("Numeric Range - Averaged"),
+        # does this work for numeric ranges with more than a single digit for each value? (HRM note: 3/11/24)
+        (grepl("\\d\\-\\d", masked) == TRUE) ~ as.character("Numeric Range - Averaged"),
         # because * is a special character you have to escape\\ it:
         (grepl("\\*", masked) == TRUE) ~ as.character("Approximate Value"),
         (!stringi::stri_enc_mark(masked) %in% c("ASCII")) ~ as.character("Non-ASCII Character(s)"),
@@ -375,8 +375,8 @@ TADA_ConvertSpecialChars <- function(.data, col, percent.ave = TRUE) {
 
     # Result Values that are numeric ranges with the format #-# are converted to an average of the two numbers expressed in the range.
     if (any(clean.data$flag %in% num.range.filter)) {
-      numrange <- subset(clean.data, clean.data$flag %in% c("Numeric Range - Averaged", "Percentage Range - Averaged"))
-      notnumrange <- subset(clean.data, !clean.data$flag %in% c("Numeric Range - Averaged", "Percentage Range - Averaged"))
+      numrange <- subset(clean.data, clean.data$flag %in% num.range.filter)
+      notnumrange <- subset(clean.data, !clean.data$flag %in% num.range.filter)
       numrange <- numrange %>%
         dplyr::mutate(masked = stringr::str_remove(masked, "[1-9]\\)"),
                       masked = stringr::str_remove(masked, "%")) %>%
@@ -387,7 +387,6 @@ TADA_ConvertSpecialChars <- function(.data, col, percent.ave = TRUE) {
         dplyr::mutate(masked = ifelse(flag == "Percentage Range - Average", paste(masked, "%", sep = ""), masked))
 
       clean.data <- plyr::rbind.fill(notnumrange, numrange)
-    }
 
     # In the new TADA column, convert to numeric and remove some specific special
     # characters.
@@ -402,6 +401,10 @@ TADA_ConvertSpecialChars <- function(.data, col, percent.ave = TRUE) {
     "NA - Not Available",
     clean.data$flag
   )
+  
+  # remove trailing zeros, round if calculated average
+  clean.data$masked <- ifelse(clean.data$masked > 0.01 & clean.data$flag %in% num.range.filter, round(as.numeric(clean.data$masked), digits = 2), clean.data$masked)
+  clean.data$masked <-  as.numeric(sub("0+$", "", clean.data$masked))
 
   # Rename to original column name, TADA column name, and flag column name
   names(clean.data)[names(clean.data) == "orig"] <- col
@@ -409,8 +412,10 @@ TADA_ConvertSpecialChars <- function(.data, col, percent.ave = TRUE) {
   names(clean.data)[names(clean.data) == "flag"] <- flagcol
 
   clean.data <- TADA_OrderCols(clean.data)
-
+    
+  
   return(clean.data)
+  }
 }
 
 
