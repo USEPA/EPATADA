@@ -422,16 +422,19 @@ TADA_OverviewMap <- function(.data) {
 
     site_legend <- subset(site_size, site_size$Point_size %in% unique(sumdat$radius))
 
-
-
     # set color palette
+    # set color palette for small number of characteristics (even intervals, no bins)
     if (length(unique(param_diff)) == 1 & param_length < 10) {
       pal <- leaflet::colorFactor(
         palette = "Blues",
         levels = param_counts
       )
-    } else {
-      # set breaks to occur only at integers
+    
+    } else if (length(unique(param_counts)) == 1) {
+      pal <- "orange"
+    
+      } else {
+      # set breaks to occur only at integers for data sets requiring bins
       pretty.breaks <- unique(round(pretty(sumdat$Parameter_Count)))
 
       pal <- leaflet::colorBin(
@@ -439,6 +442,15 @@ TADA_OverviewMap <- function(.data) {
         bins = pretty.breaks
       )
     }
+    
+    # create custom fill color function so that data sets with one value for parameter count are displayed correctly
+    customFillColor <- function(category, pal) {
+      if(length(param_diff > 0)) {
+        return(pal(category))
+      } else {
+        return("#2171b5")
+      }}
+  
 
     # Tribal layers will load by default in the overview map, restricted by the bounding box of the current dataset
     # They can be toggled on and off using a button (all layers work together and can't be turned on/off individually).
@@ -466,7 +478,7 @@ TADA_OverviewMap <- function(.data) {
         lat = ~TADA.LatitudeMeasure,
         # sets color of monitoring site circles
         color = "red",
-        fillColor = ~ pal(Parameter_Count),
+        fillColor = customFillColor(sumdat$Parameter_Count, pal),
         fillOpacity = 0.7,
         stroke = TRUE,
         weight = 1.5,
@@ -479,15 +491,27 @@ TADA_OverviewMap <- function(.data) {
           "<br> Characteristic Count: ", sumdat$Parameter_Count
         )
       ) %>%
-      leaflet::addLegend("bottomright",
-        pal = pal, values = sumdat$Parameter_Count,
-        title = "Characteristics",
-        opacity = 0.5
-      ) %>%
       addLegendCustom(
         colors = "black",
         labels = site_legend$Sample_n, sizes = site_legend$Point_size * 2
-      )
+      ) 
+    
+    # create conditional map legend
+    # create legend for single parameter count value data sets
+    if (length(param_diff) == 0) {
+      map <- map %>% leaflet::addLegend("bottomright",
+                                        color = "#2171b5", labels = param_counts,
+                                        title = "Characteristics",
+                                        opacity = 0.5)
+    }
+    # create legend for data sets with multiple factors/bins for parameter count
+    if (length(param_diff) > 0) {
+      map <- map %>% leaflet::addLegend("bottomright",
+                                        pal = pal, values = sumdat$Parameter_Count,
+                                        title = "Characteristics",
+                                        opacity = 0.5)
+    }
+    
     # TADA_addPolys and TADA_addPoints are in Utilities.R
     map <- TADA_addPolys(map, AKAllotmentsUrl, "Tribes", "Alaska Allotments", bbox)
     map <- TADA_addPolys(map, AmericanIndianUrl, "Tribes", "American Indian", bbox)
@@ -496,9 +520,10 @@ TADA_OverviewMap <- function(.data) {
     map <- TADA_addPoints(map, AKVillagesUrl, "Tribes", "Alaska Native Villages", bbox)
     map <- TADA_addPoints(map, VATribeUrl, "Tribes", "Virginia Tribe", bbox)
     map <- leaflet::addLayersControl(map,
-      overlayGroups = c("Tribes"),
-      options = leaflet::layersControlOptions(collapsed = FALSE)
+                                     overlayGroups = c("Tribes"),
+                                     options = leaflet::layersControlOptions(collapsed = FALSE)
     )
+
     return(map)
   })
 }
