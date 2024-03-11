@@ -65,7 +65,7 @@ Package for use with data retrieved from the WQP:
 
         -   [TADA_FlagMethod()](https://usepa.github.io/TADA/reference/TADA_FlagMethod.html)
 
-    -   Flag data with invalid characteristic and fraction cominations
+    -   Flag data with invalid characteristic and fraction combinations
 
         -   [TADA_FlagFraction()](https://usepa.github.io/TADA/reference/TADA_FlagFraction.html)
 

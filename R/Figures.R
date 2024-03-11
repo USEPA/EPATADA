@@ -381,9 +381,9 @@ TADA_Histogram <- function(.data, id_cols = c("TADA.ComparableDataIdentifier")) 
 #' data(Data_6Tribes_5y_Harmonized)
 #'
 #' # Create maps:
-#' TADA:::TADA_OverviewMap(Data_Nutrients_UT)
-#' TADA:::TADA_OverviewMap(Data_NCTCShepherdstown_HUC12)
-#' TADA:::TADA_OverviewMap(Data_6Tribes_5y_Harmonized)
+#' TADA_OverviewMap(Data_Nutrients_UT)
+#' TADA_OverviewMap(Data_NCTCShepherdstown_HUC12)
+#' TADA_OverviewMap(Data_6Tribes_5y_Harmonized)
 #'
 TADA_OverviewMap <- function(.data) {
   suppressWarnings({
@@ -429,11 +429,9 @@ TADA_OverviewMap <- function(.data) {
         palette = "Blues",
         levels = param_counts
       )
-    
     } else if (length(unique(param_counts)) == 1) {
       pal <- "orange"
-    
-      } else {
+    } else {
       # set breaks to occur only at integers for data sets requiring bins
       pretty.breaks <- unique(round(pretty(sumdat$Parameter_Count)))
 
@@ -442,15 +440,16 @@ TADA_OverviewMap <- function(.data) {
         bins = pretty.breaks
       )
     }
-    
+
     # create custom fill color function so that data sets with one value for parameter count are displayed correctly
     customFillColor <- function(category, pal) {
-      if(length(param_diff > 0)) {
+      if (length(param_diff > 0)) {
         return(pal(category))
       } else {
         return("#2171b5")
-      }}
-  
+      }
+    }
+
 
     # Tribal layers will load by default in the overview map, restricted by the bounding box of the current dataset
     # They can be toggled on and off using a button (all layers work together and can't be turned on/off individually).
@@ -494,24 +493,26 @@ TADA_OverviewMap <- function(.data) {
       addLegendCustom(
         colors = "black",
         labels = site_legend$Sample_n, sizes = site_legend$Point_size * 2
-      ) 
-    
+      )
+
     # create conditional map legend
     # create legend for single parameter count value data sets
     if (length(param_diff) == 0) {
       map <- map %>% leaflet::addLegend("bottomright",
-                                        color = "#2171b5", labels = param_counts,
-                                        title = "Characteristics",
-                                        opacity = 0.5)
+        color = "#2171b5", labels = param_counts,
+        title = "Characteristics",
+        opacity = 0.5
+      )
     }
     # create legend for data sets with multiple factors/bins for parameter count
     if (length(param_diff) > 0) {
       map <- map %>% leaflet::addLegend("bottomright",
-                                        pal = pal, values = sumdat$Parameter_Count,
-                                        title = "Characteristics",
-                                        opacity = 0.5)
+        pal = pal, values = sumdat$Parameter_Count,
+        title = "Characteristics",
+        opacity = 0.5
+      )
     }
-    
+
     # TADA_addPolys and TADA_addPoints are in Utilities.R
     map <- TADA_addPolys(map, AKAllotmentsUrl, "Tribes", "Alaska Allotments", bbox)
     map <- TADA_addPolys(map, AmericanIndianUrl, "Tribes", "American Indian", bbox)
@@ -520,8 +521,8 @@ TADA_OverviewMap <- function(.data) {
     map <- TADA_addPoints(map, AKVillagesUrl, "Tribes", "Alaska Native Villages", bbox)
     map <- TADA_addPoints(map, VATribeUrl, "Tribes", "Virginia Tribe", bbox)
     map <- leaflet::addLayersControl(map,
-                                     overlayGroups = c("Tribes"),
-                                     options = leaflet::layersControlOptions(collapsed = FALSE)
+      overlayGroups = c("Tribes"),
+      options = leaflet::layersControlOptions(collapsed = FALSE)
     )
 
     return(map)
@@ -832,7 +833,7 @@ TADA_TwoCharacteristicScatterplot <- function(.data, id_cols = "TADA.ComparableD
   param1 <- subset(plot.data, plot.data[, id_cols] %in% groups[1])
   param2 <- subset(plot.data, plot.data[, id_cols] %in% groups[2])
 
-  title <- TADA::TADA_InsertBreaks(
+  title <- TADA_InsertBreaks(
     paste0(
       param1$TADA.CharacteristicName[1],
       " and ",

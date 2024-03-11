@@ -104,27 +104,27 @@ TADA_UpdateExampleData <- function() {
   usethis::use_data(Data_NCTCShepherdstown_HUC12, internal = FALSE, overwrite = TRUE, compress = "xz", version = 3, ascii = FALSE)
   rm(Data_NCTCShepherdstown_HUC12)
 
-# Generate Data_R5_TADAPackageDemo
-Data_R5_TADAPackageDemo <- TADA::TADA_DataRetrieval(
-  startDate = "2019-05-01",
-  endDate = "2019-05-07",
-  countycode = "null",
-  huc = "null",
-  siteid = "null",
-  siteType = "null",
-  characteristicName = "null",
-  characteristicType = "null",
-  sampleMedia = "null",
-  statecode = c("IL", "IN", "MI", "MN", "OH", "WI"),
-  organization = "null",
-  project = "null",
-  applyautoclean = FALSE
-)
-print("Data_R5_TADAPackageDemo:")
-print(dim(Data_R5_TADAPackageDemo))
-# save(Data_R5_TADAPackageDemo, file = "data/Data_R5_TADAPackageDemo.rda")
-usethis::use_data(Data_R5_TADAPackageDemo, internal = FALSE, overwrite = TRUE, compress = "xz", version = 3, ascii = FALSE)
-rm(Data_R5_TADAPackageDemo)
+  # Generate Data_R5_TADAPackageDemo
+  Data_R5_TADAPackageDemo <- TADA::TADA_DataRetrieval(
+    startDate = "2019-05-01",
+    endDate = "2019-05-07",
+    countycode = "null",
+    huc = "null",
+    siteid = "null",
+    siteType = "null",
+    characteristicName = "null",
+    characteristicType = "null",
+    sampleMedia = "null",
+    statecode = c("IL", "IN", "MI", "MN", "OH", "WI"),
+    organization = "null",
+    project = "null",
+    applyautoclean = FALSE
+  )
+  print("Data_R5_TADAPackageDemo:")
+  print(dim(Data_R5_TADAPackageDemo))
+  # save(Data_R5_TADAPackageDemo, file = "data/Data_R5_TADAPackageDemo.rda")
+  usethis::use_data(Data_R5_TADAPackageDemo, internal = FALSE, overwrite = TRUE, compress = "xz", version = 3, ascii = FALSE)
+  rm(Data_R5_TADAPackageDemo)
 }
 
 ## Find char-frac-spec-unit combos not present in TADA HarmonizationTemplate.

@@ -234,11 +234,13 @@ extra.cols <- c(
 )
 
 # Only used in TADA Shiny or should be at the end
-last.cols <- c("ProviderName",
-                "LastUpdated",
-                "TADA.Remove",
-                "TADA.RemovalReason",
-                "TADAShiny.tab")
+last.cols <- c(
+  "ProviderName",
+  "LastUpdated",
+  "TADA.Remove",
+  "TADA.RemovalReason",
+  "TADAShiny.tab"
+)
 
 
 #' Order TADA Columns and Rows
@@ -274,13 +276,13 @@ TADA_OrderCols <- function(.data) {
   required_cols <- require.cols[require.cols %in% names(.data)]
 
   extra_cols <- extra.cols[extra.cols %in% names(.data)]
-  
+
   last_cols <- last.cols[last.cols %in% names(.data)]
 
   rearranged <- .data %>%
     dplyr::relocate(any_of(required_cols)) %>%
-    dplyr::relocate(any_of(extra_cols), .after = required_cols) %>%
-    dplyr::relocate(any_of(last_cols), .after = extra_cols)
+    dplyr::relocate(any_of(extra_cols), .after = any_of(required_cols)) %>%
+    dplyr::relocate(any_of(last_cols), .after = any_of(extra_cols))
   rearranged <- rearranged[order(rearranged$ResultIdentifier), ]
 
   return(rearranged)
@@ -290,7 +292,7 @@ TADA_OrderCols <- function(.data) {
 
 #' Get TADA spreadsheet template
 #'
-#' This function returns a blank TADA template data frame that can be used 
+#' This function returns a blank TADA template data frame that can be used
 #' as a starting point to reformat your own custom data set into the TADA format.
 #'
 #' @return A TADA template data frame with all required columns for the TADA workflow.
@@ -302,11 +304,11 @@ TADA_OrderCols <- function(.data) {
 #'
 TADA_GetTemplate <- function() {
   # remove names with TADA. string from require.cols
-  template_cols = c(require.cols, last.cols)
+  template_cols <- c(require.cols, last.cols)
   template_cols <- Filter(function(x) !any(grepl("TADA.", x)), template_cols)
-  templatedata = data.frame()
-  templatedata = data.frame(matrix(nrow = 0, ncol = length(template_cols)))
-  colnames(templatedata) = template_cols
+  templatedata <- data.frame()
+  templatedata <- data.frame(matrix(nrow = 0, ncol = length(template_cols)))
+  colnames(templatedata) <- template_cols
   return(templatedata)
 }
 
@@ -401,11 +403,11 @@ TADA_AutoFilter <- function(.data) {
   if (("TADA.MeasureQualifierCode.Flag" %in% colnames(.data)) == TRUE) {
     .data <- .data
   }
-  
+
   if (("TADA.MeasureQualifierCode.Flag" %in% colnames(.data)) == FALSE) {
     .data <- TADA_FindQCActivities(.data, clean = FALSE, flaggedonly = FALSE)
   }
-  
+
   # remove text, NAs and QC results
   .data <- dplyr::filter(.data, TADA.ResultMeasureValueDataTypes.Flag != "Text" &
     TADA.ResultMeasureValueDataTypes.Flag != "NA - Not Available" &

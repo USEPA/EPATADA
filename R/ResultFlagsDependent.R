@@ -640,11 +640,11 @@ TADA_PairReplicates <- function(.data, type = c("QC_replicate"), time_difference
   if (("TADA.MeasureQualifierCode.Flag" %in% colnames(.data)) == TRUE) {
     .data <- .data
   }
-  
+
   if (("TADA.MeasureQualifierCode.Flag" %in% colnames(.data)) == FALSE) {
     .data <- TADA_FindQCActivities(.data, clean = FALSE, flaggedonly = FALSE)
   }
-  
+
   # execute function after checks are passed
   if ("QC_replicate" %in% type) {
     if (nrow(dplyr::filter(.data, .data$TADA.ActivityType.Flag == "QC_replicate")) == 0) {
