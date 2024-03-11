@@ -160,10 +160,9 @@ TADA_DataRetrieval <- function(startDate = "null",
                                project = "null",
                                providers = "null",
                                applyautoclean = TRUE) {
- 
-   # Set query parameters
+  # Set query parameters
   WQPquery <- list()
-  
+
   if (!"null" %in% statecode) {
     load(system.file("extdata", "statecodes_df.Rdata", package = "TADA"))
     statecode <- as.character(statecode)
