@@ -402,15 +402,16 @@ TADA_ConvertSpecialChars <- function(.data, col, percent.ave = TRUE) {
     clean.data$flag
   )
   
-  # remove trailing zeros, round if calculated average
-  clean.data$masked <- ifelse(clean.data$masked > 0.01 & clean.data$flag %in% num.range.filter, round(as.numeric(clean.data$masked), digits = 2), clean.data$masked)
-  clean.data$masked <-  as.numeric(sub("0+$", "", clean.data$masked))
-
   # Rename to original column name, TADA column name, and flag column name
   names(clean.data)[names(clean.data) == "orig"] <- col
   names(clean.data)[names(clean.data) == "masked"] <- numcol
   names(clean.data)[names(clean.data) == "flag"] <- flagcol
-
+  
+  # remove trailing zeros, round if calculated average
+  clean.data <- clean.data %>%
+    dplyr::mutate(TADA.ResultMeasureValue = ifelse(TADA.ResultMeasureValue > 0.01 & TADA.ResultMeasureValueDataTypes.Flag %in% num.range.filter, round(as.numeric(TADA.ResultMeasureValue), digits = 2), TADA.ResultMeasureValue),
+                  TADA.ResultMeasureValue = as.numeric(sub("0+$", "", TADA.ResultMeasureValue)))
+  
   clean.data <- TADA_OrderCols(clean.data)
     
   
