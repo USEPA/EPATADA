@@ -95,7 +95,7 @@ TADA_HarmonizeSynonyms <- function(.data, ref, np_speciation = TRUE) {
     TADA.MethodSpeciationName = replace(TADA.MethodSpeciationName, TADA.MethodSpeciationName %in% c("NONE"), NA),
     TADA.ResultMeasure.MeasureUnitCode = replace(TADA.ResultMeasure.MeasureUnitCode, TADA.ResultMeasure.MeasureUnitCode %in% c("NONE"), NA)
   )
-  
+
   # define harm.ref
   # if input for ref exists, use that data
   if (!missing(ref)) {
@@ -131,7 +131,7 @@ TADA_HarmonizeSynonyms <- function(.data, ref, np_speciation = TRUE) {
     # use TADA suggested name where there is a suggested name, use original name if no suggested name
     dplyr::mutate(TADA.CharacteristicName = dplyr::case_when(
       !is.na(Target.TADA.CharacteristicName) ~ Target.TADA.CharacteristicName,
-      # is.na(Target.TADA.CharacteristicName) ~ TADA.CharacteristicName, 
+      # is.na(Target.TADA.CharacteristicName) ~ TADA.CharacteristicName,
       .default = TADA.CharacteristicName
     ))
 

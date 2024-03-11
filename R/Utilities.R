@@ -53,8 +53,8 @@ utils::globalVariables(c(
   "TADA.MeasureQualifierCode.Flag", "TADA.MeasureQualifierCode.Def", "MeasureQualifierCode", "value", "Flag_Column",
   "Data_NCTCShepherdstown_HUC12", "ActivityStartDateTime", "TADA.MultipleOrgDupGroupID",
   "TADA.WQXVal.Flag", "Concat", ".", "MeasureQualifierCode.Split", "TADA.Media.Flag",
-  "TADA.UseForAssessment.Flag", "ML.Media.Flag", "TADA.UseForAnalysis.Flag", 
-  "Unique.Identifier", "Domain", "Note.Recommendation", "Conversion.Coefficient", 
+  "TADA.UseForAssessment.Flag", "ML.Media.Flag", "TADA.UseForAnalysis.Flag",
+  "Unique.Identifier", "Domain", "Note.Recommendation", "Conversion.Coefficient",
   "Conversion.Coefficient", "Last.Change.Date", "Value", "Minimum", "Unique.Identifier",
   "Domain"
 ))
@@ -219,7 +219,7 @@ TADA_DecimalPlaces <- function(x) {
 #'   searches for the best space to insert a new line.
 #'
 #' @return The same vector of strings with new lines added where appropriate.
-#' 
+#'
 TADA_InsertBreaks <- function(x, len = 50) {
   if (nchar(x) > len) {
     multiples <- floor(nchar(x) / len)
@@ -515,7 +515,7 @@ TADA_CreateComparableID <- function(.data) {
 #'   the nearby site groups each monitoring location belongs to.
 #'
 #' @export
-#' 
+#'
 TADA_FindNearbySites <- function(.data, dist_buffer = 100) {
   # check .data is data.frame
   TADA_CheckType(.data, "data.frame", "Input object")
@@ -598,9 +598,6 @@ TADA_FindNearbySites <- function(.data, dist_buffer = 100) {
   if ("ResultIdentifier" %in% names(.data)) {
     .data <- TADA_OrderCols(.data)
   }
-
-  # # relocate site group columns to TADA area
-  # .data = .data%>%dplyr::relocate(dplyr::all_of(grpcols), .after="TADA.LongitudeMeasure")
 
   return(.data)
 }
@@ -840,7 +837,7 @@ TADA_RunKeyFlagFunctions <- function(.data, remove_na = TRUE, clean = TRUE) {
 #' # Get a string containing the JSON of the bounding box
 #' TADA:::getBboxJson(bbox)
 #' }
-#' 
+#'
 getBboxJson <- function(bbox) {
   json <- paste0('{"xmin":', bbox[1], ',"ymin":', bbox[2], ',"xmax":', bbox[3], ',"ymax":', bbox[4], "}")
   return(json)
@@ -864,7 +861,7 @@ getBboxJson <- function(bbox) {
 #' # Create three PNG files, a red circle, blue triangle, and yellow "X", each on a green background.
 #' TADA:::pchIcons(c(1, 2, 4), 40, 40, "green", c("red", "blue", "yellow"))
 #' }
-#' 
+#'
 pchIcons <- function(pch = 1,
                      width = 30,
                      height = 30,
@@ -912,7 +909,7 @@ pchIcons <- function(pch = 1,
 #' # Get the American Indian Reservations feature layer, filtered by the bounding box for the Data_Nutrients_UT example dataset
 #' TADA:::getFeatureLayer("https://geopub.epa.gov/arcgis/rest/services/EMEF/Tribal/MapServer/2/query", bbox)
 #' }
-#' 
+#'
 getFeatureLayer <- function(url, bbox = NULL) {
   if (is.null(bbox)) {
     inputGeom <- NULL
@@ -939,7 +936,7 @@ getFeatureLayer <- function(url, bbox = NULL) {
 #' # Get popup text for individual markers
 #' TADA:::getPopup(layer, "Oklahoma Tribal Statistical Areas")
 #' }
-#' 
+#'
 getPopup <- function(layer, layername) {
   text <- paste0("<strong>", layername, "</strong><p>")
   cols <-
@@ -966,9 +963,9 @@ getPopup <- function(layer, layername) {
 #' @param layername Name of the layer
 #' @param bbox A bounding box from the sf function st_bbox; used to filter the query results. Optional; defaults to NULL.
 #' @return The original map with polygon from the feature layer added to it.
-#' 
+#'
 #' @export
-#' 
+#'
 #' @examples
 #' \dontrun{
 #' # Create a leaflet map
@@ -977,7 +974,7 @@ getPopup <- function(layer, layername) {
 #' lmap <- TADA:::TADA_addPolys(lmap, "https://geopub.epa.gov/arcgis/rest/services/EMEF/Tribal/MapServer/2/query", "Tribes", "American Indian Reservations")
 #' lmap
 #' }
-#' 
+#'
 TADA_addPolys <- function(map, url, layergroup, layername, bbox = NULL) {
   layer <- getFeatureLayer(url, bbox)
   if (is.null(layer)) {
@@ -991,7 +988,7 @@ TADA_addPolys <- function(map, url, layergroup, layername, bbox = NULL) {
   if (!(areaColumn %in% colnames(layer))) {
     areaColumn <- "AREA_KM"
   }
-  
+
   map <-
     leaflet::addPolygons(
       map,
@@ -1032,7 +1029,7 @@ TADA_addPolys <- function(map, url, layergroup, layername, bbox = NULL) {
 #' lmap <- TADA:::TADA_addPoints(lmap, "https://geopub.epa.gov/arcgis/rest/services/EMEF/Tribal/MapServer/5/query", "Tribes", "Virginia Federally Recognized Tribes")
 #' lmap
 #' }
-#' 
+#'
 TADA_addPoints <- function(map, url, layergroup, layername, bbox = NULL) {
   layer <- getFeatureLayer(url, bbox)
   if (is.null(layer)) {
