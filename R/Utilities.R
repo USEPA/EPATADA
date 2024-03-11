@@ -319,20 +319,54 @@ TADA_CheckColumns <- function(.data, expected_cols) {
 #' HandleSpecialChars_DetLimMeasureValue <- TADA_ConvertSpecialChars(Data_Nutrients_UT, "TADA.DetectionQuantitationLimitMeasure.MeasureValue")
 #' unique(HandleSpecialChars_DetLimMeasureValue$TADA.DetectionQuantitationLimitMeasure.MeasureValueDataTypes.Flag)
 #'
-TADA_ConvertSpecialChars <- function(.data, col, percent.ave = TRUE) {
+#' TADA_ConvertSpecialChars
+#'
+#' This function will screen a column of the user's choice for special
+#' characters. It creates a NEW column that describes the content of the column
+#' prior to conversion to numeric (named "TADA.COLUMN NAME DataTypes.Flag"). It
+#' also creates a NEW column to hold the new, numeric format (named "TADA.COLUMN
+#' NAME"). This function will successfully convert some special character
+#' formats to numeric: whitespace, >, <, ~, %, and commas are removed before
+#' converting a result value to numeric. Result values in the format # - # are
+#' converted to an average of the two numbers. Result values
+#' containing any other text or non-numeric characters become NA in
+#' the newly created "TADA.COLUMN NAME" and labeled accordingly in "TADA.COLUMN
+#' NAME DataTypes.Flag".
+#'
+#'
+#' @param .data A TADA profile object
+#' @param col A character column to be converted to numeric
+#'
+#' @return Returns the original dataframe with two new columns: the input column
+#' with the prefix "TADA.", which holds the numeric form of the original column,
+#' and "TADA.ResultValueDataTypes.Flag", which has text describing the type of data
+#' contained within the column of interest, including "Numeric","Less Than" (<), "Greater Than" (>),
+#' "Approximate Value" (~), "Text" (A-z), "Percentage" (%), "Comma-Separated Numeric" (#,###),
+#' and "Numeric Range - Averaged" (# - #)
+#'
+#' @export
+#'
+#' @examples
+#' data(Data_Nutrients_UT)
+#' HandleSpecialChars_ResultMeasureValue <- TADA_ConvertSpecialChars(Data_Nutrients_UT, "ResultMeasureValue")
+#' unique(HandleSpecialChars_ResultMeasureValue$TADA.ResultMeasureValueDataTypes.Flag)
+#' HandleSpecialChars_DetLimMeasureValue <- TADA_ConvertSpecialChars(Data_Nutrients_UT, "TADA.DetectionQuantitationLimitMeasure.MeasureValue")
+#' unique(HandleSpecialChars_DetLimMeasureValue$TADA.DetectionQuantitationLimitMeasure.MeasureValueDataTypes.Flag)
+#'
+TADA_ConvertSpecialChars <- function(.data, col) {
   if (!col %in% names(.data)) {
     stop("Invalid column name specified for input dataset.")
   }
-
+  
   # Define new column names
   numcol <- paste0("TADA.", col)
   flagcol <- paste0("TADA.", col, "DataTypes.Flag")
-
+  
   # Create dummy columns for easy handling in function
   chars.data <- .data
   names(chars.data)[names(chars.data) == col] <- "orig"
   chars.data$masked <- chars.data$orig
-
+  
   # If column is already numeric, just discern between NA and numeric
   if (is.numeric(chars.data$orig)) {
     clean.data <- chars.data %>%
@@ -355,7 +389,6 @@ TADA_ConvertSpecialChars <- function(.data, col, percent.ave = TRUE) {
         (grepl("([1-9]|[1-9][0-9]|100)-([1-9]|[1-9][0-9]|100)%", masked) == TRUE) ~ as.character("Percentage Range - Averaged"),
         (grepl("%", masked) == TRUE) ~ as.character("Percentage"),
         (grepl(",", masked) == TRUE) ~ as.character("Comma-Separated Numeric"),
-        # does this work for numeric ranges with more than a single digit for each value? (HRM note: 3/11/24)
         (grepl("\\d\\-\\d", masked) == TRUE) ~ as.character("Numeric Range - Averaged"),
         # because * is a special character you have to escape\\ it:
         (grepl("\\*", masked) == TRUE) ~ as.character("Approximate Value"),
@@ -372,7 +405,7 @@ TADA_ConvertSpecialChars <- function(.data, col, percent.ave = TRUE) {
       
       num.range.filter <- c("Numeric Range - Averaged", "Percentage Range - Averaged")
     }
-
+    
     # Result Values that are numeric ranges with the format #-# are converted to an average of the two numbers expressed in the range.
     if (any(clean.data$flag %in% num.range.filter)) {
       numrange <- subset(clean.data, clean.data$flag %in% num.range.filter)
@@ -385,16 +418,18 @@ TADA_ConvertSpecialChars <- function(.data, col, percent.ave = TRUE) {
       numrange$masked <- as.character(rowMeans(numrange[, c("num1", "num2")], na.rm = TRUE))
       numrange <- numrange[, !names(numrange) %in% c("num1", "num2")] %>%
         dplyr::mutate(masked = ifelse(flag == "Percentage Range - Average", paste(masked, "%", sep = ""), masked))
-
+      
       clean.data <- plyr::rbind.fill(notnumrange, numrange)
-
+    }
+    
     # In the new TADA column, convert to numeric and remove some specific special
     # characters.
     clean.data$masked <- suppressWarnings(as.numeric(stringr::str_replace_all(
       clean.data$masked, c("<" = "", ">" = "", "~" = "", "%" = "", "\\*" = "")
     )))
+    
   }
-
+  
   # this updates the DataTypes.Flag to "NA - Not Available" if NA
   clean.data$flag <- ifelse(
     is.na(clean.data$flag),
@@ -407,17 +442,11 @@ TADA_ConvertSpecialChars <- function(.data, col, percent.ave = TRUE) {
   names(clean.data)[names(clean.data) == "masked"] <- numcol
   names(clean.data)[names(clean.data) == "flag"] <- flagcol
   
-  # remove trailing zeros, round if calculated average
-  clean.data <- clean.data %>%
-    dplyr::mutate(TADA.ResultMeasureValue = ifelse(TADA.ResultMeasureValue > 0.01 & TADA.ResultMeasureValueDataTypes.Flag %in% num.range.filter, round(as.numeric(TADA.ResultMeasureValue), digits = 2), TADA.ResultMeasureValue),
-                  TADA.ResultMeasureValue = as.numeric(sub("0+$", "", TADA.ResultMeasureValue)))
-  
   clean.data <- TADA_OrderCols(clean.data)
-    
   
   return(clean.data)
-  }
 }
+
 
 
 
