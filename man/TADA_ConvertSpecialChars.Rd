@@ -13,7 +13,7 @@ TADA_ConvertSpecialChars(.data, col, percent.ave = TRUE)
 
 \item{percent.ave}{Boolean argument; default is clean = TRUE. When clean = TRUE,
 any percent range values will be averaged. When clean = FALSE, percent range
-values will not be removed from the dataset.}
+values are not averaged, but are flagged.}
 }
 \value{
 Returns the original dataframe with two new columns: the input column
