@@ -140,7 +140,7 @@ TADA_FlagMethod <- function(.data, clean = TRUE, flaggedonly = FALSE) {
 #' aggregate their high frequency data (15 min or 1 hour data)
 #' to 2 or 4 hour interval averages, and they also submit that data to the WQP through WQX.
 #' The raw continuous time series data is made available through a text file
-#' attachement at the activity level. This type of high frequency data may
+#' attachment at the activity level. This type of high frequency data may
 #' (or may not) be suitable for integration with discrete
 #' water quality data for assessments. Therefore, this function uses metadata
 #' submitted by data providers to flag rows with aggregated continuous data.
@@ -269,12 +269,12 @@ TADA_FindContinuousData <- function(.data, clean = FALSE, flaggedonly = FALSE) {
 
 #' Check Result Value Against WQX Upper Threshold
 #'
-#' EPA's Water Quality Exchange (WQX) has generated maximum and minimum thresholds 
-#' for each parameter and unit combination from millions of water quality data 
+#' EPA's Water Quality Exchange (WQX) has generated maximum and minimum thresholds
+#' for each parameter and unit combination from millions of water quality data
 #' points around the country. This function leverages the WQX QAQC Validation Table
-#' to flag any data that is above the upper threshold of result values submitted 
+#' to flag any data that is above the upper threshold of result values submitted
 #' to WQX for a given characteristic.
-#' 
+#'
 #' When clean = FALSE and flaggedonly = FALSE, a column which flags data above
 #' the upper WQX threshold is appended to the dataframe. When clean = FALSE and
 #' flaggedonly = TRUE, the dataframe is filtered to show only data found above
@@ -285,16 +285,16 @@ TADA_FindContinuousData <- function(.data, clean = FALSE, flaggedonly = FALSE) {
 #' and flaggedonly = FALSE.
 #'
 #' This function will add the column "TADA.ResultAboveUpperThreshold.Flag" which
-#' will be populated with the values: "Pass", "Suspect", "Not Reviewed", or 
-#' "NA - Not Available". The “Not Reviewed” value means that the EPA WQX team 
+#' will be populated with the values: "Pass", "Suspect", "Not Reviewed", or
+#' "NA - Not Available". The “Not Reviewed” value means that the EPA WQX team
 #' has not yet reviewed the range yet for the characteristic and unit combination combination
 #' in that row (see https://cdx.epa.gov/wqx/download/DomainValues/QAQCCharacteristicValidation.CSV).
 #' The WQX team plans to review and update these new combinations quarterly. The
-#' "NA - Not Available" flag means that the characteristic, media, and/or unit combination 
+#' "NA - Not Available" flag means that the characteristic, media, and/or unit combination
 #' for that row is not fully populated (is NA or does not match the WQX data standard)
-#' or the result value is NA. 
-#' 
-#' If this function is run more than once on the same dataframe, 
+#' or the result value is NA.
+#'
+#' If this function is run more than once on the same dataframe,
 #' the flag column will be deleted and regenerated.
 #'
 #' @param .data TADA dataframe
@@ -303,13 +303,13 @@ TADA_FindContinuousData <- function(.data, clean = FALSE, flaggedonly = FALSE) {
 #' @param flaggedonly Boolean argument; filters dataframe to show only the data
 #' flagged as above the upper WQX threshold. Default is flaggedonly = FALSE.
 #' @return The input TADA dataset with the added "TADA.ResultAboveUpperThreshold.Flag"
-#' column which is populated with the values: "Pass", "Suspect", "Not Reviewed", or 
+#' column which is populated with the values: "Pass", "Suspect", "Not Reviewed", or
 #' "NA - Not Available". Defaults are clean = FALSE and flaggedonly = FALSE.
 #' When clean = FALSE and flaggedonly = TRUE, the dataframe
 #' is filtered to show only data found above the WQX threshold. When clean = TRUE
 #' and flaggedonly = FALSE, rows with values that are above the upper WQX threshold
 #' are removed from the dataframe. When clean = TRUE and and flaggedonly = TRUE,
-#' the function is not executed and an error message is returned. 
+#' the function is not executed and an error message is returned.
 #'
 #' @export
 #'
@@ -357,36 +357,40 @@ TADA_FlagAboveThreshold <- function(.data, clean = FALSE, flaggedonly = FALSE) {
     .data <- dplyr::select(.data, -TADA.ResultValueAboveUpperThreshold.Flag)
   }
 
-  # get WQXcharVal.ref and filter to include only CharacteristicUnit. 
-  # Note that status is not applicable to ranges. 
+  # get WQXcharVal.ref and filter to include only CharacteristicUnit.
+  # Note that status is not applicable to ranges.
   # Instead, we generate a validation flag later in this function
   unit.ref <- utils::read.csv(system.file("extdata", "WQXcharValRef.csv", package = "TADA")) %>%
     dplyr::filter(Type == "CharacteristicUnit")
 
   # update ref table names to prepare for left join with df
-  names(unit.ref)[names(unit.ref) == 'Characteristic'] <- 'TADA.CharacteristicName'
-  names(unit.ref)[names(unit.ref) == 'Source'] <- 'TADA.ActivityMediaName'
-  names(unit.ref)[names(unit.ref) == 'Value.Unit'] <- 'TADA.ResultMeasure.MeasureUnitCode'
-  
+  names(unit.ref)[names(unit.ref) == "Characteristic"] <- "TADA.CharacteristicName"
+  names(unit.ref)[names(unit.ref) == "Source"] <- "TADA.ActivityMediaName"
+  names(unit.ref)[names(unit.ref) == "Value.Unit"] <- "TADA.ResultMeasure.MeasureUnitCode"
+
   # remove extraneous columns from unit.ref
-  unit.ref <- dplyr::select(unit.ref, c(-Type, -Unique.Identifier, -Domain, 
-                                        -Status, -TADA.WQXVal.Flag, 
-                                        -Note.Recommendation,
-                                        -Conversion.Factor,
-                                        -Conversion.Coefficient,
-                                        -Last.Change.Date,
-                                        -Value,
-                                        -Minimum))
+  unit.ref <- dplyr::select(unit.ref, c(
+    -Type, -Unique.Identifier, -Domain,
+    -Status, -TADA.WQXVal.Flag,
+    -Note.Recommendation,
+    -Conversion.Factor,
+    -Conversion.Coefficient,
+    -Last.Change.Date,
+    -Value,
+    -Minimum
+  ))
   unit.ref <- unique(unit.ref)
-  
-  check.data <- dplyr::left_join(.data, 
-                                 unit.ref,
-                     by = c("TADA.CharacteristicName",
-                            "TADA.ActivityMediaName",
-                            "TADA.ResultMeasure.MeasureUnitCode"),
-                     multiple = "any", # this should be "all" but the validation table has issues
-                     relationship = "many-to-many" # this should be "one-to-one" but the validation table has issues
-    )
+
+  check.data <- dplyr::left_join(.data,
+    unit.ref,
+    by = c(
+      "TADA.CharacteristicName",
+      "TADA.ActivityMediaName",
+      "TADA.ResultMeasure.MeasureUnitCode"
+    ),
+    multiple = "any", # this should be "all" but the validation table has issues
+    relationship = "many-to-many" # this should be "one-to-one" but the validation table has issues
+  )
 
   # Create flag column, flag rows where ResultMeasureValue > Maximum
   flag.data <- check.data %>%
@@ -448,12 +452,12 @@ TADA_FlagAboveThreshold <- function(.data, clean = FALSE, flaggedonly = FALSE) {
 
 #' Check Result Value Against WQX Lower Threshold
 #'
-#' EPA's Water Quality Exchange (WQX) has generated maximum and minimum thresholds 
-#' for each parameter and unit combination from millions of water quality data 
+#' EPA's Water Quality Exchange (WQX) has generated maximum and minimum thresholds
+#' for each parameter and unit combination from millions of water quality data
 #' points around the country. This function leverages the WQX QAQC Validation Table
-#' to flag any data that is below the lower threshold of result values submitted 
+#' to flag any data that is below the lower threshold of result values submitted
 #' to WQX for a given characteristic.
-#' 
+#'
 #' When clean = FALSE and flaggedonly = FALSE, a column which flags data below
 #' the lower WQX threshold is appended to the dataframe. When clean = FALSE and
 #' flaggedonly = TRUE, the dataframe is filtered to show only data found below
@@ -464,16 +468,16 @@ TADA_FlagAboveThreshold <- function(.data, clean = FALSE, flaggedonly = FALSE) {
 #' and flaggedonly = FALSE.
 #'
 #' This function will add the column "TADA.ResultValueBelowLowerThreshold.Flag" which
-#' will be populated with the values: "Pass", "Suspect", "Not Reviewed", or 
-#' "NA - Not Available". The “Not Reviewed” value means that the EPA WQX team 
+#' will be populated with the values: "Pass", "Suspect", "Not Reviewed", or
+#' "NA - Not Available". The “Not Reviewed” value means that the EPA WQX team
 #' has not yet reviewed the range yet for the characteristic and unit combination combination
 #' in that row (see https://cdx.epa.gov/wqx/download/DomainValues/QAQCCharacteristicValidation.CSV).
 #' The WQX team plans to review and update these new combinations quarterly. The
-#' "NA - Not Available" flag means that the characteristic, media, and/or unit combination 
+#' "NA - Not Available" flag means that the characteristic, media, and/or unit combination
 #' for that row is not fully populated (is NA or does not match the WQX data standard)
-#' or the result value is NA. 
-#' 
-#' If this function is run more than once on the same dataframe, 
+#' or the result value is NA.
+#'
+#' If this function is run more than once on the same dataframe,
 #' the flag column will be deleted and regenerated.
 #'
 #' @param .data TADA dataframe
@@ -482,16 +486,16 @@ TADA_FlagAboveThreshold <- function(.data, clean = FALSE, flaggedonly = FALSE) {
 #' @param flaggedonly Boolean argument; filters dataframe to show only the data
 #' flagged as below the lower WQX threshold. Default is flaggedonly = FALSE.
 #' @return The input TADA dataset with the added "TADA.ResultValueBelowLowerThreshold.Flag"
-#' column which is populated with the values: "Pass", "Suspect", "Not Reviewed", or 
+#' column which is populated with the values: "Pass", "Suspect", "Not Reviewed", or
 #' "NA - Not Available". Defaults are clean = FALSE and flaggedonly = FALSE.
 #' When clean = FALSE and flaggedonly = TRUE, the dataframe
 #' is filtered to show only data found below the WQX threshold. When clean = TRUE
 #' and flaggedonly = FALSE, rows with values that are below the lower WQX threshold
 #' are removed from the dataframe. When clean = TRUE and and flaggedonly = TRUE,
-#' the function is not executed and an error message is returned. 
+#' the function is not executed and an error message is returned.
 #'
 #' @export
-#' 
+#'
 #' @examples
 #' # Load example dataset:
 #' data(Data_Nutrients_UT)
@@ -523,50 +527,54 @@ TADA_FlagBelowThreshold <- function(.data, clean = FALSE, flaggedonly = FALSE) {
   if (clean == TRUE & flaggedonly == TRUE) {
     stop("Function not executed because clean and flaggedonly cannot both be TRUE")
   }
-  
+
   # check ResultMeasureValue column is of class numeric
   if (!is.numeric(.data$TADA.ResultMeasureValue)) {
     stop("The ResultMeasureValue column must be of class 'numeric'.")
   }
-  
+
   # execute function after checks are passed - removes flag column in case reference table has changed.
   # delete existing flag column
   if (("TADA.ResultValueBelowLowerThreshold.Flag" %in% colnames(.data)) == TRUE) {
     .data <- dplyr::select(.data, -TADA.ResultValueBelowLowerThreshold.Flag)
   }
-  
+
   # get WQXcharVal.ref and filter to include only CharacteristicUnit
   # Note that status is not applicable to ranges.
   # Instead, we generate a validation flag later in this function
   unit.ref <- utils::read.csv(system.file("extdata", "WQXcharValRef.csv", package = "TADA")) %>%
     dplyr::filter(Type == "CharacteristicUnit")
-  
+
   # update ref table names to prepare for left join with df
-  names(unit.ref)[names(unit.ref) == 'Characteristic'] <- 'TADA.CharacteristicName'
-  names(unit.ref)[names(unit.ref) == 'Source'] <- 'TADA.ActivityMediaName'
-  names(unit.ref)[names(unit.ref) == 'Value.Unit'] <- 'TADA.ResultMeasure.MeasureUnitCode'
-  
+  names(unit.ref)[names(unit.ref) == "Characteristic"] <- "TADA.CharacteristicName"
+  names(unit.ref)[names(unit.ref) == "Source"] <- "TADA.ActivityMediaName"
+  names(unit.ref)[names(unit.ref) == "Value.Unit"] <- "TADA.ResultMeasure.MeasureUnitCode"
+
   # remove extraneous columns from unit.ref
-  unit.ref <- dplyr::select(unit.ref, c(-Type, -Unique.Identifier, -Domain, 
-                                        -Status, -TADA.WQXVal.Flag, 
-                                        -Note.Recommendation,
-                                        -Conversion.Factor,
-                                        -Conversion.Coefficient,
-                                        -Last.Change.Date,
-                                        -Value,
-                                        -Maximum))
-  
+  unit.ref <- dplyr::select(unit.ref, c(
+    -Type, -Unique.Identifier, -Domain,
+    -Status, -TADA.WQXVal.Flag,
+    -Note.Recommendation,
+    -Conversion.Factor,
+    -Conversion.Coefficient,
+    -Last.Change.Date,
+    -Value,
+    -Maximum
+  ))
+
   unit.ref <- unique(unit.ref)
-  
-  check.data <- dplyr::left_join(.data, 
-                                 unit.ref,
-                                 by = c("TADA.CharacteristicName",
-                                        "TADA.ActivityMediaName",
-                                        "TADA.ResultMeasure.MeasureUnitCode"),
-                                 multiple = "any", # this should be "all" but the validation table has issues
-                                 relationship = "many-to-many" # this should be "one-to-one" but the validation table has issues
+
+  check.data <- dplyr::left_join(.data,
+    unit.ref,
+    by = c(
+      "TADA.CharacteristicName",
+      "TADA.ActivityMediaName",
+      "TADA.ResultMeasure.MeasureUnitCode"
+    ),
+    multiple = "any", # this should be "all" but the validation table has issues
+    relationship = "many-to-many" # this should be "one-to-one" but the validation table has issues
   )
-  
+
   # Create flag column, flag rows where TADA.ResultMeasureValue < Minimum
   flag.data <- check.data %>%
     # create flag column
@@ -575,16 +583,15 @@ TADA_FlagBelowThreshold <- function(.data, clean = FALSE, flaggedonly = FALSE) {
       TADA.ResultMeasureValue >= Minimum ~ as.character("Pass"),
       is.na(Minimum) ~ as.character("Not Reviewed"), # in QAQC table but not reviewed
       TRUE ~ as.character("NA - Not Available") # this occurs when the char/unit/media combo is not in the WQX QAQC table at all. USGS data may not be in QAQC table because it does not adhere to the WQX domain tables.
-      
     ))
-  
+
   # remove Min column
   flag.data <- flag.data %>%
     dplyr::select(-"Minimum")
-  
+
   # if no data below WQX lower threshold is found
   if (any("Suspect" %in%
-          unique(flag.data$TADA.ResultValueBelowLowerThreshold.Flag)) == FALSE) {
+    unique(flag.data$TADA.ResultValueBelowLowerThreshold.Flag)) == FALSE) {
     if (flaggedonly == FALSE) {
       print("No data below the WQX Lower Threshold were found in your dataframe. Returning the input dataframe with TADA.ResultValueBelowLowerThreshold.Flag column for tracking.")
       flag.data <- TADA_OrderCols(flag.data)
@@ -597,13 +604,13 @@ TADA_FlagBelowThreshold <- function(.data, clean = FALSE, flaggedonly = FALSE) {
       return(emptyflag.data)
     }
   }
-  
+
   # flagged, all data
   if (clean == FALSE & flaggedonly == FALSE) {
     flag.data <- TADA_OrderCols(flag.data)
     return(flag.data)
   }
-  
+
   # clean data
   if (clean == TRUE & flaggedonly == FALSE) {
     # filter out rows where TADA.ResultValueBelowLowerThreshold.Flag = Suspect; remove TADA.ResultValueBelowLowerThreshold.Flag column
@@ -612,7 +619,7 @@ TADA_FlagBelowThreshold <- function(.data, clean = FALSE, flaggedonly = FALSE) {
     clean.data <- TADA_OrderCols(clean.data)
     return(clean.data)
   }
-  
+
   # only flagged data
   if (clean == FALSE & flaggedonly == TRUE) {
     # filter to show only rows where TADA.ResultValueBelowLowerThreshold.Flag = Suspect
