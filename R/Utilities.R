@@ -219,6 +219,8 @@ TADA_DecimalPlaces <- function(x) {
 #'   searches for the best space to insert a new line.
 #'
 #' @return The same vector of strings with new lines added where appropriate.
+#' 
+#' @export 
 #'
 TADA_InsertBreaks <- function(x, len = 50) {
   if (nchar(x) > len) {
