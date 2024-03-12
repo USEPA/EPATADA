@@ -375,6 +375,7 @@ TADA_Histogram <- function(.data, id_cols = c("TADA.ComparableDataIdentifier")) 
 #' @export
 #'
 #' @examples
+#' \dontrun{
 #' # Load example datasets:
 #' data(Data_Nutrients_UT)
 #' data(Data_NCTCShepherdstown_HUC12)
@@ -384,6 +385,7 @@ TADA_Histogram <- function(.data, id_cols = c("TADA.ComparableDataIdentifier")) 
 #' TADA_OverviewMap(Data_Nutrients_UT)
 #' TADA_OverviewMap(Data_NCTCShepherdstown_HUC12)
 #' TADA_OverviewMap(Data_6Tribes_5y_Harmonized)
+#' }
 #'
 TADA_OverviewMap <- function(.data) {
   suppressWarnings({
