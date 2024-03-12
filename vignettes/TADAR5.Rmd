@@ -45,7 +45,16 @@ with the TADA install. You may be prompted in the console to update dependency p
 
 ```{r install_TADA, eval = F, results = 'hide', message = FALSE, warning = FALSE}
 remotes::install_github("USEPA/TADA",
-  ref = "cm-case_when-fixes",
+  ref = "develop",
+  dependencies = TRUE
+)
+```
+
+```{r for-development-only, echo = F, results = 'hide', message = FALSE, warning = FALSE}
+# IF YOU ARE NOT DEVELOPING TADA, SKIP THIS CODE CHUNK
+# when developing the package, update this chunk to the current repository branch, so it runs with all of the new features prior to a PR to develop
+remotes::install_github("USEPA/TADA",
+  ref = "149-address-depth-profile-data",
   dependencies = TRUE
 )
 ```

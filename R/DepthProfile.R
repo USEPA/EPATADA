@@ -71,7 +71,7 @@
 #' data(Data_6Tribes_5y)
 #'
 #' # assign TADA.DepthCategory.Flag with no aggregation
-#' # Data_6Tribs_5y_DepthCat <- TADA_DepthCategory.Flag(Data_6Tribes_5y)
+#' Data_6Tribs_5y_DepthCat <- TADA_DepthCategory.Flag(Data_6Tribes_5y)
 #'
 #' # assign TADA.DepthCategory.Flag and determine average values by depth category and returning only aggregate values
 #' Data_6Tribs_5y_Mean <- TADA_DepthCategory.Flag(Data_6Tribes_5y, bycategory = "all", dailyagg = "avg", aggregatedonly = FALSE)
@@ -456,10 +456,10 @@ TADA_DepthCategory.Flag <- function(.data, bycategory = "no", bottomvalue = 2, s
 #' data(Data_6Tribes_5y)
 #'
 #' # find depth profile data without showing number of results
-#' # Data_6Tribs_5y_DepthProfileID <- TADA_IDDepthProfiles(Data_6Tribes_5y, nresults = FALSE)
+#' Data_6Tribes_5y_DepthProfileID_Nresults <- TADA_IDDepthProfiles(Data_6Tribes_5y, nresults = FALSE)
 #'
 #' # find depth profile data showing number of results
-#' # Data_6Tribs_5y_DepthProfileID <- TADA_IDDepthProfiles(Data_6Tribes_5y)
+#' Data_6Tribes_5y_DepthProfileID <- TADA_IDDepthProfiles(Data_6Tribes_5y)
 #'
 #'
  TADA_IDDepthProfiles <- function(.data, nresults = TRUE, nvalue = 2, aggregates = FALSE) {
@@ -925,7 +925,7 @@ TADA_DepthProfilePlot <- function(.data, groups = NULL,
 # title for three characteristics
 if(length(groups) == 3) {
 
-  title <- TADA::TADA_InsertBreaks(
+  title <- TADA_InsertBreaks(
     paste0(
       param1$TADA.CharacteristicName[1],
       ", ",
@@ -944,7 +944,7 @@ if(length(groups) == 3) {
 # title for two characteristics
 if(length(groups) == 2) {
 
-  title <- TADA::TADA_InsertBreaks(
+  title <- TADA_InsertBreaks(
     paste0(
       param1$TADA.CharacteristicName[1],
       " and ",
@@ -960,7 +960,7 @@ if(length(groups) == 2) {
 # title for one characteristic
 if(length(groups) == 1) {
 
-  title <- TADA::TADA_InsertBreaks(
+  title <- TADA_InsertBreaks(
     paste0(
       param1$TADA.CharacteristicName[1],
       " Depth Profile for ",

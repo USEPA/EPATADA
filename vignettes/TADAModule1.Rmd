@@ -74,7 +74,7 @@ remotes::install_github("USEPA/TADA",
 # IF YOU ARE NOT DEVELOPING TADA, SKIP THIS CODE CHUNK
 # when developing the package, update this chunk to the current repository branch, so it runs with all of the new features prior to a PR to develop
 remotes::install_github("USEPA/TADA",
-  ref = "cm-case_when-fixes",
+  ref = "149-address-depth-profile-data",
   dependencies = TRUE
 )
 ```
