@@ -334,7 +334,7 @@ a pop-up with this summary information, including the number of
 organizations that reported results at that site. This map may inform a
 user's decision to remove/correct sites that are outside the US.
 
-```{r Map, fig.width=8, fig.height=6, fig.fullwidth=TRUE}
+```{r Map, fig.width=8, fig.height=6, fig.fullwidth=TRUE, eval = F, message = FALSE, warning = FALSE}
 TADA_OverviewMap(TADAProfile)
 ```
 

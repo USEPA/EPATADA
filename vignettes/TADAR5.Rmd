@@ -1075,7 +1075,7 @@ Generate a scatterplot with two characteristics.
 unique(R5ProfileClean8$TADA.ComparableDataIdentifier)
 ```
 
-```{r TADA_TwoCharacteristicScatterplot, echo=TRUE, fig.fullwidth=TRUE, fig.height=6, fig.width=8}
+```{r TADA_TwoCharacteristicScatterplot, echo=TRUE, fig.fullwidth=TRUE, fig.height=6, fig.width=8, eval = F, message = FALSE, warning = FALSE}
 # choose two and generate scatterplot
 DO_Temp_Scatter <- TADA_TwoCharacteristicScatterplot(R5ProfileClean8, id_cols = "TADA.ComparableDataIdentifier", groups = c("TEMPERATURE_NA_NA_DEG C", "DISSOLVED OXYGEN (DO)_NA_NA_MG/L"))
 
