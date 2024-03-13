@@ -219,6 +219,8 @@ TADA_DecimalPlaces <- function(x) {
 #'   searches for the best space to insert a new line.
 #'
 #' @return The same vector of strings with new lines added where appropriate.
+#' 
+#' @export 
 #'
 TADA_InsertBreaks <- function(x, len = 50) {
   if (nchar(x) > len) {
@@ -855,7 +857,7 @@ TADA_RunKeyFlagFunctions <- function(.data, remove_na = TRUE, clean = TRUE) {
 #' # Get the bounding box of the data
 #' bbox <- sf::st_bbox(c(xmin = min(Data_6Tribes_5y$TADA.LongitudeMeasure), ymin = min(Data_6Tribes_5y$TADA.LatitudeMeasure), xmax = max(Data_6Tribes_5y$TADA.LongitudeMeasure), ymax = max(Data_6Tribes_5y$TADA.LatitudeMeasure)), crs = sf::st_crs(Data_6Tribes_5y))
 #' # Get a string containing the JSON of the bounding box
-#' TADA:::getBboxJson(bbox)
+#' getBboxJson(bbox)
 #' }
 #'
 getBboxJson <- function(bbox) {
@@ -879,7 +881,7 @@ getBboxJson <- function(bbox) {
 #' @examples
 #' \dontrun{
 #' # Create three PNG files, a red circle, blue triangle, and yellow "X", each on a green background.
-#' TADA:::pchIcons(c(1, 2, 4), 40, 40, "green", c("red", "blue", "yellow"))
+#' pchIcons(c(1, 2, 4), 40, 40, "green", c("red", "blue", "yellow"))
 #' }
 #'
 pchIcons <- function(pch = 1,
@@ -927,7 +929,7 @@ pchIcons <- function(pch = 1,
 #' # Get the bounding box of the data
 #' bbox <- sf::st_bbox(c(xmin = min(Data_Nutrients_UT$TADA.LongitudeMeasure), ymin = min(Data_Nutrients_UT$TADA.LatitudeMeasure), xmax = max(Data_Nutrients_UT$TADA.LongitudeMeasure), ymax = max(Data_Nutrients_UT$TADA.LatitudeMeasure)), crs = sf::st_crs(Data_Nutrients_UT))
 #' # Get the American Indian Reservations feature layer, filtered by the bounding box for the Data_Nutrients_UT example dataset
-#' TADA:::getFeatureLayer("https://geopub.epa.gov/arcgis/rest/services/EMEF/Tribal/MapServer/2/query", bbox)
+#' getFeatureLayer("https://geopub.epa.gov/arcgis/rest/services/EMEF/Tribal/MapServer/2/query", bbox)
 #' }
 #'
 getFeatureLayer <- function(url, bbox = NULL) {
@@ -952,9 +954,9 @@ getFeatureLayer <- function(url, bbox = NULL) {
 #' @examples
 #' \dontrun{
 #' # Get the Oklahoma Tribal Statistical Areas feature layer
-#' layer <- TADA:::getFeatureLayer("https://geopub.epa.gov/arcgis/rest/services/EMEF/Tribal/MapServer/4/query")
+#' layer <- getFeatureLayer("https://geopub.epa.gov/arcgis/rest/services/EMEF/Tribal/MapServer/4/query")
 #' # Get popup text for individual markers
-#' TADA:::getPopup(layer, "Oklahoma Tribal Statistical Areas")
+#' getPopup(layer, "Oklahoma Tribal Statistical Areas")
 #' }
 #'
 getPopup <- function(layer, layername) {
@@ -991,7 +993,7 @@ getPopup <- function(layer, layername) {
 #' # Create a leaflet map
 #' lmap <- leaflet::leaflet() %>% leaflet::addProviderTiles("Esri.WorldTopoMap", group = "World topo")
 #' # Add the American Indian Reservations feature layer to the map
-#' lmap <- TADA:::TADA_addPolys(lmap, "https://geopub.epa.gov/arcgis/rest/services/EMEF/Tribal/MapServer/2/query", "Tribes", "American Indian Reservations")
+#' lmap <- TADA_addPolys(lmap, "https://geopub.epa.gov/arcgis/rest/services/EMEF/Tribal/MapServer/2/query", "Tribes", "American Indian Reservations")
 #' lmap
 #' }
 #'
@@ -1046,7 +1048,7 @@ TADA_addPolys <- function(map, url, layergroup, layername, bbox = NULL) {
 #' # Create a leaflet map
 #' lmap <- leaflet::leaflet() %>% leaflet::addProviderTiles("Esri.WorldTopoMap", group = "World topo")
 #' # Add the Virginia Federally Recognized Tribes feature layer to the map
-#' lmap <- TADA:::TADA_addPoints(lmap, "https://geopub.epa.gov/arcgis/rest/services/EMEF/Tribal/MapServer/5/query", "Tribes", "Virginia Federally Recognized Tribes")
+#' lmap <- TADA_addPoints(lmap, "https://geopub.epa.gov/arcgis/rest/services/EMEF/Tribal/MapServer/5/query", "Tribes", "Virginia Federally Recognized Tribes")
 #' lmap
 #' }
 #'

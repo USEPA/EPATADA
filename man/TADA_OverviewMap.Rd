@@ -24,6 +24,7 @@ visits (number of unique Activity ID's), and characteristics associated with eac
 Create Overview Map
 }
 \examples{
+\dontrun{
 # Load example datasets:
 data(Data_Nutrients_UT)
 data(Data_NCTCShepherdstown_HUC12)
@@ -33,5 +34,6 @@ data(Data_6Tribes_5y_Harmonized)
 TADA_OverviewMap(Data_Nutrients_UT)
 TADA_OverviewMap(Data_NCTCShepherdstown_HUC12)
 TADA_OverviewMap(Data_6Tribes_5y_Harmonized)
+}
 
 }
