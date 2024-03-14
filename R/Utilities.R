@@ -299,8 +299,8 @@ TADA_CheckColumns <- function(.data, expected_cols) {
 #' @param .data A TADA profile object
 #' @param col A character column to be converted to numeric
 #'
-#' @param percent.ave Boolean argument; default is clean = TRUE. When clean = TRUE,
-#' any percent range values will be averaged. When clean = FALSE, percent range
+#' @param percent.ave Boolean argument; default is percent.ave = TRUE. When clean = TRUE,
+#' any percent range values will be averaged. When percent.ave = FALSE, percent range
 #' values are not averaged, but are flagged.
 #'
 #' @return Returns the original dataframe with two new columns: the input column
