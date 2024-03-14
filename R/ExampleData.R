@@ -82,7 +82,7 @@ NULL
 NULL
 
 #' Data_R5_TADAPackageDemo
-#' 
+#'
 #' Original pull:
 #' Data_R5_TADAPackageDemo <- TADA::TADA_DataRetrieval(
 #'  startDate = "2019-05-01",
@@ -99,7 +99,7 @@ NULL
 #'  project = "null",
 #'  applyautoclean = FALSE
 #' )
-#' 
+#'
 #' @docType data
 #' @keywords datasets
 #' @name Data_R5_TADAPackageDemo

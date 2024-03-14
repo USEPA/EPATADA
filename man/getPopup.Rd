@@ -20,8 +20,11 @@ Get text for tribal marker popup
 getPopup is used within TADA_addPolys and TADA_addPoints
 }
 \examples{
+\dontrun{
 # Get the Oklahoma Tribal Statistical Areas feature layer
-layer <- TADA:::getFeatureLayer("https://geopub.epa.gov/arcgis/rest/services/EMEF/Tribal/MapServer/4/query")
+layer <- getFeatureLayer("https://geopub.epa.gov/arcgis/rest/services/EMEF/Tribal/MapServer/4/query")
 # Get popup text for individual markers
-TADA:::getPopup(layer, "Oklahoma Tribal Statistical Areas")
+getPopup(layer, "Oklahoma Tribal Statistical Areas")
+}
+
 }

@@ -45,10 +45,9 @@ with the TADA install. You may be prompted in the console to update dependency p
 
 ```{r install_TADA, eval = F, results = 'hide', message = FALSE, warning = FALSE}
 remotes::install_github("USEPA/TADA",
-  ref = "R5_package_demo",
+  ref = "export-bug",
   dependencies = TRUE
 )
-
 ```
 
 Finally, use the **library()** function to load the TADA R Package into your R session.
@@ -154,7 +153,6 @@ decisions where information is limited.
 
 # For demo purposes, import pre-downloaded R5 data set
 R5Profile <- TADA::Data_R5_TADAPackageDemo
-
 ```
 
 **R5 Profile**
@@ -168,7 +166,7 @@ R5Profile <- TADA::Data_R5_TADAPackageDemo
 
 ```{r question1}
 # Determine number of rows in the data set
-R5_nresults <- nrow(R5Profile) 
+R5_nresults <- nrow(R5Profile)
 ```
 
 **Answer: **
@@ -189,7 +187,6 @@ table or pie chart of the counts of unique values in a user-specified field with
 *TADA.ActivityMediaName*.
 
 ```{r fieldValues_actmedia, fig.width=8, fig.height=6, fig.fullwidth=TRUE}
-
 # Create pie chart for ActivityMediaName
 ActMedName_Pie <- TADA_FieldValuesPie(R5Profile, field = "ActivityMediaName")
 
@@ -205,7 +202,6 @@ FieldValues_ActMedia <- TADA_FieldValuesTable(R5Profile, field = "ActivityMediaN
 **Question 2: How many unique 'ActivityMediaName' values exist in your dataset? Are there any media types that are not water?**
 
 ```{r question2, echo = FALSE}
-
 n_media <- length(unique(FieldValues_ActMedia$Value))
 
 unique_media <- FieldValues_ActMedia %>%
@@ -213,12 +209,11 @@ unique_media <- FieldValues_ActMedia %>%
   dplyr::mutate(media = paste(Value, collapse = ", ")) %>%
   dplyr::select(media) %>%
   unique() %>%
-  stringi::stri_replace_last(fixed = ",", " and") 
+  stringi::stri_replace_last(fixed = ",", " and")
 
-n_not_water <- FieldValues_ActMedia %>% 
-  dplyr::filter(Value != "Water")%>% 
+n_not_water <- FieldValues_ActMedia %>%
+  dplyr::filter(Value != "Water") %>%
   dplyr::summarize(n_not_water = length(Value))
-
 ```
 
 
@@ -238,7 +233,7 @@ We can use **TADA_FieldValuesTable** and **TADA_FieldValuesPie** again to review
 **Note:** When WQX 3.0 data profiles are released, this function will be updated to include fish tissue a filter option.
 
 ```{r AnalysisDataFilter, fig.width=8, fig.height=6, fig.fullwidth=TRUE}
-# Filter to flag only surface water results for use in analysis 
+# Filter to flag only surface water results for use in analysis
 R5Profile <- TADA_AnalysisDataFilter(R5Profile, clean = FALSE)
 
 # Create pie chart for TADA.UseForAnalysis.Flag
@@ -255,20 +250,18 @@ FieldValues_AnalysisFlag <- TADA_FieldValuesTable(R5Profile, field = "TADA.UseFo
 **Question 3: How many SURFACE WATER results can we retain for further analysis**
 
 ```{r question3, echo = FALSE}
-
-# Filter to flag only surface water results for use in analysis 
+# Filter to flag only surface water results for use in analysis
 
 n_sur_water <- FieldValues_AnalysisFlag %>%
   dplyr::filter(Value == "Yes - SURFACE WATER") %>%
   dplyr::select(Count)
-  
 ```
 
 **Answer:**
 *There are `r n_sur_water` surface water results in the R5 data set. Let's filter out any other results flagged "No" to reduce the size of the data set before continuing.*
 
 ```{r AnalysisDataFilter2}
-# Filter to retain only surface water results for use in analysis 
+# Filter to retain only surface water results for use in analysis
 R5Profile <- R5Profile %>%
   dplyr::filter(TADA.UseForAnalysis.Flag == "Yes - SURFACE WATER")
 ```
@@ -322,7 +315,7 @@ FieldValues_MLs_table <- TADA_FieldValuesTable(R5Profile, field = "MonitoringLoc
 mlt_n <- length(unique(FieldValues_MLs_table$Value))
 
 mlt_most_common <- FieldValues_MLs_table %>%
-  dplyr::slice_max(Count) 
+  dplyr::slice_max(Count)
 ```
 
 `r rmarkdown::paged_table(FieldValues_MLs_table)`
@@ -375,10 +368,10 @@ n_char_name <- length(unique(R5Profile_CharSummary$TADA.CharacteristicName))
 
 # Filter for record with max number of sites per Character
 max_sites <- R5Profile_CharSummary %>%
-  dplyr::slice_max(n_sites) 
+  dplyr::slice_max(n_sites)
 
 # Filter for record with max number of results per Character
-max_results <-R5Profile_CharSummary %>%
+max_results <- R5Profile_CharSummary %>%
   dplyr::slice_max(n_records)
 ```
 
@@ -411,9 +404,7 @@ An additional input called flaggedonly will allow the user to filter data
 to show only rows of aggregated continuous data. 
 
 ```{r AggregatedContinuousData}
-
 R5ProfileClean1 <- TADA_FindContinuousData(R5Profile)
-
 ```
 
 ## WQX Quality Assurance and Quality Control (QAQC) Service Result Flags
@@ -583,12 +574,11 @@ FieldValues_Orgs <- TADA_FieldValuesTable(R5ProfileClean3, field = "Organization
 **Question 8: How many organizations submitted data? Which organization submitted the most results? Which organization submitted the fewest results?**
 
 ```{r question8, echo = FALSE}
-
 orgs_n <- length(unique(FieldValues_Orgs$Value))
 
-org_max <- dplyr::slice_max(FieldValues_Orgs, Count) 
-  
-org_min <- dplyr::slice_min(FieldValues_Orgs, Count) 
+org_max <- dplyr::slice_max(FieldValues_Orgs, Count)
+
+org_min <- dplyr::slice_min(FieldValues_Orgs, Count)
 ```
 
 
@@ -604,20 +594,21 @@ the following into the console:
 
 
 ```{r FindPotentialDuplicates}
-
 # Flag potential duplicates from multiple organizations
 R5ProfileClean3 <- TADA_FindPotentialDuplicatesMultipleOrgs(R5ProfileClean3,
   dist_buffer = 100,
   org_hierarchy = "none"
 )
 
-#Flag potential duplicates from a single organization
+# Flag potential duplicates from a single organization
 R5ProfileClean3 <- TADA_FindPotentialDuplicatesSingleOrg(R5ProfileClean3)
 
 # Remove multiple and single org duplicates (random selection of single result)
 R5ProfileClean4 <- R5ProfileClean3 %>%
-  dplyr::filter(TADA.ResultSelectedMultipleOrgs == "Y",
-                TADA.SingleOrgDup.Flag == "Unique")
+  dplyr::filter(
+    TADA.ResultSelectedMultipleOrgs == "Y",
+    TADA.SingleOrgDup.Flag == "Unique"
+  )
 ```
 
 **Question 9: How many total duplicate results were removed? How could you prioritize retaining results from your organization when duplicate results are identified?**
@@ -765,7 +756,8 @@ suspect_n <- Review_R5ProfileClean5 %>%
 
 # Run function with clean = TRUE
 R5ProfileClean5 <- TADA_FlagMeasureQualifierCode(R5ProfileClean5,
-  clean = TRUE)
+  clean = TRUE
+)
 ```
 
 **Question 11: How many results were identified as "SUSPECT" based on the MeasureQualifierCode?**
@@ -831,7 +823,6 @@ result_na_n <- sum(is.na(R5ProfileClean5$TADA.ResultMeasureValue))
 mqc <- R5ProfileClean5 %>%
   dplyr::select(MeasureQualifierCode, TADA.MeasureQualifierCode.Def) %>%
   unique()
-
 ```
 
 `r rmarkdown::paged_table(mqc, options = list(rownames.print = FALSE))`
@@ -852,7 +843,7 @@ R5ProfileClean6 <- TADA_AutoFilter(R5ProfileClean5)
 ```{r question13}
 result_nas_n <- sum(is.na(R5ProfileClean6$TADA.ResultMeasureValue))
 
-non_numeric_n <- sum(!R5ProfileClean6$TADA.ResultMeasureValueDataTypes.Flag %in% c("Numeric", "Result Value/Unit Estimated from Detection Limit","Result Value/Unit Copied from Detection Limit"))
+non_numeric_n <- sum(!R5ProfileClean6$TADA.ResultMeasureValueDataTypes.Flag %in% c("Numeric", "Result Value/Unit Estimated from Detection Limit", "Result Value/Unit Copied from Detection Limit"))
 
 R5ProfileClean5_n <- nrow(R5ProfileClean5)
 
@@ -936,7 +927,7 @@ Users can use the default summation worksheet (see **TADA_GetNutrientSummationRe
 R5ProfileClean8 <- TADA_CalculateTotalNP(R5ProfileClean7, daily_agg = "max")
 ```
 
-**Question 14: How many new Total Nitrogen or Total Phosporus rows were added? Can users customize nutrient summation?**
+**Question 14: How many new Total Nitrogen or Total Phosphorus rows were added? Can users customize nutrient summation?**
 
 ```{r, question14}
 R5ProfileClean7_n <- nrow(R5ProfileClean7)
@@ -955,7 +946,7 @@ total_N_P_subset <- R5ProfileClean8 %>%
 *The table above shows the first 100 rows added by calculating Total N and P. Columns included in the table are TADA.CharacteristicName, TADA.ResultMeasureValue, TADA.ResultMeasure.MeasureUnitCode, TADA.NutrientSummation.Flag, TADA.NutrientSummationEquation, and TADA.NutrientSummationGroup.*
 
 **Answer:**
-*`r nutrient_n` Total Nitrogen or Total Phosporus rows were added. Users can review the summation worksheet (**TADA_GetNutrientSummationRef**) and update it to meet their requirements.*
+*`r nutrient_n` Total Nitrogen or Total Phosphorus rows were added. Users can review the summation worksheet (**TADA_GetNutrientSummationRef**) and update it to meet their requirements.*
 
 ## Parameter Level Filtering
 
@@ -1058,7 +1049,7 @@ Now, we'll use **TADA_FieldValuesTable** and **TADA_FieldValuesPie** at the
 characteristic-level to review a column of interest. In this example we review values from the *SampleCollectionMethod.MethodName* field for Dissolved Oxygen (DO) results.
 
 ```{r DO_Method, fig.width=8, fig.height=6, fig.fullwidth=TRUE}
-#C Create pie chart for SampleCollectionMethod.MethodName for Dissolved Oxygen (DO results)
+# C Create pie chart for SampleCollectionMethod.MethodName for Dissolved Oxygen (DO results)
 DO_SCM_Pie <- TADA_FieldValuesPie(R5ProfileClean8, field = "SampleCollectionMethod.MethodName", characteristicName = "DISSOLVED OXYGEN (DO)")
 
 DO_SCM_Pie
@@ -1075,7 +1066,7 @@ Generate a scatterplot with two characteristics.
 unique(R5ProfileClean8$TADA.ComparableDataIdentifier)
 ```
 
-```{r TADA_TwoCharacteristicScatterplot, echo=TRUE, fig.fullwidth=TRUE, fig.height=6, fig.width=8}
+```{r TADA_TwoCharacteristicScatterplot, echo=TRUE, fig.fullwidth=TRUE, fig.height=6, fig.width=8, eval = F, message = FALSE, warning = FALSE}
 # choose two and generate scatterplot
 DO_Temp_Scatter <- TADA_TwoCharacteristicScatterplot(R5ProfileClean8, id_cols = "TADA.ComparableDataIdentifier", groups = c("TEMPERATURE_NA_NA_DEG C", "DISSOLVED OXYGEN (DO)_NA_NA_MG/L"))
 

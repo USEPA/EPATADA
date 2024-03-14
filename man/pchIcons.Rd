@@ -34,6 +34,9 @@ Path(s) to PNG file(s) in a temp folder on user's computer.
 Uses the different plotting symbols available in R to create PNG files that can be used as markers on a map feature layer.
 }
 \examples{
+\dontrun{
 # Create three PNG files, a red circle, blue triangle, and yellow "X", each on a green background.
-TADA:::pchIcons(c(1, 2, 4), 40, 40, "green", c("red", "blue", "yellow"))
+pchIcons(c(1, 2, 4), 40, 40, "green", c("red", "blue", "yellow"))
+}
+
 }

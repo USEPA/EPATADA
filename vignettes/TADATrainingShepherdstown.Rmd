@@ -55,10 +55,9 @@ library(TADA)
 # IF YOU ARE NOT DEVELOPING TADA, SKIP THIS CODE CHUNK
 # when developing the package, update this chunk to the current repository branch, so it runs with all of the new features prior to a PR to develop
 remotes::install_github("USEPA/TADA",
-  ref = "R5_package_demo",
+  ref = "export-bug",
   dependencies = TRUE
 )
-
 ```
 
 It's that easy! The most stable branch for TADA right now is the develop branch. Contributors generally create their own branches based on develop, make some improvements, and then submit a pull request to be reviewed by the TADA Team. Once approved, updates are then merged into the develop branch. However, you are welcome to download any branch you'd like using the `ref` input in `install_github` (see code chunk above). This functionality is mainly only useful to TADA package developers/contributors.
