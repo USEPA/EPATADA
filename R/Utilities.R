@@ -147,11 +147,15 @@ TADA_AutoClean <- function(.data) {
   # Update TADA.CharacteristicName and TADA.ResultMeasureValue.MeasureUnit for Dissolved oxygen (DO) saturation
   do.units <- c("%", "% SATURATN")
   
-  .data$TADA.CharacteristicName <- ifelse(.data$CharacteristicName == "Dissolved oxygen (DO)" & .data$ResultMeasure.MeasureUnitCode %in% do.units,
-                                          "DISSOLVED OXYGEN SATURATION", .data$TADA.CharacteristicName)
-  .data$TADA.ResultMeasure.MeasureUnitCode <- ifelse(.data$ResultMeasure.MeasureUnitCode == "% SATURATN",
-                                                     "%", .data$TADA.ResultMeasure.MeasureUnitCode)
+  .data <- .data %>%
+    dplyr::mutate(TADA.CharacteristicName = ifelse(CharacteristicName == "Dissolved oxygen (DO)" & ResultMeasure.MeasureUnitCode %in% do.units,
+                                                    "DISSOLVED OXYGEN SATURATION", TADA.CharacteristicName)) %>%
+    dplyr::mutate(TADA.ResultMeasure.MeasureUnitCode = ifelse(CharacteristicName == "Dissolved oxygen (DO)" & ResultMeasure.MeasureUnitCode == "% SATURATN",
+                                                              "%", TADA.ResultMeasure.MeasureUnitCode))
   
+  
+  ifelse(.data$CharacteristicName == "Dissolved oxygen (DO)" & .data$ResultMeasure.MeasureUnitCode == "% SATURATN",
+                                                     "%", .data$TADA.ResultMeasure.MeasureUnitCode)
 
   # Remove complex biological data. Un-comment after new WQX 3.0 Profiles are released. May not be needed if implemented via WQP UI/services.
   # .data$TADA.BiologicalIntentName = toupper(.data$BiologicalIntentName)
