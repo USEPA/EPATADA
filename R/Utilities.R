@@ -143,6 +143,15 @@ TADA_AutoClean <- function(.data) {
   .data$TADA.ActivityMediaName <- toupper(.data$ActivityMediaName)
   .data$TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode <-
     toupper(.data$DetectionQuantitationLimitMeasure.MeasureUnitCode)
+  
+  # Update TADA.CharacteristicName and TADA.ResultMeasureValue.MeasureUnit for Dissolved oxygen (DO) saturation
+  do.units <- c("%", "% SATURATN")
+  
+  .data$TADA.CharacteristicName <- ifelse(.data$CharacteristicName == "Dissolved oxygen (DO)" & .data$ResultMeasure.MeasureUnitCode %in% do.units,
+                                          "DISSOLVED OXYGEN SATURATION", .data$TADA.CharacteristicName)
+  .data$TADA.ResultMeasure.MeasureUnitCode <- ifelse(.data$ResultMeasure.MeasureUnitCode == "% SATURATN",
+                                                     "%", .data$TADA.ResultMeasure.MeasureUnitCode)
+  
 
   # Remove complex biological data. Un-comment after new WQX 3.0 Profiles are released. May not be needed if implemented via WQP UI/services.
   # .data$TADA.BiologicalIntentName = toupper(.data$BiologicalIntentName)
@@ -1056,3 +1065,4 @@ TADA_addPoints <- function(map, url, layergroup, layername, bbox = NULL) {
   )
   return(map)
 }
+
