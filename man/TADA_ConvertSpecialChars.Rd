@@ -11,8 +11,8 @@ TADA_ConvertSpecialChars(.data, col, percent.ave = TRUE)
 
 \item{col}{A character column to be converted to numeric}
 
-\item{percent.ave}{Boolean argument; default is clean = TRUE. When clean = TRUE,
-any percent range values will be averaged. When clean = FALSE, percent range
+\item{percent.ave}{Boolean argument; default is percent.ave = TRUE. When clean = TRUE,
+any percent range values will be averaged. When percent.ave = FALSE, percent range
 values are not averaged, but are flagged.}
 }
 \value{

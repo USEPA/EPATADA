@@ -402,6 +402,11 @@ TADA_ConvertSpecialChars <- function(.data, col, percent.ave = TRUE) {
     clean.data$flag
   )
   
+  # Add % as TADA.ResultMeasure.MeasureUnitCode for percentage data where unit is missing
+  if(col == "ResultMeasureValue") {
+  clean.data$TADA.ResultMeasure.MeasureUnitCode <- ifelse(is.na(clean.data$TADA.ResultMeasure.MeasureUnitCode) & grepl("%", clean.data$orig), "%", clean.data$TADA.ResultMeasure.MeasureUnitCode)
+  } 
+  
   # Rename to original column name, TADA column name, and flag column name
   names(clean.data)[names(clean.data) == "orig"] <- col
   names(clean.data)[names(clean.data) == "masked"] <- numcol
