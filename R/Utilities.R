@@ -53,7 +53,7 @@ utils::globalVariables(c(
   "TADA.MeasureQualifierCode.Flag", "TADA.MeasureQualifierCode.Def", "MeasureQualifierCode", "value", "Flag_Column",
   "Data_NCTCShepherdstown_HUC12", "ActivityStartDateTime", "TADA.MultipleOrgDupGroupID",
   "TADA.WQXVal.Flag", "Concat", ".", "MeasureQualifierCode.Split", "TADA.Media.Flag",
-  "TADA.UseForAssessment.Flag", "ML.Media.Flag", "TADA.UseForAnalysis.Flag",
+  "ML.Media.Flag", "TADA.UseForAnalysis.Flag",
   "Unique.Identifier", "Domain", "Note.Recommendation", "Conversion.Coefficient",
   "Conversion.Coefficient", "Last.Change.Date", "Value", "Minimum", "Unique.Identifier",
   "Domain"
@@ -143,6 +143,17 @@ TADA_AutoClean <- function(.data) {
   .data$TADA.ActivityMediaName <- toupper(.data$ActivityMediaName)
   .data$TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode <-
     toupper(.data$DetectionQuantitationLimitMeasure.MeasureUnitCode)
+  
+  # handle do saturation characteristic name and result units
+  
+  do.units <- c("%", "% SATURATN")
+  
+  .data$TADA.CharacteristicName <- ifelse(.data$CharacteristicName == "Dissolved oxygen (DO)" & .data$ResultMeasure.MeasureUnitCode %in% do.units,
+                                                                    "DISSOLVED OXYGEN SATURATION", data$TADA.CharacteristicName)
+  .data$TADA.ResultMeasure.MeasureUnitCode <- ifelse(.data$CharacteristicName == "Dissolved (DO)" & .data$ResultMeasure.MeasureUnitCode == "% SATURATN",
+                                                         "%", .data$TADA.ResultMeasure.MeasureUnitCode)
+
+  rm(do.units)
   
   # handle dissolved oxygen saturation data
   .data <- TADA_DoSatConvert(.data)
@@ -337,9 +348,14 @@ TADA_ConvertSpecialChars <- function(.data, col, percent.ave = TRUE) {
   
   # Add percentage character to dissolved oxygen saturation ResultMeasureValue 
   # so percentage and percentage - range averaged can be identified correctly
-  if(col == "ResultMeasureValue") {
-  chars.data$masked <- ifelse(TADA.CharacteristicName == "DISSOLVED OXYGEN (DO) SATURATION",
-                              paste(masked, "%", sep =""))
+  if(numcol == "TADA.ResultMeasureValue") {
+   
+    do.units <- c("%",  "% SATURATN") 
+    
+  chars.data$masked <- ifelse(chars.data$CharacteristicName == "Dissolved oxygen (DO)" & chars.data$ResultMeasure.MeasureUnitCode %in% do.units,
+                              paste(chars.data$masked, "%"), chars.data$masked)
+  } else {
+    chars.data$masked <- chars.data$masked
   }
   
   # If column is already numeric, just discern between NA and numeric
@@ -1092,43 +1108,5 @@ TADA_addPoints <- function(map, url, layergroup, layername, bbox = NULL) {
   return(map)
 }
 
-#' TADA_DoSatConvert
-#'
-#' The WQX QC validation table considers % and % SATURATN as Invalid result units
-#' for the Dissolved Oxygen (DO) characteristic name. This function runs in 
-#' TADA_AutoClean or coule be run on its own. It replaces the characteristic name 
-#' with "DISSOLVED OXYGEN (DO) SATURATION" before unit flagging and sets the result unit code as
-#' 
-#' @param .data TADA dataframe
-#'
-#' @return Input dataframe with dissolved oxygen saturation results identified as
-#' "DISSOLVED OXYGEN (DO) SATURATION" in TADA.CharacteristicName and "%" in
-#' TADA.ResultMeasure.MeasureUnitCode.
-#'
-#' @export
-#'
-#' @examples
-#' \dontrun{
-#' 
-#'
-#' # Run TADA_AutoClean
-#' DoSatExample <-  test = TADA_DataRetrieval(startDate = "2014-05-23", endDate = "2014-05-24", autoclean = FALSE) %>%
-#'                  TADA_DoSatConvert()
 
-#' }
-#'
-
-TADA_DoSatConvert <- function(.data) {
-  # Update TADA.CharacteristicName and TADA.ResultMeasureValue.MeasureUnit for Dissolved oxygen (DO) saturation
-  do.units <- c("%", "% SATURATN")
-
-.data$TADA.ResultMeasure.MeasureUnitCode <- ifelse(.data$TADA.CharacteristicName == "DISSOLVED OXYGEN (DO)" & .data$ResultMeasure.MeasureUnitCode == "% SATURATN",
-                                                   "%", .data$TADA.ResultMeasure.MeasureUnitCode)
-.data$TADA.CharacteristicName <- ifelse(.data$CharacteristicName == "Dissolved oxygen (DO)" & .data$ResultMeasure.MeasureUnitCode %in% do.units,
-                                        "DISSOLVED OXYGEN (DO) SATURATION", data$TADA.CharacteristicName)
-
-rm(do.units)
-
-return(.data)
-}
-
+ 
