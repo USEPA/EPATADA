@@ -335,6 +335,13 @@ TADA_ConvertSpecialChars <- function(.data, col, percent.ave = TRUE) {
   names(chars.data)[names(chars.data) == col] <- "orig"
   chars.data$masked <- chars.data$orig
   
+  # Add percentage character to dissolved oxygen saturation ResultMeasureValue 
+  # so percentage and percentage - range averaged can be identified correctly
+  if(col == "ResultMeasureValue") {
+  chars.data$masked <- ifelse(TADA.CharacteristicName == "DISSOLVED OXYGEN (DO) SATURATION",
+                              paste(masked, "%", sep =""))
+  }
+  
   # If column is already numeric, just discern between NA and numeric
   if (is.numeric(chars.data$orig)) {
     clean.data <- chars.data %>%
