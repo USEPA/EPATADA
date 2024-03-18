@@ -55,8 +55,8 @@ LocalAqfrName, ConstructionDateText, WellDepthMeasure.MeasureValue,
 WellDepthMeasure.MeasureUnitCode, WellHoleDepthMeasure.MeasureValue, and
 WellHoleDepthMeasure.MeasureUnitCode to identify groundwater samples. Users
 can select whether sediment, groundwater and/or surface water should be included
-by changing the function inputs. An additional column, TADA.UseForAnalysis.Flag, specifies whether each row should
-be included in the analysis workflow and why.
+by changing the function inputs. An additional column, TADA.UseForAnalysis.Flag,
+specifies whether each row should be included in the analysis workflow and why.
 }
 \examples{
 data(Data_6Tribes_5y_Harmonized)
