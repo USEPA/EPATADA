@@ -272,10 +272,12 @@ TADA_IDCensoredData <- function(.data) {
 #' @param od_method A text string indicating the type of method used to populate an over-detect (upper limit) data value. Can be set to "multiplier" or "as-is" (default).
 #' @param od_multiplier A number to be multiplied to the UPPER detection limit for each entry to obtain the censored data value. Must be supplied if od_method = "multiplier". Defaults to 0.5, or half the detection limit.
 #'
-#' @return A TADA dataframe with additional columns named TADA.CensoredData.Flag, which indicates how censored results are categorized, and TADA.CensoredMethod, which documents the method used to fill censored data values.
-#' If user has not previously run TADA_FlagMeasureQualifierCode, this function will also run that and add the columns TADA.MeasureQualifierCode.Flag and TADA.MeasureQualifierCode.Def because user-supplied 
-#' Result Measure Qualifier codes are also used to ID censored results.
-#'
+#' @return A TADA dataframe with the additional column TADA.CensoredMethod, 
+#' which documents the method used to fill censored data values.
+#' If user has not previously run TADA_IDCensoredData or 
+#' TADA_FlagMeasureQualifierCode, this function will also run those and add the
+#' columns TADA.CensoredData.Flag, TADA.MeasureQualifierCode.Flag and 
+#' TADA.MeasureQualifierCode.Def. 
 #'
 #' @export
 #'
