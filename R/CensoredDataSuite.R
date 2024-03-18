@@ -20,11 +20,21 @@
 #' "Detection condition or detection limit is not documented in TADA reference
 #' tables." In these situations, users should contact TADA administrators to
 #' update the package accordingly. This function is used by default in
-#' TADA_AutoClean, but can be used on its own.
+#' TADA_SimpleCensoredMethods, but can be used on its own.
 #'
 #' @param .data A TADA dataframe
 #'
-#' @return A TADA dataframe with additional column named TADA.CensoredData.Flag, which indicates if there are disagreements in ResultDetectionCondition and DetectionQuantitationLimitTypeName.
+#' @return A TADA dataframe with additional column named TADA.CensoredData.Flag, 
+#' which categorizes results with the following values: 
+#' 1) Detection condition or detection limit is not documented in TADA reference tables.
+#' 2) Detection condition is missing and required for censored data ID.
+#' 3) Conflict between Condition and Limit
+#' 4) Non-Detect
+#' 5) Over-Detect
+#' 6) Other Condition/Limit Populated
+#' If user has not previously run TADA_FlagMeasureQualifierCode, this function will also run that function to 
+#' add the columns TADA.MeasureQualifierCode.Flag and TADA.MeasureQualifierCode.Def because user-supplied 
+#' Result Measure Qualifier codes are also used to ID censored results.
 #'
 #' @export
 #'
@@ -252,9 +262,9 @@ TADA_IDCensoredData <- function(.data) {
 #' and the LOWER detection limit. These methods do NOT depend upon censored data frequency
 #' in the dataset.
 #'
-#' This function runs TADA_IDCensoredData within it which add the column
+#' This function runs TADA_IDCensoredData within it which adds the column
 #' TADA.CensoredData.Flag. Enter ?TADA_IDCensoredData into the console for more
-#' information.
+#' information. 
 #'
 #' @param .data A TADA dataframe
 #' @param nd_method A text string indicating the type of method used to populate a non-detect (lower limit) data value. Can be set to "multiplier" (default),"randombelowlimit", or "as-is".
@@ -262,7 +272,9 @@ TADA_IDCensoredData <- function(.data) {
 #' @param od_method A text string indicating the type of method used to populate an over-detect (upper limit) data value. Can be set to "multiplier" or "as-is" (default).
 #' @param od_multiplier A number to be multiplied to the UPPER detection limit for each entry to obtain the censored data value. Must be supplied if od_method = "multiplier". Defaults to 0.5, or half the detection limit.
 #'
-#' @return A TADA dataframe with additional columns named TADA.CensoredData.Flag, which indicates if there are disagreements in ResultDetectionCondition and DetectionQuantitationLimitTypeName, and TADA.CensoredMethod, which documents the method used to fill censored data values.
+#' @return A TADA dataframe with additional columns named TADA.CensoredData.Flag, which indicates how censored results are categorized, and TADA.CensoredMethod, which documents the method used to fill censored data values.
+#' If user has not previously run TADA_FlagMeasureQualifierCode, this function will also run that and add the columns TADA.MeasureQualifierCode.Flag and TADA.MeasureQualifierCode.Def because user-supplied 
+#' Result Measure Qualifier codes are also used to ID censored results.
 #'
 #'
 #' @export
