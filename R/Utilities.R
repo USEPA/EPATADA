@@ -144,20 +144,27 @@ TADA_AutoClean <- function(.data) {
   .data$TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode <-
     toupper(.data$DetectionQuantitationLimitMeasure.MeasureUnitCode)
   
-  # handle do saturation characteristic name and result units
+  # handle do saturation characteristic name and result units - Fix this
   
   do.units <- c("%", "% SATURATN")
   
-  .data$TADA.CharacteristicName <- ifelse(.data$CharacteristicName == "Dissolved oxygen (DO)" & .data$ResultMeasure.MeasureUnitCode %in% do.units,
-                                                                    "DISSOLVED OXYGEN SATURATION", data$TADA.CharacteristicName)
-  .data$TADA.ResultMeasure.MeasureUnitCode <- ifelse(.data$CharacteristicName == "Dissolved (DO)" & .data$ResultMeasure.MeasureUnitCode == "% SATURATN",
-                                                         "%", .data$TADA.ResultMeasure.MeasureUnitCode)
-
-  rm(do.units)
+  do.data <- .data %>%
+    dplyr::filter(CharacteristicName == "Dissolved oxygen (DO)" & ResultMeasure.MeasureUnitCode %in% do.units) %>%
+    dplyr::mutate(TADA.CharacteristicName = "DISSOLVED OXYGEN SATURATION",
+                  TADA.ResultMeasure.MeasureUnitCode == "%")
   
-  # handle dissolved oxygen saturation data
-  .data <- TADA_DoSatConvert(.data)
- 
+  do.list <- do.data %>%
+    dplyr::select(ResultIdentifier) %>%
+    pull()
+    
+  other.data <- .data %>%
+    dplyr::filter(!ResultIdentifier %>% do.list)
+  
+  .data <- do.data %>%
+    dplyr::full_join(other.data)
+  
+  rm(do.units, do.list, do.data, other.data)
+
   # Remove complex biological data. Un-comment after new WQX 3.0 Profiles are released. May not be needed if implemented via WQP UI/services.
   # .data$TADA.BiologicalIntentName = toupper(.data$BiologicalIntentName)
   # TADAProfile = dplyr::filter(TADAProfile, TADA.BiologicalIntentName != "TISSUE" | "TOXICITY" | is.na(TADA.BiologicalIntentName) == TRUE)
@@ -1107,6 +1114,3 @@ TADA_addPoints <- function(map, url, layergroup, layername, bbox = NULL) {
   )
   return(map)
 }
-
-
- 
