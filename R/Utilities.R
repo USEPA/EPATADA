@@ -149,19 +149,20 @@ TADA_AutoClean <- function(.data) {
   do.units <- c("%", "% SATURATN")
   
   do.data <- .data %>%
-    dplyr::filter(CharacteristicName == "Dissolved oxygen (DO)" & ResultMeasure.MeasureUnitCode %in% do.units) %>%
+    dplyr::filter((CharacteristicName == "Dissolved oxygen (DO)") & ResultMeasure.MeasureUnitCode %in% do.units) %>%
     dplyr::mutate(TADA.CharacteristicName = "DISSOLVED OXYGEN SATURATION",
-                  TADA.ResultMeasure.MeasureUnitCode == "%")
+                  TADA.ResultMeasure.MeasureUnitCode = "%")
   
   do.list <- do.data %>%
     dplyr::select(ResultIdentifier) %>%
-    pull()
+    dplyr::pull()
     
   other.data <- .data %>%
-    dplyr::filter(!ResultIdentifier %>% do.list)
+    dplyr::filter(!ResultIdentifier %in% do.list)
   
   .data <- do.data %>%
-    dplyr::full_join(other.data)
+    dplyr::full_join(other.data) %>%
+    dplyr::arrange(ResultIdentifier)
   
   rm(do.units, do.list, do.data, other.data)
 
@@ -393,6 +394,7 @@ TADA_ConvertSpecialChars <- function(.data, col, percent.ave = TRUE) {
         (!stringi::stri_enc_mark(masked) %in% c("ASCII")) ~ as.character("Non-ASCII Character(s)"),
         TRUE ~ "Coerced to NA"
       ))
+  }
     
     if (percent.ave == FALSE) {
       
@@ -425,8 +427,6 @@ TADA_ConvertSpecialChars <- function(.data, col, percent.ave = TRUE) {
     clean.data$masked <- suppressWarnings(as.numeric(stringr::str_replace_all(
       clean.data$masked, c("<" = "", ">" = "", "~" = "", "%" = "", "\\*" = "")
     )))
-    
-  }
   
   # this updates the DataTypes.Flag to "NA - Not Available" if NA
   clean.data$flag <- ifelse(
@@ -439,6 +439,10 @@ TADA_ConvertSpecialChars <- function(.data, col, percent.ave = TRUE) {
   if(col == "ResultMeasureValue") {
   clean.data$TADA.ResultMeasure.MeasureUnitCode <- ifelse(is.na(clean.data$TADA.ResultMeasure.MeasureUnitCode) & grepl("%", clean.data$orig), "%", clean.data$TADA.ResultMeasure.MeasureUnitCode)
   } 
+  
+  #remove columns to be replaced
+  clean.data <- clean.data %>%
+    dplyr::select(!(any_of(numcol)), !(any_of(flagcol)))
   
   # Rename to original column name, TADA column name, and flag column name
   names(clean.data)[names(clean.data) == "orig"] <- col
