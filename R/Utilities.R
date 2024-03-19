@@ -203,6 +203,24 @@ TADA_AutoClean <- function(.data) {
   # change latitude and longitude measures to class numeric
   .data$TADA.LatitudeMeasure <- as.numeric(.data$LatitudeMeasure)
   .data$TADA.LongitudeMeasure <- as.numeric(.data$LongitudeMeasure)
+  
+  # update data types (only needed if TADA_JoinWQPProfiles is used to download data). commenting out for now (these data type conversions should happen on TADA versions of these columns? review what USGS DR does)
+  # join2$ActivityStartDate <- as.Date(join2$ActivityStartDate)
+  # join2$ActivityEndDate <- as.Date(join2$ActivityEndDate)
+  # join2$ActivityDepthHeightMeasure.MeasureValue <- as.double(join2$ActivityDepthHeightMeasure.MeasureValue)
+  # join2$ResultDepthHeightMeasure.MeasureValue <- as.double(join2$ResultDepthHeightMeasure.MeasureValue)
+  # join2$AnalysisStartDate <- as.Date(join2$AnalysisStartDate)
+  # join2$timeZoneStart <- as.double(join2$timeZoneStart)
+  # join2$timeZoneEnd <- as.double(join2$timeZoneEnd)
+  # #conversion to UTC should happen on the TADA versions of these columns, ActivityStartTime.TimeZoneCode and ActivityEndTime.TimeZoneCode would also need to be edited
+  # join2$ActivityStartDateTime <- as.Date.POSIXct(join2$ActivityStartDateTime, tz = "UTC")
+  # join2$ActivityEndDateTime <- as.Date.POSIXct(join2$ActivityEndDateTime, tz = "UTC")
+  # join2$DrainageAreaMeasure.MeasureValue <- as.double(join2$DrainageAreaMeasure.MeasureValue)
+  # join2$ContributingDrainageAreaMeasure.MeasureValue <- as.double(join2$ContributingDrainageAreaMeasure.MeasureValue)
+  # join2$VerticalMeasure.MeasureValue <- as.double(join2$VerticalMeasure.MeasureValue)
+  # join2$VerticalAccuracyMeasure.MeasureValue <- as.double(join2$VerticalAccuracyMeasure.MeasureValue)
+  # join2$WellDepthMeasure.MeasureValue <- as.double(join2$WellDepthMeasure.MeasureValue)
+  # join2$WellHoleDepthMeasure.MeasureValue <- as.double(join2$WellHoleDepthMeasure.MeasureValue)
 
   # Automatically convert USGS only unit "meters" to "m"
   .data$TADA.ResultMeasure.MeasureUnitCode[.data$TADA.ResultMeasure.MeasureUnitCode == "meters"] <- "m"
