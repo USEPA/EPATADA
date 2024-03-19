@@ -7,6 +7,7 @@
 TADA_DataRetrieval(
   startDate = "null",
   endDate = "null",
+  countrycode = "null",
   countycode = "null",
   huc = "null",
   siteid = "null",
@@ -25,6 +26,8 @@ TADA_DataRetrieval(
 \item{startDate}{Start Date string in the format YYYY-MM-DD, for example, "2020-01-01"}
 
 \item{endDate}{End Date string in the format YYYY-MM-DD, for example, "2020-01-01"}
+
+\item{countrycode}{FIPS code that identifies a country (e.g. countrycode = "CA" for Canada)}
 
 \item{countycode}{FIPS county name. Note that a state code must also be supplied (e.g. statecode = "AL", countycode = "Chilton").}
 
@@ -179,6 +182,11 @@ tada10 <- TADA_DataRetrieval(
   providers = "NWIS",
   applyautoclean = FALSE
 )
+
+# query by country code
+tada11 = TADA_DataRetrieval(
+  startDate = "2015-01-01", 
+  countrycode = "CA")
 }
 
 }
