@@ -7,39 +7,48 @@
 TADA_BigDataRetrieval(
   startDate = "null",
   endDate = "null",
+  countrycode = "null",
+  statecode = "null",
+  countycode = "null",
   huc = "null",
   siteid = "null",
   siteType = "null",
   characteristicName = "null",
   characteristicType = "null",
   sampleMedia = "null",
-  statecode = "null",
+  organization = "null",
   maxrecs = 250000,
   applyautoclean = FALSE
 )
 }
 \arguments{
-\item{startDate}{Start Date string in the format YYYY-MM-DD, for example, "2020-01-01".}
+\item{startDate}{Start Date string in the format YYYY-MM-DD, for example, "2020-01-01"}
 
-\item{endDate}{End Date string in the format YYYY-MM-DD, for example, "2020-01-01".}
+\item{endDate}{End Date string in the format YYYY-MM-DD, for example, "2020-01-01"}
 
-\item{huc}{A numeric code denoting a hydrologic unit. Example: "04030202". Different size hucs can be entered.}
+\item{countrycode}{FIPS code that identifies a country (e.g. countrycode = "CA" for Canada). See https://www.waterqualitydata.us/Codes/countrycode for options.}
 
-\item{siteid}{Unique monitoring station identifier.}
+\item{statecode}{FIPS state alpha code that identifies a state (e.g. statecode = "DE" for Delaware). See https://www.waterqualitydata.us/Codes/statecode for options.}
 
-\item{siteType}{Type of waterbody.}
+\item{countycode}{FIPS county name. Note that a state code must also be supplied (e.g. statecode = "AL", countycode = "Chilton"). See https://www.waterqualitydata.us/Codes/countycode for options.}
 
-\item{characteristicName}{Name of parameter.}
+\item{huc}{A numeric code denoting a hydrologic unit. Example: "04030202". Different size hucs can be entered. See https://epa.maps.arcgis.com/home/item.html?id=796992f4588c401fabec7446ecc7a5a3 for a map with HUCS. Click on a HUC to find the associated code.}
 
-\item{characteristicType}{Groups of environmental measurements/parameters.}
+\item{siteid}{Unique monitoring location identifier.}
 
-\item{sampleMedia}{Sampling substrate such as water, air, or sediment.}
+\item{siteType}{Type of waterbody. See https://www.waterqualitydata.us/Codes/sitetype for options.}
 
-\item{statecode}{Code that identifies a state.}
+\item{characteristicName}{Name of parameter. See https://www.waterqualitydata.us/Codes/characteristicName for options.}
+
+\item{characteristicType}{Groups of environmental measurements/parameters. See https://www.waterqualitydata.us/Codes/characteristicType for options.}
+
+\item{sampleMedia}{Sampling substrate such as water, air, or sediment. See https://www.waterqualitydata.us/Codes/sampleMedia for options.}
+
+\item{organization}{A string of letters and/or numbers (some additional characters also possible) used to signify an organization with data in the Water Quality Portal. See https://www.waterqualitydata.us/Codes/organization for options.}
 
 \item{maxrecs}{The maximum number of results queried within one call to dataRetrieval.}
 
-\item{applyautoclean}{Logical, defaults to FALSE. If TRUE, applies TADA_AutoClean function on the returned data profile.}
+\item{applyautoclean}{Logical, defaults to FALSE. If TRUE, runs TADA_AutoClean function on the returned data profile.}
 }
 \value{
 TADA-compatible dataframe
@@ -74,11 +83,18 @@ datetimes, numerics based on a standard algorithm. See: ?dataRetrieval::readWQPd
 }
 \examples{
 \dontrun{
+# takes approx 3 mins to run
 tada1 <- TADA_BigDataRetrieval(startDate = "2019-01-01", endDate = "2021-12-31", characteristicName = "Temperature, water", statecode = c("AK", "AL"))
+# takes approx 21 mins
 tada2 <- TADA_BigDataRetrieval(startDate = "2016-10-01", endDate = "2022-09-30", statecode = "UT")
+# takes seconds to run
 tada3 <- TADA_BigDataRetrieval(huc = "04030202", characteristicName = "Escherichia coli")
-tada4 <- TADA_BigDataRetrieval(huc = c("04030202", "04030201"), characteristicName = "Temperature, water")
-tada5 <- TADA_BigDataRetrieval(startDate = "2000-01-01", endDate = "2022-07-01", characteristicName = "Temperature, water", siteType = "Lake, Reservoir, Impoundment")
+# takes approx 3 mins to run
+tada4 <- TADA_BigDataRetrieval(startDate = "2004-01-01", countrycode = "CA")
+# takes seconds to run
+tada5 <- TADA_BigDataRetrieval(startDate = "2018-01-01", statecode = "AL", countycode = "Chilton")
+# takes seconds to run
+tada6 <- TADA_BigDataRetrieval(organization = "PUEBLOOFTESUQUE")
 }
 
 }
