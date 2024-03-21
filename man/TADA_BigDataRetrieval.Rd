@@ -85,14 +85,19 @@ datetimes, numerics based on a standard algorithm. See: ?dataRetrieval::readWQPd
 \dontrun{
 # takes approx 3 mins to run
 tada1 <- TADA_BigDataRetrieval(startDate = "2019-01-01", endDate = "2021-12-31", characteristicName = "Temperature, water", statecode = c("AK", "AL"))
+
 # takes approx 21 mins
 tada2 <- TADA_BigDataRetrieval(startDate = "2016-10-01", endDate = "2022-09-30", statecode = "UT")
+
 # takes seconds to run
 tada3 <- TADA_BigDataRetrieval(huc = "04030202", characteristicName = "Escherichia coli")
+
 # takes approx 3 mins to run
 tada4 <- TADA_BigDataRetrieval(startDate = "2004-01-01", countrycode = "CA")
+
 # takes seconds to run
 tada5 <- TADA_BigDataRetrieval(startDate = "2018-01-01", statecode = "AL", countycode = "Chilton")
+
 # takes seconds to run
 tada6 <- TADA_BigDataRetrieval(organization = "PUEBLOOFTESUQUE")
 }
