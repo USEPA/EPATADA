@@ -799,18 +799,12 @@ TADA_DepthProfilePlot <- function(.data, groups = NULL,
                     "RBP STREAM DEPTH - RUN",
                     "THALWEG DEPTH")
 
-  depth.params.groups <- .data %>%
-    dplyr::filter(TADA.CharacteristicName %in% depth.params) %>%
-    dplyr::select(TADA.ComparableDataIdentifier) %>%
-    unique() %>%
-    dplyr::pull()
-
   depthprofile.avail <- .data %>%
     dplyr::filter(!is.na(TADA.ConsolidatedDepth),
                   MonitoringLocationIdentifier %in% location,
                   ActivityStartDate %in% activity_date,
                   TADA.ActivityMediaName == "WATER",
-                  !TADA.CharacteristicName %in% depth.params) %>%
+                  ) %>%
     dplyr::group_by(TADA.ComparableDataIdentifier,
                     ActivityStartDate, TADA.ConsolidatedDepth) %>%
     dplyr::slice_sample(n = 1) %>%
@@ -818,9 +812,15 @@ TADA_DepthProfilePlot <- function(.data, groups = NULL,
     dplyr::group_by(MonitoringLocationIdentifier, TADA.ComparableDataIdentifier,
                     ActivityStartDate) %>%
     dplyr::mutate(N = length(TADA.ResultMeasureValue)) %>%
-    dplyr::filter(N > 2) %>%
+    dplyr::filter(N > 2 | TADA.CharacteristicName %in% depth.params) %>%
     dplyr::ungroup() %>%
     dplyr::select(-N)
+  
+  depth.params.groups <- depthprofile.avail %>%
+    dplyr::filter(TADA.ComparableDataIdentifier %in% groups) %>%
+    dplyr::select(TADA.CharacteristicName) %>%
+    unique() %>%
+    dplyr::pull()
 
   # identify depth unit being used in graph
   fig.depth.unit <- depthprofile.avail %>%
