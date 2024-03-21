@@ -106,13 +106,16 @@ completed.</p>
     <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">TADA_BigDataRetrieval</span><span class="op">(</span></span>
 <span>  startDate <span class="op">=</span> <span class="st">"null"</span>,</span>
 <span>  endDate <span class="op">=</span> <span class="st">"null"</span>,</span>
+<span>  countrycode <span class="op">=</span> <span class="st">"null"</span>,</span>
+<span>  statecode <span class="op">=</span> <span class="st">"null"</span>,</span>
+<span>  countycode <span class="op">=</span> <span class="st">"null"</span>,</span>
 <span>  huc <span class="op">=</span> <span class="st">"null"</span>,</span>
 <span>  siteid <span class="op">=</span> <span class="st">"null"</span>,</span>
 <span>  siteType <span class="op">=</span> <span class="st">"null"</span>,</span>
 <span>  characteristicName <span class="op">=</span> <span class="st">"null"</span>,</span>
 <span>  characteristicType <span class="op">=</span> <span class="st">"null"</span>,</span>
 <span>  sampleMedia <span class="op">=</span> <span class="st">"null"</span>,</span>
-<span>  statecode <span class="op">=</span> <span class="st">"null"</span>,</span>
+<span>  organization <span class="op">=</span> <span class="st">"null"</span>,</span>
 <span>  maxrecs <span class="op">=</span> <span class="fl">250000</span>,</span>
 <span>  applyautoclean <span class="op">=</span> <span class="cn">FALSE</span></span>
 <span><span class="op">)</span></span></code></pre></div>
@@ -121,39 +124,51 @@ completed.</p>
     <div class="section level2">
     <h2 id="arguments">Arguments<a class="anchor" aria-label="anchor" href="#arguments"></a></h2>
     <dl><dt>startDate</dt>
-<dd><p>Start Date string in the format YYYY-MM-DD, for example, "2020-01-01".</p></dd>
+<dd><p>Start Date string in the format YYYY-MM-DD, for example, "2020-01-01"</p></dd>
 
 
 <dt>endDate</dt>
-<dd><p>End Date string in the format YYYY-MM-DD, for example, "2020-01-01".</p></dd>
+<dd><p>End Date string in the format YYYY-MM-DD, for example, "2020-01-01"</p></dd>
 
 
-<dt>huc</dt>
-<dd><p>A numeric code denoting a hydrologic unit. Example: "04030202". Different size hucs can be entered.</p></dd>
-
-
-<dt>siteid</dt>
-<dd><p>Unique monitoring station identifier.</p></dd>
-
-
-<dt>siteType</dt>
-<dd><p>Type of waterbody.</p></dd>
-
-
-<dt>characteristicName</dt>
-<dd><p>Name of parameter.</p></dd>
-
-
-<dt>characteristicType</dt>
-<dd><p>Groups of environmental measurements/parameters.</p></dd>
-
-
-<dt>sampleMedia</dt>
-<dd><p>Sampling substrate such as water, air, or sediment.</p></dd>
+<dt>countrycode</dt>
+<dd><p>FIPS code that identifies a country (e.g. countrycode = "CA" for Canada). See https://www.waterqualitydata.us/Codes/countrycode for options.</p></dd>
 
 
 <dt>statecode</dt>
-<dd><p>Code that identifies a state.</p></dd>
+<dd><p>FIPS state alpha code that identifies a state (e.g. statecode = "DE" for Delaware). See https://www.waterqualitydata.us/Codes/statecode for options.</p></dd>
+
+
+<dt>countycode</dt>
+<dd><p>FIPS county name. Note that a state code must also be supplied (e.g. statecode = "AL", countycode = "Chilton"). See https://www.waterqualitydata.us/Codes/countycode for options.</p></dd>
+
+
+<dt>huc</dt>
+<dd><p>A numeric code denoting a hydrologic unit. Example: "04030202". Different size hucs can be entered. See https://epa.maps.arcgis.com/home/item.html?id=796992f4588c401fabec7446ecc7a5a3 for a map with HUCS. Click on a HUC to find the associated code.</p></dd>
+
+
+<dt>siteid</dt>
+<dd><p>Unique monitoring location identifier.</p></dd>
+
+
+<dt>siteType</dt>
+<dd><p>Type of waterbody. See https://www.waterqualitydata.us/Codes/sitetype for options.</p></dd>
+
+
+<dt>characteristicName</dt>
+<dd><p>Name of parameter. See https://www.waterqualitydata.us/Codes/characteristicName for options.</p></dd>
+
+
+<dt>characteristicType</dt>
+<dd><p>Groups of environmental measurements/parameters. See https://www.waterqualitydata.us/Codes/characteristicType for options.</p></dd>
+
+
+<dt>sampleMedia</dt>
+<dd><p>Sampling substrate such as water, air, or sediment. See https://www.waterqualitydata.us/Codes/sampleMedia for options.</p></dd>
+
+
+<dt>organization</dt>
+<dd><p>A string of letters and/or numbers (some additional characters also possible) used to signify an organization with data in the Water Quality Portal. See https://www.waterqualitydata.us/Codes/organization for options.</p></dd>
 
 
 <dt>maxrecs</dt>
@@ -161,7 +176,7 @@ completed.</p>
 
 
 <dt>applyautoclean</dt>
-<dd><p>Logical, defaults to FALSE. If TRUE, applies TADA_AutoClean function on the returned data profile.</p></dd>
+<dd><p>Logical, defaults to FALSE. If TRUE, runs TADA_AutoClean function on the returned data profile.</p></dd>
 
 </dl></div>
     <div class="section level2">
@@ -183,11 +198,23 @@ datetimes, numerics based on a standard algorithm. See: ?dataRetrieval::readWQPd
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span></span></span>
+<span class="r-in"><span><span class="co"># takes approx 3 mins to run</span></span></span>
 <span class="r-in"><span><span class="va">tada1</span> <span class="op">&lt;-</span> <span class="fu">TADA_BigDataRetrieval</span><span class="op">(</span>startDate <span class="op">=</span> <span class="st">"2019-01-01"</span>, endDate <span class="op">=</span> <span class="st">"2021-12-31"</span>, characteristicName <span class="op">=</span> <span class="st">"Temperature, water"</span>, statecode <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"AK"</span>, <span class="st">"AL"</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># takes approx 21 mins</span></span></span>
 <span class="r-in"><span><span class="va">tada2</span> <span class="op">&lt;-</span> <span class="fu">TADA_BigDataRetrieval</span><span class="op">(</span>startDate <span class="op">=</span> <span class="st">"2016-10-01"</span>, endDate <span class="op">=</span> <span class="st">"2022-09-30"</span>, statecode <span class="op">=</span> <span class="st">"UT"</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># takes seconds to run</span></span></span>
 <span class="r-in"><span><span class="va">tada3</span> <span class="op">&lt;-</span> <span class="fu">TADA_BigDataRetrieval</span><span class="op">(</span>huc <span class="op">=</span> <span class="st">"04030202"</span>, characteristicName <span class="op">=</span> <span class="st">"Escherichia coli"</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="va">tada4</span> <span class="op">&lt;-</span> <span class="fu">TADA_BigDataRetrieval</span><span class="op">(</span>huc <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"04030202"</span>, <span class="st">"04030201"</span><span class="op">)</span>, characteristicName <span class="op">=</span> <span class="st">"Temperature, water"</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="va">tada5</span> <span class="op">&lt;-</span> <span class="fu">TADA_BigDataRetrieval</span><span class="op">(</span>startDate <span class="op">=</span> <span class="st">"2000-01-01"</span>, endDate <span class="op">=</span> <span class="st">"2022-07-01"</span>, characteristicName <span class="op">=</span> <span class="st">"Temperature, water"</span>, siteType <span class="op">=</span> <span class="st">"Lake, Reservoir, Impoundment"</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># takes approx 3 mins to run</span></span></span>
+<span class="r-in"><span><span class="va">tada4</span> <span class="op">&lt;-</span> <span class="fu">TADA_BigDataRetrieval</span><span class="op">(</span>startDate <span class="op">=</span> <span class="st">"2004-01-01"</span>, countrycode <span class="op">=</span> <span class="st">"CA"</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># takes seconds to run</span></span></span>
+<span class="r-in"><span><span class="va">tada5</span> <span class="op">&lt;-</span> <span class="fu">TADA_BigDataRetrieval</span><span class="op">(</span>startDate <span class="op">=</span> <span class="st">"2018-01-01"</span>, statecode <span class="op">=</span> <span class="st">"AL"</span>, countycode <span class="op">=</span> <span class="st">"Chilton"</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># takes seconds to run</span></span></span>
+<span class="r-in"><span><span class="va">tada6</span> <span class="op">&lt;-</span> <span class="fu">TADA_BigDataRetrieval</span><span class="op">(</span>organization <span class="op">=</span> <span class="st">"PUEBLOOFTESUQUE"</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="op">}</span></span></span>
 <span class="r-in"><span></span></span>
 </code></pre></div>

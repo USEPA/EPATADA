@@ -76,6 +76,7 @@ format for R users than the WQP GUI's endDateHi = "MM-DD-YYYY".</p>
     <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">TADA_DataRetrieval</span><span class="op">(</span></span>
 <span>  startDate <span class="op">=</span> <span class="st">"null"</span>,</span>
 <span>  endDate <span class="op">=</span> <span class="st">"null"</span>,</span>
+<span>  countrycode <span class="op">=</span> <span class="st">"null"</span>,</span>
 <span>  countycode <span class="op">=</span> <span class="st">"null"</span>,</span>
 <span>  huc <span class="op">=</span> <span class="st">"null"</span>,</span>
 <span>  siteid <span class="op">=</span> <span class="st">"null"</span>,</span>
@@ -101,48 +102,52 @@ format for R users than the WQP GUI's endDateHi = "MM-DD-YYYY".</p>
 <dd><p>End Date string in the format YYYY-MM-DD, for example, "2020-01-01"</p></dd>
 
 
+<dt>countrycode</dt>
+<dd><p>FIPS code that identifies a country (e.g. countrycode = "CA" for Canada). See https://www.waterqualitydata.us/Codes/countrycode for options.</p></dd>
+
+
 <dt>countycode</dt>
-<dd><p>FIPS county name. Note that a state code must also be supplied (e.g. statecode = "AL", countycode = "Chilton").</p></dd>
+<dd><p>FIPS county name. Note that a state code must also be supplied (e.g. statecode = "AL", countycode = "Chilton"). See https://www.waterqualitydata.us/Codes/countycode for options.</p></dd>
 
 
 <dt>huc</dt>
-<dd><p>A numeric code denoting a hydrologic unit. Example: "04030202". Different size hucs can be entered.</p></dd>
+<dd><p>A numeric code denoting a hydrologic unit. Example: "04030202". Different size hucs can be entered. See https://epa.maps.arcgis.com/home/item.html?id=796992f4588c401fabec7446ecc7a5a3 for a map with HUCS. Click on a HUC to find the associated code.</p></dd>
 
 
 <dt>siteid</dt>
-<dd><p>Unique monitoring location identifier</p></dd>
+<dd><p>Unique monitoring location identifier.</p></dd>
 
 
 <dt>siteType</dt>
-<dd><p>Type of waterbody</p></dd>
+<dd><p>Type of waterbody. See https://www.waterqualitydata.us/Codes/sitetype for options.</p></dd>
 
 
 <dt>characteristicName</dt>
-<dd><p>Name of parameter</p></dd>
+<dd><p>Name of parameter. See https://www.waterqualitydata.us/Codes/characteristicName for options.</p></dd>
 
 
 <dt>characteristicType</dt>
-<dd><p>Groups of environmental measurements/parameters.</p></dd>
+<dd><p>Groups of environmental measurements/parameters. See https://www.waterqualitydata.us/Codes/characteristicType for options.</p></dd>
 
 
 <dt>sampleMedia</dt>
-<dd><p>Sampling substrate such as water, air, or sediment</p></dd>
+<dd><p>Sampling substrate such as water, air, or sediment. See https://www.waterqualitydata.us/Codes/sampleMedia for options.</p></dd>
 
 
 <dt>statecode</dt>
-<dd><p>FIPS state alpha code that identifies a state (e.g. statecode = "DE" for Delaware)</p></dd>
+<dd><p>FIPS state alpha code that identifies a state (e.g. statecode = "DE" for Delaware). See https://www.waterqualitydata.us/Codes/statecode for options.</p></dd>
 
 
 <dt>organization</dt>
-<dd><p>A string of letters and/or numbers (some additional characters also possible) used to signify an organization with data in the Water Quality Portal</p></dd>
+<dd><p>A string of letters and/or numbers (some additional characters also possible) used to signify an organization with data in the Water Quality Portal. See https://www.waterqualitydata.us/Codes/organization for options.</p></dd>
 
 
 <dt>project</dt>
-<dd><p>A string of letters and/or numbers (some additional characters also possible) used to signify a project with data in the Water Quality Portal</p></dd>
+<dd><p>A string of letters and/or numbers (some additional characters also possible) used to signify a project with data in the Water Quality Portal. See https://www.waterqualitydata.us/Codes/project for options.</p></dd>
 
 
 <dt>providers</dt>
-<dd><p>Leave blank to include all, or specify "STEWARDS", "STORET" (i.e., WQX), and/or "NWIS".</p></dd>
+<dd><p>Leave blank to include all, or specify "STEWARDS", "STORET" (i.e., WQX), and/or "NWIS". See https://www.waterqualitydata.us/Codes/providers for options.</p></dd>
 
 
 <dt>applyautoclean</dt>
@@ -181,10 +186,13 @@ datetimes, numerics based on a standard algorithm. See: ?dataRetrieval::readWQPd
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span></span></span>
+<span class="r-in"><span><span class="co"># example for WI</span></span></span>
 <span class="r-in"><span><span class="va">tada1</span> <span class="op">&lt;-</span> <span class="fu">TADA_DataRetrieval</span><span class="op">(</span>statecode <span class="op">=</span> <span class="st">"WI"</span>, countycode <span class="op">=</span> <span class="st">"Dane"</span>, characteristicName <span class="op">=</span> <span class="st">"Phosphorus"</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># example for UT</span></span></span>
 <span class="r-in"><span><span class="va">tada2</span> <span class="op">&lt;-</span> <span class="fu">TADA_DataRetrieval</span><span class="op">(</span>statecode <span class="op">=</span> <span class="st">"UT"</span>, characteristicName <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Ammonia"</span>, <span class="st">"Nitrate"</span>, <span class="st">"Nitrogen"</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># example for SC</span></span></span>
 <span class="r-in"><span><span class="va">tada3</span> <span class="op">&lt;-</span> <span class="fu">TADA_DataRetrieval</span><span class="op">(</span>statecode <span class="op">=</span> <span class="st">"SC"</span>, countycode <span class="op">=</span> <span class="st">"Abbeville"</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># example for CT</span></span></span>
@@ -273,6 +281,11 @@ datetimes, numerics based on a standard algorithm. See: ?dataRetrieval::readWQPd
 <span class="r-in"><span>  providers <span class="op">=</span> <span class="st">"NWIS"</span>,</span></span>
 <span class="r-in"><span>  applyautoclean <span class="op">=</span> <span class="cn">FALSE</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># query by country code (e.g. Canada, countrycode = "CA")</span></span></span>
+<span class="r-in"><span><span class="va">tada11</span> <span class="op">=</span> <span class="fu">TADA_DataRetrieval</span><span class="op">(</span></span></span>
+<span class="r-in"><span>  startDate <span class="op">=</span> <span class="st">"2015-01-01"</span>, </span></span>
+<span class="r-in"><span>  countrycode <span class="op">=</span> <span class="st">"CA"</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="op">}</span></span></span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
