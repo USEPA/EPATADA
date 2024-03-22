@@ -362,8 +362,17 @@ TADA_ConvertSpecialChars <- function(.data, col, percent.ave = TRUE) {
     
   chars.data$masked <- ifelse(chars.data$CharacteristicName == "Dissolved oxygen (DO)" & chars.data$ResultMeasure.MeasureUnitCode %in% do.units,
                               paste(chars.data$masked, "%"), chars.data$masked)
+  
+  # updates percentage units where NA
+  chars.data$TADA.ResultMeasure.MeasureUnitCode <- ifelse(
+    (grepl("%", chars.data$masked) == TRUE), 
+    "%", 
+    chars.data$TADA.ResultMeasure.MeasureUnitCode)
+  
   } else {
     chars.data$masked <- chars.data$masked
+    
+    chars.data$TADA.ResultMeasure.MeasureUnitCode <- chars.data$TADA.ResultMeasure.MeasureUnitCode
   }
   
   # If column is already numeric, just discern between NA and numeric
@@ -434,13 +443,7 @@ TADA_ConvertSpecialChars <- function(.data, col, percent.ave = TRUE) {
     "NA - Not Available",
     clean.data$flag
   )
-  
-  # updates percentage units where NA
-  clean.data$TADA.ResultMeasure.MeasureUnitCode <- ifelse(
-    clean.data$flag %in% c("Percentage", "Percentage - Range Averaged"), 
-    "%", 
-    clean.data$TADA.ResultMeasure.MeasureUnitCode) 
-  
+
   #remove columns to be replaced
   clean.data <- clean.data %>%
     dplyr::select(!(any_of(numcol)), !(any_of(flagcol)))
