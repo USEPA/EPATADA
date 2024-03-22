@@ -94,9 +94,15 @@ TADA_DepthCategory.Flag <- function(.data, bycategory = "no", bottomvalue = 2, s
 
   length.units <- c("M", "FT", "IN")
 
-  depth.params <- "DEPTH, SECCHI DISK DEPTH"
-
-
+  depth.params <- c("DEPTH, SECCHI DISK DEPTH", 
+                    "DEPTH, SECCHI DISK DEPTH (CHOICE LIST)",
+                    "DEPTH, SECCHI DISK DEPTH REAPPEARS",
+                    "DEPTH, DATA-LOGGER (NON-PORTED)",
+                    "DEPTH, DATA-LOGGER (PORTED)",
+                    "RBP STREAM DEPTH - RIFFLE",
+                    "RBP STREAM DEPTH - RUN",
+                    "THALWEG DEPTH")
+  
   if(bycategory== "no") {
     cattype <- "for the entire depth profile"
   }
@@ -803,7 +809,7 @@ TADA_DepthProfilePlot <- function(.data, groups = NULL,
     dplyr::filter(!is.na(TADA.ConsolidatedDepth),
                   MonitoringLocationIdentifier %in% location,
                   ActivityStartDate %in% activity_date,
-                  TADA.ActivityMediaName == "WATER",
+                  TADA.ActivityMediaName == "WATER"
                   ) %>%
     dplyr::group_by(TADA.ComparableDataIdentifier,
                     ActivityStartDate, TADA.ConsolidatedDepth) %>%
