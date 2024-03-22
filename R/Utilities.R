@@ -144,7 +144,7 @@ TADA_AutoClean <- function(.data) {
   .data$TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode <-
     toupper(.data$DetectionQuantitationLimitMeasure.MeasureUnitCode)
   
-  # handle do saturation characteristic name and result units - Fix this
+  # handle do saturation characteristic name and result units
   
   do.units <- c("%", "% SATURATN")
   
@@ -437,10 +437,14 @@ TADA_ConvertSpecialChars <- function(.data, col, percent.ave = TRUE) {
   
   # Add % as TADA.ResultMeasure.MeasureUnitCode for percentage data where unit is missing
   if(col == "ResultMeasureValue") {
-  clean.data$TADA.ResultMeasure.MeasureUnitCode <- ifelse(is.na(clean.data$ResultMeasure.MeasureUnitCode) &
-                                                          clean.data$TADA.ResultMeasureValueDataTypes.Flag %in% c("Percentage", "Percentage Range - Averaged"),
-                                                          "%", clean.data$TADA.ResultMeasure.MeasureUnitCode)
-  } 
+    
+    clean.data <- clean.data %>%
+      dplyr::mutate(TADA.ResultMeasure.MeasureUnitCode = ifelse(
+        clean.data$TADA.ResultMeasureValueDataTypes.Flag %in% c("Percentage", "Percentage Range - Averaged"),
+        "%", clean.data$TADA.ResultMeasure.MeasureUnitCode))
+  } else {
+    clean.data <- clean.data
+  }
   
   #remove columns to be replaced
   clean.data <- clean.data %>%
