@@ -26,7 +26,7 @@ Add polygons from an ArcGIS feature layer to a leaflet map
 \examples{
 \dontrun{
 # Create a leaflet map
-lmap <- leaflet::leaflet() \%>\% leaflet::addProviderTiles("Esri.WorldTopoMap", group = "World topo")
+lmap <- leaflet::leaflet() \%>\% leaflet::addProviderTiles("Esri.WorldTopoMap", group = "World topo") \%>\% leaflet::addMapPane("tribes", zIndex = 300)
 # Add the American Indian Reservations feature layer to the map
 lmap <- TADA_addPolys(lmap, "https://geopub.epa.gov/arcgis/rest/services/EMEF/Tribal/MapServer/2/query", "Tribes", "American Indian Reservations")
 lmap
