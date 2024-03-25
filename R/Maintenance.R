@@ -27,11 +27,11 @@ TADA_UpdateExampleData <- function() {
   print(dim(Data_Nutrients_UT))
   # save(Data_Nutrients_UT, file = "data/Data_Nutrients_UT.rda")
   usethis::use_data(Data_Nutrients_UT,
-    internal = FALSE, overwrite = TRUE,
-    compress = "xz", version = 3, ascii = FALSE
+                    internal = FALSE, overwrite = TRUE,
+                    compress = "xz", version = 3, ascii = FALSE
   )
   rm(Data_Nutrients_UT)
-
+  
   # Generate Data_6Tribes_5y.rda
   Data_6Tribes_5y <- TADA_DataRetrieval(
     organization = c(
@@ -48,10 +48,10 @@ TADA_UpdateExampleData <- function() {
   print(dim(Data_6Tribes_5y))
   # save(Data_6Tribes_5y, file = "data/Data_6Tribes_5y.rda")
   usethis::use_data(Data_6Tribes_5y,
-    internal = FALSE, overwrite = TRUE,
-    compress = "xz", version = 3, ascii = FALSE
+                    internal = FALSE, overwrite = TRUE,
+                    compress = "xz", version = 3, ascii = FALSE
   )
-
+  
   # Generate Data_6Tribes_5y_Harmonized.rda
   y <- subset(Data_6Tribes_5y, Data_6Tribes_5y$TADA.ActivityMediaName %in% c("WATER"))
   y <- TADA_RunKeyFlagFunctions(Data_6Tribes_5y)
@@ -63,25 +63,25 @@ TADA_UpdateExampleData <- function() {
   y <- TADA_FindPotentialDuplicatesSingleOrg(y)
   y <- dplyr::filter(y, !(MeasureQualifierCode %in% c("D", "H", "ICA", "*")))
   y <- TADA_SimpleCensoredMethods(y,
-    nd_method = "multiplier",
-    nd_multiplier = 0.5,
-    od_method = "as-is",
-    od_multiplier = "null"
+                                  nd_method = "multiplier",
+                                  nd_multiplier = 0.5,
+                                  od_method = "as-is",
+                                  od_multiplier = "null"
   )
   y <- dplyr::filter(y, TADA.ResultMeasureValueDataTypes.Flag != "Text" &
-    TADA.ResultMeasureValueDataTypes.Flag != "NA - Not Available" &
-    !is.na(TADA.ResultMeasureValue))
+                       TADA.ResultMeasureValueDataTypes.Flag != "NA - Not Available" &
+                       !is.na(TADA.ResultMeasureValue))
   # uses HarmonizationTemplate.csv in the extdata folder
   Data_6Tribes_5y_Harmonized <- TADA_HarmonizeSynonyms(y)
   print("Data_6Tribes_5y_Harmonized:")
   print(dim(Data_6Tribes_5y_Harmonized))
   # save(Data_6Tribes_5y_Harmonized, file = "data/Data_6Tribes_5y_Harmonized.rda")
   usethis::use_data(Data_6Tribes_5y_Harmonized,
-    internal = FALSE, overwrite = TRUE,
-    compress = "xz", version = 3, ascii = FALSE
+                    internal = FALSE, overwrite = TRUE,
+                    compress = "xz", version = 3, ascii = FALSE
   )
   rm(Data_6Tribes_5y_Harmonized)
-
+  
   # Generate Data_NCTCShepherdstown_HUC12
   Data_NCTCShepherdstown_HUC12 <- TADA::TADA_DataRetrieval(
     startDate = "2020-03-14",
@@ -103,7 +103,7 @@ TADA_UpdateExampleData <- function() {
   # save(Data_NCTCShepherdstown_HUC12, file = "data/Data_NCTCShepherdstown_HUC12.rda")
   usethis::use_data(Data_NCTCShepherdstown_HUC12, internal = FALSE, overwrite = TRUE, compress = "xz", version = 3, ascii = FALSE)
   rm(Data_NCTCShepherdstown_HUC12)
-
+  
   # Generate Data_R5_TADAPackageDemo
   Data_R5_TADAPackageDemo <- TADA::TADA_DataRetrieval(
     startDate = "2019-05-01",
@@ -143,6 +143,42 @@ FindSynonyms <- function() {
     print("New combinations found in random dataset test.")
   }
   return(new_combos)
+}
+
+
+# AKAllotmentsUrl <- "https://geopub.epa.gov/arcgis/rest/services/EMEF/Tribal/MapServer/0/query"
+# AKVillagesUrl <- "https://geopub.epa.gov/arcgis/rest/services/EMEF/Tribal/MapServer/1/query"
+# AmericanIndianUrl <- "https://geopub.epa.gov/arcgis/rest/services/EMEF/Tribal/MapServer/2/query"
+# OffReservationUrl <- "https://geopub.epa.gov/arcgis/rest/services/EMEF/Tribal/MapServer/3/query"
+# OKTribeUrl <- "https://geopub.epa.gov/arcgis/rest/services/EMEF/Tribal/MapServer/4/query"
+# VATribeUrl <- "https://geopub.epa.gov/arcgis/rest/services/EMEF/Tribal/MapServer/5/query"
+
+
+TADA_UpdateTribalLayers <- function() {
+  layer <- getFeatureLayer(OKTribeUrl)
+  layer <- layer %>% dplyr::rename(TAREA_MI = TOTALAREA_MI,
+                          TAREA_KM = TOTALAREA_KM)
+  sf::st_write(layer, "inst/extdata/OKTribe.shp", delete_layer=TRUE)
+  
+  layer <- getFeatureLayer(AmericanIndianUrl)
+  layer <- layer %>% dplyr::rename(TAREA_MI = TOTALAREA_MI,
+                          TAREA_KM = TOTALAREA_KM)
+  sf::st_write(layer, "inst/extdata/AmericanIndian.shp", delete_layer = TRUE)
+
+  layer <- getFeatureLayer(AKAllotmentsUrl)
+  sf::st_write(layer, "inst/extdata/AKAllotments.shp", delete_layer = TRUE)
+  
+  layer <- getFeatureLayer(AKVillagesUrl)
+  sf::st_write(layer, "inst/extdata/AKVillages.shp", delete_layer = TRUE)
+
+  layer <- getFeatureLayer(OffReservationUrl)
+  layer <- layer %>% dplyr::rename(TAREA_MI = TOTALAREA_MI,
+                                   TAREA_KM = TOTALAREA_KM)
+  sf::st_write(layer, "inst/extdata/OffReservation.shp", delete_layer = TRUE)
+
+  layer <- getFeatureLayer(VATribeUrl)
+  sf::st_write(layer, "inst/extdata/VATribe.shp", delete_layer = TRUE)
+  
 }
 
 
