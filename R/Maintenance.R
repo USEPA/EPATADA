@@ -158,26 +158,26 @@ TADA_UpdateTribalLayers <- function() {
   layer <- getFeatureLayer(OKTribeUrl)
   layer <- layer %>% dplyr::rename(TAREA_MI = TOTALAREA_MI,
                           TAREA_KM = TOTALAREA_KM)
-  sf::st_write(layer, "inst/extdata/OKTribe.shp", delete_layer=TRUE)
+  sf::st_write(layer, "inst/extdata/shapefiles/OKTribe.shp", delete_layer=TRUE)
   
   layer <- getFeatureLayer(AmericanIndianUrl)
   layer <- layer %>% dplyr::rename(TAREA_MI = TOTALAREA_MI,
                           TAREA_KM = TOTALAREA_KM)
-  sf::st_write(layer, "inst/extdata/AmericanIndian.shp", delete_layer = TRUE)
+  sf::st_write(layer, "inst/extdata/shapefiles/AmericanIndian.shp", delete_layer = TRUE)
 
   layer <- getFeatureLayer(AKAllotmentsUrl)
-  sf::st_write(layer, "inst/extdata/AKAllotments.shp", delete_layer = TRUE)
+  sf::st_write(layer, "inst/extdata/shapefiles/AKAllotments.shp", delete_layer = TRUE)
   
   layer <- getFeatureLayer(AKVillagesUrl)
-  sf::st_write(layer, "inst/extdata/AKVillages.shp", delete_layer = TRUE)
+  sf::st_write(layer, "inst/extdata/shapefiles/AKVillages.shp", delete_layer = TRUE)
 
   layer <- getFeatureLayer(OffReservationUrl)
   layer <- layer %>% dplyr::rename(TAREA_MI = TOTALAREA_MI,
                                    TAREA_KM = TOTALAREA_KM)
-  sf::st_write(layer, "inst/extdata/OffReservation.shp", delete_layer = TRUE)
+  sf::st_write(layer, "inst/extdata/shapefiles/OffReservation.shp", delete_layer = TRUE)
 
   layer <- getFeatureLayer(VATribeUrl)
-  sf::st_write(layer, "inst/extdata/VATribe.shp", delete_layer = TRUE)
+  sf::st_write(layer, "inst/extdata/shapefiles/VATribe.shp", delete_layer = TRUE)
   
 }
 
