@@ -57,8 +57,8 @@
 #'
 #' @param .data TADA dataframe
 #'
-#' @return The same input TADA dataframe with additional columns TADA.DepthCategory.Flag
-#' and TADA.DepthProfileAggregation.Flag. If a daily_agg = "avg",
+#' @return The same input TADA dataframe with additional columns TADA.DepthCategory.Flag,
+#' TADA.DepthProfileAggregation.Flag and TADA.ConsolidatedDepth. If a daily_agg = "avg",
 #' "min", or "max", aggregated values will be identified in the TADA.ResultAggregation.Flag
 #' column. In the case of daily_agg = "avg", additional rows to display averages will be
 #' added to the data frame. They can be identified by the prefix ("TADA-") of
@@ -597,6 +597,9 @@ TADA_DepthCategory.Flag <- function(.data, bycategory = "no", bottomvalue = 2, s
  #' @param surfacevalue numeric argument. The user enters how many meters from the
  #' surface should be included in the "Surface" category. Default is surfacevalue = 2.
  #'
+ #' @param unit Character argument. The enters either "m" or "ft" to specify which
+ #' depth units should be used for the plot. Default is "m".
+ #' 
  #' @return A depth profile plot displaying up to three parameters for a single
  #' MonitoringLocationIdentifier. Displaying depth categories is optional with the 
  #' depthcat argument.
@@ -627,10 +630,13 @@ TADA_DepthProfilePlot <- function(.data, groups = NULL,
                                   activity_date = NULL,
                                   depthcat = TRUE,
                                   surfacevalue = 2, 
-                                  bottomvalue = 2) {
+                                  bottomvalue = 2,
+                                  unit = "m") {
   
-  #check to see if TADA.ComparableDataIdentifier column is present
+  # convert depth units if necessary
   
+  
+  # check to see if TADA.ComparableDataIdentifier column is present
   if("TADA.ComparableDataIdentifier" %in% colnames(.data)) {
     
     .data <- .data
