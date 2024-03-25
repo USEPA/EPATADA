@@ -1007,7 +1007,8 @@ TADA_addPolys <- function(map, url, layergroup, layername, bbox = NULL) {
         bringToFront = TRUE
       ),
       popup = getPopup(layer, layername),
-      group = layergroup
+      group = layergroup,
+      options = leaflet::pathOptions(pane = "tribes")
     )
   return(map)
 }
@@ -1052,7 +1053,8 @@ TADA_addPoints <- function(map, url, layergroup, layername, bbox = NULL) {
       popupAnchorY = 0
     ),
     popup = getPopup(layer, layername),
-    group = layergroup
+    group = layergroup,
+    options = leaflet::pathOptions(pane = "tribes")
   )
   return(map)
 }
