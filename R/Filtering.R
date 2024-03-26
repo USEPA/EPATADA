@@ -252,7 +252,7 @@ TADA_FieldValuesTable <- function(.data, field = "null", characteristicName = "n
 #' An additional column, TADA.UseForAnalysis.Flag, specifies whether each row should
 #' be included in the analysis workflow and why. Setting clean = TRUE, means
 #' that all results not flagged for use in the analysis workflow will be removed
-#' and the ADA.UseForAnalysis.Flag column will not be added.
+#' and the TADA.UseForAnalysis.Flag column will not be added.
 #'
 #' @param .data A TADA profile object
 #'
