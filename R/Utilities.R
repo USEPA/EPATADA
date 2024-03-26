@@ -144,7 +144,10 @@ TADA_AutoClean <- function(.data) {
   .data$TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode <-
     toupper(.data$DetectionQuantitationLimitMeasure.MeasureUnitCode)
   
-  # handle do saturation characteristic name and result units
+  # Transform "Dissolved oxygen (DO)" characteristic name to "DISSOLVED OXYGEN SATURATION" IF
+  # result unit is "%" or "% SATURATN". 
+  
+  print("TADA_Autoclean: harmonizing dissolved oxygen characterisic name to DISSOLVED OXYGEN SATURATION if unit is % or % SATURATN.")
   
   do.units <- c("%", "% SATURATN")
   
@@ -160,11 +163,13 @@ TADA_AutoClean <- function(.data) {
   other.data <- .data %>%
     dplyr::filter(!ResultIdentifier %in% do.list)
   
+  do.full.join <- colnames(.data)
+  
   .data <- do.data %>%
-    dplyr::full_join(other.data) %>%
+    dplyr::full_join(other.data, by = do.full.join) %>%
     dplyr::arrange(ResultIdentifier)
   
-  rm(do.units, do.list, do.data, other.data)
+  rm(do.units, do.list, do.data, other.data, do.full.join)
 
   # Remove complex biological data. Un-comment after new WQX 3.0 Profiles are released. May not be needed if implemented via WQP UI/services.
   # .data$TADA.BiologicalIntentName = toupper(.data$BiologicalIntentName)
@@ -172,7 +177,7 @@ TADA_AutoClean <- function(.data) {
 
   # run TADA_ConvertSpecialChars function
   # .data <- MeasureValueSpecialCharacters(.data)
-  print("TADA_Autoclean: checking for special characters.")
+  print("TADA_Autoclean: handling special characters and coverting TADA.ResultMeasureValue and TADA.DetectionQuantitationLimitMeasure.MeasureValue value fields to numeric.")
   .data <- TADA_ConvertSpecialChars(.data, "ResultMeasureValue")
   .data <- TADA_ConvertSpecialChars(.data, "DetectionQuantitationLimitMeasure.MeasureValue")
 
@@ -182,10 +187,12 @@ TADA_AutoClean <- function(.data) {
   # .data <- TADA_IDCensoredData(.data)
 
   # change latitude and longitude measures to class numeric
+  print("TADA_Autoclean: converting TADA.LatitudeMeasure and TADA.LongitudeMeasure fields to numeric.")
   .data$TADA.LatitudeMeasure <- as.numeric(.data$LatitudeMeasure)
   .data$TADA.LongitudeMeasure <- as.numeric(.data$LongitudeMeasure)
 
   # Automatically convert USGS only unit "meters" to "m"
+  print("TADA_Autoclean: harmonizing synonymous unit names (m and meters) to m.")
   .data$TADA.ResultMeasure.MeasureUnitCode[.data$TADA.ResultMeasure.MeasureUnitCode == "meters"] <- "m"
   .data$ActivityDepthHeightMeasure.MeasureUnitCode[.data$ActivityDepthHeightMeasure.MeasureUnitCode == "meters"] <- "m"
   .data$ActivityTopDepthHeightMeasure.MeasureUnitCode[.data$ActivityTopDepthHeightMeasure.MeasureUnitCode == "meters"] <- "m"
@@ -202,9 +209,10 @@ TADA_AutoClean <- function(.data) {
   .data <- suppressWarnings(TADA_ConvertDepthUnits(.data, unit = "m"))
 
   # create comparable data identifier column
+  print("TADA_Autoclean: creating TADA.ComparableDataIdentifier field for use when generating visualizations and analyses.")
   .data <- TADA_CreateComparableID(.data)
 
-  print("NOTE: This version of the TADA package is designed to work with quantitative (numeric) data with media name: 'WATER'. TADA_AutoClean does not currently remove (filter) data with non-water media types. If desired, the user must make this specification on their own outside of package functions. Example: dplyr::filter(.data, TADA.ActivityMediaName == 'WATER')")
+  print("NOTE: This version of the TADA package is designed to work with numeric data with media name: 'WATER'. TADA_AutoClean does not currently remove (filter) data with non-water media types. If desired, the user must make this specification on their own outside of package functions. Example: dplyr::filter(.data, TADA.ActivityMediaName == 'WATER')")
 
   .data <- TADA_OrderCols(.data)
 
