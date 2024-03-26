@@ -434,7 +434,7 @@ TADA_ConvertSpecialChars <- function(.data, col, percent.ave = TRUE) {
     # In the new TADA column, convert to numeric and remove some specific special
     # characters.
     clean.data$masked <- suppressWarnings(as.numeric(stringr::str_replace_all(
-      clean.data$masked, c("<" = "", ">" = "", "~" = "", "%" = "", "\\*" = "")
+      clean.data$masked, c("<" = "", ">" = "", "~" = "", "%" = "", "\\*" = "", "1\\)" = "")
     )))
   
   # this updates the DataTypes.Flag to "NA - Not Available" if NA
