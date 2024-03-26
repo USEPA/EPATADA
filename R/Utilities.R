@@ -896,7 +896,7 @@ pchIcons <- function(pch = 1,
 }
 
 #' Retrieve feature layer from ArcGIS REST service
-#' getFeatureLayer is used within TADA_addPolys and TADA_addPoints
+#' getFeatureLayer is used by writeLayer to write feature layers to local files 
 #'
 #' @param url URL of the layer REST service, ending with "/query". Example: https://geopub.epa.gov/arcgis/rest/services/EMEF/Tribal/MapServer/2/query (American Indian Reservations)
 #' @param bbox A bounding box from the sf function st_bbox; used to filter the query results. Optional; defaults to NULL.
@@ -923,6 +923,57 @@ getFeatureLayer <- function(url, bbox = NULL) {
   return(layer)
 }
 
+
+#' Download a shapefile from an API and save it to a local folder, overwriting existing file if it exists
+#' writeLayer is used by TADA_UpdateTribalLayers in Maintenance.R
+#'
+#' @param urlURL of the layer REST service, ending with "/query". Example: https://geopub.epa.gov/arcgis/rest/services/EMEF/Tribal/MapServer/2/query (American Indian Reservations)
+#' @param layerfilepath Local path to save the .shp file to
+#'
+#' @examples
+#' \dontrun{
+#' # Get the Oklahoma Tribal Statistical Areas feature layer and write to local file inst/extdata/shapefiles/OKTribe.shp
+#' TADA_WriteLayer(OKTribeUrl, "inst/extdata/shapefiles/OKTribe.shp")
+#' }
+#'
+writeLayer <- function(url, layerfilepath) {
+  layer <- getFeatureLayer(url)
+  # Attribute names can only be up to 10 characters long when saved to .dbf as part of sf::st_write.
+  # They are truncated automatically but TOTALAREA_MI and TOTALAREA_KM will not be unique after being 
+  # truncated, so explicitly rename them first if they exist to avoid error. 
+  if ("TOTALAREA_MI" %in% colnames(layer)) {
+    layer <- layer %>% dplyr::rename(TAREA_MI = TOTALAREA_MI,
+                                     TAREA_KM = TOTALAREA_KM)
+  }
+  sf::st_write(layer, layerfilepath, delete_layer = TRUE)  
+}
+
+
+#' Get a shapefile from a local folder, optionally crop it by a bounding box, and return it as a sf object
+#' getLayer is used within TADA_addPolys and TADA_addPoints
+#'
+#' @param layerfilepath Local path to the .shp file for the layer
+#' @param bbox A bounding box from the sf function st_bbox; used to filter the query results. Optional; defaults to NULL.
+#' @return sf object containing the layer
+#'
+#' @examples
+#' \dontrun{
+#' # Load example dataset
+#' data(Data_6Tribes_5y_Harmonized)
+#' # Get the bounding box of the data
+#' bbox <- sf::st_bbox(c(xmin = min(Data_6Tribes_5y_Harmonized$TADA.LongitudeMeasure), ymin = min(Data_6Tribes_5y_Harmonized$TADA.LatitudeMeasure), xmax = max(Data_6Tribes_5y_Harmonized$TADA.LongitudeMeasure), ymax = max(Data_6Tribes_5y_Harmonized$TADA.LatitudeMeasure)), crs = sf::st_crs(Data_6Tribes_5y_Harmonized))
+#' # Get the American Indian Reservations feature layer, filtered by the bounding box for the Data_6Tribes_5y_Harmonized example dataset
+#' getLayer("inst/extdata/shapefiles/AmericanIndian.shp", bbox)
+#' }
+#'
+getLayer <- function(layerfilepath, bbox = NULL) {
+  layer = sf::st_read(layerfilepath) 
+  if (!(is.null(bbox))) {
+    sf::sf_use_s2(FALSE)
+    layer <- sf::st_crop(layer, bbox)
+  }
+  return(layer)
+}
 
 #' Get text for tribal marker popup
 #' getPopup is used within TADA_addPolys and TADA_addPoints
@@ -957,28 +1008,29 @@ getPopup <- function(layer, layername) {
   return(text)
 }
 
+
 #' Add polygons from an ArcGIS feature layer to a leaflet map
 #'
 #' @param map A leaflet map
-#' @param url URL of the ArcGIS REST service returning the polygon feature layer
+#' @param layerfilepath Local path to the .shp file for the layer
 #' @param layergroup Name of the layer group
 #' @param layername Name of the layer
 #' @param bbox A bounding box from the sf function st_bbox; used to filter the query results. Optional; defaults to NULL.
-#' @return The original map with polygon from the feature layer added to it.
+#' @return The original map with polygons from the feature layer added to it.
 #'
 #' @export
 #'
 #' @examples
 #' \dontrun{
 #' # Create a leaflet map
-#' lmap <- leaflet::leaflet() %>% leaflet::addProviderTiles("Esri.WorldTopoMap", group = "World topo")
+#' lmap <- leaflet::leaflet() %>% leaflet::addProviderTiles("Esri.WorldTopoMap", group = "World topo") %>% leaflet::addMapPane("featurelayers", zIndex = 300)
 #' # Add the American Indian Reservations feature layer to the map
-#' lmap <- TADA_addPolys(lmap, "https://geopub.epa.gov/arcgis/rest/services/EMEF/Tribal/MapServer/2/query", "Tribes", "American Indian Reservations")
+#' lmap <- TADA_addPolys(lmap, "inst/extdata/shapefiles/AmericanIndian.shp", "Tribes", "American Indian Reservations")
 #' lmap
 #' }
 #'
-TADA_addPolys <- function(map, url, layergroup, layername, bbox = NULL) {
-  layer <- getFeatureLayer(url, bbox)
+TADA_addPolys <- function(map, layerfilepath, layergroup, layername, bbox = NULL) {
+  layer <- getLayer(layerfilepath, bbox)
   if (is.null(layer)) {
     return(map)
   }
@@ -1007,7 +1059,8 @@ TADA_addPolys <- function(map, url, layergroup, layername, bbox = NULL) {
         bringToFront = TRUE
       ),
       popup = getPopup(layer, layername),
-      group = layergroup
+      group = layergroup,
+      options = leaflet::pathOptions(pane = "featurelayers")
     )
   return(map)
 }
@@ -1015,7 +1068,7 @@ TADA_addPolys <- function(map, url, layergroup, layername, bbox = NULL) {
 #' Add points from an ArcGIS feature layer to a leaflet map
 #'
 #' @param map A leaflet map
-#' @param url URL of the ArcGIS REST service returning the points feature layer
+#' @param layerfilepath Local path to the .shp file for the layer
 #' @param layergroup Name of the layer group
 #' @param layername Name of the layer
 #' @param bbox A bounding box from the sf function st_bbox; used to filter the query results. Optional; defaults to NULL.
@@ -1026,14 +1079,14 @@ TADA_addPolys <- function(map, url, layergroup, layername, bbox = NULL) {
 #' @examples
 #' \dontrun{
 #' # Create a leaflet map
-#' lmap <- leaflet::leaflet() %>% leaflet::addProviderTiles("Esri.WorldTopoMap", group = "World topo")
+#' lmap <- leaflet::leaflet() %>% leaflet::addProviderTiles("Esri.WorldTopoMap", group = "World topo") %>% leaflet::addMapPane("featurelayers", zIndex = 300)
 #' # Add the Virginia Federally Recognized Tribes feature layer to the map
-#' lmap <- TADA_addPoints(lmap, "https://geopub.epa.gov/arcgis/rest/services/EMEF/Tribal/MapServer/5/query", "Tribes", "Virginia Federally Recognized Tribes")
+#' lmap <- TADA_addPoints(lmap, "inst/extdata/shapefiles/VATribe.shp", "Tribes", "Virginia Federally Recognized Tribes")
 #' lmap
 #' }
 #'
-TADA_addPoints <- function(map, url, layergroup, layername, bbox = NULL) {
-  layer <- getFeatureLayer(url, bbox)
+TADA_addPoints <- function(map, layerfilepath, layergroup, layername, bbox = NULL) {
+  layer <- getLayer(layerfilepath, bbox)
   if (is.null(layer)) {
     return(map)
   }
@@ -1052,7 +1105,11 @@ TADA_addPoints <- function(map, url, layergroup, layername, bbox = NULL) {
       popupAnchorY = 0
     ),
     popup = getPopup(layer, layername),
-    group = layergroup
+    group = layergroup,
+    options = leaflet::pathOptions(pane = "featurelayers")
   )
   return(map)
 }
+
+
+

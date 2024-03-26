@@ -146,41 +146,16 @@ FindSynonyms <- function() {
 }
 
 
-# AKAllotmentsUrl <- "https://geopub.epa.gov/arcgis/rest/services/EMEF/Tribal/MapServer/0/query"
-# AKVillagesUrl <- "https://geopub.epa.gov/arcgis/rest/services/EMEF/Tribal/MapServer/1/query"
-# AmericanIndianUrl <- "https://geopub.epa.gov/arcgis/rest/services/EMEF/Tribal/MapServer/2/query"
-# OffReservationUrl <- "https://geopub.epa.gov/arcgis/rest/services/EMEF/Tribal/MapServer/3/query"
-# OKTribeUrl <- "https://geopub.epa.gov/arcgis/rest/services/EMEF/Tribal/MapServer/4/query"
-# VATribeUrl <- "https://geopub.epa.gov/arcgis/rest/services/EMEF/Tribal/MapServer/5/query"
-
+## Function to update tribal layer shapefiles. Shapefiles are stored in inst/extdata/shapefiles.
+## Existing shapefiles with the same name will be deleted first if they exist. 
 
 TADA_UpdateTribalLayers <- function() {
-  layer <- getFeatureLayer(OKTribeUrl)
-  layer <- layer %>% dplyr::rename(TAREA_MI = TOTALAREA_MI,
-                          TAREA_KM = TOTALAREA_KM)
-  sf::st_write(layer, "inst/extdata/shapefiles/OKTribe.shp", delete_layer=TRUE)
-  
-  layer <- getFeatureLayer(AmericanIndianUrl)
-  layer <- layer %>% dplyr::rename(TAREA_MI = TOTALAREA_MI,
-                          TAREA_KM = TOTALAREA_KM)
-  sf::st_write(layer, "inst/extdata/shapefiles/AmericanIndian.shp", delete_layer = TRUE)
-
-  layer <- getFeatureLayer(AKAllotmentsUrl)
-  sf::st_write(layer, "inst/extdata/shapefiles/AKAllotments.shp", delete_layer = TRUE)
-  
-  layer <- getFeatureLayer(AKVillagesUrl)
-  sf::st_write(layer, "inst/extdata/shapefiles/AKVillages.shp", delete_layer = TRUE)
-
-  layer <- getFeatureLayer(OffReservationUrl)
-  layer <- layer %>% dplyr::rename(TAREA_MI = TOTALAREA_MI,
-                                   TAREA_KM = TOTALAREA_KM)
-  sf::st_write(layer, "inst/extdata/shapefiles/OffReservation.shp", delete_layer = TRUE)
-
-  layer <- getFeatureLayer(VATribeUrl)
-  sf::st_write(layer, "inst/extdata/shapefiles/VATribe.shp", delete_layer = TRUE)
-  
+  writeLayer(AKAllotmentsUrl, "inst/extdata/shapefiles/AKAllotments.shp")
+  writeLayer(AKVillagesUrl, "inst/extdata/shapefiles/AKVillages.shp")
+  writeLayer(OffReservationUrl, "inst/extdata/shapefiles/OffReservation.shp")
+  writeLayer(OKTribeUrl, "inst/extdata/shapefiles/OKTribe.shp")
+  writeLayer(VATribeUrl, "inst/extdata/shapefiles/VATribe.shp")
 }
-
 
 # TADA_OvernightTesting
 #
