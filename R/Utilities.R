@@ -969,7 +969,7 @@ writeLayer <- function(url, layerfilepath) {
 getLayer <- function(layerfilepath, bbox = NULL) {
   layer = sf::st_read(layerfilepath) 
   if (!(is.null(bbox))) {
-    sf::sf_use_s2(FALSE)
+    layer <- spdep::poly2nb(sf::st_make_valid(layer))
     layer <- sf::st_crop(layer, bbox)
   }
   return(layer)
