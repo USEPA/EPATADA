@@ -140,11 +140,15 @@ that the sites within each group are within the specified distance from each oth
 <span class="r-msg co"><span class="r-pr">#&gt;</span> email CompTools@usgs.gov.</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] "Data successfully downloaded. Running TADA_AutoClean function."</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] "TADA_Autoclean: creating TADA-specific columns."</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "TADA_Autoclean: checking for special characters."</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "TADA_Autoclean: harmonizing dissolved oxygen characterisic name to DISSOLVED OXYGEN SATURATION if unit is % or % SATURATN."</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "TADA_Autoclean: handling special characters and coverting TADA.ResultMeasureValue and TADA.DetectionQuantitationLimitMeasure.MeasureValue value fields to numeric."</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "TADA_Autoclean: converting TADA.LatitudeMeasure and TADA.LongitudeMeasure fields to numeric."</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "TADA_Autoclean: harmonizing synonymous unit names (m and meters) to m."</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] "TADA_Autoclean: updating deprecated (i.e. retired) characteristic names."</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] "948 results in your dataset have one of the following deprecated characteristic names: 2-Propen-1-ol; Inorganic nitrogen (nitrate and nitrite). These names have been substituted with the updated preferred names in the TADA.CharacteristicName field."</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] "TADA_Autoclean: harmonizing result and depth units."</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "NOTE: This version of the TADA package is designed to work with quantitative (numeric) data with media name: 'WATER'. TADA_AutoClean does not currently remove (filter) data with non-water media types. If desired, the user must make this specification on their own outside of package functions. Example: dplyr::filter(.data, TADA.ActivityMediaName == 'WATER')"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "TADA_Autoclean: creating TADA.ComparableDataIdentifier field for use when generating visualizations and analyses."</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "NOTE: This version of the TADA package is designed to work with numeric data with media name: 'WATER'. TADA_AutoClean does not currently remove (filter) data with non-water media types. If desired, the user must make this specification on their own outside of package functions. Example: dplyr::filter(.data, TADA.ActivityMediaName == 'WATER')"</span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/unique.html" class="external-link">unique</a></span><span class="op">(</span><span class="va">dat</span><span class="op">$</span><span class="va">OrganizationIdentifier</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] "USGS-PA"             "11NPSWRD_WQX"        "ADVENTURESCIENTISTS"</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [4] "WVDEP_WQX"           "DRBC"                "31ORWUNT_WQX"       </span>

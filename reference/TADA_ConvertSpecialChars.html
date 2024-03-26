@@ -88,7 +88,7 @@ NAME DataTypes.Flag".</p>
 
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">TADA_ConvertSpecialChars</span><span class="op">(</span><span class="va">.data</span>, <span class="va">col</span><span class="op">)</span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">TADA_ConvertSpecialChars</span><span class="op">(</span><span class="va">.data</span>, <span class="va">col</span>, percent.ave <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div class="section level2">
@@ -99,6 +99,12 @@ NAME DataTypes.Flag".</p>
 
 <dt>col</dt>
 <dd><p>A character column to be converted to numeric</p></dd>
+
+
+<dt>percent.ave</dt>
+<dd><p>Boolean argument; default is percent.ave = TRUE. When clean = TRUE,
+any percent range values will be averaged. When percent.ave = FALSE, percent range
+values are not averaged, but are flagged.</p></dd>
 
 </dl></div>
     <div class="section level2">
@@ -122,7 +128,6 @@ and "Numeric Range - Averaged" (# - #)</p>
 <span class="r-in"><span><span class="va">HandleSpecialChars_DetLimMeasureValue</span> <span class="op">&lt;-</span> <span class="fu">TADA_ConvertSpecialChars</span><span class="op">(</span><span class="va">Data_Nutrients_UT</span>, <span class="st">"TADA.DetectionQuantitationLimitMeasure.MeasureValue"</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/unique.html" class="external-link">unique</a></span><span class="op">(</span><span class="va">HandleSpecialChars_DetLimMeasureValue</span><span class="op">$</span><span class="va">TADA.DetectionQuantitationLimitMeasure.MeasureValueDataTypes.Flag</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] "Numeric"            "NA - Not Available"</span>
-<span class="r-in"><span></span></span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc"><h2>On this page</h2>
