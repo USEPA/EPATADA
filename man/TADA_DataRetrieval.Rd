@@ -187,9 +187,10 @@ tada10 <- TADA_DataRetrieval(
 )
 
 # query by country code (e.g. Canada, countrycode = "CA")
-tada11 = TADA_DataRetrieval(
-  startDate = "2015-01-01", 
-  countrycode = "CA")
+tada11 <- TADA_DataRetrieval(
+  startDate = "2015-01-01",
+  countrycode = "CA"
+)
 }
 
 }

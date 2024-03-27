@@ -26,7 +26,9 @@ Add points from an ArcGIS feature layer to a leaflet map
 \examples{
 \dontrun{
 # Create a leaflet map
-lmap <- leaflet::leaflet() \%>\% leaflet::addProviderTiles("Esri.WorldTopoMap", group = "World topo")  \%>\% leaflet::addMapPane("tribes", zIndex = 300)
+lmap <- leaflet::leaflet() \%>\%
+  leaflet::addProviderTiles("Esri.WorldTopoMap", group = "World topo") \%>\%
+  leaflet::addMapPane("tribes", zIndex = 300)
 # Add the Virginia Federally Recognized Tribes feature layer to the map
 lmap <- TADA_addPoints(lmap, "https://geopub.epa.gov/arcgis/rest/services/EMEF/Tribal/MapServer/5/query", "Tribes", "Virginia Federally Recognized Tribes")
 lmap
