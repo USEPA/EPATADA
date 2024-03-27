@@ -33,7 +33,7 @@
 #'
 #' @param startDate Start Date string in the format YYYY-MM-DD, for example, "2020-01-01"
 #' @param endDate End Date string in the format YYYY-MM-DD, for example, "2020-01-01"
-#' @param countrycode FIPS code that identifies a country (e.g. countrycode = "CA" for Canada). See https://www.waterqualitydata.us/Codes/countrycode for options.
+#' @param countrycode Code that identifies a country or ocean (e.g. countrycode = "CA" for Canada, countrycode = "OA" for Atlantic Ocean). See https://www.waterqualitydata.us/Codes/countrycode for options.
 #' @param statecode FIPS state alpha code that identifies a state (e.g. statecode = "DE" for Delaware). See https://www.waterqualitydata.us/Codes/statecode for options.
 #' @param countycode FIPS county name. Note that a state code must also be supplied (e.g. statecode = "AL", countycode = "Chilton"). See https://www.waterqualitydata.us/Codes/countycode for options.
 #' @param huc A numeric code denoting a hydrologic unit. Example: "04030202". Different size hucs can be entered. See https://epa.maps.arcgis.com/home/item.html?id=796992f4588c401fabec7446ecc7a5a3 for a map with HUCS. Click on a HUC to find the associated code.
@@ -430,7 +430,7 @@ TADA_ReadWQPWebServices <- function(webservice) {
 #'
 #' @param startDate Start Date string in the format YYYY-MM-DD, for example, "2020-01-01"
 #' @param endDate End Date string in the format YYYY-MM-DD, for example, "2020-01-01"
-#' @param countrycode FIPS code that identifies a country (e.g. countrycode = "CA" for Canada). See https://www.waterqualitydata.us/Codes/countrycode for options.
+#' @param countrycode Code that identifies a country or ocean (e.g. countrycode = "CA" for Canada, countrycode = "OA" for Atlantic Ocean). See https://www.waterqualitydata.us/Codes/countrycode for options.
 #' @param statecode FIPS state alpha code that identifies a state (e.g. statecode = "DE" for Delaware). See https://www.waterqualitydata.us/Codes/statecode for options.
 #' @param countycode FIPS county name. Note that a state code must also be supplied (e.g. statecode = "AL", countycode = "Chilton"). See https://www.waterqualitydata.us/Codes/countycode for options.
 #' @param huc A numeric code denoting a hydrologic unit. Example: "04030202". Different size hucs can be entered. See https://epa.maps.arcgis.com/home/item.html?id=796992f4588c401fabec7446ecc7a5a3 for a map with HUCS. Click on a HUC to find the associated code.
