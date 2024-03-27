@@ -33,11 +33,11 @@
 #'
 #' @param startDate Start Date string in the format YYYY-MM-DD, for example, "2020-01-01"
 #' @param endDate End Date string in the format YYYY-MM-DD, for example, "2020-01-01"
-#' @param countrycode FIPS code that identifies a country (e.g. countrycode = "CA" for Canada). See https://www.waterqualitydata.us/Codes/countrycode for options.
+#' @param countrycode Code that identifies a country or ocean (e.g. countrycode = "CA" for Canada, countrycode = "OA" for Atlantic Ocean). See https://www.waterqualitydata.us/Codes/countrycode for options.
 #' @param statecode FIPS state alpha code that identifies a state (e.g. statecode = "DE" for Delaware). See https://www.waterqualitydata.us/Codes/statecode for options.
 #' @param countycode FIPS county name. Note that a state code must also be supplied (e.g. statecode = "AL", countycode = "Chilton"). See https://www.waterqualitydata.us/Codes/countycode for options.
 #' @param huc A numeric code denoting a hydrologic unit. Example: "04030202". Different size hucs can be entered. See https://epa.maps.arcgis.com/home/item.html?id=796992f4588c401fabec7446ecc7a5a3 for a map with HUCS. Click on a HUC to find the associated code.
-#' @param siteid Unique monitoring location identifier. 
+#' @param siteid Unique monitoring location identifier.
 #' @param siteType Type of waterbody. See https://www.waterqualitydata.us/Codes/sitetype for options.
 #' @param characteristicName Name of parameter. See https://www.waterqualitydata.us/Codes/characteristicName for options.
 #' @param characteristicType Groups of environmental measurements/parameters. See https://www.waterqualitydata.us/Codes/characteristicType for options.
@@ -53,10 +53,10 @@
 #'
 #' @examples
 #' \dontrun{
-#'# example for WI
+#' # example for WI
 #' tada1 <- TADA_DataRetrieval(statecode = "WI", countycode = "Dane", characteristicName = "Phosphorus")
 #'
-#'# example for UT
+#' # example for UT
 #' tada2 <- TADA_DataRetrieval(statecode = "UT", characteristicName = c("Ammonia", "Nitrate", "Nitrogen"))
 #'
 #' # example for SC
@@ -148,11 +148,12 @@
 #'   providers = "NWIS",
 #'   applyautoclean = FALSE
 #' )
-#' 
+#'
 #' # query by country code (e.g. Canada, countrycode = "CA")
-#' tada11 = TADA_DataRetrieval(
-#'   startDate = "2015-01-01", 
-#'   countrycode = "CA")
+#' tada11 <- TADA_DataRetrieval(
+#'   startDate = "2015-01-01",
+#'   countrycode = "CA"
+#' )
 #' }
 #'
 TADA_DataRetrieval <- function(startDate = "null",
@@ -209,7 +210,7 @@ TADA_DataRetrieval <- function(startDate = "null",
   } else if (countrycode != "null") {
     WQPquery <- c(WQPquery, countrycode = countrycode)
   }
-  
+
   if (length(countycode) > 1) {
     WQPquery <- c(WQPquery, countycode = list(countycode))
   } else if (countycode != "null") {
@@ -430,11 +431,11 @@ TADA_ReadWQPWebServices <- function(webservice) {
 #'
 #' @param startDate Start Date string in the format YYYY-MM-DD, for example, "2020-01-01"
 #' @param endDate End Date string in the format YYYY-MM-DD, for example, "2020-01-01"
-#' @param countrycode FIPS code that identifies a country (e.g. countrycode = "CA" for Canada). See https://www.waterqualitydata.us/Codes/countrycode for options.
+#' @param countrycode Code that identifies a country or ocean (e.g. countrycode = "CA" for Canada, countrycode = "OA" for Atlantic Ocean). See https://www.waterqualitydata.us/Codes/countrycode for options.
 #' @param statecode FIPS state alpha code that identifies a state (e.g. statecode = "DE" for Delaware). See https://www.waterqualitydata.us/Codes/statecode for options.
 #' @param countycode FIPS county name. Note that a state code must also be supplied (e.g. statecode = "AL", countycode = "Chilton"). See https://www.waterqualitydata.us/Codes/countycode for options.
 #' @param huc A numeric code denoting a hydrologic unit. Example: "04030202". Different size hucs can be entered. See https://epa.maps.arcgis.com/home/item.html?id=796992f4588c401fabec7446ecc7a5a3 for a map with HUCS. Click on a HUC to find the associated code.
-#' @param siteid Unique monitoring location identifier. 
+#' @param siteid Unique monitoring location identifier.
 #' @param siteType Type of waterbody. See https://www.waterqualitydata.us/Codes/sitetype for options.
 #' @param characteristicName Name of parameter. See https://www.waterqualitydata.us/Codes/characteristicName for options.
 #' @param characteristicType Groups of environmental measurements/parameters. See https://www.waterqualitydata.us/Codes/characteristicType for options.
@@ -454,16 +455,16 @@ TADA_ReadWQPWebServices <- function(webservice) {
 #'
 #' # takes approx 21 mins
 #' tada2 <- TADA_BigDataRetrieval(startDate = "2016-10-01", endDate = "2022-09-30", statecode = "UT")
-#' 
+#'
 #' # takes seconds to run
 #' tada3 <- TADA_BigDataRetrieval(huc = "04030202", characteristicName = "Escherichia coli")
-#' 
+#'
 #' # takes approx 3 mins to run
 #' tada4 <- TADA_BigDataRetrieval(startDate = "2004-01-01", countrycode = "CA")
-#' 
+#'
 #' # takes seconds to run
 #' tada5 <- TADA_BigDataRetrieval(startDate = "2018-01-01", statecode = "AL", countycode = "Chilton")
-#' 
+#'
 #' # takes seconds to run
 #' tada6 <- TADA_BigDataRetrieval(organization = "PUEBLOOFTESUQUE")
 #' }
@@ -549,19 +550,19 @@ TADA_BigDataRetrieval <- function(startDate = "null",
   } else if (huc != "null") {
     WQPquery <- c(WQPquery, huc = huc)
   }
-  
+
   if (length(countrycode) > 1) {
     WQPquery <- c(WQPquery, countrycode = list(countrycode))
   } else if (countrycode != "null") {
     WQPquery <- c(WQPquery, countrycode = countrycode)
   }
-  
+
   if (length(countycode) > 1) {
     WQPquery <- c(WQPquery, countycode = list(countycode))
   } else if (countycode != "null") {
     WQPquery <- c(WQPquery, countycode = countycode)
   }
-  
+
   if (length(organization) > 1) {
     WQPquery <- c(WQPquery, organization = list(organization))
   } else if (organization != "null") {
