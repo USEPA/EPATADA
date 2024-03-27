@@ -27,7 +27,7 @@ TADA_DataRetrieval(
 
 \item{endDate}{End Date string in the format YYYY-MM-DD, for example, "2020-01-01"}
 
-\item{countrycode}{FIPS code that identifies a country (e.g. countrycode = "CA" for Canada). See https://www.waterqualitydata.us/Codes/countrycode for options.}
+\item{countrycode}{Code that identifies a country or ocean (e.g. countrycode = "CA" for Canada, countrycode = "OA" for Atlantic Ocean). See https://www.waterqualitydata.us/Codes/countrycode for options.}
 
 \item{countycode}{FIPS county name. Note that a state code must also be supplied (e.g. statecode = "AL", countycode = "Chilton"). See https://www.waterqualitydata.us/Codes/countycode for options.}
 
