@@ -1040,12 +1040,10 @@ getPopup <- function(layer, layername) {
 #' @param bbox A bounding box from the sf function st_bbox; used to filter the query results. Optional; defaults to NULL.
 #' @return The original map with polygon from the feature layer added to it.
 #'
-#' @export
-#'
 #' @examples
 #' \dontrun{
 #' # Create a leaflet map
-#' lmap <- leaflet::leaflet() %>% leaflet::addProviderTiles("Esri.WorldTopoMap", group = "World topo")
+#' lmap <- leaflet::leaflet() %>% leaflet::addProviderTiles("Esri.WorldTopoMap", group = "World topo") %>% leaflet::addMapPane("tribes", zIndex = 300)
 #' # Add the American Indian Reservations feature layer to the map
 #' lmap <- TADA_addPolys(lmap, "https://geopub.epa.gov/arcgis/rest/services/EMEF/Tribal/MapServer/2/query", "Tribes", "American Indian Reservations")
 #' lmap
@@ -1081,7 +1079,8 @@ TADA_addPolys <- function(map, url, layergroup, layername, bbox = NULL) {
         bringToFront = TRUE
       ),
       popup = getPopup(layer, layername),
-      group = layergroup
+      group = layergroup,
+      options = leaflet::pathOptions(pane = "tribes")
     )
   return(map)
 }
@@ -1095,12 +1094,10 @@ TADA_addPolys <- function(map, url, layergroup, layername, bbox = NULL) {
 #' @param bbox A bounding box from the sf function st_bbox; used to filter the query results. Optional; defaults to NULL.
 #' @return The original map with polygon from the feature layer added to it.
 #'
-#' @export
-#'
 #' @examples
 #' \dontrun{
 #' # Create a leaflet map
-#' lmap <- leaflet::leaflet() %>% leaflet::addProviderTiles("Esri.WorldTopoMap", group = "World topo")
+#' lmap <- leaflet::leaflet() %>% leaflet::addProviderTiles("Esri.WorldTopoMap", group = "World topo")  %>% leaflet::addMapPane("tribes", zIndex = 300)
 #' # Add the Virginia Federally Recognized Tribes feature layer to the map
 #' lmap <- TADA_addPoints(lmap, "https://geopub.epa.gov/arcgis/rest/services/EMEF/Tribal/MapServer/5/query", "Tribes", "Virginia Federally Recognized Tribes")
 #' lmap
@@ -1126,7 +1123,8 @@ TADA_addPoints <- function(map, url, layergroup, layername, bbox = NULL) {
       popupAnchorY = 0
     ),
     popup = getPopup(layer, layername),
-    group = layergroup
+    group = layergroup,
+    options = leaflet::pathOptions(pane = "tribes")
   )
   return(map)
 }

@@ -467,13 +467,14 @@ TADA_OverviewMap <- function(.data) {
     )
     vbbox <- bbox %>%
       as.vector()
-
+    
     map <- leaflet::leaflet() %>%
       leaflet::addProviderTiles("Esri.WorldTopoMap", group = "World topo", options = leaflet::providerTileOptions(updateWhenZooming = FALSE, updateWhenIdle = TRUE)) %>%
       leaflet::clearShapes() %>% # get rid of whatever was there before if loading a second dataset
       leaflet::fitBounds(lng1 = vbbox[1], lat1 = vbbox[2], lng2 = vbbox[3], lat2 = vbbox[4]) %>% # fit to bounds of data in tadat$raw
       leaflet.extras::addResetMapButton() %>% # button to reset to initial zoom and lat/long
-      leaflet::addCircleMarkers(
+      leaflet::addMapPane("tribes", zIndex = 300) %>%
+      leaflet::addCircleMarkers( 
         data = sumdat,
         lng = ~TADA.LongitudeMeasure,
         lat = ~TADA.LatitudeMeasure,
@@ -523,10 +524,10 @@ TADA_OverviewMap <- function(.data) {
     map <- TADA_addPoints(map, AKVillagesUrl, "Tribes", "Alaska Native Villages", bbox)
     map <- TADA_addPoints(map, VATribeUrl, "Tribes", "Virginia Tribe", bbox)
     map <- leaflet::addLayersControl(map,
-      overlayGroups = c("Tribes"),
-      options = leaflet::layersControlOptions(collapsed = FALSE)
+                                     overlayGroups = c("Tribes"),
+                                     options = leaflet::layersControlOptions(collapsed = FALSE)
     )
-
+    
     return(map)
   })
 }
