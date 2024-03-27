@@ -1093,26 +1093,27 @@ TADA_FlagCoordinates <- function(.data,
 #' table(dat1$TADA.ResultSelectedMultipleOrgs)
 #'
 TADA_FindPotentialDuplicatesMultipleOrgs <- function(.data, dist_buffer = 100, org_hierarchy = "none") {
-  
   # from those datapoints, determine which are in adjacent sites
   if (!"TADA.NearbySiteGroups" %in% names(.data)) {
     .data <- TADA_FindNearbySites(.data, dist_buffer = dist_buffer)
   }
-  
+
   dupsites <- unique(.data[, c("MonitoringLocationIdentifier", "TADA.LatitudeMeasure", "TADA.LongitudeMeasure", "TADA.NearbySiteGroups")])
-  
+
   # get rid of results with no site group added - not duplicated spatially
   dupsites <- subset(dupsites, !dupsites$TADA.NearbySiteGroups %in% c("No nearby sites")) %>%
     tidyr::separate_rows(TADA.NearbySiteGroups, sep = ",")
-    
+
   # remove results with no nearby sites get all data that are not NA and round to 2 digits
   dupsprep <- .data %>%
     dplyr::filter(MonitoringLocationIdentifier %in% dupsites$MonitoringLocationIdentifier) %>%
-    dplyr::select(OrganizationIdentifier, ResultIdentifier, ActivityStartDate, ActivityStartTime.Time, 
-                  TADA.CharacteristicName, ActivityTypeCode, TADA.ResultMeasureValue, TADA.NearbySiteGroups) %>%
+    dplyr::select(
+      OrganizationIdentifier, ResultIdentifier, ActivityStartDate, ActivityStartTime.Time,
+      TADA.CharacteristicName, ActivityTypeCode, TADA.ResultMeasureValue, TADA.NearbySiteGroups
+    ) %>%
     dplyr::filter(!is.na(TADA.ResultMeasureValue)) %>%
     dplyr::mutate(roundRV = round(TADA.ResultMeasureValue, digits = 2))
-  
+
   # group by date, time, characteristic, and rounded result value and determine the number of organizations that have those same row values, and filter to those summary rows with more than one organization
   dups_sum <- dupsprep %>%
     dplyr::group_by(ActivityStartDate, ActivityStartTime.Time, TADA.CharacteristicName, ActivityTypeCode, roundRV, TADA.NearbySiteGroups) %>%
@@ -1123,77 +1124,80 @@ TADA_FindPotentialDuplicatesMultipleOrgs <- function(.data, dist_buffer = 100, o
     dplyr::select(-numorgs) %>%
     dplyr::ungroup()
 
-    # merge to data
-    dupsdat <- dplyr::left_join(dups_sum, .data, by = c(
-      "ActivityStartDate",
-      "ActivityStartTime.Time",
-      "TADA.CharacteristicName",
-      "ActivityTypeCode",
-      "OrganizationIdentifier",
-      "ResultIdentifier",
-      "TADA.ResultMeasureValue",
-      "TADA.NearbySiteGroups"
-    )) %>%
-      dplyr::mutate(TADA.MultipleOrgDuplicate = ifelse(is.na(TADA.MultipleOrgDupGroupID), "N", "Y")) %>%
-      # remove results that are listed twice (as part of two groups)
-      dplyr::group_by(ResultIdentifier) %>%
+  # merge to data
+  dupsdat <- dplyr::left_join(dups_sum, .data, by = c(
+    "ActivityStartDate",
+    "ActivityStartTime.Time",
+    "TADA.CharacteristicName",
+    "ActivityTypeCode",
+    "OrganizationIdentifier",
+    "ResultIdentifier",
+    "TADA.ResultMeasureValue",
+    "TADA.NearbySiteGroups"
+  )) %>%
+    dplyr::mutate(TADA.MultipleOrgDuplicate = ifelse(is.na(TADA.MultipleOrgDupGroupID), "N", "Y")) %>%
+    # remove results that are listed twice (as part of two groups)
+    dplyr::group_by(ResultIdentifier) %>%
+    dplyr::slice_sample(n = 1) %>%
+    dplyr::ungroup() %>%
+    dplyr::select(-roundRV)
+
+
+  # select representative results
+  if (dim(dupsdat)[1] > 0) {
+    # make a selection of a representative result
+    if (!any(org_hierarchy == "none")) { # if there is an org hierarchy, use that to pick result with lowest rank in hierarchy
+      data_orgs <- unique(.data$OrganizationIdentifier)
+      if (any(!org_hierarchy %in% data_orgs)) {
+        print("One or more organizations in input hierarchy are not present in the input dataset.")
+      }
+      hierarchy_df <- data.frame("OrganizationIdentifier" = org_hierarchy, "rank" = 1:length(org_hierarchy))
+      dupranks <- dupsdat %>%
+        dplyr::select(ResultIdentifier, OrganizationIdentifier, TADA.MultipleOrgDupGroupID) %>%
+        dplyr::left_join(hierarchy_df)
+    } else {
+      dupranks <- dupsdat %>%
+        dplyr::select(ResultIdentifier, TADA.MultipleOrgDupGroupID) %>%
+        dplyr::mutate(rank = 99)
+    }
+
+    dupranks$rank[is.na(dupranks$rank)] <- 99
+
+    duppicks <- dupranks %>%
+      dplyr::select(ResultIdentifier, TADA.MultipleOrgDupGroupID, rank) %>%
+      dplyr::group_by(TADA.MultipleOrgDupGroupID) %>%
+      dplyr::slice_min(rank) %>%
       dplyr::slice_sample(n = 1) %>%
       dplyr::ungroup() %>%
-      dplyr::select(-roundRV)
+      dplyr::group_by(ResultIdentifier) %>%
+      dplyr::slice_min(rank) %>%
+      dplyr::slice_sample(n = 1)
 
-  
-# select representative results
-        if (dim(dupsdat)[1] > 0) {
-          # make a selection of a representative result
-          if (!any(org_hierarchy == "none")) { # if there is an org hierarchy, use that to pick result with lowest rank in hierarchy
-            data_orgs <- unique(.data$OrganizationIdentifier)
-            if (any(!org_hierarchy %in% data_orgs)) {
-              print("One or more organizations in input hierarchy are not present in the input dataset.")
-            }
-            hierarchy_df <- data.frame("OrganizationIdentifier" = org_hierarchy, "rank" = 1:length(org_hierarchy))
-            dupranks <- dupsdat %>%
-              dplyr::select(ResultIdentifier, OrganizationIdentifier, TADA.MultipleOrgDupGroupID) %>%
-              dplyr::left_join(hierarchy_df)
-          } else {
-            dupranks <- dupsdat %>%
-              dplyr::select(ResultIdentifier, TADA.MultipleOrgDupGroupID) %>%
-              dplyr::mutate(rank = 99)
-          }
+    dupsdat <- dupsdat %>%
+      dplyr::rename(SingleNearbyGroup = TADA.NearbySiteGroups) %>%
+      dplyr::mutate(
+        TADA.NearbySiteGroups = paste(SingleNearbyGroup, sep = ","),
+        TADA.ResultSelectedMultipleOrgs = ifelse(ResultIdentifier %in% duppicks$ResultIdentifier, "Y", "N")
+      ) %>%
+      dplyr::select(-SingleNearbyGroup)
 
-          dupranks$rank[is.na(dupranks$rank)] <- 99
-          
-          duppicks <- dupranks %>%
-            dplyr::select(ResultIdentifier, TADA.MultipleOrgDupGroupID, rank) %>%
-            dplyr::group_by(TADA.MultipleOrgDupGroupID) %>%
-            dplyr::slice_min(rank) %>%
-            dplyr::slice_sample(n = 1) %>%
-            dplyr::ungroup() %>%
-            dplyr::group_by(ResultIdentifier) %>%
-            dplyr::slice_min(rank) %>%
-            dplyr::slice_sample(n = 1)
-          
-          dupsdat <- dupsdat %>%
-            dplyr::rename(SingleNearbyGroup = TADA.NearbySiteGroups) %>%
-            dplyr::mutate(TADA.NearbySiteGroups = paste(SingleNearbyGroup, sep = ","),
-                          TADA.ResultSelectedMultipleOrgs = ifelse(ResultIdentifier %in% duppicks$ResultIdentifier, "Y", "N")) %>%
-            dplyr::select(-SingleNearbyGroup)
-          
-          # connect back to original dataset
-          .data <- .data %>%
-            dplyr::full_join(dupsdat, by = c(names(.data))) %>%
-            dplyr::mutate(TADA.MultipleOrgDuplicate = ifelse(is.na(TADA.MultipleOrgDuplicate), "N", TADA.MultipleOrgDuplicate),
-                          TADA.ResultSelectedMultipleOrgs = ifelse(is.na(TADA.ResultSelectedMultipleOrgs), "Y", TADA.ResultSelectedMultipleOrgs),
-                          TADA.MultipleOrgDupGroupID = ifelse(is.na(TADA.MultipleOrgDupGroupID), "Not a duplicate", TADA.MultipleOrgDupGroupID))
-            
-           
-          print(paste0(length(dupsdat$TADA.MultipleOrgDuplicate[dupsdat$TADA.MultipleOrgDuplicate %in% c("Y")]), " potentially duplicated results found in dataset. These have been placed into duplicate groups in the TADA.MultipleOrgDupGroupID column and the TADA.MultipleOrgDuplicate column is set to 'Y' (yes). If you provided an organization hierarchy, the result with the lowest ranked organization identifier was selected as the representative result in the TADA.ResultSelectedMultipleOrgs (this column is set to 'Y' for all results either selected or not considered duplicates)."))
-        
-          } else { # no duplicate results
-          .data$TADA.MultipleOrgDupGroupID <- "Not a duplicate"
-          .data$TADA.MultipleOrgDuplicate <- "N"
-          .data$TADA.ResultSelectedMultipleOrgs <- "Y"
-          print("No duplicate results detected. Returning input dataframe with duplicate flagging columns set to 'N'.")
-        }
+    # connect back to original dataset
+    .data <- .data %>%
+      dplyr::full_join(dupsdat, by = c(names(.data))) %>%
+      dplyr::mutate(
+        TADA.MultipleOrgDuplicate = ifelse(is.na(TADA.MultipleOrgDuplicate), "N", TADA.MultipleOrgDuplicate),
+        TADA.ResultSelectedMultipleOrgs = ifelse(is.na(TADA.ResultSelectedMultipleOrgs), "Y", TADA.ResultSelectedMultipleOrgs),
+        TADA.MultipleOrgDupGroupID = ifelse(is.na(TADA.MultipleOrgDupGroupID), "Not a duplicate", TADA.MultipleOrgDupGroupID)
+      )
+
+
+    print(paste0(length(dupsdat$TADA.MultipleOrgDuplicate[dupsdat$TADA.MultipleOrgDuplicate %in% c("Y")]), " potentially duplicated results found in dataset. These have been placed into duplicate groups in the TADA.MultipleOrgDupGroupID column and the TADA.MultipleOrgDuplicate column is set to 'Y' (yes). If you provided an organization hierarchy, the result with the lowest ranked organization identifier was selected as the representative result in the TADA.ResultSelectedMultipleOrgs (this column is set to 'Y' for all results either selected or not considered duplicates)."))
+  } else { # no duplicate results
+    .data$TADA.MultipleOrgDupGroupID <- "Not a duplicate"
+    .data$TADA.MultipleOrgDuplicate <- "N"
+    .data$TADA.ResultSelectedMultipleOrgs <- "Y"
+    print("No duplicate results detected. Returning input dataframe with duplicate flagging columns set to 'N'.")
+  }
 
   .data <- TADA_OrderCols(.data)
 

@@ -88,7 +88,7 @@ test_that("TADA_FindPotentialDuplicates functions do not grow dataset", {
 test_that("TADA_FindPotentialDuplicatsMultipleOrgs labels nearby site and multiple org groupings incrementally if duplicates are found", {
   testdat <- TADA_RandomTestingData()
   testdat <- TADA_FindPotentialDuplicatesMultipleOrgs(testdat)
-  
+
   testdat1 <- testdat %>%
     dplyr::select(TADA.NearbySiteGroups) %>%
     dplyr::filter(TADA.NearbySiteGroups != "No nearby sites") %>%
@@ -98,27 +98,26 @@ test_that("TADA_FindPotentialDuplicatsMultipleOrgs labels nearby site and multip
     unique() %>%
     as.numeric() %>%
     sort()
-  
+
   testdat2 <- testdat %>%
     dplyr::select(TADA.MultipleOrgDupGroupID) %>%
     dplyr::filter(TADA.MultipleOrgDupGroupID != "Not a duplicate") %>%
     unique() %>%
     dplyr::pull() %>%
-    as.numeric() %>% 
+    as.numeric() %>%
     sort()
-  
+
   expect_true(unique(diff(testdat1)) == 1 | NA)
-  
+
   expect_true(unique(diff(testdat2)) == 1 | NA)
 })
 
 test_that("TADA_FindPotentialDuplicatsMultipleOrgs has non-NA values for each row in columns added in function", {
-
   testdat <- TADA_RandomTestingData()
   testdat <- TADA_FindPotentialDuplicatesMultipleOrgs(testdat)
-  
+
   expect_false(any(is.na(testdat$TADA.MultipleOrgDupGroupID)))
   expect_false(any(is.na(testdat$TADA.MultipleOrgDuplicate)))
   expect_false(any(is.na(testdat$TADA.NearbySiteGroups)))
   expect_false(any(is.na(testdat$TADA.ResultSelectedMultipleOrgs)))
-  })
+})
