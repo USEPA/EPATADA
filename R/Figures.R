@@ -473,6 +473,7 @@ TADA_OverviewMap <- function(.data) {
       leaflet::clearShapes() %>% # get rid of whatever was there before if loading a second dataset
       leaflet::fitBounds(lng1 = vbbox[1], lat1 = vbbox[2], lng2 = vbbox[3], lat2 = vbbox[4]) %>% # fit to bounds of data in tadat$raw
       leaflet.extras::addResetMapButton() %>% # button to reset to initial zoom and lat/long
+      leaflet::addMapPane("tribes", zIndex = 300) %>%
       leaflet::addCircleMarkers(
         data = sumdat,
         lng = ~TADA.LongitudeMeasure,

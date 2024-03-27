@@ -143,32 +143,34 @@ TADA_AutoClean <- function(.data) {
   .data$TADA.ActivityMediaName <- toupper(.data$ActivityMediaName)
   .data$TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode <-
     toupper(.data$DetectionQuantitationLimitMeasure.MeasureUnitCode)
-  
+
   # Transform "Dissolved oxygen (DO)" characteristic name to "DISSOLVED OXYGEN SATURATION" IF
-  # result unit is "%" or "% SATURATN". 
-  
+  # result unit is "%" or "% SATURATN".
+
   print("TADA_Autoclean: harmonizing dissolved oxygen characterisic name to DISSOLVED OXYGEN SATURATION if unit is % or % SATURATN.")
-  
+
   do.units <- c("%", "% SATURATN")
-  
+
   do.data <- .data %>%
     dplyr::filter((CharacteristicName == "Dissolved oxygen (DO)") & ResultMeasure.MeasureUnitCode %in% do.units) %>%
-    dplyr::mutate(TADA.CharacteristicName = "DISSOLVED OXYGEN SATURATION",
-                  TADA.ResultMeasure.MeasureUnitCode = "%")
-  
+    dplyr::mutate(
+      TADA.CharacteristicName = "DISSOLVED OXYGEN SATURATION",
+      TADA.ResultMeasure.MeasureUnitCode = "%"
+    )
+
   do.list <- do.data %>%
     dplyr::select(ResultIdentifier) %>%
     dplyr::pull()
-    
+
   other.data <- .data %>%
     dplyr::filter(!ResultIdentifier %in% do.list)
-  
+
   do.full.join <- colnames(.data)
-  
+
   .data <- do.data %>%
     dplyr::full_join(other.data, by = do.full.join) %>%
     dplyr::arrange(ResultIdentifier)
-  
+
   rm(do.units, do.list, do.data, other.data, do.full.join)
 
   # Remove complex biological data. Un-comment after new WQX 3.0 Profiles are released. May not be needed if implemented via WQP UI/services.
@@ -249,8 +251,8 @@ TADA_DecimalPlaces <- function(x) {
 #'   searches for the best space to insert a new line.
 #'
 #' @return The same vector of strings with new lines added where appropriate.
-#' 
-#' @export 
+#'
+#' @export
 #'
 TADA_InsertBreaks <- function(x, len = 50) {
   if (nchar(x) > len) {
@@ -347,42 +349,41 @@ TADA_CheckColumns <- function(.data, expected_cols) {
 #' unique(HandleSpecialChars_ResultMeasureValue$TADA.ResultMeasureValueDataTypes.Flag)
 #' HandleSpecialChars_DetLimMeasureValue <- TADA_ConvertSpecialChars(Data_Nutrients_UT, "TADA.DetectionQuantitationLimitMeasure.MeasureValue")
 #' unique(HandleSpecialChars_DetLimMeasureValue$TADA.DetectionQuantitationLimitMeasure.MeasureValueDataTypes.Flag)
-
 TADA_ConvertSpecialChars <- function(.data, col, percent.ave = TRUE) {
   if (!col %in% names(.data)) {
     stop("Invalid column name specified for input dataset.")
   }
-  
+
   # Define new column names
   numcol <- paste0("TADA.", col)
   flagcol <- paste0("TADA.", col, "DataTypes.Flag")
-  
+
   # Create dummy columns for easy handling in function
   chars.data <- .data
   names(chars.data)[names(chars.data) == col] <- "orig"
   chars.data$masked <- chars.data$orig
-  
-  # Add percentage character to dissolved oxygen saturation ResultMeasureValue 
+
+  # Add percentage character to dissolved oxygen saturation ResultMeasureValue
   # so percentage and percentage - range averaged can be identified correctly
-  if(col == "ResultMeasureValue") {
-   
-    do.units <- c("%",  "% SATURATN") 
-    
-  chars.data$masked <- ifelse(chars.data$CharacteristicName == "Dissolved oxygen (DO)" & chars.data$ResultMeasure.MeasureUnitCode %in% do.units,
-                              paste(chars.data$masked, "%"), chars.data$masked)
-  
-  # updates percentage units where NA
-  chars.data$TADA.ResultMeasure.MeasureUnitCode <- ifelse(
-    (grepl("%", chars.data$masked) == TRUE), 
-    "%", 
-    chars.data$TADA.ResultMeasure.MeasureUnitCode)
-  
+  if (col == "ResultMeasureValue") {
+    do.units <- c("%", "% SATURATN")
+
+    chars.data$masked <- ifelse(chars.data$CharacteristicName == "Dissolved oxygen (DO)" & chars.data$ResultMeasure.MeasureUnitCode %in% do.units,
+      paste(chars.data$masked, "%"), chars.data$masked
+    )
+
+    # updates percentage units where NA
+    chars.data$TADA.ResultMeasure.MeasureUnitCode <- ifelse(
+      (grepl("%", chars.data$masked) == TRUE),
+      "%",
+      chars.data$TADA.ResultMeasure.MeasureUnitCode
+    )
   } else {
     chars.data$masked <- chars.data$masked
-    
+
     chars.data$TADA.ResultMeasure.MeasureUnitCode <- chars.data$TADA.ResultMeasure.MeasureUnitCode
   }
-  
+
   # If column is already numeric, just discern between NA and numeric
   if (is.numeric(chars.data$orig)) {
     clean.data <- chars.data %>%
@@ -412,39 +413,39 @@ TADA_ConvertSpecialChars <- function(.data, col, percent.ave = TRUE) {
         TRUE ~ "Coerced to NA"
       ))
   }
-    
-    if (percent.ave == FALSE) {
-      
-      num.range.filter <- c("Numeric Range - Averaged")
-    }
-    
-    if (percent.ave == TRUE) {
-      
-      num.range.filter <- c("Numeric Range - Averaged", "Percentage Range - Averaged")
-    }
-    
-    # Result Values that are numeric ranges with the format #-# are converted to an average of the two numbers expressed in the range.
-    if (any(clean.data$flag %in% num.range.filter)) {
-      numrange <- subset(clean.data, clean.data$flag %in% num.range.filter)
-      notnumrange <- subset(clean.data, !clean.data$flag %in% num.range.filter)
-      numrange <- numrange %>%
-        dplyr::mutate(masked = stringr::str_remove(masked, "[1-9]\\)"),
-                      masked = stringr::str_remove(masked, "%")) %>%
-        tidyr::separate(masked, into = c("num1", "num2"), sep = "-", remove = TRUE) %>%
-        dplyr::mutate_at(c("num1", "num2"), as.numeric)
-      numrange$masked <- as.character(rowMeans(numrange[, c("num1", "num2")], na.rm = TRUE))
-      numrange <- numrange[, !names(numrange) %in% c("num1", "num2")] %>%
-        dplyr::mutate(masked = ifelse(flag == "Percentage Range - Average", paste(masked, "%", sep = ""), masked))
-      
-      clean.data <- plyr::rbind.fill(notnumrange, numrange)
-    }
-    
-    # In the new TADA column, convert to numeric and remove some specific special
-    # characters.
-    clean.data$masked <- suppressWarnings(as.numeric(stringr::str_replace_all(
-      clean.data$masked, c("<" = "", ">" = "", "~" = "", "%" = "", "\\*" = "", "1\\)" = "")
-    )))
-  
+
+  if (percent.ave == FALSE) {
+    num.range.filter <- c("Numeric Range - Averaged")
+  }
+
+  if (percent.ave == TRUE) {
+    num.range.filter <- c("Numeric Range - Averaged", "Percentage Range - Averaged")
+  }
+
+  # Result Values that are numeric ranges with the format #-# are converted to an average of the two numbers expressed in the range.
+  if (any(clean.data$flag %in% num.range.filter)) {
+    numrange <- subset(clean.data, clean.data$flag %in% num.range.filter)
+    notnumrange <- subset(clean.data, !clean.data$flag %in% num.range.filter)
+    numrange <- numrange %>%
+      dplyr::mutate(
+        masked = stringr::str_remove(masked, "[1-9]\\)"),
+        masked = stringr::str_remove(masked, "%")
+      ) %>%
+      tidyr::separate(masked, into = c("num1", "num2"), sep = "-", remove = TRUE) %>%
+      dplyr::mutate_at(c("num1", "num2"), as.numeric)
+    numrange$masked <- as.character(rowMeans(numrange[, c("num1", "num2")], na.rm = TRUE))
+    numrange <- numrange[, !names(numrange) %in% c("num1", "num2")] %>%
+      dplyr::mutate(masked = ifelse(flag == "Percentage Range - Average", paste(masked, "%", sep = ""), masked))
+
+    clean.data <- plyr::rbind.fill(notnumrange, numrange)
+  }
+
+  # In the new TADA column, convert to numeric and remove some specific special
+  # characters.
+  clean.data$masked <- suppressWarnings(as.numeric(stringr::str_replace_all(
+    clean.data$masked, c("<" = "", ">" = "", "~" = "", "%" = "", "\\*" = "", "1\\)" = "")
+  )))
+
   # this updates the DataTypes.Flag to "NA - Not Available" if NA
   clean.data$flag <- ifelse(
     is.na(clean.data$flag),
@@ -452,17 +453,17 @@ TADA_ConvertSpecialChars <- function(.data, col, percent.ave = TRUE) {
     clean.data$flag
   )
 
-  #remove columns to be replaced
+  # remove columns to be replaced
   clean.data <- clean.data %>%
     dplyr::select(!(any_of(numcol)), !(any_of(flagcol)))
-  
+
   # Rename to original column name, TADA column name, and flag column name
   names(clean.data)[names(clean.data) == "orig"] <- col
   names(clean.data)[names(clean.data) == "masked"] <- numcol
   names(clean.data)[names(clean.data) == "flag"] <- flagcol
-  
+
   clean.data <- TADA_OrderCols(clean.data)
-  
+
   return(clean.data)
 }
 
@@ -1040,12 +1041,12 @@ getPopup <- function(layer, layername) {
 #' @param bbox A bounding box from the sf function st_bbox; used to filter the query results. Optional; defaults to NULL.
 #' @return The original map with polygon from the feature layer added to it.
 #'
-#' @export
-#'
 #' @examples
 #' \dontrun{
 #' # Create a leaflet map
-#' lmap <- leaflet::leaflet() %>% leaflet::addProviderTiles("Esri.WorldTopoMap", group = "World topo")
+#' lmap <- leaflet::leaflet() %>%
+#'   leaflet::addProviderTiles("Esri.WorldTopoMap", group = "World topo") %>%
+#'   leaflet::addMapPane("tribes", zIndex = 300)
 #' # Add the American Indian Reservations feature layer to the map
 #' lmap <- TADA_addPolys(lmap, "https://geopub.epa.gov/arcgis/rest/services/EMEF/Tribal/MapServer/2/query", "Tribes", "American Indian Reservations")
 #' lmap
@@ -1081,7 +1082,8 @@ TADA_addPolys <- function(map, url, layergroup, layername, bbox = NULL) {
         bringToFront = TRUE
       ),
       popup = getPopup(layer, layername),
-      group = layergroup
+      group = layergroup,
+      options = leaflet::pathOptions(pane = "tribes")
     )
   return(map)
 }
@@ -1095,12 +1097,12 @@ TADA_addPolys <- function(map, url, layergroup, layername, bbox = NULL) {
 #' @param bbox A bounding box from the sf function st_bbox; used to filter the query results. Optional; defaults to NULL.
 #' @return The original map with polygon from the feature layer added to it.
 #'
-#' @export
-#'
 #' @examples
 #' \dontrun{
 #' # Create a leaflet map
-#' lmap <- leaflet::leaflet() %>% leaflet::addProviderTiles("Esri.WorldTopoMap", group = "World topo")
+#' lmap <- leaflet::leaflet() %>%
+#'   leaflet::addProviderTiles("Esri.WorldTopoMap", group = "World topo") %>%
+#'   leaflet::addMapPane("tribes", zIndex = 300)
 #' # Add the Virginia Federally Recognized Tribes feature layer to the map
 #' lmap <- TADA_addPoints(lmap, "https://geopub.epa.gov/arcgis/rest/services/EMEF/Tribal/MapServer/5/query", "Tribes", "Virginia Federally Recognized Tribes")
 #' lmap
@@ -1126,7 +1128,8 @@ TADA_addPoints <- function(map, url, layergroup, layername, bbox = NULL) {
       popupAnchorY = 0
     ),
     popup = getPopup(layer, layername),
-    group = layergroup
+    group = layergroup,
+    options = leaflet::pathOptions(pane = "tribes")
   )
   return(map)
 }
