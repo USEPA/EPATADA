@@ -659,16 +659,18 @@ TADA_FindNearbySites <- function(.data, dist_buffer = 100) {
     groups_wide <- tidyr::pivot_wider(groups_wide, id_cols = "MonitoringLocationIdentifier", names_from = "GroupCount", names_prefix = "TADA.SiteGroup", values_from = "TADA.SiteGroupID")
     # merge data to site groupings
     .data <- merge(.data, groups_wide, all.x = TRUE)
-  } else { # if no groups, give a TADA.NearbySiteGroups column filled with NA
+    
+    # concatenate and move site id cols to right place
+    grpcols <- names(.data)[grepl("TADA.SiteGroup", names(.data))]
+    
+    .data <- .data %>% tidyr::unite(col = TADA.NearbySiteGroups, dplyr::all_of(grpcols), sep = ", ", na.rm = TRUE)
+    .data$TADA.NearbySiteGroups[.data$TADA.NearbySiteGroups == ""] <- "No nearby sites"
+  }
+   
+    if (dim(groups)[1] == 0) { # if no groups, give a TADA.NearbySiteGroups column filled with NA
     .data$TADA.NearbySiteGroups <- "No nearby sites"
     print("No nearby sites detected using input buffer distance.")
   }
-
-  # concatenate and move site id cols to right place
-  grpcols <- names(.data)[grepl("TADA.SiteGroup", names(.data))]
-
-  .data <- .data %>% tidyr::unite(col = TADA.NearbySiteGroups, dplyr::all_of(grpcols), sep = ", ", na.rm = TRUE)
-  .data$TADA.NearbySiteGroups[.data$TADA.NearbySiteGroups == ""] <- "No nearby sites"
 
   # order columns
   if ("ResultIdentifier" %in% names(.data)) {
