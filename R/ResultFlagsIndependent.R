@@ -1060,6 +1060,9 @@ TADA_FlagCoordinates <- function(.data,
 #' the distance between sites is less than the function input dist_buffer
 #' (default is 100m). Each group in the TADA.NearbySiteGroups field indicates
 #' that the sites within each group are within the specified distance from each other.
+#' 
+#' We recommend running TADA_FindPotentialDuplicatesMultipleOrgs after running
+#' TADA_FindPotentialDuplicatesSingleOrg.  
 #'
 #' @param .data TADA dataframe
 #'
@@ -1085,12 +1088,14 @@ TADA_FlagCoordinates <- function(.data,
 #' @export
 #'
 #' @examples
+#' \dontrun{
 #' # Load dataset
 #' dat <- TADA_DataRetrieval(startDate = "2022-09-01", endDate = "2023-05-01", statecode = "PA", sampleMedia = "Water")
 #' unique(dat$OrganizationIdentifier)
 #' # If duplicates across organizations exist, pick the result belonging to "21PA_WQX" if available.
 #' dat1 <- TADA_FindPotentialDuplicatesMultipleOrgs(dat, dist_buffer = 100, org_hierarchy = c("21PA_WQX"))
 #' table(dat1$TADA.ResultSelectedMultipleOrgs)
+#' }
 #'
 TADA_FindPotentialDuplicatesMultipleOrgs <- function(.data, dist_buffer = 100, org_hierarchy = "none") {
   # from those datapoints, determine which are in adjacent sites
@@ -1154,7 +1159,7 @@ TADA_FindPotentialDuplicatesMultipleOrgs <- function(.data, dist_buffer = 100, o
       hierarchy_df <- data.frame("OrganizationIdentifier" = org_hierarchy, "rank" = 1:length(org_hierarchy))
       dupranks <- dupsdat %>%
         dplyr::select(ResultIdentifier, OrganizationIdentifier, TADA.MultipleOrgDupGroupID) %>%
-        dplyr::left_join(hierarchy_df)
+        dplyr::left_join(hierarchy_df, by = "OrganizationIdentifier")
     } else {
       dupranks <- dupsdat %>%
         dplyr::select(ResultIdentifier, TADA.MultipleOrgDupGroupID) %>%
