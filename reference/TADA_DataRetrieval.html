@@ -103,7 +103,7 @@ format for R users than the WQP GUI's endDateHi = "MM-DD-YYYY".</p>
 
 
 <dt>countrycode</dt>
-<dd><p>FIPS code that identifies a country (e.g. countrycode = "CA" for Canada). See https://www.waterqualitydata.us/Codes/countrycode for options.</p></dd>
+<dd><p>Code that identifies a country or ocean (e.g. countrycode = "CA" for Canada, countrycode = "OA" for Atlantic Ocean). See https://www.waterqualitydata.us/Codes/countrycode for options.</p></dd>
 
 
 <dt>countycode</dt>
@@ -283,9 +283,10 @@ datetimes, numerics based on a standard algorithm. See: ?dataRetrieval::readWQPd
 <span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># query by country code (e.g. Canada, countrycode = "CA")</span></span></span>
-<span class="r-in"><span><span class="va">tada11</span> <span class="op">=</span> <span class="fu">TADA_DataRetrieval</span><span class="op">(</span></span></span>
-<span class="r-in"><span>  startDate <span class="op">=</span> <span class="st">"2015-01-01"</span>, </span></span>
-<span class="r-in"><span>  countrycode <span class="op">=</span> <span class="st">"CA"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">tada11</span> <span class="op">&lt;-</span> <span class="fu">TADA_DataRetrieval</span><span class="op">(</span></span></span>
+<span class="r-in"><span>  startDate <span class="op">=</span> <span class="st">"2015-01-01"</span>,</span></span>
+<span class="r-in"><span>  countrycode <span class="op">=</span> <span class="st">"CA"</span></span></span>
+<span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="op">}</span></span></span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
