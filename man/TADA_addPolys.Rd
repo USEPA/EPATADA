@@ -4,12 +4,12 @@
 \alias{TADA_addPolys}
 \title{Add polygons from an ArcGIS feature layer to a leaflet map}
 \usage{
-TADA_addPolys(map, url, layergroup, layername, bbox = NULL)
+TADA_addPolys(map, layerfilepath, layergroup, layername, bbox = NULL)
 }
 \arguments{
 \item{map}{A leaflet map}
 
-\item{url}{URL of the ArcGIS REST service returning the polygon feature layer}
+\item{layerfilepath}{Local path to the .shp file for the layer}
 
 \item{layergroup}{Name of the layer group}
 
@@ -18,7 +18,7 @@ TADA_addPolys(map, url, layergroup, layername, bbox = NULL)
 \item{bbox}{A bounding box from the sf function st_bbox; used to filter the query results. Optional; defaults to NULL.}
 }
 \value{
-The original map with polygon from the feature layer added to it.
+The original map with polygons from the feature layer added to it.
 }
 \description{
 Add polygons from an ArcGIS feature layer to a leaflet map
@@ -26,9 +26,9 @@ Add polygons from an ArcGIS feature layer to a leaflet map
 \examples{
 \dontrun{
 # Create a leaflet map
-lmap <- leaflet::leaflet() \%>\% leaflet::addProviderTiles("Esri.WorldTopoMap", group = "World topo")
+lmap <- leaflet::leaflet() \%>\% leaflet::addProviderTiles("Esri.WorldTopoMap", group = "World topo") \%>\% leaflet::addMapPane("featurelayers", zIndex = 300)
 # Add the American Indian Reservations feature layer to the map
-lmap <- TADA_addPolys(lmap, "https://geopub.epa.gov/arcgis/rest/services/EMEF/Tribal/MapServer/2/query", "Tribes", "American Indian Reservations")
+lmap <- TADA_addPolys(lmap, "inst/extdata/shapefiles/AmericanIndian.shp", "Tribes", "American Indian Reservations")
 lmap
 }
 

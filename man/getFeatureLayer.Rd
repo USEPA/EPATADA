@@ -3,7 +3,7 @@
 \name{getFeatureLayer}
 \alias{getFeatureLayer}
 \title{Retrieve feature layer from ArcGIS REST service
-getFeatureLayer is used within TADA_addPolys and TADA_addPoints}
+getFeatureLayer is used by writeLayer to write feature layers to local files}
 \usage{
 getFeatureLayer(url, bbox = NULL)
 }
@@ -17,7 +17,7 @@ ArcGIS feature layer
 }
 \description{
 Retrieve feature layer from ArcGIS REST service
-getFeatureLayer is used within TADA_addPolys and TADA_addPoints
+getFeatureLayer is used by writeLayer to write feature layers to local files
 }
 \examples{
 \dontrun{

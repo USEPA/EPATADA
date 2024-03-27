@@ -933,7 +933,7 @@ getFeatureLayer <- function(url, bbox = NULL) {
 #' @examples
 #' \dontrun{
 #' # Get the Oklahoma Tribal Statistical Areas feature layer and write to local file inst/extdata/shapefiles/OKTribe.shp
-#' TADA_WriteLayer(OKTribeUrl, "inst/extdata/shapefiles/OKTribe.shp")
+#' writeLayer(OKTribeUrl, "inst/extdata/shapefiles/OKTribe.shp")
 #' }
 #'
 writeLayer <- function(url, layerfilepath) {
@@ -963,7 +963,7 @@ writeLayer <- function(url, layerfilepath) {
 #' # Get the bounding box of the data
 #' bbox <- sf::st_bbox(c(xmin = min(Data_6Tribes_5y_Harmonized$TADA.LongitudeMeasure), ymin = min(Data_6Tribes_5y_Harmonized$TADA.LatitudeMeasure), xmax = max(Data_6Tribes_5y_Harmonized$TADA.LongitudeMeasure), ymax = max(Data_6Tribes_5y_Harmonized$TADA.LatitudeMeasure)), crs = sf::st_crs(Data_6Tribes_5y_Harmonized))
 #' # Get the American Indian Reservations feature layer, filtered by the bounding box for the Data_6Tribes_5y_Harmonized example dataset
-#' getLayer("inst/extdata/shapefiles/AmericanIndian.shp", bbox)
+#' getLayer(layerfilepath, bbox)
 #' }
 #'
 getLayer <- function(layerfilepath, bbox = NULL) {
@@ -986,7 +986,7 @@ getLayer <- function(layerfilepath, bbox = NULL) {
 #' @examples
 #' \dontrun{
 #' # Get the Oklahoma Tribal Statistical Areas feature layer
-#' layer <- getFeatureLayer("https://geopub.epa.gov/arcgis/rest/services/EMEF/Tribal/MapServer/4/query")
+#' layer <- getLayer("inst/extdata/shapefiles/OKTribe.shp")
 #' # Get popup text for individual markers
 #' getPopup(layer, "Oklahoma Tribal Statistical Areas")
 #' }
