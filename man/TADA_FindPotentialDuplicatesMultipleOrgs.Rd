@@ -23,7 +23,7 @@ duplicate, based on the organization that collected the data. If left
 blank, the function chooses the representative duplicate result at random.}
 }
 \value{
-The same input TADA dataframe with additional columns: a
+The same input TADA dataframe with four additional columns: a
 TADA.MultipleOrgDuplicate column indicating if there is evidence that
 results are likely duplicated due to submission of the same dataset by two
 or more different organizations, a TADA.MultipleOrgDupGroupID column
