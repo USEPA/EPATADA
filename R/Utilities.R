@@ -374,7 +374,10 @@ TADA_ConvertSpecialChars <- function(.data, col, percent.ave = TRUE) {
 
     # updates percentage units where NA
     chars.data$TADA.ResultMeasure.MeasureUnitCode <- ifelse(
-      grepl("%", chars.data$masked), "%", chars.data$ResultMeasure.MeasureUnitCode) 
+      grepl("%", chars.data$masked), "%", chars.data$ResultMeasure.MeasureUnitCode)
+    
+    # TADA.ResultMeasure.MeasureUnitCode to uppercase
+    chars.data$TADA.ResultMeasure.MeasureUnitCode <- toupper(chars.data$TADA.ResultMeasure.MeasureUnitCode)
   }
 
   # If column is already numeric, just discern between NA and numeric
