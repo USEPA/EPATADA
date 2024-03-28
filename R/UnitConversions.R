@@ -57,7 +57,7 @@
 #' #' # Convert values and units for results and detection limits:
 #' ResultUnitsNotConverted <- TADA_ConvertResultUnits(Data_Nutrients_UT, transform = TRUE, detlimit = TRUE)
 #'
-TADA_ConvertResultUnits <- function(.data, transform = TRUE, detlimit = TRUE) {
+TADA_ConvertResultUnits <- function(.data, transform = TRUE, detlimit = TRUE, conversionref = "none") {
   # check .data is data.frame
   TADA_CheckType(.data, "data.frame", "Input object")
   # check transform is boolean
@@ -74,18 +74,35 @@ TADA_ConvertResultUnits <- function(.data, transform = TRUE, detlimit = TRUE) {
   TADA_CheckColumns(.data, expected_cols)
 
   # execute function after checks are passed
-
-  # filter WQXcharValRef to include only valid CharacteristicUnit in water media
-  unit.ref <- utils::read.csv(system.file("extdata", "WQXunitRef.csv", package = "TADA"))
-
-  # filter out added distance rows of unit ref table - denoted
-  unit.ref <- subset(unit.ref, !is.na(unit.ref$Unique.Identifier) & !grepl("Length Distance", unit.ref$Description))
+  
+  if(conversionref == "none") {
+  
+  # use unit.ref to create unit conversion
+  unit.ref <- utils::read.csv(system.file("extdata", "WQXcharValRef.csv", package = "TADA")) 
+    
+  # filter for unit conversion
+   unit.ref <- unit.ref %>%
+    dplyr::filter(!is.na(Value),
+                  !is.na(Value.Unit),
+                  Value != "",
+                  Value.Unit != "",
+                  Status %in% c("Accepted", "NonStandardized")) %>%
+     dplyr::select(Value, Value.Unit, Conversion.Factor) %>%
+     unique() %>%
+     dplyr::group_by(Value, Value.Unit) %>%
+     #dplyr::slice_sample(n = 1) %>%
+     dplyr::rename(Code = Value,
+                   Target.Unit = Value.Unit)
+   
+   # add target speciation column to unit.ref
+   unit.ref$Target.Speciation <- ""
 
   # add usgs unit/speciations - this table was created by Elise Hinman and Cristina Mullin in 07/2023 using the pcodes domain table from NWIS and copying units with speciations in them into the same format as the measure unit domain table for WQX.
   # https://help.waterdata.usgs.gov/codes-and-parameters/parameters Downloaded the .txt file of ALL parameters and then open in Excel using the delimiter utility.
   usgs.ref <- TADA_GetUSGSSynonymRef()
 
-  unit.ref <- plyr::rbind.fill(unit.ref, usgs.ref)
+  unit.ref <- plyr::rbind.fill(unit.ref, usgs.ref) %>%
+    dplyr::select(Code, Target.Unit, Target.Speciation, Conversion.Factor)
 
   unit.ref$TADA.ResultMeasure.MeasureUnitCode <- toupper(unit.ref$Code)
   unit.ref$Target.Unit <- toupper(unit.ref$Target.Unit)
@@ -99,7 +116,11 @@ TADA_ConvertResultUnits <- function(.data, transform = TRUE, detlimit = TRUE) {
   )])
 
   # join unit.ref to .data
-  check.data <- merge(.data, unit.ref, all.x = TRUE)
+  check.data <- merge(.data, unit.ref, all.x = TRUE) 
+  
+    if(conversionref != "none"){
+      
+    }}
 
   # rename columns
   flag.data <- check.data %>%
