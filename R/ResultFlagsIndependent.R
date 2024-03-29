@@ -133,17 +133,20 @@ TADA_FlagMethod <- function(.data, clean = TRUE, flaggedonly = FALSE) {
 
 #' Check for Aggregated Continuous Data
 #'
-#' The Water Quality Portal (WQP) does not currently include a lot of high-frequency
-#' sensor data. However, sometimes data providers choose to aggregate their
-#' continuous data to a daily avg, max, or min value, and then submit that
-#' aggregated data to the WQP through WQX. Alternatively, some organizations
-#' aggregate their high frequency data (15 min or 1 hour data)
-#' to 2 or 4 hour interval averages, and they also submit that data to the WQP through WQX.
-#' The raw continuous time series data is made available through a text file
-#' attachment at the activity level. This type of high frequency data may
+#' The Water Quality Portal (WQP) includes some continuous (high frequency sensor)
+#' data which data users may want to flag and analyze separately from discrete 
+#' data. Continuous data is typically aggregated to a daily avg, max, and min value, 
+#' or another statistic of interest to the data submitter. Alternatively, some 
+#' organizations aggregate their high frequency data (15 min or 1 hour data) 
+#' to 2 or 4 hour interval averages, and they also submit that data to the WQP 
+#' through WQX. The raw continuous time series data is made available through a 
+#' text file attachment at the activity level. 
+#' 
+#' This type of high frequency data may
 #' (or may not) be suitable for integration with discrete
 #' water quality data for assessments. Therefore, this function uses metadata
 #' submitted by data providers to flag rows with aggregated continuous data.
+#' 
 #' This is done by flagging results where the ResultDetectionConditionText =
 #' "Reported in Raw Data (attached)". When clean = FALSE and flaggedonly = FALSE, a column titled
 #' "TADA.AggregatedContinuousData.Flag" is added to the dataframe to indicate if the row
@@ -182,9 +185,8 @@ TADA_FlagMethod <- function(.data, clean = TRUE, flaggedonly = FALSE) {
 #' AggContinuous_flags <- TADA_FindContinuousData(Data_Nutrients_UT, clean = FALSE)
 #'
 #' # Show only rows flagged for aggregated continuous data:
-#' AggContinuous_flaggedonly <- TADA_FindContinuousData(Data_Nutrients_UT,
-#'   clean = FALSE, flaggedonly = TRUE
-#' )
+#' AggContinuous_flaggedonly <- TADA_FindContinuousData(Data_Nutrients_UT, clean = FALSE, flaggedonly = TRUE)
+#' 
 #'
 TADA_FindContinuousData <- function(.data, clean = FALSE, flaggedonly = FALSE) {
   # check .data is data.frame
@@ -207,13 +209,21 @@ TADA_FindContinuousData <- function(.data, clean = FALSE, flaggedonly = FALSE) {
   # flag continuous data
   # make cont.data data frame
   # with new profiles might want to check for zip files? Do these columns show up in TADA_DataRetrieval?
-  cont.data <- .data %>% dplyr::filter((ActivityTypeCode == "Field Msr/Obs" &
-    ResultDetectionConditionText == "Reported in Raw Data (attached)") |
-    (ActivityTypeCode == "Field Msr/Obs" &
-      SampleCollectionEquipmentName == "Probe/Sensor" &
-      !is.na(ResultTimeBasisText) &
-      !is.na(StatisticalBaseCode) &
-      ResultValueTypeName == "Calculated"))
+  cont.data <- .data %>% dplyr::filter((ActivityTypeCode == 
+                                          c("Field Msr/Obs-Continuous Time Series", 
+                                            "Field Msr/Obs-Portable Data Logger",
+                                            "Sample-Integrated Time Series") |
+                                          
+                                         (SampleCollectionEquipmentName == "Probe/Sensor" & 
+                                            ResultDetectionConditionText == "Reported in Raw Data (attached)") |
+                                          
+                                          #(SampleCollectionEquipmentName == "Probe/Sensor" & !is.na(ActivityFileURL)) |
+                                          
+                                          (SampleCollectionEquipmentName == "Probe/Sensor" & !is.na(ResultTimeBasisText)) |
+                                          
+                                          (SampleCollectionEquipmentName == "Probe/Sensor" & !is.na(StatisticalBaseCode)) |
+                                          
+                                          (SampleCollectionEquipmentName == "Probe/Sensor" & ResultValueTypeName == "Calculated")))
 
   # everything not in cont dataframe
   noncont.data <- subset(.data, !.data$ResultIdentifier %in% cont.data$ResultIdentifier)
