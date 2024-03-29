@@ -100,7 +100,7 @@ blank, the function chooses the representative duplicate result at random.</p></
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
     
 
-<p>The same input TADA dataframe with additional columns: a
+<p>The same input TADA dataframe with four additional columns: a
 TADA.MultipleOrgDuplicate column indicating if there is evidence that
 results are likely duplicated due to submission of the same dataset by two
 or more different organizations, a TADA.MultipleOrgDupGroupID column
@@ -117,50 +117,20 @@ TADA.NearbySiteGroups field. Duplicates are only flagged as duplicates if
 the distance between sites is less than the function input dist_buffer
 (default is 100m). Each group in the TADA.NearbySiteGroups field indicates
 that the sites within each group are within the specified distance from each other.</p>
+<p>We recommend running TADA_FindPotentialDuplicatesMultipleOrgs after running
+TADA_FindPotentialDuplicatesSingleOrg.</p>
     </div>
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># Load dataset</span></span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span></span></span>
+<span class="r-in"><span><span class="co"># Load dataset</span></span></span>
 <span class="r-in"><span><span class="va">dat</span> <span class="op">&lt;-</span> <span class="fu"><a href="TADA_DataRetrieval.html">TADA_DataRetrieval</a></span><span class="op">(</span>startDate <span class="op">=</span> <span class="st">"2022-09-01"</span>, endDate <span class="op">=</span> <span class="st">"2023-05-01"</span>, statecode <span class="op">=</span> <span class="st">"PA"</span>, sampleMedia <span class="op">=</span> <span class="st">"Water"</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "Downloading WQP query results. This may take some time depending upon the query size."</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> NEWS: USGS data availability and format are changing. </span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Beginning in mid-March 2024 the data obtained from legacy profiles</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> will not include new USGS data or recent updates to existing data. </span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> To view the status of changes in data availability and code functionality, visit:</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> https://doi-usgs.github.io/dataRetrieval/articles/Status.html</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> If you have additional questions about these changes, </span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> email CompTools@usgs.gov.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> NEWS: USGS data availability and format are changing. </span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Beginning in mid-March 2024 the data obtained from legacy profiles</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> will not include new USGS data or recent updates to existing data. </span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> To view the status of changes in data availability and code functionality, visit:</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> https://doi-usgs.github.io/dataRetrieval/articles/Status.html</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> If you have additional questions about these changes, </span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> email CompTools@usgs.gov.</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "Data successfully downloaded. Running TADA_AutoClean function."</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "TADA_Autoclean: creating TADA-specific columns."</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "TADA_Autoclean: harmonizing dissolved oxygen characterisic name to DISSOLVED OXYGEN SATURATION if unit is % or % SATURATN."</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "TADA_Autoclean: handling special characters and coverting TADA.ResultMeasureValue and TADA.DetectionQuantitationLimitMeasure.MeasureValue value fields to numeric."</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "TADA_Autoclean: converting TADA.LatitudeMeasure and TADA.LongitudeMeasure fields to numeric."</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "TADA_Autoclean: harmonizing synonymous unit names (m and meters) to m."</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "TADA_Autoclean: updating deprecated (i.e. retired) characteristic names."</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "948 results in your dataset have one of the following deprecated characteristic names: 2-Propen-1-ol; Inorganic nitrogen (nitrate and nitrite). These names have been substituted with the updated preferred names in the TADA.CharacteristicName field."</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "TADA_Autoclean: harmonizing result and depth units."</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "TADA_Autoclean: creating TADA.ComparableDataIdentifier field for use when generating visualizations and analyses."</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "NOTE: This version of the TADA package is designed to work with numeric data with media name: 'WATER'. TADA_AutoClean does not currently remove (filter) data with non-water media types. If desired, the user must make this specification on their own outside of package functions. Example: dplyr::filter(.data, TADA.ActivityMediaName == 'WATER')"</span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/unique.html" class="external-link">unique</a></span><span class="op">(</span><span class="va">dat</span><span class="op">$</span><span class="va">OrganizationIdentifier</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "USGS-PA"             "11NPSWRD_WQX"        "ADVENTURESCIENTISTS"</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [4] "WVDEP_WQX"           "DRBC"                "31ORWUNT_WQX"       </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [7] "21PA_WQX"            "31DELRBC_WQX"        "EPA_GLNPO"          </span>
 <span class="r-in"><span><span class="co"># If duplicates across organizations exist, pick the result belonging to "21PA_WQX" if available.</span></span></span>
 <span class="r-in"><span><span class="va">dat1</span> <span class="op">&lt;-</span> <span class="fu">TADA_FindPotentialDuplicatesMultipleOrgs</span><span class="op">(</span><span class="va">dat</span>, dist_buffer <span class="op">=</span> <span class="fl">100</span>, org_hierarchy <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"21PA_WQX"</span><span class="op">)</span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Joining with `by = join_by(OrganizationIdentifier)`</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "1207 potentially duplicated results found in dataset. These have been placed into duplicate groups in the TADA.MultipleOrgDupGroupID column and the TADA.MultipleOrgDuplicate column is set to 'Y' (yes). If you provided an organization hierarchy, the result with the lowest ranked organization identifier was selected as the representative result in the TADA.ResultSelectedMultipleOrgs (this column is set to 'Y' for all results either selected or not considered duplicates)."</span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/table.html" class="external-link">table</a></span><span class="op">(</span><span class="va">dat1</span><span class="op">$</span><span class="va">TADA.ResultSelectedMultipleOrgs</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     N     Y </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   615 73554 </span>
+<span class="r-in"><span><span class="op">}</span></span></span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
     </div>
