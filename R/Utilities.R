@@ -374,14 +374,10 @@ TADA_ConvertSpecialChars <- function(.data, col, percent.ave = TRUE) {
 
     # updates percentage units where NA
     chars.data$TADA.ResultMeasure.MeasureUnitCode <- ifelse(
-      (grepl("%", chars.data$masked) == TRUE),
-      "%",
-      chars.data$TADA.ResultMeasure.MeasureUnitCode
-    )
-  } else {
-    chars.data$masked <- chars.data$masked
-
-    chars.data$TADA.ResultMeasure.MeasureUnitCode <- chars.data$TADA.ResultMeasure.MeasureUnitCode
+      grepl("%", chars.data$masked), "%", chars.data$ResultMeasure.MeasureUnitCode)
+    
+    # TADA.ResultMeasure.MeasureUnitCode to uppercase
+    chars.data$TADA.ResultMeasure.MeasureUnitCode <- toupper(chars.data$TADA.ResultMeasure.MeasureUnitCode)
   }
 
   # If column is already numeric, just discern between NA and numeric
@@ -660,16 +656,18 @@ TADA_FindNearbySites <- function(.data, dist_buffer = 100) {
     groups_wide <- tidyr::pivot_wider(groups_wide, id_cols = "MonitoringLocationIdentifier", names_from = "GroupCount", names_prefix = "TADA.SiteGroup", values_from = "TADA.SiteGroupID")
     # merge data to site groupings
     .data <- merge(.data, groups_wide, all.x = TRUE)
-  } else { # if no groups, give a TADA.NearbySiteGroups column filled with NA
+    
+    # concatenate and move site id cols to right place
+    grpcols <- names(.data)[grepl("TADA.SiteGroup", names(.data))]
+    
+    .data <- .data %>% tidyr::unite(col = TADA.NearbySiteGroups, dplyr::all_of(grpcols), sep = ", ", na.rm = TRUE)
+    .data$TADA.NearbySiteGroups[.data$TADA.NearbySiteGroups == ""] <- "No nearby sites"
+  }
+   
+    if (dim(groups)[1] == 0) { # if no groups, give a TADA.NearbySiteGroups column filled with NA
     .data$TADA.NearbySiteGroups <- "No nearby sites"
     print("No nearby sites detected using input buffer distance.")
   }
-
-  # concatenate and move site id cols to right place
-  grpcols <- names(.data)[grepl("TADA.SiteGroup", names(.data))]
-
-  .data <- .data %>% tidyr::unite(col = TADA.NearbySiteGroups, dplyr::all_of(grpcols), sep = ", ", na.rm = TRUE)
-  .data$TADA.NearbySiteGroups[.data$TADA.NearbySiteGroups == ""] <- "No nearby sites"
 
   # order columns
   if ("ResultIdentifier" %in% names(.data)) {
@@ -694,6 +692,11 @@ TADA_FindNearbySites <- function(.data, dist_buffer = 100) {
 #' If FALSE, the function will query all data in the WQP for the number_of_days
 #' specified (national query). If TRUE, the function will select a random state
 #' and only retrieve data for that state.
+#' 
+#' @param autoclean Boolean (TRUE or FALSE). The default is TRUE.
+#' If FALSE, the function will NOT apply the TADA_AutoClean as part of the 
+#' TADA_DataRetrieval. If TRUE, the function WILL apply TADA_AutoClean as part of  
+#' TADA_DataRetrieval.
 #'
 #' @return Random WQP dataset.
 #'
@@ -703,9 +706,10 @@ TADA_FindNearbySites <- function(.data, dist_buffer = 100) {
 #' \dontrun{
 #' df <- TADA_RandomTestingData(number_of_days = 1, choose_random_state = FALSE)
 #' df <- TADA_RandomTestingData(number_of_days = 10, choose_random_state = TRUE)
+#' df <- TADA_RandomTestingData(number_of_days = 5, choose_random_state = TRUE, autoclean = FALSE)
 #' }
 #'
-TADA_RandomTestingData <- function(number_of_days = 1, choose_random_state = FALSE) {
+TADA_RandomTestingData <- function(number_of_days = 1, choose_random_state = FALSE, autoclean = TRUE) {
   # choose a random day within the last 20 years
   twenty_yrs_ago <- Sys.Date() - 20 * 365
   random_start_date <- twenty_yrs_ago + sample(20 * 365, 1)
@@ -727,13 +731,24 @@ TADA_RandomTestingData <- function(number_of_days = 1, choose_random_state = FAL
     statecode = state
   ))
 
-  # retrieve data
-  dat <- TADA_DataRetrieval(
-    startDate = as.character(random_start_date),
-    endDate = as.character(end_date),
-    statecode = state
-  )
-
+  if (autoclean == TRUE) {
+    dat <- TADA_DataRetrieval(
+      startDate = as.character(random_start_date),
+      endDate = as.character(end_date),
+      statecode = state,
+      applyautoclean = TRUE
+    )
+  }
+  
+  if (autoclean == FALSE) {
+    dat <- TADA_DataRetrieval(
+      startDate = as.character(random_start_date),
+      endDate = as.character(end_date),
+      statecode = state,
+      applyautoclean = FALSE
+    )
+  }
+  
   if (dim(dat)[1] < 1) {
     dat <- Data_NCTCShepherdstown_HUC12
   }

@@ -75,7 +75,7 @@ remotes::install_github("USEPA/TADA",
 # IF YOU ARE NOT DEVELOPING TADA, SKIP THIS CODE CHUNK
 # when developing the package, update this chunk to the current repository branch, so it runs with all of the new features prior to a PR to develop
 remotes::install_github("USEPA/TADA",
-  ref = "maintenance",
+  ref = "334-flag-duplicates-for-multiple-orgs-weird-behavior-to-check",
   dependencies = TRUE
 )
 ```
@@ -667,12 +667,12 @@ console:
 -   ?**TADA_FindPotentialDuplicatesSingleOrg**
 
 ```{r FindPotentialDuplicates}
+TADAProfileClean3 <- TADA_FindPotentialDuplicatesSingleOrg(TADAProfileClean3)
+
 TADAProfileClean3 <- TADA_FindPotentialDuplicatesMultipleOrgs(TADAProfileClean3,
   dist_buffer = 100,
   org_hierarchy = "none"
 )
-
-TADAProfileClean3 <- TADA_FindPotentialDuplicatesSingleOrg(TADAProfileClean3)
 ```
 
 ## Review QAPP information
