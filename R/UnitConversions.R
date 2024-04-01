@@ -21,25 +21,28 @@ TADA_CreateUnitRef <- function(.data){
  # Make all units and target units uppercase
  unit.ref$Target.Unit <- toupper(unit.ref$Target.Unit)
  unit.ref$Unit <- toupper(unit.ref$Unit)
+ unit.ref$Target.Unit <- toupper(unit.ref$Target.Unit)
  
  # Import TADA unit reference for priority characteristics (characteristic specific)
- priority.ref <- utils::read.csv(system.file("extdata", "TADAPriorityCharUnitRef.csv", package = "TADA")) %>%
-   dplyr::left_join(unit.ref, by = "Target.Unit", relationship = "many-to-many")
- unit.ref$Target.Unit <- toupper(unit.ref$Target.Unit)
+ priority.ref <- utils::read.csv(system.file("extdata", "TADAPriorityCharUnitRef.csv", package = "TADA")) 
  # Make all units and target units uppercase
- priority.ref$Target.Unit <- toupper(unit.ref$Target.Unit)
- priority.ref$Unit <- toupper(unit.ref$Unit)
+ priority.ref$Target.Unit <- toupper(priority.ref$Target.Unit)
+ # Add all possible units from unit.ref which correspond to each target unit
+ priority.ref <- priority.ref %>%
+   dplyr::left_join(unit.ref, by = "Target.Unit", relationship = "many-to-many")
+
  
-  data.units <- .data %>%
+ # Create df of unique CharactersticName and Unit in TADA data frame 
+ data.units <- .data %>%
     dplyr::select(CharacteristicName, ResultMeasure.MeasureUnitCode) %>%
     dplyr::rename("Unit" = "ResultMeasure.MeasureUnitCode") %>%
     dplyr::distinct() %>%
-    dplyr::mutate(Unit = gsub("as.*$", "", Unit))
+    dplyr::mutate(Unit = toupper(gsub("as.*$", "", Unit))) %>%
     dplyr::filter(!is.na(Unit)) 
     
    priority.units <- data.units %>%
      dplyr::filter(CharacteristicName %in% priority.ref$CharacteristicName) %>%
-     dplyr::left_join(priority.ref, by = c("CharacteristicName", "Unit"))
+     dplyr::left_join(priority.ref, by = c("CharacteristicName", "Target.Unit"))
    
    other.units <- data.units %>%
      dplyr::filter(!CharacteristicName %in% priority.units$CharacteristicName) %>%
