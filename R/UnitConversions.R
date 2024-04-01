@@ -1,3 +1,56 @@
+#' Generate A Data Frame of Units by Characteristic Name
+#' 
+#' This function generates a data frame listing all unique characteristic (by CharacteristicName)
+#' and unit (by ResultMeasure.MeasureUnitCode) pairs present in the dataset. Where
+#' possible, the function fills in the columns for target unit, and conversion factor.
+#' Users can edit it and use it as an input for TADA_ConvertResultUnits to 
+#' customize standardization of units by characteristic.
+#' 
+#' @param .data TADA dataframe
+#
+#' @return A dataframe with five columns: CharacteristicName, 
+#' ResultMeasure.MeasureUnitCode, Target.Unit, ConversionFactor, and 
+#' ConversionCoefficient.The number of rows will vary based on the number of
+#' unique CharacteristicName/ResultMeasure.MeasureUnitCode combinations in the
+#' initial TADA dataframe.
+#' 
+TADA_CreateUnitRef <- function(.data){
+  
+ # Import TADA default unit reference (not characteristic specific)
+ unit.ref <- utils::read.csv(system.file("extdata", "TADAUnitRef.csv", package = "TADA"))
+ # Make all units and target units uppercase
+ unit.ref$Target.Unit <- toupper(unit.ref$Target.Unit)
+ unit.ref$Unit <- toupper(unit.ref$Unit)
+ 
+ # Import TADA unit reference for priority characteristics (characteristic specific)
+ priority.ref <- utils::read.csv(system.file("extdata", "TADAPriorityCharUnitRef.csv", package = "TADA")) %>%
+   dplyr::left_join(unit.ref, by = "Target.Unit", relationship = "many-to-many")
+ unit.ref$Target.Unit <- toupper(unit.ref$Target.Unit)
+ # Make all units and target units uppercase
+ priority.ref$Target.Unit <- toupper(unit.ref$Target.Unit)
+ priority.ref$Unit <- toupper(unit.ref$Unit)
+ 
+  data.units <- .data %>%
+    dplyr::select(CharacteristicName, ResultMeasure.MeasureUnitCode) %>%
+    dplyr::rename("Unit" = "ResultMeasure.MeasureUnitCode") %>%
+    dplyr::distinct() %>%
+    dplyr::mutate(Unit = gsub("as.*$", "", Unit))
+    dplyr::filter(!is.na(Unit)) 
+    
+   priority.units <- data.units %>%
+     dplyr::filter(CharacteristicName %in% priority.ref$CharacteristicName) %>%
+     dplyr::left_join(priority.ref, by = c("CharacteristicName", "Unit"))
+   
+   other.units <- data.units %>%
+     dplyr::filter(!CharacteristicName %in% priority.units$CharacteristicName) %>%
+     dplyr::left_join(unit.ref, by = "Unit", relationship = "many-to-many")
+  
+  
+  
+}
+#' 
+#' 
+#' 
 #' Transform Units to WQX Target Units
 #'
 #' This function compares measure units in the input data to the Water Quality
