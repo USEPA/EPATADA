@@ -49,7 +49,7 @@ can select whether sediment, groundwater and/or surface water should be included
 An additional column, TADA.UseForAnalysis.Flag, specifies whether each row should
 be included in the analysis workflow and why. Setting clean = TRUE, means
 that all results not flagged for use in the analysis workflow will be removed
-and the ADA.UseForAnalysis.Flag column will not be added.
+and the TADA.UseForAnalysis.Flag column will not be added.
 }
 \examples{
 data(Data_6Tribes_5y_Harmonized)

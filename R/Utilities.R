@@ -53,7 +53,7 @@ utils::globalVariables(c(
   "TADA.MeasureQualifierCode.Flag", "TADA.MeasureQualifierCode.Def", "MeasureQualifierCode", "value", "Flag_Column",
   "Data_NCTCShepherdstown_HUC12", "ActivityStartDateTime", "TADA.MultipleOrgDupGroupID",
   "TADA.WQXVal.Flag", "Concat", ".", "MeasureQualifierCode.Split", "TADA.Media.Flag",
-  "TADA.UseForAssessment.Flag", "ML.Media.Flag", "TADA.UseForAnalysis.Flag",
+  "ML.Media.Flag", "TADA.UseForAnalysis.Flag",
   "Unique.Identifier", "Domain", "Note.Recommendation", "Conversion.Coefficient",
   "Conversion.Coefficient", "Last.Change.Date", "Value", "Minimum", "Unique.Identifier",
   "Domain"
@@ -144,13 +144,42 @@ TADA_AutoClean <- function(.data) {
   .data$TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode <-
     toupper(.data$DetectionQuantitationLimitMeasure.MeasureUnitCode)
 
+  # Transform "Dissolved oxygen (DO)" characteristic name to "DISSOLVED OXYGEN SATURATION" IF
+  # result unit is "%" or "% SATURATN".
+
+  print("TADA_Autoclean: harmonizing dissolved oxygen characterisic name to DISSOLVED OXYGEN SATURATION if unit is % or % SATURATN.")
+
+  do.units <- c("%", "% SATURATN")
+
+  do.data <- .data %>%
+    dplyr::filter((CharacteristicName == "Dissolved oxygen (DO)") & ResultMeasure.MeasureUnitCode %in% do.units) %>%
+    dplyr::mutate(
+      TADA.CharacteristicName = "DISSOLVED OXYGEN SATURATION",
+      TADA.ResultMeasure.MeasureUnitCode = "%"
+    )
+
+  do.list <- do.data %>%
+    dplyr::select(ResultIdentifier) %>%
+    dplyr::pull()
+
+  other.data <- .data %>%
+    dplyr::filter(!ResultIdentifier %in% do.list)
+
+  do.full.join <- colnames(.data)
+
+  .data <- do.data %>%
+    dplyr::full_join(other.data, by = do.full.join) %>%
+    dplyr::arrange(ResultIdentifier)
+
+  rm(do.units, do.list, do.data, other.data, do.full.join)
+
   # Remove complex biological data. Un-comment after new WQX 3.0 Profiles are released. May not be needed if implemented via WQP UI/services.
   # .data$TADA.BiologicalIntentName = toupper(.data$BiologicalIntentName)
   # TADAProfile = dplyr::filter(TADAProfile, TADA.BiologicalIntentName != "TISSUE" | "TOXICITY" | is.na(TADA.BiologicalIntentName) == TRUE)
 
   # run TADA_ConvertSpecialChars function
   # .data <- MeasureValueSpecialCharacters(.data)
-  print("TADA_Autoclean: checking for special characters.")
+  print("TADA_Autoclean: handling special characters and coverting TADA.ResultMeasureValue and TADA.DetectionQuantitationLimitMeasure.MeasureValue value fields to numeric.")
   .data <- TADA_ConvertSpecialChars(.data, "ResultMeasureValue")
   .data <- TADA_ConvertSpecialChars(.data, "DetectionQuantitationLimitMeasure.MeasureValue")
 
@@ -160,10 +189,12 @@ TADA_AutoClean <- function(.data) {
   # .data <- TADA_IDCensoredData(.data)
 
   # change latitude and longitude measures to class numeric
+  print("TADA_Autoclean: converting TADA.LatitudeMeasure and TADA.LongitudeMeasure fields to numeric.")
   .data$TADA.LatitudeMeasure <- as.numeric(.data$LatitudeMeasure)
   .data$TADA.LongitudeMeasure <- as.numeric(.data$LongitudeMeasure)
 
   # Automatically convert USGS only unit "meters" to "m"
+  print("TADA_Autoclean: harmonizing synonymous unit names (m and meters) to m.")
   .data$TADA.ResultMeasure.MeasureUnitCode[.data$TADA.ResultMeasure.MeasureUnitCode == "meters"] <- "m"
   .data$ActivityDepthHeightMeasure.MeasureUnitCode[.data$ActivityDepthHeightMeasure.MeasureUnitCode == "meters"] <- "m"
   .data$ActivityTopDepthHeightMeasure.MeasureUnitCode[.data$ActivityTopDepthHeightMeasure.MeasureUnitCode == "meters"] <- "m"
@@ -180,9 +211,10 @@ TADA_AutoClean <- function(.data) {
   .data <- suppressWarnings(TADA_ConvertDepthUnits(.data, unit = "m"))
 
   # create comparable data identifier column
+  print("TADA_Autoclean: creating TADA.ComparableDataIdentifier field for use when generating visualizations and analyses.")
   .data <- TADA_CreateComparableID(.data)
 
-  print("NOTE: This version of the TADA package is designed to work with quantitative (numeric) data with media name: 'WATER'. TADA_AutoClean does not currently remove (filter) data with non-water media types. If desired, the user must make this specification on their own outside of package functions. Example: dplyr::filter(.data, TADA.ActivityMediaName == 'WATER')")
+  print("NOTE: This version of the TADA package is designed to work with numeric data with media name: 'WATER'. TADA_AutoClean does not currently remove (filter) data with non-water media types. If desired, the user must make this specification on their own outside of package functions. Example: dplyr::filter(.data, TADA.ActivityMediaName == 'WATER')")
 
   .data <- TADA_OrderCols(.data)
 
@@ -219,8 +251,8 @@ TADA_DecimalPlaces <- function(x) {
 #'   searches for the best space to insert a new line.
 #'
 #' @return The same vector of strings with new lines added where appropriate.
-#' 
-#' @export 
+#'
+#' @export
 #'
 TADA_InsertBreaks <- function(x, len = 50) {
   if (nchar(x) > len) {
@@ -298,6 +330,10 @@ TADA_CheckColumns <- function(.data, expected_cols) {
 #' @param .data A TADA profile object
 #' @param col A character column to be converted to numeric
 #'
+#' @param percent.ave Boolean argument; default is percent.ave = TRUE. When clean = TRUE,
+#' any percent range values will be averaged. When percent.ave = FALSE, percent range
+#' values are not averaged, but are flagged.
+#'
 #' @return Returns the original dataframe with two new columns: the input column
 #' with the prefix "TADA.", which holds the numeric form of the original column,
 #' and "TADA.ResultValueDataTypes.Flag", which has text describing the type of data
@@ -313,8 +349,7 @@ TADA_CheckColumns <- function(.data, expected_cols) {
 #' unique(HandleSpecialChars_ResultMeasureValue$TADA.ResultMeasureValueDataTypes.Flag)
 #' HandleSpecialChars_DetLimMeasureValue <- TADA_ConvertSpecialChars(Data_Nutrients_UT, "TADA.DetectionQuantitationLimitMeasure.MeasureValue")
 #' unique(HandleSpecialChars_DetLimMeasureValue$TADA.DetectionQuantitationLimitMeasure.MeasureValueDataTypes.Flag)
-#'
-TADA_ConvertSpecialChars <- function(.data, col) {
+TADA_ConvertSpecialChars <- function(.data, col, percent.ave = TRUE) {
   if (!col %in% names(.data)) {
     stop("Invalid column name specified for input dataset.")
   }
@@ -327,6 +362,23 @@ TADA_ConvertSpecialChars <- function(.data, col) {
   chars.data <- .data
   names(chars.data)[names(chars.data) == col] <- "orig"
   chars.data$masked <- chars.data$orig
+
+  # Add percentage character to dissolved oxygen saturation ResultMeasureValue
+  # so percentage and percentage - range averaged can be identified correctly
+  if (col == "ResultMeasureValue") {
+    do.units <- c("%", "% SATURATN")
+
+    chars.data$masked <- ifelse(chars.data$CharacteristicName == "Dissolved oxygen (DO)" & chars.data$ResultMeasure.MeasureUnitCode %in% do.units,
+      paste(chars.data$masked, "%"), chars.data$masked
+    )
+
+    # updates percentage units where NA
+    chars.data$TADA.ResultMeasure.MeasureUnitCode <- ifelse(
+      grepl("%", chars.data$masked), "%", chars.data$ResultMeasure.MeasureUnitCode)
+    
+    # TADA.ResultMeasure.MeasureUnitCode to uppercase
+    chars.data$TADA.ResultMeasure.MeasureUnitCode <- toupper(chars.data$TADA.ResultMeasure.MeasureUnitCode)
+  }
 
   # If column is already numeric, just discern between NA and numeric
   if (is.numeric(chars.data$orig)) {
@@ -347,6 +399,7 @@ TADA_ConvertSpecialChars <- function(.data, col) {
         (grepl(">", masked) == TRUE) ~ as.character("Greater Than"),
         (grepl("~", masked) == TRUE) ~ as.character("Approximate Value"),
         (grepl("[A-Za-z]", masked) == TRUE) ~ as.character("Text"),
+        (grepl("([1-9]|[1-9][0-9]|100)-([1-9]|[1-9][0-9]|100)%", masked) == TRUE) ~ as.character("Percentage Range - Averaged"),
         (grepl("%", masked) == TRUE) ~ as.character("Percentage"),
         (grepl(",", masked) == TRUE) ~ as.character("Comma-Separated Numeric"),
         (grepl("\\d\\-\\d", masked) == TRUE) ~ as.character("Numeric Range - Averaged"),
@@ -355,26 +408,39 @@ TADA_ConvertSpecialChars <- function(.data, col) {
         (!stringi::stri_enc_mark(masked) %in% c("ASCII")) ~ as.character("Non-ASCII Character(s)"),
         TRUE ~ "Coerced to NA"
       ))
-
-    # Result Values that are numeric ranges with the format #-# are converted to an average of the two numbers expressed in the range.
-    if (any(clean.data$flag == "Numeric Range - Averaged")) {
-      numrange <- subset(clean.data, clean.data$flag %in% c("Numeric Range - Averaged"))
-      notnumrange <- subset(clean.data, !clean.data$flag %in% c("Numeric Range - Averaged"))
-      numrange <- numrange %>%
-        tidyr::separate(masked, into = c("num1", "num2"), sep = "-", remove = TRUE) %>%
-        dplyr::mutate_at(c("num1", "num2"), as.numeric)
-      numrange$masked <- as.character(rowMeans(numrange[, c("num1", "num2")], na.rm = TRUE))
-      numrange <- numrange[, !names(numrange) %in% c("num1", "num2")]
-
-      clean.data <- plyr::rbind.fill(notnumrange, numrange)
-    }
-
-    # In the new TADA column, convert to numeric and remove some specific special
-    # characters.
-    clean.data$masked <- suppressWarnings(as.numeric(stringr::str_replace_all(
-      clean.data$masked, c("<" = "", ">" = "", "~" = "", "%" = "", "\\*" = "")
-    )))
   }
+
+  if (percent.ave == FALSE) {
+    num.range.filter <- c("Numeric Range - Averaged")
+  }
+
+  if (percent.ave == TRUE) {
+    num.range.filter <- c("Numeric Range - Averaged", "Percentage Range - Averaged")
+  }
+
+  # Result Values that are numeric ranges with the format #-# are converted to an average of the two numbers expressed in the range.
+  if (any(clean.data$flag %in% num.range.filter)) {
+    numrange <- subset(clean.data, clean.data$flag %in% num.range.filter)
+    notnumrange <- subset(clean.data, !clean.data$flag %in% num.range.filter)
+    numrange <- numrange %>%
+      dplyr::mutate(
+        masked = stringr::str_remove(masked, "[1-9]\\)"),
+        masked = stringr::str_remove(masked, "%")
+      ) %>%
+      tidyr::separate(masked, into = c("num1", "num2"), sep = "-", remove = TRUE) %>%
+      dplyr::mutate_at(c("num1", "num2"), as.numeric)
+    numrange$masked <- as.character(rowMeans(numrange[, c("num1", "num2")], na.rm = TRUE))
+    numrange <- numrange[, !names(numrange) %in% c("num1", "num2")] %>%
+      dplyr::mutate(masked = ifelse(flag == "Percentage Range - Average", paste(masked, "%", sep = ""), masked))
+
+    clean.data <- plyr::rbind.fill(notnumrange, numrange)
+  }
+
+  # In the new TADA column, convert to numeric and remove some specific special
+  # characters.
+  clean.data$masked <- suppressWarnings(as.numeric(stringr::str_replace_all(
+    clean.data$masked, c("<" = "", ">" = "", "~" = "", "%" = "", "\\*" = "", "1\\)" = "")
+  )))
 
   # this updates the DataTypes.Flag to "NA - Not Available" if NA
   clean.data$flag <- ifelse(
@@ -382,6 +448,10 @@ TADA_ConvertSpecialChars <- function(.data, col) {
     "NA - Not Available",
     clean.data$flag
   )
+
+  # remove columns to be replaced
+  clean.data <- clean.data %>%
+    dplyr::select(!(any_of(numcol)), !(any_of(flagcol)))
 
   # Rename to original column name, TADA column name, and flag column name
   names(clean.data)[names(clean.data) == "orig"] <- col
@@ -392,6 +462,7 @@ TADA_ConvertSpecialChars <- function(.data, col) {
 
   return(clean.data)
 }
+
 
 
 
@@ -585,16 +656,18 @@ TADA_FindNearbySites <- function(.data, dist_buffer = 100) {
     groups_wide <- tidyr::pivot_wider(groups_wide, id_cols = "MonitoringLocationIdentifier", names_from = "GroupCount", names_prefix = "TADA.SiteGroup", values_from = "TADA.SiteGroupID")
     # merge data to site groupings
     .data <- merge(.data, groups_wide, all.x = TRUE)
-  } else { # if no groups, give a TADA.NearbySiteGroups column filled with NA
+    
+    # concatenate and move site id cols to right place
+    grpcols <- names(.data)[grepl("TADA.SiteGroup", names(.data))]
+    
+    .data <- .data %>% tidyr::unite(col = TADA.NearbySiteGroups, dplyr::all_of(grpcols), sep = ", ", na.rm = TRUE)
+    .data$TADA.NearbySiteGroups[.data$TADA.NearbySiteGroups == ""] <- "No nearby sites"
+  }
+   
+    if (dim(groups)[1] == 0) { # if no groups, give a TADA.NearbySiteGroups column filled with NA
     .data$TADA.NearbySiteGroups <- "No nearby sites"
     print("No nearby sites detected using input buffer distance.")
   }
-
-  # concatenate and move site id cols to right place
-  grpcols <- names(.data)[grepl("TADA.SiteGroup", names(.data))]
-
-  .data <- .data %>% tidyr::unite(col = TADA.NearbySiteGroups, dplyr::all_of(grpcols), sep = ", ", na.rm = TRUE)
-  .data$TADA.NearbySiteGroups[.data$TADA.NearbySiteGroups == ""] <- "No nearby sites"
 
   # order columns
   if ("ResultIdentifier" %in% names(.data)) {
@@ -619,6 +692,11 @@ TADA_FindNearbySites <- function(.data, dist_buffer = 100) {
 #' If FALSE, the function will query all data in the WQP for the number_of_days
 #' specified (national query). If TRUE, the function will select a random state
 #' and only retrieve data for that state.
+#' 
+#' @param autoclean Boolean (TRUE or FALSE). The default is TRUE.
+#' If FALSE, the function will NOT apply the TADA_AutoClean as part of the 
+#' TADA_DataRetrieval. If TRUE, the function WILL apply TADA_AutoClean as part of  
+#' TADA_DataRetrieval.
 #'
 #' @return Random WQP dataset.
 #'
@@ -628,9 +706,10 @@ TADA_FindNearbySites <- function(.data, dist_buffer = 100) {
 #' \dontrun{
 #' df <- TADA_RandomTestingData(number_of_days = 1, choose_random_state = FALSE)
 #' df <- TADA_RandomTestingData(number_of_days = 10, choose_random_state = TRUE)
+#' df <- TADA_RandomTestingData(number_of_days = 5, choose_random_state = TRUE, autoclean = FALSE)
 #' }
 #'
-TADA_RandomTestingData <- function(number_of_days = 1, choose_random_state = FALSE) {
+TADA_RandomTestingData <- function(number_of_days = 1, choose_random_state = FALSE, autoclean = TRUE) {
   # choose a random day within the last 20 years
   twenty_yrs_ago <- Sys.Date() - 20 * 365
   random_start_date <- twenty_yrs_ago + sample(20 * 365, 1)
@@ -652,13 +731,24 @@ TADA_RandomTestingData <- function(number_of_days = 1, choose_random_state = FAL
     statecode = state
   ))
 
-  # retrieve data
-  dat <- TADA_DataRetrieval(
-    startDate = as.character(random_start_date),
-    endDate = as.character(end_date),
-    statecode = state
-  )
-
+  if (autoclean == TRUE) {
+    dat <- TADA_DataRetrieval(
+      startDate = as.character(random_start_date),
+      endDate = as.character(end_date),
+      statecode = state,
+      applyautoclean = TRUE
+    )
+  }
+  
+  if (autoclean == FALSE) {
+    dat <- TADA_DataRetrieval(
+      startDate = as.character(random_start_date),
+      endDate = as.character(end_date),
+      statecode = state,
+      applyautoclean = FALSE
+    )
+  }
+  
   if (dim(dat)[1] < 1) {
     dat <- Data_NCTCShepherdstown_HUC12
   }
@@ -907,8 +997,13 @@ pchIcons <- function(pch = 1,
 #' # Load example dataset
 #' data(Data_Nutrients_UT)
 #' # Get the bounding box of the data
-#' bbox <- sf::st_bbox(c(xmin = min(Data_Nutrients_UT$TADA.LongitudeMeasure), ymin = min(Data_Nutrients_UT$TADA.LatitudeMeasure), xmax = max(Data_Nutrients_UT$TADA.LongitudeMeasure), ymax = max(Data_Nutrients_UT$TADA.LatitudeMeasure)), crs = sf::st_crs(Data_Nutrients_UT))
-#' # Get the American Indian Reservations feature layer, filtered by the bounding box for the Data_Nutrients_UT example dataset
+#' bbox <- sf::st_bbox(c(xmin = min(Data_Nutrients_UT$TADA.LongitudeMeasure), 
+#'                       ymin = min(Data_Nutrients_UT$TADA.LatitudeMeasure), 
+#'                       xmax = max(Data_Nutrients_UT$TADA.LongitudeMeasure),
+#'                       ymax = max(Data_Nutrients_UT$TADA.LatitudeMeasure)), 
+#'                       crs = sf::st_crs(Data_Nutrients_UT))
+#' # Get the American Indian Reservations feature layer, 
+#' # filtered by the bounding box for the Data_Nutrients_UT example dataset
 #' getFeatureLayer("https://geopub.epa.gov/arcgis/rest/services/EMEF/Tribal/MapServer/2/query", bbox)
 #' }
 #'
@@ -925,7 +1020,7 @@ getFeatureLayer <- function(url, bbox = NULL) {
 
 
 #' Download a shapefile from an API and save it to a local folder, overwriting existing file if it exists
-#' writeLayer is used by TADA_UpdateTribalLayers in Maintenance.R
+#' writeLayer is used by TADA_UpdateTribalLayers in TADAGeospatialRefLayers.R.
 #'
 #' @param urlURL of the layer REST service, ending with "/query". Example: https://geopub.epa.gov/arcgis/rest/services/EMEF/Tribal/MapServer/2/query (American Indian Reservations)
 #' @param layerfilepath Local path to save the .shp file to
@@ -1019,12 +1114,12 @@ getPopup <- function(layer, layername) {
 #' @param bbox A bounding box from the sf function st_bbox; used to filter the query results. Optional; defaults to NULL.
 #' @return The original map with polygons from the feature layer added to it.
 #'
-#' @export
-#'
 #' @examples
 #' \dontrun{
 #' # Create a leaflet map
-#' lmap <- leaflet::leaflet() %>% leaflet::addProviderTiles("Esri.WorldTopoMap", group = "World topo") %>% leaflet::addMapPane("featurelayers", zIndex = 300)
+#' lmap <- leaflet::leaflet() %>% 
+#'   leaflet::addProviderTiles("Esri.WorldTopoMap", group = "World topo") %>% 
+#'   leaflet::addMapPane("featurelayers", zIndex = 300)
 #' # Add the American Indian Reservations feature layer to the map
 #' lmap <- TADA_addPolys(lmap, "inst/extdata/shapefiles/AmericanIndian.shp", "Tribes", "American Indian Reservations")
 #' lmap
@@ -1075,12 +1170,12 @@ TADA_addPolys <- function(map, layerfilepath, layergroup, layername, bbox = NULL
 #' @param bbox A bounding box from the sf function st_bbox; used to filter the query results. Optional; defaults to NULL.
 #' @return The original map with polygon from the feature layer added to it.
 #'
-#' @export
-#'
 #' @examples
 #' \dontrun{
 #' # Create a leaflet map
-#' lmap <- leaflet::leaflet() %>% leaflet::addProviderTiles("Esri.WorldTopoMap", group = "World topo") %>% leaflet::addMapPane("featurelayers", zIndex = 300)
+#' lmap <- leaflet::leaflet() %>% 
+#'   leaflet::addProviderTiles("Esri.WorldTopoMap", group = "World topo") %>% 
+#'   leaflet::addMapPane("featurelayers", zIndex = 300)
 #' # Add the Virginia Federally Recognized Tribes feature layer to the map
 #' lmap <- TADA_addPoints(lmap, "inst/extdata/shapefiles/VATribe.shp", "Tribes", "Virginia Federally Recognized Tribes")
 #' lmap

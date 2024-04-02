@@ -1,6 +1,7 @@
 #' Update TADA Reference Files
 #' @return Saves updated reference files
 #' This is only needed for ref tables in WQXRefTables.R
+#' and the tribal feature layers in TADAGeospatialRefLayers.R
 #'
 TADA_UpdateAllRefs <- function() {
   TADA_UpdateWQXCharValRef()
@@ -11,6 +12,7 @@ TADA_UpdateAllRefs <- function() {
   TADA_UpdateCharacteristicRef()
   TADA_UpdateMeasureQualifierCodeRef()
   TADA_UpdateMonLocTypeRef()
+  TADA_UpdateTribalLayers()
 }
 
 ## FUNCTION TO UPDATE EXAMPLE DATA
@@ -145,17 +147,6 @@ FindSynonyms <- function() {
   return(new_combos)
 }
 
-
-## Function to update tribal layer shapefiles. Shapefiles are stored in inst/extdata/shapefiles.
-## Existing shapefiles with the same name will be deleted first if they exist. 
-
-TADA_UpdateTribalLayers <- function() {
-  writeLayer(AKAllotmentsUrl, "inst/extdata/shapefiles/AKAllotments.shp")
-  writeLayer(AKVillagesUrl, "inst/extdata/shapefiles/AKVillages.shp")
-  writeLayer(OffReservationUrl, "inst/extdata/shapefiles/OffReservation.shp")
-  writeLayer(OKTribeUrl, "inst/extdata/shapefiles/OKTribe.shp")
-  writeLayer(VATribeUrl, "inst/extdata/shapefiles/VATribe.shp")
-}
 
 # TADA_OvernightTesting
 #

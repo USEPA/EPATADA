@@ -3,7 +3,7 @@
 \name{writeLayer}
 \alias{writeLayer}
 \title{Download a shapefile from an API and save it to a local folder, overwriting existing file if it exists
-writeLayer is used by TADA_UpdateTribalLayers in Maintenance.R}
+writeLayer is used by TADA_UpdateTribalLayers in TADAGeospatialRefLayers.R.}
 \usage{
 writeLayer(url, layerfilepath)
 }
@@ -14,7 +14,7 @@ writeLayer(url, layerfilepath)
 }
 \description{
 Download a shapefile from an API and save it to a local folder, overwriting existing file if it exists
-writeLayer is used by TADA_UpdateTribalLayers in Maintenance.R
+writeLayer is used by TADA_UpdateTribalLayers in TADAGeospatialRefLayers.R.
 }
 \examples{
 \dontrun{

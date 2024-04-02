@@ -23,7 +23,7 @@ duplicate, based on the organization that collected the data. If left
 blank, the function chooses the representative duplicate result at random.}
 }
 \value{
-The same input TADA dataframe with additional columns: a
+The same input TADA dataframe with four additional columns: a
 TADA.MultipleOrgDuplicate column indicating if there is evidence that
 results are likely duplicated due to submission of the same dataset by two
 or more different organizations, a TADA.MultipleOrgDupGroupID column
@@ -46,13 +46,18 @@ TADA.NearbySiteGroups field. Duplicates are only flagged as duplicates if
 the distance between sites is less than the function input dist_buffer
 (default is 100m). Each group in the TADA.NearbySiteGroups field indicates
 that the sites within each group are within the specified distance from each other.
+
+We recommend running TADA_FindPotentialDuplicatesMultipleOrgs after running
+TADA_FindPotentialDuplicatesSingleOrg.
 }
 \examples{
+\dontrun{
 # Load dataset
 dat <- TADA_DataRetrieval(startDate = "2022-09-01", endDate = "2023-05-01", statecode = "PA", sampleMedia = "Water")
 unique(dat$OrganizationIdentifier)
 # If duplicates across organizations exist, pick the result belonging to "21PA_WQX" if available.
 dat1 <- TADA_FindPotentialDuplicatesMultipleOrgs(dat, dist_buffer = 100, org_hierarchy = c("21PA_WQX"))
 table(dat1$TADA.ResultSelectedMultipleOrgs)
+}
 
 }
