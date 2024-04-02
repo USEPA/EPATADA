@@ -133,61 +133,59 @@ TADA_FlagMethod <- function(.data, clean = TRUE, flaggedonly = FALSE) {
 
 #' Check for Aggregated Continuous Data
 #'
-#' The Water Quality Portal (WQP) includes some continuous (high frequency sensor)
-#' data which data users may want to flag and analyze separately from discrete 
-#' data. Continuous data is typically aggregated to a daily avg, max, and min value, 
+#' Continuous data may (or may not) be suitable for integration with discrete
+#' water quality data for analyses Therefore, this function uses metadata
+#' submitted by data providers to flag rows with aggregated continuous data. 
+#' 
+#' Continuous data is often aggregated to a daily avg, max, and min value, 
 #' or another statistic of interest to the data submitter. Alternatively, some 
 #' organizations aggregate their high frequency data (15 min or 1 hour data) 
-#' to 2 or 4 hour interval averages, and they also submit that data to the WQP 
-#' through WQX. The raw continuous time series data is made available through a 
-#' text file attachment at the activity level. 
-#' 
-#' This type of high frequency data may
-#' (or may not) be suitable for integration with discrete
-#' water quality data for assessments. Therefore, this function uses metadata
-#' submitted by data providers to flag rows with aggregated continuous data.
-#' 
-#' This is done by flagging results where the ResultDetectionConditionText =
-#' "Reported in Raw Data (attached)". When clean = FALSE and flaggedonly = FALSE, a column titled
-#' "TADA.AggregatedContinuousData.Flag" is added to the dataframe to indicate if the row
-#' includes aggregated continuous data, "Continuous", or not,  "Discrete". When clean = FALSE and
-#' flaggedonly = TRUE, the dataframe will be filtered to show only the rows flagged
-#' "Continuous" for aggregated continuous data. When clean = TRUE and flaggedonly = FALSE,
-#' rows with aggregated continuous data are removed from the dataframe and no
-#' column will be appended. When clean = TRUE and flaggedonly = TRUE, the function
-#' does not execute and an error message is returned. The default is clean = TRUE
-#' and flaggedonly = FALSE.
+#' to 2 or 4 hour interval averages. In all of these scenarios, the data provider
+#' may have also included the raw data (full continuous time series) as a text file 
+#' attachment at the activity level. 
 #'
 #' @param .data TADA dataframe
-#' @param clean Boolean argument; removes aggregated continuous data from
-#' the dataframe when clean = TRUE. Default is clean = TRUE.
-#' @param flaggedonly Boolean argument; filters dataframe to show only aggregated
-#' continuous data when flaggedonly = TRUE. Default is flaggedonly = FALSE.
-#'
-#' @return When clean = FALSE and flaggedonly = FALSE, a column flagging rows with
-#' aggregated continuous data is appended to the input data set. When clean = FALSE
-#' and flaggedonly = TRUE, the dataframe is filtered to show only the flagged
-#' aggregated continuous data and flag column is still appended. When clean = TRUE
-#' and flaggedonly = FALSE, aggregated continuous data is removed from the dataframe
-#' and no column is appended. The default is clean = FALSE and flaggedonly = FALSE.
+#' @param clean Boolean argument: When clean = FALSE (default), a column titled
+#' "TADA.AggregatedContinuousData.Flag" is added to the dataframe to indicate if
+#' each row includes "Continuous" or "Discrete" data. When clean = TRUE, rows 
+#' with "continuous" data are removed from the dataframe and no column is appended. 
+#' @param flaggedonly Boolean argument: When flaggedonly = FALSE (default), all 
+#' results are included in the output. When flaggedonly = TRUE, the dataframe 
+#' will be filtered to include only the rows flagged as "Continuous" results.
+#' @return The default is clean = FALSE and flaggedonly = FALSE.
+#' When clean = FALSE and flaggedonly = FALSE (default), a new column, 
+#' "TADA.AggregatedContinuousData.Flag", is appended to the input data set which 
+#' flags each row as "Continuous" or "Discrete". 
+#' When clean = FALSE and flaggedonly = TRUE, the dataframe is filtered to show 
+#' only the flagged continuous data and flag column is still appended. 
+#' When clean = TRUE and flaggedonly = FALSE, aggregated continuous data is 
+#' removed from the dataframe and no column is appended. 
 #'
 #' @export
 #'
 #' @examples
-#' # Load example dataset
-#' data(Data_Nutrients_UT)
-#'
+#' \dontrun{
+#' Continuous <- TADA_DataRetrieval(project = c("Continuous LC1", "MA_Continuous", "Anchorage Bacteria 20-21"))
 #' # Remove aggregated continuous data in dataframe:
-#' AggContinuous_clean <- TADA_FindContinuousData(Data_Nutrients_UT, clean = TRUE)
-#'
+#' AggContinuous_clean <- TADA_FindContinuousData(Continuous, clean = TRUE)
+#' # Flag, but do not remove, aggregated continuous data in new column
+#' # titled "TADA.AggregatedContinuousData.Flag":
+#' AggContinuous_flags <- TADA_FindContinuousData(Continuous, clean = FALSE)
+#' # Show only rows flagged for aggregated continuous data:
+#' AggContinuous_flaggedonly <- TADA_FindContinuousData(Continuous, clean = FALSE, flaggedonly = TRUE)
+#' 
+#' data(Data_Nutrients_UT)
+#' # Remove aggregated continuous data in dataframe:
+#' AggContinuous_clean <- TADA_FindContinuousData(Data_Nutrients_UT, clean = TRUE) 
+#' unique(AggContinuous_clean$TADA.AggregatedContinuousData.Flag)
 #' # Flag, but do not remove, aggregated continuous data in new column
 #' # titled "TADA.AggregatedContinuousData.Flag":
 #' AggContinuous_flags <- TADA_FindContinuousData(Data_Nutrients_UT, clean = FALSE)
-#'
+#' unique(AggContinuous_flags$TADA.AggregatedContinuousData.Flag)
 #' # Show only rows flagged for aggregated continuous data:
 #' AggContinuous_flaggedonly <- TADA_FindContinuousData(Data_Nutrients_UT, clean = FALSE, flaggedonly = TRUE)
+#' }
 #' 
-#'
 TADA_FindContinuousData <- function(.data, clean = FALSE, flaggedonly = FALSE) {
   # check .data is data.frame
   TADA_CheckType(.data, "data.frame", "Input object")
@@ -196,34 +194,36 @@ TADA_FindContinuousData <- function(.data, clean = FALSE, flaggedonly = FALSE) {
   # check flaggedonly is boolean
   TADA_CheckType(flaggedonly, "logical")
   # check .data has required columns
-  TADA_CheckColumns(.data, "ResultDetectionConditionText")
+  TADA_CheckColumns(.data, c("ActivityTypeCode",
+                             "SampleCollectionEquipmentName",
+                             "ResultDetectionConditionText",
+                             "ResultTimeBasisText",
+                             "StatisticalBaseCode",
+                             "ResultValueTypeName",
+                             "ResultIdentifier"))
+  
   # check that clean and flaggedonly are not both TRUE
   if (clean == TRUE & flaggedonly == TRUE) {
     stop("Function not executed because clean and flaggedonly cannot both be TRUE")
   }
 
-  # set default flag to "unknown"
+  # set default flag to "Discrete"
   .data$TADA.AggregatedContinuousData.Flag <- "Discrete"
 
-  # execute function after checks are passed
-  # flag continuous data
-  # make cont.data data frame
-  # with new profiles might want to check for zip files? Do these columns show up in TADA_DataRetrieval?
-  cont.data <- .data %>% dplyr::filter((ActivityTypeCode == 
-                                          c("Field Msr/Obs-Continuous Time Series", 
-                                            "Field Msr/Obs-Portable Data Logger",
-                                            "Sample-Integrated Time Series") |
-                                          
-                                         (SampleCollectionEquipmentName == "Probe/Sensor" & 
-                                            ResultDetectionConditionText == "Reported in Raw Data (attached)") |
-                                          
-                                          #(SampleCollectionEquipmentName == "Probe/Sensor" & !is.na(ActivityFileURL)) |
-                                          
-                                          (SampleCollectionEquipmentName == "Probe/Sensor" & !is.na(ResultTimeBasisText)) |
-                                          
-                                          (SampleCollectionEquipmentName == "Probe/Sensor" & !is.na(StatisticalBaseCode)) |
-                                          
-                                          (SampleCollectionEquipmentName == "Probe/Sensor" & ResultValueTypeName == "Calculated")))
+  # execute function after checks are passed: flag continuous data and make cont.data data frame
+  # once new 3.0 profiles come out, check for zip files in ActivityFileURL and flag data that populates the DataLoggerLine
+  cont.data <- .data %>% dplyr::filter((ActivityTypeCode == "Field Msr/Obs-Continuous Time Series" |
+                                        (ActivityTypeCode == "Sample-Integrated Time Series" & SampleCollectionEquipmentName == "Probe/Sensor") |  
+                                        (ActivityTypeCode == "Field Msr/Obs-Portable Data Logger" & !is.na(ResultTimeBasisText)) |
+                                        (ActivityTypeCode == "Field Msr/Obs-Portable Data Logger" & !is.na(StatisticalBaseCode)) |
+                                        (ActivityTypeCode == "Field Msr/Obs-Portable Data Logger" & ResultValueTypeName == "Calculated") |
+                                        (ActivityTypeCode == "Field Msr/Obs-Portable Data Logger" & ResultValueTypeName == "Estimated") |
+                                        # SampleCollectionEquipmentName == "Probe/Sensor" & !is.na(ActivityFileURL) | 
+                                        # (SampleCollectionEquipmentName == "Probe/Sensor" & !is.na(DataLoggerLine)) | 
+                                        (SampleCollectionEquipmentName == "Probe/Sensor" & !is.na(ResultTimeBasisText)) |
+                                        (SampleCollectionEquipmentName == "Probe/Sensor" & !is.na(StatisticalBaseCode)) |
+                                        (SampleCollectionEquipmentName == "Probe/Sensor" & ResultValueTypeName == "Calculated") |
+                                        (SampleCollectionEquipmentName == "Probe/Sensor" & ResultValueTypeName == "Estimated")))
 
   # everything not in cont dataframe
   noncont.data <- subset(.data, !.data$ResultIdentifier %in% cont.data$ResultIdentifier)

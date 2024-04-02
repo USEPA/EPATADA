@@ -9,60 +9,59 @@ TADA_FindContinuousData(.data, clean = FALSE, flaggedonly = FALSE)
 \arguments{
 \item{.data}{TADA dataframe}
 
-\item{clean}{Boolean argument; removes aggregated continuous data from
-the dataframe when clean = TRUE. Default is clean = TRUE.}
+\item{clean}{Boolean argument: When clean = FALSE (default), a column titled
+"TADA.AggregatedContinuousData.Flag" is added to the dataframe to indicate if
+each row includes "Continuous" or "Discrete" data. When clean = TRUE, rows
+with "continuous" data are removed from the dataframe and no column is appended.}
 
-\item{flaggedonly}{Boolean argument; filters dataframe to show only aggregated
-continuous data when flaggedonly = TRUE. Default is flaggedonly = FALSE.}
+\item{flaggedonly}{Boolean argument: When flaggedonly = FALSE (default), all
+results are included in the output. When flaggedonly = TRUE, the dataframe
+will be filtered to include only the rows flagged as "Continuous" results.}
 }
 \value{
-When clean = FALSE and flaggedonly = FALSE, a column flagging rows with
-aggregated continuous data is appended to the input data set. When clean = FALSE
-and flaggedonly = TRUE, the dataframe is filtered to show only the flagged
-aggregated continuous data and flag column is still appended. When clean = TRUE
-and flaggedonly = FALSE, aggregated continuous data is removed from the dataframe
-and no column is appended. The default is clean = FALSE and flaggedonly = FALSE.
+The default is clean = FALSE and flaggedonly = FALSE.
+When clean = FALSE and flaggedonly = FALSE (default), a new column,
+"TADA.AggregatedContinuousData.Flag", is appended to the input data set which
+flags each row as "Continuous" or "Discrete".
+When clean = FALSE and flaggedonly = TRUE, the dataframe is filtered to show
+only the flagged continuous data and flag column is still appended.
+When clean = TRUE and flaggedonly = FALSE, aggregated continuous data is
+removed from the dataframe and no column is appended.
 }
 \description{
-The Water Quality Portal (WQP) includes some continuous (high frequency sensor)
-data which data users may want to flag and analyze separately from discrete
-data. Continuous data is typically aggregated to a daily avg, max, and min value,
-or another statistic of interest to the data submitter. Alternatively, some
-organizations aggregate their high frequency data (15 min or 1 hour data)
-to 2 or 4 hour interval averages, and they also submit that data to the WQP
-through WQX. The raw continuous time series data is made available through a
-text file attachment at the activity level.
+Continuous data may (or may not) be suitable for integration with discrete
+water quality data for analyses Therefore, this function uses metadata
+submitted by data providers to flag rows with aggregated continuous data.
 }
 \details{
-This type of high frequency data may
-(or may not) be suitable for integration with discrete
-water quality data for assessments. Therefore, this function uses metadata
-submitted by data providers to flag rows with aggregated continuous data.
-
-This is done by flagging results where the ResultDetectionConditionText =
-"Reported in Raw Data (attached)". When clean = FALSE and flaggedonly = FALSE, a column titled
-"TADA.AggregatedContinuousData.Flag" is added to the dataframe to indicate if the row
-includes aggregated continuous data, "Continuous", or not,  "Discrete". When clean = FALSE and
-flaggedonly = TRUE, the dataframe will be filtered to show only the rows flagged
-"Continuous" for aggregated continuous data. When clean = TRUE and flaggedonly = FALSE,
-rows with aggregated continuous data are removed from the dataframe and no
-column will be appended. When clean = TRUE and flaggedonly = TRUE, the function
-does not execute and an error message is returned. The default is clean = TRUE
-and flaggedonly = FALSE.
+Continuous data is often aggregated to a daily avg, max, and min value,
+or another statistic of interest to the data submitter. Alternatively, some
+organizations aggregate their high frequency data (15 min or 1 hour data)
+to 2 or 4 hour interval averages. In all of these scenarios, the data provider
+may have also included the raw data (full continuous time series) as a text file
+attachment at the activity level.
 }
 \examples{
-# Load example dataset
-data(Data_Nutrients_UT)
-
+\dontrun{
+Continuous <- TADA_DataRetrieval(project = c("Continuous LC1", "MA_Continuous", "Anchorage Bacteria 20-21"))
 # Remove aggregated continuous data in dataframe:
-AggContinuous_clean <- TADA_FindContinuousData(Data_Nutrients_UT, clean = TRUE)
+AggContinuous_clean <- TADA_FindContinuousData(Continuous, clean = TRUE)
+# Flag, but do not remove, aggregated continuous data in new column
+# titled "TADA.AggregatedContinuousData.Flag":
+AggContinuous_flags <- TADA_FindContinuousData(Continuous, clean = FALSE)
+# Show only rows flagged for aggregated continuous data:
+AggContinuous_flaggedonly <- TADA_FindContinuousData(Continuous, clean = FALSE, flaggedonly = TRUE)
 
+data(Data_Nutrients_UT)
+# Remove aggregated continuous data in dataframe:
+AggContinuous_clean <- TADA_FindContinuousData(Data_Nutrients_UT, clean = TRUE) 
+unique(AggContinuous_clean$TADA.AggregatedContinuousData.Flag)
 # Flag, but do not remove, aggregated continuous data in new column
 # titled "TADA.AggregatedContinuousData.Flag":
 AggContinuous_flags <- TADA_FindContinuousData(Data_Nutrients_UT, clean = FALSE)
-
+unique(AggContinuous_flags$TADA.AggregatedContinuousData.Flag)
 # Show only rows flagged for aggregated continuous data:
 AggContinuous_flaggedonly <- TADA_FindContinuousData(Data_Nutrients_UT, clean = FALSE, flaggedonly = TRUE)
-
+}
 
 }
