@@ -8,7 +8,7 @@
 #' @return The original TADA Water Quality Portal dataframe but as geospatial {sf} point objects. 
 #' 
 #' @seealso [TADA_DataRetrieval()]
-#' 
+#'
 #' @export
 #'
 #' @examples
@@ -78,9 +78,7 @@ TADA_MakeSpatial <- function(data, crs = 4326){
 #' Fetch ATTAINS features within a bounding box produced from a set of TADA spatial features.
 #' 
 #' @param data A dataframe developed using `TADA_DataRetrieval()` or `TADA_MakeSpatial()`.
-#' @param type The type of ATTAINS data you would like to fetch ("lines", "points", "polygons", "catchments"). All ATTAINS features are returned in WGS84 (crs = 4326).
-#' 
-#' @return spatial features that are within the spatial bounding box of water quality observations.
+#' @return spatial features (ATTAINS_catchments, ATTAINS_points, ATTAINS_lines, and ATTAINS_polygons) that are within the spatial bounding box of water quality observations.
 #' 
 #' @seealso [TADA_MakeSpatial()]
 #' @seealso [TADA_DataRetrieval()]
@@ -92,22 +90,24 @@ TADA_MakeSpatial <- function(data, crs = 4326){
 #'                                characteristicName = "pH",
 #'                                statecode = "NV",
 #'                                applyautoclean = TRUE)
-#'                                  
-#'nv_attains_lines <- fetchATTAINS(data = tada_data, type = "lines")
+#'nv_attains_features <- fetchATTAINS(data = tada_data)
 #' }
 
-fetchATTAINS <- function(data, type = NULL) {
+fetchATTAINS <- function(data) {
   
   if(is.null(data) | nrow(data) == 0){
     stop("There is no data in your `data` object to use as a bounding box for selecting ATTAINS features.")
   }
   
+  # EPSG we want our ATTAINS data to be in (always 4326 for this function)
+  our_epsg <- 4326
+  
   # If data is already spatial, just make sure it is in the right CRS
   # and add an index as the WQP observations' unique identifier...
   if (!is.null(data) & inherits(data, "sf")) {
-    if(sf::st_crs(data)$epsg != 4326){
+    if(sf::st_crs(data)$epsg != our_epsg){
       data <- data %>%
-        sf::st_transform(4326)
+        sf::st_transform(our_epsg)
     } else {
       data <- data 
     }
@@ -115,96 +115,96 @@ fetchATTAINS <- function(data, type = NULL) {
     # ... Otherwise transform into a spatial object then do the same thing:
     data <- data %>%
       #convert dataframe to a spatial object
-      TADA_MakeSpatial(data = ., crs = 4326) 
+      TADA_MakeSpatial(data = ., crs = our_epsg) 
   }
   
-  if(is.null(type)){
-    stop("Please select the type of ATTAINS data you would like to import ('catchments', 'lines', 'points', or 'polygons').")
-  }
-  
-  # select baseurl based on type of ATTAINS data you want to download:
-  if(type == "catchments"){
-    baseurl <- "https://gispub.epa.gov/arcgis/rest/services/OW/ATTAINS_Assessment/MapServer/3/query?"
-  }else if(type == "points"){
-    baseurl <-  "https://gispub.epa.gov/arcgis/rest/services/OW/ATTAINS_Assessment/MapServer/0/query?"
-  }else if(type == "lines"){
-    baseurl <-  "https://gispub.epa.gov/arcgis/rest/services/OW/ATTAINS_Assessment/MapServer/1/query?"
-  }else if(type == "polygons"){
-    baseurl <-  "https://gispub.epa.gov/arcgis/rest/services/OW/ATTAINS_Assessment/MapServer/2/query?"
-  }
-  
-  # starting at feature 1 (i.e., no offset):
-  offset <- 0 
-  # empty list to store all features in
-  all_features <- list()
-  
-  # EPSG we want our ATTAINS data to be in (always 4326 for this function)
-  epsg <- 4326
-  
-  # bounding box (with some minor wiggle) of user's WQP data
-  suppressMessages(suppressWarnings({
+  baseurls <- c(# ATTAINS catchments:
+                "https://gispub.epa.gov/arcgis/rest/services/OW/ATTAINS_Assessment/MapServer/3/query?",
+                # ATTAINS points:
+                "https://gispub.epa.gov/arcgis/rest/services/OW/ATTAINS_Assessment/MapServer/0/query?",
+                # ATTAINS lines:
+                "https://gispub.epa.gov/arcgis/rest/services/OW/ATTAINS_Assessment/MapServer/1/query?",
+                # ATTAINS polygons:
+                "https://gispub.epa.gov/arcgis/rest/services/OW/ATTAINS_Assessment/MapServer/2/query?")
+
+  feature_downloader <- function(baseurls){
     
-    bbox <- data %>% 
-      sf::st_buffer(0.001) %>% 
-      sf::st_bbox(data) %>%
-      # convert bounding box to characters
-      toString(.) %>% 
-      # encode for use within the API URL
-      urltools::url_encode(.)
+    # starting at feature 1 (i.e., no offset):
+    offset <- 0 
+    # empty list to store all features in
+    all_features <- list()
     
-  }))
-  
-  # The ATTAINS API has a limit of 2000 features that can be pulled in at once.
-  # Therefore, we must split the call into manageable "chunks" using a moving
-  # window of what features to pull in, then munging all the separate API calls 
-  # together.
-  
-  repeat {
+    # bounding box (with some minor wiggle) of user's WQP data
+    suppressMessages(suppressWarnings({
+      
+      bbox <- data %>% 
+        sf::st_buffer(0.001) %>% 
+        sf::st_bbox(data) %>%
+        # convert bounding box to characters
+        toString(.) %>% 
+        # encode for use within the API URL
+        urltools::url_encode(.)
+      
+    }))
     
-    query <- urltools::param_set(baseurl, key = "geometry", value = bbox) %>%
-      urltools::param_set(key = "inSR", value = epsg) %>%
-      # Total of 2000 features at a time...
-      urltools::param_set(key = "resultRecordCount", value = 500) %>%
-      # ... starting at the "offset":
-      urltools::param_set(key = "resultOffset", value = offset) %>%
-      urltools::param_set(key = "spatialRel", value = "esriSpatialRelIntersects") %>%
-      urltools::param_set(key = "f", value = "geojson") %>%
-      urltools::param_set(key = "outFields", value = "*") %>%
-      urltools::param_set(key = "geometryType", value = "esriGeometryEnvelope") %>%
-      urltools::param_set(key = "returnGeometry", value = "true") %>%
-      urltools::param_set(key = "returnTrueCurves", value = "false") %>%
-      urltools::param_set(key = "returnIdsOnly", value = "false") %>%
-      urltools::param_set(key = "returnCountOnly", value = "false") %>%
-      urltools::param_set(key = "returnZ", value = "false") %>%
-      urltools::param_set(key = "returnM", value = "false") %>%
-      urltools::param_set(key = "returnDistinctValues", value = "false") %>%
-      urltools::param_set(key = "returnExtentOnly", value = "false") %>%
-      urltools::param_set(key = "featureEncoding", value = "esriDefault")
+    # The ATTAINS API has a limit of 2000 features that can be pulled in at once.
+    # Therefore, we must split the call into manageable "chunks" using a moving
+    # window of what features to pull in, then munging all the separate API calls 
+    # together.
     
-    # Fetch features within the offset window and append to list:
-    features <- suppressMessages(suppressWarnings({tryCatch({
-      geojsonsf::geojson_sf(query)
-    }, error = function(e) {
-      NULL
-    })}))
-    
-    
-    # Exit loop if no more features or error occurred
-    if (is.null(features) || nrow(features) == 0) {
-      break
+    repeat {
+      
+      query <- urltools::param_set(baseurls, key = "geometry", value = bbox) %>%
+        urltools::param_set(key = "inSR", value = our_epsg) %>%
+        # Total of 2000 features at a time...
+        urltools::param_set(key = "resultRecordCount", value = 2000) %>%
+        # ... starting at the "offset":
+        urltools::param_set(key = "resultOffset", value = offset) %>%
+        urltools::param_set(key = "spatialRel", value = "esriSpatialRelIntersects") %>%
+        urltools::param_set(key = "f", value = "geojson") %>%
+        urltools::param_set(key = "outFields", value = "*") %>%
+        urltools::param_set(key = "geometryType", value = "esriGeometryEnvelope") %>%
+        urltools::param_set(key = "returnGeometry", value = "true") %>%
+        urltools::param_set(key = "returnTrueCurves", value = "false") %>%
+        urltools::param_set(key = "returnIdsOnly", value = "false") %>%
+        urltools::param_set(key = "returnCountOnly", value = "false") %>%
+        urltools::param_set(key = "returnZ", value = "false") %>%
+        urltools::param_set(key = "returnM", value = "false") %>%
+        urltools::param_set(key = "returnDistinctValues", value = "false") %>%
+        urltools::param_set(key = "returnExtentOnly", value = "false") %>%
+        urltools::param_set(key = "featureEncoding", value = "esriDefault")
+      
+      # Fetch features within the offset window and append to list:
+      features <- suppressMessages(suppressWarnings({tryCatch({
+        geojsonsf::geojson_sf(query)
+      }, error = function(e) {
+        NULL
+      })}))
+      
+      
+      # Exit loop if no more features or error occurred
+      if (is.null(features) || nrow(features) == 0) {
+        break
+      }
+      
+      all_features <- c(all_features, list(features))
+      # once done, change offset by 2000 features:
+      offset <- offset + 2000
+      
+      if(offset == 4000){print("Your TADA data covers a large spatial range. The ATTAINS pull may take a while.")}
+      
     }
     
-    all_features <- c(all_features, list(features))
-    # once done, change offset by 2000 features:
-    offset <- offset + 500
-    
-    if(offset == 4000){print("Your TADA data covers a large spatial range. The ATTAINS pull may take a while.")}
+    all_features <- dplyr::bind_rows(all_features)
     
   }
   
-  all_features <- dplyr::bind_rows(all_features)
+  final_features <- baseurls %>%
+    purrr::map(~ feature_downloader(.))
   
-  return(all_features)
+  names(final_features) <- c("ATTAINS_catchments", "ATTAINS_points", "ATTAINS_lines", "ATTAINS_polygons")
+  
+  return(final_features)
   
 }
 
@@ -214,14 +214,14 @@ fetchATTAINS <- function(data, type = NULL) {
 #' Link catchment-based ATTAINS assessment unit data to Water Quality Portal observations, often imported via `TADA_DataRetrieval()`. This function returns the same raw objects that are mapped in `TADA_ViewATTAINS()`.
 #' 
 #' @param data A dataframe created by `TADA_DataRetrieval()` or the sf equivalent made by `TADA_MakeSpatial()`.
-#' @param return Whether to return the associated ATTAINS_catchments, ATTAINS_lines, ATTAINS_points, and ATTAINS_polygons shapefile objects. TRUE (yes, return) or FALSE (no, do not return). All ATTAINS features are in WGS84 (crs = 4326).
+#' @param return_sf Whether to return the associated ATTAINS_catchments, ATTAINS_lines, ATTAINS_points, and ATTAINS_polygons shapefile objects. TRUE (yes, return) or FALSE (no, do not return). All ATTAINS features are in WGS84 (crs = 4326).
 #' 
 #' @return A modified `TADA_DataRetrieval()` dataframe with additional columns associated with the ATTAINS assessment unit data. Or, if return = TRUE, a list containing that same data frame plus the raw ATTAINS features associated with those observations.
 #' 
 #' @seealso [TADA_DataRetrieval()]
 #' @seealso [TADA_MakeSpatial()]
 #' @seealso [TADA_ViewATTAINS()]
-#' 
+#'
 #' @export
 #'
 #' @examples
@@ -231,13 +231,11 @@ fetchATTAINS <- function(data, type = NULL) {
 #'                                characteristicName = "pH",
 #'                                statecode = "NV",
 #'                                applyautoclean = TRUE)
-#'
-#'tada_attains <- TADA_GetATTAINS(data = tada_data, return = FALSE)
-#'tada_attains_list <- TADA_GetATTAINS(data = tada_data, return = TRUE)
+#'tada_attains <- TADA_GetATTAINS(data = tada_data, return_sf = FALSE)
+#'tada_attains_list <- TADA_GetATTAINS(data = tada_data, return_sf = TRUE)
 #' }
 
-TADA_GetATTAINS <- function(data, return = TRUE){
-  
+TADA_GetATTAINS <- function(data, return_sf = TRUE){
   
   attains_names <- c(
     "ATTAINS.organizationid", "ATTAINS.submissionid", "ATTAINS.hasprotectionplan",
@@ -253,7 +251,7 @@ TADA_GetATTAINS <- function(data, return = TRUE){
     "ATTAINS.catchmentstatecode", "ATTAINS.catchmentresolution", "ATTAINS.Shape_Area"
   )
   
-  if (all(attains_names %in% colnames(data))){
+  if (any(attains_names %in% colnames(data))){
     
     stop("Your data has already been joined with ATTAINS data.")
     
@@ -271,11 +269,11 @@ TADA_GetATTAINS <- function(data, return = TRUE){
     
     # Add ATTAINS columns with NA values
     no_WQP_data <- data %>%
-      dplyr::mutate("index") %>%
+      dplyr::mutate(index = NA) %>%
       dplyr::bind_cols(col_val_list)
     
     # In this case we'll need to return empty ATTAINS objects
-    if(return == TRUE){
+    if(return_sf == TRUE){
       ATTAINS_catchments <- NULL
       ATTAINS_lines <- NULL
       ATTAINS_points <- NULL
@@ -319,10 +317,12 @@ TADA_GetATTAINS <- function(data, return = TRUE){
     }
   }))
   
+  attains_features <- try(fetchATTAINS(data = TADA_DataRetrieval_data), silent = TRUE)
+  
   # grab the ATTAINS catchments within our WQP bbox:
   nearby_catchments <- NULL
   # (Wrapped with "try" because it is possible that no ATTAINS data exists in the bbox.)
-  try(nearby_catchments <- fetchATTAINS(type = "catchments", data = TADA_DataRetrieval_data) %>%
+  try(nearby_catchments <- attains_features[["ATTAINS_catchments"]] %>%
         # remove unnecessary columns:
         dplyr::select(-c(OBJECTID, GLOBALID)) %>%
         # select only catchments that have WQP observations in them:
@@ -347,7 +347,7 @@ TADA_GetATTAINS <- function(data, return = TRUE){
       dplyr::bind_cols(col_val_list) %>%
       tibble::rowid_to_column(var = "index")
     
-    if(return == TRUE){
+    if(return_sf == TRUE){
       
       ATTAINS_catchments <- NULL
       ATTAINS_lines <- NULL
@@ -371,7 +371,7 @@ TADA_GetATTAINS <- function(data, return = TRUE){
         # left join = TRUE to preserve all observations (with or without ATTAINS features):
         sf::st_join(., nearby_catchments, left = TRUE)
       
-      if(return == FALSE){
+      if(return_sf == FALSE){
         return(TADA_with_ATTAINS)
       }
       
@@ -384,7 +384,7 @@ TADA_GetATTAINS <- function(data, return = TRUE){
       
       # POINT FEATURES - try to pull point AU data if it exists. Otherwise, move on...
       ATTAINS_points <- NULL
-      try(ATTAINS_points <- fetchATTAINS(type = "points", data = TADA_DataRetrieval_data) %>%
+      try(ATTAINS_points <- attains_features[["ATTAINS_points"]] %>%
             # subset to only ATTAINS point features in the same NHD HR catchments as WQP observations
             .[nearby_catchments,] %>%
             # make sure no duplicate features exist
@@ -393,7 +393,7 @@ TADA_GetATTAINS <- function(data, return = TRUE){
       
       # LINE FEATURES - try to pull line AU data if it exists. Otherwise, move on...
       ATTAINS_lines <- NULL
-      try(ATTAINS_lines <- fetchATTAINS(type = "lines", data = TADA_DataRetrieval_data) %>%
+      try(ATTAINS_lines <- attains_features[["ATTAINS_lines"]] %>%
             # subset to only ATTAINS line features in the same NHD HR catchments as WQP observations
             .[nearby_catchments,] %>%
             # make sure no duplicate line features exist
@@ -402,7 +402,7 @@ TADA_GetATTAINS <- function(data, return = TRUE){
       
       # POLYGON FEATURES - try to pull polygon AU data if it exists. Otherwise, move on...
       ATTAINS_polygons <- NULL
-      try(ATTAINS_polygons <- fetchATTAINS(type = "polygons", data = TADA_DataRetrieval_data) %>%
+      try(ATTAINS_polygons <- attains_features[["ATTAINS_polygons"]] %>%
             # subset to only ATTAINS polygon features in the same NHD HR catchments as WQP observations
             .[nearby_catchments,] %>%
             # make sure no duplicate polygon features exist
@@ -430,7 +430,7 @@ TADA_GetATTAINS <- function(data, return = TRUE){
 #' 
 #' @seealso [TADA_DataRetrieval()]
 #' @seealso [TADA_GetATTAINS()]
-#' 
+#'
 #' @export
 #'
 #' @examples
@@ -441,16 +441,16 @@ TADA_GetATTAINS <- function(data, return = TRUE){
 #'                                statecode = "NV",
 #'                                applyautoclean = TRUE)
 #'                                
-#'attains_data <- TADA_GetATTAINS(data = tada_data, return = TRUE)                               
+#'attains_data <- TADA_GetATTAINS(data = tada_data, return_sf = TRUE)                               
 #'                                  
 #'TADA_ViewATTAINS(ATTAINS_list = attains_data)
 #' }
 
 TADA_ViewATTAINS <- function(ATTAINS_list){
   
-  if(!all(c("TADA_with_ATTAINS", "ATTAINS_catchments", "ATTAINS_points",
+  if(!any(c("TADA_with_ATTAINS", "ATTAINS_catchments", "ATTAINS_points",
             "ATTAINS_lines", "ATTAINS_polygons") %in% names(ATTAINS_list))) {
-    stop("Your ATTAINS_list was not produced from `TADA_GetATTAINS()` or it was modified. Please create your list of ATTAINS features using `TADA_GetATTAINS()`.")
+    stop("Your ATTAINS_list was not produced from `TADA_GetATTAINS()` or it was modified. Please create your list of ATTAINS features using `TADA_GetATTAINS()` and confirm that return_sf has been set to TRUE.")
   }
   
   data <- ATTAINS_list[["TADA_with_ATTAINS"]]
@@ -467,8 +467,8 @@ TADA_ViewATTAINS <- function(ATTAINS_list){
                         "MonitoringLocationName", "ResultIdentifier",
                         "ActivityStartDate", "OrganizationIdentifier")
   
-  if(!all(required_columns %in% colnames(data))) {
-    stop("Your dataframe does not contain WQP-style column names.")
+  if(!any(required_columns %in% colnames(data))) {
+    stop("Your dataframe does not contain the necessary WQP-style column names.")
   }
   
   suppressMessages(suppressWarnings({
@@ -488,7 +488,11 @@ TADA_ViewATTAINS <- function(ATTAINS_list){
     # POINT FEATURES - try to pull point AU data if it exists. Otherwise, move on...
     try(points_mapper <- ATTAINS_points %>%
           dplyr::left_join(., colors, by = "overallstatus") %>%
-          dplyr::mutate(type = "Point Feature"),
+          dplyr::mutate(type = "Point Feature") %>%
+          tibble::rowid_to_column(var = "index") %>%
+          # some point features are actually multipoint features. Must extract all coordinates for mapping
+          # later:
+          dplyr::right_join(., tibble::as_tibble(sf::st_coordinates(ATTAINS_points)), by = c("index" = "L1")),
         silent = TRUE)
     
     # LINE FEATURES - try to pull line AU data if it exists. Otherwise, move on...
@@ -568,17 +572,18 @@ TADA_ViewATTAINS <- function(ATTAINS_list){
         silent = TRUE)
     
     # Add ATTAINS point features (if they exist):
-    try(map <- map %>%
-          leaflet::addCircleMarkers(data = points_mapper, 
-                                    lng = ~LongitudeMeasure, lat = ~LatitudeMeasure, 
-                                    color = ~points_mapper$col, fillColor = ~points_mapper$col, 
-                                    fillOpacity = 1, stroke = TRUE, weight = 1.5, radius = 5, 
-                                    popup = paste0("Assessment Unit Name: ", points_mapper$assessmentunitname, 
-                                                   "<br> Assessment Unit ID: ", points_mapper$assessmentunitidentifier,
-                                                   "<br> Status: ", points_mapper$overallstatus,
-                                                   "<br> Assessment Unit Type: ", points_mapper$type,
-                                                   "<br> <a href=", points_mapper$waterbodyreportlink, " target='_blank'>ATTAINS Link</a>")),
-        silent = TRUE)
+    try(
+      map <- map %>%
+        leaflet::addCircleMarkers(data = points_mapper, 
+                                  lng = ~X, lat = ~Y, 
+                                  color = ~points_mapper$col, fillColor = ~points_mapper$col, 
+                                  fillOpacity = 1, stroke = TRUE, weight = 1.5, radius = 5, 
+                                  popup = paste0("Assessment Unit Name: ", points_mapper$assessmentunitname, 
+                                                 "<br> Assessment Unit ID: ", points_mapper$assessmentunitidentifier,
+                                                 "<br> Status: ", points_mapper$overallstatus,
+                                                 "<br> Assessment Unit Type: ", points_mapper$type,
+                                                 "<br> <a href=", points_mapper$waterbodyreportlink, " target='_blank'>ATTAINS Link</a>")),
+      silent = TRUE)
     
     # Add WQP observation features (should always exist):
     try(map <- map %>%

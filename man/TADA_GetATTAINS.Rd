@@ -4,12 +4,12 @@
 \alias{TADA_GetATTAINS}
 \title{TADA_GetATTAINS}
 \usage{
-TADA_GetATTAINS(data, return = TRUE)
+TADA_GetATTAINS(data, return_sf = TRUE)
 }
 \arguments{
 \item{data}{A dataframe created by \code{TADA_DataRetrieval()} or the sf equivalent made by \code{TADA_MakeSpatial()}.}
 
-\item{return}{Whether to return the associated ATTAINS_catchments, ATTAINS_lines, ATTAINS_points, and ATTAINS_polygons shapefile objects. TRUE (yes, return) or FALSE (no, do not return). All ATTAINS features are in WGS84 (crs = 4326).}
+\item{return_sf}{Whether to return the associated ATTAINS_catchments, ATTAINS_lines, ATTAINS_points, and ATTAINS_polygons shapefile objects. TRUE (yes, return) or FALSE (no, do not return). All ATTAINS features are in WGS84 (crs = 4326).}
 }
 \value{
 A modified \code{TADA_DataRetrieval()} dataframe with additional columns associated with the ATTAINS assessment unit data. Or, if return = TRUE, a list containing that same data frame plus the raw ATTAINS features associated with those observations.
@@ -24,9 +24,8 @@ tada_data <- TADA_DataRetrieval(startDate = "1990-01-01",
                                characteristicName = "pH",
                                statecode = "NV",
                                applyautoclean = TRUE)
-
-tada_attains <- TADA_GetATTAINS(data = tada_data, return = FALSE)
-tada_attains_list <- TADA_GetATTAINS(data = tada_data, return = TRUE)
+tada_attains <- TADA_GetATTAINS(data = tada_data, return_sf = FALSE)
+tada_attains_list <- TADA_GetATTAINS(data = tada_data, return_sf = TRUE)
 }
 }
 \seealso{

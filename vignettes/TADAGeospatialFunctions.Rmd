@@ -190,9 +190,11 @@ must have - at a minimum - WQP observation coordinates in
 
 Users also have the option of returning the ATTAINS geospatial sf
 objects with their ATTAINS-linked Water Quality Portal dataframe. If
-`return = TRUE`, the function returns a list containing the dataframe
+`return_sf = TRUE`, the function returns a list containing the dataframe
 plus shapefile objects named `ATTAINS_catchments`, `ATTAINS_lines`,
-`ATTAINS_points`, and `ATTAINS_polygons`.
+`ATTAINS_points`, and `ATTAINS_polygons`. Note, if any of these
+shapefile objects are empty, this indicates that there are no ATTAINS
+objects of that type intersecting any WQP catchment.
 
 Regardless of the user's decision on returning the ATTAINS sf objects,
 `TADA_GetATTAINS()` always returns a dataframe containing the original
@@ -211,9 +213,9 @@ Using either our original `TADA_dataframe` *or* the geospatial version
 same NHD HR catchment as our observations:
 
 ```{r}
-TADA_with_ATTAINS <- TADA_GetATTAINS(data = TADA_dataframe, return = FALSE)
+TADA_with_ATTAINS <- TADA_GetATTAINS(data = TADA_dataframe, return_sf = FALSE)
 
-TADA_with_ATTAINS <- TADA_GetATTAINS(data = TADA_spatial, return = FALSE)
+TADA_with_ATTAINS <- TADA_GetATTAINS(data = TADA_spatial, return_sf = FALSE)
 ```
 
 This new `TADA_with_ATTAINS` object is a modification of the original
@@ -226,15 +228,15 @@ Portal observations fall within an NHD HR catchment that contains more
 than one ATTAINS assessment unit.
 
 ```{r}
-TADA_with_ATTAINS_list <- TADA_GetATTAINS(data = TADA_dataframe, return = TRUE)
+TADA_with_ATTAINS_list <- TADA_GetATTAINS(data = TADA_dataframe, return_sf = TRUE)
 
-TADA_with_ATTAINS_list <- TADA_GetATTAINS(data = TADA_spatial, return = TRUE)
+TADA_with_ATTAINS_list <- TADA_GetATTAINS(data = TADA_spatial, return_sf = TRUE)
 ```
 
-If we set `return = TRUE` as done to create the `TADA_with_ATTAINS_list`
-object above, we also now have all the raw ATTAINS features associated
-with these TADA Water Quality Portal observations stored in a list with
-the TADA dataframe.
+If we set `return_sf = TRUE` as done to create the
+`TADA_with_ATTAINS_list` object above, we also now have all the raw
+ATTAINS features associated with these TADA Water Quality Portal
+observations stored in a list with the TADA dataframe.
 
 Enter `?TADA_GetATTAINS` into the console to review another example of
 this function in use and additional information.
@@ -243,9 +245,9 @@ this function in use and additional information.
 
 This function visualizes the raw ATTAINS features that are linked to the
 TADA Water Quality Portal observations that are generated in
-`TADA_GetATTAINS()` when `return = TRUE`. For the function to work
+`TADA_GetATTAINS()` when `return_sf = TRUE`. For the function to work
 properly, the input dataframe must be the list produced from
-`TADA_GetATTAINS()` with `return = TRUE`. The map also displays the
+`TADA_GetATTAINS()` with `return_sf = TRUE`. The map also displays the
 Water Quality Portal monitoring locations used to find the ATTAINS
 features.
 

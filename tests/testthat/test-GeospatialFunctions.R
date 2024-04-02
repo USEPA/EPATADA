@@ -17,7 +17,6 @@ TADA_with_ATTAINS <- readRDS(testthat::test_path("testdata/GeospatialFunctions_T
 TADA_with_ATTAINS_list <- readRDS(testthat::test_path("testdata/GeospatialFunctions_TADA_with_ATTAINS_list.rds"))
 
 # TADA_MakeSpatial ----
-
 testthat::test_that(desc = "`TADA_MakeSpatial()` converts the TADA_dataframe into an sf object",
                     code = {
                       test_df <- TADA_MakeSpatial(data = TADA_dataframe) 
@@ -61,7 +60,7 @@ testthat::test_that(desc = "The structures of the TADA_dataframe and the output 
 
 testthat::test_that(desc = "TADA_MakeSpatial() errors if the input dataframe does not contain WQP-style latitude and longitude data",
                     code = {
-                      expect_error(TADA_MakeSpatial(data = tibble::tibble(sample = NA, .rows = 0))) # fails if I include the error message text
+                      expect_error(TADA_MakeSpatial(data = tibble::tibble(sample = NA, .rows = 0)))
                     })
 
 testthat::test_that(desc = "TADA_MakeSpatial() errors if the input dataframe is already a spatial object",
@@ -71,7 +70,6 @@ testthat::test_that(desc = "TADA_MakeSpatial() errors if the input dataframe is 
 
 testthat::test_that(desc = "The order of the rows are the same (sans 'geometry')",
                     code = {
-                      # this test fails (need to reorder the index of test_df for this to pass!). See below for details...
                       test_df <- TADA_MakeSpatial(data = TADA_dataframe)
                       expect_true(identical(TADA_dataframe, sf::st_drop_geometry(test_df)))
                     })
@@ -80,31 +78,23 @@ testthat::test_that(desc = "The order of the rows are the same (sans 'geometry')
 testthat::test_that(desc = "fetchATTAINS handles valid input data", 
                     code = {
                       valid_data <- sf::st_sf(geometry = sf::st_sfc(sf::st_point(c(0, 0))), crs = 4326)
-                      result <- fetchATTAINS(data = valid_data, type = "points")
+                      result <- fetchATTAINS(data = valid_data)
                       expect_false(is.null(result))
                     })
 
 testthat::test_that(desc = "fetchATTAINS handles missing input data", 
                     code = {
-                      expect_error(fetchATTAINS(data = NULL, type = "points")) # when I incorporate the error message this test fails
+                      expect_error(fetchATTAINS(data = NULL)) 
                     })
-
-testthat::test_that(desc = "fetchATTAINS handles missing type input",
-                    code = {
-                      valid_data <- sf::st_sf(geometry = sf::st_sfc(sf::st_point(c(0, 0))), crs = 4326)
-                      expect_error(fetchATTAINS(data = valid_data, type = NULL)) # when I incorporate the error message this test fails
-                    })
-
 
 # TADA_GetATTAINS ----
-
-testthat::test_that(desc = "TADA_GetATTAINS can take in the TADA_dataframe and the sf object as inputs", # this test takes too long, should find an alternative
+testthat::test_that(desc = "TADA_GetATTAINS can take in the TADA_dataframe and the sf object as inputs",
                     code = {
                       expect_no_error(TADA_GetATTAINS(data = TADA_dataframe))
-                      expect_no_error(TADA_GetATTAINS(data = TADA_dataframe))
+                      expect_no_error(TADA_GetATTAINS(data = TADA_spatial))
                       
                       expect_no_warning(TADA_GetATTAINS(data = TADA_dataframe))
-                      expect_no_warning(TADA_GetATTAINS(data = TADA_dataframe))
+                      expect_no_warning(TADA_GetATTAINS(data = TADA_spatial))
                     })
 
 testthat::test_that(desc = "TADA_GetATTAINS does not run if the data argument input has already been joined with ATTAINS data.",
@@ -113,7 +103,7 @@ testthat::test_that(desc = "TADA_GetATTAINS does not run if the data argument in
                                    "Your data has already been joined with ATTAINS data.") 
                     })
 
-testthat::test_that(desc = "TADA_GetATTAINS(return = TRUE)[[1]] == TADA_GetATTAINS(return = FALSE)",
+testthat::test_that(desc = "TADA_GetATTAINS(return = TRUE)[[1]] == TADA_GetATTAINS(return_sf = FALSE)",
                     code = {
                       expect_true(identical(TADA_with_ATTAINS_list[[1]], TADA_with_ATTAINS))
                     })
@@ -125,7 +115,7 @@ testthat::test_that(desc = "An empty df gets returned if there are no observatio
                     })
 
 # TADA_ViewATTAINS ----
-testthat::test_that(desc = "An input that does not include all objects from `TADA_GetATTAINS(return = TRUE)` gets rejected",
+testthat::test_that(desc = "An input that does not include all objects from `TADA_GetATTAINS(return_sf = TRUE)` gets rejected",
                     code = {
                       expect_error(TADA_ViewATTAINS(ATTAINS_list = TADA_with_ATTAINS_list[[1]]))
                                      })

@@ -23,7 +23,7 @@ tada_data <- TADA_DataRetrieval(startDate = "1990-01-01",
                                statecode = "NV",
                                applyautoclean = TRUE)
                                
-attains_data <- TADA_GetATTAINS(data = tada_data, return = TRUE)                               
+attains_data <- TADA_GetATTAINS(data = tada_data, return_sf = TRUE)                               
                                  
 TADA_ViewATTAINS(ATTAINS_list = attains_data)
 }
