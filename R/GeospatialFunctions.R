@@ -216,7 +216,7 @@ fetchATTAINS <- function(data) {
 #' @param data A dataframe created by `TADA_DataRetrieval()` or the sf equivalent made by `TADA_MakeSpatial()`.
 #' @param return_sf Whether to return the associated ATTAINS_catchments, ATTAINS_lines, ATTAINS_points, and ATTAINS_polygons shapefile objects. TRUE (yes, return) or FALSE (no, do not return). All ATTAINS features are in WGS84 (crs = 4326).
 #' 
-#' @return A modified `TADA_DataRetrieval()` dataframe with additional columns associated with the ATTAINS assessment unit data. Or, if return = TRUE, a list containing that same data frame plus the raw ATTAINS features associated with those observations.
+#' @return A modified `TADA_DataRetrieval()` dataframe with additional columns associated with the ATTAINS assessment unit data. Or, if return_sf = TRUE, a list containing that same data frame plus the raw ATTAINS features associated with those observations.
 #' 
 #' @seealso [TADA_DataRetrieval()]
 #' @seealso [TADA_MakeSpatial()]
