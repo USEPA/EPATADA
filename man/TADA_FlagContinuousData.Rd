@@ -4,7 +4,12 @@
 \alias{TADA_FlagContinuousData}
 \title{Flag Continuous Data}
 \usage{
-TADA_FlagContinuousData(.data, clean = FALSE, flaggedonly = FALSE)
+TADA_FlagContinuousData(
+  .data,
+  clean = FALSE,
+  flaggedonly = FALSE,
+  time_difference = 4
+)
 }
 \arguments{
 \item{.data}{TADA dataframe}
@@ -17,6 +22,13 @@ with "continuous" data are removed from the dataframe and no column is appended.
 \item{flaggedonly}{Boolean argument: When flaggedonly = FALSE (default), all
 results are included in the output. When flaggedonly = TRUE, the dataframe
 will be filtered to include only the rows flagged as "Continuous" results.}
+
+\item{time_difference}{Numeric argument defining the maximum time difference
+in hours between measurements taken on the same day used to search for
+continuous time series data (e.g. if there are multiple measurements on the same
+day within the selected time_difference, then the row will be flagged as
+continuous). The default time window is 6 hours. The time_difference can be
+adjusted by the user.}
 }
 \value{
 The default is clean = FALSE and flaggedonly = FALSE.
@@ -43,14 +55,14 @@ attachment at the activity level.
 }
 \examples{
 \dontrun{
-Continuous <- TADA_DataRetrieval(project = c("Continuous LC1", "MA_Continuous", "Anchorage Bacteria 20-21"))
+all_data <- TADA_DataRetrieval(project = c("Continuous LC1", "MA_Continuous", "Anchorage Bacteria 20-21"))
 # Remove aggregated continuous data in dataframe:
-AggContinuous_clean <- TADA_FlagContinuousData(Continuous, clean = TRUE)
+AggContinuous_clean <- TADA_FlagContinuousData(all_data, clean = TRUE)
 # Flag, but do not remove, aggregated continuous data in new column
 # titled "TADA.ContinuousData.Flag":
-AggContinuous_flags <- TADA_FlagContinuousData(Continuous, clean = FALSE)
+AggContinuous_flags <- TADA_FlagContinuousData(all_data, clean = FALSE)
 # Show only rows flagged for aggregated continuous data:
-AggContinuous_flaggedonly <- TADA_FlagContinuousData(Continuous, clean = FALSE, flaggedonly = TRUE)
+AggContinuous_flaggedonly <- TADA_FlagContinuousData(all_data, clean = FALSE, flaggedonly = TRUE)
 
 data(Data_Nutrients_UT)
 # Remove aggregated continuous data in dataframe:
