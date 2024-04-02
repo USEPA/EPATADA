@@ -422,7 +422,7 @@ TADA_GetATTAINS <- function(data, return_sf = TRUE){
 
 #' TADA_ViewATTAINS
 #' 
-#' Visualizes the data returned from TADA_GetATTAINS if return was set to TRUE. 
+#' Visualizes the data returned from TADA_GetATTAINS if return_sf was set to TRUE. 
 #'
 #' @param ATTAINS_list A list containing a data frame and ATTAINS shapefile objects created by `TADA_GetATTAINS()` with the return argument set to TRUE. 
 #' 
