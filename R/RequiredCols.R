@@ -108,7 +108,7 @@ require.cols <- c(
   "ResultTimeBasisText", # required
   "StatisticalBaseCode", # required
   "ResultFileUrl", # filter
-  "TADA.AggregatedContinuousData.Flag", # generated, specifies if value is discrete or flags continuous data submitted by data provider (may be high frequency time series results or statistics)
+  "TADA.ContinuousData.Flag", # generated, specifies if value is discrete or flags continuous data submitted by data provider (may be high frequency time series results or statistics)
   "TADA.ResultValueAggregation.Flag", # generated, specifies if value is discrete or a daily max, avg, min (used when TADA calculates these)
   "TADA.NutrientSummation.Flag", # generated
   "TADA.NutrientSummationGroup", # generated

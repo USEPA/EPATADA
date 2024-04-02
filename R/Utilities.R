@@ -26,7 +26,7 @@ utils::globalVariables(c(
   "ProjectMonitoringLocationWeightingUrl", "ProjectName",
   "QAPPApprovalAgencyName", "QAPPApprovedIndicator",
   "ResultDetectionConditionText", "ResultMeasureValue",
-  "SamplingDesignTypeCode", "Source", "Status", "TADA.AggregatedContinuousData.Flag",
+  "SamplingDesignTypeCode", "Source", "Status", "TADA.ContinuousData.Flag",
   "TADA.InvalidCoordinates.Flag", "TADA.PotentialDupRowIDs.Flag", "TADA.QAPPDocAvailable",
   "Target.Unit", "Type", "Value.Unit", "TADA.AnalyticalMethod.Flag",
   "TADA.MethodSpeciation.Flag", "TADA.ResultUnit.Flag",

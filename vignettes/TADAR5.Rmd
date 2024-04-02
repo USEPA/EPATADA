@@ -54,7 +54,7 @@ remotes::install_github("USEPA/TADA",
 # IF YOU ARE NOT DEVELOPING TADA, SKIP THIS CODE CHUNK
 # when developing the package, update this chunk to the current repository branch, so it runs with all of the new features prior to a PR to develop
 remotes::install_github("USEPA/TADA",
-  ref = "334-flag-duplicates-for-multiple-orgs-weird-behavior-to-check",
+  ref = "351-update-tada_findcontinuousdata",
   dependencies = TRUE
 )
 ```
@@ -390,7 +390,7 @@ max_results <- R5Profile_CharSummary %>%
 
 ## Statistically Aggregated Data
 
-**TADA_FindContinuousData** checks for and removes
+**TADA_FlagContinuousData** checks for and removes
 statistically aggregated high frequency (i.e., continuous) data, if
 present.
 
@@ -413,7 +413,7 @@ An additional input called flaggedonly will allow the user to filter data
 to show only rows of aggregated continuous data. 
 
 ```{r AggregatedContinuousData}
-R5ProfileClean1 <- TADA_FindContinuousData(R5Profile)
+R5ProfileClean1 <- TADA_FlagContinuousData(R5Profile)
 ```
 
 ## WQX Quality Assurance and Quality Control (QAQC) Service Result Flags

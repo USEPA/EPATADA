@@ -75,7 +75,7 @@ remotes::install_github("USEPA/TADA",
 # IF YOU ARE NOT DEVELOPING TADA, SKIP THIS CODE CHUNK
 # when developing the package, update this chunk to the current repository branch, so it runs with all of the new features prior to a PR to develop
 remotes::install_github("USEPA/TADA",
-  ref = "334-flag-duplicates-for-multiple-orgs-weird-behavior-to-check",
+  ref = "351-update-tada_findcontinuousdata",
   dependencies = TRUE
 )
 ```
@@ -483,7 +483,7 @@ TADAProfileClean1 <- TADA_ConvertDepthUnits(TADAProfileClean1,
 
 ## Statistically aggregated data
 
-The **TADA_FindContinuousData** function checks for and removes
+The **TADA_FlagContinuousData** function checks for and removes
 statistically aggregated high frequency (i.e., continuous) data, if
 present.
 
@@ -515,16 +515,16 @@ rows of data regardless of flag status. Assigning flaggedonly = TRUE
 filters the dataframe to show only rows of data which are flagged "Y".
 
 See function documentation for additional function options by entering
-the following code in the console: ?TADA_FindContinuousData
+the following code in the console: ?TADA_FlagContinuousData
 
 ```{r AggregatedContinuousData}
-TADAProfileClean1 <- TADA_FindContinuousData(TADAProfileClean1,
+TADAProfileClean1 <- TADA_FlagContinuousData(TADAProfileClean1,
   clean = FALSE
 )
 
 # uncomment below to create a dataframe of only the aggregated continuous data
 
-# TADAProfile_aggcont <- TADA_FindContinuousData(TADAProfileClean3, clean = FALSE, flaggedonly = TRUE)
+# TADAProfile_aggcont <- TADA_FlagContinuousData(TADAProfileClean3, clean = FALSE, flaggedonly = TRUE)
 ```
 
 ## WQX Quality Assurance and Quality Control (QAQC) Service Result Flags
