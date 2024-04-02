@@ -67,3 +67,20 @@ test_that("TADA_ConvertDepthUnits converts meters to m", {
   check_depth_meters <- TADA_ConvertDepthUnits(check_depth_meters)
   expect_false("meters" %in% check_depth_meters$TADA.ActivityDepthHeightMeasure.MeasureUnitCode)
 })
+
+# test that TADA_CreateUnitRef is creating the correct number of unit/characteristic refs
+test_that("TADA_CreateUnitRef creates only one unit/characteristic ref per combination in data set", {
+  testdat <- TADA_RandomStateTestingSet()
+  
+  testdat.nrows <- testdat %>%
+    dplyr::select(CharacteristicName, ResultMeasure.MeasureUnitCode) %>%
+    unique() %>%
+    nrows()
+  
+  testdat.unitref <- TADA_CreateUnitRef(testdat) %>%
+    nrows()
+  
+  expect_true(testdat.nrows == testdat.unitref)
+  
+  
+})

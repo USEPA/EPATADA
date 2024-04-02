@@ -1,5 +1,4 @@
 Unit,Target.Unit,Conversion.Factor,Conversion.Coefficient
-mg/L,mg/L,1,0
 #/100gal,#/100mL,0.000264172,0
 #/100L,#/100mL,1000,0
 #/100mL,#/100mL,1,0
