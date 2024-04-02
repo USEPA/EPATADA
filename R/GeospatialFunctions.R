@@ -424,7 +424,7 @@ TADA_GetATTAINS <- function(data, return_sf = TRUE){
 #' 
 #' Visualizes the data returned from TADA_GetATTAINS if return_sf was set to TRUE. 
 #'
-#' @param ATTAINS_list A list containing a data frame and ATTAINS shapefile objects created by `TADA_GetATTAINS()` with the return argument set to TRUE. 
+#' @param ATTAINS_list A list containing a data frame and ATTAINS shapefile objects created by `TADA_GetATTAINS()` with the return_sf argument set to TRUE. 
 #' 
 #' @return A leaflet map visualizing the TADA water quality observations and the linked ATTAINS assessment units. All maps are in WGS84.
 #' 
