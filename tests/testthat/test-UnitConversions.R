@@ -75,10 +75,10 @@ test_that("TADA_CreateUnitRef creates only one unit/characteristic ref per combi
   testdat.nrows <- testdat %>%
     dplyr::select(CharacteristicName, ResultMeasure.MeasureUnitCode) %>%
     unique() %>%
-    nrows()
+    nrow()
   
   testdat.unitref <- TADA_CreateUnitRef(testdat) %>%
-    nrows()
+    nrow()
   
   expect_true(testdat.nrows == testdat.unitref)
   
