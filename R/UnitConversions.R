@@ -42,7 +42,7 @@ TADA_CreateUnitRef <- function(.data){
     
    priority.units <- data.units %>%
      dplyr::filter(CharacteristicName %in% priority.ref$CharacteristicName) %>%
-     dplyr::left_join(priority.ref, by = c("CharacteristicName", "Target.Unit"))
+     dplyr::left_join(priority.ref, by = c("CharacteristicName", "Unit"))
    
    other.units <- data.units %>%
      dplyr::filter(!CharacteristicName %in% priority.units$CharacteristicName) %>%
