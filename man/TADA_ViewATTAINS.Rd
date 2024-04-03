@@ -7,13 +7,13 @@
 TADA_ViewATTAINS(ATTAINS_list)
 }
 \arguments{
-\item{ATTAINS_list}{A list containing a data frame and ATTAINS shapefile objects created by \code{TADA_GetATTAINS()} with the return argument set to TRUE.}
+\item{ATTAINS_list}{A list containing a data frame and ATTAINS shapefile objects created by \code{TADA_GetATTAINS()} with the return_sf argument set to TRUE.}
 }
 \value{
 A leaflet map visualizing the TADA water quality observations and the linked ATTAINS assessment units. All maps are in WGS84.
 }
 \description{
-Visualizes the data returned from TADA_GetATTAINS if return was set to TRUE.
+Visualizes the data returned from TADA_GetATTAINS if return_sf was set to TRUE.
 }
 \examples{
 \dontrun{

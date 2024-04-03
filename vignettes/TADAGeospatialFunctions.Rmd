@@ -42,8 +42,11 @@ and user feedback. We appreciate your feedback, patience, and interest
 in these helpful tools.**
 
 **If you are interested in contributing to TADA development, more
-information is available at [Contributing](<https://usepa.github.io/TADA/articles/CONTRIBUTING.html>). We welcome
-collaboration with external partners.**
+information is available at:**
+
+**[Contributing](https://usepa.github.io/TADA/articles/CONTRIBUTING.html)**
+
+**We welcome collaboration with external partners.**
 
 ## Install and load packages
 

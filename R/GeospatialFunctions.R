@@ -138,8 +138,7 @@ fetchATTAINS <- function(data) {
     suppressMessages(suppressWarnings({
       
       bbox <- data %>% 
-        sf::st_buffer(0.001) %>% 
-        sf::st_bbox(data) %>%
+        sf::st_bbox(.) %>%
         # convert bounding box to characters
         toString(.) %>% 
         # encode for use within the API URL

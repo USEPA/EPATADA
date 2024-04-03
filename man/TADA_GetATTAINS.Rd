@@ -12,7 +12,7 @@ TADA_GetATTAINS(data, return_sf = TRUE)
 \item{return_sf}{Whether to return the associated ATTAINS_catchments, ATTAINS_lines, ATTAINS_points, and ATTAINS_polygons shapefile objects. TRUE (yes, return) or FALSE (no, do not return). All ATTAINS features are in WGS84 (crs = 4326).}
 }
 \value{
-A modified \code{TADA_DataRetrieval()} dataframe with additional columns associated with the ATTAINS assessment unit data. Or, if return = TRUE, a list containing that same data frame plus the raw ATTAINS features associated with those observations.
+A modified \code{TADA_DataRetrieval()} dataframe with additional columns associated with the ATTAINS assessment unit data. Or, if return_sf = TRUE, a list containing that same data frame plus the raw ATTAINS features associated with those observations.
 }
 \description{
 Link catchment-based ATTAINS assessment unit data to Water Quality Portal observations, often imported via \code{TADA_DataRetrieval()}. This function returns the same raw objects that are mapped in \code{TADA_ViewATTAINS()}.
