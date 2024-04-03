@@ -21,7 +21,6 @@ TADA_CreateUnitRef <- function(.data){
  # Make all units and target units uppercase
  unit.ref$Target.Unit <- toupper(unit.ref$Target.Unit)
  unit.ref$Unit <- toupper(unit.ref$Unit)
- unit.ref$Target.Unit <- toupper(unit.ref$Target.Unit)
  
  # Import TADA unit reference for priority characteristics (characteristic specific)
  priority.ref <- utils::read.csv(system.file("extdata", "TADAPriorityCharUnitRef.csv", package = "TADA")) 
@@ -36,9 +35,7 @@ TADA_CreateUnitRef <- function(.data){
  data.units <- .data %>%
     dplyr::select(CharacteristicName, ResultMeasure.MeasureUnitCode) %>%
     dplyr::rename("Unit" = "ResultMeasure.MeasureUnitCode") %>%
-    dplyr::distinct() %>%
-    dplyr::mutate(Unit = toupper(gsub("as.*$", "", Unit))) %>%
-    dplyr::filter(!is.na(Unit)) 
+    dplyr::distinct()
     
    priority.units <- data.units %>%
      dplyr::filter(CharacteristicName %in% priority.ref$CharacteristicName) %>%
@@ -56,8 +53,6 @@ TADA_CreateUnitRef <- function(.data){
    rm(other.units, priority.units)
   
    return(all.units)
-  
-  
 }
 #' 
 #' 

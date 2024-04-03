@@ -74,11 +74,26 @@ test_that("TADA_CreateUnitRef creates only one unit/characteristic ref per combi
   
   testdat.nrows <- testdat %>%
     dplyr::select(CharacteristicName, ResultMeasure.MeasureUnitCode) %>%
+    dplyr::mutate(ResultMeasure.MeasureUnitCode = toupper(ResultMeasure.MeasureUnitCode)) %>%
+    dplyr::mutate(ResultMeasure.MeasureUnitCode = toupper(gsub("as.*$", "", ResultMeasure.MeasureUnitCode))) %>%
+    #dplyr::filter(!is.na(ResultMeasure.MeasureUnitCode)) %>%
     unique() %>%
-    nrow()
+    dplyr::rename(Unit = ResultMeasure.MeasureUnitCode)
+    #nrow()
+  
+  data.units <- .data %>%
+    dplyr::select(CharacteristicName, ResultMeasure.MeasureUnitCode) %>%
+    dplyr::rename("Unit" = "ResultMeasure.MeasureUnitCode") %>%
+    dplyr::distinct()
   
   testdat.unitref <- TADA_CreateUnitRef(testdat) %>%
-    nrow()
+    dplyr::select(CharacteristicName, Unit) %>%
+    dplyr::distinct()
+  #%>%
+    #nrow()
+  
+  check <- testdat.nrows %>%
+    dplyr::anti_join(testdat.unitref)
   
   expect_true(testdat.nrows == testdat.unitref)
   
