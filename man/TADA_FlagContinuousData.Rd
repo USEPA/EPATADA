@@ -56,24 +56,22 @@ attachment at the activity level.
 \examples{
 \dontrun{
 all_data <- TADA_DataRetrieval(project = c("Continuous LC1", "MA_Continuous", "Anchorage Bacteria 20-21"))
-# Remove aggregated continuous data in dataframe:
-AggContinuous_clean <- TADA_FlagContinuousData(all_data, clean = TRUE)
-# Flag, but do not remove, aggregated continuous data in new column
-# titled "TADA.ContinuousData.Flag":
-AggContinuous_flags <- TADA_FlagContinuousData(all_data, clean = FALSE)
-# Show only rows flagged for aggregated continuous data:
-AggContinuous_flaggedonly <- TADA_FlagContinuousData(all_data, clean = FALSE, flaggedonly = TRUE)
+# Remove continuous data in dataframe
+all_data_clean <- TADA_FlagContinuousData(all_data, clean = TRUE)
+# Flag continuous data in new column titled "TADA.ContinuousData.Flag"
+all_data_flags <- TADA_FlagContinuousData(all_data, clean = FALSE)
+# Show only rows flagged as continuous data
+all_data_flaggedonly <- TADA_FlagContinuousData(all_data, clean = FALSE, flaggedonly = TRUE)
 
 data(Data_Nutrients_UT)
-# Remove aggregated continuous data in dataframe:
-AggContinuous_clean <- TADA_FlagContinuousData(Data_Nutrients_UT, clean = TRUE) 
-unique(AggContinuous_clean$TADA.ContinuousData.Flag)
-# Flag, but do not remove, aggregated continuous data in new column
-# titled "TADA.ContinuousData.Flag":
-AggContinuous_flags <- TADA_FlagContinuousData(Data_Nutrients_UT, clean = FALSE)
-unique(AggContinuous_flags$TADA.ContinuousData.Flag)
-# Show only rows flagged for aggregated continuous data:
-AggContinuous_flaggedonly <- TADA_FlagContinuousData(Data_Nutrients_UT, clean = FALSE, flaggedonly = TRUE)
+# Remove continuous data in dataframe
+Data_Nutrients_UT_clean <- TADA_FlagContinuousData(Data_Nutrients_UT, clean = TRUE) 
+unique(Data_Nutrients_UT_clean$TADA.ContinuousData.Flag)
+# Flag continuous data in new column titled "TADA.ContinuousData.Flag"
+Data_Nutrients_UT_flags <- TADA_FlagContinuousData(Data_Nutrients_UT, clean = FALSE)
+unique(Data_Nutrients_UT_flags$TADA.ContinuousData.Flag)
+# Show only rows flagged as continuous data
+Data_Nutrients_UT_flaggedonly <- TADA_FlagContinuousData(Data_Nutrients_UT, clean = FALSE, flaggedonly = TRUE)
 }
 
 }
