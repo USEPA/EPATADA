@@ -191,6 +191,7 @@ TADA_FlagMethod <- function(.data, clean = TRUE, flaggedonly = FALSE) {
 #' }
 #' 
 TADA_FlagContinuousData <- function(.data, clean = FALSE, flaggedonly = FALSE, time_difference = 4) {
+  start.time <- Sys.time()
   # check .data is data.frame
   TADA_CheckType(.data, "data.frame", "Input object")
   # check clean is boolean
@@ -287,7 +288,13 @@ TADA_FlagContinuousData <- function(.data, clean = FALSE, flaggedonly = FALSE, t
     # flagged output, all data
     if (clean == FALSE & flaggedonly == FALSE) {
       flag.data <- TADA_OrderCols(flag.data)
+      
+      end.time <- Sys.time()
+      time.taken <- round(end.time - start.time,2)
+      print(time.taken)
+      
       return(flag.data)
+
     }
 
     # clean output
@@ -298,7 +305,14 @@ TADA_FlagContinuousData <- function(.data, clean = FALSE, flaggedonly = FALSE, t
       # remove TADA.AggregatedContinuousData column
       # clean.data <- dplyr::select(clean.data, -TADA.ContinuousData.Flag)
       clean.data <- TADA_OrderCols(clean.data)
+      
+      
+      end.time <- Sys.time()
+      time.taken <- round(end.time - start.time,2)
+      print(time.taken)
+      
       return(clean.data)
+
     }
 
     # flagged output, only aggregated continuous data
@@ -306,7 +320,13 @@ TADA_FlagContinuousData <- function(.data, clean = FALSE, flaggedonly = FALSE, t
       # filter to show only invalid characteristic-unit-media combinations
       onlycont.data <- dplyr::filter(flag.data, TADA.ContinuousData.Flag == "Continuous")
       onlycont.data <- TADA_OrderCols(onlycont.data)
+      
+      end.time <- Sys.time()
+      time.taken <- round(end.time - start.time,2)
+      print(time.taken)
+      
       return(onlycont.data)
+
     }
   }
 
@@ -315,13 +335,26 @@ TADA_FlagContinuousData <- function(.data, clean = FALSE, flaggedonly = FALSE, t
     if (flaggedonly == FALSE) {
       print("No evidence of aggregated continuous data in your dataframe. Returning the input dataframe with TADA.ContinuousData.Flag column for tracking.")
       .data <- TADA_OrderCols(.data)
+      
+      
+      end.time <- Sys.time()
+      time.taken <- round(end.time - start.time,2)
+      print(time.taken)
+      
       return(.data)
+
     }
 
     if (flaggedonly == TRUE) {
       print("This dataframe is empty because we did not find any aggregated continuous data in your dataframe")
       all.cont.data <- TADA_OrderCols(all.cont.data)
+      
+      end.time <- Sys.time()
+      time.taken <- round(end.time - start.time,2)
+      print(time.taken)
+      
       return(all.cont.data)
+      
     }
   }
 }
