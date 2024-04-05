@@ -1,13 +1,13 @@
 ---
-title: "TADA R Package Training: A Markdown for Shepherdstown"
+title: "TADA Module 1: Training for Intermediate/Advanced R Users"
 author: "TADA Team"
 date: "`r Sys.Date()`"
-vignette: >
-  %\usepackage[utf8]{inputenc}
-  %\VignetteIndexEntry{TADA R Package Training: A Markdown for Shepherdstown}
-  %\VignetteEngine{knitr::rmarkdown}
-description: A foray into TADA's major functions for users familiar with R and RStudio.
 output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteEncoding{UTF-8}
+  %\VignetteIndexEntry{TADA Module 1: Training for Intermediate/Advanced R Users}
+  %\VignetteEngine{knitr::rmarkdown}
+description: A foray into TADA's major Module 1 functions for users familiar with R and RStudio.
 editor_options: 
   chunk_output_type: console
   markdown: 
@@ -15,8 +15,21 @@ editor_options:
 ---
 ```{r setup, include = FALSE}
 knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
   eval = FALSE
 )
+```
+
+```{css, echo=FALSE}
+pre {
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+pre[class] {
+  max-height: 100px;
+}
 ```
 
 ## Welcome!

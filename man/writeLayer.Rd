@@ -8,9 +8,9 @@ writeLayer is used by TADA_UpdateTribalLayers in TADAGeospatialRefLayers.R.}
 writeLayer(url, layerfilepath)
 }
 \arguments{
-\item{layerfilepath}{Local path to save the .shp file to}
+\item{url}{URL of the layer REST service, ending with "/query". Example: https://geopub.epa.gov/arcgis/rest/services/EMEF/Tribal/MapServer/2/query (American Indian Reservations)}
 
-\item{urlURL}{of the layer REST service, ending with "/query". Example: https://geopub.epa.gov/arcgis/rest/services/EMEF/Tribal/MapServer/2/query (American Indian Reservations)}
+\item{layerfilepath}{Local path to save the .shp file to}
 }
 \description{
 Download a shapefile from an API and save it to a local folder, overwriting existing file if it exists

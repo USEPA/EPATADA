@@ -90,7 +90,8 @@ Suggests:
     usethis,
     devtools,
     pkgdown,
-    spelling
+    spelling,
+    htmltools
 VignetteBuilder: knitr, rmarkdown
 Language: en-US
 Config/testthat/edition: 3

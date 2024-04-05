@@ -4,19 +4,20 @@ author: "TADA Team"
 date: "`r Sys.Date()`"
 output: rmarkdown::html_vignette
 vignette: >
-  %\usepackage[utf8]{inputenc}
   %\VignetteIndexEntry{TADA Module 1: Water Quality Portal Data Discovery and Cleaning}
   %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+description: An overview of all TADA Module 1 functions and a recommended workflow.
 editor_options: 
   chunk_output_type: console
   markdown: 
     wrap: 72
 ---
-
 ```{r setup, include = FALSE}
 knitr::opts_chunk$set(
   collapse = TRUE,
-  comment = "#>"
+  comment = "#>",
+  eval = FALSE
 )
 ```
 
