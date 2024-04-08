@@ -18,11 +18,11 @@ TADA_CreateUnitRef <- function(.data){
   
  # Import USGS default unit ref
  usgs.ref <- TADA_GetUSGSSynonymRef()
- usgs.ref$Target.Unit <- toupper(usgs.ref$Target.Unit)
+ usgs.ref$Target.Unit <- toupper(usgs.ref$Target.Unit) 
  
  # Import WQX default unit ref
  wqx.ref <- TADA_GetMeasureUnitRef()
- wqx.ref$TargetUnit <- toupper(wqx.ref$Target.Unit)
+ wqx.ref$Target.Unit <- toupper(wqx.ref$Target.Unit)
  
  # # Make all units and target units uppercase
  # unit.ref$Target.Unit <- toupper(unit.ref$Target.Unit)
@@ -34,20 +34,19 @@ TADA_CreateUnitRef <- function(.data){
  priority.ref$Target.Unit <- toupper(priority.ref$Target.Unit)
  # Add all possible units from unit.ref which correspond to each target unit
  priority.ref <- priority.ref %>%
-   dplyr::left_join(unit.ref, by = "Target.Unit", relationship = "many-to-many")
+   dplyr::left_join(wqx.ref, by = "Target.Unit", relationship = "many-to-many") %>%
+   dplyr::left_join(usgs.ref, by = "Target.Unit", relationship = "many-to-many")
 
  
  # Create df of unique CharactersticName and Unit in TADA data frame 
  data.units <- .data %>%
     dplyr::select(CharacteristicName, ResultMeasure.MeasureUnitCode) %>%
-    dplyr::rename("Unit" = "ResultMeasure.MeasureUnitCode") %>%
+    dplyr::rename("Code" = "ResultMeasure.MeasureUnitCode") %>%
     dplyr::distinct()
- 
- data.units$Unit <- toupper(data.units$Unit)
     
    priority.units <- data.units %>%
      dplyr::filter(CharacteristicName %in% priority.ref$CharacteristicName) %>%
-     dplyr::left_join(priority.ref, by = c("CharacteristicName", "Unit"))
+     dplyr::left_join(priority.ref, by = c("CharacteristicName", "Code"))
    
    other.units <- data.units %>%
      dplyr::filter(!CharacteristicName %in% priority.units$CharacteristicName) %>%
