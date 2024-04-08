@@ -16,11 +16,17 @@
 #' 
 TADA_CreateUnitRef <- function(.data){
   
- # Import TADA default unit reference (not characteristic specific)
- unit.ref <- utils::read.csv(system.file("extdata", "TADAUnitRef.csv", package = "TADA"))
- # Make all units and target units uppercase
- unit.ref$Target.Unit <- toupper(unit.ref$Target.Unit)
- unit.ref$Unit <- toupper(unit.ref$Unit)
+ # Import USGS default unit ref
+ usgs.ref <- TADA_GetUSGSSynonymRef()
+ usgs.ref$Target.Unit <- toupper(usgs.ref$Target.Unit)
+ 
+ # Import WQX default unit ref
+ wqx.ref <- TADA_GetMeasureUnitRef()
+ wqx.ref$TargetUnit <- toupper(wqx.ref$Target.Unit)
+ 
+ # # Make all units and target units uppercase
+ # unit.ref$Target.Unit <- toupper(unit.ref$Target.Unit)
+ # unit.ref$Unit <- toupper(unit.ref$Unit)
  
  # Import TADA unit reference for priority characteristics (characteristic specific)
  priority.ref <- utils::read.csv(system.file("extdata", "TADAPriorityCharUnitRef.csv", package = "TADA")) 
@@ -36,6 +42,8 @@ TADA_CreateUnitRef <- function(.data){
     dplyr::select(CharacteristicName, ResultMeasure.MeasureUnitCode) %>%
     dplyr::rename("Unit" = "ResultMeasure.MeasureUnitCode") %>%
     dplyr::distinct()
+ 
+ data.units$Unit <- toupper(data.units$Unit)
     
    priority.units <- data.units %>%
      dplyr::filter(CharacteristicName %in% priority.ref$CharacteristicName) %>%
@@ -57,7 +65,7 @@ TADA_CreateUnitRef <- function(.data){
 #' 
 #' 
 #' 
-#' Transform Units to WQX Target Units
+#' Transform Units to WQX Target Units or User Specified Units
 #'
 #' This function compares measure units in the input data to the Water Quality
 #' Exchange (WQX) 3.0 Measure Unit domain table. It also takes common USGS units
@@ -75,6 +83,9 @@ TADA_CreateUnitRef <- function(.data){
 #'
 #' @param detlimit Boolean argument with two possible values, "TRUE" and "FALSE".
 #' Default is detlimit = TRUE.
+#' 
+#' @param conversionref Character argument in which a user can specify a data frame
+#' with the columns 
 #'
 #' @return When transform = TRUE, result values and units are converted to WQX
 #'   target units. This function changes the values within the
@@ -100,6 +111,8 @@ TADA_CreateUnitRef <- function(.data){
 #' When detlimit = FALSE, values and units for detection limit are not converted to WQX
 #' target units and no additional fields related to detection limit values or units
 #'  are added to the input dataframe.
+#'  
+#'  When
 #'
 #' @export
 #'
