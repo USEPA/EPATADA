@@ -121,88 +121,10 @@ TADA_GetMeasureUnitRef <- function() {
     return(utils::read.csv(system.file("extdata", "WQXunitRef.csv", package = "TADA")))
   }
 
-  WQXunitRef <- raw.data
-  # add m and ft as target units for "Length Distance" (Description field) rows
-  # target.unit = m
-  target.m <- data.frame(
-    Domain = rep("Measurement Unit(MeasureUnitCode)", 13),
-    Unique.Identifier = rep(NA, 13),
-    Code = c(
-      "Angst", "cm", "dm", "feet", "ft", "in",
-      "km", "m", "mi", "mm", "nm", "nmi", "yd"
-    ),
-    Description = c(
-      "Length Distance, Angstroms",
-      "Length Distance, Centimeters",
-      "Length Distance, Decimeters",
-      "Length Distance, Feet",
-      "Length Distance, Feet",
-      "Length Distance, Inches",
-      "Length Distance, Kilometers",
-      "Length Distance, Meters",
-      "Length Distance, Miles",
-      "Length Distance, Millimeters",
-      "Length Distance, Nanometers",
-      "Length Distance, Nautical miles",
-      "Length Distance, Yards"
-    ),
-    Last.Change.Date = rep("3/24/2022 12:00:00 PM", 13),
-    Target.Unit = rep("m", 13),
-    Conversion.Factor = c(
-      1e-10, 0.01, 0.1, 0.3048, 0.3048,
-      0.0254, 1000, 1, 1609.34, 0.001,
-      1e-9, 1825, 0.9144
-    ),
-    Conversion.Coefficient = rep(0, 13)
-  )
-  # target.unit = ft
-  target.ft <- data.frame(
-    Domain = rep("Measurement Unit(MeasureUnitCode)", 13),
-    Unique.Identifier = rep(NA, 13),
-    Code = c(
-      "Angst", "cm", "dm", "feet", "ft", "in",
-      "km", "m", "mi", "mm", "nm", "nmi", "yd"
-    ),
-    Description = c(
-      "Length Distance, Angstroms",
-      "Length Distance, Centimeters",
-      "Length Distance, Decimeters",
-      "Length Distance, Feet",
-      "Length Distance, Feet",
-      "Length Distance, Inches",
-      "Length Distance, Kilometers",
-      "Length Distance, Meters",
-      "Length Distance, Miles",
-      "Length Distance, Millimeters",
-      "Length Distance, Nanometers",
-      "Length Distance, Nautical miles",
-      "Length Distance, Yards"
-    ),
-    Last.Change.Date = rep("3/24/2022 12:00:00 PM", 13),
-    Target.Unit = rep("ft", 13),
-    Conversion.Factor = c(
-      3.28084e-10, 0.0328084, 0.328084,
-      1, 1, 0.08333, 3280.84, 3.28084,
-      5280, 0.00328084, 3.2808e-9,
-      6076.12, 3
-    ),
-    Conversion.Coefficient = rep(0, 13)
-  )
-  # add data to WQXunitRef
-  WQXunitRef <- plyr::rbind.fill(WQXunitRef, target.m, target.ft) %>% dplyr::distinct()
-
-  # Convert NONE to NA in ref table
-  WQXunitRef <- WQXunitRef %>%
-    dplyr::mutate(
-      Code = replace(Code, Code %in% c("None"), NA),
-      Target.Unit = replace(Target.Unit, Target.Unit %in% c("None"), NA)
-    ) %>%
-    dplyr::distinct()
 
   # Save updated table in cache
-  WQXunitRef_Cached <- WQXunitRef
-
-  WQXunitRef
+  WQXunitRef_Cached <- raw.data
+  WQXunitRef <- raw.data
 }
 
 # Update Measure Unit Reference Table internal file (for internal use only)
