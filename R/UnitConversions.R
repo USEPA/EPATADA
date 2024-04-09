@@ -206,8 +206,6 @@ TADA_ConvertResultUnits <- function(.data, transform = TRUE, detlimit = TRUE, co
     "Conversion.Factor",
     "Target.Speciation"
   )])
-  
-  join.cols <- c("TADA.ResultMeasure.MeasureUnit.Code")
 
   # join unit.ref to .data
   check.data <- merge(.data, unit.ref, all.x = TRUE) 
@@ -216,12 +214,9 @@ TADA_ConvertResultUnits <- function(.data, transform = TRUE, detlimit = TRUE, co
       
       unit.ref <- TADA_CreateUnitRef(.data)
       
-    join.cols <- c("CharacteristicName", "TADA.ResultMeasure.MeasureUnit.Code")
-    
     else {
       unit.ref <- conversionref
       
-      join.cols <- c("CharacteristicName", "TADA.ResultMeasure.MeasureUnit.Code")
     }
       
     }}
