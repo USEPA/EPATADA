@@ -212,14 +212,44 @@ TADA_ConvertResultUnits <- function(.data, transform = TRUE, detlimit = TRUE, co
   
     if(conversionref != "tada"){
       
+      # Use TADA_CreateUnitRef to create unit reference that incorporates TADA Priority Characteristics
       unit.ref <- TADA_CreateUnitRef(.data)
       
-    else {
+    # Create message to inform users if user-supplied unit reference contains all combinations present in TADA data frame
+      else {
       unit.ref <- conversionref
       
-    }
+      check.units <- .data %>%
+        dplyr::select(CharacteristicName, ResultMeasure.MeasureUnitCode) %>%
+        dplyr::filter(!is.na(ResultMeasure.MeasureUnitCode)) %>%
+        dplyr::rename(Code = ResultMeasure.MeasureUnitCode) %>%
+        dplyr::mutate(Code = toupper(Code)) %>%
+        dplyr::distinct()
       
-    }}
+      check.ref <- unit.ref %>%
+        dplyr::select(CharacteristicName, Code) %>%
+        dplyr::distinct()
+      
+      compare.ref <- check.units %>%
+        dplyr::anti_join(check.ref)
+      
+      if(nrow(compare.ref) == 0){
+        print("All CharacteristicName/Unit combinations in the TADA dataframe are represented in user-supplied unit reference.")
+        else{
+          compare.list <- compare.ref %>%
+            dplyr::mutate(Comb = paste(CharacteristicName, " (", Code, ")", sep = "")) %>%
+            dplyr::mutate(CombList = paste(Comb, collapse = ", ")) %>%
+            dplyr::select(CombList) %>%
+            dplyr::distinct() %>%
+            stringi::stri_replace_last(fixed = ",", " and")
+          
+          print(paste("TADA_ConvertResultUnits: The following CharacteristicName and ResultMeasure.MeasureUnitCode combinations are not included in the user-supplied unit reference data frame: ", compare.list, 
+                      ". Consider revising the user-supplied unit reference data frame and running TADA_ConvertResultUnits again.", sep = ""))
+        }
+      }
+    }
+  }
+}
 
   # rename columns
   flag.data <- check.data %>%
