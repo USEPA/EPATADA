@@ -18,11 +18,13 @@ TADA_CreateUnitRef <- function(.data){
   
  # Import USGS default unit ref
  usgs.ref <- TADA_GetUSGSSynonymRef()
- usgs.ref$Target.Unit <- toupper(usgs.ref$Target.Unit) 
+ usgs.ref$Target.Unit <- toupper(usgs.ref$Target.Unit)
+ usgs.ref$Code <- toupper(usgs.ref$Code)
  
  # Import WQX default unit ref
  wqx.ref <- TADA_GetMeasureUnitRef()
  wqx.ref$Target.Unit <- toupper(wqx.ref$Target.Unit)
+ wqx.ref$Code <- toupper(wqx.ref$Code)
  
  # Combine for overall unit ref
  unit.ref <- usgs.ref %>%
@@ -50,14 +52,24 @@ TADA_CreateUnitRef <- function(.data){
     dplyr::select(CharacteristicName, ResultMeasure.MeasureUnitCode) %>%
     dplyr::rename("Code" = "ResultMeasure.MeasureUnitCode") %>%
     dplyr::distinct()
+ 
+ data.units$Code <- toupper(data.units$Code)
     
    priority.units <- data.units %>%
      dplyr::filter(CharacteristicName %in% priority.ref$CharacteristicName) %>%
-     dplyr::left_join(priority.ref, by = c("CharacteristicName", "Code"))
+     dplyr::left_join(priority.ref, by = c("CharacteristicName", "Code")) %>%
+     dplyr::filter(!is.na(Code))
+   
+  priority.unassigned <- priority.units %>%
+    dplyr::filter(is.na(Target.Unit))
    
    other.units <- data.units %>%
      dplyr::filter(!CharacteristicName %in% priority.units$CharacteristicName) %>%
+     plyr::rbind.fill(priority.unassigned) %>%
+     dplyr::select(CharacteristicName, Code) %>%
+     dplyr::filter(!is.na(Code)) %>%
      dplyr::left_join(unit.ref, by = "Code", relationship = "many-to-many")
+     
    
    rm(data.units)
    
@@ -161,21 +173,7 @@ TADA_ConvertResultUnits <- function(.data, transform = TRUE, detlimit = TRUE, co
   
   # use unit.ref to create unit conversion
   unit.ref <- utils::read.csv(system.file("extdata", "WQXunitRef.csv", package = "TADA")) 
-    
-  # filter for unit conversion
-   unit.ref <- unit.ref %>%
-    dplyr::filter(!is.na(Value),
-                  !is.na(Value.Unit),
-                  Value != "",
-                  Value.Unit != "",
-                  Status %in% c("Accepted", "NonStandardized")) %>%
-     dplyr::select(Value, Value.Unit, Conversion.Factor) %>%
-     unique() %>%
-     dplyr::group_by(Value, Value.Unit) %>%
-     #dplyr::slice_sample(n = 1) %>%
-     dplyr::rename(Code = Value,
-                   Target.Unit = Value.Unit)
-   
+  
    # add target speciation column to unit.ref
    unit.ref$Target.Speciation <- ""
 
@@ -200,7 +198,9 @@ TADA_ConvertResultUnits <- function(.data, transform = TRUE, detlimit = TRUE, co
   # join unit.ref to .data
   check.data <- merge(.data, unit.ref, all.x = TRUE) 
   
-    if(conversionref != "none"){
+    if(conversionref != "tada"){
+      
+      unit.ref <- TADA_CreateUnitRef(.data)
       
     }}
 
