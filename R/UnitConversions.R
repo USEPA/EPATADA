@@ -309,8 +309,8 @@ TADA_ConvertResultUnits <- function(.data, transform = TRUE, detlimit = TRUE, co
 
   if (detlimit == TRUE) {
     det.ref <- unit.ref %>%
-      dplyr::select(TADA.ResultMeasure.MeasureUnitCode, Target.Unit, Conversion.Factor) %>%
-      dplyr::rename(TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode = TADA.ResultMeasure.MeasureUnitCode)
+      dplyr::select(Code, Target.Unit, Conversion.Factor) %>%
+      dplyr::rename(TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode = Code)
 
     # if temp data exists, calculate conversion factor for TADA.DetectionQuantitationLimitMeasure.MeasureValue
     # EDH I THINK THIS RUNS IF THERE IS ONE OR MORE NA'S IN THE DATASET
