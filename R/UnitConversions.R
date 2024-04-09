@@ -24,18 +24,25 @@ TADA_CreateUnitRef <- function(.data){
  wqx.ref <- TADA_GetMeasureUnitRef()
  wqx.ref$Target.Unit <- toupper(wqx.ref$Target.Unit)
  
- # # Make all units and target units uppercase
- # unit.ref$Target.Unit <- toupper(unit.ref$Target.Unit)
- # unit.ref$Unit <- toupper(unit.ref$Unit)
+ # Combine for overall unit ref
+ unit.ref <- usgs.ref %>%
+   dplyr::full_join(wqx.ref)
  
  # Import TADA unit reference for priority characteristics (characteristic specific)
  priority.ref <- utils::read.csv(system.file("extdata", "TADAPriorityCharUnitRef.csv", package = "TADA")) 
  # Make all units and target units uppercase
  priority.ref$Target.Unit <- toupper(priority.ref$Target.Unit)
  # Add all possible units from unit.ref which correspond to each target unit
- priority.ref <- priority.ref %>%
+ priority.wqx <- priority.ref %>%
    dplyr::left_join(wqx.ref, by = "Target.Unit", relationship = "many-to-many") %>%
-   dplyr::left_join(usgs.ref, by = "Target.Unit", relationship = "many-to-many")
+   dplyr::filter(!is.na(Code))
+ 
+ priority.usgs <- priority.ref %>%
+   dplyr::left_join(usgs.ref, by = c("Target.Unit"), relationship = "many-to-many") %>%
+   dplyr::filter(!is.na(Code))
+ 
+ priority.ref <- priority.wqx %>%
+   dplyr::full_join(priority.usgs)
 
  
  # Create df of unique CharactersticName and Unit in TADA data frame 
@@ -50,7 +57,7 @@ TADA_CreateUnitRef <- function(.data){
    
    other.units <- data.units %>%
      dplyr::filter(!CharacteristicName %in% priority.units$CharacteristicName) %>%
-     dplyr::left_join(unit.ref, by = "Unit", relationship = "many-to-many")
+     dplyr::left_join(unit.ref, by = "Code", relationship = "many-to-many")
    
    rm(data.units)
    
@@ -61,9 +68,7 @@ TADA_CreateUnitRef <- function(.data){
   
    return(all.units)
 }
-#' 
-#' 
-#' 
+
 #' Transform Units to WQX Target Units or User Specified Units
 #'
 #' This function compares measure units in the input data to the Water Quality
@@ -84,7 +89,13 @@ TADA_CreateUnitRef <- function(.data){
 #' Default is detlimit = TRUE.
 #' 
 #' @param conversionref Character argument in which a user can specify a data frame
-#' with the columns 
+#' by name. Data frame must contain the columns CharacteristicName, Unit, and TargetUnit.
+#' TADA_CreateUnitRef() can be used to help create this data frame. There are two
+#' options that do not require the user to supply a data frame. When conversionref =
+#' "none", all unit conversion will be based on WQX unit references. When conversionref =
+#' "tada", unit conversion will be based on TADA priority characteristics unit conversions
+#' for priority characteristics and WQX unit reference for any other characteristics.
+#' The default is conversionref = "tada".
 #'
 #' @return When transform = TRUE, result values and units are converted to WQX
 #'   target units. This function changes the values within the
@@ -128,7 +139,7 @@ TADA_CreateUnitRef <- function(.data){
 #' #' # Convert values and units for results and detection limits:
 #' ResultUnitsNotConverted <- TADA_ConvertResultUnits(Data_Nutrients_UT, transform = TRUE, detlimit = TRUE)
 #'
-TADA_ConvertResultUnits <- function(.data, transform = TRUE, detlimit = TRUE, conversionref = "none") {
+TADA_ConvertResultUnits <- function(.data, transform = TRUE, detlimit = TRUE, conversionref = "tada") {
   # check .data is data.frame
   TADA_CheckType(.data, "data.frame", "Input object")
   # check transform is boolean
@@ -149,7 +160,7 @@ TADA_ConvertResultUnits <- function(.data, transform = TRUE, detlimit = TRUE, co
   if(conversionref == "none") {
   
   # use unit.ref to create unit conversion
-  unit.ref <- utils::read.csv(system.file("extdata", "WQXcharValRef.csv", package = "TADA")) 
+  unit.ref <- utils::read.csv(system.file("extdata", "WQXunitRef.csv", package = "TADA")) 
     
   # filter for unit conversion
    unit.ref <- unit.ref %>%
