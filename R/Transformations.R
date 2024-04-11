@@ -76,11 +76,6 @@ TADA_HarmonizeSynonyms <- function(.data, ref, np_speciation = TRUE) {
     "Target.TADA.MethodSpeciationName",
     "TADA.SpeciationAssumptions",
     "Target.TADA.SpeciationConversionFactor",
-    "TADA.ResultMeasure.MeasureUnitCode",
-    "Target.TADA.ResultMeasure.MeasureUnitCode",
-    "Target.TADA.UnitConversionFactor",
-    "Target.TADA.UnitConversionCoefficient",
-    "TADA.UnitConversionRef",
     "HarmonizationGroup"
   )
 
