@@ -149,28 +149,6 @@ TADA_HarmonizeSynonyms <- function(.data, ref, np_speciation = TRUE) {
   # Handle instances with DO where the speciation is listed "AS O2" but it should be NA
   clean.data$TADA.MethodSpeciationName <- ifelse(!is.na(clean.data$TADA.MethodSpeciationName) & is.na(clean.data$Target.TADA.MethodSpeciationName) & !is.na(clean.data$TADA.SpeciationAssumptions), clean.data$Target.TADA.MethodSpeciationName, clean.data$TADA.MethodSpeciationName)
 
-  # ResultMeasure.MeasureUnitCode
-  # replace ResultMeasure.MeasureUnitCode with Target.TADA.ResultMeasure.MeasureUnitCode
-  clean.data <- clean.data %>%
-    # use TADA suggested unit where there is a suggested unit, use original unit if no suggested unit
-    dplyr::mutate(TADA.ResultMeasure.MeasureUnitCode = dplyr::case_when(
-      !is.na(Target.TADA.ResultMeasure.MeasureUnitCode) ~ Target.TADA.ResultMeasure.MeasureUnitCode,
-      # is.na(Target.TADA.ResultMeasure.MeasureUnitCode) ~ TADA.ResultMeasure.MeasureUnitCode
-      .default = TADA.ResultMeasure.MeasureUnitCode
-    )) %>%
-    # if conversion factor exists, multiply by ResultMeasureValue
-    dplyr::rowwise() %>%
-    dplyr::mutate(TADA.ResultMeasureValue = dplyr::case_when(
-      !is.na(Target.TADA.UnitConversionFactor) & !is.na(Target.TADA.ResultMeasure.MeasureUnitCode) &
-        !is.na(Target.TADA.UnitConversionCoefficient)
-      ~ ((Target.TADA.UnitConversionFactor * TADA.ResultMeasureValue) + Target.TADA.UnitConversionCoefficient),
-      !is.na(Target.TADA.UnitConversionFactor) & !is.na(Target.TADA.ResultMeasure.MeasureUnitCode) &
-        is.na(Target.TADA.UnitConversionCoefficient)
-      ~ ((Target.TADA.UnitConversionFactor * TADA.ResultMeasureValue)),
-      # is.na(Target.TADA.UnitConversionFactor) ~ TADA.ResultMeasureValue
-      .default = TADA.ResultMeasureValue
-    ))
-
   # TADA.MethodSpeciationName
   # replace MethodSpeciationName with Target.TADA.MethodSpeciationName
 

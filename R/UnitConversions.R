@@ -112,14 +112,12 @@ TADA_CreateUnitRef <- function(.data){
 #' @param detlimit Boolean argument with two possible values, "TRUE" and "FALSE".
 #' Default is detlimit = TRUE.
 #' 
-#' @param conversionref Character argument in which a user can specify a data frame
+#' @param ref Optional character argument in which a user can specify a data frame
 #' by name. Data frame must contain the columns CharacteristicName, Unit, and TargetUnit.
 #' TADA_CreateUnitRef() can be used to help create this data frame. There are two
-#' options that do not require the user to supply a data frame. When conversionref =
-#' "none", all unit conversion will be based on WQX unit references. When conversionref =
-#' "tada", unit conversion will be based on TADA priority characteristics unit conversions
-#' for priority characteristics and WQX unit reference for any other characteristics.
-#' The default is conversionref = "tada".
+#' options that do not require the user to supply a data frame. When no ref is
+#' specified all unit conversion will be based on TADA priority characteristic units
+#' (where appplicable), with any other units assigned by WQX unit reference. 
 #'
 #' @return When transform = TRUE, result values and units are converted to WQX
 #'   target units. This function changes the values within the
@@ -163,7 +161,7 @@ TADA_CreateUnitRef <- function(.data){
 #' #' # Convert values and units for results and detection limits:
 #' ResultUnitsNotConverted <- TADA_ConvertResultUnits(Data_Nutrients_UT, transform = TRUE, detlimit = TRUE)
 #'
-TADA_ConvertResultUnits <- function(.data, transform = TRUE, detlimit = TRUE, conversionref = "tada") {
+TADA_ConvertResultUnits <- function(.data, transform = TRUE, detlimit = TRUE, ref) {
   # check .data is data.frame
   TADA_CheckType(.data, "data.frame", "Input object")
   # check transform is boolean
@@ -181,44 +179,25 @@ TADA_ConvertResultUnits <- function(.data, transform = TRUE, detlimit = TRUE, co
 
   # execute function after checks are passed
   
-  if(conversionref == "none") {
-  
-  # use unit.ref to create unit conversion
-  unit.ref <- utils::read.csv(system.file("extdata", "WQXunitRef.csv", package = "TADA")) 
-  
-   # add target speciation column to unit.ref
-   unit.ref$Target.Speciation <- ""
-
-  # add usgs unit/speciations - this table was created by Elise Hinman and Cristina Mullin in 07/2023 using the pcodes domain table from NWIS and copying units with speciations in them into the same format as the measure unit domain table for WQX.
-  # https://help.waterdata.usgs.gov/codes-and-parameters/parameters Downloaded the .txt file of ALL parameters and then open in Excel using the delimiter utility.
-  usgs.ref <- TADA_GetUSGSSynonymRef()
-
-  unit.ref <- plyr::rbind.fill(unit.ref, usgs.ref) %>%
-    dplyr::select(Code, Target.Unit, Target.Speciation, Conversion.Factor)
-
-  unit.ref$TADA.ResultMeasure.MeasureUnitCode <- toupper(unit.ref$Code)
-  unit.ref$Target.Unit <- toupper(unit.ref$Target.Unit)
-  unit.ref$Target.Speciation <- toupper(unit.ref$Target.Speciation)
-
-  unit.ref <- unique(unit.ref[, names(unit.ref) %in% c(
-    "TADA.ResultMeasure.MeasureUnitCode",
-    "Target.Unit",
-    "Conversion.Factor",
-    "Target.Speciation"
-  )])
-
-  # join unit.ref to .data
-  check.data <- merge(.data, unit.ref, all.x = TRUE) 
-  
-    if(conversionref != "tada"){
+  # if user supplied unit reference was provided
+  if (!missing(ref)) {
+    # check ref is data.frame
+    TADA_CheckType(ref, "data.frame")
+    
+    # required columns
+    expected_ref_cols <- c(
+      "CharacteristicName", "Code", "Target.Unit", "Domain",
+      "Unique.Identifier", "Description", "Last.Change.Data",
+      "Conversion.Factor", "Conversion.Coefficient", "Target.Speciation"
+    )
+    
+    # check ref has all of the required columns
+    TADA_CheckColumns(ref, expected_ref_cols)
       
-      # Use TADA_CreateUnitRef to create unit reference that incorporates TADA Priority Characteristics
-      unit.ref <- TADA_CreateUnitRef(.data)
+    # create message to inform users if user-supplied unit reference contains all combinations present in TADA data frame
+      unit.ref <- ref
       
-    # Create message to inform users if user-supplied unit reference contains all combinations present in TADA data frame
-      else {
-      unit.ref <- conversionref
-      
+      # create list of unique characteristic and unit combinations in data 
       check.units <- .data %>%
         dplyr::select(CharacteristicName, ResultMeasure.MeasureUnitCode) %>%
         dplyr::filter(!is.na(ResultMeasure.MeasureUnitCode)) %>%
@@ -226,16 +205,20 @@ TADA_ConvertResultUnits <- function(.data, transform = TRUE, detlimit = TRUE, co
         dplyr::mutate(Code = toupper(Code)) %>%
         dplyr::distinct()
       
+      # create list of unique characteristic and unit combinations in unit ref
       check.ref <- unit.ref %>%
         dplyr::select(CharacteristicName, Code) %>%
         dplyr::distinct()
       
+      # compare the unique characteristic/unit combinations in data nd unit ref
       compare.ref <- check.units %>%
         dplyr::anti_join(check.ref)
       
+      # if no difference between the two, print message that all combinations are present in unit ref
       if(nrow(compare.ref) == 0){
         print("All CharacteristicName/Unit combinations in the TADA dataframe are represented in user-supplied unit reference.")
-        else{
+        # if there are characteristic/unit combinations in the data that are not in the unit ref, print a warning message listing them
+        }else{
           compare.list <- compare.ref %>%
             dplyr::mutate(Comb = paste(CharacteristicName, " (", Code, ")", sep = "")) %>%
             dplyr::mutate(CombList = paste(Comb, collapse = ", ")) %>%
@@ -245,11 +228,19 @@ TADA_ConvertResultUnits <- function(.data, transform = TRUE, detlimit = TRUE, co
           
           print(paste("TADA_ConvertResultUnits: The following CharacteristicName and ResultMeasure.MeasureUnitCode combinations are not included in the user-supplied unit reference data frame: ", compare.list, 
                       ". Consider revising the user-supplied unit reference data frame and running TADA_ConvertResultUnits again.", sep = ""))
-        }
-      }
-    }
   }
-}
+  }
+  
+  # if no unit referance df was provided by user
+  if (missing(ref)) {
+    unit.ref <- TADA_CreateUnitRef(.data)
+    
+    print("TADA_ConverResultUnits: No unit reference data frame was supplied. Characteristic units will be converted to TADA-specified units for priority characteristics and WQX target units for other characteristics.")
+  }
+  
+  
+  # join unit.ref to .data
+  check.data <- merge(.data, unit.ref, all.x = TRUE) 
 
   # rename columns
   flag.data <- check.data %>%
