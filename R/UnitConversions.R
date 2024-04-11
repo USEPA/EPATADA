@@ -161,7 +161,7 @@ TADA_CreateUnitRef <- function(.data){
 #' #' # Convert values and units for results and detection limits:
 #' ResultUnitsNotConverted <- TADA_ConvertResultUnits(Data_Nutrients_UT, transform = TRUE, detlimit = TRUE)
 #'
-TADA_ConvertResultUnits <- function(.data, transform = TRUE, detlimit = TRUE, ref) {
+TADA_ConvertResultUnits <- function(.data, ref = "none", transform = TRUE, detlimit = TRUE) {
   # check .data is data.frame
   TADA_CheckType(.data, "data.frame", "Input object")
   # check transform is boolean
@@ -180,7 +180,7 @@ TADA_ConvertResultUnits <- function(.data, transform = TRUE, detlimit = TRUE, re
   # execute function after checks are passed
   
   # if user supplied unit reference was provided
-  if (!missing(ref)) {
+  if (ref != "none") {
     # check ref is data.frame
     TADA_CheckType(ref, "data.frame")
     
@@ -213,6 +213,7 @@ TADA_ConvertResultUnits <- function(.data, transform = TRUE, detlimit = TRUE, re
       # compare the unique characteristic/unit combinations in data nd unit ref
       compare.ref <- check.units %>%
         dplyr::anti_join(check.ref)
+
       
       # if no difference between the two, print message that all combinations are present in unit ref
       if(nrow(compare.ref) == 0){
@@ -228,14 +229,13 @@ TADA_ConvertResultUnits <- function(.data, transform = TRUE, detlimit = TRUE, re
           
           print(paste("TADA_ConvertResultUnits: The following CharacteristicName and ResultMeasure.MeasureUnitCode combinations are not included in the user-supplied unit reference data frame: ", compare.list, 
                       ". Consider revising the user-supplied unit reference data frame and running TADA_ConvertResultUnits again.", sep = ""))
-  }
-  }
+  }}
   
-  # if no unit referance df was provided by user
-  if (missing(ref)) {
+  # if no unit reference df was provided by user
+  if (ref == "none") {
     unit.ref <- TADA_CreateUnitRef(.data)
     
-    print("TADA_ConverResultUnits: No unit reference data frame was supplied. Characteristic units will be converted to TADA-specified units for priority characteristics and WQX target units for other characteristics.")
+    print("TADA_ConvertResultUnits: No unit reference data frame was supplied. Characteristic units will be converted to TADA-specified units for priority characteristics and WQX target units for other characteristics.")
   }
   
   
@@ -373,8 +373,6 @@ TADA_ConvertResultUnits <- function(.data, transform = TRUE, detlimit = TRUE, re
     return(convert.data)
   }
 }
-
-
 
 #' Convert Depth Units
 #'

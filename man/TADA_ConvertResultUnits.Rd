@@ -2,12 +2,19 @@
 % Please edit documentation in R/UnitConversions.R
 \name{TADA_ConvertResultUnits}
 \alias{TADA_ConvertResultUnits}
-\title{Transform Units to WQX Target Units}
+\title{Transform Units to WQX Target Units or User Specified Units}
 \usage{
-TADA_ConvertResultUnits(.data, transform = TRUE, detlimit = TRUE)
+TADA_ConvertResultUnits(.data, ref = "none", transform = TRUE, detlimit = TRUE)
 }
 \arguments{
 \item{.data}{TADA dataframe}
+
+\item{ref}{Optional character argument in which a user can specify a data frame
+by name. Data frame must contain the columns CharacteristicName, Unit, and TargetUnit.
+TADA_CreateUnitRef() can be used to help create this data frame. There are two
+options that do not require the user to supply a data frame. When no ref is
+specified all unit conversion will be based on TADA priority characteristic units
+(where appplicable), with any other units assigned by WQX unit reference.}
 
 \item{transform}{Boolean argument with two possible values, “TRUE” and “FALSE”.
 Default is transform = TRUE.}
@@ -40,6 +47,8 @@ a target unit in WQX. "Convert" means the data can be transformed.
 When detlimit = FALSE, values and units for detection limit are not converted to WQX
 target units and no additional fields related to detection limit values or units
 are added to the input dataframe.
+
+When
 }
 \description{
 This function compares measure units in the input data to the Water Quality
