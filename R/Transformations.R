@@ -58,9 +58,7 @@ TADA_HarmonizeSynonyms <- function(.data, ref, np_speciation = TRUE) {
   expected_cols <- c(
     "TADA.CharacteristicName",
     "TADA.ResultSampleFractionText",
-    "TADA.MethodSpeciationName",
-    "TADA.ResultMeasureValue",
-    "TADA.ResultMeasure.MeasureUnitCode"
+    "TADA.MethodSpeciationName"
   )
   TADA_CheckColumns(.data, expected_cols)
 
@@ -110,16 +108,20 @@ TADA_HarmonizeSynonyms <- function(.data, ref, np_speciation = TRUE) {
   }
 
   # find places where metadata will be changed and add targets
-  harm.ref$TADA.Harmonized.Flag <- ifelse(!is.na(harm.ref$Target.TADA.CharacteristicName) | !is.na(harm.ref$Target.TADA.ResultSampleFractionText) | !is.na(harm.ref$Target.TADA.MethodSpeciationName) | !is.na(harm.ref$Target.TADA.ResultMeasure.MeasureUnitCode), TRUE, FALSE)
+  harm.ref$TADA.Harmonized.Flag <- ifelse(!is.na(harm.ref$Target.TADA.CharacteristicName) | 
+                                            !is.na(harm.ref$Target.TADA.ResultSampleFractionText) | 
+                                            !is.na(harm.ref$Target.TADA.MethodSpeciationName), 
+                                          TRUE, FALSE) %>%
+    dplyr::distinct()
 
   .data <- .data[, !names(.data) %in% c("TADA.ComparableDataIdentifier")]
 
   # join harm.ref to .data
-  flag.data <- merge(.data, harm.ref,
-    by = expected_cols[!expected_cols %in% "TADA.ResultMeasureValue"],
-    all.x = TRUE
-  )
-
+  flag.data <- .data %>%
+    dplyr::left_join(harm.ref, by = c("TADA.CharacteristicName",
+                                      "TADA.ResultSampleFractionText",
+                                      "TADA.MethodSpeciationName"))
+  
   # TADA.CharacteristicName
   # replace TADA.CharacteristicName with Target.TADA.CharacteristicName
   clean.data <- flag.data %>%
