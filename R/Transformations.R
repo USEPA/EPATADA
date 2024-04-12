@@ -104,23 +104,23 @@ TADA_HarmonizeSynonyms <- function(.data, ref, np_speciation = TRUE) {
   # if input for ref does not exist, use raw harmonization template
   if (missing(ref)) {
     # use output of TADA_GetSynonymRef which uses the TADA HarmonizationTemplate.csv in the extdata folder
-    harm.ref <- TADA_GetSynonymRef(.data)
+    harm.ref <- TADA_GetSynonymRef(.data) %>%
+      dplyr::distinct()
   }
 
   # find places where metadata will be changed and add targets
   harm.ref$TADA.Harmonized.Flag <- ifelse(!is.na(harm.ref$Target.TADA.CharacteristicName) | 
                                             !is.na(harm.ref$Target.TADA.ResultSampleFractionText) | 
                                             !is.na(harm.ref$Target.TADA.MethodSpeciationName), 
-                                          TRUE, FALSE) %>%
-    dplyr::distinct()
-
+                                          TRUE, FALSE)
+  
   .data <- .data[, !names(.data) %in% c("TADA.ComparableDataIdentifier")]
 
   # join harm.ref to .data
   flag.data <- .data %>%
     dplyr::left_join(harm.ref, by = c("TADA.CharacteristicName",
                                       "TADA.ResultSampleFractionText",
-                                      "TADA.MethodSpeciationName"))
+                                      "TADA.MethodSpeciationName")) %>%
   
   # TADA.CharacteristicName
   # replace TADA.CharacteristicName with Target.TADA.CharacteristicName
