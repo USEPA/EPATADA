@@ -409,9 +409,9 @@ TADA_ConvertSpecialChars <- function(.data, col, percent.ave = TRUE) {
         TRUE ~ "Coerced to NA"
       ),
       flag = ifelse(flag == "Greater Than" & grepl("%", masked) & grepl("-", masked),
-                    "Percentage Range - Average", flag),
+                    "Percentage Range - Averaged", flag),
       flag = ifelse(flag == "Less Than" & grepl("%", masked) & grepl("-", masked),
-                    "Percentage Range - Average", flag))
+                    "Percentage Range - Averaged", flag))
   }
 
   if (percent.ave == FALSE) {
