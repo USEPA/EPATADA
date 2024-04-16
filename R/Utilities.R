@@ -399,15 +399,19 @@ TADA_ConvertSpecialChars <- function(.data, col, percent.ave = TRUE) {
         (grepl(">", masked) == TRUE) ~ as.character("Greater Than"),
         (grepl("~", masked) == TRUE) ~ as.character("Approximate Value"),
         (grepl("[A-Za-z]", masked) == TRUE) ~ as.character("Text"),
-        (grepl("([1-9]|[1-9][0-9]|100)-([1-9]|[1-9][0-9]|100)%", masked) == TRUE) ~ as.character("Percentage Range - Averaged"),
         (grepl("%", masked) == TRUE) ~ as.character("Percentage"),
         (grepl(",", masked) == TRUE) ~ as.character("Comma-Separated Numeric"),
         (grepl("\\d\\-\\d", masked) == TRUE) ~ as.character("Numeric Range - Averaged"),
+        (grepl("([1-9]|[1-9][0-9]|100)-([1-9]|[1-9][0-9]|100)%", masked) == TRUE) ~ as.character("Percentage Range - Averaged"),
         # because * is a special character you have to escape\\ it:
         (grepl("\\*", masked) == TRUE) ~ as.character("Approximate Value"),
         (!stringi::stri_enc_mark(masked) %in% c("ASCII")) ~ as.character("Non-ASCII Character(s)"),
         TRUE ~ "Coerced to NA"
-      ))
+      ),
+      flag = ifelse(flag == "Greater Than" & grepl("%", masked) & grepl("-", masked),
+                    "Percentage Range - Averaged", flag),
+      flag = ifelse(flag == "Less Than" & grepl("%", masked) & grepl("-", masked),
+                    "Percentage Range - Averaged", flag))
   }
 
   if (percent.ave == FALSE) {
@@ -425,7 +429,9 @@ TADA_ConvertSpecialChars <- function(.data, col, percent.ave = TRUE) {
     numrange <- numrange %>%
       dplyr::mutate(
         masked = stringr::str_remove(masked, "[1-9]\\)"),
-        masked = stringr::str_remove(masked, "%")
+        masked = stringr::str_remove(masked, "%"),
+        masked = stringr::str_remove(masked, ">"),
+        masked = stringr::str_remove(masked, "<")
       ) %>%
       tidyr::separate(masked, into = c("num1", "num2"), sep = "-", remove = TRUE) %>%
       dplyr::mutate_at(c("num1", "num2"), as.numeric)
