@@ -151,7 +151,7 @@ Now, we can make the water quality data spatial by running
 
 ```{r}
 # default CRS is WGS84 (4326)
-TADA_spatial <- TADA_MakeSpatial(data = TADA_dataframe, crs = 4326)
+TADA_spatial <- TADA_MakeSpatial(.data = TADA_dataframe, crs = 4326)
 ```
 
 This new spatial object is identical to the original TADA dataset, but
@@ -172,7 +172,7 @@ leaflet::leaflet() %>%
                      colors = "black",
                      labels = "Water Quality Observation(s)",
                      opacity = 1) %>%
-  leaflet::addCircleMarkers(data = TADA_spatial,
+  leaflet::addCircleMarkers(.data = TADA_spatial,
                             color = "grey", fillColor = "black", 
                             fillOpacity = 0.8, stroke = TRUE, weight = 1.5, radius = 6, 
                             popup = paste0("Site ID: ", 
@@ -215,9 +215,9 @@ Using either our original `TADA_dataframe` *or* the geospatial version
 same NHD HR catchment as our observations:
 
 ```{r}
-TADA_with_ATTAINS <- TADA_GetATTAINS(data = TADA_dataframe, return_sf = FALSE)
+TADA_with_ATTAINS <- TADA_GetATTAINS(.data = TADA_dataframe, return_sf = FALSE)
 
-TADA_with_ATTAINS <- TADA_GetATTAINS(data = TADA_spatial, return_sf = FALSE)
+TADA_with_ATTAINS <- TADA_GetATTAINS(.data = TADA_spatial, return_sf = FALSE)
 ```
 
 This new `TADA_with_ATTAINS` object is a modification of the original
@@ -230,9 +230,9 @@ Portal observations fall within an NHD HR catchment that contains more
 than one ATTAINS assessment unit.
 
 ```{r}
-TADA_with_ATTAINS_list <- TADA_GetATTAINS(data = TADA_dataframe, return_sf = TRUE)
+TADA_with_ATTAINS_list <- TADA_GetATTAINS(.data = TADA_dataframe, return_sf = TRUE)
 
-TADA_with_ATTAINS_list <- TADA_GetATTAINS(data = TADA_spatial, return_sf = TRUE)
+TADA_with_ATTAINS_list <- TADA_GetATTAINS(.data = TADA_spatial, return_sf = TRUE)
 ```
 
 If we set `return_sf = TRUE` as done to create the

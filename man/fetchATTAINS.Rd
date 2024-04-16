@@ -4,10 +4,10 @@
 \alias{fetchATTAINS}
 \title{fetchATTAINS}
 \usage{
-fetchATTAINS(data)
+fetchATTAINS(.data)
 }
 \arguments{
-\item{data}{A dataframe developed using \code{TADA_DataRetrieval()} or \code{TADA_MakeSpatial()}.}
+\item{.data}{A dataframe developed using \code{TADA_DataRetrieval()} or \code{TADA_MakeSpatial()}.}
 }
 \value{
 spatial features (ATTAINS_catchments, ATTAINS_points, ATTAINS_lines, and ATTAINS_polygons) that are within the spatial bounding box of water quality observations.
@@ -22,7 +22,7 @@ tada_data <- TADA_DataRetrieval(startDate = "1990-01-01",
                                characteristicName = "pH",
                                statecode = "NV",
                                applyautoclean = TRUE)
-nv_attains_features <- fetchATTAINS(data = tada_data)
+nv_attains_features <- fetchATTAINS(.data = tada_data)
 }
 }
 \seealso{

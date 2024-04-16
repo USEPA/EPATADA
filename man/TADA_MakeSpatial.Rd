@@ -4,10 +4,10 @@
 \alias{TADA_MakeSpatial}
 \title{TADA_MakeSpatial}
 \usage{
-TADA_MakeSpatial(data, crs = 4326)
+TADA_MakeSpatial(.data, crs = 4326)
 }
 \arguments{
-\item{data}{A dataframe created by \code{TADA_DataRetrieval()}.}
+\item{.data}{A dataframe created by \code{TADA_DataRetrieval()}.}
 
 \item{crs}{The coordinate reference system (CRS) you would like the returned point features to be in. The default is CRS 4326 (WGS84).}
 }
@@ -27,7 +27,7 @@ tada_not_spatial <- TADA_DataRetrieval(startDate = "1995-01-01",
                                        applyautoclean = TRUE)
 
 # make `tada_not_spatial` an {sf} object, projected in crs = 4269 (NAD83)                                 
-tada_spatial <- TADA_MakeSpatial(data = tada_not_spatial, crs = 4269)
+tada_spatial <- TADA_MakeSpatial(.data = tada_not_spatial, crs = 4269)
 }
 }
 \seealso{
