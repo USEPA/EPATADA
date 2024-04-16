@@ -16,12 +16,12 @@ The original TADA Water Quality Portal dataframe but as geospatial {sf} point ob
 }
 \description{
 Transform a Water Quality Portal dataframe into a geospatial {sf} object.
+Adds a new column to input dataset, 'geometry', which allows for
+mapping and additional geospatial capabilities.
 }
 \examples{
 \dontrun{
-tada_not_spatial <- TADA_DataRetrieval(startDate = "1995-01-01",
-                                       endDate = "1995-12-31",
-                                       characteristicName = "pH",
+tada_not_spatial <- TADA_DataRetrieval(characteristicName = "pH",
                                        statecode = "SC", 
                                        countycode = "Abbeville",
                                        applyautoclean = TRUE)

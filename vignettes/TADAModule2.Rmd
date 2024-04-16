@@ -1,14 +1,15 @@
 ---
-title: "TADA Geospatial Functions"
+title: "TADA Module 2: Geospatial Functions"
 format: html
 editor: visual
 author: "TADA Team"
 date: "`r Sys.Date()`"
 output: rmarkdown::html_vignette
 vignette: >
-  %\usepackage[utf8]{inputenc}
-  %\VignetteIndexEntry{TADA Geospatial Functions}
+  %\VignetteEncoding{UTF-8}
+  %\VignetteIndexEntry{TADA Module 2: Geospatial Functions}
   %\VignetteEngine{knitr::rmarkdown}
+description: An overview of TADA Module 2 functions and a recommended workflow.
 editor_options: 
   chunk_output_type: console
   markdown: 
@@ -33,8 +34,7 @@ TADA is an open-source tool set built in the R programming language.
 This [RMarkdown](https://bookdown.org/yihui/rmarkdown/) document walks
 users through how to download the TADA R package from GitHub, access and
 parameterize several important functions, and create basic
-visualizations with a sample data set. The sample data set contains data
-from one week from all EPA Region 5 states.
+visualizations with a sample data set. 
 
 **Note: TADA is still under development. New functionality is added
 weekly, and sometimes we need to make bug fixes in response to tester
@@ -69,7 +69,7 @@ console).
 
 ```{r install_TADA, eval = F, results = 'hide', message = FALSE, warning = FALSE}
 remotes::install_github("USEPA/TADA",
-  ref = "R5_package_demo",
+  ref = "updates",
   dependencies = TRUE
 )
 ```
@@ -106,19 +106,22 @@ state-defined water quality assessment units in ATTAINS.
 
 The Assessment, Total Maximum Daily Load (TMDL) Tracking and
 Implementation System ([ATTAINS](https://www.epa.gov/waterdata/attains))
-is an online platform that organizes and combines each state's Clean
-Water Act reporting data into a single data repository. The geospatial
-component of ATTAINS includes spatial representations of each state's
-assessment units as well as their assigned designated uses, their most
-recent EPA reporting category (i.e., their impairment status), their
-impaired designated uses, and the parameter(s) causing the impairment.
+is an online platform that organizes and combines each state and 
+participating tribe's Clean Water Act reporting data into a single data 
+repository. The geospatial component of ATTAINS includes spatial 
+representations of each entities assessment units as well as their assigned
+designated uses, their most recent EPA reporting category 
+(i.e., their impairment status), their impaired designated uses, and the
+parameter(s) causing the impairment.
 
-Within an assessment unit, the water quality standards remain the same
-and all water features are assessed as one entity. Depending on the
-state, these assessment units can be a specific point along a river, a
-river reach, an entire river, or even an entire watershed. (In other
-words, assessment units can take the form of point, line, and area
-features, or some combination of all of them.) Moreover, it is possible
+Within an assessment unit, the water quality criteria or thresholds used
+to assess water quality typically remain the same and all water features 
+are assessed as one entity (although there are some exceptions). 
+Depending on the state or tribe, these assessment units can be a specific
+points along a waterbody such as a river or lake, a river reach, 
+an entire waterbody such as a river or lake, or even an entire watershed. 
+In other words, assessment units can take the form of point, line, and area
+features, or some combination of all of them. Moreover, it is possible
 that some assessment units are not geospatially referenced at all,
 meaning they are not captured in the ATTAINS geospatial database.
 
@@ -172,7 +175,7 @@ leaflet::leaflet() %>%
                      colors = "black",
                      labels = "Water Quality Observation(s)",
                      opacity = 1) %>%
-  leaflet::addCircleMarkers(.data = TADA_spatial,
+  leaflet::addCircleMarkers(data = TADA_spatial,
                             color = "grey", fillColor = "black", 
                             fillOpacity = 0.8, stroke = TRUE, weight = 1.5, radius = 6, 
                             popup = paste0("Site ID: ", 

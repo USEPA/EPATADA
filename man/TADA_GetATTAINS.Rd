@@ -19,10 +19,10 @@ Link catchment-based ATTAINS assessment unit data to Water Quality Portal observ
 }
 \examples{
 \dontrun{
-tada_data <- TADA_DataRetrieval(startDate = "1990-01-01",
-                               endDate = "1995-12-31",
+tada_data <- TADA_DataRetrieval(startDate = "2018-05-01",
+                               endDate = "2018-09-30",
                                characteristicName = "pH",
-                               statecode = "NV",
+                               statecode = "IL",
                                applyautoclean = TRUE)
 tada_attains <- TADA_GetATTAINS(.data = tada_data, return_sf = FALSE)
 tada_attains_list <- TADA_GetATTAINS(.data = tada_data, return_sf = TRUE)

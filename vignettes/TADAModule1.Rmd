@@ -1,5 +1,7 @@
 ---
 title: "TADA Module 1: Water Quality Portal Data Discovery and Cleaning"
+format: html
+editor: visual
 author: "TADA Team"
 date: "`r Sys.Date()`"
 output: rmarkdown::html_vignette
@@ -13,6 +15,7 @@ editor_options:
   markdown: 
     wrap: 72
 ---
+
 ```{r setup, include = FALSE}
 knitr::opts_chunk$set(
   collapse = TRUE,
@@ -76,7 +79,7 @@ remotes::install_github("USEPA/TADA",
 # IF YOU ARE NOT DEVELOPING TADA, SKIP THIS CODE CHUNK
 # when developing the package, update this chunk to the current repository branch, so it runs with all of the new features prior to a PR to develop
 remotes::install_github("USEPA/TADA",
-  ref = "409-tada_overviewmap-tribal-layer-bug",
+  ref = "updates",
   dependencies = TRUE
 )
 ```

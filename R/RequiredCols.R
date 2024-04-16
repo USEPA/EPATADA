@@ -175,6 +175,8 @@ require.cols <- c(
   "TADA.LatitudeMeasure", # generated
   "LongitudeMeasure",
   "TADA.LongitudeMeasure", # generated
+  "HorizontalCoordinateReferenceSystemDatumName",
+  "geometry",
   "TADA.InvalidCoordinates.Flag", # generated
   "HUCEightDigitCode",
   "MonitoringLocationIdentifier", # required
@@ -218,7 +220,6 @@ extra.cols <- c(
   "HorizontalAccuracyMeasure.MeasureValue",
   "HorizontalAccuracyMeasure.MeasureUnitCode",
   "HorizontalCollectionMethodName",
-  "HorizontalCoordinateReferenceSystemDatumName",
   "VerticalMeasure.MeasureValue",
   "VerticalMeasure.MeasureUnitCode",
   "VerticalAccuracyMeasure.MeasureValue",

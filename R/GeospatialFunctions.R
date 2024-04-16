@@ -1,6 +1,8 @@
 #' TADA_MakeSpatial
 #' 
 #' Transform a Water Quality Portal dataframe into a geospatial {sf} object.
+#' Adds a new column to input dataset, 'geometry', which allows for 
+#' mapping and additional geospatial capabilities.
 #' 
 #' @param .data A dataframe created by `TADA_DataRetrieval()`.
 #' @param crs The coordinate reference system (CRS) you would like the returned point features to be in. The default is CRS 4326 (WGS84).
@@ -13,9 +15,7 @@
 #'
 #' @examples
 #' \dontrun{
-#' tada_not_spatial <- TADA_DataRetrieval(startDate = "1995-01-01",
-#'                                        endDate = "1995-12-31",
-#'                                        characteristicName = "pH",
+#' tada_not_spatial <- TADA_DataRetrieval(characteristicName = "pH",
 #'                                        statecode = "SC", 
 #'                                        countycode = "Abbeville",
 #'                                        applyautoclean = TRUE)
@@ -65,7 +65,8 @@ TADA_MakeSpatial <- function(.data, crs = 4326){
                       # transform to the selected CRS:
                       sf::st_transform(sf::st_crs(as.numeric(crs)))) %>%
       dplyr::arrange(index) %>%
-      dplyr::select(-c(index, epsg))
+      dplyr::select(-c(index, epsg)) %>%
+      TADA_OrderCols()
   }))
   
   return(sf)
@@ -203,6 +204,7 @@ fetchATTAINS <- function(.data) {
   
   names(final_features) <- c("ATTAINS_catchments", "ATTAINS_points", "ATTAINS_lines", "ATTAINS_polygons")
   
+  TADA_OrderCols(final_features)
   return(final_features)
   
 }
@@ -225,10 +227,10 @@ fetchATTAINS <- function(.data) {
 #'
 #' @examples
 #' \dontrun{
-#'tada_data <- TADA_DataRetrieval(startDate = "1990-01-01",
-#'                                endDate = "1995-12-31",
+#'tada_data <- TADA_DataRetrieval(startDate = "2018-05-01",
+#'                                endDate = "2018-09-30",
 #'                                characteristicName = "pH",
-#'                                statecode = "NV",
+#'                                statecode = "IL",
 #'                                applyautoclean = TRUE)
 #'tada_attains <- TADA_GetATTAINS(.data = tada_data, return_sf = FALSE)
 #'tada_attains_list <- TADA_GetATTAINS(.data = tada_data, return_sf = TRUE)
@@ -264,7 +266,7 @@ TADA_GetATTAINS <- function(.data, return_sf = TRUE){
     
     col_val_list <- setNames(object = rep(x = list(NA),
                                           times = length(attains_names)),
-                             nm = attains_names)
+                                          nm = attains_names)
     
     # Add ATTAINS columns with NA values
     no_WQP_data <- .data %>%
