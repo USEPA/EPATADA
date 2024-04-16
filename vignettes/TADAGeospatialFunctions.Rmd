@@ -44,7 +44,7 @@ in these helpful tools.**
 **If you are interested in contributing to TADA development, more
 information is available at:**
 
-**[Contributing](https://usepa.github.io/TADA/articles/CONTRIBUTING.html)**
+[**Contributing**](https://usepa.github.io/TADA/articles/CONTRIBUTING.html)
 
 **We welcome collaboration with external partners.**
 
@@ -106,9 +106,9 @@ state-defined water quality assessment units in ATTAINS.
 
 The Assessment, Total Maximum Daily Load (TMDL) Tracking and
 Implementation System ([ATTAINS](https://www.epa.gov/waterdata/attains))
-is an online platform that organizes and combines each state’s Clean
+is an online platform that organizes and combines each state's Clean
 Water Act reporting data into a single data repository. The geospatial
-component of ATTAINS includes spatial representations of each state’s
+component of ATTAINS includes spatial representations of each state's
 assessment units as well as their assigned designated uses, their most
 recent EPA reporting category (i.e., their impairment status), their
 impaired designated uses, and the parameter(s) causing the impairment.
