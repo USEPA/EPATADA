@@ -22,12 +22,14 @@ Adds the following ATTAINS columns to the input dataframe or list: "ATTAINS.orga
 }
 \examples{
 \dontrun{
-tada_data <- TADA_DataRetrieval(startDate = "2018-05-01",
-                               endDate = "2018-09-30",
-                               characteristicName = "pH",
-                               statecode = "IL",
-                               applyautoclean = TRUE)
-                               
+tada_data <- TADA_DataRetrieval(
+  startDate = "2018-05-01",
+  endDate = "2018-09-30",
+  characteristicName = "pH",
+  statecode = "IL",
+  applyautoclean = TRUE
+)
+
 tada_attains <- TADA_GetATTAINS(tada_data, return_sf = FALSE)
 
 tada_attains_list <- TADA_GetATTAINS(tada_data, return_sf = TRUE)

@@ -22,12 +22,14 @@ Adds one new column to input dataset, 'geometry', which allows for mapping and a
 }
 \examples{
 \dontrun{
-tada_not_spatial <- TADA_DataRetrieval(characteristicName = "pH",
-                                       statecode = "SC", 
-                                       countycode = "Abbeville",
-                                       applyautoclean = TRUE)
+tada_not_spatial <- TADA_DataRetrieval(
+  characteristicName = "pH",
+  statecode = "SC",
+  countycode = "Abbeville",
+  applyautoclean = TRUE
+)
 
-# make `tada_not_spatial` an {sf} object, projected in crs = 4269 (NAD83)                                 
+# make `tada_not_spatial` an {sf} object, projected in crs = 4269 (NAD83)
 tada_spatial <- TADA_MakeSpatial(tada_not_spatial, crs = 4269)
 }
 }

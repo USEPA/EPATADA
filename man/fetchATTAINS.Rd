@@ -17,12 +17,14 @@ Fetch ATTAINS features (entity submitted points, lines, polygons representing th
 }
 \examples{
 \dontrun{
-tada_data <- TADA_DataRetrieval(startDate = "1990-01-01",
-                                endDate = "1995-12-31",
-                                characteristicName = "pH",
-                                statecode = "NV",
-                                applyautoclean = TRUE)
-                               
+tada_data <- TADA_DataRetrieval(
+  startDate = "1990-01-01",
+  endDate = "1995-12-31",
+  characteristicName = "pH",
+  statecode = "NV",
+  applyautoclean = TRUE
+)
+
 nv_attains_features <- fetchATTAINS(tada_data)
 }
 }

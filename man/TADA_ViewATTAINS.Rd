@@ -25,14 +25,16 @@ TADAModule2.Rmd for an example workflow.
 }
 \examples{
 \dontrun{
-tada_data <- TADA_DataRetrieval(startDate = "1990-01-01",
-                                endDate = "1995-12-31",
-                                characteristicName = "pH",
-                                statecode = "NV",
-                                applyautoclean = TRUE)
-                               
-attains_data <- TADA_GetATTAINS(tada_data, return_sf = TRUE)                               
-                                 
+tada_data <- TADA_DataRetrieval(
+  startDate = "1990-01-01",
+  endDate = "1995-12-31",
+  characteristicName = "pH",
+  statecode = "NV",
+  applyautoclean = TRUE
+)
+
+attains_data <- TADA_GetATTAINS(tada_data, return_sf = TRUE)
+
 TADA_ViewATTAINS(attains_data)
 }
 }

@@ -24,12 +24,16 @@ getFeatureLayer is used by writeLayer to write feature layers to local files
 # Load example dataset
 data(Data_Nutrients_UT)
 # Get the bounding box of the data
-bbox <- sf::st_bbox(c(xmin = min(Data_Nutrients_UT$TADA.LongitudeMeasure), 
-                      ymin = min(Data_Nutrients_UT$TADA.LatitudeMeasure), 
-                      xmax = max(Data_Nutrients_UT$TADA.LongitudeMeasure),
-                      ymax = max(Data_Nutrients_UT$TADA.LatitudeMeasure)), 
-                      crs = sf::st_crs(Data_Nutrients_UT))
-# Get the American Indian Reservations feature layer, 
+bbox <- sf::st_bbox(
+  c(
+    xmin = min(Data_Nutrients_UT$TADA.LongitudeMeasure),
+    ymin = min(Data_Nutrients_UT$TADA.LatitudeMeasure),
+    xmax = max(Data_Nutrients_UT$TADA.LongitudeMeasure),
+    ymax = max(Data_Nutrients_UT$TADA.LatitudeMeasure)
+  ),
+  crs = sf::st_crs(Data_Nutrients_UT)
+)
+# Get the American Indian Reservations feature layer,
 # filtered by the bounding box for the Data_Nutrients_UT example dataset
 getFeatureLayer("https://geopub.epa.gov/arcgis/rest/services/EMEF/Tribal/MapServer/2/query", bbox)
 }

@@ -374,8 +374,9 @@ TADA_ConvertSpecialChars <- function(.data, col, percent.ave = TRUE) {
 
     # updates percentage units where NA
     chars.data$TADA.ResultMeasure.MeasureUnitCode <- ifelse(
-      grepl("%", chars.data$masked), "%", chars.data$ResultMeasure.MeasureUnitCode)
-    
+      grepl("%", chars.data$masked), "%", chars.data$ResultMeasure.MeasureUnitCode
+    )
+
     # TADA.ResultMeasure.MeasureUnitCode to uppercase
     chars.data$TADA.ResultMeasure.MeasureUnitCode <- toupper(chars.data$TADA.ResultMeasure.MeasureUnitCode)
   }
@@ -392,26 +393,30 @@ TADA_ConvertSpecialChars <- function(.data, col, percent.ave = TRUE) {
     # Detect special characters in column and populate new flag column with descriptor
     # of the specific type of character/data type
     clean.data <- chars.data %>%
-      dplyr::mutate(flag = dplyr::case_when(
-        is.na(masked) ~ as.character("NA - Not Available"),
-        (!is.na(suppressWarnings(as.numeric(masked)) == TRUE)) ~ as.character("Numeric"),
-        (grepl("<", masked) == TRUE) ~ as.character("Less Than"),
-        (grepl(">", masked) == TRUE) ~ as.character("Greater Than"),
-        (grepl("~", masked) == TRUE) ~ as.character("Approximate Value"),
-        (grepl("[A-Za-z]", masked) == TRUE) ~ as.character("Text"),
-        (grepl("%", masked) == TRUE) ~ as.character("Percentage"),
-        (grepl(",", masked) == TRUE) ~ as.character("Comma-Separated Numeric"),
-        (grepl("\\d\\-\\d", masked) == TRUE) ~ as.character("Numeric Range - Averaged"),
-        (grepl("([1-9]|[1-9][0-9]|100)-([1-9]|[1-9][0-9]|100)%", masked) == TRUE) ~ as.character("Percentage Range - Averaged"),
-        # because * is a special character you have to escape\\ it:
-        (grepl("\\*", masked) == TRUE) ~ as.character("Approximate Value"),
-        (!stringi::stri_enc_mark(masked) %in% c("ASCII")) ~ as.character("Non-ASCII Character(s)"),
-        TRUE ~ "Coerced to NA"
-      ),
-      flag = ifelse(flag == "Greater Than" & grepl("%", masked) & grepl("-", masked),
-                    "Percentage Range - Averaged", flag),
-      flag = ifelse(flag == "Less Than" & grepl("%", masked) & grepl("-", masked),
-                    "Percentage Range - Averaged", flag))
+      dplyr::mutate(
+        flag = dplyr::case_when(
+          is.na(masked) ~ as.character("NA - Not Available"),
+          (!is.na(suppressWarnings(as.numeric(masked)) == TRUE)) ~ as.character("Numeric"),
+          (grepl("<", masked) == TRUE) ~ as.character("Less Than"),
+          (grepl(">", masked) == TRUE) ~ as.character("Greater Than"),
+          (grepl("~", masked) == TRUE) ~ as.character("Approximate Value"),
+          (grepl("[A-Za-z]", masked) == TRUE) ~ as.character("Text"),
+          (grepl("%", masked) == TRUE) ~ as.character("Percentage"),
+          (grepl(",", masked) == TRUE) ~ as.character("Comma-Separated Numeric"),
+          (grepl("\\d\\-\\d", masked) == TRUE) ~ as.character("Numeric Range - Averaged"),
+          (grepl("([1-9]|[1-9][0-9]|100)-([1-9]|[1-9][0-9]|100)%", masked) == TRUE) ~ as.character("Percentage Range - Averaged"),
+          # because * is a special character you have to escape\\ it:
+          (grepl("\\*", masked) == TRUE) ~ as.character("Approximate Value"),
+          (!stringi::stri_enc_mark(masked) %in% c("ASCII")) ~ as.character("Non-ASCII Character(s)"),
+          TRUE ~ "Coerced to NA"
+        ),
+        flag = ifelse(flag == "Greater Than" & grepl("%", masked) & grepl("-", masked),
+          "Percentage Range - Averaged", flag
+        ),
+        flag = ifelse(flag == "Less Than" & grepl("%", masked) & grepl("-", masked),
+          "Percentage Range - Averaged", flag
+        )
+      )
   }
 
   if (percent.ave == FALSE) {
@@ -662,15 +667,15 @@ TADA_FindNearbySites <- function(.data, dist_buffer = 100) {
     groups_wide <- tidyr::pivot_wider(groups_wide, id_cols = "MonitoringLocationIdentifier", names_from = "GroupCount", names_prefix = "TADA.SiteGroup", values_from = "TADA.SiteGroupID")
     # merge data to site groupings
     .data <- merge(.data, groups_wide, all.x = TRUE)
-    
+
     # concatenate and move site id cols to right place
     grpcols <- names(.data)[grepl("TADA.SiteGroup", names(.data))]
-    
+
     .data <- .data %>% tidyr::unite(col = TADA.NearbySiteGroups, dplyr::all_of(grpcols), sep = ", ", na.rm = TRUE)
     .data$TADA.NearbySiteGroups[.data$TADA.NearbySiteGroups == ""] <- "No nearby sites"
   }
-   
-    if (dim(groups)[1] == 0) { # if no groups, give a TADA.NearbySiteGroups column filled with NA
+
+  if (dim(groups)[1] == 0) { # if no groups, give a TADA.NearbySiteGroups column filled with NA
     .data$TADA.NearbySiteGroups <- "No nearby sites"
     print("No nearby sites detected using input buffer distance.")
   }
@@ -698,10 +703,10 @@ TADA_FindNearbySites <- function(.data, dist_buffer = 100) {
 #' If FALSE, the function will query all data in the WQP for the number_of_days
 #' specified (national query). If TRUE, the function will select a random state
 #' and only retrieve data for that state.
-#' 
+#'
 #' @param autoclean Boolean (TRUE or FALSE). The default is TRUE.
-#' If FALSE, the function will NOT apply the TADA_AutoClean as part of the 
-#' TADA_DataRetrieval. If TRUE, the function WILL apply TADA_AutoClean as part of  
+#' If FALSE, the function will NOT apply the TADA_AutoClean as part of the
+#' TADA_DataRetrieval. If TRUE, the function WILL apply TADA_AutoClean as part of
 #' TADA_DataRetrieval.
 #'
 #' @return Random WQP dataset.
@@ -745,7 +750,7 @@ TADA_RandomTestingData <- function(number_of_days = 1, choose_random_state = FAL
       applyautoclean = TRUE
     )
   }
-  
+
   if (autoclean == FALSE) {
     dat <- TADA_DataRetrieval(
       startDate = as.character(random_start_date),
@@ -754,7 +759,7 @@ TADA_RandomTestingData <- function(number_of_days = 1, choose_random_state = FAL
       applyautoclean = FALSE
     )
   }
-  
+
   if (dim(dat)[1] < 1) {
     dat <- Data_NCTCShepherdstown_HUC12
   }
@@ -992,7 +997,7 @@ pchIcons <- function(pch = 1,
 }
 
 #' Retrieve feature layer from ArcGIS REST service
-#' getFeatureLayer is used by writeLayer to write feature layers to local files 
+#' getFeatureLayer is used by writeLayer to write feature layers to local files
 #'
 #' @param url URL of the layer REST service, ending with "/query". Example: https://geopub.epa.gov/arcgis/rest/services/EMEF/Tribal/MapServer/2/query (American Indian Reservations)
 #' @param bbox A bounding box from the sf function st_bbox; used to filter the query results. Optional; defaults to NULL.
@@ -1003,12 +1008,16 @@ pchIcons <- function(pch = 1,
 #' # Load example dataset
 #' data(Data_Nutrients_UT)
 #' # Get the bounding box of the data
-#' bbox <- sf::st_bbox(c(xmin = min(Data_Nutrients_UT$TADA.LongitudeMeasure), 
-#'                       ymin = min(Data_Nutrients_UT$TADA.LatitudeMeasure), 
-#'                       xmax = max(Data_Nutrients_UT$TADA.LongitudeMeasure),
-#'                       ymax = max(Data_Nutrients_UT$TADA.LatitudeMeasure)), 
-#'                       crs = sf::st_crs(Data_Nutrients_UT))
-#' # Get the American Indian Reservations feature layer, 
+#' bbox <- sf::st_bbox(
+#'   c(
+#'     xmin = min(Data_Nutrients_UT$TADA.LongitudeMeasure),
+#'     ymin = min(Data_Nutrients_UT$TADA.LatitudeMeasure),
+#'     xmax = max(Data_Nutrients_UT$TADA.LongitudeMeasure),
+#'     ymax = max(Data_Nutrients_UT$TADA.LatitudeMeasure)
+#'   ),
+#'   crs = sf::st_crs(Data_Nutrients_UT)
+#' )
+#' # Get the American Indian Reservations feature layer,
 #' # filtered by the bounding box for the Data_Nutrients_UT example dataset
 #' getFeatureLayer("https://geopub.epa.gov/arcgis/rest/services/EMEF/Tribal/MapServer/2/query", bbox)
 #' }
@@ -1040,13 +1049,15 @@ getFeatureLayer <- function(url, bbox = NULL) {
 writeLayer <- function(url, layerfilepath) {
   layer <- getFeatureLayer(url)
   # Attribute names can only be up to 10 characters long when saved to .dbf as part of sf::st_write.
-  # They are truncated automatically but TOTALAREA_MI and TOTALAREA_KM will not be unique after being 
-  # truncated, so explicitly rename them first if they exist to avoid error. 
+  # They are truncated automatically but TOTALAREA_MI and TOTALAREA_KM will not be unique after being
+  # truncated, so explicitly rename them first if they exist to avoid error.
   if ("TOTALAREA_MI" %in% colnames(layer)) {
-    layer <- layer %>% dplyr::rename(TAREA_MI = TOTALAREA_MI,
-                                     TAREA_KM = TOTALAREA_KM)
+    layer <- layer %>% dplyr::rename(
+      TAREA_MI = TOTALAREA_MI,
+      TAREA_KM = TOTALAREA_KM
+    )
   }
-  sf::st_write(layer, layerfilepath, delete_layer = TRUE)  
+  sf::st_write(layer, layerfilepath, delete_layer = TRUE)
 }
 
 
@@ -1068,7 +1079,7 @@ writeLayer <- function(url, layerfilepath) {
 #' }
 #'
 getLayer <- function(layerfilepath, bbox = NULL) {
-  layer = sf::st_read(layerfilepath) 
+  layer <- sf::st_read(layerfilepath)
   if (!(is.null(bbox))) {
     sf::sf_use_s2(FALSE)
     layer <- sf::st_make_valid(layer)
@@ -1123,8 +1134,8 @@ getPopup <- function(layer, layername) {
 #' @examples
 #' \dontrun{
 #' # Create a leaflet map
-#' lmap <- leaflet::leaflet() %>% 
-#'   leaflet::addProviderTiles("Esri.WorldTopoMap", group = "World topo") %>% 
+#' lmap <- leaflet::leaflet() %>%
+#'   leaflet::addProviderTiles("Esri.WorldTopoMap", group = "World topo") %>%
 #'   leaflet::addMapPane("featurelayers", zIndex = 300)
 #' # Add the American Indian Reservations feature layer to the map
 #' lmap <- TADA_addPolys(lmap, "inst/extdata/shapefiles/AmericanIndian.shp", "Tribes", "American Indian Reservations")
@@ -1179,8 +1190,8 @@ TADA_addPolys <- function(map, layerfilepath, layergroup, layername, bbox = NULL
 #' @examples
 #' \dontrun{
 #' # Create a leaflet map
-#' lmap <- leaflet::leaflet() %>% 
-#'   leaflet::addProviderTiles("Esri.WorldTopoMap", group = "World topo") %>% 
+#' lmap <- leaflet::leaflet() %>%
+#'   leaflet::addProviderTiles("Esri.WorldTopoMap", group = "World topo") %>%
 #'   leaflet::addMapPane("featurelayers", zIndex = 300)
 #' # Add the Virginia Federally Recognized Tribes feature layer to the map
 #' lmap <- TADA_addPoints(lmap, "inst/extdata/shapefiles/VATribe.shp", "Tribes", "Virginia Federally Recognized Tribes")
@@ -1212,6 +1223,3 @@ TADA_addPoints <- function(map, layerfilepath, layergroup, layername, bbox = NUL
   )
   return(map)
 }
-
-
-

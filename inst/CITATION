@@ -5,19 +5,12 @@ bibentry(bibtype = "Manual",
               as.person("Cristina A. Mullin"),
               as.person("Jacob Greif"),
               as.person("Elise Hinman"),
-              as.person("Katie Healy"),
-              as.person("Justin Bousquin"), 
-              as.person("Laura Decicco"),
-              as.person("Brad Cooper"),
-              as.person("Florian Rupprecht"),
-              as.person("Michelle Thawley"),
-              as.person("Zach Smith"),
-              as.person("Laura Shumway")
+              as.person("TADA Working Group")
               ),
-  title = "Water Quality Portal (WQP) Tools for Automated Data Analysis (TADA)",
-  address="Washington, DC",
+  title = "TADA (Tools for Automated Data Analysis)",
+  address="1200 Pennsylvania Ave, N.W., Washington, DC 20460",
   institution = "U.S. Environmental Protection Agency",
-  year = 2023,
+  year = 2024,
   url = "https://github.com/USEPA/TADA",
-  textVersion = "Mullin et al., 2023, Water Quality Portal (WQP) Tools for Automated Data Analysis (TADA), U.S. Environmental Protection Agency, Washington, DC"
+  textVersion = "Mullin et al., 2024, TADA (Tools for Automated Data Analysis), U.S. Environmental Protection Agency, Washington, DC.
 )

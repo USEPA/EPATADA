@@ -143,12 +143,14 @@ column.
 First, we will need to pull in some TADA Water Quality Portal Data:
 
 ```{r}
-# pH data in Larimer County, Colorado for the year 2020. 
-TADA_dataframe <- TADA_DataRetrieval(startDate = "2020-01-01",
-                                     endDate = "2020-12-31",
-                                     characteristicName = "pH",
-                                     countycode = "US:08:069",
-                                     applyautoclean = TRUE)
+# pH data in Larimer County, Colorado for the year 2020.
+TADA_dataframe <- TADA_DataRetrieval(
+  startDate = "2020-01-01",
+  endDate = "2020-12-31",
+  characteristicName = "pH",
+  countycode = "US:08:069",
+  applyautoclean = TRUE
+)
 ```
 
 Now, we can make the water quality data spatial by running
@@ -166,24 +168,33 @@ review another example of this function in use and additional
 information.
 
 ```{r}
-leaflet::leaflet() %>% 
-  leaflet::addProviderTiles("Esri.WorldTopoMap", 
-                            group = "World topo", 
-                            options = leaflet::providerTileOptions(updateWhenZooming = FALSE,
-                                                                   updateWhenIdle = TRUE)) %>% 
-  leaflet::clearShapes() %>% 
-  leaflet.extras::addResetMapButton()  %>%
-  leaflet::addLegend(position = "bottomright",
-                     colors = "black",
-                     labels = "Water Quality Observation(s)",
-                     opacity = 1) %>%
-  leaflet::addCircleMarkers(data = TADA_spatial,
-                            color = "grey", fillColor = "black", 
-                            fillOpacity = 0.8, stroke = TRUE, weight = 1.5, radius = 6, 
-                            popup = paste0("Site ID: ", 
-                                           TADA_spatial$MonitoringLocationIdentifier, 
-                                           "<br> Site Name: ",
-                                           TADA_spatial$MonitoringLocationName))
+leaflet::leaflet() %>%
+  leaflet::addProviderTiles("Esri.WorldTopoMap",
+    group = "World topo",
+    options = leaflet::providerTileOptions(
+      updateWhenZooming = FALSE,
+      updateWhenIdle = TRUE
+    )
+  ) %>%
+  leaflet::clearShapes() %>%
+  leaflet.extras::addResetMapButton() %>%
+  leaflet::addLegend(
+    position = "bottomright",
+    colors = "black",
+    labels = "Water Quality Observation(s)",
+    opacity = 1
+  ) %>%
+  leaflet::addCircleMarkers(
+    data = TADA_spatial,
+    color = "grey", fillColor = "black",
+    fillOpacity = 0.8, stroke = TRUE, weight = 1.5, radius = 6,
+    popup = paste0(
+      "Site ID: ",
+      TADA_spatial$MonitoringLocationIdentifier,
+      "<br> Site Name: ",
+      TADA_spatial$MonitoringLocationName
+    )
+  )
 ```
 
 ## `TADA_GetATTAINS()`
@@ -250,12 +261,16 @@ and create a new datafream with ONLY the unique combinations of WQP
 MonitoringLocationIdentifier's and ATTAINS Assessment Unit Identifiers.
 
 ```{r}
-TADA_with_ATTAINS_subset = TADA_with_ATTAINS %>% dplyr::select(
-  c("LongitudeMeasure", "LatitudeMeasure", "MonitoringLocationTypeName", 
-    "MonitoringLocationIdentifier", "ATTAINS.assessmentunitidentifier", 
-    "ATTAINS.overallstatus", "ATTAINS.isassessed", "ATTAINS.isimpaired", 
-    "ATTAINS.organizationid", "ATTAINS.assessmentunitname", 
-    "ATTAINS.reportingcycle", "ATTAINS.waterbodyreportlink")) %>%
+TADA_with_ATTAINS_subset <- TADA_with_ATTAINS %>%
+  dplyr::select(
+    c(
+      "LongitudeMeasure", "LatitudeMeasure", "MonitoringLocationTypeName",
+      "MonitoringLocationIdentifier", "ATTAINS.assessmentunitidentifier",
+      "ATTAINS.overallstatus", "ATTAINS.isassessed", "ATTAINS.isimpaired",
+      "ATTAINS.organizationid", "ATTAINS.assessmentunitname",
+      "ATTAINS.reportingcycle", "ATTAINS.waterbodyreportlink"
+    )
+  ) %>%
   dplyr::distinct(.keep_all = FALSE)
 ```
 
