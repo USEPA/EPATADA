@@ -16,8 +16,9 @@ The original TADA Water Quality Portal dataframe but as geospatial {sf} point ob
 }
 \description{
 Transform a Water Quality Portal dataframe into a geospatial {sf} object.
-Adds a new column to input dataset, 'geometry', which allows for
-mapping and additional geospatial capabilities.
+}
+\details{
+Adds one new column to input dataset, 'geometry', which allows for mapping and additional geospatial capabilities. Check out the TADAModule2.Rmd for an example workflow.
 }
 \examples{
 \dontrun{
@@ -27,7 +28,7 @@ tada_not_spatial <- TADA_DataRetrieval(characteristicName = "pH",
                                        applyautoclean = TRUE)
 
 # make `tada_not_spatial` an {sf} object, projected in crs = 4269 (NAD83)                                 
-tada_spatial <- TADA_MakeSpatial(.data = tada_not_spatial, crs = 4269)
+tada_spatial <- TADA_MakeSpatial(tada_not_spatial, crs = 4269)
 }
 }
 \seealso{

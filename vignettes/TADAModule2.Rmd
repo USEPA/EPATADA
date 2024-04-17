@@ -34,7 +34,7 @@ TADA is an open-source tool set built in the R programming language.
 This [RMarkdown](https://bookdown.org/yihui/rmarkdown/) document walks
 users through how to download the TADA R package from GitHub, access and
 parameterize several important functions, and create basic
-visualizations with a sample data set. 
+visualizations with a sample data set.
 
 **Note: TADA is still under development. New functionality is added
 weekly, and sometimes we need to make bug fixes in response to tester
@@ -106,24 +106,26 @@ state-defined water quality assessment units in ATTAINS.
 
 The Assessment, Total Maximum Daily Load (TMDL) Tracking and
 Implementation System ([ATTAINS](https://www.epa.gov/waterdata/attains))
-is an online platform that organizes and combines each state and 
-participating tribe's Clean Water Act reporting data into a single data 
-repository. The geospatial component of ATTAINS includes spatial 
-representations of each entities assessment units as well as their assigned
-designated uses, their most recent EPA reporting category 
+is an online platform that organizes and combines each state and
+participating tribe's Clean Water Act reporting data into a single data
+repository. The geospatial component of ATTAINS includes spatial
+representations of each entities assessment units as well as their
+assigned designated uses, their most recent EPA reporting category
 (i.e., their impairment status), their impaired designated uses, and the
 parameter(s) causing the impairment.
 
-Within an assessment unit, the water quality criteria or thresholds used
-to assess water quality typically remain the same and all water features 
-are assessed as one entity (although there are some exceptions). 
-Depending on the state or tribe, these assessment units can be a specific
-points along a waterbody such as a river or lake, a river reach, 
-an entire waterbody such as a river or lake, or even an entire watershed. 
-In other words, assessment units can take the form of point, line, and area
-features, or some combination of all of them. Moreover, it is possible
-that some assessment units are not geospatially referenced at all,
-meaning they are not captured in the ATTAINS geospatial database.
+Within an assessment unit, the criteria or thresholds used
+to assess water quality typically remain the same and all water features
+are assessed as one entity (although there are some exceptions, for example
+if a single assessment unit crosses multiple ecoregions).
+Depending on the state or tribe, these assessment units can be a
+specific point or series of points along a waterbody such as a river or lake,
+a river reach (line), an entire waterbody such as a river or lake (polygon),
+or even an entire watershed. In other words, assessment units can take the 
+form of point, line, and area (oplygon) features, or some combination of all 
+of them. Moreover, it is possible that some assessment units are not
+geospatially referenced at all, meaning they are not captured in the ATTAINS
+geospatial database.
 
 ## `TADA_MakeSpatial()`
 
@@ -154,7 +156,7 @@ Now, we can make the water quality data spatial by running
 
 ```{r}
 # default CRS is WGS84 (4326)
-TADA_spatial <- TADA_MakeSpatial(.data = TADA_dataframe, crs = 4326)
+TADA_spatial <- TADA_MakeSpatial(TADA_dataframe, crs = 4326)
 ```
 
 This new spatial object is identical to the original TADA dataset, but
@@ -218,9 +220,9 @@ Using either our original `TADA_dataframe` *or* the geospatial version
 same NHD HR catchment as our observations:
 
 ```{r}
-TADA_with_ATTAINS <- TADA_GetATTAINS(.data = TADA_dataframe, return_sf = FALSE)
+TADA_with_ATTAINS <- TADA_GetATTAINS(TADA_dataframe, return_sf = FALSE)
 
-TADA_with_ATTAINS <- TADA_GetATTAINS(.data = TADA_spatial, return_sf = FALSE)
+TADA_with_ATTAINS <- TADA_GetATTAINS(TADA_spatial, return_sf = FALSE)
 ```
 
 This new `TADA_with_ATTAINS` object is a modification of the original
@@ -233,15 +235,29 @@ Portal observations fall within an NHD HR catchment that contains more
 than one ATTAINS assessment unit.
 
 ```{r}
-TADA_with_ATTAINS_list <- TADA_GetATTAINS(.data = TADA_dataframe, return_sf = TRUE)
+TADA_with_ATTAINS_list <- TADA_GetATTAINS(TADA_dataframe, return_sf = TRUE)
 
-TADA_with_ATTAINS_list <- TADA_GetATTAINS(.data = TADA_spatial, return_sf = TRUE)
+TADA_with_ATTAINS_list <- TADA_GetATTAINS(TADA_spatial, return_sf = TRUE)
 ```
 
 If we set `return_sf = TRUE` as done to create the
 `TADA_with_ATTAINS_list` object above, we also now have all the raw
 ATTAINS features associated with these TADA Water Quality Portal
 observations stored in a list with the TADA dataframe.
+
+Now, let's select specific columns from the TADA_with_ATTAINS dataframe, 
+and create a new datafream with ONLY the unique combinations of WQP
+MonitoringLocationIdentifier's and ATTAINS Assessment Unit Identifiers.
+
+```{r}
+TADA_with_ATTAINS_subset = TADA_with_ATTAINS %>% dplyr::select(
+  c("LongitudeMeasure", "LatitudeMeasure", "MonitoringLocationTypeName", 
+    "MonitoringLocationIdentifier", "ATTAINS.assessmentunitidentifier", 
+    "ATTAINS.overallstatus", "ATTAINS.isassessed", "ATTAINS.isimpaired", 
+    "ATTAINS.organizationid", "ATTAINS.assessmentunitname", 
+    "ATTAINS.reportingcycle", "ATTAINS.waterbodyreportlink")) %>%
+  dplyr::distinct(.keep_all = FALSE)
+```
 
 Enter `?TADA_GetATTAINS` into the console to review another example of
 this function in use and additional information.
@@ -263,5 +279,5 @@ Enter `?TADA_ViewATTAINS` into the console to review another example
 query and additional information.
 
 ```{r}
-TADA_ViewATTAINS(ATTAINS_list = TADA_with_ATTAINS_list)
+TADA_ViewATTAINS(TADA_with_ATTAINS_list)
 ```

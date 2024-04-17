@@ -4,10 +4,10 @@
 \alias{TADA_ViewATTAINS}
 \title{TADA_ViewATTAINS}
 \usage{
-TADA_ViewATTAINS(ATTAINS_list)
+TADA_ViewATTAINS(.data)
 }
 \arguments{
-\item{ATTAINS_list}{A list containing a data frame and ATTAINS shapefile objects created by \code{TADA_GetATTAINS()} with the return_sf argument set to TRUE.}
+\item{.data}{A list containing a data frame and ATTAINS shapefile objects created by \code{TADA_GetATTAINS()} with the return_sf argument set to TRUE.}
 }
 \value{
 A leaflet map visualizing the TADA water quality observations and the linked ATTAINS assessment units. All maps are in WGS84.
@@ -15,17 +15,25 @@ A leaflet map visualizing the TADA water quality observations and the linked ATT
 \description{
 Visualizes the data returned from TADA_GetATTAINS if return_sf was set to TRUE.
 }
+\details{
+This function visualizes the raw ATTAINS features that are linked to the
+TADA Water Quality Portal observations. For the function to work properly,
+the input dataframe must be the list produced from \code{TADA_GetATTAINS()}
+with \code{return_sf = TRUE}. The map also displays the Water Quality Portal
+monitoring locations used to find the ATTAINS features. Check out the
+TADAModule2.Rmd for an example workflow.
+}
 \examples{
 \dontrun{
 tada_data <- TADA_DataRetrieval(startDate = "1990-01-01",
-                               endDate = "1995-12-31",
-                               characteristicName = "pH",
-                               statecode = "NV",
-                               applyautoclean = TRUE)
+                                endDate = "1995-12-31",
+                                characteristicName = "pH",
+                                statecode = "NV",
+                                applyautoclean = TRUE)
                                
-attains_data <- TADA_GetATTAINS(.data = tada_data, return_sf = TRUE)                               
+attains_data <- TADA_GetATTAINS(tada_data, return_sf = TRUE)                               
                                  
-TADA_ViewATTAINS(ATTAINS_list = attains_data)
+TADA_ViewATTAINS(attains_data)
 }
 }
 \seealso{

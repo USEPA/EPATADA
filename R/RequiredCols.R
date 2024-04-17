@@ -234,6 +234,20 @@ extra.cols <- c(
   "ContributingDrainageAreaMeasure.MeasureUnitCode"
 )
 
+attains.cols <- c(
+  "ATTAINS.organizationid", "ATTAINS.submissionid", "ATTAINS.hasprotectionplan",
+  "ATTAINS.assessmentunitname", "ATTAINS.nhdplusid", "ATTAINS.tas303d",                                                  
+  "ATTAINS.isthreatened", "ATTAINS.state", "ATTAINS.on303dlist",                                               
+  "ATTAINS.organizationname", "ATTAINS.region", "ATTAINS.Shape_Length",                                             
+  "ATTAINS.reportingcycle", "ATTAINS.assmnt_joinkey", "ATTAINS.hastmdl",                                                  
+  "ATTAINS.orgtype", "ATTAINS.permid_joinkey", "ATTAINS.catchmentistribal",                                        
+  "ATTAINS.ircategory", "ATTAINS.waterbodyreportlink", "ATTAINS.assessmentunitidentifier",                                 
+  "ATTAINS.overallstatus", "ATTAINS.isassessed", "ATTAINS.isimpaired",                                               
+  "ATTAINS.has4bplan", "ATTAINS.huc12", "ATTAINS.hasalternativeplan",                                      
+  "ATTAINS.visionpriority303d", "ATTAINS.areasqkm", "ATTAINS.catchmentareasqkm",                                       
+  "ATTAINS.catchmentstatecode", "ATTAINS.catchmentresolution", "ATTAINS.Shape_Area"
+)
+
 # Only used in TADA Shiny or should be at the end
 last.cols <- c(
   "ProviderName",
@@ -279,11 +293,15 @@ TADA_OrderCols <- function(.data) {
   extra_cols <- extra.cols[extra.cols %in% names(.data)]
 
   last_cols <- last.cols[last.cols %in% names(.data)]
+  
+  attains_cols <- attains.cols[attains.cols %in% names(.data)]
 
   rearranged <- .data %>%
     dplyr::relocate(any_of(required_cols)) %>%
     dplyr::relocate(any_of(extra_cols), .after = any_of(required_cols)) %>%
-    dplyr::relocate(any_of(last_cols), .after = any_of(extra_cols))
+    dplyr::relocate(any_of(last_cols), .after = any_of(extra_cols)) %>%
+    dplyr::relocate(any_of(attains_cols), .after = any_of(last_cols))
+  
   rearranged <- rearranged[order(rearranged$ResultIdentifier), ]
 
   return(rearranged)

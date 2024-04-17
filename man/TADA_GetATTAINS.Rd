@@ -15,7 +15,10 @@ TADA_GetATTAINS(.data, return_sf = TRUE)
 A modified \code{TADA_DataRetrieval()} dataframe with additional columns associated with the ATTAINS assessment unit data. Or, if return_sf = TRUE, a list containing that same data frame plus the raw ATTAINS features associated with those observations.
 }
 \description{
-Link catchment-based ATTAINS assessment unit data to Water Quality Portal observations, often imported via \code{TADA_DataRetrieval()}. This function returns the same raw objects that are mapped in \code{TADA_ViewATTAINS()}.
+Link catchment-based ATTAINS assessment unit data (EPA snapshot of NHDPlus HR catchments associated with entity submitted assessment unit features - points, lines, and polygons) to Water Quality Portal observations, often imported via \code{TADA_DataRetrieval()}. This function returns the same raw objects that are mapped in \code{TADA_ViewATTAINS()}.
+}
+\details{
+Adds the following ATTAINS columns to the input dataframe or list: "ATTAINS.organizationid", "ATTAINS.submissionid", "ATTAINS.hasprotectionplan", "ATTAINS.assessmentunitname", "ATTAINS.nhdplusid", "ATTAINS.tas303d", "ATTAINS.isthreatened", "ATTAINS.state", "ATTAINS.on303dlist", "ATTAINS.organizationname", "ATTAINS.region", "ATTAINS.Shape_Length", "ATTAINS.reportingcycle", "ATTAINS.assmnt_joinkey", "ATTAINS.hastmdl", "ATTAINS.orgtype", "ATTAINS.permid_joinkey", "ATTAINS.catchmentistribal", "ATTAINS.ircategory", "ATTAINS.waterbodyreportlink", "ATTAINS.assessmentunitidentifier", "ATTAINS.overallstatus", "ATTAINS.isassessed", "ATTAINS.isimpaired", "ATTAINS.has4bplan", "ATTAINS.huc12", "ATTAINS.hasalternativeplan", "ATTAINS.visionpriority303d", "ATTAINS.areasqkm", "ATTAINS.catchmentareasqkm", "ATTAINS.catchmentstatecode", "ATTAINS.catchmentresolution", "ATTAINS.Shape_Area". Check out the TADAModule2.Rmd for an example workflow.
 }
 \examples{
 \dontrun{
@@ -24,8 +27,10 @@ tada_data <- TADA_DataRetrieval(startDate = "2018-05-01",
                                characteristicName = "pH",
                                statecode = "IL",
                                applyautoclean = TRUE)
-tada_attains <- TADA_GetATTAINS(.data = tada_data, return_sf = FALSE)
-tada_attains_list <- TADA_GetATTAINS(.data = tada_data, return_sf = TRUE)
+                               
+tada_attains <- TADA_GetATTAINS(tada_data, return_sf = FALSE)
+
+tada_attains_list <- TADA_GetATTAINS(tada_data, return_sf = TRUE)
 }
 }
 \seealso{

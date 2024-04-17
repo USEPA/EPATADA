@@ -1,8 +1,8 @@
 #' TADA_MakeSpatial
 #' 
-#' Transform a Water Quality Portal dataframe into a geospatial {sf} object.
-#' Adds a new column to input dataset, 'geometry', which allows for 
-#' mapping and additional geospatial capabilities.
+#' Transform a Water Quality Portal dataframe into a geospatial {sf} object. 
+#' 
+#' Adds one new column to input dataset, 'geometry', which allows for mapping and additional geospatial capabilities. Check out the TADAModule2.Rmd for an example workflow.
 #' 
 #' @param .data A dataframe created by `TADA_DataRetrieval()`.
 #' @param crs The coordinate reference system (CRS) you would like the returned point features to be in. The default is CRS 4326 (WGS84).
@@ -21,7 +21,7 @@
 #'                                        applyautoclean = TRUE)
 #' 
 #' # make `tada_not_spatial` an {sf} object, projected in crs = 4269 (NAD83)                                 
-#' tada_spatial <- TADA_MakeSpatial(.data = tada_not_spatial, crs = 4269)
+#' tada_spatial <- TADA_MakeSpatial(tada_not_spatial, crs = 4269)
 #' }
 
 TADA_MakeSpatial <- function(.data, crs = 4326){
@@ -65,10 +65,9 @@ TADA_MakeSpatial <- function(.data, crs = 4326){
                       # transform to the selected CRS:
                       sf::st_transform(sf::st_crs(as.numeric(crs)))) %>%
       dplyr::arrange(index) %>%
-      dplyr::select(-c(index, epsg))
+      dplyr::select(-c(index, epsg)) 
   }))
   
-  TADA_OrderCols(sf)
   return(sf)
   
 }
@@ -76,7 +75,7 @@ TADA_MakeSpatial <- function(.data, crs = 4326){
 
 #' fetchATTAINS
 #' 
-#' Fetch ATTAINS features within a bounding box produced from a set of TADA spatial features.
+#' Fetch ATTAINS features (entity submitted points, lines, polygons representing their assessment units; and EPA snapshot of the associated NHDPlus HR catchments that the entity submitted features fall within) within a bounding box produced from a set of TADA spatial features.
 #' 
 #' @param .data A dataframe developed using `TADA_DataRetrieval()` or `TADA_MakeSpatial()`.
 #' @return spatial features (ATTAINS_catchments, ATTAINS_points, ATTAINS_lines, and ATTAINS_polygons) that are within the spatial bounding box of water quality observations.
@@ -86,12 +85,13 @@ TADA_MakeSpatial <- function(.data, crs = 4326){
 #' 
 #' @examples
 #' \dontrun{
-#'tada_data <- TADA_DataRetrieval(startDate = "1990-01-01",
-#'                                endDate = "1995-12-31",
-#'                                characteristicName = "pH",
-#'                                statecode = "NV",
-#'                                applyautoclean = TRUE)
-#'nv_attains_features <- fetchATTAINS(.data = tada_data)
+#' tada_data <- TADA_DataRetrieval(startDate = "1990-01-01",
+#'                                 endDate = "1995-12-31",
+#'                                 characteristicName = "pH",
+#'                                 statecode = "NV",
+#'                                 applyautoclean = TRUE)
+#'                                
+#' nv_attains_features <- fetchATTAINS(tada_data)
 #' }
 
 fetchATTAINS <- function(.data) {
@@ -211,7 +211,9 @@ fetchATTAINS <- function(.data) {
 
 #' TADA_GetATTAINS
 #' 
-#' Link catchment-based ATTAINS assessment unit data to Water Quality Portal observations, often imported via `TADA_DataRetrieval()`. This function returns the same raw objects that are mapped in `TADA_ViewATTAINS()`.
+#' Link catchment-based ATTAINS assessment unit data (EPA snapshot of NHDPlus HR catchments associated with entity submitted assessment unit features - points, lines, and polygons) to Water Quality Portal observations, often imported via `TADA_DataRetrieval()`. This function returns the same raw objects that are mapped in `TADA_ViewATTAINS()`.
+#' 
+#' Adds the following ATTAINS columns to the input dataframe or list: "ATTAINS.organizationid", "ATTAINS.submissionid", "ATTAINS.hasprotectionplan", "ATTAINS.assessmentunitname", "ATTAINS.nhdplusid", "ATTAINS.tas303d", "ATTAINS.isthreatened", "ATTAINS.state", "ATTAINS.on303dlist", "ATTAINS.organizationname", "ATTAINS.region", "ATTAINS.Shape_Length", "ATTAINS.reportingcycle", "ATTAINS.assmnt_joinkey", "ATTAINS.hastmdl", "ATTAINS.orgtype", "ATTAINS.permid_joinkey", "ATTAINS.catchmentistribal", "ATTAINS.ircategory", "ATTAINS.waterbodyreportlink", "ATTAINS.assessmentunitidentifier", "ATTAINS.overallstatus", "ATTAINS.isassessed", "ATTAINS.isimpaired", "ATTAINS.has4bplan", "ATTAINS.huc12", "ATTAINS.hasalternativeplan", "ATTAINS.visionpriority303d", "ATTAINS.areasqkm", "ATTAINS.catchmentareasqkm", "ATTAINS.catchmentstatecode", "ATTAINS.catchmentresolution", "ATTAINS.Shape_Area". Check out the TADAModule2.Rmd for an example workflow.
 #' 
 #' @param .data A dataframe created by `TADA_DataRetrieval()` or the sf equivalent made by `TADA_MakeSpatial()`.
 #' @param return_sf Whether to return the associated ATTAINS_catchments, ATTAINS_lines, ATTAINS_points, and ATTAINS_polygons shapefile objects. TRUE (yes, return) or FALSE (no, do not return). All ATTAINS features are in WGS84 (crs = 4326).
@@ -226,13 +228,15 @@ fetchATTAINS <- function(.data) {
 #'
 #' @examples
 #' \dontrun{
-#'tada_data <- TADA_DataRetrieval(startDate = "2018-05-01",
+#' tada_data <- TADA_DataRetrieval(startDate = "2018-05-01",
 #'                                endDate = "2018-09-30",
 #'                                characteristicName = "pH",
 #'                                statecode = "IL",
 #'                                applyautoclean = TRUE)
-#'tada_attains <- TADA_GetATTAINS(.data = tada_data, return_sf = FALSE)
-#'tada_attains_list <- TADA_GetATTAINS(.data = tada_data, return_sf = TRUE)
+#'                                
+#' tada_attains <- TADA_GetATTAINS(tada_data, return_sf = FALSE)
+#'
+#' tada_attains_list <- TADA_GetATTAINS(tada_data, return_sf = TRUE)
 #' }
 
 TADA_GetATTAINS <- function(.data, return_sf = TRUE){
@@ -340,7 +344,7 @@ TADA_GetATTAINS <- function(.data, return_sf = TRUE){
     
     col_val_list <- stats::setNames(object = rep(x = list(NA),
                                                  times = length(attains_names)),
-                                    nm = attains_names)
+                                                 nm = attains_names)
     
     # return a modified `.data` with empty ATTAINS-related columns:
     no_ATTAINS_data <- .data %>%
@@ -423,8 +427,15 @@ TADA_GetATTAINS <- function(.data, return_sf = TRUE){
 #' TADA_ViewATTAINS
 #' 
 #' Visualizes the data returned from TADA_GetATTAINS if return_sf was set to TRUE. 
+#' 
+#' This function visualizes the raw ATTAINS features that are linked to the
+#' TADA Water Quality Portal observations. For the function to work properly, 
+#' the input dataframe must be the list produced from `TADA_GetATTAINS()` 
+#' with `return_sf = TRUE`. The map also displays the Water Quality Portal 
+#' monitoring locations used to find the ATTAINS features. Check out the 
+#' TADAModule2.Rmd for an example workflow.
 #'
-#' @param ATTAINS_list A list containing a data frame and ATTAINS shapefile objects created by `TADA_GetATTAINS()` with the return_sf argument set to TRUE. 
+#' @param .data A list containing a data frame and ATTAINS shapefile objects created by `TADA_GetATTAINS()` with the return_sf argument set to TRUE. 
 #' 
 #' @return A leaflet map visualizing the TADA water quality observations and the linked ATTAINS assessment units. All maps are in WGS84.
 #' 
@@ -435,29 +446,29 @@ TADA_GetATTAINS <- function(.data, return_sf = TRUE){
 #'
 #' @examples
 #' \dontrun{
-#'tada_data <- TADA_DataRetrieval(startDate = "1990-01-01",
-#'                                endDate = "1995-12-31",
-#'                                characteristicName = "pH",
-#'                                statecode = "NV",
-#'                                applyautoclean = TRUE)
+#' tada_data <- TADA_DataRetrieval(startDate = "1990-01-01",
+#'                                 endDate = "1995-12-31",
+#'                                 characteristicName = "pH",
+#'                                 statecode = "NV",
+#'                                 applyautoclean = TRUE)
 #'                                
-#'attains_data <- TADA_GetATTAINS(.data = tada_data, return_sf = TRUE)                               
+#' attains_data <- TADA_GetATTAINS(tada_data, return_sf = TRUE)                               
 #'                                  
-#'TADA_ViewATTAINS(ATTAINS_list = attains_data)
+#' TADA_ViewATTAINS(attains_data)
 #' }
 
-TADA_ViewATTAINS <- function(ATTAINS_list){
+TADA_ViewATTAINS <- function(.data){
   
   if(!any(c("TADA_with_ATTAINS", "ATTAINS_catchments", "ATTAINS_points",
-            "ATTAINS_lines", "ATTAINS_polygons") %in% names(ATTAINS_list))) {
-    stop("Your ATTAINS_list was not produced from `TADA_GetATTAINS()` or it was modified. Please create your list of ATTAINS features using `TADA_GetATTAINS()` and confirm that return_sf has been set to TRUE.")
+            "ATTAINS_lines", "ATTAINS_polygons") %in% names(.data))) {
+    stop("Your input dataframe was not produced from `TADA_GetATTAINS()` or it was modified. Please create your list of ATTAINS features using `TADA_GetATTAINS()` and confirm that return_sf has been set to TRUE.")
   }
   
-  .data <- ATTAINS_list[["TADA_with_ATTAINS"]]
-  ATTAINS_catchments <- ATTAINS_list[["ATTAINS_catchments"]]
-  ATTAINS_points <- ATTAINS_list[["ATTAINS_points"]]
-  ATTAINS_lines <- ATTAINS_list[["ATTAINS_lines"]]
-  ATTAINS_polygons <- ATTAINS_list[["ATTAINS_polygons"]]
+  .data <- .data[["TADA_with_ATTAINS"]]
+  ATTAINS_catchments <- .data[["ATTAINS_catchments"]]
+  ATTAINS_points <- .data[["ATTAINS_points"]]
+  ATTAINS_lines <- .data[["ATTAINS_lines"]]
+  ATTAINS_polygons <- .data[["ATTAINS_polygons"]]
   
   if(nrow(.data) == 0){stop("Your WQP dataframe has no observations.")}
   
