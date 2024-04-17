@@ -65,10 +65,10 @@ TADA_MakeSpatial <- function(.data, crs = 4326){
                       # transform to the selected CRS:
                       sf::st_transform(sf::st_crs(as.numeric(crs)))) %>%
       dplyr::arrange(index) %>%
-      dplyr::select(-c(index, epsg)) %>%
-      TADA_OrderCols()
+      dplyr::select(-c(index, epsg))
   }))
   
+  TADA_OrderCols(sf)
   return(sf)
   
 }
@@ -204,7 +204,6 @@ fetchATTAINS <- function(.data) {
   
   names(final_features) <- c("ATTAINS_catchments", "ATTAINS_points", "ATTAINS_lines", "ATTAINS_polygons")
   
-  TADA_OrderCols(final_features)
   return(final_features)
   
 }
