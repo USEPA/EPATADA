@@ -9,6 +9,7 @@ TADA_UpdateAllRefs()
 \value{
 Saves updated reference files
 This is only needed for ref tables in WQXRefTables.R
+and the tribal feature layers in TADAGeospatialRefLayers.R
 }
 \description{
 Update TADA Reference Files

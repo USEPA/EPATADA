@@ -1060,9 +1060,9 @@ TADA_FlagCoordinates <- function(.data,
 #' the distance between sites is less than the function input dist_buffer
 #' (default is 100m). Each group in the TADA.NearbySiteGroups field indicates
 #' that the sites within each group are within the specified distance from each other.
-#' 
+#'
 #' We recommend running TADA_FindPotentialDuplicatesMultipleOrgs after running
-#' TADA_FindPotentialDuplicatesSingleOrg.  
+#' TADA_FindPotentialDuplicatesSingleOrg.
 #'
 #' @param .data TADA dataframe
 #'
