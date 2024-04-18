@@ -1,13 +1,14 @@
 pandoc: 3.1.11
-pkgdown: 2.0.7
+pkgdown: 2.0.8
 pkgdown_sha: ~
 articles:
   CONTRIBUTING: CONTRIBUTING.html
+  TADAModule1_AdvancedTraining: TADAModule1_AdvancedTraining.html
+  TADAModule1_BeginnerTraining: TADAModule1_BeginnerTraining.html
   TADAModule1: TADAModule1.html
-  TADAR5: TADAR5.html
-  TADATrainingShepherdstown: TADATrainingShepherdstown.html
+  TADAModule2: TADAModule2.html
   WQXValidationService: WQXValidationService.html
-last_built: 2024-03-29T20:21Z
+last_built: 2024-04-18T18:55Z
 urls:
   reference: usepa.github.io/TADA/reference
   article: usepa.github.io/TADA/articles

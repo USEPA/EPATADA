@@ -6,7 +6,7 @@
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
     
 
-    <nav class="navbar fixed-top navbar-dark navbar-expand-lg bg-primary"><div class="container">
+    <nav class="navbar fixed-top navbar-dark navbar-expand-lg bg-primary" data-bs-theme="dark"><div class="container">
     
     <a class="navbar-brand me-2" href="../index.html">TADA</a>
 
@@ -25,9 +25,10 @@
   <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown" role="button" aria-expanded="false" aria-haspopup="true" id="dropdown-articles">Articles</a>
   <div class="dropdown-menu" aria-labelledby="dropdown-articles">
     <a class="dropdown-item" href="../articles/CONTRIBUTING.html">Contributing</a>
+    <a class="dropdown-item" href="../articles/TADAModule1_AdvancedTraining.html">TADA Module 1: Training for Intermediate/Advanced R Users</a>
+    <a class="dropdown-item" href="../articles/TADAModule1_BeginnerTraining.html">TADA Module 1: Training for Beginner R Users</a>
     <a class="dropdown-item" href="../articles/TADAModule1.html">TADA Module 1: Water Quality Portal Data Discovery and Cleaning</a>
-    <a class="dropdown-item" href="../articles/TADAR5.html">TADA Package Training: A Markdown For Region 5 R Users Network</a>
-    <a class="dropdown-item" href="../articles/TADATrainingShepherdstown.html">TADA R Package Training: A Markdown for Shepherdstown</a>
+    <a class="dropdown-item" href="../articles/TADAModule2.html">TADA Module 2: Geospatial Functions</a>
     <a class="dropdown-item" href="../articles/WQXValidationService.html">WQX QAQC Service User Guide</a>
   </div>
 </li>
@@ -258,6 +259,11 @@
         <dd>Check Method Speciation Validity</dd>
       </dl><dl><dt>
           
+          <code><a href="TADA_GetATTAINS.html">TADA_GetATTAINS()</a></code> 
+        </dt>
+        <dd>TADA_GetATTAINS</dd>
+      </dl><dl><dt>
+          
           <code><a href="TADA_GetActivityTypeRef.html">TADA_GetActivityTypeRef()</a></code> 
         </dt>
         <dd>Update Activity Type Reference Table</dd>
@@ -343,6 +349,11 @@
         <dd>Join WQP Profiles</dd>
       </dl><dl><dt>
           
+          <code><a href="TADA_MakeSpatial.html">TADA_MakeSpatial()</a></code> 
+        </dt>
+        <dd>TADA_MakeSpatial</dd>
+      </dl><dl><dt>
+          
           <code><a href="TADA_OrderCols.html">TADA_OrderCols()</a></code> 
         </dt>
         <dd>Order TADA Columns and Rows</dd>
@@ -413,6 +424,16 @@
         <dd>Update TADA Reference Files</dd>
       </dl><dl><dt>
           
+          <code><a href="TADA_UpdateTribalLayers.html">TADA_UpdateTribalLayers()</a></code> 
+        </dt>
+        <dd>Function to update tribal layer shapefiles. Shapefiles are stored in inst/extdata/shapefiles. Existing shapefiles with the same name will be deleted first if they exist.</dd>
+      </dl><dl><dt>
+          
+          <code><a href="TADA_ViewATTAINS.html">TADA_ViewATTAINS()</a></code> 
+        </dt>
+        <dd>TADA_ViewATTAINS</dd>
+      </dl><dl><dt>
+          
           <code><a href="TADA_addPoints.html">TADA_addPoints()</a></code> 
         </dt>
         <dd>Add points from an ArcGIS feature layer to a leaflet map</dd>
@@ -423,6 +444,11 @@
         <dd>Add polygons from an ArcGIS feature layer to a leaflet map</dd>
       </dl><dl><dt>
           
+          <code><a href="fetchATTAINS.html">fetchATTAINS()</a></code> 
+        </dt>
+        <dd>fetchATTAINS</dd>
+      </dl><dl><dt>
+          
           <code><a href="getBboxJson.html">getBboxJson()</a></code> 
         </dt>
         <dd>Get bounding box JSON</dd>
@@ -430,30 +456,37 @@
           
           <code><a href="getFeatureLayer.html">getFeatureLayer()</a></code> 
         </dt>
-        <dd>Retrieve feature layer from ArcGIS REST service
-getFeatureLayer is used within TADA_addPolys and TADA_addPoints</dd>
+        <dd>Retrieve feature layer from ArcGIS REST service getFeatureLayer is used by writeLayer to write feature layers to local files</dd>
+      </dl><dl><dt>
+          
+          <code><a href="getLayer.html">getLayer()</a></code> 
+        </dt>
+        <dd>Get a shapefile from a local folder, optionally crop it by a bounding box, and return it as a sf object getLayer is used within TADA_addPolys and TADA_addPoints</dd>
       </dl><dl><dt>
           
           <code><a href="getPopup.html">getPopup()</a></code> 
         </dt>
-        <dd>Get text for tribal marker popup
-getPopup is used within TADA_addPolys and TADA_addPoints</dd>
+        <dd>Get text for tribal marker popup getPopup is used within TADA_addPolys and TADA_addPoints</dd>
       </dl><dl><dt>
           
           <code><a href="pchIcons.html">pchIcons()</a></code> 
         </dt>
-        <dd>Create icon(s) to be used to represent points on a map feature layer
-pchIcons is used within TADA_addPoints</dd>
+        <dd>Create icon(s) to be used to represent points on a map feature layer pchIcons is used within TADA_addPoints</dd>
+      </dl><dl><dt>
+          
+          <code><a href="writeLayer.html">writeLayer()</a></code> 
+        </dt>
+        <dd>Download a shapefile from an API and save it to a local folder, overwriting existing file if it exists writeLayer is used by TADA_UpdateTribalLayers in TADAGeospatialRefLayers.R.</dd>
       </dl></div>
   </main></div>
 
 
     <footer><div class="pkgdown-footer-left">
-  <p></p><p>Developed by U.S. Environmental Protection Agency, Cristina Mullin, Jacob Greif, Elise Hinman, Hillary Marler, Kathleen Healy, Justin Bousquin, Renae Myers.</p>
+  <p></p><p>Developed by U.S. Environmental Protection Agency, Cristina Mullin, Jacob Greif, Elise Hinman.</p>
 </div>
 
 <div class="pkgdown-footer-right">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.7.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.8.</p>
 </div>
 
     </footer></div>

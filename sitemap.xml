@@ -13,10 +13,13 @@
     <loc>usepa.github.io/TADA/articles/TADAModule1.html</loc>
   </url>
   <url>
-    <loc>usepa.github.io/TADA/articles/TADAR5.html</loc>
+    <loc>usepa.github.io/TADA/articles/TADAModule1_AdvancedTraining.html</loc>
   </url>
   <url>
-    <loc>usepa.github.io/TADA/articles/TADATrainingShepherdstown.html</loc>
+    <loc>usepa.github.io/TADA/articles/TADAModule1_BeginnerTraining.html</loc>
+  </url>
+  <url>
+    <loc>usepa.github.io/TADA/articles/TADAModule2.html</loc>
   </url>
   <url>
     <loc>usepa.github.io/TADA/articles/WQXValidationService.html</loc>
@@ -148,6 +151,9 @@
     <loc>usepa.github.io/TADA/reference/TADA_FlagSpeciation.html</loc>
   </url>
   <url>
+    <loc>usepa.github.io/TADA/reference/TADA_GetATTAINS.html</loc>
+  </url>
+  <url>
     <loc>usepa.github.io/TADA/reference/TADA_GetActivityTypeRef.html</loc>
   </url>
   <url>
@@ -199,6 +205,9 @@
     <loc>usepa.github.io/TADA/reference/TADA_JoinWQPProfiles.html</loc>
   </url>
   <url>
+    <loc>usepa.github.io/TADA/reference/TADA_MakeSpatial.html</loc>
+  </url>
+  <url>
     <loc>usepa.github.io/TADA/reference/TADA_OrderCols.html</loc>
   </url>
   <url>
@@ -241,16 +250,28 @@
     <loc>usepa.github.io/TADA/reference/TADA_UpdateAllRefs.html</loc>
   </url>
   <url>
+    <loc>usepa.github.io/TADA/reference/TADA_UpdateTribalLayers.html</loc>
+  </url>
+  <url>
+    <loc>usepa.github.io/TADA/reference/TADA_ViewATTAINS.html</loc>
+  </url>
+  <url>
     <loc>usepa.github.io/TADA/reference/TADA_addPoints.html</loc>
   </url>
   <url>
     <loc>usepa.github.io/TADA/reference/TADA_addPolys.html</loc>
   </url>
   <url>
+    <loc>usepa.github.io/TADA/reference/fetchATTAINS.html</loc>
+  </url>
+  <url>
     <loc>usepa.github.io/TADA/reference/getBboxJson.html</loc>
   </url>
   <url>
     <loc>usepa.github.io/TADA/reference/getFeatureLayer.html</loc>
+  </url>
+  <url>
+    <loc>usepa.github.io/TADA/reference/getLayer.html</loc>
   </url>
   <url>
     <loc>usepa.github.io/TADA/reference/getPopup.html</loc>
@@ -263,5 +284,8 @@
   </url>
   <url>
     <loc>usepa.github.io/TADA/reference/pipe.html</loc>
+  </url>
+  <url>
+    <loc>usepa.github.io/TADA/reference/writeLayer.html</loc>
   </url>
 </urlset>
