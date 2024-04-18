@@ -1,6 +1,7 @@
 #' Update TADA Reference Files
 #' @return Saves updated reference files
 #' This is only needed for ref tables in WQXRefTables.R
+#' and the tribal feature layers in TADAGeospatialRefLayers.R
 #'
 TADA_UpdateAllRefs <- function() {
   TADA_UpdateWQXCharValRef()
@@ -11,6 +12,7 @@ TADA_UpdateAllRefs <- function() {
   TADA_UpdateCharacteristicRef()
   TADA_UpdateMeasureQualifierCodeRef()
   TADA_UpdateMonLocTypeRef()
+  TADA_UpdateTribalLayers()
 }
 
 ## FUNCTION TO UPDATE EXAMPLE DATA

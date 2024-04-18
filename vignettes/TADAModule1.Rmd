@@ -1,12 +1,15 @@
 ---
 title: "TADA Module 1: Water Quality Portal Data Discovery and Cleaning"
+format: html
+editor: visual
 author: "TADA Team"
 date: "`r Sys.Date()`"
 output: rmarkdown::html_vignette
 vignette: >
-  %\usepackage[utf8]{inputenc}
   %\VignetteIndexEntry{TADA Module 1: Water Quality Portal Data Discovery and Cleaning}
   %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+description: An overview of all TADA Module 1 functions and a recommended workflow.
 editor_options: 
   chunk_output_type: console
   markdown: 
@@ -16,7 +19,8 @@ editor_options:
 ```{r setup, include = FALSE}
 knitr::opts_chunk$set(
   collapse = TRUE,
-  comment = "#>"
+  comment = "#>",
+  eval = FALSE
 )
 ```
 
@@ -75,7 +79,7 @@ remotes::install_github("USEPA/TADA",
 # IF YOU ARE NOT DEVELOPING TADA, SKIP THIS CODE CHUNK
 # when developing the package, update this chunk to the current repository branch, so it runs with all of the new features prior to a PR to develop
 remotes::install_github("USEPA/TADA",
-  ref = "351-update-tada_findcontinuousdata",
+  ref = "updates",
   dependencies = TRUE
 )
 ```
@@ -483,7 +487,7 @@ TADAProfileClean1 <- TADA_ConvertDepthUnits(TADAProfileClean1,
 
 ## Statistically aggregated data
 
-The **TADA_FlagContinuousData** function checks for and removes
+The **TADA_FindContinuousData** function checks for and removes
 statistically aggregated high frequency (i.e., continuous) data, if
 present.
 
@@ -515,16 +519,16 @@ rows of data regardless of flag status. Assigning flaggedonly = TRUE
 filters the dataframe to show only rows of data which are flagged "Y".
 
 See function documentation for additional function options by entering
-the following code in the console: ?TADA_FlagContinuousData
+the following code in the console: ?TADA_FindContinuousData
 
 ```{r AggregatedContinuousData}
-TADAProfileClean1 <- TADA_FlagContinuousData(TADAProfileClean1,
+TADAProfileClean1 <- TADA_FindContinuousData(TADAProfileClean1,
   clean = FALSE
 )
 
 # uncomment below to create a dataframe of only the aggregated continuous data
 
-# TADAProfile_aggcont <- TADA_FlagContinuousData(TADAProfileClean3, clean = FALSE, flaggedonly = TRUE)
+# TADAProfile_aggcont <- TADA_FindContinuousData(TADAProfileClean3, clean = FALSE, flaggedonly = TRUE)
 ```
 
 ## WQX Quality Assurance and Quality Control (QAQC) Service Result Flags
