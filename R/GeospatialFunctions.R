@@ -333,6 +333,8 @@ TADA_GetATTAINS <- function(.data, return_sf = TRUE) {
 
   attains_features <- try(fetchATTAINS(.data = TADA_DataRetrieval_data), silent = TRUE)
 
+suppressMessages(suppressWarnings({
+
   # grab the ATTAINS catchments within our WQP bbox:
   nearby_catchments <- NULL
   # (Wrapped with "try" because it is possible that no ATTAINS data exists in the bbox.)
@@ -348,6 +350,8 @@ TADA_GetATTAINS <- function(.data, return_sf = TRUE) {
       dplyr::distinct(.keep_all = TRUE),
     silent = TRUE
   )
+
+}))
 
   # if no ATTAINS data, return original dataframe with empty ATTAINS columns:
   if (is.null(nearby_catchments)) {
@@ -489,13 +493,13 @@ TADA_ViewATTAINS <- function(.data) {
     stop("Your input dataframe was not produced from `TADA_GetATTAINS()` or it was modified. Please create your list of ATTAINS features using `TADA_GetATTAINS()` and confirm that return_sf has been set to TRUE.")
   }
 
-  .data <- .data[["TADA_with_ATTAINS"]]
+  ATTAINS_table <- .data[["TADA_with_ATTAINS"]]
   ATTAINS_catchments <- .data[["ATTAINS_catchments"]]
   ATTAINS_points <- .data[["ATTAINS_points"]]
   ATTAINS_lines <- .data[["ATTAINS_lines"]]
   ATTAINS_polygons <- .data[["ATTAINS_polygons"]]
 
-  if (nrow(.data) == 0) {
+  if (nrow(ATTAINS_table) == 0) {
     stop("Your WQP dataframe has no observations.")
   }
 
@@ -507,7 +511,7 @@ TADA_ViewATTAINS <- function(.data) {
     "ActivityStartDate", "OrganizationIdentifier"
   )
 
-  if (!any(required_columns %in% colnames(.data))) {
+  if (!any(required_columns %in% colnames(ATTAINS_table))) {
     stop("Your dataframe does not contain the necessary WQP-style column names.")
   }
 
@@ -515,7 +519,7 @@ TADA_ViewATTAINS <- function(.data) {
     sf::sf_use_s2(FALSE)
 
     # if data was spatial, remove for downstream leaflet dev:
-    try(.data <- .data %>%
+    try(ATTAINS_table <- ATTAINS_table %>%
       sf::st_drop_geometry(), silent = TRUE)
 
     colors <- data.frame(
@@ -554,7 +558,7 @@ TADA_ViewATTAINS <- function(.data) {
     )
 
     # Develop WQP site stats (e.g. count of observations, parameters, per site)
-    sumdat <- .data %>%
+    sumdat <- ATTAINS_table %>%
       dplyr::group_by(MonitoringLocationIdentifier, MonitoringLocationName, LatitudeMeasure, LongitudeMeasure) %>%
       dplyr::summarize(
         Sample_Count = length(unique(ResultIdentifier)),
@@ -601,7 +605,7 @@ TADA_ViewATTAINS <- function(.data) {
     try(
       map <- map %>%
         leaflet::addPolygons(
-          .data = ATTAINS_catchments,
+          data = ATTAINS_catchments,
           color = "black",
           weight = 1, fillOpacity = 0,
           popup = paste0("NHDPlus HR Catchment ID: ", ATTAINS_catchments$nhdplusid)
@@ -613,7 +617,7 @@ TADA_ViewATTAINS <- function(.data) {
     try(
       map <- map %>%
         leaflet::addPolygons(
-          .data = polygons_mapper,
+          data = polygons_mapper,
           color = ~ polygons_mapper$col,
           fill = ~ polygons_mapper$col,
           weight = 3, fillOpacity = 1,
@@ -632,7 +636,7 @@ TADA_ViewATTAINS <- function(.data) {
     try(
       map <- map %>%
         leaflet::addPolylines(
-          .data = lines_mapper,
+          data = lines_mapper,
           color = ~ lines_mapper$col,
           weight = 4, fillOpacity = 1,
           popup = paste0(
@@ -650,7 +654,7 @@ TADA_ViewATTAINS <- function(.data) {
     try(
       map <- map %>%
         leaflet::addCircleMarkers(
-          .data = points_mapper,
+          data = points_mapper,
           lng = ~X, lat = ~Y,
           color = ~ points_mapper$col, fillColor = ~ points_mapper$col,
           fillOpacity = 1, stroke = TRUE, weight = 1.5, radius = 5,
@@ -669,7 +673,7 @@ TADA_ViewATTAINS <- function(.data) {
     try(
       map <- map %>%
         leaflet::addCircleMarkers(
-          .data = sumdat,
+          data = sumdat,
           lng = ~LongitudeMeasure, lat = ~LatitudeMeasure,
           color = "grey", fillColor = "black",
           fillOpacity = 0.8, stroke = TRUE, weight = 1.5, radius = 6,
