@@ -115,9 +115,11 @@ TADA_CreateUnitRef <- function(.data){
 #' @param ref Optional character argument in which a user can specify a data frame
 #' by name. Data frame must contain the columns CharacteristicName, Unit, and TargetUnit.
 #' TADA_CreateUnitRef() can be used to help create this data frame. There are two
-#' options that do not require the user to supply a data frame. When no ref is
-#' specified all unit conversion will be based on TADA priority characteristic units
-#' (where appplicable), with any other units assigned by WQX unit reference. 
+#' options that do not require the user to supply a data frame, "tada" and "wqx". 
+#' When ref = "wqx" all unit conversion will be based on WQX unit reference.
+#' When ref = "tada" all unit conversion will be based on TADA priority characteristic 
+#' units (where appplicable), with any other units assigned by WQX unit reference.
+#' The default is ref = "tada". 
 #'
 #' @return When transform = TRUE, result values and units are converted to WQX
 #'   target units. This function changes the values within the
@@ -180,7 +182,7 @@ TADA_ConvertResultUnits <- function(.data, ref = "none", transform = TRUE, detli
   # execute function after checks are passed
   
   # if user supplied unit reference was provided
-  if (ref != "none") {
+  if (ref != "tada" & ref != "wqx") {
     # check ref is data.frame
     TADA_CheckType(ref, "data.frame")
     
@@ -231,8 +233,8 @@ TADA_ConvertResultUnits <- function(.data, ref = "none", transform = TRUE, detli
                       ". Consider revising the user-supplied unit reference data frame and running TADA_ConvertResultUnits again.", sep = ""))
   }}
   
-  # if no unit reference df was provided by user
-  if (ref == "none") {
+  # if no unit reference df was provided by user or user input was "tada"
+  if (ref == "tada") {
     unit.ref <- TADA_CreateUnitRef(.data)
     
     print("TADA_ConvertResultUnits: No unit reference data frame was supplied. Characteristic units will be converted to TADA-specified units for priority characteristics and WQX target units for other characteristics.")
@@ -325,7 +327,7 @@ TADA_ConvertResultUnits <- function(.data, ref = "none", transform = TRUE, detli
 
   if (detlimit == TRUE) {
     det.ref <- unit.ref %>%
-      dplyr::select(Code, Target.Unit, Conversion.Factor) %>%
+      dplyr::select(Code, Target.Unit, Conversion.Factor, CharacteristicName) %>%
       dplyr::rename(TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode = Code)
 
     # if temp data exists, calculate conversion factor for TADA.DetectionQuantitationLimitMeasure.MeasureValue
