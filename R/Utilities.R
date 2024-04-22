@@ -721,6 +721,7 @@ TADA_FindNearbySites <- function(.data, dist_buffer = 100) {
 #' }
 #'
 TADA_RandomTestingData <- function(number_of_days = 1, choose_random_state = FALSE, autoclean = TRUE) {
+  while(TRUE) {
   # choose a random day within the last 20 years
   twenty_yrs_ago <- Sys.Date() - 20 * 365
   random_start_date <- twenty_yrs_ago + sample(20 * 365, 1)
@@ -760,37 +761,11 @@ TADA_RandomTestingData <- function(number_of_days = 1, choose_random_state = FAL
     )
   }
 
-  if (dim(dat)[1] < 1) {
-    dat <- Data_NCTCShepherdstown_HUC12
-  }
-
+  if (nrow(dat) > 0) {
   return(dat)
-}
-
-# Generate a random data retrieval dataset (internal, for testthat's)
-# samples a random 90 days in the past 20 years using
-# TADA_DataRetrieval. Built to use in testthat and for developer testing of new
-# functions on random datasets.
-TADA_RandomStateTestingSet <- function(number_of_days = 90) {
-  load(system.file("extdata", "statecodes_df.Rdata", package = "TADA"))
-  state <- sample(statecodes_df$STUSAB, 1)
-  twenty_yrs_ago <- Sys.Date() - 20 * 365
-  random_start_date <- twenty_yrs_ago + sample(20 * 365, 1)
-  # changed default to 2 days instead of 90
-  end_date <- random_start_date + number_of_days
-
-  print(paste0(state, " from ", random_start_date, " to ", end_date))
-
-  # removed state input
-  dat <- TADA_DataRetrieval(startDate = as.character(random_start_date), endDate = as.character(end_date), statecode = state)
-
-  if (dim(dat)[1] < 1) {
-    dat <- Data_NCTCShepherdstown_HUC12
+    }
   }
-
-  return(dat)
 }
-
 
 #' Aggregate multiple result values to a min, max, or mean
 #'
