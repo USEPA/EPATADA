@@ -61,6 +61,10 @@ TADA_CreateUnitRef <- function(.data){
      dplyr::filter(CharacteristicName %in% priority.ref$CharacteristicName) %>%
      dplyr::left_join(priority.ref, by = c("CharacteristicName", "Code")) %>%
      dplyr::filter(!is.na(Code))
+ 
+ # Filter to create df of priority characteristics with an assigned target unit
+ priority.assigned <- priority.units %>%
+     dplyr::filter(!is.na(Target.Unit))
    
  # Create df of priority characteristics without an assigned target unit 
  priority.unassigned <- priority.units %>%
