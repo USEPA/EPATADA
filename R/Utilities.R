@@ -721,6 +721,8 @@ TADA_FindNearbySites <- function(.data, dist_buffer = 100) {
 #' }
 #'
 TADA_RandomTestingData <- function(number_of_days = 1, choose_random_state = FALSE, autoclean = TRUE) {
+  
+  RandomTestSetup <- function(){
   # choose a random day within the last 20 years
   twenty_yrs_ago <- Sys.Date() - 20 * 365
   random_start_date <- twenty_yrs_ago + sample(20 * 365, 1)
@@ -759,9 +761,13 @@ TADA_RandomTestingData <- function(number_of_days = 1, choose_random_state = FAL
       applyautoclean = FALSE
     )
   }
+}
 
-  if (dim(dat)[1] < 1) {
-    dat <- Data_NCTCShepherdstown_HUC12
+  while (dim(dat)[1] == 0) {
+    dat <- RandomTestSetup()
+    if (dim(dat[1]) > 0) {
+      break
+    }
   }
 
   return(dat)
@@ -773,6 +779,9 @@ TADA_RandomTestingData <- function(number_of_days = 1, choose_random_state = FAL
 # functions on random datasets.
 TADA_RandomStateTestingSet <- function(number_of_days = 90) {
   load(system.file("extdata", "statecodes_df.Rdata", package = "TADA"))
+  
+  dat <- data.frame()
+  
   state <- sample(statecodes_df$STUSAB, 1)
   twenty_yrs_ago <- Sys.Date() - 20 * 365
   random_start_date <- twenty_yrs_ago + sample(20 * 365, 1)
