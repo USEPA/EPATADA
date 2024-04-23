@@ -16,6 +16,15 @@
 #' 
 TADA_CreateUnitRef <- function(.data){
   
+  # .data required columns
+  required_cols <- c(
+    "TADA.CharacteristicName", "TADA.ResultSampleFractionText",
+    "TADA.MethodSpeciationName", "TADA.ResultMeasure.MeasureUnitCode",
+    "TADA.ActivityMediaName", "TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode"
+  )
+  
+  # Check to see if TADA_Autoclean has been run
+  TADA_CheckColumns(.data, required_cols)
   
  # Import USGS default unit ref
  usgs.ref <- TADA_GetUSGSSynonymRef()
@@ -33,8 +42,9 @@ TADA_CreateUnitRef <- function(.data){
  
  # Import TADA unit reference for priority characteristics (characteristic specific)
  priority.ref <- utils::read.csv(system.file("extdata", "TADAPriorityCharUnitRef.csv", package = "TADA")) 
- # Make all units and target units uppercase
+ # Make all target units and characteristic names uppercase
  priority.ref$Target.Unit <- toupper(priority.ref$Target.Unit)
+ priority.ref$CharacteristicName <- toupper(priority.ref$CharacteristicName)
  
  # Import TADA specific conversion reference
  # tada.ref <- utils::read.csv(system.file("extdata", "TADAPriorityCharConvertRef.csv", package = "TADA"))
@@ -55,12 +65,11 @@ TADA_CreateUnitRef <- function(.data){
 
  # Create df of unique CharactersticName and Unit in TADA data frame 
  data.units <- .data %>%
-    dplyr::select(CharacteristicName, ResultMeasure.MeasureUnitCode) %>%
-    dplyr::rename("Code" = "ResultMeasure.MeasureUnitCode") %>%
+    dplyr::select(TADA.CharacteristicName, TADA.ResultMeasure.MeasureUnitCode) %>%
+    dplyr::rename("Code" = "TADA.ResultMeasure.MeasureUnitCode",
+                  "CharacteristicName" = "TADA.CharacteristicName") %>%
     dplyr::distinct()
- # Convert Code to uppercase for consistency
- data.units$Code <- toupper(data.units$Code)
- 
+
  # Create df of priority characteristic/unit combinations of their respective target units  
  priority.units <- data.units %>%
      dplyr::filter(CharacteristicName %in% priority.ref$CharacteristicName) %>%
