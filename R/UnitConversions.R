@@ -16,6 +16,7 @@
 #' 
 TADA_CreateUnitRef <- function(.data){
   
+  
  # Import USGS default unit ref
  usgs.ref <- TADA_GetUSGSSynonymRef()
  usgs.ref$Target.Unit <- toupper(usgs.ref$Target.Unit)
@@ -34,6 +35,10 @@ TADA_CreateUnitRef <- function(.data){
  priority.ref <- utils::read.csv(system.file("extdata", "TADAPriorityCharUnitRef.csv", package = "TADA")) 
  # Make all units and target units uppercase
  priority.ref$Target.Unit <- toupper(priority.ref$Target.Unit)
+ 
+ # Import TADA specific conversion reference
+ # tada.ref <- utils::read.csv(system.file("extdata", "TADAPriorityCharConvertRef.csv", package = "TADA"))
+ 
  # Add all possible units from priority.wqx which correspond to each target unit
  priority.wqx <- priority.ref %>%
    dplyr::left_join(wqx.ref, by = "Target.Unit", relationship = "many-to-many") %>%
@@ -55,12 +60,13 @@ TADA_CreateUnitRef <- function(.data){
     dplyr::distinct()
  # Convert Code to uppercase for consistency
  data.units$Code <- toupper(data.units$Code)
-    
+ 
  # Create df of priority characteristic/unit combinations of their respective target units  
  priority.units <- data.units %>%
      dplyr::filter(CharacteristicName %in% priority.ref$CharacteristicName) %>%
-     dplyr::left_join(priority.ref, by = c("CharacteristicName", "Code")) %>%
-     dplyr::filter(!is.na(Code))
+     dplyr::left_join(priority.ref, by = "CharacteristicName") %>%
+     dplyr::filter(!is.na(Code)) %>%
+     dplyr::left_join(wqx.ref, by = c("Target.Unit", "Code"))
  
  # Filter to create df of priority characteristics with an assigned target unit
  priority.assigned <- priority.units %>%
