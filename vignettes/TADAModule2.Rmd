@@ -4,27 +4,29 @@ format: html
 editor: visual
 author: "TADA Team"
 date: "`r Sys.Date()`"
-output: rmarkdown::html_vignette
+output: 
+  rmarkdown::html_vignette:
+    toc: true
+    fig_caption: yes
+    fig_height: 8
+    fig_width: 8
 vignette: >
   %\VignetteEncoding{UTF-8}
   %\VignetteIndexEntry{TADA Module 2: Geospatial Functions}
   %\VignetteEngine{knitr::rmarkdown}
 description: An overview of TADA Module 2 functions and a recommended workflow.
-editor_options: 
+editor_options:
   chunk_output_type: console
-  markdown: 
+  markdown:
     wrap: 72
 ---
 
-```{r setup, include = FALSE}
-knitr::opts_chunk$set(
-  echo = TRUE,
-  warning = FALSE,
-  message = FALSE,
-  eval = FALSE,
-  fig.width = 8,
-  fig.height = 8
-)
+```{r setup, include=FALSE}
+library(knitr)
+
+knitr::opts_chunk$set(echo = TRUE,
+               warning = FALSE,
+               message = FALSE)
 ```
 
 ## Welcome!
@@ -53,7 +55,7 @@ information is available at:**
 First, install and load the remotes package specifying the repo. This is
 needed before installing TADA because it is only available on GitHub.
 
-```{r install_remotes, eval = F, results = 'hide', message = FALSE, warning = FALSE}
+```{r install_remotes, eval = FALSE, results = 'hide'}
 install.packages("remotes",
   repos = "http://cran.us.r-project.org"
 )
@@ -67,9 +69,9 @@ packages that have more recent versions available. If you see this
 prompt, it is recommended to update all of them (enter 1 into the
 console).
 
-```{r install_TADA, eval = F, results = 'hide', message = FALSE, warning = FALSE}
+```{r install_TADA, eval = FALSE, results = 'hide'}
 remotes::install_github("USEPA/TADA",
-  ref = "updates",
+  ref = "vignette_visualizations",
   dependencies = TRUE
 )
 ```
@@ -77,7 +79,7 @@ remotes::install_github("USEPA/TADA",
 Finally, use the **library()** function to load the TADA R Package into
 your R session.
 
-```{r library, results = 'hide', message = FALSE, warning = FALSE}
+```{r library, results = 'hide'}
 library(TADA)
 ```
 
@@ -90,7 +92,7 @@ the GitHub site. Users can also access the help page for a given
 function in R or RStudio using the following format (example below):
 `?TADA::[name of TADA function]`
 
-```{r help_pages, message = FALSE}
+```{r help_pages, eval = FALSE}
 # Access help page for TADA_DataRetrieval
 ?TADA_DataRetrieval
 ```
@@ -114,18 +116,18 @@ assigned designated uses, their most recent EPA reporting category
 (i.e., their impairment status), their impaired designated uses, and the
 parameter(s) causing the impairment.
 
-Within an assessment unit, the criteria or thresholds used
-to assess water quality typically remain the same and all water features
-are assessed as one entity (although there are some exceptions, for example
-if a single assessment unit crosses multiple ecoregions).
-Depending on the state or tribe, these assessment units can be a
-specific point or series of points along a waterbody such as a river or lake,
-a river reach (line), an entire waterbody such as a river or lake (polygon),
-or even an entire watershed. In other words, assessment units can take the 
-form of point, line, and area (oplygon) features, or some combination of all 
-of them. Moreover, it is possible that some assessment units are not
-geospatially referenced at all, meaning they are not captured in the ATTAINS
-geospatial database.
+Within an assessment unit, the criteria or thresholds used to assess
+water quality typically remain the same and all water features are
+assessed as one entity (although there are some exceptions, for example
+if a single assessment unit crosses multiple ecoregions). Depending on
+the state or tribe, these assessment units can be a specific point or
+series of points along a waterbody such as a river or lake, a river
+reach (line), an entire waterbody such as a river or lake (polygon), or
+even an entire watershed. In other words, assessment units can take the
+form of point, line, and area (oplygon) features, or some combination of
+all of them. Moreover, it is possible that some assessment units are not
+geospatially referenced at all, meaning they are not captured in the
+ATTAINS geospatial database.
 
 ## `TADA_MakeSpatial()`
 
@@ -256,7 +258,7 @@ If we set `return_sf = TRUE` as done to create the
 ATTAINS features associated with these TADA Water Quality Portal
 observations stored in a list with the TADA dataframe.
 
-Now, let's select specific columns from the TADA_with_ATTAINS dataframe, 
+Now, let's select specific columns from the TADA_with_ATTAINS dataframe,
 and create a new datafream with ONLY the unique combinations of WQP
 MonitoringLocationIdentifier's and ATTAINS Assessment Unit Identifiers.
 
@@ -293,6 +295,6 @@ Let's view the data associated with our `TADA_with_ATTAINS_list` object!
 Enter `?TADA_ViewATTAINS` into the console to review another example
 query and additional information.
 
-```{r}
+```{r fig.cap="ATTAINS Assessment Units and WQP Monitoring Locations", fig.height=7}
 TADA_ViewATTAINS(TADA_with_ATTAINS_list)
 ```
