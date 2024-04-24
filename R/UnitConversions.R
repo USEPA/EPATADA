@@ -266,9 +266,16 @@ TADA_ConvertResultUnits <- function(.data, ref = "tada", transform = TRUE, detli
     print("TADA_ConvertResultUnits: No unit reference data frame was supplied. Characteristic units will be converted to TADA-specified units for priority characteristics and WQX target units for other characteristics.")
   }
   
+  # rename unit.ref columns
+  unit.ref <- unit.ref %>%
+    dplyr::rename(TADA.CharacteristicName = CharacteristicName,
+                  TADA.ResultMeasure.MeasureUnitCode = Code)
   
   # join unit.ref to .data
-  check.data <- merge(.data, unit.ref, all.x = TRUE) 
+  check.data <- .data %>%
+    dplyr::left_join(unit.ref, by = c("TADA.CharacteristicName",
+                                      "TADA.ResultMeasure.MeasureUnitCode"),
+                     relationship = "many-to-many")
 
   # rename columns
   flag.data <- check.data %>%
@@ -353,8 +360,7 @@ TADA_ConvertResultUnits <- function(.data, ref = "tada", transform = TRUE, detli
 
   if (detlimit == TRUE) {
     det.ref <- unit.ref %>%
-      dplyr::select(Code, Target.Unit, Conversion.Factor, CharacteristicName) %>%
-      dplyr::rename(TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode = Code)
+      dplyr::rename(TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode = TADA.ResultMeasure.MeasureUnitCode)
 
     # if temp data exists, calculate conversion factor for TADA.DetectionQuantitationLimitMeasure.MeasureValue
     # EDH I THINK THIS RUNS IF THERE IS ONE OR MORE NA'S IN THE DATASET
