@@ -36,6 +36,13 @@ TADA_CreateUnitRef <- function(.data){
     }
   }
   
+  # Create df of unique CharactersticName and Unit in TADA data frame 
+  data.units <- .data %>%
+    dplyr::select(TADA.CharacteristicName, TADA.ResultMeasure.MeasureUnitCode) %>%
+    dplyr::distinct() %>%
+    dplyr::rename("Code" = "TADA.ResultMeasure.MeasureUnitCode",
+                  "CharacteristicName" = "TADA.CharacteristicName")
+  
  # Import USGS default unit ref
  usgs.ref <- TADA_GetUSGSSynonymRef()
  usgs.ref$Target.Unit <- toupper(usgs.ref$Target.Unit)
@@ -46,82 +53,61 @@ TADA_CreateUnitRef <- function(.data){
  wqx.ref$Target.Unit <- toupper(wqx.ref$Target.Unit)
  wqx.ref$Code <- toupper(wqx.ref$Code)
  
- # Combine for overall unit ref
+ # Combine for USGS and WQX unit ref
  unit.ref <- usgs.ref %>%
-   dplyr::full_join(wqx.ref)
+   dplyr::full_join(wqx.ref, by = c("Domain", "Unique.Identifier", "Code",
+                                    "Description", "Last.Change.Date", 
+                                    "Target.Unit", "Conversion.Factor"))
+ 
+ rm(usgs.ref, unit.ref)
  
  # Import TADA unit reference for priority characteristics (characteristic specific)
- priority.ref <- utils::read.csv(system.file("extdata", "TADAPriorityCharUnitRef.csv", package = "TADA")) 
+ tada.char.ref <- utils::read.csv(system.file("extdata", "TADAPriorityCharUnitRef.csv", package = "TADA")) 
  # Make all target units and characteristic names uppercase
- priority.ref$Target.Unit <- toupper(priority.ref$Target.Unit)
- priority.ref$CharacteristicName <- toupper(priority.ref$CharacteristicName)
+ tada.char.ref$Target.Unit <- toupper(tada.char.ref$Target.Unit)
+ tada.char.ref$CharacteristicName <- toupper(tada.char.ref$CharacteristicName)
  
  # Import TADA specific conversion reference, created by HRM on 4/23/2024
-  tada.ref <- utils::read.csv(system.file("extdata", "TADAPriorityCharConvertRef.csv", package = "TADA"))
+  tada.unit.ref <- utils::read.csv(system.file("extdata", "TADAPriorityCharConvertRef.csv", package = "TADA"))
   # Make all units and target units uppercase
-  tada.ref$Target.Unit <- toupper(tada.ref$Target.Unit)
-  tada.ref$Code <- toupper(tada.ref$Code)
+  tada.unit.ref$Target.Unit <- toupper(tada.unit.ref$Target.Unit)
+  tada.unit.ref$Code <- toupper(tada.unit.ref$Code)
   
- # Add all possible units from tada.ref which correspond to each target unit
-  priority.tada <- priority.ref %>%
-    dplyr::left_join(tada.ref, by = "Target.Unit", relationship = "many-to-many") %>%
-    dplyr::filter(!is.na(Code))
+ # Add all possible TADA specific target units
+  tada.targets <- data.units %>%
+    dplyr::left_join(tada.char.ref, by = "CharacteristicName") %>%
+    dplyr::filter(!is.na(Target.Unit)) %>%
+    dplyr::left_join(tada.unit.ref, relationship = "many-to-many",
+                     by = c("Code", "Target.Unit")) %>%
+    dplyr::filter(!is.na(Conversion.Factor))
+  
+  # Assign all other target units
+  other.targets <- data.units %>%
+    dplyr::filter(!CharacteristicName %in% tada.targets$CharacteristicName) %>%
+    dplyr::left_join(unit.ref, by = "Code", relationship = "many-to-many")
+  
+  # Join priority units and other units to create comprehensive unit ref table
+  comb.convert <- tada.targets %>%
+    dplyr::full_join(other.targets, by = c("CharacteristicName", "Code",
+                                           "Target.Unit", "Last.Change.Date",
+                                           "Conversion.Factor", "Conversion.Coefficient"))
+  # Create a dataframe of CharacteristicName/Code combinations which were assigned a target unit
+  comb.pairs <- comb.convert %>%
+    dplyr::select(CharacteristicName, Code)
+  
+  # Find characteristic/unit pairs which were not assigned a target unit
+  comb.missing <- data.units %>%
+    dplyr::anti_join(comb.pairs, by = names(data.units))
+  
+  # Add missing pairs to unit conversion df
+  all.convert <- comb.convert %>%
+    dplyr::full_join(comb.missing, by = names(data.units))
  
- # Add all possible units from WQX and USGS refs which correspond to each target unit
- priority.other <- priority.ref %>%
-   dplyr::anti_join(priority.tada) %>%
-   dplyr::left_join(unit.ref, by = "Target.Unit", relationship = "many-to-many") %>%
-   dplyr::filter(!is.na(Code))
- 
- # Create df of unique CharactersticName and Unit in TADA data frame 
- data.units <- .data %>%
-  dplyr::select(TADA.CharacteristicName, TADA.ResultMeasure.MeasureUnitCode) %>%
-   dplyr::distinct() %>%
-   dplyr::rename("Code" = "TADA.ResultMeasure.MeasureUnitCode",
-                 "CharacteristicName" = "TADA.CharacteristicName") %>%
-    dplyr::left_join(priority.tada, relationship = "many-to-many")
-     %>%
-    dplyr::distinct()
-
- # Create df of priority characteristic/unit combinations of their respective target units  
- priority.units <- data.units %>%
-     dplyr::left_join(priority.ref, by = c("CharacteristicName", "Code")) %>%
-     dplyr::filter(!is.na(Code)) %>%
-     dplyr::left_join(wqx.ref, by = c("Target.Unit", "Code"), relationship = "many-to-many")
- 
- # Filter to create df of priority characteristics with an assigned target unit
- priority.assigned <- priority.units %>%
-     dplyr::filter(!is.na(Target.Unit))
-   
- # Create df of priority characteristics without an assigned target unit 
- priority.unassigned <- priority.units %>%
-    dplyr::filter(is.na(Target.Unit))
-   
- # Create df of non-priority characteristics (or those without an assigned target unit) and assign units  
- other.units <- data.units %>%
-    # Filter for non priority characteristics
-     dplyr::filter(!CharacteristicName %in% priority.units$CharacteristicName) %>%
-     # Add priority characteristic/unit combinations without an assiged target unit
-    plyr::rbind.fill(priority.unassigned) %>%
-    # Select only necessary columns for joining
-     dplyr::select(CharacteristicName, Code) %>%
-   # Filter for only non-NA values of Code
-     dplyr::filter(!is.na(Code)) %>%
-   # Join unit references by Code
-     dplyr::left_join(unit.ref, by = "Code", relationship = "many-to-many")
-   
  # Remove intermediate object  
    rm(data.units)
-   
-   # Join priority units and other units to create comprehensive unit ref table for df
-   all.units <- priority.units %>%
-     dplyr::full_join(other.units)
-   
-   # Remove intermediate objects
-   rm(other.units, priority.units)
   
    # Return reference table for use in unit conversion functions or for more editing by user
-   return(all.units)
+   return(all.convert)
 }
 
 #' Transform Units to WQX Target Units or User Specified Units
