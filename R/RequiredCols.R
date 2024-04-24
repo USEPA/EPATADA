@@ -113,7 +113,7 @@ require.cols <- c(
   "TADA.NutrientSummation.Flag", # generated
   "TADA.NutrientSummationGroup", # generated
   "TADA.NutrientSummationEquation", # generated
-  
+
   # Sample/Measurement Collection/Analytical Method
   "ResultAnalyticalMethod.MethodName",
   "ResultAnalyticalMethod.MethodDescriptionText",

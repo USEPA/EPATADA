@@ -91,7 +91,7 @@ remotes::install_github("USEPA/TADA",
 # IF YOU ARE NOT DEVELOPING TADA, SKIP THIS CODE CHUNK
 # when developing the package, update this chunk to the current repository branch, so it runs with all of the new features prior to a PR to develop
 remotes::install_github("USEPA/TADA",
-  ref = "updates",
+  ref = "contdataupdates_cm",
   dependencies = TRUE
 )
 ```
@@ -464,7 +464,7 @@ max_results <- R5Profile_CharSummary %>%
 
 ## Continuous Time Series Data
 
-**TADA_FindContinuousData** flags high frequency time series (i.e.,
+**TADA_FlagContinuousData** flags high frequency time series (i.e.,
 continuous) data, if present.
 
 Continuous data and daily statistics calculated from continuous data
@@ -482,7 +482,7 @@ An additional input called flaggedonly will allow the user to filter
 data to show only rows of continuous data.
 
 ```{r ContinuousData}
-R5ProfileClean1 <- TADA_FindContinuousData(R5Profile)
+R5ProfileClean1 <- TADA_FlagContinuousData(R5Profile)
 ```
 
 ## WQX Quality Assurance and Quality Control (QAQC) Service Result Flags
