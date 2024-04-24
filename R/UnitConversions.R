@@ -73,23 +73,21 @@ TADA_CreateUnitRef <- function(.data){
    dplyr::left_join(unit.ref, by = "Target.Unit", relationship = "many-to-many") %>%
    dplyr::filter(!is.na(Code))
  
- # Combine WQX/USGS and TADA unit conversions
- priority.ref <- priority.other %>%
-   dplyr::full_join(priority.tada, by = names(priority.tada))
-
  # Create df of unique CharactersticName and Unit in TADA data frame 
  data.units <- .data %>%
-    dplyr::select(TADA.CharacteristicName, TADA.ResultMeasure.MeasureUnitCode) %>%
-    dplyr::rename("Code" = "TADA.ResultMeasure.MeasureUnitCode",
-                  "CharacteristicName" = "TADA.CharacteristicName") %>%
+  dplyr::select(TADA.CharacteristicName, TADA.ResultMeasure.MeasureUnitCode) %>%
+   dplyr::distinct() %>%
+   dplyr::rename("Code" = "TADA.ResultMeasure.MeasureUnitCode",
+                 "CharacteristicName" = "TADA.CharacteristicName") %>%
+    dplyr::left_join(priority.tada, relationship = "many-to-many")
+     %>%
     dplyr::distinct()
 
  # Create df of priority characteristic/unit combinations of their respective target units  
  priority.units <- data.units %>%
-     dplyr::filter(CharacteristicName %in% priority.ref$CharacteristicName) %>%
-     dplyr::left_join(priority.ref, by = "CharacteristicName") %>%
+     dplyr::left_join(priority.ref, by = c("CharacteristicName", "Code")) %>%
      dplyr::filter(!is.na(Code)) %>%
-     dplyr::left_join(wqx.ref, by = c("Target.Unit", "Code"))
+     dplyr::left_join(wqx.ref, by = c("Target.Unit", "Code"), relationship = "many-to-many")
  
  # Filter to create df of priority characteristics with an assigned target unit
  priority.assigned <- priority.units %>%
