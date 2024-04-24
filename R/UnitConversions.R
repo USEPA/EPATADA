@@ -59,7 +59,8 @@ TADA_CreateUnitRef <- function(.data){
                                     "Description", "Last.Change.Date", 
                                     "Target.Unit", "Conversion.Factor"))
  
- rm(usgs.ref, unit.ref)
+ # Remove intermediate objects
+ rm(usgs.ref, wqx.ref)
  
  # Import TADA unit reference for priority characteristics (characteristic specific)
  tada.char.ref <- utils::read.csv(system.file("extdata", "TADAPriorityCharUnitRef.csv", package = "TADA")) 
@@ -77,9 +78,12 @@ TADA_CreateUnitRef <- function(.data){
   tada.targets <- data.units %>%
     dplyr::left_join(tada.char.ref, by = "CharacteristicName") %>%
     dplyr::filter(!is.na(Target.Unit)) %>%
-    dplyr::left_join(tada.unit.ref, relationship = "many-to-many",
-                     by = c("Code", "Target.Unit")) %>%
+    dplyr::left_join(tada.unit.ref,  by = c("Code", "Target.Unit"),
+                                            relationship = "many-to-many") %>%
     dplyr::filter(!is.na(Conversion.Factor))
+  
+  # Remove intermediate objects
+  rm(tada.char.ref, tada.unit.ref)
   
   # Assign all other target units
   other.targets <- data.units %>%
@@ -91,9 +95,13 @@ TADA_CreateUnitRef <- function(.data){
     dplyr::full_join(other.targets, by = c("CharacteristicName", "Code",
                                            "Target.Unit", "Last.Change.Date",
                                            "Conversion.Factor", "Conversion.Coefficient"))
-  # Create a dataframe of CharacteristicName/Code combinations which were assigned a target unit
+ 
+ # Create a dataframe of CharacteristicName/Code combinations which were assigned a target unit
   comb.pairs <- comb.convert %>%
     dplyr::select(CharacteristicName, Code)
+  
+  # Remove intermediate objects
+  rm(other.targets, tada.targets)
   
   # Find characteristic/unit pairs which were not assigned a target unit
   comb.missing <- data.units %>%
@@ -101,10 +109,11 @@ TADA_CreateUnitRef <- function(.data){
   
   # Add missing pairs to unit conversion df
   all.convert <- comb.convert %>%
-    dplyr::full_join(comb.missing, by = names(data.units))
+    dplyr::full_join(comb.missing, by = names(data.units)) %>%
+    dplyr::select(CharacteristicName, Code, Target.Unit, Conversion.Factor, Target.Speciation)
  
  # Remove intermediate object  
-   rm(data.units)
+   rm(data.units, comb.pairs, comb.convert, comb.missing)
   
    # Return reference table for use in unit conversion functions or for more editing by user
    return(all.convert)
@@ -180,7 +189,7 @@ TADA_CreateUnitRef <- function(.data){
 #' #' # Convert values and units for results and detection limits:
 #' ResultUnitsNotConverted <- TADA_ConvertResultUnits(Data_Nutrients_UT, transform = TRUE, detlimit = TRUE)
 #'
-TADA_ConvertResultUnits <- function(.data, ref = "none", transform = TRUE, detlimit = TRUE) {
+TADA_ConvertResultUnits <- function(.data, ref = "tada", transform = TRUE, detlimit = TRUE) {
   # check .data is data.frame
   TADA_CheckType(.data, "data.frame", "Input object")
   # check transform is boolean

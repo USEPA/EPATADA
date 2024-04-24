@@ -4,7 +4,7 @@
 \alias{TADA_ConvertResultUnits}
 \title{Transform Units to WQX Target Units or User Specified Units}
 \usage{
-TADA_ConvertResultUnits(.data, ref = "none", transform = TRUE, detlimit = TRUE)
+TADA_ConvertResultUnits(.data, ref = "tada", transform = TRUE, detlimit = TRUE)
 }
 \arguments{
 \item{.data}{TADA dataframe}
@@ -12,9 +12,11 @@ TADA_ConvertResultUnits(.data, ref = "none", transform = TRUE, detlimit = TRUE)
 \item{ref}{Optional character argument in which a user can specify a data frame
 by name. Data frame must contain the columns CharacteristicName, Unit, and TargetUnit.
 TADA_CreateUnitRef() can be used to help create this data frame. There are two
-options that do not require the user to supply a data frame. When no ref is
-specified all unit conversion will be based on TADA priority characteristic units
-(where appplicable), with any other units assigned by WQX unit reference.}
+options that do not require the user to supply a data frame, "tada" and "wqx".
+When ref = "wqx" all unit conversion will be based on WQX unit reference.
+When ref = "tada" all unit conversion will be based on TADA priority characteristic
+units (where appplicable), with any other units assigned by WQX unit reference.
+The default is ref = "tada".}
 
 \item{transform}{Boolean argument with two possible values, “TRUE” and “FALSE”.
 Default is transform = TRUE.}
