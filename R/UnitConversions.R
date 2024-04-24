@@ -266,6 +266,27 @@ TADA_ConvertResultUnits <- function(.data, ref = "tada", transform = TRUE, detli
     print("TADA_ConvertResultUnits: No unit reference data frame was supplied. Characteristic units will be converted to TADA-specified units for priority characteristics and WQX target units for other characteristics.")
   }
   
+  if (ref == "wqx") {
+    
+    # Import USGS unit ref
+    usgs.ref <- TADA_GetUSGSSynonymRef()
+    usgs.ref$Target.Unit <- toupper(usgs.ref$Target.Unit)
+    usgs.ref$Code <- toupper(usgs.ref$Code)
+    
+    # Import WQX unit ref
+    wqx.ref <- TADA_GetMeasureUnitRef()
+    wqx.ref$Target.Unit <- toupper(wqx.ref$Target.Unit)
+    wqx.ref$Code <- toupper(wqx.ref$Code)
+    
+    # Combine for USGS and WQX unit ref
+    unit.ref <- usgs.ref %>%
+      dplyr::full_join(wqx.ref, by = c("Domain", "Unique.Identifier", "Code",
+                                       "Description", "Last.Change.Date", 
+                                       "Target.Unit", "Conversion.Factor"))
+    
+    print("TADA_ConvertResultUnits: No unit reference data frame was supplied. Characteristic units will be converted to WQX target units.")
+  }
+  
   # rename unit.ref columns
   unit.ref <- unit.ref %>%
     dplyr::rename(TADA.CharacteristicName = CharacteristicName,
