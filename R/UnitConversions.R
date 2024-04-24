@@ -24,7 +24,17 @@ TADA_CreateUnitRef <- function(.data){
   )
   
   # Check to see if TADA_Autoclean has been run
-  TADA_CheckColumns(.data, required_cols)
+  if (all(required_cols %in% colnames(.data)) == FALSE) {
+    
+    print("The dataframe does not contain the required fields to use TADA. Running TADA_AutoClean to create required columns.")
+    
+    .data <- TADA_AutoClean(.data)
+    
+    if(all(required_cols %in% colnames(.data)) == TRUE) {
+      
+      .data <- .data
+    }
+  }
   
  # Import USGS default unit ref
  usgs.ref <- TADA_GetUSGSSynonymRef()
@@ -46,22 +56,26 @@ TADA_CreateUnitRef <- function(.data){
  priority.ref$Target.Unit <- toupper(priority.ref$Target.Unit)
  priority.ref$CharacteristicName <- toupper(priority.ref$CharacteristicName)
  
- # Import TADA specific conversion reference
- # tada.ref <- utils::read.csv(system.file("extdata", "TADAPriorityCharConvertRef.csv", package = "TADA"))
+ # Import TADA specific conversion reference, created by HRM on 4/23/2024
+  tada.ref <- utils::read.csv(system.file("extdata", "TADAPriorityCharConvertRef.csv", package = "TADA"))
+  # Make all units and target units uppercase
+  tada.ref$Target.Unit <- toupper(tada.ref$Target.Unit)
+  tada.ref$Code <- toupper(tada.ref$Code)
+  
+ # Add all possible units from tada.ref which correspond to each target unit
+  priority.tada <- priority.ref %>%
+    dplyr::left_join(tada.ref, by = "Target.Unit", relationship = "many-to-many") %>%
+    dplyr::filter(!is.na(Code))
  
- # Add all possible units from priority.wqx which correspond to each target unit
- priority.wqx <- priority.ref %>%
-   dplyr::left_join(wqx.ref, by = "Target.Unit", relationship = "many-to-many") %>%
+ # Add all possible units from WQX and USGS refs which correspond to each target unit
+ priority.other <- priority.ref %>%
+   dplyr::anti_join(priority.tada) %>%
+   dplyr::left_join(unit.ref, by = "Target.Unit", relationship = "many-to-many") %>%
    dplyr::filter(!is.na(Code))
  
- # Add all possible units from priority.usgs which correspond to each target unit
- priority.usgs <- priority.ref %>%
-   dplyr::left_join(usgs.ref, by = c("Target.Unit"), relationship = "many-to-many") %>%
-   dplyr::filter(!is.na(Code))
- 
- # Combine WQX and USGS priority references
- priority.ref <- priority.wqx %>%
-   dplyr::full_join(priority.usgs)
+ # Combine WQX/USGS and TADA unit conversions
+ priority.ref <- priority.other %>%
+   dplyr::full_join(priority.tada, by = names(priority.tada))
 
  # Create df of unique CharactersticName and Unit in TADA data frame 
  data.units <- .data %>%
