@@ -349,7 +349,7 @@ TADA_ConvertResultUnits <- function(.data, ref = "tada", transform = TRUE, detli
       ))
     
     # Format TADA.ResultMeasureValue
-    clean.data$TADA.ResultMeasureValue <- format(clean.data$TADA.ResultMeasureValue, scientific = FALSE)
+    #clean.data$TADA.ResultMeasureValue <- format(clean.data$TADA.ResultMeasureValue, scientific = FALSE)
 
     # populate ResultMeasure.MeasureUnitCode
     clean.data <- clean.data %>%
@@ -417,7 +417,7 @@ TADA_ConvertResultUnits <- function(.data, ref = "tada", transform = TRUE, detli
                     is.na(Target.Unit) ~ TADA.DetectionQuantitationLimitMeasure.MeasureValue))
     
     # Format TADA.DetectionQuantitationLimitMeasure.MeasureValue
-    det.data$TADA.ResultMeasureValue <- format(clean.data$TADA.ResultMeasureValue, scientific = FALSE)
+    #det.data$TADA.ResultMeasureValue <- format(clean.data$TADA.ResultMeasureValue, scientific = FALSE)
 
     # populate TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode
     convert.data <- det.data %>%
