@@ -80,44 +80,36 @@ TADA_CreateUnitRef <- function(.data){
     dplyr::left_join(tada.char.ref, by = "CharacteristicName") %>%
     dplyr::filter(!is.na(Target.Unit)) %>%
     dplyr::left_join(tada.unit.ref,  by = c("Code", "Target.Unit"),
-                                            relationship = "many-to-many") 
+                                            relationship = "many-to-many") %>%
+    dplyr::mutate(CharUnit = paste(CharacteristicName, "_", Code, sep = "")) %>%
+    dplyr::filter(!is.na(Conversion.Factor))
   
   # Remove intermediate objects
   rm(tada.char.ref, tada.unit.ref)
   
   # Assign all other target units
   other.targets <- data.units %>%
-    dplyr::filter(!CharacteristicName %in% tada.targets$CharacteristicName) %>%
+    dplyr::mutate(CharUnit = paste(CharacteristicName, "_", Code, sep = "")) %>%
+    dplyr::filter(!CharUnit %in% tada.targets$CharUnit) %>%
     dplyr::left_join(unit.ref, by = "Code", relationship = "many-to-many")
   
   # Join priority units and other units to create comprehensive unit ref table
   comb.convert <- tada.targets %>%
     dplyr::full_join(other.targets, by = c("CharacteristicName", "Code",
                                            "Target.Unit", "Last.Change.Date",
-                                           "Conversion.Factor", "Conversion.Coefficient"))
- 
- # Create a dataframe of CharacteristicName/Code combinations which were assigned a target unit
-  comb.pairs <- comb.convert %>%
-    dplyr::select(CharacteristicName, Code)
+                                           "Conversion.Factor", "Conversion.Coefficient",
+                                           "CharUnit")) %>%
+    dplyr::select(- CharUnit)
   
   # Remove intermediate objects
   rm(other.targets, tada.targets)
   
-  # Find characteristic/unit pairs which were not assigned a target unit
-  comb.missing <- data.units %>%
-    dplyr::anti_join(comb.pairs, by = names(data.units))
-  
-  # Add missing pairs to unit conversion df
-  all.convert <- comb.convert %>%
-    dplyr::full_join(comb.missing, by = names(data.units)) %>%
-    dplyr::select(CharacteristicName, Code, Target.Unit, Conversion.Factor, 
-                  Conversion.Coefficient, Target.Speciation)
  
  # Remove intermediate object  
-   rm(data.units, comb.pairs, comb.convert, comb.missing)
+   rm(data.units)
   
    # Return reference table for use in unit conversion functions or for more editing by user
-   return(all.convert)
+   return(comb.convert)
 }
 
 #' Transform Units to TADA Target Units, WQX Target Units or User Specified Units
@@ -329,7 +321,7 @@ TADA_ConvertResultUnits <- function(.data, ref = "tada", transform = TRUE, detli
       # apply conversions where there is a target unit, use original value if no target unit
       dplyr::mutate(TADA.ResultMeasureValue = dplyr::case_when(
                       is.na(TADA.ResultMeasureValue) ~ TADA.ResultMeasureValue,
-                      !is.na(TADA.WQXTargetUnit) ~ ((TADA.ResultMeasureValue - TADA.ConversionCoefficient) * TADA.WQXUnitConversionFactor),
+                      !is.na(TADA.WQXTargetUnit) ~ ((TADA.ResultMeasureValue - TADA.WQXUnitConversionCoefficient) * TADA.WQXUnitConversionFactor),
         is.na(TADA.WQXTargetUnit) ~ TADA.ResultMeasureValue
       ))
     
@@ -354,7 +346,8 @@ TADA_ConvertResultUnits <- function(.data, ref = "tada", transform = TRUE, detli
 
     # remove extraneous columns, fix field names
     clean.data <- clean.data %>%
-      dplyr::select(-c("TADA.WQXUnitConversionFactor", "TADA.WQXTargetUnit", "TADA.SpeciationUnitConversion"))
+      dplyr::select(-c("TADA.WQXUnitConversionFactor", "TADA.WQXTargetUnit", 
+                       "TADA.SpeciationUnitConversion", "TADA.WQXUnitConversionCoefficient"))
 
     # create new comparable data identifier column following conversion
     clean.data <- TADA_CreateComparableID(clean.data)
@@ -377,7 +370,7 @@ TADA_ConvertResultUnits <- function(.data, ref = "tada", transform = TRUE, detli
       # apply conversions where there is a target unit, use original value if no target unit
       dplyr::mutate(TADA.DetectionQuantitationLimitMeasure.MeasureValue = dplyr::case_when(
                     is.na(TADA.DetectionQuantitationLimitMeasure.MeasureValue) ~ TADA.DetectionQuantitationLimitMeasure.MeasureValue,
-                    !is.na(Target.Unit) ~ ((TADA.DetectionQuantitationLimitMeasure.MeasureValue - TADA.ConversionCoefficient) * Conversion.Factor),
+                    !is.na(Target.Unit) ~ ((TADA.DetectionQuantitationLimitMeasure.MeasureValue - TADA.WQXUnitConversionCoefficient) * Conversion.Factor),
                     is.na(Target.Unit) ~ TADA.DetectionQuantitationLimitMeasure.MeasureValue))
     
     # Format TADA.DetectionQuantitationLimitMeasure.MeasureValue
