@@ -99,7 +99,14 @@ TADA_CreateUnitRef <- function(.data){
                                            "Target.Unit", "Last.Change.Date",
                                            "Conversion.Factor", "Conversion.Coefficient",
                                            "CharUnit")) %>%
-    dplyr::select(- CharUnit)
+    dplyr::select(- CharUnit) %>%
+    dplyr::group_by(CharacteristicName) %>%
+    dplyr::mutate(NConvert = length(Code)) %>%
+    dplyr::filter(NConvert == 1 |
+                    (NConvert > 1 & is.na(Code))) %>%
+    dplyr::ungroup() %>%
+    dplyr::group_by(CharacteristicName, Code) %>%
+    dplyr::slice_head()
   
   # Remove intermediate objects
   rm(other.targets, tada.targets)
@@ -201,14 +208,13 @@ TADA_ConvertResultUnits <- function(.data, ref = "tada", transform = TRUE, detli
   # execute function after checks are passed
   
   # if user supplied unit reference was provided
-  if (ref != "tada" & ref != "wqx") {
+  if (is.data.frame(ref)) {
     # check ref is data.frame
     TADA_CheckType(ref, "data.frame")
     
     # required columns
     expected_ref_cols <- c(
-      "CharacteristicName", "Code", "Target.Unit", "Domain",
-      "Unique.Identifier", "Description", "Last.Change.Data",
+      "CharacteristicName", "Code", "Target.Unit",
       "Conversion.Factor", "Conversion.Coefficient", "Target.Speciation"
     )
     
@@ -221,10 +227,16 @@ TADA_ConvertResultUnits <- function(.data, ref = "tada", transform = TRUE, detli
       # create list of unique characteristic and unit combinations in data 
       check.units <- .data %>%
         dplyr::select(CharacteristicName, ResultMeasure.MeasureUnitCode) %>%
-        dplyr::filter(!is.na(ResultMeasure.MeasureUnitCode)) %>%
+        dplyr::distinct() %>%
         dplyr::rename(Code = ResultMeasure.MeasureUnitCode) %>%
         dplyr::mutate(Code = toupper(Code)) %>%
-        dplyr::distinct()
+        dplyr::group_by(CharacteristicName) %>%
+        dplyr::mutate(NConvert = length(Code)) %>%
+        dplyr::filter(NConvert == 1 |
+                        (NConvert > 1 & is.na(Code))) %>%
+        dplyr::ungroup() %>%
+        dplyr::group_by(CharacteristicName, Code) %>%
+        dplyr::slice_head()
       
       # create list of unique characteristic and unit combinations in unit ref
       check.ref <- unit.ref %>%
@@ -253,7 +265,8 @@ TADA_ConvertResultUnits <- function(.data, ref = "tada", transform = TRUE, detli
   }}
   
   # if no unit reference df was provided by user or user input was "tada"
-  if (ref == "tada") {
+  if (!is.data.frame(ref)) {
+    if (ref == "tada") {
     unit.ref <- TADA_CreateUnitRef(.data)
     
     print("TADA_ConvertResultUnits: No unit reference data frame was supplied. Characteristic units will be converted to TADA-specified units for priority characteristics and WQX target units for other characteristics.")
@@ -279,6 +292,7 @@ TADA_ConvertResultUnits <- function(.data, ref = "tada", transform = TRUE, detli
                                        "Conversion.Coefficient"))
     
     print("TADA_ConvertResultUnits: No unit reference data frame was supplied. Characteristic units will be converted to WQX target units.")
+    }
   }
   
   # rename unit.ref columns
