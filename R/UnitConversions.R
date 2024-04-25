@@ -57,7 +57,8 @@ TADA_CreateUnitRef <- function(.data){
  unit.ref <- usgs.ref %>%
    dplyr::full_join(wqx.ref, by = c("Domain", "Unique.Identifier", "Code",
                                     "Description", "Last.Change.Date", 
-                                    "Target.Unit", "Conversion.Factor"))
+                                    "Target.Unit", "Conversion.Factor")) %>%
+   dplyr::mutate(Conversion.Coefficient = ifelse(is.na(Conversion.Coefficient), 0, Conversion.Coefficient))
  
  # Remove intermediate objects
  rm(usgs.ref, wqx.ref)
@@ -79,8 +80,7 @@ TADA_CreateUnitRef <- function(.data){
     dplyr::left_join(tada.char.ref, by = "CharacteristicName") %>%
     dplyr::filter(!is.na(Target.Unit)) %>%
     dplyr::left_join(tada.unit.ref,  by = c("Code", "Target.Unit"),
-                                            relationship = "many-to-many") %>%
-    dplyr::filter(!is.na(Conversion.Factor))
+                                            relationship = "many-to-many") 
   
   # Remove intermediate objects
   rm(tada.char.ref, tada.unit.ref)
@@ -110,7 +110,8 @@ TADA_CreateUnitRef <- function(.data){
   # Add missing pairs to unit conversion df
   all.convert <- comb.convert %>%
     dplyr::full_join(comb.missing, by = names(data.units)) %>%
-    dplyr::select(CharacteristicName, Code, Target.Unit, Conversion.Factor, Target.Speciation)
+    dplyr::select(CharacteristicName, Code, Target.Unit, Conversion.Factor, 
+                  Conversion.Coefficient, Target.Speciation)
  
  # Remove intermediate object  
    rm(data.units, comb.pairs, comb.convert, comb.missing)
@@ -282,7 +283,8 @@ TADA_ConvertResultUnits <- function(.data, ref = "tada", transform = TRUE, detli
     unit.ref <- usgs.ref %>%
       dplyr::full_join(wqx.ref, by = c("Domain", "Unique.Identifier", "Code",
                                        "Description", "Last.Change.Date", 
-                                       "Target.Unit", "Conversion.Factor"))
+                                       "Target.Unit", "Conversion.Factor",
+                                       "Conversion.Coefficient"))
     
     print("TADA_ConvertResultUnits: No unit reference data frame was supplied. Characteristic units will be converted to WQX target units.")
   }
@@ -300,27 +302,11 @@ TADA_ConvertResultUnits <- function(.data, ref = "tada", transform = TRUE, detli
 
   # rename columns
   flag.data <- check.data %>%
-    dplyr::rename(TADA.WQXTargetUnit = Target.Unit) %>%
-    dplyr::rename(TADA.WQXUnitConversionFactor = Conversion.Factor) %>%
-    dplyr::rename(TADA.SpeciationUnitConversion = Target.Speciation)
+    dplyr::rename(TADA.WQXTargetUnit = Target.Unit,
+                  TADA.WQXUnitConversionFactor = Conversion.Factor,
+                  TADA.WQXUnitConversionCoefficient = Conversion.Coefficient,
+                  TADA.SpeciationUnitConversion = Target.Speciation)
 
-  # if temp data exists, calculate conversion factor
-  # EDH I THINK THIS RUNS IF THERE IS ONE OR MORE NA'S IN THE DATASET
-  if (all(is.na(match(
-    c("deg F", "deg K"),
-    flag.data$TADA.ResultMeasure.MeasureUnitCode
-  ))) == FALSE) {
-    # Calculate deg F and deg C, replace Conversion factor values
-    flag.data <- flag.data %>%
-      # create flag column
-      dplyr::mutate(TADA.WQXUnitConversionFactor = dplyr::case_when(
-        TADA.ResultMeasure.MeasureUnitCode == "deg F" ~
-          as.numeric(((TADA.ResultMeasureValue - 32) * (5 / 9)) / TADA.ResultMeasureValue),
-        TADA.ResultMeasure.MeasureUnitCode == "deg K" ~
-          as.numeric((TADA.ResultMeasureValue - 273.15) / TADA.ResultMeasureValue),
-        TRUE ~ TADA.WQXUnitConversionFactor
-      ))
-  }
 
   # add TADA.WQXResultUnitConversion column
   flag.data <- flag.data %>%
@@ -342,9 +328,8 @@ TADA_ConvertResultUnits <- function(.data, ref = "tada", transform = TRUE, detli
     clean.data <- flag.data %>%
       # apply conversions where there is a target unit, use original value if no target unit
       dplyr::mutate(TADA.ResultMeasureValue = dplyr::case_when(
-        is.na(TADA.ResultMeasureValue) ~ TADA.ResultMeasureValue,
-        !is.na(TADA.WQXTargetUnit) ~
-          (TADA.ResultMeasureValue * TADA.WQXUnitConversionFactor),
+                      is.na(TADA.ResultMeasureValue) ~ TADA.ResultMeasureValue,
+                      !is.na(TADA.WQXTargetUnit) ~ ((TADA.ResultMeasureValue - TADA.ConversionCoefficient) * TADA.WQXUnitConversionFactor),
         is.na(TADA.WQXTargetUnit) ~ TADA.ResultMeasureValue
       ))
     
@@ -386,34 +371,13 @@ TADA_ConvertResultUnits <- function(.data, ref = "tada", transform = TRUE, detli
     det.ref <- unit.ref %>%
       dplyr::rename(TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode = TADA.ResultMeasure.MeasureUnitCode)
 
-    # if temp data exists, calculate conversion factor for TADA.DetectionQuantitationLimitMeasure.MeasureValue
-    # EDH I THINK THIS RUNS IF THERE IS ONE OR MORE NA'S IN THE DATASET
-    if (all(is.na(match(
-      c("deg F", "deg K"),
-      clean.data$TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode
-    ))) == FALSE) {
-      # Calculate deg F and deg C, replace Conversion factor values
-      flag.det <- det.data %>%
-        # create flag column
-        dplyr::mutate(Conversion.Factor = dplyr::case_when(
-          TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode == "deg F" ~
-            as.numeric(
-              ((TADA.DetectionQuantitationLimitMeasure.MeasureValue - 32) * (5 / 9)) / TADA.DetectionQuantitationLimitMeasure.MeasureValue,
-              TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode == "deg K" ~
-                as.numeric((TADA.DetectionQuantitationLimitMeasure.MeasureValue - 273.15) / TADA.DetectionQuantitationLimitMeasure.MeasureValue),
-              TRUE ~ Conversion.Factor
-            )
-        ))
-    }
-
-
     # Transform TADA.DetectionQuantitationLimitMeasure.MeasureValue value to Target Unit only if target unit exists
     det.data <- clean.data %>%
       merge(det.ref, all.x = TRUE) %>%
       # apply conversions where there is a target unit, use original value if no target unit
       dplyr::mutate(TADA.DetectionQuantitationLimitMeasure.MeasureValue = dplyr::case_when(
                     is.na(TADA.DetectionQuantitationLimitMeasure.MeasureValue) ~ TADA.DetectionQuantitationLimitMeasure.MeasureValue,
-                    !is.na(Target.Unit) ~ (TADA.DetectionQuantitationLimitMeasure.MeasureValue * Conversion.Factor),
+                    !is.na(Target.Unit) ~ ((TADA.DetectionQuantitationLimitMeasure.MeasureValue - TADA.ConversionCoefficient) * Conversion.Factor),
                     is.na(Target.Unit) ~ TADA.DetectionQuantitationLimitMeasure.MeasureValue))
     
     # Format TADA.DetectionQuantitationLimitMeasure.MeasureValue
