@@ -119,7 +119,7 @@ TADA_CreateUnitRef <- function(.data){
    return(all.convert)
 }
 
-#' Transform Units to WQX Target Units or User Specified Units
+#' Transform Units to TADA Target Units, WQX Target Units or User Specified Units
 #'
 #' This function compares measure units in the input data to the Water Quality
 #' Exchange (WQX) 3.0 Measure Unit domain table. It also takes common USGS units
@@ -347,6 +347,9 @@ TADA_ConvertResultUnits <- function(.data, ref = "tada", transform = TRUE, detli
           (TADA.ResultMeasureValue * TADA.WQXUnitConversionFactor),
         is.na(TADA.WQXTargetUnit) ~ TADA.ResultMeasureValue
       ))
+    
+    # Format TADA.ResultMeasureValue
+    clean.data$TADA.ResultMeasureValue <- format(clean.data$TADA.ResultMeasureValue, scientific = FALSE)
 
     # populate ResultMeasure.MeasureUnitCode
     clean.data <- clean.data %>%
@@ -409,11 +412,12 @@ TADA_ConvertResultUnits <- function(.data, ref = "tada", transform = TRUE, detli
       merge(det.ref, all.x = TRUE) %>%
       # apply conversions where there is a target unit, use original value if no target unit
       dplyr::mutate(TADA.DetectionQuantitationLimitMeasure.MeasureValue = dplyr::case_when(
-        is.na(TADA.DetectionQuantitationLimitMeasure.MeasureValue) ~ TADA.DetectionQuantitationLimitMeasure.MeasureValue,
-        !is.na(Target.Unit) ~
-          (TADA.DetectionQuantitationLimitMeasure.MeasureValue * Conversion.Factor),
-        is.na(Target.Unit) ~ TADA.DetectionQuantitationLimitMeasure.MeasureValue
-      ))
+                    is.na(TADA.DetectionQuantitationLimitMeasure.MeasureValue) ~ TADA.DetectionQuantitationLimitMeasure.MeasureValue,
+                    !is.na(Target.Unit) ~ (TADA.DetectionQuantitationLimitMeasure.MeasureValue * Conversion.Factor),
+                    is.na(Target.Unit) ~ TADA.DetectionQuantitationLimitMeasure.MeasureValue))
+    
+    # Format TADA.DetectionQuantitationLimitMeasure.MeasureValue
+    det.data$TADA.ResultMeasureValue <- format(clean.data$TADA.ResultMeasureValue, scientific = FALSE)
 
     # populate TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode
     convert.data <- det.data %>%
