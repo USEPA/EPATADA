@@ -99,14 +99,15 @@ TADA_CreateUnitRef <- function(.data){
                                            "Target.Unit", "Last.Change.Date",
                                            "Conversion.Factor", "Conversion.Coefficient",
                                            "CharUnit")) %>%
-    dplyr::select(- CharUnit) %>%
     dplyr::group_by(CharacteristicName) %>%
     dplyr::mutate(NConvert = length(Code)) %>%
     dplyr::filter(NConvert == 1 |
                     (NConvert > 1 & is.na(Code))) %>%
     dplyr::ungroup() %>%
     dplyr::group_by(CharacteristicName, Code) %>%
-    dplyr::slice_head()
+    dplyr::slice_head() %>%
+    dplyr::select(-CharUnit, -Last.Change.Date, -Domain,
+                  -Unique.Identifier, -Description, -NConvert)
   
   # Remove intermediate objects
   rm(other.targets, tada.targets)
@@ -209,8 +210,6 @@ TADA_ConvertResultUnits <- function(.data, ref = "tada", transform = TRUE, detli
   
   # if user supplied unit reference was provided
   if (is.data.frame(ref)) {
-    # check ref is data.frame
-    TADA_CheckType(ref, "data.frame")
     
     # required columns
     expected_ref_cols <- c(
@@ -226,9 +225,10 @@ TADA_ConvertResultUnits <- function(.data, ref = "tada", transform = TRUE, detli
       
       # create list of unique characteristic and unit combinations in data 
       check.units <- .data %>%
-        dplyr::select(CharacteristicName, ResultMeasure.MeasureUnitCode) %>%
+        dplyr::select(TADA.CharacteristicName, TADA.ResultMeasure.MeasureUnitCode) %>%
         dplyr::distinct() %>%
-        dplyr::rename(Code = ResultMeasure.MeasureUnitCode) %>%
+        dplyr::rename(Code = TADA.ResultMeasure.MeasureUnitCode,
+                      CharacteristicName = TADA.CharacteristicName) %>%
         dplyr::mutate(Code = toupper(Code)) %>%
         dplyr::group_by(CharacteristicName) %>%
         dplyr::mutate(NConvert = length(Code)) %>%
@@ -236,7 +236,8 @@ TADA_ConvertResultUnits <- function(.data, ref = "tada", transform = TRUE, detli
                         (NConvert > 1 & is.na(Code))) %>%
         dplyr::ungroup() %>%
         dplyr::group_by(CharacteristicName, Code) %>%
-        dplyr::slice_head()
+        dplyr::slice_head() %>%
+        dplyr::select(-NConvert)
       
       # create list of unique characteristic and unit combinations in unit ref
       check.ref <- unit.ref %>%
@@ -252,7 +253,7 @@ TADA_ConvertResultUnits <- function(.data, ref = "tada", transform = TRUE, detli
       if(nrow(compare.ref) == 0){
         print("All CharacteristicName/Unit combinations in the TADA dataframe are represented in user-supplied unit reference.")
         # if there are characteristic/unit combinations in the data that are not in the unit ref, print a warning message listing them
-        }else{
+        } else{
           compare.list <- compare.ref %>%
             dplyr::mutate(Comb = paste(CharacteristicName, " (", Code, ")", sep = "")) %>%
             dplyr::mutate(CombList = paste(Comb, collapse = ", ")) %>%
@@ -260,9 +261,10 @@ TADA_ConvertResultUnits <- function(.data, ref = "tada", transform = TRUE, detli
             dplyr::distinct() %>%
             stringi::stri_replace_last(fixed = ",", " and")
           
-          print(paste("TADA_ConvertResultUnits: The following CharacteristicName and ResultMeasure.MeasureUnitCode combinations are not included in the user-supplied unit reference data frame: ", compare.list, 
+          print(paste("TADA_ConvertResultUnits: The following CharacteristicName and ResultMeasure.MeasureUnitCode combinations are not included in the user-supplied unit reference data frame: ", 
+                      compare.list, 
                       ". Consider revising the user-supplied unit reference data frame and running TADA_ConvertResultUnits again.", sep = ""))
-  }}
+  }
   
   # if no unit reference df was provided by user or user input was "tada"
   if (!is.data.frame(ref)) {
@@ -403,7 +405,7 @@ TADA_ConvertResultUnits <- function(.data, ref = "tada", transform = TRUE, detli
 
     return(convert.data)
   }
-}
+}}
 
 #' Convert Depth Units
 #'
