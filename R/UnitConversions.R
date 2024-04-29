@@ -14,6 +14,12 @@
 #' unique CharacteristicName/ResultMeasure.MeasureUnitCode combinations in the
 #' initial TADA dataframe.
 #' 
+#' #' # Load example dataset:
+#' data(Data_Nutrients_UT)
+#'
+#' # Create a unit reference data frame
+#' UT_UnitRef <- TADA_CreateUnitRef(Data_Nutrients_UT)
+#' 
 TADA_CreateUnitRef <- function(.data){
   
   # .data required columns
@@ -181,14 +187,12 @@ TADA_CreateUnitRef <- function(.data){
 #' # Load example dataset:
 #' data(Data_Nutrients_UT)
 #'
-#' ResultUnitsConverted <- (Data_Nutrients_UT)
-#'
 #' # Do not convert result values and units, but add four new columns titled
 #' # "TADA.WQXUnitConversionFactor", "TADA.WQXUnitConversionCoefficient", "TADA.WQXTargetUnit", and "TADA.SpeciationUnitConversion":
 #' ResultUnitsNotConverted <- TADA_ConvertResultUnits(Data_Nutrients_UT, transform = FALSE, detlimit = FALSE)
 #'
 #' #' # Convert values and units for results and detection limits:
-#' ResultUnitsNotConverted <- TADA_ConvertResultUnits(Data_Nutrients_UT, transform = TRUE, detlimit = TRUE)
+#' ResultUnitsConverted <- TADA_ConvertResultUnits(Data_Nutrients_UT, transform = TRUE, detlimit = TRUE)
 #'
 TADA_ConvertResultUnits <- function(.data, ref = "tada", transform = TRUE, detlimit = TRUE) {
   # check .data is data.frame
@@ -305,8 +309,6 @@ TADA_ConvertResultUnits <- function(.data, ref = "tada", transform = TRUE, detli
   
   # join unit.ref to .data
   check.data <- .data %>%
-    dplyr::select(-TADA.WQXConversionFactor,
-                  -TADA.WQXUnitConversionCoefficient) %>%
     dplyr::left_join(unit.ref, by = c("TADA.CharacteristicName",
                                       "TADA.ResultMeasure.MeasureUnitCode"),
                      relationship = "many-to-many")
@@ -407,7 +409,7 @@ TADA_ConvertResultUnits <- function(.data, ref = "tada", transform = TRUE, detli
 
     return(convert.data)
   }
-}}
+}
 
 #' Convert Depth Units
 #'
