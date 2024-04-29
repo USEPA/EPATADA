@@ -186,7 +186,11 @@ TADA_FlagMethod <- function(.data, clean = TRUE, flaggedonly = FALSE) {
 #'   clean = FALSE, flaggedonly = TRUE
 #' )
 #'
-TADA_FindContinuousData <- function(.data, clean = FALSE, flaggedonly = FALSE) {
+
+TADA_FlagContinuousData <- function(.data, clean = FALSE, flaggedonly = FALSE, time_difference = 4) {
+  
+  # start.time <- Sys.time()
+  
   # check .data is data.frame
   TADA_CheckType(.data, "data.frame", "Input object")
   # check clean is boolean
@@ -200,26 +204,76 @@ TADA_FindContinuousData <- function(.data, clean = FALSE, flaggedonly = FALSE) {
     stop("Function not executed because clean and flaggedonly cannot both be TRUE")
   }
 
-  # set default flag to "unknown"
-  .data$TADA.AggregatedContinuousData.Flag <- "Discrete"
+  # execute function after checks are passed: flag continuous data and make cont.data data frame
 
-  # execute function after checks are passed
-  # flag continuous data
-  # make cont.data data frame
-  # with new profiles might want to check for zip files? Do these columns show up in TADA_DataRetrieval?
-  cont.data <- .data %>% dplyr::filter((ActivityTypeCode == "Field Msr/Obs" &
-    ResultDetectionConditionText == "Reported in Raw Data (attached)") |
-    (ActivityTypeCode == "Field Msr/Obs" &
-      SampleCollectionEquipmentName == "Probe/Sensor" &
-      !is.na(ResultTimeBasisText) &
-      !is.na(StatisticalBaseCode) &
-      ResultValueTypeName == "Calculated"))
+  # set default flag to "Discrete"
+  .data$TADA.ContinuousData.Flag <- "Discrete"
 
-  # everything not in cont dataframe
+  # once new 3.0 profiles come out, check for zip files in ActivityFileURL and flag data that populates the DataLoggerLine
+  cont.data <- .data %>% dplyr::filter((ActivityTypeCode == "Field Msr/Obs-Continuous Time Series" | # ID cont data with new activity type code from 2023
+    grepl("Continuous", ProjectIdentifier) | # ID cont data by looking for string in project ID
+    grepl("CONTINUOUS", ProjectIdentifier) | # ID cont data by looking for string in project ID
+    (ActivityTypeCode == "Sample-Integrated Time Series" & SampleCollectionEquipmentName == "Probe/Sensor") |
+    (ActivityTypeCode == "Field Msr/Obs-Portable Data Logger" & !is.na(ResultTimeBasisText)) |
+    (ActivityTypeCode == "Field Msr/Obs-Portable Data Logger" & !is.na(StatisticalBaseCode)) |
+    (ActivityTypeCode == "Field Msr/Obs-Portable Data Logger" & ResultValueTypeName == "Calculated") |
+    (ActivityTypeCode == "Field Msr/Obs-Portable Data Logger" & ResultValueTypeName == "Estimated") |
+    # SampleCollectionEquipmentName == "Probe/Sensor" & !is.na(ActivityFileURL) |
+    # (SampleCollectionEquipmentName == "Probe/Sensor" & !is.na(DataLoggerLine)) |
+    (SampleCollectionEquipmentName == "Probe/Sensor" & !is.na(ResultTimeBasisText)) |
+    (SampleCollectionEquipmentName == "Probe/Sensor" & !is.na(StatisticalBaseCode)) |
+    (SampleCollectionEquipmentName == "Probe/Sensor" & ResultValueTypeName == "Calculated") |
+    (SampleCollectionEquipmentName == "Probe/Sensor" & ResultValueTypeName == "Estimated")))
+
+  # everything not YET in cont dataframe
   noncont.data <- subset(.data, !.data$ResultIdentifier %in% cont.data$ResultIdentifier)
 
-  # if there is aggregated continuous data is in the data set
-  if (nrow(cont.data) != 0) {
+  # if time field is not NA, find time difference between results
+  if (length(noncont.data) >= 1) {
+    for (i in 1:nrow(noncont.data)) {
+      if (!is.na(noncont.data$ActivityStartDateTime[i])) {
+          # find samples with the same date, lat/long, organization name, comparable data identifier, and depth
+          info_match <- which(
+            noncont.data$TADA.LatitudeMeasure == noncont.data$TADA.LatitudeMeasure[i] &
+              noncont.data$TADA.LongitudeMeasure == noncont.data$TADA.LongitudeMeasure[i] &
+              noncont.data$OrganizationIdentifier == noncont.data$OrganizationIdentifier[i] &
+              noncont.data$TADA.ComparableDataIdentifier == noncont.data$TADA.ComparableDataIdentifier[i] &
+              ((noncont.data$TADA.ActivityDepthHeightMeasure.MeasureValue == noncont.data$TADA.ActivityDepthHeightMeasure.MeasureValue[i]) | (is.na(noncont.data$TADA.ActivityDepthHeightMeasure.MeasureValue) & is.na(noncont.data$TADA.ActivityDepthHeightMeasure.MeasureValue[i]))) &
+              ((noncont.data$TADA.ResultDepthHeightMeasure.MeasureValue == noncont.data$TADA.ResultDepthHeightMeasure.MeasureValue[i]) | (is.na(noncont.data$TADA.ResultDepthHeightMeasure.MeasureValue) & is.na(noncont.data$TADA.ResultDepthHeightMeasure.MeasureValue[i]))) &
+              ((noncont.data$TADA.ActivityTopDepthHeightMeasure.MeasureValue == noncont.data$TADA.ActivityTopDepthHeightMeasure.MeasureValue[i]) | (is.na(noncont.data$TADA.ActivityTopDepthHeightMeasure.MeasureValue) & is.na(noncont.data$TADA.ActivityTopDepthHeightMeasure.MeasureValue[i]))) &
+              ((noncont.data$TADA.ActivityBottomDepthHeightMeasure.MeasureValue == noncont.data$TADA.ActivityBottomDepthHeightMeasure.MeasureValue[i]) | (is.na(noncont.data$TADA.ActivityBottomDepthHeightMeasure.MeasureValue) & is.na(noncont.data$TADA.ActivityBottomDepthHeightMeasure.MeasureValue[i]))) &
+              ((noncont.data$ActivityRelativeDepthName == noncont.data$ActivityRelativeDepthName[i]) | (is.na(noncont.data$ActivityRelativeDepthName) & is.na(noncont.data$ActivityRelativeDepthName[i])))
+          )
+
+          time_diff <- abs(difftime(noncont.data$ActivityStartDateTime[i], noncont.data$ActivityStartDateTime[info_match], units = "hours"))
+
+          # samples where the time differences is <= time_difference (default is 4 hours)
+          within_window <- info_match[time_diff <= time_difference]
+
+          # keep the samples with times within the window
+          info_match <- intersect(info_match, within_window)
+
+          # if matches are identified change flag to continuous
+          if (length(info_match) >= 1) {
+            noncont.data$TADA.ContinuousData.Flag[info_match] <- "Continuous"
+          }
+      }
+    }
+  }
+  
+  # remove continuous results from noncont.data and create new df for these (more.cont.data)
+  more.cont.data <- noncont.data %>% dplyr::filter(TADA.ContinuousData.Flag == "Continuous")
+
+  # add additional continuous data (more.cont.data) to cont.data
+  all.cont.data <- plyr::rbind.fill(cont.data, more.cont.data)
+
+  # filter noncont.data to ONLY discrete results
+  noncont.data <- noncont.data %>% dplyr::filter(TADA.ContinuousData.Flag == "Discrete")
+
+  # if there is continuous data in the data set
+  
+  # flag output
+  if (nrow(all.cont.data) != 0) {
     # change contents of ContDataFlag column
     cont.data$TADA.AggregatedContinuousData.Flag <- "Continuous"
     # join cont.data to flag.data
@@ -228,6 +282,11 @@ TADA_FindContinuousData <- function(.data, clean = FALSE, flaggedonly = FALSE) {
     # flagged output, all data
     if (clean == FALSE & flaggedonly == FALSE) {
       flag.data <- TADA_OrderCols(flag.data)
+
+      # end.time <- Sys.time()
+      # time.taken <- round(end.time - start.time, 2)
+      # print(time.taken)
+
       return(flag.data)
     }
 
@@ -239,15 +298,26 @@ TADA_FindContinuousData <- function(.data, clean = FALSE, flaggedonly = FALSE) {
       # remove TADA.AggregatedContinuousData column
       # clean.data <- dplyr::select(clean.data, -TADA.AggregatedContinuousData.Flag)
       clean.data <- TADA_OrderCols(clean.data)
+
+      # end.time <- Sys.time()
+      # time.taken <- round(end.time - start.time, 2)
+      # print(time.taken)
+
       return(clean.data)
     }
 
     # flagged output, only aggregated continuous data
     if (clean == FALSE & flaggedonly == TRUE) {
       # filter to show only invalid characteristic-unit-media combinations
-      aggcont.data <- dplyr::filter(flag.data, TADA.AggregatedContinuousData.Flag == "Continuous")
-      aggcont.data <- TADA_OrderCols(aggcont.data)
-      return(aggcont.data)
+
+      onlycont.data <- dplyr::filter(flag.data, TADA.ContinuousData.Flag == "Continuous")
+      onlycont.data <- TADA_OrderCols(onlycont.data)
+
+      # end.time <- Sys.time()
+      # time.taken <- round(end.time - start.time, 2)
+      # print(time.taken)
+
+      return(onlycont.data)
     }
   }
 
@@ -256,13 +326,24 @@ TADA_FindContinuousData <- function(.data, clean = FALSE, flaggedonly = FALSE) {
     if (flaggedonly == FALSE) {
       print("No evidence of aggregated continuous data in your dataframe. Returning the input dataframe with TADA.AggregatedContinuousData.Flag column for tracking.")
       .data <- TADA_OrderCols(.data)
+
+      # end.time <- Sys.time()
+      # time.taken <- round(end.time - start.time, 2)
+      # print(time.taken)
+
       return(.data)
     }
 
     if (flaggedonly == TRUE) {
       print("This dataframe is empty because we did not find any aggregated continuous data in your dataframe")
-      cont.data <- TADA_OrderCols(cont.data)
-      return(cont.data)
+
+      all.cont.data <- TADA_OrderCols(all.cont.data)
+
+      # end.time <- Sys.time()
+      # time.taken <- round(end.time - start.time, 2)
+      # print(time.taken)
+
+      return(all.cont.data)
     }
   }
 }
