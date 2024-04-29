@@ -64,8 +64,8 @@ test_that("No NA's in independent flag columns", {
   testdat <- suppressWarnings(TADA_FlagMethod(testdat, clean = FALSE, flaggedonly = FALSE))
   expect_false(any(is.na(testdat$TADA.AnalyticalMethod.Flag)))
 
-  testdat <- TADA_FindContinuousData(testdat, clean = FALSE, flaggedonly = FALSE)
-  expect_false(any(is.na(testdat$TADA.AggregatedContinuousData.Flag)))
+  testdat <- TADA_FlagContinuousData(testdat, clean = FALSE, flaggedonly = FALSE)
+  expect_false(any(is.na(testdat$TADA.ContinuousData.Flag)))
 
   testdat <- TADA_FlagAboveThreshold(testdat, clean = FALSE, flaggedonly = FALSE)
   expect_false(any(is.na(testdat$TADA.ResultValueAboveUpperThreshold.Flag)))

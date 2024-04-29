@@ -24,9 +24,11 @@ editor_options:
 ```{r setup, include=FALSE}
 library(knitr)
 
-knitr::opts_chunk$set(echo = TRUE,
-               warning = FALSE,
-               message = FALSE)
+knitr::opts_chunk$set(
+  echo = TRUE,
+  warning = FALSE,
+  message = FALSE
+)
 ```
 
 ## Welcome!
@@ -71,7 +73,16 @@ console).
 
 ```{r install_TADA, eval = FALSE, results = 'hide'}
 remotes::install_github("USEPA/TADA",
-  ref = "vignette_visualizations",
+  ref = "develop",
+  dependencies = TRUE
+)
+```
+
+```{r for-development-only, eval = FALSE, echo = F, results = 'hide'}
+# IF YOU ARE NOT DEVELOPING TADA, SKIP THIS CODE CHUNK
+# when developing the package, update this chunk to the current repository branch, so it runs with all of the new features prior to a PR to develop
+remotes::install_github("USEPA/TADA",
+  ref = "contdataupdates_cm",
   dependencies = TRUE
 )
 ```
@@ -124,7 +135,7 @@ the state or tribe, these assessment units can be a specific point or
 series of points along a waterbody such as a river or lake, a river
 reach (line), an entire waterbody such as a river or lake (polygon), or
 even an entire watershed. In other words, assessment units can take the
-form of point, line, and area (oplygon) features, or some combination of
+form of point, line, and area (polygon) features, or some combination of
 all of them. Moreover, it is possible that some assessment units are not
 geospatially referenced at all, meaning they are not captured in the
 ATTAINS geospatial database.
@@ -259,7 +270,7 @@ ATTAINS features associated with these TADA Water Quality Portal
 observations stored in a list with the TADA dataframe.
 
 Now, let's select specific columns from the TADA_with_ATTAINS dataframe,
-and create a new datafream with ONLY the unique combinations of WQP
+and create a new dataframe with ONLY the unique combinations of WQP
 MonitoringLocationIdentifier's and ATTAINS Assessment Unit Identifiers.
 
 ```{r}
@@ -295,6 +306,6 @@ Let's view the data associated with our `TADA_with_ATTAINS_list` object!
 Enter `?TADA_ViewATTAINS` into the console to review another example
 query and additional information.
 
-```{r fig.cap="ATTAINS Assessment Units and WQP Monitoring Locations", fig.height=7}
+```{r, fig.height=7}
 TADA_ViewATTAINS(TADA_with_ATTAINS_list)
 ```

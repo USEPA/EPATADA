@@ -49,7 +49,7 @@ edited/customized by users. Nutrient equations are as follows:
 NITROGEN:
 \enumerate{
 \item TOTAL N (UNFILTERED)
-\item TOTAL N (FILTERED) + TOTAL N (PARTICULE)
+\item TOTAL N (FILTERED) + TOTAL N (PARTICULATE)
 \item TOTAL KJELDAHL NITROGEN + NITRATE + NITRITE
 \item ORGANIC N + AMMONIA + NITRATE + NITRITE
 \item OTHER NITROGEN FORMS
