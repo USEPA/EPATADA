@@ -183,8 +183,8 @@ TADA_CreateUnitRef <- function(.data){
 #'
 #' ResultUnitsConverted <- (Data_Nutrients_UT)
 #'
-#' # Do not convert result values and units, but add three new columns titled
-#' # "TADA.WQXUnitConversionFactor", "TADA.WQXTargetUnit", and "TADA.SpeciationUnitConversion":
+#' # Do not convert result values and units, but add four new columns titled
+#' # "TADA.WQXUnitConversionFactor", "TADA.WQXUnitConversionCoefficient", "TADA.WQXTargetUnit", and "TADA.SpeciationUnitConversion":
 #' ResultUnitsNotConverted <- TADA_ConvertResultUnits(Data_Nutrients_UT, transform = FALSE, detlimit = FALSE)
 #'
 #' #' # Convert values and units for results and detection limits:
@@ -264,8 +264,8 @@ TADA_ConvertResultUnits <- function(.data, ref = "tada", transform = TRUE, detli
           print(paste("TADA_ConvertResultUnits: The following CharacteristicName and ResultMeasure.MeasureUnitCode combinations are not included in the user-supplied unit reference data frame: ", 
                       compare.list, 
                       ". Consider revising the user-supplied unit reference data frame and running TADA_ConvertResultUnits again.", sep = ""))
+    }
   }
-  
   # if no unit reference df was provided by user or user input was "tada"
   if (!is.data.frame(ref)) {
     if (ref == "tada") {
@@ -300,10 +300,13 @@ TADA_ConvertResultUnits <- function(.data, ref = "tada", transform = TRUE, detli
   # rename unit.ref columns
   unit.ref <- unit.ref %>%
     dplyr::rename(TADA.CharacteristicName = CharacteristicName,
-                  TADA.ResultMeasure.MeasureUnitCode = Code)
+                  TADA.ResultMeasure.MeasureUnitCode = Code,
+                  TADA.SpeciationUnitConversion = Target.Speciation)
   
   # join unit.ref to .data
   check.data <- .data %>%
+    dplyr::select(-TADA.WQXConversionFactor,
+                  -TADA.WQXUnitConversionCoefficient) %>%
     dplyr::left_join(unit.ref, by = c("TADA.CharacteristicName",
                                       "TADA.ResultMeasure.MeasureUnitCode"),
                      relationship = "many-to-many")
@@ -312,8 +315,7 @@ TADA_ConvertResultUnits <- function(.data, ref = "tada", transform = TRUE, detli
   flag.data <- check.data %>%
     dplyr::rename(TADA.WQXTargetUnit = Target.Unit,
                   TADA.WQXUnitConversionFactor = Conversion.Factor,
-                  TADA.WQXUnitConversionCoefficient = Conversion.Coefficient,
-                  TADA.SpeciationUnitConversion = Target.Speciation)
+                  TADA.WQXUnitConversionCoefficient = Conversion.Coefficient)
 
 
   # add TADA.WQXResultUnitConversion column
