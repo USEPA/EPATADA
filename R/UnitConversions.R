@@ -107,13 +107,28 @@ TADA_CreateUnitRef <- function(.data){
                                            "CharUnit")) %>%
     dplyr::group_by(CharacteristicName) %>%
     dplyr::mutate(NConvert = length(unique(Target.Unit))) %>%
-    dplyr::filter(NConvert == 1 |
-                    (NConvert > 1 & is.na(Code))) %>%
-    dplyr::ungroup() %>%
-    dplyr::group_by(CharacteristicName, Code) %>%
-    dplyr::slice_head() %>%
-    dplyr::select(-CharUnit, -Last.Change.Date, -Domain,
-                  -Unique.Identifier, -Description, -NConvert)
+    dplyr::ungroup()
+  
+  # Identify characteristics with multiple target units identified
+  mult.target.chars <- comb.convert %>%
+    dplyr::filter(NConvert > 1)
+  
+  if(nrow(mult.target.chars) > 0){
+    
+    mult.target.list <- mult.target.chars %>%
+      dplyr::select(CharacteristicName, Target.Unit) %>%
+      dplyr::group_by(CharacteristicName) %>%
+      dplyr::mutate(MultUnits = paste(Target.Unit, collapse = ", "),
+                    MultUnits = stringi::stri_replace_last(MultUnits,replacement = " and ", fixed = ", ")) %>%
+      dplyr::ungroup() %>%
+      dplyr::mutate(CharList = paste(CharacteristicName, " (", MultUnits, ")", sep = "")) %>%
+      dplyr::select(CharList) %>%
+      dplyr::distinct() %>%
+      dplyr::pull() 
+      
+    
+  }
+   
   
   # Remove intermediate objects
   rm(other.targets, tada.targets)
