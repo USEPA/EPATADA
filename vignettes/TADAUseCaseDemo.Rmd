@@ -11,11 +11,12 @@ vignette: >
   %\VignetteEncoding{UTF-8}
 params:
   waterbodyname: "Mississippi River"
+  state: "IL"
   assessmentunitid: "IL_I-84"
-  characteristicname: "Lead"
+  characteristictype: "Nutrient"
   wqstandard: 5
   wqsunits: "ug/L"
-  huc: "0714010505,0714010504,0714010508,0714010501,0714010503"
+  #huc: "0714010505,0714010504,0714010508,0714010501,0714010503"
   startdate: "2010-01-01"
   enddate: "2020-12-31"
   
@@ -65,14 +66,24 @@ start.time <- Sys.time()
 
 ```
 
+## Overview
+
+This vignette walks
+
 ```{r TADA_DataRetrieval}
 # Import data from WQP
 
-data <- TADA_DataRetrieval(startDate = params$startdate, 
+data <- TADA_DataRetrieval(statecode = params$state,
+                           startDate = params$startdate, 
                            endDate = params$enddate, 
                            applyautoclean = TRUE,
-                           huc = as.list(el(strsplit(params$huc, ","))),
-                           characteristicName = params$characteristicname)
+                           characteristicName = c("Ammonia", "Phosphorus", "Nitrate", "Nitrogen"))
+                           #huc = as.list(el(strsplit(params$huc, ","))),
+                           #characteristicType = params$characteristictype)
+
+# Remove non-water data
+Analysis_data <- data %>%
+  dplyr::filter(TADA.ActivityMedia == "WATER")
 ```
 
 ```{r TADA_GetAttains}
@@ -105,6 +116,9 @@ AUID_data <- ATTAINS_data$TADA_with_ATTAINS %>%
 ```
 
 ```{r Data Wrangling, Preperation, QC, Unit Conversion, Harmonization}
+
+Analysis
+
 # Import data from WQP
 
 Analysis_data <- AUID_data %>%
@@ -138,28 +152,6 @@ Analysis_data <- Analysis_data %>%
 
   
 ```
-
-water data. The **TADA_AnalysisDataFilter** function can assist in
-identifying results of interest. Multiple columns are used to identify
-groundwater results as different organizations may populate different
-combinations of fields in order to identify a result as groundwater.
-
-This function identifies surface water, groundwater, and sediment
-results. Users can specify whether all results should be returned with a
-new column, *TADA.UseForAnalysis.Flag*,identifying if the result should
-be included in further analysis or if only results that should be in
-included are returned.
-
-The defaults are to include surface water, exclude groundwater and
-sediment, and to return only the results that should be used for
-analysis (clean = TRUE). This is shown in the active example below. If
-you would like to see all results with the *TADA.UseForAnalysis.Flag*
-column, you can uncomment the example where clean = FALSE.
-
-If you are not interested in using **TADA_AnalysisDataFilter**, but
-would like to filter by activity media, uncomment the example to filter
-for water data only by using dplyr::filter() with
-TADA.ActivityMediaName.
 
 ```{r AnalysisDataFilter}
 # Filter to retain only results for use in analysis
