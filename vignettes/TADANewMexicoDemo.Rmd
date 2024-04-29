@@ -6,12 +6,12 @@ author: "TADA Team"
 date: "`r Sys.Date()`"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{TADA: Mississippi River Use Case Demo}
+  %\VignetteIndexEntry{TADA: New Mexico Use Case Demo}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 params:
-  waterbodyname: "Mississippi River"
-  state: "IL"
+  waterbodyname: "San Juan River"
+  state: "NM"
   assessmentunitid: "IL_J-36"
   characteristictype: "Nutrient"
   wqstandard: 15
@@ -455,15 +455,16 @@ group.
 
 # filter dataframe to comparable data identifier of interest
 
-CompDataID_data <- dplyr::filter(Harmonized_data, TADA.ComparableDataIdentifier == "AMMONIA_TOTAL RECOVERABLE_AS N_mg/L")
+CompDataID_data <- dplyr::filter(Analysis_data, TADA.ComparableDataIdentifier == "AMMONIA_TOTAL RECOVERABLE_AS N_mg/L")
 
 # generate stats table
-CompDataID_data_stats <- TADA::TADA_Stats(TADAProfileCleanTP)
+CompDataID_data_stats <- TADA::TADA_Stats(Analysis_data)
 
 CompDataID_data_stats
 
 # generate a histogram
-CompDataID_Histogram <- TADA_Histogram(TADAProfileCleanTP, id_cols = "TADA.ComparableDataIdentifier")
+CompDataID_Histogram <- TADA_Histogram(Analysis_data, id_cols = "TADA.ComparableDataIdentifier") %>%
+  
 
 # view histogram
 CompDataID_Histogram
@@ -473,6 +474,18 @@ Generate interactive box plot.
 
 ```{r boxplot, fig.width=8, fig.height=6, fig.fullwidth=TRUE}
 TP_Boxplot <- TADA::TADA_Boxplot(Analysis_data, id_cols = "TADA.ComparableDataIdentifier") %>%
+  
+  
+  
+  vline <- function(x = params$wqstandard, color = "red"){
+    list(type = "line",
+         y0 = 0,
+         y1 = 1,
+         yref = "paper",
+         x0 = x,
+         x1 = 15,
+         line = list(color = "red")))
+  }
   
 
 TP_Boxplot
