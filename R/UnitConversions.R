@@ -106,7 +106,7 @@ TADA_CreateUnitRef <- function(.data){
                                            "Conversion.Factor", "Conversion.Coefficient",
                                            "CharUnit")) %>%
     dplyr::group_by(CharacteristicName) %>%
-    dplyr::mutate(NConvert = length(Code)) %>%
+    dplyr::mutate(NConvert = length(unique(Target.Unit))) %>%
     dplyr::filter(NConvert == 1 |
                     (NConvert > 1 & is.na(Code))) %>%
     dplyr::ungroup() %>%
