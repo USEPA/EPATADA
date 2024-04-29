@@ -157,7 +157,7 @@ TADA_FieldCounts <- function(.data, display = c("key", "most", "all"), character
       "TADA.TotalN_TotalP_CharacteristicNames_AfterSummation",
       "TADA.TotalN_TotalP_Summation_Identifier",
       "TADA.TotalN_TotalP_ComboLogic",
-      "TADA.AggregatedContinuousData.Flag",
+      "TADA.ContinuousData.Flag",
       "TADA.ResultMeasureValue",
       "TADA.ResultMeasureValueDataTypes.Flag",
       "TADA.MeasureQualifierCode.Def",
