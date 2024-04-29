@@ -114,7 +114,7 @@ values are not averaged, but are flagged.</p></dd>
 
 <p>Returns the original dataframe with two new columns: the input column
 with the prefix "TADA.", which holds the numeric form of the original column,
-and "TADA.ResultValueDataTypes.Flag", which has text describing the type of data
+and "TADA.COLUMN NAME DataTypes.Flag", which has text describing the type of data
 contained within the column of interest, including "Numeric","Less Than" (&lt;), "Greater Than" (&gt;),
 "Approximate Value" (~), "Text" (A-z), "Percentage" (%), "Comma-Separated Numeric" (#,###),
 and "Numeric Range - Averaged" (# - #)</p>
@@ -126,9 +126,11 @@ and "Numeric Range - Averaged" (# - #)</p>
 <span class="r-in"><span><span class="va">HandleSpecialChars_ResultMeasureValue</span> <span class="op">&lt;-</span> <span class="fu">TADA_ConvertSpecialChars</span><span class="op">(</span><span class="va">Data_Nutrients_UT</span>, <span class="st">"ResultMeasureValue"</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/unique.html" class="external-link">unique</a></span><span class="op">(</span><span class="va">HandleSpecialChars_ResultMeasureValue</span><span class="op">$</span><span class="va">TADA.ResultMeasureValueDataTypes.Flag</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] "NA - Not Available" "Numeric"            "Text"              </span>
+<span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="va">HandleSpecialChars_DetLimMeasureValue</span> <span class="op">&lt;-</span> <span class="fu">TADA_ConvertSpecialChars</span><span class="op">(</span><span class="va">Data_Nutrients_UT</span>, <span class="st">"TADA.DetectionQuantitationLimitMeasure.MeasureValue"</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/unique.html" class="external-link">unique</a></span><span class="op">(</span><span class="va">HandleSpecialChars_DetLimMeasureValue</span><span class="op">$</span><span class="va">TADA.DetectionQuantitationLimitMeasure.MeasureValueDataTypes.Flag</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] "Numeric"            "NA - Not Available"</span>
+<span class="r-in"><span></span></span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc"><h2>On this page</h2>

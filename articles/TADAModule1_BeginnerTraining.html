@@ -76,7 +76,7 @@
       <img src="" class="logo" alt=""><h1>TADA Module 1: Training for Beginner R Users</h1>
                         <h4 data-toc-skip class="author">TADA Team</h4>
             
-            <h4 data-toc-skip class="date">2024-04-24</h4>
+            <h4 data-toc-skip class="date">2024-04-29</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/USEPA/TADA/blob/HEAD/vignettes/TADAModule1_BeginnerTraining.Rmd" class="external-link"><code>vignettes/TADAModule1_BeginnerTraining.Rmd</code></a></small>
       <div class="d-none name"><code>TADAModule1_BeginnerTraining.Rmd</code></div>
@@ -424,7 +424,7 @@ most results?</strong></p>
 <div class="section level3">
 <h3 id="continuous-time-series-data">Continuous Time Series Data<a class="anchor" aria-label="anchor" href="#continuous-time-series-data"></a>
 </h3>
-<p><strong>TADA_FindContinuousData</strong> flags high frequency time
+<p><strong>TADA_FlagContinuousData</strong> flags high frequency time
 series (i.e., continuous) data, if present.</p>
 <p>Continuous data and daily statistics calculated from continuous data
 (avg, max, or min value over daily or other intervals), may (or may not)
@@ -438,7 +438,7 @@ continuous data.</p>
 <p>An additional input called flaggedonly will allow the user to filter
 data to show only rows of continuous data.</p>
 <div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">R5ProfileClean1</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/TADA_FindContinuousData.html">TADA_FindContinuousData</a></span><span class="op">(</span><span class="va">R5Profile</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="va">R5ProfileClean1</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/TADA_FlagContinuousData.html">TADA_FlagContinuousData</a></span><span class="op">(</span><span class="va">R5Profile</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level3">
 <h3 id="wqx-quality-assurance-and-quality-control-qaqc-service-result-flags">WQX Quality Assurance and Quality Control (QAQC) Service Result

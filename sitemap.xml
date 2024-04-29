@@ -106,9 +106,6 @@
     <loc>usepa.github.io/TADA/reference/TADA_FieldValuesTable.html</loc>
   </url>
   <url>
-    <loc>usepa.github.io/TADA/reference/TADA_FindContinuousData.html</loc>
-  </url>
-  <url>
     <loc>usepa.github.io/TADA/reference/TADA_FindNearbySites.html</loc>
   </url>
   <url>
@@ -131,6 +128,9 @@
   </url>
   <url>
     <loc>usepa.github.io/TADA/reference/TADA_FlagBelowThreshold.html</loc>
+  </url>
+  <url>
+    <loc>usepa.github.io/TADA/reference/TADA_FlagContinuousData.html</loc>
   </url>
   <url>
     <loc>usepa.github.io/TADA/reference/TADA_FlagCoordinates.html</loc>
