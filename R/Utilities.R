@@ -1081,7 +1081,6 @@ writeLayer <- function(url, layerfilepath) {
 #' @param bbox A bounding box from the sf function st_bbox; used to filter the query results. Optional; defaults to NULL.
 #' @return sf object containing the layer
 #' 
-#' @export
 #'
 #' @examples
 #' \dontrun{
@@ -1109,8 +1108,6 @@ getLayer <- function(layerfilepath, bbox = NULL) {
 #' @param layer A map feature layer
 #' @param layername Name of the layer
 #' @return Vector of strings to be used as the text for the popups when clicking on a tribal marker
-#' 
-#' @export
 #' 
 #' @examples
 #' \dontrun{
