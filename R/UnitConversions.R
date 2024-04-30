@@ -688,7 +688,7 @@ TADA_ConvertDepthUnits <- function(.data,
   length.ref <- utils::read.csv(system.file("extdata", "TADAPriorityCharConvertRef.csv", package = "TADA"))
 
   # subset to include only "Length Distance" units; filter by target unit defined in 'unit' argument
-  length.ref <- tada.ref %>%
+  length.ref <- length.ref %>%
     dplyr::filter(Code %in% c("Angst", "cm", "dm", "feet", "ft", "in", "km", "m",
                               "mi", "mm", "nm", "nmi", "yd")) %>%
     dplyr::filter(Target.Unit == unit)
@@ -716,7 +716,7 @@ TADA_ConvertDepthUnits <- function(.data,
     names(check.data)[names(check.data) == "new"] <- unitCol2
 
     # Join conversion factor from unit.ref to .data by unitCol
-    check.data <- merge(check.data, unit.ref[, c("Code", "Conversion.Factor")],
+    check.data <- merge(check.data, length.ref[, c("Code", "Conversion.Factor")],
       by.x = unitCol2,
       by.y = "Code",
       all.x = TRUE,
