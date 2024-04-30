@@ -104,8 +104,14 @@ TADA_CreateUnitRef <- function(.data){
     dplyr::filter(!is.na(Target.Unit)) %>%
     dplyr::left_join(tada.unit.ref,  by = c("Code", "Target.Unit"),
                                             relationship = "many-to-many") %>%
+    dplyr::left_join(unit.ref, by = c("Code", "Target.Unit"),
+                                      relationship = "many-to-many") %>%
     dplyr::mutate(CharUnit = paste(CharacteristicName, "_", Code, sep = "")) %>%
-    dplyr::filter(!is.na(Conversion.Factor))
+    dplyr::filter(!is.na(Conversion.Factor)) %>%
+    dplyr::select("CharacteristicName", "Code",
+                  "Target.Unit", "Last.Change.Date",
+                  "Conversion.Factor", "Conversion.Coefficient",
+                  "Target.Speciation", "CharUnit")
   
   # Remove intermediate objects
   rm(tada.char.ref, tada.unit.ref)
@@ -115,14 +121,17 @@ TADA_CreateUnitRef <- function(.data){
     dplyr::mutate(CharUnit = paste(CharacteristicName, "_", Code, sep = "")) %>%
     dplyr::filter(!CharUnit %in% tada.targets$CharUnit) %>%
     dplyr::left_join(unit.ref, by = "Code", relationship = "many-to-many") %>%
-    dplyr::select(colnames(tada.targets))
+    dplyr::select("CharacteristicName", "Code",
+                  "Target.Unit", "Last.Change.Date",
+                  "Conversion.Factor", "Conversion.Coefficient",
+                  "Target.Speciation", "CharUnit")
   
   # Join priority units and other units to create comprehensive unit ref table
   comb.convert <- tada.targets %>%
     dplyr::full_join(other.targets, by = c("CharacteristicName", "Code",
                                            "Target.Unit", "Last.Change.Date",
                                            "Conversion.Factor", "Conversion.Coefficient",
-                                           "CharUnit")) %>%
+                                           "Target.Speciation", "CharUnit")) %>%
     dplyr::group_by(CharacteristicName) %>%
     dplyr::mutate(NConvert = length(unique(Target.Unit))) %>%
     dplyr::ungroup()
@@ -148,8 +157,6 @@ TADA_CreateUnitRef <- function(.data){
       stringi::stri_replace_last(replacement = " and ", fixed = "; ")
     
     print(paste("TADA.CreateUnitRef: The following characteristics have more than one listed target unit: ", mult.target.list, ". This may be due to units of different types that cannot be converted to match each other. You may wish to review the output of TADA.CreateUnitRef and edit it.", sep = ""))
-      
-    
   }
    
   
