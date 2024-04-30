@@ -8,11 +8,10 @@
 #'
 #' @param .data TADA dataframe
 #
-#' @return A dataframe with seven columns: CharacteristicName,
-#' Code, Target.Unit, ConversionFactor, and
-#' ConversionCoefficient.The number of rows will vary based on the number of
-#' unique CharacteristicName/ResultMeasure.MeasureUnitCode combinations in the
-#' initial TADA dataframe.
+#' @return A dataframe with six columns: CharacteristicName, Code, Target.Unit, 
+#' ConversionFactor, ConversionCoefficient, and Target.Speciation.The number of 
+#' rows will vary based on the number of unique CharacteristicName/
+#' ResultMeasure.MeasureUnitCode combinations in the initial TADA dataframe.
 #' @export
 #'
 #' @examples
@@ -246,10 +245,23 @@ TADA_CreateUnitRef <- function(.data) {
 #' @param .data TADA dataframe
 #'
 #' @param transform Boolean argument with two possible values, “TRUE” and “FALSE”.
-#' Default is transform = TRUE.
+#' Default is transform = TRUE.When transform = TRUE, result values and units are 
+#' converted to WQX target units. This function changes the values within 
+#'"TADA.ResultMeasure.MeasureUnitCode" to the WQX target units and converts
+#' respective values within the "TADA.ResultMeasureValue" field.
+#' 
+#' When transform = FALSE, result values and units are NOT converted to WQX target units,
+#' but columns are appended to indicate what the target units and conversion factors are,
+#' and if the data can be converted. This function adds the following four fields ONLY
+#' when transform = FALSE: "TADA.WQXUnitConversionFactor", "TADA.WQXTargetUnit",
+#' "TADA.SpeciationUnitConversion", and "TADA.WQXResultUnitConversion.
 #'
 #' @param detlimit Boolean argument with two possible values, "TRUE" and "FALSE".
-#' Default is detlimit = TRUE.
+#' Default is detlimit = TRUE. When detlimit = TRUE, detection limit values and 
+#' units are converted to WQX target units. This function changes the
+#' "TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode" to the WQX target
+#' units and converts respective values within the 
+#' "TADA.DetectionQuantitationLimitMeasure.MeasureValue" field.
 #'
 #' @param ref Optional character argument in which a user can specify a data frame
 #' by name. Data frame must contain the columns CharacteristicName, Unit, and TargetUnit.
@@ -260,32 +272,16 @@ TADA_CreateUnitRef <- function(.data) {
 #' units (where appplicable), with any other units assigned by WQX unit reference.
 #' The default is ref = "tada".
 #'
-#' @return When transform = TRUE, result values and units are converted to WQX
-#'   target units. This function changes the values within the
-#'   "TADA.ResultMeasure.MeasureUnitCode" to the WQX target units and converts
-#'   respective values within the "TADA.ResultMeasureValue" field.
-#'   When detlimit = TRUE, detection limit values and units are converted to WQX
-#'   target units. This function changes the
-#'   "TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode" to the WQX target
-#'   units and converts respective values within the
-#'   "TADA.DetectionQuantitationLimitMeasure.MeasureValue" field.
-#'
-#' When transform = FALSE, result values and units are NOT converted to WQX target units,
-#' but columns are appended to indicate what the target units and conversion factors are,
-#' and if the data can be converted. This function adds the following four fields ONLY
-#' when transform = FALSE: "TADA.WQXUnitConversionFactor", "TADA.WQXTargetUnit",
-#' "TADA.SpeciationUnitConversion", and "TADA.WQXResultUnitConversion.
-#'
-#' "TADA.WQXResultUnitConversion" indicates if data can be converted."NoResultValue" means
-#' data cannot be converted because there is no ResultMeasureValue, and "NoTargetUnit"
-#' means data cannot be converted because the original unit is not associated with
-#' a target unit in WQX. "Convert" means the data can be transformed.
-#'
-#' When detlimit = FALSE, values and units for detection limit are not converted to WQX
-#' target units and no additional fields related to detection limit values or units
-#'  are added to the input dataframe.
-#'
-#'  When
+#' @return A TADA dataframe. Depending on the arguments entered by the user, the
+#' number of columns returned may differ. When transform = TRUE, TADA.ResultMeasureValue
+#' and TADA.ResultMeasure.MeasureUnitCode are converted to target units. When transform =
+#' FALSE, "TADA.WQXUnitConversionFactor", "TADA.WQXTargetUnit",
+#' "TADA.SpeciationUnitConversion" are added. With either transform argument,
+#' "TADA.WQXResultUnitCoversion" is added. It indicates if data can be converted.
+#' "NoResultValue" means data cannot be converted because there is no 
+#' ResultMeasureValue, and "NoTargetUnit"means data cannot be converted because 
+#' the original unit is not associated witha target unit. "Convert" means the data 
+#' can be transformed.
 #'
 #' @export
 #'
@@ -462,9 +458,6 @@ TADA_ConvertResultUnits <- function(.data, ref = "tada", transform = TRUE, detli
         !is.na(TADA.WQXTargetUnit) ~ ((TADA.ResultMeasureValue + TADA.WQXUnitConversionCoefficient) * TADA.WQXUnitConversionFactor),
         is.na(TADA.WQXTargetUnit) ~ TADA.ResultMeasureValue
       ))
-
-    # Format TADA.ResultMeasureValue
-    # clean.data$TADA.ResultMeasureValue <- format(clean.data$TADA.ResultMeasureValue, scientific = FALSE)
 
     # populate ResultMeasure.MeasureUnitCode
     clean.data <- clean.data %>%

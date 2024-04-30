@@ -10,8 +10,8 @@ TADA_CreateUnitRef(.data)
 \item{.data}{TADA dataframe}
 }
 \value{
-A dataframe with five columns: CharacteristicName,
-ResultMeasure.MeasureUnitCode, Target.Unit, ConversionFactor, and
+A dataframe with seven columns: CharacteristicName,
+Code, Target.Unit, ConversionFactor, and
 ConversionCoefficient.The number of rows will vary based on the number of
 unique CharacteristicName/ResultMeasure.MeasureUnitCode combinations in the
 initial TADA dataframe.
