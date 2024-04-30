@@ -147,7 +147,6 @@ OrganizationFormalName
 OrganizationIdentifier
 OutsideUSA
 OverviewMap
-PARTICULE
 POJOAQUE
 PUEBLOOFTESUQUE
 PairReplicates
@@ -222,6 +221,7 @@ TADADataRetrieval
 TADAGeospatialRefLayers
 TADAModule
 TADAPackageDemo
+TADAProfile
 TADAShiny
 TMDL
 Tesuque
