@@ -684,7 +684,7 @@ TADA_ConvertDepthUnits <- function(.data,
     "TADA.WQXConversionFactor.ResultDepthHeightMeasure"
   )
 
-  # read in unit conversion reference table from extdata
+  # read in unit conversion reference table from extdata, created by HRM on 4/30/2024
   length.ref <- utils::read.csv(system.file("extdata", "TADAPriorityCharConvertRef.csv", package = "TADA"))
 
   # subset to include only "Length Distance" units; filter by target unit defined in 'unit' argument
