@@ -4,7 +4,12 @@ format: html
 editor: visual
 author: "TADA Team"
 date: "`r Sys.Date()`"
-output: rmarkdown::html_vignette
+output: 
+  rmarkdown::html_vignette:
+    toc: true
+    fig_caption: yes
+    fig_height: 8
+    fig_width: 8
 vignette: >
   %\VignetteEncoding{UTF-8}
   %\VignetteIndexEntry{TADA Module 1: Training for Beginner R Users}
@@ -17,14 +22,16 @@ editor_options:
 ---
 
 ```{r setup, include = FALSE}
+library(knitr)
+
 knitr::opts_chunk$set(
-  collapse = TRUE,
-  comment = "#>",
-  eval = FALSE
+  echo = TRUE,
+  warning = FALSE,
+  message = FALSE
 )
 ```
 
-```{css, echo=FALSE}
+```{css, echo = F}
 pre {
   max-height: 300px;
   overflow-y: auto;
@@ -60,7 +67,7 @@ collaboration with external partners.**
 First, install and load the remotes package specifying the repo. This is
 needed before installing TADA because it is only available on GitHub.
 
-```{r install_remotes, eval = F, results = 'hide', message = FALSE, warning = FALSE}
+```{r install_remotes, results = 'hide'}
 install.packages("remotes",
   repos = "http://cran.us.r-project.org"
 )
@@ -74,24 +81,20 @@ packages that have more recent versions available. If you see this
 prompt, it is recommended to update all of them (enter 1 into the
 console).
 
-```{r install_TADA, eval = F, results = 'hide', message = FALSE, warning = FALSE}
+```{r install_TADA, eval = F, results = 'hide'}
 remotes::install_github("USEPA/TADA",
   ref = "develop",
   dependencies = TRUE
 )
 
 # remotes::install_github("USGS-R/dataRetrieval", dependencies=TRUE)
-
-# if you experience any issues installing TADA, try un-commenting and running
-# the line below before the install
-# options(download.file.method = "wininet")
 ```
 
-```{r for-development-only, echo = F, results = 'hide', message = FALSE, warning = FALSE}
+```{r for-development-only, echo = F, results = 'hide'}
 # IF YOU ARE NOT DEVELOPING TADA, SKIP THIS CODE CHUNK
 # when developing the package, update this chunk to the current repository branch, so it runs with all of the new features prior to a PR to develop
 remotes::install_github("USEPA/TADA",
-  ref = "contdataupdates_cm",
+  ref = "cm-4.29.24",
   dependencies = TRUE
 )
 ```
@@ -99,7 +102,7 @@ remotes::install_github("USEPA/TADA",
 Finally, use the **library()** function to load the TADA R Package into
 your R session.
 
-```{r library, results = 'hide', message = FALSE, warning = FALSE}
+```{r library, results = 'hide'}
 library(TADA)
 ```
 
@@ -112,7 +115,7 @@ the GitHub site. Users can also access the help page for a given
 function in R or RStudio using the following format (example below):
 `?TADA::[name of TADA function]`
 
-```{r help_pages, message = FALSE}
+```{r help_pages}
 # Access help page for TADA_DataRetrieval
 ?TADA_DataRetrieval
 ```
@@ -226,7 +229,7 @@ Portal Query.*
 
 **Question 1: How many results did TADA_DataRetrieval return?**
 
-```{r question1, echo = FALSE}
+```{r question1}
 # Determine number of rows in the data set
 R5_nresults <- nrow(R5Profile)
 ```
@@ -260,7 +263,7 @@ FieldValues_ActMedia <- TADA_FieldValuesTable(R5Profile, field = "ActivityMediaN
 **Question 2: How many unique 'ActivityMediaName' values exist in your
 dataset? Are there any media types that are not water?**
 
-```{r question2, echo = FALSE}
+```{r question2}
 n_media <- length(unique(FieldValues_ActMedia$Value))
 
 unique_media <- FieldValues_ActMedia %>%
@@ -316,7 +319,7 @@ FieldValues_AnalysisFlag <- TADA_FieldValuesTable(R5Profile, field = "TADA.UseFo
 **Question 3: How many SURFACE WATER results can we retain for further
 analysis**
 
-```{r question3, echo = FALSE}
+```{r question3}
 # Filter to flag only surface water results for use in analysis
 
 n_sur_water <- FieldValues_AnalysisFlag %>%
@@ -568,7 +571,7 @@ FieldValues_Orgs <- TADA_FieldValuesTable(R5ProfileClean3, field = "Organization
 submitted the most results? Which organization submitted the fewest
 results?**
 
-```{r question8, echo = FALSE}
+```{r question8}
 orgs_n <- length(unique(FieldValues_Orgs$Value))
 
 org_max <- dplyr::slice_max(FieldValues_Orgs, Count)
@@ -1087,7 +1090,7 @@ Generate a scatterplot with two characteristics.
 unique(R5ProfileClean8$TADA.ComparableDataIdentifier)
 ```
 
-```{r TADA_TwoCharacteristicScatterplot, echo=TRUE, fig.fullwidth=TRUE, fig.height=6, fig.width=8, eval = F, message = FALSE, warning = FALSE}
+```{r TADA_TwoCharacteristicScatterplot}
 # choose two and generate scatterplot
 DO_Temp_Scatter <- TADA_TwoCharacteristicScatterplot(R5ProfileClean8, id_cols = "TADA.ComparableDataIdentifier", groups = c("TEMPERATURE_NA_NA_DEG C", "DISSOLVED OXYGEN (DO)_NA_NA_MG/L"))
 
@@ -1101,12 +1104,12 @@ unit, speciation, and fraction combination) using **TADA_Histogram** and
 plots if their input dataset has more than one unique comparable data
 group.
 
-```{r filter_dataframe, echo=TRUE}
+```{r filter_dataframe}
 # filter dataframe to only "DISSOLVED OXYGEN (DO)_NA_NA_MG/L"
 R5ProfileCleanDO <- dplyr::filter(R5ProfileClean8, TADA.ComparableDataIdentifier == "DISSOLVED OXYGEN (DO)_NA_NA_MG/L")
 ```
 
-```{r Histogram, echo=TRUE, fig.fullwidth=TRUE, fig.height=6, fig.width=8}
+```{r Histogram}
 # generate a histogram
 DO_Hist <- TADA_Histogram(R5ProfileCleanDO, id_cols = "TADA.ComparableDataIdentifier")
 
@@ -1118,7 +1121,7 @@ R5ProfileCleanDO_stats <- TADA_Stats(R5ProfileCleanDO)
 
 Generate interactive box plot.
 
-```{r boxplot, echo=TRUE, fig.fullwidth=TRUE, fig.height=6, fig.width=8}
+```{r boxplot}
 DO_Box <- TADA_Boxplot(R5ProfileCleanDO, id_cols = "TADA.ComparableDataIdentifier")
 
 DO_Box
@@ -1126,14 +1129,14 @@ DO_Box
 
 Generate interactive scatterplot.
 
-```{r DO_filtered, echo=TRUE}
+```{r DO_filtered}
 R5ProfileCleanDO_dailymax <- TADA_AggregateMeasurements(R5ProfileCleanDO,
   agg_fun = c("max"),
   clean = TRUE
 )
 ```
 
-```{r scatterplot, echo=TRUE, fig.fullwidth=TRUE, fig.height=6, fig.width=8}
+```{r scatterplot}
 DO_Scatter <- TADA_Scatterplot(R5ProfileCleanDO_dailymax, id_cols = "TADA.ComparableDataIdentifier")
 
 DO_Scatter

@@ -21,7 +21,7 @@ editor_options:
     wrap: 72
 ---
 
-```{r setup, include=FALSE}
+```{r setup, include = F}
 library(knitr)
 
 knitr::opts_chunk$set(
@@ -31,7 +31,7 @@ knitr::opts_chunk$set(
 )
 ```
 
-```{css, include=FALSE}
+```{css, include = F}
 pre {
   max-height: 300px;
   overflow-y: auto;
