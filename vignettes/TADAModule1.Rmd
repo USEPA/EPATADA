@@ -370,7 +370,7 @@ a pop-up with this summary information, including the number of
 organizations that reported results at that site. This map may inform a
 user's decision to remove/correct sites that are outside the US.
 
-```{r Map, fig.width=8, fig.height=6, fig.fullwidth=TRUE}
+```{r Map, fig.width=8, fig.height=6, fig.fullwidth=TRUE, eval = F}
 TADA_OverviewMap(TADAProfile)
 ```
 
@@ -419,7 +419,7 @@ following flags (if relevant to dataframe):
     numbers to the right of the decimal point, the row will be flagged
     as "Imprecise".
 
-```{r TADA_FlagCoordinates, eval = F}
+```{r TADA_FlagCoordinates, results = 'hide'}
 # flag only
 TADAProfileClean1 <- TADA_FlagCoordinates(TADAProfile, clean_outsideUSA = "no", clean_imprecise = FALSE, flaggedonly = FALSE)
 
