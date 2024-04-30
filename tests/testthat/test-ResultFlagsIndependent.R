@@ -64,8 +64,8 @@ test_that("No NA's in independent flag columns", {
   testdat <- suppressWarnings(TADA_FlagMethod(testdat, clean = FALSE, flaggedonly = FALSE))
   expect_false(any(is.na(testdat$TADA.AnalyticalMethod.Flag)))
 
-  testdat <- TADA_FindContinuousData(testdat, clean = FALSE, flaggedonly = FALSE)
-  expect_false(any(is.na(testdat$TADA.AggregatedContinuousData.Flag)))
+  testdat <- TADA_FlagContinuousData(testdat, clean = FALSE, flaggedonly = FALSE)
+  expect_false(any(is.na(testdat$TADA.ContinuousData.Flag)))
 
   testdat <- TADA_FlagAboveThreshold(testdat, clean = FALSE, flaggedonly = FALSE)
   expect_false(any(is.na(testdat$TADA.ResultValueAboveUpperThreshold.Flag)))
@@ -83,4 +83,41 @@ test_that("TADA_FindPotentialDuplicates functions do not grow dataset", {
   testdat2 <- TADA_FindPotentialDuplicatesMultipleOrgs(testdat)
   expect_true(dim(testdat)[1] == dim(testdat1)[1])
   expect_true(dim(testdat)[1] == dim(testdat2)[1])
+})
+
+test_that("TADA_FindPotentialDuplicatsMultipleOrgs labels nearby site and multiple org groupings incrementally if duplicates are found", {
+  testdat <- TADA_RandomTestingData()
+  testdat <- TADA_FindPotentialDuplicatesMultipleOrgs(testdat)
+
+  testdat1 <- testdat %>%
+    dplyr::select(TADA.NearbySiteGroups) %>%
+    dplyr::filter(TADA.NearbySiteGroups != "No nearby sites") %>%
+    tidyr::separate_rows(TADA.NearbySiteGroups, sep = ", ") %>%
+    dplyr::pull() %>%
+    stringr::str_remove_all("Group_") %>%
+    unique() %>%
+    as.numeric() %>%
+    sort()
+
+  testdat2 <- testdat %>%
+    dplyr::select(TADA.MultipleOrgDupGroupID) %>%
+    dplyr::filter(TADA.MultipleOrgDupGroupID != "Not a duplicate") %>%
+    unique() %>%
+    dplyr::pull() %>%
+    as.numeric() %>%
+    sort()
+
+  expect_true(length(unique(diff(testdat1))) < 2)
+
+  expect_true(length(unique(diff(testdat2))) < 2)
+})
+
+test_that("TADA_FindPotentialDuplicatsMultipleOrgs has non-NA values for each row in columns added in function", {
+  testdat <- TADA_RandomTestingData()
+  testdat <- TADA_FindPotentialDuplicatesMultipleOrgs(testdat)
+
+  expect_false(any(is.na(testdat$TADA.MultipleOrgDupGroupID)))
+  expect_false(any(is.na(testdat$TADA.MultipleOrgDuplicate)))
+  expect_false(any(is.na(testdat$TADA.NearbySiteGroups)))
+  expect_false(any(is.na(testdat$TADA.ResultSelectedMultipleOrgs)))
 })

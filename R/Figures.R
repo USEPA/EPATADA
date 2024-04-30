@@ -473,6 +473,7 @@ TADA_OverviewMap <- function(.data) {
       leaflet::clearShapes() %>% # get rid of whatever was there before if loading a second dataset
       leaflet::fitBounds(lng1 = vbbox[1], lat1 = vbbox[2], lng2 = vbbox[3], lat2 = vbbox[4]) %>% # fit to bounds of data in tadat$raw
       leaflet.extras::addResetMapButton() %>% # button to reset to initial zoom and lat/long
+      leaflet::addMapPane("featurelayers", zIndex = 300) %>%
       leaflet::addCircleMarkers(
         data = sumdat,
         lng = ~TADA.LongitudeMeasure,
@@ -516,12 +517,12 @@ TADA_OverviewMap <- function(.data) {
     }
 
     # TADA_addPolys and TADA_addPoints are in Utilities.R
-    map <- TADA_addPolys(map, AKAllotmentsUrl, "Tribes", "Alaska Allotments", bbox)
-    map <- TADA_addPolys(map, AmericanIndianUrl, "Tribes", "American Indian", bbox)
-    map <- TADA_addPolys(map, OffReservationUrl, "Tribes", "Off Reservation", bbox)
-    map <- TADA_addPolys(map, OKTribeUrl, "Tribes", "Oklahoma Tribe", bbox)
-    map <- TADA_addPoints(map, AKVillagesUrl, "Tribes", "Alaska Native Villages", bbox)
-    map <- TADA_addPoints(map, VATribeUrl, "Tribes", "Virginia Tribe", bbox)
+    map <- TADA_addPolys(map, "inst/extdata/shapefiles/AKAllotments.shp", "Tribes", "Alaska Allotments", bbox)
+    map <- TADA_addPolys(map, "inst/extdata/shapefiles/AmericanIndian.shp", "Tribes", "American Indian", bbox)
+    map <- TADA_addPolys(map, "inst/extdata/shapefiles/OffReservation.shp", "Tribes", "Off Reservation", bbox)
+    map <- TADA_addPolys(map, "inst/extdata/shapefiles/OKTribe.shp", "Tribes", "Oklahoma Tribe", bbox)
+    map <- TADA_addPoints(map, "inst/extdata/shapefiles/AKVillages.shp", "Tribes", "Alaska Native Villages", bbox)
+    map <- TADA_addPoints(map, "inst/extdata/shapefiles/VATribe.shp", "Tribes", "Virginia Tribe", bbox)
     map <- leaflet::addLayersControl(map,
       overlayGroups = c("Tribes"),
       options = leaflet::layersControlOptions(collapsed = FALSE)
