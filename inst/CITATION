@@ -1,16 +1,16 @@
-citHeader("To cite TADA, please use:")
+citHeader("To cite TADA in publications, please use:")
 
 bibentry(bibtype = "Manual",
- author = personList(
-              as.person("Cristina A. Mullin"),
-              as.person("Jacob Greif"),
-              as.person("Elise Hinman"),
-              as.person("TADA Working Group")
-              ),
-  title = "TADA (Tools for Automated Data Analysis)",
-  address="1200 Pennsylvania Ave, N.W., Washington, DC 20460",
+ author = c(
+    person("Cristina", "Mullin", role = c("aut","cre"),
+            email = "mullin.cristina@epa.gov",
+            comment=c(ORCID = "0000-0002-0615-6087")),
+    person("Jacob", "Greif", role = c("aut")),
+    person("Elise","Hinman", role = c("aut")),
+  title = "TADA: Tools for Automated Data Analysis"
+  publisher = "U.S. Environmental Protection Agency",
+  address = "Washington, DC",
   institution = "U.S. Environmental Protection Agency",
   year = 2024,
   url = "https://github.com/USEPA/TADA",
-  textVersion = "Mullin et al., 2024, TADA (Tools for Automated Data Analysis), U.S. Environmental Protection Agency, Washington, DC"
-)
+  textVersion = "Mullin, C.A., Greif, J., Hinman, E., 2024, TADA: Tools for Automated Data Analysis, U.S. Environmental Protection Agency, Washington, DC")

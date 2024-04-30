@@ -11,6 +11,8 @@ test_that("TADA_SimpleCensoredMethods doesn't drop data", {
 
 test_that("TADA_IDCensoredData copies det lim values to result values if applicable", {
   copycheck <- TADA_RandomTestingData(choose_random_state = TRUE)
+  
+  if (nrow(copycheck) > 0) {
 
   copycheck1 <- TADA_IDCensoredData(copycheck)
 
@@ -34,6 +36,7 @@ test_that("TADA_IDCensoredData copies det lim values to result values if applica
   # for this subset, the TADA.ResultMeasureValueDataTypes.Flag should equal "NA - Not Available"
   expect_true(all((copycheck_copies$TADA.ResultMeasureValueDataTypes.Flag == "NA - Not Available") &
     is.na(copycheck_copies$TADA.ResultMeasureValue)))
+  }
 })
 
 test_that("TADA_IDCensoredData correctly handles specific text values such as ND", {

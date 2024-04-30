@@ -73,7 +73,7 @@ console).
 
 ```{r install_TADA, eval = FALSE, results = 'hide'}
 remotes::install_github("USEPA/TADA",
-  ref = "develop",
+  ref = "cm-4.29.24",
   dependencies = TRUE
 )
 ```

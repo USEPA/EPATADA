@@ -67,12 +67,11 @@ remotes::install_github("USEPA/TADA",
 # remotes::install_github("USGS-R/dataRetrieval", dependencies=TRUE)
 ```
 
-
-```{r for-development-only, eval = F, echo = F, results = 'hide'}
+```{r for-development-only, echo = F, results = 'hide'}
 # IF YOU ARE NOT DEVELOPING TADA, SKIP THIS CODE CHUNK
 # when developing the package, update this chunk to the current repository branch, so it runs with all of the new features prior to a PR to develop
 remotes::install_github("USEPA/TADA",
-  ref = "contdataupdates_cm",
+  ref = "cm-4.29.24",
   dependencies = TRUE
 )
 ```
@@ -207,14 +206,15 @@ TADAProfile <- TADA_DataRetrieval(organization = c("REDLAKE_WQX", "SFNOES_WQX", 
 
 ## USGS dataRetrieval
 
-Uncomment below (optional) if you would like to review differences between the
-profiles you would get using USGS's readWQPdata vs. EPA's TADA_DataRetrieval (compare
-dataRetrieval_example to TADAProfile). The profiles are different because 
-TADA_DataRetrieval automatically joins in data from multiple WQP profiles, 
-and does some additional data cleaning as part of the data retrieval process.
+Uncomment below (optional) if you would like to review differences
+between the profiles you would get using USGS's readWQPdata vs. EPA's
+TADA_DataRetrieval (compare dataRetrieval_example to TADAProfile). The
+profiles are different because TADA_DataRetrieval automatically joins in
+data from multiple WQP profiles, and does some additional data cleaning
+as part of the data retrieval process.
 
 ```{r dataRetrieval_example, eval = FALSE, results = 'hide'}
-dataRetrieval_example <- dataRetrieval::readWQPdata(organization = c("REDLAKE_WQX", "SFNOES_WQX", "PUEBLO_POJOAQUE", "FONDULAC_WQX", "PUEBLOOFTESUQUE", "CNENVSER"), startDate = "2018-01-01", endDate = "2019-01-01", ignore_attributes = TRUE)
+# dataRetrieval_example <- dataRetrieval::readWQPdata(organization = c("REDLAKE_WQX", "SFNOES_WQX", "PUEBLO_POJOAQUE", "FONDULAC_WQX", "PUEBLOOFTESUQUE", "CNENVSER"), startDate = "2018-01-01", endDate = "2019-01-01", ignore_attributes = TRUE)
 ```
 
 ## TADA_BigDataRetrieval
@@ -243,7 +243,7 @@ depends on your query inputs.
 # AllCT <- TADA_BigDataRetrieval(statecode = "CT")
 ```
 
-## TADA_AnalysisDataFilter: Filter data based on media type
+## Filter data based on media type
 
 Some TADA users are interested in using WQP data for surface water only
 or for analysis of some non-water data. The **TADA_AnalysisDataFilter**
@@ -370,7 +370,7 @@ a pop-up with this summary information, including the number of
 organizations that reported results at that site. This map may inform a
 user's decision to remove/correct sites that are outside the US.
 
-```{r Map, fig.width=8, fig.height=6, fig.fullwidth=TRUE, eval = F}
+```{r Map, fig.width=8, fig.height=6, fig.fullwidth=TRUE}
 TADA_OverviewMap(TADAProfile)
 ```
 
@@ -419,7 +419,7 @@ following flags (if relevant to dataframe):
     numbers to the right of the decimal point, the row will be flagged
     as "Imprecise".
 
-```{r TADA_FlagCoordinates}
+```{r TADA_FlagCoordinates, eval = F}
 # flag only
 TADAProfileClean1 <- TADA_FlagCoordinates(TADAProfile, clean_outsideUSA = "no", clean_imprecise = FALSE, flaggedonly = FALSE)
 
@@ -492,7 +492,7 @@ continuous data.
 See function documentation for additional details by entering the
 following code in the console: ?TADA_FlagContinuousData
 
-```{r AggregatedContinuousData}
+```{r TADA_FlagContinuousData, eval = F}
 TADAProfileClean1 <- TADA_FlagContinuousData(TADAProfileClean1,
   clean = FALSE,
   flaggedonly = FALSE,
@@ -865,7 +865,7 @@ concentrations. QA procedures should not bias statistical analyses of
 the data. Note that a modest error in a measurement will have a much
 smaller effect than implementing a QA process that builds in bias.
 
-```{r Run TADA_PairReplicates}
+```{r Run TADA_PairReplicates, eval = F}
 # Run TADA_PairReplicates to add new TADA.ReplicateSampleID column
 TADAProfileClean3b <- TADA_PairReplicates(TADAProfileClean3)
 

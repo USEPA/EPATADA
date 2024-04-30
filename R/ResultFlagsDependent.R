@@ -486,6 +486,8 @@ TADA_FlagResultUnit <- function(.data, clean = c("invalid_only", "nonstandardize
 #'
 #' # Remove all QC samples:
 #' QC_clean <- TADA_FindQCActivities(Data_Nutrients_UT, clean = TRUE)
+#' 
+
 TADA_FindQCActivities <- function(.data, clean = FALSE, flaggedonly = FALSE) {
   # check .data is data.frame
   TADA_CheckType(.data, "data.frame", "Input object")
@@ -496,11 +498,11 @@ TADA_FindQCActivities <- function(.data, clean = FALSE, flaggedonly = FALSE) {
   # check .data has required columns
   TADA_CheckColumns(.data, c("ActivityTypeCode"))
 
-  # execute function after checks are passed
-  # delete existing flag column
-  if (("TADA.ActivityType.Flag" %in% colnames(.data)) == TRUE) {
-    .data <- dplyr::select(.data, -TADA.ActivityType.Flag)
-  }
+  # # execute function after checks are passed
+  # # delete existing flag column
+  # if (("TADA.ActivityType.Flag" %in% colnames(.data)) == TRUE) {
+  #   .data <- dplyr::select(.data, -TADA.ActivityType.Flag)
+  # }
 
   # load in ActivityTypeRef Table
   qc.ref <- utils::read.csv(system.file("extdata", "WQXActivityTypeRef.csv", package = "TADA")) %>%
@@ -620,6 +622,7 @@ TADA_FindQCActivities <- function(.data, clean = FALSE, flaggedonly = FALSE) {
 #'
 #' # Find pairs for all data flagged as "QC_replicate" within a 5-minute time window:
 #' df_all_pairs_5min <- TADA_PairReplicates(df, time_difference = 300)
+
 TADA_PairReplicates <- function(.data, type = c("QC_replicate"), time_difference = 600) {
   # check .data is data.frame
   TADA_CheckType(.data, "data.frame", "Input object")
@@ -637,11 +640,11 @@ TADA_PairReplicates <- function(.data, type = c("QC_replicate"), time_difference
   ))
 
   # run TADA_FindQCActivities if needed
-  if (("TADA.MeasureQualifierCode.Flag" %in% colnames(.data)) == TRUE) {
+  if (("TADA.ActivityType.Flag" %in% colnames(.data)) == TRUE) {
     .data <- .data
   }
 
-  if (("TADA.MeasureQualifierCode.Flag" %in% colnames(.data)) == FALSE) {
+  if (("TADA.ActivityType.Flag" %in% colnames(.data)) == FALSE) {
     .data <- TADA_FindQCActivities(.data, clean = FALSE, flaggedonly = FALSE)
   }
 
@@ -763,6 +766,7 @@ TADA_PairReplicates <- function(.data, type = c("QC_replicate"), time_difference
 #' # Remove all suspect samples and DO NOT include a new column with
 #' # qualifier definitions (TADA.MeasureQualifierCode.Def):
 #' MeasureQualifierCode_clean_nodefs <- TADA_FlagMeasureQualifierCode(Data_6Tribes_5y, clean = TRUE, define = FALSE)
+
 TADA_FlagMeasureQualifierCode <- function(.data, clean = FALSE, flaggedonly = FALSE, define = TRUE) {
   # check .data is data.frame
   TADA_CheckType(.data, "data.frame", "Input object")
