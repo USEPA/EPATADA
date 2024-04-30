@@ -10,7 +10,7 @@ vignette: >
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 params:
-  waterbodyname: "San Juan River"
+  waterbodynames: "San Juan River, Animas River"
   state: "NM"
   assessmentunitid: "IL_J-36"
   characteristictype: "Nutrient"
