@@ -1080,6 +1080,8 @@ writeLayer <- function(url, layerfilepath) {
 #' @param layerfilepath Local path to the .shp file for the layer
 #' @param bbox A bounding box from the sf function st_bbox; used to filter the query results. Optional; defaults to NULL.
 #' @return sf object containing the layer
+#' 
+#' @export
 #'
 #' @examples
 #' \dontrun{
@@ -1107,7 +1109,9 @@ getLayer <- function(layerfilepath, bbox = NULL) {
 #' @param layer A map feature layer
 #' @param layername Name of the layer
 #' @return Vector of strings to be used as the text for the popups when clicking on a tribal marker
-#'
+#' 
+#' @export
+#' 
 #' @examples
 #' \dontrun{
 #' # Get the Oklahoma Tribal Statistical Areas feature layer
@@ -1144,6 +1148,8 @@ getPopup <- function(layer, layername) {
 #' @param bbox A bounding box from the sf function st_bbox; used to filter the query results. Optional; defaults to NULL.
 #' @return The original map with polygons from the feature layer added to it.
 #'
+#' @export
+#' 
 #' @examples
 #' \dontrun{
 #' # Create a leaflet map
@@ -1200,6 +1206,8 @@ TADA_addPolys <- function(map, layerfilepath, layergroup, layername, bbox = NULL
 #' @param bbox A bounding box from the sf function st_bbox; used to filter the query results. Optional; defaults to NULL.
 #' @return The original map with polygon from the feature layer added to it.
 #'
+#' @export
+#' 
 #' @examples
 #' \dontrun{
 #' # Create a leaflet map

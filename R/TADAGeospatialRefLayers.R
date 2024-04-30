@@ -5,7 +5,7 @@
 #' Existing shapefiles with the same name will be deleted first if they exist.
 
 TADA_UpdateTribalLayers <- function() {
-  writeLayer(AKAllotmentsUrl, "inst/extdata/shapefiles/AKAllotments.shp") # this shp file is not working
+  writeLayer(AKAllotmentsUrl, "inst/extdata/shapefiles/AKAllotments.shp")
   writeLayer(AKVillagesUrl, "inst/extdata/shapefiles/AKVillages.shp")
   writeLayer(AmericanIndianUrl, "inst/extdata/shapefiles/AmericanIndian.shp")
   writeLayer(OffReservationUrl, "inst/extdata/shapefiles/OffReservation.shp")
