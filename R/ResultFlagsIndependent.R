@@ -196,11 +196,9 @@ TADA_FlagMethod <- function(.data, clean = TRUE, flaggedonly = FALSE) {
 #' unique(Data_Nutrients_UT_clean$TADA.ContinuousData.Flag)
 #' }
 #'
-
 TADA_FlagContinuousData <- function(.data, clean = FALSE, flaggedonly = FALSE, time_difference = 4) {
-  
   # start.time <- Sys.time()
-  
+
   # check .data is data.frame
   TADA_CheckType(.data, "data.frame", "Input object")
   # check clean is boolean
@@ -230,7 +228,7 @@ TADA_FlagContinuousData <- function(.data, clean = FALSE, flaggedonly = FALSE, t
     # run autoclean
     .data <- TADA_AutoClean(.data)
   }
-  
+
   # run TADA_IDCensoredData if it has not already been run
   if ("TADA.CensoredData.Flag" %in% colnames(.data)) {
     .data <- .data
@@ -238,7 +236,7 @@ TADA_FlagContinuousData <- function(.data, clean = FALSE, flaggedonly = FALSE, t
     # run TADA_IDCensoredData
     .data <- TADA_IDCensoredData(.data)
   }
-  
+
   # execute function after checks are passed: flag continuous data and make cont.data data frame
 
   # set default flag to "Discrete"
@@ -267,35 +265,35 @@ TADA_FlagContinuousData <- function(.data, clean = FALSE, flaggedonly = FALSE, t
   if (length(noncont.data) >= 1) {
     for (i in 1:nrow(noncont.data)) {
       if (!is.na(noncont.data$ActivityStartDateTime[i])) {
-          # find samples with the same date, lat/long, organization name, comparable data identifier, and depth
-          info_match <- which(
-            noncont.data$TADA.LatitudeMeasure == noncont.data$TADA.LatitudeMeasure[i] &
-              noncont.data$TADA.LongitudeMeasure == noncont.data$TADA.LongitudeMeasure[i] &
-              noncont.data$OrganizationIdentifier == noncont.data$OrganizationIdentifier[i] &
-              noncont.data$TADA.ComparableDataIdentifier == noncont.data$TADA.ComparableDataIdentifier[i] &
-              ((noncont.data$TADA.ActivityDepthHeightMeasure.MeasureValue == noncont.data$TADA.ActivityDepthHeightMeasure.MeasureValue[i]) | (is.na(noncont.data$TADA.ActivityDepthHeightMeasure.MeasureValue) & is.na(noncont.data$TADA.ActivityDepthHeightMeasure.MeasureValue[i]))) &
-              ((noncont.data$TADA.ResultDepthHeightMeasure.MeasureValue == noncont.data$TADA.ResultDepthHeightMeasure.MeasureValue[i]) | (is.na(noncont.data$TADA.ResultDepthHeightMeasure.MeasureValue) & is.na(noncont.data$TADA.ResultDepthHeightMeasure.MeasureValue[i]))) &
-              ((noncont.data$TADA.ActivityTopDepthHeightMeasure.MeasureValue == noncont.data$TADA.ActivityTopDepthHeightMeasure.MeasureValue[i]) | (is.na(noncont.data$TADA.ActivityTopDepthHeightMeasure.MeasureValue) & is.na(noncont.data$TADA.ActivityTopDepthHeightMeasure.MeasureValue[i]))) &
-              ((noncont.data$TADA.ActivityBottomDepthHeightMeasure.MeasureValue == noncont.data$TADA.ActivityBottomDepthHeightMeasure.MeasureValue[i]) | (is.na(noncont.data$TADA.ActivityBottomDepthHeightMeasure.MeasureValue) & is.na(noncont.data$TADA.ActivityBottomDepthHeightMeasure.MeasureValue[i]))) &
-              ((noncont.data$ActivityRelativeDepthName == noncont.data$ActivityRelativeDepthName[i]) | (is.na(noncont.data$ActivityRelativeDepthName) & is.na(noncont.data$ActivityRelativeDepthName[i])))
-          )
+        # find samples with the same date, lat/long, organization name, comparable data identifier, and depth
+        info_match <- which(
+          noncont.data$TADA.LatitudeMeasure == noncont.data$TADA.LatitudeMeasure[i] &
+            noncont.data$TADA.LongitudeMeasure == noncont.data$TADA.LongitudeMeasure[i] &
+            noncont.data$OrganizationIdentifier == noncont.data$OrganizationIdentifier[i] &
+            noncont.data$TADA.ComparableDataIdentifier == noncont.data$TADA.ComparableDataIdentifier[i] &
+            ((noncont.data$TADA.ActivityDepthHeightMeasure.MeasureValue == noncont.data$TADA.ActivityDepthHeightMeasure.MeasureValue[i]) | (is.na(noncont.data$TADA.ActivityDepthHeightMeasure.MeasureValue) & is.na(noncont.data$TADA.ActivityDepthHeightMeasure.MeasureValue[i]))) &
+            ((noncont.data$TADA.ResultDepthHeightMeasure.MeasureValue == noncont.data$TADA.ResultDepthHeightMeasure.MeasureValue[i]) | (is.na(noncont.data$TADA.ResultDepthHeightMeasure.MeasureValue) & is.na(noncont.data$TADA.ResultDepthHeightMeasure.MeasureValue[i]))) &
+            ((noncont.data$TADA.ActivityTopDepthHeightMeasure.MeasureValue == noncont.data$TADA.ActivityTopDepthHeightMeasure.MeasureValue[i]) | (is.na(noncont.data$TADA.ActivityTopDepthHeightMeasure.MeasureValue) & is.na(noncont.data$TADA.ActivityTopDepthHeightMeasure.MeasureValue[i]))) &
+            ((noncont.data$TADA.ActivityBottomDepthHeightMeasure.MeasureValue == noncont.data$TADA.ActivityBottomDepthHeightMeasure.MeasureValue[i]) | (is.na(noncont.data$TADA.ActivityBottomDepthHeightMeasure.MeasureValue) & is.na(noncont.data$TADA.ActivityBottomDepthHeightMeasure.MeasureValue[i]))) &
+            ((noncont.data$ActivityRelativeDepthName == noncont.data$ActivityRelativeDepthName[i]) | (is.na(noncont.data$ActivityRelativeDepthName) & is.na(noncont.data$ActivityRelativeDepthName[i])))
+        )
 
-          time_diff <- abs(difftime(noncont.data$ActivityStartDateTime[i], noncont.data$ActivityStartDateTime[info_match], units = "hours"))
+        time_diff <- abs(difftime(noncont.data$ActivityStartDateTime[i], noncont.data$ActivityStartDateTime[info_match], units = "hours"))
 
-          # samples where the time differences is <= time_difference (default is 4 hours)
-          within_window <- info_match[time_diff <= time_difference]
+        # samples where the time differences is <= time_difference (default is 4 hours)
+        within_window <- info_match[time_diff <= time_difference]
 
-          # keep the samples with times within the window
-          info_match <- intersect(info_match, within_window)
+        # keep the samples with times within the window
+        info_match <- intersect(info_match, within_window)
 
-          # if matches are identified change flag to continuous
-          if (length(info_match) >= 1) {
-            noncont.data$TADA.ContinuousData.Flag[info_match] <- "Continuous"
-          }
+        # if matches are identified change flag to continuous
+        if (length(info_match) >= 1) {
+          noncont.data$TADA.ContinuousData.Flag[info_match] <- "Continuous"
+        }
       }
     }
   }
-  
+
   # remove continuous results from noncont.data and create new df for these (more.cont.data)
   more.cont.data <- noncont.data %>% dplyr::filter(TADA.ContinuousData.Flag == "Continuous")
 
