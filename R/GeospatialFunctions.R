@@ -272,7 +272,7 @@ TADA_GetATTAINS <- function(.data, return_sf = TRUE) {
 
     # if no WQP observations, return a modified `data` with empty ATTAINS-related columns:
 
-    col_val_list <- setNames(
+    col_val_list <- stats::setNames(
       object = rep(
         x = list(NA),
         times = length(attains_names)
@@ -333,25 +333,23 @@ TADA_GetATTAINS <- function(.data, return_sf = TRUE) {
 
   attains_features <- try(fetchATTAINS(.data = TADA_DataRetrieval_data), silent = TRUE)
 
-suppressMessages(suppressWarnings({
-
-  # grab the ATTAINS catchments within our WQP bbox:
-  nearby_catchments <- NULL
-  # (Wrapped with "try" because it is possible that no ATTAINS data exists in the bbox.)
-  try(
-    nearby_catchments <- attains_features[["ATTAINS_catchments"]] %>%
-      # remove unnecessary columns:
-      dplyr::select(-c(OBJECTID, GLOBALID)) %>%
-      # select only catchments that have WQP observations in them:
-      .[TADA_DataRetrieval_data, ] %>%
-      # add prefix "ATTAINS" to ATTAINS data
-      dplyr::rename_with(~ paste0("ATTAINS.", .), dplyr::everything()) %>%
-      # get rid of dupes (as a precaution)
-      dplyr::distinct(.keep_all = TRUE),
-    silent = TRUE
-  )
-
-}))
+  suppressMessages(suppressWarnings({
+    # grab the ATTAINS catchments within our WQP bbox:
+    nearby_catchments <- NULL
+    # (Wrapped with "try" because it is possible that no ATTAINS data exists in the bbox.)
+    try(
+      nearby_catchments <- attains_features[["ATTAINS_catchments"]] %>%
+        # remove unnecessary columns:
+        dplyr::select(-c(OBJECTID, GLOBALID)) %>%
+        # select only catchments that have WQP observations in them:
+        .[TADA_DataRetrieval_data, ] %>%
+        # add prefix "ATTAINS" to ATTAINS data
+        dplyr::rename_with(~ paste0("ATTAINS.", .), dplyr::everything()) %>%
+        # get rid of dupes (as a precaution)
+        dplyr::distinct(.keep_all = TRUE),
+      silent = TRUE
+    )
+  }))
 
   # if no ATTAINS data, return original dataframe with empty ATTAINS columns:
   if (is.null(nearby_catchments)) {

@@ -1,4 +1,4 @@
 url: "usepa.github.io/TADA/"
 template:
   bootstrap: 5
-  bootswatch: cerulean
+  bootswatch: yeti
