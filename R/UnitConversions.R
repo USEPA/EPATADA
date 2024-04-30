@@ -104,14 +104,26 @@ TADA_CreateUnitRef <- function(.data){
     dplyr::filter(!is.na(Target.Unit)) %>%
     dplyr::left_join(tada.unit.ref,  by = c("Code", "Target.Unit"),
                                             relationship = "many-to-many") %>%
-    dplyr::left_join(unit.ref, by = c("Code", "Target.Unit"),
-                                      relationship = "many-to-many") %>%
     dplyr::mutate(CharUnit = paste(CharacteristicName, "_", Code, sep = "")) %>%
     dplyr::filter(!is.na(Conversion.Factor)) %>%
     dplyr::select("CharacteristicName", "Code",
                   "Target.Unit", "Last.Change.Date",
                   "Conversion.Factor", "Conversion.Coefficient",
+                  "CharUnit")
+  
+  tada.wqx <- data.units %>%
+    dplyr::left_join(tada.char.ref, by = "CharacteristicName") %>%
+    dplyr::mutate(CharUnit = paste(CharacteristicName, "_", Code, sep = "")) %>%
+    dplyr::filter(!CharUnit %in% tada.targets$CharUnit &
+                  !is.na(Target.Unit)) %>%
+    dplyr::left_join(unit.ref, by = c("Code", "Target.Unit"),
+                                      relationship = "many-to-many") %>%
+    dplyr::select("CharacteristicName", "Code",
+                  "Target.Unit", "Last.Change.Date",
+                  "Conversion.Factor", "Conversion.Coefficient",
                   "Target.Speciation", "CharUnit")
+    
+    
   
   # Remove intermediate objects
   rm(tada.char.ref, tada.unit.ref)
@@ -119,7 +131,8 @@ TADA_CreateUnitRef <- function(.data){
   # Assign all other target units
   other.targets <- data.units %>%
     dplyr::mutate(CharUnit = paste(CharacteristicName, "_", Code, sep = "")) %>%
-    dplyr::filter(!CharUnit %in% tada.targets$CharUnit) %>%
+    dplyr::filter(!CharUnit %in% tada.targets$CharUnit &
+                  !CharUnit %in% tada.wqx$CharUnit) %>%
     dplyr::left_join(unit.ref, by = "Code", relationship = "many-to-many") %>%
     dplyr::select("CharacteristicName", "Code",
                   "Target.Unit", "Last.Change.Date",
@@ -128,6 +141,10 @@ TADA_CreateUnitRef <- function(.data){
   
   # Join priority units and other units to create comprehensive unit ref table
   comb.convert <- tada.targets %>%
+    dplyr::full_join(tada.wqx, by = c("CharacteristicName", "Code",
+                            "Target.Unit", "Last.Change.Date",
+                            "Conversion.Factor", "Conversion.Coefficient",
+                            "CharUnit")) %>%
     dplyr::full_join(other.targets, by = c("CharacteristicName", "Code",
                                            "Target.Unit", "Last.Change.Date",
                                            "Conversion.Factor", "Conversion.Coefficient",
@@ -135,6 +152,9 @@ TADA_CreateUnitRef <- function(.data){
     dplyr::group_by(CharacteristicName) %>%
     dplyr::mutate(NConvert = length(unique(Target.Unit))) %>%
     dplyr::ungroup()
+  
+  # Remove intermediate objects
+  rm(other.targets, tada.targets, tada.wqx, data.units)
   
   # Identify characteristics with multiple target units identified
   mult.target.chars <- comb.convert %>%
@@ -157,15 +177,10 @@ TADA_CreateUnitRef <- function(.data){
       stringi::stri_replace_last(replacement = " and ", fixed = "; ")
     
     print(paste("TADA.CreateUnitRef: The following characteristics have more than one listed target unit: ", mult.target.list, ". This may be due to units of different types that cannot be converted to match each other. You may wish to review the output of TADA.CreateUnitRef and edit it.", sep = ""))
-  }
-   
   
-  # Remove intermediate objects
-  rm(other.targets, tada.targets)
-  
- 
- # Remove intermediate object  
-   rm(data.units)
+    comb.convert <- comb.convert %>%
+      dplyr::select(-NConvert, -CharUnit)
+    }
   
    # Return reference table for use in unit conversion functions or for more editing by user
    return(comb.convert)
