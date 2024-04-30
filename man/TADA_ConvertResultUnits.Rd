@@ -2,7 +2,7 @@
 % Please edit documentation in R/UnitConversions.R
 \name{TADA_ConvertResultUnits}
 \alias{TADA_ConvertResultUnits}
-\title{Transform Units to WQX Target Units or User Specified Units}
+\title{Transform Units to TADA Target Units, WQX Target Units or User Specified Units}
 \usage{
 TADA_ConvertResultUnits(.data, ref = "tada", transform = TRUE, detlimit = TRUE)
 }
@@ -67,13 +67,11 @@ dataframe to perform conversions as necessary when transform = TRUE.
 # Load example dataset:
 data(Data_Nutrients_UT)
 
-ResultUnitsConverted <- (Data_Nutrients_UT)
-
-# Do not convert result values and units, but add three new columns titled
-# "TADA.WQXUnitConversionFactor", "TADA.WQXTargetUnit", and "TADA.SpeciationUnitConversion":
+# Do not convert result values and units, but add four new columns titled
+# "TADA.WQXUnitConversionFactor", "TADA.WQXUnitConversionCoefficient", "TADA.WQXTargetUnit", and "TADA.SpeciationUnitConversion":
 ResultUnitsNotConverted <- TADA_ConvertResultUnits(Data_Nutrients_UT, transform = FALSE, detlimit = FALSE)
 
 #' # Convert values and units for results and detection limits:
-ResultUnitsNotConverted <- TADA_ConvertResultUnits(Data_Nutrients_UT, transform = TRUE, detlimit = TRUE)
+ResultUnitsConverted <- TADA_ConvertResultUnits(Data_Nutrients_UT, transform = TRUE, detlimit = TRUE)
 
 }

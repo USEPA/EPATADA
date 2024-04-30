@@ -8,11 +8,14 @@
 #' 
 #' @param .data TADA dataframe
 #
-#' @return A dataframe with five columns: CharacteristicName, 
-#' ResultMeasure.MeasureUnitCode, Target.Unit, ConversionFactor, and 
+#' @return A dataframe with seven columns: CharacteristicName, 
+#' Code, Target.Unit, ConversionFactor, and 
 #' ConversionCoefficient.The number of rows will vary based on the number of
 #' unique CharacteristicName/ResultMeasure.MeasureUnitCode combinations in the
 #' initial TADA dataframe.
+#' @export
+#' 
+#' @examples
 #' 
 #' #' # Load example dataset:
 #' data(Data_Nutrients_UT)
@@ -92,7 +95,7 @@ TADA_CreateUnitRef <- function(.data){
  tada.char.ref$Target.Unit <- toupper(tada.char.ref$Target.Unit)
  tada.char.ref$CharacteristicName <- toupper(tada.char.ref$CharacteristicName)
  
- # Import TADA specific conversion reference, created by HRM on 4/23/2024
+ # Import TADA specific conversion reference, created by HRM on 4/30/2024
   tada.unit.ref <- utils::read.csv(system.file("extdata", "TADAPriorityCharConvertRef.csv", package = "TADA"))
   # Make all units and target units uppercase
   tada.unit.ref$Target.Unit <- toupper(tada.unit.ref$Target.Unit)
@@ -179,7 +182,7 @@ TADA_CreateUnitRef <- function(.data){
     print(paste("TADA.CreateUnitRef: The following characteristics have more than one listed target unit: ", mult.target.list, ". This may be due to units of different types that cannot be converted to match each other. You may wish to review the output of TADA.CreateUnitRef and edit it.", sep = ""))
   
     comb.convert <- comb.convert %>%
-      dplyr::select(-NConvert, -CharUnit)
+      dplyr::select(-NConvert, -CharUnit, -Last.Change.Date)
     }
   
    # Return reference table for use in unit conversion functions or for more editing by user

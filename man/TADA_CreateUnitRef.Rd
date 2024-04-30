@@ -23,3 +23,12 @@ possible, the function fills in the columns for target unit, and conversion fact
 Users can edit it and use it as an input for TADA_ConvertResultUnits to
 customize standardization of units by characteristic.
 }
+\examples{
+
+#' # Load example dataset:
+data(Data_Nutrients_UT)
+
+# Create a unit reference data frame
+UT_UnitRef <- TADA_CreateUnitRef(Data_Nutrients_UT)
+
+}
