@@ -44,10 +44,14 @@ TADA_CreateUnitRef <- function(.data){
   
   # Create df of unique CharactersticName and Unit in TADA data frame 
   data.units <- .data %>%
-    dplyr::select(TADA.CharacteristicName, TADA.ResultMeasure.MeasureUnitCode) %>%
+    dplyr::select(TADA.CharacteristicName, TADA.ResultMeasure.MeasureUnitCode, TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode) %>%
+    dplyr::mutate(TADA.ResultMeasure.MeasureUnitCode = ifelse(is.na(TADA.ResultMeasure.MeasureUnitCode),
+                                                              TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode,
+                                                              TADA.ResultMeasure.MeasureUnitCode)) %>%
     dplyr::distinct() %>%
     dplyr::rename("Code" = "TADA.ResultMeasure.MeasureUnitCode",
-                  "CharacteristicName" = "TADA.CharacteristicName")
+                  "CharacteristicName" = "TADA.CharacteristicName") %>%
+    dplyr::select(-TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode)
   
  # Import USGS default unit ref
  usgs.ref <- TADA_GetUSGSSynonymRef()
@@ -119,12 +123,17 @@ TADA_CreateUnitRef <- function(.data){
       dplyr::select(CharacteristicName, Target.Unit) %>%
       dplyr::group_by(CharacteristicName) %>%
       dplyr::mutate(MultUnits = paste(Target.Unit, collapse = ", "),
-                    MultUnits = stringi::stri_replace_last(MultUnits,replacement = " and ", fixed = ", ")) %>%
+                    MultUnits = stringi::stri_replace_last(MultUnits,replacement = " and ", fixed = ", "),
+                    MultUnits = paste(CharacteristicName, " (", MultUnits, ")", sep = "")) %>%
       dplyr::ungroup() %>%
-      dplyr::mutate(CharList = paste(CharacteristicName, " (", MultUnits, ")", sep = "")) %>%
+      dplyr::select(-Target.Unit, -CharacteristicName) %>%
+      dplyr::distinct() %>%
+      dplyr::mutate(CharList = paste(MultUnits, collapse = ", ")) %>%
       dplyr::select(CharList) %>%
       dplyr::distinct() %>%
-      dplyr::pull() 
+      stringi::stri_replace_last(replacement = " and ", fixed = ", ")
+    
+    print(paste("TADA.CreateUnitRef: The following characteristics have more than one listed target unit: ", mult.target.list, ". This may be due to units of different types that cannot be converted to match each other. You may wish to review the output of TADA.CreateUnitRef and edit it."))
       
     
   }
