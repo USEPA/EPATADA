@@ -685,15 +685,16 @@ TADA_ConvertDepthUnits <- function(.data,
   )
 
   # read in unit conversion reference table from extdata
-  unit.ref <- utils::read.csv(system.file("extdata", "WQXunitRef.csv", package = "TADA"))
+  length.ref <- utils::read.csv(system.file("extdata", "TADAPriorityCharConvertRef.csv", package = "TADA"))
 
   # subset to include only "Length Distance" units; filter by target unit defined in 'unit' argument
-  unit.ref <- unit.ref %>%
-    dplyr::filter(stringr::str_detect(
-      Description,
-      stringr::regex("\\bLength Distance")
-    )) %>%
-    dplyr::filter(Target.Unit == unit) # %>%
+  length.ref <- tada.ref %>%
+    dplyr::filter(Code %in% c("Angst", "cm", "dm", "feet", "ft", "in", "km", "m",
+                              "mi", "mm", "nm", "nmi", "yd")) %>%
+    dplyr::filter(Target.Unit == unit)
+  
+
+  
 
   # Loop over all supplied depth columns, create TADA columns, then join conversion table
   for (i in 1:length(valid_fields)) {
