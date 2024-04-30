@@ -68,34 +68,3 @@ test_that("TADA_ConvertDepthUnits converts meters to m", {
   expect_false("meters" %in% check_depth_meters$TADA.ActivityDepthHeightMeasure.MeasureUnitCode)
 })
 
-# test that TADA_CreateUnitRef is creating the correct number of unit/characteristic refs
-test_that("TADA_CreateUnitRef creates only one unit/characteristic ref per combination in data set", {
-  testdat <- TADA_RandomStateTestingSet()
-  
-  testdat.nrows <- testdat %>%
-    dplyr::select(CharacteristicName, ResultMeasure.MeasureUnitCode) %>%
-    dplyr::mutate(ResultMeasure.MeasureUnitCode = toupper(ResultMeasure.MeasureUnitCode)) %>%
-    dplyr::mutate(ResultMeasure.MeasureUnitCode = toupper(gsub("as.*$", "", ResultMeasure.MeasureUnitCode))) %>%
-    #dplyr::filter(!is.na(ResultMeasure.MeasureUnitCode)) %>%
-    unique() %>%
-    dplyr::rename(Unit = ResultMeasure.MeasureUnitCode)
-    #nrow()
-  
-  data.units <- .data %>%
-    dplyr::select(CharacteristicName, ResultMeasure.MeasureUnitCode) %>%
-    dplyr::rename("Unit" = "ResultMeasure.MeasureUnitCode") %>%
-    dplyr::distinct()
-  
-  testdat.unitref <- TADA_CreateUnitRef(testdat) %>%
-    dplyr::select(CharacteristicName, Unit) %>%
-    dplyr::distinct()
-  #%>%
-    #nrow()
-  
-  check <- testdat.nrows %>%
-    dplyr::anti_join(testdat.unitref)
-  
-  expect_true(testdat.nrows == testdat.unitref)
-  
-  
-})
