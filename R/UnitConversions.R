@@ -42,7 +42,7 @@ TADA_CreateUnitRef <- function(.data) {
     }
   }
 
-  # Create df of unique CharactersticName and Unit in TADA data frame
+  # Create df of unique codes and characteristic names(from TADA.CharacteristicName and TADA.ResultMeasure.MeasureUnitCode) in TADA data frame
   data.units.result <- .data %>%
     dplyr::select(TADA.CharacteristicName, TADA.ResultMeasure.MeasureUnitCode) %>%
     dplyr::distinct() %>%
@@ -51,6 +51,7 @@ TADA_CreateUnitRef <- function(.data) {
       "CharacteristicName" = "TADA.CharacteristicName"
     )
 
+  # Create df of unique codes and characteristic names(from TADA.CharacteristicName and TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode) in TADA data frame
   data.units.det <- .data %>%
     dplyr::select(TADA.CharacteristicName, TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode) %>%
     dplyr::distinct() %>%
@@ -59,6 +60,7 @@ TADA_CreateUnitRef <- function(.data) {
       "CharacteristicName" = "TADA.CharacteristicName"
     )
 
+  # Create combined df with all unique codes and characteristic names
   data.units <- data.units.result %>%
     dplyr::full_join(data.units.det, by = c("CharacteristicName", "Code")) %>%
     dplyr::distinct() %>%
@@ -68,19 +70,22 @@ TADA_CreateUnitRef <- function(.data) {
       is.na(Code) & NCode == 1) %>%
     dplyr::select(-NCode)
 
+  # Remove intermediate objects
   rm(data.units.result, data.units.det)
 
   # Import USGS default unit ref
   usgs.ref <- TADA_GetUSGSSynonymRef()
+  # Make Target.Unit and Code uppercase
   usgs.ref$Target.Unit <- toupper(usgs.ref$Target.Unit)
   usgs.ref$Code <- toupper(usgs.ref$Code)
 
   # Import WQX default unit ref
   wqx.ref <- TADA_GetMeasureUnitRef()
+  # Make targe units and codes uppercase
   wqx.ref$Target.Unit <- toupper(wqx.ref$Target.Unit)
   wqx.ref$Code <- toupper(wqx.ref$Code)
 
-  # Combine for USGS and WQX unit ref
+  # Combine USGS and WQX unit ref to create unit ref
   unit.ref <- usgs.ref %>%
     dplyr::full_join(wqx.ref, by = c(
       "Domain", "Unique.Identifier", "Code",
@@ -100,20 +105,26 @@ TADA_CreateUnitRef <- function(.data) {
 
   # Import TADA specific conversion reference, created by HRM on 4/30/2024
   tada.unit.ref <- utils::read.csv(system.file("extdata", "TADAPriorityCharConvertRef.csv", package = "TADA"))
-  # Make all units and target units uppercase
+  # Make all codes and target units uppercase
   tada.unit.ref$Target.Unit <- toupper(tada.unit.ref$Target.Unit)
   tada.unit.ref$Code <- toupper(tada.unit.ref$Code)
 
-  # Add all possible TADA specific target units
+  # Create df of TADA priority targets with TADA specific conversions
   tada.targets <- data.units %>%
+    # Add TADA priority target units
     dplyr::left_join(tada.char.ref, by = "CharacteristicName") %>%
+    # Filter out any rows without a TADA priority target unit
     dplyr::filter(!is.na(Target.Unit)) %>%
+    # Join TADA specific conversion factor/coefficient (not included in unit.ref because they disagree with WQX target units)
     dplyr::left_join(tada.unit.ref,
       by = c("Code", "Target.Unit"),
       relationship = "many-to-many"
     ) %>%
+    # Create a CharUnit column by concatenating characteristic name and code
     dplyr::mutate(CharUnit = paste(CharacteristicName, "_", Code, sep = "")) %>%
+    # Filter out any results without a conversion factor
     dplyr::filter(!is.na(Conversion.Factor)) %>%
+    # Select columns needed for final unit ref
     dplyr::select(
       "CharacteristicName", "Code",
       "Target.Unit", "Last.Change.Date",
@@ -121,15 +132,21 @@ TADA_CreateUnitRef <- function(.data) {
       "CharUnit"
     )
 
+  # Create df of TADA priority targets with WQX/USGS conversions
   tada.wqx <- data.units %>%
+    # Add TADA priority target units
     dplyr::left_join(tada.char.ref, by = "CharacteristicName") %>%
+    # Create a CharUnit column by concatenating characteristic name and code
     dplyr::mutate(CharUnit = paste(CharacteristicName, "_", Code, sep = "")) %>%
+    # Filter out any rows already assigned TADA specific conversion factor/coefficient or without a TADA priority target unit
     dplyr::filter(!CharUnit %in% tada.targets$CharUnit &
       !is.na(Target.Unit)) %>%
+    # Join WQX/USGS conversion factor/coefficient
     dplyr::left_join(unit.ref,
       by = c("Code", "Target.Unit"),
       relationship = "many-to-many"
     ) %>%
+    # Select columns needed for final unit ref
     dplyr::select(
       "CharacteristicName", "Code",
       "Target.Unit", "Last.Change.Date",
@@ -140,12 +157,16 @@ TADA_CreateUnitRef <- function(.data) {
   # Remove intermediate objects
   rm(tada.char.ref, tada.unit.ref)
 
-  # Assign all other target units
+  # Create df to assign all other targets and conversion factors/coefficients based on WQX/USGS targets
   other.targets <- data.units %>%
+    # Create a CharUnit column by concatenating characteristic name and code
     dplyr::mutate(CharUnit = paste(CharacteristicName, "_", Code, sep = "")) %>%
+    # Filter out any rows already assigned TADA priority target units
     dplyr::filter(!CharUnit %in% tada.targets$CharUnit &
       !CharUnit %in% tada.wqx$CharUnit) %>%
+    # Join WQX/USGS conversion factor/coefficient
     dplyr::left_join(unit.ref, by = "Code", relationship = "many-to-many") %>%
+    # Select columns needed for final unit ref
     dplyr::select(
       "CharacteristicName", "Code",
       "Target.Unit", "Last.Change.Date",
@@ -168,17 +189,20 @@ TADA_CreateUnitRef <- function(.data) {
       "Target.Speciation", "CharUnit"
     )) %>%
     dplyr::group_by(CharacteristicName) %>%
+    # Count number of target units per characteristic
     dplyr::mutate(NConvert = length(unique(Target.Unit))) %>%
     dplyr::ungroup()
 
   # Remove intermediate objects
   rm(other.targets, tada.targets, tada.wqx, data.units)
 
-  # Identify characteristics with multiple target units identified
+  # Identify characteristics with multiple target units
   mult.target.chars <- comb.convert %>%
     dplyr::filter(NConvert > 1)
 
+  # If there are characteristics with more than one target unit:
   if (nrow(mult.target.chars) > 0) {
+    # Create list of characteristics/target units when a characteristic has more than one target unit
     mult.target.list <- mult.target.chars %>%
       dplyr::select(CharacteristicName, Target.Unit) %>%
       dplyr::group_by(CharacteristicName) %>%
@@ -195,12 +219,15 @@ TADA_CreateUnitRef <- function(.data) {
       dplyr::distinct() %>%
       stringi::stri_replace_last(replacement = " and ", fixed = "; ")
 
+    # Print message listing characteristics/target units
     print(paste("TADA.CreateUnitRef: The following characteristics have more than one listed target unit: ", mult.target.list, ". This may be due to units of different types that cannot be converted to match each other. You may wish to review the output of TADA.CreateUnitRef and edit it.", sep = ""))
-
+  }
+  
+    # Remove intermediate columns from comb.convert df
     comb.convert <- comb.convert %>%
       dplyr::select(-NConvert, -CharUnit, -Last.Change.Date)
-  }
-
+    
+ 
   # Return reference table for use in unit conversion functions or for more editing by user
   return(comb.convert)
 }
