@@ -120,7 +120,7 @@ TADA_HarmonizeSynonyms <- function(.data, ref, np_speciation = TRUE) {
   flag.data <- .data %>%
     dplyr::left_join(harm.ref, by = c("TADA.CharacteristicName",
                                       "TADA.ResultSampleFractionText",
-                                      "TADA.MethodSpeciationName")) %>%
+                                      "TADA.MethodSpeciationName"))
   
   # TADA.CharacteristicName
   # replace TADA.CharacteristicName with Target.TADA.CharacteristicName
@@ -182,10 +182,6 @@ TADA_HarmonizeSynonyms <- function(.data, ref, np_speciation = TRUE) {
       "Target.TADA.ResultSampleFractionText",
       "Target.TADA.MethodSpeciationName",
       "Target.TADA.SpeciationConversionFactor",
-      "Target.TADA.ResultMeasure.MeasureUnitCode",
-      "Target.TADA.UnitConversionFactor",
-      "Target.TADA.UnitConversionCoefficient",
-      "TADA.UnitConversionRef",
       "HarmonizationGroup"
     ))
 
