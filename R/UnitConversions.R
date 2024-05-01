@@ -400,7 +400,7 @@ TADA_ConvertResultUnits <- function(.data, ref = "tada", transform = TRUE, detli
           "Domain", "Unique.Identifier", "Code",
           "Description", "Last.Change.Date",
           "Target.Unit", "Conversion.Factor",
-          "Conversion.Coefficient"
+          "Conversion.Coefficient", "Target.Speciation"
         ))
 
       print("TADA_ConvertResultUnits: No unit reference data frame was supplied. Characteristic units will be converted to WQX target units.")
@@ -470,7 +470,7 @@ TADA_ConvertResultUnits <- function(.data, ref = "tada", transform = TRUE, detli
       ))
 
     # Convert method speciation column for USGS data
-    check <- subset(flag.data, !is.na(flag.data$TADA.SpeciationUnitConversion) & !is.na(flag.data$TADA.MethodSpeciationName))
+    check <- subset(clean.data, !is.na(clean.data$TADA.SpeciationUnitConversion) & !is.na(flag.data$TADA.MethodSpeciationName))
     if (dim(check)[1] > 0) {
       print(paste0("NOTE: Dataset contains ", dim(check)[1], " USGS results with speciation information in both the result unit and method speciation columns. This function overwrites the TADA method speciation column with the speciation provided in the result unit column."))
     }
@@ -498,9 +498,8 @@ TADA_ConvertResultUnits <- function(.data, ref = "tada", transform = TRUE, detli
   if (detlimit == TRUE) {
     det.ref <- unit.ref %>%
       dplyr::rename(
-        TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode = TADA.ResultMeasure.MeasureUnitCode,
-        TADA.WQXUnitConversionCoefficient = TADA.WQXUnitConversionCoefficient
-      )
+        TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode = TADA.ResultMeasure.MeasureUnitCode
+        )
 
     # Transform TADA.DetectionQuantitationLimitMeasure.MeasureValue value to Target Unit only if target unit exists
     det.data <- clean.data %>%
@@ -519,20 +518,23 @@ TADA_ConvertResultUnits <- function(.data, ref = "tada", transform = TRUE, detli
         !is.na(TADA.WQXTargetUnit) ~ TADA.WQXTargetUnit,
         is.na(TADA.WQXTargetUnit) ~ TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode
       )) %>%
-      dplyr::select(-TADA.WQXTargetUnit, -TADA.WQXUnitConversionFactor) %>%
+    
       TADA_OrderCols()
     
     # Convert method speciation column for USGS data
-    check.det <- subset(convert.data, !is.na(convert.data$TADA.SpeciationUnitConversion) & !is.na(flag.data$TADA.MethodSpeciationName))
-    if (dim(check)[1] > 0) {
-      print(paste0("NOTE: Dataset contains ", dim(check)[1], " USGS results with speciation information in both the result unit and method speciation columns. This function overwrites the TADA method speciation column with the speciation provided in the result unit column."))
-    }
+     clean.data$TADA.MethodSpeciationName <- ifelse(is.na(clean.data$TADA.MethodSpeciationName) & !is.na(clean.data$TADA.SpeciationUnitConversion), clean.data$TADA.SpeciationUnitConversion, clean.data$TADA.MethodSpeciationName)
     
-    clean.data$TADA.MethodSpeciationName <- ifelse(!is.na(clean.data$TADA.SpeciationUnitConversion), clean.data$TADA.SpeciationUnitConversion, clean.data$TADA.MethodSpeciationName)
-    
-    
-    # update TADA.MethodSpeciation if required
-    convert.data <- convert.data %>%
+    # Remove conversion columns if transform = TRUE
+     if(transform == TRUE){
+       
+       convert.data <- convert.data %>%
+         dplyr::select(-any_of(conversion.cols))
+       
+       if(transform == FALSE){
+         
+         convert.data <- convert.data
+       }
+     }
       
 
     return(convert.data)
