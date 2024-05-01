@@ -371,8 +371,6 @@ incompatible_datatype <- dataset %>%
 
 # take a look at the difficult data types - do they make sense?
 check <- unique(incompatible_datatype[, c("TADA.CharacteristicName", "ResultMeasureValue", "TADA.ResultMeasureValue", "ResultMeasure.MeasureUnitCode", "TADA.ResultMeasure.MeasureUnitCode", "TADA.ResultMeasureValueDataTypes.Flag", "DetectionQuantitationLimitMeasure.MeasureValue", "TADA.DetectionQuantitationLimitMeasure.MeasureValue", "DetectionQuantitationLimitMeasure.MeasureUnitCode", "TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode")])
-
-View(check)
 ```
 
 ```{r}
@@ -404,8 +402,6 @@ problem_censored <- dataset %>%
 
 # Let's take a look at the problematic data that we filtered out (if any)
 check <- unique(problem_censored[, c("TADA.CharacteristicName", "ResultDetectionConditionText", "DetectionQuantitationLimitTypeName", "TADA.CensoredData.Flag")])
-
-View(check)
 ```
 
 ```{r}
@@ -440,8 +436,6 @@ the following command:
 
 ```{r}
 qaqc_ref <- TADA::TADA_GetWQXCharValRef()
-
-View(qaqc_ref)
 
 unique(qaqc_ref$Type)
 ```
@@ -646,7 +640,7 @@ with different units or fractions in the same distribution.
 
 ```{r}
 # trusty field values table - lets just look at the first few entries with the most associated records
-View(TADA::TADA_FieldValuesTable(dataset_cens, field = "TADA.ComparableDataIdentifier"))
+TADA::TADA_FieldValuesTable(dataset_cens, field = "TADA.ComparableDataIdentifier")
 ```
 
 Now that we have an idea for what the TADA.ComparableDataIdentifier
@@ -667,7 +661,7 @@ TADA::TADA_Histogram(plot_data, id_cols = "TADA.ComparableDataIdentifier")
 ```{r}
 TADA::TADA_Boxplot(plot_data, id_cols = "TADA.ComparableDataIdentifier")
 
-View(TADA::TADA_Stats(plot_data))
+TADA::TADA_Stats(plot_data)
 ```
 
 Finally, we can download our PASS and FAIL datasets together into an
