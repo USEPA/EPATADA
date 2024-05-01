@@ -56,7 +56,10 @@ utils::globalVariables(c(
   "ML.Media.Flag", "TADA.UseForAnalysis.Flag",
   "Unique.Identifier", "Domain", "Note.Recommendation", "Conversion.Coefficient",
   "Conversion.Coefficient", "Last.Change.Date", "Value", "Minimum", "Unique.Identifier",
-  "Domain"
+  "Domain", "ATTAINS.assessmentunitidentifier", "ATTAINS_AUs", "GLOBALID", "Maximum",
+  "OBJECTID", "ResultMeasure.MeasureUnitCode", "SingleNearbyGroup", "TADA.MultipleOrgDuplicate",
+  "TADA.ResultSelectedMultipleOrgs", "TOTALAREA_KM", "TOTALAREA_MI", "assessmentunitidentifier",
+  "epsg", "flag", "index"
 ))
 
 # global variables for tribal feature layers used in TADA_OverviewMap in Utilities.R
@@ -500,7 +503,7 @@ TADA_ConvertSpecialChars <- function(.data, col, percent.ave = TRUE) {
 
   # remove columns to be replaced
   clean.data <- clean.data %>%
-    dplyr::select(!(any_of(numcol)), !(any_of(flagcol)))
+    dplyr::select(!(tidyselect::any_of(numcol)), !(tidyselect::any_of(flagcol)))
 
   # Rename to original column name, TADA column name, and flag column name
   names(clean.data)[names(clean.data) == "orig"] <- col

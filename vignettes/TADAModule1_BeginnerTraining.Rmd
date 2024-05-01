@@ -67,7 +67,7 @@ collaboration with external partners.**
 First, install and load the remotes package specifying the repo. This is
 needed before installing TADA because it is only available on GitHub.
 
-```{r install_remotes, results = 'hide'}
+```{r install_remotes, results = 'hide', eval = F}
 install.packages("remotes",
   repos = "http://cran.us.r-project.org"
 )
@@ -90,7 +90,7 @@ remotes::install_github("USEPA/TADA",
 # remotes::install_github("USGS-R/dataRetrieval", dependencies=TRUE)
 ```
 
-```{r for-development-only, echo = F, results = 'hide'}
+```{r for-development-only, echo = F, results = 'hide', eval = F}
 # IF YOU ARE NOT DEVELOPING TADA, SKIP THIS CODE CHUNK
 # when developing the package, update this chunk to the current repository branch, so it runs with all of the new features prior to a PR to develop
 remotes::install_github("USEPA/TADA",
@@ -1159,7 +1159,7 @@ DRAFT [Module 1](https://owshiny-dev.app.cloud.gov/tada-dev/) is also
 currently hosted on the web with minimal server memory/storage
 allocated.
 
-```{r, eval = F} 
+```{r, eval = F}
 # download TADA Shiny repository
 remotes::install_github("USEPA/TADAShiny", ref = "develop", dependencies
 = TRUE )

@@ -85,7 +85,7 @@ Users can install the TADA package from GitHub into their R library
 using the `remotes` package. Copy and paste the code below into your R
 or RStudio console to download and install.
 
-```{r install_remotes, results = 'hide'}
+```{r install_remotes, results = 'hide', eval = F}
 install.packages("remotes",
   repos = "http://cran.us.r-project.org"
 )
@@ -102,7 +102,7 @@ remotes::install_github("USEPA/TADA", ref = "develop")
 library(TADA)
 ```
 
-```{r for-development-only, echo = F, results = 'hide'}
+```{r for-development-only, echo = F, results = 'hide', eval = F}
 # IF YOU ARE NOT DEVELOPING TADA, SKIP THIS CODE CHUNK
 # when developing the package, update this chunk to the current repository branch, so it runs with all of the new features prior to a PR to develop
 remotes::install_github("USEPA/TADA",
@@ -384,15 +384,14 @@ rm(incompatible_datatype, check, rv_datatypes, na_rv_datatypes)
 dimCheck(all_result_num, dataset, removed, checkName = "Result Format")
 ```
 
-TADA_IDCensoredData sorts result values into
-detection limit categories (e.g. non-detect, over-detect) based on
-populated values in the ResultDetectionConditionText and
-DetectionQuantitationLimitTypeName columns. You can find the reference
-tables used to make these decisions in `TADA_GetDetCondRef()` and
-`TADA_GetDetLimitRef()` functions. In some cases, results are missing
-detection limit/condition info, or there is a conflict in the detection
-limit and condition. The user may want to remove problematic detection
-limit data before proceeding.
+TADA_IDCensoredData sorts result values into detection limit categories
+(e.g. non-detect, over-detect) based on populated values in the
+ResultDetectionConditionText and DetectionQuantitationLimitTypeName
+columns. You can find the reference tables used to make these decisions
+in `TADA_GetDetCondRef()` and `TADA_GetDetLimitRef()` functions. In some
+cases, results are missing detection limit/condition info, or there is a
+conflict in the detection limit and condition. The user may want to
+remove problematic detection limit data before proceeding.
 
 ```{r}
 dataset <- TADA::TADA_IDCensoredData(dataset)

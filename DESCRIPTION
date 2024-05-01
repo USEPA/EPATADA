@@ -65,7 +65,8 @@ Imports:
     remotes,
     urltools,
     geojsonsf,
-    tibble
+    tibble,
+    tidyselect
 Depends: 
     R (>= 3.5.0)
 Suggests: 
