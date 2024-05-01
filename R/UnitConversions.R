@@ -417,6 +417,7 @@ TADA_ConvertResultUnits <- function(.data, ref = "tada", transform = TRUE, detli
 
   # join unit.ref to .data
   check.data <- .data %>%
+    dplyr::select(-any_of("Conversion.Coefficient")) %>%
     dplyr::left_join(unit.ref,
       by = c(
         "TADA.CharacteristicName",
