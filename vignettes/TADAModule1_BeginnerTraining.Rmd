@@ -423,7 +423,7 @@ to view a pop-up with this summary information. This can be a good first
 step in identifying incorrect coordinates that are outside of the
 desired state(s) of interest or outside of the US.
 
-```{r Map, fig.width=8, fig.height=6, fig.fullwidth=TRUE}
+```{r Map, fig.width=8, fig.height=6, fig.fullwidth=TRUE, eval = F}
 OvwMap <- TADA_OverviewMap(R5Profile)
 
 OvwMap
