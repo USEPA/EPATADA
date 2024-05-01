@@ -522,7 +522,7 @@ TADA_ConvertResultUnits <- function(.data, ref = "tada", transform = TRUE, detli
         !is.na(TADA.WQXTargetUnit) ~ TADA.WQXTargetUnit,
         is.na(TADA.WQXTargetUnit) ~ TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode
       )) %>%
-      dplyr::select(-TADA.WQXTargetUnit, -TADA.WQXConversion.Factor) %>%
+      dplyr::select(-TADA.WQXTargetUnit, -TADA.WQXUnitConversionFactor) %>%
       TADA_OrderCols()
 
     return(convert.data)
