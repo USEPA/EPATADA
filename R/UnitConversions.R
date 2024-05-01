@@ -206,7 +206,7 @@ TADA_CreateUnitRef <- function(.data) {
       dplyr::select(CharacteristicName, Target.Unit) %>%
       dplyr::group_by(CharacteristicName) %>%
       dplyr::mutate(
-        MultUnits = paste(Target.Unit, collapse = ", "),
+        MultUnits = paste(unique(Target.Unit), collapse = ", "),
         MultUnits = stringi::stri_replace_last(MultUnits, replacement = " and ", fixed = ", "),
         MultUnits = paste(CharacteristicName, " (", MultUnits, ")", sep = "")
       ) %>%
@@ -512,9 +512,6 @@ TADA_ConvertResultUnits <- function(.data, ref = "tada", transform = TRUE, detli
         is.na(TADA.WQXTargetUnit) ~ TADA.DetectionQuantitationLimitMeasure.MeasureValue
       ))
 
-    # Format TADA.DetectionQuantitationLimitMeasure.MeasureValue
-    # det.data$TADA.ResultMeasureValue <- format(clean.data$TADA.ResultMeasureValue, scientific = FALSE)
-
     # populate TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode
     convert.data <- det.data %>%
       # use target unit where there is a target unit, use original unit if no target unit
@@ -524,6 +521,19 @@ TADA_ConvertResultUnits <- function(.data, ref = "tada", transform = TRUE, detli
       )) %>%
       dplyr::select(-TADA.WQXTargetUnit, -TADA.WQXUnitConversionFactor) %>%
       TADA_OrderCols()
+    
+    # Convert method speciation column for USGS data
+    check.det <- subset(convert.data, !is.na(convert.data$TADA.SpeciationUnitConversion) & !is.na(flag.data$TADA.MethodSpeciationName))
+    if (dim(check)[1] > 0) {
+      print(paste0("NOTE: Dataset contains ", dim(check)[1], " USGS results with speciation information in both the result unit and method speciation columns. This function overwrites the TADA method speciation column with the speciation provided in the result unit column."))
+    }
+    
+    clean.data$TADA.MethodSpeciationName <- ifelse(!is.na(clean.data$TADA.SpeciationUnitConversion), clean.data$TADA.SpeciationUnitConversion, clean.data$TADA.MethodSpeciationName)
+    
+    
+    # update TADA.MethodSpeciation if required
+    convert.data <- convert.data %>%
+      
 
     return(convert.data)
   }
