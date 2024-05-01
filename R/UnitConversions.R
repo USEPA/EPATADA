@@ -388,6 +388,7 @@ TADA_ConvertResultUnits <- function(.data, ref = "tada", transform = TRUE, detli
       usgs.ref <- TADA_GetUSGSSynonymRef()
       usgs.ref$Target.Unit <- toupper(usgs.ref$Target.Unit)
       usgs.ref$Code <- toupper(usgs.ref$Code)
+      usgs.ref$Target.Speciation <- toupper(usgs.ref$Target.Speciation)
 
       # Import WQX unit ref
       wqx.ref <- TADA_GetMeasureUnitRef()
@@ -518,12 +519,12 @@ TADA_ConvertResultUnits <- function(.data, ref = "tada", transform = TRUE, detli
         !is.na(TADA.WQXTargetUnit) ~ TADA.WQXTargetUnit,
         is.na(TADA.WQXTargetUnit) ~ TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode
       )) %>%
-    
       TADA_OrderCols()
     
     # Convert method speciation column for USGS data
-     clean.data$TADA.MethodSpeciationName <- ifelse(is.na(clean.data$TADA.MethodSpeciationName) & !is.na(clean.data$TADA.SpeciationUnitConversion), clean.data$TADA.SpeciationUnitConversion, clean.data$TADA.MethodSpeciationName)
-    
+     convert.data$TADA.MethodSpeciationName <- ifelse(is.na(convert.data$TADA.MethodSpeciationName) & !is.na(convert.data$TADA.SpeciationUnitConversion), convert.data$TADA.SpeciationUnitConversion, convert.data$TADA.MethodSpeciationName)
+     convert.data$TADA.MethodSpeciationName <- ifelse(convert.data$TADA.MethodSpeciationName == "", NA, convert.data$TADA.MethodSpeciationName)
+     
     # Remove conversion columns if transform = TRUE
      if(transform == TRUE){
        
