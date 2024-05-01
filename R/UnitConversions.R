@@ -522,7 +522,7 @@ TADA_ConvertResultUnits <- function(.data, ref = "tada", transform = TRUE, detli
       TADA_OrderCols()
     
     # Convert method speciation column for USGS data
-     convert.data$TADA.MethodSpeciationName <- ifelse(is.na(convert.data$TADA.MethodSpeciationName) & !is.na(convert.data$TADA.SpeciationUnitConversion), convert.data$TADA.SpeciationUnitConversion, convert.data$TADA.MethodSpeciationName)
+     convert.data$TADA.MethodSpeciationName <- ifelse(is.na(convert.data$TADA.MethodSpeciationName) & !is.na(convert.data$TADA.SpeciationUnitConversion), toupper(convert.data$TADA.SpeciationUnitConversion), convert.data$TADA.MethodSpeciationName)
      convert.data$TADA.MethodSpeciationName <- ifelse(convert.data$TADA.MethodSpeciationName == "", NA, convert.data$TADA.MethodSpeciationName)
      
     # Remove conversion columns if transform = TRUE
