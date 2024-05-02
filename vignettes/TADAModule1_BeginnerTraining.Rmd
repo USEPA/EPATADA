@@ -115,7 +115,7 @@ the GitHub site. Users can also access the help page for a given
 function in R or RStudio using the following format (example below):
 `?TADA::[name of TADA function]`
 
-```{r help_pages}
+```{r help_pages, eval = F}
 # Access help page for TADA_DataRetrieval
 ?TADA_DataRetrieval
 ```

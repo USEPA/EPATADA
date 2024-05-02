@@ -431,7 +431,7 @@ TADA_ConvertResultUnits <- function(.data, ref = "tada", transform = TRUE, detli
   # join unit.ref to .data
   check.data <- .data %>%
     # remove existing conversion columns
-    dplyr::select(-any_of(conversion.cols)) %>%
+    dplyr::select(-tidyselect::any_of(conversion.cols)) %>%
     # add new conversion columns
     dplyr::left_join(unit.ref,
       by = c(
@@ -533,7 +533,7 @@ TADA_ConvertResultUnits <- function(.data, ref = "tada", transform = TRUE, detli
      if(transform == TRUE){
        
        convert.data <- convert.data %>%
-         dplyr::select(-any_of(conversion.cols))
+         dplyr::select(-tidyselect::any_of(conversion.cols))
        
        if(transform == FALSE){
          
