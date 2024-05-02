@@ -375,7 +375,6 @@ TADA_ConvertResultUnits <- function(.data, ref = "tada", transform = TRUE, detli
     compare.ref <- check.units %>%
       dplyr::anti_join(check.ref, by = c("TADA.CharacteristicName", "TADA.ResultMeasure.MeasureUnitCode"))
 
-
     # if no difference between the two, print message that all combinations are present in unit ref
     if (nrow(compare.ref) == 0) {
       print("All CharacteristicName/Unit combinations in the TADA dataframe are represented in user-supplied unit reference.")
