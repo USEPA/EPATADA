@@ -1,25 +1,47 @@
-﻿CharacteristicName,Target.Unit
-Boron,ug/L
-Chlorophyll a,ug/L
-Chromium,ug/L
-Chromium(VI),ug/L
-Cadmium,ug/L
-Copper,ug/L
-Dissolved oxygen (DO),mg/L
+CharacteristicName,Target.Unit
 Dissolved oxygen saturation,%
 Escherichia coli,CFU/100mL
+Fecal coliform,CFU/100mL
+"Temperature, water",deg C
+"Depth, Secchi disk depth",m
+Ammonia,mg/L
+AMMONIA AND AMMONIUM,mg/L
+AMMONIA-NITROGEN,mg/L
+AMMONIA-NITROGEN,mg/L
+AMMONIUM,mg/L
+Dissolved oxygen (DO),mg/L
+Nitrate,mg/L
+Nitrogen,mg/L
+"Total Nitrogen, mixed forms",mg/L
+pH,none
+Boron,ug/L
+Cadmium,ug/L
+Chlorophyll a,ug/L
+Chromium,ug/L
+Chromium(III),ug/L
+Chromium(VI),ug/L
+Copper,ug/L
 Lead,ug/L
 Mercury,ug/L
 Nickel,ug/L
-Nitrate,ug/L
-"Total Nitrogen, mixed forms",ug/L
-pH,none
-"Total Phosphorus, mixed forms",ug/L
-"Depth, Secchi disk depth",m
 Selenium,ug/L
 Silver,ug/L
-"Temperature, water",deg C
+"Total Phosphorus, mixed forms",ug/L
 Total suspended solids,ug/L
-Chromium(III),ug/L
 Zinc,ug/L
-Fecal coliform,CFU/100mL
+"INORGANIC NITROGEN (AMMONIA, NITRATE AND NITRITE)",mg/L
+INORGANIC NITROGEN (NITRATE & NITRITE),mg/L
+INORGANIC NITROGEN (NITRATE AND NITRITE),mg/L
+"INORGANIC NITROGEN (NO2, NO3, & NH3)",mg/L
+KJELDAHL NITROGEN,mg/L
+NITRATE + NITRITE,mg/L
+NITRITE,mg/L
+NITROGEN KJELDAHL,mg/L
+"NITROGEN, MIXED FORMS (NH3), (NH4), ORGANIC, (NO2) AND (NO3)",mg/L
+NUTRIENT-NITROGEN,mg/L
+ORGANIC NITROGEN,mg/L
+PARTICULATE ORGANIC NITROGEN AND PARTICULATE NITROGEN,mg/L
+TOTAL KJELDAHL NITROGEN,mg/L
+TOTAL KJELDAHL NITROGEN (ORGANIC N & NH3),mg/L
+"TOTAL NITROGEN, MIXED FORMS (NH3), (NH4), ORGANIC, (NO2) AND (NO3)",mg/L
+TOTAL PARTICULATE NITROGEN,mg/L

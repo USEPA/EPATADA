@@ -24,7 +24,7 @@ customize standardization of units by characteristic.
 }
 \examples{
 
-#' # Load example dataset:
+# Load example dataset:
 data(Data_Nutrients_UT)
 
 # Create a unit reference data frame

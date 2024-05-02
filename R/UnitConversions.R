@@ -16,7 +16,7 @@
 #'
 #' @examples
 #'
-#' #' # Load example dataset:
+#' # Load example dataset:
 #' data(Data_Nutrients_UT)
 #'
 #' # Create a unit reference data frame
@@ -24,6 +24,7 @@
 #'
 TADA_CreateUnitRef <- function(.data) {
   # .data required columns
+  # some of these are only required so we can check if TADA_Autoclean has been run
   required_cols <- c(
     "TADA.CharacteristicName", "TADA.ResultSampleFractionText",
     "TADA.MethodSpeciationName", "TADA.ResultMeasure.MeasureUnitCode",
@@ -33,13 +34,12 @@ TADA_CreateUnitRef <- function(.data) {
   # Check to see if TADA_Autoclean has been run
   if (all(required_cols %in% colnames(.data)) == FALSE) {
     print("The dataframe does not contain the required fields to use TADA. Running TADA_AutoClean to create required columns.")
-
     .data <- TADA_AutoClean(.data)
-
-    if (all(required_cols %in% colnames(.data)) == TRUE) {
-      .data <- .data
     }
-  }
+
+   if (all(required_cols %in% colnames(.data)) == TRUE) {
+     .data <- .data
+     }
 
   # Create df of unique codes and characteristic names(from TADA.CharacteristicName and TADA.ResultMeasure.MeasureUnitCode) in TADA data frame
   data.units.result <- .data %>%
@@ -59,7 +59,7 @@ TADA_CreateUnitRef <- function(.data) {
       "CharacteristicName" = "TADA.CharacteristicName"
     )
 
-  # Create combined df with all unique codes and characteristic names
+  # Create combined df with all unique codes (both result and det units) and characteristic names
   data.units <- data.units.result %>%
     dplyr::full_join(data.units.det, by = c("CharacteristicName", "Code")) %>%
     dplyr::distinct() %>%
@@ -80,7 +80,7 @@ TADA_CreateUnitRef <- function(.data) {
 
   # Import WQX default unit ref
   wqx.ref <- TADA_GetMeasureUnitRef()
-  # Make targe units and codes uppercase
+  # Make target units and codes uppercase
   wqx.ref$Target.Unit <- toupper(wqx.ref$Target.Unit)
   wqx.ref$Code <- toupper(wqx.ref$Code)
 
@@ -231,26 +231,28 @@ TADA_CreateUnitRef <- function(.data) {
   return(comb.convert)
 }
 
+
 #' Transform Units to TADA Target Units, WQX Target Units or User Specified Units
 #'
-#' This function compares measure units in the input data to the Water Quality
-#' Exchange (WQX) 3.0 Measure Unit domain table. It also takes common USGS units
-#' that include speciation information and transfers the speciation information
-#' to the TADA.MethodSpeciationName field.
-#'
-#' It also uses the"TADA.ResultMeasureValue" and
-#' "TADA.ResultMeasure.MeasureUnitCode" fields from an autocleaned input
-#' dataframe to perform conversions as necessary when transform = TRUE.
+#' This function converts result and detection limit measure values and units in the 
+#' input dataframe to TADA target units. It also automatically wrangles common 
+#' USGS units which include speciation in the unit value, such as "mg/l as N" 
+#' and "mg/l asNO3", by transferring the speciation information to the 
+#' TADA.MethodSpeciationName field. 
+#' 
+#' The function uses the "TADA.ResultMeasureValue"
+#' and TADA.ResultMeasure.MeasureUnitCode" fields from an autocleaned input
+#' dataframe to perform conversions when transform = TRUE.
 #'
 #' @param .data TADA dataframe
 #'
 #' @param transform Boolean argument with two possible values, “TRUE” and “FALSE”.
-#' Default is transform = TRUE.When transform = TRUE, result values and units are 
-#' converted to WQX target units. This function changes the values within 
-#'"TADA.ResultMeasure.MeasureUnitCode" to the WQX target units and converts
+#' Default is transform = TRUE. When transform = TRUE, result values and units are 
+#' converted to TADA target units. This function changes the values within 
+#' "TADA.ResultMeasure.MeasureUnitCode" to the TADA target units and converts
 #' respective values within the "TADA.ResultMeasureValue" field.
 #' 
-#' When transform = FALSE, result values and units are NOT converted to WQX target units,
+#' When transform = FALSE, result values and units are NOT converted to TADA target units,
 #' but columns are appended to indicate what the target units and conversion factors are,
 #' and if the data can be converted. This function adds the following four fields ONLY
 #' when transform = FALSE: "TADA.WQXUnitConversionFactor", "TADA.WQXTargetUnit",
@@ -258,8 +260,8 @@ TADA_CreateUnitRef <- function(.data) {
 #'
 #' @param detlimit Boolean argument with two possible values, "TRUE" and "FALSE".
 #' Default is detlimit = TRUE. When detlimit = TRUE, detection limit values and 
-#' units are converted to WQX target units. This function changes the
-#' "TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode" to the WQX target
+#' units are converted to TADA target units. This function changes the
+#' "TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode" to the TADA target
 #' units and converts respective values within the 
 #' "TADA.DetectionQuantitationLimitMeasure.MeasureValue" field.
 #'
@@ -267,9 +269,11 @@ TADA_CreateUnitRef <- function(.data) {
 #' by name. Data frame must contain the columns CharacteristicName, Unit, and TargetUnit.
 #' TADA_CreateUnitRef() can be used to help create this data frame. There are two
 #' options that do not require the user to supply a data frame, "tada" and "wqx".
-#' When ref = "wqx" all unit conversion will be based on WQX unit reference.
+#' When ref = "wqx" all unit conversion will be based on the WQX unit reference
+#' which applies targets at the unit level.
 #' When ref = "tada" all unit conversion will be based on TADA priority characteristic
-#' units (where appplicable), with any other units assigned by WQX unit reference.
+#' units (where applicable) which applies targets at the characteristic level, 
+#' with any other units assigned by WQX unit reference (at the unit level).
 #' The default is ref = "tada".
 #'
 #' @return A TADA dataframe. Depending on the arguments entered by the user, the
@@ -280,7 +284,7 @@ TADA_CreateUnitRef <- function(.data) {
 #' "TADA.WQXResultUnitCoversion" is added. It indicates if data can be converted.
 #' "NoResultValue" means data cannot be converted because there is no 
 #' ResultMeasureValue, and "NoTargetUnit"means data cannot be converted because 
-#' the original unit is not associated witha target unit. "Convert" means the data 
+#' the original unit is not associated with a target unit. "Convert" means the data 
 #' can be transformed.
 #'
 #' @export
@@ -293,7 +297,7 @@ TADA_CreateUnitRef <- function(.data) {
 #' # "TADA.WQXUnitConversionFactor", "TADA.WQXUnitConversionCoefficient", "TADA.WQXTargetUnit", and "TADA.SpeciationUnitConversion":
 #' ResultUnitsNotConverted <- TADA_ConvertResultUnits(Data_Nutrients_UT, transform = FALSE, detlimit = FALSE)
 #'
-#' #' # Convert values and units for results and detection limits:
+#' # Convert values and units for results and detection limits:
 #' ResultUnitsConverted <- TADA_ConvertResultUnits(Data_Nutrients_UT, transform = TRUE, detlimit = TRUE)
 #'
 TADA_ConvertResultUnits <- function(.data, ref = "tada", transform = TRUE, detlimit = TRUE) {
@@ -380,7 +384,7 @@ TADA_ConvertResultUnits <- function(.data, ref = "tada", transform = TRUE, detli
     if (ref == "tada") {
       unit.ref <- TADA_CreateUnitRef(.data)
 
-      print("TADA_ConvertResultUnits: No unit reference data frame was supplied. Characteristic units will be converted to TADA-specified units for priority characteristics and WQX target units for other characteristics.")
+      print("TADA_ConvertResultUnits: TADA target units are assigned by default when no unit 'ref' is supplied as a function input.")
     }
 
     if (ref == "wqx") {
@@ -404,7 +408,7 @@ TADA_ConvertResultUnits <- function(.data, ref = "tada", transform = TRUE, detli
           "Conversion.Coefficient", "Target.Speciation"
         ))
 
-      print("TADA_ConvertResultUnits: No unit reference data frame was supplied. Characteristic units will be converted to WQX target units.")
+      print("TADA_ConvertResultUnits: TADA target units are assigned by default when no unit 'ref' is supplied as a function input.")
     }
   }
 
@@ -447,7 +451,7 @@ TADA_ConvertResultUnits <- function(.data, ref = "tada", transform = TRUE, detli
     ))
 
   if (transform == FALSE) {
-    print("Conversions required for range checks and TADATargetUnit conversions -- Unit conversions, data summaries, and data calculations may be affected.")
+    print("TADA_ConvertResultUnits: When Transform = FALSE, result values and units are NOT converted. Conversions are required for many other TADA functions to work properly (such as result value range checks).")
     # reorder columns
     clean.data <- TADA_OrderCols(flag.data)
   }
