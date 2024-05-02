@@ -67,3 +67,4 @@ test_that("TADA_ConvertDepthUnits converts meters to m", {
   check_depth_meters <- TADA_ConvertDepthUnits(check_depth_meters)
   expect_false("meters" %in% check_depth_meters$TADA.ActivityDepthHeightMeasure.MeasureUnitCode)
 })
+

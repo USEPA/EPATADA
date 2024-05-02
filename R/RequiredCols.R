@@ -59,6 +59,7 @@ require.cols <- c(
   "Target.TADA.UnitConversionFactor", # generated when
   "TADA.WQXUnitConversionFactor", # generated, only added when transform = FALSE in TADA_ConvertResultUnits
   "Target.TADA.UnitConversionCoefficient",
+  "TADA.WQXUnitConversionFactor", #generated, only added when transform = FALSE in TADA_ConvertResultUnits
   "TADA.UnitConversionFactor", # generated, added from TADA harmonization template
   "TADA.SpeciationUnitConversion", # generated, only added when transform = FALSE in TADA_ConvertResultUnits
   "TADA.ResultUnit.Flag", # generated

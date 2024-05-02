@@ -68,8 +68,7 @@ TADA_GetSynonymRef <- function(.data) {
   expected_cols <- c(
     "TADA.CharacteristicName",
     "TADA.ResultSampleFractionText",
-    "TADA.MethodSpeciationName",
-    "TADA.ResultMeasure.MeasureUnitCode"
+    "TADA.MethodSpeciationName"
   )
   TADA_CheckColumns(.data, expected_cols)
 
