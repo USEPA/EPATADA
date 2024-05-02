@@ -35,7 +35,7 @@
 #' # Create a unit reference data frame
 #' UT_UnitRef <- TADA_CreateUnitRef(Data_Nutrients_UT)
 #'
-TADA_CreateUnitRef <- function(.data) {
+TADA_CreateUnitRef <- function(.data, print.message = TRUE) {
   # .data required columns
   # some of these are only required so we can check if TADA_Autoclean has been run
   required_cols <- c(
@@ -230,7 +230,9 @@ TADA_CreateUnitRef <- function(.data) {
       stringi::stri_replace_last(replacement = " and ", fixed = "; ")
 
     # Print message listing characteristics/target units
+    if(print.message == TRUE){
     print(paste("TADA.CreateUnitRef: The following characteristics have more than one listed target unit: ", mult.target.list, ". This may be due to units of different types that cannot be converted to match each other. You may wish to review the output of TADA.CreateUnitRef and edit it.", sep = ""))
+    }
   }
 
     # Remove intermediate columns from comb.convert df
@@ -333,47 +335,45 @@ TADA_ConvertResultUnits <- function(.data, ref = "tada", transform = TRUE, detli
   TADA_CheckColumns(.data, expected_cols)
 
   # execute function after checks are passed
+  
+  # import USGS ref for method speciation
+  usgs.ref <- TADA_GetUSGSSynonymRef() %>%
+    dplyr::select(Code, Target.Unit, Target.Speciation, Conversion.Factor) %>%
+    dplyr::rename(TADA.ResultMeasure.MeasureUnitCode = Code,
+                  TADA.Target.ResultMeasure.MeasureUnitCode = Target.Unit,
+                  TADA.Target.MethodSpeciationName = Target.Speciation)
 
+  
   # if user supplied unit reference was provided
   if (is.data.frame(ref)) {
     # required columns
     expected_ref_cols <- c(
-      "CharacteristicName", "Code", "Target.Unit",
-      "Conversion.Factor", "Conversion.Coefficient", "Target.Speciation"
+      "TADA.CharacteristicName", "TADA.ResultMeasure.MeasureUnitCode", 
+      "TADA.Target.ResultMeasure.MeasureUnitCode", "Conversion.Factor", 
+      "Conversion.Coefficient",
     )
 
     # check ref has all of the required columns
     TADA_CheckColumns(ref, expected_ref_cols)
 
     # create message to inform users if user-supplied unit reference contains all combinations present in TADA data frame
-    unit.ref <- ref
+    unit.ref <- ref %>%
+      dplyr::left_join(usgs.ref, by = c("TADA.ResultMeasure.MeasureUnitCode", 
+                                        "TADA.Target.ResultMeasure.MeasureUnitCode",
+                                        "Conversion.Factor"))
 
     # create list of unique characteristic and unit combinations in data
-    check.units <- .data %>%
-      dplyr::select(TADA.CharacteristicName, TADA.ResultMeasure.MeasureUnitCode) %>%
-      dplyr::distinct() %>%
-      dplyr::rename(
-        Code = TADA.ResultMeasure.MeasureUnitCode,
-        CharacteristicName = TADA.CharacteristicName
-      ) %>%
-      dplyr::mutate(Code = toupper(Code)) %>%
-      dplyr::group_by(CharacteristicName) %>%
-      dplyr::mutate(NConvert = length(Code)) %>%
-      dplyr::filter(NConvert == 1 |
-        (NConvert > 1 & is.na(Code))) %>%
-      dplyr::ungroup() %>%
-      dplyr::group_by(CharacteristicName, Code) %>%
-      dplyr::slice_head() %>%
-      dplyr::select(-NConvert)
+    check.units <- TADA_CreateUnitRef(.data, print.message = FALSE) %>%
+      dplyr::select(TADA.CharacteristicName, TADA.ResultMeasure.MeasureUnitCode)
 
-    # create list of unique characteristic and unit combinations in unit ref
+    # create list of unique characteristic and unit combinations in user-supplied unit ref
     check.ref <- unit.ref %>%
-      dplyr::select(CharacteristicName, Code) %>%
+      dplyr::select(TADA.CharacteristicName, TADA.ResultMeasure.MeasureUnitCode) %>%
       dplyr::distinct()
 
     # compare the unique characteristic/unit combinations in data nd unit ref
     compare.ref <- check.units %>%
-      dplyr::anti_join(check.ref)
+      dplyr::anti_join(check.ref, by = c("TADA.CharacteristicName", "TADA.ResultMeasure.MeasureUnitCode"))
 
 
     # if no difference between the two, print message that all combinations are present in unit ref
@@ -398,7 +398,14 @@ TADA_ConvertResultUnits <- function(.data, ref = "tada", transform = TRUE, detli
   # if no unit reference df was provided by user or user input was "tada"
   if (!is.data.frame(ref)) {
     if (ref == "tada") {
+      
       unit.ref <- TADA_CreateUnitRef(.data)
+      
+      #add method speciation
+      unit.ref <- unit.ref %>%
+        dplyr::left_join(usgs.ref, by = c("TADA.ResultMeasure.MeasureUnitCode", 
+                                          "TADA.Target.ResultMeasure.MeasureUnitCode",
+                                          "Conversion.Factor"))
 
       print("TADA_ConvertResultUnits: TADA target units are assigned by default when no unit 'ref' is supplied as a function input.")
     }
