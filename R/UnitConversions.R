@@ -1,10 +1,21 @@
-#' Generate A Data Frame of Units by Characteristic Name
+#' Generate A Data Frame of Units and Target by Characteristic Name
 #'
 #' This function generates a data frame listing all unique characteristic (by CharacteristicName)
-#' and unit (by ResultMeasure.MeasureUnitCode) pairs present in the dataset. Where
+#' and unit (by TADA.ResultMeasure.MeasureUnitCode) pairs present in the dataset. Where
 #' possible, the function fills in the columns for target unit, and conversion factor.
 #' Users can edit it and use it as an input for TADA_ConvertResultUnits to
-#' customize standardization of units by characteristic.
+#' customize standardization of units by characteristic. The TADA.ResultMeasure.MeasureUnitCode
+#' column automatically incorporates any additional unique unit codes from 
+#' TADA.DetectionQuantitationLimiMeasure.MeasureUnitCode that were not observed in
+#' TADA.ResultMeasure.MeasureUnitCode. This is done to facilitate estimating
+#' censored data later in the workflow.
+#' 
+#' The columns created by TADA_AutoClean are required to run this function. If 
+#' they are not present in the data frame, TADA_AutoClean is automatically run 
+#' before the unit reference data frame is created. Speciation in USGS result units 
+#' (ex: "mg/L as N") are addressedin this function by creating additional rows to 
+#' accomodate all possible combinations from the input TADA dataframe, including 
+#' those with speciation in units.
 #'
 #' @param .data TADA dataframe
 #
