@@ -485,9 +485,7 @@ TADA_ConvertResultUnits <- function(.data, ref = "tada", transform = TRUE, detli
     
     # remove extraneous columns, fix field names
     clean.data <- clean.data %>%
-      dplyr::select(-c(
-       conversion.cols
-      ))
+      dplyr::select(tidyselect::all_of(conversion.cols))
 
     # create new comparable data identifier column following conversion
     clean.data <- TADA_CreateComparableID(clean.data)
