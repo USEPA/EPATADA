@@ -364,7 +364,8 @@ TADA_ConvertResultUnits <- function(.data, ref = "tada", transform = TRUE, detli
 
     # create list of unique characteristic and unit combinations in data
     check.units <- TADA_CreateUnitRef(.data, print.message = FALSE) %>%
-      dplyr::select(TADA.CharacteristicName, TADA.ResultMeasure.MeasureUnitCode)
+      dplyr::select(TADA.CharacteristicName, TADA.ResultMeasure.MeasureUnitCode) %>%
+      dplyr::distinct()
 
     # create list of unique characteristic and unit combinations in user-supplied unit ref
     check.ref <- unit.ref %>%
