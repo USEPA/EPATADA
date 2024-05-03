@@ -2,25 +2,39 @@
 % Please edit documentation in R/UnitConversions.R
 \name{TADA_CreateUnitRef}
 \alias{TADA_CreateUnitRef}
-\title{Generate A Data Frame of Units by Characteristic Name}
+\title{Generate A Data Frame of Units and Target by Characteristic Name}
 \usage{
-TADA_CreateUnitRef(.data)
+TADA_CreateUnitRef(.data, print.message = TRUE)
 }
 \arguments{
 \item{.data}{TADA dataframe}
 }
 \value{
-A dataframe with six columns: CharacteristicName, Code, Target.Unit,
-ConversionFactor, ConversionCoefficient, and Target.Speciation.The number of
-rows will vary based on the number of unique CharacteristicName/
-ResultMeasure.MeasureUnitCode combinations in the initial TADA dataframe.
+A dataframe with six columns: TADA.CharacteristicName,
+TADA.ResultMeasure.MeasureUnitCode, ResultMeasure.MeasureUnitCode,
+TADA.Target.ResultMeasureUnit, ConversionFactor, and ConversionCoefficient.
+The number of rows will vary based on the number of unique
+TADA.CharacteristicName/ResultMeasure.MeasureUnitCode combinations in the
+initial TADA dataframe.
 }
 \description{
 This function generates a data frame listing all unique characteristic (by CharacteristicName)
-and unit (by ResultMeasure.MeasureUnitCode) pairs present in the dataset. Where
+and unit (by TADA.ResultMeasure.MeasureUnitCode) pairs present in the dataset. Where
 possible, the function fills in the columns for target unit, and conversion factor.
 Users can edit it and use it as an input for TADA_ConvertResultUnits to
-customize standardization of units by characteristic.
+customize standardization of units by characteristic. The TADA.ResultMeasure.MeasureUnitCode
+column automatically incorporates any additional unique unit codes from
+TADA.DetectionQuantitationLimiMeasure.MeasureUnitCode that were not observed in
+TADA.ResultMeasure.MeasureUnitCode. This is done to facilitate estimating
+censored data later in the workflow. All variants of TADA.ResultMeasure.MeasureUnitCode
+and ResultMeasure.MeasureUnitCode, including USGS results where speciation is listed
+in the units are included. This faciliates moving speciation from units to
+TADA.MethodSpeciationName in TADA_ConvertResultUnits.
+}
+\details{
+The columns created by TADA_AutoClean are required to run this function. If
+they are not present in the data frame, TADA_AutoClean is automatically run
+before the unit reference data frame is created.
 }
 \examples{
 

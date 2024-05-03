@@ -243,7 +243,7 @@ TADA_AutoClean <- function(.data) {
 
   # Implement unit harmonization
   print("TADA_Autoclean: harmonizing result and depth units.")
-  .data <- suppressWarnings(TADA_ConvertResultUnits(.data, transform = TRUE, ref = "tada", detlimit = TRUE))
+  .data <- suppressWarnings(TADA_ConvertResultUnits(.data, transform = TRUE, ref = "tada"))
   .data <- suppressWarnings(TADA_ConvertDepthUnits(.data, unit = "m"))
 
   # create comparable data identifier column

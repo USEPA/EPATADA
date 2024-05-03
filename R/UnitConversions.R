@@ -253,7 +253,8 @@ TADA_CreateUnitRef <- function(.data, print.message = TRUE) {
 #' input dataframe to TADA target units. It also automatically wrangles common 
 #' USGS units which include speciation in the unit value, such as "mg/l as N" 
 #' and "mg/l asNO3", by transferring the speciation information to the 
-#' TADA.MethodSpeciationName field. 
+#' TADA.MethodSpeciationName field. No speciation conversions occur in this 
+#' function.
 #' 
 #' The function uses the "TADA.ResultMeasureValue"
 #' and TADA.ResultMeasure.MeasureUnitCode" fields from an autocleaned input
@@ -267,15 +268,21 @@ TADA_CreateUnitRef <- function(.data, print.message = TRUE) {
 #' @param .data TADA dataframe
 #'
 #' @param transform Boolean argument with two possible values, “TRUE” and “FALSE”.
-#' Default is transform = TRUE. When transform = TRUE, result values and units are 
-#' converted to TADA target units. This function changes the values within 
-#' "TADA.ResultMeasure.MeasureUnitCode" to the TADA target units and converts
-#' respective values within the "TADA.ResultMeasureValue" field.
+#' Default is transform = TRUE. When transform = TRUE, result values and units,
+#' and detection quantitation limit value and units are converted to TADA target units. 
+#' This function changes the values within "TADA.ResultMeasure.MeasureUnitCode" and 
+#' "TADA.DetectionQuantitationLimitMeasure.MeasureValue" to the TADA target units 
+#' and converts  respective values within the "TADA.ResultMeasureValue" and 
+#' "TADA.DetectionQuantiationLimitMeasure.MeasureValue" fields. When
+#' "TADA.ResultMeasure.MeasureUnitCode" is NA, the unit is taken from
+#' "TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode" if it not NA. This
+#' facilitates estimation of censored data later in the workflow.
 #' 
-#' When transform = FALSE, result values and units are NOT converted to TADA target units,
-#' but columns are appended to indicate what the target units and conversion factors are,
-#' and if the data can be converted. This function adds the following four fields ONLY
-#' when transform = FALSE: "TADA.WQXUnitConversionFactor", "TADA.WQXTargetUnit",
+#' When transform = FALSE, result values and units, and detection quantitaiton limit
+#' values are units are NOT converted to TADA target units,but columns are appended 
+#' to indicate what the target units and conversion factors are, and if the data can 
+#' be converted. This function adds the following four fields ONLY when transform = 
+#' FALSE: "TADA.WQXUnitConversionFactor", "TADA.WQXTargetUnit", 
 #' "TADA.SpeciationUnitConversion", and "TADA.WQXResultUnitConversion.
 #'
 #' @param ref Optional character argument in which a user can specify a data frame
