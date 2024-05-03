@@ -1,34 +1,34 @@
-CharacteristicName,Target.Unit
-Dissolved oxygen saturation,%
-Escherichia coli,CFU/100mL
-Fecal coliform,CFU/100mL
-"Temperature, water",deg C
-"Depth, Secchi disk depth",m
-Ammonia,mg/L
+TADA.CharacteristicName,TADA.Target.ResultMeasure.MeasureUnitCode
+DISSOLVED OXYGEN SATURATION,%
+ESCHERICHIA COLI,CFU/100mL
+FECAL COLIFORM,CFU/100mL
+"TEMPERATURE, WATER",deg C
+"DEPTH, SECCHI DISK DEPTH",m
+AMMONIA,mg/L
 AMMONIA AND AMMONIUM,mg/L
 AMMONIA-NITROGEN,mg/L
 AMMONIA-NITROGEN,mg/L
 AMMONIUM,mg/L
-Dissolved oxygen (DO),mg/L
-Nitrate,mg/L
-Nitrogen,mg/L
-"Total Nitrogen, mixed forms",mg/L
-pH,none
-Boron,ug/L
-Cadmium,ug/L
-Chlorophyll a,ug/L
-Chromium,ug/L
-Chromium(III),ug/L
-Chromium(VI),ug/L
-Copper,ug/L
-Lead,ug/L
-Mercury,ug/L
-Nickel,ug/L
-Selenium,ug/L
-Silver,ug/L
-"Total Phosphorus, mixed forms",ug/L
-Total suspended solids,ug/L
-Zinc,ug/L
+DISSOLVED OXYGEN (DO),mg/L
+NITRATE,mg/L
+NITROGEN,mg/L
+"TOTAL NITROGEN, MIXED FORMS",mg/L
+PH,none
+BORON,ug/L
+CADMIUM,ug/L
+CHLOROPHYLL A,ug/L
+CHROMIUM,ug/L
+CHROMIUM(III),ug/L
+CHROMIUM(VI),ug/L
+COPPER,ug/L
+LEAD,ug/L
+MERCURY,ug/L
+NICKEL,ug/L
+SELENIUM,ug/L
+SILVER,ug/L
+"TOTAL PHOSPHORUS, MIXED FORMS",ug/L
+TOTAL SUSPENDED SOLIDS,ug/L
+ZINC,ug/L
 "INORGANIC NITROGEN (AMMONIA, NITRATE AND NITRITE)",mg/L
 INORGANIC NITROGEN (NITRATE & NITRITE),mg/L
 INORGANIC NITROGEN (NITRATE AND NITRITE),mg/L
