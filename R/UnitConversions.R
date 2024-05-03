@@ -195,7 +195,9 @@ TADA_CreateUnitRef <- function(.data, print.message = TRUE) {
       "TADA.CharacteristicName", "TADA.ResultMeasure.MeasureUnitCode",
       "TADA.Target.ResultMeasure.MeasureUnitCode", "ResultMeasure.MeasureUnitCode",
       "Last.Change.Date", "Conversion.Factor", "Conversion.Coefficient", "CharUnit"
-    ))
+    )) %>%
+    dplyr::rename(TADA.WQXUnitConversionFactor = Conversion.Factor,
+                  TADA.WQXUnitConversionCoefficient = Conversion.Coefficient)
 
   # Remove intermediate objects
   rm(other.targets, tada.targets, tada.wqx, data.units)
@@ -341,7 +343,8 @@ TADA_ConvertResultUnits <- function(.data, ref = "tada", transform = TRUE, detli
     dplyr::select(Code, Target.Unit, Target.Speciation, Conversion.Factor) %>%
     dplyr::rename(TADA.ResultMeasure.MeasureUnitCode = Code,
                   TADA.Target.ResultMeasure.MeasureUnitCode = Target.Unit,
-                  TADA.Target.MethodSpeciationName = Target.Speciation)
+                  TADA.Target.MethodSpeciationName = Target.Speciation,
+                  TADA.WQXUnitConversionFactor = Conversion.Factor)
 
   
   # if user supplied unit reference was provided
@@ -365,7 +368,7 @@ TADA_ConvertResultUnits <- function(.data, ref = "tada", transform = TRUE, detli
     # create list of unique characteristic and unit combinations in data
     check.units <- TADA_CreateUnitRef(.data, print.message = FALSE) %>%
       dplyr::select(TADA.CharacteristicName, TADA.ResultMeasure.MeasureUnitCode) %>%
-      dplyr::distinct()
+      dplyr::
 
     # create list of unique characteristic and unit combinations in user-supplied unit ref
     check.ref <- unit.ref %>%
@@ -427,24 +430,19 @@ TADA_ConvertResultUnits <- function(.data, ref = "tada", transform = TRUE, detli
         dplyr::full_join(wqx.ref, by = c(
           "Domain", "Unique.Identifier", "Code",
           "Description", "Last.Change.Date",
-          "Target.Unit", "Conversion.Factor",
-          "Conversion.Coefficient", "Target.Speciation"
-        ))
+          "Target.Unit", "Conversion.Factor"
+        )) %>%
+        dplyr::rename(TADA.ResultMeasure.MeasureUnitCode = Code,
+                      TADA.Target.ResultMeasure.MeasureUnitCode = Target.Unit,
+                      TADA.WQXUnitConversionFactor = Conversion.Factor,
+                      TADA.WQXUnitConversionCoefficient = Conversion.Coefficient) %>%
+        dplyr::select(TADA.CharacteristicName, TADA.ResultMeasure.MeasureUnitCode,
+                      TADA.Target.ResultMeasure.MeasureUnitCode, TADA.WQXUnitConversionFactor,
+                      TADA.WQXUnitConversionCoefficient)
 
       print("TADA_ConvertResultUnits: TADA target units are assigned by default when no unit 'ref' is supplied as a function input.")
     }
   }
-
-  # rename unit.ref columns
-  unit.ref <- unit.ref %>%
-    dplyr::rename(
-      TADA.CharacteristicName = CharacteristicName,
-      TADA.ResultMeasure.MeasureUnitCode = Code,
-      TADA.SpeciationUnitConversion = Target.Speciation,
-      TADA.WQXTargetUnit = Target.Unit,
-      TADA.WQXUnitConversionFactor = Conversion.Factor,
-      TADA.WQXUnitConversionCoefficient = Conversion.Coefficient
-    )
 
   # list of conversion columns
   
