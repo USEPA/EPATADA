@@ -352,12 +352,18 @@ TADA_ConvertResultUnits <- function(.data, ref = "tada", transform = TRUE, detli
     # required columns
     expected_ref_cols <- c(
       "TADA.CharacteristicName", "TADA.ResultMeasure.MeasureUnitCode", 
-      "TADA.Target.ResultMeasure.MeasureUnitCode", "Conversion.Factor", 
-      "Conversion.Coefficient",
+      "TADA.Target.ResultMeasure.MeasureUnitCode", 
+      "TADA.WQXUnitConversionFactor", "TADA.WQXUnitConversionCoefficient",
+      "check"
     )
 
-    # check ref has all of the required columns
-    TADA_CheckColumns(ref, expected_ref_cols)
+    if (all(expected_ref_cols %in% colnames(ref)) == FALSE) {
+      stop("The reference data frame does not contain all fields required for TADA_ConvertResultUnits. Use TADA_CreateUnitRef with the TADA data frame to create an editable unit reference table with all required columns.")
+      
+      if(all(expected_ref_cols %in% colnames(ref)) == TRUE) {
+        print("The reference data frame contains all fields required for TADA_ConvertResultUnits.")
+      }
+    }
 
     # create message to inform users if user-supplied unit reference contains all combinations present in TADA data frame
     unit.ref <- ref %>%
@@ -367,8 +373,7 @@ TADA_ConvertResultUnits <- function(.data, ref = "tada", transform = TRUE, detli
 
     # create list of unique characteristic and unit combinations in data
     check.units <- TADA_CreateUnitRef(.data, print.message = FALSE) %>%
-      dplyr::select(TADA.CharacteristicName, TADA.ResultMeasure.MeasureUnitCode) %>%
-      dplyr::
+      dplyr::select(TADA.CharacteristicName, TADA.ResultMeasure.MeasureUnitCode) 
 
     # create list of unique characteristic and unit combinations in user-supplied unit ref
     check.ref <- unit.ref %>%
