@@ -62,6 +62,11 @@ TADA.MethodSpeciationName field.
 The function uses the "TADA.ResultMeasureValue"
 and TADA.ResultMeasure.MeasureUnitCode" fields from an autocleaned input
 dataframe to perform conversions when transform = TRUE.
+
+Speciation in USGS result units
+(ex: "mg/L as N") are addressed in this function by creating additional rows to
+accomodate all possible combinations from the input TADA dataframe, including
+those with speciation in units.
 }
 \examples{
 # Load example dataset:
