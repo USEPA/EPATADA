@@ -404,7 +404,7 @@ TADA_ConvertResultUnits <- function(.data, ref = "tada", transform = TRUE) {
         ))
 
       # list of variables for joining unit ref with data
-      ref.join <- c("TADA.CharacteristicName", "TADA.ResultMeasure.MeasureUnitCode")
+      ref.join <- c("TADA.CharacteristicName", "TADA.ResultMeasure.MeasureUnitCode", "ResultMeasure.MeasureUnitCode")
 
       print("TADA_ConvertResultUnits: TADA target units are assigned by default when no unit 'ref' is supplied as a function input.")
     }
