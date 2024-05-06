@@ -36,51 +36,13 @@
 #' UT_UnitRef <- TADA_CreateUnitRef(Data_Nutrients_UT)
 #'
 TADA_CreateUnitRef <- function(.data, print.message = TRUE) {
-  # .data required columns
-  # some of these are only required so we can check if TADA_Autoclean has been run
-  required_cols <- c(
-    "TADA.CharacteristicName", "TADA.ResultSampleFractionText",
-    "TADA.MethodSpeciationName", "TADA.ResultMeasure.MeasureUnitCode",
-    "TADA.ActivityMediaName", "TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode"
-  )
-
-  # Check to see if TADA_Autoclean has been run
-  if (all(required_cols %in% colnames(.data)) == FALSE) {
-    print("The dataframe does not contain the required fields to use TADA. Running TADA_AutoClean to create required columns.")
-    .data <- TADA_AutoClean(.data)
-    }
-
-   if (all(required_cols %in% colnames(.data)) == TRUE) {
-     .data <- .data
-     }
-
-  # Create df of unique codes and characteristic names(from TADA.CharacteristicName and TADA.ResultMeasure.MeasureUnitCode) in TADA data frame
-  data.units.result <- .data %>%
-    dplyr::select(TADA.CharacteristicName, TADA.ResultMeasure.MeasureUnitCode, ResultMeasure.MeasureUnitCode) %>%
-    dplyr::distinct()
-
-  # Create df of unique codes and characteristic names(from TADA.CharacteristicName and TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode) in TADA data frame
-  data.units.det <- .data %>%
-    dplyr::select(TADA.CharacteristicName, TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode, DetectionQuantitationLimitMeasure.MeasureUnitCode) %>%
-    dplyr::distinct() %>%
-    dplyr::rename(
-      TADA.ResultMeasure.MeasureUnitCode = TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode,
-      ResultMeasure.MeasureUnitCode = DetectionQuantitationLimitMeasure.MeasureUnitCode
-    )
-
-  # Create combined df with all unique codes (both result and det units) and characteristic names
-  data.units <- data.units.result %>%
-    dplyr::full_join(data.units.det, by = c("TADA.CharacteristicName", "TADA.ResultMeasure.MeasureUnitCode",
-                                            "ResultMeasure.MeasureUnitCode")) %>%
-    dplyr::distinct() %>%
-    dplyr::group_by(TADA.CharacteristicName) %>%
-    dplyr::mutate(NCode = length(unique(TADA.ResultMeasure.MeasureUnitCode))) %>%
-    dplyr::filter(!is.na(TADA.ResultMeasure.MeasureUnitCode) |
-      is.na(TADA.ResultMeasure.MeasureUnitCode) & NCode == 1) %>%
-    dplyr::select(-NCode)
-
-  # Remove intermediate objects
-  rm(data.units.result, data.units.det)
+  
+  # Create data frame of unique combinations
+  data.units <- TADA_UniqueCharUnitSpeciation(.data)
+  
+  # Remove TADA.MethodSpeciationName column
+  data.units <- data.units %>%
+    dplyr::select(-TADA.MethodSpeciationName)
 
   # Import USGS default unit ref
   usgs.ref <- TADA_GetUSGSSynonymRef()
@@ -375,8 +337,9 @@ TADA_ConvertResultUnits <- function(.data, ref = "tada", transform = TRUE) {
 
     # create message to inform users if user-supplied unit reference contains all combinations present in TADA data frame
     # create list of unique characteristic and unit combinations in data
-    check.units <- TADA_CreateUnitRef(.data, print.message = FALSE) %>%
-      dplyr::select(TADA.CharacteristicName, TADA.ResultMeasure.MeasureUnitCode) 
+    check.units <- TADA_UniqueCharUnitSpeciation(.data) %>%
+      dplyr::select(TADA.CharacteristicName, TADA.ResultMeasure.MeasureUnitCode) %>%
+      dplyr::distinct()
 
     # create list of unique characteristic and unit combinations in user-supplied unit ref
     check.ref <- unit.ref %>%
@@ -410,10 +373,10 @@ TADA_ConvertResultUnits <- function(.data, ref = "tada", transform = TRUE) {
   if (!is.data.frame(ref)) {
     if (ref == "tada") {
       
-      unit.ref <- TADA_CreateUnitRef(.data)
+      data.units <- TADA_UniqueCharUnitSpeciation(.data)
       
       #add method speciation
-      unit.ref <- unit.ref %>%
+      unit.ref <- data.units %>%
         dplyr::left_join(usgs.ref, by = c("TADA.ResultMeasure.MeasureUnitCode", 
                                           "TADA.Target.ResultMeasure.MeasureUnitCode",
                                           "TADA.WQXUnitConversionFactor"))
@@ -549,7 +512,7 @@ TADA_ConvertResultUnits <- function(.data, ref = "tada", transform = TRUE) {
       TADA_OrderCols()
     
     # Convert method speciation column for USGS data
-     convert.data$TADA.MethodSpeciationName <- ifelse(is.na(convert.data$TADA.MethodSpeciationName) & !is.na(convert.data$TADA.SpeciationUnitConversion), toupper(convert.data$TADA.SpeciationUnitConversion), convert.data$TADA.MethodSpeciationName)
+     convert.data$TADA.MethodSpeciationName <- ifelse(is.na(convert.data$TADA.MethodSpeciationName) & !is.na(convert.data$TADA.Target.MethodSpeciationName), toupper(convert.data$TADA.Target.MethodSpeciationName), convert.data$TADA.MethodSpeciationName)
      convert.data$TADA.MethodSpeciationName <- ifelse(convert.data$TADA.MethodSpeciationName == "", NA, convert.data$TADA.MethodSpeciationName)
        
      # Remove unneccessary conversion columns 

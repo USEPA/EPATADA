@@ -1236,3 +1236,54 @@ TADA_addPoints <- function(map, layerfilepath, layergroup, layername, bbox = NUL
   )
   return(map)
 }
+
+#' Create data frame of unique combinations of TADA.CharacteristicName,
+#' TADA.ResultMeasure.MeasureUnitCode, ResultMeasure.MeasureUnitCode, and
+#' TADA.MethodSpeciationName in a TADA data frame.
+
+TADA_UniqueCharUnitSpeciation <- function(.data) {
+  
+  required_cols <- c(
+    "TADA.CharacteristicName", "TADA.ResultSampleFractionText",
+    "TADA.MethodSpeciationName", "TADA.ResultMeasure.MeasureUnitCode",
+    "TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode"
+  )
+  
+  # Check to see if TADA_Autoclean has been run
+  if (all(required_cols %in% colnames(.data)) == FALSE) {
+    print("The dataframe does not contain the required fields to use TADA. Running TADA_AutoClean to create required columns.")
+    .data <- TADA_AutoClean(.data)
+  }
+  
+  if (all(required_cols %in% colnames(.data)) == TRUE) {
+    .data <- .data
+  }
+  
+  # Create df of unique codes and characteristic names(from TADA.CharacteristicName and TADA.ResultMeasure.MeasureUnitCode) in TADA data frame
+  data.units.result <- .data %>%
+    dplyr::select(TADA.CharacteristicName, TADA.ResultMeasure.MeasureUnitCode, 
+                  ResultMeasure.MeasureUnitCode, TADA.MethodSpeciationName) %>%
+    dplyr::distinct()
+  
+  # Create df of unique codes and characteristic names(from TADA.CharacteristicName and TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode) in TADA data frame
+  data.units.det <- .data %>%
+    dplyr::select(TADA.CharacteristicName, TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode, 
+                  DetectionQuantitationLimitMeasure.MeasureUnitCode, TADA.MethodSpeciationName) %>%
+    dplyr::distinct() %>%
+    dplyr::rename(
+      TADA.ResultMeasure.MeasureUnitCode = TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode,
+      ResultMeasure.MeasureUnitCode = DetectionQuantitationLimitMeasure.MeasureUnitCode
+    )
+  
+  # Create combined df with all unique codes (both result and det units) and characteristic names
+  data.units <- data.units.result %>%
+    dplyr::full_join(data.units.det, by = c("TADA.CharacteristicName", "TADA.ResultMeasure.MeasureUnitCode",
+                                            "ResultMeasure.MeasureUnitCode", "TADA.MethodSpeciationName")) %>%
+    dplyr::distinct() %>%
+    dplyr::group_by(TADA.CharacteristicName) %>%
+    dplyr::mutate(NCode = length(unique(TADA.ResultMeasure.MeasureUnitCode))) %>%
+    dplyr::filter(!is.na(TADA.ResultMeasure.MeasureUnitCode) |
+                    is.na(TADA.ResultMeasure.MeasureUnitCode) & NCode == 1) %>%
+    dplyr::select(-NCode)
+}
+
