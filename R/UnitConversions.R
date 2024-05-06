@@ -434,8 +434,7 @@ TADA_ConvertResultUnits <- function(.data, ref = "tada", transform = TRUE) {
     # add new conversion columns
     dplyr::left_join(unit.ref,
       by = c(
-        "TADA.CharacteristicName",
-        "TADA.ResultMeasure.MeasureUnitCode"
+        ref.join
       ),
       relationship = "many-to-many"
     )
