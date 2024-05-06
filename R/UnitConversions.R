@@ -36,51 +36,13 @@
 #' UT_UnitRef <- TADA_CreateUnitRef(Data_Nutrients_UT)
 #'
 TADA_CreateUnitRef <- function(.data, print.message = TRUE) {
-  # .data required columns
-  # some of these are only required so we can check if TADA_Autoclean has been run
-  required_cols <- c(
-    "TADA.CharacteristicName", "TADA.ResultSampleFractionText",
-    "TADA.MethodSpeciationName", "TADA.ResultMeasure.MeasureUnitCode",
-    "TADA.ActivityMediaName", "TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode"
-  )
-
-  # Check to see if TADA_Autoclean has been run
-  if (all(required_cols %in% colnames(.data)) == FALSE) {
-    print("The dataframe does not contain the required fields to use TADA. Running TADA_AutoClean to create required columns.")
-    .data <- TADA_AutoClean(.data)
-    }
-
-   if (all(required_cols %in% colnames(.data)) == TRUE) {
-     .data <- .data
-     }
-
-  # Create df of unique codes and characteristic names(from TADA.CharacteristicName and TADA.ResultMeasure.MeasureUnitCode) in TADA data frame
-  data.units.result <- .data %>%
-    dplyr::select(TADA.CharacteristicName, TADA.ResultMeasure.MeasureUnitCode, ResultMeasure.MeasureUnitCode) %>%
-    dplyr::distinct()
-
-  # Create df of unique codes and characteristic names(from TADA.CharacteristicName and TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode) in TADA data frame
-  data.units.det <- .data %>%
-    dplyr::select(TADA.CharacteristicName, TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode, DetectionQuantitationLimitMeasure.MeasureUnitCode) %>%
-    dplyr::distinct() %>%
-    dplyr::rename(
-      TADA.ResultMeasure.MeasureUnitCode = TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode,
-      ResultMeasure.MeasureUnitCode = DetectionQuantitationLimitMeasure.MeasureUnitCode
-    )
-
-  # Create combined df with all unique codes (both result and det units) and characteristic names
-  data.units <- data.units.result %>%
-    dplyr::full_join(data.units.det, by = c("TADA.CharacteristicName", "TADA.ResultMeasure.MeasureUnitCode",
-                                            "ResultMeasure.MeasureUnitCode")) %>%
-    dplyr::distinct() %>%
-    dplyr::group_by(TADA.CharacteristicName) %>%
-    dplyr::mutate(NCode = length(unique(TADA.ResultMeasure.MeasureUnitCode))) %>%
-    dplyr::filter(!is.na(TADA.ResultMeasure.MeasureUnitCode) |
-      is.na(TADA.ResultMeasure.MeasureUnitCode) & NCode == 1) %>%
-    dplyr::select(-NCode)
-
-  # Remove intermediate objects
-  rm(data.units.result, data.units.det)
+  
+  # Create data frame of unique combinations
+  data.units <- TADA_UniqueCharUnitSpeciation(.data)
+  
+  # Remove TADA.MethodSpeciationName column
+  data.units <- data.units %>%
+    dplyr::select(-TADA.MethodSpeciationName)
 
   # Import USGS default unit ref
   usgs.ref <- TADA_GetUSGSSynonymRef()
@@ -195,7 +157,9 @@ TADA_CreateUnitRef <- function(.data, print.message = TRUE) {
       "TADA.CharacteristicName", "TADA.ResultMeasure.MeasureUnitCode",
       "TADA.Target.ResultMeasure.MeasureUnitCode", "ResultMeasure.MeasureUnitCode",
       "Last.Change.Date", "Conversion.Factor", "Conversion.Coefficient", "CharUnit"
-    ))
+    )) %>%
+    dplyr::rename(TADA.WQXUnitConversionFactor = Conversion.Factor,
+                  TADA.WQXUnitConversionCoefficient = Conversion.Coefficient)
 
   # Remove intermediate objects
   rm(other.targets, tada.targets, tada.wqx, data.units)
@@ -251,7 +215,8 @@ TADA_CreateUnitRef <- function(.data, print.message = TRUE) {
 #' input dataframe to TADA target units. It also automatically wrangles common 
 #' USGS units which include speciation in the unit value, such as "mg/l as N" 
 #' and "mg/l asNO3", by transferring the speciation information to the 
-#' TADA.MethodSpeciationName field. 
+#' TADA.MethodSpeciationName field. No speciation conversions occur in this 
+#' function.
 #' 
 #' The function uses the "TADA.ResultMeasureValue"
 #' and TADA.ResultMeasure.MeasureUnitCode" fields from an autocleaned input
@@ -265,23 +230,22 @@ TADA_CreateUnitRef <- function(.data, print.message = TRUE) {
 #' @param .data TADA dataframe
 #'
 #' @param transform Boolean argument with two possible values, “TRUE” and “FALSE”.
-#' Default is transform = TRUE. When transform = TRUE, result values and units are 
-#' converted to TADA target units. This function changes the values within 
-#' "TADA.ResultMeasure.MeasureUnitCode" to the TADA target units and converts
-#' respective values within the "TADA.ResultMeasureValue" field.
+#' Default is transform = TRUE. When transform = TRUE, result values and units,
+#' and detection quantitation limit value and units are converted to TADA target units. 
+#' This function changes the values within "TADA.ResultMeasure.MeasureUnitCode" and 
+#' "TADA.DetectionQuantitationLimitMeasure.MeasureValue" to the TADA target units 
+#' and converts  respective values within the "TADA.ResultMeasureValue" and 
+#' "TADA.DetectionQuantiationLimitMeasure.MeasureValue" fields. When
+#' "TADA.ResultMeasure.MeasureUnitCode" is NA, the unit is taken from
+#' "TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode" if it not NA. This
+#' facilitates estimation of censored data later in the workflow.
 #' 
-#' When transform = FALSE, result values and units are NOT converted to TADA target units,
-#' but columns are appended to indicate what the target units and conversion factors are,
-#' and if the data can be converted. This function adds the following four fields ONLY
-#' when transform = FALSE: "TADA.WQXUnitConversionFactor", "TADA.WQXTargetUnit",
+#' When transform = FALSE, result values and units, and detection quantitaiton limit
+#' values are units are NOT converted to TADA target units,but columns are appended 
+#' to indicate what the target units and conversion factors are, and if the data can 
+#' be converted. This function adds the following four fields ONLY when transform = 
+#' FALSE: "TADA.WQXUnitConversionFactor", "TADA.WQXTargetUnit", 
 #' "TADA.SpeciationUnitConversion", and "TADA.WQXResultUnitConversion.
-#'
-#' @param detlimit Boolean argument with two possible values, "TRUE" and "FALSE".
-#' Default is detlimit = TRUE. When detlimit = TRUE, detection limit values and 
-#' units are converted to TADA target units. This function changes the
-#' "TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode" to the TADA target
-#' units and converts respective values within the 
-#' "TADA.DetectionQuantitationLimitMeasure.MeasureValue" field.
 #'
 #' @param ref Optional character argument in which a user can specify a data frame
 #' by name. Data frame must contain the columns CharacteristicName, Unit, and TargetUnit.
@@ -313,12 +277,12 @@ TADA_CreateUnitRef <- function(.data, print.message = TRUE) {
 #'
 #' # Do not convert result values and units, but add four new columns titled
 #' # "TADA.WQXUnitConversionFactor", "TADA.WQXUnitConversionCoefficient", "TADA.WQXTargetUnit", and "TADA.SpeciationUnitConversion":
-#' ResultUnitsNotConverted <- TADA_ConvertResultUnits(Data_Nutrients_UT, transform = FALSE, detlimit = FALSE)
+#' ResultUnitsNotConverted <- TADA_ConvertResultUnits(Data_Nutrients_UT, transform = FALSE)
 #'
 #' # Convert values and units for results and detection limits:
-#' ResultUnitsConverted <- TADA_ConvertResultUnits(Data_Nutrients_UT, transform = TRUE, detlimit = TRUE)
+#' ResultUnitsConverted <- TADA_ConvertResultUnits(Data_Nutrients_UT, transform = TRUE)
 #'
-TADA_ConvertResultUnits <- function(.data, ref = "tada", transform = TRUE, detlimit = TRUE) {
+TADA_ConvertResultUnits <- function(.data, ref = "tada", transform = TRUE) {
   # check .data is data.frame
   TADA_CheckType(.data, "data.frame", "Input object")
   # check transform is boolean
@@ -341,7 +305,8 @@ TADA_ConvertResultUnits <- function(.data, ref = "tada", transform = TRUE, detli
     dplyr::select(Code, Target.Unit, Target.Speciation, Conversion.Factor) %>%
     dplyr::rename(TADA.ResultMeasure.MeasureUnitCode = Code,
                   TADA.Target.ResultMeasure.MeasureUnitCode = Target.Unit,
-                  TADA.Target.MethodSpeciationName = Target.Speciation)
+                  TADA.Target.MethodSpeciationName = Target.Speciation,
+                  TADA.WQXUnitConversionFactor = Conversion.Factor)
 
   
   # if user supplied unit reference was provided
@@ -349,22 +314,32 @@ TADA_ConvertResultUnits <- function(.data, ref = "tada", transform = TRUE, detli
     # required columns
     expected_ref_cols <- c(
       "TADA.CharacteristicName", "TADA.ResultMeasure.MeasureUnitCode", 
-      "TADA.Target.ResultMeasure.MeasureUnitCode", "Conversion.Factor", 
-      "Conversion.Coefficient",
+      "TADA.Target.ResultMeasure.MeasureUnitCode", 
+      "TADA.WQXUnitConversionFactor", "TADA.WQXUnitConversionCoefficient"
     )
 
-    # check ref has all of the required columns
-    TADA_CheckColumns(ref, expected_ref_cols)
+    if (all(expected_ref_cols %in% colnames(ref)) == FALSE) {
+      stop("The reference data frame does not contain all fields required for TADA_ConvertResultUnits. Use TADA_CreateUnitRef with the TADA data frame to create an editable unit reference table with all required columns.")
+      
+      if(all(expected_ref_cols %in% colnames(ref)) == TRUE) {
+        print("The reference data frame contains all fields required for TADA_ConvertResultUnits.")
+      }
+    }
 
-    # create message to inform users if user-supplied unit reference contains all combinations present in TADA data frame
+    # join USGS ref for method speciation name information
     unit.ref <- ref %>%
       dplyr::left_join(usgs.ref, by = c("TADA.ResultMeasure.MeasureUnitCode", 
                                         "TADA.Target.ResultMeasure.MeasureUnitCode",
-                                        "Conversion.Factor"))
+                                        "TADA.WQXUnitConversionFactor"))
+    
+    # list of variables for joining unit ref with data
+    ref.join <- c("TADA.CharacteristicName", "TADA.ResultMeasure.MeasureUnitCode")
 
+    # create message to inform users if user-supplied unit reference contains all combinations present in TADA data frame
     # create list of unique characteristic and unit combinations in data
-    check.units <- TADA_CreateUnitRef(.data, print.message = FALSE) %>%
-      dplyr::select(TADA.CharacteristicName, TADA.ResultMeasure.MeasureUnitCode)
+    check.units <- TADA_UniqueCharUnitSpeciation(.data) %>%
+      dplyr::select(TADA.CharacteristicName, TADA.ResultMeasure.MeasureUnitCode) %>%
+      dplyr::d
 
     # create list of unique characteristic and unit combinations in user-supplied unit ref
     check.ref <- unit.ref %>%
@@ -398,13 +373,16 @@ TADA_ConvertResultUnits <- function(.data, ref = "tada", transform = TRUE, detli
   if (!is.data.frame(ref)) {
     if (ref == "tada") {
       
-      unit.ref <- TADA_CreateUnitRef(.data)
+      data.units <- TADA_CreateUnitRef(.data)
       
       #add method speciation
-      unit.ref <- unit.ref %>%
+      unit.ref <- data.units %>%
         dplyr::left_join(usgs.ref, by = c("TADA.ResultMeasure.MeasureUnitCode", 
                                           "TADA.Target.ResultMeasure.MeasureUnitCode",
-                                          "Conversion.Factor"))
+                                          "TADA.WQXUnitConversionFactor"))
+      
+      # list of variables for joining unit ref with data
+      ref.join <- c("TADA.CharacteristicName", "TADA.ResultMeasure.MeasureUnitCode")
 
       print("TADA_ConvertResultUnits: TADA target units are assigned by default when no unit 'ref' is supplied as a function input.")
     }
@@ -424,26 +402,25 @@ TADA_ConvertResultUnits <- function(.data, ref = "tada", transform = TRUE, detli
       # Combine for USGS and WQX unit ref
       unit.ref <- usgs.ref %>%
         dplyr::full_join(wqx.ref, by = c(
-          "Domain", "Unique.Identifier", "Code",
+          "Domain", "Unique.Identifier",
+          "TADA.ResultMeasure.MeasureUnitCode",
           "Description", "Last.Change.Date",
-          "Target.Unit", "Conversion.Factor",
-          "Conversion.Coefficient", "Target.Speciation"
-        ))
+          "TADA.Target.ResultMeasure.MeasureUnitCode", 
+          "TADA.WQXUnitConversionFactor"
+        )) %>%
+        dplyr::rename(TADA.ResultMeasure.MeasureUnitCode = Code,
+                      TADA.Target.ResultMeasure.MeasureUnitCode = Target.Unit,
+                      TADA.WQXUnitConversionFactor = Conversion.Factor,
+                      TADA.WQXUnitConversionCoefficient = Conversion.Coefficient) %>%
+        dplyr::select(TADA.ResultMeasure.MeasureUnitCode, TADA.Target.ResultMeasure.MeasureUnitCode, 
+                      TADA.WQXUnitConversionFactor, TADA.WQXUnitConversionCoefficient)
+      
+      # list of variables for joining unit ref with data
+      ref.join <- c("TADA.ResultMeasure.MeasureUnitCode")
 
       print("TADA_ConvertResultUnits: TADA target units are assigned by default when no unit 'ref' is supplied as a function input.")
     }
   }
-
-  # rename unit.ref columns
-  unit.ref <- unit.ref %>%
-    dplyr::rename(
-      TADA.CharacteristicName = CharacteristicName,
-      TADA.ResultMeasure.MeasureUnitCode = Code,
-      TADA.SpeciationUnitConversion = Target.Speciation,
-      TADA.WQXTargetUnit = Target.Unit,
-      TADA.WQXUnitConversionFactor = Conversion.Factor,
-      TADA.WQXUnitConversionCoefficient = Conversion.Coefficient
-    )
 
   # list of conversion columns
   
@@ -467,9 +444,9 @@ TADA_ConvertResultUnits <- function(.data, ref = "tada", transform = TRUE, detli
   flag.data <- check.data %>%
     # create flag column
     dplyr::mutate(TADA.WQXResultUnitConversion = dplyr::case_when(
-      (!is.na(TADA.ResultMeasureValue) & !is.na(TADA.WQXTargetUnit)) ~ as.character("Convert"),
+      (!is.na(TADA.ResultMeasureValue) & !is.na(TADA.Target.ResultMeasure.MeasureUnitCode)) ~ as.character("Convert"),
       is.na(TADA.ResultMeasureValue) ~ as.character("No Result Value"),
-      is.na(TADA.WQXTargetUnit) ~ as.character("No Target Unit")
+      is.na(TADA.Target.ResultMeasure.MeasureUnitCode) ~ as.character("No Target Unit")
     ))
 
   if (transform == FALSE) {
@@ -484,16 +461,16 @@ TADA_ConvertResultUnits <- function(.data, ref = "tada", transform = TRUE, detli
       # apply conversions where there is a target unit, use original value if no target unit
       dplyr::mutate(TADA.ResultMeasureValue = dplyr::case_when(
         is.na(TADA.ResultMeasureValue) ~ TADA.ResultMeasureValue,
-        !is.na(TADA.WQXTargetUnit) ~ ((TADA.ResultMeasureValue + TADA.WQXUnitConversionCoefficient) * TADA.WQXUnitConversionFactor),
-        is.na(TADA.WQXTargetUnit) ~ TADA.ResultMeasureValue
+        !is.na(TADA.Target.ResultMeasure.MeasureUnitCode) ~ ((TADA.ResultMeasureValue + TADA.WQXUnitConversionCoefficient) * TADA.WQXUnitConversionFactor),
+        is.na(TADA.Target.ResultMeasure.MeasureUnitCode) ~ TADA.ResultMeasureValue
       ))
 
     # populate ResultMeasure.MeasureUnitCode
     clean.data <- clean.data %>%
       # use target unit where there is a target unit, use original unit if no target unit
       dplyr::mutate(TADA.ResultMeasure.MeasureUnitCode = dplyr::case_when(
-        !is.na(TADA.WQXTargetUnit) ~ TADA.WQXTargetUnit,
-        is.na(TADA.WQXTargetUnit) ~ TADA.ResultMeasure.MeasureUnitCode
+        !is.na(TADA.Target.ResultMeasure.MeasureUnitCode) ~ TADA.Target.ResultMeasure.MeasureUnitCode,
+        is.na(TADA.Target.ResultMeasure.MeasureUnitCode) ~ TADA.ResultMeasure.MeasureUnitCode
       ))
 
     # Convert method speciation column for USGS data
@@ -502,25 +479,13 @@ TADA_ConvertResultUnits <- function(.data, ref = "tada", transform = TRUE, detli
       print(paste0("NOTE: Dataset contains ", dim(check)[1], " USGS results with speciation information in both the result unit and method speciation columns. This function overwrites the TADA method speciation column with the speciation provided in the result unit column."))
     }
 
-    clean.data$TADA.MethodSpeciationName <- ifelse(!is.na(clean.data$TADA.SpeciationUnitConversion), toupper(clean.data$TADA.SpeciationUnitConversion), clean.data$TADA.MethodSpeciationName)
-
-    
-    # remove extraneous columns, fix field names
-    clean.data <- clean.data %>%
-      dplyr::select(tidyselect::all_of(conversion.cols))
+    clean.data$TADA.MethodSpeciationName <- ifelse(!is.na(clean.data$TADA.MethodSpeciationName), toupper(clean.data$TADA.Target.MethodSpeciationName), clean.data$TADA.Target.MethodSpeciationName)
 
     # create new comparable data identifier column following conversion
     clean.data <- TADA_CreateComparableID(clean.data)
 
     clean.data <- TADA_OrderCols(clean.data)
-  }
 
-  # reorder cols
-  if (detlimit == FALSE) {
-    return(clean.data)
-  }
-
-  if (detlimit == TRUE) {
     det.ref <- unit.ref %>%
       dplyr::rename(
         TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode = TADA.ResultMeasure.MeasureUnitCode
@@ -532,35 +497,26 @@ TADA_ConvertResultUnits <- function(.data, ref = "tada", transform = TRUE, detli
       # apply conversions where there is a target unit, use original value if no target unit
       dplyr::mutate(TADA.DetectionQuantitationLimitMeasure.MeasureValue = dplyr::case_when(
         is.na(TADA.DetectionQuantitationLimitMeasure.MeasureValue) ~ TADA.DetectionQuantitationLimitMeasure.MeasureValue,
-        !is.na(TADA.WQXTargetUnit) ~ ((TADA.DetectionQuantitationLimitMeasure.MeasureValue - TADA.WQXUnitConversionCoefficient) * TADA.WQXUnitConversionFactor),
-        is.na(TADA.WQXTargetUnit) ~ TADA.DetectionQuantitationLimitMeasure.MeasureValue
+        !is.na(TADA.Target.ResultMeasure.MeasureUnitCode) ~ ((TADA.DetectionQuantitationLimitMeasure.MeasureValue - TADA.WQXUnitConversionCoefficient) * TADA.WQXUnitConversionFactor),
+        is.na(TADA.Target.ResultMeasure.MeasureUnitCode) ~ TADA.DetectionQuantitationLimitMeasure.MeasureValue
       ))
 
     # populate TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode
     convert.data <- det.data %>%
       # use target unit where there is a target unit, use original unit if no target unit
       dplyr::mutate(TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode = dplyr::case_when(
-        !is.na(TADA.WQXTargetUnit) ~ TADA.WQXTargetUnit,
-        is.na(TADA.WQXTargetUnit) ~ TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode
+        !is.na(TADA.Target.ResultMeasure.MeasureUnitCode) ~ TADA.Target.ResultMeasure.MeasureUnitCode,
+        is.na(TADA.Target.ResultMeasure.MeasureUnitCode) ~ TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode
       )) %>%
       TADA_OrderCols()
     
     # Convert method speciation column for USGS data
-     convert.data$TADA.MethodSpeciationName <- ifelse(is.na(convert.data$TADA.MethodSpeciationName) & !is.na(convert.data$TADA.SpeciationUnitConversion), toupper(convert.data$TADA.SpeciationUnitConversion), convert.data$TADA.MethodSpeciationName)
+     convert.data$TADA.MethodSpeciationName <- ifelse(is.na(convert.data$TADA.MethodSpeciationName) & !is.na(convert.data$TADA.Target.MethodSpeciationName), toupper(convert.data$TADA.Target.MethodSpeciationName), convert.data$TADA.MethodSpeciationName)
      convert.data$TADA.MethodSpeciationName <- ifelse(convert.data$TADA.MethodSpeciationName == "", NA, convert.data$TADA.MethodSpeciationName)
-     
-    # Remove conversion columns if transform = TRUE
-     if(transform == TRUE){
        
-       convert.data <- convert.data %>%
+    # Remove unneccessary conversion columns 
+     convert.data <- convert.data %>%
          dplyr::select(-tidyselect::any_of(conversion.cols))
-       
-       if(transform == FALSE){
-         
-         convert.data <- convert.data
-       }
-     }
-      
 
     return(convert.data)
   }

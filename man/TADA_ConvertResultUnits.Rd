@@ -4,7 +4,7 @@
 \alias{TADA_ConvertResultUnits}
 \title{Transform Units to TADA Target Units, WQX Target Units or User Specified Units}
 \usage{
-TADA_ConvertResultUnits(.data, ref = "tada", transform = TRUE, detlimit = TRUE)
+TADA_ConvertResultUnits(.data, ref = "tada", transform = TRUE)
 }
 \arguments{
 \item{.data}{TADA dataframe}
@@ -21,23 +21,22 @@ with any other units assigned by WQX unit reference (at the unit level).
 The default is ref = "tada".}
 
 \item{transform}{Boolean argument with two possible values, “TRUE” and “FALSE”.
-Default is transform = TRUE. When transform = TRUE, result values and units are
-converted to TADA target units. This function changes the values within
-"TADA.ResultMeasure.MeasureUnitCode" to the TADA target units and converts
-respective values within the "TADA.ResultMeasureValue" field.
+Default is transform = TRUE. When transform = TRUE, result values and units,
+and detection quantitation limit value and units are converted to TADA target units.
+This function changes the values within "TADA.ResultMeasure.MeasureUnitCode" and
+"TADA.DetectionQuantitationLimitMeasure.MeasureValue" to the TADA target units
+and converts  respective values within the "TADA.ResultMeasureValue" and
+"TADA.DetectionQuantiationLimitMeasure.MeasureValue" fields. When
+"TADA.ResultMeasure.MeasureUnitCode" is NA, the unit is taken from
+"TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode" if it not NA. This
+facilitates estimation of censored data later in the workflow.
 
-When transform = FALSE, result values and units are NOT converted to TADA target units,
-but columns are appended to indicate what the target units and conversion factors are,
-and if the data can be converted. This function adds the following four fields ONLY
-when transform = FALSE: "TADA.WQXUnitConversionFactor", "TADA.WQXTargetUnit",
+When transform = FALSE, result values and units, and detection quantitaiton limit
+values are units are NOT converted to TADA target units,but columns are appended
+to indicate what the target units and conversion factors are, and if the data can
+be converted. This function adds the following four fields ONLY when transform =
+FALSE: "TADA.WQXUnitConversionFactor", "TADA.WQXTargetUnit",
 "TADA.SpeciationUnitConversion", and "TADA.WQXResultUnitConversion.}
-
-\item{detlimit}{Boolean argument with two possible values, "TRUE" and "FALSE".
-Default is detlimit = TRUE. When detlimit = TRUE, detection limit values and
-units are converted to TADA target units. This function changes the
-"TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode" to the TADA target
-units and converts respective values within the
-"TADA.DetectionQuantitationLimitMeasure.MeasureValue" field.}
 }
 \value{
 A TADA dataframe. Depending on the arguments entered by the user, the
@@ -56,7 +55,8 @@ This function converts result and detection limit measure values and units in th
 input dataframe to TADA target units. It also automatically wrangles common
 USGS units which include speciation in the unit value, such as "mg/l as N"
 and "mg/l asNO3", by transferring the speciation information to the
-TADA.MethodSpeciationName field.
+TADA.MethodSpeciationName field. No speciation conversions occur in this
+function.
 }
 \details{
 The function uses the "TADA.ResultMeasureValue"
@@ -74,9 +74,9 @@ data(Data_Nutrients_UT)
 
 # Do not convert result values and units, but add four new columns titled
 # "TADA.WQXUnitConversionFactor", "TADA.WQXUnitConversionCoefficient", "TADA.WQXTargetUnit", and "TADA.SpeciationUnitConversion":
-ResultUnitsNotConverted <- TADA_ConvertResultUnits(Data_Nutrients_UT, transform = FALSE, detlimit = FALSE)
+ResultUnitsNotConverted <- TADA_ConvertResultUnits(Data_Nutrients_UT, transform = FALSE)
 
 # Convert values and units for results and detection limits:
-ResultUnitsConverted <- TADA_ConvertResultUnits(Data_Nutrients_UT, transform = TRUE, detlimit = TRUE)
+ResultUnitsConverted <- TADA_ConvertResultUnits(Data_Nutrients_UT, transform = TRUE)
 
 }
