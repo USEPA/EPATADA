@@ -8,6 +8,12 @@ TADA_CreateUnitRef(.data, print.message = TRUE)
 }
 \arguments{
 \item{.data}{TADA dataframe}
+
+\item{print.message}{Boolean argument with two possible arguments, TRUE and
+FALSE. When print.message = TRUE, a message is printed that lists any
+characteristics (TADA.CharacteristicName) that have been assigned more than
+one target unit. When print.message = FALSE, no message is printed. The default
+is print.message = TRUE.}
 }
 \value{
 A dataframe with six columns: TADA.CharacteristicName,
