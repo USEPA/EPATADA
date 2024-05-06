@@ -397,6 +397,8 @@ TADA_ConvertResultUnits <- function(.data, ref = "tada", transform = TRUE) {
 
       # join USGS ref for method speciation name information
       unit.ref <- data.units %>%
+        dplyr::select(-ResultMeasure.MeasureUnitCode) %>%
+        dplyr::distinct() %>%
         dplyr::left_join(usgs.ref, by = c(
           "TADA.ResultMeasure.MeasureUnitCode",
           "TADA.Target.ResultMeasure.MeasureUnitCode",
@@ -404,7 +406,7 @@ TADA_ConvertResultUnits <- function(.data, ref = "tada", transform = TRUE) {
         ))
 
       # list of variables for joining unit ref with data
-      ref.join <- c("TADA.CharacteristicName", "TADA.ResultMeasure.MeasureUnitCode", "ResultMeasure.MeasureUnitCode")
+      ref.join <- c("TADA.CharacteristicName", "TADA.ResultMeasure.MeasureUnitCode")
 
       print("TADA_ConvertResultUnits: TADA target units are assigned by default when no unit 'ref' is supplied as a function input.")
     }
@@ -460,7 +462,9 @@ TADA_ConvertResultUnits <- function(.data, ref = "tada", transform = TRUE) {
     # add new conversion columns
     dplyr::left_join(unit.ref,
       by = 
-        ref.join,
+        c(
+          ref.join
+        ),
      
       relationship = "many-to-many"
     )
