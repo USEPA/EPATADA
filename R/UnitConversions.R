@@ -47,7 +47,8 @@ TADA_CreateUnitRef <- function(.data, print.message = TRUE) {
 
   # Remove TADA.MethodSpeciationName column
   data.units <- data.units %>%
-    dplyr::select(-TADA.MethodSpeciationName)
+    dplyr::select(-TADA.MethodSpeciationName) %>%
+    dplyr::distinct()
 
   # Import USGS default unit ref
   usgs.ref <- TADA_GetUSGSSynonymRef()
