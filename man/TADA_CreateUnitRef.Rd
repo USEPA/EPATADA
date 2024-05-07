@@ -34,7 +34,7 @@ TADA.DetectionQuantitationLimiMeasure.MeasureUnitCode that were not observed in
 TADA.ResultMeasure.MeasureUnitCode. This is done to facilitate estimating
 censored data later in the workflow. All variants of TADA.ResultMeasure.MeasureUnitCode
 and ResultMeasure.MeasureUnitCode, including USGS results where speciation is listed
-in the units are included. This faciliates moving speciation from units to
+in the units are included. This facilitates moving speciation from units to
 TADA.MethodSpeciationName in TADA_ConvertResultUnits.
 }
 \details{
