@@ -46,10 +46,10 @@
 #' # Load example dataset:
 #' data(Data_Nutrients_UT)
 #' Boxplot_output <- TADA_Boxplot(Data_Nutrients_UT, id_cols = c("TADA.ComparableDataIdentifier", "MonitoringLocationTypeName"))
-#' # This example generates 45 box plots.
+#' # This example generates 32 box plots.
 #' Boxplot_output[[2]]
 #' Boxplot_output[[25]]
-#' Boxplot_output[[40]]
+#' Boxplot_output[[30]]
 #'
 TADA_Boxplot <- function(.data, id_cols = c("TADA.ComparableDataIdentifier")) {
   # check .data is data.frame

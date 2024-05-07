@@ -41,14 +41,18 @@ Chilton
 ComparableDataIdentifier
 ConstructionDateText
 ContinuousData
+ConversionCoefficient
+ConversionFactor
 ConvertDepthUnits
 ConvertResultUnits
 ConvertSpecialChars
 CreateComparableID
+CreateUnitRef
 DataQuality
 DataRetreival
 DataRetrieval
 DataTypes
+DetectionQuantitationLimiMeasure
 DetectionQuantitationLimitMeasure
 DetectionQuantitationLimitType
 DetectionQuantitationLimitTypeName
@@ -183,6 +187,7 @@ ResultIdentifier
 ResultLaboratoryCommentText
 ResultMeasure
 ResultMeasureQualifier
+ResultMeasureUnit
 ResultMeasureValue
 ResultMeasureValueDataTypes
 ResultMeasureValues
@@ -224,6 +229,7 @@ TADAPackageDemo
 TADAProfile
 TADAShiny
 TMDL
+TargetUnit
 Tesuque
 UG
 USEPA
@@ -248,6 +254,7 @@ WQXMonitoringLocationTypeName
 WQXRefTables
 WQXResultDetectionConditionRef
 WQXResultUnitConversion
+WQXResultUnitCoversion
 WQXTargetUnit
 WQXUnitConversionFactor
 WQXcharValRef
@@ -263,6 +270,7 @@ analytes
 applyautoclean
 arcgis
 areasqkm
+asNO
 assessmentunitidentifier
 assessmentunitname
 assmnt
@@ -287,7 +295,6 @@ csv
 dataProfile
 dataRetrieval
 datetimes
-detlimit
 devtools
 dimCheck
 dlist
@@ -373,6 +380,7 @@ statecode
 sthda
 submissionid
 sysdata
+tada
 tas
 testthat
 th

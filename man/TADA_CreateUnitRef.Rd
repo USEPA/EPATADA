@@ -8,6 +8,12 @@ TADA_CreateUnitRef(.data, print.message = TRUE)
 }
 \arguments{
 \item{.data}{TADA dataframe}
+
+\item{print.message}{Boolean argument with two possible arguments, TRUE and
+FALSE. When print.message = TRUE, a message is printed that lists any
+characteristics (TADA.CharacteristicName) that have been assigned more than
+one target unit. When print.message = FALSE, no message is printed. The default
+is print.message = TRUE.}
 }
 \value{
 A dataframe with six columns: TADA.CharacteristicName,
@@ -28,7 +34,7 @@ TADA.DetectionQuantitationLimiMeasure.MeasureUnitCode that were not observed in
 TADA.ResultMeasure.MeasureUnitCode. This is done to facilitate estimating
 censored data later in the workflow. All variants of TADA.ResultMeasure.MeasureUnitCode
 and ResultMeasure.MeasureUnitCode, including USGS results where speciation is listed
-in the units are included. This faciliates moving speciation from units to
+in the units are included. This facilitates moving speciation from units to
 TADA.MethodSpeciationName in TADA_ConvertResultUnits.
 }
 \details{

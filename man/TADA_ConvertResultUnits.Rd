@@ -26,12 +26,12 @@ and detection quantitation limit value and units are converted to TADA target un
 This function changes the values within "TADA.ResultMeasure.MeasureUnitCode" and
 "TADA.DetectionQuantitationLimitMeasure.MeasureValue" to the TADA target units
 and converts  respective values within the "TADA.ResultMeasureValue" and
-"TADA.DetectionQuantiationLimitMeasure.MeasureValue" fields. When
+"TADA.DetectionQuantitationLimitMeasure.MeasureValue" fields. When
 "TADA.ResultMeasure.MeasureUnitCode" is NA, the unit is taken from
 "TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode" if it not NA. This
 facilitates estimation of censored data later in the workflow.
 
-When transform = FALSE, result values and units, and detection quantitaiton limit
+When transform = FALSE, result values and units, and detection quantitation limit
 values are units are NOT converted to TADA target units,but columns are appended
 to indicate what the target units and conversion factors are, and if the data can
 be converted. This function adds the following four fields ONLY when transform =
@@ -65,7 +65,7 @@ dataframe to perform conversions when transform = TRUE.
 
 Speciation in USGS result units
 (ex: "mg/L as N") are addressed in this function by creating additional rows to
-accomodate all possible combinations from the input TADA dataframe, including
+accommodate all possible combinations from the input TADA dataframe, including
 those with speciation in units.
 }
 \examples{
