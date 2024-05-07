@@ -218,10 +218,10 @@ TADA_Boxplot <- function(.data, id_cols = c("TADA.ComparableDataIdentifier")) {
 #' # Load example dataset:
 #' data(Data_Nutrients_UT)
 #' Histogram_output <- TADA_Histogram(Data_Nutrients_UT, id_cols = c("TADA.ComparableDataIdentifier", "MonitoringLocationTypeName"))
-#' # This example generates 45 histograms
+#' # This example generates 32 histograms
 #' Histogram_output[[10]]
 #' Histogram_output[[25]]
-#' Histogram_output[[35]]
+#' Histogram_output[[30]]
 #'
 TADA_Histogram <- function(.data, id_cols = c("TADA.ComparableDataIdentifier")) {
   # check .data is data.frame
@@ -622,7 +622,7 @@ TADA_FieldValuesPie <- function(.data, field = "null", characteristicName = "nul
 #' # Load example dataset:
 #' data(Data_Nutrients_UT)
 #' Scatterplot_output <- TADA_Scatterplot(Data_Nutrients_UT, id_cols = c("TADA.ComparableDataIdentifier", "MonitoringLocationTypeName"))
-#' # This example generates 45 scatterplots
+#' # This example generates 47 scatterplots
 #' Scatterplot_output[[10]]
 #' Scatterplot_output[[25]]
 #' Scatterplot_output[[35]]
