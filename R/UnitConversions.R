@@ -452,7 +452,8 @@ TADA_ConvertResultUnits <- function(.data, ref = "tada", transform = TRUE) {
 
   conversion.cols <- c(
     "TADA.SpeciationUnitConversion", "TADA.WQXTargetUnit",
-    "TADA.WQXUnitConversionFactor", "TADA.WQXUnitConversionCoefficient"
+    "TADA.WQXUnitConversionFactor", "TADA.WQXUnitConversionCoefficient",
+    "TADA.Target.MethodSpeciationName", "TADA.Target.ResultMeasure.MeasureUnitCode"
   )
 
   # join unit.ref to .data
