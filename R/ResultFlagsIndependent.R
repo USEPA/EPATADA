@@ -1362,7 +1362,7 @@ TADA_FindPotentialDuplicatesSingleOrg <- function(.data) {
 
   # find where the grouping using the columns above results in more than one result identifier
   dups_sum_org <- .data %>%
-    dplyr::group_by(dplyr::across(dplyr::any_of(colss))) %>%
+    dplyr::group_by(dplyr::across(tidyselect::any_of(colss))) %>%
     dplyr::summarise(numres = length(unique(ResultIdentifier))) %>%
     dplyr::filter(numres > 1) %>%
     dplyr::mutate(TADA.SingleOrgDupGroupID = dplyr::cur_group_id())

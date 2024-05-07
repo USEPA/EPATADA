@@ -56,7 +56,15 @@ utils::globalVariables(c(
   "ML.Media.Flag", "TADA.UseForAnalysis.Flag",
   "Unique.Identifier", "Domain", "Note.Recommendation", "Conversion.Coefficient",
   "Conversion.Coefficient", "Last.Change.Date", "Value", "Minimum", "Unique.Identifier",
-  "Domain"
+  "Domain", "ResultMeasure.MeasureUnitCode", "Comb", "CombList", "TADA.Target.ResultMeasure.MeasureUnitCode",
+  "TADA.WQXUnitConversionFactor", "TADA.WQXUnitConversionCoefficient", "TADA.Target.MethodSpeciationName",
+  "flag", "NConvert", "MultUnits", "CharList", "CharUnit", "SingleNearbyGroup",
+  "TADA.MultipleOrgDuplicate", "TADA.ResultSelectedMultipleOrgs", "Maximum",
+  "OBJECTID", "GLOBALID", "assessmentunitidentifier", "index", "epsg",
+  "ResultMeasure.MeasureUnitCode", "TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode",
+  "DetectionQuantitationLimitMeasure.MeasureUnitCode", "NCode",
+  "ATTAINS.assessmentunitidentifier", "ATTAINS_AU", "TOTALAREA_MI", "TOTALAREA_KM"
+  
 ))
 
 # global variables for tribal feature layers used in TADA_OverviewMap in Utilities.R
@@ -400,7 +408,7 @@ TADA_ConvertSpecialChars <- function(.data, col, percent.ave = TRUE) {
   chars.data <- .data
   names(chars.data)[names(chars.data) == col] <- "orig"
   chars.data <- chars.data %>%
-    dplyr::select(-any_of(c(col, numcol, flagcol)))
+    dplyr::select(-tidyselect::any_of(c(col, numcol, flagcol)))
   chars.data$masked <- chars.data$orig
 
   # Add percentage character to dissolved oxygen saturation ResultMeasureValue
@@ -502,7 +510,7 @@ TADA_ConvertSpecialChars <- function(.data, col, percent.ave = TRUE) {
 
   # remove columns to be replaced
   clean.data <- clean.data %>%
-    dplyr::select(!(any_of(numcol)), !(any_of(flagcol)))
+    dplyr::select(!(tidyselect::any_of(numcol)), !(tidyselect::any_of(flagcol)))
 
   # Rename to original column name, TADA column name, and flag column name
   names(clean.data)[names(clean.data) == "orig"] <- col
