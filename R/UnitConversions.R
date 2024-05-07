@@ -10,7 +10,7 @@
 #' TADA.ResultMeasure.MeasureUnitCode. This is done to facilitate estimating
 #' censored data later in the workflow. All variants of TADA.ResultMeasure.MeasureUnitCode
 #' and ResultMeasure.MeasureUnitCode, including USGS results where speciation is listed
-#' in the units are included. This faciliates moving speciation from units to
+#' in the units are included. This facilitates moving speciation from units to
 #' TADA.MethodSpeciationName in TADA_ConvertResultUnits.
 #'
 #' The columns created by TADA_AutoClean are required to run this function. If
@@ -241,7 +241,7 @@ TADA_CreateUnitRef <- function(.data, print.message = TRUE) {
 #'
 #' Speciation in USGS result units
 #' (ex: "mg/L as N") are addressed in this function by creating additional rows to
-#' accomodate all possible combinations from the input TADA dataframe, including
+#' accommodate all possible combinations from the input TADA dataframe, including
 #' those with speciation in units.
 #'
 #' @param .data TADA dataframe
@@ -252,12 +252,12 @@ TADA_CreateUnitRef <- function(.data, print.message = TRUE) {
 #' This function changes the values within "TADA.ResultMeasure.MeasureUnitCode" and
 #' "TADA.DetectionQuantitationLimitMeasure.MeasureValue" to the TADA target units
 #' and converts  respective values within the "TADA.ResultMeasureValue" and
-#' "TADA.DetectionQuantiationLimitMeasure.MeasureValue" fields. When
+#' "TADA.DetectionQuantitationLimitMeasure.MeasureValue" fields. When
 #' "TADA.ResultMeasure.MeasureUnitCode" is NA, the unit is taken from
 #' "TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode" if it not NA. This
 #' facilitates estimation of censored data later in the workflow.
 #'
-#' When transform = FALSE, result values and units, and detection quantitaiton limit
+#' When transform = FALSE, result values and units, and detection quantitation limit
 #' values are units are NOT converted to TADA target units,but columns are appended
 #' to indicate what the target units and conversion factors are, and if the data can
 #' be converted. This function adds the following four fields ONLY when transform =
