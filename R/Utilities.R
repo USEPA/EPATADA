@@ -400,7 +400,7 @@ TADA_ConvertSpecialChars <- function(.data, col, percent.ave = TRUE) {
   chars.data <- .data
   names(chars.data)[names(chars.data) == col] <- "orig"
   chars.data <- chars.data %>%
-    dplyr::select(-any_of(col, numcol, flagcol))
+    dplyr::select(-any_of(c(col, numcol, flagcol)))
   chars.data$masked <- chars.data$orig
 
   # Add percentage character to dissolved oxygen saturation ResultMeasureValue
