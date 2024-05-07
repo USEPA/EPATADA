@@ -393,7 +393,7 @@ TADA_ConvertResultUnits <- function(.data, ref = "tada", transform = TRUE) {
   # if no unit reference df was provided by user or user input was "tada"
   if (!is.data.frame(ref)) {
     if (ref == "tada") {
-      data.units <- TADA_CreateUnitRef(.data)
+      data.units <- TADA_CreateUnitRef(.data, print.message = FALSE)
 
       # join USGS ref for method speciation name information
       unit.ref <- data.units %>%
