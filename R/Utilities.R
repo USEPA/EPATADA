@@ -1240,6 +1240,11 @@ TADA_addPoints <- function(map, layerfilepath, layergroup, layername, bbox = NUL
 #' Create data frame of unique combinations of TADA.CharacteristicName,
 #' TADA.ResultMeasure.MeasureUnitCode, ResultMeasure.MeasureUnitCode, and
 #' TADA.MethodSpeciationName in a TADA data frame.
+#' 
+#' @param .data A TADA data frame.
+#' 
+#' @examples
+#' UniqueCharUnitSpecExample <- TADA_UniqueCharUnitSpeciation(Data_NCTCShepherdstown_HUC12)
 
 TADA_UniqueCharUnitSpeciation <- function(.data) {
   

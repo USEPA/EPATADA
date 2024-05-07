@@ -8,8 +8,14 @@ TADA.MethodSpeciationName in a TADA data frame.}
 \usage{
 TADA_UniqueCharUnitSpeciation(.data)
 }
+\arguments{
+\item{.data}{A TADA data frame.}
+}
 \description{
 Create data frame of unique combinations of TADA.CharacteristicName,
 TADA.ResultMeasure.MeasureUnitCode, ResultMeasure.MeasureUnitCode, and
 TADA.MethodSpeciationName in a TADA data frame.
+}
+\examples{
+UniqueCharUnitSpecExample <- TADA_UniqueCharUnitSpeciation(Data_NCTCShepherdstown_HUC12)
 }
