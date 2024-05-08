@@ -19,8 +19,9 @@ params:
   huc: "0714010505,0714010504,0714010508,0714010501,0714010503"
   startdate: "2010-01-01"
   enddate: "2020-12-31"
-  twocompdataid: "AMMONIA_TOTAL RECOVERABLE_AS N_mg/L,NITROGEN_TOTAL_NA_mg/L"
-  onecompdataid: "AMMONIA_TOTAL RECOVERABLE_AS N_mg/L"
+  compid1: "TOTAL NITROGEN, MIXED FORMS_UNFILTERED_AS N_MG/L""
+  compid2: "PH_TOTAL_NA_None"
+  compid3: "TEMPERATURE, WATER_TOTAL_NA_deg C"  
   
 description: An overview of a TADA use case.
 editor_options: 
@@ -50,11 +51,7 @@ pre[class] {
 
 ## Overview
 
-This vignette walks through the specific use case of query, downloading,
-preparing, QA/QCing `param$waterbodyname` data from Assessment Unit
-`params$assessmentunitid` and comparing the `params$characteristicname`
-results to a water quality standard of `params$wqstandard`
-`params$wqsunits`
+This vignette walks through the specific use case of query, downloading, preparing, QA/QCing `param$waterbodyname` data from Assessment Unit `params$assessmentunitid` and comparing the `params$characteristicname` results to a water quality standard of `params$wqstandard` `params$wqsunits`
 
 ```{r library, results = 'hide', message = FALSE, warning = FALSE}
 # Load required packages
@@ -72,18 +69,7 @@ start.time <- Sys.time()
 
 ## Data Retrieval - Water Chemistry
 
-All water chemistry data used in this example are downloaded from the
-Water Quality Portal (<https://www.waterqualitydata.us/>). The WQP
-integrates publicly available water quality data from the USGS National
-Water Information System (**NWIS**) and the EPA Water Quality Exchange
-(**WQX**) Data Warehouse. The EPA water quality data originate from the
-[Water Quality
-Exchange](https://www.epa.gov/waterdata/water-quality-data), the EPA's
-repository of water quality monitoring data collected by water resource
-management groups across the country. Organizations, including states,
-tribes, watershed groups, other federal agencies, volunteer groups, and
-universities, submit data to the WQX in order to make their data
-publicly accessible.
+All water chemistry data used in this example are downloaded from the Water Quality Portal (<https://www.waterqualitydata.us/>). The WQP integrates publicly available water quality data from the USGS National Water Information System (**NWIS**) and the EPA Water Quality Exchange (**WQX**) Data Warehouse. The EPA water quality data originate from the [Water Quality Exchange](https://www.epa.gov/waterdata/water-quality-data), the EPA's repository of water quality monitoring data collected by water resource management groups across the country. Organizations, including states, tribes, watershed groups, other federal agencies, volunteer groups, and universities, submit data to the WQX in order to make their data publicly accessible.
 
 ```{r TADA_DataRetrieval}
 # Import data from WQP
@@ -98,69 +84,33 @@ data <- TADA_DataRetrieval(statecode = params$state,
 
 ## AutoClean
 
-TADA_AutoClean is performed automatically with TADA_DataRetrieval unless
-specified otherwise by the user (by setting applyautoclean = FALSE).
-When TADA_AutoClean is run, the following functions are performed on the
-data retrieved from the WQP:
+TADA_AutoClean is performed automatically with TADA_DataRetrieval unless specified otherwise by the user (by setting applyautoclean = FALSE). When TADA_AutoClean is run, the following functions are performed on the data retrieved from the WQP:
 
--   **TADA_ConvertSpecialChars** - converts result value columns to
-    numeric and flags non-numeric values that could not be converted.
+-   **TADA_ConvertSpecialChars** - converts result value columns to numeric and flags non-numeric values that could not be converted.
 
--   **TADA_ConvertResultUnits** - unifies result units for easier
-    quality control and review
+-   **TADA_ConvertResultUnits** - unifies result units for easier quality control and review
 
--   **TADA_ConvertDepthUnits** - converts depth units to a consistent
-    unit (meters).
+-   **TADA_ConvertDepthUnits** - converts depth units to a consistent unit (meters).
 
--   **TADA_IDCensoredData** - categorizes detection limit data and
-    identifies mismatches in result detection condition and result
-    detection limit type.
+-   **TADA_IDCensoredData** - categorizes detection limit data and identifies mismatches in result detection condition and result detection limit type.
 
--   Other helpful actions - converts important text columns to all
-    upper-case letters, removes exact duplicates, and uses WQX format
-    rules to harmonize specific NWIS metadata conventions (e.g. move
-    characteristic speciation from the
-    TADA.ResultMeasure.MeasureUnitCode column to the
-    TADA.MethodSpeciationName column)
+-   Other helpful actions - converts important text columns to all upper-case letters, removes exact duplicates, and uses WQX format rules to harmonize specific NWIS metadata conventions (e.g. move characteristic speciation from the TADA.ResultMeasure.MeasureUnitCode column to the TADA.MethodSpeciationName column)
 
-As a general rule, TADA functions do not change any contents in the
-WQP-served columns. Instead, they add new columns with the prefix
-"TADA." The following columns are numeric versions of their WQP origins:
+As a general rule, TADA functions do not change any contents in the WQP-served columns. Instead, they add new columns with the prefix "TADA." The following columns are numeric versions of their WQP origins:
 
 ```         
 -   TADA.ResultMeasureValue  -   TADA.DetectionQuantitationLimitMeasure.MeasureValue  -   TADA.LatitudeMeasure  -   TADA.LongitudeMeasure
 ```
 
-These functions also add the columns
-TADA.ResultMeasureValueDataTypes.Flag and
-TADA.DetectionQuantitationLimitMeasure.MeasureValueDataTypes.Flag, which
-provide information about the result values that is needed to address
-censored data later on (i.e., nondetections). Specifically, these new
-columns flag if special characters are included in result values, and
-specifies what the special characters are.
+These functions also add the columns TADA.ResultMeasureValueDataTypes.Flag and TADA.DetectionQuantitationLimitMeasure.MeasureValueDataTypes.Flag, which provide information about the result values that is needed to address censored data later on (i.e., nondetections). Specifically, these new columns flag if special characters are included in result values, and specifies what the special characters are.
 
 ## Data Retrieval - Geospatial
 
-All geospatial data used in this example are downloaded from the
-Assessment Total Maximum Daily Load (TMDL) Tracking and Implementation
-System (**ATTAINS**) (<https://www.epa.gov/waterdata/attains>).
-**ATTAINS** is an online system for accessing information about the
-conditions in the Nation's surface waters.
+All geospatial data used in this example are downloaded from the Assessment Total Maximum Daily Load (TMDL) Tracking and Implementation System (**ATTAINS**) (<https://www.epa.gov/waterdata/attains>). **ATTAINS** is an online system for accessing information about the conditions in the Nation's surface waters.
 
-The Clean Water Act requires states, territories and authorized tribes
-to monitor water pollution and report to EPA every two years on the
-waters they have evaluated. This process is called assessment. Part of
-this process is deciding which waters do not meet water quality
-standards because they are too polluted. These degraded waters are
-called impaired (polluted enough to require action) and are placed on
-alist for future actions to reduce pollution.
+The Clean Water Act requires states, territories and authorized tribes to monitor water pollution and report to EPA every two years on the waters they have evaluated. This process is called assessment. Part of this process is deciding which waters do not meet water quality standards because they are too polluted. These degraded waters are called impaired (polluted enough to require action) and are placed on alist for future actions to reduce pollution.
 
-This information reported to EPA by states is available in ATTAINS. The
-public information is made available via ATTAINS web services,
-geospatial services, as well as through other EPA tools. New TADA
-functions leverage the ATTAINS geospatial services to make geospatial
-information including catchment and assessment unit geometry easily
-accessible to R users.
+This information reported to EPA by states is available in ATTAINS. The public information is made available via ATTAINS web services, geospatial services, as well as through other EPA tools. New TADA functions leverage the ATTAINS geospatial services to make geospatial information including catchment and assessment unit geometry easily accessible to R users.
 
 ```{r TADA_GetAttains}
 # Import data from ATTAINS geospatial services
@@ -170,15 +120,7 @@ ATTAINS_data <- TADA_GetATTAINS(data)
 
 ## View Geospatial Features
 
-The **TADA_ViewATTAINS** function allows us to see where the monitoring
-locations from the WQP data set are relative to **ATTAINS-**indexed
-catchments and assessment units. This can be helpful when deciding which
-monitoring locationsshould be retained for additional analysis. For this
-demo, we will select a single assessment unit
-*(ATTAINS.assessmentunitidentifier*) with multiple monitoring locations
-(*MonitoringLocationIdentifier*). In this example,
-params\$assessmentunitid meets those requirements and will be the
-selected assessment unit for the remainder of the demo.
+The **TADA_ViewATTAINS** function allows us to see where the monitoring locations from the WQP data set are relative to **ATTAINS-**indexed catchments and assessment units. This can be helpful when deciding which monitoring locationsshould be retained for additional analysis. For this demo, we will select a single assessment unit *(ATTAINS.assessmentunitidentifier*) with multiple monitoring locations (*MonitoringLocationIdentifier*). In this example, params\$assessmentunitid meets those requirements and will be the selected assessment unit for the remainder of the demo.
 
 ```{r TADA_ViewAttains}
 # View catchments and assessment units on map
@@ -190,13 +132,7 @@ ATTAINS_map
 
 ## Monitoring Location Filter and Review
 
-Now that we've selected an assessment unit, we can filter the data set
-to retain only results that were collected in the specified assessment
-unit. We can also generate a new table to give us some information about
-the individual monitoring locations within the assessment unit. Let's
-remove the "ATTAINS." prefixed columns to reduce the size of the data
-set, as we won't need them for the next steps. We can add them back
-again later as needed.
+Now that we've selected an assessment unit, we can filter the data set to retain only results that were collected in the specified assessment unit. We can also generate a new table to give us some information about the individual monitoring locations within the assessment unit. Let's remove the "ATTAINS." prefixed columns to reduce the size of the data set, as we won't need them for the next steps. We can add them back again later as needed.
 
 ```{r Data Retrieval - Geospatial}
 
@@ -240,15 +176,11 @@ n_mls <- length(unique(Analysis_data$MonitoringLocationIdentifier))
 n_res <- length(Analysis_data$TADA.ResultMeasureValue)
 ```
 
-We can see that there are \``` r n_mls` `` monitoring locations from
-\``` r n_orgs` `` organizations with results from `params$startdate` to
-`params$enddate`. There are `n_res` water chemistry results in the data
-frame.
+We can see that there are \``` r n_mls` `` monitoring locations from \``` r n_orgs` `` organizations with results from `params$startdate` to `params$enddate`. There are `n_res` water chemistry results in the data frame.
 
 ## Water Chemistry Data Preparation and QC
 
-Now we can begin comparisons between the water chemistry results and a
-water quality standard or other value of our choice. First, l
+Now we can begin comparisons between the water chemistry results and a water quality standard or other value of our choice. First, l
 
 Add information about these steps, split into more sections.
 
@@ -286,57 +218,15 @@ Analysis_data <- Analysis_data %>%
 
 ## Censored data
 
-Censored data are measurements for which the true value is not known,
-but we can estimate the value based on lower or upper detection
-conditions and limit types. TADA fills missing *TADA.ResultMeasureValue*
-and *TADA.ResultMeasure.MeasureUnitCode* values with values and units
-from *TADA.DetectionQuantitationLimitMeasure.MeasureValue* and
-*TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode*, respectively,
-using the TADA_AutoClean function. In other words, detection limit
-information is copied and pasted into the result value column when the
-original value is NA and detection limit information is available. The
-two columns TADA focuses on to define and flag censored data are
-*ResultDetectionConditionText* and *DetectionQuantitationLimitTypeName*.
+Censored data are measurements for which the true value is not known, but we can estimate the value based on lower or upper detection conditions and limit types. TADA fills missing *TADA.ResultMeasureValue* and *TADA.ResultMeasure.MeasureUnitCode* values with values and units from *TADA.DetectionQuantitationLimitMeasure.MeasureValue* and *TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode*, respectively, using the TADA_AutoClean function. In other words, detection limit information is copied and pasted into the result value column when the original value is NA and detection limit information is available. The two columns TADA focuses on to define and flag censored data are *ResultDetectionConditionText* and *DetectionQuantitationLimitTypeName*.
 
-The TADA package currently has functions that summarize censored data
-incidence in the dataset and perform simple substitutions of censored
-data values, including x times the detection limit and random selection
-of a value between 0 and the detection limit. The user may specify the
-methods used for non-detects and over-detects separately in the input to
-the **TADA_SimpleCensoredMethods** function.
+The TADA package currently has functions that summarize censored data incidence in the dataset and perform simple substitutions of censored data values, including x times the detection limit and random selection of a value between 0 and the detection limit. The user may specify the methods used for non-detects and over-detects separately in the input to the **TADA_SimpleCensoredMethods** function.
 
-All censored data functions depend first on the **TADA_IDCensoredData**
-utility function, which assigns a *TADA.CensoredData.Flag* to all data
-records and identifies over-detects from non-detects using the
-*ResultDetectionConditionText* and *DetectionQuantitationLimitTypeName*.
-This utility function is automatically run within the TADA_DataRetrieval
-function and produces the *TADA.CensoredData.Flag* column. All records
-receive one of the following classifications: - Uncensored - Not filled
-with detection limit value; a detection. - Non-Detect - Left-censored -
-Over-Detect - Right-censored - Other Condition/Limit Populated -
-detection condition or limit type are ambiguous or not associated with a
-lower/upper detection limit. - Conflict between Condition and Limit -
-detection condition and limit type for a single record do not agree,
-e.g. one suggests over-detect and the other suggests non-detect. -
-Detection condition or detection limit is not documented in TADA
-reference tables. - detection condition or limit type is not
-characterized in the TADA reference tables, which are based on WQX
-domain tables. - Detection condition is missing and required for
-censored data ID. - Result needs more information before being
-categorized.
+All censored data functions depend first on the **TADA_IDCensoredData** utility function, which assigns a *TADA.CensoredData.Flag* to all data records and identifies over-detects from non-detects using the *ResultDetectionConditionText* and *DetectionQuantitationLimitTypeName*. This utility function is automatically run within the TADA_DataRetrieval function and produces the *TADA.CensoredData.Flag* column. All records receive one of the following classifications: - Uncensored - Not filled with detection limit value; a detection. - Non-Detect - Left-censored - Over-Detect - Right-censored - Other Condition/Limit Populated - detection condition or limit type are ambiguous or not associated with a lower/upper detection limit. - Conflict between Condition and Limit - detection condition and limit type for a single record do not agree, e.g. one suggests over-detect and the other suggests non-detect. - Detection condition or detection limit is not documented in TADA reference tables. - detection condition or limit type is not characterized in the TADA reference tables, which are based on WQX domain tables. - Detection condition is missing and required for censored data ID. - Result needs more information before being categorized.
 
-The **TADA_SimpleCensoredMethods** function also adds a
-*TADA.MeasureQualifierCode.Def* column which contains the
-*MeasureQualiferCode* concatenated with the WQX definition for each
-qualifier code. This provides additional information to the user which
-may assist in deciding which records to retain for analysis.
+The **TADA_SimpleCensoredMethods** function also adds a *TADA.MeasureQualifierCode.Def* column which contains the *MeasureQualiferCode* concatenated with the WQX definition for each qualifier code. This provides additional information to the user which may assist in deciding which records to retain for analysis.
 
-The next step we take in this example is to perform simple conversions
-to the censored data in the dataset: we keep over-detects as is (no
-conversion made) and convert non-detect values to 0.5 times the
-detection limit (half the detection limit). Please review
-**?TADA_Stats** and **?TADA_SimpleCensoredMethods** for more
-information.
+The next step we take in this example is to perform simple conversions to the censored data in the dataset: we keep over-detects as is (no conversion made) and convert non-detect values to 0.5 times the detection limit (half the detection limit). Please review **?TADA_Stats** and **?TADA_SimpleCensoredMethods** for more information.
 
 ```{r SummarizeCensoredData}
 
@@ -352,9 +242,7 @@ Analysis_data <- TADA_SimpleCensoredMethods(Analysis_data,
 
 ## Harmonize Results
 
-The **TADA_GetSynonymRef** function generates a synonym reference table
-that is specific to the input dataframe. Users can review how their
-input data relates to standard TADA values for the following elements:
+The **TADA_GetSynonymRef** function generates a synonym reference table that is specific to the input dataframe. Users can review how their input data relates to standard TADA values for the following elements:
 
 -   *TADA.CharacteristicName*
 
@@ -364,35 +252,15 @@ input data relates to standard TADA values for the following elements:
 
 -   *TADA.ResultMeasure.MeasureUnitCode*
 
-Users can also edit the reference file to meet their needs if desired.
-The download argument can be used to save the harmonization file to your
-current working directory when download = TRUE, the default is download
-= FALSE.
+Users can also edit the reference file to meet their needs if desired. The download argument can be used to save the harmonization file to your current working directory when download = TRUE, the default is download = FALSE.
 
-The **TADA_HarmonizeSynonyms** function then compares the input
-dataframe to the TADA Synonym Reference Table and makes conversions
-where target characteristics/fractions/speciations/units are provided.
-This function also appends a column called TADA.Harmonized.Flag,
-indicating which results had metadata changed/converted in this
-function. The purpose of this function is to make similar data
-consistent and therefore easier to compare and analyze.
+The **TADA_HarmonizeSynonyms** function then compares the input dataframe to the TADA Synonym Reference Table and makes conversions where target characteristics/fractions/speciations/units are provided. This function also appends a column called TADA.Harmonized.Flag, indicating which results had metadata changed/converted in this function. The purpose of this function is to make similar data consistent and therefore easier to compare and analyze.
 
-Here are some examples of how the TADA_HarmonizeSynonyms function can be
-used:
+Here are some examples of how the TADA_HarmonizeSynonyms function can be used:
 
-1.  *TADA.ResultSampleFractionText* specifies forms of constituents. In
-    some cases, a single *TADA.CharacteristicName* will have both
-    "Total" and "Dissolved" forms specified, which should not be
-    combined. In these cases, each *TADA.CharacteristicName* and
-    *TADA.ResultSampleFractionText* combination is given a different
-    identifier. This identifier can be used later on to identify
-    comparable data groups for calculating statistics and creating
-    figures for each combination.
+1.  *TADA.ResultSampleFractionText* specifies forms of constituents. In some cases, a single *TADA.CharacteristicName* will have both "Total" and "Dissolved" forms specified, which should not be combined. In these cases, each *TADA.CharacteristicName* and *TADA.ResultSampleFractionText* combination is given a different identifier. This identifier can be used later on to identify comparable data groups for calculating statistics and creating figures for each combination.
 
-2.  Some variables have different names but represent the same
-    constituent (e.g., "Total Kjeldahl nitrogen (Organic N & NH3)" and
-    "Kjeldahl nitrogen"). The **TADA_HarmonizeSynonyms** function gives
-    a consistent name (and identifier) to synonyms.
+2.  Some variables have different names but represent the same constituent (e.g., "Total Kjeldahl nitrogen (Organic N & NH3)" and "Kjeldahl nitrogen"). The **TADA_HarmonizeSynonyms** function gives a consistent name (and identifier) to synonyms.
 
 ```{r TADA_HarmonizeSynonyms}
 UniqueHarmonizationRef <- TADA_GetSynonymRef(Analysis_data)
@@ -404,26 +272,9 @@ Harmonized_data <- TADA_HarmonizeSynonyms(Analysis_data,
 
 ## Total Nitrogen and Total Phosphorus Calculations
 
-This section covers summing nutrient subspecies to estimate total
-nitrogen and phosphorus. This can be a challenging endeavor because some
-subspecies/compounds overlap in total nutrient calculations. Thus,
-**TADA_CalculateTotalNP** uses the [Nutrient Aggregation
-logic](https://echo.epa.gov/trends/loading-tool/resources/nutrient-aggregation)
-to add together specific subspecies to obtain a total. TADA adds one
-more equation to the mix: total particulate nitrogen + total dissolved
-nitrogen. The function uses as many subspecies as possible to calculate
-a total for each given site, date, and depth group, but it will estimate
-total nitrogen with whatever subspecies are present. This function
-creates NEW total nutrient measurements (total nitrogen unfiltered as N
-and total phosphorus unfiltered as P) and adds them to the dataframe.
+This section covers summing nutrient subspecies to estimate total nitrogen and phosphorus. This can be a challenging endeavor because some subspecies/compounds overlap in total nutrient calculations. Thus, **TADA_CalculateTotalNP** uses the [Nutrient Aggregation logic](https://echo.epa.gov/trends/loading-tool/resources/nutrient-aggregation) to add together specific subspecies to obtain a total. TADA adds one more equation to the mix: total particulate nitrogen + total dissolved nitrogen. The function uses as many subspecies as possible to calculate a total for each given site, date, and depth group, but it will estimate total nitrogen with whatever subspecies are present. This function creates NEW total nutrient measurements (total nitrogen unfiltered as N and total phosphorus unfiltered as P) and adds them to the dataframe.
 
-Users can use the default summation worksheet (see
-**TADA_GetNutrientSummationRef**) or customize it to suit their needs.
-The function also requires a daily aggregation value, either minimum,
-maximum, or mean. The default is 'max', which means that if multiple
-measurements of the same subspecies-fraction-speciation-unit occur on
-the same day at the same site and depth, the function will pick the
-maximum value to use in summation calculations.
+Users can use the default summation worksheet (see **TADA_GetNutrientSummationRef**) or customize it to suit their needs. The function also requires a daily aggregation value, either minimum, maximum, or mean. The default is 'max', which means that if multiple measurements of the same subspecies-fraction-speciation-unit occur on the same day at the same site and depth, the function will pick the maximum value to use in summation calculations.
 
 ```{r, TADA_CalculateTotalNP}
 Harmonized_data <- TADA_CalculateTotalNP(Harmonized_data, daily_agg = "max")
@@ -435,16 +286,15 @@ Harmonized_data <- TADA_CalculateTotalNP(Harmonized_data, daily_agg = "max")
 # review unique identifiers
 unique(Harmonized_data$TADA.ComparableDataIdentifier)
 
+# filter for three comparable data identifiers of interest
+Filtered_data <- Harmonized_data %>%
+  dplyr::filter(TADA.ComparableDataIdentifier %in% (c(param$)))
+
 # choose two and generate scatterplot
 TADA_TwoCharacteristicScatterplot(Harmonized_data, id_cols = "TADA.ComparableDataIdentifier", groups = c("AMMONIA_TOTAL RECOVERABLE_AS N_mg/L", "NITROGEN_TOTAL_NA_mg/L"))
 ```
 
-Now we will summarize results for a single comparable data group using
-the TADA.ComparableDataIdentifier (i.e., comparable characteristic,
-unit, speciation, and fraction combination) using **TADA_Histogram** and
-**TADA_Boxplot**. Note that users may generate a list output of multiple
-plots if their input dataset has more than one unique comparable data
-group.
+Now we will summarize results for a single comparable data group using the TADA.ComparableDataIdentifier (i.e., comparable characteristic, unit, speciation, and fraction combination) using **TADA_Histogram** and **TADA_Boxplot**. Note that users may generate a list output of multiple plots if their input dataset has more than one unique comparable data group.
 
 ```{r ComparableDataIdentifier_stats_and_histogram, fig.width=8, fig.height=6, fig.fullwidth=TRUE}
 
