@@ -1248,6 +1248,8 @@ TADA_addPoints <- function(map, layerfilepath, layergroup, layername, bbox = NUL
   return(map)
 }
 
+#' Create Characteristic/MeasureUnitCode/MethodSpeciation Ref
+#' 
 #' Create data frame of unique combinations of TADA.CharacteristicName,
 #' TADA.ResultMeasure.MeasureUnitCode, ResultMeasure.MeasureUnitCode, and
 #' TADA.MethodSpeciationName in a TADA data frame.
