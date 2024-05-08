@@ -1254,6 +1254,10 @@ TADA_addPoints <- function(map, layerfilepath, layergroup, layername, bbox = NUL
 #' 
 #' @param .data A TADA data frame.
 #' 
+#' @return A data frame with unique combinations of TADA.CharacteristicName,
+#' TADA.ResultMeasure.MeasureUnitCode, ResultMeasure.MeasureUnitCode, and
+#' TADA.MethodSpeciationName
+#' 
 #' @export
 #' 
 #' @examples
