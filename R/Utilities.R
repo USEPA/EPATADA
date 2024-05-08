@@ -63,7 +63,8 @@ utils::globalVariables(c(
   "OBJECTID", "GLOBALID", "assessmentunitidentifier", "index", "epsg",
   "ResultMeasure.MeasureUnitCode", "TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode",
   "DetectionQuantitationLimitMeasure.MeasureUnitCode", "NCode",
-  "ATTAINS.assessmentunitidentifier", "ATTAINS_AU", "TOTALAREA_MI", "TOTALAREA_KM"
+  "ATTAINS.assessmentunitidentifier", "ATTAINS_AU", "TOTALAREA_MI", "TOTALAREA_KM",
+  "ATTAINS_AUs"
   
 ))
 
@@ -1252,6 +1253,8 @@ TADA_addPoints <- function(map, layerfilepath, layergroup, layername, bbox = NUL
 #' TADA.MethodSpeciationName in a TADA data frame.
 #' 
 #' @param .data A TADA data frame.
+#' 
+#' @export
 #' 
 #' @examples
 #' UniqueCharUnitSpecExample <- TADA_UniqueCharUnitSpeciation(Data_NCTCShepherdstown_HUC12)

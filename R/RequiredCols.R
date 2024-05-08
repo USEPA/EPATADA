@@ -299,9 +299,9 @@ TADA_OrderCols <- function(.data) {
 
   rearranged <- .data %>%
     dplyr::relocate(tidyselect::any_of(required_cols)) %>%
-    dplyr::relocate(tidyselect::any_of(extra_cols), .after = any_of(required_cols)) %>%
-    dplyr::relocate(tidyselect::any_of(last_cols), .after = any_of(extra_cols)) %>%
-    dplyr::relocate(tidyselect::any_of(attains_cols), .after = any_of(last_cols))
+    dplyr::relocate(tidyselect::any_of(extra_cols), .after = tidyselect::any_of(required_cols)) %>%
+    dplyr::relocate(tidyselect::any_of(last_cols), .after = tidyselect::any_of(extra_cols)) %>%
+    dplyr::relocate(tidyselect::any_of(attains_cols), .after = tidyselect::any_of(last_cols))
 
   rearranged <- rearranged[order(rearranged$ResultIdentifier), ]
 
