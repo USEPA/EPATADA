@@ -361,7 +361,7 @@ TADA_ConvertResultUnits <- function(.data, ref = "tada", transform = TRUE) {
     # create list of unique characteristic and unit combinations in data
     check.units <- TADA_UniqueCharUnitSpeciation(.data) %>%
       dplyr::select(TADA.CharacteristicName, TADA.ResultMeasure.MeasureUnitCode) %>%
-      dplyr::d
+      dplyr::distinct()
 
     # create list of unique characteristic and unit combinations in user-supplied unit ref
     check.ref <- unit.ref %>%
@@ -543,12 +543,12 @@ TADA_ConvertResultUnits <- function(.data, ref = "tada", transform = TRUE) {
       TADA_OrderCols()
 
     # Convert method speciation column for USGS data
-     convert.data$TADA.MethodSpeciationName <- ifelse(is.na(convert.data$TADA.MethodSpeciationName) & !is.na(convert.data$TADA.Target.MethodSpeciationName), toupper(convert.data$TADA.Target.MethodSpeciationName), convert.data$TADA.MethodSpeciationName)
-     convert.data$TADA.MethodSpeciationName <- ifelse(convert.data$TADA.MethodSpeciationName == "", NA, convert.data$TADA.MethodSpeciationName)
-       
-    # Remove unneccessary conversion columns 
-     convert.data <- convert.data %>%
-         dplyr::select(-tidyselect::any_of(conversion.cols))
+    convert.data$TADA.MethodSpeciationName <- ifelse(is.na(convert.data$TADA.MethodSpeciationName) & !is.na(convert.data$TADA.Target.MethodSpeciationName), toupper(convert.data$TADA.Target.MethodSpeciationName), convert.data$TADA.MethodSpeciationName)
+    convert.data$TADA.MethodSpeciationName <- ifelse(convert.data$TADA.MethodSpeciationName == "", NA, convert.data$TADA.MethodSpeciationName)
+
+    # Remove unneccessary conversion columns
+    convert.data <- convert.data %>%
+      dplyr::select(-tidyselect::any_of(conversion.cols))
 
     return(convert.data)
   }

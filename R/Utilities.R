@@ -56,10 +56,15 @@ utils::globalVariables(c(
   "ML.Media.Flag", "TADA.UseForAnalysis.Flag",
   "Unique.Identifier", "Domain", "Note.Recommendation", "Conversion.Coefficient",
   "Conversion.Coefficient", "Last.Change.Date", "Value", "Minimum", "Unique.Identifier",
-  "Domain", "ATTAINS.assessmentunitidentifier", "ATTAINS_AUs", "GLOBALID", "Maximum",
-  "OBJECTID", "ResultMeasure.MeasureUnitCode", "SingleNearbyGroup", "TADA.MultipleOrgDuplicate",
-  "TADA.ResultSelectedMultipleOrgs", "TOTALAREA_KM", "TOTALAREA_MI", "assessmentunitidentifier",
-  "epsg", "flag", "index"
+  "Domain", "ResultMeasure.MeasureUnitCode", "Comb", "CombList", "TADA.Target.ResultMeasure.MeasureUnitCode",
+  "TADA.WQXUnitConversionFactor", "TADA.WQXUnitConversionCoefficient", "TADA.Target.MethodSpeciationName",
+  "flag", "NConvert", "MultUnits", "CharList", "CharUnit", "SingleNearbyGroup",
+  "TADA.MultipleOrgDuplicate", "TADA.ResultSelectedMultipleOrgs", "Maximum",
+  "OBJECTID", "GLOBALID", "assessmentunitidentifier", "index", "epsg",
+  "ResultMeasure.MeasureUnitCode", "TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode",
+  "DetectionQuantitationLimitMeasure.MeasureUnitCode", "NCode",
+  "ATTAINS.assessmentunitidentifier", "ATTAINS_AU", "TOTALAREA_MI", "TOTALAREA_KM",
+  "ATTAINS_AUs"
 ))
 
 # global variables for tribal feature layers used in TADA_OverviewMap in Utilities.R
@@ -403,7 +408,7 @@ TADA_ConvertSpecialChars <- function(.data, col, percent.ave = TRUE) {
   chars.data <- .data
   names(chars.data)[names(chars.data) == col] <- "orig"
   chars.data <- chars.data %>%
-    dplyr::select(-any_of(c(col, numcol, flagcol)))
+    dplyr::select(-tidyselect::any_of(c(col, numcol, flagcol)))
   chars.data$masked <- chars.data$orig
 
   # Add percentage character to dissolved oxygen saturation ResultMeasureValue
@@ -1252,6 +1257,12 @@ TADA_addPoints <- function(map, layerfilepath, layergroup, layername, bbox = NUL
 #' TADA.MethodSpeciationName in a TADA data frame.
 #' 
 #' @param .data A TADA data frame.
+#' 
+#' @return A data frame with unique combinations of TADA.CharacteristicName,
+#' TADA.ResultMeasure.MeasureUnitCode, ResultMeasure.MeasureUnitCode, and
+#' TADA.MethodSpeciationName
+#' 
+#' @export
 #' 
 #' @examples
 #' UniqueCharUnitSpecExample <- TADA_UniqueCharUnitSpeciation(Data_NCTCShepherdstown_HUC12)
