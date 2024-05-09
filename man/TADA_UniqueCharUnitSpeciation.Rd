@@ -2,9 +2,7 @@
 % Please edit documentation in R/Utilities.R
 \name{TADA_UniqueCharUnitSpeciation}
 \alias{TADA_UniqueCharUnitSpeciation}
-\title{Create data frame of unique combinations of TADA.CharacteristicName,
-TADA.ResultMeasure.MeasureUnitCode, ResultMeasure.MeasureUnitCode, and
-TADA.MethodSpeciationName in a TADA data frame.}
+\title{Create Characteristic/MeasureUnitCode/MethodSpeciation Ref}
 \usage{
 TADA_UniqueCharUnitSpeciation(.data)
 }
@@ -17,7 +15,7 @@ TADA.ResultMeasure.MeasureUnitCode, ResultMeasure.MeasureUnitCode, and
 TADA.MethodSpeciationName
 }
 \description{
-Create data frame of unique combinations of TADA.CharacteristicName,
+Creates data frame of unique combinations of TADA.CharacteristicName,
 TADA.ResultMeasure.MeasureUnitCode, ResultMeasure.MeasureUnitCode, and
 TADA.MethodSpeciationName in a TADA data frame.
 }
