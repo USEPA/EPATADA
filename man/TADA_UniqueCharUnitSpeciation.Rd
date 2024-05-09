@@ -11,6 +11,11 @@ TADA_UniqueCharUnitSpeciation(.data)
 \arguments{
 \item{.data}{A TADA data frame.}
 }
+\value{
+A data frame with unique combinations of TADA.CharacteristicName,
+TADA.ResultMeasure.MeasureUnitCode, ResultMeasure.MeasureUnitCode, and
+TADA.MethodSpeciationName
+}
 \description{
 Create data frame of unique combinations of TADA.CharacteristicName,
 TADA.ResultMeasure.MeasureUnitCode, ResultMeasure.MeasureUnitCode, and
