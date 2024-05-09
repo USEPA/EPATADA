@@ -6,21 +6,16 @@ author: "TADA Team"
 date: "`r Sys.Date()`"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{TADA: New Mexico Use Case Demo}
+  %\VignetteIndexEntry{TADA: Mississippi River Use Case Demo}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 params:
-  waterbodynames: "San Juan River, Animas River"
-  state: "NM"
-  assessmentunitid: "IL_J-36"
-  characteristictype: "Nutrient"
-  wqstandard: 15
-  wqsunits: "mg/L"
-  #huc: "0714010505,0714010504,0714010508,0714010501,0714010503"
-  startdate: "2010-01-01"
-  enddate: "2020-12-31"
-  twocompdataid: "AMMONIA_TOTAL RECOVERABLE_AS N_mg/L,NITROGEN_TOTAL_NA_mg/L"
-  onecompdataid: "AMMONIA_TOTAL RECOVERABLE_AS N_mg/L"
+  waterbodyname: "Mississippi River"
+  wqstandard2lower: 6.5
+  wqstandard2upper: 9
+  wqstandard3cool: 16
+  wqstandard3warm: 32
+  
 description: An overview of a TADA use case.
 editor_options: 
   chunk_output_type: console
@@ -55,15 +50,25 @@ preparing, QA/QCing `param$waterbodyname` data from Assessment Unit
 results to a water quality standard of `params$wqstandard`
 `params$wqsunits`
 
+```{r install_TADA, eval = F, results = 'hide', message = FALSE, warning = FALSE}
+remotes::install_github("USEPA/TADA",
+  ref = "398-remove-unit-conversions-from-tada-harmonization-template",
+  dependencies = TRUE,
+  force = TRUE
+)
+
+```
+
 ```{r library, results = 'hide', message = FALSE, warning = FALSE}
 # Load required packages
 
-library(TADA)
+#library(TADA)
 library(dplyr)
 library(yaml)
 library(lwgeom)
 library(kableExtra)
 library(sf)
+library(lubridate)
 
 start.time <- Sys.time()
 
@@ -87,13 +92,12 @@ publicly accessible.
 ```{r TADA_DataRetrieval}
 # Import data from WQP
 
-data <- TADA_DataRetrieval(statecode = params$state,
-                           startDate = params$startdate, 
-                           endDate = params$enddate, 
-                           applyautoclean = TRUE,
-                           characteristicName = c("Ammonia", "Phosphorus", "Nitrate", "Nitrogen"))
-                           #huc = as.list(el(strsplit(params$huc, ","))),
-                           #characteristicType = params$characteristictype)
+data <- TADA_DataRetrieval(statecode = "IL",
+                           startDate = "2010-01-01", 
+                           endDate = "2020-12-31", 
+                           huc = c("0714010505", "0714010504", "0714010508", "0714010501", "0714010503"),
+                           characteristicType = c("Nutrient", "Physical"),
+                            applyautoclean = TRUE)
 ```
 
 ## AutoClean
@@ -193,25 +197,34 @@ ATTAINS_map
 Now that we've selected an assessment unit, we can filter the data set
 to retain only results that were collected in the specified assessment
 unit. We can also generate a new table to give us some information about
-the individual monitoring locations within the assessment unit.
+the individual monitoring locations within the assessment unit. Let's
+remove the "ATTAINS." prefixed columns to reduce the size of the data
+set, as we won't need them for the next steps. We can add them back
+again later as needed.
 
 ```{r Data Retrieval - Geospatial}
 
 # Filter data for specified assessment unit
 
 AUID_data <- ATTAINS_data$TADA_with_ATTAINS %>%
-  dplyr::filter(ATTAINS.assessmentunitidentifier == params$assessmentunitid)
+  dplyr::filter(ATTAINS.assessmentunitidentifier == "IL_I-84")
 
-# Create df with monitoring location information
+Analysis_data <- ATTAINS_data$TADA_with_ATTAINS %>%
+  dplyr::filter(ATTAINS.assessmentunitidentifier == "IL_I-84") %>%
+  dplyr::select(-contains("ATTAINS.")) %>%
+  sf::st_drop_geometry() %>%
+  TADA_RetainRequired()
+  
 
-AUID_monitoringlocations <- AUID_data %>%
-  dplyr::select(MonitoringLocationIdentifier, MonitoringLocationName, OrganizationIdentifier, OrganizationFormalName) %>%
+# Create table of monitoring location indentifiers
+
+MonitoringLocations <- Analysis_data %>%
+  dplyr::select(MonitoringLocationName, MonitoringLocationIdentifier, OrganizationFormalName) %>%
   dplyr::distinct()
 
-
-# Table of results by organization
-
 Orgs_pie <- TADA_FieldValuesPie(Analysis_data, field = "OrganizationFormalName")
+
+Orgs_pie
   
 ```
 
@@ -219,16 +232,16 @@ Orgs_pie <- TADA_FieldValuesPie(Analysis_data, field = "OrganizationFormalName")
 
 # Determine number of organizations
 
-n_orgs <- length(unique(AUID_monitoringlocations$OrganizationFormalName))
+n_orgs <- length(unique(Analysis_data$OrganizationFormalName))
 
 # Determine number of monitoring locations
 
-n_mls <- length(unique(AUID_monitoringlocations$MonitoringLocationIdentifier))
+n_mls <- length(unique(Analysis_data$MonitoringLocationIdentifier))
 
 # add param or type list
 
 # N results
-n_res <- length(AUID_data$TADA.ResultMeasureValue)
+n_res <- length(Analysis_data$TADA.ResultMeasureValue)
 ```
 
 We can see that there are \``` r n_mls` `` monitoring locations from
@@ -236,24 +249,10 @@ We can see that there are \``` r n_mls` `` monitoring locations from
 `params$enddate`. There are `n_res` water chemistry results in the data
 frame.
 
-## Water Chemistry Data Preperation and QC
+## Water Chemistry Data Preparation and QC
 
 Now we can begin comparisons between the water chemistry results and a
-water quality standard or other value of our choice. First, let's remove
-the "ATTAINS." prefixed columns to reduce the size of the data set, as
-we won't need them for the next steps. We can add them back again later
-as needed.
-
-```{r Remove ATTAINS columns}
-# Import data from WQP
-
-Analysis_data <- ATTAINS_data$TADA_with_ATTAINS %>%
-  dplyr::filter(ATTAINS.assessmentunitidentifier == params$assessmentunitid) %>%
-  dplyr::select(-contains("ATTAINS.")) %>%
-  sf::st_drop_geometry() %>%
-  TADA_RetainRequired()
-  
-```
+water quality standard or other value of our choice. First, l
 
 Add information about these steps, split into more sections.
 
@@ -261,10 +260,12 @@ Add information about these steps, split into more sections.
 
 # Flag and remove results
 
-Analysis_data <- AUID_data %>%
-  TADA_FindContinuousData(clean = TRUE) %>%
-  #TADA_FlagMethod(clean = TRUE) %>%
-  #TADA_FlagSpeciation(clean = "both") %>%
+Analysis_data <- Analysis_data %>%
+  TADA_FindContinuousData(clean = TRUE)
+
+Analysis_data <- Analysis_data %>%
+  TADA_FlagMethod(clean = TRUE) %>%
+  TADA_FlagSpeciation(clean = "both") %>%
   TADA_FlagResultUnit(clean = "both") %>%
   TADA_FlagFraction(clean = TRUE)
 
@@ -275,7 +276,7 @@ Analysis_data <- Analysis_data %>%
 
 # Check orgs
 Analysis_data <- Analysis_data %>%
-  TADA_FindPotentialDuplicatesMultipleOrgs() %>%
+  TADA_FindPotentialDuplicatesSingleOrg() %>%
   TADA_FindPotentialDuplicatesMultipleOrgs(dist_buffer = 100,
                                            org_hierarchy = "none") %>%
   dplyr::filter(TADA.SingleOrgDup.Flag == "Unique")
@@ -283,10 +284,8 @@ Analysis_data <- Analysis_data %>%
 # Remove QC and Qualified samples
 Analysis_data <- Analysis_data %>%
   TADA_FindQCActivities(clean = TRUE) %>%
-  TADA_FlagMeasureQualifierCode(clean = TRUE) %>%
-  TADA_FindContinuousData(clean = TRUE)
+  TADA_FlagMeasureQualifierCode(clean = TRUE)
 
-# add Pair replicates
 ```
 
 ## Censored data
@@ -344,6 +343,7 @@ detection limit (half the detection limit). Please review
 information.
 
 ```{r SummarizeCensoredData}
+
 Analysis_data <- TADA_SimpleCensoredMethods(Analysis_data,
   nd_method = "multiplier",
   nd_multiplier = 0.5,
@@ -354,7 +354,7 @@ Analysis_data <- TADA_SimpleCensoredMethods(Analysis_data,
 # Filter out remaining NAs
 ```
 
-## values to a consistent convention based on user-defined/TADA standards
+## Harmonize Results
 
 The **TADA_GetSynonymRef** function generates a synonym reference table
 that is specific to the input dataframe. Users can review how their
@@ -439,9 +439,62 @@ Harmonized_data <- TADA_CalculateTotalNP(Harmonized_data, daily_agg = "max")
 # review unique identifiers
 unique(Harmonized_data$TADA.ComparableDataIdentifier)
 
+# filter for three comparable data identifiers of interest
+Filtered_data <- Harmonized_data %>%
+  dplyr::filter(TADA.ComparableDataIdentifier %in% c("PH_SUSPENDED_NA_None", "PH_TOTAL_NA_std units", "PH_TOTAL_NA_None", "PH_NA_NA_None", "TEMPERATURE, WATER_NA_NA_deg C", "TEMPERATURE, WATER_TOTAL_NA_deg C" ))
+
+# generate stats table
+Filtered_data_stats <- TADA::TADA_Stats(Filtered_data)
+
 # choose two and generate scatterplot
-TADA_TwoCharacteristicScatterplot(Harmonized_data, id_cols = "TADA.ComparableDataIdentifier", groups = c("AMMONIA_TOTAL RECOVERABLE_AS N_mg/L", "NITROGEN_TOTAL_NA_mg/L"))
+TADA_TwoCharacteristicScatterplot(Harmonized_data, id_cols = "TADA.ComparableDataIdentifier", groups = c(params$compid2, params$compid3))
+
+# comparison to standard for compid2
+
+compid2standard <- Filtered_data %>%
+  dplyr::filter(TADA.ComparableDataIdentifier == params$compid2) %>%
+  dplyr::mutate(MeetsStandard = ifelse(TADA.ResultMeasureValue >= 6.5 & TADA.ResultMeasureValue <= 9, "Yes", "No")) 
+
+
+compid2standard_table <- compid2standard %>%
+  dplyr::select(MonitoringLocationIdentifier, OrganizationFormalName, ActivityStartDate, TADA.ResultMeasureValue,
+                MeetsStandard)
+
+compid2scatter <- TADA::TADA_Scatterplot(compid2standard, id_cols = "TADA.ComparableDataIdentifier") %>%
+  plotly::add_lines(
+    y = params$wqstandard2lower,
+    x = c(0, max(compid2standard$ActivityStartDate)),
+    inherit = FALSE,
+    showlegend = FALSE,
+    line = list(color = "red"),
+    hoverinfo = "none"
+  ) %>%
+   plotly::add_lines(
+    y = params$wqstandard2upper,
+    x = c(0, max(compid2standard$ActivityStartDate)),
+    inherit = FALSE,
+    showlegend = FALSE,
+    line = list(color = "red"),
+    hoverinfo = "none"
+  )
+
+compid3standard <- Filtered_data %>%
+  dplyr::filter(TADA.ComparableDataIdentifier == params$compid3) %>%
+  dplyr::mutate(MonthForAnalysis = lubridate::month(ActivityStartDate),
+                TempStandard = ifelse(MonthForAnalysis %in% c(1,2,3,12), params$wqstandard3cool + 1.7, params$wqstandard3warm + 1.7),
+                MeetsStandard = ifelse(TADA.ResultMeasureValue < TempStandard,
+                                       "Yes", "No"))
+
+  
+compid3standard_table <- compid3standard %>%
+  dplyr::select(MonitoringLocationIdentifier, OrganizationFormalName, ActivityStartDate, TADA.ResultMeasureValue, TempStandard,
+                MeetsStandard)
+
+compid3scatter <- TADA::TADA_Scatterplot(compid3standard, id_cols = "TADA.ComparableDataIdentifier") 
+  
 ```
+
+paper
 
 Now we will summarize results for a single comparable data group using
 the TADA.ComparableDataIdentifier (i.e., comparable characteristic,
@@ -454,40 +507,22 @@ group.
 
 # filter dataframe to comparable data identifier of interest
 
-CompDataID_data <- dplyr::filter(Analysis_data, TADA.ComparableDataIdentifier == "AMMONIA_TOTAL RECOVERABLE_AS N_mg/L")
-
-# generate stats table
-CompDataID_data_stats <- TADA::TADA_Stats(Analysis_data)
-
-CompDataID_data_stats
+Compid1_data <- dplyr::filter(Filtered_data, TADA.ComparableDataIdentifier == params$compid1)
 
 # generate a histogram
-CompDataID_Histogram <- TADA_Histogram(Analysis_data, id_cols = "TADA.ComparableDataIdentifier") %>%
-  
+Compid1_Histogram <- TADA_Histogram(Compid1_data, id_cols = "TADA.ComparableDataIdentifier")
 
 # view histogram
-CompDataID_Histogram
+Compid1_Histogram 
 ```
 
 Generate interactive box plot.
 
 ```{r boxplot, fig.width=8, fig.height=6, fig.fullwidth=TRUE}
-TP_Boxplot <- TADA::TADA_Boxplot(Analysis_data, id_cols = "TADA.ComparableDataIdentifier") %>%
-  
-  
-  
-  vline <- function(x = params$wqstandard, color = "red"){
-    list(type = "line",
-         y0 = 0,
-         y1 = 1,
-         yref = "paper",
-         x0 = x,
-         x1 = 15,
-         line = list(color = "red")))
-  }
+Compid1_Boxplot <- TADA::TADA_Boxplot(Compid1_data, id_cols = "TADA.ComparableDataIdentifier") 
   
 
-TP_Boxplot
+Compid1_Boxplot
 ```
 
 Generate interactive scatterplot.
