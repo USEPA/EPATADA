@@ -666,7 +666,7 @@ Nitrogen_stats <- Filtered_data_stats %>%
   dplyr::filter(TADA.ComparableDataIdentifier == "TOTAL NITROGEN, MIXED FORMS_FILTERED, LAB_NA_MG/L") %>%
   dplyr::select(Location_Count, Measurement_Count, Min, Max, Mean)
 
-knitr::kable(Nitrogen_stats)
+DT::datatable(Nitrogen_stats)
 
 # create nitrogen scatterplot
 Nitrogen_Scatterplot <- TADA::TADA_Scatterplot(Nitrogen_data, id_cols = "TADA.ComparableDataIdentifier")
