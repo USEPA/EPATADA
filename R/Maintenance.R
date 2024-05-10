@@ -216,11 +216,11 @@ FindSynonyms <- function() {
 # # Run the following with defaults
 # library(styler)
 # style_pkg()
-# 
+#
 # # Run devtools check and test
 # devtools::check()
 # devtools::test()
-# 
+#
 # # spell check
 # library(spelling)
 # spelling::spell_check_package(

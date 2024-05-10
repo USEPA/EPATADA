@@ -4,34 +4,41 @@ format: html
 editor: visual
 author: "TADA Team"
 date: "`r Sys.Date()`"
-output: rmarkdown::html_vignette
+output: 
+  rmarkdown::html_vignette:
+    toc: true
+    fig_caption: yes
+    fig_height: 8
+    fig_width: 8
 vignette: >
+  %\VignetteEncoding{UTF-8}
   %\VignetteIndexEntry{TADA Module 1: Water Quality Portal Data Discovery and Cleaning}
   %\VignetteEngine{knitr::rmarkdown}
-  %\VignetteEncoding{UTF-8}
-description: An overview of all TADA Module 1 functions and a recommended workflow.
-editor_options: 
+description: An overview of TADA Module 1 functions and a recommended workflow.
+editor_options:
   chunk_output_type: console
-  markdown: 
+  markdown:
     wrap: 72
 ---
 
-```{r setup, include = FALSE}
+```{r setup, include = F}
+library(knitr)
+
 knitr::opts_chunk$set(
-  collapse = TRUE,
-  comment = "#>",
-  eval = FALSE
+  echo = TRUE,
+  warning = FALSE,
+  message = FALSE
 )
 ```
 
-```{css, echo=FALSE}
+```{css, include = F}
 pre {
   max-height: 300px;
   overflow-y: auto;
 }
 
 pre[class] {
-  max-height: 100px;
+  max-height: 300px;
 }
 ```
 
@@ -49,7 +56,7 @@ First, install and load the remotes package specifying the repo. This is
 needed before installing TADA because it is only available on GitHub
 (not CRAN).
 
-```{r install_remotes, eval = F, results = 'hide', message = FALSE, warning = FALSE}
+```{r install_remotes, results = 'hide', eval = F}
 install.packages("remotes",
   repos = "http://cran.us.r-project.org"
 )
@@ -62,24 +69,20 @@ downloaded automatically from CRAN with the TADA install. If desired,
 the development version of dataRetrieval can be downloaded directly from
 GitHub (un-comment).
 
-```{r install_TADA, eval = F, results = 'hide', message = FALSE, warning = FALSE}
+```{r install_TADA, eval = F, results = 'hide'}
 remotes::install_github("USEPA/TADA",
   ref = "develop",
   dependencies = TRUE
 )
 
 # remotes::install_github("USGS-R/dataRetrieval", dependencies=TRUE)
-
-# if you experience any issues installing TADA, try un-commenting and running
-# the line below before the install
-# options(download.file.method = "wininet")
 ```
 
-```{r for-development-only, echo = F, eval = F, results = 'hide', message = FALSE, warning = FALSE}
+```{r for-development-only, echo = F, results = 'hide', eval = F}
 # IF YOU ARE NOT DEVELOPING TADA, SKIP THIS CODE CHUNK
 # when developing the package, update this chunk to the current repository branch, so it runs with all of the new features prior to a PR to develop
 remotes::install_github("USEPA/TADA",
-  ref = "contdataupdates_cm",
+  ref = "cm-4.29.24",
   dependencies = TRUE
 )
 ```
@@ -87,11 +90,11 @@ remotes::install_github("USEPA/TADA",
 Finally, use the **library()** function to load the TADA R Package into
 your R session.
 
-```{r library, results = 'hide', message = FALSE, warning = FALSE}
+```{r library, results = 'hide'}
 library(TADA)
 ```
 
-## Retrieve WQP data
+## TADA_DataRetrieval
 
 WQP data is retrieved and processed for compatibility with TADA. This
 function, **TADA_DataRetrieval**, builds on USGS's dataRetrieval R
@@ -183,25 +186,6 @@ Additional resources:
 
 -   [dataRetrieval Tutorial](https://owi.usgs.gov/R/dataRetrieval.html)
 
-## dataRetrieval
-
-Uncomment below if you would like to review differences between the
-profiles you would get using readWQPdata vs. TADA_DataRetrieval. The
-profiles are different because TADA_DataRetrieval automatically joins in
-data from multiple WQP profiles, and does some additional data cleaning
-as part of the data retrieval process.
-
-This example includes monitoring data collected from Jan 2018 to Jan
-2019 by six organizations: 1) Red Lake Band of Chippewa Indians, 2) Sac
-& Fox Nation, 3) Pueblo of Pojoaque, 4) Minnesota Chippewa Tribe (Fond
-du Lac Band), 5) Pueblo of Tesuque, and 6) The Chickasaw Nation
-
-We will move forward with this example in the remainder of the vignette.
-
-```{r dataRetrieval_example}
-# dataRetrieval_example <- dataRetrieval::readWQPdata(organization = c("REDLAKE_WQX", "SFNOES_WQX", "PUEBLO_POJOAQUE", "FONDULAC_WQX", "PUEBLOOFTESUQUE", "CNENVSER"), startDate = "2018-01-01", endDate = "2019-01-01", ignore_attributes = TRUE)
-```
-
 Use the code below to download data from the WQP using
 TADA_DataRetrieval. Edit the code chuck below to define your own WQP
 query inputs.
@@ -220,9 +204,31 @@ to dates, datetimes, and numerics based on a standard algorithm.
 Enter ?TADA_DataRetrieval into the console to review more example
 queries and additional information.
 
+This example includes monitoring data collected from Jan 2018 to Jan
+2019 by six organizations: 1) Red Lake Band of Chippewa Indians, 2) Sac
+& Fox Nation, 3) Pueblo of Pojoaque, 4) Minnesota Chippewa Tribe (Fond
+du Lac Band), 5) Pueblo of Tesuque, and 6) The Chickasaw Nation
+
+We will move forward with this example in the remainder of the vignette.
+
 ```{r TADA_DataRetrieval}
 TADAProfile <- TADA_DataRetrieval(organization = c("REDLAKE_WQX", "SFNOES_WQX", "PUEBLO_POJOAQUE", "FONDULAC_WQX", "PUEBLOOFTESUQUE", "CNENVSER"), startDate = "2018-01-01", endDate = "2019-01-01", applyautoclean = FALSE)
 ```
+
+## USGS dataRetrieval
+
+Uncomment below (optional) if you would like to review differences
+between the profiles you would get using USGS's readWQPdata vs. EPA's
+TADA_DataRetrieval (compare dataRetrieval_example to TADAProfile). The
+profiles are different because TADA_DataRetrieval automatically joins in
+data from multiple WQP profiles, and does some additional data cleaning
+as part of the data retrieval process.
+
+```{r dataRetrieval_example, eval = FALSE, results = 'hide'}
+# dataRetrieval_example <- dataRetrieval::readWQPdata(organization = c("REDLAKE_WQX", "SFNOES_WQX", "PUEBLO_POJOAQUE", "FONDULAC_WQX", "PUEBLOOFTESUQUE", "CNENVSER"), startDate = "2018-01-01", endDate = "2019-01-01", ignore_attributes = TRUE)
+```
+
+## TADA_BigDataRetrieval
 
 If you need to download a large amount of data from across a large area,
 and the TADA_DataRetrieval function is not working due to WQP timeout
@@ -238,7 +244,7 @@ See ?TADA_BigDataRetrieval for more details. WARNING, some of the
 examples below can take multiple HOURS to run. The total run time
 depends on your query inputs.
 
-```{r BigdataRetrieval}
+```{r BigdataRetrieval, eval = FALSE, results = 'hide'}
 # AK_AL_WaterTemp <- TADA_BigDataRetrieval(startDate = "2000-01-01", endDate = "2022-12-31", characteristicName = "Temperature, water", statecode = c("AK","AL"))
 
 # AllWaterTemp <- TADA_BigDataRetrieval(characteristicName = "Temperature, water")
@@ -247,6 +253,8 @@ depends on your query inputs.
 
 # AllCT <- TADA_BigDataRetrieval(statecode = "CT")
 ```
+
+## Filter data based on media type
 
 Some TADA users are interested in using WQP data for surface water only
 or for analysis of some non-water data. The **TADA_AnalysisDataFilter**
@@ -288,7 +296,7 @@ TADAProfile <- TADA_AnalysisDataFilter(TADAProfile,
 # TADAProfile <- dplyr::filter(TADAProfile, TADA.ActivityMediaName == "WATER")
 ```
 
-## AutoClean
+## TADA_AutoClean
 
 Now **TADA_AutoClean** can be run on a smaller dataset after unnecessary
 results have been removed. It performs the following functions on the
@@ -373,7 +381,7 @@ a pop-up with this summary information, including the number of
 organizations that reported results at that site. This map may inform a
 user's decision to remove/correct sites that are outside the US.
 
-```{r Map, fig.width=8, fig.height=6, fig.fullwidth=TRUE, eval = F, message = FALSE, warning = FALSE}
+```{r Map, fig.width=8, fig.height=6, fig.fullwidth=TRUE, eval = F}
 TADA_OverviewMap(TADAProfile)
 ```
 
@@ -422,7 +430,7 @@ following flags (if relevant to dataframe):
     numbers to the right of the decimal point, the row will be flagged
     as "Imprecise".
 
-```{r TADA_FlagCoordinates}
+```{r TADA_FlagCoordinates, results = 'hide'}
 # flag only
 TADAProfileClean1 <- TADA_FlagCoordinates(TADAProfile, clean_outsideUSA = "no", clean_imprecise = FALSE, flaggedonly = FALSE)
 
@@ -495,7 +503,7 @@ continuous data.
 See function documentation for additional details by entering the
 following code in the console: ?TADA_FlagContinuousData
 
-```{r AggregatedContinuousData}
+```{r TADA_FlagContinuousData, eval = F}
 TADAProfileClean1 <- TADA_FlagContinuousData(TADAProfileClean1,
   clean = FALSE,
   flaggedonly = FALSE,
@@ -868,7 +876,7 @@ concentrations. QA procedures should not bias statistical analyses of
 the data. Note that a modest error in a measurement will have a much
 smaller effect than implementing a QA process that builds in bias.
 
-```{r Run TADA_PairReplicates}
+```{r Run TADA_PairReplicates, eval = F}
 # Run TADA_PairReplicates to add new TADA.ReplicateSampleID column
 TADAProfileClean3b <- TADA_PairReplicates(TADAProfileClean3)
 
@@ -1308,7 +1316,7 @@ DRAFT [Module 1](https://owshiny-dev.app.cloud.gov/tada-dev/) is also
 currently hosted on the web with minimal server memory/storage
 allocated.
 
-```{r, eval = F}
+```{r, eval = F, results = 'hide'}
 # download TADA Shiny repository
 remotes::install_github("USEPA/TADAShiny",
   ref = "develop",

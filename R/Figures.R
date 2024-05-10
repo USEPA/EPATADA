@@ -46,10 +46,10 @@
 #' # Load example dataset:
 #' data(Data_Nutrients_UT)
 #' Boxplot_output <- TADA_Boxplot(Data_Nutrients_UT, id_cols = c("TADA.ComparableDataIdentifier", "MonitoringLocationTypeName"))
-#' # This example generates 45 box plots.
+#' # This example generates 32 box plots.
 #' Boxplot_output[[2]]
 #' Boxplot_output[[25]]
-#' Boxplot_output[[40]]
+#' Boxplot_output[[30]]
 #'
 TADA_Boxplot <- function(.data, id_cols = c("TADA.ComparableDataIdentifier")) {
   # check .data is data.frame
@@ -218,10 +218,10 @@ TADA_Boxplot <- function(.data, id_cols = c("TADA.ComparableDataIdentifier")) {
 #' # Load example dataset:
 #' data(Data_Nutrients_UT)
 #' Histogram_output <- TADA_Histogram(Data_Nutrients_UT, id_cols = c("TADA.ComparableDataIdentifier", "MonitoringLocationTypeName"))
-#' # This example generates 45 histograms
+#' # This example generates 32 histograms
 #' Histogram_output[[10]]
 #' Histogram_output[[25]]
-#' Histogram_output[[35]]
+#' Histogram_output[[30]]
 #'
 TADA_Histogram <- function(.data, id_cols = c("TADA.ComparableDataIdentifier")) {
   # check .data is data.frame
@@ -388,7 +388,7 @@ TADA_Histogram <- function(.data, id_cols = c("TADA.ComparableDataIdentifier")) 
 #' }
 #'
 TADA_OverviewMap <- function(.data) {
-  suppressWarnings({
+  suppressMessages(suppressWarnings({
     # taken from this stackoverflow: https://stackoverflow.com/questions/58505589/circles-in-legend-for-leaflet-map-with-addcirclemarkers-in-r-without-shiny
     addLegendCustom <- function(map, colors, labels, sizes, opacity = 0.5) {
       colorAdditions <- paste0(colors, "; border-radius: 50%; width:", sizes, "px; height:", sizes, "px")
@@ -529,7 +529,7 @@ TADA_OverviewMap <- function(.data) {
     )
 
     return(map)
-  })
+  }))
 }
 
 #' Field Values Pie Chart
@@ -622,7 +622,7 @@ TADA_FieldValuesPie <- function(.data, field = "null", characteristicName = "nul
 #' # Load example dataset:
 #' data(Data_Nutrients_UT)
 #' Scatterplot_output <- TADA_Scatterplot(Data_Nutrients_UT, id_cols = c("TADA.ComparableDataIdentifier", "MonitoringLocationTypeName"))
-#' # This example generates 45 scatterplots
+#' # This example generates 47 scatterplots
 #' Scatterplot_output[[10]]
 #' Scatterplot_output[[25]]
 #' Scatterplot_output[[35]]
@@ -780,7 +780,7 @@ TADA_Scatterplot <- function(.data, id_cols = c("TADA.ComparableDataIdentifier")
 #' # Load example dataset:
 #' data(Data_Nutrients_UT)
 #' # Create a single scatterplot with two specified groups from TADA.ComparableDataIdentifier
-#' TADA_TwoCharacteristicScatterplot(Data_Nutrients_UT, id_cols = "TADA.ComparableDataIdentifier", groups = c("AMMONIA_UNFILTERED_AS N_UG/L", "NITRATE_UNFILTERED_AS N_UG/L"))
+#' TADA_TwoCharacteristicScatterplot(Data_Nutrients_UT, id_cols = "TADA.ComparableDataIdentifier", groups = c("AMMONIA_UNFILTERED_NA_MG/L", "NITRATE_UNFILTERED_NA_MG/L"))
 #'
 #' # Load example dataset:
 #' data(Data_6Tribes_5y_Harmonized)
