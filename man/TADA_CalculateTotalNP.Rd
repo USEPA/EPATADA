@@ -49,7 +49,7 @@ edited/customized by users. Nutrient equations are as follows:
 NITROGEN:
 \enumerate{
 \item TOTAL N (UNFILTERED)
-\item TOTAL N (FILTERED) + TOTAL N (PARTICULE)
+\item TOTAL N (FILTERED) + TOTAL N (PARTICULATE)
 \item TOTAL KJELDAHL NITROGEN + NITRATE + NITRITE
 \item ORGANIC N + AMMONIA + NITRATE + NITRITE
 \item OTHER NITROGEN FORMS
@@ -65,7 +65,7 @@ PHOSPHORUS:
 Equations are applied in the order above. The function looks for groups of
 nutrients that exactly match each equation before looking for every
 combination within each equation (for example, a group of nitrogen subspecies
-including AMMONIA and NITRATE will be passed over in an intial sweep of
+including AMMONIA and NITRATE will be passed over in an initial sweep of
 groups of subspecies containing ORG N, AMMONIA, NITRATE, and NITRITE, but
 will be caught as the function moves down the hierarchy of equations to fewer
 and fewer subspecies). Eventually, even groups with only one subspecies will

@@ -1,6 +1,7 @@
 #' Update TADA Reference Files
 #' @return Saves updated reference files
 #' This is only needed for ref tables in WQXRefTables.R
+#' and the tribal feature layers in TADAGeospatialRefLayers.R
 #'
 TADA_UpdateAllRefs <- function() {
   TADA_UpdateWQXCharValRef()
@@ -10,6 +11,8 @@ TADA_UpdateAllRefs <- function() {
   TADA_UpdateActivityTypeRef()
   TADA_UpdateCharacteristicRef()
   TADA_UpdateMeasureQualifierCodeRef()
+  TADA_UpdateMonLocTypeRef()
+  TADA_UpdateTribalLayers()
 }
 
 ## FUNCTION TO UPDATE EXAMPLE DATA
@@ -70,7 +73,7 @@ TADA_UpdateExampleData <- function() {
   y <- dplyr::filter(y, TADA.ResultMeasureValueDataTypes.Flag != "Text" &
     TADA.ResultMeasureValueDataTypes.Flag != "NA - Not Available" &
     !is.na(TADA.ResultMeasureValue))
-  # uses default ref = TADA_GetSynonymRef()
+  # uses HarmonizationTemplate.csv in the extdata folder
   Data_6Tribes_5y_Harmonized <- TADA_HarmonizeSynonyms(y)
   print("Data_6Tribes_5y_Harmonized:")
   print(dim(Data_6Tribes_5y_Harmonized))
@@ -102,6 +105,28 @@ TADA_UpdateExampleData <- function() {
   # save(Data_NCTCShepherdstown_HUC12, file = "data/Data_NCTCShepherdstown_HUC12.rda")
   usethis::use_data(Data_NCTCShepherdstown_HUC12, internal = FALSE, overwrite = TRUE, compress = "xz", version = 3, ascii = FALSE)
   rm(Data_NCTCShepherdstown_HUC12)
+
+  # Generate Data_R5_TADAPackageDemo
+  Data_R5_TADAPackageDemo <- TADA::TADA_DataRetrieval(
+    startDate = "2019-05-01",
+    endDate = "2019-05-07",
+    countycode = "null",
+    huc = "null",
+    siteid = "null",
+    siteType = "null",
+    characteristicName = "null",
+    characteristicType = "null",
+    sampleMedia = "null",
+    statecode = c("IL", "IN", "MI", "MN", "OH", "WI"),
+    organization = "null",
+    project = "null",
+    applyautoclean = FALSE
+  )
+  print("Data_R5_TADAPackageDemo:")
+  print(dim(Data_R5_TADAPackageDemo))
+  # save(Data_R5_TADAPackageDemo, file = "data/Data_R5_TADAPackageDemo.rda")
+  usethis::use_data(Data_R5_TADAPackageDemo, internal = FALSE, overwrite = TRUE, compress = "xz", version = 3, ascii = FALSE)
+  rm(Data_R5_TADAPackageDemo)
 }
 
 ## Find char-frac-spec-unit combos not present in TADA HarmonizationTemplate.
@@ -185,13 +210,23 @@ FindSynonyms <- function() {
 #   }
 
 
-# Run styler to style code
-# https://style.tidyverse.org/
-# See: https://styler.r-lib.org/reference/style_pkg.html
-# Run the following with defaults
+# # Run styler to style code
+# # https://style.tidyverse.org/
+# # See: https://styler.r-lib.org/reference/style_pkg.html
+# # Run the following with defaults
 # library(styler)
 # style_pkg()
-
-# Run devtools check and test
+#
+# # Run devtools check and test
 # devtools::check()
 # devtools::test()
+#
+# # spell check
+# library(spelling)
+# spelling::spell_check_package(
+#   pkg = ".",
+#   vignettes = TRUE
+# )
+# # run to update spelling word list
+# spelling::get_wordlist()
+# spelling::update_wordlist()

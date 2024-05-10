@@ -4,7 +4,11 @@
 \alias{TADA_RandomTestingData}
 \title{Generate a random WQP dataset}
 \usage{
-TADA_RandomTestingData(number_of_days = 1, choose_random_state = FALSE)
+TADA_RandomTestingData(
+  number_of_days = 1,
+  choose_random_state = FALSE,
+  autoclean = TRUE
+)
 }
 \arguments{
 \item{number_of_days}{Numeric. The default is 1, which will query and retrieve
@@ -16,6 +20,11 @@ if desired.}
 If FALSE, the function will query all data in the WQP for the number_of_days
 specified (national query). If TRUE, the function will select a random state
 and only retrieve data for that state.}
+
+\item{autoclean}{Boolean (TRUE or FALSE). The default is TRUE.
+If FALSE, the function will NOT apply the TADA_AutoClean as part of the
+TADA_DataRetrieval. If TRUE, the function WILL apply TADA_AutoClean as part of
+TADA_DataRetrieval.}
 }
 \value{
 Random WQP dataset.
@@ -29,6 +38,7 @@ random datasets.
 \dontrun{
 df <- TADA_RandomTestingData(number_of_days = 1, choose_random_state = FALSE)
 df <- TADA_RandomTestingData(number_of_days = 10, choose_random_state = TRUE)
+df <- TADA_RandomTestingData(number_of_days = 5, choose_random_state = TRUE, autoclean = FALSE)
 }
 
 }

@@ -58,9 +58,7 @@ TADA_HarmonizeSynonyms <- function(.data, ref, np_speciation = TRUE) {
   expected_cols <- c(
     "TADA.CharacteristicName",
     "TADA.ResultSampleFractionText",
-    "TADA.MethodSpeciationName",
-    "TADA.ResultMeasureValue",
-    "TADA.ResultMeasure.MeasureUnitCode"
+    "TADA.MethodSpeciationName"
   )
   TADA_CheckColumns(.data, expected_cols)
 
@@ -76,16 +74,20 @@ TADA_HarmonizeSynonyms <- function(.data, ref, np_speciation = TRUE) {
     "Target.TADA.MethodSpeciationName",
     "TADA.SpeciationAssumptions",
     "Target.TADA.SpeciationConversionFactor",
-    "TADA.ResultMeasure.MeasureUnitCode",
-    "Target.TADA.ResultMeasure.MeasureUnitCode",
-    "Target.TADA.UnitConversionFactor",
-    "Target.TADA.UnitConversionCoefficient"
+    "HarmonizationGroup"
   )
 
   # if class(ResultMeasureValue) != numeric, run special char function - EDH - should not be needed at this point but doesn't hurt.
   if (!is.numeric(.data$TADA.ResultMeasureValue)) {
     stop("TADA.ResultMeasureValue is not numeric. This column must be numeric before proceeding.")
   }
+
+  # Change NONE in unit, fraction, and speciation to NA for better harmonization
+  .data <- .data %>% dplyr::mutate(
+    TADA.ResultSampleFractionText = replace(TADA.ResultSampleFractionText, TADA.ResultSampleFractionText %in% c("NONE"), NA),
+    TADA.MethodSpeciationName = replace(TADA.MethodSpeciationName, TADA.MethodSpeciationName %in% c("NONE"), NA),
+    TADA.ResultMeasure.MeasureUnitCode = replace(TADA.ResultMeasure.MeasureUnitCode, TADA.ResultMeasure.MeasureUnitCode %in% c("NONE"), NA)
+  )
 
   # define harm.ref
   # if input for ref exists, use that data
@@ -101,31 +103,33 @@ TADA_HarmonizeSynonyms <- function(.data, ref, np_speciation = TRUE) {
 
   # if input for ref does not exist, use raw harmonization template
   if (missing(ref)) {
-    # use output of HarmonizationRefTable which uses the TADA HarmonizationTemplate.csv in the extdata folder
-    harm.ref <- TADA_GetSynonymRef(.data)
+    # use output of TADA_GetSynonymRef which uses the TADA HarmonizationTemplate.csv in the extdata folder
+    harm.ref <- TADA_GetSynonymRef(.data) %>%
+      dplyr::distinct()
   }
 
   # find places where metadata will be changed and add targets
-  harm.ref$TADA.Harmonized.Flag <- ifelse(!is.na(harm.ref$Target.TADA.CharacteristicName) | !is.na(harm.ref$Target.TADA.ResultSampleFractionText) | !is.na(harm.ref$Target.TADA.MethodSpeciationName) | !is.na(harm.ref$Target.TADA.ResultMeasure.MeasureUnitCode), TRUE, FALSE)
-
+  harm.ref$TADA.Harmonized.Flag <- ifelse(!is.na(harm.ref$Target.TADA.CharacteristicName) | 
+                                            !is.na(harm.ref$Target.TADA.ResultSampleFractionText) | 
+                                            !is.na(harm.ref$Target.TADA.MethodSpeciationName), 
+                                          TRUE, FALSE)
+  
   .data <- .data[, !names(.data) %in% c("TADA.ComparableDataIdentifier")]
 
-  # # join by expected cols and (if in dataset) harmonization cols
-  # joincols = names(.data)[names(.data)%in%c(expected_cols, harmonization_cols)]
-
-  # join harm.ref to .data - EDH - there are some columns ("ResultAnalyticalMethod.MethodName","SampleCollectionMethod.MethodName","ResultCommentText","MonitoringLocationTypeName")in the example harmonization table that are also in .data that would result in erroneous joins if not excluded from join below
-  flag.data <- merge(.data, harm.ref,
-    by = expected_cols[!expected_cols %in% "TADA.ResultMeasureValue"],
-    all.x = TRUE
-  )
-
+  # join harm.ref to .data
+  flag.data <- .data %>%
+    dplyr::left_join(harm.ref, by = c("TADA.CharacteristicName",
+                                      "TADA.ResultSampleFractionText",
+                                      "TADA.MethodSpeciationName"))
+  
   # TADA.CharacteristicName
   # replace TADA.CharacteristicName with Target.TADA.CharacteristicName
   clean.data <- flag.data %>%
     # use TADA suggested name where there is a suggested name, use original name if no suggested name
     dplyr::mutate(TADA.CharacteristicName = dplyr::case_when(
       !is.na(Target.TADA.CharacteristicName) ~ Target.TADA.CharacteristicName,
-      is.na(Target.TADA.CharacteristicName) ~ TADA.CharacteristicName
+      # is.na(Target.TADA.CharacteristicName) ~ TADA.CharacteristicName,
+      .default = TADA.CharacteristicName
     ))
 
   # TADA.ResultSampleFractionText
@@ -135,28 +139,12 @@ TADA_HarmonizeSynonyms <- function(.data, ref, np_speciation = TRUE) {
     dplyr::mutate(TADA.ResultSampleFractionText = dplyr::case_when(
       !is.na(Target.TADA.ResultSampleFractionText) ~ Target.TADA.ResultSampleFractionText,
       !is.na(TADA.ResultSampleFractionText) & is.na(Target.TADA.ResultSampleFractionText) & !is.na(TADA.FractionAssumptions) ~ Target.TADA.ResultSampleFractionText,
-      is.na(Target.TADA.ResultSampleFractionText) ~ TADA.ResultSampleFractionText
+      # is.na(Target.TADA.ResultSampleFractionText) ~ TADA.ResultSampleFractionText
+      .default = TADA.ResultSampleFractionText
     ))
 
-  # TADA.MethodSpeciationName
-  # there are a couple of instances with DO where the speciation is listed "AS O2" but it should be NA
+  # Handle instances with DO where the speciation is listed "AS O2" but it should be NA
   clean.data$TADA.MethodSpeciationName <- ifelse(!is.na(clean.data$TADA.MethodSpeciationName) & is.na(clean.data$Target.TADA.MethodSpeciationName) & !is.na(clean.data$TADA.SpeciationAssumptions), clean.data$Target.TADA.MethodSpeciationName, clean.data$TADA.MethodSpeciationName)
-
-  # ResultMeasure.MeasureUnitCode
-  # replace ResultMeasure.MeasureUnitCode with Target.TADA.ResultMeasure.MeasureUnitCode
-  clean.data <- clean.data %>%
-    # use TADA suggested unit where there is a suggested unit, use original unit if no suggested unit
-    dplyr::mutate(TADA.ResultMeasure.MeasureUnitCode = dplyr::case_when(
-      !is.na(Target.TADA.ResultMeasure.MeasureUnitCode) ~ Target.TADA.ResultMeasure.MeasureUnitCode,
-      is.na(Target.TADA.ResultMeasure.MeasureUnitCode) ~ TADA.ResultMeasure.MeasureUnitCode
-    )) %>%
-    # if conversion factor exists, multiply by ResultMeasureValue
-    dplyr::rowwise() %>%
-    dplyr::mutate(TADA.ResultMeasureValue = dplyr::case_when(
-      !is.na(Target.TADA.UnitConversionFactor) ~
-        ((Target.TADA.UnitConversionFactor * TADA.ResultMeasureValue) + Target.TADA.UnitConversionCoefficient),
-      is.na(Target.TADA.UnitConversionFactor) ~ TADA.ResultMeasureValue
-    ))
 
   # TADA.MethodSpeciationName
   # replace MethodSpeciationName with Target.TADA.MethodSpeciationName
@@ -166,21 +154,24 @@ TADA_HarmonizeSynonyms <- function(.data, ref, np_speciation = TRUE) {
       # use TADA suggested spec where there is a suggested spec, use original spec if no suggested spec
       dplyr::mutate(TADA.MethodSpeciationName = dplyr::case_when(
         !is.na(Target.TADA.MethodSpeciationName) ~ Target.TADA.MethodSpeciationName,
-        is.na(Target.TADA.MethodSpeciationName) ~ TADA.MethodSpeciationName
+        # is.na(Target.TADA.MethodSpeciationName) ~ TADA.MethodSpeciationName
+        .default = TADA.MethodSpeciationName
       )) %>%
       # if conversion factor exists, multiply by ResultMeasureValue
       dplyr::rowwise() %>%
       dplyr::mutate(TADA.ResultMeasureValue = dplyr::case_when(
         !is.na(Target.TADA.SpeciationConversionFactor) ~
           (Target.TADA.SpeciationConversionFactor * TADA.ResultMeasureValue),
-        is.na(Target.TADA.SpeciationConversionFactor) ~ TADA.ResultMeasureValue
+        # is.na(Target.TADA.SpeciationConversionFactor) ~ TADA.ResultMeasureValue
+        .default = TADA.ResultMeasureValue
       ))
   } else {
     clean.data <- clean.data %>%
       # use TADA suggested spec where there is a suggested spec, use original spec if no suggested spec
       dplyr::mutate(TADA.MethodSpeciationName = dplyr::case_when(
         !is.na(Target.TADA.MethodSpeciationName) & is.na(Target.TADA.SpeciationConversionFactor) ~ Target.TADA.MethodSpeciationName,
-        is.na(Target.TADA.MethodSpeciationName) ~ TADA.MethodSpeciationName
+        # is.na(Target.TADA.MethodSpeciationName) ~ TADA.MethodSpeciationName
+        .default = TADA.MethodSpeciationName
       ))
   }
 
@@ -190,9 +181,7 @@ TADA_HarmonizeSynonyms <- function(.data, ref, np_speciation = TRUE) {
       "Target.TADA.CharacteristicName",
       "Target.TADA.ResultSampleFractionText",
       "Target.TADA.MethodSpeciationName",
-      "Target.TADA.ResultMeasure.MeasureUnitCode",
       "Target.TADA.SpeciationConversionFactor",
-      "Target.TADA.UnitConversionFactor",
       "HarmonizationGroup"
     ))
 
@@ -220,7 +209,7 @@ TADA_HarmonizeSynonyms <- function(.data, ref, np_speciation = TRUE) {
 #'
 #' NITROGEN:
 #' 1. TOTAL N (UNFILTERED)
-#' 2. TOTAL N (FILTERED) + TOTAL N (PARTICULE)
+#' 2. TOTAL N (FILTERED) + TOTAL N (PARTICULATE)
 #' 3. TOTAL KJELDAHL NITROGEN + NITRATE + NITRITE
 #' 4. ORGANIC N + AMMONIA + NITRATE + NITRITE
 #' 5. OTHER NITROGEN FORMS
@@ -233,7 +222,7 @@ TADA_HarmonizeSynonyms <- function(.data, ref, np_speciation = TRUE) {
 #' Equations are applied in the order above. The function looks for groups of
 #' nutrients that exactly match each equation before looking for every
 #' combination within each equation (for example, a group of nitrogen subspecies
-#' including AMMONIA and NITRATE will be passed over in an intial sweep of
+#' including AMMONIA and NITRATE will be passed over in an initial sweep of
 #' groups of subspecies containing ORG N, AMMONIA, NITRATE, and NITRITE, but
 #' will be caught as the function moves down the hierarchy of equations to fewer
 #' and fewer subspecies). Eventually, even groups with only one subspecies will

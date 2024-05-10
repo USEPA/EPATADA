@@ -489,6 +489,7 @@ TADA_FlagResultUnit <- function(.data, clean = c("invalid_only", "nonstandardize
 #'
 #' # Remove all QC samples:
 #' QC_clean <- TADA_FindQCActivities(Data_Nutrients_UT, clean = TRUE)
+#'
 TADA_FindQCActivities <- function(.data, clean = FALSE, flaggedonly = FALSE) {
   # check .data is data.frame
   TADA_CheckType(.data, "data.frame", "Input object")
@@ -633,12 +634,22 @@ TADA_PairReplicates <- function(.data, type = c("QC_replicate"), time_difference
     "ResultIdentifier", "ActivityRelativeDepthName",
     "TADA.LatitudeMeasure", "TADA.LongitudeMeasure",
     "TADA.ResultMeasureValue", "TADA.ComparableDataIdentifier",
-    "TADA.ActivityType.Flag", "TADA.ActivityDepthHeightMeasure.MeasureValue",
+    "TADA.ActivityDepthHeightMeasure.MeasureValue",
     "TADA.ResultDepthHeightMeasure.MeasureValue",
     "TADA.ActivityTopDepthHeightMeasure.MeasureValue",
     "TADA.ActivityBottomDepthHeightMeasure.MeasureValue"
   ))
 
+  # run TADA_FindQCActivities if needed
+  if (("TADA.ActivityType.Flag" %in% colnames(.data)) == TRUE) {
+    .data <- .data
+  }
+
+  if (("TADA.ActivityType.Flag" %in% colnames(.data)) == FALSE) {
+    .data <- TADA_FindQCActivities(.data, clean = FALSE, flaggedonly = FALSE)
+  }
+
+  # execute function after checks are passed
   if ("QC_replicate" %in% type) {
     if (nrow(dplyr::filter(.data, .data$TADA.ActivityType.Flag == "QC_replicate")) == 0) {
       stop("Function not executed because no replicates found in data frame.")

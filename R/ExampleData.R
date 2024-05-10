@@ -80,3 +80,29 @@ NULL
 #' @usage data(Data_NCTCShepherdstown_HUC12)
 #' @format A data frame with 39236 rows and 151 variables
 NULL
+
+#' Data_R5_TADAPackageDemo
+#'
+#' Original pull:
+#' Data_R5_TADAPackageDemo <- TADA::TADA_DataRetrieval(
+#'  startDate = "2019-05-01",
+#'  endDate = "2019-05-07",
+#'  countycode = "null",
+#'  huc = "null",
+#'  siteid = "null",
+#'  siteType = "null",
+#'  characteristicName = "null",
+#'  characteristicType = "null",
+#'  sampleMedia = "null",
+#'  statecode = c("IL", "IN", "MI", "MN", "OH", "WI"),
+#'  organization = "null",
+#'  project = "null",
+#'  applyautoclean = FALSE
+#' )
+#'
+#' @docType data
+#' @keywords datasets
+#' @name Data_R5_TADAPackageDemo
+#' @usage data(Data_R5_TADAPackageDemo)
+#' @format A data frame with 6569 rows and 123 variables
+NULL

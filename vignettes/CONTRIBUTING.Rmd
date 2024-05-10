@@ -67,7 +67,7 @@ There are several programs that are needed before any work can begin. With admin
 
     -   [Rtools](https://cran.r-project.org/bin/windows/Rtools/)
 
--   Pick one:
+-   Download both:
 
     -   [GitHub Desktop](https://desktop.github.com/)
 
@@ -76,6 +76,22 @@ There are several programs that are needed before any work can begin. With admin
 EPA Employees:
 
 Here are more specific instructions for EPA employees: <https://work.epa.gov/software/r-software>
+
+External Collaborators (using GitHub Desktop):
+
+Once you have downloaded R, RStudio, Rtools, GitHub Desktop, and Git you will 
+need to create a GitHub account. Open GitHub Desktop and login in with your 
+account. In the web browser go the main TADA page 
+(https://github.com/USEPA/TADA) and click on the "Code" button.
+
+Select the "Open With GitHub Desktop" option. When a pop-up window appears in
+GitHub Desktop, click "Clone". As you do not have write access to the TADA
+repository, you will be prompted to create a fork. In the "How are you planning 
+to use this fork?" window you should select "To contribute to the parent 
+project".
+
+To make moving between branches while working in RStudio easy, create an R Project.
+Open R Studio and the file menu select "New Project". In the New Project Wizard select "Existing Directory" and select the file path for the local repository. Name the R Project "TADA.RProj" as this file name is already included in the .gitignore. Now when you open TADA.RProj the file name should match the name of the branch you have selected in GitHub Desktop. Any changes you make in R Studio and save will be saved to the selected branch.
 
 Once those have been installed, the following R packages will be needed for R-package development work:
 
@@ -93,7 +109,7 @@ install.packages(c("devtools", "rmarkdown"))
 
 All new development currently happens in the **develop** branch.
 
-To contribute a specific change or new code, outside contributors can [create a new branch](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/creating-and-deleting-branches-within-your-repository), using the **develop** branch as the source. We recommend that contributors work from their personal branch, and on one specific "task" at a time. When complete, you may submit a pull request to request that your changes be merged from your branch into the TADA develop branch. Contributors should submit separate pull requests for each "task".
+To contribute a specific change or new code, outside contributors can [create a new fork](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/creating-and-deleting-branches-within-your-repository), using the **develop** branch as the source. We recommend that contributors work from their personal fork, and on one specific "task" at a time. When complete, you may submit a pull request to request that your changes be merged from your fork into the TADA develop branch. Contributors should submit separate pull requests for each "task".
 
 "Tasks" should be small in scope. For example, they may pertain to a bug fix or update relevant to a single function. A single "task" may also encompass the same changes made across many functions if needed. Another example of a single "task" could be to make changes to all documentation to improve clarity, for example. Furthermore, a task may include developing a new function, or a series of related functions. In some cases, tasks can also be synonymous with issues, and the pull requests can be directly linked to a specific issue (in that case, the Repository Administrators will review the pull request and issue at the same time and the issue can be closed once the pull request is merged).
 
@@ -141,4 +157,4 @@ This United States Environmental Protection Agency (EPA) GitHub project code is 
 
 ## Contact
 
-If you have any questions, please reach out to Cristina Mullin ([mullin.cristina\@epa.gov](mailto:mullin.cristina@epa.gov){.email}).
+If you have any questions, please reach out to the TADA Team ([mywaterway\@epa.gov](mailto:mywaterway@epa.gov){.email}).

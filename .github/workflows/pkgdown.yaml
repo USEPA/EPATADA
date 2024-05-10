@@ -3,24 +3,14 @@
 on:
   push:
     branches: [develop]
-  # pull_request:
-  #  branches: [develop]
-  
-  # build and deploy when we publish a GitHub release
+  pull_request:
+    branches: [develop]
   # release:
-  #  types: [published]
-  
-  # allow manual action trigger
+  #   types: [published]
   workflow_dispatch:
 
 name: pkgdown
 
-# Allow only one concurrent deployment, skipping runs queued between the run in-progress and latest queued.
-# Also, cancel in-progress runs.
-# concurrency:
-#   group: "pkgdown"
-#   cancel-in-progress: true
-  
 jobs:
   pkgdown:
     runs-on: ubuntu-latest
@@ -32,7 +22,7 @@ jobs:
     permissions:
       contents: write
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - uses: r-lib/actions/setup-pandoc@v2
 
@@ -46,14 +36,13 @@ jobs:
           needs: website
 
       - name: Build site
-        run: pkgdown::build_site_github_pages(dest_dir = "docs", new_process = TRUE, clean = TRUE, install = TRUE)
+        run: pkgdown::build_site_github_pages(new_process = FALSE, install = FALSE)
         shell: Rscript {0}
 
       - name: Deploy to GitHub pages 🚀
-        # Don’t deploy for pull requests
         if: github.event_name != 'pull_request'
-        uses: JamesIves/github-pages-deploy-action@v4
+        uses: JamesIves/github-pages-deploy-action@v4.5.0
         with:
-          clean: true
+          clean: false
           branch: gh-pages
           folder: docs

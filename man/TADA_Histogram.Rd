@@ -47,9 +47,9 @@ TADA_Histogram(df, id_cols = "TADA.ComparableDataIdentifier")
 # Load example dataset:
 data(Data_Nutrients_UT)
 Histogram_output <- TADA_Histogram(Data_Nutrients_UT, id_cols = c("TADA.ComparableDataIdentifier", "MonitoringLocationTypeName"))
-# This example generates 45 histograms
+# This example generates 32 histograms
 Histogram_output[[10]]
 Histogram_output[[25]]
-Histogram_output[[35]]
+Histogram_output[[30]]
 
 }

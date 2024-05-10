@@ -17,13 +17,14 @@ and 'OrganizationIdentifier' to run this function.}
 A leaflet map that shows all sites in the data frame, where larger point sizes
 indicate more results collected at a site, and darker point colors indicate more
 characteristics measured at that site. Users can click on points on the map to see
-a pop-up window with exact counts for measurements, visits, and characteristics
-associated with each site.
+a pop-up window with exact counts for measurements (i.e. number of rows),
+visits (number of unique Activity ID's), and characteristics associated with each site.
 }
 \description{
 Create Overview Map
 }
 \examples{
+\dontrun{
 # Load example datasets:
 data(Data_Nutrients_UT)
 data(Data_NCTCShepherdstown_HUC12)
@@ -33,5 +34,6 @@ data(Data_6Tribes_5y_Harmonized)
 TADA_OverviewMap(Data_Nutrients_UT)
 TADA_OverviewMap(Data_NCTCShepherdstown_HUC12)
 TADA_OverviewMap(Data_6Tribes_5y_Harmonized)
+}
 
 }
