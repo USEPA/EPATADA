@@ -47,6 +47,7 @@ Imports:
     data.table, 
     dplyr,
     tidyr,
+    tidyselect,
     purrr,
     grDevices,
     magrittr,
@@ -65,7 +66,8 @@ Imports:
     remotes,
     urltools,
     geojsonsf,
-    tibble
+    tibble,
+    tidyselect
 Depends: 
     R (>= 3.5.0)
 Suggests: 

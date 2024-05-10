@@ -121,88 +121,10 @@ TADA_GetMeasureUnitRef <- function() {
     return(utils::read.csv(system.file("extdata", "WQXunitRef.csv", package = "TADA")))
   }
 
-  WQXunitRef <- raw.data
-  # add m and ft as target units for "Length Distance" (Description field) rows
-  # target.unit = m
-  target.m <- data.frame(
-    Domain = rep("Measurement Unit(MeasureUnitCode)", 13),
-    Unique.Identifier = rep(NA, 13),
-    Code = c(
-      "Angst", "cm", "dm", "feet", "ft", "in",
-      "km", "m", "mi", "mm", "nm", "nmi", "yd"
-    ),
-    Description = c(
-      "Length Distance, Angstroms",
-      "Length Distance, Centimeters",
-      "Length Distance, Decimeters",
-      "Length Distance, Feet",
-      "Length Distance, Feet",
-      "Length Distance, Inches",
-      "Length Distance, Kilometers",
-      "Length Distance, Meters",
-      "Length Distance, Miles",
-      "Length Distance, Millimeters",
-      "Length Distance, Nanometers",
-      "Length Distance, Nautical miles",
-      "Length Distance, Yards"
-    ),
-    Last.Change.Date = rep("3/24/2022 12:00:00 PM", 13),
-    Target.Unit = rep("m", 13),
-    Conversion.Factor = c(
-      1e-10, 0.01, 0.1, 0.3048, 0.3048,
-      0.0254, 1000, 1, 1609.34, 0.001,
-      1e-9, 1825, 0.9144
-    ),
-    Conversion.Coefficient = rep(0, 13)
-  )
-  # target.unit = ft
-  target.ft <- data.frame(
-    Domain = rep("Measurement Unit(MeasureUnitCode)", 13),
-    Unique.Identifier = rep(NA, 13),
-    Code = c(
-      "Angst", "cm", "dm", "feet", "ft", "in",
-      "km", "m", "mi", "mm", "nm", "nmi", "yd"
-    ),
-    Description = c(
-      "Length Distance, Angstroms",
-      "Length Distance, Centimeters",
-      "Length Distance, Decimeters",
-      "Length Distance, Feet",
-      "Length Distance, Feet",
-      "Length Distance, Inches",
-      "Length Distance, Kilometers",
-      "Length Distance, Meters",
-      "Length Distance, Miles",
-      "Length Distance, Millimeters",
-      "Length Distance, Nanometers",
-      "Length Distance, Nautical miles",
-      "Length Distance, Yards"
-    ),
-    Last.Change.Date = rep("3/24/2022 12:00:00 PM", 13),
-    Target.Unit = rep("ft", 13),
-    Conversion.Factor = c(
-      3.28084e-10, 0.0328084, 0.328084,
-      1, 1, 0.08333, 3280.84, 3.28084,
-      5280, 0.00328084, 3.2808e-9,
-      6076.12, 3
-    ),
-    Conversion.Coefficient = rep(0, 13)
-  )
-  # add data to WQXunitRef
-  WQXunitRef <- plyr::rbind.fill(WQXunitRef, target.m, target.ft) %>% dplyr::distinct()
-
-  # Convert NONE to NA in ref table
-  WQXunitRef <- WQXunitRef %>%
-    dplyr::mutate(
-      Code = replace(Code, Code %in% c("None"), NA),
-      Target.Unit = replace(Target.Unit, Target.Unit %in% c("None"), NA)
-    ) %>%
-    dplyr::distinct()
 
   # Save updated table in cache
-  WQXunitRef_Cached <- WQXunitRef
-
-  WQXunitRef
+  WQXunitRef_Cached <- raw.data
+  WQXunitRef <- raw.data
 }
 
 # Update Measure Unit Reference Table internal file (for internal use only)
@@ -737,34 +659,27 @@ TADA_GetMeasureQualifierCodeRef <- function() {
   # Categorize Result Measure Qualifiers
   # Categorization should be conservative
   suspect <- c(
-    "(", "+", "AR", "BS", "BSR", "BT", "BVER", "C", "CAN", "CBC",
-    "CSR", "DE", "EER", "EFAI", "FDB", "FDC", "FDL", "FFB", "FFD",
-    "FFS", "FFT", "FH", "FIS", "FL", "FLD", "FLS", "FMD",
-    "FMS", "FPC", "FPR", "FQC", "FRS", "FSD", "FSL", "FSP", "FUB",
-    "H", "H2", "H3", "HMSD",
-    "INT", "IQCOL", "ISP",
-    "JCW", "KCF", "KCX", "KK", "LAC", "LBF",
-    "LO",
-    "MI", "MSR", "NAI", "NLBL", "NLRO", "NN", "NRO",
-    "NRP", "NRR", "NSQ", "PNQ", "Q", "QC", "R", "RA",
-    "RPO", "S2", "SCA", "SCF", "SCP", "SCX", "SD%EL", "SDROL", "SSR",
+    "(", "+", "AR", "BS", "BSR", "BT", "BVER", "C", "CAN", "CBC","TT","UDL", "UDQ",
+    "CSR", "DE", "EER", "EFAI", "FDB", "FDC", "FDL", "FFB", "FFD","TMLF","UNC", "TOC",
+    "FFS", "FFT", "FH", "FIS", "FL", "FLD", "FLS", "FMD","ITNA",  "JCN","RLRS",
+    "FMS", "FPC", "FPR", "FQC", "FRS", "FSD", "FSL", "FSP", "FUB","NPNF", "RPDX",
+    "H", "H2", "H3", "HMSD", "C25", "HE","HIM","ICA","IS","ISAC","ITNM","OS3","QCI",
+    "INT", "IQCOL", "ISP", "A", "D", "DT", "EMPC","HH", "HIB", "ISR**","MDL","OUT",
+    "JCW", "KCF", "KCX", "KK", "LAC", "LBF", "CNT","GR4","HICC",  "J-R","NW", "PB",
+    "LO", "$", ")", "*", "ESD", "EST","EVA","EVAD","EVID","FPP","G", "LLS","OA3","PK",
+    "MI", "MSR", "NAI", "NLBL", "NLRO", "NN", "NRO", "F", "FLA",  "I", "MSD", "NHS",
+    "NRP", "NRR", "NSQ", "PNQ", "Q", "QC", "R", "RA","FEQ", "FLC", "GXB","NA","OTHER",
+    "RPO", "S2", "SCA", "SCF", "SCP", "SCX", "SD%EL", "SDROL", "SSR","PP",  "PPD","PRE",
     "SUS", "V", "^", "RNON", "B", "CBG", "SSRV" # this is used by USGS for surrogates
   )
   pass <- c(
-    "UDL", "PP", "P", "NRS", "NRB", "NPNF", "MDL", "ITNM", "I", "HIB", "HH", "HE", "G", "FPP", "FLC", "FLA", "$", "FEQ", "&", ")", "*", "=",
-    "M6F", "LVER", "LSSR", "LQ", "LOPR", "LMSD", "LICC", "ITNA", "ICA", "F", "HTH", "HNRO", "HMSR", "HIM", "HICC", "A", "AC", "AL", "ALK", "ALT",
-    "LOB", "ISR**", "ISAC", "IS", "AP", "BAC", "C25", "CAJ", "CBL", "CC",
-    "CDI", "CG", "CKB", "CKBJ", "CKG", "CKJ", "CLC", "CNT", "CON", "CUG",
-    "D", "DEC", "DI", "DOM", "DT", "ECI", "EMPC",
-    "ESD", "EST", "EVA", "EVAD", "EVID", "GR4",
-    "GXB", "HLBL", "HQ", "HVER", "J", "J+", "J-", "J-R", "JCN",
-    "L", "LCS", "LF", "LIS", "LL", "LLBL", "LLS", "LMSR", "LNRO",
-    "LR", "LT", "MSD", "N", "NA", "NFNS", "NHS", "NW",
-    "O", "OA3", "OS3", "OTHER", "OUT", "PB", "PK", "PPD", "PQL", "PRE",
-    "QCI", "RC", "REX", "RIN", "RLRS", "RMAX", "RNAF", "RP",
-    "RPDX", "RR", "RV", "RVB", "SBB", "SLB", "SM", "SS", "T",
-    "TMLF", "TOC", "TT", "UNC", "VS", "VVRR", "VVRR2", "UDQ", "ZZ",
-    "J-1", "NA", "TR"
+    "P", "NRS", "NRB", "&", "=","M6F", "LVER", "LSSR", "LQ", "LOPR", "LMSD", "LICC",
+    "HTH", "HNRO", "HMSR",  "AC", "AL", "ALK", "ALT", "LOB","AP", "BAC", "CAJ", 
+    "CBL", "CC","CDI", "CG", "CKB", "CKBJ", "CKG", "CKJ", "CLC",  "CON", "CUG",
+    "DEC", "DI", "DOM",  "ECI", "HLBL", "HQ", "HVER", "J", "J+", "J-", "L", "LCS",
+    "LF", "LIS", "LL", "LLBL",  "LMSR", "LNRO","LR", "LT", "N",  "NFNS", "O", 
+    "PQL",  "RC", "REX", "RIN",  "RMAX", "RNAF", "RP","RR", "RV", "RVB",
+    "SBB", "SLB", "SM", "SS", "T",  "VS", "VVRR", "VVRR2",  "ZZ","J-1", "NA", "TR"
   )
   nondetect <- c("BQL", "2-5B", "U", "LTGTE", "K", "IDL", "<2B", "BRL", "D>T", "DL")
 

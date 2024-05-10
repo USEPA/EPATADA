@@ -4,7 +4,12 @@ format: html
 editor: visual
 author: "TADA Team"
 date: "`r Sys.Date()`"
-output: rmarkdown::html_vignette
+output: 
+  rmarkdown::html_vignette:
+    toc: true
+    fig_caption: yes
+    fig_height: 8
+    fig_width: 8
 vignette: >
   %\VignetteEncoding{UTF-8}
   %\VignetteIndexEntry{TADA Module 1: Training for Beginner R Users}
@@ -17,14 +22,16 @@ editor_options:
 ---
 
 ```{r setup, include = FALSE}
+library(knitr)
+
 knitr::opts_chunk$set(
-  collapse = TRUE,
-  comment = "#>",
-  eval = FALSE
+  echo = TRUE,
+  warning = FALSE,
+  message = FALSE
 )
 ```
 
-```{css, echo=FALSE}
+```{css, echo = F}
 pre {
   max-height: 300px;
   overflow-y: auto;
@@ -60,7 +67,7 @@ collaboration with external partners.**
 First, install and load the remotes package specifying the repo. This is
 needed before installing TADA because it is only available on GitHub.
 
-```{r install_remotes, eval = F, results = 'hide', message = FALSE, warning = FALSE}
+```{r install_remotes, results = 'hide', eval = F}
 install.packages("remotes",
   repos = "http://cran.us.r-project.org"
 )
@@ -74,24 +81,20 @@ packages that have more recent versions available. If you see this
 prompt, it is recommended to update all of them (enter 1 into the
 console).
 
-```{r install_TADA, eval = F, results = 'hide', message = FALSE, warning = FALSE}
+```{r install_TADA, eval = F, results = 'hide'}
 remotes::install_github("USEPA/TADA",
   ref = "develop",
   dependencies = TRUE
 )
 
 # remotes::install_github("USGS-R/dataRetrieval", dependencies=TRUE)
-
-# if you experience any issues installing TADA, try un-commenting and running
-# the line below before the install
-# options(download.file.method = "wininet")
 ```
 
-```{r for-development-only, echo = F, results = 'hide', message = FALSE, warning = FALSE}
+```{r for-development-only, echo = F, results = 'hide', eval = F}
 # IF YOU ARE NOT DEVELOPING TADA, SKIP THIS CODE CHUNK
 # when developing the package, update this chunk to the current repository branch, so it runs with all of the new features prior to a PR to develop
 remotes::install_github("USEPA/TADA",
-  ref = "updates",
+  ref = "cm-4.29.24",
   dependencies = TRUE
 )
 ```
@@ -99,7 +102,7 @@ remotes::install_github("USEPA/TADA",
 Finally, use the **library()** function to load the TADA R Package into
 your R session.
 
-```{r library, results = 'hide', message = FALSE, warning = FALSE}
+```{r library, results = 'hide'}
 library(TADA)
 ```
 
@@ -112,7 +115,7 @@ the GitHub site. Users can also access the help page for a given
 function in R or RStudio using the following format (example below):
 `?TADA::[name of TADA function]`
 
-```{r help_pages, message = FALSE}
+```{r help_pages, eval = F}
 # Access help page for TADA_DataRetrieval
 ?TADA_DataRetrieval
 ```
@@ -226,7 +229,7 @@ Portal Query.*
 
 **Question 1: How many results did TADA_DataRetrieval return?**
 
-```{r question1, echo = FALSE}
+```{r question1}
 # Determine number of rows in the data set
 R5_nresults <- nrow(R5Profile)
 ```
@@ -247,7 +250,7 @@ table or pie chart of the counts of unique values in a user-specified
 field with **TADA_FieldValuesTable** or **TADA_FieldValuesPie**. We'll
 start with *TADA.ActivityMediaName*.
 
-```{r fieldValues_actmedia, fig.width=8, fig.height=6, fig.fullwidth=TRUE}
+```{r fieldValues_actmedia}
 # Create pie chart for ActivityMediaName
 ActMedName_Pie <- TADA_FieldValuesPie(R5Profile, field = "ActivityMediaName")
 
@@ -260,7 +263,7 @@ FieldValues_ActMedia <- TADA_FieldValuesTable(R5Profile, field = "ActivityMediaN
 **Question 2: How many unique 'ActivityMediaName' values exist in your
 dataset? Are there any media types that are not water?**
 
-```{r question2, echo = FALSE}
+```{r question2}
 n_media <- length(unique(FieldValues_ActMedia$Value))
 
 unique_media <- FieldValues_ActMedia %>%
@@ -316,7 +319,7 @@ FieldValues_AnalysisFlag <- TADA_FieldValuesTable(R5Profile, field = "TADA.UseFo
 **Question 3: How many SURFACE WATER results can we retain for further
 analysis**
 
-```{r question3, echo = FALSE}
+```{r question3}
 # Filter to flag only surface water results for use in analysis
 
 n_sur_water <- FieldValues_AnalysisFlag %>%
@@ -420,7 +423,7 @@ to view a pop-up with this summary information. This can be a good first
 step in identifying incorrect coordinates that are outside of the
 desired state(s) of interest or outside of the US.
 
-```{r Map, fig.width=8, fig.height=6, fig.fullwidth=TRUE}
+```{r Map, eval = F}
 OvwMap <- TADA_OverviewMap(R5Profile)
 
 OvwMap
@@ -462,29 +465,6 @@ max_results <- R5Profile_CharSummary %>%
   dplyr::slice_max(n_records)
 ```
 
-## Continuous Time Series Data
-
-**TADA_FindContinuousData** flags high frequency time series (i.e.,
-continuous) data, if present.
-
-Continuous data and daily statistics calculated from continuous data
-(avg, max, or min value over daily or other intervals), may (or may not)
-be usable for your analyses. Therefore, this function uses metadata
-submitted by data providers to flag rows with continuous data.
-
-When clean = TRUE, rows with continuous data are removed from the
-dataframe and no column will be appended. The default is clean = FALSE.
-
-In this example, we'll use the default clean = FALSE to flag any
-continuous data.
-
-An additional input called flaggedonly will allow the user to filter
-data to show only rows of continuous data.
-
-```{r ContinuousData}
-R5ProfileClean1 <- TADA_FindContinuousData(R5Profile)
-```
-
 ## WQX Quality Assurance and Quality Control (QAQC) Service Result Flags
 
 Next we'll run several functions to address invalid method, fraction,
@@ -503,13 +483,13 @@ See documentation for more details:
 -   ?**TADA_FlagFraction**
 
 ```{r Invalid_Method_Fraction_Speciation_ResultUnit}
-R5ProfileClean2 <- TADA_FlagMethod(R5ProfileClean1, clean = TRUE)
+R5ProfileClean1 <- TADA_FlagMethod(R5Profile, clean = TRUE)
 
-R5ProfileClean2 <- TADA_FlagFraction(R5ProfileClean2, clean = TRUE)
+R5ProfileClean1 <- TADA_FlagFraction(R5ProfileClean1, clean = TRUE)
 
-R5ProfileClean2 <- TADA_FlagSpeciation(R5ProfileClean2, clean = "invalid_only")
+R5ProfileClean1 <- TADA_FlagSpeciation(R5ProfileClean1, clean = "invalid_only")
 
-R5ProfileClean2 <- TADA_FlagResultUnit(R5ProfileClean2, clean = "invalid_only")
+R5ProfileClean1 <- TADA_FlagResultUnit(R5ProfileClean1, clean = "invalid_only")
 ```
 
 **Question 6: How many rows were removed due to the WQX QAQC service
@@ -518,11 +498,11 @@ removals occurred?**
 
 ```{r question6}
 # Determine number of rows removed
+R5Profile_n <- nrow(R5Profile)
+
 R5ProfileClean1_n <- nrow(R5ProfileClean1)
 
-R5ProfileClean2_n <- nrow(R5ProfileClean2)
-
-rows_removed_n <- R5ProfileClean1_n - R5ProfileClean2_n
+rows_removed_n <- R5Profile_n - R5ProfileClean1_n
 ```
 
 ## WQX national upper and lower thresholds
@@ -536,9 +516,9 @@ combination. See documentation for more details:
 -   ?**TADA_FlagBelowThreshold**
 
 ```{r WQX_Thresholds}
-R5ProfileClean3 <- TADA_FlagAboveThreshold(R5ProfileClean2, clean = TRUE)
+R5ProfileClean2 <- TADA_FlagAboveThreshold(R5ProfileClean1, clean = TRUE)
 
-R5ProfileClean3 <- TADA_FlagBelowThreshold(R5ProfileClean3, clean = TRUE)
+R5ProfileClean3 <- TADA_FlagBelowThreshold(R5ProfileClean2, clean = TRUE)
 ```
 
 **Question 7: How many results were removed due to the WQX upper and
@@ -546,11 +526,11 @@ lower thresholds?**
 
 ```{r question7}
 # Determine number of rows removed
-R5ProfileClean2_n <- nrow(R5ProfileClean2)
+R5ProfileClean1_n <- nrow(R5ProfileClean1)
 
 R5ProfileClean3_n <- nrow(R5ProfileClean3)
 
-threshold_removed_n <- R5ProfileClean2_n - R5ProfileClean3_n
+threshold_removed_n <- R5ProfileClean1_n - R5ProfileClean3_n
 ```
 
 ## Potential duplicates
@@ -568,7 +548,7 @@ FieldValues_Orgs <- TADA_FieldValuesTable(R5ProfileClean3, field = "Organization
 submitted the most results? Which organization submitted the fewest
 results?**
 
-```{r question8, echo = FALSE}
+```{r question8}
 orgs_n <- length(unique(FieldValues_Orgs$Value))
 
 org_max <- dplyr::slice_max(FieldValues_Orgs, Count)
@@ -980,7 +960,7 @@ particular values by filtering.
 To start, review the list of parameters in the dataframe using the
 **TADA_FieldValuesTable** function.
 
-```{r TADA_FieldValuesTable_chars}
+```{r TADA_FieldValuesTable_chars, results = 'hide'}
 Char_Pie <- FieldValuesTable_Chars <- TADA_FieldValuesTable(R5ProfileClean8, field = "TADA.CharacteristicName")
 
 Char_Pie
@@ -1087,7 +1067,7 @@ Generate a scatterplot with two characteristics.
 unique(R5ProfileClean8$TADA.ComparableDataIdentifier)
 ```
 
-```{r TADA_TwoCharacteristicScatterplot, echo=TRUE, fig.fullwidth=TRUE, fig.height=6, fig.width=8, eval = F, message = FALSE, warning = FALSE}
+```{r TADA_TwoCharacteristicScatterplot}
 # choose two and generate scatterplot
 DO_Temp_Scatter <- TADA_TwoCharacteristicScatterplot(R5ProfileClean8, id_cols = "TADA.ComparableDataIdentifier", groups = c("TEMPERATURE_NA_NA_DEG C", "DISSOLVED OXYGEN (DO)_NA_NA_MG/L"))
 
@@ -1101,12 +1081,12 @@ unit, speciation, and fraction combination) using **TADA_Histogram** and
 plots if their input dataset has more than one unique comparable data
 group.
 
-```{r filter_dataframe, echo=TRUE}
+```{r filter_dataframe}
 # filter dataframe to only "DISSOLVED OXYGEN (DO)_NA_NA_MG/L"
 R5ProfileCleanDO <- dplyr::filter(R5ProfileClean8, TADA.ComparableDataIdentifier == "DISSOLVED OXYGEN (DO)_NA_NA_MG/L")
 ```
 
-```{r Histogram, echo=TRUE, fig.fullwidth=TRUE, fig.height=6, fig.width=8}
+```{r Histogram}
 # generate a histogram
 DO_Hist <- TADA_Histogram(R5ProfileCleanDO, id_cols = "TADA.ComparableDataIdentifier")
 
@@ -1118,7 +1098,7 @@ R5ProfileCleanDO_stats <- TADA_Stats(R5ProfileCleanDO)
 
 Generate interactive box plot.
 
-```{r boxplot, echo=TRUE, fig.fullwidth=TRUE, fig.height=6, fig.width=8}
+```{r boxplot}
 DO_Box <- TADA_Boxplot(R5ProfileCleanDO, id_cols = "TADA.ComparableDataIdentifier")
 
 DO_Box
@@ -1126,14 +1106,14 @@ DO_Box
 
 Generate interactive scatterplot.
 
-```{r DO_filtered, echo=TRUE}
+```{r DO_filtered}
 R5ProfileCleanDO_dailymax <- TADA_AggregateMeasurements(R5ProfileCleanDO,
   agg_fun = c("max"),
   clean = TRUE
 )
 ```
 
-```{r scatterplot, echo=TRUE, fig.fullwidth=TRUE, fig.height=6, fig.width=8}
+```{r scatterplot}
 DO_Scatter <- TADA_Scatterplot(R5ProfileCleanDO_dailymax, id_cols = "TADA.ComparableDataIdentifier")
 
 DO_Scatter
@@ -1179,10 +1159,12 @@ DRAFT [Module 1](https://owshiny-dev.app.cloud.gov/tada-dev/) is also
 currently hosted on the web with minimal server memory/storage
 allocated.
 
-\`\`\`{r, eval = F} \# download TADA Shiny repository
+```{r, eval = F}
+# download TADA Shiny repository
 remotes::install_github("USEPA/TADAShiny", ref = "develop", dependencies
 = TRUE )
 
 # launch the app locally.
 
 TADAShiny::run_app()
+```

@@ -4,27 +4,34 @@ format: html
 editor: visual
 author: "TADA Team"
 date: "`r Sys.Date()`"
-output: rmarkdown::html_vignette
+output: 
+  rmarkdown::html_vignette:
+    toc: true
+    fig_caption: yes
+    fig_height: 8
+    fig_width: 8
 vignette: >
   %\VignetteEncoding{UTF-8}
   %\VignetteIndexEntry{TADA Module 1: Training for Intermediate/Advanced R Users}
   %\VignetteEngine{knitr::rmarkdown}
 description: A foray into TADA's major Module 1 functions for users familiar with R and RStudio.
-editor_options: 
+editor_options:
   chunk_output_type: console
-  markdown: 
+  markdown:
     wrap: 72
 ---
 
 ```{r setup, include = FALSE}
+library(knitr)
+
 knitr::opts_chunk$set(
-  collapse = TRUE,
-  comment = "#>",
-  eval = FALSE
+  echo = TRUE,
+  warning = FALSE,
+  message = FALSE
 )
 ```
 
-```{css, echo=FALSE}
+```{css, echo = F}
 pre {
   max-height: 300px;
   overflow-y: auto;
@@ -78,25 +85,28 @@ Users can install the TADA package from GitHub into their R library
 using the `remotes` package. Copy and paste the code below into your R
 or RStudio console to download and install.
 
+```{r install_remotes, results = 'hide', eval = F}
+install.packages("remotes",
+  repos = "http://cran.us.r-project.org"
+)
+library(remotes)
+```
+
 TADA package relies on other packages, therefore you may be prompted in
 the console to update dependency packages that have more recent versions
 available. If you see this prompt, it is recommended to update all of
 them (enter 1 into the console).
 
-```{r}
-# Install TADA
-if (!"remotes" %in% installed.packages()) {
-  install.packages("remotes")
-}
+```{r, eval = F, results = 'hide'}
 remotes::install_github("USEPA/TADA", ref = "develop")
 library(TADA)
 ```
 
-```{r for-development-only, echo = F, results = 'hide', message = FALSE, warning = FALSE}
+```{r for-development-only, echo = F, results = 'hide', eval = F}
 # IF YOU ARE NOT DEVELOPING TADA, SKIP THIS CODE CHUNK
 # when developing the package, update this chunk to the current repository branch, so it runs with all of the new features prior to a PR to develop
 remotes::install_github("USEPA/TADA",
-  ref = "updates",
+  ref = "cm-4.29.24",
   dependencies = TRUE
 )
 ```
@@ -115,7 +125,7 @@ the code in this RMarkdown document are loaded. However, users may also
 use the `package name:: package function` notation to avoid the list of
 `library()` calls.
 
-```{r, warning=FALSE,message=FALSE}
+```{r}
 list.of.packages <- c("tidyverse")
 new.packages <- list.of.packages[!(list.of.packages %in% installed.packages()[, "Package"])]
 if (length(new.packages)) install.packages(new.packages)
@@ -361,8 +371,6 @@ incompatible_datatype <- dataset %>%
 
 # take a look at the difficult data types - do they make sense?
 check <- unique(incompatible_datatype[, c("TADA.CharacteristicName", "ResultMeasureValue", "TADA.ResultMeasureValue", "ResultMeasure.MeasureUnitCode", "TADA.ResultMeasure.MeasureUnitCode", "TADA.ResultMeasureValueDataTypes.Flag", "DetectionQuantitationLimitMeasure.MeasureValue", "TADA.DetectionQuantitationLimitMeasure.MeasureValue", "DetectionQuantitationLimitMeasure.MeasureUnitCode", "TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode")])
-
-View(check)
 ```
 
 ```{r}
@@ -374,17 +382,18 @@ rm(incompatible_datatype, check, rv_datatypes, na_rv_datatypes)
 dimCheck(all_result_num, dataset, removed, checkName = "Result Format")
 ```
 
-During `TADA_DataRetrieval`, TADA automatically sorts result values into
-detection limit categories (e.g. non-detect, over-detect) based on
-populated values in the ResultDetectionConditionText and
-DetectionQuantitationLimitTypeName columns. You can find the reference
-tables used to make these decisions in `TADA_GetDetCondRef()` and
-`TADA_GetDetLimitRef()` functions. In some cases, results are missing
-detection limit/condition info, or there is a conflict in the detection
-limit and condition. The user may want to remove problematic detection
-limit data before proceeding.
+TADA_IDCensoredData sorts result values into detection limit categories
+(e.g. non-detect, over-detect) based on populated values in the
+ResultDetectionConditionText and DetectionQuantitationLimitTypeName
+columns. You can find the reference tables used to make these decisions
+in `TADA_GetDetCondRef()` and `TADA_GetDetLimitRef()` functions. In some
+cases, results are missing detection limit/condition info, or there is a
+conflict in the detection limit and condition. The user may want to
+remove problematic detection limit data before proceeding.
 
 ```{r}
+dataset <- TADA::TADA_IDCensoredData(dataset)
+
 TADA::TADA_FieldValuesPie(dataset, field = "TADA.CensoredData.Flag")
 
 problem_censored <- dataset %>%
@@ -393,8 +402,6 @@ problem_censored <- dataset %>%
 
 # Let's take a look at the problematic data that we filtered out (if any)
 check <- unique(problem_censored[, c("TADA.CharacteristicName", "ResultDetectionConditionText", "DetectionQuantitationLimitTypeName", "TADA.CensoredData.Flag")])
-
-View(check)
 ```
 
 ```{r}
@@ -429,8 +436,6 @@ the following command:
 
 ```{r}
 qaqc_ref <- TADA::TADA_GetWQXCharValRef()
-
-View(qaqc_ref)
 
 unique(qaqc_ref$Type)
 ```
@@ -508,7 +513,7 @@ check out some of the other flagging functions available in TADA:
 
 -   `?TADA_FlagBelowThreshold()`
 
--   `?TADA_FindContinuousData()`
+-   `?TADA_FlagContinuousData()`
 
 -   `?TADA_FlagCoordinates()`
 
@@ -605,7 +610,7 @@ size corresponds to the number of results collected at that site, while
 the darker the circle, the more characteristics were sampled at that
 site.
 
-```{r, warning=FALSE, message=FALSE}
+```{r, warning=FALSE, message=FALSE, eval = F}
 TADA::TADA_OverviewMap(dataset_cens)
 ```
 
@@ -635,7 +640,7 @@ with different units or fractions in the same distribution.
 
 ```{r}
 # trusty field values table - lets just look at the first few entries with the most associated records
-View(TADA::TADA_FieldValuesTable(dataset_cens, field = "TADA.ComparableDataIdentifier"))
+TADA::TADA_FieldValuesTable(dataset_cens, field = "TADA.ComparableDataIdentifier")
 ```
 
 Now that we have an idea for what the TADA.ComparableDataIdentifier
@@ -656,7 +661,7 @@ TADA::TADA_Histogram(plot_data, id_cols = "TADA.ComparableDataIdentifier")
 ```{r}
 TADA::TADA_Boxplot(plot_data, id_cols = "TADA.ComparableDataIdentifier")
 
-View(TADA::TADA_Stats(plot_data))
+TADA::TADA_Stats(plot_data)
 ```
 
 Finally, we can download our PASS and FAIL datasets together into an
@@ -681,7 +686,7 @@ application queries the WQP, contains maps and data visualizations,
 flags suspect data results, handles censored data, and more. You can
 launch it using the code below.
 
-```{r}
+```{r, eval = F, results = 'hide'}
 # download TADA Shiny repository
 remotes::install_github("USEPA/TADAShiny", ref = "develop", dependencies = TRUE)
 
