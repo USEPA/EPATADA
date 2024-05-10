@@ -91,6 +91,9 @@
     <loc>usepa.github.io/TADA/reference/TADA_CreateComparableID.html</loc>
   </url>
   <url>
+    <loc>usepa.github.io/TADA/reference/TADA_CreateUnitRef.html</loc>
+  </url>
+  <url>
     <loc>usepa.github.io/TADA/reference/TADA_DataRetrieval.html</loc>
   </url>
   <url>
@@ -245,6 +248,9 @@
   </url>
   <url>
     <loc>usepa.github.io/TADA/reference/TADA_TwoCharacteristicScatterplot.html</loc>
+  </url>
+  <url>
+    <loc>usepa.github.io/TADA/reference/TADA_UniqueCharUnitSpeciation.html</loc>
   </url>
   <url>
     <loc>usepa.github.io/TADA/reference/TADA_UpdateAllRefs.html</loc>

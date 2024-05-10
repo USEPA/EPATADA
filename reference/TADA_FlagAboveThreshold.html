@@ -133,13 +133,16 @@ the flag column will be deleted and regenerated.</p>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Remove data that is above the upper WQX threshold from dataframe:</span></span></span>
 <span class="r-in"><span><span class="va">WQXUpperThreshold_clean</span> <span class="op">&lt;-</span> <span class="fu">TADA_FlagAboveThreshold</span><span class="op">(</span><span class="va">Data_Nutrients_UT</span>, clean <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "No data above the WQX Upper Threshold was found in your dataframe. Returning the input dataframe with TADA.ResultAboveUpperThreshold.Flag column for tracking."</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Flag, but do not remove, data that is above the upper WQX threshold in</span></span></span>
 <span class="r-in"><span><span class="co"># new column titled "TADA.ResultValueAboveUpperThreshold.Flag":</span></span></span>
 <span class="r-in"><span><span class="va">WQXUpperThreshold_flags</span> <span class="op">&lt;-</span> <span class="fu">TADA_FlagAboveThreshold</span><span class="op">(</span><span class="va">Data_Nutrients_UT</span>, clean <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "No data above the WQX Upper Threshold was found in your dataframe. Returning the input dataframe with TADA.ResultAboveUpperThreshold.Flag column for tracking."</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Show only data flagged as above the upper WQX threshold:</span></span></span>
 <span class="r-in"><span><span class="va">WQXUpperThreshold_flagsonly</span> <span class="op">&lt;-</span> <span class="fu">TADA_FlagAboveThreshold</span><span class="op">(</span><span class="va">Data_Nutrients_UT</span>, clean <span class="op">=</span> <span class="cn">FALSE</span>, flaggedonly <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "This dataframe is empty because no data above the WQX Upper Threshold was found in your dataframe"</span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
     </div>
