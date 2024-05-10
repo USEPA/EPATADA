@@ -78,6 +78,19 @@ Data_Nutrients_UT_flaggedonly <- TADA_FlagContinuousData(Data_Nutrients_UT, clea
 # Remove continuous data in dataframe
 Data_Nutrients_UT_clean <- TADA_FlagContinuousData(Data_Nutrients_UT, clean = TRUE)
 unique(Data_Nutrients_UT_clean$TADA.ContinuousData.Flag)
+
+data(Data_R5_TADAPackageDemo)
+
+# Flag continuous data in new column titled "TADA.ContinuousData.Flag"
+Data_R5_TADAPackageDemo_flags <- TADA_FlagContinuousData(Data_R5_TADAPackageDemo, clean = FALSE)
+unique(Data_R5_TADAPackageDemo_flags$TADA.ContinuousData.Flag)
+
+# Show only rows flagged as continuous data
+Data_R5_TADAPackageDemo_flaggedonly <- TADA_FlagContinuousData(Data_R5_TADAPackageDemo, clean = FALSE, flaggedonly = TRUE)
+
+# Remove continuous data in dataframe
+Data_R5_TADAPackageDemo_clean <- TADA_FlagContinuousData(Data_R5_TADAPackageDemo, clean = TRUE)
+unique(Data_R5_TADAPackageDemo_clean$TADA.ContinuousData.Flag)
 }
 
 }

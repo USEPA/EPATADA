@@ -56,7 +56,15 @@ utils::globalVariables(c(
   "ML.Media.Flag", "TADA.UseForAnalysis.Flag",
   "Unique.Identifier", "Domain", "Note.Recommendation", "Conversion.Coefficient",
   "Conversion.Coefficient", "Last.Change.Date", "Value", "Minimum", "Unique.Identifier",
-  "Domain"
+  "Domain", "ResultMeasure.MeasureUnitCode", "Comb", "CombList", "TADA.Target.ResultMeasure.MeasureUnitCode",
+  "TADA.WQXUnitConversionFactor", "TADA.WQXUnitConversionCoefficient", "TADA.Target.MethodSpeciationName",
+  "flag", "NConvert", "MultUnits", "CharList", "CharUnit", "SingleNearbyGroup",
+  "TADA.MultipleOrgDuplicate", "TADA.ResultSelectedMultipleOrgs", "Maximum",
+  "OBJECTID", "GLOBALID", "assessmentunitidentifier", "index", "epsg",
+  "ResultMeasure.MeasureUnitCode", "TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode",
+  "DetectionQuantitationLimitMeasure.MeasureUnitCode", "NCode",
+  "ATTAINS.assessmentunitidentifier", "ATTAINS_AU", "TOTALAREA_MI", "TOTALAREA_KM",
+  "ATTAINS_AUs"
 ))
 
 # global variables for tribal feature layers used in TADA_OverviewMap in Utilities.R
@@ -243,7 +251,7 @@ TADA_AutoClean <- function(.data) {
 
   # Implement unit harmonization
   print("TADA_Autoclean: harmonizing result and depth units.")
-  .data <- suppressWarnings(TADA_ConvertResultUnits(.data, transform = TRUE))
+  .data <- suppressWarnings(TADA_ConvertResultUnits(.data, transform = TRUE, ref = "tada"))
   .data <- suppressWarnings(TADA_ConvertDepthUnits(.data, unit = "m"))
 
   # create comparable data identifier column
@@ -399,6 +407,8 @@ TADA_ConvertSpecialChars <- function(.data, col, percent.ave = TRUE) {
   # Create dummy columns for easy handling in function
   chars.data <- .data
   names(chars.data)[names(chars.data) == col] <- "orig"
+  chars.data <- chars.data %>%
+    dplyr::select(-tidyselect::any_of(c(col, numcol, flagcol)))
   chars.data$masked <- chars.data$orig
 
   # Add percentage character to dissolved oxygen saturation ResultMeasureValue
@@ -500,7 +510,7 @@ TADA_ConvertSpecialChars <- function(.data, col, percent.ave = TRUE) {
 
   # remove columns to be replaced
   clean.data <- clean.data %>%
-    dplyr::select(!(any_of(numcol)), !(any_of(flagcol)))
+    dplyr::select(!(tidyselect::any_of(numcol)), !(tidyselect::any_of(flagcol)))
 
   # Rename to original column name, TADA column name, and flag column name
   names(clean.data)[names(clean.data) == "orig"] <- col
@@ -1081,6 +1091,7 @@ writeLayer <- function(url, layerfilepath) {
 #' @param bbox A bounding box from the sf function st_bbox; used to filter the query results. Optional; defaults to NULL.
 #' @return sf object containing the layer
 #'
+#'
 #' @examples
 #' \dontrun{
 #' # Load example dataset
@@ -1144,6 +1155,8 @@ getPopup <- function(layer, layername) {
 #' @param bbox A bounding box from the sf function st_bbox; used to filter the query results. Optional; defaults to NULL.
 #' @return The original map with polygons from the feature layer added to it.
 #'
+#' @export
+#'
 #' @examples
 #' \dontrun{
 #' # Create a leaflet map
@@ -1200,6 +1213,8 @@ TADA_addPolys <- function(map, layerfilepath, layergroup, layername, bbox = NULL
 #' @param bbox A bounding box from the sf function st_bbox; used to filter the query results. Optional; defaults to NULL.
 #' @return The original map with polygon from the feature layer added to it.
 #'
+#' @export
+#'
 #' @examples
 #' \dontrun{
 #' # Create a leaflet map
@@ -1236,3 +1251,67 @@ TADA_addPoints <- function(map, layerfilepath, layergroup, layername, bbox = NUL
   )
   return(map)
 }
+
+#' Create Characteristic/MeasureUnitCode/MethodSpeciation Ref
+#' 
+#' Creates data frame of unique combinations of TADA.CharacteristicName,
+#' TADA.ResultMeasure.MeasureUnitCode, ResultMeasure.MeasureUnitCode, and
+#' TADA.MethodSpeciationName in a TADA data frame.
+#' 
+#' @param .data A TADA data frame.
+#' 
+#' @return A data frame with unique combinations of TADA.CharacteristicName,
+#' TADA.ResultMeasure.MeasureUnitCode, ResultMeasure.MeasureUnitCode, and
+#' TADA.MethodSpeciationName
+#' 
+#' @export
+#' 
+#' @examples
+#' UniqueCharUnitSpecExample <- TADA_UniqueCharUnitSpeciation(Data_NCTCShepherdstown_HUC12)
+
+TADA_UniqueCharUnitSpeciation <- function(.data) {
+  
+  required_cols <- c(
+    "TADA.CharacteristicName", "TADA.ResultSampleFractionText",
+    "TADA.MethodSpeciationName", "TADA.ResultMeasure.MeasureUnitCode",
+    "TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode"
+  )
+  
+  # Check to see if TADA_Autoclean has been run
+  if (all(required_cols %in% colnames(.data)) == FALSE) {
+    print("The dataframe does not contain the required fields to use TADA. Running TADA_AutoClean to create required columns.")
+    .data <- TADA_AutoClean(.data)
+  }
+  
+  if (all(required_cols %in% colnames(.data)) == TRUE) {
+    .data <- .data
+  }
+  
+  # Create df of unique codes and characteristic names(from TADA.CharacteristicName and TADA.ResultMeasure.MeasureUnitCode) in TADA data frame
+  data.units.result <- .data %>%
+    dplyr::select(TADA.CharacteristicName, TADA.ResultMeasure.MeasureUnitCode, 
+                  ResultMeasure.MeasureUnitCode, TADA.MethodSpeciationName) %>%
+    dplyr::distinct()
+  
+  # Create df of unique codes and characteristic names(from TADA.CharacteristicName and TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode) in TADA data frame
+  data.units.det <- .data %>%
+    dplyr::select(TADA.CharacteristicName, TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode, 
+                  DetectionQuantitationLimitMeasure.MeasureUnitCode, TADA.MethodSpeciationName) %>%
+    dplyr::distinct() %>%
+    dplyr::rename(
+      TADA.ResultMeasure.MeasureUnitCode = TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode,
+      ResultMeasure.MeasureUnitCode = DetectionQuantitationLimitMeasure.MeasureUnitCode
+    )
+  
+  # Create combined df with all unique codes (both result and det units) and characteristic names
+  data.units <- data.units.result %>%
+    dplyr::full_join(data.units.det, by = c("TADA.CharacteristicName", "TADA.ResultMeasure.MeasureUnitCode",
+                                            "ResultMeasure.MeasureUnitCode", "TADA.MethodSpeciationName")) %>%
+    dplyr::distinct() %>%
+    dplyr::group_by(TADA.CharacteristicName) %>%
+    dplyr::mutate(NCode = length(unique(TADA.ResultMeasure.MeasureUnitCode))) %>%
+    dplyr::filter(!is.na(TADA.ResultMeasure.MeasureUnitCode) |
+                    is.na(TADA.ResultMeasure.MeasureUnitCode) & NCode == 1) %>%
+    dplyr::select(-NCode)
+}
+

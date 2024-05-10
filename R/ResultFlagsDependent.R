@@ -486,6 +486,7 @@ TADA_FlagResultUnit <- function(.data, clean = c("invalid_only", "nonstandardize
 #'
 #' # Remove all QC samples:
 #' QC_clean <- TADA_FindQCActivities(Data_Nutrients_UT, clean = TRUE)
+#'
 TADA_FindQCActivities <- function(.data, clean = FALSE, flaggedonly = FALSE) {
   # check .data is data.frame
   TADA_CheckType(.data, "data.frame", "Input object")
@@ -637,11 +638,11 @@ TADA_PairReplicates <- function(.data, type = c("QC_replicate"), time_difference
   ))
 
   # run TADA_FindQCActivities if needed
-  if (("TADA.MeasureQualifierCode.Flag" %in% colnames(.data)) == TRUE) {
+  if (("TADA.ActivityType.Flag" %in% colnames(.data)) == TRUE) {
     .data <- .data
   }
 
-  if (("TADA.MeasureQualifierCode.Flag" %in% colnames(.data)) == FALSE) {
+  if (("TADA.ActivityType.Flag" %in% colnames(.data)) == FALSE) {
     .data <- TADA_FindQCActivities(.data, clean = FALSE, flaggedonly = FALSE)
   }
 

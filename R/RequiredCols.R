@@ -59,6 +59,7 @@ require.cols <- c(
   "Target.TADA.UnitConversionFactor", # generated when
   "TADA.WQXUnitConversionFactor", # generated, only added when transform = FALSE in TADA_ConvertResultUnits
   "Target.TADA.UnitConversionCoefficient",
+  "TADA.WQXUnitConversionFactor", #generated, only added when transform = FALSE in TADA_ConvertResultUnits
   "TADA.UnitConversionFactor", # generated, added from TADA harmonization template
   "TADA.SpeciationUnitConversion", # generated, only added when transform = FALSE in TADA_ConvertResultUnits
   "TADA.ResultUnit.Flag", # generated
@@ -297,10 +298,10 @@ TADA_OrderCols <- function(.data) {
   attains_cols <- attains.cols[attains.cols %in% names(.data)]
 
   rearranged <- .data %>%
-    dplyr::relocate(any_of(required_cols)) %>%
-    dplyr::relocate(any_of(extra_cols), .after = any_of(required_cols)) %>%
-    dplyr::relocate(any_of(last_cols), .after = any_of(extra_cols)) %>%
-    dplyr::relocate(any_of(attains_cols), .after = any_of(last_cols))
+    dplyr::relocate(tidyselect::any_of(required_cols)) %>%
+    dplyr::relocate(tidyselect::any_of(extra_cols), .after = tidyselect::any_of(required_cols)) %>%
+    dplyr::relocate(tidyselect::any_of(last_cols), .after = tidyselect::any_of(extra_cols)) %>%
+    dplyr::relocate(tidyselect::any_of(attains_cols), .after = tidyselect::any_of(last_cols))
 
   rearranged <- rearranged[order(rearranged$ResultIdentifier), ]
 
