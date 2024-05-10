@@ -4,12 +4,17 @@ format: html
 editor: visual
 author: "TADA Team"
 date: "`r Sys.Date()`"
-output: rmarkdown::html_vignette
+output: 
+  rmarkdown::html_vignette:
+    toc: true
+    fig_caption: yes
+    fig_height: 8
+    fig_width: 8
 vignette: >
+  %\VignetteEncoding{UTF-8}
   %\VignetteIndexEntry{TADA: Assessment Unit Use Case Demo}
   %\VignetteEngine{knitr::rmarkdown}
-  %\VignetteEncoding{UTF-8}
-description: An overview of a TADA use case.
+description: An overview of a TADA use case for a single Assessment Unit.
 editor_options: 
   chunk_output_type: console
   markdown: 
@@ -18,27 +23,15 @@ editor_options:
 
 ```{r setup, include = FALSE}
 knitr::opts_chunk$set(
-  cache = TRUE,
-  collapse = TRUE,
-  comment = "#>",
-  eval = FALSE
+  echo = TRUE,
+  warning = FALSE,
+  message = FALSE
 )
-```
-
-```{css, echo=FALSE}
-pre {
-  max-height: 300px;
-  overflow-y: auto;
-}
-
-pre[class] {
-  max-height: 100px;
-}
 ```
 
 ## Overview
 
-This vignette walks through the specific use case of query, downloading,
+We will walk through the specific use case of query, downloading,
 preparing, QA/QCing data from a single Assessment Unit with multiple
 Monitoring Locations sampled by several organizations. Three
 characteristics, pH, water temperature, and total nitrogen are used in
@@ -48,14 +41,39 @@ characteristic, total nitrogen, does not have an Illinois water quality
 standard, but is used to demonstrate some helpful functions for data
 exploration and visualization.
 
+This vignette is designed to be consise and provide an example of how
+you might use TADA functions for basic data discovery and analysis with
+regards to a single Assessment Unit and a small subset of
+characteristics. It leverages functions from TADA Modules 1 and 2. For
+more details on each function, see the [TADA Function
+Reference](https://usepa.github.io/TADA/reference/index.html) or the
+more comprehensive module vignettes:
+
+-   [TADA Module 1 Beginner
+    Training](https://usepa.github.io/TADA/articles/TADAModule1_BeginnerTraining.html)
+
+-   [TADA Module 1 Advanced
+    Training](https://usepa.github.io/TADA/articles/TADAModule1_AdvancedTraining.html)
+
+-   [TADA Module 1 Water Quality Portal Data Discovery and
+    Cleaning](https://usepa.github.io/TADA/articles/TADAModule1.html)
+
+-   [TADA Module
+    2](https://usepa.github.io/TADA/articles/TADAModule2.html)
+
 ## Load Required Packages
 
 The fist step is to load the TADA package and other packages used in our
-workflow.
+workflow. (If you are a first-time TADA user, see [TADA Module 1
+Beginner
+Training](https://usepa.github.io/TADA/articles/TADAModule1_BeginnerTraining.html)
+for TADA package installation instructions.)
+
+We'll also record the start time for our analysis, beginning after
+loading packages.
 
 ```{r library, results = 'hide', message = FALSE, warning = FALSE}
 # Load required packages
-
 library(TADA)
 library(dplyr)
 library(yaml)
@@ -64,30 +82,49 @@ library(sf)
 library(lubridate)
 library(knitr)
 
+# Record start time
 start.time <- Sys.time()
 
 ```
 
 ## Data Retrieval - Water Chemistry
 
-All water chemistry data used in this example are downloaded from the
-Water Quality Portal (<https://www.waterqualitydata.us/>). The WQP
-integrates publicly available water quality data from the USGS National
-Water Information System (**NWIS**) and the EPA Water Quality Exchange
+The water chemistry data we will use are downloaded from the Water
+Quality Portal (<https://www.waterqualitydata.us/>). The WQP integrates
+publicly available water quality data from the USGS National Water
+Information System (**NWIS**) and the EPA Water Quality Exchange
 (**WQX**) Data Warehouse. The EPA water quality data originate from the
 [Water Quality
 Exchange](https://www.epa.gov/waterdata/water-quality-data), the EPA's
 repository of water quality monitoring data collected by water resource
 management groups across the country. Organizations, including states,
 tribes, watershed groups, other federal agencies, volunteer groups, and
-universities, submit data to the WQX in order to make their data
-publicly accessible.
+universities, submit data to the WQX .
 
-We can use TADA_DataRetrieval to retrieve WQP data. In this example, we
-have specififed lists of HUCs and Characteristic Types to reduce the
+We are interested in Assessment Unit "IL_I-84". This is a Mississippi
+River Assessment Unit. Because we don't have a comprehensive list of the
+Monitoring Locations in this Assessment Unit, we will need to create a
+broad query to retrieve all results that might be associated the
+IL_I-84. One way to do this is to include all HUC10s that are relevant
+to the Assessment Unit.
+
+We can use **TADA_DataRetrieval** to retrieve WQP data. In this example,
+we have specified lists of HUCs and Characteristic Types to reduce the
 size of the query since we have a general idea of the location of our
 assessment unit of interest and know which characteristics we'd like to
-explore.
+explore. One quick way to find this information is to view IL_I-84's
+Waterbody Report on How's My Water Way:
+[WaterbodyReport/IL_EPA/IL_I-84/2022](https://mywaterway.epa.gov/waterbody-report/IL_EPA/IL_I-84/2022).
+
+We'll also need to set start and end dates. For this example we'll use a
+ten year range between 2010 and 2020. We will also select Characteristic
+Types to search by. Nutrient contains nitrogen related characteristics
+and Physical contains both pH and water temperature, so we use those. It
+is possible to query by a specific Characteristic Name, but different
+organizations may input the same characteristic in a variety of ways.
+There are TADA functions that can be used to harmonize these synonyms,
+so it can be useful to start with a broader query to ensure that all
+relevant results are downloaded.
 
 ```{r TADA_DataRetrieval}
 # Import data from WQP
@@ -102,10 +139,10 @@ data <- TADA_DataRetrieval(statecode = "IL",
 
 ## AutoClean
 
-TADA_AutoClean is performed automatically with TADA_DataRetrieval unless
-specified otherwise by the user (by setting applyautoclean = FALSE).
-When TADA_AutoClean is run, the following functions are performed on the
-data retrieved from the WQP:
+As part of **TADA_DataRetrieval**, **TADA_AutoClean** is performed
+automatically unless specified otherwise by the user (by setting
+applyautoclean = FALSE). When **TADA_AutoClean** is run, the following
+functions are performed on the data retrieved from the WQP:
 
 -   **TADA_ConvertSpecialChars** - converts result value columns to
     numeric and flags non-numeric values that could not be converted.
@@ -129,26 +166,29 @@ data retrieved from the WQP:
 
 As a general rule, TADA functions do not change any contents in the
 WQP-served columns. Instead, they add new columns with the prefix
-"TADA."
+"TADA." This allows users to easily review any changes TADA functions
+have made.
 
 ## Data Retrieval - Geospatial
 
 All geospatial data used in this example are downloaded from the
 Assessment Total Maximum Daily Load (TMDL) Tracking and Implementation
 System (**ATTAINS**) (<https://www.epa.gov/waterdata/attains>).
-**ATTAINS** is an online system for accessing information about the
+**ATTAINS** is an online system for accessing information about
 conditions in the Nation's surface waters.
 
-This information reported to EPA by states is available in ATTAINS. The
-public information is made available via ATTAINS web services,
-geospatial services, as well as through other EPA tools. New TADA
-functions leverage the ATTAINS geospatial services to make geospatial
-information including catchment and assessment unit geometry easily
-accessible to R users.
+This information reported to EPA by states is available in **ATTAINS**.
+The public information is made available via **ATTAINS** web services.
+New TADA functions leverage the **ATTAINS** geospatial services to make
+geospatial information including catchment and assessment unit geometry
+easily accessible to R users.
 
-We can use the function, TADA_GetATTAINS to obtain geospatial data from
-ATTAINS relevant to the Monitoring Locations included in the WQP data
-set.
+We can use the function, **TADA_GetATTAINS** to obtain geospatial data
+from ATTAINS relevant to the Monitoring Locations included in the WQP
+data set. See [TADA Module
+2](https://usepa.github.io/TADA/articles/TADAModule2.html) for a much
+more detailed look at the logic behind this and the other TADA
+geospatial functions.
 
 ```{r TADA_GetAttains}
 # Import data from ATTAINS geospatial services
@@ -159,11 +199,11 @@ ATTAINS_data <- TADA_GetATTAINS(data)
 ## View Geospatial Features
 
 The **TADA_ViewATTAINS** function allows us to see where the monitoring
-locations from the WQP data set are relative to **ATTAINS-**indexed
+locations from the **WQP** data set are relative to **ATTAINS-**indexed
 catchments and assessment units. This can be helpful when deciding which
-monitoring locationsshould be retained for additional analysis. For this
-demo, we will select a single assessment unit, IL-84, with multiple
-monitoring locations (*MonitoringLocationIdentifier*).
+Monitoring Locations should be retained for additional analysis. For
+this demo, we are focusing on a single Assessment Unit, IL-84, with
+multiple monitoring locations (*MonitoringLocationIdentifier*).
 
 ```{r TADA_ViewAttains}
 # View catchments and assessment units on map
@@ -175,16 +215,17 @@ ATTAINS_map
 
 ## Monitoring Location Filter and Review
 
-Now that we've selected an assessment unit, we can filter the data set
-to retain only results that were collected in the specified assessment
-unit. We can also generate a new table to give us some information about
-the individual monitoring locations within the assessment unit. Let's
-remove the "ATTAINS." prefixed columns to reduce the size of the data
-set, as we won't need them for the next steps. We can add them back
-again later as needed.
+Now that we've associated geospatial data from **ATTAINS** with the
+**WQP** data, we can filter the data set to retain only results that
+were collected in the specified Assessment Unit. We can also generate a
+new table to give us some information about the individual monitoring
+locations within the assessment unit. After this filter step is
+complete, we can remove the "ATTAINS." prefixed columns to reduce the
+size of the data set, as we won't need them for the remaining steps in
+this example.
 
 We can also create a table with some basic information about the
-Monitoring Locations in assessment unit IL-84 and a pie chart to display
+Monitoring Locations in Assessment Unit IL-84 and a pie chart to display
 the relative number of results contributed by each organization.
 
 ```{r Data Retrieval - Geospatial}
@@ -207,6 +248,8 @@ MonitoringLocations <- Analysis_data %>%
   dplyr::select(MonitoringLocationName, MonitoringLocationIdentifier, OrganizationFormalName) %>%
   dplyr::distinct()
 
+knitr::kable(MonitoringLocations, format = 'simple')
+
 
 # Create pie of results by organization
 Orgs_pie <- TADA_FieldValuesPie(Analysis_data, field = "OrganizationFormalName")
@@ -215,8 +258,7 @@ Orgs_pie
   
 ```
 
-
-```{r Hidden Calcuations}
+```{r Hidden Calcuations, echo = FALSE}
 
 # Determine number of organizations
 
@@ -239,9 +281,9 @@ latedate <- max(Analysis_data$ActivityStartDate)
 
 ```
 
-We can see that there are `nmls` monitoring locations from ` norgs` organizations with
-results from `earlydate` to `latedate`. There are `nres`
-water chemistry results in the data frame.
+We can see that there are `r nmls` monitoring locations from `r norgs`
+organizations with results from `r earlydate` to `r latedate`. There are
+`r nres` results in the data frame.
 
 ## Water Chemistry Data Preparation and QC
 
@@ -251,10 +293,16 @@ QC steps that can be performed using TADA functions.
 
 First, we can check the data for additional conditions which might cause
 us to exclude certain results from further analysis. For example, we can
-use TADA_FlagMethod to check for invalid analytical
-method-characteristic combinations; TADA_FlagSpeciation to check for
+use **TADA_FlagMethod** to check for invalid analytical
+method-characteristic combinations; **TADA_FlagSpeciation** to check for
 invalid characteristics-method speciation combinations,
-TADA_FlagResultUnit to check the the validity of each characteristic-media-result unit combination. In this simple example, we will remove all in invalid combinations, but you will likely review each more carefully in order to more thoroughly understand your data set.
+**TADA_FlagResultUnit** to check the the validity of each
+characteristic-media-result unit combination, and **TADA_FlagFraction**
+to check the validity of characteristic-fraction combinations. In this
+simple example, we will remove all invalid combinations identified by
+each of these functions. When setting up your own workflow, you will
+want to review each function and its output more carefully before moving
+on.
 
 ```{r remove invalid combinations}
 
@@ -267,7 +315,11 @@ Analysis_data <- Analysis_data %>%
   TADA_FlagFraction(clean = TRUE)
 ```
 
-Another set of TADA flagging functions can be used to check results aginst national lower and upper thresholds. As in the previous examples, we will set these functions to remove any results that fall outside the national thresholds.
+Another set of TADA flagging functions, **TADA_FlagAboveThreshold** and
+**TADA_FlagBelowThreshold**, can be used to check results against
+national lower and upper thresholds. As in the previous examples, we
+will set these functions to remove any results that fall outside the
+national thresholds.
 
 ```{r remove outside thresholds}
 
@@ -279,10 +331,27 @@ Analysis_data <- Analysis_data %>%
   
 ```
 
-We can also review the data set to see if it contains potential duplicate results from within a single organization or potential duplicates from within multiple organizations (such as when two or more organizations monitor the same location and may submit duplicate results).
+We can also review the data set to see if it contains potential
+duplicate results from within a single organization or potential
+duplicates from within multiple organizations (such as when two or more
+organizations monitor the same location and may submit duplicate
+results).
 
-We will select to keep only unique samples from TADA_FindPotentialDuplicatesSingleOrg by filtering for TADA.SingleOrgDup.Flag equals "Unique". Then we will search for potential duplicates from multiple orgs with TADA_FindPotentialDuplicatesMultipleOrgs and filter only to retain only one value per potential duplicate by filtering for TADA.ResultSelectedMultipleOrgs equals "Y".
+We will select to keep only unique samples from
+**TADA_FindPotentialDuplicatesSingleOrg** by filtering for
+TADA.SingleOrgDup.Flag equals "Unique". Then we will search for
+potential duplicates from multiple orgs with
+**TADA_FindPotentialDuplicatesMultipleOrgs** and filter only to retain
+only one value per potential duplicate by filtering for
+TADA.ResultSelectedMultipleOrgs equals "Y".
 
+If you would like to prioritize results from one organization over
+another, this can be done using the org_hierarchy argument in
+**TADA_FindPotentialDuplicatesMultipleOrgs**. Information on how to this
+can be found in the function reference for
+[TADA_FindPotentialDuplicatesMultipleOrgs](https://usepa.github.io/TADA/reference/TADA_FindPotentialDuplicatesMultipleOrgs.html).
+In this example, we will use the default setting "none" where a single
+representative is selected randomly from each duplicate group.
 
 ```{r remove potential dups}
 
@@ -297,7 +366,12 @@ Analysis_data <- Analysis_data %>%
 
 ```
 
-Next we can remove QC and qualified samples (with qualifiers identified as suspect).
+Next we can remove QC and qualified samples (with qualifiers identified
+as suspect) using **TADA_FindQCActivities** and
+**TADA_FlagMeasureQualifierCode**, respectively. See the TADA Module 1
+vignettes for more information on how these functions identify and flag
+results for removal as you may wish to make different decisions than the
+TADA defaults regarding which results to retain.
 
 ```{r remove QC and qualified}
 
@@ -309,7 +383,7 @@ Analysis_data <- Analysis_data %>%
 
 ```
 
-## Censored data
+## Censored Data
 
 Censored data are measurements for which the true value is not known,
 but we can estimate the value based on lower or upper detection
@@ -317,25 +391,21 @@ conditions and limit types. TADA fills missing *TADA.ResultMeasureValue*
 and *TADA.ResultMeasure.MeasureUnitCode* values with values and units
 from *TADA.DetectionQuantitationLimitMeasure.MeasureValue* and
 *TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode*, respectively,
-using the TADA_AutoClean function. 
+using the TADA_AutoClean function.
 
 The TADA package currently has functions that summarize censored data
 incidence in the dataset and perform simple substitutions of censored
 data values, including x times the detection limit and random selection
 of a value between 0 and the detection limit. The user may specify the
 methods used for non-detects and over-detects separately in the input to
-the **TADA_SimpleCensoredMethods** function.
+the **TADA_SimpleCensoredMethods** function. The next step we take in
+this example is to perform simple conversions to the censored data in
+the dataset: we keep over-detects as is (no conversion made) and convert
+non-detect values to 0.5 times the detection limit (half the detection
+limit).
 
-All censored data functions depend first on the **TADA_IDCensoredData**
-utility function, which assigns a *TADA.CensoredData.Flag* to all data
-records and identifies over-detects from non-detects using the
-*ResultDetectionConditionText* and *DetectionQuantitationLimitTypeName*.
-This utility function is automatically run within the TADA_DataRetrieval
-function and produces the *TADA.CensoredData.Flag* column. A
-The next step we take in this example is to perform simple conversions
-to the censored data in the dataset: we keep over-detects as is (no
-conversion made) and convert non-detect values to 0.5 times the
-detection limit (half the detection limit). 
+See the TADA Module 1 vignettes for more detailed information on the
+logic behind **TADA_SimpleCensoredMethods.**
 
 ```{r SummarizeCensoredData}
 
@@ -351,12 +421,17 @@ Analysis_data <- TADA_SimpleCensoredMethods(Analysis_data,
 
 The **TADA_GetSynonymRef** function generates a synonym reference table
 that is specific to the input dataframe. Users can review how their
-input data relates to standard TADA values for the following elements: *TADA.CharacteristicName*, *TADA.ResultSampleFractionText*, *TADA.MethodSpeciationName*, and *TADA.ResultMeasure.MeasureUnitCode* and edit if desired.
+input data relates to standard TADA values for the following elements:
+*TADA.CharacteristicName*, *TADA.ResultSampleFractionText*,
+*TADA.MethodSpeciationName*, and *TADA.ResultMeasure.MeasureUnitCode*
+and edit if desired.
 
 Users can also edit the reference file to meet their needs if desired.
 The download argument can be used to save the harmonization file to your
 current working directory when download = TRUE, the default is download
-= FALSE.
+= FALSE. In this example, we will modify the harmonization file to group
+results with the fraction "NA" and results with the fraction "TOTAL" for
+pH and water temperature.
 
 The **TADA_HarmonizeSynonyms** function then compares the input
 dataframe to the TADA Synonym Reference Table and makes conversions
@@ -365,7 +440,6 @@ This function also appends a column called TADA.Harmonized.Flag,
 indicating which results had metadata changed/converted in this
 function. The purpose of this function is to make similar data
 consistent and therefore easier to compare and analyze.
-
 
 ```{r TADA_HarmonizeSynonyms}
 UniqueHarmonizationRef <- TADA_GetSynonymRef(Analysis_data)
@@ -384,9 +458,6 @@ Harmonized_data <- TADA_HarmonizeSynonyms(Analysis_data,
 
 ## Total Nitrogen and Total Phosphorus Calculations
 
-This section covers summing nutrient subspecies to estimate total
-nitrogen and phosphorus. This can be a challenging endeavor because some
-subspecies/compounds overlap in total nutrient calculations. Thus,
 **TADA_CalculateTotalNP** uses the [Nutrient Aggregation
 logic](https://echo.epa.gov/trends/loading-tool/resources/nutrient-aggregation)
 to add together specific subspecies to obtain a total. TADA adds one
@@ -403,7 +474,8 @@ The function also requires a daily aggregation value, either minimum,
 maximum, or mean. The default is 'max', which means that if multiple
 measurements of the same subspecies-fraction-speciation-unit occur on
 the same day at the same site and depth, the function will pick the
-maximum value to use in summation calculations.
+maximum value to use in summation calculations. In this example, we will
+use the default summation worksheet to obtain total nitrogen.
 
 ```{r, TADA_CalculateTotalNP}
 Harmonized_data <- TADA_CalculateTotalNP(Harmonized_data, daily_agg = "max")
@@ -411,7 +483,9 @@ Harmonized_data <- TADA_CalculateTotalNP(Harmonized_data, daily_agg = "max")
 
 ## Parameter Level Filtering
 
-Now we can filter to our three parameters of interest and using *TADA_Stats* take a look at some basic statistics for each, including location count, measurement count, min, max, and more.
+Now we can filter to our three parameters of interest and use
+**TADA_Stats** take a look at some basic statistics for each, including
+location count, measurement count, min, max, and more.
 
 ```{r parameter level filtering}
 # review unique identifiers
@@ -419,15 +493,19 @@ unique(Harmonized_data$TADA.ComparableDataIdentifier)
 
 # filter for three comparable data identifiers of interest
 Filtered_data <- Harmonized_data %>%
-  dplyr::filter(TADA.ComparableDataIdentifier %in% c("TEMPERATURE_NA_NA_DEG C", "PH_NA_NA_NA", "TOTAL NITROGEN, MIXED FORMS_TOTAL RECOVERABLE_NA_MG/L" ))
+  dplyr::filter(TADA.ComparableDataIdentifier %in% c("TEMPERATURE_NA_NA_DEG C", "PH_NA_NA_NA", "TOTAL NITROGEN, MIXED FORMS_FILTERED, LAB_NA_MG/L"))
 
 # generate stats table
 Filtered_data_stats <- TADA_Stats(Filtered_data)
+
+knitr::kable(Filtered_data_stats)
 ```
 
 ## Standard Comparisons With Scatterplot and Pie Chart
 
-Next, we will create a two characteristic scatterplot of pH and temperature to begin visualizing the data, using *TADA_TwoCharacteristicScatterplot*.
+Next, we will create a two characteristic scatterplot of pH and
+temperature to begin visualizing the data, using
+**TADA_TwoCharacteristicScatterplot**.
 
 ```{r two param scatterplot}
 
@@ -435,20 +513,31 @@ Next, we will create a two characteristic scatterplot of pH and temperature to b
 TADA_TwoCharacteristicScatterplot(Harmonized_data, id_cols = "TADA.ComparableDataIdentifier", groups = c("TEMPERATURE_NA_NA_DEG C", "PH_NA_NA_NA"))
 ```
 
-Let's focus on just one characteristic, pH. We can filter the data frame to retain only pH samples. We can also add a column to indicate whether each result falls within the water quality standard range for pH (6.5 - 9). From this pH-only frame we can create a table with just a few columns for easier review, and a single characteristic scatterplot using *TADA_Scatterplot*. In this example, horizontal lines have been added to indicate the upper and lower ends of the water quality standard. These are not a default option in *TADA_Scatterplot* but can be added via the *plotly* package.
+Let's focus on just one characteristic, pH. We can filter the data frame
+to retain only pH samples. We can also add a column to indicate whether
+each result falls within the water quality standard range for pH (6.5 -
+9). From this pH-only frame we can create a table with just a few
+columns for easier review, and a single characteristic scatterplot using
+**TADA_Scatterplot**. In this example, horizontal lines have been added
+to indicate the upper and lower ends of the water quality standard.
+These are not a default option in **TADA_Scatterplot** but can be added
+via the **plotly** package.
 
 ```{r ph analysis and visualization}
-# comparison to standard for compid2
-
+# comparison to standard for ph
 pH_Standard <- Filtered_data %>%
   dplyr::filter(TADA.ComparableDataIdentifier == "PH_NA_NA_NA") %>%
   dplyr::mutate(MeetsStandard = ifelse(TADA.ResultMeasureValue >= 6.5 & TADA.ResultMeasureValue <= 9, "Yes", "No")) 
 
 
+# subset of pH data with fewer rows
 pH_Table <- pH_Standard %>%
   dplyr::select(MonitoringLocationIdentifier, OrganizationFormalName, ActivityStartDate, TADA.ResultMeasureValue,
                 MeetsStandard)
 
+knitr::kable(pH_Table)
+
+# pH scatterplot
 pH_Scatter <- TADA::TADA_Scatterplot(pH_Standard, id_cols = "TADA.ComparableDataIdentifier") %>%
   plotly::add_lines(
     y = 6.5,
@@ -466,23 +555,41 @@ pH_Scatter <- TADA::TADA_Scatterplot(pH_Standard, id_cols = "TADA.ComparableData
     line = list(color = "red"),
     hoverinfo = "none"
   )
+
+pH_Scatter
 ```
 
-Comparison of temperature to water quality standards is a little more complicated as the maximum temperature varies by season and there are multiple components of the temperature standard. For this example, we will focus on the "shall never exceed" seasonal temperature standards. 
+Comparison of temperature to water quality standards is a little more
+complicated as the maximum temperature varies by season and there are
+multiple components of the temperature standard. For this example, we
+will focus on the "shall never exceed" seasonal temperature standards.
 
-These are: 
+These are:
 
 17.7 deg C for January, February, March, and December
 
-33.7 deg C for April, May, June, July, August, September, October, and November.
+33.7 deg C for April, May, June, July, August, September, October, and
+November.
 
-We can use *lubridate* and *dplyr* functions to assign the appropriate standard to each result by using *lubridate::month* to identify the month in which each sample was collected and *dplyr::mutate* to create a new column for the temperature standard. Then the results can be compared to the standard.
+We can use **lubridate** and **dplyr** functions to assign the
+appropriate standard to each result by using **lubridate::month** to
+identify the month in which each sample was collected and
+**dplyr::mutate** to create a new column for the temperature standard.
+Then the results can be compared to the standard.
 
-We can use *TADA_Scatterplot* again to visualize the data. Due to the seasonal variation in the standard and the ten-year date range in our data set, we may want to consider other visualizations to visually review the number of results not meeting the standard. We can use *TADA_FieldValuesPie* on the MeetsStandard field we created to see how many samples met or did not meet the standard.
+We can use **TADA_Scatterplot** again to visualize the data. Due to the
+seasonal variation in the standard and the ten-year date range in our
+data set, we may want to consider other visualizations to visually
+review the number of results not meeting the standard. We can use
+**TADA_FieldValuesPie** on the MeetsStandard field we created to see how
+many samples met or did not meet the standard.
 
-Creating a table also allows for easy filtering of results to identify the results that did not meet the standard and review during which years and seasons they occurred. 
+Creating a table also allows for easy filtering of results to identify
+the results that did not meet the standard and review during which years
+and seasons they occurred.
 
 ```{r temp analysis and visualization}
+# comparison to standard for temperature
 Temp_Standard <- Filtered_data %>%
   dplyr::filter(TADA.ComparableDataIdentifier == "TEMPERATURE_NA_NA_DEG C") %>%
   dplyr::mutate(MonthForAnalysis = lubridate::month(ActivityStartDate),
@@ -490,33 +597,45 @@ Temp_Standard <- Filtered_data %>%
                 MeetsStandard = ifelse(TADA.ResultMeasureValue < TempStandard,
                                        "Yes", "No"))
 
+# create scatterplot for temperature
 Temp_Scatter <- TADA_Scatterplot(Temp_Standard, id_cols = "TADA.ComparableDataIdentifier") 
+
+Temp_Scatter
+
+# create pie chart for temperature
 
 Temp_Pie <- TADA_FieldValuesPie(Temp_Standard, field = "MeetsStandard")
 
+Temp_Pie
+
+# create subset table for temperature
 Temp_Table <- Temp_Standard %>%
   dplyr::select(MonitoringLocationIdentifier, OrganizationFormalName, ActivityStartDate, TADA.ResultMeasureValue, TempStandard,
                 MeetsStandard)
-  
+
+knitr::kable(Temp_Table)
 ```
 
 ## Additional Data Exploration
 
-We may also want to use TADA functions for exploration and visualization of characteristics without water quality standards. For this example, we will use "TOTAL NITROGEN, MIXED FORMS_TOTAL RECOVERABLE_NA_MG/L".
+We may also want to use TADA functions for exploration and visualization
+of characteristics without water quality standards. For this example, we
+will use "TOTAL NITROGEN, MIXED FORMS_FILTERED, LAB_NA_MG/L".
 
-To better understand the distribution of results, we can use the TADA functions **TADA_Histogram** and
-**TADA_Boxplot**. 
+To better understand the distribution of results, we can use the TADA
+functions **TADA_Histogram** and **TADA_Boxplot**.
 
-**TADA_Histogram** can be useful for identifying the overall shape of the datat.
+**TADA_Histogram** can be useful for identifying the overall shape of
+the datat
 
 ```{r boxplot and histogram}
 
 # filter dataframe to comparable data identifier of interest
 
-Nitrogen_data <- dplyr::filter(Filtered_data, TADA.ComparableDataIdentifier == "TOTAL NITROGEN, MIXED FORMS_TOTAL RECOVERABLE_NA_MG/L")
+Nitrogen_data <- dplyr::filter(Filtered_data, TADA.ComparableDataIdentifier == "TOTAL NITROGEN, MIXED FORMS_FILTERED, LAB_NA_MG/L")
 
 # generate a histogram
-Nitrogen_Histogram <- TADA_Histogram(Compid1_data, id_cols = "TOTAL NITROGEN, MIXED FORMS_TOTAL RECOVERABLE_NA_MG/L")
+Nitrogen_Histogram <- TADA_Histogram(Nitrogen_data, id_cols = "TADA.ComparableDataIdentifier")
 
 # view histogram
 Nitrogen_Histogram
@@ -531,9 +650,20 @@ Nitrogen_Boxplot <- TADA::TADA_Boxplot(Nitrogen_data, id_cols = "TADA.Comparable
 Nitrogen_Boxplot
 ```
 
-Filtering the results of **TADA_Stats** for only "TOTAL NITROGEN, MIXED FORMS_TOTAL RECOVERABLE_NA_MG/L" and selecting a smaller subset of columns or creating a single characteristic scatterplot may also provide useful information.
+Filtering the results of **TADA_Stats** for only "TOTAL NITROGEN, MIXED
+FORMS_TOTAL RECOVERABLE_NA_MG/L" and selecting a smaller subset of
+columns or creating a single characteristic scatterplot may also provide
+useful information.
 
 ```{r stats and scatterplot}
+# create table with nitrogen stats
+Nitrogen_stats <- Filtered_data_stats %>%
+  dplyr::filter(TADA.ComparableDataIdentifier == "TOTAL NITROGEN, MIXED FORMS_FILTERED, LAB_NA_MG/L") %>%
+  dplyr::select(Location_Count, Measurement_Count, Min, Max, Mean)
+
+knitr::kable(Nitrogen_stats)
+
+# create nitrogen scatterplot
 Nitrogen_Scatterplot <- TADA::TADA_Scatterplot(Nitrogen_data, id_cols = "TADA.ComparableDataIdentifier")
 
 Nitrogen_Scatterplot
@@ -541,13 +671,32 @@ Nitrogen_Scatterplot
 
 ## Reproducible and Documented
 
-Some of major benefits of a workflow like this are that is is both reproducible and the decisions at each step as far as data querying, review, QC, filtering, and analysis are well documented. This means that it is easy to go back, make changes as necessary, and run it again.
+Major benefits to this type are workflow are that it is reproducible and
+the decisions at each step are well documented. This means that it is
+easy to go back and review every step, understand the decisions that
+were made, make changes as necessary, and run it again. If someone asks
+"How were data filtered prior to analysis?" or "How did you identify
+additional Monitoring Locations within the Assessment Unit?", you can
+refer to the code and function documentation to provide answers.
 
-For example, we could change the Assessment Unit of interest, modify the relevant code chunks (potentially including the WQP query if the new Assessment Unit is in a different HUC or state) and repeat the same analysis for the same characteristics at a different location.
+For example, we could change the Assessment Unit of interest, modify the
+relevant code chunks (potentially including the WQP query if the new
+Assessment Unit is in a different HUC or state) and repeat the same
+analysis for the same characteristics at a different location. We could
+also modify the harmonization reference to group additional comparable
+data (if appropriate) or add a step to run
+**TADA_ConvertResultUnits** an additional time outside of
+**TADA_AutoClean** if we wanted to convert temperature results to deg F
+for analysis.
 
-Or we could change or add additional characteristics to our analysis. We could also write additional custom functions or use use functions from other packages as needed for more complex standards, evaluate trends, or answer other questions using a TADA data frame.
+Or we could change or add additional characteristics to our analysis. We
+could even write additional custom functions or even use functions from
+other packages as needed for more complex standards, evaluate trends, or
+answer other questions using a TADA data frame.
 
-The code chunk below displays the elapsed time it took to run the code chunks and create this document, providing an example of how incorporating TADA in your workflow can increase efficiency.
+The code chunk below displays the elapsed time it took to run the code
+chunks and create this document, providing an example of how
+incorporating TADA in your workflow can increase efficiency.
 
 ```{r analysis time}
 end.time <- Sys.time()
