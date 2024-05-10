@@ -631,7 +631,7 @@ To better understand the distribution of results, we can use the TADA
 functions **TADA_Histogram** and **TADA_Boxplot**.
 
 **TADA_Histogram** can be useful for identifying the overall shape of
-the datat
+the data.
 
 ```{r boxplot and histogram}
 
