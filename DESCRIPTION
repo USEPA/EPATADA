@@ -66,8 +66,7 @@ Imports:
     remotes,
     urltools,
     geojsonsf,
-    tibble,
-    tidyselect
+    tibble
 Depends: 
     R (>= 3.5.0)
 Suggests: 
@@ -82,7 +81,8 @@ Suggests:
     pkgdown,
     spelling,
     htmltools,
-    lwgeom
+    lwgeom,
+    DT
 VignetteBuilder: knitr, rmarkdown
 Language: en-US
 Config/testthat/edition: 3
