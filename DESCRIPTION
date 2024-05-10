@@ -18,33 +18,18 @@ Authors@R:
            role = "aut"), 
     person(given = "Hillary",
            family = "Marler",
-           role = "aut"), 
+           role = "ctb"), 
+    person(given = "Kathryn", 
+           family = "Willi",
+           role = "ctb"),
     person(given = "Kathleen",
            family = "Healy",
-           role = "aut"), 
+           role = "ctb"), 
     person(given = "Justin", 
            family = "Bousquin",
-           role = "aut"),
-    person(given = "Laura",
-           family = "Decicco", 
            role = "ctb"),
     person(given = "Renae",
            family = "Myers",
-           role = "aut"), 
-    person(given = "Brad",
-           family = "Cooper", 
-           role = "ctr"),
-    person(given = "Florian",
-           family = "Rupprecht",
-           role = "ctb"),
-    person(given = "Michelle",
-           family = "Thawley",
-           role = "ctb"),
-    person(given = "Zachary", 
-           family = "Smith", 
-           role = "ctb"),
-    person(given = "Laura",
-           family = "Shumway",
            role = "ctb"), 
     person(family = "TADA Working Group", 
            role = "ctb")
@@ -62,6 +47,7 @@ Imports:
     data.table, 
     dplyr,
     tidyr,
+    tidyselect,
     purrr,
     grDevices,
     magrittr,
@@ -77,7 +63,11 @@ Imports:
     leaflet,
     leaflet.extras,
     plotly,
-    remotes
+    remotes,
+    urltools,
+    geojsonsf,
+    tibble,
+    tidyselect
 Depends: 
     R (>= 3.5.0)
 Suggests: 
@@ -90,7 +80,9 @@ Suggests:
     usethis,
     devtools,
     pkgdown,
-    spelling
+    spelling,
+    htmltools,
+    lwgeom
 VignetteBuilder: knitr, rmarkdown
 Language: en-US
 Config/testthat/edition: 3

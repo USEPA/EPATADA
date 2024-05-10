@@ -58,9 +58,7 @@ TADA_HarmonizeSynonyms <- function(.data, ref, np_speciation = TRUE) {
   expected_cols <- c(
     "TADA.CharacteristicName",
     "TADA.ResultSampleFractionText",
-    "TADA.MethodSpeciationName",
-    "TADA.ResultMeasureValue",
-    "TADA.ResultMeasure.MeasureUnitCode"
+    "TADA.MethodSpeciationName"
   )
   TADA_CheckColumns(.data, expected_cols)
 
@@ -76,11 +74,6 @@ TADA_HarmonizeSynonyms <- function(.data, ref, np_speciation = TRUE) {
     "Target.TADA.MethodSpeciationName",
     "TADA.SpeciationAssumptions",
     "Target.TADA.SpeciationConversionFactor",
-    "TADA.ResultMeasure.MeasureUnitCode",
-    "Target.TADA.ResultMeasure.MeasureUnitCode",
-    "Target.TADA.UnitConversionFactor",
-    "Target.TADA.UnitConversionCoefficient",
-    "TADA.UnitConversionRef",
     "HarmonizationGroup"
   )
 
@@ -111,20 +104,24 @@ TADA_HarmonizeSynonyms <- function(.data, ref, np_speciation = TRUE) {
   # if input for ref does not exist, use raw harmonization template
   if (missing(ref)) {
     # use output of TADA_GetSynonymRef which uses the TADA HarmonizationTemplate.csv in the extdata folder
-    harm.ref <- TADA_GetSynonymRef(.data)
+    harm.ref <- TADA_GetSynonymRef(.data) %>%
+      dplyr::distinct()
   }
 
   # find places where metadata will be changed and add targets
-  harm.ref$TADA.Harmonized.Flag <- ifelse(!is.na(harm.ref$Target.TADA.CharacteristicName) | !is.na(harm.ref$Target.TADA.ResultSampleFractionText) | !is.na(harm.ref$Target.TADA.MethodSpeciationName) | !is.na(harm.ref$Target.TADA.ResultMeasure.MeasureUnitCode), TRUE, FALSE)
-
+  harm.ref$TADA.Harmonized.Flag <- ifelse(!is.na(harm.ref$Target.TADA.CharacteristicName) | 
+                                            !is.na(harm.ref$Target.TADA.ResultSampleFractionText) | 
+                                            !is.na(harm.ref$Target.TADA.MethodSpeciationName), 
+                                          TRUE, FALSE)
+  
   .data <- .data[, !names(.data) %in% c("TADA.ComparableDataIdentifier")]
 
   # join harm.ref to .data
-  flag.data <- merge(.data, harm.ref,
-    by = expected_cols[!expected_cols %in% "TADA.ResultMeasureValue"],
-    all.x = TRUE
-  )
-
+  flag.data <- .data %>%
+    dplyr::left_join(harm.ref, by = c("TADA.CharacteristicName",
+                                      "TADA.ResultSampleFractionText",
+                                      "TADA.MethodSpeciationName"))
+  
   # TADA.CharacteristicName
   # replace TADA.CharacteristicName with Target.TADA.CharacteristicName
   clean.data <- flag.data %>%
@@ -148,28 +145,6 @@ TADA_HarmonizeSynonyms <- function(.data, ref, np_speciation = TRUE) {
 
   # Handle instances with DO where the speciation is listed "AS O2" but it should be NA
   clean.data$TADA.MethodSpeciationName <- ifelse(!is.na(clean.data$TADA.MethodSpeciationName) & is.na(clean.data$Target.TADA.MethodSpeciationName) & !is.na(clean.data$TADA.SpeciationAssumptions), clean.data$Target.TADA.MethodSpeciationName, clean.data$TADA.MethodSpeciationName)
-
-  # ResultMeasure.MeasureUnitCode
-  # replace ResultMeasure.MeasureUnitCode with Target.TADA.ResultMeasure.MeasureUnitCode
-  clean.data <- clean.data %>%
-    # use TADA suggested unit where there is a suggested unit, use original unit if no suggested unit
-    dplyr::mutate(TADA.ResultMeasure.MeasureUnitCode = dplyr::case_when(
-      !is.na(Target.TADA.ResultMeasure.MeasureUnitCode) ~ Target.TADA.ResultMeasure.MeasureUnitCode,
-      # is.na(Target.TADA.ResultMeasure.MeasureUnitCode) ~ TADA.ResultMeasure.MeasureUnitCode
-      .default = TADA.ResultMeasure.MeasureUnitCode
-    )) %>%
-    # if conversion factor exists, multiply by ResultMeasureValue
-    dplyr::rowwise() %>%
-    dplyr::mutate(TADA.ResultMeasureValue = dplyr::case_when(
-      !is.na(Target.TADA.UnitConversionFactor) & !is.na(Target.TADA.ResultMeasure.MeasureUnitCode) &
-        !is.na(Target.TADA.UnitConversionCoefficient)
-      ~ ((Target.TADA.UnitConversionFactor * TADA.ResultMeasureValue) + Target.TADA.UnitConversionCoefficient),
-      !is.na(Target.TADA.UnitConversionFactor) & !is.na(Target.TADA.ResultMeasure.MeasureUnitCode) &
-        is.na(Target.TADA.UnitConversionCoefficient)
-      ~ ((Target.TADA.UnitConversionFactor * TADA.ResultMeasureValue)),
-      # is.na(Target.TADA.UnitConversionFactor) ~ TADA.ResultMeasureValue
-      .default = TADA.ResultMeasureValue
-    ))
 
   # TADA.MethodSpeciationName
   # replace MethodSpeciationName with Target.TADA.MethodSpeciationName
@@ -207,10 +182,6 @@ TADA_HarmonizeSynonyms <- function(.data, ref, np_speciation = TRUE) {
       "Target.TADA.ResultSampleFractionText",
       "Target.TADA.MethodSpeciationName",
       "Target.TADA.SpeciationConversionFactor",
-      "Target.TADA.ResultMeasure.MeasureUnitCode",
-      "Target.TADA.UnitConversionFactor",
-      "Target.TADA.UnitConversionCoefficient",
-      "TADA.UnitConversionRef",
       "HarmonizationGroup"
     ))
 
@@ -238,7 +209,7 @@ TADA_HarmonizeSynonyms <- function(.data, ref, np_speciation = TRUE) {
 #'
 #' NITROGEN:
 #' 1. TOTAL N (UNFILTERED)
-#' 2. TOTAL N (FILTERED) + TOTAL N (PARTICULE)
+#' 2. TOTAL N (FILTERED) + TOTAL N (PARTICULATE)
 #' 3. TOTAL KJELDAHL NITROGEN + NITRATE + NITRITE
 #' 4. ORGANIC N + AMMONIA + NITRATE + NITRITE
 #' 5. OTHER NITROGEN FORMS

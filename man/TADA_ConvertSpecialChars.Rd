@@ -4,17 +4,21 @@
 \alias{TADA_ConvertSpecialChars}
 \title{TADA_ConvertSpecialChars}
 \usage{
-TADA_ConvertSpecialChars(.data, col)
+TADA_ConvertSpecialChars(.data, col, percent.ave = TRUE)
 }
 \arguments{
 \item{.data}{A TADA profile object}
 
 \item{col}{A character column to be converted to numeric}
+
+\item{percent.ave}{Boolean argument; default is percent.ave = TRUE. When clean = TRUE,
+any percent range values will be averaged. When percent.ave = FALSE, percent range
+values are not averaged, but are flagged.}
 }
 \value{
 Returns the original dataframe with two new columns: the input column
 with the prefix "TADA.", which holds the numeric form of the original column,
-and "TADA.ResultValueDataTypes.Flag", which has text describing the type of data
+and "TADA.COLUMN NAME DataTypes.Flag", which has text describing the type of data
 contained within the column of interest, including "Numeric","Less Than" (<), "Greater Than" (>),
 "Approximate Value" (~), "Text" (A-z), "Percentage" (\%), "Comma-Separated Numeric" (#,###),
 and "Numeric Range - Averaged" (# - #)
@@ -36,6 +40,7 @@ NAME DataTypes.Flag".
 data(Data_Nutrients_UT)
 HandleSpecialChars_ResultMeasureValue <- TADA_ConvertSpecialChars(Data_Nutrients_UT, "ResultMeasureValue")
 unique(HandleSpecialChars_ResultMeasureValue$TADA.ResultMeasureValueDataTypes.Flag)
+
 HandleSpecialChars_DetLimMeasureValue <- TADA_ConvertSpecialChars(Data_Nutrients_UT, "TADA.DetectionQuantitationLimitMeasure.MeasureValue")
 unique(HandleSpecialChars_DetLimMeasureValue$TADA.DetectionQuantitationLimitMeasure.MeasureValueDataTypes.Flag)
 

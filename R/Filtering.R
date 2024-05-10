@@ -157,7 +157,7 @@ TADA_FieldCounts <- function(.data, display = c("key", "most", "all"), character
       "TADA.TotalN_TotalP_CharacteristicNames_AfterSummation",
       "TADA.TotalN_TotalP_Summation_Identifier",
       "TADA.TotalN_TotalP_ComboLogic",
-      "TADA.AggregatedContinuousData.Flag",
+      "TADA.ContinuousData.Flag",
       "TADA.ResultMeasureValue",
       "TADA.ResultMeasureValueDataTypes.Flag",
       "TADA.MeasureQualifierCode.Def",
@@ -257,9 +257,11 @@ TADA_FieldValuesTable <- function(.data, field = "null", characteristicName = "n
 #' LocalAqfrName, ConstructionDateText, WellDepthMeasure.MeasureValue,
 #' WellDepthMeasure.MeasureUnitCode, WellHoleDepthMeasure.MeasureValue, and
 #' WellHoleDepthMeasure.MeasureUnitCode to identify groundwater samples. Users
-#' can select whether sediment, groundwater and/or surface water should be included 
-#' by changing the function inputs. An additional column, TADA.UseForAnalysis.Flag, 
-#' specifies whether each row should be included in the analysis workflow and why.
+#' can select whether sediment, groundwater and/or surface water should be included.
+#' An additional column, TADA.UseForAnalysis.Flag, specifies whether each row should
+#' be included in the analysis workflow and why. Setting clean = TRUE, means
+#' that all results not flagged for use in the analysis workflow will be removed
+#' and the TADA.UseForAnalysis.Flag column will not be added.
 #'
 #' @param .data A TADA profile object
 #'

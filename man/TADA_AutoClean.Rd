@@ -11,6 +11,7 @@ TADA_AutoClean(.data)
 }
 \value{
 Input dataframe with several added TADA-specific columns, including:
+
 TADA.ActivityMediaName	(character)
 TADA.ResultSampleFractionText	(character)
 TADA.CharacteristicName	(character)
