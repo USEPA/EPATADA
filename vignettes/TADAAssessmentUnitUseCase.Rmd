@@ -81,6 +81,7 @@ library(lwgeom)
 library(sf)
 library(lubridate)
 library(knitr)
+library(DT)
 
 # Record start time
 start.time <- Sys.time()
@@ -248,7 +249,7 @@ MonitoringLocations <- Analysis_data %>%
   dplyr::select(MonitoringLocationName, MonitoringLocationIdentifier, OrganizationFormalName) %>%
   dplyr::distinct()
 
-knitr::kable(MonitoringLocations, format = 'simple')
+DT::datatable(MonitoringLocations)
 
 
 # Create pie of results by organization
@@ -407,6 +408,9 @@ limit).
 See the TADA Module 1 vignettes for more detailed information on the
 logic behind **TADA_SimpleCensoredMethods.**
 
+After running **TADA_SimpleCensoredMethods**, we will also filter the
+data to remove any remaining NAs.
+
 ```{r SummarizeCensoredData}
 
 Analysis_data <- TADA_SimpleCensoredMethods(Analysis_data,
@@ -414,7 +418,8 @@ Analysis_data <- TADA_SimpleCensoredMethods(Analysis_data,
   nd_multiplier = 0.5,
   od_method = "as-is",
   od_multiplier = "null"
-)
+) %>%
+  dplyr::filter(!is.na(TADA.ResultMeasureValue))
 ```
 
 ## Harmonize Results
@@ -422,9 +427,9 @@ Analysis_data <- TADA_SimpleCensoredMethods(Analysis_data,
 The **TADA_GetSynonymRef** function generates a synonym reference table
 that is specific to the input dataframe. Users can review how their
 input data relates to standard TADA values for the following elements:
-*TADA.CharacteristicName*, *TADA.ResultSampleFractionText*,
-*TADA.MethodSpeciationName*, and *TADA.ResultMeasure.MeasureUnitCode*
-and edit if desired.
+TADA.CharacteristicName, TADA.ResultSampleFractionText,
+TADA.MethodSpeciationName, and TADA.ResultMeasure.MeasureUnitCode and
+edit if desired.
 
 Users can also edit the reference file to meet their needs if desired.
 The download argument can be used to save the harmonization file to your
@@ -498,7 +503,7 @@ Filtered_data <- Harmonized_data %>%
 # generate stats table
 Filtered_data_stats <- TADA_Stats(Filtered_data)
 
-knitr::kable(Filtered_data_stats)
+DT::datatable(Filtered_data_stats)
 ```
 
 ## Standard Comparisons With Scatterplot and Pie Chart
@@ -535,7 +540,7 @@ pH_Table <- pH_Standard %>%
   dplyr::select(MonitoringLocationIdentifier, OrganizationFormalName, ActivityStartDate, TADA.ResultMeasureValue,
                 MeetsStandard)
 
-knitr::kable(pH_Table)
+DT::datatable(pH_Table)
 
 # pH scatterplot
 pH_Scatter <- TADA::TADA_Scatterplot(pH_Standard, id_cols = "TADA.ComparableDataIdentifier") %>%
@@ -613,7 +618,7 @@ Temp_Table <- Temp_Standard %>%
   dplyr::select(MonitoringLocationIdentifier, OrganizationFormalName, ActivityStartDate, TADA.ResultMeasureValue, TempStandard,
                 MeetsStandard)
 
-knitr::kable(Temp_Table)
+DT::datatable(Temp_Table)
 ```
 
 ## Additional Data Exploration
