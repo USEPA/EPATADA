@@ -14,7 +14,7 @@ vignette: >
   %\VignetteEncoding{UTF-8}
   %\VignetteIndexEntry{TADA Module 1: Training for Beginner R Users}
   %\VignetteEngine{knitr::rmarkdown}
-description: An introduction to TADA's major Module 1 functions for users unfamiliar with R and RStudio.
+description: An introduction to major TADA Module 1 functions for users unfamiliar with R and RStudio.
 editor_options: 
   chunk_output_type: console
   markdown: 
@@ -94,7 +94,7 @@ remotes::install_github("USEPA/TADA",
 # IF YOU ARE NOT DEVELOPING TADA, SKIP THIS CODE CHUNK
 # when developing the package, update this chunk to the current repository branch, so it runs with all of the new features prior to a PR to develop
 remotes::install_github("USEPA/TADA",
-  ref = "cm-4.29.24",
+  ref = "447-vignetts-cannot-build-if-they-include-tada_overviewmap-because-they-cannot-find-shp-files",
   dependencies = TRUE
 )
 ```
