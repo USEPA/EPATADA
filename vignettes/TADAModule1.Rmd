@@ -952,7 +952,11 @@ conditions and limit types. TADA fills missing *TADA.ResultMeasureValue*
 and *TADA.ResultMeasure.MeasureUnitCode* values with values and units
 from *TADA.DetectionQuantitationLimitMeasure.MeasureValue* and
 *TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode*, respectively,
-using the TADA_AutoClean function. In other words, detection limit
+using the TADA_IDCensoredData function. 
+
+-   **TADA_IDCensoredData** - categorizes detection limit data and identifies mismatches in result detection condition and result detection limit type. This function runs within the TADA_SimpleCensoredMethods function.
+
+In other words, detection limit
 information is copied and pasted into the result value column when the
 original value is NA and detection limit information is available. The
 two columns TADA focuses on to define and flag censored data are

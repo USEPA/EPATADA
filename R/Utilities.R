@@ -77,34 +77,77 @@ VATribeUrl <- "https://geopub.epa.gov/arcgis/rest/services/EMEF/Tribal/MapServer
 
 #' TADA_AutoClean
 #'
-#' Removes rows of data that are exact duplicates. Creates new columns with
-#' prefix "TADA." and capitalizes fields to harmonize data. This function runs
-#' "TADA_ConvertSpecialChars", "TADA_ConvertResultUnits",
-#' "TADA_ConvertDepthUnits", and "TADA_IDCensoredData" functions, which perform
-#' the following QA steps: remove exact duplicates, convert result values to
-#' numeric, harmonize result and depth units (note: all depth-related columns
-#' with populated values are converted to meters in a TADA-specific column),
-#' convert text to uppercase letters, substitute outdated (deprecated) characteristic names
-#' with updated names in TADA.CharacteristicName, and categorize detection limit
-#' data. Original affected columns are not changed: new columns are added to the
-#' end of the dataframe with the prefix "TADA." This function makes important
-#' character fields uppercase so that they're interoperable with the WQX
-#' validation reference tables and reduces issues with case-sensitivity when
-#' joining data.TADA_AutoClean can be run as a stand alone function but is
-#' primarily used by the TADA_dataRetrieval function.
+#' This function performs the following tasks: 
+#' 1) Creates new columns with the TADA prefix "TADA." and capitalizes all letters
+#' within them so that they're interoperable with the WQX validation reference 
+#' tables and to reduce issues with case-sensitivity when joining data: 
+#' CharacteristicName, ResultSampleFractionText, MethodSpeciationName,
+#' ResultMeasure.MeasureUnitCode, ActivityMediaName, and 
+#' DetectionQuantitationLimitMeasure.MeasureUnitCode.
+#' 2) This function runs "TADA_ConvertSpecialChars" on these columns: 
+#' ResultMeasureValue and DetectionQuantitationLimitMeasure.MeasureValue. 
+#' Creates new versions of these columns with the TADA prefix "TADA." 
+#' 3) Converts the column type of LatitudeMeasure and LongitudeMeasure to 
+#' numeric (double) and creates new columns with the “TADA” prefix.
+#' 4) Replace meters" with “m” in the following columns: 
+#' TADA.ResultMeasure.MeasureUnitCode, ActivityDepthHeightMeasure.MeasureUnitCode,
+#'  ActivityTopDepthHeightMeasure.MeasureUnitCode, 
+#'  ActivityBottomDepthHeightMeasure.MeasureUnitCode, and 
+#'  ResultDepthHeightMeasure.MeasureUnitCode.
+#' 5) Runs TADA_SubstituteDeprecatedChars to replace deprecated characteristic 
+#' names based on Water Quality Exchange (WQX) Characteristic domain table.
+#' 6) Runs TADA_ConvertResultUnits to harmonize result and detection limit 
+#' units to WQX and TADA or user supplied target units. Enter 
+#' ?TADA_ConvertResultUnits and ?TADA_CreateUnitRef() into the console for more 
+#' details. 
+#' 7) Runs TADA_ConverDepthUnits to convert the depth units to meters on the 
+#' following columns: ResultDepthHeightMeasure.MeasureValue, 
+#' ActivityDepthHeightMeasure.MeasureValue, ActivityTopDepthHeightMeasure.MeasureValue,
+#'  and ActivityBottomDepthHeightMeasure.MeasureValue, and add new columns 
+#'  with the “TADA” prefix. 
+#' 8) Runs TADA_CreateComparableID to create a comparable data group by pasting
+#'  together TADA.CharacteristicName, TADA.ResultSampleFractionText, 
+#'  TADA.MethodSpeciationName, and TADA.ResultMeasure.MeasureUnitCode.
+#' 
+#' Original affected columns are not changed: new columns are added to the end 
+#' of the dataframe with the prefix "TADA." 
+#' TADA_AutoClean can be run as a stand alone function but is primarily used by the TADA_dataRetrieval function.
 #'
 #' @param .data TADA dataframe
 #'
 #' @return Input dataframe with several added TADA-specific columns, including:
-#'   TADA.ActivityMediaName, TADA.CharacteristicName, TADA.ResultMeasureValue,
-#'   TADA.ResultMeasure.MeasureUnitCode, TADA.ResultMeasureValueDataTypes.Flag,
-#'   TADA.DetectionQuantitationLimitMeasure.MeasureValueDataTypes.Flag,
-#'   TADA.LatitudeMeasure, TADA.LongitudeMeasure,
-#'   TADA.ResultSampleFractionText, TADA.MethodSpeciationName, and more.
-#'   Please note that the number of TADA-specific depth columns in the returned
-#'   dataframe depends upon the number of depth columns with one or more results
-#'   populated with a numeric value. If all depth columns contain only NA's, no
-#'   conversion is necessary and no TADA depth columns are created.
+#' 
+#' TADA.ActivityMediaName	(character)
+#' TADA.ResultSampleFractionText	(character)
+#' TADA.CharacteristicName	(character)
+#' TADA.MethodSpeciationName	(character)
+#' TADA.ComparableDataIdentifier	(character)
+#' TADA.ResultMeasureValue	(numeric)
+#' TADA.ResultMeasureValueDataTypes.Flag	(character)
+#' TADA.ResultMeasure.MeasureUnitCode	(character)
+#' TADA.WQXResultUnitConversion	(character)
+#' TADA.DetectionQuantitationLimitMeasure.MeasureValue	(numeric)
+#' TADA.DetectionQuantitationLimitMeasure.MeasureValueDataTypes.Flag	(character)
+#' TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode	(character)
+#' TADA.ResultDepthHeightMeasure.MeasureValue	(numeric)
+#' TADA.ResultDepthHeightMeasure.MeasureValueDataTypes.Flag	(character)
+#' TADA.ResultDepthHeightMeasure.MeasureUnitCode	(character)
+#' TADA.ActivityDepthHeightMeasure.MeasureValue	(numeric)
+#' TADA.ActivityDepthHeightMeasure.MeasureValueDataTypes.Flag	(character)
+#' TADA.ActivityDepthHeightMeasure.MeasureUnitCode	(character)
+#' TADA.ActivityTopDepthHeightMeasure.MeasureValue	(numeric)
+#' TADA.ActivityTopDepthHeightMeasure.MeasureValueDataTypes.Flag	(character)
+#' TADA.ActivityTopDepthHeightMeasure.MeasureUnitCode	(character)
+#' TADA.ActivityBottomDepthHeightMeasure.MeasureValue	(numeric)
+#' TADA.ActivityBottomDepthHeightMeasure.MeasureValueDataTypes.Flag	(character)
+#' TADA.ActivityBottomDepthHeightMeasure.MeasureUnitCode	(character)
+#' TADA.LatitudeMeasure	(numeric)
+#' TADA.LongitudeMeasure	(numeric)
+#' 
+#' Please note that the number of TADA-specific depth columns in the returned
+#' dataframe depends upon the number of depth columns with one or more results
+#' populated with a numeric value. If all depth columns contain only NA's, no
+#' conversion is necessary and no TADA depth columns are created.
 #'
 #' @export
 #'
@@ -236,6 +279,24 @@ TADA_AutoClean <- function(.data) {
   print("TADA_Autoclean: converting TADA.LatitudeMeasure and TADA.LongitudeMeasure fields to numeric.")
   .data$TADA.LatitudeMeasure <- as.numeric(.data$LatitudeMeasure)
   .data$TADA.LongitudeMeasure <- as.numeric(.data$LongitudeMeasure)
+  
+  # update data types (only needed if TADA_JoinWQPProfiles is used to download data). commenting out for now (these data type conversions should happen on TADA versions of these columns? review what USGS DR does)
+  # join2$ActivityStartDate <- as.Date(join2$ActivityStartDate)
+  # join2$ActivityEndDate <- as.Date(join2$ActivityEndDate)
+  # join2$ActivityDepthHeightMeasure.MeasureValue <- as.double(join2$ActivityDepthHeightMeasure.MeasureValue)
+  # join2$ResultDepthHeightMeasure.MeasureValue <- as.double(join2$ResultDepthHeightMeasure.MeasureValue)
+  # join2$AnalysisStartDate <- as.Date(join2$AnalysisStartDate)
+  # join2$timeZoneStart <- as.double(join2$timeZoneStart)
+  # join2$timeZoneEnd <- as.double(join2$timeZoneEnd)
+  # #conversion to UTC should happen on the TADA versions of these columns, ActivityStartTime.TimeZoneCode and ActivityEndTime.TimeZoneCode would also need to be edited
+  # join2$ActivityStartDateTime <- as.Date.POSIXct(join2$ActivityStartDateTime, tz = "UTC")
+  # join2$ActivityEndDateTime <- as.Date.POSIXct(join2$ActivityEndDateTime, tz = "UTC")
+  # join2$DrainageAreaMeasure.MeasureValue <- as.double(join2$DrainageAreaMeasure.MeasureValue)
+  # join2$ContributingDrainageAreaMeasure.MeasureValue <- as.double(join2$ContributingDrainageAreaMeasure.MeasureValue)
+  # join2$VerticalMeasure.MeasureValue <- as.double(join2$VerticalMeasure.MeasureValue)
+  # join2$VerticalAccuracyMeasure.MeasureValue <- as.double(join2$VerticalAccuracyMeasure.MeasureValue)
+  # join2$WellDepthMeasure.MeasureValue <- as.double(join2$WellDepthMeasure.MeasureValue)
+  # join2$WellHoleDepthMeasure.MeasureValue <- as.double(join2$WellHoleDepthMeasure.MeasureValue)
 
   # Automatically convert USGS only unit "meters" to "m"
   print("TADA_Autoclean: harmonizing synonymous unit names (m and meters) to m.")
