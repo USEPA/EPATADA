@@ -1,6 +1,7 @@
 ANDs
 ActivityBottomDepthHeightMeasure
 ActivityCommentText
+ActivityDate
 ActivityDepthHeightMeasure
 ActivityGroup
 ActivityMediaName
@@ -36,9 +37,11 @@ CharacteristicGroup
 CharacteristicName
 CharacteristicNameAssumptions
 CharacteristicNameUserSupplied
+CharacteristicsForDepthProfile
 CharactersticName
 Chilton
 ComparableDataIdentifier
+ConsolidatedDepth
 ConstructionDateText
 ContinuousData
 ConversionCoefficient
@@ -52,6 +55,9 @@ DataQuality
 DataRetreival
 DataRetrieval
 DataTypes
+DepthCategory
+DepthProfileAggregation
+DepthProfilePlot
 DetectionQuantitationLimiMeasure
 DetectionQuantitationLimitMeasure
 DetectionQuantitationLimitType
@@ -93,6 +99,7 @@ HorizontalCoordinateReferenceSystemDatumName
 HydrologicCondition
 HydrologicEvent
 IDCensoredData
+IDDepthProfiles
 InvalidCoordinates
 InvalidFraction
 InvalidResultUnit
@@ -124,6 +131,7 @@ MethodQualifierCodes
 MethodQualifierTypeName
 MethodSpeciation
 MethodSpeciationName
+MonitoringLocation
 MonitoringLocationIdentifier
 MonitoringLocationIdentifier's
 MonitoringLocationName
@@ -178,6 +186,7 @@ Rancherias
 ReplicateSampleID
 Repo
 ResultAboveUpperThreshold
+ResultAggregation
 ResultAnalyticalMethod
 ResultCommentText
 ResultDepthHeightMeasure
@@ -238,6 +247,7 @@ USGS's
 Uncomment
 UncommonAnalyticalMethodID
 UniqueHarmonizationRef
+UnitCode
 UpdateTribalLayers
 UseForAnalysis
 VCS
@@ -266,6 +276,7 @@ YYYY
 addPoints
 addPolys
 agg
+aggregatedonly
 analytes
 applyautoclean
 arcgis
@@ -277,7 +288,9 @@ assmnt
 autoclean
 autocleaned
 bbox
+bottomvalue
 bplan
+bycategory
 catchmentareasqkm
 catchmentistribal
 catchmentresolution
@@ -292,9 +305,11 @@ countycode
 cristinamullin
 crs
 csv
+dailyagg
 dataProfile
 dataRetrieval
 datetimes
+depthcat
 devtools
 dimCheck
 dlist
@@ -307,7 +322,6 @@ endDate
 endDateHi
 english
 epa
-eval
 extdata
 fabec
 fetchATTAINS
@@ -345,6 +359,7 @@ nhdplusid
 nondetections
 nonstandardized
 np
+nresults
 num
 od
 organizationid
@@ -354,6 +369,8 @@ orgtype
 ousideUSA
 outsideUSA
 overallstatus
+param
+params
 pch
 pchIcons
 pcodes
@@ -367,6 +384,7 @@ repo
 reportingcycle
 reproducibility
 sampleMedia
+secchi
 shp
 siteType
 siteid
@@ -379,6 +397,7 @@ startDateLo
 statecode
 sthda
 submissionid
+surfacevalue
 sysdata
 tada
 tas

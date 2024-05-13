@@ -108,7 +108,7 @@ VATribeUrl <- "https://geopub.epa.gov/arcgis/rest/services/EMEF/Tribal/MapServer
 #' units to WQX and TADA or user supplied target units. Enter 
 #' ?TADA_ConvertResultUnits and ?TADA_CreateUnitRef() into the console for more 
 #' details. 
-#' 7) Runs TADA_ConverDepthUnits to convert the depth units to meters on the 
+#' 7) Runs TADA_ConvertDepthUnits to convert the depth units to meters on the 
 #' following columns: ResultDepthHeightMeasure.MeasureValue, 
 #' ActivityDepthHeightMeasure.MeasureValue, ActivityTopDepthHeightMeasure.MeasureValue,
 #'  and ActivityBottomDepthHeightMeasure.MeasureValue, and add new columns 

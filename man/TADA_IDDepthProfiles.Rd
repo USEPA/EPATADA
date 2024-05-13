@@ -15,14 +15,14 @@ and TADA.ComparableDataIdentifier.}
 
 \item{nresults}{Boolean argument with options "TRUE" or "FALSE". The
 default is nresults = TRUE, which means that the number of results for each
-characterstic are added within the TADA.CharacteristicsForDepthProfile column.
+characteristic are added within the TADA.CharacteristicsForDepthProfile column.
 When nresults = FALSE.}
 
 \item{nvalue}{numeric argument to specify the number of results required to identify
 a depth profile. The default is 2, which means that a depth profile will be identified
 if 2 or more results at different depths exists for the same ActivityStartDate,
 MonitoringLocationIdentifier, OrganizationIdentifier, and TADA.ComparableDataIdentifier.
-A few characterstics are excluded from this requirement because they are expected to
+A few characteristics are excluded from this requirement because they are expected to
 have only a single result in depth units (ex: secchi disk depth).}
 
 \item{aggregates}{Boolean argument with options "TRUE" or "FALSE". The default is

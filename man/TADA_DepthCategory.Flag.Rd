@@ -46,7 +46,7 @@ combination. An additional column, TADA.DepthProfileAggregation.Flag will be add
 to describe aggregation.}
 
 \item{aggregatedonly}{Boolean argument with options "TRUE" or "FALSE". The
-default is aeggrgatedonly = "FALSE" which means that all results are returned.
+default is aggregatedonly = "FALSE" which means that all results are returned.
 When aggregatedonly = "TRUE", only aggregate values are returned.}
 
 \item{clean}{Boolean argument with options "TRUE" or "FALSE". The
