@@ -682,16 +682,14 @@ TADA_DepthProfilePlot <- function(.data, groups = NULL,
 
     stop()
 
-    if(!location %in% param.check$MonitoringLocationIdentifier)
+    if(!location %in% param.check$MonitoringLocationIdentifier) {
       print("TADA_DepthProfilePlot: MonitoringLocationIdentifier selected is not in data set.")
 
-    stop()
+    stop() }
 
-    if(location %in% param.check$MonitoringLocationIdentifier)
+    if(location %in% param.check$MonitoringLocationIdentifier) {
       print("TADA_DepthProfilePlot: MonitoringLocationIdentifier selected.")
-
-    param.check <- param.check %>%
-      dplyr::filter(MonitoringLocationIdentifier == location)
+    }
   }
 
   if(is.null(activity_date)) {
@@ -706,9 +704,6 @@ TADA_DepthProfilePlot <- function(.data, groups = NULL,
 
     if(activity_date %in% param.check$ActivityStartDate)
       print("TADA_DepthProfilePlot: ActivityStartDate selected.")
-
-    param.check <- param.check %>%
-      dplyr::filter(ActivityStartDate == activity_date)
   }
 
   if(is.null(groups)) {
@@ -830,7 +825,7 @@ TADA_DepthProfilePlot <- function(.data, groups = NULL,
   
   depth.params.groups <- depthprofile.avail %>%
     dplyr::filter(TADA.ComparableDataIdentifier %in% groups) %>%
-    dplyr::select(TADA.CharacteristicName) %>%
+    dplyr::select(TADA.ComparableDataIdentifier) %>%
     unique() %>%
     dplyr::pull()
 
