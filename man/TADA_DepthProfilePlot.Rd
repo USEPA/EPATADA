@@ -11,7 +11,8 @@ TADA_DepthProfilePlot(
   activity_date = NULL,
   depthcat = TRUE,
   surfacevalue = 2,
-  bottomvalue = 2
+  bottomvalue = 2,
+  unit = "m"
 )
 }
 \arguments{
@@ -45,6 +46,9 @@ surface should be included in the "Surface" category. Default is surfacevalue = 
 \item{bottomvalue}{numeric argument. The user enters how many meters from the
 bottom should be included in the "Bottom" category. Default is
 bottomvalue = 2.}
+
+\item{unit}{Character argument. The enters either "m" or "ft" to specify which
+depth units should be used for the plot. Default is "m".}
 }
 \value{
 A depth profile plot displaying up to three parameters for a single
@@ -56,18 +60,18 @@ Create A Three-Characteristic Depth Profile
 }
 \examples{
 # Load example dataset:
-data(Data_6Tribes_5y)
+data(Data_6Tribes_5y_Harmonized)
 # Create a depth profile figure with three parameters for a single monitoring location and date
-TADA_DepthProfilePlot(Data_6Tribes_5y, 
-                      groups = c('TEMPERATURE, WATER_NA_NA_DEG C', 'PH_NA_NA_NA', 'DEPTH, SECCHI DISK DEPTH_NA_NA_M'),
+TADA_DepthProfilePlot(Data_6Tribes_5y_Harmonized, 
+                      groups = c('TEMPERATURE_NA_NA_DEG C', 'PH_NA_NA_NA', 'DEPTH, SECCHI DISK DEPTH_NA_NA_M'),
                       location = "REDLAKE_WQX-ANKE",
                       activity_date = "2018-10-04")
 
 # Load example dataset:
-data(Data_6Tribes_5y)
+data(Data_6Tribes_5y_Harmonized)
 # Create a depth profile figure with two parameters for a single monitoring location and date without displaying depth categories
-TADA_DepthProfilePlot(Data_6Tribes_5y, 
-                      groups = c('CONDUCTIVITY_NA_NA_US/CM', 'DISSOLVED OXYGEN (DO)_NA_NA_UG/L'),
+TADA_DepthProfilePlot(Data_6Tribes_5y_Harmonized, 
+                      groups = c('CONDUCTIVITY_NA_NA_US/CM', 'DISSOLVED OXYGEN (DO)_NA_NA_MG/L'),
                       location = "REDLAKE_WQX-JOHN",
                       activity_date = "2018-07-31",
                       depthcat = FALSE)

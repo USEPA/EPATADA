@@ -55,8 +55,8 @@ When clean = "TRUE", only aggregate results which can be assigned to a depth
 category are included in the returned dataframe.}
 }
 \value{
-The same input TADA dataframe with additional columns TADA.DepthCategory.Flag
-and TADA.DepthProfileAggregation.Flag. If a daily_agg = "avg",
+The same input TADA dataframe with additional columns TADA.DepthCategory.Flag,
+TADA.DepthProfileAggregation.Flag and TADA.ConsolidatedDepth. If a daily_agg = "avg",
 "min", or "max", aggregated values will be identified in the TADA.ResultAggregation.Flag
 column. In the case of daily_agg = "avg", additional rows to display averages will be
 added to the data frame. They can be identified by the prefix ("TADA-") of
