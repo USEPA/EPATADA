@@ -41,7 +41,7 @@ characteristic, total nitrogen, does not have an Illinois water quality
 standard, but is used to demonstrate some helpful functions for data
 exploration and visualization.
 
-This vignette is designed to be consise and provide an example of how
+This vignette is designed to be concise and provide an example of how
 you might use TADA functions for basic data discovery and analysis with
 regards to a single Assessment Unit and a small subset of
 characteristics. It leverages functions from TADA Modules 1 and 2. For
@@ -100,7 +100,7 @@ Exchange](https://www.epa.gov/waterdata/water-quality-data), the EPA's
 repository of water quality monitoring data collected by water resource
 management groups across the country. Organizations, including states,
 tribes, watershed groups, other federal agencies, volunteer groups, and
-universities, submit data to the WQX .
+universities, submit data to the WQX.
 
 We are interested in Assessment Unit "IL_I-84". This is a Mississippi
 River Assessment Unit. Because we don't have a comprehensive list of the
@@ -114,28 +114,27 @@ we have specified lists of HUCs and Characteristic Types to reduce the
 size of the query since we have a general idea of the location of our
 assessment unit of interest and know which characteristics we'd like to
 explore. One quick way to find this information is to view IL_I-84's
-Waterbody Report on How's My Water Way:
+Waterbody Report on How's My Waterway:
 [WaterbodyReport/IL_EPA/IL_I-84/2022](https://mywaterway.epa.gov/waterbody-report/IL_EPA/IL_I-84/2022).
 
 We'll also need to set start and end dates. For this example we'll use a
-ten year range between 2010 and 2020. We will also select Characteristic
-Types to search by. Nutrient contains nitrogen related characteristics
-and Physical contains both pH and water temperature, so we use those. It
-is possible to query by a specific Characteristic Name, but different
-organizations may input the same characteristic in a variety of ways.
-There are TADA functions that can be used to harmonize these synonyms,
-so it can be useful to start with a broader query to ensure that all
-relevant results are downloaded.
+ten year range between 2010 and 2020. We will also set the Characteristic
+Type to "Nutrient" and "Physical", because these types contain nitrogen, pH
+and water temperature Characteristics. It is possible to query by a specific
+Characteristic Name, but different organizations may input the same name
+in a variety of ways. Therefore, we recommend keeping your initial queries as 
+broad as possible so all relevant results are downloaded and useful data from 
+synonymous Characteristics are not missed. There are TADA functions that can be 
+used to harmonize these synonyms.
 
 ```{r TADA_DataRetrieval}
 # Import data from WQP
 
-data <- TADA_DataRetrieval(statecode = "IL",
-                           startDate = "2010-01-01", 
-                           endDate = "2020-12-31", 
-                           huc = c("0714010505", "0714010504", "0714010508", "0714010501", "0714010503"),
-                           characteristicType = c("Nutrient", "Physical"),
-                            applyautoclean = TRUE)
+data <- TADA::TADA_DataRetrieval(statecode = "IL",
+                                 startDate = "2010-01-01", 
+                                 endDate = "2020-12-31", 
+                                 huc = c("0714010505", "0714010504", "0714010508", "0714010501", "0714010503"),
+                                 applyautoclean = TRUE)
 ```
 
 ## AutoClean
@@ -149,7 +148,7 @@ functions are performed on the data retrieved from the WQP:
     numeric and flags non-numeric values that could not be converted.
 
 -   **TADA_ConvertResultUnits** - unifies result units for easier
-    quality control and review
+    quality control and review.
 
 -   **TADA_ConvertDepthUnits** - converts depth units to a consistent
     unit (meters).
@@ -159,10 +158,9 @@ functions are performed on the data retrieved from the WQP:
     detection limit type.
 
 -   Other helpful actions - converts important text columns to all
-    upper-case letters, removes exact duplicates, and uses WQX format
-    rules to harmonize specific NWIS metadata conventions (e.g. move
-    characteristic speciation from the
-    TADA.ResultMeasure.MeasureUnitCode column to the
+    upper-case letters, and uses WQX format rules to harmonize specific NWIS 
+    metadata conventions (e.g. move characteristic speciation from the
+    TADA.ResultMeasure.MeasureUnitCode column to the 
     TADA.MethodSpeciationName column)
 
 As a general rule, TADA functions do not change any contents in the
@@ -194,7 +192,7 @@ geospatial functions.
 ```{r TADA_GetAttains}
 # Import data from ATTAINS geospatial services
 
-ATTAINS_data <- TADA_GetATTAINS(data)
+ATTAINS_data <- TADA::TADA_GetATTAINS(data)
 ```
 
 ## View Geospatial Features

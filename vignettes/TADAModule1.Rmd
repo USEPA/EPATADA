@@ -82,7 +82,7 @@ remotes::install_github("USEPA/TADA",
 # IF YOU ARE NOT DEVELOPING TADA, SKIP THIS CODE CHUNK
 # when developing the package, update this chunk to the current repository branch, so it runs with all of the new features prior to a PR to develop
 remotes::install_github("USEPA/TADA",
-  ref = "cm-4.29.24",
+  ref = "markdown_demo",
   dependencies = TRUE
 )
 ```
@@ -101,8 +101,7 @@ function, **TADA_DataRetrieval**, builds on USGS's dataRetrieval R
 package functions. It joins three WQP profiles: Site, Sample Results
 (physical/chemical metadata), and Project. In addition, it changes all
 data in the Characteristic, Speciation, Fraction, and Unit fields to
-uppercase, removes exact duplicates, and addresses result values that
-include special characters.
+uppercase and addresses result values that include special characters.
 
 This function uses the same inputs as the dataRetrieval `readWQPdata`
 function. `readWQPdata` does not restrict the characteristics pulled
@@ -193,16 +192,15 @@ query inputs.
 Downloads using TADA_DataRetrieval will have the same columns each time,
 but be aware that data are uploaded to the Water Quality Portal by
 individual organizations, which may or may not follow the same
-conventions. Data and metadata quality are not guaranteed! Make sure to
-carefully explore any data and make conservative quality assurance
-decisions where information is limited.
+conventions. Data and metadata quality are not guaranteed! Carefully
+explore data to make sure it meets your quality assurance requirements.
 
 Note: TADA_DataRetrieval (by leveraging dataRetrieval), automatically
-converts the date times to UTC. It also automatically converts the data
-to dates, datetimes, and numerics based on a standard algorithm.
+converts the date times to UTC. It also automatically converts field
+formats to dates, datetimes, and numerics based on a standard algorithm.
 
-Enter ?TADA_DataRetrieval into the console to review more example
-queries and additional information.
+Enter ?TADA_DataRetrieval into the console to review example queries and
+additional information.
 
 This example includes monitoring data collected from Jan 2018 to Jan
 2019 by six organizations: 1) Red Lake Band of Chippewa Indians, 2) Sac
