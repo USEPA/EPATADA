@@ -81,7 +81,8 @@ Suggests:
     spelling,
     htmltools,
     lwgeom,
-    remotes
+    remotes,
+    DT
 VignetteBuilder: knitr, rmarkdown
 Language: en-US
 Config/testthat/edition: 3
