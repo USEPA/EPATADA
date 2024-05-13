@@ -80,8 +80,9 @@ writeLayer is used by TADA_UpdateTribalLayers in TADAGeospatialRefLayers.R.</p>
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span></span></span>
-<span class="r-in"><span><span class="co"># Get the Oklahoma Tribal Statistical Areas feature layer and write to local file inst/extdata/shapefiles/OKTribe.shp</span></span></span>
-<span class="r-in"><span><span class="fu">writeLayer</span><span class="op">(</span><span class="va">OKTribeUrl</span>, <span class="st">"inst/extdata/shapefiles/OKTribe.shp"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="co"># Get the Oklahoma Tribal Statistical Areas feature layer and write local file to inst/extdata/OKTribe.shp</span></span></span>
+<span class="r-in"><span><span class="va">OKTribeUrl</span> <span class="op">&lt;-</span> <span class="st">"https://geopub.epa.gov/arcgis/rest/services/EMEF/Tribal/MapServer/4/query"</span></span></span>
+<span class="r-in"><span><span class="fu">writeLayer</span><span class="op">(</span><span class="va">OKTribeUrl</span>, <span class="st">"inst/extdata/OKTribe.shp"</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="op">}</span></span></span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
@@ -91,7 +92,7 @@ writeLayer is used by TADA_UpdateTribalLayers in TADAGeospatialRefLayers.R.</p>
 
 
     <footer><div class="pkgdown-footer-left">
-  <p>Developed by U.S. Environmental Protection Agency, Cristina Mullin, Jacob Greif, Elise Hinman.</p>
+  <p>Developed by U.S. Environmental Protection Agency, Cristina Mullin, Jacob Greif, Hillary Marler, Elise Hinman.</p>
 </div>
 
 <div class="pkgdown-footer-right">
