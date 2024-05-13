@@ -838,7 +838,7 @@ TADA_DepthProfilePlot <- function(.data, groups = NULL,
 
   # if any depth parameter (ex: secchi) data
 
-  if (sum(stringr::str_detect(groups, depth.params.groups), na.rm = TRUE) == 0) {
+  if (length(intersect(groups, depth.params.groups)) == 0) {
     
     depth.params.string <- toString(depth.params, sep = "; ") %>%
       stringi::stri_replace_last(" or ", fixed = "; ")
