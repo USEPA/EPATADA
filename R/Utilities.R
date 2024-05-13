@@ -13,7 +13,12 @@
 #' @return The result of calling `rhs(lhs)`.
 NULL
 
-
+#' Silence print messages
+quiet <- function(x) { 
+  sink(tempfile()) 
+  on.exit(sink()) 
+  invisible(force(x)) 
+} 
 
 # write global variables. Gets rid of global variable NOTE in check:
 utils::globalVariables(c(
