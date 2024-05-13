@@ -106,11 +106,16 @@ in the dataset.</p>
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
     
 
-<p>A TADA dataframe with additional columns named TADA.CensoredData.Flag, which indicates if there are disagreements in ResultDetectionCondition and DetectionQuantitationLimitTypeName, and TADA.CensoredMethod, which documents the method used to fill censored data values.</p>
+<p>A TADA dataframe with the additional column TADA.CensoredMethod,
+which documents the method used to fill censored data values.
+If user has not previously run TADA_IDCensoredData or
+TADA_FlagMeasureQualifierCode, this function will also run those and add the
+columns TADA.CensoredData.Flag, TADA.MeasureQualifierCode.Flag and
+TADA.MeasureQualifierCode.Def.</p>
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
-    <p>This function runs TADA_IDCensoredData within it which add the column
+    <p>This function runs TADA_IDCensoredData within it which adds the column
 TADA.CensoredData.Flag. Enter ?TADA_IDCensoredData into the console for more
 information.</p>
     </div>
