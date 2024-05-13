@@ -14,7 +14,7 @@ vignette: >
   %\VignetteEncoding{UTF-8}
   %\VignetteIndexEntry{TADA Module 1: Training for Intermediate/Advanced R Users}
   %\VignetteEngine{knitr::rmarkdown}
-description: A foray into TADA's major Module 1 functions for users familiar with R and RStudio.
+description: A foray into major TADA Module 1 functions for users familiar with R and RStudio.
 editor_options:
   chunk_output_type: console
   markdown:
