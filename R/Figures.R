@@ -517,12 +517,12 @@ TADA_OverviewMap <- function(.data) {
     }
 
     # TADA_addPolys and TADA_addPoints are in Utilities.R
-    map <- TADA_addPolys(map, "inst/extdata/shapefiles/AKAllotments.shp", "Tribes", "Alaska Allotments", bbox)
-    map <- TADA_addPolys(map, "inst/extdata/shapefiles/AmericanIndian.shp", "Tribes", "American Indian", bbox)
-    map <- TADA_addPolys(map, "inst/extdata/shapefiles/OffReservation.shp", "Tribes", "Off Reservation", bbox)
-    map <- TADA_addPolys(map, "inst/extdata/shapefiles/OKTribe.shp", "Tribes", "Oklahoma Tribe", bbox)
-    map <- TADA_addPoints(map, "inst/extdata/shapefiles/AKVillages.shp", "Tribes", "Alaska Native Villages", bbox)
-    map <- TADA_addPoints(map, "inst/extdata/shapefiles/VATribe.shp", "Tribes", "Virginia Tribe", bbox)
+    map <- TADA_addPolys(map, "extdata/AKAllotments.shp", "Tribes", "Alaska Allotments", bbox)
+    map <- TADA_addPolys(map, "extdata/AmericanIndian.shp", "Tribes", "American Indian", bbox)
+    map <- TADA_addPolys(map, "extdata/OffReservation.shp", "Tribes", "Off Reservation", bbox)
+    map <- TADA_addPolys(map, "extdata/OKTribe.shp", "Tribes", "Oklahoma Tribe", bbox)
+    map <- TADA_addPoints(map, "extdata/AKVillages.shp", "Tribes", "Alaska Native Villages", bbox)
+    map <- TADA_addPoints(map, "extdata/VATribe.shp", "Tribes", "Virginia Tribe", bbox)
     map <- leaflet::addLayersControl(map,
       overlayGroups = c("Tribes"),
       options = leaflet::layersControlOptions(collapsed = FALSE)
