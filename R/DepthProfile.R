@@ -47,7 +47,7 @@
 #' surface should be included in the "Surface" category. Default is surfacevalue = 2.
 #'
 #' @param aggregatedonly Boolean argument with options "TRUE" or "FALSE". The
-#' default is aeggrgatedonly = "FALSE" which means that all results are returned.
+#' default is aggregatedonly = "FALSE" which means that all results are returned.
 #' When aggregatedonly = "TRUE", only aggregate values are returned.
 #'
 #' @param clean Boolean argument with options "TRUE" or "FALSE". The
@@ -431,14 +431,14 @@ TADA_DepthCategory.Flag <- function(.data, bycategory = "no", bottomvalue = 2, s
 #'
 #' @param nresults Boolean argument with options "TRUE" or "FALSE". The
 #' default is nresults = TRUE, which means that the number of results for each
-#' characterstic are added within the TADA.CharacteristicsForDepthProfile column.
+#' characteristic are added within the TADA.CharacteristicsForDepthProfile column.
 #' When nresults = FALSE.
 #'
 #' @param nvalue numeric argument to specify the number of results required to identify
 #' a depth profile. The default is 2, which means that a depth profile will be identified
 #' if 2 or more results at different depths exists for the same ActivityStartDate,
 #' MonitoringLocationIdentifier, OrganizationIdentifier, and TADA.ComparableDataIdentifier.
-#' A few characterstics are excluded from this requirement because they are expected to
+#' A few characteristics are excluded from this requirement because they are expected to
 #' have only a single result in depth units (ex: secchi disk depth).
 #'
 #' @param aggregates Boolean argument with options "TRUE" or "FALSE". The default is
