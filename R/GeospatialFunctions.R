@@ -36,14 +36,26 @@ TADA_MakeSpatial <- function(.data, crs = 4326) {
 
   suppressMessages(suppressWarnings({
     # Make a reference table for CRS and EPSG codes
+    # List should include all codes in WQX domain (see HorizontalCoordinateReferenceSystemDatum CSV at https://www.epa.gov/waterdata/storage-and-retrieval-and-water-quality-exchange-domain-services-and-downloads)
     epsg_codes <- tidyr::tribble(
       ~HorizontalCoordinateReferenceSystemDatumName, ~epsg,
       "NAD83", 4269,
       "WGS84", 4326,
       "NAD27", 4267,
-      "UNKWN", 4326,
+      "UNKWN", crs, # Unknowns and NAs should go to user supplied default
       "OTHER", 4326,
-      "OLDHI", 4135
+      "OLDHI", 4135,
+      "AMSMA", 4169,
+      "ASTRO", 4727,
+      "GUAM", 4675,
+      "JHNSN", 4725,
+      "PR", 6139,
+      "SGEOR", 4138,
+      "SLAWR", 4136, 
+      "SPAUL", 4137,
+      "WAKE", 6732,
+      "WGS72", 6322, 
+      "HARN", 4152
     )
 
     # join our CRS reference table to our original WQP dataframe:
