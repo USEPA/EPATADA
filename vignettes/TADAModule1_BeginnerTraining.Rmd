@@ -67,6 +67,8 @@ collaboration with external partners.**
 First, install and load the remotes package specifying the repo. This is
 needed before installing TADA because it is only available on GitHub.
 
+Monday's are the worst.
+
 ```{r install_remotes, results = 'hide', eval = F}
 install.packages("remotes",
   repos = "http://cran.us.r-project.org"
