@@ -243,8 +243,17 @@ TADA_FieldValuesTable <- function(.data, field = "null", characteristicName = "n
 
 #' TADA_AnalysisDataFilter
 #'
-#' This function will filter the data frame and retain only the media types
-#' selected by the user. It uses ActivityMediaSubdivisionName, AquiferName,
+#' With default settings (clean = FALSE), this function creates a TADA.UseForAnalysis.Flag 
+#' column which flags any data that are NOT surface water results for 
+#' removal (TADA.UseForAnalysis.Flag = "No") and flags surface water results 
+#' for use in analysis (TADA.UseForAnalysis.Flag = "Yes"). If desired, a user 
+#' can change the function input to clean = TRUE, and then the function will 
+#' filter the data frame to remove rows that are not going to be used in analyses, 
+#' and retain only the media types selected by the user.Setting clean = TRUE, means
+#' that all results not flagged for use in the analysis workflow will be removed
+#' and the TADA.UseForAnalysis.Flag column will not be added. 
+#'  
+#' It uses ActivityMediaSubdivisionName, AquiferName,
 #' LocalAqfrName, ConstructionDateText, WellDepthMeasure.MeasureValue,
 #' WellDepthMeasure.MeasureUnitCode, WellHoleDepthMeasure.MeasureValue, and
 #' WellHoleDepthMeasure.MeasureUnitCode to identify groundwater samples. Users

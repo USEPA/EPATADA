@@ -807,6 +807,5 @@ TADA_JoinWQPProfiles <- function(FullPhysChem = "null",
     join2 <- join1
   }
 
-
   return(join2)
 }
