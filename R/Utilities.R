@@ -96,8 +96,10 @@ VATribeUrl <- "https://geopub.epa.gov/arcgis/rest/services/EMEF/Tribal/MapServer
 #'  ResultDepthHeightMeasure.MeasureUnitCode.
 #' 5) Runs TADA_SubstituteDeprecatedChars to replace deprecated characteristic 
 #' names based on Water Quality Exchange (WQX) Characteristic domain table.
-#' 6) Runs TADA_ConvertResultUnits to convert the result units to standard 
-#' format based on WQX.
+#' 6) Runs TADA_ConvertResultUnits to harmonize result and detection limit 
+#' units to WQX and TADA or user supplied target units. Enter 
+#' ?TADA_ConvertResultUnits and ?TADA_CreateUnitRef() into the console for more 
+#' details. 
 #' 7) Runs TADA_ConverDepthUnits to convert the depth units to meters on the 
 #' following columns: ResultDepthHeightMeasure.MeasureValue, 
 #' ActivityDepthHeightMeasure.MeasureValue, ActivityTopDepthHeightMeasure.MeasureValue,
