@@ -849,7 +849,7 @@ TADA_DepthProfilePlot <- function(.data, groups = NULL,
     rm(depth.params.string, depthprofile.avail)
     }
 
-    if (sum(stringr::str_detect(groups, depth.params.groups), na.rm = TRUE) > 0) {
+    if (length(intersect(groups, depth.params.groups)) > 0) {
 
       # add depth param (ex: secchi) results
       depth.params.string <- toString(depth.params, sep = "; ") %>%
