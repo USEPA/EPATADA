@@ -6,6 +6,12 @@
 \usage{
 quiet(x)
 }
+\arguments{
+\item{x}{Code to silence}
+}
+\value{
+Function or code output with print messages silenced
+}
 \description{
 Silence print messages
 }

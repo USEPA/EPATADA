@@ -142,7 +142,7 @@ the GitHub site. Users can also access the help page for a given
 function in R or RStudio using the following format (example below):
 `?TADA::[name of TADA function]`
 
-```{r}
+```{r, eval = F}
 ?TADA::TADA_DataRetrieval
 ```
 
@@ -610,7 +610,7 @@ size corresponds to the number of results collected at that site, while
 the darker the circle, the more characteristics were sampled at that
 site.
 
-```{r, warning=FALSE, message=FALSE, eval = F}
+```{r, warning=FALSE, message=FALSE}
 TADA::TADA_OverviewMap(dataset_cens)
 ```
 

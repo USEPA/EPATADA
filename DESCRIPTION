@@ -85,7 +85,8 @@ Suggests:
     htmltools,
     lwgeom,
     remotes,
-    DT
+    DT, 
+    yaml
 VignetteBuilder: knitr, rmarkdown
 Language: en-US
 Config/testthat/edition: 3
