@@ -6,6 +6,7 @@ bibentry(bibtype = "Manual",
             email = "mullin.cristina@epa.gov",
             comment=c(ORCID = "0000-0002-0615-6087")),
     person("Jacob", "Greif", role = c("aut")),
+    person("Hillary", "Marler", role = c("aut")),
     person("Elise","Hinman", role = c("aut"))),
   title = "TADA: Tools for Automated Data Analysis",
   publisher = "U.S. Environmental Protection Agency",
@@ -13,4 +14,4 @@ bibentry(bibtype = "Manual",
   institution = "U.S. Environmental Protection Agency",
   year = 2024,
   url = "https://github.com/USEPA/TADA",
-  textVersion = "Mullin, C.A., Greif, J., Hinman, E., 2024, TADA: Tools for Automated Data Analysis, U.S. Environmental Protection Agency, Washington, DC")
+  textVersion = "Mullin, C.A., Greif, J., Marler, H., Hinman, E., 2024, TADA: Tools for Automated Data Analysis, U.S. Environmental Protection Agency, Washington, DC")

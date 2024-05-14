@@ -13,7 +13,15 @@
 #' @return The result of calling `rhs(lhs)`.
 NULL
 
-
+#' Silence print messages
+#' @name quiet
+#' @param x Code to silence
+#' @return Function or code output with print messages silenced
+quiet <- function(x) { 
+  sink(tempfile()) 
+  on.exit(sink()) 
+  invisible(force(x)) 
+} 
 
 # write global variables. Gets rid of global variable NOTE in check:
 utils::globalVariables(c(
@@ -1134,8 +1142,9 @@ getFeatureLayer <- function(url, bbox = NULL) {
 #'
 #' @examples
 #' \dontrun{
-#' # Get the Oklahoma Tribal Statistical Areas feature layer and write to local file inst/extdata/shapefiles/OKTribe.shp
-#' writeLayer(OKTribeUrl, "inst/extdata/shapefiles/OKTribe.shp")
+#' # Get the Oklahoma Tribal Statistical Areas feature layer and write local file to inst/extdata/OKTribe.shp
+#' OKTribeUrl <- "https://geopub.epa.gov/arcgis/rest/services/EMEF/Tribal/MapServer/4/query"
+#' writeLayer(OKTribeUrl, "inst/extdata/OKTribe.shp")
 #' }
 #'
 writeLayer <- function(url, layerfilepath) {
@@ -1168,11 +1177,12 @@ writeLayer <- function(url, layerfilepath) {
 #' # Get the bounding box of the data
 #' bbox <- sf::st_bbox(c(xmin = min(Data_6Tribes_5y_Harmonized$TADA.LongitudeMeasure), ymin = min(Data_6Tribes_5y_Harmonized$TADA.LatitudeMeasure), xmax = max(Data_6Tribes_5y_Harmonized$TADA.LongitudeMeasure), ymax = max(Data_6Tribes_5y_Harmonized$TADA.LatitudeMeasure)), crs = sf::st_crs(Data_6Tribes_5y_Harmonized))
 #' # Get the American Indian Reservations feature layer, filtered by the bounding box for the Data_6Tribes_5y_Harmonized example dataset
+#' layerfilepath <- "extdata/AmericanIndian.shp"
 #' getLayer(layerfilepath, bbox)
 #' }
 #'
 getLayer <- function(layerfilepath, bbox = NULL) {
-  layer <- sf::st_read(layerfilepath)
+  layer <- sf::st_read(system.file(layerfilepath, package = "TADA"))
   if (!(is.null(bbox))) {
     sf::sf_use_s2(FALSE)
     layer <- sf::st_make_valid(layer)
@@ -1191,7 +1201,7 @@ getLayer <- function(layerfilepath, bbox = NULL) {
 #' @examples
 #' \dontrun{
 #' # Get the Oklahoma Tribal Statistical Areas feature layer
-#' layer <- getLayer("inst/extdata/shapefiles/OKTribe.shp")
+#' layer <- getLayer("extdata/OKTribe.shp")
 #' # Get popup text for individual markers
 #' getPopup(layer, "Oklahoma Tribal Statistical Areas")
 #' }
@@ -1233,7 +1243,7 @@ getPopup <- function(layer, layername) {
 #'   leaflet::addProviderTiles("Esri.WorldTopoMap", group = "World topo") %>%
 #'   leaflet::addMapPane("featurelayers", zIndex = 300)
 #' # Add the American Indian Reservations feature layer to the map
-#' lmap <- TADA_addPolys(lmap, "inst/extdata/shapefiles/AmericanIndian.shp", "Tribes", "American Indian Reservations")
+#' lmap <- TADA_addPolys(lmap, "extdata/AmericanIndian.shp", "Tribes", "American Indian Reservations")
 #' lmap
 #' }
 #'
@@ -1291,7 +1301,7 @@ TADA_addPolys <- function(map, layerfilepath, layergroup, layername, bbox = NULL
 #'   leaflet::addProviderTiles("Esri.WorldTopoMap", group = "World topo") %>%
 #'   leaflet::addMapPane("featurelayers", zIndex = 300)
 #' # Add the Virginia Federally Recognized Tribes feature layer to the map
-#' lmap <- TADA_addPoints(lmap, "inst/extdata/shapefiles/VATribe.shp", "Tribes", "Virginia Federally Recognized Tribes")
+#' lmap <- TADA_addPoints(lmap, "extdata/VATribe.shp", "Tribes", "Virginia Federally Recognized Tribes")
 #' lmap
 #' }
 #'
