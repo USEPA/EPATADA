@@ -943,7 +943,7 @@ if(length(groups) == 3) {
       #figure out addition of weird \n in name
       plot.data$MonitoringLocationName[1],
       " on ",
-      fomrmat(plot.data$ActivityStartDate, "%B %d, %Y")
+      format(as.Date(plot.data$ActivityStartDate[1]), "%B %d, %Y")
     ),
     len = 45
   )
@@ -960,7 +960,9 @@ if(length(groups) == 2) {
       param2$TADA.CharacteristicName[1],
       " Depth Profile for ",
       #figure out addition of weird \n in name
-      plot.data$MonitoringLocationName[1]
+      plot.data$MonitoringLocationName[1],
+      " on ",
+      format(as.Date(plot.data$ActivityStartDate[1]), "%B %d, %Y")
     ),
     len = 45
   )
@@ -974,7 +976,9 @@ if(length(groups) == 1) {
       param1$TADA.CharacteristicName[1],
       " for ",
       #figure out addition of weird \n in name
-      plot.data$MonitoringLocationName[1]
+      plot.data$MonitoringLocationName[1],
+      " on ",
+      format(as.Date(plot.data$ActivityStartDate[1]), "%B %d, %Y")
     ),
     len = 45
   )
