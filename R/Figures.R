@@ -74,7 +74,7 @@ TADA_Boxplot <- function(.data, id_cols = c("TADA.ComparableDataIdentifier")) {
   
   # load TADA color palette
   
-  pal <- TADA_ColorPalette()
+  tada.pal <- TADA_ColorPalette()
 
   start <- dim(.data)[1]
 
@@ -142,8 +142,8 @@ TADA_Boxplot <- function(.data, id_cols = c("TADA.ComparableDataIdentifier")) {
       q3 = quant_75, lowerfence = box_lower,
       hoverinfo = "y",
       upperfence = box_upper, boxpoints = "outliers",
-      marker = list(color = pal[3]),
-      stroke = I(pal[6])
+      marker = list(color = tada.pal[3]),
+      stroke = I(tada.pal[6])
     )
 
     # figure margin
@@ -247,6 +247,8 @@ TADA_Histogram <- function(.data, id_cols = c("TADA.ComparableDataIdentifier")) 
     "TADA.ResultMeasureValue",
     "TADA.ResultMeasure.MeasureUnitCode"
   ))
+  
+  tada.pal <- TADA_ColorPalette()
 
   start <- dim(.data)[1]
 
@@ -303,8 +305,8 @@ TADA_Histogram <- function(.data, id_cols = c("TADA.ComparableDataIdentifier")) 
       plotly::add_histogram(
         x = plot.data$TADA.ResultMeasureValue,
         xbins = list(start = min(plot.data$TADA.ResultMeasureValue)),
-        marker = list(color = "#00bde3"),
-        stroke = I("#005ea2"),
+        marker = list(color = tada.pal[3]),
+        stroke = I(tada.pal[6]),
         bingroup = 1,
         name = "<b>All Data<b>"
       )
@@ -313,8 +315,8 @@ TADA_Histogram <- function(.data, id_cols = c("TADA.ComparableDataIdentifier")) 
         plotly::add_histogram(
           x = no_outliers$TADA.ResultMeasureValue,
           xbins = list(start = min(plot.data$TADA.ResultMeasureValue)),
-          marker = list(color = "#00bde3"),
-          stroke = I("#005ea2"),
+          marker = list(color = tada.pal[3]),
+          stroke = I(tada.pal[6]),
           bingroup = 1,
           name = paste0("<b>Outliers Removed</b>", "\nUpper Threshold: ", box_upper, "\nLower Threshold: ", box_lower),
           visible = "legendonly"
@@ -429,12 +431,30 @@ TADA_OverviewMap <- function(.data) {
     site_size <- data.frame(Sample_n = pt_labels, Point_size = c(5, 10, 15, 20, 30))
 
     site_legend <- subset(site_size, site_size$Point_size %in% unique(sumdat$radius))
+    
+    # create TADA color palette
+    tada.pal <- TADA_ColorPalette()
+    
+    start.rgb.val <- col2rgb(tada.pal[3])/255
+    
+    new.rgb.start <- start.rgb.val * (1 - 0.7) + 1 * 0.7
+    
+    start.color <- rgb(new.rgb.start[1], new.rgb.start[2], new.rgb.start[3])
+    
+    end.rgb.val <- col2rgb(tada.pal[6])/255
+    
+    new.rgb.end <- end.rgb.val * (1 - 0.4)
+    
+    end.color <- rgb(new.rgb.end[1], new.rgb.end[2], new.rgb.end[3])
+    
+    
+    tada.blues <- grDevices::colorRampPalette(c(start.color, end.color))(param_counts)
 
     # set color palette
     # set color palette for small number of characteristics (even intervals, no bins)
     if (length(unique(param_diff)) == 1 & param_length < 10) {
       pal <- leaflet::colorFactor(
-        palette = "Blues",
+        palette = tada.blues,
         levels = param_counts
       )
     } else if (length(unique(param_counts)) == 1) {
@@ -444,7 +464,7 @@ TADA_OverviewMap <- function(.data) {
       pretty.breaks <- unique(round(pretty(sumdat$Parameter_Count)))
 
       pal <- leaflet::colorBin(
-        palette = "Blues",
+        palette = tada.blues,
         bins = pretty.breaks
       )
     }
@@ -454,7 +474,7 @@ TADA_OverviewMap <- function(.data) {
       if (length(param_diff > 0)) {
         return(pal(category))
       } else {
-        return("#2171b5")
+        return(tada.pal[3])
       }
     }
 
@@ -485,7 +505,7 @@ TADA_OverviewMap <- function(.data) {
         lng = ~TADA.LongitudeMeasure,
         lat = ~TADA.LatitudeMeasure,
         # sets color of monitoring site circles
-        color = "red",
+        color = tada.pal[7],
         fillColor = customFillColor(sumdat$Parameter_Count, pal),
         fillOpacity = 0.7,
         stroke = TRUE,
