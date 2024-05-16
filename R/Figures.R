@@ -71,6 +71,10 @@ TADA_Boxplot <- function(.data, id_cols = c("TADA.ComparableDataIdentifier")) {
     "TADA.ResultMeasureValue",
     "TADA.ResultMeasure.MeasureUnitCode"
   ))
+  
+  # load TADA color palette
+  
+  pal <- TADA_ColorPalette()
 
   start <- dim(.data)[1]
 
@@ -138,8 +142,8 @@ TADA_Boxplot <- function(.data, id_cols = c("TADA.ComparableDataIdentifier")) {
       q3 = quant_75, lowerfence = box_lower,
       hoverinfo = "y",
       upperfence = box_upper, boxpoints = "outliers",
-      marker = list(color = "#00bde3"),
-      stroke = I("#005ea2")
+      marker = list(color = pal[3]),
+      stroke = I(pal[6])
     )
 
     # figure margin
