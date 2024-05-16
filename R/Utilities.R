@@ -1386,3 +1386,79 @@ TADA_UniqueCharUnitSpeciation <- function(.data) {
     dplyr::select(-NCode)
 }
 
+
+#' Create Color Palette For Use in Graphs and Maps
+#' 
+#' Creates a consistent color palette for use in TADA visualizations. Currently,
+#' the palette is utilizing the "Okabe-Ito" palette from base R via the palette.colors
+#' function. Additional colors can be added to the palette as needed as more complex
+#' visualization functions are added to the TADA package. palette.colors(palette = "Okabe-Ito")
+#' 
+#' @return A color palette based on the "Okabe-Ito" palette.
+#' 
+#' @export
+#' 
+#' @examples
+#' 
+ TADA_ColorPalette <- function() {
+   
+   pal <- palette.colors(palette = "Okabe-Ito")
+   
+     return(pal)
+ }
+ 
+ #' Create Color Palette For Use in Graphs and Maps
+#' 
+#' Creates a consistent color palette for use in TADA visualizations. Currently,
+#' the palette is utilizing the "Okabe-Ito" palette from base R via the palette.colors
+#' function. Additional colors can be added to the palette as needed as more complex
+#' visualization functions are added to the TADA package. palette.colors(palette = "Okabe-Ito")
+#' 
+#' @return A color palette based on the "Okabe-Ito" palette.
+#' 
+#' @export
+#' 
+#' @examples
+#' 
+ TADA_ColorPalette <- function() {
+   
+   pal <- palette.colors(palette = "Okabe-Ito")
+   
+     return(pal)
+ }
+ 
+ #' View TADA Color Palette
+ #' 
+ #' View a swatch of the colors in the TADA Color palette labeled by color and
+ #' index number for reference when deciding which colors to use when designing or
+ #' editing TADA visualiztion functions.
+ #' 
+ #' @return A color swatch figure based on the TADA color palette..
+ #' 
+ #' @export
+ #' 
+ #' @examples
+ #' 
+ TADA_ViewColorPalette <- function() {
+   
+   pal <- TADA_ColorPalette()
+   
+   label_space <- 0.2
+   
+   label_colors <- rep("black", n)
+   label_colors[1] <- "white"
+   
+   
+   n <- length(pal)
+   graphics::par(mar = c(5,0,5,0))
+   swatch <- graphics::plot(1, type = "n", xlab = "", ylab = "", xlim = c(0.5,n + 0.5), ylim = c(0,1), main = "TADA Palette", axes = FALSE)
+   rect(1:n - 0.5, 0, n + 0.5, 1, col = pal, border = NA)
+   text(x = 1:n, y = 0.5, labels = 1:n, pos = 3, col = label_colors)
+   text(x = 1:n, y = 0.5 - label_space, labels = pal, pos = 1, col = label_colors, cex = 0.7, srt = 90)
+   
+return(list(plot = swatch, palette = pal))
+
+   }
+ 
+
+swatch$plot
