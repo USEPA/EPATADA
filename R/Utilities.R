@@ -1419,6 +1419,7 @@ TADA_UniqueCharUnitSpeciation <- function(.data) {
 #' @export
 #' 
 #' @examples
+#' TestPalette <- TADA_ColorPalette()
 #' 
  TADA_ColorPalette <- function() {
    
@@ -1430,35 +1431,35 @@ TADA_UniqueCharUnitSpeciation <- function(.data) {
  #' View TADA Color Palette
  #' 
  #' View a swatch of the colors in the TADA Color palette labeled by color and
- #' index number for reference when deciding which colors to use when designing or
- #' editing TADA visualiztion functions.
+ #' index number for reference when deciding which colors to use when designing/
+ #' editing TADA visualization functions or for TADA users to create visually
+ #' consistent figures in addition to those created by TADA functions.
  #' 
- #' @return A color swatch figure based on the TADA color palette..
+ #' @return A color swatch figure based on the TADA color palette.
  #' 
  #' @export
  #' 
- #' @examples
+ #' @examples 
+ #' TestViewPalette <- TADA_ViewColorPalette()
  #' 
  TADA_ViewColorPalette <- function() {
    
+   # call TADA color palette
    pal <- TADA_ColorPalette()
    
-   label_space <- 0.2
-   
+   # create list of label colors, first one needs to be white to show up clearly
    label_colors <- rep("black", n)
    label_colors[1] <- "white"
    
-   
+   # create color swatch graphic
    n <- length(pal)
    graphics::par(mar = c(5,0,5,0))
    swatch <- graphics::plot(1, type = "n", xlab = "", ylab = "", xlim = c(0.5,n + 0.5), ylim = c(0,1), main = "TADA Palette", axes = FALSE)
    rect(1:n - 0.5, 0, n + 0.5, 1, col = pal, border = NA)
    text(x = 1:n, y = 0.5, labels = 1:n, pos = 3, col = label_colors)
-   text(x = 1:n, y = 0.5 - label_space, labels = pal, pos = 1, col = label_colors, cex = 0.7, srt = 90)
+   text(x = 1:n, y = 0.5 - 0.2, labels = pal, pos = 1, col = label_colors, cex = 0.7, srt = 90)
    
-return(list(plot = swatch, palette = pal))
+return(swatch)
 
    }
- 
 
-swatch$plot
