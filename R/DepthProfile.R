@@ -999,6 +999,10 @@ xrange <- c(0, xmax)
 ymax <- max(plot.data$TADA.ConsolidatedDepth, na.rm = TRUE) + 0.1 * max(plot.data$TADA.ConsolidatedDepth, na.rm = TRUE)
 yrange <- c(0, ymax)
 
+# set palette
+
+colorpal <- 
+
 # create base of scatter plot
 scatterplot <- plotly::plot_ly(type = "scatter", mode = "lines+markers") %>%
   plotly::layout(
