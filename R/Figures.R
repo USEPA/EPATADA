@@ -692,6 +692,9 @@ TADA_Scatterplot <- function(.data, id_cols = c("TADA.ComparableDataIdentifier")
     # units label for y axis
     unit <- unique(plot.data$TADA.ResultMeasure.MeasureUnitCode)
     y_label <- "Activity Start Date"
+    
+    # create TADA color palette
+    tada.pal <- TADA_ColorPalette()
 
     # construct plotly scatterplot
     one_scatterplot <- plotly::plot_ly(

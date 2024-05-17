@@ -1447,12 +1447,14 @@ TADA_UniqueCharUnitSpeciation <- function(.data) {
    # call TADA color palette
    pal <- TADA_ColorPalette()
    
+   # determine length of color palette
+   n <- length(pal)
+   
    # create list of label colors, first one needs to be white to show up clearly
    label_colors <- rep("black", n)
    label_colors[1] <- "white"
    
    # create color swatch graphic
-   n <- length(pal)
    graphics::par(mar = c(5,0,5,0))
    swatch <- graphics::plot(1, type = "n", xlab = "", ylab = "", xlim = c(0.5,n + 0.5), ylim = c(0,1), main = "TADA Palette", axes = FALSE)
    rect(1:n - 0.5, 0, n + 0.5, 1, col = pal, border = NA)
