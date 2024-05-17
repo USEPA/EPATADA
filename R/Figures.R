@@ -507,7 +507,7 @@ TADA_OverviewMap <- function(.data) {
         lng = ~TADA.LongitudeMeasure,
         lat = ~TADA.LatitudeMeasure,
         # sets color of monitoring site circles
-        color = "red",
+        color = tada.pal[2],
         fillColor = customFillColor(sumdat$Parameter_Count, pal),
         fillOpacity = 0.7,
         stroke = TRUE,
@@ -530,7 +530,7 @@ TADA_OverviewMap <- function(.data) {
     # create legend for single parameter count value data sets
     if (length(param_diff) == 0) {
       map <- map %>% leaflet::addLegend("bottomright",
-        color = "#2171b5", labels = param_counts,
+        color = tada.pal[3], labels = param_counts,
         title = "Characteristics",
         opacity = 0.5
       )
