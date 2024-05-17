@@ -474,7 +474,7 @@ TADA_OverviewMap <- function(.data) {
       if (length(param_diff > 0)) {
         return(pal(category))
       } else {
-        return(tada.pal[3])
+        return("#2171b5")
       }
     }
 
@@ -505,7 +505,7 @@ TADA_OverviewMap <- function(.data) {
         lng = ~TADA.LongitudeMeasure,
         lat = ~TADA.LatitudeMeasure,
         # sets color of monitoring site circles
-        color = tada.pal[7],
+        color = "red",
         fillColor = customFillColor(sumdat$Parameter_Count, pal),
         fillOpacity = 0.7,
         stroke = TRUE,
@@ -591,11 +591,11 @@ TADA_FieldValuesPie <- function(.data, field = "null", characteristicName = "nul
   colorCount <- length(unique(dat$Legend))
 
   # define color palette
-  getPalette <- grDevices::colorRampPalette(RColorBrewer::brewer.pal(8, "Set2"))
+  getPalette <- grDevices::colorRampPalette(tada.pal)(colorCount)
 
   # create pie chart
   pie <- ggplot2::ggplot(dat, ggplot2::aes(x = "", y = Count, fill = Legend)) +
-    ggplot2::scale_fill_manual(values = getPalette(colorCount), name = field) +
+    ggplot2::scale_fill_manual(values = getPalette, name = field) +
     ggplot2::geom_bar(stat = "identity", width = 1) +
     ggplot2::coord_polar("y", start = 0) +
     ggplot2::theme_void()
