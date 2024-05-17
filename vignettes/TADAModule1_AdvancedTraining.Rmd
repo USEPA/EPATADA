@@ -201,7 +201,7 @@ columns to preserve the original dataset:
 Let's give it a try. `TADA_DataRetrieval` follows similar
 parameterization to `readWQPdata`, but check out the [help
 page](https://usepa.github.io/TADA/reference/TADA_DataRetrieval.html) or
-enter ?TADA::TADA_DataRetrieval into the console for more information
+enter `?TADA::TADA_DataRetrieval` into the console for more information
 about input parameters and to see several examples.
 
 ```{r}
@@ -366,7 +366,7 @@ na_rv_datatypes
 ```{r}
 # these are all of the NOT allowable data types in the dataset.
 incompatible_datatype <- dataset %>%
-  filter(!TADA.ResultMeasureValueDataTypes.Flag %in% c("Numeric", "Less Than", "Greater Than", "Approximate Value", "Percentage", "Comma-Separated Numeric", "Numeric Range - Averaged", "Result Value/Unit Copied from Detection Limit")) %>%
+  dplyr::filter(!dataset$TADA.ResultMeasureValueDataTypes.Flag %in% c("Numeric", "Less Than", "Greater Than", "Approximate Value", "Percentage", "Comma-Separated Numeric", "Numeric Range - Averaged", "Result Value/Unit Copied from Detection Limit")) %>%
   dplyr::mutate(TADA.RemovalReason = "Result value type cannot be converted to numeric or no detection limit values provided.")
 
 # take a look at the difficult data types - do they make sense?
@@ -374,7 +374,7 @@ check <- unique(incompatible_datatype[, c("TADA.CharacteristicName", "ResultMeas
 ```
 
 ```{r}
-dataset <- dataset %>% filter(TADA.ResultMeasureValueDataTypes.Flag %in% c("Numeric", "Less Than", "Greater Than", "Approximate Value", "Percentage", "Comma-Separated Numeric", "Numeric Range - Averaged", "Result Value/Unit Copied from Detection Limit"))
+dataset <- dataset %>% dplyr::filter(dataset$TADA.ResultMeasureValueDataTypes.Flag %in% c("Numeric", "Less Than", "Greater Than", "Approximate Value", "Percentage", "Comma-Separated Numeric", "Numeric Range - Averaged", "Result Value/Unit Copied from Detection Limit"))
 
 removed <- plyr::rbind.fill(removed, incompatible_datatype)
 rm(incompatible_datatype, check, rv_datatypes, na_rv_datatypes)
