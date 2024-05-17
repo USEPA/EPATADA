@@ -432,6 +432,11 @@ TADA_OverviewMap <- function(.data) {
 
     site_legend <- subset(site_size, site_size$Point_size %in% unique(sumdat$radius))
     
+    # set breaks to occur only at integers for data sets requiring bins
+    pretty.breaks <- unique(round(pretty(sumdat$Parameter_Count)))
+    
+    bins_n <- length(pretty.breaks)
+    
     # create TADA color palette
     tada.pal <- TADA_ColorPalette()
     
@@ -447,8 +452,7 @@ TADA_OverviewMap <- function(.data) {
     
     end.color <- rgb(new.rgb.end[1], new.rgb.end[2], new.rgb.end[3])
     
-    
-    tada.blues <- grDevices::colorRampPalette(c(start.color, end.color))(param_counts)
+    tada.blues <- grDevices::colorRampPalette(c(start.color, end.color))(bins_n)
 
     # set color palette
     # set color palette for small number of characteristics (even intervals, no bins)
@@ -460,9 +464,7 @@ TADA_OverviewMap <- function(.data) {
     } else if (length(unique(param_counts)) == 1) {
       pal <- "orange"
     } else {
-      # set breaks to occur only at integers for data sets requiring bins
-      pretty.breaks <- unique(round(pretty(sumdat$Parameter_Count)))
-
+ 
       pal <- leaflet::colorBin(
         palette = tada.blues,
         bins = pretty.breaks
@@ -474,7 +476,7 @@ TADA_OverviewMap <- function(.data) {
       if (length(param_diff > 0)) {
         return(pal(category))
       } else {
-        return("#2171b5")
+        return(tada.pal[3])
       }
     }
 
@@ -706,8 +708,8 @@ TADA_Scatterplot <- function(.data, id_cols = c("TADA.ComparableDataIdentifier")
       # consider adding color or shapes to make it easier to see sites and/or possible realtive result values
       # color = ~MonitoringLocationName,
       # colors = RColorBrewer::brewer.pal(3, "Set2"),
-      marker = list(color = "#00bde3"), # marker color
-      stroke = I("#005ea2"), # marker border color
+      marker = list(color = tada.pal[3]), # marker color
+      stroke = I(tada.pal[6]), # marker border color
       name = "<b>All Data<b>",
       hoverinfo = "text",
       hovertext = paste(
@@ -882,6 +884,9 @@ TADA_TwoCharacteristicScatterplot <- function(.data, id_cols = "TADA.ComparableD
     b = 25, t = 75,
     pad = 0
   )
+  
+  # create TADA color palette
+  tada.pal <- TADA_ColorPalette()
 
   scatterplot <- plotly::plot_ly(type = "scatter", mode = "markers") %>%
     plotly::layout(
@@ -932,8 +937,8 @@ TADA_TwoCharacteristicScatterplot <- function(.data, id_cols = "TADA.ComparableD
       ),
       marker = list(
         size = 10,
-        color = "#E34234",
-        line = list(color = "#005ea2", width = 2)
+        color = tada.pal[2],
+        line = list(color = tada.pal[6], width = 2)
       ),
       hoverinfo = "text",
       hovertext = paste(
@@ -972,8 +977,8 @@ TADA_TwoCharacteristicScatterplot <- function(.data, id_cols = "TADA.ComparableD
         param2$TADA.MethodSpeciationName
       ),
       marker = list(
-        size = 10, color = "#00bde3",
-        line = list(color = "#005ea2", width = 2)
+        size = 10, color = tada.pal[3],
+        line = list(color = tada.pal[6], width = 2)
       ),
       yaxis = "y2",
       hoverinfo = "text",
