@@ -415,13 +415,8 @@ DT::datatable(flag.datatypes)
 # Numeric or numeric-coerced data types
 rv_datatypes <- unique(subset(dataset, !is.na(dataset$TADA.ResultMeasureValue))$TADA.ResultMeasureValueDataTypes.Flag)
 
-DT::datatable(rv_datatypes)
-
-
 # Non-numeric data types coerced to NA
 na_rv_datatypes <- unique(subset(dataset, is.na(dataset$TADA.ResultMeasureValue))$TADA.ResultMeasureValueDataTypes.Flag)
-
-DT::datatable(na_rv_datatypes)
 ```
 
 ```{r}
@@ -553,7 +548,7 @@ results that do not pass QC checks. Let's look at the breakdown of these
 data in the removed object.
 
 ```{r}
-removal <- TADA::FieldValuesCounts(removed, field = "TADA.RemovalReason")
+removal <- TADA::TADA_FieldValuesCounts(removed, field = "TADA.RemovalReason")
 
 DT::datatable(removal)
 ```
