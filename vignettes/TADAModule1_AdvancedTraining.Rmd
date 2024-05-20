@@ -548,7 +548,7 @@ results that do not pass QC checks. Let's look at the breakdown of these
 data in the removed object.
 
 ```{r}
-removal <- TADA::TADA_FieldValuesCounts(removed, field = "TADA.RemovalReason")
+removal <- TADA::TADA_FieldCounts(removed, field = "TADA.RemovalReason")
 
 DT::datatable(removal)
 ```
