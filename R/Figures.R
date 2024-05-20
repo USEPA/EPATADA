@@ -71,6 +71,10 @@ TADA_Boxplot <- function(.data, id_cols = c("TADA.ComparableDataIdentifier")) {
     "TADA.ResultMeasureValue",
     "TADA.ResultMeasure.MeasureUnitCode"
   ))
+  
+  # load TADA color palette
+  
+  tada.pal <- TADA_ColorPalette()
 
   start <- dim(.data)[1]
 
@@ -138,8 +142,8 @@ TADA_Boxplot <- function(.data, id_cols = c("TADA.ComparableDataIdentifier")) {
       q3 = quant_75, lowerfence = box_lower,
       hoverinfo = "y",
       upperfence = box_upper, boxpoints = "outliers",
-      marker = list(color = "#00bde3"),
-      stroke = I("#005ea2")
+      marker = list(color = tada.pal[3]),
+      stroke = I(tada.pal[6])
     )
 
     # figure margin
@@ -243,6 +247,8 @@ TADA_Histogram <- function(.data, id_cols = c("TADA.ComparableDataIdentifier")) 
     "TADA.ResultMeasureValue",
     "TADA.ResultMeasure.MeasureUnitCode"
   ))
+  
+  tada.pal <- TADA_ColorPalette()
 
   start <- dim(.data)[1]
 
@@ -299,8 +305,8 @@ TADA_Histogram <- function(.data, id_cols = c("TADA.ComparableDataIdentifier")) 
       plotly::add_histogram(
         x = plot.data$TADA.ResultMeasureValue,
         xbins = list(start = min(plot.data$TADA.ResultMeasureValue)),
-        marker = list(color = "#00bde3"),
-        stroke = I("#005ea2"),
+        marker = list(color = tada.pal[3]),
+        stroke = I(tada.pal[6]),
         bingroup = 1,
         name = "<b>All Data<b>"
       )
@@ -309,8 +315,8 @@ TADA_Histogram <- function(.data, id_cols = c("TADA.ComparableDataIdentifier")) 
         plotly::add_histogram(
           x = no_outliers$TADA.ResultMeasureValue,
           xbins = list(start = min(plot.data$TADA.ResultMeasureValue)),
-          marker = list(color = "#00bde3"),
-          stroke = I("#005ea2"),
+          marker = list(color = tada.pal[3]),
+          stroke = I(tada.pal[6]),
           bingroup = 1,
           name = paste0("<b>Outliers Removed</b>", "\nUpper Threshold: ", box_upper, "\nLower Threshold: ", box_lower),
           visible = "legendonly"
@@ -425,22 +431,42 @@ TADA_OverviewMap <- function(.data) {
     site_size <- data.frame(Sample_n = pt_labels, Point_size = c(5, 10, 15, 20, 30))
 
     site_legend <- subset(site_size, site_size$Point_size %in% unique(sumdat$radius))
+    
+    # set breaks to occur only at integers for data sets requiring bins
+    pretty.breaks <- unique(round(pretty(sumdat$Parameter_Count)))
+    
+    bins_n <- length(pretty.breaks)
+    
+    # create TADA color palette
+    tada.pal <- TADA_ColorPalette()
+    
+    start.rgb.val <- col2rgb(tada.pal[3])/255
+    
+    new.rgb.start <- start.rgb.val * (1 - 0.7) + 1 * 0.7
+    
+    start.color <- rgb(new.rgb.start[1], new.rgb.start[2], new.rgb.start[3])
+    
+    end.rgb.val <- col2rgb(tada.pal[6])/255
+    
+    new.rgb.end <- end.rgb.val * (1 - 0.4)
+    
+    end.color <- rgb(new.rgb.end[1], new.rgb.end[2], new.rgb.end[3])
+    
+    tada.blues <- grDevices::colorRampPalette(c(start.color, end.color))(bins_n)
 
     # set color palette
     # set color palette for small number of characteristics (even intervals, no bins)
     if (length(unique(param_diff)) == 1 & param_length < 10) {
       pal <- leaflet::colorFactor(
-        palette = "Blues",
+        palette = tada.blues,
         levels = param_counts
       )
     } else if (length(unique(param_counts)) == 1) {
       pal <- "orange"
     } else {
-      # set breaks to occur only at integers for data sets requiring bins
-      pretty.breaks <- unique(round(pretty(sumdat$Parameter_Count)))
-
+ 
       pal <- leaflet::colorBin(
-        palette = "Blues",
+        palette = tada.blues,
         bins = pretty.breaks
       )
     }
@@ -450,7 +476,7 @@ TADA_OverviewMap <- function(.data) {
       if (length(param_diff > 0)) {
         return(pal(category))
       } else {
-        return("#2171b5")
+        return(tada.pal[3])
       }
     }
 
@@ -481,7 +507,7 @@ TADA_OverviewMap <- function(.data) {
         lng = ~TADA.LongitudeMeasure,
         lat = ~TADA.LatitudeMeasure,
         # sets color of monitoring site circles
-        color = "red",
+        color = as.character(tada.pal[2]),
         fillColor = customFillColor(sumdat$Parameter_Count, pal),
         fillOpacity = 0.7,
         stroke = TRUE,
@@ -504,7 +530,7 @@ TADA_OverviewMap <- function(.data) {
     # create legend for single parameter count value data sets
     if (length(param_diff) == 0) {
       map <- map %>% leaflet::addLegend("bottomright",
-        color = "#2171b5", labels = param_counts,
+        color = tada.pal[3], labels = param_counts,
         title = "Characteristics",
         opacity = 0.5
       )
@@ -565,13 +591,17 @@ TADA_FieldValuesPie <- function(.data, field = "null", characteristicName = "nul
 
   # define number of colors required for pie chart
   colorCount <- length(unique(dat$Legend))
+  
+  # create TADA color palette
+  
+  tada.pal <- TADA_ColorPalette()
 
   # define color palette
-  getPalette <- grDevices::colorRampPalette(RColorBrewer::brewer.pal(8, "Set2"))
+  getPalette <- grDevices::colorRampPalette(tada.pal)(colorCount)
 
   # create pie chart
   pie <- ggplot2::ggplot(dat, ggplot2::aes(x = "", y = Count, fill = Legend)) +
-    ggplot2::scale_fill_manual(values = getPalette(colorCount), name = field) +
+    ggplot2::scale_fill_manual(values = getPalette, name = field) +
     ggplot2::geom_bar(stat = "identity", width = 1) +
     ggplot2::coord_polar("y", start = 0) +
     ggplot2::theme_void()
@@ -668,6 +698,9 @@ TADA_Scatterplot <- function(.data, id_cols = c("TADA.ComparableDataIdentifier")
     # units label for y axis
     unit <- unique(plot.data$TADA.ResultMeasure.MeasureUnitCode)
     y_label <- "Activity Start Date"
+    
+    # create TADA color palette
+    tada.pal <- TADA_ColorPalette()
 
     # construct plotly scatterplot
     one_scatterplot <- plotly::plot_ly(
@@ -679,8 +712,8 @@ TADA_Scatterplot <- function(.data, id_cols = c("TADA.ComparableDataIdentifier")
       # consider adding color or shapes to make it easier to see sites and/or possible realtive result values
       # color = ~MonitoringLocationName,
       # colors = RColorBrewer::brewer.pal(3, "Set2"),
-      marker = list(color = "#00bde3"), # marker color
-      stroke = I("#005ea2"), # marker border color
+      marker = list(color = tada.pal[3]), # marker color
+      stroke = I(tada.pal[6]), # marker border color
       name = "<b>All Data<b>",
       hoverinfo = "text",
       hovertext = paste(
@@ -855,6 +888,9 @@ TADA_TwoCharacteristicScatterplot <- function(.data, id_cols = "TADA.ComparableD
     b = 25, t = 75,
     pad = 0
   )
+  
+  # create TADA color palette
+  tada.pal <- TADA_ColorPalette()
 
   scatterplot <- plotly::plot_ly(type = "scatter", mode = "markers") %>%
     plotly::layout(
@@ -905,8 +941,8 @@ TADA_TwoCharacteristicScatterplot <- function(.data, id_cols = "TADA.ComparableD
       ),
       marker = list(
         size = 10,
-        color = "#E34234",
-        line = list(color = "#005ea2", width = 2)
+        color = tada.pal[2],
+        line = list(color = tada.pal[6], width = 2)
       ),
       hoverinfo = "text",
       hovertext = paste(
@@ -945,8 +981,8 @@ TADA_TwoCharacteristicScatterplot <- function(.data, id_cols = "TADA.ComparableD
         param2$TADA.MethodSpeciationName
       ),
       marker = list(
-        size = 10, color = "#00bde3",
-        line = list(color = "#005ea2", width = 2)
+        size = 10, color = tada.pal[3],
+        line = list(color = tada.pal[6], width = 2)
       ),
       yaxis = "y2",
       hoverinfo = "text",

@@ -74,7 +74,6 @@ remotes::install_github("USEPA/TADA",
   ref = "develop",
   dependencies = TRUE
 )
-
 # remotes::install_github("USGS-R/dataRetrieval", dependencies=TRUE)
 ```
 
@@ -83,6 +82,15 @@ your R session.
 
 ```{r library, results = 'hide'}
 library(TADA)
+```
+
+```{r for-development-only, echo = F, results = 'hide', eval = F}
+# IF YOU ARE NOT DEVELOPING TADA, SKIP THIS CODE CHUNK
+# when developing the package, update this chunk to the current repository branch, so it runs with all of the new features prior to a PR to develop
+remotes::install_github("USEPA/TADA",
+  ref = "colorpalette_set_up",
+  dependencies = TRUE
+)
 ```
 
 ## TADA_DataRetrieval

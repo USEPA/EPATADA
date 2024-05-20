@@ -83,9 +83,19 @@ library(lubridate)
 library(knitr)
 library(DT)
 
+
 # Record start time
 start.time <- Sys.time()
 
+```
+
+```{r for-development-only, echo = F, results = 'hide', eval = F}
+# IF YOU ARE NOT DEVELOPING TADA, SKIP THIS CODE CHUNK
+# when developing the package, update this chunk to the current repository branch, so it runs with all of the new features prior to a PR to develop
+remotes::install_github("USEPA/TADA",
+  ref = "colorpalette_set_up",
+  dependencies = TRUE
+)
 ```
 
 ## Data Retrieval - Water Chemistry
@@ -118,13 +128,14 @@ Waterbody Report on How's My Waterway:
 [WaterbodyReport/IL_EPA/IL_I-84/2022](https://mywaterway.epa.gov/waterbody-report/IL_EPA/IL_I-84/2022).
 
 We'll also need to set start and end dates. For this example we'll use a
-ten year range between 2010 and 2020. We will also set the Characteristic
-Type to "Nutrient" and "Physical", because these types contain nitrogen, pH
-and water temperature Characteristics. It is possible to query by a specific
-Characteristic Name, but different organizations may input the same name
-in a variety of ways. Therefore, we recommend keeping your initial queries as 
-broad as possible so all relevant results are downloaded and useful data from 
-synonymous Characteristics are not missed. There are TADA functions that can be 
+ten year range between 2010 and 2020. We will also set the
+Characteristic Type to "Nutrient" and "Physical", because these types
+contain nitrogen, pH and water temperature Characteristics. It is
+possible to query by a specific Characteristic Name, but different
+organizations may input the same name in a variety of ways. Therefore,
+we recommend keeping your initial queries as broad as possible so all
+relevant results are downloaded and useful data from synonymous
+Characteristics are not missed. There are TADA functions that can be
 used to harmonize these synonyms.
 
 ```{r TADA_DataRetrieval}
@@ -158,9 +169,9 @@ functions are performed on the data retrieved from the WQP:
     detection limit type.
 
 -   Other helpful actions - converts important text columns to all
-    upper-case letters, and uses WQX format rules to harmonize specific NWIS 
-    metadata conventions (e.g. move characteristic speciation from the
-    TADA.ResultMeasure.MeasureUnitCode column to the 
+    upper-case letters, and uses WQX format rules to harmonize specific
+    NWIS metadata conventions (e.g. move characteristic speciation from
+    the TADA.ResultMeasure.MeasureUnitCode column to the
     TADA.MethodSpeciationName column)
 
 As a general rule, TADA functions do not change any contents in the
@@ -247,7 +258,7 @@ MonitoringLocations <- Analysis_data %>%
   dplyr::select(MonitoringLocationName, MonitoringLocationIdentifier, OrganizationFormalName) %>%
   dplyr::distinct()
 
-DT::datatable(MonitoringLocations)
+DT::datatable(MonitoringLocations, fillContainer = TRUE)
 
 
 # Create pie of results by organization
@@ -501,7 +512,7 @@ Filtered_data <- Harmonized_data %>%
 # generate stats table
 Filtered_data_stats <- TADA_Stats(Filtered_data)
 
-DT::datatable(Filtered_data_stats)
+DT::datatable(Filtered_data_stats, fillContainer = TRUE)
 ```
 
 ## Standard Comparisons With Scatterplot and Pie Chart
@@ -538,7 +549,7 @@ pH_Table <- pH_Standard %>%
   dplyr::select(MonitoringLocationIdentifier, OrganizationFormalName, ActivityStartDate, TADA.ResultMeasureValue,
                 MeetsStandard)
 
-DT::datatable(pH_Table)
+DT::datatable(pH_Table, fillContainer = TRUE)
 
 # pH scatterplot
 pH_Scatter <- TADA_Scatterplot(pH_Standard, id_cols = "TADA.ComparableDataIdentifier") %>%
@@ -616,7 +627,7 @@ Temp_Table <- Temp_Standard %>%
   dplyr::select(MonitoringLocationIdentifier, OrganizationFormalName, ActivityStartDate, TADA.ResultMeasureValue, TempStandard,
                 MeetsStandard)
 
-DT::datatable(Temp_Table)
+DT::datatable(Temp_Table, fillContainer = TRUE)
 ```
 
 ## Additional Data Exploration
@@ -664,7 +675,7 @@ Nitrogen_stats <- Filtered_data_stats %>%
   dplyr::filter(TADA.ComparableDataIdentifier == "TOTAL NITROGEN, MIXED FORMS_FILTERED, LAB_NA_MG/L") %>%
   dplyr::select(Location_Count, Measurement_Count, Min, Max, Mean)
 
-DT::datatable(Nitrogen_stats)
+DT::datatable(Nitrogen_stats, fillContainer = TRUE)
 
 # create nitrogen scatterplot
 Nitrogen_Scatterplot <- TADA_Scatterplot(Nitrogen_data, id_cols = "TADA.ComparableDataIdentifier")
