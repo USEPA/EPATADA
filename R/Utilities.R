@@ -1399,6 +1399,7 @@ TADA_UniqueCharUnitSpeciation <- function(.data) {
 #' @export
 #' 
 #' @examples
+#' TestColorPalette <- TADA_ColorPalette()
 #' 
  TADA_ColorPalette <- function() {
    
@@ -1407,26 +1408,6 @@ TADA_UniqueCharUnitSpeciation <- function(.data) {
      return(pal)
  }
  
- #' Create Color Palette For Use in Graphs and Maps
-#' 
-#' Creates a consistent color palette for use in TADA visualizations. Currently,
-#' the palette is utilizing the "Okabe-Ito" palette from base R via the palette.colors
-#' function. Additional colors can be added to the palette as needed as more complex
-#' visualization functions are added to the TADA package. palette.colors(palette = "Okabe-Ito")
-#' 
-#' @return A color palette based on the "Okabe-Ito" palette.
-#' 
-#' @export
-#' 
-#' @examples
-#' TestPalette <- TADA_ColorPalette()
-#' 
- TADA_ColorPalette <- function() {
-   
-   pal <- palette.colors(palette = "Okabe-Ito")
-   
-     return(pal)
- }
  
  #' View TADA Color Palette
  #' 
@@ -1464,4 +1445,5 @@ TADA_UniqueCharUnitSpeciation <- function(.data) {
 return(swatch)
 
    }
+
 
