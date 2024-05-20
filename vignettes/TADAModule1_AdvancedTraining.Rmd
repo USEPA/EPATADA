@@ -174,8 +174,8 @@ TADA::TADA_GetTemplate() # download template to working directory
 `TADA_DataRetrieval` is built upon USGS's `readWQPdata` function within
 the dataRetrieval package, which uses web service calls to bring WQP
 data into the R environment. Additionally, `TADA_DataRetrieval` performs
-some basic quality control checks on the data using new TADA-specific
-columns to preserve the original dataset:
+some basic quality control checks via `TADA_AutoClean` on the data using
+new TADA-specific columns to preserve the original dataset:
 
 -   Converts key character columns to ALL CAPS for easier harmonization
     and validation.
@@ -187,22 +187,17 @@ columns to preserve the original dataset:
     preceded by a tilde, etc.) and converts values to numeric where
     feasible.
 
--   Fills NA result values and units with detection limit values and
-    units where the detection condition text indicates a censored data
-    value. Identifies censored data results and categorizes them as
-    over-detect, non-detect, or other. These data preprocessing features
-    facilitate more complex detection limit value handling using other
-    TADA functions (more details to come later in this training).
-
 -   Unifies result and depth units to common units to improve ease of
     data harmonization. See `?TADA_ConvertResultUnits` and
     `?TADA_ConvertDepthUnits` for more information on these processes.
 
-Let's give it a try. `TADA_DataRetrieval` follows similar
+Let's give it a try. Setting applyautoclean to TRUE in
+`TADA_DataRetrieval` means that the basic quality control steps
+described above are run. `TADA_DataRetrieval` follows similar
 parameterization to `readWQPdata`, but check out the [help
-page](https://usepa.github.io/TADA/reference/TADA_DataRetrieval.html) or
-enter `?TADA::TADA_DataRetrieval` into the console for more information
-about input parameters and to see several examples.
+page](#0){style="font-size: 11pt;"} or enter `?TADA::TADA_DataRetrieval`
+into the console for more information about input parameters and to see
+several examples.
 
 ```{r}
 # download data for NCTC's HUC12
@@ -245,7 +240,7 @@ package.
 ## Initial data review
 
 Now that we've pulled the data into the R session, let's take a look at
-it. Note that any column names with a leading "TADA." were generated
+it. Note that any column names with the "TADA." prefix were generated
 from the TADA_DataRetrieval function.
 
 First, always good to take a look at the data frame dimensions.
@@ -327,8 +322,8 @@ Two additional helper functions one can use at any step in the process
 are `TADA_FieldValuesTable()` and `TADA_FieldValuesPie()`. These
 functions create a summary table and pie chart (respectively) of all the
 unique values in a given column. Let's give it a try on
-ActivityTypeCode, which is a WQP column describing the type of sample
-collected for each result.
+OrganizationFormalName, which is a WQP column naming the organization
+that supplied the result.
 
 ```{r}
 TADA::TADA_FieldValuesTable(dataset, field = "OrganizationFormalName")
@@ -343,10 +338,53 @@ result value types. Because TADA is intended to work with numeric data,
 at this point, it would be good to remove those result values that are
 NA without any detection limit info, or contain text or special
 characters that cannot be converted to numeric. Note that TADA will fill
-in missing values with detection limit values and units if the
-ResultDetectionConditionText and DetectionQuantitationLimitType fields
-are populated. Use `?TADA_ConvertSpecialChars` for more details on
-result value types and handling.
+in missing values with detection limit values and units with the
+`TADA_IDCensoredData` if the ResultDetectionConditionText and
+DetectionQuantitationLimitType fields are populated. Use
+`?TADA_ConvertSpecialChars` for more details on result value types and
+handling and `?TADA_IDCensoredData` for details on censored data
+preparation.
+
+First, we can run `TADA_IDCensoredData` to fill in as many NA/missing
+values as possible. We can use `TADA_FieldValuesPie` to view the
+censored data flags identified in the data set and their relative
+frequency. `TADA_IDCensoredData` sorts result values into detection
+limit categories (e.g. non-detect, over-detect) based on populated
+values in the ResultDetectionConditionText and
+DetectionQuantitationLimitTypeName columns.
+
+You can find the reference tables used to make these decisions in
+`TADA_GetDetCondRef()` and `TADA_GetDetLimitRef()` functions. In some
+cases, results are missing detection limit/condition info, or there is a
+conflict in the detection limit and condition. The user may want to
+remove problematic detection limit data before proceeding. We can also
+filter for the "problem" data by TADA.CensoredData.Flag and review the
+unique reasons for data removal.
+
+```{r}
+dataset <- TADA::TADA_IDCensoredData(dataset)
+
+TADA::TADA_FieldValuesPie(dataset, field = "TADA.CensoredData.Flag")
+
+problem_censored <- dataset %>%
+  dplyr::filter(!TADA.CensoredData.Flag %in% c("Non-Detect", "Over-Detect", "Other", "Uncensored")) %>%
+  dplyr::mutate(TADA.RemovalReason = "Detection limit information contains errors or missing information.")
+
+# Let's take a look at the problematic data that we filtered out (if any)
+check <- unique(problem_censored[, c("TADA.CharacteristicName", "ResultDetectionConditionText", "DetectionQuantitationLimitTypeName", "TADA.CensoredData.Flag")])
+```
+
+```{r}
+dataset <- dataset %>% dplyr::filter(TADA.CensoredData.Flag %in% c("Non-Detect", "Over-Detect", "Other", "Uncensored"))
+
+removed <- plyr::rbind.fill(removed, problem_censored)
+rm(problem_censored, check)
+
+dimCheck(all_result_num, dataset, removed, checkName = "Censored Data")
+```
+
+Next, we can take a look at the data types present and filter out any
+non-allowable types.
 
 ```{r}
 # take a look at datatypes
@@ -373,6 +411,9 @@ incompatible_datatype <- dataset %>%
 check <- unique(incompatible_datatype[, c("TADA.CharacteristicName", "ResultMeasureValue", "TADA.ResultMeasureValue", "ResultMeasure.MeasureUnitCode", "TADA.ResultMeasure.MeasureUnitCode", "TADA.ResultMeasureValueDataTypes.Flag", "DetectionQuantitationLimitMeasure.MeasureValue", "TADA.DetectionQuantitationLimitMeasure.MeasureValue", "DetectionQuantitationLimitMeasure.MeasureUnitCode", "TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode")])
 ```
 
+Then we can take a closer look at the removed results and run another
+dimension check on the data set.
+
 ```{r}
 dataset <- dataset %>% dplyr::filter(dataset$TADA.ResultMeasureValueDataTypes.Flag %in% c("Numeric", "Less Than", "Greater Than", "Approximate Value", "Percentage", "Comma-Separated Numeric", "Numeric Range - Averaged", "Result Value/Unit Copied from Detection Limit"))
 
@@ -380,37 +421,7 @@ removed <- plyr::rbind.fill(removed, incompatible_datatype)
 rm(incompatible_datatype, check, rv_datatypes, na_rv_datatypes)
 
 dimCheck(all_result_num, dataset, removed, checkName = "Result Format")
-```
 
-TADA_IDCensoredData sorts result values into detection limit categories
-(e.g. non-detect, over-detect) based on populated values in the
-ResultDetectionConditionText and DetectionQuantitationLimitTypeName
-columns. You can find the reference tables used to make these decisions
-in `TADA_GetDetCondRef()` and `TADA_GetDetLimitRef()` functions. In some
-cases, results are missing detection limit/condition info, or there is a
-conflict in the detection limit and condition. The user may want to
-remove problematic detection limit data before proceeding.
-
-```{r}
-dataset <- TADA::TADA_IDCensoredData(dataset)
-
-TADA::TADA_FieldValuesPie(dataset, field = "TADA.CensoredData.Flag")
-
-problem_censored <- dataset %>%
-  dplyr::filter(!TADA.CensoredData.Flag %in% c("Non-Detect", "Over-Detect", "Other", "Uncensored")) %>%
-  dplyr::mutate(TADA.RemovalReason = "Detection limit information contains errors or missing information.")
-
-# Let's take a look at the problematic data that we filtered out (if any)
-check <- unique(problem_censored[, c("TADA.CharacteristicName", "ResultDetectionConditionText", "DetectionQuantitationLimitTypeName", "TADA.CensoredData.Flag")])
-```
-
-```{r}
-dataset <- dataset %>% dplyr::filter(TADA.CensoredData.Flag %in% c("Non-Detect", "Over-Detect", "Other", "Uncensored"))
-
-removed <- plyr::rbind.fill(removed, problem_censored)
-rm(problem_censored, check)
-
-dimCheck(all_result_num, dataset, removed, checkName = "Censored Data")
 ```
 
 ## Data flagging
@@ -509,6 +520,16 @@ You can review any other columns of interest and create custom domain
 tables of your "Valid" and "Invalid" criteria using R or Excel. Also
 check out some of the other flagging functions available in TADA:
 
+-   `?TADA_FindNearbySites()` - under active development
+
+-   `?TADA_FindPotentialDuplicatesMultipleOrgs()`
+
+-   `?TADA_FindPotentialDuplicatesSingleOrg()`
+
+-   `?TADA_FindQAPPApproval()`
+
+-   `?TADA_FindQAPPDoc()`
+
 -   `?TADA_FlagAboveThreshold()`
 
 -   `?TADA_FlagBelowThreshold()`
@@ -517,13 +538,9 @@ check out some of the other flagging functions available in TADA:
 
 -   `?TADA_FlagCoordinates()`
 
+-   `?TADA_FlagMeasureQualifierCode()`
+
 -   `?TADA_FlagMethod()`
-
--   `?TADA_FindQAPPApproval()`
-
--   `?TADA_FindQAPPDoc()`
-
--   `?TADA_FindPotentialDuplicates()` - in development
 
 Please let us know of other flagging functions you think would have
 broad appeal in the TADA package or need assistance
@@ -544,13 +561,13 @@ Likelihood, Kaplan-Meier, Robust Regression on Order Statistics) or
 similar must be performed outside of the current version of TADA (though
 future development is planned).
 
+**Question 8: How would you parameterize `TADA_SimpleCensoredMethods()`
+to make non-detect values equal to half of the provided detection
+limit?**
+
 ```{r}
 dataset_cens <- TADA::TADA_SimpleCensoredMethods(dataset_flags, nd_method = "multiplier", nd_multiplier = 0.5, od_method = "as-is")
 ```
-
-**Question 8: How would you parameterize `TADA_SimpleCensoredMethods()`
-to make non-detect values a random number between 0 and the provided
-detection limit?**
 
 Let's take a look at how the censored data handling function affects the
 `TADA.ResultMeasureValueDataTypes.Flag` column.
@@ -566,12 +583,14 @@ TADA::TADA_FieldValuesTable(dataset_cens, field = "TADA.ResultMeasureValueDataTy
 tables?**
 
 If you'd like to start thinking about using statistical methods to
-estimate detection limit values, check out the
-`?TADA_SummarizeCensoredData` function, which accepts user-defined data
-groupings to prescribe estimation tests based on the number of results,
-% of dataset censored, and number of censoring levels (detection
-limits). The decision tree used in the function was outlined in an
-[National Nonpoint Source Tech
+estimate detection limit values, check out the `?TADA_Stats` function,
+which accepts user-defined data groupings (or defaults to
+TADA.ComparableDataIdentifier to determine measurement count, location
+count, censored data stats, min, max, and percentile stats, and suggests
+non-detect estimatiom methods based on the number of results, % of
+dataset censored, and number of censoring levels (detection limits). The
+decision tree used in the function was outlined in an [National Nonpoint
+Source Tech
 Memo](https://www.epa.gov/sites/default/files/2016-05/documents/tech_notes_10_jun2014_r.pdf).
 
 ## Data exploration
