@@ -74,6 +74,7 @@ loading packages.
 
 ```{r library, results = 'hide', message = FALSE, warning = FALSE}
 # Load required packages
+library(TADA)
 library(dplyr)
 library(yaml)
 library(lwgeom)
@@ -82,14 +83,19 @@ library(lubridate)
 library(knitr)
 library(DT)
 
-remotes::install_github("USEPA/TADA",
-  ref = "colorpalette_set_up",
-  dependencies = TRUE
-)
 
 # Record start time
 start.time <- Sys.time()
 
+```
+
+```{r for-development-only, echo = F, results = 'hide', eval = F}
+# IF YOU ARE NOT DEVELOPING TADA, SKIP THIS CODE CHUNK
+# when developing the package, update this chunk to the current repository branch, so it runs with all of the new features prior to a PR to develop
+remotes::install_github("USEPA/TADA",
+  ref = "colorpalette_set_up",
+  dependencies = TRUE
+)
 ```
 
 ## Data Retrieval - Water Chemistry

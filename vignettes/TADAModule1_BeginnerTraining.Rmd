@@ -83,7 +83,7 @@ console).
 
 ```{r install_TADA, eval = F, results = 'hide'}
 remotes::install_github("USEPA/TADA",
-  ref = "colorpalette_set_up",
+  ref = "develop",
   dependencies = TRUE
 )
 
@@ -94,7 +94,7 @@ remotes::install_github("USEPA/TADA",
 # IF YOU ARE NOT DEVELOPING TADA, SKIP THIS CODE CHUNK
 # when developing the package, update this chunk to the current repository branch, so it runs with all of the new features prior to a PR to develop
 remotes::install_github("USEPA/TADA",
-  ref = "447-vignetts-cannot-build-if-they-include-tada_overviewmap-because-they-cannot-find-shp-files",
+  ref = "colorpalette_set_up",
   dependencies = TRUE
 )
 ```
