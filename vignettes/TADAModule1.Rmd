@@ -71,10 +71,9 @@ GitHub (un-comment).
 
 ```{r install_TADA, eval = F, results = 'hide'}
 remotes::install_github("USEPA/TADA",
-  ref = "develop",
+  ref = "colorpalette_set_up",
   dependencies = TRUE
 )
-
 # remotes::install_github("USGS-R/dataRetrieval", dependencies=TRUE)
 ```
 
