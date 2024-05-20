@@ -591,6 +591,10 @@ TADA_FieldValuesPie <- function(.data, field = "null", characteristicName = "nul
 
   # define number of colors required for pie chart
   colorCount <- length(unique(dat$Legend))
+  
+  # create TADA color palette
+  
+  tada.pal <- TADA_ColorPalette()
 
   # define color palette
   getPalette <- grDevices::colorRampPalette(tada.pal)(colorCount)
