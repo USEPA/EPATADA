@@ -824,7 +824,8 @@ TADA_DepthProfilePlot <- function(.data, groups = NULL,
     dplyr::select(-N)
   
   depth.params.groups <- depthprofile.avail %>%
-    dplyr::filter(TADA.ComparableDataIdentifier %in% groups) %>%
+    dplyr::filter(TADA.ComparableDataIdentifier %in% groups,
+                  TADA.CharacteristicName %in% depth.params) %>%
     dplyr::select(TADA.ComparableDataIdentifier) %>%
     unique() %>%
     dplyr::pull()
@@ -958,7 +959,7 @@ if(length(groups) == 2) {
       param1$TADA.CharacteristicName[1],
       " and ",
       param2$TADA.CharacteristicName[1],
-      " Depth Profile for ",
+      " for ",
       #figure out addition of weird \n in name
       plot.data$MonitoringLocationName[1],
       " on ",
@@ -1000,8 +1001,25 @@ ymax <- max(plot.data$TADA.ConsolidatedDepth, na.rm = TRUE) + 0.1 * max(plot.dat
 yrange <- c(0, ymax)
 
 # set palette
+tada.pal <- TADA_ColorPalette()
 
-colorpal <- 
+# set lighter colors for lines
+line_color <- function(hexcolor, amount = 0.6) {
+  
+  rgb.col <- grDevices::col2rgb(hexcolor) / 255
+  
+  new.rgb <- rgb.col * (1 - amount) + 1 * amount
+  
+  line.color <- grDevices::rgb(new.rgb[1], new.rgb[2], new.rgb[3])
+  
+  return(line.color)
+}
+
+start.rgb.val <- col2rgb(tada.pal[3])/255
+
+new.rgb.start <- start.rgb.val * (1 - 0.7) + 1 * 0.7
+
+start.color <- rgb(new.rgb.start[1], new.rgb.start[2], new.rgb.start[3])
 
 # create base of scatter plot
 scatterplot <- plotly::plot_ly(type = "scatter", mode = "lines+markers") %>%
@@ -1052,9 +1070,9 @@ if(length(groups) >= 1 & !param1$TADA.CharacteristicName[1] %in% depth.params) {
       ), stringr::fixed(" NA")),
       marker = list(
         size = 10,
-        color = "red",
-        line = list(color = "red", width = 2)
+        color = tada.pal[7]
       ),
+      line = list(color = line_color(tada.pal[7]), width = 2),
       hoverinfo = "text",
       hovertext = paste(
         "Result:", paste0(param1$TADA.ResultMeasureValue, " ", param1$TADA.ResultMeasure.MeasureUnitCode), "<br>",
@@ -1088,7 +1106,7 @@ if(length(groups) >= 1 & param1$TADA.CharacteristicName[1] %in% depth.params) {
         stringr::fixed("NA ")
       ), stringr::fixed(" NA")),
       showlegend = TRUE,
-      line = list(color = "red", dash = "dash"),
+      line = list(color = tada.pal[7], dash = "dash"),
       hoverinfo = "text",
       hovertext = paste(
         "Result:", paste0(param1$TADA.ResultMeasureValue, " ", param3$TADA.ResultMeasure.MeasureUnitCode), "<br>",
@@ -1107,7 +1125,7 @@ if(length(groups) >= 1 & param1$TADA.CharacteristicName[1] %in% depth.params) {
 }
 
 # second parameter has a depth profile
-if(length(groups) >= 2 & !param1$TADA.CharacteristicName[1] %in% depth.params) {
+if(length(groups) >= 2 & !param2$TADA.CharacteristicName[1] %in% depth.params) {
   scatterplot <- scatterplot %>%
     plotly::add_trace(
       data = param2,
@@ -1124,9 +1142,9 @@ if(length(groups) >= 2 & !param1$TADA.CharacteristicName[1] %in% depth.params) {
       ), stringr::fixed(" NA")),
       marker = list(
         size = 10,
-        color = "blue",
-        line = list(color = "blue", width = 2)
+        color = tada.pal[6]
       ),
+      line = list(color = line_color(tada.pal[6]), width = 2),
       hoverinfo = "text",
       hovertext = paste(
         "Result:", paste0(param2$TADA.ResultMeasureValue, " ", param2$TADA.ResultMeasure.MeasureUnitCode), "<br>",
@@ -1146,6 +1164,7 @@ if(length(groups) >= 2 & !param1$TADA.CharacteristicName[1] %in% depth.params) {
 
 # second parameter has a single value where units are depth
 if(length(groups) >= 2 & param2$TADA.CharacteristicName[1] %in% depth.params) {
+  
   scatterplot <- scatterplot %>%
     plotly::add_lines(
       y = param2$TADA.ResultMeasureValue[1],
@@ -1161,10 +1180,10 @@ if(length(groups) >= 2 & param2$TADA.CharacteristicName[1] %in% depth.params) {
       ), stringr::fixed(" NA")),
       #inherit = FALSE,
       showlegend = TRUE,
-      line = list(color = "blue", dash = "dash"),
+      line = list(color = tada.pal[6], dash = "dash"),
       hoverinfo = "text",
-      hovertext = paste(
-        "Result:", paste0(param2$TADA.ResultMeasureValue, " ", param3$TADA.ResultMeasure.MeasureUnitCode), "<br>",
+      hovertext = ~paste(
+        "Result:", paste0(param2$TADA.ResultMeasureValue, " ", param2$TADA.ResultMeasure.MeasureUnitCode), "<br>",
         "Activity Start Date:", param2$ActivityStartDate, "<br>",
         "Activity Start Date Time:", param2$ActivityStartDateTime, "<br>",
         "Depth:", paste0(
@@ -1176,6 +1195,7 @@ if(length(groups) >= 2 & param2$TADA.CharacteristicName[1] %in% depth.params) {
           param2$TADA.DepthCategory.Flag
         ), "<br>"
       ))
+  
 }
 
 # third parameter has a depth profile
@@ -1196,9 +1216,9 @@ if(length(groups) >= 3 & !param3$TADA.CharacteristicName[1] %in% depth.params) {
       ), stringr::fixed(" NA")),
       marker = list(
         size = 10,
-        color = "darkgreen",
-        line = list(color = "darkgreen", width = 2)
+        color = tada.pal[4]
       ),
+      line = list(color = line_color(tada.pal[4]), width = 2),
       hoverinfo = "text",
       hovertext = paste(
         "Result:", paste0(param3$TADA.ResultMeasureValue, " ", param2$TADA.ResultMeasure.MeasureUnitCode), "<br>",
@@ -1234,7 +1254,7 @@ if (length(groups) >= 3 & param3$TADA.CharacteristicName[1] %in% depth.params){
       ), stringr::fixed(" NA")),
       #inherit = FALSE,
       showlegend = TRUE,
-      line = list(color = "darkgreen", dash = "dash"),
+      line = list(color = tada.pal[4], dash = "dash"),
       hoverinfo = "text",
       hovertext = paste(
         "Result:", paste0(param3$TADA.ResultMeasureValue, " ", param3$TADA.ResultMeasure.MeasureUnitCode), "<br>",
@@ -1272,7 +1292,8 @@ if (depthcat == TRUE) {
       inherit = FALSE,
       showlegend = FALSE,
       line = list(color = "black"),
-      hoverinfo = "none")
+      hoverinfo = "text",
+      hovertext = paste(surfacevalue, fig.depth.unit, sep = " "))
 
   # find bottom depth
   bot.depth <- plot.data %>%
@@ -1291,7 +1312,8 @@ if (depthcat == TRUE) {
       inherit = FALSE,
       showlegend = FALSE,
       line = list(color = "black"),
-      hoverinfo = "none")
+      hoverinfo = "text",
+      hovertext = paste(round((bot.depth - bottomvalue), digits = 1), fig.depth.unit, sep = " "))
 
   depth_annotations <- list(
     list(x = 1,
