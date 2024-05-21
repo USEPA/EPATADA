@@ -94,6 +94,7 @@ GetSynonymRef
 Github
 HUC
 HUCS
+HUCs
 HarmonizeSynonyms
 HorizontalCoordinateReferenceSystemDatumName
 HydrologicCondition
@@ -123,6 +124,7 @@ MeasureUnit
 MeasureUnitCode
 MeasureValue
 MeasureValueDataTypes
+MeetsStandard
 MethodDescriptionText
 MethodIdentifier
 MethodIdentifierContext
@@ -155,6 +157,7 @@ NutrientSummationEquation
 NutrientSummationGroup
 OA
 ORs
+Okabe
 OrganizationFormalName
 OrganizationIdentifier
 OutsideUSA
@@ -173,6 +176,7 @@ QAQC
 QAQC'd
 QAQCCharacteristicValidation
 QC'ing
+QCing
 README
 REDLAKE
 RMarkdown
@@ -230,7 +234,6 @@ SpeciationUnitConversion
 StateCode
 SubstituteDeprecatedChars
 SummarizeColumn
-TADA's
 TADADataRetrieval
 TADAGeospatialRefLayers
 TADAModule
@@ -253,6 +256,7 @@ UseForAnalysis
 VCS
 ViewATTAINS
 WGS
+WQC
 WQP
 WQX
 WQX's
@@ -269,6 +273,8 @@ WQXTargetUnit
 WQXUnitConversionFactor
 WQXcharValRef
 WQXunitRef
+Waterbody
+WaterbodyReport
 WellDepthMeasure
 WellHoleDepthMeasure
 Wikimedia
@@ -322,6 +328,7 @@ endDate
 endDateHi
 english
 epa
+estimatiom
 extdata
 fabec
 fetchATTAINS
