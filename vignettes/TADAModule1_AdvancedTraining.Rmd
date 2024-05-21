@@ -163,15 +163,18 @@ spreadsheet to the user's working directory. You can also take a look at
 an example dataset, like `TADA::Data_Nutrients_UT` to get an idea of the
 data structure and format.
 
-```{r}
+```{r template}
 getwd() # find your working directory
 template <- TADA::TADA_GetTemplate() # download template to working directory
 
-# create table of template
-DT::datatable(template, fillContainer = TRUE)
-
 # uncomment below to review example dataset
 # Data_Nutrients_UT <- TADA::Data_Nutrients_UT
+```
+
+```{r table_temp, echo = FALSE}
+# NOT REQUIRED FOR WORKSHOP WORKFLOW
+# create table of template for display on packagedown site
+DT::datatable(template, fillContainer = TRUE)
 ```
 
 `TADA_DataRetrieval` is built upon USGS's `readWQPdata` function within
@@ -204,7 +207,7 @@ page](#0){style="font-size: 11pt;"} or enter `?TADA::TADA_DataRetrieval`
 into the console for more information about input parameters and to see
 several examples.
 
-```{r}
+```{r dataretrieval}
 # download data for NCTC's HUC12
 # dataset_0 = TADA::TADA_DataRetrieval(
 #   startDate = "2020-06-22",
@@ -252,7 +255,7 @@ First, always good to take a look at the data frame dimensions.
 
 **Question 1: What are the dimensions of your dataset?**
 
-```{r}
+```{r dim}
 dim(dataset_0) # returns x and of x (as the numbers of rows and columns respectively)
 ```
 
@@ -264,7 +267,7 @@ of rows in the original input dataset (all_result_num) equal the the
 total number of rows added up between the passing (pass_data) and
 removed (fail_data) data frames.
 
-```{r}
+```{r dimcheck}
 # defining a dimension check function that compares removed and retained data dimensions against the initial data input
 dimCheck <- function(all_result_num, pass_data, fail_data, checkName) {
   # check result numbers after split
@@ -292,15 +295,23 @@ more information on this function.
 **Question 2: Which column should have a unique value in every row and
 why?**
 
-```{r}
+```{r key}
 key <- TADA::TADA_FieldCounts(dataset_0, display = "key")
+```
 
+```{r table_key, echo = FALSE}
+# NOT REQUIRED FOR WORKSHOP WORKFLOW
+# create table of template for display on packagedown site
 DT::datatable(key, fillContainer = TRUE )
 ```
 
-```{r}
+```{r all}
 all <- TADA::TADA_FieldCounts(dataset_0, display = "all")
+```
 
+```{r table_all, echo = FALSE}
+# NOT REQUIRED FOR WORKSHOP WORKFLOW
+# create table of template for display on packagedown site
 DT::datatable(all, fillContainer = TRUE)
 ```
 
@@ -310,7 +321,7 @@ your dataset? Are there any media types that are not water?**
 TADA is currently designed to accommodate water data from the WQP. Let's
 ensure that we remove all non-water data first.
 
-```{r}
+```{r mediatype}
 # remove data with media type that is not water
 removed <- dataset_0 %>%
   dplyr::filter(!TADA.ActivityMediaName %in% c("WATER")) %>%
@@ -320,7 +331,7 @@ removed <- dataset_0 %>%
 unique(removed$TADA.ActivityMediaName)
 ```
 
-```{r}
+```{r wateronly}
 # clean dataset contains only water
 dataset <- dataset_0 %>% dplyr::filter(TADA.ActivityMediaName %in% c("WATER"))
 
@@ -334,12 +345,16 @@ unique values in a given column. Let's give it a try on
 OrganizationFormalName, which is a WQP column naming the organization
 that supplied the result.
 
-```{r}
-orgs <- TADA::TADA_FieldValuesTable(dataset, field = "OrganizationFormalName")
-
-DT::datatable(orgs, fillContainer = TRUE)
-  
+```{r org}
 TADA::TADA_FieldValuesPie(dataset, field = "OrganizationFormalName")
+
+orgs <- TADA::TADA_FieldValuesTable(dataset, field = "OrganizationFormalName")
+```
+
+```{r table_org, echo = FALSE}
+# NOT REQUIRED FOR WORKSHOP WORKFLOW
+# create table of template for display on packagedown site
+DT::datatable(orgs, fillContainer = TRUE)
 ```
 
 **Question 4: When might a user choose to view a column's unique values
@@ -388,6 +403,12 @@ check <- unique(problem_censored[, c("TADA.CharacteristicName", "ResultDetection
 DT::datatable(check, fillContainer = TRUE)
 ```
 
+```{r table_check, echo = FALSE}
+# NOT REQUIRED FOR WORKSHOP WORKFLOW
+# create table of template for display on packagedown site
+DT::datatable(check, fillContainer = TRUE)
+```
+
 ```{r}
 dataset <- dataset %>% dplyr::filter(TADA.CensoredData.Flag %in% c("Non-Detect", "Over-Detect", "Other", "Uncensored"))
 
@@ -401,6 +422,12 @@ rm(problem_censored, check)
 
 # dimension check
 dimCheck(all_result_num, dataset, removed, checkName = "Censored Data")
+```
+
+```{r table_check, echo = FALSE}
+# NOT REQUIRED FOR WORKSHOP WORKFLOW
+# create table of template for display on packagedown site
+DT::datatable(check, fillContainer = TRUE)
 ```
 
 Next, we can take a look at the data types present and filter out any
