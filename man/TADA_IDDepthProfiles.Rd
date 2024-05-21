@@ -63,5 +63,4 @@ Data_6Tribes_5y_DepthProfileID_Nresults <- TADA_IDDepthProfiles(Data_6Tribes_5y,
 # find depth profile data showing number of results
 Data_6Tribes_5y_DepthProfileID <- TADA_IDDepthProfiles(Data_6Tribes_5y)
 
-
 }

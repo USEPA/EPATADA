@@ -62,17 +62,19 @@ Create A Three-Characteristic Depth Profile
 # Load example dataset:
 data(Data_6Tribes_5y_Harmonized)
 # Create a depth profile figure with three parameters for a single monitoring location and date
-TADA_DepthProfilePlot(Data_6Tribes_5y_Harmonized, 
-                      groups = c('TEMPERATURE_NA_NA_DEG C', 'PH_NA_NA_NA', 'DEPTH, SECCHI DISK DEPTH_NA_NA_M'),
-                      location = "REDLAKE_WQX-ANKE",
-                      activity_date = "2018-10-04")
+TADA_DepthProfilePlot(Data_6Tribes_5y_Harmonized,
+  groups = c("TEMPERATURE_NA_NA_DEG C", "PH_NA_NA_NA", "DEPTH, SECCHI DISK DEPTH_NA_NA_M"),
+  location = "REDLAKE_WQX-ANKE",
+  activity_date = "2018-10-04"
+)
 
 # Load example dataset:
 data(Data_6Tribes_5y_Harmonized)
 # Create a depth profile figure with two parameters for a single monitoring location and date without displaying depth categories
-TADA_DepthProfilePlot(Data_6Tribes_5y_Harmonized, 
-                      groups = c('CONDUCTIVITY_NA_NA_US/CM', 'DISSOLVED OXYGEN (DO)_NA_NA_MG/L'),
-                      location = "REDLAKE_WQX-JOHN",
-                      activity_date = "2018-07-31",
-                      depthcat = FALSE)
+TADA_DepthProfilePlot(Data_6Tribes_5y_Harmonized,
+  groups = c("CONDUCTIVITY_NA_NA_US/CM", "DISSOLVED OXYGEN (DO)_NA_NA_MG/L"),
+  location = "REDLAKE_WQX-JOHN",
+  activity_date = "2018-07-31",
+  depthcat = FALSE
+)
 }
