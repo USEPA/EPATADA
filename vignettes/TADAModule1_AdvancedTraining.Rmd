@@ -168,7 +168,7 @@ getwd() # find your working directory
 template <- TADA::TADA_GetTemplate() # download template to working directory
 
 # create table of template
-DT::datatable(template)
+DT::datatable(template, fillContainer = TRUE)
 
 # uncomment below to review example dataset
 # Data_Nutrients_UT <- TADA::Data_Nutrients_UT
@@ -295,13 +295,13 @@ why?**
 ```{r}
 key <- TADA::TADA_FieldCounts(dataset_0, display = "key")
 
-DT::datatable(key)
+DT::datatable(key, fillContainer = TRUE )
 ```
 
 ```{r}
 all <- TADA::TADA_FieldCounts(dataset_0, display = "all")
 
-DT::datatable(all)
+DT::datatable(all, fillContainer = TRUE)
 ```
 
 **Question 3: How many unique 'TADA.ActivityMediaName' values exist in
@@ -337,7 +337,7 @@ that supplied the result.
 ```{r}
 orgs <- TADA::TADA_FieldValuesTable(dataset, field = "OrganizationFormalName")
 
-DT::datatable(orgs)
+DT::datatable(orgs, fillContainer = TRUE)
   
 TADA::TADA_FieldValuesPie(dataset, field = "OrganizationFormalName")
 ```
@@ -385,7 +385,7 @@ problem_censored <- dataset %>%
 # Let's take a look at the problematic data that we filtered out (if any)
 check <- unique(problem_censored[, c("TADA.CharacteristicName", "ResultDetectionConditionText", "DetectionQuantitationLimitTypeName", "TADA.CensoredData.Flag")])
 
-DT::datatable(check)
+DT::datatable(check, fillContainer = TRUE)
 ```
 
 ```{r}
@@ -394,7 +394,7 @@ dataset <- dataset %>% dplyr::filter(TADA.CensoredData.Flag %in% c("Non-Detect",
 # Let's take a look at the removed data
 removed <- plyr::rbind.fill(removed, problem_censored)
 
-DT::datatable(removed)
+DT::datatable(removed, fillContainer = TRUE)
 
 # remove dfs no longer needed
 rm(problem_censored, check)
@@ -410,7 +410,7 @@ non-allowable types.
 # take a look at datatypes
 flag.datatypes <- TADA::TADA_FieldValuesTable(dataset, field = "TADA.ResultMeasureValueDataTypes.Flag")
 
-DT::datatable(flag.datatypes)
+DT::datatable(flag.datatypes, fillContainer = TRUE)
 
 # Numeric or numeric-coerced data types
 rv_datatypes <- unique(subset(dataset, !is.na(dataset$TADA.ResultMeasureValue))$TADA.ResultMeasureValueDataTypes.Flag)
@@ -428,7 +428,7 @@ incompatible_datatype <- dataset %>%
 # take a look at the difficult data types - do they make sense?
 check <- unique(incompatible_datatype[, c("TADA.CharacteristicName", "ResultMeasureValue", "TADA.ResultMeasureValue", "ResultMeasure.MeasureUnitCode", "TADA.ResultMeasure.MeasureUnitCode", "TADA.ResultMeasureValueDataTypes.Flag", "DetectionQuantitationLimitMeasure.MeasureValue", "TADA.DetectionQuantitationLimitMeasure.MeasureValue", "DetectionQuantitationLimitMeasure.MeasureUnitCode", "TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode")])
 
-DT::datatable(check)
+DT::datatable(check, fillContainer = TRUE)
 ```
 
 Then we can take a closer look at the removed results and run another
@@ -442,7 +442,7 @@ dataset <- dataset %>% dplyr::filter(dataset$TADA.ResultMeasureValueDataTypes.Fl
 removed <- plyr::rbind.fill(removed, incompatible_datatype)
 
 # create a data table for removed results
-DT::datatable(removed)
+DT::datatable(removed, fillContainer = TRUE)
 
 # remove dfs no longer needed
 rm(incompatible_datatype, check, rv_datatypes, na_rv_datatypes)
@@ -531,7 +531,7 @@ dataset_flags <- dataset_flags %>% dplyr::filter(!ResultIdentifier %in% problem_
 removed <- plyr::rbind.fill(removed, problem_flagged)
 
 # create data table of removed results
-DT::datatable(removed)
+DT::datatable(removed, fillContainer = TRUE)
 
 # remove df no longer needed
 rm(problem_flagged)
@@ -550,7 +550,7 @@ data in the removed object.
 ```{r}
 removal <- TADA::TADA_FieldValuesTable(removed, field = "TADA.RemovalReason")
 
-DT::datatable(removal)
+DT::datatable(removal, fillContainer = TRUE)
 ```
 
 You can review any other columns of interest and create custom domain
@@ -649,17 +649,14 @@ check out characteristics in the dataset using `dplyr` functions and
 pipes.
 
 ```{r}
-# display full table
-nrow <- length(unique(dataset_cens$TADA.CharacteristicName))
 
 # get table of characteristics with number of results, sites, and organizations
-dataset_cens %>%
+dataset_cens_summary <- dataset_cens %>%
   dplyr::group_by(TADA.CharacteristicName) %>%
   dplyr::summarise(Result_Count = length(ResultIdentifier), Site_Count = length(unique(MonitoringLocationIdentifier)), Org_Count = length(unique(OrganizationIdentifier))) %>%
-  dplyr::arrange(desc(Result_Count)) %>%
-  print(n = nrow)
+  dplyr::arrange(desc(Result_Count)) 
 
-DT::datatable(dataset_cens)
+DT::datatable(dataset_cens_summary, fillContainer = TRUE)
 ```
 
 You may see a characteristic that you'd like to investigate further in
@@ -710,7 +707,7 @@ with different units or fractions in the same distribution.
 # trusty field values table - lets just look at the first few entries with the most associated records
 compid <- TADA::TADA_FieldValuesTable(dataset_cens, field = "TADA.ComparableDataIdentifier")
 
-DT::datatable(compid)
+DT::datatable(compid, fillContainer = TRUE)
 ```
 
 Now that we have an idea for what the TADA.ComparableDataIdentifier
@@ -733,7 +730,7 @@ TADA::TADA_Boxplot(plot_data, id_cols = "TADA.ComparableDataIdentifier")
 
 stats <- TADA::TADA_Stats(plot_data)
 
-DT::datatable(stats)
+DT::datatable(stats, fillContainer = TRUE)
 ```
 
 Finally, we can download our PASS and FAIL datasets together into an
