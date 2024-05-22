@@ -647,7 +647,8 @@ TADA_IDDepthProfiles <- function(.data, nresults = TRUE, nvalue = 2, aggregates 
 #'   activity_date = "2018-07-31",
 #'   depthcat = FALSE
 #' )
-TADA_DepthProfilePlot <- function(.data, groups = NULL,
+TADA_DepthProfilePlot <- function(.data, 
+                                  groups = NULL,
                                   location = NULL,
                                   activity_date = NULL,
                                   depthcat = TRUE,

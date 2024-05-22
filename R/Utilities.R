@@ -1401,8 +1401,9 @@ TADA_UniqueCharUnitSpeciation <- function(.data) {
 #' 
 #' Creates a consistent color palette for use in TADA visualizations. Currently,
 #' the palette is utilizing the "Okabe-Ito" palette from base R via the palette.colors
-#' function. Additional colors can be added to the palette as needed as more complex
-#' visualization functions are added to the TADA package. palette.colors(palette = "Okabe-Ito")
+#' function. The palette includes 9 colors by default. However, additional colors 
+#' can be added to the palette as needed as more complex visualization functions 
+#' are added to the TADA package. 
 #' 
 #' @return A color palette based on the "Okabe-Ito" palette.
 #' 
@@ -1422,9 +1423,9 @@ TADA_UniqueCharUnitSpeciation <- function(.data) {
  #' View TADA Color Palette
  #' 
  #' View a swatch of the colors in the TADA Color palette labeled by color and
- #' index number for reference when deciding which colors to use when designing/
- #' editing TADA visualization functions or for TADA users to create visually
- #' consistent figures in addition to those created by TADA functions.
+ #' index number. TADA developers can reference this function when deciding which
+ #' colors to use in TADA visualizations. TADA users can also reference this 
+ #' palette function to create their own visually consistent figures.
  #' 
  #' @return A color swatch figure based on the TADA color palette.
  #' 
