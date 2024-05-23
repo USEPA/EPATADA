@@ -597,18 +597,18 @@ TADA_FieldValuesPie <- function(.data, field = "null", characteristicName = "nul
   # define number of colors required for pie chart
   colorCount <- length(unique(dat$Legend))
   
-  if(colorCount < 14) {
+  if(colorCount < 15) {
     
     tada.pal <- c(tada.pal[3], tada.pal[5], tada.pal[6],
                   tada.pal[8],  tada.pal[9], tada.pal[10],
-                  tada.pal[12], tada.pal[14], tada.pal[15], 
+                  tada.pal[14], tada.pal[12], tada.pal[15], 
                   tada.pal[4], tada.pal[7], tada.pal[13], 
-                  tada.pal[2]) 
+                  tada.pal[2], tada.pal[11])
     
     
     tada.pal <- tada.pal[2:(1+colorCount)]
     
-    if(colorCount > 12) {
+    if(colorCount > 14) {
       
       getPalette <- grDevices::colorRampPalette(palette.colors(palette = "Okabe-Ito"))(1 + colorCount)
       
