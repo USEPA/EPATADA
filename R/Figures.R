@@ -507,7 +507,7 @@ TADA_OverviewMap <- function(.data) {
         lng = ~TADA.LongitudeMeasure,
         lat = ~TADA.LatitudeMeasure,
         # sets color of monitoring site circles
-        color = as.character(tada.pal[7]),
+        color = as.character(tada.pal[6]),
         fillColor = customFillColor(sumdat$Parameter_Count, pal),
         fillOpacity = 0.7,
         stroke = TRUE,
