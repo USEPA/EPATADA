@@ -534,8 +534,6 @@ TADA_ViewATTAINS <- function(.data) {
     # if data was spatial, remove for downstream leaflet dev:
     try(ATTAINS_table <- ATTAINS_table %>%
       sf::st_drop_geometry(), silent = TRUE)
-    
-    tada.pal <- TADA_ColorPalette()
 
     colors <- data.frame(
       overallstatus = c("Not Supporting", "Fully Supporting", "Not Assessed"),
