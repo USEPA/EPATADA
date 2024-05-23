@@ -27,9 +27,9 @@ have only a single result in depth units (ex: secchi disk depth).}
 
 \item{aggregates}{Boolean argument with options "TRUE" or "FALSE". The default is
 aggregates = FALSE, which means that any aggregate values created (means) in
-TADA_DepthCategory.Flag are excluded from identifying depth profile data. Aggregate
+TADA_FlagDepthCategory are excluded from identifying depth profile data. Aggregate
 values that were selected from the existing data set (max and min) remain.
-Only columns created/add by TADA_DepthCategory.Flag are removed when aggregates =
+Only columns created/add by TADA_FlagDepthCategory are removed when aggregates =
 FALSE. When aggregates = TRUE, all aggregate values are included when identifying
 depth profile data.}
 }
@@ -43,7 +43,7 @@ of results for each characteristic.
 \description{
 This function identifies depth profiles within a data frame to assist the user in
 selecting params for TADA_DepthProfilePlot. A TADA compatible data set is required.
-If TADA_DepthCategory.Flag has not yet been run, it will be run as part of this
+If TADA_FlagDepthCategory has not yet been run, it will be run as part of this
 function. The output data frame is grouped by MonitoringLocationIdentifier,
 OrganizationIdentifier, and ActivityStartDate.
 }

@@ -17,7 +17,7 @@ TADA_DepthProfilePlot(
 }
 \arguments{
 \item{.data}{TADA data frame containing the data downloaded from the WQP,
-where each row represents a unique data record. TADA_DepthCategory.Flag
+where each row represents a unique data record. TADA_FlagDepthCategory
 has been run as data frame must include the columns TADA.DepthCategory.Flag,
 TADA.ResultDepthHeightMeasure.MeasureUnitCode, TADA.ActivityDepthHeightMeasure.MeasureUnitCode,
 and TADA.ActivityDepthHeightMeasure.MeasureValue. Units for all depth fields

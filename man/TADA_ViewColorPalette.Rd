@@ -11,9 +11,9 @@ A color swatch figure based on the TADA color palette.
 }
 \description{
 View a swatch of the colors in the TADA Color palette labeled by color and
-index number for reference when deciding which colors to use when designing/
-editing TADA visualization functions or for TADA users to create visually
-consistent figures in addition to those created by TADA functions.
+index number. TADA developers can reference this function when deciding which
+colors to use in TADA visualizations. TADA users can also reference this
+palette function to create their own visually consistent figures.
 }
 \examples{
 TestViewPalette <- TADA_ViewColorPalette()

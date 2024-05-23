@@ -12,8 +12,9 @@ A color palette based on the "Okabe-Ito" palette.
 \description{
 Creates a consistent color palette for use in TADA visualizations. Currently,
 the palette is utilizing the "Okabe-Ito" palette from base R via the palette.colors
-function. Additional colors can be added to the palette as needed as more complex
-visualization functions are added to the TADA package. palette.colors(palette = "Okabe-Ito")
+function. The palette includes 9 colors by default. However, additional colors
+can be added to the palette as needed as more complex visualization functions
+are added to the TADA package.
 }
 \examples{
 TestColorPalette <- TADA_ColorPalette()
