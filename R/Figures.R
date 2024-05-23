@@ -135,21 +135,17 @@ TADA_Boxplot <- function(.data, id_cols = c("TADA.ComparableDataIdentifier")) {
       box_lower_row <- which(values == min(values[values >= lower_thresh]))
       box_lower <- values[[box_lower_row[[1]]]]
     }
-    # construct plotly boxplot
-      base_boxplot <- plotly::plot_ly(type = "box", fillcolor = tada.pal[5]) %>%
-        plotly::add_boxplot(
-        y = list(values),
-        q1 = quant_25, median = box_median,
-        q3 = quant_75, lowerfence = box_lower,
-        hoverinfo = "y",
-        upperfence = box_upper, boxpoints = "outliers",
-      marker = list(
-        color = tada.pal[5]
-      ),
-      line = list(color = tada.pal[10]),
-      stroke = I(tada.pal[10]))
     
-
+    base_boxplot <- plotly::plot_ly(
+      y = list(values), type = "box", fillcolor = tada.pal[5],
+      q1 = quant_25, median = box_median,
+      q3 = quant_75, lowerfence = box_lower,
+      hoverinfo = "y",
+      upperfence = box_upper, boxpoints = "outliers",
+      marker = list(color = tada.pal[5]),
+      stroke = I(tada.pal[10])
+    )
+    
     # figure margin
     mrg <- list(
       l = 50, r = 20,
@@ -172,6 +168,7 @@ TADA_Boxplot <- function(.data, id_cols = c("TADA.ComparableDataIdentifier")) {
         margin = mrg
       ) %>%
       plotly::config(displayModeBar = FALSE)
+    
     
     # create boxplot for all groupid's
     boxplots[[i]] <- base_boxplot
