@@ -77,7 +77,10 @@ require.cols <- c(
 
   # Result Depth
   "TADA.ConsolidatedDepth",
+  "TADA.ConsolidatedDepth.Bottom",
   "TADA.ConsolidatedDepth.Unit",
+  "TADA.DepthCategory.Flag",
+  "TADA.DepthProfileAggregation.Flag",
   "ResultDepthHeightMeasure.MeasureValue",
   "TADA.ResultDepthHeightMeasure.MeasureValue",
   "TADA.ResultDepthHeightMeasure.MeasureValueDataTypes.Flag",
