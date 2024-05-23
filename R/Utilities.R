@@ -1405,7 +1405,8 @@ TADA_UniqueCharUnitSpeciation <- function(.data) {
 #' can be added to the palette as needed as more complex visualization functions 
 #' are added to the TADA package. 
 #' 
-#' @return A color palette based on the "Okabe-Ito" palette.
+#' @return A color palette based on the "Okabe-Ito" palette, extended to 15 colors,
+#'  with modifications for use in mapping and graphing functions
 #' 
 #' @export
 #' 
@@ -1414,10 +1415,10 @@ TADA_UniqueCharUnitSpeciation <- function(.data) {
 #' 
  TADA_ColorPalette <- function() {
    
-   pal <- palette.colors(palette = "Okabe-Ito")
-   
-   pal <- grDevices::colorRampPalette(pal)(15)
-   
+   pal <- c("#000000", "#835A00", "#DC851E", "#059FA4", "#56B4E9",
+            "#005258",  "#A1A522", "#F0E442", "#66A281", "#1E6F98",
+            "#4F5900", "#813B00", "#CD758F", "#B686A1", "#999999")
+            
      return(pal)
  }
  
@@ -1456,7 +1457,6 @@ TADA_UniqueCharUnitSpeciation <- function(.data) {
    text(x = 1:n, y = 0.5 - 0.2, labels = pal, pos = 1, col = label_colors, cex = 0.7, srt = 90)
    
 return(swatch)
-
    }
 
 
