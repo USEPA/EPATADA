@@ -600,19 +600,19 @@ TADA_FieldValuesPie <- function(.data, field = "null", characteristicName = "nul
   if(colorCount < 14) {
     
     tada.pal <- c(tada.pal[3], tada.pal[5], tada.pal[6],
-                  tada.pal[8],  tada.9[9], tada.pal[10],
+                  tada.pal[8],  tada.pal[9], tada.pal[10],
                   tada.pal[12], tada.pal[14], tada.pal[15], 
                   tada.pal[4], tada.pal[7], tada.pal[13], 
                   tada.pal[2]) 
     
     
-    tada.pal <- tada.pal[2:(colorCount)]
+    tada.pal <- tada.pal[2:(1+colorCount)]
     
     if(colorCount > 12) {
       
       getPalette <- grDevices::colorRampPalette(palette.colors(palette = "Okabe-Ito"))(1 + colorCount)
       
-      tada.pal <- getPalette[2:(1+colorCount)]
+      tada.pal <- getPalette[1:(2+colorCount)]
     }
   }
   
