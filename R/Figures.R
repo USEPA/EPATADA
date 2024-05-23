@@ -589,19 +589,36 @@ TADA_FieldValuesPie <- function(.data, field = "null", characteristicName = "nul
     dplyr::rowwise() %>%
     dplyr::mutate(Legend = TADA::TADA_InsertBreaks(Legend))
 
+  # create TADA color palette
+  tada.pal <- TADA_ColorPalette()
+  
+  
   # define number of colors required for pie chart
   colorCount <- length(unique(dat$Legend))
   
-  # create TADA color palette
+  if(colorCount < 14) {
+    
+    tada.pal <- c(tada.pal[3], tada.pal[5], tada.pal[6],
+                  tada.pal[8],  tada.9[9], tada.pal[10],
+                  tada.pal[12], tada.pal[14], tada.pal[15], 
+                  tada.pal[4], tada.pal[7], tada.pal[13], 
+                  tada.pal[2]) 
+    
+    
+    tada.pal <- tada.pal[2:(colorCount)]
+    
+    if(colorCount > 12) {
+      
+      getPalette <- grDevices::colorRampPalette(palette.colors(palette = "Okabe-Ito"))(1 + colorCount)
+      
+      tada.pal <- getPalette[2:(1+colorCount)]
+    }
+  }
   
-  tada.pal <- TADA_ColorPalette()
-
-  # define color palette
-  getPalette <- grDevices::colorRampPalette(tada.pal)(colorCount)
 
   # create pie chart
   pie <- ggplot2::ggplot(dat, ggplot2::aes(x = "", y = Count, fill = Legend)) +
-    ggplot2::scale_fill_manual(values = getPalette, name = field) +
+    ggplot2::scale_fill_manual(values = tada.pal, name = field) +
     ggplot2::geom_bar(stat = "identity", width = 1) +
     ggplot2::coord_polar("y", start = 0) +
     ggplot2::theme_void()
@@ -941,7 +958,7 @@ TADA_TwoCharacteristicScatterplot <- function(.data, id_cols = "TADA.ComparableD
       ),
       marker = list(
         size = 10,
-        color = tada.pal[2],
+        color = tada.pal[3],
         line = list(color = tada.pal[6], width = 2)
       ),
       hoverinfo = "text",
@@ -981,8 +998,8 @@ TADA_TwoCharacteristicScatterplot <- function(.data, id_cols = "TADA.ComparableD
         param2$TADA.MethodSpeciationName
       ),
       marker = list(
-        size = 10, color = tada.pal[3],
-        line = list(color = tada.pal[6], width = 2)
+        size = 10, color = tada.pal[2],
+        line = list(color = tada.pal[7], width = 2)
       ),
       yaxis = "y2",
       hoverinfo = "text",

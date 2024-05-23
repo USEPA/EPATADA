@@ -1416,6 +1416,8 @@ TADA_UniqueCharUnitSpeciation <- function(.data) {
    
    pal <- palette.colors(palette = "Okabe-Ito")
    
+   pal <- grDevices::colorRampPalette(pal)(15)
+   
      return(pal)
  }
  
