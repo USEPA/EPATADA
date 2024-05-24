@@ -607,14 +607,15 @@ TADA_FieldValuesPie <- function(.data, field = "null", characteristicName = "nul
     
     
     tada.pal <- tada.pal[2:(1+colorCount)]
+  }
     
-    if(colorCount > 14) {
+  if(colorCount > 14) {
       
       getPalette <- grDevices::colorRampPalette(tada.pal)(1 + colorCount)
       
-      tada.pal <- getPalette[1:(2+colorCount)]
-    }
+      tada.pal <- getPalette[2:(1+colorCount)]
   }
+  
   
 
   # create pie chart
