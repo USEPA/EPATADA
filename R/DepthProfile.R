@@ -693,27 +693,29 @@ TADA_DepthProfilePlot <- function(.data,
     print("TADA_DepthProfilePlot: Running TADA_DepthCategoryFlag function to add required columns to data frame")
 
     
-    if(!is.null(bottomvalue) & !is.null(surfacevalue)){
-      .data <- TADA_FlagDepthCategory(.data, surfacevalue = surfacevalue, bottomvalue = bottomvalue)
+    if(bottomvalue == "null" & surfacevalue == "null") {
+      .data <- TADA_FlagDepthCategory(.data, surfacevalue = 2, bottomvalue = 2) %>%
+        dplyr::mutate(TADA.DepthCategory.Flag = NA)
     }
     
-    if(is.null(surfacevalue) & !is.null(bottomvalue)) {
+    
+    if(surfacevalue == "null" & is.numeric(bottomvalue)) {
       .data <- TADA_FlagDepthCategory(.data, surfacevalue = 2, bottomvalue = bottomvalue) %>%
         dplyr::mutate(TADA.DepthCatgeory.Flag = ifelse(TADA.DepthCategory.Flag %in% c("Surface", "Middle"),
                                                        NA, TADA.DepthCategory.Flag))
       
     }
     
-    if(is.null(bottomvalue) & !is.null(surfacevalue)) {
+    if(bottomvalue == "null" & is.numeric(surfacevalue)) {
       .data <- TADA_FlagDepthCategory(.data, surfacevalue = surfacevalue, bottomvalue = 2)  %>%
         dplyr::mutate(TADA.DepthCatgeory.Flag = ifelse(TADA.DepthCategory.Flag %in% c("Bottom", "Middle"),
                                                        NA, TADA.DepthCategory.Flag))
     }
     
-    if(is.null(bottomvalue) & is.null(surfacevalue)) {
-      .data <- TADA_FlagDepthCategory(.data, surfacevalue = 2, bottomvalue = 2) %>%
-        dplyr::mutate(TADA.DepthCategory.Flag = NA)
+    if(is.numeric(bottomvalue) & is.numeric(surfacevalue)){
+      .data <- TADA_FlagDepthCategory(.data, surfacevalue = surfacevalue, bottomvalue = bottomvalue)
     }
+    
   }
   
   # add convert depth unit (this still needs to be added), for now print warning and stop function if units don't match
@@ -1357,7 +1359,7 @@ TADA_DepthProfilePlot <- function(.data,
         pad = 0
       ))
 
-   if(!is.null(surfacevalue)){
+   if(is.numeric(surfacevalue)){
      
      print("TADA_DepthProfilePlot: Adding surface delination to figure.")
     
@@ -1390,7 +1392,7 @@ TADA_DepthProfilePlot <- function(.data,
   
    }
 
-   if(!is.null(bottomvalue)) {
+   if(is.numeric(bottomvalue)) {
      # find bottom depth
     bot.depth <- plot.data %>%
       dplyr::select(TADA.ConsolidatedDepth.Bottom) %>%
@@ -1430,7 +1432,7 @@ TADA_DepthProfilePlot <- function(.data,
     
    }
     
-  if(!is.null(surfacevalue) & !is.null(bottomvalue)) {
+  if(is.numeric(surfacevalue) & is.numeric(bottomvalue)) {
 
    middle_text <- 
       list(
