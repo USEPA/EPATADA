@@ -41,10 +41,15 @@
 #'
 #' @param bottomvalue numeric argument. The user enters how many meters from the
 #' bottom should be included in the "Bottom" category. Default is
-#' bottomvalue = 2.
+#' bottomvalue = 2. If bottomvalue = "null", "Bottom" and "Middle" results cannot
+#' be identified, however TADA.ConsolidatedDepth and TADA.ConsolidatedDepth.Bottom
+#' will still be determined.
 #'
 #' @param surfacevalue numeric argument. The user enters how many meters from the
 #' surface should be included in the "Surface" category. Default is surfacevalue = 2.
+#' If surfacealue = "null", "Surface" and "Middle" results cannot
+#' be identified, however TADA.ConsolidatedDepth and TADA.ConsolidatedDepth.Bottom
+#' will still be determined.
 #'
 #' @param aggregatedonly Boolean argument with options "TRUE" or "FALSE". The
 #' default is aggregatedonly = "FALSE" which means that all results are returned.
@@ -687,10 +692,31 @@ TADA_DepthProfilePlot <- function(.data,
   if (any(flag.func.cols %in% colnames(.data)) == FALSE) {
     print("TADA_DepthProfilePlot: Running TADA_DepthCategoryFlag function to add required columns to data frame")
 
-    .data <- TADA_FlagDepthCategory(.data)
+    
+    if(!is.null(bottomvalue) & !is.null(surfacevalue)){
+      .data <- TADA_FlagDepthCategory(.data, surfacevalue = surfacevalue, bottomvalue = bottomvalue)
+    }
+    
+    if(is.null(surfacevalue) & !is.null(bottomvalue)) {
+      .data <- TADA_FlagDepthCategory(.data, surfacevalue = 2, bottomvalue = bottomvalue) %>%
+        dplyr::mutate(TADA.DepthCatgeory.Flag = ifelse(TADA.DepthCategory.Flag %in% c("Surface", "Middle"),
+                                                       NA, TADA.DepthCategory.Flag))
+      
+    }
+    
+    if(is.null(bottomvalue) & !is.null(surfacevalue)) {
+      .data <- TADA_FlagDepthCategory(.data, surfacevalue = surfacevalue, bottomvalue = 2)  %>%
+        dplyr::mutate(TADA.DepthCatgeory.Flag = ifelse(TADA.DepthCategory.Flag %in% c("Bottom", "Middle"),
+                                                       NA, TADA.DepthCategory.Flag))
+    }
+    
+    if(is.null(bottomvalue) & is.null(surfacevalue)) {
+      .data <- TADA_FlagDepthCategory(.data, surfacevalue = 2, bottomvalue = 2) %>%
+        dplyr::mutate(TADA.DepthCategory.Flag = NA)
+    }
   }
   
-  # convert depth units if necessary
+  # add convert depth unit (this still needs to be added), for now print warning and stop function if units don't match
   .data <- .data %>% dplyr::filter(!is.na(TADA.ConsolidatedDepth))
   
   if(.data$TADA.ConsolidatedDepth.Unit[1] == unit) {
@@ -1314,8 +1340,7 @@ TADA_DepthProfilePlot <- function(.data,
 
   # add horizontal lines for depth profile category
   if (depthcat == TRUE) {
-    print("TADA_DepthProfilePlot: Adding surface delination to figure.")
-
+ 
     # adjust margins of plot
     scatterplot <- scatterplot %>%
       plotly::layout(margin = list(
@@ -1324,7 +1349,11 @@ TADA_DepthProfilePlot <- function(.data,
         pad = 0
       ))
 
-    # add surface line
+   if(!is.null(surfacevalue)){
+     
+     print("TADA_DepthProfilePlot: Adding surface delination to figure.")
+    
+      # add surface line
     scatterplot <- scatterplot %>%
       plotly::add_lines(
         y = surfacevalue,
@@ -1335,8 +1364,10 @@ TADA_DepthProfilePlot <- function(.data,
         hoverinfo = "text",
         hovertext = paste(surfacevalue, fig.depth.unit, sep = " ")
       )
+   }
 
-    # find bottom depth
+   if(!is.na(bottomvalue)) {
+     # find bottom depth
     bot.depth <- plot.data %>%
       dplyr::select(TADA.ConsolidatedDepth.Bottom) %>%
       unique() %>%
