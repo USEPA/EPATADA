@@ -29,10 +29,15 @@ results respectively.}
 
 \item{bottomvalue}{numeric argument. The user enters how many meters from the
 bottom should be included in the "Bottom" category. Default is
-bottomvalue = 2.}
+bottomvalue = 2. If bottomvalue = "null", "Bottom" and "Middle" results cannot
+be identified, however TADA.ConsolidatedDepth and TADA.ConsolidatedDepth.Bottom
+will still be determined.}
 
 \item{surfacevalue}{numeric argument. The user enters how many meters from the
-surface should be included in the "Surface" category. Default is surfacevalue = 2.}
+surface should be included in the "Surface" category. Default is surfacevalue = 2.
+If surfacealue = "null", "Surface" and "Middle" results cannot
+be identified, however TADA.ConsolidatedDepth and TADA.ConsolidatedDepth.Bottom
+will still be determined.}
 
 \item{dailyagg}{Character argument; with options "none", "avg", "min", or
 "max". The default is dailyagg = "none". When dailyagg = "none", all results

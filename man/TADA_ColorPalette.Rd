@@ -7,7 +7,8 @@
 TADA_ColorPalette()
 }
 \value{
-A color palette based on the "Okabe-Ito" palette.
+A color palette based on the "Okabe-Ito" palette, extended to 15 colors,
+with modifications for use in mapping and graphing functions
 }
 \description{
 Creates a consistent color palette for use in TADA visualizations. Currently,

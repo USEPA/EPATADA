@@ -1071,23 +1071,6 @@ TADA_DepthProfilePlot <- function(.data,
   # set palette
   tada.pal <- TADA_ColorPalette()
 
-  # set lighter colors for lines
-  line_color <- function(hexcolor, amount = 0.6) {
-    rgb.col <- grDevices::col2rgb(hexcolor) / 255
-
-    new.rgb <- rgb.col * (1 - amount) + 1 * amount
-
-    line.color <- grDevices::rgb(new.rgb[1], new.rgb[2], new.rgb[3])
-
-    return(line.color)
-  }
-
-  start.rgb.val <- col2rgb(tada.pal[3]) / 255
-
-  new.rgb.start <- start.rgb.val * (1 - 0.7) + 1 * 0.7
-
-  start.color <- rgb(new.rgb.start[1], new.rgb.start[2], new.rgb.start[3])
-
   # create base of scatter plot
   scatterplot <- plotly::plot_ly(type = "scatter", mode = "lines+markers") %>%
     plotly::layout(
@@ -1140,9 +1123,9 @@ TADA_DepthProfilePlot <- function(.data,
         ), stringr::fixed(" NA")),
         marker = list(
           size = 10,
-          color = tada.pal[7]
+          color = tada.pal[10]
         ),
-        line = list(color = line_color(tada.pal[7]), width = 2),
+        line = list(color = tada.pal[5], width = 2),
         hoverinfo = "text",
         hovertext = paste(
           "Result:", paste0(param1$TADA.ResultMeasureValue, " ", param1$TADA.ResultMeasure.MeasureUnitCode), "<br>",
@@ -1176,7 +1159,7 @@ TADA_DepthProfilePlot <- function(.data,
           stringr::fixed("NA ")
         ), stringr::fixed(" NA")),
         showlegend = TRUE,
-        line = list(color = tada.pal[7], dash = "dash"),
+        line = list(color = tada.pal[10], dash = "dash"),
         hoverinfo = "text",
         hovertext = paste(
           "Result:", paste0(param1$TADA.ResultMeasureValue, " ", param3$TADA.ResultMeasure.MeasureUnitCode), "<br>",
@@ -1212,9 +1195,9 @@ TADA_DepthProfilePlot <- function(.data,
         ), stringr::fixed(" NA")),
         marker = list(
           size = 10,
-          color = tada.pal[6]
+          color = tada.pal[12]
         ),
-        line = list(color = line_color(tada.pal[6]), width = 2),
+        line = list(color = tada.pal[3], width = 2),
         hoverinfo = "text",
         hovertext = paste(
           "Result:", paste0(param2$TADA.ResultMeasureValue, " ", param2$TADA.ResultMeasure.MeasureUnitCode), "<br>",
@@ -1249,7 +1232,7 @@ TADA_DepthProfilePlot <- function(.data,
         ), stringr::fixed(" NA")),
         # inherit = FALSE,
         showlegend = TRUE,
-        line = list(color = tada.pal[6], dash = "dash"),
+        line = list(color = tada.pal[12], dash = "dash"),
         hoverinfo = "text",
         hovertext = ~ paste(
           "Result:", paste0(param2$TADA.ResultMeasureValue, " ", param2$TADA.ResultMeasure.MeasureUnitCode), "<br>",
@@ -1285,9 +1268,9 @@ TADA_DepthProfilePlot <- function(.data,
         ), stringr::fixed(" NA")),
         marker = list(
           size = 10,
-          color = tada.pal[4]
+          color = tada.pal[11]
         ),
-        line = list(color = line_color(tada.pal[4]), width = 2),
+        line = list(color = tada.pal[9], width = 2),
         hoverinfo = "text",
         hovertext = paste(
           "Result:", paste0(param3$TADA.ResultMeasureValue, " ", param2$TADA.ResultMeasure.MeasureUnitCode), "<br>",
@@ -1322,7 +1305,7 @@ TADA_DepthProfilePlot <- function(.data,
         ), stringr::fixed(" NA")),
         # inherit = FALSE,
         showlegend = TRUE,
-        line = list(color = tada.pal[4], dash = "dash"),
+        line = list(color = tada.pal[11], dash = "dash"),
         hoverinfo = "text",
         hovertext = paste(
           "Result:", paste0(param3$TADA.ResultMeasureValue, " ", param3$TADA.ResultMeasure.MeasureUnitCode), "<br>",
@@ -1370,7 +1353,7 @@ TADA_DepthProfilePlot <- function(.data,
         x = xrange,
         inherit = FALSE,
         showlegend = FALSE,
-        line = list(color = "black"),
+        line = list(color = tada.pal[1]),
         hoverinfo = "text",
         hovertext = paste(surfacevalue, fig.depth.unit, sep = " ")
       )
@@ -1409,7 +1392,7 @@ TADA_DepthProfilePlot <- function(.data,
         x = xrange,
         inherit = FALSE,
         showlegend = FALSE,
-        line = list(color = "black"),
+        line = list(color = tada.pal[1]),
         hoverinfo = "text",
         hovertext = paste(round((bot.depth - bottomvalue), digits = 1), fig.depth.unit, sep = " ")
       )
