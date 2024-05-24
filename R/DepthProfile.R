@@ -1364,9 +1364,23 @@ TADA_DepthProfilePlot <- function(.data,
         hoverinfo = "text",
         hovertext = paste(surfacevalue, fig.depth.unit, sep = " ")
       )
+    
+    surface_text <- 
+      list(
+        x = 1,
+        y = surfacevalue / 2,
+        xref = "paper",
+        yref = "y",
+        text = "Surface",
+        showarrow = F,
+        align = "right",
+        xanchor = "left",
+        yanchor = "center"
+      )
+  
    }
 
-   if(!is.na(bottomvalue)) {
+   if(!is.null(bottomvalue)) {
      # find bottom depth
     bot.depth <- plot.data %>%
       dplyr::select(TADA.ConsolidatedDepth.Bottom) %>%
@@ -1387,30 +1401,9 @@ TADA_DepthProfilePlot <- function(.data,
         hoverinfo = "text",
         hovertext = paste(round((bot.depth - bottomvalue), digits = 1), fig.depth.unit, sep = " ")
       )
-
-    depth_annotations <- list(
-      list(
-        x = 1,
-        y = surfacevalue / 2,
-        xref = "paper",
-        yref = "y",
-        text = "Surface",
-        showarrow = F,
-        align = "right",
-        xanchor = "left",
-        yanchor = "center"
-      ),
-      list(
-        x = 1,
-        y = (surfacevalue + (bot.depth - bottomvalue)) / 2,
-        xref = "paper",
-        yref = "y",
-        text = "Middle",
-        showarrow = F,
-        align = "right",
-        xanchor = "left",
-        yanchor = "center"
-      ),
+    
+    
+    bottom_text <- 
       list(
         x = 1,
         y = (ymax + (bot.depth - bottomvalue)) / 2,
@@ -1422,7 +1415,23 @@ TADA_DepthProfilePlot <- function(.data,
         xanchor = "left",
         yanchor = "center"
       )
-    )
+   }
+    
+  if(!is.null(surfacevalue) & !is.null(bottomvalue)) {
+
+   middle_text <- 
+      list(
+        x = 1,
+        y = (surfacevalue + (bot.depth - bottomvalue)) / 2,
+        xref = "paper",
+        yref = "y",
+        text = "Middle",
+        showarrow = F,
+        align = "right",
+        xanchor = "left",
+        yanchor = "center"
+      )
+  }
 
     scatterplot <- scatterplot %>%
       plotly::layout(annotations = depth_annotations)
