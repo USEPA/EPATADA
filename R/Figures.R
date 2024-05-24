@@ -71,10 +71,10 @@ TADA_Boxplot <- function(.data, id_cols = c("TADA.ComparableDataIdentifier")) {
     "TADA.ResultMeasureValue",
     "TADA.ResultMeasure.MeasureUnitCode"
   ))
-  
+
   # load TADA color palette
-  
-  tada.pal <- TADA_ColorPalette() 
+
+  tada.pal <- TADA_ColorPalette()
 
   start <- dim(.data)[1]
 
@@ -135,7 +135,7 @@ TADA_Boxplot <- function(.data, id_cols = c("TADA.ComparableDataIdentifier")) {
       box_lower_row <- which(values == min(values[values >= lower_thresh]))
       box_lower <- values[[box_lower_row[[1]]]]
     }
-    
+
     base_boxplot <- plotly::plot_ly(
       y = list(values), type = "box", fillcolor = tada.pal[5],
       q1 = quant_25, median = box_median,
@@ -145,7 +145,7 @@ TADA_Boxplot <- function(.data, id_cols = c("TADA.ComparableDataIdentifier")) {
       marker = list(color = tada.pal[5]),
       stroke = I(tada.pal[10])
     )
-    
+
     # figure margin
     mrg <- list(
       l = 50, r = 20,
@@ -168,8 +168,8 @@ TADA_Boxplot <- function(.data, id_cols = c("TADA.ComparableDataIdentifier")) {
         margin = mrg
       ) %>%
       plotly::config(displayModeBar = FALSE)
-    
-    
+
+
     # create boxplot for all groupid's
     boxplots[[i]] <- base_boxplot
 
@@ -248,7 +248,7 @@ TADA_Histogram <- function(.data, id_cols = c("TADA.ComparableDataIdentifier")) 
     "TADA.ResultMeasureValue",
     "TADA.ResultMeasure.MeasureUnitCode"
   ))
-  
+
   tada.pal <- TADA_ColorPalette()
 
   start <- dim(.data)[1]
@@ -397,168 +397,167 @@ TADA_Histogram <- function(.data, id_cols = c("TADA.ComparableDataIdentifier")) 
 #'
 TADA_OverviewMap <- function(.data) {
   suppressMessages(suppressWarnings({
-  quiet({
-    # taken from this stackoverflow: https://stackoverflow.com/questions/58505589/circles-in-legend-for-leaflet-map-with-addcirclemarkers-in-r-without-shiny
-    addLegendCustom <- function(map, colors, labels, sizes, opacity = 0.5) {
-      colorAdditions <- paste0(colors, "; border-radius: 50%; width:", sizes, "px; height:", sizes, "px")
-      labelAdditions <- paste0("<div style='display: inline-block;height: ", sizes, "px;margin-top: 4px;line-height: ", sizes, "px;'>", labels, "</div>")
+    quiet({
+      # taken from this stackoverflow: https://stackoverflow.com/questions/58505589/circles-in-legend-for-leaflet-map-with-addcirclemarkers-in-r-without-shiny
+      addLegendCustom <- function(map, colors, labels, sizes, opacity = 0.5) {
+        colorAdditions <- paste0(colors, "; border-radius: 50%; width:", sizes, "px; height:", sizes, "px")
+        labelAdditions <- paste0("<div style='display: inline-block;height: ", sizes, "px;margin-top: 4px;line-height: ", sizes, "px;'>", labels, "</div>")
 
-      return(leaflet::addLegend(map, colors = colorAdditions, labels = labelAdditions, opacity = opacity, title = "Measurements"))
-    }
-
-    sumdat <- .data %>%
-      dplyr::group_by(MonitoringLocationIdentifier, MonitoringLocationName, TADA.LatitudeMeasure, TADA.LongitudeMeasure) %>%
-      dplyr::summarise("Sample_Count" = length(unique(ResultIdentifier)), "Visit_Count" = length(unique(ActivityStartDate)), "Parameter_Count" = length(unique(TADA.CharacteristicName)), "Organization_Count" = length(unique(OrganizationIdentifier)))
-
-    param_counts <- sort(unique(sumdat$Parameter_Count))
-    param_length <- length(param_counts)
-    param_diff <- diff(param_counts)
-
-    pt_sizes <- round(stats::quantile(sumdat$Sample_Count, probs = c(0.1, 0.25, 0.5, 0.75)), 0)
-    pt_labels <- c(
-      paste0("<=", pt_sizes[1]),
-      paste0(">", pt_sizes[1]),
-      paste0(">", pt_sizes[2]),
-      paste0(">", pt_sizes[3]),
-      paste0(">", pt_sizes[4])
-    )
-
-    sumdat$radius <- 5
-    sumdat$radius <- ifelse(sumdat$Sample_Count > pt_sizes[1], 10, sumdat$radius)
-    sumdat$radius <- ifelse(sumdat$Sample_Count > pt_sizes[2], 15, sumdat$radius)
-    sumdat$radius <- ifelse(sumdat$Sample_Count > pt_sizes[3], 20, sumdat$radius)
-    sumdat$radius <- ifelse(sumdat$Sample_Count > pt_sizes[4], 30, sumdat$radius)
-
-    site_size <- data.frame(Sample_n = pt_labels, Point_size = c(5, 10, 15, 20, 30))
-
-    site_legend <- subset(site_size, site_size$Point_size %in% unique(sumdat$radius))
-    
-    # set breaks to occur only at integers for data sets requiring bins
-    pretty.breaks <- unique(round(pretty(sumdat$Parameter_Count)))
-    
-    bins_n <- length(pretty.breaks)
-    
-    # create TADA color palette
-    tada.pal <- TADA_ColorPalette()
-    
-    start.rgb.val <- col2rgb(tada.pal[5])/255
-    
-    new.rgb.start <- start.rgb.val * (1 - 0.7) + 1 * 0.7
-    
-    start.color <- rgb(new.rgb.start[1], new.rgb.start[2], new.rgb.start[3])
-    
-    end.rgb.val <- col2rgb(tada.pal[10])/255
-    
-    new.rgb.end <- end.rgb.val * (1 - 0.4)
-    
-    end.color <- rgb(new.rgb.end[1], new.rgb.end[2], new.rgb.end[3])
-    
-    tada.blues <- grDevices::colorRampPalette(c(start.color, end.color))(bins_n)
-
-    # set color palette
-    # set color palette for small number of characteristics (even intervals, no bins)
-    if (length(unique(param_diff)) == 1 & param_length < 10) {
-      pal <- leaflet::colorFactor(
-        palette = tada.blues,
-        levels = param_counts
-      )
-    } else if (length(unique(param_counts)) == 1) {
-      pal <- "orange"
-    } else {
- 
-      pal <- leaflet::colorBin(
-        palette = tada.blues,
-        bins = pretty.breaks
-      )
-    }
-
-    # create custom fill color function so that data sets with one value for parameter count are displayed correctly
-    customFillColor <- function(category, pal) {
-      if (length(param_diff > 0)) {
-        return(pal(category))
-      } else {
-        return(tada.pal[5])
+        return(leaflet::addLegend(map, colors = colorAdditions, labels = labelAdditions, opacity = opacity, title = "Measurements"))
       }
-    }
 
+      sumdat <- .data %>%
+        dplyr::group_by(MonitoringLocationIdentifier, MonitoringLocationName, TADA.LatitudeMeasure, TADA.LongitudeMeasure) %>%
+        dplyr::summarise("Sample_Count" = length(unique(ResultIdentifier)), "Visit_Count" = length(unique(ActivityStartDate)), "Parameter_Count" = length(unique(TADA.CharacteristicName)), "Organization_Count" = length(unique(OrganizationIdentifier)))
 
-    # Tribal layers will load by default in the overview map, restricted by the bounding box of the current dataset
-    # They can be toggled on and off using a button (all layers work together and can't be turned on/off individually).
-    # Colors and icons are as discussed previously (orange/tan colors and open triangle icons for points) but can be changed to match HMW if desired.
-    bbox <- sf::st_bbox(
-      c(
-        xmin = min(sumdat$TADA.LongitudeMeasure),
-        ymin = min(sumdat$TADA.LatitudeMeasure),
-        xmax = max(sumdat$TADA.LongitudeMeasure),
-        ymax = max(sumdat$TADA.LatitudeMeasure)
-      ),
-      crs = sf::st_crs(sumdat)
-    )
-    vbbox <- bbox %>%
-      as.vector()
+      param_counts <- sort(unique(sumdat$Parameter_Count))
+      param_length <- length(param_counts)
+      param_diff <- diff(param_counts)
 
-    map <- leaflet::leaflet() %>%
-      leaflet::addProviderTiles("Esri.WorldTopoMap", group = "World topo", options = leaflet::providerTileOptions(updateWhenZooming = FALSE, updateWhenIdle = TRUE)) %>%
-      leaflet::clearShapes() %>% # get rid of whatever was there before if loading a second dataset
-      leaflet::fitBounds(lng1 = vbbox[1], lat1 = vbbox[2], lng2 = vbbox[3], lat2 = vbbox[4]) %>% # fit to bounds of data in tadat$raw
-      leaflet.extras::addResetMapButton() %>% # button to reset to initial zoom and lat/long
-      leaflet::addMapPane("featurelayers", zIndex = 300) %>%
-      leaflet::addCircleMarkers(
-        data = sumdat,
-        lng = ~TADA.LongitudeMeasure,
-        lat = ~TADA.LatitudeMeasure,
-        # sets color of monitoring site circles
-        color = as.character(tada.pal[10]),
-        fillColor = customFillColor(sumdat$Parameter_Count, pal),
-        fillOpacity = 0.7,
-        stroke = TRUE,
-        weight = 1.5,
-        radius = sumdat$radius,
-        popup = paste0(
-          "Site ID: ", sumdat$MonitoringLocationIdentifier,
-          "<br> Site Name: ", sumdat$MonitoringLocationName,
-          "<br> Measurement Count: ", sumdat$Sample_Count,
-          "<br> Visit Count: ", sumdat$Visit_Count,
-          "<br> Characteristic Count: ", sumdat$Parameter_Count
+      pt_sizes <- round(stats::quantile(sumdat$Sample_Count, probs = c(0.1, 0.25, 0.5, 0.75)), 0)
+      pt_labels <- c(
+        paste0("<=", pt_sizes[1]),
+        paste0(">", pt_sizes[1]),
+        paste0(">", pt_sizes[2]),
+        paste0(">", pt_sizes[3]),
+        paste0(">", pt_sizes[4])
+      )
+
+      sumdat$radius <- 5
+      sumdat$radius <- ifelse(sumdat$Sample_Count > pt_sizes[1], 10, sumdat$radius)
+      sumdat$radius <- ifelse(sumdat$Sample_Count > pt_sizes[2], 15, sumdat$radius)
+      sumdat$radius <- ifelse(sumdat$Sample_Count > pt_sizes[3], 20, sumdat$radius)
+      sumdat$radius <- ifelse(sumdat$Sample_Count > pt_sizes[4], 30, sumdat$radius)
+
+      site_size <- data.frame(Sample_n = pt_labels, Point_size = c(5, 10, 15, 20, 30))
+
+      site_legend <- subset(site_size, site_size$Point_size %in% unique(sumdat$radius))
+
+      # set breaks to occur only at integers for data sets requiring bins
+      pretty.breaks <- unique(round(pretty(sumdat$Parameter_Count)))
+
+      bins_n <- length(pretty.breaks)
+
+      # create TADA color palette
+      tada.pal <- TADA_ColorPalette()
+
+      start.rgb.val <- col2rgb(tada.pal[5]) / 255
+
+      new.rgb.start <- start.rgb.val * (1 - 0.7) + 1 * 0.7
+
+      start.color <- rgb(new.rgb.start[1], new.rgb.start[2], new.rgb.start[3])
+
+      end.rgb.val <- col2rgb(tada.pal[10]) / 255
+
+      new.rgb.end <- end.rgb.val * (1 - 0.4)
+
+      end.color <- rgb(new.rgb.end[1], new.rgb.end[2], new.rgb.end[3])
+
+      tada.blues <- grDevices::colorRampPalette(c(start.color, end.color))(bins_n)
+
+      # set color palette
+      # set color palette for small number of characteristics (even intervals, no bins)
+      if (length(unique(param_diff)) == 1 & param_length < 10) {
+        pal <- leaflet::colorFactor(
+          palette = tada.blues,
+          levels = param_counts
         )
-      ) %>%
-      addLegendCustom(
-        colors = "black",
-        labels = site_legend$Sample_n, sizes = site_legend$Point_size * 2
+      } else if (length(unique(param_counts)) == 1) {
+        pal <- "orange"
+      } else {
+        pal <- leaflet::colorBin(
+          palette = tada.blues,
+          bins = pretty.breaks
+        )
+      }
+
+      # create custom fill color function so that data sets with one value for parameter count are displayed correctly
+      customFillColor <- function(category, pal) {
+        if (length(param_diff > 0)) {
+          return(pal(category))
+        } else {
+          return(tada.pal[5])
+        }
+      }
+
+
+      # Tribal layers will load by default in the overview map, restricted by the bounding box of the current dataset
+      # They can be toggled on and off using a button (all layers work together and can't be turned on/off individually).
+      # Colors and icons are as discussed previously (orange/tan colors and open triangle icons for points) but can be changed to match HMW if desired.
+      bbox <- sf::st_bbox(
+        c(
+          xmin = min(sumdat$TADA.LongitudeMeasure),
+          ymin = min(sumdat$TADA.LatitudeMeasure),
+          xmax = max(sumdat$TADA.LongitudeMeasure),
+          ymax = max(sumdat$TADA.LatitudeMeasure)
+        ),
+        crs = sf::st_crs(sumdat)
+      )
+      vbbox <- bbox %>%
+        as.vector()
+
+      map <- leaflet::leaflet() %>%
+        leaflet::addProviderTiles("Esri.WorldTopoMap", group = "World topo", options = leaflet::providerTileOptions(updateWhenZooming = FALSE, updateWhenIdle = TRUE)) %>%
+        leaflet::clearShapes() %>% # get rid of whatever was there before if loading a second dataset
+        leaflet::fitBounds(lng1 = vbbox[1], lat1 = vbbox[2], lng2 = vbbox[3], lat2 = vbbox[4]) %>% # fit to bounds of data in tadat$raw
+        leaflet.extras::addResetMapButton() %>% # button to reset to initial zoom and lat/long
+        leaflet::addMapPane("featurelayers", zIndex = 300) %>%
+        leaflet::addCircleMarkers(
+          data = sumdat,
+          lng = ~TADA.LongitudeMeasure,
+          lat = ~TADA.LatitudeMeasure,
+          # sets color of monitoring site circles
+          color = as.character(tada.pal[10]),
+          fillColor = customFillColor(sumdat$Parameter_Count, pal),
+          fillOpacity = 0.7,
+          stroke = TRUE,
+          weight = 1.5,
+          radius = sumdat$radius,
+          popup = paste0(
+            "Site ID: ", sumdat$MonitoringLocationIdentifier,
+            "<br> Site Name: ", sumdat$MonitoringLocationName,
+            "<br> Measurement Count: ", sumdat$Sample_Count,
+            "<br> Visit Count: ", sumdat$Visit_Count,
+            "<br> Characteristic Count: ", sumdat$Parameter_Count
+          )
+        ) %>%
+        addLegendCustom(
+          colors = "black",
+          labels = site_legend$Sample_n, sizes = site_legend$Point_size * 2
+        )
+
+      # create conditional map legend
+      # create legend for single parameter count value data sets
+      if (length(param_diff) == 0) {
+        map <- map %>% leaflet::addLegend("bottomright",
+          color = tada.pal[5], labels = param_counts,
+          title = "Characteristics",
+          opacity = 0.5
+        )
+      }
+      # create legend for data sets with multiple factors/bins for parameter count
+      if (length(param_diff) > 0) {
+        map <- map %>% leaflet::addLegend("bottomright",
+          pal = pal, values = sumdat$Parameter_Count,
+          title = "Characteristics",
+          opacity = 0.5
+        )
+      }
+
+      # TADA_addPolys and TADA_addPoints are in Utilities.R
+      map <- TADA_addPolys(map, "extdata/AKAllotments.shp", "Tribes", "Alaska Allotments", bbox)
+      map <- TADA_addPolys(map, "extdata/AmericanIndian.shp", "Tribes", "American Indian", bbox)
+      map <- TADA_addPolys(map, "extdata/OffReservation.shp", "Tribes", "Off Reservation", bbox)
+      map <- TADA_addPolys(map, "extdata/OKTribe.shp", "Tribes", "Oklahoma Tribe", bbox)
+      map <- TADA_addPoints(map, "extdata/AKVillages.shp", "Tribes", "Alaska Native Villages", bbox)
+      map <- TADA_addPoints(map, "extdata/VATribe.shp", "Tribes", "Virginia Tribe", bbox)
+      map <- leaflet::addLayersControl(map,
+        overlayGroups = c("Tribes"),
+        options = leaflet::layersControlOptions(collapsed = FALSE)
       )
 
-    # create conditional map legend
-    # create legend for single parameter count value data sets
-    if (length(param_diff) == 0) {
-      map <- map %>% leaflet::addLegend("bottomright",
-        color = tada.pal[5], labels = param_counts,
-        title = "Characteristics",
-        opacity = 0.5
-      )
-    }
-    # create legend for data sets with multiple factors/bins for parameter count
-    if (length(param_diff) > 0) {
-      map <- map %>% leaflet::addLegend("bottomright",
-        pal = pal, values = sumdat$Parameter_Count,
-        title = "Characteristics",
-        opacity = 0.5
-      )
-    }
-
-    # TADA_addPolys and TADA_addPoints are in Utilities.R
-    map <- TADA_addPolys(map, "extdata/AKAllotments.shp", "Tribes", "Alaska Allotments", bbox)
-    map <- TADA_addPolys(map, "extdata/AmericanIndian.shp", "Tribes", "American Indian", bbox)
-    map <- TADA_addPolys(map, "extdata/OffReservation.shp", "Tribes", "Off Reservation", bbox)
-    map <- TADA_addPolys(map, "extdata/OKTribe.shp", "Tribes", "Oklahoma Tribe", bbox)
-    map <- TADA_addPoints(map, "extdata/AKVillages.shp", "Tribes", "Alaska Native Villages", bbox)
-    map <- TADA_addPoints(map, "extdata/VATribe.shp", "Tribes", "Virginia Tribe", bbox)
-    map <- leaflet::addLayersControl(map,
-      overlayGroups = c("Tribes"),
-      options = leaflet::layersControlOptions(collapsed = FALSE)
-    )
-
-    return(map)
-  })
+      return(map)
+    })
   }))
 }
 
@@ -592,31 +591,30 @@ TADA_FieldValuesPie <- function(.data, field = "null", characteristicName = "nul
 
   # create TADA color palette
   tada.pal <- TADA_ColorPalette()
-  
-  
+
+
   # define number of colors required for pie chart
   colorCount <- length(unique(dat$Legend))
-  
-  if(colorCount < 15) {
-    
-    tada.pal <- c(tada.pal[3], tada.pal[5], tada.pal[6],
-                  tada.pal[8],  tada.pal[9], tada.pal[10],
-                  tada.pal[14], tada.pal[12], tada.pal[15], 
-                  tada.pal[4], tada.pal[7], tada.pal[13], 
-                  tada.pal[2], tada.pal[11])
-    
-    
-    tada.pal <- tada.pal[2:(1+colorCount)]
+
+  if (colorCount < 15) {
+    tada.pal <- c(
+      tada.pal[3], tada.pal[5], tada.pal[6],
+      tada.pal[8], tada.pal[9], tada.pal[10],
+      tada.pal[14], tada.pal[12], tada.pal[15],
+      tada.pal[4], tada.pal[7], tada.pal[13],
+      tada.pal[2], tada.pal[11]
+    )
+
+
+    tada.pal <- tada.pal[2:(1 + colorCount)]
   }
-    
-  if(colorCount > 14) {
-      
-      getPalette <- grDevices::colorRampPalette(tada.pal)(1 + colorCount)
-      
-      tada.pal <- getPalette[2:(1+colorCount)]
+
+  if (colorCount > 14) {
+    getPalette <- grDevices::colorRampPalette(tada.pal)(1 + colorCount)
+
+    tada.pal <- getPalette[2:(1 + colorCount)]
   }
-  
-  
+
 
   # create pie chart
   pie <- ggplot2::ggplot(dat, ggplot2::aes(x = "", y = Count, fill = Legend)) +
@@ -717,7 +715,7 @@ TADA_Scatterplot <- function(.data, id_cols = c("TADA.ComparableDataIdentifier")
     # units label for y axis
     unit <- unique(plot.data$TADA.ResultMeasure.MeasureUnitCode)
     y_label <- "Activity Start Date"
-    
+
     # create TADA color palette
     tada.pal <- TADA_ColorPalette()
 
@@ -907,7 +905,7 @@ TADA_TwoCharacteristicScatterplot <- function(.data, id_cols = "TADA.ComparableD
     b = 25, t = 75,
     pad = 0
   )
-  
+
   # create TADA color palette
   tada.pal <- TADA_ColorPalette()
 

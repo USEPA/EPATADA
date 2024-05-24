@@ -652,7 +652,7 @@ TADA_IDDepthProfiles <- function(.data, nresults = TRUE, nvalue = 2, aggregates 
 #'   activity_date = "2018-07-31",
 #'   depthcat = FALSE
 #' )
-TADA_DepthProfilePlot <- function(.data, 
+TADA_DepthProfilePlot <- function(.data,
                                   groups = NULL,
                                   location = NULL,
                                   activity_date = NULL,
@@ -660,8 +660,6 @@ TADA_DepthProfilePlot <- function(.data,
                                   surfacevalue = 2,
                                   bottomvalue = 2,
                                   unit = "m") {
-
-
   # check to see if TADA.ComparableDataIdentifier column is present
   if ("TADA.ComparableDataIdentifier" %in% colnames(.data)) {
     .data <- .data
@@ -692,44 +690,42 @@ TADA_DepthProfilePlot <- function(.data,
   if (any(flag.func.cols %in% colnames(.data)) == FALSE) {
     print("TADA_DepthProfilePlot: Running TADA_DepthCategoryFlag function to add required columns to data frame")
 
-    
-    if(bottomvalue == "null" & surfacevalue == "null") {
+
+    if (bottomvalue == "null" & surfacevalue == "null") {
       .data <- TADA_FlagDepthCategory(.data, surfacevalue = 2, bottomvalue = 2) %>%
         dplyr::mutate(TADA.DepthCategory.Flag = NA)
     }
-    
-    
-    if(surfacevalue == "null" & is.numeric(bottomvalue)) {
+
+
+    if (surfacevalue == "null" & is.numeric(bottomvalue)) {
       .data <- TADA_FlagDepthCategory(.data, surfacevalue = 2, bottomvalue = bottomvalue) %>%
         dplyr::mutate(TADA.DepthCatgeory.Flag = ifelse(TADA.DepthCategory.Flag %in% c("Surface", "Middle"),
-                                                       NA, TADA.DepthCategory.Flag))
-      
+          NA, TADA.DepthCategory.Flag
+        ))
     }
-    
-    if(bottomvalue == "null" & is.numeric(surfacevalue)) {
-      .data <- TADA_FlagDepthCategory(.data, surfacevalue = surfacevalue, bottomvalue = 2)  %>%
+
+    if (bottomvalue == "null" & is.numeric(surfacevalue)) {
+      .data <- TADA_FlagDepthCategory(.data, surfacevalue = surfacevalue, bottomvalue = 2) %>%
         dplyr::mutate(TADA.DepthCatgeory.Flag = ifelse(TADA.DepthCategory.Flag %in% c("Bottom", "Middle"),
-                                                       NA, TADA.DepthCategory.Flag))
+          NA, TADA.DepthCategory.Flag
+        ))
     }
-    
-    if(is.numeric(bottomvalue) & is.numeric(surfacevalue)){
+
+    if (is.numeric(bottomvalue) & is.numeric(surfacevalue)) {
       .data <- TADA_FlagDepthCategory(.data, surfacevalue = surfacevalue, bottomvalue = bottomvalue)
     }
-    
   }
-  
+
   # add convert depth unit (this still needs to be added), for now print warning and stop function if units don't match
   .data <- .data %>% dplyr::filter(!is.na(TADA.ConsolidatedDepth))
-  
-  if(.data$TADA.ConsolidatedDepth.Unit[1] == unit) {
-    
+
+  if (.data$TADA.ConsolidatedDepth.Unit[1] == unit) {
     print("TADA_DepthProfilePlot: Depth unit in data set matches depth unit specified by user for plot. No conversion necessary.")
-    
+
     .data <- .data
-    
-    if(.data$TADA.ConsolidatedDepth.Unit[1] != unit) {
-      
-     stop("TADA_DepthProfilePlot: Depth unit in data set does not match depth unit specified by user for plot. Convert units in data or specify correct unit in TADA_DepthProfilePlot function.")
+
+    if (.data$TADA.ConsolidatedDepth.Unit[1] != unit) {
+      stop("TADA_DepthProfilePlot: Depth unit in data set does not match depth unit specified by user for plot. Convert units in data or specify correct unit in TADA_DepthProfilePlot function.")
     }
   }
 
@@ -1325,15 +1321,13 @@ TADA_DepthProfilePlot <- function(.data,
 
   # add horizontal lines for depth profile category
   if (depthcat == TRUE) {
- 
-   if(depthcat == TRUE & is.null(surfacevalue) & is.null(bottomvalue)) {
-     
-     stop("TADA_DepthProfilePlot: No depth categories can be determined when both surfacevalue and bottomvalue are null. Supply one or both of these values and run the function again.")
-   }
-    
-    # create list to store depth annotation text 
+    if (depthcat == TRUE & is.null(surfacevalue) & is.null(bottomvalue)) {
+      stop("TADA_DepthProfilePlot: No depth categories can be determined when both surfacevalue and bottomvalue are null. Supply one or both of these values and run the function again.")
+    }
+
+    # create list to store depth annotation text
     depth_annotations <- list()
-    
+
     # adjust margins of plot
     scatterplot <- scatterplot %>%
       plotly::layout(margin = list(
@@ -1342,97 +1336,92 @@ TADA_DepthProfilePlot <- function(.data,
         pad = 0
       ))
 
-   if(is.numeric(surfacevalue)){
-     
-     print("TADA_DepthProfilePlot: Adding surface delination to figure.")
-    
+    if (is.numeric(surfacevalue)) {
+      print("TADA_DepthProfilePlot: Adding surface delination to figure.")
+
       # add surface line
-    scatterplot <- scatterplot %>%
-      plotly::add_lines(
-        y = surfacevalue,
-        x = xrange,
-        inherit = FALSE,
-        showlegend = FALSE,
-        line = list(color = tada.pal[1]),
-        hoverinfo = "text",
-        hovertext = paste(surfacevalue, fig.depth.unit, sep = " ")
-      )
-    
-    surface_text <- 
-      list(
-        x = 1,
-        y = surfacevalue / 2,
-        xref = "paper",
-        yref = "y",
-        text = "Surface",
-        showarrow = F,
-        align = "right",
-        xanchor = "left",
-        yanchor = "center"
-      )
-    
-    depth_annotations <- c(depth_annotations, surface_text)
-  
-   }
+      scatterplot <- scatterplot %>%
+        plotly::add_lines(
+          y = surfacevalue,
+          x = xrange,
+          inherit = FALSE,
+          showlegend = FALSE,
+          line = list(color = tada.pal[1]),
+          hoverinfo = "text",
+          hovertext = paste(surfacevalue, fig.depth.unit, sep = " ")
+        )
 
-   if(is.numeric(bottomvalue)) {
-     # find bottom depth
-    bot.depth <- plot.data %>%
-      dplyr::select(TADA.ConsolidatedDepth.Bottom) %>%
-      unique() %>%
-      dplyr::slice_max(TADA.ConsolidatedDepth.Bottom) %>%
-      dplyr::pull()
+      surface_text <-
+        list(
+          x = 1,
+          y = surfacevalue / 2,
+          xref = "paper",
+          yref = "y",
+          text = "Surface",
+          showarrow = F,
+          align = "right",
+          xanchor = "left",
+          yanchor = "center"
+        )
+
+      depth_annotations <- c(depth_annotations, surface_text)
+    }
+
+    if (is.numeric(bottomvalue)) {
+      # find bottom depth
+      bot.depth <- plot.data %>%
+        dplyr::select(TADA.ConsolidatedDepth.Bottom) %>%
+        unique() %>%
+        dplyr::slice_max(TADA.ConsolidatedDepth.Bottom) %>%
+        dplyr::pull()
 
 
-    print("TADA_DepthProfilePlot: Adding bottom delination to figure.")
+      print("TADA_DepthProfilePlot: Adding bottom delination to figure.")
 
-    scatterplot <- scatterplot %>%
-      plotly::add_lines(
-        y = bot.depth - bottomvalue,
-        x = xrange,
-        inherit = FALSE,
-        showlegend = FALSE,
-        line = list(color = tada.pal[1]),
-        hoverinfo = "text",
-        hovertext = paste(round((bot.depth - bottomvalue), digits = 1), fig.depth.unit, sep = " ")
-      )
-    
-    
-    bottom_text <- 
-      list(
-        x = 1,
-        y = (ymax + (bot.depth - bottomvalue)) / 2,
-        xref = "paper",
-        yref = "y",
-        text = "Bottom",
-        showarrow = F,
-        align = "right",
-        xanchor = "left",
-        yanchor = "center"
-      )
-    
-    depth_annotations <- c(depth_annotations, bottom_text)
-    
-   }
-    
-  if(is.numeric(surfacevalue) & is.numeric(bottomvalue)) {
+      scatterplot <- scatterplot %>%
+        plotly::add_lines(
+          y = bot.depth - bottomvalue,
+          x = xrange,
+          inherit = FALSE,
+          showlegend = FALSE,
+          line = list(color = tada.pal[1]),
+          hoverinfo = "text",
+          hovertext = paste(round((bot.depth - bottomvalue), digits = 1), fig.depth.unit, sep = " ")
+        )
 
-   middle_text <- 
-      list(
-        x = 1,
-        y = (surfacevalue + (bot.depth - bottomvalue)) / 2,
-        xref = "paper",
-        yref = "y",
-        text = "Middle",
-        showarrow = F,
-        align = "right",
-        xanchor = "left",
-        yanchor = "center"
-      )
-   
-   depth_annotations <- c(depth_annotations, middle_text)
-   
-  }
+
+      bottom_text <-
+        list(
+          x = 1,
+          y = (ymax + (bot.depth - bottomvalue)) / 2,
+          xref = "paper",
+          yref = "y",
+          text = "Bottom",
+          showarrow = F,
+          align = "right",
+          xanchor = "left",
+          yanchor = "center"
+        )
+
+      depth_annotations <- c(depth_annotations, bottom_text)
+    }
+
+    if (is.numeric(surfacevalue) & is.numeric(bottomvalue)) {
+      middle_text <-
+        list(
+          x = 1,
+          y = (surfacevalue + (bot.depth - bottomvalue)) / 2,
+          xref = "paper",
+          yref = "y",
+          text = "Middle",
+          showarrow = F,
+          align = "right",
+          xanchor = "left",
+          yanchor = "center"
+        )
+
+      depth_annotations <- c(depth_annotations, middle_text)
+    }
 
     scatterplot <- scatterplot %>%
       plotly::layout(annotations = depth_annotations)
