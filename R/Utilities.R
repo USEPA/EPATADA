@@ -72,7 +72,17 @@ utils::globalVariables(c(
   "ResultMeasure.MeasureUnitCode", "TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode",
   "DetectionQuantitationLimitMeasure.MeasureUnitCode", "NCode",
   "ATTAINS.assessmentunitidentifier", "ATTAINS_AU", "TOTALAREA_MI", "TOTALAREA_KM",
-  "ATTAINS_AUs"
+  "ATTAINS_AUs",  "ARD_Category", "ActivityRelativeDepthName", "DepthsByGroup",
+  "DepthsPerGroup","MeanResults", "MonitoringLocationTypeName", "N", "SecchiConversion",
+  "TADA.ActivityBottomDepthHeightMeasure.MeasureValue", 
+  "TADA.ActivityDepthHeightMeasure.MeasureUnitCode", "TADA.ActivityDepthHeightMeasure.MeasureValue",
+  "TADA.CharacteristicsForDepthProfile TADA.ConsolidatedDepth", 
+  "TADA.ConsolidatedDepth.Bottom TADA.ConsolidatedDepth.Unit", "TADA.DepthCategory.Flag",
+  "TADA.DepthProfileAggregation.Flag", "TADA.NResults", 
+  "TADA.ResultDepthHeightMeasure.MeasureUnitCode", "TADA.ResultDepthHeightMeasure.MeasureValue",
+  "YAxis.DepthUnit", "TADA.CharacteristicsForDepthProfile", "TADA.ConsolidatedDepth",
+  "TADA.ConsolidatedDepth.Bottom", "TADA.ConsolidatedDepth.Unit", "col2rgb",
+  "palette.colors", "rect", "rgb", "text"
 ))
 
 # global variables for tribal feature layers used in TADA_OverviewMap in Utilities.R
@@ -1385,4 +1395,68 @@ TADA_UniqueCharUnitSpeciation <- function(.data) {
                     is.na(TADA.ResultMeasure.MeasureUnitCode) & NCode == 1) %>%
     dplyr::select(-NCode)
 }
+
+
+#' Create Color Palette For Use in Graphs and Maps
+#' 
+#' Creates a consistent color palette for use in TADA visualizations. Currently,
+#' the palette is utilizing the "Okabe-Ito" palette from base R via the palette.colors
+#' function. The palette includes 9 colors by default. However, additional colors 
+#' can be added to the palette as needed as more complex visualization functions 
+#' are added to the TADA package. 
+#' 
+#' @return A color palette based on the "Okabe-Ito" palette, extended to 15 colors,
+#'  with modifications for use in mapping and graphing functions
+#' 
+#' @export
+#' 
+#' @examples
+#' TestColorPalette <- TADA_ColorPalette()
+#' 
+ TADA_ColorPalette <- function() {
+   
+   pal <- c("#000000", "#835A00", "#DC851E", "#059FA4", "#56B4E9",
+            "#005258",  "#A1A522", "#F0E442", "#66A281", "#1E6F98",
+            "#4F5900", "#813B00", "#CD758F", "#B686A1", "#999999")
+            
+     return(pal)
+ }
+ 
+ 
+ #' View TADA Color Palette
+ #' 
+ #' View a swatch of the colors in the TADA Color palette labeled by color and
+ #' index number. TADA developers can reference this function when deciding which
+ #' colors to use in TADA visualizations. TADA users can also reference this 
+ #' palette function to create their own visually consistent figures.
+ #' 
+ #' @return A color swatch figure based on the TADA color palette.
+ #' 
+ #' @export
+ #' 
+ #' @examples 
+ #' TestViewPalette <- TADA_ViewColorPalette()
+ #' 
+ TADA_ViewColorPalette <- function() {
+   
+   # call TADA color palette
+   pal <- TADA_ColorPalette()
+   
+   # determine length of color palette
+   n <- length(pal)
+   
+   # create list of label colors, first one needs to be white to show up clearly
+   label_colors <- rep("black", n)
+   label_colors[1] <- "white"
+   
+   # create color swatch graphic
+   graphics::par(mar = c(5,0,5,0))
+   swatch <- graphics::plot(1, type = "n", xlab = "", ylab = "", xlim = c(0.5,n + 0.5), ylim = c(0,1), main = "TADA Palette", axes = FALSE)
+   rect(1:n - 0.5, 0, n + 0.5, 1, col = pal, border = NA)
+   text(x = 1:n, y = 0.5, labels = 1:n, pos = 3, col = label_colors)
+   text(x = 1:n, y = 0.5 - 0.2, labels = pal, pos = 1, col = label_colors, cex = 0.7, srt = 90)
+   
+return(swatch)
+   }
+
 

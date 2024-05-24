@@ -133,10 +133,11 @@ TADA leverages many of the WQX domain tables.
     ([CSV)](https://cdx.epa.gov/wqx/download/DomainValues/QAQCCharacteristicValidation.CSV)
 
     -   Both WQX and TADA leverage the table above to flag invalid and
-        uncommon results. This reference table is used in the following TADA functions:
+        uncommon results. This reference table is used in the following
+        TADA functions:
 
         -   [TADA_FlagAboveThreshold()](https://usepa.github.io/TADA/reference/TADA_FlagAboveThreshold.html)
-        
+
         -   [TADA_FlagBelowThreshold()](https://usepa.github.io/TADA/reference/TADA_FlagBelowThreshold.html)
 
         -   [TADA_FlagResultUnit()](https://usepa.github.io/TADA/reference/TADA_FlagResultUnit.html)

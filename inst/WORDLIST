@@ -1,6 +1,7 @@
 ANDs
 ActivityBottomDepthHeightMeasure
 ActivityCommentText
+ActivityDate
 ActivityDepthHeightMeasure
 ActivityGroup
 ActivityMediaName
@@ -36,9 +37,11 @@ CharacteristicGroup
 CharacteristicName
 CharacteristicNameAssumptions
 CharacteristicNameUserSupplied
+CharacteristicsForDepthProfile
 CharactersticName
 Chilton
 ComparableDataIdentifier
+ConsolidatedDepth
 ConstructionDateText
 ContinuousData
 ConversionCoefficient
@@ -52,6 +55,9 @@ DataQuality
 DataRetreival
 DataRetrieval
 DataTypes
+DepthCategory
+DepthProfileAggregation
+DepthProfilePlot
 DetectionQuantitationLimiMeasure
 DetectionQuantitationLimitMeasure
 DetectionQuantitationLimitType
@@ -88,11 +94,13 @@ GetSynonymRef
 Github
 HUC
 HUCS
+HUCs
 HarmonizeSynonyms
 HorizontalCoordinateReferenceSystemDatumName
 HydrologicCondition
 HydrologicEvent
 IDCensoredData
+IDDepthProfiles
 InvalidCoordinates
 InvalidFraction
 InvalidResultUnit
@@ -116,6 +124,7 @@ MeasureUnit
 MeasureUnitCode
 MeasureValue
 MeasureValueDataTypes
+MeetsStandard
 MethodDescriptionText
 MethodIdentifier
 MethodIdentifierContext
@@ -124,6 +133,7 @@ MethodQualifierCodes
 MethodQualifierTypeName
 MethodSpeciation
 MethodSpeciationName
+MonitoringLocation
 MonitoringLocationIdentifier
 MonitoringLocationIdentifier's
 MonitoringLocationName
@@ -147,6 +157,7 @@ NutrientSummationEquation
 NutrientSummationGroup
 OA
 ORs
+Okabe
 OrganizationFormalName
 OrganizationIdentifier
 OutsideUSA
@@ -165,6 +176,7 @@ QAQC
 QAQC'd
 QAQCCharacteristicValidation
 QC'ing
+QCing
 README
 REDLAKE
 RMarkdown
@@ -178,6 +190,7 @@ Rancherias
 ReplicateSampleID
 Repo
 ResultAboveUpperThreshold
+ResultAggregation
 ResultAnalyticalMethod
 ResultCommentText
 ResultDepthHeightMeasure
@@ -221,7 +234,6 @@ SpeciationUnitConversion
 StateCode
 SubstituteDeprecatedChars
 SummarizeColumn
-TADA's
 TADADataRetrieval
 TADAGeospatialRefLayers
 TADAModule
@@ -238,11 +250,13 @@ USGS's
 Uncomment
 UncommonAnalyticalMethodID
 UniqueHarmonizationRef
+UnitCode
 UpdateTribalLayers
 UseForAnalysis
 VCS
 ViewATTAINS
 WGS
+WQC
 WQP
 WQX
 WQX's
@@ -259,6 +273,8 @@ WQXTargetUnit
 WQXUnitConversionFactor
 WQXcharValRef
 WQXunitRef
+Waterbody
+WaterbodyReport
 WellDepthMeasure
 WellHoleDepthMeasure
 Wikimedia
@@ -266,6 +282,7 @@ YYYY
 addPoints
 addPolys
 agg
+aggregatedonly
 analytes
 applyautoclean
 arcgis
@@ -277,7 +294,9 @@ assmnt
 autoclean
 autocleaned
 bbox
+bottomvalue
 bplan
+bycategory
 catchmentareasqkm
 catchmentistribal
 catchmentresolution
@@ -292,9 +311,11 @@ countycode
 cristinamullin
 crs
 csv
+dailyagg
 dataProfile
 dataRetrieval
 datetimes
+depthcat
 devtools
 dimCheck
 dlist
@@ -307,7 +328,7 @@ endDate
 endDateHi
 english
 epa
-eval
+estimatiom
 extdata
 fabec
 fetchATTAINS
@@ -345,6 +366,7 @@ nhdplusid
 nondetections
 nonstandardized
 np
+nresults
 num
 od
 organizationid
@@ -354,6 +376,8 @@ orgtype
 ousideUSA
 outsideUSA
 overallstatus
+param
+params
 pch
 pchIcons
 pcodes
@@ -367,6 +391,7 @@ repo
 reportingcycle
 reproducibility
 sampleMedia
+secchi
 shp
 siteType
 siteid
@@ -379,6 +404,7 @@ startDateLo
 statecode
 sthda
 submissionid
+surfacevalue
 sysdata
 tada
 tas

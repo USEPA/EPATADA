@@ -534,11 +534,13 @@ TADA_ViewATTAINS <- function(.data) {
     # if data was spatial, remove for downstream leaflet dev:
     try(ATTAINS_table <- ATTAINS_table %>%
       sf::st_drop_geometry(), silent = TRUE)
+    
+    tada.pal <- TADA_ColorPalette()
 
     colors <- data.frame(
       overallstatus = c("Not Supporting", "Fully Supporting", "Not Assessed"),
-      col = c("#DC851E", "#059FA4", "#A1A522"),
-      dark_col = c("#813B00", "#005258", "#4F5900"),
+      col = c(tada.pal[3], tada.pal[4], tada.pal[7]),
+      dark_col = c(tada.pal[12], tada.pal[6], tada.pal[11]),
       priority = c(1, 2, 3)
     )
 
@@ -605,7 +607,7 @@ TADA_ViewATTAINS <- function(.data) {
       leaflet.extras::addResetMapButton() %>%
       leaflet::addLegend(
         position = "bottomright",
-        colors = c("#DC851E", "#059FA4", "#A1A522", "black", NA),
+        colors = c(tada.pal[3], tada.pal[4], tada.pal[7], "black", NA),
         labels = c(
           "ATTAINS: Not Supporting", "ATTAINS: Supporting", "ATTAINS: Not Assessed", "Water Quality Observation(s)",
           "NHDPlus HR catchments containing water quality observations + ATTAINS feature are represented as clear polygons with black outlines."
