@@ -1341,6 +1341,14 @@ TADA_DepthProfilePlot <- function(.data,
   # add horizontal lines for depth profile category
   if (depthcat == TRUE) {
  
+   if(depthcat == TRUE & is.null(surfacevalue) & is.null(bottomvalue)) {
+     
+     stop("TADA_DepthProfilePlot: No depth categories can be determined when both surfacevalue and bottomvalue are null. Supply one or both of these values and run the function again.")
+   }
+    
+    # create list to store depth annotation text 
+    depth_annotations <- list()
+    
     # adjust margins of plot
     scatterplot <- scatterplot %>%
       plotly::layout(margin = list(
@@ -1377,6 +1385,8 @@ TADA_DepthProfilePlot <- function(.data,
         xanchor = "left",
         yanchor = "center"
       )
+    
+    depth_annotations <- c(depth_annotations, surface_text)
   
    }
 
@@ -1415,6 +1425,9 @@ TADA_DepthProfilePlot <- function(.data,
         xanchor = "left",
         yanchor = "center"
       )
+    
+    depth_annotations <- c(depth_annotations, bottom_text)
+    
    }
     
   if(!is.null(surfacevalue) & !is.null(bottomvalue)) {
@@ -1431,6 +1444,9 @@ TADA_DepthProfilePlot <- function(.data,
         xanchor = "left",
         yanchor = "center"
       )
+   
+   depth_annotations <- c(depth_annotations, middle_text)
+   
   }
 
     scatterplot <- scatterplot %>%
