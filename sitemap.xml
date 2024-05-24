@@ -82,6 +82,9 @@
     <loc>usepa.github.io/TADA/reference/TADA_CheckType.html</loc>
   </url>
   <url>
+    <loc>usepa.github.io/TADA/reference/TADA_ColorPalette.html</loc>
+  </url>
+  <url>
     <loc>usepa.github.io/TADA/reference/TADA_ConvertDepthUnits.html</loc>
   </url>
   <url>
@@ -101,6 +104,9 @@
   </url>
   <url>
     <loc>usepa.github.io/TADA/reference/TADA_DecimalPlaces.html</loc>
+  </url>
+  <url>
+    <loc>usepa.github.io/TADA/reference/TADA_DepthProfilePlot.html</loc>
   </url>
   <url>
     <loc>usepa.github.io/TADA/reference/TADA_FieldCounts.html</loc>
@@ -140,6 +146,9 @@
   </url>
   <url>
     <loc>usepa.github.io/TADA/reference/TADA_FlagCoordinates.html</loc>
+  </url>
+  <url>
+    <loc>usepa.github.io/TADA/reference/TADA_FlagDepthCategory.html</loc>
   </url>
   <url>
     <loc>usepa.github.io/TADA/reference/TADA_FlagFraction.html</loc>
@@ -205,6 +214,9 @@
     <loc>usepa.github.io/TADA/reference/TADA_IDCensoredData.html</loc>
   </url>
   <url>
+    <loc>usepa.github.io/TADA/reference/TADA_IDDepthProfiles.html</loc>
+  </url>
+  <url>
     <loc>usepa.github.io/TADA/reference/TADA_InsertBreaks.html</loc>
   </url>
   <url>
@@ -263,6 +275,9 @@
   </url>
   <url>
     <loc>usepa.github.io/TADA/reference/TADA_ViewATTAINS.html</loc>
+  </url>
+  <url>
+    <loc>usepa.github.io/TADA/reference/TADA_ViewColorPalette.html</loc>
   </url>
   <url>
     <loc>usepa.github.io/TADA/reference/TADA_addPoints.html</loc>
