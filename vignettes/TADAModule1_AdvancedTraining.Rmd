@@ -128,7 +128,7 @@ use the `package name:: package function` notation to avoid the list of
 `library()` calls.
 
 ```{r}
-list.of.packages <- c("tidyverse", "DT")
+list.of.packages <- c("tidyverse")
 new.packages <- list.of.packages[!(list.of.packages %in% installed.packages()[, "Package"])]
 if (length(new.packages)) install.packages(new.packages)
 
@@ -205,21 +205,21 @@ several examples.
 
 ```{r dataretrieval}
 # download data for NCTC's HUC12
-# dataset_0 = TADA::TADA_DataRetrieval(
-#   startDate = "2020-06-22",
-#   endDate = "null",
-#   countycode = "null",
-#   huc = "02070004",
-#   siteid = "null",
-#   siteType = "null",
-#   characteristicName = "null",
-#   characteristicType = "null",
-#   sampleMedia = "null",
-#   statecode = "null",
-#   organization = "null",
-#   project = "null",
-#   applyautoclean = TRUE
-# )
+dataset_0 = TADA::TADA_DataRetrieval(
+  startDate = "2020-06-22",
+  endDate = "null",
+  countycode = "null",
+  huc = "02070004",
+  siteid = "null",
+  siteType = "null",
+  characteristicName = "null",
+  characteristicType = "null",
+  sampleMedia = "null",
+  statecode = "null",
+  organization = "null",
+  project = "null",
+  applyautoclean = TRUE
+)
 
 # For brevity, we'll skip pinging the WQP and instead load the example dataset:
 dataset_0 <- TADA::Data_NCTCShepherdstown_HUC12
@@ -713,8 +713,30 @@ with this. First we can use `TADA_FlagDepthCategory` to place results
 into various depth categories (surface, middle, and bottom).
 
 ```{r depth category}
+# 
+dataset_depth <- TADA::TADA_FlagDepthCategory(dataset_cens)
 
-TADA::TADA_FlagDepthCategory()
+dataset_depth
+```
+
+We can also use another function, `TADA_IDDepthProfile`s to identify
+location/date/characteristic combinations in the data set that can be
+used for depth profile plots or analysis. The default number of values
+required to idenitfy a location/date/characteristic as a depth profile
+is 2, but this can be changed by the user.
+
+```{r id depth profile}
+# 
+depth_profile_id <- TADA::TADA_IDDepthProfiles(dataset_depth)
+```
+
+Now, we can use `TADA_DepthProfilePlot` to plot up to three
+characteristics against depth. In this example, we will look at
+dissolved copper, dissolved lead, and dissolved iron.
+
+```{r id depth profile}
+# 
+TADA::TADA_DepthProfilePlot(dataset_0, groups = c("TOTAL PHOSPHORUS, MIXED FORMS_UNFILTERED_NA_UG/L", "TOTAL NITROGEN, MIXED FORMS_UNFILTERED_NA_MG/L"), location = "WVDEP_WQX-16393", activity_date = "2023-01-04", depthcat = FALSE)
 ```
 
 Finally, we can download our PASS and FAIL datasets together into an
