@@ -732,10 +732,9 @@ depth_profile_id <- TADA::TADA_IDDepthProfiles(dataset_depth, nvalue = 5)
 **Question 11: How can TADA_IDDepthProfiles() help users use
 TADA_DepthProfilePlot most efficiently?**
 
-We can look for groups, locations, and acitivty dates that we know have
-depth profile compatiable data. Now, we can use `TADA_DepthProfilePlot`
-to plot up to three characteristics against depth. In this example, we
-will look at dissolved copper, dissolved lead, and dissolved iron.
+Now, we can use `TADA_DepthProfilePlot` to plot up to three
+characteristics against depth. In this example, we will look at pH,
+secchi depth, and pH.
 
 ```{r id depth profile}
 # 
