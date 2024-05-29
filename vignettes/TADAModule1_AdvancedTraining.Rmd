@@ -298,7 +298,7 @@ your dataset? Are there any media types that are not water?**
 TADA is currently designed to accommodate water data from the WQP. Let's
 ensure that we remove all non-water data first.
 
-```{r mediatype}
+```{r media type}
 # remove data with media type that is not water
 removed <- dataset_0 %>%
   dplyr::filter(!TADA.ActivityMediaName %in% c("WATER")) %>%
@@ -308,7 +308,7 @@ removed <- dataset_0 %>%
 unique(removed$TADA.ActivityMediaName)
 ```
 
-```{r wateronly}
+```{r water only}
 # clean dataset contains only water
 dataset <- dataset_0 %>% dplyr::filter(TADA.ActivityMediaName %in% c("WATER"))
 
@@ -361,7 +361,7 @@ remove problematic detection limit data before proceeding. We can also
 filter for the "problem" data by TADA.CensoredData.Flag and review the
 unique reasons for data removal.
 
-```{r}
+```{r id cens data}
 dataset <- TADA::TADA_IDCensoredData(dataset)
 
 TADA::TADA_FieldValuesPie(dataset, field = "TADA.CensoredData.Flag")
@@ -374,9 +374,7 @@ problem_censored <- dataset %>%
 check <- unique(problem_censored[, c("TADA.CharacteristicName", "ResultDetectionConditionText", "DetectionQuantitationLimitTypeName", "TADA.CensoredData.Flag")])
 
 check
-```
 
-```{r}
 dataset <- dataset %>% dplyr::filter(TADA.CensoredData.Flag %in% c("Non-Detect", "Over-Detect", "Other", "Uncensored"))
 
 # Let's take a look at the removed data
@@ -389,7 +387,7 @@ dimCheck(all_result_num, dataset, removed, checkName = "Censored Data")
 Next, we can take a look at the data types present and filter out any
 non-allowable types.
 
-```{r}
+```{r data types}
 # take a look at datatypes
 flag.datatypes <- TADA::TADA_FieldValuesTable(dataset, field = "TADA.ResultMeasureValueDataTypes.Flag")
 
@@ -400,7 +398,7 @@ rv_datatypes <- unique(subset(dataset, !is.na(dataset$TADA.ResultMeasureValue))$
 na_rv_datatypes <- unique(subset(dataset, is.na(dataset$TADA.ResultMeasureValue))$TADA.ResultMeasureValueDataTypes.Flag)
 ```
 
-```{r}
+```{r incompatible data types}
 # these are all of the NOT allowable data types in the dataset.
 incompatible_datatype <- dataset %>%
   dplyr::filter(!dataset$TADA.ResultMeasureValueDataTypes.Flag %in% c("Numeric", "Less Than", "Greater Than", "Approximate Value", "Percentage", "Comma-Separated Numeric", "Numeric Range - Averaged", "Result Value/Unit Copied from Detection Limit")) %>%
@@ -415,7 +413,7 @@ check
 Then we can take a closer look at the removed results and run another
 dimension check on the data set.
 
-```{r}
+```{r allowable data types}
 # filter data set to include allowable data types
 dataset <- dataset %>% dplyr::filter(dataset$TADA.ResultMeasureValueDataTypes.Flag %in% c("Numeric", "Less Than", "Greater Than", "Approximate Value", "Percentage", "Comma-Separated Numeric", "Numeric Range - Averaged", "Result Value/Unit Copied from Detection Limit"))
 
@@ -448,7 +446,7 @@ on the TADA GitHub site.
 Bring the QAQC Validation Table into your R session to view or save with
 the following command:
 
-```{r}
+```{r qaqc}
 qaqc_ref <- TADA::TADA_GetWQXCharValRef()
 
 unique(qaqc_ref$Type)
@@ -461,7 +459,7 @@ TADA joins this validation table to the data and uses the "Valid" and
 flagging columns for each function. Let's run these four flagging
 functions.
 
-```{r}
+```{r example flags}
 dataset_flags <- TADA::TADA_FlagFraction(dataset, clean = FALSE, flaggedonly = FALSE)
 dataset_flags <- TADA::TADA_FlagSpeciation(dataset_flags, clean = "none", flaggedonly = FALSE)
 dataset_flags <- TADA::TADA_FlagResultUnit(dataset_flags, clean = "none", flaggedonly = FALSE)
@@ -476,7 +474,7 @@ running these flagging functions? What do they say?**
 Now that we've run all the key flagging functions, let's take a look at
 the results and make some decisions.
 
-```{r}
+```{r flag pies}
 TADA::TADA_FieldValuesPie(dataset_flags, field = "TADA.SampleFraction.Flag")
 TADA::TADA_FieldValuesPie(dataset_flags, field = "TADA.MethodSpeciation.Flag")
 TADA::TADA_FieldValuesPie(dataset_flags, field = "TADA.ResultUnit.Flag")
@@ -494,7 +492,7 @@ dataset for later review.
 contact the WQX Help Desk at WQX\@epa.gov to help correct it. Thanks in
 advance!**
 
-```{r}
+```{r flags}
 # grab all the flagged results from the four functions
 problem_flagged <- dataset_flags %>%
   filter(TADA.SampleFraction.Flag == "Invalid" | TADA.MethodSpeciation.Flag == "Invalid" | TADA.ResultUnit.Flag == "Invalid" | !TADA.ActivityType.Flag %in% ("Non_QC")) %>%
@@ -519,7 +517,7 @@ We've finished running the recommended flagging functions and removing
 results that do not pass QC checks. Let's look at the breakdown of these
 data in the removed object.
 
-```{r}
+```{r removal reason}
 removal <- TADA::TADA_FieldValuesTable(removed, field = "TADA.RemovalReason")
 
 removal
@@ -571,10 +569,10 @@ similar must be performed outside of the current version of TADA (though
 future development is planned).
 
 **Question 8: How would you parameterize `TADA_SimpleCensoredMethods()`
-to make non-detect values equal to half of the provided detection
-limit?**
+to make non-detect values equal to the provided detection limit? What
+would you need to change in the example below?**
 
-```{r}
+```{r cens dataset}
 dataset_cens <- TADA::TADA_SimpleCensoredMethods(dataset_flags, nd_method = "multiplier", nd_multiplier = 0.5, od_method = "as-is")
 ```
 
@@ -585,7 +583,7 @@ First, we can look use `TADA_FieldValuesTable` to look at the
 TADA.ResultMeasureValueDataTypes.Flag column in data set before we ran
 `TADA_SimpleCensoredMethods`.
 
-```{r}
+```{r data type flags}
 # before
 TADA::TADA_FieldValuesTable(dataset_flags, field = "TADA.ResultMeasureValueDataTypes.Flag")
 ```
@@ -593,7 +591,7 @@ TADA::TADA_FieldValuesTable(dataset_flags, field = "TADA.ResultMeasureValueDataT
 Then we can use `TADA_FieldValuesTable` again to look at the same column
 after `TADA_SimpleCensoredMethods`.
 
-```{r}
+```{r cens data type flags}
 # after
 TADA::TADA_FieldValuesTable(dataset_cens, field = "TADA.ResultMeasureValueDataTypes.Flag")
 ```
@@ -620,7 +618,7 @@ look at/filter out before you're ready to say: QC complete. Let's first
 check out characteristics in the dataset using `dplyr` functions and
 pipes.
 
-```{r}
+```{r cens summary}
 
 # get table of characteristics with number of results, sites, and organizations
 dataset_cens_summary <- dataset_cens %>%
@@ -634,7 +632,7 @@ isolation. `TADA_FieldValuesPie()` will also produce summary pie charts
 for a given column *within* a specific characteristic. Let's take a
 look.
 
-```{r}
+```{r pie by characteristic}
 # go ahead and pick a characteristic name from the table generated above. I picked dissolved oxygen (DO) amd selected OrganizationFormalName as the field to see the relative contribution of each org to DO results
 TADA::TADA_FieldValuesPie(dataset_cens, field = "OrganizationFormalName", characteristicName = "DISSOLVED OXYGEN (DO)")
 ```
@@ -645,7 +643,7 @@ size corresponds to the number of results collected at that site, while
 the darker the circle, the more characteristics were sampled at that
 site.
 
-```{r, warning=FALSE, message=FALSE}
+```{r overview map, warning=FALSE, message=FALSE}
 TADA::TADA_OverviewMap(dataset_cens)
 ```
 
@@ -654,7 +652,7 @@ location types. Do they all indicate surface water samples? Depending
 upon your program's goals and methods, you might want to filter out some
 of the types you see.
 
-```{r}
+```{r location pie}
 TADA::TADA_FieldValuesPie(dataset_cens, field = "MonitoringLocationTypeName")
 ```
 
@@ -676,7 +674,7 @@ together to ensure the plotted data are sufficiently similar to appear
 on a single plot together: it doesn't make sense to plot characteristics
 with different units or fractions in the same distribution.
 
-```{r}
+```{r comp id values}
 # trusty field values table - lets just look at the first few entries with the most associated records
 compid <- TADA::TADA_FieldValuesTable(dataset_cens, field = "TADA.ComparableDataIdentifier")
 ```
@@ -685,21 +683,23 @@ Now that we have an idea for what the TADA.ComparableDataIdentifier
 looks like, we can check out how it is used to plot distinct
 characteristic groups.
 
-```{r}
+```{r select comp id}
 # Look at a histogram, boxplot, and stats for TADA.ComparableDataIdentifier(s) of your choice.
-comp_data_id <- "TEMPERATURE, WATER_NA_NA_DEG C"
+comp_data_id <- "PH_NA_NA_NONE"
 
 plot_data <- subset(dataset_cens, dataset_cens$TADA.ComparableDataIdentifier %in% comp_data_id)
 ```
 
-```{r}
+**Question 10: How does selecting the different options on the left side
+of the histogram change the data displayed? When might you want to use a
+histogram vs. a boxplot?**
+
+Let's take a look at the histogram and boxplot for the comparable data
+identifier we selected.
+
+```{r boxplot and histogram}
 TADA::TADA_Histogram(plot_data, id_cols = "TADA.ComparableDataIdentifier")
-```
 
-```         
-```
-
-```{r boxplot}
 TADA::TADA_Boxplot(plot_data, id_cols = "TADA.ComparableDataIdentifier")
 
 stats <- TADA::TADA_Stats(plot_data)
@@ -714,27 +714,36 @@ into various depth categories (surface, middle, and bottom).
 # 
 dataset_depth <- TADA::TADA_FlagDepthCategory(dataset_cens)
 
-dataset_depth
 ```
 
 We can also use another function, `TADA_IDDepthProfile`s to identify
 location/date/characteristic combinations in the data set that can be
 used for depth profile plots or analysis. The default number of values
-required to idenitfy a location/date/characteristic as a depth profile
-is 2, but this can be changed by the user.
+required to identify a location/date/characteristic as a depth profile
+is 2, but this can be changed by the user. We will specify a larger
+value, 5, so that any depth profiles identified will have results from
+at least 5 different depths.
 
 ```{r id depth profile}
 # 
-depth_profile_id <- TADA::TADA_IDDepthProfiles(dataset_depth)
+depth_profile_id <- TADA::TADA_IDDepthProfiles(dataset_depth, nvalue = 5)
 ```
 
-Now, we can use `TADA_DepthProfilePlot` to plot up to three
-characteristics against depth. In this example, we will look at
-dissolved copper, dissolved lead, and dissolved iron.
+**Question 11: How can TADA_IDDepthProfiles() help users use
+TADA_DepthProfilePlot most efficiently?**
+
+We can look for groups, locations, and acitivty dates that we know have
+depth profile compatiable data. Now, we can use `TADA_DepthProfilePlot`
+to plot up to three characteristics against depth. In this example, we
+will look at dissolved copper, dissolved lead, and dissolved iron.
 
 ```{r id depth profile}
 # 
-TADA::TADA_DepthProfilePlot(dataset_0, groups = c("TOTAL PHOSPHORUS, MIXED FORMS_UNFILTERED_NA_UG/L", "TOTAL NITROGEN, MIXED FORMS_UNFILTERED_NA_MG/L"), location = "WVDEP_WQX-16393", activity_date = "2023-01-04", depthcat = FALSE)
+ TADA_DepthProfilePlot(Data_6Tribes_5y_Harmonized, 
+                        groups = c('TEMPERATURE_NA_NA_DEG C', 'DEPTH, SECCHI DISK DEPTH_NA_NA_M', 'PH_NA_NA_NA'),
+                        location = "REDLAKE_WQX-ANKE",
+                       activity_date = "2018-10-04",
+                       depthcat = FALSE)
 ```
 
 Finally, we can download our PASS and FAIL datasets together into an
@@ -759,7 +768,7 @@ application queries the WQP, contains maps and data visualizations,
 flags suspect data results, handles censored data, and more. You can
 launch it using the code below.
 
-```{r, eval = F, results = 'hide'}
+```{r shiny, eval = F, results = 'hide'}
 # download TADA Shiny repository
 remotes::install_github("USEPA/TADAShiny", ref = "develop", dependencies = TRUE)
 
