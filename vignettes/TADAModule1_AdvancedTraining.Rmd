@@ -745,7 +745,7 @@ secchi depth, and pH.
                        depthcat = FALSE)
 ```
 
-Finally, we can download our PASS and FAIL datasets together into an
+Finally, we can download our PASS and FAIL data sets together into an
 Excel spreadsheet.
 
 ```{r excel}
