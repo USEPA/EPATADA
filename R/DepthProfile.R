@@ -1004,7 +1004,7 @@ TADA_DepthProfilePlot <- function(.data,
     title <- TADA_InsertBreaks(
       paste0(
         param1$TADA.CharacteristicName[1],
-        ", ",
+        "; ",
         param2$TADA.CharacteristicName[1],
         " and ",
         param3$TADA.CharacteristicName[1],
@@ -1364,7 +1364,7 @@ TADA_DepthProfilePlot <- function(.data,
           yanchor = "center"
         )
 
-      depth_annotations <- c(depth_annotations, surface_text)
+      depth_annotations <- append(depth_annotations, list(surface_text))
     }
 
     if (is.numeric(bottomvalue)) {
@@ -1403,7 +1403,7 @@ TADA_DepthProfilePlot <- function(.data,
           yanchor = "center"
         )
 
-      depth_annotations <- c(depth_annotations, bottom_text)
+      depth_annotations <- append(depth_annotations, list(bottom_text))
     }
 
     if (is.numeric(surfacevalue) & is.numeric(bottomvalue)) {
@@ -1420,13 +1420,12 @@ TADA_DepthProfilePlot <- function(.data,
           yanchor = "center"
         )
 
-      depth_annotations <- c(depth_annotations, middle_text)
+      depth_annotations <- append(depth_annotations, list(middle_text))
     }
 
     scatterplot <- scatterplot %>%
       plotly::layout(annotations = depth_annotations)
 
-    return(scatterplot)
   }
 
   # return plot with no depth profile category
