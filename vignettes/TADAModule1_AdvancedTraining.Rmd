@@ -738,7 +738,7 @@ secchi depth, and pH.
 
 ```{r depth plot}
 # 
- TADA::TADA_DepthProfilePlot(Data_6Tribes_5y_Harmonized, 
+ TADA::TADA_DepthProfilePlot(dataset_cens, 
                         groups = c('TEMPERATURE_NA_NA_DEG C', 'DEPTH, SECCHI DISK DEPTH_NA_NA_M', 'PH_NA_NA_NA'),
                         location = "REDLAKE_WQX-ANKE",
                        activity_date = "2018-10-04",
