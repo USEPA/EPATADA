@@ -971,7 +971,7 @@ TADA_DepthProfilePlot <- function(.data,
     }
 
     profile.data <- depthprofile.avail %>%
-      dplyr::full_join(depth.params.avail)
+      dplyr::full_join(depth.params.avail, by = c(names(depthprofile.avail)))
 
     rm(depth.params.avail, depthprofile.avail)
   }
@@ -1014,7 +1014,7 @@ TADA_DepthProfilePlot <- function(.data,
         " on ",
         format(as.Date(plot.data$ActivityStartDate[1]), "%B %d, %Y")
       ),
-      len = 45
+      len = 50
     )
   }
 
@@ -1031,7 +1031,7 @@ TADA_DepthProfilePlot <- function(.data,
         " on ",
         format(as.Date(plot.data$ActivityStartDate[1]), "%B %d, %Y")
       ),
-      len = 45
+      len = 50
     )
   }
 
@@ -1046,7 +1046,7 @@ TADA_DepthProfilePlot <- function(.data,
         " on ",
         format(as.Date(plot.data$ActivityStartDate[1]), "%B %d, %Y")
       ),
-      len = 45
+      len = 50
     )
   }
 
