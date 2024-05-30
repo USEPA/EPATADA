@@ -742,7 +742,10 @@ secchi depth, and pH.
                         groups = c('TEMPERATURE, WATER_NA_NA_DEG C', 'DEPTH, SECCHI DISK DEPTH_NA_NA_M', 'PH_NA_NA_NONE'),
                         location = "REDLAKE_WQX-ANKE",
                        activity_date = "2018-10-04",
-                       depthcat = FALSE)
+                       depthcat = TRUE,
+                       surfacevalue = 2,
+                       bottomvalue = 2,
+                       unit = "m")
 ```
 
 Finally, we can download our PASS and FAIL data sets together into an
