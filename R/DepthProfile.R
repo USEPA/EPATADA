@@ -47,7 +47,7 @@
 #'
 #' @param surfacevalue numeric argument. The user enters how many meters from the
 #' surface should be included in the "Surface" category. Default is surfacevalue = 2.
-#' If surfacealue = "null", "Surface" and "Middle" results cannot
+#' If surfacevalue = "null", "Surface" and "Middle" results cannot
 #' be identified, however TADA.ConsolidatedDepth and TADA.ConsolidatedDepth.Bottom
 #' will still be determined.
 #'
@@ -971,7 +971,7 @@ TADA_DepthProfilePlot <- function(.data,
     }
 
     profile.data <- depthprofile.avail %>%
-      dplyr::full_join(depth.params.avail)
+      dplyr::full_join(depth.params.avail, by = c(names(depthprofile.avail)))
 
     rm(depth.params.avail, depthprofile.avail)
   }
@@ -1004,7 +1004,7 @@ TADA_DepthProfilePlot <- function(.data,
     title <- TADA_InsertBreaks(
       paste0(
         param1$TADA.CharacteristicName[1],
-        ", ",
+        "; ",
         param2$TADA.CharacteristicName[1],
         " and ",
         param3$TADA.CharacteristicName[1],
@@ -1014,7 +1014,7 @@ TADA_DepthProfilePlot <- function(.data,
         " on ",
         format(as.Date(plot.data$ActivityStartDate[1]), "%B %d, %Y")
       ),
-      len = 45
+      len = 50
     )
   }
 
@@ -1031,7 +1031,7 @@ TADA_DepthProfilePlot <- function(.data,
         " on ",
         format(as.Date(plot.data$ActivityStartDate[1]), "%B %d, %Y")
       ),
-      len = 45
+      len = 50
     )
   }
 
@@ -1046,7 +1046,7 @@ TADA_DepthProfilePlot <- function(.data,
         " on ",
         format(as.Date(plot.data$ActivityStartDate[1]), "%B %d, %Y")
       ),
-      len = 45
+      len = 50
     )
   }
 
@@ -1364,7 +1364,7 @@ TADA_DepthProfilePlot <- function(.data,
           yanchor = "center"
         )
 
-      depth_annotations <- c(depth_annotations, surface_text)
+      depth_annotations <- append(depth_annotations, list(surface_text))
     }
 
     if (is.numeric(bottomvalue)) {
@@ -1403,7 +1403,7 @@ TADA_DepthProfilePlot <- function(.data,
           yanchor = "center"
         )
 
-      depth_annotations <- c(depth_annotations, bottom_text)
+      depth_annotations <- append(depth_annotations, list(bottom_text))
     }
 
     if (is.numeric(surfacevalue) & is.numeric(bottomvalue)) {
@@ -1420,13 +1420,12 @@ TADA_DepthProfilePlot <- function(.data,
           yanchor = "center"
         )
 
-      depth_annotations <- c(depth_annotations, middle_text)
+      depth_annotations <- append(depth_annotations, list(middle_text))
     }
 
     scatterplot <- scatterplot %>%
       plotly::layout(annotations = depth_annotations)
 
-    return(scatterplot)
   }
 
   # return plot with no depth profile category
