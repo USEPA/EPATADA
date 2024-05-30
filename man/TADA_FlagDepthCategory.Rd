@@ -35,7 +35,7 @@ will still be determined.}
 
 \item{surfacevalue}{numeric argument. The user enters how many meters from the
 surface should be included in the "Surface" category. Default is surfacevalue = 2.
-If surfacealue = "null", "Surface" and "Middle" results cannot
+If surfacevalue = "null", "Surface" and "Middle" results cannot
 be identified, however TADA.ConsolidatedDepth and TADA.ConsolidatedDepth.Bottom
 will still be determined.}
 
