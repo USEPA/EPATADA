@@ -74,7 +74,7 @@
 #' @export
 #'
 #' @examples
-#' # Load dataset
+#' # Load data frame
 #' data(Data_6Tribes_5y)
 #'
 #' # assign TADA.DepthCategory.Flag with no aggregation
@@ -467,7 +467,7 @@ TADA_FlagDepthCategory <- function(.data, bycategory = "no", bottomvalue = 2, su
 #' @export
 #'
 #' @examples
-#' # Load dataset
+#' # Load data frame
 #' data(Data_6Tribes_5y)
 #'
 #' # find depth profile data without showing number of results
@@ -603,7 +603,7 @@ TADA_IDDepthProfiles <- function(.data, nresults = TRUE, nvalue = 2, aggregates 
 #'
 #' @param groups A vector of two identifiers from the TADA.ComparableDataIdentifier column.
 #' For example, the groups could be 'DISSOLVED OXYGEN (DO)_NA_NA_UG/L' and 'PH_NA_NA_NA'.
-#' These groups will be specific to your dataset. The TADA_IDDepthProfiles can be
+#' These groups will be specific to your data frame. The TADA_IDDepthProfiles can be
 #' used to identify available groups.
 #'
 #' @param location A single MonitoringLocationIdentifier to plot the depth profile.
@@ -634,7 +634,7 @@ TADA_IDDepthProfiles <- function(.data, nresults = TRUE, nvalue = 2, aggregates 
 #' @export
 #'
 #' @examples
-#' # Load example dataset:
+#' # Load example data frame:
 #' data(Data_6Tribes_5y_Harmonized)
 #' # Create a depth profile figure with three parameters for a single monitoring location and date
 #' TADA_DepthProfilePlot(Data_6Tribes_5y_Harmonized,
@@ -643,7 +643,7 @@ TADA_IDDepthProfiles <- function(.data, nresults = TRUE, nvalue = 2, aggregates 
 #'   activity_date = "2018-10-04"
 #' )
 #'
-#' # Load example dataset:
+#' # Load example data frame:
 #' data(Data_6Tribes_5y_Harmonized)
 #' # Create a depth profile figure with two parameters for a single monitoring location and date without displaying depth categories
 #' TADA_DepthProfilePlot(Data_6Tribes_5y_Harmonized,

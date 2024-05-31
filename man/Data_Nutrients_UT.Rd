@@ -11,7 +11,7 @@ A data frame with 14592 rows and 152 variables
 data(Data_Nutrients_UT)
 }
 \description{
-A dataset containing Ammonia, Nitrate, and Nitrogen data from Utah:
+A data frame containing Ammonia, Nitrate, and Nitrogen data from Utah:
 }
 \details{
 Data_Nutrients_UT <- TADA_DataRetrieval(statecode = "UT",
@@ -19,4 +19,5 @@ characteristicName = c("Ammonia", "Nitrate", "Nitrogen"),
 startDate = "2020-10-01",
 endDate = "2022-09-30")
 }
-\keyword{datasets}
+\keyword{data}
+\keyword{frame}

@@ -54,7 +54,7 @@ users can specify whether characteristic names should be followed by the number
 of results available for the characteristic in parentheses.
 }
 \examples{
-# Load dataset
+# Load data frame
 data(Data_6Tribes_5y)
 
 # find depth profile data without showing number of results

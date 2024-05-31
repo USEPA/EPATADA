@@ -7,11 +7,11 @@
 #'   this function. 'TADA.ComparableDataIdentifier' can be added to the data
 #'   frame by running the function TADA_HarmonizeSynonyms(). The user can include
 #'   additional grouping columns in the id_cols input. If more than one group
-#'   exists in the dataset (i.e. two or more unique comparable data
+#'   exists in the data frame (i.e. two or more unique comparable data
 #'   identifiers), the function creates a list of plots, where each list element
 #'   name is a unique group identifier.
 #'
-#' @param id_cols The column(S) in the dataset used to identify the unique groups
+#' @param id_cols The column(S) in the data frame used to identify the unique groups
 #'   to be plotted. Defaults to 'TADA.ComparableDataIdentifier'.
 #'
 #' @return A list of plotly boxplot figures showing the median, 25th percentile,
@@ -23,7 +23,7 @@
 #' @examples
 #' # Create a single boxplot using defaults. The input dataframe in this example
 #' # includes only one unique TADA.ComparableDataIdentifier:
-#' # Load example dataset:
+#' # Load example data frame:
 #' data(Data_6Tribes_5y_Harmonized)
 #' # Filter data down to a single TADA.ComparableDataIdentifier
 #' df <- dplyr::filter(Data_6Tribes_5y_Harmonized, TADA.ComparableDataIdentifier == "TOTAL PHOSPHORUS, MIXED FORMS_UNFILTERED_AS P_UG/L")
@@ -43,7 +43,7 @@
 #' # plot in list. In this example, we will group data in the input dataframe
 #' # by both the TADA.ComparableDataIdentifier and the MonitoringLocationTypeName
 #' # (e.g. stream, reservoir, canal, etc.)
-#' # Load example dataset:
+#' # Load example data frame:
 #' data(Data_Nutrients_UT)
 #' Boxplot_output <- TADA_Boxplot(Data_Nutrients_UT, id_cols = c("TADA.ComparableDataIdentifier", "MonitoringLocationTypeName"))
 #' # This example generates 32 box plots.
@@ -192,11 +192,11 @@ TADA_Boxplot <- function(.data, id_cols = c("TADA.ComparableDataIdentifier")) {
 #'   this function. 'TADA.ComparableDataIdentifier' can be added to the data
 #'   frame by running the function TADA_HarmonizeSynonyms(). The user can include
 #'   additional grouping columns in the id_cols input. If more than one group
-#'   exists in the dataset (i.e. two or more unique comparable data
+#'   exists in the data frame (i.e. two or more unique comparable data
 #'   identifiers), the function creates a list of plots, where each list element
 #'   name is a unique group identifier.
 #'
-#' @param id_cols The column(S) in the dataset used to identify the unique groups
+#' @param id_cols The column(S) in the data frame used to identify the unique groups
 #'   to be plotted. Defaults to 'TADA.ComparableDataIdentifier'.
 #'
 #' @return A list of plotly histogram figures showing the distribution of sample values
@@ -205,14 +205,14 @@ TADA_Boxplot <- function(.data, id_cols = c("TADA.ComparableDataIdentifier")) {
 #' @export
 #'
 #' @examples
-#' # Load example dataset:
+#' # Load example data frame:
 #' data(Data_6Tribes_5y_Harmonized)
 #'
 #' # Create a histogram for each comparable data group (TADA.ComparableDataIdentifier)
-#' # in the input dataframe:
+#' # in the input data frame:
 #' TADA_Histogram(Data_6Tribes_5y_Harmonized, id_cols = "TADA.ComparableDataIdentifier")
 #'
-#' # Create a single histogram using defaults. The input dataframe in this example
+#' # Create a single histogram using defaults. The input data frame in this example
 #' # is filtered so it includes only one TADA.ComparableDataIdentifier
 #' df <- dplyr::filter(Data_6Tribes_5y_Harmonized, TADA.ComparableDataIdentifier == "TOTAL PHOSPHORUS, MIXED FORMS_UNFILTERED_AS P_UG/L")
 #' TADA_Histogram(df, id_cols = "TADA.ComparableDataIdentifier")
@@ -220,7 +220,7 @@ TADA_Boxplot <- function(.data, id_cols = c("TADA.ComparableDataIdentifier")) {
 #' # Create multiple histograms with additional grouping columns and view the first
 #' # plot in list. In this example, we will group by both TADA.ComparableDataIdentifier
 #' # and MonitoringLocationTypeName (e.g. stream, reservoir, canal, etc.)
-#' # Load example dataset:
+#' # Load example data frame:
 #' data(Data_Nutrients_UT)
 #' Histogram_output <- TADA_Histogram(Data_Nutrients_UT, id_cols = c("TADA.ComparableDataIdentifier", "MonitoringLocationTypeName"))
 #' # This example generates 32 histograms
@@ -384,7 +384,7 @@ TADA_Histogram <- function(.data, id_cols = c("TADA.ComparableDataIdentifier")) 
 #'
 #' @examples
 #' \dontrun{
-#' # Load example datasets:
+#' # Load example data frame:
 #' data(Data_Nutrients_UT)
 #' data(Data_NCTCShepherdstown_HUC12)
 #' data(Data_6Tribes_5y_Harmonized)
