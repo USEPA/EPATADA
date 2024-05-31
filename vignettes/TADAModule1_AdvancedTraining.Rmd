@@ -736,7 +736,7 @@ Now, we can use `TADA_DepthProfilePlot` to plot up to three
 characteristics against depth. In this example, we will look at pH,
 secchi depth, and pH.
 
-```{r depth plot}
+```{r depth plot, include = TRUE, echo = TRUE}
 # 
  TADA::TADA_DepthProfilePlot(dataset_cens, 
                         groups = c('TEMPERATURE, WATER_NA_NA_DEG C', 'DEPTH, SECCHI DISK DEPTH_NA_NA_M', 'PH_NA_NA_NONE'),
