@@ -638,7 +638,7 @@ TADA::TADA_FieldValuesPie(dataset_cens, field = "OrganizationFormalName", charac
 ```
 
 We can view the site locations using a TADA mapping function. In this
-map, the circles indicate monitoring locations in the dataset; their
+map, the circles indicate monitoring locations in the data set; their
 size corresponds to the number of results collected at that site, while
 the darker the circle, the more characteristics were sampled at that
 site.
@@ -736,9 +736,9 @@ Now, we can use `TADA_DepthProfilePlot` to plot up to three
 characteristics against depth. In this example, we will look at pH,
 secchi depth, and pH.
 
-```{r depth plot, include = TRUE, echo = TRUE}
+```{r depth plot, warning=FALSE, message=FALSE}
 # 
- TADA::TADA_DepthProfilePlot(dataset_cens, 
+TADA::TADA_DepthProfilePlot(dataset_cens, 
                         groups = c('TEMPERATURE, WATER_NA_NA_DEG C', 'DEPTH, SECCHI DISK DEPTH_NA_NA_M', 'PH_NA_NA_NONE'),
                        location = "REDLAKE_WQX-ANKE",
                        activity_date = "2018-10-04",
