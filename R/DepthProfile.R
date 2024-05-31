@@ -167,7 +167,7 @@ TADA_FlagDepthCategory <- function(.data, bycategory = "no", bottomvalue = 2, su
       dplyr::mutate(TADA.DepthCategory.Flag = dplyr::case_when(
         TADA.ConsolidatedDepth <= surfacevalue ~ "Surface",
         TADA.ConsolidatedDepth <= TADA.ConsolidatedDepth.Bottom & TADA.ConsolidatedDepth >= TADA.ConsolidatedDepth.Bottom - bottomvalue ~ "Bottom",
-        TADA.ConsolidatedDepth < surfacevalue & TADA.ConsolidatedDepth < TADA.ConsolidatedDepth.Bottom - bottomvalue ~ "Middle"
+        TADA.ConsolidatedDepth > surfacevalue & TADA.ConsolidatedDepth < TADA.ConsolidatedDepth.Bottom - bottomvalue ~ "Middle"
       )) %>%
       # assign depth categories that could not be assigned using depth
       dplyr::left_join(ard.ref, by = "ActivityRelativeDepthName") %>%
