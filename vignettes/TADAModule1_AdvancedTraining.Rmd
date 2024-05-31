@@ -108,7 +108,7 @@ remotes::install_github("USEPA/TADA",
 # IF YOU ARE NOT DEVELOPING TADA, SKIP THIS CODE CHUNK
 # when developing the package, update this chunk to the current repository branch, so it runs with all of the new features prior to a PR to develop
 remotes::install_github("USEPA/TADA",
-  ref = "colorpalette_set_up",
+  ref = "trainingupdates",
   dependencies = TRUE
 )
 ```
@@ -162,8 +162,8 @@ WQP profiles.
 If you are interested in reviewing the column headers and formats
 required to run TADA, use the function below, which saves an example
 spreadsheet to the user's working directory. You can also take a look at
-an example data frame, like `TADA::Data_Nutrients_UT` to get an idea of the
-data structure and format.
+an example data frame, like `TADA::Data_Nutrients_UT` to get an idea of
+the data structure and format.
 
 ```{r template}
 getwd() # find your working directory
@@ -227,8 +227,8 @@ profiles. Once released, one data profile will contain the columns
 critical to TADA, removing the need to combine profiles in this first
 step. TADA package users likely will not notice a difference in their
 usage of the `TADA_DataRetrieval` function, but it will simplify the
-steps needed to upload a custom or WQP GUI-downloaded data frame into the R
-package.
+steps needed to upload a custom or WQP GUI-downloaded data frame into
+the R package.
 
 ## Initial data review
 
@@ -427,13 +427,14 @@ dimCheck(all_result_num, dataset, removed, checkName = "Result Format")
 
 ## Data flagging
 
-We've taken a quick look at the raw data frame and split off some data that
-are not compatible with TADA, now let's run through some quality control
-checks. The most important ones to run to ensure your data frame is ready
-for subsequent steps are `TADA_FlagFraction()`, `TADA_FlagSpeciation()`,
-`TADA_FlagResultUnit()`, and `TADA_FindQCActivities()`. With the
-exception of `TADA_FindQCActivities()`, these flagging functions
-leverage WQX's [QAQC Validation
+We've taken a quick look at the raw data frame and split off some data
+that are not compatible with TADA, now let's run through some quality
+control checks. The most important ones to run to ensure your data frame
+is ready for subsequent steps are `TADA_FlagFraction()`,
+`TADA_FlagSpeciation()`, `TADA_FlagResultUnit()`, and
+`TADA_FindQCActivities()`. With the exception of
+`TADA_FindQCActivities()`, these flagging functions leverage WQX's [QAQC
+Validation
 Table](https://cdx.epa.gov/wqx/download/DomainValues/QAQCCharacteristicValidation.CSV).
 `TADA_FindQCActivities()` uses a TADA-specific domain table users can
 review with `TADA_GetActivityTypeRef()`. All QAQC tables are frequently
@@ -485,8 +486,8 @@ Any results flagged as "Invalid" are recognized in the QAQC Validation
 Table as having some data quality issue. "NonStandardized" means that
 the format has not been fully vetted or processed, while "Valid"
 confirms that the characteristic combination is widely recognized as
-correctly formatted. Let's add any invalid results to the removed
-data frame for later review.
+correctly formatted. Let's add any invalid results to the removed data
+frame for later review.
 
 **Note: if you find any errors in the QAQC Validation Table, please
 contact the WQX Help Desk at WQX\@epa.gov to help correct it. Thanks in
@@ -556,17 +557,17 @@ brainstorming/developing.
 ## Censored data handling
 
 We have already identified, flagged, and in some cases removed
-problematic detection limit data from our data frame, but that doesn't keep
-them from being difficult. Because we do not know the result value with
-adequate precision, water quality data users often set non-detect values
-to some number below the reported detection limit. TADA contains some
-simple methods for handling detection limits: users may multiply the
-detection limit by some number between 0 and 1, or convert the detection
-limit value to a random number between 0 and the detection limit. More
-complex detection limit estimation requiring regression models (Maximum
-Likelihood, Kaplan-Meier, Robust Regression on Order Statistics) or
-similar must be performed outside of the current version of TADA (though
-future development is planned).
+problematic detection limit data from our data frame, but that doesn't
+keep them from being difficult. Because we do not know the result value
+with adequate precision, water quality data users often set non-detect
+values to some number below the reported detection limit. TADA contains
+some simple methods for handling detection limits: users may multiply
+the detection limit by some number between 0 and 1, or convert the
+detection limit value to a random number between 0 and the detection
+limit. More complex detection limit estimation requiring regression
+models (Maximum Likelihood, Kaplan-Meier, Robust Regression on Order
+Statistics) or similar must be performed outside of the current version
+of TADA (though future development is planned).
 
 **Question 8: How would you parameterize `TADA_SimpleCensoredMethods()`
 to make non-detect values equal to the provided detection limit? What
@@ -604,19 +605,19 @@ estimate detection limit values, check out the `?TADA_Stats` function,
 which accepts user-defined data groupings (or defaults to
 TADA.ComparableDataIdentifier to determine measurement count, location
 count, censored data stats, min, max, and percentile stats, and suggests
-non-detect estimatiom methods based on the number of results, % of
-data frame censored, and number of censoring levels (detection limits). The
+non-detect estimatiom methods based on the number of results, % of data
+frame censored, and number of censoring levels (detection limits). The
 decision tree used in the function was outlined in a [National Nonpoint
 Source Tech
 Memo](https://www.epa.gov/sites/default/files/2016-05/documents/tech_notes_10_jun2014_r.pdf).
 
 ## Data exploration
 
-How are you feeling about your test data frame? Does it seem ready for the
-next step(s) in your analyses? There's probably a lot more you'd like to
-look at/filter out before you're ready to say: QC complete. Let's first
-check out characteristics in the data frame using `dplyr` functions and
-pipes.
+How are you feeling about your test data frame? Does it seem ready for
+the next step(s) in your analyses? There's probably a lot more you'd
+like to look at/filter out before you're ready to say: QC complete.
+Let's first check out characteristics in the data frame using `dplyr`
+functions and pipes.
 
 ```{r cens summary}
 
