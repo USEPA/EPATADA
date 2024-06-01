@@ -210,7 +210,7 @@ several examples.
 #   startDate = "2018-01-01", 
 #   endDate = "2019-01-01")
 
-# For brevity, we'll skip pinging the WQP and instead load the example dataset:
+# For brevity, we'll skip pinging the WQP and instead load the example data frame:
 dataset_0 <- TADA::Data_6Tribes_5y
 
 # Let's take a look at all of the TADA-created columns:
@@ -644,7 +644,7 @@ size corresponds to the number of results collected at that site, while
 the darker the circle, the more characteristics were sampled at that
 site.
 
-```{r overview map, warning=FALSE, message=FALSE}
+```{r overview map}
 TADA::TADA_OverviewMap(dataset_cens)
 ```
 
@@ -712,7 +712,7 @@ with this. First we can use `TADA_FlagDepthCategory` to place results
 into various depth categories (surface, middle, and bottom).
 
 ```{r depth category}
-# 
+
 dataset_depth <- TADA::TADA_FlagDepthCategory(dataset_cens)
 
 ```
@@ -726,8 +726,9 @@ value, 5, so that any depth profiles identified will have results from
 at least 5 different depths.
 
 ```{r id depth profile}
-# 
+
 depth_profile_id <- TADA::TADA_IDDepthProfiles(dataset_depth, nvalue = 5)
+
 ```
 
 **Question 11: How can TADA_IDDepthProfiles() help users use
@@ -737,28 +738,34 @@ Now, we can use `TADA_DepthProfilePlot` to plot up to three
 characteristics against depth. In this example, we will look at pH,
 secchi depth, and pH.
 
-```{r depth plot, warning=FALSE, message=FALSE}
-# 
+```{r depth plot}
+
 TADA::TADA_DepthProfilePlot(dataset_cens, 
-                        groups = c('TEMPERATURE, WATER_NA_NA_DEG C', 'DEPTH, SECCHI DISK DEPTH_NA_NA_M', 'PH_NA_NA_NONE'),
-                       location = "REDLAKE_WQX-ANKE",
-                       activity_date = "2018-10-04",
-                       depthcat = TRUE,
-                       surfacevalue = 2,
-                       bottomvalue = 2,
-                       unit = "m")
+                            groups = c('TEMPERATURE, 
+                                       WATER_NA_NA_DEG C', 
+                                       'DEPTH, SECCHI DISK DEPTH_NA_NA_M', 
+                                       'PH_NA_NA_NONE'),
+                            location = "REDLAKE_WQX-ANKE",
+                            activity_date = "2018-10-04",
+                            depthcat = TRUE,
+                            surfacevalue = 2,
+                            bottomvalue = 2,
+                            unit = "m")
+
 ```
 
 Finally, we can download our PASS and FAIL data sets together into an
 Excel spreadsheet.
 
 ```{r excel}
+
 dataset_and_removed <- dplyr::bind_rows(dataset_cens, removed)
 
 # Un-comment to download Excel spreadsheet to your working directory
 # install.packages(writexl)
 # library(writexl)
 # writexl::write_xlsx(dataset_and_removed, "NCTCShepherdstownData.xlsx")
+
 ```
 
 ## TADA R Shiny Modules

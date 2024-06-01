@@ -1065,7 +1065,8 @@ Generate a scatterplot with two characteristics.
 unique(R5ProfileClean8$TADA.ComparableDataIdentifier)
 ```
 
-Select two characteristics to plot using the id_cols function input. 
+Select two characteristics to plot using the id_cols function input.
+
 ```{r TADA_TwoCharacteristicScatterplot}
 # choose two and generate scatterplot
 TADA::TADA_TwoCharacteristicScatterplot(R5ProfileClean8, id_cols = "TADA.ComparableDataIdentifier", groups = c("TEMPERATURE_NA_NA_DEG C", "DISSOLVED OXYGEN (DO)_NA_NA_MG/L"))
@@ -1078,14 +1079,16 @@ unit, speciation, and fraction combination) using **TADA_Histogram** and
 plots if their input dataset has more than one unique comparable data
 group.
 
-First, filter the data frame to include only "DISSOLVED OXYGEN (DO)_NA_NA_MG/L"
+First, filter the data frame to include only "DISSOLVED OXYGEN
+(DO)\_NA_NA_MG/L"
 
 ```{r filter_dataframe}
 # filter dataframe to only "DISSOLVED OXYGEN (DO)_NA_NA_MG/L"
 R5ProfileCleanDO <- dplyr::filter(R5ProfileClean8, TADA.ComparableDataIdentifier == "DISSOLVED OXYGEN (DO)_NA_NA_MG/L")
 ```
 
-Generate histogram. 
+Generate histogram.
+
 ```{r Histogram}
 # generate a histogram
 TADA::TADA_Histogram(R5ProfileCleanDO, id_cols = "TADA.ComparableDataIdentifier")
@@ -1100,7 +1103,8 @@ Generate interactive box plot.
 TADA::TADA_Boxplot(R5ProfileCleanDO, id_cols = "TADA.ComparableDataIdentifier")
 ```
 
-Generate a new data frame with only the daily max dissolved oxygen values.
+Generate a new data frame with only the daily max dissolved oxygen
+values.
 
 ```{r DO_filtered}
 R5ProfileCleanDO_dailymax <- TADA::TADA_AggregateMeasurements(R5ProfileCleanDO,
@@ -1109,7 +1113,8 @@ R5ProfileCleanDO_dailymax <- TADA::TADA_AggregateMeasurements(R5ProfileCleanDO,
 )
 ```
 
-Generate interactive scatterplot of max daily dissolved oxygen over time.
+Generate interactive scatterplot of max daily dissolved oxygen over
+time.
 
 ```{r scatterplot}
 TADA::TADA_Scatterplot(R5ProfileCleanDO_dailymax, id_cols = "TADA.ComparableDataIdentifier")
