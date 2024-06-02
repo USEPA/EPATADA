@@ -173,16 +173,15 @@ template <- TADA::TADA_GetTemplate() # download template to working directory
 # Data_Nutrients_UT <- TADA::Data_Nutrients_UT
 ```
 
-`TADA_DataRetrieval` is built upon USGS's `readWQPdata` function within
-the dataRetrieval package, which uses web service calls to bring WQP
-data into the R environment. Additionally, `TADA_DataRetrieval` performs
-some basic quality control checks via `TADA_AutoClean` on the data using
-new TADA-specific columns to preserve the original data frame:
+`TADA::TADA_DataRetrieval` is built upon USGS's
+`dataRetrieval::readWQPdata` function within the dataRetrieval package,
+which uses web service calls to bring WQP data into the R environment.
+Additionally, `TADA::TADA_DataRetrieval` performs some basic quality
+control checks via `TADA::TADA_AutoClean` on the data using new
+TADA-specific columns to preserve the original data frame:
 
 -   Converts key character columns to ALL CAPS for easier harmonization
     and validation.
-
--   Removes complete duplicate results.
 
 -   Identifies different classes of result values (numeric, text,
     percentage, comma-separated numeric, greater than/less than, numbers
@@ -190,25 +189,27 @@ new TADA-specific columns to preserve the original data frame:
     feasible.
 
 -   Unifies result and depth units to common units to improve ease of
-    data harmonization. See `?TADA_ConvertResultUnits` and
-    `?TADA_ConvertDepthUnits` for more information on these processes.
-    These functions can also be run separately if the user wishes to
-    convert result or depth values to different units.
+    data harmonization. See `?TADA::TADA_ConvertResultUnits` and
+    `?TADA::TADA_ConvertDepthUnits` for more information on these
+    processes. These functions can also be run separately if the user
+    wishes to convert result or depth values to different units.
 
 Let's give it a try. Setting applyautoclean to TRUE in
-`TADA_DataRetrieval` means that the basic quality control steps
-described above are run. `TADA_DataRetrieval` follows similar
-parameterization to `readWQPdata`, but check out the [help
-page](#0){style="font-size: 11pt;"} or enter `?TADA::TADA_DataRetrieval`
-into the console for more information about input parameters and to see
-several examples.
+`TADA:TADA_DataRetrieval` means that the basic quality control steps
+described above are run. See `?TADA::TADA_AutoClean` for more details.
+`TADA::TADA_DataRetrieval` follows similar parameterization to the
+dataRetrieval package function `dataRetrieval::readWQPdata`, but check
+out the [help
+page](https://usepa.github.io/TADA/reference/TADA_DataRetrieval.html) or
+enter `?TADA::TADA_DataRetrieval` into the console for more information
+about input parameters and to see several examples.
 
 ```{r dataretrieval}
 # download example data 
-# dataset_0  <- TADA_DataRetrieval(
-#   organization = c("REDLAKE_WQX", "SFNOES_WQX", "PUEBLO_POJOAQUE", "FONDULAC_WQX",   "PUEBLOOFTESUQUE", "CNENVSER"), 
-#   startDate = "2018-01-01", 
-#   endDate = "2019-01-01")
+# dataset_0  <- TADA::TADA_DataRetrieval(
+#   organization = c("REDLAKE_WQX", "SFNOES_WQX", "PUEBLO_POJOAQUE", "FONDULAC_WQX",   "PUEBLOOFTESUQUE", "CNENVSER"),
+#   startDate = "2018-01-01",
+#   endDate = "2023-01-01")
 
 # For brevity, we'll skip pinging the WQP and instead load the example data frame:
 dataset_0 <- TADA::Data_6Tribes_5y
@@ -217,24 +218,24 @@ dataset_0 <- TADA::Data_6Tribes_5y
 names(dataset_0)[grepl("TADA.", names(dataset_0))]
 ```
 
-Currently, the `TADA_DataRetrieval` function combines three WQP data
-profiles: Sample Results (Physical/Chemical), Site data, and Project
-data. This ensures that all important quality control columns are
-included in the data frame.
+Currently, the `TADA::TADA_DataRetrieval` function combines three WQP
+data profiles: Sample Results (Physical/Chemical), Site data, and
+Project data. This ensures that all important quality control columns
+are included in the data frame.
 
 **Note:** USGS and EPA are working together to create WQP 3.0 data
 profiles. Once released, one data profile will contain the columns
 critical to TADA, removing the need to combine profiles in this first
 step. TADA package users likely will not notice a difference in their
-usage of the `TADA_DataRetrieval` function, but it will simplify the
-steps needed to upload a custom or WQP GUI-downloaded data frame into
-the R package.
+usage of the `TADA::TADA_DataRetrieval` function, but it will simplify
+the steps needed to upload a custom or WQP GUI-downloaded data frame
+into the R package.
 
 ## Initial data review
 
 Now that we've pulled the data into the R session, let's take a look at
 it. Note that any column names with the "TADA." prefix were generated
-from the `TADA_DataRetrieval` function.
+from the `TADA::TADA_DataRetrieval` function.
 
 First, always good to take a look at the data frame dimensions.
 
@@ -270,7 +271,7 @@ dimCheck <- function(all_result_num, pass_data, fail_data, checkName) {
 all_result_num <- dim(dataset_0)[1]
 ```
 
-Next, we can use the TADA `TADA_FieldCounts()` function to see how many
+Next, we can use the `TADA::TADA_FieldCounts()` function to see how many
 unique values are contained within each column of the data frame. The
 function can either return all column counts, most, or just the key
 columns. We'll try the input with `display = "key"` and
@@ -316,9 +317,9 @@ dimCheck(all_result_num, dataset, removed, checkName = "Activity Media")
 ```
 
 Two additional helper functions one can use at any step in the process
-are `TADA_FieldValuesTable()` and `TADA_FieldValuesPie()`. These
-functions create a summary table and pie chart (respectively) of all the
-unique values in a given column. Let's give it a try on
+are `TADA::TADA_FieldValuesTable()` and `TADA::TADA_FieldValuesPie()`.
+These functions create a summary table and pie chart (respectively) of
+all the unique values in a given column. Let's give it a try on
 OrganizationFormalName, which is a WQP column naming the organization
 that supplied the result.
 
@@ -339,27 +340,27 @@ at this point, it would be good to remove those result values that are
 NA without any detection limit info, or contain text or special
 characters that cannot be converted to numeric. Note that TADA will fill
 in missing values with detection limit values and units with the
-`TADA_IDCensoredData` if the ResultDetectionConditionText and
-DetectionQuantitationLimitType fields are populated. Use
-`?TADA_ConvertSpecialChars` for more details on result value types and
-handling and `?TADA_IDCensoredData` for details on censored data
-preparation.
+`TADA::TADA_IDCensoredData` if the ResultDetectionConditionText and
+DetectionQuantitationLimitType fields are populated. See
+`?TADA::TADA_ConvertSpecialChars` for more details on result value types
+and handling and `?TADA::TADA_IDCensoredData` for details on censored
+data preparation.
 
-First, we can run `TADA_IDCensoredData` to fill in as many NA/missing
-values as possible. We can use `TADA_FieldValuesPie` to view the
-censored data flags identified in the data frame and their relative
-frequency. `TADA_IDCensoredData` sorts result values into detection
-limit categories (e.g. non-detect, over-detect) based on populated
-values in the ResultDetectionConditionText and
+First, we can run `TADA::TADA_IDCensoredData` to fill in as many
+NA/missing values as possible. We can use `TADA::TADA_FieldValuesPie` to
+view the censored data flags identified in the data frame and their
+relative frequency. `TADA::TADA_IDCensoredData` sorts result values into
+detection limit categories (e.g. non-detect, over-detect) based on
+populated values in the ResultDetectionConditionText and
 DetectionQuantitationLimitTypeName columns.
 
 You can find the reference tables used to make these decisions in
-`TADA_GetDetCondRef()` and `TADA_GetDetLimitRef()` functions. In some
-cases, results are missing detection limit/condition info, or there is a
-conflict in the detection limit and condition. The user may want to
-remove problematic detection limit data before proceeding. We can also
-filter for the "problem" data by TADA.CensoredData.Flag and review the
-unique reasons for data removal.
+`TADA::TADA_GetDetCondRef()` and `TADA::TADA_GetDetLimitRef()`
+functions. In some cases, results are missing detection limit/condition
+info, or there is a conflict in the detection limit and condition. The
+user may want to remove problematic detection limit data before
+proceeding. We can also filter for the "problem" data by
+TADA.CensoredData.Flag and review the unique reasons for data removal.
 
 ```{r id cens data}
 dataset <- TADA::TADA_IDCensoredData(dataset)
@@ -430,19 +431,20 @@ dimCheck(all_result_num, dataset, removed, checkName = "Result Format")
 We've taken a quick look at the raw data frame and split off some data
 that are not compatible with TADA, now let's run through some quality
 control checks. The most important ones to run to ensure your data frame
-is ready for subsequent steps are `TADA_FlagFraction()`,
-`TADA_FlagSpeciation()`, `TADA_FlagResultUnit()`, and
-`TADA_FindQCActivities()`. With the exception of
-`TADA_FindQCActivities()`, these flagging functions leverage WQX's [QAQC
-Validation
+is ready for subsequent steps are `TADA::TADA_FlagFraction()`,
+`TADA::TADA_FlagSpeciation()`, `TADA::TADA_FlagResultUnit()`, and
+`TADA::TADA_FindQCActivities()`. With the exception of
+`TADA::TADA_FindQCActivities()`, these flagging functions leverage WQX's
+[QAQC Validation
 Table](https://cdx.epa.gov/wqx/download/DomainValues/QAQCCharacteristicValidation.CSV).
-`TADA_FindQCActivities()` uses a TADA-specific domain table users can
-review with `TADA_GetActivityTypeRef()`. All QAQC tables are frequently
+See the [WQX QAQC Service User
+Guide](https://usepa.github.io/TADA/articles/WQXValidationService.html)
+for more details on how TADA leverages the validation table to flag
+potentially invalid data. `TADA::TADA_FindQCActivities()` uses a
+TADA-specific domain table users can review with
+`TADA::TADA_GetActivityTypeRef()`. All QAQC tables are frequently
 updated in the package to ensure they match the latest version on the
-web. You can find guidance for using the WQX QAQC Validation Tables in
-this
-[vignette](https://usepa.github.io/TADA/articles/WQXValidationService.html)
-on the TADA GitHub site.
+web.
 
 Bring the QAQC Validation Table into your R session to view or save with
 the following command:

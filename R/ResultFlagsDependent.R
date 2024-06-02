@@ -217,11 +217,14 @@ TADA_FlagSpeciation <- function(.data, clean = c("invalid_only", "nonstandardize
   check.data <- check.data %>%
     dplyr::rename(TADA.MethodSpeciation.Flag = Status) %>%
     dplyr::distinct()
+  
   # rename NA values to Not Reviewed in TADA.MethodSpeciation.Flag column
   check.data["TADA.MethodSpeciation.Flag"][is.na(check.data["TADA.MethodSpeciation.Flag"])] <- "Not Reviewed"
 
   # if all rows are "Valid", return input with flag column
-  if (any(c("Not Reviewed", "Invalid", "NonStandardized") %in%
+  if (any(c("Not Reviewed", "Invalid", "NonStandardized", 
+            "Nonstandardized", "Non Standardized", "InvalidMediaUnit",
+            "InvalidChar", "MethodNeeded", "Rejected", "Rejected ") %in%
     unique(check.data$TADA.MethodSpeciation.Flag)) == FALSE) {
     print("All characteristic/method speciation combinations are valid in your dataframe. Returning input dataframe with TADA.MethodSpeciation.Flag column for tracking.")
     check.data <- TADA_OrderCols(check.data)
@@ -236,19 +239,25 @@ TADA_FlagSpeciation <- function(.data, clean = c("invalid_only", "nonstandardize
   # when clean = "invalid_only"
   if (clean == "invalid_only") {
     # filter out only "Invalid" characteristic-method speciation combinations
-    clean.data <- dplyr::filter(check.data, TADA.MethodSpeciation.Flag != "Invalid")
+    clean.data <- dplyr::filter(check.data, TADA.MethodSpeciation.Flag != c("Invalid", "Rejected", "Rejected "))
   }
 
   # when clean = "nonstandardized_only"
   if (clean == "nonstandardized_only") {
     # filter out only "NonStandardized" characteristic-method speciation combinations
-    clean.data <- dplyr::filter(check.data, TADA.MethodSpeciation.Flag != "NonStandardized")
+    clean.data <- dplyr::filter(check.data, TADA.MethodSpeciation.Flag != c("NonStandardized",
+                                                                            "Nonstandardized",
+                                                                            "Non Standardized",
+                                                                            "InvalidMediaUnit",
+                                                                            "InvalidChar",
+                                                                            "MethodNeeded"))
   }
 
   # when clean = "both"
   if (clean == "both") {
     # filter out both "Invalid" and "NonStandardized" characteristic-method speciation combinations
-    clean.data <- dplyr::filter(check.data, TADA.MethodSpeciation.Flag != "NonStandardized" & TADA.MethodSpeciation.Flag != "Invalid")
+    # clean.data <- dplyr::filter(check.data, TADA.MethodSpeciation.Flag != "NonStandardized" & TADA.MethodSpeciation.Flag != "Invalid")
+    clean.data <- dplyr::filter(check.data, TADA.MethodSpeciation.Flag == c("Not Reviewed", "Accepted", "Y", "Valid"))
   }
 
   # when clean = "none"
@@ -266,7 +275,9 @@ TADA_FlagSpeciation <- function(.data, clean = c("invalid_only", "nonstandardize
   # when flaggedonly = TRUE
   if (flaggedonly == TRUE) {
     # filter to show only invalid and/or NonStandardized characteristic-method speciation combinations
-    error.data <- dplyr::filter(clean.data, TADA.MethodSpeciation.Flag == "Invalid" | TADA.MethodSpeciation.Flag == "NonStandardized")
+    # error.data <- dplyr::filter(clean.data, TADA.MethodSpeciation.Flag == "Invalid" | TADA.MethodSpeciation.Flag == "NonStandardized")
+    error.data <- dplyr::filter(clean.data, TADA.MethodSpeciation.Flag != c("Not Reviewed", "Accepted", "Y", "Valid"))
+    
     # if there are no errors
     if (nrow(error.data) == 0) {
       print("This dataframe is empty because either we did not find any Invalid/NonStandardized characteristic-method speciation combinations or they were all filtered out")

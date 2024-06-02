@@ -44,7 +44,8 @@ TADA_UpdateExampleData <- function() {
       "PUEBLOOFTESUQUE",
       "CNENVSER"
     ),
-    startDate = "2018-01-01"
+    startDate = "2018-01-01",
+    endDate = "2023-01-01"
   )
   print("Data_6Tribes_5y:")
   print(dim(Data_6Tribes_5y))

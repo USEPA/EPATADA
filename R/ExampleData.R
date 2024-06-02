@@ -23,7 +23,8 @@ NULL
 #'                                                  "FONDULAC_WQX",
 #'                                                  "PUEBLOOFTESUQUE",
 #'                                                  "CNENVSER"),
-#'                                 startDate = "2018-01-01")
+#'                                       startDate = "2018-01-01"
+#'                                       endDate = "2023-01-01")
 #'
 #' This example includes monitoring data collected from Jan 2018 to present
 #' by six organizations:
@@ -38,7 +39,7 @@ NULL
 #' @keywords data frame
 #' @name Data_6Tribes_5y
 #' @usage data(Data_6Tribes_5y)
-#' @format A data frame with 139033 rows and 151 variables
+#' @format A data frame with 134050 rows and 149 variables
 NULL
 
 #' Data_6Tribes_5y_Harmonized
@@ -52,7 +53,7 @@ NULL
 #' @keywords data frame
 #' @name Data_6Tribes_5y_Harmonized
 #' @usage data(Data_6Tribes_5y_Harmonized)
-#' @format A data frame with 122388 rows and 168 variables
+#' @format A data frame with 117124 rows and 166 variables
 NULL
 
 #' Data_NCTCShepherdstown_HUC12
