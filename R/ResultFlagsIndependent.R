@@ -1400,7 +1400,18 @@ TADA_FindPotentialDuplicatesSingleOrg <- function(.data) {
     .data$TADA.SingleOrgDup.Flag <- ifelse(.data$TADA.SingleOrgDupGroupID == "Not a duplicate", "Unique", .data$TADA.SingleOrgDup.Flag)
     print(paste0(dim(dups_sum_org)[1], " groups of potentially duplicated results found in dataset. These have been placed into duplicate groups in the TADA.SingleOrgDupGroupID column and the function randomly selected one result from each group to represent a single, unduplicated value. Selected values are indicated in the TADA.SingleOrgDup.Flag as 'Unique', while duplicates are flagged as 'Duplicate' for easy filtering."))
   }
-
+  
+  if (dim(dups_sum_org)[1] == 0) {
+    # apply to .data and remove numbers column
+    .data <- merge(.data, dups_sum_org, all.x = TRUE)
+    .data <- .data %>% dplyr::select(-numres)
+    .data$TADA.SingleOrgDupGroupID[is.na(.data$TADA.SingleOrgDupGroupID)] <- "Not a duplicate"
+    
+    # flags non-duplicates as passing
+    .data$TADA.SingleOrgDup.Flag <- ifelse(.data$TADA.SingleOrgDupGroupID == "Not a duplicate", "Unique", .data$TADA.SingleOrgDup.Flag)
+    print("No duplicate results detected. Returning input dataframe with TADA.SingleOrgDup.Flag flag column set to 'Unique'")
+  }
+  
   .data <- TADA_OrderCols(.data)
   return(.data)
 }
