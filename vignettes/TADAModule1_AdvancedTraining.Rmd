@@ -47,15 +47,17 @@ pre[class] {
 Thank you for your interest in Tools for Automated Data Analysis (TADA).
 TADA is an open-source tool set built in the R programming language and
 available for anyone to download and edit to their specific needs. This
-[RMarkdown](https://bookdown.org/yihui/rmarkdown/) document walks users
-through how to download the TADA R package from GitHub, access and
-parameterize several important functions with a sample data frame, and
-create basic visualizations. The workflow is similar to a funnel: at
-each decision point, data that fail QC checks are removed from the core
-data frame and placed in a separate data frame, while data that pass are
-carried into the next step. At the end of the QC checks, the user should
-be confident that their data are properly documented and applicable to
-the analysis at hand.
+**TADA Module 1: Training for Intermediate/Advanced R Users** RMarkdown
+document ([learn more about
+RMarkdown](https://bookdown.org/yihui/rmarkdown/)) walks through how to
+download the TADA R package from GitHub, access and parameterize several
+important functions with a sample data frame, and create basic
+visualizations. The workflow is similar to a funnel: at each decision
+point, data that fail QC checks are removed from the core data frame and
+placed in a separate data frame, while data that pass are carried into
+the next step. At the end of the QC checks, the user should be confident
+that their data are properly documented and applicable to the analysis
+at hand.
 
 **Note: TADA is still under development. New functionality is added
 weekly, and sometimes we need to make bug fixes in response to tester
