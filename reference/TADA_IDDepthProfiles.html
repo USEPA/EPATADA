@@ -131,13 +131,13 @@ of results available for the characteristic in parentheses.</p>
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># Load dataset</span></span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># Load data frame</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">Data_6Tribes_5y</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># find depth profile data without showing number of results</span></span></span>
 <span class="r-in"><span><span class="va">Data_6Tribes_5y_DepthProfileID_Nresults</span> <span class="op">&lt;-</span> <span class="fu">TADA_IDDepthProfiles</span><span class="op">(</span><span class="va">Data_6Tribes_5y</span>, nresults <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] "TADA_IDDepthProfiles: Necessary columns are being added to the data frame using TADA_DepthCatgegory.Flag function."</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "TADA_FlagDepthCategory: checking data set for depth values. 70421 results have depth values available."</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "TADA_FlagDepthCategory: checking data set for depth values. 57765 results have depth values available."</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] "TADA_FlagDepthCategory: assigning depth categories."</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] "TADA_FlagDepthCategory: Grouping results by MonitoringLocationIdentifier, OrganizationIdentifier, CharacteristicName, and ActivityStartDate for aggregation for entire water column."</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] "TADA_FlagDepthCategory: No aggregation performed."</span>
@@ -145,7 +145,7 @@ of results available for the characteristic in parentheses.</p>
 <span class="r-in"><span><span class="co"># find depth profile data showing number of results</span></span></span>
 <span class="r-in"><span><span class="va">Data_6Tribes_5y_DepthProfileID</span> <span class="op">&lt;-</span> <span class="fu">TADA_IDDepthProfiles</span><span class="op">(</span><span class="va">Data_6Tribes_5y</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] "TADA_IDDepthProfiles: Necessary columns are being added to the data frame using TADA_DepthCatgegory.Flag function."</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "TADA_FlagDepthCategory: checking data set for depth values. 70421 results have depth values available."</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "TADA_FlagDepthCategory: checking data set for depth values. 57765 results have depth values available."</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] "TADA_FlagDepthCategory: assigning depth categories."</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] "TADA_FlagDepthCategory: Grouping results by MonitoringLocationIdentifier, OrganizationIdentifier, CharacteristicName, and ActivityStartDate for aggregation for entire water column."</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] "TADA_FlagDepthCategory: No aggregation performed."</span>
