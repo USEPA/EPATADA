@@ -86,7 +86,7 @@ the daily aggregation occurs over each depth category (surface, middle, or botto
 or for the entire depth profile.
 }
 \examples{
-# Load dataset
+# Load data frame
 data(Data_6Tribes_5y)
 
 # assign TADA.DepthCategory.Flag with no aggregation

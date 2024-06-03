@@ -57,7 +57,6 @@ Imports:
     stringr,
     stringi,
     utils, 
-    RColorBrewer,
     stats, 
     lubridate,
     dataRetrieval, 
@@ -72,6 +71,7 @@ Imports:
 Depends: 
     R (>= 3.5.0)
 Suggests: 
+    RColorBrewer,
     rmarkdown,
     readr,
     tidyverse,

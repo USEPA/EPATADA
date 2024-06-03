@@ -74,7 +74,7 @@
 #' @export
 #'
 #' @examples
-#' # Load dataset
+#' # Load data frame
 #' data(Data_6Tribes_5y)
 #'
 #' # assign TADA.DepthCategory.Flag with no aggregation
@@ -167,7 +167,7 @@ TADA_FlagDepthCategory <- function(.data, bycategory = "no", bottomvalue = 2, su
       dplyr::mutate(TADA.DepthCategory.Flag = dplyr::case_when(
         TADA.ConsolidatedDepth <= surfacevalue ~ "Surface",
         TADA.ConsolidatedDepth <= TADA.ConsolidatedDepth.Bottom & TADA.ConsolidatedDepth >= TADA.ConsolidatedDepth.Bottom - bottomvalue ~ "Bottom",
-        TADA.ConsolidatedDepth < surfacevalue & TADA.ConsolidatedDepth < TADA.ConsolidatedDepth.Bottom - bottomvalue ~ "Middle"
+        TADA.ConsolidatedDepth > surfacevalue & TADA.ConsolidatedDepth < TADA.ConsolidatedDepth.Bottom - bottomvalue ~ "Middle"
       )) %>%
       # assign depth categories that could not be assigned using depth
       dplyr::left_join(ard.ref, by = "ActivityRelativeDepthName") %>%
@@ -467,7 +467,7 @@ TADA_FlagDepthCategory <- function(.data, bycategory = "no", bottomvalue = 2, su
 #' @export
 #'
 #' @examples
-#' # Load dataset
+#' # Load data frame
 #' data(Data_6Tribes_5y)
 #'
 #' # find depth profile data without showing number of results
@@ -603,7 +603,7 @@ TADA_IDDepthProfiles <- function(.data, nresults = TRUE, nvalue = 2, aggregates 
 #'
 #' @param groups A vector of two identifiers from the TADA.ComparableDataIdentifier column.
 #' For example, the groups could be 'DISSOLVED OXYGEN (DO)_NA_NA_UG/L' and 'PH_NA_NA_NA'.
-#' These groups will be specific to your dataset. The TADA_IDDepthProfiles can be
+#' These groups will be specific to your data frame. The TADA_IDDepthProfiles can be
 #' used to identify available groups.
 #'
 #' @param location A single MonitoringLocationIdentifier to plot the depth profile.
@@ -634,7 +634,7 @@ TADA_IDDepthProfiles <- function(.data, nresults = TRUE, nvalue = 2, aggregates 
 #' @export
 #'
 #' @examples
-#' # Load example dataset:
+#' # Load example data frame:
 #' data(Data_6Tribes_5y_Harmonized)
 #' # Create a depth profile figure with three parameters for a single monitoring location and date
 #' TADA_DepthProfilePlot(Data_6Tribes_5y_Harmonized,
@@ -643,7 +643,7 @@ TADA_IDDepthProfiles <- function(.data, nresults = TRUE, nvalue = 2, aggregates 
 #'   activity_date = "2018-10-04"
 #' )
 #'
-#' # Load example dataset:
+#' # Load example data frame:
 #' data(Data_6Tribes_5y_Harmonized)
 #' # Create a depth profile figure with two parameters for a single monitoring location and date without displaying depth categories
 #' TADA_DepthProfilePlot(Data_6Tribes_5y_Harmonized,
@@ -1320,11 +1320,12 @@ TADA_DepthProfilePlot <- function(.data,
   }
 
   # add horizontal lines for depth profile category
-  if (depthcat == TRUE) {
-    if (depthcat == TRUE & is.null(surfacevalue) & is.null(bottomvalue)) {
-      stop("TADA_DepthProfilePlot: No depth categories can be determined when both surfacevalue and bottomvalue are null. Supply one or both of these values and run the function again.")
-    }
-
+  if (depthcat == TRUE & is.null(surfacevalue) & is.null(bottomvalue))  {
+    stop("TADA_DepthProfilePlot: No depth categories can be determined when both surfacevalue and bottomvalue are null. Supply one or both of these values and run the function again.")
+  }
+  
+  if ((depthcat == TRUE & !is.null(surfacevalue)) | (depthcat == TRUE & !is.null(bottomvalue))) {
+   
     # create list to store depth annotation text
     depth_annotations <- list()
 
@@ -1426,12 +1427,13 @@ TADA_DepthProfilePlot <- function(.data,
     scatterplot <- scatterplot %>%
       plotly::layout(annotations = depth_annotations)
 
-  }
+    }
+
 
   # return plot with no depth profile category
   if (depthcat == FALSE) {
     scatterplot <- scatterplot
 
-    return(scatterplot)
   }
+    return(scatterplot)
 }
