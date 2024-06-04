@@ -79,6 +79,7 @@ FlagAboveThreshold
 FlagBelowThreshold
 FlagContinuousData
 FlagCoordinates
+FlagDepthCategory
 FlagFraction
 FlagMeasureQualifierCode
 FlagMethod
@@ -317,7 +318,6 @@ dataRetrieval
 datetimes
 depthcat
 devtools
-dimCheck
 dlist
 dplyr
 du
@@ -367,7 +367,6 @@ nondetections
 nonstandardized
 np
 nresults
-num
 od
 organizationid
 organizationname

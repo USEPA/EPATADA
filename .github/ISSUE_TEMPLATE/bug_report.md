@@ -45,32 +45,29 @@ A clear and concise description of what you expected to happen.
 
 If applicable, add screenshots to help explain your problem.
 
-**Session Info**
-
-Please include your session info:
-
-``` r
-sessionInfo()
-#OR preferred:
-devtools::session_info()
-```
-
 **Additional context**
 
 Add any other context about the problem here.
 
 **Reminders for TADA contributors addressing this issue**
 
-New features should include all of the following work:
+Bug fixes should include all the following work:
 
--   [ ] Create the function/code.
+-   [ ] Edit the function/code to address bug.
 
--   [ ] Document all code using comments to describe what is does.
+-   [ ] Document all edits to code using comments to describe what is does.
 
--   [ ] Create tests in tests folder.
+-   [ ] Create or edit tests in tests/testthat folder.
 
--   [ ] Create help file using roxygen2 above code.
+-   [ ] Create or edit the function documentation. Include working
+    examples.
 
--   [ ] Create working examples in help file (via roxygen2).
+-   [ ] Update or add the new functionality to the appropriate vignette
+    (or create new one).
 
--   [ ] Add to appropriate vignette (or create new one).
+-   [ ] If function/code edits made as part of this issue impact other
+    functions in the package or functionality in the shiny app, ensure
+    those are updated as well.
+
+-   [ ] Run devtools document() and check() and address any new comments
+    or issues before creating a pull request.
