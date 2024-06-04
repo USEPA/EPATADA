@@ -35,7 +35,7 @@ test_that("TADA_ConvertDepthUnits catches non-dataframe", {
 test_that("TADA_ConvertDepthUnits catches non-dataframe", {
   # Drop by name
   TADAProfile2 <- dplyr::select(TADAProfile, -ActivityDepthHeightMeasure.MeasureValue)
-  err <- "The dataframe does not contain the required fields to use TADA. Use either the full physical/chemical profile downloaded from WQP or download the TADA profile template available on the EPA TADA webpage."
+  err <- "The dataframe does not contain the required fields. Use either the full physical/chemical profile downloaded from WQP or download the TADA profile template available on the EPA TADA webpage."
   expect_error(TADA_ConvertDepthUnits(TADAProfile2), err)
 })
 

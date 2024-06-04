@@ -429,7 +429,7 @@ TADA_CheckType <- function(arg, type, paramName) {
 #'
 TADA_CheckColumns <- function(.data, expected_cols) {
   if (all(expected_cols %in% colnames(.data)) == FALSE) {
-    stop("The dataframe does not contain the required fields to use TADA. Use either the full physical/chemical profile downloaded from WQP or download the TADA profile template available on the EPA TADA webpage.")
+    stop("The dataframe does not contain the required fields. Use either the full physical/chemical profile downloaded from WQP or download the TADA profile template available on the EPA TADA webpage.")
   }
 }
 
@@ -1360,7 +1360,7 @@ TADA_UniqueCharUnitSpeciation <- function(.data) {
   
   # Check to see if TADA_Autoclean has been run
   if (all(required_cols %in% colnames(.data)) == FALSE) {
-    print("The dataframe does not contain the required fields to use TADA. Running TADA_AutoClean to create required columns.")
+    print("The dataframe does not contain the required fields. Running TADA_AutoClean to create required columns.")
     .data <- TADA_AutoClean(.data)
   }
   

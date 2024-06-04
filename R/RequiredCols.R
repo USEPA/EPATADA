@@ -369,7 +369,7 @@ TADA_CheckRequiredFields <- function(.data) {
   if (all(require.originals %in% colnames(.data)) == TRUE) {
     TRUE
   } else {
-    stop("The dataframe does not contain the required fields to use TADA Module 1.")
+    stop("The dataframe does not contain the required fields.")
   }
 }
 

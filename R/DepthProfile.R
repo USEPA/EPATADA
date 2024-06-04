@@ -84,6 +84,28 @@
 #' Data_6Tribs_5y_Mean <- TADA_FlagDepthCategory(Data_6Tribes_5y, bycategory = "all", dailyagg = "avg", aggregatedonly = FALSE)
 #'
 TADA_FlagDepthCategory <- function(.data, bycategory = "no", bottomvalue = 2, surfacevalue = 2, dailyagg = "none", aggregatedonly = FALSE, clean = FALSE) {
+  
+  # check .data is data.frame
+  TADA_CheckType(.data, "data.frame", "Input object")
+  # check aggregatedonly is boolean
+  TADA_CheckType(aggregatedonly, "logical")
+  # check clean is boolean
+  TADA_CheckType(clean, "logical")
+  # check .data has required columns
+  TADA_CheckColumns(.data, c("TADA.ActivityDepthHeightMeasure.MeasureValue", 
+                             "TADA.ResultDepthHeightMeasure.MeasureValue",
+                             "ActivityRelativeDepthName",
+                             "TADA.ResultDepthHeightMeasure.MeasureUnitCode", 
+                             "TADA.ActivityDepthHeightMeasure.MeasureUnitCode",
+                             "TADA.CharacteristicName",
+                             "TADA.ResultMeasure.MeasureUnitCode",
+                             "ResultIdentifier",
+                             "MonitoringLocationIdentifier",
+                             "OrganizationIdentifier",
+                             "ActivityStartDate"))
+
+  # execute function after checks are passed
+  
   depthcat.list <- c("Surface", "Bottom", "Middle")
 
   ard.ref <- utils::read.csv(system.file("extdata", "WQXActivityRelativeDepthRef.csv", package = "TADA")) %>%
@@ -486,7 +508,7 @@ TADA_IDDepthProfiles <- function(.data, nresults = TRUE, nvalue = 2, aggregates 
   )
 
   if (all(flag.func.cols %in% colnames(.data)) == TRUE) {
-    print("TADA_IDDepthProfiles: Necessary columns from TADA_DepthCategoryFlag function are included in the data frame.")
+    print("TADA_IDDepthProfiles: Necessary columns from TADA_FlagDepthCategory function are included in the data frame.")
 
     .data <- .data
   }
@@ -682,13 +704,13 @@ TADA_DepthProfilePlot <- function(.data,
   )
 
   if (all(flag.func.cols %in% colnames(.data)) == TRUE) {
-    print("TADA_DepthProfilePlot: Necessary columns from TADA_DepthCategoryFlag function are included in the data frame")
+    print("TADA_DepthProfilePlot: Necessary columns from TADA_FlagDepthCategory function are included in the data frame")
 
     .data <- .data
   }
 
   if (any(flag.func.cols %in% colnames(.data)) == FALSE) {
-    print("TADA_DepthProfilePlot: Running TADA_DepthCategoryFlag function to add required columns to data frame")
+    print("TADA_DepthProfilePlot: Running TADA_FlagDepthCategory function to add required columns to data frame")
 
 
     if (bottomvalue == "null" & surfacevalue == "null") {

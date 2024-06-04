@@ -721,7 +721,7 @@ dataset_depth <- TADA::TADA_FlagDepthCategory(dataset_cens)
 
 ```
 
-We can also use another function, `TADA_IDDepthProfile`s to identify
+We can also use another function, `TADA_IDDepthProfiles` to identify
 location/date/characteristic combinations in the data set that can be
 used for depth profile plots or analysis. The default number of values
 required to identify a location/date/characteristic as a depth profile
