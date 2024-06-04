@@ -532,7 +532,7 @@ You can review any other columns of interest and create custom domain
 tables of your "Valid" and "Invalid" criteria using R or Excel. Also
 check out some of the other flagging functions available in TADA:
 
--   `?TADA_FindNearbySites()` - under active development
+-   `?TADA_FindNearbySites()`
 
 -   `?TADA_FindPotentialDuplicatesMultipleOrgs()`
 
