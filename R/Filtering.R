@@ -66,7 +66,8 @@ TADA_FieldCounts <- function(.data, display = c("key", "most", "all"), character
       "CharacteristicNameUserSupplied",
       "TADA.MethodSpeciationName",
       "TADA.ResultSampleFractionText",
-      "TADA.ComparableDataIdentifier"
+      "TADA.ComparableDataIdentifier",
+      "ResultLaboratoryCommentText"
     )
   }
   if (display == "most") {
