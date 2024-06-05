@@ -207,7 +207,7 @@ enter `?TADA_DataRetrieval` into the console for more information
 about input parameters and to see several examples.
 
 ```{r dataretrieval}
-# download example data 
+# download example data
 # dataset_0  <- TADA_DataRetrieval(
 #   organization = c("REDLAKE_WQX", "SFNOES_WQX", "PUEBLO_POJOAQUE", "FONDULAC_WQX",   "PUEBLOOFTESUQUE", "CNENVSER"),
 #   startDate = "2018-01-01",
@@ -423,9 +423,8 @@ dataset <- dataset %>% dplyr::filter(dataset$TADA.ResultMeasureValueDataTypes.Fl
 # create data frame to includ all removed results
 removed <- plyr::rbind.fill(removed, incompatible_datatype)
 
-# dimension check 
+# dimension check
 dimCheck(all_result_num, dataset, removed, checkName = "Result Format")
-
 ```
 
 ## Data flagging
@@ -624,12 +623,11 @@ Let's first check out characteristics in the data frame using `dplyr`
 functions and pipes.
 
 ```{r cens summary}
-
 # get table of characteristics with number of results, sites, and organizations
 dataset_cens_summary <- dataset_cens %>%
   dplyr::group_by(TADA.CharacteristicName) %>%
   dplyr::summarise(Result_Count = length(ResultIdentifier), Site_Count = length(unique(MonitoringLocationIdentifier)), Org_Count = length(unique(OrganizationIdentifier))) %>%
-  dplyr::arrange(desc(Result_Count)) 
+  dplyr::arrange(desc(Result_Count))
 ```
 
 You may see a characteristic that you'd like to investigate further in
@@ -716,9 +714,7 @@ with this. First we can use `TADA_FlagDepthCategory` to place results
 into various depth categories (surface, middle, and bottom).
 
 ```{r depth category}
-
 dataset_depth <- TADA_FlagDepthCategory(dataset_cens)
-
 ```
 
 We can also use another function, `TADA_IDDepthProfiles` to identify
@@ -730,9 +726,7 @@ value, 5, so that any depth profiles identified will have results from
 at least 5 different depths.
 
 ```{r id depth profile}
-
 depth_profile_id <- TADA_IDDepthProfiles(dataset_depth, nvalue = 5)
-
 ```
 
 **Question 11: How can TADA_IDDepthProfiles() help users use
@@ -743,33 +737,32 @@ characteristics against depth. In this example, we will look at pH,
 secchi depth, and pH.
 
 ```{r depth plot}
-
-TADA_DepthProfilePlot(dataset_cens, 
-                            groups = c('TEMPERATURE, 
-                                       WATER_NA_NA_DEG C', 
-                                       'DEPTH, SECCHI DISK DEPTH_NA_NA_M', 
-                                       'PH_NA_NA_NONE'),
-                            location = "REDLAKE_WQX-ANKE",
-                            activity_date = "2018-10-04",
-                            depthcat = TRUE,
-                            surfacevalue = 2,
-                            bottomvalue = 2,
-                            unit = "m")
-
+TADA_DepthProfilePlot(dataset_cens,
+  groups = c(
+    "TEMPERATURE,
+                                       WATER_NA_NA_DEG C",
+    "DEPTH, SECCHI DISK DEPTH_NA_NA_M",
+    "PH_NA_NA_NONE"
+  ),
+  location = "REDLAKE_WQX-ANKE",
+  activity_date = "2018-10-04",
+  depthcat = TRUE,
+  surfacevalue = 2,
+  bottomvalue = 2,
+  unit = "m"
+)
 ```
 
 Finally, we can download our PASS and FAIL data sets together into an
 Excel spreadsheet.
 
 ```{r excel}
-
 dataset_and_removed <- dplyr::bind_rows(dataset_cens, removed)
 
 # Un-comment to download Excel spreadsheet to your working directory
 # install.packages(writexl)
 # library(writexl)
 # writexl::write_xlsx(dataset_and_removed, "NCTCShepherdstownData.xlsx")
-
 ```
 
 ## TADA R Shiny Modules

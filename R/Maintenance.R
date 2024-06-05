@@ -220,6 +220,7 @@ FindSynonyms <- function() {
 #
 # # Run devtools check and test
 # devtools::check()
+# devtools::check(manual = TRUE, remote = TRUE, incoming = TRUE) # more robust test for releases (includes broken link check)
 # devtools::test()
 #
 # # spell check

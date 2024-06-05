@@ -35,7 +35,7 @@ Add any other context or screenshots about the feature request here.
 
 **Reminders for TADA contributors addressing this issue:**
 
-New features should include all the following work:
+New features and/or edits should include all the following work:
 
 -   [ ] Create or edit the function/code.
 
@@ -55,3 +55,8 @@ New features should include all the following work:
 
 -   [ ] Run devtools document() and check() and address any new comments
     or issues before creating a pull request.
+
+-   [ ] Run TADA_UpdateAllRefs(), TADA_UpdateExampleData(), and
+    styler::style_pkg() in Maintenance.R. Run more robust check for
+    releases: devtools::check(manual = TRUE, remote = TRUE, incoming =
+    TRUE)

@@ -53,9 +53,9 @@ Add any other context about the problem here.
 
 Bug fixes should include all the following work:
 
--   [ ] Edit the function/code to address bug.
+-   [ ] Create or edit the function/code.
 
--   [ ] Document all edits to code using comments to describe what is does.
+-   [ ] Document all code using comments to describe what is does.
 
 -   [ ] Create or edit tests in tests/testthat folder.
 
@@ -71,3 +71,8 @@ Bug fixes should include all the following work:
 
 -   [ ] Run devtools document() and check() and address any new comments
     or issues before creating a pull request.
+
+-   [ ] Run TADA_UpdateAllRefs(), TADA_UpdateExampleData(), and
+    styler::style_pkg() in Maintenance.R. Run more robust check for
+    releases: devtools::check(manual = TRUE, remote = TRUE, incoming =
+    TRUE)

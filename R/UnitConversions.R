@@ -431,11 +431,11 @@ TADA_ConvertResultUnits <- function(.data, ref = "tada", transform = TRUE) {
           TADA.Target.ResultMeasure.MeasureUnitCode = Target.Unit,
           TADA.WQXUnitConversionFactor = Conversion.Factor
         )
-        dplyr::full_join(usgs.ref, by = c(
-          "TADA.ResultMeasure.MeasureUnitCode",
-          "TADA.Target.ResultMeasure.MeasureUnitCode",
-          "TADA.WQXUnitConversionFactor"
-        )) %>%
+      dplyr::full_join(usgs.ref, by = c(
+        "TADA.ResultMeasure.MeasureUnitCode",
+        "TADA.Target.ResultMeasure.MeasureUnitCode",
+        "TADA.WQXUnitConversionFactor"
+      )) %>%
         dplyr::select(
           TADA.ResultMeasure.MeasureUnitCode, TADA.Target.ResultMeasure.MeasureUnitCode,
           TADA.WQXUnitConversionFactor, TADA.WQXUnitConversionCoefficient,
@@ -463,11 +463,10 @@ TADA_ConvertResultUnits <- function(.data, ref = "tada", transform = TRUE) {
     dplyr::select(-tidyselect::any_of(conversion.cols)) %>%
     # add new conversion columns
     dplyr::left_join(unit.ref,
-      by = 
+      by =
         c(
           ref.join
         ),
-     
       relationship = "many-to-many"
     )
 
