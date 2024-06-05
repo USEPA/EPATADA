@@ -101,7 +101,7 @@ listed on the [Function
 reference](https://usepa.github.io/TADA/reference/index.html) page on
 the GitHub site. Users can also access the help page for a given
 function in R or RStudio using the following format (example below):
-`?TADA::[name of TADA function]`
+`?[name of TADA function]`
 
 ```{r help_pages, eval = F}
 # Access help page for TADA_DataRetrieval

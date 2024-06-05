@@ -141,7 +141,7 @@ used to harmonize these synonyms.
 ```{r TADA_DataRetrieval}
 # Import data from WQP
 
-data <- TADA::TADA_DataRetrieval(statecode = "IL",
+data <- TADA_DataRetrieval(statecode = "IL",
                                  startDate = "2010-01-01", 
                                  endDate = "2020-12-31", 
                                  huc = c("0714010505", "0714010504", "0714010508", "0714010501", "0714010503"),
@@ -203,7 +203,7 @@ geospatial functions.
 ```{r TADA_GetAttains}
 # Import data from ATTAINS geospatial services
 
-ATTAINS_data <- TADA::TADA_GetATTAINS(data)
+ATTAINS_data <- TADA_GetATTAINS(data)
 ```
 
 ## View Geospatial Features

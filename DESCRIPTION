@@ -1,6 +1,6 @@
-Package: TADA
+Package: EPATADA
 Type: Package
-Title: TADA (Tools for Automated Data Analysis) R Package
+Title: EPA TADA (Tools for Automated Data Analysis) R Package
 Version: 0.0.1
 Authors@R: 
   c(person(given = "U.S. Environmental Protection Agency",
@@ -19,9 +19,6 @@ Authors@R:
     person(given = "Elise",
            family = "Hinman",
            role = "aut"), 
-    person(given = "Hillary",
-           family = "Marler",
-           role = "ctb"), 
     person(given = "Kathryn", 
            family = "Willi",
            role = "ctb"),

@@ -97,7 +97,7 @@ TADA_CreateUnitRef <- function(.data, print.message = TRUE) {
   # Create df of TADA priority targets with TADA specific conversions
   tada.targets <- data.units %>%
     # Add TADA priority target units
-    dplyr::left_join(tada.char.ref, by = "TADA.CharacteristicName") %>%
+    dplyr::left_join(tada.char.ref, by = "TADA.CharacteristicName", relationship = "many-to-many") %>%
     # Filter out any rows without a TADA priority target unit
     dplyr::filter(!is.na(TADA.Target.ResultMeasure.MeasureUnitCode)) %>%
     # Join TADA specific conversion factor/coefficient (not included in unit.ref because they disagree with WQX target units)
@@ -119,7 +119,7 @@ TADA_CreateUnitRef <- function(.data, print.message = TRUE) {
   # Create df of TADA priority targets with WQX/USGS conversions
   tada.wqx <- data.units %>%
     # Add TADA priority target units
-    dplyr::left_join(tada.char.ref, by = "TADA.CharacteristicName") %>%
+    dplyr::left_join(tada.char.ref, by = "TADA.CharacteristicName", relationship = "many-to-many") %>%
     # Create a CharUnit column by concatenating characteristic name and code
     dplyr::mutate(CharUnit = paste(TADA.CharacteristicName, "_", TADA.ResultMeasure.MeasureUnitCode, sep = "")) %>%
     # Filter out any rows already assigned TADA specific conversion factor/coefficient or without a TADA priority target unit

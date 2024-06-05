@@ -12,7 +12,7 @@ data(Data_NCTCShepherdstown_HUC12)
 }
 \description{
 Original pull:
-Data_NCTCShepherdstown_HUC12 = TADA::TADA_DataRetrieval(
+Data_NCTCShepherdstown_HUC12 = TADA_DataRetrieval(
 startDate = "2020-03-14",
 endDate = "null",
 countycode = "null",

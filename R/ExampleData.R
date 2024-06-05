@@ -59,7 +59,7 @@ NULL
 #' Data_NCTCShepherdstown_HUC12
 #'
 #' Original pull:
-#' Data_NCTCShepherdstown_HUC12 = TADA::TADA_DataRetrieval(
+#' Data_NCTCShepherdstown_HUC12 = TADA_DataRetrieval(
 #'   startDate = "2020-03-14",
 #'   endDate = "null",
 #'   countycode = "null",
@@ -85,7 +85,7 @@ NULL
 #' Data_R5_TADAPackageDemo
 #'
 #' Original pull:
-#' Data_R5_TADAPackageDemo <- TADA::TADA_DataRetrieval(
+#' Data_R5_TADAPackageDemo <- TADA_DataRetrieval(
 #'  startDate = "2019-05-01",
 #'  endDate = "2019-05-07",
 #'  countycode = "null",

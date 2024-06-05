@@ -238,8 +238,8 @@ TADA_FlagSpeciation <- function(.data, clean = c("invalid_only", "nonstandardize
 
   # when clean = "invalid_only"
   if (clean == "invalid_only") {
-    # filter out only "Invalid" characteristic-method speciation combinations
-    clean.data <- dplyr::filter(check.data, TADA.MethodSpeciation.Flag != c("Invalid", "Rejected", "Rejected "))
+    # filter out rejected characteristic-method speciation combinations
+    clean.data <- dplyr::filter(check.data, TADA.MethodSpeciation.Flag != "Rejected")
   }
 
   # when clean = "nonstandardized_only"
@@ -247,17 +247,14 @@ TADA_FlagSpeciation <- function(.data, clean = c("invalid_only", "nonstandardize
     # filter out only "NonStandardized" characteristic-method speciation combinations
     clean.data <- dplyr::filter(check.data, TADA.MethodSpeciation.Flag != c("NonStandardized",
                                                                             "Nonstandardized",
-                                                                            "Non Standardized",
-                                                                            "InvalidMediaUnit",
-                                                                            "InvalidChar",
-                                                                            "MethodNeeded"))
+                                                                            "Non Standardized"))
   }
 
   # when clean = "both"
   if (clean == "both") {
     # filter out both "Invalid" and "NonStandardized" characteristic-method speciation combinations
     # clean.data <- dplyr::filter(check.data, TADA.MethodSpeciation.Flag != "NonStandardized" & TADA.MethodSpeciation.Flag != "Invalid")
-    clean.data <- dplyr::filter(check.data, TADA.MethodSpeciation.Flag == c("Not Reviewed", "Accepted", "Y", "Valid"))
+    clean.data <- dplyr::filter(check.data, TADA.MethodSpeciation.Flag == c("Not Reviewed", "Accepted"))
   }
 
   # when clean = "none"

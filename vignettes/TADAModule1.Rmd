@@ -1263,7 +1263,7 @@ unique(TADAProfileClean5$TADA.ComparableDataIdentifier)
 TADAProfileCleanTP <- dplyr::filter(TADAProfileClean6, TADA.ComparableDataIdentifier == "TOTAL PHOSPHORUS, MIXED FORMS_UNFILTERED_AS P_UG/L")
 
 # generate stats table
-TADAProfileCleanTP_stats <- TADA::TADA_Stats(TADAProfileCleanTP)
+TADAProfileCleanTP_stats <- TADA_Stats(TADAProfileCleanTP)
 
 TADAProfileCleanTP_stats
 
@@ -1277,7 +1277,7 @@ TP_Histogram
 Generate interactive box plot.
 
 ```{r boxplot, fig.width=8, fig.height=6, fig.fullwidth=TRUE}
-TP_Boxplot <- TADA::TADA_Boxplot(TADAProfileCleanTP, id_cols = "TADA.ComparableDataIdentifier")
+TP_Boxplot <- TADA_Boxplot(TADAProfileCleanTP, id_cols = "TADA.ComparableDataIdentifier")
 
 TP_Boxplot
 ```
@@ -1290,7 +1290,7 @@ TADAProfileCleanTP_dailymax <- TADA_AggregateMeasurements(TADAProfileCleanTP,
   clean = TRUE
 )
 
-TP_Scatterplot <- TADA::TADA_Scatterplot(TADAProfileCleanTP_dailymax, id_cols = "TADA.ComparableDataIdentifier")
+TP_Scatterplot <- TADA_Scatterplot(TADAProfileCleanTP_dailymax, id_cols = "TADA.ComparableDataIdentifier")
 
 TP_Scatterplot
 ```
