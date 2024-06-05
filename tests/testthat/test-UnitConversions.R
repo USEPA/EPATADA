@@ -10,6 +10,7 @@ ActivityBottomDepthHeightMeasure.MeasureUnitCode <- c(NaN, NaN)
 ResultDepthHeightMeasure.MeasureValue <- c(NaN, NaN)
 ResultDepthHeightMeasure.MeasureUnitCode <- c(NaN, NaN)
 ActivityEndTime.TimeZoneCode <- c(NaN, NaN)
+
 TADAProfile <- data.frame(
   ResultIdentifier,
   ActivityDepthHeightMeasure.MeasureValue,
