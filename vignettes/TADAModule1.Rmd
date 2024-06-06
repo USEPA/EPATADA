@@ -182,7 +182,8 @@ Additional resources:
 -   [Water Quality Portal Web Services
     Guide](https://www.waterqualitydata.us/webservices_documentation/)
 
--   [dataRetrieval Tutorial](https://waterdata.usgs.gov/blog/dataretrieval/)
+-   [dataRetrieval
+    Tutorial](https://waterdata.usgs.gov/blog/dataretrieval/)
 
 Use the code below to download data from the WQP using
 TADA_DataRetrieval. Edit the code chuck below to define your own WQP
