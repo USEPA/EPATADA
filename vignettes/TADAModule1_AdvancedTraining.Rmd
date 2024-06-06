@@ -704,7 +704,7 @@ EPATADA::TADA_Histogram(plot_data, id_cols = "TADA.ComparableDataIdentifier")
 
 EPATADA::TADA_Boxplot(plot_data, id_cols = "TADA.ComparableDataIdentifier")
 
-stats <- TADA_Stats(plot_data)
+stats <- EPATADA::TADA_Stats(plot_data)
 ```
 
 We can also explore depth profiles for selected characteristics at
