@@ -81,7 +81,7 @@ Finally, use the **library()** function to load the TADA R Package into
 your R session.
 
 ```{r library, results = 'hide'}
-library(TADA)
+library(EPATADA)
 ```
 
 ```{r for-development-only, echo = F, results = 'hide', eval = F}

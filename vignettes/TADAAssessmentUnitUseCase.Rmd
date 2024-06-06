@@ -74,7 +74,7 @@ loading packages.
 
 ```{r library, results = 'hide', message = FALSE, warning = FALSE}
 # Load required packages
-library(TADA)
+library(EPATADA)
 library(dplyr)
 library(yaml)
 library(lwgeom)
