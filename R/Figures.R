@@ -919,7 +919,10 @@ TADA_TwoCharacteristicScatterplot <- function(.data, id_cols = "TADA.ComparableD
         showgrid = FALSE, tickcolor = "black"
       ),
       yaxis = list(
-        title = paste0(param1$TADA.CharacteristicName[1], "  ", param1$TADA.ResultMeasure.MeasureUnitCode[1]),
+        title =  stringr::str_remove_all(stringr::str_remove_all(
+          stringr::str_remove_all(paste0(param1$TADA.CharacteristicName[1], "  ", param1$TADA.ResultMeasure.MeasureUnitCode[1]), stringr::fixed(" (NA)")),
+          stringr::fixed("NA ")
+        ), stringr::fixed(" NA")),
         titlefont = list(size = 16, family = "Arial"),
         tickfont = list(size = 16, family = "Arial"),
         hoverformat = ",.4r", linecolor = "black", rangemode = "tozero",
@@ -928,7 +931,10 @@ TADA_TwoCharacteristicScatterplot <- function(.data, id_cols = "TADA.ComparableD
       yaxis2 = list(
         side = "right",
         overlaying = "y",
-        title = paste0(param2$TADA.CharacteristicName[1], "  ", param2$TADA.ResultMeasure.MeasureUnitCode[1]),
+        title =  stringr::str_remove_all(stringr::str_remove_all(
+          stringr::str_remove_all(paste0(param2$TADA.CharacteristicName[1], "  ", param2$TADA.ResultMeasure.MeasureUnitCode[1]), stringr::fixed(" (NA)")),
+          stringr::fixed("NA ")
+        ), stringr::fixed(" NA")),
         titlefont = list(size = 16, family = "Arial"),
         tickfont = list(size = 16, family = "Arial"),
         hoverformat = ",.4r", linecolor = "black", rangemode = "tozero",
