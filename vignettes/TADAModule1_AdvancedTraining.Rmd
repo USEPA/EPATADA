@@ -110,15 +110,6 @@ remotes::install_github("USEPA/EPATADA",
 library(EPATADA)
 ```
 
-```{r for-development-only, echo = F, results = 'hide', eval = F}
-# IF YOU ARE NOT DEVELOPING TADA, SKIP THIS CODE CHUNK
-# when developing the package, update this chunk to the current repository branch, so it runs with all of the new features prior to a PR to develop
-remotes::install_github("USEPA/TADA",
-  ref = "cm-release-review-2",
-  dependencies = TRUE
-)
-```
-
 It's that easy! The most stable branch for TADA right now is the develop
 branch. Contributors generally create their own branches based on
 develop, make some improvements, and then submit a pull request to be
