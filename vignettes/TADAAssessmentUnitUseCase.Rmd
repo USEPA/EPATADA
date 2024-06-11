@@ -72,7 +72,7 @@ for TADA package installation instructions.)
 We'll also record the start time for our analysis, beginning after
 loading packages.
 
-```{r library, results = 'hide', message = FALSE, warning = FALSE}
+```{r library, eval = F, results = 'hide'}
 # Load required packages
 library(EPATADA)
 library(dplyr)

@@ -65,7 +65,8 @@ Imports:
     urltools,
     geojsonsf,
     tibble,
-    lwgeom
+    lwgeom,
+    DT
 Depends: 
     R (>= 3.5.0)
 Suggests: 
@@ -82,7 +83,6 @@ Suggests:
     spelling,
     htmltools,
     remotes,
-    DT, 
     yaml
 VignetteBuilder: knitr, rmarkdown
 Language: en-US

@@ -124,7 +124,7 @@ the code in this RMarkdown document are loaded. However, users may also
 use the `package name:: package function` notation to avoid the list of
 `library()` calls.
 
-```{r}
+```{r, eval = F, results = 'hide'}
 list.of.packages <- c("tidyverse")
 new.packages <- list.of.packages[!(list.of.packages %in% installed.packages()[, "Package"])]
 if (length(new.packages)) install.packages(new.packages)
@@ -197,9 +197,9 @@ described above are run. See `?TADA_AutoClean` for more details.
 `TADA_DataRetrieval` follows similar parameterization to the
 dataRetrieval package function `dataRetrieval::readWQPdata`, but check
 out the [help
-page](https://usepa.github.io/EPATADA/reference/TADA_DataRetrieval.html) or
-enter `?TADA_DataRetrieval` into the console for more information about
-input parameters and to see several examples.
+page](https://usepa.github.io/EPATADA/reference/TADA_DataRetrieval.html)
+or enter `?TADA_DataRetrieval` into the console for more information
+about input parameters and to see several examples.
 
 ```{r dataretrieval}
 # download example data
@@ -657,7 +657,8 @@ One of the next big steps is data harmonization: translating and
 aggregating synonyms, combining multiple forms/species of certain
 characteristics, etc. We won't get to that in this demo (more details
 can be found here: [TADA Module 1: Water Quality Portal Data Discovery
-and Cleaning](https://usepa.github.io/EPATADA/articles/TADAModule1.html) or
+and Cleaning](https://usepa.github.io/EPATADA/articles/TADAModule1.html)
+or
 [TADA_HarmonizeSynonyms()](https://usepa.github.io/EPATADA/reference/TADA_HarmonizeSynonyms.html)),
 but for now we can start looking at data distributions within a single
 characteristic-speciation-fraction-unit using the plotting functions
