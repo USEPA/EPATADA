@@ -17,11 +17,11 @@ NULL
 #' @name quiet
 #' @param x Code to silence
 #' @return Function or code output with print messages silenced
-quiet <- function(x) { 
-  sink(tempfile()) 
-  on.exit(sink()) 
-  invisible(force(x)) 
-} 
+quiet <- function(x) {
+  sink(tempfile())
+  on.exit(sink())
+  invisible(force(x))
+}
 
 # write global variables. Gets rid of global variable NOTE in check:
 utils::globalVariables(c(
@@ -72,13 +72,13 @@ utils::globalVariables(c(
   "ResultMeasure.MeasureUnitCode", "TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode",
   "DetectionQuantitationLimitMeasure.MeasureUnitCode", "NCode",
   "ATTAINS.assessmentunitidentifier", "ATTAINS_AU", "TOTALAREA_MI", "TOTALAREA_KM",
-  "ATTAINS_AUs",  "ARD_Category", "ActivityRelativeDepthName", "DepthsByGroup",
-  "DepthsPerGroup","MeanResults", "MonitoringLocationTypeName", "N", "SecchiConversion",
-  "TADA.ActivityBottomDepthHeightMeasure.MeasureValue", 
+  "ATTAINS_AUs", "ARD_Category", "ActivityRelativeDepthName", "DepthsByGroup",
+  "DepthsPerGroup", "MeanResults", "MonitoringLocationTypeName", "N", "SecchiConversion",
+  "TADA.ActivityBottomDepthHeightMeasure.MeasureValue",
   "TADA.ActivityDepthHeightMeasure.MeasureUnitCode", "TADA.ActivityDepthHeightMeasure.MeasureValue",
-  "TADA.CharacteristicsForDepthProfile TADA.ConsolidatedDepth", 
+  "TADA.CharacteristicsForDepthProfile TADA.ConsolidatedDepth",
   "TADA.ConsolidatedDepth.Bottom TADA.ConsolidatedDepth.Unit", "TADA.DepthCategory.Flag",
-  "TADA.DepthProfileAggregation.Flag", "TADA.NResults", 
+  "TADA.DepthProfileAggregation.Flag", "TADA.NResults",
   "TADA.ResultDepthHeightMeasure.MeasureUnitCode", "TADA.ResultDepthHeightMeasure.MeasureValue",
   "YAxis.DepthUnit", "TADA.CharacteristicsForDepthProfile", "TADA.ConsolidatedDepth",
   "TADA.ConsolidatedDepth.Bottom", "TADA.ConsolidatedDepth.Unit", "col2rgb",
@@ -95,73 +95,75 @@ VATribeUrl <- "https://geopub.epa.gov/arcgis/rest/services/EMEF/Tribal/MapServer
 
 #' TADA_AutoClean
 #'
-#' This function performs the following tasks: 
-#' 1) Creates new columns with the TADA prefix "TADA." and capitalizes all letters
-#' within them so that they're interoperable with the WQX validation reference 
-#' tables and to reduce issues with case-sensitivity when joining data: 
-#' CharacteristicName, ResultSampleFractionText, MethodSpeciationName,
-#' ResultMeasure.MeasureUnitCode, ActivityMediaName, and 
+#' This function performs the following tasks:
+#' 1) Creates new columns with the TADA prefix "TADA." and capitalizes all 
+#' letters within them so that they're interoperable with the WQX validation 
+#' reference tables and to reduce issues with case-sensitivity when joining 
+#' data: CharacteristicName, ResultSampleFractionText, MethodSpeciationName,
+#' ResultMeasure.MeasureUnitCode, ActivityMediaName, and
 #' DetectionQuantitationLimitMeasure.MeasureUnitCode.
-#' 2) This function runs "TADA_ConvertSpecialChars" on these columns: 
-#' ResultMeasureValue and DetectionQuantitationLimitMeasure.MeasureValue. 
-#' Creates new versions of these columns with the TADA prefix "TADA." 
-#' 3) Converts the column type of LatitudeMeasure and LongitudeMeasure to 
+#' 2) This function runs "TADA_ConvertSpecialChars" on these columns:
+#' ResultMeasureValue and DetectionQuantitationLimitMeasure.MeasureValue.
+#' Creates new versions of these columns with the TADA prefix "TADA."
+#' 3) Converts the column type of LatitudeMeasure and LongitudeMeasure to
 #' numeric (double) and creates new columns with the “TADA” prefix.
-#' 4) Replace meters" with “m” in the following columns: 
-#' TADA.ResultMeasure.MeasureUnitCode, ActivityDepthHeightMeasure.MeasureUnitCode,
-#'  ActivityTopDepthHeightMeasure.MeasureUnitCode, 
-#'  ActivityBottomDepthHeightMeasure.MeasureUnitCode, and 
-#'  ResultDepthHeightMeasure.MeasureUnitCode.
-#' 5) Runs TADA_SubstituteDeprecatedChars to replace deprecated characteristic 
+#' 4) Replace meters" with “m” in the following columns:
+#' TADA.ResultMeasure.MeasureUnitCode, 
+#' ActivityDepthHeightMeasure.MeasureUnitCode,
+#' ActivityTopDepthHeightMeasure.MeasureUnitCode,
+#' ActivityBottomDepthHeightMeasure.MeasureUnitCode, and
+#' ResultDepthHeightMeasure.MeasureUnitCode.
+#' 5) Runs TADA_SubstituteDeprecatedChars to replace deprecated characteristic
 #' names based on Water Quality Exchange (WQX) Characteristic domain table.
-#' 6) Runs TADA_ConvertResultUnits to harmonize result and detection limit 
-#' units to WQX and TADA or user supplied target units. Enter 
-#' ?TADA_ConvertResultUnits and ?TADA_CreateUnitRef() into the console for more 
-#' details. 
-#' 7) Runs TADA_ConvertDepthUnits to convert the depth units to meters on the 
-#' following columns: ResultDepthHeightMeasure.MeasureValue, 
-#' ActivityDepthHeightMeasure.MeasureValue, ActivityTopDepthHeightMeasure.MeasureValue,
-#'  and ActivityBottomDepthHeightMeasure.MeasureValue, and add new columns 
-#'  with the “TADA” prefix. 
-#' 8) Runs TADA_CreateComparableID to create a comparable data group by pasting
-#'  together TADA.CharacteristicName, TADA.ResultSampleFractionText, 
-#'  TADA.MethodSpeciationName, and TADA.ResultMeasure.MeasureUnitCode.
-#' 
-#' Original affected columns are not changed: new columns are added to the end 
-#' of the dataframe with the prefix "TADA." 
-#' TADA_AutoClean can be run as a stand alone function but is primarily used by the TADA_dataRetrieval function.
+#' 6) Runs TADA_ConvertResultUnits to harmonize result and detection limit
+#' units to WQX and TADA or user supplied target units. Enter
+#' ?TADA_ConvertResultUnits and ?TADA_CreateUnitRef() into the console for more
+#' details.
+#' 7) Runs TADA_ConvertDepthUnits to convert the depth units to meters on the
+#' following columns: ResultDepthHeightMeasure.MeasureValue,
+#' ActivityDepthHeightMeasure.MeasureValue, 
+#' ActivityTopDepthHeightMeasure.MeasureValue,
+#' and ActivityBottomDepthHeightMeasure.MeasureValue, and add new columns
+#' with the “TADA” prefix.
+#' 8) Runs TADA_CreateComparableID to create a comparable data group by 
+#' concatenating TADA.CharacteristicName, TADA.ResultSampleFractionText,
+#' TADA.MethodSpeciationName, and TADA.ResultMeasure.MeasureUnitCode.
+#'
+#' Original columns are not changed: new columns are added to the end of the
+#' dataframe with the prefix "TADA.". TADA_AutoClean can be run as a stand 
+#' alone function but is primarily used by the TADA_dataRetrieval function.
 #'
 #' @param .data TADA dataframe
 #'
 #' @return Input dataframe with several added TADA-specific columns, including:
-#' 
-#' TADA.ActivityMediaName	(character)
-#' TADA.ResultSampleFractionText	(character)
-#' TADA.CharacteristicName	(character)
-#' TADA.MethodSpeciationName	(character)
-#' TADA.ComparableDataIdentifier	(character)
-#' TADA.ResultMeasureValue	(numeric)
-#' TADA.ResultMeasureValueDataTypes.Flag	(character)
+#'
+#' TADA.ActivityMediaName (character)
+#' TADA.ResultSampleFractionText (character)
+#' TADA.CharacteristicName (character)
+#' TADA.MethodSpeciationName (character)
+#' TADA.ComparableDataIdentifier (character)
+#' TADA.ResultMeasureValue (numeric)
+#' TADA.ResultMeasureValueDataTypes.Flag (character)
 #' TADA.ResultMeasure.MeasureUnitCode	(character)
 #' TADA.WQXResultUnitConversion	(character)
-#' TADA.DetectionQuantitationLimitMeasure.MeasureValue	(numeric)
-#' TADA.DetectionQuantitationLimitMeasure.MeasureValueDataTypes.Flag	(character)
+#' TADA.DetectionQuantitationLimitMeasure.MeasureValue (numeric)
+#' TADA.DetectionQuantitationLimitMeasure.MeasureValueDataTypes.Flag (character)
 #' TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode	(character)
 #' TADA.ResultDepthHeightMeasure.MeasureValue	(numeric)
 #' TADA.ResultDepthHeightMeasure.MeasureValueDataTypes.Flag	(character)
-#' TADA.ResultDepthHeightMeasure.MeasureUnitCode	(character)
+#' TADA.ResultDepthHeightMeasure.MeasureUnitCode (character)
 #' TADA.ActivityDepthHeightMeasure.MeasureValue	(numeric)
 #' TADA.ActivityDepthHeightMeasure.MeasureValueDataTypes.Flag	(character)
-#' TADA.ActivityDepthHeightMeasure.MeasureUnitCode	(character)
-#' TADA.ActivityTopDepthHeightMeasure.MeasureValue	(numeric)
-#' TADA.ActivityTopDepthHeightMeasure.MeasureValueDataTypes.Flag	(character)
+#' TADA.ActivityDepthHeightMeasure.MeasureUnitCode (character)
+#' TADA.ActivityTopDepthHeightMeasure.MeasureValue (numeric)
+#' TADA.ActivityTopDepthHeightMeasure.MeasureValueDataTypes.Flag (character)
 #' TADA.ActivityTopDepthHeightMeasure.MeasureUnitCode	(character)
 #' TADA.ActivityBottomDepthHeightMeasure.MeasureValue	(numeric)
 #' TADA.ActivityBottomDepthHeightMeasure.MeasureValueDataTypes.Flag	(character)
-#' TADA.ActivityBottomDepthHeightMeasure.MeasureUnitCode	(character)
+#' TADA.ActivityBottomDepthHeightMeasure.MeasureUnitCode (character)
 #' TADA.LatitudeMeasure	(numeric)
-#' TADA.LongitudeMeasure	(numeric)
-#' 
+#' TADA.LongitudeMeasure (numeric)
+#'
 #' Please note that the number of TADA-specific depth columns in the returned
 #' dataframe depends upon the number of depth columns with one or more results
 #' populated with a numeric value. If all depth columns contain only NA's, no
@@ -171,7 +173,7 @@ VATribeUrl <- "https://geopub.epa.gov/arcgis/rest/services/EMEF/Tribal/MapServer
 #'
 #' @examples
 #' \dontrun{
-#' # Find web service URLs for each Profile using WQP User Interface (https://www.waterqualitydata.us/)
+#' # Find web service URLs for each Profile using WQP User Interface: https://www.waterqualitydata.us/
 #' # Example WQP URL: https://www.waterqualitydata.us/#statecode=US%3A09&characteristicType=Nutrient&startDateLo=04-01-2023&startDateHi=11-01-2023&mimeType=csv&providers=NWIS&providers=STEWARDS&providers=STORET
 #'
 #' # Use TADA_ReadWQPWebServices to load the Station, Project, and Phys-Chem Result profiles
@@ -297,7 +299,7 @@ TADA_AutoClean <- function(.data) {
   print("TADA_Autoclean: converting TADA.LatitudeMeasure and TADA.LongitudeMeasure fields to numeric.")
   .data$TADA.LatitudeMeasure <- as.numeric(.data$LatitudeMeasure)
   .data$TADA.LongitudeMeasure <- as.numeric(.data$LongitudeMeasure)
-  
+
   # update data types (only needed if TADA_JoinWQPProfiles is used to download data). commenting out for now (these data type conversions should happen on TADA versions of these columns? review what USGS DR does)
   # join2$ActivityStartDate <- as.Date(join2$ActivityStartDate)
   # join2$ActivityEndDate <- as.Date(join2$ActivityEndDate)
@@ -429,7 +431,7 @@ TADA_CheckType <- function(arg, type, paramName) {
 #'
 TADA_CheckColumns <- function(.data, expected_cols) {
   if (all(expected_cols %in% colnames(.data)) == FALSE) {
-    stop("The dataframe does not contain the required fields to use TADA. Use either the full physical/chemical profile downloaded from WQP or download the TADA profile template available on the EPA TADA webpage.")
+    stop("The dataframe does not contain the required fields. Use either the full physical/chemical profile downloaded from WQP or download the TADA profile template available on the EPA TADA webpage.")
   }
 }
 
@@ -1334,129 +1336,131 @@ TADA_addPoints <- function(map, layerfilepath, layergroup, layername, bbox = NUL
 }
 
 #' Create Characteristic/MeasureUnitCode/MethodSpeciation Ref
-#' 
+#'
 #' Creates data frame of unique combinations of TADA.CharacteristicName,
 #' TADA.ResultMeasure.MeasureUnitCode, ResultMeasure.MeasureUnitCode, and
 #' TADA.MethodSpeciationName in a TADA data frame.
-#' 
+#'
 #' @param .data A TADA data frame.
-#' 
+#'
 #' @return A data frame with unique combinations of TADA.CharacteristicName,
 #' TADA.ResultMeasure.MeasureUnitCode, ResultMeasure.MeasureUnitCode, and
 #' TADA.MethodSpeciationName
-#' 
+#'
 #' @export
-#' 
+#'
 #' @examples
 #' UniqueCharUnitSpecExample <- TADA_UniqueCharUnitSpeciation(Data_NCTCShepherdstown_HUC12)
-
 TADA_UniqueCharUnitSpeciation <- function(.data) {
-  
   required_cols <- c(
     "TADA.CharacteristicName", "TADA.ResultSampleFractionText",
     "TADA.MethodSpeciationName", "TADA.ResultMeasure.MeasureUnitCode",
     "TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode"
   )
-  
+
   # Check to see if TADA_Autoclean has been run
   if (all(required_cols %in% colnames(.data)) == FALSE) {
-    print("The dataframe does not contain the required fields to use TADA. Running TADA_AutoClean to create required columns.")
+    print("The dataframe does not contain the required fields. Running TADA_AutoClean to create required columns.")
     .data <- TADA_AutoClean(.data)
   }
-  
+
   if (all(required_cols %in% colnames(.data)) == TRUE) {
     .data <- .data
   }
-  
+
   # Create df of unique codes and characteristic names(from TADA.CharacteristicName and TADA.ResultMeasure.MeasureUnitCode) in TADA data frame
   data.units.result <- .data %>%
-    dplyr::select(TADA.CharacteristicName, TADA.ResultMeasure.MeasureUnitCode, 
-                  ResultMeasure.MeasureUnitCode, TADA.MethodSpeciationName) %>%
+    dplyr::select(
+      TADA.CharacteristicName, TADA.ResultMeasure.MeasureUnitCode,
+      ResultMeasure.MeasureUnitCode, TADA.MethodSpeciationName
+    ) %>%
     dplyr::distinct()
-  
+
   # Create df of unique codes and characteristic names(from TADA.CharacteristicName and TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode) in TADA data frame
   data.units.det <- .data %>%
-    dplyr::select(TADA.CharacteristicName, TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode, 
-                  DetectionQuantitationLimitMeasure.MeasureUnitCode, TADA.MethodSpeciationName) %>%
+    dplyr::select(
+      TADA.CharacteristicName, TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode,
+      DetectionQuantitationLimitMeasure.MeasureUnitCode, TADA.MethodSpeciationName
+    ) %>%
     dplyr::distinct() %>%
     dplyr::rename(
       TADA.ResultMeasure.MeasureUnitCode = TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode,
       ResultMeasure.MeasureUnitCode = DetectionQuantitationLimitMeasure.MeasureUnitCode
     )
-  
+
   # Create combined df with all unique codes (both result and det units) and characteristic names
   data.units <- data.units.result %>%
-    dplyr::full_join(data.units.det, by = c("TADA.CharacteristicName", "TADA.ResultMeasure.MeasureUnitCode",
-                                            "ResultMeasure.MeasureUnitCode", "TADA.MethodSpeciationName")) %>%
+    dplyr::full_join(data.units.det, by = c(
+      "TADA.CharacteristicName", "TADA.ResultMeasure.MeasureUnitCode",
+      "ResultMeasure.MeasureUnitCode", "TADA.MethodSpeciationName"
+    )) %>%
     dplyr::distinct() %>%
     dplyr::group_by(TADA.CharacteristicName) %>%
     dplyr::mutate(NCode = length(unique(TADA.ResultMeasure.MeasureUnitCode))) %>%
     dplyr::filter(!is.na(TADA.ResultMeasure.MeasureUnitCode) |
-                    is.na(TADA.ResultMeasure.MeasureUnitCode) & NCode == 1) %>%
+      is.na(TADA.ResultMeasure.MeasureUnitCode) & NCode == 1) %>%
     dplyr::select(-NCode)
 }
 
 
 #' Create Color Palette For Use in Graphs and Maps
-#' 
+#'
 #' Creates a consistent color palette for use in TADA visualizations. Currently,
 #' the palette is utilizing the "Okabe-Ito" palette from base R via the palette.colors
-#' function. The palette includes 9 colors by default. However, additional colors 
-#' can be added to the palette as needed as more complex visualization functions 
-#' are added to the TADA package. 
-#' 
+#' function. The palette includes 9 colors by default. However, additional colors
+#' can be added to the palette as needed as more complex visualization functions
+#' are added to the TADA package.
+#'
 #' @return A color palette based on the "Okabe-Ito" palette, extended to 15 colors,
 #'  with modifications for use in mapping and graphing functions
-#' 
+#'
 #' @export
-#' 
+#'
 #' @examples
 #' TestColorPalette <- TADA_ColorPalette()
-#' 
- TADA_ColorPalette <- function() {
-   
-   pal <- c("#000000", "#835A00", "#DC851E", "#059FA4", "#56B4E9",
-            "#005258",  "#A1A522", "#F0E442", "#66A281", "#1E6F98",
-            "#4F5900", "#813B00", "#CD758F", "#B686A1", "#999999")
-            
-     return(pal)
- }
- 
- 
- #' View TADA Color Palette
- #' 
- #' View a swatch of the colors in the TADA Color palette labeled by color and
- #' index number. TADA developers can reference this function when deciding which
- #' colors to use in TADA visualizations. TADA users can also reference this 
- #' palette function to create their own visually consistent figures.
- #' 
- #' @return A color swatch figure based on the TADA color palette.
- #' 
- #' @export
- #' 
- #' @examples 
- #' TestViewPalette <- TADA_ViewColorPalette()
- #' 
- TADA_ViewColorPalette <- function() {
-   
-   # call TADA color palette
-   pal <- TADA_ColorPalette()
-   
-   # determine length of color palette
-   n <- length(pal)
-   
-   # create list of label colors, first one needs to be white to show up clearly
-   label_colors <- rep("black", n)
-   label_colors[1] <- "white"
-   
-   # create color swatch graphic
-   graphics::par(mar = c(5,0,5,0))
-   swatch <- graphics::plot(1, type = "n", xlab = "", ylab = "", xlim = c(0.5,n + 0.5), ylim = c(0,1), main = "TADA Palette", axes = FALSE)
-   rect(1:n - 0.5, 0, n + 0.5, 1, col = pal, border = NA)
-   text(x = 1:n, y = 0.5, labels = 1:n, pos = 3, col = label_colors)
-   text(x = 1:n, y = 0.5 - 0.2, labels = pal, pos = 1, col = label_colors, cex = 0.7, srt = 90)
-   
-return(swatch)
-   }
+#'
+TADA_ColorPalette <- function() {
+  pal <- c(
+    "#000000", "#835A00", "#DC851E", "#059FA4", "#56B4E9",
+    "#005258", "#A1A522", "#F0E442", "#66A281", "#1E6F98",
+    "#4F5900", "#813B00", "#CD758F", "#B686A1", "#999999"
+  )
+
+  return(pal)
+}
 
 
+#' View TADA Color Palette
+#'
+#' View a swatch of the colors in the TADA Color palette labeled by color and
+#' index number. TADA developers can reference this function when deciding which
+#' colors to use in TADA visualizations. TADA users can also reference this
+#' palette function to create their own visually consistent figures.
+#'
+#' @return A color swatch figure based on the TADA color palette.
+#'
+#' @export
+#'
+#' @examples
+#' TestViewPalette <- TADA_ViewColorPalette()
+#'
+TADA_ViewColorPalette <- function() {
+  # call TADA color palette
+  pal <- TADA_ColorPalette()
+
+  # determine length of color palette
+  n <- length(pal)
+
+  # create list of label colors, first one needs to be white to show up clearly
+  label_colors <- rep("black", n)
+  label_colors[1] <- "white"
+
+  # create color swatch graphic
+  graphics::par(mar = c(5, 0, 5, 0))
+  swatch <- graphics::plot(1, type = "n", xlab = "", ylab = "", xlim = c(0.5, n + 0.5), ylim = c(0, 1), main = "TADA Palette", axes = FALSE)
+  rect(1:n - 0.5, 0, n + 0.5, 1, col = pal, border = NA)
+  text(x = 1:n, y = 0.5, labels = 1:n, pos = 3, col = label_colors)
+  text(x = 1:n, y = 0.5 - 0.2, labels = pal, pos = 1, col = label_colors, cex = 0.7, srt = 90)
+
+  return(swatch)
+}

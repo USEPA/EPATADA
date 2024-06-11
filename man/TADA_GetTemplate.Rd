@@ -7,10 +7,10 @@
 TADA_GetTemplate()
 }
 \value{
-A TADA template data frame with all required columns for the TADA workflow.
+A TADA template with all required columns for the TADA workflow.
 }
 \description{
-This function returns a blank TADA template data frame that can be used
+This function returns a blank TADA template that can be used
 as a starting point to reformat your own custom data set into the TADA format.
 }
 \examples{

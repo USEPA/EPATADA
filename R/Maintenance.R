@@ -86,7 +86,7 @@ TADA_UpdateExampleData <- function() {
   rm(Data_6Tribes_5y_Harmonized)
 
   # Generate Data_NCTCShepherdstown_HUC12
-  Data_NCTCShepherdstown_HUC12 <- TADA::TADA_DataRetrieval(
+  Data_NCTCShepherdstown_HUC12 <- TADA_DataRetrieval(
     startDate = "2020-03-14",
     endDate = "null",
     countycode = "null",
@@ -108,7 +108,7 @@ TADA_UpdateExampleData <- function() {
   rm(Data_NCTCShepherdstown_HUC12)
 
   # Generate Data_R5_TADAPackageDemo
-  Data_R5_TADAPackageDemo <- TADA::TADA_DataRetrieval(
+  Data_R5_TADAPackageDemo <- TADA_DataRetrieval(
     startDate = "2019-05-01",
     endDate = "2019-05-07",
     countycode = "null",
@@ -220,6 +220,7 @@ FindSynonyms <- function() {
 #
 # # Run devtools check and test
 # devtools::check()
+# devtools::check(manual = TRUE, remote = TRUE, incoming = TRUE) # more robust test for releases (includes broken link check)
 # devtools::test()
 #
 # # spell check

@@ -49,7 +49,8 @@ filter the data frame to remove rows that are not going to be used in analyses,
 and retain only the media types selected by the user.Setting clean = TRUE, means
 that all results not flagged for use in the analysis workflow will be removed
 and the TADA.UseForAnalysis.Flag column will not be added.
-
+}
+\details{
 It uses ActivityMediaSubdivisionName, AquiferName,
 LocalAqfrName, ConstructionDateText, WellDepthMeasure.MeasureValue,
 WellDepthMeasure.MeasureUnitCode, WellHoleDepthMeasure.MeasureValue, and

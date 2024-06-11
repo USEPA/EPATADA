@@ -339,7 +339,7 @@ TADA_DataRetrieval <- function(startDate = "null",
 #' 2. Project Data
 #' 3. Site Data Only
 #'
-#' After you retrieve all three profiles, you can use TADA::TADA_JoinWQPProfiles to
+#' After you retrieve all three profiles, you can use TADA_JoinWQPProfiles to
 #' join the three dataframes into a single dataframe.
 #'
 #' Note: It may be useful to save the Query URL from the WQP as well as a
@@ -645,7 +645,7 @@ TADA_BigDataRetrieval <- function(startDate = "null",
 
         for (i in 1:max(smallsitesgrp$group)) {
           site_chunk <- subset(smallsitesgrp$MonitoringLocationIdentifier, smallsitesgrp$group == i)
-          joins <- TADA::TADA_DataRetrieval(
+          joins <- TADA_DataRetrieval(
             startDate = startDate,
             endDate = endDate,
             siteid = site_chunk,
@@ -681,7 +681,7 @@ TADA_BigDataRetrieval <- function(startDate = "null",
             startD <- paste0(min(yearchunk), "-01-01")
             endD <- paste0(max(yearchunk), "-12-31")
 
-            joins <- TADA::TADA_DataRetrieval(
+            joins <- TADA_DataRetrieval(
               startDate = startD,
               endDate = endD,
               siteid = site_chunk,

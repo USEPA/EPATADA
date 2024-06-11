@@ -587,7 +587,7 @@ TADA_FieldValuesPie <- function(.data, field = "null", characteristicName = "nul
   dat$Legend <- paste0(dat$Value, " - ", dat$Count, " results")
   dat <- dat %>%
     dplyr::rowwise() %>%
-    dplyr::mutate(Legend = TADA::TADA_InsertBreaks(Legend))
+    dplyr::mutate(Legend = TADA_InsertBreaks(Legend))
 
   # create TADA color palette
   tada.pal <- TADA_ColorPalette()
@@ -889,7 +889,7 @@ TADA_TwoCharacteristicScatterplot <- function(.data, id_cols = "TADA.ComparableD
   param1 <- subset(plot.data, plot.data[, id_cols] %in% groups[1])
   param2 <- subset(plot.data, plot.data[, id_cols] %in% groups[2])
 
-  title <- TADA::TADA_InsertBreaks(
+  title <- TADA_InsertBreaks(
     paste0(
       param1$TADA.CharacteristicName[1],
       " and ",

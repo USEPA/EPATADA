@@ -10,6 +10,7 @@ ActivityBottomDepthHeightMeasure.MeasureUnitCode <- c(NaN, NaN)
 ResultDepthHeightMeasure.MeasureValue <- c(NaN, NaN)
 ResultDepthHeightMeasure.MeasureUnitCode <- c(NaN, NaN)
 ActivityEndTime.TimeZoneCode <- c(NaN, NaN)
+
 TADAProfile <- data.frame(
   ResultIdentifier,
   ActivityDepthHeightMeasure.MeasureValue,
@@ -35,20 +36,20 @@ test_that("TADA_ConvertDepthUnits catches non-dataframe", {
 test_that("TADA_ConvertDepthUnits catches non-dataframe", {
   # Drop by name
   TADAProfile2 <- dplyr::select(TADAProfile, -ActivityDepthHeightMeasure.MeasureValue)
-  err <- "The dataframe does not contain the required fields to use TADA. Use either the full physical/chemical profile downloaded from WQP or download the TADA profile template available on the EPA TADA webpage."
-  expect_error(TADA_ConvertDepthUnits(TADAProfile2), err)
+  err <- "The dataframe does not contain the required fields. Use either the full physical/chemical profile downloaded from WQP or download the TADA profile template available on the EPA TADA webpage."
+  expect_error(EPATADA::TADA_ConvertDepthUnits(TADAProfile2), err)
 })
 
 # When unit arg is not expected
 test_that("TADA_ConvertDepthUnits catches bad unit arg", {
   err <- "Invalid 'unit' argument. 'unit' must be either 'm' (meter), 'ft' (feet), or 'in' (inch)."
   # Fixed = TRUE avoids dealing with regex
-  expect_error(TADA_ConvertDepthUnits(TADAProfile, unit = "km"), err, fixed = TRUE)
+  expect_error(EPATADA::TADA_ConvertDepthUnits(TADAProfile, unit = "km"), err, fixed = TRUE)
 })
 
 # Conversion correct
 test_that("TADA_ConvertDepthUnits convert ft to m", {
-  x <- TADA_ConvertDepthUnits(TADAProfile)
+  x <- EPATADA::TADA_ConvertDepthUnits(TADAProfile)
   actual <- x$TADA.ActivityDepthHeightMeasure.MeasureValue[2]
   actual.unit <- x$TADA.ActivityDepthHeightMeasure.MeasureUnitCode[2]
   expect_equal(actual, 0.3048)
@@ -57,22 +58,22 @@ test_that("TADA_ConvertDepthUnits convert ft to m", {
 
 # meters to m in depth columns
 test_that("TADA_ConvertDepthUnits converts meters to m", {
-  check_depth_meters <- TADA_DataRetrieval(
+  check_depth_meters <- EPATADA::TADA_DataRetrieval(
     statecode = "UT",
     organization = "USGS-UT",
     characteristicName = c("Ammonia", "Nitrate", "Nitrogen"),
     startDate = "2023-01-01",
     endDate = "2023-03-01"
   )
-  check_depth_meters <- TADA_ConvertDepthUnits(check_depth_meters)
+  check_depth_meters <- EPATADA::TADA_ConvertDepthUnits(check_depth_meters)
   expect_false("meters" %in% check_depth_meters$TADA.ActivityDepthHeightMeasure.MeasureUnitCode)
 })
 
 # check that TADA_CreateUnitRef contains a row for each TADA.CharacteristicName,
 # TADA.ResultMeasure.MeasureUnitCode, and ResultMeasure.MeasureUnitCode
 test_that("TADA_CreateUnitRef output contains a row for each TADA.CharacteristicName, TADA.ResultMeasure.MeasureUnitCode, and ResultMeasure.MeasureUnitCode.", {
-  testdat <- TADA_RandomTestingData(number_of_days = 3, choose_random_state = TRUE)
-  unit.ref <- TADA_CreateUnitRef(testdat)
+  testdat <- EPATADA::TADA_RandomTestingData(number_of_days = 3, choose_random_state = TRUE)
+  unit.ref <- EPATADA::TADA_CreateUnitRef(testdat)
   unit.ref <- unit.ref %>%
     dplyr::select(
       TADA.CharacteristicName, TADA.ResultMeasure.MeasureUnitCode,
