@@ -70,7 +70,7 @@ the development version of dataRetrieval can be downloaded directly from
 GitHub (un-comment).
 
 ```{r install_TADA, eval = F, results = 'hide'}
-remotes::install_github("USEPA/TADA",
+remotes::install_github("USEPA/EPATADA",
   ref = "develop",
   dependencies = TRUE
 )
@@ -81,14 +81,14 @@ Finally, use the **library()** function to load the TADA R Package into
 your R session.
 
 ```{r library, results = 'hide'}
-library(TADA)
+library(EPATADA)
 ```
 
 ```{r for-development-only, echo = F, results = 'hide', eval = F}
 # IF YOU ARE NOT DEVELOPING TADA, SKIP THIS CODE CHUNK
 # when developing the package, update this chunk to the current repository branch, so it runs with all of the new features prior to a PR to develop
-remotes::install_github("USEPA/TADA",
-  ref = "trainingupdates",
+remotes::install_github("USEPA/EPATADA",
+  ref = "cm-release-review-2",
   dependencies = TRUE
 )
 ```
@@ -182,7 +182,8 @@ Additional resources:
 -   [Water Quality Portal Web Services
     Guide](https://www.waterqualitydata.us/webservices_documentation/)
 
--   [dataRetrieval Tutorial](https://owi.usgs.gov/R/dataRetrieval.html)
+-   [dataRetrieval
+    Tutorial](https://waterdata.usgs.gov/blog/dataretrieval/)
 
 Use the code below to download data from the WQP using
 TADA_DataRetrieval. Edit the code chuck below to define your own WQP
@@ -1263,7 +1264,7 @@ unique(TADAProfileClean5$TADA.ComparableDataIdentifier)
 TADAProfileCleanTP <- dplyr::filter(TADAProfileClean6, TADA.ComparableDataIdentifier == "TOTAL PHOSPHORUS, MIXED FORMS_UNFILTERED_AS P_UG/L")
 
 # generate stats table
-TADAProfileCleanTP_stats <- TADA::TADA_Stats(TADAProfileCleanTP)
+TADAProfileCleanTP_stats <- TADA_Stats(TADAProfileCleanTP)
 
 TADAProfileCleanTP_stats
 
@@ -1277,7 +1278,7 @@ TP_Histogram
 Generate interactive box plot.
 
 ```{r boxplot, fig.width=8, fig.height=6, fig.fullwidth=TRUE}
-TP_Boxplot <- TADA::TADA_Boxplot(TADAProfileCleanTP, id_cols = "TADA.ComparableDataIdentifier")
+TP_Boxplot <- TADA_Boxplot(TADAProfileCleanTP, id_cols = "TADA.ComparableDataIdentifier")
 
 TP_Boxplot
 ```
@@ -1290,7 +1291,7 @@ TADAProfileCleanTP_dailymax <- TADA_AggregateMeasurements(TADAProfileCleanTP,
   clean = TRUE
 )
 
-TP_Scatterplot <- TADA::TADA_Scatterplot(TADAProfileCleanTP_dailymax, id_cols = "TADA.ComparableDataIdentifier")
+TP_Scatterplot <- TADA_Scatterplot(TADAProfileCleanTP_dailymax, id_cols = "TADA.ComparableDataIdentifier")
 
 TP_Scatterplot
 ```

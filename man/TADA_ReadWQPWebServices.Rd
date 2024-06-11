@@ -30,7 +30,7 @@ We recommend retrieving data for all the following profiles
 \item Site Data Only
 }
 
-After you retrieve all three profiles, you can use TADA::TADA_JoinWQPProfiles to
+After you retrieve all three profiles, you can use TADA_JoinWQPProfiles to
 join the three dataframes into a single dataframe.
 
 Note: It may be useful to save the Query URL from the WQP as well as a

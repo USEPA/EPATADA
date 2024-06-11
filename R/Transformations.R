@@ -109,19 +109,22 @@ TADA_HarmonizeSynonyms <- function(.data, ref, np_speciation = TRUE) {
   }
 
   # find places where metadata will be changed and add targets
-  harm.ref$TADA.Harmonized.Flag <- ifelse(!is.na(harm.ref$Target.TADA.CharacteristicName) | 
-                                            !is.na(harm.ref$Target.TADA.ResultSampleFractionText) | 
-                                            !is.na(harm.ref$Target.TADA.MethodSpeciationName), 
-                                          TRUE, FALSE)
-  
+  harm.ref$TADA.Harmonized.Flag <- ifelse(!is.na(harm.ref$Target.TADA.CharacteristicName) |
+    !is.na(harm.ref$Target.TADA.ResultSampleFractionText) |
+    !is.na(harm.ref$Target.TADA.MethodSpeciationName),
+  TRUE, FALSE
+  )
+
   .data <- .data[, !names(.data) %in% c("TADA.ComparableDataIdentifier")]
 
   # join harm.ref to .data
   flag.data <- .data %>%
-    dplyr::left_join(harm.ref, by = c("TADA.CharacteristicName",
-                                      "TADA.ResultSampleFractionText",
-                                      "TADA.MethodSpeciationName"))
-  
+    dplyr::left_join(harm.ref, by = c(
+      "TADA.CharacteristicName",
+      "TADA.ResultSampleFractionText",
+      "TADA.MethodSpeciationName"
+    ))
+
   # TADA.CharacteristicName
   # replace TADA.CharacteristicName with Target.TADA.CharacteristicName
   clean.data <- flag.data %>%

@@ -14,9 +14,8 @@
 #' @export
 #'
 #' @examples
-#' 
 #' \dontrun{
-#' 
+#'
 #' tada_not_spatial <- TADA_DataRetrieval(
 #'   characteristicName = "pH",
 #'   statecode = "SC",
@@ -27,7 +26,7 @@
 #' # make `tada_not_spatial` an sf object, projected in crs = 4269 (NAD83)
 #' tada_spatial <- TADA_MakeSpatial(tada_not_spatial, crs = 4269)
 #' }
-#' 
+#'
 TADA_MakeSpatial <- function(.data, crs = 4326) {
   if (!"LongitudeMeasure" %in% colnames(.data) |
     !"LatitudeMeasure" %in% colnames(.data) |
@@ -54,10 +53,10 @@ TADA_MakeSpatial <- function(.data, crs = 4326) {
       "JHNSN", 4725,
       "PR", 6139,
       "SGEOR", 4138,
-      "SLAWR", 4136, 
+      "SLAWR", 4136,
       "SPAUL", 4137,
       "WAKE", 6732,
-      "WGS72", 6322, 
+      "WGS72", 6322,
       "HARN", 4152
     )
 
@@ -534,7 +533,7 @@ TADA_ViewATTAINS <- function(.data) {
     # if data was spatial, remove for downstream leaflet dev:
     try(ATTAINS_table <- ATTAINS_table %>%
       sf::st_drop_geometry(), silent = TRUE)
-    
+
     tada.pal <- TADA_ColorPalette()
 
     colors <- data.frame(

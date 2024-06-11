@@ -43,10 +43,12 @@ TADA_FieldCounts <- function(.data, display = c("key", "most", "all"), character
       "TADA.ActivityMediaName",
       "ActivityMediaSubdivisionName",
       "ActivityCommentText",
+      "ResultCommentText",
       "MonitoringLocationTypeName",
       "StateCode",
       "OrganizationFormalName",
       "TADA.CharacteristicName",
+      "SubjectTaxonomicName",
       "TADA.MeasureQualifierCode.Def",
       "HydrologicCondition",
       "HydrologicEvent",
@@ -54,25 +56,29 @@ TADA_FieldCounts <- function(.data, display = c("key", "most", "all"), character
       "ActivityGroup",
       "AssemblageSampledName",
       "ProjectName",
+      "ProjectDescriptionText",
       "CharacteristicNameUserSupplied",
       "DetectionQuantitationLimitTypeName",
       "SampleTissueAnatomyName",
-      "LaboratoryName"
+      "LaboratoryName",
+      "ResultAnalyticalMethod.MethodName",
+      "SampleCollectionMethod.MethodName",
+      "CharacteristicNameUserSupplied",
+      "TADA.MethodSpeciationName",
+      "TADA.ResultSampleFractionText",
+      "TADA.ComparableDataIdentifier",
+      "ResultLaboratoryCommentText"
     )
   }
   if (display == "most") {
     cols <- c(
-      "ResultIdentifier",
       "OrganizationIdentifier",
       "OrganizationFormalName",
-      "ActivityIdentifier",
       "ActivityTypeCode",
-      "ActivityMediaName",
       "ActivityMediaSubdivisionName",
       "ActivityRelativeDepthName",
       "ProjectIdentifier",
       "ProjectName",
-      "ActivityConductingOrganizationText",
       "MonitoringLocationIdentifier",
       "MonitoringLocationName",
       "ActivityCommentText",
@@ -85,17 +91,8 @@ TADA_FieldCounts <- function(.data, display = c("key", "most", "all"), character
       "SampleCollectionMethod.MethodDescriptionText",
       "SampleCollectionEquipmentName",
       "ResultDetectionConditionText",
-      "MethodSpeciationName",
-      "CharacteristicName",
-      "ResultSampleFractionText",
-      "MeasureQualifierCode",
       "ResultStatusIdentifier",
-      "StatisticalBaseCode",
       "ResultValueTypeName",
-      "ResultWeightBasisText",
-      "ResultTimeBasisText",
-      "ResultTemperatureBasisText",
-      "ResultParticleSizeBasisText",
       "DataQuality.PrecisionValue",
       "DataQuality.BiasValue",
       "DataQuality.ConfidenceIntervalValue",
@@ -103,12 +100,8 @@ TADA_FieldCounts <- function(.data, display = c("key", "most", "all"), character
       "DataQuality.LowerConfidenceLimitValue",
       "ResultCommentText",
       "USGSPCode",
-      "ResultDepthAltitudeReferencePointText",
       "SubjectTaxonomicName",
       "SampleTissueAnatomyName",
-      "BinaryObjectFileName",
-      "BinaryObjectFileTypeCode",
-      "ResultFileUrl",
       "ResultAnalyticalMethod.MethodIdentifier",
       "ResultAnalyticalMethod.MethodIdentifierContext",
       "ResultAnalyticalMethod.MethodName",
@@ -118,14 +111,10 @@ TADA_FieldCounts <- function(.data, display = c("key", "most", "all"), character
       "ResultLaboratoryCommentText",
       "ResultDetectionQuantitationLimitUrl",
       "DetectionQuantitationLimitTypeName",
-      "LabSamplePreparationUrl",
       "ProviderName",
       "MonitoringLocationTypeName",
       "MonitoringLocationDescriptionText",
       "HUCEightDigitCode",
-      "LatitudeMeasure",
-      "LongitudeMeasure",
-      "SourceMapScaleNumeric",
       "HorizontalCollectionMethodName",
       "HorizontalCoordinateReferenceSystemDatumName",
       "VerticalCollectionMethodName",
@@ -137,42 +126,18 @@ TADA_FieldCounts <- function(.data, display = c("key", "most", "all"), character
       "LocalAqfrName",
       "FormationTypeText",
       "AquiferTypeName",
-      "ConstructionDateText",
-      "MethodSpeciationName",
       "ProjectDescriptionText",
       "SamplingDesignTypeCode",
-      "QAPPApprovedIndicator",
       "QAPPApprovalAgencyName",
-      "ProjectFileUrl",
-      "ProjectMonitoringLocationWeightingUrl",
       "TADA.LatitudeMeasure",
       "TADA.LongitudeMeasure",
-      "TADA.InvalidCoordinates.Flag",
       "TADA.ActivityMediaName",
       "TADA.CharacteristicName",
-      "TADA.CharacteristicGroup",
       "CharacteristicNameUserSupplied",
-      "TADA.SuggestedCharacteristicName",
-      "TADA.CharacteristicNameAssumptions",
-      "TADA.TotalN_TotalP_CharacteristicNames_AfterSummation",
-      "TADA.TotalN_TotalP_Summation_Identifier",
-      "TADA.TotalN_TotalP_ComboLogic",
-      "TADA.ContinuousData.Flag",
-      "TADA.ResultMeasureValue",
-      "TADA.ResultMeasureValueDataTypes.Flag",
       "TADA.MeasureQualifierCode.Def",
-      "TADA.CensoredData.Flag",
-      "TADA.CensoredMethod",
-      "TADA.ResultUnit.Flag",
       "TADA.MethodSpeciationName",
-      "TADA.AnalyticalMethod.Flag",
-      "TADA.MethodSpeciation.Flag",
       "TADA.ResultSampleFractionText",
-      "TADA.SampleFraction.Flag",
-      "TADA.SuggestedSampleFraction",
-      "TADA.FractionAssumptions",
-      "TADA.ComparableDataIdentifier",
-      "TADA.RemoveReason"
+      "TADA.ComparableDataIdentifier"
     )
   }
   if (display == "all") {
@@ -224,7 +189,7 @@ TADA_FieldValuesTable <- function(.data, field = "null", characteristicName = "n
   TADA_CheckType(.data, "data.frame", "Input object")
 
   if (!field %in% names(.data)) {
-    stop("Field input does not exist in dataset. Please populate the 'field' argument with a valid field name. Enter ?TADA::filterPie in console for more information.")
+    stop("Field input does not exist in dataset. Please populate the 'field' argument with a valid field name. Enter ?TADA_FieldValuesTable in console for more information.")
   }
 
   # filter to characteristic if provided
@@ -243,16 +208,16 @@ TADA_FieldValuesTable <- function(.data, field = "null", characteristicName = "n
 
 #' TADA_AnalysisDataFilter
 #'
-#' With default settings (clean = FALSE), this function creates a TADA.UseForAnalysis.Flag 
-#' column which flags any data that are NOT surface water results for 
-#' removal (TADA.UseForAnalysis.Flag = "No") and flags surface water results 
-#' for use in analysis (TADA.UseForAnalysis.Flag = "Yes"). If desired, a user 
-#' can change the function input to clean = TRUE, and then the function will 
-#' filter the data frame to remove rows that are not going to be used in analyses, 
+#' With default settings (clean = FALSE), this function creates a TADA.UseForAnalysis.Flag
+#' column which flags any data that are NOT surface water results for
+#' removal (TADA.UseForAnalysis.Flag = "No") and flags surface water results
+#' for use in analysis (TADA.UseForAnalysis.Flag = "Yes"). If desired, a user
+#' can change the function input to clean = TRUE, and then the function will
+#' filter the data frame to remove rows that are not going to be used in analyses,
 #' and retain only the media types selected by the user.Setting clean = TRUE, means
 #' that all results not flagged for use in the analysis workflow will be removed
-#' and the TADA.UseForAnalysis.Flag column will not be added. 
-#'  
+#' and the TADA.UseForAnalysis.Flag column will not be added.
+#'
 #' It uses ActivityMediaSubdivisionName, AquiferName,
 #' LocalAqfrName, ConstructionDateText, WellDepthMeasure.MeasureValue,
 #' WellDepthMeasure.MeasureUnitCode, WellHoleDepthMeasure.MeasureValue, and

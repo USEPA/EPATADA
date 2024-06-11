@@ -660,27 +660,27 @@ TADA_GetMeasureQualifierCodeRef <- function() {
   # Categorize Result Measure Qualifiers
   # Categorization should be conservative
   suspect <- c(
-    "(", "+", "AR", "BS", "BSR", "BT", "BVER", "C", "CAN", "CBC","TT","UDL", "UDQ",
-    "CSR", "DE", "EER", "EFAI", "FDB", "FDC", "FDL", "FFB", "FFD","TMLF","UNC", "TOC",
-    "FFS", "FFT", "FH", "FIS", "FL", "FLD", "FLS", "FMD","ITNA",  "JCN","RLRS",
-    "FMS", "FPC", "FPR", "FQC", "FRS", "FSD", "FSL", "FSP", "FUB","NPNF", "RPDX",
-    "H", "H2", "H3", "HMSD", "C25", "HE","HIM","ICA","IS","ISAC","ITNM","OS3","QCI",
-    "INT", "IQCOL", "ISP", "A", "D", "DT", "EMPC","HH", "HIB", "ISR**","MDL","OUT",
-    "JCW", "KCF", "KCX", "KK", "LAC", "LBF", "CNT","GR4","HICC",  "J-R","NW", "PB",
-    "LO", "$", ")", "*", "ESD", "EST","EVA","EVAD","EVID","FPP","G", "LLS","OA3","PK",
-    "MI", "MSR", "NAI", "NLBL", "NLRO", "NN", "NRO", "F", "FLA",  "I", "MSD", "NHS",
-    "NRP", "NRR", "NSQ", "PNQ", "Q", "QC", "R", "RA","FEQ", "FLC", "GXB","NA","OTHER",
-    "RPO", "S2", "SCA", "SCF", "SCP", "SCX", "SD%EL", "SDROL", "SSR","PP",  "PPD","PRE",
+    "(", "+", "AR", "BS", "BSR", "BT", "BVER", "C", "CAN", "CBC", "TT", "UDL", "UDQ",
+    "CSR", "DE", "EER", "EFAI", "FDB", "FDC", "FDL", "FFB", "FFD", "TMLF", "UNC", "TOC",
+    "FFS", "FFT", "FH", "FIS", "FL", "FLD", "FLS", "FMD", "ITNA", "JCN", "RLRS",
+    "FMS", "FPC", "FPR", "FQC", "FRS", "FSD", "FSL", "FSP", "FUB", "NPNF", "RPDX",
+    "H", "H2", "H3", "HMSD", "C25", "HE", "HIM", "ICA", "IS", "ISAC", "ITNM", "OS3", "QCI",
+    "INT", "IQCOL", "ISP", "A", "D", "DT", "EMPC", "HH", "HIB", "ISR**", "MDL", "OUT",
+    "JCW", "KCF", "KCX", "KK", "LAC", "LBF", "CNT", "GR4", "HICC", "J-R", "NW", "PB",
+    "LO", "$", ")", "*", "ESD", "EST", "EVA", "EVAD", "EVID", "FPP", "G", "LLS", "OA3", "PK",
+    "MI", "MSR", "NAI", "NLBL", "NLRO", "NN", "NRO", "F", "FLA", "I", "MSD", "NHS",
+    "NRP", "NRR", "NSQ", "PNQ", "Q", "QC", "R", "RA", "FEQ", "FLC", "GXB", "NA", "OTHER",
+    "RPO", "S2", "SCA", "SCF", "SCP", "SCX", "SD%EL", "SDROL", "SSR", "PP", "PPD", "PRE",
     "SUS", "V", "^", "RNON", "B", "CBG", "SSRV" # this is used by USGS for surrogates
   )
   pass <- c(
-    "P", "NRS", "NRB", "&", "=","M6F", "LVER", "LSSR", "LQ", "LOPR", "LMSD", "LICC",
-    "HTH", "HNRO", "HMSR",  "AC", "AL", "ALK", "ALT", "LOB","AP", "BAC", "CAJ", 
-    "CBL", "CC","CDI", "CG", "CKB", "CKBJ", "CKG", "CKJ", "CLC",  "CON", "CUG",
-    "DEC", "DI", "DOM",  "ECI", "HLBL", "HQ", "HVER", "J", "J+", "J-", "L", "LCS",
-    "LF", "LIS", "LL", "LLBL",  "LMSR", "LNRO","LR", "LT", "N",  "NFNS", "O", 
-    "PQL",  "RC", "REX", "RIN",  "RMAX", "RNAF", "RP","RR", "RV", "RVB",
-    "SBB", "SLB", "SM", "SS", "T",  "VS", "VVRR", "VVRR2",  "ZZ","J-1", "NA", "TR"
+    "P", "NRS", "NRB", "&", "=", "M6F", "LVER", "LSSR", "LQ", "LOPR", "LMSD", "LICC",
+    "HTH", "HNRO", "HMSR", "AC", "AL", "ALK", "ALT", "LOB", "AP", "BAC", "CAJ",
+    "CBL", "CC", "CDI", "CG", "CKB", "CKBJ", "CKG", "CKJ", "CLC", "CON", "CUG",
+    "DEC", "DI", "DOM", "ECI", "HLBL", "HQ", "HVER", "J", "J+", "J-", "L", "LCS",
+    "LF", "LIS", "LL", "LLBL", "LMSR", "LNRO", "LR", "LT", "N", "NFNS", "O",
+    "PQL", "RC", "REX", "RIN", "RMAX", "RNAF", "RP", "RR", "RV", "RVB",
+    "SBB", "SLB", "SM", "SS", "T", "VS", "VVRR", "VVRR2", "ZZ", "J-1", "NA", "TR"
   )
   nondetect <- c("BQL", "2-5B", "U", "LTGTE", "K", "IDL", "<2B", "BRL", "D>T", "DL")
 
