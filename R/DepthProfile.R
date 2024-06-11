@@ -109,7 +109,7 @@ TADA_FlagDepthCategory <- function(.data, bycategory = "no", bottomvalue = 2, su
 
   depthcat.list <- c("Surface", "Bottom", "Middle")
 
-  ard.ref <- utils::read.csv(system.file("extdata", "WQXActivityRelativeDepthRef.csv", package = "TADA")) %>%
+  ard.ref <- utils::read.csv(system.file("extdata", "WQXActivityRelativeDepthRef.csv", package = "EPATADA")) %>%
     dplyr::rename(
       ARD_Category = TADA.DepthCategory.Flag,
       ActivityRelativeDepthName = Name

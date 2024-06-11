@@ -273,7 +273,7 @@ TADA_AnalysisDataFilter <- function(.data,
   # (HRM, 1/22/4)
 
   # import MonitoringLocationTypeNames and TADA.Media.Flags
-  sw.sitetypes <- utils::read.csv(system.file("extdata", "WQXMonitoringLocationTypeNameRef.csv", package = "TADA")) %>%
+  sw.sitetypes <- utils::read.csv(system.file("extdata", "WQXMonitoringLocationTypeNameRef.csv", package = "EPATADA")) %>%
     dplyr::select(Name, TADA.Media.Flag) %>%
     dplyr::rename(
       ML.Media.Flag = TADA.Media.Flag,

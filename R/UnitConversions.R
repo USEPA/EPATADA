@@ -79,13 +79,13 @@ TADA_CreateUnitRef <- function(.data, print.message = TRUE) {
   rm(usgs.ref, wqx.ref)
 
   # Import TADA unit reference for priority characteristics (characteristic specific)
-  tada.char.ref <- utils::read.csv(system.file("extdata", "TADAPriorityCharUnitRef.csv", package = "TADA"))
+  tada.char.ref <- utils::read.csv(system.file("extdata", "TADAPriorityCharUnitRef.csv", package = "EPATADA"))
   # Make all target units and characteristic names uppercase
   tada.char.ref$TADA.Target.ResultMeasure.MeasureUnitCode <- toupper(tada.char.ref$TADA.Target.ResultMeasure.MeasureUnitCode)
   tada.char.ref$TADA.CharacteristicName <- toupper(tada.char.ref$TADA.CharacteristicName)
 
   # Import TADA specific conversion reference, created by HRM on 4/30/2024
-  tada.unit.ref <- utils::read.csv(system.file("extdata", "TADAPriorityCharConvertRef.csv", package = "TADA"))
+  tada.unit.ref <- utils::read.csv(system.file("extdata", "TADAPriorityCharConvertRef.csv", package = "EPATADA"))
   # Make all codes and target units uppercase
   tada.unit.ref <- tada.unit.ref %>%
     dplyr::mutate(
@@ -711,7 +711,7 @@ TADA_ConvertDepthUnits <- function(.data,
   )
 
   # read in unit conversion reference table from extdata, created by HRM on 4/30/2024
-  length.ref <- utils::read.csv(system.file("extdata", "TADAPriorityCharConvertRef.csv", package = "TADA"))
+  length.ref <- utils::read.csv(system.file("extdata", "TADAPriorityCharConvertRef.csv", package = "EPATADA"))
 
   # subset to include only "Length Distance" units; filter by target unit defined in 'unit' argument
   length.ref <- length.ref %>%

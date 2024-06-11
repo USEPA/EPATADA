@@ -64,7 +64,8 @@ Imports:
     plotly,
     urltools,
     geojsonsf,
-    tibble
+    tibble,
+    lwgeom
 Depends: 
     R (>= 3.5.0)
 Suggests: 
@@ -80,7 +81,6 @@ Suggests:
     pkgdown,
     spelling,
     htmltools,
-    lwgeom,
     remotes,
     DT, 
     yaml
