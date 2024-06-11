@@ -96,10 +96,10 @@ VATribeUrl <- "https://geopub.epa.gov/arcgis/rest/services/EMEF/Tribal/MapServer
 #' TADA_AutoClean
 #'
 #' This function performs the following tasks:
-#' 1) Creates new columns with the TADA prefix "TADA." and capitalizes all letters
-#' within them so that they're interoperable with the WQX validation reference
-#' tables and to reduce issues with case-sensitivity when joining data:
-#' CharacteristicName, ResultSampleFractionText, MethodSpeciationName,
+#' 1) Creates new columns with the TADA prefix "TADA." and capitalizes all 
+#' letters within them so that they're interoperable with the WQX validation 
+#' reference tables and to reduce issues with case-sensitivity when joining 
+#' data: CharacteristicName, ResultSampleFractionText, MethodSpeciationName,
 #' ResultMeasure.MeasureUnitCode, ActivityMediaName, and
 #' DetectionQuantitationLimitMeasure.MeasureUnitCode.
 #' 2) This function runs "TADA_ConvertSpecialChars" on these columns:
@@ -108,10 +108,11 @@ VATribeUrl <- "https://geopub.epa.gov/arcgis/rest/services/EMEF/Tribal/MapServer
 #' 3) Converts the column type of LatitudeMeasure and LongitudeMeasure to
 #' numeric (double) and creates new columns with the “TADA” prefix.
 #' 4) Replace meters" with “m” in the following columns:
-#' TADA.ResultMeasure.MeasureUnitCode, ActivityDepthHeightMeasure.MeasureUnitCode,
-#'  ActivityTopDepthHeightMeasure.MeasureUnitCode,
-#'  ActivityBottomDepthHeightMeasure.MeasureUnitCode, and
-#'  ResultDepthHeightMeasure.MeasureUnitCode.
+#' TADA.ResultMeasure.MeasureUnitCode, 
+#' ActivityDepthHeightMeasure.MeasureUnitCode,
+#' ActivityTopDepthHeightMeasure.MeasureUnitCode,
+#' ActivityBottomDepthHeightMeasure.MeasureUnitCode, and
+#' ResultDepthHeightMeasure.MeasureUnitCode.
 #' 5) Runs TADA_SubstituteDeprecatedChars to replace deprecated characteristic
 #' names based on Water Quality Exchange (WQX) Characteristic domain table.
 #' 6) Runs TADA_ConvertResultUnits to harmonize result and detection limit
@@ -120,47 +121,48 @@ VATribeUrl <- "https://geopub.epa.gov/arcgis/rest/services/EMEF/Tribal/MapServer
 #' details.
 #' 7) Runs TADA_ConvertDepthUnits to convert the depth units to meters on the
 #' following columns: ResultDepthHeightMeasure.MeasureValue,
-#' ActivityDepthHeightMeasure.MeasureValue, ActivityTopDepthHeightMeasure.MeasureValue,
-#'  and ActivityBottomDepthHeightMeasure.MeasureValue, and add new columns
-#'  with the “TADA” prefix.
-#' 8) Runs TADA_CreateComparableID to create a comparable data group by pasting
-#'  together TADA.CharacteristicName, TADA.ResultSampleFractionText,
-#'  TADA.MethodSpeciationName, and TADA.ResultMeasure.MeasureUnitCode.
+#' ActivityDepthHeightMeasure.MeasureValue, 
+#' ActivityTopDepthHeightMeasure.MeasureValue,
+#' and ActivityBottomDepthHeightMeasure.MeasureValue, and add new columns
+#' with the “TADA” prefix.
+#' 8) Runs TADA_CreateComparableID to create a comparable data group by 
+#' concatenating TADA.CharacteristicName, TADA.ResultSampleFractionText,
+#' TADA.MethodSpeciationName, and TADA.ResultMeasure.MeasureUnitCode.
 #'
-#' Original affected columns are not changed: new columns are added to the end
-#' of the dataframe with the prefix "TADA."
-#' TADA_AutoClean can be run as a stand alone function but is primarily used by the TADA_dataRetrieval function.
+#' Original columns are not changed: new columns are added to the end of the
+#' dataframe with the prefix "TADA.". TADA_AutoClean can be run as a stand 
+#' alone function but is primarily used by the TADA_dataRetrieval function.
 #'
 #' @param .data TADA dataframe
 #'
 #' @return Input dataframe with several added TADA-specific columns, including:
 #'
-#' TADA.ActivityMediaName	(character)
-#' TADA.ResultSampleFractionText	(character)
-#' TADA.CharacteristicName	(character)
-#' TADA.MethodSpeciationName	(character)
-#' TADA.ComparableDataIdentifier	(character)
-#' TADA.ResultMeasureValue	(numeric)
-#' TADA.ResultMeasureValueDataTypes.Flag	(character)
+#' TADA.ActivityMediaName (character)
+#' TADA.ResultSampleFractionText (character)
+#' TADA.CharacteristicName (character)
+#' TADA.MethodSpeciationName (character)
+#' TADA.ComparableDataIdentifier (character)
+#' TADA.ResultMeasureValue (numeric)
+#' TADA.ResultMeasureValueDataTypes.Flag (character)
 #' TADA.ResultMeasure.MeasureUnitCode	(character)
 #' TADA.WQXResultUnitConversion	(character)
-#' TADA.DetectionQuantitationLimitMeasure.MeasureValue	(numeric)
-#' TADA.DetectionQuantitationLimitMeasure.MeasureValueDataTypes.Flag	(character)
+#' TADA.DetectionQuantitationLimitMeasure.MeasureValue (numeric)
+#' TADA.DetectionQuantitationLimitMeasure.MeasureValueDataTypes.Flag (character)
 #' TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode	(character)
 #' TADA.ResultDepthHeightMeasure.MeasureValue	(numeric)
 #' TADA.ResultDepthHeightMeasure.MeasureValueDataTypes.Flag	(character)
-#' TADA.ResultDepthHeightMeasure.MeasureUnitCode	(character)
+#' TADA.ResultDepthHeightMeasure.MeasureUnitCode (character)
 #' TADA.ActivityDepthHeightMeasure.MeasureValue	(numeric)
 #' TADA.ActivityDepthHeightMeasure.MeasureValueDataTypes.Flag	(character)
-#' TADA.ActivityDepthHeightMeasure.MeasureUnitCode	(character)
-#' TADA.ActivityTopDepthHeightMeasure.MeasureValue	(numeric)
-#' TADA.ActivityTopDepthHeightMeasure.MeasureValueDataTypes.Flag	(character)
+#' TADA.ActivityDepthHeightMeasure.MeasureUnitCode (character)
+#' TADA.ActivityTopDepthHeightMeasure.MeasureValue (numeric)
+#' TADA.ActivityTopDepthHeightMeasure.MeasureValueDataTypes.Flag (character)
 #' TADA.ActivityTopDepthHeightMeasure.MeasureUnitCode	(character)
 #' TADA.ActivityBottomDepthHeightMeasure.MeasureValue	(numeric)
 #' TADA.ActivityBottomDepthHeightMeasure.MeasureValueDataTypes.Flag	(character)
-#' TADA.ActivityBottomDepthHeightMeasure.MeasureUnitCode	(character)
+#' TADA.ActivityBottomDepthHeightMeasure.MeasureUnitCode (character)
 #' TADA.LatitudeMeasure	(numeric)
-#' TADA.LongitudeMeasure	(numeric)
+#' TADA.LongitudeMeasure (numeric)
 #'
 #' Please note that the number of TADA-specific depth columns in the returned
 #' dataframe depends upon the number of depth columns with one or more results
@@ -171,7 +173,7 @@ VATribeUrl <- "https://geopub.epa.gov/arcgis/rest/services/EMEF/Tribal/MapServer
 #'
 #' @examples
 #' \dontrun{
-#' # Find web service URLs for each Profile using WQP User Interface (https://www.waterqualitydata.us/)
+#' # Find web service URLs for each Profile using WQP User Interface: https://www.waterqualitydata.us/
 #' # Example WQP URL: https://www.waterqualitydata.us/#statecode=US%3A09&characteristicType=Nutrient&startDateLo=04-01-2023&startDateHi=11-01-2023&mimeType=csv&providers=NWIS&providers=STEWARDS&providers=STORET
 #'
 #' # Use TADA_ReadWQPWebServices to load the Station, Project, and Phys-Chem Result profiles

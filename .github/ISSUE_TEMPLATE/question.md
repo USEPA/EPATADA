@@ -15,11 +15,11 @@ A clear and concise description of the question.
 
 **To Reproduce**
 
-If possible, narrow down the question to a specific data set and TADA
+If possible, narrow down the question to a specific data set and EPATADA
 function:
 
 ``` r
-library(TADA)
+library(EPATADA)
 # Include the TADA_DataRetrieval() function inputs used
 df <- TADA_DataRetrieval("a","b","c","d")
 
