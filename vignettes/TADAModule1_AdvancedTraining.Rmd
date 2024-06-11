@@ -78,7 +78,7 @@ base code and customize the package for their own purposes may:
 
 Interested in contributing to the TADA package? The TADA team highly
 encourages input and development from users. Check out the
-[Contributing](https://usepa.github.io/TADA/articles/CONTRIBUTING.html)
+[Contributing](https://usepa.github.io/EPATADA/articles/CONTRIBUTING.html)
 page on the TADA GitHub site for guidance on collaboration conventions.
 
 ## Install and setup
@@ -136,7 +136,7 @@ library(tidyverse)
 
 All TADA R package functions have their own individual help pages,
 listed on the [Function
-reference](https://usepa.github.io/TADA/reference/index.html) page on
+reference](https://usepa.github.io/EPATADA/reference/index.html) page on
 the GitHub site. Users can also access the help page for a given
 function in R or RStudio using the following format (example below):
 `?[name of TADA function]`
@@ -197,7 +197,7 @@ described above are run. See `?TADA_AutoClean` for more details.
 `TADA_DataRetrieval` follows similar parameterization to the
 dataRetrieval package function `dataRetrieval::readWQPdata`, but check
 out the [help
-page](https://usepa.github.io/TADA/reference/TADA_DataRetrieval.html) or
+page](https://usepa.github.io/EPATADA/reference/TADA_DataRetrieval.html) or
 enter `?TADA_DataRetrieval` into the console for more information about
 input parameters and to see several examples.
 
@@ -434,7 +434,7 @@ is ready for subsequent steps are `TADA_FlagFraction()`,
 Validation
 Table](https://cdx.epa.gov/wqx/download/DomainValues/QAQCCharacteristicValidation.CSV).
 See the [WQX QAQC Service User
-Guide](https://usepa.github.io/TADA/articles/WQXValidationService.html)
+Guide](https://usepa.github.io/EPATADA/articles/WQXValidationService.html)
 for more details on how TADA leverages the validation table to flag
 potentially invalid data. `TADA_FindQCActivities()` uses a TADA-specific
 domain table users can review with `TADA_GetActivityTypeRef()`. All QAQC
@@ -657,8 +657,8 @@ One of the next big steps is data harmonization: translating and
 aggregating synonyms, combining multiple forms/species of certain
 characteristics, etc. We won't get to that in this demo (more details
 can be found here: [TADA Module 1: Water Quality Portal Data Discovery
-and Cleaning](https://usepa.github.io/TADA/articles/TADAModule1.html) or
-[TADA_HarmonizeSynonyms()](https://usepa.github.io/TADA/reference/TADA_HarmonizeSynonyms.html)),
+and Cleaning](https://usepa.github.io/EPATADA/articles/TADAModule1.html) or
+[TADA_HarmonizeSynonyms()](https://usepa.github.io/EPATADA/reference/TADA_HarmonizeSynonyms.html)),
 but for now we can start looking at data distributions within a single
 characteristic-speciation-fraction-unit using the plotting functions
 `TADA_Histogram()` and `TADA_Boxplot()`. We can also view a stats table

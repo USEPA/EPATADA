@@ -2,23 +2,23 @@
 
 [![](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://lifecycle.r-lib.org/articles/stages.html#experimental)
 
-[![](https://github.com/USEPA/TADA/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/USEPA/TADA/actions/workflows/R-CMD-check.yaml)
+[![](https://github.com/USEPA/TADA/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/USEPA/EPATADA/actions/workflows/R-CMD-check.yaml)
 
-Tools for Automated Data Analysis, or TADA, is being developed to help States, Tribes (i.e., Tribal Nations, Pueblos, Bands, Rancherias, Communities, Colonies, Towns, Indians, Villages), federal partners, and any other [Water Quality Portal (WQP)](https://www.waterqualitydata.us/) users (e.g. researchers) efficiently compile and evaluate WQP data collected from water quality monitoring sites. TADA is both a stand-alone R package, and a building block to support development of the [TADA R Shiny application](https://github.com/USEPA/TADAShiny). We encourage you to read this package's [LICENSE](https://usepa.github.io/TADA/LICENSE.html) and [README](https://usepa.github.io/TADA/index.html) files (you are here).
+Tools for Automated Data Analysis, or TADA, is being developed to help States, Tribes (i.e., Tribal Nations, Pueblos, Bands, Rancherias, Communities, Colonies, Towns, Indians, Villages), federal partners, and any other [Water Quality Portal (WQP)](https://www.waterqualitydata.us/) users (e.g. researchers) efficiently compile and evaluate WQP data collected from water quality monitoring sites. TADA is both a stand-alone R package, and a building block to support development of the [TADA R Shiny application](https://github.com/USEPA/TADAShiny). We encourage you to read this package's [LICENSE](https://usepa.github.io/EPATADA/LICENSE.html) and [README](https://usepa.github.io/EPATADA/index.html) files (you are here).
 
 -   How to use TADA:
 
-    -   [Function Reference](https://usepa.github.io/TADA/reference/index.html)
+    -   [Function Reference](https://usepa.github.io/EPATADA/reference/index.html)
 
-    -   Example Workflow 1: [Water Quality Portal Data Discovery and Cleaning](https://usepa.github.io/TADA/articles/TADAModule1.html) (Beginner)
+    -   Example Workflow 1: [Water Quality Portal Data Discovery and Cleaning](https://usepa.github.io/EPATADA/articles/TADAModule1.html) (Beginner)
 
-    -   Example Workflow 2: [2023 Shepherdstown Training](https://usepa.github.io/TADA/articles/TADATrainingShepherdstown.html) (Advanced)
+    -   Example Workflow 2: [2023 Shepherdstown Training](https://usepa.github.io/EPATADA/articles/TADATrainingShepherdstown.html) (Advanced)
 
--   [How to Contribute](https://usepa.github.io/TADA/articles/CONTRIBUTING.html)
+-   [How to Contribute](https://usepa.github.io/EPATADA/articles/CONTRIBUTING.html)
 
     -   We encourage stakeholders to test the functionality and provide feedback. Moreover, open source software provides an avenue for water quality data originators and users to develop and share code, and we welcome your contributions! We hope to build a collaborative community dedicated to this effort where TADA users and contributors can discover, share and build the functionality over time.
 
--   More information on how TADA leverages the [WQX QAQC Service](https://usepa.github.io/TADA/articles/WQXValidationService.html)
+-   More information on how TADA leverages the [WQX QAQC Service](https://usepa.github.io/EPATADA/articles/WQXValidationService.html)
 
 -   [More about the TADA Project](https://www.epa.gov/waterdata/TADA)
 
