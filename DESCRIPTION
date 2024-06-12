@@ -64,12 +64,12 @@ Imports:
     plotly,
     urltools,
     geojsonsf,
-    tibble,
-    lwgeom,
-    DT
+    tibble
 Depends: 
     R (>= 3.5.0)
 Suggests: 
+    lwgeom,
+    DT,
     RColorBrewer,
     rmarkdown,
     readr,
