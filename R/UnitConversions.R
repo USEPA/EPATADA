@@ -320,13 +320,14 @@ TADA_ConvertResultUnits <- function(.data, ref = "tada", transform = TRUE) {
 
   # import USGS ref for method speciation
   usgs.ref <- TADA_GetUSGSSynonymRef() %>%
-    dplyr::select(Code, Target.Unit, Target.Speciation, Conversion.Factor) %>%
+    dplyr::select(Code, Target.Speciation, Conversion.Factor) %>%
     dplyr::rename(
       TADA.ResultMeasure.MeasureUnitCode = Code,
-      TADA.Target.ResultMeasure.MeasureUnitCode = Target.Unit,
       TADA.Target.MethodSpeciationName = Target.Speciation,
       TADA.WQXUnitConversionFactor = Conversion.Factor
-    )
+    ) %>%
+    dplyr::mutate(TADA.ResultMeasure.MeasureUnitCode = toupper(TADA.ResultMeasure.MeasureUnitCode),
+                  TADA.Target.MethodSpeciationName = toupper(TADA.Target.MethodSpeciationName))
 
 
   # if user supplied unit reference was provided
@@ -396,14 +397,21 @@ TADA_ConvertResultUnits <- function(.data, ref = "tada", transform = TRUE) {
     if (ref == "tada") {
       data.units <- TADA_CreateUnitRef(.data, print.message = FALSE)
 
-      # join USGS ref for method speciation name information
-      unit.ref <- data.units %>%
+      # identify characteristics with all information
+      char.complete <- data.units %>%
         dplyr::select(-ResultMeasure.MeasureUnitCode) %>%
         dplyr::distinct() %>%
+        dplyr::filter(!is.na(TADA.WQXUnitConversionFactor))
+      
+      # identify characteristics which need method speciation from USGS ref
+      
+      # join USGS ref for method speciation name information
+      char.usgs <- data.units %>%
+        dplyr::select(-ResultMeasure.MeasureUnitCode) %>%
+        dplyr::distinct() %>%
+        dplyr::filter(is.na(TADA.WQXUnitConversionFactor)) %>%
         dplyr::left_join(usgs.ref, by = c(
-          "TADA.ResultMeasure.MeasureUnitCode",
-          "TADA.Target.ResultMeasure.MeasureUnitCode",
-          "TADA.WQXUnitConversionFactor"
+          "TADA.ResultMeasure.MeasureUnitCode"
         ))
 
       # list of variables for joining unit ref with data
@@ -509,7 +517,7 @@ TADA_ConvertResultUnits <- function(.data, ref = "tada", transform = TRUE) {
       print(paste0("NOTE: Dataset contains ", dim(check)[1], " USGS results with speciation information in both the result unit and method speciation columns. This function overwrites the TADA method speciation column with the speciation provided in the result unit column."))
     }
 
-    clean.data$TADA.MethodSpeciationName <- ifelse(!is.na(clean.data$TADA.MethodSpeciationName), toupper(clean.data$TADA.Target.MethodSpeciationName), clean.data$TADA.Target.MethodSpeciationName)
+    clean.data$TADA.MethodSpeciationName <- ifelse(!is.na(clean.data$TADA.MethodSpeciationName), toupper(clean.data$TADA.Target.MethodSpeciationName), clean.data$TADA.MethodSpeciationName)
 
 
     # create new comparable data identifier column following conversion
