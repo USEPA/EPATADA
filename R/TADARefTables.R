@@ -11,7 +11,7 @@
 #' @export
 
 TADA_GetNutrientSummationRef <- function() {
-  ref <- utils::read.csv(system.file("extdata", "NPsummation_key.csv", package = "TADA"))
+  ref <- utils::read.csv(system.file("extdata", "NPsummation_key.csv", package = "EPATADA"))
   return(ref)
 }
 
@@ -57,7 +57,7 @@ TADA_GetNutrientSummationRef <- function() {
 #' reference <- TADA_GetSynonymRef()
 TADA_GetSynonymRef <- function(.data) {
   if (missing(.data)) {
-    ref <- utils::read.csv(system.file("extdata", "HarmonizationTemplate.csv", package = "TADA"))
+    ref <- utils::read.csv(system.file("extdata", "HarmonizationTemplate.csv", package = "EPATADA"))
     return(ref)
   }
 
@@ -92,7 +92,7 @@ TADA_GetSynonymRef <- function(.data) {
 
   # execute function after checks are passed
   # define raw harmonization table as an object
-  harm.raw <- utils::read.csv(system.file("extdata", "HarmonizationTemplate.csv", package = "TADA"))
+  harm.raw <- utils::read.csv(system.file("extdata", "HarmonizationTemplate.csv", package = "EPATADA"))
 
   join.data <- merge(unique(.data[, expected_cols]),
     harm.raw,
@@ -129,6 +129,6 @@ TADA_GetSynonymRef <- function(.data) {
 #' @export
 
 TADA_GetUSGSSynonymRef <- function() {
-  ref <- utils::read.csv(system.file("extdata", "USGS_units_speciation.csv", package = "TADA"))
+  ref <- utils::read.csv(system.file("extdata", "USGS_units_speciation.csv", package = "EPATADA"))
   return(ref)
 }

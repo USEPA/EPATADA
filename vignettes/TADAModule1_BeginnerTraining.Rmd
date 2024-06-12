@@ -59,8 +59,8 @@ in these helpful tools.**
 
 **If you are interested in contributing to TADA development, more
 information is available at [Contributing]
-(<https://usepa.github.io/TADA/articles/CONTRIBUTING.html>). We welcome
-collaboration with external partners.**
+(<https://usepa.github.io/EPATADA/articles/CONTRIBUTING.html>). We
+welcome collaboration with external partners.**
 
 ## Install and load packages
 
@@ -101,7 +101,7 @@ library(EPATADA)
 
 All TADA R package functions have their own individual help pages,
 listed on the [Function
-reference](https://usepa.github.io/TADA/reference/index.html) page on
+reference](https://usepa.github.io/EPATADA/reference/index.html) page on
 the GitHub site. Users can also access the help page for a given
 function in R or RStudio using the following format (example below):
 `?[name of TADA function]`

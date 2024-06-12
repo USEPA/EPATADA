@@ -34,7 +34,7 @@ library(EPATADA)
 df <- TADAdataRetrieval("a","b","c","d")
 
 # TADA function and function inputs used when you encountered the bug
-df2 <- EPATADA::TADA_ProblemFunction("a","b","c","d")
+df2 <- TADA_ProblemFunction("a","b","c","d")
 ```
 
 **Expected behavior**

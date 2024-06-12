@@ -78,7 +78,7 @@ base code and customize the package for their own purposes may:
 
 Interested in contributing to the TADA package? The TADA team highly
 encourages input and development from users. Check out the
-[Contributing](https://usepa.github.io/TADA/articles/CONTRIBUTING.html)
+[Contributing](https://usepa.github.io/EPATADA/articles/CONTRIBUTING.html)
 page on the TADA GitHub site for guidance on collaboration conventions.
 
 ## Install and setup
@@ -87,7 +87,7 @@ Users can install the TADA package from GitHub into their R library
 using the `remotes` package. Copy and paste the code below into your R
 or RStudio console to download and install.
 
-```{r install_remotes, results = 'hide', eval = F}
+```{r install_remotes, results = 'hide'}
 install.packages("remotes",
   repos = "http://cran.us.r-project.org"
 )
@@ -104,9 +104,10 @@ remotes::install_github("USEPA/EPATADA",
   ref = "develop",
   dependencies = TRUE
 )
+```
 
-# use the **library()** function to load the TADA R Package into your R session.
-
+Use the **library()** function to load the TADA R Package into your R session.
+```{r load_TADA, results = 'hide'}
 library(EPATADA)
 ```
 
@@ -124,7 +125,7 @@ the code in this RMarkdown document are loaded. However, users may also
 use the `package name:: package function` notation to avoid the list of
 `library()` calls.
 
-```{r}
+```{r, eval = F, results = 'hide'}
 list.of.packages <- c("tidyverse")
 new.packages <- list.of.packages[!(list.of.packages %in% installed.packages()[, "Package"])]
 if (length(new.packages)) install.packages(new.packages)
@@ -136,13 +137,13 @@ library(tidyverse)
 
 All TADA R package functions have their own individual help pages,
 listed on the [Function
-reference](https://usepa.github.io/TADA/reference/index.html) page on
+reference](https://usepa.github.io/EPATADA/reference/index.html) page on
 the GitHub site. Users can also access the help page for a given
 function in R or RStudio using the following format (example below):
 `?[name of TADA function]`
 
 ```{r, eval = F}
-?EPATADA::TADA_DataRetrieval
+?TADA_DataRetrieval
 ```
 
 ## Upload data
@@ -164,7 +165,7 @@ data structure and format.
 
 ```{r template}
 getwd() # find your working directory
-template <- EPATADA::TADA_GetTemplate() # download template to working directory
+template <- TADA_GetTemplate() # download template to working directory
 
 # uncomment below to review example data frame
 # Data_Nutrients_UT <- Data_Nutrients_UT
@@ -197,9 +198,9 @@ described above are run. See `?TADA_AutoClean` for more details.
 `TADA_DataRetrieval` follows similar parameterization to the
 dataRetrieval package function `dataRetrieval::readWQPdata`, but check
 out the [help
-page](https://usepa.github.io/TADA/reference/TADA_DataRetrieval.html) or
-enter `?TADA_DataRetrieval` into the console for more information about
-input parameters and to see several examples.
+page](https://usepa.github.io/EPATADA/reference/TADA_DataRetrieval.html)
+or enter `?TADA_DataRetrieval` into the console for more information
+about input parameters and to see several examples.
 
 ```{r dataretrieval}
 # download example data
@@ -209,7 +210,7 @@ input parameters and to see several examples.
 #   endDate = "2023-01-01")
 
 # For brevity, we'll skip pinging the WQP and instead load the example data frame:
-dataset_0 <- EPATADA::Data_6Tribes_5y
+dataset_0 <- Data_6Tribes_5y
 
 # Let's take a look at all of the TADA-created columns:
 names(dataset_0)[grepl("TADA.", names(dataset_0))]
@@ -279,13 +280,13 @@ information on this function.
 why?**
 
 ```{r key}
-key_counts <- EPATADA::TADA_FieldCounts(dataset_0, display = "key")
+key_counts <- TADA_FieldCounts(dataset_0, display = "key")
 
 key_counts
 ```
 
 ```{r all}
-all_counts <- EPATADA::TADA_FieldCounts(dataset_0, display = "all")
+all_counts <- TADA_FieldCounts(dataset_0, display = "all")
 
 all_counts
 ```
@@ -321,9 +322,9 @@ OrganizationFormalName, which is a WQP column naming the organization
 that supplied the result.
 
 ```{r org}
-EPATADA::TADA_FieldValuesPie(dataset, field = "OrganizationFormalName")
+TADA_FieldValuesPie(dataset, field = "OrganizationFormalName")
 
-org_counts <- EPATADA::TADA_FieldValuesTable(dataset, field = "OrganizationFormalName")
+org_counts <- TADA_FieldValuesTable(dataset, field = "OrganizationFormalName")
 
 org_counts
 ```
@@ -360,9 +361,9 @@ filter for the "problem" data by TADA.CensoredData.Flag and review the
 unique reasons for data removal.
 
 ```{r id cens data}
-dataset <- EPATADA::TADA_IDCensoredData(dataset)
+dataset <- TADA_IDCensoredData(dataset)
 
-EPATADA::TADA_FieldValuesPie(dataset, field = "TADA.CensoredData.Flag")
+TADA_FieldValuesPie(dataset, field = "TADA.CensoredData.Flag")
 
 problem_censored <- dataset %>%
   dplyr::filter(!TADA.CensoredData.Flag %in% c("Non-Detect", "Over-Detect", "Other", "Uncensored")) %>%
@@ -387,7 +388,7 @@ non-allowable types.
 
 ```{r data types}
 # take a look at datatypes
-flag.datatypes <- EPATADA::TADA_FieldValuesTable(dataset, field = "TADA.ResultMeasureValueDataTypes.Flag")
+flag.datatypes <- TADA_FieldValuesTable(dataset, field = "TADA.ResultMeasureValueDataTypes.Flag")
 
 # Numeric or numeric-coerced data types
 rv_datatypes <- unique(subset(dataset, !is.na(dataset$TADA.ResultMeasureValue))$TADA.ResultMeasureValueDataTypes.Flag)
@@ -434,7 +435,7 @@ is ready for subsequent steps are `TADA_FlagFraction()`,
 Validation
 Table](https://cdx.epa.gov/wqx/download/DomainValues/QAQCCharacteristicValidation.CSV).
 See the [WQX QAQC Service User
-Guide](https://usepa.github.io/TADA/articles/WQXValidationService.html)
+Guide](https://usepa.github.io/EPATADA/articles/WQXValidationService.html)
 for more details on how TADA leverages the validation table to flag
 potentially invalid data. `TADA_FindQCActivities()` uses a TADA-specific
 domain table users can review with `TADA_GetActivityTypeRef()`. All QAQC
@@ -445,7 +446,7 @@ Bring the QAQC Validation Table into your R session to view or save with
 the following command:
 
 ```{r qaqc}
-qaqc_ref <- EPATADA::TADA_GetWQXCharValRef()
+qaqc_ref <- TADA_GetWQXCharValRef()
 
 unique(qaqc_ref$Type)
 ```
@@ -458,10 +459,10 @@ flagging columns for each function. Let's run these four flagging
 functions.
 
 ```{r example flags}
-dataset_flags <- EPATADA::TADA_FlagFraction(dataset, clean = FALSE, flaggedonly = FALSE)
-dataset_flags <- EPATADA::TADA_FlagSpeciation(dataset_flags, clean = "none", flaggedonly = FALSE)
-dataset_flags <- EPATADA::TADA_FlagResultUnit(dataset_flags, clean = "none", flaggedonly = FALSE)
-dataset_flags <- EPATADA::TADA_FindQCActivities(dataset_flags, clean = FALSE, flaggedonly = FALSE)
+dataset_flags <- TADA_FlagFraction(dataset, clean = FALSE, flaggedonly = FALSE)
+dataset_flags <- TADA_FlagSpeciation(dataset_flags, clean = "none", flaggedonly = FALSE)
+dataset_flags <- TADA_FlagResultUnit(dataset_flags, clean = "none", flaggedonly = FALSE)
+dataset_flags <- TADA_FindQCActivities(dataset_flags, clean = FALSE, flaggedonly = FALSE)
 
 dimCheck(all_result_num, dataset_flags, removed, checkName = "Run Flag Functions")
 ```
@@ -473,10 +474,10 @@ Now that we've run all the key flagging functions, let's take a look at
 the results and make some decisions.
 
 ```{r flag pies}
-EPATADA::TADA_FieldValuesPie(dataset_flags, field = "TADA.SampleFraction.Flag")
-EPATADA::TADA_FieldValuesPie(dataset_flags, field = "TADA.MethodSpeciation.Flag")
-EPATADA::TADA_FieldValuesPie(dataset_flags, field = "TADA.ResultUnit.Flag")
-EPATADA::TADA_FieldValuesPie(dataset_flags, field = "TADA.ActivityType.Flag")
+TADA_FieldValuesPie(dataset_flags, field = "TADA.SampleFraction.Flag")
+TADA_FieldValuesPie(dataset_flags, field = "TADA.MethodSpeciation.Flag")
+TADA_FieldValuesPie(dataset_flags, field = "TADA.ResultUnit.Flag")
+TADA_FieldValuesPie(dataset_flags, field = "TADA.ActivityType.Flag")
 ```
 
 Any results flagged as "Invalid" are recognized in the QAQC Validation
@@ -493,7 +494,7 @@ advance!**
 ```{r flags}
 # grab all the flagged results from the four functions
 problem_flagged <- dataset_flags %>%
-  filter(TADA.SampleFraction.Flag == "Invalid" | TADA.MethodSpeciation.Flag == "Invalid" | TADA.ResultUnit.Flag == "Invalid" | !TADA.ActivityType.Flag %in% ("Non_QC")) %>%
+  dplyr::filter(TADA.SampleFraction.Flag == "Rejected" | TADA.MethodSpeciation.Flag == "Invalid" | TADA.ResultUnit.Flag == "Rejected" | !TADA.ActivityType.Flag %in% ("Non_QC")) %>%
   dplyr::mutate(TADA.RemovalReason = "Invalid Unit, Method, Speciation, or Activity Type.")
 
 dataset_flags <- dataset_flags %>% dplyr::filter(!ResultIdentifier %in% problem_flagged$ResultIdentifier)
@@ -516,7 +517,7 @@ results that do not pass QC checks. Let's look at the breakdown of these
 data in the removed object.
 
 ```{r removal reason}
-removal <- EPATADA::TADA_FieldValuesTable(removed, field = "TADA.RemovalReason")
+removal <- TADA_FieldValuesTable(removed, field = "TADA.RemovalReason")
 
 removal
 ```
@@ -571,7 +572,7 @@ to make non-detect values equal to the provided detection limit? What
 would you need to change in the example below?**
 
 ```{r cens dataset}
-dataset_cens <- EPATADA::TADA_SimpleCensoredMethods(dataset_flags, nd_method = "multiplier", nd_multiplier = 0.5, od_method = "as-is")
+dataset_cens <- TADA_SimpleCensoredMethods(dataset_flags, nd_method = "multiplier", nd_multiplier = 0.5, od_method = "as-is")
 ```
 
 Let's take a look at how the censored data handling function affects the
@@ -583,7 +584,7 @@ TADA.ResultMeasureValueDataTypes.Flag column in data set before we ran
 
 ```{r data type flags}
 # before
-EPATADA::TADA_FieldValuesTable(dataset_flags, field = "TADA.ResultMeasureValueDataTypes.Flag")
+TADA_FieldValuesTable(dataset_flags, field = "TADA.ResultMeasureValueDataTypes.Flag")
 ```
 
 Then we can use `TADA_FieldValuesTable` again to look at the same column
@@ -591,7 +592,7 @@ after `TADA_SimpleCensoredMethods`.
 
 ```{r cens data type flags}
 # after
-EPATADA::TADA_FieldValuesTable(dataset_cens, field = "TADA.ResultMeasureValueDataTypes.Flag")
+TADA_FieldValuesTable(dataset_cens, field = "TADA.ResultMeasureValueDataTypes.Flag")
 ```
 
 **Question 9: Is there a difference between the first and second
@@ -631,7 +632,7 @@ look.
 
 ```{r pie by characteristic}
 # go ahead and pick a characteristic name from the table generated above. I picked dissolved oxygen (DO) amd selected OrganizationFormalName as the field to see the relative contribution of each org to DO results
-EPATADA::TADA_FieldValuesPie(dataset_cens, field = "OrganizationFormalName", characteristicName = "DISSOLVED OXYGEN (DO)")
+TADA_FieldValuesPie(dataset_cens, field = "OrganizationFormalName", characteristicName = "DISSOLVED OXYGEN (DO)")
 ```
 
 We can view the site locations using a TADA mapping function. In this
@@ -641,7 +642,7 @@ the darker the circle, the more characteristics were sampled at that
 site.
 
 ```{r overview map}
-EPATADA::TADA_OverviewMap(dataset_cens)
+TADA_OverviewMap(dataset_cens)
 ```
 
 Out of curiosity, let's take a look at a breakdown of these monitoring
@@ -650,15 +651,16 @@ upon your program's goals and methods, you might want to filter out some
 of the types you see.
 
 ```{r location pie}
-EPATADA::TADA_FieldValuesPie(dataset_cens, field = "MonitoringLocationTypeName")
+TADA_FieldValuesPie(dataset_cens, field = "MonitoringLocationTypeName")
 ```
 
 One of the next big steps is data harmonization: translating and
 aggregating synonyms, combining multiple forms/species of certain
 characteristics, etc. We won't get to that in this demo (more details
 can be found here: [TADA Module 1: Water Quality Portal Data Discovery
-and Cleaning](https://usepa.github.io/TADA/articles/TADAModule1.html) or
-[TADA_HarmonizeSynonyms()](https://usepa.github.io/TADA/reference/TADA_HarmonizeSynonyms.html)),
+and Cleaning](https://usepa.github.io/EPATADA/articles/TADAModule1.html)
+or
+[TADA_HarmonizeSynonyms()](https://usepa.github.io/EPATADA/reference/TADA_HarmonizeSynonyms.html)),
 but for now we can start looking at data distributions within a single
 characteristic-speciation-fraction-unit using the plotting functions
 `TADA_Histogram()` and `TADA_Boxplot()`. We can also view a stats table
@@ -673,7 +675,7 @@ with different units or fractions in the same distribution.
 
 ```{r comp id values}
 # trusty field values table - lets just look at the first few entries with the most associated records
-compid <- EPATADA::TADA_FieldValuesTable(dataset_cens, field = "TADA.ComparableDataIdentifier")
+compid <- TADA_FieldValuesTable(dataset_cens, field = "TADA.ComparableDataIdentifier")
 ```
 
 Now that we have an idea for what the TADA.ComparableDataIdentifier
@@ -695,11 +697,11 @@ Let's take a look at the histogram and boxplot for the comparable data
 identifier we selected.
 
 ```{r boxplot and histogram}
-EPATADA::TADA_Histogram(plot_data, id_cols = "TADA.ComparableDataIdentifier")
+TADA_Histogram(plot_data, id_cols = "TADA.ComparableDataIdentifier")
 
-EPATADA::TADA_Boxplot(plot_data, id_cols = "TADA.ComparableDataIdentifier")
+TADA_Boxplot(plot_data, id_cols = "TADA.ComparableDataIdentifier")
 
-stats <- EPATADA::TADA_Stats(plot_data)
+stats <- TADA_Stats(plot_data)
 ```
 
 We can also explore depth profiles for selected characteristics at
@@ -708,7 +710,7 @@ with this. First we can use `TADA_FlagDepthCategory` to place results
 into various depth categories (surface, middle, and bottom).
 
 ```{r depth category}
-dataset_depth <- EPATADA::TADA_FlagDepthCategory(dataset_cens)
+dataset_depth <- TADA_FlagDepthCategory(dataset_cens)
 ```
 
 We can also use another function, `TADA_IDDepthProfiles` to identify
@@ -720,7 +722,7 @@ value, 5, so that any depth profiles identified will have results from
 at least 5 different depths.
 
 ```{r id depth profile}
-depth_profile_id <- EPATADA::TADA_IDDepthProfiles(dataset_depth, nvalue = 5)
+depth_profile_id <- TADA_IDDepthProfiles(dataset_depth, nvalue = 5)
 ```
 
 **Question 11: How can TADA_IDDepthProfiles() help users use
@@ -731,7 +733,7 @@ characteristics against depth. In this example, we will look at pH,
 secchi depth, and pH.
 
 ```{r depth plot}
-EPATADA::TADA_DepthProfilePlot(dataset_cens,
+TADA_DepthProfilePlot(dataset_cens,
   groups = c(
     "TEMPERATURE,
                                        WATER_NA_NA_DEG C",

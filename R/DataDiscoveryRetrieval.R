@@ -175,7 +175,7 @@ TADA_DataRetrieval <- function(startDate = "null",
   WQPquery <- list()
 
   if (!"null" %in% statecode) {
-    load(system.file("extdata", "statecodes_df.Rdata", package = "TADA"))
+    load(system.file("extdata", "statecodes_df.Rdata", package = "EPATADA"))
     statecode <- as.character(statecode)
     statecodes_sub <- statecodes_df %>% dplyr::filter(STUSAB %in% statecode)
     statecd <- paste0("US:", statecodes_sub$STATE)
@@ -529,7 +529,7 @@ TADA_BigDataRetrieval <- function(startDate = "null",
   }
 
   if (!"null" %in% statecode) {
-    load(system.file("extdata", "statecodes_df.Rdata", package = "TADA"))
+    load(system.file("extdata", "statecodes_df.Rdata", package = "EPATADA"))
     statecode <- as.character(statecode)
     statecodes_sub <- statecodes_df %>% dplyr::filter(STUSAB %in% statecode)
     statecd <- paste0("US:", statecodes_sub$STATE)
