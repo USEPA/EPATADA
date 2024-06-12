@@ -31,7 +31,7 @@ if(!"remotes"%in%installed.packages()){
 install.packages("remotes")
 }
 
-remotes::install_github("USEPA/TADA", ref = "develop", dependencies = TRUE, force = TRUE)
+remotes::install_github("USEPA/EPATADA", ref = "develop", dependencies = TRUE, force = TRUE)
 ```
 
 The TADA R Shiny application can be run [on the web](https://owshiny-dev.app.cloud.gov/tada-dev/) (R and R Studio install not required), or within R Studio. Run the following code within R Studio to install or update and run the most recent version of the [TADA R Shiny](https://github.com/USEPA/TADAShiny) application:
