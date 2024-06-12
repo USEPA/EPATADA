@@ -6,12 +6,12 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <meta name="description" content="Assists data partners in performing water quality analyses with data from the Water Quality Portal.">
-<title>TADA (Tools for Automated Data Analysis) R Package • TADA</title>
+<title>EPA TADA (Tools for Automated Data Analysis) R Package • EPATADA</title>
 <script src="deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <link href="deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
 <script src="deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><!-- Font Awesome icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css" integrity="sha256-mmgLkCYLUQbXn0B1SRqzHar6dCnv9oZFPEC1g1cwlkk=" crossorigin="anonymous">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/v4-shims.min.css" integrity="sha256-wZjR52fzng1pJHwx4aV2AO3yyTOXrcDW7jBpJtTwVxw=" crossorigin="anonymous">
-<!-- bootstrap-toc --><script src="https://cdn.jsdelivr.net/gh/afeld/bootstrap-toc@v1.0.1/dist/bootstrap-toc.min.js" integrity="sha256-4veVQbu7//Lk5TSmc7YV48MxtMy98e26cf5MrgZYnwo=" crossorigin="anonymous"></script><!-- headroom.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/headroom.min.js" integrity="sha256-AsUX4SJE1+yuDu5+mAVzJbuYNPHj/WroHuZ8Ir/CkE0=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script><!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.11/clipboard.min.js" integrity="sha512-7O5pXpc0oCRrxk8RUfDYFgn0nO1t+jLuIOQdOMRp4APB7uZ4vSjspzp5y6YDtDs4VzUSTbWzBFZ/LKJhnyFOKw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script><!-- search --><script src="https://cdnjs.cloudflare.com/ajax/libs/fuse.js/6.4.6/fuse.js" integrity="sha512-zv6Ywkjyktsohkbp9bb45V6tEMoWhzFzXis+LrMehmJZZSys19Yxf1dopHx7WzIKxr5tK2dVcYmaCk2uqdjF4A==" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/autocomplete.js/0.38.0/autocomplete.jquery.min.js" integrity="sha512-GU9ayf+66Xx2TmpxqJpliWbT5PiGYxpaG8rfnBEk1LL8l1KGkRShhngwdXK1UgqhAzWpZHSiYPc09/NwDQIGyg==" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/mark.min.js" integrity="sha512-5CYOlHXGh6QpOFA/TeTylKLWfB3ftPsde7AnmhuitiTX4K5SqCLBeKro6sPS8ilsz1Q4NRx3v8Ko2IBiszzdww==" crossorigin="anonymous"></script><!-- pkgdown --><script src="pkgdown.js"></script><meta property="og:title" content="TADA (Tools for Automated Data Analysis) R Package">
+<!-- bootstrap-toc --><script src="https://cdn.jsdelivr.net/gh/afeld/bootstrap-toc@v1.0.1/dist/bootstrap-toc.min.js" integrity="sha256-4veVQbu7//Lk5TSmc7YV48MxtMy98e26cf5MrgZYnwo=" crossorigin="anonymous"></script><!-- headroom.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/headroom.min.js" integrity="sha256-AsUX4SJE1+yuDu5+mAVzJbuYNPHj/WroHuZ8Ir/CkE0=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script><!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.11/clipboard.min.js" integrity="sha512-7O5pXpc0oCRrxk8RUfDYFgn0nO1t+jLuIOQdOMRp4APB7uZ4vSjspzp5y6YDtDs4VzUSTbWzBFZ/LKJhnyFOKw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script><!-- search --><script src="https://cdnjs.cloudflare.com/ajax/libs/fuse.js/6.4.6/fuse.js" integrity="sha512-zv6Ywkjyktsohkbp9bb45V6tEMoWhzFzXis+LrMehmJZZSys19Yxf1dopHx7WzIKxr5tK2dVcYmaCk2uqdjF4A==" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/autocomplete.js/0.38.0/autocomplete.jquery.min.js" integrity="sha512-GU9ayf+66Xx2TmpxqJpliWbT5PiGYxpaG8rfnBEk1LL8l1KGkRShhngwdXK1UgqhAzWpZHSiYPc09/NwDQIGyg==" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/mark.min.js" integrity="sha512-5CYOlHXGh6QpOFA/TeTylKLWfB3ftPsde7AnmhuitiTX4K5SqCLBeKro6sPS8ilsz1Q4NRx3v8Ko2IBiszzdww==" crossorigin="anonymous"></script><!-- pkgdown --><script src="pkgdown.js"></script><meta property="og:title" content="EPA TADA (Tools for Automated Data Analysis) R Package">
 <meta property="og:description" content="Assists data partners in performing water quality analyses with data from the Water Quality Portal.">
 <!-- mathjax --><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js" integrity="sha256-nvJJv9wWKEm88qvoQl9ekL2J+k/RWIsaSScxxlsrv8k=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/config/TeX-AMS-MML_HTMLorMML.js" integrity="sha256-84DKXVJXs0/F8OTMzX4UR909+jtl4G7SPypPavF+GfA=" crossorigin="anonymous"></script><!--[if lt IE 9]>
 <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
@@ -24,7 +24,7 @@
 
     <nav class="navbar fixed-top navbar-dark navbar-expand-lg bg-primary" data-bs-theme="dark"><div class="container">
     
-    <a class="navbar-brand me-2" href="index.html">TADA</a>
+    <a class="navbar-brand me-2" href="index.html">EPATADA</a>
 
     <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.1</small>
 
@@ -57,7 +57,7 @@
 
       <ul class="navbar-nav">
 <li class="nav-item">
-  <a class="external-link nav-link" href="https://github.com/USEPA/TADA/" aria-label="github">
+  <a class="external-link nav-link" href="https://github.com/USEPA/EPATADA/" aria-label="github">
     <span class="fab fa fab fa-github fa-lg"></span>
      
   </a>
@@ -73,24 +73,24 @@
 <h2 id="welcome-to-tada-tools-for-automated-data-analysis">Welcome to TADA: Tools for Automated Data Analysis!<a class="anchor" aria-label="anchor" href="#welcome-to-tada-tools-for-automated-data-analysis"></a>
 </h2>
 <p><a href="https://lifecycle.r-lib.org/articles/stages.html#experimental" class="external-link"><img src="https://img.shields.io/badge/lifecycle-experimental-orange.svg"></a></p>
-<p><a href="https://github.com/USEPA/TADA/actions/workflows/R-CMD-check.yaml" class="external-link"><img src="https://github.com/USEPA/TADA/actions/workflows/R-CMD-check.yaml/badge.svg"></a></p>
-<p>Tools for Automated Data Analysis, or TADA, is being developed to help States, Tribes (i.e., Tribal Nations, Pueblos, Bands, Rancherias, Communities, Colonies, Towns, Indians, Villages), federal partners, and any other <a href="https://www.waterqualitydata.us/" class="external-link">Water Quality Portal (WQP)</a> users (e.g. researchers) efficiently compile and evaluate WQP data collected from water quality monitoring sites. TADA is both a stand-alone R package, and a building block to support development of the <a href="https://github.com/USEPA/TADAShiny" class="external-link">TADA R Shiny application</a>. We encourage you to read this package’s <a href="https://usepa.github.io/TADA/LICENSE.html">LICENSE</a> and <a href="https://usepa.github.io/TADA/index.html">README</a> files (you are here).</p>
+<p><a href="https://github.com/USEPA/EPATADA/actions/workflows/R-CMD-check.yaml" class="external-link"><img src="https://github.com/USEPA/TADA/actions/workflows/R-CMD-check.yaml/badge.svg"></a></p>
+<p>Tools for Automated Data Analysis, or TADA, is being developed to help States, Tribes (i.e., Tribal Nations, Pueblos, Bands, Rancherias, Communities, Colonies, Towns, Indians, Villages), federal partners, and any other <a href="https://www.waterqualitydata.us/" class="external-link">Water Quality Portal (WQP)</a> users (e.g. researchers) efficiently compile and evaluate WQP data collected from water quality monitoring sites. TADA is both a stand-alone R package, and a building block to support development of the <a href="https://github.com/USEPA/TADAShiny" class="external-link">TADA R Shiny application</a>. We encourage you to read this package’s <a href="https://usepa.github.io/EPATADA/LICENSE.html">LICENSE</a> and <a href="https://usepa.github.io/EPATADA/index.html">README</a> files (you are here).</p>
 <ul>
 <li>
 <p>How to use TADA:</p>
 <ul>
-<li><p><a href="https://usepa.github.io/TADA/reference/index.html">Function Reference</a></p></li>
-<li><p>Example Workflow 1: <a href="https://usepa.github.io/TADA/articles/TADAModule1.html">Water Quality Portal Data Discovery and Cleaning</a> (Beginner)</p></li>
-<li><p>Example Workflow 2: <a href="https://usepa.github.io/TADA/articles/TADATrainingShepherdstown.html">2023 Shepherdstown Training</a> (Advanced)</p></li>
+<li><p><a href="https://usepa.github.io/EPATADA/reference/index.html">Function Reference</a></p></li>
+<li><p>Example Workflow 1: <a href="https://usepa.github.io/EPATADA/articles/TADAModule1.html">Water Quality Portal Data Discovery and Cleaning</a> (Beginner)</p></li>
+<li><p>Example Workflow 2: <a href="https://usepa.github.io/EPATADA/articles/TADATrainingShepherdstown.html">2023 Shepherdstown Training</a> (Advanced)</p></li>
 </ul>
 </li>
 <li>
-<p><a href="https://usepa.github.io/TADA/articles/CONTRIBUTING.html">How to Contribute</a></p>
+<p><a href="https://usepa.github.io/EPATADA/articles/CONTRIBUTING.html">How to Contribute</a></p>
 <ul>
 <li>We encourage stakeholders to test the functionality and provide feedback. Moreover, open source software provides an avenue for water quality data originators and users to develop and share code, and we welcome your contributions! We hope to build a collaborative community dedicated to this effort where TADA users and contributors can discover, share and build the functionality over time.</li>
 </ul>
 </li>
-<li><p>More information on how TADA leverages the <a href="https://usepa.github.io/TADA/articles/WQXValidationService.html">WQX QAQC Service</a></p></li>
+<li><p>More information on how TADA leverages the <a href="https://usepa.github.io/EPATADA/articles/WQXValidationService.html">WQX QAQC Service</a></p></li>
 <li><p><a href="https://www.epa.gov/waterdata/TADA" class="external-link">More about the TADA Project</a></p></li>
 </ul>
 </div>
@@ -99,7 +99,7 @@
 </h2>
 <p>You must first have R and R Studio installed to use the TADA R Package (see instructions below if needed). Our team is actively developing TADA, therefore we highly recommend that you update the TADA R Package and all of its dependency libraries each time you use the package. You can install and/or update the <a href="https://github.com/USEPA/TADA" class="external-link">TADA R Package</a> and all dependencies by running:</p>
 <p>```{r} if(!“remotes”%in%installed.packages()){ install.packages(“remotes”) }</p>
-<p>remotes::install_github(“USEPA/TADA”, ref = “develop”, dependencies = TRUE, force = TRUE)</p>
+<p>remotes::install_github(“USEPA/EPATADA”, ref = “develop”, dependencies = TRUE, force = TRUE)</p>
 <pre><code>
 The TADA R Shiny application can be run [on the web](https://owshiny-dev.app.cloud.gov/tada-dev/) (R and R Studio install not required), or within R Studio. Run the following code within R Studio to install or update and run the most recent version of the [TADA R Shiny](https://github.com/USEPA/TADAShiny) application:
 
@@ -134,7 +134,6 @@ TADAShiny::run_app()</code></pre>
 <ol start="3" style="list-style-type: decimal">
 <li>Again, download the installer, click through the prompts, and accept the defaults.</li>
 </ol>
-<p>Note: If you are an EPA employee, please follow the directions here instead of the instructions above: <a href="https://work.epa.gov/software/r-software" class="external-link uri">https://work.epa.gov/software/r-software</a>.</p>
 </div>
 <div class="section level2">
 <h2 id="open-source-code-policy">Open-Source Code Policy<a class="anchor" aria-label="anchor" href="#open-source-code-policy"></a>
@@ -156,13 +155,13 @@ TADAShiny::run_app()</code></pre>
 <div class="section level2">
 <h2 id="contact">Contact<a class="anchor" aria-label="anchor" href="#contact"></a>
 </h2>
-<p>If you have any questions, please reach out to Cristina Mullin (mullin.cristina@epa.gov).</p>
+<p>If you have any questions, please reach out to the TADA Team at mywaterway@epa.gov.</p>
 </div>
 
   </main><aside class="col-md-3"><div class="links">
 <h2 data-toc-skip>Links</h2>
 <ul class="list-unstyled">
-<li><a href="https://github.com/USEPA/TADA/" class="external-link">Browse source code</a></li>
+<li><a href="https://github.com/USEPA/EPATADA/" class="external-link">Browse source code</a></li>
 </ul>
 </div>
 
@@ -178,7 +177,7 @@ TADAShiny::run_app()</code></pre>
 <div class="citation">
 <h2 data-toc-skip>Citation</h2>
 <ul class="list-unstyled">
-<li><a href="authors.html#citation">Citing TADA</a></li>
+<li><a href="authors.html#citation">Citing EPATADA</a></li>
 </ul>
 </div>
 
