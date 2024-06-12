@@ -320,7 +320,7 @@ TADA_ConvertResultUnits <- function(.data, ref = "tada", transform = TRUE) {
 
   # import USGS ref for method speciation
   usgs.ref <- TADA_GetUSGSSynonymRef() %>%
-    dplyr::select(Code, Target.Speciation, Conversion.Factor) %>%
+    #dplyr::select(Code, Target.Speciation, Conversion.Factor) %>%
     dplyr::rename(
       TADA.ResultMeasure.MeasureUnitCode = Code,
       TADA.Target.MethodSpeciationName = Target.Speciation,
@@ -404,15 +404,20 @@ TADA_ConvertResultUnits <- function(.data, ref = "tada", transform = TRUE) {
         dplyr::filter(!is.na(TADA.WQXUnitConversionFactor))
       
       # identify characteristics which need method speciation from USGS ref
-      
-      # join USGS ref for method speciation name information
       char.usgs <- data.units %>%
-        dplyr::select(-ResultMeasure.MeasureUnitCode) %>%
         dplyr::distinct() %>%
         dplyr::filter(is.na(TADA.WQXUnitConversionFactor)) %>%
+        dplyr::select(-ResultMeasure.MeasureUnitCode,
+                      -TADA.WQXUnitConversionFactor,
+                      -TADA.WQXUnitConversionCoefficient) %>%
+        # join USGS ref for method speciation name information
         dplyr::left_join(usgs.ref, by = c(
           "TADA.ResultMeasure.MeasureUnitCode"
         ))
+      
+      # join complete and usgs characteristic information to create unit ref
+      unit.ref <- char.complete %>%
+        dplyr::full_join(char.usgs)
 
       # list of variables for joining unit ref with data
       ref.join <- c("TADA.CharacteristicName", "TADA.ResultMeasure.MeasureUnitCode")
