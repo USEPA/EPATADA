@@ -2,9 +2,9 @@
 
 [![](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://lifecycle.r-lib.org/articles/stages.html#experimental)
 
-[![](https://github.com/USEPA/TADA/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/USEPA/EPATADA/actions/workflows/R-CMD-check.yaml)
+[![](https://github.com/USEPA/EPATADA/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/USEPA/EPATADA/actions/workflows/R-CMD-check.yaml)
 
-Tools for Automated Data Analysis, or TADA, is being developed to help States, Tribes (i.e., Tribal Nations, Pueblos, Bands, Rancherias, Communities, Colonies, Towns, Indians, Villages), federal partners, and any other [Water Quality Portal (WQP)](https://www.waterqualitydata.us/) users (e.g. researchers) efficiently compile and evaluate WQP data collected from water quality monitoring sites. TADA is both a stand-alone R package, and a building block to support development of the [TADA R Shiny application](https://github.com/USEPA/TADAShiny). We encourage you to read this package's [LICENSE](https://usepa.github.io/EPATADA/LICENSE.html) and [README](https://usepa.github.io/EPATADA/index.html) files (you are here).
+Tools for Automated Data Analysis, or TADA, is being developed to help States, Tribes (i.e., Tribal Nations, Pueblos, Bands, Rancherias, Communities, Colonies, Towns, Indians, Villages), federal partners, and any other [Water Quality Portal (WQP)](https://www.waterqualitydata.us/) users (e.g. researchers) efficiently compile and evaluate WQP data collected from water quality monitoring sites. TADA is both a stand-alone R package, and a building block to support development of the [TADA R Shiny application](https://github.com/USEPA/EPATADAShiny). We encourage you to read this package's [LICENSE](https://usepa.github.io/EPATADA/LICENSE.html) and [README](https://usepa.github.io/EPATADA/index.html) files (you are here).
 
 -   How to use TADA:
 
@@ -24,7 +24,7 @@ Tools for Automated Data Analysis, or TADA, is being developed to help States, T
 
 ## Installation
 
-You must first have R and R Studio installed to use the TADA R Package (see instructions below if needed). Our team is actively developing TADA, therefore we highly recommend that you update the TADA R Package and all of its dependency libraries each time you use the package. You can install and/or update the [TADA R Package](https://github.com/USEPA/TADA) and all dependencies by running:
+You must first have R and R Studio installed to use the TADA R Package (see instructions below if needed). Our team is actively developing TADA, therefore we highly recommend that you update the TADA R Package and all of its dependency libraries each time you use the package. You can install and/or update the [TADA R Package](https://github.com/USEPA/EPATADA) and all dependencies by running:
 
 ```{r}
 if(!"remotes"%in%installed.packages()){
@@ -34,7 +34,7 @@ install.packages("remotes")
 remotes::install_github("USEPA/EPATADA", ref = "develop", dependencies = TRUE, force = TRUE)
 ```
 
-The TADA R Shiny application can be run [on the web](https://owshiny-dev.app.cloud.gov/tada-dev/) (R and R Studio install not required), or within R Studio. Run the following code within R Studio to install or update and run the most recent version of the [TADA R Shiny](https://github.com/USEPA/TADAShiny) application:
+The TADA R Shiny application can be run [on the web](https://owshiny-dev.app.cloud.gov/tada-dev/) (R and R Studio install not required), or within R Studio. Run the following code within R Studio to install or update and run the most recent version of the [TADA R Shiny](https://github.com/USEPA/EPATADAShiny) application:
 
 ```{r}
 if(!"remotes"%in%installed.packages()){

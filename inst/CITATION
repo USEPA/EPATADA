@@ -13,5 +13,5 @@ bibentry(bibtype = "Manual",
   address = "Washington, DC",
   institution = "U.S. Environmental Protection Agency",
   year = 2024,
-  url = "https://github.com/USEPA/TADA",
+  url = "https://github.com/USEPA/EPATADA",
   textVersion = "Mullin, C.A., Greif, J., Marler, H., Hinman, E., 2024, TADA: Tools for Automated Data Analysis, U.S. Environmental Protection Agency, Washington, DC")

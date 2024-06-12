@@ -67,7 +67,7 @@ in these helpful tools.**
 ## Customize or contribute
 
 TADA is housed in a repository on
-[GitHub](https://github.com/USEPA/TADA). Users desiring to review the
+[GitHub](https://github.com/USEPA/EPATADA). Users desiring to review the
 base code and customize the package for their own purposes may:
 
 -   Clone the repository using Git
