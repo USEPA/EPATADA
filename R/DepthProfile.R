@@ -1111,7 +1111,9 @@ TADA_DepthProfilePlot <- function(.data,
       ),
       hoverlabel = list(bgcolor = "white"),
       title = list(
-        text = title),
+        text = title,
+        xref = "paper",
+        x = 0.5),
       plot_bgcolor = "#e5ecf6",
       margin = mrg,
       legend = list(
