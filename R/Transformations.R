@@ -328,7 +328,7 @@ TADA_CalculateTotalNP <- function(.data, sum_ref, daily_agg = c("max", "min", "m
       dplyr::mutate(TADA.NutrientSummationGroup = dplyr::cur_group_id())
 
     # bring in equations
-    eqns <- utils::read.csv(system.file("extdata", "NP_equations.csv", package = "TADA"))
+    eqns <- utils::read.csv(system.file("extdata", "NP_equations.csv", package = "EPATADA"))
 
 
     # dataframe to hold results

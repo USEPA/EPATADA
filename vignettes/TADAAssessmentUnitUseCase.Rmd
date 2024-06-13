@@ -46,33 +46,33 @@ you might use TADA functions for basic data discovery and analysis with
 regards to a single Assessment Unit and a small subset of
 characteristics. It leverages functions from TADA Modules 1 and 2. For
 more details on each function, see the [TADA Function
-Reference](https://usepa.github.io/TADA/reference/index.html) or the
+Reference](https://usepa.github.io/EPATADA/reference/index.html) or the
 more comprehensive module vignettes:
 
 -   [TADA Module 1 Beginner
-    Training](https://usepa.github.io/TADA/articles/TADAModule1_BeginnerTraining.html)
+    Training](https://usepa.github.io/EPATADA/articles/TADAModule1_BeginnerTraining.html)
 
 -   [TADA Module 1 Advanced
-    Training](https://usepa.github.io/TADA/articles/TADAModule1_AdvancedTraining.html)
+    Training](https://usepa.github.io/EPATADA/articles/TADAModule1_AdvancedTraining.html)
 
 -   [TADA Module 1 Water Quality Portal Data Discovery and
-    Cleaning](https://usepa.github.io/TADA/articles/TADAModule1.html)
+    Cleaning](https://usepa.github.io/EPATADA/articles/TADAModule1.html)
 
 -   [TADA Module
-    2](https://usepa.github.io/TADA/articles/TADAModule2.html)
+    2](https://usepa.github.io/EPATADA/articles/TADAModule2.html)
 
 ## Load Required Packages
 
 The fist step is to load the TADA package and other packages used in our
 workflow. (If you are a first-time TADA user, see [TADA Module 1
 Beginner
-Training](https://usepa.github.io/TADA/articles/TADAModule1_BeginnerTraining.html)
+Training](https://usepa.github.io/EPATADA/articles/TADAModule1_BeginnerTraining.html)
 for TADA package installation instructions.)
 
 We'll also record the start time for our analysis, beginning after
 loading packages.
 
-```{r library, results = 'hide', message = FALSE, warning = FALSE}
+```{r library, results = 'hide'}
 # Load required packages
 library(EPATADA)
 library(dplyr)
@@ -188,7 +188,7 @@ easily accessible to R users.
 We can use the function, `TADA_GetATTAINS` to obtain geospatial data
 from **ATTAINS** relevant to the Monitoring Locations included in the
 **WQP** data set. See [TADA Module
-2](https://usepa.github.io/TADA/articles/TADAModule2.html) for a much
+2](https://usepa.github.io/EPATADA/articles/TADAModule2.html) for a much
 more detailed look at the logic behind this and the other TADA
 geospatial functions.
 
@@ -344,7 +344,7 @@ If you would like to prioritize results from one organization over
 another, this can be done using the org_hierarchy argument in
 `TADA_FindPotentialDuplicatesMultipleOrgs`. Information on how to this
 can be found in the function reference for
-[TADA_FindPotentialDuplicatesMultipleOrgs](https://usepa.github.io/TADA/reference/TADA_FindPotentialDuplicatesMultipleOrgs.html).
+[TADA_FindPotentialDuplicatesMultipleOrgs](https://usepa.github.io/EPATADA/reference/TADA_FindPotentialDuplicatesMultipleOrgs.html).
 In this example, we will use the default setting "none" where a single
 representative is selected randomly from each duplicate group.
 

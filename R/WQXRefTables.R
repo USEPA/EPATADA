@@ -40,7 +40,7 @@ TADA_GetWQXCharValRef <- function() {
   if (is.null(raw.data)) {
     message("Downloading latest Validation Reference Table failed!")
     message("Falling back to (possibly outdated) internal file.")
-    return(utils::read.csv(system.file("extdata", "WQXcharValRef.csv", package = "TADA")))
+    return(utils::read.csv(system.file("extdata", "WQXcharValRef.csv", package = "EPATADA")))
   }
 
   # Categorize status values
@@ -119,7 +119,7 @@ TADA_GetMeasureUnitRef <- function() {
   if (is.null(raw.data)) {
     message("Downloading latest Measure Unit Reference Table failed!")
     message("Falling back to (possibly outdated) internal file.")
-    return(utils::read.csv(system.file("extdata", "WQXunitRef.csv", package = "TADA")))
+    return(utils::read.csv(system.file("extdata", "WQXunitRef.csv", package = "EPATADA")))
   }
 
 
@@ -171,7 +171,7 @@ TADA_GetDetCondRef <- function() {
   if (is.null(raw.data)) {
     message("Downloading latest Result Detection Condition Reference Table failed!")
     message("Falling back to (possibly outdated) internal file.")
-    return(utils::read.csv(system.file("extdata", "WQXResultDetectionConditionRef.csv", package = "TADA")))
+    return(utils::read.csv(system.file("extdata", "WQXResultDetectionConditionRef.csv", package = "EPATADA")))
   }
 
   # Add detection type for all domain values. Review new values when updating.
@@ -286,7 +286,7 @@ TADA_GetDetLimitRef <- function() {
   if (is.null(raw.data)) {
     message("Downloading latest Measure Unit Reference Table failed!")
     message("Falling back to (possibly outdated) internal file.")
-    return(utils::read.csv(system.file("extdata", "WQXDetectionQuantitationLimitTypeRef.csv", package = "TADA")))
+    return(utils::read.csv(system.file("extdata", "WQXDetectionQuantitationLimitTypeRef.csv", package = "EPATADA")))
   }
 
   WQXDetLimitRef <- raw.data %>%
@@ -410,7 +410,7 @@ TADA_GetActivityTypeRef <- function() {
     message("Downloading latest Activity Type Reference Table failed!")
     message("Falling back to (possibly outdated) internal file.")
     return(utils::read.csv(system.file("extdata", "WQXActivityTypeRef.csv",
-      package = "TADA"
+      package = "EPATADA"
     )))
   }
 
@@ -595,7 +595,7 @@ TADA_GetCharacteristicRef <- function() {
   if (is.null(raw.data)) {
     message("Downloading latest Measure Unit Reference Table failed!")
     message("Falling back to (possibly outdated) internal file.")
-    return(utils::read.csv(system.file("extdata", "WQXCharacteristicRef.csv", package = "TADA")))
+    return(utils::read.csv(system.file("extdata", "WQXCharacteristicRef.csv", package = "EPATADA")))
   }
 
   # rename some columns
@@ -654,7 +654,7 @@ TADA_GetMeasureQualifierCodeRef <- function() {
   if (is.null(raw.data)) {
     message("Downloading latest Measure Qualifier Code Reference Table failed!")
     message("Falling back to (possibly outdated) internal file.")
-    return(utils::read.csv(system.file("extdata", "WQXMeasureQualifierCodeRef.csv", package = "TADA")))
+    return(utils::read.csv(system.file("extdata", "WQXMeasureQualifierCodeRef.csv", package = "EPATADA")))
   }
 
   # Categorize Result Measure Qualifiers
@@ -804,7 +804,7 @@ TADA_GetMonLocTypeRef <- function() {
   if (is.null(raw.data)) {
     message("Downloading latest Monitoring Location Type Name Reference Table failed!")
     message("Falling back to (possibly outdated) internal file.")
-    return(utils::read.csv(system.file("extdata", "WQXMonitoringLocationTypeNameRef.csv", package = "TADA")))
+    return(utils::read.csv(system.file("extdata", "WQXMonitoringLocationTypeNameRef.csv", package = "EPATADA")))
   }
 
   # Add TADA.Media.Flag for all domain values. Review new values when updating.

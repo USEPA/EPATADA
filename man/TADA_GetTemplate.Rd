@@ -2,7 +2,7 @@
 % Please edit documentation in R/RequiredCols.R
 \name{TADA_GetTemplate}
 \alias{TADA_GetTemplate}
-\title{Get TADA spreadsheet template}
+\title{Get TADA Template}
 \usage{
 TADA_GetTemplate()
 }
@@ -10,8 +10,8 @@ TADA_GetTemplate()
 A TADA template with all required columns for the TADA workflow.
 }
 \description{
-This function returns a blank TADA template that can be used
-as a starting point to reformat your own custom data set into the TADA format.
+This function returns a blank TADA template that can be used as a starting
+point to reformat your own custom data set into the TADA format.
 }
 \examples{
 TADA_Template <- TADA_GetTemplate()

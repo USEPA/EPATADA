@@ -659,7 +659,7 @@ TADA_SubstituteDeprecatedChars <- function(.data) {
 
   # read in characteristic reference table with deprecation information, filter to deprecated terms and for "retired" in CharactersticName.
   # remove all characters after first "*" in CharacteristicName and remove any leading or trailing white space to make compatible with deprecated NWIS CharactersticName.
-  nwis.table <- utils::read.csv(system.file("extdata", "WQXCharacteristicRef.csv", package = "TADA")) %>%
+  nwis.table <- utils::read.csv(system.file("extdata", "WQXCharacteristicRef.csv", package = "EPATADA")) %>%
     dplyr::filter(
       Char_Flag == "Deprecated",
       grepl("retired", CharacteristicName)
@@ -668,7 +668,7 @@ TADA_SubstituteDeprecatedChars <- function(.data) {
 
   # read in characteristic reference table with deprecation information and filter to deprecated terms.
   # join with deprecated NWIS CharacteristicName data.frame.
-  ref.table <- utils::read.csv(system.file("extdata", "WQXCharacteristicRef.csv", package = "TADA")) %>%
+  ref.table <- utils::read.csv(system.file("extdata", "WQXCharacteristicRef.csv", package = "EPATADA")) %>%
     dplyr::filter(Char_Flag == "Deprecated") %>%
     rbind(nwis.table)
 
@@ -858,7 +858,7 @@ TADA_RandomTestingData <- function(number_of_days = 1, choose_random_state = FAL
     end_date <- random_start_date + number_of_days
 
     if (choose_random_state == TRUE) {
-      load(system.file("extdata", "statecodes_df.Rdata", package = "TADA"))
+      load(system.file("extdata", "statecodes_df.Rdata", package = "EPATADA"))
       state <- sample(statecodes_df$STUSAB, 1)
     }
 
@@ -1186,7 +1186,7 @@ writeLayer <- function(url, layerfilepath) {
 #' }
 #'
 getLayer <- function(layerfilepath, bbox = NULL) {
-  layer <- sf::st_read(system.file(layerfilepath, package = "TADA"))
+  layer <- sf::st_read(system.file(layerfilepath, package = "EPATADA"))
   if (!(is.null(bbox))) {
     sf::sf_use_s2(FALSE)
     layer <- sf::st_make_valid(layer)

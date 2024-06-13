@@ -14,7 +14,7 @@ data(Data_6Tribes_5y_Harmonized)
 A data frame containing data from tribal organizations
 (see ?Data_6Tribes_5y for more information). Data was cleaned using the
 TADA Module 1 vignette
-(see: https://usepa.github.io/TADA/articles/TADAModule1.html).
+(see: https://usepa.github.io/EPATADA/articles/TADAModule1.html).
 }
 \keyword{data}
 \keyword{frame}
