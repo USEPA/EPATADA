@@ -435,22 +435,16 @@ TADA_ConvertResultUnits <- function(.data, ref = "tada", transform = TRUE) {
       wqx.ref$Target.Unit <- toupper(wqx.ref$Target.Unit)
       wqx.ref$Code <- toupper(wqx.ref$Code)
 
-      # Combine for USGS and WQX unit ref
+      # create unit ref
       unit.ref <- wqx.ref %>%
         dplyr::rename(
           TADA.ResultMeasure.MeasureUnitCode = Code,
           TADA.Target.ResultMeasure.MeasureUnitCode = Target.Unit,
-          TADA.WQXUnitConversionFactor = Conversion.Factor
-        )
-      dplyr::full_join(usgs.ref, by = c(
-        "TADA.ResultMeasure.MeasureUnitCode",
-        "TADA.Target.ResultMeasure.MeasureUnitCode",
-        "TADA.WQXUnitConversionFactor"
-      )) %>%
+          TADA.WQXUnitConversionFactor = Conversion.Factor,
+          TADA.WQXUnitConversionCoefficient = Conversion.Coefficient) %>%
         dplyr::select(
           TADA.ResultMeasure.MeasureUnitCode, TADA.Target.ResultMeasure.MeasureUnitCode,
-          TADA.WQXUnitConversionFactor, TADA.WQXUnitConversionCoefficient,
-          TADA.Target.MethodSpeciationName
+          TADA.WQXUnitConversionFactor, TADA.WQXUnitConversionCoefficient
         )
 
       # list of variables for joining unit ref with data
