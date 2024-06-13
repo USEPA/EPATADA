@@ -47,7 +47,6 @@ TADA_CreateUnitRef <- function(.data, print.message = TRUE) {
 
   # Remove TADA.MethodSpeciationName column
   data.units <- data.units %>%
-    dplyr::select(-TADA.MethodSpeciationName) %>%
     dplyr::distinct()
 
   # Import USGS default unit ref
@@ -55,6 +54,25 @@ TADA_CreateUnitRef <- function(.data, print.message = TRUE) {
   # Make Target.Unit and Code uppercase
   usgs.ref$Target.Unit <- toupper(usgs.ref$Target.Unit)
   usgs.ref$Code <- toupper(usgs.ref$Code)
+  
+  # Create ref for method speciation and unit for usgs results
+  usgs.method.unit <- usgs.ref %>%
+    dplyr::select(Code, CodeNoSpeciation, Target.Speciation) %>%
+    dplyr::mutate(TADA.ResultMeasure.MeasureUnitCode = toupper(Code),
+                  CodeNoSpeciation = toupper(CodeNoSpeciation),
+                  Target.Speciation = toupper(Target.Speciation)) %>%
+    dplyr::select(-Code)
+  
+  # Add method speciation and unit for usgs results to data units df
+  data.units <- data.units %>%
+    dplyr::left_join(usgs.method.unit, by = "TADA.ResultMeasure.MeasureUnitCode") %>%
+    dplyr::mutate(TADA.ResultMeasure.MeasureUnitCode = ifelse(is.na(TADA.MethodSpeciationName) & !is.na(Target.Speciation), 
+                                                              CodeNoSpeciation, 
+                                                              TADA.ResultMeasure.MeasureUnitCode),
+                  TADA.MethodSpeciationName = ifelse(is.na(TADA.MethodSpeciationName) & !is.na(Target.Speciation),
+                                                     Target.Speciation, TADA.MethodSpeciationName)) %>%
+    dplyr::select(-CodeNoSpeciation, -Target.Speciation)
+    
 
   # Import WQX default unit ref
   wqx.ref <- TADA_GetMeasureUnitRef()
@@ -396,7 +414,15 @@ TADA_ConvertResultUnits <- function(.data, ref = "tada", transform = TRUE) {
   if (!is.data.frame(ref)) {
     if (ref == "tada") {
       data.units <- TADA_CreateUnitRef(.data, print.message = FALSE)
-
+      
+      # modify USGS ref target units to match TADA priority char targets
+      
+      usgs.ref <- usgs.ref %>%
+        dplyr::select(TADA.ResultMeasure.MeasureUnitCode,
+                      Target.Unit,
+                      TADA.Target.MethodSpeciationName,
+                      TADA.WQXUnitConversionFactor)
+      
       # identify characteristics with all information
       char.complete <- data.units %>%
         dplyr::select(-ResultMeasure.MeasureUnitCode) %>%
