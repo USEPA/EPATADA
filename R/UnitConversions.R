@@ -411,8 +411,7 @@ TADA_ConvertResultUnits <- function(.data, ref = "tada", transform = TRUE) {
     }
   }
   # if no unit reference df was provided by user or user input was "tada"
-  if (!is.data.frame(ref)) {
-    if (ref == "tada") {
+  if (!is.data.frame(ref) & ref == "tada") {
       
       ref <- TADA_CreateUnitRef(.data, print.message = FALSE)
       
@@ -428,7 +427,7 @@ TADA_ConvertResultUnits <- function(.data, ref = "tada", transform = TRUE) {
       print("TADA_ConvertResultUnits: TADA target units are assigned by default when no unit 'ref' is supplied as a function input.")
     }
 
-    if (ref == "wqx") {
+    if (!is.data.frame(ref) & ref == "wqx") {
 
       # Import WQX unit ref
       wqx.ref <- TADA_GetMeasureUnitRef()
@@ -452,7 +451,6 @@ TADA_ConvertResultUnits <- function(.data, ref = "tada", transform = TRUE) {
 
       print("TADA_ConvertResultUnits: TADA target units are assigned by default when no unit 'ref' is supplied as a function input.")
     }
-  }
 
   # list of conversion columns
 
@@ -555,8 +553,7 @@ TADA_ConvertResultUnits <- function(.data, ref = "tada", transform = TRUE) {
       dplyr::select(-tidyselect::any_of(conversion.cols))
 
     return(convert.data)
-  }
-}
+  }}
 
 #' Convert Depth Units
 #'
