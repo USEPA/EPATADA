@@ -375,7 +375,7 @@ TADA_ConvertResultUnits <- function(.data, ref = "tada", transform = TRUE) {
       dplyr::distinct()
 
     # list of variables for joining unit ref with data
-    ref.join <- c("TADA.CharacteristicName", "TADA.ResultMeasure.MeasureUnitCode",
+    ref.join <- c("TADA.CharacteristicName",
                   "ResultMeasure.MeasureUnitCode")
 
     # create message to inform users if user-supplied unit reference contains all combinations present in TADA data frame
@@ -502,6 +502,8 @@ TADA_ConvertResultUnits <- function(.data, ref = "tada", transform = TRUE) {
         !is.na(TADA.Target.ResultMeasure.MeasureUnitCode) ~ ((TADA.ResultMeasureValue + TADA.WQXUnitConversionCoefficient) * TADA.WQXUnitConversionFactor),
         is.na(TADA.Target.ResultMeasure.MeasureUnitCode) ~ TADA.ResultMeasureValue
       ))
+    
+    rm(flag.data)
 
     # populate ResultMeasure.MeasureUnitCode
     clean.data <- clean.data %>%
@@ -530,19 +532,23 @@ TADA_ConvertResultUnits <- function(.data, ref = "tada", transform = TRUE) {
     clean.data <- TADA_OrderCols(clean.data)
 
     det.ref <- unit.ref %>%
-      dplyr::rename(
-        TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode = TADA.ResultMeasure.MeasureUnitCode,
-        DetectionQuantitationLimitMeasure.MeasureUnitCode = ResultMeasure.MeasureUnitCode
-      )
+      dplyr::select(-TADA.ResultMeasure.MeasureUnitCode) %>%
+      dplyr::rename(DetectionQuantitationLimitMeasure.MeasureUnitCode = ResultMeasure.MeasureUnitCode)
+    
+    det.join <- c("TADA.CharacteristicName",
+                  "DetectionQuantitationLimitMeasure.MeasureUnitCode")
 
     # Transform TADA.DetectionQuantitationLimitMeasure.MeasureValue value to Target Unit only if target unit exists
     det.data <- clean.data %>%
-      merge(det.ref, all.x = TRUE) %>%
+      dplyr::select(-tidyselect::any_of(conversion.cols)) %>%
+      dplyr::left_join(det.ref, by = det.join) %>%
       # apply conversions where there is a target unit, use original value if no target unit
       dplyr::mutate(TADA.DetectionQuantitationLimitMeasure.MeasureValue = dplyr::case_when(
         !is.na(TADA.Target.ResultMeasure.MeasureUnitCode) ~ ((TADA.DetectionQuantitationLimitMeasure.MeasureValue - TADA.WQXUnitConversionCoefficient) * TADA.WQXUnitConversionFactor),
         is.na(TADA.Target.ResultMeasure.MeasureUnitCode) ~ TADA.DetectionQuantitationLimitMeasure.MeasureValue
       ))
+    
+    rm(clean.data)
 
     # populate TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode
     convert.data <- det.data %>%
