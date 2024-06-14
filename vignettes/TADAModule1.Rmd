@@ -1326,10 +1326,10 @@ TADAShiny::run_app()
 ## Download this Article from GitHub
 
 Go to:
-<https://github.com/USEPA/TADA/blob/develop/vignettes/TADAModule1.Rmd>
+<https://github.com/USEPA/EPATADA/blob/develop/vignettes/TADAModule1.Rmd>
 
 [![Click the highlighted icon to download TADAModule1.Rmd from GitHub.
 Open this file in R Studio to follow along. Alternatively, you can copy
 and paste desired lines of code from here into your own script. Note:
 You must have a GitHub account to download TADAModule1.Rmd from
-GitHub](images/DownloadModule1.jpg)](https://github.com/USEPA/TADA/blob/develop/vignettes/TADAModule1.Rmd)
+GitHub](images/DownloadModule1.jpg)](https://github.com/USEPA/EPATADA/blob/develop/vignettes/TADAModule1.Rmd)
