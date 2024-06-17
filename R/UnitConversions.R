@@ -348,8 +348,7 @@ TADA_ConvertResultUnits <- function(.data, ref = "tada", transform = TRUE) {
     dplyr::mutate(ResultMeasure.MeasureUnitCode.Upper = toupper(ResultMeasure.MeasureUnitCode),
                   TADA.Target.MethodSpeciationName = toupper(TADA.Target.MethodSpeciationName)) %>%
     dplyr::select(ResultMeasure.MeasureUnitCode.Upper, TADA.Target.MethodSpeciationName)
-
-
+  
   # if user supplied unit reference was provided
   if (is.data.frame(ref)) {
     # required columns
@@ -420,8 +419,6 @@ TADA_ConvertResultUnits <- function(.data, ref = "tada", transform = TRUE) {
                            "ResultMeasure.MeasureUnitCode.Upper") %>%
         dplyr::select(-ResultMeasure.MeasureUnitCode.Upper) %>%
         dplyr::distinct()
-
-      print("TADA_ConvertResultUnits: TADA target units are assigned by default when no unit 'ref' is supplied as a function input.")
     }
 
     if (!is.data.frame(ref) & ref == "wqx") {
