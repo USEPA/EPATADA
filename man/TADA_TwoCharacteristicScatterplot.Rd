@@ -42,7 +42,7 @@ Create A Two-Characteristic Scatterplot
 # Load example dataset:
 data(Data_Nutrients_UT)
 # Create a single scatterplot with two specified groups from TADA.ComparableDataIdentifier
-TADA_TwoCharacteristicScatterplot(Data_Nutrients_UT, id_cols = "TADA.ComparableDataIdentifier", groups = c("AMMONIA_UNFILTERED_NA_MG/L", "NITRATE_UNFILTERED_NA_MG/L"))
+TADA_TwoCharacteristicScatterplot(Data_Nutrients_UT, id_cols = "TADA.ComparableDataIdentifier", groups = c("AMMONIA_UNFILTERED_AS N_MG/L", "NITRATE_UNFILTERED_AS N_MG/L"))
 
 # Load example dataset:
 data(Data_6Tribes_5y_Harmonized)
