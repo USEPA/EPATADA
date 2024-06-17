@@ -25,9 +25,10 @@
 #' one target unit. When print.message = FALSE, no message is printed. The default
 #' is print.message = TRUE.
 #
-#' @return A dataframe with six columns: TADA.CharacteristicName,
+#' @return A dataframe with seven columns: TADA.CharacteristicName,
 #' TADA.ResultMeasure.MeasureUnitCode, ResultMeasure.MeasureUnitCode,
-#' TADA.Target.ResultMeasureUnit, ConversionFactor, and ConversionCoefficient.
+#' TADA.Target.ResultMeasureUnit, TADA.MethodSpeciatioName,
+#'  ConversionFactor, and ConversionCoefficient.
 #' The number of rows will vary based on the number of unique
 #' TADA.CharacteristicName/ResultMeasure.MeasureUnitCode combinations in the
 #' initial TADA dataframe.
@@ -129,7 +130,7 @@ TADA_CreateUnitRef <- function(.data, print.message = TRUE) {
     dplyr::filter(!is.na(Conversion.Factor)) %>%
     # Select columns needed for final unit ref
     dplyr::select(
-      "TADA.CharacteristicName", "TADA.ResultMeasure.MeasureUnitCode",
+      "TADA.CharacteristicName", "TADA.ResultMeasure.MeasureUnitCode", "TADA.MethodSpeciationName",
       "TADA.Target.ResultMeasure.MeasureUnitCode", "ResultMeasure.MeasureUnitCode",
       "Last.Change.Date", "Conversion.Factor", "Conversion.Coefficient", "CharUnit"
     )
@@ -419,10 +420,6 @@ TADA_ConvertResultUnits <- function(.data, ref = "tada", transform = TRUE) {
                            "ResultMeasure.MeasureUnitCode.Upper") %>%
         dplyr::select(-ResultMeasure.MeasureUnitCode.Upper) %>%
         dplyr::distinct()
-
-      # list of variables for joining unit ref with data
-      ref.join <- c("TADA.CharacteristicName",
-                    "ResultMeasure.MeasureUnitCode")
 
       print("TADA_ConvertResultUnits: TADA target units are assigned by default when no unit 'ref' is supplied as a function input.")
     }
