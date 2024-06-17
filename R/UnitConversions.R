@@ -408,8 +408,12 @@ TADA_ConvertResultUnits <- function(.data, ref = "tada", transform = TRUE) {
       ))
     }
   }
+  
+  # if user did not provide a data frame
+  if (!is.data.frame(ref)) {
+  
   # if no unit reference df was provided by user or user input was "tada"
-  if (!is.data.frame(ref) & ref == "tada") {
+  if (ref == "tada") {
       
       unit.ref <- TADA_CreateUnitRef(.data, print.message = FALSE)
       
@@ -421,7 +425,7 @@ TADA_ConvertResultUnits <- function(.data, ref = "tada", transform = TRUE) {
         dplyr::distinct()
     }
 
-    if (!is.data.frame(ref) & ref == "wqx") {
+    if (ref == "wqx") {
 
       # Import WQX unit ref
       wqx.ref <- TADA_GetMeasureUnitRef()
@@ -456,7 +460,7 @@ TADA_ConvertResultUnits <- function(.data, ref = "tada", transform = TRUE) {
         dplyr::distinct()
 
       print("TADA_ConvertResultUnits: TADA target units are assigned by default when no unit 'ref' is supplied as a function input.")
-    }
+    }}
 
   # list of conversion columns
 
