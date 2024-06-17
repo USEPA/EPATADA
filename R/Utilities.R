@@ -82,7 +82,7 @@ utils::globalVariables(c(
   "TADA.ResultDepthHeightMeasure.MeasureUnitCode", "TADA.ResultDepthHeightMeasure.MeasureValue",
   "YAxis.DepthUnit", "TADA.CharacteristicsForDepthProfile", "TADA.ConsolidatedDepth",
   "TADA.ConsolidatedDepth.Bottom", "TADA.ConsolidatedDepth.Unit", "col2rgb",
-  "palette.colors", "rect", "rgb", "text"
+  "palette.colors", "rect", "rgb", "text", "CodeNoSpeciation", "ResultMeasure.MeasureUnitCode.Upper"
 ))
 
 # global variables for tribal feature layers used in TADA_OverviewMap in Utilities.R
