@@ -605,7 +605,7 @@ TADA_FieldValuesPie <- function(.data, field = "null", characteristicName = "nul
     )
 
 
-    tada.pal <- tada.pal[2:(1 + colorCount)]
+    tada.pal <- tada.pal[1:colorCount]
   }
 
   if (colorCount > 14) {
