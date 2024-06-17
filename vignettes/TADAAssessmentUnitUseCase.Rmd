@@ -492,7 +492,7 @@ unique(Harmonized_data$TADA.ComparableDataIdentifier)
 
 # filter for three comparable data identifiers of interest
 Filtered_data <- Harmonized_data %>%
-  dplyr::filter(TADA.ComparableDataIdentifier %in% c("TEMPERATURE_NA_NA_DEG C", "PH_NA_NA_NA", "TOTAL NITROGEN, MIXED FORMS_FILTERED, LAB_NA_MG/L"))
+  dplyr::filter(TADA.ComparableDataIdentifier %in% c("TEMPERATURE_NA_NA_DEG C", "PH_NA_NA_NA", "TOTAL NITROGEN, MIXED FORMS_UNFILTERED_AS N_MG/L"))
 
 # generate stats table
 Filtered_data_stats <- TADA_Stats(Filtered_data)
@@ -636,7 +636,7 @@ data.
 ```{r boxplot and histogram}
 # filter dataframe to comparable data identifier of interest
 
-Nitrogen_data <- dplyr::filter(Filtered_data, TADA.ComparableDataIdentifier == "TOTAL NITROGEN, MIXED FORMS_FILTERED, LAB_NA_MG/L")
+Nitrogen_data <- dplyr::filter(Filtered_data, TADA.ComparableDataIdentifier == "TOTAL NITROGEN, MIXED FORMS_UNFILTERED_AS N_MG/L")
 
 # generate a histogram
 Nitrogen_Histogram <- TADA_Histogram(Nitrogen_data, id_cols = "TADA.ComparableDataIdentifier")
@@ -662,7 +662,7 @@ useful information.
 ```{r stats and scatterplot}
 # create table with nitrogen stats
 Nitrogen_stats <- Filtered_data_stats %>%
-  dplyr::filter(TADA.ComparableDataIdentifier == "TOTAL NITROGEN, MIXED FORMS_FILTERED, LAB_NA_MG/L") %>%
+  dplyr::filter(TADA.ComparableDataIdentifier == "TOTAL NITROGEN, MIXED FORMS_UNFILTERED_AS N_MG/L") %>%
   dplyr::select(Location_Count, Measurement_Count, Min, Max, Mean)
 
 DT::datatable(Nitrogen_stats, fillContainer = TRUE)
