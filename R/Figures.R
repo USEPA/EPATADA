@@ -837,7 +837,7 @@ TADA_Scatterplot <- function(.data, id_cols = c("TADA.ComparableDataIdentifier")
 #' # Load example dataset:
 #' data(Data_6Tribes_5y_Harmonized)
 #' # Filter the example data so it includes only one TADA.ComparableDataIdentifier
-#' df <- dplyr::filter(Data_6Tribes_5y_Harmonized, TADA.ComparableDataIdentifier == "TOTAL PHOSPHORUS, MIXED FORMS_UNFILTERED_AS P_UG/L")
+#' df <- dplyr::filter(Data_6Tribes_5y_Harmonized, TADA.ComparableDataIdentifier == "TOTAL PHOSPHORUS, MIXED FORMS_UNFILTERED_AS P_MG/L" )
 #' # Creates a scatterplot including the two specified sites in the same plot:
 #' TADA_TwoCharacteristicScatterplot(df, id_cols = "MonitoringLocationName", groups = c("Upper Red Lake: West", "Upper Red Lake: West-Central"))
 #'
