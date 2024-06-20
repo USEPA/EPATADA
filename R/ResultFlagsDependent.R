@@ -258,7 +258,7 @@ TADA_FlagSpeciation <- function(.data, clean = c("invalid_only", "nonstandardize
   if (clean == "both") {
     # filter out both "Invalid" and "NonStandardized" characteristic-method speciation combinations
     # clean.data <- dplyr::filter(check.data, TADA.MethodSpeciation.Flag != "NonStandardized" & TADA.MethodSpeciation.Flag != "Invalid")
-    clean.data <- dplyr::filter(check.data, TADA.MethodSpeciation.Flag == c("Not Reviewed", "Accepted"))
+    clean.data <- dplyr::filter(check.data, TADA.MethodSpeciation.Flag %in% c("Not Reviewed", "Accepted"))
   }
 
   # when clean = "none"
