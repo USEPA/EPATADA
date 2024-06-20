@@ -5,7 +5,8 @@
 #' Data_Nutrients_UT <- TADA_DataRetrieval(statecode = "UT",
 #' characteristicName = c("Ammonia", "Nitrate", "Nitrogen"),
 #' startDate = "2020-10-01",
-#' endDate = "2022-09-30")
+#' endDate = "2022-09-30",
+#' applyautoclean = TRUE)
 #'
 #' @docType data
 #' @keywords data frame
