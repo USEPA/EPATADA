@@ -26,7 +26,8 @@ quiet <- function(x) {
 # write global variables. Gets rid of global variable NOTE in check:
 utils::globalVariables(c(
   "TADA.ResultValueAboveUpperThreshold.Flag", "ActivityIdentifier", "ActivityMediaName",
-  "ActivityStartDate", "TADA.ResultValueBelowUpperThreshold.Flag", "TADA.ResultValueBelowLowerThreshold.Flag", "CharacteristicName",
+  "ActivityStartDate", "TADA.ResultValueBelowUpperThreshold.Flag", 
+  "TADA.ResultValueBelowLowerThreshold.Flag", "CharacteristicName",
   "Conversion.Factor", "Count", "Description", "FieldName", "FieldValue",
   "MethodSpecationName", "MonitoringLocationIdentifier",
   "OrganizationFormalName", "OrganizationIdentifier", "ProjectDescriptionText",
@@ -58,14 +59,15 @@ utils::globalVariables(c(
   "SummationName", "SummationRank", "SummationFractionNotes", "SummationSpeciationNotes",
   "SummationSpeciationConversionFactor", "SummationNote", "NutrientGroup",
   "Target.Speciation", "TADA.NearbySiteGroups", "numres", "TADA.SingleOrgDupGroupID",
-  "TADA.MeasureQualifierCode.Flag", "TADA.MeasureQualifierCode.Def", "MeasureQualifierCode", "value", "Flag_Column",
-  "Data_NCTCShepherdstown_HUC12", "ActivityStartDateTime", "TADA.MultipleOrgDupGroupID",
-  "TADA.WQXVal.Flag", "Concat", ".", "MeasureQualifierCode.Split", "TADA.Media.Flag",
-  "ML.Media.Flag", "TADA.UseForAnalysis.Flag",
+  "TADA.MeasureQualifierCode.Flag", "TADA.MeasureQualifierCode.Def", "MeasureQualifierCode", 
+  "value", "Flag_Column","Data_NCTCShepherdstown_HUC12", "ActivityStartDateTime", 
+  "TADA.MultipleOrgDupGroupID", "TADA.WQXVal.Flag", "Concat", ".", "MeasureQualifierCode.Split", 
+  "TADA.Media.Flag", "ML.Media.Flag", "TADA.UseForAnalysis.Flag",
   "Unique.Identifier", "Domain", "Note.Recommendation", "Conversion.Coefficient",
   "Conversion.Coefficient", "Last.Change.Date", "Value", "Minimum", "Unique.Identifier",
-  "Domain", "ResultMeasure.MeasureUnitCode", "Comb", "CombList", "TADA.Target.ResultMeasure.MeasureUnitCode",
-  "TADA.WQXUnitConversionFactor", "TADA.WQXUnitConversionCoefficient", "TADA.Target.MethodSpeciationName",
+  "Domain", "ResultMeasure.MeasureUnitCode", "Comb", "CombList", 
+  "TADA.Target.ResultMeasure.MeasureUnitCode", "TADA.WQXUnitConversionFactor", 
+  "TADA.WQXUnitConversionCoefficient", "TADA.Target.MethodSpeciationName",
   "flag", "NConvert", "MultUnits", "CharList", "CharUnit", "SingleNearbyGroup",
   "TADA.MultipleOrgDuplicate", "TADA.ResultSelectedMultipleOrgs", "Maximum",
   "OBJECTID", "GLOBALID", "assessmentunitidentifier", "index", "epsg",
@@ -173,8 +175,10 @@ VATribeUrl <- "https://geopub.epa.gov/arcgis/rest/services/EMEF/Tribal/MapServer
 #'
 #' @examples
 #' \dontrun{
-#' # Find web service URLs for each Profile using WQP User Interface: https://www.waterqualitydata.us/
-#' # Example WQP URL: https://www.waterqualitydata.us/#statecode=US%3A09&characteristicType=Nutrient&startDateLo=04-01-2023&startDateHi=11-01-2023&mimeType=csv&providers=NWIS&providers=STEWARDS&providers=STORET
+#' # Find web service URLs for each Profile using WQP User Interface: 
+#' https://www.waterqualitydata.us/
+#' # Example WQP URL: 
+#' https://www.waterqualitydata.us/#statecode=US%3A09&characteristicType=Nutrient&startDateLo=04-01-2023&startDateHi=11-01-2023&mimeType=csv&providers=NWIS&providers=STEWARDS&providers=STORET
 #'
 #' # Use TADA_ReadWQPWebServices to load the Station, Project, and Phys-Chem Result profiles
 #' stationProfile <- TADA_ReadWQPWebServices("https://www.waterqualitydata.us/data/Station/search?statecode=US%3A09&characteristicType=Nutrient&startDateLo=04-01-2023&startDateHi=11-01-2023&mimeType=csv&zip=yes&providers=NWIS&providers=STEWARDS&providers=STORET")
@@ -992,13 +996,18 @@ TADA_AggregateMeasurements <- function(.data, grouping_cols = c("ActivityStartDa
 
 #' Run key flagging functions
 #'
-#' This is a shortcut function to run all of the most important flagging functions on a TADA dataset. See ?function documentation for TADA_FlagResultUnit, TADA_FlagFraction, TADA_FindQCActivities, and TADA_FlagSpeciation for more information.
+#' This is a shortcut function to run all of the most important flagging functions on a TADA 
+#' dataset. See ?function documentation for TADA_FlagResultUnit, TADA_FlagFraction, 
+#' TADA_FindQCActivities, and TADA_FlagSpeciation for more information.
 #'
 #' @param .data A TADA dataframe
-#' @param remove_na Boolean, Determines whether to keep TADA.ResultMeasureValues that are NA. Defaults to TRUE.
-#' @param clean Boolean. Determines whether to keep the Invalid rows in the dataset following each flagging function. Defaults to TRUE.
+#' @param remove_na Boolean, Determines whether to keep TADA.ResultMeasureValues that are NA. 
+#' Defaults to TRUE.
+#' @param clean Boolean. Determines whether to keep the Invalid rows in the dataset following each 
+#' flagging function. Defaults to TRUE.
 #'
-#' @return A TADA dataframe with the following flagging columns:TADA.ResultUnit.Flag, TADA.MethodSpeciation.Flag, TADA.SampleFraction.Flag, and TADA.ActivityType.Flag
+#' @return A TADA dataframe with the following flagging columns:TADA.ResultUnit.Flag, 
+#' TADA.MethodSpeciation.Flag, TADA.SampleFraction.Flag, and TADA.ActivityType.Flag
 #'
 #' @export
 #'

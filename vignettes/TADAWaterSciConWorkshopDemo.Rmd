@@ -14,7 +14,7 @@ vignette: >
   %\VignetteEncoding{UTF-8}
   %\VignetteIndexEntry{TADA: WaterSciCon Workshop Demo}
   %\VignetteEngine{knitr::rmarkdown}
-description: A demonstration of data discovery for the confluence of the San Juan and Animas Rivers near Farmington, New Mexico. This example focuses on surface water quality with a focus on total dissolved solids and conduvitivty.
+description: A demonstration of data discovery for the confluence of the San Juan and Animas Rivers near Farmington, New Mexico. This example focuses on surface water quality with a focus on total dissolved solids and conductivity.
 
 editor_options: 
   chunk_output_type: console
@@ -38,7 +38,7 @@ Farmington, New Mexico with a focus on total dissolved solids and
 conductivity.
 
 This vignette is designed to be concise and provide an example of how
-you might use TADA functions for basic data discovery and preperation.
+you might use TADA functions for basic data discovery and preparation.
 It leverages functions from TADA Modules 1 and 2. For more details on
 each function, see the [TADA Function
 Reference](https://usepa.github.io/EPATADA/reference/index.html) or the
@@ -99,7 +99,7 @@ NM-2401_10**
 
 We can also identify the HUC-12s for each segment. This information will
 help us build our Water Quality Portal query to find results for the
-segements of interest plus other nearby waterbodies. The HUC-12s are
+segments of interest plus other nearby water bodies. The HUC-12s are
 140801050505 (San Juan River) and 140801041006 (Animas River).
 
 ## Data Retrieval - Water Chemistry
@@ -118,7 +118,7 @@ universities, submit data to the WQX.
 
 One of the fields that can be used to query the WQP is HUC. As we know
 the HUC-12s of interest, we will use them to retrieve WQP data using
-`TADA_DataRetrieval`. As we are most interested in total dissovled
+`TADA_DataRetrieval`. As we are most interested in total dissolved
 solids and conductivity and these are in the "Physical" characteristic
 type group in the WQP, we will also include characteristic group type in
 our query. We will not set start and end dates as we are interested in
@@ -347,10 +347,9 @@ ATTAINS_map
 ## Monitoring Location Filter and Review
 
 Now that we've associated geospatial data from **ATTAINS** with the
-**WQP** data, we
-can generate pie charts for each TADA.ComparableDataIdentifier to give
-us some information about how many results are available per each
-monitoring location group.
+**WQP** data, we can generate pie charts for each
+TADA.ComparableDataIdentifier to give us some information about how many
+results are available per each monitoring location group.
 
 ```{r TADA_FieldValuesPie}
 # Select TADA data with ATTAINS data

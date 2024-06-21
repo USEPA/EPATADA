@@ -27,7 +27,7 @@
 #
 #' @return A dataframe with seven columns: TADA.CharacteristicName,
 #' TADA.ResultMeasure.MeasureUnitCode, ResultMeasure.MeasureUnitCode,
-#' TADA.Target.ResultMeasureUnit, TADA.MethodSpeciatioName,
+#' TADA.Target.ResultMeasureUnit, TADA.MethodSpeciationName,
 #'  ConversionFactor, and ConversionCoefficient.
 #' The number of rows will vary based on the number of unique
 #' TADA.CharacteristicName/ResultMeasure.MeasureUnitCode combinations in the

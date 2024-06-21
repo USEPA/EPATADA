@@ -17,6 +17,7 @@ AggregateMeasurements
 Aliesha
 AnalysisDataFilter
 AnalyticalMethod
+Animas
 AquiferName
 ArcGIS
 AssemblageSampledName
@@ -41,6 +42,7 @@ CharacteristicsForDepthProfile
 CharactersticName
 Chilton
 ComparableDataIdentifier
+ComparableDataIdentifiers
 ConsolidatedDepth
 ConstructionDateText
 ContinuousData
@@ -66,6 +68,7 @@ DomainValues
 ECHO's
 EMEF
 FONDULAC
+Farmington
 FieldCounts
 FieldValuesPie
 FieldValuesTable
@@ -93,6 +96,7 @@ GetCharacteristicRef
 GetNutrientSummationRef
 GetSynonymRef
 Github
+HMW
 HUC
 HUCS
 HUCs
@@ -235,6 +239,7 @@ SpeciationUnitConversion
 StateCode
 SubstituteDeprecatedChars
 SummarizeColumn
+TADA
 TADADataRetrieval
 TADAGeospatialRefLayers
 TADAModule
@@ -274,6 +279,7 @@ WQXTargetUnit
 WQXUnitConversionFactor
 WQXcharValRef
 WQXunitRef
+WaterSciCon
 Waterbody
 WaterbodyReport
 WellDepthMeasure
@@ -295,6 +301,7 @@ assmnt
 autoclean
 autocleaned
 bbox
+bnd
 bottomvalue
 bplan
 bycategory
