@@ -26,7 +26,7 @@ quiet <- function(x) {
 # write global variables. Gets rid of global variable NOTE in check:
 utils::globalVariables(c(
   "TADA.ResultValueAboveUpperThreshold.Flag", "ActivityIdentifier", "ActivityMediaName",
-  "ActivityStartDate", "TADA.ResultValueBelowUpperThreshold.Flag", 
+  "ActivityStartDate", "TADA.ResultValueBelowUpperThreshold.Flag",
   "TADA.ResultValueBelowLowerThreshold.Flag", "CharacteristicName",
   "Conversion.Factor", "Count", "Description", "FieldName", "FieldValue",
   "MethodSpecationName", "MonitoringLocationIdentifier",
@@ -59,14 +59,14 @@ utils::globalVariables(c(
   "SummationName", "SummationRank", "SummationFractionNotes", "SummationSpeciationNotes",
   "SummationSpeciationConversionFactor", "SummationNote", "NutrientGroup",
   "Target.Speciation", "TADA.NearbySiteGroups", "numres", "TADA.SingleOrgDupGroupID",
-  "TADA.MeasureQualifierCode.Flag", "TADA.MeasureQualifierCode.Def", "MeasureQualifierCode", 
-  "value", "Flag_Column","Data_NCTCShepherdstown_HUC12", "ActivityStartDateTime", 
-  "TADA.MultipleOrgDupGroupID", "TADA.WQXVal.Flag", "Concat", ".", "MeasureQualifierCode.Split", 
+  "TADA.MeasureQualifierCode.Flag", "TADA.MeasureQualifierCode.Def", "MeasureQualifierCode",
+  "value", "Flag_Column", "Data_NCTCShepherdstown_HUC12", "ActivityStartDateTime",
+  "TADA.MultipleOrgDupGroupID", "TADA.WQXVal.Flag", "Concat", ".", "MeasureQualifierCode.Split",
   "TADA.Media.Flag", "ML.Media.Flag", "TADA.UseForAnalysis.Flag",
   "Unique.Identifier", "Domain", "Note.Recommendation", "Conversion.Coefficient",
   "Conversion.Coefficient", "Last.Change.Date", "Value", "Minimum", "Unique.Identifier",
-  "Domain", "ResultMeasure.MeasureUnitCode", "Comb", "CombList", 
-  "TADA.Target.ResultMeasure.MeasureUnitCode", "TADA.WQXUnitConversionFactor", 
+  "Domain", "ResultMeasure.MeasureUnitCode", "Comb", "CombList",
+  "TADA.Target.ResultMeasure.MeasureUnitCode", "TADA.WQXUnitConversionFactor",
   "TADA.WQXUnitConversionCoefficient", "TADA.Target.MethodSpeciationName",
   "flag", "NConvert", "MultUnits", "CharList", "CharUnit", "SingleNearbyGroup",
   "TADA.MultipleOrgDuplicate", "TADA.ResultSelectedMultipleOrgs", "Maximum",
@@ -98,9 +98,9 @@ VATribeUrl <- "https://geopub.epa.gov/arcgis/rest/services/EMEF/Tribal/MapServer
 #' TADA_AutoClean
 #'
 #' This function performs the following tasks:
-#' 1) Creates new columns with the TADA prefix "TADA." and capitalizes all 
-#' letters within them so that they're interoperable with the WQX validation 
-#' reference tables and to reduce issues with case-sensitivity when joining 
+#' 1) Creates new columns with the TADA prefix "TADA." and capitalizes all
+#' letters within them so that they're interoperable with the WQX validation
+#' reference tables and to reduce issues with case-sensitivity when joining
 #' data: CharacteristicName, ResultSampleFractionText, MethodSpeciationName,
 #' ResultMeasure.MeasureUnitCode, ActivityMediaName, and
 #' DetectionQuantitationLimitMeasure.MeasureUnitCode.
@@ -110,7 +110,7 @@ VATribeUrl <- "https://geopub.epa.gov/arcgis/rest/services/EMEF/Tribal/MapServer
 #' 3) Converts the column type of LatitudeMeasure and LongitudeMeasure to
 #' numeric (double) and creates new columns with the “TADA” prefix.
 #' 4) Replace meters" with “m” in the following columns:
-#' TADA.ResultMeasure.MeasureUnitCode, 
+#' TADA.ResultMeasure.MeasureUnitCode,
 #' ActivityDepthHeightMeasure.MeasureUnitCode,
 #' ActivityTopDepthHeightMeasure.MeasureUnitCode,
 #' ActivityBottomDepthHeightMeasure.MeasureUnitCode, and
@@ -123,16 +123,16 @@ VATribeUrl <- "https://geopub.epa.gov/arcgis/rest/services/EMEF/Tribal/MapServer
 #' details.
 #' 7) Runs TADA_ConvertDepthUnits to convert the depth units to meters on the
 #' following columns: ResultDepthHeightMeasure.MeasureValue,
-#' ActivityDepthHeightMeasure.MeasureValue, 
+#' ActivityDepthHeightMeasure.MeasureValue,
 #' ActivityTopDepthHeightMeasure.MeasureValue,
 #' and ActivityBottomDepthHeightMeasure.MeasureValue, and add new columns
 #' with the “TADA” prefix.
-#' 8) Runs TADA_CreateComparableID to create a comparable data group by 
+#' 8) Runs TADA_CreateComparableID to create a comparable data group by
 #' concatenating TADA.CharacteristicName, TADA.ResultSampleFractionText,
 #' TADA.MethodSpeciationName, and TADA.ResultMeasure.MeasureUnitCode.
 #'
 #' Original columns are not changed: new columns are added to the end of the
-#' dataframe with the prefix "TADA.". TADA_AutoClean can be run as a stand 
+#' dataframe with the prefix "TADA.". TADA_AutoClean can be run as a stand
 #' alone function but is primarily used by the TADA_dataRetrieval function.
 #'
 #' @param .data TADA dataframe
@@ -210,7 +210,7 @@ TADA_AutoClean <- function(.data) {
 
   # execute function after checks are passed
 
-  # check to make sure columns do not already exist and capitalize fields with known synonyms that 
+  # check to make sure columns do not already exist and capitalize fields with known synonyms that
   # only differ in caps
   print("TADA_Autoclean: creating TADA-specific columns.")
 
@@ -218,7 +218,7 @@ TADA_AutoClean <- function(.data) {
     .data <- .data
   } else {
     # create uppercase version of original DetectionQuantitationLimitMeasure.MeasureUnitCode
-    .data$TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode <- 
+    .data$TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode <-
       toupper(.data$DetectionQuantitationLimitMeasure.MeasureUnitCode)
   }
 
@@ -998,17 +998,17 @@ TADA_AggregateMeasurements <- function(.data, grouping_cols = c("ActivityStartDa
 
 #' Run key flagging functions
 #'
-#' This is a shortcut function to run all of the most important flagging functions on a TADA 
-#' dataset. See ?function documentation for TADA_FlagResultUnit, TADA_FlagFraction, 
+#' This is a shortcut function to run all of the most important flagging functions on a TADA
+#' dataset. See ?function documentation for TADA_FlagResultUnit, TADA_FlagFraction,
 #' TADA_FindQCActivities, and TADA_FlagSpeciation for more information.
 #'
 #' @param .data A TADA dataframe
-#' @param remove_na Boolean, Determines whether to keep TADA.ResultMeasureValues that are NA. 
+#' @param remove_na Boolean, Determines whether to keep TADA.ResultMeasureValues that are NA.
 #' Defaults to TRUE.
-#' @param clean Boolean. Determines whether to keep the Invalid rows in the dataset following each 
+#' @param clean Boolean. Determines whether to keep the Invalid rows in the dataset following each
 #' flagging function. Defaults to TRUE.
 #'
-#' @return A TADA dataframe with the following flagging columns:TADA.ResultUnit.Flag, 
+#' @return A TADA dataframe with the following flagging columns:TADA.ResultUnit.Flag,
 #' TADA.MethodSpeciation.Flag, TADA.SampleFraction.Flag, and TADA.ActivityType.Flag
 #'
 #' @export
@@ -1468,7 +1468,8 @@ TADA_ViewColorPalette <- function() {
 
   # create color swatch graphic
   graphics::par(mar = c(5, 0, 5, 0))
-  swatch <- graphics::plot(1, type = "n", xlab = "", ylab = "", xlim = c(0.5, n + 0.5), ylim = c(0, 1), main = "TADA Palette", axes = FALSE)
+  swatch <- graphics::plot(1, type = "n", xlab = "", ylab = "", xlim = c(0.5, n + 0.5), ylim = c(0, 1),
+                           main = "TADA Palette", axes = FALSE)
   rect(1:n - 0.5, 0, n + 0.5, 1, col = pal, border = NA)
   text(x = 1:n, y = 0.5, labels = 1:n, pos = 3, col = label_colors)
   text(x = 1:n, y = 0.5 - 0.2, labels = pal, pos = 1, col = label_colors, cex = 0.7, srt = 90)
