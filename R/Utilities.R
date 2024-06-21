@@ -175,8 +175,8 @@ VATribeUrl <- "https://geopub.epa.gov/arcgis/rest/services/EMEF/Tribal/MapServer
 #'
 #' @examples
 #' \dontrun{
-#' # Find web service URLs for each Profile using WQP User Interface: 
-#' https://www.waterqualitydata.us/
+#' # Find web service URLs for each Profile using WQP User Interface: https://www.waterqualitydata.us/
+#' 
 #' # Example WQP URL: 
 #' https://www.waterqualitydata.us/#statecode=US%3A09&characteristicType=Nutrient&startDateLo=04-01-2023&startDateHi=11-01-2023&mimeType=csv&providers=NWIS&providers=STEWARDS&providers=STORET
 #'
@@ -210,14 +210,16 @@ TADA_AutoClean <- function(.data) {
 
   # execute function after checks are passed
 
-  # check to make sure columns do not already exist and capitalize fields with known synonyms that only differ in caps
+  # check to make sure columns do not already exist and capitalize fields with known synonyms that 
+  # only differ in caps
   print("TADA_Autoclean: creating TADA-specific columns.")
 
   if ("TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode" %in% colnames(.data)) {
     .data <- .data
   } else {
     # create uppercase version of original DetectionQuantitationLimitMeasure.MeasureUnitCode
-    .data$TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode <- toupper(.data$DetectionQuantitationLimitMeasure.MeasureUnitCode)
+    .data$TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode <- 
+      toupper(.data$DetectionQuantitationLimitMeasure.MeasureUnitCode)
   }
 
   if ("TADA.ActivityMediaName" %in% colnames(.data)) {
