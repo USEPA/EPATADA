@@ -596,6 +596,7 @@ TADA_FlaggedSitesMap <- function(.data) {
   lowres <- invalid[invalid$TADA.InvalidCoordinates.Flag == "Imprecise_lessthan3decimaldigits",]
   outsideusa <- invalid[invalid$TADA.InvalidCoordinates.Flag %in% c("LAT_OutsideUSA", "LONG_OutsideUSA"),]
   nearby <- TADA_FindNearbySites(.data)
+  print(colnames(nearby))
   nearby <- TADA_GetUniqueNearbySites(nearby)
   
   lowresIcon <- leaflet::makeAwesomeIcon(icon = "circle", library = "fa", iconColor = "#ffffff", markerColor = "green")

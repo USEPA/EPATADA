@@ -717,9 +717,11 @@ TADA_CreateComparableID <- function(.data) {
 #' This utility function takes a delimited string of entities, and a delimiter (which defaults to a comma)
 #' and returns a new string in the WQX 3.0 format of ["StringA","StringB"]
 #'
-#' @param delimited_string String. Should be delimited by the character passed in the delimiter parameter.
-#' @param delimiter String. The character used to delimit the string passed in delimited_string.
-#'    Defaults to a comma.
+#' @param delimited_string Character argument. Should be a string delimited by the character 
+#'    passed in the delimiter parameter.
+#'    
+#' @param delimiter Character argument The character used to delimit the string passed in 
+#'    delimited_string. Defaults to a comma.
 #'
 #' @return String.
 #'
@@ -825,6 +827,10 @@ TADA_FindNearbySites <- function(.data, dist_buffer = 100) {
     .data <- .data %>% tidyr::unite(col = TADA.MonitoringLocationIdentifier, dplyr::all_of(grpcols), sep = ", ", na.rm = TRUE)
   }
   
+  if (!"TADA.MonitoringLocationIdentifier" %in% colnames(.data)) {
+    .data$TADA.MonitoringLocationIdentifier <- NA
+  }
+  
   .data <- .data %>% 
     dplyr::mutate(TADA.MonitoringLocationIdentifier = ifelse(TADA.MonitoringLocationIdentifier == "", MonitoringLocationIdentifier, TADA.MonitoringLocationIdentifier))   
   
@@ -839,6 +845,7 @@ TADA_FindNearbySites <- function(.data, dist_buffer = 100) {
   
   return(.data)
 }
+
 
 #' Get grouped monitoring stations that are near each other
 #'
