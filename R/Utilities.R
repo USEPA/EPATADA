@@ -712,6 +712,27 @@ TADA_CreateComparableID <- function(.data) {
   return(.data)
 }
 
+#' Convert a delimited string to the format used by WQX 3.0 profiles for one-to-manys
+#'
+#' This utility function takes a delimited string of entities, and a delimiter (which defaults to a comma)
+#' and returns a new string in the WQX 3.0 format of ["StringA","StringB"]
+#'
+#' @param delimited_string String. Should be delimited by the character passed in the delimiter parameter.
+#' @param delimiter String. The character used to delimit the string passed in delimited_string.
+#'    Defaults to a comma.
+#'
+#' @return String.
+#'
+#' @export
+#'
+TADA_FormatDelimitedString <- function(delimited_string, delimiter = ",") {
+  esc_chars = c("|", "^", "&", ".", "!", "?", "\\", "*", "-", "+", ">", "<")
+  if (delimiter %in% esc_chars) {
+    delimiter <- paste0("\\", delimiter)
+  }
+  return(paste0('["', gsub(delimiter, '","', delimited_string), '"]'))
+}
+
 
 #' Identify and group nearby monitoring locations (UNDER ACTIVE DEVELOPMENT)
 #'
@@ -818,6 +839,36 @@ TADA_FindNearbySites <- function(.data, dist_buffer = 100) {
   
   return(.data)
 }
+
+#' Get grouped monitoring stations that are near each other
+#'
+#' This function takes a TADA dataset that contains grouped nearby monitoring stations
+#' and returns a unique dataset of the original MonitoringLocationIdentifier, the grouped
+#' TADA.MonitoringLocationIdentifier, TADA.LongitudeMeasure, and TADA.LatitudeMeasure,
+#' filtered for only those stations that have a nearby station.
+#'
+#' @param .data TADA dataframe 
+#'
+#' @return New dataframe with unique values for MonitoringLocationIdentifier,
+#' TADA.MonitoringLocationIdentifier, TADA.LongitudeMeasure, and TADA.LatitudeMeasure
+#'
+#' @export
+#'
+TADA_GetUniqueNearbySites <- function(.data) {
+  # check .data is data.frame
+  TADA_CheckType(.data, "data.frame", "Input object")
+  
+  # .data required columns
+  required_cols <- c("MonitoringLocationIdentifier", "TADA.MonitoringLocationIdentifier", "TADA.LongitudeMeasure", "TADA.LatitudeMeasure")
+  # check .data has required columns
+  TADA_CheckColumns(.data, required_cols)
+  
+  .data <- .data[c("MonitoringLocationIdentifier", "MonitoringLocationName", "MonitoringLocationTypeName", "MonitoringLocationDescriptionText", "TADA.MonitoringLocationIdentifier", "TADA.LongitudeMeasure", "TADA.LatitudeMeasure")]
+  .data <- unique(dplyr::filter(.data, grepl(",", TADA.MonitoringLocationIdentifier)))
+  
+  return(.data)
+}
+
 
 #' Generate a random WQP dataset
 #'
