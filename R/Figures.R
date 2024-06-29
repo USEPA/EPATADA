@@ -891,7 +891,7 @@ TADA_TwoCharacteristicScatterplot <- function(.data, id_cols = "TADA.ComparableD
   # check that groups2 are length two for comparing two groups
   if (!is.null(id_cols2)) {
     if(length(groups2) != 2) {
-    stop("The 'groups2' vector does not contain exactly two groups to compare.")
+    stop("The 'groups2' vector does not contain exactly two additional groups to compare.")
     }
   }
   
@@ -907,18 +907,20 @@ TADA_TwoCharacteristicScatterplot <- function(.data, id_cols = "TADA.ComparableD
 
   plot.data <- dplyr::arrange(plot.data, ActivityStartDate)
 
+  # Return only Two Characteristic plots if other groupings are not specified as arguments
+  if(is.null(id_cols2)){
+    param1 <- subset(plot.data, plot.data[, id_cols] %in% groups[1])
+    param2 <- subset(plot.data, plot.data[, id_cols] %in% groups[2])
+  } 
+  
+  # Return Two Characteristic plots and other groupings if they are specified as arguments
+  if(!is.null(id_cols2)){
   param1 <- subset(subset(plot.data, plot.data[, id_cols] %in% groups[1]), plot.data[, id_cols2] %in% groups2[1])
   param2 <- subset(subset(plot.data, plot.data[, id_cols] %in% groups[2]), plot.data[, id_cols2] %in% groups2[1])
   param3 <- subset(subset(plot.data, plot.data[, id_cols] %in% groups[1]), plot.data[, id_cols2] %in% groups2[2])
   param4 <- subset(subset(plot.data, plot.data[, id_cols] %in% groups[2]), plot.data[, id_cols2] %in% groups2[2])
-  # If other id_col grouping argument is used, create separate parameter variables for plotting
-  # if (!is.null(id_cols2)){
-  #   param1 <- subset(param1, param1[, id_cols2] %in% groups2[1])
-  #   param2 <- subset(param1, param1[, id_cols2] %in% groups2[2])
-  #   param3 <- subset(param2, param2[, id_cols2] %in% groups2[1])
-  #   param4 <- subset(param2, param2[, id_cols2] %in% groups2[2])
-  # }
-
+  }
+  
   title <- TADA_InsertBreaks(
     paste0(
       param1$TADA.CharacteristicName[1],
@@ -1075,8 +1077,10 @@ TADA_TwoCharacteristicScatterplot <- function(.data, id_cols = "TADA.ComparableD
           param2$TADA.ActivityBottomDepthHeightMeasure.MeasureUnitCode
         ), "<br>"
       )
-    ) %>%
-  plotly::add_trace(
+    ) 
+  if(!is.null(id_cols2)){
+    scatterplot <- scatterplot %>%
+    plotly::add_trace(
     data = param3,
     x = ~ as.Date(ActivityStartDate),
     y = ~TADA.ResultMeasureValue,
@@ -1092,8 +1096,8 @@ TADA_TwoCharacteristicScatterplot <- function(.data, id_cols = "TADA.ComparableD
              ), stringr::fixed(" NA"))),
     marker = list(
       size = 10,
-      color = tada.pal[7],
-      line = list(color = tada.pal[8], width = 2)
+      color = tada.pal[5],
+      line = list(color = tada.pal[7], width = 2)
     ),
     hoverinfo = "text",
     hovertext = paste(
@@ -1138,8 +1142,8 @@ TADA_TwoCharacteristicScatterplot <- function(.data, id_cols = "TADA.ComparableD
              ), stringr::fixed(" NA"))),
     marker = list(
       size = 10,
-      color = tada.pal[9],
-      line = list(color = tada.pal[10], width = 2)
+      color = tada.pal[3],
+      line = list(color = tada.pal[9], width = 2)
     ),
     yaxis = "y2",
     hoverinfo = "text",
@@ -1169,7 +1173,7 @@ TADA_TwoCharacteristicScatterplot <- function(.data, id_cols = "TADA.ComparableD
       ), "<br>"
     )
   )  
-  
+  }
   return(scatterplot)
   }
   
