@@ -915,10 +915,10 @@ TADA_TwoCharacteristicScatterplot <- function(.data, id_cols = "TADA.ComparableD
   
   # Return Two Characteristic plots and other groupings if they are specified as arguments
   if(!is.null(id_cols2)){
-  param1 <- subset(subset(plot.data, plot.data[, id_cols] %in% groups[1]), plot.data[, id_cols2] %in% groups2[1])
-  param2 <- subset(subset(plot.data, plot.data[, id_cols] %in% groups[2]), plot.data[, id_cols2] %in% groups2[1])
-  param3 <- subset(subset(plot.data, plot.data[, id_cols] %in% groups[1]), plot.data[, id_cols2] %in% groups2[2])
-  param4 <- subset(subset(plot.data, plot.data[, id_cols] %in% groups[2]), plot.data[, id_cols2] %in% groups2[2])
+  param1 <- subset(plot.data, plot.data[, id_cols] %in% groups[1] & plot.data[, id_cols2] %in% groups2[1])
+  param2 <- subset(plot.data, plot.data[, id_cols] %in% groups[2] & plot.data[, id_cols2] %in% groups2[1])
+  param3 <- subset(plot.data, plot.data[, id_cols] %in% groups[1] & plot.data[, id_cols2] %in% groups2[2])
+  param4 <- subset(plot.data, plot.data[, id_cols] %in% groups[2] & plot.data[, id_cols2] %in% groups2[2])
   }
   
   title <- TADA_InsertBreaks(
@@ -1000,8 +1000,8 @@ TADA_TwoCharacteristicScatterplot <- function(.data, id_cols = "TADA.ComparableD
       stringr::fixed("NA ")
       ), stringr::fixed(" NA"))),
       marker = list(
-        size = 10,
-        color = tada.pal[5],
+        size = 5,
+        color = tada.pal[10],
         line = list(color = tada.pal[10], width = 2)
       ),
       hoverinfo = "text",
@@ -1046,8 +1046,8 @@ TADA_TwoCharacteristicScatterplot <- function(.data, id_cols = "TADA.ComparableD
                  stringr::fixed("NA ")
                ), stringr::fixed(" NA"))),
       marker = list(
-        size = 10,
-        color = tada.pal[3],
+        size = 5,
+        color = tada.pal[12],
         line = list(color = tada.pal[12], width = 2)
       ),
       yaxis = "y2",
@@ -1095,9 +1095,9 @@ TADA_TwoCharacteristicScatterplot <- function(.data, id_cols = "TADA.ComparableD
                stringr::fixed("NA ")
              ), stringr::fixed(" NA"))),
     marker = list(
-      size = 10,
-      color = tada.pal[5],
-      line = list(color = tada.pal[7], width = 2)
+      size = 5,
+      color = tada.pal[3],
+      line = list(color = tada.pal[3], width = 2)
     ),
     hoverinfo = "text",
     hovertext = paste(
@@ -1141,9 +1141,9 @@ TADA_TwoCharacteristicScatterplot <- function(.data, id_cols = "TADA.ComparableD
                stringr::fixed("NA ")
              ), stringr::fixed(" NA"))),
     marker = list(
-      size = 10,
-      color = tada.pal[3],
-      line = list(color = tada.pal[9], width = 2)
+      size = 5,
+      color = tada.pal[6],
+      line = list(color = tada.pal[6], width = 2)
     ),
     yaxis = "y2",
     hoverinfo = "text",
@@ -1173,6 +1173,9 @@ TADA_TwoCharacteristicScatterplot <- function(.data, id_cols = "TADA.ComparableD
       ), "<br>"
     )
   )  
+  }
+  if (is.na(param1$TADA.CharacteristicName[1]) | is.na(param2$TADA.CharacteristicName[1]) ) {
+    print("Note: Only One Characteristic Name value was found from argument filters, returning NA for missing Characteristic value")
   }
   return(scatterplot)
   }
