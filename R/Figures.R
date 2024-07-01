@@ -1032,7 +1032,7 @@ TADA_TwoCharacteristicScatterplot <- function(.data, id_cols = "TADA.ComparableD
       )
     )
     # plots value below if two unique characteristics are specified in groups, otherwise returns a single characteristic plot.
-    if(groups[1] != groups[2] & groups2[1] != groups2[2]){
+    if(groups[1] != groups[2]){
     scatterplot <- scatterplot %>%plotly::add_trace(
       data = param2,
       x = ~ as.Date(ActivityStartDate),
@@ -1082,7 +1082,8 @@ TADA_TwoCharacteristicScatterplot <- function(.data, id_cols = "TADA.ComparableD
     ) 
     }
     # plots value below if comparing two unique groups from an additional column
-    if(!is.null(id_cols2) & groups2[1] != groups2[2]){
+    if(!is.null(id_cols2)){
+    if(groups2[1] != groups2[2]){
     scatterplot <- scatterplot %>%
     plotly::add_trace(
     data = param3,
@@ -1132,7 +1133,9 @@ TADA_TwoCharacteristicScatterplot <- function(.data, id_cols = "TADA.ComparableD
     )
   ) 
   }
-  if(!is.null(id_cols2) & groups[1] != groups[2]){
+  }
+  if(!is.null(id_cols2)){ 
+    if(groups[1] != groups[2]){
   scatterplot <- scatterplot %>%
   plotly::add_trace(
     data = param4,
@@ -1182,6 +1185,7 @@ TADA_TwoCharacteristicScatterplot <- function(.data, id_cols = "TADA.ComparableD
       ), "<br>"
     )
   )  
+  }
   }
   if (is.na(param1$TADA.CharacteristicName[1]) | is.na(param2$TADA.CharacteristicName[1]) ) {
     print("Note: Only One Characteristic Name value was found from argument filters, returning plot for a single Characteristic Name")
