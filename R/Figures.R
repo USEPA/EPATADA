@@ -1000,8 +1000,8 @@ TADA_TwoCharacteristicScatterplot <- function(.data, id_cols = "TADA.ComparableD
       stringr::fixed("NA ")
       ), stringr::fixed(" NA"))),
       marker = list(
-        size = 5,
-        color = tada.pal[10],
+        size = 10,
+        color = tada.pal[5],
         line = list(color = tada.pal[10], width = 2)
       ),
       hoverinfo = "text",
@@ -1030,8 +1030,10 @@ TADA_TwoCharacteristicScatterplot <- function(.data, id_cols = "TADA.ComparableD
           param1$TADA.ActivityBottomDepthHeightMeasure.MeasureUnitCode
         ), "<br>"
       )
-    ) %>%
-    plotly::add_trace(
+    )
+    # plots value below if two unique characteristics are specified in groups, otherwise returns a single characteristic plot.
+    if(groups[1] != groups[2] & groups2[1] != groups2[2]){
+    scatterplot <- scatterplot %>%plotly::add_trace(
       data = param2,
       x = ~ as.Date(ActivityStartDate),
       y = ~ TADA.ResultMeasureValue,
@@ -1046,8 +1048,8 @@ TADA_TwoCharacteristicScatterplot <- function(.data, id_cols = "TADA.ComparableD
                  stringr::fixed("NA ")
                ), stringr::fixed(" NA"))),
       marker = list(
-        size = 5,
-        color = tada.pal[12],
+        size = 10,
+        color = tada.pal[3],
         line = list(color = tada.pal[12], width = 2)
       ),
       yaxis = "y2",
@@ -1078,7 +1080,9 @@ TADA_TwoCharacteristicScatterplot <- function(.data, id_cols = "TADA.ComparableD
         ), "<br>"
       )
     ) 
-  if(!is.null(id_cols2)){
+    }
+    # plots value below if comparing two unique groups from an additional column
+    if(!is.null(id_cols2) & groups2[1] != groups2[2]){
     scatterplot <- scatterplot %>%
     plotly::add_trace(
     data = param3,
@@ -1095,9 +1099,10 @@ TADA_TwoCharacteristicScatterplot <- function(.data, id_cols = "TADA.ComparableD
                stringr::fixed("NA ")
              ), stringr::fixed(" NA"))),
     marker = list(
-      size = 5,
-      color = tada.pal[3],
-      line = list(color = tada.pal[3], width = 2)
+      symbol = "cross",
+      size = 10,
+      color = tada.pal[5],
+      line = list(color = tada.pal[10], width = 2)
     ),
     hoverinfo = "text",
     hovertext = paste(
@@ -1125,7 +1130,10 @@ TADA_TwoCharacteristicScatterplot <- function(.data, id_cols = "TADA.ComparableD
         param3$TADA.ActivityBottomDepthHeightMeasure.MeasureUnitCode
       ), "<br>"
     )
-  ) %>%
+  ) 
+  }
+  if(!is.null(id_cols2) & groups[1] != groups[2]){
+  scatterplot <- scatterplot %>%
   plotly::add_trace(
     data = param4,
     x = ~ as.Date(ActivityStartDate),
@@ -1141,9 +1149,10 @@ TADA_TwoCharacteristicScatterplot <- function(.data, id_cols = "TADA.ComparableD
                stringr::fixed("NA ")
              ), stringr::fixed(" NA"))),
     marker = list(
-      size = 5,
-      color = tada.pal[6],
-      line = list(color = tada.pal[6], width = 2)
+      symbol = "cross",
+      size = 10,
+      color = tada.pal[3],
+      line = list(color = tada.pal[12], width = 2)
     ),
     yaxis = "y2",
     hoverinfo = "text",
@@ -1175,7 +1184,7 @@ TADA_TwoCharacteristicScatterplot <- function(.data, id_cols = "TADA.ComparableD
   )  
   }
   if (is.na(param1$TADA.CharacteristicName[1]) | is.na(param2$TADA.CharacteristicName[1]) ) {
-    print("Note: Only One Characteristic Name value was found from argument filters, returning NA for missing Characteristic value")
+    print("Note: Only One Characteristic Name value was found from argument filters, returning plot for a single Characteristic Name")
   }
   return(scatterplot)
   }
