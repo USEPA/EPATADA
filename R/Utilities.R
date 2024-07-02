@@ -931,11 +931,20 @@ TADA_RandomTestingData <- function(number_of_days = 1, choose_random_state = FAL
 #' @examples
 #' # Load example dataset
 #' data(Data_6Tribes_5y)
-#' # Select maximum value per day, site, comparable data identifier, result detection condition, and activity type code. Clean all non-maximum measurements from grouped data.
-#' Data_6Tribes_5y_agg <- TADA_AggregateMeasurements(Data_6Tribes_5y, grouping_cols = c("ActivityStartDate", "MonitoringLocationIdentifier", "TADA.ComparableDataIdentifier", "ResultDetectionConditionText", "ActivityTypeCode"), agg_fun = "max", clean = TRUE)
+#' # Select maximum value per day, site, comparable data identifier, result detection condition,
+#' and activity type code. Clean all non-maximum measurements from grouped data.
+#' Data_6Tribes_5y_agg <- TADA_AggregateMeasurements(Data_6Tribes_5y, 
+#'     grouping_cols = c("ActivityStartDate", "MonitoringLocationIdentifier", 
+#'                       "TADA.ComparableDataIdentifier", "ResultDetectionConditionText",
+#'                       "ActivityTypeCode"),
+#'     agg_fun = "max", clean = TRUE)
 #'
 #' # Calculate a mean value per day, site, comparable data identifier, result detection condition, and activity type code. Keep all measurements used to calculate mean measurement.
-#' Data_6Tribes_5y_agg <- TADA_AggregateMeasurements(Data_6Tribes_5y, grouping_cols = c("ActivityStartDate", "MonitoringLocationIdentifier", "TADA.ComparableDataIdentifier", "ResultDetectionConditionText", "ActivityTypeCode"), agg_fun = "mean", clean = FALSE)
+#' Data_6Tribes_5y_agg <- TADA_AggregateMeasurements(Data_6Tribes_5y,
+#'   grouping_cols = c("ActivityStartDate", "MonitoringLocationIdentifier", 
+#'                   "TADA.ComparableDataIdentifier", "ResultDetectionConditionText",
+#'                   "ActivityTypeCode"), 
+#'   agg_fun = "mean", clean = FALSE)
 TADA_AggregateMeasurements <- function(.data, grouping_cols = c("ActivityStartDate", "MonitoringLocationIdentifier", "TADA.ComparableDataIdentifier", "ResultDetectionConditionText", "ActivityTypeCode"), agg_fun = c("max", "min", "mean"), clean = TRUE) {
   TADA_CheckColumns(.data, grouping_cols)
   agg_fun <- match.arg(agg_fun)
