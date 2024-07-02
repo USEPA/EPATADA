@@ -1351,6 +1351,8 @@ TADA_addPoints <- function(map, layerfilepath, layergroup, layername, bbox = NUL
 #'
 #' @examples
 #' UniqueCharUnitSpecExample <- TADA_UniqueCharUnitSpeciation(Data_NCTCShepherdstown_HUC12)
+#'
+
 TADA_UniqueCharUnitSpeciation <- function(.data) {
   required_cols <- c(
     "TADA.CharacteristicName", "TADA.ResultSampleFractionText",
