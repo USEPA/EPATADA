@@ -339,18 +339,18 @@ TADA_ConvertResultUnits <- function(.data, ref = "tada", transform = TRUE) {
 
   # import USGS ref for method speciation
   usgs.ref <- TADA_GetUSGSSynonymRef() %>%
-    #dplyr::select(Code, Target.Speciation, Conversion.Factor) %>%
     dplyr::rename(
       ResultMeasure.MeasureUnitCode = Code,
       TADA.Target.MethodSpeciationName = Target.Speciation,
       TADA.WQXUnitConversionFactor = Conversion.Factor
     ) %>%
     dplyr::mutate(ResultMeasure.MeasureUnitCode.Upper = toupper(ResultMeasure.MeasureUnitCode),
-                  TADA.Target.MethodSpeciationName = toupper(TADA.Target.MethodSpeciationName)) %>%
-    dplyr::select(ResultMeasure.MeasureUnitCode.Upper, TADA.Target.MethodSpeciationName)
-  
+                  TADA.Target.MethodSpeciationName = toupper(TADA.Target.MethodSpeciationName),
+                  CodeNoSpeciation = toupper(CodeNoSpeciation)) %>%
+    dplyr::select(ResultMeasure.MeasureUnitCode.Upper, TADA.Target.MethodSpeciationName,
+                  CodeNoSpeciation)
+
   # if user supplied unit reference was provided
-  if (is.data.frame(ref)) {
     # required columns
     expected_ref_cols <- c(
       "TADA.CharacteristicName", "TADA.ResultMeasure.MeasureUnitCode",
