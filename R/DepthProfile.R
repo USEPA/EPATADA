@@ -1074,10 +1074,10 @@ TADA_DepthProfilePlot <- function(.data,
 
   # figure margin
   mrg <- list(
-    l = 50, 
+    l = 50,
     r = 50,
-    b = 100, 
-    t = (25 + (ceiling(nchar(title)/50)) * 25), # top margin is variable based on number of lines in title
+    b = 100,
+    t = (25 + (ceiling(nchar(title) / 50)) * 25), # top margin is variable based on number of lines in title
     pad = 0
   )
 
@@ -1113,7 +1113,8 @@ TADA_DepthProfilePlot <- function(.data,
       title = list(
         text = title,
         xref = "paper",
-        x = 0.5),
+        x = 0.5
+      ),
       plot_bgcolor = "#e5ecf6",
       margin = mrg,
       legend = list(
@@ -1358,10 +1359,10 @@ TADA_DepthProfilePlot <- function(.data,
     # adjust margins of plot
     scatterplot <- scatterplot %>%
       plotly::layout(margin = list(
-        l = 50, 
+        l = 50,
         r = 100,
-        b = 100, 
-        t = (25 + (ceiling(nchar(title)/50)) * 25),
+        b = 100,
+        t = (25 + (ceiling(nchar(title) / 50)) * 25),
         pad = 0
       ))
 
