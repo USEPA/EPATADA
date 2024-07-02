@@ -19,9 +19,9 @@ which categorizes results with the following values:
 \item Non-Detect
 \item Over-Detect
 \item Other Condition/Limit Populated
-If user has not previously run TADA_FlagMeasureQualifierCode, this function will also run that function to
-add the columns TADA.MeasureQualifierCode.Flag and TADA.MeasureQualifierCode.Def because user-supplied
-Result Measure Qualifier codes are also used to ID censored results.
+If user has not previously run TADA_FlagMeasureQualifierCode, this function will also run that
+function to add the columns TADA.MeasureQualifierCode.Flag and TADA.MeasureQualifierCode.Def
+because user-supplied Result Measure Qualifier codes are also used to ID censored results.
 }
 }
 \description{
