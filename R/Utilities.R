@@ -1468,8 +1468,10 @@ TADA_ViewColorPalette <- function() {
 
   # create color swatch graphic
   graphics::par(mar = c(5, 0, 5, 0))
-  swatch <- graphics::plot(1, type = "n", xlab = "", ylab = "", xlim = c(0.5, n + 0.5), ylim = c(0, 1),
-                           main = "TADA Palette", axes = FALSE)
+  swatch <- graphics::plot(1,
+    type = "n", xlab = "", ylab = "", xlim = c(0.5, n + 0.5), ylim = c(0, 1),
+    main = "TADA Palette", axes = FALSE
+  )
   rect(1:n - 0.5, 0, n + 0.5, 1, col = pal, border = NA)
   text(x = 1:n, y = 0.5, labels = 1:n, pos = 3, col = label_colors)
   text(x = 1:n, y = 0.5 - 0.2, labels = pal, pos = 1, col = label_colors, cex = 0.7, srt = 90)
