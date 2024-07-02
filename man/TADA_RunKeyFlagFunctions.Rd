@@ -9,15 +9,20 @@ TADA_RunKeyFlagFunctions(.data, remove_na = TRUE, clean = TRUE)
 \arguments{
 \item{.data}{A TADA dataframe}
 
-\item{remove_na}{Boolean, Determines whether to keep TADA.ResultMeasureValues that are NA. Defaults to TRUE.}
+\item{remove_na}{Boolean, Determines whether to keep TADA.ResultMeasureValues that are NA.
+Defaults to TRUE.}
 
-\item{clean}{Boolean. Determines whether to keep the Invalid rows in the dataset following each flagging function. Defaults to TRUE.}
+\item{clean}{Boolean. Determines whether to keep the Invalid rows in the dataset following each
+flagging function. Defaults to TRUE.}
 }
 \value{
-A TADA dataframe with the following flagging columns:TADA.ResultUnit.Flag, TADA.MethodSpeciation.Flag, TADA.SampleFraction.Flag, and TADA.ActivityType.Flag
+A TADA dataframe with the following flagging columns:TADA.ResultUnit.Flag,
+TADA.MethodSpeciation.Flag, TADA.SampleFraction.Flag, and TADA.ActivityType.Flag
 }
 \description{
-This is a shortcut function to run all of the most important flagging functions on a TADA dataset. See ?function documentation for TADA_FlagResultUnit, TADA_FlagFraction, TADA_FindQCActivities, and TADA_FlagSpeciation for more information.
+This is a shortcut function to run all of the most important flagging functions on a TADA
+dataset. See ?function documentation for TADA_FlagResultUnit, TADA_FlagFraction,
+TADA_FindQCActivities, and TADA_FlagSpeciation for more information.
 }
 \examples{
 # Load example dataset
