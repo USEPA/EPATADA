@@ -345,10 +345,8 @@ TADA_ConvertResultUnits <- function(.data, ref = "tada", transform = TRUE) {
       TADA.WQXUnitConversionFactor = Conversion.Factor
     ) %>%
     dplyr::mutate(ResultMeasure.MeasureUnitCode.Upper = toupper(ResultMeasure.MeasureUnitCode),
-                  TADA.Target.MethodSpeciationName = toupper(TADA.Target.MethodSpeciationName),
-                  CodeNoSpeciation = toupper(CodeNoSpeciation)) %>%
-    dplyr::select(ResultMeasure.MeasureUnitCode.Upper, TADA.Target.MethodSpeciationName,
-                  CodeNoSpeciation)
+                  TADA.Target.MethodSpeciationName = toupper(TADA.Target.MethodSpeciationName)) %>%
+    dplyr::select(ResultMeasure.MeasureUnitCode.Upper, TADA.Target.MethodSpeciationName)
 
   # if user supplied unit reference was provided
     # required columns
@@ -556,13 +554,23 @@ TADA_ConvertResultUnits <- function(.data, ref = "tada", transform = TRUE) {
       # apply conversions where there is a target unit, use original value if no target unit
       dplyr::mutate(TADA.DetectionQuantitationLimitMeasure.MeasureValue = dplyr::case_when(
         !is.na(TADA.Target.ResultMeasure.MeasureUnitCode) ~ ((TADA.DetectionQuantitationLimitMeasure.MeasureValue - TADA.WQXUnitConversionCoefficient) * TADA.WQXUnitConversionFactor),
-        is.na(TADA.Target.ResultMeasure.MeasureUnitCode) ~ TADA.DetectionQuantitationLimitMeasure.MeasureValue
-      ))
+        is.na(TADA.Target.ResultMeasure.MeasureUnitCode) ~ TADA.DetectionQuantitationLimitMeasure.MeasureValue))
     
     rm(clean.data)
+    
+    # modify det ref to remove speciation from USGS detection limit unit codes
+    det.ref <- det.ref %>%
+      dplyr::ungroup() %>%
+      dplyr::select(DetectionQuantitationLimitMeasure.MeasureUnitCode,
+                    TADA.Target.ResultMeasure.MeasureUnitCode) %>%
+      dplyr::distinct()
 
     # populate TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode
     convert.data <- det.data %>%
+      # remove conversion columns
+      dplyr::select(-tidyselect::any_of(conversion.cols)) %>%
+      # join ref to convert detection limit unit code to convert to target unit
+      dplyr::left_join(det.ref, by = "DetectionQuantitationLimitMeasure.MeasureUnitCode") %>%
       # use target unit where there is a target unit, use original unit if no target unit
       dplyr::mutate(TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode = dplyr::case_when(
         !is.na(TADA.Target.ResultMeasure.MeasureUnitCode) ~ TADA.Target.ResultMeasure.MeasureUnitCode,
@@ -575,7 +583,7 @@ TADA_ConvertResultUnits <- function(.data, ref = "tada", transform = TRUE) {
       dplyr::select(-tidyselect::any_of(conversion.cols))
 
     return(convert.data)
-  }}
+  }
 
 #' Convert Depth Units
 #'
