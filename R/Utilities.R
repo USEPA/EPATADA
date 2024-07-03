@@ -175,7 +175,8 @@ VATribeUrl <- "https://geopub.epa.gov/arcgis/rest/services/EMEF/Tribal/MapServer
 #'
 #' @examples
 #' \dontrun{
-#' # Find web service URLs for each Profile using WQP User Interface: https://www.waterqualitydata.us/
+#' # Find web service URLs for each Profile using WQP User Interface:
+#' # https://www.waterqualitydata.us/
 #' 
 #' # Example WQP URL: 
 #' https://www.waterqualitydata.us/#statecode=US%3A09&characteristicType=Nutrient&startDateLo=04-01-2023&startDateHi=11-01-2023&mimeType=csv&providers=NWIS&providers=STEWARDS&providers=STORET
