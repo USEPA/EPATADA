@@ -14,7 +14,7 @@ vignette: >
   %\VignetteEncoding{UTF-8}
   %\VignetteIndexEntry{TADA: WaterSciCon Workshop Demo}
   %\VignetteEngine{knitr::rmarkdown}
-description: A demonstration of data discovery for the confluence of the San Juan and Animas Rivers near Farmington, New Mexico. This example focuses on surface water quality with a focus on total dissolved solids and conduvitivty.
+description: A demonstration of data discovery for the confluence of the San Juan and Animas Rivers near Farmington, New Mexico. This example focuses on surface water quality with a focus on total dissolved solids and conductivity.
 
 editor_options: 
   chunk_output_type: console
@@ -38,7 +38,7 @@ Farmington, New Mexico with a focus on total dissolved solids and
 conductivity.
 
 This vignette is designed to be concise and provide an example of how
-you might use TADA functions for basic data discovery and preperation.
+you might use TADA functions for basic data discovery and preparation.
 It leverages functions from TADA Modules 1 and 2. For more details on
 each function, see the [TADA Function
 Reference](https://usepa.github.io/EPATADA/reference/index.html) or the
@@ -99,7 +99,7 @@ NM-2401_10**
 
 We can also identify the HUC-12s for each segment. This information will
 help us build our Water Quality Portal query to find results for the
-segements of interest plus other nearby waterbodies. The HUC-12s are
+segments of interest plus other nearby water bodies. The HUC-12s are
 140801050505 (San Juan River) and 140801041006 (Animas River).
 
 ## Data Retrieval - Water Chemistry
@@ -118,7 +118,7 @@ universities, submit data to the WQX.
 
 One of the fields that can be used to query the WQP is HUC. As we know
 the HUC-12s of interest, we will use them to retrieve WQP data using
-`TADA_DataRetrieval`. As we are most interested in total dissovled
+`TADA_DataRetrieval`. As we are most interested in total dissolved
 solids and conductivity and these are in the "Physical" characteristic
 type group in the WQP, we will also include characteristic group type in
 our query. We will not set start and end dates as we are interested in
@@ -176,7 +176,6 @@ concatenates TADA.CharacteristicName, TADA.ResultSampleFractionText,
 TADA.MethodSpeciationName, and TADA.ResultMeasure.MeasureUnitCode.
 
 ```{r TADA_FieldValuesTable}
-
 # use TADA_FieldValuesTable to create a table of the number of results per TADA.ComparableDataIdentifier
 compid_table <- TADA_FieldValuesTable(data, field = "TADA.ComparableDataIdentifier")
 
@@ -200,7 +199,6 @@ TADA.ComparableDataIdentifiers of interest.
 ```{r}
 data <- data %>%
   dplyr::filter(TADA.ComparableDataIdentifier %in% c("TOTAL DISSOLVED SOLIDS_DISSOLVED_NA_UG/L", "SPECIFIC CONDUCTANCE_TOTAL_NA_US/CM @25C"))
-
 ```
 
 ## Water Chemistry Data Preparation and QC
@@ -222,10 +220,10 @@ want to review each function and its output more carefully before moving
 on.
 
 ```{r remove invalid combinations} # Flag and remove results}
-
-data <- data %>%   TADA_FlagMethod(clean = TRUE) %>%   
+data <- data %>%
+  TADA_FlagMethod(clean = TRUE) %>%
   TADA_FlagSpeciation(clean = "both") %>%
-  TADA_FlagResultUnit(clean = "both") %>% 
+  TADA_FlagResultUnit(clean = "both") %>%
   TADA_FlagFraction(clean = TRUE)
 ```
 
@@ -236,8 +234,7 @@ these functions to remove any results that fall outside the national
 thresholds.
 
 ```{r remove outside thresholds} # Flag and remove results}
-
-data <- data %>%   
+data <- data %>%
   TADA_FlagAboveThreshold(clean = TRUE) %>%
   TADA_FlagBelowThreshold(clean = TRUE)
 ```
@@ -265,12 +262,14 @@ In this example, we will use the default setting "none" where a single
 representative is selected randomly from each duplicate group.
 
 ```{r remove potential dups} # Flag and remove results}
-
-data <- data %>%   
+data <- data %>%
   TADA_FindPotentialDuplicatesSingleOrg() %>%
-  dplyr::filter(TADA.SingleOrgDup.Flag == "Unique") %>% 
-  TADA_FindPotentialDuplicatesMultipleOrgs(dist_buffer = 100,   
-                                           org_hierarchy = "none") %>% dplyr::filter(TADA.ResultSelectedMultipleOrgs == "Y")
+  dplyr::filter(TADA.SingleOrgDup.Flag == "Unique") %>%
+  TADA_FindPotentialDuplicatesMultipleOrgs(
+    dist_buffer = 100,
+    org_hierarchy = "none"
+  ) %>%
+  dplyr::filter(TADA.ResultSelectedMultipleOrgs == "Y")
 ```
 
 Next we can remove QC and qualified samples (with qualifiers identified
@@ -281,8 +280,8 @@ results for removal as you may wish to make different decisions than the
 TADA defaults regarding which results to retain.
 
 ```{r remove QC and qualified} # Flag and remove results}
-data <- data %>% 
-  TADA_FindQCActivities(clean = TRUE) %>%   
+data <- data %>%
+  TADA_FindQCActivities(clean = TRUE) %>%
   TADA_FlagMeasureQualifierCode(clean = TRUE)
 ```
 
@@ -292,7 +291,6 @@ We can use a TADA function to identify any censored data in the data
 set.
 
 ```{r TADA_IDCensoredData}
-
 data <- TADA_IDCensoredData(data)
 ```
 
@@ -347,10 +345,9 @@ ATTAINS_map
 ## Monitoring Location Filter and Review
 
 Now that we've associated geospatial data from **ATTAINS** with the
-**WQP** data, we
-can generate pie charts for each TADA.ComparableDataIdentifier to give
-us some information about how many results are available per each
-monitoring location group.
+**WQP** data, we can generate pie charts for each
+TADA.ComparableDataIdentifier to give us some information about how many
+results are available per each monitoring location group.
 
 ```{r TADA_FieldValuesPie}
 # Select TADA data with ATTAINS data
@@ -358,19 +355,26 @@ data <- ATTAINS_data$TADA_with_ATTAINS %>%
   # Remove geometry to reduce size of data set
   sf::st_drop_geometry() %>%
   # Assing "Other" as name for unnamed assessment units
-  dplyr::mutate(ATTAINS.assessmentunitname = 
-                  ifelse(is.na(ATTAINS.assessmentunitname),
-                         "Other", ATTAINS.assessmentunitname))
+  dplyr::mutate(
+    ATTAINS.assessmentunitname =
+      ifelse(is.na(ATTAINS.assessmentunitname),
+        "Other", ATTAINS.assessmentunitname
+      )
+  )
 
 # Create pie chart of results for each AUID group for total dissolved solids
 
-TADA_FieldValuesPie(data, field = "ATTAINS.assessmentunitname",
-                    characteristicName = "TOTAL DISSOLVED SOLIDS")
+TADA_FieldValuesPie(data,
+  field = "ATTAINS.assessmentunitname",
+  characteristicName = "TOTAL DISSOLVED SOLIDS"
+)
 
 # Create pie chart of results for each AUID group for specific conductance
 
-TADA_FieldValuesPie(data, field = "ATTAINS.assessmentunitname",
-                    characteristicName = "SPECIFIC CONDUCTANCE")
+TADA_FieldValuesPie(data,
+  field = "ATTAINS.assessmentunitname",
+  characteristicName = "SPECIFIC CONDUCTANCE"
+)
 ```
 
 We can also create a table to give us a little more information about
@@ -378,26 +382,30 @@ assessment unit each monitoring location belongs to, the number of
 results per each parameter and the oldest and most recent sampling date.
 
 ```{r}
-
 # Create table of monitoring location identifiers
 MonitoringLocations <- data %>%
-  dplyr::select(MonitoringLocationName, MonitoringLocationIdentifier, OrganizationFormalName,
-                ATTAINS.assessmentunitname, TADA.CharacteristicName, ActivityStartDate) %>%
+  dplyr::select(
+    MonitoringLocationName, MonitoringLocationIdentifier, OrganizationFormalName,
+    ATTAINS.assessmentunitname, TADA.CharacteristicName, ActivityStartDate
+  ) %>%
   dplyr::group_by(MonitoringLocationIdentifier) %>%
-  dplyr::mutate(n_TDS = length(TADA.CharacteristicName[TADA.CharacteristicName == "TOTAL DISSOLVED SOLIDS"]), 
-                n_SpecificConductance = length(TADA.CharacteristicName[TADA.CharacteristicName == "SPECIFIC CONDUCTANCE"]),
-                StartDate = min(ActivityStartDate),
-                EndDate = max(ActivityStartDate)) %>%
-  dplyr::select(MonitoringLocationIdentifier, 
-                ATTAINS.assessmentunitname, 
-                n_TDS,
-                n_SpecificConductance,
-                StartDate,
-                EndDate) %>%
+  dplyr::mutate(
+    n_TDS = length(TADA.CharacteristicName[TADA.CharacteristicName == "TOTAL DISSOLVED SOLIDS"]),
+    n_SpecificConductance = length(TADA.CharacteristicName[TADA.CharacteristicName == "SPECIFIC CONDUCTANCE"]),
+    StartDate = min(ActivityStartDate),
+    EndDate = max(ActivityStartDate)
+  ) %>%
+  dplyr::select(
+    MonitoringLocationIdentifier,
+    ATTAINS.assessmentunitname,
+    n_TDS,
+    n_SpecificConductance,
+    StartDate,
+    EndDate
+  ) %>%
   dplyr::distinct()
 
 DT::datatable(MonitoringLocations, fillContainer = TRUE)
-
 ```
 
 Now, let's create subsets of the data by assessment unit name. These
@@ -432,12 +440,16 @@ prior to 2015 and recreate the scatterplot.
 
 ```{r two param scatterplot filtered date}
 # choose two and generate scatterplot
-TADA_TwoCharacteristicScatterplot(data %>% 
-                                    dplyr::filter
-                                  (ActivityStartDate > "2014-12-31"), 
-                                  id_cols = "TADA.ComparableDataIdentifier", 
-                                  groups = c("SPECIFIC CONDUCTANCE_TOTAL_NA_US/CM @25C", 
-                                             "TOTAL DISSOLVED SOLIDS_DISSOLVED_NA_UG/L"))
+TADA_TwoCharacteristicScatterplot(
+  data %>%
+    dplyr::filter
+    (ActivityStartDate > "2014-12-31"),
+  id_cols = "TADA.ComparableDataIdentifier",
+  groups = c(
+    "SPECIFIC CONDUCTANCE_TOTAL_NA_US/CM @25C",
+    "TOTAL DISSOLVED SOLIDS_DISSOLVED_NA_UG/L"
+  )
+)
 ```
 
 We could also choose to explore one characteristic from one of the
@@ -446,14 +458,16 @@ for both characteristics for the Animas River only, excluding samples
 prior to 2014.
 
 ```{r TADA_Histogram}
-
-TADA_Histogram(data %>% 
-                 dplyr::filter(ActivityStartDate > "2014-12-31",
-                               TADA.CharacteristicName == 
-                                 "SPECIFIC CONDUCTANCE",
-                               ATTAINS.assessmentunitname == "Animas River (San Juan River to Estes Arroyo)"),
-               id_cols = "TADA.ComparableDataIdentifier")
-
+TADA_Histogram(
+  data %>%
+    dplyr::filter(
+      ActivityStartDate > "2014-12-31",
+      TADA.CharacteristicName ==
+        "SPECIFIC CONDUCTANCE",
+      ATTAINS.assessmentunitname == "Animas River (San Juan River to Estes Arroyo)"
+    ),
+  id_cols = "TADA.ComparableDataIdentifier"
+)
 ```
 
 Or we could create a boxplot for a particular characteristic and
@@ -461,13 +475,16 @@ assessment unit, for example, total dissolved solids for the San Juan
 River.
 
 ```{r TADA_Boxplot}
-
-TADA_Boxplot(data %>% 
-                 dplyr::filter(ActivityStartDate > "2014-12-31",
-                               TADA.CharacteristicName == 
-                                 "SPECIFIC CONDUCTANCE",
-                               ATTAINS.assessmentunitname == "San Juan River (Navajo bnd at Hogback to Animas River)"),
-               id_cols = "TADA.ComparableDataIdentifier")
+TADA_Boxplot(
+  data %>%
+    dplyr::filter(
+      ActivityStartDate > "2014-12-31",
+      TADA.CharacteristicName ==
+        "SPECIFIC CONDUCTANCE",
+      ATTAINS.assessmentunitname == "San Juan River (Navajo bnd at Hogback to Animas River)"
+    ),
+  id_cols = "TADA.ComparableDataIdentifier"
+)
 ```
 
 We might also want to directly compare the same characteristic overtime
@@ -475,17 +492,22 @@ between the two rivers. We can do this by revisiting
 `TADA.TwoCharacteristicScatterplot.`
 
 ```{r compare locations}
-
 # create two characteristic scatterplot using TADA_TWoCharacteristicScatterplot
-twochar_scatter <- TADA_TwoCharacteristicScatterplot(data %>% 
-                 dplyr::filter(ActivityStartDate > "2014-12-31",
-                               TADA.ComparableDataIdentifier == 
-                                "SPECIFIC CONDUCTANCE_TOTAL_NA_US/CM @25C"),
-               id_cols = "ATTAINS.assessmentunitname",
-               groups = c("San Juan River (Navajo bnd at Hogback to Animas River)", "Animas River (San Juan River to Estes Arroyo)")) %>%
+twochar_scatter <- TADA_TwoCharacteristicScatterplot(
+  data %>%
+    dplyr::filter(
+      ActivityStartDate > "2014-12-31",
+      TADA.ComparableDataIdentifier ==
+        "SPECIFIC CONDUCTANCE_TOTAL_NA_US/CM @25C"
+    ),
+  id_cols = "ATTAINS.assessmentunitname",
+  groups = c("San Juan River (Navajo bnd at Hogback to Animas River)", "Animas River (San Juan River to Estes Arroyo)")
+) %>%
   # remove default plot features that are not applicable for a location comparison
-  plotly::layout(yaxis2 = list(overlaying = "y", side = "right", title = "", visible = FALSE),
-                 title = TADA_InsertBreaks("SPECIFIC CONDUCTANCE for the San Juan and Animas Rivers Over Time"))
+  plotly::layout(
+    yaxis2 = list(overlaying = "y", side = "right", title = "", visible = FALSE),
+    title = TADA_InsertBreaks("SPECIFIC CONDUCTANCE for the San Juan and Animas Rivers Over Time")
+  )
 
 # modify plot titles to reflect group/location names
 twochar_scatter <- plotly::plotly_build(twochar_scatter)
