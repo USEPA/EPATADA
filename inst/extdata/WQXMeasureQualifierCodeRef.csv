@@ -25,6 +25,7 @@
 "Result Measure Qualifier(MeasureQualifierCode)",223,"BVER","Continuing calibration blank criteria was not met","9/28/2016 1:08:07 PM","Suspect"
 "Result Measure Qualifier(MeasureQualifierCode)",58,"C","Presence of compound may be due to contamination of sample during laboratory processing","8/22/2013 1:44:00 PM","Suspect"
 "Result Measure Qualifier(MeasureQualifierCode)",127,"C25","Dual Column result difference >25%","3/16/2016 1:04:24 PM","Suspect"
+"Result Measure Qualifier(MeasureQualifierCode)",227,"C40","Dual Column result difference >40%","7/1/2024 4:46:53 PM","Not Reviewed"
 "Result Measure Qualifier(MeasureQualifierCode)",128,"CAJ","Correction Factor, lab","3/16/2016 1:04:24 PM","Pass"
 "Result Measure Qualifier(MeasureQualifierCode)",129,"CAN","No Result Reported, analysis canceled","3/16/2016 1:04:24 PM","Suspect"
 "Result Measure Qualifier(MeasureQualifierCode)",130,"CBC","No Result Reported, cannot be calculated","3/16/2016 1:04:24 PM","Suspect"
