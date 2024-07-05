@@ -5,7 +5,7 @@ editor: visual
 author: "TADA Team"
 date: "`r Sys.Date()`"
 output: 
-  rmarkdown::html_vignette:
+  rmarkdown::html_document:
     toc: true
     fig_caption: yes
     fig_height: 8
