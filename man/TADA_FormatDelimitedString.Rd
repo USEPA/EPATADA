@@ -7,10 +7,11 @@
 TADA_FormatDelimitedString(delimited_string, delimiter = ",")
 }
 \arguments{
-\item{delimited_string}{String. Should be delimited by the character passed in the delimiter parameter.}
+\item{delimited_string}{Character argument. Should be a string delimited by the character
+passed in the delimiter parameter.}
 
-\item{delimiter}{String. The character used to delimit the string passed in delimited_string.
-Defaults to a comma.}
+\item{delimiter}{Character argument The character used to delimit the string passed in
+delimited_string. Defaults to a comma.}
 }
 \value{
 String.
