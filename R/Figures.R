@@ -918,7 +918,7 @@ TADA_TwoCharacteristicScatterplot <- function(.data, id_cols = "TADA.ComparableD
         showgrid = FALSE, tickcolor = "black"
       ),
       yaxis = list(
-        title =  stringr::str_remove_all(stringr::str_remove_all(
+        title = stringr::str_remove_all(stringr::str_remove_all(
           stringr::str_remove_all(paste0(param1$TADA.CharacteristicName[1], "  ", param1$TADA.ResultMeasure.MeasureUnitCode[1]), stringr::fixed(" (NA)")),
           stringr::fixed("NA ")
         ), stringr::fixed(" NA")),
@@ -930,7 +930,7 @@ TADA_TwoCharacteristicScatterplot <- function(.data, id_cols = "TADA.ComparableD
       yaxis2 = list(
         side = "right",
         overlaying = "y",
-        title =  stringr::str_remove_all(stringr::str_remove_all(
+        title = stringr::str_remove_all(stringr::str_remove_all(
           stringr::str_remove_all(paste0(param2$TADA.CharacteristicName[1], "  ", param2$TADA.ResultMeasure.MeasureUnitCode[1]), stringr::fixed(" (NA)")),
           stringr::fixed("NA ")
         ), stringr::fixed(" NA")),
@@ -958,11 +958,11 @@ TADA_TwoCharacteristicScatterplot <- function(.data, id_cols = "TADA.ComparableD
       y = ~TADA.ResultMeasureValue,
       name = stringr::str_remove_all(stringr::str_remove_all(
         stringr::str_remove_all(paste0(
-        param1$TADA.ResultSampleFractionText, " ",
-        param1$TADA.CharacteristicName, " ",
-        param1$TADA.MethodSpeciationName
-      ), stringr::fixed(" (NA)")),
-      stringr::fixed("NA ")
+          param1$TADA.ResultSampleFractionText, " ",
+          param1$TADA.CharacteristicName, " ",
+          param1$TADA.MethodSpeciationName
+        ), stringr::fixed(" (NA)")),
+        stringr::fixed("NA ")
       ), stringr::fixed(" NA")),
       marker = list(
         size = 10,

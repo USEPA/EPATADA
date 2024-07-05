@@ -15,7 +15,8 @@ TADA_SimpleCensoredMethods(
 \arguments{
 \item{.data}{A TADA dataframe}
 
-\item{nd_method}{A text string indicating the type of method used to populate a non-detect (lower limit) data value. Can be set to "multiplier" (default),"randombelowlimit", or "as-is".}
+\item{nd_method}{A text string indicating the type of method used to populate a non-detect
+(lower limit) data value. Can be set to "multiplier" (default),"randombelowlimit", or "as-is".}
 
 \item{nd_multiplier}{A number to be multiplied to the LOWER detection limit for each entry to obtain the censored data value. Must be supplied if nd_method = "multiplier". Defaults to 0.5, or half the detection limit.}
 
@@ -50,9 +51,17 @@ data(Data_Nutrients_UT)
 # and in instances where the measurement is non-detect, set the result value
 # to half of the detection limit value. For over-detect measurements, retain
 # the detection limit value as the result value as-is.
-Data_Nutrients_UT_CensoredFlag <- TADA_SimpleCensoredMethods(Data_Nutrients_UT, nd_method = "multiplier", nd_multiplier = 0.5, od_method = "as-is", od_multiplier = "null")
+Data_Nutrients_UT_CensoredFlag <- TADA_SimpleCensoredMethods(Data_Nutrients_UT, 
+    nd_method = "multiplier",
+    nd_multiplier = 0.5,
+    od_method = "as-is",
+    od_multiplier = "null")
 
 # Check for agreement between detection condition and detection limit type, and in instances where the measurement is non-detect, set the result value to a random value between 0 and the detection limit value. For over-detect measurements, retain the detection limit value as the result value as-is.
-Data_Nutrients_UT_CensoredFlag <- TADA_SimpleCensoredMethods(Data_Nutrients_UT, nd_method = "randombelowlimit", nd_multiplier = "null", od_method = "as-is", od_multiplier = "null")
+Data_Nutrients_UT_CensoredFlag <- TADA_SimpleCensoredMethods(Data_Nutrients_UT, 
+    nd_method = "randombelowlimit",
+    nd_multiplier = "null",
+    od_method = "as-is",
+    od_multiplier = "null")
 
 }

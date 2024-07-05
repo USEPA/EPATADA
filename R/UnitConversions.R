@@ -27,7 +27,7 @@
 #
 #' @return A dataframe with seven columns: TADA.CharacteristicName,
 #' TADA.ResultMeasure.MeasureUnitCode, ResultMeasure.MeasureUnitCode,
-#' TADA.Target.ResultMeasureUnit, TADA.MethodSpeciatioName,
+#' TADA.Target.ResultMeasureUnit, TADA.MethodSpeciationName,
 #'  ConversionFactor, and ConversionCoefficient.
 #' The number of rows will vary based on the number of unique
 #' TADA.CharacteristicName/ResultMeasure.MeasureUnitCode combinations in the
@@ -55,25 +55,31 @@ TADA_CreateUnitRef <- function(.data, print.message = TRUE) {
   # Make Target.Unit and Code uppercase
   usgs.ref$Target.Unit <- toupper(usgs.ref$Target.Unit)
   usgs.ref$Code <- toupper(usgs.ref$Code)
-  
+
   # Create ref for method speciation and unit for usgs results
   usgs.method.unit <- usgs.ref %>%
     dplyr::select(Code, CodeNoSpeciation, Target.Speciation) %>%
-    dplyr::mutate(TADA.ResultMeasure.MeasureUnitCode = toupper(Code),
-                  CodeNoSpeciation = toupper(CodeNoSpeciation),
-                  Target.Speciation = toupper(Target.Speciation)) %>%
+    dplyr::mutate(
+      TADA.ResultMeasure.MeasureUnitCode = toupper(Code),
+      CodeNoSpeciation = toupper(CodeNoSpeciation),
+      Target.Speciation = toupper(Target.Speciation)
+    ) %>%
     dplyr::select(-Code)
-  
+
   # Add method speciation and unit for usgs results to data units df
   data.units <- data.units %>%
     dplyr::left_join(usgs.method.unit, by = "TADA.ResultMeasure.MeasureUnitCode") %>%
-    dplyr::mutate(TADA.ResultMeasure.MeasureUnitCode = ifelse(is.na(TADA.MethodSpeciationName) & !is.na(Target.Speciation), 
-                                                              CodeNoSpeciation, 
-                                                              TADA.ResultMeasure.MeasureUnitCode),
-                  TADA.MethodSpeciationName = ifelse(is.na(TADA.MethodSpeciationName) & !is.na(Target.Speciation),
-                                                     Target.Speciation, TADA.MethodSpeciationName)) %>%
+    dplyr::mutate(
+      TADA.ResultMeasure.MeasureUnitCode = ifelse(is.na(TADA.MethodSpeciationName) & !is.na(Target.Speciation),
+        CodeNoSpeciation,
+        TADA.ResultMeasure.MeasureUnitCode
+      ),
+      TADA.MethodSpeciationName = ifelse(is.na(TADA.MethodSpeciationName) & !is.na(Target.Speciation),
+        Target.Speciation, TADA.MethodSpeciationName
+      )
+    ) %>%
     dplyr::select(-CodeNoSpeciation, -Target.Speciation)
-    
+
 
   # Import WQX default unit ref
   wqx.ref <- TADA_GetMeasureUnitRef()
@@ -349,9 +355,9 @@ TADA_ConvertResultUnits <- function(.data, ref = "tada", transform = TRUE) {
       TADA.Target.MethodSpeciationName = toupper(TADA.Target.MethodSpeciationName)
     ) %>%
     dplyr::select(ResultMeasure.MeasureUnitCode.Upper, TADA.Target.MethodSpeciationName)
-
+  
+  # if user supplied unit reference was provided
   if (is.data.frame(ref)) {
-    # if user supplied unit reference was provided
     # required columns
     expected_ref_cols <- c(
       "TADA.CharacteristicName", "TADA.ResultMeasure.MeasureUnitCode",

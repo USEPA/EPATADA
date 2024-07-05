@@ -32,13 +32,11 @@
 #' 4) Non-Detect
 #' 5) Over-Detect
 #' 6) Other Condition/Limit Populated
-#' If user has not previously run TADA_FlagMeasureQualifierCode, this function will also run that function to
-#' add the columns TADA.MeasureQualifierCode.Flag and TADA.MeasureQualifierCode.Def because user-supplied
-#' Result Measure Qualifier codes are also used to ID censored results.
+#' If user has not previously run TADA_FlagMeasureQualifierCode, this function will also run that 
+#' function to add the columns TADA.MeasureQualifierCode.Flag and TADA.MeasureQualifierCode.Def
+#' because user-supplied Result Measure Qualifier codes are also used to ID censored results.
 #'
 #' @export
-#'
-#'
 
 TADA_IDCensoredData <- function(.data) {
   # check .data has all of the required columns
@@ -53,7 +51,7 @@ TADA_IDCensoredData <- function(.data) {
   # when the result value is TEXT but there is a specific text value that indicates
   # the result is censored (BPQL, BDL, ND)
   # and the TADA.DetectionQuantitationLimitMeasure.MeasureValue and unit is populated
-  # if more are added, they need to be included below as well (line 194)
+  # if more are added, they need to be included below as well
 
   .data$TADA.ResultMeasureValue <- ifelse(
     (.data$ResultMeasureValue == "BPQL" |
@@ -267,7 +265,8 @@ TADA_IDCensoredData <- function(.data) {
 #' information.
 #'
 #' @param .data A TADA dataframe
-#' @param nd_method A text string indicating the type of method used to populate a non-detect (lower limit) data value. Can be set to "multiplier" (default),"randombelowlimit", or "as-is".
+#' @param nd_method A text string indicating the type of method used to populate a non-detect
+#' (lower limit) data value. Can be set to "multiplier" (default),"randombelowlimit", or "as-is".
 #' @param nd_multiplier A number to be multiplied to the LOWER detection limit for each entry to obtain the censored data value. Must be supplied if nd_method = "multiplier". Defaults to 0.5, or half the detection limit.
 #' @param od_method A text string indicating the type of method used to populate an over-detect (upper limit) data value. Can be set to "multiplier" or "as-is" (default).
 #' @param od_multiplier A number to be multiplied to the UPPER detection limit for each entry to obtain the censored data value. Must be supplied if od_method = "multiplier". Defaults to 0.5, or half the detection limit.
@@ -288,10 +287,18 @@ TADA_IDCensoredData <- function(.data) {
 #' # and in instances where the measurement is non-detect, set the result value
 #' # to half of the detection limit value. For over-detect measurements, retain
 #' # the detection limit value as the result value as-is.
-#' Data_Nutrients_UT_CensoredFlag <- TADA_SimpleCensoredMethods(Data_Nutrients_UT, nd_method = "multiplier", nd_multiplier = 0.5, od_method = "as-is", od_multiplier = "null")
+#' Data_Nutrients_UT_CensoredFlag <- TADA_SimpleCensoredMethods(Data_Nutrients_UT, 
+#'     nd_method = "multiplier",
+#'     nd_multiplier = 0.5,
+#'     od_method = "as-is",
+#'     od_multiplier = "null")
 #'
 #' # Check for agreement between detection condition and detection limit type, and in instances where the measurement is non-detect, set the result value to a random value between 0 and the detection limit value. For over-detect measurements, retain the detection limit value as the result value as-is.
-#' Data_Nutrients_UT_CensoredFlag <- TADA_SimpleCensoredMethods(Data_Nutrients_UT, nd_method = "randombelowlimit", nd_multiplier = "null", od_method = "as-is", od_multiplier = "null")
+#' Data_Nutrients_UT_CensoredFlag <- TADA_SimpleCensoredMethods(Data_Nutrients_UT, 
+#'     nd_method = "randombelowlimit",
+#'     nd_multiplier = "null",
+#'     od_method = "as-is",
+#'     od_multiplier = "null")
 #'
 TADA_SimpleCensoredMethods <- function(.data, nd_method = "multiplier", nd_multiplier = 0.5, od_method = "as-is", od_multiplier = "null") {
   # check .data has all of the required columns
