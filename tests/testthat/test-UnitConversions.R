@@ -76,19 +76,20 @@ test_that("TADA_CreateUnitRef output contains a row for each TADA.Characteristic
   unit.ref <- TADA_CreateUnitRef(testdat)
   unit.ref <- unit.ref %>%
     dplyr::select(
-      TADA.CharacteristicName, 
-      ResultMeasure.MeasureUnitCode) %>%
+      TADA.CharacteristicName,
+      ResultMeasure.MeasureUnitCode
+    ) %>%
     dplyr::distinct()
-  
+
 
   unit.combs <- TADA_UniqueCharUnitSpeciation(testdat)
   unit.combs <- unit.combs %>%
     dplyr::select(
-      TADA.CharacteristicName, 
+      TADA.CharacteristicName,
       ResultMeasure.MeasureUnitCode
     ) %>%
     dplyr::distinct()
-  
+
   compare <- unit.ref %>%
     dplyr::anti_join(unit.combs)
   expect_true(nrow(compare) == 0)
