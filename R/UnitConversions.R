@@ -583,17 +583,21 @@ TADA_ConvertResultUnits <- function(.data, ref = "tada", transform = TRUE) {
     det.ref <- det.ref %>%
       dplyr::ungroup() %>%
       dplyr::select(
+        TADA.CharacteristicName,
         DetectionQuantitationLimitMeasure.MeasureUnitCode,
         TADA.Target.ResultMeasure.MeasureUnitCode
       ) %>%
       dplyr::distinct()
+    
+    det.join <- c("TADA.CharacteristicName",
+                  "DetectionQuantitationLimitMeasure.MeasureUnitCode")
 
     # populate TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode
     convert.data <- det.data %>%
       # remove conversion columns
       dplyr::select(-tidyselect::any_of(conversion.cols)) %>%
       # join ref to convert detection limit unit code to convert to target unit
-      dplyr::left_join(det.ref, by = "DetectionQuantitationLimitMeasure.MeasureUnitCode") %>%
+      dplyr::left_join(det.ref, by = det.join) %>%
       # use target unit where there is a target unit, use original unit if no target unit
       dplyr::mutate(TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode = dplyr::case_when(
         !is.na(TADA.Target.ResultMeasure.MeasureUnitCode) ~ TADA.Target.ResultMeasure.MeasureUnitCode,
