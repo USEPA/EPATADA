@@ -85,7 +85,7 @@ utils::globalVariables(c(
   "YAxis.DepthUnit", "TADA.CharacteristicsForDepthProfile", "TADA.ConsolidatedDepth",
   "TADA.ConsolidatedDepth.Bottom", "TADA.ConsolidatedDepth.Unit", "col2rgb",
   "palette.colors", "rect", "rgb", "text", "CodeNoSpeciation", "ResultMeasure.MeasureUnitCode.Upper",
-  "TADA.MonitoringLocationIdentifier"
+  "TADA.MonitoringLocationIdentifier", "StringA", "StringB"
 ))
 
 # global variables for tribal feature layers used in TADA_OverviewMap in Utilities.R
@@ -723,7 +723,7 @@ TADA_CreateComparableID <- function(.data) {
 #' Convert a delimited string to the format used by WQX 3.0 profiles for one-to-manys
 #'
 #' This utility function takes a delimited string of entities, and a delimiter (which defaults to a comma)
-#' and returns a new string in the WQX 3.0 format of "["StringA","StringB"]"
+#' and returns a new string in the WQX 3.0 format of c("StringA","StringB")
 #'
 #' @param delimited_string Character argument. Should be a string delimited by the character 
 #'    passed in the delimiter parameter.
