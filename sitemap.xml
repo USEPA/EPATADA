@@ -53,6 +53,8 @@
 <url><loc>usepa.github.io/EPATADA/reference/TADA_FlagMethod.html</loc></url>
 <url><loc>usepa.github.io/EPATADA/reference/TADA_FlagResultUnit.html</loc></url>
 <url><loc>usepa.github.io/EPATADA/reference/TADA_FlagSpeciation.html</loc></url>
+<url><loc>usepa.github.io/EPATADA/reference/TADA_FlaggedSitesMap.html</loc></url>
+<url><loc>usepa.github.io/EPATADA/reference/TADA_FormatDelimitedString.html</loc></url>
 <url><loc>usepa.github.io/EPATADA/reference/TADA_GetATTAINS.html</loc></url>
 <url><loc>usepa.github.io/EPATADA/reference/TADA_GetActivityTypeRef.html</loc></url>
 <url><loc>usepa.github.io/EPATADA/reference/TADA_GetCharacteristicRef.html</loc></url>
@@ -65,6 +67,7 @@
 <url><loc>usepa.github.io/EPATADA/reference/TADA_GetSynonymRef.html</loc></url>
 <url><loc>usepa.github.io/EPATADA/reference/TADA_GetTemplate.html</loc></url>
 <url><loc>usepa.github.io/EPATADA/reference/TADA_GetUSGSSynonymRef.html</loc></url>
+<url><loc>usepa.github.io/EPATADA/reference/TADA_GetUniqueNearbySites.html</loc></url>
 <url><loc>usepa.github.io/EPATADA/reference/TADA_GetWQXCharValRef.html</loc></url>
 <url><loc>usepa.github.io/EPATADA/reference/TADA_HarmonizeSynonyms.html</loc></url>
 <url><loc>usepa.github.io/EPATADA/reference/TADA_Histogram.html</loc></url>

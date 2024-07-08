@@ -96,15 +96,15 @@ or more different organizations, a TADA.MultipleOrgDupGroupID column
 containing a number unique to results that may represent duplicated
 measurement events, a TADA.ResultSelectedMultipleOrgs column indicating
 which rows are selected to keep (Y) and remove (N) based on the
-org hierarchy, and a TADA.NearbySiteGroups column indicating which
+org hierarchy, and a TADA.MonitoringLocationIdentifier column indicating which
 monitoring locations are within the distance buffer from each other.</p>
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
     <p>This function runs TADA_FindNearbySites within it which adds the
-TADA.NearbySiteGroups field. Duplicates are only flagged as duplicates if
+TADA.MonitoringLocationIdentifier field. Duplicates are only flagged as duplicates if
 the distance between sites is less than the function input dist_buffer
-(default is 100m). Each group in the TADA.NearbySiteGroups field indicates
+(default is 100m). Each group in the TADA.MonitoringLocationIdentifier field indicates
 that the sites within each group are within the specified distance from each other.</p>
 <p>We recommend running TADA_FindPotentialDuplicatesMultipleOrgs after running
 TADA_FindPotentialDuplicatesSingleOrg.</p>
