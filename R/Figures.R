@@ -590,7 +590,7 @@ TADA_OverviewMap <- function(.data) {
 #' TADA_FlaggedSitesMap(Data_6Tribes_5y_Harmonized)
 #' }
 #'
-#' Create Flagged Sites Map
+#' 
 TADA_FlaggedSitesMap <- function(.data) {
   invalid <- TADA_FlagCoordinates(.data, flaggedonly = TRUE)
   lowres <- invalid[invalid$TADA.InvalidCoordinates.Flag == "Imprecise_lessthan3decimaldigits",]
