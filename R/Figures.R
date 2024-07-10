@@ -1045,7 +1045,7 @@ TADA_TwoCharacteristicScatterplot <- function(.data, id_cols = "TADA.ComparableD
   return(scatterplot)
 }
   
-#' Create A Two-Characteristic Scatterplot
+#' Create A Scatterplot of Multiple Field Groups within a Column
 #'
 #' @param .data TADA data frame containing the data downloaded from the WQP,
 #'   where each row represents a unique data record. Data frame must include the
@@ -1053,8 +1053,7 @@ TADA_TwoCharacteristicScatterplot <- function(.data, id_cols = "TADA.ComparableD
 #'   to run this function.
 #'
 #' @param id_cols The column in the dataset used to identify the unique groups to
-#'   be plotted. Defaults to 'TADA.ComparableDataIdentifier', which should be
-#'   sufficient for most TADA use cases of this function. This input is flexible,
+#'   be plotted. Defaults to 'TADA.ComparableDataIdentifier'. This input is flexible,
 #'   however, for the specific use case in the TADAShiny app where a user might
 #'   create groups based on a concatenation of the comparable data identifier
 #'   with other additional grouping variables (e.g. site type, site name, year,
@@ -1065,24 +1064,10 @@ TADA_TwoCharacteristicScatterplot <- function(.data, id_cols = "TADA.ComparableD
 #'   be 'DISSOLVED OXYGEN (DO)_NA_NA_UG/L' and 'PH_NA_NA_NA'. These groups will
 #'   be specific to your dataset. If the id_cols is 'MonitoringLocationName',
 #'   the groups could be 'Upper Red Lake: West' and 'Upper Red Lake: West-Central'.
-#'  
-#'  @param id_cols2 The column in the dataset used to identify the unique groups to
-#'   be plotted. Defaults to 'TADA.ComparableDataIdentifier', which should be
-#'   sufficient for most TADA use cases of this function. This input is flexible,
-#'   however, for the specific use case in the TADAShiny app where a user might
-#'   create groups based on a concatenation of the comparable data identifier
-#'   with other additional grouping variables (e.g. site type, site name, year,
-#'   organization, etc.)
-#'   
-#'  @param groups2 A vector of two identifiers from the id_cols column. For
-#'   example, if the id_cols is 'TADA.ComparableDataIdentifier', the groups could
-#'   be 'DISSOLVED OXYGEN (DO)_NA_NA_UG/L' and 'PH_NA_NA_NA'. These groups will
-#'   be specific to your dataset. If the id_cols is 'MonitoringLocationName',
-#'   the groups could be 'Upper Red Lake: West' and 'Upper Red Lake: West-Central'. 
 #'
 #' @return A single plotly scatterplot figure with one x-axis (Date/Time) and a
-#'   left and right y-axis showing the units of the two characteristic groups
-#'   plotted on the same figure area.
+#'   left axis showing the units of a single characteristic groups
+#'   plotted on the same figure area wit a legend for each groups
 #'
 #' @export
 #'
@@ -1090,17 +1075,15 @@ TADA_TwoCharacteristicScatterplot <- function(.data, id_cols = "TADA.ComparableD
 #' # Load example dataset:
 #' data(Data_Nutrients_UT)
 #' # Create a single scatterplot with two specified groups from TADA.ComparableDataIdentifier
-#' TADA_TwoCharacteristicScatterplot(Data_Nutrients_UT, id_cols = "TADA.ComparableDataIdentifier", groups = c("AMMONIA_UNFILTERED_NA_MG/L", "NITRATE_UNFILTERED_NA_MG/L"))
+#' TADA_MultiScatterplot(Data_Nutrients_UT, id_cols = c("TADA.ComparableDataIdentifier", "MonitoringLocationName"), groups = c("UTAH LAKE 1 MI EAST OF PELICAN POINT", "Utah Lake 2 miles west of Vineyard")
 #'
 #' # Load example dataset:
 #' data(Data_6Tribes_5y_Harmonized)
 #' # Filter the example data so it includes only one TADA.ComparableDataIdentifier
 #' df <- dplyr::filter(Data_6Tribes_5y_Harmonized, TADA.ComparableDataIdentifier %in% c("TOTAL PHOSPHORUS, MIXED FORMS_UNFILTERED_AS P_UG/L", "NITRATE_UNFILTERED_NA_MG/L"))
 #' # Creates a scatterplot including the two specified sites in the same plot, Nitrate is not found for these two monitoring locagtion and will return a message:
-#' TADA_TwoCharacteristicScatterplot(df, groups = c("TOTAL PHOSPHORUS, MIXED FORMS_UNFILTERED_AS P_UG/L", "NITRATE_UNFILTERED_NA_MG/L"), id_cols2 = "MonitoringLocationName", groups2 = c("Upper Red Lake: West", "Upper Red Lake: West-Central"))
+#' TADA_MultiScatterplot(df, id_cols = c("TADA.ComparableDataIdentifier", "MonitoringLocationName"), groups = c("Upper Red Lake: West", "Upper Red Lake: West-Central","Upper Red Lake: East Central"))
 #'
-#' # Creates a scatterplot including the two specified sites in the same plot, Nitrate is not found for these two monitoring locagtion and will return a message:
-#' TADA_TwoCharacteristicScatterplot(df, groups = c("TOTAL PHOSPHORUS, MIXED FORMS_UNFILTERED_AS P_UG/L", "NITRATE_UNFILTERED_NA_MG/L"), id_cols2 = "MonitoringLocationName", groups2 = c("Upper Red Lake: West", "Upper Red Lake: West-Central"))
 TADA_MultiScatterplot <- function(.data, id_cols = c("TADA.ComparableDataIdentifier"), groups = NULL) {
   # check .data is data.frame
   TADA_CheckType(.data, "data.frame", "Input object")
@@ -1296,6 +1279,7 @@ TADA_MultiScatterplot <- function(.data, id_cols = c("TADA.ComparableDataIdentif
         ), "<br>"
       )
     ) 
+  if(length(groups) == 3){
   scatterplot <- scatterplot %>%
     plotly::add_trace(
       data = param3,
@@ -1334,6 +1318,7 @@ TADA_MultiScatterplot <- function(.data, id_cols = c("TADA.ComparableDataIdentif
         ), "<br>"
       )
     )
+  }
   return(scatterplot)
 }
 
