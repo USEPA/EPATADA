@@ -275,6 +275,38 @@ TADA_FlagContinuousData <- function(.data, clean = FALSE, flaggedonly = FALSE, t
   noncont.data <- subset(.data, !.data$ResultIdentifier %in% cont.data$ResultIdentifier)
 
   # if time field is not NA, find time difference between results
+  
+  if(length(noncont.data) >= 1) {
+    info_match <- noncont.data %>%
+      dplyr::filter(duplicated(TADA.LatitudeMeasure) &
+                      duplicated(TADA.LongitudeMeasure) &
+                      duplicated(OrganizationIdentifier) &
+                      duplicated(TADA.ComparableDataIdentifier) &
+                      duplicated(TADA.ActivityDepthHeightMeasure.MeasureValue) &
+                      duplicated(TADA.ResultDepthHeightMeasure.MeasureValue) &
+                      duplicated(TADA.ActivityBottomDepthHeightMeasure.MeasureValue) &
+                      duplicated(ActivityRelativeDepthName)) %>%
+      dplyr::group_by(TADA.LatitudeMeasure, TADA.LongitudeMeasure,
+                      OrganizationIdentifier, TADA.ComparableDataIdentifier,
+                      TADA.ActivityDepthHeightMeasure.MeasureValue,
+                      TADA.ResultDepthHeightMeasure.MeasureValue,
+                      TADA.ActivityBottomDepthHeightMeasure.MeasureValue,
+                      ActivityRelativeDepthName) %>%
+      dplyr::mutate(group_id = dplyr::cur_group_id())
+    
+    info_match2 <- info_match %>%
+      dplyr::mutate(ActivityStartDate = as.POSIXct(ActivityStartDate, format="%Y-%m-%d %H:%M:%S", tz="UTC")) %>%
+      #dplyr::mutate(ActivityStartDate = as.numeric(ActivityStartDate)) %>%
+      dplyr::arrange(ActivityStartDateTime, .by_group = TRUE) %>%
+      dplyr::mutate(time_diff = difftime(ActivityStartDateTime, lag(ActivityStartDateTime), units = "hours"))
+    
+    
+    
+
+  }
+  
+  difftime(info_match$ActivityStartDateTime[1], info_match$ActivityStartDateTime[2], units="hours")
+  
   if (length(noncont.data) >= 1) {
     for (i in 1:nrow(noncont.data)) {
       if (!is.na(noncont.data$ActivityStartDateTime[i])) {
