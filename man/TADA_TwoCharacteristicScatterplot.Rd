@@ -7,9 +7,7 @@
 TADA_TwoCharacteristicScatterplot(
   .data,
   id_cols = "TADA.ComparableDataIdentifier",
-  groups,
-  id_cols2 = NULL,
-  groups2 = NULL
+  groups
 )
 }
 \arguments{
