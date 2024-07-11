@@ -261,6 +261,8 @@ TADA_AutoClean <- function(.data) {
 
   # Transform "Dissolved oxygen (DO)" characteristic name to "DISSOLVED OXYGEN SATURATION" IF
   # result unit is "%" or "% SATURATN".
+  
+  if(any(.data$CharacteristicName == "Dissolved oxygen (DO)")) {
 
   print("TADA_Autoclean: harmonizing dissolved oxygen characterisic name to DISSOLVED OXYGEN SATURATION if unit is % or % SATURATN.")
 
@@ -287,6 +289,7 @@ TADA_AutoClean <- function(.data) {
     dplyr::arrange(ResultIdentifier)
 
   rm(do.units, do.list, do.data, other.data, do.full.join)
+  }
 
   # Remove complex biological data. Un-comment after new WQX 3.0 Profiles are released. May not be needed if implemented via WQP UI/services.
   # .data$TADA.BiologicalIntentName = toupper(.data$BiologicalIntentName)
@@ -1434,6 +1437,8 @@ TADA_addPoints <- function(map, layerfilepath, layergroup, layername, bbox = NUL
 #'
 #' @examples
 #' UniqueCharUnitSpecExample <- TADA_UniqueCharUnitSpeciation(Data_NCTCShepherdstown_HUC12)
+#'
+
 TADA_UniqueCharUnitSpeciation <- function(.data) {
   required_cols <- c(
     "TADA.CharacteristicName", "TADA.ResultSampleFractionText",
