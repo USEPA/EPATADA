@@ -90,9 +90,9 @@ test_that("TADA_FindPotentialDuplicatsMultipleOrgs labels nearby site and multip
   testdat <- TADA_FindPotentialDuplicatesMultipleOrgs(testdat)
 
   testdat1 <- testdat %>%
-    dplyr::select(TADA.NearbySiteGroups) %>%
-    dplyr::filter(TADA.NearbySiteGroups != "No nearby sites") %>%
-    tidyr::separate_rows(TADA.NearbySiteGroups, sep = ", ") %>%
+    dplyr::select(TADA.MonitoringLocationIdentifier) %>%
+    dplyr::filter(TADA.MonitoringLocationIdentifier != "No nearby sites") %>%
+    tidyr::separate_rows(TADA.MonitoringLocationIdentifier, sep = ", ") %>%
     dplyr::pull() %>%
     stringr::str_remove_all("Group_") %>%
     unique() %>%
@@ -118,6 +118,6 @@ test_that("TADA_FindPotentialDuplicatsMultipleOrgs has non-NA values for each ro
 
   expect_false(any(is.na(testdat$TADA.MultipleOrgDupGroupID)))
   expect_false(any(is.na(testdat$TADA.MultipleOrgDuplicate)))
-  expect_false(any(is.na(testdat$TADA.NearbySiteGroups)))
+  expect_false(any(is.na(testdat$TADA.MonitoringLocationIdentifier)))
   expect_false(any(is.na(testdat$TADA.ResultSelectedMultipleOrgs)))
 })
