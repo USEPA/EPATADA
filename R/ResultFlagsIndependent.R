@@ -1240,9 +1240,9 @@ TADA_FlagCoordinates <- function(.data,
 #' issues in the data analysis.
 #'
 #' This function runs TADA_FindNearbySites within it which adds the
-#' TADA.NearbySiteGroups field. Duplicates are only flagged as duplicates if
+#' TADA.MonitoringLocationIdentifier field. Duplicates are only flagged as duplicates if
 #' the distance between sites is less than the function input dist_buffer
-#' (default is 100m). Each group in the TADA.NearbySiteGroups field indicates
+#' (default is 100m). Each group in the TADA.MonitoringLocationIdentifier field indicates
 #' that the sites within each group are within the specified distance from each other.
 #'
 #' We recommend running TADA_FindPotentialDuplicatesMultipleOrgs after running
@@ -1266,7 +1266,7 @@ TADA_FlagCoordinates <- function(.data,
 #'   containing a number unique to results that may represent duplicated
 #'   measurement events, a TADA.ResultSelectedMultipleOrgs column indicating
 #'   which rows are selected to keep (Y) and remove (N) based on the
-#'   org hierarchy, and a TADA.NearbySiteGroups column indicating which
+#'   org hierarchy, and a TADA.MonitoringLocationIdentifier column indicating which
 #'   monitoring locations are within the distance buffer from each other.
 #'
 #' @export
@@ -1283,29 +1283,29 @@ TADA_FlagCoordinates <- function(.data,
 #'
 TADA_FindPotentialDuplicatesMultipleOrgs <- function(.data, dist_buffer = 100, org_hierarchy = "none") {
   # from those datapoints, determine which are in adjacent sites
-  if (!"TADA.NearbySiteGroups" %in% names(.data)) {
+  if (!"TADA.MonitoringLocationIdentifier" %in% names(.data)) {
     .data <- TADA_FindNearbySites(.data, dist_buffer = dist_buffer)
   }
 
-  dupsites <- unique(.data[, c("MonitoringLocationIdentifier", "TADA.LatitudeMeasure", "TADA.LongitudeMeasure", "TADA.NearbySiteGroups")])
+  dupsites <- unique(.data[, c("MonitoringLocationIdentifier", "TADA.LatitudeMeasure", "TADA.LongitudeMeasure", "TADA.MonitoringLocationIdentifier")])
 
   # get rid of results with no site group added - not duplicated spatially
-  dupsites <- subset(dupsites, !dupsites$TADA.NearbySiteGroups %in% c("No nearby sites")) %>%
-    tidyr::separate_rows(TADA.NearbySiteGroups, sep = ",")
+  dupsites <- subset(dupsites, !dupsites$TADA.MonitoringLocationIdentifier %in% c("No nearby sites")) %>%
+    tidyr::separate_rows(TADA.MonitoringLocationIdentifier, sep = ",")
 
   # remove results with no nearby sites get all data that are not NA and round to 2 digits
   dupsprep <- .data %>%
     dplyr::filter(MonitoringLocationIdentifier %in% dupsites$MonitoringLocationIdentifier) %>%
     dplyr::select(
       OrganizationIdentifier, ResultIdentifier, ActivityStartDate, ActivityStartTime.Time,
-      TADA.CharacteristicName, ActivityTypeCode, TADA.ResultMeasureValue, TADA.NearbySiteGroups
+      TADA.CharacteristicName, ActivityTypeCode, TADA.ResultMeasureValue, TADA.MonitoringLocationIdentifier
     ) %>%
     dplyr::filter(!is.na(TADA.ResultMeasureValue)) %>%
     dplyr::mutate(roundRV = round(TADA.ResultMeasureValue, digits = 2))
 
   # group by date, time, characteristic, and rounded result value and determine the number of organizations that have those same row values, and filter to those summary rows with more than one organization
   dups_sum <- dupsprep %>%
-    dplyr::group_by(ActivityStartDate, ActivityStartTime.Time, TADA.CharacteristicName, ActivityTypeCode, roundRV, TADA.NearbySiteGroups) %>%
+    dplyr::group_by(ActivityStartDate, ActivityStartTime.Time, TADA.CharacteristicName, ActivityTypeCode, roundRV, TADA.MonitoringLocationIdentifier) %>%
     dplyr::mutate(numorgs = length(unique(OrganizationIdentifier))) %>%
     dplyr::filter(numorgs > 1) %>%
     # group duplicates
@@ -1322,7 +1322,7 @@ TADA_FindPotentialDuplicatesMultipleOrgs <- function(.data, dist_buffer = 100, o
     "OrganizationIdentifier",
     "ResultIdentifier",
     "TADA.ResultMeasureValue",
-    "TADA.NearbySiteGroups"
+    "TADA.MonitoringLocationIdentifier"
   )) %>%
     dplyr::mutate(TADA.MultipleOrgDuplicate = ifelse(is.na(TADA.MultipleOrgDupGroupID), "N", "Y")) %>%
     # remove results that are listed twice (as part of two groups)
@@ -1363,9 +1363,9 @@ TADA_FindPotentialDuplicatesMultipleOrgs <- function(.data, dist_buffer = 100, o
       dplyr::slice_sample(n = 1)
 
     dupsdat <- dupsdat %>%
-      dplyr::rename(SingleNearbyGroup = TADA.NearbySiteGroups) %>%
+      dplyr::rename(SingleNearbyGroup = TADA.MonitoringLocationIdentifier) %>%
       dplyr::mutate(
-        TADA.NearbySiteGroups = paste(SingleNearbyGroup, sep = ","),
+        TADA.MonitoringLocationIdentifier = paste(SingleNearbyGroup, sep = ","),
         TADA.ResultSelectedMultipleOrgs = ifelse(ResultIdentifier %in% duppicks$ResultIdentifier, "Y", "N")
       ) %>%
       dplyr::select(-SingleNearbyGroup)

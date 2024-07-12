@@ -13,7 +13,7 @@ TADA_FindNearbySites(.data, dist_buffer = 100)
 from one another to be considered "nearby" and grouped together.}
 }
 \value{
-Input dataframe with a TADA.NearbySiteGroups column that indicates
+Input dataframe with a TADA.MonitoringLocationIdentifier column that indicates
 the nearby site groups each monitoring location belongs to.
 }
 \description{
