@@ -1167,7 +1167,7 @@ TADA_TwoCharacteristicScatterplot <- function(.data, id_cols = "TADA.ComparableD
 #' # Load example dataset:
 #' data(Data_6Tribes_5y_Harmonized)
 #' # Filter the example data so it includes only one TADA.ComparableDataIdentifier
-#' df <- dplyr::filter(Data_6Tribes_5y_Harmonized, TADA.ComparableDataIdentifier %in% c("TOTAL PHOSPHORUS, MIXED FORMS_UNFILTERED_AS P_UG/L", "NITRATE_UNFILTERED_NA_MG/L"))
+#' df <- dplyr::filter(Data_6Tribes_5y_Harmonized, TADA.ComparableDataIdentifier %in% c("TOTAL PHOSPHORUS, MIXED FORMS_UNFILTERED_AS P_MG/L", "NITRATE_UNFILTERED_NA_MG/L"))
 #' # Creates a scatterplot including the two specified sites in the same plot, Nitrate is not found for these two monitoring locagtion and will return a message:
 #' TADA_MultiScatterplot(df, id_cols = c("TADA.ComparableDataIdentifier", "MonitoringLocationName"), groups = c("Upper Red Lake: West", "Upper Red Lake: West-Central","Upper Red Lake: East Central"))
 #'
