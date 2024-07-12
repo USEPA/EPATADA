@@ -1170,7 +1170,7 @@ TADA_TwoCharacteristicScatterplot <- function(.data, id_cols = "TADA.ComparableD
 #' df <- dplyr::filter(Data_6Tribes_5y_Harmonized, TADA.ComparableDataIdentifier %in% c("TOTAL PHOSPHORUS, MIXED FORMS_UNFILTERED_AS P_MG/L", "NITRATE_UNFILTERED_NA_MG/L"))
 #' # Creates a scatterplot including the two specified sites in the same plot, Nitrate is not found for these two monitoring locagtion and will return a message:
 #' TADA_MultiScatterplot(df, id_cols = c("TADA.ComparableDataIdentifier", "MonitoringLocationName"), groups = c("Upper Red Lake: West", "Upper Red Lake: West-Central","Upper Red Lake: East Central"))
-#'
+#' # If no groups are selected, return the top 4 groups by counts
 TADA_MultiScatterplot <- function(.data, id_cols = c("TADA.ComparableDataIdentifier"), groups = NULL) {
   # check .data is data.frame
   TADA_CheckType(.data, "data.frame", "Input object")
@@ -1203,19 +1203,25 @@ TADA_MultiScatterplot <- function(.data, id_cols = c("TADA.ComparableDataIdentif
     stop("id_cols argument can only be a maximum of length two.")
   }
   
+  # Run if more than 1 Tada.ComparableDataIdentifier are found in a dataframe. Prompts for user selection of a  single characteristic in the dataframe
+  var <- NULL
+  id2 <- NULL
+  if(length(unlist(unique(.data[, id_cols[1]]))) > 1){
+    var <- menu(unlist(unique(.data[, id_cols[1]])), title = "Please specify Characteristic to plot: ")
+    assign("id2", unlist(unique(.data[, id_cols[1]]))[var])
+  }
+ 
   # check that groups are in id_cols
   id <- unlist(unique(.data[, id_cols[2]]))
   if (any(!groups %in% id)) {
     stop("The 'groups' vector contains one or more inputs that are not found within your input dataset. Check spelling and try again.")
   }
   
-  # if groups are not specified, 
+  # if groups are not specified, select the top 4 groups to plot.
   if (length(id_cols) == 2 & is.null(groups)) {
-    .data %>%
-      group_by(id_cols[2]) %>% 
-      tally() %>%
-      arrange(desc(n))
+    groups <- names((head(sort(table(.data[,id_cols[2]]), decreasing = TRUE),4)))
   }
+
   
   
   depthcols <- names(.data)[grepl("DepthHeightMeasure", names(.data))]
@@ -1225,6 +1231,9 @@ TADA_MultiScatterplot <- function(.data, id_cols = c("TADA.ComparableDataIdentif
   
   # this subset must include all fields included in plot hover below
   plot.data <- subset(plot.data, plot.data[, id_cols[2]] %in% groups)[, c(id_cols, reqcols, depthcols, "ActivityStartDateTime", "MonitoringLocationName", "TADA.ActivityMediaName", "ActivityMediaSubdivisionName", "ActivityRelativeDepthName", "TADA.CharacteristicName", "TADA.MethodSpeciationName", "TADA.ResultSampleFractionText")]
+  if(!is.null(var)){
+    plot.data <- subset(plot.data, plot.data[, "TADA.ComparableDataIdentifier"] %in% id2)
+  }
   plot.data$name <- gsub("_NA", "", plot.data[, id_cols[2]])
   plot.data$name <- gsub("_", " ", plot.data$name)
   
@@ -1328,6 +1337,7 @@ TADA_MultiScatterplot <- function(.data, id_cols = c("TADA.ComparableDataIdentif
         ), "<br>"
       )
     ) 
+  if(length(groups) >= 2){
   scatterplot <- scatterplot %>%
      plotly::add_trace(
       data = param2,
@@ -1366,7 +1376,8 @@ TADA_MultiScatterplot <- function(.data, id_cols = c("TADA.ComparableDataIdentif
         ), "<br>"
       )
     ) 
-  if(length(groups) == 3){
+  }
+  if(length(groups) >= 3){
   scatterplot <- scatterplot %>%
     plotly::add_trace(
       data = param3,
@@ -1405,6 +1416,46 @@ TADA_MultiScatterplot <- function(.data, id_cols = c("TADA.ComparableDataIdentif
         ), "<br>"
       )
     )
+  }
+  if(length(groups) >= 4){
+    scatterplot <- scatterplot %>%
+      plotly::add_trace(
+        data = param4,
+        x = ~ as.Date(ActivityStartDate),
+        y = ~TADA.ResultMeasureValue,
+        name = groups[4],
+        marker = list(
+          size = 10,
+          color = tada.pal[7],
+          line = list(color = tada.pal[1], width = 2)
+        ),
+        hoverinfo = "text",
+        hovertext = paste(
+          "Result:", paste0(param4$TADA.ResultMeasureValue, " ", param4$TADA.ResultMeasure.MeasureUnitCode), "<br>",
+          "Activity Start Date:", param4$ActivityStartDate, "<br>",
+          "Activity Start Date Time:", param4$ActivityStartDateTime, "<br>",
+          "Monitoring Location Name:", param4$MonitoringLocationName, "<br>",
+          "Media:", param4$TADA.ActivityMediaName, "<br>",
+          "Media Subdivision:", param4$ActivityMediaSubdivisionName, "<br>",
+          "Result Depth:", paste0(
+            param4$TADA.ResultDepthHeightMeasure.MeasureValue, " ",
+            param4$TADA.ResultDepthHeightMeasure.MeasureUnitCode
+          ), "<br>",
+          "Activity Relative Depth Name:", param4$ActivityRelativeDepthName, "<br>",
+          "Activity Depth:", paste0(
+            param4$TADA.ActivityDepthHeightMeasure.MeasureValue, " ",
+            param4$TADA.ActivityDepthHeightMeasure.MeasureUnitCode
+          ), "<br>",
+          "Activity Top Depth:", paste0(
+            param4$TADA.ActivityTopDepthHeightMeasure.MeasureValue, " ",
+            param4$TADA.ActivityTopDepthHeightMeasure.MeasureUnitCode
+          ), "<br>",
+          "Activity Bottom Depth:", paste0(
+            param4$TADA.ActivityBottomDepthHeightMeasure.MeasureValue, " ",
+            param4$TADA.ActivityBottomDepthHeightMeasure.MeasureUnitCode
+          ), "<br>"
+        )
+      )
   }
   return(scatterplot)
 }
