@@ -55,4 +55,5 @@ TADA_MultiScatterplot(df, id_cols = c("TADA.ComparableDataIdentifier", "Monitori
 # Both commands below will return a single scatterplot for just the single comparable data identifier. 
 TADA_MultiScatterplot(df, id_cols = c("TADA.ComparableDataIdentifier", "TADA.ComparableDataIdentifier"))
 TADA_MultiScatterplot(df)
+
 }
