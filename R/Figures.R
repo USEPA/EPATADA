@@ -1176,6 +1176,7 @@ TADA_TwoCharacteristicScatterplot <- function(.data, id_cols = "TADA.ComparableD
 #' # Both commands below will return a single scatterplot for just the single comparable data identifier. 
 #' TADA_MultiScatterplot(df, id_cols = c("TADA.ComparableDataIdentifier", "TADA.ComparableDataIdentifier"))
 #' TADA_MultiScatterplot(df)
+#' 
 
 TADA_MultiScatterplot <- function(.data, id_cols = c("TADA.ComparableDataIdentifier"), groups = NULL) {
   # check .data is data.frame
