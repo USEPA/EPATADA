@@ -40,14 +40,19 @@ Create A Scatterplot of Multiple Field Groups within a Column
 \examples{
 # Load example dataset:
 data(Data_Nutrients_UT)
-# Create a single scatterplot with two specified groups from TADA.ComparableDataIdentifier
-TADA_MultiScatterplot(Data_Nutrients_UT, id_cols = c("TADA.ComparableDataIdentifier", "MonitoringLocationName"), groups = c("UTAH LAKE 1 MI EAST OF PELICAN POINT", "Utah Lake 2 miles west of Vineyard")
+# Create a single scatterplot with two monitoring locations (groups) for a single TADA.ComparableDataIdentifier. 
+# Dataframe has multiple comparable data identifier that was not filtered, select value for 'NITROGEN_TOTAL_AS N_MG/L' to plot this characteristic value.
+TADA_MultiScatterplot(Data_Nutrients_UT, id_cols = c("TADA.ComparableDataIdentifier", "MonitoringLocationName"), groups = c("UTAH LAKE 1 MI EAST OF PELICAN POINT", "Utah Lake 2 miles west of Vineyard"))
 
 # Load example dataset:
 data(Data_6Tribes_5y_Harmonized)
 # Filter the example data so it includes only one TADA.ComparableDataIdentifier
-df <- dplyr::filter(Data_6Tribes_5y_Harmonized, TADA.ComparableDataIdentifier \%in\% c("TOTAL PHOSPHORUS, MIXED FORMS_UNFILTERED_AS P_MG/L", "NITRATE_UNFILTERED_NA_MG/L"))
-# Creates a scatterplot including the two specified sites in the same plot, Nitrate is not found for these two monitoring locagtion and will return a message:
+df <- dplyr::filter(Data_6Tribes_5y_Harmonized, TADA.ComparableDataIdentifier \%in\% c("TOTAL PHOSPHORUS, MIXED FORMS_UNFILTERED_AS P_MG/L"))
+# Creates a scatterplot of the three specified sites of interest in the same plot.
 TADA_MultiScatterplot(df, id_cols = c("TADA.ComparableDataIdentifier", "MonitoringLocationName"), groups = c("Upper Red Lake: West", "Upper Red Lake: West-Central","Upper Red Lake: East Central"))
-
+# If no groups are selected, return the top 4 groups by MonitoringLocationName field counts.
+TADA_MultiScatterplot(df, id_cols = c("TADA.ComparableDataIdentifier", "MonitoringLocationName"))
+# Both commands below will return a single scatterplot for just the single comparable data identifier. 
+TADA_MultiScatterplot(df, id_cols = c("TADA.ComparableDataIdentifier", "TADA.ComparableDataIdentifier"))
+TADA_MultiScatterplot(df)
 }
