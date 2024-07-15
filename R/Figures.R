@@ -1195,7 +1195,7 @@ TADA_MultiScatterplot <- function(.data, id_cols = c("TADA.ComparableDataIdentif
   TADA_CheckColumns(.data, reqcols)
   
   # if left blank, ensure comparable data identifier is in the id_cols vector
-  if (is.null(id_cols) | unique(id_cols) == "TADA.ComparableDataIdentifier") {
+  if (is.null(id_cols) | length(unique(id_cols)) == 1) {
     id_cols <- c("TADA.ComparableDataIdentifier","TADA.ComparableDataIdentifier")
   }
   
