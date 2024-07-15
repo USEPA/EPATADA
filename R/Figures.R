@@ -666,15 +666,26 @@ TADA_FlaggedSitesMap <- function(.data) {
 #' # Create a list of parameters in the dataset and the number of records of
 #' # each parameter:
 #' TADA_FieldValuesPie(Data_Nutrients_UT, field = "TADA.CharacteristicName")
+#' # If there are more than 12 categories to display, any remaining categories, the ones that have the smallest number of results,
+#' # are combined into an "ALL OTHERS" category.
+#' TADA_FieldValuesPie(Data_Nutrients_UT, field = "TADA.ComparableDataIdentifier")
 #'
 TADA_FieldValuesPie <- function(.data, field = "null", characteristicName = "null") {
-  dat <- TADA_FieldValuesTable(.data = .data, field = field, characteristicName = characteristicName)
-
+  dat <- head(TADA_FieldValuesTable(.data = .data, field = field, characteristicName = characteristicName), 12)
+  # If data set contains more than 12 categories, dat2 aggregates 'all other' categories into its own row.
+  dat2 <- data.frame(Value = "ALL OTHERS", Count = sum(TADA_FieldValuesTable(.data = .data, field = field, characteristicName = characteristicName)[-(1:12),][2]))
+  
   dat$Legend <- paste0(dat$Value, " - ", dat$Count, " results")
+  dat2$Legend <- paste0(dat2$Value, " - ", dat2$Count, " results")
   dat <- dat %>%
     dplyr::rowwise() %>%
     dplyr::mutate(Legend = TADA_InsertBreaks(Legend))
-
+   
+  # Only apply the all others category if there are greater than 12 categories to display.
+  if(dat2$Count != 0) {
+    dat <- dplyr::bind_rows(dat, dat2)
+  } 
+  
   # create TADA color palette
   tada.pal <- TADA_ColorPalette()
 
