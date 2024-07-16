@@ -274,61 +274,55 @@ TADA_FlagContinuousData <- function(.data, clean = FALSE, flaggedonly = FALSE, t
   # everything not YET in cont dataframe
   noncont.data <- subset(.data, !.data$ResultIdentifier %in% cont.data$ResultIdentifier)
   
-  #  #test calc lag
-  #  calculate_lag <- function(x) {
-  #    c(NA, head(x, -1))
-  #  }
-  # 
-  # 
-  #  # if time field is not NA, find time difference between results
-  # 
-  # if(length(noncont.data) >= 1) {
-  #   info_match <- noncont.data %>%
-  #     #dplyr::select(TADA.LatitudeMeasure, TADA.LongitudeMeasure, OrganizationIdentifier, TADA.ComparableDataIdentifier,
-  #                   #TADA.ActivityBottomDepthHeightMeasure.MeasureValue, TADA.ActivityDepthHeightMeasure.MeasureValue,
-  #                   #TADA.ResultDepthHeightMeasure.MeasureValue, ActivityRelativeDepthName, ActivityStartDate,
-  #                   #ActivityStartDateTime, TADA.ResultMeasureValue) %>%
-  #     # dplyr::filter(duplicated(TADA.LatitudeMeasure) &
-  #     #                 duplicated(TADA.LongitudeMeasure) &
-  #     #                 duplicated(OrganizationIdentifier) &
-  #     #                 duplicated(TADA.ComparableDataIdentifier) &
-  #     #                 duplicated(ActivityStartDate)) %>%
-  #     dplyr::group_by(TADA.LatitudeMeasure, TADA.LongitudeMeasure,
-  #                     OrganizationIdentifier, TADA.ComparableDataIdentifier,
-  #                     TADA.ActivityDepthHeightMeasure.MeasureValue,
-  #                     TADA.ResultDepthHeightMeasure.MeasureValue,
-  #                     TADA.ActivityBottomDepthHeightMeasure.MeasureValue,
-  #                     ActivityRelativeDepthName) %>%
-  #     dplyr::mutate(n_records = length(TADA.ResultMeasureValue)) %>%
-  #     dplyr::mutate(group_id = dplyr::cur_group_id()) %>%
-  #     dplyr::filter(n_records > 1) %>%
-  #     dplyr::ungroup()
-  # 
-  #   info_match2 <- info_match %>%
-  #     dplyr::mutate(ActivityStartDate = as.POSIXct(ActivityStartDate, format="%Y-%m-%d %H:%M:%S", tz="UTC")) %>%
-  #     dplyr::group_by(group_id) %>%
-  #     #dplyr::mutate(ActivityStartDate = as.numeric(ActivityStartDate)) %>%
-  #     dplyr::arrange(ActivityStartDateTime, .by_group = TRUE) %>%
-  #     dplyr::mutate(time_diff = abs(difftime(ActivityStartDateTime, dplyr::lag(ActivityStartDateTime), units = "hours"))) %>%
-  #     dplyr::ungroup()
-  # 
-  #   # find results where the time differences is <= time_difference (default is 4 hours)
-  #   within_window <- info_match2 %>%
-  #     dplyr::mutate(check_first_result = ifelse(is.na(time_diff) & 
-  #                                                group_id == dplyr::lead(group_id) & 
-  #                                                dplyr::lead(time_diff) >= time_difference,
-  #                  "Continuous", NA)) %>%
-  #     dplyr::filter(time_diff <= time_difference |
-  #                     check_first_result == "Continuous") %>%
-  #     dplyr::select(-check_first_result)
-  # 
-  # 
-  #   # if matches are identified change flag to continuous
-  #   noncont.data <- noncont.data %>%
-  #     dplyr::mutate(TADA.ContinuousData.Flag = ifelse(ResultIdentifier %in% result_ids_cont$ResultIdentifier,
-  #                                                     "Continuous", TADA.ContinuousData.Flag))
-  # 
-  # }
+   # if time field is not NA, find time difference between results
+
+  if(length(noncont.data) >= 1) {
+    info_match <- noncont.data %>%
+      #dplyr::select(TADA.LatitudeMeasure, TADA.LongitudeMeasure, OrganizationIdentifier, TADA.ComparableDataIdentifier,
+                    #TADA.ActivityBottomDepthHeightMeasure.MeasureValue, TADA.ActivityDepthHeightMeasure.MeasureValue,
+                    #TADA.ResultDepthHeightMeasure.MeasureValue, ActivityRelativeDepthName, ActivityStartDate,
+                    #ActivityStartDateTime, TADA.ResultMeasureValue) %>%
+       # dplyr::filter(duplicated(TADA.LatitudeMeasure) &
+       #                duplicated(TADA.LongitudeMeasure) &
+       #                duplicated(OrganizationIdentifier) &
+       #                duplicated(TADA.ComparableDataIdentifier) &
+       #                duplicated(ActivityStartDate) &
+       #                (duplicated(TADA.ActivityDepthHeightMeasure.MeasureValue) | is.na(noncont.data$TADA.ActivityDepthHeightMeasure.MeasureValue)) &
+       #                (duplicated(TADA.ResultDepthHeightMeasure.MeasureValue) | is.na(TADA.ResultDepthHeightMeasure.MeasureValue)) & 
+       #                (duplicated(TADA.ActivityTopDepthHeightMeasure.MeasureValue) | is.na(TADA.ActivityTopDepthHeightMeasure.MeasureValue)) &
+       #                (duplicated(TADA.ActivityBottomDepthHeightMeasure.MeasureValue) | is.na(TADA.ActivityBottomDepthHeightMeasure.MeasureValue)) & 
+       #                (duplicated(ActivityRelativeDepthName) | is.na(ActivityRelativeDepthName))) %>%
+      dplyr::group_by(TADA.LatitudeMeasure, TADA.LongitudeMeasure,
+                      OrganizationIdentifier, TADA.ComparableDataIdentifier,
+                      TADA.ActivityDepthHeightMeasure.MeasureValue,
+                      TADA.ResultDepthHeightMeasure.MeasureValue,
+                      TADA.ActivityBottomDepthHeightMeasure.MeasureValue,
+                      ActivityRelativeDepthName) %>%
+      dplyr::mutate(n_records = length(TADA.ResultMeasureValue)) %>%
+      dplyr::mutate(group_id = dplyr::cur_group_id()) %>%
+      dplyr::filter(n_records > 1) %>%
+      dplyr::ungroup()
+
+    info_match2 <- info_match %>%
+      dplyr::mutate(ActivityStartDate = as.POSIXct(ActivityStartDate, format="%Y-%m-%d %H:%M:%S", tz="UTC")) %>%
+      dplyr::group_by(group_id) %>%
+      dplyr::arrange(ActivityStartDateTime, .by_group = TRUE) %>%
+      dplyr::mutate(time_diff_lag = abs(difftime(ActivityStartDateTime, dplyr::lag(ActivityStartDateTime), units = "hours")),
+                    time_diff_lead = abs(difftime(ActivityStartDateTime, dplyr::lead(ActivityStartDateTime), units = "hours"))) %>%
+      dplyr::ungroup()
+    
+    # find results where the time differences is <= time_difference (default is 4 hours)
+    within_window <- info_match3 %>%
+      dplyr::filter(time_diff_lead <= time_difference |
+                      time_diff_lag <= time_difference)
+
+
+    # if matches are identified change flag to continuous
+    noncont.data <- noncont.data %>%
+      dplyr::mutate(TADA.ContinuousData.Flag = ifelse(ResultIdentifier %in% within_window$ResultIdentifier,
+                                                      "Continuous", TADA.ContinuousData.Flag))
+
+  }
 
   if (length(noncont.data) >= 1) {
     for (i in 1:nrow(noncont.data)) {
@@ -383,6 +377,7 @@ TADA_FlagContinuousData <- function(.data, clean = FALSE, flaggedonly = FALSE, t
     if (clean == FALSE & flaggedonly == FALSE) {
       flag.data <- TADA_OrderCols(flag.data)
 
+      
       # end.time <- Sys.time()
       # time.taken <- round(end.time - start.time, 2)
       # print(time.taken)
