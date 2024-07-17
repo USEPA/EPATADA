@@ -311,7 +311,8 @@ TADA_FlagContinuousData <- function(.data, clean = FALSE, flaggedonly = FALSE, t
 
   }
 
-  flag.data <- merge(cont.data, noncont.data)
+  flag.data <- cont.data %>%
+    dplyr::full_join(noncont.data)
 
   # flagged output, all data
   if (clean == FALSE & flaggedonly == FALSE) {
