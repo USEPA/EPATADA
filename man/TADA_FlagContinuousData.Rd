@@ -24,11 +24,11 @@ results are included in the output. When flaggedonly = TRUE, the dataframe
 will be filtered to include only the rows flagged as "Continuous" results.}
 
 \item{time_difference}{Numeric argument defining the maximum time difference
-in hours between measurements taken on the same day. This is used to search for
-continuous time series data (i.e., if there are multiple measurements on the same
-day within the selected time_difference, then the row will be flagged as
-continuous). The default time window is 4 hours. The time_difference can be
-adjusted by the user.}
+in hours between measurements of the same TADA.ComparableDataIdentifier taken at the same
+latitude, longitude, and depth. This is used to search for
+continuous time series data (i.e., if there are multiple measurements within the selected
+time_difference, then the row will be flagged as continuous). The default time window is 4 hours.
+The time_difference can be adjusted by the user.}
 }
 \value{
 The default is clean = FALSE and flaggedonly = FALSE.
