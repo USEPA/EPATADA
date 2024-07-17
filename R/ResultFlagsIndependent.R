@@ -309,8 +309,9 @@ TADA_FlagContinuousData <- function(.data, clean = FALSE, flaggedonly = FALSE, t
       dplyr::mutate(TADA.ContinuousData.Flag = ifelse(ResultIdentifier %in% within_window$ResultIdentifier,
                                                       "Continuous", TADA.ContinuousData.Flag))
 
-    flag.data <- plyr::rbind.fill(cont.data, noncont.data)
   }
+
+  flag.data <- plyr::rbind.fill(cont.data, noncont.data)
 
   # flagged output, all data
   if (clean == FALSE & flaggedonly == FALSE) {
@@ -347,7 +348,7 @@ if (nrow(flag.data[flag.data$TADA.ContinuousData.Flag == "Continuous",]) == 0) {
   if (flaggedonly == FALSE) {
     print("No evidence of aggregated continuous data in your dataframe. Returning the input dataframe with TADA.ContinuousData.Flag column for tracking.")
     .data <- TADA_OrderCols(.data)
-   
+
     return(.data)
   }
 
