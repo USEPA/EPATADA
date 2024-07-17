@@ -287,9 +287,7 @@ TADA_FlagContinuousData <- function(.data, clean = FALSE, flaggedonly = FALSE, t
       dplyr::mutate(n_records = length(TADA.ResultMeasureValue)) %>%
       dplyr::mutate(group_id = dplyr::cur_group_id()) %>%
       dplyr::filter(n_records > 1) %>%
-      dplyr::ungroup()
-
-    info_match2 <- info_match %>%
+      dplyr::ungroup() %>%
       dplyr::mutate(ActivityStartDate = as.POSIXct(ActivityStartDate, format="%Y-%m-%d %H:%M:%S", tz="UTC")) %>%
       dplyr::group_by(group_id) %>%
       dplyr::arrange(ActivityStartDateTime, .by_group = TRUE) %>%
@@ -298,19 +296,22 @@ TADA_FlagContinuousData <- function(.data, clean = FALSE, flaggedonly = FALSE, t
       dplyr::ungroup()
 
     # find results where the time differences is <= time_difference (default is 4 hours)
-    within_window <- info_match2 %>%
+    within_window <- info_match %>%
       dplyr::filter(time_diff_lead <= time_difference |
                       time_diff_lag <= time_difference)
-
+    
+    rm(info_match)
 
     # if matches are identified change flag to continuous
     noncont.data <- noncont.data %>%
       dplyr::mutate(TADA.ContinuousData.Flag = ifelse(ResultIdentifier %in% within_window$ResultIdentifier,
                                                       "Continuous", TADA.ContinuousData.Flag))
+    
+    rm(within_window)
 
   }
 
-  flag.data <- plyr::rbind.fill(cont.data, noncont.data)
+  flag.data <- merge(cont.data, noncont.data)
 
   # flagged output, all data
   if (clean == FALSE & flaggedonly == FALSE) {
