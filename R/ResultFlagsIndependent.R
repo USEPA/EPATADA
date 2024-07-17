@@ -210,7 +210,6 @@ TADA_FlagMethod <- function(.data, clean = TRUE, flaggedonly = FALSE) {
 #' }
 #'
 TADA_FlagContinuousData <- function(.data, clean = FALSE, flaggedonly = FALSE, time_difference = 4) {
-  # start.time <- Sys.time()
 
   # check .data is data.frame
   TADA_CheckType(.data, "data.frame", "Input object")
