@@ -155,7 +155,7 @@ TADA_FlagMethod <- function(.data, clean = TRUE, flaggedonly = FALSE) {
 #' @param time_difference Numeric argument defining the maximum time difference
 #' in hours between measurements of the same TADA.ComparableDataIdentifier taken at the same
 #' latitude, longitude, and depth. This is used to search for
-#' continuous time series data (i.e., if there are multiple measurements within the selected 
+#' continuous time series data (i.e., if there are multiple measurements within the selected
 #' time_difference, then the row will be flagged as continuous). The default time window is 4 hours.
 #' The time_difference can be adjusted by the user.
 #' @return The default is clean = FALSE and flaggedonly = FALSE.
@@ -210,7 +210,6 @@ TADA_FlagMethod <- function(.data, clean = TRUE, flaggedonly = FALSE) {
 #' }
 #'
 TADA_FlagContinuousData <- function(.data, clean = FALSE, flaggedonly = FALSE, time_difference = 4) {
-
   # check .data is data.frame
   TADA_CheckType(.data, "data.frame", "Input object")
   # check clean is boolean
@@ -256,59 +255,63 @@ TADA_FlagContinuousData <- function(.data, clean = FALSE, flaggedonly = FALSE, t
 
   # once new 3.0 profiles come out, check for zip files in ActivityFileURL and flag data that populates the DataLoggerLine
   cont.data <- .data %>% dplyr::filter((ActivityTypeCode == "Field Msr/Obs-Continuous Time Series" | # ID cont data with new activity type code from 2023
-                                          grepl("Continuous", ProjectIdentifier) | # ID cont data by looking for string in project ID
-                                          grepl("CONTINUOUS", ProjectIdentifier) | # ID cont data by looking for string in project ID
-                                          (ActivityTypeCode == "Sample-Integrated Time Series" & SampleCollectionEquipmentName == "Probe/Sensor") |
-                                          (ActivityTypeCode == "Field Msr/Obs-Portable Data Logger" & !is.na(ResultTimeBasisText)) |
-                                          (ActivityTypeCode == "Field Msr/Obs-Portable Data Logger" & !is.na(StatisticalBaseCode)) |
-                                          (ActivityTypeCode == "Field Msr/Obs-Portable Data Logger" & ResultValueTypeName == "Calculated") |
-                                          (ActivityTypeCode == "Field Msr/Obs-Portable Data Logger" & ResultValueTypeName == "Estimated") |
-                                          # SampleCollectionEquipmentName == "Probe/Sensor" & !is.na(ActivityFileURL) |
-                                          # (SampleCollectionEquipmentName == "Probe/Sensor" & !is.na(DataLoggerLine)) |
-                                          (SampleCollectionEquipmentName == "Probe/Sensor" & !is.na(ResultTimeBasisText)) |
-                                          (SampleCollectionEquipmentName == "Probe/Sensor" & !is.na(StatisticalBaseCode)) |
-                                          (SampleCollectionEquipmentName == "Probe/Sensor" & ResultValueTypeName == "Calculated") |
-                                          (SampleCollectionEquipmentName == "Probe/Sensor" & ResultValueTypeName == "Estimated")))
+    grepl("Continuous", ProjectIdentifier) | # ID cont data by looking for string in project ID
+    grepl("CONTINUOUS", ProjectIdentifier) | # ID cont data by looking for string in project ID
+    (ActivityTypeCode == "Sample-Integrated Time Series" & SampleCollectionEquipmentName == "Probe/Sensor") |
+    (ActivityTypeCode == "Field Msr/Obs-Portable Data Logger" & !is.na(ResultTimeBasisText)) |
+    (ActivityTypeCode == "Field Msr/Obs-Portable Data Logger" & !is.na(StatisticalBaseCode)) |
+    (ActivityTypeCode == "Field Msr/Obs-Portable Data Logger" & ResultValueTypeName == "Calculated") |
+    (ActivityTypeCode == "Field Msr/Obs-Portable Data Logger" & ResultValueTypeName == "Estimated") |
+    # SampleCollectionEquipmentName == "Probe/Sensor" & !is.na(ActivityFileURL) |
+    # (SampleCollectionEquipmentName == "Probe/Sensor" & !is.na(DataLoggerLine)) |
+    (SampleCollectionEquipmentName == "Probe/Sensor" & !is.na(ResultTimeBasisText)) |
+    (SampleCollectionEquipmentName == "Probe/Sensor" & !is.na(StatisticalBaseCode)) |
+    (SampleCollectionEquipmentName == "Probe/Sensor" & ResultValueTypeName == "Calculated") |
+    (SampleCollectionEquipmentName == "Probe/Sensor" & ResultValueTypeName == "Estimated")))
 
   # everything not YET in cont dataframe
   noncont.data <- subset(.data, !.data$ResultIdentifier %in% cont.data$ResultIdentifier)
 
   # if time field is not NA, find time difference between results
 
-  if(length(noncont.data) >= 1) {
+  if (length(noncont.data) >= 1) {
     info_match <- noncont.data %>%
-      dplyr::group_by(TADA.LatitudeMeasure, TADA.LongitudeMeasure,
-                      OrganizationIdentifier, TADA.ComparableDataIdentifier,
-                      TADA.ActivityDepthHeightMeasure.MeasureValue,
-                      TADA.ResultDepthHeightMeasure.MeasureValue,
-                      TADA.ActivityBottomDepthHeightMeasure.MeasureValue,
-                      TADA.ActivityTopDepthHeightMeasure.MeasureValue,
-                      ActivityRelativeDepthName) %>%
+      dplyr::group_by(
+        TADA.LatitudeMeasure, TADA.LongitudeMeasure,
+        OrganizationIdentifier, TADA.ComparableDataIdentifier,
+        TADA.ActivityDepthHeightMeasure.MeasureValue,
+        TADA.ResultDepthHeightMeasure.MeasureValue,
+        TADA.ActivityBottomDepthHeightMeasure.MeasureValue,
+        TADA.ActivityTopDepthHeightMeasure.MeasureValue,
+        ActivityRelativeDepthName
+      ) %>%
       dplyr::mutate(n_records = length(TADA.ResultMeasureValue)) %>%
       dplyr::mutate(group_id = dplyr::cur_group_id()) %>%
       dplyr::filter(n_records > 1) %>%
       dplyr::ungroup() %>%
-      dplyr::mutate(ActivityStartDate = as.POSIXct(ActivityStartDate, format="%Y-%m-%d %H:%M:%S", tz="UTC")) %>%
+      dplyr::mutate(ActivityStartDate = as.POSIXct(ActivityStartDate, format = "%Y-%m-%d %H:%M:%S", tz = "UTC")) %>%
       dplyr::group_by(group_id) %>%
       dplyr::arrange(ActivityStartDateTime, .by_group = TRUE) %>%
-      dplyr::mutate(time_diff_lag = abs(difftime(ActivityStartDateTime, dplyr::lag(ActivityStartDateTime), units = "hours")),
-                    time_diff_lead = abs(difftime(ActivityStartDateTime, dplyr::lead(ActivityStartDateTime), units = "hours"))) %>%
+      dplyr::mutate(
+        time_diff_lag = abs(difftime(ActivityStartDateTime, dplyr::lag(ActivityStartDateTime), units = "hours")),
+        time_diff_lead = abs(difftime(ActivityStartDateTime, dplyr::lead(ActivityStartDateTime), units = "hours"))
+      ) %>%
       dplyr::ungroup()
 
     # find results where the time differences is <= time_difference (default is 4 hours)
     within_window <- info_match %>%
       dplyr::filter(time_diff_lead <= time_difference |
-                      time_diff_lag <= time_difference)
-    
+        time_diff_lag <= time_difference)
+
     rm(info_match)
 
     # if matches are identified change flag to continuous
     noncont.data <- noncont.data %>%
       dplyr::mutate(TADA.ContinuousData.Flag = ifelse(ResultIdentifier %in% within_window$ResultIdentifier,
-                                                      "Continuous", TADA.ContinuousData.Flag))
-    
-    rm(within_window)
+        "Continuous", TADA.ContinuousData.Flag
+      ))
 
+    rm(within_window)
   }
 
   flag.data <- cont.data %>%
@@ -342,24 +345,25 @@ TADA_FlagContinuousData <- function(.data, clean = FALSE, flaggedonly = FALSE, t
 
     return(onlycont.data)
   }
-}
 
-# if no aggregated continuous data is in the data set
-if (nrow(flag.data[flag.data$TADA.ContinuousData.Flag == "Continuous",]) == 0) {
-  if (flaggedonly == FALSE) {
-    print("No evidence of aggregated continuous data in your dataframe. Returning the input dataframe with TADA.ContinuousData.Flag column for tracking.")
-    .data <- TADA_OrderCols(.data)
 
-    return(.data)
-  }
+  # if no aggregated continuous data is in the data set
+  if (nrow(flag.data[flag.data$TADA.ContinuousData.Flag == "Continuous", ]) == 0) {
+    if (flaggedonly == FALSE) {
+      print("No evidence of aggregated continuous data in your dataframe. Returning the input dataframe with TADA.ContinuousData.Flag column for tracking.")
+      .data <- TADA_OrderCols(.data)
 
-  if (flaggedonly == TRUE) {
-    print("This dataframe is empty because we did not find any aggregated continuous data in your dataframe")
+      return(.data)
+    }
 
-    all.cont.data <- flag.data %>%
-      dplyr::filter(TADA.ContinuousData.Flag == "Continuous")
+    if (flaggedonly == TRUE) {
+      print("This dataframe is empty because we did not find any aggregated continuous data in your dataframe")
 
-    return(all.cont.data)
+      all.cont.data <- flag.data %>%
+        dplyr::filter(TADA.ContinuousData.Flag == "Continuous")
+
+      return(all.cont.data)
+    }
   }
 }
 
