@@ -365,7 +365,7 @@ TADA_ConvertResultUnits <- function(.data, ref = "tada", transform = TRUE) {
       "TADA.WQXUnitConversionFactor", "TADA.WQXUnitConversionCoefficient"
     )
 
-    if (all(expected_ref_cols %in% colnames(ref)) == FALSE) {
+    if (any(!expected_ref_cols %in% colnames(ref)) == FALSE) {
       stop("The reference data frame does not contain all fields required for TADA_ConvertResultUnits. Use TADA_CreateUnitRef with the TADA data frame to create an editable unit reference table with all required columns.")
 
       if (all(expected_ref_cols %in% colnames(ref)) == TRUE) {
