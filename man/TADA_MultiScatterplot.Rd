@@ -37,9 +37,11 @@ legend for each groups
 Create(s) Scatterplot(s) with the option of Multiple Groups (Up to 4) Plotted For Each
 }
 \examples{
-# Creates two scatterplot as TADA.ComparableDataIdentifier was not specified. 
-# Data for up to the two selected MonitoringLocationName (groups) 
-# will be plotted, depending on whether both filtered data has values to plot for that characteristic.
+# Data for up to four selected (groups) arguments found in a user selected id_cols value. 
+# Each scatterplot generated is for a single characteristic. If multiple characteristics are found in
+# the dataset, then separate scatterplots are generated for each characteristic.
+# If no (groups) argument is inputted, then a scatterplot will automatically generate a scatterplot
+# for the top 4 (groups) based on field counts in this dataset for a characteristic.
 
 # Load example dataset:
 data(Data_Nutrients_UT)

@@ -1168,9 +1168,11 @@ TADA_TwoCharacteristicScatterplot <- function(.data, id_cols = "TADA.ComparableD
 #' @export
 #'
 #' @examples
-#' # Creates two scatterplot as TADA.ComparableDataIdentifier was not specified. 
-#' # Data for up to the two selected MonitoringLocationName (groups) 
-#' # will be plotted, depending on whether both filtered data has values to plot for that characteristic.
+#' # Data for up to four selected (groups) arguments found in a user selected id_cols value. 
+#' # Each scatterplot generated is for a single characteristic. If multiple characteristics are found in
+#' # the dataset, then separate scatterplots are generated for each characteristic.
+#' # If no (groups) argument is inputted, then a scatterplot will automatically generate a scatterplot
+#' # for the top 4 (groups) based on field counts in this dataset for a characteristic.
 #' 
 #' # Load example dataset:
 #' data(Data_Nutrients_UT)
@@ -1267,8 +1269,6 @@ TADA_MultiScatterplot <- function(.data, id_cols = c("TADA.ComparableDataIdentif
   # if(!is.null(var)){
   #   plot.data <- subset(plot.data, plot.data[, "TADA.ComparableDataIdentifier"] %in% id2)
   # }
-  plot.data$name <- gsub("_NA", "", plot.data[, id_cols[2]])
-  plot.data$name <- gsub("_", " ", plot.data$name)
   
   plot.data <- dplyr::arrange(plot.data, ActivityStartDate)
   
@@ -1278,7 +1278,6 @@ TADA_MultiScatterplot <- function(.data, id_cols = c("TADA.ComparableDataIdentif
     assign(paste0("param",as.character(i)), subset(plot.data, plot.data[, id_cols[2]] %in% groups[i]))
   }
   
-  ################################################################
   all_scatterplots <- list()
   
   for (i in 1:length(unique(plot.data$TADA.ComparableDataIdentifier))) {
@@ -1308,10 +1307,11 @@ TADA_MultiScatterplot <- function(.data, id_cols = c("TADA.ComparableDataIdentif
     assign("paramB",subset(param2, param2[, "TADA.ComparableDataIdentifier"] %in% unique(plot.data$TADA.ComparableDataIdentifier)[i]))
     if(length(groups) >= 3){assign("paramC",subset(param3, param3[, "TADA.ComparableDataIdentifier"] %in% unique(plot.data$TADA.ComparableDataIdentifier)[i]))}
     if(length(groups) >= 4){assign("paramD",subset(param4, param4[, "TADA.ComparableDataIdentifier"] %in% unique(plot.data$TADA.ComparableDataIdentifier)[i]))}
-    # assign("param2",subset(param2, param2[, "TADA.ComparableDataIdentifier"] %in% unique(.data$TADA.ComparableDataIdentifier)[i]))
-    # if(length(groups) >= 3){param3 <- subset(param3, param3[, "TADA.ComparableDataIdentifier"] %in% .data$Group == i)}
-    # if(length(groups) >= 4){param4 <- subset(param4, param4[, "TADA.ComparableDataIdentifier"] %in% .data$Group == i)}
-  ##################################################################
+
+    plot.data.y <- subset(.data, .data[, "TADA.ComparableDataIdentifier"] %in% unique(plot.data$TADA.ComparableDataIdentifier)[i])
+    plot.data.y$name <- gsub("_NA", "", plot.data.y[, "TADA.ComparableDataIdentifier"])
+    plot.data.y$name <- gsub("_", " ", plot.data.y$name)
+    
   scatterplot <- 
     plotly::plot_ly(type = "scatter", mode = "markers") %>%
     plotly::layout(
@@ -1324,7 +1324,7 @@ TADA_MultiScatterplot <- function(.data, id_cols = c("TADA.ComparableDataIdentif
       ),
       yaxis = list(
         title = stringr::str_remove_all(stringr::str_remove_all(
-          stringr::str_remove_all(paste0(plot.data$TADA.CharacteristicName[1], "  ", param1$TADA.ResultMeasure.MeasureUnitCode[1]), stringr::fixed(" (NA)")),
+          stringr::str_remove_all(paste0(plot.data.y$TADA.CharacteristicName[1], "  ", na.omit(unique(plot.data.y$TADA.ResultMeasure.MeasureUnitCode))), stringr::fixed(" (NA)")),
           stringr::fixed("NA ")
         ), stringr::fixed(" NA")),
         titlefont = list(size = 16, family = "Arial"),
