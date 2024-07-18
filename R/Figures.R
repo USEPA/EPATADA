@@ -1142,7 +1142,7 @@ TADA_TwoCharacteristicScatterplot <- function(.data, id_cols = "TADA.ComparableD
   return(scatterplot)
 }
   
-#' Create A Single Characteristic Scatterplot with Multiple Groups
+#' Create(s) Scatterplot(s) with the option of Multiple Groups (Up to 4) Plotted For Each
 #'
 #' @param .data TADA data frame containing the data downloaded from the WQP,
 #'   where each row represents a unique record. Data frame must include the
@@ -1159,20 +1159,38 @@ TADA_TwoCharacteristicScatterplot <- function(.data, id_cols = "TADA.ComparableD
 #'   will be plotted. For example, if the id_cols is 'TADA.ComparableDataIdentifier', the groups could
 #'   be 'DISSOLVED OXYGEN (DO)_NA_NA_UG/L' and 'PH_NA_NA_NA'. These groups will
 #'   be specific to your dataset. If the id_cols is 'MonitoringLocationName',
-#'   the groups could be 'Upper Red Lake: West' and 'Upper Red Lake: West-Central'.
+#'   the groups could be 'Upper Red Lake: West', 'Upper Red Lake: West-Central', and 'Upper Red Lake: East Central'.
 #'
-#' @return A single plotly scatterplot figure with one x-axis (Date/Time) and a
+#' @return A plotly scatterplot(s) figure with one x-axis (Date/Time) and a
 #'   left axis showing the units of a single characteristic plotted on the same figure area with a 
 #'   legend for each groups
 #'
 #' @export
 #'
 #' @examples
+#' # Creates two scatterplot as TADA.ComparableDataIdentifier was not specified. 
+#' # Data for up to the two selected MonitoringLocationName (groups) 
+#' # will be plotted, depending on whether both filtered data has values to plot for that characteristic.
+#' 
 #' # Load example dataset:
 #' data(Data_Nutrients_UT)
-#' # Create a single scatterplot with two monitoring locations (groups) for a single TADA.ComparableDataIdentifier. 
-#' # Dataframe has multiple comparable data identifier that was not filtered, select value for 'NITROGEN_TOTAL_AS N_MG/L' to plot this characteristic value.
-#' TADA_MultiScatterplot(Data_Nutrients_UT, id_cols = c("TADA.ComparableDataIdentifier", "MonitoringLocationName"), groups = c("UTAH LAKE 1 MI EAST OF PELICAN POINT", "Utah Lake 2 miles west of Vineyard"))
+#' Scatterplot <- TADA_MultiScatterplot(Data_Nutrients_UT, id_cols = c("TADA.ComparableDataIdentifier", "MonitoringLocationName"), groups = c("UTAH LAKE 1 MI EAST OF PELICAN POINT", "Utah Lake 2 miles west of Vineyard"))
+#' Scatterplot[[1]]
+#' Scatterplot[[2]]
+#' 
+#' # Create multiple scatterplots and view the first plot in list.
+#' # In this example, we will group by both TADA.ComparableDataIdentifier
+#' # and MonitoringLocationTypeName (e.g. stream, reservoir, canal, etc.) and
+#' # because which MonitoringLocationTypeName was not specified, only the top 
+#' # 4 MonitoringLocationTypeName by field counts in the original dataset provided
+#' # will be included for each scatterplot generated.
+#' # Load example dataset:
+#' data(Data_Nutrients_UT)
+#' Scatterplot_output <- TADA_MultiScatterplot(Data_Nutrients_UT, id_cols = c("TADA.ComparableDataIdentifier", "MonitoringLocationTypeName"))
+#' # This example generates 14 scatterplots
+#' Scatterplot_output[[1]]
+#' Scatterplot_output[[5]]
+#' Scatterplot_output[[10]]
 #'
 #' # Load example dataset:
 #' data(Data_6Tribes_5y_Harmonized)
@@ -1242,10 +1260,6 @@ TADA_MultiScatterplot <- function(.data, id_cols = c("TADA.ComparableDataIdentif
   depthcols <- names(.data)[grepl("DepthHeightMeasure", names(.data))]
   depthcols <- depthcols[grepl("TADA.", depthcols)]
   
-  .data <- .data %>%
-    dplyr::group_by(dplyr::across(dplyr::all_of("TADA.ComparableDataIdentifier"))) %>%
-    dplyr::mutate(Group = dplyr::cur_group_id())
-  
   plot.data <- as.data.frame(.data)
   
   # this subset must include all fields included in plot hover below
@@ -1267,15 +1281,10 @@ TADA_MultiScatterplot <- function(.data, id_cols = c("TADA.ComparableDataIdentif
   ################################################################
   all_scatterplots <- list()
   
-  for (i in 1:length(unique(.data$TADA.ComparableDataIdentifier))) {
-    plot.data.name <- subset(.data, .data$Group == i)
-    groupid <- paste0(unique(plot.data.name[, "TADA.ComparableDataIdentifier"]), collapse = " ")
-    groupid <- gsub("_NA", "", groupid)
-    groupid <- gsub("_", " ", groupid)
-    
+  for (i in 1:length(unique(plot.data$TADA.ComparableDataIdentifier))) {
     title <- TADA_InsertBreaks(
-      paste0(
-        plot.data.name$TADA.CharacteristicName[1],
+      paste0("Scatterplot of ",
+             unique(plot.data$TADA.ComparableDataIdentifier)[i],
         " Over Time"
       ),
       len = 45
@@ -1295,10 +1304,10 @@ TADA_MultiScatterplot <- function(.data, id_cols = c("TADA.ComparableDataIdentif
     # create TADA color palette
     tada.pal <- TADA_ColorPalette()
 
-    assign("paramA",subset(param1, param1[, "TADA.ComparableDataIdentifier"] %in% unique(.data$TADA.ComparableDataIdentifier)[i]))
-    assign("paramB",subset(param2, param2[, "TADA.ComparableDataIdentifier"] %in% unique(.data$TADA.ComparableDataIdentifier)[i]))
-    if(length(groups) >= 3){assign("paramC",subset(param3, param3[, "TADA.ComparableDataIdentifier"] %in% unique(.data$TADA.ComparableDataIdentifier)[i]))}
-    if(length(groups) >= 4){assign("paramD",subset(param4, param4[, "TADA.ComparableDataIdentifier"] %in% unique(.data$TADA.ComparableDataIdentifier)[i]))}
+    assign("paramA",subset(param1, param1[, "TADA.ComparableDataIdentifier"] %in% unique(plot.data$TADA.ComparableDataIdentifier)[i]))
+    assign("paramB",subset(param2, param2[, "TADA.ComparableDataIdentifier"] %in% unique(plot.data$TADA.ComparableDataIdentifier)[i]))
+    if(length(groups) >= 3){assign("paramC",subset(param3, param3[, "TADA.ComparableDataIdentifier"] %in% unique(plot.data$TADA.ComparableDataIdentifier)[i]))}
+    if(length(groups) >= 4){assign("paramD",subset(param4, param4[, "TADA.ComparableDataIdentifier"] %in% unique(plot.data$TADA.ComparableDataIdentifier)[i]))}
     # assign("param2",subset(param2, param2[, "TADA.ComparableDataIdentifier"] %in% unique(.data$TADA.ComparableDataIdentifier)[i]))
     # if(length(groups) >= 3){param3 <- subset(param3, param3[, "TADA.ComparableDataIdentifier"] %in% .data$Group == i)}
     # if(length(groups) >= 4){param4 <- subset(param4, param4[, "TADA.ComparableDataIdentifier"] %in% .data$Group == i)}
@@ -1315,7 +1324,7 @@ TADA_MultiScatterplot <- function(.data, id_cols = c("TADA.ComparableDataIdentif
       ),
       yaxis = list(
         title = stringr::str_remove_all(stringr::str_remove_all(
-          stringr::str_remove_all(paste0(param1$TADA.CharacteristicName[1], "  ", param1$TADA.ResultMeasure.MeasureUnitCode[1]), stringr::fixed(" (NA)")),
+          stringr::str_remove_all(paste0(plot.data$TADA.CharacteristicName[1], "  ", param1$TADA.ResultMeasure.MeasureUnitCode[1]), stringr::fixed(" (NA)")),
           stringr::fixed("NA ")
         ), stringr::fixed(" NA")),
         titlefont = list(size = 16, family = "Arial"),
@@ -1420,7 +1429,7 @@ TADA_MultiScatterplot <- function(.data, id_cols = c("TADA.ComparableDataIdentif
     plotly::add_trace(
       data = param3,
       x = ~ as.Date(ActivityStartDate),
-      y = ~TADA.ResultMeasureValue,
+      y = ~ TADA.ResultMeasureValue,
       name = groups[3],
       marker = list(
         size = 10,
@@ -1499,7 +1508,7 @@ TADA_MultiScatterplot <- function(.data, id_cols = c("TADA.ComparableDataIdentif
   # create plot for all groupid's
   all_scatterplots[[i]] <- scatterplot
   
-  names(all_scatterplots)[i] <- groupid
+  names(all_scatterplots)[i] <- unique(plot.data$TADA.ComparableDataIdentifier)[i]
   }
   if (length(all_scatterplots) == 1) {
     all_scatterplots <- all_scatterplots[[1]]
