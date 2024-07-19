@@ -514,7 +514,8 @@ TADA_ConvertResultUnits <- function(.data, ref = "tada", transform = TRUE) {
   if (transform == FALSE) {
     print("TADA_ConvertResultUnits: When Transform = FALSE, result values and units are NOT converted. Conversions are required for many other TADA functions to work properly (such as result value range checks).")
     # reorder columns
-    clean.data <- TADA_OrderCols(flag.data)
+    clean.data <- TADA_OrderCols(flag.data) %>%
+      TADA_CreateComparableID()
 
     return(clean.data)
   }
@@ -607,7 +608,8 @@ TADA_ConvertResultUnits <- function(.data, ref = "tada", transform = TRUE) {
 
     # Remove unneccessary conversion columns
     convert.data <- convert.data %>%
-      dplyr::select(-tidyselect::any_of(conversion.cols))
+      dplyr::select(-tidyselect::any_of(conversion.cols)) %>%
+      TADA_CreateComparableID()
 
     return(convert.data)
   }
