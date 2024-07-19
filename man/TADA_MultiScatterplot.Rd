@@ -2,12 +2,12 @@
 % Please edit documentation in R/Figures.R
 \name{TADA_MultiScatterplot}
 \alias{TADA_MultiScatterplot}
-\title{Create(s) Scatterplot(s) with the option of Multiple Groups (Up to 4) Plotted For Each}
+\title{Create Scatterplot(s) with the option of Multiple (Up to 4) Groupings of an Additional Column}
 \usage{
 TADA_MultiScatterplot(
   .data,
   id_cols = c("TADA.ComparableDataIdentifier"),
-  groups = "null"
+  groups = NULL
 )
 }
 \arguments{
@@ -16,32 +16,34 @@ where each row represents a unique record. Data frame must include the
 columns 'TADA.ComparableDataIdentifier', 'TADA.ResultMeasureValue', and
 'TADA.ResultMeasure.MeasureUnitCode' to run this function.}
 
-\item{id_cols}{The column in the dataset used to identify the values
+\item{id_cols}{The column in the dataset is used to identify the values
 plotted. Defaults to 'TADA.ComparableDataIdentifier'. This input is flexible,
-and allows for the use of other indentifiers such as 'TADA.CharacteristicName' or user
+and allows for the use of other identifiers such as 'TADA.MonitoringLocationName' or user
 create groups based on concatenation of other grouping variables
 (e.g. characterstic name, site type, site name, year, organization, etc.)}
 
 \item{groups}{A vector of two identifiers from the id_cols column to specify the groups that
-will be plotted. For example, if the id_cols is 'TADA.ComparableDataIdentifier', the groups could
+will be plotted for a TADA.ComparableDataIdentifier.
+For example, for the id_cols TADA.ComparableDataIdentifier', the groups could
 be 'DISSOLVED OXYGEN (DO)_NA_NA_UG/L' and 'PH_NA_NA_NA'. These groups will
-be specific to your dataset. If the id_cols is 'MonitoringLocationName',
+be specific to your dataset. If another id_cols is 'MonitoringLocationName',
 the groups could be 'Upper Red Lake: West', 'Upper Red Lake: West-Central', and 'Upper Red Lake: East Central'.}
 }
 \value{
 A plotly scatterplot(s) figure with one x-axis (Date/Time) and a
 left axis showing the units of a single characteristic plotted on the same figure area with a
-legend for each groups
+legend for each groups defined by the second id_cols selection.
 }
 \description{
-Create(s) Scatterplot(s) with the option of Multiple Groups (Up to 4) Plotted For Each
+Create Scatterplot(s) with the option of Multiple (Up to 4) Groupings of an Additional Column
 }
 \examples{
 # Data for up to four selected (groups) arguments found in a user selected id_cols value. 
-# Each scatterplot generated is for a single characteristic. If multiple characteristics are found in
-# the dataset, then separate scatterplots are generated for each characteristic.
-# If no (groups) argument is inputted, then a scatterplot will automatically generate a scatterplot
-# for the top 4 (groups) based on field counts in this dataset for a characteristic.
+# Each scatterplot generated is for a single TADA.ComparableDataIdentifier. 
+# If multiple characteristics are found in the dataset, then separate scatterplots 
+# are generated for each characteristic. If no (groups) argument is inputted, 
+# then a scatterplot will automatically generate a scatterplot
+# for each of the top 4 (groups) based on field counts in this dataset for a characteristic.
 
 # Load example dataset:
 data(Data_Nutrients_UT)
@@ -59,8 +61,8 @@ Scatterplot[[2]]
 data(Data_Nutrients_UT)
 Scatterplot_output <- TADA_MultiScatterplot(Data_Nutrients_UT, id_cols = c("TADA.ComparableDataIdentifier", "MonitoringLocationTypeName"))
 # This example generates 14 scatterplots
-Scatterplot_output[[1]]
 Scatterplot_output[[5]]
+Scatterplot_output[[8]]
 Scatterplot_output[[10]]
 
 # Load example dataset:
@@ -69,7 +71,7 @@ data(Data_6Tribes_5y_Harmonized)
 df <- dplyr::filter(Data_6Tribes_5y_Harmonized, TADA.ComparableDataIdentifier \%in\% c("TOTAL PHOSPHORUS, MIXED FORMS_UNFILTERED_AS P_MG/L"))
 # Creates a scatterplot of the three specified sites of interest in the same plot.
 TADA_MultiScatterplot(df, id_cols = c("TADA.ComparableDataIdentifier", "MonitoringLocationName"), groups = c("Upper Red Lake: West", "Upper Red Lake: West-Central","Upper Red Lake: East Central"))
-# If no groups are selected, return the 4 groups (by MonitoringLocationName) with the greatest number of results.
+# If no groups are selected, return the 4 groups (by MonitoringLocationName) with the greatest number of field count results for that TADA.ComparableDataIdentifier
 TADA_MultiScatterplot(df, id_cols = c("TADA.ComparableDataIdentifier", "MonitoringLocationName"))
 # Both commands below will return a single scatterplot for just the single comparable data identifier. 
 TADA_MultiScatterplot(df, id_cols = c("TADA.ComparableDataIdentifier", "TADA.ComparableDataIdentifier"))
