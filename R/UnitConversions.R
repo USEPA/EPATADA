@@ -354,7 +354,31 @@ TADA_ConvertResultUnits <- function(.data, ref = "tada", transform = TRUE) {
       ResultMeasure.MeasureUnitCode.Upper = toupper(ResultMeasure.MeasureUnitCode),
       TADA.Target.MethodSpeciationName = toupper(TADA.Target.MethodSpeciationName)
     ) %>%
-    dplyr::select(ResultMeasure.MeasureUnitCode.Upper, TADA.Target.MethodSpeciationName)
+    dplyr::select(ResultMeasure.MeasureUnitCode, TADA.Target.MethodSpeciationName)
+  
+  # function to add all possible combinations of TADA.ResultMeasure.MeasureUnitCode that contain speciation from USGS
+  Add_USGS <- function(.data) {
+  
+  add.usgs <-.data %>%
+    dplyr::filter(!is.na(TADA.MethodSpeciationName)) %>%
+    dplyr::mutate(TADA.ResultMeasure.MeasureUnitCode = paste(TADA.ResultMeasure.MeasureUnitCode, TADA.MethodSpeciationName, sep = " "),
+                  TADA.MethodSpeciationName = NA)
+  
+  add.usgs.nospace <- .data %>%
+    dplyr::filter(!is.na(TADA.MethodSpeciationName)) %>%
+    dplyr::mutate(TADA.MethodSpeciationName = stringr::str_replace_all(TADA.MethodSpeciationName, " ", "") ,
+                  TADA.ResultMeasure.MeasureUnitCode = paste(TADA.ResultMeasure.MeasureUnitCode, TADA.MethodSpeciationName, sep = " "),
+                  TADA.MethodSpeciationName = NA)
+  
+  .data <- .data %>%
+    dplyr::full_join(add.usgs, by = names(unit.ref)) %>%
+    dplyr::full_join(add.usgs.nospace, by = names(unit.ref)) %>%
+    dplyr::distinct()
+  
+  rm(add.usgs, add.usgs.nospace)
+  
+  return(.data)
+  }
   
   # if user supplied unit reference was provided
   if (is.data.frame(ref)) {
@@ -375,13 +399,7 @@ TADA_ConvertResultUnits <- function(.data, ref = "tada", transform = TRUE) {
 
     # join USGS ref for method speciation name information
     unit.ref <- ref %>%
-      dplyr::mutate(ResultMeasure.MeasureUnitCode.Upper = toupper(ResultMeasure.MeasureUnitCode)) %>%
-      dplyr::left_join(usgs.ref,
-        by =
-          "ResultMeasure.MeasureUnitCode.Upper"
-      ) %>%
-      dplyr::select(-ResultMeasure.MeasureUnitCode.Upper) %>%
-      dplyr::distinct()
+      Add_USGS()
 
     # create message to inform users if user-supplied unit reference contains all combinations present in TADA data frame
     # create list of unique characteristic and unit combinations in data
@@ -423,15 +441,8 @@ TADA_ConvertResultUnits <- function(.data, ref = "tada", transform = TRUE) {
     # if no unit reference df was provided by user or user input was "tada"
     if (ref == "tada") {
       unit.ref <- TADA_CreateUnitRef(.data, print.message = FALSE)
-
       unit.ref <- unit.ref %>%
-        dplyr::mutate(ResultMeasure.MeasureUnitCode.Upper = toupper(ResultMeasure.MeasureUnitCode)) %>%
-        dplyr::left_join(usgs.ref,
-          by =
-            "ResultMeasure.MeasureUnitCode.Upper"
-        ) %>%
-        dplyr::select(-ResultMeasure.MeasureUnitCode.Upper) %>%
-        dplyr::distinct()
+        Add_USGS()
     }
 
     if (ref == "wqx") {
@@ -456,23 +467,16 @@ TADA_ConvertResultUnits <- function(.data, ref = "tada", transform = TRUE) {
       # create unit ref
 
       unit.ref <- TADA_UniqueCharUnitSpeciation(.data)
-
-      unit.ref <- unit.ref %>%
-        dplyr::mutate(ResultMeasure.MeasureUnitCode.Upper = toupper(ResultMeasure.MeasureUnitCode)) %>%
-        dplyr::left_join(usgs.ref,
-          by =
-            "ResultMeasure.MeasureUnitCode.Upper"
-        ) %>%
-        dplyr::select(-ResultMeasure.MeasureUnitCode.Upper) %>%
-        dplyr::distinct()
-
+      
       unit.ref <- unit.ref %>%
         dplyr::left_join(wqx.ref) %>%
         dplyr::distinct()
 
       print("TADA_ConvertResultUnits: TADA target units are assigned by default when no unit 'ref' is supplied as a function input.")
     }
-  }
+  
+
+    }
 
   # list of conversion columns
 
@@ -500,7 +504,8 @@ TADA_ConvertResultUnits <- function(.data, ref = "tada", transform = TRUE) {
           ref.join
         ),
       relationship = "many-to-many"
-    )
+    ) %>%
+    dplyr::left_join(usgs.ref, dplyr::join_by(ResultMeasure.MeasureUnitCode))
 
   # add TADA.WQXResultUnitConversion column
   flag.data <- check.data %>%
@@ -542,17 +547,18 @@ TADA_ConvertResultUnits <- function(.data, ref = "tada", transform = TRUE) {
 
     # Convert method speciation column for USGS data
     check <- clean.data %>%
-      dplyr::filter(toupper(ResultMeasure.MeasureUnitCode) %in% usgs.ref$ResultMeasure.MeasureUnitCode.Upper)
+      dplyr::filter(ResultMeasure.MeasureUnitCode %in% usgs.ref$ResultMeasure.MeasureUnitCode)
 
     if (dim(check)[1] > 0) {
       print(paste0("NOTE: Dataset contains ", dim(check)[1], " USGS results with speciation information in both the result unit and method speciation columns. This function overwrites the TADA method speciation column with the speciation provided in the result unit column."))
     }
 
     # add target method speciation name when needed
-    clean.data$TADA.MethodSpeciationName <- ifelse(!is.na(clean.data$TADA.Target.MethodSpeciationName), toupper(clean.data$TADA.Target.MethodSpeciationName), toupper(clean.data$TADA.MethodSpeciationName))
-    # replace UNKNOWN or NONE method speciation name with NA
-    clean.data$TADA.MethodSpeciationName <- ifelse(clean.data$TADA.MethodSpeciationName %in% c("UNKNOWN", "NONE"), NA, clean.data$TADA.MethodSpeciationName)
-
+    clean.data <- clean.data %>%
+      dplyr::mutate(TADA.MethodSpeciationName = ifelse(!is.na(TADA.Target.MethodSpeciationName), TADA.Target.MethodSpeciationName, toupper(TADA.MethodSpeciationName)),
+                    # replace UNKNOWN or NONE method speciation name with NA
+                    TADA.MethodSpeciationName = ifelse(TADA.MethodSpeciationName %in% c("UNKNOWN", "NONE"), NA, TADA.MethodSpeciationName))
+    
     # create new comparable data identifier column following conversion
     clean.data <- TADA_CreateComparableID(clean.data)
 
