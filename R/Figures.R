@@ -1207,7 +1207,7 @@ TADA_TwoCharacteristicScatterplot <- function(.data, id_cols = "TADA.ComparableD
 #' TADA_MultiScatterplot(df)
 #' 
 
-TADA_MultiScatterplot <- function(.data, id_cols = c("TADA.ComparableDataIdentifier"), groups = NULL) {
+TADA_MultiScatterplot <- function(.data, id_cols = c("TADA.ComparableDataIdentifier"), groups = "null") {
   # check .data is data.frame
   TADA_CheckType(.data, "data.frame", "Input object")
   
@@ -1246,19 +1246,17 @@ TADA_MultiScatterplot <- function(.data, id_cols = c("TADA.ComparableDataIdentif
   #   var <- utils::menu(unlist(unique(.data[, id_cols[1]])), title = "Please specify Characteristic to plot: ")
   #   assign("id2", unlist(unique(.data[, id_cols[1]]))[var])
   # }
- 
+  
+  # if groups are not specified, select the top 4 groups to plot.
+  if (length(id_cols) == 2 & groups == "null") {
+    assign("groups", names((utils::head(sort(table(.data[,id_cols[2]]), decreasing = TRUE), 4))))
+    print("Note: No 'groups' specified. Plotting up to top 4 'groups' based on the number of field counts")
+  }
   # check that groups are in id_cols
   id <- unlist(unique(.data[, id_cols[2]]))
   if (any(!groups %in% id)) {
     stop("The 'groups' vector contains one or more inputs that are not found within your input dataset. Check spelling and try again.")
   }
-  
-  # if groups are not specified, select the top 4 groups to plot.
-  if (length(id_cols) == 2 & is.null(groups)) {
-    assign("groups", names((utils::head(sort(table(.data[,id_cols[2]]), decreasing = TRUE), 4))))
-    print("Note: No 'groups' specified. Plotting up to top 4 'groups' based on the number of field counts")
-  }
-
   depthcols <- names(.data)[grepl("DepthHeightMeasure", names(.data))]
   depthcols <- depthcols[grepl("TADA.", depthcols)]
   
@@ -1273,7 +1271,7 @@ TADA_MultiScatterplot <- function(.data, id_cols = c("TADA.ComparableDataIdentif
   plot.data <- dplyr::arrange(plot.data, ActivityStartDate)
   
   # Returns the param groups for plotting. Up to 4 params are defined.
-  param1 <- param2 <- parm3 <- param4 <- NULL
+  param1 <- param2 <- parm3 <- param4 <- "null"
   for(i in 1:length(unique(groups))) {
     assign(paste0("param",as.character(i)), subset(plot.data, plot.data[, id_cols[2]] %in% groups[i]))
   }
@@ -1427,7 +1425,7 @@ TADA_MultiScatterplot <- function(.data, id_cols = c("TADA.ComparableDataIdentif
   if(length(groups) >= 3){
   scatterplot <- scatterplot %>%
     plotly::add_trace(
-      data = param3,
+      data = paramC,
       x = ~ as.Date(ActivityStartDate),
       y = ~ TADA.ResultMeasureValue,
       name = groups[3],
@@ -1438,28 +1436,28 @@ TADA_MultiScatterplot <- function(.data, id_cols = c("TADA.ComparableDataIdentif
       ),
       hoverinfo = "text",
       hovertext = paste(
-        "Result:", paste0(param3$TADA.ResultMeasureValue, " ", param3$TADA.ResultMeasure.MeasureUnitCode), "<br>",
-        "Activity Start Date:", param3$ActivityStartDate, "<br>",
-        "Activity Start Date Time:", param3$ActivityStartDateTime, "<br>",
-        "Monitoring Location Name:", param3$MonitoringLocationName, "<br>",
-        "Media:", param3$TADA.ActivityMediaName, "<br>",
-        "Media Subdivision:", param3$ActivityMediaSubdivisionName, "<br>",
+        "Result:", paste0(paramC$TADA.ResultMeasureValue, " ", paramC$TADA.ResultMeasure.MeasureUnitCode), "<br>",
+        "Activity Start Date:", paramC$ActivityStartDate, "<br>",
+        "Activity Start Date Time:", paramC$ActivityStartDateTime, "<br>",
+        "Monitoring Location Name:", paramC$MonitoringLocationName, "<br>",
+        "Media:", paramC$TADA.ActivityMediaName, "<br>",
+        "Media Subdivision:", paramC$ActivityMediaSubdivisionName, "<br>",
         "Result Depth:", paste0(
-          param3$TADA.ResultDepthHeightMeasure.MeasureValue, " ",
-          param3$TADA.ResultDepthHeightMeasure.MeasureUnitCode
+          paramC$TADA.ResultDepthHeightMeasure.MeasureValue, " ",
+          paramC$TADA.ResultDepthHeightMeasure.MeasureUnitCode
         ), "<br>",
-        "Activity Relative Depth Name:", param3$ActivityRelativeDepthName, "<br>",
+        "Activity Relative Depth Name:", paramC$ActivityRelativeDepthName, "<br>",
         "Activity Depth:", paste0(
-          param3$TADA.ActivityDepthHeightMeasure.MeasureValue, " ",
-          param3$TADA.ActivityDepthHeightMeasure.MeasureUnitCode
+          paramC$TADA.ActivityDepthHeightMeasure.MeasureValue, " ",
+          paramC$TADA.ActivityDepthHeightMeasure.MeasureUnitCode
         ), "<br>",
         "Activity Top Depth:", paste0(
-          param3$TADA.ActivityTopDepthHeightMeasure.MeasureValue, " ",
-          param3$TADA.ActivityTopDepthHeightMeasure.MeasureUnitCode
+          paramC$TADA.ActivityTopDepthHeightMeasure.MeasureValue, " ",
+          paramC$TADA.ActivityTopDepthHeightMeasure.MeasureUnitCode
         ), "<br>",
         "Activity Bottom Depth:", paste0(
-          param3$TADA.ActivityBottomDepthHeightMeasure.MeasureValue, " ",
-          param3$TADA.ActivityBottomDepthHeightMeasure.MeasureUnitCode
+          paramC$TADA.ActivityBottomDepthHeightMeasure.MeasureValue, " ",
+          paramC$TADA.ActivityBottomDepthHeightMeasure.MeasureUnitCode
         ), "<br>"
       )
     )
@@ -1467,7 +1465,7 @@ TADA_MultiScatterplot <- function(.data, id_cols = c("TADA.ComparableDataIdentif
   if(length(groups) >= 4){
     scatterplot <- scatterplot %>%
       plotly::add_trace(
-        data = param4,
+        data = paramD,
         x = ~ as.Date(ActivityStartDate),
         y = ~TADA.ResultMeasureValue,
         name = groups[4],
@@ -1478,28 +1476,28 @@ TADA_MultiScatterplot <- function(.data, id_cols = c("TADA.ComparableDataIdentif
         ),
         hoverinfo = "text",
         hovertext = paste(
-          "Result:", paste0(param4$TADA.ResultMeasureValue, " ", param4$TADA.ResultMeasure.MeasureUnitCode), "<br>",
-          "Activity Start Date:", param4$ActivityStartDate, "<br>",
-          "Activity Start Date Time:", param4$ActivityStartDateTime, "<br>",
-          "Monitoring Location Name:", param4$MonitoringLocationName, "<br>",
-          "Media:", param4$TADA.ActivityMediaName, "<br>",
-          "Media Subdivision:", param4$ActivityMediaSubdivisionName, "<br>",
+          "Result:", paste0(paramD$TADA.ResultMeasureValue, " ", paramD$TADA.ResultMeasure.MeasureUnitCode), "<br>",
+          "Activity Start Date:", paramD$ActivityStartDate, "<br>",
+          "Activity Start Date Time:", paramD$ActivityStartDateTime, "<br>",
+          "Monitoring Location Name:", paramD$MonitoringLocationName, "<br>",
+          "Media:", paramD$TADA.ActivityMediaName, "<br>",
+          "Media Subdivision:", paramD$ActivityMediaSubdivisionName, "<br>",
           "Result Depth:", paste0(
-            param4$TADA.ResultDepthHeightMeasure.MeasureValue, " ",
-            param4$TADA.ResultDepthHeightMeasure.MeasureUnitCode
+            paramD$TADA.ResultDepthHeightMeasure.MeasureValue, " ",
+            paramD$TADA.ResultDepthHeightMeasure.MeasureUnitCode
           ), "<br>",
-          "Activity Relative Depth Name:", param4$ActivityRelativeDepthName, "<br>",
+          "Activity Relative Depth Name:", paramD$ActivityRelativeDepthName, "<br>",
           "Activity Depth:", paste0(
-            param4$TADA.ActivityDepthHeightMeasure.MeasureValue, " ",
-            param4$TADA.ActivityDepthHeightMeasure.MeasureUnitCode
+            paramD$TADA.ActivityDepthHeightMeasure.MeasureValue, " ",
+            paramD$TADA.ActivityDepthHeightMeasure.MeasureUnitCode
           ), "<br>",
           "Activity Top Depth:", paste0(
-            param4$TADA.ActivityTopDepthHeightMeasure.MeasureValue, " ",
-            param4$TADA.ActivityTopDepthHeightMeasure.MeasureUnitCode
+            paramD$TADA.ActivityTopDepthHeightMeasure.MeasureValue, " ",
+            paramD$TADA.ActivityTopDepthHeightMeasure.MeasureUnitCode
           ), "<br>",
           "Activity Bottom Depth:", paste0(
-            param4$TADA.ActivityBottomDepthHeightMeasure.MeasureValue, " ",
-            param4$TADA.ActivityBottomDepthHeightMeasure.MeasureUnitCode
+            paramD$TADA.ActivityBottomDepthHeightMeasure.MeasureValue, " ",
+            paramD$TADA.ActivityBottomDepthHeightMeasure.MeasureUnitCode
           ), "<br>"
         )
       )

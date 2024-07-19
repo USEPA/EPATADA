@@ -7,7 +7,7 @@
 TADA_MultiScatterplot(
   .data,
   id_cols = c("TADA.ComparableDataIdentifier"),
-  groups = NULL
+  groups = "null"
 )
 }
 \arguments{
