@@ -173,7 +173,7 @@ TADA_CreateUnitRef <- function(.data, print.message = TRUE) {
     dplyr::filter(!CharUnit %in% tada.targets$CharUnit &
       !CharUnit %in% tada.wqx$CharUnit) %>%
     # Join WQX/USGS conversion factor/coefficient
-    dplyr::left_join(unit.ref, by = "TADA.ResultMeasure.MeasureUnitCode", relationship = "many-to-many") %>%
+    dplyr::left_join(unit.ref, by = c("TADA.ResultMeasure.MeasureUnitCode"), relationship = "many-to-many") %>%
     # Select columns needed for final unit ref
     dplyr::select(
       "TADA.CharacteristicName", "TADA.ResultMeasure.MeasureUnitCode",
@@ -394,7 +394,7 @@ TADA_ConvertResultUnits <- function(.data, ref = "tada", transform = TRUE) {
       dplyr::select(TADA.CharacteristicName, TADA.ResultMeasure.MeasureUnitCode) %>%
       dplyr::distinct()
 
-    # compare the unique characteristic/unit combinations in data nd unit ref
+    # compare the unique characteristic/unit combinations in data and unit ref
     compare.ref <- check.units %>%
       dplyr::anti_join(check.ref, by = c("TADA.CharacteristicName", "TADA.ResultMeasure.MeasureUnitCode"))
 
@@ -404,8 +404,9 @@ TADA_ConvertResultUnits <- function(.data, ref = "tada", transform = TRUE) {
       # if there are characteristic/unit combinations in the data that are not in the unit ref, print a warning message listing them
     } else {
       compare.list <- compare.ref %>%
-        dplyr::mutate(Comb = paste(CharacteristicName, " (", Code, ")", sep = "")) %>%
+        dplyr::mutate(Comb = paste(TADA.CharacteristicName, " (", TADA.ResultMeasure.MeasureUnitCode, ")", sep = "")) %>%
         dplyr::mutate(CombList = paste(Comb, collapse = ", ")) %>%
+        dplyr::ungroup() %>%
         dplyr::select(CombList) %>%
         dplyr::distinct() %>%
         stringi::stri_replace_last(fixed = ",", " and")
