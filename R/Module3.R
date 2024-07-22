@@ -1,3 +1,43 @@
+#' Create Simple Numeric Criteria Ref Data Frame
+#'
+#' This function creates a data frame with the TADA.CharacteristicName, TADA.MethodSpeciationName, 
+#' and TADA.ResultSampleFractionText found in a TADA data frame. It also adds blank columns for
+#' TADA.UserStandardUnit and TADA.UserStandardValue which users can fill in with the value and unit
+#' for the simple numeric criteria they want to compare TADA data frame results to.
+#' The columns created by TADA_AutoClean are required to run this function. If they are not present
+#' in the data frame, the function will stop and print an error message. It is recommended to
+#' perform all data harmonization, conversion, and cleaning before using this function to ensure
+#' that all characteristic/speciation/fraction combinations are accurately reflected in the simple
+#' numeric criteria ref data frame.
+#' 
+#' # Should param(s) be added to easily export this as an Excel or csv file for users to edit?
+#'
+#' @param .data TADA dataframe
+#'
+#' @return A data frame with columns for TADA.CharacteristicName, TADA.MethodSpeciationName,
+#' TADA.ResultSampleFractionText, TADA.UserStandardUnit, and TADA.UserStandardValue. All values for
+#' TADA.UserStandardUnit and TADA.UserStandardValue are NA and must be filled in by the user before
+#' use in TADA_SimpleCriteriaComparison.
+#' 
+#' @export
+#'
+#' @examples
+#' # create criteria reference for Utah nutrients example data set
+#' UT_CriteriaRef <- TADA_CreateSimpleCriteriaRef(Data_Nutrients_UT)
+#' 
+
+TADA_CreateSimpleCriteriaRef <- function(.data) {
+  
+  .data <- .data %>%
+    dplyr::select(TADA.CharacteristicName, TADA.MethodSpeciationName, TADA.ResultSampleFractionText) %>%
+    dplyr::distinct() %>%
+    dplyr::mutate(TADA.UserStandardValue = NA,
+                  TADA.UserStandardUnit = NA)
+  
+  return(.data)
+  
+}
+
 #' Compare Simple Numeric Criteria to TADA_Results
 #'
 #' This function compares TADA results with user-supplied simple numeric criteria.
