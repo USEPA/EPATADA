@@ -440,7 +440,9 @@ TADA_ConvertResultUnits <- function(.data, ref = "tada", transform = TRUE) {
   if (!is.data.frame(ref)) {
     # if no unit reference df was provided by user or user input was "tada"
     if (ref == "tada") {
-      unit.ref <- TADA_CreateUnitRef(.data, print.message = FALSE)
+      unit.ref <- TADA_CreateUnitRef(.data, print.message = FALSE) %>%
+        dplyr::mutate(TADA.MethodSpeciationName = is.character(TADA.MethodSpeciatioName))
+      
       unit.ref <- unit.ref %>%
         Add_USGS()
     }
