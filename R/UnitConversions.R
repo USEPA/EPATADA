@@ -399,7 +399,9 @@ TADA_ConvertResultUnits <- function(.data, ref = "tada", transform = TRUE) {
 
     # join USGS ref for method speciation name information
     unit.ref <- ref %>%
+      dplyr::mutate(TADA.MethodSpeciationName = is.character(TADA.MethodSpeciationName)) %>%
       Add_USGS()
+      
 
     # create message to inform users if user-supplied unit reference contains all combinations present in TADA data frame
     # create list of unique characteristic and unit combinations in data
@@ -441,7 +443,7 @@ TADA_ConvertResultUnits <- function(.data, ref = "tada", transform = TRUE) {
     # if no unit reference df was provided by user or user input was "tada"
     if (ref == "tada") {
       unit.ref <- TADA_CreateUnitRef(.data, print.message = FALSE) %>%
-        dplyr::mutate(TADA.MethodSpeciationName = is.character(TADA.MethodSpeciatioName))
+        dplyr::mutate(TADA.MethodSpeciationName = is.character(TADA.MethodSpeciationName))
       
       unit.ref <- unit.ref %>%
         Add_USGS()
