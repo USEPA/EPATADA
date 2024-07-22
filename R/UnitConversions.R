@@ -362,13 +362,13 @@ TADA_ConvertResultUnits <- function(.data, ref = "tada", transform = TRUE) {
   add.usgs <-.data %>%
     dplyr::filter(!is.na(TADA.MethodSpeciationName)) %>%
     dplyr::mutate(TADA.ResultMeasure.MeasureUnitCode = paste(TADA.ResultMeasure.MeasureUnitCode, TADA.MethodSpeciationName, sep = " "),
-                  TADA.MethodSpeciationName = NA)
+                  TADA.MethodSpeciationName = "")
   
   add.usgs.nospace <- .data %>%
     dplyr::filter(!is.na(TADA.MethodSpeciationName)) %>%
     dplyr::mutate(TADA.MethodSpeciationName = stringr::str_replace_all(TADA.MethodSpeciationName, " ", "") ,
                   TADA.ResultMeasure.MeasureUnitCode = paste(TADA.ResultMeasure.MeasureUnitCode, TADA.MethodSpeciationName, sep = " "),
-                  TADA.MethodSpeciationName = NA)
+                  TADA.MethodSpeciationName = "")
   
   .data <- .data %>%
     dplyr::full_join(add.usgs, by = names(unit.ref)) %>%
@@ -399,7 +399,6 @@ TADA_ConvertResultUnits <- function(.data, ref = "tada", transform = TRUE) {
 
     # join USGS ref for method speciation name information
     unit.ref <- ref %>%
-      dplyr::mutate(TADA.MethodSpeciationName = is.character(TADA.MethodSpeciationName)) %>%
       Add_USGS()
       
 
@@ -442,8 +441,7 @@ TADA_ConvertResultUnits <- function(.data, ref = "tada", transform = TRUE) {
   if (!is.data.frame(ref)) {
     # if no unit reference df was provided by user or user input was "tada"
     if (ref == "tada") {
-      unit.ref <- TADA_CreateUnitRef(.data, print.message = FALSE) %>%
-        dplyr::mutate(TADA.MethodSpeciationName = is.character(TADA.MethodSpeciationName))
+      unit.ref <- TADA_CreateUnitRef(.data, print.message = FALSE)
       
       unit.ref <- unit.ref %>%
         Add_USGS()
