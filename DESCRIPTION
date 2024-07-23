@@ -64,8 +64,7 @@ Imports:
     plotly,
     urltools,
     geojsonsf,
-    tibble,
-    vecsets
+    tibble
 Depends: 
     R (>= 3.5.0)
 Suggests: 
