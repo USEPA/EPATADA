@@ -1272,7 +1272,7 @@ TADA_MultiScatterplot <- function(.data, id_cols = "TADA.ComparableDataIdentifie
   for (i in 1:length(unique(plot.data$TADA.ComparableDataIdentifier))) {
     title <- TADA_InsertBreaks(
       paste0("Scatterplot of ",
-             unique(plot.data$TADA.ComparableDataIdentifier)[i],
+             TADA_FigureTitle(unique(plot.data$TADA.ComparableDataIdentifier)[i]),
         " Over Time"
       ),
       len = 45
