@@ -1142,7 +1142,7 @@ TADA_TwoCharacteristicScatterplot <- function(.data, id_cols = "TADA.ComparableD
   return(scatterplot)
 }
   
-#' Create Scatterplot(s) with the option of Multiple (Up to 4) Groupings of an Additional Column
+#' Create Scatterplot(s) for Each TADA.ComparableDataIdentifier with Multiple (Up to 4) Groupings of an Additional Column
 #'
 #' @param .data TADA data frame containing the data downloaded from the WQP,
 #'   where each row represents a unique record. Data frame must include the
@@ -1150,20 +1150,21 @@ TADA_TwoCharacteristicScatterplot <- function(.data, id_cols = "TADA.ComparableD
 #'   'TADA.ResultMeasure.MeasureUnitCode' to run this function.
 #'
 #' @param id_cols The column in the dataset is used to identify the values
-#'   plotted. Defaults to 'TADA.ComparableDataIdentifier'. This input is flexible,
-#'   and allows for the use of other identifiers such as 'TADA.MonitoringLocationName' or user
+#'   plotted. Defaults to 'TADA.ComparableDataIdentifier' which only generates 
+#'   a single TADA.ComparableDataIdentifier per scatterplot.
+#'   This input is flexible, and allows for the use of other identifiers 
+#'   such as 'TADA.MonitoringLocationName' or user
 #'   create groups based on concatenation of other grouping variables 
 #'   (e.g. characterstic name, site type, site name, year, organization, etc.)
 #'
-#' @param groups A vector of two identifiers from the id_cols column to specify the groups that
-#'   will be plotted for a TADA.ComparableDataIdentifier. 
-#'   For example, for the id_cols TADA.ComparableDataIdentifier', the groups could
-#'   be 'DISSOLVED OXYGEN (DO)_NA_NA_UG/L' and 'PH_NA_NA_NA'. These groups will
-#'   be specific to your dataset. If another id_cols is 'MonitoringLocationName',
-#'   the groups could be 'Upper Red Lake: West', 'Upper Red Lake: West-Central', and 'Upper Red Lake: East Central'.
+#' @param groups A vector of up to four identifiers from the id_cols column 
+#'   to specify the groups that will be plotted for a TADA.ComparableDataIdentifier. 
+#'   These groups will be specific to your dataset. For example, if
+#'   id_cols is 'MonitoringLocationName', the groups could be 
+#'   'Upper Red Lake: West', 'Upper Red Lake: West-Central', and 'Upper Red Lake: East Central'.
 #'
 #' @return A plotly scatterplot(s) figure with one x-axis (Date/Time) and a
-#'   left axis showing the units of a single characteristic plotted on the same figure area with a 
+#'   left axis showing the units of a single TADA.ComparableDataIdentifier plotted on the same figure area with a 
 #'   legend for each groups defined by the second id_cols selection.
 #'
 #' @export
@@ -1171,26 +1172,25 @@ TADA_TwoCharacteristicScatterplot <- function(.data, id_cols = "TADA.ComparableD
 #' @examples
 #' # Data for up to four selected (groups) arguments found in a user selected id_cols value. 
 #' # Each scatterplot generated is for a single TADA.ComparableDataIdentifier. 
-#' # If multiple characteristics are found in the dataset, then separate scatterplots 
-#' # are generated for each characteristic. If no (groups) argument is inputted, 
+#' # If multiple TADA.ComparableDataIdentifier are found in the dataset, then separate scatterplots 
+#' # are generated for each. If no (groups) argument is inputted, 
 #' # then a scatterplot will automatically generate a scatterplot
 #' # for each of the top 4 (groups) based on field counts in this dataset for a characteristic.
 #' 
 #' # Load example dataset:
 #' data(Data_Nutrients_UT)
-#' Scatterplot <- TADA_MultiScatterplot(Data_Nutrients_UT, id_cols = c("TADA.ComparableDataIdentifier", "MonitoringLocationName"), groups = c("UTAH LAKE 1 MI EAST OF PELICAN POINT", "Utah Lake 2 miles west of Vineyard"))
+#' Scatterplot <- TADA_MultiScatterplot(Data_Nutrients_UT, id_cols = "MonitoringLocationName", groups = c("UTAH LAKE 1 MI EAST OF PELICAN POINT", "Utah Lake 2 miles west of Vineyard"))
 #' Scatterplot[[1]]
 #' Scatterplot[[2]]
 #' 
 #' # Create multiple scatterplots and view the first plot in list.
-#' # In this example, we will group by both TADA.ComparableDataIdentifier
-#' # and MonitoringLocationTypeName (e.g. stream, reservoir, canal, etc.) and
-#' # because which MonitoringLocationTypeName was not specified, only the top 
+#' # In this example, we will group by MonitoringLocationTypeName (e.g. stream, reservoir, canal, etc.) and
+#' # because groups for MonitoringLocationTypeName was not specified, only the top 
 #' # 4 MonitoringLocationTypeName by field counts in the original dataset provided
 #' # will be included for each scatterplot generated.
 #' # Load example dataset:
 #' data(Data_Nutrients_UT)
-#' Scatterplot_output <- TADA_MultiScatterplot(Data_Nutrients_UT, id_cols = c("TADA.ComparableDataIdentifier", "MonitoringLocationTypeName"))
+#' Scatterplot_output <- TADA_MultiScatterplot(Data_Nutrients_UT, id_cols = "MonitoringLocationTypeName")
 #' # This example generates 14 scatterplots
 #' Scatterplot_output[[5]]
 #' Scatterplot_output[[8]]
@@ -1201,15 +1201,14 @@ TADA_TwoCharacteristicScatterplot <- function(.data, id_cols = "TADA.ComparableD
 #' # Filter the example data so it includes only one TADA.ComparableDataIdentifier
 #' df <- dplyr::filter(Data_6Tribes_5y_Harmonized, TADA.ComparableDataIdentifier %in% c("TOTAL PHOSPHORUS, MIXED FORMS_UNFILTERED_AS P_MG/L"))
 #' # Creates a scatterplot of the three specified sites of interest in the same plot.
-#' TADA_MultiScatterplot(df, id_cols = c("TADA.ComparableDataIdentifier", "MonitoringLocationName"), groups = c("Upper Red Lake: West", "Upper Red Lake: West-Central","Upper Red Lake: East Central"))
+#' TADA_MultiScatterplot(df, id_cols = "MonitoringLocationName", groups = c("Upper Red Lake: West", "Upper Red Lake: West-Central","Upper Red Lake: East Central"))
 #' # If no groups are selected, return the 4 groups (by MonitoringLocationName) with the greatest number of field count results for that TADA.ComparableDataIdentifier
-#' TADA_MultiScatterplot(df, id_cols = c("TADA.ComparableDataIdentifier", "MonitoringLocationName"))
-#' # Both commands below will return a single scatterplot for just the single comparable data identifier. 
-#' TADA_MultiScatterplot(df, id_cols = c("TADA.ComparableDataIdentifier", "TADA.ComparableDataIdentifier"))
+#' TADA_MultiScatterplot(df, id_cols = "MonitoringLocationName")
+#' # Returns a single scatterplot for just the single comparable data identifier. 
 #' TADA_MultiScatterplot(df)
 #' 
 
-TADA_MultiScatterplot <- function(.data, id_cols = c("TADA.ComparableDataIdentifier"), groups = NULL) {
+TADA_MultiScatterplot <- function(.data, id_cols = "TADA.ComparableDataIdentifier", groups = NULL) {
   # check .data is data.frame
   TADA_CheckType(.data, "data.frame", "Input object")
   
@@ -1218,6 +1217,7 @@ TADA_MultiScatterplot <- function(.data, id_cols = c("TADA.ComparableDataIdentif
   
   # check .data has required columns
   reqcols <- c(
+    "TADA.ComparableDataIdentifier",
     "TADA.ResultMeasureValue",
     "TADA.ResultMeasure.MeasureUnitCode",
     "ActivityStartDate"
@@ -1227,37 +1227,23 @@ TADA_MultiScatterplot <- function(.data, id_cols = c("TADA.ComparableDataIdentif
   TADA_CheckColumns(.data, reqcols)
   
   # if left blank, ensure comparable data identifier is in the id_cols vector
-  if (is.null(id_cols) | length(unique(id_cols)) == 1) {
-    id_cols <- c("TADA.ComparableDataIdentifier","TADA.ComparableDataIdentifier")
-  }
-  id_cols <- c("TADA.ComparableDataIdentifier", vecsets::vsetdiff(id_cols, "TADA.ComparableDataIdentifier"))
-  
-  # if id_cols are specified by user and the comparable data identifier is not selected.
-  if (!"TADA.ComparableDataIdentifier" %in% id_cols) {
-    stop("Note: TADA.ComparableDataIdentifier not found in id_cols argument.")
+  if (id_cols == "TADA.ComparableDataIdentifier") {
+    print("Note: id_cols either left blank or inputted as TADA.ComparableDataIdentifier. A single TADA.ComparableDataIdentifier is plotted per scatterplot")
   }
   
-  # Only allows for 2 column selections in the id_cols vector, with TADA.ComparableDataIdentifier being a required value
-  if (length(id_cols) > 2) {
-    stop("id_cols argument can only be a maximum of length two.")
+  # Only allows for 1 column selection in id_cols
+  if (length(id_cols) > 1) {
+    stop("id_cols argument can only be a single value")
   }
-  
-  # Runs if more than 1 Tada.ComparableDataIdentifiers are found in a dataframe. Prompts for user selection of a  single characteristic in the dataframe
-  # var <- NULL
-  # id2 <- NULL
-  # if(length(unlist(unique(.data[, id_cols[1]]))) > 1){
-  #   var <- utils::menu(unlist(unique(.data[, id_cols[1]])), title = "Please specify Characteristic to plot: ")
-  #   assign("id2", unlist(unique(.data[, id_cols[1]]))[var])
-  # }
   
   # if groups are not specified, select the top 4 groups to plot.
-  if (length(id_cols) == 2 & is.null(groups)) {
-    assign("groups", names((utils::head(sort(table(.data[,id_cols[2]]), decreasing = TRUE), 4))))
-    print("Note: No 'groups' specified. Plotting up to top 4 'groups' based on the number of field counts")
+  if (is.null(groups)) {
+    assign("groups", names((utils::head(sort(table(.data[,id_cols]), decreasing = TRUE), 4))))
+    print(paste0("Note: No 'groups' specified for ", id_cols,". Plotting up to top 4 'groups' based on number of field counts"))
   }
   
   # check that groups are in id_cols
-  id <- unlist(unique(.data[, id_cols[2]]))
+  id <- unlist(unique(.data[, id_cols]))
   if (any(!groups %in% id)) {
     stop("The 'groups' vector contains one or more inputs that are not found within your input dataset. Check spelling and try again.")
   }
@@ -1268,7 +1254,7 @@ TADA_MultiScatterplot <- function(.data, id_cols = c("TADA.ComparableDataIdentif
   plot.data <- as.data.frame(.data)
   
   # this subset must include all fields included in plot hover below
-  plot.data <- subset(plot.data, plot.data[, id_cols[2]] %in% groups)[, c(id_cols, reqcols, depthcols, "ActivityStartDateTime", "MonitoringLocationName", "TADA.ActivityMediaName", "ActivityMediaSubdivisionName", "ActivityRelativeDepthName", "TADA.CharacteristicName", "TADA.MethodSpeciationName", "TADA.ResultSampleFractionText")]
+  plot.data <- subset(plot.data, plot.data[, id_cols] %in% groups)[, c(id_cols, reqcols, depthcols, "ActivityStartDateTime", "MonitoringLocationName", "TADA.ActivityMediaName", "ActivityMediaSubdivisionName", "ActivityRelativeDepthName", "TADA.CharacteristicName", "TADA.MethodSpeciationName", "TADA.ResultSampleFractionText")]
   # if(!is.null(var)){
   #   plot.data <- subset(plot.data, plot.data[, "TADA.ComparableDataIdentifier"] %in% id2)
   # }
@@ -1278,7 +1264,7 @@ TADA_MultiScatterplot <- function(.data, id_cols = c("TADA.ComparableDataIdentif
   # Returns the param groups for plotting. Up to 4 params are defined.
   param1 <- param2 <- parm3 <- param4 <- NULL
   for(i in 1:length(unique(groups))) {
-    assign(paste0("param",as.character(i)), subset(plot.data, plot.data[, id_cols[2]] %in% groups[i]))
+    assign(paste0("param",as.character(i)), subset(plot.data, plot.data[, id_cols] %in% groups[i]))
   }
   
   all_scatterplots <- list()
