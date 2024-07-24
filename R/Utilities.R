@@ -1566,7 +1566,7 @@ TADA_ViewColorPalette <- function() {
 #' This function is meant as an internal function to remove NAs
 #' from figure titles and axis labels for the TADA package.
 #'
-#' @param title_string Character argument. Could be a single string 
+#' @param char_string Character argument. Could be a single string 
 #' or vector of strings that contains common "NA" strings 
 #' (ex: "(NA", "(NA)", "_NA", etc.)
 #'
@@ -1579,20 +1579,20 @@ TADA_ViewColorPalette <- function() {
 #' data(Data_Nutrients_UT)
 #' Main_Title <- TADA_FigureTitle(unique(Data_Nutrients_UT$TADA.ComparableDataIdentifier))
 #'
-TADA_FigureTitle <- function(title_string) {
+TADA_CharStringRemoveNA <- function(char_string) {
 
   # Checks if data type is a character string.
-  if(!is.character(title_string)){
-    stop(paste0("Data type of: 'title_string' argument is not a character string value"))
+  if(!is.character(char_string)){
+    stop(paste0("TADA_CharStrignRemoveNA: 'char_string' argument is not a character string."))
   }
   
   # Converts character string to a vector.
-  title_string <- as.vector(title_string)
+  title_string <- as.vector(char_string)
   
   # Looks through each item in the vector and removes NAs from each.
   labs <- c()
-  for(i in 1:length(title_string)){
-    labs[i] <- paste0(title_string[i], collapse = " ")
+  for(i in 1:length(char_string)){
+    labs[i] <- paste0(char_string[i], collapse = " ")
     labs[i] <- gsub("_NA|\\(NA|\\(NA)", "", labs[i])
     labs[i] <- gsub("_", " ", labs[i])
     labs <- as.vector(labs)
