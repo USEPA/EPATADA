@@ -1272,7 +1272,7 @@ TADA_GroupedScatterplot <- function(.data, id_cols = "TADA.ComparableDataIdentif
   for (i in 1:length(unique(plot.data$TADA.ComparableDataIdentifier))) {
     title <- TADA_InsertBreaks(
       paste0("Scatterplot of ",
-             TADA_FigureTitle(unique(plot.data$TADA.ComparableDataIdentifier)[i]),
+             TADA_CharStringRemoveNA(unique(plot.data$TADA.ComparableDataIdentifier)[i]),
         " Over Time"
       ),
       len = 45
