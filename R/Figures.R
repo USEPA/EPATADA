@@ -1179,7 +1179,7 @@ TADA_TwoCharacteristicScatterplot <- function(.data, id_cols = "TADA.ComparableD
 #' 
 #' # Load example dataset:
 #' data(Data_Nutrients_UT)
-#' Scatterplot <- TADA_MultiScatterplot(Data_Nutrients_UT, id_cols = "MonitoringLocationName", groups = c("UTAH LAKE 1 MI EAST OF PELICAN POINT", "Utah Lake 2 miles west of Vineyard"))
+#' Scatterplot <- TADA_GroupedScatterplot(Data_Nutrients_UT, id_cols = "MonitoringLocationName", groups = c("UTAH LAKE 1 MI EAST OF PELICAN POINT", "Utah Lake 2 miles west of Vineyard"))
 #' Scatterplot[[1]]
 #' Scatterplot[[2]]
 #' 
@@ -1190,7 +1190,7 @@ TADA_TwoCharacteristicScatterplot <- function(.data, id_cols = "TADA.ComparableD
 #' # will be included for each scatterplot generated.
 #' # Load example dataset:
 #' data(Data_Nutrients_UT)
-#' Scatterplot_output <- TADA_MultiScatterplot(Data_Nutrients_UT, id_cols = "MonitoringLocationTypeName")
+#' Scatterplot_output <- TADA_GroupedScatterplot(Data_Nutrients_UT, id_cols = "MonitoringLocationTypeName")
 #' # This example generates 14 scatterplots
 #' Scatterplot_output[[5]]
 #' Scatterplot_output[[8]]
@@ -1201,14 +1201,14 @@ TADA_TwoCharacteristicScatterplot <- function(.data, id_cols = "TADA.ComparableD
 #' # Filter the example data so it includes only one TADA.ComparableDataIdentifier
 #' df <- dplyr::filter(Data_6Tribes_5y_Harmonized, TADA.ComparableDataIdentifier %in% c("TOTAL PHOSPHORUS, MIXED FORMS_UNFILTERED_AS P_MG/L"))
 #' # Creates a scatterplot of the three specified sites of interest in the same plot.
-#' TADA_MultiScatterplot(df, id_cols = "MonitoringLocationName", groups = c("Upper Red Lake: West", "Upper Red Lake: West-Central","Upper Red Lake: East Central"))
+#' TADA_GroupedScatterplot(df, id_cols = "MonitoringLocationName", groups = c("Upper Red Lake: West", "Upper Red Lake: West-Central","Upper Red Lake: East Central"))
 #' # If no groups are selected, return the 4 groups (by MonitoringLocationName) with the greatest number of field count results for that TADA.ComparableDataIdentifier
-#' TADA_MultiScatterplot(df, id_cols = "MonitoringLocationName")
+#' TADA_GroupedScatterplot(df, id_cols = "MonitoringLocationName")
 #' # Returns a single scatterplot for just the single comparable data identifier. 
-#' TADA_MultiScatterplot(df)
+#' TADA_GroupedScatterplot(df)
 #' 
 
-TADA_MultiScatterplot <- function(.data, id_cols = "TADA.ComparableDataIdentifier", groups = NULL) {
+TADA_GroupedScatterplot <- function(.data, id_cols = "TADA.ComparableDataIdentifier", groups = NULL) {
   # check .data is data.frame
   TADA_CheckType(.data, "data.frame", "Input object")
   
