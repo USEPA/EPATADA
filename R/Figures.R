@@ -1149,12 +1149,10 @@ TADA_TwoCharacteristicScatterplot <- function(.data, id_cols = "TADA.ComparableD
 #'   columns 'TADA.ComparableDataIdentifier', 'TADA.ResultMeasureValue', and 
 #'   'TADA.ResultMeasure.MeasureUnitCode' to run this function.
 #'
-#' @param id_cols The column in the dataset is used to identify the values
-#'   plotted. Defaults to 'TADA.ComparableDataIdentifier' which only generates 
-#'   a single TADA.ComparableDataIdentifier per scatterplot.
+#' @param group_col The column in the dataset is used to identify the groups
+#'   plotted. Defaults to MonitoringLocationName.
 #'   This input is flexible, and allows for the use of other identifiers 
-#'   such as 'TADA.MonitoringLocationName' or user
-#'   create groups based on concatenation of other grouping variables 
+#'   such as WaterbodyTypName or user-created groups based on concatenation of other variables 
 #'   (e.g. characterstic name, site type, site name, year, organization, etc.)
 #'
 #' @param groups A vector of up to four identifiers from the id_cols column 
@@ -1208,12 +1206,9 @@ TADA_TwoCharacteristicScatterplot <- function(.data, id_cols = "TADA.ComparableD
 #' TADA_GroupedScatterplot(df)
 #' 
 
-TADA_GroupedScatterplot <- function(.data, id_cols = "TADA.ComparableDataIdentifier", groups = NULL) {
+TADA_GroupedScatterplot <- function(.data, group_col = "MonitoringLocationName", groups = NULL) {
   # check .data is data.frame
   TADA_CheckType(.data, "data.frame", "Input object")
-  
-  # check .data has required columns
-  TADA_CheckColumns(.data, id_cols)
   
   # check .data has required columns
   reqcols <- c(
@@ -1223,29 +1218,54 @@ TADA_GroupedScatterplot <- function(.data, id_cols = "TADA.ComparableDataIdentif
     "ActivityStartDate"
   )
   
+  reqcols <- reqcols %>%
+    append(group_col) %>%
+    unique()
+  
   # check .data has required columns
   TADA_CheckColumns(.data, reqcols)
-  
-  # if left blank, ensure comparable data identifier is in the id_cols vector
-  if (id_cols == "TADA.ComparableDataIdentifier") {
-    print("Note: id_cols either left blank or inputted as TADA.ComparableDataIdentifier. A single TADA.ComparableDataIdentifier is plotted per scatterplot")
-  }
+
   
   # Only allows for 1 column selection in id_cols
-  if (length(id_cols) > 1) {
-    stop("id_cols argument can only be a single value")
+  if (length(group_col) > 1) {
+    stop("TADA_GroupedScatterplot: group_col argument can only be a single value.")
   }
   
-  # if groups are not specified, select the top 4 groups to plot.
+  # if groups are not specified, select the top four groups by number of results.
   if (is.null(groups)) {
-    assign("groups", names((utils::head(sort(table(.data[,id_cols]), decreasing = TRUE), 4))))
-    print(paste0("Note: No 'groups' specified for ", id_cols,". Plotting up to top 4 'groups' based on number of field counts"))
+    
+    assign.groups <- .data %>%
+      dplyr::group_by_at(group_col) %>%
+      dplyr::summarize(NResults = length(TADA.ResultMeasureValue)) %>%
+      dplyr::arrange(dplyr::desc(NResults)) %>%
+      dplyr::filter(!is.na(get(group_col)))
+    
+    n.groups.total <- length(assign.groups$get(group_col))
+    
+    groups <- assign.groups %>%
+      dplyr::slice_head(n = 4) %>%
+      dplyr::select(as.character(group_col)) %>%
+      dplyr::pull()
+    
+    groups.string <- stringi::stri_replace_last(paste(groups, collapse = "; "), " and ", fixed = "; ")
+    
+    n.groups.plotted <- length(group.names)
+    
+    print(paste0("TADA_GroupedScatterplot: No 'groups' selected for ", group_col,". There are ",
+                 n.groups.total, " ", group_col, "s in the TADA data frame. The top ", n.groups.plotted, 
+                 " ", group_col, "s by number of results will be plotted: ", groups.string, ".", sep = ""))
   }
   
-  # check that groups are in id_cols
-  id <- unlist(unique(.data[, id_cols]))
+  # check that groups are in group_col
+  id <- unlist(unique(.data[, group_col]))
   if (any(!groups %in% id)) {
-    stop("The 'groups' vector contains one or more inputs that are not found within your input dataset. Check spelling and try again.")
+    
+    missing.groups <- setdiff(groups, id)
+    
+    missing.groups.string <- stringi::stri_replace_last(paste(missing.groups, collapse = "; "), " and ", fixed = "; ")
+    
+    stop("TADA_GroupedScatterplot: The following ", group_col, "s are not found in the TADA data frame: ",
+         missing.groups.string, ".", sep = "")
   }
   
   depthcols <- names(.data)[grepl("DepthHeightMeasure", names(.data))]
@@ -1254,7 +1274,7 @@ TADA_GroupedScatterplot <- function(.data, id_cols = "TADA.ComparableDataIdentif
   plot.data <- as.data.frame(.data)
   
   # this subset must include all fields included in plot hover below
-  plot.data <- subset(plot.data, plot.data[, id_cols] %in% groups)[, c(id_cols, reqcols, depthcols, "ActivityStartDateTime", "MonitoringLocationName", "TADA.ActivityMediaName", "ActivityMediaSubdivisionName", "ActivityRelativeDepthName", "TADA.CharacteristicName", "TADA.MethodSpeciationName", "TADA.ResultSampleFractionText")]
+  plot.data <- subset(plot.data, plot.data[, group_col] %in% groups)[, unique(c(group_col, reqcols, depthcols, "TADA.ComparableDataIdentifier", "ActivityStartDateTime", "MonitoringLocationName", "TADA.ActivityMediaName", "ActivityMediaSubdivisionName", "ActivityRelativeDepthName", "TADA.CharacteristicName", "TADA.MethodSpeciationName", "TADA.ResultSampleFractionText"))]
   # if(!is.null(var)){
   #   plot.data <- subset(plot.data, plot.data[, "TADA.ComparableDataIdentifier"] %in% id2)
   # }
@@ -1264,7 +1284,7 @@ TADA_GroupedScatterplot <- function(.data, id_cols = "TADA.ComparableDataIdentif
   # Returns the param groups for plotting. Up to 4 params are defined.
   param1 <- param2 <- parm3 <- param4 <- NULL
   for(i in 1:length(unique(groups))) {
-    assign(paste0("param",as.character(i)), subset(plot.data, plot.data[, id_cols] %in% groups[i]))
+    assign(paste0("param",as.character(i)), subset(plot.data, plot.data[, group_col] %in% groups[i]))
   }
   
   all_scatterplots <- list()
