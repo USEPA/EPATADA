@@ -1188,6 +1188,7 @@ TADA_TwoCharacteristicScatterplot <- function(.data, id_cols = "TADA.ComparableD
 #' 
 #' # If no groups are selected, return the 4 groups (by MonitoringLocationName) with the greatest number of results
 #' TADA_GroupedScatterplot(df, group_col = "MonitoringLocationName")
+#' 
  
 
 TADA_GroupedScatterplot <- function(.data, group_col = "MonitoringLocationName", groups = NULL) {
