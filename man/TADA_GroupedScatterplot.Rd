@@ -57,4 +57,5 @@ TADA_GroupedScatterplot(df, group_col = "MonitoringLocationName", groups = c("Up
 
 # If no groups are selected, return the 4 groups (by MonitoringLocationName) with the greatest number of results
 TADA_GroupedScatterplot(df, group_col = "MonitoringLocationName")
+
 }
