@@ -1142,14 +1142,13 @@ TADA_TwoCharacteristicScatterplot <- function(.data, id_cols = "TADA.ComparableD
   return(scatterplot)
 }
   
-#' Create Scatterplot(s) for Each TADA.ComparableDataIdentifier with Multiple (Up to 4) Groupings of an Additional Column
+#' Create Scatterplot(s) for Each TADA.ComparableDataIdentifier with Multiple (Up to 4) Groupings by an Additional Column
 #'
-#' @param .data TADA data frame containing the data downloaded from the WQP,
-#'   where each row represents a unique record. Data frame must include the
-#'   columns 'TADA.ComparableDataIdentifier', 'TADA.ResultMeasureValue', and 
+#' @param .data TADA data frame where each row represents a unique record. Data frame must include 
+#'    the columns 'TADA.ComparableDataIdentifier', 'TADA.ResultMeasureValue', and 
 #'   'TADA.ResultMeasure.MeasureUnitCode' to run this function.
 #'
-#' @param group_col The column in the dataset is used to identify the groups
+#' @param group_col The column in the dataset used to identify the groups
 #'   plotted. Defaults to MonitoringLocationName.
 #'   This input is flexible, and allows for the use of other identifiers 
 #'   such as WaterbodyTypName or user-created groups based on concatenation of other variables 
@@ -1168,47 +1167,33 @@ TADA_TwoCharacteristicScatterplot <- function(.data, id_cols = "TADA.ComparableD
 #' @export
 #'
 #' @examples
-#' # Data for up to four selected (groups) arguments found in a user selected id_cols value. 
-#' # Each scatterplot generated is for a single TADA.ComparableDataIdentifier. 
-#' # If multiple TADA.ComparableDataIdentifier are found in the dataset, then separate scatterplots 
-#' # are generated for each. If no (groups) argument is inputted, 
-#' # then a scatterplot will automatically generate a scatterplot
-#' # for each of the top 4 (groups) based on field counts in this dataset for a characteristic.
-#' 
 #' # Load example dataset:
 #' data(Data_Nutrients_UT)
-#' Scatterplot <- TADA_GroupedScatterplot(Data_Nutrients_UT, id_cols = "MonitoringLocationName", groups = c("UTAH LAKE 1 MI EAST OF PELICAN POINT", "Utah Lake 2 miles west of Vineyard"))
-#' Scatterplot[[1]]
-#' Scatterplot[[2]]
-#' 
-#' # Create multiple scatterplots and view the first plot in list.
-#' # In this example, we will group by MonitoringLocationTypeName (e.g. stream, reservoir, canal, etc.) and
-#' # because groups for MonitoringLocationTypeName was not specified, only the top 
-#' # 4 MonitoringLocationTypeName by field counts in the original dataset provided
-#' # will be included for each scatterplot generated.
-#' # Load example dataset:
-#' data(Data_Nutrients_UT)
-#' Scatterplot_output <- TADA_GroupedScatterplot(Data_Nutrients_UT, id_cols = "MonitoringLocationTypeName")
-#' # This example generates 14 scatterplots
-#' Scatterplot_output[[5]]
-#' Scatterplot_output[[8]]
-#' Scatterplot_output[[10]]
+#' # UT Nutrients results grouped by county
+#' # transform non-detect data
+#' df <- TADA_SimpleCensoredMethods(Data_Nutrients_UT)
+#' # create scatterplots for selected counties
+#' UT_Nutrients_by_CountyCode <- TADA_GroupedScatterplot(df, group_col = "CountyCode", groups = c("057", "011", "003", "037"))
+#' # view the 3rd and 4th plots
+#' UT_Nutrients_by_CountyCode[[3]]
+#' UT_Nutrients_by_CountyCode[[4]]
 #'
 #' # Load example dataset:
 #' data(Data_6Tribes_5y_Harmonized)
+#' 
 #' # Filter the example data so it includes only one TADA.ComparableDataIdentifier
 #' df <- dplyr::filter(Data_6Tribes_5y_Harmonized, TADA.ComparableDataIdentifier %in% c("TOTAL PHOSPHORUS, MIXED FORMS_UNFILTERED_AS P_MG/L"))
 #' # Creates a scatterplot of the three specified sites of interest in the same plot.
 #' TADA_GroupedScatterplot(df, group_col = "MonitoringLocationName", groups = c("Upper Red Lake: West", "Upper Red Lake: West-Central","Upper Red Lake: East Central"))
-#' # If no groups are selected, return the 4 groups (by MonitoringLocationName) with the greatest number of field count results for that TADA.ComparableDataIdentifier
-#' TADA_GroupedScatterplot(df, id_cols = "MonitoringLocationName")
-#' # Returns a single scatterplot for just the single comparable data identifier. 
-#' TADA_GroupedScatterplot(df)
 #' 
+#' # If no groups are selected, return the 4 groups (by MonitoringLocationName) with the greatest number of results
+#' TADA_GroupedScatterplot(df, group_col = "MonitoringLocationName")
+ 
 
 TADA_GroupedScatterplot <- function(.data, group_col = "MonitoringLocationName", groups = NULL) {
+  
   # check .data is data.frame
-  TADA_CheckType(.data, "data.frame", "Input object")
+    TADA_CheckType(.data, "data.frame", "Input object")
   
   # check .data has required columns
   reqcols <- c(
@@ -1311,7 +1296,7 @@ TADA_GroupedScatterplot <- function(.data, group_col = "MonitoringLocationName",
     title <- TADA_InsertBreaks(
       paste0("Scatterplot of ",
              TADA_CharStringRemoveNA(unique(plot.data$TADA.ComparableDataIdentifier)[i]),
-        " Over Time"
+             " Over Time"
       ),
       len = 45
     )
@@ -1329,218 +1314,216 @@ TADA_GroupedScatterplot <- function(.data, group_col = "MonitoringLocationName",
     
     # create TADA color palette
     tada.pal <- TADA_ColorPalette()
-
+    
     assign("paramA",subset(param1, param1[, "TADA.ComparableDataIdentifier"] %in% unique(plot.data$TADA.ComparableDataIdentifier)[i]))
     assign("paramB",subset(param2, param2[, "TADA.ComparableDataIdentifier"] %in% unique(plot.data$TADA.ComparableDataIdentifier)[i]))
     if(length(groups) >= 3){assign("paramC",subset(param3, param3[, "TADA.ComparableDataIdentifier"] %in% unique(plot.data$TADA.ComparableDataIdentifier)[i]))}
     if(length(groups) >= 4){assign("paramD",subset(param4, param4[, "TADA.ComparableDataIdentifier"] %in% unique(plot.data$TADA.ComparableDataIdentifier)[i]))}
-
+    
     plot.data.y <- subset(plot.data, plot.data[, "TADA.ComparableDataIdentifier"] %in% unique(plot.data$TADA.ComparableDataIdentifier)[i])
     plot.data.y$name <- gsub("_NA", "", plot.data.y[, "TADA.ComparableDataIdentifier"])
     plot.data.y$name <- gsub("_", " ", plot.data.y$name)
     
-  scatterplot <- 
-    plotly::plot_ly(type = "scatter", mode = "markers") %>%
-    plotly::layout(
-      xaxis = list(
-        # title = "Activity Start Date", # not necessary?
-        titlefont = list(size = 16, family = "Arial"),
-        tickfont = list(size = 16, family = "Arial"),
-        hoverformat = ",.4r", linecolor = "black", rangemode = "tozero",
-        showgrid = FALSE, tickcolor = "black"
-      ),
-      yaxis = list(
-        title = stringr::str_remove_all(stringr::str_remove_all(
-          stringr::str_remove_all(paste0(plot.data.y$TADA.CharacteristicName[1], "  ", stats::na.omit(unique(plot.data.y$TADA.ResultMeasure.MeasureUnitCode))), stringr::fixed(" (NA)")),
-          stringr::fixed("NA ")
-        ), stringr::fixed(" NA")),
-        titlefont = list(size = 16, family = "Arial"),
-        tickfont = list(size = 16, family = "Arial"),
-        hoverformat = ",.4r", linecolor = "black", rangemode = "tozero",
-        showgrid = FALSE, tickcolor = "black"
-      ),
-
-      hoverlabel = list(bgcolor = "white"),
-      title = title,
-      plot_bgcolor = "#e5ecf6",
-      margin = mrg,
-      legend = list(
-        orientation = "h",
-        xanchor = "center",
-        x = 0.5,
-        y = -0.2
-      )
-    ) %>%
-    # config options https://plotly.com/r/configuration-options/
-    plotly::config(displaylogo = FALSE) %>% # , displayModeBar = TRUE) # TRUE makes bar always visible
-    
-    plotly::add_trace(
-      data = paramA,
-      x = ~ as.Date(ActivityStartDate),
-      y = ~ TADA.ResultMeasureValue,
-      name = groups[1],
-      marker = list(
-        size = 10,
-        color = tada.pal[5],
-        line = list(color = tada.pal[10], width = 2)
-      ),
-      hoverinfo = "text",
-      hovertext = paste(
-        "Result:", paste0(paramA$TADA.ResultMeasureValue, " ", paramA$TADA.ResultMeasure.MeasureUnitCode), "<br>",
-        "Activity Start Date:", paramA$ActivityStartDate, "<br>",
-        "Activity Start Date Time:", paramA$ActivityStartDateTime, "<br>",
-        "Monitoring Location Name:", paramA$MonitoringLocationName, "<br>",
-        "Media:", paramA$TADA.ActivityMediaName, "<br>",
-        "Media Subdivision:", paramA$ActivityMediaSubdivisionName, "<br>",
-        "Result Depth:", paste0(
-          paramA$TADA.ResultDepthHeightMeasure.MeasureValue, " ",
-          paramA$TADA.ResultDepthHeightMeasure.MeasureUnitCode
-        ), "<br>",
-        "Activity Relative Depth Name:", paramA$ActivityRelativeDepthName, "<br>",
-        "Activity Depth:", paste0(
-          paramA$TADA.ActivityDepthHeightMeasure.MeasureValue, " ",
-          paramA$TADA.ActivityDepthHeightMeasure.MeasureUnitCode
-        ), "<br>",
-        "Activity Top Depth:", paste0(
-          paramA$TADA.ActivityTopDepthHeightMeasure.MeasureValue, " ",
-          paramA$TADA.ActivityTopDepthHeightMeasure.MeasureUnitCode
-        ), "<br>",
-        "Activity Bottom Depth:", paste0(
-          paramA$TADA.ActivityBottomDepthHeightMeasure.MeasureValue, " ",
-          paramA$TADA.ActivityBottomDepthHeightMeasure.MeasureUnitCode
-        ), "<br>"
-      )
-    ) 
-  if(length(groups) >= 2){
-  scatterplot <- scatterplot %>%
-     plotly::add_trace(
-      data = paramB,
-      x = ~ as.Date(ActivityStartDate),
-      y = ~TADA.ResultMeasureValue,
-      name = groups[2],
-      marker = list(
-        size = 10,
-        color = tada.pal[3],
-        line = list(color = tada.pal[12], width = 2)
-      ),
-      hoverinfo = "text",
-      hovertext = paste(
-        "Result:", paste0(paramB$TADA.ResultMeasureValue, " ", paramB$TADA.ResultMeasure.MeasureUnitCode), "<br>",
-        "Activity Start Date:", paramB$ActivityStartDate, "<br>",
-        "Activity Start Date Time:", paramB$ActivityStartDateTime, "<br>",
-        "Monitoring Location Name:", paramB$MonitoringLocationName, "<br>",
-        "Media:", paramB$TADA.ActivityMediaName, "<br>",
-        "Media Subdivision:", paramB$ActivityMediaSubdivisionName, "<br>",
-        "Result Depth:", paste0(
-          paramB$TADA.ResultDepthHeightMeasure.MeasureValue, " ",
-          paramB$TADA.ResultDepthHeightMeasure.MeasureUnitCode
-        ), "<br>",
-        "Activity Relative Depth Name:", paramB$ActivityRelativeDepthName, "<br>",
-        "Activity Depth:", paste0(
-          paramB$TADA.ActivityDepthHeightMeasure.MeasureValue, " ",
-          paramB$TADA.ActivityDepthHeightMeasure.MeasureUnitCode
-        ), "<br>",
-        "Activity Top Depth:", paste0(
-          paramB$TADA.ActivityTopDepthHeightMeasure.MeasureValue, " ",
-          paramB$TADA.ActivityTopDepthHeightMeasure.MeasureUnitCode
-        ), "<br>",
-        "Activity Bottom Depth:", paste0(
-          paramB$TADA.ActivityBottomDepthHeightMeasure.MeasureValue, " ",
-          paramB$TADA.ActivityBottomDepthHeightMeasure.MeasureUnitCode
-        ), "<br>"
-      )
-    ) 
-  }
-  if(length(groups) >= 3){
-  scatterplot <- scatterplot %>%
-    plotly::add_trace(
-      data = paramC,
-      x = ~ as.Date(ActivityStartDate),
-      y = ~ TADA.ResultMeasureValue,
-      name = groups[3],
-      marker = list(
-        size = 10,
-        color = tada.pal[4],
-        line = list(color = tada.pal[11], width = 2)
-      ),
-      hoverinfo = "text",
-      hovertext = paste(
-        "Result:", paste0(paramC$TADA.ResultMeasureValue, " ", paramC$TADA.ResultMeasure.MeasureUnitCode), "<br>",
-        "Activity Start Date:", paramC$ActivityStartDate, "<br>",
-        "Activity Start Date Time:", paramC$ActivityStartDateTime, "<br>",
-        "Monitoring Location Name:", paramC$MonitoringLocationName, "<br>",
-        "Media:", paramC$TADA.ActivityMediaName, "<br>",
-        "Media Subdivision:", paramC$ActivityMediaSubdivisionName, "<br>",
-        "Result Depth:", paste0(
-          paramC$TADA.ResultDepthHeightMeasure.MeasureValue, " ",
-          paramC$TADA.ResultDepthHeightMeasure.MeasureUnitCode
-        ), "<br>",
-        "Activity Relative Depth Name:", paramC$ActivityRelativeDepthName, "<br>",
-        "Activity Depth:", paste0(
-          paramC$TADA.ActivityDepthHeightMeasure.MeasureValue, " ",
-          paramC$TADA.ActivityDepthHeightMeasure.MeasureUnitCode
-        ), "<br>",
-        "Activity Top Depth:", paste0(
-          paramC$TADA.ActivityTopDepthHeightMeasure.MeasureValue, " ",
-          paramC$TADA.ActivityTopDepthHeightMeasure.MeasureUnitCode
-        ), "<br>",
-        "Activity Bottom Depth:", paste0(
-          paramC$TADA.ActivityBottomDepthHeightMeasure.MeasureValue, " ",
-          paramC$TADA.ActivityBottomDepthHeightMeasure.MeasureUnitCode
-        ), "<br>"
-      )
-    )
-  }
-  if(length(groups) >= 4){
-    scatterplot <- scatterplot %>%
+    scatterplot <- 
+      plotly::plot_ly(type = "scatter", mode = "markers") %>%
+      plotly::layout(
+        xaxis = list(
+          # title = "Activity Start Date", # not necessary?
+          titlefont = list(size = 16, family = "Arial"),
+          tickfont = list(size = 16, family = "Arial"),
+          hoverformat = ",.4r", linecolor = "black", rangemode = "tozero",
+          showgrid = FALSE, tickcolor = "black"
+        ),
+        yaxis = list(
+          title = stringr::str_remove_all(stringr::str_remove_all(
+            stringr::str_remove_all(paste0(plot.data.y$TADA.CharacteristicName[1], "  ", stats::na.omit(unique(plot.data.y$TADA.ResultMeasure.MeasureUnitCode))), stringr::fixed(" (NA)")),
+            stringr::fixed("NA ")
+          ), stringr::fixed(" NA")),
+          titlefont = list(size = 16, family = "Arial"),
+          tickfont = list(size = 16, family = "Arial"),
+          hoverformat = ",.4r", linecolor = "black", rangemode = "tozero",
+          showgrid = FALSE, tickcolor = "black"
+        ),
+        
+        hoverlabel = list(bgcolor = "white"),
+        title = title,
+        plot_bgcolor = "#e5ecf6",
+        margin = mrg,
+        legend = list(
+          orientation = "h",
+          xanchor = "center",
+          x = 0.5,
+          y = -0.2
+        )
+      ) %>%
+      # config options https://plotly.com/r/configuration-options/
+      plotly::config(displaylogo = FALSE) %>% # , displayModeBar = TRUE) # TRUE makes bar always visible
       plotly::add_trace(
-        data = paramD,
+        data = paramA,
         x = ~ as.Date(ActivityStartDate),
-        y = ~TADA.ResultMeasureValue,
-        name = groups[4],
+        y = ~ TADA.ResultMeasureValue,
+        name = groups[1],
         marker = list(
           size = 10,
-          color = tada.pal[7],
-          line = list(color = tada.pal[1], width = 2)
+          color = tada.pal[5],
+          line = list(color = tada.pal[10], width = 2)
         ),
         hoverinfo = "text",
         hovertext = paste(
-          "Result:", paste0(paramD$TADA.ResultMeasureValue, " ", paramD$TADA.ResultMeasure.MeasureUnitCode), "<br>",
-          "Activity Start Date:", paramD$ActivityStartDate, "<br>",
-          "Activity Start Date Time:", paramD$ActivityStartDateTime, "<br>",
-          "Monitoring Location Name:", paramD$MonitoringLocationName, "<br>",
-          "Media:", paramD$TADA.ActivityMediaName, "<br>",
-          "Media Subdivision:", paramD$ActivityMediaSubdivisionName, "<br>",
+          "Result:", paste0(paramA$TADA.ResultMeasureValue, " ", paramA$TADA.ResultMeasure.MeasureUnitCode), "<br>",
+          "Activity Start Date:", paramA$ActivityStartDate, "<br>",
+          "Activity Start Date Time:", paramA$ActivityStartDateTime, "<br>",
+          "Monitoring Location Name:", paramA$MonitoringLocationName, "<br>",
+          "Media:", paramA$TADA.ActivityMediaName, "<br>",
+          "Media Subdivision:", paramA$ActivityMediaSubdivisionName, "<br>",
           "Result Depth:", paste0(
-            paramD$TADA.ResultDepthHeightMeasure.MeasureValue, " ",
-            paramD$TADA.ResultDepthHeightMeasure.MeasureUnitCode
+            paramA$TADA.ResultDepthHeightMeasure.MeasureValue, " ",
+            paramA$TADA.ResultDepthHeightMeasure.MeasureUnitCode
           ), "<br>",
-          "Activity Relative Depth Name:", paramD$ActivityRelativeDepthName, "<br>",
+          "Activity Relative Depth Name:", paramA$ActivityRelativeDepthName, "<br>",
           "Activity Depth:", paste0(
-            paramD$TADA.ActivityDepthHeightMeasure.MeasureValue, " ",
-            paramD$TADA.ActivityDepthHeightMeasure.MeasureUnitCode
+            paramA$TADA.ActivityDepthHeightMeasure.MeasureValue, " ",
+            paramA$TADA.ActivityDepthHeightMeasure.MeasureUnitCode
           ), "<br>",
           "Activity Top Depth:", paste0(
-            paramD$TADA.ActivityTopDepthHeightMeasure.MeasureValue, " ",
-            paramD$TADA.ActivityTopDepthHeightMeasure.MeasureUnitCode
+            paramA$TADA.ActivityTopDepthHeightMeasure.MeasureValue, " ",
+            paramA$TADA.ActivityTopDepthHeightMeasure.MeasureUnitCode
           ), "<br>",
           "Activity Bottom Depth:", paste0(
-            paramD$TADA.ActivityBottomDepthHeightMeasure.MeasureValue, " ",
-            paramD$TADA.ActivityBottomDepthHeightMeasure.MeasureUnitCode
+            paramA$TADA.ActivityBottomDepthHeightMeasure.MeasureValue, " ",
+            paramA$TADA.ActivityBottomDepthHeightMeasure.MeasureUnitCode
           ), "<br>"
         )
-      )
-    
+      ) 
+    if(length(groups) >= 2){
+      scatterplot <- scatterplot %>%
+        plotly::add_trace(
+          data = paramB,
+          x = ~ as.Date(ActivityStartDate),
+          y = ~TADA.ResultMeasureValue,
+          name = groups[2],
+          marker = list(
+            size = 10,
+            color = tada.pal[3],
+            line = list(color = tada.pal[12], width = 2)
+          ),
+          hoverinfo = "text",
+          hovertext = paste(
+            "Result:", paste0(paramB$TADA.ResultMeasureValue, " ", paramB$TADA.ResultMeasure.MeasureUnitCode), "<br>",
+            "Activity Start Date:", paramB$ActivityStartDate, "<br>",
+            "Activity Start Date Time:", paramB$ActivityStartDateTime, "<br>",
+            "Monitoring Location Name:", paramB$MonitoringLocationName, "<br>",
+            "Media:", paramB$TADA.ActivityMediaName, "<br>",
+            "Media Subdivision:", paramB$ActivityMediaSubdivisionName, "<br>",
+            "Result Depth:", paste0(
+              paramB$TADA.ResultDepthHeightMeasure.MeasureValue, " ",
+              paramB$TADA.ResultDepthHeightMeasure.MeasureUnitCode
+            ), "<br>",
+            "Activity Relative Depth Name:", paramB$ActivityRelativeDepthName, "<br>",
+            "Activity Depth:", paste0(
+              paramB$TADA.ActivityDepthHeightMeasure.MeasureValue, " ",
+              paramB$TADA.ActivityDepthHeightMeasure.MeasureUnitCode
+            ), "<br>",
+            "Activity Top Depth:", paste0(
+              paramB$TADA.ActivityTopDepthHeightMeasure.MeasureValue, " ",
+              paramB$TADA.ActivityTopDepthHeightMeasure.MeasureUnitCode
+            ), "<br>",
+            "Activity Bottom Depth:", paste0(
+              paramB$TADA.ActivityBottomDepthHeightMeasure.MeasureValue, " ",
+              paramB$TADA.ActivityBottomDepthHeightMeasure.MeasureUnitCode
+            ), "<br>"
+          )
+        ) 
+    }
+    if(length(groups) >= 3){
+      scatterplot <- scatterplot %>%
+        plotly::add_trace(
+          data = paramC,
+          x = ~ as.Date(ActivityStartDate),
+          y = ~ TADA.ResultMeasureValue,
+          name = groups[3],
+          marker = list(
+            size = 10,
+            color = tada.pal[4],
+            line = list(color = tada.pal[11], width = 2)
+          ),
+          hoverinfo = "text",
+          hovertext = paste(
+            "Result:", paste0(paramC$TADA.ResultMeasureValue, " ", paramC$TADA.ResultMeasure.MeasureUnitCode), "<br>",
+            "Activity Start Date:", paramC$ActivityStartDate, "<br>",
+            "Activity Start Date Time:", paramC$ActivityStartDateTime, "<br>",
+            "Monitoring Location Name:", paramC$MonitoringLocationName, "<br>",
+            "Media:", paramC$TADA.ActivityMediaName, "<br>",
+            "Media Subdivision:", paramC$ActivityMediaSubdivisionName, "<br>",
+            "Result Depth:", paste0(
+              paramC$TADA.ResultDepthHeightMeasure.MeasureValue, " ",
+              paramC$TADA.ResultDepthHeightMeasure.MeasureUnitCode
+            ), "<br>",
+            "Activity Relative Depth Name:", paramC$ActivityRelativeDepthName, "<br>",
+            "Activity Depth:", paste0(
+              paramC$TADA.ActivityDepthHeightMeasure.MeasureValue, " ",
+              paramC$TADA.ActivityDepthHeightMeasure.MeasureUnitCode
+            ), "<br>",
+            "Activity Top Depth:", paste0(
+              paramC$TADA.ActivityTopDepthHeightMeasure.MeasureValue, " ",
+              paramC$TADA.ActivityTopDepthHeightMeasure.MeasureUnitCode
+            ), "<br>",
+            "Activity Bottom Depth:", paste0(
+              paramC$TADA.ActivityBottomDepthHeightMeasure.MeasureValue, " ",
+              paramC$TADA.ActivityBottomDepthHeightMeasure.MeasureUnitCode
+            ), "<br>"
+          )
+        )
+    }
+    if(length(groups) >= 4){
+      scatterplot <- scatterplot %>%
+        plotly::add_trace(
+          data = paramD,
+          x = ~ as.Date(ActivityStartDate),
+          y = ~TADA.ResultMeasureValue,
+          name = groups[4],
+          marker = list(
+            size = 10,
+            color = tada.pal[7],
+            line = list(color = tada.pal[1], width = 2)
+          ),
+          hoverinfo = "text",
+          hovertext = paste(
+            "Result:", paste0(paramD$TADA.ResultMeasureValue, " ", paramD$TADA.ResultMeasure.MeasureUnitCode), "<br>",
+            "Activity Start Date:", paramD$ActivityStartDate, "<br>",
+            "Activity Start Date Time:", paramD$ActivityStartDateTime, "<br>",
+            "Monitoring Location Name:", paramD$MonitoringLocationName, "<br>",
+            "Media:", paramD$TADA.ActivityMediaName, "<br>",
+            "Media Subdivision:", paramD$ActivityMediaSubdivisionName, "<br>",
+            "Result Depth:", paste0(
+              paramD$TADA.ResultDepthHeightMeasure.MeasureValue, " ",
+              paramD$TADA.ResultDepthHeightMeasure.MeasureUnitCode
+            ), "<br>",
+            "Activity Relative Depth Name:", paramD$ActivityRelativeDepthName, "<br>",
+            "Activity Depth:", paste0(
+              paramD$TADA.ActivityDepthHeightMeasure.MeasureValue, " ",
+              paramD$TADA.ActivityDepthHeightMeasure.MeasureUnitCode
+            ), "<br>",
+            "Activity Top Depth:", paste0(
+              paramD$TADA.ActivityTopDepthHeightMeasure.MeasureValue, " ",
+              paramD$TADA.ActivityTopDepthHeightMeasure.MeasureUnitCode
+            ), "<br>",
+            "Activity Bottom Depth:", paste0(
+              paramD$TADA.ActivityBottomDepthHeightMeasure.MeasureValue, " ",
+              paramD$TADA.ActivityBottomDepthHeightMeasure.MeasureUnitCode
+            ), "<br>"
+          )
+        )
+      
+    }
+    # create plot for all groupid's
+     all_scatterplots[[i]] <- scatterplot
+    # 
+     names(all_scatterplots)[i] <- unique(TADA_CharStringRemoveNA(plot.data$TADA.ComparableDataIdentifier))[i]
   }
-  # create plot for all groupid's
-  all_scatterplots[[i]] <- scatterplot
-  
-  names(all_scatterplots)[i] <- TADA_CharStringRemoveNA(unique(plot.data$TADA.ComparableDataIdentifier)[i])
-  }
-  if (length(all_scatterplots) == 1) {
-    all_scatterplots <- all_scatterplots[[1]]
-  }
+   if (length(all_scatterplots) == 1) {
+     all_scatterplots <- all_scatterplots[[1]]
+   }
   
   return(all_scatterplots)
 }
-
