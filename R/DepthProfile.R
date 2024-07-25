@@ -1,4 +1,4 @@
-TADA_FlagDepthCategory
+#' TADA_FlagDepthCategory
 #'
 #' This function creates a new column, TADA.DepthCategory.Flag with values: "No
 #' depth info", "Surface", "Bottom", and
