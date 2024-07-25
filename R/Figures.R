@@ -1144,24 +1144,31 @@ TADA_TwoCharacteristicScatterplot <- function(.data, id_cols = "TADA.ComparableD
 #' Create Scatterplot(s) for Each TADA.ComparableDataIdentifier with Multiple (Up to 4) Groupings by an Additional Column
 #'
 #' @param .data TADA data frame where each row represents a unique record. Data frame must include
-#'    the columns 'TADA.ComparableDataIdentifier', 'TADA.ResultMeasureValue', and
-#'   'TADA.ResultMeasure.MeasureUnitCode' to run this function.
+#'    the columns 'TADA.ComparableDataIdentifier', 'TADA.ResultMeasureValue',
+#'   'TADA.ResultMeasure.MeasureUnitCode', 'ActivityStartDate', 'ActivityStartDateTime',
+#'    'ActivityStartDateTime', 'MonitoringLocationName', 'TADA.ActivityMediaName',
+#'    'ActivityMediaSubdivisionName', 'TADA.ResultDepthHeightMeasure.MeasureValue',
+#'    'TADA.ResultDepthHeightMeasure.MeasureValue', 'TADA.ResultDepthHeightMeasure.MeasureUnitCode',
+#'    'ActivityRelativeDepthName', 'TADA.ActivityDepthHeightMeasure.MeasureValue',
+#'    'TADA.ActivityDepthHeightMeasure.MeasureUnitCode', 'TADA.ActivityTopDepthHeightMeasure.MeasureValue',
+#'    'TADA.ActivityTopDepthHeightMeasure.MeasureUnitCode', 'TADA.ActivityBottomDepthHeightMeasure.MeasureValue',
+#'    and TADA.ActivityBottomDepthHeightMeasure.MeasureUnitCode to run this function.
 #'
 #' @param group_col The column in the dataset used to identify the groups
-#'   plotted. Defaults to MonitoringLocationName.
-#'   This input is flexible, and allows for the use of other identifiers
-#'   such as WaterbodyTypName or user-created groups based on concatenation of other variables
-#'   (e.g. characterstic name, site type, site name, year, organization, etc.)
+#'    plotted. Defaults to MonitoringLocationName. This input is flexible, and allows for the use of
+#'    other identifiers such as StateCode, CountyCode or user-created groups based on concatenation 
+#'    of other variables (e.g. characterstic name, site type, site name, year, organization, etc.)
 #'
 #' @param groups A vector of up to four identifiers from the id_cols column
 #'   to specify the groups that will be plotted for a TADA.ComparableDataIdentifier.
-#'   These groups will be specific to your dataset. For example, if
-#'   id_cols is 'MonitoringLocationName', the groups could be
+#'   These groups will be specific to your dataset. For example, in the example data set
+#'   Data_6Tribes_5y_Harmonized if group_col is 'MonitoringLocationName', the groups could be
 #'   'Upper Red Lake: West', 'Upper Red Lake: West-Central', and 'Upper Red Lake: East Central'.
 #'
 #' @return A plotly scatterplot(s) figure with one x-axis (Date/Time) and a
-#'   left axis showing the units of a single TADA.ComparableDataIdentifier plotted on the same figure area with a
-#'   legend for each groups defined by the second id_cols selection.
+#'   left axis showing the units of a single TADA.ComparableDataIdentifier plotted on the same 
+#'   figure area with. Groups are identified by different colored circle markers and are displayed
+#'   in a legend.
 #'
 #' @export
 #'
@@ -1197,9 +1204,12 @@ TADA_GroupedScatterplot <- function(.data, group_col = "MonitoringLocationName",
     "TADA.ComparableDataIdentifier",
     "TADA.ResultMeasureValue",
     "TADA.ResultMeasure.MeasureUnitCode",
-    "ActivityStartDate"
+    "ActivityStartDate",
+    "ActivityStartDateTime",
+    "MonitoringLocationName"
   )
 
+  # add user-selected group_col to list of required columns
   reqcols <- reqcols %>%
     append(group_col) %>%
     unique()
@@ -1208,11 +1218,12 @@ TADA_GroupedScatterplot <- function(.data, group_col = "MonitoringLocationName",
   TADA_CheckColumns(.data, reqcols)
 
 
-  # Only allows for 1 column selection in id_cols
+  # only allows for 1 column selection in id_cols
   if (length(group_col) > 1) {
     stop("TADA_GroupedScatterplot: group_col argument can only be a single value.")
   }
 
+  # stop function if only one group is supplied
   if (!is.null(groups)) {
     if (length(groups) == 1) {
       stop("TADA_GroupedScatterplot: requires at least two 'groups'. Use TADA_Scatterplot to plot results without grouping.")
@@ -1228,15 +1239,19 @@ TADA_GroupedScatterplot <- function(.data, group_col = "MonitoringLocationName",
       dplyr::filter(!is.na(get(group_col)))
 
 
+    # calculate how many total groups are available in TADA data frame
     n.groups.total <- nrow(assign.groups)
 
+    # select top four groups by number of results
     groups <- assign.groups %>%
       dplyr::slice_head(n = 4) %>%
       dplyr::select(as.character(group_col)) %>%
       dplyr::pull()
 
+    # create string of group names for printed message
     groups.string <- stringi::stri_replace_last(paste(groups, collapse = "; "), " and ", fixed = "; ")
 
+    # calculate number of groups to be plotted
     n.groups.plotted <- length(groups)
 
     # convert integer to character string for use in printed message
@@ -1249,33 +1264,41 @@ TADA_GroupedScatterplot <- function(.data, group_col = "MonitoringLocationName",
     )
 
 
+    # if only group is identified, stop and print message to use TADA_Scatterplot
     if (n.groups.plotted == "one") {
       stop("TADA_GroupedScatterplot: requires at least two 'groups'. Use TADA_Scatterplot to plot results without grouping.")
     }
 
 
+    # print message describing groups that will be plotted
     print(paste0("TADA_GroupedScatterplot: No 'groups' selected for ", group_col, ". There are ",
       n.groups.total, " ", group_col, "s in the TADA data frame. The top ", n.groups.plotted,
       " ", group_col, "s by number of results will be plotted: ", groups.string, ".",
       sep = ""
     ))
     
+    # remove intermediate objects
     rm(groups.string, n.groups.plotted)
   }
 
   # check that groups are in group_col
   id <- unlist(unique(.data[, group_col]))
   if (any(!groups %in% id)) {
+    
+    # identify any groups missing from "groups" param
     missing.groups <- setdiff(groups, id)
 
+    # create a character string of missing groups for printed message
     missing.groups.string <- stringi::stri_replace_last(paste(missing.groups, collapse = "; "), " and ", fixed = "; ")
 
+    # stop function if any groups are not found in TADA data frame
     stop("TADA_GroupedScatterplot: The following ", group_col, "s are not found in the TADA data frame: ",
       missing.groups.string, ". Revise param 'groups' before re-running function.",
       sep = ""
     )
     
-    rm(missing.group, missing.groups.string)
+    # remove intermediate objects
+    rm(missing.group, missing.groups.string, id)
   }
 
   depthcols <- names(.data)[grepl("DepthHeightMeasure", names(.data))]
@@ -1288,12 +1311,16 @@ TADA_GroupedScatterplot <- function(.data, group_col = "MonitoringLocationName",
 
   plot.data <- dplyr::arrange(plot.data, ActivityStartDate)
 
-  # Returns the param groups for plotting. Up to 4 params are defined.
+  # returns the param groups for plotting. Up to 4 params are defined.
   param1 <- param2 <- param3 <- param4 <- NULL
   for (i in 1:length(unique(groups))) {
     assign(paste0("param", as.character(i)), subset(plot.data, plot.data[, group_col] %in% groups[i]))
+    
+  # remove intermediate objects
+    rm(depthcols)
   }
 
+  # create empty list to store scatterplots
   all_scatterplots <- list()
 
   for (i in 1:length(unique(plot.data$TADA.ComparableDataIdentifier))) {
@@ -1523,14 +1550,18 @@ TADA_GroupedScatterplot <- function(.data, group_col = "MonitoringLocationName",
           )
         )
     }
-    # create plot for all groupid's
+    # create plots and store as list
     all_scatterplots[[i]] <- scatterplot
-    #
+    
+    # rename scatterplots to reflect TADA.ComparbaleDataIdentifier (with NAs removed)
     names(all_scatterplots)[i] <- unique(TADA_CharStringRemoveNA(plot.data$TADA.ComparableDataIdentifier))[i]
   }
+  
+  # filter to return one scatterplot, if only one was generated
   if (length(all_scatterplots) == 1) {
     all_scatterplots <- all_scatterplots[[1]]
   }
 
+  # return scatterplot (one) or list of scatterplots (multiple)
   return(all_scatterplots)
 }

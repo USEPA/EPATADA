@@ -12,25 +12,32 @@ TADA_GroupedScatterplot(
 }
 \arguments{
 \item{.data}{TADA data frame where each row represents a unique record. Data frame must include
-the columns 'TADA.ComparableDataIdentifier', 'TADA.ResultMeasureValue', and
-'TADA.ResultMeasure.MeasureUnitCode' to run this function.}
+the columns 'TADA.ComparableDataIdentifier', 'TADA.ResultMeasureValue',
+'TADA.ResultMeasure.MeasureUnitCode', 'ActivityStartDate', 'ActivityStartDateTime',
+'ActivityStartDateTime', 'MonitoringLocationName', 'TADA.ActivityMediaName',
+'ActivityMediaSubdivisionName', 'TADA.ResultDepthHeightMeasure.MeasureValue',
+'TADA.ResultDepthHeightMeasure.MeasureValue', 'TADA.ResultDepthHeightMeasure.MeasureUnitCode',
+'ActivityRelativeDepthName', 'TADA.ActivityDepthHeightMeasure.MeasureValue',
+'TADA.ActivityDepthHeightMeasure.MeasureUnitCode', 'TADA.ActivityTopDepthHeightMeasure.MeasureValue',
+'TADA.ActivityTopDepthHeightMeasure.MeasureUnitCode', 'TADA.ActivityBottomDepthHeightMeasure.MeasureValue',
+and TADA.ActivityBottomDepthHeightMeasure.MeasureUnitCode to run this function.}
 
 \item{group_col}{The column in the dataset used to identify the groups
-plotted. Defaults to MonitoringLocationName.
-This input is flexible, and allows for the use of other identifiers
-such as WaterbodyTypName or user-created groups based on concatenation of other variables
-(e.g. characterstic name, site type, site name, year, organization, etc.)}
+plotted. Defaults to MonitoringLocationName. This input is flexible, and allows for the use of
+other identifiers such as StateCode, CountyCode or user-created groups based on concatenation
+of other variables (e.g. characterstic name, site type, site name, year, organization, etc.)}
 
 \item{groups}{A vector of up to four identifiers from the id_cols column
 to specify the groups that will be plotted for a TADA.ComparableDataIdentifier.
-These groups will be specific to your dataset. For example, if
-id_cols is 'MonitoringLocationName', the groups could be
+These groups will be specific to your dataset. For example, in the example data set
+Data_6Tribes_5y_Harmonized if group_col is 'MonitoringLocationName', the groups could be
 'Upper Red Lake: West', 'Upper Red Lake: West-Central', and 'Upper Red Lake: East Central'.}
 }
 \value{
 A plotly scatterplot(s) figure with one x-axis (Date/Time) and a
-left axis showing the units of a single TADA.ComparableDataIdentifier plotted on the same figure area with a
-legend for each groups defined by the second id_cols selection.
+left axis showing the units of a single TADA.ComparableDataIdentifier plotted on the same
+figure area with. Groups are identified by different colored circle markers and are displayed
+in a legend.
 }
 \description{
 Create Scatterplot(s) for Each TADA.ComparableDataIdentifier with Multiple (Up to 4) Groupings by an Additional Column
