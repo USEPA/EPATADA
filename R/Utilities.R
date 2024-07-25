@@ -1575,9 +1575,9 @@ TADA_ViewColorPalette <- function() {
 #' @export
 #'
 #' @examples
-#' # Creates a vector of main Figures title, removing NA values, based on each TADA.ComparableDataIdentifier found in a dataset.
+#' # Removes NAs based on each TADA.ComparableDataIdentifier found in a dataset.
 #' data(Data_Nutrients_UT)
-#' Main_Title <- TADA_FigureTitle(unique(Data_Nutrients_UT$TADA.ComparableDataIdentifier))
+#' UT_Titles <- TADA_CharStringRemoveNA(unique(Data_Nutrients_UT$TADA.ComparableDataIdentifier))
 #'
 TADA_CharStringRemoveNA <- function(char_string) {
 
