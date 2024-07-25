@@ -353,7 +353,8 @@ TADA_ConvertResultUnits <- function(.data, ref = "tada", transform = TRUE) {
 
     # join USGS ref for method speciation name information
     unit.ref <- ref %>%
-      dplyr::left_join(usgs.spec, by = dplyr::join_by(ResultMeasure.MeasureUnitCode))
+      dplyr::left_join(usgs.spec, by = dplyr::join_by(ResultMeasure.MeasureUnitCode)) %>%
+      dplyr::distinct()
 
     # create message to inform users if user-supplied unit reference contains all combinations present in TADA data frame
     # create list of unique characteristic and unit combinations in data
@@ -397,7 +398,8 @@ TADA_ConvertResultUnits <- function(.data, ref = "tada", transform = TRUE) {
       unit.ref <- TADA_CreateUnitRef(.data, print.message = FALSE)
       
       unit.ref <- unit.ref %>%
-        dplyr::left_join(usgs.spec, by = dplyr::join_by(ResultMeasure.MeasureUnitCode))
+        dplyr::left_join(usgs.spec, by = dplyr::join_by(ResultMeasure.MeasureUnitCode)) %>%
+        dplyr::distinct()
     }
 
     if (ref == "wqx") {
@@ -426,7 +428,8 @@ TADA_ConvertResultUnits <- function(.data, ref = "tada", transform = TRUE) {
                                                      TADA.ResultMeasure.MeasureUnitCode,
                                                      MeasureUnitCode.match)) %>%
         dplyr::left_join(wqx.ref, by = dplyr::join_by(MeasureUnitCode.match)) %>%
-        dplyr::select(-MeasureUnitCode.match)
+        dplyr::select(-MeasureUnitCode.match) %>%
+        dplyr::distinct()
 
     }
     }
