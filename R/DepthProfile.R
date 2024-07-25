@@ -1171,11 +1171,11 @@ TADA_DepthProfilePlot <- function(.data,
         y = param1$TADA.ResultMeasureValue[1],
         x = xrange,
         name = TADA_CharStringRemoveNA(paste0(
-            param1$TADA.ResultSampleFractionText[1], " ",
-            param1$TADA.CharacteristicName[1], " ",
-            param1$TADA.MethodSpeciationName[1], " ",
-            "(", param1$TADA.ResultMeasure.MeasureUnitCode[1], ")"
-          )),
+          param1$TADA.ResultSampleFractionText[1], " ",
+          param1$TADA.CharacteristicName[1], " ",
+          param1$TADA.MethodSpeciationName[1], " ",
+          "(", param1$TADA.ResultMeasure.MeasureUnitCode[1], ")"
+        )),
         showlegend = TRUE,
         line = list(color = tada.pal[10], dash = "dash"),
         hoverinfo = "text",
