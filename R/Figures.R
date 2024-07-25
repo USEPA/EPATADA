@@ -1259,6 +1259,8 @@ TADA_GroupedScatterplot <- function(.data, group_col = "MonitoringLocationName",
       " ", group_col, "s by number of results will be plotted: ", groups.string, ".",
       sep = ""
     ))
+    
+    rm(groups.string, n.groups.plotted)
   }
 
   # check that groups are in group_col
@@ -1272,6 +1274,8 @@ TADA_GroupedScatterplot <- function(.data, group_col = "MonitoringLocationName",
       missing.groups.string, ". Revise param 'groups' before re-running function.",
       sep = ""
     )
+    
+    rm(missing.group, missing.groups.string)
   }
 
   depthcols <- names(.data)[grepl("DepthHeightMeasure", names(.data))]
