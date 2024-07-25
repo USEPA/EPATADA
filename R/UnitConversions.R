@@ -208,7 +208,8 @@ TADA_CreateUnitRef <- function(.data, print.message = TRUE) {
 
   # remove intermediate columns tada.all df
   tada.all <- tada.all %>%
-    dplyr::select(-CharUnit)
+    dplyr::select(-CharUnit) %>%
+    dplyr::distinct()
 
 
   # return reference table for use in unit conversion functions or for more editing by user
