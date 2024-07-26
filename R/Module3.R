@@ -336,25 +336,33 @@ TADA_CreatePairRef <- function(.data, char = "hardness") {
   .data <- .data %>%
     dplyr::select(TADA.CharacteristicName, TADA.ResultMeasure.MeasureUnitCode, 
                   TADA.MethodSpeciationName, TADA.ResultSampleFractionText) %>%
-    dplyr::distinct()
+    dplyr::distinct() %>%
+    dplyr::group_by(TADA.CharacteristicName, TADA.ResultMeasure.MeasureUnitCode, 
+                    TADA.MethodSpeciationName, TADA.ResultSampleFractionText) %>%
+    dplyr::mutate(Rank = dplyr::cur_group_id())
   
-  return.data
+  return(data)
 }
 
-#' Pair Results with Hardness, pH, Temperature
+#' Pair Results with Hardness, pH, or Temperature
 #'
 #' This function pairs TADA results with hardness, pH, and temperature results from the same 
 #' MonitoringLocation within an user-specified time window to facilitate the calculation of numeric 
 #' criteria The columns created by TADA_AutoClean are required to run this function. If they are not
 #' present in. the data frame, the function will stop and print an error message.
+#' 
+#' Users can provide a pairing reference file (can be created using TADA_CreatePairRef) to specify
+#' which combinations of TADA.CharacteristicName, TADA.ResultMeasure.MeasureUnit, 
+#' TADA.MethodSpeciatioName, and TADA.ResultSampleFraction should be used for hardness, pH, and temperature.
+#' If no ref is specified, all possible combinations for hardness, pH, or temperature will be used.
 #'
 #' @param .data TADA dataframe
 #'
 #' @param hardness Boolean argument. If hardness = TRUE, hardness results will be paired with TADA
 #' results. If hardness = FALSE, hardness results will not be paired. Default = TRUE.
 #' 
-#' @param ph Boolean argument. If pH = TRUE, hardness results will be paired with TADA
-#' results. If pH = FALSE, pH results will not be paired. Default = TRUE.
+#' @param ph Boolean argument. If ph = TRUE, hardness results will be paired with TADA
+#' results. If ph = FALSE, ph results will not be paired. Default = TRUE.
 #' 
 #' @param temp Boolean argument. If temp = TRUE, temperature results will be paired with TADA
 #' results. If temp = FALSE, temperature results will not be paired. Default = TRUE.
@@ -365,3 +373,64 @@ TADA_CreatePairRef <- function(.data, char = "hardness") {
 #'
 #' @examples
 #'
+TADA_PairForCriteriaCalc <- function(.data, hardness = TRUE, ph = TRUE, temp = TRUE,
+                                     ref = "null", hours_range = 4) {
+  
+  if(ref == "null"){
+    
+    if(hardness == TRUE) {
+    
+    hardness.data <- .data %>%
+      dplyr::filter(!is.na(ActivityStartDateTime),
+                    grepl("HARDNESS", TADA.CharacteristicName))
+    
+    hardness.subset <- hardness.data %>%
+      dplyr::select(TADA.MonitoringLocationIdentifier, TADA.CharacteristicName,
+                    TADA.ResultMeasure.MeasureUnitCode, ActivityStartDateTime,
+                    ActivityIdentifier) %>%
+      dplyr::rename(TADA.HardnessName = TADA.CharacteristicName,
+                    TADA.HardnessUnitCode = TADA.ResultMeasure.MeasureUnitCode,
+                    HardnessActivityStartDateTime = ActivityStartDateTime) %>%
+      # what should default ranking be here?
+      dplyr::mutate(Rank = dplyr::case_when(TADA.HardnessName == "HARDNESS, CA, MG" ~ 1,
+                                     TADA.HardnessName == "TOTAL HARDNESS" ~ 2,
+                                     TADA.HardnessName == "HARDNESS, CARBONATE" ~ 3))
+    }
+    
+    if(ph == TRUE) {
+    ph.data <- .data %>%
+      dplyr::filter(TADA.CharacteristicName == "PH")
+    }
+    
+    if(temp == TRUE) {
+    temp.data <- .data %>% 
+      dplyr::filter(TADA.CharacteristicName %in% c("TEMPERATURE", "TEMPERATURE, WATER"))
+    }
+    
+    pair.hardness.activityid <- .data %>%
+      dplyr::filter(ActivityIdentifier %in% hardness.subset$ActivityIdentifier) %>%
+      dplyr::left_join(hardness.subset, by = dplyr::join_by(ActivityIdentifier, TADA.MonitoringLocationIdentifier),
+                       relationship = "many-to-many") %>%
+      dplyr::group_by(ResultIdentifier) %>%
+      dplyr::mutate(NCount = length(TADA.ResultMeasureValue)) %>%
+      dplyr::arrange(ResultIdentifier, Rank) %>%
+      dplyr::slice_min(Rank) %>%
+      dplyr::ungroup()
+    
+    # need to rank hardness characteristic choices
+      
+    
+    pair.hardness.ml.time <- .data %>%
+      dplyr::filter(!ResultIdentifier %in% pair.hardness.activityid$ResultIdentifier,
+                    !is.na(ActivityStartDateTime),
+                    TADA.MonitoringLocationIdentifier %in% hardness.subset$TADA.MonitoringLocationIdentifier) %>%
+      dplyr::left_join(hardness.subset, relationship = "many-to-many",
+                       by = dplyr::join_by(TADA.MonitoringLocationIdentifier)) %>%
+      dplyr::group_by(ResultIdentifier) %>%
+      # Figure out fastest time comparison method - needs to be absolute time comparison
+      dplyr::mutate(CompareTime = as.POSIXct(ActivityStartDateTime) + lubridate::hours(4))
+      dplyr::mutate(timediff = abs(difftime(as.POSIXct(HardnessActivityStartDateTime), as.POSIXct(ActivityStartDateTime), units = c("hours")))) %>%
+      dplyr::filter(timediff < 4)
+  }
+
+  } 
