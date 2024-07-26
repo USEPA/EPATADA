@@ -281,6 +281,66 @@ TADA_SimpleCriteriaComparison <- function(.data, criteria.ref = NULL, convert.un
   }
 }
 
+#' Create Reference Data Frame to Pair Hardness, pH, or Temperature Results
+#'
+#' This function creates a data frame that shows all combinations of TADA.CharacteristicName,
+#' TADA.CharacteristicName, TADA.ResultMeasure.MeasureUnitCode, TADA.MethodSpeciationName,
+#' and TADA.ResultSampleFractionText for hardness, pH, or temperature for users to edit and use 
+#' in NAMEOFPAIRINGFUNCTION.
+#' 
+#' @param .data TADA dataframe
+#'
+#' @param char Character string. Default is "hardness". Other options are "pH" and "temp". When
+#' char = "hardness", the TADA data frame is filtered for all hardness TADA.CharacteristicNames before
+#' the unique combinations of TADA.CharacteristicName, TADA.ResultMeasure.MeasureUnitCode, 
+#' TADA.MethodSpeciationName, and TADA.ResultSampleFractionText are iidentified. For char = "ph" and
+#' char = "temp", the same process occurs for TADA.CharacteristicNames for pH, and water temperature,
+#' respectively.
+#
+#' @return A data frame with four columns, ADA.CharacteristicName,
+#' TADA.CharacteristicName, TADA.ResultMeasure.MeasureUnitCode, TADA.MethodSpeciationName,
+#' and TADA.ResultSampleFractionText. 
+#'
+#' @export
+#'
+#' @examples
+#' # create ref for hardness for example tribal data
+#' HardnessRef <- TADA_CreatePairRef(Data_6Tribes_5y_Harmonized, char = "hardness")
+
+TADA_CreatePairRef <- function(.data, char = "hardness") {
+  
+  if(char == "hardness") {
+    
+    char.ref <- TADA_GetCharacteristicRef() %>%
+      dplyr::mutate(CharacteristicName = toupper(CharacteristicName))
+    
+    char.ref <- char.ref %>%
+      dplyr::filter(grepl("HARDNESS", CharacteristicName))
+    
+    .data <- .data %>%
+      dplyr::filter(TADA.CharacteristicName %in% char.ref$CharacteristicName)
+  }
+  
+  if(char == "pH") {
+
+    .data <- .data %>%
+      dplyr::filter(TADA.CharacteristicName == "PH")
+  }
+  
+  if(char == "temp") {
+    
+    .data <- .data %>%
+      dplyr::filter(TADA.CharacteristicName %in% c(	"TEMPERATURE", "TEMPERATURE, WATER"))
+  }
+
+  .data <- .data %>%
+    dplyr::select(TADA.CharacteristicName, TADA.ResultMeasure.MeasureUnitCode, 
+                  TADA.MethodSpeciationName, TADA.ResultSampleFractionText) %>%
+    dplyr::distinct()
+  
+  return.data
+}
+
 #' Pair Results with Hardness, pH, Temperature
 #'
 #' This function pairs TADA results with hardness, pH, and temperature results from the same 
