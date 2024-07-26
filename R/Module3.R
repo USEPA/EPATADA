@@ -280,3 +280,50 @@ TADA_SimpleCriteriaComparison <- function(.data, criteria.ref = NULL, convert.un
       ))
   }
 }
+
+#' Pair Results with Hardness, pH, Temperature
+#'
+#' This function pairs TADA results with hardness, pH, and temperature results from the same 
+#' MonitoringLocation within an user-specified time window to facilitate the calculation of numeric 
+#' criteria The columns created by TADA_AutoClean are required to run this function. If they are not
+#' present in. the data frame, the function will stop and print an error message.
+#'
+#' @param .data TADA dataframe
+#'
+#' @param hardness Boolean argument. If hardness = TRUE, hardness results will be paired with TADA
+#' results. If hardness = FALSE, hardness results will not be paired. Default = TRUE.
+#' 
+#' @param ph Boolean argument. If pH = TRUE, hardness results will be paired with TADA
+#' results. If pH = FALSE, pH results will not be paired. Default = TRUE.
+#' 
+#' @param temp Boolean argument. If temp = TRUE, temperature results will be paired with TADA
+#' results. If hardness = FALSE, hardness results will not be paired. Default = TRUE.
+#
+#' @return A TADA data frame with an added TADA.SimpleCriteriaComparison.Flag.
+#' @export
+#'
+#' @examples
+#' # create criteria reference for example
+#' TADA.CharacteristicName <- c("BARIUM", "CHLORIDE", "CHLORIDE", "SILVER")
+#' TADA.ResultSampleFractionText <- c("TOTAL", "TOTAL", "TOTAL", "TOTAL")
+#' TADA.MethodSpeciationName <- c(NA, NA, "AS CL", NA)
+#' TADA.UserStandardValue <- c(5000, 500, 500, 160)
+#' TADA.UserStandardUnits <- c("UG/L", "MG/L", "MG/L", "UG/L")
+#' example.ref <- data.frame(TADA.CharacteristicName, TADA.MethodSpeciationName, TADA.ResultSampleFractionText, TADA.UserStandardValue, TADA.UserStandardUnits)
+#'
+#' # remove intermediate objects
+#' rm(
+#'   TADA.CharacteristicName, TADA.ResultSampleFractionText, TADA.UserStandardValue,
+#'   TADA.UserStandardUnits, TADA.MethodSpeciationName
+#' )
+#'
+#' # create example data set
+#' testdat <- TADA_DataRetrieval(
+#'   statecode = "IL",
+#'   startDate = "2020-01-01",
+#'   endDate = "2020-06-30"
+#' )
+#'
+#' # simple criteria comparison example with unit conversion
+#' SimpleCriteriaEx <- TADA_SimpleCriteriaComparison(testdat, criteria.ref = example.ref, convert.units = TRUE)
+#'
