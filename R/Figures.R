@@ -1315,9 +1315,6 @@ TADA_GroupedScatterplot <- function(.data, group_col = "MonitoringLocationName",
   param1 <- param2 <- param3 <- param4 <- NULL
   for (i in 1:length(unique(groups))) {
     assign(paste0("param", as.character(i)), subset(plot.data, plot.data[, group_col] %in% groups[i]))
-    
-  # remove intermediate objects
-    rm(depthcols)
   }
 
   # create empty list to store scatterplots
@@ -1480,7 +1477,7 @@ TADA_GroupedScatterplot <- function(.data, group_col = "MonitoringLocationName",
           marker = list(
             size = 10,
             color = tada.pal[4],
-            line = list(color = tada.pal[11], width = 2)
+            line = list(color = tada.pal[6], width = 2)
           ),
           hoverinfo = "text",
           hovertext = paste(
@@ -1520,7 +1517,7 @@ TADA_GroupedScatterplot <- function(.data, group_col = "MonitoringLocationName",
           marker = list(
             size = 10,
             color = tada.pal[7],
-            line = list(color = tada.pal[1], width = 2)
+            line = list(color = tada.pal[11], width = 2)
           ),
           hoverinfo = "text",
           hovertext = paste(
