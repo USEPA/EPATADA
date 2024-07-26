@@ -573,7 +573,7 @@ TADA_OverviewMap <- function(.data) {
 #'    then 3 decimal places.
 #' 2) outside USA - coordinates that fall outside the bounds of the USA. 
 #' 3) near other sites - groups of sites that are spatially located within
-#'    a threshhold distance (defaulting to 100 m) from each other.
+#'    a threshold distance (defaulting to 100 m) from each other.
 #'
 #' @export
 #'
@@ -934,10 +934,8 @@ TADA_Scatterplot <- function(.data, id_cols = c("TADA.ComparableDataIdentifier")
 #'
 #' # Load example dataset:
 #' data(Data_6Tribes_5y_Harmonized)
-#' # Filter the example data so it includes only one TADA.ComparableDataIdentifier
-#' df <- dplyr::filter(Data_6Tribes_5y_Harmonized, TADA.ComparableDataIdentifier == "TOTAL PHOSPHORUS, MIXED FORMS_UNFILTERED_AS P_MG/L")
-#' # Creates a scatterplot including the two specified sites in the same plot:
-#' TADA_TwoCharacteristicScatterplot(df, id_cols = "MonitoringLocationName", groups = c("Upper Red Lake: West", "Upper Red Lake: West-Central"))
+#' # Create a single scatterplot with two specified groups from TADA.ComparableDataIdentifier
+#' TADA_TwoCharacteristicScatterplot(Data_6Tribes_5y_Harmonized, id_cols = "TADA.ComparableDataIdentifier", groups = c("TEMPERATURE_NA_NA_DEG C", "PH_NA_NA_NA"))
 #'
 TADA_TwoCharacteristicScatterplot <- function(.data, id_cols = "TADA.ComparableDataIdentifier", groups) {
   # check .data is data.frame

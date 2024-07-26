@@ -152,7 +152,6 @@ ND's
 NHD
 NHDPlus
 NWIS
-NearbySiteGroups
 NoResultValue
 NoTargetUnit
 NonStandardized
@@ -237,6 +236,8 @@ Speciation
 SpeciationAssumptions
 SpeciationUnitConversion
 StateCode
+StringA
+StringB
 SubstituteDeprecatedChars
 SummarizeColumn
 TADA
@@ -366,6 +367,7 @@ isimpaired
 isthreatened
 joinkey
 magrittr
+manys
 mimeType
 mlt
 nd
