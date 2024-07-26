@@ -297,33 +297,11 @@ TADA_SimpleCriteriaComparison <- function(.data, criteria.ref = NULL, convert.un
 #' results. If pH = FALSE, pH results will not be paired. Default = TRUE.
 #' 
 #' @param temp Boolean argument. If temp = TRUE, temperature results will be paired with TADA
-#' results. If hardness = FALSE, hardness results will not be paired. Default = TRUE.
+#' results. If temp = FALSE, temperature results will not be paired. Default = TRUE.
 #
-#' @return A TADA data frame with an added TADA.SimpleCriteriaComparison.Flag.
+#' @return A TADA data frame with up to seven additional columns, depending on params. If hardness =
+#' TRUE, columns for TADA.Hardness.MeasureValue, TADA.Hardness.MeasureUnitCode, 
 #' @export
 #'
 #' @examples
-#' # create criteria reference for example
-#' TADA.CharacteristicName <- c("BARIUM", "CHLORIDE", "CHLORIDE", "SILVER")
-#' TADA.ResultSampleFractionText <- c("TOTAL", "TOTAL", "TOTAL", "TOTAL")
-#' TADA.MethodSpeciationName <- c(NA, NA, "AS CL", NA)
-#' TADA.UserStandardValue <- c(5000, 500, 500, 160)
-#' TADA.UserStandardUnits <- c("UG/L", "MG/L", "MG/L", "UG/L")
-#' example.ref <- data.frame(TADA.CharacteristicName, TADA.MethodSpeciationName, TADA.ResultSampleFractionText, TADA.UserStandardValue, TADA.UserStandardUnits)
-#'
-#' # remove intermediate objects
-#' rm(
-#'   TADA.CharacteristicName, TADA.ResultSampleFractionText, TADA.UserStandardValue,
-#'   TADA.UserStandardUnits, TADA.MethodSpeciationName
-#' )
-#'
-#' # create example data set
-#' testdat <- TADA_DataRetrieval(
-#'   statecode = "IL",
-#'   startDate = "2020-01-01",
-#'   endDate = "2020-06-30"
-#' )
-#'
-#' # simple criteria comparison example with unit conversion
-#' SimpleCriteriaEx <- TADA_SimpleCriteriaComparison(testdat, criteria.ref = example.ref, convert.units = TRUE)
 #'
