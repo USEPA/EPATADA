@@ -85,7 +85,7 @@ utils::globalVariables(c(
   "YAxis.DepthUnit", "TADA.CharacteristicsForDepthProfile", "TADA.ConsolidatedDepth",
   "TADA.ConsolidatedDepth.Bottom", "TADA.ConsolidatedDepth.Unit", "col2rgb",
   "palette.colors", "rect", "rgb", "text", "CodeNoSpeciation", "ResultMeasure.MeasureUnitCode.Upper",
-  "TADA.MonitoringLocationIdentifier", "StringA", "StringB", "param3"
+  "TADA.MonitoringLocationIdentifier", "StringA", "StringB", "MeasureUnitCode.match"
 ))
 
 # global variables for tribal feature layers used in TADA_OverviewMap in Utilities.R
@@ -1446,7 +1446,7 @@ TADA_UniqueCharUnitSpeciation <- function(.data) {
   )
 
   # Check to see if TADA_Autoclean has been run
-  if (all(required_cols %in% colnames(.data)) == FALSE) {
+  if (any(required_cols %in% colnames(.data)) == FALSE) {
     print("The dataframe does not contain the required fields. Running TADA_AutoClean to create required columns.")
     .data <- TADA_AutoClean(.data)
   }
@@ -1461,6 +1461,7 @@ TADA_UniqueCharUnitSpeciation <- function(.data) {
       TADA.CharacteristicName, TADA.ResultMeasure.MeasureUnitCode,
       ResultMeasure.MeasureUnitCode, TADA.MethodSpeciationName
     ) %>%
+    dplyr::filter(!is.na(TADA.ResultMeasure.MeasureUnitCode)) %>%
     dplyr::distinct()
 
   # Create df of unique codes and characteristic names(from TADA.CharacteristicName and TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode) in TADA data frame
@@ -1469,6 +1470,7 @@ TADA_UniqueCharUnitSpeciation <- function(.data) {
       TADA.CharacteristicName, TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode,
       DetectionQuantitationLimitMeasure.MeasureUnitCode, TADA.MethodSpeciationName
     ) %>%
+     dplyr::filter(!is.na(TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode)) %>%
     dplyr::distinct() %>%
     dplyr::rename(
       TADA.ResultMeasure.MeasureUnitCode = TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode,
@@ -1487,6 +1489,8 @@ TADA_UniqueCharUnitSpeciation <- function(.data) {
     dplyr::filter(!is.na(TADA.ResultMeasure.MeasureUnitCode) |
       is.na(TADA.ResultMeasure.MeasureUnitCode) & NCode == 1) %>%
     dplyr::select(-NCode)
+  
+  return(data.units)
 }
 
 
