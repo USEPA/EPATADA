@@ -1136,15 +1136,12 @@ TADA_DepthProfilePlot <- function(.data,
         data = param1,
         x = ~TADA.ResultMeasureValue,
         y = ~TADA.ConsolidatedDepth,
-        name = stringr::str_remove_all(stringr::str_remove_all(
-          stringr::str_remove_all(paste0(
-            param1$TADA.ResultSampleFractionText[1], " ",
-            param1$TADA.CharacteristicName[1], " ",
-            param1$TADA.MethodSpeciationName[1], " ",
-            "(", param1$TADA.ResultMeasure.MeasureUnitCode[1], ")"
-          ), stringr::fixed(" (NA)")),
-          stringr::fixed("NA ")
-        ), stringr::fixed(" NA")),
+        name = TADA_CharStringRemoveNA(paste0(
+          param1$TADA.ResultSampleFractionText[1], " ",
+          param1$TADA.CharacteristicName[1], " ",
+          param1$TADA.MethodSpeciationName[1], " ",
+          "(", param1$TADA.ResultMeasure.MeasureUnitCode[1], ")"
+        )),
         marker = list(
           size = 10,
           color = tada.pal[10]
@@ -1173,15 +1170,12 @@ TADA_DepthProfilePlot <- function(.data,
       plotly::add_lines(
         y = param1$TADA.ResultMeasureValue[1],
         x = xrange,
-        name = stringr::str_remove_all(stringr::str_remove_all(
-          stringr::str_remove_all(paste0(
-            param1$TADA.ResultSampleFractionText[1], " ",
-            param1$TADA.CharacteristicName[1], " ",
-            param1$TADA.MethodSpeciationName[1], " ",
-            "(", param1$TADA.ResultMeasure.MeasureUnitCode[1], ")"
-          ), stringr::fixed(" (NA)")),
-          stringr::fixed("NA ")
-        ), stringr::fixed(" NA")),
+        name = TADA_CharStringRemoveNA(paste0(
+          param1$TADA.ResultSampleFractionText[1], " ",
+          param1$TADA.CharacteristicName[1], " ",
+          param1$TADA.MethodSpeciationName[1], " ",
+          "(", param1$TADA.ResultMeasure.MeasureUnitCode[1], ")"
+        )),
         showlegend = TRUE,
         line = list(color = tada.pal[10], dash = "dash"),
         hoverinfo = "text",
@@ -1208,15 +1202,12 @@ TADA_DepthProfilePlot <- function(.data,
         data = param2,
         x = ~TADA.ResultMeasureValue,
         y = ~TADA.ConsolidatedDepth,
-        name = stringr::str_remove_all(stringr::str_remove_all(
-          stringr::str_remove_all(paste0(
-            param2$TADA.ResultSampleFractionText[1], " ",
-            param2$TADA.CharacteristicName[1], " ",
-            param2$TADA.MethodSpeciationName[1], " ",
-            "(", param2$TADA.ResultMeasure.MeasureUnitCode[1], ")"
-          ), stringr::fixed(" (NA)")),
-          stringr::fixed("NA ")
-        ), stringr::fixed(" NA")),
+        name = TADA_CharStringRemoveNA(paste0(
+          param2$TADA.ResultSampleFractionText[1], " ",
+          param2$TADA.CharacteristicName[1], " ",
+          param2$TADA.MethodSpeciationName[1], " ",
+          "(", param2$TADA.ResultMeasure.MeasureUnitCode[1], ")"
+        )),
         marker = list(
           size = 10,
           color = tada.pal[12]
@@ -1245,15 +1236,12 @@ TADA_DepthProfilePlot <- function(.data,
       plotly::add_lines(
         y = param2$TADA.ResultMeasureValue[1],
         x = xrange,
-        name = stringr::str_remove_all(stringr::str_remove_all(
-          stringr::str_remove_all(paste0(
-            param2$TADA.ResultSampleFractionText[1], " ",
-            param2$TADA.CharacteristicName[1], " ",
-            param2$TADA.MethodSpeciationName[1], " ",
-            "(", param2$TADA.ResultMeasure.MeasureUnitCode[1], ")"
-          ), stringr::fixed(" (NA)")),
-          stringr::fixed("NA ")
-        ), stringr::fixed(" NA")),
+        name = TADA_CharStringRemoveNA(paste0(
+          param2$TADA.ResultSampleFractionText[1], " ",
+          param2$TADA.CharacteristicName[1], " ",
+          param2$TADA.MethodSpeciationName[1], " ",
+          "(", param2$TADA.ResultMeasure.MeasureUnitCode[1], ")"
+        )),
         # inherit = FALSE,
         showlegend = TRUE,
         line = list(color = tada.pal[12], dash = "dash"),
@@ -1281,15 +1269,12 @@ TADA_DepthProfilePlot <- function(.data,
         data = param3,
         x = ~TADA.ResultMeasureValue,
         y = ~TADA.ConsolidatedDepth,
-        name = stringr::str_remove_all(stringr::str_remove_all(
-          stringr::str_remove_all(paste0(
-            param3$TADA.ResultSampleFractionText[1], " ",
-            param3$TADA.CharacteristicName[1], " ",
-            param3$TADA.MethodSpeciationName[1], " ",
-            "(", param3$TADA.ResultMeasure.MeasureUnitCode[1], ")"
-          ), stringr::fixed(" (NA)")),
-          stringr::fixed("NA ")
-        ), stringr::fixed(" NA")),
+        name = TADA_CharStringRemoveNA(paste0(
+          param3$TADA.ResultSampleFractionText[1], " ",
+          param3$TADA.CharacteristicName[1], " ",
+          param3$TADA.MethodSpeciationName[1], " ",
+          "(", param3$TADA.ResultMeasure.MeasureUnitCode[1], ")"
+        )),
         marker = list(
           size = 10,
           color = tada.pal[11]
@@ -1318,15 +1303,12 @@ TADA_DepthProfilePlot <- function(.data,
       plotly::add_lines(
         y = param3$TADA.ResultMeasureValue[1],
         x = xrange,
-        name = stringr::str_remove_all(stringr::str_remove_all(
-          stringr::str_remove_all(paste0(
-            param3$TADA.ResultSampleFractionText[1], " ",
-            param3$TADA.CharacteristicName[1], " ",
-            param3$TADA.MethodSpeciationName[1], " ",
-            "(", param3$TADA.ResultMeasure.MeasureUnitCode[1], ")"
-          ), stringr::fixed(" (NA)")),
-          stringr::fixed("NA ")
-        ), stringr::fixed(" NA")),
+        name = TADA_CharStringRemoveNA(paste0(
+          param3$TADA.ResultSampleFractionText[1], " ",
+          param3$TADA.CharacteristicName[1], " ",
+          param3$TADA.MethodSpeciationName[1], " ",
+          "(", param3$TADA.ResultMeasure.MeasureUnitCode[1], ")"
+        )),
         # inherit = FALSE,
         showlegend = TRUE,
         line = list(color = tada.pal[11], dash = "dash"),

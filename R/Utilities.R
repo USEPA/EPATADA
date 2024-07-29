@@ -85,7 +85,7 @@ utils::globalVariables(c(
   "YAxis.DepthUnit", "TADA.CharacteristicsForDepthProfile", "TADA.ConsolidatedDepth",
   "TADA.ConsolidatedDepth.Bottom", "TADA.ConsolidatedDepth.Unit", "col2rgb",
   "palette.colors", "rect", "rgb", "text", "CodeNoSpeciation", "ResultMeasure.MeasureUnitCode.Upper",
-  "TADA.MonitoringLocationIdentifier", "StringA", "StringB"
+  "TADA.MonitoringLocationIdentifier", "StringA", "StringB", "MeasureUnitCode.match"
 ))
 
 # global variables for tribal feature layers used in TADA_OverviewMap in Utilities.R
@@ -1438,7 +1438,6 @@ TADA_addPoints <- function(map, layerfilepath, layergroup, layername, bbox = NUL
 #' @examples
 #' UniqueCharUnitSpecExample <- TADA_UniqueCharUnitSpeciation(Data_NCTCShepherdstown_HUC12)
 #'
-
 TADA_UniqueCharUnitSpeciation <- function(.data) {
   required_cols <- c(
     "TADA.CharacteristicName", "TADA.ResultSampleFractionText",
@@ -1447,7 +1446,7 @@ TADA_UniqueCharUnitSpeciation <- function(.data) {
   )
 
   # Check to see if TADA_Autoclean has been run
-  if (all(required_cols %in% colnames(.data)) == FALSE) {
+  if (any(required_cols %in% colnames(.data)) == FALSE) {
     print("The dataframe does not contain the required fields. Running TADA_AutoClean to create required columns.")
     .data <- TADA_AutoClean(.data)
   }
@@ -1462,6 +1461,7 @@ TADA_UniqueCharUnitSpeciation <- function(.data) {
       TADA.CharacteristicName, TADA.ResultMeasure.MeasureUnitCode,
       ResultMeasure.MeasureUnitCode, TADA.MethodSpeciationName
     ) %>%
+    dplyr::filter(!is.na(TADA.ResultMeasure.MeasureUnitCode)) %>%
     dplyr::distinct()
 
   # Create df of unique codes and characteristic names(from TADA.CharacteristicName and TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode) in TADA data frame
@@ -1470,6 +1470,7 @@ TADA_UniqueCharUnitSpeciation <- function(.data) {
       TADA.CharacteristicName, TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode,
       DetectionQuantitationLimitMeasure.MeasureUnitCode, TADA.MethodSpeciationName
     ) %>%
+     dplyr::filter(!is.na(TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode)) %>%
     dplyr::distinct() %>%
     dplyr::rename(
       TADA.ResultMeasure.MeasureUnitCode = TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode,
@@ -1488,6 +1489,8 @@ TADA_UniqueCharUnitSpeciation <- function(.data) {
     dplyr::filter(!is.na(TADA.ResultMeasure.MeasureUnitCode) |
       is.na(TADA.ResultMeasure.MeasureUnitCode) & NCode == 1) %>%
     dplyr::select(-NCode)
+  
+  return(data.units)
 }
 
 
@@ -1554,4 +1557,48 @@ TADA_ViewColorPalette <- function() {
   text(x = 1:n, y = 0.5 - 0.2, labels = pal, pos = 1, col = label_colors, cex = 0.7, srt = 90)
 
   return(swatch)
+}
+
+#' Remove NAs in Strings for Figure Titles and Axis Labels
+#'
+#' Returns a vector of string(s) that removes common NA strings
+#' found in columns such as TADA.ComparableDataIdentifier. Can also
+#' accommodate handling of certain NA texts found in any general
+#' character string or a vector of strings.
+#'
+#' This function is meant as an internal function to remove NAs
+#' from figure titles and axis labels for the TADA package.
+#'
+#' @param char_string Character argument. Could be a single string
+#' or vector of strings that contains common "NA" strings
+#' (ex: "(NA", "(NA)", "_NA", etc.)
+#'
+#' @return A vector string that has removed NAs from its value.
+#'
+#' @export
+#'
+#' @examples
+#' # Removes NAs based on each TADA.ComparableDataIdentifier found in a dataset.
+#' data(Data_Nutrients_UT)
+#' UT_Titles <- TADA_CharStringRemoveNA(unique(Data_Nutrients_UT$TADA.ComparableDataIdentifier))
+#'
+TADA_CharStringRemoveNA <- function(char_string) {
+  # Checks if data type is a character string.
+  if (!is.character(char_string)) {
+    stop(paste0("TADA_CharStrignRemoveNA: 'char_string' argument is not a character string."))
+  }
+
+  # Converts character string to a vector.
+  title_string <- as.vector(char_string)
+
+  # Looks through each item in the vector and removes NAs from each.
+  labs <- c()
+  for (i in 1:length(char_string)) {
+    labs[i] <- paste0(char_string[i], collapse = " ")
+    labs[i] <- gsub("_NA|\\(NA|\\(NA)", "", labs[i])
+    labs[i] <- gsub("_", " ", labs[i])
+    labs <- as.vector(labs)
+  }
+
+  return(labs)
 }
