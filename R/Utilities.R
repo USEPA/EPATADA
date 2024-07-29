@@ -243,6 +243,9 @@ TADA_AutoClean <- function(.data) {
   } else {
     # create uppercase version of original ResultSampleFractionText
     .data$TADA.ResultSampleFractionText <- toupper(.data$ResultSampleFractionText)
+    # convert "NONE" to NA for TADA.ResultSampleFractionText
+    .data$TADA.ResultSampleFractionText <- ifelse(.data$TADA.ResultSampleFractionText == "NONE",
+                                              NA, .data$TADA.ResultSampleFractionText)
   }
 
   if ("TADA.MethodSpeciationName" %in% colnames(.data)) {
@@ -250,6 +253,9 @@ TADA_AutoClean <- function(.data) {
   } else {
     # create uppercase version of original MethodSpeciationName
     .data$TADA.MethodSpeciationName <- toupper(.data$MethodSpeciationName)
+    # convert "NONE" to NA for TADA.MethodSpeciationName
+    .data$TADA.MethodSpeciationName <- ifelse(.data$TADA.MethodSpeciationName == "NONE",
+                                              NA, .data$TADA.MethodSpeciationName)
   }
 
   if ("TADA.ResultMeasure.MeasureUnitCode" %in% colnames(.data)) {
