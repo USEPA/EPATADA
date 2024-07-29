@@ -24,7 +24,7 @@
 #' UT_AdditionalCriteriaRef <- TADA_CreateAdditionalCriteriaRef(Data_Nutrients_UT, entity = "Utah")
 #' 
 
-TADA_CreateAdditionalCriteriaRef <- function(.data, entity, priorityParam = FALSE, useCategory = c("Aquatic Life", "Human Health", "")) {
+TADA_CreateAdditionalCriteriaRef <- function(.data, entity, priorityParam = FALSE, useCategory = c("Aquatic Life", "Human Health", "Other")) {
   ## Aquatic Life Criteria should have both a Duration and Frequency component. That is, 
   #
   #       Duration - defined as the length of time a result was measured ("one hour average", "one hour maximum/minimum")
@@ -51,12 +51,29 @@ TADA_CreateAdditionalCriteriaRef <- function(.data, entity, priorityParam = FALS
   ## FOUR major types of designated use categories: 1) RECREATION, 2) AQUATIC LIFE - (coldwater/warmwater/salt versus fresh), 
   ## 3) AGRICULTURAL AND INDUSTRIAL USES, and 4) PUBLIC WATER SUPPLIES.
   
+  ## NEXT STEPS PLAN:
+  ##
   ## Use ATTAINS to pull in UseName and its context2 in Domains Value table. This can perhaps further help to define appropriate definitions for
-  ## duration and freqeuncy.
+  ## duration and freqeuncy. Create a user ref table and perform similar 'harmonization' of duration and frequency
+  ## IF(USE_NAME maps to HUMAN_HEALTH) -> duration = one time minimum or maximum and frequency = "lifetime/not to exceed ever" - and ask Users to validate
+  ## Determine if the logic of mapping to human health is correct
+  ##
   
+  library(arsenal)
+  library(httr)
+  library(tidyverse)
+  library(dplyr)
+  library(jsonlite)
+  
+  # This ref table pulls in the allowable designated uses by Entity and Parameter. Will be used to join onto the TADA by TADA.CharacteristicName
   parameterUseMap <- utils::read.csv(system.file("extdata", "ATTAINSParameterUseMapRef.csv", package = "EPATADA"))
-  TADA_Simp
-    
+  
+  ATTAINSUseType <- GET("https://attains.epa.gov/attains-public/api/domains?domainName=UseName") %>%
+    content(as = "text", encoding = "UTF-8") %>%
+    fromJSON(flatten = TRUE)
+  
+  ATTAINSUseType<- ATTAINSUseType[,c("name","context2")]
+  
   .data <- .data %>%
     dplyr::select(TADA.CharacteristicName, TADA.MethodSpeciationName, TADA.ResultSampleFractionText) %>%
     dplyr::distinct() %>%
@@ -67,12 +84,14 @@ TADA_CreateAdditionalCriteriaRef <- function(.data, entity, priorityParam = FALS
                   TADA.UserFrequencyValue = NA,
                   TADA.UserFrequencyUnit = NA) %>%
     dplyr::left_join(., parameterUseMap, by = c("TADA.CharacteristicName" = "parameter"), keep = TRUE) %>%
-    dplyr::filter(organization_name == entity)
+    dplyr::left_join(., ATTAINSUseType, by = c("use_name" = "name")) %>%
+    dplyr::filter(organization_name == entity) %>%
+    dplyr::distinct()
   
    # This will allow users to filter parameters by only the top priority ones. This would assist in filling out
    # a list to contribute in defining all priority parameters to share methodology and criteria with other users.
    if (priorityParam == TRUE) {
-     .data <- filter(.data)
+     .data <- subset(., parameter %in% utils::read.csv(system.file("extdata", "WQXcharValRef.csv", package = "EPATADA"))[parameters])
    } 
   
   return(.data)
