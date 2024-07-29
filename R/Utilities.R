@@ -1444,7 +1444,6 @@ TADA_addPoints <- function(map, layerfilepath, layergroup, layername, bbox = NUL
 #' @examples
 #' UniqueCharUnitSpecExample <- TADA_UniqueCharUnitSpeciation(Data_NCTCShepherdstown_HUC12)
 #'
-
 TADA_UniqueCharUnitSpeciation <- function(.data) {
   required_cols <- c(
     "TADA.CharacteristicName", "TADA.ResultSampleFractionText",
@@ -1564,4 +1563,48 @@ TADA_ViewColorPalette <- function() {
   text(x = 1:n, y = 0.5 - 0.2, labels = pal, pos = 1, col = label_colors, cex = 0.7, srt = 90)
 
   return(swatch)
+}
+
+#' Remove NAs in Strings for Figure Titles and Axis Labels
+#'
+#' Returns a vector of string(s) that removes common NA strings
+#' found in columns such as TADA.ComparableDataIdentifier. Can also
+#' accommodate handling of certain NA texts found in any general
+#' character string or a vector of strings.
+#'
+#' This function is meant as an internal function to remove NAs
+#' from figure titles and axis labels for the TADA package.
+#'
+#' @param char_string Character argument. Could be a single string
+#' or vector of strings that contains common "NA" strings
+#' (ex: "(NA", "(NA)", "_NA", etc.)
+#'
+#' @return A vector string that has removed NAs from its value.
+#'
+#' @export
+#'
+#' @examples
+#' # Removes NAs based on each TADA.ComparableDataIdentifier found in a dataset.
+#' data(Data_Nutrients_UT)
+#' UT_Titles <- TADA_CharStringRemoveNA(unique(Data_Nutrients_UT$TADA.ComparableDataIdentifier))
+#'
+TADA_CharStringRemoveNA <- function(char_string) {
+  # Checks if data type is a character string.
+  if (!is.character(char_string)) {
+    stop(paste0("TADA_CharStrignRemoveNA: 'char_string' argument is not a character string."))
+  }
+
+  # Converts character string to a vector.
+  title_string <- as.vector(char_string)
+
+  # Looks through each item in the vector and removes NAs from each.
+  labs <- c()
+  for (i in 1:length(char_string)) {
+    labs[i] <- paste0(char_string[i], collapse = " ")
+    labs[i] <- gsub("_NA|\\(NA|\\(NA)", "", labs[i])
+    labs[i] <- gsub("_", " ", labs[i])
+    labs <- as.vector(labs)
+  }
+
+  return(labs)
 }
