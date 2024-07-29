@@ -24,6 +24,7 @@
 <url><loc>usepa.github.io/EPATADA/reference/TADA_BigDataRetrieval.html</loc></url>
 <url><loc>usepa.github.io/EPATADA/reference/TADA_Boxplot.html</loc></url>
 <url><loc>usepa.github.io/EPATADA/reference/TADA_CalculateTotalNP.html</loc></url>
+<url><loc>usepa.github.io/EPATADA/reference/TADA_CharStringRemoveNA.html</loc></url>
 <url><loc>usepa.github.io/EPATADA/reference/TADA_CheckColumns.html</loc></url>
 <url><loc>usepa.github.io/EPATADA/reference/TADA_CheckRequiredFields.html</loc></url>
 <url><loc>usepa.github.io/EPATADA/reference/TADA_CheckType.html</loc></url>
@@ -71,6 +72,7 @@
 <url><loc>usepa.github.io/EPATADA/reference/TADA_GetUSGSSynonymRef.html</loc></url>
 <url><loc>usepa.github.io/EPATADA/reference/TADA_GetUniqueNearbySites.html</loc></url>
 <url><loc>usepa.github.io/EPATADA/reference/TADA_GetWQXCharValRef.html</loc></url>
+<url><loc>usepa.github.io/EPATADA/reference/TADA_GroupedScatterplot.html</loc></url>
 <url><loc>usepa.github.io/EPATADA/reference/TADA_HarmonizeSynonyms.html</loc></url>
 <url><loc>usepa.github.io/EPATADA/reference/TADA_Histogram.html</loc></url>
 <url><loc>usepa.github.io/EPATADA/reference/TADA_IDCensoredData.html</loc></url>
