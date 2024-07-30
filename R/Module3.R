@@ -418,7 +418,8 @@ TADA_PairForCriteriaCalc <- function(.data, hardness = TRUE, ph = TRUE, temp = T
       dplyr::ungroup()
     
     # need to rank hardness characteristic choices
-      
+    
+    #start2 <- Sys.time()
     
     pair.hardness.ml.time <- .data %>%
       dplyr::filter(!ResultIdentifier %in% pair.hardness.activityid$ResultIdentifier,
@@ -428,9 +429,26 @@ TADA_PairForCriteriaCalc <- function(.data, hardness = TRUE, ph = TRUE, temp = T
                        by = dplyr::join_by(TADA.MonitoringLocationIdentifier)) %>%
       dplyr::group_by(ResultIdentifier) %>%
       # Figure out fastest time comparison method - needs to be absolute time comparison
-      dplyr::mutate(CompareTime = as.POSIXct(ActivityStartDateTime) + lubridate::hours(4))
       dplyr::mutate(timediff = abs(difftime(as.POSIXct(HardnessActivityStartDateTime), as.POSIXct(ActivityStartDateTime), units = c("hours")))) %>%
-      dplyr::filter(timediff < 4)
+      dplyr::filter(timediff <= 4) %>%
+      dplyr::group_by(ResultIdentifier) %>%
+      dplyr::mutate(NCount = length(TADA.ResultMeasureValue)) %>%
+      dplyr::arrange(ResultIdentifier, Rank) %>%
+      dplyr::slice_min(Rank) %>%
+      dplyr::ungroup() %>%
+      dplyr::select(-timediff)
+      
+      #end2 <- Sys.time()
+      
+      #end2-start2
+    
+    # combine paired hardness dfs
+    hardness.pairs <- pair.hardness.activityid %>%
+      dplyr::full_join(pair.hardness.ml.time, names(pair.hardness.activityid))
+    
+    
+    
+
   }
 
   } 
