@@ -415,11 +415,15 @@ TADA_PairForCriteriaCalc <- function(.data, hardness = TRUE, ph = TRUE, temp = T
       dplyr::mutate(NCount = length(TADA.ResultMeasureValue)) %>%
       dplyr::arrange(ResultIdentifier, Rank) %>%
       dplyr::slice_min(Rank) %>%
-      dplyr::ungroup()
+      dplyr::ungroup() %>%
+      dplyr::select(-NCount, -Rank)
     
     # need to rank hardness characteristic choices
     
-    #start2 <- Sys.time()
+    start2 <- Sys.time()
+    
+    hardness.subset.noact <- hardness.subset %>%
+      dplyr::select(-ActivityIdentifier)
     
     pair.hardness.ml.time <- .data %>%
       dplyr::filter(!ResultIdentifier %in% pair.hardness.activityid$ResultIdentifier,
@@ -430,21 +434,24 @@ TADA_PairForCriteriaCalc <- function(.data, hardness = TRUE, ph = TRUE, temp = T
       dplyr::group_by(ResultIdentifier) %>%
       # Figure out fastest time comparison method - needs to be absolute time comparison
       dplyr::mutate(timediff = abs(difftime(as.POSIXct(HardnessActivityStartDateTime), as.POSIXct(ActivityStartDateTime), units = c("hours")))) %>%
-      dplyr::filter(timediff <= 4) %>%
+      dplyr::filter(timediff <= hours_range) %>%
       dplyr::group_by(ResultIdentifier) %>%
       dplyr::mutate(NCount = length(TADA.ResultMeasureValue)) %>%
-      dplyr::arrange(ResultIdentifier, Rank) %>%
+      dplyr::arrange(ResultIdentifier, Rank, dplyr::desc(timediff)) %>%
       dplyr::slice_min(Rank) %>%
       dplyr::ungroup() %>%
-      dplyr::select(-timediff)
+      dplyr::select(-timediff, -Rank, -NCount)
       
-      #end2 <- Sys.time()
+      end2 <- Sys.time()
       
-      #end2-start2
+      end2-start2
+      
+    # cols for joining
+      cols.pairs <- names()
     
     # combine paired hardness dfs
     hardness.pairs <- pair.hardness.activityid %>%
-      dplyr::full_join(pair.hardness.ml.time, names(pair.hardness.activityid))
+      dplyr::full_join(pair.hardness.ml.time)
     
     
     
