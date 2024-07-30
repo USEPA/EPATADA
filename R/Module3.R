@@ -429,7 +429,7 @@ TADA_PairForCriteriaCalc <- function(.data, hardness = TRUE, ph = TRUE, temp = T
       dplyr::filter(!ResultIdentifier %in% pair.hardness.activityid$ResultIdentifier,
                     !is.na(ActivityStartDateTime),
                     TADA.MonitoringLocationIdentifier %in% hardness.subset$TADA.MonitoringLocationIdentifier) %>%
-      dplyr::left_join(hardness.subset, relationship = "many-to-many",
+      dplyr::left_join(hardness.subset.noact, relationship = "many-to-many",
                        by = dplyr::join_by(TADA.MonitoringLocationIdentifier)) %>%
       dplyr::group_by(ResultIdentifier) %>%
       # Figure out fastest time comparison method - needs to be absolute time comparison
@@ -447,14 +447,19 @@ TADA_PairForCriteriaCalc <- function(.data, hardness = TRUE, ph = TRUE, temp = T
       end2-start2
       
     # cols for joining
-      cols.pairs <- names()
+    mlnames <- names(pair.hardness.ml.time)
+      
+    actnames <- names(pair.hardness.activityid)
+    
+     setdiff(mlnames, actnames)
     
     # combine paired hardness dfs
     hardness.pairs <- pair.hardness.activityid %>%
       dplyr::full_join(pair.hardness.ml.time)
     
-    
-    
+    # find results wtih no paired hardness
+    no.hardness.pair <- .data %>%
+      dplyr::filter(!ResultIdentifier %in% hardness.pairs)
 
   }
 
