@@ -420,8 +420,6 @@ TADA_PairForCriteriaCalc <- function(.data, hardness = TRUE, ph = TRUE, temp = T
     
     # need to rank hardness characteristic choices
     
-    start2 <- Sys.time()
-    
     hardness.subset.noact <- hardness.subset %>%
       dplyr::select(-ActivityIdentifier)
     
@@ -441,17 +439,6 @@ TADA_PairForCriteriaCalc <- function(.data, hardness = TRUE, ph = TRUE, temp = T
       dplyr::slice_min(Rank) %>%
       dplyr::ungroup() %>%
       dplyr::select(-timediff, -Rank, -NCount)
-      
-      end2 <- Sys.time()
-      
-      end2-start2
-      
-    # cols for joining
-    mlnames <- names(pair.hardness.ml.time)
-      
-    actnames <- names(pair.hardness.activityid)
-    
-     setdiff(mlnames, actnames)
     
     # combine paired hardness dfs
     hardness.pairs <- pair.hardness.activityid %>%
