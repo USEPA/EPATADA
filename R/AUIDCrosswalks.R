@@ -41,7 +41,10 @@ TADA_CreateAUIDCrosswalk <- function(.data, return_sf = FALSE, attains_orgid = "
   
   if(return_sf == FALSE) {
     
-    .data <- TADA_GetATTAINS(.data, return_sf = TRUE)
+    .data <- .data %>%
+      dplyr::group_by(MonitoringLocationIdentifier) %>%
+      dplyr::slice_sample(n= 1) %>%
+      TADA_GetATTAINS(.data, return_sf = TRUE)
     
     select.cols <- c("MonitoringLocationIdentifier",  "OrganizationIdentifier",
                      "OrganizationFormalName", "ATTAINS.assessmentunitidentifier", 
@@ -49,14 +52,15 @@ TADA_CreateAUIDCrosswalk <- function(.data, return_sf = FALSE, attains_orgid = "
                      "ATTAINS.organizationname")
   }
   
-  .data <- .data %>%
+  testcross <- .data %>%
     dplyr::select(MonitoringLocationIdentifier, OrganizationIdentifier,
                   OrganizationFormalName, ATTAINS.assessmentunitidentifier,
                   ATTAINS.assessmentunitidentifier, ATTAINS.organizationid,
                   ATTAINS.organizationname) %>%
     dplyr::distinct() %>%
-    dplyr::mutate(TADA.AUIDCrosswalk.Flag = case_when(!is.na(ATTAINS.assessmentunitidentifier) ~ "No AUID identified",
-                                                      length(ATTAINS.assessmentunitidentifier > 1 ~ "MonitoringLocation matched with multiple Assessment Units")))
+    dplyr::mutate(TADA.AUIDCrosswalk.Flag = dplyr::case_when(is.na(ATTAINS.assessmentunitidentifier) ~ "No AUID identified",
+                                                      length(ATTAINS.assessmentunitidentifier) > 1 ~ "MonitoringLocation matched with multiple AssessmentUnits",
+                                                      !is.na(ATTAINS.assessmentunitidentifier) & length(ATTAINS.assessmentunitidentifier) == 1 ~ "MonitoringLocation matched with one AssessmentUnit"))
   
 
   
