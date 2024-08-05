@@ -194,6 +194,7 @@ TADA_FlagMethod <- function(.data, clean = TRUE, flaggedonly = FALSE) {
 #' # Remove continuous data in dataframe
 #' Data_Nutrients_UT_clean <- TADA_FlagContinuousData(Data_Nutrients_UT, clean = TRUE)
 #' unique(Data_Nutrients_UT_clean$TADA.ContinuousData.Flag)
+#' }
 #'
 TADA_FlagContinuousData <- function(.data, clean = FALSE, flaggedonly = FALSE, time_difference = 4) {
   # check .data is data.frame
@@ -301,7 +302,7 @@ TADA_FlagContinuousData <- function(.data, clean = FALSE, flaggedonly = FALSE, t
   }
 
   flag.data <- cont.data %>%
-    dplyr::full_join(noncont.data)
+    dplyr::full_join(noncont.data, by = c(names(cont.data)))
 
   # flagged output, all data
   if (clean == FALSE & flaggedonly == FALSE) {
