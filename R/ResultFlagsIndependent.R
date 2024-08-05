@@ -195,20 +195,6 @@ TADA_FlagMethod <- function(.data, clean = TRUE, flaggedonly = FALSE) {
 #' Data_Nutrients_UT_clean <- TADA_FlagContinuousData(Data_Nutrients_UT, clean = TRUE)
 #' unique(Data_Nutrients_UT_clean$TADA.ContinuousData.Flag)
 #'
-#' data(Data_R5_TADAPackageDemo)
-#'
-#' # Flag continuous data in new column titled "TADA.ContinuousData.Flag"
-#' Data_R5_TADAPackageDemo_flags <- TADA_FlagContinuousData(Data_R5_TADAPackageDemo, clean = FALSE)
-#' unique(Data_R5_TADAPackageDemo_flags$TADA.ContinuousData.Flag)
-#'
-#' # Show only rows flagged as continuous data
-#' Data_R5_TADAPackageDemo_flaggedonly <- TADA_FlagContinuousData(Data_R5_TADAPackageDemo, clean = FALSE, flaggedonly = TRUE)
-#'
-#' # Remove continuous data in dataframe
-#' Data_R5_TADAPackageDemo_clean <- TADA_FlagContinuousData(Data_R5_TADAPackageDemo, clean = TRUE)
-#' unique(Data_R5_TADAPackageDemo_clean$TADA.ContinuousData.Flag)
-#' }
-#'
 TADA_FlagContinuousData <- function(.data, clean = FALSE, flaggedonly = FALSE, time_difference = 4) {
   # check .data is data.frame
   TADA_CheckType(.data, "data.frame", "Input object")
@@ -289,7 +275,6 @@ TADA_FlagContinuousData <- function(.data, clean = FALSE, flaggedonly = FALSE, t
       dplyr::mutate(group_id = dplyr::cur_group_id()) %>%
       dplyr::filter(n_records > 1) %>%
       dplyr::ungroup() %>%
-      dplyr::mutate(ActivityStartDate = as.POSIXct(ActivityStartDate, format = "%Y-%m-%d %H:%M:%S", tz = "UTC")) %>%
       dplyr::group_by(group_id) %>%
       dplyr::arrange(ActivityStartDateTime, .by_group = TRUE) %>%
       dplyr::mutate(
