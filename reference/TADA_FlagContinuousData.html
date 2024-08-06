@@ -86,11 +86,11 @@ will be filtered to include only the rows flagged as "Continuous" results.</p></
 
 <dt id="arg-time-difference">time_difference<a class="anchor" aria-label="anchor" href="#arg-time-difference"></a></dt>
 <dd><p>Numeric argument defining the maximum time difference
-in hours between measurements taken on the same day. This is used to search for
-continuous time series data (i.e., if there are multiple measurements on the same
-day within the selected time_difference, then the row will be flagged as
-continuous). The default time window is 4 hours. The time_difference can be
-adjusted by the user.</p></dd>
+in hours between measurements of the same TADA.ComparableDataIdentifier taken at the same
+latitude, longitude, and depth. This is used to search for
+continuous time series data (i.e., if there are multiple measurements within the selected
+time_difference, then the row will be flagged as continuous). The default time window is 4 hours.
+The time_difference can be adjusted by the user.</p></dd>
 
 </dl></div>
     <div class="section level2">
@@ -140,19 +140,6 @@ attachment at the activity level.</p>
 <span class="r-in"><span><span class="co"># Remove continuous data in dataframe</span></span></span>
 <span class="r-in"><span><span class="va">Data_Nutrients_UT_clean</span> <span class="op">&lt;-</span> <span class="fu">TADA_FlagContinuousData</span><span class="op">(</span><span class="va">Data_Nutrients_UT</span>, clean <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/unique.html" class="external-link">unique</a></span><span class="op">(</span><span class="va">Data_Nutrients_UT_clean</span><span class="op">$</span><span class="va">TADA.ContinuousData.Flag</span><span class="op">)</span></span></span>
-<span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">Data_R5_TADAPackageDemo</span><span class="op">)</span></span></span>
-<span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># Flag continuous data in new column titled "TADA.ContinuousData.Flag"</span></span></span>
-<span class="r-in"><span><span class="va">Data_R5_TADAPackageDemo_flags</span> <span class="op">&lt;-</span> <span class="fu">TADA_FlagContinuousData</span><span class="op">(</span><span class="va">Data_R5_TADAPackageDemo</span>, clean <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/unique.html" class="external-link">unique</a></span><span class="op">(</span><span class="va">Data_R5_TADAPackageDemo_flags</span><span class="op">$</span><span class="va">TADA.ContinuousData.Flag</span><span class="op">)</span></span></span>
-<span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># Show only rows flagged as continuous data</span></span></span>
-<span class="r-in"><span><span class="va">Data_R5_TADAPackageDemo_flaggedonly</span> <span class="op">&lt;-</span> <span class="fu">TADA_FlagContinuousData</span><span class="op">(</span><span class="va">Data_R5_TADAPackageDemo</span>, clean <span class="op">=</span> <span class="cn">FALSE</span>, flaggedonly <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
-<span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># Remove continuous data in dataframe</span></span></span>
-<span class="r-in"><span><span class="va">Data_R5_TADAPackageDemo_clean</span> <span class="op">&lt;-</span> <span class="fu">TADA_FlagContinuousData</span><span class="op">(</span><span class="va">Data_R5_TADAPackageDemo</span>, clean <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/unique.html" class="external-link">unique</a></span><span class="op">(</span><span class="va">Data_R5_TADAPackageDemo_clean</span><span class="op">$</span><span class="va">TADA.ContinuousData.Flag</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="op">}</span> <span class="co"># }</span></span></span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
