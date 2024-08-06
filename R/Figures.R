@@ -1105,7 +1105,7 @@ TADA_TwoCharacteristicScatterplot <- function(.data, id_cols = "TADA.ComparableD
       ), stringr::fixed(" NA")),
       marker = list(
         size = 10, color = tada.pal[2, 1],
-        line = list(color = tada.pal[2, 1], width = 2)
+        line = list(color = tada.pal[2, 2], width = 2)
       ),
       yaxis = "y2",
       hoverinfo = "text",
