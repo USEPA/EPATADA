@@ -140,7 +140,7 @@ TADA_Boxplot <- function(.data, id_cols = c("TADA.ComparableDataIdentifier")) {
       hoverinfo = "y",
       upperfence = box_upper, boxpoints = "outliers",
       marker = list(color = tada.pal[[1]][1]),
-      stroke = I(tada.pal[[1]][1])
+      stroke = I(tada.pal[[1]][2])
     )
 
     # figure margin
