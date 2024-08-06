@@ -1496,11 +1496,16 @@ TADA_UniqueCharUnitSpeciation <- function(.data) {
 
 #' Create Color Palette For Use in Graphs and Maps
 #'
-#' Creates a consistent color palette for use in TADA visualizations. Currently,
-#' the palette is utilizing the "Okabe-Ito" palette from base R via the palette.colors
+#' Creates a consistent color palette for use in TADA visualizations. Consistent 
+#' color pairings can be utilized by setting col_pair = TRUE, in which each row 
+#' consists of two values for color outlines and fills. Currently, the palette 
+#' is utilizing the "Okabe-Ito" palette from base R via the palette.colors
 #' function. The palette includes 9 colors by default. However, additional colors
 #' can be added to the palette as needed as more complex visualization functions
 #' are added to the TADA package.
+#'
+#' @param col_pair Boolean argument. Optional argument to define consistent color
+#' pairings for outlines/fills of figures defined by the row values in a dataframe.
 #'
 #' @return A color palette based on the "Okabe-Ito" palette, extended to 15 colors,
 #'  with modifications for use in mapping and graphing functions
@@ -1509,14 +1514,29 @@ TADA_UniqueCharUnitSpeciation <- function(.data) {
 #'
 #' @examples
 #' TestColorPalette <- TADA_ColorPalette()
+#' TestColorPalettePairings <- TADA_ColorPalette(col_pair = TRUE)
+#' TestColorPalettePairings
 #'
-TADA_ColorPalette <- function() {
+TADA_ColorPalette <- function(col_pair = FALSE) {
   pal <- c(
     "#000000", "#835A00", "#DC851E", "#059FA4", "#56B4E9",
     "#005258", "#A1A522", "#F0E442", "#66A281", "#1E6F98",
     "#4F5900", "#813B00", "#CD758F", "#B686A1", "#999999"
   )
-
+  
+  # Defines two color columns to be used as the color pairings in a dataframe
+  col1 <- c()
+  col2 <- c()
+  col_combo <- data.frame()
+    
+  # Each row defines the pairing of colors to be used if col_pair is TRUE
+  if(col_pair == TRUE){
+    col1 <- c(pal[5], pal[3], pal[7], pal[4])
+    col2 <- c(pal[10], pal[12], pal[11], pal[6])
+    col_combo <- data.frame(col1, col2)
+    pal <- col_combo
+  }
+  
   return(pal)
 }
 
