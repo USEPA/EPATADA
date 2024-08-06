@@ -364,7 +364,8 @@ TADA_SimpleCensoredMethods <- function(.data, nd_method = "multiplier", nd_multi
       }
     }
 
-    .data <- plyr::rbind.fill(nd, od, all_others)
+    .data <- plyr::rbind.fill(nd, od, all_others) %>%
+      TADA_CreateComparableID()
   }
   .data <- TADA_OrderCols(.data)
   return(.data)

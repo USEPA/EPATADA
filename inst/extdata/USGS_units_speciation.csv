@@ -1,6 +1,7 @@
 ﻿Domain,Unique Identifier,Code,CodeNoSpeciation,Description,Last Change Date,Target Unit,Target Speciation,Conversion Factor
 Measurement Unit(MeasureUnitCode),NA,mg/l SiO2,mg/l,,,ug/L,as SiO2,1000
 Measurement Unit(MeasureUnitCode),NA,mg/l CaCO3,mg/l,,,ug/L,as CaCO3,1000
+Measurement Unit(MeasureUnitCode),NA,mg/l CaCO3**,mg/l,,,ug/l,as CaCO3,1000
 Measurement Unit(MeasureUnitCode),NA,mg/l as N,mg/l,,,ug/L,as N,1000
 Measurement Unit(MeasureUnitCode),NA,mg/kg as N,mg/kg,,,ug/kg,as N,1000
 Measurement Unit(MeasureUnitCode),NA,mg/l asPO4,mg/l,,,ug/L,as PO4,1000

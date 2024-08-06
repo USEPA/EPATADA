@@ -46,9 +46,7 @@ TADA_TwoCharacteristicScatterplot(Data_Nutrients_UT, id_cols = "TADA.ComparableD
 
 # Load example dataset:
 data(Data_6Tribes_5y_Harmonized)
-# Filter the example data so it includes only one TADA.ComparableDataIdentifier
-df <- dplyr::filter(Data_6Tribes_5y_Harmonized, TADA.ComparableDataIdentifier == "TOTAL PHOSPHORUS, MIXED FORMS_UNFILTERED_AS P_MG/L")
-# Creates a scatterplot including the two specified sites in the same plot:
-TADA_TwoCharacteristicScatterplot(df, id_cols = "MonitoringLocationName", groups = c("Upper Red Lake: West", "Upper Red Lake: West-Central"))
+# Create a single scatterplot with two specified groups from TADA.ComparableDataIdentifier
+TADA_TwoCharacteristicScatterplot(Data_6Tribes_5y_Harmonized, id_cols = "TADA.ComparableDataIdentifier", groups = c("TEMPERATURE_NA_NA_DEG C", "PH_NA_NA_NA"))
 
 }
