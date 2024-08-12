@@ -134,13 +134,13 @@ TADA_Boxplot <- function(.data, id_cols = c("TADA.ComparableDataIdentifier")) {
     }
 
     base_boxplot <- plotly::plot_ly(
-      y = list(values), type = "box", fillcolor = tada.pal[1, 1],
+      y = list(values), type = "box", fillcolor = tada.pal[[1]][1],
       q1 = quant_25, median = box_median,
       q3 = quant_75, lowerfence = box_lower,
       hoverinfo = "y",
       upperfence = box_upper, boxpoints = "outliers",
-      marker = list(color = tada.pal[1, 1]),
-      stroke = I(tada.pal[1, 2])
+      marker = list(color = tada.pal[[1]][1]),
+      stroke = I(tada.pal[[1]][2])
     )
 
     # figure margin
