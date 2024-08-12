@@ -8,7 +8,7 @@ TADA_ColorPalette(col_pair = FALSE)
 }
 \arguments{
 \item{col_pair}{Boolean argument. Optional argument to define consistent color
-pairings for outlines/fills of figures defined by the row values in a dataframe.}
+pairings for outlines/fills of TADA figures defined by the row values in a dataframe.}
 }
 \value{
 A color palette based on the "Okabe-Ito" palette, extended to 15 colors,

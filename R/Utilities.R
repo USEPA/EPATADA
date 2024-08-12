@@ -1505,7 +1505,7 @@ TADA_UniqueCharUnitSpeciation <- function(.data) {
 #' are added to the TADA package.
 #'
 #' @param col_pair Boolean argument. Optional argument to define consistent color
-#' pairings for outlines/fills of figures defined by the row values in a dataframe.
+#' pairings for outlines/fills of TADA figures defined by the row values in a dataframe.
 #'
 #' @return A color palette based on the "Okabe-Ito" palette, extended to 15 colors,
 #'  with modifications for use in mapping and graphing functions
@@ -1546,7 +1546,11 @@ TADA_ColorPalette <- function(col_pair = FALSE) {
 #' View a swatch of the colors in the TADA Color palette labeled by color and
 #' index number. TADA developers can reference this function when deciding which
 #' colors to use in TADA visualizations. TADA users can also reference this
-#' palette function to create their own visually consistent figures.
+#' palette function to create their own visually consistent figures. TADA consistent
+#' color pairings when col_pair = TRUE can be viewed in a matrix format.
+#'
+#' @param col_pair Boolean argument. Optional argument to view consistent color
+#' pairings for outlines/fills of TADA figures defined by the row values in a dataframe.
 #'
 #' @return A color swatch figure based on the TADA color palette.
 #'
@@ -1576,17 +1580,17 @@ TADA_ViewColorPalette <- function(col_pair = FALSE) {
   rect(1:n - 0.5, 0, n + 0.5, 1, col = pal, border = NA)
   text(x = 1:n, y = 0.5, labels = 1:n, pos = 3, col = label_colors)
   text(x = 1:n, y = 0.5 - 0.2, labels = pal, pos = 1, col = label_colors, cex = 0.7, srt = 90)
-  
+
   col_combo <- TADA_ColorPalette(col_pair = TRUE)
-  
+
   if(col_pair == TRUE){
   swatch <- list()
   graphics::par(mfrow = c(2, nrow(col_combo)/2)) # Create a 2 x nrow/2 plotting matrix
   # create list of label colors for pairs
   label_colors <- rep("black", 2)
-  
+
     for(i in 1:nrow(col_combo)){
-      
+
       one_swatch <- graphics::plot(1,
         type = "n", xlab = "", ylab = "", xlim = c(0.5, 2.5), ylim = c(0, 1),
         main = paste0("TADA Palette Pair ", i), axes = FALSE
@@ -1594,13 +1598,13 @@ TADA_ViewColorPalette <- function(col_pair = FALSE) {
       rect(1:2 - 0.5, 0, 2 + 0.5, 1, col = as.character(col_combo[i,]), border = NA)
       #text(x = 1:2, y = 0.5 - 0.2, labels = 1:2, pos = 3, col = label_colors, cex = 0.75)
       text(x = 1:2 + 0.25, y = 0.5, labels = col_combo[i,], pos = 2, col = label_colors, cex = 0.7)
-      
+
       swatch[[i]] <- one_swatch
     }
   }
-  
+
   graphics::par(mfrow=c(1,1))
-  
+
   return(swatch)
 }
 
