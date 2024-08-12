@@ -1554,8 +1554,9 @@ TADA_ColorPalette <- function(col_pair = FALSE) {
 #'
 #' @examples
 #' TestViewPalette <- TADA_ViewColorPalette()
+#' TestViewPalettePairing <- TADA_ViewColorPalette(col_pair = TRUE)
 #'
-TADA_ViewColorPalette <- function() {
+TADA_ViewColorPalette <- function(col_pair = FALSE) {
   # call TADA color palette
   pal <- TADA_ColorPalette()
 
@@ -1575,7 +1576,31 @@ TADA_ViewColorPalette <- function() {
   rect(1:n - 0.5, 0, n + 0.5, 1, col = pal, border = NA)
   text(x = 1:n, y = 0.5, labels = 1:n, pos = 3, col = label_colors)
   text(x = 1:n, y = 0.5 - 0.2, labels = pal, pos = 1, col = label_colors, cex = 0.7, srt = 90)
-
+  
+  col_combo <- TADA_ColorPalette(col_pair = TRUE)
+  
+  if(col_pair == TRUE){
+  swatch <- list()
+  graphics::par(mfrow = c(2, nrow(col_combo)/2)) # Create a 2 x nrow/2 plotting matrix
+  # create list of label colors for pairs
+  label_colors <- rep("black", 2)
+  
+    for(i in 1:nrow(col_combo)){
+      
+      one_swatch <- graphics::plot(1,
+        type = "n", xlab = "", ylab = "", xlim = c(0.5, 2.5), ylim = c(0, 1),
+        main = paste0("TADA Palette Pair ", i), axes = FALSE
+      )
+      rect(1:2 - 0.5, 0, 2 + 0.5, 1, col = as.character(col_combo[i,]), border = NA)
+      #text(x = 1:2, y = 0.5 - 0.2, labels = 1:2, pos = 3, col = label_colors, cex = 0.75)
+      text(x = 1:2 + 0.25, y = 0.5, labels = col_combo[i,], pos = 2, col = label_colors, cex = 0.7)
+      
+      swatch[[i]] <- one_swatch
+    }
+  }
+  
+  graphics::par(mfrow=c(1,1))
+  
   return(swatch)
 }
 
