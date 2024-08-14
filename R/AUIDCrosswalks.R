@@ -37,7 +37,7 @@ TADA_CreateAUIDCrosswalk <- function(.data, return_sf = FALSE, attains_orgid = "
 
   if(return_sf == FALSE) {
 
-  .data <- unique_mls %>%
+  unique_attains <- unique_mls %>%
     dplyr::select(MonitoringLocationIdentifier, testd TADA_GetATTAINS(.data, return_sf = FALSE)
 
   select.cols <- c("MonitoringLocationIdentifier",  "OrganizationIdentifier",
@@ -48,7 +48,7 @@ TADA_CreateAUIDCrosswalk <- function(.data, return_sf = FALSE, attains_orgid = "
 
   if(return_sf == TRUE) {
 
-    .data <- .data %>%
+    unique_attains <- unique_mls %>%
       dplyr::group_by(MonitoringLocationIdentifier) %>%
       dplyr::slice_sample(n= 1) %>%
       TADA_GetATTAINS(.data, return_sf = TRUE)
@@ -72,7 +72,7 @@ TADA_CreateAUIDCrosswalk <- function(.data, return_sf = FALSE, attains_orgid = "
 
 
 
-}
+}}
 
 #' function to compare cross walk to old crosswalk
 #'
