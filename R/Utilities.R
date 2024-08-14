@@ -1531,8 +1531,8 @@ TADA_ColorPalette <- function(col_pair = FALSE) {
     
   # Each row defines the pairing of colors to be used if col_pair is TRUE
   if(col_pair == TRUE){
-    col1 <- c(pal[5], pal[3], pal[7], pal[4])
-    col2 <- c(pal[10], pal[12], pal[11], pal[6])
+    col1 <- c(pal[5], pal[3], pal[7], pal[14])
+    col2 <- c(pal[10], pal[12], pal[11], pal[1])
     col_combo <- data.frame(col1, col2)
     pal <- col_combo
   }

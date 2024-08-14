@@ -1310,7 +1310,6 @@ TADA_GroupedScatterplot <- function(.data, group_col = "MonitoringLocationName",
   plot.data <- dplyr::arrange(plot.data, ActivityStartDate)
 
   # returns the param groups for plotting. Up to 4 params are defined.
-  param1 <- param2 <- param3 <- param4 <- NULL
   for (i in 1:length(unique(groups))) {
     assign(paste0("param", as.character(i)), subset(plot.data, plot.data[, group_col] %in% groups[i]))
   }
@@ -1366,10 +1365,7 @@ TADA_GroupedScatterplot <- function(.data, group_col = "MonitoringLocationName",
           showgrid = FALSE, tickcolor = "black"
         ),
         yaxis = list(
-          title = stringr::str_remove_all(stringr::str_remove_all(
-            stringr::str_remove_all(paste0(plot.data.y$TADA.CharacteristicName[1], "  ", stats::na.omit(unique(plot.data.y$TADA.ResultMeasure.MeasureUnitCode))), stringr::fixed(" (NA)")),
-            stringr::fixed("NA ")
-          ), stringr::fixed(" NA")),
+          title = paste(TADA_CharStringRemoveNA(plot.data.y$TADA.CharacteristicName[1]), TADA_CharStringRemoveNA(unique(plot.data.y$TADA.ResultMeasure.MeasureUnitCode))),
           titlefont = list(size = 16, family = "Arial"),
           tickfont = list(size = 16, family = "Arial"),
           hoverformat = ",.4r", linecolor = "black", rangemode = "tozero",
@@ -1380,10 +1376,10 @@ TADA_GroupedScatterplot <- function(.data, group_col = "MonitoringLocationName",
         plot_bgcolor = "#e5ecf6",
         margin = mrg,
         legend = list(
+          title = list(text = paste0('<b>', group_col,'<b>'), x = 0.5, y= 100),
           orientation = "h",
           xanchor = "center",
-          x = 0.5,
-          y = -0.2
+          x = 0.5
         )
       ) %>%
       # config options https://plotly.com/r/configuration-options/
@@ -1391,7 +1387,7 @@ TADA_GroupedScatterplot <- function(.data, group_col = "MonitoringLocationName",
       plotly::add_trace(
         data = paramA,
         x = ~ as.Date(ActivityStartDate),
-        y = ~TADA.ResultMeasureValue,
+        y = ~ TADA.ResultMeasureValue,
         name = groups[1],
         marker = list(
           size = 10,
