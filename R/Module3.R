@@ -385,7 +385,7 @@ TADA_PairForCriteriaCalc <- function(.data, hardness = TRUE, ph = TRUE, temp = T
                     grepl("HARDNESS", TADA.CharacteristicName))
     
     hardness.subset <- hardness.data %>%
-      dplyr::select(TADA.MonitoringLocationIdentifier, TADA.CharacteristicName,
+      dplyr::select(MonitoringLocationIdentifier, TADA.CharacteristicName,
                     TADA.ResultMeasure.MeasureUnitCode, ActivityStartDateTime,
                     ActivityIdentifier) %>%
       dplyr::rename(TADA.HardnessName = TADA.CharacteristicName,
@@ -394,7 +394,8 @@ TADA_PairForCriteriaCalc <- function(.data, hardness = TRUE, ph = TRUE, temp = T
       # what should default ranking be here?
       dplyr::mutate(Rank = dplyr::case_when(TADA.HardnessName == "HARDNESS, CA, MG" ~ 1,
                                      TADA.HardnessName == "TOTAL HARDNESS" ~ 2,
-                                     TADA.HardnessName == "HARDNESS, CARBONATE" ~ 3))
+                                     TADA.HardnessName == "HARDNESS, CARBONATE" ~ 3,
+                                     TADA.HardnessName == "HARDNESS, NON-CARBONATE" ~ 4))
     }
     
     if(ph == TRUE) {
@@ -409,7 +410,7 @@ TADA_PairForCriteriaCalc <- function(.data, hardness = TRUE, ph = TRUE, temp = T
     
     pair.hardness.activityid <- .data %>%
       dplyr::filter(ActivityIdentifier %in% hardness.subset$ActivityIdentifier) %>%
-      dplyr::left_join(hardness.subset, by = dplyr::join_by(ActivityIdentifier, TADA.MonitoringLocationIdentifier),
+      dplyr::left_join(hardness.subset, by = dplyr::join_by(ActivityIdentifier, MonitoringLocationIdentifier),
                        relationship = "many-to-many") %>%
       dplyr::group_by(ResultIdentifier) %>%
       dplyr::mutate(NCount = length(TADA.ResultMeasureValue)) %>%
