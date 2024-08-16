@@ -73,7 +73,7 @@ TADA_Boxplot <- function(.data, id_cols = c("TADA.ComparableDataIdentifier")) {
 
   # load TADA color palette
 
-  tada.pal <- TADA_ColorPalette()
+  tada.pal <- TADA_ColorPalette(col_pair = TRUE)
 
   start <- dim(.data)[1]
 
@@ -134,13 +134,13 @@ TADA_Boxplot <- function(.data, id_cols = c("TADA.ComparableDataIdentifier")) {
     }
 
     base_boxplot <- plotly::plot_ly(
-      y = list(values), type = "box", fillcolor = tada.pal[5],
+      y = list(values), type = "box", fillcolor = tada.pal[1, 1],
       q1 = quant_25, median = box_median,
       q3 = quant_75, lowerfence = box_lower,
       hoverinfo = "y",
       upperfence = box_upper, boxpoints = "outliers",
-      marker = list(color = tada.pal[5]),
-      stroke = I(tada.pal[10])
+      marker = list(color = tada.pal[1, 1]),
+      stroke = I(tada.pal[1, 2])
     )
 
     # figure margin
@@ -246,7 +246,7 @@ TADA_Histogram <- function(.data, id_cols = c("TADA.ComparableDataIdentifier")) 
     "TADA.ResultMeasure.MeasureUnitCode"
   ))
 
-  tada.pal <- TADA_ColorPalette()
+  tada.pal <- TADA_ColorPalette(col_pair = TRUE)
 
   start <- dim(.data)[1]
 
@@ -301,8 +301,8 @@ TADA_Histogram <- function(.data, id_cols = c("TADA.ComparableDataIdentifier")) 
       plotly::add_histogram(
         x = plot.data$TADA.ResultMeasureValue,
         xbins = list(start = min(plot.data$TADA.ResultMeasureValue)),
-        marker = list(color = tada.pal[5]),
-        stroke = I(tada.pal[10]),
+        marker = list(color = tada.pal[1, 1]),
+        stroke = I(tada.pal[1, 2]),
         bingroup = 1,
         name = "<b>All Data<b>"
       )
@@ -311,8 +311,8 @@ TADA_Histogram <- function(.data, id_cols = c("TADA.ComparableDataIdentifier")) 
         plotly::add_histogram(
           x = no_outliers$TADA.ResultMeasureValue,
           xbins = list(start = min(plot.data$TADA.ResultMeasureValue)),
-          marker = list(color = tada.pal[5]),
-          stroke = I(tada.pal[10]),
+          marker = list(color = tada.pal[1, 1]),
+          stroke = I(tada.pal[1, 2]),
           bingroup = 1,
           name = paste0("<b>Outliers Removed</b>", "\nUpper Threshold: ", box_upper, "\nLower Threshold: ", box_lower),
           visible = "legendonly"
@@ -813,7 +813,7 @@ TADA_Scatterplot <- function(.data, id_cols = c("TADA.ComparableDataIdentifier")
     y_label <- "Activity Start Date"
 
     # create TADA color palette
-    tada.pal <- TADA_ColorPalette()
+    tada.pal <- TADA_ColorPalette(col_pair = TRUE)
 
     # construct plotly scatterplot
     one_scatterplot <- plotly::plot_ly(
@@ -825,8 +825,8 @@ TADA_Scatterplot <- function(.data, id_cols = c("TADA.ComparableDataIdentifier")
       # consider adding color or shapes to make it easier to see sites and/or possible realtive result values
       # color = ~MonitoringLocationName,
       # colors = RColorBrewer::brewer.pal(3, "Set2"),
-      marker = list(color = tada.pal[5]), # marker color
-      stroke = I(tada.pal[10]), # marker border color
+      marker = list(color = tada.pal[1, 1]), # marker color
+      stroke = I(tada.pal[1, 2]), # marker border color
       name = "<b>All Data<b>",
       hoverinfo = "text",
       hovertext = paste(
@@ -1001,7 +1001,7 @@ TADA_TwoCharacteristicScatterplot <- function(.data, id_cols = "TADA.ComparableD
   )
 
   # create TADA color palette
-  tada.pal <- TADA_ColorPalette()
+  tada.pal <- TADA_ColorPalette(col_pair = TRUE)
 
   scatterplot <- plotly::plot_ly(type = "scatter", mode = "markers") %>%
     plotly::layout(
@@ -1061,8 +1061,8 @@ TADA_TwoCharacteristicScatterplot <- function(.data, id_cols = "TADA.ComparableD
       ), stringr::fixed(" NA")),
       marker = list(
         size = 10,
-        color = tada.pal[5],
-        line = list(color = tada.pal[10], width = 2)
+        color = tada.pal[1, 1],
+        line = list(color = tada.pal[1, 2], width = 2)
       ),
       hoverinfo = "text",
       hovertext = paste(
@@ -1104,8 +1104,8 @@ TADA_TwoCharacteristicScatterplot <- function(.data, id_cols = "TADA.ComparableD
         stringr::fixed("NA ")
       ), stringr::fixed(" NA")),
       marker = list(
-        size = 10, color = tada.pal[3],
-        line = list(color = tada.pal[12], width = 2)
+        size = 10, color = tada.pal[2, 1],
+        line = list(color = tada.pal[2, 2], width = 2)
       ),
       yaxis = "y2",
       hoverinfo = "text",
@@ -1310,7 +1310,6 @@ TADA_GroupedScatterplot <- function(.data, group_col = "MonitoringLocationName",
   plot.data <- dplyr::arrange(plot.data, ActivityStartDate)
 
   # returns the param groups for plotting. Up to 4 params are defined.
-  param1 <- param2 <- param3 <- param4 <- NULL
   for (i in 1:length(unique(groups))) {
     assign(paste0("param", as.character(i)), subset(plot.data, plot.data[, group_col] %in% groups[i]))
   }
@@ -1340,7 +1339,7 @@ TADA_GroupedScatterplot <- function(.data, group_col = "MonitoringLocationName",
     y_label <- "Activity Start Date"
 
     # create TADA color palette
-    tada.pal <- TADA_ColorPalette()
+    tada.pal <- TADA_ColorPalette(col_pair = TRUE)
 
     assign("paramA", subset(param1, param1[, "TADA.ComparableDataIdentifier"] %in% unique(plot.data$TADA.ComparableDataIdentifier)[i]))
     assign("paramB", subset(param2, param2[, "TADA.ComparableDataIdentifier"] %in% unique(plot.data$TADA.ComparableDataIdentifier)[i]))
@@ -1366,10 +1365,7 @@ TADA_GroupedScatterplot <- function(.data, group_col = "MonitoringLocationName",
           showgrid = FALSE, tickcolor = "black"
         ),
         yaxis = list(
-          title = stringr::str_remove_all(stringr::str_remove_all(
-            stringr::str_remove_all(paste0(plot.data.y$TADA.CharacteristicName[1], "  ", stats::na.omit(unique(plot.data.y$TADA.ResultMeasure.MeasureUnitCode))), stringr::fixed(" (NA)")),
-            stringr::fixed("NA ")
-          ), stringr::fixed(" NA")),
+          title = paste(TADA_CharStringRemoveNA(plot.data.y$TADA.CharacteristicName[1]), TADA_CharStringRemoveNA(unique(plot.data.y$TADA.ResultMeasure.MeasureUnitCode))),
           titlefont = list(size = 16, family = "Arial"),
           tickfont = list(size = 16, family = "Arial"),
           hoverformat = ",.4r", linecolor = "black", rangemode = "tozero",
@@ -1380,10 +1376,10 @@ TADA_GroupedScatterplot <- function(.data, group_col = "MonitoringLocationName",
         plot_bgcolor = "#e5ecf6",
         margin = mrg,
         legend = list(
+          title = list(text = paste0('<b>', group_col,'<b>'), x = 0.5, y= 100),
           orientation = "h",
           xanchor = "center",
-          x = 0.5,
-          y = -0.2
+          x = 0.5
         )
       ) %>%
       # config options https://plotly.com/r/configuration-options/
@@ -1391,12 +1387,12 @@ TADA_GroupedScatterplot <- function(.data, group_col = "MonitoringLocationName",
       plotly::add_trace(
         data = paramA,
         x = ~ as.Date(ActivityStartDate),
-        y = ~TADA.ResultMeasureValue,
+        y = ~ TADA.ResultMeasureValue,
         name = groups[1],
         marker = list(
           size = 10,
-          color = tada.pal[5],
-          line = list(color = tada.pal[10], width = 2)
+          color = tada.pal[1, 1],
+          line = list(color = tada.pal[1, 2], width = 2)
         ),
         hoverinfo = "text",
         hovertext = paste(
@@ -1434,8 +1430,8 @@ TADA_GroupedScatterplot <- function(.data, group_col = "MonitoringLocationName",
           name = groups[2],
           marker = list(
             size = 10,
-            color = tada.pal[3],
-            line = list(color = tada.pal[12], width = 2)
+            color = tada.pal[2, 1],
+            line = list(color = tada.pal[2, 2], width = 2)
           ),
           hoverinfo = "text",
           hovertext = paste(
@@ -1474,8 +1470,8 @@ TADA_GroupedScatterplot <- function(.data, group_col = "MonitoringLocationName",
           name = groups[3],
           marker = list(
             size = 10,
-            color = tada.pal[4],
-            line = list(color = tada.pal[6], width = 2)
+            color = tada.pal[3, 1],
+            line = list(color = tada.pal[3, 2], width = 2)
           ),
           hoverinfo = "text",
           hovertext = paste(
@@ -1514,8 +1510,8 @@ TADA_GroupedScatterplot <- function(.data, group_col = "MonitoringLocationName",
           name = groups[4],
           marker = list(
             size = 10,
-            color = tada.pal[7],
-            line = list(color = tada.pal[11], width = 2)
+            color = tada.pal[4, 1],
+            line = list(color = tada.pal[4, 2], width = 2)
           ),
           hoverinfo = "text",
           hovertext = paste(
