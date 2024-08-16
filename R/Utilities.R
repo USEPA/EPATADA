@@ -1532,7 +1532,7 @@ TADA_ColorPalette <- function(col_pair = FALSE) {
   # Each row defines the pairing of colors to be used if col_pair is TRUE
   if(col_pair == TRUE){
     col1 <- c(pal[5], pal[3], pal[7], pal[14])
-    col2 <- c(pal[10], pal[12], pal[11], pal[1])
+    col2 <- c(pal[10], pal[12], pal[11], pal[2])
     col_combo <- data.frame(col1, col2)
     pal <- col_combo
   }
@@ -1585,7 +1585,8 @@ TADA_ViewColorPalette <- function(col_pair = FALSE) {
 
   if(col_pair == TRUE){
   swatch <- list()
-  graphics::par(mfrow = c(2, nrow(col_combo)/2)) # Create a 2 x nrow/2 plotting matrix
+  # Create a 2 x nrow/2 plotting matrix, can handle additional color pairings, in one view, if more are added in the future.
+  graphics::par(mfrow = c(2, nrow(col_combo)/2))
   # create list of label colors for pairs
   label_colors <- rep("black", 2)
 
@@ -1603,6 +1604,7 @@ TADA_ViewColorPalette <- function(col_pair = FALSE) {
     }
   }
 
+  swatch <- grDevices::recordPlot()
   graphics::par(mfrow=c(1,1))
 
   return(swatch)
