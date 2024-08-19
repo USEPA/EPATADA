@@ -281,25 +281,36 @@ TADA_SimpleCriteriaComparison <- function(.data, criteria.ref = NULL, convert.un
   }
 }
 
-#' Create Reference Data Frame to Pair Hardness, pH, or Temperature Results
+#' Create Reference Data Frame to Pair Characteristic Results For Use in Numeric Criteria Equations
 #'
 #' This function creates a data frame that shows all combinations of TADA.CharacteristicName,
 #' TADA.CharacteristicName, TADA.ResultMeasure.MeasureUnitCode, TADA.MethodSpeciationName,
-#' and TADA.ResultSampleFractionText for hardness, pH, or temperature for users to edit and use 
-#' in NAMEOFPAIRINGFUNCTION.
+#' and TADA.ResultSampleFractionText for commonly paired characteristics (such as pH, temperature,
+#' hardness, salinity, and chloride).
 #' 
 #' @param .data TADA dataframe
+#' 
+#' @param ph Boolean argument. When ph = TRUE, pH is included in this reference data frame. When 
+#' ph = FALSE, pH is not included in the reference data frame.
+#' 
+#' @param hardness Boolean argument. When hardness = TRUE, hardness is included in this reference 
+#' data frame. When hardness = FALSE, hardness is not included in the reference data frame.
+#' 
+#' @param temp Boolean argument. When temp = TRUE, water temperature is included in this reference 
+#' data frame. When temp = FALSE, water temperature is not included in the reference data frame.
+#' 
+#' @param salinity Boolean argument. When salinity = TRUE, salinity is included in this reference 
+#' data frame. When salinity = FALSE, salinity is not included in the reference data frame.
+#' 
+#' @param chloride Boolean argument. When chloride = TRUE, salinity is included in this reference 
+#' data frame. When chloride = FALSE, chloride is not included in the reference data frame.
 #'
-#' @param char Character string. Default is "hardness". Other options are "pH" and "temp". When
-#' char = "hardness", the TADA data frame is filtered for all hardness TADA.CharacteristicNames before
-#' the unique combinations of TADA.CharacteristicName, TADA.ResultMeasure.MeasureUnitCode, 
-#' TADA.MethodSpeciationName, and TADA.ResultSampleFractionText are iidentified. For char = "ph" and
-#' char = "temp", the same process occurs for TADA.CharacteristicNames for pH, and water temperature,
-#' respectively.
+#' @param other_char Character argument. The user provides a data frame TADA.CharacteristicNames and
+#' the pairing group they belong to. #Needs more details.
 #
-#' @return A data frame with four columns, ADA.CharacteristicName,
-#' TADA.CharacteristicName, TADA.ResultMeasure.MeasureUnitCode, TADA.MethodSpeciationName,
-#' and TADA.ResultSampleFractionText. 
+#' @return A data frame with six columns, TADA.CharacteristicName, TADA.ResultMeasure.MeasureUnitCode, 
+#' TADA.MethodSpeciationName, TADA.ResultSampleFractionText, TADA.PairingGroup, and 
+#' TADA.PairingGroupRank. 
 #'
 #' @export
 #'
@@ -307,44 +318,113 @@ TADA_SimpleCriteriaComparison <- function(.data, criteria.ref = NULL, convert.un
 #' # create ref for hardness for example tribal data
 #' HardnessRef <- TADA_CreatePairRef(Data_6Tribes_5y_Harmonized, char = "hardness")
 
-TADA_CreatePairRef <- function(.data, char = "hardness") {
+TADA_CreatePairRef <- function(.data, ph = TRUE, hardness = TRUE, temp = TRUE,
+                               chloride = TRUE, salinity = TRUE, other_char = "null") {
   
-  if(char == "hardness") {
+  # create data frame to store pair refs
+  pair.ref <- data.frame(matrix(ncol = 6, nrow = 0))
+  # name columns in pair.ref df
+  colnames(pair.ref) <- c("TADA.CharacteristicName", "TADA.ResultMeasure.MeasureUnitCode", 
+                          "TADA.MethodSpeciationName", "TADA.ResultSampleFractionText",
+                          "TADA.PairingGroup", "TADA.PairingGroupRank")
+  
+  prep.ref <- function(.data) {
+    
+    .data <- .data %>%
+      dplyr::select(TADA.CharacteristicName, TADA.ResultMeasure.MeasureUnitCode, 
+                    TADA.MethodSpeciationName, TADA.ResultSampleFractionText) %>%
+      dplyr::distinct() %>%
+      dplyr::group_by(TADA.CharacteristicName, TADA.ResultMeasure.MeasureUnitCode, 
+                      TADA.MethodSpeciationName, TADA.ResultSampleFractionText) %>%
+      # need a better way to assign rank? make specific to each char and remove from this function?
+      dplyr::mutate(Rank = dplyr::cur_group_id())
+  }
+  
+  
+  if(hardness == TRUE) {
     
     char.ref <- TADA_GetCharacteristicRef() %>%
-      dplyr::mutate(CharacteristicName = toupper(CharacteristicName))
-    
-    char.ref <- char.ref %>%
+      dplyr::mutate(CharacteristicName = toupper(CharacteristicName)) %>%
       dplyr::filter(grepl("HARDNESS", CharacteristicName))
     
-    .data <- .data %>%
-      dplyr::filter(TADA.CharacteristicName %in% char.ref$CharacteristicName)
-  }
-  
-  if(char == "pH") {
-
-    .data <- .data %>%
-      dplyr::filter(TADA.CharacteristicName == "PH")
-  }
-  
-  if(char == "temp") {
+    hard.ref <- .data %>%
+      dplyr::filter(TADA.CharacteristicName %in% char.ref$CharacteristicName) %>%
+      prep.ref() %>%
+      dplyr::mutate(TADA.PairingGroup = "Hardness")
     
-    .data <- .data %>%
-      dplyr::filter(TADA.CharacteristicName %in% c(	"TEMPERATURE", "TEMPERATURE, WATER"))
+    pair.ref <- rbind(pair.ref, hard.ref)
+    
+    rm(char.ref, hard.ref)
   }
-
-  .data <- .data %>%
-    dplyr::select(TADA.CharacteristicName, TADA.ResultMeasure.MeasureUnitCode, 
-                  TADA.MethodSpeciationName, TADA.ResultSampleFractionText) %>%
-    dplyr::distinct() %>%
-    dplyr::group_by(TADA.CharacteristicName, TADA.ResultMeasure.MeasureUnitCode, 
-                    TADA.MethodSpeciationName, TADA.ResultSampleFractionText) %>%
-    dplyr::mutate(Rank = dplyr::cur_group_id())
   
-  return(data)
+  if(ph == TRUE) {
+
+    ph.ref <- .data %>%
+      dplyr::filter(TADA.CharacteristicName == "PH") %>%
+      prep.ref() %>%
+      dplyr::mutate(TADA.PairingGroup = "pH")
+    
+    pair.ref <- rbind(pair.ref, ph.ref)
+    
+    rm(ph.ref)
+  }
+  
+  if(temp == TRUE) {
+    
+    temp.ref <- .data %>%
+      dplyr::filter(TADA.CharacteristicName %in% c(	"TEMPERATURE", "TEMPERATURE, WATER")) %>%
+      prep.ref() %>%
+      dplyr::mutate(TADA.PairingGroup = "Temperature")
+    
+    pair.ref <- rbind(pair.ref, temp.ref)
+    
+    rm(temp.ref)
+  }
+  
+  if(salinity == TRUE) {
+    
+    salinity.ref <- .data %>%
+      dplyr::filter(TADA.CharacteristicName %in% c("SALINITY")) %>%
+      prep.ref() %>%
+      dplyr::mutate(TADA.PairingGroup = "Salinity")
+    
+    pair.ref <- rbind(pair.ref, salinity.ref)
+    
+    rm(salinity.ref)
+  }
+  
+  
+  if(chloride == TRUE) {
+    
+    chloride.ref <- .data %>%
+      dplyr::filter(TADA.CharacteristicName %in% c("CHLORIDE")) %>%
+      prep.ref() %>%
+      dplyr::mutate(TADA.PairingGroup = "Chloride")
+    
+    pair.ref <- rbind(pair.ref, chloride.ref)
+    
+    rm(chloride.ref)
+  }
+  
+  if(other_char != "null") {
+    
+    if(!is.data.frame(other_char)) {
+      stop("TADA_CreatePairRef: 'other_char' must be a data frame with three columns. The first column
+           contains TADA.CharactersticName, the second column contains TADA.PairingGroup, and the
+           third column contains TADA.PairingGroup.Rank")
+    }
+    
+    # add code for adding other characteristic
+  }
+  
+  # remove any duplicate rows
+  pair.ref <- pair.ref %>%
+    dplyr::distinct()
+  
+  return(pair.ref)
 }
 
-#' Pair Results with Hardness, pH, or Temperature
+#' Pair Results for Numeric Criteria Calculation
 #'
 #' This function pairs TADA results with hardness, pH, and temperature results from the same 
 #' MonitoringLocation within an user-specified time window to facilitate the calculation of numeric 
@@ -358,55 +438,21 @@ TADA_CreatePairRef <- function(.data, char = "hardness") {
 #'
 #' @param .data TADA dataframe
 #'
-#' @param hardness Boolean argument. If hardness = TRUE, hardness results will be paired with TADA
-#' results. If hardness = FALSE, hardness results will not be paired. Default = TRUE.
-#' 
-#' @param ph Boolean argument. If ph = TRUE, hardness results will be paired with TADA
-#' results. If ph = FALSE, ph results will not be paired. Default = TRUE.
-#' 
-#' @param temp Boolean argument. If temp = TRUE, temperature results will be paired with TADA
-#' results. If temp = FALSE, temperature results will not be paired. Default = TRUE.
+#' @param ref Write description of what columns need to be in this ref or null option
 #
-#' @return A TADA data frame with up to seven additional columns, depending on params. If hardness =
-#' TRUE, columns for TADA.Hardness.MeasureValue, TADA.Hardness.MeasureUnitCode, 
+#' @return A TADA data frame with x(???) additional columns added for each pairing group specified
+#' in the pairing ref.
 #' @export
 #'
 #' @examples
 #'
-TADA_PairForCriteriaCalc <- function(.data, hardness = TRUE, ph = TRUE, temp = TRUE,
-                                     ref = "null", hours_range = 4) {
+TADA_PairForCriteriaCalc <- function(.data, ref = "null") {
   
   if(ref == "null"){
     
-    if(hardness == TRUE) {
+    ref <- TADA_CreatePairRef(.data)
     
-    hardness.data <- .data %>%
-      dplyr::filter(!is.na(ActivityStartDateTime),
-                    grepl("HARDNESS", TADA.CharacteristicName))
-    
-    hardness.subset <- hardness.data %>%
-      dplyr::select(MonitoringLocationIdentifier, TADA.CharacteristicName,
-                    TADA.ResultMeasure.MeasureUnitCode, ActivityStartDateTime,
-                    ActivityIdentifier) %>%
-      dplyr::rename(TADA.HardnessName = TADA.CharacteristicName,
-                    TADA.HardnessUnitCode = TADA.ResultMeasure.MeasureUnitCode,
-                    HardnessActivityStartDateTime = ActivityStartDateTime) %>%
-      # what should default ranking be here?
-      dplyr::mutate(Rank = dplyr::case_when(TADA.HardnessName == "HARDNESS, CA, MG" ~ 1,
-                                     TADA.HardnessName == "TOTAL HARDNESS" ~ 2,
-                                     TADA.HardnessName == "HARDNESS, CARBONATE" ~ 3,
-                                     TADA.HardnessName == "HARDNESS, NON-CARBONATE" ~ 4))
-    }
-    
-    if(ph == TRUE) {
-    ph.data <- .data %>%
-      dplyr::filter(TADA.CharacteristicName == "PH")
-    }
-    
-    if(temp == TRUE) {
-    temp.data <- .data %>% 
-      dplyr::filter(TADA.CharacteristicName %in% c("TEMPERATURE", "TEMPERATURE, WATER"))
-    }
+
     
     pair.hardness.activityid <- .data %>%
       dplyr::filter(ActivityIdentifier %in% hardness.subset$ActivityIdentifier) %>%
