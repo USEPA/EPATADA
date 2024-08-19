@@ -337,7 +337,7 @@ TADA_CreatePairRef <- function(.data, ph = TRUE, hardness = TRUE, temp = TRUE,
       dplyr::group_by(TADA.CharacteristicName, TADA.ResultMeasure.MeasureUnitCode, 
                       TADA.MethodSpeciationName, TADA.ResultSampleFractionText) %>%
       # need a better way to assign rank? make specific to each char and remove from this function?
-      dplyr::mutate(Rank = dplyr::cur_group_id())
+      dplyr::mutate(TADA.PairingGroup.Rank = dplyr::cur_group_id())
   }
   
   
@@ -405,18 +405,19 @@ TADA_CreatePairRef <- function(.data, ph = TRUE, hardness = TRUE, temp = TRUE,
     
     rm(chloride.ref)
   }
-  
-  if(other_char != "null") {
     
-    if(!is.data.frame(other_char)) {
+  if(!is.data.frame(other_char)) {
       stop("TADA_CreatePairRef: 'other_char' must be a data frame with three columns. The first column
            contains TADA.CharactersticName, the second column contains TADA.PairingGroup, and the
            third column contains TADA.PairingGroup.Rank")
     }
     
     # add code for adding other characteristic
-  }
-  
+    if(is.data.frame(other_char)) {
+      
+      pair.ref <- rbind(pair.ref, other_char)
+    }
+
   # remove any duplicate rows
   pair.ref <- pair.ref %>%
     dplyr::distinct()
