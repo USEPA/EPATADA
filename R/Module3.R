@@ -447,54 +447,114 @@ TADA_CreatePairRef <- function(.data, ph = TRUE, hardness = TRUE, temp = TRUE,
 #'
 #' @examples
 #'
-TADA_PairForCriteriaCalc <- function(.data, ref = "null") {
+TADA_PairForCriteriaCalc <- function(.data, ref = "null", hours_range = 4) {
   
   if(ref == "null"){
     
     ref <- TADA_CreatePairRef(.data)
     
+    # create list of groups
+    list.groups <- ref %>%
+      dplyr::ungroup() %>%
+      dplyr::select(TADA.PairingGroup) %>%
+      dplyr::distinct() %>%
+      dplyr::pull()
+    
+    # find number of groups
+    n.groups <- length(list.groups)
+    
+    # setting up loop
+    
+    # identify char list
+    char.df <- ref %>%
+      dplyr::filter(TADA.PairingGroup == list.groups[1])
+    
+    # create group ID
+    group.id <- list.groups[1]
+    
+    ref.subset <- ref %>%
+      dplyr::filter(TADA.PairingGroup == list.groups[1]) %>%
+      dplyr::select(TADA.CharacteristicName, TADA.PairingGroup.Rank)
 
     
-    pair.hardness.activityid <- .data %>%
-      dplyr::filter(ActivityIdentifier %in% hardness.subset$ActivityIdentifier) %>%
-      dplyr::left_join(hardness.subset, by = dplyr::join_by(ActivityIdentifier, MonitoringLocationIdentifier),
+   # create subset of data for pairing
+    pair.subset <- .data %>%
+      dplyr::filter(TADA.CharacteristicName %in% char.df$TADA.CharacteristicName) %>%
+      dplyr::select(TADA.CharacteristicName, TADA.ResultMeasureValue, TADA.ResultMeasure.MeasureUnitCode,
+                    ActivityIdentifier, MonitoringLocationIdentifier, ActivityStartDateTime,
+                    TADA.ResultSampleFractionText, TADA.MethodSpeciationName) %>%
+      dplyr::left_join(ref.subset, relationship = "many-to-many", 
+                       dplyr::join_by(TADA.CharacteristicName, TADA.ResultMeasure.MeasureUnitCode, 
+                                      TADA.ResultSampleFractionText, TADA.MethodSpeciationName)) %>%
+      dplyr::rename_with(~paste0("TADA.", group.id, "Name"), TADA.CharacteristicName) %>%
+      dplyr::rename_with(~paste0("TADA.", group.id, ".ResultMeasureValue"), TADA.ResultMeasureValue) %>%
+      dplyr::rename_with(~paste0("TADA.", group.id, ".MeasureUnitCode"), TADA.ResultMeasure.MeasureUnitCode) %>%
+      dplyr::rename_with(~paste0("TADA.", group.id, "ActivityStartDateTime"), ActivityStartDateTime) %>%
+      dplyr::rename_with(~paste0("TADA.", group.id, "ResultSampleFractionText"), TADA.ResultSampleFractionText) %>%
+      dplyr::rename_with(~paste0("TADA.", group.id, "MethodSpeciationName"), TADA.MethodSpeciationName)
+      
+      
+    
+    # identify dynamically named columns
+    pair_char_name <- paste0("TADA.", group.id, "Name")
+    pair_result_val <- paste0("TADA.", group.id, ".ResultMeasureValue")
+    pair_units <- paste0("TADA.", group.id, ".MeasureUnitCode")
+    pair_datetime <- paste0("TADA.", group.id, "ActivityStartDateTime")
+      
+    # NOTE - CAN REMOVE NCOUNT COLS WHEN DONE TESTING (HRM 8/20/24)  
+
+    # pair by activity id
+    pair.activityid <- .data %>%
+      dplyr::filter(ActivityIdentifier %in% pair.subset$ActivityIdentifier) %>%
+      dplyr::left_join(pair.subset, by = dplyr::join_by(ActivityIdentifier, MonitoringLocationIdentifier),
                        relationship = "many-to-many") %>%
       dplyr::group_by(ResultIdentifier) %>%
       dplyr::mutate(NCount = length(TADA.ResultMeasureValue)) %>%
-      dplyr::arrange(ResultIdentifier, Rank) %>%
-      dplyr::slice_min(Rank) %>%
+      dplyr::slice_min(order_by = TADA.PairingGroup.Rank) %>%
       dplyr::ungroup() %>%
-      dplyr::select(-NCount, -Rank)
+      dplyr::select(-NCount, -TADA.PairingGroup.Rank)
     
-    # need to rank hardness characteristic choices
-    
-    hardness.subset.noact <- hardness.subset %>%
+    # drop activity id from pair subset
+    pair.subset2 <- pair.subset %>%
       dplyr::select(-ActivityIdentifier)
-    
-    pair.hardness.ml.time <- .data %>%
-      dplyr::filter(!ResultIdentifier %in% pair.hardness.activityid$ResultIdentifier,
+  
+    # pair by monitoring location and time
+    pair.ml.time <- .data %>%
+      dplyr::filter(!ResultIdentifier %in% pair.activityid$ResultIdentifier,
                     !is.na(ActivityStartDateTime),
-                    TADA.MonitoringLocationIdentifier %in% hardness.subset$TADA.MonitoringLocationIdentifier) %>%
-      dplyr::left_join(hardness.subset.noact, relationship = "many-to-many",
-                       by = dplyr::join_by(TADA.MonitoringLocationIdentifier)) %>%
+                    MonitoringLocationIdentifier %in% pair.subset$MonitoringLocationIdentifier) %>%
+      dplyr::left_join(pair.subset2, relationship = "many-to-many",
+                       by = dplyr::join_by(MonitoringLocationIdentifier)) %>%
       dplyr::group_by(ResultIdentifier) %>%
       # Figure out fastest time comparison method - needs to be absolute time comparison
-      dplyr::mutate(timediff = abs(difftime(as.POSIXct(HardnessActivityStartDateTime), as.POSIXct(ActivityStartDateTime), units = c("hours")))) %>%
+      dplyr::mutate(timediff = abs(difftime(as.POSIXct(!!rlang::sym(pair_datetime)), as.POSIXct(ActivityStartDateTime), units = c("hours")))) %>%
       dplyr::filter(timediff <= hours_range) %>%
       dplyr::group_by(ResultIdentifier) %>%
       dplyr::mutate(NCount = length(TADA.ResultMeasureValue)) %>%
-      dplyr::arrange(ResultIdentifier, Rank, dplyr::desc(timediff)) %>%
-      dplyr::slice_min(Rank) %>%
+      dplyr::arrange(ResultIdentifier,TADA.PairingGroup.Rank, dplyr::desc(timediff)) %>%
+      dplyr::slice_min(TADA.PairingGroup.Rank) %>%
       dplyr::ungroup() %>%
-      dplyr::select(-timediff, -Rank, -NCount)
+      dplyr::select(-timediff, -TADA.PairingGroup.Rank, -NCount)
     
-    # combine paired hardness dfs
-    hardness.pairs <- pair.hardness.activityid %>%
-      dplyr::full_join(pair.hardness.ml.time)
+    # combine paired dfs
+    all.pairs <- pair.activityid %>%
+      rbind(pair.ml.time)
     
-    # find results wtih no paired hardness
-    no.hardness.pair <- .data %>%
-      dplyr::filter(!ResultIdentifier %in% hardness.pairs)
+    # find results wtih no paired 
+    no.pairs <- .data %>%
+      dplyr::filter(!ResultIdentifier %in% all.pairs)
+    
+    # combine pairs and no pairs
+    all.results <- all.pairs %>%
+      dplyr::full_join(no.pairs, dplyr::join_by(ResultIdentifier))
+    
+    # NEED TO FIGURE OUT THIS JOIN
+    # join with .data
+    .data <- .data %>%
+      dplyr::full_join(all.results, by = (names(.data[1:149])))
+    
+    # SHOULD WRITE TEST TO COMPARE # ROWS AT START AND END OF THIS FUNCTION, COL NUM SHOULD CHANGE BUT ROW NUM SHOULD NOT
+    
 
   }
 
