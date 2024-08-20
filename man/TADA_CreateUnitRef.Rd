@@ -4,7 +4,7 @@
 \alias{TADA_CreateUnitRef}
 \title{Generate A Data Frame of Units and Target by Characteristic Name}
 \usage{
-TADA_CreateUnitRef(.data, print.message = TRUE)
+TADA_CreateUnitRef(.data, masstoVolume = FALSE, print.message = TRUE)
 }
 \arguments{
 \item{.data}{TADA dataframe}

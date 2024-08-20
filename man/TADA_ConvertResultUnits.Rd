@@ -4,7 +4,12 @@
 \alias{TADA_ConvertResultUnits}
 \title{Transform Units to TADA Target Units, WQX Target Units or User Specified Units}
 \usage{
-TADA_ConvertResultUnits(.data, ref = "tada", transform = TRUE)
+TADA_ConvertResultUnits(
+  .data,
+  ref = "tada",
+  masstoVolume = FALSE,
+  transform = TRUE
+)
 }
 \arguments{
 \item{.data}{TADA dataframe}
@@ -25,7 +30,7 @@ Default is transform = TRUE. When transform = TRUE, result values and units,
 and detection quantitation limit value and units are converted to TADA target units.
 This function changes the values within "TADA.ResultMeasure.MeasureUnitCode" and
 "TADA.DetectionQuantitationLimitMeasure.MeasureValue" to the TADA target units
-and converts  respective values within the "TADA.ResultMeasureValue" and
+and converts respective values within the "TADA.ResultMeasureValue" and
 "TADA.DetectionQuantitationLimitMeasure.MeasureValue" fields. When
 "TADA.ResultMeasure.MeasureUnitCode" is NA, the unit is taken from
 "TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode" if it not NA. This

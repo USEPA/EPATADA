@@ -42,7 +42,7 @@
 #' # Create a unit reference data frame
 #' UT_UnitRef <- TADA_CreateUnitRef(Data_Nutrients_UT)
 #'
-TADA_CreateUnitRef <- function(.data, print.message = TRUE) {
+TADA_CreateUnitRef <- function(.data, masstoVolume = FALSE, print.message = TRUE) {
   # create data frame of unique combinations
   data.units <- TADA_UniqueCharUnitSpeciation(.data)
   
@@ -242,7 +242,7 @@ TADA_CreateUnitRef <- function(.data, print.message = TRUE) {
 #' and detection quantitation limit value and units are converted to TADA target units.
 #' This function changes the values within "TADA.ResultMeasure.MeasureUnitCode" and
 #' "TADA.DetectionQuantitationLimitMeasure.MeasureValue" to the TADA target units
-#' and converts  respective values within the "TADA.ResultMeasureValue" and
+#' and converts respective values within the "TADA.ResultMeasureValue" and
 #' "TADA.DetectionQuantitationLimitMeasure.MeasureValue" fields. When
 #' "TADA.ResultMeasure.MeasureUnitCode" is NA, the unit is taken from
 #' "TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode" if it not NA. This
@@ -290,7 +290,7 @@ TADA_CreateUnitRef <- function(.data, print.message = TRUE) {
 #' # Convert values and units for results and detection limits:
 #' ResultUnitsConverted <- TADA_ConvertResultUnits(Data_Nutrients_UT, transform = TRUE)
 #'
-TADA_ConvertResultUnits <- function(.data, ref = "tada", transform = TRUE) {
+TADA_ConvertResultUnits <- function(.data, ref = "tada", masstoVolume = FALSE, transform = TRUE) {
   # check .data is data.frame
   TADA_CheckType(.data, "data.frame", "Input object")
   # check transform is boolean
@@ -368,7 +368,7 @@ TADA_ConvertResultUnits <- function(.data, ref = "tada", transform = TRUE) {
       dplyr::select(TADA.CharacteristicName, TADA.ResultMeasure.MeasureUnitCode) %>%
       dplyr::distinct()
 
-    # compare the unique characteristic/unit combinations in data nd unit ref
+    # compare the unique characteristic/unit combinations in data and unit ref
     compare.ref <- tada.list %>%
       dplyr::anti_join(user.list, by = c("TADA.CharacteristicName", "TADA.ResultMeasure.MeasureUnitCode"))
 
@@ -433,10 +433,16 @@ TADA_ConvertResultUnits <- function(.data, ref = "tada", transform = TRUE) {
         dplyr::distinct()
 
     }
-    }
+  }
+  
+
+  if(masstoVolume == TRUE){
+    unit.ref <- unit.ref %>%
+      dplyr::mutate(TADA.Target.ResultMeasure.MeasureUnitCode = replace(TADA.Target.ResultMeasure.MeasureUnitCode,
+                                                                        TADA.Target.ResultMeasure.MeasureUnitCode == "UG/KG", "UG/L"))
+  }
 
   # list of conversion columns
-
   conversion.cols <- c(
     "TADA.SpeciationUnitConversion", "TADA.WQXTargetUnit",
     "TADA.WQXUnitConversionFactor", "TADA.WQXUnitConversionCoefficient",
@@ -444,7 +450,6 @@ TADA_ConvertResultUnits <- function(.data, ref = "tada", transform = TRUE) {
   )
 
   # ref join
-
   ref.join <- c(
     "TADA.CharacteristicName", #"TADA.MethodSpeciationName",
     "ResultMeasure.MeasureUnitCode", "TADA.ResultMeasure.MeasureUnitCode"
