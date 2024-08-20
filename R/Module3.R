@@ -452,6 +452,7 @@ TADA_PairForCriteriaCalc <- function(.data, ref = "null", hours_range = 4) {
   if(ref == "null"){
     
     ref <- TADA_CreatePairRef(.data)
+  }
     
     # create list of groups
     list.groups <- ref %>%
@@ -463,23 +464,28 @@ TADA_PairForCriteriaCalc <- function(.data, ref = "null", hours_range = 4) {
     # find number of groups
     n.groups <- length(list.groups)
     
-    # setting up loop
+    # create number list based on n.groups
+    n.groups.list <- seq(1, n.groups, 1)
     
+    # create pairs function
+    
+    pairing <- function(.data, group.pos) {
+      
     # identify char list
-    char.df <- ref %>%
-      dplyr::filter(TADA.PairingGroup == list.groups[1])
+      char.df <- ref %>%
+        dplyr::filter(TADA.PairingGroup == list.groups[group.pos])
     
     # create group ID
-    group.id <- list.groups[1]
+    group.id <- list.groups[group.pos]
     
     ref.subset <- ref %>%
-      dplyr::filter(TADA.PairingGroup == list.groups[1]) %>%
-      dplyr::select(TADA.CharacteristicName, TADA.PairingGroup.Rank)
-
+      dplyr::ungroup() %>%
+      dplyr::filter(TADA.PairingGroup == list.groups[group.pos]) 
     
    # create subset of data for pairing
     pair.subset <- .data %>%
-      dplyr::filter(TADA.CharacteristicName %in% char.df$TADA.CharacteristicName) %>%
+      dplyr::filter(TADA.CharacteristicName %in% char.df$TADA.CharacteristicName,
+                    !is.na(ActivityStartDateTime)) %>%
       dplyr::select(TADA.CharacteristicName, TADA.ResultMeasureValue, TADA.ResultMeasure.MeasureUnitCode,
                     ActivityIdentifier, MonitoringLocationIdentifier, ActivityStartDateTime,
                     TADA.ResultSampleFractionText, TADA.MethodSpeciationName) %>%
@@ -514,7 +520,13 @@ TADA_PairForCriteriaCalc <- function(.data, ref = "null", hours_range = 4) {
       dplyr::mutate(NCount = length(TADA.ResultMeasureValue)) %>%
       dplyr::slice_min(order_by = TADA.PairingGroup.Rank) %>%
       dplyr::ungroup() %>%
-      dplyr::select(-NCount, -TADA.PairingGroup.Rank)
+      dplyr::select(-NCount, -TADA.PairingGroup.Rank) %>%
+      dplyr::select(ResultIdentifier, 
+                    !!rlang::sym(pair_datetime),
+                    !!rlang::sym(pair_result_val),
+                    !!rlang::sym(pair_units),
+                    !!rlang::sym(pair_fraction),
+                    !!rlang::sym(pair_speciation))
     
     # drop activity id from pair subset
     pair.subset2 <- pair.subset %>%
@@ -536,28 +548,31 @@ TADA_PairForCriteriaCalc <- function(.data, ref = "null", hours_range = 4) {
       dplyr::arrange(ResultIdentifier,TADA.PairingGroup.Rank, dplyr::desc(timediff)) %>%
       dplyr::slice_min(TADA.PairingGroup.Rank) %>%
       dplyr::ungroup() %>%
-      dplyr::select(-timediff, -TADA.PairingGroup.Rank, -NCount)
-    
-    # combine paired dfs
-    all.pairs <- pair.activityid %>%
-      rbind(pair.ml.time) %>%
+      dplyr::select(-timediff, -TADA.PairingGroup.Rank, -NCount) %>%
       dplyr::select(ResultIdentifier, 
                     !!rlang::sym(pair_datetime),
                     !!rlang::sym(pair_result_val),
                     !!rlang::sym(pair_units),
                     !!rlang::sym(pair_fraction),
                     !!rlang::sym(pair_speciation))
-
     
-    # join with .data
-    .data <- .data %>%
-      dplyr::left_join(all.pairs, by = "ResultIdentifier")
+    # combine paired dfs
+    all.pairs <- pair.activityid %>%
+      rbind(pair.ml.time) %>%
+      dplyr::distinct()
     
-
+    return(all.pairs)
+ 
+    }
     
-
+   # find pairs for all groups included in pairing ref
+    all.groups <- purrr::map(n.groups.list, ~ pairing(.data, group.pos = .x))
+   
+   # join with .data
+   check <- purrr::reduce(all.groups, ~ dplyr::left_join(.data, .x, by = "ResultIdentifier"))
+   
+   return(check)
+    
   }
-
-} 
 
 # SHOULD WRITE TEST TO COMPARE # ROWS AT START AND END OF THIS FUNCTION, COL NUM SHOULD CHANGE BUT ROW NUM SHOULD NOT
