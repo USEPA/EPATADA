@@ -514,13 +514,15 @@ TADA_PairForCriteriaCalc <- function(.data, ref = "null", hours_range = 4) {
     # pair by activity id
     pair.activityid <- .data %>%
       dplyr::filter(ActivityIdentifier %in% pair.subset$ActivityIdentifier) %>%
-      dplyr::left_join(pair.subset, by = dplyr::join_by(ActivityIdentifier, MonitoringLocationIdentifier),
+      dplyr::left_join(pair.subset, by = dplyr::join_by(ActivityIdentifier),
                        relationship = "many-to-many") %>%
       dplyr::group_by(ResultIdentifier) %>%
       dplyr::mutate(NCount = length(TADA.ResultMeasureValue)) %>%
       dplyr::slice_min(order_by = TADA.PairingGroup.Rank) %>%
       dplyr::ungroup() %>%
       dplyr::select(-NCount, -TADA.PairingGroup.Rank) %>%
+      dplyr::group_by(ResultIdentifier) %>%
+      dplyr::slice_sample(n = 1) %>%
       dplyr::select(ResultIdentifier, 
                     !!rlang::sym(pair_datetime),
                     !!rlang::sym(pair_result_val),
@@ -576,3 +578,4 @@ TADA_PairForCriteriaCalc <- function(.data, ref = "null", hours_range = 4) {
   }
 
 # SHOULD WRITE TEST TO COMPARE # ROWS AT START AND END OF THIS FUNCTION, COL NUM SHOULD CHANGE BUT ROW NUM SHOULD NOT
+# ADD ACTIVITY START DATE FILTER TO REDUCE NUMBER OF COMPARISONS?
