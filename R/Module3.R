@@ -500,6 +500,8 @@ TADA_PairForCriteriaCalc <- function(.data, ref = "null", hours_range = 4) {
     pair_result_val <- paste0("TADA.", group.id, ".ResultMeasureValue")
     pair_units <- paste0("TADA.", group.id, ".MeasureUnitCode")
     pair_datetime <- paste0("TADA.", group.id, "ActivityStartDateTime")
+    pair_fraction <- paste0("TADA.", group.id, "ResultSampleFractionText")
+    pair_speciation <- paste0("TADA.", group.id, "MethodSpeciationName")
       
     # NOTE - CAN REMOVE NCOUNT COLS WHEN DONE TESTING (HRM 8/20/24)  
 
@@ -538,24 +540,24 @@ TADA_PairForCriteriaCalc <- function(.data, ref = "null", hours_range = 4) {
     
     # combine paired dfs
     all.pairs <- pair.activityid %>%
-      rbind(pair.ml.time)
+      rbind(pair.ml.time) %>%
+      dplyr::select(ResultIdentifier, 
+                    !!rlang::sym(pair_datetime),
+                    !!rlang::sym(pair_result_val),
+                    !!rlang::sym(pair_units),
+                    !!rlang::sym(pair_fraction),
+                    !!rlang::sym(pair_speciation))
+
     
-    # find results wtih no paired 
-    no.pairs <- .data %>%
-      dplyr::filter(!ResultIdentifier %in% all.pairs)
-    
-    # combine pairs and no pairs
-    all.results <- all.pairs %>%
-      dplyr::full_join(no.pairs, dplyr::join_by(ResultIdentifier))
-    
-    # NEED TO FIGURE OUT THIS JOIN
     # join with .data
     .data <- .data %>%
-      dplyr::full_join(all.results, by = (names(.data[1:149])))
+      dplyr::left_join(all.pairs, by = "ResultIdentifier")
     
-    # SHOULD WRITE TEST TO COMPARE # ROWS AT START AND END OF THIS FUNCTION, COL NUM SHOULD CHANGE BUT ROW NUM SHOULD NOT
+
     
 
   }
 
-  } 
+} 
+
+# SHOULD WRITE TEST TO COMPARE # ROWS AT START AND END OF THIS FUNCTION, COL NUM SHOULD CHANGE BUT ROW NUM SHOULD NOT
