@@ -549,6 +549,7 @@ TADA_PairForCriteriaCalc <- function(.data, ref = "null", hours_range = 4) {
       dplyr::mutate(NCount = length(TADA.ResultMeasureValue)) %>%
       dplyr::arrange(ResultIdentifier,TADA.PairingGroup.Rank, dplyr::desc(timediff)) %>%
       dplyr::slice_min(TADA.PairingGroup.Rank) %>%
+      dplyr::slice_min(timediff) %>%
       dplyr::ungroup() %>%
       dplyr::select(-timediff, -TADA.PairingGroup.Rank, -NCount) %>%
       dplyr::select(ResultIdentifier, 
@@ -568,7 +569,7 @@ TADA_PairForCriteriaCalc <- function(.data, ref = "null", hours_range = 4) {
     }
     
    # find pairs for all groups included in pairing ref
-    all.groups <- purrr::map(n.groups.list, ~ pairing(.data, group.pos = .x))
+   all.groups <- purrr::map(n.groups.list, ~ pairing(.data, group.pos = .x))
    
    # join with .data
    check <- purrr::reduce(all.groups, ~ dplyr::left_join(.data, .x, by = "ResultIdentifier"))
@@ -579,3 +580,5 @@ TADA_PairForCriteriaCalc <- function(.data, ref = "null", hours_range = 4) {
 
 # SHOULD WRITE TEST TO COMPARE # ROWS AT START AND END OF THIS FUNCTION, COL NUM SHOULD CHANGE BUT ROW NUM SHOULD NOT
 # ADD ACTIVITY START DATE FILTER TO REDUCE NUMBER OF COMPARISONS?
+# MORE THAN ONE ROW PER RESULT IDENTIFIER IS STILL BEING ADDED AT SOME STEP
+
