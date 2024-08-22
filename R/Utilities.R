@@ -1604,8 +1604,8 @@ TADA_ViewColorPalette <- function(col_pair = FALSE) {
     }
   }
 
-  swatch <- grDevices::recordPlot()
   graphics::par(mfrow=c(1,1))
+  swatch <- grDevices::recordPlot()
 
   return(swatch)
 }
