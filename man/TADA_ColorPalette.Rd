@@ -4,20 +4,28 @@
 \alias{TADA_ColorPalette}
 \title{Create Color Palette For Use in Graphs and Maps}
 \usage{
-TADA_ColorPalette()
+TADA_ColorPalette(col_pair = FALSE)
+}
+\arguments{
+\item{col_pair}{Boolean argument. Optional argument to define consistent color
+pairings for outlines/fills of TADA figures defined by the row values in a dataframe.}
 }
 \value{
 A color palette based on the "Okabe-Ito" palette, extended to 15 colors,
 with modifications for use in mapping and graphing functions
 }
 \description{
-Creates a consistent color palette for use in TADA visualizations. Currently,
-the palette is utilizing the "Okabe-Ito" palette from base R via the palette.colors
+Creates a consistent color palette for use in TADA visualizations. Consistent
+color pairings can be utilized by setting col_pair = TRUE, in which each row
+consists of two values for color outlines and fills. Currently, the palette
+is utilizing the "Okabe-Ito" palette from base R via the palette.colors
 function. The palette includes 9 colors by default. However, additional colors
 can be added to the palette as needed as more complex visualization functions
 are added to the TADA package.
 }
 \examples{
 TestColorPalette <- TADA_ColorPalette()
+TestColorPalettePairings <- TADA_ColorPalette(col_pair = TRUE)
+TestColorPalettePairings
 
 }
