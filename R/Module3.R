@@ -10,8 +10,6 @@
 #' that all characteristic/speciation/fraction combinations are accurately reflected in the simple
 #' numeric criteria ref data frame.
 #' 
-#' # Should param(s) be added to easily export this as an Excel or csv file for users to edit?
-#'
 #' @param .data TADA dataframe
 #'
 #' @return A data frame with columns for TADA.CharacteristicName, TADA.MethodSpeciationName,
@@ -316,7 +314,9 @@ TADA_SimpleCriteriaComparison <- function(.data, criteria.ref = NULL, convert.un
 #'
 #' @examples
 #' # create ref for hardness for example tribal data
-#' HardnessRef <- TADA_CreatePairRef(Data_6Tribes_5y_Harmonized, char = "hardness")
+#' HardnessRef <- TADA_CreatePairRef(Data_6Tribes_5y_Harmonized,  ph = FALSE, hardness = TRUE,
+#' temp = FALSE, chloride = FALSE, salinity = FALSE, other_char = "null")
+#' 
 
 TADA_CreatePairRef <- function(.data, ph = TRUE, hardness = TRUE, temp = TRUE,
                                chloride = TRUE, salinity = TRUE, other_char = "null") {
@@ -422,6 +422,12 @@ TADA_CreatePairRef <- function(.data, ph = TRUE, hardness = TRUE, temp = TRUE,
   pair.ref <- pair.ref %>%
     dplyr::distinct()
   
+  # check to see if there are any rows in pair.ref
+  
+  if(nrow(pair.ref) == 0) {
+    stop("None of the specified pairing characteristics were found in the TADA data frame.")
+  }
+  
   return(pair.ref)
 }
 
@@ -446,6 +452,12 @@ TADA_CreatePairRef <- function(.data, ph = TRUE, hardness = TRUE, temp = TRUE,
 #' @export
 #'
 #' @examples
+#' 
+#'  AL_df <- TADA_DataRetrieval(startDate = "2010-11-30",
+#'  endDate =  "2010-12-01",
+#'  statecode = "AL" )
+#'  
+#'  AL_PairRef <- TADA_PairForCriteriaCalc(AL_df)
 #'
 TADA_PairForCriteriaCalc <- function(.data, ref = "null", hours_range = 4) {
   
@@ -456,32 +468,33 @@ TADA_PairForCriteriaCalc <- function(.data, ref = "null", hours_range = 4) {
    }
   
   # check to see if user-supplied ref is a df
-  if(ref != "null") {
-    
-    if(!is.data.frame(ref)) {
-      
-    stop("TADA_PairForCriteriaCalc: 'ref' must be a data frame with six columns: TADA.CharacteristicName,
-         TADA.ResultMeasure.MeasureUnitCode, TADA.MethodSpeciationName, TADA.ResultSampleFractionText,
-         TADA.PairingGroup.Rank, and TADA.PairingGroup.")
-    }
-    
-    if(is.data.frame(ref)) {
-      
-      col.names <- c("TADA.CharacteristicName", "TADA.ResultMeasure.MeasureUnitCode", 
-                     "TADA.MethodSpeciationName", "TADA.ResultSampleFractionText",
-                     "TADA.PairingGroup.Rank", "TADA.PairingGroup")
-      
-      ref.names <- names(ref)
-      
-      if(length(setdiff(col.names, ref.names)) > 0) {
-        
-        stop("TADA_PairForCriteriaCalc: 'ref' must be a data frame with six columns: TADA.CharacteristicName,
-         TADA.ResultMeasure.MeasureUnitCode, TADA.MethodSpeciationName, TADA.ResultSampleFractionText,
-         TADA.PairingGroup.Rank, and TADA.PairingGroup.")
-      }
-    }
-    
-  }
+  # if(!is.character(ref)) {
+  #   
+  #   if(!is.data.frame(ref)) {
+  #     
+  #   stop("TADA_PairForCriteriaCalc: 'ref' must be a data frame with six columns: TADA.CharacteristicName,
+  #        TADA.ResultMeasure.MeasureUnitCode, TADA.MethodSpeciationName, TADA.ResultSampleFractionText,
+  #        TADA.PairingGroup.Rank, and TADA.PairingGroup.")
+  #   }
+  #   
+  #   if(is.data.frame(ref)) {
+  #     
+  #     col.names <- c("TADA.CharacteristicName", "TADA.ResultMeasure.MeasureUnitCode", 
+  #                    "TADA.MethodSpeciationName", "TADA.ResultSampleFractionText",
+  #                    "TADA.PairingGroup.Rank", "TADA.PairingGroup")
+  #     
+  #     ref.names <- names(ref)
+  #     
+  #     if(length(setdiff(col.names, ref.names)) > 0) {
+  #       
+  #       stop("TADA_PairForCriteriaCalc: 'ref' must be a data frame with six columns: TADA.CharacteristicName,
+  #        TADA.ResultMeasure.MeasureUnitCode, TADA.MethodSpeciationName, TADA.ResultSampleFractionText,
+  #        TADA.PairingGroup.Rank, and TADA.PairingGroup.")
+  #     }
+  #   }
+  #   
+  # }
+
     
     # create list of pairing groups
     list.groups <- ref %>%
