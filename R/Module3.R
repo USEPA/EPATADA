@@ -441,7 +441,7 @@ TADA_CreatePairRef <- function(.data, ph = TRUE, hardness = TRUE, temp = TRUE,
 #'
 #' @param ref Write description of what columns need to be in this ref or null option
 #
-#' @return A TADA data frame with x(???) additional columns added for each pairing group specified
+#' @return A TADA data frame with six additional columns added for each pairing group specified
 #' in the pairing ref.
 #' @export
 #'
@@ -449,12 +449,20 @@ TADA_CreatePairRef <- function(.data, ph = TRUE, hardness = TRUE, temp = TRUE,
 #'
 TADA_PairForCriteriaCalc <- function(.data, ref = "null", hours_range = 4) {
   
-  if(ref == "null"){
+ # if user does not supply a pairing ref, create the default ref
+   if(ref == "null"){
     
     ref <- TADA_CreatePairRef(.data)
+   }
+  
+  # check to see if user-supplied ref is a df
+  if(!is.data.frame(ref) & ref != "null") {
+    stop("TADA_PairForCriteriaCalc: 'ref' must be a data frame with six columns: TADA.CharacteristicName,
+         TADA.ResultMeasure.MeasureUnitCode, TADA.MethodSpeciationName, TADA.ResultSampleFractionText,
+         TADA.PairingGroup.Rank, and TADA.PairingGroup.")
   }
     
-    # create list of groups
+    # create list of pairing groups
     list.groups <- ref %>%
       dplyr::ungroup() %>%
       dplyr::select(TADA.PairingGroup) %>%
@@ -464,18 +472,14 @@ TADA_PairForCriteriaCalc <- function(.data, ref = "null", hours_range = 4) {
     # find number of groups
     n.groups <- length(list.groups)
     
-    # create number list based on n.groups
+    # create number list based on n.groups (for mapping across all groups)
     n.groups.list <- seq(1, n.groups, 1)
     
-    # create pairs function
+    # create pairing function to be mapped across all groups
     
     pairing <- function(.data, group.pos) {
-      
-    # identify char list
-      char.df <- ref %>%
-        dplyr::filter(TADA.PairingGroup == list.groups[group.pos])
     
-    # create group ID
+    # create group ID for naming new columns
     group.id <- list.groups[group.pos]
     
     ref.subset <- ref %>%
@@ -484,7 +488,7 @@ TADA_PairForCriteriaCalc <- function(.data, ref = "null", hours_range = 4) {
     
    # create subset of data for pairing
     pair.subset <- .data %>%
-      dplyr::filter(TADA.CharacteristicName %in% char.df$TADA.CharacteristicName,
+      dplyr::filter(TADA.CharacteristicName %in% ref.subset$TADA.CharacteristicName,
                     !is.na(ActivityStartDateTime)) %>%
       dplyr::select(TADA.CharacteristicName, TADA.ResultMeasureValue, TADA.ResultMeasure.MeasureUnitCode,
                     ActivityIdentifier, MonitoringLocationIdentifier, ActivityStartDateTime,
@@ -517,10 +521,9 @@ TADA_PairForCriteriaCalc <- function(.data, ref = "null", hours_range = 4) {
       dplyr::left_join(pair.subset, by = dplyr::join_by(ActivityIdentifier),
                        relationship = "many-to-many") %>%
       dplyr::group_by(ResultIdentifier) %>%
-      dplyr::mutate(NCount = length(TADA.ResultMeasureValue)) %>%
       dplyr::slice_min(order_by = TADA.PairingGroup.Rank) %>%
       dplyr::ungroup() %>%
-      dplyr::select(-NCount, -TADA.PairingGroup.Rank) %>%
+      dplyr::select(-TADA.PairingGroup.Rank) %>%
       dplyr::group_by(ResultIdentifier) %>%
       dplyr::slice_sample(n = 1) %>%
       dplyr::select(ResultIdentifier, 
@@ -546,12 +549,11 @@ TADA_PairForCriteriaCalc <- function(.data, ref = "null", hours_range = 4) {
       dplyr::mutate(timediff = abs(difftime(as.POSIXct(!!rlang::sym(pair_datetime)), as.POSIXct(ActivityStartDateTime), units = c("hours")))) %>%
       dplyr::filter(timediff <= hours_range) %>%
       dplyr::group_by(ResultIdentifier) %>%
-      dplyr::mutate(NCount = length(TADA.ResultMeasureValue)) %>%
       dplyr::arrange(ResultIdentifier,TADA.PairingGroup.Rank, dplyr::desc(timediff)) %>%
       dplyr::slice_min(TADA.PairingGroup.Rank) %>%
       dplyr::slice_min(timediff) %>%
       dplyr::ungroup() %>%
-      dplyr::select(-timediff, -TADA.PairingGroup.Rank, -NCount) %>%
+      dplyr::select(-timediff, -TADA.PairingGroup.Rank) %>%
       dplyr::select(ResultIdentifier, 
                     !!rlang::sym(pair_datetime),
                     !!rlang::sym(pair_result_val),
