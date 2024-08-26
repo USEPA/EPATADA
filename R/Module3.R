@@ -580,13 +580,9 @@ TADA_PairForCriteriaCalc <- function(.data, ref = "null", hours_range = 4) {
    
    
    # join with .data
-  .data <- dplyr::left_join(.data, all.groups)
+  .data <- dplyr::left_join(.data, all.groups, by = "ResultIdentifier")
    
  
    return(.data)
   }
-
-# SHOULD WRITE TEST TO COMPARE # ROWS AT START AND END OF THIS FUNCTION, COL NUM SHOULD CHANGE BUT ROW NUM SHOULD NOT
-# ADD ACTIVITY START DATE FILTER TO REDUCE NUMBER OF COMPARISONS?
-# MORE THAN ONE ROW PER RESULT IDENTIFIER IS STILL BEING ADDED AT SOME STEP
 
