@@ -29,13 +29,13 @@
 #'
 TADA_MakeSpatial <- function(.data, crs = 4326) {
   if (!"LongitudeMeasure" %in% colnames(.data) |
-    !"LatitudeMeasure" %in% colnames(.data) |
-    !"HorizontalCoordinateReferenceSystemDatumName" %in% colnames(.data)) {
+      !"LatitudeMeasure" %in% colnames(.data) |
+      !"HorizontalCoordinateReferenceSystemDatumName" %in% colnames(.data)) {
     stop("The dataframe does not contain WQP-style latitude and longitude data (column names `HorizontalCoordinateReferenceSystemDatumName`, `LatitudeMeasure`, and `LongitudeMeasure`.")
   } else if (!is.null(.data) & inherits(.data, "sf")) {
     stop("Your data is already a spatial object.")
   }
-
+  
   suppressMessages(suppressWarnings({
     # Make a reference table for CRS and EPSG codes
     # List should include all codes in WQX domain (see HorizontalCoordinateReferenceSystemDatum CSV at https://www.epa.gov/waterdata/storage-and-retrieval-and-water-quality-exchange-domain-services-and-downloads)
@@ -59,7 +59,7 @@ TADA_MakeSpatial <- function(.data, crs = 4326) {
       "WGS72", 6322,
       "HARN", 4152
     )
-
+    
     # join our CRS reference table to our original WQP dataframe:
     sf <- .data %>%
       tibble::rowid_to_column(var = "index") %>%
@@ -89,7 +89,7 @@ TADA_MakeSpatial <- function(.data, crs = 4326) {
       dplyr::arrange(index) %>%
       dplyr::select(-c(index, epsg))
   }))
-
+  
   return(sf)
 }
 
@@ -120,10 +120,10 @@ fetchATTAINS <- function(.data) {
   if (is.null(.data) | nrow(.data) == 0) {
     stop("There is no data in your `data` object to use as a bounding box for selecting ATTAINS features.")
   }
-
+  
   # EPSG we want our ATTAINS data to be in (always 4326 for this function)
   our_epsg <- 4326
-
+  
   # If data is already spatial, just make sure it is in the right CRS
   # and add an index as the WQP observations' unique identifier...
   if (!is.null(.data) & inherits(.data, "sf")) {
@@ -139,7 +139,7 @@ fetchATTAINS <- function(.data) {
       # convert dataframe to a spatial object
       TADA_MakeSpatial(.data = ., crs = our_epsg)
   }
-
+  
   baseurls <- c( # ATTAINS catchments:
     "https://gispub.epa.gov/arcgis/rest/services/OW/ATTAINS_Assessment/MapServer/3/query?",
     # ATTAINS points:
@@ -149,13 +149,13 @@ fetchATTAINS <- function(.data) {
     # ATTAINS polygons:
     "https://gispub.epa.gov/arcgis/rest/services/OW/ATTAINS_Assessment/MapServer/2/query?"
   )
-
+  
   feature_downloader <- function(baseurls) {
     # starting at feature 1 (i.e., no offset):
     offset <- 0
     # empty list to store all features in
     all_features <- list()
-
+    
     # bounding box (with some minor wiggle) of user's WQP data
     suppressMessages(suppressWarnings({
       bbox <- .data %>%
@@ -165,12 +165,12 @@ fetchATTAINS <- function(.data) {
         # encode for use within the API URL
         urltools::url_encode(.)
     }))
-
+    
     # The ATTAINS API has a limit of 2000 features that can be pulled in at once.
     # Therefore, we must split the call into manageable "chunks" using a moving
     # window of what features to pull in, then munging all the separate API calls
     # together.
-
+    
     repeat {
       query <- urltools::param_set(baseurls, key = "geometry", value = bbox) %>%
         urltools::param_set(key = "inSR", value = our_epsg) %>%
@@ -191,7 +191,7 @@ fetchATTAINS <- function(.data) {
         urltools::param_set(key = "returnDistinctValues", value = "false") %>%
         urltools::param_set(key = "returnExtentOnly", value = "false") %>%
         urltools::param_set(key = "featureEncoding", value = "esriDefault")
-
+      
       # Fetch features within the offset window and append to list:
       features <- suppressMessages(suppressWarnings({
         tryCatch(
@@ -203,30 +203,30 @@ fetchATTAINS <- function(.data) {
           }
         )
       }))
-
-
+      
+      
       # Exit loop if no more features or error occurred
       if (is.null(features) || nrow(features) == 0) {
         break
       }
-
+      
       all_features <- c(all_features, list(features))
       # once done, change offset by 2000 features:
       offset <- offset + 2000
-
+      
       if (offset == 4000) {
         print("Your TADA data covers a large spatial range. The ATTAINS pull may take a while.")
       }
     }
-
+    
     all_features <- dplyr::bind_rows(all_features)
   }
-
+  
   final_features <- baseurls %>%
     purrr::map(~ feature_downloader(.))
-
+  
   names(final_features) <- c("ATTAINS_catchments", "ATTAINS_points", "ATTAINS_lines", "ATTAINS_polygons")
-
+  
   return(final_features)
 }
 
@@ -276,16 +276,16 @@ TADA_GetATTAINS <- function(.data, return_sf = TRUE) {
     "ATTAINS.visionpriority303d", "ATTAINS.areasqkm", "ATTAINS.catchmentareasqkm",
     "ATTAINS.catchmentstatecode", "ATTAINS.catchmentresolution", "ATTAINS.Shape_Area"
   )
-
+  
   if (any(attains_names %in% colnames(.data))) {
     stop("Your data has already been joined with ATTAINS data.")
   }
-
+  
   if (nrow(.data) == 0) {
     print("Your Water Quality Portal dataframe has no observations. Returning an empty dataframe with empty ATTAINS features.")
-
+    
     # if no WQP observations, return a modified `data` with empty ATTAINS-related columns:
-
+    
     col_val_list <- stats::setNames(
       object = rep(
         x = list(NA),
@@ -293,19 +293,19 @@ TADA_GetATTAINS <- function(.data, return_sf = TRUE) {
       ),
       nm = attains_names
     )
-
+    
     # Add ATTAINS columns with NA values
     no_WQP_data <- .data %>%
       dplyr::mutate(index = NA) %>%
       dplyr::bind_cols(col_val_list)
-
+    
     # In this case we'll need to return empty ATTAINS objects
     if (return_sf == TRUE) {
       ATTAINS_catchments <- NULL
       ATTAINS_lines <- NULL
       ATTAINS_points <- NULL
       ATTAINS_polygons <- NULL
-
+      
       return(list(
         "TADA_with_ATTAINS" = no_WQP_data,
         "ATTAINS_catchments" = ATTAINS_catchments,
@@ -318,14 +318,14 @@ TADA_GetATTAINS <- function(.data, return_sf = TRUE) {
       return(no_WQP_data)
     }
   }
-
+  
   # If data doesn't already contain ATTAINS data and isn't an empty dataframe:
   suppressMessages(suppressWarnings({
     sf::sf_use_s2(FALSE)
-
+    
     # If data is already spatial, just make sure it is in the right CRS
     # and add unique WQP ID for identifying obs with more than one ATTAINS assessment unit
-
+    
     if (!is.null(.data) & inherits(.data, "sf")) {
       if (sf::st_crs(.data)$epsg != 4326) {
         TADA_DataRetrieval_data <- .data %>%
@@ -344,9 +344,9 @@ TADA_GetATTAINS <- function(.data, return_sf = TRUE) {
         tibble::rowid_to_column(var = "index")
     }
   }))
-
+  
   attains_features <- try(fetchATTAINS(.data = TADA_DataRetrieval_data), silent = TRUE)
-
+  
   suppressMessages(suppressWarnings({
     # grab the ATTAINS catchments within our WQP bbox:
     nearby_catchments <- NULL
@@ -364,11 +364,11 @@ TADA_GetATTAINS <- function(.data, return_sf = TRUE) {
       silent = TRUE
     )
   }))
-
+  
   # if no ATTAINS data, return original dataframe with empty ATTAINS columns:
   if (is.null(nearby_catchments)) {
     print("There are no ATTAINS features associated with these WQP observations. Returning original dataframe with empty ATTAINS columns and empty ATTAINS geospatial features.")
-
+    
     col_val_list <- stats::setNames(
       object = rep(
         x = list(NA),
@@ -376,18 +376,18 @@ TADA_GetATTAINS <- function(.data, return_sf = TRUE) {
       ),
       nm = attains_names
     )
-
+    
     # return a modified `.data` with empty ATTAINS-related columns:
     no_ATTAINS_data <- .data %>%
       dplyr::bind_cols(col_val_list) %>%
       tibble::rowid_to_column(var = "index")
-
+    
     if (return_sf == TRUE) {
       ATTAINS_catchments <- NULL
       ATTAINS_lines <- NULL
       ATTAINS_points <- NULL
       ATTAINS_polygons <- NULL
-
+      
       return(list(
         "TADA_with_ATTAINS" = no_ATTAINS_data,
         "ATTAINS_catchments" = ATTAINS_catchments,
@@ -398,7 +398,7 @@ TADA_GetATTAINS <- function(.data, return_sf = TRUE) {
     } else {
       return(no_ATTAINS_data)
     }
-
+    
     # If there IS ATTAINS data...
   } else {
     suppressMessages(suppressWarnings({
@@ -406,18 +406,18 @@ TADA_GetATTAINS <- function(.data, return_sf = TRUE) {
       TADA_with_ATTAINS <- TADA_DataRetrieval_data %>%
         # left join = TRUE to preserve all observations (with or without ATTAINS features):
         sf::st_join(., nearby_catchments, left = TRUE)
-
+      
       if (return_sf == FALSE) {
         return(TADA_with_ATTAINS)
       }
-
+      
       # CATCHMENT FEATURES
       # use original catchment pull, but return column names to original
       ATTAINS_catchments <- nearby_catchments
       colnames(ATTAINS_catchments) <- gsub("ATTAINS.", "", colnames(ATTAINS_catchments))
       # due to the rename, must re-set geometry column:
       sf::st_geometry(ATTAINS_catchments) <- "geometry"
-
+      
       # POINT FEATURES - try to pull point AU data if it exists. Otherwise, move on...
       ATTAINS_points <- NULL
       try(
@@ -428,7 +428,7 @@ TADA_GetATTAINS <- function(.data, return_sf = TRUE) {
           dplyr::distinct(assessmentunitidentifier, .keep_all = TRUE),
         silent = TRUE
       )
-
+      
       # LINE FEATURES - try to pull line AU data if it exists. Otherwise, move on...
       ATTAINS_lines <- NULL
       try(
@@ -439,7 +439,7 @@ TADA_GetATTAINS <- function(.data, return_sf = TRUE) {
           dplyr::distinct(assessmentunitidentifier, .keep_all = TRUE),
         silent = TRUE
       )
-
+      
       # POLYGON FEATURES - try to pull polygon AU data if it exists. Otherwise, move on...
       ATTAINS_polygons <- NULL
       try(
@@ -451,7 +451,7 @@ TADA_GetATTAINS <- function(.data, return_sf = TRUE) {
         silent = TRUE
       )
     }))
-
+    
     return(list(
       "TADA_with_ATTAINS" = TADA_with_ATTAINS,
       "ATTAINS_catchments" = ATTAINS_catchments,
@@ -504,17 +504,17 @@ TADA_ViewATTAINS <- function(.data) {
   ) %in% names(.data))) {
     stop("Your input dataframe was not produced from `TADA_GetATTAINS()` or it was modified. Please create your list of ATTAINS features using `TADA_GetATTAINS()` and confirm that return_sf has been set to TRUE.")
   }
-
+  
   ATTAINS_table <- .data[["TADA_with_ATTAINS"]]
   ATTAINS_catchments <- .data[["ATTAINS_catchments"]]
   ATTAINS_points <- .data[["ATTAINS_points"]]
   ATTAINS_lines <- .data[["ATTAINS_lines"]]
   ATTAINS_polygons <- .data[["ATTAINS_polygons"]]
-
+  
   if (nrow(ATTAINS_table) == 0) {
     stop("Your WQP dataframe has no observations.")
   }
-
+  
   required_columns <- c(
     "LongitudeMeasure", "LatitudeMeasure",
     "HorizontalCoordinateReferenceSystemDatumName",
@@ -522,27 +522,27 @@ TADA_ViewATTAINS <- function(.data) {
     "MonitoringLocationName", "ResultIdentifier",
     "ActivityStartDate", "OrganizationIdentifier"
   )
-
+  
   if (!any(required_columns %in% colnames(ATTAINS_table))) {
     stop("Your dataframe does not contain the necessary WQP-style column names.")
   }
-
+  
   suppressMessages(suppressWarnings({
     sf::sf_use_s2(FALSE)
-
+    
     # if data was spatial, remove for downstream leaflet dev:
     try(ATTAINS_table <- ATTAINS_table %>%
-      sf::st_drop_geometry(), silent = TRUE)
-
+          sf::st_drop_geometry(), silent = TRUE)
+    
     tada.pal <- TADA_ColorPalette()
-
+    
     colors <- data.frame(
       overallstatus = c("Not Supporting", "Fully Supporting", "Not Assessed"),
       col = c(tada.pal[3], tada.pal[4], tada.pal[7]),
       dark_col = c(tada.pal[12], tada.pal[6], tada.pal[11]),
       priority = c(1, 2, 3)
     )
-
+    
     # POINT FEATURES - try to pull point AU data if it exists. Otherwise, move on...
     try(
       points_mapper <- ATTAINS_points %>%
@@ -554,7 +554,7 @@ TADA_ViewATTAINS <- function(.data) {
         dplyr::right_join(., tibble::as_tibble(sf::st_coordinates(ATTAINS_points)), by = c("index" = "L1")),
       silent = TRUE
     )
-
+    
     # LINE FEATURES - try to pull line AU data if it exists. Otherwise, move on...
     try(
       lines_mapper <- ATTAINS_lines %>%
@@ -562,7 +562,7 @@ TADA_ViewATTAINS <- function(.data) {
         dplyr::mutate(type = "Line Feature"),
       silent = TRUE
     )
-
+    
     # POLYGON FEATURES - try to pull polygon AU data if it exists. Otherwise, move on...
     try(
       polygons_mapper <- ATTAINS_polygons %>%
@@ -570,7 +570,7 @@ TADA_ViewATTAINS <- function(.data) {
         dplyr::mutate(type = "Polygon Feature"),
       silent = TRUE
     )
-
+    
     # Develop WQP site stats (e.g. count of observations, parameters, per site)
     sumdat <- ATTAINS_table %>%
       dplyr::group_by(MonitoringLocationIdentifier, MonitoringLocationName, LatitudeMeasure, LongitudeMeasure) %>%
@@ -586,15 +586,15 @@ TADA_ViewATTAINS <- function(.data) {
         LatitudeMeasure = as.numeric(LatitudeMeasure),
         LongitudeMeasure = as.numeric(LongitudeMeasure)
       )
-
+    
     # Basemap for AOI:
     map <- leaflet::leaflet() %>%
       leaflet::addProviderTiles("Esri.WorldTopoMap",
-        group = "World topo",
-        options = leaflet::providerTileOptions(
-          updateWhenZooming = FALSE,
-          updateWhenIdle = TRUE
-        )
+                                group = "World topo",
+                                options = leaflet::providerTileOptions(
+                                  updateWhenZooming = FALSE,
+                                  updateWhenIdle = TRUE
+                                )
       ) %>%
       leaflet::clearShapes() %>%
       leaflet::fitBounds(
@@ -614,7 +614,7 @@ TADA_ViewATTAINS <- function(.data) {
         opacity = 1,
         title = "Legend"
       )
-
+    
     # Add ATTAINS catchment outlines (if they exist):
     try(
       map <- map %>%
@@ -626,7 +626,7 @@ TADA_ViewATTAINS <- function(.data) {
         ),
       silent = TRUE
     )
-
+    
     # Add ATTAINS polygon features (if they exist):
     try(
       map <- map %>%
@@ -645,7 +645,7 @@ TADA_ViewATTAINS <- function(.data) {
         ),
       silent = TRUE
     )
-
+    
     # Add ATTAINS lines features (if they exist):
     try(
       map <- map %>%
@@ -663,7 +663,7 @@ TADA_ViewATTAINS <- function(.data) {
         ),
       silent = TRUE
     )
-
+    
     # Add ATTAINS point features (if they exist):
     try(
       map <- map %>%
@@ -682,7 +682,7 @@ TADA_ViewATTAINS <- function(.data) {
         ),
       silent = TRUE
     )
-
+    
     # Add WQP observation features (should always exist):
     try(
       map <- map %>%
@@ -702,12 +702,97 @@ TADA_ViewATTAINS <- function(.data) {
         ),
       silent = TRUE
     )
-
+    
     if (is.null(ATTAINS_lines) & is.null(ATTAINS_points) & is.null(ATTAINS_polygons)) {
       print("No ATTAINS data associated with this Water Quality Portal data.")
     }
-
+    
     # Return leaflet map of TADA WQ and its associated ATTAINS data
     return(map)
   }))
+}
+
+
+#' Access options available for querying tribal spatial data with `TADA_DataRetrieval()`.
+#' 
+#' @description
+#' This function provides access to [six layer datasets](https://geopub.epa.gov/arcgis/rest/services/EMEF/Tribal/MapServer)
+#' containing spatial data related to tribal lands: "Alaska Native Allotments",
+#' "Alaska Native Villages", "American Indian Reservations", "Off-reservation Trust Lands",
+#' "Oklahoma Tribal Statistical Areas", and "Virginia Federally Recognized Tribes".
+#' These datasets are used by `TADA_DataRetrieval()` when retrieving spatial data
+#' for tribal lands specified by the user. 
+#' 
+#' The purpose of `TADA_TribalOptions()` is to allow the user to review the available
+#' data in those datasets and identify the records they would like to query with
+#' `TADA_DataRetrieval()`.
+#' 
+#' An interactive map of the six layer datasets is available on ArcGIS Online Map
+#' Viewer here: https://www.arcgis.com/apps/mapviewer/index.html?url=https://geopub.epa.gov/arcgis/rest/services/EMEF/Tribal/MapServer&source=sd
+#' 
+#' @param tribal_area_type A character string. Must be one of the six tribal
+#' spatial layers: "Alaska Native Allotments", "Alaska Native Villages", 
+#' "American Indian Reservations", "Off-reservation Trust Lands",
+#' "Oklahoma Tribal Statistical Areas", or "Virginia Federally Recognized Tribes".
+#' 
+#' @param return_sf Logical. Should the function return the dataset as an `sf`
+#' object (TRUE) or a data frame (FALSE)? Defaults to FALSE.
+#' 
+#' @returns A data frame or `sf` object containing the specified layer from the EPA
+#' Map Service.
+#' 
+#' @note
+#' Alaska Native Villages and Virginia Federally Recognized Tribes are point
+#' geometries in the Map Service, not polygons. At the time of this writing they
+#' do not return any data when used for WQP bbox queries.
+#' 
+#' @seealso [TADA_DataRetrieval()]
+#' 
+
+TADA_TribalOptions <- function(tribal_area_type, return_sf = FALSE){
+  
+  # Make a reference table for tribal area type + url matching
+  map_service_urls <- tibble::tribble(
+    ~tribal_area,                            ~url,
+    "Alaska Native Allotments",              "https://geopub.epa.gov/arcgis/rest/services/EMEF/Tribal/MapServer/0",
+    "Alaska Native Villages",                "https://geopub.epa.gov/arcgis/rest/services/EMEF/Tribal/MapServer/1",
+    "American Indian Reservations",          "https://geopub.epa.gov/arcgis/rest/services/EMEF/Tribal/MapServer/2",
+    "Off-reservation Trust Lands",           "https://geopub.epa.gov/arcgis/rest/services/EMEF/Tribal/MapServer/3",
+    "Oklahoma Tribal Statistical Areas",     "https://geopub.epa.gov/arcgis/rest/services/EMEF/Tribal/MapServer/4",
+    "Virginia Federally Recognized Tribes",  "https://geopub.epa.gov/arcgis/rest/services/EMEF/Tribal/MapServer/5"
+  )
+  
+  # Confirm usable string provided
+  if( !(tribal_area_type %in% map_service_urls$tribal_area) ){
+    stop("tribal_area_type must match one of the six tribal spatial layer names.")
+  }
+  
+  if( tribal_area_type %in%
+      c("Alaska Native Villages", "Virginia Federally Recognized Tribes") ){
+    warning(
+      paste0(
+        "Alaska Native Villages and Virginia Federally Recognized Tribes are point geometries in the Map Service, not polygons. ",
+        "At the time of this writing they do not return any data when used for WQP bbox queries."
+      )
+    )
+  }
+  
+  # Query Map Service
+  tribal_area_sf <- dplyr::filter(map_service_urls,
+                                  tribal_area == tribal_area_type)$url %>%
+    arcgislayers::arc_open() %>%
+    # Return sf
+    arcgislayers::arc_select() %>%
+    sf::st_make_valid()
+  
+  # Convert to df if needed, export
+  if(return_sf == FALSE){
+    return(
+      as.data.frame(tribal_area_sf) %>%
+        sf::st_drop_geometry()
+    )
+  } else {
+    return(tribal_area_sf)
+  }
+  
 }
