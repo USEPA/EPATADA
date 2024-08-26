@@ -557,7 +557,9 @@ TADA_PairForCriteriaCalc <- function(.data, ref = "null", hours_range = 4) {
                     !!rlang::sym(pair_result_val),
                     !!rlang::sym(pair_units),
                     !!rlang::sym(pair_fraction),
-                    !!rlang::sym(pair_speciation))
+                    !!rlang::sym(pair_speciation)) %>%
+      dplyr::group_by(ResultIdentifier) %>%
+      dplyr::slice_sample(n = 1)
     
     # combine paired dfs
     all.pairs <- pair.activityid %>%
@@ -571,11 +573,17 @@ TADA_PairForCriteriaCalc <- function(.data, ref = "null", hours_range = 4) {
    # find pairs for all groups included in pairing ref
    all.groups <- purrr::map(n.groups.list, ~ pairing(.data, group.pos = .x))
    
-   # join with .data
-   check <- purrr::reduce(all.groups, ~ dplyr::left_join(.data, .x, by = "ResultIdentifier"))
+   # convert list of dfs to a single df to join with .data
+   all.groups <- purrr::reduce(all.groups, function(left, right) {
+     dplyr::left_join(left, right, by = "ResultIdentifier")
+   })
    
-   return(check)
-    
+   
+   # join with .data
+  .data <- dplyr::left_join(.data, all.groups)
+   
+ 
+   return(.data)
   }
 
 # SHOULD WRITE TEST TO COMPARE # ROWS AT START AND END OF THIS FUNCTION, COL NUM SHOULD CHANGE BUT ROW NUM SHOULD NOT
