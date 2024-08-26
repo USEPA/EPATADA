@@ -1572,7 +1572,7 @@ TADA_ViewColorPalette <- function(col_pair = FALSE) {
   label_colors[1] <- "white"
 
   # create color swatch graphic
-  graphics::par(mar = c(5, 0, 5, 0))
+  graphics::par(mar = c(1, 0, 1, 0))
   swatch <- graphics::plot(1,
     type = "n", xlab = "", ylab = "", xlim = c(0.5, n + 0.5), ylim = c(0, 1),
     main = "TADA Palette", axes = FALSE
@@ -1603,10 +1603,11 @@ TADA_ViewColorPalette <- function(col_pair = FALSE) {
       swatch[[i]] <- one_swatch
     }
   }
-
+  
   graphics::par(mfrow=c(1,1))
   swatch <- grDevices::recordPlot()
-
+  dev.off()
+  
   return(swatch)
 }
 
