@@ -456,10 +456,31 @@ TADA_PairForCriteriaCalc <- function(.data, ref = "null", hours_range = 4) {
    }
   
   # check to see if user-supplied ref is a df
-  if(!is.data.frame(ref) & ref != "null") {
+  if(ref != "null") {
+    
+    if(!is.data.frame(ref)) {
+      
     stop("TADA_PairForCriteriaCalc: 'ref' must be a data frame with six columns: TADA.CharacteristicName,
          TADA.ResultMeasure.MeasureUnitCode, TADA.MethodSpeciationName, TADA.ResultSampleFractionText,
          TADA.PairingGroup.Rank, and TADA.PairingGroup.")
+    }
+    
+    if(is.data.frame(ref)) {
+      
+      col.names <- c("TADA.CharacteristicName", "TADA.ResultMeasure.MeasureUnitCode", 
+                     "TADA.MethodSpeciationName", "TADA.ResultSampleFractionText",
+                     "TADA.PairingGroup.Rank", "TADA.PairingGroup")
+      
+      ref.names <- names(ref)
+      
+      if(length(setdiff(col.names, ref.names)) > 0) {
+        
+        stop("TADA_PairForCriteriaCalc: 'ref' must be a data frame with six columns: TADA.CharacteristicName,
+         TADA.ResultMeasure.MeasureUnitCode, TADA.MethodSpeciationName, TADA.ResultSampleFractionText,
+         TADA.PairingGroup.Rank, and TADA.PairingGroup.")
+      }
+    }
+    
   }
     
     # create list of pairing groups
