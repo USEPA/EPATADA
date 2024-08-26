@@ -1606,7 +1606,6 @@ TADA_ViewColorPalette <- function(col_pair = FALSE) {
   
   graphics::par(mfrow=c(1,1))
   swatch <- grDevices::recordPlot()
-  dev.off()
   
   return(swatch)
 }
