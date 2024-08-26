@@ -47,9 +47,9 @@ Create Scatterplot(s) for Each TADA.ComparableDataIdentifier with Multiple (Up t
 data(Data_Nutrients_UT)
 # UT Nutrients results grouped by county
 # transform non-detect data
-df <- TADA_SimpleCensoredMethods(Data_Nutrients_UT)
+df2 <- TADA_SimpleCensoredMethods(Data_Nutrients_UT)
 # create scatterplots for selected counties
-UT_Nutrients_by_CountyCode <- TADA_GroupedScatterplot(df, group_col = "CountyCode", groups = c("057", "011", "003", "037"))
+UT_Nutrients_by_CountyCode <- TADA_GroupedScatterplot(df2, group_col = "CountyCode", groups = c("057", "011", "003", "037"))
 # view the 3rd and 4th plots
 UT_Nutrients_by_CountyCode[[3]]
 UT_Nutrients_by_CountyCode[[4]]
