@@ -68,6 +68,27 @@ TADA_CreateAdditionalCriteriaRef <- function(.data, entity, priorityParam = FALS
   # This ref table pulls in the allowable designated uses by Entity and Parameter. Will be used to join onto the TADA by TADA.CharacteristicName
   parameterUseMap <- utils::read.csv(system.file("extdata", "ATTAINSParameterUseMapRef.csv", package = "EPATADA"))
   
+  # This creates an empty dataframe for user inputs on Criteria and Methodology of assessments
+  columns <- c(
+    "TADA.CharacteristicName", "TADA.MethodSpeciationName",	"TADA.ResultSampleFractionText",
+    "entity_name",	"use_name",	"waterType",	"Acute/Chronic",	"StandardsGroup",	"TADA.UserStandardValue",
+    "TADA.UserStandardUnit",	"TADA.UserDurationValue",	"TADA.UserDurationUnit",	"TADA.UserFrequencyValue",
+    "TADA.UserFrequencyUnit",	"TADA.Frequency_(m)",	"MinimumSampleSize",	"AssessmentBegDate",	"AssessmentEndDate",
+    "Season",	"OtherParameters"
+  )
+  
+  CriteriaRef <- data.frame(matrix(nrow = 0, ncol = length(columns)))
+  colnames(CriteriaRef) = columns
+
+  
+  library(openxlsx)
+  wb <- createWorkbook()
+  addWorksheet(wb, "Index")
+  addWorksheet(wb, "UserCriteriaRef")
+  writeDataTable(wb, 1, x = parameterUseMap)
+  writeDataTable(wb, 2, x = CriteriaRef,)
+  openXL(wb)
+  
   ATTAINSUseType <- GET("https://attains.epa.gov/attains-public/api/domains?domainName=UseName") %>%
     content(as = "text", encoding = "UTF-8") %>%
     fromJSON(flatten = TRUE)
@@ -100,7 +121,7 @@ TADA_CreateAdditionalCriteriaRef <- function(.data, entity, priorityParam = FALS
 
 #' Return Duration Criteria Standards Summary
 #'
-#' This function will ask users to either submit a completed TADA.CreateAdditionalCriteriaRef 
+#' This function will ask users to submit a completed TADA.CreateAdditionalCriteriaRef 
 #' dataframe. A summary statistics table will be created based on the duration associated
 #' with a parameter and designated use row entry. Duration should be defined as the length of
 #' time that a parameter was measured for for its standard criterion. Examples of Duration includes
@@ -126,12 +147,74 @@ TADA_CreateAdditionalCriteriaRef <- function(.data, entity, priorityParam = FALS
 #' @export
 #'
 #' @examples
-#' # create criteria reference for Utah nutrients example data set
-#' UT_AdditionalCriteriaRef <- TADA_CreateAdditionalCriteriaRef(Data_Nutrients_UT, entity = "Utah")
 #' 
 
-TADA_DefineMetalEquationCriteria <- function(.data, paramA, paramB, paramD) {
+TADA_DefineMetalEquationCriteria <- function(.data, .dataCriteriaRef, paramA, paramB, paramD) {
   
   return(.data)
   
+}
+
+#' Returns Criteria Standards template dataframe with Rows for each MonitoringLocationIdentifier/MonitoringLocationName
+#'
+#' This function will ask users to submit a completed TADA.CriteriaRef 
+#' dataframe. For each parameter and designated use row entry that is filled with "site-specific"
+#' for the standards column, separate rows for unique monitoringLocationName(s) will be generated
+#' based on user defined AUID(s) or AU_name(s). 
+#' 
+#' Users are asked to fill in the TADA.UserStandardValue for each site-specfic defined parameter and designated use
+#' standards. Any rows that are not defined as site specific in TADA.UserStandardValue will be kept as is and not changed.
+#' 
+#'
+#' @param .data A TADA dataframe with TADA_GetATTAINS() geospatial function ran.
+#' 
+#' @param .dataCriteriaRef a dataframe generated from TADA_CreateRef(). 
+#' 
+#' @param stateCode a character string of the abbreviated state in which the TADA dataframe should be filtered by.
+#'
+#' @return A data frame with all the MonitoringLocationIdentifier Sites for a defined AU.
+#' 
+#' @export
+#'
+#' @examples
+#' # example dataset with ATTAINS getspatial below
+#  # ATTAINS_DATA_UT <- TADA_GetATTAINS(Data_Nutrients_UT)
+#' load(ATTAINS_DATA_UT)
+#' 
+
+TADA_SiteSpecificStandards <- function(.data = ATTAINS_DATA_UT, .dataCriteriaRef, stateCode, monitoringLocationName, AUID){ #},AUID, MonitoringLocationName){
+  
+  library(arsenal)
+  library(httr)
+  library(tidyverse)
+  library(dplyr)
+  library(jsonlite)
+  
+  # check for required columns
+  req_cols <- c(
+    "TADA.CharacteristicName", "TADA.MethodSpeciationName",
+    "TADA.ResultSampleFractionText", "TADA.ResultMeasure.MeasureUnitCode", "ATTAINS.assessmentunitidentifier"
+  )
+  
+  if(!is.character(stateCode)){
+    stop('stateCode must be a character input. Please specify the abbreviation of the state name in which that your data is contained')
+  }
+  # ATTAINS web services - does this need to be pulled in? 
+  temp <- GET(paste0("https://attains.epa.gov/attains-public/api/assessmentUnits?stateCode=",stateCode)) %>%
+    content(as = "text", encoding = "UTF-8") %>%
+    fromJSON(flatten = TRUE)
+  
+  # Filters the TADA_ATTAINS dataframe by the AUID or monitoringLocationName argument parameter in the function
+  # and returns a dataframe of all the unique monitoringLocationName by that AUID.
+  MonitoringRef <- dplyr::filter(.data$TADA_with_ATTAINS, ATTAINS.assessmentunitname == AUID) %>%
+    select("MonitoringLocationName", "MonitoringLocationTypeName", "MonitoringLocationIdentifier", "ATTAINS.assessmentunitname")
+    distinct()
+  
+  .dataCriteriaRef <- .dataCriteriaRef %>%
+    dplyr::mutate(., case_when(TADA.UserStandardValue ==  "site specific", ATTAINS.assessmentunitname = AUID, ATTAINS.assessmentunitname = NA)) %>%
+    #dplyr::mutate(., case_when(is.na(AUID), monitoringLocationName = NA)) %>%
+    dplyr::left_join(., MonitoringRef, by = "ATTAINS.assessmentunitname")
+    
+  
+  return(.data)
 }
