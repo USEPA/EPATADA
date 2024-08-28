@@ -46,8 +46,8 @@ require.cols <- c(
   # Result Value and Result Unit
   "ResultMeasureValue", # required in Module 1 but is replaced by TADA version in future modules
   "ResultMeasure.MeasureUnitCode", # required in Module 1 but is replaced by TADA version in future modules
-  "TADA.ResultMeasure.MeasureUnitCode", # generated/required/replaces original
   "TADA.ResultMeasureValue", # generated/required/replaces original
+  "TADA.ResultMeasure.MeasureUnitCode", # generated/required/replaces original
   "TADA.WQXTargetUnit", # generated, only added when transform = FALSE in TADA_ConvertResultUnits
   "TADA.WQXResultUnitConversion", # generated, only added when transform = FALSE in TADA_ConvertResultUnits
   "TADA.WQXUnitConversionFactor", # generated, only added when transform = FALSE in TADA_ConvertResultUnits
