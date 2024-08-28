@@ -10,8 +10,6 @@ on:
 
 name: Check URLs
 
-on: [push, pull_request]
-
 jobs:
   url-check:
     runs-on: ubuntu-latest
