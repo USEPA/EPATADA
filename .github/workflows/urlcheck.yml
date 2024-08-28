@@ -1,4 +1,3 @@
-#https://github.com/urlstechie/urlchecker-action/blob/master/examples/urlchecker-checkout.yml
 
 on:
   push:
@@ -15,25 +14,18 @@ jobs:
   build:
     runs-on: ubuntu-latest
 
-    steps:
-    - uses: actions/checkout@v2
-    - name: urls-checker
-      uses: urlstechie/urlchecker-action@master
-      with:
-        # A subfolder or path to navigate to in the present or cloned repository
-        subfolder: man, R
+  steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
 
-        # A comma-separated list of file types to cover in the URL checks
-        file_types: .Rmd,.R, .Rd
+      - name: Install dependencies
+        run: sudo apt-get install -y curl
 
-        # Choose whether to include file with no URLs in the prints.
-        print_all: false
-
-        # The timeout seconds to provide to requests, defaults to 5 seconds
-        timeout: 5
-
-        # How many times to retry a failed request (each is logged, defaults to 1)
-        retry_count: 3
-
-        # choose if the force pass or not
-        force_pass : true
+      - name: Find and check URLs
+        run: |
+          grep -Eo '(http|https)://[^/"]+' -r . | while read -r url; do
+            if ! curl --output /dev/null --silent --head --fail "$url"; then
+              echo "Broken URL: $url"
+              exit 1
+            fi
+          done
