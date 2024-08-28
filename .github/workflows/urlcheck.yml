@@ -1,3 +1,4 @@
+#https://github.com/urlstechie/urlchecker-action/blob/master/examples/urlchecker-checkout.yml
 
 on:
   push:
@@ -11,19 +12,28 @@ on:
 name: Check URLs
 
 jobs:
-  check-urls:
+  build:
     runs-on: ubuntu-latest
+
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
+    - uses: actions/checkout@v2
+    - name: urls-checker
+      uses: urlstechie/urlchecker-action@master
+      with:
+        # A subfolder or path to navigate to in the present or cloned repository
+        subfolder: man, R
 
-      - name: Set up Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: '16'
+        # A comma-separated list of file types to cover in the URL checks
+        file_types: .Rmd,.R, .Rd
 
-      - name: Install broken-link-checker
-        run: npm install -g broken-link-checker
+        # Choose whether to include file with no URLs in the prints.
+        print_all: false
 
-      - name: Run broken-link-checker
-        run: blc http://localhost:4000 --recursive --follow
+        # The timeout seconds to provide to requests, defaults to 5 seconds
+        timeout: 5
+
+        # How many times to retry a failed request (each is logged, defaults to 1)
+        retry_count: 3
+
+        # choose if the force pass or not
+        force_pass : true
