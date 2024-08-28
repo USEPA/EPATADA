@@ -66,7 +66,7 @@ TADA_CreateAdditionalCriteriaRef <- function(.data, entity, priorityParam = FALS
   library(jsonlite)
   
   # This ref table pulls in the allowable designated uses by Entity and Parameter. Will be used to join onto the TADA by TADA.CharacteristicName
-  parameterUseMap <- utils::read.csv(system.file("extdata", "ATTAINSParameterUseMapRef.csv", package = "EPATADA"))
+  ATTAINSParameterUse <- utils::read.csv(system.file("extdata", "ATTAINSParameterUseMapRef.csv", package = "EPATADA"))
   
   # This creates an empty dataframe for user inputs on Criteria and Methodology of assessments
   columns <- c(
@@ -84,38 +84,55 @@ TADA_CreateAdditionalCriteriaRef <- function(.data, entity, priorityParam = FALS
   library(openxlsx)
   wb <- createWorkbook()
   addWorksheet(wb, "Index")
+  addWorksheet(wb, "ATTAINSParameterUse")
   addWorksheet(wb, "UserCriteriaRef")
-  writeDataTable(wb, 1, x = parameterUseMap)
-  writeDataTable(wb, 2, x = CriteriaRef,)
+  writeData(wb, 1, x = data.frame(TADA.CharacteristicName = c("Zinc","Nitrogen", "NA"), 
+                                  TADA.MethodSpeciationName = c("NO4", "N", "NH4"),
+                                  TADA.ResultSampleFractionText = c("Dissolved", "Total", "NA")
+                                  # x = .data[,c("TADA.CharacteristicName", "TADA.MethodSpeciationName",	"TADA.ResultSampleFractionText")]
+                                  ))
+  writeData(wb, 1, startCol = 4, x = data.frame(entityName = entity))
+  writeData(wb, 1, startCol = 5, x = data.frame(AcuteChronic = c("Acute","Chronic")))
+  writeData(wb, 1, startCol = 4, x = data.frame(waterType = unique(.data[, "MonitoringLocationTypeName"])))
+  writeData(wb, 1, startCol = 5, x = data.frame(AcuteChronic = c("Acute","Chronic")))
+  writeData(wb, 1, startCol = 6, x = data.frame(StandardsGroup = c("Metals", "Nutrients", "Pathogens", "Dissolved Oxygen", "Other", "NA" )))
+  writeData(wb, 2, x = ATTAINSParameterUse)
+  writeData(wb, 3, x = CriteriaRef)
+  suppressWarnings(dataValidation(wb, sheet = "UserCriteriaRef", cols = 1, rows = 2:30, type = "list", value = sprintf("'Index'!$A$2:$A$10"), allowBlank = TRUE, showErrorMsg = FALSE, showInputMsg = FALSE))
+  suppressWarnings(dataValidation(wb, sheet = "UserCriteriaRef", cols = 2, rows = 2:30, type = "list", value = sprintf("'Index'!$B$2:$B$10"), allowBlank = TRUE, showErrorMsg = FALSE, showInputMsg = FALSE))
+  suppressWarnings(dataValidation(wb, sheet = "UserCriteriaRef", cols = 3, rows = 2:30, type = "list", value = sprintf("'Index'!$C$2:$C$10"), allowBlank = TRUE, showErrorMsg = FALSE, showInputMsg = FALSE))
+  suppressWarnings(dataValidation(wb, sheet = "UserCriteriaRef", cols = 4, rows = 2:30, type = "list", value = sprintf("'Index'!$D$2:$D$10"), allowBlank = TRUE, showErrorMsg = FALSE, showInputMsg = FALSE))
+  CriteriaRef.xlsx <- wb
   openXL(wb)
   
-  ATTAINSUseType <- GET("https://attains.epa.gov/attains-public/api/domains?domainName=UseName") %>%
-    content(as = "text", encoding = "UTF-8") %>%
-    fromJSON(flatten = TRUE)
   
-  ATTAINSUseType<- ATTAINSUseType[,c("name","context2")]
+  # ATTAINSUseType <- GET("https://attains.epa.gov/attains-public/api/domains?domainName=UseName") %>%
+  #   content(as = "text", encoding = "UTF-8") %>%
+  #   fromJSON(flatten = TRUE)
+  # 
+  # ATTAINSUseType<- ATTAINSUseType[,c("name","context2")]
+  # 
+  # .data <- .data %>%
+  #   dplyr::select(TADA.CharacteristicName, TADA.MethodSpeciationName, TADA.ResultSampleFractionText) %>%
+  #   dplyr::distinct() %>%
+  #   dplyr::mutate(TADA.UserStandardValue = NA,
+  #                 TADA.UserStandardUnit = NA,
+  #                 TADA.UserDurationValue = NA,
+  #                 TADA.UserDurationUnit = NA,
+  #                 TADA.UserFrequencyValue = NA,
+  #                 TADA.UserFrequencyUnit = NA) %>%
+  #   dplyr::left_join(., parameterUseMap, by = c("TADA.CharacteristicName" = "parameter"), keep = TRUE) %>%
+  #   dplyr::left_join(., ATTAINSUseType, by = c("use_name" = "name")) %>%
+  #   dplyr::filter(organization_name == entity) %>%
+  #   dplyr::distinct()
+  # 
+  #  # This will allow users to filter parameters by only the top priority ones. This would assist in filling out
+  #  # a list to contribute in defining all priority parameters to share methodology and criteria with other users.
+  #  if (priorityParam == TRUE) {
+  #    .data <- subset(., parameter %in% utils::read.csv(system.file("extdata", "WQXcharValRef.csv", package = "EPATADA"))[parameters])
+  #  } 
   
-  .data <- .data %>%
-    dplyr::select(TADA.CharacteristicName, TADA.MethodSpeciationName, TADA.ResultSampleFractionText) %>%
-    dplyr::distinct() %>%
-    dplyr::mutate(TADA.UserStandardValue = NA,
-                  TADA.UserStandardUnit = NA,
-                  TADA.UserDurationValue = NA,
-                  TADA.UserDurationUnit = NA,
-                  TADA.UserFrequencyValue = NA,
-                  TADA.UserFrequencyUnit = NA) %>%
-    dplyr::left_join(., parameterUseMap, by = c("TADA.CharacteristicName" = "parameter"), keep = TRUE) %>%
-    dplyr::left_join(., ATTAINSUseType, by = c("use_name" = "name")) %>%
-    dplyr::filter(organization_name == entity) %>%
-    dplyr::distinct()
-  
-   # This will allow users to filter parameters by only the top priority ones. This would assist in filling out
-   # a list to contribute in defining all priority parameters to share methodology and criteria with other users.
-   if (priorityParam == TRUE) {
-     .data <- subset(., parameter %in% utils::read.csv(system.file("extdata", "WQXcharValRef.csv", package = "EPATADA"))[parameters])
-   } 
-  
-  return(.data)
+  return(wb)
   
 }
 
