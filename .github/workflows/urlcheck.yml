@@ -1,9 +1,9 @@
 # Workflow derived from https://github.com/technote-space/broken-link-checker-action
 on:
   push:
-    branches: [develop]
+    branches: [hrm_test]
   pull_request:
-    branches: [develop]
+    branches: [hrm_test]
   # release:
   #   types: [published]
   workflow_dispatch:
