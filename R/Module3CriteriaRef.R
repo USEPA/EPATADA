@@ -68,6 +68,13 @@ TADA_CreateAdditionalCriteriaRef <- function(.data, entity, priorityParam = FALS
   # This ref table pulls in the allowable designated uses by Entity and Parameter. Will be used to join onto the TADA by TADA.CharacteristicName
   ATTAINSParameterUse <- utils::read.csv(system.file("extdata", "ATTAINSParameterUseMapRef.csv", package = "EPATADA"))
   
+  # Filters ATTAINSPArameterUse to get use_name by entity
+  AllowableUse <- ATTAINSParameterUse %>% 
+    dplyr::filter(organization_name == entity) %>%
+    # using sample dataset filter for the time being below - ZInc and Nitrogen
+    dplyr::filter(parameter %in% c("ZINC", "NITROGEN")) %>%
+    dplyr::select(parameter)
+  
   # This creates an empty dataframe for user inputs on Criteria and Methodology of assessments
   columns <- c(
     "TADA.CharacteristicName", "TADA.MethodSpeciationName",	"TADA.ResultSampleFractionText",
@@ -92,11 +99,12 @@ TADA_CreateAdditionalCriteriaRef <- function(.data, entity, priorityParam = FALS
                                   # x = .data[,c("TADA.CharacteristicName", "TADA.MethodSpeciationName",	"TADA.ResultSampleFractionText")]
                                   ))
   writeData(wb, 1, startCol = 4, x = data.frame(entityName = entity))
-  writeData(wb, 1, startCol = 5, x = data.frame(AcuteChronic = c("Acute","Chronic")))
-  writeData(wb, 1, startCol = 4, x = data.frame(waterType = unique(.data[, "MonitoringLocationTypeName"])))
-  writeData(wb, 1, startCol = 5, x = data.frame(AcuteChronic = c("Acute","Chronic")))
-  writeData(wb, 1, startCol = 6, x = data.frame(StandardsGroup = c("Metals", "Nutrients", "Pathogens", "Dissolved Oxygen", "Other", "NA" )))
+  writeData(wb, 1, startCol = 5, x = data.frame(use_name = AllowableUse))
+  writeData(wb, 1, startCol = 6, x = data.frame(waterType = unique(.data[, "MonitoringLocationTypeName"])))
+  writeData(wb, 1, startCol = 7, x = data.frame(AcuteChronic = c("Acute","Chronic")))
+  writeData(wb, 1, startCol = 8, x = data.frame(StandardsGroup = c("Metals", "Nutrients", "Pathogens", "Dissolved Oxygen", "Other", "NA" )))
   writeData(wb, 2, x = ATTAINSParameterUse)
+  
   writeData(wb, 3, x = CriteriaRef)
   suppressWarnings(dataValidation(wb, sheet = "UserCriteriaRef", cols = 1, rows = 2:30, type = "list", value = sprintf("'Index'!$A$2:$A$10"), allowBlank = TRUE, showErrorMsg = FALSE, showInputMsg = FALSE))
   suppressWarnings(dataValidation(wb, sheet = "UserCriteriaRef", cols = 2, rows = 2:30, type = "list", value = sprintf("'Index'!$B$2:$B$10"), allowBlank = TRUE, showErrorMsg = FALSE, showInputMsg = FALSE))
