@@ -36,11 +36,11 @@ jobs:
 
           if(nrow(check) > 0) {
  
-          cat('The following URLs are broken:\n')
-          cat(check$URL, sep = '\n')
+          print('The following URLs are broken:\n')
+          print(paste((check$URL, sep = '\n'))
           quit(status = 1)
    
           } else {
-          cat('All URLs are valid.\n')
+          print('All URLs are valid.\n')
           } 
           "
