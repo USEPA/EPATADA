@@ -31,10 +31,8 @@ jobs:
         run: |
           R -e "
           library(urlchecker)
-          
-           path <- find.package("EPATADA")
  
-          check <- urlchecker::url_check(path)
+          check <- urlchecker::url_check()
 
           if(nrow(check) > 0) {
  
