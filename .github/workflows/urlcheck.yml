@@ -25,7 +25,7 @@ jobs:
 
     - name: Install urlchecker
       run: |
-        Rscript -e 'install.packages("urlchecker", repos="https://cloud.r-project.org")'
+        Rscript -e 'install.packages("urlchecker", repos="https://github.com/USEPA/EPATADA/")'
 
     - name: Run urlchecker
       run: |
