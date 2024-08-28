@@ -37,7 +37,7 @@ jobs:
           if(nrow(check) > 0) {
  
           print('The following URLs are broken:\n')
-          print(paste((check$URL, sep = '\n'))
+          print(paste(check$URL, sep = '\n'))
           quit(status = 1)
    
           } else {
