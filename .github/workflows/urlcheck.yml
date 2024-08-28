@@ -16,9 +16,14 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
-      - name: Set up R
-        uses: r-lib/actions/setup-r@v2
-      - name: Install dependencies
-        run: Rscript -e 'install.packages("urlchecker")'
-      - name: Run URL check
-        run: Rscript -e 'urlchecker::url_check()'
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '16'
+
+      - name: Install broken-link-checker
+        run: npm install -g broken-link-checker
+
+      - name: Run broken-link-checker
+        run: blc http://localhost:4000 --recursive --follow
