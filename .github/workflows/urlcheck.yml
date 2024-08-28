@@ -28,7 +28,12 @@ jobs:
     - name: Run URL check
       run: |
         Rscript -e "
-        urls <- c('https://github.com/USEPA/EPATADA/')
+        files <- list.files(pattern = '\\.R$', recursive = TRUE)
+        urls <- unlist(lapply(files, function(file) {
+          lines <- readLines(file)
+          urls <- grep('http[s]?://', lines, value = TRUE)
+          gsub('.*(http[s]?://[^ ]+).*', '\\1', urls)
+        }))
         for (url in urls) {
           status <- system(paste('curl -o /dev/null -s -w \"%{http_code}\"', url), intern = TRUE)
           if (status != '200') {
@@ -36,4 +41,3 @@ jobs:
           }
         }
         "
-
