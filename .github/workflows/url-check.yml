@@ -25,7 +25,11 @@ jobs:
       - name: Install dependencies
         uses: r-lib/actions/setup-r-dependencies@v2
         with:
-          extra-packages: any::urlchecker
+          extra-packages: any::urlchecker, any::devtools
+          
+      - name: Document package
+        run: |
+          R -e "devtools::document()"
         
       - name: Run URL Check
         run: |
@@ -36,7 +40,7 @@ jobs:
 
           if(nrow(check) > 0) {
  
-          print('The following URLs are broken:\n')
+          print('The following URLs are broken:)
           print(paste(check$URL, sep = '\n'))
           quit(status = 1)
    
