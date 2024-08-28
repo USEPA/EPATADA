@@ -1,4 +1,4 @@
-# Workflow derived from https://github.com/technote-space/broken-link-checker-action
+
 on:
   push:
     branches: [hrm_test]
@@ -8,7 +8,7 @@ on:
   #   types: [published]
   workflow_dispatch:
 
-name: Broken Link Check
+name: Check for Broken Links
 
 jobs:
   check-links:
@@ -25,8 +25,17 @@ jobs:
       run: |
         install.packages(c("xml2", "rvest", "httr"))
 
-    - name: Run Broken Link Checker
-      uses: technote-space/broken-link-checker-action@v2
-      with:
-        target: 'https://github.com/USEPA/EPATADA/'  # Replace with your package URL
-        recursive: true
+    - name: Check for Broken Links
+      run: |
+        Rscript -e "library(xml2); library(rvest); library(httr); \
+        urls <- c('https://github.com/USEPA/EPATADA/'); \
+        for (url in urls) { \
+          page <- read_html(url); \
+          links <- html_nodes(page, 'a') %>% html_attr('href'); \
+          for (link in links) { \
+            res <- GET(link); \
+            if (status_code(res) >= 400) { \
+              stop(paste('Broken link:', link)); \
+            } \
+          } \
+        }"
