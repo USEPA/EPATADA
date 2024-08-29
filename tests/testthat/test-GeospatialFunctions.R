@@ -92,7 +92,7 @@ testthat::test_that(
   }
 )
 
-# fetch_ATTAINS ----
+# fetchATTAINS ----
 testthat::test_that(
   desc = "fetchATTAINS handles valid input data",
   code = {
@@ -109,7 +109,31 @@ testthat::test_that(
   }
 )
 
+# fetchNHD ----
+testthat::test_that(
+  desc = "fetchNHD handles valid input data",
+  code = {
+    valid_data <- sf::st_sf(geometry = sf::st_sfc(sf::st_point(c(0, 0))), crs = 4326)
+    result <- fetchNHD(.data = valid_data)
+    expect_false(is.null(result))
+  }
+)
+
+testthat::test_that(
+  desc = "fetchATTAINS handles missing input data",
+  code = {
+    expect_error(fetchNHD(.data = NULL))
+  }
+)
+
 # TADA_GetATTAINS ----
+testthat::test_that(
+  desc = "TADA_GetATTAINS addresses improper resolution",
+  code = {
+    expect_error(TADA_GetATTAINS(.data = TADA_dataframe, fill_catchments = TRUE, resolution = "NoNsEnSe", return_sf = FALSE))
+  }
+)
+
 testthat::test_that(
   desc = "TADA_GetATTAINS can take in the TADA_dataframe and the sf object as inputs",
   code = {
@@ -141,7 +165,7 @@ testthat::test_that(
 testthat::test_that(
   desc = "An empty df gets returned if there are no observations in the input df, ",
   code = {
-    test <- TADA_GetATTAINS(.data = tibble::tibble(sample = NA, .rows = 0), FALSE)
+    test <- TADA_GetATTAINS(.data = tibble::tibble(sample = NA, .rows = 0), return_sf = FALSE)
     expect_true(nrow(test) == 0)
   }
 )
