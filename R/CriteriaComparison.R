@@ -151,19 +151,23 @@ TADA_CreatePairRef <- function(.data, ph = TRUE, hardness = TRUE, temp = TRUE,
 
 #' Pair Results for Numeric Criteria Calculation
 #'
-#' This function pairs TADA results with hardness, pH, and temperature results from the same
-#' MonitoringLocation within an user-specified time window to facilitate the calculation of numeric
-#' criteria The columns created by TADA_AutoClean are required to run this function. If they are not
-#' present in. the data frame, the function will stop and print an error message.
+#' This function pairs TADA results with results from specified characteristics from the same
+#' MonitoringLocation within a user-specified time window to facilitate the calculation of numeric
+#' criteria. The columns created by TADA_AutoClean are required to run this function. If they are not
+#' present in the data frame, the function will stop and print an error message.
 #'
 #' Users can provide a pairing reference file (can be created using TADA_CreatePairRef) to specify
 #' which combinations of TADA.CharacteristicName, TADA.ResultMeasure.MeasureUnit,
-#' TADA.MethodSpeciatioName, and TADA.ResultSampleFraction should be used for hardness, pH, and temperature.
-#' If no ref is specified, all possible combinations for hardness, pH, or temperature will be used.
+#' TADA.MethodSpeciatioName, and TADA.ResultSampleFraction should be used for hardness, pH,
+#' temperature, salinity, chloride or other user-defined groups. If no ref is specified, all possible
+#' combinations for hardness, pH, temperature, salinity and chloride will be used.
 #'
 #' @param .data TADA dataframe
 #'
 #' @param ref Write description of what columns need to be in this ref or null option
+#' 
+#' @param hours_range Numeric argument. The time difference allowed between the paired characteristic
+#' and the result.
 #
 #' @return A TADA data frame with six additional columns added for each pairing group specified
 #' in the pairing ref.
