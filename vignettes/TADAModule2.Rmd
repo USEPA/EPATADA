@@ -113,10 +113,10 @@ Implementation System ([ATTAINS](https://www.epa.gov/waterdata/attains))
 is an online platform that organizes and combines each state and
 participating tribe's Clean Water Act reporting data into a single data
 repository. The geospatial component of ATTAINS includes spatial
-representations of each entities assessment units as well as their
-assigned designated uses, their most recent EPA reporting category
-(i.e., their impairment status), their impaired designated uses, and the
-parameter(s) causing the impairment.
+representations of each entity's surface water assessment units as well
+as their assigned designated uses, their most recent EPA reporting
+category (i.e., their impairment status), their impaired designated
+uses, and the parameter(s) causing the impairment.
 
 Within an assessment unit, the criteria or thresholds used to assess
 water quality typically remain the same and all water features are
@@ -162,7 +162,7 @@ Now, we can make the water quality data spatial by running
 
 ```{r}
 # default CRS is WGS84 (4326)
-TADA_spatial <- TADA_MakeSpatial(TADA_dataframe, crs = 4326)
+TADA_spatial <- TADA_MakeSpatial(.data = TADA_dataframe, crs = 4326)
 ```
 
 This new spatial object is identical to the original TADA dataset, but
@@ -210,8 +210,8 @@ must have - at a minimum - WQP observation coordinates in
 "LongitudeMeasure" and "LatitudeMeasure" columns and a
 "HorizontalCoordinateReferenceSystemDatumName" column.
 
-Users also have the option of returning the ATTAINS geospatial sf
-objects with their ATTAINS-linked Water Quality Portal dataframe. If
+Users have the option of returning the ATTAINS geospatial sf objects
+with their ATTAINS-linked Water Quality Portal dataframe. If
 `return_sf = TRUE`, the function returns a list containing the dataframe
 plus shapefile objects named `ATTAINS_catchments`, `ATTAINS_lines`,
 `ATTAINS_points`, and `ATTAINS_polygons`. Note, if any of these
@@ -219,14 +219,14 @@ shapefile objects are empty, this indicates that there are no ATTAINS
 objects of that type intersecting any WQP catchment.
 
 Regardless of the user's decision on returning the ATTAINS sf objects,
-`TADA_GetATTAINS()` always returns a dataframe containing the original
-TADA WQP dataset, plus new columns representing the ATTAINS assessment
-unit(s) that fall within the same NHDPlus HR catchment as them. This
-means that it is possible for a single TADA WQP observation to have
-multiple ATTAINS assessment units linked to it and subsequently more
-than one row of data. Such WQP observations can be identified using the
-new `index` column (i.e., multiple rows with the same index value are
-the same observation).
+`TADA_GetATTAINS()` always returns a dataframe (or dataframes if
+`fill_catchments = TRUE`) containing the original TADA WQP dataset, plus
+new columns representing the ATTAINS assessment unit(s) that fall within
+the same NHDPlus HR catchment as them. This means that it is possible
+for a single TADA WQP observation to have multiple ATTAINS assessment
+units linked to it and subsequently more than one row of data. Such WQP
+observations can be identified using the new `index` column (i.e.,
+multiple rows with the same index value are the same observation).
 
 #### Using `TADA_GetATTAINS()`
 
@@ -235,24 +235,24 @@ Using either our original `TADA_dataframe` *or* the geospatial version
 same NHD HR catchment as our observations:
 
 ```{r}
-TADA_with_ATTAINS <- TADA_GetATTAINS(TADA_dataframe, return_sf = FALSE)
+TADA_with_ATTAINS <- TADA_GetATTAINS(.data = TADA_dataframe, return_sf = FALSE)
 
-TADA_with_ATTAINS <- TADA_GetATTAINS(TADA_spatial, return_sf = FALSE)
+TADA_with_ATTAINS <- TADA_GetATTAINS(.data = TADA_spatial, return_sf = FALSE)
 ```
 
 This new `TADA_with_ATTAINS` object is a modification of the original
 TADA Water Quality Portal dataframe that now has additional columns
 associated with the ATTAINS assessment unit(s) that lie in the same NHD
-HR catchment as them (these columns are prefixed with "ATTAINS").
+HiRes catchment as them (these columns are prefixed with "ATTAINS").
 Moreover, because our `TADA_with_ATTAINS` object contains more rows than
 the original TADA dataframe, we can deduce that some Water Quality
 Portal observations fall within an NHD HR catchment that contains more
 than one ATTAINS assessment unit.
 
 ```{r}
-TADA_with_ATTAINS_list <- TADA_GetATTAINS(TADA_dataframe, return_sf = TRUE)
+TADA_with_ATTAINS_list <- TADA_GetATTAINS(.data = TADA_dataframe, return_sf = TRUE)
 
-TADA_with_ATTAINS_list <- TADA_GetATTAINS(TADA_spatial, return_sf = TRUE)
+TADA_with_ATTAINS_list <- TADA_GetATTAINS(.data = TADA_spatial, return_sf = TRUE)
 ```
 
 If we set `return_sf = TRUE` as done to create the
@@ -267,16 +267,54 @@ MonitoringLocationIdentifier's and ATTAINS Assessment Unit Identifiers.
 ```{r}
 TADA_with_ATTAINS_subset <- TADA_with_ATTAINS %>%
   dplyr::select(
-    c(
       "LongitudeMeasure", "LatitudeMeasure", "MonitoringLocationTypeName",
       "MonitoringLocationIdentifier", "ATTAINS.assessmentunitidentifier",
       "ATTAINS.overallstatus", "ATTAINS.isassessed", "ATTAINS.isimpaired",
       "ATTAINS.organizationid", "ATTAINS.assessmentunitname",
       "ATTAINS.reportingcycle", "ATTAINS.waterbodyreportlink"
-    )
   ) %>%
   dplyr::distinct(.keep_all = FALSE)
 ```
+
+#### Filling in missing ATTAINS assessment units
+
+As you can see in the above examples, not all WQP observations have an
+associated ATTAINS assessment unit (see that in the returned dataframe,
+some WQP observations have `NA`'s where there should be ATTAINS
+information). In these instances, the user can optionally fill in
+catchment information from the NHD by entering `fill_catchments = TRUE`:
+
+```{r}
+TADA_with_ATTAINS_filled <- TADA_GetATTAINS(TADA_dataframe, fill_catchments = TRUE, return_sf = TRUE)
+```
+
+When `fill_catchments = TRUE`, the returned object splits observations
+into two dataframes: WQP observations with ATTAINS data, and WQP
+observations without ATTAINS data. Instead of listing ATTAINS
+information in `TADA_without_ATTAINS`, it links basic information about
+the catchment including its unique identifier, catchment area, and the
+resolution of the NHD used. As a default, TADA_GetATTAINS() will use the
+NHD HiRes for filling in missing ATTAINS catchments. However, the user
+can choose to change the resolution to the NHDPlus V2 by setting
+`resolution = "NHDPlus V2".`
+
+Moreover, when return_sf = TRUE as above, the function will additionally
+return the raw catchment features associated with the observations in
+`TADA_without_ATTAINS` in `without_ATTAINS_catchments`.
+
+#### Arguments for `TADA_GetATTAINS()`
+
+-   `.data`: Your input TADA-style Water Quality Portal data.
+
+-   `fill_catchments`: If TRUE, it will use NHD data to fill in
+    information for samples not covered by ATTAINS.
+
+-   `resolution`: Specifies which version of the NHD to use if filling
+    catchments: the "NHDPlus V2", or "NHDPlus HiRes". The default option
+    is "NHDPlus HiRes".
+
+-   `return_sf`: If TRUE, returns spatial data in addition to tabular
+    data.
 
 Enter `?TADA_GetATTAINS` into the console to review another example of
 this function in use and additional information.
@@ -288,8 +326,7 @@ TADA Water Quality Portal observations that are generated in
 `TADA_GetATTAINS()` when `return_sf = TRUE`. For the function to work
 properly, the input dataframe must be the list produced from
 `TADA_GetATTAINS()` with `return_sf = TRUE`. The map also displays the
-Water Quality Portal monitoring locations used to find the ATTAINS
-features.
+Water Quality Portal monitoring locations used in `TADA_GetATTAINS()`.
 
 #### Using `TADA_ViewATTAINS()`
 
@@ -298,5 +335,15 @@ Enter `?TADA_ViewATTAINS` into the console to review another example
 query and additional information.
 
 ```{r, fig.height=7}
-TADA_ViewATTAINS(TADA_with_ATTAINS_list)
+TADA_ViewATTAINS(.data = TADA_with_ATTAINS_list)
 ```
+
+When `fill_catchments = TRUE`, `TADA_ViewATTAINS()` will also map the
+`without_ATTAINS_catchments`:
+
+```{r, fig.height=7}
+TADA_ViewATTAINS(.data = TADA_with_ATTAINS_filled)
+```
+
+Enter `?TADA_ViewATTAINS` into the console to review another example of
+this function in use and additional information.
