@@ -25,7 +25,7 @@ jobs:
       - name: Install dependencies
         uses: r-lib/actions/setup-r-dependencies@v2
         with:
-          extra-packages: any::urlchecker, any::devtools
+          extra-packages: any::urlchecker, any::devtools, any::purrr, any::tools
           
       - name: Document package
         run: |
@@ -35,6 +35,7 @@ jobs:
         run: |
           R -e "
           library(urlchecker)
+          library(purrr)
  
           check <- urlchecker::url_check()
 
@@ -48,3 +49,49 @@ jobs:
           print('All URLs are valid.\n')
           } 
           "
+          
+          
+#            # extract urls function
+#  extract_urls <- function(text) {
+#    stringr::str_extract_all(text, "http[s]?://[^\\s\\)\\]]+") %>% unlist()
+#  }
+#  
+#  # check if urls exist function
+#  check_urls_exist <- function(urls) {
+#    status <- purrr::map_lgl(urls, ~ RCurl::url.exists(.x))
+#    names(status) <- urls
+#    status
+#  }
+#  
+#  # clean urls function
+#  clean_url <- function(url) {
+#    stringr::str_remove_all(url, "[\\\\.,\\\")]+$|[{}].*")
+#  }
+#    
+#  
+# # create lists of files to check
+# other_files <- c("README.md", "DESCRIPTION", "NAMESPACE")
+#  
+# vignettes <- list.files("vignettes", pattern = ".Rmd", full.names = TRUE)
+#  
+# articles <- list.files("vignettes/articles", pattern = ".Rmd", full.names = TRUE)
+# 
+# r_files <- list.files("R", pattern = ".R", full.names = TRUE)
+# 
+# files <- append(other_files, vignettes) %>%
+#   append(articles) %>%
+#   append(r_files)
+#  
+#  # create list of urls, need to do for other file types as well
+# 
+#  urls_from_r <- purrr::map(files, ~readLines(.x)) %>% unlist() %>% extract_urls() %>%
+#    clean_url() %>%
+#    unique()
+#  
+#  
+# # check urls
+#  check <- purrr::map_lgl(urls_from_r, ~ {
+#    RCurl::url.exists(.x) %>%
+#     unlist()
+#  })
+#  
