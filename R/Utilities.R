@@ -258,6 +258,13 @@ TADA_AutoClean <- function(.data) {
     # create uppercase version of original ResultMeasure.MeasureUnitCode
     .data$TADA.ResultMeasure.MeasureUnitCode <- toupper(.data$ResultMeasure.MeasureUnitCode)
   }
+  
+  if ("TADA.MonitoringLocationIdentifier" %in% colnames(.data)) {
+    .data <- .data
+  } else {
+    # create uppercase version of original MonitoringLocationIdentifier
+    .data$TADA.MonitoringLocationIdentifier <- toupper(.data$MonitoringLocationIdentifier)
+  }
 
   # Transform "Dissolved oxygen (DO)" characteristic name to "DISSOLVED OXYGEN SATURATION" IF
   # result unit is "%" or "% SATURATN".
@@ -767,12 +774,12 @@ TADA_FindNearbySites <- function(.data, dist_buffer = 100) {
   TADA_CheckType(.data, "data.frame", "Input object")
   
   # .data required columns
-  required_cols <- c("MonitoringLocationIdentifier", "TADA.LongitudeMeasure", "TADA.LatitudeMeasure")
+  required_cols <- c("TADA.MonitoringLocationIdentifier", "MonitoringLocationIdentifier", "TADA.LongitudeMeasure", "TADA.LatitudeMeasure")
   # check .data has required columns
   TADA_CheckColumns(.data, required_cols)
   
   # create spatial dataset based on sites
-  data_sf <- unique(.data[, c("MonitoringLocationIdentifier", "TADA.LongitudeMeasure", "TADA.LatitudeMeasure")])
+  data_sf <- unique(.data[, c("TADA.MonitoringLocationIdentifier", "TADA.LongitudeMeasure", "TADA.LatitudeMeasure")])
   # convert to sf object
   data_sf <- sf::st_as_sf(data_sf,
                           coords = c("TADA.LongitudeMeasure", "TADA.LatitudeMeasure"),
@@ -782,8 +789,8 @@ TADA_FindNearbySites <- function(.data, dist_buffer = 100) {
   # create a distance matrix in meters
   dist.mat <- data.frame(sf::st_distance(data_sf)) # Great Circle distance since in lat/lon
   
-  row.names(dist.mat) <- data_sf$MonitoringLocationIdentifier
-  colnames(dist.mat) <- data_sf$MonitoringLocationIdentifier
+  row.names(dist.mat) <- data_sf$TADA.MonitoringLocationIdentifier
+  colnames(dist.mat) <- data_sf$TADA.MonitoringLocationIdentifier
   
   # convert distances to those within buffer (1) and beyond buffer (0)
   dist.mat1 <- apply(dist.mat, c(1, 2), function(x) {
