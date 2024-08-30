@@ -27,7 +27,7 @@ present in the data frame, the function will stop and print an error message.
 \details{
 Users can provide a pairing reference file (can be created using TADA_CreatePairRef) to specify
 which combinations of TADA.CharacteristicName, TADA.ResultMeasure.MeasureUnit,
-TADA.MethodSpeciatioName, and TADA.ResultSampleFraction should be used for hardness, pH,
+TADA.MethodSpeciationName, and TADA.ResultSampleFractionText should be used for hardness, pH,
 temperature, salinity, chloride or other user-defined groups. If no ref is specified, all possible
 combinations for hardness, pH, temperature, salinity and chloride will be used.
 }

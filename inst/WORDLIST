@@ -17,6 +17,7 @@ AggregateMeasurements
 Aliesha
 AnalysisDataFilter
 AnalyticalMethod
+Animas
 AquiferName
 ArcGIS
 AssemblageSampledName
@@ -37,9 +38,11 @@ CharacteristicGroup
 CharacteristicName
 CharacteristicNameAssumptions
 CharacteristicNameUserSupplied
+CharacteristicNames
 CharacteristicsForDepthProfile
 Chilton
 ComparableDataIdentifier
+ComparableDataIdentifiers
 ConsolidatedDepth
 ConstructionDateText
 ContinuousData
@@ -48,7 +51,9 @@ ConversionFactor
 ConvertDepthUnits
 ConvertResultUnits
 ConvertSpecialChars
+CountyCode
 CreateComparableID
+CreatePairRef
 CreateUnitRef
 DataQuality
 DataRetreival
@@ -65,6 +70,7 @@ DomainValues
 ECHO's
 EMEF
 FONDULAC
+Farmington
 FieldCounts
 FieldValuesPie
 FieldValuesTable
@@ -92,8 +98,10 @@ GetCharacteristicRef
 GetNutrientSummationRef
 GetSynonymRef
 Github
+HMW
 HUC
 HUCS
+HUCs
 HarmonizeSynonyms
 HorizontalCoordinateReferenceSystemDatumName
 HydrologicCondition
@@ -123,6 +131,7 @@ MeasureUnit
 MeasureUnitCode
 MeasureValue
 MeasureValueDataTypes
+MeetsStandard
 MethodDescriptionText
 MethodIdentifier
 MethodIdentifierContext
@@ -162,6 +171,8 @@ OverviewMap
 POJOAQUE
 PUEBLOOFTESUQUE
 PairReplicates
+PairingGroup
+PairingGroupRank
 Pojoaque
 ProjectFileUrl
 ProjectName
@@ -173,6 +184,7 @@ QAQC
 QAQC'd
 QAQCCharacteristicValidation
 QC'ing
+QCing
 README
 REDLAKE
 RMarkdown
@@ -272,6 +284,9 @@ WQXTargetUnit
 WQXUnitConversionFactor
 WQXcharValRef
 WQXunitRef
+WaterSciCon
+Waterbody
+WaterbodyReport
 WellDepthMeasure
 WellHoleDepthMeasure
 Wikimedia
@@ -291,6 +306,7 @@ assmnt
 autoclean
 autocleaned
 bbox
+bnd
 bottomvalue
 bplan
 bycategory
@@ -378,6 +394,7 @@ pch
 pchIcons
 pcodes
 permid
+ph
 plotly
 pre
 randombelowlimit
