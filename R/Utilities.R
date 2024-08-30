@@ -808,11 +808,11 @@ TADA_FindNearbySites <- function(.data, dist_buffer = 100) {
   for (i in 1:dim(dist.mat1)[1]) {
     fsite <- rownames(dist.mat1)[i] # focal site
     dat <- data.frame(Count = dist.mat1[i, ]) # get focal site count row as a column
-    dat$MonitoringLocationIdentifier <- colnames(dist.mat1) # give df site names along with counts
-    sites <- dat$MonitoringLocationIdentifier[dat$Count == 1] # filter to sites within buffer
+    dat$TADA.MonitoringLocationIdentifier <- colnames(dist.mat1) # give df site names along with counts
+    sites <- dat$TADA.MonitoringLocationIdentifier[dat$Count == 1] # filter to sites within buffer
     sites1 <- sites[!sites %in% fsite] # get site list within buffer that does not include focal site
     if (length(sites1) > 0) { # if this list is greater than 0, combine sites within buffer into data frame
-      df <- data.frame(MonitoringLocationIdentifier = sites, TADA.MonitoringLocationIdentifier = paste0(sites, collapse = ","))
+      df <- data.frame(TADA.MonitoringLocationIdentifier = sites, TADA.MonitoringLocationIdentifier = paste0(sites, collapse = ","))
       df[c("TADA.MonitoringLocationIdentifier")] <- lapply(df[c("TADA.MonitoringLocationIdentifier")], TADA_FormatDelimitedString)
       groups <- plyr::rbind.fill(groups, df)
     }
@@ -829,12 +829,12 @@ TADA_FindNearbySites <- function(.data, dist_buffer = 100) {
     
     # find any sites within multiple groups
     summ_sites <- groups %>%
-      dplyr::group_by(MonitoringLocationIdentifier) %>%
-      dplyr::mutate(GroupCount = 1:length(MonitoringLocationIdentifier))
+      dplyr::group_by(TADA.MonitoringLocationIdentifier) %>%
+      dplyr::mutate(GroupCount = 1:length(TADA.MonitoringLocationIdentifier))
     
     # pivot wider if a site belongs to multiple groups
     groups_wide <- merge(groups, summ_sites, all.x = TRUE)
-    groups_wide <- tidyr::pivot_wider(groups_wide, id_cols = "MonitoringLocationIdentifier", names_from = "GroupCount", names_prefix = "TADA.MonitoringLocationIdentifier", values_from = "TADA.MonitoringLocationIdentifier")
+    groups_wide <- tidyr::pivot_wider(groups_wide, id_cols = "TADA.MonitoringLocationIdentifier", names_from = "GroupCount", names_prefix = "TADA.MonitoringLocationIdentifier", values_from = "TADA.MonitoringLocationIdentifier")
     # merge data to site groupings
     .data <- merge(.data, groups_wide, all.x = TRUE)
     
