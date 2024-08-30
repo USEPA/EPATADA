@@ -812,7 +812,7 @@ TADA_FindNearbySites <- function(.data, dist_buffer = 100) {
     sites <- dat$TADA.MonitoringLocationIdentifier[dat$Count == 1] # filter to sites within buffer
     sites1 <- sites[!sites %in% fsite] # get site list within buffer that does not include focal site
     if (length(sites1) > 0) { # if this list is greater than 0, combine sites within buffer into data frame
-      df <- data.frame(TADA.MonitoringLocationIdentifier = sites, TADA.MonitoringLocationIdentifier = paste0(sites, collapse = ","))
+      df <- data.frame(TADA.MonitoringLocationIdentifier = sites, TADA.MonitoringLocationIdentifier.New = paste0(sites, collapse = ","))
       df[c("TADA.MonitoringLocationIdentifier")] <- lapply(df[c("TADA.MonitoringLocationIdentifier")], TADA_FormatDelimitedString)
       groups <- plyr::rbind.fill(groups, df)
     }
@@ -834,7 +834,7 @@ TADA_FindNearbySites <- function(.data, dist_buffer = 100) {
     
     # pivot wider if a site belongs to multiple groups
     groups_wide <- merge(groups, summ_sites, all.x = TRUE)
-    groups_wide <- tidyr::pivot_wider(groups_wide, id_cols = "TADA.MonitoringLocationIdentifier", names_from = "GroupCount", names_prefix = "TADA.MonitoringLocationIdentifier", values_from = "TADA.MonitoringLocationIdentifier")
+    groups_wide <- tidyr::pivot_wider(groups_wide, id_cols = "TADA.MonitoringLocationIdentifier", names_from = "GroupCount", names_prefix = "TADA.MonitoringLocationIdentifier.New", values_from = "TADA.MonitoringLocationIdentifier.New")
     # merge data to site groupings
     .data <- merge(.data, groups_wide, all.x = TRUE)
     
@@ -842,10 +842,6 @@ TADA_FindNearbySites <- function(.data, dist_buffer = 100) {
     grpcols <- names(.data)[grepl("TADA.MonitoringLocationIdentifier", names(.data))]
     
     .data <- .data %>% tidyr::unite(col = TADA.MonitoringLocationIdentifier, dplyr::all_of(grpcols), sep = ", ", na.rm = TRUE)
-  }
-  
-  if (!"TADA.MonitoringLocationIdentifier" %in% colnames(.data)) {
-    .data$TADA.MonitoringLocationIdentifier <- NA
   }
   
   .data <- .data %>% 
