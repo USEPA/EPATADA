@@ -86,7 +86,6 @@ TADA_CreateAdditionalCriteriaRef <- function(.data, entity, priorityParam = FALS
   
   CriteriaRef <- data.frame(matrix(nrow = 0, ncol = length(columns)))
   colnames(CriteriaRef) = columns
-
   
   library(openxlsx)
   wb <- createWorkbook()
