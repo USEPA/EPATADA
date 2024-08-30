@@ -669,8 +669,8 @@ TADA_SubstituteDeprecatedChars <- function(.data) {
     .data$TADA.CharacteristicName <- toupper(.data$CharacteristicName)
   }
 
-  # read in characteristic reference table with deprecation information, filter to deprecated terms and for "retired" in CharactersticName.
-  # remove all characters after first "*" in CharacteristicName and remove any leading or trailing white space to make compatible with deprecated NWIS CharactersticName.
+  # read in characteristic reference table with deprecation information, filter to deprecated terms and for "retired" in CharacteristicName.
+  # remove all characters after first "*" in CharacteristicName and remove any leading or trailing white space to make compatible with deprecated NWIS CharacteristicName.
   nwis.table <- utils::read.csv(system.file("extdata", "WQXCharacteristicRef.csv", package = "EPATADA")) %>%
     dplyr::filter(
       Char_Flag == "Deprecated",

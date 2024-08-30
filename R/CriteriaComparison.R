@@ -127,7 +127,7 @@ TADA_CreatePairRef <- function(.data, ph = TRUE, hardness = TRUE, temp = TRUE,
 
   if (!is.data.frame(other_char) & other_char != "null") {
     stop("TADA_CreatePairRef: 'other_char' must be a data frame with three columns. The first column
-           contains TADA.CharactersticName, the second column contains TADA.PairingGroup, and the
+           contains TADA.CharacteristicName, the second column contains TADA.PairingGroup, and the
            third column contains TADA.PairingGroup.Rank")
   }
 
