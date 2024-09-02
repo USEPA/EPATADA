@@ -253,7 +253,7 @@ fetchATTAINS <- function(.data) {
   # If the area of the bbox is massive (about the area of California or larger), AND there
   # aren't that many actual monitoring locations (75)... OR the bbox is about the size of New Hampshire, and the observations are under 25...
   #... speed up processing by going site-by-site:
-  if(nrow(.data) <= 100 & as.numeric(sf::st_area(sf::st_as_sfc(bbox_raw))) >= 400000000000 || nrow(.data) <= 25 & as.numeric(sf::st_area(sf::st_as_sfc(bbox_raw))) >= 100000000000){
+  if(nrow(.data) <= 100 & as.numeric(sf::st_area(sf::st_as_sfc(bbox_raw))) >= 4e+11 || nrow(.data) <= 25 & as.numeric(sf::st_area(sf::st_as_sfc(bbox_raw))) >= 1e+11){
 
     catchment_features <- vector("list", length = nrow(.data))
 
