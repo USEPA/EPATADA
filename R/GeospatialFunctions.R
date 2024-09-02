@@ -407,7 +407,7 @@ fetchNHD <- function(.data, resolution = "NHDPlus HiRes"){
 
       geospatial_aoi <- unique_sites %>%
         # convert XY sites into super tiny polygons for "AOI"
-        sf::st_buffer(0.0000001) %>%
+        sf::st_buffer(1e-07) %>%
         # convert sf object to sfc object (required for downloading from the map server)
         sf::st_as_sfc(.)
 
