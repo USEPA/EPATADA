@@ -4,35 +4,48 @@
 \alias{TADA_GetATTAINS}
 \title{TADA_GetATTAINS}
 \usage{
-TADA_GetATTAINS(.data, return_sf = TRUE)
+TADA_GetATTAINS(
+  .data,
+  fill_catchments = FALSE,
+  resolution = "Hi",
+  return_sf = TRUE
+)
 }
 \arguments{
 \item{.data}{A dataframe created by \code{TADA_DataRetrieval()} or the sf equivalent made by \code{TADA_MakeSpatial()}.}
 
-\item{return_sf}{Whether to return the associated ATTAINS_catchments, ATTAINS_lines, ATTAINS_points, and ATTAINS_polygons shapefile objects. TRUE (yes, return) or FALSE (no, do not return). All ATTAINS features are in WGS84 (crs = 4326).}
+\item{fill_catchments}{Whether the user would like to return NHD catchments for WQP observations not associated with an ATTAINS assessment unit (TRUE or FALSE). Defaults to FALSE.}
+
+\item{resolution}{If fill_catchments = TRUE, whether to use "NHDPlus V2" catchments or "NHDPlus HiRes" catchments. Default is "NHDPlus Hi Res".}
+
+\item{return_sf}{Whether to return the associated catchments, lines, points, and polygon shapefile objects along with the data frame(s). TRUE (yes, return) or FALSE (no, do not return). All shapefile features are in WGS84 (crs = 4326). Defaults to TRUE.}
 }
 \value{
-A modified \code{TADA_DataRetrieval()} dataframe with additional columns associated with the ATTAINS assessment unit data. Or, if return_sf = TRUE, a list containing that same data frame plus the raw ATTAINS features associated with those observations.
+A modified \code{TADA_DataRetrieval()} dataframe with additional columns associated with the ATTAINS assessment unit data, and, if fill_catchments = TRUE, an additional dataframe of the observations without intersecting ATTAINS features.
+Moreover, if return_sf = TRUE, this function will additionally return the raw ATTAINS and catchment shapefile features associated with those observations.
 }
 \description{
-Link catchment-based ATTAINS assessment unit data (EPA snapshot of NHDPlus HR catchments associated with entity submitted assessment unit features - points, lines, and polygons) to Water Quality Portal observations, often imported via \code{TADA_DataRetrieval()}. This function returns the same raw objects that are mapped in \code{TADA_ViewATTAINS()}.
-}
-\details{
-Adds the following ATTAINS columns to the input dataframe or list: "ATTAINS.organizationid", "ATTAINS.submissionid", "ATTAINS.hasprotectionplan", "ATTAINS.assessmentunitname", "ATTAINS.nhdplusid", "ATTAINS.tas303d", "ATTAINS.isthreatened", "ATTAINS.state", "ATTAINS.on303dlist", "ATTAINS.organizationname", "ATTAINS.region", "ATTAINS.Shape_Length", "ATTAINS.reportingcycle", "ATTAINS.assmnt_joinkey", "ATTAINS.hastmdl", "ATTAINS.orgtype", "ATTAINS.permid_joinkey", "ATTAINS.catchmentistribal", "ATTAINS.ircategory", "ATTAINS.waterbodyreportlink", "ATTAINS.assessmentunitidentifier", "ATTAINS.overallstatus", "ATTAINS.isassessed", "ATTAINS.isimpaired", "ATTAINS.has4bplan", "ATTAINS.huc12", "ATTAINS.hasalternativeplan", "ATTAINS.visionpriority303d", "ATTAINS.areasqkm", "ATTAINS.catchmentareasqkm", "ATTAINS.catchmentstatecode", "ATTAINS.catchmentresolution", "ATTAINS.Shape_Area". Check out the TADAModule2.Rmd for an example workflow.
+Link catchment-based ATTAINS assessment unit data (EPA snapshot of NHDPlus HR catchments associated with entity submitted assessment unit features - points, lines, and polygons) to Water Quality Portal observations, often imported via \code{TADA_DataRetrieval()}. This function returns the objects that can be mapped in \code{TADA_ViewATTAINS()}. Check out the
+TADAModule2.Rmd for an example workflow.
 }
 \examples{
 \dontrun{
 tada_data <- TADA_DataRetrieval(
   startDate = "2018-05-01",
-  endDate = "2018-09-30",
+  endDate = "2018-07-31",
   characteristicName = "pH",
   statecode = "IL",
   applyautoclean = TRUE
 )
 
-tada_attains <- TADA_GetATTAINS(tada_data, return_sf = FALSE)
+tada_attains <- TADA_GetATTAINS(tada_data, fill_catchments = FALSE, return_sf = FALSE)
 
-tada_attains_list <- TADA_GetATTAINS(tada_data, return_sf = TRUE)
+tada_attains_sf <- TADA_GetATTAINS(tada_data, fill_catchments = FALSE, return_sf = TRUE)
+
+tada_attains_filled <- TADA_GetATTAINS(tada_data, fill_catchments = TRUE, resolution = "Hi", return_sf = FALSE)
+
+tada_attains_filled_sf <- TADA_GetATTAINS(tada_data, fill_catchments = TRUE, resolution = "Hi", return_sf = TRUE)
+
 }
 }
 \seealso{

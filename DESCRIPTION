@@ -64,7 +64,9 @@ Imports:
     plotly,
     urltools,
     geojsonsf,
-    tibble
+    tibble,
+    nhdplusTools,
+    arcgis
 Depends: 
     R (>= 3.5.0)
 Suggests: 
