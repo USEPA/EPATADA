@@ -262,7 +262,7 @@ fetchATTAINS <- function(.data) {
       # bounding box of user's WQP data
       suppressMessages(suppressWarnings({
         bbox <- .data[i,] %>%
-          sf::st_buffer(0.0000001) %>%
+          sf::st_buffer(1e-07) %>%
           sf::st_bbox(.) %>%
           # convert bounding box to characters
           toString(.) %>%
