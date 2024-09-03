@@ -334,7 +334,6 @@ TADA_ConvertResultUnits <- function(.data, ref = "tada", masstoVolume = FALSE, t
     dplyr::select(-Code) %>%
     dplyr::rename(MeasureUnitCode.match = CodeNoSpeciation)
   
-  
   # if user supplied unit reference was provided
   if (is.data.frame(ref)) {
     # required columns
@@ -435,7 +434,6 @@ TADA_ConvertResultUnits <- function(.data, ref = "tada", masstoVolume = FALSE, t
     }
   }
   
-
   if(masstoVolume == TRUE){
     unit.ref <- unit.ref %>%
       dplyr::mutate(TADA.Target.ResultMeasure.MeasureUnitCode = replace(TADA.Target.ResultMeasure.MeasureUnitCode,
@@ -455,7 +453,6 @@ TADA_ConvertResultUnits <- function(.data, ref = "tada", masstoVolume = FALSE, t
     "ResultMeasure.MeasureUnitCode", "TADA.ResultMeasure.MeasureUnitCode"
   )
   
-
   # join unit.ref to .data
   check.data <- .data %>%
     # remove existing conversion columns
