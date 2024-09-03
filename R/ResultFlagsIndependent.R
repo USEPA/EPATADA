@@ -1275,11 +1275,15 @@ TADA_FindPotentialDuplicatesMultipleOrgs <- function(.data, dist_buffer = 100, o
 
     # connect back to original dataset
     .data <- .data %>%
+      dplyr::mutate( 
+        TADA.MonitoringLocationIdentifier = ifelse(TADA.MonitoringLocationIdentifier %in% NA, "NA", TADA.MonitoringLocationIdentifier)) %>%
       dplyr::full_join(dupsdat, by = c(names(.data))) %>%
       dplyr::mutate(
         TADA.MultipleOrgDuplicate = ifelse(is.na(TADA.MultipleOrgDuplicate), "N", TADA.MultipleOrgDuplicate),
         TADA.ResultSelectedMultipleOrgs = ifelse(is.na(TADA.ResultSelectedMultipleOrgs), "Y", TADA.ResultSelectedMultipleOrgs),
-        TADA.MultipleOrgDupGroupID = ifelse(is.na(TADA.MultipleOrgDupGroupID), "Not a duplicate", TADA.MultipleOrgDupGroupID)
+        TADA.MultipleOrgDupGroupID = ifelse(is.na(TADA.MultipleOrgDupGroupID), "Not a duplicate", TADA.MultipleOrgDupGroupID)) %>%
+      dplyr::mutate( 
+        TADA.MonitoringLocationIdentifier = ifelse(TADA.MonitoringLocationIdentifier %in% "NA", "NA - Not Available", TADA.MonitoringLocationIdentifier)
       )
 
 
