@@ -2,7 +2,7 @@
 % Please edit documentation in R/CriteriaComparison.R
 \name{TADA_PairForCriteriaCalc}
 \alias{TADA_PairForCriteriaCalc}
-\title{Pair Results for Numeric Criteria Calculation}
+\title{Pair Results for Numeric Criteria Calculation (UNDER ACTIVE DEVELOPMENT)}
 \usage{
 TADA_PairForCriteriaCalc(.data, ref = "null", hours_range = 4)
 }

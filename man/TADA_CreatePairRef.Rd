@@ -2,7 +2,7 @@
 % Please edit documentation in R/CriteriaComparison.R
 \name{TADA_CreatePairRef}
 \alias{TADA_CreatePairRef}
-\title{Create Reference Data Frame to Pair Characteristic Results For Use in Numeric Criteria Equations}
+\title{Create Reference Data Frame to Pair Characteristic Results For Use in Numeric Criteria Equations (UNDER ACTIVE DEVELOPMENT)}
 \usage{
 TADA_CreatePairRef(
   .data,

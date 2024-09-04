@@ -1,4 +1,4 @@
-#' Create Reference Data Frame to Pair Characteristic Results For Use in Numeric Criteria Equations
+#' Create Reference Data Frame to Pair Characteristic Results For Use in Numeric Criteria Equations (UNDER ACTIVE DEVELOPMENT)
 #'
 #' This function creates a data frame that shows all combinations of TADA.CharacteristicName,
 #' TADA.CharacteristicName, TADA.ResultMeasure.MeasureUnitCode, TADA.MethodSpeciationName,
@@ -149,7 +149,7 @@ TADA_CreatePairRef <- function(.data, ph = TRUE, hardness = TRUE, temp = TRUE,
   return(pair.ref)
 }
 
-#' Pair Results for Numeric Criteria Calculation
+#' Pair Results for Numeric Criteria Calculation (UNDER ACTIVE DEVELOPMENT)
 #'
 #' This function pairs TADA results with results from specified characteristics from the same
 #' MonitoringLocation within a user-specified time window to facilitate the calculation of numeric
