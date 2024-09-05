@@ -51,17 +51,20 @@ TADA_CreatePairRef <- function(.data, ph = TRUE, hardness = TRUE, temp = TRUE,
 
   prep.ref <- function(.data) {
     .data <- .data %>%
-      dplyr::select(
-        TADA.CharacteristicName, TADA.ResultMeasure.MeasureUnitCode,
-        TADA.MethodSpeciationName, TADA.ResultSampleFractionText
-      ) %>%
-      dplyr::distinct() %>%
       dplyr::group_by(
         TADA.CharacteristicName, TADA.ResultMeasure.MeasureUnitCode,
         TADA.MethodSpeciationName, TADA.ResultSampleFractionText
       ) %>%
+      dplyr::mutate(NCount = length(TADA.ResultMeasureValue)) %>%
+      dplyr::ungroup() %>%
+      dplyr::select(
+        TADA.CharacteristicName, TADA.ResultMeasure.MeasureUnitCode,
+        TADA.MethodSpeciationName, TADA.ResultSampleFractionText,
+        NCount) %>%
+      dplyr::distinct() %>%
+      dplyr::arrange(dplyr::desc(NCount)) %>%
       # need a better way to assign rank? make specific to each char and remove from this function?
-      dplyr::mutate(TADA.PairingGroup.Rank = dplyr::cur_group_id())
+      dplyr::mutate(TADA.PairingGroup.Rank = dplyr::row_number())
   }
 
 
