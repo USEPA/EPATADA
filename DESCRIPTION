@@ -65,8 +65,9 @@ Imports:
     urltools,
     geojsonsf,
     tibble,
-    nhdplusTools,
-    arcgis
+    nhdplusTools
+Remotes: 
+    github::R-ArcGIS/arcgis
 Depends: 
     R (>= 3.5.0)
 Suggests: 
