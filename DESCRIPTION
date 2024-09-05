@@ -66,7 +66,9 @@ Imports:
     geojsonsf,
     tibble,
     nhdplusTools,
-    arcgis
+    remotes
+Remotes: 
+    github::R-ArcGIS/arcgis
 Depends: 
     R (>= 3.5.0)
 Suggests: 
@@ -84,7 +86,6 @@ Suggests:
     pkgdown,
     spelling,
     htmltools,
-    remotes,
     yaml
 VignetteBuilder: knitr, rmarkdown
 Language: en-US

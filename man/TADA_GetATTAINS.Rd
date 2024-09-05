@@ -16,7 +16,7 @@ TADA_GetATTAINS(
 
 \item{fill_catchments}{Whether the user would like to return NHD catchments for WQP observations not associated with an ATTAINS assessment unit (TRUE or FALSE). Defaults to FALSE.}
 
-\item{resolution}{If fill_catchments = TRUE, whether to use "NHDPlus V2" catchments or "NHDPlus HiRes" catchments. Default is "NHDPlus Hi Res".}
+\item{resolution}{If fill_catchments = TRUE, whether to use NHDPlus V2 "Med" catchments or NHDPlus HiRes "Hi" catchments. Default is NHDPlus HiRes ("Hi").}
 
 \item{return_sf}{Whether to return the associated catchments, lines, points, and polygon shapefile objects along with the data frame(s). TRUE (yes, return) or FALSE (no, do not return). All shapefile features are in WGS84 (crs = 4326). Defaults to TRUE.}
 }
