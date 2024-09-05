@@ -65,6 +65,7 @@ Imports:
     urltools,
     geojsonsf,
     tibble,
+    rlang,
     nhdplusTools
 Remotes: 
     github::R-ArcGIS/arcgis
