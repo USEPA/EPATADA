@@ -437,8 +437,8 @@ R5Profile_CharSummary <- TADA_SummarizeColumn(R5Profile, "TADA.CharacteristicNam
 ```
 
 **Question 5: How many unique values of TADA.CharacteristicName are
-included in the data set? Which TADA.CharactersticName was collected at
-the greatest number of sites? Which TADA.CharactersticName has the most
+included in the data set? Which TADA.CharacteristicName was collected at
+the greatest number of sites? Which TADA.CharacteristicName has the most
 results?**
 
 ```{r question5}
