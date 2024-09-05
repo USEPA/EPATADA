@@ -40,8 +40,10 @@
 #'
 TADA_CreatePairRef <- function(.data, ph = TRUE, hardness = TRUE, temp = TRUE,
                                chloride = TRUE, salinity = TRUE, other_char = "null") {
+  
   # create data frame to store pair refs
   pair.ref <- data.frame(matrix(ncol = 6, nrow = 0))
+  
   # name columns in pair.ref df
   colnames(pair.ref) <- c(
     "TADA.CharacteristicName", "TADA.ResultMeasure.MeasureUnitCode",
@@ -51,80 +53,109 @@ TADA_CreatePairRef <- function(.data, ph = TRUE, hardness = TRUE, temp = TRUE,
 
   prep.ref <- function(.data) {
     .data <- .data %>%
+      # group by characteristic and related fields
       dplyr::group_by(
         TADA.CharacteristicName, TADA.ResultMeasure.MeasureUnitCode,
         TADA.MethodSpeciationName, TADA.ResultSampleFractionText
       ) %>%
+      # count number of results in TADA df for each group
       dplyr::mutate(NCount = length(TADA.ResultMeasureValue)) %>%
+      # ungroup results
       dplyr::ungroup() %>%
+      # retain required columns
       dplyr::select(
         TADA.CharacteristicName, TADA.ResultMeasure.MeasureUnitCode,
         TADA.MethodSpeciationName, TADA.ResultSampleFractionText,
         NCount) %>%
+      # retain only distinct rows
       dplyr::distinct() %>%
+      # arrange from largest to smallest number of results
       dplyr::arrange(dplyr::desc(NCount)) %>%
-      # need a better way to assign rank? make specific to each char and remove from this function?
-      dplyr::mutate(TADA.PairingGroup.Rank = dplyr::row_number())
+      # assign rank (largest NCount gets highest rank)
+      dplyr::mutate(TADA.PairingGroup.Rank = dplyr::row_number()) %>%
+      # remove NCount column
+      dplyr::select(-NCount)
   }
 
 
   if (hardness == TRUE) {
+    
+    # create character reference from WQX characteristics containing "HARDNESS" in name
     char.ref <- TADA_GetCharacteristicRef() %>%
       dplyr::mutate(CharacteristicName = toupper(CharacteristicName)) %>%
       dplyr::filter(grepl("HARDNESS", CharacteristicName))
 
+    # filter TADA df for hardness results
     hard.ref <- .data %>%
       dplyr::filter(TADA.CharacteristicName %in% char.ref$CharacteristicName) %>%
       prep.ref() %>%
       dplyr::mutate(TADA.PairingGroup = "Hardness")
 
+    # add hardness to pair.ref
     pair.ref <- rbind(pair.ref, hard.ref)
 
+    # remove intermediate objects
     rm(char.ref, hard.ref)
   }
 
   if (ph == TRUE) {
+    
+    # filter TADA df for pH results
     ph.ref <- .data %>%
       dplyr::filter(TADA.CharacteristicName == "PH") %>%
       prep.ref() %>%
       dplyr::mutate(TADA.PairingGroup = "pH")
 
+    # add pH to pair ref
     pair.ref <- rbind(pair.ref, ph.ref)
 
+    # remove intermediate object
     rm(ph.ref)
   }
 
   if (temp == TRUE) {
+    
+    # filter TADA df for temperature results
     temp.ref <- .data %>%
       dplyr::filter(TADA.CharacteristicName %in% c("TEMPERATURE", "TEMPERATURE, WATER")) %>%
       prep.ref() %>%
       dplyr::mutate(TADA.PairingGroup = "Temperature")
 
+    # add temperature to pair ref
     pair.ref <- rbind(pair.ref, temp.ref)
 
+    # remove intermediate object
     rm(temp.ref)
   }
 
   if (salinity == TRUE) {
+    
+    # filter TADA df for salinity results
     salinity.ref <- .data %>%
       dplyr::filter(TADA.CharacteristicName %in% c("SALINITY")) %>%
       prep.ref() %>%
       dplyr::mutate(TADA.PairingGroup = "Salinity")
 
+    # add salinity to pair ref
     pair.ref <- rbind(pair.ref, salinity.ref)
 
+    # remove intermediate object
     rm(salinity.ref)
   }
 
 
   if (chloride == TRUE) {
+    
+    # filter TADA df for chloride results
     chloride.ref <- .data %>%
       dplyr::filter(TADA.CharacteristicName %in% c("CHLORIDE")) %>%
       prep.ref() %>%
       dplyr::mutate(TADA.PairingGroup = "Chloride")
 
+    # add chloride to pair.ref
     pair.ref <- rbind(pair.ref, chloride.ref)
 
+    #remove intermediate object
     rm(chloride.ref)
   }
 
@@ -277,8 +308,6 @@ TADA_PairForCriteriaCalc <- function(.data, ref = "null", hours_range = 4) {
     pair_datetime <- paste0("TADA.", group.id, "ActivityStartDateTime")
     pair_fraction <- paste0("TADA.", group.id, "ResultSampleFractionText")
     pair_speciation <- paste0("TADA.", group.id, "MethodSpeciationName")
-
-    # NOTE - CAN REMOVE NCOUNT COLS WHEN DONE TESTING (HRM 8/20/24)
 
     # pair by activity id
     pair.activityid <- .data %>%
