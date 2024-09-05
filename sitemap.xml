@@ -33,6 +33,7 @@
 <url><loc>usepa.github.io/EPATADA/reference/TADA_ConvertResultUnits.html</loc></url>
 <url><loc>usepa.github.io/EPATADA/reference/TADA_ConvertSpecialChars.html</loc></url>
 <url><loc>usepa.github.io/EPATADA/reference/TADA_CreateComparableID.html</loc></url>
+<url><loc>usepa.github.io/EPATADA/reference/TADA_CreatePairRef.html</loc></url>
 <url><loc>usepa.github.io/EPATADA/reference/TADA_CreateUnitRef.html</loc></url>
 <url><loc>usepa.github.io/EPATADA/reference/TADA_DataRetrieval.html</loc></url>
 <url><loc>usepa.github.io/EPATADA/reference/TADA_DecimalPlaces.html</loc></url>
@@ -82,6 +83,7 @@
 <url><loc>usepa.github.io/EPATADA/reference/TADA_MakeSpatial.html</loc></url>
 <url><loc>usepa.github.io/EPATADA/reference/TADA_OrderCols.html</loc></url>
 <url><loc>usepa.github.io/EPATADA/reference/TADA_OverviewMap.html</loc></url>
+<url><loc>usepa.github.io/EPATADA/reference/TADA_PairForCriteriaCalc.html</loc></url>
 <url><loc>usepa.github.io/EPATADA/reference/TADA_PairReplicates.html</loc></url>
 <url><loc>usepa.github.io/EPATADA/reference/TADA_RandomTestingData.html</loc></url>
 <url><loc>usepa.github.io/EPATADA/reference/TADA_ReadWQPWebServices.html</loc></url>
