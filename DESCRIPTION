@@ -69,10 +69,9 @@ Imports:
     nhdplusTools
 Remotes: 
     github::R-ArcGIS/arcgis
-    github::R-ArcGIS/arcgislayers
 Depends: 
     R (>= 3.5.0)
-Suggests: 
+Suggests:
     lwgeom,
     DT,
     RColorBrewer,
