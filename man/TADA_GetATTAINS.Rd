@@ -7,7 +7,7 @@
 TADA_GetATTAINS(
   .data,
   fill_catchments = FALSE,
-  resolution = "Hi",
+  resolution = "NHDPlus HiRes",
   return_sf = TRUE
 )
 }
@@ -42,9 +42,9 @@ tada_attains <- TADA_GetATTAINS(tada_data, fill_catchments = FALSE, return_sf = 
 
 tada_attains_sf <- TADA_GetATTAINS(tada_data, fill_catchments = FALSE, return_sf = TRUE)
 
-tada_attains_filled <- TADA_GetATTAINS(tada_data, fill_catchments = TRUE, resolution = "Hi", return_sf = FALSE)
+tada_attains_filled <- TADA_GetATTAINS(tada_data, fill_catchments = TRUE, resolution = "NHDPlus HiRes", return_sf = FALSE)
 
-tada_attains_filled_sf <- TADA_GetATTAINS(tada_data, fill_catchments = TRUE, resolution = "Hi", return_sf = TRUE)
+tada_attains_filled_sf <- TADA_GetATTAINS(tada_data, fill_catchments = TRUE, resolution = "NHDPlus HiRes", return_sf = TRUE)
 
 }
 }

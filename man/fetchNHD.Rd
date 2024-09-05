@@ -4,12 +4,12 @@
 \alias{fetchNHD}
 \title{fetchNHD}
 \usage{
-fetchNHD(.data, resolution = "Hi")
+fetchNHD(.data, resolution = "NHDPlus HiRes")
 }
 \arguments{
 \item{.data}{A dataframe created by \code{TADA_DataRetrieval()} or the sf equivalent made by \code{TADA_MakeSpatial()}.}
 
-\item{resolution}{Whether to download the high resolution ("Hi") or medium resolution ("Med") version of the National Hydrography Dataset (NHD). Default is "Hi".}
+\item{resolution}{Whether to download the high resolution ("NHDPlus HiRes") or medium resolution ("NHDPlus V2") version of the National Hydrography Dataset (NHD). Default is "NHDPlus HiRes".}
 }
 \value{
 A list containing all flowline, waterbody, and catchment features that intersect the WQP observations of interest.
@@ -27,7 +27,7 @@ tada_data <- TADA_DataRetrieval(
   applyautoclean = TRUE
 )
 
-attains_data <- fetchNHD(.data = tada_data, resolution = "Med")
+attains_data <- fetchNHD(.data = tada_data, resolution = "NHDPlusV2")
 }
 }
 \seealso{

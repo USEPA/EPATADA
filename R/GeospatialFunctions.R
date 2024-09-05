@@ -1482,15 +1482,15 @@ TADA_ViewATTAINS <- function(.data) {
 
 }
 
-# pH data in Larimer County, Colorado for the year 2020.
-.data <- TADA_DataRetrieval(
-  startDate = "2020-01-01",
-  endDate = "2020-12-31",
-  characteristicName = "pH",
-  countycode = "US:08:069",
-  applyautoclean = TRUE
-)
-
+# # pH data in Larimer County, Colorado for the year 2020.
+# .data <- TADA_DataRetrieval(
+#   startDate = "2020-01-01",
+#   endDate = "2020-12-31",
+#   characteristicName = "pH",
+#   countycode = "US:08:069",
+#   applyautoclean = TRUE
+# )
+#
 # ATTAINS_ConfidenceTest <- function(.data){
 #
 #   sf::sf_use_s2(FALSE)
@@ -1603,16 +1603,3 @@ TADA_ViewATTAINS <- function(.data) {
 #
 #
 # }
-
-
-
-
-
-
-
-
-
-
-
-
-
