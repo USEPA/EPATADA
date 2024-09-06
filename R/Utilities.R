@@ -774,7 +774,7 @@ TADA_FindNearbySites <- function(.data, dist_buffer = 100) {
   TADA_CheckType(.data, "data.frame", "Input object")
   
   # .data required columns
-  required_cols <- c("TADA.MonitoringLocationIdentifier", "MonitoringLocationIdentifier", "TADA.LongitudeMeasure", "TADA.LatitudeMeasure")
+  required_cols <- c("TADA.MonitoringLocationIdentifier", "TADA.LongitudeMeasure", "TADA.LatitudeMeasure")
   # check .data has required columns
   TADA_CheckColumns(.data, required_cols)
   
@@ -813,10 +813,11 @@ TADA_FindNearbySites <- function(.data, dist_buffer = 100) {
     sites1 <- sites[!sites %in% fsite] # get site list within buffer that does not include focal site
     if (length(sites1) > 0) { # if this list is greater than 0, combine sites within buffer into data frame
       df <- data.frame(TADA.MonitoringLocationIdentifier = sites, TADA.MonitoringLocationIdentifier.New = paste0(sites, collapse = ","))
-      df[c("TADA.MonitoringLocationIdentifier")] <- lapply(df[c("TADA.MonitoringLocationIdentifier")], TADA_FormatDelimitedString)
+      df[c("TADA.MonitoringLocationIdentifier.New")] <- lapply(df[c("TADA.MonitoringLocationIdentifier.New")], TADA_FormatDelimitedString)
       groups <- plyr::rbind.fill(groups, df)
     }
   }
+  
   
   # get unique groups (since represented multiple times for each site looped through, above)
   groups <- unique(groups)
@@ -839,23 +840,21 @@ TADA_FindNearbySites <- function(.data, dist_buffer = 100) {
     .data <- merge(.data, groups_wide, all.x = TRUE)
     
     # concatenate and move site id cols to right place
-    grpcols <- names(.data)[grepl("TADA.MonitoringLocationIdentifier", names(.data))]
+    grpcols <- names(.data)[grepl("TADA.MonitoringLocationIdentifier.New1", names(.data))]
     
-    .data <- .data %>% tidyr::unite(col = TADA.MonitoringLocationIdentifier, dplyr::all_of(grpcols), sep = ", ", na.rm = TRUE)
+    .data <- .data %>% tidyr::unite(col = TADA.MonitoringLocationIdentifier.New1, dplyr::all_of(grpcols), sep = ", ", na.rm = TRUE)
   }
   
   .data <- .data %>% 
-    dplyr::mutate(TADA.MonitoringLocationIdentifier = ifelse(TADA.MonitoringLocationIdentifier == "", MonitoringLocationIdentifier, TADA.MonitoringLocationIdentifier))   
+    dplyr::mutate(TADA.MonitoringLocationIdentifier = ifelse(is.na(TADA.MonitoringLocationIdentifier.New1), TADA.MonitoringLocationIdentifier, TADA.MonitoringLocationIdentifier.New1)) %>%
+    dplyr::select(-TADA.MonitoringLocationIdentifier.New1)
   
-  if (dim(groups)[1] == 0) { # #if no groups, give a TADA.MonitoringLocationIdentifier column filled with NA
+  if (dim(groups)[1] == 0) { 
     print("No nearby sites detected using input buffer distance.")
   }
   
-  # order columns
-  if ("ResultIdentifier" %in% names(.data)) {
     .data <- TADA_OrderCols(.data)
-  }
-  
+
   return(.data)
 }
 
