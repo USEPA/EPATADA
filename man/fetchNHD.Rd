@@ -9,7 +9,7 @@ fetchNHD(.data, resolution = "Hi")
 \arguments{
 \item{.data}{A dataframe created by \code{TADA_DataRetrieval()} or the sf equivalent made by \code{TADA_MakeSpatial()}.}
 
-\item{resolution}{Whether to download the high resolution ("Hi") or medium resolution ("Med") version of the National Hydrography Dataset (NHD). Default is "Hi".}
+\item{resolution}{Whether to download the high NHDPlus HiRes resolution ("Hi") or medium NHDPlus V2 resolution ("Med") version of the National Hydrography Dataset (NHD). Default is "Hi".}
 }
 \value{
 A list containing all flowline, waterbody, and catchment features that intersect the WQP observations of interest.
