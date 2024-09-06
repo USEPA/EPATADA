@@ -371,7 +371,7 @@ fetchATTAINS <- function(.data) {
 #'   applyautoclean = TRUE
 #' )
 #'
-#' attains_data <- fetchNHD(.data = tada_data, resolution = "Med")
+#' nhd_data <- fetchNHD(.data = tada_data, resolution = "Med")
 #' }
 fetchNHD <- function(.data, resolution = "Hi"){
   
