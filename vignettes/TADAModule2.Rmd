@@ -315,8 +315,8 @@ observations in `TADA_without_ATTAINS` in a new shapefile called
 
 -   `.data`: Your input TADA-style Water Quality Portal data.
 
--   `fill_catchments`: If TRUE, it will use NHD data to fill in
-    information for samples not covered by ATTAINS.
+-   `fill_catchments`: If TRUE, it will find intersecting NHD catchments
+    to fill in information for samples not covered by ATTAINS.
 
 -   `resolution`: Specifies which version of the NHD to use if filling
     catchments: the "Med", or "Hi". The default option is "Hi".
