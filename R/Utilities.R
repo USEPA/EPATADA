@@ -770,6 +770,7 @@ TADA_FormatDelimitedString <- function(delimited_string, delimiter = ",") {
 #' @export
 #'
 TADA_FindNearbySites <- function(.data, dist_buffer = 100) {
+  
   # check .data is data.frame
   TADA_CheckType(.data, "data.frame", "Input object")
   
@@ -789,6 +790,9 @@ TADA_FindNearbySites <- function(.data, dist_buffer = 100) {
   # create a distance matrix in meters
   dist.mat <- data.frame(sf::st_distance(data_sf)) # Great Circle distance since in lat/lon
   
+  # need to deal with duplicate row names (if this function has already been run)
+  # maybe append the original monitoring location identifier and remove it later in the function
+  # before using to name anything? (HRM Note: 9/6/24)
   row.names(dist.mat) <- data_sf$TADA.MonitoringLocationIdentifier
   colnames(dist.mat) <- data_sf$TADA.MonitoringLocationIdentifier
   

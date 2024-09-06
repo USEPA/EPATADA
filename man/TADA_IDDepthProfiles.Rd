@@ -10,7 +10,7 @@ TADA_IDDepthProfiles(.data, nresults = TRUE, nvalue = 2, aggregates = FALSE)
 \item{.data}{TADA dataframe which must include the columns ActivityStartDate,
 TADA.ConsolidatedDepth, TADA.ConsolidatedDepth.Unit, TADA.ConsolidatedDepth.Bottom,
 TADA.ResultMeasureValue, TADA.ResultMeasureValue.UnitCode,
-OrganizationIdentifier, MonitoringLocationName, MonitoringLocationIdentifier,
+OrganizationIdentifier, MonitoringLocationName, TADA.MonitoringLocationIdentifier,
 and TADA.ComparableDataIdentifier.}
 
 \item{nresults}{Boolean argument with options "TRUE" or "FALSE". The
@@ -21,7 +21,7 @@ When nresults = FALSE.}
 \item{nvalue}{numeric argument to specify the number of results required to identify
 a depth profile. The default is 2, which means that a depth profile will be identified
 if 2 or more results at different depths exists for the same ActivityStartDate,
-MonitoringLocationIdentifier, OrganizationIdentifier, and TADA.ComparableDataIdentifier.
+TADA.MonitoringLocationIdentifier, OrganizationIdentifier, and TADA.ComparableDataIdentifier.
 A few characteristics are excluded from this requirement because they are expected to
 have only a single result in depth units (ex: secchi disk depth).}
 
@@ -34,7 +34,7 @@ FALSE. When aggregates = TRUE, all aggregate values are included when identifyin
 depth profile data.}
 }
 \value{
-A dataframe with the columns MonitoringLocationIdentifier,
+A dataframe with the columns TADA.MonitoringLocationIdentifier,
 MonitoringLocationName, OrganizationIdentifier, ActivityStartDate,
 TADA.CharacteristicsForDepthProfile. Based on the user input for the nresults
 param, TADA.CharacteristicsForDepthProfile may or may not contain the number
@@ -44,7 +44,7 @@ of results for each characteristic.
 This function identifies depth profiles within a data frame to assist the user in
 selecting params for TADA_DepthProfilePlot. A TADA compatible data set is required.
 If TADA_FlagDepthCategory has not yet been run, it will be run as part of this
-function. The output data frame is grouped by MonitoringLocationIdentifier,
+function. The output data frame is grouped by TADA.MonitoringLocationIdentifier,
 OrganizationIdentifier, and ActivityStartDate.
 }
 \details{

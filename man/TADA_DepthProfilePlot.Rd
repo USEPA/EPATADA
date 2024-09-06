@@ -29,8 +29,8 @@ For example, the groups could be 'DISSOLVED OXYGEN (DO)_NA_NA_UG/L' and 'PH_NA_N
 These groups will be specific to your data frame. The TADA_IDDepthProfiles can be
 used to identify available groups.}
 
-\item{location}{A single MonitoringLocationIdentifier to plot the depth profile.
-A MonitoringLocationIdentifier must be entered or an error will be returned and
+\item{location}{A single TADA.MonitoringLocationIdentifier to plot the depth profile.
+A TADA.MonitoringLocationIdentifier must be entered or an error will be returned and
 no depth profile will be created.}
 
 \item{activity_date}{The date the depth profile results were collected.}
@@ -52,7 +52,7 @@ depth units should be used for the plot. Default is "m".}
 }
 \value{
 A depth profile plot displaying up to three parameters for a single
-MonitoringLocationIdentifier. Displaying depth categories is optional with the
+TADA.MonitoringLocationIdentifier. Displaying depth categories is optional with the
 depthcat argument.
 }
 \description{

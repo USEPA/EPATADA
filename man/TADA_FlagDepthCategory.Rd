@@ -78,7 +78,7 @@ bottom up to 2m (or user specified value) from bottom = "Bottom", and all depths
 in between the Surface and Bottom are assigned to the "Middle" category.
 }
 \details{
-When more than one result is available for a MonitoringLocationIdentifier,
+When more than one result is available for a TADA.MonitoringLocationIdentifier,
 ActivityStartDate, OrganizationIdentifier, and TADA.CharacteristicName, the
 user can choose a single result value (average, max, or min value) to use for that
 day and location. If results vary with depth, the user may also define whether
