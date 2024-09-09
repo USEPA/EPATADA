@@ -79,6 +79,7 @@ TADA_FieldCounts <- function(.data, display = c("key", "most", "all"), character
       "ActivityRelativeDepthName",
       "ProjectIdentifier",
       "ProjectName",
+      "TADA.MonitoringLocationIdentifier",
       "MonitoringLocationIdentifier",
       "MonitoringLocationName",
       "ActivityCommentText",

@@ -1004,7 +1004,7 @@ TADA_RandomTestingData <- function(number_of_days = 1, choose_random_state = FAL
 #' # Select maximum value per day, site, comparable data identifier, result detection condition,
 #' # and activity type code. Clean all non-maximum measurements from grouped data.
 #' Data_6Tribes_5y_agg <- TADA_AggregateMeasurements(Data_6Tribes_5y, 
-#'     grouping_cols = c("ActivityStartDate", "MonitoringLocationIdentifier", 
+#'     grouping_cols = c("ActivityStartDate", "TADA.MonitoringLocationIdentifier", 
 #'                       "TADA.ComparableDataIdentifier", "ResultDetectionConditionText",
 #'                       "ActivityTypeCode"),
 #'     agg_fun = "max", clean = TRUE)
@@ -1012,11 +1012,11 @@ TADA_RandomTestingData <- function(number_of_days = 1, choose_random_state = FAL
 #' # Calculate a mean value per day, site, comparable data identifier, result detection condition,
 #' # and activity type code. Keep all measurements used to calculate mean measurement.
 #' Data_6Tribes_5y_agg <- TADA_AggregateMeasurements(Data_6Tribes_5y,
-#'   grouping_cols = c("ActivityStartDate", "MonitoringLocationIdentifier", 
+#'   grouping_cols = c("ActivityStartDate", "TADA.MonitoringLocationIdentifier", 
 #'                   "TADA.ComparableDataIdentifier", "ResultDetectionConditionText",
 #'                   "ActivityTypeCode"), 
 #'   agg_fun = "mean", clean = FALSE)
-TADA_AggregateMeasurements <- function(.data, grouping_cols = c("ActivityStartDate", "MonitoringLocationIdentifier", "TADA.ComparableDataIdentifier", "ResultDetectionConditionText", "ActivityTypeCode"), agg_fun = c("max", "min", "mean"), clean = TRUE) {
+TADA_AggregateMeasurements <- function(.data, grouping_cols = c("ActivityStartDate", "TADA.MonitoringLocationIdentifier", "TADA.ComparableDataIdentifier", "ResultDetectionConditionText", "ActivityTypeCode"), agg_fun = c("max", "min", "mean"), clean = TRUE) {
   TADA_CheckColumns(.data, grouping_cols)
   agg_fun <- match.arg(agg_fun)
 

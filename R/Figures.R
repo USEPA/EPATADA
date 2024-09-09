@@ -365,7 +365,7 @@ TADA_Histogram <- function(.data, id_cols = c("TADA.ComparableDataIdentifier")) 
 #'
 #' @param .data TADA data frame containing the data downloaded from the WQP, where
 #' each row represents a unique data record. Data frame must include the columns
-#' 'MonitoringLocationIdentifier','MonitoringLocationName','TADA.LatitudeMeasure',
+#' 'TADA.MonitoringLocationIdentifier','MonitoringLocationName','TADA.LatitudeMeasure',
 #' 'TADA.LongitudeMeasure', 'ResultIdentifier', 'ActivityStartDate', 'TADA.CharacteristicName',
 #' and 'OrganizationIdentifier' to run this function.
 #'
@@ -390,6 +390,8 @@ TADA_Histogram <- function(.data, id_cols = c("TADA.ComparableDataIdentifier")) 
 #' TADA_OverviewMap(Data_6Tribes_5y_Harmonized)
 #' }
 #'
+
+# HRM Note (9/9/24) - Overview map has not been updated to use TADA.MonitoringLocationIdentifier
 TADA_OverviewMap <- function(.data) {
   suppressMessages(suppressWarnings({
     quiet({
@@ -586,6 +588,8 @@ TADA_OverviewMap <- function(.data) {
 #' TADA_FlaggedSitesMap(Data_6Tribes_5y_Harmonized)
 #' }
 #'
+
+# HRM Note (9/9/24) - Overview map has not been updated to use TADA.MonitoringLocationIdentifier
 TADA_FlaggedSitesMap <- function(.data) {
   invalid <- TADA_FlagCoordinates(.data, flaggedonly = TRUE)
   lowres <- invalid[invalid$TADA.InvalidCoordinates.Flag == "Imprecise_lessthan3decimaldigits", ]
