@@ -1159,7 +1159,7 @@ TADA_TwoCharacteristicScatterplot <- function(.data, id_cols = "TADA.ComparableD
 #' @param group_col The column in the dataset used to identify the groups
 #'    plotted. Defaults to MonitoringLocationName. This input is flexible, and allows for the use of
 #'    other identifiers such as StateCode, CountyCode or user-created groups based on concatenation 
-#'    of other variables (e.g. characterstic name, site type, site name, year, organization, etc.)
+#'    of other variables (e.g. characteristic name, site type, site name, year, organization, etc.)
 #'
 #' @param groups A vector of up to four identifiers from the id_cols column
 #'   to specify the groups that will be plotted for a TADA.ComparableDataIdentifier.

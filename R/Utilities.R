@@ -85,7 +85,9 @@ utils::globalVariables(c(
   "YAxis.DepthUnit", "TADA.CharacteristicsForDepthProfile", "TADA.ConsolidatedDepth",
   "TADA.ConsolidatedDepth.Bottom", "TADA.ConsolidatedDepth.Unit", "col2rgb",
   "palette.colors", "rect", "rgb", "text", "CodeNoSpeciation", "ResultMeasure.MeasureUnitCode.Upper",
-  "TADA.MonitoringLocationIdentifier", "StringA", "StringB", "MeasureUnitCode.match"
+  "TADA.MonitoringLocationIdentifier", "StringA", "StringB", "MeasureUnitCode.match",
+  "TADA.ActivityTopDepthHeightMeasure.MeasureValue", "group_id", "time_diff_lead", "time_diff_lag",
+  "NResults", "missing.group", "TADA.PairingGroup", "TADA.PairingGroup.Rank", "timediff"
 ))
 
 # global variables for tribal feature layers used in TADA_OverviewMap in Utilities.R
@@ -674,8 +676,8 @@ TADA_SubstituteDeprecatedChars <- function(.data) {
     .data$TADA.CharacteristicName <- toupper(.data$CharacteristicName)
   }
 
-  # read in characteristic reference table with deprecation information, filter to deprecated terms and for "retired" in CharactersticName.
-  # remove all characters after first "*" in CharacteristicName and remove any leading or trailing white space to make compatible with deprecated NWIS CharactersticName.
+  # read in characteristic reference table with deprecation information, filter to deprecated terms and for "retired" in CharacteristicName.
+  # remove all characters after first "*" in CharacteristicName and remove any leading or trailing white space to make compatible with deprecated NWIS CharacteristicName.
   nwis.table <- utils::read.csv(system.file("extdata", "WQXCharacteristicRef.csv", package = "EPATADA")) %>%
     dplyr::filter(
       Char_Flag == "Deprecated",
