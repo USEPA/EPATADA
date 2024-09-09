@@ -149,7 +149,6 @@ TADA_CreateUnitRef <- function(.data, print.message = TRUE) {
     # select columns needed for final unit ref
     dplyr::select(
       "TADA.CharacteristicName", "TADA.ResultMeasure.MeasureUnitCode",
-      "TADA.Target.ResultMeasure.MeasureUnitCode", "ResultMeasure.MeasureUnitCode", "CharUnit"
       "TADA.Target.ResultMeasure.MeasureUnitCode", "ResultMeasure.MeasureUnitCode",
       "Conversion.Factor", "Conversion.Coefficient", "CharUnit"
     )
@@ -161,7 +160,6 @@ TADA_CreateUnitRef <- function(.data, print.message = TRUE) {
     dplyr::rename(TADA.WQXUnitConversionFactor = Conversion.Factor,
                   TADA.WQXUnitConversionCoefficient = Conversion.Coefficient) %>%
     dplyr::select(TADA.CharacteristicName, TADA.ResultMeasure.MeasureUnitCode,
-                  TADA.Target.ResultMeasure.MeasureUnitCode, ResultMeasure.MeasureUnitCode, CharUnit)
                   TADA.Target.ResultMeasure.MeasureUnitCode, ResultMeasure.MeasureUnitCode,
                   TADA.WQXUnitConversionFactor, TADA.WQXUnitConversionCoefficient, CharUnit)
   
