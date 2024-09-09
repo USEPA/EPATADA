@@ -267,6 +267,13 @@ TADA_AutoClean <- function(.data) {
     # create uppercase version of original MonitoringLocationIdentifier
     .data$TADA.MonitoringLocationIdentifier <- toupper(.data$MonitoringLocationIdentifier)
   }
+  
+  if ("TADA.MonitoringLocationName" %in% colnames(.data)) {
+    .data <- .data
+  } else {
+    # create uppercase version of original MonitoringLocationName
+    .data$TADA.MonitoringLocationName <- toupper(.data$MonitoringLocationName)
+  }
 
   # Transform "Dissolved oxygen (DO)" characteristic name to "DISSOLVED OXYGEN SATURATION" IF
   # result unit is "%" or "% SATURATN".
