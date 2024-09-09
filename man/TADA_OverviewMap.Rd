@@ -9,7 +9,7 @@ TADA_OverviewMap(.data)
 \arguments{
 \item{.data}{TADA data frame containing the data downloaded from the WQP, where
 each row represents a unique data record. Data frame must include the columns
-'MonitoringLocationIdentifier','MonitoringLocationName','TADA.LatitudeMeasure',
+'TADA.MonitoringLocationIdentifier','MonitoringLocationName','TADA.LatitudeMeasure',
 'TADA.LongitudeMeasure', 'ResultIdentifier', 'ActivityStartDate', 'TADA.CharacteristicName',
 and 'OrganizationIdentifier' to run this function.}
 }
