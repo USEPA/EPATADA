@@ -125,8 +125,7 @@ TADA_CreateUnitRef <- function(.data, print.message = TRUE) {
     # select columns needed for final unit ref
     dplyr::select(
       "TADA.CharacteristicName", "TADA.ResultMeasure.MeasureUnitCode",
-      "TADA.Target.ResultMeasure.MeasureUnitCode", "ResultMeasure.MeasureUnitCode",
-      "Conversion.Factor", "Conversion.Coefficient", "CharUnit"
+      "TADA.Target.ResultMeasure.MeasureUnitCode", "ResultMeasure.MeasureUnitCode", "CharUnit"
     )
   
   # remove intermediate objects
@@ -148,19 +147,15 @@ TADA_CreateUnitRef <- function(.data, print.message = TRUE) {
     # select columns needed for final unit ref
     dplyr::select(
       "TADA.CharacteristicName", "TADA.ResultMeasure.MeasureUnitCode",
-      "TADA.Target.ResultMeasure.MeasureUnitCode", "ResultMeasure.MeasureUnitCode",
-      "Conversion.Factor", "Conversion.Coefficient", "CharUnit"
+      "TADA.Target.ResultMeasure.MeasureUnitCode", "ResultMeasure.MeasureUnitCode", "CharUnit"
     )
   
   
     # select columns needed for final unit ref and combine dfs
   tada.all <- tada.targets %>%
     dplyr::full_join(tada.wqx, by = names(tada.targets)) %>%
-    dplyr::rename(TADA.WQXUnitConversionFactor = Conversion.Factor,
-                  TADA.WQXUnitConversionCoefficient = Conversion.Coefficient) %>%
     dplyr::select(TADA.CharacteristicName, TADA.ResultMeasure.MeasureUnitCode,
-                  TADA.Target.ResultMeasure.MeasureUnitCode, ResultMeasure.MeasureUnitCode,
-                  TADA.WQXUnitConversionFactor, TADA.WQXUnitConversionCoefficient, CharUnit)
+                  TADA.Target.ResultMeasure.MeasureUnitCode, ResultMeasure.MeasureUnitCode, CharUnit)
   
   # remove intermediate objects
   rm(tada.targets, tada.wqx)
