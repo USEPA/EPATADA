@@ -125,7 +125,6 @@ TADA_CreateUnitRef <- function(.data, print.message = TRUE) {
     # select columns needed for final unit ref
     dplyr::select(
       "TADA.CharacteristicName", "TADA.ResultMeasure.MeasureUnitCode",
-      "TADA.Target.ResultMeasure.MeasureUnitCode", "ResultMeasure.MeasureUnitCode", "CharUnit"
       "TADA.Target.ResultMeasure.MeasureUnitCode", "ResultMeasure.MeasureUnitCode",
       "Conversion.Factor", "Conversion.Coefficient", "CharUnit"
     )
@@ -211,7 +210,6 @@ TADA_CreateUnitRef <- function(.data, print.message = TRUE) {
   tada.all <- tada.all %>%
     dplyr::select(-CharUnit) %>%
     dplyr::distinct()
-
 
   # return reference table for use in unit conversion functions or for more editing by user
   return(tada.all)
