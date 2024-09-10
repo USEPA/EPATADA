@@ -282,7 +282,7 @@ TADA_PairForCriteriaCalc <- function(.data, ref = "null", hours_range = 4) {
       ) %>%
       dplyr::select(
         TADA.CharacteristicName, TADA.ResultMeasureValue, TADA.ResultMeasure.MeasureUnitCode,
-        ActivityIdentifier, MonitoringLocationIdentifier, ActivityStartDateTime,
+        ActivityIdentifier, TADA.MonitoringLocationIdentifier, ActivityStartDateTime,
         TADA.ResultSampleFractionText, TADA.MethodSpeciationName
       ) %>%
       dplyr::left_join(ref.subset,
@@ -340,11 +340,11 @@ TADA_PairForCriteriaCalc <- function(.data, ref = "null", hours_range = 4) {
       dplyr::filter(
         !ResultIdentifier %in% pair.activityid$ResultIdentifier,
         !is.na(ActivityStartDateTime),
-        MonitoringLocationIdentifier %in% pair.subset$MonitoringLocationIdentifier
+        TADA.MonitoringLocationIdentifier %in% pair.subset$TADA.MonitoringLocationIdentifier
       ) %>%
       dplyr::left_join(pair.subset2,
         relationship = "many-to-many",
-        by = dplyr::join_by(MonitoringLocationIdentifier)
+        by = dplyr::join_by(TADA.MonitoringLocationIdentifier)
       ) %>%
       dplyr::group_by(ResultIdentifier) %>%
       # Figure out fastest time comparison method - needs to be absolute time comparison
