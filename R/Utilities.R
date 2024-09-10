@@ -87,7 +87,8 @@ utils::globalVariables(c(
   "palette.colors", "rect", "rgb", "text", "CodeNoSpeciation", "ResultMeasure.MeasureUnitCode.Upper",
   "TADA.MonitoringLocationIdentifier", "StringA", "StringB", "MeasureUnitCode.match",
   "TADA.ActivityTopDepthHeightMeasure.MeasureValue", "group_id", "time_diff_lead", "time_diff_lag",
-  "NResults", "missing.group", "TADA.PairingGroup", "TADA.PairingGroup.Rank", "timediff"
+  "NResults", "missing.group", "TADA.PairingGroup", "TADA.PairingGroup.Rank", "timediff",
+  "TADA.MonitoringLocationName", "TADA.MonitoringLocationTypeName"
 ))
 
 # global variables for tribal feature layers used in TADA_OverviewMap in Utilities.R
@@ -1040,6 +1041,7 @@ TADA_GetUniqueNearbySites <- function(.data) {
   # check .data has required columns
   TADA_CheckColumns(.data, required_cols)
   
+  # HRM (9/10/24) - should the original lat/long columns be added back here?
   .data <- .data[c("MonitoringLocationIdentifier", "MonitoringLocationName", "MonitoringLocationTypeName", "MonitoringLocationDescriptionText", "TADA.MonitoringLocationIdentifier", "TADA.LongitudeMeasure", "TADA.LatitudeMeasure")]
   .data <- unique(dplyr::filter(.data, grepl(",", TADA.MonitoringLocationIdentifier)))
   

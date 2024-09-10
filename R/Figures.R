@@ -40,11 +40,11 @@
 #'
 #' # Create multiple boxplots with additional grouping columns and view the first
 #' # plot in list. In this example, we will group data in the input dataframe
-#' # by both the TADA.ComparableDataIdentifier and the MonitoringLocationTypeName
+#' # by both the TADA.ComparableDataIdentifier and the TADA.MonitoringLocationTypeName
 #' # (e.g. stream, reservoir, canal, etc.)
 #' # Load example data frame:
 #' data(Data_Nutrients_UT)
-#' Boxplot_output <- TADA_Boxplot(Data_Nutrients_UT, id_cols = c("TADA.ComparableDataIdentifier", "MonitoringLocationTypeName"))
+#' Boxplot_output <- TADA_Boxplot(Data_Nutrients_UT, id_cols = c("TADA.ComparableDataIdentifier", "TADA.MonitoringLocationTypeName"))
 #' # This example generates 32 box plots.
 #' Boxplot_output[[2]]
 #' Boxplot_output[[25]]
@@ -216,10 +216,10 @@ TADA_Boxplot <- function(.data, id_cols = c("TADA.ComparableDataIdentifier")) {
 #'
 #' # Create multiple histograms with additional grouping columns and view the first
 #' # plot in list. In this example, we will group by both TADA.ComparableDataIdentifier
-#' # and MonitoringLocationTypeName (e.g. stream, reservoir, canal, etc.)
+#' # and TADA.MonitoringLocationTypeName (e.g. stream, reservoir, canal, etc.)
 #' # Load example data frame:
 #' data(Data_Nutrients_UT)
-#' Histogram_output <- TADA_Histogram(Data_Nutrients_UT, id_cols = c("TADA.ComparableDataIdentifier", "MonitoringLocationTypeName"))
+#' Histogram_output <- TADA_Histogram(Data_Nutrients_UT, id_cols = c("TADA.ComparableDataIdentifier", "TADA.MonitoringLocationTypeName"))
 #' # This example generates 32 histograms
 #' Histogram_output[[10]]
 #' Histogram_output[[25]]
@@ -787,10 +787,10 @@ TADA_FieldValuesPie <- function(.data, field = "null", characteristicName = "nul
 #'
 #' # Create multiple scatterplots with additional grouping columns and view the first
 #' # plot in list. In this example, we will group by both TADA.ComparableDataIdentifier
-#' # and MonitoringLocationTypeName (e.g. stream, reservoir, canal, etc.)
+#' # and TADA.MonitoringLocationTypeName (e.g. stream, reservoir, canal, etc.)
 #' # Load example dataset:
 #' data(Data_Nutrients_UT)
-#' Scatterplot_output <- TADA_Scatterplot(Data_Nutrients_UT, id_cols = c("TADA.ComparableDataIdentifier", "MonitoringLocationTypeName"))
+#' Scatterplot_output <- TADA_Scatterplot(Data_Nutrients_UT, id_cols = c("TADA.ComparableDataIdentifier", "TADA.MonitoringLocationTypeName"))
 #' # This example generates 47 scatterplots
 #' Scatterplot_output[[10]]
 #' Scatterplot_output[[25]]

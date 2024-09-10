@@ -330,6 +330,7 @@ dataRetrieval
 datetimes
 depthcat
 devtools
+df
 dlist
 dplyr
 du
@@ -436,6 +437,7 @@ waterdata
 waterqualitydata
 webserviceurl
 wikipedia
+wqp
 wqx
 writeLayer
 www

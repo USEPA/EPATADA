@@ -44,7 +44,7 @@ TADA_FieldCounts <- function(.data, display = c("key", "most", "all"), character
       "ActivityMediaSubdivisionName",
       "ActivityCommentText",
       "ResultCommentText",
-      "MonitoringLocationTypeName",
+      "TADA.MonitoringLocationTypeName",
       "StateCode",
       "OrganizationFormalName",
       "TADA.CharacteristicName",
@@ -82,6 +82,7 @@ TADA_FieldCounts <- function(.data, display = c("key", "most", "all"), character
       "TADA.MonitoringLocationIdentifier",
       "MonitoringLocationIdentifier",
       "MonitoringLocationName",
+      "MonitoringLocationTypeName",
       "ActivityCommentText",
       "SampleAquifer",
       "HydrologicCondition",
@@ -281,7 +282,7 @@ TADA_AnalysisDataFilter <- function(.data,
     dplyr::select(Name, TADA.Media.Flag) %>%
     dplyr::rename(
       ML.Media.Flag = TADA.Media.Flag,
-      MonitoringLocationTypeName = Name
+      TADA.MonitoringLocationTypeName = toupper(Name)
     )
 
 
@@ -301,8 +302,8 @@ TADA_AnalysisDataFilter <- function(.data,
       ActivityMediaSubdivisionName == "Surface Water" ~ "Surface Water",
       !ActivityMediaName %in% c("WATER", "Water", "water") ~ ActivityMediaName
     )) %>%
-    # add TADA.Media.Flag for additional rows based on MonitoringLocationTypeName
-    dplyr::left_join(sw.sitetypes, by = "MonitoringLocationTypeName") %>%
+    # add TADA.Media.Flag for additional rows based on TADA.MonitoringLocationTypeName
+    dplyr::left_join(sw.sitetypes, by = "TADA.MonitoringLocationTypeName") %>%
     dplyr::mutate(
       TADA.Media.Flag = ifelse(is.na(TADA.Media.Flag),
         ML.Media.Flag, TADA.Media.Flag

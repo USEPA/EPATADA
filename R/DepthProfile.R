@@ -542,7 +542,7 @@ TADA_IDDepthProfiles <- function(.data, nresults = TRUE, nvalue = 2, aggregates 
   if (nresults == TRUE) {
     .data <- .data %>%
       dplyr::select(
-        TADA.MonitoringLocationIdentifier, TADA.MonitoringLocationName, MonitoringLocationTypeName,
+        TADA.MonitoringLocationIdentifier, TADA.MonitoringLocationName, TADA.MonitoringLocationTypeName,
         OrganizationIdentifier, ActivityStartDate, TADA.CharacteristicName, TADA.ComparableDataIdentifier,
         TADA.ConsolidatedDepth, TADA.ConsolidatedDepth.Unit, TADA.ConsolidatedDepth.Bottom
       ) %>%
@@ -571,7 +571,7 @@ TADA_IDDepthProfiles <- function(.data, nresults = TRUE, nvalue = 2, aggregates 
         TADA.CharacteristicsForDepthProfile = stringr::str_replace_all(paste(sort(unique(unlist(strsplit(TADA.CharacteristicsForDepthProfile, ";", )))), collapse = ";"), " ;", "; ")
       ) %>%
       dplyr::select(
-        TADA.MonitoringLocationIdentifier, TADA.MonitoringLocationName, MonitoringLocationTypeName, OrganizationIdentifier, ActivityStartDate,
+        TADA.MonitoringLocationIdentifier, TADA.MonitoringLocationName, TADA.MonitoringLocationTypeName, OrganizationIdentifier, ActivityStartDate,
         TADA.CharacteristicsForDepthProfile
       ) %>%
       unique()
@@ -582,7 +582,7 @@ TADA_IDDepthProfiles <- function(.data, nresults = TRUE, nvalue = 2, aggregates 
   if (nresults == FALSE) {
     .data <- .data %>%
       dplyr::select(
-        TADA.MonitoringLocationIdentifier, TADA.MonitoringLocationName, MonitoringLocationTypeName,
+        TADA.MonitoringLocationIdentifier, TADA.MonitoringLocationName, TADA.MonitoringLocationTypeName,
         OrganizationIdentifier, ActivityStartDate, TADA.CharacteristicName, TADA.ComparableDataIdentifier,
         TADA.ConsolidatedDepth, TADA.ConsolidatedDepth.Unit, TADA.ConsolidatedDepth.Bottom
       ) %>%
@@ -605,7 +605,7 @@ TADA_IDDepthProfiles <- function(.data, nresults = TRUE, nvalue = 2, aggregates 
         TADA.CharacteristicsForDepthProfile = stringr::str_replace_all(paste(sort(unique(unlist(strsplit(TADA.CharacteristicsForDepthProfile, ";", )))), collapse = ";"), " ;", "; ")
       ) %>%
       dplyr::select(
-        TADA.MonitoringLocationIdentifier, TADA.MonitoringLocationName, MonitoringLocationTypeName, OrganizationIdentifier, ActivityStartDate,
+        TADA.MonitoringLocationIdentifier, TADA.MonitoringLocationName, TADA.MonitoringLocationTypeName, OrganizationIdentifier, ActivityStartDate,
         TADA.CharacteristicsForDepthProfile
       ) %>%
       unique()
