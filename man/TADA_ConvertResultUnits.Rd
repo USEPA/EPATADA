@@ -35,16 +35,16 @@ When transform = FALSE, result values and units, and detection quantitation limi
 values are units are NOT converted to TADA target units,but columns are appended
 to indicate what the target units and conversion factors are, and if the data can
 be converted. This function adds the following four fields ONLY when transform =
-FALSE: "TADA.WQXUnitConversionFactor", "TADA.WQXTargetUnit",
+FALSE: "TADA.WQXUnitConversionFactor", "TADA.Target.ResultMeasure.MeasureUnitCode",
 "TADA.SpeciationUnitConversion", and "TADA.WQXResultUnitConversion.}
 }
 \value{
 A TADA dataframe. Depending on the arguments entered by the user, the
 number of columns returned may differ. When transform = TRUE, TADA.ResultMeasureValue
 and TADA.ResultMeasure.MeasureUnitCode are converted to target units. When transform =
-FALSE, "TADA.WQXUnitConversionFactor", "TADA.WQXTargetUnit",
+FALSE, "TADA.WQXUnitConversionFactor", "TADA.Target.ResultMeasure.MeasureUnitCode",
 "TADA.SpeciationUnitConversion" are added. With either transform argument,
-"TADA.WQXResultUnitCoversion" is added. It indicates if data can be converted.
+"TADA.WQXResultUnitConversion" is added. It indicates if data can be converted.
 "NoResultValue" means data cannot be converted because there is no
 ResultMeasureValue, and "NoTargetUnit"means data cannot be converted because
 the original unit is not associated with a target unit. "Convert" means the data
@@ -73,7 +73,7 @@ those with speciation in units.
 data(Data_Nutrients_UT)
 
 # Do not convert result values and units, but add four new columns titled
-# "TADA.WQXUnitConversionFactor", "TADA.WQXUnitConversionCoefficient", "TADA.WQXTargetUnit", and "TADA.SpeciationUnitConversion":
+# "TADA.WQXUnitConversionFactor", "TADA.WQXUnitConversionCoefficient", "TADA.Target.ResultMeasure.MeasureUnitCode", and "TADA.SpeciationUnitConversion":
 ResultUnitsNotConverted <- TADA_ConvertResultUnits(Data_Nutrients_UT, transform = FALSE)
 
 # Convert values and units for results and detection limits:
