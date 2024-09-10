@@ -414,7 +414,7 @@ TADA_OverviewMap <- function(.data, identifier = "tada") {
         ml_name <- "TADA.MonitoringLocationName"
       }
       
-      if(identifier == "tada") {
+      if(identifier == "wqp") {
         ml_id <- "MonitoringLocationIdentifier"
         
         ml_name <- "MonitoringLocationName"
@@ -579,7 +579,7 @@ TADA_OverviewMap <- function(.data, identifier = "tada") {
 #'
 #' @param .data TADA data frame containing the data downloaded from the WQP, where
 #' each row represents a unique data record. Data frame must include the columns
-#' 'MonitoringLocationIdentifier','MonitoringLocationName','TADA.LatitudeMeasure',
+#' 'TADA.MonitoringLocationIdentifier','TADA.MonitoringLocationName','TADA.LatitudeMeasure',
 #' and 'TADA.LongitudeMeasure' to run this function.
 #'
 #' @return A leaflet map that shows all sites in the data frame that contain
@@ -606,7 +606,7 @@ TADA_OverviewMap <- function(.data, identifier = "tada") {
 #' }
 #'
 
-# HRM Note (9/9/24) - Overview map has not been updated to use TADA.MonitoringLocationIdentifier
+# HRM Note (9/9/24) - flagged sites map has not been updated to use TADA.MonitoringLocationIdentifier
 TADA_FlaggedSitesMap <- function(.data) {
   invalid <- TADA_FlagCoordinates(.data, flaggedonly = TRUE)
   lowres <- invalid[invalid$TADA.InvalidCoordinates.Flag == "Imprecise_lessthan3decimaldigits", ]
@@ -783,7 +783,7 @@ TADA_FieldValuesPie <- function(.data, field = "null", characteristicName = "nul
 #' df <- dplyr::filter(Data_6Tribes_5y_Harmonized, TADA.ComparableDataIdentifier == "TOTAL PHOSPHORUS, MIXED FORMS_UNFILTERED_AS P_UG/L")
 #' TADA_Scatterplot(df, id_cols = "TADA.ComparableDataIdentifier")
 #' # Creates a scatterplot for each monitoring location
-#' TADA_Scatterplot(df, id_cols = c("TADA.ComparableDataIdentifier", "MonitoringLocationName"))
+#' TADA_Scatterplot(df, id_cols = c("TADA.ComparableDataIdentifier", "TADA.MonitoringLocationName"))
 #'
 #' # Create multiple scatterplots with additional grouping columns and view the first
 #' # plot in list. In this example, we will group by both TADA.ComparableDataIdentifier
@@ -843,7 +843,7 @@ TADA_Scatterplot <- function(.data, id_cols = c("TADA.ComparableDataIdentifier")
       mode = "markers",
       x = plot.data$ActivityStartDate, # currently uses start date only, may want to change to just ActivityStartDateTime in the future, but for now ActivityStartDateTime includes NAs when time is not available. Including ActivityStartDateTime in hover feature instead.
       y = plot.data$TADA.ResultMeasureValue,
-      # consider adding color or shapes to make it easier to see sites and/or possible realtive result values
+      # consider adding color or shapes to make it easier to see sites and/or possible relative result values
       # color = ~MonitoringLocationName,
       # colors = RColorBrewer::brewer.pal(3, "Set2"),
       marker = list(color = tada.pal[1, 1]), # marker color
@@ -854,7 +854,7 @@ TADA_Scatterplot <- function(.data, id_cols = c("TADA.ComparableDataIdentifier")
         "Result:", paste0(plot.data$TADA.ResultMeasureValue, " ", plot.data$TADA.ResultMeasure.MeasureUnitCode), "<br>",
         "Activity Start Date:", plot.data$ActivityStartDate, "<br>",
         "Activity Start Date Time:", plot.data$ActivityStartDateTime, "<br>",
-        "Monitoring Location Name:", plot.data$MonitoringLocationName, "<br>",
+        "Monitoring Location Name:", plot.data$TADA.MonitoringLocationName, "<br>",
         "Media:", plot.data$TADA.ActivityMediaName, "<br>",
         "Media Subdivision:", plot.data$ActivityMediaSubdivisionName, "<br>",
         "Result Depth:", paste0(
@@ -923,8 +923,8 @@ TADA_Scatterplot <- function(.data, id_cols = c("TADA.ComparableDataIdentifier")
 #'
 #' @param .data TADA data frame containing the data downloaded from the WQP,
 #'   where each row represents a unique data record. Data frame must include the
-#'   columns 'TADA.ComparableDataIdentifier', 'TADA.ResultMeasureValue', and 'TADA.ResultMeasure.MeasureUnitCode'
-#'   to run this function.
+#'   columns 'TADA.ComparableDataIdentifier', 'TADA.ResultMeasureValue', and 
+#'   'TADA.ResultMeasure.MeasureUnitCode' to run this function.
 #'
 #' @param id_cols The column in the dataset used to identify the unique groups to
 #'   be plotted. Defaults to 'TADA.ComparableDataIdentifier', which should be

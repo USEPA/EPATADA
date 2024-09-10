@@ -274,6 +274,13 @@ TADA_AutoClean <- function(.data) {
     # create uppercase version of original MonitoringLocationName
     .data$TADA.MonitoringLocationName <- toupper(.data$MonitoringLocationName)
   }
+  
+  if ("TADA.MonitoringLocationTypeName" %in% colnames(.data)) {
+    .data <- .data
+  } else {
+    # create uppercase version of original MonitoringLocationName
+    .data$TADA.MonitoringLocationTypeName <- toupper(.data$MonitoringLocationTypeName)
+  }
 
   # Transform "Dissolved oxygen (DO)" characteristic name to "DISSOLVED OXYGEN SATURATION" IF
   # result unit is "%" or "% SATURATN".
@@ -790,7 +797,9 @@ TADA_FormatDelimitedString <- function(delimited_string, delimiter = ",") {
 #'    The default is meta_select = "random".
 #'
 #' @return Input dataframe with a TADA.MonitoringLocationIdentifier column that indicates
-#'   the nearby site groups each monitoring location belongs to.
+#'   the nearby site groups each monitoring location belongs to. Related metadata, including
+#'   TADA.MonitoringLocationName, TADA.LatitudeMeasure, TADA.LongitudeMeasure, and 
+#'   TADA.MonitoringLocationTypeName are added to the input df.
 #'
 #' @export
 #'
@@ -801,7 +810,8 @@ TADA_FindNearbySites <- function(.data, dist_buffer = 100, meta_select = "random
   
   # .data required columns
   required_cols <- c("TADA.MonitoringLocationIdentifier", "TADA.MonitoringLocationName",
-                     "TADA.LongitudeMeasure", "TADA.LatitudeMeasure")
+                     "TADA.LongitudeMeasure", "TADA.LatitudeMeasure",
+                     "TADA.MonitoringLocationTypeName")
   # check .data has required columns
   TADA_CheckColumns(.data, required_cols)
   
