@@ -4,13 +4,34 @@
 \alias{TADA_FindNearbySites}
 \title{Identify and group nearby monitoring locations (UNDER ACTIVE DEVELOPMENT)}
 \usage{
-TADA_FindNearbySites(.data, dist_buffer = 100)
+TADA_FindNearbySites(
+  .data,
+  dist_buffer = 100,
+  meta_select = "random",
+  org_hierarchy = "none"
+)
 }
 \arguments{
 \item{.data}{TADA dataframe OR TADA sites dataframe}
 
 \item{dist_buffer}{Numeric. The maximum distance (in meters) two sites can be
 from one another to be considered "nearby" and grouped together.}
+
+\item{meta_select}{Character argument to determine how metadata should be selected if no
+org_hierarchy is specified or if multiple options for metadata from the same organization
+exist. Options are "oldest", which selects the metadata associated with the oldest result from
+the grouped nearby sites, "newest", which selects the metadata associated with the newest
+result from the grouped nearby sites, "count" which selects the metadata associated with the
+greatest number of results, and "random" which selects random metadata from the site group.
+The default is meta_select = "random".}
+
+\item{org_hierarchy}{Vector of organization identifiers that acts as the order in which the
+function should select representative metadata for grouped sites based on the organization
+that collected the data. If left blank, the function does not factor organization in to the
+metadata selection process. When a vector is provided, the metadata will first be selected by
+organization and the "meta_select" argument will only be applied in cases where more than
+one set of metadata per site grouping are available from the highest ranking organization
+available.}
 }
 \value{
 Input dataframe with a TADA.MonitoringLocationIdentifier column that indicates

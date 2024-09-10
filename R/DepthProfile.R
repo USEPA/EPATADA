@@ -458,7 +458,7 @@ TADA_FlagDepthCategory <- function(.data, bycategory = "no", bottomvalue = 2, su
 #' @param .data TADA dataframe which must include the columns ActivityStartDate,
 #' TADA.ConsolidatedDepth, TADA.ConsolidatedDepth.Unit, TADA.ConsolidatedDepth.Bottom,
 #' TADA.ResultMeasureValue, TADA.ResultMeasureValue.UnitCode,
-#' OrganizationIdentifier, MonitoringLocationName, TADA.MonitoringLocationIdentifier,
+#' OrganizationIdentifier, TADA.MonitoringLocationName, TADA.MonitoringLocationIdentifier,
 #' and TADA.ComparableDataIdentifier.
 #'
 #' @param nresults Boolean argument with options "TRUE" or "FALSE". The
@@ -482,7 +482,7 @@ TADA_FlagDepthCategory <- function(.data, bycategory = "no", bottomvalue = 2, su
 #' depth profile data.
 #'
 #' @return A dataframe with the columns TADA.MonitoringLocationIdentifier,
-#' MonitoringLocationName, OrganizationIdentifier, ActivityStartDate,
+#' TADA.MonitoringLocationName, OrganizationIdentifier, ActivityStartDate,
 #' TADA.CharacteristicsForDepthProfile. Based on the user input for the nresults
 #' param, TADA.CharacteristicsForDepthProfile may or may not contain the number
 #' of results for each characteristic.
@@ -542,7 +542,7 @@ TADA_IDDepthProfiles <- function(.data, nresults = TRUE, nvalue = 2, aggregates 
   if (nresults == TRUE) {
     .data <- .data %>%
       dplyr::select(
-        TADA.MonitoringLocationIdentifier, MonitoringLocationName, MonitoringLocationTypeName,
+        TADA.MonitoringLocationIdentifier, TADA.MonitoringLocationName, MonitoringLocationTypeName,
         OrganizationIdentifier, ActivityStartDate, TADA.CharacteristicName, TADA.ComparableDataIdentifier,
         TADA.ConsolidatedDepth, TADA.ConsolidatedDepth.Unit, TADA.ConsolidatedDepth.Bottom
       ) %>%
@@ -571,7 +571,7 @@ TADA_IDDepthProfiles <- function(.data, nresults = TRUE, nvalue = 2, aggregates 
         TADA.CharacteristicsForDepthProfile = stringr::str_replace_all(paste(sort(unique(unlist(strsplit(TADA.CharacteristicsForDepthProfile, ";", )))), collapse = ";"), " ;", "; ")
       ) %>%
       dplyr::select(
-        TADA.MonitoringLocationIdentifier, MonitoringLocationName, MonitoringLocationTypeName, OrganizationIdentifier, ActivityStartDate,
+        TADA.MonitoringLocationIdentifier, TADA.MonitoringLocationName, MonitoringLocationTypeName, OrganizationIdentifier, ActivityStartDate,
         TADA.CharacteristicsForDepthProfile
       ) %>%
       unique()
@@ -582,7 +582,7 @@ TADA_IDDepthProfiles <- function(.data, nresults = TRUE, nvalue = 2, aggregates 
   if (nresults == FALSE) {
     .data <- .data %>%
       dplyr::select(
-        TADA.MonitoringLocationIdentifier, MonitoringLocationName, MonitoringLocationTypeName,
+        TADA.MonitoringLocationIdentifier, TADA.MonitoringLocationName, MonitoringLocationTypeName,
         OrganizationIdentifier, ActivityStartDate, TADA.CharacteristicName, TADA.ComparableDataIdentifier,
         TADA.ConsolidatedDepth, TADA.ConsolidatedDepth.Unit, TADA.ConsolidatedDepth.Bottom
       ) %>%
@@ -605,7 +605,7 @@ TADA_IDDepthProfiles <- function(.data, nresults = TRUE, nvalue = 2, aggregates 
         TADA.CharacteristicsForDepthProfile = stringr::str_replace_all(paste(sort(unique(unlist(strsplit(TADA.CharacteristicsForDepthProfile, ";", )))), collapse = ";"), " ;", "; ")
       ) %>%
       dplyr::select(
-        TADA.MonitoringLocationIdentifier, MonitoringLocationName, MonitoringLocationTypeName, OrganizationIdentifier, ActivityStartDate,
+        TADA.MonitoringLocationIdentifier, TADA.MonitoringLocationName, MonitoringLocationTypeName, OrganizationIdentifier, ActivityStartDate,
         TADA.CharacteristicsForDepthProfile
       ) %>%
       unique()
@@ -862,7 +862,7 @@ TADA_DepthProfilePlot <- function(.data,
     "TADA.ResultMeasureValue",
     "TADA.ResultMeasure.MeasureUnitCode",
     "TADA.MonitoringLocationIdentifier",
-    "MonitoringLocationName",
+    "TADA.MonitoringLocationName",
     "ActivityStartDate",
     "ActivityStartDateTime",
     "TADA.ConsolidatedDepth",
@@ -1003,7 +1003,7 @@ TADA_DepthProfilePlot <- function(.data,
   # this subset must include all fields included in plot hover below
   plot.data <- profile.data %>%
     dplyr::filter(dplyr::if_any(TADA.ComparableDataIdentifier, ~ .x %in% groups)) %>%
-    dplyr::select(dplyr::all_of(reqcols), "TADA.ComparableDataIdentifier", "ActivityStartDateTime", "MonitoringLocationName", "TADA.ActivityMediaName", "ActivityMediaSubdivisionName", "ActivityRelativeDepthName", "TADA.CharacteristicName", "TADA.MethodSpeciationName", "TADA.ResultSampleFractionText") %>%
+    dplyr::select(dplyr::all_of(reqcols), "TADA.ComparableDataIdentifier", "ActivityStartDateTime", "TADA.MonitoringLocationName", "TADA.ActivityMediaName", "ActivityMediaSubdivisionName", "ActivityRelativeDepthName", "TADA.CharacteristicName", "TADA.MethodSpeciationName", "TADA.ResultSampleFractionText") %>%
     dplyr::mutate(TADA.ResultMeasure.MeasureUnitCode = ifelse(is.na(TADA.ResultMeasure.MeasureUnitCode),
       "NA", TADA.ResultMeasure.MeasureUnitCode
     ))
@@ -1032,7 +1032,7 @@ TADA_DepthProfilePlot <- function(.data,
         " and ",
         param3$TADA.CharacteristicName[1],
         " for ",
-        plot.data$MonitoringLocationName[1],
+        plot.data$TADA.MonitoringLocationName[1],
         " on ",
         format(as.Date(plot.data$ActivityStartDate[1]), "%B %d, %Y")
       ),
@@ -1049,7 +1049,7 @@ TADA_DepthProfilePlot <- function(.data,
         param2$TADA.CharacteristicName[1],
         " for ",
         # figure out addition of weird \n in name
-        plot.data$MonitoringLocationName[1],
+        plot.data$TADA.MonitoringLocationName[1],
         " on ",
         format(as.Date(plot.data$ActivityStartDate[1]), "%B %d, %Y")
       ),
@@ -1064,7 +1064,7 @@ TADA_DepthProfilePlot <- function(.data,
         param1$TADA.CharacteristicName[1],
         " for ",
         # figure out addition of weird \n in name
-        plot.data$MonitoringLocationName[1],
+        plot.data$TADA.MonitoringLocationName[1],
         " on ",
         format(as.Date(plot.data$ActivityStartDate[1]), "%B %d, %Y")
       ),

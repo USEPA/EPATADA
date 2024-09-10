@@ -10,7 +10,7 @@ TADA_IDDepthProfiles(.data, nresults = TRUE, nvalue = 2, aggregates = FALSE)
 \item{.data}{TADA dataframe which must include the columns ActivityStartDate,
 TADA.ConsolidatedDepth, TADA.ConsolidatedDepth.Unit, TADA.ConsolidatedDepth.Bottom,
 TADA.ResultMeasureValue, TADA.ResultMeasureValue.UnitCode,
-OrganizationIdentifier, MonitoringLocationName, TADA.MonitoringLocationIdentifier,
+OrganizationIdentifier, TADA.MonitoringLocationName, TADA.MonitoringLocationIdentifier,
 and TADA.ComparableDataIdentifier.}
 
 \item{nresults}{Boolean argument with options "TRUE" or "FALSE". The
@@ -35,7 +35,7 @@ depth profile data.}
 }
 \value{
 A dataframe with the columns TADA.MonitoringLocationIdentifier,
-MonitoringLocationName, OrganizationIdentifier, ActivityStartDate,
+TADA.MonitoringLocationName, OrganizationIdentifier, ActivityStartDate,
 TADA.CharacteristicsForDepthProfile. Based on the user input for the nresults
 param, TADA.CharacteristicsForDepthProfile may or may not contain the number
 of results for each characteristic.
