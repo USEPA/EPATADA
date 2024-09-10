@@ -905,7 +905,7 @@ TADA_FindNearbySites <- function(.data, dist_buffer = 100, meta_select = "random
       dplyr::left_join(hierarchy_df, by = dplyr::join_by(OrganizationIdentifier)) %>%
       dplyr::select(TADA.MonitoringLocationIdentifier.New1, TADA.MonitoringLocationName,
                     TADA.LatitudeMeasure, TADA.LongitudeMeasure, OrganizationIdentifier,
-                    rank) %>%
+                    TADA.MonitoringLocationTypeName, rank) %>%
       dplyr::distinct() %>%
       dplyr::slice_min(rank)
       
@@ -918,13 +918,14 @@ TADA_FindNearbySites <- function(.data, dist_buffer = 100, meta_select = "random
     
     select_meta <- grouped_sites %>%
       dplyr::select(TADA.MonitoringLocationIdentifier.New1, TADA.MonitoringLocationName,
-                    TADA.LatitudeMeasure, TADA.LongitudeMeasure) %>%
+                    TADA.LatitudeMeasure, TADA.LongitudeMeasure, TADA.MonitoringLocationTypeName) %>%
       dplyr::distinct() %>%
       dplyr::group_by(TADA.MonitoringLocationIdentifier.New1) %>%
       dplyr::slice_sample(n = 1) %>%
       dplyr::rename(TADA.MonitoringLocationName.New = TADA.MonitoringLocationName,
                     TADA.LatitudeMeasure.New = TADA.LatitudeMeasure,
-                    TADA.LongitudeMeasure.New = TADA.LongitudeMeasure) %>%
+                    TADA.LongitudeMeasure.New = TADA.LongitudeMeasure,
+                    TADA.MonitoringLocationTypeName.New = TADA.MonitoringLocationTypeName) %>%
       dplyr::mutate(TADA.NearbySites.Flag = "This monitoring location was grouped with other nearby site(s). Metadata were selected randomly")
 
   }
@@ -933,14 +934,16 @@ TADA_FindNearbySites <- function(.data, dist_buffer = 100, meta_select = "random
     
     select_meta <- grouped_sites %>%
       dplyr::select(TADA.MonitoringLocationIdentifier.New1, TADA.MonitoringLocationName,
-                    TADA.LatitudeMeasure, TADA.LongitudeMeasure, ActivityStartDate) %>%
+                    TADA.LatitudeMeasure, TADA.LongitudeMeasure, TADA.MonitoringLocationTypeName,
+                    ActivityStartDate) %>%
       dplyr::distinct() %>%
       dplyr::group_by(TADA.MonitoringLocationIdentifier.New1) %>%
       dplyr::slice_min(ActivityStartDate) %>%
       dplyr::slice_sample(n = 1) %>%
       dplyr::rename(TADA.MonitoringLocationName.New = TADA.MonitoringLocationName,
                     TADA.LatitudeMeasure.New = TADA.LatitudeMeasure,
-                    TADA.LongitudeMeasure.New = TADA.LongitudeMeasure) %>%
+                    TADA.LongitudeMeasure.New = TADA.LongitudeMeasure,
+                    TADA.MonitoringLocationTypeName.New = TADA.MonitoringLocationTypeName) %>%
       dplyr::mutate(TADA.NearbySites.Flag = "This monitoring location was grouped with other nearby site(s). Metadata were selected from the oldest result available.")
     
   }
@@ -949,14 +952,16 @@ TADA_FindNearbySites <- function(.data, dist_buffer = 100, meta_select = "random
     
     select_meta <- grouped_sites %>%
       dplyr::select(TADA.MonitoringLocationIdentifier.New1, TADA.MonitoringLocationName,
-                    TADA.LatitudeMeasure, TADA.LongitudeMeasure, ActivityStartDate) %>%
+                    TADA.LatitudeMeasure, TADA.LongitudeMeasure, TADA.MonitoringLocationTypeName,
+                    ActivityStartDate) %>%
       dplyr::distinct() %>%
       dplyr::group_by(TADA.MonitoringLocationIdentifier.New1) %>%
       dplyr::slice_max(ActivityStartDate) %>%
       dplyr::slice_sample(n = 1) %>%
       dplyr::rename(TADA.MonitoringLocationName.New = TADA.MonitoringLocationName,
                     TADA.LatitudeMeasure.New = TADA.LatitudeMeasure,
-                    TADA.LongitudeMeasure.New = TADA.LongitudeMeasure) %>%
+                    TADA.LongitudeMeasure.New = TADA.LongitudeMeasure,
+                    TADA.MonitoringLocationTypeName.New = TADA.MonitoringLocationTypeName) %>%
       dplyr::mutate(TADA.NearbySites.Flag = "This monitoring location was grouped with other nearby site(s). Metadata were selected from the newest result available.")
  
   }
@@ -967,14 +972,16 @@ TADA_FindNearbySites <- function(.data, dist_buffer = 100, meta_select = "random
      dplyr::group_by(TADA.MonitoringLocationIdentifier.New1) %>%
      dplyr::mutate(NCount = length(TADA.ResultMeasureValue)) %>%
       dplyr::select(TADA.MonitoringLocationIdentifier, TADA.MonitoringLocationName,
-                    TADA.LatitudeMeasure, TADA.LongitudeMeasure, NCount) %>%
+                    TADA.LatitudeMeasure, TADA.LongitudeMeasure, TADA.MonitoringLocationTypeName, 
+                    NCount) %>%
       dplyr::distinct() %>%
       dplyr::group_by(TADA.MonitoringLocationIdentifier) %>%
       dplyr::slice_max(NCount) %>%
       dplyr::slice_sample(n = 1) %>%
       dplyr::rename(TADA.MonitoringLocationName.New = TADA.MonitoringLocationName,
                     TADA.LatitudeMeasure.New = TADA.LatitudeMeasure,
-                    TADA.LongitudeMeasure.New = TADA.LongitudeMeasure) %>%
+                    TADA.LongitudeMeasure.New = TADA.LongitudeMeasure,
+                    TADA.MonitoringLocationTypeName.New = TADA.MonitoringLocationTypeName) %>%
       dplyr::mutate(TADA.NearbySites.Flag = "This monitoring location was grouped with other nearby site(s). Metadata were selected from the newest result available.")
 
   }
@@ -990,10 +997,13 @@ TADA_FindNearbySites <- function(.data, dist_buffer = 100, meta_select = "random
                                                 TADA.LatitudeMeasure, TADA.LatitudeMeasure.New),
                   TADA.LongitudeMeasure = ifelse(!ResultIdentifier %in% grouped_resultids,
                                                         TADA.LongitudeMeasure, TADA.LongitudeMeasure.New),
+                  TADA.MonitoringLocationTypeName = ifelse(!ResultIdentifier %in% grouped_resultids,
+                                                           TADA.MonitoringLocationTypeName, TADA.MonitoringLocationTypeName.New),
                   TADA.MonitoringLocationIdentifier = ifelse(TADA.MonitoringLocationIdentifier.New1 == "",
                                                              TADA.MonitoringLocationIdentifier, TADA.MonitoringLocationIdentifier.New1)) %>%
     dplyr::select(-TADA.MonitoringLocationIdentifier.New1, -TADA.MonitoringLocationName.New,
-                  -TADA.LatitudeMeasure.New, -TADA.LongitudeMeasure.New) 
+                  -TADA.LatitudeMeasure.New, -TADA.LongitudeMeasure.New,
+                  -TADA.MonitoringLocationTypeName.New) 
   }
   
   if (dim(groups)[1] == 0) {

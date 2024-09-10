@@ -13,8 +13,8 @@ TADA_TwoCharacteristicScatterplot(
 \arguments{
 \item{.data}{TADA data frame containing the data downloaded from the WQP,
 where each row represents a unique data record. Data frame must include the
-columns 'TADA.ComparableDataIdentifier', 'TADA.ResultMeasureValue', and 'TADA.ResultMeasure.MeasureUnitCode'
-to run this function.}
+columns 'TADA.ComparableDataIdentifier', 'TADA.ResultMeasureValue', and
+'TADA.ResultMeasure.MeasureUnitCode' to run this function.}
 
 \item{id_cols}{The column in the dataset used to identify the unique groups to
 be plotted. Defaults to 'TADA.ComparableDataIdentifier', which should be

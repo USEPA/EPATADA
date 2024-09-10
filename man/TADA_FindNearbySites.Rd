@@ -35,7 +35,9 @@ available.}
 }
 \value{
 Input dataframe with a TADA.MonitoringLocationIdentifier column that indicates
-the nearby site groups each monitoring location belongs to.
+the nearby site groups each monitoring location belongs to. Related metadata, including
+TADA.MonitoringLocationName, TADA.LatitudeMeasure, TADA.LongitudeMeasure, and
+TADA.MonitoringLocationTypeName are added to the input df.
 }
 \description{
 This function takes a TADA dataset and creates a distance matrix for all

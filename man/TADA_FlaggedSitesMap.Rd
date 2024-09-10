@@ -9,7 +9,7 @@ TADA_FlaggedSitesMap(.data)
 \arguments{
 \item{.data}{TADA data frame containing the data downloaded from the WQP, where
 each row represents a unique data record. Data frame must include the columns
-'MonitoringLocationIdentifier','MonitoringLocationName','TADA.LatitudeMeasure',
+'TADA.MonitoringLocationIdentifier','TADA.MonitoringLocationName','TADA.LatitudeMeasure',
 and 'TADA.LongitudeMeasure' to run this function.}
 }
 \value{
