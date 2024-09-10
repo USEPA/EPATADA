@@ -368,6 +368,12 @@ TADA_Histogram <- function(.data, id_cols = c("TADA.ComparableDataIdentifier")) 
 #' 'TADA.MonitoringLocationIdentifier','MonitoringLocationName','TADA.LatitudeMeasure',
 #' 'TADA.LongitudeMeasure', 'ResultIdentifier', 'ActivityStartDate', 'TADA.CharacteristicName',
 #' and 'OrganizationIdentifier' to run this function.
+#' 
+#' @param identifier A character argument to select whether the TADA.MonitoringLocationIdentifier
+#' (which may included grouped sites is TADA_FindNearbySites has been run) or the original WQP
+#' MonitoringLocationIdentifier and associated coordinates are used for mapping. Identifier equals
+#' "tada" is the default and will used the TADA prefixed monitoring location columns. Identifier
+#' equals "wqp" will use the originals.
 #'
 #' @return A leaflet map that shows all sites in the data frame, where larger point sizes
 #' indicate more results collected at a site, and darker point colors indicate more
@@ -391,8 +397,7 @@ TADA_Histogram <- function(.data, id_cols = c("TADA.ComparableDataIdentifier")) 
 #' }
 #'
 
-# HRM Note (9/9/24) - Overview map has not been updated to use TADA.MonitoringLocationIdentifier
-TADA_OverviewMap <- function(.data) {
+TADA_OverviewMap <- function(.data, identifier = "tada") {
   suppressMessages(suppressWarnings({
     quiet({
       # taken from this stackoverflow: https://stackoverflow.com/questions/58505589/circles-in-legend-for-leaflet-map-with-addcirclemarkers-in-r-without-shiny
@@ -403,8 +408,20 @@ TADA_OverviewMap <- function(.data) {
         return(leaflet::addLegend(map, colors = colorAdditions, labels = labelAdditions, opacity = opacity, title = "Measurements"))
       }
 
+      if(identifier == "tada") {
+        ml_id <- "TADA.MonitoringLocationIdentifier"
+        
+        ml_name <- "TADA.MonitoringLocationName"
+      }
+      
+      if(identifier == "tada") {
+        ml_id <- "MonitoringLocationIdentifier"
+        
+        ml_name <- "MonitoringLocationName"
+      }
+      
       sumdat <- .data %>%
-        dplyr::group_by(MonitoringLocationIdentifier, MonitoringLocationName, TADA.LatitudeMeasure, TADA.LongitudeMeasure) %>%
+        dplyr::group_by(!!rlang::sym(ml_id), !!rlang::sym(ml_name), TADA.LatitudeMeasure, TADA.LongitudeMeasure) %>%
         dplyr::summarise("Sample_Count" = length(unique(ResultIdentifier)), "Visit_Count" = length(unique(ActivityStartDate)), "Parameter_Count" = length(unique(TADA.CharacteristicName)), "Organization_Count" = length(unique(OrganizationIdentifier)))
 
       param_counts <- sort(unique(sumdat$Parameter_Count))
@@ -511,8 +528,8 @@ TADA_OverviewMap <- function(.data) {
           weight = 1.5,
           radius = sumdat$radius,
           popup = paste0(
-            "Site ID: ", sumdat$MonitoringLocationIdentifier,
-            "<br> Site Name: ", sumdat$MonitoringLocationName,
+            "Site ID: ", rlang::eval_tidy(rlang::sym(ml_id), sumdat),
+            "<br> Site Name: ", rlang::eval_tidy(rlang::sym(ml_name), sumdat),
             "<br> Measurement Count: ", sumdat$Sample_Count,
             "<br> Visit Count: ", sumdat$Visit_Count,
             "<br> Characteristic Count: ", sumdat$Parameter_Count
