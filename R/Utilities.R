@@ -1001,15 +1001,21 @@ TADA_FindNearbySites <- function(.data, dist_buffer = 100, meta_select = "random
                   TADA.MonitoringLocationTypeName = ifelse(!ResultIdentifier %in% grouped_resultids,
                                                            TADA.MonitoringLocationTypeName, TADA.MonitoringLocationTypeName.New),
                   TADA.MonitoringLocationIdentifier = ifelse(TADA.MonitoringLocationIdentifier.New1 == "",
-                                                             TADA.MonitoringLocationIdentifier, TADA.MonitoringLocationIdentifier.New1)) %>%
+                                                             TADA.MonitoringLocationIdentifier, TADA.MonitoringLocationIdentifier.New1),
+                  TADA.NearbySites.Flag = ifelse(is.na(TADA.NearbySites.Flag),
+                                                 "No nearby sites detected using input buffer distance.",
+                                                 TADA.NearbySites.Flag)) %>%
     dplyr::select(-TADA.MonitoringLocationIdentifier.New1, -TADA.MonitoringLocationName.New,
                   -TADA.LatitudeMeasure.New, -TADA.LongitudeMeasure.New,
-                  -TADA.MonitoringLocationTypeName.New) 
+                  -TADA.MonitoringLocationTypeName.New)
   }
   
   if (dim(groups)[1] == 0) {
     
     print("No nearby sites detected using input buffer distance.")
+    
+    .data <- .data %>%
+      dplyr::mutate(TADA.NearbySites.Flag = "No nearby sites detected using input buffer distance.")
   }
   
     .data <- TADA_OrderCols(.data)
@@ -1022,13 +1028,14 @@ TADA_FindNearbySites <- function(.data, dist_buffer = 100, meta_select = "random
 #'
 #' This function takes a TADA dataset that contains grouped nearby monitoring stations
 #' and returns a unique dataset of the original MonitoringLocationIdentifier, the grouped
-#' TADA.MonitoringLocationIdentifier, TADA.LongitudeMeasure, and TADA.LatitudeMeasure,
-#' filtered for only those stations that have a nearby station.
+#' TADA.MonitoringLocationIdentifier, as well as the original and TADA-prefixed LongitudeMeasure,
+#' LatitudeMeasure, MonitoringLocationName, and MonitoringLocationTypeName, filtered for only those
+#' stations that have a nearby station.
 #'
 #' @param .data TADA dataframe 
 #'
-#' @return New dataframe with unique values for MonitoringLocationIdentifier,
-#' TADA.MonitoringLocationIdentifier, TADA.LongitudeMeasure, and TADA.LatitudeMeasure
+#' @return New dataframe with unique combinations of original and TADA MonitoringLocationIdentifier,
+#' LongitudeMeasure, LatitudeMeasure, MonitoringLocationName, and MonitoringLocationTypeName.
 #'
 #' @export
 #'
@@ -1037,14 +1044,24 @@ TADA_GetUniqueNearbySites <- function(.data) {
   TADA_CheckType(.data, "data.frame", "Input object")
   
   # .data required columns
-  required_cols <- c("MonitoringLocationIdentifier", "TADA.MonitoringLocationIdentifier", "TADA.LongitudeMeasure", "TADA.LatitudeMeasure")
+  required_cols <- c("MonitoringLocationIdentifier", "TADA.MonitoringLocationIdentifier",
+                     "MonitoringLocationName", "TADA.MonitoringLocationName",
+                     "LongitudeMeasure", "TADA.LongitudeMeasure", 
+                     "LatitudeMeasure", "TADA.LatitudeMeasure",
+                     "MonitoringLocationTypeName", "TADA.MonitoringLocationTypeName",
+                     "MonitoringLocationDescriptionText", "TADA.NearbySites.Flag")
   # check .data has required columns
   TADA_CheckColumns(.data, required_cols)
   
-  # HRM (9/10/24) - should the original lat/long columns be added back here?
-  .data <- .data[c("MonitoringLocationIdentifier", "MonitoringLocationName", "MonitoringLocationTypeName", "MonitoringLocationDescriptionText", "TADA.MonitoringLocationIdentifier", "TADA.LongitudeMeasure", "TADA.LatitudeMeasure")]
-  .data <- unique(dplyr::filter(.data, grepl(",", TADA.MonitoringLocationIdentifier)))
-  
+  # filter only for locations with nearby sites
+  .data <- .data %>%
+    dplyr::filter(!is.na(TADA.NearbySites.Flag),
+                  TADA.NearbySites.Flag != "No nearby sites detected using input buffer distance.") %>%
+    # retain only required columns
+    dplyr::select(dplyr::all_of(required_cols)) %>%
+    # retain only unique records
+    dplyr::distinct()
+
   return(.data)
 }
 
