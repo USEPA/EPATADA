@@ -25,39 +25,6 @@
 #' 
 
 TADA_CreateAdditionalCriteriaRef <- function(.data, entity, priorityParam = FALSE, useCategory = c("Aquatic Life", "Human Health", "Other")) {
-  ## Aquatic Life Criteria should have both a Duration and Frequency component. That is, 
-  #
-  #       Duration - defined as the length of time a result was measured ("one hour average", "one hour maximum/minimum")
-  #
-  #       Frequency - defined as the number of times a Criteria Standard may be exceeded 
-  #       (ex. "10% of the times", or "no more than once every three years")
-  #
-  ## Aquatic Life has both an "acute" and "chronic" component.
-  
-  ## Human Health Criteria "Water quality criteria for human health contain only a single expression of allowable magnitude; a
-  ## criterion concentration generally to protect against long-term (chronic) human health effects. (WQS Handbook Chapter 3, EPA)
-  #       
-  #       For definition - Frequency would be defined as "lifetime" or "not to exceed ever"?  
-  #       For duration - the numeric standard as a "one time maximum/minimum" or "upper/lower limit". Thoughts on this logic?
-  #
-  #       Human Health Criteria standards will likely depend on many circumstances in which users would need to "calculate". 
-  #       How should we address factors for equation based standards for items such as "Fish Consumption", "Bioaccumulation formulas", 
-  #       "Use of The Integrated Risk Information System (IRIS) (Barns and Dourson, 1988; Appendix N)", "Carcinogenics vs Non-Carcinogenics"?
-  #       Can we assist users with these equation based criteria calculations? Do parameters change regularly for these equation inputs? 
-  #
-  ## Human Health can be split by "Consumption of organisms" or "Drinking water"
-  
-  # Designated Use - When a waterbody is designated for more than one use, then the criteria needs to be defined to protect its most sensitive use.
-  ## FOUR major types of designated use categories: 1) RECREATION, 2) AQUATIC LIFE - (coldwater/warmwater/salt versus fresh), 
-  ## 3) AGRICULTURAL AND INDUSTRIAL USES, and 4) PUBLIC WATER SUPPLIES.
-  
-  ## NEXT STEPS PLAN:
-  ##
-  ## Use ATTAINS to pull in UseName and its context2 in Domains Value table. This can perhaps further help to define appropriate definitions for
-  ## duration and freqeuncy. Create a user ref table and perform similar 'harmonization' of duration and frequency
-  ## IF(USE_NAME maps to HUMAN_HEALTH) -> duration = one time minimum or maximum and frequency = "lifetime/not to exceed ever" - and ask Users to validate
-  ## Determine if the logic of mapping to human health is correct
-  ##
   
   library(arsenal)
   library(httr)
@@ -71,9 +38,9 @@ TADA_CreateAdditionalCriteriaRef <- function(.data, entity, priorityParam = FALS
   # Filters ATTAINSPArameterUse to get use_name by entity
   AllowableUse <- ATTAINSParameterUse %>% 
     dplyr::filter(organization_name == entity) %>%
-    # using sample dataset filter for the time being below - ZInc and Nitrogen
-    dplyr::filter(parameter %in% c("ZINC", "NITROGEN")) %>%
-    dplyr::select(parameter)
+    # using sample dataset filter for the time being below - Zinc and Nitrogen
+    dplyr::filter(parameter %in% unique(.data[,"TADA.CharacteristicName"])) %>%
+    dplyr::select(use_name)
   
   # This creates an empty dataframe for user inputs on Criteria and Methodology of assessments
   columns <- c(
@@ -92,11 +59,7 @@ TADA_CreateAdditionalCriteriaRef <- function(.data, entity, priorityParam = FALS
   addWorksheet(wb, "Index")
   addWorksheet(wb, "ATTAINSParameterUse")
   addWorksheet(wb, "UserCriteriaRef")
-  writeData(wb, 1, x = data.frame(TADA.CharacteristicName = c("Zinc","Nitrogen", "NA"), 
-                                  TADA.MethodSpeciationName = c("NO4", "N", "NH4"),
-                                  TADA.ResultSampleFractionText = c("Dissolved", "Total", "NA")
-                                  # x = .data[,c("TADA.CharacteristicName", "TADA.MethodSpeciationName",	"TADA.ResultSampleFractionText")]
-  ))
+  writeData(wb, 1, x = dplyr::distinct(.data[,c("TADA.CharacteristicName", "TADA.MethodSpeciationName",	"TADA.ResultSampleFractionText")]))
   writeData(wb, 1, startCol = 4, x = data.frame(entityName = entity))
   writeData(wb, 1, startCol = 5, x = data.frame(use_name = AllowableUse))
   writeData(wb, 1, startCol = 6, x = data.frame(waterType = unique(.data[, "MonitoringLocationTypeName"])))
@@ -109,8 +72,12 @@ TADA_CreateAdditionalCriteriaRef <- function(.data, entity, priorityParam = FALS
   suppressWarnings(dataValidation(wb, sheet = "UserCriteriaRef", cols = 2, rows = 2:30, type = "list", value = sprintf("'Index'!$B$2:$B$10"), allowBlank = TRUE, showErrorMsg = FALSE, showInputMsg = FALSE))
   suppressWarnings(dataValidation(wb, sheet = "UserCriteriaRef", cols = 3, rows = 2:30, type = "list", value = sprintf("'Index'!$C$2:$C$10"), allowBlank = TRUE, showErrorMsg = FALSE, showInputMsg = FALSE))
   suppressWarnings(dataValidation(wb, sheet = "UserCriteriaRef", cols = 4, rows = 2:30, type = "list", value = sprintf("'Index'!$D$2:$D$10"), allowBlank = TRUE, showErrorMsg = FALSE, showInputMsg = FALSE))
-  CriteriaRef.xlsx <- wb
-  openXL(wb)
+  suppressWarnings(dataValidation(wb, sheet = "UserCriteriaRef", cols = 5, rows = 2:30, type = "list", value = sprintf("'Index'!$E$2:$E$10"), allowBlank = TRUE, showErrorMsg = FALSE, showInputMsg = FALSE))
+  suppressWarnings(dataValidation(wb, sheet = "UserCriteriaRef", cols = 6, rows = 2:30, type = "list", value = sprintf("'Index'!$F$2:$F$10"), allowBlank = TRUE, showErrorMsg = FALSE, showInputMsg = FALSE))
+  suppressWarnings(dataValidation(wb, sheet = "UserCriteriaRef", cols = 7, rows = 2:30, type = "list", value = sprintf("'Index'!$G$2:$G$10"), allowBlank = TRUE, showErrorMsg = FALSE, showInputMsg = FALSE))
+  suppressWarnings(dataValidation(wb, sheet = "UserCriteriaRef", cols = 8, rows = 2:30, type = "list", value = sprintf("'Index'!$H$2:$H$10"), allowBlank = TRUE, showErrorMsg = FALSE, showInputMsg = FALSE))
+  wb <- saveWorkbook(wb, "inst/extdata/myfile.xlsx", overwrite = T)
+  #openXL(wb)
   
   
   # ATTAINSUseType <- GET("https://attains.epa.gov/attains-public/api/domains?domainName=UseName") %>%
