@@ -581,6 +581,12 @@ TADA_OverviewMap <- function(.data, identifier = "tada") {
 #' each row represents a unique data record. Data frame must include the columns
 #' 'TADA.MonitoringLocationIdentifier','TADA.MonitoringLocationName','TADA.LatitudeMeasure',
 #' and 'TADA.LongitudeMeasure' to run this function.
+#' 
+#' @param imprecise
+#' 
+#' @param outside_usa
+#' 
+#' @param nearby
 #'
 #' @return A leaflet map that shows all sites in the data frame that contain
 #' flagged data in the form of:
@@ -606,25 +612,71 @@ TADA_OverviewMap <- function(.data, identifier = "tada") {
 #' }
 #'
 
-# HRM Note (9/9/24) - flagged sites map has not been updated to use TADA.MonitoringLocationIdentifier
-TADA_FlaggedSitesMap <- function(.data) {
-  invalid <- TADA_FlagCoordinates(.data, flaggedonly = TRUE)
-  lowres <- invalid[invalid$TADA.InvalidCoordinates.Flag == "Imprecise_lessthan3decimaldigits", ]
-  outsideusa <- invalid[invalid$TADA.InvalidCoordinates.Flag %in% c("LAT_OutsideUSA", "LONG_OutsideUSA"), ]
-  nearby <- TADA_FindNearbySites(.data)
-  print(colnames(nearby))
-  nearby <- TADA_GetUniqueNearbySites(nearby)
+TADA_FlaggedSitesMap <- function(.data, imprecise = "wqx", outside_usa = "wqx", nearby = "wqx") {
+  
+  # check to see if TADA_FlagCoordinate has been run on TADA df
+  if(!"TADA.InvalidCoordinates.Flag" %in% names(.data)) {
+    
+    # if TADA_FlagCoordinates has not been run, run it
+    .data <- TADA_FlagCoordinates(.data)
+  }
+  
+  # create subset of imprecise sites
+  lowres <- .data[.data$TADA.InvalidCoordinates.Flag == "Imprecise_lessthan3decimaldigits", ]
+  
+  # create subset out outside usa sites
+  outsideusa <- .data[.data$TADA.InvalidCoordinates.Flag %in% c("LAT_OutsideUSA", "LONG_OutsideUSA"), ]
+  
+  # check to see if TADA_NearbySites has been run on TADA df
+  if(!"TADA.NearbySites.Flag" %in% names(.data)) {
+    
+    # if TADA_FlagCoordinates has not been run, run it
+    .data <- TADA_FindNearbySites(.data)
+  }
+  
+  # create subset of unique nearby sites
+  nearby <- TADA_GetUniqueNearbySites(.data)
 
   lowresIcon <- leaflet::makeAwesomeIcon(icon = "circle", library = "fa", iconColor = "#ffffff", markerColor = "green")
   outsideIcon <- leaflet::makeAwesomeIcon(icon = "circle", library = "fa", iconColor = "#ffffff", markerColor = "darkblue")
   nearbyIcon <- leaflet::makeAwesomeIcon(icon = "circle", library = "fa", iconColor = "#ffffff", markerColor = "pink")
 
+  # function to assign/lat long
+  assign.coords <- function(subset, input){
+    
+    # create and assign latitude name
+    lat_name <- paste(subset, "_lat", sep = "")
+    lat_value <- ifelse(input == "wqx", "LatitudeMeasure",
+                        "TADA.LatitudeMeasure")
+    assign(lat_name, lat_value, envir = .GlobalEnv)
+    
+    # create and assign longitude name
+    long_name <- paste(subset, "_long", sep = "")
+    long_value <- ifelse(input == "wqx", "LongitudeMeasure",
+                         "TADA.LongitudeMeasure") 
+    assign(long_name, long_value, envir = .GlobalEnv)
+    
+    # Return lat and long variables
+    output <- list(lat_name = get(lat_name, envir = .GlobalEnv),
+                   long_name = get(long_name, envir = .GlobalEnv))
+    
+    return(output)
+  }
+  
+  # assign lat/long columns based on user input for each subset
+  imprecise.coords <- assign.coords(subset = "imprecise", input = imprecise)
+  outside.coords <- assign.coords(subset = "outside", input = outside_usa)
+  nearby.coords <- assign.coords(subset = "nearby", input = nearby)
+  
+  # need to add originals and tada prefix data to popups in code below
+  
+  # create map
   map <- leaflet::leaflet() %>%
     leaflet::addProviderTiles("Esri.WorldTopoMap", group = "World topo", options = leaflet::providerTileOptions(updateWhenZooming = FALSE, updateWhenIdle = TRUE)) %>%
     leaflet.extras::addResetMapButton() # button to reset to initial zoom and lat/long
   if (nrow(outsideusa) > 0) {
-    map <- map %>% leaflet::addAwesomeMarkers(~TADA.LongitudeMeasure,
-      ~TADA.LatitudeMeasure,
+    map <- map %>% leaflet::addAwesomeMarkers(~outside.coords[2],
+      ~outside.coords[1],
       icon = outsideIcon,
       # label = ~as.character(MonitoringLocationIdentifier),
       popup = paste0(
@@ -637,8 +689,8 @@ TADA_FlaggedSitesMap <- function(.data) {
     )
   }
   if (nrow(lowres) > 0) {
-    map <- map %>% leaflet::addAwesomeMarkers(~TADA.LongitudeMeasure,
-      ~TADA.LatitudeMeasure,
+    map <- map %>% leaflet::addAwesomeMarkers(~imprecise.coords[2],
+      ~imprecise.coords[1],
       icon = lowresIcon,
       # label = ~as.character(MonitoringLocationIdentifier),
       popup = paste0(
@@ -651,8 +703,8 @@ TADA_FlaggedSitesMap <- function(.data) {
     )
   }
   if (nrow(nearby) > 0) {
-    map <- map %>% leaflet::addAwesomeMarkers(~TADA.LongitudeMeasure,
-      ~TADA.LatitudeMeasure,
+    map <- map %>% leaflet::addAwesomeMarkers(nearby.coords[2],
+      ~nearby.coords[1],
       icon = nearbyIcon,
       # label = ~as.character(TADA.MonitoringLocationIdentifier),
       popup = paste0(

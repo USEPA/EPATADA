@@ -1001,10 +1001,7 @@ TADA_FindNearbySites <- function(.data, dist_buffer = 100, meta_select = "random
                   TADA.MonitoringLocationTypeName = ifelse(!ResultIdentifier %in% grouped_resultids,
                                                            TADA.MonitoringLocationTypeName, TADA.MonitoringLocationTypeName.New),
                   TADA.MonitoringLocationIdentifier = ifelse(TADA.MonitoringLocationIdentifier.New1 == "",
-                                                             TADA.MonitoringLocationIdentifier, TADA.MonitoringLocationIdentifier.New1),
-                  TADA.NearbySites.Flag = ifelse(is.na(TADA.NearbySites.Flag),
-                                                 "No nearby sites detected using input buffer distance.",
-                                                 TADA.NearbySites.Flag)) %>%
+                                                             TADA.MonitoringLocationIdentifier, TADA.MonitoringLocationIdentifier.New1)) %>%
     dplyr::select(-TADA.MonitoringLocationIdentifier.New1, -TADA.MonitoringLocationName.New,
                   -TADA.LatitudeMeasure.New, -TADA.LongitudeMeasure.New,
                   -TADA.MonitoringLocationTypeName.New)
@@ -1018,7 +1015,10 @@ TADA_FindNearbySites <- function(.data, dist_buffer = 100, meta_select = "random
       dplyr::mutate(TADA.NearbySites.Flag = "No nearby sites detected using input buffer distance.")
   }
   
-    .data <- TADA_OrderCols(.data)
+    .data <- TADA_OrderCols(.data) %>%
+      dplyr::mutate(TADA.NearbySites.Flag = ifelse(is.na(TADA.NearbySites.Flag),
+                                                   "No nearby sites detected using input buffer distance.",
+                                                   TADA.NearbySites.Flag))
 
   return(.data)
 }
