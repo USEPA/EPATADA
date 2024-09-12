@@ -4,13 +4,19 @@
 \alias{TADA_FlaggedSitesMap}
 \title{Create Flagged Sites Map}
 \usage{
-TADA_FlaggedSitesMap(.data)
+TADA_FlaggedSitesMap(.data, identifier = "tada")
 }
 \arguments{
 \item{.data}{TADA data frame containing the data downloaded from the WQP, where
 each row represents a unique data record. Data frame must include the columns
 'TADA.MonitoringLocationIdentifier','TADA.MonitoringLocationName','TADA.LatitudeMeasure',
 and 'TADA.LongitudeMeasure' to run this function.}
+
+\item{identifier}{A character argument to select whether the TADA.MonitoringLocationIdentifier
+(which may included grouped sites if TADA_FindNearbySites has been run) or the original WQP
+MonitoringLocationIdentifier and associated coordinates are used for mapping. Identifier equals
+"tada" is the default and will used the TADA prefixed monitoring location columns. Identifier
+equals "wqp" will use the originals.}
 }
 \value{
 A leaflet map that shows all sites in the data frame that contain

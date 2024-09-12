@@ -47,10 +47,10 @@ TADA_Scatterplot(df, id_cols = c("TADA.ComparableDataIdentifier", "TADA.Monitori
 
 # Create multiple scatterplots with additional grouping columns and view the first
 # plot in list. In this example, we will group by both TADA.ComparableDataIdentifier
-# and MonitoringLocationTypeName (e.g. stream, reservoir, canal, etc.)
+# and TADA.MonitoringLocationTypeName (e.g. stream, reservoir, canal, etc.)
 # Load example dataset:
 data(Data_Nutrients_UT)
-Scatterplot_output <- TADA_Scatterplot(Data_Nutrients_UT, id_cols = c("TADA.ComparableDataIdentifier", "MonitoringLocationTypeName"))
+Scatterplot_output <- TADA_Scatterplot(Data_Nutrients_UT, id_cols = c("TADA.ComparableDataIdentifier", "TADA.MonitoringLocationTypeName"))
 # This example generates 47 scatterplots
 Scatterplot_output[[10]]
 Scatterplot_output[[25]]

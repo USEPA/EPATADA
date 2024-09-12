@@ -641,8 +641,8 @@ TADA_FlaggedSitesMap <- function(.data, identifier = "tada") {
   outsideIcon <- leaflet::makeAwesomeIcon(icon = "circle", library = "fa", iconColor = "#ffffff", markerColor = "darkblue")
   nearbyIcon <- leaflet::makeAwesomeIcon(icon = "circle", library = "fa", iconColor = "#ffffff", markerColor = "pink")
 
-    # need to figure out how to incorporate flag for nearby sites
-   # assign/lat long
+    
+  # columns for custom popup and map based on identifier selected by user
   
   lat_name <- ifelse(identifier == "wqx", "LatitudeMeasure",
                         "TADA.LatitudeMeasure")
@@ -674,8 +674,6 @@ TADA_FlaggedSitesMap <- function(.data, identifier = "tada") {
       "<br>", meta.flag
       )
     }
-  
-  # need to add originals and tada prefix data to popups in code below
   
   # create map
   map <- leaflet::leaflet() %>%
