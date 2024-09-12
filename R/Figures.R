@@ -658,14 +658,21 @@ TADA_FlaggedSitesMap <- function(.data, identifier = "tada") {
   
   # create custom popup function
     custom.popup <- function(.data) {
-    popup = paste0(
+    
+      meta.flag <- ifelse(.data$MonitoringLocationIdentifier %in% nearby$MonitoringLocationIdentifier,
+                     "*Original and TADA monitoring location metadata may be different due to grouping of nearby sites",
+                     "*Original and TADA monitoring location metadata match")
+      
+      popup = paste0(
       "TADA.MonitoringLocationIdentifier: ", .data$TADA.MonitoringLocationIdentifier,
       "<br> MonitoringLocationIdentifier: ", .data$MonitoringLocationIdentifier,
       "<br>", ml_name, ": ", .data[[ml_name]],
       "<br>", ml_type, ": ", .data[[ml_type]],
       "<br>", lat_name, ": ", .data[[lat_name]],
-      "<br>", long_name, ": ", .data[[long_name]]
-    )
+      "<br>", long_name, ": ", .data[[long_name]],
+      "<br>",
+      "<br>", meta.flag
+      )
     }
   
   # need to add originals and tada prefix data to popups in code below
@@ -684,8 +691,8 @@ TADA_FlaggedSitesMap <- function(.data, identifier = "tada") {
     )
   }
   if (nrow(lowres) > 0) {
-    map <- map %>% leaflet::addAwesomeMarkers(~imprecise.coords[[long_name]],
-      ~imprecise.coords[[lat_name]],
+    map <- map %>% leaflet::addAwesomeMarkers(~as.numeric(lowres[[long_name]]),
+      ~as.numeric(lowres[[lat_name]]),
       icon = lowresIcon,
       # label = ~as.character(MonitoringLocationIdentifier),
       popup = custom.popup(lowres),
@@ -693,8 +700,8 @@ TADA_FlaggedSitesMap <- function(.data, identifier = "tada") {
     )
   }
   if (nrow(nearby) > 0) {
-    map <- map %>% leaflet::addAwesomeMarkers(nearby.coords[2],
-      ~nearby.coords[1],
+    map <- map %>% leaflet::addAwesomeMarkers(~as.numeric(nearby[[long_name]]),
+      ~as.numeric(nearby[[lat_name]]),
       icon = nearbyIcon,
       # label = ~as.character(TADA.MonitoringLocationIdentifier),
       popup = custom.popup(nearby),
