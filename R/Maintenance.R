@@ -15,7 +15,7 @@ TADA_UpdateAllRefs <- function() {
 }
 
 # update tribal layers
-TADA_UpdateTribalLayers()
+# TADA_UpdateTribalLayers()
 
 ## FUNCTION TO UPDATE EXAMPLE DATA
 
