@@ -204,7 +204,6 @@ TADA_FlagSpeciation <- function(.data, clean = c("invalid_only", "nonstandardize
   }
 
   # read in speciation reference table from extdata and filter
-  # spec.ref <- utils::read.csv(system.file("extdata", "WQXcharValRef.csv", package = "TADA")) %>%
   load(file = "inst/extdata/WQXcharValRef.rda")
   spec.ref <- dplyr::filter(WQXcharValRef, Type == "CharacteristicSpeciation")
 
@@ -376,7 +375,6 @@ TADA_FlagResultUnit <- function(.data, clean = c("invalid_only", "nonstandardize
   }
 
   # read in unit reference table from extdata and filter
-  # unit.ref <- utils::read.csv(system.file("extdata", "WQXcharValRef.csv", package = "TADA")) %>%
   load(file = "inst/extdata/WQXcharValRef.rda")
   unit.ref <- dplyr::filter(WQXcharValRef, Type == "CharacteristicUnit")
 
