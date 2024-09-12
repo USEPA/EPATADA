@@ -582,11 +582,11 @@ TADA_OverviewMap <- function(.data, identifier = "tada") {
 #' 'TADA.MonitoringLocationIdentifier','TADA.MonitoringLocationName','TADA.LatitudeMeasure',
 #' and 'TADA.LongitudeMeasure' to run this function.
 #' 
-#' @param imprecise
-#' 
-#' @param outside_usa
-#' 
-#' @param nearby
+#' @param identifier A character argument to select whether the TADA.MonitoringLocationIdentifier
+#' (which may included grouped sites if TADA_FindNearbySites has been run) or the original WQP
+#' MonitoringLocationIdentifier and associated coordinates are used for mapping. Identifier equals
+#' "tada" is the default and will used the TADA prefixed monitoring location columns. Identifier
+#' equals "wqp" will use the originals.
 #'
 #' @return A leaflet map that shows all sites in the data frame that contain
 #' flagged data in the form of:
@@ -612,7 +612,7 @@ TADA_OverviewMap <- function(.data, identifier = "tada") {
 #' }
 #'
 
-TADA_FlaggedSitesMap <- function(.data, imprecise = "wqx", outside_usa = "wqx", nearby = "wqx") {
+TADA_FlaggedSitesMap <- function(.data, identifier = "tada") {
   
   # check to see if TADA_FlagCoordinate has been run on TADA df
   if(!"TADA.InvalidCoordinates.Flag" %in% names(.data)) {
@@ -641,32 +641,32 @@ TADA_FlaggedSitesMap <- function(.data, imprecise = "wqx", outside_usa = "wqx", 
   outsideIcon <- leaflet::makeAwesomeIcon(icon = "circle", library = "fa", iconColor = "#ffffff", markerColor = "darkblue")
   nearbyIcon <- leaflet::makeAwesomeIcon(icon = "circle", library = "fa", iconColor = "#ffffff", markerColor = "pink")
 
-  # function to assign/lat long
-  assign.coords <- function(subset, input){
-    
-    # create and assign latitude name
-    lat_name <- paste(subset, "_lat", sep = "")
-    lat_value <- ifelse(input == "wqx", "LatitudeMeasure",
-                        "TADA.LatitudeMeasure")
-    assign(lat_name, lat_value, envir = .GlobalEnv)
-    
-    # create and assign longitude name
-    long_name <- paste(subset, "_long", sep = "")
-    long_value <- ifelse(input == "wqx", "LongitudeMeasure",
-                         "TADA.LongitudeMeasure") 
-    assign(long_name, long_value, envir = .GlobalEnv)
-    
-    # Return lat and long variables
-    output <- list(lat_name = get(lat_name, envir = .GlobalEnv),
-                   long_name = get(long_name, envir = .GlobalEnv))
-    
-    return(output)
-  }
+    # need to figure out how to incorporate flag for nearby sites
+   # assign/lat long
   
-  # assign lat/long columns based on user input for each subset
-  imprecise.coords <- assign.coords(subset = "imprecise", input = imprecise)
-  outside.coords <- assign.coords(subset = "outside", input = outside_usa)
-  nearby.coords <- assign.coords(subset = "nearby", input = nearby)
+  lat_name <- ifelse(identifier == "wqx", "LatitudeMeasure",
+                        "TADA.LatitudeMeasure")
+    
+  long_name <- ifelse(identifier == "wqx", "LongitudeMeasure",
+                         "TADA.LongitudeMeasure")
+  
+  ml_name <- ifelse(identifier == "wqx", "MonitoringLocationName",
+                    "TADA.MonitoringLocationName")
+  
+  ml_type <- ifelse(identifier == "wqx", "MonitoringLocationTypeName",
+                    "TADA.MonitoringLocationTypeName")
+  
+  # create custom popup function
+    custom.popup <- function(.data) {
+    popup = paste0(
+      "TADA.MonitoringLocationIdentifier: ", .data$TADA.MonitoringLocationIdentifier,
+      "<br> MonitoringLocationIdentifier: ", .data$MonitoringLocationIdentifier,
+      "<br>", ml_name, ": ", .data[[ml_name]],
+      "<br>", ml_type, ": ", .data[[ml_type]],
+      "<br>", lat_name, ": ", .data[[lat_name]],
+      "<br>", long_name, ": ", .data[[long_name]]
+    )
+    }
   
   # need to add originals and tada prefix data to popups in code below
   
@@ -675,30 +675,20 @@ TADA_FlaggedSitesMap <- function(.data, imprecise = "wqx", outside_usa = "wqx", 
     leaflet::addProviderTiles("Esri.WorldTopoMap", group = "World topo", options = leaflet::providerTileOptions(updateWhenZooming = FALSE, updateWhenIdle = TRUE)) %>%
     leaflet.extras::addResetMapButton() # button to reset to initial zoom and lat/long
   if (nrow(outsideusa) > 0) {
-    map <- map %>% leaflet::addAwesomeMarkers(~outside.coords[2],
-      ~outside.coords[1],
+    map <- map %>% leaflet::addAwesomeMarkers(~as.numeric(outsideusa[[long_name]]),
+      ~as.numeric(outsideusa[[lat_name]]),
       icon = outsideIcon,
       # label = ~as.character(MonitoringLocationIdentifier),
-      popup = paste0(
-        "Site ID: ", outsideusa$MonitoringLocationIdentifier,
-        "<br> Site Name: ", outsideusa$MonitoringLocationName,
-        "<br> Latitude: ", outsideusa$TADA.LatitudeMeasure,
-        "<br> Longitude: ", outsideusa$TADA.LongitudeMeasure
-      ),
+      popup = custom.popup(outsideusa),
       data = outsideusa
     )
   }
   if (nrow(lowres) > 0) {
-    map <- map %>% leaflet::addAwesomeMarkers(~imprecise.coords[2],
-      ~imprecise.coords[1],
+    map <- map %>% leaflet::addAwesomeMarkers(~imprecise.coords[[long_name]],
+      ~imprecise.coords[[lat_name]],
       icon = lowresIcon,
       # label = ~as.character(MonitoringLocationIdentifier),
-      popup = paste0(
-        "Site ID: ", lowres$MonitoringLocationIdentifier,
-        "<br> Site Name: ", lowres$MonitoringLocationName,
-        "<br> Latitude: ", lowres$TADA.LatitudeMeasure,
-        "<br> Longitude: ", lowres$TADA.LongitudeMeasure
-      ),
+      popup = custom.popup(lowres),
       data = lowres
     )
   }
@@ -707,13 +697,7 @@ TADA_FlaggedSitesMap <- function(.data, imprecise = "wqx", outside_usa = "wqx", 
       ~nearby.coords[1],
       icon = nearbyIcon,
       # label = ~as.character(TADA.MonitoringLocationIdentifier),
-      popup = paste0(
-        "Nearby Group Name: ", nearby$TADA.MonitoringLocationIdentifier,
-        "<br> Site ID: ", nearby$MonitoringLocationIdentifier,
-        "<br> Site Name: ", nearby$MonitoringLocationName,
-        "<br> Latitude: ", nearby$TADA.LatitudeMeasure,
-        "<br> Longitude: ", nearby$TADA.LongitudeMeasure
-      ),
+      popup = custom.popup(nearby),
       data = nearby
     )
   }
