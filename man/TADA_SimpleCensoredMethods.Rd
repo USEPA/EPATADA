@@ -15,7 +15,8 @@ TADA_SimpleCensoredMethods(
 \arguments{
 \item{.data}{A TADA dataframe}
 
-\item{nd_method}{A text string indicating the type of method used to populate a non-detect (lower limit) data value. Can be set to "multiplier" (default),"randombelowlimit", or "as-is".}
+\item{nd_method}{A text string indicating the type of method used to populate a non-detect
+(lower limit) data value. Can be set to "multiplier" (default),"randombelowlimit", or "as-is".}
 
 \item{nd_multiplier}{A number to be multiplied to the LOWER detection limit for each entry to obtain the censored data value. Must be supplied if nd_method = "multiplier". Defaults to 0.5, or half the detection limit.}
 
@@ -24,30 +25,43 @@ TADA_SimpleCensoredMethods(
 \item{od_multiplier}{A number to be multiplied to the UPPER detection limit for each entry to obtain the censored data value. Must be supplied if od_method = "multiplier". Defaults to 0.5, or half the detection limit.}
 }
 \value{
-A TADA dataframe with additional columns named TADA.CensoredData.Flag, which indicates if there are disagreements in ResultDetectionCondition and DetectionQuantitationLimitTypeName, and TADA.CensoredMethod, which documents the method used to fill censored data values.
+A TADA dataframe with the additional column TADA.CensoredMethod,
+which documents the method used to fill censored data values.
+If user has not previously run TADA_IDCensoredData or
+TADA_FlagMeasureQualifierCode, this function will also run those and add the
+columns TADA.CensoredData.Flag, TADA.MeasureQualifierCode.Flag and
+TADA.MeasureQualifierCode.Def.
 }
 \description{
 This function determines if detection limit type and detection condition are parsimonious
 before applying simple tools for non-detect and over-detect data handling, including filling
 in the values as-is, X times the detection limit, or a random number between 0
 and the LOWER detection limit. These methods do NOT depend upon censored data frequency
-in the dataset.
+in the data frame.
 }
 \details{
-This function runs TADA_IDCensoredData within it which add the column
+This function runs TADA_IDCensoredData within it which adds the column
 TADA.CensoredData.Flag. Enter ?TADA_IDCensoredData into the console for more
 information.
 }
 \examples{
-# Load example dataset:
+# Load example data frame:
 data(Data_Nutrients_UT)
 # Check for agreement between detection condition and detection limit type,
 # and in instances where the measurement is non-detect, set the result value
 # to half of the detection limit value. For over-detect measurements, retain
 # the detection limit value as the result value as-is.
-Data_Nutrients_UT_CensoredFlag <- TADA_SimpleCensoredMethods(Data_Nutrients_UT, nd_method = "multiplier", nd_multiplier = 0.5, od_method = "as-is", od_multiplier = "null")
+Data_Nutrients_UT_CensoredFlag <- TADA_SimpleCensoredMethods(Data_Nutrients_UT, 
+    nd_method = "multiplier",
+    nd_multiplier = 0.5,
+    od_method = "as-is",
+    od_multiplier = "null")
 
 # Check for agreement between detection condition and detection limit type, and in instances where the measurement is non-detect, set the result value to a random value between 0 and the detection limit value. For over-detect measurements, retain the detection limit value as the result value as-is.
-Data_Nutrients_UT_CensoredFlag <- TADA_SimpleCensoredMethods(Data_Nutrients_UT, nd_method = "randombelowlimit", nd_multiplier = "null", od_method = "as-is", od_multiplier = "null")
+Data_Nutrients_UT_CensoredFlag <- TADA_SimpleCensoredMethods(Data_Nutrients_UT, 
+    nd_method = "randombelowlimit",
+    nd_multiplier = "null",
+    od_method = "as-is",
+    od_multiplier = "null")
 
 }

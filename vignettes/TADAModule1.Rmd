@@ -70,28 +70,18 @@ the development version of dataRetrieval can be downloaded directly from
 GitHub (un-comment).
 
 ```{r install_TADA, eval = F, results = 'hide'}
-remotes::install_github("USEPA/TADA",
+remotes::install_github("USEPA/EPATADA",
   ref = "develop",
   dependencies = TRUE
 )
-
 # remotes::install_github("USGS-R/dataRetrieval", dependencies=TRUE)
-```
-
-```{r for-development-only, echo = F, results = 'hide', eval = F}
-# IF YOU ARE NOT DEVELOPING TADA, SKIP THIS CODE CHUNK
-# when developing the package, update this chunk to the current repository branch, so it runs with all of the new features prior to a PR to develop
-remotes::install_github("USEPA/TADA",
-  ref = "file_storage",
-  dependencies = TRUE
-)
 ```
 
 Finally, use the **library()** function to load the TADA R Package into
 your R session.
 
 ```{r library, results = 'hide'}
-library(TADA)
+library(EPATADA)
 ```
 
 ## TADA_DataRetrieval
@@ -101,8 +91,7 @@ function, **TADA_DataRetrieval**, builds on USGS's dataRetrieval R
 package functions. It joins three WQP profiles: Site, Sample Results
 (physical/chemical metadata), and Project. In addition, it changes all
 data in the Characteristic, Speciation, Fraction, and Unit fields to
-uppercase, removes exact duplicates, and addresses result values that
-include special characters.
+uppercase and addresses result values that include special characters.
 
 This function uses the same inputs as the dataRetrieval `readWQPdata`
 function. `readWQPdata` does not restrict the characteristics pulled
@@ -184,7 +173,8 @@ Additional resources:
 -   [Water Quality Portal Web Services
     Guide](https://www.waterqualitydata.us/webservices_documentation/)
 
--   [dataRetrieval Tutorial](https://owi.usgs.gov/R/dataRetrieval.html)
+-   [dataRetrieval
+    Tutorial](https://waterdata.usgs.gov/blog/dataretrieval/)
 
 Use the code below to download data from the WQP using
 TADA_DataRetrieval. Edit the code chuck below to define your own WQP
@@ -193,16 +183,15 @@ query inputs.
 Downloads using TADA_DataRetrieval will have the same columns each time,
 but be aware that data are uploaded to the Water Quality Portal by
 individual organizations, which may or may not follow the same
-conventions. Data and metadata quality are not guaranteed! Make sure to
-carefully explore any data and make conservative quality assurance
-decisions where information is limited.
+conventions. Data and metadata quality are not guaranteed! Carefully
+explore data to make sure it meets your quality assurance requirements.
 
 Note: TADA_DataRetrieval (by leveraging dataRetrieval), automatically
-converts the date times to UTC. It also automatically converts the data
-to dates, datetimes, and numerics based on a standard algorithm.
+converts the date times to UTC. It also automatically converts field
+formats to dates, datetimes, and numerics based on a standard algorithm.
 
-Enter ?TADA_DataRetrieval into the console to review more example
-queries and additional information.
+Enter ?TADA_DataRetrieval into the console to review example queries and
+additional information.
 
 This example includes monitoring data collected from Jan 2018 to Jan
 2019 by six organizations: 1) Red Lake Band of Chippewa Indians, 2) Sac
@@ -381,7 +370,7 @@ a pop-up with this summary information, including the number of
 organizations that reported results at that site. This map may inform a
 user's decision to remove/correct sites that are outside the US.
 
-```{r Map, fig.width=8, fig.height=6, fig.fullwidth=TRUE, eval = F}
+```{r Map}
 TADA_OverviewMap(TADAProfile)
 ```
 
@@ -954,11 +943,18 @@ conditions and limit types. TADA fills missing *TADA.ResultMeasureValue*
 and *TADA.ResultMeasure.MeasureUnitCode* values with values and units
 from *TADA.DetectionQuantitationLimitMeasure.MeasureValue* and
 *TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode*, respectively,
-using the TADA_AutoClean function. In other words, detection limit
-information is copied and pasted into the result value column when the
-original value is NA and detection limit information is available. The
-two columns TADA focuses on to define and flag censored data are
-*ResultDetectionConditionText* and *DetectionQuantitationLimitTypeName*.
+using the TADA_IDCensoredData function.
+
+-   **TADA_IDCensoredData** - categorizes detection limit data and
+    identifies mismatches in result detection condition and result
+    detection limit type. This function runs within the
+    TADA_SimpleCensoredMethods function.
+
+In other words, detection limit information is copied and pasted into
+the result value column when the original value is NA and detection
+limit information is available. The two columns TADA focuses on to
+define and flag censored data are *ResultDetectionConditionText* and
+*DetectionQuantitationLimitTypeName*.
 
 The TADA package currently has functions that summarize censored data
 incidence in the dataset and perform simple substitutions of censored
@@ -1259,7 +1255,7 @@ unique(TADAProfileClean5$TADA.ComparableDataIdentifier)
 TADAProfileCleanTP <- dplyr::filter(TADAProfileClean6, TADA.ComparableDataIdentifier == "TOTAL PHOSPHORUS, MIXED FORMS_UNFILTERED_AS P_UG/L")
 
 # generate stats table
-TADAProfileCleanTP_stats <- TADA::TADA_Stats(TADAProfileCleanTP)
+TADAProfileCleanTP_stats <- TADA_Stats(TADAProfileCleanTP)
 
 TADAProfileCleanTP_stats
 
@@ -1273,7 +1269,7 @@ TP_Histogram
 Generate interactive box plot.
 
 ```{r boxplot, fig.width=8, fig.height=6, fig.fullwidth=TRUE}
-TP_Boxplot <- TADA::TADA_Boxplot(TADAProfileCleanTP, id_cols = "TADA.ComparableDataIdentifier")
+TP_Boxplot <- TADA_Boxplot(TADAProfileCleanTP, id_cols = "TADA.ComparableDataIdentifier")
 
 TP_Boxplot
 ```
@@ -1286,7 +1282,7 @@ TADAProfileCleanTP_dailymax <- TADA_AggregateMeasurements(TADAProfileCleanTP,
   clean = TRUE
 )
 
-TP_Scatterplot <- TADA::TADA_Scatterplot(TADAProfileCleanTP_dailymax, id_cols = "TADA.ComparableDataIdentifier")
+TP_Scatterplot <- TADA_Scatterplot(TADAProfileCleanTP_dailymax, id_cols = "TADA.ComparableDataIdentifier")
 
 TP_Scatterplot
 ```
@@ -1330,10 +1326,10 @@ TADAShiny::run_app()
 ## Download this Article from GitHub
 
 Go to:
-<https://github.com/USEPA/TADA/blob/develop/vignettes/TADAModule1.Rmd>
+<https://github.com/USEPA/EPATADA/blob/develop/vignettes/TADAModule1.Rmd>
 
 [![Click the highlighted icon to download TADAModule1.Rmd from GitHub.
 Open this file in R Studio to follow along. Alternatively, you can copy
 and paste desired lines of code from here into your own script. Note:
 You must have a GitHub account to download TADAModule1.Rmd from
-GitHub](images/DownloadModule1.jpg)](https://github.com/USEPA/TADA/blob/develop/vignettes/TADAModule1.Rmd)
+GitHub](images/DownloadModule1.jpg)](https://github.com/USEPA/EPATADA/blob/develop/vignettes/TADAModule1.Rmd)

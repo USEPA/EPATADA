@@ -1,13 +1,13 @@
 #' TADA_MakeSpatial
 #'
-#' Transform a Water Quality Portal dataframe into a geospatial {sf} object.
+#' Transform a Water Quality Portal dataframe into a geospatial sf object.
 #'
 #' Adds one new column to input dataset, 'geometry', which allows for mapping and additional geospatial capabilities. Check out the TADAModule2.Rmd for an example workflow.
 #'
 #' @param .data A dataframe created by `TADA_DataRetrieval()`.
 #' @param crs The coordinate reference system (CRS) you would like the returned point features to be in. The default is CRS 4326 (WGS84).
 #'
-#' @return The original TADA Water Quality Portal dataframe but as geospatial {sf} point objects.
+#' @return The original TADA Water Quality Portal dataframe but as geospatial sf point objects.
 #'
 #' @seealso [TADA_DataRetrieval()]
 #'
@@ -15,6 +15,7 @@
 #'
 #' @examples
 #' \dontrun{
+#'
 #' tada_not_spatial <- TADA_DataRetrieval(
 #'   characteristicName = "pH",
 #'   statecode = "SC",
@@ -22,9 +23,10 @@
 #'   applyautoclean = TRUE
 #' )
 #'
-#' # make `tada_not_spatial` an {sf} object, projected in crs = 4269 (NAD83)
+#' # make `tada_not_spatial` an sf object, projected in crs = 4269 (NAD83)
 #' tada_spatial <- TADA_MakeSpatial(tada_not_spatial, crs = 4269)
 #' }
+#'
 TADA_MakeSpatial <- function(.data, crs = 4326) {
   if (!"LongitudeMeasure" %in% colnames(.data) |
     !"LatitudeMeasure" %in% colnames(.data) |
@@ -36,14 +38,26 @@ TADA_MakeSpatial <- function(.data, crs = 4326) {
 
   suppressMessages(suppressWarnings({
     # Make a reference table for CRS and EPSG codes
+    # List should include all codes in WQX domain (see HorizontalCoordinateReferenceSystemDatum CSV at https://www.epa.gov/waterdata/storage-and-retrieval-and-water-quality-exchange-domain-services-and-downloads)
     epsg_codes <- tidyr::tribble(
       ~HorizontalCoordinateReferenceSystemDatumName, ~epsg,
       "NAD83", 4269,
       "WGS84", 4326,
       "NAD27", 4267,
-      "UNKWN", 4326,
+      "UNKWN", crs, # Unknowns and NAs should go to user supplied default
       "OTHER", 4326,
-      "OLDHI", 4135
+      "OLDHI", 4135,
+      "AMSMA", 4169,
+      "ASTRO", 4727,
+      "GUAM", 4675,
+      "JHNSN", 4725,
+      "PR", 6139,
+      "SGEOR", 4138,
+      "SLAWR", 4136,
+      "SPAUL", 4137,
+      "WAKE", 6732,
+      "WGS72", 6322,
+      "HARN", 4152
     )
 
     # join our CRS reference table to our original WQP dataframe:
@@ -520,10 +534,12 @@ TADA_ViewATTAINS <- function(.data) {
     try(ATTAINS_table <- ATTAINS_table %>%
       sf::st_drop_geometry(), silent = TRUE)
 
+    tada.pal <- TADA_ColorPalette()
+
     colors <- data.frame(
       overallstatus = c("Not Supporting", "Fully Supporting", "Not Assessed"),
-      col = c("#DC851E", "#059FA4", "#A1A522"),
-      dark_col = c("#813B00", "#005258", "#4F5900"),
+      col = c(tada.pal[3], tada.pal[4], tada.pal[7]),
+      dark_col = c(tada.pal[12], tada.pal[6], tada.pal[11]),
       priority = c(1, 2, 3)
     )
 
@@ -590,7 +606,7 @@ TADA_ViewATTAINS <- function(.data) {
       leaflet.extras::addResetMapButton() %>%
       leaflet::addLegend(
         position = "bottomright",
-        colors = c("#DC851E", "#059FA4", "#A1A522", "black", NA),
+        colors = c(tada.pal[3], tada.pal[4], tada.pal[7], "black", NA),
         labels = c(
           "ATTAINS: Not Supporting", "ATTAINS: Supporting", "ATTAINS: Not Assessed", "Water Quality Observation(s)",
           "NHDPlus HR catchments containing water quality observations + ATTAINS feature are represented as clear polygons with black outlines."

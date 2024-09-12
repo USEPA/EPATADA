@@ -7,6 +7,6 @@
 # * https://testthat.r-lib.org/reference/test_package.html#special-files
 
 library(testthat)
-library(TADA)
+library(EPATADA)
 
-test_check("TADA")
+test_check("EPATADA")

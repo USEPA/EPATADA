@@ -48,7 +48,7 @@ in these helpful tools.**
 **If you are interested in contributing to TADA development, more
 information is available at:**
 
-[**Contributing**](https://usepa.github.io/TADA/articles/CONTRIBUTING.html)
+[**Contributing**](https://usepa.github.io/EPATADA/articles/CONTRIBUTING.html)
 
 **We welcome collaboration with external partners.**
 
@@ -72,17 +72,8 @@ prompt, it is recommended to update all of them (enter 1 into the
 console).
 
 ```{r install_TADA, eval = F, results = 'hide'}
-remotes::install_github("USEPA/TADA",
-  ref = "develop",
-  dependencies = TRUE
-)
-```
-
-```{r for-development-only, echo = F, results = 'hide', eval = F}
-# IF YOU ARE NOT DEVELOPING TADA, SKIP THIS CODE CHUNK
-# when developing the package, update this chunk to the current repository branch, so it runs with all of the new features prior to a PR to develop
-remotes::install_github("USEPA/TADA",
-  ref = "cm-4.29.24",
+remotes::install_github("USEPA/EPATADA",
+  ref = "502-tadacomparabledataidentifier-column-showing-na-for-the-tadaresultmeasuremeasureunitcode-portion-of-its-string-pasting",
   dependencies = TRUE
 )
 ```
@@ -91,17 +82,17 @@ Finally, use the **library()** function to load the TADA R Package into
 your R session.
 
 ```{r library, results = 'hide'}
-library(TADA)
+library(EPATADA)
 ```
 
 ## Help pages
 
 All TADA R package functions have their own individual help pages,
 listed on the [Function
-reference](https://usepa.github.io/TADA/reference/index.html) page on
+reference](https://usepa.github.io/EPATADA/reference/index.html) page on
 the GitHub site. Users can also access the help page for a given
 function in R or RStudio using the following format (example below):
-`?TADA::[name of TADA function]`
+`?[name of TADA function]`
 
 ```{r help_pages, eval = F}
 # Access help page for TADA_DataRetrieval

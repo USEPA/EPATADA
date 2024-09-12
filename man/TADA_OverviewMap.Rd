@@ -25,7 +25,7 @@ Create Overview Map
 }
 \examples{
 \dontrun{
-# Load example datasets:
+# Load example data frame:
 data(Data_Nutrients_UT)
 data(Data_NCTCShepherdstown_HUC12)
 data(Data_6Tribes_5y_Harmonized)

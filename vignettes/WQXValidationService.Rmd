@@ -56,29 +56,29 @@ Package for use with data retrieved from the WQP:
         data if mg/L or °C was used for pH; flag if units were left
         blank, NA, None, etc. but are required for the characteristic)
 
-        -   [TADA_FlagResultUnit()](https://usepa.github.io/TADA/reference/TADA_FlagResultUnit.html)
+        -   [TADA_FlagResultUnit()](https://usepa.github.io/EPATADA/reference/TADA_FlagResultUnit.html)
 
     -   Flag data without methods, with uncommon methods, or with
         invalid methods for the characteristic. This is contingent on
         the activity type since some activity types don't require
         methods.
 
-        -   [TADA_FlagMethod()](https://usepa.github.io/TADA/reference/TADA_FlagMethod.html)
+        -   [TADA_FlagMethod()](https://usepa.github.io/EPATADA/reference/TADA_FlagMethod.html)
 
     -   Flag data with invalid characteristic and fraction combinations
 
-        -   [TADA_FlagFraction()](https://usepa.github.io/TADA/reference/TADA_FlagFraction.html)
+        -   [TADA_FlagFraction()](https://usepa.github.io/EPATADA/reference/TADA_FlagFraction.html)
 
     -   Flag data with invalid characteristic and speciation combination
 
-        -   [TADA_FlagSpeciation()](https://usepa.github.io/TADA/reference/TADA_FlagSpeciation.html)
+        -   [TADA_FlagSpeciation()](https://usepa.github.io/EPATADA/reference/TADA_FlagSpeciation.html)
 
     -   Flag results that do not have an approved QAPP and/or do not
         include a QAPP attachment
 
-        -   [TADA_FindQAPPDoc()](https://usepa.github.io/TADA/reference/TADA_FindQAPPDoc.html)
+        -   [TADA_FindQAPPDoc()](https://usepa.github.io/EPATADA/reference/TADA_FindQAPPDoc.html)
 
-        -   [TADA_FindQAPPApproval()](https://usepa.github.io/TADA/reference/TADA_FindQAPPApproval.html)
+        -   [TADA_FindQAPPApproval()](https://usepa.github.io/EPATADA/reference/TADA_FindQAPPApproval.html)
 
     -   Flag results above or below national thresholds using the
         Interquartile Range (IQR) method. The IQR method is defined as
@@ -88,12 +88,12 @@ Package for use with data retrieved from the WQP:
         -   Upper Threshold= 75th Percentile + 1.5 \* (75th percentile -
             25th percentile)
 
-            -   [TADA_FlagAboveThreshold()](https://usepa.github.io/TADA/reference/TADA_FlagAboveThreshold.html)
+            -   [TADA_FlagAboveThreshold()](https://usepa.github.io/EPATADA/reference/TADA_FlagAboveThreshold.html)
 
         -   Lower Threshold= 25th Percentile - 1.5 \* (75th percentile -
             25th percentile)
 
-            -   [TADA_FlagBelowThreshold()](https://usepa.github.io/TADA/reference/TADA_FlagBelowThreshold.html)
+            -   [TADA_FlagBelowThreshold()](https://usepa.github.io/EPATADA/reference/TADA_FlagBelowThreshold.html)
 
 [![[Boxplot](https://en.wikipedia.org/wiki/Boxplot "Boxplot") (with an
 interquartile range) and a [probability density
@@ -133,19 +133,20 @@ TADA leverages many of the WQX domain tables.
     ([CSV)](https://cdx.epa.gov/wqx/download/DomainValues/QAQCCharacteristicValidation.CSV)
 
     -   Both WQX and TADA leverage the table above to flag invalid and
-        uncommon results. This reference table is used in the following TADA functions:
+        uncommon results. This reference table is used in the following
+        TADA functions:
 
-        -   [TADA_FlagAboveThreshold()](https://usepa.github.io/TADA/reference/TADA_FlagAboveThreshold.html)
-        
-        -   [TADA_FlagBelowThreshold()](https://usepa.github.io/TADA/reference/TADA_FlagBelowThreshold.html)
+        -   [TADA_FlagAboveThreshold()](https://usepa.github.io/EPATADA/reference/TADA_FlagAboveThreshold.html)
 
-        -   [TADA_FlagResultUnit()](https://usepa.github.io/TADA/reference/TADA_FlagResultUnit.html)
+        -   [TADA_FlagBelowThreshold()](https://usepa.github.io/EPATADA/reference/TADA_FlagBelowThreshold.html)
 
-        -   [TADA_FlagMethod()](https://usepa.github.io/TADA/reference/TADA_FlagMethod.html)
+        -   [TADA_FlagResultUnit()](https://usepa.github.io/EPATADA/reference/TADA_FlagResultUnit.html)
 
-        -   [TADA_FlagFraction()](https://usepa.github.io/TADA/reference/TADA_FlagFraction.html)
+        -   [TADA_FlagMethod()](https://usepa.github.io/EPATADA/reference/TADA_FlagMethod.html)
 
-        -   [TADA_FlagSpeciation()](https://usepa.github.io/TADA/reference/TADA_FlagSpeciation.html)
+        -   [TADA_FlagFraction()](https://usepa.github.io/EPATADA/reference/TADA_FlagFraction.html)
+
+        -   [TADA_FlagSpeciation()](https://usepa.github.io/EPATADA/reference/TADA_FlagSpeciation.html)
 
 -   [MeasureUnit
     (ZIP)](https://cdx.epa.gov/wqx/download/DomainValues/MeasureUnit_CSV.zip) \|
@@ -161,16 +162,16 @@ TADA leverages many of the WQX domain tables.
         functions:
 
     -   See TADA Function:
-        [TADA_ConvertResultUnits()](https://usepa.github.io/TADA/reference/TADA_ConvertResultUnits.html)
+        [TADA_ConvertResultUnits()](https://usepa.github.io/EPATADA/reference/TADA_ConvertResultUnits.html)
 
 All TADA Reference and Validation Tables are also available in the R
-Package [HERE](https://github.com/USEPA/TADA/tree/develop/inst/extdata).
+Package [HERE](https://github.com/USEPA/EPATADA/tree/develop/inst/extdata).
 TADA pulls the WQX Validation Table and other domain tables into TADA
 and updates them automatically whenever changes are made
 
--   <https://github.com/USEPA/TADA/blob/develop/inst/extdata/WQXcharValRef.csv>
+-   <https://github.com/USEPA/EPATADA/blob/develop/inst/extdata/WQXcharValRef.csv>
 
--   <https://github.com/USEPA/TADA/blob/develop/inst/extdata/WQXunitRef.csv>
+-   <https://github.com/USEPA/EPATADA/blob/develop/inst/extdata/WQXunitRef.csv>
 
 WQX and TADA users can review and provide feedback on the validation
 table and/or target units assigned, and provide feedback by emailing the

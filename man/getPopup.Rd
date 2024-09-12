@@ -22,7 +22,7 @@ getPopup is used within TADA_addPolys and TADA_addPoints
 \examples{
 \dontrun{
 # Get the Oklahoma Tribal Statistical Areas feature layer
-layer <- getLayer("inst/extdata/shapefiles/OKTribe.shp")
+layer <- getLayer("extdata/OKTribe.shp")
 # Get popup text for individual markers
 getPopup(layer, "Oklahoma Tribal Statistical Areas")
 }

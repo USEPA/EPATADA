@@ -80,7 +80,7 @@ Users can reference the \href{https://www.epa.gov/waterdata/storage-and-retrieva
 to find allowable values for queries, e.g., reference the WQX domain table to find countycode and statecode: https://cdx.epa.gov/wqx/download/DomainValues/County_CSV.zip
 Alternatively, you can use the WQP services to find areas where data is available in the US: https://www.waterqualitydata.us/Codes/countycode
 
-TADA_DataRetrieval automatically runs TADA_AutoClean on the incoming dataset. TADA_AutoClean
+TADA_DataRetrieval automatically runs TADA_AutoClean on the incoming data frame. TADA_AutoClean
 is important for categorizing result value and detection limit data, as well as
 harmonizing key columns used in TADA. See ?TADA_AutoClean for more information.
 
@@ -91,10 +91,12 @@ datetimes, numerics based on a standard algorithm. See: ?dataRetrieval::readWQPd
 \examples{
 \dontrun{
 # example for WI
-tada1 <- TADA_DataRetrieval(statecode = "WI", countycode = "Dane", characteristicName = "Phosphorus")
+tada1 <- TADA_DataRetrieval(statecode = "WI", countycode = "Dane", 
+    characteristicName = "Phosphorus")
 
 # example for UT
-tada2 <- TADA_DataRetrieval(statecode = "UT", characteristicName = c("Ammonia", "Nitrate", "Nitrogen"))
+tada2 <- TADA_DataRetrieval(statecode = "UT",
+    characteristicName = c("Ammonia", "Nitrate", "Nitrogen"))
 
 # example for SC
 tada3 <- TADA_DataRetrieval(statecode = "SC", countycode = "Abbeville")

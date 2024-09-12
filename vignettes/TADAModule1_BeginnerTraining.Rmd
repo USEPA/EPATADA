@@ -14,7 +14,7 @@ vignette: >
   %\VignetteEncoding{UTF-8}
   %\VignetteIndexEntry{TADA Module 1: Training for Beginner R Users}
   %\VignetteEngine{knitr::rmarkdown}
-description: An introduction to TADA's major Module 1 functions for users unfamiliar with R and RStudio.
+description: An introduction to major TADA Module 1 functions for users unfamiliar with R and RStudio.
 editor_options: 
   chunk_output_type: console
   markdown: 
@@ -59,8 +59,8 @@ in these helpful tools.**
 
 **If you are interested in contributing to TADA development, more
 information is available at [Contributing]
-(<https://usepa.github.io/TADA/articles/CONTRIBUTING.html>). We welcome
-collaboration with external partners.**
+(<https://usepa.github.io/EPATADA/articles/CONTRIBUTING.html>). We
+welcome collaboration with external partners.**
 
 ## Install and load packages
 
@@ -82,38 +82,29 @@ prompt, it is recommended to update all of them (enter 1 into the
 console).
 
 ```{r install_TADA, eval = F, results = 'hide'}
-remotes::install_github("USEPA/TADA",
-  ref = "develop",
+remotes::install_github("USEPA/EPATADA",
+  ref = "502-tadacomparabledataidentifier-column-showing-na-for-the-tadaresultmeasuremeasureunitcode-portion-of-its-string-pasting",
   dependencies = TRUE
 )
 
 # remotes::install_github("USGS-R/dataRetrieval", dependencies=TRUE)
 ```
 
-```{r for-development-only, echo = F, results = 'hide', eval = F}
-# IF YOU ARE NOT DEVELOPING TADA, SKIP THIS CODE CHUNK
-# when developing the package, update this chunk to the current repository branch, so it runs with all of the new features prior to a PR to develop
-remotes::install_github("USEPA/TADA",
-  ref = "cm-4.29.24",
-  dependencies = TRUE
-)
-```
-
 Finally, use the **library()** function to load the TADA R Package into
 your R session.
 
 ```{r library, results = 'hide'}
-library(TADA)
+library(EPATADA)
 ```
 
 ## Help pages
 
 All TADA R package functions have their own individual help pages,
 listed on the [Function
-reference](https://usepa.github.io/TADA/reference/index.html) page on
+reference](https://usepa.github.io/EPATADA/reference/index.html) page on
 the GitHub site. Users can also access the help page for a given
 function in R or RStudio using the following format (example below):
-`?TADA::[name of TADA function]`
+`?[name of TADA function]`
 
 ```{r help_pages, eval = F}
 # Access help page for TADA_DataRetrieval
@@ -219,7 +210,7 @@ to upload a custom or WQP GUI-downloaded data set into the R package.
 # TADAProfile <- TADA_DataRetrieval(statecode = c("IL", "IN", "MI", "MN", "OH", "WI"), startDate = "2019-05-01", endDate = "2019-05-07", applyautoclean = FALSE)
 
 # For demo purposes, import pre-downloaded R5 data set
-R5Profile <- TADA::Data_R5_TADAPackageDemo
+R5Profile <- Data_R5_TADAPackageDemo
 ```
 
 **R5 Profile**
@@ -423,10 +414,8 @@ to view a pop-up with this summary information. This can be a good first
 step in identifying incorrect coordinates that are outside of the
 desired state(s) of interest or outside of the US.
 
-```{r Map, eval = F}
-OvwMap <- TADA_OverviewMap(R5Profile)
-
-OvwMap
+```{r Map}
+TADA_OverviewMap(R5Profile)
 ```
 
 Another function, **TADA_FlagCoordinates**, identifies and flags
@@ -448,8 +437,8 @@ R5Profile_CharSummary <- TADA_SummarizeColumn(R5Profile, "TADA.CharacteristicNam
 ```
 
 **Question 5: How many unique values of TADA.CharacteristicName are
-included in the data set? Which TADA.CharactersticName was collected at
-the greatest number of sites? Which TADA.CharactersticName has the most
+included in the data set? Which TADA.CharacteristicName was collected at
+the greatest number of sites? Which TADA.CharacteristicName has the most
 results?**
 
 ```{r question5}
@@ -1067,11 +1056,11 @@ Generate a scatterplot with two characteristics.
 unique(R5ProfileClean8$TADA.ComparableDataIdentifier)
 ```
 
+Select two characteristics to plot using the id_cols function input.
+
 ```{r TADA_TwoCharacteristicScatterplot}
 # choose two and generate scatterplot
-DO_Temp_Scatter <- TADA_TwoCharacteristicScatterplot(R5ProfileClean8, id_cols = "TADA.ComparableDataIdentifier", groups = c("TEMPERATURE_NA_NA_DEG C", "DISSOLVED OXYGEN (DO)_NA_NA_MG/L"))
-
-DO_Temp_Scatter
+TADA_TwoCharacteristicScatterplot(R5ProfileClean8, id_cols = "TADA.ComparableDataIdentifier", groups = c("TEMPERATURE_NA_NA_DEG C", "DISSOLVED OXYGEN (DO)_NA_NA_MG/L"))
 ```
 
 Now we will summarize results for a single comparable data group using
@@ -1081,16 +1070,19 @@ unit, speciation, and fraction combination) using **TADA_Histogram** and
 plots if their input dataset has more than one unique comparable data
 group.
 
+First, filter the data frame to include only "DISSOLVED OXYGEN
+(DO)\_NA_NA_MG/L"
+
 ```{r filter_dataframe}
 # filter dataframe to only "DISSOLVED OXYGEN (DO)_NA_NA_MG/L"
 R5ProfileCleanDO <- dplyr::filter(R5ProfileClean8, TADA.ComparableDataIdentifier == "DISSOLVED OXYGEN (DO)_NA_NA_MG/L")
 ```
 
+Generate histogram.
+
 ```{r Histogram}
 # generate a histogram
-DO_Hist <- TADA_Histogram(R5ProfileCleanDO, id_cols = "TADA.ComparableDataIdentifier")
-
-DO_Hist
+TADA_Histogram(R5ProfileCleanDO, id_cols = "TADA.ComparableDataIdentifier")
 
 # generate stats table
 R5ProfileCleanDO_stats <- TADA_Stats(R5ProfileCleanDO)
@@ -1099,12 +1091,11 @@ R5ProfileCleanDO_stats <- TADA_Stats(R5ProfileCleanDO)
 Generate interactive box plot.
 
 ```{r boxplot}
-DO_Box <- TADA_Boxplot(R5ProfileCleanDO, id_cols = "TADA.ComparableDataIdentifier")
-
-DO_Box
+TADA_Boxplot(R5ProfileCleanDO, id_cols = "TADA.ComparableDataIdentifier")
 ```
 
-Generate interactive scatterplot.
+Generate a new data frame with only the daily max dissolved oxygen
+values.
 
 ```{r DO_filtered}
 R5ProfileCleanDO_dailymax <- TADA_AggregateMeasurements(R5ProfileCleanDO,
@@ -1113,10 +1104,11 @@ R5ProfileCleanDO_dailymax <- TADA_AggregateMeasurements(R5ProfileCleanDO,
 )
 ```
 
-```{r scatterplot}
-DO_Scatter <- TADA_Scatterplot(R5ProfileCleanDO_dailymax, id_cols = "TADA.ComparableDataIdentifier")
+Generate interactive scatterplot of max daily dissolved oxygen over
+time.
 
-DO_Scatter
+```{r scatterplot}
+TADA_Scatterplot(R5ProfileCleanDO_dailymax, id_cols = "TADA.ComparableDataIdentifier")
 ```
 
 **Question 15: Which figure generating functions can be used to
@@ -1161,8 +1153,10 @@ allocated.
 
 ```{r, eval = F}
 # download TADA Shiny repository
-remotes::install_github("USEPA/TADAShiny", ref = "develop", dependencies
-= TRUE )
+remotes::install_github("USEPA/TADAShiny",
+  ref = "develop",
+  dependencies = TRUE
+)
 
 # launch the app locally.
 

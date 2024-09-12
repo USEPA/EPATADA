@@ -1,6 +1,7 @@
 # RStudio files
-TADA.Rproj
+EPATADA.Rproj
 .Rproj.user
+test_function.R
 
 # History files
 .Rhistory
@@ -22,3 +23,6 @@ TADA.Rproj
 _snaps
 
 testing_log.txt
+
+# test data from AK
+AK_EPATADA_troubleshooting

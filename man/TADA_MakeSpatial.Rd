@@ -12,16 +12,17 @@ TADA_MakeSpatial(.data, crs = 4326)
 \item{crs}{The coordinate reference system (CRS) you would like the returned point features to be in. The default is CRS 4326 (WGS84).}
 }
 \value{
-The original TADA Water Quality Portal dataframe but as geospatial {sf} point objects.
+The original TADA Water Quality Portal dataframe but as geospatial sf point objects.
 }
 \description{
-Transform a Water Quality Portal dataframe into a geospatial {sf} object.
+Transform a Water Quality Portal dataframe into a geospatial sf object.
 }
 \details{
 Adds one new column to input dataset, 'geometry', which allows for mapping and additional geospatial capabilities. Check out the TADAModule2.Rmd for an example workflow.
 }
 \examples{
 \dontrun{
+
 tada_not_spatial <- TADA_DataRetrieval(
   characteristicName = "pH",
   statecode = "SC",
@@ -29,9 +30,10 @@ tada_not_spatial <- TADA_DataRetrieval(
   applyautoclean = TRUE
 )
 
-# make `tada_not_spatial` an {sf} object, projected in crs = 4269 (NAD83)
+# make `tada_not_spatial` an sf object, projected in crs = 4269 (NAD83)
 tada_spatial <- TADA_MakeSpatial(tada_not_spatial, crs = 4269)
 }
+
 }
 \seealso{
 \code{\link[=TADA_DataRetrieval]{TADA_DataRetrieval()}}

@@ -11,37 +11,88 @@ TADA_AutoClean(.data)
 }
 \value{
 Input dataframe with several added TADA-specific columns, including:
-TADA.ActivityMediaName, TADA.CharacteristicName, TADA.ResultMeasureValue,
-TADA.ResultMeasure.MeasureUnitCode, TADA.ResultMeasureValueDataTypes.Flag,
-TADA.DetectionQuantitationLimitMeasure.MeasureValueDataTypes.Flag,
-TADA.LatitudeMeasure, TADA.LongitudeMeasure,
-TADA.ResultSampleFractionText, TADA.MethodSpeciationName, and more.
+
+TADA.ActivityMediaName (character)
+TADA.ResultSampleFractionText (character)
+TADA.CharacteristicName (character)
+TADA.MethodSpeciationName (character)
+TADA.ComparableDataIdentifier (character)
+TADA.ResultMeasureValue (numeric)
+TADA.ResultMeasureValueDataTypes.Flag (character)
+TADA.ResultMeasure.MeasureUnitCode	(character)
+TADA.WQXResultUnitConversion	(character)
+TADA.DetectionQuantitationLimitMeasure.MeasureValue (numeric)
+TADA.DetectionQuantitationLimitMeasure.MeasureValueDataTypes.Flag (character)
+TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode	(character)
+TADA.ResultDepthHeightMeasure.MeasureValue	(numeric)
+TADA.ResultDepthHeightMeasure.MeasureValueDataTypes.Flag	(character)
+TADA.ResultDepthHeightMeasure.MeasureUnitCode (character)
+TADA.ActivityDepthHeightMeasure.MeasureValue	(numeric)
+TADA.ActivityDepthHeightMeasure.MeasureValueDataTypes.Flag	(character)
+TADA.ActivityDepthHeightMeasure.MeasureUnitCode (character)
+TADA.ActivityTopDepthHeightMeasure.MeasureValue (numeric)
+TADA.ActivityTopDepthHeightMeasure.MeasureValueDataTypes.Flag (character)
+TADA.ActivityTopDepthHeightMeasure.MeasureUnitCode	(character)
+TADA.ActivityBottomDepthHeightMeasure.MeasureValue	(numeric)
+TADA.ActivityBottomDepthHeightMeasure.MeasureValueDataTypes.Flag	(character)
+TADA.ActivityBottomDepthHeightMeasure.MeasureUnitCode (character)
+TADA.LatitudeMeasure	(numeric)
+TADA.LongitudeMeasure (numeric)
+
 Please note that the number of TADA-specific depth columns in the returned
 dataframe depends upon the number of depth columns with one or more results
 populated with a numeric value. If all depth columns contain only NA's, no
 conversion is necessary and no TADA depth columns are created.
 }
 \description{
-Removes rows of data that are exact duplicates. Creates new columns with
-prefix "TADA." and capitalizes fields to harmonize data. This function runs
-"TADA_ConvertSpecialChars", "TADA_ConvertResultUnits",
-"TADA_ConvertDepthUnits", and "TADA_IDCensoredData" functions, which perform
-the following QA steps: remove exact duplicates, convert result values to
-numeric, harmonize result and depth units (note: all depth-related columns
-with populated values are converted to meters in a TADA-specific column),
-convert text to uppercase letters, substitute outdated (deprecated) characteristic names
-with updated names in TADA.CharacteristicName, and categorize detection limit
-data. Original affected columns are not changed: new columns are added to the
-end of the dataframe with the prefix "TADA." This function makes important
-character fields uppercase so that they're interoperable with the WQX
-validation reference tables and reduces issues with case-sensitivity when
-joining data.TADA_AutoClean can be run as a stand alone function but is
-primarily used by the TADA_dataRetrieval function.
+This function performs the following tasks:
+\enumerate{
+\item Creates new columns with the TADA prefix "TADA." and capitalizes all
+letters within them so that they're interoperable with the WQX validation
+reference tables and to reduce issues with case-sensitivity when joining
+data: CharacteristicName, ResultSampleFractionText, MethodSpeciationName,
+ResultMeasure.MeasureUnitCode, ActivityMediaName, and
+DetectionQuantitationLimitMeasure.MeasureUnitCode.
+\item This function runs "TADA_ConvertSpecialChars" on these columns:
+ResultMeasureValue and DetectionQuantitationLimitMeasure.MeasureValue.
+Creates new versions of these columns with the TADA prefix "TADA."
+\item Converts the column type of LatitudeMeasure and LongitudeMeasure to
+numeric (double) and creates new columns with the “TADA” prefix.
+\item Replace meters" with “m” in the following columns:
+TADA.ResultMeasure.MeasureUnitCode,
+ActivityDepthHeightMeasure.MeasureUnitCode,
+ActivityTopDepthHeightMeasure.MeasureUnitCode,
+ActivityBottomDepthHeightMeasure.MeasureUnitCode, and
+ResultDepthHeightMeasure.MeasureUnitCode.
+\item Runs TADA_SubstituteDeprecatedChars to replace deprecated characteristic
+names based on Water Quality Exchange (WQX) Characteristic domain table.
+\item Runs TADA_ConvertResultUnits to harmonize result and detection limit
+units to WQX and TADA or user supplied target units. Enter
+?TADA_ConvertResultUnits and ?TADA_CreateUnitRef() into the console for more
+details.
+\item Runs TADA_ConvertDepthUnits to convert the depth units to meters on the
+following columns: ResultDepthHeightMeasure.MeasureValue,
+ActivityDepthHeightMeasure.MeasureValue,
+ActivityTopDepthHeightMeasure.MeasureValue,
+and ActivityBottomDepthHeightMeasure.MeasureValue, and add new columns
+with the “TADA” prefix.
+\item Runs TADA_CreateComparableID to create a comparable data group by
+concatenating TADA.CharacteristicName, TADA.ResultSampleFractionText,
+TADA.MethodSpeciationName, and TADA.ResultMeasure.MeasureUnitCode.
+}
+}
+\details{
+Original columns are not changed: new columns are added to the end of the
+dataframe with the prefix "TADA.". TADA_AutoClean can be run as a stand
+alone function but is primarily used by the TADA_dataRetrieval function.
 }
 \examples{
 \dontrun{
-# Find web service URLs for each Profile using WQP User Interface (https://www.waterqualitydata.us/)
-# Example WQP URL: https://www.waterqualitydata.us/#statecode=US\%3A09&characteristicType=Nutrient&startDateLo=04-01-2023&startDateHi=11-01-2023&mimeType=csv&providers=NWIS&providers=STEWARDS&providers=STORET
+# Find web service URLs for each Profile using WQP User Interface:
+# https://www.waterqualitydata.us/
+
+# Example WQP URL: 
+https://www.waterqualitydata.us/#statecode=US\%3A09&characteristicType=Nutrient&startDateLo=04-01-2023&startDateHi=11-01-2023&mimeType=csv&providers=NWIS&providers=STEWARDS&providers=STORET
 
 # Use TADA_ReadWQPWebServices to load the Station, Project, and Phys-Chem Result profiles
 stationProfile <- TADA_ReadWQPWebServices("https://www.waterqualitydata.us/data/Station/search?statecode=US\%3A09&characteristicType=Nutrient&startDateLo=04-01-2023&startDateHi=11-01-2023&mimeType=csv&zip=yes&providers=NWIS&providers=STEWARDS&providers=STORET")

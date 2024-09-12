@@ -2,39 +2,39 @@
 
 [![](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://lifecycle.r-lib.org/articles/stages.html#experimental)
 
-[![](https://github.com/USEPA/TADA/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/USEPA/TADA/actions/workflows/R-CMD-check.yaml)
+[![](https://github.com/USEPA/EPATADA/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/USEPA/EPATADA/actions/workflows/R-CMD-check.yaml)
 
-Tools for Automated Data Analysis, or TADA, is being developed to help States, Tribes (i.e., Tribal Nations, Pueblos, Bands, Rancherias, Communities, Colonies, Towns, Indians, Villages), federal partners, and any other [Water Quality Portal (WQP)](https://www.waterqualitydata.us/) users (e.g. researchers) efficiently compile and evaluate WQP data collected from water quality monitoring sites. TADA is both a stand-alone R package, and a building block to support development of the [TADA R Shiny application](https://github.com/USEPA/TADAShiny). We encourage you to read this package's [LICENSE](https://usepa.github.io/TADA/LICENSE.html) and [README](https://usepa.github.io/TADA/index.html) files (you are here).
+Tools for Automated Data Analysis, or TADA, is being developed to help States, Tribes (i.e., Tribal Nations, Pueblos, Bands, Rancherias, Communities, Colonies, Towns, Indians, Villages), federal partners, and any other [Water Quality Portal (WQP)](https://www.waterqualitydata.us/) users (e.g. researchers) efficiently compile and evaluate WQP data collected from water quality monitoring sites. TADA is both a stand-alone R package, and a building block to support development of the [TADA R Shiny application](https://github.com/USEPA/EPATADAShiny). We encourage you to read this package's [LICENSE](https://usepa.github.io/EPATADA/LICENSE.html) and [README](https://usepa.github.io/EPATADA/index.html) files (you are here).
 
 -   How to use TADA:
 
-    -   [Function Reference](https://usepa.github.io/TADA/reference/index.html)
+    -   [Function Reference](https://usepa.github.io/EPATADA/reference/index.html)
 
-    -   Example Workflow 1: [Water Quality Portal Data Discovery and Cleaning](https://usepa.github.io/TADA/articles/TADAModule1.html) (Beginner)
+    -   Example Workflow 1: [Water Quality Portal Data Discovery and Cleaning](https://usepa.github.io/EPATADA/articles/TADAModule1.html) (Beginner)
 
-    -   Example Workflow 2: [2023 Shepherdstown Training](https://usepa.github.io/TADA/articles/TADATrainingShepherdstown.html) (Advanced)
+    -   Example Workflow 2: [2023 Shepherdstown Training](https://usepa.github.io/EPATADA/articles/TADATrainingShepherdstown.html) (Advanced)
 
--   [How to Contribute](https://usepa.github.io/TADA/articles/CONTRIBUTING.html)
+-   [How to Contribute](https://usepa.github.io/EPATADA/articles/CONTRIBUTING.html)
 
     -   We encourage stakeholders to test the functionality and provide feedback. Moreover, open source software provides an avenue for water quality data originators and users to develop and share code, and we welcome your contributions! We hope to build a collaborative community dedicated to this effort where TADA users and contributors can discover, share and build the functionality over time.
 
--   More information on how TADA leverages the [WQX QAQC Service](https://usepa.github.io/TADA/articles/WQXValidationService.html)
+-   More information on how TADA leverages the [WQX QAQC Service](https://usepa.github.io/EPATADA/articles/WQXValidationService.html)
 
 -   [More about the TADA Project](https://www.epa.gov/waterdata/TADA)
 
 ## Installation
 
-You must first have R and R Studio installed to use the TADA R Package (see instructions below if needed). Our team is actively developing TADA, therefore we highly recommend that you update the TADA R Package and all of its dependency libraries each time you use the package. You can install and/or update the [TADA R Package](https://github.com/USEPA/TADA) and all dependencies by running:
+You must first have R and R Studio installed to use the TADA R Package (see instructions below if needed). Our team is actively developing TADA, therefore we highly recommend that you update the TADA R Package and all of its dependency libraries each time you use the package. You can install and/or update the [TADA R Package](https://github.com/USEPA/EPATADA) and all dependencies by running:
 
 ```{r}
 if(!"remotes"%in%installed.packages()){
 install.packages("remotes")
 }
 
-remotes::install_github("USEPA/TADA", ref = "develop", dependencies = TRUE, force = TRUE)
+remotes::install_github("USEPA/EPATADA", ref = "develop", dependencies = TRUE, force = TRUE)
 ```
 
-The TADA R Shiny application can be run [on the web](https://owshiny-dev.app.cloud.gov/tada-dev/) (R and R Studio install not required), or within R Studio. Run the following code within R Studio to install or update and run the most recent version of the [TADA R Shiny](https://github.com/USEPA/TADAShiny) application:
+The TADA R Shiny application can be run [on the web](https://owshiny-dev.app.cloud.gov/tada-dev/) (R and R Studio install not required), or within R Studio. Run the following code within R Studio to install or update and run the most recent version of the [TADA R Shiny](https://github.com/USEPA/EPATADAShiny) application:
 
 ```{r}
 if(!"remotes"%in%installed.packages()){
@@ -67,8 +67,6 @@ In 2012, the WQP was deployed by the U.S. Geological Survey (USGS), the U.S. Env
 
 3.  Again, download the installer, click through the prompts, and accept the defaults.
 
-Note: If you are an EPA employee, please follow the directions here instead of the instructions above: <https://work.epa.gov/software/r-software>.
-
 ## Open-Source Code Policy
 
 Effective August 8, 2016, the [OMB Mandate: M-16-21; Federal Source Code Policy: Achieving Efficiency, Transparency, and Innovation through Reusable and Open Source Software](https://obamawhitehouse.archives.gov/sites/default/files/omb/memoranda/2016/m_16_21.pdf) applies to new custom-developed code created or procured by EPA consistent with the scope and applicability requirements of Office of Management and Budget's (OMB's) Federal Source Code Policy. In general, it states that all new custom-developed code by Federal Agencies should be made available and reusable as open-source code.
@@ -87,4 +85,4 @@ This United States Environmental Protection Agency (EPA) GitHub project code is 
 
 ## Contact
 
-If you have any questions, please reach out to Cristina Mullin (mullin.cristina\@epa.gov).
+If you have any questions, please reach out to the TADA Team at mywaterway\@epa.gov.

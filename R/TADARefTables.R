@@ -11,29 +11,25 @@
 #' @export
 
 TADA_GetNutrientSummationRef <- function() {
-  ref <- utils::read.csv(system.file("extdata", "NPsummation_key.csv", package = "TADA"))
+  ref <- utils::read.csv(system.file("extdata", "NPsummation_key.csv", package = "EPATADA"))
   return(ref)
 }
 
 
 #' Generate Unique Synonym Reference Table
 #'
-#' Function generates a synonym reference table containing all unique
-#' combinations of TADA.CharacteristicName, TADA.ResultSampleFractionText,
-#' TADA.MethodSpeciationName, and TADA.ResultMeasure.MeasureUnitCode. The
-#' function also joins in some TADA-specific suggested synonyms for nutrients
-#' and priority parameters. These target synonyms (denoted in the reference
-#' table with the prefix "Target.") are intended to help the user aggregate
-#' synonymous data that may be uploaded with slightly different metadata
-#' conventions and prepare nutrient data for total N and P summations. Users can
-#' review how their input data relates to target synonyms for
-#' TADA.CharacteristicName, TADA.ResultSampleFractionText,
-#' TADA.MethodSpeciationName, and TADA.ResultMeasure.MeasureUnitCode. Once
-#' the synonym table is created, users may optionally edit the target columns in
-#' the reference table to meet their needs. Additionally, the function assumes
-#' the user has already removed any data containing invalid
-#' characteristic-unit-fraction-speciation combinations (i.e. user has already
-#' run TADA_FlagFraction, TADA_FlagSpeciation, TADA_FlagResultUnit, etc.).
+#' Function generates a synonym reference table containing all unique combinations of 
+#' TADA.CharacteristicName, TADA.ResultSampleFractionText, and TADA.MethodSpeciationName. The 
+#' function also joins in some TADA-specific suggested synonyms for nutrients and priority parameters. 
+#' These target synonyms (denoted in the reference table with the prefix "Target.") are intended to 
+#' help the user aggregate synonymous data that may be uploaded with slightly different metadata
+#' conventions and prepare nutrient data for total N and P summations. Users can review how their 
+#' input data relates to target synonyms for TADA.CharacteristicName, TADA.ResultSampleFractionText,
+#' and TADA.MethodSpeciationName. Once the synonym table is created, users may optionally edit the 
+#' target columns in the reference table to meet their needs. Additionally, the function assumes
+#' the user has already removed any data containing invalid characteristic-unit-fraction-speciation 
+#' combinations (i.e. user has already run TADA_FlagFraction, TADA_FlagSpeciation, TADA_FlagResultUnit, 
+#' etc.).
 #'
 #' @param .data TADA dataframe. If a data frame is not provided, the function will return the default internal reference table.
 #'
@@ -57,7 +53,7 @@ TADA_GetNutrientSummationRef <- function() {
 #' reference <- TADA_GetSynonymRef()
 TADA_GetSynonymRef <- function(.data) {
   if (missing(.data)) {
-    ref <- utils::read.csv(system.file("extdata", "HarmonizationTemplate.csv", package = "TADA"))
+    ref <- utils::read.csv(system.file("extdata", "HarmonizationTemplate.csv", package = "EPATADA"))
     return(ref)
   }
 
@@ -92,7 +88,7 @@ TADA_GetSynonymRef <- function(.data) {
 
   # execute function after checks are passed
   # define raw harmonization table as an object
-  harm.raw <- utils::read.csv(system.file("extdata", "HarmonizationTemplate.csv", package = "TADA"))
+  harm.raw <- utils::read.csv(system.file("extdata", "HarmonizationTemplate.csv", package = "EPATADA"))
 
   join.data <- merge(unique(.data[, expected_cols]),
     harm.raw,
@@ -129,6 +125,6 @@ TADA_GetSynonymRef <- function(.data) {
 #' @export
 
 TADA_GetUSGSSynonymRef <- function() {
-  ref <- utils::read.csv(system.file("extdata", "USGS_units_speciation.csv", package = "TADA"))
+  ref <- utils::read.csv(system.file("extdata", "USGS_units_speciation.csv", package = "EPATADA"))
   return(ref)
 }

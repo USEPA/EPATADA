@@ -23,7 +23,7 @@
 #' to find allowable values for queries, e.g., reference the WQX domain table to find countycode and statecode: https://cdx.epa.gov/wqx/download/DomainValues/County_CSV.zip
 #' Alternatively, you can use the WQP services to find areas where data is available in the US: https://www.waterqualitydata.us/Codes/countycode
 #'
-#' TADA_DataRetrieval automatically runs TADA_AutoClean on the incoming dataset. TADA_AutoClean
+#' TADA_DataRetrieval automatically runs TADA_AutoClean on the incoming data frame. TADA_AutoClean
 #' is important for categorizing result value and detection limit data, as well as
 #' harmonizing key columns used in TADA. See ?TADA_AutoClean for more information.
 #'
@@ -54,10 +54,12 @@
 #' @examples
 #' \dontrun{
 #' # example for WI
-#' tada1 <- TADA_DataRetrieval(statecode = "WI", countycode = "Dane", characteristicName = "Phosphorus")
+#' tada1 <- TADA_DataRetrieval(statecode = "WI", countycode = "Dane", 
+#'     characteristicName = "Phosphorus")
 #'
 #' # example for UT
-#' tada2 <- TADA_DataRetrieval(statecode = "UT", characteristicName = c("Ammonia", "Nitrate", "Nitrogen"))
+#' tada2 <- TADA_DataRetrieval(statecode = "UT",
+#'     characteristicName = c("Ammonia", "Nitrate", "Nitrogen"))
 #'
 #' # example for SC
 #' tada3 <- TADA_DataRetrieval(statecode = "SC", countycode = "Abbeville")
@@ -175,7 +177,7 @@ TADA_DataRetrieval <- function(startDate = "null",
   WQPquery <- list()
 
   if (!"null" %in% statecode) {
-    load(system.file("extdata", "statecodes_df.Rdata", package = "TADA"))
+    load(system.file("extdata", "statecodes_df.Rdata", package = "EPATADA"))
     statecode <- as.character(statecode)
     statecodes_sub <- statecodes_df %>% dplyr::filter(STUSAB %in% statecode)
     statecd <- paste0("US:", statecodes_sub$STATE)
@@ -339,7 +341,7 @@ TADA_DataRetrieval <- function(startDate = "null",
 #' 2. Project Data
 #' 3. Site Data Only
 #'
-#' After you retrieve all three profiles, you can use TADA::TADA_JoinWQPProfiles to
+#' After you retrieve all three profiles, you can use TADA_JoinWQPProfiles to
 #' join the three dataframes into a single dataframe.
 #'
 #' Note: It may be useful to save the Query URL from the WQP as well as a
@@ -413,10 +415,10 @@ TADA_ReadWQPWebServices <- function(webservice) {
 #' Using this function, you will be able to download all data available from all
 #' sites in the contiguous United States available for the time period,
 #' characteristicName, and siteType requested. Computer memory may limit the
-#' size of datasets that your R console will be able to hold in one session.
+#' size of data frames that your R console will be able to hold in one session.
 #' Function requires a characteristicName, siteType, statecode, huc, or start/
 #' end date input. The recommendation is to be as specific as you can with your
-#' large data call. The function allows the user to run TADA_AutoClean on the dataset,
+#' large data call. The function allows the user to run TADA_AutoClean on the data frame,
 #' but this is not the default as checking large dataframes for exact duplicate
 #' rows can be time consuming and is better performed on its own once the query is
 #' completed.
@@ -529,7 +531,7 @@ TADA_BigDataRetrieval <- function(startDate = "null",
   }
 
   if (!"null" %in% statecode) {
-    load(system.file("extdata", "statecodes_df.Rdata", package = "TADA"))
+    load(system.file("extdata", "statecodes_df.Rdata", package = "EPATADA"))
     statecode <- as.character(statecode)
     statecodes_sub <- statecodes_df %>% dplyr::filter(STUSAB %in% statecode)
     statecd <- paste0("US:", statecodes_sub$STATE)
@@ -645,7 +647,7 @@ TADA_BigDataRetrieval <- function(startDate = "null",
 
         for (i in 1:max(smallsitesgrp$group)) {
           site_chunk <- subset(smallsitesgrp$MonitoringLocationIdentifier, smallsitesgrp$group == i)
-          joins <- TADA::TADA_DataRetrieval(
+          joins <- TADA_DataRetrieval(
             startDate = startDate,
             endDate = endDate,
             siteid = site_chunk,
@@ -681,7 +683,7 @@ TADA_BigDataRetrieval <- function(startDate = "null",
             startD <- paste0(min(yearchunk), "-01-01")
             endD <- paste0(max(yearchunk), "-12-31")
 
-            joins <- TADA::TADA_DataRetrieval(
+            joins <- TADA_DataRetrieval(
               startDate = startD,
               endDate = endD,
               siteid = site_chunk,
@@ -806,7 +808,6 @@ TADA_JoinWQPProfiles <- function(FullPhysChem = "null",
   } else {
     join2 <- join1
   }
-
 
   return(join2)
 }

@@ -5,7 +5,7 @@
 \alias{Data_6Tribes_5y}
 \title{Data_6Tribes_5y}
 \format{
-A data frame with 139033 rows and 151 variables
+A data frame with 134050 rows and 149 variables
 }
 \usage{
 data(Data_6Tribes_5y)
@@ -18,7 +18,8 @@ Data_6Tribes_5y <- TADA_DataRetrieval(organization = c("REDLAKE_WQX",
 "FONDULAC_WQX",
 "PUEBLOOFTESUQUE",
 "CNENVSER"),
-startDate = "2018-01-01")
+startDate = "2018-01-01"
+endDate = "2023-01-01")
 }
 \details{
 This example includes monitoring data collected from Jan 2018 to present
@@ -32,4 +33,5 @@ by six organizations:
 \item The Chickasaw Nation
 }
 }
-\keyword{datasets}
+\keyword{data}
+\keyword{frame}

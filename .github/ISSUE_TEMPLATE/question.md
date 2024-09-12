@@ -15,13 +15,13 @@ A clear and concise description of the question.
 
 **To Reproduce**
 
-If possible, narrow down the question to a specific dataset and
-`TADA`function:
+If possible, narrow down the question to a specific data set and EPATADA
+function:
 
 ``` r
-library(TADA)
-# Include the TADAdataRetrieval function inputs used
-df <- TADAdataRetrieval("a","b","c","d")
+library(EPATADA)
+# Include the TADA_DataRetrieval() function inputs used
+df <- TADA_DataRetrieval("a","b","c","d")
 
 # Function your question pertains to
 df <- TADA_QuestionableFunction("a","b","c","d")
@@ -34,16 +34,6 @@ A clear and concise description of what you expected to happen.
 **Screenshots**
 
 If applicable, add screenshots to help explain your problem.
-
-**Session Info**
-
-Please include your session info:
-
-``` r
-sessionInfo()
-#OR preferred:
-devtools::session_info()
-```
 
 **Additional context**
 

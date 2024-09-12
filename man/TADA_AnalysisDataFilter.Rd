@@ -40,8 +40,18 @@ TADA.UseForAnalysis.Flag, indicating the media type (as determined by this funct
 and which results should be included or excluded from assessments based on user input.
 }
 \description{
-This function will filter the data frame and retain only the media types
-selected by the user. It uses ActivityMediaSubdivisionName, AquiferName,
+With default settings (clean = FALSE), this function creates a TADA.UseForAnalysis.Flag
+column which flags any data that are NOT surface water results for
+removal (TADA.UseForAnalysis.Flag = "No") and flags surface water results
+for use in analysis (TADA.UseForAnalysis.Flag = "Yes"). If desired, a user
+can change the function input to clean = TRUE, and then the function will
+filter the data frame to remove rows that are not going to be used in analyses,
+and retain only the media types selected by the user.Setting clean = TRUE, means
+that all results not flagged for use in the analysis workflow will be removed
+and the TADA.UseForAnalysis.Flag column will not be added.
+}
+\details{
+It uses ActivityMediaSubdivisionName, AquiferName,
 LocalAqfrName, ConstructionDateText, WellDepthMeasure.MeasureValue,
 WellDepthMeasure.MeasureUnitCode, WellHoleDepthMeasure.MeasureValue, and
 WellHoleDepthMeasure.MeasureUnitCode to identify groundwater samples. Users
@@ -54,10 +64,13 @@ and the TADA.UseForAnalysis.Flag column will not be added.
 \examples{
 data(Data_6Tribes_5y_Harmonized)
 # Returns data with ONLY surface water results retained and no TADA.UseForAnalysis.Flag column
-Data_6Tribes_Assessment1 <- TADA_AnalysisDataFilter(Data_6Tribes_5y_Harmonized, clean = TRUE, surface_water = TRUE, ground_water = FALSE, sediment = FALSE)
+Data_6Tribes_Assessment1 <- TADA_AnalysisDataFilter(Data_6Tribes_5y_Harmonized, clean = TRUE, 
+surface_water = TRUE, ground_water = FALSE, sediment = FALSE)
 
-# Returns data frame with ONLY surface water results identified as usable and adds TADA.UseForAnalysis.Flag column.
-Data_6Tribes_Assessment2 <- TADA_AnalysisDataFilter(Data_6Tribes_5y_Harmonized, clean = FALSE, surface_water = TRUE, ground_water = FALSE, sediment = FALSE)
+# Returns data frame with ONLY surface water results identified as usable and adds 
+# TADA.UseForAnalysis.Flag column.
+Data_6Tribes_Assessment2 <- TADA_AnalysisDataFilter(Data_6Tribes_5y_Harmonized, clean = FALSE, 
+surface_water = TRUE, ground_water = FALSE, sediment = FALSE)
 unique(Data_6Tribes_Assessment2$TADA.UseForAnalysis.Flag)
 
 }

@@ -8,10 +8,9 @@
 #' suggested synonym naming for some priority characteristics. Where a suggested
 #' characteristic name, fraction, speciation, or unit is present, the function
 #' will convert the TADA.CharacteristicName, TADA.ResultSampleFractionText,
-#' TADA.MethodSpeciationName, and/or TADA.ResultMeasure.MeasureUnitCode to
-#' the target format. In cases where a target unit or speciation differs from
-#' the existing unit or speciation, the reference table will also apply
-#' multiplication conversion factors to the TADA.ResultMeasureValue.
+#' and TADA.MethodSpeciationName to the target format. In cases where a target 
+#' speciation differs from the existing speciation, the reference table will 
+#' also apply multiplication conversion factors to the TADA.ResultMeasureValue.
 #'
 #' @param .data TADA dataframe
 #' @param ref Optional argument to specify which dataframe to use as a reference
@@ -109,19 +108,22 @@ TADA_HarmonizeSynonyms <- function(.data, ref, np_speciation = TRUE) {
   }
 
   # find places where metadata will be changed and add targets
-  harm.ref$TADA.Harmonized.Flag <- ifelse(!is.na(harm.ref$Target.TADA.CharacteristicName) | 
-                                            !is.na(harm.ref$Target.TADA.ResultSampleFractionText) | 
-                                            !is.na(harm.ref$Target.TADA.MethodSpeciationName), 
-                                          TRUE, FALSE)
-  
+  harm.ref$TADA.Harmonized.Flag <- ifelse(!is.na(harm.ref$Target.TADA.CharacteristicName) |
+    !is.na(harm.ref$Target.TADA.ResultSampleFractionText) |
+    !is.na(harm.ref$Target.TADA.MethodSpeciationName),
+  TRUE, FALSE
+  )
+
   .data <- .data[, !names(.data) %in% c("TADA.ComparableDataIdentifier")]
 
   # join harm.ref to .data
   flag.data <- .data %>%
-    dplyr::left_join(harm.ref, by = c("TADA.CharacteristicName",
-                                      "TADA.ResultSampleFractionText",
-                                      "TADA.MethodSpeciationName"))
-  
+    dplyr::left_join(harm.ref, by = c(
+      "TADA.CharacteristicName",
+      "TADA.ResultSampleFractionText",
+      "TADA.MethodSpeciationName"
+    ))
+
   # TADA.CharacteristicName
   # replace TADA.CharacteristicName with Target.TADA.CharacteristicName
   clean.data <- flag.data %>%
@@ -325,7 +327,7 @@ TADA_CalculateTotalNP <- function(.data, sum_ref, daily_agg = c("max", "min", "m
       dplyr::mutate(TADA.NutrientSummationGroup = dplyr::cur_group_id())
 
     # bring in equations
-    eqns <- utils::read.csv(system.file("extdata", "NP_equations.csv", package = "TADA"))
+    eqns <- utils::read.csv(system.file("extdata", "NP_equations.csv", package = "EPATADA"))
 
 
     # dataframe to hold results

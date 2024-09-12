@@ -10,6 +10,7 @@ ActivityBottomDepthHeightMeasure.MeasureUnitCode <- c(NaN, NaN)
 ResultDepthHeightMeasure.MeasureValue <- c(NaN, NaN)
 ResultDepthHeightMeasure.MeasureUnitCode <- c(NaN, NaN)
 ActivityEndTime.TimeZoneCode <- c(NaN, NaN)
+
 TADAProfile <- data.frame(
   ResultIdentifier,
   ActivityDepthHeightMeasure.MeasureValue,
@@ -35,7 +36,7 @@ test_that("TADA_ConvertDepthUnits catches non-dataframe", {
 test_that("TADA_ConvertDepthUnits catches non-dataframe", {
   # Drop by name
   TADAProfile2 <- dplyr::select(TADAProfile, -ActivityDepthHeightMeasure.MeasureValue)
-  err <- "The dataframe does not contain the required fields to use TADA. Use either the full physical/chemical profile downloaded from WQP or download the TADA profile template available on the EPA TADA webpage."
+  err <- "The dataframe does not contain the required fields. Use either the full physical/chemical profile downloaded from WQP or download the TADA profile template available on the EPA TADA webpage."
   expect_error(TADA_ConvertDepthUnits(TADAProfile2), err)
 })
 
@@ -69,23 +70,26 @@ test_that("TADA_ConvertDepthUnits converts meters to m", {
 })
 
 # check that TADA_CreateUnitRef contains a row for each TADA.CharacteristicName,
-# TADA.ResultMeasure.MeasureUnitCode, and ResultMeasure.MeasureUnitCode
+# and ResultMeasure.MeasureUnitCode
 test_that("TADA_CreateUnitRef output contains a row for each TADA.CharacteristicName, TADA.ResultMeasure.MeasureUnitCode, and ResultMeasure.MeasureUnitCode.", {
   testdat <- TADA_RandomTestingData(number_of_days = 3, choose_random_state = TRUE)
   unit.ref <- TADA_CreateUnitRef(testdat)
   unit.ref <- unit.ref %>%
     dplyr::select(
-      TADA.CharacteristicName, TADA.ResultMeasure.MeasureUnitCode,
+      TADA.CharacteristicName,
       ResultMeasure.MeasureUnitCode
     ) %>%
     dplyr::distinct()
+
+
   unit.combs <- TADA_UniqueCharUnitSpeciation(testdat)
   unit.combs <- unit.combs %>%
     dplyr::select(
-      TADA.CharacteristicName, TADA.ResultMeasure.MeasureUnitCode,
+      TADA.CharacteristicName,
       ResultMeasure.MeasureUnitCode
     ) %>%
     dplyr::distinct()
+
   compare <- unit.ref %>%
     dplyr::anti_join(unit.combs)
   expect_true(nrow(compare) == 0)

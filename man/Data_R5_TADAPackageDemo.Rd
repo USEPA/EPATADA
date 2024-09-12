@@ -12,7 +12,7 @@ data(Data_R5_TADAPackageDemo)
 }
 \description{
 Original pull:
-Data_R5_TADAPackageDemo <- TADA::TADA_DataRetrieval(
+Data_R5_TADAPackageDemo <- TADA_DataRetrieval(
 startDate = "2019-05-01",
 endDate = "2019-05-07",
 countycode = "null",
@@ -28,4 +28,5 @@ project = "null",
 applyautoclean = FALSE
 )
 }
-\keyword{datasets}
+\keyword{data}
+\keyword{frame}

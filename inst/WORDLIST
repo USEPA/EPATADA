@@ -1,6 +1,7 @@
 ANDs
 ActivityBottomDepthHeightMeasure
 ActivityCommentText
+ActivityDate
 ActivityDepthHeightMeasure
 ActivityGroup
 ActivityMediaName
@@ -16,6 +17,7 @@ AggregateMeasurements
 Aliesha
 AnalysisDataFilter
 AnalyticalMethod
+Animas
 AquiferName
 ArcGIS
 AssemblageSampledName
@@ -36,9 +38,12 @@ CharacteristicGroup
 CharacteristicName
 CharacteristicNameAssumptions
 CharacteristicNameUserSupplied
-CharactersticName
+CharacteristicNames
+CharacteristicsForDepthProfile
 Chilton
 ComparableDataIdentifier
+ComparableDataIdentifiers
+ConsolidatedDepth
 ConstructionDateText
 ContinuousData
 ConversionCoefficient
@@ -46,12 +51,17 @@ ConversionFactor
 ConvertDepthUnits
 ConvertResultUnits
 ConvertSpecialChars
+CountyCode
 CreateComparableID
+CreatePairRef
 CreateUnitRef
 DataQuality
 DataRetreival
 DataRetrieval
 DataTypes
+DepthCategory
+DepthProfileAggregation
+DepthProfilePlot
 DetectionQuantitationLimiMeasure
 DetectionQuantitationLimitMeasure
 DetectionQuantitationLimitType
@@ -60,6 +70,7 @@ DomainValues
 ECHO's
 EMEF
 FONDULAC
+Farmington
 FieldCounts
 FieldValuesPie
 FieldValuesTable
@@ -73,6 +84,7 @@ FlagAboveThreshold
 FlagBelowThreshold
 FlagContinuousData
 FlagCoordinates
+FlagDepthCategory
 FlagFraction
 FlagMeasureQualifierCode
 FlagMethod
@@ -86,13 +98,16 @@ GetCharacteristicRef
 GetNutrientSummationRef
 GetSynonymRef
 Github
+HMW
 HUC
 HUCS
+HUCs
 HarmonizeSynonyms
 HorizontalCoordinateReferenceSystemDatumName
 HydrologicCondition
 HydrologicEvent
 IDCensoredData
+IDDepthProfiles
 InvalidCoordinates
 InvalidFraction
 InvalidResultUnit
@@ -116,6 +131,7 @@ MeasureUnit
 MeasureUnitCode
 MeasureValue
 MeasureValueDataTypes
+MeetsStandard
 MethodDescriptionText
 MethodIdentifier
 MethodIdentifierContext
@@ -124,6 +140,7 @@ MethodQualifierCodes
 MethodQualifierTypeName
 MethodSpeciation
 MethodSpeciationName
+MonitoringLocation
 MonitoringLocationIdentifier
 MonitoringLocationIdentifier's
 MonitoringLocationName
@@ -137,7 +154,6 @@ ND's
 NHD
 NHDPlus
 NWIS
-NearbySiteGroups
 NoResultValue
 NoTargetUnit
 NonStandardized
@@ -147,6 +163,7 @@ NutrientSummationEquation
 NutrientSummationGroup
 OA
 ORs
+Okabe
 OrganizationFormalName
 OrganizationIdentifier
 OutsideUSA
@@ -154,6 +171,8 @@ OverviewMap
 POJOAQUE
 PUEBLOOFTESUQUE
 PairReplicates
+PairingGroup
+PairingGroupRank
 Pojoaque
 ProjectFileUrl
 ProjectName
@@ -165,6 +184,7 @@ QAQC
 QAQC'd
 QAQCCharacteristicValidation
 QC'ing
+QCing
 README
 REDLAKE
 RMarkdown
@@ -178,6 +198,7 @@ Rancherias
 ReplicateSampleID
 Repo
 ResultAboveUpperThreshold
+ResultAggregation
 ResultAnalyticalMethod
 ResultCommentText
 ResultDepthHeightMeasure
@@ -219,9 +240,11 @@ Speciation
 SpeciationAssumptions
 SpeciationUnitConversion
 StateCode
+StringA
+StringB
 SubstituteDeprecatedChars
 SummarizeColumn
-TADA's
+TADA
 TADADataRetrieval
 TADAGeospatialRefLayers
 TADAModule
@@ -238,11 +261,13 @@ USGS's
 Uncomment
 UncommonAnalyticalMethodID
 UniqueHarmonizationRef
+UnitCode
 UpdateTribalLayers
 UseForAnalysis
 VCS
 ViewATTAINS
 WGS
+WQC
 WQP
 WQX
 WQX's
@@ -259,6 +284,9 @@ WQXTargetUnit
 WQXUnitConversionFactor
 WQXcharValRef
 WQXunitRef
+WaterSciCon
+Waterbody
+WaterbodyReport
 WellDepthMeasure
 WellHoleDepthMeasure
 Wikimedia
@@ -266,6 +294,7 @@ YYYY
 addPoints
 addPolys
 agg
+aggregatedonly
 analytes
 applyautoclean
 arcgis
@@ -277,7 +306,10 @@ assmnt
 autoclean
 autocleaned
 bbox
+bnd
+bottomvalue
 bplan
+bycategory
 catchmentareasqkm
 catchmentistribal
 catchmentresolution
@@ -292,11 +324,12 @@ countycode
 cristinamullin
 crs
 csv
+dailyagg
 dataProfile
 dataRetrieval
 datetimes
+depthcat
 devtools
-dimCheck
 dlist
 dplyr
 du
@@ -307,7 +340,7 @@ endDate
 endDateHi
 english
 epa
-eval
+estimatiom
 extdata
 fabec
 fetchATTAINS
@@ -338,6 +371,7 @@ isimpaired
 isthreatened
 joinkey
 magrittr
+manys
 mimeType
 mlt
 nd
@@ -345,7 +379,7 @@ nhdplusid
 nondetections
 nonstandardized
 np
-num
+nresults
 od
 organizationid
 organizationname
@@ -354,10 +388,13 @@ orgtype
 ousideUSA
 outsideUSA
 overallstatus
+param
+params
 pch
 pchIcons
 pcodes
 permid
+ph
 plotly
 pre
 randombelowlimit
@@ -367,6 +404,7 @@ repo
 reportingcycle
 reproducibility
 sampleMedia
+secchi
 shp
 siteType
 siteid
@@ -379,6 +417,7 @@ startDateLo
 statecode
 sthda
 submissionid
+surfacevalue
 sysdata
 tada
 tas

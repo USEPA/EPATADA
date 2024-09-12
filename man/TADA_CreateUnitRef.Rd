@@ -16,9 +16,10 @@ one target unit. When print.message = FALSE, no message is printed. The default
 is print.message = TRUE.}
 }
 \value{
-A dataframe with six columns: TADA.CharacteristicName,
+A dataframe with seven columns: TADA.CharacteristicName,
 TADA.ResultMeasure.MeasureUnitCode, ResultMeasure.MeasureUnitCode,
-TADA.Target.ResultMeasureUnit, ConversionFactor, and ConversionCoefficient.
+TADA.Target.ResultMeasureUnit, TADA.MethodSpeciationName,
+ConversionFactor, and ConversionCoefficient.
 The number of rows will vary based on the number of unique
 TADA.CharacteristicName/ResultMeasure.MeasureUnitCode combinations in the
 initial TADA dataframe.

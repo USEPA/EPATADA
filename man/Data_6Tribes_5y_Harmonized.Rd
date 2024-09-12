@@ -5,15 +5,16 @@
 \alias{Data_6Tribes_5y_Harmonized}
 \title{Data_6Tribes_5y_Harmonized}
 \format{
-A data frame with 122388 rows and 168 variables
+A data frame with 117124 rows and 166 variables
 }
 \usage{
 data(Data_6Tribes_5y_Harmonized)
 }
 \description{
-A dataset containing data from tribal organizations
+A data frame containing data from tribal organizations
 (see ?Data_6Tribes_5y for more information). Data was cleaned using the
 TADA Module 1 vignette
-(see: https://usepa.github.io/TADA/articles/TADAModule1.html).
+(see: https://usepa.github.io/EPATADA/articles/TADAModule1.html).
 }
-\keyword{datasets}
+\keyword{data}
+\keyword{frame}

@@ -10,7 +10,19 @@ TADA_IDCensoredData(.data)
 \item{.data}{A TADA dataframe}
 }
 \value{
-A TADA dataframe with additional column named TADA.CensoredData.Flag, which indicates if there are disagreements in ResultDetectionCondition and DetectionQuantitationLimitTypeName.
+A TADA dataframe with additional column named TADA.CensoredData.Flag,
+which categorizes results with the following values:
+\enumerate{
+\item Detection condition or detection limit is not documented in TADA reference tables.
+\item Detection condition is missing and required for censored data ID.
+\item Conflict between Condition and Limit
+\item Non-Detect
+\item Over-Detect
+\item Other Condition/Limit Populated
+If user has not previously run TADA_FlagMeasureQualifierCode, this function will also run that
+function to add the columns TADA.MeasureQualifierCode.Flag and TADA.MeasureQualifierCode.Def
+because user-supplied Result Measure Qualifier codes are also used to ID censored results.
+}
 }
 \description{
 This function identifies censored data records and characterizes them as
@@ -29,9 +41,9 @@ Detection limit results missing ResultDetectionConditionText are flagged as
 the ResultMeasureValue field is populated with "ND" (indicating non-detect).
 In rare situations, new detection limit types are added to WQX domain tables
 (and thus WQP data) that have not yet been classified as over- or
-non-detects. When these appear in a dataset, they are categorized as
+non-detects. When these appear in a data frame, they are categorized as
 "Detection condition or detection limit is not documented in TADA reference
 tables." In these situations, users should contact TADA administrators to
 update the package accordingly. This function is used by default in
-TADA_AutoClean, but can be used on its own.
+TADA_SimpleCensoredMethods, but can be used on its own.
 }

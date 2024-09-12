@@ -24,11 +24,11 @@ results are included in the output. When flaggedonly = TRUE, the dataframe
 will be filtered to include only the rows flagged as "Continuous" results.}
 
 \item{time_difference}{Numeric argument defining the maximum time difference
-in hours between measurements taken on the same day. This is used to search for
-continuous time series data (i.e., if there are multiple measurements on the same
-day within the selected time_difference, then the row will be flagged as
-continuous). The default time window is 4 hours. The time_difference can be
-adjusted by the user.}
+in hours between measurements of the same TADA.ComparableDataIdentifier taken at the same
+latitude, longitude, and depth. This is used to search for
+continuous time series data (i.e., if there are multiple measurements within the selected
+time_difference, then the row will be flagged as continuous). The default time window is 4 hours.
+The time_difference can be adjusted by the user.}
 }
 \value{
 The default is clean = FALSE and flaggedonly = FALSE.
@@ -78,19 +78,6 @@ Data_Nutrients_UT_flaggedonly <- TADA_FlagContinuousData(Data_Nutrients_UT, clea
 # Remove continuous data in dataframe
 Data_Nutrients_UT_clean <- TADA_FlagContinuousData(Data_Nutrients_UT, clean = TRUE)
 unique(Data_Nutrients_UT_clean$TADA.ContinuousData.Flag)
-
-data(Data_R5_TADAPackageDemo)
-
-# Flag continuous data in new column titled "TADA.ContinuousData.Flag"
-Data_R5_TADAPackageDemo_flags <- TADA_FlagContinuousData(Data_R5_TADAPackageDemo, clean = FALSE)
-unique(Data_R5_TADAPackageDemo_flags$TADA.ContinuousData.Flag)
-
-# Show only rows flagged as continuous data
-Data_R5_TADAPackageDemo_flaggedonly <- TADA_FlagContinuousData(Data_R5_TADAPackageDemo, clean = FALSE, flaggedonly = TRUE)
-
-# Remove continuous data in dataframe
-Data_R5_TADAPackageDemo_clean <- TADA_FlagContinuousData(Data_R5_TADAPackageDemo, clean = TRUE)
-unique(Data_R5_TADAPackageDemo_clean$TADA.ContinuousData.Flag)
 }
 
 }

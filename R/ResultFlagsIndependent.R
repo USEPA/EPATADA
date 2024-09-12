@@ -69,9 +69,8 @@ TADA_FlagMethod <- function(.data, clean = TRUE, flaggedonly = FALSE) {
     .data <- dplyr::select(.data, -TADA.AnalyticalMethod.Flag)
   }
   # read in WQX val reference table and filter
-  load(file = "inst/extdata/WQXcharValRef.rda")
-  # meth.ref <- utils::read.csv(system.file("extdata", "WQXcharValRef.csv", package = "TADA")) %>%
-  meth.ref <- dplyr::filter(WQXcharValRef, Type == "CharacteristicMethod")
+  meth.ref <- utils::read.csv(system.file("extdata", "WQXcharValRef.csv", package = "EPATADA")) %>%
+    dplyr::filter(Type == "CharacteristicMethod")
 
   # join "TADA.WQXVal.Flag" column to .data by CharacteristicName, Source (Media), and Value (unit)
   check.data <- merge(.data, meth.ref[, c("Characteristic", "Source", "Value", "TADA.WQXVal.Flag")],
@@ -154,11 +153,11 @@ TADA_FlagMethod <- function(.data, clean = TRUE, flaggedonly = FALSE) {
 #' results are included in the output. When flaggedonly = TRUE, the dataframe
 #' will be filtered to include only the rows flagged as "Continuous" results.
 #' @param time_difference Numeric argument defining the maximum time difference
-#' in hours between measurements taken on the same day. This is used to search for
-#' continuous time series data (i.e., if there are multiple measurements on the same
-#' day within the selected time_difference, then the row will be flagged as
-#' continuous). The default time window is 4 hours. The time_difference can be
-#' adjusted by the user.
+#' in hours between measurements of the same TADA.ComparableDataIdentifier taken at the same
+#' latitude, longitude, and depth. This is used to search for
+#' continuous time series data (i.e., if there are multiple measurements within the selected
+#' time_difference, then the row will be flagged as continuous). The default time window is 4 hours.
+#' The time_difference can be adjusted by the user.
 #' @return The default is clean = FALSE and flaggedonly = FALSE.
 #' When clean = FALSE and flaggedonly = FALSE (default), a new column,
 #' "TADA.ContinuousData.Flag", is appended to the input data set which
@@ -195,24 +194,9 @@ TADA_FlagMethod <- function(.data, clean = TRUE, flaggedonly = FALSE) {
 #' # Remove continuous data in dataframe
 #' Data_Nutrients_UT_clean <- TADA_FlagContinuousData(Data_Nutrients_UT, clean = TRUE)
 #' unique(Data_Nutrients_UT_clean$TADA.ContinuousData.Flag)
-#' 
-#' data(Data_R5_TADAPackageDemo)
-#' 
-#' # Flag continuous data in new column titled "TADA.ContinuousData.Flag"
-#' Data_R5_TADAPackageDemo_flags <- TADA_FlagContinuousData(Data_R5_TADAPackageDemo, clean = FALSE)
-#' unique(Data_R5_TADAPackageDemo_flags$TADA.ContinuousData.Flag)
-#'
-#' # Show only rows flagged as continuous data
-#' Data_R5_TADAPackageDemo_flaggedonly <- TADA_FlagContinuousData(Data_R5_TADAPackageDemo, clean = FALSE, flaggedonly = TRUE)
-#'
-#' # Remove continuous data in dataframe
-#' Data_R5_TADAPackageDemo_clean <- TADA_FlagContinuousData(Data_R5_TADAPackageDemo, clean = TRUE)
-#' unique(Data_R5_TADAPackageDemo_clean$TADA.ContinuousData.Flag)
 #' }
 #'
 TADA_FlagContinuousData <- function(.data, clean = FALSE, flaggedonly = FALSE, time_difference = 4) {
-  # start.time <- Sys.time()
-
   # check .data is data.frame
   TADA_CheckType(.data, "data.frame", "Input object")
   # check clean is boolean
@@ -270,112 +254,91 @@ TADA_FlagContinuousData <- function(.data, clean = FALSE, flaggedonly = FALSE, t
     (SampleCollectionEquipmentName == "Probe/Sensor" & !is.na(ResultTimeBasisText)) |
     (SampleCollectionEquipmentName == "Probe/Sensor" & !is.na(StatisticalBaseCode)) |
     (SampleCollectionEquipmentName == "Probe/Sensor" & ResultValueTypeName == "Calculated") |
-    (SampleCollectionEquipmentName == "Probe/Sensor" & ResultValueTypeName == "Estimated")))
+    (SampleCollectionEquipmentName == "Probe/Sensor" & ResultValueTypeName == "Estimated"))) %>%
+    dplyr::mutate(TADA.ContinuousData.Flag = "Continuous")
 
   # everything not YET in cont dataframe
   noncont.data <- subset(.data, !.data$ResultIdentifier %in% cont.data$ResultIdentifier)
 
   # if time field is not NA, find time difference between results
+
   if (length(noncont.data) >= 1) {
-    for (i in 1:nrow(noncont.data)) {
-      if (!is.na(noncont.data$ActivityStartDateTime[i])) {
-        # find samples with the same date, lat/long, organization name, comparable data identifier, and depth
-        info_match <- which(
-          noncont.data$TADA.LatitudeMeasure == noncont.data$TADA.LatitudeMeasure[i] &
-            noncont.data$TADA.LongitudeMeasure == noncont.data$TADA.LongitudeMeasure[i] &
-            noncont.data$OrganizationIdentifier == noncont.data$OrganizationIdentifier[i] &
-            noncont.data$TADA.ComparableDataIdentifier == noncont.data$TADA.ComparableDataIdentifier[i] &
-            ((noncont.data$TADA.ActivityDepthHeightMeasure.MeasureValue == noncont.data$TADA.ActivityDepthHeightMeasure.MeasureValue[i]) | (is.na(noncont.data$TADA.ActivityDepthHeightMeasure.MeasureValue) & is.na(noncont.data$TADA.ActivityDepthHeightMeasure.MeasureValue[i]))) &
-            ((noncont.data$TADA.ResultDepthHeightMeasure.MeasureValue == noncont.data$TADA.ResultDepthHeightMeasure.MeasureValue[i]) | (is.na(noncont.data$TADA.ResultDepthHeightMeasure.MeasureValue) & is.na(noncont.data$TADA.ResultDepthHeightMeasure.MeasureValue[i]))) &
-            ((noncont.data$TADA.ActivityTopDepthHeightMeasure.MeasureValue == noncont.data$TADA.ActivityTopDepthHeightMeasure.MeasureValue[i]) | (is.na(noncont.data$TADA.ActivityTopDepthHeightMeasure.MeasureValue) & is.na(noncont.data$TADA.ActivityTopDepthHeightMeasure.MeasureValue[i]))) &
-            ((noncont.data$TADA.ActivityBottomDepthHeightMeasure.MeasureValue == noncont.data$TADA.ActivityBottomDepthHeightMeasure.MeasureValue[i]) | (is.na(noncont.data$TADA.ActivityBottomDepthHeightMeasure.MeasureValue) & is.na(noncont.data$TADA.ActivityBottomDepthHeightMeasure.MeasureValue[i]))) &
-            ((noncont.data$ActivityRelativeDepthName == noncont.data$ActivityRelativeDepthName[i]) | (is.na(noncont.data$ActivityRelativeDepthName) & is.na(noncont.data$ActivityRelativeDepthName[i])))
-        )
+    info_match <- noncont.data %>%
+      dplyr::group_by(
+        TADA.LatitudeMeasure, TADA.LongitudeMeasure,
+        OrganizationIdentifier, TADA.ComparableDataIdentifier,
+        TADA.ActivityDepthHeightMeasure.MeasureValue,
+        TADA.ResultDepthHeightMeasure.MeasureValue,
+        TADA.ActivityBottomDepthHeightMeasure.MeasureValue,
+        TADA.ActivityTopDepthHeightMeasure.MeasureValue,
+        ActivityRelativeDepthName
+      ) %>%
+      dplyr::mutate(n_records = length(TADA.ResultMeasureValue)) %>%
+      dplyr::mutate(group_id = dplyr::cur_group_id()) %>%
+      dplyr::filter(n_records > 1) %>%
+      dplyr::ungroup() %>%
+      dplyr::group_by(group_id) %>%
+      dplyr::arrange(ActivityStartDateTime, .by_group = TRUE) %>%
+      dplyr::mutate(
+        time_diff_lag = abs(difftime(ActivityStartDateTime, dplyr::lag(ActivityStartDateTime), units = "hours")),
+        time_diff_lead = abs(difftime(ActivityStartDateTime, dplyr::lead(ActivityStartDateTime), units = "hours"))
+      ) %>%
+      dplyr::ungroup()
 
-        time_diff <- abs(difftime(noncont.data$ActivityStartDateTime[i], noncont.data$ActivityStartDateTime[info_match], units = "hours"))
+    # find results where the time differences is <= time_difference (default is 4 hours)
+    within_window <- info_match %>%
+      dplyr::filter(time_diff_lead <= time_difference |
+        time_diff_lag <= time_difference)
 
-        # samples where the time differences is <= time_difference (default is 4 hours)
-        within_window <- info_match[time_diff <= time_difference]
+    rm(info_match)
 
-        # keep the samples with times within the window
-        info_match <- intersect(info_match, within_window)
+    # if matches are identified change flag to continuous
+    noncont.data <- noncont.data %>%
+      dplyr::mutate(TADA.ContinuousData.Flag = ifelse(ResultIdentifier %in% within_window$ResultIdentifier,
+        "Continuous", TADA.ContinuousData.Flag
+      ))
 
-        # if matches are identified change flag to continuous
-        if (length(info_match) >= 1) {
-          noncont.data$TADA.ContinuousData.Flag[info_match] <- "Continuous"
-        }
-      }
-    }
+    rm(within_window)
   }
 
-  # remove continuous results from noncont.data and create new df for these (more.cont.data)
-  more.cont.data <- noncont.data %>% dplyr::filter(TADA.ContinuousData.Flag == "Continuous")
+  flag.data <- cont.data %>%
+    dplyr::full_join(noncont.data, by = c(names(cont.data)))
 
-  # add additional continuous data (more.cont.data) to cont.data
-  all.cont.data <- plyr::rbind.fill(cont.data, more.cont.data)
+  # flagged output, all data
+  if (clean == FALSE & flaggedonly == FALSE) {
+    flag.data <- TADA_OrderCols(flag.data)
 
-  # filter noncont.data to ONLY discrete results
-  noncont.data <- noncont.data %>% dplyr::filter(TADA.ContinuousData.Flag == "Discrete")
-
-  # if there is continuous data in the data set
-  # flag output
-  if (nrow(all.cont.data) != 0) {
-    # change contents of ContDataFlag column
-    all.cont.data$TADA.ContinuousData.Flag <- "Continuous"
-    # join all.cont.data to flag.data
-    flag.data <- plyr::rbind.fill(all.cont.data, noncont.data)
-
-    # flagged output, all data
-    if (clean == FALSE & flaggedonly == FALSE) {
-      flag.data <- TADA_OrderCols(flag.data)
-
-      # end.time <- Sys.time()
-      # time.taken <- round(end.time - start.time, 2)
-      # print(time.taken)
-
-      return(flag.data)
-    }
-
-    # clean output
-    if (clean == TRUE & flaggedonly == FALSE) {
-      # filter out invalid characteristic-unit-media combinations
-      clean.data <- dplyr::filter(flag.data, !(TADA.ContinuousData.Flag %in% "Continuous"))
-
-      # remove TADA.AggregatedContinuousData column
-      # clean.data <- dplyr::select(clean.data, -TADA.ContinuousData.Flag)
-      clean.data <- TADA_OrderCols(clean.data)
-
-      # end.time <- Sys.time()
-      # time.taken <- round(end.time - start.time, 2)
-      # print(time.taken)
-
-      return(clean.data)
-    }
-
-    # flagged output, only aggregated continuous data
-    if (clean == FALSE & flaggedonly == TRUE) {
-      # filter to show only invalid characteristic-unit-media combinations
-
-      onlycont.data <- dplyr::filter(flag.data, TADA.ContinuousData.Flag == "Continuous")
-      onlycont.data <- TADA_OrderCols(onlycont.data)
-
-      # end.time <- Sys.time()
-      # time.taken <- round(end.time - start.time, 2)
-      # print(time.taken)
-
-      return(onlycont.data)
-    }
+    return(flag.data)
   }
+
+  # clean output
+  if (clean == TRUE & flaggedonly == FALSE) {
+    # filter out invalid characteristic-unit-media combinations
+    clean.data <- flag.data %>%
+      dplyr::filter(!(TADA.ContinuousData.Flag %in% "Continuous")) %>%
+      dplyr::select(-TADA.ContinuousData.Flag) %>%
+      TADA_OrderCols()
+
+    return(clean.data)
+  }
+
+  # flagged output, only aggregated continuous data
+  if (clean == FALSE & flaggedonly == TRUE) {
+    # filter to show only invalid characteristic-unit-media combinations
+
+    onlycont.data <- flag.data %>%
+      dplyr::filter(TADA.ContinuousData.Flag == "Continuous") %>%
+      TADA_OrderCols()
+
+    return(onlycont.data)
+  }
+
 
   # if no aggregated continuous data is in the data set
-  if (nrow(all.cont.data) == 0) {
+  if (nrow(flag.data[flag.data$TADA.ContinuousData.Flag == "Continuous", ]) == 0) {
     if (flaggedonly == FALSE) {
       print("No evidence of aggregated continuous data in your dataframe. Returning the input dataframe with TADA.ContinuousData.Flag column for tracking.")
       .data <- TADA_OrderCols(.data)
-
-      # end.time <- Sys.time()
-      # time.taken <- round(end.time - start.time, 2)
-      # print(time.taken)
 
       return(.data)
     }
@@ -383,11 +346,8 @@ TADA_FlagContinuousData <- function(.data, clean = FALSE, flaggedonly = FALSE, t
     if (flaggedonly == TRUE) {
       print("This dataframe is empty because we did not find any aggregated continuous data in your dataframe")
 
-      all.cont.data <- TADA_OrderCols(all.cont.data)
-
-      # end.time <- Sys.time()
-      # time.taken <- round(end.time - start.time, 2)
-      # print(time.taken)
+      all.cont.data <- flag.data %>%
+        dplyr::filter(TADA.ContinuousData.Flag == "Continuous")
 
       return(all.cont.data)
     }
@@ -484,9 +444,11 @@ TADA_FlagAboveThreshold <- function(.data, clean = FALSE, flaggedonly = FALSE) {
     .data <- dplyr::select(.data, -TADA.ResultValueAboveUpperThreshold.Flag)
   }
 
-  # filter WQXcharVal.ref to include only valid CharacteristicUnit
+  # get WQXcharVal.ref and filter to include only CharacteristicUnit.
+  # Note that status is not applicable to ranges.
+  # Instead, we generate a validation flag later in this function
   load(file = "inst/extdata/WQXcharValRef.rda")
-  unit.ref <- dplyr::filter(WQXcharValRef, Type == "CharacteristicUnit" & Status == "Accepted")
+  unit.ref <- dplyr::filter(WQXcharValRef, Type == "CharacteristicUnit")
 
   # update ref table names to prepare for left join with df
   names(unit.ref)[names(unit.ref) == "Characteristic"] <- "TADA.CharacteristicName"
@@ -664,10 +626,11 @@ TADA_FlagBelowThreshold <- function(.data, clean = FALSE, flaggedonly = FALSE) {
     .data <- dplyr::select(.data, -TADA.ResultValueBelowLowerThreshold.Flag)
   }
 
-  # filter WQXcharVal.ref to include only valid CharacteristicUnit in water media
+  # get WQXcharVal.ref and filter to include only CharacteristicUnit
+  # Note that status is not applicable to ranges.
+  # Instead, we generate a validation flag later in this function
   load(file = "inst/extdata/WQXcharValRef.rda")
-  # unit.ref <- utils::read.csv(system.file("extdata", "WQXcharValRef.csv", package = "TADA")) %>%
-  unit.ref <- dplyr::filter(WQXcharValRef, Type == "CharacteristicUnit" & Status == "Accepted")
+  unit.ref <- dplyr::filter(WQXcharValRef, Type == "CharacteristicUnit")
 
   # update ref table names to prepare for left join with df
   names(unit.ref)[names(unit.ref) == "Characteristic"] <- "TADA.CharacteristicName"
@@ -1180,9 +1143,9 @@ TADA_FlagCoordinates <- function(.data,
 #' issues in the data analysis.
 #'
 #' This function runs TADA_FindNearbySites within it which adds the
-#' TADA.NearbySiteGroups field. Duplicates are only flagged as duplicates if
+#' TADA.MonitoringLocationIdentifier field. Duplicates are only flagged as duplicates if
 #' the distance between sites is less than the function input dist_buffer
-#' (default is 100m). Each group in the TADA.NearbySiteGroups field indicates
+#' (default is 100m). Each group in the TADA.MonitoringLocationIdentifier field indicates
 #' that the sites within each group are within the specified distance from each other.
 #'
 #' We recommend running TADA_FindPotentialDuplicatesMultipleOrgs after running
@@ -1206,7 +1169,7 @@ TADA_FlagCoordinates <- function(.data,
 #'   containing a number unique to results that may represent duplicated
 #'   measurement events, a TADA.ResultSelectedMultipleOrgs column indicating
 #'   which rows are selected to keep (Y) and remove (N) based on the
-#'   org hierarchy, and a TADA.NearbySiteGroups column indicating which
+#'   org hierarchy, and a TADA.MonitoringLocationIdentifier column indicating which
 #'   monitoring locations are within the distance buffer from each other.
 #'
 #' @export
@@ -1223,29 +1186,29 @@ TADA_FlagCoordinates <- function(.data,
 #'
 TADA_FindPotentialDuplicatesMultipleOrgs <- function(.data, dist_buffer = 100, org_hierarchy = "none") {
   # from those datapoints, determine which are in adjacent sites
-  if (!"TADA.NearbySiteGroups" %in% names(.data)) {
+  if (!"TADA.MonitoringLocationIdentifier" %in% names(.data)) {
     .data <- TADA_FindNearbySites(.data, dist_buffer = dist_buffer)
   }
 
-  dupsites <- unique(.data[, c("MonitoringLocationIdentifier", "TADA.LatitudeMeasure", "TADA.LongitudeMeasure", "TADA.NearbySiteGroups")])
+  dupsites <- unique(.data[, c("MonitoringLocationIdentifier", "TADA.LatitudeMeasure", "TADA.LongitudeMeasure", "TADA.MonitoringLocationIdentifier")])
 
   # get rid of results with no site group added - not duplicated spatially
-  dupsites <- subset(dupsites, !dupsites$TADA.NearbySiteGroups %in% c("No nearby sites")) %>%
-    tidyr::separate_rows(TADA.NearbySiteGroups, sep = ",")
+  dupsites <- subset(dupsites, !dupsites$TADA.MonitoringLocationIdentifier %in% c("No nearby sites")) %>%
+    tidyr::separate_rows(TADA.MonitoringLocationIdentifier, sep = ",")
 
   # remove results with no nearby sites get all data that are not NA and round to 2 digits
   dupsprep <- .data %>%
     dplyr::filter(MonitoringLocationIdentifier %in% dupsites$MonitoringLocationIdentifier) %>%
     dplyr::select(
       OrganizationIdentifier, ResultIdentifier, ActivityStartDate, ActivityStartTime.Time,
-      TADA.CharacteristicName, ActivityTypeCode, TADA.ResultMeasureValue, TADA.NearbySiteGroups
+      TADA.CharacteristicName, ActivityTypeCode, TADA.ResultMeasureValue, TADA.MonitoringLocationIdentifier
     ) %>%
     dplyr::filter(!is.na(TADA.ResultMeasureValue)) %>%
     dplyr::mutate(roundRV = round(TADA.ResultMeasureValue, digits = 2))
 
   # group by date, time, characteristic, and rounded result value and determine the number of organizations that have those same row values, and filter to those summary rows with more than one organization
   dups_sum <- dupsprep %>%
-    dplyr::group_by(ActivityStartDate, ActivityStartTime.Time, TADA.CharacteristicName, ActivityTypeCode, roundRV, TADA.NearbySiteGroups) %>%
+    dplyr::group_by(ActivityStartDate, ActivityStartTime.Time, TADA.CharacteristicName, ActivityTypeCode, roundRV, TADA.MonitoringLocationIdentifier) %>%
     dplyr::mutate(numorgs = length(unique(OrganizationIdentifier))) %>%
     dplyr::filter(numorgs > 1) %>%
     # group duplicates
@@ -1262,7 +1225,7 @@ TADA_FindPotentialDuplicatesMultipleOrgs <- function(.data, dist_buffer = 100, o
     "OrganizationIdentifier",
     "ResultIdentifier",
     "TADA.ResultMeasureValue",
-    "TADA.NearbySiteGroups"
+    "TADA.MonitoringLocationIdentifier"
   )) %>%
     dplyr::mutate(TADA.MultipleOrgDuplicate = ifelse(is.na(TADA.MultipleOrgDupGroupID), "N", "Y")) %>%
     # remove results that are listed twice (as part of two groups)
@@ -1303,20 +1266,24 @@ TADA_FindPotentialDuplicatesMultipleOrgs <- function(.data, dist_buffer = 100, o
       dplyr::slice_sample(n = 1)
 
     dupsdat <- dupsdat %>%
-      dplyr::rename(SingleNearbyGroup = TADA.NearbySiteGroups) %>%
+      dplyr::rename(SingleNearbyGroup = TADA.MonitoringLocationIdentifier) %>%
       dplyr::mutate(
-        TADA.NearbySiteGroups = paste(SingleNearbyGroup, sep = ","),
+        TADA.MonitoringLocationIdentifier = paste(SingleNearbyGroup, sep = ","),
         TADA.ResultSelectedMultipleOrgs = ifelse(ResultIdentifier %in% duppicks$ResultIdentifier, "Y", "N")
       ) %>%
       dplyr::select(-SingleNearbyGroup)
 
     # connect back to original dataset
     .data <- .data %>%
+      dplyr::mutate( 
+        TADA.MonitoringLocationIdentifier = ifelse(TADA.MonitoringLocationIdentifier %in% NA, "NA", TADA.MonitoringLocationIdentifier)) %>%
       dplyr::full_join(dupsdat, by = c(names(.data))) %>%
       dplyr::mutate(
         TADA.MultipleOrgDuplicate = ifelse(is.na(TADA.MultipleOrgDuplicate), "N", TADA.MultipleOrgDuplicate),
         TADA.ResultSelectedMultipleOrgs = ifelse(is.na(TADA.ResultSelectedMultipleOrgs), "Y", TADA.ResultSelectedMultipleOrgs),
-        TADA.MultipleOrgDupGroupID = ifelse(is.na(TADA.MultipleOrgDupGroupID), "Not a duplicate", TADA.MultipleOrgDupGroupID)
+        TADA.MultipleOrgDupGroupID = ifelse(is.na(TADA.MultipleOrgDupGroupID), "Not a duplicate", TADA.MultipleOrgDupGroupID)) %>%
+      dplyr::mutate( 
+        TADA.MonitoringLocationIdentifier = ifelse(TADA.MonitoringLocationIdentifier %in% "NA", "NA - Not Available", TADA.MonitoringLocationIdentifier)
       )
 
 
@@ -1397,6 +1364,17 @@ TADA_FindPotentialDuplicatesSingleOrg <- function(.data) {
     # flags non-duplicates as passing
     .data$TADA.SingleOrgDup.Flag <- ifelse(.data$TADA.SingleOrgDupGroupID == "Not a duplicate", "Unique", .data$TADA.SingleOrgDup.Flag)
     print(paste0(dim(dups_sum_org)[1], " groups of potentially duplicated results found in dataset. These have been placed into duplicate groups in the TADA.SingleOrgDupGroupID column and the function randomly selected one result from each group to represent a single, unduplicated value. Selected values are indicated in the TADA.SingleOrgDup.Flag as 'Unique', while duplicates are flagged as 'Duplicate' for easy filtering."))
+  }
+
+  if (dim(dups_sum_org)[1] == 0) {
+    # apply to .data and remove numbers column
+    .data <- merge(.data, dups_sum_org, all.x = TRUE)
+    .data <- .data %>% dplyr::select(-numres)
+    .data$TADA.SingleOrgDupGroupID[is.na(.data$TADA.SingleOrgDupGroupID)] <- "Not a duplicate"
+
+    # flags non-duplicates as passing
+    .data$TADA.SingleOrgDup.Flag <- ifelse(.data$TADA.SingleOrgDupGroupID == "Not a duplicate", "Unique", .data$TADA.SingleOrgDup.Flag)
+    print("No duplicate results detected. Returning input dataframe with TADA.SingleOrgDup.Flag flag column set to 'Unique'")
   }
 
   .data <- TADA_OrderCols(.data)

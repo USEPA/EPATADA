@@ -61,7 +61,6 @@ TADA_FlagFraction <- function(.data, clean = TRUE, flaggedonly = FALSE) {
     .data <- dplyr::select(.data, -TADA.SampleFraction.Flag)
   }
   # read in sample fraction reference table from extdata and filter
-  # frac.ref <- utils::read.csv(system.file("extdata", "WQXcharValRef.csv", package = "TADA")) %>%
   load(file = "inst/extdata/WQXcharValRef.rda")
   frac.ref <- dplyr::filter(WQXcharValRef, Type == "CharacteristicFraction")
 
@@ -219,11 +218,16 @@ TADA_FlagSpeciation <- function(.data, clean = c("invalid_only", "nonstandardize
   check.data <- check.data %>%
     dplyr::rename(TADA.MethodSpeciation.Flag = Status) %>%
     dplyr::distinct()
+
   # rename NA values to Not Reviewed in TADA.MethodSpeciation.Flag column
   check.data["TADA.MethodSpeciation.Flag"][is.na(check.data["TADA.MethodSpeciation.Flag"])] <- "Not Reviewed"
 
   # if all rows are "Valid", return input with flag column
-  if (any(c("Not Reviewed", "Invalid", "NonStandardized") %in%
+  if (any(c(
+    "Not Reviewed", "Invalid", "NonStandardized",
+    "Nonstandardized", "Non Standardized", "InvalidMediaUnit",
+    "InvalidChar", "MethodNeeded", "Rejected", "Rejected "
+  ) %in%
     unique(check.data$TADA.MethodSpeciation.Flag)) == FALSE) {
     print("All characteristic/method speciation combinations are valid in your dataframe. Returning input dataframe with TADA.MethodSpeciation.Flag column for tracking.")
     check.data <- TADA_OrderCols(check.data)
@@ -237,20 +241,25 @@ TADA_FlagSpeciation <- function(.data, clean = c("invalid_only", "nonstandardize
 
   # when clean = "invalid_only"
   if (clean == "invalid_only") {
-    # filter out only "Invalid" characteristic-method speciation combinations
-    clean.data <- dplyr::filter(check.data, TADA.MethodSpeciation.Flag != "Invalid")
+    # filter out rejected characteristic-method speciation combinations
+    clean.data <- dplyr::filter(check.data, TADA.MethodSpeciation.Flag != "Rejected")
   }
 
   # when clean = "nonstandardized_only"
   if (clean == "nonstandardized_only") {
     # filter out only "NonStandardized" characteristic-method speciation combinations
-    clean.data <- dplyr::filter(check.data, TADA.MethodSpeciation.Flag != "NonStandardized")
+    clean.data <- dplyr::filter(check.data, TADA.MethodSpeciation.Flag != c(
+      "NonStandardized",
+      "Nonstandardized",
+      "Non Standardized"
+    ))
   }
 
   # when clean = "both"
   if (clean == "both") {
     # filter out both "Invalid" and "NonStandardized" characteristic-method speciation combinations
-    clean.data <- dplyr::filter(check.data, TADA.MethodSpeciation.Flag != "NonStandardized" & TADA.MethodSpeciation.Flag != "Invalid")
+    # clean.data <- dplyr::filter(check.data, TADA.MethodSpeciation.Flag != "NonStandardized" & TADA.MethodSpeciation.Flag != "Invalid")
+    clean.data <- dplyr::filter(check.data, TADA.MethodSpeciation.Flag %in% c("Not Reviewed", "Accepted"))
   }
 
   # when clean = "none"
@@ -268,7 +277,9 @@ TADA_FlagSpeciation <- function(.data, clean = c("invalid_only", "nonstandardize
   # when flaggedonly = TRUE
   if (flaggedonly == TRUE) {
     # filter to show only invalid and/or NonStandardized characteristic-method speciation combinations
-    error.data <- dplyr::filter(clean.data, TADA.MethodSpeciation.Flag == "Invalid" | TADA.MethodSpeciation.Flag == "NonStandardized")
+    # error.data <- dplyr::filter(clean.data, TADA.MethodSpeciation.Flag == "Invalid" | TADA.MethodSpeciation.Flag == "NonStandardized")
+    error.data <- dplyr::filter(clean.data, TADA.MethodSpeciation.Flag != c("Not Reviewed", "Accepted", "Y", "Valid"))
+
     # if there are no errors
     if (nrow(error.data) == 0) {
       print("This dataframe is empty because either we did not find any Invalid/NonStandardized characteristic-method speciation combinations or they were all filtered out")
@@ -507,7 +518,7 @@ TADA_FindQCActivities <- function(.data, clean = FALSE, flaggedonly = FALSE) {
   }
 
   # load in ActivityTypeRef Table
-  qc.ref <- utils::read.csv(system.file("extdata", "WQXActivityTypeRef.csv", package = "TADA")) %>%
+  qc.ref <- utils::read.csv(system.file("extdata", "WQXActivityTypeRef.csv", package = "EPATADA")) %>%
     dplyr::rename(ActivityTypeCode = Code) %>%
     dplyr::select(ActivityTypeCode, TADA.ActivityType.Flag)
 
@@ -784,7 +795,7 @@ TADA_FlagMeasureQualifierCode <- function(.data, clean = FALSE, flaggedonly = FA
   }
 
   # load in ResultMeasureQualifier Flag Table
-  qc.ref <- utils::read.csv(system.file("extdata", "WQXMeasureQualifierCodeRef.csv", package = "TADA")) %>%
+  qc.ref <- utils::read.csv(system.file("extdata", "WQXMeasureQualifierCodeRef.csv", package = "EPATADA")) %>%
     dplyr::rename(MeasureQualifierCode = Code) %>%
     dplyr::select(MeasureQualifierCode, TADA.MeasureQualifierCode.Flag, Description)
 
