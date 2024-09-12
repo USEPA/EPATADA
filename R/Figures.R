@@ -365,7 +365,7 @@ TADA_Histogram <- function(.data, id_cols = c("TADA.ComparableDataIdentifier")) 
 #'
 #' @param .data TADA data frame containing the data downloaded from the WQP, where
 #' each row represents a unique data record. Data frame must include the columns
-#' 'TADA.MonitoringLocationIdentifier','MonitoringLocationName','TADA.LatitudeMeasure',
+#' 'TADA.MonitoringLocationIdentifier','TADA.MonitoringLocationName','TADA.LatitudeMeasure',
 #' 'TADA.LongitudeMeasure', 'ResultIdentifier', 'ActivityStartDate', 'TADA.CharacteristicName',
 #' and 'OrganizationIdentifier' to run this function.
 #' 
@@ -683,7 +683,7 @@ TADA_FlaggedSitesMap <- function(.data, identifier = "tada") {
     map <- map %>% leaflet::addAwesomeMarkers(~as.numeric(outsideusa[[long_name]]),
       ~as.numeric(outsideusa[[lat_name]]),
       icon = outsideIcon,
-      # label = ~as.character(MonitoringLocationIdentifier),
+      # label = ~as.character(TADA.MonitoringLocationIdentifier),
       popup = custom.popup(outsideusa),
       data = outsideusa
     )
@@ -692,7 +692,7 @@ TADA_FlaggedSitesMap <- function(.data, identifier = "tada") {
     map <- map %>% leaflet::addAwesomeMarkers(~as.numeric(lowres[[long_name]]),
       ~as.numeric(lowres[[lat_name]]),
       icon = lowresIcon,
-      # label = ~as.character(MonitoringLocationIdentifier),
+      # label = ~as.character(TADA.MonitoringLocationIdentifier),
       popup = custom.popup(lowres),
       data = lowres
     )
@@ -885,7 +885,7 @@ TADA_Scatterplot <- function(.data, id_cols = c("TADA.ComparableDataIdentifier")
       x = plot.data$ActivityStartDate, # currently uses start date only, may want to change to just ActivityStartDateTime in the future, but for now ActivityStartDateTime includes NAs when time is not available. Including ActivityStartDateTime in hover feature instead.
       y = plot.data$TADA.ResultMeasureValue,
       # consider adding color or shapes to make it easier to see sites and/or possible relative result values
-      # color = ~MonitoringLocationName,
+      # color = ~TADA.MonitoringLocationName,
       # colors = RColorBrewer::brewer.pal(3, "Set2"),
       marker = list(color = tada.pal[1, 1]), # marker color
       stroke = I(tada.pal[1, 2]), # marker border color
@@ -978,8 +978,8 @@ TADA_Scatterplot <- function(.data, id_cols = c("TADA.ComparableDataIdentifier")
 #' @param groups A vector of two identifiers from the id_cols column. For
 #'   example, if the id_cols is 'TADA.ComparableDataIdentifier', the groups could
 #'   be 'DISSOLVED OXYGEN (DO)_NA_NA_UG/L' and 'PH_NA_NA_NA'. These groups will
-#'   be specific to your dataset. If the id_cols is 'MonitoringLocationName',
-#'   the groups could be 'Upper Red Lake: West' and 'Upper Red Lake: West-Central'.
+#'   be specific to your dataset. If the id_cols is 'TADA.MonitoringLocationName',
+#'   the groups could be 'UPPER RED LAKE: WEST' and 'UPPER RED LAKE: WEST-CENTRAL'.
 #'
 #' @return A single plotly scatterplot figure with one x-axis (Date/Time) and a
 #'   left and right y-axis showing the units of the two characteristic groups
@@ -1036,7 +1036,7 @@ TADA_TwoCharacteristicScatterplot <- function(.data, id_cols = "TADA.ComparableD
   plot.data <- as.data.frame(.data)
 
   # this subset must include all fields included in plot hover below
-  plot.data <- subset(plot.data, plot.data[, id_cols] %in% groups)[, c(id_cols, reqcols, depthcols, "ActivityStartDateTime", "MonitoringLocationName", "TADA.ActivityMediaName", "ActivityMediaSubdivisionName", "ActivityRelativeDepthName", "TADA.CharacteristicName", "TADA.MethodSpeciationName", "TADA.ResultSampleFractionText")]
+  plot.data <- subset(plot.data, plot.data[, id_cols] %in% groups)[, c(id_cols, reqcols, depthcols, "ActivityStartDateTime", "TADA.MonitoringLocationName", "TADA.ActivityMediaName", "ActivityMediaSubdivisionName", "ActivityRelativeDepthName", "TADA.CharacteristicName", "TADA.MethodSpeciationName", "TADA.ResultSampleFractionText")]
   plot.data$name <- gsub("_NA", "", plot.data[, id_cols])
   plot.data$name <- gsub("_", " ", plot.data$name)
 
@@ -1131,7 +1131,7 @@ TADA_TwoCharacteristicScatterplot <- function(.data, id_cols = "TADA.ComparableD
         "Result:", paste0(param1$TADA.ResultMeasureValue, " ", param1$TADA.ResultMeasure.MeasureUnitCode), "<br>",
         "Activity Start Date:", param1$ActivityStartDate, "<br>",
         "Activity Start Date Time:", param1$ActivityStartDateTime, "<br>",
-        "Monitoring Location Name:", param1$MonitoringLocationName, "<br>",
+        "Monitoring Location Name:", param1$TADA.MonitoringLocationName, "<br>",
         "Media:", param1$TADA.ActivityMediaName, "<br>",
         "Media Subdivision:", param1$ActivityMediaSubdivisionName, "<br>",
         "Result Depth:", paste0(
@@ -1175,7 +1175,7 @@ TADA_TwoCharacteristicScatterplot <- function(.data, id_cols = "TADA.ComparableD
         "Result:", paste0(param2$TADA.ResultMeasureValue, " ", param2$TADA.ResultMeasure.MeasureUnitCode), "<br>",
         "Activity Start Date:", param2$ActivityStartDate, "<br>",
         "Activity Start Date Time:", param2$ActivityStartDateTime, "<br>",
-        "Monitoring Location Name:", param2$MonitoringLocationName, "<br>",
+        "Monitoring Location Name:", param2$TADA.MonitoringLocationName, "<br>",
         "Media:", param2$TADA.ActivityMediaName, "<br>",
         "Media Subdivision:", param2$ActivityMediaSubdivisionName, "<br>",
         "Result Depth:", paste0(
@@ -1206,7 +1206,7 @@ TADA_TwoCharacteristicScatterplot <- function(.data, id_cols = "TADA.ComparableD
 #' @param .data TADA data frame where each row represents a unique record. Data frame must include
 #'    the columns 'TADA.ComparableDataIdentifier', 'TADA.ResultMeasureValue',
 #'   'TADA.ResultMeasure.MeasureUnitCode', 'ActivityStartDate', 'ActivityStartDateTime',
-#'    'ActivityStartDateTime', 'MonitoringLocationName', 'TADA.ActivityMediaName',
+#'    'ActivityStartDateTime', 'TADA.MonitoringLocationName', 'TADA.ActivityMediaName',
 #'    'ActivityMediaSubdivisionName', 'TADA.ResultDepthHeightMeasure.MeasureValue',
 #'    'TADA.ResultDepthHeightMeasure.MeasureValue', 'TADA.ResultDepthHeightMeasure.MeasureUnitCode',
 #'    'ActivityRelativeDepthName', 'TADA.ActivityDepthHeightMeasure.MeasureValue',
@@ -1215,15 +1215,15 @@ TADA_TwoCharacteristicScatterplot <- function(.data, id_cols = "TADA.ComparableD
 #'    and TADA.ActivityBottomDepthHeightMeasure.MeasureUnitCode to run this function.
 #'
 #' @param group_col The column in the dataset used to identify the groups
-#'    plotted. Defaults to MonitoringLocationName. This input is flexible, and allows for the use of
+#'    plotted. Defaults to TADA.MonitoringLocationName. This input is flexible, and allows for the use of
 #'    other identifiers such as StateCode, CountyCode or user-created groups based on concatenation 
 #'    of other variables (e.g. characteristic name, site type, site name, year, organization, etc.)
 #'
 #' @param groups A vector of up to four identifiers from the id_cols column
 #'   to specify the groups that will be plotted for a TADA.ComparableDataIdentifier.
 #'   These groups will be specific to your dataset. For example, in the example data set
-#'   Data_6Tribes_5y_Harmonized if group_col is 'MonitoringLocationName', the groups could be
-#'   'Upper Red Lake: West', 'Upper Red Lake: West-Central', and 'Upper Red Lake: East Central'.
+#'   Data_6Tribes_5y_Harmonized if group_col is 'TADA.MonitoringLocationName', the groups could be
+#'   'UPPER RED LAKE: WEST', 'UPPER RED LAKE: WEST-CENTRAL', and 'UPPER RED LAKE: EAST CENTRAL'.
 #'
 #' @return A plotly scatterplot(s) figure with one x-axis (Date/Time) and a
 #'   left axis showing the units of a single TADA.ComparableDataIdentifier plotted on the same 
@@ -1250,12 +1250,12 @@ TADA_TwoCharacteristicScatterplot <- function(.data, id_cols = "TADA.ComparableD
 #' # Filter the example data so it includes only one TADA.ComparableDataIdentifier
 #' df <- dplyr::filter(Data_6Tribes_5y_Harmonized, TADA.ComparableDataIdentifier %in% c("TOTAL PHOSPHORUS, MIXED FORMS_UNFILTERED_AS P_UG/L"))
 #' # Creates a scatterplot of the three specified sites of interest in the same plot.
-#' TADA_GroupedScatterplot(df, group_col = "MonitoringLocationName", groups = c("Upper Red Lake: West", "Upper Red Lake: West-Central", "Upper Red Lake: East Central"))
+#' TADA_GroupedScatterplot(df, group_col = "TADA.MonitoringLocationName", groups = c("UPPER RED LAKE: WEST", "UPPER RED LAKE: WEST-CENTRAL", "UPPER RED LAKE: EAST CENTRAL"))
 #'
-#' # If no groups are selected, return the 4 groups (by MonitoringLocationName) with the greatest number of results
-#' TADA_GroupedScatterplot(df, group_col = "MonitoringLocationName")
+#' # If no groups are selected, return the 4 groups (by TADA.MonitoringLocationName) with the greatest number of results
+#' TADA_GroupedScatterplot(df, group_col = "TADA.MonitoringLocationName")
 #'
-TADA_GroupedScatterplot <- function(.data, group_col = "MonitoringLocationName", groups = NULL) {
+TADA_GroupedScatterplot <- function(.data, group_col = "TADA.MonitoringLocationName", groups = NULL) {
   # check .data is data.frame
   TADA_CheckType(.data, "data.frame", "Input object")
 
@@ -1266,7 +1266,7 @@ TADA_GroupedScatterplot <- function(.data, group_col = "MonitoringLocationName",
     "TADA.ResultMeasure.MeasureUnitCode",
     "ActivityStartDate",
     "ActivityStartDateTime",
-    "MonitoringLocationName"
+    "TADA.MonitoringLocationName"
   )
 
   # add user-selected group_col to list of required columns
@@ -1365,7 +1365,7 @@ TADA_GroupedScatterplot <- function(.data, group_col = "MonitoringLocationName",
   plot.data <- as.data.frame(.data)
 
   # this subset must include all fields included in plot hover below
-  plot.data <- subset(plot.data, plot.data[, group_col] %in% groups)[, unique(c(group_col, reqcols, depthcols, "TADA.ComparableDataIdentifier", "ActivityStartDateTime", "MonitoringLocationName", "TADA.ActivityMediaName", "ActivityMediaSubdivisionName", "ActivityRelativeDepthName", "TADA.CharacteristicName", "TADA.MethodSpeciationName", "TADA.ResultSampleFractionText"))]
+  plot.data <- subset(plot.data, plot.data[, group_col] %in% groups)[, unique(c(group_col, reqcols, depthcols, "TADA.ComparableDataIdentifier", "ActivityStartDateTime", "TADA.MonitoringLocationName", "TADA.ActivityMediaName", "ActivityMediaSubdivisionName", "ActivityRelativeDepthName", "TADA.CharacteristicName", "TADA.MethodSpeciationName", "TADA.ResultSampleFractionText"))]
 
   plot.data <- dplyr::arrange(plot.data, ActivityStartDate)
 
@@ -1459,7 +1459,7 @@ TADA_GroupedScatterplot <- function(.data, group_col = "MonitoringLocationName",
             "Result:", paste0(param[[j]]$TADA.ResultMeasureValue, " ", param[[j]]$TADA.ResultMeasure.MeasureUnitCode), "<br>",
             "Activity Start Date:", param[[j]]$ActivityStartDate, "<br>",
             "Activity Start Date Time:", param[[j]]$ActivityStartDateTime, "<br>",
-            "Monitoring Location Name:", param[[j]]$MonitoringLocationName, "<br>",
+            "Monitoring Location Name:", param[[j]]$TADA.MonitoringLocationName, "<br>",
             "Media:", param[[j]]$TADA.ActivityMediaName, "<br>",
             "Media Subdivision:", param[[j]]$ActivityMediaSubdivisionName, "<br>",
             "Result Depth:", paste0(

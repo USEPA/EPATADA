@@ -114,7 +114,6 @@ TADA_FieldCounts <- function(.data, display = c("key", "most", "all"), character
       "ResultDetectionQuantitationLimitUrl",
       "DetectionQuantitationLimitTypeName",
       "ProviderName",
-      "MonitoringLocationTypeName",
       "MonitoringLocationDescriptionText",
       "HUCEightDigitCode",
       "HorizontalCollectionMethodName",

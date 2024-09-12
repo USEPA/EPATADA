@@ -20,16 +20,18 @@ in the pairing ref.
 }
 \description{
 This function pairs TADA results with results from specified characteristics from the same
-MonitoringLocation within a user-specified time window to facilitate the calculation of numeric
-criteria. The columns created by TADA_AutoClean are required to run this function. If they are not
-present in the data frame, the function will stop and print an error message.
+TADA.MonitoringLocation within a user-specified time window to facilitate the calculation of
+numeric criteria. The columns created by TADA_AutoClean are required to run this function. If
+they are not present in the data frame, the function will stop and print an error message.
 }
 \details{
 Users can provide a pairing reference file (can be created using TADA_CreatePairRef) to specify
 which combinations of TADA.CharacteristicName, TADA.ResultMeasure.MeasureUnit,
 TADA.MethodSpeciationName, and TADA.ResultSampleFractionText should be used for hardness, pH,
-temperature, salinity, chloride or other user-defined groups. If no ref is specified, all possible
-combinations for hardness, pH, temperature, salinity and chloride will be used.
+temperature, salinity, chloride or other user-defined groups. If no ref is specified, all
+possible combinations for hardness, pH, temperature, salinity and chloride will be used. It is
+highly reccomended that users perform all unit conversion and synonym harmonization before using
+TADA_PairForCriteriaCalc.
 }
 \examples{
 
