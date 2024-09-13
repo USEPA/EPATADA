@@ -300,7 +300,7 @@ TADA_AnalysisDataFilter <- function(.data,
       !ActivityMediaName %in% c("WATER", "Water", "water") ~ ActivityMediaName
     )) %>%
     # add TADA.Media.Flag for additional rows based on TADA.MonitoringLocationTypeName
-    dplyr::left_join(sw.sitetypes, by = "TADA.MonitoringLocationTypeName") %>%
+    dplyr::left_join(sw.sitetypes, by = "MonitoringLocationTypeName") %>%
     dplyr::mutate(
       TADA.Media.Flag = ifelse(is.na(TADA.Media.Flag),
         ML.Media.Flag, TADA.Media.Flag
