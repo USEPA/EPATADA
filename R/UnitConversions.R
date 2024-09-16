@@ -158,8 +158,8 @@ TADA_CreateUnitRef <- function(.data, print.message = TRUE) {
     dplyr::full_join(tada.wqx, by = names(tada.targets)) %>%
     dplyr::rename(TADA.WQXUnitConversionFactor = Conversion.Factor,
                   TADA.WQXUnitConversionCoefficient = Conversion.Coefficient) %>%
-    dplyr::select(TADA.CharacteristicName, TADA.ResultMeasure.MeasureUnitCode,
-                  TADA.Target.ResultMeasure.MeasureUnitCode, ResultMeasure.MeasureUnitCode,
+    dplyr::select(TADA.CharacteristicName, ResultMeasure.MeasureUnitCode,  
+                  TADA.ResultMeasure.MeasureUnitCode, TADA.Target.ResultMeasure.MeasureUnitCode, 
                   TADA.WQXUnitConversionFactor, TADA.WQXUnitConversionCoefficient, CharUnit)
   
   # remove intermediate objects
