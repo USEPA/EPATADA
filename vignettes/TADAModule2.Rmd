@@ -21,7 +21,7 @@ editor_options:
     wrap: 72
 ---
 
-```{r setup, include=FALSE}
+```{r setup, include = F}
 library(knitr)
 
 knitr::opts_chunk$set(
@@ -64,21 +64,6 @@ install.packages("remotes",
 library(remotes)
 ```
 
-Install arcgis and arcgislayers from GitHub. These are required to run
-TADA geospatial functions such as TADA_GetATTAINS().
-
-```{r install_arcgislayers, eval = F, results = 'hide'}
-remotes::install_github("R-ArcGIS/arcgis")
-remotes::install_github("R-ArcGIS/arcgislayers")
-```
-
-Use the **library()** function to load the packages into your R session.
-
-```{r library, results = 'hide'}
-library(arcgis)
-library(arcgislayers)
-```
-
 Next, install and load TADA using the remotes package. TADA R Package
 dependencies will also be downloaded automatically from CRAN with the
 TADA install. You may be prompted in the console to update dependency
@@ -96,7 +81,7 @@ remotes::install_github("USEPA/EPATADA",
 Finally, use the **library()** function to load the TADA R Package into
 your R session.
 
-```{r library, results = 'hide'}
+```{r, results = 'hide'}
 library(EPATADA)
 ```
 
@@ -254,7 +239,7 @@ Using either our original `TADA_dataframe` *or* the geospatial version
 `TADA_spatial`, we can pull in the ATTAINS catchment features that
 intersect our observations:
 
-```{r}
+```{r, eval = F}
 TADA_with_ATTAINS <- TADA_GetATTAINS(.data = TADA_dataframe, return_sf = FALSE)
 
 # Can also be performed on the spatial data:
@@ -270,7 +255,7 @@ the original TADA dataframe, we can deduce that some Water Quality
 Portal observations fall within an NHD catchment that contains more than
 one ATTAINS assessment unit.
 
-```{r}
+```{r, eval = F}
 TADA_with_ATTAINS_list <- TADA_GetATTAINS(.data = TADA_dataframe, return_sf = TRUE)
 
 # Can also be performed on the spatial data:
@@ -287,7 +272,7 @@ dataframe, and create a new dataframe with ONLY the unique combinations
 of WQP MonitoringLocationIdentifier's and ATTAINS Assessment Unit
 Identifiers.
 
-```{r}
+```{r, eval = F}
 TADA_with_ATTAINS_subset <- TADA_with_ATTAINS %>%
   dplyr::select(
       "LongitudeMeasure", "LatitudeMeasure", "MonitoringLocationTypeName",
@@ -307,7 +292,7 @@ WQP observations have NAs where there should be ATTAINS information. In
 these instances, the user can optionally fill in catchment information
 from the NHD by entering `fill_catchments = TRUE`:
 
-```{r}
+```{r, eval = F}
 TADA_with_ATTAINS_filled <- TADA_GetATTAINS(TADA_dataframe, fill_catchments = TRUE, return_sf = TRUE)
 ```
 
@@ -357,14 +342,14 @@ Let's view the data associated with our `TADA_with_ATTAINS_list` object!
 Enter `?TADA_ViewATTAINS` into the console to review another example
 query and additional information.
 
-```{r, fig.height=7}
+```{r, fig.height=7, eval = F}
 TADA_ViewATTAINS(.data = TADA_with_ATTAINS_list)
 ```
 
 When `fill_catchments = TRUE`, `TADA_ViewATTAINS()` will also map the
 `without_ATTAINS_catchments`:
 
-```{r, fig.height=7}
+```{r, fig.height=7, eval = F}
 TADA_ViewATTAINS(.data = TADA_with_ATTAINS_filled)
 ```
 
