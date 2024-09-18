@@ -379,16 +379,17 @@ your program's goals and methods, you might want to further filter the
 monitoring location types in the data set.
 
 ```{r MonitoringLocations, fig.width=8, fig.height=6, fig.fullwidth=TRUE}
-MonLocTypNam_Pie <- TADA_FieldValuesPie(R5Profile, field = "MonitoringLocationTypeName")
+MonLocTypNam_Pie <- TADA_FieldValuesPie(R5Profile, field = "TADA.MonitoringLocationTypeName")
 
 MonLocTypNam_Pie
 ```
 
 **Question 4: How many unique Monitoring Location Types
-(MonitoringLocationTypeName) are present? Which is the most common?**
+(TADA.MonitoringLocationTypeName) are present? Which is the most
+common?**
 
 ```{r question4}
-FieldValues_MLs_table <- TADA_FieldValuesTable(R5Profile, field = "MonitoringLocationTypeName")
+FieldValues_MLs_table <- TADA_FieldValuesTable(R5Profile, field = "TADA.MonitoringLocationTypeName")
 
 mlt_n <- length(unique(FieldValues_MLs_table$Value))
 
@@ -401,7 +402,7 @@ the mlt_most_common[1] subset of results.
 
 ```{r MonitoringLocationsMostCommon}
 R5Profile <- R5Profile %>%
-  dplyr::filter(MonitoringLocationTypeName == dplyr::pull(mlt_most_common[1]))
+  dplyr::filter(TADA.MonitoringLocationTypeName == dplyr::pull(mlt_most_common[1]))
 ```
 
 Next we can review station locations and summary information using the
