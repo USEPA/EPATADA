@@ -64,6 +64,21 @@ install.packages("remotes",
 library(remotes)
 ```
 
+Install arcgis and arcgislayers from GitHub. These are required to run
+TADA geospatial functions such as TADA_GetATTAINS().
+
+```{r install_arcgislayers, eval = F, results = 'hide'}
+remotes::install_github("R-ArcGIS/arcgis")
+remotes::install_github("R-ArcGIS/arcgislayers")
+```
+
+Use the **library()** function to load the packages into your R session.
+
+```{r library, results = 'hide'}
+library(arcgis)
+library(arcgislayers)
+```
+
 Next, install and load TADA using the remotes package. TADA R Package
 dependencies will also be downloaded automatically from CRAN with the
 TADA install. You may be prompted in the console to update dependency

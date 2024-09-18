@@ -76,7 +76,6 @@ Remotes:
 Depends: 
     R (>= 3.5.0)
 Suggests:
-    arcpbf, 
     lwgeom,
     DT,
     RColorBrewer,
