@@ -19,6 +19,9 @@ Authors@R:
     person(given = "Elise",
            family = "Hinman",
            role = "aut"), 
+    person(given = "Kenny", 
+           family = "Wong",
+           role = "ctb"),
     person(given = "Kathryn", 
            family = "Willi",
            role = "ctb"),
@@ -68,11 +71,12 @@ Imports:
     rlang,
     nhdplusTools
 Remotes: 
-    github::R-ArcGIS/arcgis
+    github::R-ArcGIS/arcgis,
     github::R-ArcGIS/arcgislayers
 Depends: 
     R (>= 3.5.0)
 Suggests:
+    arcpbf, 
     lwgeom,
     DT,
     RColorBrewer,
