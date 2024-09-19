@@ -1042,14 +1042,15 @@ Dissolved Oxygen (DO) results.
 
 ```{r DO_Method, fig.width=8, fig.height=6, fig.fullwidth=TRUE}
 # C Create pie chart for SampleCollectionMethod.MethodName for Dissolved Oxygen (DO results)
-DO_SCM_Pie <- TADA_FieldValuesPie(R5ProfileClean8, field = "SampleCollectionMethod.MethodName", characteristicName = "DISSOLVED OXYGEN (DO)")
+DO_SCM_Pie <- TADA_FieldValuesPie(R5ProfileClean8, field = "SampleCollectionMethod.MethodName", field = "SampleCollectionMethod.MethodName", characteristicName = "DISSOLVED OXYGEN (DO)")
 
 DO_SCM_Pie
 
 # Create table for SampleCollectionMethod.MethodName for Dissolved Oxygen (DO results)
-FieldValuesTable_DO_scm <- TADA_FieldValuesTable(R5ProfileClean8, field = "SampleCollectionMethod.MethodName", characteristicName = "DISSOLVED OXYGEN (DO)")
+FieldValuesTable_DO_scm <- TADA_FieldValuesTable(R5ProfileClean8, field = "SampleCollectionMethod.MethodName", field = "SampleCollectionMethod.MethodName", characteristicName = "DISSOLVED OXYGEN (DO)")
 ```
 
+\
 Generate a scatterplot with two characteristics.
 
 ```{r review_identifiers}
