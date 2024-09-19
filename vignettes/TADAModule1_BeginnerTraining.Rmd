@@ -1043,12 +1043,12 @@ Dissolved Oxygen (DO) results.
 ```{r DO_Method, fig.width=8, fig.height=6, fig.fullwidth=TRUE}
 
 # Create subset of DO data
-DO_R5ProfileClean8 <- R5ProfileClean8 %>% dplyr::filter(TADA.CharacteristicName == "DISSOLVED OXYGEN (DO)")
-
-# Create pie chart for SampleCollectionMethod.MethodName for Dissolved Oxygen (DO results)
-DO_SCM_Pie <- TADA_FieldValuesPie(DO_R5ProfileClean8, field = "SampleCollectionMethod.MethodName")
-
-DO_SCM_Pie
+ DO_R5ProfileClean8 <- R5ProfileClean8 %>% dplyr::filter(TADA.CharacteristicName == "DISSOLVED OXYGEN (DO)")
+# 
+# # Create pie chart for SampleCollectionMethod.MethodName for Dissolved Oxygen (DO results)
+# DO_SCM_Pie <- TADA_FieldValuesPie(DO_R5ProfileClean8, field = "SampleCollectionMethod.MethodName")
+# 
+# DO_SCM_Pie
 
 # Create table for SampleCollectionMethod.MethodName for Dissolved Oxygen (DO results)
 FieldValuesTable_DO_scm <- TADA_FieldValuesTable(DO_R5ProfileClean8, field = "SampleCollectionMethod.MethodName")
