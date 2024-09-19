@@ -69,9 +69,8 @@ Imports:
     geojsonsf,
     tibble,
     rlang,
-    nhdplusTools
-Additional_repositories: 
-    github::R-ArcGIS/arcgislayers
+    nhdplusTools,
+    arcgislayers
 Depends: 
     R (>= 3.5.0)
 Suggests:
