@@ -68,12 +68,12 @@ Imports:
     urltools,
     geojsonsf,
     tibble,
-    rlang,
-    nhdplusTools,
-    arcgislayers
+    rlang
 Depends: 
     R (>= 3.5.0)
 Suggests:
+    nhdplusTools, 
+    arcgislayers, 
     lwgeom,
     DT,
     RColorBrewer,
