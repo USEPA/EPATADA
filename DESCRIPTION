@@ -70,8 +70,7 @@ Imports:
     tibble,
     rlang,
     nhdplusTools
-Remotes: 
-    github::R-ArcGIS/arcgis,
+Additional_repositories: 
     github::R-ArcGIS/arcgislayers
 Depends: 
     R (>= 3.5.0)

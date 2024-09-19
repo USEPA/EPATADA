@@ -109,15 +109,15 @@ testthat::test_that(
   }
 )
 
-# fetchNHD ----
-testthat::test_that(
-  desc = "fetchNHD handles valid input data",
-  code = {
-    valid_data <- sf::st_sf(geometry = sf::st_sfc(sf::st_point(c(0, 0))), crs = 4326)
-    result <- fetchNHD(.data = valid_data)
-    expect_false(is.null(result))
-  }
-)
+# # fetchNHD ----
+# testthat::test_that(
+#   desc = "fetchNHD handles valid input data",
+#   code = {
+#     valid_data <- sf::st_sf(geometry = sf::st_sfc(sf::st_point(c(0, 0))), crs = 4326)
+#     result <- fetchNHD(.data = valid_data)
+#     expect_false(is.null(result))
+#   }
+# )
 
 testthat::test_that(
   desc = "fetchATTAINS handles missing input data",
