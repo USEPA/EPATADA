@@ -195,7 +195,8 @@ TADA_FieldValuesTable <- function(.data, field = "null", characteristicName = "n
 
   # filter to characteristic if provided
   if (!characteristicName %in% c("null")) {
-    .data <- subset(.data, .data$TADA.CharacteristicName %in% c(characteristicName))
+    .data <- .data %>%
+      dplyr::filter(TADA.CharacteristicName %in% characteristicName)
     if (dim(.data)[1] < 1) {
       stop("Characteristic name(s) provided are not contained within the input dataset. Note that TADA converts characteristic names to ALL CAPS for easier harmonization.")
     }
