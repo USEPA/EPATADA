@@ -192,6 +192,9 @@ TADA_FieldValuesTable <- function(.data, field = "null", characteristicName = "n
   if (!field %in% names(.data)) {
     stop("Field input does not exist in dataset. Please populate the 'field' argument with a valid field name. Enter ?TADA_FieldValuesTable in console for more information.")
   }
+  
+  # change NAs to "NA" (character string)
+  .data[[field]][is.na(.data[[field]])] <- "NA"
 
   # filter to characteristic if provided
   if (!characteristicName %in% c("null")) {
