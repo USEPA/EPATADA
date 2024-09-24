@@ -164,9 +164,10 @@ TADA_CreateParamUseRef <- function(.data = NULL, entity = NULL){
 #' @examples
 #' # create criteria reference for Utah nutrients example data set
 #' 
-#' Data_Nutrients_UT <- TADA_AutoClean(Data_Nutrients_UT)
+#' Data_Nutrients_UT <- TADA_FindNearbySites(Data_Nutrients_UT)
 #' UT_CriteriaRef <- TADA_CreateStandardsRef(Data_Nutrients_UT)
-#' UT_CriteriaRef <- TADA_CreateStandardsRef(Data_Nutrients_UT, ParamUseRef = Data_Nutrients_ParamUse_ref)
+#' UT_CriteriaRef <- TADA_CreateStandardsRef(Data_Nutrients_UT, ParamUseRef = Data_Nutrients_ParamUse_ref, AUIDRef = Data_Nutrients_AUID_ref, useNameRep = TRUE)
+#' UT_CriteriaRef2 <- TADA_CreateStandardsRef(Data_Nutrients_UT, ParamUseRef = Data_Nutrients_ParamUse_ref, AUIDRef = Data_Nutrients_AUID_ref2, useNameRep = TRUE)
 #' UT_CriteriaRef_with_use <- TADA_CreateStandardsRef(Data_Nutrients_UT, useNameRep = TRUE, ParamUseRef = Data_Nutrients_ParamUse_ref)
 #' 
 
@@ -193,10 +194,9 @@ TADA_CreateStandardsRef <- function(.data, default = FALSE, ParamUseRef = NULL, 
     }
   }
   
-  if (!is.null(AUIDRef) & !is.character(AUIDRef)) {
+  if (!is.character(AUIDRef)) {
     if (!is.data.frame(AUIDRef)) {
-      stop("TADA_CreateStandardsRef: 'AUIDRef' must be a data frame with seven columns: ATTAINS.assessmentunitname, ATTAINS.assessmentunitidentifier,
-        MonitoringLocationIdentifier, MonitoringLocationName, MonitoringLocationTypeName, LongitudeMeasure, LatitudeMeasure")
+      stop("TADA_CreateStandardsRef: 'AUIDRef' must be a data frame with seven columns: ATTAINS.assessmentunitname, ATTAINS.assessmentunitidentifier, MonitoringLocationIdentifier, MonitoringLocationName, MonitoringLocationTypeName, LongitudeMeasure, LatitudeMeasure")
     }
     
     if (is.data.frame(AUIDRef)) {
@@ -208,8 +208,7 @@ TADA_CreateStandardsRef <- function(.data, default = FALSE, ParamUseRef = NULL, 
       ref.names <- names(AUIDRef)
       
       if (length(setdiff(col.names, ref.names)) > 0) {
-        stop("TADA_CreateStandardsRef: 'AUIDRef' must be a data frame with seven columns: ATTAINS.assessmentunitname, ATTAINS.assessmentunitidentifier,
-        MonitoringLocationIdentifier, MonitoringLocationName, MonitoringLocationTypeName, LongitudeMeasure, LatitudeMeasure")
+        stop("TADA_CreateStandardsRef: 'AUIDRef' must be a data frame with seven columns: ATTAINS.assessmentunitname, ATTAINS.assessmentunitidentifier, MonitoringLocationIdentifier, MonitoringLocationName, MonitoringLocationTypeName, LongitudeMeasure, LatitudeMeasure")
       }
     }
   }
@@ -244,7 +243,7 @@ TADA_CreateStandardsRef <- function(.data, default = FALSE, ParamUseRef = NULL, 
   # This creates an empty dataframe for user inputs on Criteria and Methodology of assessments
   columns <- c(
     "TADA.CharacteristicName", "TADA.MethodSpeciationName",	"TADA.ResultSampleFractionText", "entity", 
-    "ATTAINS.UseName",	"ATTAINS.WaterType", "ATTAINS.CharacteristicGroup",
+    "ATTAINS.assessmentunitname", "ATTAINS.UseName",	"ATTAINS.WaterType", "ATTAINS.CharacteristicGroup",
     "TADA.UserAcuteChronic", "TADA.UserStandardValue", "TADA.UserStandardUnit", "TADA.StandardLimit"	
   )
   
@@ -262,15 +261,29 @@ TADA_CreateStandardsRef <- function(.data, default = FALSE, ParamUseRef = NULL, 
   
   writeData(wb, 1, x = dplyr::distinct(.data[,c("TADA.CharacteristicName", "TADA.MethodSpeciationName",	"TADA.ResultSampleFractionText")]))
   writeData(wb, 1, startCol = 4, x = data.frame(entity = entity_name))
-  writeData(wb, 1, startCol = 5, x = data.frame(ATTAINS.UseName = AllowableUse))
-  writeData(wb, 1, startCol = 6, x = data.frame(ATTAINS.WaterType = unique(.data[, "MonitoringLocationTypeName"])))
-  writeData(wb, 1, startCol = 7, x = data.frame(ATTAINS.CharacteristicGroup = c("Metals", "Nutrients", "Microbiological", "Dissolved Oxygen", "Other", "NA" )))
-  writeData(wb, 1, startCol = 8, x = data.frame(TADA.UserAcuteChronic = c("Acute", "Chronic", "NA")))
-  writeData(wb, 1, startCol = 11, x = data.frame(parameterGroup = c("Upper", "Lower", "Range")))
+  writeData(wb, 1, startCol = 5, x = data.frame(ATTAINS.assessmentunitname = unique(AUIDRef$ATTAINS.assessmentunitname)))
+  writeData(wb, 1, startCol = 6, x = data.frame(ATTAINS.UseName = AllowableUse))
+  writeData(wb, 1, startCol = 7, x = data.frame(ATTAINS.WaterType = unique(.data[, "MonitoringLocationTypeName"])))
+  writeData(wb, 1, startCol = 8, x = data.frame(ATTAINS.CharacteristicGroup = c("Metals", "Nutrients", "Microbiological", "Dissolved Oxygen", "Other", "NA" )))
+  writeData(wb, 1, startCol = 9, x = data.frame(TADA.UserAcuteChronic = c("Acute", "Chronic", "NA")))
+  writeData(wb, 1, startCol = 12, x = data.frame(parameterGroup = c("Upper", "Lower", "Range")))
   #writeData(wb, 2, x = ATTAINSParameterUse)
+  
+  # param_data_frame <- dplyr::distinct(
+  #   +     Data_Nutrients_UT[,c("TADA.CharacteristicName", "TADA.MethodSpeciationName",	"TADA.ResultSampleFractionText")]) %>% 
+  #   +     mutate(entity = "utah") %>%
+  #   +     uncount(nrow(ParamUseRef)) %>%
+  #   +     mutate(ATTAINS.assessmentunitname = rep(Data_Nutrients_AUID_ref$ATTAINS.assessmentunitname, length.out = n()))
+  # > View(param_data_frame)
   
   param_data_frame <- dplyr::distinct(
     .data[,c("TADA.CharacteristicName", "TADA.MethodSpeciationName",	"TADA.ResultSampleFractionText")]) %>% 
+    mutate(entity = entity_name) %>%
+    uncount(length(unique(AUIDRef$ATTAINS.assessmentunitname))) %>%
+    mutate(ATTAINS.assessmentunitname = rep(unique(AUIDRef$ATTAINS.assessmentunitname), length.out = n()))
+  
+  AUID_data_frame <- dplyr::distinct(
+    AUIDRef[,"ATTAINS.assessmentunitname"]) %>% 
     mutate(entity = entity_name)
   
   writeData(wb, 2, x = param, headerStyle = header_st)
@@ -280,7 +293,8 @@ TADA_CreateStandardsRef <- function(.data, default = FALSE, ParamUseRef = NULL, 
   if (useNameRep == TRUE){
     writeData(
       wb, 2, startCol = 1, 
-        x = param_data_frame %>% 
+        x = 
+        param_data_frame %>% 
         uncount(n) %>% 
         mutate(ATTAINS.UseName = rep(AllowableUse$use_name, length.out = n())),
       headerStyle = header_st
@@ -295,6 +309,7 @@ TADA_CreateStandardsRef <- function(.data, default = FALSE, ParamUseRef = NULL, 
   suppressWarnings(dataValidation(wb, sheet = "UserCriteriaRef", cols = 6, rows = 2:30, type = "list", value = sprintf("'Index'!$F$2:$F$100"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE))
   suppressWarnings(dataValidation(wb, sheet = "UserCriteriaRef", cols = 7, rows = 2:30, type = "list", value = sprintf("'Index'!$G$2:$G$100"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE))
   suppressWarnings(dataValidation(wb, sheet = "UserCriteriaRef", cols = 8, rows = 2:30, type = "list", value = sprintf("'Index'!$H$2:$H$100"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE))
+  suppressWarnings(dataValidation(wb, sheet = "UserCriteriaRef", cols = 9, rows = 2:30, type = "list", value = sprintf("'Index'!$I$2:$I$100"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE))
   suppressWarnings(dataValidation(wb, sheet = "UserCriteriaRef", cols = 11, rows = 2:30, type = "list", value = sprintf("'Index'!$K$2:$K$100"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE))
   wb <- saveWorkbook(wb, "inst/extdata/myfile.xlsx", overwrite = T)
   # wb <- saveWorkbook(wb, "downloads/myfile.xlsx", overwrite = T)
