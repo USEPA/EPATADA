@@ -40,11 +40,11 @@
 #'
 #' # Create multiple boxplots with additional grouping columns and view the first
 #' # plot in list. In this example, we will group data in the input dataframe
-#' # by both the TADA.ComparableDataIdentifier and the MonitoringLocationTypeName
+#' # by both the TADA.ComparableDataIdentifier and the TADA.MonitoringLocationTypeName
 #' # (e.g. stream, reservoir, canal, etc.)
 #' # Load example data frame:
 #' data(Data_Nutrients_UT)
-#' Boxplot_output <- TADA_Boxplot(Data_Nutrients_UT, id_cols = c("TADA.ComparableDataIdentifier", "MonitoringLocationTypeName"))
+#' Boxplot_output <- TADA_Boxplot(Data_Nutrients_UT, id_cols = c("TADA.ComparableDataIdentifier", "TADA.MonitoringLocationTypeName"))
 #' # This example generates 32 box plots.
 #' Boxplot_output[[2]]
 #' Boxplot_output[[25]]
@@ -216,10 +216,10 @@ TADA_Boxplot <- function(.data, id_cols = c("TADA.ComparableDataIdentifier")) {
 #'
 #' # Create multiple histograms with additional grouping columns and view the first
 #' # plot in list. In this example, we will group by both TADA.ComparableDataIdentifier
-#' # and MonitoringLocationTypeName (e.g. stream, reservoir, canal, etc.)
+#' # and TADA.MonitoringLocationTypeName (e.g. stream, reservoir, canal, etc.)
 #' # Load example data frame:
 #' data(Data_Nutrients_UT)
-#' Histogram_output <- TADA_Histogram(Data_Nutrients_UT, id_cols = c("TADA.ComparableDataIdentifier", "MonitoringLocationTypeName"))
+#' Histogram_output <- TADA_Histogram(Data_Nutrients_UT, id_cols = c("TADA.ComparableDataIdentifier", "TADA.MonitoringLocationTypeName"))
 #' # This example generates 32 histograms
 #' Histogram_output[[10]]
 #' Histogram_output[[25]]
@@ -365,9 +365,15 @@ TADA_Histogram <- function(.data, id_cols = c("TADA.ComparableDataIdentifier")) 
 #'
 #' @param .data TADA data frame containing the data downloaded from the WQP, where
 #' each row represents a unique data record. Data frame must include the columns
-#' 'MonitoringLocationIdentifier','MonitoringLocationName','TADA.LatitudeMeasure',
+#' 'TADA.MonitoringLocationIdentifier','TADA.MonitoringLocationName','TADA.LatitudeMeasure',
 #' 'TADA.LongitudeMeasure', 'ResultIdentifier', 'ActivityStartDate', 'TADA.CharacteristicName',
 #' and 'OrganizationIdentifier' to run this function.
+#' 
+#' @param identifier A character argument to select whether the TADA.MonitoringLocationIdentifier
+#' (which may included grouped sites is TADA_FindNearbySites has been run) or the original WQP
+#' MonitoringLocationIdentifier and associated coordinates are used for mapping. Identifier equals
+#' "tada" is the default and will used the TADA prefixed monitoring location columns. Identifier
+#' equals "wqp" will use the originals.
 #'
 #' @return A leaflet map that shows all sites in the data frame, where larger point sizes
 #' indicate more results collected at a site, and darker point colors indicate more
@@ -390,7 +396,8 @@ TADA_Histogram <- function(.data, id_cols = c("TADA.ComparableDataIdentifier")) 
 #' TADA_OverviewMap(Data_6Tribes_5y_Harmonized)
 #' }
 #'
-TADA_OverviewMap <- function(.data) {
+
+TADA_OverviewMap <- function(.data, identifier = "tada") {
   suppressMessages(suppressWarnings({
     quiet({
       # taken from this stackoverflow: https://stackoverflow.com/questions/58505589/circles-in-legend-for-leaflet-map-with-addcirclemarkers-in-r-without-shiny
@@ -401,8 +408,20 @@ TADA_OverviewMap <- function(.data) {
         return(leaflet::addLegend(map, colors = colorAdditions, labels = labelAdditions, opacity = opacity, title = "Measurements"))
       }
 
+      if(identifier == "tada") {
+        ml_id <- "TADA.MonitoringLocationIdentifier"
+        
+        ml_name <- "TADA.MonitoringLocationName"
+      }
+      
+      if(identifier == "wqp") {
+        ml_id <- "MonitoringLocationIdentifier"
+        
+        ml_name <- "MonitoringLocationName"
+      }
+      
       sumdat <- .data %>%
-        dplyr::group_by(MonitoringLocationIdentifier, MonitoringLocationName, TADA.LatitudeMeasure, TADA.LongitudeMeasure) %>%
+        dplyr::group_by(!!rlang::sym(ml_id), !!rlang::sym(ml_name), TADA.LatitudeMeasure, TADA.LongitudeMeasure) %>%
         dplyr::summarise("Sample_Count" = length(unique(ResultIdentifier)), "Visit_Count" = length(unique(ActivityStartDate)), "Parameter_Count" = length(unique(TADA.CharacteristicName)), "Organization_Count" = length(unique(OrganizationIdentifier)))
 
       param_counts <- sort(unique(sumdat$Parameter_Count))
@@ -509,8 +528,8 @@ TADA_OverviewMap <- function(.data) {
           weight = 1.5,
           radius = sumdat$radius,
           popup = paste0(
-            "Site ID: ", sumdat$MonitoringLocationIdentifier,
-            "<br> Site Name: ", sumdat$MonitoringLocationName,
+            "Site ID: ", rlang::eval_tidy(rlang::sym(ml_id), sumdat),
+            "<br> Site Name: ", rlang::eval_tidy(rlang::sym(ml_name), sumdat),
             "<br> Measurement Count: ", sumdat$Sample_Count,
             "<br> Visit Count: ", sumdat$Visit_Count,
             "<br> Characteristic Count: ", sumdat$Parameter_Count
@@ -560,8 +579,14 @@ TADA_OverviewMap <- function(.data) {
 #'
 #' @param .data TADA data frame containing the data downloaded from the WQP, where
 #' each row represents a unique data record. Data frame must include the columns
-#' 'MonitoringLocationIdentifier','MonitoringLocationName','TADA.LatitudeMeasure',
+#' 'TADA.MonitoringLocationIdentifier','TADA.MonitoringLocationName','TADA.LatitudeMeasure',
 #' and 'TADA.LongitudeMeasure' to run this function.
+#' 
+#' @param identifier A character argument to select whether the TADA.MonitoringLocationIdentifier
+#' (which may included grouped sites if TADA_FindNearbySites has been run) or the original WQP
+#' MonitoringLocationIdentifier and associated coordinates are used for mapping. Identifier equals
+#' "tada" is the default and will used the TADA prefixed monitoring location columns. Identifier
+#' equals "wqp" will use the originals.
 #'
 #' @return A leaflet map that shows all sites in the data frame that contain
 #' flagged data in the form of:
@@ -586,61 +611,98 @@ TADA_OverviewMap <- function(.data) {
 #' TADA_FlaggedSitesMap(Data_6Tribes_5y_Harmonized)
 #' }
 #'
-TADA_FlaggedSitesMap <- function(.data) {
-  invalid <- TADA_FlagCoordinates(.data, flaggedonly = TRUE)
-  lowres <- invalid[invalid$TADA.InvalidCoordinates.Flag == "Imprecise_lessthan3decimaldigits", ]
-  outsideusa <- invalid[invalid$TADA.InvalidCoordinates.Flag %in% c("LAT_OutsideUSA", "LONG_OutsideUSA"), ]
-  nearby <- TADA_FindNearbySites(.data)
-  print(colnames(nearby))
-  nearby <- TADA_GetUniqueNearbySites(nearby)
+
+TADA_FlaggedSitesMap <- function(.data, identifier = "tada") {
+  
+  # check to see if TADA_FlagCoordinate has been run on TADA df
+  if(!"TADA.InvalidCoordinates.Flag" %in% names(.data)) {
+    
+    # if TADA_FlagCoordinates has not been run, run it
+    .data <- TADA_FlagCoordinates(.data)
+  }
+  
+  # create subset of imprecise sites
+  lowres <- .data[.data$TADA.InvalidCoordinates.Flag == "Imprecise_lessthan3decimaldigits", ]
+  
+  # create subset out outside usa sites
+  outsideusa <- .data[.data$TADA.InvalidCoordinates.Flag %in% c("LAT_OutsideUSA", "LONG_OutsideUSA"), ]
+  
+  # check to see if TADA_NearbySites has been run on TADA df
+  if(!"TADA.NearbySites.Flag" %in% names(.data)) {
+    
+    # if TADA_FlagCoordinates has not been run, run it
+    .data <- TADA_FindNearbySites(.data)
+  }
+  
+  # create subset of unique nearby sites
+  nearby <- TADA_GetUniqueNearbySites(.data)
 
   lowresIcon <- leaflet::makeAwesomeIcon(icon = "circle", library = "fa", iconColor = "#ffffff", markerColor = "green")
   outsideIcon <- leaflet::makeAwesomeIcon(icon = "circle", library = "fa", iconColor = "#ffffff", markerColor = "darkblue")
   nearbyIcon <- leaflet::makeAwesomeIcon(icon = "circle", library = "fa", iconColor = "#ffffff", markerColor = "pink")
 
+    
+  # columns for custom popup and map based on identifier selected by user
+  
+  lat_name <- ifelse(identifier == "wqx", "LatitudeMeasure",
+                        "TADA.LatitudeMeasure")
+    
+  long_name <- ifelse(identifier == "wqx", "LongitudeMeasure",
+                         "TADA.LongitudeMeasure")
+  
+  ml_name <- ifelse(identifier == "wqx", "MonitoringLocationName",
+                    "TADA.MonitoringLocationName")
+  
+  ml_type <- ifelse(identifier == "wqx", "MonitoringLocationTypeName",
+                    "TADA.MonitoringLocationTypeName")
+  
+  # create custom popup function
+    custom.popup <- function(.data) {
+    
+      meta.flag <- ifelse(.data$MonitoringLocationIdentifier %in% nearby$MonitoringLocationIdentifier,
+                     "*Original and TADA monitoring location metadata may be different due to grouping of nearby sites",
+                     "*Original and TADA monitoring location metadata match")
+      
+      popup = paste0(
+      "TADA.MonitoringLocationIdentifier: ", .data$TADA.MonitoringLocationIdentifier,
+      "<br> MonitoringLocationIdentifier: ", .data$MonitoringLocationIdentifier,
+      "<br>", ml_name, ": ", .data[[ml_name]],
+      "<br>", ml_type, ": ", .data[[ml_type]],
+      "<br>", lat_name, ": ", .data[[lat_name]],
+      "<br>", long_name, ": ", .data[[long_name]],
+      "<br>",
+      "<br>", meta.flag
+      )
+    }
+  
+  # create map
   map <- leaflet::leaflet() %>%
     leaflet::addProviderTiles("Esri.WorldTopoMap", group = "World topo", options = leaflet::providerTileOptions(updateWhenZooming = FALSE, updateWhenIdle = TRUE)) %>%
     leaflet.extras::addResetMapButton() # button to reset to initial zoom and lat/long
   if (nrow(outsideusa) > 0) {
-    map <- map %>% leaflet::addAwesomeMarkers(~TADA.LongitudeMeasure,
-      ~TADA.LatitudeMeasure,
+    map <- map %>% leaflet::addAwesomeMarkers(~as.numeric(outsideusa[[long_name]]),
+      ~as.numeric(outsideusa[[lat_name]]),
       icon = outsideIcon,
-      # label = ~as.character(MonitoringLocationIdentifier),
-      popup = paste0(
-        "Site ID: ", outsideusa$MonitoringLocationIdentifier,
-        "<br> Site Name: ", outsideusa$MonitoringLocationName,
-        "<br> Latitude: ", outsideusa$TADA.LatitudeMeasure,
-        "<br> Longitude: ", outsideusa$TADA.LongitudeMeasure
-      ),
+      # label = ~as.character(TADA.MonitoringLocationIdentifier),
+      popup = custom.popup(outsideusa),
       data = outsideusa
     )
   }
   if (nrow(lowres) > 0) {
-    map <- map %>% leaflet::addAwesomeMarkers(~TADA.LongitudeMeasure,
-      ~TADA.LatitudeMeasure,
+    map <- map %>% leaflet::addAwesomeMarkers(~as.numeric(lowres[[long_name]]),
+      ~as.numeric(lowres[[lat_name]]),
       icon = lowresIcon,
-      # label = ~as.character(MonitoringLocationIdentifier),
-      popup = paste0(
-        "Site ID: ", lowres$MonitoringLocationIdentifier,
-        "<br> Site Name: ", lowres$MonitoringLocationName,
-        "<br> Latitude: ", lowres$TADA.LatitudeMeasure,
-        "<br> Longitude: ", lowres$TADA.LongitudeMeasure
-      ),
+      # label = ~as.character(TADA.MonitoringLocationIdentifier),
+      popup = custom.popup(lowres),
       data = lowres
     )
   }
   if (nrow(nearby) > 0) {
-    map <- map %>% leaflet::addAwesomeMarkers(~TADA.LongitudeMeasure,
-      ~TADA.LatitudeMeasure,
+    map <- map %>% leaflet::addAwesomeMarkers(~as.numeric(nearby[[long_name]]),
+      ~as.numeric(nearby[[lat_name]]),
       icon = nearbyIcon,
       # label = ~as.character(TADA.MonitoringLocationIdentifier),
-      popup = paste0(
-        "Nearby Group Name: ", nearby$TADA.MonitoringLocationIdentifier,
-        "<br> Site ID: ", nearby$MonitoringLocationIdentifier,
-        "<br> Site Name: ", nearby$MonitoringLocationName,
-        "<br> Latitude: ", nearby$TADA.LatitudeMeasure,
-        "<br> Longitude: ", nearby$TADA.LongitudeMeasure
-      ),
+      popup = custom.popup(nearby),
       data = nearby
     )
   }
@@ -762,14 +824,14 @@ TADA_FieldValuesPie <- function(.data, field = "null", characteristicName = "nul
 #' df <- dplyr::filter(Data_6Tribes_5y_Harmonized, TADA.ComparableDataIdentifier == "TOTAL PHOSPHORUS, MIXED FORMS_UNFILTERED_AS P_UG/L")
 #' TADA_Scatterplot(df, id_cols = "TADA.ComparableDataIdentifier")
 #' # Creates a scatterplot for each monitoring location
-#' TADA_Scatterplot(df, id_cols = c("TADA.ComparableDataIdentifier", "MonitoringLocationName"))
+#' TADA_Scatterplot(df, id_cols = c("TADA.ComparableDataIdentifier", "TADA.MonitoringLocationName"))
 #'
 #' # Create multiple scatterplots with additional grouping columns and view the first
 #' # plot in list. In this example, we will group by both TADA.ComparableDataIdentifier
-#' # and MonitoringLocationTypeName (e.g. stream, reservoir, canal, etc.)
+#' # and TADA.MonitoringLocationTypeName (e.g. stream, reservoir, canal, etc.)
 #' # Load example dataset:
 #' data(Data_Nutrients_UT)
-#' Scatterplot_output <- TADA_Scatterplot(Data_Nutrients_UT, id_cols = c("TADA.ComparableDataIdentifier", "MonitoringLocationTypeName"))
+#' Scatterplot_output <- TADA_Scatterplot(Data_Nutrients_UT, id_cols = c("TADA.ComparableDataIdentifier", "TADA.MonitoringLocationTypeName"))
 #' # This example generates 47 scatterplots
 #' Scatterplot_output[[10]]
 #' Scatterplot_output[[25]]
@@ -822,8 +884,8 @@ TADA_Scatterplot <- function(.data, id_cols = c("TADA.ComparableDataIdentifier")
       mode = "markers",
       x = plot.data$ActivityStartDate, # currently uses start date only, may want to change to just ActivityStartDateTime in the future, but for now ActivityStartDateTime includes NAs when time is not available. Including ActivityStartDateTime in hover feature instead.
       y = plot.data$TADA.ResultMeasureValue,
-      # consider adding color or shapes to make it easier to see sites and/or possible realtive result values
-      # color = ~MonitoringLocationName,
+      # consider adding color or shapes to make it easier to see sites and/or possible relative result values
+      # color = ~TADA.MonitoringLocationName,
       # colors = RColorBrewer::brewer.pal(3, "Set2"),
       marker = list(color = tada.pal[1, 1]), # marker color
       stroke = I(tada.pal[1, 2]), # marker border color
@@ -833,7 +895,7 @@ TADA_Scatterplot <- function(.data, id_cols = c("TADA.ComparableDataIdentifier")
         "Result:", paste0(plot.data$TADA.ResultMeasureValue, " ", plot.data$TADA.ResultMeasure.MeasureUnitCode), "<br>",
         "Activity Start Date:", plot.data$ActivityStartDate, "<br>",
         "Activity Start Date Time:", plot.data$ActivityStartDateTime, "<br>",
-        "Monitoring Location Name:", plot.data$MonitoringLocationName, "<br>",
+        "Monitoring Location Name:", plot.data$TADA.MonitoringLocationName, "<br>",
         "Media:", plot.data$TADA.ActivityMediaName, "<br>",
         "Media Subdivision:", plot.data$ActivityMediaSubdivisionName, "<br>",
         "Result Depth:", paste0(
@@ -902,8 +964,8 @@ TADA_Scatterplot <- function(.data, id_cols = c("TADA.ComparableDataIdentifier")
 #'
 #' @param .data TADA data frame containing the data downloaded from the WQP,
 #'   where each row represents a unique data record. Data frame must include the
-#'   columns 'TADA.ComparableDataIdentifier', 'TADA.ResultMeasureValue', and 'TADA.ResultMeasure.MeasureUnitCode'
-#'   to run this function.
+#'   columns 'TADA.ComparableDataIdentifier', 'TADA.ResultMeasureValue', and 
+#'   'TADA.ResultMeasure.MeasureUnitCode' to run this function.
 #'
 #' @param id_cols The column in the dataset used to identify the unique groups to
 #'   be plotted. Defaults to 'TADA.ComparableDataIdentifier', which should be
@@ -916,8 +978,8 @@ TADA_Scatterplot <- function(.data, id_cols = c("TADA.ComparableDataIdentifier")
 #' @param groups A vector of two identifiers from the id_cols column. For
 #'   example, if the id_cols is 'TADA.ComparableDataIdentifier', the groups could
 #'   be 'DISSOLVED OXYGEN (DO)_NA_NA_UG/L' and 'PH_NA_NA_NA'. These groups will
-#'   be specific to your dataset. If the id_cols is 'MonitoringLocationName',
-#'   the groups could be 'Upper Red Lake: West' and 'Upper Red Lake: West-Central'.
+#'   be specific to your dataset. If the id_cols is 'TADA.MonitoringLocationName',
+#'   the groups could be 'UPPER RED LAKE: WEST' and 'UPPER RED LAKE: WEST-CENTRAL'.
 #'
 #' @return A single plotly scatterplot figure with one x-axis (Date/Time) and a
 #'   left and right y-axis showing the units of the two characteristic groups
@@ -974,7 +1036,7 @@ TADA_TwoCharacteristicScatterplot <- function(.data, id_cols = "TADA.ComparableD
   plot.data <- as.data.frame(.data)
 
   # this subset must include all fields included in plot hover below
-  plot.data <- subset(plot.data, plot.data[, id_cols] %in% groups)[, c(id_cols, reqcols, depthcols, "ActivityStartDateTime", "MonitoringLocationName", "TADA.ActivityMediaName", "ActivityMediaSubdivisionName", "ActivityRelativeDepthName", "TADA.CharacteristicName", "TADA.MethodSpeciationName", "TADA.ResultSampleFractionText")]
+  plot.data <- subset(plot.data, plot.data[, id_cols] %in% groups)[, c(id_cols, reqcols, depthcols, "ActivityStartDateTime", "TADA.MonitoringLocationName", "TADA.ActivityMediaName", "ActivityMediaSubdivisionName", "ActivityRelativeDepthName", "TADA.CharacteristicName", "TADA.MethodSpeciationName", "TADA.ResultSampleFractionText")]
   plot.data$name <- gsub("_NA", "", plot.data[, id_cols])
   plot.data$name <- gsub("_", " ", plot.data$name)
 
@@ -1069,7 +1131,7 @@ TADA_TwoCharacteristicScatterplot <- function(.data, id_cols = "TADA.ComparableD
         "Result:", paste0(param1$TADA.ResultMeasureValue, " ", param1$TADA.ResultMeasure.MeasureUnitCode), "<br>",
         "Activity Start Date:", param1$ActivityStartDate, "<br>",
         "Activity Start Date Time:", param1$ActivityStartDateTime, "<br>",
-        "Monitoring Location Name:", param1$MonitoringLocationName, "<br>",
+        "Monitoring Location Name:", param1$TADA.MonitoringLocationName, "<br>",
         "Media:", param1$TADA.ActivityMediaName, "<br>",
         "Media Subdivision:", param1$ActivityMediaSubdivisionName, "<br>",
         "Result Depth:", paste0(
@@ -1113,7 +1175,7 @@ TADA_TwoCharacteristicScatterplot <- function(.data, id_cols = "TADA.ComparableD
         "Result:", paste0(param2$TADA.ResultMeasureValue, " ", param2$TADA.ResultMeasure.MeasureUnitCode), "<br>",
         "Activity Start Date:", param2$ActivityStartDate, "<br>",
         "Activity Start Date Time:", param2$ActivityStartDateTime, "<br>",
-        "Monitoring Location Name:", param2$MonitoringLocationName, "<br>",
+        "Monitoring Location Name:", param2$TADA.MonitoringLocationName, "<br>",
         "Media:", param2$TADA.ActivityMediaName, "<br>",
         "Media Subdivision:", param2$ActivityMediaSubdivisionName, "<br>",
         "Result Depth:", paste0(
@@ -1144,7 +1206,7 @@ TADA_TwoCharacteristicScatterplot <- function(.data, id_cols = "TADA.ComparableD
 #' @param .data TADA data frame where each row represents a unique record. Data frame must include
 #'    the columns 'TADA.ComparableDataIdentifier', 'TADA.ResultMeasureValue',
 #'   'TADA.ResultMeasure.MeasureUnitCode', 'ActivityStartDate', 'ActivityStartDateTime',
-#'    'ActivityStartDateTime', 'MonitoringLocationName', 'TADA.ActivityMediaName',
+#'    'ActivityStartDateTime', 'TADA.MonitoringLocationName', 'TADA.ActivityMediaName',
 #'    'ActivityMediaSubdivisionName', 'TADA.ResultDepthHeightMeasure.MeasureValue',
 #'    'TADA.ResultDepthHeightMeasure.MeasureValue', 'TADA.ResultDepthHeightMeasure.MeasureUnitCode',
 #'    'ActivityRelativeDepthName', 'TADA.ActivityDepthHeightMeasure.MeasureValue',
@@ -1153,15 +1215,15 @@ TADA_TwoCharacteristicScatterplot <- function(.data, id_cols = "TADA.ComparableD
 #'    and TADA.ActivityBottomDepthHeightMeasure.MeasureUnitCode to run this function.
 #'
 #' @param group_col The column in the dataset used to identify the groups
-#'    plotted. Defaults to MonitoringLocationName. This input is flexible, and allows for the use of
+#'    plotted. Defaults to TADA.MonitoringLocationName. This input is flexible, and allows for the use of
 #'    other identifiers such as StateCode, CountyCode or user-created groups based on concatenation 
 #'    of other variables (e.g. characteristic name, site type, site name, year, organization, etc.)
 #'
 #' @param groups A vector of up to four identifiers from the id_cols column
 #'   to specify the groups that will be plotted for a TADA.ComparableDataIdentifier.
 #'   These groups will be specific to your dataset. For example, in the example data set
-#'   Data_6Tribes_5y_Harmonized if group_col is 'MonitoringLocationName', the groups could be
-#'   'Upper Red Lake: West', 'Upper Red Lake: West-Central', and 'Upper Red Lake: East Central'.
+#'   Data_6Tribes_5y_Harmonized if group_col is 'TADA.MonitoringLocationName', the groups could be
+#'   'UPPER RED LAKE: WEST', 'UPPER RED LAKE: WEST-CENTRAL', and 'UPPER RED LAKE: EAST CENTRAL'.
 #'
 #' @return A plotly scatterplot(s) figure with one x-axis (Date/Time) and a
 #'   left axis showing the units of a single TADA.ComparableDataIdentifier plotted on the same 
@@ -1188,12 +1250,12 @@ TADA_TwoCharacteristicScatterplot <- function(.data, id_cols = "TADA.ComparableD
 #' # Filter the example data so it includes only one TADA.ComparableDataIdentifier
 #' df <- dplyr::filter(Data_6Tribes_5y_Harmonized, TADA.ComparableDataIdentifier %in% c("TOTAL PHOSPHORUS, MIXED FORMS_UNFILTERED_AS P_UG/L"))
 #' # Creates a scatterplot of the three specified sites of interest in the same plot.
-#' TADA_GroupedScatterplot(df, group_col = "MonitoringLocationName", groups = c("Upper Red Lake: West", "Upper Red Lake: West-Central", "Upper Red Lake: East Central"))
+#' TADA_GroupedScatterplot(df, group_col = "TADA.MonitoringLocationName", groups = c("UPPER RED LAKE: WEST", "UPPER RED LAKE: WEST-CENTRAL", "UPPER RED LAKE: EAST CENTRAL"))
 #'
-#' # If no groups are selected, return the 4 groups (by MonitoringLocationName) with the greatest number of results
-#' TADA_GroupedScatterplot(df, group_col = "MonitoringLocationName")
+#' # If no groups are selected, return the 4 groups (by TADA.MonitoringLocationName) with the greatest number of results
+#' TADA_GroupedScatterplot(df, group_col = "TADA.MonitoringLocationName")
 #'
-TADA_GroupedScatterplot <- function(.data, group_col = "MonitoringLocationName", groups = NULL) {
+TADA_GroupedScatterplot <- function(.data, group_col = "TADA.MonitoringLocationName", groups = NULL) {
   # check .data is data.frame
   TADA_CheckType(.data, "data.frame", "Input object")
 
@@ -1204,7 +1266,7 @@ TADA_GroupedScatterplot <- function(.data, group_col = "MonitoringLocationName",
     "TADA.ResultMeasure.MeasureUnitCode",
     "ActivityStartDate",
     "ActivityStartDateTime",
-    "MonitoringLocationName"
+    "TADA.MonitoringLocationName"
   )
 
   # add user-selected group_col to list of required columns
@@ -1303,7 +1365,7 @@ TADA_GroupedScatterplot <- function(.data, group_col = "MonitoringLocationName",
   plot.data <- as.data.frame(.data)
 
   # this subset must include all fields included in plot hover below
-  plot.data <- subset(plot.data, plot.data[, group_col] %in% groups)[, unique(c(group_col, reqcols, depthcols, "TADA.ComparableDataIdentifier", "ActivityStartDateTime", "MonitoringLocationName", "TADA.ActivityMediaName", "ActivityMediaSubdivisionName", "ActivityRelativeDepthName", "TADA.CharacteristicName", "TADA.MethodSpeciationName", "TADA.ResultSampleFractionText"))]
+  plot.data <- subset(plot.data, plot.data[, group_col] %in% groups)[, unique(c(group_col, reqcols, depthcols, "TADA.ComparableDataIdentifier", "ActivityStartDateTime", "TADA.MonitoringLocationName", "TADA.ActivityMediaName", "ActivityMediaSubdivisionName", "ActivityRelativeDepthName", "TADA.CharacteristicName", "TADA.MethodSpeciationName", "TADA.ResultSampleFractionText"))]
 
   plot.data <- dplyr::arrange(plot.data, ActivityStartDate)
 
@@ -1397,7 +1459,7 @@ TADA_GroupedScatterplot <- function(.data, group_col = "MonitoringLocationName",
             "Result:", paste0(param[[j]]$TADA.ResultMeasureValue, " ", param[[j]]$TADA.ResultMeasure.MeasureUnitCode), "<br>",
             "Activity Start Date:", param[[j]]$ActivityStartDate, "<br>",
             "Activity Start Date Time:", param[[j]]$ActivityStartDateTime, "<br>",
-            "Monitoring Location Name:", param[[j]]$MonitoringLocationName, "<br>",
+            "Monitoring Location Name:", param[[j]]$TADA.MonitoringLocationName, "<br>",
             "Media:", param[[j]]$TADA.ActivityMediaName, "<br>",
             "Media Subdivision:", param[[j]]$ActivityMediaSubdivisionName, "<br>",
             "Result Depth:", paste0(

@@ -43,12 +43,12 @@ will still be determined.}
 "max". The default is dailyagg = "none". When dailyagg = "none", all results
 will be retained. When dailyagg == "avg", the mean value in each group of
 results (as determined by the depth category) will be identified or calculated for each
-MonitoringLocation, ActivityDate, Organization ID, and TADA.CharacteristicName combination.
+TADA.MonitoringLocation, ActivityDate, Organization ID, and TADA.CharacteristicName combination.
 When dailyagg == "min" or when dailyagg == "max", the min or max
 value in each group of results (as determined by the depth category) will
-be identified or calculated for each MonitoringLocation, ActivityDate, and TADA.CharacteristicName
-combination. An additional column, TADA.DepthProfileAggregation.Flag will be added
-to describe aggregation.}
+be identified or calculated for each TADA.MonitoringLocation, ActivityDate, and
+TADA.CharacteristicName combination. An additional column, TADA.DepthProfileAggregation.Flag will
+be added to describe aggregation.}
 
 \item{aggregatedonly}{Boolean argument with options "TRUE" or "FALSE". The
 default is aggregatedonly = "FALSE" which means that all results are returned.
@@ -78,7 +78,7 @@ bottom up to 2m (or user specified value) from bottom = "Bottom", and all depths
 in between the Surface and Bottom are assigned to the "Middle" category.
 }
 \details{
-When more than one result is available for a MonitoringLocationIdentifier,
+When more than one result is available for a TADA.MonitoringLocationIdentifier,
 ActivityStartDate, OrganizationIdentifier, and TADA.CharacteristicName, the
 user can choose a single result value (average, max, or min value) to use for that
 day and location. If results vary with depth, the user may also define whether

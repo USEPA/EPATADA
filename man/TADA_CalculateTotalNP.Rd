@@ -10,7 +10,7 @@ TADA_CalculateTotalNP(.data, sum_ref, daily_agg = c("max", "min", "mean"))
 \item{.data}{TADA dataframe, ideally harmonized using TADA_HarmonizeSynonyms.
 If user wants to consider grouping N or P subspecies across multiple
 organizations, user should have run TADA_FindNearbySites and grouped all
-nearby sites to one common MonitoringLocationIdentifier,
+nearby sites to one common TADA.MonitoringLocationIdentifier,
 TADA.LatitudeMeasure, TADA.LongitudeMeasure, etc.}
 
 \item{sum_ref}{Optional. A custom summation reference dataframe the user has

@@ -12,7 +12,7 @@ where each row represents a unique data record. Data frame must include the
 columns 'TADA.ResultMeasureValue', 'TADA.ResultMeasure.MeasureUnitCode',
 'TADA.ResultSampleFractionText', 'TADA.MethodSpeciationName',
 'TADA.ComparableDataIdentifier', 'TADA.CensoredData.Flag',
-'DetectionQuantitationLimitTypeName', and 'MonitoringLocationIdentifier' to
+'DetectionQuantitationLimitTypeName', and 'TADA.MonitoringLocationIdentifier' to
 run this function. The 'TADA.ComparableDataIdentifier' can be added to the
 data frame by running the function TADA_CreateComparableID().}
 
@@ -20,8 +20,8 @@ data frame by running the function TADA_CreateComparableID().}
 'TADA.ComparableDataIdentifier' as a grouping column. However, the user may
 want to summarize their dataset by additional grouping columns. For
 example, a user may want to create a summary table where each row is
-specific to one comparable data identifier AND one monitoring location.
-This input would look like: group_cols = c("MonitoringLocationIdentifier")}
+specific to one comparable data identifier AND one TADA monitoring location.
+This input would look like: group_cols = c("TADA.MonitoringLocationIdentifier")}
 }
 \value{
 stats table

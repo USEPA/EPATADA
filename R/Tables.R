@@ -21,7 +21,7 @@ TADA_SummarizeColumn <- function(.data, col = "TADA.CharacteristicName") {
   wqp_summary <- .data %>%
     dplyr::group_by(summ) %>%
     dplyr::summarize(
-      n_sites = length(unique(MonitoringLocationIdentifier)),
+      n_sites = length(unique(TADA.MonitoringLocationIdentifier)),
       n_records = length(TADA.ResultMeasureValue),
       .groups = "drop"
     ) %>%
@@ -51,7 +51,7 @@ TADA_SummarizeColumn <- function(.data, col = "TADA.CharacteristicName") {
 #'   columns 'TADA.ResultMeasureValue', 'TADA.ResultMeasure.MeasureUnitCode',
 #'   'TADA.ResultSampleFractionText', 'TADA.MethodSpeciationName',
 #'   'TADA.ComparableDataIdentifier', 'TADA.CensoredData.Flag',
-#'   'DetectionQuantitationLimitTypeName', and 'MonitoringLocationIdentifier' to
+#'   'DetectionQuantitationLimitTypeName', and 'TADA.MonitoringLocationIdentifier' to
 #'   run this function. The 'TADA.ComparableDataIdentifier' can be added to the
 #'   data frame by running the function TADA_CreateComparableID().
 #'
@@ -59,8 +59,8 @@ TADA_SummarizeColumn <- function(.data, col = "TADA.CharacteristicName") {
 #'   'TADA.ComparableDataIdentifier' as a grouping column. However, the user may
 #'   want to summarize their dataset by additional grouping columns. For
 #'   example, a user may want to create a summary table where each row is
-#'   specific to one comparable data identifier AND one monitoring location.
-#'   This input would look like: group_cols = c("MonitoringLocationIdentifier")
+#'   specific to one comparable data identifier AND one TADA monitoring location.
+#'   This input would look like: group_cols = c("TADA.MonitoringLocationIdentifier")
 #'
 #' @return stats table
 #'
@@ -92,7 +92,7 @@ TADA_Stats <- function(.data, group_cols = c("TADA.ComparableDataIdentifier")) {
     dplyr::filter(!is.na(TADA.ResultMeasureValue)) %>%
     dplyr::group_by(dplyr::across(dplyr::all_of(group_cols))) %>%
     dplyr::summarize(
-      Location_Count = length(unique(MonitoringLocationIdentifier)),
+      Location_Count = length(unique(TADA.MonitoringLocationIdentifier)),
       Measurement_Count = length(unique(ResultIdentifier)),
       Non_Detect_Count = length(TADA.CensoredData.Flag[TADA.CensoredData.Flag %in% c("Non-Detect")]),
       Non_Detect_Pct = length(TADA.CensoredData.Flag[TADA.CensoredData.Flag %in% c("Non-Detect")]) / length(TADA.CensoredData.Flag) * 100,

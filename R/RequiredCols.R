@@ -168,7 +168,9 @@ require.cols <- c(
   "StateCode",
   "CountyCode",
   "MonitoringLocationName", # required
+  "TADA.MonitoringLocationName", # generated
   "MonitoringLocationTypeName",
+  "TADA.MonitoringLocationTypeName", #generated
   "MonitoringLocationDescriptionText",
   "LatitudeMeasure",
   "TADA.LatitudeMeasure", # generated
