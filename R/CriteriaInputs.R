@@ -39,17 +39,16 @@
 
 TADA_CreateAUIDRef <- function(.data, AUID = NULL){ 
   
-  if(is.null(AUID)){
-    warning("No AUID(s) were selected for filtering. Creating a dataframe for all AUID and 
-            MonitoringLocationName/MonitoringLocationType/MonitoringLocationId.")
+  if (!any(c(
+    "TADA_with_ATTAINS", "ATTAINS_catchments", "ATTAINS_points",
+    "ATTAINS_lines", "ATTAINS_polygons"
+  ) %in% names(.data))) {
+    stop("Your input dataframe was not produced from `TADA_GetATTAINS()` or it was modified. Please create your list of ATTAINS features using `TADA_GetATTAINS()`")
   }
   
-  expected_cols <- c(
-    "ATTAINS.assessmentunitname","ATTAINS.assessmentunitidentifier"
-  )
-  
-  # Make this error message compatible with running TADA_GetATTAINS()
-  TADA_CheckColumns(.data, expected_cols)
+  if(is.null(AUID)){
+    warning("No AUID(s) were selected for filtering. Creating a dataframe for all AUID and MonitoringLocationName/MonitoringLocationType/MonitoringLocationId.")
+  }
   
   # Runs slow if pulling in all AUID, should consider trying to run a faster option if possible.
   TADA_with_ATTAINS_subset <- .data %>%
@@ -83,10 +82,10 @@ TADA_CreateAUIDRef <- function(.data, AUID = NULL){
 #'
 #' @examples
 #' Data_Nutrients_UT_ATTAINS <- load("data.Rda")
-#' Data_Nutrients_ParamUse_ref <- TADA_CreateParamUseRef(Data_Nutrients_UT, entity = "Utah")
+#' Data_Nutrients_ParamUse_ref <- TADA_CreateParamUseRef(Data_Nutrients_UT)
 #' 
 
-TADA_CreateParamUseRef <- function(.data = NULL, entity = NULL){ 
+TADA_CreateParamUseRef <- function(.data = NULL, parameter = NULL){ 
   
   # check for required columns if a .data is provided. Not a needed argument, but if users want this ref file
   # to be compatible and filtered by parameters found within their dataframe, they can provide their TADA dataframe.
@@ -104,9 +103,17 @@ TADA_CreateParamUseRef <- function(.data = NULL, entity = NULL){
     dplyr::select(organization_name, parameter, use_name) %>%
     dplyr::arrange(parameter)
    
-  if(!is.null(entity)) {
-    ref <- ref %>% dplyr::filter(organization_name == entity)
-  }
+  # Pulls in StateCode to get entity's name
+  stateCode <- utils::read.csv(system.file("extdata", "statecode.csv", package = "EPATADA"))
+  
+  # Returns the name of the entity based on the stateCode
+  entity_name <- filter(stateCode, STATE == unique(Data_Nutrients_UT$StateCode))[[2]]
+  ref <- ref %>% 
+    dplyr::filter(organization_name == entity_name) %>% 
+    dplyr::filter(if (is.null(parameter)) TRUE 
+                  else parameter == parameter
+  )
+
   
   if(!is.null(.data)){
     TADA_CheckColumns(.data, req_cols)
@@ -166,12 +173,12 @@ TADA_CreateParamUseRef <- function(.data = NULL, entity = NULL){
 #' 
 #' Data_Nutrients_UT <- TADA_FindNearbySites(Data_Nutrients_UT)
 #' UT_CriteriaRef <- TADA_CreateStandardsRef(Data_Nutrients_UT)
-#' UT_CriteriaRef <- TADA_CreateStandardsRef(Data_Nutrients_UT, ParamUseRef = Data_Nutrients_ParamUse_ref, AUIDRef = Data_Nutrients_AUID_ref, useNameRep = TRUE)
-#' UT_CriteriaRef2 <- TADA_CreateStandardsRef(Data_Nutrients_UT, ParamUseRef = Data_Nutrients_ParamUse_ref, AUIDRef = Data_Nutrients_AUID_ref2, useNameRep = TRUE)
+#' UT_CriteriaRef <- TADA_CreateStandardsRef(Data_Nutrients_UT, ParamUseRef = Data_Nutrients_ParamUse_ref, AUIDRef = Data_Nutrients_AUID_ref, default = TRUE)
+#' UT_CriteriaRef2 <- TADA_CreateStandardsRef(Data_Nutrients_UT, ParamUseRef = Data_Nutrients_ParamUse_ref, AUIDRef = Data_Nutrients_AUID_ref2, default = TRUE)
 #' UT_CriteriaRef_with_use <- TADA_CreateStandardsRef(Data_Nutrients_UT, useNameRep = TRUE, ParamUseRef = Data_Nutrients_ParamUse_ref)
 #' 
 
-TADA_CreateStandardsRef <- function(.data, default = FALSE, ParamUseRef = NULL, AUIDRef = NULL, useNameRep = FALSE) {
+TADA_CreateStandardsRef <- function(.data, default = FALSE, ParamUseRef = NULL, AUIDRef = NULL) {
   
   # check to see if user-supplied ref is a df
   # ParamUseRef table pulls in the allowable designated uses by Entity and Parameter. Will be used to join onto the TADA by TADA.CharacteristicName
@@ -213,14 +220,14 @@ TADA_CreateStandardsRef <- function(.data, default = FALSE, ParamUseRef = NULL, 
     }
   }
   
-  char = dplyr::distinct(.data[,c("TADA.CharacteristicName", "TADA.MethodSpeciationName",	"TADA.ResultSampleFractionText")])
-  
-  # If AUIDref is provided, then all unique combinations of AUID and MonitoringLocations 
+  # Pulls in all unique combinations of "TADA.CharacteristicName", "TADA.MethodSpeciationName",	"TADA.ResultSampleFractionText" and "TADA.ResultMeasure.MeasureUnitCode"
+  chars = dplyr::distinct(.data[,c("TADA.CharacteristicName", "TADA.MethodSpeciationName",	"TADA.ResultSampleFractionText", "TADA.ResultMeasure.MeasureUnitCode")]) %>%
+    filter(!is.na(TADA.ResultMeasure.MeasureUnitCode))
   
   # Pulls in StateCode to get entity's name
   stateCode <- utils::read.csv(system.file("extdata", "statecode.csv", package = "EPATADA"))
   
-  # Returns the name of the entity based on the stateCo
+  # Returns the name of the entity based on the stateCode
   entity_name <- filter(stateCode, STATE == unique(Data_Nutrients_UT$StateCode))[[2]]
   
   # If user does not supply their own ParamUseRef file, then the function will run TADA_CreateParamUseRef() to pull in this ref with no user edits.
@@ -234,11 +241,8 @@ TADA_CreateStandardsRef <- function(.data, default = FALSE, ParamUseRef = NULL, 
   # Filters ATTAINSPArameterUse to get use_name by entity
   AllowableUse <- ParamUseRef %>% 
     dplyr::filter(organization_name == entity_name) %>%
-    dplyr::filter(parameter %in% as.list(unique(char$TADA.CharacteristicName))) %>%
+    dplyr::filter(parameter %in% as.list(unique(chars$TADA.CharacteristicName))) %>%
     dplyr::select(use_name)
-  
-  # Remove intermediate char
-  rm(char)
   
   # This creates an empty dataframe for user inputs on Criteria and Methodology of assessments
   columns <- c(
@@ -266,6 +270,7 @@ TADA_CreateStandardsRef <- function(.data, default = FALSE, ParamUseRef = NULL, 
   writeData(wb, 1, startCol = 7, x = data.frame(ATTAINS.WaterType = unique(.data[, "MonitoringLocationTypeName"])))
   writeData(wb, 1, startCol = 8, x = data.frame(ATTAINS.CharacteristicGroup = c("Metals", "Nutrients", "Microbiological", "Dissolved Oxygen", "Other", "NA" )))
   writeData(wb, 1, startCol = 9, x = data.frame(TADA.UserAcuteChronic = c("Acute", "Chronic", "NA")))
+  writeData(wb, 1, startCol = 11, x = unique(chars$TADA.ResultMeasure.MeasureUnitCode))
   writeData(wb, 1, startCol = 12, x = data.frame(parameterGroup = c("Upper", "Lower", "Range")))
   #writeData(wb, 2, x = ATTAINSParameterUse)
   
@@ -290,13 +295,22 @@ TADA_CreateStandardsRef <- function(.data, default = FALSE, ParamUseRef = NULL, 
   writeData(wb, 2, startCol = 1, x = param_data_frame, headerStyle = header_st)
   
   n <- nrow(AllowableUse)
-  if (useNameRep == TRUE){
+  if (default == TRUE){
     writeData(
       wb, 2, startCol = 1, 
         x = 
-        param_data_frame %>% 
-        uncount(n) %>% 
-        mutate(ATTAINS.UseName = rep(AllowableUse$use_name, length.out = n())),
+          param_data_frame %>% 
+          uncount(n) %>% 
+          mutate(ATTAINS.UseName = rep(AllowableUse$use_name, length.out = n())),
+      headerStyle = header_st
+    )
+    writeData(wb, 2, startCol = 11,
+        x = 
+          param_data_frame %>% 
+          uncount(n) %>% 
+          mutate(ATTAINS.UseName = rep(AllowableUse$use_name, length.out = n())) %>%
+          dplyr::left_join(chars, by = c("TADA.CharacteristicName", "TADA.MethodSpeciationName",	"TADA.ResultSampleFractionText")) %>%
+          select("TADA.ResultMeasure.MeasureUnitCode"),
       headerStyle = header_st
     )
   }
@@ -311,10 +325,11 @@ TADA_CreateStandardsRef <- function(.data, default = FALSE, ParamUseRef = NULL, 
   suppressWarnings(dataValidation(wb, sheet = "UserCriteriaRef", cols = 8, rows = 2:30, type = "list", value = sprintf("'Index'!$H$2:$H$100"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE))
   suppressWarnings(dataValidation(wb, sheet = "UserCriteriaRef", cols = 9, rows = 2:30, type = "list", value = sprintf("'Index'!$I$2:$I$100"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE))
   suppressWarnings(dataValidation(wb, sheet = "UserCriteriaRef", cols = 11, rows = 2:30, type = "list", value = sprintf("'Index'!$K$2:$K$100"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE))
+  suppressWarnings(dataValidation(wb, sheet = "UserCriteriaRef", cols = 12, rows = 2:30, type = "list", value = sprintf("'Index'!$L$2:$L$100"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE))
   wb <- saveWorkbook(wb, "inst/extdata/myfile.xlsx", overwrite = T)
   # wb <- saveWorkbook(wb, "downloads/myfile.xlsx", overwrite = T)
   
-  rm(columns, param)
+  rm(chars, columns, param)
   
   CriteriaRef <- openxlsx::read.xlsx(system.file("extdata", "myfile.xlsx", package = "EPATADA"), sheet = "UserCriteriaRef")
   
