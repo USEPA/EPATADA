@@ -1,47 +1,40 @@
-#TADA_CreateAUIDRef <- function() # Will pull in initial AUID and MonitoringLocationName crosswalk after GetATTAINS is ran. User input for current cycle is needed.
-#TADA_CreateParamUseRef <- function() # Will pull in ATTAINS parameters, its allowable ATTAINS Use, and ATTAINS Group Name as an index - comes from RATTAINS package. Users will be able to modify if needed to define their own list of allowable use by parameter name.
-
-#TADA_UserStandardsRef(AUIDRef = TRUE, ParamUseRef = TRUE) # Will reference TADA_CreateAUIDRef and TADA_GetParamUseRef. If these refs are not provided, runs these ref functions and use these as the ref for allowable values Index.
-#TADA_AdditionalUserStandardsRef(AUIDRef = TRUE, ParamUseRef = TRUE) # Optional to provide additional filtering context (highly recommended if users are looking to use this tool for their WQS criteria and assessment)
-
-#TADA_CreateDurationFreqRef <- function()
-  
-#TADA_UserCriteriaRef() # Aggregates all Criteria into a single reference file that is compatible with an entity's water quality standards.
-#TADA_ImpairmentDecision()
-
 #' Assessment Unit and MonitoringLocationName/MonitoringLocationType/MonitoringLocationId Crosswalk
 #'
 #' This function will pull in all MonitoringLocationName/MonitoringLocationType/MonitoringLocationId 
 #' for AUID(s) from a TADA dataframe with ATTAINS data. This function requires users to have already 
-#' ran TADA_GetATTAINS(). Users are able to specify which AUID(S) to pull in for this ref file as an
-#' argument value.
+#' ran TADA_GetATTAINS(). Users are able to specify which AUID(S) to pull in from this ref file 
+#' when creating the final CriteriaRef file to be compatible with an organization's WQS assessments.
 #' 
 #' Users are expected to modify this AUID ref file with the appropriate AUID and 
 #' MonitoringLocationName/MonitoringLocationType/MonitoringLocationId crosswalk
-#' for the current Assessment cycle.
+#' for the current Assessment cycle. Users can decide to "Include or Exclude" a MonitoringLocation 
+#' within an AU if desired. This can be used if a MoniotringLocation would still like to be 
+#' crosswalk to the AU but may only be applicable for certain parameters.
 #' 
-#' Users can decide to "Include or Exclude" a MonitoringLocation within an AU if desired. This can be used
-#' if a MoniotringLocation would still like to be crosswalked to the AU but may only be applicable for certain
-#' parameters.
-#' 
-#'
 #' @param .data A TADA dataframe with TADA_GetATTAINS() geospatial function ran.
+#' 
+#' @param AUID Character argument. Users can specify which AUID they are interested in
+#' defining WQS criteria for. If this argument is left as NULL, then all unique AUID
+#' records will be displayed in this ref file for users to define.
 #' 
 #' @return A data frame with all the MonitoringLocationIdentifier Sites for a defined AU.
 #' 
 #' @export
 #'
 #' @examples
+#' # Loads dataframe with the example dataframe for Data_Nutrient_UT with TADA_GetATTAINS() ran.
 #' Data_Nutrients_UT_ATTAINS <- load("data.Rda")
+#' 
+#' # Creates a crosswalk for MonitoringLocationName/MonitoringLocationType/MonitoringLocationId for only AUID = "UT16020102-053_00"
 #' Data_Nutrients_AUID_ref <- TADA_CreateAUIDRef(Data_Nutrients_UT_ATTAINS$TADA_with_ATTAINS, AUID = "UT16020102-053_00")
+#' # Creates a crosswalk for MonitoringLocationName/MonitoringLocationType/MonitoringLocationId for all AU found in .data.
 #' Data_Nutrients_AUID_ref2 <- TADA_CreateAUIDRef(Data_Nutrients_UT_ATTAINS$TADA_with_ATTAINS)
 #' 
 
 TADA_CreateAUIDRef <- function(.data, AUID = NULL){ 
   
   if (!any(c(
-    "TADA_with_ATTAINS", "ATTAINS_catchments", "ATTAINS_points",
-    "ATTAINS_lines", "ATTAINS_polygons"
+    "TADA_with_ATTAINS", "ATTAINS_catchments", "ATTAINS_points", "ATTAINS_lines", "ATTAINS_polygons"
   ) %in% names(.data))) {
     stop("Your input dataframe was not produced from `TADA_GetATTAINS()` or it was modified. Please create your list of ATTAINS features using `TADA_GetATTAINS()`")
   }
@@ -72,20 +65,23 @@ TADA_CreateAUIDRef <- function(.data, AUID = NULL){
 #' 
 #' Users should define a list of allowable designated use values for each Parameter
 #' that is being assessed. This function will use a reference file created from the rATTAINS
-#' package of previous allowable values from 
+#' package of allowable values from previos assessment cycles.
 #'
-#' @param .data A TADA dataframe with TADA_GetATTAINS() geospatial function ran.
+#' @param .data A TADA dataframe. Users should run the appropriate data cleaning,
+#' processing, harmonization and filtering functions prior to this step.
 #' 
-#' @return A data frame with all the MonitoringLocationIdentifier Sites for a defined AU.
+#' @return A data frame with all allowable ATTAINS designated use values for an ATTAINS Parameter
 #' 
 #' @export
 #'
 #' @examples
 #' Data_Nutrients_UT_ATTAINS <- load("data.Rda")
-#' Data_Nutrients_ParamUse_ref <- TADA_CreateParamUseRef(Data_Nutrients_UT)
+#' Data_Nutrients_ParamUse_Ref <- TADA_CreateParamUseRef(Data_Nutrients_UT)
 #' 
 
-TADA_CreateParamUseRef <- function(.data = NULL, parameter = NULL){ 
+TADA_CreateParamUseRef <- function(.data, param = NULL){ 
+  
+  TADAparamUse <- TADA_UniqueCharUnitSpeciation(.data)
   
   # check for required columns if a .data is provided. Not a needed argument, but if users want this ref file
   # to be compatible and filtered by parameters found within their dataframe, they can provide their TADA dataframe.
@@ -94,14 +90,13 @@ TADA_CreateParamUseRef <- function(.data = NULL, parameter = NULL){
   )
   
   # This ref table pulls in the allowable designated uses by Entity and Parameter. Will be used to join onto the TADA by TADA.CharacteristicName
-  ATTAINSParameterUse <- utils::read.csv(system.file("extdata", "ATTAINSParameterUseMapRef.csv", package = "EPATADA"))
-  # WQXCharacteristicRef
+  ATTAINSParamUse <- utils::read.csv(system.file("extdata", "ATTAINSParameterUseMapRef.csv", package = "EPATADA"))
   
   # Filters ATTAINSPArameterUse to get use_name by entity
-  ref <- ATTAINSParameterUse %>% 
+  ref <- ATTAINSParamUse %>%
     # dplyr::filter(parameter %in% as.list(unique(char$TADA.CharacteristicName))) %>%
     dplyr::select(organization_name, parameter, use_name) %>%
-    dplyr::arrange(parameter)
+    dplyr::arrange(param)
    
   # Pulls in StateCode to get entity's name
   stateCode <- utils::read.csv(system.file("extdata", "statecode.csv", package = "EPATADA"))
@@ -110,18 +105,9 @@ TADA_CreateParamUseRef <- function(.data = NULL, parameter = NULL){
   entity_name <- filter(stateCode, STATE == unique(Data_Nutrients_UT$StateCode))[[2]]
   ref <- ref %>% 
     dplyr::filter(organization_name == entity_name) %>% 
-    dplyr::filter(if (is.null(parameter)) TRUE 
-                  else parameter == parameter
+    dplyr::filter(if (is.null(param)) TRUE 
+                  else parameter == param
   )
-
-  
-  if(!is.null(.data)){
-    TADA_CheckColumns(.data, req_cols)
-    
-    char = dplyr::distinct(.data[,c("TADA.CharacteristicName", "TADA.MethodSpeciationName",	"TADA.ResultSampleFractionText")])
-    
-    ref <- ref %>% dplyr::filter(parameter %in% as.list(unique(char$TADA.CharacteristicName)))
-  }
   
   return(ref)
 }
@@ -131,10 +117,9 @@ TADA_CreateParamUseRef <- function(.data = NULL, parameter = NULL){
 #' This function returns a .xlsx file named "myfile.xlsx". 
 #' All unique combinations of TADA.CharacteristicName, TADA.MethodSpeciationName, and
 #' TADA.ResultSampleFractionText will be generated and require users to input the 
-#' useName (designated use associated with the parameter), the waterbody Type that this parameter
-#' is associated with (if applicable) and whether this parameter and designated use is associated 
-#' with a chronic or acute condition. Parameter Groups will also attempt to be filled out automatically 
-#' (or should users be required to fill this in themselves?)
+#' appropriate ATTAINS.CharacteristicName, ATTAINS.UseName (designated use associated with the parameter),
+#' the waterbody Type that this parameter is associated with (if applicable) and whether 
+#' this parameter and designated use is associated with a chronic or acute condition. 
 #' 
 #' Users will have the option to remove or add rows they feel as needed. For example, if NITRATE_AS N_TOTAL
 #' criteria standards are specific to a waterbody type (Lakes versus River), then users can add an additional
@@ -146,18 +131,17 @@ TADA_CreateParamUseRef <- function(.data = NULL, parameter = NULL){
 #' being the same, with monitoringLocationName being the only difference. 
 #' 
 #' Users are required to input information on the Standards (Magnitude of concentration) that is not
-#' to be exceeded. Users will have the option to run TADA_DefineCriteriaRef (or should this be required?)
-#' if duration and frequency specifications are needed. Otherwise, if no duration or frequency values
-#' are provided, then the end output when determining impairments will use each row in the TADA
-#' dataframe as a discrete observation and use the total number of rows that contains a ResultMeasureValue
-#' as the denominator when counting the number of exceedance. 
+#' to be exceeded. Users will run TADA_DefineCriteriaRef duration and frequency specifications as needed. 
 #' 
-#'
+#' If no duration or frequency values are provided, then the end output when determining impairments 
+#' will use each row in the TADA dataframe as a discrete observation and use the total number of rows 
+#' that contains a ResultMeasureValue as the denominator when counting the number of exceedance. 
+#' 
 #' @param .data TADA dataframe
 #' 
 #' @param entity a character string abbreviation of the entity's name
 #' 
-#' @param useNameRep a boolean value. If users would like to have each row to capture all combinations
+#' @param default a boolean value. If users would like to have each row to capture all combinations
 #' of ATTAINS useName for each Parameter, they can indicate this with "TRUE" and are able to delete rows
 #' if that parameter is not applicable to that designated useName.
 #'
@@ -170,7 +154,7 @@ TADA_CreateParamUseRef <- function(.data = NULL, parameter = NULL){
 #'
 #' @examples
 #' # create criteria reference for Utah nutrients example data set
-#' 
+#' Data_Nutrients_UT <- TADA_AutoFilter(Data_Nutrients_UT)
 #' Data_Nutrients_UT <- TADA_FindNearbySites(Data_Nutrients_UT)
 #' UT_CriteriaRef <- TADA_CreateStandardsRef(Data_Nutrients_UT)
 #' UT_CriteriaRef <- TADA_CreateStandardsRef(Data_Nutrients_UT, ParamUseRef = Data_Nutrients_ParamUse_ref, AUIDRef = Data_Nutrients_AUID_ref, default = TRUE)
@@ -241,12 +225,13 @@ TADA_CreateStandardsRef <- function(.data, default = FALSE, ParamUseRef = NULL, 
   # Filters ATTAINSPArameterUse to get use_name by entity
   AllowableUse <- ParamUseRef %>% 
     dplyr::filter(organization_name == entity_name) %>%
-    dplyr::filter(parameter %in% as.list(unique(chars$TADA.CharacteristicName))) %>%
-    dplyr::select(use_name)
+    #dplyr::filter(parameter %in% as.list(unique(chars$TADA.CharacteristicName))) %>%
+    dplyr::select(use_name) %>%
+    dplyr::distinct()
   
   # This creates an empty dataframe for user inputs on Criteria and Methodology of assessments
   columns <- c(
-    "TADA.CharacteristicName", "TADA.MethodSpeciationName",	"TADA.ResultSampleFractionText", "entity", 
+    "ATTAINS.CharacteristicName", "TADA.CharacteristicName", "TADA.MethodSpeciationName",	"TADA.ResultSampleFractionText", "entity", 
     "ATTAINS.assessmentunitname", "ATTAINS.UseName",	"ATTAINS.WaterType", "ATTAINS.CharacteristicGroup",
     "TADA.UserAcuteChronic", "TADA.UserStandardValue", "TADA.UserStandardUnit", "TADA.StandardLimit"	
   )
@@ -263,15 +248,17 @@ TADA_CreateStandardsRef <- function(.data, default = FALSE, ParamUseRef = NULL, 
   writeData(wb, 2, startCol = 1, x = param, headerStyle = header_st)
   openxlsx::setColWidths(wb, 2, cols = 1:ncol(param), widths = "auto")
   
-  writeData(wb, 1, x = dplyr::distinct(.data[,c("TADA.CharacteristicName", "TADA.MethodSpeciationName",	"TADA.ResultSampleFractionText")]))
-  writeData(wb, 1, startCol = 4, x = data.frame(entity = entity_name))
-  writeData(wb, 1, startCol = 5, x = data.frame(ATTAINS.assessmentunitname = unique(AUIDRef$ATTAINS.assessmentunitname)))
-  writeData(wb, 1, startCol = 6, x = data.frame(ATTAINS.UseName = AllowableUse))
-  writeData(wb, 1, startCol = 7, x = data.frame(ATTAINS.WaterType = unique(.data[, "MonitoringLocationTypeName"])))
-  writeData(wb, 1, startCol = 8, x = data.frame(ATTAINS.CharacteristicGroup = c("Metals", "Nutrients", "Microbiological", "Dissolved Oxygen", "Other", "NA" )))
-  writeData(wb, 1, startCol = 9, x = data.frame(TADA.UserAcuteChronic = c("Acute", "Chronic", "NA")))
-  writeData(wb, 1, startCol = 11, x = unique(chars$TADA.ResultMeasure.MeasureUnitCode))
-  writeData(wb, 1, startCol = 12, x = data.frame(parameterGroup = c("Upper", "Lower", "Range")))
+  writeData(wb, 1, startCol = 1, x = data.frame(ATTAINS.CharacteristicName = unique(ParamUseRef$parameter)))
+  writeData(wb, 1, startCol = 2, x = dplyr::distinct(.data[,c("TADA.CharacteristicName", "TADA.MethodSpeciationName",	"TADA.ResultSampleFractionText")]))
+  writeData(wb, 1, startCol = 5, x = data.frame(entity = entity_name))
+  writeData(wb, 1, startCol = 6, x = data.frame(ATTAINS.assessmentunitname = unique(AUIDRef$ATTAINS.assessmentunitname)))
+  writeData(wb, 1, startCol = 7, x = data.frame(ATTAINS.UseName = AllowableUse))
+  writeData(wb, 1, startCol = 8, x = data.frame(ATTAINS.WaterType = unique(.data[, "MonitoringLocationTypeName"])))
+  writeData(wb, 1, startCol = 9, x = data.frame(ATTAINS.CharacteristicGroup = c("Metals", "Nutrients", "Microbiological", "Dissolved Oxygen", "Other", "NA" )))
+  writeData(wb, 1, startCol = 10, x = data.frame(TADA.UserAcuteChronic = c("Acute", "Chronic", "NA")))
+  writeData(wb, 1, startCol = 11, x = data.frame(TADA.UserAcuteChronic = c("equation", "site-specific", as.character(1:90))))
+  writeData(wb, 1, startCol = 12, x = unique(chars$TADA.ResultMeasure.MeasureUnitCode))
+  writeData(wb, 1, startCol = 13, x = data.frame(parameterGroup = c("Upper", "Lower", "Range")))
   #writeData(wb, 2, x = ATTAINSParameterUse)
   
   # param_data_frame <- dplyr::distinct(
@@ -292,19 +279,19 @@ TADA_CreateStandardsRef <- function(.data, default = FALSE, ParamUseRef = NULL, 
     mutate(entity = entity_name)
   
   writeData(wb, 2, x = param, headerStyle = header_st)
-  writeData(wb, 2, startCol = 1, x = param_data_frame, headerStyle = header_st)
+  writeData(wb, 2, startCol = 2, x = param_data_frame, headerStyle = header_st)
   
   n <- nrow(AllowableUse)
   if (default == TRUE){
     writeData(
-      wb, 2, startCol = 1, 
+      wb, 2, startCol = 2, 
         x = 
           param_data_frame %>% 
           uncount(n) %>% 
           mutate(ATTAINS.UseName = rep(AllowableUse$use_name, length.out = n())),
       headerStyle = header_st
     )
-    writeData(wb, 2, startCol = 11,
+    writeData(wb, 2, startCol = 12,
         x = 
           param_data_frame %>% 
           uncount(n) %>% 
@@ -324,8 +311,10 @@ TADA_CreateStandardsRef <- function(.data, default = FALSE, ParamUseRef = NULL, 
   suppressWarnings(dataValidation(wb, sheet = "UserCriteriaRef", cols = 7, rows = 2:30, type = "list", value = sprintf("'Index'!$G$2:$G$100"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE))
   suppressWarnings(dataValidation(wb, sheet = "UserCriteriaRef", cols = 8, rows = 2:30, type = "list", value = sprintf("'Index'!$H$2:$H$100"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE))
   suppressWarnings(dataValidation(wb, sheet = "UserCriteriaRef", cols = 9, rows = 2:30, type = "list", value = sprintf("'Index'!$I$2:$I$100"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE))
+  suppressWarnings(dataValidation(wb, sheet = "UserCriteriaRef", cols = 10, rows = 2:30, type = "list", value = sprintf("'Index'!$J$2:$J$100"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE))
   suppressWarnings(dataValidation(wb, sheet = "UserCriteriaRef", cols = 11, rows = 2:30, type = "list", value = sprintf("'Index'!$K$2:$K$100"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE))
   suppressWarnings(dataValidation(wb, sheet = "UserCriteriaRef", cols = 12, rows = 2:30, type = "list", value = sprintf("'Index'!$L$2:$L$100"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE))
+  suppressWarnings(dataValidation(wb, sheet = "UserCriteriaRef", cols = 13, rows = 2:30, type = "list", value = sprintf("'Index'!$M$2:$M$100"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE))
   wb <- saveWorkbook(wb, "inst/extdata/myfile.xlsx", overwrite = T)
   # wb <- saveWorkbook(wb, "downloads/myfile.xlsx", overwrite = T)
   
@@ -422,7 +411,7 @@ TADA_CreateAdditionalStandardsRef <- function(.data, ref = "null") {
 #' 
 #' If users do not include Duration and Frequency criteria in their ref file, then impairment decisions
 #' will be based on each observation in the tada dataframe with no averaging period used and the denominator
-#' will be for every observation that matches a row entry in the CriteriaRef as no frequeuncy or duration is defined.
+#' will be for every observation that matches a row entry in the CriteriaRef as no frequency or duration is defined.
 #' 
 #' 
 #' Users will be required to validate these values for reasonability based on their state's water quality standards criteria. 
@@ -450,7 +439,7 @@ TADA_CreateAdditionalStandardsRef <- function(.data, ref = "null") {
 #' UT_CriteriaRef3 <- TADA_DefineCriteriaRef()
 #' 
 
-TADA_DefineCriteriaRef <- function(ref, autofill = TRUE) {
+TADA_DefineCriteriaRef <- function(Criteriaref, autofill = TRUE) {
   # Users will be able to specify what duration and/or frequency should be applied for a parameterGroup 
   # (or should this be applied on a TADA.Characteristic level?). 
   
@@ -478,7 +467,7 @@ TADA_DefineCriteriaRef <- function(ref, autofill = TRUE) {
         ATTAINS.CharacteristicGroup == "Metals" & TADA.UserAcuteChronic == "Acute" ~ 1,
         ATTAINS.CharacteristicGroup == "Metals" & TADA.UserAcuteChronic == "Chronic" ~ 4,
         ATTAINS.CharacteristicGroup == "Pathogens" & TADA.UserAcuteChronic == "Acute" ~ 1, #E. coli, Enterococci
-        ATTAINS.CharacteristicGroup == "Nutrients" ~ 1
+        ATTAINS.CharacteristicGroup == "Nutrients" ~ 30
         ) 
       )%>%
     dplyr::mutate(
@@ -486,7 +475,7 @@ TADA_DefineCriteriaRef <- function(ref, autofill = TRUE) {
         ATTAINS.CharacteristicGroup == "Metals" & TADA.UserAcuteChronic == "Acute" ~ "hour average",
         ATTAINS.CharacteristicGroup == "Metals" & TADA.UserAcuteChronic == "Chronic" ~ "day average",
         ATTAINS.CharacteristicGroup == "Pathogens" & TADA.UserAcuteChronic == "Acute" ~ "hour geometric mean", #E. coli, Enterococci
-        ATTAINS.CharacteristicGroup == "Nutrients" ~ "monthly mean"
+        ATTAINS.CharacteristicGroup == "Nutrients" ~ "day arithmetic average"
                                                        
       ))
   }
@@ -528,10 +517,10 @@ TADA_DefineCriteriaRef <- function(ref, autofill = TRUE) {
 #'
 #' @examples
 #' # example dataset with ATTAINS getspatial below
-#' SiteSpecific_Ref <- TADA_SiteSpecificStandards(Data_Nutrients_UT_ATTAINS2, AUID = "UT16020102-053_00")
+#' UT_SiteSpecific_Ref <- TADA_SiteSpecificStandards(UT_CriteriaRef3, AUIDRef = Data_Nutrients_AUID_ref, AUID = "UT16020102-053_00")
 #' 
 
-TADA_SiteSpecificStandards <- function(.data, CriteriaRef, AUID){ 
+TADA_SiteSpecificStandards <- function(CriteriaRef, AUIDRef, AUID){ 
 
   # check for required columns
   req_cols <- c(
@@ -540,31 +529,37 @@ TADA_SiteSpecificStandards <- function(.data, CriteriaRef, AUID){
     "MonitoringLocationIdentifier", "MonitoringLocationName"
   )
   
+  if(is.na(sum(str_detect(CriteriaRef$TADA.UserStandardValue, "site-specific")))){
+    stop("There are no 'site-specific' standards to define in your CriteriaRef list. TADA_SiteSpecificStandards will only run if there are rows that need to be further defined by specific monitoring sites")
+  }
+  
   # Must perform a check if user has filled out the CriteriaRef file
-  CriteriaRef <- openxlsx::read.xlsx(system.file("extdata", "myfile.xlsx", package = "EPATADA"), sheet = "UserCriteriaRef")
+  # CriteriaRef <- openxlsx::read.xlsx(system.file("extdata", "myfile.xlsx", package = "EPATADA"), sheet = "UserCriteriaRef")
   
   # Filters the TADA_ATTAINS dataframe by the AUID or monitoringLocationName argument parameter in the function
   # and returns a dataframe of all the unique monitoringLocationName by that AUID.
-  if (!is.null(AUID)){
-    AUID_ref <- TADA_AUIDMonitoringLocation(.data, AUID = AUID)
-  }
-  
-  if (is.null(AUID)){
-    AUID_ref <- TADA_AUIDMonitoringLocation(.data)
-  }
+  # if (!is.null(AUID)){
+  #   AUID_ref <- TADA_AUIDMonitoringLocation(.data, AUID = AUID)
+  # }
+  # 
+  # if (is.null(AUID)){
+  #   AUID_ref <- TADA_AUIDMonitoringLocation(.data)
+  # }
   
   AUID_CriteriaRef <- CriteriaRef %>%
-    dplyr::mutate(ATTAINS.assessmentunitidentifier =
+    #dplyr::mutate(., case_when(is.na(AUID), monitoringLocationName = NA)) %>%
+    dplyr::left_join(AUIDRef, by = "ATTAINS.assessmentunitname", relationship = "many-to-many") %>%
+    dplyr::mutate(ATTAINS.MonitoringLocationIdentifier =
       case_when(
-        TADA.UserStandardValue ==  "site specific" ~ AUID)
+        TADA.UserStandardValue ==  "site-specific" ~ MonitoringLocationIdentifier)
       ) %>%
     dplyr::mutate(TADA.UserStandardValue =
       case_when(
-        TADA.UserStandardValue ==  "site specific" ~ NA)
-      ) %>%
-    #dplyr::mutate(., case_when(is.na(AUID), monitoringLocationName = NA)) %>%
-    dplyr::left_join(AUID_ref, by = "ATTAINS.assessmentunitidentifier")
-  
+        TADA.UserStandardValue ==  "site-specific" ~ NA)
+    ) %>%
+    select("ATTAINS.CharacteristicName", "TADA.CharacteristicName", "TADA.MethodSpeciationName",
+           "TADA.ResultSampleFractionText", "TADA.ResultMeasure.MeasureUnitCode", "entity", "ATTAINS.assessmentunitname", "ATTAINS.MonitoringLocationIdentifier", "ATTAINS.UseName", colnames(CriteriaRef)[8:length(CriteriaRef)] ) %>%
+    distinct()
   
   return(AUID_CriteriaRef)
 }
@@ -596,7 +591,7 @@ TADA_SiteSpecificStandards <- function(.data, CriteriaRef, AUID){
 #' load(ATTAINS_DATA_UT)
 #' 
 
-TADA_ImpairmentDecision <- function(.data, monitoringLocationName, AUID){ 
+TADA_ATTAINSImpairmentDecision <- function(.data, monitoringLocationName, AUID){ 
   
   library(arsenal)
   library(httr)
