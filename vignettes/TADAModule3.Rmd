@@ -1,0 +1,293 @@
+---
+title: "TADA Module 3: Integration of Common Water Quality Standards (WQS) Criteria"
+format: html
+editor: visual
+author: "TADA Team"
+date: "`r Sys.Date()`"
+output: 
+  rmarkdown::html_vignette:
+    toc: true
+    fig_caption: yes
+    fig_height: 8
+    fig_width: 8
+vignette: >
+  %\VignetteEncoding{UTF-8}
+  %\VignetteIndexEntry{TADA Module 3: Integration of Common Water Quality Standards (WQS) Criteria}
+  %\VignetteEngine{knitr::rmarkdown}
+description: An overview of TADA Module 3 functions and a recommended workflow.
+editor_options:
+  chunk_output_type: console
+  markdown:
+    wrap: 72
+---
+
+```{r setup, include=FALSE}
+library(knitr)
+
+knitr::opts_chunk$set(
+  echo = TRUE,
+  warning = FALSE,
+  message = FALSE
+)
+```
+
+## Welcome!
+
+Thank you for your interest in Tools for Automated Data Analysis (TADA).
+TADA is an open-source tool set built in the R programming language.
+This [RMarkdown](https://bookdown.org/yihui/rmarkdown/) document walks
+users through how to download the TADA R package from GitHub, access and
+parameterize several important functions, and create basic
+visualizations with a sample data set.
+
+**Note: TADA is still under development. New functionality is added
+weekly, and sometimes we need to make bug fixes in response to tester
+and user feedback. We appreciate your feedback, patience, and interest
+in these helpful tools.**
+
+**If you are interested in contributing to TADA development, more
+information is available at:**
+
+[**Contributing**](https://usepa.github.io/EPATADA/articles/CONTRIBUTING.html)
+
+**We welcome collaboration with external partners.**
+
+## Install and load packages
+
+First, install and load the remotes package specifying the repo. This is
+needed before installing TADA because it is only available on GitHub.
+
+```{r install_remotes, results = 'hide', eval = F}
+install.packages("remotes",
+  repos = "http://cran.us.r-project.org"
+)
+library(remotes)
+```
+
+Next, install and load TADA using the remotes package. TADA R Package
+dependencies will also be downloaded automatically from CRAN with the
+TADA install. You may be prompted in the console to update dependency
+packages that have more recent versions available. If you see this
+prompt, it is recommended to update all of them (enter 1 into the
+console).
+
+```{r install_TADA, eval = F, results = 'hide'}
+remotes::install_github("USEPA/EPATADA",
+  ref = "502-tadacomparabledataidentifier-column-showing-na-for-the-tadaresultmeasuremeasureunitcode-portion-of-its-string-pasting",
+  dependencies = TRUE
+)
+```
+
+Finally, use the **library()** function to load the TADA R Package into
+your R session.
+
+```{r library, results = 'hide'}
+library(EPATADA)
+```
+
+## Help pages
+
+All TADA R package functions have their own individual help pages,
+listed on the [Function
+reference](https://usepa.github.io/EPATADA/reference/index.html) page on
+the GitHub site. Users can also access the help page for a given
+function in R or RStudio using the following format (example below):
+`?[name of TADA function]`
+
+```{r help_pages, eval = F}
+# Access help page for TADA_DataRetrieval
+?TADA_DataRetrieval
+```
+
+## WQS Criteria Functions in TADA
+
+Disclaimer: ...
+
+Criteria is defined as the standards (Magnitude), duration and frequency
+associated with a parameter and designated use.
+
+-   Standards (Magnitude) is defined as the limiting concentration not
+    to be exceeded.
+
+-   Duration is the period/length of time in which observations are
+    aggregated.
+
+-   Frequency is defined as the percent or number of times in which a
+    magnitude can be exceeded during a time frame.
+
+This vignette represents functions that provide users the option to:
+
+-   Define the geospatial components, perform a parameter crosswalk
+    between ATTAINS parameter names and WQP/TADA parameter names, and
+    define the parameter and designated use of a water body associated
+    with each state and participating tribe's WQS criteria.
+
+-   Determine recommended impairment decisions for each parameter and
+    designated use of a water body based on these defined WQS criteria
+    conditions.
+
+-   Compare and capture common methodologies on a state, territory and
+    tribal nations criteria to protect designated uses in their WQS.
+
+The EPA has derived its "national recommended Clean Water Act (CWA)
+304(a) criteria". However, these standards do not account for regional
+or site-specific conditions in which each state may derive its own
+criteria. The functions in Module 3 TADA aims to be flexible to capture
+these criteria conditions specific to each state or tribal nation's
+definition. Users will be required to modify and review the appropriate
+crosswalk for each step of the process. While efforts have been made to
+reduce manual inputs, initial workflow may require much additions and
+removals during each step.
+
+**Additional Description:**
+
+**...**
+
+## `TADA_CreateAUIDRef()`
+
+This function requires users to have already ran TADA_GetATTAINS()
+function (see TADAModule2.Rmd for more information on geospatial
+functions).
+
+Users will be required to first provide a crosswalk between the
+Assessment Unit Identifier(s) (AUID) of interest and the corresponding
+Monitoring Location Name/Identifier/TypeName(s) found within each AU.
+Users will have the option to filter this dataframe AUID ref file by a
+vector of AUID(s) or for all AUID found within the user's submitted TADA
+dataframe pull.
+
+First, we will need to pull in some TADA Water Quality Portal Data:
+
+```{r}
+# Zinc, hardness, pH data in Larimer county, CO for the year 2020.
+TADA_dataframe <- TADA_DataRetrieval(
+  startDate = "2020-01-01",
+  endDate = "2020-12-31",
+  characteristicName = c("pH", "Zinc", "Hardness"),
+  countycode = "US:08:069",
+  applyautoclean = TRUE
+)
+```
+
+Now, `TADA_GetATTAINS()` returns a dataframe containing the original
+TADA WQP dataset, plus new columns representing the ATTAINS assessment
+unit(s) that fall within the same NHDPlus HR catchment as them. This
+means that it is possible for a single TADA WQP observation to have
+multiple ATTAINS assessment units linked to it and subsequently more
+than one row of data. Such WQP observations can be identified using the
+new `index` column (i.e., multiple rows with the same index value are
+the same observation).
+
+```{r}
+# return_sf = TRUE is currently a needed argument, should update the code to account for if return_sf is FALSE
+TADA_with_ATTAINS <- TADA_GetATTAINS(TADA_dataframe, return_sf = TRUE)
+```
+
+Now, create a new reference dataframe with ONLY the unique combinations
+of WQP MonitoringLocationIdentifier's and ATTAINS Assessment Unit
+Identifiers.
+
+```{r}
+# What columns should we include in this AUIDRef?
+TADA_AUIDRef <- TADA_CreateAUIDRef(TADA_with_ATTAINS)
+
+```
+
+Users may want to further filter by a specific AUID(s). Example below
+showcase how this can be accomplished:
+
+```{r}
+TADA_AUIDRef2 <- TADA_CreateAUIDRef(TADA_with_ATTAINS, AUID = c("COSPBT04_A", "COSPBT04_B"))
+
+```
+
+Users will need to modify this AUID reference file to be compatible with
+their submission to ATTAINS for the current Assessment cycle. If a new
+AUID is needed, users should add an additional row to this reference
+file with the appropriate latitude and longitude associated with it.
+Users will have the option to include or exclude an AU from their WQS
+assessments in the last column if a specific AU wants to be excluded
+from calculation for a certain parameter, but may still be referenced in
+the future if needed.
+
+If Users are filling out unique conditions found in
+
+```{r}
+add_df <- data.frame("Example_New_AU_Name", "Example_New_AU_ID", "Example_New_Monitoring_ID", NA, NA,)
+names(add_df) <- colnames(TADA_dataframe_AUIDRef)
+
+TADA_AUIDRef_Add <- rbind("Example_New_AU_Name", "Example_New_AU_ID", "Example_New_Monitoring_ID", NA, NA, )
+```
+
+## `TADA_CreateParamRef()`
+
+This function will require users to provide a crosswalk between ATTAINS
+parameters and TADA parameters. Users will need to define this crosswalk
+for each row,, otherwise next steps in the process may not run
+correctly.
+
+```{r}
+# Users must define the appropriate crosswalk map between ATTAINS parameter and WQP parameters.
+TADA_ParamRef <- TADA_CreateParamRef(TADA_dataframe, overwrite = TRUE)
+```
+
+User should open this file and, in the "UserCriteriaRef" tab, make the
+appropriate parameter crosswalk between ATTAINS Parameters and TADA
+Parameters. A dropdown of allowable values in an excel spreadsheet for
+each column is created. All unique combinations of TADA Characteristic
+Name, TADA Speciation, and TADA Fraction are created from the TADA data
+frame provided, and col B for ATTAINS.CharacteristicName should be the
+only modified column (should we freeze/protect other columns?)
+
+The path of the file is automatically saved to the user's Downloads
+folder. If there are issues with the download path, users will need to
+specify their desired locations path as an argument in
+TADA_CreateParamRef().
+
+```{r}
+# User should open this file and make the appropriate parameter crosswalk between ATTAINS Parameters and TADA Parameters.
+downloads_path <- file.path(Sys.getenv("USERPROFILE"), "Downloads", "myfile.xlsx")
+
+# Users can choose to import the file as a R data frame below
+TADA_ParamRef <- openxlsx::read.xlsx(downloads_path, sheet = "UserCriteriaRef")
+```
+
+## `TADA_CreateStandardsRef()`
+
+Users can provide the ParamRef as a R data frame, or users can choose to
+make the edits on the excel spredsheet file created in the downloads
+folder, or other specified folder path location which can be defined as
+an argument.
+
+The AUIDRef file is a required argument. Users will need to have ran
+this function and make any appropriate edits.
+
+```{r}
+TADA_StandardsRef <- TADA_CreateStandardsRef(TADA_dataframe, ParamRef = TADA_ParamRef, AUIDRef = TADA_AUIDRef, overwrite = TRUE)
+```
+
+```{r}
+TADA_StandardsRef <- TADA_CreateStandardsRef(TADA_dataframe, ParamRef = TADA_ParamRef, AUIDRef = TADA_AUIDRef)
+
+```
+
+## `TADA_CreateAdditionalStandardsRef()`
+
+Users will have the
+
+```{r}
+
+```
+
+## `TADA_CreateDurationFreqRef()`
+
+TADA Priority Ref Duration will be used as a default. For all other
+parameters not found as a priority, users will have the option to
+autofill them as either "NA" or "1 discrete observation" as an argument.
+If left as NA, users will fill in the values on their own for their
+organization's WQS requirement.
+
+```{r}
+```
+
+## `TADA_CreateCriteriaRef()`

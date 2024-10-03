@@ -31,19 +31,22 @@
 #' Data_Nutrients_AUID_ref2 <- TADA_CreateAUIDRef(Data_Nutrients_UT_ATTAINS$TADA_with_ATTAINS)
 #' 
 
-TADA_CreateAUIDRef <- function(.data, AUID = NULL){ 
+TADA_CreateAUIDRef <- function(.data, AUID = NULL, unique_handle = FALSE){ 
+  library(rATTAINS)
   
   if (!any(c(
     "TADA_with_ATTAINS", "ATTAINS_catchments", "ATTAINS_points", "ATTAINS_lines", "ATTAINS_polygons"
   ) %in% names(.data))) {
-    stop("Your input dataframe was not produced from `TADA_GetATTAINS()` or it was modified. Please create your list of ATTAINS features using `TADA_GetATTAINS()`")
+    stop("Your input dataframe was not produced from `TADA_GetATTAINS()` or it was modified. Please create your list of ATTAINS features using `TADA_GetATTAINS(return_sf = TRUE)`")
   }
+  
+  .data <- .data[["TADA_with_ATTAINS"]]
   
   if(is.null(AUID)){
     warning("No AUID(s) were selected for filtering. Creating a dataframe for all AUID and MonitoringLocationName/MonitoringLocationType/MonitoringLocationId.")
   }
   
-  # Runs slow if pulling in all AUID, should consider trying to run a faster option if possible.
+  # Filters by AUID if desired, otherwise creates a dataframe of all unique AUID in the TADA dataframe pull
   TADA_with_ATTAINS_subset <- .data %>%
     dplyr::filter(if (is.null(AUID)) TRUE 
       else ATTAINS.assessmentunitidentifier == AUID
@@ -76,12 +79,12 @@ TADA_CreateAUIDRef <- function(.data, AUID = NULL){
 #'
 #' @examples
 #' Data_Nutrients_UT_ATTAINS <- load("data.Rda")
-#' Data_Nutrients_ParamUse_Ref <- TADA_CreateParamUseRef(Data_Nutrients_UT)
+#' Data_Nutrients_Param_Ref <- TADA_CreateParamUseRef(Data_Nutrients_UT)
 #' 
 
-TADA_CreateParamUseRef <- function(.data, param = NULL){ 
+TADA_CreateParamRef <- function(.data, param = NULL, overwrite = FALSE, downloads_path = NULL){ 
   
-  TADAparamUse <- TADA_UniqueCharUnitSpeciation(.data)
+  TADAparamUse <- dplyr::distinct(.data[,c("TADA.CharacteristicName", "TADA.MethodSpeciationName", "TADA.ResultSampleFractionText")])
   
   # check for required columns if a .data is provided. Not a needed argument, but if users want this ref file
   # to be compatible and filtered by parameters found within their dataframe, they can provide their TADA dataframe.
@@ -97,19 +100,82 @@ TADA_CreateParamUseRef <- function(.data, param = NULL){
     # dplyr::filter(parameter %in% as.list(unique(char$TADA.CharacteristicName))) %>%
     dplyr::select(organization_name, parameter, use_name) %>%
     dplyr::arrange(param)
-   
+  
   # Pulls in StateCode to get entity's name
   stateCode <- utils::read.csv(system.file("extdata", "statecode.csv", package = "EPATADA"))
+  stateCode$STATE <- sprintf("%02d", stateCode$STATE)
+  entity <- unique(.data$StateCode)
   
   # Returns the name of the entity based on the stateCode
-  entity_name <- filter(stateCode, STATE == unique(Data_Nutrients_UT$StateCode))[[2]]
+  entity_name <- dplyr::filter(stateCode, STATE == entity)[[2]]
+  
+  # 
   ref <- ref %>% 
     dplyr::filter(organization_name == entity_name) %>% 
     dplyr::filter(if (is.null(param)) TRUE 
                   else parameter == param
+    )
+  
+  # This creates an empty dataframe for user inputs on Criteria and Methodology of assessments
+  columns <- c(
+    "TADA.StateCode", "ATTAINS.CharacteristicName", "TADA.CharacteristicName", "TADA.MethodSpeciationName",	"TADA.ResultSampleFractionText"
   )
   
-  return(ref)
+  par <- data.frame(matrix(nrow = 0, ncol = length(columns)))
+  colnames(par) = columns
+  
+  library(openxlsx)
+  wb <- createWorkbook()
+  addWorksheet(wb, "Index")
+  protectWorksheet(wb, "Index", protect = TRUE)
+  addWorksheet(wb, "UserCriteriaRef")
+  # Format column header
+  header_st <- createStyle(textDecoration = "Bold")
+  # Write column name
+  writeData(wb, 2, startCol = 1, x = par, headerStyle = header_st)
+  # Format Column widths
+  openxlsx::setColWidths(wb, 2, cols = 1:ncol(par), widths = "auto")
+  
+  # Index of ATTAINS allowable values for Entity/Parameter/Designated Use
+  writeData(wb, 1, startCol = 1, x = ref)
+  # Index of Unique combinations of WQP TADA Parameters found in TADA dataframe
+  writeData(wb, 1, startCol = 4, x = dplyr::distinct(.data[,c("TADA.CharacteristicName", "TADA.MethodSpeciationName",	"TADA.ResultSampleFractionText")]))
+  writeData(wb, 2, startCol = 3, x = dplyr::distinct(.data[,c("TADA.CharacteristicName", "TADA.MethodSpeciationName",	"TADA.ResultSampleFractionText")]))
+  
+  
+  suppressWarnings(dataValidation(wb, sheet = "UserCriteriaRef", cols = 1, rows = 2:1000, type = "list", value = sprintf("'Index'!$A$2:$A$1000"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE))
+  suppressWarnings(dataValidation(wb, sheet = "UserCriteriaRef", cols = 2, rows = 2:1000, type = "list", value = sprintf("'Index'!$B$2:$B$1000"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE))
+  suppressWarnings(dataValidation(wb, sheet = "UserCriteriaRef", cols = 3, rows = 2:1000, type = "list", value = sprintf("'Index'!$D$2:$D$1000"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE))
+  suppressWarnings(dataValidation(wb, sheet = "UserCriteriaRef", cols = 4, rows = 2:1000, type = "list", value = sprintf("'Index'!$E$2:$E$1000"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE))
+  suppressWarnings(dataValidation(wb, sheet = "UserCriteriaRef", cols = 5, rows = 2:1000, type = "list", value = sprintf("'Index'!$F$2:$F$1000"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE))
+  
+  # Needs to allow users to input each allowable use for a parameter (this should be in the next step, and not this function - should only be a parameter mapping here)
+  for(i in 1:nrow(TADAparamUse)){
+    # excel_formula <- paste0("INDEX(Index!$A$2:$C$1000,MATCH(A",i + 1,",Index!$A$2:$A$1000,0),3)")
+    # writeFormula(wb, sheet = "UserCriteriaRef", x = excel_formula, startCol = 3, startRow = i + 1)
+    writeData(wb, 2, startCol = 1, startRow = i + 1, x = unique(ref$organization_name))
+  }
+  
+  if(is.null(downloads_path)){
+    #saveWorkbook(wb, "inst/extdata/myfile.xlsx", overwrite = F)
+    downloads_path <- file.path(Sys.getenv("USERPROFILE"), "Downloads", "myfile.xlsx")
+  }
+  
+  if(overwrite == TRUE){
+    saveWorkbook(wb, downloads_path, overwrite = T)
+  }
+  
+  if(overwrite == FALSE){
+    warning("If you would like to replace the file, use overwrite = TRUE argument in TADA_CreateParamRef")
+    saveWorkbook(wb, downloads_path, overwrite = F)
+  }
+  
+  cat("File saved to:", gsub("/","\\\\",downloads_path), "\n")
+  
+  ParamRef <- openxlsx::read.xlsx(downloads_path, sheet = "UserCriteriaRef")
+  # ParamRef <- openxlsx::read.xlsx(system.file("extdata", "myfile.xlsx", package = "EPATADA"), sheet = "UserCriteriaRef")
+  
+  return(ParamRef)
 }
 
 #' Create Criteria Ref Table for User Inputs
@@ -162,25 +228,34 @@ TADA_CreateParamUseRef <- function(.data, param = NULL){
 #' UT_CriteriaRef_with_use <- TADA_CreateStandardsRef(Data_Nutrients_UT, useNameRep = TRUE, ParamUseRef = Data_Nutrients_ParamUse_ref)
 #' 
 
-TADA_CreateStandardsRef <- function(.data, default = FALSE, ParamUseRef = NULL, AUIDRef = NULL) {
+TADA_CreateStandardsRef <- function(.data, overwrite = FALSE, ParamRef = NULL, AUIDRef = NULL, downloads_path = NULL) {
   
-  # check to see if user-supplied ref is a df
-  # ParamUseRef table pulls in the allowable designated uses by Entity and Parameter. Will be used to join onto the TADA by TADA.CharacteristicName
-  # Users can choose to submit their own ParamUseRef file with edits, or to use the default pairings created from TADA_CreateParamUseRef()
-  if (!is.null(ParamUseRef) & !is.character(ParamUseRef)) {
-    if (!is.data.frame(ParamUseRef)) {
-      stop("TADA_CreateStandardsRef: 'ParamUseRef' must be a data frame with three columns: organization_name, parameter, use_name")
+  # myfile.xlsx is the default name of the file created in TADA_CreateParamRef
+  downloads_path <- file.path(Sys.getenv("USERPROFILE"), "Downloads", "myfile.xlsx")
+  
+  if(is.null(ParamRef)){
+    ParamRef <- openxlsx::read.xlsx(downloads_path, sheet = "UserCriteriaRef")
+  }
+  
+  if(sum(is.na(ParamRef$ATTAINS.CharacteristicName)) > 1){
+    warning("NAs were found in ATTAINS.CharacteristicName. Please ensure that you have inputted all field values of interest in ATTAINS.CharacteristicName for proper crosswalk")
+  }
+  
+  # check to see if user-supplied parameter ref is a df with appropriate columns and filled out.
+   if (!is.null(ParamRef) & !is.character(ParamRef)) {
+    if (!is.data.frame(ParamRef)) {
+      stop("TADA_CreateStandardsRef: 'ParamRef' must be a data frame with five columns: TADA.StateCode, ATTAINS.CharacteristicName, TADA.CharacteristicName, TADA.MethodSpeciationName, TADA.ResultSampleFractionText")
     }
 
-    if (is.data.frame(ParamUseRef)) {
+    if (is.data.frame(ParamRef)) {
       col.names <- c(
-        "organization_name", "parameter", "use_name"
+        "TADA.StateCode", "ATTAINS.CharacteristicName", "TADA.CharacteristicName", "TADA.MethodSpeciationName",	"TADA.ResultSampleFractionText"
       )
 
-      ref.names <- names(ParamUseRef)
+      ref.names <- names(ParamRef)
 
       if (length(setdiff(col.names, ref.names)) > 0) {
-        stop("TADA_CreateStandardsRef: 'ParamUseRef' must be a data frame with three columns: organization_name, parameter, use_name")
+        stop("TADA_CreateStandardsRef: 'ParamRef' must be a data frame with five columns: TADA.StateCode, ATTAINS.CharacteristicName, TADA.CharacteristicName, TADA.MethodSpeciationName, TADA.ResultSampleFractionText")
       }
     }
   }
@@ -204,35 +279,18 @@ TADA_CreateStandardsRef <- function(.data, default = FALSE, ParamUseRef = NULL, 
     }
   }
   
-  # Pulls in all unique combinations of "TADA.CharacteristicName", "TADA.MethodSpeciationName",	"TADA.ResultSampleFractionText" and "TADA.ResultMeasure.MeasureUnitCode"
-  chars = dplyr::distinct(.data[,c("TADA.CharacteristicName", "TADA.MethodSpeciationName",	"TADA.ResultSampleFractionText", "TADA.ResultMeasure.MeasureUnitCode")]) %>%
-    filter(!is.na(TADA.ResultMeasure.MeasureUnitCode))
-  
-  # Pulls in StateCode to get entity's name
-  stateCode <- utils::read.csv(system.file("extdata", "statecode.csv", package = "EPATADA"))
-  
-  # Returns the name of the entity based on the stateCode
-  entity_name <- filter(stateCode, STATE == unique(Data_Nutrients_UT$StateCode))[[2]]
-  
-  # If user does not supply their own ParamUseRef file, then the function will run TADA_CreateParamUseRef() to pull in this ref with no user edits.
-  if(is.null(ParamUseRef)){
-    warning("ParamUseRef was not provided. Allowable values may not contain all possible values in ATTAINS.UseName. It is recommended 
-            for users to have run TADA_CreateParamUseRef() and add, remove or review allowable values for a parameter and
-            designated use prior to running this function.")
-    ParamUseRef <- TADA_CreateParamUseRef(.data, entity_name)
-  }
-  
-  # Filters ATTAINSPArameterUse to get use_name by entity
-  AllowableUse <- ParamUseRef %>% 
-    dplyr::filter(organization_name == entity_name) %>%
-    #dplyr::filter(parameter %in% as.list(unique(chars$TADA.CharacteristicName))) %>%
+  AllowableUse <- utils::read.csv(system.file("extdata", "ATTAINSParameterUseMapRef.csv", package = "EPATADA"))
+
+  AllowableUse <- AllowableUse %>%
+    dplyr::filter(parameter %in% as.list(unique(ParamRef$ATTAINS.CharacteristicName))) %>%
+    dplyr::filter(organization_name %in% as.list(unique(ParamRef$TADA.StateCode))) %>%
     dplyr::select(use_name) %>%
     dplyr::distinct()
   
   # This creates an empty dataframe for user inputs on Criteria and Methodology of assessments
   columns <- c(
-    "ATTAINS.CharacteristicName", "TADA.CharacteristicName", "TADA.MethodSpeciationName",	"TADA.ResultSampleFractionText", "entity", 
-    "ATTAINS.assessmentunitname", "ATTAINS.UseName",	"ATTAINS.WaterType", "ATTAINS.CharacteristicGroup",
+    "TADA.StateCode", "ATTAINS.CharacteristicName", "TADA.CharacteristicName", "TADA.MethodSpeciationName",	"TADA.ResultSampleFractionText",
+    "ATTAINS.UseName", "ATTAINS.assessmentunitname",	"ATTAINS.WaterType", "ATTAINS.CharacteristicGroup",
     "TADA.UserAcuteChronic", "TADA.UserStandardValue", "TADA.UserStandardUnit", "TADA.StandardLimit"	
   )
   
@@ -240,25 +298,21 @@ TADA_CreateStandardsRef <- function(.data, default = FALSE, ParamUseRef = NULL, 
   colnames(param) = columns
   
   library(openxlsx)
-  wb <- createWorkbook()
-  addWorksheet(wb, "Index")
-  protectWorksheet(wb, "Index", protect = TRUE)
-  addWorksheet(wb, "UserCriteriaRef")
+  wb <- loadWorkbook(file = system.file("extdata", "myfile.xlsx", package = "EPATADA"))
   header_st <- createStyle(textDecoration = "Bold")
+  removeWorksheet(wb, "UserCriteriaRef")
+  addWorksheet(wb, "UserCriteriaRef2")
   writeData(wb, 2, startCol = 1, x = param, headerStyle = header_st)
   openxlsx::setColWidths(wb, 2, cols = 1:ncol(param), widths = "auto")
   
-  writeData(wb, 1, startCol = 1, x = data.frame(ATTAINS.CharacteristicName = unique(ParamUseRef$parameter)))
-  writeData(wb, 1, startCol = 2, x = dplyr::distinct(.data[,c("TADA.CharacteristicName", "TADA.MethodSpeciationName",	"TADA.ResultSampleFractionText")]))
-  writeData(wb, 1, startCol = 5, x = data.frame(entity = entity_name))
-  writeData(wb, 1, startCol = 6, x = data.frame(ATTAINS.assessmentunitname = unique(AUIDRef$ATTAINS.assessmentunitname)))
-  writeData(wb, 1, startCol = 7, x = data.frame(ATTAINS.UseName = AllowableUse))
-  writeData(wb, 1, startCol = 8, x = data.frame(ATTAINS.WaterType = unique(.data[, "MonitoringLocationTypeName"])))
-  writeData(wb, 1, startCol = 9, x = data.frame(ATTAINS.CharacteristicGroup = c("Metals", "Nutrients", "Microbiological", "Dissolved Oxygen", "Other", "NA" )))
-  writeData(wb, 1, startCol = 10, x = data.frame(TADA.UserAcuteChronic = c("Acute", "Chronic", "NA")))
-  writeData(wb, 1, startCol = 11, x = data.frame(TADA.UserAcuteChronic = c("equation", "site-specific", as.character(1:90))))
-  writeData(wb, 1, startCol = 12, x = unique(chars$TADA.ResultMeasure.MeasureUnitCode))
-  writeData(wb, 1, startCol = 13, x = data.frame(parameterGroup = c("Upper", "Lower", "Range")))
+  writeData(wb, 1, startCol = 7, x = data.frame(ATTAINS.UseName = AllowableUse$use_name))
+  writeData(wb, 1, startCol = 8, x = data.frame(ATTAINS.assessmentunitname = unique(AUIDRef$ATTAINS.assessmentunitname)))
+  writeData(wb, 1, startCol = 9, x = data.frame(ATTAINS.WaterType = unique(.data[, "MonitoringLocationTypeName"])))
+  writeData(wb, 1, startCol = 10, x = data.frame(ATTAINS.CharacteristicGroup = c("Metals", "Nutrients", "Microbiological", "Dissolved Oxygen", "Other", "NA" )))
+  writeData(wb, 1, startCol = 11, x = data.frame(TADA.UserAcuteChronic = c("Acute", "Chronic", "NA")))
+  writeData(wb, 1, startCol = 12, x = data.frame(TADA.UserStandardValue = c("equation", "site-specific", as.character(1:90))))
+  writeData(wb, 1, startCol = 13, x = data.frame(TADA.UserStandardUnit = unique(.data$TADA.ResultMeasure.MeasureUnitCode)))
+  writeData(wb, 1, startCol = 14, x = data.frame(TADA.StandardLimit = c("Upper", "Lower", "Range")))
   #writeData(wb, 2, x = ATTAINSParameterUse)
   
   # param_data_frame <- dplyr::distinct(
@@ -268,59 +322,101 @@ TADA_CreateStandardsRef <- function(.data, default = FALSE, ParamUseRef = NULL, 
   #   +     mutate(ATTAINS.assessmentunitname = rep(Data_Nutrients_AUID_ref$ATTAINS.assessmentunitname, length.out = n()))
   # > View(param_data_frame)
   
-  param_data_frame <- dplyr::distinct(
-    .data[,c("TADA.CharacteristicName", "TADA.MethodSpeciationName",	"TADA.ResultSampleFractionText")]) %>% 
-    mutate(entity = entity_name) %>%
+  # Pulls in AUIDRef for all unique assessment unit name. Will repeat each record in UserCriteriaRef for each unique AUID label
+  ParamRef <- ParamRef %>% 
     uncount(length(unique(AUIDRef$ATTAINS.assessmentunitname))) %>%
-    mutate(ATTAINS.assessmentunitname = rep(unique(AUIDRef$ATTAINS.assessmentunitname), length.out = n()))
+    mutate(ATTAINS.assessmentunitname = rep(unique(AUIDRef$ATTAINS.assessmentunitname), length.out = n())) 
   
   AUID_data_frame <- dplyr::distinct(
     AUIDRef[,"ATTAINS.assessmentunitname"]) %>% 
     mutate(entity = entity_name)
   
-  writeData(wb, 2, x = param, headerStyle = header_st)
-  writeData(wb, 2, startCol = 2, x = param_data_frame, headerStyle = header_st)
+  # writeData(wb, 2, x = param, headerStyle = header_st)
+  # writeData(wb, 2, startCol = 1, x = ParamRef, headerStyle = header_st)
   
-  n <- nrow(AllowableUse)
-  if (default == TRUE){
-    writeData(
-      wb, 2, startCol = 2, 
-        x = 
-          param_data_frame %>% 
-          uncount(n) %>% 
-          mutate(ATTAINS.UseName = rep(AllowableUse$use_name, length.out = n())),
-      headerStyle = header_st
-    )
-    writeData(wb, 2, startCol = 12,
-        x = 
-          param_data_frame %>% 
-          uncount(n) %>% 
-          mutate(ATTAINS.UseName = rep(AllowableUse$use_name, length.out = n())) %>%
-          dplyr::left_join(chars, by = c("TADA.CharacteristicName", "TADA.MethodSpeciationName",	"TADA.ResultSampleFractionText")) %>%
-          select("TADA.ResultMeasure.MeasureUnitCode"),
-      headerStyle = header_st
-    )
+  # Pulls in StateCode to get entity's name
+  stateCode <- utils::read.csv(system.file("extdata", "statecode.csv", package = "EPATADA"))
+  stateCode$STATE <- sprintf("%02d", stateCode$STATE)
+  entity <- unique(.data$StateCode)
+  
+  # Returns the name of the entity based on the stateCode
+  entity_name <- dplyr::filter(stateCode, STATE == entity)[[2]]
+  
+  org_name <- rATTAINS::domain_values(domain_name = "OrgName") %>% 
+    dplyr::filter(name == entity_name)
+  
+  org_name[[3]]
+  
+  # Uses rATTAINS to pull in all AUID and designated uses for each AUID, and uses this as a reference table to pull in all allowable values in the output table
+  data_test <- rATTAINS::assessments(
+    organization_id = org_name[[3]]
+  )
+
+  data_test_ref <- data_test$use_assessment %>%
+    dplyr::select(organization_name, assessment_unit_identifier, use_attainments) %>%
+    unnest(c(use_attainments), names_sep = ".") %>%
+    # unnest(c(parameters), names_sep = ".") %>%
+    dplyr::select(organization_name, assessment_unit_identifier, use_attainments.use_name) %>%
+    distinct() 
+  
+  testing <- left_join(AUIDRef,data_test_ref, by = c("ATTAINS.assessmentunitidentifier"= "assessment_unit_identifier"), relationship = "many-to-many")
+  ParamRef2 <- left_join(ParamRef, testing, by = "ATTAINS.assessmentunitname", relationship = "many-to-many")
+  
+  writeData(
+    wb, 2, startCol = 1, 
+      x = 
+        ParamRef2 %>%
+        # uncount(n) %>% 
+        # mutate(ATTAINS.UseName = rep(AllowableUse$use_name, length.out = n())) %>%
+        select("TADA.StateCode", "ATTAINS.CharacteristicName", "TADA.CharacteristicName", "TADA.MethodSpeciationName",	"TADA.ResultSampleFractionText",
+                 "use_attainments.use_name", "ATTAINS.assessmentunitname"),
+    headerStyle = header_st
+  )
+    # writeData(wb, 2, startCol = 12,
+    #     x = 
+    #       ParamRef %>% 
+    #       uncount(n) %>% 
+    #       mutate(ATTAINS.UseName = rep(AllowableUse$use_name, length.out = n())) %>%
+    #       dplyr::left_join(chars, by = c("TADA.CharacteristicName", "TADA.MethodSpeciationName",	"TADA.ResultSampleFractionText")) %>%
+    #       select("TADA.ResultMeasure.MeasureUnitCode"),
+    #   headerStyle = header_st
+    # )
+  
+  suppressWarnings(dataValidation(wb, sheet = "UserCriteriaRef2", cols = 1, rows = 2:1000, type = "list", value = sprintf("'Index'!$A$2:$A$1000"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE))
+  suppressWarnings(dataValidation(wb, sheet = "UserCriteriaRef2", cols = 2, rows = 2:1000, type = "list", value = sprintf("'Index'!$B$2:$B$1000"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE))
+  suppressWarnings(dataValidation(wb, sheet = "UserCriteriaRef2", cols = 3, rows = 2:1000, type = "list", value = sprintf("'Index'!$D$2:$D$1000"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE))
+  suppressWarnings(dataValidation(wb, sheet = "UserCriteriaRef2", cols = 4, rows = 2:1000, type = "list", value = sprintf("'Index'!$E$2:$E$1000"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE))
+  suppressWarnings(dataValidation(wb, sheet = "UserCriteriaRef2", cols = 5, rows = 2:1000, type = "list", value = sprintf("'Index'!$F$2:$F$1000"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE))
+
+  suppressWarnings(dataValidation(wb, sheet = "UserCriteriaRef2", cols = 6, rows = 2:1000, type = "list", value = sprintf("'Index'!$G$2:$G$1000"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE))
+  suppressWarnings(dataValidation(wb, sheet = "UserCriteriaRef2", cols = 7, rows = 2:1000, type = "list", value = sprintf("'Index'!$H$2:$H$1000"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE))
+  suppressWarnings(dataValidation(wb, sheet = "UserCriteriaRef2", cols = 8, rows = 2:1000, type = "list", value = sprintf("'Index'!$I$2:$I$1000"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE))
+  suppressWarnings(dataValidation(wb, sheet = "UserCriteriaRef2", cols = 9, rows = 2:1000, type = "list", value = sprintf("'Index'!$J$2:$J$1000"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE))
+  suppressWarnings(dataValidation(wb, sheet = "UserCriteriaRef2", cols = 10, rows = 2:1000, type = "list", value = sprintf("'Index'!$K$2:$K$1000"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE))
+  suppressWarnings(dataValidation(wb, sheet = "UserCriteriaRef2", cols = 11, rows = 2:1000, type = "list", value = sprintf("'Index'!$L$2:$L$1000"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE))
+  suppressWarnings(dataValidation(wb, sheet = "UserCriteriaRef2", cols = 12, rows = 2:1000, type = "list", value = sprintf("'Index'!$M$2:$M$1000"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE))
+  suppressWarnings(dataValidation(wb, sheet = "UserCriteriaRef2", cols = 13, rows = 2:1000, type = "list", value = sprintf("'Index'!$N$2:$N$1000"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE))
+  
+  if(is.null(downloads_path)){
+    #saveWorkbook(wb, "inst/extdata/myfile.xlsx", overwrite = F)
+    downloads_path <- file.path(Sys.getenv("USERPROFILE"), "Downloads", "myfile2.xlsx")
   }
   
-  suppressWarnings(dataValidation(wb, sheet = "UserCriteriaRef", cols = 1, rows = 2:30, type = "list", value = sprintf("'Index'!$A$2:$A$100"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE))
-  suppressWarnings(dataValidation(wb, sheet = "UserCriteriaRef", cols = 2, rows = 2:30, type = "list", value = sprintf("'Index'!$B$2:$B$100"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE))
-  suppressWarnings(dataValidation(wb, sheet = "UserCriteriaRef", cols = 3, rows = 2:30, type = "list", value = sprintf("'Index'!$C$2:$C$100"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE))
-  suppressWarnings(dataValidation(wb, sheet = "UserCriteriaRef", cols = 4, rows = 2:30, type = "list", value = sprintf("'Index'!$D$2:$D$100"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE))
-  suppressWarnings(dataValidation(wb, sheet = "UserCriteriaRef", cols = 5, rows = 2:30, type = "list", value = sprintf("'Index'!$E$2:$E$100"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE))
-  suppressWarnings(dataValidation(wb, sheet = "UserCriteriaRef", cols = 6, rows = 2:30, type = "list", value = sprintf("'Index'!$F$2:$F$100"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE))
-  suppressWarnings(dataValidation(wb, sheet = "UserCriteriaRef", cols = 7, rows = 2:30, type = "list", value = sprintf("'Index'!$G$2:$G$100"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE))
-  suppressWarnings(dataValidation(wb, sheet = "UserCriteriaRef", cols = 8, rows = 2:30, type = "list", value = sprintf("'Index'!$H$2:$H$100"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE))
-  suppressWarnings(dataValidation(wb, sheet = "UserCriteriaRef", cols = 9, rows = 2:30, type = "list", value = sprintf("'Index'!$I$2:$I$100"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE))
-  suppressWarnings(dataValidation(wb, sheet = "UserCriteriaRef", cols = 10, rows = 2:30, type = "list", value = sprintf("'Index'!$J$2:$J$100"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE))
-  suppressWarnings(dataValidation(wb, sheet = "UserCriteriaRef", cols = 11, rows = 2:30, type = "list", value = sprintf("'Index'!$K$2:$K$100"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE))
-  suppressWarnings(dataValidation(wb, sheet = "UserCriteriaRef", cols = 12, rows = 2:30, type = "list", value = sprintf("'Index'!$L$2:$L$100"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE))
-  suppressWarnings(dataValidation(wb, sheet = "UserCriteriaRef", cols = 13, rows = 2:30, type = "list", value = sprintf("'Index'!$M$2:$M$100"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE))
-  wb <- saveWorkbook(wb, "inst/extdata/myfile.xlsx", overwrite = T)
-  # wb <- saveWorkbook(wb, "downloads/myfile.xlsx", overwrite = T)
+  if(overwrite == TRUE){
+    saveWorkbook(wb, downloads_path, overwrite = T)
+    cat("File saved to:", gsub("/","\\\\",downloads_path), "\n")
+  }
   
-  rm(chars, columns, param)
+  if(overwrite == FALSE){
+    print(paste0("Please open the excel file generated under ",downloads_path, "and make the appropriate edits that corresponds to your WQS assessments."))
+    print("If you would like to replace the file, use overwrite = TRUE argument in TADA_CreateParamRef")
+    saveWorkbook(wb, downloads_path, overwrite = F)
+  }
   
-  CriteriaRef <- openxlsx::read.xlsx(system.file("extdata", "myfile.xlsx", package = "EPATADA"), sheet = "UserCriteriaRef")
+  rm(columns, param)
+  
+  CriteriaRef <- openxlsx::read.xlsx(downloads_path, sheet = "UserCriteriaRef2")
+  print(paste0("Please open the excel file generated under ",downloads_path, "and make the appropriate edits that corresponds to your WQS assessments."))
   
   return(CriteriaRef)
   
@@ -439,25 +535,30 @@ TADA_CreateAdditionalStandardsRef <- function(.data, ref = "null") {
 #' UT_CriteriaRef3 <- TADA_DefineCriteriaRef()
 #' 
 
-TADA_DefineCriteriaRef <- function(Criteriaref, autofill = TRUE) {
+TADA_DefineCriteriaRef <- function(StandardsRef = NULL, downloads_path = NULL, overwrite = FALSE, autofill = TRUE) {
   # Users will be able to specify what duration and/or frequency should be applied for a parameterGroup 
   # (or should this be applied on a TADA.Characteristic level?). 
   
+  # myfile2.xlsx is the default name of the Standards Ref file created in TADA_CreateParamRef
+  downloads_path <- file.path(Sys.getenv("USERPROFILE"), "Downloads", "myfile2.xlsx")
   
-  CriteriaRef <- openxlsx::read.xlsx(system.file("extdata", "myfile.xlsx", package = "EPATADA"), sheet = "UserCriteriaRef")
+  if(is.null(StandardsRef)){
+    CriteriaRef <- openxlsx::read.xlsx(downloads_path, sheet = "UserCriteriaRef2")
+  }
   
-  # check .data has all of the required columns
-  expected_cols <- c("TADA.CharacteristicName", "TADA.MethodSpeciationName",	"TADA.ResultSampleFractionText", "entity", 
-                     "ATTAINS.UseName",	"ATTAINS.WaterType", "ATTAINS.CharacteristicGroup",
-                     "TADA.UserAcuteChronic", "TADA.UserStandardValue", "TADA.UserStandardUnit", "TADA.StandardLimit"
+  # check .data has all of the required columns - Needs edit still
+  expected_cols <- c(
+    "TADA.StateCode", "ATTAINS.CharacteristicName", "TADA.CharacteristicName", "TADA.MethodSpeciationName",	"TADA.ResultSampleFractionText",
+    "ATTAINS.UseName", "ATTAINS.assessmentunitname",	"ATTAINS.WaterType", "ATTAINS.CharacteristicGroup",
+    "TADA.UserAcuteChronic", "TADA.UserStandardValue", "TADA.UserStandardUnit", "TADA.StandardLimit"
   )
   
   # TADA_CheckColumns(CriteriaRef, expected_cols)
   
-  col_Criteria <- c("TADA.UserDurationValue", "TADA.UserDurationPeriod", "TADA.UserFrequencyValue", "TADA.UserFrequency")
+  col_Criteria <- c("TADA.DurationValue", "TADA.DurationPeriod", "TADA.FrequencyValue", "TADA.FrequencyPeriod")
   
   if(autofill == TRUE){
-    CriteriaRef[, col_Criteria] <-NA
+    CriteriaRef[, col_Criteria] <- NA
     DefineCritera <- CriteriaRef %>%
     # Attempts to capture common duration and frequency values based on Parameter Group definition.
     ## Should we consider this on a parameter level instead? Does Parameter Group encompass too many different parameters
@@ -486,7 +587,7 @@ TADA_DefineCriteriaRef <- function(Criteriaref, autofill = TRUE) {
   # temp <- TADA_CreatePairRef(.data, hardness = TRUE)
   # TADA_PairForCriteriaCalc(temp)
   
-  # Attempts to define common duration periods for certain Parameter Groupings, Acute versus Chronic, and by EPA 304d federal standards.
+  # Attempts to define common duration periods for certain Parameter Groupings, Acute versus Chronic, and by EPA 10004d federal standards.
   # Users will be warned to validate these duration periods and to take note these are not mandated standards, but recommended ones.
   
   
