@@ -71,7 +71,7 @@ GitHub (un-comment).
 
 ```{r install_TADA, eval = F, results = 'hide'}
 remotes::install_github("USEPA/EPATADA",
-  ref = "515-flag-column-values-are-inconsistent-rejected-invalid-suspect-vs-accepted-valid-pass-1",
+  ref = "flagging",
   dependencies = TRUE
 )
 # remotes::install_github("USGS-R/dataRetrieval", dependencies=TRUE)
@@ -424,16 +424,16 @@ following flags (if relevant to dataframe):
 TADAProfileClean1 <- TADA_FlagCoordinates(TADAProfile, clean_outsideUSA = "no", clean_imprecise = FALSE, flaggedonly = FALSE)
 
 # review unique flags in TADAProfileClean1
-unique(TADAProfileClean1$TADA.InvalidCoordinates.Flag)
+unique(TADAProfileClean1$TADA.SuspectCoordinates.Flag)
 
 # review unique MonitoringLocationIdentifiers in your flag dataframe
 unique(TADAProfileClean1$MonitoringLocationIdentifier)
 
-Unique_InvalidCoordinateFlags <- TADAProfileClean1 %>%
+Unique_SuspectCoordinateFlags <- TADAProfileClean1 %>%
   dplyr::select(
     "MonitoringLocationIdentifier",
     "MonitoringLocationName",
-    "TADA.InvalidCoordinates.Flag",
+    "TADA.SuspectCoordinates.Flag",
     "OrganizationIdentifier",
     "TADA.LongitudeMeasure",
     "TADA.LatitudeMeasure",
@@ -449,7 +449,7 @@ Unique_InvalidCoordinateFlags <- TADAProfileClean1 %>%
   ) %>%
   dplyr::distinct()
 
-Unique_InvalidCoordinateFlags
+Unique_SuspectCoordinateFlags
 
 # if needed, un-comment below to change the sign for all data for sites flagged as outside the USA. You can also change FALSE to TRUE if you want to remove sites outside of the US or sites with imprecise lat/longs
 
