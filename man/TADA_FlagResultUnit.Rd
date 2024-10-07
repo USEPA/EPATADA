@@ -6,15 +6,15 @@
 \usage{
 TADA_FlagResultUnit(
   .data,
-  clean = c("Suspect_only", "nonstandardized_only", "both", "none"),
+  clean = c("suspect_only", "nonstandardized_only", "both", "none"),
   flaggedonly = FALSE
 )
 }
 \arguments{
 \item{.data}{TADA dataframe}
 
-\item{clean}{Character argument with options "Suspect_only", "nonstandardized_only",
-"both", or "none." The default is clean = "Suspect_only" which removes rows of
+\item{clean}{Character argument with options "suspect_only", "nonstandardized_only",
+"both", or "none." The default is clean = "suspect_only" which removes rows of
 data flagged as having "Suspect" characteristic-media-result unit combinations. When
 clean = "nonstandardized_only", the function removes rows of data flagged as
 having "NonStandardized" characteristic-media-result unit combinations. When
@@ -29,21 +29,21 @@ is flaggedonly = FALSE.}
 \value{
 This function adds the TADA.ResultUnit.Flag to a TADA dataframe. This column
 flags each CharacteristicName, ActivityMediaName, and ResultMeasure/MeasureUnitCode
-combination in your dataframe as either "NonStandardized", "Suspect", "Valid", or
+combination in your dataframe as either "NonStandardized", "Suspect", "Pass", or
 "Not Reviewed".
 When clean = "none" and flaggedonly = TRUE, the dataframe is filtered to show only
 the "Suspect" and "NonStandardized" data; the column TADA.ResultUnit.Flag is
-still appended. When clean = "Suspect_only" and flaggedonly = FALSE, "Suspect"
+still appended. When clean = "suspect_only" and flaggedonly = FALSE, "Suspect"
 rows are removed from the dataframe, but "NonStandardized" rows are retained. When
 clean = "nonstandardized_only" and flaggedonly = FALSE, "NonStandardized" rows
-are removed, but "Suspect" rows are retained. The default is clean = "Suspect_only"
+are removed, but "Suspect" rows are retained. The default is clean = "suspect_only"
 and flaggedonly = FALSE.
 }
 \description{
 Function checks the validity of each characteristic-media-result unit
-combination in the dataframe. When clean = "Suspect_only", rows with Suspect
+combination in the dataframe. When clean = "suspect_only", rows with Suspect
 characteristic-media-result unit combinations are removed. Default is
-clean = "Suspect_only". When flaggedonly = TRUE, dataframe is filtered to show only
+clean = "suspect_only". When flaggedonly = TRUE, dataframe is filtered to show only
 rows with "Suspect" or "NonStandardized" characteristic-media-result unit combinations.
 Default is flaggedonly = FALSE.
 }
@@ -77,5 +77,5 @@ SuspectUnit_flags <- TADA_FlagResultUnit(Data_Nutrients_UT, clean = "none")
 SuspectUnit_flaggedonly <- TADA_FlagResultUnit(Data_Nutrients_UT, clean = "nonstandardized_only", flaggedonly = TRUE)
 
 # Show only "NonStandardized" characteristic-media-result unit combinations:
-NonstandardUnit_flaggedonly <- TADA_FlagResultUnit(Data_Nutrients_UT, clean = "Suspect_only", flaggedonly = TRUE)
+NonstandardUnit_flaggedonly <- TADA_FlagResultUnit(Data_Nutrients_UT, clean = "suspect_only", flaggedonly = TRUE)
 }

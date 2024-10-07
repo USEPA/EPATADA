@@ -80,7 +80,7 @@ TADA_FlagFraction <- function(.data, clean = TRUE, flaggedonly = FALSE) {
   # rename NA values to "Not Reviewed" in TADA.SampleFraction.Flag column
   check.data["TADA.SampleFraction.Flag"][is.na(check.data["TADA.SampleFraction.Flag"])] <- "Not Reviewed"
 
-  # if all rows are "Valid", return input unchanged
+  # if all rows are "Pass", return input unchanged
   if (any(c("NonStandardized", "Suspect", "Not Reviewed") %in%
     unique(check.data$TADA.SampleFraction.Flag)) == FALSE) {
     if (flaggedonly == FALSE) {
@@ -123,9 +123,9 @@ TADA_FlagFraction <- function(.data, clean = TRUE, flaggedonly = FALSE) {
 #' Check Method Speciation Validity
 #'
 #' Function checks the validity of each characteristic-method
-#' speciation combination in the dataframe. When clean = "Suspect_only", rows with Suspect
+#' speciation combination in the dataframe. When clean = "suspect_only", rows with Suspect
 #' characteristic-method speciation combinations are removed. Default is
-#' clean = "Suspect_only". When flaggedonly = TRUE, dataframe is filtered to show only
+#' clean = "suspect_only". When flaggedonly = TRUE, dataframe is filtered to show only
 #' rows with "Suspect" or "NonStandardized" characteristic-method speciation combinations.
 #' Default is flaggedonly = FALSE.
 #'
@@ -135,8 +135,8 @@ TADA_FlagFraction <- function(.data, clean = TRUE, flaggedonly = FALSE) {
 #' The WQX team plans to review and update these new combinations quarterly.
 #'
 #' @param .data TADA dataframe
-#' @param clean Character argument with options "Suspect_only", "nonstandardized_only",
-#' "both", or "none." The default is clean = "Suspect_only" which removes rows of
+#' @param clean Character argument with options "suspect_only", "nonstandardized_only",
+#' "both", or "none." The default is clean = "suspect_only" which removes rows of
 #' data flagged as having "Suspect" characteristic-method speciation combinations. When
 #' clean = "nonstandardized_only", the function removes rows of data flagged as
 #' having "NonStandardized" characteristic-method speciation combinations. When
@@ -149,13 +149,13 @@ TADA_FlagFraction <- function(.data, clean = TRUE, flaggedonly = FALSE) {
 #'
 #' @return This function adds TADA.MethodSpeciation.Flag to the dataframe. This column
 #' flags each TADA.CharacteristicName and MethodSpeciationName combination in your
-#' dataframe as either "NonStandardized", "Suspect", "Valid", or "Not Reviewed". When clean = "none"
+#' dataframe as either "NonStandardized", "Suspect", "Pass", or "Not Reviewed". When clean = "none"
 #' and flaggedonly = TRUE, the dataframe is filtered to show only the "Suspect" and
 #' "NonStandardized data; the column TADA.MethodSpeciation.Flag is still appended.
-#' When clean = "Suspect_only" and flaggedonly = FALSE, "Suspect" rows are removed
+#' When clean = "suspect_only" and flaggedonly = FALSE, "Suspect" rows are removed
 #' from the dataframe, but "NonStandardized" rows are retained. When
 #' clean = "nonstandardized_only" and flaggedonly = FALSE, "NonStandardized" rows
-#' are removed, but "Suspect" rows are retained. The default is clean = "Suspect_only"
+#' are removed, but "Suspect" rows are retained. The default is clean = "suspect_only"
 #' and flaggedonly = FALSE.
 #'
 #' @export
@@ -184,9 +184,9 @@ TADA_FlagFraction <- function(.data, clean = TRUE, flaggedonly = FALSE) {
 #' SuspectSpeciation_flaggedonly <- TADA_FlagSpeciation(Data_Nutrients_UT, clean = "nonstandardized_only", flaggedonly = TRUE)
 #'
 #' # Show only "NonStandardized" characteristic-method speciation combinations:
-#' NonstandardSpeciation_flaggedonly <- TADA_FlagSpeciation(Data_Nutrients_UT, clean = "Suspect_only", flaggedonly = TRUE)
+#' NonstandardSpeciation_flaggedonly <- TADA_FlagSpeciation(Data_Nutrients_UT, clean = "suspect_only", flaggedonly = TRUE)
 #'
-TADA_FlagSpeciation <- function(.data, clean = c("Suspect_only", "nonstandardized_only", "both", "none"), flaggedonly = FALSE) {
+TADA_FlagSpeciation <- function(.data, clean = c("suspect_only", "nonstandardized_only", "both", "none"), flaggedonly = FALSE) {
   # check .data is data.frame
   TADA_CheckType(.data, "data.frame", "Input object")
   # check clean is boolean
@@ -195,7 +195,7 @@ TADA_FlagSpeciation <- function(.data, clean = c("Suspect_only", "nonstandardize
   TADA_CheckType(flaggedonly, "logical")
   # check .data has required columns
   TADA_CheckColumns(.data, c("TADA.CharacteristicName", "TADA.MethodSpeciationName"))
-  # check that clean is either "Suspect_only", "nonstandardized_only", "both", or "none"
+  # check that clean is either "suspect_only", "nonstandardized_only", "both", or "none"
   clean <- match.arg(clean)
 
   # execute function after checks are passed - removes flag column in case reference table has changed.
@@ -221,11 +221,9 @@ TADA_FlagSpeciation <- function(.data, clean = c("Suspect_only", "nonstandardize
   # rename NA values to Not Reviewed in TADA.MethodSpeciation.Flag column
   check.data["TADA.MethodSpeciation.Flag"][is.na(check.data["TADA.MethodSpeciation.Flag"])] <- "Not Reviewed"
 
-  # if all rows are "Valid", return input with flag column
+  # if all rows are "Pass", return input with flag column
   if (any(c(
-    "Not Reviewed", "Suspect", "NonStandardized",
-    "Nonstandardized", "Non Standardized", "SuspectMediaUnit",
-    "SuspectChar", "MethodNeeded", "Rejected", "Rejected "
+    "Not Reviewed", "Suspect", "NonStandardized"
   ) %in%
     unique(check.data$TADA.MethodSpeciation.Flag)) == FALSE) {
     print("All characteristic/method speciation combinations are valid in your dataframe. Returning input dataframe with TADA.MethodSpeciation.Flag column for tracking.")
@@ -235,22 +233,20 @@ TADA_FlagSpeciation <- function(.data, clean = c("Suspect_only", "nonstandardize
 
   # flagged output, all data
   if (clean == "none" & flaggedonly == FALSE) {
-    print("Rows with Suspect speciations have been flagged but retained. Review these rows before proceeding and/or set clean = 'Suspect_only' or 'both'.")
+    print("Rows with Suspect speciations have been flagged but retained. Review these rows before proceeding and/or set clean = 'suspect_only' or 'both'.")
   }
 
-  # when clean = "Suspect_only"
-  if (clean == "Suspect_only") {
+  # when clean = "suspect_only"
+  if (clean == "suspect_only") {
     # filter out rejected characteristic-method speciation combinations
-    clean.data <- dplyr::filter(check.data, TADA.MethodSpeciation.Flag != "Rejected")
+    clean.data <- dplyr::filter(check.data, TADA.MethodSpeciation.Flag != "Suspect")
   }
 
   # when clean = "nonstandardized_only"
   if (clean == "nonstandardized_only") {
     # filter out only "NonStandardized" characteristic-method speciation combinations
     clean.data <- dplyr::filter(check.data, !TADA.MethodSpeciation.Flag %in% c(
-      "NonStandardized",
-      "Nonstandardized",
-      "Non Standardized"
+      "NonStandardized"
     ))
   }
 
@@ -258,7 +254,7 @@ TADA_FlagSpeciation <- function(.data, clean = c("Suspect_only", "nonstandardize
   if (clean == "both") {
     # filter out both "Suspect" and "NonStandardized" characteristic-method speciation combinations
     # clean.data <- dplyr::filter(check.data, TADA.MethodSpeciation.Flag != "NonStandardized" & TADA.MethodSpeciation.Flag != "Suspect")
-    clean.data <- dplyr::filter(check.data, TADA.MethodSpeciation.Flag %in% c("Not Reviewed", "Accepted"))
+    clean.data <- dplyr::filter(check.data, TADA.MethodSpeciation.Flag %in% c("Not Reviewed", "Pass"))
   }
 
   # when clean = "none"
@@ -277,7 +273,7 @@ TADA_FlagSpeciation <- function(.data, clean = c("Suspect_only", "nonstandardize
   if (flaggedonly == TRUE) {
     # filter to show only Suspect and/or NonStandardized characteristic-method speciation combinations
     # error.data <- dplyr::filter(clean.data, TADA.MethodSpeciation.Flag == "Suspect" | TADA.MethodSpeciation.Flag == "NonStandardized")
-    error.data <- dplyr::filter(clean.data, !TADA.MethodSpeciation.Flag %in% c("Not Reviewed", "Accepted", "Y", "Valid"))
+    error.data <- dplyr::filter(clean.data, !TADA.MethodSpeciation.Flag %in% c("Not Reviewed", "Pass"))
 
     # if there are no errors
     if (nrow(error.data) == 0) {
@@ -294,9 +290,9 @@ TADA_FlagSpeciation <- function(.data, clean = c("Suspect_only", "nonstandardize
 #' Check Result Unit Validity
 #'
 #' Function checks the validity of each characteristic-media-result unit
-#' combination in the dataframe. When clean = "Suspect_only", rows with Suspect
+#' combination in the dataframe. When clean = "suspect_only", rows with Suspect
 #' characteristic-media-result unit combinations are removed. Default is
-#' clean = "Suspect_only". When flaggedonly = TRUE, dataframe is filtered to show only
+#' clean = "suspect_only". When flaggedonly = TRUE, dataframe is filtered to show only
 #' rows with "Suspect" or "NonStandardized" characteristic-media-result unit combinations.
 #' Default is flaggedonly = FALSE.
 #'
@@ -306,8 +302,8 @@ TADA_FlagSpeciation <- function(.data, clean = c("Suspect_only", "nonstandardize
 #' The WQX team plans to review and update these new combinations quarterly.
 #'
 #' @param .data TADA dataframe
-#' @param clean Character argument with options "Suspect_only", "nonstandardized_only",
-#' "both", or "none." The default is clean = "Suspect_only" which removes rows of
+#' @param clean Character argument with options "suspect_only", "nonstandardized_only",
+#' "both", or "none." The default is clean = "suspect_only" which removes rows of
 #' data flagged as having "Suspect" characteristic-media-result unit combinations. When
 #' clean = "nonstandardized_only", the function removes rows of data flagged as
 #' having "NonStandardized" characteristic-media-result unit combinations. When
@@ -320,14 +316,14 @@ TADA_FlagSpeciation <- function(.data, clean = c("Suspect_only", "nonstandardize
 #'
 #' @return This function adds the TADA.ResultUnit.Flag to a TADA dataframe. This column
 #' flags each CharacteristicName, ActivityMediaName, and ResultMeasure/MeasureUnitCode
-#' combination in your dataframe as either "NonStandardized", "Suspect", "Valid", or
+#' combination in your dataframe as either "NonStandardized", "Suspect", "Pass", or
 #' "Not Reviewed".
 #' When clean = "none" and flaggedonly = TRUE, the dataframe is filtered to show only
 #' the "Suspect" and "NonStandardized" data; the column TADA.ResultUnit.Flag is
-#' still appended. When clean = "Suspect_only" and flaggedonly = FALSE, "Suspect"
+#' still appended. When clean = "suspect_only" and flaggedonly = FALSE, "Suspect"
 #' rows are removed from the dataframe, but "NonStandardized" rows are retained. When
 #' clean = "nonstandardized_only" and flaggedonly = FALSE, "NonStandardized" rows
-#' are removed, but "Suspect" rows are retained. The default is clean = "Suspect_only"
+#' are removed, but "Suspect" rows are retained. The default is clean = "suspect_only"
 #' and flaggedonly = FALSE.
 #'
 #' @export
@@ -356,8 +352,8 @@ TADA_FlagSpeciation <- function(.data, clean = c("Suspect_only", "nonstandardize
 #' SuspectUnit_flaggedonly <- TADA_FlagResultUnit(Data_Nutrients_UT, clean = "nonstandardized_only", flaggedonly = TRUE)
 #'
 #' # Show only "NonStandardized" characteristic-media-result unit combinations:
-#' NonstandardUnit_flaggedonly <- TADA_FlagResultUnit(Data_Nutrients_UT, clean = "Suspect_only", flaggedonly = TRUE)
-TADA_FlagResultUnit <- function(.data, clean = c("Suspect_only", "nonstandardized_only", "both", "none"), flaggedonly = FALSE) {
+#' NonstandardUnit_flaggedonly <- TADA_FlagResultUnit(Data_Nutrients_UT, clean = "suspect_only", flaggedonly = TRUE)
+TADA_FlagResultUnit <- function(.data, clean = c("suspect_only", "nonstandardized_only", "both", "none"), flaggedonly = FALSE) {
   # check .data is data.frame
   TADA_CheckType(.data, "data.frame", "Input object")
   # check clean is character
@@ -366,7 +362,7 @@ TADA_FlagResultUnit <- function(.data, clean = c("Suspect_only", "nonstandardize
   TADA_CheckType(flaggedonly, "logical")
   # check .data has required columns
   TADA_CheckColumns(.data, c("TADA.CharacteristicName", "TADA.ResultMeasure.MeasureUnitCode", "TADA.ActivityMediaName"))
-  # check that clean is either "Suspect_only", "nonstandardized_only", "both", or "none"
+  # check that clean is either "suspect_only", "nonstandardized_only", "both", or "none"
   clean <- match.arg(clean)
 
   # execute function after checks are passed - removes flag column in case reference table has changed.
@@ -389,9 +385,10 @@ TADA_FlagResultUnit <- function(.data, clean = c("Suspect_only", "nonstandardize
     dplyr::rename(TADA.ResultUnit.Flag = TADA.WQXVal.Flag) %>%
     dplyr::distinct()
   # rename NA values to Not Reviewed in TADA.ResultUnit.Flag column
+  # check.data below should not be needed anymore with flagging consistency update, but will keep in if logic changes or is actually needed. 10/7/2024 KW
   check.data["TADA.ResultUnit.Flag"][is.na(check.data["TADA.ResultUnit.Flag"])] <- "Not Reviewed"
 
-  # if all rows are "Valid", return input with flag column
+  # if all rows are "Pass", return input with flag column
   if (any(c("NonStandardized", "Suspect", "Not Reviewed") %in%
     unique(check.data$TADA.ResultUnit.Flag)) == FALSE) {
     print("All characteristic/unit combinations are valid in your dataframe. Returning input dataframe with TADA.ResultUnit.Flag column for tracking.")
@@ -401,11 +398,11 @@ TADA_FlagResultUnit <- function(.data, clean = c("Suspect_only", "nonstandardize
 
   # flagged output, all data
   if (clean == "none" & flaggedonly == FALSE) {
-    print("Rows with Suspect result value units have been flagged but retained. Review these rows before proceeding and/or set clean = 'Suspect_only' or 'both'.")
+    print("Rows with Suspect result value units have been flagged but retained. Review these rows before proceeding and/or set clean = 'suspect_only' or 'both'.")
   }
 
-  # when clean = "Suspect_only"
-  if (clean == "Suspect_only") {
+  # when clean = "suspect_only"
+  if (clean == "suspect_only") {
     # filter out only "Suspect" characteristic-method speciation combinations
     clean.data <- dplyr::filter(check.data, TADA.ResultUnit.Flag != "Suspect")
   }

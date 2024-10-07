@@ -6,15 +6,15 @@
 \usage{
 TADA_FlagSpeciation(
   .data,
-  clean = c("Suspect_only", "nonstandardized_only", "both", "none"),
+  clean = c("suspect_only", "nonstandardized_only", "both", "none"),
   flaggedonly = FALSE
 )
 }
 \arguments{
 \item{.data}{TADA dataframe}
 
-\item{clean}{Character argument with options "Suspect_only", "nonstandardized_only",
-"both", or "none." The default is clean = "Suspect_only" which removes rows of
+\item{clean}{Character argument with options "suspect_only", "nonstandardized_only",
+"both", or "none." The default is clean = "suspect_only" which removes rows of
 data flagged as having "Suspect" characteristic-method speciation combinations. When
 clean = "nonstandardized_only", the function removes rows of data flagged as
 having "NonStandardized" characteristic-method speciation combinations. When
@@ -29,20 +29,20 @@ flaggedonly = TRUE. Default is flaggedonly = FALSE.}
 \value{
 This function adds TADA.MethodSpeciation.Flag to the dataframe. This column
 flags each TADA.CharacteristicName and MethodSpeciationName combination in your
-dataframe as either "NonStandardized", "Suspect", "Valid", or "Not Reviewed". When clean = "none"
+dataframe as either "NonStandardized", "Suspect", "Pass", or "Not Reviewed". When clean = "none"
 and flaggedonly = TRUE, the dataframe is filtered to show only the "Suspect" and
 "NonStandardized data; the column TADA.MethodSpeciation.Flag is still appended.
-When clean = "Suspect_only" and flaggedonly = FALSE, "Suspect" rows are removed
+When clean = "suspect_only" and flaggedonly = FALSE, "Suspect" rows are removed
 from the dataframe, but "NonStandardized" rows are retained. When
 clean = "nonstandardized_only" and flaggedonly = FALSE, "NonStandardized" rows
-are removed, but "Suspect" rows are retained. The default is clean = "Suspect_only"
+are removed, but "Suspect" rows are retained. The default is clean = "suspect_only"
 and flaggedonly = FALSE.
 }
 \description{
 Function checks the validity of each characteristic-method
-speciation combination in the dataframe. When clean = "Suspect_only", rows with Suspect
+speciation combination in the dataframe. When clean = "suspect_only", rows with Suspect
 characteristic-method speciation combinations are removed. Default is
-clean = "Suspect_only". When flaggedonly = TRUE, dataframe is filtered to show only
+clean = "suspect_only". When flaggedonly = TRUE, dataframe is filtered to show only
 rows with "Suspect" or "NonStandardized" characteristic-method speciation combinations.
 Default is flaggedonly = FALSE.
 }
@@ -76,6 +76,6 @@ SuspectSpeciation_flags <- TADA_FlagSpeciation(Data_Nutrients_UT, clean = "none"
 SuspectSpeciation_flaggedonly <- TADA_FlagSpeciation(Data_Nutrients_UT, clean = "nonstandardized_only", flaggedonly = TRUE)
 
 # Show only "NonStandardized" characteristic-method speciation combinations:
-NonstandardSpeciation_flaggedonly <- TADA_FlagSpeciation(Data_Nutrients_UT, clean = "Suspect_only", flaggedonly = TRUE)
+NonstandardSpeciation_flaggedonly <- TADA_FlagSpeciation(Data_Nutrients_UT, clean = "suspect_only", flaggedonly = TRUE)
 
 }
