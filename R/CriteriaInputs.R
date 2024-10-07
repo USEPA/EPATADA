@@ -31,7 +31,7 @@
 #' Data_Nutrients_AUID_ref2 <- TADA_CreateAUIDRef(Data_Nutrients_UT_ATTAINS$TADA_with_ATTAINS)
 #' 
 
-TADA_CreateAUIDRef <- function(.data, AUID = NULL, unique_handle = FALSE){ 
+TADA_CreateAUIDRef <- function(.data, AUID = NULL, downloads_path = NULL, overwrite = FALSE){ 
   library(rATTAINS)
   
   if (!any(c(
@@ -43,7 +43,13 @@ TADA_CreateAUIDRef <- function(.data, AUID = NULL, unique_handle = FALSE){
   .data <- .data[["TADA_with_ATTAINS"]]
   
   if(is.null(AUID)){
-    warning("No AUID(s) were selected for filtering. Creating a dataframe for all AUID and MonitoringLocationName/MonitoringLocationType/MonitoringLocationId.")
+    print("Creating AUIDRef dataframe for all unique combinations of AUID by MonitoringLocationName/MonitoringLocationType/MonitoringLocationId.")
+    print("TADA.User.Subdivision column created. This is a unique identifier that allows users to handle assessment unit subdivisions for site-specific locations.")
+    print("TADA.User.GroupedStation column created. This is a unique identifier that allows users to indicate what .")
+  }
+  
+  if(!is.null(AUID)){
+    print(paste0("Filtering by AUIDs = ", AUID, ". Creating a dataframe for unique combinations of these AUID by MonitoringLocationName/MonitoringLocationType/MonitoringLocationId."))
   }
   
   # Filters by AUID if desired, otherwise creates a dataframe of all unique AUID in the TADA dataframe pull
@@ -57,9 +63,28 @@ TADA_CreateAUIDRef <- function(.data, AUID = NULL, unique_handle = FALSE){
         "MonitoringLocationIdentifier", "MonitoringLocationName", "MonitoringLocationTypeName", "LongitudeMeasure", "LatitudeMeasure"
       )
     ) %>%
+    dplyr::select(-geometry) %>%
     dplyr::distinct(.keep_all = FALSE) %>%
     dplyr::mutate(IncludeorExcludeStation = "Include") %>%
-    # dplyr::mutate(ApplyUniqueCriteria = NA)
+    dplyr::mutate(ApplyUniqueCriteria = NA)
+    
+  if(is.null(downloads_path)){
+    #saveWorkbook(wb, "inst/extdata/myfile.xlsx", overwrite = F)
+    downloads_path <- file.path(Sys.getenv("USERPROFILE"), "Downloads", "AURef.csv")
+  }
+  
+  if(overwrite == TRUE){
+    write.csv(TADA_with_ATTAINS_subset, downloads_path, row.names = FALSE)
+  }
+  
+  if(overwrite == FALSE){
+    warning("If you would like to replace the file, use overwrite = TRUE argument in TADA_CreateAUIDRef")
+    write.csv(TADA_with_ATTAINS_subset, downloads_path, row.names = FALSE)
+  }
+  
+  cat("File saved to:", gsub("/","\\\\",downloads_path), "\n")
+  
+  #TADA_with_ATTAINS_subset <- read.csv(downloads_path)    
   
   return(TADA_with_ATTAINS_subset)
 }
@@ -353,14 +378,16 @@ TADA_CreateStandardsRef <- function(.data, overwrite = FALSE, ParamRef = NULL, A
   )
 
   data_test_ref <- data_test$use_assessment %>%
-    dplyr::select(organization_name, assessment_unit_identifier, use_attainments) %>%
+    dplyr::select(organization_name, assessment_unit_identifier, use_attainments, parameters) %>%
     unnest(c(use_attainments), names_sep = ".") %>%
-    # unnest(c(parameters), names_sep = ".") %>%
-    dplyr::select(organization_name, assessment_unit_identifier, use_attainments.use_name) %>%
+    unnest(c(parameters), names_sep = ".") %>%
+    dplyr::select(organization_name, assessment_unit_identifier, use_attainments.use_name, parameters.parameter_name) %>%
     distinct() 
   
-  testing <- left_join(AUIDRef,data_test_ref, by = c("ATTAINS.assessmentunitidentifier"= "assessment_unit_identifier"), relationship = "many-to-many")
-  ParamRef2 <- left_join(ParamRef, testing, by = "ATTAINS.assessmentunitname", relationship = "many-to-many")
+  # testing <- left_join(AUIDRef,data_test_ref, by = c("ATTAINS.assessmentunitidentifier"= "assessment_unit_identifier", "ATTAINS.CharacteristicName" = "parameters.parameter_name"), relationship = "many-to-many")
+  
+  # Pulls in UNIQUE COMBINATIONS of Param and Des Use found from rATTAINS as a 'ParamUseRef'.
+  ParamRef2 <- left_join(ParamRef, data_test_ref, by = c("ATTAINS.CharacteristicName" = "parameters.parameter_name"), relationship = "many-to-many")
   
   writeData(
     wb, 2, startCol = 1, 
@@ -369,7 +396,8 @@ TADA_CreateStandardsRef <- function(.data, overwrite = FALSE, ParamRef = NULL, A
         # uncount(n) %>% 
         # mutate(ATTAINS.UseName = rep(AllowableUse$use_name, length.out = n())) %>%
         select("TADA.StateCode", "ATTAINS.CharacteristicName", "TADA.CharacteristicName", "TADA.MethodSpeciationName",	"TADA.ResultSampleFractionText",
-                 "use_attainments.use_name", "ATTAINS.assessmentunitname"),
+                 "use_attainments.use_name") %>%
+        distinct(),
     headerStyle = header_st
   )
     # writeData(wb, 2, startCol = 12,

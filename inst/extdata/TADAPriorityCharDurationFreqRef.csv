@@ -1,72 +1,72 @@
-TADA.CharacteristicName,TADA.DurationValue,TADA.DurationPeriod,TADA.FrequencyValue,TADA.FrequencyPeriod,AcuteChronic
-DISSOLVED OXYGEN SATURATION,,,,,
-ESCHERICHIA COLI,30,day geometric mean,,,NA
-FECAL COLIFORM,30,day geometric mean,,,NA
-"TEMPERATURE, WATER",,,,,
-"DEPTH, SECCHI DISK DEPTH",,,,,
-AMMONIA,30,day average,,,
-AMMONIA AND AMMONIUM,30,day average,,,
-AMMONIA-NITROGEN,30,day average,,,
-AMMONIA-NITROGEN,30,day average,,,
-AMMONIUM,30,day average,,,
-DISSOLVED OXYGEN (DO),7,day average,,,Acute
-DISSOLVED OXYGEN (DO),30,day average,,,Chronic
-NITRATE,,,,,
-NITROGEN,,,,,
-"TOTAL NITROGEN, MIXED FORMS",,,,,
-PH,,,,,
-BORON,,,,,
-BORON,,,,,
-CADMIUM,,,,,
-CADMIUM,,,,,
-CHLOROPHYLL A,,,,,
-CHROMIUM,,,,,
-CHROMIUM,,,,,
-CHROMIUM(III),,,,,
-CHROMIUM(III),,,,,
-CHROMIUM(VI),,,,,
-CHROMIUM(VI),,,,,
-COPPER,,,,,
-COPPER,,,,,
-LEAD,4,day average,1,every 3 years,Chronic
-LEAD,1,hour average,1,every 3 years,Acute
-MERCURY,4,day average,,,NA
-NICKEL,4,day average,,,Chronic
-NICKEL,1,hour average,,,Acute
-SELENIUM,4,day average,,,Chronic
-SELENIUM,1,hour average,,,Acute
-SILVER,4,day average,,,Chronic
-SILVER,1,hour average,,,Acute
-"TOTAL PHOSPHORUS, MIXED FORMS",,,,,
-TOTAL SUSPENDED SOLIDS,,,,,
-ZINC,,,,,
-"INORGANIC NITROGEN (AMMONIA, NITRATE AND NITRITE)",,,,,
-INORGANIC NITROGEN (NITRATE & NITRITE),,,,,
-INORGANIC NITROGEN (NITRATE AND NITRITE),,,,,
-"INORGANIC NITROGEN (NO2, NO3, & NH3)",,,,,
-KJELDAHL NITROGEN,,,,,
-NITRATE + NITRITE,,,,,
-NITRITE,,,,,
-NITROGEN KJELDAHL,,,,,
-"NITROGEN, MIXED FORMS (NH3), (NH4), ORGANIC, (NO2) AND (NO3)",,,,,
-NUTRIENT-NITROGEN,,,,,
-ORGANIC NITROGEN,,,,,
-PARTICULATE ORGANIC NITROGEN AND PARTICULATE NITROGEN,,,,,
-TOTAL KJELDAHL NITROGEN,,,,,
-TOTAL KJELDAHL NITROGEN (ORGANIC N & NH3),,,,,
-"TOTAL NITROGEN, MIXED FORMS (NH3), (NH4), ORGANIC, (NO2) AND (NO3)",,,,,
-TOTAL PARTICULATE NITROGEN,,,,,
-STREAM WIDTH MEASURE,,,,,
-DEPTH TO WATER LEVEL BELOW LAND SURFACE,,,,,
-"HEIGHT, GAGE",,,,,
-"LIGHT, (PAR AT DEPTH/PAR AT SURFACE) X 100",,,,,
-DEPTH,,,,,
-STREAM STAGE,,,,,
-TOTAL COLIFORM,,,,,
-HARDNESS,,,,,
-"HARDNESS, CA, MG",,,,,
-"HARDNESS, CALCIUM",,,,,
-"HARNDESS, CARBONATE",,,,,
-"HARDNESS, MAGNESIUM",,,,,
-"HARDNESS, NON-CARBONATE",,,,,
-TOTAL HARDNESS,,,,,
+TADA.CharacteristicName,TADA.DurationValue,TADA.DurationPeriod,,TADA.FrequencyValue,TADA.FrequencyPeriod,AcuteChronic
+DISSOLVED OXYGEN SATURATION,,,,,,
+ESCHERICHIA COLI,30,day geometric mean,,0,not to exceed,NA
+FECAL COLIFORM,30,day geometric mean,,0,not to exceed,NA
+"TEMPERATURE, WATER",1,discrete observation,,0,not to exceed,
+"DEPTH, SECCHI DISK DEPTH",1,discrete observation,,0,not to exceed,
+AMMONIA,30,day average,,,,
+AMMONIA AND AMMONIUM,30,day average,,,,
+AMMONIA-NITROGEN,30,day average,,,,
+AMMONIA-NITROGEN,30,day average,,,,
+AMMONIUM,30,day average,,,,
+DISSOLVED OXYGEN (DO),7,day average,,0,not to exceed,Acute
+DISSOLVED OXYGEN (DO),30,day average,,0,not to exceed,Chronic
+NITRATE,,,,,,
+NITROGEN,,,,,,
+"TOTAL NITROGEN, MIXED FORMS",,,,,,
+PH,,,,,,
+BORON,4,day average,,1,every 3 years,Chronic
+BORON,1,hour average,,1,every 3 years,Acute
+CADMIUM,4,day average,,1,every 3 years,Chronic
+CADMIUM,1,hour average,,1,every 3 years,Acute
+CHLOROPHYLL A,,,,,,
+CHROMIUM,4,day average,,1,every 3 years,Chronic
+CHROMIUM,1,hour average,,1,every 3 years,Acute
+CHROMIUM(III),4,day average,,1,every 3 years,Chronic
+CHROMIUM(III),1,hour average,,1,every 3 years,Acute
+CHROMIUM(VI),4,day average,,1,every 3 years,Chronic
+CHROMIUM(VI),1,hour average,,1,every 3 years,Acute
+COPPER,4,day average,,1,every 3 years,Chronic
+COPPER,1,hour average,,1,every 3 years,Acute
+LEAD,4,day average,,1,every 3 years,Chronic
+LEAD,1,hour average,,1,every 3 years,Acute
+MERCURY,4,day average,,1,every 3 years,NA
+NICKEL,4,day average,,1,every 3 years,Chronic
+NICKEL,1,hour average,,1,every 3 years,Acute
+SELENIUM,4,day average,,1,every 3 years,Chronic
+SELENIUM,1,hour average,,1,every 3 years,Acute
+SILVER,4,day average,,1,every 3 years,Chronic
+SILVER,1,hour average,,1,every 3 years,Acute
+"TOTAL PHOSPHORUS, MIXED FORMS",,,,,,
+TOTAL SUSPENDED SOLIDS,,,,,,
+ZINC,,,,,,
+"INORGANIC NITROGEN (AMMONIA, NITRATE AND NITRITE)",,,,,,
+INORGANIC NITROGEN (NITRATE & NITRITE),,,,,,
+INORGANIC NITROGEN (NITRATE AND NITRITE),,,,,,
+"INORGANIC NITROGEN (NO2, NO3, & NH3)",,,,,,
+KJELDAHL NITROGEN,,,,,,
+NITRATE + NITRITE,,,,,,
+NITRITE,,,,,,
+NITROGEN KJELDAHL,,,,,,
+"NITROGEN, MIXED FORMS (NH3), (NH4), ORGANIC, (NO2) AND (NO3)",,,,,,
+NUTRIENT-NITROGEN,,,,,,
+ORGANIC NITROGEN,,,,,,
+PARTICULATE ORGANIC NITROGEN AND PARTICULATE NITROGEN,,,,,,
+TOTAL KJELDAHL NITROGEN,,,,,,
+TOTAL KJELDAHL NITROGEN (ORGANIC N & NH3),,,,,,
+"TOTAL NITROGEN, MIXED FORMS (NH3), (NH4), ORGANIC, (NO2) AND (NO3)",,,,,,
+TOTAL PARTICULATE NITROGEN,,,,,,
+STREAM WIDTH MEASURE,,,,,,
+DEPTH TO WATER LEVEL BELOW LAND SURFACE,,,,,,
+"HEIGHT, GAGE",,,,,,
+"LIGHT, (PAR AT DEPTH/PAR AT SURFACE) X 100",,,,,,
+DEPTH,,,,,,
+STREAM STAGE,,,,,,
+TOTAL COLIFORM,,,,,,
+HARDNESS,,,,,,
+"HARDNESS, CA, MG",,,,,,
+"HARDNESS, CALCIUM",,,,,,
+"HARNDESS, CARBONATE",,,,,,
+"HARDNESS, MAGNESIUM",,,,,,
+"HARDNESS, NON-CARBONATE",,,,,,
+TOTAL HARDNESS,,,,,,
