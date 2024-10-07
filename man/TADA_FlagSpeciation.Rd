@@ -6,44 +6,44 @@
 \usage{
 TADA_FlagSpeciation(
   .data,
-  clean = c("invalid_only", "nonstandardized_only", "both", "none"),
+  clean = c("Suspect_only", "nonstandardized_only", "both", "none"),
   flaggedonly = FALSE
 )
 }
 \arguments{
 \item{.data}{TADA dataframe}
 
-\item{clean}{Character argument with options "invalid_only", "nonstandardized_only",
-"both", or "none." The default is clean = "invalid_only" which removes rows of
-data flagged as having "Invalid" characteristic-method speciation combinations. When
+\item{clean}{Character argument with options "Suspect_only", "nonstandardized_only",
+"both", or "none." The default is clean = "Suspect_only" which removes rows of
+data flagged as having "Suspect" characteristic-method speciation combinations. When
 clean = "nonstandardized_only", the function removes rows of data flagged as
 having "NonStandardized" characteristic-method speciation combinations. When
-clean = "both", the function removes rows of data flagged as either "Invalid" or
-"NonStandardized". And when clean = "none", the function does not remove any "Invalid"
+clean = "both", the function removes rows of data flagged as either "Suspect" or
+"NonStandardized". And when clean = "none", the function does not remove any "Suspect"
 or "NonStandardized" rows of data.}
 
-\item{flaggedonly}{Boolean argument; filters to show only the "Invalid"
+\item{flaggedonly}{Boolean argument; filters to show only the "Suspect"
 characteristic-method speciation combinations from the dataframe when
 flaggedonly = TRUE. Default is flaggedonly = FALSE.}
 }
 \value{
 This function adds TADA.MethodSpeciation.Flag to the dataframe. This column
 flags each TADA.CharacteristicName and MethodSpeciationName combination in your
-dataframe as either "NonStandardized", "Invalid", "Valid", or "Not Reviewed". When clean = "none"
-and flaggedonly = TRUE, the dataframe is filtered to show only the "Invalid" and
+dataframe as either "NonStandardized", "Suspect", "Valid", or "Not Reviewed". When clean = "none"
+and flaggedonly = TRUE, the dataframe is filtered to show only the "Suspect" and
 "NonStandardized data; the column TADA.MethodSpeciation.Flag is still appended.
-When clean = "invalid_only" and flaggedonly = FALSE, "Invalid" rows are removed
+When clean = "Suspect_only" and flaggedonly = FALSE, "Suspect" rows are removed
 from the dataframe, but "NonStandardized" rows are retained. When
 clean = "nonstandardized_only" and flaggedonly = FALSE, "NonStandardized" rows
-are removed, but "Invalid" rows are retained. The default is clean = "invalid_only"
+are removed, but "Suspect" rows are retained. The default is clean = "Suspect_only"
 and flaggedonly = FALSE.
 }
 \description{
 Function checks the validity of each characteristic-method
-speciation combination in the dataframe. When clean = "invalid_only", rows with invalid
+speciation combination in the dataframe. When clean = "Suspect_only", rows with Suspect
 characteristic-method speciation combinations are removed. Default is
-clean = "invalid_only". When flaggedonly = TRUE, dataframe is filtered to show only
-rows with "Invalid" or "NonStandardized" characteristic-method speciation combinations.
+clean = "Suspect_only". When flaggedonly = TRUE, dataframe is filtered to show only
+rows with "Suspect" or "NonStandardized" characteristic-method speciation combinations.
 Default is flaggedonly = FALSE.
 }
 \details{
@@ -56,26 +56,26 @@ The WQX team plans to review and update these new combinations quarterly.
 # Load example dataset:
 data(Data_Nutrients_UT)
 
-# Remove data with invalid characteristic-method speciation combinations from dataframe,
+# Remove data with Suspect characteristic-method speciation combinations from dataframe,
 # but retain "NonStandardized" combinations flagged in new column 'TADA.MethodSpeciation.Flag':
-InvalidSpeciation_clean <- TADA_FlagSpeciation(Data_Nutrients_UT)
+SuspectSpeciation_clean <- TADA_FlagSpeciation(Data_Nutrients_UT)
 
 # Remove data with "NonStandardized" characteristic-method speciation combinations
-# from dataframe but retain invalid combinations flagged in new column 'TADA.MethodSpeciation.Flag':
+# from dataframe but retain Suspect combinations flagged in new column 'TADA.MethodSpeciation.Flag':
 NonstandardSpeciation_clean <- TADA_FlagSpeciation(Data_Nutrients_UT, clean = "nonstandardized_only")
 
-# Remove both "Invalid" and "NonStandardized" characteristic-method speciation combinations
+# Remove both "Suspect" and "NonStandardized" characteristic-method speciation combinations
 # from dataframe:
 Speciation_clean <- TADA_FlagSpeciation(Data_Nutrients_UT, clean = "both")
 
-# Flag, but do not remove, data with "Invalid" or "NonStandardized" characteristic-method speciation
+# Flag, but do not remove, data with "Suspect" or "NonStandardized" characteristic-method speciation
 # combinations in new column titled "TADA.MethodSpeciation.Flag":
-InvalidSpeciation_flags <- TADA_FlagSpeciation(Data_Nutrients_UT, clean = "none")
+SuspectSpeciation_flags <- TADA_FlagSpeciation(Data_Nutrients_UT, clean = "none")
 
-# Show only invalid characteristic-method speciation combinations:
-InvalidSpeciation_flaggedonly <- TADA_FlagSpeciation(Data_Nutrients_UT, clean = "nonstandardized_only", flaggedonly = TRUE)
+# Show only Suspect characteristic-method speciation combinations:
+SuspectSpeciation_flaggedonly <- TADA_FlagSpeciation(Data_Nutrients_UT, clean = "nonstandardized_only", flaggedonly = TRUE)
 
 # Show only "NonStandardized" characteristic-method speciation combinations:
-NonstandardSpeciation_flaggedonly <- TADA_FlagSpeciation(Data_Nutrients_UT, clean = "invalid_only", flaggedonly = TRUE)
+NonstandardSpeciation_flaggedonly <- TADA_FlagSpeciation(Data_Nutrients_UT, clean = "Suspect_only", flaggedonly = TRUE)
 
 }
