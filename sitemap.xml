@@ -103,6 +103,7 @@
 <url><loc>usepa.github.io/EPATADA/reference/TADA_addPoints.html</loc></url>
 <url><loc>usepa.github.io/EPATADA/reference/TADA_addPolys.html</loc></url>
 <url><loc>usepa.github.io/EPATADA/reference/fetchATTAINS.html</loc></url>
+<url><loc>usepa.github.io/EPATADA/reference/fetchNHD.html</loc></url>
 <url><loc>usepa.github.io/EPATADA/reference/getBboxJson.html</loc></url>
 <url><loc>usepa.github.io/EPATADA/reference/getFeatureLayer.html</loc></url>
 <url><loc>usepa.github.io/EPATADA/reference/getLayer.html</loc></url>

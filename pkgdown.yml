@@ -1,5 +1,5 @@
 pandoc: 3.1.11
-pkgdown: 2.1.0
+pkgdown: 2.1.1
 pkgdown_sha: ~
 articles:
   CONTRIBUTING: CONTRIBUTING.html
@@ -10,7 +10,7 @@ articles:
   TADAModule2: TADAModule2.html
   articles/TADAWaterSciConWorkshopDemo: TADAWaterSciConWorkshopDemo.html
   WQXValidationService: WQXValidationService.html
-last_built: 2024-09-05T13:34Z
+last_built: 2024-10-09T19:50Z
 urls:
   reference: usepa.github.io/EPATADA/reference
   article: usepa.github.io/EPATADA/articles
