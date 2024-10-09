@@ -454,7 +454,7 @@ fetchNHD <- function(.data, resolution = "Hi", features = "catchments"){
           all_features <- c(all_features, list(features))
           # once done, change offset by 2000 features:
           offset <- offset + 2000
-    
+          
         }
         
         all_features <- dplyr::bind_rows(all_features)
@@ -483,11 +483,11 @@ fetchNHD <- function(.data, resolution = "Hi", features = "catchments"){
       #     silent = TRUE)
       
       try(nhd_catchments <- bbox %>%
-        purrr::map(~ tryCatch(
-          feature_downloader(baseurls = "https://hydro.nationalmap.gov/arcgis/rest/services/NHDPlus_HR/MapServer/10/query?", sf_bbox = .)
-          ,
-          error = function(e) NULL)),
-        silent = TRUE)
+            purrr::map(~ tryCatch(
+              feature_downloader(baseurls = "https://hydro.nationalmap.gov/arcgis/rest/services/NHDPlus_HR/MapServer/10/query?", sf_bbox = .)
+              ,
+              error = function(e) NULL)),
+          silent = TRUE)
       
       nhd_catchments <- nhd_catchments %>%
         dplyr::bind_rows() %>%
