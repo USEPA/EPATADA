@@ -103,6 +103,13 @@ function in R or RStudio using the following format (example below):
 
 Disclaimer: ...
 
+Use of Module 3 development and tools in the EPATADA package is to
+assist different organization (state, territories and tribal nations) on
+their assessment methods . It does not constitute current Agency policy
+or regulation requirements. This tool is not to be solely used for
+decisionmaking process. Module 3 integration of is not a regulation and
+does not impose legally binding requirements on EPA or the States.
+
 Criteria is defined as the standards (Magnitude), duration and frequency
 associated with a parameter and designated use.
 
@@ -189,7 +196,7 @@ Identifiers.
 
 ```{r}
 # What columns should we include in this AUIDRef?
-TADA_AUIDRef <- TADA_CreateAUIDRef(TADA_with_ATTAINS)
+TADA_AUIDRef <- TADA_CreateAUIDRef(TADA_with_ATTAINS, overwrite = TRUE)
 
 ```
 
@@ -229,6 +236,21 @@ correctly.
 ```{r}
 # Users must define the appropriate crosswalk map between ATTAINS parameter and WQP parameters.
 TADA_ParamRef <- TADA_CreateParamRef(TADA_dataframe, overwrite = TRUE)
+
+TADA_ParamUseRef <- TADA_CreateParamUseRef(ParamRef = ParamRef, overwrite = TRUE)
+# User can either save the excel file of the edits they made there, or read it in as a dataframe to R and provide it as a ref argument in the next steps
+
+## IMPORTANT - Need to make sure any formulas are the right type when reading xlsx file into r.
+TADA_ParamUseRef <- openxlsx::read.xlsx(downloads_path, sheet = "CreateParamUseRef")
+
+# What columns should we include in this AUIDRef?
+TADA_AUIDRef <- TADA_CreateAUIDRef(TADA_with_ATTAINS, overwrite = TRUE)
+TADA_AUIDRef <- openxlsx::read.xlsx(downloads_path, sheet = "CreateAUIDRef")
+
+TADA_Standards <- TADA_DefineStandards(.data = TADA_dataframe, AUIDRef = TADA_AUIDRef, ParamUseRef = TADA_ParamUseRef, overwrite = TRUE)
+
+# Testing other arguments in the function to check if it runs
+TADA_Standards <- TADA_DefineStandards(.data = TADA_dataframe, AUIDRef = TADA_AUIDRef, overwrite = TRUE)
 ```
 
 User should open this file and, in the "UserCriteriaRef" tab, make the

@@ -201,9 +201,10 @@ TADA_CreateParamUseRef <- function(ParamRef = NULL, overwrite = FALSE, downloads
     dplyr::filter(parameters.parameter_name %in% unique(ParamRef$ATTAINS.CharacteristicName)) %>%
     # dplyr::rename(parameters.parameter_name, ATTAINS.CharacteristicName) %>%
     dplyr::select(organization_identifier,	organization_name,	parameters.parameter_name, use_attainments.use_name) %>%
-    dplyr::mutate(nrowsStandardsRep = 1) %>%
-    dplyr::mutate(splitByAcuteChronic = 1) %>%
-    dplyr::mutate(splitByHowManyWaterTypes = 1) %>%
+    dplyr::mutate(nrowsStandardsRep = as.numeric(1)) %>%
+    dplyr::mutate(add_nrows_AcuteChronic = 0) %>%
+    dplyr::mutate(add_nrows_WaterTypes = 0) %>%
+    dplyr::mutate(add_nrows_SiteSpecific = 0) %>%
     dplyr::rename(ATTAINS.CharacteristicName = parameters.parameter_name, ATTAINS.UseName = use_attainments.use_name) %>%
     dplyr::distinct()
 
@@ -215,13 +216,14 @@ TADA_CreateParamUseRef <- function(ParamRef = NULL, overwrite = FALSE, downloads
   # Export CreateParamUseRef dataframe into the excel spreadsheet tab
   writeData(wb, "CreateParamUseRef", startCol = 1, x = CreateParamUseRef, headerStyle = header_st)
   
-  # If the user chooses to enter a separate ParamRef dataframe argument, this makes sure the excel tab reflects the user's changes
-  writeData(wb, "CreateParamRef", startCol = 1, x = ParamRef, headerStyle = header_st)
-  
   # Writes an excel formula for nrowsStandardsRep column. Will be based on other two column values
   for(i in 1:nrow(CreateParamUseRef)){
-    writeFormula(wb, "CreateParamUseRef", startCol = 5, startRow = i + 1, x = paste0('=F',i+1,'*','G',i+1))
+    writeFormula(wb, "CreateParamUseRef", startCol = 5, startRow = i + 1, x = paste0('=1+F',i+1,'+','G',i+1,'+H',i+1))
   }
+  addStyle(wb,  "CreateParamUseRef", cols = 5, rows = 1:(nrow(CreateParamUseRef)+2) , style = createStyle(numFmt = "0"), gridExpand = TRUE)
+  
+  # If the user chooses to enter a separate ParamRef dataframe argument, this makes sure the excel tab reflects the user's changes
+  writeData(wb, "CreateParamRef", startCol = 1, x = ParamRef, headerStyle = header_st)
   
   # Conditional Formatting
   conditionalFormatting(wb, "CreateParamUseRef", 
@@ -232,19 +234,19 @@ TADA_CreateParamUseRef <- function(ParamRef = NULL, overwrite = FALSE, downloads
                         type = "expression", rule = "==1", style = createStyle(bgFill = "green")) # default values or indicates good to go cells.
   conditionalFormatting(wb, "CreateParamUseRef", 
                         cols = 6, rows = 2:(nrow(CreateParamUseRef) + 1), 
-                        type = "expression", rule = "==2" , style = createStyle(bgFill = "yellow")) # using yellow to indicate modified cell
+                        type = "expression", rule = "==1" , style = createStyle(bgFill = "yellow")) # using yellow to indicate modified cell
   conditionalFormatting(wb, "CreateParamUseRef", 
                         cols = 6, rows = 2:(nrow(CreateParamUseRef) + 1), 
-                        type = "expression", rule = "==1", style = createStyle(bgFill = "green")) # default values or indicates good to go cells.
+                        type = "expression", rule = "==0", style = createStyle(bgFill = "green")) # default values or indicates good to go cells.
   conditionalFormatting(wb, "CreateParamUseRef", 
                         cols = 6, rows = 2:(nrow(CreateParamUseRef) + 1), 
-                        type = "expression", rule = ">2" , style = createStyle(bgFill = "red")) # red to indicate potential error in this cell.
+                        type = "expression", rule = ">1" , style = createStyle(bgFill = "red")) # red to indicate potential error in this cell.
   conditionalFormatting(wb, "CreateParamUseRef", 
-                        cols = 7, rows = 2:(nrow(CreateParamUseRef) + 1), 
-                        type = "expression", rule = "!=1" , style = createStyle(bgFill = "yellow")) # using yellow to indicate modified cell
+                        cols = 7:8, rows = 2:(nrow(CreateParamUseRef) + 1), 
+                        type = "expression", rule = "!=0" , style = createStyle(bgFill = "yellow")) # using yellow to indicate modified cell
   conditionalFormatting(wb, "CreateParamUseRef", 
-                        cols = 7, rows = 2:(nrow(CreateParamUseRef) + 1), 
-                        type = "expression", rule = "==1", style = createStyle(bgFill = "green")) # default values or indicates good to go cells.
+                        cols = 7:8, rows = 2:(nrow(CreateParamUseRef) + 1), 
+                        type = "expression", rule = "==0", style = createStyle(bgFill = "green")) # default values or indicates good to go cells.
   dataValidation(wb, "CreateParamUseRef", 
                  cols = 6:7, rows = 2:(nrow(CreateParamUseRef) + 1), type = "whole", operator = "between", value = c(0, 9))
   
@@ -270,8 +272,9 @@ TADA_CreateParamUseRef <- function(ParamRef = NULL, overwrite = FALSE, downloads
   cat("File saved to:", gsub("/","\\\\",downloads_path), "\n")
   
   ParamUseRef <- openxlsx::read.xlsx(downloads_path, sheet = "CreateParamUseRef")
-  # ParamRef <- openxlsx::read.xlsx(system.file("extdata", "myfile.xlsx", package = "EPATADA"), sheet = "UserCriteriaRef")
-  
+  # Error handling below, this makes the column for 'nrowsStandardsRep' to equal all 1 by default in this dataframe as the return value.
+  ParamUseRef$nrowsStandardsRep <- as.numeric(1)
+
   return(ParamUseRef)
 }
 
@@ -362,8 +365,8 @@ TADA_CreateAUIDRef <- function(.data, AUID = NULL, downloads_path = NULL, overwr
     dplyr::select(-geometry) %>%
     dplyr::distinct(.keep_all = FALSE) %>%
     dplyr::mutate(IncludeorExcludeStation = "Include") %>%
-    dplyr::mutate(ExcludeReasong = NA) %>% # Users can customize this for "warm waters", "only trout based waters" etc. 
-    dplyr::mutate(ExcludeWhichParameter = NA)
+    dplyr::mutate(ExcludeReasoning = NA) %>% # Users can customize this for "warm waters", "only trout based waters" etc. 
+    dplyr::mutate(SiteSpecificName = NA)
   
   
   # Format column header
@@ -432,7 +435,7 @@ TADA_CreateAUIDRef <- function(.data, AUID = NULL, downloads_path = NULL, overwr
 #' Data_Nutrients_Param_Ref <- TADA_CreateParamUseRef(Data_Nutrients_UT)
 #' 
 
-TADA_DefineStandards <- function(ParamUseRef = NULL, AUIDRef = NULL, overwrite = FALSE, downloads_path = NULL){ 
+TADA_DefineStandards <- function(.data, ParamUseRef = NULL, AUIDRef = NULL, overwrite = FALSE, downloads_path = NULL){ 
   
   # If user does not define the path, attempt to pull in the ref files from the default Downloads location.
   downloads_path <- file.path(Sys.getenv("USERPROFILE"), "Downloads", "myfileRef.xlsx")
@@ -504,8 +507,9 @@ TADA_DefineStandards <- function(ParamUseRef = NULL, AUIDRef = NULL, overwrite =
   columns <- c(
     "TADA.CharacteristicName", "TADA.MethodSpeciationName",	"TADA.ResultSampleFractionText", 
     #"ATTAINS.CharacteristicName", "ATTAINS.OrgName", "ATTAINS.assessmentunitname", "ATTAINS.UseName", "ATTAINS.WaterType", "AUIDExcludeReasoning",
-    "ATTAINS.CharacteristicName", "ATTAINS.OrgName", "ATTAINS.UseName", "ATTAINS.WaterType", "AUIDExcludeReasoning",
-    "BegAssessDate", "EndAssessDate", "Season", "ExcludeWhichFlaggedColumns", "AcuteChronic", "MinimumSample", 
+    "ATTAINS.CharacteristicName", "ATTAINS.OrgName", "ATTAINS.UseName", 
+    "ATTAINS.WaterType","AcuteChronic",
+    "BegAssessDate", "EndAssessDate", "Season", "MinimumSample", "SiteSpecificName",
     "StandardValue", "StandardUnit", "StandardLimit"	
   )
   
@@ -514,17 +518,26 @@ TADA_DefineStandards <- function(ParamUseRef = NULL, AUIDRef = NULL, overwrite =
   
   DefineStandards <- openxlsx::read.xlsx(downloads_path, sheet = "CreateParamRef") %>%
     dplyr::left_join(ParamUseRef, by = "ATTAINS.CharacteristicName", relationship = "many-to-many") %>%
-    dplyr::select("TADA.CharacteristicName", "TADA.MethodSpeciationName",	"TADA.ResultSampleFractionText","ATTAINS.CharacteristicName", "ATTAINS.OrgName","ATTAINS.UseName", "nrowsStandardsRep") %>%
+    dplyr::select("TADA.CharacteristicName", "TADA.MethodSpeciationName",	"TADA.ResultSampleFractionText","ATTAINS.CharacteristicName", "ATTAINS.OrgName","ATTAINS.UseName", "nrowsStandardsRep", "add_nrows_AcuteChronic", "add_nrows_SiteSpecific") %>%
     dplyr::bind_cols(
       data.frame(
-        ATTAINS.WaterType = as.character(NA), AUIDExcludeReasoning = as.character(NA), BegAssessDate = as.Date(NA),
-        EndAssessDate = as.Date(NA), Season = as.character(NA), ExcludeWhichFlaggedColumns = as.character(NA), 
-        AcuteChronic = as.character(NA), MinimumSample = as.numeric(NA) 
-        #"StandardValue", "StandardUnit", "StandardLimit"
+        ATTAINS.WaterType = as.character(NA), AcuteChronic = as.character(NA), BegAssessDate = as.Date(NA),
+        EndAssessDate = as.Date(NA), Season = as.character(NA), MinimumSample = as.numeric(NA), SiteSpecificName = as.character(NA),
+        StandardValue = as.numeric(NA), StandardUnit = as.character(NA), StandardLimit = as.numeric(NA)
         )
         ) %>%
     distinct() %>%
-    tidyr::uncount(nrowsStandardsRep)
+    tidyr::uncount(nrowsStandardsRep, .id = "id") %>%
+    dplyr::mutate(
+      AcuteChronic = case_when(
+        id == 1 & add_nrows_AcuteChronic == 1 ~ "Acute",
+        id == 2 & add_nrows_AcuteChronic == 1 ~ "Chronic")
+      ) %>%
+    dplyr::mutate(
+      SiteSpecificName = case_when(
+        add_nrows_SiteSpecific >= 1 & (id - add_nrows_AcuteChronic - add_nrows_SiteSpecific >= 0) ~ "AddSiteNameHere")
+    ) %>%
+    dplyr::select(-c(add_nrows_SiteSpecific, add_nrows_AcuteChronic, id))
       
   # Format column header
   header_st <- createStyle(textDecoration = "Bold")
@@ -536,11 +549,32 @@ TADA_DefineStandards <- function(ParamUseRef = NULL, AUIDRef = NULL, overwrite =
   # Export DefineStandards dataframe into the excel spreadsheet tab
   writeData(wb, "DefineStandards", startCol = 1, x = DefineStandards, headerStyle = header_st)
   
+  writeData(wb, "Index", startCol = 8, startRow = 1, x = data.frame(ATTAINS.WaterType = c(unique(.data$MonitoringLocationTypeName), "All Others","NA")))
+  writeData(wb, "Index", startCol = 9, startRow = 1, x = data.frame(AcuteChronic = c("Acute", "Chronic", "NA")))
+  writeData(wb, "Index", startCol = 10, startRow = 1, x = data.frame(Season = c("Summer", "Fall", "Spring", "Winter", "NA")))
+  writeData(wb, "Index", startCol = 11, startRow = 1, x = data.frame(StandardUnit = unique(.data$TADA.ResultMeasure.MeasureUnitCode)))
+  writeData(wb, "Index", startCol = 12, startRow = 1, x = data.frame(SiteSpecificName = c(unique(AUIDRef$SiteSpecificName), "AddSiteNameHere", "NA")))
+  
+  # The list of allowable values for each column in excel tab [DefineStandards] will be defined by the [Index] tab
+  suppressWarnings(dataValidation(wb, sheet = "DefineStandards", cols = 7, rows = 2:1000, type = "list", value = sprintf("'Index'!$H$2:$H$1000"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE))
+  suppressWarnings(dataValidation(wb, sheet = "DefineStandards", cols = 8, rows = 2:1000, type = "list", value = sprintf("'Index'!$I$2:$I$1000"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE))
+  suppressWarnings(dataValidation(wb, sheet = "DefineStandards", cols = 11, rows = 2:1000, type = "list", value = sprintf("'Index'!$J$2:$J$1000"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE))
+  suppressWarnings(dataValidation(wb, sheet = "DefineStandards", cols = 13, rows = 2:1000, type = "list", value = sprintf("'Index'!$L$2:$L$1000"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE))
+  suppressWarnings(dataValidation(wb, sheet = "DefineStandards", cols = 15, rows = 2:1000, type = "list", value = sprintf("'Index'!$K$2:$K$1000"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE))
+  
   # If the user chooses to enter a separate ParamUseRef dataframe argument, this makes sure the excel tab reflects the user's changes
   # writeData(wb, "CreateParamUseRef", startCol = 1, x = ParamUseRef, headerStyle = header_st)
   # writeData(wb, "CreateAUIDRef", startCol = 1, x = AUIDRef, headerStyle = header_st)
   # 
   # Conditional Formatting...
+  # Conditional Formatting
+  conditionalFormatting(wb, "DefineStandards",
+                        cols = 7:16, rows = 2:(nrow(DefineStandards) + 1),
+                        type = "notBlanks", style = createStyle(bgFill = TADA_ColorPalette()[8])) # default values or indicates good to go cells.
+  conditionalFormatting(wb, "DefineStandards",
+                        cols = 7:16, rows = 2:(nrow(DefineStandards) + 1),
+                        type = "blanks", style = createStyle(bgFill = TADA_ColorPalette()[13])) # default values or indicates good to go cells.
+  
   
   # If the user chooses to enter a separate ParamRef dataframe argument, this will replace the ParamRef tab of the spreadsheet.
   # writeData(wb, "CreateAUIDRef", startCol = 1, x = AUIDRef, headerStyle = header_st)
