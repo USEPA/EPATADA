@@ -158,8 +158,8 @@ TADA_CreateUnitRef <- function(.data, print.message = TRUE) {
     dplyr::full_join(tada.wqx, by = names(tada.targets)) %>%
     dplyr::rename(TADA.WQXUnitConversionFactor = Conversion.Factor,
                   TADA.WQXUnitConversionCoefficient = Conversion.Coefficient) %>%
-    dplyr::select(TADA.CharacteristicName, TADA.ResultMeasure.MeasureUnitCode,
-                  TADA.Target.ResultMeasure.MeasureUnitCode, ResultMeasure.MeasureUnitCode,
+    dplyr::select(TADA.CharacteristicName, ResultMeasure.MeasureUnitCode,  
+                  TADA.ResultMeasure.MeasureUnitCode, TADA.Target.ResultMeasure.MeasureUnitCode, 
                   TADA.WQXUnitConversionFactor, TADA.WQXUnitConversionCoefficient, CharUnit)
   
   # remove intermediate objects
@@ -211,7 +211,6 @@ TADA_CreateUnitRef <- function(.data, print.message = TRUE) {
     dplyr::select(-CharUnit) %>%
     dplyr::distinct()
 
-
   # return reference table for use in unit conversion functions or for more editing by user
   return(tada.all)
 }
@@ -252,7 +251,7 @@ TADA_CreateUnitRef <- function(.data, print.message = TRUE) {
 #' values are units are NOT converted to TADA target units,but columns are appended
 #' to indicate what the target units and conversion factors are, and if the data can
 #' be converted. This function adds the following four fields ONLY when transform =
-#' FALSE: "TADA.WQXUnitConversionFactor", "TADA.WQXTargetUnit",
+#' FALSE: "TADA.WQXUnitConversionFactor", "TADA.Target.ResultMeasure.MeasureUnitCode",
 #' "TADA.SpeciationUnitConversion", and "TADA.WQXResultUnitConversion.
 #'
 #' @param ref Optional character argument in which a user can specify a data frame
@@ -269,9 +268,9 @@ TADA_CreateUnitRef <- function(.data, print.message = TRUE) {
 #' @return A TADA dataframe. Depending on the arguments entered by the user, the
 #' number of columns returned may differ. When transform = TRUE, TADA.ResultMeasureValue
 #' and TADA.ResultMeasure.MeasureUnitCode are converted to target units. When transform =
-#' FALSE, "TADA.WQXUnitConversionFactor", "TADA.WQXTargetUnit",
+#' FALSE, "TADA.WQXUnitConversionFactor", "TADA.Target.ResultMeasure.MeasureUnitCode",
 #' "TADA.SpeciationUnitConversion" are added. With either transform argument,
-#' "TADA.WQXResultUnitCoversion" is added. It indicates if data can be converted.
+#' "TADA.WQXResultUnitConversion" is added. It indicates if data can be converted.
 #' "NoResultValue" means data cannot be converted because there is no
 #' ResultMeasureValue, and "NoTargetUnit"means data cannot be converted because
 #' the original unit is not associated with a target unit. "Convert" means the data
@@ -284,7 +283,7 @@ TADA_CreateUnitRef <- function(.data, print.message = TRUE) {
 #' data(Data_Nutrients_UT)
 #'
 #' # Do not convert result values and units, but add four new columns titled
-#' # "TADA.WQXUnitConversionFactor", "TADA.WQXUnitConversionCoefficient", "TADA.WQXTargetUnit", and "TADA.SpeciationUnitConversion":
+#' # "TADA.WQXUnitConversionFactor", "TADA.WQXUnitConversionCoefficient", "TADA.Target.ResultMeasure.MeasureUnitCode", and "TADA.SpeciationUnitConversion":
 #' ResultUnitsNotConverted <- TADA_ConvertResultUnits(Data_Nutrients_UT, transform = FALSE)
 #'
 #' # Convert values and units for results and detection limits:
@@ -506,7 +505,7 @@ TADA_ConvertResultUnits <- function(.data, ref = "tada", transform = TRUE) {
   # list of conversion columns
 
   conversion.cols <- c(
-    "TADA.SpeciationUnitConversion", "TADA.WQXTargetUnit",
+    "TADA.SpeciationUnitConversion", 
     "TADA.WQXUnitConversionFactor", "TADA.WQXUnitConversionCoefficient",
     "TADA.Target.MethodSpeciationName", "TADA.Target.ResultMeasure.MeasureUnitCode"
   )
@@ -548,6 +547,10 @@ TADA_ConvertResultUnits <- function(.data, ref = "tada", transform = TRUE) {
     clean.data <- TADA_OrderCols(flag.data) %>%
       TADA_CreateComparableID()
 
+    # Update ID and column ordering
+    clean.data <- TADA_CreateComparableID(clean.data)
+    clean.data <- TADA_OrderCols(clean.data)
+    
     return(clean.data)
   }
 
