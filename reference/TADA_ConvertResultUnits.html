@@ -103,7 +103,7 @@ facilitates estimation of censored data later in the workflow.</p>
 values are units are NOT converted to TADA target units,but columns are appended
 to indicate what the target units and conversion factors are, and if the data can
 be converted. This function adds the following four fields ONLY when transform =
-FALSE: "TADA.WQXUnitConversionFactor", "TADA.WQXTargetUnit",
+FALSE: "TADA.WQXUnitConversionFactor", "TADA.Target.ResultMeasure.MeasureUnitCode",
 "TADA.SpeciationUnitConversion", and "TADA.WQXResultUnitConversion.</p></dd>
 
 </dl></div>
@@ -112,9 +112,9 @@ FALSE: "TADA.WQXUnitConversionFactor", "TADA.WQXTargetUnit",
     <p>A TADA dataframe. Depending on the arguments entered by the user, the
 number of columns returned may differ. When transform = TRUE, TADA.ResultMeasureValue
 and TADA.ResultMeasure.MeasureUnitCode are converted to target units. When transform =
-FALSE, "TADA.WQXUnitConversionFactor", "TADA.WQXTargetUnit",
+FALSE, "TADA.WQXUnitConversionFactor", "TADA.Target.ResultMeasure.MeasureUnitCode",
 "TADA.SpeciationUnitConversion" are added. With either transform argument,
-"TADA.WQXResultUnitCoversion" is added. It indicates if data can be converted.
+"TADA.WQXResultUnitConversion" is added. It indicates if data can be converted.
 "NoResultValue" means data cannot be converted because there is no
 ResultMeasureValue, and "NoTargetUnit"means data cannot be converted because
 the original unit is not associated with a target unit. "Convert" means the data
@@ -137,7 +137,7 @@ those with speciation in units.</p>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">Data_Nutrients_UT</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Do not convert result values and units, but add four new columns titled</span></span></span>
-<span class="r-in"><span><span class="co"># "TADA.WQXUnitConversionFactor", "TADA.WQXUnitConversionCoefficient", "TADA.WQXTargetUnit", and "TADA.SpeciationUnitConversion":</span></span></span>
+<span class="r-in"><span><span class="co"># "TADA.WQXUnitConversionFactor", "TADA.WQXUnitConversionCoefficient", "TADA.Target.ResultMeasure.MeasureUnitCode", and "TADA.SpeciationUnitConversion":</span></span></span>
 <span class="r-in"><span><span class="va">ResultUnitsNotConverted</span> <span class="op">&lt;-</span> <span class="fu">TADA_ConvertResultUnits</span><span class="op">(</span><span class="va">Data_Nutrients_UT</span>, transform <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] "TADA_ConvertResultUnits: When Transform = FALSE, result values and units are NOT converted. Conversions are required for many other TADA functions to work properly (such as result value range checks)."</span>
 <span class="r-in"><span></span></span>
