@@ -68,15 +68,12 @@ Imports:
     urltools,
     geojsonsf,
     tibble,
-    rlang
-Remotes:
-    github::R-ArcGIS/arcgislayers,
-    github::R-ArcGIS/arcgis,
-    github::R-ArcGIS/arcpbf
+    rlang,
+    nhdplusTools,
+    arcgislayers
 Depends: 
     R (>= 3.5.0)
 Suggests:
-    nhdplusTools, 
     lwgeom,
     DT,
     RColorBrewer,
