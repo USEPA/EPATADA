@@ -296,7 +296,7 @@ TADA_FlagSpeciation <- function(.data, clean = c("suspect_only", "nonstandardize
 #' rows with "Suspect" or "NonStandardized" characteristic-media-result unit combinations.
 #' Default is flaggedonly = FALSE.
 #'
-#' #' The “Not Reviewed” value within "TADA.ResultAboveUpperThreshold.Flag" means
+#' The “Not Reviewed” value within "TADA.ResultAboveUpperThreshold.Flag" means
 #' that the EPA WQX team has not yet reviewed the combinations
 #' (see https://cdx.epa.gov/wqx/download/DomainValues/QAQCCharacteristicValidation.CSV).
 #' The WQX team plans to review and update these new combinations quarterly.
@@ -361,6 +361,28 @@ TADA_FlagResultUnit <- function(.data, clean = c("suspect_only", "nonstandardize
   # check flaggedonly is boolean
   TADA_CheckType(flaggedonly, "logical")
   # check .data has required columns
+  
+  if ("TADA.CharacteristicName" %in% colnames(.data)) {
+    .data <- .data
+  } else {
+    # create uppercase version of original CharacteristicName
+    .data$TADA.CharacteristicName <- toupper(.data$CharacteristicName)
+  }
+  
+  if ("TADA.ResultMeasure.MeasureUnitCode" %in% colnames(.data)) {
+    .data <- .data
+  } else {
+    # create uppercase version of original ResultMeasure.MeasureUnitCode
+    .data$TADA.ResultMeasure.MeasureUnitCode <- toupper(.data$ResultMeasure.MeasureUnitCode)
+  } 
+  
+  if ("TADA.ActivityMediaName" %in% colnames(.data)) {
+    .data <- .data
+  } else {
+    # create uppercase version of original ActivityMediaName
+    .data$TADA.ActivityMediaName <- toupper(.data$ActivityMediaName)
+  }
+  
   TADA_CheckColumns(.data, c("TADA.CharacteristicName", "TADA.ResultMeasure.MeasureUnitCode", "TADA.ActivityMediaName"))
   # check that clean is either "suspect_only", "nonstandardized_only", "both", or "none"
   clean <- match.arg(clean)

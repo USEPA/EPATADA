@@ -87,7 +87,7 @@ Users can install the TADA package from GitHub into their R library
 using the `remotes` package. Copy and paste the code below into your R
 or RStudio console to download and install.
 
-```{r install_remotes, results = 'hide'}
+```{r install_remotes, results = 'hide', eval = F}
 install.packages("remotes",
   repos = "http://cran.us.r-project.org"
 )
@@ -101,7 +101,7 @@ them (enter 1 into the console).
 
 ```{r install_TADA, eval = F, results = 'hide'}
 remotes::install_github("USEPA/EPATADA",
-  ref = "flagging",
+  ref = "develop",
   dependencies = TRUE
 )
 ```
