@@ -253,6 +253,18 @@ fetchATTAINS <- function(.data, catchments_only = FALSE) {
       dplyr::distinct(.keep_all = TRUE)
   }
   
+  # Function used to grab assessment unit "WaterType". 
+  # Sweet spot chunk size wise is 200:
+  split_vector <- function(vector, chunk_size = 200) {
+    # Number of chunks needed
+    num_chunks <- ceiling(length(vector) / chunk_size)
+    
+    # Split the vector into chunks
+    chunks <- split(vector, ceiling(seq_along(vector) / chunk_size))
+    
+    return(chunks)
+  }
+  
   # If the area of the bbox is massive (about the area of California or larger), AND there
   # aren't that many actual monitoring locations (100)... OR the bbox is about the size of New Hampshire, and the observations are under 25...
   #... speed up processing by going site-by-site:
@@ -287,19 +299,8 @@ fetchATTAINS <- function(.data, catchments_only = FALSE) {
     
     # Use ATTAINS API to grab, for each assessment unit, its WaterType.
     # Query the API in "chunks" so it doesn't break. Sweet spot is ~200:
-    split_vector <- function(vector, chunk_size = 200) {
-      # Number of chunks needed
-      num_chunks <- ceiling(length(vector) / chunk_size)
-      
-      # Split the vector into chunks
-      chunks <- split(vector, ceiling(seq_along(vector) / chunk_size))
-      
-      return(chunks)
-    }
-    
-    
     all_units <- unique(catchment_features$assessmentunitidentifier)
-    chunks <- split_vector(all_units)
+    chunks <- split_vector(all_units, chunk_size = 200)
     water_types <- vector("list", length = length(chunks))
     
     for(i in 1:length(chunks)){
@@ -390,18 +391,6 @@ fetchATTAINS <- function(.data, catchments_only = FALSE) {
     
     # Use ATTAINS API to grab, for each assessment unit, its WaterType.
     # Query the API in "chunks" so it doesn't break:
-    split_vector <- function(vector, chunk_size = 2000) {
-      # Number of chunks needed
-      num_chunks <- ceiling(length(vector) / chunk_size)
-      
-      # Split the vector into chunks
-      chunks <- split(vector, ceiling(seq_along(vector) / chunk_size))
-      
-      return(chunks)
-    }
-    
-    # Sweet spot for splitting up the assessment unit vector is ~200:
-    
     all_units <- unique(catchment_features$assessmentunitidentifier)
     chunks <- split_vector(all_units, chunk_size = 200)
     water_types <- vector("list", length = length(chunks))
