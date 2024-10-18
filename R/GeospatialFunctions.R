@@ -606,7 +606,6 @@ fetchNHD <- function(.data, resolution = "Hi", features = "catchments"){
         for(i in 1:length(geospatial_aoi)){
           try(
             nhd_flowlines_stored[[i]] <- arcgislayers::arc_select(nhd_hr_flowlines,
-                                                                  # where = query,
                                                                   filter_geom = geospatial_aoi[i],
                                                                   crs = sf::st_crs(geospatial_aoi[i])) %>%
               sf::st_make_valid()
