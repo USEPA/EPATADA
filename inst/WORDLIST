@@ -246,6 +246,7 @@ StringA
 StringB
 SubstituteDeprecatedChars
 SummarizeColumn
+SuspectCoordinates
 TADA
 TADADataRetrieval
 TADAGeospatialRefLayers
@@ -281,9 +282,8 @@ WQXMonitoringLocationTypeName
 WQXRefTables
 WQXResultDetectionConditionRef
 WQXResultUnitConversion
-WQXResultUnitCoversion
-WQXTargetUnit
 WQXUnitConversionFactor
+WQXVal
 WQXcharValRef
 WQXunitRef
 WaterSciCon
