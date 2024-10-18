@@ -286,7 +286,7 @@ fetchATTAINS <- function(.data, catchments_only = FALSE) {
         ## GRABBING WATER TYPE:
     
     # Use ATTAINS API to grab, for each assessment unit, its WaterType.
-    # Query the API in "chunks" so it doesn't break:
+    # Query the API in "chunks" so it doesn't break. Sweet spot is ~200:
     split_vector <- function(vector, chunk_size = 200) {
       # Number of chunks needed
       num_chunks <- ceiling(length(vector) / chunk_size)
