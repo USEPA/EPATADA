@@ -23,7 +23,7 @@
 #' @return This function adds the TADA.AnalyticalMethod.Flag to a TADA dataframe. This column
 #' flags Suspect CharacteristicName, ResultAnalyticalMethod/MethodIdentifier,
 #' and ResultAnalyticalMethod/MethodIdentifierContext combinations in your dataframe
-#' as either "Not Reviewed", "Suspect", or "Valid". When clean = FALSE and
+#' as either "Not Reviewed", "Suspect", or "Pass". When clean = FALSE and
 #' flaggedonly = TRUE, the dataframe is filtered to show only "Suspect"
 #' characteristic-analytical method combinations; the column TADA.AnalyticalMethod.Flag
 #' is still appended. When clean = TRUE and flaggedonly = FALSE, "Suspect" rows
@@ -89,7 +89,7 @@ TADA_FlagMethod <- function(.data, clean = TRUE, flaggedonly = FALSE) {
   check.data["TADA.AnalyticalMethod.Flag"][is.na(check.data["TADA.AnalyticalMethod.Flag"])] <- "Not Reviewed"
 
   if (flaggedonly == FALSE) {
-    # if all rows are "Valid" or NA "Not Reviewed", return input unchanged
+    # if all rows are "Pass" or NA "Not Reviewed", return input unchanged
     ## note: Cristina edited this on 9/19/22 to keep Not Reviewed/NA data when clean = TRUE. Now only Suspect data is removed.
     if (any("Suspect" %in%
       unique(check.data$TADA.AnalyticalMethod.Flag)) == FALSE) {
@@ -389,7 +389,7 @@ TADA_FlagContinuousData <- function(.data, clean = FALSE, flaggedonly = FALSE, t
 #' threshold from the dataframe when clean = TRUE. Default is clean = FALSE.
 #' @param flaggedonly Boolean argument; filters dataframe to show only the data
 #' flagged as above the upper WQX threshold. Default is flaggedonly = FALSE.
-#' @return The input TADA dataset with the added "TADA.ResultAboveUpperThreshold.Flag"
+#' @return The input TADA dataset with the added "TADA.ResultValueAboveUpperThreshold.Flag"
 #' column which is populated with the values: "Pass", "Suspect", "Not Reviewed", or
 #' "NA - Not Available". Defaults are clean = FALSE and flaggedonly = FALSE.
 #' When clean = FALSE and flaggedonly = TRUE, the dataframe
@@ -984,7 +984,7 @@ TADA_FindQAPPDoc <- function(.data, clean = FALSE) {
 #' American Samoa, Northern Mariana Islands, and Guam), and 3) Finally,
 #' precision can be measured by the number of decimal places in the latitude and longitude
 #' provided. If either the latitude or longitude does not have at least three numbers to the
-#' right of the decimal point, the row will be flagged as "Imprecise". Occasionally
+#' right of the decimal point, the row will be flagged as "Imprecise_lessthan3decimaldigits". Occasionally
 #' latitude and longitude measurements are flagged as outside of the United States
 #' because the data was entered as negative when it should be positive or vice versa.
 #' This function offers the option of clean_outsideUSA = "change sign" to fix this
@@ -1084,7 +1084,7 @@ TADA_FlagCoordinates <- function(.data,
     ))
 
   # Fill in flag for coordinates that appear OK/PASS tests
-  .data$TADA.SuspectCoordinates.Flag[is.na(.data$TADA.SuspectCoordinates.Flag)] <- "OK"
+  .data$TADA.SuspectCoordinates.Flag[is.na(.data$TADA.SuspectCoordinates.Flag)] <- "Pass"
 
   # if clean_imprecise is TRUE, remove imprecise station metadata
   if (clean_imprecise == TRUE) {
