@@ -588,8 +588,8 @@ TADA_OverviewMap <- function(.data) {
 #'
 TADA_FlaggedSitesMap <- function(.data) {
   invalid <- TADA_FlagCoordinates(.data, flaggedonly = TRUE)
-  lowres <- invalid[invalid$TADA.InvalidCoordinates.Flag == "Imprecise_lessthan3decimaldigits", ]
-  outsideusa <- invalid[invalid$TADA.InvalidCoordinates.Flag %in% c("LAT_OutsideUSA", "LONG_OutsideUSA"), ]
+  lowres <- invalid[invalid$TADA.SuspectCoordinates.Flag == "Imprecise_lessthan3decimaldigits", ]
+  outsideusa <- invalid[invalid$TADA.SuspectCoordinates.Flag %in% c("LAT_OutsideUSA", "LONG_OutsideUSA"), ]
   nearby <- TADA_FindNearbySites(.data)
   print(colnames(nearby))
   nearby <- TADA_GetUniqueNearbySites(nearby)

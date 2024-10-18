@@ -59,8 +59,8 @@ TADA_GetWQXCharValRef <- function() {
   WQXcharValRef <- raw.data %>%
     dplyr::mutate(TADA.WQXVal.Flag = dplyr::case_when(
       Status %in% notreviewed ~ "Not Reviewed",
-      Status %in% valid ~ "Valid",
-      Status %in% invalid ~ "Invalid",
+      Status %in% valid ~ "Pass",
+      Status %in% invalid ~ "Suspect",
       Status %in% nonstandard ~ "NonStandardized",
       Status %in% NA ~ "Not Reviewed",
       TRUE ~ as.character("Not Reviewed")
