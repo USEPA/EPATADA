@@ -529,7 +529,7 @@ fetchNHD <- function(.data, resolution = "Hi", features = "catchments"){
       # bounding box of user's WQP data
       
       wqp_bboxes <- unique_sites %>%
-        sf::st_buffer(0.0000001) %>%
+        sf::st_buffer(1e-07) %>%
         dplyr::rowwise() %>%
         dplyr::mutate(bbox = purrr::map(geometry, sf::st_bbox)) %>%
         sf::st_as_sfc()
