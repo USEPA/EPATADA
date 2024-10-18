@@ -279,7 +279,7 @@ TADA_with_ATTAINS_subset <- TADA_with_ATTAINS %>%
       "MonitoringLocationIdentifier", "ATTAINS.assessmentunitidentifier",
       "ATTAINS.overallstatus", "ATTAINS.isassessed", "ATTAINS.isimpaired",
       "ATTAINS.organizationid", "ATTAINS.assessmentunitname",
-      "ATTAINS.reportingcycle", "ATTAINS.waterbodyreportlink"
+      "ATTAINS.reportingcycle", "ATTAINS.waterbodyreportlink", "ATTAINS.waterTypeCode"
   ) %>%
   dplyr::distinct(.keep_all = FALSE)
 ```
