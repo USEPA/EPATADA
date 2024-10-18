@@ -297,7 +297,6 @@ fetchATTAINS <- function(.data, catchments_only = FALSE) {
       return(chunks)
     }
     
-    # Sweet spot for splitting up the assessment unit vector is ~200:
     
     all_units <- unique(catchment_features$assessmentunitidentifier)
     chunks <- split_vector(all_units)
