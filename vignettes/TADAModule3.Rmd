@@ -174,6 +174,25 @@ TADA_dataframe <- TADA_DataRetrieval(
   countycode = "US:08:069",
   applyautoclean = TRUE
 )
+
+TADA_dataframe2 <- TADA_FindQCActivities(TADA_dataframe, clean = TRUE)
+TADA_dataframe3 <- TADA_FlagContinuousData(TADA_dataframe2)
+TADA_dataframe4 <- TADA_PairForCriteriaCalc(TADA_dataframe3)
+TADA_dataframe5 <- TADA_FindPotentialDuplicatesSingleOrg(TADA_dataframe4)
+
+
+# Handling of replicate samples with differing resultmeasurevalue when they are not labeled as a duplicate.
+TADA_dataframe_test <- TADA_dataframe5 %>%
+  dplyr::select(TADA.CharacteristicName,TADA.ResultSampleFractionText,TADA.MethodSpeciationName, 
+                ActivityStartDateTime, ActivityIdentifier, MonitoringLocationIdentifier, 
+                TADA.ResultMeasureValue, TADA.ResultMeasure.MeasureUnitCode, 
+                setdiff(colnames(TADA_dataframe5), colnames(TADA_dataframe))
+                ) %>%
+  dplyr::filter(TADA.SingleOrgDup.Flag == "Unique") %>%
+  dplyr::filter()
+
+TADA_FieldValuesTable(TADA_dataframe_test, field = "MonitoringLocationIdentifier", characteristicName = "ZINC")
+
 ```
 
 Now, `TADA_GetATTAINS()` returns a dataframe containing the original
@@ -234,16 +253,19 @@ for each row,, otherwise next steps in the process may not run
 correctly.
 
 ```{r}
+temp <- as.data.frame(TADA_with_ATTAINS$TADA_with_ATTAINS)
+
 # Users must define the appropriate crosswalk map between ATTAINS parameter and WQP parameters.
-TADA_ParamRef <- TADA_CreateParamRef(TADA_dataframe, overwrite = TRUE)
+TADA_ParamRef <- TADA_CreateParamRef(temp, overwrite = TRUE)
 
-TADA_ParamUseRef <- TADA_CreateParamUseRef(ParamRef = ParamRef, overwrite = TRUE)
-# User can either save the excel file of the edits they made there, or read it in as a dataframe to R and provide it as a ref argument in the next steps
+# Users can choose to save TADA_ParamRef as an R dataframe if they desire or edit directly in excel and save file.
+downloads_path <- file.path(Sys.getenv("USERPROFILE"), "Downloads", "myfileRef.xlsx")
+TADA_ParamRef <- openxlsx::read.xlsx(downloads_path, sheet = "CreateParamRef")
 
-## IMPORTANT - Need to make sure any formulas are the right type when reading xlsx file into r.
+TADA_ParamUseRef <- TADA_CreateParamUseRef(overwrite = TRUE)
+# TADA_ParamUseRef <- TADA_CreateParamUseRef(ParamRef = TADA_ParamRef, overwrite = TRUE)
 TADA_ParamUseRef <- openxlsx::read.xlsx(downloads_path, sheet = "CreateParamUseRef")
 
-# What columns should we include in this AUIDRef?
 TADA_AUIDRef <- TADA_CreateAUIDRef(TADA_with_ATTAINS, overwrite = TRUE)
 TADA_AUIDRef <- openxlsx::read.xlsx(downloads_path, sheet = "CreateAUIDRef")
 
