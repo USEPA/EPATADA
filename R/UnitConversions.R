@@ -593,13 +593,14 @@ TADA_ConvertResultUnits <- function(.data, ref = "tada", transform = TRUE) {
     # create detection unit ref
     det.ref <- unit.ref %>%
       dplyr::ungroup() %>%
-      dplyr::rename(DetectionQuantitationLimitMeasure.MeasureUnitCode = ResultMeasure.MeasureUnitCode) %>%
-      dplyr::select(-TADA.ResultMeasure.MeasureUnitCode) %>%
+      dplyr::rename(DetectionQuantitationLimitMeasure.MeasureUnitCode = ResultMeasure.MeasureUnitCode,
+                    TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode = TADA.ResultMeasure.MeasureUnitCode) %>%
       dplyr::distinct()
 
     det.join <- c(
       "TADA.CharacteristicName",
-      "DetectionQuantitationLimitMeasure.MeasureUnitCode"
+      "DetectionQuantitationLimitMeasure.MeasureUnitCode",
+      "TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode"
     )
 
     # Transform TADA.DetectionQuantitationLimitMeasure.MeasureValue value to target value only if target unit exists
