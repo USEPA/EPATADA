@@ -105,10 +105,12 @@ Disclaimer: ...
 
 Use of Module 3 development and tools in the EPATADA package is to
 assist different organization (state, territories and tribal nations) on
-their assessment methods . It does not constitute current Agency policy
-or regulation requirements. This tool is not to be solely used for
-decisionmaking process. Module 3 integration of is not a regulation and
-does not impose legally binding requirements on EPA or the States.
+their assessment methods under . It does not constitute current Agency
+policy or regulation requirements. This tool is not to be solely used
+for decisionmaking process. Module 3 integration of WQS for assessments
+is not a regulation and does not impose legally binding requirements on
+EPA or the States in reporting water conditions under biannual reports
+of the CWA.
 
 Criteria is defined as the standards (Magnitude), duration and frequency
 associated with a parameter and designated use.

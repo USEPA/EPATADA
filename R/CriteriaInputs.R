@@ -12,9 +12,11 @@
 #' ATTAINS to add this to the domain list. Otherwise, users will need to value paste the value 
 #' outside the created spreadsheet from this function to override the data validation options.
 #' 
-#' Users who have a completed a dataframe for this parameter crosswalk that contains the 
-#' required column names, that is created from this function, can choose to skip this step 
-#' and proceed to TADA.CreateParamUseRef().
+#' Users who have a complete dataframe of this parameter crosswalk, that contains the 
+#' required column names from this function, can provide this as a reference for an argument
+#' (to be added in the future), which would allow users to join this data to the output table 
+#' from this function. From there, users will need to determine if any new TADA parameters 
+#' need to be matched with any ATTAIN parameters based on any missing cell values.
 #' 
 #'
 #' @param .data A TADA dataframe. Users are expected to have already run the appropriate data 
@@ -66,29 +68,35 @@ TADA_CreateParamRef <- function(.data, overwrite = FALSE, downloads_path = NULL)
   entity <- unique(.data$StateCode)
   
   # Returns the name of the entity based on the stateCode
-  entity_name <- dplyr::filter(stateCode, STATE == entity)[[2]]
+  entity_name <- dplyr::filter(stateCode, STATE %in% entity)[[2]]
   
   org_name <- rATTAINS::domain_values(domain_name = "OrgName") %>% 
-    dplyr::filter(name == entity_name)
+    dplyr::filter(name %in% entity_name)
   
   if(nrow(org_name) > 1){
     # Is this possible for more than one state to show up in a df if a single state is doing their WQS assessments?
-    warning("More than one organization found in your dataframe")
+    message("More than one organization found in your dataframe. Pulling in allowable parameter domain values found in all organization through ATTAINS geospatial services")
   }
   
   # Uses rATTAINS to pull in all allowable parameter values by the entity in the dataframe
-  ATTAINS_param <- rATTAINS::assessments(
-    organization_id = org_name[[3]]
-  )
+  ATTAINS_param <- list()
+  for(i in 1:nrow(org_name)){
+    ATTAINS_param[[i]] <- rATTAINS::assessments(
+      organization_id = org_name[["code"]][i]
+    )
   
   # Extracts all unique parameter names by the entity
-  ATTAINS_param <- ATTAINS_param$use_assessment %>%
+  ATTAINS_param[[i]] <- ATTAINS_param[[i]]$use_assessment %>%
     dplyr::select(organization_identifier, organization_name, parameters, use_attainments) %>%
-    unnest(c(use_attainments), names_sep = ".") %>%
-    unnest(c(parameters), names_sep = ".") %>%
+    tidyr::unnest(c(use_attainments), names_sep = ".") %>%
+    tidyr::unnest(c(parameters), names_sep = ".") %>%
     dplyr::select(parameters.parameter_name, organization_identifier, organization_name, use_attainments.use_name) %>%
-    distinct() 
+    dplyr::distinct() %>%
+    dplyr::arrange()
+  }
 
+  ATTAINS_param <- Reduce(dplyr::full_join,ATTAINS_param)
+  
   # Create column names for an empty dataframe
   columns <- c(
     "TADA.CharacteristicName", "TADA.MethodSpeciationName",	"TADA.ResultSampleFractionText", "ATTAINS.CharacteristicName", "ATTAINS.OrgName"
@@ -270,7 +278,7 @@ TADA_CreateParamUseRef <- function(ParamRef = NULL, overwrite = FALSE, downloads
                         type = "expression", rule = "!=1" , style = createStyle(fontColour = "red")) # using yellow to indicate modified cell
   conditionalFormatting(wb, "CreateParamUseRef", 
                         cols = 5, rows = 2:(nrow(CreateParamUseRef) + 1), 
-                        type = "expression", rule = "==1", style = createStyle(fontColour = "red")) # default values or indicates good to go cells.
+                        type = "expression", rule = "==1", style = createStyle(fontColour = "green")) # default values or indicates good to go cells.
   conditionalFormatting(wb, "CreateParamUseRef", 
                         cols = 6, rows = 2:(nrow(CreateParamUseRef) + 1), 
                         type = "expression", rule = "==1" , style = createStyle(bgFill = TADA_ColorPalette()[8])) # using yellow to indicate modified cell
@@ -592,7 +600,9 @@ TADA_DefineStandards <- function(.data, ParamUseRef = NULL, AUIDRef = NULL, over
     dplyr::select(-c(add_nrows_SiteSpecific, add_nrows_AcuteChronic, add_nrows_WaterTypes, id)) %>%
     dplyr::arrange(ATTAINS.CharacteristicName, ATTAINS.UseName)
      
+  # If there is a dataframe with no speciation found, this will ensure this column is of type char to run.
   DefineStandards$TADA.MethodSpeciationName <- as.character(DefineStandards$TADA.MethodSpeciationName) 
+  # Pulls in all the units that are found in TADA.ResultMeasure.MeasureUnitCode as unique allowable unit column
   StandardValue <- DefineStandards %>%
     dplyr::left_join( 
       (select(.data, "TADA.CharacteristicName", "TADA.MethodSpeciationName", "TADA.ResultSampleFractionText", "TADA.ResultMeasure.MeasureUnitCode") %>% 
