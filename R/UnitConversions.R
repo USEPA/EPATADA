@@ -42,7 +42,7 @@
 #' # Create a unit reference data frame
 #' UT_UnitRef <- TADA_CreateUnitRef(Data_Nutrients_UT)
 #'
-TADA_CreateUnitRef <- function(.data, masstoVolume = FALSE, print.message = TRUE) {
+TADA_CreateUnitRef <- function(.data, print.message = TRUE) {
   # create data frame of unique combinations
   data.units <- TADA_UniqueCharUnitSpeciation(.data)
   
@@ -241,7 +241,7 @@ TADA_CreateUnitRef <- function(.data, masstoVolume = FALSE, print.message = TRUE
 #' and detection quantitation limit value and units are converted to TADA target units.
 #' This function changes the values within "TADA.ResultMeasure.MeasureUnitCode" and
 #' "TADA.DetectionQuantitationLimitMeasure.MeasureValue" to the TADA target units
-#' and converts respective values within the "TADA.ResultMeasureValue" and
+#' and converts  respective values within the "TADA.ResultMeasureValue" and
 #' "TADA.DetectionQuantitationLimitMeasure.MeasureValue" fields. When
 #' "TADA.ResultMeasure.MeasureUnitCode" is NA, the unit is taken from
 #' "TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode" if it not NA. This
@@ -289,16 +289,75 @@ TADA_CreateUnitRef <- function(.data, masstoVolume = FALSE, print.message = TRUE
 #' # Convert values and units for results and detection limits:
 #' ResultUnitsConverted <- TADA_ConvertResultUnits(Data_Nutrients_UT, transform = TRUE)
 #'
-TADA_ConvertResultUnits <- function(.data, ref = "tada", masstoVolume = FALSE, transform = TRUE) {
+TADA_ConvertResultUnits <- function(.data, ref = "tada", transform = TRUE) {
   # check .data is data.frame
   TADA_CheckType(.data, "data.frame", "Input object")
   # check transform is boolean
   TADA_CheckType(transform, "logical")
   # check .data has all of the required columns
 
+  if ("TADA.CharacteristicName" %in% colnames(.data)) {
+    .data <- .data
+  } else {
+    # create uppercase version of original CharacteristicName
+    .data$TADA.CharacteristicName <- toupper(.data$CharacteristicName)
+  }
+
+  if ("TADA.ActivityMediaName" %in% colnames(.data)) {
+    .data <- .data
+  } else {
+    # create uppercase version of original ActivityMediaName
+    .data$TADA.ActivityMediaName <- toupper(.data$ActivityMediaName)
+  }
+
+  if ("TADA.MethodSpeciationName" %in% colnames(.data)) {
+    .data <- .data
+  } else {
+    # create uppercase version of original MethodSpeciationName
+    .data$TADA.MethodSpeciationName <- toupper(.data$MethodSpeciationName)
+  }
+
+  if ("TADA.ResultSampleFractionText" %in% colnames(.data)) {
+    .data <- .data
+  } else {
+    # create uppercase version of original ResultSampleFractionText
+    .data$TADA.ResultSampleFractionText <- toupper(.data$ResultSampleFractionText)
+  }
+
+  if ("TADA.ResultMeasureValue" %in% colnames(.data)) {
+    .data <- .data
+  } else {
+    # run TADA_ConvertSpecialChars function
+    .data <- TADA_ConvertSpecialChars(.data, "ResultMeasureValue")
+  }
+
+  if ("TADA.ResultMeasure.MeasureUnitCode" %in% colnames(.data)) {
+    .data <- .data
+  } else {
+    # create uppercase version of original ResultMeasure.MeasureUnitCode
+    .data$TADA.ResultMeasure.MeasureUnitCode <- toupper(.data$ResultMeasure.MeasureUnitCode)
+  }
+
+  if ("TADA.DetectionQuantitationLimitMeasure.MeasureValue" %in% colnames(.data)) {
+    .data <- .data
+  } else {
+    # run TADA_ConvertSpecialChars function
+    .data <- TADA_ConvertSpecialChars(.data, "DetectionQuantitationLimitMeasure.MeasureValue")
+  }
+
+  if ("TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode" %in% colnames(.data)) {
+    .data <- .data
+  } else {
+    # create uppercase version of original DetectionQuantitationLimitMeasure.MeasureUnitCode
+    .data$TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode <-
+      toupper(.data$DetectionQuantitationLimitMeasure.MeasureUnitCode)
+  }
+
   expected_cols <- c(
-    "TADA.CharacteristicName", 
+    "TADA.CharacteristicName",
     "TADA.ActivityMediaName",
+    "TADA.MethodSpeciationName",
+    "TADA.ResultSampleFractionText",
     "TADA.ResultMeasureValue",
     "TADA.ResultMeasure.MeasureUnitCode",
     "TADA.DetectionQuantitationLimitMeasure.MeasureValue",
@@ -311,7 +370,7 @@ TADA_ConvertResultUnits <- function(.data, ref = "tada", masstoVolume = FALSE, t
 
   # import USGS ref for method speciation
   usgs.ref <- TADA_GetUSGSSynonymRef()
-  
+
   usgs.spec <- usgs.ref %>%
     dplyr::rename(
       ResultMeasure.MeasureUnitCode = Code,
@@ -323,7 +382,7 @@ TADA_ConvertResultUnits <- function(.data, ref = "tada", masstoVolume = FALSE, t
       TADA.Target.MethodSpeciationName = toupper(TADA.Target.MethodSpeciationName)
     ) %>%
     dplyr::select(ResultMeasure.MeasureUnitCode, TADA.Target.MethodSpeciationName)
-  
+
   usgs.unit <- usgs.ref %>%
     dplyr::select(Code, CodeNoSpeciation) %>%
     dplyr::mutate(
@@ -332,14 +391,17 @@ TADA_ConvertResultUnits <- function(.data, ref = "tada", masstoVolume = FALSE, t
     ) %>%
     dplyr::select(-Code) %>%
     dplyr::rename(MeasureUnitCode.match = CodeNoSpeciation)
-  
+
+
   # if user supplied unit reference was provided
   if (is.data.frame(ref)) {
     # required columns
     expected_ref_cols <- c(
-      "TADA.CharacteristicName", "TADA.ResultMeasure.MeasureUnitCode",
+      "TADA.CharacteristicName",
+      "TADA.ResultMeasure.MeasureUnitCode",
       "TADA.Target.ResultMeasure.MeasureUnitCode",
-      "TADA.WQXUnitConversionFactor", "TADA.WQXUnitConversionCoefficient"
+      "TADA.WQXUnitConversionFactor",
+      "TADA.WQXUnitConversionCoefficient"
     )
 
     if (all(expected_ref_cols %in% colnames(ref)) == FALSE) {
@@ -366,7 +428,7 @@ TADA_ConvertResultUnits <- function(.data, ref = "tada", masstoVolume = FALSE, t
       dplyr::select(TADA.CharacteristicName, TADA.ResultMeasure.MeasureUnitCode) %>%
       dplyr::distinct()
 
-    # compare the unique characteristic/unit combinations in data and unit ref
+    # compare the unique characteristic/unit combinations in data nd unit ref
     compare.ref <- tada.list %>%
       dplyr::anti_join(user.list, by = c("TADA.CharacteristicName", "TADA.ResultMeasure.MeasureUnitCode"))
 
@@ -395,7 +457,7 @@ TADA_ConvertResultUnits <- function(.data, ref = "tada", masstoVolume = FALSE, t
     # if no unit reference df was provided by user or user input was "tada"
     if (ref == "tada") {
       unit.ref <- TADA_CreateUnitRef(.data, print.message = FALSE)
-      
+
       unit.ref <- unit.ref %>%
         dplyr::left_join(usgs.spec, by = dplyr::join_by(ResultMeasure.MeasureUnitCode)) %>%
         dplyr::distinct()
@@ -406,8 +468,10 @@ TADA_ConvertResultUnits <- function(.data, ref = "tada", masstoVolume = FALSE, t
       wqx.ref <- TADA_GetMeasureUnitRef()
 
       wqx.ref <- wqx.ref %>%
-        dplyr::mutate(Target.Unit = toupper(Target.Unit),
-                      Code = toupper(Code)) %>%
+        dplyr::mutate(
+          Target.Unit = toupper(Target.Unit),
+          Code = toupper(Code)
+        ) %>%
         dplyr::rename(
           MeasureUnitCode.match = Code,
           TADA.Target.ResultMeasure.MeasureUnitCode = Target.Unit,
@@ -423,23 +487,23 @@ TADA_ConvertResultUnits <- function(.data, ref = "tada", masstoVolume = FALSE, t
       # create unit ref
       unit.ref <- TADA_UniqueCharUnitSpeciation(.data) %>%
         dplyr::left_join(usgs.unit, by = dplyr::join_by(TADA.ResultMeasure.MeasureUnitCode)) %>%
-        dplyr::mutate(MeasureUnitCode.match = ifelse(is.na(MeasureUnitCode.match), 
-                                                     TADA.ResultMeasure.MeasureUnitCode,
-                                                     MeasureUnitCode.match)) %>%
+        dplyr::mutate(MeasureUnitCode.match = ifelse(is.na(MeasureUnitCode.match),
+          TADA.ResultMeasure.MeasureUnitCode,
+          MeasureUnitCode.match
+        )) %>%
         dplyr::left_join(wqx.ref, by = dplyr::join_by(MeasureUnitCode.match)) %>%
         dplyr::select(-MeasureUnitCode.match) %>%
         dplyr::distinct()
 
+      unit.ref <- unit.ref %>%
+        dplyr::left_join(usgs.spec, by = dplyr::join_by(ResultMeasure.MeasureUnitCode)) %>%
+        dplyr::select(-TADA.MethodSpeciationName) %>%
+        dplyr::distinct()
     }
-  }
-  
-  if(masstoVolume == TRUE){
-    unit.ref <- unit.ref %>%
-      dplyr::mutate(TADA.Target.ResultMeasure.MeasureUnitCode = replace(TADA.Target.ResultMeasure.MeasureUnitCode,
-                                                                        TADA.Target.ResultMeasure.MeasureUnitCode == "UG/KG", "UG/L"))
   }
 
   # list of conversion columns
+
   conversion.cols <- c(
     "TADA.SpeciationUnitConversion", 
     "TADA.WQXUnitConversionFactor", "TADA.WQXUnitConversionCoefficient",
@@ -447,11 +511,14 @@ TADA_ConvertResultUnits <- function(.data, ref = "tada", masstoVolume = FALSE, t
   )
 
   # ref join
+
   ref.join <- c(
-    "TADA.CharacteristicName", #"TADA.MethodSpeciationName",
-    "ResultMeasure.MeasureUnitCode", "TADA.ResultMeasure.MeasureUnitCode"
+    "TADA.CharacteristicName",
+    "ResultMeasure.MeasureUnitCode",
+    "TADA.ResultMeasure.MeasureUnitCode"
   )
-  
+
+
   # join unit.ref to .data
   check.data <- .data %>%
     # remove existing conversion columns
@@ -463,7 +530,7 @@ TADA_ConvertResultUnits <- function(.data, ref = "tada", masstoVolume = FALSE, t
           ref.join
         ),
       relationship = "many-to-many"
-    ) 
+    )
 
   # add TADA.WQXResultUnitConversion column
   flag.data <- check.data %>%
@@ -517,23 +584,19 @@ TADA_ConvertResultUnits <- function(.data, ref = "tada", masstoVolume = FALSE, t
 
     # add target method speciation name when needed
     clean.data <- clean.data %>%
-      dplyr::mutate(TADA.MethodSpeciationName = ifelse(!is.na(TADA.Target.MethodSpeciationName), TADA.Target.MethodSpeciationName, toupper(TADA.MethodSpeciationName)),
-                    # replace UNKNOWN or NONE method speciation name with NA
-                    TADA.MethodSpeciationName = ifelse(TADA.MethodSpeciationName %in% c("UNKNOWN", "NONE"), NA, TADA.MethodSpeciationName))
-    
-    # create new comparable data identifier column following conversion
-    clean.data <- TADA_CreateComparableID(clean.data)
-
-    clean.data <- TADA_OrderCols(clean.data)
+      dplyr::mutate(
+        TADA.MethodSpeciationName = ifelse(!is.na(TADA.Target.MethodSpeciationName), TADA.Target.MethodSpeciationName, toupper(TADA.MethodSpeciationName)),
+        # replace UNKNOWN or NONE method speciation name with NA
+        TADA.MethodSpeciationName = ifelse(TADA.MethodSpeciationName %in% c("UNKNOWN", "NONE"), NA, TADA.MethodSpeciationName)
+      )
 
     # create detection unit ref
     det.ref <- unit.ref %>%
       dplyr::ungroup() %>%
       dplyr::rename(DetectionQuantitationLimitMeasure.MeasureUnitCode = ResultMeasure.MeasureUnitCode,
                     TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode = TADA.ResultMeasure.MeasureUnitCode) %>%
-      dplyr::select(-TADA.ResultMeasure.MeasureUnitCode) %>%
       dplyr::distinct()
-    
+
     det.join <- c(
       "TADA.CharacteristicName",
       "DetectionQuantitationLimitMeasure.MeasureUnitCode",
@@ -550,7 +613,6 @@ TADA_ConvertResultUnits <- function(.data, ref = "tada", masstoVolume = FALSE, t
         !is.na(TADA.Target.ResultMeasure.MeasureUnitCode) ~ ((TADA.DetectionQuantitationLimitMeasure.MeasureValue + TADA.WQXUnitConversionCoefficient) * TADA.WQXUnitConversionFactor),
         is.na(TADA.Target.ResultMeasure.MeasureUnitCode) ~ TADA.DetectionQuantitationLimitMeasure.MeasureValue
       ))
-
     rm(clean.data)
 
     # populate TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode
@@ -559,13 +621,16 @@ TADA_ConvertResultUnits <- function(.data, ref = "tada", masstoVolume = FALSE, t
       dplyr::mutate(TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode = dplyr::case_when(
         !is.na(TADA.Target.ResultMeasure.MeasureUnitCode) ~ TADA.Target.ResultMeasure.MeasureUnitCode,
         is.na(TADA.Target.ResultMeasure.MeasureUnitCode) ~ TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode
-      )) %>%
-      TADA_OrderCols()
+      ))
 
     # Remove unneccessary conversion columns
     convert.data <- convert.data %>%
-      dplyr::select(-tidyselect::any_of(conversion.cols)) %>%
-      TADA_CreateComparableID()
+      dplyr::select(-tidyselect::any_of(conversion.cols))
+
+
+    # Update ID and column ordering
+    convert.data <- TADA_CreateComparableID(convert.data)
+    convert.data <- TADA_OrderCols(convert.data)
 
     return(convert.data)
   }
