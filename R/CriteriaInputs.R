@@ -92,7 +92,7 @@ TADA_CreateParamRef <- function(.data, overwrite = FALSE, downloads_path = NULL)
     tidyr::unnest(c(parameters), names_sep = ".") %>%
     dplyr::select(parameters.parameter_name, organization_identifier, organization_name, use_attainments.use_name) %>%
     dplyr::distinct() %>%
-    dplyr::arrange()
+    dplyr::arrange(parameters.parameter_name)
   }
 
   ATTAINS_param <- Reduce(dplyr::full_join,ATTAINS_param)
