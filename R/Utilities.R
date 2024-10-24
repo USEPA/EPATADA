@@ -756,13 +756,24 @@ TADA_FormatDelimitedString <- function(delimited_string, delimiter = ",") {
 #' group.
 #'
 #' @param .data TADA dataframe OR TADA sites dataframe
-#' @param dist_buffer Numeric. The maximum distance (in meters) two sites can be
-#'   from one another to be considered "nearby" and grouped together.
+#' @param dist_buffer Numeric. The maximum distance (in meters) two sites can 
+#' be from one another to be considered "nearby" and grouped together.
+#' The default is 100m. 
 #'
-#' @return Input dataframe with a TADA.MonitoringLocationIdentifier column that indicates
-#'   the nearby site groups each monitoring location belongs to.
+#' @return Input dataframe with a TADA.MonitoringLocationIdentifier column that 
+#' indicates the nearby site groups each monitoring location belongs to. Grouped 
+#' sites are concatenated in the TADA.MonitoringLocationIdentifier column 
+#' (e.g. ["USGS-10010025","USGS-10010026"]). This JSON array is the new TADA
+#' monitoring location ID for the grouped sites. TADA.MonitoringLocationIdentifier 
+#' can be leveraged to analyze data from nearby sites together 
+#' (as the same general location).
 #'
 #' @export
+#' 
+#' @examples
+#' GroupNearbySites_100m <- TADA_FindNearbySites(Data_Nutrients_UT)
+#' GroupNearbySites_10m <- TADA_FindNearbySites(Data_Nutrients_UT, dist_buffer = 10)
+#' 
 #'
 TADA_FindNearbySites <- function(.data, dist_buffer = 100) {
   # check .data is data.frame
