@@ -9,10 +9,10 @@ TADA_FlagFraction(.data, clean = TRUE, flaggedonly = FALSE)
 \arguments{
 \item{.data}{TADA dataframe}
 
-\item{clean}{Boolean argument; removes "Invalid" characteristic-fraction
+\item{clean}{Boolean argument; removes "Suspect" characteristic-fraction
 combinations from the dataframe when clean = TRUE. Default is clean = TRUE.}
 
-\item{flaggedonly}{Boolean argument; filters to show only the "Invalid"
+\item{flaggedonly}{Boolean argument; filters to show only the "Suspect"
 characteristic-fraction combinations in the dataframe when flaggedonly = TRUE.
 Default is flaggedonly = FALSE.}
 }
@@ -20,17 +20,17 @@ Default is flaggedonly = FALSE.}
 This function adds the following column to your dataframe:
 TADA.SampleFraction.Flag, which flags each CharacteristicName and
 ResultSampleFractionText combination in your dataframe as either
-"NonStandardized", "Invalid", "Valid", or "Not Reviewed". When clean = FALSE and flaggedonly
-= TRUE, the data are filtered to show the "Invalid" rows only. When clean =
-TRUE and flaggedonly = FALSE, "Invalid" rows are removed from the dataframe
+"NonStandardized", "Suspect", "Pass", or "Not Reviewed". When clean = FALSE and flaggedonly
+= TRUE, the data are filtered to show the "Suspect" rows only. When clean =
+TRUE and flaggedonly = FALSE, "Suspect" rows are removed from the dataframe
 and no column will be appended. When clean = TRUE and flaggedonly = TRUE,
 the function does not execute and an error message is returned.
 }
 \description{
 Function checks the validity of each characteristic-fraction combination
-in the dataframe. When clean = TRUE, rows with invalid characteristic-fraction
+in the dataframe. When clean = TRUE, rows with Suspect characteristic-fraction
 combinations are removed. Default is clean = TRUE. When flaggedonly = TRUE, only
-invalid characteristic-fraction combinations are returned. Default is flaggedonly = FALSE.
+Suspect characteristic-fraction combinations are returned. Default is flaggedonly = FALSE.
 }
 \details{
 #' The “Not Reviewed” value within "TADA.ResultAboveUpperThreshold.Flag" means
@@ -42,14 +42,14 @@ The WQX team plans to review and update these new combinations quarterly.
 # Load example dataset:
 data(Data_Nutrients_UT)
 
-# Remove data with invalid characteristic-fraction combinations:
-InvalidFraction_clean <- TADA_FlagFraction(Data_Nutrients_UT)
+# Remove data with Suspect characteristic-fraction combinations:
+SuspectFraction_clean <- TADA_FlagFraction(Data_Nutrients_UT)
 
-# Flag, but do not remove, data with invalid characteristic-fraction combinations
+# Flag, but do not remove, data with Suspect characteristic-fraction combinations
 # in new column titled "TADA.SampleFraction.Flag":
-InvalidFraction_flags <- TADA_FlagFraction(Data_Nutrients_UT, clean = FALSE)
+SuspectFraction_flags <- TADA_FlagFraction(Data_Nutrients_UT, clean = FALSE)
 
-# Show only invalid characteristic-fraction combinations:
-InvalidFraction_flaggedonly <- TADA_FlagFraction(Data_Nutrients_UT, clean = FALSE, flaggedonly = TRUE)
+# Show only Suspect characteristic-fraction combinations:
+SuspectFraction_flaggedonly <- TADA_FlagFraction(Data_Nutrients_UT, clean = FALSE, flaggedonly = TRUE)
 
 }
