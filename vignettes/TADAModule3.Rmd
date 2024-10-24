@@ -179,16 +179,16 @@ TADA_dataframe <- TADA_DataRetrieval(
 
 TADA_dataframe2 <- TADA_FindQCActivities(TADA_dataframe, clean = TRUE)
 TADA_dataframe3 <- TADA_FlagContinuousData(TADA_dataframe2)
-TADA_dataframe4 <- TADA_PairForCriteriaCalc(TADA_dataframe3)
-TADA_dataframe5 <- TADA_FindPotentialDuplicatesSingleOrg(TADA_dataframe4)
+#TADA_dataframe4 <- TADA_PairForCriteriaCalc(TADA_dataframe3)
+TADA_dataframe4 <- TADA_FindPotentialDuplicatesSingleOrg(TADA_dataframe3)
 
 
 # Handling of replicate samples with differing resultmeasurevalue when they are not labeled as a duplicate.
-TADA_dataframe_test <- TADA_dataframe5 %>%
+TADA_dataframe_test <- TADA_dataframe4 %>%
   dplyr::select(TADA.CharacteristicName,TADA.ResultSampleFractionText,TADA.MethodSpeciationName, 
                 ActivityStartDateTime, ActivityIdentifier, MonitoringLocationIdentifier, 
                 TADA.ResultMeasureValue, TADA.ResultMeasure.MeasureUnitCode, 
-                setdiff(colnames(TADA_dataframe5), colnames(TADA_dataframe))
+                setdiff(colnames(TADA_dataframe4), colnames(TADA_dataframe))
                 ) %>%
   dplyr::filter(TADA.SingleOrgDup.Flag == "Unique") %>%
   dplyr::filter()
@@ -255,7 +255,7 @@ for each row,, otherwise next steps in the process may not run
 correctly.
 
 ```{r}
-temp <- as.data.frame(TADA_with_ATTAINS$TADA_with_ATTAINS)
+temp <- data.frame(TADA_with_ATTAINS$TADA_with_ATTAINS)
 
 # Users must define the appropriate crosswalk map between ATTAINS parameter and WQP parameters.
 TADA_ParamRef <- TADA_CreateParamRef(temp, overwrite = TRUE)
