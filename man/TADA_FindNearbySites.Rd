@@ -17,10 +17,10 @@ The default is 100m.}
 Input dataframe with a TADA.MonitoringLocationIdentifier column that
 indicates the nearby site groups each monitoring location belongs to. Grouped
 sites are concatenated in the TADA.MonitoringLocationIdentifier column
-(e.g. \link{"USGS-10010025","USGS-10010026"}). This JSON array is the new TADA
-monitoring location ID for the grouped sites. TADA.MonitoringLocationIdentifier
-can be leveraged to analyze data from nearby sites together
-(as the same general location).
+(e.g. "USGS-10010025","USGS-10010026" enclosed in square brackets []).
+This JSON array is the new TADA monitoring location ID for the grouped sites.
+TADA.MonitoringLocationIdentifier can be leveraged to analyze data from
+nearby sites together (as the same general location).
 }
 \description{
 This function takes a TADA dataset and creates a distance matrix for all
