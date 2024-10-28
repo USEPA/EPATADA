@@ -73,7 +73,7 @@ console).
 
 ```{r install_TADA, eval = F, results = 'hide'}
 remotes::install_github("USEPA/EPATADA",
-  ref = "502-tadacomparabledataidentifier-column-showing-na-for-the-tadaresultmeasuremeasureunitcode-portion-of-its-string-pasting",
+  ref = "develop",
   dependencies = TRUE
 )
 ```
@@ -172,7 +172,7 @@ First, we will need to pull in some TADA Water Quality Portal Data:
 TADA_dataframe <- TADA_DataRetrieval(
   startDate = "2020-01-01",
   endDate = "2020-12-31",
-  characteristicName = c("pH", "Zinc", "Hardness"),
+  characteristicType = "Nutrient",
   countycode = "US:08:069",
   applyautoclean = TRUE
 )
@@ -184,7 +184,7 @@ TADA_dataframe4 <- TADA_FindPotentialDuplicatesSingleOrg(TADA_dataframe3)
 
 
 # Handling of replicate samples with differing resultmeasurevalue when they are not labeled as a duplicate.
-TADA_dataframe_test <- TADA_dataframe4 %>%
+TADA_dataframe5 <- TADA_dataframe4 %>%
   dplyr::select(TADA.CharacteristicName,TADA.ResultSampleFractionText,TADA.MethodSpeciationName, 
                 ActivityStartDateTime, ActivityIdentifier, MonitoringLocationIdentifier, 
                 TADA.ResultMeasureValue, TADA.ResultMeasure.MeasureUnitCode, 
@@ -193,7 +193,7 @@ TADA_dataframe_test <- TADA_dataframe4 %>%
   dplyr::filter(TADA.SingleOrgDup.Flag == "Unique") %>%
   dplyr::filter()
 
-TADA_FieldValuesTable(TADA_dataframe_test, field = "MonitoringLocationIdentifier", characteristicName = "ZINC")
+#TADA_FieldValuesTable(TADA_dataframe_test, field = "MonitoringLocationIdentifier", characteristicName = "ZINC")
 
 ```
 
@@ -208,7 +208,7 @@ the same observation).
 
 ```{r}
 # return_sf = TRUE is currently a needed argument, should update the code to account for if return_sf is FALSE
-TADA_with_ATTAINS <- TADA_GetATTAINS(TADA_dataframe, return_sf = TRUE)
+TADA_with_ATTAINS <- TADA_GetATTAINS(TADA_dataframe4, return_sf = TRUE)
 ```
 
 Now, create a new reference dataframe with ONLY the unique combinations
@@ -221,11 +221,7 @@ TADA_AUIDRef <- TADA_CreateAUIDRef(TADA_with_ATTAINS, overwrite = TRUE)
 
 ```
 
-Users may want to further filter by a specific AUID(s). Example below
-showcase how this can be accomplished:
-
 ```{r}
-TADA_AUIDRef2 <- TADA_CreateAUIDRef(TADA_with_ATTAINS, AUID = c("COSPBT04_A", "COSPBT04_B"))
 
 ```
 
@@ -255,26 +251,30 @@ for each row,, otherwise next steps in the process may not run
 correctly.
 
 ```{r}
-temp <- data.frame(TADA_with_ATTAINS$TADA_with_ATTAINS)
+temp <- as.data.frame(TADA_with_ATTAINS$TADA_with_ATTAINS)
 
 # Users must define the appropriate crosswalk map between ATTAINS parameter and WQP parameters.
-TADA_ParamRef <- TADA_CreateParamRef(temp, overwrite = TRUE)
+Co_ParamRef <- TADA_CreateParamRef(temp, overwrite = TRUE)
 
 # Users can choose to save TADA_ParamRef as an R dataframe if they desire or edit directly in excel and save file.
 downloads_path <- file.path(Sys.getenv("USERPROFILE"), "Downloads", "myfileRef.xlsx")
-TADA_ParamRef <- openxlsx::read.xlsx(downloads_path, sheet = "CreateParamRef")
+Co_ParamRef <- openxlsx::read.xlsx(downloads_path, sheet = "CreateParamRef")
 
-TADA_ParamUseRef <- TADA_CreateParamUseRef(overwrite = TRUE)
+Co_ParamUseRef <- TADA_CreateParamUseRef(overwrite = TRUE)
 # TADA_ParamUseRef <- TADA_CreateParamUseRef(ParamRef = TADA_ParamRef, overwrite = TRUE)
-TADA_ParamUseRef <- openxlsx::read.xlsx(downloads_path, sheet = "CreateParamUseRef")
+Co_ParamUseRef <- openxlsx::read.xlsx(downloads_path, sheet = "CreateParamUseRef")
 
-TADA_AUIDRef <- TADA_CreateAUIDRef(TADA_with_ATTAINS, overwrite = TRUE)
-TADA_AUIDRef <- openxlsx::read.xlsx(downloads_path, sheet = "CreateAUIDRef")
+Co_AUIDRef <- TADA_CreateAUIDRef(TADA_with_ATTAINS, overwrite = TRUE)
+Co_AUIDRef <- openxlsx::read.xlsx(downloads_path, sheet = "CreateAUIDRef")
 
-TADA_Standards <- TADA_DefineStandards(.data = TADA_dataframe, AUIDRef = TADA_AUIDRef, ParamUseRef = TADA_ParamUseRef, overwrite = TRUE)
+Co_Standards <- TADA_DefineStandards(.data = temp, AUIDRef = Co_AUIDRef, ParamUseRef = Co_ParamUseRef, overwrite = TRUE)
 
 # Testing other arguments in the function to check if it runs
-TADA_Standards <- TADA_DefineStandards(.data = TADA_dataframe, AUIDRef = TADA_AUIDRef, overwrite = TRUE)
+Co_Standards <- TADA_DefineStandards(.data = temp, overwrite = TRUE)
+
+Co_Standards <- openxlsx::read.xlsx(downloads_path, sheet = "DefineStandards")
+
+Co_StandardsExceedance <- TADA_StandardsExceedance(.data = temp, overwrite = TRUE)
 ```
 
 User should open this file and, in the "UserCriteriaRef" tab, make the

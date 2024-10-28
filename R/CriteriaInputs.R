@@ -41,7 +41,7 @@
 #' Data_Nutrients_Param_Ref <- TADA_CreateParamUseRef(Data_Nutrients_UT)
 #' 
 
-TADA_CreateParamRef <- function(.data, overwrite = FALSE, downloads_path = NULL){ 
+TADA_CreateParamRef <- function(.data, ParamRef = NULL, overwrite = FALSE, downloads_path = NULL, ATTAINSParmRef = NULL, filt = c("All","State")){ 
   
   # If user does not define the path, attempt to pull in the ref files from the default Downloads location.
   downloads_path <- file.path(Sys.getenv("USERPROFILE"), "Downloads", "myfileRef.xlsx")
@@ -57,7 +57,8 @@ TADA_CreateParamRef <- function(.data, overwrite = FALSE, downloads_path = NULL)
   # }
   
   # Pulls in all unique combinations of TADA.CharacteristicName, TADA.MethodSpeciationName, TADA.ResultSampleFractionText in user's dataframe.
-  TADA_param <- dplyr::distinct(.data[,c("TADA.CharacteristicName", "TADA.MethodSpeciationName", "TADA.ResultSampleFractionText")])
+  TADA_param <- dplyr::distinct(.data[,c("TADA.CharacteristicName", "TADA.MethodSpeciationName", "TADA.ResultSampleFractionText")]) %>%
+    dplyr::arrange(TADA.CharacteristicName)
   
   # Pulls in all domain values of parameters. Filtering by state is done in the next steps.
   ATTAINS_param <- rATTAINS::domain_values("ParameterName")
@@ -113,8 +114,8 @@ TADA_CreateParamRef <- function(.data, overwrite = FALSE, downloads_path = NULL)
   
   # set zoom size
   set_zoom <- function(x) gsub('(?<=zoomScale=")[0-9]+', x, sV, perl = TRUE)
-  sV <- wb$worksheets[[1]]$sheetViews
-  wb$worksheets[[1]]$sheetViews <- set_zoom(90)
+  sV <- wb$worksheets[[2]]$sheetViews
+  wb$worksheets[[2]]$sheetViews <- set_zoom(90)
   # Format column header
   header_st <- createStyle(textDecoration = "Bold")
   # Write column names in the excel spreadsheet under the tab [CreateParamRef]
@@ -239,7 +240,7 @@ TADA_CreateParamUseRef <- function(ParamRef = NULL, overwrite = FALSE, downloads
   )
   
   CreateParamUseRef <- openxlsx::read.xlsx(downloads_path, sheet = "Index", cols = 4:7) %>%
-    dplyr::filter(organization_name == unique(ParamRef$ATTAINS.OrgName)) %>%
+    dplyr::filter(organization_name %in% unique(ParamRef$ATTAINS.OrgName)) %>%
     dplyr::filter(parameters.parameter_name %in% unique(ParamRef$ATTAINS.CharacteristicName)) %>%
     # dplyr::rename(parameters.parameter_name, ATTAINS.CharacteristicName) %>%
     dplyr::select(organization_identifier,	organization_name,	parameters.parameter_name, use_attainments.use_name) %>%
@@ -247,25 +248,30 @@ TADA_CreateParamUseRef <- function(ParamRef = NULL, overwrite = FALSE, downloads
     dplyr::mutate(add_nrows_AcuteChronic = 0) %>%
     dplyr::mutate(add_nrows_WaterTypes = 0) %>%
     dplyr::mutate(add_nrows_SiteSpecific = 0) %>%
+    dplyr::mutate(add_nrows_Other = 0) %>%
     dplyr::rename(ATTAINS.CharacteristicName = parameters.parameter_name, ATTAINS.UseName = use_attainments.use_name) %>%
     dplyr::arrange(ATTAINS.CharacteristicName, ATTAINS.UseName) %>%
     dplyr::distinct()
 
+  # set zoom size
+  set_zoom <- function(x) gsub('(?<=zoomScale=")[0-9]+', x, sV, perl = TRUE)
+  sV <- wb$worksheets[[3]]$sheetViews
+  wb$worksheets[[3]]$sheetViews <- set_zoom(90)
   # Format column header
   header_st <- createStyle(textDecoration = "Bold")
   # Format Column widths
   openxlsx::setColWidths(wb, "CreateParamUseRef", cols = 1:ncol(CreateParamUseRef), widths = "auto")
   # set zoom size
   set_zoom <- function(x) gsub('(?<=zoomScale=")[0-9]+', x, sV, perl = TRUE)
-  sV <- wb$worksheets[[1]]$sheetViews
-  wb$worksheets[[1]]$sheetViews <- set_zoom(90)
+  sV <- wb$worksheets[[3]]$sheetViews
+  wb$worksheets[[3]]$sheetViews <- set_zoom(90)
   
   # Export CreateParamUseRef dataframe into the excel spreadsheet tab
   writeData(wb, "CreateParamUseRef", startCol = 1, x = CreateParamUseRef, headerStyle = header_st)
   
   # Writes an excel formula for nrowsStandardsRep column. Will be based on other two column values
   for(i in 1:nrow(CreateParamUseRef)){
-    writeFormula(wb, "CreateParamUseRef", startCol = 5, startRow = i + 1, x = paste0('=1+F',i+1,'+','G',i+1,'+H',i+1))
+    writeFormula(wb, "CreateParamUseRef", startCol = 5, startRow = i + 1, x = paste0('=1+F',i+1,'+','G',i+1,'+H',i+1,'+I',i+1))
   }
   addStyle(wb,  "CreateParamUseRef", cols = 4, rows = 1:(nrow(CreateParamUseRef)+2) , style = createStyle(numFmt = "0"), gridExpand = TRUE)
   
@@ -275,10 +281,10 @@ TADA_CreateParamUseRef <- function(ParamRef = NULL, overwrite = FALSE, downloads
   # Conditional Formatting
   conditionalFormatting(wb, "CreateParamUseRef", 
                         cols = 5, rows = 2:(nrow(CreateParamUseRef) + 1), 
-                        type = "expression", rule = "!=1" , style = createStyle(fontColour = "red")) # using yellow to indicate modified cell
+                        type = "expression", rule = "!=1" , style = createStyle(fontColour = TADA_ColorPalette()[13])) # using yellow to indicate modified cell
   conditionalFormatting(wb, "CreateParamUseRef", 
                         cols = 5, rows = 2:(nrow(CreateParamUseRef) + 1), 
-                        type = "expression", rule = "==1", style = createStyle(fontColour = "green")) # default values or indicates good to go cells.
+                        type = "expression", rule = "==1", style = createStyle(fontColour = TADA_ColorPalette()[9])) # default values or indicates good to go cells.
   conditionalFormatting(wb, "CreateParamUseRef", 
                         cols = 6, rows = 2:(nrow(CreateParamUseRef) + 1), 
                         type = "expression", rule = "==1" , style = createStyle(bgFill = TADA_ColorPalette()[8])) # using yellow to indicate modified cell
@@ -289,13 +295,13 @@ TADA_CreateParamUseRef <- function(ParamRef = NULL, overwrite = FALSE, downloads
                         cols = 6, rows = 2:(nrow(CreateParamUseRef) + 1), 
                         type = "expression", rule = ">1" , style = createStyle(bgFill = TADA_ColorPalette()[13])) # red to indicate potential error in this cell.
   conditionalFormatting(wb, "CreateParamUseRef", 
-                        cols = 7:8, rows = 2:(nrow(CreateParamUseRef) + 1), 
+                        cols = 7:9, rows = 2:(nrow(CreateParamUseRef) + 1), 
                         type = "expression", rule = "!=0" , style = createStyle(bgFill = TADA_ColorPalette()[8])) # using yellow to indicate modified cell
   conditionalFormatting(wb, "CreateParamUseRef", 
-                        cols = 7:8, rows = 2:(nrow(CreateParamUseRef) + 1), 
+                        cols = 7:9, rows = 2:(nrow(CreateParamUseRef) + 1), 
                         type = "expression", rule = "==0", style = createStyle(bgFill = TADA_ColorPalette()[9])) # default values or indicates good to go cells.
   dataValidation(wb, "CreateParamUseRef", 
-                 cols = 6:7, rows = 2:(nrow(CreateParamUseRef) + 1), type = "whole", operator = "between", value = c(0, 9))
+                 cols = 6:9, rows = 2:(nrow(CreateParamUseRef) + 1), type = "whole", operator = "between", value = c(0, 9))
   
   # Orders the tab/sheets in the User Excel spreadsheet
   length(sheets(wb))
@@ -421,6 +427,10 @@ TADA_CreateAUIDRef <- function(.data, AUID = NULL, downloads_path = NULL, overwr
   header_st <- createStyle(textDecoration = "Bold")
   # Format Column widths
   openxlsx::setColWidths(wb, "CreateAUIDRef", cols = 8:ncol(CreateAUIDRef), widths = "auto")
+  # set zoom size
+  set_zoom <- function(x) gsub('(?<=zoomScale=")[0-9]+', x, sV, perl = TRUE)
+  sV <- wb$worksheets[[4]]$sheetViews
+  wb$worksheets[[4]]$sheetViews <- set_zoom(90)
   
   writeData(wb, "CreateAUIDRef", startCol = 1, x = CreateAUIDRef, headerStyle = header_st)
   # Writes an excel formula for IncludeorExclude column. Will be based on other two column values
@@ -555,27 +565,30 @@ TADA_DefineStandards <- function(.data, ParamUseRef = NULL, AUIDRef = NULL, over
   
   # Format column header
   header_st <- createStyle(textDecoration = "Bold")
+  # set zoom size
+  set_zoom <- function(x) gsub('(?<=zoomScale=")[0-9]+', x, sV, perl = TRUE)
+  sV <- wb$worksheets[[5]]$sheetViews
+  wb$worksheets[[5]]$sheetViews <- set_zoom(90)
   
   columns <- c(
-    "TADA.CharacteristicName", "TADA.MethodSpeciationName",	"TADA.ResultSampleFractionText", 
-    #"ATTAINS.CharacteristicName", "ATTAINS.OrgName", "ATTAINS.assessmentunitname", "ATTAINS.UseName", "ATTAINS.WaterType", "AUIDExcludeReasoning",
     "ATTAINS.CharacteristicName", "ATTAINS.OrgName", "ATTAINS.UseName", 
-    "ATTAINS.WaterType","AcuteChronic",
-    "BegAssessDate", "EndAssessDate", "Season", "MinSamplePerDuration", "SiteSpecificName",
+    "ATTAINS.WaterType","AcuteChronic", "BegAssessDate", "EndAssessDate", 
+    "Season", "MinSamplePerDuration", "SiteSpecificName", "EquationBased",
     "StandardValue", "StandardUnit", "StandardLimit"	
   )
   
   #param <- data.frame(matrix(nrow = 0, ncol = length(columns)))
   #colnames(param) = columns
+  ParamRef <- openxlsx::read.xlsx(downloads_path, sheet = "CreateParamRef")
   
   DefineStandards <- openxlsx::read.xlsx(downloads_path, sheet = "CreateParamRef") %>%
     dplyr::left_join(ParamUseRef, by = "ATTAINS.CharacteristicName", relationship = "many-to-many") %>%
-    dplyr::select("TADA.CharacteristicName", "TADA.MethodSpeciationName",	"TADA.ResultSampleFractionText","ATTAINS.CharacteristicName", "ATTAINS.OrgName","ATTAINS.UseName", "nrowsStandardsRep", "add_nrows_AcuteChronic", "add_nrows_WaterTypes", "add_nrows_SiteSpecific") %>%
+    dplyr::select("ATTAINS.CharacteristicName", "ATTAINS.OrgName","ATTAINS.UseName", "nrowsStandardsRep", "add_nrows_AcuteChronic", "add_nrows_WaterTypes", "add_nrows_SiteSpecific") %>%
     dplyr::bind_cols(
       data.frame(
         ATTAINS.WaterType = as.character(NA), AcuteChronic = as.character(NA), BegAssessDate = as.Date(NA),
         EndAssessDate = as.Date(NA), Season = as.character(NA), MinimumSample = as.numeric(NA), SiteSpecificName = as.character(NA),
-        StandardValue = as.numeric(NA), StandardUnit = as.character(NA), StandardLimit = as.numeric(NA)
+        EquationBased = as.character(NA), StandardValue = as.numeric(NA), StandardUnit = as.character(NA), StandardLimit = as.numeric(NA)
         )
         ) %>%
     distinct() %>%
@@ -587,9 +600,9 @@ TADA_DefineStandards <- function(.data, ParamUseRef = NULL, AUIDRef = NULL, over
       ) %>%
     dplyr::mutate(
       ATTAINS.WaterType = case_when(
-        add_nrows_WaterTypes >= 1 & !between(id - add_nrows_AcuteChronic - add_nrows_SiteSpecific, 1, add_nrows_WaterTypes)
+        add_nrows_WaterTypes >= 1 & !between(id - add_nrows_AcuteChronic - add_nrows_SiteSpecific, 0, add_nrows_WaterTypes - 1)
           ~ "All Others",
-        add_nrows_WaterTypes >= 1 & between(id - add_nrows_AcuteChronic - add_nrows_SiteSpecific, 1, add_nrows_WaterTypes)
+        add_nrows_WaterTypes >= 1 & between(id - add_nrows_AcuteChronic - add_nrows_SiteSpecific, 0, add_nrows_WaterTypes - 1)
         ~ "AddWaterTypeHere")
     ) %>%
     dplyr::mutate(
@@ -600,16 +613,18 @@ TADA_DefineStandards <- function(.data, ParamUseRef = NULL, AUIDRef = NULL, over
     dplyr::select(-c(add_nrows_SiteSpecific, add_nrows_AcuteChronic, add_nrows_WaterTypes, id)) %>%
     dplyr::arrange(ATTAINS.CharacteristicName, ATTAINS.UseName)
      
-  # If there is a dataframe with no speciation found, this will ensure this column is of type char to run.
-  DefineStandards$TADA.MethodSpeciationName <- as.character(DefineStandards$TADA.MethodSpeciationName) 
+  ParamRef$ATTAINS.CharacteristicName<-as.character(ParamRef$ATTAINS.CharacteristicName)
   # Pulls in all the units that are found in TADA.ResultMeasure.MeasureUnitCode as unique allowable unit column
-  StandardValue <- DefineStandards %>%
+  StandardValue <- ParamRef %>%
     dplyr::left_join( 
-      (select(.data, "TADA.CharacteristicName", "TADA.MethodSpeciationName", "TADA.ResultSampleFractionText", "TADA.ResultMeasure.MeasureUnitCode") %>% 
+      (select(TADA_dataframe4, "TADA.CharacteristicName", "TADA.MethodSpeciationName", "TADA.ResultSampleFractionText", "TADA.ResultMeasure.MeasureUnitCode") %>% 
          dplyr::distinct() %>%
          drop_na(TADA.ResultMeasure.MeasureUnitCode)
        ), 
       by = c("TADA.CharacteristicName", "TADA.MethodSpeciationName","TADA.ResultSampleFractionText")) %>%
+    dplyr::select(ATTAINS.CharacteristicName, TADA.ResultMeasure.MeasureUnitCode) %>%
+    distinct() %>%
+    dplyr::right_join(DefineStandards, by = c("ATTAINS.CharacteristicName")) %>%
     dplyr::select(TADA.ResultMeasure.MeasureUnitCode) %>%
     dplyr::rename(StandardUnit = TADA.ResultMeasure.MeasureUnitCode)
   
@@ -622,20 +637,22 @@ TADA_DefineStandards <- function(.data, ParamUseRef = NULL, AUIDRef = NULL, over
   #writeData(wb, "DefineStandards", startCol = 1, x = par, headerStyle = header_st)
   # Export DefineStandards dataframe into the excel spreadsheet tab
   writeData(wb, "DefineStandards", startCol = 1, x = DefineStandards, headerStyle = header_st)
-  writeData(wb, "DefineStandards", startCol = 15, startRow = 1, x = StandardValue)
+  writeData(wb, "DefineStandards", startCol = 13, startRow = 1, x = StandardValue)
   
   writeData(wb, "Index", startCol = 8, startRow = 1, x = data.frame(ATTAINS.WaterType = c(unique(.data$MonitoringLocationTypeName), "All Others", "AddWaterTypeHere", "NA")))
   writeData(wb, "Index", startCol = 9, startRow = 1, x = data.frame(AcuteChronic = c("Acute", "Chronic", "NA")))
   writeData(wb, "Index", startCol = 10, startRow = 1, x = data.frame(Season = c("Summer", "Fall", "Spring", "Winter", "NA")))
   writeData(wb, "Index", startCol = 11, startRow = 1, x = data.frame(StandardUnit = unique(.data$TADA.ResultMeasure.MeasureUnitCode)))
   writeData(wb, "Index", startCol = 12, startRow = 1, x = data.frame(SiteSpecificName = c(unique(AUIDRef$SiteSpecificName), "AddSiteNameHere", "NA")))
+  writeData(wb, "Index", startCol = 13, startRow = 1, x = data.frame(EquationBased = c("Yes", "No", "NA")))
   
   # The list of allowable values for each column in excel tab [DefineStandards] will be defined by the [Index] tab
-  suppressWarnings(dataValidation(wb, sheet = "DefineStandards", cols = 7, rows = 2:1000, type = "list", value = sprintf("'Index'!$H$2:$H$1000"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE))
-  suppressWarnings(dataValidation(wb, sheet = "DefineStandards", cols = 8, rows = 2:1000, type = "list", value = sprintf("'Index'!$I$2:$I$1000"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE))
-  suppressWarnings(dataValidation(wb, sheet = "DefineStandards", cols = 11, rows = 2:1000, type = "list", value = sprintf("'Index'!$J$2:$J$1000"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE))
-  suppressWarnings(dataValidation(wb, sheet = "DefineStandards", cols = 13, rows = 2:1000, type = "list", value = sprintf("'Index'!$L$2:$L$1000"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE))
-  suppressWarnings(dataValidation(wb, sheet = "DefineStandards", cols = 15, rows = 2:1000, type = "list", value = sprintf("'Index'!$K$2:$K$1000"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE))
+  suppressWarnings(dataValidation(wb, sheet = "DefineStandards", cols = 4, rows = 2:1000, type = "list", value = sprintf("'Index'!$H$2:$H$1000"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE))
+  suppressWarnings(dataValidation(wb, sheet = "DefineStandards", cols = 5, rows = 2:1000, type = "list", value = sprintf("'Index'!$I$2:$I$1000"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE))
+  suppressWarnings(dataValidation(wb, sheet = "DefineStandards", cols = 8, rows = 2:1000, type = "list", value = sprintf("'Index'!$J$2:$J$1000"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE))
+  suppressWarnings(dataValidation(wb, sheet = "DefineStandards", cols = 10, rows = 2:1000, type = "list", value = sprintf("'Index'!$L$2:$L$1000"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE))
+  suppressWarnings(dataValidation(wb, sheet = "DefineStandards", cols = 13, rows = 2:1000, type = "list", value = sprintf("'Index'!$K$2:$K$1000"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE))
+  suppressWarnings(dataValidation(wb, sheet = "DefineStandards", cols = 11, rows = 2:1000, type = "list", value = sprintf("'Index'!$M$2:$M$1000"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE))
   
   # If the user chooses to enter a separate ParamUseRef dataframe argument, this makes sure the excel tab reflects the user's changes
   # writeData(wb, "CreateParamUseRef", startCol = 1, x = ParamUseRef, headerStyle = header_st)
@@ -644,10 +661,10 @@ TADA_DefineStandards <- function(.data, ParamUseRef = NULL, AUIDRef = NULL, over
   # Conditional Formatting...
   # Conditional Formatting
   conditionalFormatting(wb, "DefineStandards",
-                        cols = 7:16, rows = 2:(nrow(DefineStandards) + 1),
+                        cols = 4:14, rows = 2:(nrow(DefineStandards) + 1),
                         type = "notBlanks", style = createStyle(bgFill = TADA_ColorPalette()[8])) # default values or indicates good to go cells.
   conditionalFormatting(wb, "DefineStandards",
-                        cols = 7:16, rows = 2:(nrow(DefineStandards) + 1),
+                        cols = 4:14, rows = 2:(nrow(DefineStandards) + 1),
                         type = "blanks", style = createStyle(bgFill = TADA_ColorPalette()[13])) # default values or indicates good to go cells.
   
   
@@ -705,23 +722,27 @@ TADA_StandardsExceedance <- function(.data, StandardsRef = NULL, overwrite = FAL
     StandardsRef <- openxlsx::read.xlsx(downloads_path, sheet = "DefineStandards")
   }
   
+  # if("AddSiteNameHere" %in% unique(StandardsRef$SiteSpecificName) ){
+  #   stop('"AddSiteNameHere" was found under SiteSpecificName in your StandardsRef dataframe. Please ensure you select an appropriate site-specific name for each field value in this column before proceeding')
+  # }
+   
   # check to see if user-supplied standards ref is a df with appropriate columns and filled out.
   if (!is.null(StandardsRef) & !is.character(StandardsRef)) {
     if (!is.data.frame(StandardsRef)) {
-      stop("TADA_DefineStandards: 'StandardsRef' must be a data frame with at least nine columns: 
-      TADA.CharacteristicName,	TADA.MethodSpeciationName,	TADA.ResultSampleFractionText,	ATTAINS.CharacteristicName,	ATTAINS.OrgName,	ATTAINS.UseName, StandardValue,	StandardUnit,	StandardLimit")
+      stop("TADA_DefineStandards: 'StandardsRef' must be a data frame with at least six columns:
+      ATTAINS.CharacteristicName,	ATTAINS.OrgName,	ATTAINS.UseName, StandardValue,	StandardUnit,	StandardLimit")
     }
-    
+
     if (is.data.frame(StandardsRef)) {
       col.names <- c(
-        "organization_identifier",	"organization_name",	"ATTAINS.CharacteristicName",	"ATTAINS.UseName",	"nrowsStandardsRep"
+        "ATTAINS.OrgName",	"ATTAINS.CharacteristicName",	"ATTAINS.UseName"
       )
-      
+
       ref.names <- names(StandardsRef)
-      
+
       if (length(setdiff(col.names, ref.names)) > 0) {
-        stop("TADA_DefineStandards: 'StandardsRef' must be a data frame with at least nine columns: 
-        TADA.CharacteristicName,	TADA.MethodSpeciationName,	TADA.ResultSampleFractionText,	ATTAINS.CharacteristicName,	ATTAINS.OrgName,	ATTAINS.UseName, StandardValue,	StandardUnit,	StandardLimit")
+        stop("TADA_DefineStandards: 'StandardsRef' must be a data frame with at least six columns:
+        ATTAINS.CharacteristicName,	ATTAINS.OrgName,	ATTAINS.UseName, StandardValue,	StandardUnit,	StandardLimit")
       }
     }
   }
@@ -740,31 +761,90 @@ TADA_StandardsExceedance <- function(.data, StandardsRef = NULL, overwrite = FAL
   # Format column header
   header_st <- createStyle(textDecoration = "Bold")
   
-  columns <- c(
-    "TADA.CharacteristicName", "TADA.MethodSpeciationName",	"TADA.ResultSampleFractionText", 
-    #"ATTAINS.CharacteristicName", "ATTAINS.OrgName", "ATTAINS.assessmentunitname", "ATTAINS.UseName", "ATTAINS.WaterType", "AUIDExcludeReasoning",
-    "ATTAINS.CharacteristicName", "ATTAINS.OrgName", "ATTAINS.UseName", 
-    "ATTAINS.WaterType","AcuteChronic",
-    "BegAssessDate", "EndAssessDate", "Season", "MinSamplePerDuration", "SiteSpecificName",
-    "StandardValue", "StandardUnit", "StandardLimit"	
-  )
-  
   #param <- data.frame(matrix(nrow = 0, ncol = length(columns)))
   #colnames(param) = columns
   
-  TADA_StandardsExceedance <- .data %>%
-    #dplyr::left_join(TADA_dataframe_test, by = c("TADA.CharacteristicName","TADA.ResultSampleFractionText","TADA.MethodSpeciationName")) %>%
-    dplyr::group_by(.data[,c("TADA.CharacteristicName","TADA.ResultSampleFractionText","TADA.MethodSpeciationName", "MonitoringLocationIdentifier")]) %>%
+  # TADA_StandardsExceedance <- temp %>%
+  #   #dplyr::left_join(TADA_dataframe_test, by = c("TADA.CharacteristicName","TADA.ResultSampleFractionText","TADA.MethodSpeciationName")) %>%
+  #   dplyr::group_by(.[,c("TADA.CharacteristicName","TADA.ResultSampleFractionText","TADA.MethodSpeciationName","ATTAINS.assessmentunitidentifier", "MonitoringLocationIdentifier")]) %>%
+  #   dplyr::summarise(
+  #     n_discrete_records = length(TADA.ResultMeasureValue),
+  #     n_aggregated_records = length(unique(ActivityIdentifier)), # this will include discrete records
+  #     .groups = "drop"
+  #   ) %>%
+  #   dplyr::mutate(n_discrete_count = sum(.$n_discrete_records)) %>%
+  #   dplyr::mutate(n_aggregated_count = sum(.$n_aggregated_records))
+  ParamRef <- openxlsx::read.xlsx(downloads_path, sheet = "CreateParamRef")
+  ParamUseRef <- openxlsx::read.xlsx(downloads_path, sheet = "CreateParamUseRef")
+  AUIDRef <- openxlsx::read.xlsx(downloads_path, sheet = "CreateAUIDRef")
+  
+  temp_AUID <- .data %>%
+    dplyr::left_join(AUIDRef, by = c("ATTAINS.assessmentunitname",	"ATTAINS.assessmentunitidentifier",	"MonitoringLocationIdentifier",
+                                          "MonitoringLocationName",	"LongitudeMeasure",	"LatitudeMeasure", "MonitoringLocationTypeName"
+    ))
+  
+  TADA_StandardsExceedance2 <- ParamRef %>%
+    dplyr::left_join(ParamUseRef, by = "ATTAINS.CharacteristicName", relationship = "many-to-many") %>%
+    dplyr::right_join(temp_AUID, by = c("TADA.CharacteristicName","TADA.ResultSampleFractionText","TADA.MethodSpeciationName"), relationship = "many-to-many") %>%
+    select(-c("TADA.CharacteristicName","TADA.ResultSampleFractionText","TADA.MethodSpeciationName")) %>% 
+    distinct() %>%
+    dplyr::left_join(StandardsRef, by = c("ATTAINS.CharacteristicName","ATTAINS.UseName","ATTAINS.OrgName"), relationship = "many-to-many") %>%
+    dplyr::mutate(SiteSpecificName = 
+      case_when(SiteSpecificName.x == SiteSpecificName.y ~ SiteSpecificName.x,
+                is.na(SiteSpecificName.y) ~ SiteSpecificName.x,
+                !is.na(SiteSpecificName.y) & SiteSpecificName.x != SiteSpecificName.y ~ "flag.removal"
+                )
+      ) %>% 
+    # dplyr::mutate(ATTAINS.WaterType2 = 
+    #   case_when(ATTAINS.WaterType == MonitoringLocationName ~ ATTAINS.WaterType,
+    #             is.na(ATTAINS.WaterType) ~ MonitoringLocationName,
+    #             !is.na(ATTAINS.WaterType) & MonitoringLocationName != ATTAINS.WaterType ~ "flag.removal"
+    #             # Needs to handle all others case
+    #             )
+    # ) %>%
+    # dplyr::filter(ATTAINS.WaterType2 != "flag.removal") %>%
+    dplyr::filter(SiteSpecificName != "flag.removal") %>%
+    dplyr::group_by(.[,c("ATTAINS.CharacteristicName", "ATTAINS.OrgName", "ATTAINS.UseName", 
+                         "ATTAINS.WaterType","AcuteChronic", "BegAssessDate", "EndAssessDate", 
+                         "Season", "ATTAINS.assessmentunitidentifier", "SiteSpecificName", "EquationBased",
+                         "StandardValue", "StandardUnit", "StandardLimit")]) %>%
     dplyr::summarise(
-      n_discrete_records = length(TADA.ResultMeasureValue),
-      n_aggregated_records = length(unique(ActivityIdentifier)), # this will include discrete records
+      n_MonitoringLocationID = length(unique(MonitoringLocationIdentifier)),
+      n_discrete = length(TADA.ResultMeasureValue),
+      n_exceedance = sum(TADA.ResultMeasureValue > StandardValue),
       .groups = "drop"
-    ) %>%
-    dplyr::mutate(n_discrete_count = sum(.$n_discrete_records)) %>%
-    dplyr::mutate(n_aggregated_count = sum(.$n_aggregated_records))
+    )
   
+  # Format column header
+  header_st <- createStyle(textDecoration = "Bold")
+  # Format Column widths
+  openxlsx::setColWidths(wb, "StandardsExceedance", cols = 1:ncol(TADA_StandardsExceedance2), widths = "auto")
   
+  # Write column names in the excel spreadsheet under the tab [DefineStandards]
+  #writeData(wb, "DefineStandards", startCol = 1, x = par, headerStyle = header_st)
+  # Export DefineStandards dataframe into the excel spreadsheet tab
+  writeData(wb, "StandardsExceedance", startCol = 1, x = TADA_StandardsExceedance2, headerStyle = header_st)
   
+  # Saving of the file if overwrite = TRUE or if the file is not found in the defined folder path. If is not saved, a dataframe is still returned.
+  if(!is.null(downloads_path)){
+    #saveWorkbook(wb, "inst/extdata/myfileRef.xlsx", overwrite = F)
+    downloads_path <- downloads_path
+  }
+  
+  if(overwrite == TRUE){
+    saveWorkbook(wb, downloads_path, overwrite = T)
+  }
+  
+  if(overwrite == FALSE){
+    warning("If you would like to replace the file, use overwrite = TRUE argument in TADA_CreateParamRef")
+    saveWorkbook(wb, downloads_path, overwrite = F)
+  }
+  
+  cat("File saved to:", gsub("/","\\\\",downloads_path), "\n")
+  
+  StandardsExceedance <- openxlsx::read.xlsx(downloads_path, sheet = "StandardsExceedance")
+  
+  return(StandardsExceedance)
 }
 
 
