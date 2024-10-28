@@ -83,7 +83,7 @@ console).
 
 ```{r install_TADA, eval = F, results = 'hide'}
 remotes::install_github("USEPA/EPATADA",
-  ref = "502-tadacomparabledataidentifier-column-showing-na-for-the-tadaresultmeasuremeasureunitcode-portion-of-its-string-pasting",
+  ref = "develop",
   dependencies = TRUE
 )
 
@@ -437,8 +437,8 @@ R5Profile_CharSummary <- TADA_SummarizeColumn(R5Profile, "TADA.CharacteristicNam
 ```
 
 **Question 5: How many unique values of TADA.CharacteristicName are
-included in the data set? Which TADA.CharactersticName was collected at
-the greatest number of sites? Which TADA.CharactersticName has the most
+included in the data set? Which TADA.CharacteristicName was collected at
+the greatest number of sites? Which TADA.CharacteristicName has the most
 results?**
 
 ```{r question5}

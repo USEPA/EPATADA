@@ -16,11 +16,10 @@ A leaflet map visualizing the TADA water quality observations and the linked ATT
 Visualizes the data returned from TADA_GetATTAINS if return_sf was set to TRUE.
 }
 \details{
-This function visualizes the raw ATTAINS features that are linked to the
-TADA Water Quality Portal observations. For the function to work properly,
-the input dataframe must be the list produced from \code{TADA_GetATTAINS()}
-with \code{return_sf = TRUE}. The map also displays the Water Quality Portal
-monitoring locations used to find the ATTAINS features. Check out the
+This function visualizes the shapefile features generated with TADA_GetATTAINS and the associated
+TADA Water Quality Portal monitoring locations used to find the ATTAINS features. For the function to work properly,
+.data must be the list produced from \code{TADA_GetATTAINS()}
+with \code{return_sf = TRUE}. Check out the
 TADAModule2.Rmd for an example workflow.
 }
 \examples{
