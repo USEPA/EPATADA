@@ -5,93 +5,22 @@ on:
   pull_request:
     branches: [hrm_test]
 
-name: url-check
-
 jobs:
-  url-check:
+  broken_link_checker_job:
     runs-on: ubuntu-latest
-    # env:
-    #   GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
-
+    name: Check for broken links
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Set up R
-        uses: r-lib/actions/setup-r@v2
+      - name: Check for broken links
+        id: link-report
+        uses: celinekurpershoek/link-checker@v1.0.2
         with:
-          use-public-rspm: true
+          # Required:
+          url: "https://..."
+          # optional:
+          honorRobotExclusions: false
+          ignorePatterns: "github,google"
+          recursiveLinks: false # Check all URLs on all reachable pages (could take a while)
+      - name: Get the result
+        run: echo "${{steps.link-report.outputs.result}}"
           
-      - name: Install dependencies
-        uses: r-lib/actions/setup-r-dependencies@v2
-        with:
-          extra-packages: any::urlchecker, any::devtools, any::purrr, any::tools
-          
-      - name: Document package
-        run: |
-          R -e "devtools::document()"
-        
-      - name: Run URL Check
-        run: |
-          R -e "
-          library(urlchecker)
-          library(purrr)
- 
-          check <- urlchecker::url_check()
-
-          if(nrow(check) > 0) {
- 
-          print('The following URLs are broken:)
-          print(paste(check$URL, sep = '\n'))
-          quit(status = 1)
-   
-          } else {
-          print('All URLs are valid.\n')
-          } 
-          "
-          
-          
-#            # extract urls function
-#  extract_urls <- function(text) {
-#    stringr::str_extract_all(text, "http[s]?://[^\\s\\)\\]]+") %>% unlist()
-#  }
-#  
-#  # check if urls exist function
-#  check_urls_exist <- function(urls) {
-#    status <- purrr::map_lgl(urls, ~ RCurl::url.exists(.x))
-#    names(status) <- urls
-#    status
-#  }
-#  
-#  # clean urls function
-#  clean_url <- function(url) {
-#    stringr::str_remove_all(url, "[\\\\.,\\\")]+$|[{}].*")
-#  }
-#    
-#  
-# # create lists of files to check
-# other_files <- c("README.md", "DESCRIPTION", "NAMESPACE")
-#  
-# vignettes <- list.files("vignettes", pattern = ".Rmd", full.names = TRUE)
-#  
-# articles <- list.files("vignettes/articles", pattern = ".Rmd", full.names = TRUE)
-# 
-# r_files <- list.files("R", pattern = ".R", full.names = TRUE)
-# 
-# files <- append(other_files, vignettes) %>%
-#   append(articles) %>%
-#   append(r_files)
-#  
-#  # create list of urls, need to do for other file types as well
-# 
-#  urls_from_r <- purrr::map(files, ~readLines(.x)) %>% unlist() %>% extract_urls() %>%
-#    clean_url() %>%
-#    unique()
-#  
-#  
-# # check urls
-#  check <- purrr::map_lgl(urls_from_r, ~ {
-#    RCurl::url.exists(.x) %>%
-#     unlist()
-#  })
-#  
+         
