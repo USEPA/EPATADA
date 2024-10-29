@@ -2,7 +2,7 @@
 #'
 #' Transform a Water Quality Portal dataframe into a geospatial sf object.
 #'
-#' Adds one new column to input dataset, 'geometry', which allows for mapping and additional geospatial capabilities. Check out the TADAModule2.Rmd for an example workflow.
+#' Adds one new column to input dataframe, 'geometry', which allows for mapping and additional geospatial capabilities. Check out the TADAModule2.Rmd for an example workflow.
 #'
 #' @param .data A dataframe created by `TADA_DataRetrieval()`.
 #' @param crs The coordinate reference system (CRS) you would like the returned point features to be in. The default is CRS 4326 (WGS84).
@@ -907,11 +907,15 @@ fetchNHD <- function(.data, resolution = "Hi", features = "catchments"){
 #'
 #' Link catchment-based ATTAINS assessment unit data (EPA snapshot of NHDPlus HR catchments associated with entity submitted assessment unit features - points, lines, and polygons) to Water Quality Portal observations, often imported via `TADA_DataRetrieval()`. This function returns the objects that can be mapped in `TADA_ViewATTAINS()`. Check out the
 #' TADAModule2.Rmd for an example workflow.
+#' 
+#' Adds one new column to input dataframe, 'index', which identifies rows that are the same observation but are linked to multiple ATTAINS assessment units. It is possible for a single TADA WQP observation to have multiple ATTAINS assessment units linked to it and subsequently more than one row of data.
+#' 
+#' If TADA_MakeSpatial has not yet been run, this function runs it which also adds another new column to the input dataframe, 'geometry', which allows for mapping and additional geospatial capabilities. 
 #'
 #' @param .data A dataframe created by `TADA_DataRetrieval()` or the sf equivalent made by `TADA_MakeSpatial()`.
-#' @param fill_catchments Whether the user would like to return NHD catchments for WQP observations not associated with an ATTAINS assessment unit (TRUE or FALSE). Defaults to FALSE.
+#' @param fill_catchments Whether the user would like to return NHD catchments for WQP observations not associated with an ATTAINS assessment unit (TRUE or FALSE). When fill_catchments = TRUE, the returned list splits observations into two dataframes: WQP observations with ATTAINS catchment data, and WQP observations without ATTAINS catchment data. Defaults to FALSE.
 #' @param resolution If fill_catchments = TRUE, whether to use NHDPlus V2 "Med" catchments or NHDPlus HiRes "Hi" catchments. Default is NHDPlus HiRes ("Hi").
-#' @param return_sf Whether to return the associated catchments, lines, points, and polygon shapefile objects along with the data frame(s). TRUE (yes, return) or FALSE (no, do not return). All shapefile features are in WGS84 (crs = 4326). Defaults to TRUE.
+#' @param return_sf Whether to return the associated catchments, lines, points, and polygon shapefile objects along with the data frame(s). TRUE (yes, return) or FALSE (no, do not return). All shapefile features are in WGS84 (crs = 4326). If fill_catchments = TRUE and return_sf = TRUE, the function will additionally return the raw catchment features associated with the observations in TADA_without_ATTAINS in a new shapefile called without_ATTAINS_catchments. Defaults to TRUE.
 #'
 #' @return A modified `TADA_DataRetrieval()` dataframe with additional columns associated with the ATTAINS assessment unit data, and, if fill_catchments = TRUE, an additional dataframe of the observations without intersecting ATTAINS features.
 #' Moreover, if return_sf = TRUE, this function will additionally return the raw ATTAINS and catchment shapefile features associated with those observations.

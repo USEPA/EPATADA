@@ -28,6 +28,11 @@ Moreover, if return_sf = TRUE, this function will additionally return the raw AT
 Link catchment-based ATTAINS assessment unit data (EPA snapshot of NHDPlus HR catchments associated with entity submitted assessment unit features - points, lines, and polygons) to Water Quality Portal observations, often imported via \code{TADA_DataRetrieval()}. This function returns the objects that can be mapped in \code{TADA_ViewATTAINS()}. Check out the
 TADAModule2.Rmd for an example workflow.
 }
+\details{
+Adds one new column to input dataframe, 'index', which identifies rows that are the same observation but are linked to multiple ATTAINS assessment units. It is possible for a single TADA WQP observation to have multiple ATTAINS assessment units linked to it and subsequently more than one row of data.
+
+If TADA_MakeSpatial has not yet been run, this function runs it which also adds another new column to the input dataframe, 'geometry', which allows for mapping and additional geospatial capabilities.
+}
 \examples{
 \dontrun{
 tada_data <- TADA_DataRetrieval(

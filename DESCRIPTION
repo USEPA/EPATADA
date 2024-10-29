@@ -70,7 +70,9 @@ Imports:
     tibble,
     rlang,
     nhdplusTools,
-    arcgislayers
+    arcgislayers,
+    httr,
+    jsonlite
 Depends: 
     R (>= 3.5.0)
 Suggests:

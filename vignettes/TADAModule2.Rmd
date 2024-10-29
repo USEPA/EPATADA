@@ -87,10 +87,10 @@ library(EPATADA)
 
 ## Help pages
 
-All TADA R package functions have their own individual help pages,
-listed on the [Function
-reference](https://usepa.github.io/EPATADA/reference/index.html) page on
-the GitHub site. Users can also access the help page for a given
+All EPATADA R package functions have their own individual help pages,
+listed in the Package index on the
+[Reference](https://usepa.github.io/EPATADA/reference/index.html) tab of
+the GitHub website. Users can also access the help page for a given
 function in R or RStudio using the following format (example below):
 `?[name of TADA function]`
 
@@ -101,7 +101,7 @@ function in R or RStudio using the following format (example below):
 
 ## Geospatial Functions in TADA
 
-This vignette represents functions that provide users the option to
+This vignette showcases functions that provide users the option to
 convert TADA Water Quality Portal data into a geospatial sf object as
 well as to associate water quality observations with their [intersecting
 NHD catchments containing entity-defined water quality assessment units
@@ -138,10 +138,10 @@ ATTAINS geospatial database.
 This function converts any Water Quality Portal (WQP)-style dataframe
 with latitude/longitude data into a geospatial shapefile object. To run
 the function, the user supplies a WQP dataframe and the coordinate
-reference system that they want the spatial object to be in (the default
-is WGS 84). For the function to work properly, the input dataframe must
-have - at a minimum - WQP observation coordinates in "LongitudeMeasure"
-and "LatitudeMeasure" and a
+reference system that they want the spatial object to be in [the default
+is CRS 4326 (WGS 84)]. For the function to work properly, the input
+dataframe must have - at a minimum - WQP observation coordinates in
+"LongitudeMeasure" and "LatitudeMeasure" and a
 "HorizontalCoordinateReferenceSystemDatumName" column.
 
 #### Using `TADA_MakeSpatial()`
@@ -167,7 +167,7 @@ Now, we can make the water quality data spatial by running
 TADA_spatial <- TADA_MakeSpatial(.data = TADA_dataframe, crs = 4326)
 ```
 
-This new spatial object is identical to the original TADA dataset, but
+This new spatial object is identical to the original TADA dataframe, but
 now includes a "geometry" column that allows for mapping and additional
 geospatial capabilities. Enter `?TADA_MakeSpatial` into the console to
 review another example of this function in use and additional
@@ -225,13 +225,13 @@ intersecting any WQP-linked ATTAINS catchment.
 Regardless of the user's decision on returning the ATTAINS shapefile
 objects, `TADA_GetATTAINS()` always returns a dataframe (or dataframes
 if `fill_catchments = TRUE`, see section ***Filling in missing ATTAINS
-assessment units**)* containing the original TADA WQP dataset, plus new
-columns representing the ATTAINS assessment unit(s) that fall within the
-same NHDPlus HiRes catchment as them. This means that it is possible for
-a single TADA WQP observation to have multiple ATTAINS assessment units
-linked to it and subsequently more than one row of data. Such WQP
-observations can be identified using the new index column (i.e.,
-multiple rows with the same index value are the same observation).
+assessment units**)* containing the original TADA WQP dataframe, plus
+new columns representing the ATTAINS assessment unit(s) that fall within
+the same NHDPlus HiRes catchment as them. This means that it is possible
+for a single TADA WQP observation to have multiple ATTAINS assessment
+units linked to it and subsequently more than one row of data. Such WQP
+observations can be identified using the index column (i.e., multiple
+rows with the same index value are the same observation).
 
 #### Using `TADA_GetATTAINS()`
 
@@ -239,7 +239,7 @@ Using either our original `TADA_dataframe` *or* the geospatial version
 `TADA_spatial`, we can pull in the ATTAINS catchment features that
 intersect our observations:
 
-```{r, eval = F}
+```{r}
 TADA_with_ATTAINS <- TADA_GetATTAINS(.data = TADA_dataframe, return_sf = FALSE)
 
 # Can also be performed on the spatial data:
@@ -255,7 +255,7 @@ the original TADA dataframe, we can deduce that some Water Quality
 Portal observations fall within an NHD catchment that contains more than
 one ATTAINS assessment unit.
 
-```{r, eval = F}
+```{r}
 TADA_with_ATTAINS_list <- TADA_GetATTAINS(.data = TADA_dataframe, return_sf = TRUE)
 
 # Can also be performed on the spatial data:
@@ -272,14 +272,15 @@ dataframe, and create a new dataframe with ONLY the unique combinations
 of WQP MonitoringLocationIdentifier's and ATTAINS Assessment Unit
 Identifiers.
 
-```{r, eval = F}
+```{r}
 TADA_with_ATTAINS_subset <- TADA_with_ATTAINS %>%
   dplyr::select(
       "LongitudeMeasure", "LatitudeMeasure", "MonitoringLocationTypeName",
       "MonitoringLocationIdentifier", "ATTAINS.assessmentunitidentifier",
       "ATTAINS.overallstatus", "ATTAINS.isassessed", "ATTAINS.isimpaired",
       "ATTAINS.organizationid", "ATTAINS.assessmentunitname",
-      "ATTAINS.reportingcycle", "ATTAINS.waterbodyreportlink", "ATTAINS.waterTypeCode"
+      "ATTAINS.reportingcycle", "ATTAINS.waterbodyreportlink", 
+      "ATTAINS.waterTypeCode"
   ) %>%
   dplyr::distinct(.keep_all = FALSE)
 ```
@@ -292,11 +293,11 @@ WQP observations have NAs where there should be ATTAINS information. In
 these instances, the user can optionally fill in catchment information
 from the NHD by entering `fill_catchments = TRUE`:
 
-```{r, eval = F}
+```{r}
 TADA_with_ATTAINS_filled <- TADA_GetATTAINS(TADA_dataframe, fill_catchments = TRUE, return_sf = TRUE)
 ```
 
-When `fill_catchments = TRUE`, the returned object splits observations
+When `fill_catchments = TRUE`, the returned list splits observations
 into two dataframes: WQP observations with ATTAINS catchment data, and
 WQP observations without ATTAINS catchment data. Instead of listing
 ATTAINS information in `TADA_without_ATTAINS`, it links basic
@@ -342,14 +343,14 @@ Let's view the data associated with our `TADA_with_ATTAINS_list` object!
 Enter `?TADA_ViewATTAINS` into the console to review another example
 query and additional information.
 
-```{r, fig.height=7, eval = F}
+```{r, fig.height=7}
 TADA_ViewATTAINS(.data = TADA_with_ATTAINS_list)
 ```
 
 When `fill_catchments = TRUE`, `TADA_ViewATTAINS()` will also map the
 `without_ATTAINS_catchments`:
 
-```{r, fig.height=7, eval = F}
+```{r, fig.height=7}
 TADA_ViewATTAINS(.data = TADA_with_ATTAINS_filled)
 ```
 
