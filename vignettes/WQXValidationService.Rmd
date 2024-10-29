@@ -100,7 +100,7 @@ interquartile range) and a [probability density
 function](https://en.wikipedia.org/wiki/Probability_density_function
 "Probability density function") (pdf) of a Normal N(0,σ2) Population.
 Attribution: Jhguch at en.wikipedia, [CC BY-SA
-2.5](https://creativecommons.org/licenses/by-sa/2.5), via Wikimedia
+2.5](https://creativecommons.org/licenses/by-sa/2.5/), via Wikimedia
 Commons.](images/IQR.png)](https://commons.wikimedia.org/wiki/File:Boxplot_vs_PDF.svg)
 
 Additional tests only available in WQX Web and Node Submissions (for
@@ -165,9 +165,10 @@ TADA leverages many of the WQX domain tables.
         [TADA_ConvertResultUnits()](https://usepa.github.io/EPATADA/reference/TADA_ConvertResultUnits.html)
 
 All TADA Reference and Validation Tables are also available in the R
-Package [HERE](https://github.com/USEPA/EPATADA/tree/develop/inst/extdata).
-TADA pulls the WQX Validation Table and other domain tables into TADA
-and updates them automatically whenever changes are made
+Package
+[HERE](https://github.com/USEPA/EPATADA/tree/develop/inst/extdata). TADA
+pulls the WQX Validation Table and other domain tables into TADA and
+updates them automatically whenever changes are made
 
 -   <https://github.com/USEPA/EPATADA/blob/develop/inst/extdata/WQXcharValRef.csv>
 

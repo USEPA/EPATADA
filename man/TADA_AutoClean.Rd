@@ -38,6 +38,9 @@ TADA.ActivityBottomDepthHeightMeasure.MeasureValueDataTypes.Flag	(character)
 TADA.ActivityBottomDepthHeightMeasure.MeasureUnitCode (character)
 TADA.LatitudeMeasure	(numeric)
 TADA.LongitudeMeasure (numeric)
+TADA.MonitoringLocationIdentifier (character)
+TADA.MonitoringLocationName (character)
+TADA.MonitoringLocationTypeName (character)
 
 Please note that the number of TADA-specific depth columns in the returned
 dataframe depends upon the number of depth columns with one or more results
