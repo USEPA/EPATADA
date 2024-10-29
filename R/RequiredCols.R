@@ -27,6 +27,7 @@ require.cols <- c(
   "SampleTissueAnatomyName",
   "MethodSpeciationName", # required in Module 1 but is replaced by TADA version in future modules
   "TADA.MethodSpeciationName", # generated/required/replaces original
+  "TADA.Target.MethodSpeciationName", # generated, only added when transform = FALSE in TADA_ConvertResultUnits
   "TADA.MethodSpeciation.Flag", # generated
   "Target.TADA.MethodSpeciationName",
   "Target.TADA.SpeciationConversionFactor",
@@ -48,9 +49,10 @@ require.cols <- c(
   "ResultMeasure.MeasureUnitCode", # required in Module 1 but is replaced by TADA version in future modules
   "TADA.ResultMeasureValue", # generated/required/replaces original
   "TADA.ResultMeasure.MeasureUnitCode", # generated/required/replaces original
-  "TADA.WQXTargetUnit", # generated, only added when transform = FALSE in TADA_ConvertResultUnits
-  "TADA.WQXResultUnitConversion", # generated, only added when transform = FALSE in TADA_ConvertResultUnits
+  "TADA.Target.ResultMeasure.MeasureUnitCode", # generated, only added when transform = FALSE in TADA_ConvertResultUnits
   "TADA.WQXUnitConversionFactor", # generated, only added when transform = FALSE in TADA_ConvertResultUnits
+  "TADA.WQXUnitConversionCoefficient", # generated, only added when transform = FALSE in TADA_ConvertResultUnits
+  "TADA.WQXResultUnitConversion", # generated, only added when transform = FALSE in TADA_ConvertResultUnits
   "TADA.ResultUnit.Flag", # generated
   "ResultValueTypeName", # required
   "TADA.ResultMeasureValueDataTypes.Flag", # generated
@@ -194,7 +196,7 @@ require.cols <- c(
   "WellHoleDepthMeasure.MeasureUnitCode" # filter
 )
 
-# ordered list of non-essential columns that can be removed from df
+# ordered list of non-essential WQP columns that can be removed from df
 extra.cols <- c(
   "ActivityDepthAltitudeReferencePointText",
   "ActivityEndDate",

@@ -10,10 +10,10 @@ fetchATTAINS(.data)
 \item{.data}{A dataframe developed using \code{TADA_DataRetrieval()} or \code{TADA_MakeSpatial()}.}
 }
 \value{
-spatial features (ATTAINS_catchments, ATTAINS_points, ATTAINS_lines, and ATTAINS_polygons) that are within the spatial bounding box of water quality observations.
+Spatial features (ATTAINS_catchments, ATTAINS_points, ATTAINS_lines, and ATTAINS_polygons) that are within the spatial bounding box of water quality observations.
 }
 \description{
-Fetch ATTAINS features (entity submitted points, lines, polygons representing their assessment units; and EPA snapshot of the associated NHDPlus HR catchments that the entity submitted features fall within) within a bounding box produced from a set of TADA spatial features.
+Fetches ATTAINS features (state- or tribe- or other entity- submitted points, lines, and polygons representing their assessment units; and the EPA snapshot of the associated NHDPlus HR catchments that the state- or tribe- or other entity- submitted features fall within) within a bounding box produced from a set of TADA spatial features.
 }
 \examples{
 \dontrun{
