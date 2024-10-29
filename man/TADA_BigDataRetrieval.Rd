@@ -38,7 +38,7 @@ TADA_BigDataRetrieval(
 
 \item{siteType}{Type of waterbody. See https://www.waterqualitydata.us/Codes/sitetype for options.}
 
-\item{characteristicName}{Name of parameter. See https://www.waterqualitydata.us/Codes/WRONGURL for options.}
+\item{characteristicName}{Name of parameter. See https://www.waterqualitydata.us/Codes/characteristicName for options.}
 
 \item{characteristicType}{Groups of environmental measurements/parameters. See https://www.waterqualitydata.us/Codes/characteristicType for options.}
 
