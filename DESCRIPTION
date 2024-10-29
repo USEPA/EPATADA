@@ -68,7 +68,6 @@ Imports:
     urltools,
     geojsonsf,
     tibble,
-    urlchecker,
     rlang
 Remotes:
     github::R-ArcGIS/arcgislayers,
