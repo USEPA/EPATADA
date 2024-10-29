@@ -1,5 +1,4 @@
 test_that("URLs are not broken", {
-  print(getwd())
   
   # extract urls function
   extract_urls <- function(text) {
@@ -31,13 +30,16 @@ test_that("URLs are not broken", {
     append(r_files)
 
   # create list of urls
-  urls_from_r <- purrr::map(files, ~ readLines(.x)) %>%
+    urls_from_r <- purrr::map(files, ~ readLines(.x)) %>%
     unlist() %>%
     extract_urls() %>%
     clean_url() %>%
     unique() %>%
     # problematic URL I can't get a response from using multiple methods (itec) and CRAN because its response is inconsistent, likely due to redirecting to mirrors (HRM 10/28/2024)
-    setdiff(c("https://www.itecmembers.org/attains/", "http://cran.us.r-project.org"))
+    setdiff(c("https://www.itecmembers.org/attains/", 
+              "https://cran.us.r-project.org",
+              "http://cran.us.r-project.org"
+              ))
 
 
   headers <- urls_from_r %>%
@@ -47,9 +49,13 @@ test_that("URLs are not broken", {
 
   df <- data.frame(urls_from_r, header_list)
 
-  df_false <- capture.output(df %>%
-    dplyr::filter(!header_list %in% c("HTTP/1.1 200 OK\r\n", "HTTP/1.1 200 \r\n")))
+  df_false <- df %>%
+    dplyr::filter(!header_list %in% c("HTTP/1.1 200 OK\r\n", "HTTP/1.1 200 \r\n"))
   
-  testthat::expect_output(df_false, "<0 rows> (or 0-length row.names)")
+  n <-nrow(df_false)
+  
+  print(df_false)
+
+  testthat::expect_equal(n, 0)
 })
 
