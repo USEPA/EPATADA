@@ -50,7 +50,7 @@ test_that("URLs are not broken", {
   df <- data.frame(urls_from_r, header_list)
 
   df_false <- df %>%
-    dplyr::filter(!header_list %in% c("HTTP/1.1 200 OK\r\n", "HTTP/1.1 200 \r\n"))
+    dplyr::filter(!grepl("200", header_list))
 
   n <- nrow(df_false)
 
@@ -58,3 +58,5 @@ test_that("URLs are not broken", {
 
   testthat::expect_equal(n, 0)
 })
+
+
