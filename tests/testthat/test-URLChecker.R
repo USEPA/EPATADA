@@ -1,4 +1,6 @@
 test_that("URLs are not broken", {
+  print(getwd())
+  
   # extract urls function
   extract_urls <- function(text) {
     stringr::str_extract_all(text, "http[s]?://[^\\s\\)\\]]+") %>% unlist()
@@ -45,8 +47,9 @@ test_that("URLs are not broken", {
 
   df <- data.frame(urls_from_r, header_list)
 
-  df_false <- df %>%
-    dplyr::filter(!header_list %in% c("HTTP/1.1 200 OK\r\n", "HTTP/1.1 200 \r\n"))
-
-  testthat::expect_true(nrow(df_false) == 0)
+  df_false <- capture.output(df %>%
+    dplyr::filter(!header_list %in% c("HTTP/1.1 200 OK\r\n", "HTTP/1.1 200 \r\n")))
+  
+  testthat::expect_output(df_false, "<0 rows> (or 0-length row.names)")
 })
+
