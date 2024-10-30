@@ -96,7 +96,7 @@ TADA_CreateParamRef <- function(.data, ParamRef = NULL, overwrite = FALSE, downl
     dplyr::arrange(parameters.parameter_name)
   }
 
-  ATTAINS_param <- Reduce(dplyr::full_join,ATTAINS_param)
+  ATTAINS_param <- Reduce(dplyr::full_join, ATTAINS_param)
   
   # Create column names for an empty dataframe
   columns <- c(
