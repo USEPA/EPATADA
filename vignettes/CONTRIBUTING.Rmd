@@ -82,9 +82,9 @@ There are multiple ways to interact with GitHub using Git.
 -   Option 2: Interact with GitHub using the command line or a web
     browser
 
-    -   [Setting Up Git](https://docs.github.com/articles/set-up-git/)
+    -   [Setting Up Git](https://docs.github.com/en/get-started/getting-started-with-git/set-up-git)
 
-    -   [Git Basics](https://git-scm.com/book/ch1-3.html)
+    -   [Git Basics](https://git-scm.com/book/en/v2/Git-Basics-Getting-a-Git-Repository)
 
     -   [Comprehensive Guide: Happy Git and GitHub for the
         useR](https://happygitwithr.com/ "Great and comprehensive guide for Git with an R flair")
@@ -107,7 +107,7 @@ might be needed for Mac or Linux OS:
 
 -   Download both:
 
-    -   [GitHub Desktop](https://desktop.github.com/)
+    -   [GitHub Desktop](https://github.com/apps/desktop)
 
     -   [Git](https://git-scm.com/downloads)
 
@@ -149,7 +149,7 @@ install.packages(c("devtools", "rmarkdown"))
     might be good first pickings for your first contribution to this
     open-source project.
 -   Pull requests can be directly
-    [linked](https://docs.github.com/en/issues/tracking-your-work-with-issues/linking-a-pull-request-to-an-issue)
+    [linked](https://docs.github.com/en/issues/tracking-your-work-with-issues/using-issues/linking-a-pull-request-to-an-issue)
     to a specific issue. If linked, the Repository Administrators can
     more easily review the pull request and issue at the same time once
     a contributor submits the pull request. The issue can then be closed
