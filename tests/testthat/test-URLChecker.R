@@ -29,33 +29,39 @@ test_that("URLs are not broken", {
     append(r_files)
 
   # create list of urls
-  urls_from_r <- purrr::map(files, ~ readLines(.x)) %>%
+  urls <- purrr::map(files, ~ readLines(.x)) %>%
     unlist() %>%
     extract_urls() %>%
     clean_url() %>%
     unique() %>%
     # problematic URL I can't get a response from using multiple methods (itec) and CRAN because its response is inconsistent, likely due to redirecting to mirrors (HRM 10/28/2024)
     setdiff(c(
-      "https://www.itecmembers.org/attains/",
-      "https://cran.us.r-project.org",
-      "http://cran.us.r-project.org"
+      "https://www.itecmembers.org/attains/"
     ))
 
-
-  headers <- urls_from_r %>%
+  # retrieve http response headers from url list
+  headers <- urls %>%
     purrr::map(~ tryCatch(curlGetHeaders(.x), error = function(e) NA))
 
-  header_list <- sapply(headers, "[[", 1)
+  # extract response code from first line of header response
+  response_code <- sapply(headers, "[[", 1)
 
-  df <- data.frame(urls_from_r, header_list)
+  # create data frame of urls and response codes
+  df <- data.frame(urls, response_code)
 
+  # filter for any response codes that are not successful or redirect responses
   df_false <- df %>%
-    dplyr::filter(!grepl("200", header_list))
+    dplyr::filter(!grepl("200", response_code) &
+                    !grepl("301", response_code) &
+                    !grepl("302", response_code))
 
+  # count number of failed responses
   n <- nrow(df_false)
 
+  # print url and response code for failures
   print(df_false)
 
+  # verify that there are zero urls with failing response codes
   testthat::expect_equal(n, 0)
 })
 
