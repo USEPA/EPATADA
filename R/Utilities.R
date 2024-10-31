@@ -845,40 +845,36 @@ TADA_FindNearbySites <- function(.data, dist_buffer = 100, meta_select = "random
     }
   })
   
-  # create empty dataframe for groups
-  groups <- data.frame()
+  # try purrr approach to extract site groups
+  library(igraph)
   
-  # loop through distance matrix and extract site groups that are within the buffer distance from one another
-  for (i in 1:dim(dist.mat1)[1]) {
-    fsite <- rownames(dist.mat1)[i] # focal site
-    dat <- data.frame(Count = dist.mat1[i, ]) # get focal site count row as a column
-    dat$TADA.MonitoringLocationIdentifier <- colnames(dist.mat1) # give df site names along with counts
-    sites <- dat$TADA.MonitoringLocationIdentifier[dat$Count == 1] # filter to sites within buffer
-    sites1 <- sites[!sites %in% fsite] # get site list within buffer that does not include focal site
-    if (length(sites1) > 0) { # if this list is greater than 0, combine sites within buffer into data frame
-      df <- data.frame(TADA.MonitoringLocationIdentifier = sites, TADA.MonitoringLocationIdentifier.New = paste0(sites, collapse = ","))
-      df[c("TADA.MonitoringLocationIdentifier.New")] <- lapply(df[c("TADA.MonitoringLocationIdentifier.New")], TADA_FormatDelimitedString)
-      groups <- plyr::rbind.fill(groups, df)
+  matrix_graph <- igraph::graph_from_adjacency_matrix(dist.mat1, mode = "undirected", diag = FALSE)
+  
+  comps <- igraph::components(matrix_graph)
+  
+  site_groups <- purrr::map(unique(comps$membership), function(x) {
+    sites <- which(comps$membership == x)
+    if(length(sites) > 1) {
+      data.frame(
+        TADA.MonitoringLocationIdentifier = .data$TADA.MonitoringLocationIdentifier[sites],
+        TADA.MonitoringLocationIdentifier.New =  TADA_FormatDelimitedString(paste(.data$TADA.MonitoringLocationIdentifier[sites], collapse = ","))
+      )
+    } else {
+      NULL
     }
-  }
+  })
   
+  group_df <- dplyr::bind_rows(site_groups) %>%
+    dplyr::distinct()
   
-  # get unique groups (since represented multiple times for each site looped through, above)
-  groups <- unique(groups)
-  
-  if (dim(groups)[1] > 0) { # if there are groups of nearby sites...
-    # create group ID's for easier understanding
-    # grp <- data.frame(TADA.SiteGroup = unique(groups$TADA.SiteGroup), TADA.SiteGroupID = paste0("Group_", 1:length(unique(groups$TADA.SiteGroup))))
-    # groups <- merge(groups, grp, all.x = TRUE)
-    # groups <- unique(groups[, !names(groups) %in% c("TADA.SiteGroup")])
-    
-    # find any sites within multiple groups
-    summ_sites <- groups %>%
+# find any sites within multiple groups
+    summ_sites <- group_df %>%
+      dplyr::distinct() %>%
       dplyr::group_by(TADA.MonitoringLocationIdentifier) %>%
       dplyr::mutate(GroupCount = 1:length(TADA.MonitoringLocationIdentifier))
     
     # pivot wider if a site belongs to multiple groups
-    groups_wide <- merge(groups, summ_sites, all.x = TRUE)
+    groups_wide <- merge(group_df, summ_sites, all.x = TRUE)
     groups_wide <- tidyr::pivot_wider(groups_wide, id_cols = "TADA.MonitoringLocationIdentifier", names_from = "GroupCount", names_prefix = "TADA.MonitoringLocationIdentifier.New", values_from = "TADA.MonitoringLocationIdentifier.New")
     # merge data to site groupings
     .data <- merge(.data, groups_wide, all.x = TRUE)
