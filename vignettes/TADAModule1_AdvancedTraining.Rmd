@@ -781,6 +781,6 @@ remotes::install_github("USEPA/TADAShiny", ref = "develop", dependencies = TRUE)
 TADAShiny::run_app()
 ```
 
-DRAFT [Module 1](https://owshiny-dev.app.cloud.gov/tada-dev/) is also
+DRAFT [Module 1](https://rconnect-public.epa.gov/TADAShiny/) is also
 currently hosted on the web with minimal server memory/storage
 allocated.
