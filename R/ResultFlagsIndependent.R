@@ -475,8 +475,8 @@ TADA_FlagAboveThreshold <- function(.data, clean = FALSE, flaggedonly = FALSE) {
       "TADA.ActivityMediaName",
       "TADA.ResultMeasure.MeasureUnitCode"
     ),
-    multiple = "any", # this should be "all" but the validation table has issues
-    relationship = "many-to-many" # this should be "one-to-one" but the validation table has issues
+    multiple = "all", 
+    relationship = "one-to-one" 
   )
 
   # Create flag column, flag rows where ResultMeasureValue > Maximum
