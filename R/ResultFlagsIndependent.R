@@ -448,7 +448,8 @@ TADA_FlagAboveThreshold <- function(.data, clean = FALSE, flaggedonly = FALSE) {
   # Note that status is not applicable to ranges.
   # Instead, we generate a validation flag later in this function
   unit.ref <- utils::read.csv(system.file("extdata", "WQXcharValRef.csv", package = "EPATADA")) %>%
-    dplyr::filter(Type == "CharacteristicUnit")
+    dplyr::filter(Type == "CharacteristicUnit",
+                  Status == "Accepted")
 
   # update ref table names to prepare for left join with df
   names(unit.ref)[names(unit.ref) == "Characteristic"] <- "TADA.CharacteristicName"
@@ -476,7 +477,7 @@ TADA_FlagAboveThreshold <- function(.data, clean = FALSE, flaggedonly = FALSE) {
       "TADA.ResultMeasure.MeasureUnitCode"
     ),
     multiple = "all", 
-    relationship = "one-to-one" 
+    relationship = "many-to-one" 
   )
 
   # Create flag column, flag rows where ResultMeasureValue > Maximum
