@@ -105,12 +105,12 @@ Disclaimer: ...
 
 Use of Module 3 development and tools in the EPATADA package is to
 assist different organization (state, territories and tribal nations) on
-their assessment methods under . It does not constitute current Agency
-policy or regulation requirements. This tool is not to be solely used
-for decisionmaking process. Module 3 integration of WQS for assessments
-is not a regulation and does not impose legally binding requirements on
-EPA or the States in reporting water conditions under biannual reports
-of the CWA.
+their assessment methods under the CWA. It does not constitute current
+Agency policy or regulation requirements. This tool is not to be solely
+used for decision making process. Module 3 integration of WQS for
+assessments is not a regulation and does not impose legally binding
+requirements on EPA or the States in reporting water conditions under
+biannual reports of the CWA.
 
 Criteria is defined as the standards (Magnitude), duration and frequency
 associated with a parameter and designated use.
@@ -177,10 +177,12 @@ TADA_dataframe <- TADA_DataRetrieval(
   applyautoclean = TRUE
 )
 
-TADA_dataframe2 <- TADA_FindQCActivities(TADA_dataframe, clean = TRUE)
+TADA_dataframe2 <- TADA_FindQCActivities(TADA_dataframe, clean = FALSE)
 TADA_dataframe3 <- TADA_FlagContinuousData(TADA_dataframe2)
 #TADA_dataframe4 <- TADA_PairForCriteriaCalc(TADA_dataframe3)
 TADA_dataframe4 <- TADA_FindPotentialDuplicatesSingleOrg(TADA_dataframe3)
+TADA_dataframe5 <- TADA_RunKeyFlagFunctions(TADA_dataframe4)
+TADA_dataframe6 <- TADA_HarmonizeSynonyms(TADA_dataframe5)
 
 
 # Handling of replicate samples with differing resultmeasurevalue when they are not labeled as a duplicate.
@@ -208,7 +210,7 @@ the same observation).
 
 ```{r}
 # return_sf = TRUE is currently a needed argument, should update the code to account for if return_sf is FALSE
-TADA_with_ATTAINS <- TADA_GetATTAINS(TADA_dataframe4, return_sf = TRUE)
+TADA_with_ATTAINS <- TADA_GetATTAINS(TADA_dataframe6, return_sf = TRUE)
 ```
 
 Now, create a new reference dataframe with ONLY the unique combinations
