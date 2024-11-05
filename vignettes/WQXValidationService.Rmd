@@ -100,7 +100,7 @@ interquartile range) and a [probability density
 function](https://en.wikipedia.org/wiki/Probability_density_function
 "Probability density function") (pdf) of a Normal N(0,σ2) Population.
 Attribution: Jhguch at en.wikipedia, [CC BY-SA
-2.5](https://creativecommons.org/licenses/by-sa/2.5), via Wikimedia
+2.5](https://creativecommons.org/licenses/by-sa/2.5/), via Wikimedia
 Commons.](images/IQR.png)](https://commons.wikimedia.org/wiki/File:Boxplot_vs_PDF.svg)
 
 Additional tests only available in WQX Web and Node Submissions (for

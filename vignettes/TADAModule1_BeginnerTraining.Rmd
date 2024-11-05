@@ -1147,7 +1147,7 @@ interface. The shiny application queries the WQP, contains maps and data
 visualizations, flags suspect data results, handles censored data, and
 more. You can launch it using the code below.
 
-DRAFT [Module 1](https://owshiny-dev.app.cloud.gov/tada-dev/) is also
+DRAFT [Module 1](https://rconnect-public.epa.gov/TADAShiny/) is also
 currently hosted on the web with minimal server memory/storage
 allocated.
 
