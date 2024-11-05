@@ -69,7 +69,7 @@ TADAModule2.Rmd for an example workflow.</p>
 
 
 <dt id="arg-fill-catchments">fill_catchments<a class="anchor" aria-label="anchor" href="#arg-fill-catchments"></a></dt>
-<dd><p>Whether the user would like to return NHD catchments for WQP observations not associated with an ATTAINS assessment unit (TRUE or FALSE). Defaults to FALSE.</p></dd>
+<dd><p>Whether the user would like to return NHD catchments for WQP observations not associated with an ATTAINS assessment unit (TRUE or FALSE). When fill_catchments = TRUE, the returned list splits observations into two dataframes: WQP observations with ATTAINS catchment data, and WQP observations without ATTAINS catchment data. Defaults to FALSE.</p></dd>
 
 
 <dt id="arg-resolution">resolution<a class="anchor" aria-label="anchor" href="#arg-resolution"></a></dt>
@@ -77,13 +77,18 @@ TADAModule2.Rmd for an example workflow.</p>
 
 
 <dt id="arg-return-sf">return_sf<a class="anchor" aria-label="anchor" href="#arg-return-sf"></a></dt>
-<dd><p>Whether to return the associated catchments, lines, points, and polygon shapefile objects along with the data frame(s). TRUE (yes, return) or FALSE (no, do not return). All shapefile features are in WGS84 (crs = 4326). Defaults to TRUE.</p></dd>
+<dd><p>Whether to return the ATTAINS associated catchments, lines, points, and polygon shapefile objects along with the data frame(s). TRUE (yes, return list) or FALSE (no, do not return). All shapefile features are in WGS84 (crs = 4326). If fill_catchments = TRUE and return_sf = TRUE, the function will additionally return the raw catchment features associated with the observations in TADA_without_ATTAINS in a new shapefile called without_ATTAINS_catchments. Defaults to TRUE.</p></dd>
 
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p>A modified <code><a href="TADA_DataRetrieval.html">TADA_DataRetrieval()</a></code> dataframe with additional columns associated with the ATTAINS assessment unit data, and, if fill_catchments = TRUE, an additional dataframe of the observations without intersecting ATTAINS features.
+    <p>A modified <code><a href="TADA_DataRetrieval.html">TADA_DataRetrieval()</a></code> dataframe or list with additional columns associated with the ATTAINS assessment unit data, and, if fill_catchments = TRUE, an additional dataframe of the observations without intersecting ATTAINS features.
 Moreover, if return_sf = TRUE, this function will additionally return the raw ATTAINS and catchment shapefile features associated with those observations.</p>
+    </div>
+    <div class="section level2">
+    <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
+    <p>Adds one new column to input dataframe, 'index', which identifies rows that are the same observation but are linked to multiple ATTAINS assessment units. It is possible for a single TADA WQP observation to have multiple ATTAINS assessment units linked to it and subsequently more than one row of data.</p>
+<p>If TADA_MakeSpatial has not yet been run, this function runs it which also adds another new column to the input dataframe, 'geometry', which allows for mapping and additional geospatial capabilities.</p>
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
@@ -102,6 +107,8 @@ Moreover, if return_sf = TRUE, this function will additionally return the raw AT
 <span class="r-in"><span>  statecode <span class="op">=</span> <span class="st">"IL"</span>,</span></span>
 <span class="r-in"><span>  applyautoclean <span class="op">=</span> <span class="cn">TRUE</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># note: these example ATTAINS data retrieval queries below may take a long time (10+ minutes) to run</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="va">tada_attains</span> <span class="op">&lt;-</span> <span class="fu">TADA_GetATTAINS</span><span class="op">(</span><span class="va">tada_data</span>, fill_catchments <span class="op">=</span> <span class="cn">FALSE</span>, return_sf <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
