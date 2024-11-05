@@ -18,7 +18,7 @@ The original TADA Water Quality Portal dataframe but as geospatial sf point obje
 Transform a Water Quality Portal dataframe into a geospatial sf object.
 }
 \details{
-Adds one new column to input dataset, 'geometry', which allows for mapping and additional geospatial capabilities. Check out the TADAModule2.Rmd for an example workflow.
+Adds one new column to input dataframe, 'geometry', which allows for mapping and additional geospatial capabilities. Check out the TADAModule2.Rmd for an example workflow.
 }
 \examples{
 \dontrun{
