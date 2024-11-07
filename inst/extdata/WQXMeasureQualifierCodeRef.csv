@@ -53,6 +53,7 @@
 "Result Measure Qualifier(MeasureQualifierCode)",1168,"DOM","count >= 15 percent (dominant)","8/16/2021 11:03:38 AM","Pass"
 "Result Measure Qualifier(MeasureQualifierCode)",1001,"DT","Date value on logger was incorrect; Changed to date of sampling event; Date and Time considered suspect.","4/13/2020 7:13:06 AM","Suspect"
 "Result Measure Qualifier(MeasureQualifierCode)",54,"E","Concentration of analyte being analyzed exceeded calibration range of instrument.","2/13/2012 6:03:18 PM","Over-Detect"
+"Result Measure Qualifier(MeasureQualifierCode)",750,"EC","Analyte and the associated numerical value excluded from calculations","11/7/2024 1:10:33 PM","Not Reviewed"
 "Result Measure Qualifier(MeasureQualifierCode)",136,"ECI","Estimated Value, Coelution","3/16/2016 1:04:24 PM","Pass"
 "Result Measure Qualifier(MeasureQualifierCode)",19,"EE","Identifies compounds whose concentration exceed the calibration range addition of the instrument for that specific analysis.","8/28/2009 5:04:35 PM","Over-Detect"
 "Result Measure Qualifier(MeasureQualifierCode)",788,"EER","No Result Reported, entry error; Original value is known to be incorrect due to a data entry error.  The correct value could not be determined. No result value was reported","1/23/2020 2:12:06 PM","Suspect"
