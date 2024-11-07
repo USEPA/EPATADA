@@ -88,10 +88,7 @@ test_that("TADA_DataRetrieval", {
     "LabSamplePreparationUrl",
     "LastUpdated",
     "ProviderName",
-    #  "timeZoneStart",
-    # "timeZoneEnd",
     "ActivityStartDateTime",
-    "ActivityEndDateTime",
     "MonitoringLocationTypeName",
     "MonitoringLocationDescriptionText",
     "HUCEightDigitCode",
@@ -220,10 +217,7 @@ test_that("TADA_DataRetrieval", {
     "LabSamplePreparationUrl",
     "LastUpdated",
     "ProviderName",
-    # "timeZoneStart",
-    # "timeZoneEnd",
     "ActivityStartDateTime",
-    "ActivityEndDateTime",
     "MonitoringLocationTypeName",
     "MonitoringLocationDescriptionText",
     "HUCEightDigitCode",
@@ -263,11 +257,11 @@ test_that("TADA_DataRetrieval", {
 })
 
 test_that("TADA_DataRetrieval", {
-  randomstate <- TADA_RandomTestingData()
-  # you could just pick the important columns:
+  randomstate2 <- TADA_RandomTestingData(number_of_days = 3, choose_random_state = TRUE)
+
   expect_true(all(
-    Filter(function(x) !any(grepl("TADA.", x)), c(require.cols, last.cols)
-  ) %in% names(randomstate)))
+    Filter(function(x) !any(grepl("TADA.", x)), require.cols
+  ) %in% names(randomstate2)))
 })
 
 test_that("TADA_DataRetrieval", {
@@ -366,10 +360,7 @@ test_that("TADA_DataRetrieval", {
     "LabSamplePreparationUrl",
     "LastUpdated",
     "ProviderName",
-    #"timeZoneStart",
-    #"timeZoneEnd",
     "ActivityStartDateTime",
-    "ActivityEndDateTime",
     "MonitoringLocationTypeName",
     "MonitoringLocationDescriptionText",
     "HUCEightDigitCode",
