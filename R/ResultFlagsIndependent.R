@@ -631,7 +631,8 @@ TADA_FlagBelowThreshold <- function(.data, clean = FALSE, flaggedonly = FALSE) {
   # Note that status is not applicable to ranges.
   # Instead, we generate a validation flag later in this function
   unit.ref <- utils::read.csv(system.file("extdata", "WQXcharValRef.csv", package = "EPATADA")) %>%
-    dplyr::filter(Type == "CharacteristicUnit")
+    dplyr::filter(Type == "CharacteristicUnit",
+                  Status == "Accepted")
 
   # update ref table names to prepare for left join with df
   names(unit.ref)[names(unit.ref) == "Characteristic"] <- "TADA.CharacteristicName"
@@ -652,15 +653,15 @@ TADA_FlagBelowThreshold <- function(.data, clean = FALSE, flaggedonly = FALSE) {
 
   unit.ref <- unique(unit.ref)
 
-  check.data <- dplyr::left_join(.data,
+ check.data <- dplyr::left_join(.data,
     unit.ref,
     by = c(
       "TADA.CharacteristicName",
       "TADA.ActivityMediaName",
       "TADA.ResultMeasure.MeasureUnitCode"
     ),
-    multiple = "any", # this should be "all" but the validation table has issues
-    relationship = "many-to-many" # this should be "one-to-one" but the validation table has issues
+    multiple = "all", 
+    relationship = "many-to-one" 
   )
 
   # Create flag column, flag rows where TADA.ResultMeasureValue < Minimum
