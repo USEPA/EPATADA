@@ -177,7 +177,6 @@ require.cols <- c(
   "LongitudeMeasure",
   "TADA.LongitudeMeasure", # generated
   "HorizontalCoordinateReferenceSystemDatumName",
-  "geometry",
   "TADA.SuspectCoordinates.Flag", # generated
   "HUCEightDigitCode",
   "MonitoringLocationIdentifier", # required
@@ -215,8 +214,9 @@ extra.cols <- c(
   "AnalysisStartDate",
   "ResultDetectionQuantitationLimitUrl",
   "LabSamplePreparationUrl",
-  "timeZoneStart",
-  "timeZoneEnd",
+  "timeZoneStart", # no longer in default dataRetrieval profile? 11/7/24
+  "timeZoneEnd", # no longer in default dataRetrieval profile? 11/7/24
+  "ActivityStartTime.TimeZoneCode_offset", # new column from default dataRetrieval profile? 11/7/24
   "SourceMapScaleNumeric",
   "HorizontalAccuracyMeasure.MeasureValue",
   "HorizontalAccuracyMeasure.MeasureUnitCode",
@@ -232,7 +232,9 @@ extra.cols <- c(
   "DrainageAreaMeasure.MeasureValue",
   "DrainageAreaMeasure.MeasureUnitCode",
   "ContributingDrainageAreaMeasure.MeasureValue",
-  "ContributingDrainageAreaMeasure.MeasureUnitCode"
+  "ContributingDrainageAreaMeasure.MeasureUnitCode",
+  "ProviderName",
+  "LastUpdated"
 )
 
 attains.cols <- c(
@@ -256,11 +258,10 @@ attains.cols <- c(
 
 # Only used in TADA Shiny or should be at the end
 last.cols <- c(
-  "ProviderName",
-  "LastUpdated",
   "TADA.Remove",
   "TADA.RemovalReason",
-  "TADAShiny.tab"
+  "TADAShiny.tab",
+  "geometry"
 )
 
 
@@ -329,7 +330,7 @@ TADA_OrderCols <- function(.data) {
 #'
 TADA_GetTemplate <- function() {
   # remove names with TADA. string from require.cols
-  template_cols <- c(require.cols, last.cols)
+  template_cols <- require.cols
   template_cols <- Filter(function(x) !any(grepl("TADA.", x)), template_cols)
   templatedata <- data.frame()
   templatedata <- data.frame(matrix(nrow = 0, ncol = length(template_cols)))
@@ -526,7 +527,7 @@ TADA_RetainRequired <- function(.data) {
   print("TADA_RetainRequired: removing columns not required for TADA workflow including original columns that have been replaced with TADA prefix duplicates.")
 
   # Create list of all columns to be retained
-  keep.cols <- c(require.cols, last.cols)
+  keep.cols <- c(require.cols, attains.cols, last.cols)
 
   # create list of all columns in original data set
   original.cols <- .data %>% names()

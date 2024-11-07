@@ -21,7 +21,7 @@ is flaggedonly = FALSE.}
 This function adds the TADA.AnalyticalMethod.Flag to a TADA dataframe. This column
 flags Suspect CharacteristicName, ResultAnalyticalMethod/MethodIdentifier,
 and ResultAnalyticalMethod/MethodIdentifierContext combinations in your dataframe
-as either "Not Reviewed", "Suspect", or "Valid". When clean = FALSE and
+as either "Not Reviewed", "Suspect", or "Pass". When clean = FALSE and
 flaggedonly = TRUE, the dataframe is filtered to show only "Suspect"
 characteristic-analytical method combinations; the column TADA.AnalyticalMethod.Flag
 is still appended. When clean = TRUE and flaggedonly = FALSE, "Suspect" rows

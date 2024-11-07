@@ -47,7 +47,7 @@ the row will be flagged as "LONG_OutsideUSA" (with the exception of
 American Samoa, Northern Mariana Islands, and Guam), and 3) Finally,
 precision can be measured by the number of decimal places in the latitude and longitude
 provided. If either the latitude or longitude does not have at least three numbers to the
-right of the decimal point, the row will be flagged as "Imprecise". Occasionally
+right of the decimal point, the row will be flagged as "Imprecise_lessthan3decimaldigits". Occasionally
 latitude and longitude measurements are flagged as outside of the United States
 because the data was entered as negative when it should be positive or vice versa.
 This function offers the option of clean_outsideUSA = "change sign" to fix this
