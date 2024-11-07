@@ -1405,7 +1405,7 @@ TADA_addPoints <- function(map, layerfilepath, layergroup, layername, bbox = NUL
   if (is.na(lbbox[1])) {
     return(map)
   }
-  shapes <- c(2) # open triangle; for other options see http://www.statmethods.net/advgraphs/parameters.html
+  shapes <- c(2) # open triangle; for other options see https://www.geeksforgeeks.org/r-plot-pch-symbols-different-point-shapes-available-in-r/
   iconFiles <- pchIcons(shapes, width = 20, height = 20, col = c("#CC7722"), lwd = 2)
   map <- leaflet::addMarkers(
     map,
