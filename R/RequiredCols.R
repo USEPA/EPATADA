@@ -178,7 +178,7 @@ require.cols <- c(
   "TADA.LongitudeMeasure", # generated
   "HorizontalCoordinateReferenceSystemDatumName",
   "geometry",
-  "TADA.InvalidCoordinates.Flag", # generated
+  "TADA.SuspectCoordinates.Flag", # generated
   "HUCEightDigitCode",
   "MonitoringLocationIdentifier", # required
   "TADA.MonitoringLocationIdentifier",

@@ -2,8 +2,8 @@ test_that("harmonization works", {
   dat <- TADA_RandomTestingData(choose_random_state = TRUE)
   dat <- subset(dat, !is.na(dat$TADA.ResultMeasureValue))
   dat <- TADA_FlagFraction(dat, clean = TRUE)
-  dat <- TADA_FlagResultUnit(dat, clean = "invalid_only")
-  dat <- TADA_FlagSpeciation(dat, clean = "invalid_only")
+  dat <- TADA_FlagResultUnit(dat, clean = "suspect_only")
+  dat <- TADA_FlagSpeciation(dat, clean = "suspect_only")
   dat <- TADA_FlagMethod(dat, clean = TRUE)
 
   ref <- TADA_GetSynonymRef(dat)

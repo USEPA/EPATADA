@@ -12,7 +12,7 @@ TADA_RunKeyFlagFunctions(.data, remove_na = TRUE, clean = TRUE)
 \item{remove_na}{Boolean, Determines whether to keep TADA.ResultMeasureValues that are NA.
 Defaults to TRUE.}
 
-\item{clean}{Boolean. Determines whether to keep the Invalid rows in the dataset following each
+\item{clean}{Boolean. Determines whether to keep the Suspect rows in the dataset following each
 flagging function. Defaults to TRUE.}
 }
 \value{
@@ -30,6 +30,6 @@ data(Data_6Tribes_5y)
 # Run flagging functions, keeping all rows
 Data_6Tribes_5y_ALL <- TADA_RunKeyFlagFunctions(Data_6Tribes_5y, remove_na = FALSE, clean = FALSE)
 
-# Run flagging functions, removing NA's and Invalid rows
+# Run flagging functions, removing NA's and Suspect rows
 Data_6Tribes_5y_CLEAN <- TADA_RunKeyFlagFunctions(Data_6Tribes_5y, remove_na = TRUE, clean = TRUE)
 }

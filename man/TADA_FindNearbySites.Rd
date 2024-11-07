@@ -9,16 +9,28 @@ TADA_FindNearbySites(.data, dist_buffer = 100)
 \arguments{
 \item{.data}{TADA dataframe OR TADA sites dataframe}
 
-\item{dist_buffer}{Numeric. The maximum distance (in meters) two sites can be
-from one another to be considered "nearby" and grouped together.}
+\item{dist_buffer}{Numeric. The maximum distance (in meters) two sites can
+be from one another to be considered "nearby" and grouped together.
+The default is 100m.}
 }
 \value{
-Input dataframe with a TADA.MonitoringLocationIdentifier column that indicates
-the nearby site groups each monitoring location belongs to.
+Input dataframe with a TADA.MonitoringLocationIdentifier column that
+indicates the nearby site groups each monitoring location belongs to. Grouped
+sites are concatenated in the TADA.MonitoringLocationIdentifier column
+(e.g. "USGS-10010025","USGS-10010026" enclosed in square brackets []).
+This JSON array is the new TADA monitoring location ID for the grouped sites.
+TADA.MonitoringLocationIdentifier can be leveraged to analyze data from
+nearby sites together (as the same general location).
 }
 \description{
 This function takes a TADA dataset and creates a distance matrix for all
 sites in the dataset. It then uses the buffer input value to determine which
 sites are within the buffer and should be identified as part of a nearby site
 group.
+}
+\examples{
+GroupNearbySites_100m <- TADA_FindNearbySites(Data_Nutrients_UT)
+GroupNearbySites_10m <- TADA_FindNearbySites(Data_Nutrients_UT, dist_buffer = 10)
+
+
 }
