@@ -260,8 +260,8 @@ test_that("TADA_DataRetrieval", {
   randomstate2 <- TADA_RandomTestingData(number_of_days = 3, choose_random_state = TRUE)
 
   expect_true(all(
-    Filter(function(x) !any(grepl("TADA.", x)), require.cols
-  ) %in% names(randomstate2)))
+    Filter(function(x) !any(grepl("TADA.", x)), require.cols) %in% names(randomstate2)
+  ))
 })
 
 test_that("TADA_DataRetrieval", {

@@ -243,16 +243,16 @@ attains.cols <- c(
   "ATTAINS.isthreatened", "ATTAINS.state", "ATTAINS.on303dlist",
   "ATTAINS.organizationname", "ATTAINS.region", "ATTAINS.Shape_Length",
   "ATTAINS.reportingcycle", "ATTAINS.assmnt_joinkey", "ATTAINS.hastmdl",
-  "ATTAINS.orgtype", 
-  "ATTAINS.permid_joinkey", #  
+  "ATTAINS.orgtype",
+  "ATTAINS.permid_joinkey", #
   "ATTAINS.catchmentistribal",
   "ATTAINS.ircategory", "ATTAINS.waterbodyreportlink", "ATTAINS.assessmentunitidentifier",
   "ATTAINS.overallstatus", "ATTAINS.isassessed", "ATTAINS.isimpaired",
   "ATTAINS.has4bplan", "ATTAINS.huc12", "ATTAINS.hasalternativeplan",
   "ATTAINS.visionpriority303d", "ATTAINS.areasqkm", "ATTAINS.catchmentareasqkm",
   "ATTAINS.catchmentstatecode", "ATTAINS.catchmentresolution", "ATTAINS.Shape_Area",
-  "ATTAINS.xwalk_method", 
-  "ATTAINS.xwalk_huc12_version", 
+  "ATTAINS.xwalk_method",
+  "ATTAINS.xwalk_huc12_version",
   "ATTAINS.waterTypeCode"
 )
 

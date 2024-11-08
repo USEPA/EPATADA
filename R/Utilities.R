@@ -87,7 +87,11 @@ utils::globalVariables(c(
   "palette.colors", "rect", "rgb", "text", "CodeNoSpeciation", "ResultMeasure.MeasureUnitCode.Upper",
   "TADA.MonitoringLocationIdentifier", "StringA", "StringB", "MeasureUnitCode.match",
   "TADA.ActivityTopDepthHeightMeasure.MeasureValue", "group_id", "time_diff_lead", "time_diff_lag",
-  "NResults", "missing.group", "TADA.PairingGroup", "TADA.PairingGroup.Rank", "timediff"
+  "NResults", "missing.group", "TADA.PairingGroup", "TADA.PairingGroup.Rank", "timediff",
+  "ATTAINS.submissionid", "HorizontalCoordinateReferenceSystemDatumName", 
+  "NCount", "NHD.catchmentareasqkm", "NHD.comid", "NHD.nhdplusid", "NHD.resolution", 
+  "areasqkm", "assessmentUnitIdentifier", "catchmentareasqkm", "comid", 
+  "featureid", "geometry", "nhdplusid", "waterTypeCode"
 ))
 
 # global variables for tribal feature layers used in TADA_OverviewMap in Utilities.R

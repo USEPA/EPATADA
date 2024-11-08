@@ -38,7 +38,7 @@ test_that("URLs are not broken", {
     setdiff(c(
       # url works (HRM 11/7/24), but does not provide a recognizable response code
       "https://www.itecmembers.org/attains/",
-      # if included will get 500 response because this is an incomplete URL 
+      # if included will get 500 response because this is an incomplete URL
       # additional query information is pasted in as part of geospatial functions
       "https://attains.epa.gov/attains-public/api/assessmentUnits?assessmentUnitIdentifier="
     ))
@@ -56,8 +56,8 @@ test_that("URLs are not broken", {
   # filter for any response codes that are not successful or redirect responses
   df_false <- df %>%
     dplyr::filter(!grepl("200", response_code) &
-                    !grepl("301", response_code) &
-                    !grepl("302", response_code))
+      !grepl("301", response_code) &
+      !grepl("302", response_code))
 
   # count number of failed responses
   n <- nrow(df_false)
@@ -68,5 +68,3 @@ test_that("URLs are not broken", {
   # verify that there are zero urls with failing response codes
   testthat::expect_equal(n, 0)
 })
-
-

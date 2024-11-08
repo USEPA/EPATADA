@@ -8,8 +8,8 @@
 #' suggested synonym naming for some priority characteristics. Where a suggested
 #' characteristic name, fraction, speciation, or unit is present, the function
 #' will convert the TADA.CharacteristicName, TADA.ResultSampleFractionText,
-#' and TADA.MethodSpeciationName to the target format. In cases where a target 
-#' speciation differs from the existing speciation, the reference table will 
+#' and TADA.MethodSpeciationName to the target format. In cases where a target
+#' speciation differs from the existing speciation, the reference table will
 #' also apply multiplication conversion factors to the TADA.ResultMeasureValue.
 #'
 #' @param .data TADA dataframe

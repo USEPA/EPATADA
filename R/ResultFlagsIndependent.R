@@ -241,20 +241,21 @@ TADA_FlagContinuousData <- function(.data, clean = FALSE, flaggedonly = FALSE, t
   .data$TADA.ContinuousData.Flag <- "Discrete"
 
   # once new 3.0 profiles come out, check for zip files in ActivityFileURL and flag data that populates the DataLoggerLine
-  cont.data <- .data %>% dplyr::filter((ActivityTypeCode == "Field Msr/Obs-Continuous Time Series" | # ID cont data with new activity type code from 2023
-    grepl("Continuous", ProjectIdentifier) | # ID cont data by looking for string in project ID
-    grepl("CONTINUOUS", ProjectIdentifier) | # ID cont data by looking for string in project ID
-    (ActivityTypeCode == "Sample-Integrated Time Series" & SampleCollectionEquipmentName == "Probe/Sensor") |
-    (ActivityTypeCode == "Field Msr/Obs-Portable Data Logger" & !is.na(ResultTimeBasisText)) |
-    (ActivityTypeCode == "Field Msr/Obs-Portable Data Logger" & !is.na(StatisticalBaseCode)) |
-    (ActivityTypeCode == "Field Msr/Obs-Portable Data Logger" & ResultValueTypeName == "Calculated") |
-    (ActivityTypeCode == "Field Msr/Obs-Portable Data Logger" & ResultValueTypeName == "Estimated") |
-    # SampleCollectionEquipmentName == "Probe/Sensor" & !is.na(ActivityFileURL) |
-    # (SampleCollectionEquipmentName == "Probe/Sensor" & !is.na(DataLoggerLine)) |
-    (SampleCollectionEquipmentName == "Probe/Sensor" & !is.na(ResultTimeBasisText)) |
-    (SampleCollectionEquipmentName == "Probe/Sensor" & !is.na(StatisticalBaseCode)) |
-    (SampleCollectionEquipmentName == "Probe/Sensor" & ResultValueTypeName == "Calculated") |
-    (SampleCollectionEquipmentName == "Probe/Sensor" & ResultValueTypeName == "Estimated"))) %>%
+  cont.data <- .data %>%
+    dplyr::filter((ActivityTypeCode == "Field Msr/Obs-Continuous Time Series" | # ID cont data with new activity type code from 2023
+      grepl("Continuous", ProjectIdentifier) | # ID cont data by looking for string in project ID
+      grepl("CONTINUOUS", ProjectIdentifier) | # ID cont data by looking for string in project ID
+      (ActivityTypeCode == "Sample-Integrated Time Series" & SampleCollectionEquipmentName == "Probe/Sensor") |
+      (ActivityTypeCode == "Field Msr/Obs-Portable Data Logger" & !is.na(ResultTimeBasisText)) |
+      (ActivityTypeCode == "Field Msr/Obs-Portable Data Logger" & !is.na(StatisticalBaseCode)) |
+      (ActivityTypeCode == "Field Msr/Obs-Portable Data Logger" & ResultValueTypeName == "Calculated") |
+      (ActivityTypeCode == "Field Msr/Obs-Portable Data Logger" & ResultValueTypeName == "Estimated") |
+      # SampleCollectionEquipmentName == "Probe/Sensor" & !is.na(ActivityFileURL) |
+      # (SampleCollectionEquipmentName == "Probe/Sensor" & !is.na(DataLoggerLine)) |
+      (SampleCollectionEquipmentName == "Probe/Sensor" & !is.na(ResultTimeBasisText)) |
+      (SampleCollectionEquipmentName == "Probe/Sensor" & !is.na(StatisticalBaseCode)) |
+      (SampleCollectionEquipmentName == "Probe/Sensor" & ResultValueTypeName == "Calculated") |
+      (SampleCollectionEquipmentName == "Probe/Sensor" & ResultValueTypeName == "Estimated"))) %>%
     dplyr::mutate(TADA.ContinuousData.Flag = "Continuous")
 
   # everything not YET in cont dataframe
@@ -448,8 +449,10 @@ TADA_FlagAboveThreshold <- function(.data, clean = FALSE, flaggedonly = FALSE) {
   # Note that status is not applicable to ranges.
   # Instead, we generate a validation flag later in this function
   unit.ref <- utils::read.csv(system.file("extdata", "WQXcharValRef.csv", package = "EPATADA")) %>%
-    dplyr::filter(Type == "CharacteristicUnit",
-                  Status == "Accepted")
+    dplyr::filter(
+      Type == "CharacteristicUnit",
+      Status == "Accepted"
+    )
 
   # update ref table names to prepare for left join with df
   names(unit.ref)[names(unit.ref) == "Characteristic"] <- "TADA.CharacteristicName"
@@ -476,8 +479,8 @@ TADA_FlagAboveThreshold <- function(.data, clean = FALSE, flaggedonly = FALSE) {
       "TADA.ActivityMediaName",
       "TADA.ResultMeasure.MeasureUnitCode"
     ),
-    multiple = "all", 
-    relationship = "many-to-one" 
+    multiple = "all",
+    relationship = "many-to-one"
   )
 
   # Create flag column, flag rows where ResultMeasureValue > Maximum
@@ -631,8 +634,10 @@ TADA_FlagBelowThreshold <- function(.data, clean = FALSE, flaggedonly = FALSE) {
   # Note that status is not applicable to ranges.
   # Instead, we generate a validation flag later in this function
   unit.ref <- utils::read.csv(system.file("extdata", "WQXcharValRef.csv", package = "EPATADA")) %>%
-    dplyr::filter(Type == "CharacteristicUnit",
-                  Status == "Accepted")
+    dplyr::filter(
+      Type == "CharacteristicUnit",
+      Status == "Accepted"
+    )
 
   # update ref table names to prepare for left join with df
   names(unit.ref)[names(unit.ref) == "Characteristic"] <- "TADA.CharacteristicName"
@@ -653,15 +658,15 @@ TADA_FlagBelowThreshold <- function(.data, clean = FALSE, flaggedonly = FALSE) {
 
   unit.ref <- unique(unit.ref)
 
- check.data <- dplyr::left_join(.data,
+  check.data <- dplyr::left_join(.data,
     unit.ref,
     by = c(
       "TADA.CharacteristicName",
       "TADA.ActivityMediaName",
       "TADA.ResultMeasure.MeasureUnitCode"
     ),
-    multiple = "all", 
-    relationship = "many-to-one" 
+    multiple = "all",
+    relationship = "many-to-one"
   )
 
   # Create flag column, flag rows where TADA.ResultMeasureValue < Minimum
@@ -1277,14 +1282,16 @@ TADA_FindPotentialDuplicatesMultipleOrgs <- function(.data, dist_buffer = 100, o
 
     # connect back to original dataset
     .data <- .data %>%
-      dplyr::mutate( 
-        TADA.MonitoringLocationIdentifier = ifelse(TADA.MonitoringLocationIdentifier %in% NA, "NA", TADA.MonitoringLocationIdentifier)) %>%
+      dplyr::mutate(
+        TADA.MonitoringLocationIdentifier = ifelse(TADA.MonitoringLocationIdentifier %in% NA, "NA", TADA.MonitoringLocationIdentifier)
+      ) %>%
       dplyr::full_join(dupsdat, by = c(names(.data))) %>%
       dplyr::mutate(
         TADA.MultipleOrgDuplicate = ifelse(is.na(TADA.MultipleOrgDuplicate), "N", TADA.MultipleOrgDuplicate),
         TADA.ResultSelectedMultipleOrgs = ifelse(is.na(TADA.ResultSelectedMultipleOrgs), "Y", TADA.ResultSelectedMultipleOrgs),
-        TADA.MultipleOrgDupGroupID = ifelse(is.na(TADA.MultipleOrgDupGroupID), "Not a duplicate", TADA.MultipleOrgDupGroupID)) %>%
-      dplyr::mutate( 
+        TADA.MultipleOrgDupGroupID = ifelse(is.na(TADA.MultipleOrgDupGroupID), "Not a duplicate", TADA.MultipleOrgDupGroupID)
+      ) %>%
+      dplyr::mutate(
         TADA.MonitoringLocationIdentifier = ifelse(TADA.MonitoringLocationIdentifier %in% "NA", "NA - Not Available", TADA.MonitoringLocationIdentifier)
       )
 
