@@ -456,9 +456,9 @@ max_results <- R5Profile_CharSummary %>%
 
 ## WQX Quality Assurance and Quality Control (QAQC) Service Result Flags
 
-Next we'll run several functions to address invalid method, fraction,
+Next we'll run several functions to address suspect method, fraction,
 speciation, and unit metadata by characteristic. The default is clean =
-TRUE, which will remove invalid results. You can change this to clean =
+TRUE, which will remove suspect results. You can change this to clean =
 FALSE to flag results, but not remove them.
 
 See documentation for more details:
@@ -476,9 +476,9 @@ R5ProfileClean1 <- TADA_FlagMethod(R5Profile, clean = TRUE)
 
 R5ProfileClean1 <- TADA_FlagFraction(R5ProfileClean1, clean = TRUE)
 
-R5ProfileClean1 <- TADA_FlagSpeciation(R5ProfileClean1, clean = "invalid_only")
+R5ProfileClean1 <- TADA_FlagSpeciation(R5ProfileClean1, clean = "suspect_only")
 
-R5ProfileClean1 <- TADA_FlagResultUnit(R5ProfileClean1, clean = "invalid_only")
+R5ProfileClean1 <- TADA_FlagResultUnit(R5ProfileClean1, clean = "suspect_only")
 ```
 
 **Question 6: How many rows were removed due to the WQX QAQC service
