@@ -88,7 +88,7 @@ test_that("TADA_FindPotentialDuplicates functions do not grow dataset", {
 # test_that("TADA_FindPotentialDuplicatsMultipleOrgs labels nearby site and multiple org groupings incrementally if duplicates are found", {
 #   testdat <- TADA_RandomTestingData()
 #   testdat <- TADA_FindPotentialDuplicatesMultipleOrgs(testdat)
-# 
+#
 #   testdat1 <- testdat %>%
 #     dplyr::select(TADA.MonitoringLocationIdentifier) %>%
 #     dplyr::filter(TADA.MonitoringLocationIdentifier != "No nearby sites") %>%
@@ -98,7 +98,7 @@ test_that("TADA_FindPotentialDuplicates functions do not grow dataset", {
 #     unique() %>%
 #     as.numeric() %>%
 #     sort()
-# 
+#
 #   testdat2 <- testdat %>%
 #     dplyr::select(TADA.MultipleOrgDupGroupID) %>%
 #     dplyr::filter(TADA.MultipleOrgDupGroupID != "Not a duplicate") %>%
@@ -106,9 +106,9 @@ test_that("TADA_FindPotentialDuplicates functions do not grow dataset", {
 #     dplyr::pull() %>%
 #     as.numeric() %>%
 #     sort()
-# 
+#
 #   expect_true(length(unique(diff(testdat1))) < 2)
-# 
+#
 #   expect_true(length(unique(diff(testdat2))) < 2)
 # })
 

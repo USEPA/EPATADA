@@ -54,12 +54,16 @@
 #' @examples
 #' \dontrun{
 #' # example for WI
-#' tada1 <- TADA_DataRetrieval(statecode = "WI", countycode = "Dane", 
-#'     characteristicName = "Phosphorus")
+#' tada1 <- TADA_DataRetrieval(
+#'   statecode = "WI", countycode = "Dane",
+#'   characteristicName = "Phosphorus"
+#' )
 #'
 #' # example for UT
-#' tada2 <- TADA_DataRetrieval(statecode = "UT",
-#'     characteristicName = c("Ammonia", "Nitrate", "Nitrogen"))
+#' tada2 <- TADA_DataRetrieval(
+#'   statecode = "UT",
+#'   characteristicName = c("Ammonia", "Nitrate", "Nitrogen")
+#' )
 #'
 #' # example for SC
 #' tada3 <- TADA_DataRetrieval(statecode = "SC", countycode = "Abbeville")

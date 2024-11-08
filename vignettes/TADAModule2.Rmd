@@ -275,14 +275,14 @@ Identifiers.
 ```{r}
 TADA_with_ATTAINS_subset <- TADA_with_ATTAINS %>%
   dplyr::select(
-      "LongitudeMeasure", "TADA.LongitudeMeasure",
-      "LatitudeMeasure", "TADA.LatitudeMeasure", "MonitoringLocationTypeName",
-      "MonitoringLocationIdentifier", "StateCode", 
-      "ATTAINS.state", "ATTAINS.assessmentunitidentifier",
-      "ATTAINS.overallstatus", "ATTAINS.isassessed", "ATTAINS.isimpaired",
-      "ATTAINS.organizationid", "ATTAINS.assessmentunitname",
-      "ATTAINS.reportingcycle", "ATTAINS.waterbodyreportlink", 
-      "ATTAINS.waterTypeCode"
+    "LongitudeMeasure", "TADA.LongitudeMeasure",
+    "LatitudeMeasure", "TADA.LatitudeMeasure", "MonitoringLocationTypeName",
+    "MonitoringLocationIdentifier", "StateCode",
+    "ATTAINS.state", "ATTAINS.assessmentunitidentifier",
+    "ATTAINS.overallstatus", "ATTAINS.isassessed", "ATTAINS.isimpaired",
+    "ATTAINS.organizationid", "ATTAINS.assessmentunitname",
+    "ATTAINS.reportingcycle", "ATTAINS.waterbodyreportlink",
+    "ATTAINS.waterTypeCode"
   ) %>%
   dplyr::distinct(.keep_all = FALSE)
 ```
