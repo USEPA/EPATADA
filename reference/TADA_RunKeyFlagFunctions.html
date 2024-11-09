@@ -72,7 +72,7 @@ Defaults to TRUE.</p></dd>
 
 
 <dt id="arg-clean">clean<a class="anchor" aria-label="anchor" href="#arg-clean"></a></dt>
-<dd><p>Boolean. Determines whether to keep the Invalid rows in the dataset following each
+<dd><p>Boolean. Determines whether to keep the Suspect rows in the dataset following each
 flagging function. Defaults to TRUE.</p></dd>
 
 </dl></div>
@@ -88,11 +88,11 @@ TADA.MethodSpeciation.Flag, TADA.SampleFraction.Flag, and TADA.ActivityType.Flag
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">Data_6Tribes_5y</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="co"># Run flagging functions, keeping all rows</span></span></span>
 <span class="r-in"><span><span class="va">Data_6Tribes_5y_ALL</span> <span class="op">&lt;-</span> <span class="fu">TADA_RunKeyFlagFunctions</span><span class="op">(</span><span class="va">Data_6Tribes_5y</span>, remove_na <span class="op">=</span> <span class="cn">FALSE</span>, clean <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "Rows with invalid result value units have been flagged but retained. Review these rows before proceeding and/or set clean = 'invalid_only' or 'both'."</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "Rows with invalid sample fractions have been flagged but retained. Review these rows before proceeding and/or set clean = TRUE."</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "Rows with invalid speciations have been flagged but retained. Review these rows before proceeding and/or set clean = 'invalid_only' or 'both'."</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "Rows with Suspect result value units have been flagged but retained. Review these rows before proceeding and/or set clean = 'suspect_only' or 'both'."</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "Rows with Suspect sample fractions have been flagged but retained. Review these rows before proceeding and/or set clean = TRUE."</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "Rows with Suspect speciations have been flagged but retained. Review these rows before proceeding and/or set clean = 'suspect_only' or 'both'."</span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># Run flagging functions, removing NA's and Invalid rows</span></span></span>
+<span class="r-in"><span><span class="co"># Run flagging functions, removing NA's and Suspect rows</span></span></span>
 <span class="r-in"><span><span class="va">Data_6Tribes_5y_CLEAN</span> <span class="op">&lt;-</span> <span class="fu">TADA_RunKeyFlagFunctions</span><span class="op">(</span><span class="va">Data_6Tribes_5y</span>, remove_na <span class="op">=</span> <span class="cn">TRUE</span>, clean <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] "Quality control samples have been removed or were not present in the input dataframe. Returning dataframe with TADA.ActivityType.Flag column for tracking."</span>
 </code></pre></div>

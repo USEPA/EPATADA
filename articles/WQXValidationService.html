@@ -65,7 +65,7 @@
       <h1>WQX QAQC Service User Guide</h1>
                         <h4 data-toc-skip class="author">TADA Team</h4>
             
-            <h4 data-toc-skip class="date">2024-11-07</h4>
+            <h4 data-toc-skip class="date">2024-11-09</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/USEPA/EPATADA/blob/develop/vignettes/WQXValidationService.Rmd" class="external-link"><code>vignettes/WQXValidationService.Rmd</code></a></small>
       <div class="d-none name"><code>WQXValidationService.Rmd</code></div>
@@ -78,10 +78,10 @@
 </h2>
 <p>This is a overview of the the WQX Quality Assurance and Quality
 Control (QAQC) data submission service, and how TADA leverages that
-service to flag potentially invalid data in the Water Quality Portal
+service to flag potentially suspect data in the Water Quality Portal
 (WQP). It will cover: 1) an overview of all available WQX QAQC tests for
 data submissions, 2) which of these QAQC tests are also available in
-TADA for flagging potentially invalid WQP data, and 3) how to interpret
+TADA for flagging potentially suspect WQP data, and 3) how to interpret
 and provide feedback on the validation reference tables referenced by
 WQX and TADA for this QAQC service.</p>
 </div>
@@ -115,7 +115,7 @@ Package for use with data retrieved from the WQP:</p>
 <p>Tests that Leverage the WQX Validation Table</p>
 <ul>
 <li>
-<p>Flag invalid characteristic and unit combinations (e.g., flag
+<p>Flag suspect characteristic and unit combinations (e.g., flag
 data if mg/L or °C was used for pH; flag if units were left blank, NA,
 None, etc. but are required for the characteristic)</p>
 <ul>
@@ -123,7 +123,7 @@ None, etc. but are required for the characteristic)</p>
 </ul>
 </li>
 <li>
-<p>Flag data without methods, with uncommon methods, or with invalid
+<p>Flag data without methods, with uncommon methods, or with suspect
 methods for the characteristic. This is contingent on the activity type
 since some activity types don’t require methods.</p>
 <ul>
@@ -131,14 +131,14 @@ since some activity types don’t require methods.</p>
 </ul>
 </li>
 <li>
-<p>Flag data with invalid characteristic and fraction
+<p>Flag data with suspect characteristic and fraction
 combinations</p>
 <ul>
 <li><a href="https://usepa.github.io/EPATADA/reference/TADA_FlagFraction.html">TADA_FlagFraction()</a></li>
 </ul>
 </li>
 <li>
-<p>Flag data with invalid characteristic and speciation
+<p>Flag data with suspect characteristic and speciation
 combination</p>
 <ul>
 <li><a href="https://usepa.github.io/EPATADA/reference/TADA_FlagSpeciation.html">TADA_FlagSpeciation()</a></li>
@@ -209,7 +209,7 @@ TADA leverages many of the WQX domain tables.</p>
 | (<a href="https://cdx.epa.gov/wqx/download/DomainValues/QAQCCharacteristicValidation.CSV" class="external-link">CSV)</a></p>
 <ul>
 <li>
-<p>Both WQX and TADA leverage the table above to flag invalid and
+<p>Both WQX and TADA leverage the table above to flag suspect and
 uncommon results. This reference table is used in the following TADA
 functions:</p>
 <ul>

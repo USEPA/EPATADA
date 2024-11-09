@@ -178,12 +178,16 @@ datetimes, numerics based on a standard algorithm. See: ?dataRetrieval::readWQPd
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span> <span class="co"># \dontrun{</span></span></span>
 <span class="r-in"><span><span class="co"># example for WI</span></span></span>
-<span class="r-in"><span><span class="va">tada1</span> <span class="op">&lt;-</span> <span class="fu">TADA_DataRetrieval</span><span class="op">(</span>statecode <span class="op">=</span> <span class="st">"WI"</span>, countycode <span class="op">=</span> <span class="st">"Dane"</span>, </span></span>
-<span class="r-in"><span>    characteristicName <span class="op">=</span> <span class="st">"Phosphorus"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">tada1</span> <span class="op">&lt;-</span> <span class="fu">TADA_DataRetrieval</span><span class="op">(</span></span></span>
+<span class="r-in"><span>  statecode <span class="op">=</span> <span class="st">"WI"</span>, countycode <span class="op">=</span> <span class="st">"Dane"</span>,</span></span>
+<span class="r-in"><span>  characteristicName <span class="op">=</span> <span class="st">"Phosphorus"</span></span></span>
+<span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># example for UT</span></span></span>
-<span class="r-in"><span><span class="va">tada2</span> <span class="op">&lt;-</span> <span class="fu">TADA_DataRetrieval</span><span class="op">(</span>statecode <span class="op">=</span> <span class="st">"UT"</span>,</span></span>
-<span class="r-in"><span>    characteristicName <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Ammonia"</span>, <span class="st">"Nitrate"</span>, <span class="st">"Nitrogen"</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">tada2</span> <span class="op">&lt;-</span> <span class="fu">TADA_DataRetrieval</span><span class="op">(</span></span></span>
+<span class="r-in"><span>  statecode <span class="op">=</span> <span class="st">"UT"</span>,</span></span>
+<span class="r-in"><span>  characteristicName <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Ammonia"</span>, <span class="st">"Nitrate"</span>, <span class="st">"Nitrogen"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># example for SC</span></span></span>
 <span class="r-in"><span><span class="va">tada3</span> <span class="op">&lt;-</span> <span class="fu">TADA_DataRetrieval</span><span class="op">(</span>statecode <span class="op">=</span> <span class="st">"SC"</span>, countycode <span class="op">=</span> <span class="st">"Abbeville"</span><span class="op">)</span></span></span>

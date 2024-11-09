@@ -70,16 +70,30 @@ group.</p>
 
 
 <dt id="arg-dist-buffer">dist_buffer<a class="anchor" aria-label="anchor" href="#arg-dist-buffer"></a></dt>
-<dd><p>Numeric. The maximum distance (in meters) two sites can be
-from one another to be considered "nearby" and grouped together.</p></dd>
+<dd><p>Numeric. The maximum distance (in meters) two sites can
+be from one another to be considered "nearby" and grouped together.
+The default is 100m.</p></dd>
 
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p>Input dataframe with a TADA.MonitoringLocationIdentifier column that indicates
-the nearby site groups each monitoring location belongs to.</p>
+    <p>Input dataframe with a TADA.MonitoringLocationIdentifier column that
+indicates the nearby site groups each monitoring location belongs to. Grouped
+sites are concatenated in the TADA.MonitoringLocationIdentifier column
+(e.g. "USGS-10010025","USGS-10010026" enclosed in square brackets []).
+This JSON array is the new TADA monitoring location ID for the grouped sites.
+TADA.MonitoringLocationIdentifier can be leveraged to analyze data from
+nearby sites together (as the same general location).</p>
     </div>
 
+    <div class="section level2">
+    <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="va">GroupNearbySites_100m</span> <span class="op">&lt;-</span> <span class="fu">TADA_FindNearbySites</span><span class="op">(</span><span class="va">Data_Nutrients_UT</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">GroupNearbySites_10m</span> <span class="op">&lt;-</span> <span class="fu">TADA_FindNearbySites</span><span class="op">(</span><span class="va">Data_Nutrients_UT</span>, dist_buffer <span class="op">=</span> <span class="fl">10</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span></span></span>
+</code></pre></div>
+    </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside></div>
 
