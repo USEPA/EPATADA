@@ -77,15 +77,15 @@ TADA_GetWQXCharValRef <- function() {
 # (for internal use only)
 
 TADA_UpdateWQXCharValRef <- function() {
-  
-  WQXcharValRef = TADA_GetWQXCharValRef()
-  save(WQXcharValRef, 
-       file = "inst/extdata/WQXcharValRef.rda", 
-       ascii = FALSE, 
-       compress = "xz", 
-       version = 3)
+  WQXcharValRef <- TADA_GetWQXCharValRef()
+  save(WQXcharValRef,
+    file = "inst/extdata/WQXcharValRef.rda",
+    ascii = FALSE,
+    compress = "xz",
+    version = 3
+  )
 }
-  
+
 
 # Used to store cached Measure Unit Reference Table
 WQXunitRef_Cached <- NULL
