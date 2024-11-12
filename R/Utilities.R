@@ -36,7 +36,7 @@ utils::globalVariables(c(
   "QAPPApprovalAgencyName", "QAPPApprovedIndicator",
   "ResultDetectionConditionText", "ResultMeasureValue",
   "SamplingDesignTypeCode", "Source", "Status", "TADA.ContinuousData.Flag",
-  "TADA.InvalidCoordinates.Flag", "TADA.PotentialDupRowIDs.Flag", "TADA.QAPPDocAvailable",
+  "TADA.SuspectCoordinates.Flag", "TADA.PotentialDupRowIDs.Flag", "TADA.QAPPDocAvailable",
   "Target.Unit", "Type", "Value.Unit", "TADA.AnalyticalMethod.Flag",
   "TADA.MethodSpeciation.Flag", "TADA.ResultUnit.Flag",
   "TADA.SampleFraction.Flag", "YearSummarized", "where", "TADA.CharacteristicName",
@@ -87,7 +87,11 @@ utils::globalVariables(c(
   "palette.colors", "rect", "rgb", "text", "CodeNoSpeciation", "ResultMeasure.MeasureUnitCode.Upper",
   "TADA.MonitoringLocationIdentifier", "StringA", "StringB", "MeasureUnitCode.match",
   "TADA.ActivityTopDepthHeightMeasure.MeasureValue", "group_id", "time_diff_lead", "time_diff_lag",
-  "NResults", "missing.group", "TADA.PairingGroup", "TADA.PairingGroup.Rank", "timediff"
+  "NResults", "missing.group", "TADA.PairingGroup", "TADA.PairingGroup.Rank", "timediff",
+  "ATTAINS.submissionid", "HorizontalCoordinateReferenceSystemDatumName", 
+  "NCount", "NHD.catchmentareasqkm", "NHD.comid", "NHD.nhdplusid", "NHD.resolution", 
+  "areasqkm", "assessmentUnitIdentifier", "catchmentareasqkm", "comid", 
+  "featureid", "geometry", "nhdplusid", "waterTypeCode"
 ))
 
 # global variables for tribal feature layers used in TADA_OverviewMap in Utilities.R
@@ -490,7 +494,7 @@ TADA_CheckColumns <- function(.data, expected_cols) {
 #'
 TADA_ConvertSpecialChars <- function(.data, col, percent.ave = TRUE) {
   if (!col %in% names(.data)) {
-    stop("Invalid column name specified for input dataset.")
+    stop("Suspect column name specified for input dataset.")
   }
 
   # Define new column names
@@ -621,7 +625,7 @@ TADA_ConvertSpecialChars <- function(.data, col, percent.ave = TRUE) {
 #' Substitute Preferred Characteristic Name for Deprecated Names
 #'
 #' This function uses the WQX Characteristic domain table to substitute
-#' deprecated (i.e. retired and/or invalid) Characteristic Names with the new
+#' deprecated (i.e. retired and/or suspect) Characteristic Names with the new
 #' name in the TADA.CharacteristicName column. TADA_SubstituteDeprecatedChars is
 #' run within TADA_AutoClean, which runs within TADA_DataRetreival and (if autoclean = TRUE)
 #' in TADA_BigDataRetrieval. Therefore, deprecated characteristic names are
@@ -756,13 +760,24 @@ TADA_FormatDelimitedString <- function(delimited_string, delimiter = ",") {
 #' group.
 #'
 #' @param .data TADA dataframe OR TADA sites dataframe
-#' @param dist_buffer Numeric. The maximum distance (in meters) two sites can be
-#'   from one another to be considered "nearby" and grouped together.
+#' @param dist_buffer Numeric. The maximum distance (in meters) two sites can 
+#' be from one another to be considered "nearby" and grouped together.
+#' The default is 100m. 
 #'
-#' @return Input dataframe with a TADA.MonitoringLocationIdentifier column that indicates
-#'   the nearby site groups each monitoring location belongs to.
+#' @return Input dataframe with a TADA.MonitoringLocationIdentifier column that 
+#' indicates the nearby site groups each monitoring location belongs to. Grouped 
+#' sites are concatenated in the TADA.MonitoringLocationIdentifier column 
+#' (e.g. "USGS-10010025","USGS-10010026" enclosed in square brackets []). 
+#' This JSON array is the new TADA monitoring location ID for the grouped sites.
+#' TADA.MonitoringLocationIdentifier can be leveraged to analyze data from 
+#' nearby sites together (as the same general location).
 #'
 #' @export
+#' 
+#' @examples
+#' GroupNearbySites_100m <- TADA_FindNearbySites(Data_Nutrients_UT)
+#' GroupNearbySites_10m <- TADA_FindNearbySites(Data_Nutrients_UT, dist_buffer = 10)
+#' 
 #'
 TADA_FindNearbySites <- function(.data, dist_buffer = 100) {
   # check .data is data.frame
@@ -1081,7 +1096,7 @@ TADA_AggregateMeasurements <- function(.data, grouping_cols = c("ActivityStartDa
 #' @param .data A TADA dataframe
 #' @param remove_na Boolean, Determines whether to keep TADA.ResultMeasureValues that are NA.
 #' Defaults to TRUE.
-#' @param clean Boolean. Determines whether to keep the Invalid rows in the dataset following each
+#' @param clean Boolean. Determines whether to keep the Suspect rows in the dataset following each
 #' flagging function. Defaults to TRUE.
 #'
 #' @return A TADA dataframe with the following flagging columns:TADA.ResultUnit.Flag,
@@ -1095,7 +1110,7 @@ TADA_AggregateMeasurements <- function(.data, grouping_cols = c("ActivityStartDa
 #' # Run flagging functions, keeping all rows
 #' Data_6Tribes_5y_ALL <- TADA_RunKeyFlagFunctions(Data_6Tribes_5y, remove_na = FALSE, clean = FALSE)
 #'
-#' # Run flagging functions, removing NA's and Invalid rows
+#' # Run flagging functions, removing NA's and Suspect rows
 #' Data_6Tribes_5y_CLEAN <- TADA_RunKeyFlagFunctions(Data_6Tribes_5y, remove_na = TRUE, clean = TRUE)
 TADA_RunKeyFlagFunctions <- function(.data, remove_na = TRUE, clean = TRUE) {
   if (remove_na == TRUE) {
@@ -1103,9 +1118,9 @@ TADA_RunKeyFlagFunctions <- function(.data, remove_na = TRUE, clean = TRUE) {
   }
 
   if (clean == TRUE) {
-    .data <- TADA_FlagResultUnit(.data, clean = "invalid_only")
+    .data <- TADA_FlagResultUnit(.data, clean = "suspect_only")
     .data <- TADA_FlagFraction(.data, clean = TRUE)
-    .data <- TADA_FlagSpeciation(.data, clean = "invalid_only")
+    .data <- TADA_FlagSpeciation(.data, clean = "suspect_only")
     .data <- TADA_FindQCActivities(.data, clean = TRUE)
   } else {
     .data <- TADA_FlagResultUnit(.data, clean = "none")
@@ -1405,7 +1420,7 @@ TADA_addPoints <- function(map, layerfilepath, layergroup, layername, bbox = NUL
   if (is.na(lbbox[1])) {
     return(map)
   }
-  shapes <- c(2) # open triangle; for other options see http://www.statmethods.net/advgraphs/parameters.html
+  shapes <- c(2) # open triangle; for other options see https://www.geeksforgeeks.org/r-plot-pch-symbols-different-point-shapes-available-in-r/
   iconFiles <- pchIcons(shapes, width = 20, height = 20, col = c("#CC7722"), lwd = 2)
   map <- leaflet::addMarkers(
     map,

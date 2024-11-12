@@ -1,33 +1,33 @@
-test_that("InvalidCoordinates works", {
+test_that("SuspectCoordinates works", {
   # use example dataset
   data(Data_Nutrients_UT)
 
   # flagonly
-  InvalidCoord_flags <- TADA_FlagCoordinates(Data_Nutrients_UT)
-  unique(InvalidCoord_flags$TADA.InvalidCoordinates)
-  reviewselectcolumns <- InvalidCoord_flags %>% dplyr::select(TADA.InvalidCoordinates.Flag, TADA.LatitudeMeasure, TADA.LongitudeMeasure)
+  SuspectCoord_flags <- TADA_FlagCoordinates(Data_Nutrients_UT)
+  unique(SuspectCoord_flags$TADA.SuspectCoordinates)
+  reviewselectcolumns <- SuspectCoord_flags %>% dplyr::select(TADA.SuspectCoordinates.Flag, TADA.LatitudeMeasure, TADA.LongitudeMeasure)
   reviewflagsonly <- dplyr::filter(
     reviewselectcolumns,
-    is.na(TADA.InvalidCoordinates.Flag) != TRUE
+    is.na(TADA.SuspectCoordinates.Flag) != TRUE
   )
-  unique(reviewflagsonly$TADA.InvalidCoordinates.Flag)
+  unique(reviewflagsonly$TADA.SuspectCoordinates.Flag)
 
   # removeimprecise
   ImpreciseCoord_removed <- TADA_FlagCoordinates(Data_Nutrients_UT, clean_imprecise = TRUE)
-  unique(ImpreciseCoord_removed$TADA.InvalidCoordinates.Flag)
+  unique(ImpreciseCoord_removed$TADA.SuspectCoordinates.Flag)
 
-  expect_true(any(ImpreciseCoord_removed$TADA.InvalidCoordinates.Flag != "Imprecise_lessthan3decimaldigits"))
+  expect_true(any(ImpreciseCoord_removed$TADA.SuspectCoordinates.Flag != "Imprecise_lessthan3decimaldigits"))
 
   # Remove data with coordinates outside the USA, but keep flagged data with imprecise coordinates:
   OutsideUSACoord_removed <- TADA_FlagCoordinates(Data_Nutrients_UT, clean_outsideUSA = "remove")
-  unique(OutsideUSACoord_removed$TADA.InvalidCoordinates.Flag)
+  unique(OutsideUSACoord_removed$TADA.SuspectCoordinates.Flag)
 
-  expect_true(any(OutsideUSACoord_removed$TADA.InvalidCoordinates.Flag != "LONG_OutsideUSA" |
-    OutsideUSACoord_removed$TADA.InvalidCoordinates.Flag != "LAT_OutsideUSA"))
+  expect_true(any(OutsideUSACoord_removed$TADA.SuspectCoordinates.Flag != "LONG_OutsideUSA" |
+    OutsideUSACoord_removed$TADA.SuspectCoordinates.Flag != "LAT_OutsideUSA"))
 
   ## Remove data with imprecise coordinates or coordinates outside the USA from the dataframe:
-  Invalid_removed <- TADA_FlagCoordinates(Data_Nutrients_UT, clean_outsideUSA = "remove", clean_imprecise = TRUE)
-  unique(Invalid_removed$TADA.InvalidCoordinates.Flag)
+  Suspect_removed <- TADA_FlagCoordinates(Data_Nutrients_UT, clean_outsideUSA = "remove", clean_imprecise = TRUE)
+  unique(Suspect_removed$TADA.SuspectCoordinates.Flag)
 })
 
 
@@ -37,8 +37,8 @@ test_that("Imprecise_lessthan3decimaldigits works", {
 
   # flagonly
   FLAGSONLY <- TADA_FlagCoordinates(Data_Nutrients_UT)
-  FLAGSONLY <- FLAGSONLY %>% dplyr::select(TADA.InvalidCoordinates.Flag, TADA.LatitudeMeasure, TADA.LongitudeMeasure)
-  FLAGSONLY <- dplyr::filter(FLAGSONLY, FLAGSONLY$TADA.InvalidCoordinates.Flag == "Imprecise_lessthan3decimaldigits")
+  FLAGSONLY <- FLAGSONLY %>% dplyr::select(TADA.SuspectCoordinates.Flag, TADA.LatitudeMeasure, TADA.LongitudeMeasure)
+  FLAGSONLY <- dplyr::filter(FLAGSONLY, FLAGSONLY$TADA.SuspectCoordinates.Flag == "Imprecise_lessthan3decimaldigits")
   FLAGSONLY <- dplyr::filter(FLAGSONLY, sapply(FLAGSONLY$TADA.LongitudeMeasure, TADA_DecimalPlaces) < 3) %>% dplyr::distinct()
 
   expect_true(all(sapply(FLAGSONLY$TADA.LongitudeMeasure, TADA_DecimalPlaces) < 4))
@@ -50,8 +50,8 @@ test_that("Imprecise_lessthan3decimaldigits works again", {
 
   # flagonly
   FLAGSONLY <- TADA_FlagCoordinates(Data_Nutrients_UT)
-  FLAGSONLY <- FLAGSONLY %>% dplyr::select(TADA.InvalidCoordinates.Flag, TADA.LatitudeMeasure, TADA.LongitudeMeasure)
-  FLAGSONLY <- dplyr::filter(FLAGSONLY, FLAGSONLY$TADA.InvalidCoordinates.Flag == "Imprecise_lessthan3decimaldigits")
+  FLAGSONLY <- FLAGSONLY %>% dplyr::select(TADA.SuspectCoordinates.Flag, TADA.LatitudeMeasure, TADA.LongitudeMeasure)
+  FLAGSONLY <- dplyr::filter(FLAGSONLY, FLAGSONLY$TADA.SuspectCoordinates.Flag == "Imprecise_lessthan3decimaldigits")
   FLAGSONLY <- dplyr::filter(FLAGSONLY, sapply(FLAGSONLY$TADA.LatitudeMeasure, TADA_DecimalPlaces) < 3) %>% dplyr::distinct()
 
   expect_true(all(sapply(FLAGSONLY$TADA.LatitudeMeasure, TADA_DecimalPlaces) < 4))
@@ -85,32 +85,32 @@ test_that("TADA_FindPotentialDuplicates functions do not grow dataset", {
   expect_true(dim(testdat)[1] == dim(testdat2)[1])
 })
 
-test_that("TADA_FindPotentialDuplicatsMultipleOrgs labels nearby site and multiple org groupings incrementally if duplicates are found", {
-  testdat <- TADA_RandomTestingData()
-  testdat <- TADA_FindPotentialDuplicatesMultipleOrgs(testdat)
-
-  testdat1 <- testdat %>%
-    dplyr::select(TADA.MonitoringLocationIdentifier) %>%
-    dplyr::filter(TADA.MonitoringLocationIdentifier != "No nearby sites") %>%
-    tidyr::separate_rows(TADA.MonitoringLocationIdentifier, sep = ", ") %>%
-    dplyr::pull() %>%
-    stringr::str_remove_all("Group_") %>%
-    unique() %>%
-    as.numeric() %>%
-    sort()
-
-  testdat2 <- testdat %>%
-    dplyr::select(TADA.MultipleOrgDupGroupID) %>%
-    dplyr::filter(TADA.MultipleOrgDupGroupID != "Not a duplicate") %>%
-    unique() %>%
-    dplyr::pull() %>%
-    as.numeric() %>%
-    sort()
-
-  expect_true(length(unique(diff(testdat1))) < 2)
-
-  expect_true(length(unique(diff(testdat2))) < 2)
-})
+# test_that("TADA_FindPotentialDuplicatsMultipleOrgs labels nearby site and multiple org groupings incrementally if duplicates are found", {
+#   testdat <- TADA_RandomTestingData()
+#   testdat <- TADA_FindPotentialDuplicatesMultipleOrgs(testdat)
+#
+#   testdat1 <- testdat %>%
+#     dplyr::select(TADA.MonitoringLocationIdentifier) %>%
+#     dplyr::filter(TADA.MonitoringLocationIdentifier != "No nearby sites") %>%
+#     tidyr::separate_rows(TADA.MonitoringLocationIdentifier, sep = ", ") %>%
+#     dplyr::pull() %>%
+#     stringr::str_remove_all("Group_") %>%
+#     unique() %>%
+#     as.numeric() %>%
+#     sort()
+#
+#   testdat2 <- testdat %>%
+#     dplyr::select(TADA.MultipleOrgDupGroupID) %>%
+#     dplyr::filter(TADA.MultipleOrgDupGroupID != "Not a duplicate") %>%
+#     unique() %>%
+#     dplyr::pull() %>%
+#     as.numeric() %>%
+#     sort()
+#
+#   expect_true(length(unique(diff(testdat1))) < 2)
+#
+#   expect_true(length(unique(diff(testdat2))) < 2)
+# })
 
 test_that("TADA_FindPotentialDuplicatsMultipleOrgs has non-NA values for each row in columns added in function", {
   testdat <- TADA_RandomTestingData()

@@ -1,10 +1,10 @@
-#' Check for Invalid Analytical Methods
+#' Check for Suspect Analytical Methods
 #'
 #' Function checks the validity of each characteristic-analytical method
-#' combination in the dataframe. When clean = TRUE, rows with invalid
+#' combination in the dataframe. When clean = TRUE, rows with Suspect
 #' characteristic-analytical method combinations are removed. Default is
 #' clean = TRUE. When flaggedonly = TRUE, dataframe is filtered to show only
-#' invalid characteristic-analytical method combinations. Default is
+#' Suspect characteristic-analytical method combinations. Default is
 #' flaggedonly = FALSE.
 #'
 #' The “Not Reviewed” value within "TADA.ResultAboveUpperThreshold.Flag" means
@@ -13,20 +13,20 @@
 #' The WQX team plans to review and update these new combinations quarterly.
 #'
 #' @param .data TADA dataframe
-#' @param clean Boolean argument; removes "Invalid" characteristic-analytical
+#' @param clean Boolean argument; removes "Suspect" characteristic-analytical
 #' method combinations from the dataframe when clean = TRUE. Default is
 #' clean = TRUE.
-#' @param flaggedonly Boolean argument; filters dataframe to show only "Invalid"
+#' @param flaggedonly Boolean argument; filters dataframe to show only "Suspect"
 #' characteristic-analytical method combinations when flaggedonly = TRUE. Default
 #' is flaggedonly = FALSE.
 #'
 #' @return This function adds the TADA.AnalyticalMethod.Flag to a TADA dataframe. This column
-#' flags invalid CharacteristicName, ResultAnalyticalMethod/MethodIdentifier,
+#' flags Suspect CharacteristicName, ResultAnalyticalMethod/MethodIdentifier,
 #' and ResultAnalyticalMethod/MethodIdentifierContext combinations in your dataframe
-#' as either "Not Reviewed", "Invalid", or "Valid". When clean = FALSE and
-#' flaggedonly = TRUE, the dataframe is filtered to show only "Invalid"
+#' as either "Not Reviewed", "Suspect", or "Pass". When clean = FALSE and
+#' flaggedonly = TRUE, the dataframe is filtered to show only "Suspect"
 #' characteristic-analytical method combinations; the column TADA.AnalyticalMethod.Flag
-#' is still appended. When clean = TRUE and flaggedonly = FALSE, "Invalid" rows
+#' is still appended. When clean = TRUE and flaggedonly = FALSE, "Suspect" rows
 #' are removed from the dataframe and no column will be appended.
 #'
 #' @export
@@ -35,15 +35,15 @@
 #' # Load example dataset
 #' data(Data_NCTCShepherdstown_HUC12)
 #'
-#' # Remove invalid characteristic-analytical method combinations from dataframe:
-#' InvalidMethod_clean <- TADA_FlagMethod(Data_NCTCShepherdstown_HUC12, clean = TRUE)
+#' # Remove Suspect characteristic-analytical method combinations from dataframe:
+#' SuspectMethod_clean <- TADA_FlagMethod(Data_NCTCShepherdstown_HUC12, clean = TRUE)
 #'
-#' # Flag, but do not remove, invalid characteristic-analytical method combinations
+#' # Flag, but do not remove, Suspect characteristic-analytical method combinations
 #' # in new column titled "TADA.AnalyticalMethod.Flag":
-#' InvalidMethod_flags <- TADA_FlagMethod(Data_NCTCShepherdstown_HUC12, clean = FALSE)
+#' SuspectMethod_flags <- TADA_FlagMethod(Data_NCTCShepherdstown_HUC12, clean = FALSE)
 #'
-#' # Show only invalid characteristic-analytical method combinations:
-#' InvalidMethod_flaggedonly <- TADA_FlagMethod(Data_NCTCShepherdstown_HUC12, clean = FALSE, flaggedonly = TRUE)
+#' # Show only Suspect characteristic-analytical method combinations:
+#' SuspectMethod_flaggedonly <- TADA_FlagMethod(Data_NCTCShepherdstown_HUC12, clean = FALSE, flaggedonly = TRUE)
 #'
 TADA_FlagMethod <- function(.data, clean = TRUE, flaggedonly = FALSE) {
   # check .data is data.frame
@@ -89,11 +89,11 @@ TADA_FlagMethod <- function(.data, clean = TRUE, flaggedonly = FALSE) {
   check.data["TADA.AnalyticalMethod.Flag"][is.na(check.data["TADA.AnalyticalMethod.Flag"])] <- "Not Reviewed"
 
   if (flaggedonly == FALSE) {
-    # if all rows are "Valid" or NA "Not Reviewed", return input unchanged
-    ## note: Cristina edited this on 9/19/22 to keep Not Reviewed/NA data when clean = TRUE. Now only Invalid data is removed.
-    if (any("Invalid" %in%
+    # if all rows are "Pass" or NA "Not Reviewed", return input unchanged
+    ## note: Cristina edited this on 9/19/22 to keep Not Reviewed/NA data when clean = TRUE. Now only Suspect data is removed.
+    if (any("Suspect" %in%
       unique(check.data$TADA.AnalyticalMethod.Flag)) == FALSE) {
-      print("No invalid method/characteristic combinations in your dataframe. Returning the input dataframe with TADA.AnalyticalMethod.Flag column for tracking.")
+      print("No Suspect method/characteristic combinations in your dataframe. Returning the input dataframe with TADA.AnalyticalMethod.Flag column for tracking.")
       check.data <- TADA_OrderCols(check.data)
       return(check.data)
     }
@@ -106,8 +106,8 @@ TADA_FlagMethod <- function(.data, clean = TRUE, flaggedonly = FALSE) {
 
     # clean output
     if (clean == TRUE) {
-      # filter out invalid characteristic-unit-method combinations
-      clean.data <- dplyr::filter(check.data, TADA.AnalyticalMethod.Flag != "Invalid")
+      # filter out Suspect characteristic-unit-method combinations
+      clean.data <- dplyr::filter(check.data, TADA.AnalyticalMethod.Flag != "Suspect")
 
       # remove WQX.AnalyticalMethodValidity column
       # clean.data <- dplyr::select(clean.data, -TADA.AnalyticalMethod.Flag)
@@ -118,14 +118,14 @@ TADA_FlagMethod <- function(.data, clean = TRUE, flaggedonly = FALSE) {
 
   # flagged output, errors only
   if (clean == FALSE & flaggedonly == TRUE) {
-    # filter to show only invalid characteristic-unit-method combinations
-    invalid.data <- dplyr::filter(check.data, TADA.AnalyticalMethod.Flag == "Invalid")
-    if (nrow(invalid.data) == 0) {
-      # invalid.data <- dplyr::select(invalid.data, -TADA.AnalyticalMethod.Flag)
-      print("This dataframe is empty because we did not find any invalid method/characteristic combinations in your dataframe")
+    # filter to show only Suspect characteristic-unit-method combinations
+    Suspect.data <- dplyr::filter(check.data, TADA.AnalyticalMethod.Flag == "Suspect")
+    if (nrow(Suspect.data) == 0) {
+      # Suspect.data <- dplyr::select(Suspect.data, -TADA.AnalyticalMethod.Flag)
+      print("This dataframe is empty because we did not find any Suspect method/characteristic combinations in your dataframe")
     }
-    invalid.data <- TADA_OrderCols(invalid.data)
-    return(invalid.data)
+    Suspect.data <- TADA_OrderCols(Suspect.data)
+    return(Suspect.data)
   }
 }
 
@@ -241,20 +241,21 @@ TADA_FlagContinuousData <- function(.data, clean = FALSE, flaggedonly = FALSE, t
   .data$TADA.ContinuousData.Flag <- "Discrete"
 
   # once new 3.0 profiles come out, check for zip files in ActivityFileURL and flag data that populates the DataLoggerLine
-  cont.data <- .data %>% dplyr::filter((ActivityTypeCode == "Field Msr/Obs-Continuous Time Series" | # ID cont data with new activity type code from 2023
-    grepl("Continuous", ProjectIdentifier) | # ID cont data by looking for string in project ID
-    grepl("CONTINUOUS", ProjectIdentifier) | # ID cont data by looking for string in project ID
-    (ActivityTypeCode == "Sample-Integrated Time Series" & SampleCollectionEquipmentName == "Probe/Sensor") |
-    (ActivityTypeCode == "Field Msr/Obs-Portable Data Logger" & !is.na(ResultTimeBasisText)) |
-    (ActivityTypeCode == "Field Msr/Obs-Portable Data Logger" & !is.na(StatisticalBaseCode)) |
-    (ActivityTypeCode == "Field Msr/Obs-Portable Data Logger" & ResultValueTypeName == "Calculated") |
-    (ActivityTypeCode == "Field Msr/Obs-Portable Data Logger" & ResultValueTypeName == "Estimated") |
-    # SampleCollectionEquipmentName == "Probe/Sensor" & !is.na(ActivityFileURL) |
-    # (SampleCollectionEquipmentName == "Probe/Sensor" & !is.na(DataLoggerLine)) |
-    (SampleCollectionEquipmentName == "Probe/Sensor" & !is.na(ResultTimeBasisText)) |
-    (SampleCollectionEquipmentName == "Probe/Sensor" & !is.na(StatisticalBaseCode)) |
-    (SampleCollectionEquipmentName == "Probe/Sensor" & ResultValueTypeName == "Calculated") |
-    (SampleCollectionEquipmentName == "Probe/Sensor" & ResultValueTypeName == "Estimated"))) %>%
+  cont.data <- .data %>%
+    dplyr::filter((ActivityTypeCode == "Field Msr/Obs-Continuous Time Series" | # ID cont data with new activity type code from 2023
+      grepl("Continuous", ProjectIdentifier) | # ID cont data by looking for string in project ID
+      grepl("CONTINUOUS", ProjectIdentifier) | # ID cont data by looking for string in project ID
+      (ActivityTypeCode == "Sample-Integrated Time Series" & SampleCollectionEquipmentName == "Probe/Sensor") |
+      (ActivityTypeCode == "Field Msr/Obs-Portable Data Logger" & !is.na(ResultTimeBasisText)) |
+      (ActivityTypeCode == "Field Msr/Obs-Portable Data Logger" & !is.na(StatisticalBaseCode)) |
+      (ActivityTypeCode == "Field Msr/Obs-Portable Data Logger" & ResultValueTypeName == "Calculated") |
+      (ActivityTypeCode == "Field Msr/Obs-Portable Data Logger" & ResultValueTypeName == "Estimated") |
+      # SampleCollectionEquipmentName == "Probe/Sensor" & !is.na(ActivityFileURL) |
+      # (SampleCollectionEquipmentName == "Probe/Sensor" & !is.na(DataLoggerLine)) |
+      (SampleCollectionEquipmentName == "Probe/Sensor" & !is.na(ResultTimeBasisText)) |
+      (SampleCollectionEquipmentName == "Probe/Sensor" & !is.na(StatisticalBaseCode)) |
+      (SampleCollectionEquipmentName == "Probe/Sensor" & ResultValueTypeName == "Calculated") |
+      (SampleCollectionEquipmentName == "Probe/Sensor" & ResultValueTypeName == "Estimated"))) %>%
     dplyr::mutate(TADA.ContinuousData.Flag = "Continuous")
 
   # everything not YET in cont dataframe
@@ -313,7 +314,7 @@ TADA_FlagContinuousData <- function(.data, clean = FALSE, flaggedonly = FALSE, t
 
   # clean output
   if (clean == TRUE & flaggedonly == FALSE) {
-    # filter out invalid characteristic-unit-media combinations
+    # filter out Suspect characteristic-unit-media combinations
     clean.data <- flag.data %>%
       dplyr::filter(!(TADA.ContinuousData.Flag %in% "Continuous")) %>%
       dplyr::select(-TADA.ContinuousData.Flag) %>%
@@ -324,7 +325,7 @@ TADA_FlagContinuousData <- function(.data, clean = FALSE, flaggedonly = FALSE, t
 
   # flagged output, only aggregated continuous data
   if (clean == FALSE & flaggedonly == TRUE) {
-    # filter to show only invalid characteristic-unit-media combinations
+    # filter to show only Suspect characteristic-unit-media combinations
 
     onlycont.data <- flag.data %>%
       dplyr::filter(TADA.ContinuousData.Flag == "Continuous") %>%
@@ -389,7 +390,7 @@ TADA_FlagContinuousData <- function(.data, clean = FALSE, flaggedonly = FALSE, t
 #' threshold from the dataframe when clean = TRUE. Default is clean = FALSE.
 #' @param flaggedonly Boolean argument; filters dataframe to show only the data
 #' flagged as above the upper WQX threshold. Default is flaggedonly = FALSE.
-#' @return The input TADA dataset with the added "TADA.ResultAboveUpperThreshold.Flag"
+#' @return The input TADA dataset with the added "TADA.ResultValueAboveUpperThreshold.Flag"
 #' column which is populated with the values: "Pass", "Suspect", "Not Reviewed", or
 #' "NA - Not Available". Defaults are clean = FALSE and flaggedonly = FALSE.
 #' When clean = FALSE and flaggedonly = TRUE, the dataframe
@@ -449,6 +450,7 @@ TADA_FlagAboveThreshold <- function(.data, clean = FALSE, flaggedonly = FALSE) {
   # Instead, we generate a validation flag later in this function
   load(file = "inst/extdata/WQXcharValRef.rda")
   unit.ref <- dplyr::filter(WQXcharValRef, Type == "CharacteristicUnit")
+  unit.ref <- dplyr::filter(WQXcharValRef, Status == "Accepted")
 
   # update ref table names to prepare for left join with df
   names(unit.ref)[names(unit.ref) == "Characteristic"] <- "TADA.CharacteristicName"
@@ -475,16 +477,16 @@ TADA_FlagAboveThreshold <- function(.data, clean = FALSE, flaggedonly = FALSE) {
       "TADA.ActivityMediaName",
       "TADA.ResultMeasure.MeasureUnitCode"
     ),
-    multiple = "any", # this should be "all" but the validation table has issues
-    relationship = "many-to-many" # this should be "one-to-one" but the validation table has issues
+    multiple = "all",
+    relationship = "many-to-one"
   )
 
   # Create flag column, flag rows where ResultMeasureValue > Maximum
   flag.data <- check.data %>%
     # create flag column
     dplyr::mutate(TADA.ResultValueAboveUpperThreshold.Flag = dplyr::case_when(
-      TADA.ResultMeasureValue >= Maximum ~ as.character("Suspect"),
-      TADA.ResultMeasureValue < Maximum ~ as.character("Pass"),
+      TADA.ResultMeasureValue > Maximum ~ as.character("Suspect"),
+      TADA.ResultMeasureValue <= Maximum ~ as.character("Pass"),
       is.na(Maximum) ~ as.character("Not Reviewed"), # in QAQC table, but not yet reviewed
       TRUE ~ as.character("NA - Not Available") # this occurs when the char/unit/media combo is not in the WQX QAQC table at all. USGS data may not be in QAQC table because it does not adhere to the WQX domain tables.
     ))
@@ -631,6 +633,7 @@ TADA_FlagBelowThreshold <- function(.data, clean = FALSE, flaggedonly = FALSE) {
   # Instead, we generate a validation flag later in this function
   load(file = "inst/extdata/WQXcharValRef.rda")
   unit.ref <- dplyr::filter(WQXcharValRef, Type == "CharacteristicUnit")
+  unit.ref <- dplyr::filter(WQXcharValRef, Status == "Accepted")
 
   # update ref table names to prepare for left join with df
   names(unit.ref)[names(unit.ref) == "Characteristic"] <- "TADA.CharacteristicName"
@@ -658,8 +661,8 @@ TADA_FlagBelowThreshold <- function(.data, clean = FALSE, flaggedonly = FALSE) {
       "TADA.ActivityMediaName",
       "TADA.ResultMeasure.MeasureUnitCode"
     ),
-    multiple = "any", # this should be "all" but the validation table has issues
-    relationship = "many-to-many" # this should be "one-to-one" but the validation table has issues
+    multiple = "all",
+    relationship = "many-to-one"
   )
 
   # Create flag column, flag rows where TADA.ResultMeasureValue < Minimum
@@ -972,11 +975,11 @@ TADA_FindQAPPDoc <- function(.data, clean = FALSE) {
 
 
 
-#' Invalid coordinates
+#' Suspect coordinates
 #'
-#' This function identifies and flags invalid coordinate data. When
+#' This function identifies and flags Suspect coordinate data. When
 #' clean_outsideUSA = "no" and clean_imprecise = FALSE,
-#' a column will be appended titled "TADA.InvalidCoordinates.Flag" with the following
+#' a column will be appended titled "TADA.SuspectCoordinates.Flag" with the following
 #' flags: 1) If the latitude is less than zero, the row will be
 #' flagged with "LAT_OutsideUSA" (with the exception of American Samoa,
 #' Northern Mariana Islands, and Guam), 2) If the longitude is greater than zero AND less than 145,
@@ -984,7 +987,7 @@ TADA_FindQAPPDoc <- function(.data, clean = FALSE) {
 #' American Samoa, Northern Mariana Islands, and Guam), and 3) Finally,
 #' precision can be measured by the number of decimal places in the latitude and longitude
 #' provided. If either the latitude or longitude does not have at least three numbers to the
-#' right of the decimal point, the row will be flagged as "Imprecise". Occasionally
+#' right of the decimal point, the row will be flagged as "Imprecise_lessthan3decimaldigits". Occasionally
 #' latitude and longitude measurements are flagged as outside of the United States
 #' because the data was entered as negative when it should be positive or vice versa.
 #' This function offers the option of clean_outsideUSA = "change sign" to fix this
@@ -1002,12 +1005,12 @@ TADA_FindQAPPDoc <- function(.data, clean = FALSE) {
 #' @param flaggedonly Boolean argument; Return only flagged data when flaggedonly = TRUE;
 #' default is flaggedonly = FALSE.
 #'
-#' @return Returns input TADA dataset with the added "TADA.InvalidCoordinates.Flag" column.
+#' @return Returns input TADA dataset with the added "TADA.SuspectCoordinates.Flag" column.
 #' When clean_outsideUSA is "no", "change sign", or clean_imprecise argument is FALSE,
 #' a column flagging rows with the respective QA check is appended to the input
 #' dataframe. When clean_outsideUSA is "remove" or clean_imprecise is TRUE,
-#' "invalid" or "imprecise" data is removed, respectively. When flaggedonly is TRUE,
-#' the dataframe will be filtered to show only the data flagged as invalid, imprecise,
+#' "Suspect" or "imprecise" data is removed, respectively. When flaggedonly is TRUE,
+#' the dataframe will be filtered to show only the data flagged as Suspect, imprecise,
 #' or out of the United States. Defaults are clean_outsideUSA = "no",
 #' clean_imprecise = FALSE, and flaggedonly = FALSE.
 #'
@@ -1017,15 +1020,15 @@ TADA_FindQAPPDoc <- function(.data, clean = FALSE) {
 #' # Load example dataset:
 #' data(Data_Nutrients_UT)
 #'
-#' # Flag, but do not remove, data with invalid coordinates in new column
-#' # titled "TADA.InvalidCoordinates.Flag":
+#' # Flag, but do not remove, data with Suspect coordinates in new column
+#' # titled "TADA.SuspectCoordinates.Flag":
 #' # Return ALL data:
-#' InvalidCoord_flags <- TADA_FlagCoordinates(Data_Nutrients_UT)
+#' SuspectCoord_flags <- TADA_FlagCoordinates(Data_Nutrients_UT)
 #'
-#' # Flag, but do not remove, data with invalid coordinates in new column
-#' # titled "TADA.InvalidCoordinates.Flag"
+#' # Flag, but do not remove, data with Suspect coordinates in new column
+#' # titled "TADA.SuspectCoordinates.Flag"
 #' # Return ONLY the flagged data:
-#' InvalidCoord_flags_flaggedonly <- TADA_FlagCoordinates(Data_Nutrients_UT, flaggedonly = TRUE)
+#' SuspectCoord_flags_flaggedonly <- TADA_FlagCoordinates(Data_Nutrients_UT, flaggedonly = TRUE)
 #'
 #' # Remove data with coordinates outside the USA, but keep flagged data with
 #' # imprecise coordinates:
@@ -1041,7 +1044,7 @@ TADA_FindQAPPDoc <- function(.data, clean = FALSE) {
 #' ImpreciseCoord_removed <- TADA_FlagCoordinates(Data_Nutrients_UT, clean_imprecise = TRUE)
 #'
 #' # Remove data with imprecise coordinates or coordinates outside the USA from the dataframe:
-#' InvalidCoord_removed <- TADA_FlagCoordinates(Data_Nutrients_UT, clean_outsideUSA = "remove", clean_imprecise = TRUE)
+#' SuspectCoord_removed <- TADA_FlagCoordinates(Data_Nutrients_UT, clean_outsideUSA = "remove", clean_imprecise = TRUE)
 #'
 TADA_FlagCoordinates <- function(.data,
                                  clean_outsideUSA = c("no", "remove", "change sign"),
@@ -1070,7 +1073,7 @@ TADA_FlagCoordinates <- function(.data,
 
   # execute function after checks are passed
   .data <- .data %>%
-    dplyr::mutate(TADA.InvalidCoordinates.Flag = dplyr::case_when(
+    dplyr::mutate(TADA.SuspectCoordinates.Flag = dplyr::case_when(
       TADA.LatitudeMeasure < -11.046934 & TADA.LatitudeMeasure > -14.548699 & TADA.LongitudeMeasure < -168.1433 & TADA.LongitudeMeasure > -171.089874 ~ NA_character_, # American Samoa
       TADA.LatitudeMeasure < 20.553802 & TADA.LatitudeMeasure > 14.110472 & TADA.LongitudeMeasure < 146.064818 & TADA.LongitudeMeasure > 144.886331 ~ NA_character_, # Northern Mariana Islands
       TADA.LatitudeMeasure < 13.654383 & TADA.LatitudeMeasure > 13.234189 & TADA.LongitudeMeasure < 144.956712 & TADA.LongitudeMeasure > 144.618068 ~ NA_character_, # Guam
@@ -1084,13 +1087,13 @@ TADA_FlagCoordinates <- function(.data,
     ))
 
   # Fill in flag for coordinates that appear OK/PASS tests
-  .data$TADA.InvalidCoordinates.Flag[is.na(.data$TADA.InvalidCoordinates.Flag)] <- "OK"
+  .data$TADA.SuspectCoordinates.Flag[is.na(.data$TADA.SuspectCoordinates.Flag)] <- "Pass"
 
   # if clean_imprecise is TRUE, remove imprecise station metadata
   if (clean_imprecise == TRUE) {
     .data <- dplyr::filter(
       .data,
-      !TADA.InvalidCoordinates.Flag %in% "Imprecise_lessthan3decimaldigits"
+      !TADA.SuspectCoordinates.Flag %in% "Imprecise_lessthan3decimaldigits"
     )
   }
 
@@ -1098,21 +1101,21 @@ TADA_FlagCoordinates <- function(.data,
   if (clean_outsideUSA == "remove") {
     .data <- dplyr::filter(
       .data,
-      !TADA.InvalidCoordinates.Flag %in% c("LAT_OutsideUSA", "LONG_OutsideUSA")
+      !TADA.SuspectCoordinates.Flag %in% c("LAT_OutsideUSA", "LONG_OutsideUSA")
     )
   }
 
   # if clean_outsideUSA is "change sign", change the sign of lat/long coordinates outside of USA
   if (clean_outsideUSA == "change sign") {
-    print("When clean_outsideUSA == change sign, the sign for any lat/long coordinates flagged as outside of USA are switched. This is a temporary solution. Data owners should fix the raw data to address invalid coordinates through WQX. For assistance fixing data errors you see in the WQP, email the WQX helpdesk (WQX@epa.gov).")
+    print("When clean_outsideUSA == change sign, the sign for any lat/long coordinates flagged as outside of USA are switched. This is a temporary solution. Data owners should fix the raw data to address Suspect coordinates through WQX. For assistance fixing data errors you see in the WQP, email the WQX helpdesk (WQX@epa.gov).")
     .data <- .data %>%
       dplyr::mutate(
         TADA.LatitudeMeasure = dplyr::case_when(
-          TADA.InvalidCoordinates.Flag == "LAT_OutsideUSA" ~ TADA.LatitudeMeasure * (-1),
+          TADA.SuspectCoordinates.Flag == "LAT_OutsideUSA" ~ TADA.LatitudeMeasure * (-1),
           TRUE ~ TADA.LatitudeMeasure
         ),
         TADA.LongitudeMeasure = dplyr::case_when(
-          TADA.InvalidCoordinates.Flag == "LONG_OutsideUSA" ~ TADA.LongitudeMeasure * (-1),
+          TADA.SuspectCoordinates.Flag == "LONG_OutsideUSA" ~ TADA.LongitudeMeasure * (-1),
           TRUE ~ TADA.LongitudeMeasure
         )
       )
@@ -1120,14 +1123,14 @@ TADA_FlagCoordinates <- function(.data,
 
   # return only flagged data if flaggedonly = true
   if ((flaggedonly == TRUE)) {
-    .data <- dplyr::filter(.data, !TADA.InvalidCoordinates.Flag %in% c("OK"))
+    .data <- dplyr::filter(.data, !TADA.SuspectCoordinates.Flag %in% c("OK"))
   }
 
-  if (all(.data$TADA.InvalidCoordinates.Flag %in% c("OK")) == TRUE) {
+  if (all(.data$TADA.SuspectCoordinates.Flag %in% c("OK")) == TRUE) {
     if (orig_dim == dim(.data)[1]) {
-      print("Your dataframe does not contain monitoring stations with invalid coordinates. Returning input dataframe with TADA.InvalidCoordinates.Flag column for tracking.")
+      print("Your dataframe does not contain monitoring stations with Suspect coordinates. Returning input dataframe with TADA.SuspectCoordinates.Flag column for tracking.")
     } else {
-      print("All invalid coordinates were removed. Returning input dataframe with TADA.InvalidCoordinates.Flag column for tracking.")
+      print("All Suspect coordinates were removed. Returning input dataframe with TADA.SuspectCoordinates.Flag column for tracking.")
     }
   }
   .data <- TADA_OrderCols(.data)
@@ -1275,14 +1278,16 @@ TADA_FindPotentialDuplicatesMultipleOrgs <- function(.data, dist_buffer = 100, o
 
     # connect back to original dataset
     .data <- .data %>%
-      dplyr::mutate( 
-        TADA.MonitoringLocationIdentifier = ifelse(TADA.MonitoringLocationIdentifier %in% NA, "NA", TADA.MonitoringLocationIdentifier)) %>%
+      dplyr::mutate(
+        TADA.MonitoringLocationIdentifier = ifelse(TADA.MonitoringLocationIdentifier %in% NA, "NA", TADA.MonitoringLocationIdentifier)
+      ) %>%
       dplyr::full_join(dupsdat, by = c(names(.data))) %>%
       dplyr::mutate(
         TADA.MultipleOrgDuplicate = ifelse(is.na(TADA.MultipleOrgDuplicate), "N", TADA.MultipleOrgDuplicate),
         TADA.ResultSelectedMultipleOrgs = ifelse(is.na(TADA.ResultSelectedMultipleOrgs), "Y", TADA.ResultSelectedMultipleOrgs),
-        TADA.MultipleOrgDupGroupID = ifelse(is.na(TADA.MultipleOrgDupGroupID), "Not a duplicate", TADA.MultipleOrgDupGroupID)) %>%
-      dplyr::mutate( 
+        TADA.MultipleOrgDupGroupID = ifelse(is.na(TADA.MultipleOrgDupGroupID), "Not a duplicate", TADA.MultipleOrgDupGroupID)
+      ) %>%
+      dplyr::mutate(
         TADA.MonitoringLocationIdentifier = ifelse(TADA.MonitoringLocationIdentifier %in% "NA", "NA - Not Available", TADA.MonitoringLocationIdentifier)
       )
 

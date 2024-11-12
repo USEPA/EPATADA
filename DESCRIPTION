@@ -10,21 +10,24 @@ Authors@R:
            role = c("aut", "cre"),
            email = "mullin.cristina@epa.gov",
            comment = c(ORCID = "0000-0002-0615-6087")),
-    person(given = "Jacob",
-           family = "Greif",
-           role = "aut"),
     person(given = "Hillary",
            family = "Marler",
+           role = "aut"),
+    person(given = "Jacob",
+           family = "Greif",
            role = "aut"),
     person(given = "Elise",
            family = "Hinman",
            role = "aut"), 
-    person(given = "Kathryn", 
-           family = "Willi",
-           role = "ctb"),
     person(given = "Kathleen",
            family = "Healy",
            role = "ctb"), 
+    person(given = "Kenny", 
+           family = "Wong",
+           role = "ctb"),
+    person(given = "Kathryn", 
+           family = "Willi",
+           role = "ctb"),
     person(given = "Justin", 
            family = "Bousquin",
            role = "ctb"),
@@ -65,10 +68,14 @@ Imports:
     urltools,
     geojsonsf,
     tibble,
-    rlang
+    rlang,
+    nhdplusTools,
+    arcgislayers,
+    httr,
+    jsonlite
 Depends: 
     R (>= 3.5.0)
-Suggests: 
+Suggests:
     lwgeom,
     DT,
     RColorBrewer,
@@ -83,7 +90,6 @@ Suggests:
     pkgdown,
     spelling,
     htmltools,
-    remotes,
     yaml
 VignetteBuilder: knitr, rmarkdown
 Language: en-US

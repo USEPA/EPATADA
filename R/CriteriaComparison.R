@@ -40,10 +40,9 @@
 #'
 TADA_CreatePairRef <- function(.data, ph = TRUE, hardness = TRUE, temp = TRUE,
                                chloride = TRUE, salinity = TRUE, other_char = "null") {
-  
   # create data frame to store pair refs
   pair.ref <- data.frame(matrix(ncol = 6, nrow = 0))
-  
+
   # name columns in pair.ref df
   colnames(pair.ref) <- c(
     "TADA.CharacteristicName", "TADA.ResultMeasure.MeasureUnitCode",
@@ -66,7 +65,8 @@ TADA_CreatePairRef <- function(.data, ph = TRUE, hardness = TRUE, temp = TRUE,
       dplyr::select(
         TADA.CharacteristicName, TADA.ResultMeasure.MeasureUnitCode,
         TADA.MethodSpeciationName, TADA.ResultSampleFractionText,
-        NCount) %>%
+        NCount
+      ) %>%
       # retain only distinct rows
       dplyr::distinct() %>%
       # arrange from largest to smallest number of results
@@ -79,7 +79,6 @@ TADA_CreatePairRef <- function(.data, ph = TRUE, hardness = TRUE, temp = TRUE,
 
 
   if (hardness == TRUE) {
-    
     # create character reference from WQX characteristics containing "HARDNESS" in name
     char.ref <- TADA_GetCharacteristicRef() %>%
       dplyr::mutate(CharacteristicName = toupper(CharacteristicName)) %>%
@@ -99,7 +98,6 @@ TADA_CreatePairRef <- function(.data, ph = TRUE, hardness = TRUE, temp = TRUE,
   }
 
   if (ph == TRUE) {
-    
     # filter TADA df for pH results
     ph.ref <- .data %>%
       dplyr::filter(TADA.CharacteristicName == "PH") %>%
@@ -114,7 +112,6 @@ TADA_CreatePairRef <- function(.data, ph = TRUE, hardness = TRUE, temp = TRUE,
   }
 
   if (temp == TRUE) {
-    
     # filter TADA df for temperature results
     temp.ref <- .data %>%
       dplyr::filter(TADA.CharacteristicName %in% c("TEMPERATURE", "TEMPERATURE, WATER")) %>%
@@ -129,7 +126,6 @@ TADA_CreatePairRef <- function(.data, ph = TRUE, hardness = TRUE, temp = TRUE,
   }
 
   if (salinity == TRUE) {
-    
     # filter TADA df for salinity results
     salinity.ref <- .data %>%
       dplyr::filter(TADA.CharacteristicName %in% c("SALINITY")) %>%
@@ -145,7 +141,6 @@ TADA_CreatePairRef <- function(.data, ph = TRUE, hardness = TRUE, temp = TRUE,
 
 
   if (chloride == TRUE) {
-    
     # filter TADA df for chloride results
     chloride.ref <- .data %>%
       dplyr::filter(TADA.CharacteristicName %in% c("CHLORIDE")) %>%
@@ -155,7 +150,7 @@ TADA_CreatePairRef <- function(.data, ph = TRUE, hardness = TRUE, temp = TRUE,
     # add chloride to pair.ref
     pair.ref <- rbind(pair.ref, chloride.ref)
 
-    #remove intermediate object
+    # remove intermediate object
     rm(chloride.ref)
   }
 
@@ -199,7 +194,7 @@ TADA_CreatePairRef <- function(.data, ph = TRUE, hardness = TRUE, temp = TRUE,
 #' @param .data TADA dataframe
 #'
 #' @param ref Write description of what columns need to be in this ref or null option
-#' 
+#'
 #' @param hours_range Numeric argument. The time difference allowed between the paired characteristic
 #' and the result.
 #
