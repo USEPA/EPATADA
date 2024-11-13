@@ -56,7 +56,7 @@ First, install and load the remotes package specifying the repo. This is
 needed before installing TADA because it is only available on GitHub
 (not CRAN).
 
-```{r install_remotes, results = 'hide', eval = F}
+```{r install_remotes, results = 'hide'}
 install.packages("remotes",
   repos = "http://cran.us.r-project.org"
 )
@@ -71,10 +71,18 @@ GitHub (un-comment).
 
 ```{r install_TADA, eval = F, results = 'hide'}
 remotes::install_github("USEPA/EPATADA",
-  ref = "file_storage",
+  ref = "develop",
   dependencies = TRUE
 )
 # remotes::install_github("USGS-R/dataRetrieval", dependencies=TRUE)
+```
+
+```{r install_TADA_dev, include = F}
+# USE THIS SECTION FOR TADA DEVELOPMENT
+remotes::install_github("USEPA/EPATADA",
+  ref = "file_storage",
+  dependencies = TRUE
+)
 ```
 
 Finally, use the **library()** function to load the TADA R Package into
