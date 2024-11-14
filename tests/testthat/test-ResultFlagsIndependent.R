@@ -122,14 +122,12 @@ test_that("TADA_FindPotentialDuplicatsMultipleOrgs has non-NA values for each ro
   expect_false(any(is.na(testdat$TADA.ResultSelectedMultipleOrgs)))
 })
 
-test_that("WQXcharValRef.csv contains only one row for each unique characteristic/source/unit combination for threshold functions", {
+test_that("WQXcharValRef.rda contains only one row for each unique characteristic/source/unit combination for threshold functions", {
 
-  unit.ref <- utils::read.csv(system.file("extdata", "WQXcharValRef.csv", package = "EPATADA")) %>%
-  dplyr::filter(
-    Type == "CharacteristicUnit",
-    Status == "Accepted"
-  )
-  
+  load(file = "inst/extdata/WQXcharValRef.rda")
+  unit.ref <- dplyr::filter(WQXcharValRef, Type == "CharacteristicUnit",
+                            Status == "Accepted")
+
   find.dups <- unit.ref %>%
     dplyr::filter(Type == "CharacteristicUnit") %>%
     dplyr::group_by(Characteristic, Source, Value.Unit) %>%
@@ -140,6 +138,7 @@ test_that("WQXcharValRef.csv contains only one row for each unique characteristi
   
   expect_true(nrow(find.dups) == 0)
   })
+
 
 test_that("range flag functions work", {
   # use random data

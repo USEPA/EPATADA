@@ -298,14 +298,12 @@ TADA_UpdateExampleData <- function() {
 # # Replace the broken links with functional ones or remove if no acceptable substitute is available.
 # # Rerun code above to verify that df_false contains zero rows.
 
-# # Find Characteristic/Source/Value.Unit Combinations in "WQXcharValRef.csv" with more than one row
-
+# # Find Characteristic/Source/Value.Unit Combinations in "WQXcharValRef.rda" with more than one row
+# 
 # # open unit.ref
-# unit.ref <- utils::read.csv(system.file("extdata", "WQXcharValRef.csv", package = "EPATADA")) %>%
-#   dplyr::filter(
-#     Type == "CharacteristicUnit",
-#     Status == "Accepted"
-#   )
+# load(file = "inst/extdata/WQXcharValRef.rda")
+# unit.ref <- dplyr::filter(WQXcharValRef, Type == "CharacteristicUnit",
+#                           Status == "Accepted")
 # 
 # # find Characteristic/Source/Value.Unit combinations with more than one row
 # find.dups <- unit.ref %>%
@@ -321,8 +319,5 @@ TADA_UpdateExampleData <- function() {
 # 
 # # create csv to send to WQX team and save in test results folder
 # readr::write_csv(find.dups, download.path)
-#
+# 
 # # review csv and send to WQX team to update the validation table
-#
-
-
