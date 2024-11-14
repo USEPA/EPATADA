@@ -314,10 +314,13 @@ TADA_UpdateExampleData <- function() {
 #   dplyr::filter(Min_n > 1 |
 #                   Max_n > 1)
 # 
+# # create download path
+# download.path <- file.path(Sys.getenv("USERPROFILE"), "Downloads", "WQXcharValRef_multiples.csv")
+# 
 # # create csv to send to WQX team and save in test results folder
-# readr::write_csv(find.dups, "tests/testthat/testresults/WQXcharValRef_multiples.csv")
-# 
+# readr::write_csv(find.dups, download.path)
+#
 # # review csv and send to WQX team to update the validation table
-# 
+#
 
 
