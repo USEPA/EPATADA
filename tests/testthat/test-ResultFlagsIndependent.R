@@ -140,3 +140,19 @@ test_that("WQXcharValRef.csv contains only one row for each unique characteristi
   
   expect_true(nrow(find.dups) == 0)
   })
+
+test_that("range flag functions work", {
+  # use random data
+  upper <- TADA_RandomTestingData()
+  
+  expect_no_error(TADA_FlagAboveThreshold(upper))
+  expect_no_warning(TADA_FlagAboveThreshold(upper)) 
+  expect_no_message(TADA_FlagAboveThreshold(upper))
+  expect_no_condition(TADA_FlagAboveThreshold(upper))
+  
+  expect_no_error(TADA_FlagBelowThreshold(upper))
+  expect_no_warning(TADA_FlagBelowThreshold(upper)) 
+  expect_no_message(TADA_FlagBelowThreshold(upper))
+  expect_no_condition(TADA_FlagBelowThreshold(upper))
+  
+})
