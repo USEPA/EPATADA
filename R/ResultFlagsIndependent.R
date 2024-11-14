@@ -480,7 +480,7 @@ TADA_FlagAboveThreshold <- function(.data, clean = FALSE, flaggedonly = FALSE) {
       "TADA.ResultMeasure.MeasureUnitCode"
     ),
     multiple = "all",
-    relationship = "many-to-many"
+    relationship = "many-to-one"
   )
 
   # Create flag column, flag rows where ResultMeasureValue > Maximum
@@ -666,7 +666,7 @@ TADA_FlagBelowThreshold <- function(.data, clean = FALSE, flaggedonly = FALSE) {
       "TADA.ResultMeasure.MeasureUnitCode"
     ),
     multiple = "all",
-    relationship = "many-to-many"
+    relationship = "many-to-one"
   )
 
   # Create flag column, flag rows where TADA.ResultMeasureValue < Minimum
