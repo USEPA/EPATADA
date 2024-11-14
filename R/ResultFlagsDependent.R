@@ -61,8 +61,8 @@ TADA_FlagFraction <- function(.data, clean = TRUE, flaggedonly = FALSE) {
     .data <- dplyr::select(.data, -TADA.SampleFraction.Flag)
   }
   # read in sample fraction reference table from extdata and filter
-  frac.ref <- utils::read.csv(system.file("extdata", "WQXcharValRef.csv", package = "EPATADA")) %>%
-    dplyr::filter(Type == "CharacteristicFraction")
+  load(file = "inst/extdata/WQXcharValRef.rda")
+  frac.ref <- dplyr::filter(WQXcharValRef, Type == "CharacteristicFraction")
 
   # join "TADA.WQXVal.Flag" column to .data by CharacteristicName and Value (SampleFraction)
   check.data <- merge(.data, frac.ref[, c("Characteristic", "TADA.WQXVal.Flag", "Value")],
@@ -204,8 +204,8 @@ TADA_FlagSpeciation <- function(.data, clean = c("suspect_only", "nonstandardize
   }
 
   # read in speciation reference table from extdata and filter
-  spec.ref <- utils::read.csv(system.file("extdata", "WQXcharValRef.csv", package = "EPATADA")) %>%
-    dplyr::filter(Type == "CharacteristicSpeciation")
+  load(file = "inst/extdata/WQXcharValRef.rda")
+  spec.ref <- dplyr::filter(WQXcharValRef, Type == "CharacteristicSpeciation")
 
   # join "TADA.WQXVal.Flag" column to .data by CharacteristicName and Value (Speciation)
   check.data <- merge(.data, spec.ref[, c("Characteristic", "TADA.WQXVal.Flag", "Value")],
@@ -393,8 +393,8 @@ TADA_FlagResultUnit <- function(.data, clean = c("suspect_only", "nonstandardize
   }
 
   # read in unit reference table from extdata and filter
-  unit.ref <- utils::read.csv(system.file("extdata", "WQXcharValRef.csv", package = "EPATADA")) %>%
-    dplyr::filter(Type == "CharacteristicUnit")
+  load(file = "inst/extdata/WQXcharValRef.rda")
+  unit.ref <- dplyr::filter(WQXcharValRef, Type == "CharacteristicUnit")
 
   # join "TADA.WQXVal.Flag" column to .data by CharacteristicName, Source (Media), and Value (unit)
   check.data <- merge(.data, unit.ref[, c("Characteristic", "Source", "TADA.WQXVal.Flag", "Value")],

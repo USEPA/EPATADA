@@ -40,7 +40,7 @@ TADA_GetWQXCharValRef <- function() {
   if (is.null(raw.data)) {
     message("Downloading latest Validation Reference Table failed!")
     message("Falling back to (possibly outdated) internal file.")
-    return(utils::read.csv(system.file("extdata", "WQXcharValRef.csv", package = "EPATADA")))
+    return(load(file = "inst/extdata/WQXcharValRef.rda"))
   }
 
   # Categorize status values
@@ -70,14 +70,20 @@ TADA_GetWQXCharValRef <- function() {
   # Save updated table in cache
   WQXCharValRef_Cached <- WQXcharValRef
 
-  WQXcharValRef
+  return(WQXcharValRef)
 }
 
 # Update Characteristic Validation Reference Table internal file
 # (for internal use only)
 
 TADA_UpdateWQXCharValRef <- function() {
-  utils::write.csv(TADA_GetWQXCharValRef(), file = "inst/extdata/WQXcharValRef.csv", row.names = FALSE)
+  WQXcharValRef <- TADA_GetWQXCharValRef()
+  save(WQXcharValRef,
+    file = "inst/extdata/WQXcharValRef.rda",
+    ascii = FALSE,
+    compress = "xz",
+    version = 3
+  )
 }
 
 

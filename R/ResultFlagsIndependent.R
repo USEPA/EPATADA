@@ -69,8 +69,8 @@ TADA_FlagMethod <- function(.data, clean = TRUE, flaggedonly = FALSE) {
     .data <- dplyr::select(.data, -TADA.AnalyticalMethod.Flag)
   }
   # read in WQX val reference table and filter
-  meth.ref <- utils::read.csv(system.file("extdata", "WQXcharValRef.csv", package = "EPATADA")) %>%
-    dplyr::filter(Type == "CharacteristicMethod")
+  load(file = "inst/extdata/WQXcharValRef.rda")
+  meth.ref <- dplyr::filter(WQXcharValRef, Type == "CharacteristicMethod")
 
   # join "TADA.WQXVal.Flag" column to .data by CharacteristicName, Source (Media), and Value (unit)
   check.data <- merge(.data, meth.ref[, c("Characteristic", "Source", "Value", "TADA.WQXVal.Flag")],
@@ -448,11 +448,9 @@ TADA_FlagAboveThreshold <- function(.data, clean = FALSE, flaggedonly = FALSE) {
   # get WQXcharVal.ref and filter to include only CharacteristicUnit.
   # Note that status is not applicable to ranges.
   # Instead, we generate a validation flag later in this function
-  unit.ref <- utils::read.csv(system.file("extdata", "WQXcharValRef.csv", package = "EPATADA")) %>%
-    dplyr::filter(
-      Type == "CharacteristicUnit",
-      Status == "Accepted"
-    )
+  load(file = "inst/extdata/WQXcharValRef.rda")
+  unit.ref <- dplyr::filter(WQXcharValRef, Type == "CharacteristicUnit")
+  unit.ref <- dplyr::filter(WQXcharValRef, Status == "Accepted")
 
   # update ref table names to prepare for left join with df
   names(unit.ref)[names(unit.ref) == "Characteristic"] <- "TADA.CharacteristicName"
@@ -633,11 +631,9 @@ TADA_FlagBelowThreshold <- function(.data, clean = FALSE, flaggedonly = FALSE) {
   # get WQXcharVal.ref and filter to include only CharacteristicUnit
   # Note that status is not applicable to ranges.
   # Instead, we generate a validation flag later in this function
-  unit.ref <- utils::read.csv(system.file("extdata", "WQXcharValRef.csv", package = "EPATADA")) %>%
-    dplyr::filter(
-      Type == "CharacteristicUnit",
-      Status == "Accepted"
-    )
+  load(file = "inst/extdata/WQXcharValRef.rda")
+  unit.ref <- dplyr::filter(WQXcharValRef, Type == "CharacteristicUnit")
+  unit.ref <- dplyr::filter(WQXcharValRef, Status == "Accepted")
 
   # update ref table names to prepare for left join with df
   names(unit.ref)[names(unit.ref) == "Characteristic"] <- "TADA.CharacteristicName"
