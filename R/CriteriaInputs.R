@@ -285,7 +285,7 @@ TADA_CreateParamRef <- function(.data, ParamRef = NULL, validate = FALSE, excel 
       dplyr::left_join(ATTAINS_param, by = c("ATTAINS.ParameterName" = "parameters.parameter_name")) %>%
       dplyr::mutate(TADA.FlagATTAINS.Param = case_when(
         is.na(organization_name) & is.na(ATTAINS.ParameterName) ~ "Suspect: No parameter crosswalk provided. Parameter will not be used for assessment",
-        is.na(organization_name) & !is.na(ATTAINS.ParameterName) ~ "Suspect: parameter not listed as a prior cause for your organization",
+        is.na(organization_name) & !is.na(ATTAINS.ParameterName) ~ "Suspect: parameter not listed as a prior cause for this organization",
         !is.na(organization_name) & !is.na(ATTAINS.ParameterName) ~ "Pass: parameter is listed as prior cause in ATTAINS")
       ) %>%
       select(TADA.CharacteristicName, TADA.MethodSpeciationName, TADA.ResultSampleFractionText,	ATTAINS.ParameterName, organization_name,	ATTAINS.FlagParameterName)
@@ -304,7 +304,7 @@ TADA_CreateParamRef <- function(.data, ParamRef = NULL, validate = FALSE, excel 
       dplyr::left_join(ATTAINS_param, by = c("ATTAINS.ParameterName" = "parameters.parameter_name")) %>%
       dplyr::mutate(TADA.FlagATTAINS.Param = case_when(
         is.na(organization_name.y) & is.na(ATTAINS.ParameterName) ~ "Suspect: No parameter crosswalk provided. Parameter will not be used for assessment",
-        is.na(organization_name.y) & !is.na(ATTAINS.ParameterName) ~ "Suspect: parameter not listed as a prior cause for your organization",
+        is.na(organization_name.y) & !is.na(ATTAINS.ParameterName) ~ "Suspect: parameter not listed as a prior cause for this organization",
         !is.na(organization_name.y) & !is.na(ATTAINS.ParameterName) ~ "Pass: parameter is listed as prior cause in ATTAINS and used for assessments")
       ) %>%
       select(TADA.CharacteristicName, TADA.MethodSpeciationName, TADA.ResultSampleFractionText,	ATTAINS.ParameterName, organization_name = organization_name.x,	ATTAINS.FlagParameterName)
