@@ -16,7 +16,7 @@ threshold from the dataframe when clean = TRUE. Default is clean = FALSE.}
 flagged as above the upper WQX threshold. Default is flaggedonly = FALSE.}
 }
 \value{
-The input TADA dataset with the added "TADA.ResultAboveUpperThreshold.Flag"
+The input TADA dataset with the added "TADA.ResultValueAboveUpperThreshold.Flag"
 column which is populated with the values: "Pass", "Suspect", "Not Reviewed", or
 "NA - Not Available". Defaults are clean = FALSE and flaggedonly = FALSE.
 When clean = FALSE and flaggedonly = TRUE, the dataframe

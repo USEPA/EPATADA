@@ -165,7 +165,7 @@ Additional resources:
     the console: ?TADA_DataRetrieval
 
 -   [Introduction to the dataRetrieval
-    package](https://CRAN.R-project.org/package=dataRetrieval)
+    package](https://cran.r-project.org/web/packages/dataRetrieval/index.html)
 
 -   [General Data Import from Water Quality
     Portal](https://rdrr.io/cran/dataRetrieval/man/readWQPdata.html)
@@ -424,16 +424,16 @@ following flags (if relevant to dataframe):
 TADAProfileClean1 <- TADA_FlagCoordinates(TADAProfile, clean_outsideUSA = "no", clean_imprecise = FALSE, flaggedonly = FALSE)
 
 # review unique flags in TADAProfileClean1
-unique(TADAProfileClean1$TADA.InvalidCoordinates.Flag)
+unique(TADAProfileClean1$TADA.SuspectCoordinates.Flag)
 
 # review unique MonitoringLocationIdentifiers in your flag dataframe
 unique(TADAProfileClean1$MonitoringLocationIdentifier)
 
-Unique_InvalidCoordinateFlags <- TADAProfileClean1 %>%
+Unique_SuspectCoordinateFlags <- TADAProfileClean1 %>%
   dplyr::select(
     "MonitoringLocationIdentifier",
     "MonitoringLocationName",
-    "TADA.InvalidCoordinates.Flag",
+    "TADA.SuspectCoordinates.Flag",
     "OrganizationIdentifier",
     "TADA.LongitudeMeasure",
     "TADA.LatitudeMeasure",
@@ -449,7 +449,7 @@ Unique_InvalidCoordinateFlags <- TADAProfileClean1 %>%
   ) %>%
   dplyr::distinct()
 
-Unique_InvalidCoordinateFlags
+Unique_SuspectCoordinateFlags
 
 # if needed, un-comment below to change the sign for all data for sites flagged as outside the USA. You can also change FALSE to TRUE if you want to remove sites outside of the US or sites with imprecise lat/longs
 
@@ -506,9 +506,9 @@ TADAProfileClean1 <- TADA_FlagContinuousData(TADAProfileClean1,
 
 ## WQX Quality Assurance and Quality Control (QAQC) Service Result Flags
 
-Run the following result functions to address invalid method, fraction,
+Run the following result functions to address suspect method, fraction,
 speciation, and unit metadata by characteristic. The default is clean =
-TRUE, which will remove invalid results. You can change this to clean =
+TRUE, which will remove suspect results. You can change this to clean =
 FALSE to flag results, but not remove them.
 
 See documentation for more details:
@@ -520,13 +520,13 @@ See documentation for more details:
         invalid TADA.CharacteristicName,
         ResultAnalyticalMethod/MethodIdentifier, and
         ResultAnalyticalMethod/MethodIdentifierContext combinations in
-        your dataframe either "NonStandardized", "Invalid", or "Valid".
+        your dataframe either "NonStandardized", "Suspect", or "Pass".
 
-    -   When clean = TRUE, "Invalid" rows are removed from the dataframe
+    -   When clean = TRUE, "Suspect" rows are removed from the dataframe
         and no column will be appended.
 
     -   When flaggedonly = TRUE, the dataframe is filtered to only the
-        rows flagged as "Invalid"; default is flaggedonly = FALSE.
+        rows flagged as "Suspect"; default is flaggedonly = FALSE.
 
 -   ?**TADA_FlagSpeciation**
 
@@ -535,10 +535,10 @@ See documentation for more details:
         each TADA.CharacteristicName and MethodSpeciationName
         combination in your dataframe as either "NonStandardized",
 
-        "Invalid", or "Valid".
+        "Suspect", or "Pass".
 
-    -   When clean = "invalid_only", only "Invalid" rows are removed
-        from the dataframe. Default is clean = "invalid_only".
+    -   When clean = "suspect_only", only "Suspect" rows are removed
+        from the dataframe. Default is clean = "suspect_only".
 
     -   When clean = "nonstandardized_only", only "NonStandardized" rows
         are removed from the dataframe.
@@ -549,7 +549,7 @@ See documentation for more details:
     -   When clean = "none", no rows are removed from the dataframe.
 
     -   When flaggedonly = TRUE, the dataframe is filtered to only the
-        rows flagged as "Invalid" or "NonStandardized"; default is
+        rows flagged as "Suspect" or "NonStandardized"; default is
         flaggedonly = FALSE.
 
 -   ?**TADA_FlagResultUnit**
@@ -560,11 +560,11 @@ See documentation for more details:
         TADA.ResultMeasure.MeasureUnitCode combination in your dataframe
         as either "NonStandardized", "Invalid", or "Valid".
 
-    -   When clean = TRUE, "Invalid" rows are removed from the dataframe
+    -   When clean = TRUE, "Suspect" rows are removed from the dataframe
         and no column will be appended.
 
     -   When flaggedonly = TRUE, the dataframe is filtered to only the
-        rows flagged as "Invalid"; default is flaggedonly = FALSE.
+        rows flagged as "Suspect"; default is flaggedonly = FALSE.
 
 -   ?**TADA_FlagFraction**
 
@@ -572,20 +572,20 @@ See documentation for more details:
         your dataframe: TADA.SampleFraction.Flag. This column flags each
         TADA.CharacteristicName and TADA.ResultSampleFractionText
         combination in your dataframe as either "NonStandardized",
-        "Invalid", or "Valid".
-    -   When clean = TRUE, "Invalid" rows are removed from the dataframe
+        "Suspect", or "Pass".
+    -   When clean = TRUE, "Suspect" rows are removed from the dataframe
         and no column will be appended.
     -   When flaggedonly = TRUE, the dataframe is filtered to only the
-        rows flagged as "Invalid"; default is flaggedonly = FALSE.
+        rows flagged as "Suspect"; default is flaggedonly = FALSE.
 
-```{r Invalid_Method_Fraction_Speciation_ResultUnit}
+```{r Suspect_Method_Fraction_Speciation_ResultUnit}
 TADAProfileClean2 <- TADA_FlagMethod(TADAProfileClean1, clean = TRUE)
 
 TADAProfileClean2 <- TADA_FlagFraction(TADAProfileClean2, clean = TRUE)
 
-TADAProfileClean2 <- TADA_FlagSpeciation(TADAProfileClean2, clean = "invalid_only")
+TADAProfileClean2 <- TADA_FlagSpeciation(TADAProfileClean2, clean = "suspect_only")
 
-TADAProfileClean2 <- TADA_FlagResultUnit(TADAProfileClean2, clean = "invalid_only")
+TADAProfileClean2 <- TADA_FlagResultUnit(TADAProfileClean2, clean = "suspect_only")
 ```
 
 ## WQX national upper and lower thresholds
@@ -1308,7 +1308,7 @@ interface. The shiny application queries the WQP, contains maps and data
 visualizations, flags suspect data results, handles censored data, and
 more. You can launch it using the code below.
 
-DRAFT [Module 1](https://owshiny-dev.app.cloud.gov/tada-dev/) is also
+DRAFT [Module 1](https://rconnect-public.epa.gov/TADAShiny/) is also
 currently hosted on the web with minimal server memory/storage
 allocated.
 

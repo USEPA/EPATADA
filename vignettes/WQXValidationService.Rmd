@@ -19,10 +19,10 @@ editor_options:
 
 This is a overview of the the WQX Quality Assurance and Quality Control
 (QAQC) data submission service, and how TADA leverages that service to
-flag potentially invalid data in the Water Quality Portal (WQP). It will
+flag potentially suspect data in the Water Quality Portal (WQP). It will
 cover: 1) an overview of all available WQX QAQC tests for data
 submissions, 2) which of these QAQC tests are also available in TADA for
-flagging potentially invalid WQP data, and 3) how to interpret and
+flagging potentially suspect WQP data, and 3) how to interpret and
 provide feedback on the validation reference tables referenced by WQX
 and TADA for this QAQC service.
 
@@ -52,24 +52,24 @@ Package for use with data retrieved from the WQP:
 
 -   Tests that Leverage the WQX Validation Table
 
-    -   Flag invalid characteristic and unit combinations (e.g., flag
+    -   Flag suspect characteristic and unit combinations (e.g., flag
         data if mg/L or °C was used for pH; flag if units were left
         blank, NA, None, etc. but are required for the characteristic)
 
         -   [TADA_FlagResultUnit()](https://usepa.github.io/EPATADA/reference/TADA_FlagResultUnit.html)
 
     -   Flag data without methods, with uncommon methods, or with
-        invalid methods for the characteristic. This is contingent on
+        suspect methods for the characteristic. This is contingent on
         the activity type since some activity types don't require
         methods.
 
         -   [TADA_FlagMethod()](https://usepa.github.io/EPATADA/reference/TADA_FlagMethod.html)
 
-    -   Flag data with invalid characteristic and fraction combinations
+    -   Flag data with suspect characteristic and fraction combinations
 
         -   [TADA_FlagFraction()](https://usepa.github.io/EPATADA/reference/TADA_FlagFraction.html)
 
-    -   Flag data with invalid characteristic and speciation combination
+    -   Flag data with suspect characteristic and speciation combination
 
         -   [TADA_FlagSpeciation()](https://usepa.github.io/EPATADA/reference/TADA_FlagSpeciation.html)
 
@@ -100,7 +100,7 @@ interquartile range) and a [probability density
 function](https://en.wikipedia.org/wiki/Probability_density_function
 "Probability density function") (pdf) of a Normal N(0,σ2) Population.
 Attribution: Jhguch at en.wikipedia, [CC BY-SA
-2.5](https://creativecommons.org/licenses/by-sa/2.5), via Wikimedia
+2.5](https://creativecommons.org/licenses/by-sa/2.5/), via Wikimedia
 Commons.](images/IQR.png)](https://commons.wikimedia.org/wiki/File:Boxplot_vs_PDF.svg)
 
 Additional tests only available in WQX Web and Node Submissions (for
@@ -132,7 +132,7 @@ TADA leverages many of the WQX domain tables.
     \|
     ([CSV)](https://cdx.epa.gov/wqx/download/DomainValues/QAQCCharacteristicValidation.CSV)
 
-    -   Both WQX and TADA leverage the table above to flag invalid and
+    -   Both WQX and TADA leverage the table above to flag suspect and
         uncommon results. This reference table is used in the following
         TADA functions:
 
@@ -165,9 +165,10 @@ TADA leverages many of the WQX domain tables.
         [TADA_ConvertResultUnits()](https://usepa.github.io/EPATADA/reference/TADA_ConvertResultUnits.html)
 
 All TADA Reference and Validation Tables are also available in the R
-Package [HERE](https://github.com/USEPA/EPATADA/tree/develop/inst/extdata).
-TADA pulls the WQX Validation Table and other domain tables into TADA
-and updates them automatically whenever changes are made
+Package
+[HERE](https://github.com/USEPA/EPATADA/tree/develop/inst/extdata). TADA
+pulls the WQX Validation Table and other domain tables into TADA and
+updates them automatically whenever changes are made
 
 -   <https://github.com/USEPA/EPATADA/blob/develop/inst/extdata/WQXcharValRef.csv>
 

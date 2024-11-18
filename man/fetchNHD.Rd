@@ -30,7 +30,6 @@ tada_data <- TADA_DataRetrieval(
 )
 
 nhd_data <- fetchNHD(.data = tada_data, resolution = "Hi", features = c("catchments", "waterbodies", "flowlines"))
-
 }
 }
 \seealso{
