@@ -41,41 +41,31 @@
 #' Data_Nutrients_Param_Ref <- TADA_CreateParamUseRef(Data_Nutrients_UT)
 #' 
 
-TADA_CreateParamRef <- function(.data, ParamRef = NULL, validate = FALSE, excel = TRUE, overwrite = FALSE){ 
+TADA_CreateParamRef <- function(.data, paramRef = NULL, validate = FALSE, excel = TRUE, overwrite = FALSE){ 
   
   # If user does not define the path, attempt to pull in the ref files from the default Downloads location.
   downloads_path <- file.path(Sys.getenv("USERPROFILE"), "Downloads", "myfileRef.xlsx")
-  # testing out different downloads_path as an argument is needed.
-  if(!is.null(downloads_path)){
-    downloads_path <- downloads_path
-  }
+  
+  CST_param <- utils::read.csv(system.file("extdata", "TADAPriorityCharUnitRef.csv", package = "EPATADA"))
   
   # check to see if user-supplied parameter ref is a df with appropriate columns and filled out.
-  if (!is.null(ParamRef) & !is.character(ParamRef)) {
-    if (!is.data.frame(ParamRef)) {
-      stop("TADA_CreateParamRef: 'ParamRef' must be a data frame with these four columns: TADA.CharacteristicName, TADA.MethodSpeciationName, TADA.ResultSampleFractionText, ATTAINS.ParameterName")
+  if (!is.null(paramRef) & !is.character(paramRef)) {
+    if (!is.data.frame(paramRef)) {
+      stop("TADA_CreateParamRef: 'paramRef' must be a data frame with these four columns: TADA.CharacteristicName, TADA.MethodSpeciationName, TADA.ResultSampleFractionText, ATTAINS.ParameterName")
     }
     
-    if (is.data.frame(ParamRef)) {
+    if (is.data.frame(paramRef)) {
       col.names <- c(
         "TADA.CharacteristicName", "TADA.MethodSpeciationName",	"TADA.ResultSampleFractionText", "ATTAINS.ParameterName"
       )
       
-      ref.names <- names(ParamRef)
+      ref.names <- names(paramRef)
       
       if (length(setdiff(col.names, ref.names)) > 0) {
-        stop("TADA_CreateParamRef: 'ParamRef' must be a data frame with these four columns: TADA.CharacteristicName, TADA.MethodSpeciationName, TADA.ResultSampleFractionText, ATTAINS.ParameterName")
+        stop("TADA_CreateParamRef: 'paramRef' must be a data frame with these four columns: TADA.CharacteristicName, TADA.MethodSpeciationName, TADA.ResultSampleFractionText, ATTAINS.ParameterName")
       }
     }
   }
-  
-  # We want to update the most of to date parameter and use data from ATTAINS. For a single org, the runtime shouldnt be too long, but when
-  # there are multiple orgs, or perhaps for specific orgs, the runtime may be longer. Ex. Data_6Tribes_5y_Harmonized would take a few minutes to run.
-  # We can use an internal ATTAINS ref, but this can be 'outdated'. We will look at difftime of the file to determine if it needs update.
-  difftime(Sys.time(), file.mtime("inst/extdata/ATTAINSParamUseEntityRef.csv"))
-  
-  # Pulls in all domain values of parameter names in ATTAINS. Filtering by state is done in the next steps.
-  ATTAINS_param_all <- utils::read.csv(system.file("extdata", "ATTAINSParamUseEntityRef.csv", package = "EPATADA"))
   
   # Pulls in StateCode to get entity's stateCode
   stateCode <- utils::read.csv(system.file("extdata", "statecode.csv", package = "EPATADA"))
@@ -94,161 +84,161 @@ TADA_CreateParamRef <- function(.data, ParamRef = NULL, validate = FALSE, excel 
   }
   
   # Pulls in all unique combinations of TADA.CharacteristicName, TADA.MethodSpeciationName, TADA.ResultSampleFractionText in user's dataframe.
-  TADA_param <- dplyr::distinct(.data[,c("TADA.CharacteristicName", "TADA.MethodSpeciationName", "TADA.ResultSampleFractionText", "StateCode")]) %>%
-    dplyr::left_join(stateCode, by = c("StateCode" = "STATE")) %>%
-    select(TADA.CharacteristicName, TADA.MethodSpeciationName, TADA.ResultSampleFractionText, organization_name = STATE_NAME) %>%
+  TADA_param <- dplyr::distinct(.data[,c("TADA.CharacteristicName", "TADA.MethodSpeciationName", "TADA.ResultSampleFractionText", "ATTAINS.organizationname")]) %>%
+    dplyr::left_join(CST_param, "TADA.CharacteristicName") %>%
+    dplyr::select(TADA.CharacteristicName, TADA.MethodSpeciationName, TADA.ResultSampleFractionText, CST.PollutantName, organization_name = ATTAINS.organizationname) %>%
     dplyr::arrange(TADA.CharacteristicName)
   
-  if(is.null(ParamRef)){
-    TADA_param <- TADA_param %>%
-      dplyr::mutate(ATTAINS.ParameterName = NA) %>%
-      dplyr::select(TADA.CharacteristicName, TADA.MethodSpeciationName, TADA.ResultSampleFractionText, ATTAINS.ParameterName, organization_name)
+  if(is.null(paramRef)){
+    CreateParamRef <- TADA_param %>%
+      dplyr::mutate(ATTAINS.ParameterName = NA, organization_name = NA) %>%
+      dplyr::select(TADA.CharacteristicName, TADA.MethodSpeciationName, TADA.ResultSampleFractionText, CST.PollutantName, ATTAINS.ParameterName, organization_name) %>%
+      dplyr::arrange(TADA.CharacteristicName)
+    }
+  
+  if(!is.null(paramRef)){
+    CreateParamRef <- TADA_param %>%
+      dplyr::left_join(paramRef, c("TADA.CharacteristicName", "TADA.MethodSpeciationName", "TADA.ResultSampleFractionText", "organization_name")) %>%
+      dplyr::select(TADA.CharacteristicName, TADA.MethodSpeciationName, TADA.ResultSampleFractionText, CST.PollutantName.x, ATTAINS.ParameterName, organization_name) %>%
+      dplyr::arrange(TADA.CharacteristicName) %>%
+      dplyr::distinct()
   }
   
-  if(!is.null(ParamRef)){
-    TADA_param <- TADA_param %>%
-      dplyr::left_join(ParamRef, by =c("TADA.CharacteristicName", "TADA.MethodSpeciationName",	"TADA.ResultSampleFractionText")) %>%
-      dplyr::select(TADA.CharacteristicName, TADA.MethodSpeciationName, TADA.ResultSampleFractionText, ATTAINS.ParameterName, organization_name)
-  }
+  # Pulls in all domain values of parameter names in ATTAINS. Filtering by state is done in the next steps.
+  ATTAINS_param_all <- utils::read.csv(system.file("extdata", "ATTAINSParamUseEntityRef.csv", package = "EPATADA"))
   
-  # Uses rATTAINS to pull in all allowable parameter values by the entity in the dataframe
-  ATTAINS_param <- list()
-  for(i in 1:nrow(org_name)){
-    ATTAINS_param[[i]] <- rATTAINS::assessments(
-      organization_id = org_name[["code"]][i]
-    )
+  ATTAINS_param <- ATTAINS_param_all %>%
+    dplyr::filter(organization_name %in% org_name)
   
-  # Extracts all unique parameter names by the entity
-  ATTAINS_param[[i]] <- ATTAINS_param[[i]]$use_assessment %>%
-    dplyr::select(organization_identifier, organization_name, parameters, use_attainments) %>%
-    tidyr::unnest(c(use_attainments), names_sep = ".") %>%
-    tidyr::unnest(c(parameters), names_sep = ".") %>%
-    dplyr::select(parameters.parameter_name, organization_identifier, organization_name, use_attainments.use_name) %>%
-    dplyr::distinct() %>%
-    dplyr::arrange(parameters.parameter_name)
-  }
-
-  ATTAINS_param <- Reduce(dplyr::full_join, ATTAINS_param)
+  # # Uses rATTAINS to pull in all allowable parameter values by the entity in the dataframe
+  # ATTAINS_param <- list()
+  # for(i in 1:nrow(org_name)){
+  #   ATTAINS_param[[i]] <- rATTAINS::assessments(
+  #     organization_id = org_name[["code"]][i]
+  #   )
+  # 
+  # # Extracts all unique parameter names by the entity
+  # ATTAINS_param[[i]] <- ATTAINS_param[[i]]$use_assessment %>%
+  #   dplyr::select(organization_identifier, organization_name, parameters, use_attainments) %>%
+  #   tidyr::unnest(c(use_attainments), names_sep = ".") %>%
+  #   tidyr::unnest(c(parameters), names_sep = ".") %>%
+  #   dplyr::select(parameter, organization_identifier, organization_name, use_attainments.use_name) %>%
+  #   dplyr::distinct() %>%
+  #   dplyr::arrange(parameter)
+  # }
+  # 
+  # ATTAINS_param <- Reduce(dplyr::full_join, ATTAINS_param)
   
   # Create column names for an empty dataframe
   columns <- c(
-    "TADA.CharacteristicName", "TADA.MethodSpeciationName",	"TADA.ResultSampleFractionText", "ATTAINS.ParameterName", "organization_name", "ATTAINS.FlagParameterName"
+    "TADA.CharacteristicName", "TADA.MethodSpeciationName",	"TADA.ResultSampleFractionText", "CST.PollutantName", "ATTAINS.ParameterName", "organization_name", "ATTAINS.FlagParameterName"
   )
   
   par <- data.frame(matrix(nrow = 0, ncol = length(columns))) # empty dataframe with just column names
   colnames(par) = columns
   
-  if(validate == FALSE & excel == TRUE){
+  if(excel == TRUE){
   library(openxlsx)
   wb <- createWorkbook()
-  addWorksheet(wb, "Index")
-  addWorksheet(wb, "ATTAINSParamAllOrgs")
-  addWorksheet(wb, "ATTAINSParamRef")
+  addWorksheet(wb, "Index", visible = FALSE)
+  addWorksheet(wb, "ATTAINSParamAllOrgs", visible = FALSE)
+  addWorksheet(wb, "ATTAINSParamRef", visible = FALSE)
+  addWorksheet(wb, "CreateParamRef", visible = TRUE)
   #addStyle(wb, "ATTAINSParamRef", rows = 1:200, cols = 1:2, gridExpand = TRUE, style = createStyle(locked = FALSE))
-  #protectWorksheet(wb, sheet = "ATTAINSParamRef", protect = TRUE)
-  addWorksheet(wb, "CreateParamRef")
-  sheetVisibility(wb)[1] <- FALSE ## show sheet 1
-  sheetVisibility(wb)[2] <- FALSE ## show sheet 2
-  sheetVisibility(wb)[3] <- FALSE ## show sheet 3
   
   # set zoom size
   set_zoom <- function(x) gsub('(?<=zoomScale=")[0-9]+', x, sV, perl = TRUE)
   sV <- wb$worksheets[[2]]$sheetViews
   wb$worksheets[[2]]$sheetViews <- set_zoom(90)
   # Format header and bodystyle
-  header_st <- openxlsx::createStyle(textDecoration = "Bold")
-  bodyStyle <- openxlsx::createStyle(wrapText = TRUE)
+  header_st <- createStyle(textDecoration = "Bold")
+  bodyStyle <- createStyle(wrapText = TRUE)
   
   # Index of ATTAINS allowable values of Entity/Parameter
-  openxlsx::writeData(wb, "Index", startCol = 4, x = ATTAINS_param)
+  writeData(wb, "Index", startCol = 4, x = ATTAINS_param)
+  writeData(wb, "Index", startCol = 3, x = data.frame(organization_name = c(unique(ATTAINS_param$organization_name),"EPA 304a"))) # Should we allow all orgs?
+  writeData(wb, "Index", startCol = 2, x = CST_param$CST.PollutantName) # Should we allow all orgs?
   # Index of Unique combinations of WQP TADA Parameters found in TADA dataframe
-  openxlsx::writeData(wb, "Index", startCol = 1, x = TADA_param[,c("TADA.CharacteristicName", "TADA.MethodSpeciationName", "TADA.ResultSampleFractionText")])
+  # writeData(wb, "Index", startCol = 1, x = CreateParamRef)
+  
   # Creates an ATTAINS Param ref tab for state and all orgs on separate sheets.
-  openxlsx::writeData(wb, "ATTAINSParamAllOrgs", startCol = 1, 
+  writeData(wb, "ATTAINSParamAllOrgs", startCol = 1, 
             x = 
               ATTAINS_param_all %>% 
                 dplyr::select(parameter, organization_name) %>%
                 dplyr::distinct()
             , headerStyle = header_st)
-  openxlsx::writeData(wb, "ATTAINSParamRef", startCol = 1, 
+  writeData(wb, "ATTAINSParamRef", startCol = 1, 
             x = ATTAINS_param %>% 
-              dplyr::select(parameters.parameter_name, organization_name) %>% 
+              dplyr::select(parameter, organization_name) %>% 
               dplyr::distinct()
             , headerStyle = header_st)
   addStyle(wb, sheet = "ATTAINSParamRef", bodyStyle, cols = 2, rows = 1:200)
   addStyle(wb, sheet = "ATTAINSParamRef", bodyStyle, cols = 3, rows = 1:200)
-  openxlsx::writeData(wb, "CreateParamRef", startCol = 1, x = par, headerStyle = header_st) # Write column names in the excel spreadsheet under the tab [CreateParamRef]
+  
+  writeData(wb, "CreateParamRef", startCol = 1, x = par, headerStyle = header_st) # Write column names in the excel spreadsheet under the tab [CreateParamRef]
   
   # Format Column widths
   openxlsx::setColWidths(wb, "ATTAINSParamAllOrgs", cols = 1:ncol(par), widths = "auto")
   openxlsx::setColWidths(wb, "ATTAINSParamRef", cols = 1:ncol(par), widths = 40)
   openxlsx::setColWidths(wb, "CreateParamRef", cols = 1:ncol(par), widths = "auto")
   
-  # Should we consider trying to provide any sort of param crosswalk to users?
-  # intersect(TADA_param$TADA.CharacteristicName, ATTAINS_param$parameters.parameter_name)
-  
-  openxlsx::writeData(wb, "CreateParamRef", startCol = 1, x = TADA_param)
+  writeData(wb, "CreateParamRef", startCol = 1, x = CreateParamRef)
   
   # The list of allowable values for each column in excel tab [CreateParamRef] will be defined by the [Index] tab
-  suppressWarnings(dataValidation(wb, sheet = "ATTAINSParamRef", cols = 1, rows = 2:5000, type = "list", value = sprintf("'ATTAINSParamAllOrgs'!$A$2:$A$5000"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE))
-  suppressWarnings(dataValidation(wb, sheet = "CreateParamRef", cols = 4, rows = 2:1000, type = "list", value = sprintf("'ATTAINSParamRef'!$A$2:$A$5000"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE))
-  suppressWarnings(dataValidation(wb, sheet = "CreateParamRef", cols = 5, rows = 2:1000, type = "list", value = sprintf("'Index'!$F$2:$F$5000"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE))
-
-  # Needs to allow users to input each allowable use for a parameter (this should be in the next step, and not this function - should only be a parameter mapping here)
+    
+    suppressWarnings(dataValidation(wb, sheet = "ATTAINSParamRef", cols = 1, rows = 2:5000, type = "list", value = sprintf("'ATTAINSParamAllOrgs'!$A$2:$A$5000"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE))
+    suppressWarnings(dataValidation(wb, sheet = "CreateParamRef", cols = 4, rows = 2:1000, type = "list", value = sprintf("'Index'!$B$2:$B$5000"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE))
+    suppressWarnings(dataValidation(wb, sheet = "CreateParamRef", cols = 5, rows = 2:1000, type = "list", value = sprintf("'ATTAINSParamRef'!$A$2:$A$5000"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE))
+    suppressWarnings(dataValidation(wb, sheet = "CreateParamRef", cols = 6, rows = 2:1000, type = "list", value = sprintf("'Index'!$C$2:$C$5000"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE))
+    conditionalFormatting(wb, "ATTAINSParamRef", 
+                          cols = 1:2, rows = 2+nrow(ATTAINS_param %>% 
+                                                      dplyr::select(parameter, organization_name) %>% 
+                                                      dplyr::distinct()):1000, 
+                          type = "notBlanks", style = createStyle(bgFill = TADA_ColorPalette()[8]))
+    
+    n <- nrow(ATTAINS_param %>% 
+                dplyr::select(parameter, organization_name) %>% 
+                dplyr::distinct()
+    )
+    for(i in 1:20){
+      writeFormula(wb, "ATTAINSParamRef", startCol = 3, 
+                   startRow = i+1+n, array = TRUE, 
+                   x = paste0('=IF(ISNA(MATCH(1,(A', i+1+n,'=Index!D:D)*(B',i+1+n,'=Index!F:F),0)),"Warning: This parameter is not listed as a prior cause for your orgnaization. User will need to manually add additional rows to input any designated use for this parameter done in TADA_CreateParamUseRef","")')
+      )
+      
+      writeFormula(wb, "ATTAINSParamRef", startCol = 2, 
+                   startRow = i+1+n, array = TRUE,
+                   x = paste0('=IF(ISBLANK(A', i+1+n,'),"",TEXTJOIN(",",,IF(A',i+1+n,'=ATTAINSParamAllOrgs!A:A,ATTAINSParamAllOrgs!B:B,"")))')
+      )  
+      setRowHeights(wb, "ATTAINSParamRef", rows = 1+i+n, height = 100)
+    }
+    
+    for(i in 1:nrow(TADA_param)){
+      # writeFormula(wb, "CreateParamRef", startCol = 5, 
+      #            startRow = i+1, array = TRUE,
+      #            x = paste0('=IFERROR(INDEX(Index!D:F,MATCH(CreateParamRef!D', i+1,',Index!D:D,0),3),"")')
+      #           ) 
+      writeFormula(wb, "CreateParamRef", startCol = 7, 
+                   startRow = i+1, array = TRUE,
+                   x = paste0('=IF(AND(ISNA(MATCH(1,(E',i+1,'=Index!H:H)*(F',i+1,'=Index!E:E),0)),E',i+1, '<>""),
+                              "Suspect: parameter not listed as a prior cause for your organization",IF(E', i+1,'="",
+                              "Suspect: No parameter crosswalk provided. Parameter will not be used for assessment",
+                              "Pass: parameter is listed as prior cause in ATTAINS and will be used for assessments"))'
+                              )
+      )
+  }
+  
   for(i in 1:nrow(TADA_param)){
-    # excel_formula <- paste0("INDEX(Index!$A$2:$C$1000,MATCH(A",i + 1,",Index!$A$2:$A$1000,0),3)")
-    # writeFormula(wb, sheet = "UserCriteriaRef", x = excel_formula, startCol = 3, startRow = i + 1)
     conditionalFormatting(wb, "CreateParamRef", 
-                          cols = 4, rows = 1:i+1, 
+                          cols = 5:6, rows = 1:i+1, 
                           type = "blanks", style = createStyle(bgFill = "#FFC7CE"))
+    
     conditionalFormatting(wb, "CreateParamRef", 
-                          cols = 4, rows = 1:i+1, 
+                          cols = 5:6, rows = 1:i+1, 
                           type = "notBlanks", style = createStyle(bgFill = TADA_ColorPalette()[8]))
   }
-  
-  conditionalFormatting(wb, "ATTAINSParamRef", 
-                        cols = 1:2, rows = 2+nrow(ATTAINS_param %>% 
-                                                  dplyr::select(parameters.parameter_name, organization_name) %>% 
-                                                  dplyr::distinct()):1000, 
-                        type = "notBlanks", style = createStyle(bgFill = TADA_ColorPalette()[8]))
- 
-   n <- nrow(ATTAINS_param %>% 
-              dplyr::select(parameters.parameter_name, organization_name) %>% 
-              dplyr::distinct()
-            )
-  for(i in 1:20){
-    writeFormula(wb, "ATTAINSParamRef", startCol = 3, 
-                 startRow = i+1+n, array = TRUE, 
-                 x = paste0('=IF(ISNA(MATCH(1,(A', i+1+n,'=Index!D:D)*(B',i+1+n,'=Index!F:F),0)),"Warning: This parameter is not listed as a prior cause for your orgnaization. User will need to manually add additional rows to input any designated use for this parameter done in TADA_CreateParamUseRef","")')
-                 )
 
-    writeFormula(wb, "ATTAINSParamRef", startCol = 2, 
-                 startRow = i+1+n, array = TRUE,
-                 x = paste0('=IF(ISBLANK(A', i+1+n,'),"",TEXTJOIN(",",,IF(A',i+1+n,'=ATTAINSParamAllOrgs!A:A,ATTAINSParamAllOrgs!B:B,"")))')
-                )  
-    setRowHeights(wb, "ATTAINSParamRef", rows = 1+i+n, height = 100)
-  }
-  
-  for(i in 1:nrow(TADA_param)){
-    # writeFormula(wb, "CreateParamRef", startCol = 5,
-    #            startRow = i+1, array = TRUE,
-    #            x = paste0('=IFERROR(INDEX(Index!D:F,MATCH(CreateParamRef!D', i+1,',Index!D:D,0),3),"")')
-    #           )
-    writeFormula(wb, "CreateParamRef", startCol = 6, 
-               startRow = i+1,
-               x = paste0('=IF(AND(ISNA(MATCH(1,(D', i+1,'=Index!D:D)*(E', i+1,'=Index!F:F),0)),D', i+1,'<>""),
-                          "Suspect: parameter not listed as a prior cause for your organization",IF(D', i+1,'="",
-                          "Suspect: No parameter crosswalk provided. Parameter will not be used for assessment",
-                          "Pass: parameter is listed as prior cause in ATTAINS"))'
-                          )
-              )
-  }
-  
-  if(!is.null(downloads_path)){
-    #saveWorkbook(wb, "inst/extdata/myfileRef.xlsx", overwrite = F)
-    downloads_path <- downloads_path
-  }
-  
   if(overwrite == TRUE){
     print(paste0('Overwriting sheet [CreateParamRef] in ', downloads_path))
     saveWorkbook(wb, downloads_path, overwrite = T)
@@ -263,54 +253,49 @@ TADA_CreateParamRef <- function(.data, ParamRef = NULL, validate = FALSE, excel 
   # ParamRef <- openxlsx::read.xlsx(system.file("extdata", "myfile.xlsx", package = "EPATADA"), sheet = "UserCriteriaRef")
   }
   
-  if(validate == FALSE & is.null(ParamRef)){
-    TADA_param <- TADA_param %>%
-      mutate(ATTAINS.ParameterName = NA, TADA.FlagATTAINS.Param = "Suspect: No parameter crosswalk provided. Parameter will not be used for assessment")
+  # The following below will create an R dataframe in the R environment. Users will have greater flexibility modifying the dataframe in this environment if it is preferred.
+  CreateParamRef <- openxlsx::read.xlsx(downloads_path, sheet = "CreateParamRef")
+  
+  if(is.null(paramRef)){
+    CreateParamRef <- CreateParamRef %>%
+    dplyr::mutate(ATTAINS.ParameterName = NA, organization_name = NA, ATTAINS.FlagParameterName = "Suspect: No parameter crosswalk provided. Parameter will not be used for assessment")
   }
   
-  if(validate == FALSE & !is.null(ParamRef)){
-    # TADA_param <- dplyr::select(ParamRef, TADA.CharacteristicName, TADA.MethodSpeciationName,	TADA.ResultSampleFractionText, ATTAINS.ParameterName)
-    # 
-    # TADA_param <- TADA_param %>%
-    #   dplyr::left_join(ParamRef, by =c("TADA.CharacteristicName", "TADA.MethodSpeciationName",	"TADA.ResultSampleFractionText")) %>%
-    #   dplyr::mutate(TADA.FlagATTAINS.Param = "suspect: parameter will not be used for assessment") %>%
-    #   select(TADA.CharacteristicName, TADA.MethodSpeciationName, TADA.ResultSampleFractionText,	ATTAINS.ParameterName, organization_name,	ATTAINS.FlagParameterName) 
-    # 
-    # ATTAINS_param <- ATTAINS_param %>% 
-    #   dplyr::select(parameters.parameter_name, organization_name) %>% 
-    #   dplyr::distinct()
+  if(!is.null(paramRef)){
+    CreateParamRef <- CreateParamRef %>%
+      dplyr::left_join(paramRef, by =c("TADA.CharacteristicName", "TADA.MethodSpeciationName",	"TADA.ResultSampleFractionText")) %>%
+      dplyr::mutate(ATTAINS.FlagParameterName = "Suspect: No parameter crosswalk provided. Parameter will not be used for assessment") %>%
+      dplyr::select(TADA.CharacteristicName, TADA.MethodSpeciationName, TADA.ResultSampleFractionText, CST.PollutantName.x,	ATTAINS.ParameterName, organization_name,	ATTAINS.FlagParameterName) 
     
-    #### WARNING: If multiple orgs in TADA dataframe, and if these orgs have same parameter name, this will increase the number of rows. Must handle this case in the future!
-    ParamRef <- ParamRef %>% 
-      dplyr::left_join(ATTAINS_param, by = c("ATTAINS.ParameterName" = "parameters.parameter_name")) %>%
-      dplyr::mutate(TADA.FlagATTAINS.Param = case_when(
+    ATTAINS_param <- ATTAINS_param %>% 
+      dplyr::select(parameter, organization_name) %>% 
+      dplyr::distinct()
+    
+    CreateParamRef <- CreateParamRef %>% 
+      dplyr::left_join(ATTAINS_param, by = c("ATTAINS.ParameterName" = "parameter")) %>%
+      dplyr::mutate(ATTAINS.FlagParameterName = case_when(
         is.na(organization_name) & is.na(ATTAINS.ParameterName) ~ "Suspect: No parameter crosswalk provided. Parameter will not be used for assessment",
         is.na(organization_name) & !is.na(ATTAINS.ParameterName) ~ "Suspect: parameter not listed as a prior cause for this organization",
-        !is.na(organization_name) & !is.na(ATTAINS.ParameterName) ~ "Pass: parameter is listed as prior cause in ATTAINS")
+        !is.na(organization_name) & !is.na(ATTAINS.ParameterName) ~ "Pass: parameter is listed as prior cause in ATTAINS and will be used for assessments")
       ) %>%
-      select(TADA.CharacteristicName, TADA.MethodSpeciationName, TADA.ResultSampleFractionText,	ATTAINS.ParameterName, organization_name,	ATTAINS.FlagParameterName)
+      dplyr::select(TADA.CharacteristicName, TADA.MethodSpeciationName, TADA.ResultSampleFractionText, CST.PollutantName.x,	ATTAINS.ParameterName, organization_name,	ATTAINS.FlagParameterName)
   }
   
   # Re-runs the flagging data after a user has inputted values - will need to be done if a user inputs values in the R environment
   if( validate == TRUE){
-    ParamRef <- dplyr::select(ParamRef, TADA.CharacteristicName, TADA.MethodSpeciationName,	TADA.ResultSampleFractionText, ATTAINS.ParameterName, organization_name)
+    CreateParamRef <- dplyr::select(paramRef, TADA.CharacteristicName, TADA.MethodSpeciationName,	TADA.ResultSampleFractionText, ATTAINS.ParameterName)
     
-    ATTAINS_param <- ATTAINS_param %>% 
-      dplyr::select(parameters.parameter_name, organization_name) %>% 
-      dplyr::distinct()
-    
-  #### WARNING: If multiple orgs in TADA dataframe, and if multiple orgs have same parameter name, this will increase the number of rows due to many to many matches. Must handle this case in the future!
-    ParamRef <- ParamRef %>% 
-      dplyr::left_join(ATTAINS_param, by = c("ATTAINS.ParameterName" = "parameters.parameter_name")) %>%
-      dplyr::mutate(TADA.FlagATTAINS.Param = case_when(
+    CreateParamRef <- CreateParamRef %>% 
+      dplyr::left_join(ATTAINS_param, by = c("ATTAINS.ParameterName" = "parameter")) %>%
+      dplyr::mutate(ATTAINS.FlagParameterName = case_when(
         is.na(organization_name.y) & is.na(ATTAINS.ParameterName) ~ "Suspect: No parameter crosswalk provided. Parameter will not be used for assessment",
         is.na(organization_name.y) & !is.na(ATTAINS.ParameterName) ~ "Suspect: parameter not listed as a prior cause for this organization",
-        !is.na(organization_name.y) & !is.na(ATTAINS.ParameterName) ~ "Pass: parameter is listed as prior cause in ATTAINS and used for assessments")
+        !is.na(organization_name.y) & !is.na(ATTAINS.ParameterName) ~ "Pass: parameter is listed as prior cause in ATTAINS and will be used for assessments")
       ) %>%
-      select(TADA.CharacteristicName, TADA.MethodSpeciationName, TADA.ResultSampleFractionText,	ATTAINS.ParameterName, organization_name = organization_name.x,	ATTAINS.FlagParameterName)
+      dplyr::select(TADA.CharacteristicName, TADA.MethodSpeciationName, TADA.ResultSampleFractionText, CST.PollutantName.x,	ATTAINS.ParameterName, organization_name,	ATTAINS.FlagParameterName)
   }
   
-  return(TADA_param)
+  return(CreateParamRef)
 }  
 
 #' @param .data A TADA dataframe. Users should run the appropriate data cleaning,
@@ -325,10 +310,8 @@ TADA_CreateParamRef <- function(.data, ParamRef = NULL, validate = FALSE, excel 
 #' Data_Nutrients_Param_Ref <- TADA_CreateParamUseRef(Data_Nutrients_UT)
 #' 
 
-TADA_CreateParamUseRef <- function(.data, ParamRef = NULL, validate = FALSE, excel = FALSE, overwrite = FALSE, downloads = NULL){ 
+TADA_CreateParamUseRef <- function(ParamRef = NULL, overwrite = FALSE, downloads = NULL, user_guide = FALSE){ 
 
-  # Write logic to determine if excel sheet is found, if not, users will need to run TADA_CreateParamRef(... excel = TRUE)
-  
   # If user does not define the path, will attempt to pull in the ref files from the default Downloads location.
   downloads_path <- file.path(Sys.getenv("USERPROFILE"), "Downloads", "myfileRef.xlsx")
   # testing out different downloads_path as an argument is needed.
@@ -338,29 +321,28 @@ TADA_CreateParamUseRef <- function(.data, ParamRef = NULL, validate = FALSE, exc
   
   # Checks if ref contains a dataframe and necessary columns to proceed.
   if(is.null(ParamRef)){
-    stop("ParamRef missing. Please provide your ParamRef dataframe as an argument input")
-    #ParamRef <- openxlsx::read.xlsx(downloads_path, sheet = "CreateParamRef")
+    ParamRef <- openxlsx::read.xlsx(downloads_path, sheet = "CreateParamRef")
   }
   
   if(sum(is.na(ParamRef$ATTAINS.ParameterName)) > 1){
-    print("NAs were found in ATTAINS.ParameterName. Please ensure that you have inputted all field values to crosswalk in the ATTAINS.ParameterName column generated from TADA_CreateParamRef() function")
+    warning("NAs were found in ATTAINS.ParameterName. Please ensure that you have inputted all field values of interest in the ATTAINS.ParameterName column generated from TADA_CreateParamRef() function")
   }
   
   # check to see if user-supplied parameter ref is a df with appropriate columns and filled out.
   if (!is.null(ParamRef) & !is.character(ParamRef)) {
     if (!is.data.frame(ParamRef)) {
-      stop("TADA_CreateStandardsRef: 'ParamRef' must be a data frame with five columns: TADA.CharacteristicName, TADA.MethodSpeciationName, TADA.ResultSampleFractionText, ATTAINS.ParameterName, organization_name")
+      stop("TADA_CreateStandardsRef: 'ParamRef' must be a data frame with five columns: TADA.CharacteristicName, TADA.MethodSpeciationName, TADA.ResultSampleFractionText, ATTAINS.ParameterName, ATTAINS.OrgName")
     }
     
     if (is.data.frame(ParamRef)) {
       col.names <- c(
-        "TADA.CharacteristicName", "TADA.MethodSpeciationName",	"TADA.ResultSampleFractionText", "ATTAINS.ParameterName", "organization_name"
+        "TADA.CharacteristicName", "TADA.MethodSpeciationName",	"TADA.ResultSampleFractionText", "ATTAINS.ParameterName", "ATTAINS.OrgName"
       )
       
       ref.names <- names(ParamRef)
       
       if (length(setdiff(col.names, ref.names)) > 0) {
-        stop("TADA_CreateStandardsRef: 'ParamRef' must be a data frame with five columns: TADA.CharacteristicName, TADA.MethodSpeciationName, TADA.ResultSampleFractionText, ATTAINS.ParameterName, organization_name")
+        stop("TADA_CreateStandardsRef: 'ParamRef' must be a data frame with five columns: TADA.CharacteristicName, TADA.MethodSpeciationName, TADA.ResultSampleFractionText, ATTAINS.ParameterName, ATTAINS.OrgName")
       }
     }
   }
@@ -378,19 +360,18 @@ TADA_CreateParamUseRef <- function(.data, ParamRef = NULL, validate = FALSE, exc
   )
   
   CreateParamUseRef <- ParamRef %>%
-    dplyr::left_join(openxlsx::read.xlsx(downloads_path, sheet = "Index", cols = 4:7), by = c("ATTAINS.ParameterName" = "parameters.parameter_name", "organization_name"), relationship = "many-to-many") %>%
-    # dplyr::filter(organization_name %in% unique(ParamRef$organization_name)) %>%
+    dplyr::left_join(openxlsx::read.xlsx(downloads_path, sheet = "Index", cols = 4:7), by = c("ATTAINS.ParameterName" = "parameter"), relationship = "many-to-many") %>%
+    # dplyr::filter(organization_name %in% unique(ParamRef$ATTAINS.OrgName)) %>%
     dplyr::filter(ATTAINS.ParameterName %in% unique(ParamRef$ATTAINS.ParameterName)) %>%
-    # dplyr::rename(parameters.parameter_name, ATTAINS.ParameterName) %>%
-    dplyr::select(organization_name,	ATTAINS.ParameterName, use_attainments.use_name) %>%
-    filter(if_any(everything(), ~ !is.na(.))) %>%
-    # dplyr::mutate(nrowsStandardsRep = as.numeric(1)) %>%
-    # dplyr::mutate(add_nrows_AcuteChronic = 0) %>%
-    # dplyr::mutate(add_nrows_WaterTypes = 0) %>%
-    # dplyr::mutate(add_nrows_SiteSpecific = 0) %>%
-    # dplyr::mutate(add_nrows_Other = 0) %>%
-    # dplyr::rename(ATTAINS.UseName = use_attainments.use_name) %>%
-    # dplyr::arrange(ATTAINS.ParameterName, ATTAINS.UseName) %>%
+    # dplyr::rename(parameter, ATTAINS.ParameterName) %>%
+    dplyr::select(ATTAINS.OrgName,	ATTAINS.ParameterName, use_attainments.use_name) %>%
+    dplyr::mutate(nrowsStandardsRep = as.numeric(1)) %>%
+    dplyr::mutate(add_nrows_AcuteChronic = 0) %>%
+    dplyr::mutate(add_nrows_WaterTypes = 0) %>%
+    dplyr::mutate(add_nrows_SiteSpecific = 0) %>%
+    dplyr::mutate(add_nrows_Other = 0) %>%
+    dplyr::rename(ATTAINS.UseName = use_attainments.use_name) %>%
+    dplyr::arrange(ATTAINS.ParameterName, ATTAINS.UseName) %>%
     dplyr::distinct()
 
   # set zoom size
@@ -410,54 +391,42 @@ TADA_CreateParamUseRef <- function(.data, ParamRef = NULL, validate = FALSE, exc
   writeData(wb, "CreateParamUseRef", startCol = 1, x = CreateParamUseRef, headerStyle = header_st)
   
   # Writes an excel formula for nrowsStandardsRep column. Will be based on other two column values
-  # for(i in 1:nrow(CreateParamUseRef)){
-  #   writeFormula(wb, "CreateParamUseRef", startCol = 4, startRow = i + 1, x = paste0('=1+E',i+1,'+','F',i+1,'+G',i+1,'+H',i+1))
-  # }
-  # addStyle(wb,  "CreateParamUseRef", cols = 3, rows = 1:(nrow(CreateParamUseRef)+2) , style = createStyle(numFmt = "0"), gridExpand = TRUE)
-  # The list of allowable values for each column in excel tab [CreateParamRef] will be defined by the [Index] tab
-  
   for(i in 1:nrow(CreateParamUseRef)){
-    writeFormula(wb, "CreateParamUseRef", startCol = 4, 
-                 startRow = i+1, array = TRUE,
-                 x = paste0('=IF(AND(ISNA(MATCH(C', i+1,',(Index!G:G),0)),C', i+1, '<>""),"Suspect: use name is not listed as a prior water use for your organization",IF(ISNA(MATCH(1,(B', i+1,
-                            '=Index!D:D)*(C', i+1, '=Index!G:G)*(A', i+1, '=Index!F:F),0)),"Suspect: use name is not found as a prior use for this parameter name in your organization","Pass: parameter is listed as prior cause in ATTAINS and used for assessments"))')
-    ) 
+    writeFormula(wb, "CreateParamUseRef", startCol = 4, startRow = i + 1, x = paste0('=1+E',i+1,'+','F',i+1,'+G',i+1,'+H',i+1))
   }
+  addStyle(wb,  "CreateParamUseRef", cols = 3, rows = 1:(nrow(CreateParamUseRef)+2) , style = createStyle(numFmt = "0"), gridExpand = TRUE)
   
-  suppressWarnings(dataValidation(wb, sheet = "CreateParamUseRef", cols = 1, rows = 2:1000, type = "list", value = sprintf("'Index'!$F$2:$F$5000"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE))
-  suppressWarnings(dataValidation(wb, sheet = "CreateParamUseRef", cols = 3, rows = 2:1000, type = "list", value = sprintf("'Index'!$G$2:$G$5000"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE))
+  # If the user chooses to enter a separate ParamRef dataframe argument, this makes sure the excel tab reflects the user's changes
+  writeData(wb, "CreateParamRef", startCol = 1, x = ParamRef, headerStyle = header_st)
   
   # Conditional Formatting
   conditionalFormatting(wb, "CreateParamUseRef", 
-                         cols = 1:3, rows = 2:(nrow(CreateParamUseRef) + 1), 
-                         type = "blanks", style = createStyle(bgFill = "#FFC7CE"))
-  # conditionalFormatting(wb, "CreateParamUseRef", 
-  #                       cols = 4, rows = 2:(nrow(CreateParamUseRef) + 1), 
-  #                       type = "expression", rule = "!=1" , style = createStyle(fontColour = TADA_ColorPalette()[13])) # using yellow to indicate modified cell
-  # conditionalFormatting(wb, "CreateParamUseRef", 
-  #                       cols = 4, rows = 2:(nrow(CreateParamUseRef) + 1), 
-  #                       type = "expression", rule = "==1", style = createStyle(fontColour = TADA_ColorPalette()[9])) # default values or indicates good to go cells.
-  # conditionalFormatting(wb, "CreateParamUseRef", 
-  #                       cols = 5, rows = 2:(nrow(CreateParamUseRef) + 1), 
-  #                       type = "expression", rule = "==1" , style = createStyle(bgFill = TADA_ColorPalette()[8])) # using yellow to indicate modified cell
-  # conditionalFormatting(wb, "CreateParamUseRef", 
-  #                       cols = 5, rows = 2:(nrow(CreateParamUseRef) + 1), 
-  #                       type = "expression", rule = "==0", style = createStyle(bgFill = TADA_ColorPalette()[9])) # default values or indicates good to go cells.
-  # conditionalFormatting(wb, "CreateParamUseRef", 
-  #                       cols = 5, rows = 2:(nrow(CreateParamUseRef) + 1), 
-  #                       type = "expression", rule = ">1" , style = createStyle(bgFill = TADA_ColorPalette()[13])) # red to indicate potential error in this cell.
-  # conditionalFormatting(wb, "CreateParamUseRef", 
-  #                       cols = 6:8, rows = 2:(nrow(CreateParamUseRef) + 1), 
-  #                       type = "expression", rule = "!=0" , style = createStyle(bgFill = TADA_ColorPalette()[8])) # using yellow to indicate modified cell
-  # conditionalFormatting(wb, "CreateParamUseRef", 
-  #                       cols = 6:8, rows = 2:(nrow(CreateParamUseRef) + 1), 
-  #                       type = "expression", rule = "==0", style = createStyle(bgFill = TADA_ColorPalette()[9])) # default values or indicates good to go cells.
-  # dataValidation(wb, "CreateParamUseRef", 
-  #                cols = 5:8, rows = 2:(nrow(CreateParamUseRef) + 1), type = "whole", operator = "between", value = c(0, 9))
+                        cols = 4, rows = 2:(nrow(CreateParamUseRef) + 1), 
+                        type = "expression", rule = "!=1" , style = createStyle(fontColour = TADA_ColorPalette()[13])) # using yellow to indicate modified cell
+  conditionalFormatting(wb, "CreateParamUseRef", 
+                        cols = 4, rows = 2:(nrow(CreateParamUseRef) + 1), 
+                        type = "expression", rule = "==1", style = createStyle(fontColour = TADA_ColorPalette()[9])) # default values or indicates good to go cells.
+  conditionalFormatting(wb, "CreateParamUseRef", 
+                        cols = 5, rows = 2:(nrow(CreateParamUseRef) + 1), 
+                        type = "expression", rule = "==1" , style = createStyle(bgFill = TADA_ColorPalette()[8])) # using yellow to indicate modified cell
+  conditionalFormatting(wb, "CreateParamUseRef", 
+                        cols = 5, rows = 2:(nrow(CreateParamUseRef) + 1), 
+                        type = "expression", rule = "==0", style = createStyle(bgFill = TADA_ColorPalette()[9])) # default values or indicates good to go cells.
+  conditionalFormatting(wb, "CreateParamUseRef", 
+                        cols = 5, rows = 2:(nrow(CreateParamUseRef) + 1), 
+                        type = "expression", rule = ">1" , style = createStyle(bgFill = TADA_ColorPalette()[13])) # red to indicate potential error in this cell.
+  conditionalFormatting(wb, "CreateParamUseRef", 
+                        cols = 6:8, rows = 2:(nrow(CreateParamUseRef) + 1), 
+                        type = "expression", rule = "!=0" , style = createStyle(bgFill = TADA_ColorPalette()[8])) # using yellow to indicate modified cell
+  conditionalFormatting(wb, "CreateParamUseRef", 
+                        cols = 6:8, rows = 2:(nrow(CreateParamUseRef) + 1), 
+                        type = "expression", rule = "==0", style = createStyle(bgFill = TADA_ColorPalette()[9])) # default values or indicates good to go cells.
+  dataValidation(wb, "CreateParamUseRef", 
+                 cols = 5:8, rows = 2:(nrow(CreateParamUseRef) + 1), type = "whole", operator = "between", value = c(0, 9))
   
   # Orders the tab/sheets in the User Excel spreadsheet
-  # length(sheets(wb))
-  # worksheetOrder(wb) <- c(1,3,2,4)
+  length(sheets(wb))
+  #worksheetOrder(wb) <- c(1,3,2,4)
   
   # Saving of the file if overwrite = TRUE or if the file is not found in the defined folder path. If is not saved, a dataframe is still returned.
   if(!is.null(downloads)){
@@ -477,11 +446,12 @@ TADA_CreateParamUseRef <- function(.data, ParamRef = NULL, validate = FALSE, exc
   cat("File saved to:", gsub("/","\\\\",downloads_path), "\n")
   
   ParamUseRef <- openxlsx::read.xlsx(downloads_path, sheet = "CreateParamUseRef")
-  # # Error handling below, this makes the column for 'nrowsStandardsRep' to equal all 1 by default in this dataframe as the return value.
-  # ParamUseRef$nrowsStandardsRep <- as.numeric(1)
+  # Error handling below, this makes the column for 'nrowsStandardsRep' to equal all 1 by default in this dataframe as the return value.
+  ParamUseRef$nrowsStandardsRep <- as.numeric(1)
 
   return(ParamUseRef)
 }
+
 
 #' Assessment Unit and MonitoringLocationName/MonitoringLocationType/MonitoringLocationId Crosswalk
 #'
@@ -664,7 +634,7 @@ TADA_DefineStandards <- function(.data, ParamUseRef = NULL, AUIDRef = NULL, over
   # check to see if user-supplied parameter ref is a df with appropriate columns and filled out.
   if (!is.null(ParamUseRef) & !is.character(ParamUseRef)) {
     if (!is.data.frame(ParamUseRef)) {
-      stop("TADA_DefineStandards: 'ParamUseRef' must be a data frame with five columns: organization_name,	ATTAINS.ParameterName,	ATTAINS.UseName,	nrowsStandardsRep")
+      stop("TADA_DefineStandards: 'ParamUseRef' must be a data frame with five columns: ATTAINS.OrgName,	ATTAINS.ParameterName,	ATTAINS.UseName,	nrowsStandardsRep")
     }
     
     if (is.data.frame(ParamUseRef)) {

@@ -253,26 +253,16 @@ for each row,, otherwise next steps in the process may not run
 correctly.
 
 ```{r}
-# User has ran all cleaning, filtering, harmonization etc of interest
 temp <- as.data.frame(TADA_with_ATTAINS$TADA_with_ATTAINS)
 
-# Testing out different arguments
-
-# User creates a blank template and fills it out in excel.
-Co_ParamRef <- TADA_CreateParamRef(temp, excel = TRUE, overwrite = TRUE)
-# They will then read the file back into the R environment.
-Co_ParamRef <- openxlsx::read.xlsx(downloads_path, sheet = "CreateParamRef")
-
-
-
-# User has a prepoulated dataframe, use the reference file. No need to validate unless they make further edits in the R environment - or they can always run it?
-Co_ParamRef3 <- TADA_CreateParamRef(temp, ParamRef = ref1, excel = TRUE, overwrite = TRUE)
+# Users must define the appropriate crosswalk map between ATTAINS parameter and WQP parameters.
+Co_ParamRef <- TADA_CreateParamRef(temp, overwrite = TRUE)
 
 # Users can choose to save TADA_ParamRef as an R dataframe if they desire or edit directly in excel and save file.
 downloads_path <- file.path(Sys.getenv("USERPROFILE"), "Downloads", "myfileRef.xlsx")
 Co_ParamRef <- openxlsx::read.xlsx(downloads_path, sheet = "CreateParamRef")
 
-Co_ParamUseRef <- TADA_CreateParamUseRef(.data = temp, ParamRef = Co_ParamRef3, overwrite = TRUE)
+Co_ParamUseRef <- TADA_CreateParamUseRef(overwrite = TRUE)
 # TADA_ParamUseRef <- TADA_CreateParamUseRef(ParamRef = TADA_ParamRef, overwrite = TRUE)
 Co_ParamUseRef <- openxlsx::read.xlsx(downloads_path, sheet = "CreateParamUseRef")
 
@@ -287,26 +277,6 @@ Co_Standards <- TADA_DefineStandards(.data = temp, overwrite = TRUE)
 Co_Standards <- openxlsx::read.xlsx(downloads_path, sheet = "DefineStandards")
 
 Co_StandardsExceedance <- TADA_StandardsExceedance(.data = temp, overwrite = TRUE)
-```
-
-```{r}
-# Prefilled out template, example if user edits within R environment, they must then run validate = TRUE
-ref1 # prepopulated dataframe
-Co_ParamRef2 <- TADA_CreateParamRef(temp, ParamRef = ref1, excel = FALSE)
-
-# If user decides to make further edits in the R environment.They must then run validate = TRUE to update the flagging column
-Co_ParamRef2 <- dplyr::mutate(Co_ParamRef2, organization_name = case_when(TADA.CharacteristicName != "NITRATE" ~ "Colorado"))
-
-Co_ParamRef2 <- TADA_CreateParamRef(temp, ParamRef = ref1, validate = TRUE)
-```
-
-```{r}
-example_param_ref <- TADA_CreateParamRef(Data_6Tribes_5y_Harmonized, excel = TRUE, overwrite = TRUE)
-
-example_param_ref2 <- openxlsx::read.xlsx(downloads_path, sheet = "CreateParamRef")
-
-
-example_param_use_ref <- TADA_CreateParamUseRef(Data_6Tribes_5y_Harmonized, ParamRef = example_param_ref2, excel = TRUE, overwrite = TRUE)
 ```
 
 User should open this file and, in the "UserCriteriaRef" tab, make the
