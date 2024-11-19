@@ -260,7 +260,18 @@ Co_ParamRef <- TADA_CreateParamRef(temp, overwrite = TRUE)
 
 # Users can choose to save TADA_ParamRef as an R dataframe if they desire or edit directly in excel and save file.
 downloads_path <- file.path(Sys.getenv("USERPROFILE"), "Downloads", "myfileRef.xlsx")
-Co_ParamRef <- openxlsx::read.xlsx(downloads_path, sheet = "CreateParamRef")
+ParamRef <- openxlsx::read.xlsx(downloads_path, sheet = "CreateParamRef")
+
+# User can now save this reference file to be used as an input in future assessments.
+Co_ParamRef2 <- TADA_CreateParamRef(temp, paramRef = ParamRef, excel = TRUE, overwrite = TRUE)
+
+# Excel creation is now also optional.
+Co_ParamRef3 <- TADA_CreateParamRef(temp, paramRef = ParamRef, excel = FALSE)
+
+#Use 304a standards
+Co_ParamRef4 <- dplyr::mutate(Co_ParamRef3, organization_name = "EPA 304a")
+Co_ParamRef5 <- TADA_CreateParamRef(temp, validate = TRUE, excel = FALSE)
+
 
 Co_ParamUseRef <- TADA_CreateParamUseRef(overwrite = TRUE)
 # TADA_ParamUseRef <- TADA_CreateParamUseRef(ParamRef = TADA_ParamRef, overwrite = TRUE)

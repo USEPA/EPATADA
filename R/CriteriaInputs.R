@@ -87,20 +87,26 @@ TADA_CreateParamRef <- function(.data, paramRef = NULL, validate = FALSE, excel 
   TADA_param <- dplyr::distinct(.data[,c("TADA.CharacteristicName", "TADA.MethodSpeciationName", "TADA.ResultSampleFractionText", "ATTAINS.organizationname")]) %>%
     dplyr::left_join(CST_param, "TADA.CharacteristicName") %>%
     dplyr::select(TADA.CharacteristicName, TADA.MethodSpeciationName, TADA.ResultSampleFractionText, CST.PollutantName, organization_name = ATTAINS.organizationname) %>%
-    dplyr::arrange(TADA.CharacteristicName)
+    dplyr::arrange(TADA.CharacteristicName) %>%
+    group_by(TADA.CharacteristicName, TADA.MethodSpeciationName, TADA.ResultSampleFractionText, CST.PollutantName) %>%
+    filter(if(sum(!is.na(organization_name))) !is.na(organization_name) else T)
   
   if(is.null(paramRef)){
     CreateParamRef <- TADA_param %>%
-      dplyr::mutate(ATTAINS.ParameterName = NA, organization_name = NA) %>%
+      dplyr::mutate(ATTAINS.ParameterName = NA) %>%
       dplyr::select(TADA.CharacteristicName, TADA.MethodSpeciationName, TADA.ResultSampleFractionText, CST.PollutantName, ATTAINS.ParameterName, organization_name) %>%
-      dplyr::arrange(TADA.CharacteristicName)
+      dplyr::arrange(TADA.CharacteristicName) %>%
+      group_by(TADA.CharacteristicName, TADA.MethodSpeciationName, TADA.ResultSampleFractionText, CST.PollutantName) %>%
+      filter(if(sum(!is.na(organization_name))) !is.na(organization_name) else T)
     }
   
   if(!is.null(paramRef)){
     CreateParamRef <- TADA_param %>%
       dplyr::left_join(paramRef, c("TADA.CharacteristicName", "TADA.MethodSpeciationName", "TADA.ResultSampleFractionText", "organization_name")) %>%
-      dplyr::select(TADA.CharacteristicName, TADA.MethodSpeciationName, TADA.ResultSampleFractionText, CST.PollutantName.x, ATTAINS.ParameterName, organization_name) %>%
+      dplyr::select(TADA.CharacteristicName, TADA.MethodSpeciationName, TADA.ResultSampleFractionText, CST.PollutantName = CST.PollutantName.x, ATTAINS.ParameterName, organization_name) %>%
       dplyr::arrange(TADA.CharacteristicName) %>%
+      group_by(TADA.CharacteristicName, TADA.MethodSpeciationName, TADA.ResultSampleFractionText, CST.PollutantName) %>%
+      filter(if(sum(!is.na(organization_name))) !is.na(organization_name) else T) %>%
       dplyr::distinct()
   }
   
@@ -108,7 +114,8 @@ TADA_CreateParamRef <- function(.data, paramRef = NULL, validate = FALSE, excel 
   ATTAINS_param_all <- utils::read.csv(system.file("extdata", "ATTAINSParamUseEntityRef.csv", package = "EPATADA"))
   
   ATTAINS_param <- ATTAINS_param_all %>%
-    dplyr::filter(organization_name %in% org_name)
+    dplyr::filter(organization_name %in% org_name) %>%
+    dplyr::arrange(parameter)
   
   # # Uses rATTAINS to pull in all allowable parameter values by the entity in the dataframe
   # ATTAINS_param <- list()
@@ -140,16 +147,16 @@ TADA_CreateParamRef <- function(.data, paramRef = NULL, validate = FALSE, excel 
   if(excel == TRUE){
   library(openxlsx)
   wb <- createWorkbook()
+  addWorksheet(wb, "CreateParamRef", visible = TRUE)
   addWorksheet(wb, "Index", visible = FALSE)
   addWorksheet(wb, "ATTAINSParamAllOrgs", visible = FALSE)
   addWorksheet(wb, "ATTAINSParamRef", visible = FALSE)
-  addWorksheet(wb, "CreateParamRef", visible = TRUE)
   #addStyle(wb, "ATTAINSParamRef", rows = 1:200, cols = 1:2, gridExpand = TRUE, style = createStyle(locked = FALSE))
   
   # set zoom size
   set_zoom <- function(x) gsub('(?<=zoomScale=")[0-9]+', x, sV, perl = TRUE)
-  sV <- wb$worksheets[[2]]$sheetViews
-  wb$worksheets[[2]]$sheetViews <- set_zoom(90)
+  sV <- wb$worksheets[[1]]$sheetViews
+  wb$worksheets[[1]]$sheetViews <- set_zoom(90)
   # Format header and bodystyle
   header_st <- createStyle(textDecoration = "Bold")
   bodyStyle <- createStyle(wrapText = TRUE)
@@ -258,41 +265,37 @@ TADA_CreateParamRef <- function(.data, paramRef = NULL, validate = FALSE, excel 
   
   if(is.null(paramRef)){
     CreateParamRef <- CreateParamRef %>%
-    dplyr::mutate(ATTAINS.ParameterName = NA, organization_name = NA, ATTAINS.FlagParameterName = "Suspect: No parameter crosswalk provided. Parameter will not be used for assessment")
+      dplyr::mutate(ATTAINS.ParameterName = NA, ATTAINS.FlagParameterName = "Suspect: No parameter crosswalk provided. Parameter will not be used for assessment")
   }
   
   if(!is.null(paramRef)){
-    CreateParamRef <- CreateParamRef %>%
-      dplyr::left_join(paramRef, by =c("TADA.CharacteristicName", "TADA.MethodSpeciationName",	"TADA.ResultSampleFractionText")) %>%
-      dplyr::mutate(ATTAINS.FlagParameterName = "Suspect: No parameter crosswalk provided. Parameter will not be used for assessment") %>%
-      dplyr::select(TADA.CharacteristicName, TADA.MethodSpeciationName, TADA.ResultSampleFractionText, CST.PollutantName.x,	ATTAINS.ParameterName, organization_name,	ATTAINS.FlagParameterName) 
-    
-    ATTAINS_param <- ATTAINS_param %>% 
-      dplyr::select(parameter, organization_name) %>% 
-      dplyr::distinct()
-    
     CreateParamRef <- CreateParamRef %>% 
-      dplyr::left_join(ATTAINS_param, by = c("ATTAINS.ParameterName" = "parameter")) %>%
+      #dplyr::left_join(ATTAINS_param, by = c("ATTAINS.ParameterName" = "parameter")) %>%
       dplyr::mutate(ATTAINS.FlagParameterName = case_when(
+        organization_name == "EPA 304a" & CST.PollutantName != NA ~ "Pass: Will use the EPA 304a recommended standards for this parameter",
+        organization_name == "EPA 304a" & CST.PollutantName != NA ~ "Suspect: No CST.PollutantName found. Please select an appropriate crosswalk if you would like to use the EPA 304a recommended standards for this parameter",
         is.na(organization_name) & is.na(ATTAINS.ParameterName) ~ "Suspect: No parameter crosswalk provided. Parameter will not be used for assessment",
         is.na(organization_name) & !is.na(ATTAINS.ParameterName) ~ "Suspect: parameter not listed as a prior cause for this organization",
         !is.na(organization_name) & !is.na(ATTAINS.ParameterName) ~ "Pass: parameter is listed as prior cause in ATTAINS and will be used for assessments")
       ) %>%
-      dplyr::select(TADA.CharacteristicName, TADA.MethodSpeciationName, TADA.ResultSampleFractionText, CST.PollutantName.x,	ATTAINS.ParameterName, organization_name,	ATTAINS.FlagParameterName)
+      dplyr::select(TADA.CharacteristicName, TADA.MethodSpeciationName, TADA.ResultSampleFractionText, CST.PollutantName,	ATTAINS.ParameterName, organization_name,	ATTAINS.FlagParameterName)
   }
   
   # Re-runs the flagging data after a user has inputted values - will need to be done if a user inputs values in the R environment
   if( validate == TRUE){
-    CreateParamRef <- dplyr::select(paramRef, TADA.CharacteristicName, TADA.MethodSpeciationName,	TADA.ResultSampleFractionText, ATTAINS.ParameterName)
+    paramRef <- paramRef %>%
+      dplyr::select(TADA.CharacteristicName, TADA.MethodSpeciationName, TADA.ResultSampleFractionText, CST.PollutantName,	ATTAINS.ParameterName, organization_name,	ATTAINS.FlagParameterName)
     
     CreateParamRef <- CreateParamRef %>% 
-      dplyr::left_join(ATTAINS_param, by = c("ATTAINS.ParameterName" = "parameter")) %>%
+      dplyr::left_join(paramRef, by = c("TADA.CharacteristicName", "TADA.MethodSpeciationName", "TADA.ResultSampleFractionText", "CST.PollutantName", "ATTAINS.ParameterName")) %>%
       dplyr::mutate(ATTAINS.FlagParameterName = case_when(
-        is.na(organization_name.y) & is.na(ATTAINS.ParameterName) ~ "Suspect: No parameter crosswalk provided. Parameter will not be used for assessment",
-        is.na(organization_name.y) & !is.na(ATTAINS.ParameterName) ~ "Suspect: parameter not listed as a prior cause for this organization",
-        !is.na(organization_name.y) & !is.na(ATTAINS.ParameterName) ~ "Pass: parameter is listed as prior cause in ATTAINS and will be used for assessments")
+        organization_name.y == "EPA 304a" & !is.na(CST.PollutantName) ~ "Pass: Will use the EPA 304a recommended standards for this parameter",
+        organization_name.y == "EPA 304a" & is.na(CST.PollutantName) ~ "Suspect: No CST.PollutantName found. Please select an appropriate crosswalk if you would like to use the EPA 304a recommended standards for this parameter",
+        organization_name.y != "EPA 304a" & is.na(organization_name.y) & is.na(ATTAINS.ParameterName) ~ "Suspect: No parameter crosswalk provided. Parameter will not be used for assessment",
+        organization_name.y != "EPA 304a" & is.na(organization_name.y) & !is.na(ATTAINS.ParameterName) ~ "Suspect: parameter not listed as a prior cause for this organization",
+        organization_name.y != "EPA 304a" & !is.na(organization_name.y) & !is.na(ATTAINS.ParameterName) ~ "Pass: parameter is listed as prior cause in ATTAINS and will be used for assessments")
       ) %>%
-      dplyr::select(TADA.CharacteristicName, TADA.MethodSpeciationName, TADA.ResultSampleFractionText, CST.PollutantName.x,	ATTAINS.ParameterName, organization_name,	ATTAINS.FlagParameterName)
+      dplyr::select(TADA.CharacteristicName, TADA.MethodSpeciationName, TADA.ResultSampleFractionText, CST.PollutantName,	ATTAINS.ParameterName, organization_name = organization_name.y,	ATTAINS.FlagParameterName)
   }
   
   return(CreateParamRef)
