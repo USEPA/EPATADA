@@ -99,6 +99,15 @@ the console to update dependency packages that have more recent versions
 available. If you see this prompt, it is recommended to update all of
 them (enter 1 into the console).
 
+The most stable branch for TADA right now is the develop
+branch. Contributors generally create their own branches based on
+develop, make some improvements, and then submit a pull request to be
+reviewed by the TADA Team. Once approved, updates are then merged into
+the develop branch. However, you are welcome to download any branch
+you'd like using the `ref` input in `install_github` (see code chunk
+below). This functionality is mainly only useful to TADA package
+developers/contributors.
+
 ```{r install_TADA, eval = F, results = 'hide'}
 remotes::install_github("USEPA/EPATADA",
   ref = "develop",
@@ -113,14 +122,7 @@ session.
 library(EPATADA)
 ```
 
-It's that easy! The most stable branch for TADA right now is the develop
-branch. Contributors generally create their own branches based on
-develop, make some improvements, and then submit a pull request to be
-reviewed by the TADA Team. Once approved, updates are then merged into
-the develop branch. However, you are welcome to download any branch
-you'd like using the `ref` input in `install_github` (see code chunk
-above). This functionality is mainly only useful to TADA package
-developers/contributors.
+It's that easy! 
 
 The following code block ensures the additional packages needed to run
 the code in this RMarkdown document are loaded. However, users may also
@@ -129,7 +131,8 @@ use the `package name:: package function` notation to avoid the list of
 
 ```{r, eval = F, results = 'hide'}
 list.of.packages <- c("tidyverse")
-new.packages <- list.of.packages[!(list.of.packages %in% installed.packages()[, "Package"])]
+new.packages <- list.of.packages[!(list.of.packages %in% 
+                                     installed.packages()[, "Package"])]
 if (length(new.packages)) install.packages(new.packages)
 
 library(tidyverse)
@@ -169,15 +172,15 @@ data structure and format.
 getwd() # find your working directory
 template <- TADA_GetTemplate() # download template to working directory
 
-# uncomment below to review example data frame
-# Data_Nutrients_UT <- Data_Nutrients_UT
+# review example data frame
+exampledata_Nutrients_UT <- Data_Nutrients_UT
 ```
 
-`TADA_DataRetrieval` is built upon USGS's `dataRetrieval::readWQPdata`
-function within the dataRetrieval package, which uses web service calls
-to bring WQP data into the R environment. Additionally,
-`TADA_DataRetrieval` performs some basic quality control checks via
-`TADA_AutoClean` on the data using new TADA-specific columns to preserve
+`TADA_DataRetrieval` is built upon USGS's `dataRetrieval::readWQPdata` and 
+`dataRetrieval::whatWQPsites` functions within the dataRetrieval package, 
+which uses web service calls to bring WQP data into the R environment. 
+Additionally, `TADA_DataRetrieval` performs some basic quality control checks 
+via `TADA_AutoClean` on the data using new TADA-specific columns to preserve
 the original data frame:
 
 -   Converts key character columns to ALL CAPS for easier harmonization
@@ -207,7 +210,12 @@ about input parameters and to see several examples.
 ```{r dataretrieval}
 # download example data
 # dataset_0  <- TADA_DataRetrieval(
-#   organization = c("REDLAKE_WQX", "SFNOES_WQX", "PUEBLO_POJOAQUE", "FONDULAC_WQX",   "PUEBLOOFTESUQUE", "CNENVSER"),
+#   organization = c("REDLAKE_WQX", 
+#                    "SFNOES_WQX", 
+#                    "PUEBLO_POJOAQUE", 
+#                    "FONDULAC_WQX",   
+#                    "PUEBLOOFTESUQUE", 
+#                    "CNENVSER"),
 #   startDate = "2018-01-01",
 #   endDate = "2023-01-01")
 
@@ -224,12 +232,14 @@ data. This ensures that all important quality control columns are
 included in the data frame.
 
 **Note:** USGS and EPA are working together to create WQP 3.0 data
-profiles. Once released, one data profile will contain the columns
-critical to TADA, removing the need to combine profiles in this first
-step. TADA package users likely will not notice a difference in their
-usage of the `TADA_DataRetrieval` function, but it will simplify the
-steps needed to upload a custom or WQP GUI-downloaded data frame into
-the R package.
+profiles. Once released (coming in 2025), one data profile will contain the 
+columns critical to TADA, removing the need to combine profiles in this first
+step. This will simplify the steps needed to upload a custom or WQP 
+GUI-downloaded data frame into the R package. However, column names are 
+changing in the new WQP 3.0 data profiles. This may impact TADA package users 
+usage of the `TADA_DataRetrieval` function in their workflows. The WQP and 
+TADA teams are available to assist with cross walking the old to new column
+names when the time comes.
 
 ## Initial data review
 
@@ -574,7 +584,10 @@ to make non-detect values equal to the provided detection limit? What
 would you need to change in the example below?**
 
 ```{r cens dataset}
-dataset_cens <- TADA_SimpleCensoredMethods(dataset_flags, nd_method = "multiplier", nd_multiplier = 0.5, od_method = "as-is")
+dataset_cens <- TADA_SimpleCensoredMethods(dataset_flags, 
+                                           nd_method = "multiplier", 
+                                           nd_multiplier = 0.5, 
+                                           od_method = "as-is")
 ```
 
 Let's take a look at how the censored data handling function affects the
@@ -737,8 +750,7 @@ secchi depth, and pH.
 ```{r depth plot}
 TADA_DepthProfilePlot(dataset_cens,
   groups = c(
-    "TEMPERATURE,
-                                       WATER_NA_NA_DEG C",
+    "TEMPERATURE, WATER_NA_NA_DEG C",
     "DEPTH, SECCHI DISK DEPTH_NA_NA_M",
     "PH_NA_NA_NONE"
   ),
