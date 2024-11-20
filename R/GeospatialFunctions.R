@@ -748,6 +748,8 @@ TADA_ViewATTAINS <- function(.data) {
 #' 
 #' @seealso [TADA_DataRetrieval()]
 #' 
+#' @export
+#' 
 
 TADA_TribalOptions <- function(tribal_area_type, return_sf = FALSE){
   

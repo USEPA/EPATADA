@@ -247,16 +247,12 @@ TADA_DataRetrieval <- function(startDate = "null",
     stop("A tribal_area_type is required if tribe_name_parcel is provided.")
   }
   
-  
   # Set query parameters
   WQPquery <- list()
-  
   
   # If an sf object OR tribal info are provided they will be the basis of the query
   # (The tribal data handling uses sf objects as well)
   if( (!is.null(aoi_sf) & inherits(aoi_sf, "sf")) | (tribal_area_type != "null") ){
-    
-    sf::sf_use_s2(FALSE)
     
     # Build the non-sf part of the query:
     
@@ -398,6 +394,9 @@ TADA_DataRetrieval <- function(startDate = "null",
       }
       
     }
+    
+    # Check and/or fix geometry
+    aoi_sf <- sf::st_make_valid(aoi_sf)
     
     # Match CRS
     if(sf::st_crs(aoi_sf) != 4326){
@@ -1000,35 +999,7 @@ TADA_BigDataRetrieval <- function(startDate = "null",
     rm(df_summary)
     # if there are still site records when filtered to years of interest....
     if (dim(sites)[1] > 0) {
-      # function for chunking by records
-      make_groups <- function(x, maxrecs) {
-        if (sum(x$tot_n) <= maxrecs | dim(x)[1] == 1) { # WARNING: if there's only one row and it's more than maxrecs, it will try to run the query anyway
-          groupings <- x
-          groupings$group <- 1
-        } else {
-          groupings <- data.frame()
-          group <- data.frame()
-          i <- 1
-          while (nrow(x) > nrow(group)) {
-            x$csum <- cumsum(x$tot_n)
-            brk <- which(x$csum > maxrecs)[1]
-            group <- x[1:(brk - 1), ]
-            group$group <- i
-            if (brk > 1) {
-              x <- x[brk:length(x$tot_n), ]
-            } else {
-              x <- x[2:length(x$tot_n), ]
-            }
-            i <- i + 1
-            groupings <- plyr::rbind.fill(groupings, group)
-          }
-          
-          x$group <- i
-          
-          groupings <- plyr::rbind.fill(groupings, x)
-        }
-        return(groupings)
-      }
+     
       
       
       # get total number of results per site and separate out sites with >250000 results
@@ -1211,4 +1182,35 @@ TADA_JoinWQPProfiles <- function(FullPhysChem = "null",
   }
   
   return(join2)
+}
+
+
+# function for chunking by records
+make_groups <- function(x, maxrecs) {
+  if (sum(x$tot_n) <= maxrecs | dim(x)[1] == 1) { # WARNING: if there's only one row and it's more than maxrecs, it will try to run the query anyway
+    groupings <- x
+    groupings$group <- 1
+  } else {
+    groupings <- data.frame()
+    group <- data.frame()
+    i <- 1
+    while (nrow(x) > nrow(group)) {
+      x$csum <- cumsum(x$tot_n)
+      brk <- which(x$csum > maxrecs)[1]
+      group <- x[1:(brk - 1), ]
+      group$group <- i
+      if (brk > 1) {
+        x <- x[brk:length(x$tot_n), ]
+      } else {
+        x <- x[2:length(x$tot_n), ]
+      }
+      i <- i + 1
+      groupings <- plyr::rbind.fill(groupings, group)
+    }
+    
+    x$group <- i
+    
+    groupings <- plyr::rbind.fill(groupings, x)
+  }
+  return(groupings)
 }
