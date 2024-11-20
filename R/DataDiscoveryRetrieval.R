@@ -865,6 +865,99 @@ TADA_ReadWQPWebServices <- function(webservice) {
 }
 
 
+TADA_BigDataHelper <- function(record_summary, WQPquery, maxrecs, maxsites = 300){
+  
+  # Get total number of results per site and separate out sites with >maxrecs results
+  tot_sites <- record_summary %>%
+    # dplyr::filter(MonitoringLocationIdentifier %in% clipped_site_ids) %>%
+    dplyr::group_by(MonitoringLocationIdentifier) %>%
+    dplyr::summarise(tot_n = sum(resultCount)) %>%
+    dplyr::filter(tot_n > 0) %>%
+    dplyr::arrange(tot_n)
+  
+  # Sites with less than/equal to maxrecs
+  smallsites <- tot_sites %>% dplyr::filter(tot_n <= maxrecs)
+  # Sites with more than maxrecs
+  bigsites <- tot_sites %>% dplyr::filter(tot_n > maxrecs)
+  
+  df_small <- data.frame()
+  df_big <- data.frame()
+  
+  # Work with small sites first:
+  # Build download groups. Total record count limited to value of maxrecs.
+  # Number of sites per download group limited to 300.
+  if (dim(smallsites)[1] > 0) {
+    smallsitesgrp <- smallsites %>%
+      mutate(group = MESS::cumsumbinning(
+        x = tot_n,
+        threshold = maxrecs,
+        maxgroupsize = 300
+      ))
+    
+    # Status update to user
+    print(
+      paste0("Downloading data from sites with fewer than ",
+             maxrecs,
+             " results by grouping them together.")
+    )
+    
+    # Download the data for each group
+    for (i in 1:max(smallsitesgrp$group)) {
+      small_site_chunk <- subset(smallsitesgrp$MonitoringLocationIdentifier,
+                                 smallsitesgrp$group == i)
+      # Query result data
+      results_small <- dataRetrieval::readWQPdata(
+        siteid = small_site_chunk,
+        WQPquery,
+        dataProfile = "resultPhysChem",
+        ignore_attributes = TRUE
+      ) %>%
+        dplyr::mutate(across(everything(), as.character))
+      
+      # If data is returned, stack with what's already been retrieved
+      if (dim(results_small)[1] > 0) {
+        df_small <- dplyr::bind_rows(df_small, results_small)
+      }
+    }
+    
+    rm(smallsites, smallsitesgrp)
+    gc()
+    
+    # Large sites (>= maxrecs) next:
+    if (dim(bigsites)[1] > 0) {
+      print(
+        paste0("Downloading data from sites with greater than ",
+               maxrecs,
+               " results, chunking queries by site.")
+      )
+      
+      # Unique site IDs
+      bsitesvec <- unique(bigsites$MonitoringLocationIdentifier)
+      
+      # For each site
+      for (i in 1:length(bsitesvec)) {
+        # Download each site's data individually
+        results_big <- dataRetrieval::readWQPdata(
+          siteid = bsitesvec[i],
+          WQPquery,
+          dataProfile = "resultPhysChem",
+          ignore_attributes = TRUE
+        ) %>%
+          dplyr::mutate(across(everything(), as.character))
+        
+        if (dim(results_big)[1] > 0) {
+          df_big <- dplyr::bind_rows(df_big, results_big)
+        }
+      }
+    }
+    rm(bigsites)
+    gc()
+  }
+  
+  df_out <- bind_rows(df_small, df_big)
+  
+  return(df_out)
+}
 
 #' Large WQP data pulls using dataRetrieval
 #'
