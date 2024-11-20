@@ -87,7 +87,7 @@ Users can install the TADA package from GitHub into their R library
 using the `remotes` package. Copy and paste the code below into your R
 or RStudio console to download and install.
 
-```{r install_remotes, results = 'hide'}
+```{r install_remotes, results = 'hide', eval = F}
 install.packages("remotes",
   repos = "http://cran.us.r-project.org"
 )
@@ -101,7 +101,7 @@ them (enter 1 into the console).
 
 ```{r install_TADA, eval = F, results = 'hide'}
 remotes::install_github("USEPA/EPATADA",
-  ref = "502-tadacomparabledataidentifier-column-showing-na-for-the-tadaresultmeasuremeasureunitcode-portion-of-its-string-pasting",
+  ref = "develop",
   dependencies = TRUE
 )
 ```
@@ -439,7 +439,7 @@ Table](https://cdx.epa.gov/wqx/download/DomainValues/QAQCCharacteristicValidatio
 See the [WQX QAQC Service User
 Guide](https://usepa.github.io/EPATADA/articles/WQXValidationService.html)
 for more details on how TADA leverages the validation table to flag
-potentially invalid data. `TADA_FindQCActivities()` uses a TADA-specific
+potentially suspect data. `TADA_FindQCActivities()` uses a TADA-specific
 domain table users can review with `TADA_GetActivityTypeRef()`. All QAQC
 tables are frequently updated in the package to ensure they match the
 latest version on the web.
@@ -455,10 +455,10 @@ unique(qaqc_ref$Type)
 
 **Question 5: What do you think the `qaqc_ref$Type` column indicates?**
 
-TADA joins this validation table to the data and uses the "Valid" and
-"Invalid" labels in the Status column to create easily understandable
-flagging columns for each function. Let's run these four flagging
-functions.
+TADA joins this validation table to the data and uses the "Pass" and
+"Suspect" labels in the TADA.WQXVal.Flag column to create easily
+understandable flagging columns for each function. Let's run these four
+flagging functions.
 
 ```{r example flags}
 dataset_flags <- TADA_FlagFraction(dataset, clean = FALSE, flaggedonly = FALSE)
@@ -482,12 +482,12 @@ TADA_FieldValuesPie(dataset_flags, field = "TADA.ResultUnit.Flag")
 TADA_FieldValuesPie(dataset_flags, field = "TADA.ActivityType.Flag")
 ```
 
-Any results flagged as "Invalid" are recognized in the QAQC Validation
+Any results flagged as "Suspect" are recognized in the QAQC Validation
 Table as having some data quality issue. "NonStandardized" means that
-the format has not been fully vetted or processed, while "Valid"
-confirms that the characteristic combination is widely recognized as
-correctly formatted. Let's add any invalid results to the removed data
-frame for later review.
+the format has not been fully vetted or processed, while "Pass" confirms
+that the characteristic combination is widely recognized as correctly
+formatted. Let's add any suspect results to the removed data frame for
+later review.
 
 **Note: if you find any errors in the QAQC Validation Table, please
 contact the WQX Help Desk at WQX\@epa.gov to help correct it. Thanks in
@@ -496,7 +496,7 @@ advance!**
 ```{r flags}
 # grab all the flagged results from the four functions
 problem_flagged <- dataset_flags %>%
-  dplyr::filter(TADA.SampleFraction.Flag == "Rejected" | TADA.MethodSpeciation.Flag == "Invalid" | TADA.ResultUnit.Flag == "Rejected" | !TADA.ActivityType.Flag %in% ("Non_QC")) %>%
+  dplyr::filter(TADA.SampleFraction.Flag == "Suspect" | TADA.MethodSpeciation.Flag == "Suspect" | TADA.ResultUnit.Flag == "Suspect" | !TADA.ActivityType.Flag %in% ("Non_QC")) %>%
   dplyr::mutate(TADA.RemovalReason = "Invalid Unit, Method, Speciation, or Activity Type.")
 
 dataset_flags <- dataset_flags %>% dplyr::filter(!ResultIdentifier %in% problem_flagged$ResultIdentifier)
@@ -781,6 +781,6 @@ remotes::install_github("USEPA/TADAShiny", ref = "develop", dependencies = TRUE)
 TADAShiny::run_app()
 ```
 
-DRAFT [Module 1](https://owshiny-dev.app.cloud.gov/tada-dev/) is also
+DRAFT [Module 1](https://rconnect-public.epa.gov/TADAShiny/) is also
 currently hosted on the web with minimal server memory/storage
 allocated.

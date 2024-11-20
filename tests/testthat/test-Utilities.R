@@ -7,4 +7,3 @@ test_that("TADA_AutoClean function does not grow dataset", {
   testautoclean2 <- TADA_AutoClean(testautoclean1)
   expect_true(dim(testautoclean1)[1] == dim(testautoclean2)[1])
 })
-

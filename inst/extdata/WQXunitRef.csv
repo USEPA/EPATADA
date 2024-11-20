@@ -1,270 +1,270 @@
 "Domain","Unique.Identifier","Code","Description","Last.Change.Date","Target.Unit","Conversion.Factor","Conversion.Coefficient"
 "Measurement Unit(MeasureUnitCode)",349,"#/100L","Concentration Solution, Number per 100 liters","1/28/2014 8:59:35 AM","#/100mL",1000,0
 "Measurement Unit(MeasureUnitCode)",157,"#/100gal","Concentration Solution, Number per 100 gallons","7/26/2017 10:57:47 AM","#/100mL",0.0002641721,0
-"Measurement Unit(MeasureUnitCode)",151,"#/100mL","Concentration Solution, Number per hundred milliliters","7/26/2006 10:57:47 AM","#/100mL",1,0
+"Measurement Unit(MeasureUnitCode)",151,"#/100mL","()Concentration Solution, Number per hundred milliliters","7/26/2006 10:57:47 AM","#/100mL",1,0
 "Measurement Unit(MeasureUnitCode)",307,"#/10L","Concentration Solution, Number per 10 liters","1/10/2012 6:06:31 PM","#/100mL",0.01,0
 "Measurement Unit(MeasureUnitCode)",158,"#/500mL","Concentration Solution, Number per 500 milliliters","7/26/2017 10:57:47 AM","#/100mL",0.2,0
 "Measurement Unit(MeasureUnitCode)",150,"#/L","Concentration Solution, Number per liter","7/26/2006 10:57:47 AM","#/100mL",0.1,0
 "Measurement Unit(MeasureUnitCode)",212,"#/acre","Concentration Solution, Number per acre","7/26/2006 10:57:47 AM","#/m2",0.0002471043692253,0
-"Measurement Unit(MeasureUnitCode)",339,"#/cm","Concentration Solution, Number per centimeter","2/19/2013 12:00:00 AM","#/cm",1,0
+"Measurement Unit(MeasureUnitCode)",339,"#/cm","()Concentration Solution, Number per centimeter","2/19/2013 12:00:00 AM","#/cm",1,0
 "Measurement Unit(MeasureUnitCode)",154,"#/cm2","Concentration Solution, Number per square centimeter","7/26/2006 10:57:47 AM","#/m2",10000,0
 "Measurement Unit(MeasureUnitCode)",152,"#/cm3","Concentration Solution, Number per cubic centimeter","7/26/2006 10:57:47 AM","#/100mL",100,0
 "Measurement Unit(MeasureUnitCode)",149,"#/dL","Concentration Solution, Number per deciliter","7/26/2006 10:57:47 AM","#/100mL",1,0
 "Measurement Unit(MeasureUnitCode)",380,"#/day","Concentration Solution, number per day","5/26/2022 12:00:00 AM","counts/sec",86400,0
 "Measurement Unit(MeasureUnitCode)",210,"#/ft2","Concentration Solution, Number per square foot","7/26/2006 10:57:47 AM","#/m2",10.7639104167097,0
-"Measurement Unit(MeasureUnitCode)",699,"#/g","Concentration Solution, Number per gram","10/1/2019 12:32:30 PM","#/g",1,0
+"Measurement Unit(MeasureUnitCode)",699,"#/g","()Concentration Solution, Number per gram","10/1/2019 12:32:30 PM","#/g",1,0
 "Measurement Unit(MeasureUnitCode)",208,"#/ha","Concentration Solution, Number per hectare","7/26/2006 10:57:47 AM","#/m2",1e-04,0
 "Measurement Unit(MeasureUnitCode)",381,"#/hr","Concentration Solution, number per hour","5/26/2022 12:00:00 AM","counts/sec",3600,0
 "Measurement Unit(MeasureUnitCode)",209,"#/in2","Concentration Solution, Number per square inch","7/26/2006 10:57:47 AM","#/m2",1550.0031000062,0
 "Measurement Unit(MeasureUnitCode)",207,"#/km2","Concentration Solution, Number per square kilometer","7/26/2006 10:57:47 AM","#/m2",1e-06,0
-"Measurement Unit(MeasureUnitCode)",206,"#/m2","Concentration Solution, Number per square meter","7/26/2006 10:57:47 AM","#/m2",1,0
+"Measurement Unit(MeasureUnitCode)",206,"#/m2","()Concentration Solution, Number per square meter","7/26/2024 12:00:00 AM","#/mm2",1e+06,0
 "Measurement Unit(MeasureUnitCode)",153,"#/m3","Concentration Solution, Number per cubic meter","7/26/2006 10:57:47 AM","#/100mL",1e-04,0
 "Measurement Unit(MeasureUnitCode)",148,"#/mL","Concentration Solution, Number per milliliter","7/26/2006 10:57:47 AM","#/100mL",100,0
 "Measurement Unit(MeasureUnitCode)",213,"#/mi2","Concentration Solution, Number per square mile","7/26/2006 10:57:47 AM","#/m2",3.861022e-07,0
 "Measurement Unit(MeasureUnitCode)",382,"#/min","Concentration Solution, number per minute","5/26/2022 12:00:00 AM","counts/sec",60,0
-"Measurement Unit(MeasureUnitCode)",385,"#/mm2","Concentration Solution, Number per square millimeter","12/4/2023 10:07:34 AM","#/mm2",1,0
-"Measurement Unit(MeasureUnitCode)",456,"#/mm2/week","The number of particles per mm2 (particle density) after a week.","12/21/2023 10:52:05 PM","#/mm2/week",1,0
+"Measurement Unit(MeasureUnitCode)",385,"#/mm2","()Concentration Solution, Number per square millimeter","12/4/2023 10:07:34 AM","#/mm2",1,0
+"Measurement Unit(MeasureUnitCode)",456,"#/mm2/week","()The number of particles per mm2 (particle density) after a week.","12/21/2023 10:52:05 PM","#/mm2/week",1,0
 "Measurement Unit(MeasureUnitCode)",379,"#/sec*^*^*^*","DO NOT USE, Concentration Solution, number (Counts) per second ***retired***use counts/sec","6/1/2022 9:04:20 AM","counts/sec",1,0
-"Measurement Unit(MeasureUnitCode)",375,"#/um3","Concentration Solution, Number per cubic micrometer","5/9/2016 9:21:38 AM","#/um3",1,0
+"Measurement Unit(MeasureUnitCode)",375,"#/um3","()Concentration Solution, Number per cubic micrometer","5/9/2016 9:21:38 AM","#/um3",1,0
 "Measurement Unit(MeasureUnitCode)",211,"#/yd2","Concentration Solution, Number per square yard","7/26/2006 10:57:47 AM","#/m2",1.19599004630108,0
 "Measurement Unit(MeasureUnitCode)",726,"#col/100mL","Concentration Solution, Number of (bacteria) colonies per 100 milliliters","7/12/2023 8:29:41 AM","cfu/100mL",1,0
-"Measurement Unit(MeasureUnitCode)",223,"%","Concentration Percentage, Percent","7/26/2006 10:57:47 AM","%",1,0
-"Measurement Unit(MeasureUnitCode)",256,"% CaCO3","Concentration Percentage, Percent calcium carbonate (CaCO3)","7/26/2006 10:57:47 AM","% CaCO3",1,0
-"Measurement Unit(MeasureUnitCode)",225,"% by vol","Concentration Percentage, Percent by volume","7/26/2006 10:57:47 AM","% by vol",1,0
-"Measurement Unit(MeasureUnitCode)",224,"% by wt","Concentration Percentage, Percent by weight","7/26/2006 10:57:47 AM","% by wt",1,0
-"Measurement Unit(MeasureUnitCode)",28,"% cover","Concentration Percentage, Percent Cover","7/26/2006 10:57:47 AM","% Cover",1,0
-"Measurement Unit(MeasureUnitCode)",353,"% passing","Concentration Percentage, Percent passing sieve","3/31/2014 8:59:35 AM","% passing",1,0
-"Measurement Unit(MeasureUnitCode)",326,"% recovery","Concentration Percentage, Percent of recovery","1/11/2012 3:59:10 PM","% recovery",1,0
+"Measurement Unit(MeasureUnitCode)",223,"%","()Concentration Percentage, Percent","7/26/2006 10:57:47 AM","%",1,0
+"Measurement Unit(MeasureUnitCode)",256,"% CaCO3","()Concentration Percentage, Percent calcium carbonate (CaCO3)","7/26/2006 10:57:47 AM","% CaCO3",1,0
+"Measurement Unit(MeasureUnitCode)",225,"% by vol","()Concentration Percentage, Percent by volume","7/26/2006 10:57:47 AM","% by vol",1,0
+"Measurement Unit(MeasureUnitCode)",224,"% by wt","()Concentration Percentage, Percent by weight","7/26/2006 10:57:47 AM","% by wt",1,0
+"Measurement Unit(MeasureUnitCode)",28,"% cover","()Concentration Percentage, Percent Cover","7/26/2006 10:57:47 AM","% Cover",1,0
+"Measurement Unit(MeasureUnitCode)",353,"% passing","()Concentration Percentage, Percent passing sieve","3/31/2014 8:59:35 AM","% passing",1,0
+"Measurement Unit(MeasureUnitCode)",326,"% recovery","()Concentration Percentage, Percent of recovery","1/11/2012 3:59:10 PM","% recovery",1,0
 "Measurement Unit(MeasureUnitCode)",354,"% saturatn*^","DO NOT USE, Concentration Percentage, % saturation ***retired***use %","9/11/2014 12:00:00 AM","%",1,0
-"Measurement Unit(MeasureUnitCode)",41,"% sediment","Concentration Percentage, % target/clean sed mix which produces response","7/26/2006 10:57:47 AM","% sediment",1,0
-"Measurement Unit(MeasureUnitCode)",363,"% solids","Concentration Percentage, Percent of solids","1/13/2015 2:11:39 PM","% solids",1,0
-"Measurement Unit(MeasureUnitCode)",420,"(kg/sec)/m","Kilograms per second per meter","12/4/2023 10:07:35 AM","(kg/sec)/m",1,0
+"Measurement Unit(MeasureUnitCode)",41,"% sediment","()Concentration Percentage, % target/clean sed mix which produces response","7/26/2006 10:57:47 AM","% sediment",1,0
+"Measurement Unit(MeasureUnitCode)",363,"% solids","()Concentration Percentage, Percent of solids","1/13/2015 2:11:39 PM","% solids",1,0
+"Measurement Unit(MeasureUnitCode)",420,"(kg/sec)/m","()Kilograms per second per meter","12/4/2023 10:07:35 AM","(kg/sec)/m",1,0
 "Measurement Unit(MeasureUnitCode)",172,"0/00","Concentration Percentage, Parts per thousand","7/26/2006 10:57:47 AM","ug/kg",0.001,0
-"Measurement Unit(MeasureUnitCode)",609,"1000m3/day","Flow, 1000 cubic metres per day","5/19/2022 1:56:53 PM","1000m3/day",1,0
-"Measurement Unit(MeasureUnitCode)",166,"ADMI value","Picklist or Choicelist, American Dye Manufacturers Institute Color Value (5 to 250 units Pt-Co)","7/26/2006 10:57:47 AM","ADMI value",1,0
+"Measurement Unit(MeasureUnitCode)",609,"1000m3/day","()Flow, 1000 cubic metres per day","5/19/2022 1:56:53 PM","1000m3/day",1,0
+"Measurement Unit(MeasureUnitCode)",166,"ADMI value","()Picklist or Choicelist, American Dye Manufacturers Institute Color Value (5 to 250 units Pt-Co)","7/26/2006 10:57:47 AM","ADMI value",1,0
 "Measurement Unit(MeasureUnitCode)",301,"ATU","Turbidity, Attenuation Unit","12/11/2023 9:45:39 AM","NTU",1,0
-"Measurement Unit(MeasureUnitCode)",445,"AU","Absorbance unit, Absorbance is directly proportional to concentration and length, is a dimensionless quantity and should, therefore, be unitless","12/11/2023 9:57:14 AM","AU",1,0
-"Measurement Unit(MeasureUnitCode)",446,"AU/cm","Absorbance per centimeters, optical density is measured in ODU, which are equivalent to AU cm​−1​","12/11/2023 9:57:14 AM","AU/cm",1,0
+"Measurement Unit(MeasureUnitCode)",445,"AU","()Light Intensity, Absorbance unit, Absorbance is directly proportional to concentration and length, is a dimensionless quantity and should, therefore, be unitless","12/11/2023 9:57:14 AM","AU",1,0
+"Measurement Unit(MeasureUnitCode)",446,"AU/cm","()Light Intensity, Absorbance per centimeters, optical density is measured in ODU, which are equivalent to AU cm​−1​","12/11/2023 9:57:14 AM","AU/cm",1,0
 "Measurement Unit(MeasureUnitCode)",132,"Angst","Length Distance, Angstroms","7/26/2006 10:57:47 AM","in",3.9370079e-09,0
 "Measurement Unit(MeasureUnitCode)",68,"BTU","Energy, British Thermal Units","7/26/2006 10:57:47 AM","kcal",0.251995761068425,0
-"Measurement Unit(MeasureUnitCode)",387,"BTU/ft3","Energy, British Thermal Units per cubic foot","12/4/2023 10:07:34 AM","BTU/ft3",1,0
+"Measurement Unit(MeasureUnitCode)",387,"BTU/ft3","()Energy, British Thermal Units per cubic foot","12/4/2023 10:07:34 AM","BTU/ft3",1,0
 "Measurement Unit(MeasureUnitCode)",302,"BU","Turbidity, Backscatter Unit","3/3/2011 3:23:24 PM","NTU",1,0
-"Measurement Unit(MeasureUnitCode)",403,"Bq/L","Concentration Solution, Becquerels per litre","4/12/2022 9:06:10 PM","Bq/L",1,0
-"Measurement Unit(MeasureUnitCode)",386,"Bq/g","Becquerels per gram","12/4/2023 10:07:34 AM","Bq/g",1,0
-"Measurement Unit(MeasureUnitCode)",338,"CCE/100mL","Concentration Solution, Calibrator Cell Equivalents per 100 Milliliters","12/20/2012 10:57:47 AM","CCE/100mL",1,0
-"Measurement Unit(MeasureUnitCode)",391,"CE/100mL","Cell Equivalents per 100 milliliters","12/4/2023 10:07:34 AM","CE/100mL",1,0
-"Measurement Unit(MeasureUnitCode)",147,"CFU","Concentration Solution, Colony Forming Units. CFU (Colony Forming Unit) estimates the number of viable microorganisms by growing them in a solid agar.","7/26/2006 10:57:47 AM","CFU",1,0
-"Measurement Unit(MeasureUnitCode)",453,"COHS/1000ft","COHS/1,000 linear feet, represents the concentration of haze per 1000 linear feet of air sampled. One COH unit is the amount of dust. A linear foot is a 12-inch straight measurement of length","12/21/2023 10:17:47 PM","COHS/1000ft",1,0
+"Measurement Unit(MeasureUnitCode)",403,"Bq/L","()Radiation, Becquerels per litre","4/12/2022 9:06:10 PM","Bq/L",1,0
+"Measurement Unit(MeasureUnitCode)",386,"Bq/g","()Radiation, Becquerels per gram","12/4/2023 10:07:34 AM","Bq/g",1,0
+"Measurement Unit(MeasureUnitCode)",338,"CCE/100mL","()Concentration Solution, Calibrator Cell Equivalents per 100 Milliliters","12/20/2012 10:57:47 AM","CCE/100mL",1,0
+"Measurement Unit(MeasureUnitCode)",391,"CE/100mL","()Concentration Solution, Cell Equivalents per 100 milliliters","12/4/2023 10:07:34 AM","CE/100mL",1,0
+"Measurement Unit(MeasureUnitCode)",147,"CFU","()Concentration Solution, Colony Forming Units. CFU (Colony Forming Unit) estimates the number of viable microorganisms by growing them in a solid agar.","7/26/2006 10:57:47 AM","CFU",1,0
+"Measurement Unit(MeasureUnitCode)",453,"COHS/1000ft","()Concentration Solution, COHS/1,000 linear feet, represents the concentration of haze per 1000 linear feet of air sampled. 1 COH unit is the amount of dust. A linear foot is a 12-inch straight length","12/21/2023 10:17:47 PM","COHS/1000ft",1,0
 "Measurement Unit(MeasureUnitCode)",659,"CU","Picklist or Choicelist, One color unit (CU) is equivalent to one Hazen unit and to one Pt-Co unit","8/9/2019 7:00:07 PM","PCU",1,0
-"Measurement Unit(MeasureUnitCode)",412,"DOY","Time, Day of year is a number between 1 and 365 ( or 1-366 for leap years) : Number Day / Day Number","10/5/2023 6:14:24 PM","DOY",1,0
-"Measurement Unit(MeasureUnitCode)",393,"Da","Molecular mass, Daltons","12/4/2023 10:07:34 AM","Da",1,0
-"Measurement Unit(MeasureUnitCode)",110,"Deg","Direction or angle, degrees","7/26/2006 10:57:47 AM","Deg",1,0
+"Measurement Unit(MeasureUnitCode)",412,"DOY","()Time, Day of year is a number between 1 and 365 ( or 1-366 for leap years) : Number Day / Day Number","10/5/2023 6:14:24 PM","DOY",1,0
+"Measurement Unit(MeasureUnitCode)",393,"Da","()Molecular mass, Daltons","12/4/2023 10:07:34 AM","Da",1,0
+"Measurement Unit(MeasureUnitCode)",110,"Deg","()Location, Direction or angle, degrees","7/26/2006 10:57:47 AM","Deg",1,0
 "Measurement Unit(MeasureUnitCode)",295,"FAU","Turbidity, Formazine Attenuation Units","3/3/2011 3:23:23 PM","NTU",1,0
-"Measurement Unit(MeasureUnitCode)",397,"FBRU","Turbidity, Formazin Backscatter Ratio Units","12/4/2023 10:07:35 AM","FBRU",1,0
+"Measurement Unit(MeasureUnitCode)",397,"FBRU","()Turbidity, Formazin Backscatter Ratio Units","12/4/2023 10:07:35 AM","FBRU",1,0
 "Measurement Unit(MeasureUnitCode)",294,"FBU","Turbidity, Formazin Backscatter Unit","3/3/2011 3:23:23 PM","NTU",1,0
 "Measurement Unit(MeasureUnitCode)",296,"FNMU","Turbidity, Formazin Nephelometric Multibeam Unit","3/3/2011 3:23:24 PM","NTU",1,0
 "Measurement Unit(MeasureUnitCode)",297,"FNRU","Turbidity, Formazin Nephelometric Ratio Unit","3/3/2011 3:23:24 PM","NTU",1,0
 "Measurement Unit(MeasureUnitCode)",298,"FNU","Turbidity, Formazin Nephelometric Unit","3/3/2011 3:23:24 PM","NTU",1.267,0
 "Measurement Unit(MeasureUnitCode)",75,"FTU","Turbidity, Formazin Turbidity Units","7/26/2006 10:57:47 AM","NTU",1,0
-"Measurement Unit(MeasureUnitCode)",309,"Granules","Weight Mass, Granule count of substance in pan or tailings","1/11/2012 3:59:08 PM","Granules",1,0
+"Measurement Unit(MeasureUnitCode)",309,"Granules","()Weight Mass, Granule count of substance in pan or tailings","1/11/2012 3:59:08 PM","Granules",1,0
 "Measurement Unit(MeasureUnitCode)",335,"HU","Picklist or Choicelist, Hazen unit","11/26/2021 12:02:48 AM","PCU",1,0
-"Measurement Unit(MeasureUnitCode)",419,"IVFU","In vivo fluorescence units","12/4/2023 10:07:35 AM","IVFU",1,0
+"Measurement Unit(MeasureUnitCode)",419,"IVFU","()Light Intensity, In vivo fluorescence units","12/4/2023 10:07:35 AM","IVFU",1,0
 "Measurement Unit(MeasureUnitCode)",234,"Imp gal","Volume, Imperial gallons","7/26/2006 10:57:47 AM","m3",0.00454609,0
-"Measurement Unit(MeasureUnitCode)",104,"JCU","Light Intensity, Jackson Candle Units","7/26/2006 10:57:47 AM","JCU",1,0
+"Measurement Unit(MeasureUnitCode)",104,"JCU","()Light Intensity, Jackson Candle Units","7/26/2006 10:57:47 AM","JCU",1,0
 "Measurement Unit(MeasureUnitCode)",76,"JTU","Turbidity, Jackson Turbidity Units (FTU=0.4 x JTU)","12/7/2023 2:23:28 PM","NTU",19.025,-0.0477
 "Measurement Unit(MeasureUnitCode)",67,"Joules","Energy, Joules","7/26/2006 10:57:47 AM","kcal",0.0002388458966275,0
 "Measurement Unit(MeasureUnitCode)",411,"Kohm-cm","Electric Resistivity, Kilo-ohms - centimeter (symbol: KΩcm). Resistance R is expressed in Kilo Ohm (KΩ) and distances are expressed in centimeters (cm)","9/1/2023 12:00:00 AM","ohm-m",10,0
-"Measurement Unit(MeasureUnitCode)",200,"L","Volume, Liters","2/1/2023 8:46:30 AM","m3",0.001,0
+"Measurement Unit(MeasureUnitCode)",200,"L","()Volume, Liters","2/1/2023 8:46:30 AM","m3",0.001,0
 "Measurement Unit(MeasureUnitCode)",45,"L/day","Flow, Liters per day","7/26/2006 10:57:47 AM","cfs",4.087345685e-07,0
 "Measurement Unit(MeasureUnitCode)",121,"L/hr","Flow, Liters per hour","7/26/2006 10:57:47 AM","cfs",9.8096296449e-06,0
-"Measurement Unit(MeasureUnitCode)",340,"L/mg-cm","Concentration Solution, Liters per milligram-centimeter","2/19/2013 12:00:00 AM","L/mg-cm",1,0
+"Measurement Unit(MeasureUnitCode)",340,"L/mg-cm","()Concentration Solution, Liters per milligram-centimeter","2/19/2013 12:00:00 AM","L/mg-cm",1,0
 "Measurement Unit(MeasureUnitCode)",313,"L/mg-m","Concentration Solution, Liter per milligrams by meter","11/26/2021 12:01:02 AM","L/mg-cm",100,0
 "Measurement Unit(MeasureUnitCode)",120,"L/min","Flow, Liters per minute","7/26/2006 10:57:47 AM","cfs",0.0005885777786915,0
 "Measurement Unit(MeasureUnitCode)",119,"L/sec","Flow, Liters per second","7/26/2006 10:57:47 AM","cfs",0.0353146667214886,0
-"Measurement Unit(MeasureUnitCode)",72,"Langleys","Energy Intensity, Langleys (cal/sq cm)","7/26/2006 10:57:47 AM","Langleys",1,0
-"Measurement Unit(MeasureUnitCode)",293,"MFL","Concentration Solution, Million Fibers per Liter fiber size > 10u","3/3/2011 3:15:43 PM","MFL",1,0
-"Measurement Unit(MeasureUnitCode)",613,"ML/day","Flow, Millions of liters per day","5/18/2022 7:58:23 PM","ML/day",1,0
-"Measurement Unit(MeasureUnitCode)",146,"MPN","Concentration Solution, Most Probable Number. MPN (Most Probable Number) estimates the concentration of microorganisms by growing them in a liquid broth.","7/26/2006 10:57:47 AM","MPN",1,0
+"Measurement Unit(MeasureUnitCode)",72,"Langleys","()Energy Intensity, Langleys (cal/sq cm)","7/26/2006 10:57:47 AM","Langleys",1,0
+"Measurement Unit(MeasureUnitCode)",293,"MFL","()Concentration Solution, Million Fibers per Liter fiber size > 10u","3/3/2011 3:15:43 PM","MFL",1,0
+"Measurement Unit(MeasureUnitCode)",613,"ML/day","()Flow, Millions of liters per day","5/18/2022 7:58:23 PM","ML/day",1,0
+"Measurement Unit(MeasureUnitCode)",146,"MPN","()Concentration Solution, Most Probable Number. MPN (Most Probable Number) estimates the concentration of microorganisms by growing them in a liquid broth.","7/26/2006 10:57:47 AM","MPN",1,0
 "Measurement Unit(MeasureUnitCode)",409,"MPN/100L","Concentration Solution, Most Probable Number per 100 liters","2/28/2023 12:00:00 AM","MPN/100mL",1000,0
 "Measurement Unit(MeasureUnitCode)",277,"MPN/100g","Concentration Solution, Most Probable Number per 100 grams","2/2/2010 8:43:26 AM","MPN/g",100,0
-"Measurement Unit(MeasureUnitCode)",262,"MPN/100mL","Concentration Solution, Most Probable Number per 100 milliliters. MPN (Most Probable Number) estimates the concentration of microorganisms by growing them in a liquid broth.","7/26/2006 10:57:47 AM","MPN/100mL",1,0
+"Measurement Unit(MeasureUnitCode)",262,"MPN/100mL","()Concentration Solution, Most Probable Number per 100 milliliters. MPN (Most Probable Number) estimates the concentration of microorganisms by growing them in a liquid broth.","7/26/2006 10:57:47 AM","MPN/100mL",1,0
 "Measurement Unit(MeasureUnitCode)",408,"MPN/L","Concentration Solution, Most Probable Number per liter","1/30/2023 7:37:52 PM","MPN/100mL",0.1,0
-"Measurement Unit(MeasureUnitCode)",292,"MPN/g","Concentration Solution, Most Probable Number per gram","8/4/2010 9:48:59 AM","MPN/g",1,0
-"Measurement Unit(MeasureUnitCode)",337,"MSC","Concentration Solution, Mean Standing Crop","5/24/2012 10:57:47 AM","MSC",1,0
+"Measurement Unit(MeasureUnitCode)",292,"MPN/g","()Concentration Solution, Most Probable Number per gram","8/4/2010 9:48:59 AM","MPN/g",1,0
+"Measurement Unit(MeasureUnitCode)",337,"MSC","()Concentration Solution, Mean Standing Crop","5/24/2012 10:57:47 AM","MSC",1,0
 "Measurement Unit(MeasureUnitCode)",131,"MT/km2/yr","Viscosity, Metric tons per square kilometer per year","7/26/2006 10:57:47 AM","mg/m2/day",2.7378507871321,0
-"Measurement Unit(MeasureUnitCode)",450,"Megam-1","Concentration Solution, Inverse Megameters or per Mega meters","12/21/2023 3:58:40 PM","Megam-1",1,0
-"Measurement Unit(MeasureUnitCode)",451,"Mg/100cm2/d","Mega grams per 100 cm2 per day (d)","12/21/2023 3:58:40 PM","Mg/100cm2/d",1,0
+"Measurement Unit(MeasureUnitCode)",450,"Megam-1","Concentration Solution, Inverse Megameters or per Mega meters or Megam-1","8/1/2024 8:58:40 AM","per Megam",1,0
+"Measurement Unit(MeasureUnitCode)",451,"Mg/100cm2/d","()Mega grams per 100 cm2 per day (d)","12/21/2023 3:58:40 PM","Mg/100cm2/d",1,0
 "Measurement Unit(MeasureUnitCode)",320,"Mgal","Volume, Million gallons","1/11/2012 3:59:08 PM","m3",3785.412,0
-"Measurement Unit(MeasureUnitCode)",610,"Mgal/day","Flow, Millions of gallons per day","5/18/2022 7:58:24 PM","Mgal/day",1,0
+"Measurement Unit(MeasureUnitCode)",610,"Mgal/day","()Flow, Millions of gallons per day","5/18/2022 7:58:24 PM","Mgal/day",1,0
 "Measurement Unit(MeasureUnitCode)",177,"Mgal/mnth","Flow, Millions of gallons per month","7/26/2006 10:57:47 AM","cfs",0.0508329706716038,0
 "Measurement Unit(MeasureUnitCode)",178,"Mgal/year","Flow, Millions of gallons per year","7/26/2006 10:57:47 AM","cfs",0.00423608088930031,0
 "Measurement Unit(MeasureUnitCode)",126,"Mgd","Flow, Millions of gallons per day","7/26/2006 10:57:47 AM","cfs",1.54722865226337,0
-"Measurement Unit(MeasureUnitCode)",423,"Mgm/day","Megagrams per day; grams (gm) -- not case sensitive","12/4/2023 10:07:35 AM","Mgm/day",1,0
-"Measurement Unit(MeasureUnitCode)",111,"Min","Direction or angle, minutes","7/26/2006 10:57:47 AM","Deg",0.0166666666666667,0
+"Measurement Unit(MeasureUnitCode)",423,"Mgm/day","()Megagrams per day; grams (gm) -- not case sensitive","12/4/2023 10:07:35 AM","Mgm/day",1,0
+"Measurement Unit(MeasureUnitCode)",111,"Min","Location, Direction or angle, minutes","7/26/2006 10:57:47 AM","Deg",0.0166666666666667,0
 "Measurement Unit(MeasureUnitCode)",97,"Molal","Concentration Molar, Molal","7/26/2006 10:57:47 AM","mmol/kg",1000,0
 "Measurement Unit(MeasureUnitCode)",96,"Molar","Concentration Molar, Molar","7/26/2006 10:57:47 AM","mmol/L",1000,0
 "Measurement Unit(MeasureUnitCode)",94,"Mole/L","Concentration Molar, Moles per liter","7/26/2006 10:57:47 AM","mmol/L",1000,0
-"Measurement Unit(MeasureUnitCode)",65,"Mw","Power, megawatts","7/26/2006 10:57:47 AM","Mw",1,0
+"Measurement Unit(MeasureUnitCode)",65,"Mw","()Power, megawatts","7/26/2006 10:57:47 AM","Mw",1,0
 "Measurement Unit(MeasureUnitCode)",300,"NTMU","Turbidity, Nephelometric Turbidity Multibeam Unit","3/3/2011 3:23:24 PM","NTU",1,0
 "Measurement Unit(MeasureUnitCode)",299,"NTRU","Turbidity, Nephelometric Turbidity Ratio Unit","3/3/2011 3:23:24 PM","NTU",1,0
-"Measurement Unit(MeasureUnitCode)",103,"NTU","Turbidity, Nephelometric Turbidity Units","7/26/2006 10:57:47 AM","NTU",1,0
-"Measurement Unit(MeasureUnitCode)",1,"None","Quantity, None","7/26/2006 10:57:47 AM","None",1,0
-"Measurement Unit(MeasureUnitCode)",95,"Normal","Quantity, Normal","7/26/2006 10:57:47 AM","Normal",1,0
-"Measurement Unit(MeasureUnitCode)",33,"PCU","Picklist or Choicelist, Platinum Cobalt Units (color) - American Public Health Association Color Scale, APHA = Pt-Co = Hazen Color","7/26/2006 10:57:47 AM","PCU",1,0
-"Measurement Unit(MeasureUnitCode)",168,"PSS","Concentration Solution, Practical Salinity Scale","7/26/2006 10:57:47 AM","PSS",1,0
+"Measurement Unit(MeasureUnitCode)",103,"NTU","()Turbidity, Nephelometric Turbidity Units","7/26/2006 10:57:47 AM","NTU",1,0
+"Measurement Unit(MeasureUnitCode)",1,"None","()Quantity, None","7/26/2006 10:57:47 AM","None",1,0
+"Measurement Unit(MeasureUnitCode)",95,"Normal","()Quantity, Normal","7/26/2006 10:57:47 AM","Normal",1,0
+"Measurement Unit(MeasureUnitCode)",33,"PCU","()Picklist or Choicelist, Platinum Cobalt Units (color) - American Public Health Association Color Scale, APHA = Pt-Co = Hazen Color","7/26/2006 10:57:47 AM","PCU",1,0
+"Measurement Unit(MeasureUnitCode)",168,"PSS","()Concentration Solution, Practical Salinity Scale","7/26/2006 10:57:47 AM","PSS",1,0
 "Measurement Unit(MeasureUnitCode)",341,"PSU","Electrical conductivity, Practical Salinity Unit - It is equivalent to per thousand or (o/00) or to g/kg","5/24/2012 10:57:47 AM","ug/kg",1e+06,0
 "Measurement Unit(MeasureUnitCode)",58,"Pascal","Pressure, Pascal units","7/26/2006 10:57:47 AM","g/m2",101.971621297792,0
-"Measurement Unit(MeasureUnitCode)",214,"Plate cnt","Quantity, Plate Count","7/26/2006 10:57:47 AM","Plate cnt",1,0
-"Measurement Unit(MeasureUnitCode)",366,"RFU","Light Intensity, Relative Fluorescence Units","12/14/2015 2:59:00 PM","RFU",1,0
-"Measurement Unit(MeasureUnitCode)",304,"RLU","Light Intensity, Relative light units","10/18/2011 11:15:02 AM","RLU",1,0
-"Measurement Unit(MeasureUnitCode)",433,"RU","Raman units","12/4/2023 10:07:36 AM","RU",1,0
-"Measurement Unit(MeasureUnitCode)",454,"RUDS/10000ft","Reflectance Units of Dirt Shade (RUDS). The soiling index or RUDS is the percentage reflectance obtained using a reflectometer when. 10,000 linear feet of air is drawn through the filter paper. ","12/21/2023 10:22:22 PM","RUDS/10000ft",1,0
-"Measurement Unit(MeasureUnitCode)",360,"RmV","Power, Relative millivolts","12/2/2014 8:51:42 AM","RmV",1,0
+"Measurement Unit(MeasureUnitCode)",214,"Plate cnt","()Quantity, Plate Count","7/26/2006 10:57:47 AM","Plate cnt",1,0
+"Measurement Unit(MeasureUnitCode)",366,"RFU","()Light Intensity, Relative Fluorescence Units","12/14/2015 2:59:00 PM","RFU",1,0
+"Measurement Unit(MeasureUnitCode)",304,"RLU","()Light Intensity, Relative light units","10/18/2011 11:15:02 AM","RLU",1,0
+"Measurement Unit(MeasureUnitCode)",433,"RU","()Light Intensity, Raman units","12/4/2023 10:07:36 AM","RU",1,0
+"Measurement Unit(MeasureUnitCode)",454,"RUDS/10000ft","()Light Intensity, Reflectance Units of Dirt Shade(RUDS). The soiling index or RUDS is the percentage reflectance obtained using a reflectometer; 10K linear ft of air is drawn through the filter paper","12/21/2023 10:22:22 PM","RUDS/10000ft",1,0
+"Measurement Unit(MeasureUnitCode)",360,"RmV","()Power, Relative millivolts","12/2/2014 8:51:42 AM","RmV",1,0
 "Measurement Unit(MeasureUnitCode)",165,"S/m","Electric Resistivity, Siemens per meter","7/26/2006 10:57:47 AM","uS/cm",10000,0
-"Measurement Unit(MeasureUnitCode)",434,"SBU","Turbidity, Styrene Divinylbenzene Beads (SDVB) backscatter units","12/4/2023 10:07:36 AM","SBU",1,0
-"Measurement Unit(MeasureUnitCode)",112,"Sec","Direction or angle, seconds","7/26/2006 10:57:47 AM","Deg",0.00027777777777778,0
-"Measurement Unit(MeasureUnitCode)",173,"T.O.N.","Picklist or Choicelist, Threshold Odor Number","1/31/2023 2:48:14 PM","T.O.N.",1,0
+"Measurement Unit(MeasureUnitCode)",434,"SBU","()Turbidity, Styrene Divinylbenzene Beads (SDVB) backscatter units","12/4/2023 10:07:36 AM","SBU",1,0
+"Measurement Unit(MeasureUnitCode)",112,"Sec","Location, Direction or angle, seconds","7/26/2006 10:57:47 AM","Deg",0.00027777777777778,0
+"Measurement Unit(MeasureUnitCode)",173,"T.O.N.","()Picklist or Choicelist, Threshold Odor Number","1/31/2023 2:48:14 PM","T.O.N.",1,0
 "Measurement Unit(MeasureUnitCode)",175,"T.U.","Concentration Solution, Tritium Unit","7/26/2006 10:57:47 AM","pCi/L",3.22,0
-"Measurement Unit(MeasureUnitCode)",171,"TU","Toxic Units, dividing 100% by the LC50 (% effluent","7/26/2006 10:57:47 AM","TU",1,0
-"Measurement Unit(MeasureUnitCode)",267,"TUc","Toxic Units, chronic","6/22/2009 12:03:57 PM","TUc",1,0
+"Measurement Unit(MeasureUnitCode)",171,"TU","()Toxic Units, dividing 100% by the LC50 (% effluent","7/26/2006 10:57:47 AM","TU",1,0
+"Measurement Unit(MeasureUnitCode)",267,"TUc","()Toxic Units, chronic","6/22/2009 12:03:57 PM","TUc",1,0
 "Measurement Unit(MeasureUnitCode)",57,"Torr","Pressure, Torr units(vacuum)","7/26/2006 10:57:47 AM","g/m2",13595.0980644332,0
-"Measurement Unit(MeasureUnitCode)",452,"W/m2","Power, Watts per square meter","12/21/2023 10:03:37 PM","W/m2",1,0
+"Measurement Unit(MeasureUnitCode)",452,"W/m2","()Power, Watts per square meter","12/21/2023 10:03:37 PM","W/m2",1,0
 "Measurement Unit(MeasureUnitCode)",63,"Watts","Power, Watts","7/26/2006 10:57:47 AM","Mw",1e-06,0
 "Measurement Unit(MeasureUnitCode)",245,"ac","Area, Acres","7/26/2006 10:57:47 AM","m2",4046.8564224,0
 "Measurement Unit(MeasureUnitCode)",235,"ac-ft","Volume, Acre-feet","7/26/2006 10:57:47 AM","m3",1233.489,0
 "Measurement Unit(MeasureUnitCode)",539,"ac-in","Volume, Acre-inches","11/13/2017 12:38:18 PM","m3",102.7901546,0
-"Measurement Unit(MeasureUnitCode)",62,"amps","Electrical current, amperes","7/26/2006 10:57:47 AM","amps",1,0
-"Measurement Unit(MeasureUnitCode)",56,"atm","Pressure, atmospheres","7/26/2006 10:57:47 AM","g/m2",10332274.5279988,0
+"Measurement Unit(MeasureUnitCode)",62,"amps","()Electrical current, amperes","7/26/2006 10:57:47 AM","amps",1,0
+"Measurement Unit(MeasureUnitCode)",56,"atm","()Pressure, atmospheres","7/26/2006 10:57:47 AM","g/m2",10332274.5279988,0
 "Measurement Unit(MeasureUnitCode)",331,"bar","Pressure, Bar","5/24/2012 10:57:47 AM","g/m2",10197162.1297792,0
 "Measurement Unit(MeasureUnitCode)",321,"bbl","Volume, Barrel equals 31.50 gallons, 119.24 liters","1/11/2012 3:59:08 PM","L",0.00838644750083864,0
-"Measurement Unit(MeasureUnitCode)",282,"beaufort","Movement Force, Wind force (beaufort unit)","7/19/2010 3:16:29 PM","beaufort",1,0
+"Measurement Unit(MeasureUnitCode)",282,"beaufort","()Movement Force, Wind force (beaufort unit)","7/19/2010 3:16:29 PM","beaufort",1,0
 "Measurement Unit(MeasureUnitCode)",69,"cal","Energy, calories","7/26/2006 10:57:47 AM","kcal",0.001,0
-"Measurement Unit(MeasureUnitCode)",388,"cal/cm2/day","Calories per square centimeter per day","12/4/2023 10:07:34 AM","cal/cm2/day",1,0
-"Measurement Unit(MeasureUnitCode)",312,"cal/cm2/hr","Viscosity, Calories per square centimeter per hour","1/11/2012 3:59:08 PM","cal/cm2/hr",1,0
-"Measurement Unit(MeasureUnitCode)",389,"cal/cm2/min","Calories per square centimeter per minute","12/4/2023 10:07:34 AM","cal/cm2/min",1,0
-"Measurement Unit(MeasureUnitCode)",459,"cd","Light Intensity, Candela","3/6/2017 2:02:54 PM","cd",1,0
-"Measurement Unit(MeasureUnitCode)",725,"cells/dL","Concentration Solution, Cells per deciliter","7/12/2023 8:29:41 AM","cells/dL",1,0
+"Measurement Unit(MeasureUnitCode)",388,"cal/cm2/day","()Energy, Calories per square centimeter per day","12/4/2023 10:07:34 AM","cal/cm2/day",1,0
+"Measurement Unit(MeasureUnitCode)",312,"cal/cm2/hr","()Energy, Calories per square centimeter per hour","1/11/2012 3:59:08 PM","cal/cm2/hr",1,0
+"Measurement Unit(MeasureUnitCode)",389,"cal/cm2/min","()Energy, Calories per square centimeter per minute","12/4/2023 10:07:34 AM","cal/cm2/min",1,0
+"Measurement Unit(MeasureUnitCode)",459,"cd","()Light Intensity, Candela","3/6/2017 2:02:54 PM","cd",1,0
+"Measurement Unit(MeasureUnitCode)",725,"cells/dL","()Concentration Solution, Cells per deciliter","7/12/2023 8:29:41 AM","cells/dL",1,0
 "Measurement Unit(MeasureUnitCode)",114,"cfm","Flow, Cubic feet per minute","12/19/2012 10:10:47 AM","cfs",0.0166666666666667,0
-"Measurement Unit(MeasureUnitCode)",113,"cfs","Flow, Cubic feet per second","3/7/2013 3:20:00 PM","cfs",1,0
-"Measurement Unit(MeasureUnitCode)",290,"cfu/100g","Concentration Solution, Colony Forming Units per 100 grams","7/19/2010 3:16:29 PM","cfu/100g",1,0
-"Measurement Unit(MeasureUnitCode)",164,"cfu/100mL","Concentration Solution, Colony Forming Units per 100 milliliters. CFU (Colony Forming Unit) estimates the number of viable microorganisms by growing them in a solid agar.","7/26/2006 10:57:47 AM","cfu/100mL",1,0
+"Measurement Unit(MeasureUnitCode)",113,"cfs","()Flow, Cubic feet per second","3/7/2013 3:20:00 PM","cfs",1,0
+"Measurement Unit(MeasureUnitCode)",290,"cfu/100g","()Concentration Solution, Colony Forming Units per 100 grams","7/19/2010 3:16:29 PM","cfu/100g",1,0
+"Measurement Unit(MeasureUnitCode)",164,"cfu/100mL","()Concentration Solution, Colony Forming Units per 100 milliliters. CFU (Colony Forming Unit) estimates the number of viable microorganisms by growing them in a solid agar.","7/26/2024 12:00:00 AM","cfu/mL",100,0
 "Measurement Unit(MeasureUnitCode)",285,"cfu/10mL","Concentration Solution, Colony Forming Units per 10 milliliters","7/19/2010 3:16:29 PM","cfu/100mL",10,0
-"Measurement Unit(MeasureUnitCode)",392,"cfu/L","Concentration Solution, Colony Forming Units per liter","12/4/2023 10:07:34 AM","cfu/L",1,0
-"Measurement Unit(MeasureUnitCode)",328,"cfu/gdw","Concentration Solution, Colony Forming Units per gram dryweight","1/11/2012 3:59:35 PM","cfu/gdw",1,0
-"Measurement Unit(MeasureUnitCode)",361,"cfu/mL","Concentration Solution, Colony Forming Units per milliliters","12/17/2014 8:01:57 AM","cfu/mL",1,0
+"Measurement Unit(MeasureUnitCode)",392,"cfu/L","()Concentration Solution, Colony Forming Units per liter","12/5/2023 12:00:00 AM","cfu/mL",1000,0
+"Measurement Unit(MeasureUnitCode)",328,"cfu/gdw","()Concentration Solution, Colony Forming Units per gram dryweight","1/11/2012 3:59:35 PM","cfu/gdw",1,0
+"Measurement Unit(MeasureUnitCode)",361,"cfu/mL","()Concentration Solution, Colony Forming Units per milliliters","12/17/2014 8:01:57 AM","cfu/mL",1,0
 "Measurement Unit(MeasureUnitCode)",135,"cm","Length Distance, Centimeters","7/26/2006 10:57:47 AM","in",0.393700787401575,0
-"Measurement Unit(MeasureUnitCode)",383,"cm-1","Concentration Solution, Inverse centimeters or per centimeters","9/9/2022 12:00:00 AM","per in",2.54,0
+"Measurement Unit(MeasureUnitCode)",383,"cm-1","Concentration Solution, Inverse centimeters or per centimeters or cm-1","8/26/2024 4:44:00 PM","per in",100,0
 "Measurement Unit(MeasureUnitCode)",191,"cm/sec","Speed Velocity, Centimeters per second","7/26/2006 10:57:47 AM","m/sec",0.01,0
 "Measurement Unit(MeasureUnitCode)",237,"cm2","Area, Square centimeters","7/26/2006 10:57:47 AM","m2",1e-04,0
 "Measurement Unit(MeasureUnitCode)",204,"cm3","Volume, Cubic centimeters","7/26/2006 10:57:47 AM","m3",1e-06,0
 "Measurement Unit(MeasureUnitCode)",252,"cm3/L","Concentration Percentage, Cubic centimeters per liter","7/27/2006 10:57:47 AM","mm3/L",1000,0
-"Measurement Unit(MeasureUnitCode)",390,"cm3/cm3","Cubic centimeters per cubic centimeter","12/4/2023 10:07:34 AM","cm3/cm3",1,0
-"Measurement Unit(MeasureUnitCode)",519,"cm3/g","Concentration Solution, Cubic centimeters per gram","10/31/2017 9:34:01 AM","cm3/g",1,0
+"Measurement Unit(MeasureUnitCode)",390,"cm3/cm3","()Concentration Percentage, Cubic centimeters per cubic centimeter","12/4/2023 10:07:34 AM","cm3/cm3",1,0
+"Measurement Unit(MeasureUnitCode)",519,"cm3/g","()Concentration Solution, Cubic centimeters per gram","10/31/2017 9:34:01 AM","cm3/g",1,0
 "Measurement Unit(MeasureUnitCode)",118,"cm3/hr","Flow, Cubic centimeters per hour","7/26/2006 10:57:47 AM","cfs",9.8096296e-09,0
 "Measurement Unit(MeasureUnitCode)",117,"cm3/min","Flow, Cubic centimeters per minute","7/26/2006 10:57:47 AM","cfs",5.885777786e-07,0
 "Measurement Unit(MeasureUnitCode)",116,"cm3/sec","Flow, Cubic centimeters per second","7/26/2006 10:57:47 AM","cfs",3.531467e-05,0
-"Measurement Unit(MeasureUnitCode)",355,"code","Picklist or Choicelist, Please see http://waterdata.usgs.gov/nwis/qwdata?codes_table26_help#62955","9/10/2014 12:00:00 AM","code",1,0
-"Measurement Unit(MeasureUnitCode)",728,"copies","Concentration Solution, copies (ie viral load)","10/3/2022 12:00:00 AM","copies",1,0
+"Measurement Unit(MeasureUnitCode)",355,"code","()Picklist or Choicelist, Please see http://waterdata.usgs.gov/nwis/qwdata?codes_table26_help#62955","9/10/2014 12:00:00 AM","code",1,0
+"Measurement Unit(MeasureUnitCode)",728,"copies","()Concentration Solution, copies (ie viral load)","10/3/2022 12:00:00 AM","copies",1,0
 "Measurement Unit(MeasureUnitCode)",730,"copies/250mL","Concentration Solution, copies per 250 milliliters (ie viral load)","2/2/2024 9:10:45 AM","copies/mL",0.004,0
-"Measurement Unit(MeasureUnitCode)",727,"copies/mL","Concentration Solution, copies per milliliters (ie viral load)","10/3/2022 12:00:00 AM","copies/mL",1,0
-"Measurement Unit(MeasureUnitCode)",145,"count","Quantity, Count","7/26/2006 10:57:47 AM","count",1,0
-"Measurement Unit(MeasureUnitCode)",356,"counts/sec","Concentration Solution, Counts per second","9/10/2014 12:00:00 AM","counts/sec",1,0
-"Measurement Unit(MeasureUnitCode)",286,"d/h/m/s","Time, Days/hours/minutes/seconds","7/19/2010 3:16:29 PM","d/h/m/s",1,0
-"Measurement Unit(MeasureUnitCode)",394,"dB","Decibels","12/4/2023 10:07:34 AM","dB",1,0
+"Measurement Unit(MeasureUnitCode)",727,"copies/mL","()Concentration Solution, copies per milliliters (ie viral load)","10/3/2022 12:00:00 AM","copies/mL",1,0
+"Measurement Unit(MeasureUnitCode)",145,"count","()Quantity, Count","7/26/2006 10:57:47 AM","count",1,0
+"Measurement Unit(MeasureUnitCode)",356,"counts/sec","()Concentration Solution, Counts per second","9/10/2014 12:00:00 AM","counts/sec",1,0
+"Measurement Unit(MeasureUnitCode)",286,"d/h/m/s","()Time, Days/hours/minutes/seconds","7/19/2010 3:16:29 PM","d/h/m/s",1,0
+"Measurement Unit(MeasureUnitCode)",394,"dB","()Sound, Decibels","12/4/2023 10:07:34 AM","dB",1,0
 "Measurement Unit(MeasureUnitCode)",202,"dL","Volume, Deciliters","7/26/2006 10:57:47 AM","m3",1e-04,0
-"Measurement Unit(MeasureUnitCode)",460,"dam3","Volume, cubic decameter","1/8/2024 11:54:58 AM","dam3",1,0
+"Measurement Unit(MeasureUnitCode)",460,"dam3","()Volume, cubic decameter","1/8/2024 11:54:58 AM","dam3",1,0
 "Measurement Unit(MeasureUnitCode)",219,"days","Time, Days","7/26/2006 10:57:47 AM","minutes",1440,0
-"Measurement Unit(MeasureUnitCode)",395,"dddmmss","Degrees - minutes - seconds of latitude or longitude","12/4/2023 10:07:34 AM","dddmmss",1,0
+"Measurement Unit(MeasureUnitCode)",395,"dddmmss","()Location, Degrees - minutes - seconds of latitude or longitude","12/4/2023 10:07:34 AM","dddmmss",1,0
 "Measurement Unit(MeasureUnitCode)",333,"decibar","Pressure, Decibar","5/24/2012 10:57:47 AM","g/m2",1019716.21297792,0
-"Measurement Unit(MeasureUnitCode)",246,"deg C","Temperature, Degrees Celsius (Centigrade)","7/26/2006 10:57:47 AM","deg C",1,0
-"Measurement Unit(MeasureUnitCode)",458,"deg C/100m","Temperature, Degrees Celsius (Centigrade) per 100 meters","12/21/2023 11:15:33 PM","deg C/100m",1,0
+"Measurement Unit(MeasureUnitCode)",246,"deg C","()Temperature, Degrees Celsius (Centigrade)","7/26/2006 10:57:47 AM","deg C",1,0
+"Measurement Unit(MeasureUnitCode)",458,"deg C/100m","()Temperature, Degrees Celsius (Centigrade) per 100 meters","12/21/2023 11:15:33 PM","deg C/100m",1,0
 "Measurement Unit(MeasureUnitCode)",247,"deg F","Temperature, Degrees Fahrenheit","7/26/2006 10:57:47 AM","deg C",0.555555555555555,-32
 "Measurement Unit(MeasureUnitCode)",248,"deg K","Temperature, Degrees Kelvin","7/26/2006 10:57:47 AM","deg C",1,-273.15
 "Measurement Unit(MeasureUnitCode)",136,"dm","Length Distance, Decimeters","7/26/2006 10:57:47 AM","in",3.93700787401575,0
 "Measurement Unit(MeasureUnitCode)",249,"dm2","Area, Square decimeters","7/26/2006 10:57:47 AM","m2",0.01,0
-"Measurement Unit(MeasureUnitCode)",311,"dpm/100L","Concentration Solution, Disintegrations per minute per 100 liters","1/11/2012 3:59:08 PM","dpm/100L",1,0
-"Measurement Unit(MeasureUnitCode)",396,"dpm/cm3","Disintegrations per minute per cubic centimeter","12/4/2023 10:07:34 AM","dpm/cm3",1,0
-"Measurement Unit(MeasureUnitCode)",279,"dpm/g","Radiation, Decay per minute per gram","5/6/2010 12:00:00 AM","dpm/g",1,0
-"Measurement Unit(MeasureUnitCode)",46,"drips/min","Flow, Drips per minute","7/26/2006 10:57:47 AM","drips/min",1,0
-"Measurement Unit(MeasureUnitCode)",203,"drops","Volume, Drops","7/26/2006 10:57:47 AM","drops",1,0
-"Measurement Unit(MeasureUnitCode)",266,"eq/L","Concentration Solution, Equivalents per Liter","4/24/2009 3:29:59 PM","eq/L",1,0
+"Measurement Unit(MeasureUnitCode)",311,"dpm/100L","()Concentration Solution, Disintegrations per minute per 100 liters","1/11/2012 3:59:08 PM","dpm/100L",1,0
+"Measurement Unit(MeasureUnitCode)",396,"dpm/cm3","()Density, Disintegrations per minute per cubic centimeter","12/4/2023 10:07:34 AM","dpm/cm3",1,0
+"Measurement Unit(MeasureUnitCode)",279,"dpm/g","()Radiation, Decay per minute per gram","5/6/2010 12:00:00 AM","dpm/g",1,0
+"Measurement Unit(MeasureUnitCode)",46,"drips/min","()Flow, Drips per minute","7/26/2006 10:57:47 AM","drips/min",1,0
+"Measurement Unit(MeasureUnitCode)",203,"drops","()Volume, Drops","7/26/2006 10:57:47 AM","drops",1,0
+"Measurement Unit(MeasureUnitCode)",266,"eq/L","()Concentration Solution, Equivalents per Liter","4/24/2009 3:29:59 PM","eq/L",1,0
 "Measurement Unit(MeasureUnitCode)",107,"fc/ft2","Light Intensity, foot candles per square foot","7/26/2006 10:57:47 AM","lm/m2",10.763910417,0
-"Measurement Unit(MeasureUnitCode)",342,"fg/kg","Concentration Percentage, Femtogram/kilogram","9/5/2013 10:57:47 AM","fg/kg",1,0
-"Measurement Unit(MeasureUnitCode)",43,"fibers/L","Concentration Solution, Fibers per liter","7/26/2006 10:57:47 AM","fibers/L",1,0
-"Measurement Unit(MeasureUnitCode)",617,"fibers/cm3","Concentration Solution, Fibers per cubic centimeters","5/18/2022 7:58:22 PM","fibers/cm3",1,0
-"Measurement Unit(MeasureUnitCode)",274,"fraction","Concentration Percentage, Fraction of sample total","11/24/2009 7:07:30 PM","fraction",1,0
-"Measurement Unit(MeasureUnitCode)",140,"ft","Length Distance, Feet","3/26/2024 3:06:27 PM","in",0.3048,0
+"Measurement Unit(MeasureUnitCode)",342,"fg/kg","()Concentration Percentage, Femtogram/kilogram","9/5/2013 10:57:47 AM","fg/kg",1,0
+"Measurement Unit(MeasureUnitCode)",43,"fibers/L","()Concentration Solution, Fibers per liter","7/26/2006 10:57:47 AM","fibers/L",1,0
+"Measurement Unit(MeasureUnitCode)",617,"fibers/cm3","()Concentration Solution, Fibers per cubic centimeters","5/18/2022 7:58:22 PM","fibers/cm3",1,0
+"Measurement Unit(MeasureUnitCode)",274,"fraction","()Concentration Percentage, Fraction of sample total","11/24/2009 7:07:30 PM","fraction",1,0
+"Measurement Unit(MeasureUnitCode)",140,"ft","Length Distance, Feet","8/30/2024 1:42:54 PM","in",12,0
 "Measurement Unit(MeasureUnitCode)",105,"ft-candles","Light Intensity, foot candles","7/26/2006 10:57:47 AM","lm/m2",10.763910417,0
 "Measurement Unit(MeasureUnitCode)",71,"ft-lbs","Energy, foot pounds","7/26/2006 10:57:47 AM","kcal",0.0003238315531757,0
 "Measurement Unit(MeasureUnitCode)",199,"ft/day","Speed Velocity, Feet per day","7/26/2006 10:57:47 AM","m/sec",3.5277777778e-06,0
-"Measurement Unit(MeasureUnitCode)",398,"ft/hr","Speed Velocity, Feet per hour","12/4/2023 10:07:35 AM","ft/hr",1,0
-"Measurement Unit(MeasureUnitCode)",779,"ft/mile","Slope, feet per mile","9/13/2022 12:21:58 PM","ft/mile",1,0
+"Measurement Unit(MeasureUnitCode)",398,"ft/hr","()Speed Velocity, Feet per hour","12/4/2023 10:07:35 AM","ft/hr",1,0
+"Measurement Unit(MeasureUnitCode)",779,"ft/mile","()Slope, feet per mile","9/13/2022 12:21:58 PM","ft/mile",1,0
 "Measurement Unit(MeasureUnitCode)",195,"ft/min","Speed Velocity, Feet per minute","7/26/2006 10:57:47 AM","m/sec",0.00508,0
 "Measurement Unit(MeasureUnitCode)",194,"ft/sec","Speed Velocity, Feet per second","7/26/2006 10:57:47 AM","m/sec",0.3048,0
 "Measurement Unit(MeasureUnitCode)",242,"ft2","Area, Square feet","7/26/2006 10:57:47 AM","m2",0.09290304,0
 "Measurement Unit(MeasureUnitCode)",229,"ft3","Volume, Cubic feet","7/26/2006 10:57:47 AM","m3",0.028316846592,0
 "Measurement Unit(MeasureUnitCode)",115,"ft3/day","Flow, Cubic feet per day","7/26/2006 10:57:47 AM","cfs",1.15740740741e-05,0
 "Measurement Unit(MeasureUnitCode)",270,"ft3/sec","Flow, Cubic feet per second","11/24/2009 7:07:30 PM","cfs",1,0
-"Measurement Unit(MeasureUnitCode)",6,"g","Weight Mass, Grams","7/26/2006 10:57:47 AM","g",1,0
+"Measurement Unit(MeasureUnitCode)",6,"g","()Weight Mass, Grams","7/26/2006 10:57:47 AM","g",1,0
 "Measurement Unit(MeasureUnitCode)",47,"g/L","Concentration Solution, Grams per liter","7/26/2006 10:57:47 AM","ug/L",1e+06,0
 "Measurement Unit(MeasureUnitCode)",263,"g/cm2","Concentration Solution, Grams per square centimeters","12/13/2007 1:29:45 PM","ug/cm2",1e+06,0
 "Measurement Unit(MeasureUnitCode)",26,"g/cm3","Density, Grams per cubic centimeter","7/26/2006 10:57:47 AM","ug/L",1e+09,0
 "Measurement Unit(MeasureUnitCode)",186,"g/day","Flow Mass, Grams per day","7/26/2006 10:57:47 AM","lb/day",0.002204623,0
-"Measurement Unit(MeasureUnitCode)",399,"g/g","Grams per gram","12/4/2023 10:07:35 AM","g/g",1,0
+"Measurement Unit(MeasureUnitCode)",399,"g/g","()Concentration Percentage, Grams per gram","12/4/2023 10:07:35 AM","g/g",1,0
 "Measurement Unit(MeasureUnitCode)",185,"g/hr","Flow Mass, Grams per hour","7/26/2006 10:57:47 AM","lb/day",0.052910952,0
 "Measurement Unit(MeasureUnitCode)",86,"g/kg","Concentration Percentage, Grams per kilogram","7/26/2006 10:57:47 AM","ug/kg",1e+06,0
-"Measurement Unit(MeasureUnitCode)",80,"g/m2","Concentration Solution, Grams per square meter","7/26/2006 10:57:47 AM","g/m2",1,0
+"Measurement Unit(MeasureUnitCode)",80,"g/m2","()Concentration Solution, Grams per square meter","7/26/2006 10:57:47 AM","g/m2",1,0
 "Measurement Unit(MeasureUnitCode)",129,"g/m2/day","Viscosity, Grams per square meter per day","7/26/2006 10:57:47 AM","mg/m2/day",1000,0
 "Measurement Unit(MeasureUnitCode)",128,"g/m2/hr","Viscosity, Grams per square meter per hour","7/26/2006 10:57:47 AM","mg/m2/day",24000,0
-"Measurement Unit(MeasureUnitCode)",449,"g/m2/month","Viscosity, grams per metre squared per month mg/dm2/month","12/21/2023 3:39:39 PM","g/m2/month",1,0
-"Measurement Unit(MeasureUnitCode)",413,"g/m2/sec","Grams per square meter per second","12/4/2023 10:07:35 AM","g/m2/sec",1,0
+"Measurement Unit(MeasureUnitCode)",449,"g/m2/month","()Viscosity, grams per metre squared per month mg/dm2/month","12/21/2023 3:39:39 PM","g/m2/month",1,0
+"Measurement Unit(MeasureUnitCode)",413,"g/m2/sec","()Yield, Grams per square meter per second","12/4/2023 10:07:35 AM","g/m2/sec",1,0
 "Measurement Unit(MeasureUnitCode)",20,"g/m3","Concentration Solution, Density, Grams per cubic meter","7/26/2006 10:57:47 AM","ug/L",1000,0
 "Measurement Unit(MeasureUnitCode)",101,"g/m3/day","Viscosity, Grams per cubic meter per day","7/26/2006 10:57:47 AM","mg/m3/day",1000,0
 "Measurement Unit(MeasureUnitCode)",100,"g/m3/hr","Viscosity, Grams per cubic meter per hour","7/26/2006 10:57:47 AM","mg/m3/day",24000,0
 "Measurement Unit(MeasureUnitCode)",48,"g/mL","Concentration Solution, Grams per milliliter","7/26/2006 10:57:47 AM","ug/L",1e+09,0
 "Measurement Unit(MeasureUnitCode)",184,"g/min","Flow Mass, Grams per minute","7/26/2006 10:57:47 AM","lb/day",3.17465712,0
 "Measurement Unit(MeasureUnitCode)",183,"g/sec","Flow Mass, Grams per second","7/26/2006 10:57:47 AM","lb/day",190.4794272,0
-"Measurement Unit(MeasureUnitCode)",499,"g/stalk","Concentration Solution, Grams per stalk","8/2/2017 12:10:44 PM","g/stalk",1,0
+"Measurement Unit(MeasureUnitCode)",499,"g/stalk","()Concentration Solution, Grams per stalk","8/2/2017 12:10:44 PM","g/stalk",1,0
 "Measurement Unit(MeasureUnitCode)",233,"gal","Volume, Fluid gallons","7/26/2006 10:57:47 AM","m3",0.003785412,0
 "Measurement Unit(MeasureUnitCode)",125,"gal/day","Flow, Gallons per day","7/26/2006 10:57:47 AM","cfs",1.5472286522e-06,0
 "Measurement Unit(MeasureUnitCode)",124,"gal/hr","Flow, Gallons per hour","7/26/2006 10:57:47 AM","cfs",3.71334876543e-05,0
 "Measurement Unit(MeasureUnitCode)",123,"gal/min","Flow, Gallons per minute","7/26/2006 10:57:47 AM","cfs",0.0022280092592592,0
 "Measurement Unit(MeasureUnitCode)",122,"gal/sec","Flow, Gallons per second","7/26/2006 10:57:47 AM","cfs",0.133680555555556,0
-"Measurement Unit(MeasureUnitCode)",410,"gc/uL","Concentration Solution, genomic copies per microliter","1/30/2023 7:37:52 PM","gc/uL",1,0
-"Measurement Unit(MeasureUnitCode)",720,"geu/100mL","Concentration Solution, Genomic Equivalent Units per 100 milliliters","1/3/2020 10:35:48 AM","geu/100mL",1,0
-"Measurement Unit(MeasureUnitCode)",718,"geu/g","Concentration Solution, Genomic Equivalent Units per gram","1/6/2020 5:12:18 PM","geu/g",1,0
+"Measurement Unit(MeasureUnitCode)",410,"gc/uL","()Concentration Solution, genomic copies per microliter","1/30/2023 7:37:52 PM","gc/uL",1,0
+"Measurement Unit(MeasureUnitCode)",720,"geu/100mL","()Concentration Solution, Genomic Equivalent Units per 100 milliliters","1/3/2020 10:35:48 AM","geu/100mL",1,0
+"Measurement Unit(MeasureUnitCode)",718,"geu/g","()Concentration Solution, Genomic Equivalent Units per gram","1/6/2020 5:12:18 PM","geu/g",1,0
 "Measurement Unit(MeasureUnitCode)",255,"gpg","Concentration Solution, Grains per gallon (grains/gal)","7/26/2006 10:57:47 AM","ug/L",17118.0600684945,0
 "Measurement Unit(MeasureUnitCode)",358,"gpm*^*^*^*^*","DO NOT USE, Flow, Gallons per minute ***deprecated***use gal/min","2/10/2021 9:59:35 AM","cfs",0.0022280092592592,0
-"Measurement Unit(MeasureUnitCode)",73,"gpm/ft","Drawdown capacity, gallons per minute per foot","7/26/2006 10:57:47 AM","gpm/ft",1,0
+"Measurement Unit(MeasureUnitCode)",73,"gpm/ft","()Viscosity, Drawdown capacity, gallons per minute per foot","7/26/2006 10:57:47 AM","gpm/ft",1,0
 "Measurement Unit(MeasureUnitCode)",308,"grains","Weight Mass, Grains","1/11/2012 3:59:08 PM","g",0.06479891,0
-"Measurement Unit(MeasureUnitCode)",415,"hPa","Pressure, Hectopascals","12/4/2023 10:07:35 AM","hPa",1,0
+"Measurement Unit(MeasureUnitCode)",415,"hPa","()Pressure, Hectopascals","12/4/2023 10:07:35 AM","hPa",1,0
 "Measurement Unit(MeasureUnitCode)",240,"ha","Area, Hectares","7/26/2006 10:57:47 AM","m2",10000,0
-"Measurement Unit(MeasureUnitCode)",414,"hhmm","Date/time, Hour - minute, based on a 24-hour clock","12/4/2023 10:07:35 AM","hhmm",1,0
+"Measurement Unit(MeasureUnitCode)",414,"hhmm","()Time, Hour - minute, based on a 24-hour clock","12/4/2023 10:07:35 AM","hhmm",1,0
 "Measurement Unit(MeasureUnitCode)",218,"hours","Time, Hours","7/26/2006 10:57:47 AM","minutes",60,0
 "Measurement Unit(MeasureUnitCode)",66,"hp","Power, horsepower","7/26/2006 10:57:47 AM","Mw",0.000746,0
-"Measurement Unit(MeasureUnitCode)",139,"in","Length Distance, Inches","3/26/2024 3:04:26 PM","in",0.0254,0
-"Measurement Unit(MeasureUnitCode)",283,"in/day","Speed Velocity, Inches per day","7/19/2010 3:16:29 PM","in/day",1,0
-"Measurement Unit(MeasureUnitCode)",416,"in/hr","Speed Velocity, inches per hour","12/4/2023 10:07:35 AM","in/hr",1,0
-"Measurement Unit(MeasureUnitCode)",417,"in/min","Speed Velocity, inches per minute","12/4/2023 10:07:35 AM","in/min",1,0
-"Measurement Unit(MeasureUnitCode)",418,"in/week","Speed Velocity, inches per week","12/4/2023 10:07:35 AM","in/week",1,0
+"Measurement Unit(MeasureUnitCode)",139,"in","()Length Distance, Inches","8/30/2024 2:11:21 PM","in",1,0
+"Measurement Unit(MeasureUnitCode)",283,"in/day","()Speed Velocity, Inches per day","7/19/2010 3:16:29 PM","in/day",1,0
+"Measurement Unit(MeasureUnitCode)",416,"in/hr","()Speed Velocity, inches per hour","12/4/2023 10:07:35 AM","in/hr",1,0
+"Measurement Unit(MeasureUnitCode)",417,"in/min","()Speed Velocity, inches per minute","12/4/2023 10:07:35 AM","in/min",1,0
+"Measurement Unit(MeasureUnitCode)",418,"in/week","()Speed Velocity, inches per week","12/4/2023 10:07:35 AM","in/week",1,0
 "Measurement Unit(MeasureUnitCode)",241,"in2","Area, Square inches","7/26/2006 10:57:47 AM","m2",0.00064516,0
 "Measurement Unit(MeasureUnitCode)",228,"in3","Volume, Cubic inches","7/26/2006 10:57:47 AM","m3",1.6387064e-05,0
-"Measurement Unit(MeasureUnitCode)",54,"inH2O","Pressure, inches of water","7/26/2006 10:57:47 AM","inH2O",1,0
-"Measurement Unit(MeasureUnitCode)",227,"inHg","Pressure, inches of mercury (Hg)","7/26/2006 10:57:47 AM","g/m2",1431464.18859,0
-"Measurement Unit(MeasureUnitCode)",464,"ipiu/100L","Concentration Solution, Most probable number of immune-peroxidase infectious units per 100 L; intact and putatively infectious units (IPIUs); https://onlinelibrary.wiley.com/doi/pdf/10.1111/jfs.13077","2/9/2024 12:18:21 PM","ipiu/100L",1,0
-"Measurement Unit(MeasureUnitCode)",336,"kOhm/cm","Electric Resistivity, Kilo ohm per centimeter","5/24/2012 10:57:47 AM","KOhm/cm",1,0
+"Measurement Unit(MeasureUnitCode)",54,"inH2O","()Pressure, inches of water","7/26/2006 10:57:47 AM","inH2O",1,0
+"Measurement Unit(MeasureUnitCode)",227,"inHg","Pressure, inches of mercury (Hg)","8/26/2024 1:24:22 PM","mmHg",25.4,0
+"Measurement Unit(MeasureUnitCode)",464,"ipiu/100L","()Concentration Solution, Most probable number of immune-peroxidase infectious units per 100L; intact and putatively infectious units (IPIUs); https://onlinelibrary.wiley.com/doi/pdf/10.1111/jfs.13077","2/9/2024 12:18:21 PM","ipiu/100L",1,0
+"Measurement Unit(MeasureUnitCode)",336,"kOhm/cm","()Electric Resistivity, Kilo ohm per centimeter","5/24/2012 10:57:47 AM","KOhm/cm",1,0
 "Measurement Unit(MeasureUnitCode)",649,"kPa","Pressure, Kilopascal","2/10/2022 12:25:13 PM","g/m2",101971.621297792,0
-"Measurement Unit(MeasureUnitCode)",70,"kcal","Energy, kilocalories","7/26/2006 10:57:47 AM","kcal",1,0
+"Measurement Unit(MeasureUnitCode)",70,"kcal","()Energy, kilocalories","7/26/2006 10:57:47 AM","kcal",1,0
 "Measurement Unit(MeasureUnitCode)",7,"kg","Weight Mass, Kilograms","7/26/2006 10:57:47 AM","g",1000,0
-"Measurement Unit(MeasureUnitCode)",616,"kg/day","Flow Mass, Kilograms per day","5/19/2022 1:59:04 PM","kg/day",1,0
-"Measurement Unit(MeasureUnitCode)",462,"kg/day/mi2","Yield, kilograms per day per square mile","1/8/2024 12:00:00 AM","kg/day/mi2",1,0
+"Measurement Unit(MeasureUnitCode)",616,"kg/day","()Flow Mass, Kilograms per day","5/19/2022 1:59:04 PM","kg/day",1,0
+"Measurement Unit(MeasureUnitCode)",462,"kg/day/mi2","()Yield, kilograms per day per square mile","1/8/2024 12:00:00 AM","kg/day/mi2",1,0
 "Measurement Unit(MeasureUnitCode)",377,"kg/ha","Concentration Solution, kilograms per hectare","7/12/2023 10:03:53 PM","g/m2",0.1,0
 "Measurement Unit(MeasureUnitCode)",81,"kg/m2","Concentration Solution, Kilograms per square meter","7/26/2006 10:57:47 AM","g/m2",1000,0
 "Measurement Unit(MeasureUnitCode)",21,"kg/m3","Density, Kilograms per cubic meter","7/26/2006 10:57:47 AM","ug/L",1e+06,0
-"Measurement Unit(MeasureUnitCode)",343,"kg/m3-1000","Density, Kilograms per cubic meter minus one thousand","9/27/2013 11:57:20 AM","Kg/m3-1000",1,0
-"Measurement Unit(MeasureUnitCode)",401,"kg/t","Concentration Solution, Kilograms per Tonne (metric ton)","3/23/2022 12:06:14 PM","kg/t",1,0
+"Measurement Unit(MeasureUnitCode)",343,"kg/m3-1000","()Density, Kilograms per cubic meter minus one thousand","9/27/2013 11:57:20 AM","Kg/m3-1000",1,0
+"Measurement Unit(MeasureUnitCode)",401,"kg/t","()Concentration Solution, Kilograms per Tonne (metric ton)","3/23/2022 12:06:14 PM","kg/t",1,0
 "Measurement Unit(MeasureUnitCode)",259,"kg/t CaCO3*^","DO NOT USE, Concentration Solution, Kilograms per Ton calcium carbonate (CaCO3)***retired***use kg/t and speciation = CaCO3","7/7/2023 3:39:41 PM","kg/t",1,0
-"Measurement Unit(MeasureUnitCode)",404,"kg/tons","Concentration Solution, Kilograms per tons","4/12/2022 9:06:10 PM","kg/tons",1,0
+"Measurement Unit(MeasureUnitCode)",404,"kg/tons","()Concentration Solution, Kilograms per tons","4/12/2022 9:06:10 PM","kg/tons",1,0
 "Measurement Unit(MeasureUnitCode)",322,"kgal","Volume, 1000 gallons","1/11/2012 3:59:08 PM","m3",3.785412,0
 "Measurement Unit(MeasureUnitCode)",138,"km","Length Distance, Kilometers","7/26/2006 10:57:47 AM","in",39370.0787401575,0
 "Measurement Unit(MeasureUnitCode)",196,"km/hr","Speed Velocity, Kilometers per hour","7/26/2006 10:57:47 AM","m/sec",0.277777777777777,0
@@ -275,71 +275,73 @@
 "Measurement Unit(MeasureUnitCode)",9,"lb","Weight Mass, Pounds","7/26/2006 10:57:47 AM","g",453.59237,0
 "Measurement Unit(MeasureUnitCode)",384,"lb/ac-ft","Concentration Solution, pounds per acre feet","10/4/2023 1:57:31 PM","ug/L",367.731183659,0
 "Measurement Unit(MeasureUnitCode)",130,"lb/acre/yr","Viscosity, Pounds per acre per year","7/26/2006 10:57:47 AM","mg/m2/day",0.306871064953512,0
-"Measurement Unit(MeasureUnitCode)",190,"lb/day","Flow Mass, Pounds per day","7/26/2006 10:57:47 AM","lb/day",1,0
-"Measurement Unit(MeasureUnitCode)",461,"lb/day/mi2","Yield, pounds per day per square mile","1/8/2024 12:00:00 AM","lb/day/mi2",1,0
-"Measurement Unit(MeasureUnitCode)",721,"lb/ft2","Concentration Solution, pounds per square foot","11/2/2020 5:13:13 PM","lb/ft2",1,0
-"Measurement Unit(MeasureUnitCode)",305,"lb/ft3","Density, Pounds per cubic foot","12/6/2011 1:57:04 PM","lb/ft3",1,0
+"Measurement Unit(MeasureUnitCode)",190,"lb/day","()Flow Mass, Pounds per day","7/26/2006 10:57:47 AM","lb/day",1,0
+"Measurement Unit(MeasureUnitCode)",461,"lb/day/mi2","()Yield, pounds per day per square mile","1/8/2024 12:00:00 AM","lb/day/mi2",1,0
+"Measurement Unit(MeasureUnitCode)",721,"lb/ft2","()Concentration Solution, pounds per square foot","11/2/2020 5:13:13 PM","lb/ft2",1,0
+"Measurement Unit(MeasureUnitCode)",305,"lb/ft3","()Density, Pounds per cubic foot","12/6/2011 1:57:04 PM","lb/ft3",1,0
 "Measurement Unit(MeasureUnitCode)",189,"lb/hr","Flow Mass, Pounds per hour","7/26/2006 10:57:47 AM","lb/day",24,0
-"Measurement Unit(MeasureUnitCode)",74,"lb/in","Tension, pounds per inch displacement","7/26/2006 10:57:47 AM","lb/in",1,0
+"Measurement Unit(MeasureUnitCode)",74,"lb/in","()Tension, pounds per inch displacement","7/26/2006 10:57:47 AM","lb/in",1,0
 "Measurement Unit(MeasureUnitCode)",316,"lb/kgal","Concentration Solution, Pounds/kilogallon","1/11/2023 3:59:08 PM","lbs/kgal",1,0
 "Measurement Unit(MeasureUnitCode)",188,"lb/min","Flow Mass, Pounds per minute","7/26/2006 10:57:47 AM","lb/day",1440,0
 "Measurement Unit(MeasureUnitCode)",187,"lb/sec","Flow Mass, Pounds per second","7/26/2006 10:57:47 AM","lb/day",86400,0
 "Measurement Unit(MeasureUnitCode)",108,"lm/ft2","Light Intensity, lumens per square foot","7/26/2006 10:57:47 AM","lm/m2",10.763910417,0
-"Measurement Unit(MeasureUnitCode)",325,"lm/m2","Light Intensity, lumens per square meter","1/11/2012 3:59:08 PM","lm/m2",1,0
-"Measurement Unit(MeasureUnitCode)",372,"loc-sec","Direction or angle, Locational seconds (latitude/longitude)","3/1/2016 7:39:07 AM","loc-sec",1,0
-"Measurement Unit(MeasureUnitCode)",729,"log10 copies","Concentration Solution, Log10 copies (If Loga b = x, then a^x=b)","10/3/2022 12:00:00 AM","log10 copies",1,0
+"Measurement Unit(MeasureUnitCode)",325,"lm/m2","()Light Intensity, lumens per square meter","1/11/2012 3:59:08 PM","lm/m2",1,0
+"Measurement Unit(MeasureUnitCode)",372,"loc-sec","()Location, Direction or angle, Locational seconds (latitude/longitude)","3/1/2016 7:39:07 AM","loc-sec",1,0
+"Measurement Unit(MeasureUnitCode)",729,"log10 copies","()Concentration Solution, Log10 copies (If Loga b = x, then a^x=b)","10/3/2022 12:00:00 AM","log10 copies",1,0
 "Measurement Unit(MeasureUnitCode)",106,"lumens","Light Intensity, lumens","7/26/2006 10:57:47 AM","lm/m2",10.763910417,0
-"Measurement Unit(MeasureUnitCode)",137,"m","Length Distance, Meters","3/26/2024 3:02:49 PM","in",1,0
-"Measurement Unit(MeasureUnitCode)",367,"m-1","Inverse meters or per meters","1/19/2016 11:12:28 AM","per in",0.0254,0
-"Measurement Unit(MeasureUnitCode)",192,"m/sec","Speed Velocity, Meters per second","7/26/2006 10:57:47 AM","m/sec",1,0
-"Measurement Unit(MeasureUnitCode)",288,"m/y","Time, Month/year","7/19/2010 3:16:29 PM","m/y",1,0
-"Measurement Unit(MeasureUnitCode)",238,"m2","Area, Square meters","7/26/2006 10:57:47 AM","m2",1,0
-"Measurement Unit(MeasureUnitCode)",421,"m2/g","Square meters per gram","12/4/2023 10:07:35 AM","m2/g",1,0
-"Measurement Unit(MeasureUnitCode)",281,"m2/km2","Square meters per square kilometers","6/14/2010 3:16:29 PM","m2/km2",1,0
-"Measurement Unit(MeasureUnitCode)",205,"m3","Volume, Cubic meters","7/26/2006 10:57:47 AM","m3",1,0
-"Measurement Unit(MeasureUnitCode)",405,"m3/day","Flow, Cubic metres per day","4/12/2022 9:06:10 PM","m3/day",1,0
+"Measurement Unit(MeasureUnitCode)",137,"m","Length Distance, Meters","8/30/2024 1:46:41 PM","in",39.3701,0
+"Measurement Unit(MeasureUnitCode)",367,"m-1*^*^*^*^*","DO NOT USE, Inverse meters or per meters ***retired***use per m","8/27/2024 12:00:00 AM","per in",1,0
+"Measurement Unit(MeasureUnitCode)",192,"m/sec","()Speed Velocity, Meters per second","7/26/2006 10:57:47 AM","m/sec",1,0
+"Measurement Unit(MeasureUnitCode)",288,"m/y","()Time, Month/year","7/19/2010 3:16:29 PM","m/y",1,0
+"Measurement Unit(MeasureUnitCode)",238,"m2","()Area, Square meters","7/26/2006 10:57:47 AM","m2",1,0
+"Measurement Unit(MeasureUnitCode)",421,"m2/g","()Densisty, Square meters per gram","12/4/2023 10:07:35 AM","m2/g",1,0
+"Measurement Unit(MeasureUnitCode)",281,"m2/km2","()Concentration Solution, Square meters per square kilometers","6/14/2010 3:16:29 PM","m2/km2",1,0
+"Measurement Unit(MeasureUnitCode)",205,"m3","()Volume, Cubic meters","7/26/2006 10:57:47 AM","m3",1,0
+"Measurement Unit(MeasureUnitCode)",405,"m3/day","()Flow, Cubic metres per day","4/12/2022 9:06:10 PM","m3/day",1,0
 "Measurement Unit(MeasureUnitCode)",162,"m3/hr","Flow, Cubic meters per hour","7/26/2006 10:57:47 AM","cfs",0.0098096305555555,0
 "Measurement Unit(MeasureUnitCode)",161,"m3/min","Flow, Cubic meters per min","7/26/2006 10:57:47 AM","cfs",0.588577833333333,0
-"Measurement Unit(MeasureUnitCode)",614,"m3/month","Flow, Cubic meters per month","5/19/2022 2:02:46 PM","m3/month",1,0
+"Measurement Unit(MeasureUnitCode)",614,"m3/month","()Flow, Cubic meters per month","5/19/2022 2:02:46 PM","m3/month",1,0
 "Measurement Unit(MeasureUnitCode)",44,"m3/sec","Flow, Cubic meters per second","7/26/2006 10:57:47 AM","cfs",35.31467,0
-"Measurement Unit(MeasureUnitCode)",618,"m3/week","Flow, Cubic metres per week","5/19/2022 2:02:46 PM","m3/week",1,0
-"Measurement Unit(MeasureUnitCode)",608,"m3/yr","Flow, Cubic meters per year","5/18/2022 7:58:24 PM","m3/yr",1,0
+"Measurement Unit(MeasureUnitCode)",618,"m3/week","()Flow, Cubic metres per week","5/19/2022 2:02:46 PM","m3/week",1,0
+"Measurement Unit(MeasureUnitCode)",608,"m3/yr","()Flow, Cubic meters per year","5/18/2022 7:58:24 PM","m3/yr",1,0
 "Measurement Unit(MeasureUnitCode)",345,"mCi","Weight Mass, milliCuries","1/8/2014 8:59:35 AM","mSv",5,0
-"Measurement Unit(MeasureUnitCode)",324,"mCi/km2","Concentration Solution, milliCuries per square kilometer","1/11/2012 3:59:08 PM","mCi/km2",1,0
+"Measurement Unit(MeasureUnitCode)",324,"mCi/km2","()Radiation, milliCuries per square kilometer","1/11/2012 3:59:08 PM","mCi/km2",1,0
 "Measurement Unit(MeasureUnitCode)",201,"mL","Volume, milliliters","7/26/2006 10:57:47 AM","m3",1e-06,0
 "Measurement Unit(MeasureUnitCode)",50,"mL/L","Concentration Percentage, milliliters per liter","7/26/2006 10:57:47 AM","mm3/L",1000,0
-"Measurement Unit(MeasureUnitCode)",362,"mL/L/hr","Viscosity, milliliters per liter per hour","1/5/2015 11:12:58 AM","mL/L/hr",1,0
-"Measurement Unit(MeasureUnitCode)",424,"mL/cm2/day","Milliliters per square centimeter per day","12/4/2023 10:07:36 AM","mL/cm2/day",1,0
+"Measurement Unit(MeasureUnitCode)",362,"mL/L/hr","()Viscosity, milliliters per liter per hour","1/5/2015 11:12:58 AM","mL/L/hr",1,0
+"Measurement Unit(MeasureUnitCode)",424,"mL/cm2/day","()Milliliters per square centimeter per day","12/4/2023 10:07:36 AM","mL/cm2/day",1,0
 "Measurement Unit(MeasureUnitCode)",479,"mL/m3","Concentration Percentage, milliliters per cubic meter","5/23/2017 7:27:59 AM","ppm",1,0
-"Measurement Unit(MeasureUnitCode)",359,"mL/min","Flow, milliliters per minute","12/2/2014 8:51:42 AM","mL/min",1,0
+"Measurement Unit(MeasureUnitCode)",359,"mL/min","()Flow, milliliters per minute","12/2/2014 8:51:42 AM","mL/min",1,0
 "Measurement Unit(MeasureUnitCode)",629,"mL/sec","Flow, milliliters per second","10/31/2022 6:04:27 PM","cfs",35.3146667214886,0
 "Measurement Unit(MeasureUnitCode)",32,"mS/cm","Electric Resistivity, milli-Siemens per Centimeter","7/26/2006 10:57:47 AM","uS/cm",1000,0
-"Measurement Unit(MeasureUnitCode)",559,"mS/m","Electric Resistivity, milli-Siemens per Meter","12/7/2017 9:01:07 AM","mS/m",1,0
-"Measurement Unit(MeasureUnitCode)",347,"mSv","Radiation, milliSievert","1/8/2014 8:59:35 AM","mSv",1,0
+"Measurement Unit(MeasureUnitCode)",559,"mS/m","()Electric Resistivity, milli-Siemens per Meter","12/7/2017 9:01:07 AM","mS/m",1,0
+"Measurement Unit(MeasureUnitCode)",347,"mSv","()Radiation, milliSievert","1/8/2014 8:59:35 AM","mSv",1,0
 "Measurement Unit(MeasureUnitCode)",35,"mV","Power, millivolts","7/26/2006 10:57:47 AM","volts",0.001,0
-"Measurement Unit(MeasureUnitCode)",422,"meq","Milliequivalents","12/4/2023 10:07:35 AM","meq",1,0
-"Measurement Unit(MeasureUnitCode)",317,"meq/100g","Concentration Percentage, milli-equivalents per 100 gram","1/11/2012 3:59:08 PM","mEq/100g",1,0
-"Measurement Unit(MeasureUnitCode)",30,"meq/L","Density, milli-equivalents per Liter","7/26/2006 10:57:47 AM","meq/L",1,0
+"Measurement Unit(MeasureUnitCode)",422,"meq","()Milliequivalents","12/4/2023 10:07:35 AM","meq",1,0
+"Measurement Unit(MeasureUnitCode)",317,"meq/100g","()Concentration Percentage, milli-equivalents per 100 gram","1/11/2012 3:59:08 PM","mEq/100g",1,0
+"Measurement Unit(MeasureUnitCode)",30,"meq/L","()Density, milli-equivalents per Liter","7/26/2006 10:57:47 AM","meq/L",1,0
+"Measurement Unit(MeasureUnitCode)",480,"meq/kg","()Concentration Percentage, milli-equivalents per kilogram","10/16/2024 11:35:57 AM","meq/kg",1,0
 "Measurement Unit(MeasureUnitCode)",11,"metric ton","Weight Mass, Metric tons (tonne) or MT","7/26/2006 10:57:47 AM","g",1e+06,0
 "Measurement Unit(MeasureUnitCode)",5,"mg","Weight Mass, milligrams","7/26/2006 10:57:47 AM","g",0.001,0
 "Measurement Unit(MeasureUnitCode)",373,"mg N/l*^*^*^","DO NOT USE, Concentration Solution, mg nitrogen in one liter of water or milligrams per liter Nitrogen  ***retired***use mg/l, speciation= as N, ","7/7/2023 4:59:24 PM","mg/L",1000,0
-"Measurement Unit(MeasureUnitCode)",15,"mg/L","Concentration Solution, milligrams per liter","7/26/2006 10:57:47 AM","ug/L",1000,0
+"Measurement Unit(MeasureUnitCode)",466,"mg/100g","Concentration Percentage, milligrams per 100 grams","9/26/2024 1:32:30 PM","ug/kg",10000,NA
+"Measurement Unit(MeasureUnitCode)",15,"mg/L","()Concentration Solution, milligrams per liter","7/26/2006 10:57:47 AM","ug/L",1000,0
 "Measurement Unit(MeasureUnitCode)",679,"mg/L/hr","Viscosity, milligrams per liter per hour","8/14/2019 2:36:30 PM","mg/m3/day",41.6666667,0
 "Measurement Unit(MeasureUnitCode)",278,"mg/cm2","Concentration Solution, milligrams per square centimeters","2/12/2010 12:45:10 PM","ug/cm2",1000,0
 "Measurement Unit(MeasureUnitCode)",25,"mg/cm3","Density, milligrams per cubic centimeter","7/26/2006 10:57:47 AM","ug/L",1e+06,0
 "Measurement Unit(MeasureUnitCode)",182,"mg/day","Flow Mass, milligrams per day","7/26/2006 10:57:47 AM","lb/day",2.204623e-06,0
-"Measurement Unit(MeasureUnitCode)",406,"mg/dm2/day","Viscosity, milligrams per decimetre squared per day","4/12/2022 9:06:10 PM","mg/dm2/day",1,0
-"Measurement Unit(MeasureUnitCode)",615,"mg/dm2/month","Viscosity, milligrams per decimetre squared per month","5/19/2022 2:02:47 PM","mg/dm2/month",1,0
+"Measurement Unit(MeasureUnitCode)",406,"mg/dm2/day","()Viscosity, milligrams per decimetre squared per day","4/12/2022 9:06:10 PM","mg/dm2/day",1,0
+"Measurement Unit(MeasureUnitCode)",615,"mg/dm2/month","()Viscosity, milligrams per decimetre squared per month","5/19/2022 2:02:47 PM","mg/dm2/month",1,0
 "Measurement Unit(MeasureUnitCode)",90,"mg/g","Concentration Percentage, Milligrams per gram","7/26/2006 10:57:47 AM","ug/kg",1e+06,0
-"Measurement Unit(MeasureUnitCode)",680,"mg/g/hr","Viscosity, milligrams per gram per hour ","7/6/2023 5:09:23 PM","mg/g/hr",1,0
+"Measurement Unit(MeasureUnitCode)",680,"mg/g/hr","()Viscosity, milligrams per gram per hour ","7/6/2023 5:09:23 PM","mg/g/hr",1,0
 "Measurement Unit(MeasureUnitCode)",181,"mg/hr","Flow Mass, milligrams per hour","7/26/2006 10:57:47 AM","lb/day",5.2910952e-05,0
 "Measurement Unit(MeasureUnitCode)",85,"mg/kg","Concentration Percentage, Milligrams per kilogram","7/26/2006 10:57:47 AM","ug/kg",1000,0
 "Measurement Unit(MeasureUnitCode)",258,"mg/l CaCO3*^","DO NOT USE, Concentration Solution, milligrams per liter calcium carbonate (CaCO3)***retired***use mg/l and speciation = CaCO3","7/7/2023 4:58:08 PM","mg/L",1000,0
 "Measurement Unit(MeasureUnitCode)",79,"mg/m2","Concentration Solution, Milligrams per square meter","7/26/2006 10:57:47 AM","g/m2",0.001,0
-"Measurement Unit(MeasureUnitCode)",127,"mg/m2/day","Viscosity, milligrams per square meter per day","7/26/2006 10:57:47 AM","mg/m2/day",1,0
+"Measurement Unit(MeasureUnitCode)",127,"mg/m2/day","()Viscosity, milligrams per square meter per day","7/26/2006 10:57:47 AM","mg/m2/day",1,0
 "Measurement Unit(MeasureUnitCode)",102,"mg/m2/hr","Viscosity, Milligrams per square meter per hour","7/26/2006 10:57:47 AM","mg/m2/day",24,0
 "Measurement Unit(MeasureUnitCode)",19,"mg/m3","Density, milligrams per cubic meter","7/26/2006 10:57:47 AM","ug/L",1,0
-"Measurement Unit(MeasureUnitCode)",99,"mg/m3/day","Viscosity, Milligrams per cubic meter per day","7/26/2006 10:57:47 AM","mg/m3/day",1,0
+"Measurement Unit(MeasureUnitCode)",99,"mg/m3/day","()Viscosity, Milligrams per cubic meter per day","7/26/2006 10:57:47 AM","mg/m3/day",1,0
 "Measurement Unit(MeasureUnitCode)",98,"mg/m3/hr","Viscosity, Milligrams per cubic meter per hour","7/26/2006 10:57:47 AM","mg/m3/day",24,0
 "Measurement Unit(MeasureUnitCode)",49,"mg/mL","Concentration Solution, milligrams per milliliter","7/26/2006 10:57:47 AM","ug/L",1e+06,0
 "Measurement Unit(MeasureUnitCode)",180,"mg/min","Flow Mass, milligrams per minute","7/26/2006 10:57:47 AM","lb/day",0.00317465712,0
@@ -350,30 +352,30 @@
 "Measurement Unit(MeasureUnitCode)",276,"micron","Weight Mass, Micron","12/15/2009 3:15:36 PM","in",3.93700787401575e-05,0
 "Measurement Unit(MeasureUnitCode)",329,"milliMolar","Flow, milliMolar","1/11/2012 5:40:11 PM","mmol/L",0.001,0
 "Measurement Unit(MeasureUnitCode)",332,"millibar","Pressure, millibar","5/24/2012 10:57:47 AM","g/m2",10197.1621297792,0
-"Measurement Unit(MeasureUnitCode)",217,"minutes","Time, Minutes","7/26/2006 10:57:47 AM","minutes",1,0
+"Measurement Unit(MeasureUnitCode)",217,"minutes","()Time, Minutes","7/26/2006 10:57:47 AM","minutes",1,0
 "Measurement Unit(MeasureUnitCode)",134,"mm","Length Distance, millimeters","7/26/2006 10:57:47 AM","in",0.0393700787401575,0
-"Measurement Unit(MeasureUnitCode)",425,"mm/day","Speed Velocity, Millimeters per day","12/4/2023 10:07:36 AM","mm/day",1,0
-"Measurement Unit(MeasureUnitCode)",447,"mm/g","Millimeters per gram","12/11/2023 1:07:14 PM","mm/g",1,0
-"Measurement Unit(MeasureUnitCode)",426,"mm/hr","Speed Velocity, Millimeters per hour","12/4/2023 10:07:36 AM","mm/hr",1,0
-"Measurement Unit(MeasureUnitCode)",465,"mm/sec","Flow, Millimeters per second","5/22/2024 6:48:01 PM","mm/sec",1,0
+"Measurement Unit(MeasureUnitCode)",425,"mm/day","()Speed Velocity, Millimeters per day","12/4/2023 10:07:36 AM","mm/day",1,0
+"Measurement Unit(MeasureUnitCode)",447,"mm/g","()Millimeters per gram","12/11/2023 1:07:14 PM","mm/g",1,0
+"Measurement Unit(MeasureUnitCode)",426,"mm/hr","()Speed Velocity, Millimeters per hour","12/4/2023 10:07:36 AM","mm/hr",1,0
+"Measurement Unit(MeasureUnitCode)",465,"mm/sec","()Flow, Millimeters per second","5/22/2024 6:48:01 PM","mm/sec",1,0
 "Measurement Unit(MeasureUnitCode)",236,"mm2","Area, Square millimeters","7/26/2006 10:57:47 AM","m2",1e-06,0
 "Measurement Unit(MeasureUnitCode)",323,"mm3","Volume, Cubic millimeters","1/11/2012 3:59:08 PM","m3",1e-09,0
-"Measurement Unit(MeasureUnitCode)",251,"mm3/L","Concentration Percentage, Cubic millimeters per liter","7/26/2006 10:57:47 AM","mm3/L",1,0
-"Measurement Unit(MeasureUnitCode)",55,"mmH2O","Pressure, millimeters of water","7/26/2006 10:57:47 AM","mmH2O",1,0
-"Measurement Unit(MeasureUnitCode)",53,"mmHg","Pressure, millimeters of mercury","7/26/2006 10:57:47 AM","mmHg",1,0
-"Measurement Unit(MeasureUnitCode)",303,"mmhos/cm","Electrical conductivity, millimhos per centimeter","9/27/2011 11:15:02 AM","mmhos/cm",1,0
-"Measurement Unit(MeasureUnitCode)",319,"mmol/L","Concentration Molar, millimoles per liter","1/11/2012 3:59:08 PM","mmol/L",1,0
-"Measurement Unit(MeasureUnitCode)",52,"mmol/kg","Concentration Percentage, millimoles per kilogram","7/26/2006 10:57:47 AM","mmol/kg",1,0
-"Measurement Unit(MeasureUnitCode)",427,"mmol/m2","Millimoles per square meter","12/4/2023 10:07:36 AM","mmol/m2",1,0
-"Measurement Unit(MeasureUnitCode)",253,"mmol/m2/dy","Viscosity, millimoles per square meter per day","7/26/2006 10:57:47 AM","mmol/m2/dy",1,0
+"Measurement Unit(MeasureUnitCode)",251,"mm3/L","()Concentration Percentage, Cubic millimeters per liter","7/26/2006 10:57:47 AM","mm3/L",1,0
+"Measurement Unit(MeasureUnitCode)",55,"mmH2O","()Pressure, millimeters of water","7/26/2006 10:57:47 AM","mmH2O",1,0
+"Measurement Unit(MeasureUnitCode)",53,"mmHg","()Pressure, millimeters of mercury","7/26/2006 10:57:47 AM","mmHg",1,0
+"Measurement Unit(MeasureUnitCode)",303,"mmhos/cm","()Electrical conductivity, millimhos per centimeter","9/27/2011 11:15:02 AM","mmhos/cm",1,0
+"Measurement Unit(MeasureUnitCode)",319,"mmol/L","()Concentration Molar, millimoles per liter","1/11/2012 3:59:08 PM","mmol/L",1,0
+"Measurement Unit(MeasureUnitCode)",52,"mmol/kg","()Concentration Percentage, millimoles per kilogram","7/26/2006 10:57:47 AM","mmol/kg",1,0
+"Measurement Unit(MeasureUnitCode)",427,"mmol/m2","()Millimoles per square meter","12/4/2023 10:07:36 AM","mmol/m2",1,0
+"Measurement Unit(MeasureUnitCode)",253,"mmol/m2/dy","()Viscosity, millimoles per square meter per day","7/26/2006 10:57:47 AM","mmol/m2/dy",1,0
 "Measurement Unit(MeasureUnitCode)",51,"mmol/m2/hr","Viscosity, millimoles per square meter per hour","7/26/2006 10:57:47 AM","mmol/m2/dy",24,0
 "Measurement Unit(MeasureUnitCode)",344,"mmol/mg","Concentration Molar, millimoles per milligram","11/20/2013 11:57:20 AM","umol/kg",1e+09,0
-"Measurement Unit(MeasureUnitCode)",428,"mmyy","Date/time, Month-Year","12/4/2023 10:07:36 AM","mmyy",1,0
+"Measurement Unit(MeasureUnitCode)",428,"mmyy","()Time, Date Month-Year","12/4/2023 10:07:36 AM","mmyy",1,0
 "Measurement Unit(MeasureUnitCode)",221,"months","Time, Months","7/26/2006 10:57:47 AM","minutes",43830,0
-"Measurement Unit(MeasureUnitCode)",265,"mosm/kg","Concentration Molar, milliosmole per kg","7/3/2008 12:38:35 PM","mosm/kg",1,0
+"Measurement Unit(MeasureUnitCode)",265,"mosm/kg","()Concentration Molar, milliosmole per kg","7/3/2024 12:38:35 PM","umol/kg",1000,0
 "Measurement Unit(MeasureUnitCode)",197,"mph","Speed Velocity, Miles per hour","7/26/2006 10:57:47 AM","m/sec",0.44704,0
 "Measurement Unit(MeasureUnitCode)",346,"mrem","Radiation, milliRem, one thousands of a rem (roentgen equivalent man)","1/8/2014 8:59:35 AM","mSv",0.01,0
-"Measurement Unit(MeasureUnitCode)",40,"mrem/day","Radiation, millirems per day","7/26/2006 10:57:47 AM","mrem/day",1,0
+"Measurement Unit(MeasureUnitCode)",40,"mrem/day","()Radiation, millirems per day","7/26/2006 10:57:47 AM","mrem/day",1,0
 "Measurement Unit(MeasureUnitCode)",39,"mrem/yr","Radiation, millirems per year","7/26/2006 10:57:47 AM","mrem/day",0.0027378507871321,0
 "Measurement Unit(MeasureUnitCode)",215,"ms","Time, milliseconds","7/26/2006 10:57:47 AM","minutes",1.66666666667e-05,0
 "Measurement Unit(MeasureUnitCode)",176,"nCi/L","Concentration Solution, Nanocuries per liter","7/26/2006 10:57:47 AM","pCi/L",1000,0
@@ -384,37 +386,37 @@
 "Measurement Unit(MeasureUnitCode)",88,"ng/g","Concentration Percentage, Nanograms per gram","7/26/2006 10:57:47 AM","ug/kg",1,0
 "Measurement Unit(MeasureUnitCode)",83,"ng/kg","Concentration Percentage, Nanograms per kilogram","7/26/2006 10:57:47 AM","ug/kg",0.001,0
 "Measurement Unit(MeasureUnitCode)",77,"ng/m2","Concentration Solution, Nanograms per square meter","7/26/2006 10:57:47 AM","g/m2",1e-09,0
-"Measurement Unit(MeasureUnitCode)",351,"ng/m2/day","Viscosity, Nanograms per square meter per day","7/28/2017 12:33:44 PM","ng/m2/day",1,0
+"Measurement Unit(MeasureUnitCode)",351,"ng/m2/day","()Viscosity, Nanograms per square meter per day","7/28/2017 12:33:44 PM","ng/m2/day",1,0
 "Measurement Unit(MeasureUnitCode)",17,"ng/m3","Density, Nanograms per cubic meter","7/26/2006 10:57:47 AM","ug/L",1e-06,0
-"Measurement Unit(MeasureUnitCode)",280,"ng/mL","Density, Nanograms per milliliter","6/4/2010 10:57:43 AM","ng/mL",1,0
+"Measurement Unit(MeasureUnitCode)",280,"ng/mL","()Density, Nanograms per milliliter","6/4/2010 10:57:43 AM","ng/mL",1,0
 "Measurement Unit(MeasureUnitCode)",133,"nm","Length Distance, Nanometers","7/26/2006 10:57:47 AM","in",3.93700787e-08,0
-"Measurement Unit(MeasureUnitCode)",289,"nm-1","Inverse nanometers or per nanometers ***deprecated***use per nm","7/19/2010 3:16:29 PM","per in",25400000,0
+"Measurement Unit(MeasureUnitCode)",289,"nm-1","DO NOT USE, Inverse nanometers or per nanometers ***deprecated***use per nm 19-JUL-10","9/30/2024 9:44:14 AM","per in",25400000,0
 "Measurement Unit(MeasureUnitCode)",143,"nmi","Length Distance, Nautical miles","7/26/2006 10:57:47 AM","in",72913.38588,0
 "Measurement Unit(MeasureUnitCode)",250,"nmi2","Area, Square nautical miles","7/26/2006 10:57:47 AM","m2",3429904,0
-"Measurement Unit(MeasureUnitCode)",429,"nmol/L","Concentration Molar, Nanomoles per liter","12/4/2023 10:07:36 AM","nmol/L",1,0
-"Measurement Unit(MeasureUnitCode)",268,"nmol/g DW/h","Viscosity, Nanomoles per gram dry weight per hour","11/24/2009 7:07:29 PM","nmol/g DW/h",1,0
-"Measurement Unit(MeasureUnitCode)",271,"nmol/hr/g","Viscosity, Nanomoles per hour per gram","11/24/2009 7:07:30 PM","nmol/hr/g",1,0
+"Measurement Unit(MeasureUnitCode)",429,"nmol/L","()Concentration Molar, Nanomoles per liter","12/4/2023 10:07:36 AM","nmol/L",1,0
+"Measurement Unit(MeasureUnitCode)",268,"nmol/g DW/h","()Viscosity, Nanomoles per gram dry weight per hour","11/24/2009 7:07:29 PM","nmol/g DW/h",1,0
+"Measurement Unit(MeasureUnitCode)",271,"nmol/hr/g","()Viscosity, Nanomoles per hour per gram","11/24/2009 7:07:30 PM","nmol/hr/g",1,0
 "Measurement Unit(MeasureUnitCode)",163,"nmol/kg","Concentration Molar, Nanomoles per Kilogram","7/26/2006 10:57:47 AM","mmol/kg",1e-06,0
-"Measurement Unit(MeasureUnitCode)",371,"nmol/m3","Concentration Molar, Nanomoles per cubic meter","1/29/2016 12:37:35 PM","nmol/m3",1,0
+"Measurement Unit(MeasureUnitCode)",371,"nmol/m3","()Concentration Molar, Nanomoles per cubic meter","1/29/2016 12:37:35 PM","nmol/m3",1,0
 "Measurement Unit(MeasureUnitCode)",144,"nu","Concentration Percentage, Number or gage","7/26/2006 10:57:47 AM","None",1,0
-"Measurement Unit(MeasureUnitCode)",315,"ohm","Electrical resistance, ohms (symbol: Ω)","1/11/2012 3:59:08 PM","ohm",1,0
+"Measurement Unit(MeasureUnitCode)",315,"ohm","()Electrical resistance, ohms (symbol: Ω)","1/11/2012 3:59:08 PM","umho",1e+06,0
 "Measurement Unit(MeasureUnitCode)",365,"ohm-cm","Electric Resistivity, ohms - centimeter (symbol: Ωcm)","4/15/2015 7:38:35 AM","ohm-m",0.01,0
-"Measurement Unit(MeasureUnitCode)",378,"ohm-m","Electric Resistivity, ohms - meter (symbol: Ωm).  Ohm-meter is a unit of resistivity","12/7/2017 8:13:48 AM","ohm-m",1,0
+"Measurement Unit(MeasureUnitCode)",378,"ohm-m","()Electric Resistivity, ohms - meter (symbol: Ωm).  Ohm-meter is a unit of resistivity","12/7/2017 8:13:48 AM","ohm-m",1,0
 "Measurement Unit(MeasureUnitCode)",8,"oz","Weight Mass, Ounces","7/26/2006 10:57:47 AM","g",28.349523125,0
 "Measurement Unit(MeasureUnitCode)",368,"pCi","Weight Mass, Picocuries","1/19/2016 11:12:28 AM","mSv",1,0
-"Measurement Unit(MeasureUnitCode)",36,"pCi/L","Concentration Solution, Picocuries per Liter","7/26/2006 10:57:47 AM","pCi/L",1,0
-"Measurement Unit(MeasureUnitCode)",37,"pCi/g","Concentration Percentage, Picocuries per gram","7/26/2006 10:57:47 AM","pCi/g",1,0
-"Measurement Unit(MeasureUnitCode)",34,"pCi/m2","Concentration Solution, Picocuries per square meter","7/26/2006 10:57:47 AM","pCi/m2",1,0
+"Measurement Unit(MeasureUnitCode)",36,"pCi/L","()Radiation, Picocuries per Liter","7/26/2006 10:57:47 AM","pCi/L",1,0
+"Measurement Unit(MeasureUnitCode)",37,"pCi/g","()Radiation, Picocuries per gram","7/26/2006 10:57:47 AM","pCi/g",1,0
+"Measurement Unit(MeasureUnitCode)",34,"pCi/m2","()Radiation, Picocuries per square meter","7/26/2006 10:57:47 AM","pCi/m2",1,0
 "Measurement Unit(MeasureUnitCode)",38,"pCi/m3","Concentration Solution, Picocuries per cubic meter","7/26/2006 10:57:47 AM","pCi/L",0.001,0
 "Measurement Unit(MeasureUnitCode)",155,"pCi/mL","Density, Picocuries per milliliter","7/26/2006 10:57:47 AM","pCi/L",1000,0
-"Measurement Unit(MeasureUnitCode)",739,"pct modern","Concentration Percentage, Percent modern","4/14/2020 5:49:58 AM","pct modern",1,0
-"Measurement Unit(MeasureUnitCode)",430,"per day","Time, Inverse days or per day","12/4/2023 10:07:36 AM","per day",1,0
-"Measurement Unit(MeasureUnitCode)",42,"per m","Inverse meter or per meter","7/26/2006 10:57:47 AM","per in",0.0254,0
+"Measurement Unit(MeasureUnitCode)",739,"pct modern","()Concentration Percentage, Percent modern","4/14/2020 5:49:58 AM","pct modern",1,0
+"Measurement Unit(MeasureUnitCode)",430,"per day","()Time, Inverse days or per day","12/4/2023 10:07:36 AM","per day",1,0
+"Measurement Unit(MeasureUnitCode)",42,"per m","Inverse meter or per meter","8/30/2024 12:00:00 AM","per nm",1e+09,0
 "Measurement Unit(MeasureUnitCode)",357,"per mil","Concentration Percentage, Parts per thousand","2/16/2017 11:05:28 AM","ug/kg",1e+06,0
-"Measurement Unit(MeasureUnitCode)",509,"per nm","Inverse nanometers or per nanometers","2/9/2021 10:17:53 AM","per in",25400000,0
-"Measurement Unit(MeasureUnitCode)",431,"pfu/100L","Concentration Solution, Plaque Forming Units per 100 liters","12/4/2023 10:07:36 AM","pfu/100L",1,0
-"Measurement Unit(MeasureUnitCode)",257,"pfu/100mL","Concentration Solution, Plaque Forming Units per 100 milliliters","7/26/2006 10:57:47 AM","pfu/100mL",1,0
-"Measurement Unit(MeasureUnitCode)",432,"pfu/L","Concentration Solution, Plaque Forming Units per liter","12/4/2023 10:07:36 AM","pfu/L",1,0
+"Measurement Unit(MeasureUnitCode)",509,"per nm","Inverse nanometers or per nanometers","2/10/2021 12:00:00 AM","per nm",1,0
+"Measurement Unit(MeasureUnitCode)",431,"pfu/100L","()Concentration Solution, Plaque Forming Units per 100 liters","12/5/2023 12:00:00 AM","pfu/100mL",1000,0
+"Measurement Unit(MeasureUnitCode)",257,"pfu/100mL","()Concentration Solution, Plaque Forming Units per 100 milliliters","7/26/2006 10:57:47 AM","pfu/100mL",1,0
+"Measurement Unit(MeasureUnitCode)",432,"pfu/L","()Concentration Solution, Plaque Forming Units per liter","12/5/2023 12:00:00 AM","pfu/100mL",10,0
 "Measurement Unit(MeasureUnitCode)",2,"pg","Weight Mass, Picograms","7/26/2006 10:57:47 AM","g",1e-12,0
 "Measurement Unit(MeasureUnitCode)",12,"pg/L","Density, Picograms per liter","7/26/2006 10:57:47 AM","ug/L",1e-06,0
 "Measurement Unit(MeasureUnitCode)",22,"pg/cm3","Density, Picograms per cubic centimeter","7/26/2006 10:57:47 AM","ug/L",0.001,0
@@ -423,16 +425,16 @@
 "Measurement Unit(MeasureUnitCode)",27,"pg/m2","Concentration Solution, Picograms per square meter","7/26/2006 10:57:47 AM","g/m2",1e-12,0
 "Measurement Unit(MeasureUnitCode)",16,"pg/m3","Density, Picograms per cubic meter","7/26/2006 10:57:47 AM","ug/L",1e-09,0
 "Measurement Unit(MeasureUnitCode)",463,"pg/mL","Density, Picograms per milliter","2/9/2024 12:18:21 PM","ug/L",0.001,0
-"Measurement Unit(MeasureUnitCode)",350,"phi","Weight Mass, Krumbein Phi Scale","9/5/2013 10:57:47 AM","phi",1,0
-"Measurement Unit(MeasureUnitCode)",314,"pmc","Radiation, Percent modern carbon","1/11/2012 3:59:08 PM","pmc",1,0
-"Measurement Unit(MeasureUnitCode)",352,"pmol/mg/min","Viscosity, Picomoles per milligram per minute","3/31/2014 8:59:35 AM","pmol/mg/min",1,0
+"Measurement Unit(MeasureUnitCode)",350,"phi","()Weight Mass, Krumbein Phi Scale","9/5/2013 10:57:47 AM","phi",1,0
+"Measurement Unit(MeasureUnitCode)",314,"pmc","()Radiation, Percent modern carbon","1/11/2012 3:59:08 PM","pmc",1,0
+"Measurement Unit(MeasureUnitCode)",352,"pmol/mg/min","()Viscosity, Picomoles per milligram per minute","3/31/2014 8:59:35 AM","pmol/mg/min",1,0
 "Measurement Unit(MeasureUnitCode)",91,"ppb","Concentration Percentage, Parts per billion","7/26/2006 10:57:47 AM","ug/kg",1,0
 "Measurement Unit(MeasureUnitCode)",620,"ppbv","Concentration Percentage, Parts per billion by volume","5/31/2018 1:24:02 PM","ug/kg",11,0
-"Measurement Unit(MeasureUnitCode)",92,"ppm","Concentration Percentage, Parts per million","7/26/2006 10:57:47 AM","ug/kg",1000,0
+"Measurement Unit(MeasureUnitCode)",92,"ppm","()Concentration Percentage, Parts per million","7/26/2024 10:57:47 AM","ug/kg",1000,0
 "Measurement Unit(MeasureUnitCode)",619,"ppmv","Concentration Percentage, Parts per million by volume","5/31/2018 1:24:02 PM","ug/kg",1000,0
 "Measurement Unit(MeasureUnitCode)",261,"ppt","Concentration Percentage, Parts per trillion","7/26/2006 10:57:47 AM","ug/kg",0.001,0
 "Measurement Unit(MeasureUnitCode)",93,"ppth","Concentration Percentage, Parts per thousand","7/26/2006 10:57:47 AM","ug/kg",1e+06,0
-"Measurement Unit(MeasureUnitCode)",369,"psf","Concentration Solution, Pounds per square foot","1/19/2016 11:12:28 AM","psf",1,0
+"Measurement Unit(MeasureUnitCode)",369,"psf","()Concentration Solution, Pounds per square foot","1/19/2016 11:12:28 AM","psf",1,0
 "Measurement Unit(MeasureUnitCode)",226,"psi","Pressure, pounds per square inch","7/26/2006 10:57:47 AM","g/m2",703069.579991084,0
 "Measurement Unit(MeasureUnitCode)",231,"pt","Volume, Fluid pints","7/26/2006 10:57:47 AM","m3",0.0004731765,0
 "Measurement Unit(MeasureUnitCode)",232,"qt","Volume, Fluid quarts","7/26/2006 10:57:47 AM","m3",0.0009463529,0
@@ -442,70 +444,70 @@
 "Measurement Unit(MeasureUnitCode)",10,"tons","Weight Mass, Short tons","7/26/2006 10:57:47 AM","g",907184.74,0
 "Measurement Unit(MeasureUnitCode)",159,"tons/ac ft","Concentration Solution, Short tons per acre feet","7/26/2006 10:57:47 AM","ug/L",735462.367317422,0
 "Measurement Unit(MeasureUnitCode)",156,"tons/day","Flow Mass, Short tons per day","7/26/2006 10:57:47 AM","lb/day",2000,0
-"Measurement Unit(MeasureUnitCode)",436,"tons/day/ft","Flow Mass, Short tons per day per foot","12/4/2023 10:07:36 AM","tons/day/ft",1,0
-"Measurement Unit(MeasureUnitCode)",448,"tons/ft2","Short tons per square foot (tsf)","12/11/2023 1:07:14 PM","tons/ft2",1,0
-"Measurement Unit(MeasureUnitCode)",402,"tons/kt","Concentration Solution, Short tons per kiloton","3/23/2022 12:06:14 PM","tons/kt",1,0
-"Measurement Unit(MeasureUnitCode)",435,"tons/sec","Flow Mass, Short tons per second","12/4/2023 10:07:36 AM","tons/sec",1,0
-"Measurement Unit(MeasureUnitCode)",719,"tsc/100mL","Concentration Solution, Target Sequence Copy per 100 milliliters","1/3/2020 10:35:04 AM","tsc/100mL",1,0
-"Measurement Unit(MeasureUnitCode)",717,"tsc/g","Concentration Solution, Target Sequence Copy per gram","1/6/2020 12:00:00 AM","tsc/g",1,0
+"Measurement Unit(MeasureUnitCode)",436,"tons/day/ft","()Flow Mass, Short tons per day per foot","12/4/2023 10:07:36 AM","tons/day/ft",1,0
+"Measurement Unit(MeasureUnitCode)",448,"tons/ft2","()Short tons per square foot (tsf)","12/11/2023 1:07:14 PM","tons/ft2",1,0
+"Measurement Unit(MeasureUnitCode)",402,"tons/kt","()Concentration Solution, Short tons per kiloton","3/23/2022 12:06:14 PM","tons/kt",1,0
+"Measurement Unit(MeasureUnitCode)",435,"tons/sec","()Flow Mass, Short tons per second","12/4/2023 10:07:36 AM","tons/sec",1,0
+"Measurement Unit(MeasureUnitCode)",719,"tsc/100mL","()Concentration Solution, Target Sequence Copy per 100 milliliters","1/3/2020 10:35:04 AM","tsc/100mL",1,0
+"Measurement Unit(MeasureUnitCode)",717,"tsc/g","()Concentration Solution, Target Sequence Copy per gram","1/6/2020 12:00:00 AM","tsc/g",1,0
 "Measurement Unit(MeasureUnitCode)",284,"uATM","Pressure, micro atmospheres","11/26/2021 12:00:00 AM","atm",1e-06,0
-"Measurement Unit(MeasureUnitCode)",437,"uE/m2","Microeinsteins per square meter","12/4/2023 10:07:37 AM","uE/m2",1,0
-"Measurement Unit(MeasureUnitCode)",439,"uE/m2/s","Viscosity, Microeinsteins per square meter per second","2/24/2017 4:13:29 PM","uE/m2/s",1,0
-"Measurement Unit(MeasureUnitCode)",109,"uE/m2/sec","Viscosity, Photosynth. radiation,micro-Einsteins/sq.meter/sec","7/26/2006 10:57:47 AM","uE/m2/sec",1,0
+"Measurement Unit(MeasureUnitCode)",437,"uE/m2","()Microeinsteins per square meter","12/4/2023 10:07:37 AM","uE/m2",1,0
+"Measurement Unit(MeasureUnitCode)",439,"uE/m2/s","()Viscosity, Microeinsteins per square meter per second","2/24/2017 4:13:29 PM","uE/m2/s",1,0
+"Measurement Unit(MeasureUnitCode)",109,"uE/m2/sec","()Viscosity, Photosynth. radiation,micro-Einsteins/sq.meter/sec","7/26/2006 10:57:47 AM","uE/m2/sec",1,0
 "Measurement Unit(MeasureUnitCode)",364,"uL","Volume, Microliters","4/9/2015 1:40:55 PM","m3",1e-09,0
-"Measurement Unit(MeasureUnitCode)",442,"uPa2","Micropascals squared","12/4/2023 10:07:37 AM","uPa2",1,0
+"Measurement Unit(MeasureUnitCode)",442,"uPa2","()Micropascals squared","12/4/2023 10:07:37 AM","uPa2",1,0
 "Measurement Unit(MeasureUnitCode)",583,"uS","Electrical conductance, Micro-Siemens","5/31/2024 1:24:30 PM","umho",1,0
-"Measurement Unit(MeasureUnitCode)",31,"uS/cm","Electric Resistivity, Micro-Siemens per Centimeter","7/26/2006 10:57:47 AM","uS/cm",1,0
+"Measurement Unit(MeasureUnitCode)",31,"uS/cm","()Electric Resistivity, Micro-Siemens per Centimeter","7/26/2006 10:57:47 AM","uS/cm",1,0
 "Measurement Unit(MeasureUnitCode)",759,"uS/m","Electric Resistivity, Micro-Siemens per Meter","6/6/2022 8:33:29 AM","uS/cm",0.01,0
-"Measurement Unit(MeasureUnitCode)",334,"uW/cm2","Power, Micro-watts per square centimeter","6/4/2012 10:57:47 AM","uW/cm2",1,0
+"Measurement Unit(MeasureUnitCode)",334,"uW/cm2","()Power, Micro-watts per square centimeter","6/4/2012 10:57:47 AM","uW/cm2",1,0
 "Measurement Unit(MeasureUnitCode)",29,"ueq/L","Density, Micro-equivalents per Liter","7/26/2006 10:57:47 AM","meq/L",1000,0
 "Measurement Unit(MeasureUnitCode)",4,"ug","Weight Mass, Micrograms","7/26/2006 10:57:47 AM","g",1e-06,0
 "Measurement Unit(MeasureUnitCode)",639,"ug/100cm2","Concentration Solution, micrograms per 100 square cm","7/17/2018 3:25:16 PM","ug/cm2",0.01,0
-"Measurement Unit(MeasureUnitCode)",14,"ug/L","Density, Micrograms per liter","7/26/2006 10:57:47 AM","ug/L",1,0
-"Measurement Unit(MeasureUnitCode)",579,"ug/PUF","Concentration Solution, micrograms per polyurethane foam sample","1/31/2018 2:54:38 PM","ug/PUF",1,0
-"Measurement Unit(MeasureUnitCode)",291,"ug/cart","Concentration Solution, Micrograms per cartridge","7/19/2010 3:16:29 PM","ug/cart",1,0
-"Measurement Unit(MeasureUnitCode)",306,"ug/cm2","Concentration Solution, Micrograms per square centimeters","12/27/2011 10:09:21 AM","g/m2",0.01,0
-"Measurement Unit(MeasureUnitCode)",457,"ug/cm2/30day","Viscosity, Micrograms per square centimeter per 30 day","12/21/2023 11:10:58 PM","ug/cm2/30day",1,0
+"Measurement Unit(MeasureUnitCode)",14,"ug/L","()Density, Micrograms per liter","7/26/2006 10:57:47 AM","ug/L",1,0
+"Measurement Unit(MeasureUnitCode)",579,"ug/PUF","()Concentration Solution, micrograms per polyurethane foam sample","1/31/2018 2:54:38 PM","ug/PUF",1,0
+"Measurement Unit(MeasureUnitCode)",291,"ug/cart","()Concentration Solution, Micrograms per cartridge","7/19/2010 3:16:29 PM","ug/cart",1,0
+"Measurement Unit(MeasureUnitCode)",306,"ug/cm2","()Concentration Solution, Micrograms per square centimeters","12/27/2011 10:09:21 AM","g/m2",0.01,0
+"Measurement Unit(MeasureUnitCode)",457,"ug/cm2/30day","()Viscosity, Micrograms per square centimeter per 30 day","12/21/2023 11:10:58 PM","ug/cm2/30day",1,0
 "Measurement Unit(MeasureUnitCode)",160,"ug/cm2/day","Viscosity, Micrograms per square centimeter per day","7/26/2006 10:57:47 AM","mg/m2/day",10,0
 "Measurement Unit(MeasureUnitCode)",24,"ug/cm3","Density, Micrograms per cubic centimeter","7/26/2006 10:57:47 AM","ug/L",1000,0
-"Measurement Unit(MeasureUnitCode)",611,"ug/dm2/day","Viscosity, Micrograms per decimetre squared per month","5/19/2022 2:04:19 PM","ug/dm2/day",1,0
-"Measurement Unit(MeasureUnitCode)",612,"ug/dm2/month","Viscosity, Micrograms per decimetre squared per month","5/19/2022 2:04:20 PM","ug/dm2/month",1,0
+"Measurement Unit(MeasureUnitCode)",611,"ug/dm2/day","()Viscosity, Micrograms per decimetre squared per month","5/19/2022 2:04:19 PM","ug/dm2/day",1,0
+"Measurement Unit(MeasureUnitCode)",612,"ug/dm2/month","()Viscosity, Micrograms per decimetre squared per month","5/19/2022 2:04:20 PM","ug/dm2/month",1,0
 "Measurement Unit(MeasureUnitCode)",89,"ug/g","Concentration Percentage, Micrograms per gram","7/26/2006 10:57:47 AM","ug/kg",1000,0
-"Measurement Unit(MeasureUnitCode)",269,"ug/g DW/hr","Viscosity, Micrograms per gram dry weight per hour","11/24/2009 7:07:29 PM","ug/g DW/hr",1,0
-"Measurement Unit(MeasureUnitCode)",275,"ug/hr/g","Viscosity, Micrograms per hour per gram","12/7/2009 1:15:26 PM","ug/hr/g",1,0
-"Measurement Unit(MeasureUnitCode)",84,"ug/kg","Concentration Percentage, Micrograms per kilogram","7/26/2006 10:57:47 AM","ug/kg",1,0
+"Measurement Unit(MeasureUnitCode)",269,"ug/g DW/hr","()Viscosity, Micrograms per gram dry weight per hour","11/24/2009 7:07:29 PM","ug/g DW/hr",1,0
+"Measurement Unit(MeasureUnitCode)",275,"ug/hr/g","()Viscosity, Micrograms per hour per gram","12/7/2009 1:15:26 PM","ug/hr/g",1,0
+"Measurement Unit(MeasureUnitCode)",84,"ug/kg","()Concentration Percentage, Micrograms per kilogram","7/26/2006 10:57:47 AM","ug/kg",1,0
 "Measurement Unit(MeasureUnitCode)",78,"ug/m2","Concentration Solution, Micrograms per square meter","7/26/2006 10:57:47 AM","g/m2",1e-06,0
-"Measurement Unit(MeasureUnitCode)",348,"ug/m2/hr","Viscosity, Micrograms per square meter per hour","7/28/2017 12:33:50 PM","ug/m2/hr",1,0
+"Measurement Unit(MeasureUnitCode)",348,"ug/m2/hr","()Viscosity, Micrograms per square meter per hour","7/28/2017 12:33:50 PM","ug/m2/hr",1,0
 "Measurement Unit(MeasureUnitCode)",18,"ug/m3","Density, Micrograms per cubic meter","7/26/2006 10:57:47 AM","ug/L",0.001,0
 "Measurement Unit(MeasureUnitCode)",374,"ug/mL","Density, Micrograms per milliliters","4/28/2016 3:46:17 PM","ug/L",1000,0
-"Measurement Unit(MeasureUnitCode)",580,"ug/net","Concentration Solution, micrograms per net sample","1/31/2018 2:54:39 PM","ug/net",1,0
-"Measurement Unit(MeasureUnitCode)",581,"ug/scrubbie","Concentration Solution, micrograms per scrubbie sample","1/31/2018 2:54:39 PM","ug/scrubbie",1,0
-"Measurement Unit(MeasureUnitCode)",438,"ug/sec","Micrograms per second","12/4/2023 10:07:37 AM","ug/sec",1,0
-"Measurement Unit(MeasureUnitCode)",582,"ug/wipe","Concentration Solution, micrograms per wipe sample","1/31/2018 2:54:39 PM","ug/wipe",1,0
-"Measurement Unit(MeasureUnitCode)",440,"um","Micrometers","12/4/2023 10:07:37 AM","um",1,0
-"Measurement Unit(MeasureUnitCode)",455,"um/yr","The micrometer (1 μm) is often called the micron. micron per year","12/21/2023 10:34:01 PM","um/yr",1,0
-"Measurement Unit(MeasureUnitCode)",370,"um3","Volume, Cubic micrometers","1/19/2016 11:12:28 AM","um3",1,0
-"Measurement Unit(MeasureUnitCode)",376,"um3/100mL","Concentration Percentage, Cubic micrometer per 100 milliliters","5/9/2016 9:43:33 AM","um3/100mL",1,0
+"Measurement Unit(MeasureUnitCode)",580,"ug/net","()Concentration Solution, micrograms per net sample","1/31/2018 2:54:39 PM","ug/net",1,0
+"Measurement Unit(MeasureUnitCode)",581,"ug/scrubbie","()Concentration Solution, micrograms per scrubbie sample","1/31/2018 2:54:39 PM","ug/scrubbie",1,0
+"Measurement Unit(MeasureUnitCode)",438,"ug/sec","()Flow Mass, Micrograms per second","12/4/2023 10:07:37 AM","ug/sec",1,0
+"Measurement Unit(MeasureUnitCode)",582,"ug/wipe","()Concentration Solution, micrograms per wipe sample","1/31/2018 2:54:39 PM","ug/wipe",1,0
+"Measurement Unit(MeasureUnitCode)",440,"um","()Length Distance, Micrometers","1/1/2024 12:00:00 AM","in",3.937e-05,0
+"Measurement Unit(MeasureUnitCode)",455,"um/yr","()Velocity, The micrometer (1 μm) is often called the micron. micron per year","12/21/2023 10:34:01 PM","um/yr",1,0
+"Measurement Unit(MeasureUnitCode)",370,"um3","()Volume, Cubic micrometers","1/19/2016 11:12:28 AM","um3",1,0
+"Measurement Unit(MeasureUnitCode)",376,"um3/100mL","()Concentration Percentage, Cubic micrometer per 100 milliliters","5/9/2016 9:43:33 AM","um3/100mL",1,0
 "Measurement Unit(MeasureUnitCode)",174,"um3/L","Concentration Percentage, Cubic microns per liter","7/26/2007 10:57:47 AM","mm3/L",1e-09,0
-"Measurement Unit(MeasureUnitCode)",272,"um3/cm2","Concentration Solution, Cubic microns per square cm","11/24/2009 7:07:30 PM","um3/cm2",1,0
+"Measurement Unit(MeasureUnitCode)",272,"um3/cm2","()Concentration Solution, Cubic microns per square cm","11/24/2009 7:07:30 PM","um3/cm2",1,0
 "Measurement Unit(MeasureUnitCode)",273,"um3/mL","Concentration Percentage, Cubic microns per ml","11/25/2009 7:07:30 PM","ppm",1e-06,0
-"Measurement Unit(MeasureUnitCode)",310,"umho","Electrical conductance, micro-mhos","1/11/2012 3:59:08 PM","umho",1,0
+"Measurement Unit(MeasureUnitCode)",310,"umho","()Electrical conductance, micro-mhos","1/11/2012 3:59:08 PM","umho",1,0
 "Measurement Unit(MeasureUnitCode)",60,"umho/cm","Electrical conductivity, micro-mhos per centimeter","7/26/2006 10:57:47 AM","uS/cm",1,0
-"Measurement Unit(MeasureUnitCode)",169,"umol","Weight Mass, Micromoles","7/26/2006 10:57:47 AM","umol",1,0
+"Measurement Unit(MeasureUnitCode)",169,"umol","()Weight Mass, Micromoles","7/26/2006 10:57:47 AM","umol",1,0
 "Measurement Unit(MeasureUnitCode)",318,"umol/L","Concentration Molar, Micromoles per liter","1/11/2012 3:59:08 PM","mmol/L",0.001,0
-"Measurement Unit(MeasureUnitCode)",167,"umol/S/m2","Viscosity, Micromoles per siemen per square meter","7/26/2006 10:57:47 AM","umol/S/m2",1,0
+"Measurement Unit(MeasureUnitCode)",167,"umol/S/m2","()Viscosity, Micromoles per siemen per square meter","7/26/2006 10:57:47 AM","umol/S/m2",1,0
 "Measurement Unit(MeasureUnitCode)",264,"umol/g","Concentration Percentage, Micromoles per gram","2/27/2008 3:00:21 PM","umol/kg",0.001,0
-"Measurement Unit(MeasureUnitCode)",330,"umol/kg","Concentration Molar, Micromoles per kilogram","3/7/2012 5:11:11 PM","umol/kg",1,0
-"Measurement Unit(MeasureUnitCode)",170,"umol/m2/s","Viscosity, Micromoles square meter per second. For Light, photosynthetic active radiation (PAR). A unit of measure of the amount of light hitting a surface that is in the range of 400-700 nanometers.","7/26/2006 10:57:47 AM","umol/m2/s",1,0
-"Measurement Unit(MeasureUnitCode)",441,"umol/mol","Micromoles per mole","12/4/2023 10:07:37 AM","umol/mol",1,0
-"Measurement Unit(MeasureUnitCode)",254,"units/cm","Concentration Solution, Units per centimeter, for UV absorbance","7/26/2006 10:57:47 AM","units/cm",1,0
+"Measurement Unit(MeasureUnitCode)",330,"umol/kg","()Concentration Molar, Micromoles per kilogram","3/7/2012 5:11:11 PM","umol/kg",1,0
+"Measurement Unit(MeasureUnitCode)",170,"umol/m2/s","()Viscosity, Micromoles square meter per second. For Light, photosynthetic active radiation (PAR). A unit of measure of the amount of light hitting a surface that is in the range of 400-700 nanometers","7/26/2006 10:57:47 AM","umol/m2/s",1,0
+"Measurement Unit(MeasureUnitCode)",441,"umol/mol","()Concentration Percentage, Micromoles per mole","12/4/2023 10:07:37 AM","umol/mol",1,0
+"Measurement Unit(MeasureUnitCode)",254,"units/cm","()Concentration Solution, Units per centimeter, for UV absorbance","7/26/2006 10:57:47 AM","units/cm",1,0
 "Measurement Unit(MeasureUnitCode)",407,"units/m","Concentration Solution, Units per metre, for UV absorbance","4/12/2022 9:06:10 PM","units/cm",0.01,0
-"Measurement Unit(MeasureUnitCode)",61,"volts","Power, Electro-motive force, volts","7/26/2006 10:57:47 AM","volts",1,0
+"Measurement Unit(MeasureUnitCode)",61,"volts","()Power, Electro-motive force, volts","7/26/2006 10:57:47 AM","volts",1,0
 "Measurement Unit(MeasureUnitCode)",220,"weeks","Time, Weeks","7/26/2006 10:57:47 AM","minutes",10080,0
-"Measurement Unit(MeasureUnitCode)",287,"y/m/d","Time, Year/month/day","7/19/2010 3:16:29 PM","y/m/d",1,0
+"Measurement Unit(MeasureUnitCode)",287,"y/m/d","()Time, Year/month/day","7/19/2010 3:16:29 PM","y/m/d",1,0
 "Measurement Unit(MeasureUnitCode)",141,"yd","Length Distance, Yards","7/26/2006 10:57:47 AM","in",36,0
 "Measurement Unit(MeasureUnitCode)",243,"yd2","Area, Square yards","7/26/2006 10:57:47 AM","m2",0.83612736,0
 "Measurement Unit(MeasureUnitCode)",230,"yd3","Volume, Cubic yards","7/26/2006 10:57:47 AM","m3",0.764544857984,0
 "Measurement Unit(MeasureUnitCode)",222,"years","Time, Years","7/26/2006 10:57:47 AM","minutes",525960,0
-"Measurement Unit(MeasureUnitCode)",443,"ymmdd","Date/time, Year (single digit) - Month - Day","12/4/2023 10:07:37 AM","ymmdd",1,0
-"Measurement Unit(MeasureUnitCode)",444,"yyyymmdd","Date/time, Year (four digits) - Month - Day","12/4/2023 10:07:37 AM","yyyymmdd",1,0
+"Measurement Unit(MeasureUnitCode)",443,"ymmdd","()Time, Date Year (single digit) - Month - Day","12/4/2023 10:07:37 AM","ymmdd",1,0
+"Measurement Unit(MeasureUnitCode)",444,"yyyymmdd","()Time, Date Year (four digits) - Month - Day","12/4/2023 10:07:37 AM","yyyymmdd",1,0

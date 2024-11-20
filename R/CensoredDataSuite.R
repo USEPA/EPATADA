@@ -32,7 +32,7 @@
 #' 4) Non-Detect
 #' 5) Over-Detect
 #' 6) Other Condition/Limit Populated
-#' If user has not previously run TADA_FlagMeasureQualifierCode, this function will also run that 
+#' If user has not previously run TADA_FlagMeasureQualifierCode, this function will also run that
 #' function to add the columns TADA.MeasureQualifierCode.Flag and TADA.MeasureQualifierCode.Def
 #' because user-supplied Result Measure Qualifier codes are also used to ID censored results.
 #'
@@ -287,18 +287,20 @@ TADA_IDCensoredData <- function(.data) {
 #' # and in instances where the measurement is non-detect, set the result value
 #' # to half of the detection limit value. For over-detect measurements, retain
 #' # the detection limit value as the result value as-is.
-#' Data_Nutrients_UT_CensoredFlag <- TADA_SimpleCensoredMethods(Data_Nutrients_UT, 
-#'     nd_method = "multiplier",
-#'     nd_multiplier = 0.5,
-#'     od_method = "as-is",
-#'     od_multiplier = "null")
+#' Data_Nutrients_UT_CensoredFlag <- TADA_SimpleCensoredMethods(Data_Nutrients_UT,
+#'   nd_method = "multiplier",
+#'   nd_multiplier = 0.5,
+#'   od_method = "as-is",
+#'   od_multiplier = "null"
+#' )
 #'
 #' # Check for agreement between detection condition and detection limit type, and in instances where the measurement is non-detect, set the result value to a random value between 0 and the detection limit value. For over-detect measurements, retain the detection limit value as the result value as-is.
-#' Data_Nutrients_UT_CensoredFlag <- TADA_SimpleCensoredMethods(Data_Nutrients_UT, 
-#'     nd_method = "randombelowlimit",
-#'     nd_multiplier = "null",
-#'     od_method = "as-is",
-#'     od_multiplier = "null")
+#' Data_Nutrients_UT_CensoredFlag <- TADA_SimpleCensoredMethods(Data_Nutrients_UT,
+#'   nd_method = "randombelowlimit",
+#'   nd_multiplier = "null",
+#'   od_method = "as-is",
+#'   od_multiplier = "null"
+#' )
 #'
 TADA_SimpleCensoredMethods <- function(.data, nd_method = "multiplier", nd_multiplier = 0.5, od_method = "as-is", od_multiplier = "null") {
   # check .data has all of the required columns

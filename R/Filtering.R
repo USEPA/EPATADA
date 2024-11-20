@@ -258,13 +258,17 @@ TADA_FieldValuesTable <- function(.data, field = "null", characteristicName = "n
 #' @examples
 #' data(Data_6Tribes_5y_Harmonized)
 #' # Returns data with ONLY surface water results retained and no TADA.UseForAnalysis.Flag column
-#' Data_6Tribes_Assessment1 <- TADA_AnalysisDataFilter(Data_6Tribes_5y_Harmonized, clean = TRUE, 
-#' surface_water = TRUE, ground_water = FALSE, sediment = FALSE)
+#' Data_6Tribes_Assessment1 <- TADA_AnalysisDataFilter(Data_6Tribes_5y_Harmonized,
+#'   clean = TRUE,
+#'   surface_water = TRUE, ground_water = FALSE, sediment = FALSE
+#' )
 #'
-#' # Returns data frame with ONLY surface water results identified as usable and adds 
+#' # Returns data frame with ONLY surface water results identified as usable and adds
 #' # TADA.UseForAnalysis.Flag column.
-#' Data_6Tribes_Assessment2 <- TADA_AnalysisDataFilter(Data_6Tribes_5y_Harmonized, clean = FALSE, 
-#' surface_water = TRUE, ground_water = FALSE, sediment = FALSE)
+#' Data_6Tribes_Assessment2 <- TADA_AnalysisDataFilter(Data_6Tribes_5y_Harmonized,
+#'   clean = FALSE,
+#'   surface_water = TRUE, ground_water = FALSE, sediment = FALSE
+#' )
 #' unique(Data_6Tribes_Assessment2$TADA.UseForAnalysis.Flag)
 #'
 TADA_AnalysisDataFilter <- function(.data,

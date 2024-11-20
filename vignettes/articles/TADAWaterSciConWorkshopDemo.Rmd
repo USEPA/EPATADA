@@ -15,7 +15,6 @@ vignette: >
   %\VignetteIndexEntry{TADA: WaterSciCon Workshop Demo}
   %\VignetteEngine{knitr::rmarkdown}
 description: A demonstration of data discovery for the confluence of the San Juan and Animas Rivers near Farmington, New Mexico. This example focuses on surface water quality with a focus on total dissolved solids and conductivity.
-
 editor_options: 
   chunk_output_type: console
   markdown: 

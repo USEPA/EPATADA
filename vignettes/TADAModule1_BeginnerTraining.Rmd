@@ -83,7 +83,7 @@ console).
 
 ```{r install_TADA, eval = F, results = 'hide'}
 remotes::install_github("USEPA/EPATADA",
-  ref = "502-tadacomparabledataidentifier-column-showing-na-for-the-tadaresultmeasuremeasureunitcode-portion-of-its-string-pasting",
+  ref = "develop",
   dependencies = TRUE
 )
 
@@ -437,8 +437,8 @@ R5Profile_CharSummary <- TADA_SummarizeColumn(R5Profile, "TADA.CharacteristicNam
 ```
 
 **Question 5: How many unique values of TADA.CharacteristicName are
-included in the data set? Which TADA.CharactersticName was collected at
-the greatest number of sites? Which TADA.CharactersticName has the most
+included in the data set? Which TADA.CharacteristicName was collected at
+the greatest number of sites? Which TADA.CharacteristicName has the most
 results?**
 
 ```{r question5}
@@ -456,9 +456,9 @@ max_results <- R5Profile_CharSummary %>%
 
 ## WQX Quality Assurance and Quality Control (QAQC) Service Result Flags
 
-Next we'll run several functions to address invalid method, fraction,
+Next we'll run several functions to address suspect method, fraction,
 speciation, and unit metadata by characteristic. The default is clean =
-TRUE, which will remove invalid results. You can change this to clean =
+TRUE, which will remove suspect results. You can change this to clean =
 FALSE to flag results, but not remove them.
 
 See documentation for more details:
@@ -476,9 +476,9 @@ R5ProfileClean1 <- TADA_FlagMethod(R5Profile, clean = TRUE)
 
 R5ProfileClean1 <- TADA_FlagFraction(R5ProfileClean1, clean = TRUE)
 
-R5ProfileClean1 <- TADA_FlagSpeciation(R5ProfileClean1, clean = "invalid_only")
+R5ProfileClean1 <- TADA_FlagSpeciation(R5ProfileClean1, clean = "suspect_only")
 
-R5ProfileClean1 <- TADA_FlagResultUnit(R5ProfileClean1, clean = "invalid_only")
+R5ProfileClean1 <- TADA_FlagResultUnit(R5ProfileClean1, clean = "suspect_only")
 ```
 
 **Question 6: How many rows were removed due to the WQX QAQC service
@@ -1147,7 +1147,7 @@ interface. The shiny application queries the WQP, contains maps and data
 visualizations, flags suspect data results, handles censored data, and
 more. You can launch it using the code below.
 
-DRAFT [Module 1](https://owshiny-dev.app.cloud.gov/tada-dev/) is also
+DRAFT [Module 1](https://rconnect-public.epa.gov/TADAShiny/) is also
 currently hosted on the web with minimal server memory/storage
 allocated.
 
