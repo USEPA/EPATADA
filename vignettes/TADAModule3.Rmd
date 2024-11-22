@@ -152,7 +152,7 @@ removals during each step.
 
 **...**
 
-## `TADA_CreateAUIDRef()`
+## 
 
 This function requires users to have already ran TADA_GetATTAINS()
 function (see TADAModule2.Rmd for more information on geospatial
@@ -168,7 +168,7 @@ dataframe pull.
 First, we will need to pull in some TADA Water Quality Portal Data:
 
 ```{r}
-# Zinc, hardness, pH data in Larimer county, CO for the year 2020.
+# Nutrient data in Larimer county, CO for the year 2020.
 TADA_dataframe <- TADA_DataRetrieval(
   startDate = "2020-01-01",
   endDate = "2020-12-31",
@@ -183,21 +183,34 @@ TADA_dataframe3 <- TADA_FlagContinuousData(TADA_dataframe2)
 TADA_dataframe4 <- TADA_FindPotentialDuplicatesSingleOrg(TADA_dataframe3)
 TADA_dataframe5 <- TADA_RunKeyFlagFunctions(TADA_dataframe4)
 TADA_dataframe6 <- TADA_HarmonizeSynonyms(TADA_dataframe5)
+##################################################################
+Co_dataframe <- TADA_DataRetrieval(
+  statecode = "CO",
+  startDate = "2020-01-01",
+  endDate = "2020-12-31",
+  characteristicName  = c("Zinc","Nitrate", "pH"),
+  countycode = "US:08:069",
+  applyautoclean = TRUE
+)
 
+Co_dataframe_ATTAINS2 <- Co_dataframe_ATTAINS$TADA_with_ATTAINS
+unique(Co_dataframe_ATTAINS2$OrganizationFormalName)
+unique(Co_dataframe_ATTAINS2$ATTAINS.organizationname)
+unique(Co_dataframe_ATTAINS2$OrganizationIdentifier)
+TADA_FieldValuesTable(Co_dataframe_ATTAINS2, field = "OrganizationIdentifier")
 
 # Handling of replicate samples with differing resultmeasurevalue when they are not labeled as a duplicate.
-TADA_dataframe5 <- TADA_dataframe4 %>%
-  dplyr::select(TADA.CharacteristicName,TADA.ResultSampleFractionText,TADA.MethodSpeciationName, 
-                ActivityStartDateTime, ActivityIdentifier, MonitoringLocationIdentifier, 
-                TADA.ResultMeasureValue, TADA.ResultMeasure.MeasureUnitCode, 
-                setdiff(colnames(TADA_dataframe4), colnames(TADA_dataframe))
-                ) %>%
-  dplyr::filter(TADA.SingleOrgDup.Flag == "Unique") %>%
-  dplyr::filter()
-
-#TADA_FieldValuesTable(TADA_dataframe_test, field = "MonitoringLocationIdentifier", characteristicName = "ZINC")
-
+# TADA_dataframe5 <- TADA_dataframe4 %>%
+#   dplyr::select(TADA.CharacteristicName,TADA.ResultSampleFractionText,TADA.MethodSpeciationName, 
+#                 ActivityStartDateTime, ActivityIdentifier, MonitoringLocationIdentifier, 
+#                 TADA.ResultMeasureValue, TADA.ResultMeasure.MeasureUnitCode, 
+#                 setdiff(colnames(TADA_dataframe4), colnames(TADA_dataframe))
+#                 ) %>%
+#   dplyr::filter(TADA.SingleOrgDup.Flag == "Unique") %>%
+#   dplyr::filter()
 ```
+
+## `TADA_CreateAUIDRef()`
 
 Now, `TADA_GetATTAINS()` returns a dataframe containing the original
 TADA WQP dataset, plus new columns representing the ATTAINS assessment
@@ -209,88 +222,26 @@ new `index` column (i.e., multiple rows with the same index value are
 the same observation).
 
 ```{r}
-# return_sf = TRUE is currently a needed argument, should update the code to account for if return_sf is FALSE
 TADA_with_ATTAINS <- TADA_GetATTAINS(TADA_dataframe6, return_sf = TRUE)
-```
-
-Now, create a new reference dataframe with ONLY the unique combinations
-of WQP MonitoringLocationIdentifier's and ATTAINS Assessment Unit
-Identifiers.
-
-```{r}
-# What columns should we include in this AUIDRef?
-TADA_AUIDRef <- TADA_CreateAUIDRef(TADA_with_ATTAINS, overwrite = TRUE)
-
-```
-
-```{r}
-
-```
-
-Users will need to modify this AUID reference file to be compatible with
-their submission to ATTAINS for the current Assessment cycle. If a new
-AUID is needed, users should add an additional row to this reference
-file with the appropriate latitude and longitude associated with it.
-Users will have the option to include or exclude an AU from their WQS
-assessments in the last column if a specific AU wants to be excluded
-from calculation for a certain parameter, but may still be referenced in
-the future if needed.
-
-If Users are filling out unique conditions found in
-
-```{r}
-add_df <- data.frame("Example_New_AU_Name", "Example_New_AU_ID", "Example_New_Monitoring_ID", NA, NA,)
-names(add_df) <- colnames(TADA_dataframe_AUIDRef)
-
-TADA_AUIDRef_Add <- rbind("Example_New_AU_Name", "Example_New_AU_ID", "Example_New_Monitoring_ID", NA, NA, )
 ```
 
 ## `TADA_CreateParamRef()`
 
 This function will require users to provide a crosswalk between ATTAINS
 parameters and TADA parameters. Users will need to define this crosswalk
-for each row,, otherwise next steps in the process may not run
-correctly.
+for each parameter and will give users the flexibility to perform this
+crosswalk in an excel spreadsheet or in the R environment. The excel
+spreadsheet allows users to view drop-down list of prior parameter names
+that were used in previous ATTAINS cycles.
 
 ```{r}
 temp <- as.data.frame(TADA_with_ATTAINS$TADA_with_ATTAINS)
 
-# Users must define the appropriate crosswalk map between ATTAINS parameter and WQP parameters.
+# Users must define the appropriate crosswalk map between ATTAINS parameter and WQP parameters. This creates a blank template.
 Co_ParamRef <- TADA_CreateParamRef(temp, overwrite = TRUE)
-
-# Users can choose to save TADA_ParamRef as an R dataframe if they desire or edit directly in excel and save file.
-downloads_path <- file.path(Sys.getenv("USERPROFILE"), "Downloads", "myfileRef.xlsx")
-ParamRef <- openxlsx::read.xlsx(downloads_path, sheet = "CreateParamRef")
-
-# User can now save this reference file to be used as an input in future assessments.
-Co_ParamRef2 <- TADA_CreateParamRef(temp, paramRef = ParamRef, excel = TRUE, overwrite = TRUE)
-
-# Excel creation is now also optional.
-Co_ParamRef3 <- TADA_CreateParamRef(temp, paramRef = ParamRef, excel = FALSE)
-
-#Use 304a standards
-Co_ParamRef4 <- dplyr::mutate(Co_ParamRef3, organization_name = "EPA 304a")
-Co_ParamRef5 <- TADA_CreateParamRef(temp, validate = TRUE, excel = FALSE)
-
-
-Co_ParamUseRef <- TADA_CreateParamUseRef(overwrite = TRUE)
-# TADA_ParamUseRef <- TADA_CreateParamUseRef(ParamRef = TADA_ParamRef, overwrite = TRUE)
-Co_ParamUseRef <- openxlsx::read.xlsx(downloads_path, sheet = "CreateParamUseRef")
-
-Co_AUIDRef <- TADA_CreateAUIDRef(TADA_with_ATTAINS, overwrite = TRUE)
-Co_AUIDRef <- openxlsx::read.xlsx(downloads_path, sheet = "CreateAUIDRef")
-
-Co_Standards <- TADA_DefineStandards(.data = temp, AUIDRef = Co_AUIDRef, ParamUseRef = Co_ParamUseRef, overwrite = TRUE)
-
-# Testing other arguments in the function to check if it runs
-Co_Standards <- TADA_DefineStandards(.data = temp, overwrite = TRUE)
-
-Co_Standards <- openxlsx::read.xlsx(downloads_path, sheet = "DefineStandards")
-
-Co_StandardsExceedance <- TADA_StandardsExceedance(.data = temp, overwrite = TRUE)
 ```
 
-User should open this file and, in the "UserCriteriaRef" tab, make the
+User should open this file and, in the "CreateParamRef" tab, make the
 appropriate parameter crosswalk between ATTAINS Parameters and TADA
 Parameters. A dropdown of allowable values in an excel spreadsheet for
 each column is created. All unique combinations of TADA Characteristic
@@ -304,12 +255,61 @@ specify their desired locations path as an argument in
 TADA_CreateParamRef().
 
 ```{r}
-# User should open this file and make the appropriate parameter crosswalk between ATTAINS Parameters and TADA Parameters.
-downloads_path <- file.path(Sys.getenv("USERPROFILE"), "Downloads", "myfile.xlsx")
+# Users can choose to save TADA_ParamRef as an R dataframe if they desire or edit directly in excel and save the file while proceeding to use excel = TRUE as an argument.
+downloads_path <- file.path(Sys.getenv("USERPROFILE"), "Downloads", "myfileRef.xlsx")
 
-# Users can choose to import the file as a R data frame below
-TADA_ParamRef <- openxlsx::read.xlsx(downloads_path, sheet = "UserCriteriaRef")
+# This opens the excel .xlsx file and returns the [CreateParamRef] tab that contains the crosswalk.
+ParamRef <- openxlsx::read.xlsx(downloads_path, sheet = "CreateParamRef")
 ```
+
+User can now save this completed ParamRef file for future uses as an
+argument input
+
+```{r}
+# User can now save this reference file to be used as an input in future assessments. User must include overwrite = TRUE if they would like to overwrite the excel [CreateParamRef] tab. This input is included to avoid overwriting a user's crosswalking input efforts if they accidentally run TADA_CreateParamRef() again or forget to load it into the R environment.
+Co_ParamRef2 <- TADA_CreateParamRef(temp, paramRef = ParamRef, excel = TRUE, overwrite = TRUE)
+
+# If a user already has a completed paramRef file, this is an example of not creating an excel sheet but only load it into the R environment.
+Co_ParamRef3 <- TADA_CreateParamRef(temp, paramRef = ParamRef, excel = FALSE)
+```
+
+If a user decides to do the parameter cross walk in the R environment,
+they will need to ensure they run validate = TRUE as an argument input
+after making any edits to the reference table. This is done to refresh
+the flagging column appropriately.
+
+```{r}
+# User decides they want to use the 304a standards, and will input "EPA 304a" for each row value under the organization_name. 
+Co_ParamRef4 <- dplyr::mutate(Co_ParamRef3, organization_name = "EPA 304a")
+# Looking at the dataframe, we can see the ATTAINS.FlagParameterName still has the old values that does not reflect the changes that were made.
+View(Co_ParamRef4)
+
+# User will need to run validate = TRUE with the paramRef argument that contains this reference table update. User will now see th reflected changes for ATTAINS.FlagParameterName. 
+Co_ParamRef5 <- TADA_CreateParamRef(.data = temp, paramRef = Co_ParamRef4, validate = TRUE, excel = FALSE)
+
+Co_ParamRef5 <- TADA_CreateParamRef(.data = temp, paramRef = Co_ParamRef4, validate = TRUE, excel = TRUE, overwrite = TRUE)
+```
+
+```{r}
+Co_ParamUseRef <- TADA_CreateParamUseRef(.data = temp, overwrite = TRUE, paramRef = Co_ParamRef3, excel = TRUE)
+```
+
+Now, create a new reference dataframe with ONLY the unique combinations
+of WQP MonitoringLocationIdentifier's and ATTAINS Assessment Unit
+Identifiers.
+
+```{r}
+TADA_AUIDRef <- TADA_CreateAUIDRef(.data = temp, overwrite = TRUE) 
+```
+
+Users will need to modify this AUID reference file to be compatible with
+their submission to ATTAINS for the current Assessment cycle. If a new
+AUID is needed, users should add an additional row to this reference
+file with the appropriate latitude and longitude associated with it.
+Users will have the option to include or exclude an AU from their WQS
+assessments in the last column if a specific AU wants to be excluded
+from calculation for a certain parameter, but may still be referenced in
+the future if needed.
 
 ## `TADA_CreateStandardsRef()`
 
