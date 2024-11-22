@@ -1226,7 +1226,7 @@ TADA_TwoCharacteristicScatterplot <- function(.data, id_cols = "TADA.ComparableD
 #'   'UPPER RED LAKE: WEST', 'UPPER RED LAKE: WEST-CENTRAL', and 'UPPER RED LAKE: EAST CENTRAL'.
 #'
 #' @return A plotly scatterplot(s) figure with one x-axis (Date/Time) and a
-#'   left axis showing the units of a single TADA.ComparableDataIdentifier plotted on the same 
+#'   left axis showing the units of a single TADA.ComparableDataIdentifier plotted on the same
 #'   figure area with. Groups are identified by different colored circle markers and are displayed
 #'   in a legend.
 #'
@@ -1334,7 +1334,7 @@ TADA_GroupedScatterplot <- function(.data, group_col = "TADA.MonitoringLocationN
       " ", group_col, "s by number of results will be plotted: ", groups.string, ".",
       sep = ""
     ))
-    
+
     # remove intermediate objects
     rm(groups.string, n.groups.plotted)
   }
@@ -1342,7 +1342,6 @@ TADA_GroupedScatterplot <- function(.data, group_col = "TADA.MonitoringLocationN
   # check that groups are in group_col
   id <- unlist(unique(.data[, group_col]))
   if (any(!groups %in% id)) {
-    
     # identify any groups missing from "groups" param
     missing.groups <- setdiff(groups, id)
 
@@ -1354,7 +1353,7 @@ TADA_GroupedScatterplot <- function(.data, group_col = "TADA.MonitoringLocationN
       missing.groups.string, ". Revise param 'groups' before re-running function.",
       sep = ""
     )
-    
+
     # remove intermediate objects
     rm(missing.group, missing.groups.string, id)
   }
@@ -1373,7 +1372,7 @@ TADA_GroupedScatterplot <- function(.data, group_col = "TADA.MonitoringLocationN
   param.data <- list()
   for (i in 1:length(unique(groups))) {
     param.data[[i]] <- subset(plot.data, plot.data[, group_col] %in% groups[i])
-    #assign(paste0("param", as.character(i)), subset(plot.data, plot.data[, group_col] %in% groups[i]))
+    # assign(paste0("param", as.character(i)), subset(plot.data, plot.data[, group_col] %in% groups[i]))
   }
 
   # create empty list to store scatterplots
@@ -1406,7 +1405,7 @@ TADA_GroupedScatterplot <- function(.data, group_col = "TADA.MonitoringLocationN
     plot.data.y <- subset(plot.data, plot.data[, "TADA.ComparableDataIdentifier"] %in% unique(plot.data$TADA.ComparableDataIdentifier)[i])
     plot.data.y$name <- gsub("_NA", "", plot.data.y[, "TADA.ComparableDataIdentifier"])
     plot.data.y$name <- gsub("_", " ", plot.data.y$name)
-    
+
     scatterplot <-
       plotly::plot_ly(type = "scatter", mode = "markers") %>%
       plotly::layout(
@@ -1429,7 +1428,7 @@ TADA_GroupedScatterplot <- function(.data, group_col = "TADA.MonitoringLocationN
         plot_bgcolor = "#e5ecf6",
         margin = mrg,
         legend = list(
-          title = list(text = paste0('<b>', group_col,'<b>'), x = 0.5, y= 100),
+          title = list(text = paste0("<b>", group_col, "<b>"), x = 0.5, y = 100),
           orientation = "h",
           xanchor = "center",
           x = 0.5
@@ -1437,7 +1436,7 @@ TADA_GroupedScatterplot <- function(.data, group_col = "TADA.MonitoringLocationN
       ) %>%
       # config options https://plotly.com/r/configuration-options/
       plotly::config(displaylogo = FALSE) # , displayModeBar = TRUE) # TRUE makes bar always visible
-    
+
     param <- list()
     for (j in 1:length(groups)) {
       if ( length(groups) >= j){
@@ -1480,17 +1479,16 @@ TADA_GroupedScatterplot <- function(.data, group_col = "TADA.MonitoringLocationN
               param[[j]]$TADA.ActivityBottomDepthHeightMeasure.MeasureUnitCode
             ), "<br>"
           )
-        )
       }
-    }  
+    }
 
     # create plots and store as list
     all_scatterplots[[i]] <- scatterplot
-    
+
     # rename scatterplots to reflect TADA.ComparbaleDataIdentifier (with NAs removed)
     names(all_scatterplots)[i] <- unique(TADA_CharStringRemoveNA(plot.data$TADA.ComparableDataIdentifier))[i]
   }
-  
+
   # filter to return one scatterplot, if only one was generated
   if (length(all_scatterplots) == 1) {
     all_scatterplots <- all_scatterplots[[1]]

@@ -22,7 +22,7 @@ conventions and prepare nutrient data for total N and P summations. Users can re
 input data relates to target synonyms for TADA.CharacteristicName, TADA.ResultSampleFractionText,
 and TADA.MethodSpeciationName. Once the synonym table is created, users may optionally edit the
 target columns in the reference table to meet their needs. Additionally, the function assumes
-the user has already removed any data containing invalid characteristic-unit-fraction-speciation
+the user has already removed any data containing suspect characteristic-unit-fraction-speciation
 combinations (i.e. user has already run TADA_FlagFraction, TADA_FlagSpeciation, TADA_FlagResultUnit,
 etc.).
 }
@@ -33,8 +33,8 @@ data(Data_6Tribes_5y)
 # Create a synonym reference table for flagged, cleaned dataframe:
 Data_6Tribes_5yClean <- subset(Data_6Tribes_5y, !is.na(Data_6Tribes_5y$TADA.ResultMeasureValue))
 Data_6Tribes_5yClean <- TADA_FlagFraction(Data_6Tribes_5yClean, clean = TRUE)
-Data_6Tribes_5yClean <- TADA_FlagResultUnit(Data_6Tribes_5yClean, clean = "invalid_only")
-Data_6Tribes_5yClean <- TADA_FlagSpeciation(Data_6Tribes_5yClean, clean = "invalid_only")
+Data_6Tribes_5yClean <- TADA_FlagResultUnit(Data_6Tribes_5yClean, clean = "suspect_only")
+Data_6Tribes_5yClean <- TADA_FlagSpeciation(Data_6Tribes_5yClean, clean = "suspect_only")
 Data_6Tribes_5yClean <- TADA_FlagMethod(Data_6Tribes_5yClean, clean = TRUE)
 CreateRefTable <- TADA_GetSynonymRef(Data_6Tribes_5yClean)
 
