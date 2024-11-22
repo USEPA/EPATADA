@@ -54,7 +54,7 @@
 #' @param organization A string of letters and/or numbers (some additional characters also possible) used to signify an organization with data in the Water Quality Portal. See https://www.waterqualitydata.us/Codes/organization for options.
 #' @param project A string of letters and/or numbers (some additional characters also possible) used to signify a project with data in the Water Quality Portal. See https://www.waterqualitydata.us/Codes/project for options.
 #' @param providers Leave blank to include all, or specify "STEWARDS", "STORET" (i.e., WQX), and/or "NWIS". See https://www.waterqualitydata.us/Codes/providers for options.
-#' @param applyautoclean Logical, defaults to TRUE. Applies TADA_AutoClean function on the returned data profile.
+#' @param applyautoclean Logical, defaults to TRUE. Applies TADA_AutoClean function on the returned data profile. Suggest switching to FALSE for queries that are expected to be large.
 #'
 #' @return TADA-compatible dataframe
 #'
@@ -196,8 +196,8 @@ TADA_DataRetrieval <- function(startDate = "null",
                                providers = "null",
                                maxrecs = 250000,
                                applyautoclean = TRUE) {
-
-    # Check for incomplete or inconsistent inputs:
+  
+  # Check for incomplete or inconsistent inputs:
   
   # If both an sf object and tribe information are provided it's unclear what
   # the priority should be for the query
@@ -437,7 +437,7 @@ TADA_DataRetrieval <- function(startDate = "null",
     # Check for either more than 300 sites or more records than max_recs.
     # If either is true then we'll approach the pull as a "big data" pull
     if( site_count > 300 | record_count > maxrecs) {
-      warning(
+      message(
         paste0(
           "The number of sites and/or records matched by the AOI and query terms is large, so the download may take some time. ",
           "If your AOI is a county, state, country, or HUC boundary it would be more efficient to provide a code instead of an sf object."
@@ -901,7 +901,7 @@ TADA_BigDataHelper <- function(record_summary, WQPquery, maxrecs = 250000, maxsi
   # Number of sites per download group limited to 300.
   if (dim(smallsites)[1] > 0) {
     smallsitesgrp <- smallsites %>%
-      mutate(group = MESS::cumsumbinning(
+      dplyr::mutate(group = MESS::cumsumbinning(
         x = tot_n,
         threshold = maxrecs,
         maxgroupsize = 300
@@ -1167,7 +1167,7 @@ TADA_BigDataRetrieval <- function(startDate = "null",
     rm(df_summary)
     # if there are still site records when filtered to years of interest....
     if (dim(sites)[1] > 0) {
-     
+      
       
       
       # get total number of results per site and separate out sites with >250000 results
