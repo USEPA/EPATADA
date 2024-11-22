@@ -1258,7 +1258,7 @@ TADA_TwoCharacteristicScatterplot <- function(.data, id_cols = "TADA.ComparableD
 TADA_GroupedScatterplot <- function(.data, group_col = "TADA.MonitoringLocationName", groups = NULL) {
   # check .data is data.frame
   TADA_CheckType(.data, "data.frame", "Input object")
-
+  
   # check .data has required columns
   reqcols <- c(
     "TADA.ComparableDataIdentifier",
@@ -1268,28 +1268,28 @@ TADA_GroupedScatterplot <- function(.data, group_col = "TADA.MonitoringLocationN
     "ActivityStartDateTime",
     "TADA.MonitoringLocationName"
   )
-
+  
   # add user-selected group_col to list of required columns
   reqcols <- reqcols %>%
     append(group_col) %>%
     unique()
-
+  
   # check .data has required columns
   TADA_CheckColumns(.data, reqcols)
-
-
+  
+  
   # only allows for 1 column selection in id_cols
   if (length(group_col) > 1) {
     stop("TADA_GroupedScatterplot: group_col argument can only be a single value.")
   }
-
+  
   # stop function if only one group is supplied
   if (!is.null(groups)) {
     if (length(groups) == 1) {
       stop("TADA_GroupedScatterplot: requires at least two 'groups'. Use TADA_Scatterplot to plot results without grouping.")
     }
   }
-
+  
   # if groups are not specified, select the top four groups by number of results.
   if (is.null(groups)) {
     assign.groups <- .data %>%
@@ -1297,23 +1297,23 @@ TADA_GroupedScatterplot <- function(.data, group_col = "TADA.MonitoringLocationN
       dplyr::summarize(NResults = length(TADA.ResultMeasureValue)) %>%
       dplyr::arrange(dplyr::desc(NResults)) %>%
       dplyr::filter(!is.na(get(group_col)))
-
-
+    
+    
     # calculate how many total groups are available in TADA data frame
     n.groups.total <- nrow(assign.groups)
-
+    
     # select top four groups by number of results
     groups <- assign.groups %>%
       dplyr::slice_head(n = 4) %>%
       dplyr::select(as.character(group_col)) %>%
       dplyr::pull()
-
+    
     # create string of group names for printed message
     groups.string <- stringi::stri_replace_last(paste(groups, collapse = "; "), " and ", fixed = "; ")
-
+    
     # calculate number of groups to be plotted
     n.groups.plotted <- length(groups)
-
+    
     # convert integer to character string for use in printed message
     # could consider replacing with english::as_english
     n.groups.plotted <- dplyr::case_when(
@@ -1322,62 +1322,62 @@ TADA_GroupedScatterplot <- function(.data, group_col = "TADA.MonitoringLocationN
       n.groups.plotted == 3 ~ "three",
       n.groups.plotted == 4 ~ "four"
     )
-
+    
     # if only group is identified, stop and print message to use TADA_Scatterplot
     if (n.groups.plotted == "one") {
       stop("TADA_GroupedScatterplot: requires at least two 'groups'. Use TADA_Scatterplot to plot results without grouping.")
     }
-
+    
     # print message describing groups that will be plotted
     print(paste0("TADA_GroupedScatterplot: No 'groups' selected for ", group_col, ". There are ",
-      n.groups.total, " ", group_col, "s in the TADA data frame. The top ", n.groups.plotted,
-      " ", group_col, "s by number of results will be plotted: ", groups.string, ".",
-      sep = ""
+                 n.groups.total, " ", group_col, "s in the TADA data frame. The top ", n.groups.plotted,
+                 " ", group_col, "s by number of results will be plotted: ", groups.string, ".",
+                 sep = ""
     ))
-
+    
     # remove intermediate objects
     rm(groups.string, n.groups.plotted)
   }
-
+  
   # check that groups are in group_col
   id <- unlist(unique(.data[, group_col]))
   if (any(!groups %in% id)) {
     # identify any groups missing from "groups" param
     missing.groups <- setdiff(groups, id)
-
+    
     # create a character string of missing groups for printed message
     missing.groups.string <- stringi::stri_replace_last(paste(missing.groups, collapse = "; "), " and ", fixed = "; ")
-
+    
     # stop function if any groups are not found in TADA data frame
     stop("TADA_GroupedScatterplot: The following ", group_col, "s are not found in the TADA data frame: ",
-      missing.groups.string, ". Revise param 'groups' before re-running function.",
-      sep = ""
+         missing.groups.string, ". Revise param 'groups' before re-running function.",
+         sep = ""
     )
-
+    
     # remove intermediate objects
     rm(missing.group, missing.groups.string, id)
   }
-
+  
   depthcols <- names(.data)[grepl("DepthHeightMeasure", names(.data))]
   depthcols <- depthcols[grepl("TADA.", depthcols)]
-
+  
   plot.data <- as.data.frame(.data)
-
+  
   # this subset must include all fields included in plot hover below
-  plot.data <- subset(plot.data, plot.data[, group_col] %in% groups)[, unique(c(group_col, reqcols, depthcols, "TADA.ComparableDataIdentifier", "ActivityStartDateTime", "TADA.MonitoringLocationName", "TADA.ActivityMediaName", "ActivityMediaSubdivisionName", "ActivityRelativeDepthName", "TADA.CharacteristicName", "TADA.MethodSpeciationName", "TADA.ResultSampleFractionText"))]
-
+  plot.data <- subset(plot.data, plot.data[, group_col] %in% groups)[, unique(c(group_col, reqcols, depthcols, "TADA.ComparableDataIdentifier", "ActivityStartDateTime", "MonitoringLocationName", "TADA.ActivityMediaName", "ActivityMediaSubdivisionName", "ActivityRelativeDepthName", "TADA.CharacteristicName", "TADA.MethodSpeciationName", "TADA.ResultSampleFractionText"))]
+  
   plot.data <- dplyr::arrange(plot.data, ActivityStartDate)
-
+  
   # returns the param groups for plotting. Up to 4 params are defined.
   param.data <- list()
   for (i in 1:length(unique(groups))) {
     param.data[[i]] <- subset(plot.data, plot.data[, group_col] %in% groups[i])
     # assign(paste0("param", as.character(i)), subset(plot.data, plot.data[, group_col] %in% groups[i]))
   }
-
+  
   # create empty list to store scatterplots
   all_scatterplots <- list()
-
+  
   for (i in 1:length(unique(plot.data$TADA.ComparableDataIdentifier))) {
     title <- TADA_InsertBreaks(
       paste0(
@@ -1387,25 +1387,25 @@ TADA_GroupedScatterplot <- function(.data, group_col = "TADA.MonitoringLocationN
       ),
       len = 45
     )
-
+    
     # figure margin
     mrg <- list(
       l = 50, r = 75,
       b = 25, t = 75,
       pad = 0
     )
-
+    
     # units label for y axis
     unit <- unique(plot.data$TADA.ResultMeasure.MeasureUnitCode)
     y_label <- "Activity Start Date"
-
+    
     # create TADA color palette
     tada.pal <- TADA_ColorPalette(col_pair = TRUE)
-
+    
     plot.data.y <- subset(plot.data, plot.data[, "TADA.ComparableDataIdentifier"] %in% unique(plot.data$TADA.ComparableDataIdentifier)[i])
     plot.data.y$name <- gsub("_NA", "", plot.data.y[, "TADA.ComparableDataIdentifier"])
     plot.data.y$name <- gsub("_", " ", plot.data.y$name)
-
+    
     scatterplot <-
       plotly::plot_ly(type = "scatter", mode = "markers") %>%
       plotly::layout(
@@ -1436,64 +1436,65 @@ TADA_GroupedScatterplot <- function(.data, group_col = "TADA.MonitoringLocationN
       ) %>%
       # config options https://plotly.com/r/configuration-options/
       plotly::config(displaylogo = FALSE) # , displayModeBar = TRUE) # TRUE makes bar always visible
-
+    
     param <- list()
     for (j in 1:length(groups)) {
-      if ( length(groups) >= j){
-      param[[j]] <- subset(param.data[[j]], param.data[[j]][, "TADA.ComparableDataIdentifier"] %in% unique(plot.data$TADA.ComparableDataIdentifier)[i])
-      
-      scatterplot <- scatterplot %>%
-        plotly::add_trace(
-          data = param[[j]],
-          x = ~ as.Date(ActivityStartDate),
-          y = ~TADA.ResultMeasureValue,
-          name = groups[j],
-          marker = list(
-            size = 10,
-            color = tada.pal[j, 1],
-            line = list(color = tada.pal[j, 2], width = 2)
-          ),
-          hoverinfo = "text",
-          hovertext = paste(
-            "Result:", paste0(param[[j]]$TADA.ResultMeasureValue, " ", param[[j]]$TADA.ResultMeasure.MeasureUnitCode), "<br>",
-            "Activity Start Date:", param[[j]]$ActivityStartDate, "<br>",
-            "Activity Start Date Time:", param[[j]]$ActivityStartDateTime, "<br>",
-            "Monitoring Location Name:", param[[j]]$TADA.MonitoringLocationName, "<br>",
-            "Media:", param[[j]]$TADA.ActivityMediaName, "<br>",
-            "Media Subdivision:", param[[j]]$ActivityMediaSubdivisionName, "<br>",
-            "Result Depth:", paste0(
-              param[[j]]$TADA.ResultDepthHeightMeasure.MeasureValue, " ",
-              param[[j]]$TADA.ResultDepthHeightMeasure.MeasureUnitCode
-            ), "<br>",
-            "Activity Relative Depth Name:", param[[j]]$ActivityRelativeDepthName, "<br>",
-            "Activity Depth:", paste0(
-              param[[j]]$TADA.ActivityDepthHeightMeasure.MeasureValue, " ",
-              param[[j]]$TADA.ActivityDepthHeightMeasure.MeasureUnitCode
-            ), "<br>",
-            "Activity Top Depth:", paste0(
-              param[[j]]$TADA.ActivityTopDepthHeightMeasure.MeasureValue, " ",
-              param[[j]]$TADA.ActivityTopDepthHeightMeasure.MeasureUnitCode
-            ), "<br>",
-            "Activity Bottom Depth:", paste0(
-              param[[j]]$TADA.ActivityBottomDepthHeightMeasure.MeasureValue, " ",
-              param[[j]]$TADA.ActivityBottomDepthHeightMeasure.MeasureUnitCode
-            ), "<br>"
+      if (length(groups) >= j) {
+        param[[j]] <- subset(param.data[[j]], param.data[[j]][, "TADA.ComparableDataIdentifier"] %in% unique(plot.data$TADA.ComparableDataIdentifier)[i])
+        
+        scatterplot <- scatterplot %>%
+          plotly::add_trace(
+            data = param[[j]],
+            x = ~ as.Date(ActivityStartDate),
+            y = ~TADA.ResultMeasureValue,
+            name = groups[j],
+            marker = list(
+              size = 10,
+              color = tada.pal[j, 1],
+              line = list(color = tada.pal[j, 2], width = 2)
+            ),
+            hoverinfo = "text",
+            hovertext = paste(
+              "Result:", paste0(param[[j]]$TADA.ResultMeasureValue, " ", param[[j]]$TADA.ResultMeasure.MeasureUnitCode), "<br>",
+              "Activity Start Date:", param[[j]]$ActivityStartDate, "<br>",
+              "Activity Start Date Time:", param[[j]]$ActivityStartDateTime, "<br>",
+              "Monitoring Location Name:", param[[j]]$MonitoringLocationName, "<br>",
+              "Media:", param[[j]]$TADA.ActivityMediaName, "<br>",
+              "Media Subdivision:", param[[j]]$ActivityMediaSubdivisionName, "<br>",
+              "Result Depth:", paste0(
+                param[[j]]$TADA.ResultDepthHeightMeasure.MeasureValue, " ",
+                param[[j]]$TADA.ResultDepthHeightMeasure.MeasureUnitCode
+              ), "<br>",
+              "Activity Relative Depth Name:", param[[j]]$ActivityRelativeDepthName, "<br>",
+              "Activity Depth:", paste0(
+                param[[j]]$TADA.ActivityDepthHeightMeasure.MeasureValue, " ",
+                param[[j]]$TADA.ActivityDepthHeightMeasure.MeasureUnitCode
+              ), "<br>",
+              "Activity Top Depth:", paste0(
+                param[[j]]$TADA.ActivityTopDepthHeightMeasure.MeasureValue, " ",
+                param[[j]]$TADA.ActivityTopDepthHeightMeasure.MeasureUnitCode
+              ), "<br>",
+              "Activity Bottom Depth:", paste0(
+                param[[j]]$TADA.ActivityBottomDepthHeightMeasure.MeasureValue, " ",
+                param[[j]]$TADA.ActivityBottomDepthHeightMeasure.MeasureUnitCode
+              ), "<br>"
+            )
           )
       }
     }
-
+    
     # create plots and store as list
     all_scatterplots[[i]] <- scatterplot
-
+    
     # rename scatterplots to reflect TADA.ComparbaleDataIdentifier (with NAs removed)
     names(all_scatterplots)[i] <- unique(TADA_CharStringRemoveNA(plot.data$TADA.ComparableDataIdentifier))[i]
   }
-
+  
   # filter to return one scatterplot, if only one was generated
   if (length(all_scatterplots) == 1) {
     all_scatterplots <- all_scatterplots[[1]]
   }
-
+  
   # return scatterplot (one) or list of scatterplots (multiple)
   return(all_scatterplots)
 }
