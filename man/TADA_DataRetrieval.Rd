@@ -22,6 +22,7 @@ TADA_DataRetrieval(
   organization = "null",
   project = "null",
   providers = "null",
+  maxrecs = 250000,
   applyautoclean = TRUE
 )
 }
@@ -60,7 +61,7 @@ TADA_DataRetrieval(
 
 \item{providers}{Leave blank to include all, or specify "STEWARDS", "STORET" (i.e., WQX), and/or "NWIS". See https://www.waterqualitydata.us/Codes/providers for options.}
 
-\item{applyautoclean}{Logical, defaults to TRUE. Applies TADA_AutoClean function on the returned data profile.}
+\item{applyautoclean}{Logical, defaults to TRUE. Applies TADA_AutoClean function on the returned data profile. Suggest switching to FALSE for queries that are expected to be large.}
 }
 \value{
 TADA-compatible dataframe
