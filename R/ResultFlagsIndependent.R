@@ -265,6 +265,8 @@ TADA_FlagContinuousData <- function(.data, clean = FALSE, flaggedonly = FALSE, t
 
   if (length(noncont.data) >= 1) {
     info_match <- noncont.data %>%
+      # remove quality control samples
+      dplyr::filter(!grepl("Quality Control", ActivityTypeCode)) %>%
       dplyr::group_by(
         TADA.LatitudeMeasure, TADA.LongitudeMeasure,
         OrganizationIdentifier, TADA.ComparableDataIdentifier,
