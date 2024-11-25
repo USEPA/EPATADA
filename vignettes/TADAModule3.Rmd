@@ -193,10 +193,19 @@ Co_dataframe <- TADA_DataRetrieval(
   applyautoclean = TRUE
 )
 
-Co_dataframe_ATTAINS2 <- Co_dataframe_ATTAINS$TADA_with_ATTAINS
-unique(Co_dataframe_ATTAINS2$OrganizationFormalName)
-unique(Co_dataframe_ATTAINS2$ATTAINS.organizationname)
-unique(Co_dataframe_ATTAINS2$OrganizationIdentifier)
+Co_dataframe2 <- TADA_FindQCActivities(Co_dataframe, clean = FALSE)
+Co_dataframe3 <- TADA_FlagContinuousData(Co_dataframe2)
+#TADA_dataframe4 <- TADA_PairForCriteriaCalc(TADA_dataframe3)
+Co_dataframe4 <- TADA_FindPotentialDuplicatesSingleOrg(Co_dataframe3)
+Co_dataframe5 <- TADA_RunKeyFlagFunctions(Co_dataframe4)
+Co_dataframe6 <- TADA_HarmonizeSynonyms(Co_dataframe5)
+
+Co_dataframe7_ATTAINS <- TADA_GetATTAINS(Co_dataframe6)
+
+Co_dataframe7_ATTAINS2 <- as.data.frame(Co_dataframe7_ATTAINS$TADA_with_ATTAINS)
+unique(Co_dataframe7_ATTAINS2$OrganizationFormalName)
+unique(Co_dataframe7_ATTAINS2$ATTAINS.organizationname)
+unique(Co_dataframe7_ATTAINS2$OrganizationIdentifier)
 TADA_FieldValuesTable(Co_dataframe_ATTAINS2, field = "OrganizationIdentifier")
 
 # Handling of replicate samples with differing resultmeasurevalue when they are not labeled as a duplicate.
