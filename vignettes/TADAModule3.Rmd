@@ -320,7 +320,62 @@ assessments in the last column if a specific AU wants to be excluded
 from calculation for a certain parameter, but may still be referenced in
 the future if needed.
 
-## `TADA_CreateStandardsRef()`
+## `Example with Data_NCTCShepherdstown_HUC12`
+
+```{r}
+# Run TADA_GetATTAINS on example data frame
+test <- TADA_GetATTAINS(Data_NCTCShepherdstown_HUC12)
+Data_NCTC <- as.data.frame(test$TADA_with_ATTAINS)
+unique(Data_NCTC$OrganizationFormalName)
+
+# Filter data frame by TADA.Characteristics
+Data_NCTC2 <- filter(Data_NCTC, TADA.CharacteristicName %in% c("ZINC","Nickel", "PH","TEMPERATURE","NITRATE"))
+
+# Creates a blank template of ATTAINS.ParameterName which needs crosswalk
+NCTC_ParamRef <- TADA_CreateParamRef(Data_NCTC2, excel = TRUE, overwrite = TRUE)
+
+# Users who have already completed this crosswalk can save this reference file, which can then be used in the future.
+downloads_path <- file.path(Sys.getenv("USERPROFILE"), "Downloads", "myfileRef.xlsx")
+NCTC_ParamRef <- openxlsx::read.xlsx(downloads_path, sheet = "CreateParamRef")
+
+NCTC_ParamRef2 <- TADA_CreateParamRef(
+  Data_NCTC2, 
+  paramRef = NCTC_ParamRef, 
+  excel = FALSE
+  )
+
+NCTC_ParamUseRef <- TADA_CreateParamUseRef(
+  Data_NCTC2, 
+  paramRef = NCTC_ParamRef, 
+  excel = TRUE, 
+  overwrite = TRUE
+  )
+
+NCTC_ParamUseRef2 <- TADA_CreateParamUseRef(
+  Data_NCTC2, 
+  org_names = c("EPA304a", "Maryland", "Virginia", "Pennsylvania", "West Virginia"), 
+  paramRef = NCTC_ParamRef, 
+  excel = TRUE, overwrite = TRUE
+  )
+
+NCTC_ParamUseRef3 <- TADA_CreateParamUseRef(
+  Data_NCTC2, 
+  org_names = c("EPA304a", "Maryland", "Virginia", "Pennsylvania", "West Virginia"), 
+  paramRef = NCTC_ParamRef, 
+  excel = FALSE
+  )
+
+NCTC_AUIDRef <- TADA_CreateAUIDRef(Data_NCTC2, overwrite = TRUE)
+
+NCTC_DefineMagnitude <- TADA_DefineMagnitude(
+  .data = Data_NCTC2, 
+  paramRef = NCTC_ParamRef2,
+  paramUseRef = NCTC_ParamUseRef3, 
+  AUIDRef = NCTC_AUIDRef, 
+  excel = TRUE,
+  overwrite = TRUE
+  )
+```
 
 Users can provide the ParamRef as a R data frame, or users can choose to
 make the edits on the excel spredsheet file created in the downloads
