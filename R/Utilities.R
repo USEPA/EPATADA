@@ -25,62 +25,62 @@ quiet <- function(x) {
 
 # write global variables. Gets rid of global variable NOTE in check:
 utils::globalVariables(c(
-   ".", "ActivityIdentifier", "ActivityMediaName", "ActivityRelativeDepthName", "ActivityStartDate",
-   "ActivityStartDateTime", "ActivityStartTime.Time", "ActivityTypeCode", "ActivityTypeCode",
-   "AllGroups", "ARD_Category", "areasqkm", "assessmentunitidentifier", "assessmentUnitIdentifier",                                  
-   "ATTAINS.assessmentunitidentifier", "ATTAINS.submissionid", "ATTAINS_AU", "ATTAINS_AUs", 
-   "catchmentareasqkm", "Censored_Count", "cf", "Char_Flag", "CharacteristicName", "CharList",                                                  
-   "CharUnit", "Code", "CodeNoSpeciation", "col2rgb", "Comb", "CombList", "comid",
-   "Comparable.Name", "Concat", "Conversion.Coefficient", "Conversion.Coefficient",
-   "Conversion.Factor", "Count", "Data_NCTCShepherdstown_HUC12", "DepthsByGroup", "DepthsPerGroup",                                            
-   "desc", "Description", "DetectionQuantitationLimitMeasure.MeasureUnitCode",
-   "DetectionQuantitationLimitTypeName", "Domain", "Domain.Value.Status", "dup_id", "epsg",                                                      
-   "featureid", "FieldName", "Fields", "FieldValue", "flag", "Flag_Column", "geometry", "GLOBALID",                                                  
-   "group_id", "HorizontalCoordinateReferenceSystemDatumName", "index", "Last.Change.Date",
-   "LatitudeMeasure", "Legend", "LongitudeMeasure", "masked", "Maximum", "maxRV", "MeanResults",
-   "MeasureQualifierCode", "MeasureQualifierCode.Split", "MeasureUnitCode.match", "median",
-   "MethodSpecationName", "Minimum", "missing.group", "ML.Media.Flag",
-   "MonitoringLocationIdentifier", "MonitoringLocationName", "MonitoringLocationTypeName",
-   "multiplier", "MultUnits", "N", "n_records", "n_sites", "Name", "NCode", "NConvert", "NCount",
-   "NHD.catchmentareasqkm", "NHD.comid", "NHD.nhdplusid", "NHD.resolution", "nhdplusid",
-   "Note.Recommendation", "NResults", "numorgs", "numres", "NutrientGroup", "OBJECTID",
-   "OrganizationFormalName", "OrganizationIdentifier", "palette.colors", "ProjectDescriptionText",                                    
-   "ProjectFileUrl", "ProjectIdentifier", "ProjectMonitoringLocationWeightingUrl", "ProjectName",
-   "QAPPApprovalAgencyName", "QAPPApprovedIndicator", "rect", "ResultCount",
-   "ResultDetectionConditionText", "ResultIdentifier", "ResultMeasure.MeasureUnitCode",                             
-   "ResultMeasure.MeasureUnitCode.Upper", "ResultMeasureValue", "ResultTimeBasisText",
-   "ReultValueTypeName", "rgb", "roundRV", "SampleCollectionEquipmentName",
-   "SamplingDesignTypeCode", "sd", "SecchiConversion", "SingleNearbyGroup", "Source",
-   "statecodes_df", "StatisticalBaseCode", "Status", "Status2", "StringA", "StringB", "STUSAB",
-   "summ", "SummationFractionNotes", "SummationName", "SummationNote", "SummationRank",                                             
-   "SummationSpeciationConversionFactor"," SummationSpeciationNotes",
-   "TADA.ActivityBottomDepthHeightMeasure.MeasureValue",
-   "TADA.ActivityDepthHeightMeasure.MeasureUnitCode","TADA.ActivityDepthHeightMeasure.MeasureValue",
-   "TADA.ActivityMediaName", "TADA.ActivityTopDepthHeightMeasure.MeasureValue",
-   "TADA.ActivityType.Flag", "TADA.AnalyticalMethod.Flag", "TADA.CensoredData.Flag",
-   "TADA.CharacteristicName", "TADA.CharacteristicsForDepthProfile",
-   "TADA.CharacteristicsForDepthProfile TADA.ConsolidatedDepth", "TADA.ComparableDataIdentifier",                            
-   "TADA.ConsolidatedDepth", "TADA.ConsolidatedDepth.Bottom", "TADA.ConsolidatedDepth.Unit",                               
-   "TADA.ContinuousData.Flag", "TADA.DepthCategory.Flag", "TADA.DepthProfileAggregation.Flag",                       
-   "TADA.Detection_Type", "TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode",
-   "TADA.DuplicateID", "TADA.env", "TADA.LatitudeMeasure", "TADA.Limit_Type",
-   "TADA.LongitudeMeasure", "TADA.MeasureQualifierCode.Def", "TADA.MeasureQualifierCode.Flag",                            
-   "TADA.Media.Flag", "TADA.MethodSpeciation.Flag", "TADA.MethodSpeciationName",                                 
-   "TADA.MonitoringLocationIdentifier", "TADA.MultipleOrgDupGroupID", "TADA.MultipleOrgDuplicate",                                 
-   "TADA.NearbySiteGroups", "TADA.NResults", "TADA.NutrientSummationGroup", "TADA.PairingGroup",
-   "TADA.PairingGroup.Rank", "TADA.PotentialDupRowIDs.Flag", "TADA.QAPPDocAvailable",
-   "TADA.ResultDepthHeightMeasure.MeasureUnitCode", "TADA.ResultDepthHeightMeasure.MeasureValue",                
-   "TADA.ResultMeasure.MeasureUnitCode", "TADA.ResultMeasureValue", "TADA.ResultMeasureValue1",
-   "TADA.ResultMeasureValueDataTypes.Flag", "TADA.ResultSampleFractionText",
-   "TADA.ResultSelectedMultipleOrgs", "TADA.ResultUnit.Flag",
-   "TADA.ResultValueAboveUpperThreshold.Flag", "TADA.ResultValueBelowLowerThreshold.Flag",
-   "TADA.ResultValueBelowUpperThreshold.Flag", "TADA.SampleFraction.Flag",
-   "TADA.SingleOrgDupGroupID", "TADA.SuspectCoordinates.Flag", "TADA.Target.MethodSpeciationName",                          
-   "TADA.Target.ResultMeasure.MeasureUnitCode", "TADA.UseForAnalysis.Flag",
-   "TADA.WQXUnitConversionCoefficient", "TADA.WQXUnitConversionFactor", "TADA.WQXVal.Flag",
-   "Target.Speciation", "Target.Unit", "text", "time_diff_lag", "time_diff_lead", "timediff",                                                  
-   "tot_n", "TOTALAREA_KM", "TOTALAREA_MI", "Type", "Unique.Identifier", "value", "Value",
-   "Value.Unit", "waterTypeCode", "where", "within10", "WQXActivityType_Cached", "YAxis.DepthUnit"                                           
+  ".", "ActivityIdentifier", "ActivityMediaName", "ActivityRelativeDepthName", "ActivityStartDate",
+  "ActivityStartDateTime", "ActivityStartTime.Time", "ActivityTypeCode", "ActivityTypeCode",
+  "AllGroups", "ARD_Category", "areasqkm", "assessmentunitidentifier", "assessmentUnitIdentifier",
+  "ATTAINS.assessmentunitidentifier", "ATTAINS.submissionid", "ATTAINS_AU", "ATTAINS_AUs",
+  "catchmentareasqkm", "Censored_Count", "cf", "Char_Flag", "CharacteristicName", "CharList",
+  "CharUnit", "Code", "CodeNoSpeciation", "col2rgb", "Comb", "CombList", "comid",
+  "Comparable.Name", "Concat", "Conversion.Coefficient", "Conversion.Coefficient",
+  "Conversion.Factor", "Count", "Data_NCTCShepherdstown_HUC12", "DepthsByGroup", "DepthsPerGroup",
+  "desc", "Description", "DetectionQuantitationLimitMeasure.MeasureUnitCode",
+  "DetectionQuantitationLimitTypeName", "Domain", "Domain.Value.Status", "dup_id", "epsg",
+  "featureid", "FieldName", "Fields", "FieldValue", "flag", "Flag_Column", "geometry", "GLOBALID",
+  "group_id", "HorizontalCoordinateReferenceSystemDatumName", "index", "Last.Change.Date",
+  "LatitudeMeasure", "Legend", "LongitudeMeasure", "masked", "Maximum", "maxRV", "MeanResults",
+  "MeasureQualifierCode", "MeasureQualifierCode.Split", "MeasureUnitCode.match", "median",
+  "MethodSpecationName", "Minimum", "missing.group", "ML.Media.Flag",
+  "MonitoringLocationIdentifier", "MonitoringLocationName", "MonitoringLocationTypeName",
+  "multiplier", "MultUnits", "N", "n_records", "n_sites", "Name", "NCode", "NConvert", "NCount",
+  "NHD.catchmentareasqkm", "NHD.comid", "NHD.nhdplusid", "NHD.resolution", "nhdplusid",
+  "Note.Recommendation", "NResults", "numorgs", "numres", "NutrientGroup", "OBJECTID",
+  "OrganizationFormalName", "OrganizationIdentifier", "palette.colors", "ProjectDescriptionText",
+  "ProjectFileUrl", "ProjectIdentifier", "ProjectMonitoringLocationWeightingUrl", "ProjectName",
+  "QAPPApprovalAgencyName", "QAPPApprovedIndicator", "rect", "ResultCount",
+  "ResultDetectionConditionText", "ResultIdentifier", "ResultMeasure.MeasureUnitCode",
+  "ResultMeasure.MeasureUnitCode.Upper", "ResultMeasureValue", "ResultTimeBasisText",
+  "ReultValueTypeName", "rgb", "roundRV", "SampleCollectionEquipmentName",
+  "SamplingDesignTypeCode", "sd", "SecchiConversion", "SingleNearbyGroup", "Source",
+  "statecodes_df", "StatisticalBaseCode", "Status", "Status2", "StringA", "StringB", "STUSAB",
+  "summ", "SummationFractionNotes", "SummationName", "SummationNote", "SummationRank",
+  "SummationSpeciationConversionFactor", " SummationSpeciationNotes",
+  "TADA.ActivityBottomDepthHeightMeasure.MeasureValue",
+  "TADA.ActivityDepthHeightMeasure.MeasureUnitCode", "TADA.ActivityDepthHeightMeasure.MeasureValue",
+  "TADA.ActivityMediaName", "TADA.ActivityTopDepthHeightMeasure.MeasureValue",
+  "TADA.ActivityType.Flag", "TADA.AnalyticalMethod.Flag", "TADA.CensoredData.Flag",
+  "TADA.CharacteristicName", "TADA.CharacteristicsForDepthProfile",
+  "TADA.CharacteristicsForDepthProfile TADA.ConsolidatedDepth", "TADA.ComparableDataIdentifier",
+  "TADA.ConsolidatedDepth", "TADA.ConsolidatedDepth.Bottom", "TADA.ConsolidatedDepth.Unit",
+  "TADA.ContinuousData.Flag", "TADA.DepthCategory.Flag", "TADA.DepthProfileAggregation.Flag",
+  "TADA.Detection_Type", "TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode",
+  "TADA.DuplicateID", "TADA.env", "TADA.LatitudeMeasure", "TADA.Limit_Type",
+  "TADA.LongitudeMeasure", "TADA.MeasureQualifierCode.Def", "TADA.MeasureQualifierCode.Flag",
+  "TADA.Media.Flag", "TADA.MethodSpeciation.Flag", "TADA.MethodSpeciationName",
+  "TADA.MonitoringLocationIdentifier", "TADA.MultipleOrgDupGroupID", "TADA.MultipleOrgDuplicate",
+  "TADA.NearbySiteGroups", "TADA.NResults", "TADA.NutrientSummationGroup", "TADA.PairingGroup",
+  "TADA.PairingGroup.Rank", "TADA.PotentialDupRowIDs.Flag", "TADA.QAPPDocAvailable",
+  "TADA.ResultDepthHeightMeasure.MeasureUnitCode", "TADA.ResultDepthHeightMeasure.MeasureValue",
+  "TADA.ResultMeasure.MeasureUnitCode", "TADA.ResultMeasureValue", "TADA.ResultMeasureValue1",
+  "TADA.ResultMeasureValueDataTypes.Flag", "TADA.ResultSampleFractionText",
+  "TADA.ResultSelectedMultipleOrgs", "TADA.ResultUnit.Flag",
+  "TADA.ResultValueAboveUpperThreshold.Flag", "TADA.ResultValueBelowLowerThreshold.Flag",
+  "TADA.ResultValueBelowUpperThreshold.Flag", "TADA.SampleFraction.Flag",
+  "TADA.SingleOrgDupGroupID", "TADA.SuspectCoordinates.Flag", "TADA.Target.MethodSpeciationName",
+  "TADA.Target.ResultMeasure.MeasureUnitCode", "TADA.UseForAnalysis.Flag",
+  "TADA.WQXUnitConversionCoefficient", "TADA.WQXUnitConversionFactor", "TADA.WQXVal.Flag",
+  "Target.Speciation", "Target.Unit", "text", "time_diff_lag", "time_diff_lead", "timediff",
+  "tot_n", "TOTALAREA_KM", "TOTALAREA_MI", "Type", "Unique.Identifier", "value", "Value",
+  "Value.Unit", "waterTypeCode", "where", "within10", "WQXActivityType_Cached", "YAxis.DepthUnit"
 ))
 
 # global variables for tribal feature layers used in TADA_OverviewMap in Utilities.R
@@ -172,18 +172,43 @@ VATribeUrl <- "https://geopub.epa.gov/arcgis/rest/services/EMEF/Tribal/MapServer
 #' @examples
 #' \dontrun{
 #' # Find web service URLs for each Profile using WQP User Interface:
-#' # https://www.waterqualitydata.us/
+#' #  wqp.url <- "https://www.waterqualitydata.us/"
+#' 
+#' # Web service url components
+#' statecode <- "search?statecode=US%3A09"
+#' chartype <- "characteristicType=Nutrient"
+#' startdate <- "startDateLo=04-01-2023"
+#' enddate <- "startDateHi=11-01-2023" 
+#' mt <- "mimeType=csv&zip=yes"
+#' providers <- "providers=NWIS&providers=STEWARDS&providers=STORET"
 #' 
 #' # Example WQP URL: 
-#' https://www.waterqualitydata.us/#statecode=US%3A09&characteristicType=Nutrient&startDateLo=04-01-2023&startDateHi=11-01-2023&mimeType=csv&providers=NWIS&providers=STEWARDS&providers=STORET
+#' ex.url <- paste0(wqp.url, "#statecode=US%3A09&characteristicType=Nutrient",
+#' "&startDateLo=04-01-2023&startDateHi=11-01-2023&mimeType=csv",
+#' "&providers=NWIS&providers=STEWARDS&providers=STORET")
 #'
 #' # Use TADA_ReadWQPWebServices to load the Station, Project, and Phys-Chem Result profiles
-#' stationProfile <- TADA_ReadWQPWebServices("https://www.waterqualitydata.us/data/Station/search?statecode=US%3A09&characteristicType=Nutrient&startDateLo=04-01-2023&startDateHi=11-01-2023&mimeType=csv&zip=yes&providers=NWIS&providers=STEWARDS&providers=STORET")
-#' physchemProfile <- TADA_ReadWQPWebServices("https://www.waterqualitydata.us/data/Result/search?statecode=US%3A09&characteristicType=Nutrient&startDateLo=04-01-2023&startDateHi=11-01-2023&mimeType=csv&zip=yes&dataProfile=resultPhysChem&providers=NWIS&providers=STEWARDS&providers=STORET")
-#' projectProfile <- TADA_ReadWQPWebServices("https://www.waterqualitydata.us/data/Project/search?statecode=US%3A09&characteristicType=Nutrient&startDateLo=04-01-2023&startDateHi=11-01-2023&mimeType=csv&zip=yes&providers=NWIS&providers=STEWARDS&providers=STORET")
-#'
+#' stationProfile <- TADA_ReadWQPWebServices(paste0(
+#'  wqp.url, "data/Station/", statecode, "&",
+#'  chartype, "&", startdate, "&", enddate, "&", 
+#'  mt, "&", providers
+#' ))
+#' 
+#' physchemProfile <- TADA_ReadWQPWebServices(paste0(
+#'  wqp.url, "data/Result/", statecode, "&", 
+#'  chartype, "&", startdate, "&", enddate, "&",
+#'  mt, "&", "dataProfile=resultPhysChem&", providers
+#' ))
+#' 
+#' projectProfile <- TADA_ReadWQPWebServices(paste0(
+#'  wqp.url, "data/Project/", statecode, "&",
+#'  chartype, "&", startdate, "&", enddate, "&",
+#'  mt, "&", providers
+#' ))
+#' 
 #' # Join all three profiles using TADA_JoinWQPProfiles
-#' TADAProfile <- TADA_JoinWQPProfiles(FullPhysChem = physchemProfile, Sites = stationProfile, Projects = projectProfile)
+#' TADAProfile <- TADA_JoinWQPProfiles(FullPhysChem = physchemProfile, Sites = stationProfile,
+#'                                     Projects = projectProfile)
 #'
 #' # Run TADA_AutoClean
 #' Autocleaned_TADAProfile <- TADA_AutoClean(TADAProfile)
