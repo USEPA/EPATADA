@@ -706,16 +706,20 @@ TADA_ConvertSpecialChars <- function(.data, col, percent.ave = TRUE) {
 #' @examples
 #' \dontrun{
 #' # download nutrient data in MT from 2022 and set autoclean = FALSE
-#' df <- TADA_DataRetrieval(startDate = "2022-01-01", endDate = "2022-12-31", characteristicType = "Nutrient", statecode = "MT", applyautoclean = FALSE)
+#' df <- TADA_DataRetrieval(startDate = "2022-01-01", endDate = "2022-12-31", 
+#'                          characteristicType = "Nutrient", statecode = "MT", 
+#'                          applyautoclean = FALSE)
 #' df2 <- TADA_SubstituteDeprecatedChars(df)
-#' # in this example, "Inorganic nitrogen (nitrate and nitrite)" is a USGS NWIS characteristic that is
-#' # deprecated and "Phosphate-phosphorus***retired***use Total Phosphorus, mixed forms" is a deprecated WQX
-#' # name. Both are are transformed to their new names.
+#' # in this example, "Inorganic nitrogen (nitrate and nitrite)" is a USGS NWIS characteristic 
+#' # that is deprecated and "Phosphate-phosphorus***retired***use Total Phosphorus, mixed forms" is 
+#' # a deprecated WQX name. Both are are transformed to their new names.
 #' # review characteristic names before and after transformation
 #' unique(df2$CharacteristicName)
 #' unique(df2$TADA.CharacteristicName)
 #'
-#' df3 <- TADA_DataRetrieval(startDate = "2022-01-01", endDate = "2022-12-31", characteristicType = "Nutrient", statecode = "WY", applyautoclean = FALSE)
+#' df3 <- TADA_DataRetrieval(startDate = "2022-01-01", endDate = "2022-12-31", 
+#'                           characteristicType = "Nutrient", statecode = "WY", 
+#'                           applyautoclean = FALSE)
 #' df4 <- TADA_SubstituteDeprecatedChars(df3)
 #' unique(df4$CharacteristicName)
 #' unique(df4$TADA.CharacteristicName)
@@ -731,18 +735,24 @@ TADA_SubstituteDeprecatedChars <- function(.data) {
     .data$TADA.CharacteristicName <- toupper(.data$CharacteristicName)
   }
 
-  # read in characteristic reference table with deprecation information, filter to deprecated terms and for "retired" in CharacteristicName.
-  # remove all characters after first "*" in CharacteristicName and remove any leading or trailing white space to make compatible with deprecated NWIS CharacteristicName.
-  nwis.table <- utils::read.csv(system.file("extdata", "WQXCharacteristicRef.csv", package = "EPATADA")) %>%
+  # read in characteristic reference table with deprecation information, filter to deprecated terms 
+  # and for "retired" in CharacteristicName.
+  # remove all characters after first "*" in CharacteristicName and remove any leading or trailing 
+  # white space to make compatible with deprecated NWIS CharacteristicName.
+  nwis.table <- utils::read.csv(system.file("extdata", "WQXCharacteristicRef.csv", 
+                                            package = "EPATADA")) %>%
     dplyr::filter(
       Char_Flag == "Deprecated",
       grepl("retired", CharacteristicName)
     ) %>%
-    dplyr::mutate(CharacteristicName = trimws(stringr::str_split(CharacteristicName, "\\*", simplify = T)[, 1]))
+    dplyr::mutate(CharacteristicName = trimws(stringr::str_split(CharacteristicName,
+                                                                 "\\*", simplify = T)[, 1]))
 
-  # read in characteristic reference table with deprecation information and filter to deprecated terms.
+  # read in characteristic reference table with deprecation information and filter to 
+  # deprecated terms.
   # join with deprecated NWIS CharacteristicName data.frame.
-  ref.table <- utils::read.csv(system.file("extdata", "WQXCharacteristicRef.csv", package = "EPATADA")) %>%
+  ref.table <- utils::read.csv(system.file("extdata", "WQXCharacteristicRef.csv", 
+                                           package = "EPATADA")) %>%
     dplyr::filter(Char_Flag == "Deprecated") %>%
     rbind(nwis.table)
 
@@ -750,15 +760,21 @@ TADA_SubstituteDeprecatedChars <- function(.data) {
 
   # merge to dataset
   .data <- merge(.data, ref.table, all.x = TRUE)
-  # if CharacteristicName is deprecated and comparable name is not blank (NA), use the provided Comparable.Name. Otherwise, keep TADA.CharacteristicName as-is.
-  .data$TADA.CharacteristicName <- ifelse(!is.na(.data$Char_Flag) & !.data$Comparable.Name %in% c(""), .data$Comparable.Name, .data$TADA.CharacteristicName)
+  # if CharacteristicName is deprecated and comparable name is not blank (NA), use the provided 
+  # Comparable.Name. Otherwise, keep TADA.CharacteristicName as-is.
+  .data$TADA.CharacteristicName <- ifelse(!is.na(.data$Char_Flag) 
+                                          & !.data$Comparable.Name %in% c(""), 
+                                          .data$Comparable.Name, .data$TADA.CharacteristicName)
 
   howmany <- length(.data$Char_Flag[!is.na(.data$Char_Flag)])
 
   if (howmany > 0) {
     chars <- unique(.data$CharacteristicName[!is.na(.data$Char_Flag)])
     chars <- paste0(chars, collapse = "; ")
-    print(paste0(howmany, " results in your dataset have one of the following deprecated characteristic names: ", chars, ". These names have been substituted with the updated preferred names in the TADA.CharacteristicName field."))
+    print(paste0(howmany, 
+                 " results in your dataset have one of the following deprecated ",
+                 "characteristic names: ", chars, ". These names have been substituted with the ",
+                 "updated preferred names in the TADA.CharacteristicName field."))
   } else {
     print("No deprecated characteristic names found in dataset.")
   }
@@ -781,15 +797,22 @@ TADA_SubstituteDeprecatedChars <- function(.data) {
 #' @export
 #'
 TADA_CreateComparableID <- function(.data) {
-  TADA_CheckColumns(.data, expected_cols = c("TADA.CharacteristicName", "TADA.ResultSampleFractionText", "TADA.MethodSpeciationName", "TADA.ResultMeasure.MeasureUnitCode"))
-  .data$TADA.ComparableDataIdentifier <- paste(.data$TADA.CharacteristicName, .data$TADA.ResultSampleFractionText, .data$TADA.MethodSpeciationName, .data$TADA.ResultMeasure.MeasureUnitCode, sep = "_")
+  TADA_CheckColumns(.data, expected_cols = c("TADA.CharacteristicName", 
+                                             "TADA.ResultSampleFractionText", 
+                                             "TADA.MethodSpeciationName", 
+                                             "TADA.ResultMeasure.MeasureUnitCode"))
+  .data$TADA.ComparableDataIdentifier <- paste(.data$TADA.CharacteristicName, 
+                                               .data$TADA.ResultSampleFractionText, 
+                                               .data$TADA.MethodSpeciationName, 
+                                               .data$TADA.ResultMeasure.MeasureUnitCode, sep = "_")
   return(.data)
 }
 
 #' Convert a delimited string to the format used by WQX 3.0 profiles for one-to-manys
 #'
-#' This utility function takes a delimited string of entities, and a delimiter (which defaults to a comma)
-#' and returns a new string in the WQX 3.0 format of c("StringA","StringB")
+#' This utility function takes a delimited string of entities, and a delimiter 
+#' (which defaults to a comma) and returns a new string in the WQX 3.0 format of 
+#' c("StringA","StringB")
 #'
 #' @param delimited_string Character argument. Should be a string delimited by the character 
 #'    passed in the delimiter parameter.
@@ -842,12 +865,16 @@ TADA_FindNearbySites <- function(.data, dist_buffer = 100) {
   TADA_CheckType(.data, "data.frame", "Input object")
   
   # .data required columns
-  required_cols <- c("MonitoringLocationIdentifier", "TADA.LongitudeMeasure", "TADA.LatitudeMeasure")
+  required_cols <- c("MonitoringLocationIdentifier", 
+                     "TADA.LongitudeMeasure", 
+                     "TADA.LatitudeMeasure")
   # check .data has required columns
   TADA_CheckColumns(.data, required_cols)
   
   # create spatial dataset based on sites
-  data_sf <- unique(.data[, c("MonitoringLocationIdentifier", "TADA.LongitudeMeasure", "TADA.LatitudeMeasure")])
+  data_sf <- unique(.data[, c("MonitoringLocationIdentifier", 
+                              "TADA.LongitudeMeasure", 
+                              "TADA.LatitudeMeasure")])
   # convert to sf object
   data_sf <- sf::st_as_sf(data_sf,
                           coords = c("TADA.LongitudeMeasure", "TADA.LatitudeMeasure"),
@@ -872,16 +899,25 @@ TADA_FindNearbySites <- function(.data, dist_buffer = 100) {
   # create empty dataframe for groups
   groups <- data.frame()
   
-  # loop through distance matrix and extract site groups that are within the buffer distance from one another
+  # loop through distance matrix and extract site groups that are within the buffer distance 
+  # from one another
   for (i in 1:dim(dist.mat1)[1]) {
-    fsite <- rownames(dist.mat1)[i] # focal site
-    dat <- data.frame(Count = dist.mat1[i, ]) # get focal site count row as a column
-    dat$MonitoringLocationIdentifier <- colnames(dist.mat1) # give df site names along with counts
-    sites <- dat$MonitoringLocationIdentifier[dat$Count == 1] # filter to sites within buffer
-    sites1 <- sites[!sites %in% fsite] # get site list within buffer that does not include focal site
-    if (length(sites1) > 0) { # if this list is greater than 0, combine sites within buffer into data frame
-      df <- data.frame(MonitoringLocationIdentifier = sites, TADA.MonitoringLocationIdentifier = paste0(sites, collapse = ","))
-      df[c("TADA.MonitoringLocationIdentifier")] <- lapply(df[c("TADA.MonitoringLocationIdentifier")], TADA_FormatDelimitedString)
+    # focal site
+    fsite <- rownames(dist.mat1)[i] 
+    # get focal site count row as a column
+    dat <- data.frame(Count = dist.mat1[i, ]) 
+    # give df site names along with counts
+    dat$MonitoringLocationIdentifier <- colnames(dist.mat1)
+    # filter to sites within buffer
+    sites <- dat$MonitoringLocationIdentifier[dat$Count == 1] 
+    # get site list within buffer that does not include focal site
+    sites1 <- sites[!sites %in% fsite] 
+    # if this list is greater than 0, combine sites within buffer into data frame
+    if (length(sites1) > 0) {
+      df <- data.frame(MonitoringLocationIdentifier = 
+                         sites, TADA.MonitoringLocationIdentifier = paste0(sites, collapse = ","))
+      df[c("TADA.MonitoringLocationIdentifier")] <- lapply(df[
+        c("TADA.MonitoringLocationIdentifier")], TADA_FormatDelimitedString)
       groups <- plyr::rbind.fill(groups, df)
     }
   }
@@ -891,7 +927,8 @@ TADA_FindNearbySites <- function(.data, dist_buffer = 100) {
   
   if (dim(groups)[1] > 0) { # if there are groups of nearby sites...
     # create group ID's for easier understanding
-    # grp <- data.frame(TADA.SiteGroup = unique(groups$TADA.SiteGroup), TADA.SiteGroupID = paste0("Group_", 1:length(unique(groups$TADA.SiteGroup))))
+    # grp <- data.frame(TADA.SiteGroup = unique(groups$TADA.SiteGroup), 
+    #                TADA.SiteGroupID = paste0("Group_", 1:length(unique(groups$TADA.SiteGroup))))
     # groups <- merge(groups, grp, all.x = TRUE)
     # groups <- unique(groups[, !names(groups) %in% c("TADA.SiteGroup")])
     
@@ -902,14 +939,18 @@ TADA_FindNearbySites <- function(.data, dist_buffer = 100) {
     
     # pivot wider if a site belongs to multiple groups
     groups_wide <- merge(groups, summ_sites, all.x = TRUE)
-    groups_wide <- tidyr::pivot_wider(groups_wide, id_cols = "MonitoringLocationIdentifier", names_from = "GroupCount", names_prefix = "TADA.MonitoringLocationIdentifier", values_from = "TADA.MonitoringLocationIdentifier")
+    groups_wide <- tidyr::pivot_wider(groups_wide, id_cols = "MonitoringLocationIdentifier", 
+                                      names_from = "GroupCount", 
+                                      names_prefix = "TADA.MonitoringLocationIdentifier", 
+                                      values_from = "TADA.MonitoringLocationIdentifier")
     # merge data to site groupings
     .data <- merge(.data, groups_wide, all.x = TRUE)
     
     # concatenate and move site id cols to right place
     grpcols <- names(.data)[grepl("TADA.MonitoringLocationIdentifier", names(.data))]
     
-    .data <- .data %>% tidyr::unite(col = TADA.MonitoringLocationIdentifier, dplyr::all_of(grpcols), sep = ", ", na.rm = TRUE)
+    .data <- .data %>% tidyr::unite(col = TADA.MonitoringLocationIdentifier, 
+                                    dplyr::all_of(grpcols), sep = ", ", na.rm = TRUE)
   }
   
   if (!"TADA.MonitoringLocationIdentifier" %in% colnames(.data)) {
@@ -917,9 +958,13 @@ TADA_FindNearbySites <- function(.data, dist_buffer = 100) {
   }
   
   .data <- .data %>% 
-    dplyr::mutate(TADA.MonitoringLocationIdentifier = ifelse(TADA.MonitoringLocationIdentifier == "", MonitoringLocationIdentifier, TADA.MonitoringLocationIdentifier))   
+    dplyr::mutate(TADA.MonitoringLocationIdentifier = ifelse(
+      TADA.MonitoringLocationIdentifier == "", 
+      MonitoringLocationIdentifier, 
+      TADA.MonitoringLocationIdentifier))   
   
-  if (dim(groups)[1] == 0) { # #if no groups, give a TADA.MonitoringLocationIdentifier column filled with NA
+  #if no groups, give a TADA.MonitoringLocationIdentifier column filled with NA
+  if (dim(groups)[1] == 0) { 
     print("No nearby sites detected using input buffer distance.")
   }
   
@@ -951,11 +996,15 @@ TADA_GetUniqueNearbySites <- function(.data) {
   TADA_CheckType(.data, "data.frame", "Input object")
   
   # .data required columns
-  required_cols <- c("MonitoringLocationIdentifier", "TADA.MonitoringLocationIdentifier", "TADA.LongitudeMeasure", "TADA.LatitudeMeasure")
+  required_cols <- c("MonitoringLocationIdentifier", "TADA.MonitoringLocationIdentifier", 
+                     "TADA.LongitudeMeasure", "TADA.LatitudeMeasure")
   # check .data has required columns
   TADA_CheckColumns(.data, required_cols)
   
-  .data <- .data[c("MonitoringLocationIdentifier", "MonitoringLocationName", "MonitoringLocationTypeName", "MonitoringLocationDescriptionText", "TADA.MonitoringLocationIdentifier", "TADA.LongitudeMeasure", "TADA.LatitudeMeasure")]
+  .data <- .data[c("MonitoringLocationIdentifier", "MonitoringLocationName", 
+                   "MonitoringLocationTypeName", "MonitoringLocationDescriptionText", 
+                   "TADA.MonitoringLocationIdentifier", "TADA.LongitudeMeasure", 
+                   "TADA.LatitudeMeasure")]
   .data <- unique(dplyr::filter(.data, grepl(",", TADA.MonitoringLocationIdentifier)))
   
   return(.data)
@@ -994,7 +1043,8 @@ TADA_GetUniqueNearbySites <- function(.data) {
 #' df <- TADA_RandomTestingData(number_of_days = 5, choose_random_state = TRUE, autoclean = FALSE)
 #' }
 #'
-TADA_RandomTestingData <- function(number_of_days = 1, choose_random_state = FALSE, autoclean = TRUE) {
+TADA_RandomTestingData <- function(number_of_days = 1, choose_random_state = FALSE, 
+                                   autoclean = TRUE) {
   while (TRUE) {
     # choose a random day within the last 20 years
     twenty_yrs_ago <- Sys.Date() - 20 * 365
@@ -1085,7 +1135,12 @@ TADA_RandomTestingData <- function(number_of_days = 1, choose_random_state = FAL
 #'                   "TADA.ComparableDataIdentifier", "ResultDetectionConditionText",
 #'                   "ActivityTypeCode"), 
 #'   agg_fun = "mean", clean = FALSE)
-TADA_AggregateMeasurements <- function(.data, grouping_cols = c("ActivityStartDate", "MonitoringLocationIdentifier", "TADA.ComparableDataIdentifier", "ResultDetectionConditionText", "ActivityTypeCode"), agg_fun = c("max", "min", "mean"), clean = TRUE) {
+TADA_AggregateMeasurements <- function(.data, grouping_cols = c("ActivityStartDate", 
+                                                                "MonitoringLocationIdentifier", 
+                                                                "TADA.ComparableDataIdentifier", 
+                                                                "ResultDetectionConditionText", 
+                                                                "ActivityTypeCode"), 
+                                       agg_fun = c("max", "min", "mean"), clean = TRUE) {
   TADA_CheckColumns(.data, grouping_cols)
   agg_fun <- match.arg(agg_fun)
 
