@@ -284,12 +284,14 @@ TADA_AutoClean <- function(.data) {
   
   if(any(.data$CharacteristicName == "Dissolved oxygen (DO)")) {
 
-  print("TADA_Autoclean: harmonizing dissolved oxygen characterisic name to DISSOLVED OXYGEN SATURATION if unit is % or % SATURATN.")
+  print(paste0("TADA_Autoclean: harmonizing dissolved oxygen characterisic name ",
+               "to DISSOLVED OXYGEN SATURATION if unit is % or % SATURATN."))
 
   do.units <- c("%", "% SATURATN")
 
   do.data <- .data %>%
-    dplyr::filter((CharacteristicName == "Dissolved oxygen (DO)") & ResultMeasure.MeasureUnitCode %in% do.units) %>%
+    dplyr::filter((CharacteristicName == "Dissolved oxygen (DO)") 
+                  & ResultMeasure.MeasureUnitCode %in% do.units) %>%
     dplyr::mutate(
       TADA.CharacteristicName = "DISSOLVED OXYGEN SATURATION",
       TADA.ResultMeasure.MeasureUnitCode = "%"
@@ -311,12 +313,16 @@ TADA_AutoClean <- function(.data) {
   rm(do.units, do.list, do.data, other.data, do.full.join)
   }
 
-  # Remove complex biological data. Un-comment after new WQX 3.0 Profiles are released. May not be needed if implemented via WQP UI/services.
+  # Remove complex biological data. Un-comment after new WQX 3.0 Profiles are released. 
+  # May not be needed if implemented via WQP UI/services.
   # .data$TADA.BiologicalIntentName = toupper(.data$BiologicalIntentName)
-  # TADAProfile = dplyr::filter(TADAProfile, TADA.BiologicalIntentName != "TISSUE" | "TOXICITY" | is.na(TADA.BiologicalIntentName) == TRUE)
+  # TADAProfile = dplyr::filter(TADAProfile, 
+  #                             TADA.BiologicalIntentName != "TISSUE" | "TOXICITY" | 
+  #                             is.na(TADA.BiologicalIntentName) == TRUE)
 
   # run TADA_ConvertSpecialChars function
-  print("TADA_Autoclean: handling special characters and coverting TADA.ResultMeasureValue and TADA.DetectionQuantitationLimitMeasure.MeasureValue value fields to numeric.")
+  print(paste0("TADA_Autoclean: handling special characters and coverting TADA.ResultMeasureValue ",
+               "and TADA.DetectionQuantitationLimitMeasure.MeasureValue value fields to numeric."))
   .data <- TADA_ConvertSpecialChars(.data, "ResultMeasureValue")
   .data <- TADA_ConvertSpecialChars(.data, "DetectionQuantitationLimitMeasure.MeasureValue")
 
@@ -326,35 +332,57 @@ TADA_AutoClean <- function(.data) {
   # .data <- TADA_IDCensoredData(.data)
 
   # change latitude and longitude measures to class numeric
-  print("TADA_Autoclean: converting TADA.LatitudeMeasure and TADA.LongitudeMeasure fields to numeric.")
+  print(paste0("TADA_Autoclean: converting TADA.LatitudeMeasure and TADA.LongitudeMeasure fields ",
+               "to numeric."))
   .data$TADA.LatitudeMeasure <- as.numeric(.data$LatitudeMeasure)
   .data$TADA.LongitudeMeasure <- as.numeric(.data$LongitudeMeasure)
 
-  # update data types (only needed if TADA_JoinWQPProfiles is used to download data). commenting out for now (these data type conversions should happen on TADA versions of these columns? review what USGS DR does)
+  # update data types (only needed if TADA_JoinWQPProfiles is used to download data).
+  # commenting out for now (these data type conversions should happen on TADA versions of these
+  # columns? review what USGS DR does)
   # join2$ActivityStartDate <- as.Date(join2$ActivityStartDate)
   # join2$ActivityEndDate <- as.Date(join2$ActivityEndDate)
-  # join2$ActivityDepthHeightMeasure.MeasureValue <- as.double(join2$ActivityDepthHeightMeasure.MeasureValue)
-  # join2$ResultDepthHeightMeasure.MeasureValue <- as.double(join2$ResultDepthHeightMeasure.MeasureValue)
+  # join2$ActivityDepthHeightMeasure.MeasureValue <- as.double(
+  #                                                   join2$ActivityDepthHeightMeasure.MeasureValue)
+  # join2$ResultDepthHeightMeasure.MeasureValue <- as.double(
+  #                                                   join2$ResultDepthHeightMeasure.MeasureValue)
   # join2$AnalysisStartDate <- as.Date(join2$AnalysisStartDate)
   # join2$timeZoneStart <- as.double(join2$timeZoneStart)
   # join2$timeZoneEnd <- as.double(join2$timeZoneEnd)
-  # #conversion to UTC should happen on the TADA versions of these columns, ActivityStartTime.TimeZoneCode and ActivityEndTime.TimeZoneCode would also need to be edited
+  # #conversion to UTC should happen on the TADA versions of these columns, 
+  # ActivityStartTime.TimeZoneCode and ActivityEndTime.TimeZoneCode would also need to be edited
   # join2$ActivityStartDateTime <- as.Date.POSIXct(join2$ActivityStartDateTime, tz = "UTC")
   # join2$ActivityEndDateTime <- as.Date.POSIXct(join2$ActivityEndDateTime, tz = "UTC")
   # join2$DrainageAreaMeasure.MeasureValue <- as.double(join2$DrainageAreaMeasure.MeasureValue)
-  # join2$ContributingDrainageAreaMeasure.MeasureValue <- as.double(join2$ContributingDrainageAreaMeasure.MeasureValue)
+  # join2$ContributingDrainageAreaMeasure.MeasureValue <- as.double(
+  #                                             join2$ContributingDrainageAreaMeasure.MeasureValue)
   # join2$VerticalMeasure.MeasureValue <- as.double(join2$VerticalMeasure.MeasureValue)
-  # join2$VerticalAccuracyMeasure.MeasureValue <- as.double(join2$VerticalAccuracyMeasure.MeasureValue)
+  # join2$VerticalAccuracyMeasure.MeasureValue <- as.double(
+  #                                             join2$VerticalAccuracyMeasure.MeasureValue)
   # join2$WellDepthMeasure.MeasureValue <- as.double(join2$WellDepthMeasure.MeasureValue)
   # join2$WellHoleDepthMeasure.MeasureValue <- as.double(join2$WellHoleDepthMeasure.MeasureValue)
 
   # Automatically convert USGS only unit "meters" to "m"
   print("TADA_Autoclean: harmonizing synonymous unit names (m and meters) to m.")
-  .data$TADA.ResultMeasure.MeasureUnitCode[.data$TADA.ResultMeasure.MeasureUnitCode == "meters"] <- "m"
-  .data$ActivityDepthHeightMeasure.MeasureUnitCode[.data$ActivityDepthHeightMeasure.MeasureUnitCode == "meters"] <- "m"
-  .data$ActivityTopDepthHeightMeasure.MeasureUnitCode[.data$ActivityTopDepthHeightMeasure.MeasureUnitCode == "meters"] <- "m"
-  .data$ActivityBottomDepthHeightMeasure.MeasureUnitCode[.data$ActivityBottomDepthHeightMeasure.MeasureUnitCode == "meters"] <- "m"
-  .data$ResultDepthHeightMeasure.MeasureUnitCode[.data$ResultDepthHeightMeasure.MeasureUnitCode == "meters"] <- "m"
+  
+  .data <- .data %>%
+    dplyr::mutate(TADA.ResultMeasure.MeasureUnitCode = 
+                    ifelse(TADA.ResultMeasure.MeasureUnitCode == "meters", "m", 
+                           TADA.ResultMeasure.MeasureUnitCode),
+                  ActivityDepthHeightMeasure.MeasureUnitCode = 
+                    ifelse(ActivityDepthHeightMeasure.MeasureUnitCode == "meters", "m", 
+                           ActivityDepthHeightMeasure.MeasureUnitCode),
+                  ActivityTopDepthHeightMeasure.MeasureUnitCode = 
+                    ifelse(ActivityTopDepthHeightMeasure.MeasureUnitCode == "meters", "m", 
+                           ActivityTopDepthHeightMeasure.MeasureUnitCode),
+                  ActivityBottomDepthHeightMeasure.MeasureUnitCode = 
+                    ifelse(ActivityBottomDepthHeightMeasure.MeasureUnitCode == "meters", "m", 
+                           ActivityBottomDepthHeightMeasure.MeasureUnitCode),
+                  ResultDepthHeightMeasure.MeasureUnitCode = 
+                    ifelse(ResultDepthHeightMeasure.MeasureUnitCode == "meters", "m", 
+                           ResultDepthHeightMeasure.MeasureUnitCode)
+                  
+    )
 
   # Substitute updated characteristic name for deprecated names
   print("TADA_Autoclean: updating deprecated (i.e. retired) characteristic names.")
@@ -366,10 +394,16 @@ TADA_AutoClean <- function(.data) {
   .data <- suppressWarnings(TADA_ConvertDepthUnits(.data, unit = "m"))
 
   # create comparable data identifier column
-  print("TADA_Autoclean: creating TADA.ComparableDataIdentifier field for use when generating visualizations and analyses.")
+  print(paste0("TADA_Autoclean: creating TADA.ComparableDataIdentifier field for use when ",
+               "generating visualizations and analyses."))
   .data <- TADA_CreateComparableID(.data)
 
-  print("NOTE: This version of the TADA package is designed to work with numeric data with media name: 'WATER'. TADA_AutoClean does not currently remove (filter) data with non-water media types. If desired, the user must make this specification on their own outside of package functions. Example: dplyr::filter(.data, TADA.ActivityMediaName == 'WATER')")
+  print(paste0("NOTE: This version of the TADA package is designed to work with numeric data with ",
+               "media name: 'WATER'. TADA_AutoClean does not currently remove (filter) data with ",
+               "non-water media types. ",
+               "If desired, the user must make this specification on their own outside of ",
+               "package functions. ", "Example: dplyr::filter(.data, ",
+               "TADA.ActivityMediaName == 'WATER')"))
 
   .data <- TADA_OrderCols(.data)
 
@@ -461,7 +495,9 @@ TADA_CheckType <- function(arg, type, paramName) {
 #'
 TADA_CheckColumns <- function(.data, expected_cols) {
   if (all(expected_cols %in% colnames(.data)) == FALSE) {
-    stop("The dataframe does not contain the required fields. Use either the full physical/chemical profile downloaded from WQP or download the TADA profile template available on the EPA TADA webpage.")
+    stop(paste0("The dataframe does not contain the required fields. ",
+                "Use either the full physical/chemical profile downloaded from WQP or download ",
+                "the TADA profile template available on the EPA TADA webpage."))
   }
 }
 
@@ -500,11 +536,14 @@ TADA_CheckColumns <- function(.data, expected_cols) {
 #'
 #' @examples
 #' data(Data_Nutrients_UT)
-#' HandleSpecialChars_ResultMeasureValue <- TADA_ConvertSpecialChars(Data_Nutrients_UT, "ResultMeasureValue")
+#' HandleSpecialChars_ResultMeasureValue <- TADA_ConvertSpecialChars(Data_Nutrients_UT, 
+#'                                                                   "ResultMeasureValue")
 #' unique(HandleSpecialChars_ResultMeasureValue$TADA.ResultMeasureValueDataTypes.Flag)
 #'
-#' HandleSpecialChars_DetLimMeasureValue <- TADA_ConvertSpecialChars(Data_Nutrients_UT, "TADA.DetectionQuantitationLimitMeasure.MeasureValue")
-#' unique(HandleSpecialChars_DetLimMeasureValue$TADA.DetectionQuantitationLimitMeasure.MeasureValueDataTypes.Flag)
+#' HandleSpecialChars_DetLimMeasureValue <- TADA_ConvertSpecialChars(Data_Nutrients_UT, 
+#'                                           "TADA.DetectionQuantitationLimitMeasure.MeasureValue")
+#' unique(HandleSpecialChars_DetLimMeasureValue$
+#'                               TADA.DetectionQuantitationLimitMeasure.MeasureValueDataTypes.Flag)
 #'
 TADA_ConvertSpecialChars <- function(.data, col, percent.ave = TRUE) {
   if (!col %in% names(.data)) {
@@ -527,7 +566,8 @@ TADA_ConvertSpecialChars <- function(.data, col, percent.ave = TRUE) {
   if (col == "ResultMeasureValue") {
     do.units <- c("%", "% SATURATN")
 
-    chars.data$masked <- ifelse(chars.data$CharacteristicName == "Dissolved oxygen (DO)" & chars.data$ResultMeasure.MeasureUnitCode %in% do.units,
+    chars.data$masked <- ifelse(chars.data$CharacteristicName == "Dissolved oxygen (DO)" 
+                                & chars.data$ResultMeasure.MeasureUnitCode %in% do.units,
       paste(chars.data$masked, "%"), chars.data$masked
     )
 
@@ -537,7 +577,8 @@ TADA_ConvertSpecialChars <- function(.data, col, percent.ave = TRUE) {
     )
 
     # TADA.ResultMeasure.MeasureUnitCode to uppercase
-    chars.data$TADA.ResultMeasure.MeasureUnitCode <- toupper(chars.data$TADA.ResultMeasure.MeasureUnitCode)
+    chars.data$TADA.ResultMeasure.MeasureUnitCode <- 
+      toupper(chars.data$TADA.ResultMeasure.MeasureUnitCode)
   }
 
   # If column is already numeric, just discern between NA and numeric
@@ -548,7 +589,7 @@ TADA_ConvertSpecialChars <- function(.data, col, percent.ave = TRUE) {
         TRUE ~ as.character("Numeric")
       ))
   } else {
-    chars.data$masked <- gsub(" ", "", chars.data$masked) # get rid of white space for subsequent sorting
+    chars.data$masked <- gsub(" ", "", chars.data$masked) # get rid of white space sorting
     # Detect special characters in column and populate new flag column with descriptor
     # of the specific type of character/data type
     clean.data <- chars.data %>%
@@ -563,7 +604,8 @@ TADA_ConvertSpecialChars <- function(.data, col, percent.ave = TRUE) {
           (grepl("%", masked) == TRUE) ~ as.character("Percentage"),
           (grepl(",", masked) == TRUE) ~ as.character("Comma-Separated Numeric"),
           (grepl("\\d\\-\\d", masked) == TRUE) ~ as.character("Numeric Range - Averaged"),
-          (grepl("([1-9]|[1-9][0-9]|100)-([1-9]|[1-9][0-9]|100)%", masked) == TRUE) ~ as.character("Percentage Range - Averaged"),
+          (grepl("([1-9]|[1-9][0-9]|100)-([1-9]|[1-9][0-9]|100)%", masked) == TRUE) 
+                                                    ~ as.character("Percentage Range - Averaged"),
           # because * is a special character you have to escape\\ it:
           (grepl("\\*", masked) == TRUE) ~ as.character("Approximate Value"),
           (!stringi::stri_enc_mark(masked) %in% c("ASCII")) ~ as.character("Non-ASCII Character(s)"),
@@ -586,7 +628,8 @@ TADA_ConvertSpecialChars <- function(.data, col, percent.ave = TRUE) {
     num.range.filter <- c("Numeric Range - Averaged", "Percentage Range - Averaged")
   }
 
-  # Result Values that are numeric ranges with the format #-# are converted to an average of the two numbers expressed in the range.
+  # Result Values that are numeric ranges with the format #-# are converted to an average of the 
+  # two numbers expressed in the range.
   if (any(clean.data$flag %in% num.range.filter)) {
     numrange <- subset(clean.data, clean.data$flag %in% num.range.filter)
     notnumrange <- subset(clean.data, !clean.data$flag %in% num.range.filter)
@@ -601,7 +644,8 @@ TADA_ConvertSpecialChars <- function(.data, col, percent.ave = TRUE) {
       dplyr::mutate_at(c("num1", "num2"), as.numeric)
     numrange$masked <- as.character(rowMeans(numrange[, c("num1", "num2")], na.rm = TRUE))
     numrange <- numrange[, !names(numrange) %in% c("num1", "num2")] %>%
-      dplyr::mutate(masked = ifelse(flag == "Percentage Range - Average", paste(masked, "%", sep = ""), masked))
+      dplyr::mutate(masked = ifelse(flag == "Percentage Range - Average", 
+                                    paste(masked, "%", sep = ""), masked))
 
     clean.data <- plyr::rbind.fill(notnumrange, numrange)
   }
