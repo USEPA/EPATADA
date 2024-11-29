@@ -95,7 +95,8 @@ TADA_CreateParamRef <- function(.data, org_names = NULL, paramRef = NULL, valida
     dplyr::left_join(CST_param, "TADA.CharacteristicName") %>%
     dplyr::select(TADA.CharacteristicName, TADA.MethodSpeciationName, TADA.ResultSampleFractionText, CST.PollutantName) %>%
     dplyr::arrange(TADA.CharacteristicName) %>%
-    uncount(weights = length(org_names)) %>% mutate(organization_name = rep(org_names, nrow(.)/length(org_names)))
+    uncount(weights = length(org_names)) %>% 
+    dplyr::mutate(organization_name = rep(org_names, nrow(.)/length(org_names)))
     # group_by(TADA.CharacteristicName, TADA.MethodSpeciationName, TADA.ResultSampleFractionText, CST.PollutantName) %>%
     #dplyr::mutate(organization_name = toString(org_names)) %>%
     #separate_rows(organization_name, sep =", ")
@@ -115,6 +116,7 @@ TADA_CreateParamRef <- function(.data, org_names = NULL, paramRef = NULL, valida
       dplyr::rename(any_of(c(CST.PollutantName = "CST.PollutantName.y", organization_name = "organization_name.y", ATTAINS.ParameterName = "ATTAINS.ParameterName.y"))) %>%
       dplyr::select(TADA.CharacteristicName, TADA.MethodSpeciationName, TADA.ResultSampleFractionText, organization_name, CST.PollutantName, ATTAINS.ParameterName) %>%
       dplyr::arrange(TADA.CharacteristicName) %>%
+      dplyr::filter(organization_name %in% org_names) %>%
       #group_by(TADA.CharacteristicName, TADA.MethodSpeciationName, TADA.ResultSampleFractionText, CST.PollutantName) %>%
       #filter(if(sum(!is.na(organization_name))) !is.na(organization_name) else T) %>%
       dplyr::distinct()
@@ -332,6 +334,7 @@ TADA_CreateParamUseRef <- function(.data, org_names = NULL, paramRef = NULL, val
   
   ATTAINS_param <- ATTAINS_param_all %>%
     dplyr::select(organization_name, parameter, use_name) %>%
+    dplyr::filter(parameter %in% paramRef$ATTAINS.ParameterName) %>%
     dplyr::filter(organization_name %in% org_names)
   
   # Create the parameter-use reference table for validation
@@ -342,13 +345,6 @@ TADA_CreateParamUseRef <- function(.data, org_names = NULL, paramRef = NULL, val
     dplyr::select(organization_name, CST.PollutantName,	ATTAINS.ParameterName, use_name) %>%
     tidyr::drop_na(ATTAINS.ParameterName) %>%
     dplyr::filter(ATTAINS.ParameterName != "Parameter not used for assessment") %>%
-    # dplyr::mutate(nrowsStandardsRep = as.numeric(1)) %>%
-    # dplyr::mutate(add_nrows_AcuteChronic = 0) %>%
-    # dplyr::mutate(add_nrows_WaterTypes = 0) %>%
-    # dplyr::mutate(add_nrows_SiteSpecific = 0) %>%
-    # dplyr::mutate(add_nrows_Other = 0) %>%
-    # dplyr::rename(use_name = use_attainments.use_name) %>%
-    # dplyr::arrange(ATTAINS.ParameterName, use_name) %>%
     dplyr::distinct()
   
   if("EPA304a" %in% org_names){
@@ -356,12 +352,12 @@ TADA_CreateParamUseRef <- function(.data, org_names = NULL, paramRef = NULL, val
       select(CST.PollutantName = POLLUTANT_NAME, use_name = USE_CLASS_NAME_LOCATION_ETC) %>%
       mutate(organization_name = "EPA304a")
     
-    EPA_param <- NCTC_paramRef2 %>%
+    EPA_param <- CreateParamUseRef %>%
       left_join(CST_param, c("CST.PollutantName"), relationship = "many-to-many") %>%
-      select(organization_name = organization_name.y,	ATTAINS.ParameterName, CST.PollutantName, use_name) %>%
+      select(organization_name = organization_name.y,	ATTAINS.ParameterName, CST.PollutantName, use_name = use_name.y) %>%
       distinct()
     
-    CreateParamUseRef <- NCTC_paramUseRef %>%
+    CreateParamUseRef <- CreateParamUseRef %>%
       dplyr::ungroup() %>%
       full_join(EPA_param, c("ATTAINS.ParameterName", "organization_name", "CST.PollutantName", "use_name")) %>%
       dplyr::select(organization_name, CST.PollutantName,	ATTAINS.ParameterName, use_name)
@@ -382,7 +378,7 @@ TADA_CreateParamUseRef <- function(.data, org_names = NULL, paramRef = NULL, val
     mutate(ATTAINS.FlagUseName2 = "Suspect: use name is not listed as a prior use for this organization")
   
   CreateParamUseRef <- CreateParamUseRef %>% 
-    left_join(Flag2, c("ATTAINS.ParameterName","use_name", "organization_name")) %>%
+    left_join(Flag2, c("ATTAINS.ParameterName", "use_name", "organization_name")) %>%
     left_join(Flag1, c("use_name", "organization_name")) %>%
     dplyr::mutate(ATTAINS.FlagUseName = case_when(
       !is.na(ATTAINS.FlagUseName2) ~ ATTAINS.FlagUseName2,
@@ -390,7 +386,7 @@ TADA_CreateParamUseRef <- function(.data, org_names = NULL, paramRef = NULL, val
       organization_name == "EPA304a" ~ "Pass: Will use the EPA304a recommended standards for this parameter",
       organization_name != "EPA304a" ~ "Pass: parameter is listed as prior cause in ATTAINS and will be used for assessments")
     ) %>%
-    dplyr::select(organization_name, CST.PollutantName, ATTAINS.ParameterName, use_name,	ATTAINS.FlagUseName)
+    dplyr::select(organization_name, CST.PollutantName, ATTAINS.ParameterName, use_name, ATTAINS.FlagUseName)
   
   if(excel == TRUE){
     # Create column names for an empty dataframe
@@ -412,6 +408,20 @@ TADA_CreateParamUseRef <- function(.data, org_names = NULL, paramRef = NULL, val
       addWorksheet(wb, "CreateParamUseRef")
     }
     )
+    
+    # If a user performs TADA_CreateParamRef() with excel = FALSE, but decides to perform TADA_CreateParamUseRef() with excel = TRUE,
+    # and if the file already exists, we need to consider how to display the excel tab for [CreateParamRef] to ensure it does not display
+    # non-matching rows to avoid confusion.
+    excel_paramRef <- openxlsx::read.xlsx(downloads_path, sheet = "CreateParamRef")[,c("TADA.CharacteristicName", "TADA.MethodSpeciationName",	"TADA.ResultSampleFractionText", "ATTAINS.ParameterName", "organization_name")]
+    
+    if(nrow(dplyr::inner_join(
+      paramRef[,c("TADA.CharacteristicName", "TADA.MethodSpeciationName",	"TADA.ResultSampleFractionText", "ATTAINS.ParameterName", "organization_name")],
+      excel_paramRef[,c("TADA.CharacteristicName", "TADA.MethodSpeciationName",	"TADA.ResultSampleFractionText", "ATTAINS.ParameterName", "organization_name")]))
+      !=nrow(excel_paramRef)){
+        if(nrow(excel_paramRef)!=nrow(paramRef)){
+          warning("Your user-supplied paramRef table does not match the parameter reference table in excel sheet [CreateParamRef]. This may have occured if you have previously ran TADA_CreateParamRef() with excel = TRUE on a previous dataframe and proceeded with running TADA_CreateParamRef() with excel = FALSE and TADACreateParamUseRef() with excel = TRUE")
+        }
+    }
     
     # set zoom size
     set_zoom <- function(x) gsub('(?<=zoomScale=")[0-9]+', x, sV, perl = TRUE)

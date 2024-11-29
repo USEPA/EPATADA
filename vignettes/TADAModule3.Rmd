@@ -334,16 +334,25 @@ Data_NCTC2 <- filter(Data_NCTC, TADA.CharacteristicName %in% c("ZINC","Nickel", 
 # Creates a blank template of ATTAINS.ParameterName which needs crosswalk
 NCTC_ParamRef <- TADA_CreateParamRef(Data_NCTC2, excel = TRUE, overwrite = TRUE)
 
-# Users who have already completed this crosswalk can save this reference file, which can then be used in the future.
+# Users who have already completed this crosswalk can re-use this reference file in the future.
 downloads_path <- file.path(Sys.getenv("USERPROFILE"), "Downloads", "myfileRef.xlsx")
 NCTC_ParamRef <- openxlsx::read.xlsx(downloads_path, sheet = "CreateParamRef")
 
 NCTC_ParamRef2 <- TADA_CreateParamRef(
-  Data_NCTC2, 
+  Data_NCTC2,
   paramRef = NCTC_ParamRef, 
   excel = FALSE
   )
 
+# Users should specify the name(s) of their orgs that will be used for assessment.
+NCTC_ParamRef3 <- TADA_CreateParamRef(
+  Data_NCTC2, 
+  org_names = c("Maryland"),
+  paramRef = NCTC_ParamRef, 
+  excel = TRUE, overwrite = TRUE
+  )
+
+# Three cases of 
 NCTC_ParamUseRef <- TADA_CreateParamUseRef(
   Data_NCTC2, 
   paramRef = NCTC_ParamRef, 
@@ -354,15 +363,15 @@ NCTC_ParamUseRef <- TADA_CreateParamUseRef(
 NCTC_ParamUseRef2 <- TADA_CreateParamUseRef(
   Data_NCTC2, 
   org_names = c("EPA304a", "Maryland", "Virginia", "Pennsylvania", "West Virginia"), 
-  paramRef = NCTC_ParamRef, 
+  paramRef = NCTC_ParamRef2, 
   excel = TRUE, overwrite = TRUE
   )
 
 NCTC_ParamUseRef3 <- TADA_CreateParamUseRef(
   Data_NCTC2, 
-  org_names = c("EPA304a", "Maryland", "Virginia", "Pennsylvania", "West Virginia"), 
-  paramRef = NCTC_ParamRef, 
-  excel = FALSE
+  org_names = c("EPA304a", "Maryland"), 
+  paramRef = NCTC_ParamRef3, 
+  excel = TRUE, overwrite = TRUE
   )
 
 NCTC_AUIDRef <- TADA_CreateAUIDRef(Data_NCTC2, overwrite = TRUE)
