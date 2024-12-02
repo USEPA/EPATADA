@@ -2,7 +2,7 @@
 % Please edit documentation in R/Figures.R
 \name{TADA_GroupedScatterplot}
 \alias{TADA_GroupedScatterplot}
-\title{Create Scatterplot(s) for Each TADA.ComparableDataIdentifier with Multiple (Up to 4) Groupings by an Additional Column}
+\title{Create Scatterplot(s) for Each TADA.ComparableDataIdentifier with Multiple Groups}
 \usage{
 TADA_GroupedScatterplot(
   .data,
@@ -18,14 +18,17 @@ the columns 'TADA.ComparableDataIdentifier', 'TADA.ResultMeasureValue',
 'ActivityMediaSubdivisionName', 'TADA.ResultDepthHeightMeasure.MeasureValue',
 'TADA.ResultDepthHeightMeasure.MeasureValue', 'TADA.ResultDepthHeightMeasure.MeasureUnitCode',
 'ActivityRelativeDepthName', 'TADA.ActivityDepthHeightMeasure.MeasureValue',
-'TADA.ActivityDepthHeightMeasure.MeasureUnitCode', 'TADA.ActivityTopDepthHeightMeasure.MeasureValue',
-'TADA.ActivityTopDepthHeightMeasure.MeasureUnitCode', 'TADA.ActivityBottomDepthHeightMeasure.MeasureValue',
+'TADA.ActivityDepthHeightMeasure.MeasureUnitCode',
+'TADA.ActivityTopDepthHeightMeasure.MeasureValue',
+'TADA.ActivityTopDepthHeightMeasure.MeasureUnitCode',
+'TADA.ActivityBottomDepthHeightMeasure.MeasureValue',
 and TADA.ActivityBottomDepthHeightMeasure.MeasureUnitCode to run this function.}
 
 \item{group_col}{The column in the dataset used to identify the groups
-plotted. Defaults to MonitoringLocationName. This input is flexible, and allows for the use of
-other identifiers such as StateCode, CountyCode or user-created groups based on concatenation
-of other variables (e.g. characteristic name, site type, site name, year, organization, etc.)}
+plotted. Defaults to MonitoringLocationName. This input is flexible, and allows for the use
+of other identifiers such as StateCode, CountyCode or user-created groups based on
+concatenation of other variables (e.g. characteristic name, site type, site name, year,
+organization, etc.)}
 
 \item{groups}{A vector of up to four identifiers from the id_cols column
 to specify the groups that will be plotted for a TADA.ComparableDataIdentifier.
@@ -40,7 +43,7 @@ figure area with. Groups are identified by different colored circle markers and 
 in a legend.
 }
 \description{
-Create Scatterplot(s) for Each TADA.ComparableDataIdentifier with Multiple (Up to 4) Groupings by an Additional Column
+Create Scatterplot(s) for Each TADA.ComparableDataIdentifier with Multiple Groups
 }
 \examples{
 # Load example dataset:
@@ -49,7 +52,8 @@ data(Data_Nutrients_UT)
 # transform non-detect data
 df2 <- TADA_SimpleCensoredMethods(Data_Nutrients_UT)
 # create scatterplots for selected counties
-UT_Nutrients_by_CountyCode <- TADA_GroupedScatterplot(df2, group_col = "CountyCode", groups = c("057", "011", "003", "037"))
+UT_Nutrients_by_CountyCode <- TADA_GroupedScatterplot(df2, group_col = "CountyCode", 
+                                                      groups = c("057", "011", "003", "037"))
 # view the 3rd and 4th plots
 UT_Nutrients_by_CountyCode[[3]]
 UT_Nutrients_by_CountyCode[[4]]
@@ -58,11 +62,16 @@ UT_Nutrients_by_CountyCode[[4]]
 data(Data_6Tribes_5y_Harmonized)
 
 # Filter the example data so it includes only one TADA.ComparableDataIdentifier
-df <- dplyr::filter(Data_6Tribes_5y_Harmonized, TADA.ComparableDataIdentifier \%in\% c("TOTAL PHOSPHORUS, MIXED FORMS_UNFILTERED_AS P_UG/L"))
+df <- dplyr::filter(Data_6Tribes_5y_Harmonized, TADA.ComparableDataIdentifier \%in\% 
+                                        c("TOTAL PHOSPHORUS, MIXED FORMS_UNFILTERED_AS P_UG/L"))
 # Creates a scatterplot of the three specified sites of interest in the same plot.
-TADA_GroupedScatterplot(df, group_col = "MonitoringLocationName", groups = c("Upper Red Lake: West", "Upper Red Lake: West-Central", "Upper Red Lake: East Central"))
+TADA_GroupedScatterplot(df, group_col = "MonitoringLocationName", 
+                            groups = c("Upper Red Lake: West", 
+                            "Upper Red Lake: West-Central", 
+                            "Upper Red Lake: East Central"))
 
-# If no groups are selected, return the 4 groups (by MonitoringLocationName) with the greatest number of results
+# If no groups are selected, return the 4 groups (by MonitoringLocationName) with the greatest
+# number of results
 TADA_GroupedScatterplot(df, group_col = "MonitoringLocationName")
 
 }

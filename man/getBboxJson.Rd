@@ -10,7 +10,8 @@ getBboxJson(bbox)
 \item{bbox}{A bounding box from the sf function st_bbox}
 }
 \value{
-A string containing bounding box JSON that can be passed to an ArcGIS feature layer in the Input Geometry field
+A string containing bounding box JSON that can be passed to an ArcGIS feature layer in
+the Input Geometry field
 }
 \description{
 Get bounding box JSON
@@ -20,7 +21,11 @@ Get bounding box JSON
 # Load example dataset
 data(Data_6Tribes_5y)
 # Get the bounding box of the data
-bbox <- sf::st_bbox(c(xmin = min(Data_6Tribes_5y$TADA.LongitudeMeasure), ymin = min(Data_6Tribes_5y$TADA.LatitudeMeasure), xmax = max(Data_6Tribes_5y$TADA.LongitudeMeasure), ymax = max(Data_6Tribes_5y$TADA.LatitudeMeasure)), crs = sf::st_crs(Data_6Tribes_5y))
+bbox <- sf::st_bbox(c(xmin = min(Data_6Tribes_5y$TADA.LongitudeMeasure), 
+                      ymin = min(Data_6Tribes_5y$TADA.LatitudeMeasure), 
+                      xmax = max(Data_6Tribes_5y$TADA.LongitudeMeasure), 
+                      ymax = max(Data_6Tribes_5y$TADA.LatitudeMeasure)), 
+                      crs = sf::st_crs(Data_6Tribes_5y))
 # Get a string containing the JSON of the bounding box
 getBboxJson(bbox)
 }

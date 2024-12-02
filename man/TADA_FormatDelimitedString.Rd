@@ -17,6 +17,7 @@ delimited_string. Defaults to a comma.}
 String.
 }
 \description{
-This utility function takes a delimited string of entities, and a delimiter (which defaults to a comma)
-and returns a new string in the WQX 3.0 format of c("StringA","StringB")
+This utility function takes a delimited string of entities, and a delimiter
+(which defaults to a comma) and returns a new string in the WQX 3.0 format of
+c("StringA","StringB")
 }

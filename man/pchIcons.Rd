@@ -15,7 +15,10 @@ pchIcons(
 )
 }
 \arguments{
-\item{pch}{Plot character code; either a single number or a vector of multiple numbers. Possible values available at http://www.sthda.com/english/wiki/r-plot-pch-symbols-the-different-point-shapes-available-in-r. Defaults to 1 (an open circle).}
+\item{pch}{Plot character code; either a single number or a vector of multiple numbers. Possible
+values available at:
+http://www.sthda.com/english/wiki/r-plot-pch-symbols-the-different-point-shapes-available-in-r.
+Defaults to 1 (an open circle).}
 
 \item{width}{Width of the plot character. Defaults to 30 pixels.}
 
@@ -31,11 +34,13 @@ pchIcons(
 Path(s) to PNG file(s) in a temp folder on user's computer.
 }
 \description{
-Uses the different plotting symbols available in R to create PNG files that can be used as markers on a map feature layer.
+Uses the different plotting symbols available in R to create PNG files that can be used as
+markers on a map feature layer.
 }
 \examples{
 \dontrun{
-# Create three PNG files, a red circle, blue triangle, and yellow "X", each on a green background.
+# Create three PNG files, a red circle, blue triangle, and yellow "X", each on a green 
+background.
 pchIcons(c(1, 2, 4), 40, 40, "green", c("red", "blue", "yellow"))
 }
 

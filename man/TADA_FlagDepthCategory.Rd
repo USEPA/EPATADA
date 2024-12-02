@@ -46,9 +46,9 @@ results (as determined by the depth category) will be identified or calculated f
 MonitoringLocation, ActivityDate, Organization ID, and TADA.CharacteristicName combination.
 When dailyagg == "min" or when dailyagg == "max", the min or max
 value in each group of results (as determined by the depth category) will
-be identified or calculated for each MonitoringLocation, ActivityDate, and TADA.CharacteristicName
-combination. An additional column, TADA.DepthProfileAggregation.Flag will be added
-to describe aggregation.}
+be identified or calculated for each MonitoringLocation, ActivityDate,
+and TADA.CharacteristicName combination. An additional column, TADA.DepthProfileAggregation.Flag
+will be added to describe aggregation.}
 
 \item{aggregatedonly}{Boolean argument with options "TRUE" or "FALSE". The
 default is aggregatedonly = "FALSE" which means that all results are returned.
@@ -92,7 +92,10 @@ data(Data_6Tribes_5y)
 # assign TADA.DepthCategory.Flag with no aggregation
 Data_6Tribs_5y_DepthCat <- TADA_FlagDepthCategory(Data_6Tribes_5y)
 
-# assign TADA.DepthCategory.Flag and determine average values by depth category and returning only aggregate values
-Data_6Tribs_5y_Mean <- TADA_FlagDepthCategory(Data_6Tribes_5y, bycategory = "all", dailyagg = "avg", aggregatedonly = FALSE)
+# assign TADA.DepthCategory.Flag and determine average values by depth category and returning 
+# only aggregate values
+Data_6Tribs_5y_Mean <- TADA_FlagDepthCategory(Data_6Tribes_5y, bycategory = "all", 
+                                              dailyagg = "avg", 
+                                              aggregatedonly = FALSE)
 
 }

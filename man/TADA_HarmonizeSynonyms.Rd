@@ -57,5 +57,6 @@ CreateRefTable <- TADA_GetSynonymRef(Data_6Tribes_5yClean)
 
 # Append synonym reference table columns to dataframe and transform/convert
 # data to the USER SUPPLIED reference table values:
-Data_6Tribes_5yClean_Harmonized <- TADA_HarmonizeSynonyms(Data_6Tribes_5yClean, ref = CreateRefTable)
+Data_6Tribes_5yClean_Harmonized <- TADA_HarmonizeSynonyms(Data_6Tribes_5yClean, 
+                                                          ref = CreateRefTable)
 }

@@ -2,7 +2,7 @@
 % Please edit documentation in R/CriteriaComparison.R
 \name{TADA_CreatePairRef}
 \alias{TADA_CreatePairRef}
-\title{Create Reference Data Frame to Pair Characteristic Results For Use in Numeric Criteria Equations (UNDER ACTIVE DEVELOPMENT)}
+\title{Create Reference Data Frame to Pair Characteristic Results (UNDER ACTIVE DEVELOPMENT)}
 \usage{
 TADA_CreatePairRef(
   .data,
@@ -32,13 +32,13 @@ data frame. When chloride = FALSE, chloride is not included in the reference dat
 \item{salinity}{Boolean argument. When salinity = TRUE, salinity is included in this reference
 data frame. When salinity = FALSE, salinity is not included in the reference data frame.}
 
-\item{other_char}{Character argument. The user provides a data frame TADA.CharacteristicNames and
-the pairing group they belong to. #Needs more details.}
+\item{other_char}{Character argument. The user provides a data frame TADA.CharacteristicNames
+and the pairing group they belong to. #Needs more details.}
 }
 \value{
-A data frame with six columns, TADA.CharacteristicName, TADA.ResultMeasure.MeasureUnitCode,
-TADA.MethodSpeciationName, TADA.ResultSampleFractionText, TADA.PairingGroup, and
-TADA.PairingGroupRank.
+A data frame with six columns, TADA.CharacteristicName,
+TADA.ResultMeasure.MeasureUnitCode,TADA.MethodSpeciationName, TADA.ResultSampleFractionText,
+TADA.PairingGroup, and TADA.PairingGroupRank.
 }
 \description{
 This function creates a data frame that shows all combinations of TADA.CharacteristicName,

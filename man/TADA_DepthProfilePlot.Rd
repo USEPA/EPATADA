@@ -70,7 +70,8 @@ TADA_DepthProfilePlot(Data_6Tribes_5y_Harmonized,
 
 # Load example data frame:
 data(Data_6Tribes_5y_Harmonized)
-# Create a depth profile figure with two parameters for a single monitoring location and date without displaying depth categories
+# Create a depth profile figure with two parameters for a single monitoring location and date 
+# without displaying depth categories
 TADA_DepthProfilePlot(Data_6Tribes_5y_Harmonized,
   groups = c("CONDUCTIVITY_NA_NA_US/CM", "DISSOLVED OXYGEN (DO)_NA_NA_MG/L"),
   location = "REDLAKE_WQX-JOHN",

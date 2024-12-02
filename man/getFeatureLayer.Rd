@@ -8,9 +8,12 @@ getFeatureLayer is used by writeLayer to write feature layers to local files}
 getFeatureLayer(url, bbox = NULL)
 }
 \arguments{
-\item{url}{URL of the layer REST service, ending with "/query". Example: https://geopub.epa.gov/arcgis/rest/services/EMEF/Tribal/MapServer/2/query (American Indian Reservations)}
+\item{url}{URL of the layer REST service, ending with "/query".
+Example: https://geopub.epa.gov/arcgis/rest/services/EMEF/Tribal/MapServer/2/query
+(American Indian Reservations)}
 
-\item{bbox}{A bounding box from the sf function st_bbox; used to filter the query results. Optional; defaults to NULL.}
+\item{bbox}{A bounding box from the sf function st_bbox; used to filter the query results.
+Optional; defaults to NULL.}
 }
 \value{
 ArcGIS feature layer
@@ -35,7 +38,8 @@ bbox <- sf::st_bbox(
 )
 # Get the American Indian Reservations feature layer,
 # filtered by the bounding box for the Data_Nutrients_UT example dataset
-getFeatureLayer("https://geopub.epa.gov/arcgis/rest/services/EMEF/Tribal/MapServer/2/query", bbox)
+getFeatureLayer("https://geopub.epa.gov/arcgis/rest/services/EMEF/Tribal/MapServer/2/query", 
+                  bbox)
 }
 
 }

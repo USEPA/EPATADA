@@ -27,31 +27,49 @@ TADA_DataRetrieval(
 
 \item{endDate}{End Date string in the format YYYY-MM-DD, for example, "2020-01-01"}
 
-\item{countrycode}{Code that identifies a country or ocean (e.g. countrycode = "CA" for Canada, countrycode = "OA" for Atlantic Ocean). See https://www.waterqualitydata.us/Codes/countrycode for options.}
+\item{countrycode}{Code that identifies a country or ocean (e.g. countrycode = "CA" for Canada,
+countrycode = "OA" for Atlantic Ocean). See https://www.waterqualitydata.us/Codes/countrycode
+for options.}
 
-\item{countycode}{FIPS county name. Note that a state code must also be supplied (e.g. statecode = "AL", countycode = "Chilton"). See https://www.waterqualitydata.us/Codes/countycode for options.}
+\item{countycode}{FIPS county name. Note that a state code must also be supplied (e.g. statecode
+= "AL", countycode = "Chilton"). See https://www.waterqualitydata.us/Codes/countycode for
+options.}
 
-\item{huc}{A numeric code denoting a hydrologic unit. Example: "04030202". Different size hucs can be entered. See https://epa.maps.arcgis.com/home/item.html?id=796992f4588c401fabec7446ecc7a5a3 for a map with HUCS. Click on a HUC to find the associated code.}
+\item{huc}{A numeric code denoting a hydrologic unit. Example: "04030202". Different size hucs
+can be entered.
+See https://epa.maps.arcgis.com/home/item.html?id=796992f4588c401fabec7446ecc7a5a3 for a map
+with HUCS. Click on a HUC to find the associated code.}
 
 \item{siteid}{Unique monitoring location identifier.}
 
-\item{siteType}{Type of waterbody. See https://www.waterqualitydata.us/Codes/sitetype for options.}
+\item{siteType}{Type of waterbody.
+See https://www.waterqualitydata.us/Codes/sitetype for options.}
 
-\item{characteristicName}{Name of parameter. See https://www.waterqualitydata.us/Codes/characteristicName for options.}
+\item{characteristicName}{Name of parameter.
+See https://www.waterqualitydata.us/Codes/characteristicName for options.}
 
-\item{characteristicType}{Groups of environmental measurements/parameters. See https://www.waterqualitydata.us/Codes/characteristicType for options.}
+\item{characteristicType}{Groups of environmental measurements/parameters.
+See https://www.waterqualitydata.us/Codes/characteristicType for options.}
 
-\item{sampleMedia}{Sampling substrate such as water, air, or sediment. See https://www.waterqualitydata.us/Codes/sampleMedia for options.}
+\item{sampleMedia}{Sampling substrate such as water, air, or sediment.
+See https://www.waterqualitydata.us/Codes/sampleMedia for options.}
 
-\item{statecode}{FIPS state alpha code that identifies a state (e.g. statecode = "DE" for Delaware). See https://www.waterqualitydata.us/Codes/statecode for options.}
+\item{statecode}{FIPS state alpha code that identifies a state (e.g. statecode = "DE" for
+Delaware). See https://www.waterqualitydata.us/Codes/statecode for options.}
 
-\item{organization}{A string of letters and/or numbers (some additional characters also possible) used to signify an organization with data in the Water Quality Portal. See https://www.waterqualitydata.us/Codes/organization for options.}
+\item{organization}{A string of letters and/or numbers (some additional characters also
+possible) used to signify an organization with data in the Water Quality Portal.
+See https://www.waterqualitydata.us/Codes/organization for options.}
 
-\item{project}{A string of letters and/or numbers (some additional characters also possible) used to signify a project with data in the Water Quality Portal. See https://www.waterqualitydata.us/Codes/project for options.}
+\item{project}{A string of letters and/or numbers (some additional characters also possible)
+used to signify a project with data in the Water Quality Portal.
+See https://www.waterqualitydata.us/Codes/project for options.}
 
-\item{providers}{Leave blank to include all, or specify "STEWARDS", "STORET" (i.e., WQX), and/or "NWIS". See https://www.waterqualitydata.us/Codes/providers for options.}
+\item{providers}{Leave blank to include all, or specify "STEWARDS", "STORET" (i.e., WQX), and/or
+"NWIS". See https://www.waterqualitydata.us/Codes/providers for options.}
 
-\item{applyautoclean}{Logical, defaults to TRUE. Applies TADA_AutoClean function on the returned data profile.}
+\item{applyautoclean}{Logical, defaults to TRUE. Applies TADA_AutoClean function on the returned
+data profile.}
 }
 \value{
 TADA-compatible dataframe
@@ -76,9 +94,14 @@ of the query fields.
 characteristicName and Characteristic Group also work as an AND, therefore the
 characteristicName must fall within the Characteristic Group when both are entered.
 
-Users can reference the \href{https://www.epa.gov/waterdata/storage-and-retrieval-and-water-quality-exchange-domain-services-and-downloads}{WQX domain tables}
-to find allowable values for queries, e.g., reference the WQX domain table to find countycode and statecode: https://cdx.epa.gov/wqx/download/DomainValues/County_CSV.zip
-Alternatively, you can use the WQP services to find areas where data is available in the US: https://www.waterqualitydata.us/Codes/countycode
+Users can reference the
+\href
+{https://www.epa.gov/waterdata/storage-and-retrieval-and-water-quality-exchange-domain-services-and-downloads}
+{WQX domain tables}
+to find allowable values for queries, e.g., reference the WQX domain table to find countycode
+and statecode: https://cdx.epa.gov/wqx/download/DomainValues/County_CSV.zip
+Alternatively, you can use the WQP services to find areas where data is available in the US:
+https://www.waterqualitydata.us/Codes/countycode
 
 TADA_DataRetrieval automatically runs TADA_AutoClean on the incoming data frame. TADA_AutoClean
 is important for categorizing result value and detection limit data, as well as

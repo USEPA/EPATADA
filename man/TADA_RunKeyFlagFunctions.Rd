@@ -28,8 +28,10 @@ TADA_FindQCActivities, and TADA_FlagSpeciation for more information.
 # Load example dataset
 data(Data_6Tribes_5y)
 # Run flagging functions, keeping all rows
-Data_6Tribes_5y_ALL <- TADA_RunKeyFlagFunctions(Data_6Tribes_5y, remove_na = FALSE, clean = FALSE)
+Data_6Tribes_5y_ALL <- TADA_RunKeyFlagFunctions(Data_6Tribes_5y, 
+                                                remove_na = FALSE, clean = FALSE)
 
 # Run flagging functions, removing NA's and Suspect rows
-Data_6Tribes_5y_CLEAN <- TADA_RunKeyFlagFunctions(Data_6Tribes_5y, remove_na = TRUE, clean = TRUE)
+Data_6Tribes_5y_CLEAN <- TADA_RunKeyFlagFunctions(Data_6Tribes_5y, 
+                                                  remove_na = TRUE, clean = TRUE)
 }
