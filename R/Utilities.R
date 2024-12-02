@@ -1156,10 +1156,14 @@ TADA_AggregateMeasurements <- function(.data, grouping_cols = c("ActivityStartDa
     dat <- merge(.data, ncount, all.x = TRUE)
 
     if (any(is.na(dat$TADA.ResultMeasureValue))) {
-      "Warning: your dataset contains one or more rows where TADA.ResultMeasureValue = NA. Recommend removing these rows before proceeding. Otherwise, the function will not consider NAs in its calculations."
+      "Warning: your dataset contains one or more rows where TADA.ResultMeasureValue = NA. 
+      Recommend removing these rows before proceeding. Otherwise, the function will not consider 
+      NAs in its calculations."
     }
 
-    dat$TADA.ResultValueAggregation.Flag <- ifelse(dat$ncount == 1, "No aggregation needed", paste0("Used in ", agg_fun, " aggregation function but not selected"))
+    dat$TADA.ResultValueAggregation.Flag <- ifelse(dat$ncount == 1, "No aggregation needed", 
+                                                   paste0("Used in ", agg_fun, 
+                                                          " aggregation function but not selected"))
     multiples <- dat %>% dplyr::filter(ncount > 1)
 
     dat <- dat %>% dplyr::select(-ncount)
@@ -1168,20 +1172,29 @@ TADA_AggregateMeasurements <- function(.data, grouping_cols = c("ActivityStartDa
       out <- multiples %>%
         dplyr::group_by(dplyr::across(dplyr::all_of(grouping_cols))) %>%
         dplyr::slice_max(order_by = TADA.ResultMeasureValue, n = 1, with_ties = FALSE)
-      dat$TADA.ResultValueAggregation.Flag <- ifelse(dat$ResultIdentifier %in% out$ResultIdentifier, paste0("Selected as ", agg_fun, " aggregate value"), dat$TADA.ResultValueAggregation.Flag)
+      dat$TADA.ResultValueAggregation.Flag <- ifelse(dat$ResultIdentifier %in% out$ResultIdentifier,
+                                                     paste0("Selected as ", agg_fun, 
+                                                            " aggregate value"), 
+                                                     dat$TADA.ResultValueAggregation.Flag)
     }
     if (agg_fun == "min") {
       out <- multiples %>%
         dplyr::group_by(dplyr::across(dplyr::all_of(grouping_cols))) %>%
         dplyr::slice_min(order_by = TADA.ResultMeasureValue, n = 1, with_ties = FALSE)
-      dat$TADA.ResultValueAggregation.Flag <- ifelse(dat$ResultIdentifier %in% out$ResultIdentifier, paste0("Selected as ", agg_fun, " aggregate value"), dat$TADA.ResultValueAggregation.Flag)
+      dat$TADA.ResultValueAggregation.Flag <- ifelse(dat$ResultIdentifier %in% out$ResultIdentifier, 
+                                                     paste0("Selected as ", agg_fun, 
+                                                            " aggregate value"), 
+                                                     dat$TADA.ResultValueAggregation.Flag)
     }
     if (agg_fun == "mean") {
       out <- multiples %>%
         dplyr::group_by(dplyr::across(dplyr::all_of(grouping_cols))) %>%
         dplyr::mutate(TADA.ResultMeasureValue1 = mean(TADA.ResultMeasureValue, na.rm = TRUE)) %>%
         dplyr::slice_sample(n = 1) %>%
-        dplyr::mutate(TADA.ResultValueAggregation.Flag = paste0("Selected as ", agg_fun, " aggregate value, with randomly selected metadata from a row in the aggregate group"))
+        dplyr::mutate(TADA.ResultValueAggregation.Flag = paste0("Selected as ", agg_fun, 
+                                                                " aggregate value, with randomly 
+                                                                selected metadata from a row in the 
+                                                                aggregate group"))
       out <- out %>%
         dplyr::select(-TADA.ResultMeasureValue) %>%
         dplyr::rename(TADA.ResultMeasureValue = TADA.ResultMeasureValue1) %>%
@@ -1190,7 +1203,9 @@ TADA_AggregateMeasurements <- function(.data, grouping_cols = c("ActivityStartDa
     }
 
     if (clean == TRUE) {
-      dat <- subset(dat, !dat$TADA.ResultValueAggregation.Flag %in% c(paste0("Used in ", agg_fun, " aggregation function but not selected")))
+      dat <- subset(dat, !dat$TADA.ResultValueAggregation.Flag %in% c(paste0("Used in ", agg_fun, 
+                                                                             " aggregation function 
+                                                                             but not selected")))
     }
 
     dat <- TADA_OrderCols(dat)
@@ -1221,10 +1236,12 @@ TADA_AggregateMeasurements <- function(.data, grouping_cols = c("ActivityStartDa
 #' # Load example dataset
 #' data(Data_6Tribes_5y)
 #' # Run flagging functions, keeping all rows
-#' Data_6Tribes_5y_ALL <- TADA_RunKeyFlagFunctions(Data_6Tribes_5y, remove_na = FALSE, clean = FALSE)
+#' Data_6Tribes_5y_ALL <- TADA_RunKeyFlagFunctions(Data_6Tribes_5y, 
+#'                                                 remove_na = FALSE, clean = FALSE)
 #'
 #' # Run flagging functions, removing NA's and Suspect rows
-#' Data_6Tribes_5y_CLEAN <- TADA_RunKeyFlagFunctions(Data_6Tribes_5y, remove_na = TRUE, clean = TRUE)
+#' Data_6Tribes_5y_CLEAN <- TADA_RunKeyFlagFunctions(Data_6Tribes_5y, 
+#'                                                   remove_na = TRUE, clean = TRUE)
 TADA_RunKeyFlagFunctions <- function(.data, remove_na = TRUE, clean = TRUE) {
   if (remove_na == TRUE) {
     .data <- .data %>% dplyr::filter(!is.na(TADA.ResultMeasureValue))
@@ -1248,29 +1265,39 @@ TADA_RunKeyFlagFunctions <- function(.data, remove_na = TRUE, clean = TRUE) {
 #' Get bounding box JSON
 #'
 #' @param bbox A bounding box from the sf function st_bbox
-#' @return A string containing bounding box JSON that can be passed to an ArcGIS feature layer in the Input Geometry field
+#' @return A string containing bounding box JSON that can be passed to an ArcGIS feature layer in 
+#' the Input Geometry field
 #'
 #' @examples
 #' \dontrun{
 #' # Load example dataset
 #' data(Data_6Tribes_5y)
 #' # Get the bounding box of the data
-#' bbox <- sf::st_bbox(c(xmin = min(Data_6Tribes_5y$TADA.LongitudeMeasure), ymin = min(Data_6Tribes_5y$TADA.LatitudeMeasure), xmax = max(Data_6Tribes_5y$TADA.LongitudeMeasure), ymax = max(Data_6Tribes_5y$TADA.LatitudeMeasure)), crs = sf::st_crs(Data_6Tribes_5y))
+#' bbox <- sf::st_bbox(c(xmin = min(Data_6Tribes_5y$TADA.LongitudeMeasure), 
+#'                       ymin = min(Data_6Tribes_5y$TADA.LatitudeMeasure), 
+#'                       xmax = max(Data_6Tribes_5y$TADA.LongitudeMeasure), 
+#'                       ymax = max(Data_6Tribes_5y$TADA.LatitudeMeasure)), 
+#'                       crs = sf::st_crs(Data_6Tribes_5y))
 #' # Get a string containing the JSON of the bounding box
 #' getBboxJson(bbox)
 #' }
 #'
 getBboxJson <- function(bbox) {
-  json <- paste0('{"xmin":', bbox[1], ',"ymin":', bbox[2], ',"xmax":', bbox[3], ',"ymax":', bbox[4], "}")
+  json <- paste0('{"xmin":', bbox[1], ',"ymin":', bbox[2], ',"xmax":', bbox[3], 
+                 ',"ymax":', bbox[4], "}")
   return(json)
 }
 
 #' Create icon(s) to be used to represent points on a map feature layer
 #' pchIcons is used within TADA_addPoints
 #'
-#' Uses the different plotting symbols available in R to create PNG files that can be used as markers on a map feature layer.
+#' Uses the different plotting symbols available in R to create PNG files that can be used as 
+#' markers on a map feature layer.
 #'
-#' @param pch Plot character code; either a single number or a vector of multiple numbers. Possible values available at http://www.sthda.com/english/wiki/r-plot-pch-symbols-the-different-point-shapes-available-in-r. Defaults to 1 (an open circle).
+#' @param pch Plot character code; either a single number or a vector of multiple numbers. Possible 
+#' values available at:
+#' http://www.sthda.com/english/wiki/r-plot-pch-symbols-the-different-point-shapes-available-in-r. 
+#' Defaults to 1 (an open circle).
 #' @param width Width of the plot character. Defaults to 30 pixels.
 #' @param height Height of the plot character. Defaults to 30 pixels.
 #' @param bg Background color of the plot character Defaults to transparent.
@@ -1280,7 +1307,8 @@ getBboxJson <- function(bbox) {
 #'
 #' @examples
 #' \dontrun{
-#' # Create three PNG files, a red circle, blue triangle, and yellow "X", each on a green background.
+#' # Create three PNG files, a red circle, blue triangle, and yellow "X", each on a green 
+#' background.
 #' pchIcons(c(1, 2, 4), 40, 40, "green", c("red", "blue", "yellow"))
 #' }
 #'
@@ -1318,8 +1346,11 @@ pchIcons <- function(pch = 1,
 #' Retrieve feature layer from ArcGIS REST service
 #' getFeatureLayer is used by writeLayer to write feature layers to local files
 #'
-#' @param url URL of the layer REST service, ending with "/query". Example: https://geopub.epa.gov/arcgis/rest/services/EMEF/Tribal/MapServer/2/query (American Indian Reservations)
-#' @param bbox A bounding box from the sf function st_bbox; used to filter the query results. Optional; defaults to NULL.
+#' @param url URL of the layer REST service, ending with "/query". 
+#' Example: https://geopub.epa.gov/arcgis/rest/services/EMEF/Tribal/MapServer/2/query 
+#' (American Indian Reservations)
+#' @param bbox A bounding box from the sf function st_bbox; used to filter the query results. 
+#' Optional; defaults to NULL.
 #' @return ArcGIS feature layer
 #'
 #' @examples
@@ -1338,7 +1369,8 @@ pchIcons <- function(pch = 1,
 #' )
 #' # Get the American Indian Reservations feature layer,
 #' # filtered by the bounding box for the Data_Nutrients_UT example dataset
-#' getFeatureLayer("https://geopub.epa.gov/arcgis/rest/services/EMEF/Tribal/MapServer/2/query", bbox)
+#' getFeatureLayer("https://geopub.epa.gov/arcgis/rest/services/EMEF/Tribal/MapServer/2/query", 
+#'                   bbox)
 #' }
 #'
 getFeatureLayer <- function(url, bbox = NULL) {
@@ -1347,21 +1379,26 @@ getFeatureLayer <- function(url, bbox = NULL) {
   } else {
     inputGeom <- getBboxJson(bbox)
   }
-  url <- paste0(url, "?where=1%3D1&outfields=*&returnGeometry=true&geometry=", inputGeom, "&f=geojson")
+  url <- paste0(url, "?where=1%3D1&outfields=*&returnGeometry=true&geometry=", inputGeom, 
+                "&f=geojson")
   layer <- sf::read_sf(url)
   return(layer)
 }
 
 
-#' Download a shapefile from an API and save it to a local folder, overwriting existing file if it exists
+#' Download a shapefile from an API and save it to a local folder, overwriting existing file if it 
+#' exists
 #' writeLayer is used by TADA_UpdateTribalLayers in TADAGeospatialRefLayers.R.
 #'
-#' @param url URL of the layer REST service, ending with "/query". Example: https://geopub.epa.gov/arcgis/rest/services/EMEF/Tribal/MapServer/2/query (American Indian Reservations)
+#' @param url URL of the layer REST service, ending with "/query". Example: 
+#' https://geopub.epa.gov/arcgis/rest/services/EMEF/Tribal/MapServer/2/query 
+#' (American Indian Reservations)
 #' @param layerfilepath Local path to save the .shp file to
 #'
 #' @examples
 #' \dontrun{
-#' # Get the Oklahoma Tribal Statistical Areas feature layer and write local file to inst/extdata/OKTribe.shp
+#' # Get the Oklahoma Tribal Statistical Areas feature layer and write local file to 
+#' inst/extdata/OKTribe.shp
 #' OKTribeUrl <- "https://geopub.epa.gov/arcgis/rest/services/EMEF/Tribal/MapServer/4/query"
 #' writeLayer(OKTribeUrl, "inst/extdata/OKTribe.shp")
 #' }
@@ -1369,8 +1406,8 @@ getFeatureLayer <- function(url, bbox = NULL) {
 writeLayer <- function(url, layerfilepath) {
   layer <- getFeatureLayer(url)
   # Attribute names can only be up to 10 characters long when saved to .dbf as part of sf::st_write.
-  # They are truncated automatically but TOTALAREA_MI and TOTALAREA_KM will not be unique after being
-  # truncated, so explicitly rename them first if they exist to avoid error.
+  # They are truncated automatically but TOTALAREA_MI and TOTALAREA_KM will not be unique after 
+  # being truncated, so explicitly rename them first if they exist to avoid error.
   if ("TOTALAREA_MI" %in% colnames(layer)) {
     layer <- layer %>% dplyr::rename(
       TAREA_MI = TOTALAREA_MI,
@@ -1381,11 +1418,13 @@ writeLayer <- function(url, layerfilepath) {
 }
 
 
-#' Get a shapefile from a local folder, optionally crop it by a bounding box, and return it as a sf object
+#' Get a shapefile from a local folder, optionally crop it by a bounding box, and return it as a sf 
+#' object
 #' getLayer is used within TADA_addPolys and TADA_addPoints
 #'
 #' @param layerfilepath Local path to the .shp file for the layer
-#' @param bbox A bounding box from the sf function st_bbox; used to filter the query results. Optional; defaults to NULL.
+#' @param bbox A bounding box from the sf function st_bbox; used to filter the query results. 
+#' Optional; defaults to NULL.
 #' @return sf object containing the layer
 #'
 #'
@@ -1394,8 +1433,13 @@ writeLayer <- function(url, layerfilepath) {
 #' # Load example dataset
 #' data(Data_6Tribes_5y_Harmonized)
 #' # Get the bounding box of the data
-#' bbox <- sf::st_bbox(c(xmin = min(Data_6Tribes_5y_Harmonized$TADA.LongitudeMeasure), ymin = min(Data_6Tribes_5y_Harmonized$TADA.LatitudeMeasure), xmax = max(Data_6Tribes_5y_Harmonized$TADA.LongitudeMeasure), ymax = max(Data_6Tribes_5y_Harmonized$TADA.LatitudeMeasure)), crs = sf::st_crs(Data_6Tribes_5y_Harmonized))
-#' # Get the American Indian Reservations feature layer, filtered by the bounding box for the Data_6Tribes_5y_Harmonized example dataset
+#' bbox <- sf::st_bbox(c(xmin = min(Data_6Tribes_5y_Harmonized$TADA.LongitudeMeasure), 
+#'                       ymin = min(Data_6Tribes_5y_Harmonized$TADA.LatitudeMeasure), 
+#'                       xmax = max(Data_6Tribes_5y_Harmonized$TADA.LongitudeMeasure), 
+#'                       ymax = max(Data_6Tribes_5y_Harmonized$TADA.LatitudeMeasure)), 
+#'                       crs = sf::st_crs(Data_6Tribes_5y_Harmonized))
+#' # Get the American Indian Reservations feature layer, filtered by the bounding box for the 
+#' Data_6Tribes_5y_Harmonized example dataset
 #' layerfilepath <- "extdata/AmericanIndian.shp"
 #' getLayer(layerfilepath, bbox)
 #' }
@@ -1450,7 +1494,8 @@ getPopup <- function(layer, layername) {
 #' @param layerfilepath Local path to the .shp file for the layer
 #' @param layergroup Name of the layer group
 #' @param layername Name of the layer
-#' @param bbox A bounding box from the sf function st_bbox; used to filter the query results. Optional; defaults to NULL.
+#' @param bbox A bounding box from the sf function st_bbox; used to filter the query results. 
+#' Optional; defaults to NULL.
 #' @return The original map with polygons from the feature layer added to it.
 #'
 #' @export
@@ -1462,7 +1507,8 @@ getPopup <- function(layer, layername) {
 #'   leaflet::addProviderTiles("Esri.WorldTopoMap", group = "World topo") %>%
 #'   leaflet::addMapPane("featurelayers", zIndex = 300)
 #' # Add the American Indian Reservations feature layer to the map
-#' lmap <- TADA_addPolys(lmap, "extdata/AmericanIndian.shp", "Tribes", "American Indian Reservations")
+#' lmap <- TADA_addPolys(lmap, "extdata/AmericanIndian.shp", "Tribes", 
+#'                       "American Indian Reservations")
 #' lmap
 #' }
 #'
@@ -1508,7 +1554,8 @@ TADA_addPolys <- function(map, layerfilepath, layergroup, layername, bbox = NULL
 #' @param layerfilepath Local path to the .shp file for the layer
 #' @param layergroup Name of the layer group
 #' @param layername Name of the layer
-#' @param bbox A bounding box from the sf function st_bbox; used to filter the query results. Optional; defaults to NULL.
+#' @param bbox A bounding box from the sf function st_bbox; used to filter the query results. 
+#' Optional; defaults to NULL.
 #' @return The original map with polygon from the feature layer added to it.
 #'
 #' @export
@@ -1520,7 +1567,8 @@ TADA_addPolys <- function(map, layerfilepath, layergroup, layername, bbox = NULL
 #'   leaflet::addProviderTiles("Esri.WorldTopoMap", group = "World topo") %>%
 #'   leaflet::addMapPane("featurelayers", zIndex = 300)
 #' # Add the Virginia Federally Recognized Tribes feature layer to the map
-#' lmap <- TADA_addPoints(lmap, "extdata/VATribe.shp", "Tribes", "Virginia Federally Recognized Tribes")
+#' lmap <- TADA_addPoints(lmap, "extdata/VATribe.shp", "Tribes", 
+#'                        "Virginia Federally Recognized Tribes")
 #' lmap
 #' }
 #'
@@ -1533,7 +1581,8 @@ TADA_addPoints <- function(map, layerfilepath, layergroup, layername, bbox = NUL
   if (is.na(lbbox[1])) {
     return(map)
   }
-  shapes <- c(2) # open triangle; for other options see https://www.geeksforgeeks.org/r-plot-pch-symbols-different-point-shapes-available-in-r/
+  shapes <- c(2) # open triangle; for other options see: 
+  # https://www.geeksforgeeks.org/r-plot-pch-symbols-different-point-shapes-available-in-r/
   iconFiles <- pchIcons(shapes, width = 20, height = 20, col = c("#CC7722"), lwd = 2)
   map <- leaflet::addMarkers(
     map,
@@ -1576,7 +1625,8 @@ TADA_UniqueCharUnitSpeciation <- function(.data) {
 
   # Check to see if TADA_Autoclean has been run
   if (any(required_cols %in% colnames(.data)) == FALSE) {
-    print("The dataframe does not contain the required fields. Running TADA_AutoClean to create required columns.")
+    print("The dataframe does not contain the required fields. Running TADA_AutoClean to 
+          create required columns.")
     .data <- TADA_AutoClean(.data)
   }
 
@@ -1584,7 +1634,8 @@ TADA_UniqueCharUnitSpeciation <- function(.data) {
     .data <- .data
   }
 
-  # Create df of unique codes and characteristic names(from TADA.CharacteristicName and TADA.ResultMeasure.MeasureUnitCode) in TADA data frame
+  # Create df of unique codes and characteristic names(from TADA.CharacteristicName and 
+  # TADA.ResultMeasure.MeasureUnitCode) in TADA data frame
   data.units.result <- .data %>%
     dplyr::select(
       TADA.CharacteristicName, TADA.ResultMeasure.MeasureUnitCode,
@@ -1593,7 +1644,8 @@ TADA_UniqueCharUnitSpeciation <- function(.data) {
     dplyr::filter(!is.na(TADA.ResultMeasure.MeasureUnitCode)) %>%
     dplyr::distinct()
 
-  # Create df of unique codes and characteristic names(from TADA.CharacteristicName and TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode) in TADA data frame
+  # Create df of unique codes and characteristic names(from TADA.CharacteristicName and 
+  # TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode) in TADA data frame
   data.units.det <- .data %>%
     dplyr::select(
       TADA.CharacteristicName, TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode,
@@ -1714,7 +1766,8 @@ TADA_ViewColorPalette <- function(col_pair = FALSE) {
 
   if(col_pair == TRUE){
   swatch <- list()
-  # Create a 2 x nrow/2 plotting matrix, can handle additional color pairings, in one view, if more are added in the future.
+  # Create a 2 x nrow/2 plotting matrix, can handle additional color pairings, in one view, 
+  # if more are added in the future.
   graphics::par(mfrow = c(2, nrow(col_combo)/2))
   # create list of label colors for pairs
   label_colors <- rep("black", 2)
