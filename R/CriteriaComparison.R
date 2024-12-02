@@ -1,4 +1,4 @@
-#' Create Reference Data Frame to Pair Characteristic Results For Use in Numeric Criteria Equations (UNDER ACTIVE DEVELOPMENT)
+#' Create Reference Data Frame to Pair Characteristic Results (UNDER ACTIVE DEVELOPMENT)
 #'
 #' This function creates a data frame that shows all combinations of TADA.CharacteristicName,
 #' TADA.CharacteristicName, TADA.ResultMeasure.MeasureUnitCode, TADA.MethodSpeciationName,
@@ -22,13 +22,13 @@
 #' @param chloride Boolean argument. When chloride = TRUE, salinity is included in this reference
 #' data frame. When chloride = FALSE, chloride is not included in the reference data frame.
 #'
-#' @param other_char Character argument. The user provides a data frame TADA.CharacteristicNames and
-#' the pairing group they belong to. #Needs more details.
+#' @param other_char Character argument. The user provides a data frame TADA.CharacteristicNames 
+#' and the pairing group they belong to. #Needs more details.
 #
-#' @return A data frame with six columns, TADA.CharacteristicName, TADA.ResultMeasure.MeasureUnitCode,
-#' TADA.MethodSpeciationName, TADA.ResultSampleFractionText, TADA.PairingGroup, and
-#' TADA.PairingGroupRank.
-#'
+#' @return A data frame with six columns, TADA.CharacteristicName, 
+#' TADA.ResultMeasure.MeasureUnitCode,TADA.MethodSpeciationName, TADA.ResultSampleFractionText, 
+#' TADA.PairingGroup, and TADA.PairingGroupRank.
+#' 
 #' @export
 #'
 #' @examples
@@ -182,21 +182,21 @@ TADA_CreatePairRef <- function(.data, ph = TRUE, hardness = TRUE, temp = TRUE,
 #'
 #' This function pairs TADA results with results from specified characteristics from the same
 #' MonitoringLocation within a user-specified time window to facilitate the calculation of numeric
-#' criteria. The columns created by TADA_AutoClean are required to run this function. If they are not
-#' present in the data frame, the function will stop and print an error message.
+#' criteria. The columns created by TADA_AutoClean are required to run this function. 
+#' If they are not present in the data frame, the function will stop and print an error message.
 #'
 #' Users can provide a pairing reference file (can be created using TADA_CreatePairRef) to specify
 #' which combinations of TADA.CharacteristicName, TADA.ResultMeasure.MeasureUnit,
 #' TADA.MethodSpeciationName, and TADA.ResultSampleFractionText should be used for hardness, pH,
-#' temperature, salinity, chloride or other user-defined groups. If no ref is specified, all possible
-#' combinations for hardness, pH, temperature, salinity and chloride will be used.
+#' temperature, salinity, chloride or other user-defined groups. If no ref is specified, all 
+#' possible combinations for hardness, pH, temperature, salinity and chloride will be used.
 #'
 #' @param .data TADA dataframe
 #'
 #' @param ref Write description of what columns need to be in this ref or null option
 #'
-#' @param hours_range Numeric argument. The time difference allowed between the paired characteristic
-#' and the result.
+#' @param hours_range Numeric argument. The time difference allowed between the paired 
+#' characteristic and the result.
 #
 #' @return A TADA data frame with six additional columns added for each pairing group specified
 #' in the pairing ref.
@@ -216,9 +216,9 @@ TADA_PairForCriteriaCalc <- function(.data, ref = "null", hours_range = 4) {
   # check to see if user-supplied ref is a df
   if (!is.character(ref)) {
     if (!is.data.frame(ref)) {
-      stop("TADA_PairForCriteriaCalc: 'ref' must be a data frame with six columns: TADA.CharacteristicName,
-         TADA.ResultMeasure.MeasureUnitCode, TADA.MethodSpeciationName, TADA.ResultSampleFractionText,
-         TADA.PairingGroup.Rank, and TADA.PairingGroup.")
+      stop("TADA_PairForCriteriaCalc: 'ref' must be a data frame with six columns: 
+      TADA.CharacteristicName, TADA.ResultMeasure.MeasureUnitCode, TADA.MethodSpeciationName, 
+      TADA.ResultSampleFractionText, TADA.PairingGroup.Rank, and TADA.PairingGroup.")
     }
 
     if (is.data.frame(ref)) {
@@ -231,9 +231,9 @@ TADA_PairForCriteriaCalc <- function(.data, ref = "null", hours_range = 4) {
       ref.names <- names(ref)
 
       if (length(setdiff(col.names, ref.names)) > 0) {
-        stop("TADA_PairForCriteriaCalc: 'ref' must be a data frame with six columns: TADA.CharacteristicName,
-         TADA.ResultMeasure.MeasureUnitCode, TADA.MethodSpeciationName, TADA.ResultSampleFractionText,
-         TADA.PairingGroup.Rank, and TADA.PairingGroup.")
+        stop("TADA_PairForCriteriaCalc: 'ref' must be a data frame with six columns: 
+        TADA.CharacteristicName, TADA.ResultMeasure.MeasureUnitCode, TADA.MethodSpeciationName, 
+        TADA.ResultSampleFractionText, TADA.PairingGroup.Rank, and TADA.PairingGroup.")
       }
     }
   }
@@ -288,11 +288,16 @@ TADA_PairForCriteriaCalc <- function(.data, ref = "null", hours_range = 4) {
         )
       ) %>%
       dplyr::rename_with(~ paste0("TADA.", group.id, "Name"), TADA.CharacteristicName) %>%
-      dplyr::rename_with(~ paste0("TADA.", group.id, ".ResultMeasureValue"), TADA.ResultMeasureValue) %>%
-      dplyr::rename_with(~ paste0("TADA.", group.id, ".MeasureUnitCode"), TADA.ResultMeasure.MeasureUnitCode) %>%
-      dplyr::rename_with(~ paste0("TADA.", group.id, "ActivityStartDateTime"), ActivityStartDateTime) %>%
-      dplyr::rename_with(~ paste0("TADA.", group.id, "ResultSampleFractionText"), TADA.ResultSampleFractionText) %>%
-      dplyr::rename_with(~ paste0("TADA.", group.id, "MethodSpeciationName"), TADA.MethodSpeciationName)
+      dplyr::rename_with(~ paste0("TADA.", group.id, ".ResultMeasureValue"), 
+                         TADA.ResultMeasureValue) %>%
+      dplyr::rename_with(~ paste0("TADA.", group.id, ".MeasureUnitCode"), 
+                         TADA.ResultMeasure.MeasureUnitCode) %>%
+      dplyr::rename_with(~ paste0("TADA.", group.id, "ActivityStartDateTime"), 
+                         ActivityStartDateTime) %>%
+      dplyr::rename_with(~ paste0("TADA.", group.id, "ResultSampleFractionText"), 
+                         TADA.ResultSampleFractionText) %>%
+      dplyr::rename_with(~ paste0("TADA.", group.id, "MethodSpeciationName"), 
+                         TADA.MethodSpeciationName)
 
 
 
@@ -343,7 +348,9 @@ TADA_PairForCriteriaCalc <- function(.data, ref = "null", hours_range = 4) {
       ) %>%
       dplyr::group_by(ResultIdentifier) %>%
       # Figure out fastest time comparison method - needs to be absolute time comparison
-      dplyr::mutate(timediff = abs(difftime(as.POSIXct(!!rlang::sym(pair_datetime)), as.POSIXct(ActivityStartDateTime), units = c("hours")))) %>%
+      dplyr::mutate(timediff = abs(difftime(as.POSIXct(!!rlang::sym(pair_datetime)), 
+                                            as.POSIXct(ActivityStartDateTime), 
+                                            units = c("hours")))) %>%
       dplyr::filter(timediff <= hours_range) %>%
       dplyr::group_by(ResultIdentifier) %>%
       dplyr::arrange(ResultIdentifier, TADA.PairingGroup.Rank, dplyr::desc(timediff)) %>%
