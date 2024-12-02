@@ -25,9 +25,9 @@
 #' MonitoringLocation, ActivityDate, Organization ID, and TADA.CharacteristicName combination.
 #' When dailyagg == "min" or when dailyagg == "max", the min or max
 #' value in each group of results (as determined by the depth category) will
-#' be identified or calculated for each MonitoringLocation, ActivityDate, and TADA.CharacteristicName
-#' combination. An additional column, TADA.DepthProfileAggregation.Flag will be added
-#' to describe aggregation.
+#' be identified or calculated for each MonitoringLocation, ActivityDate, 
+#' and TADA.CharacteristicName combination. An additional column, TADA.DepthProfileAggregation.Flag 
+#' will be added to describe aggregation.
 #'
 #' @param bycategory character argument with options "no", "all", "surface", "middle",
 #' "bottom". The default is bycategory = "no" which means that any aggregate values
@@ -80,10 +80,14 @@
 #' # assign TADA.DepthCategory.Flag with no aggregation
 #' Data_6Tribs_5y_DepthCat <- TADA_FlagDepthCategory(Data_6Tribes_5y)
 #'
-#' # assign TADA.DepthCategory.Flag and determine average values by depth category and returning only aggregate values
-#' Data_6Tribs_5y_Mean <- TADA_FlagDepthCategory(Data_6Tribes_5y, bycategory = "all", dailyagg = "avg", aggregatedonly = FALSE)
+#' # assign TADA.DepthCategory.Flag and determine average values by depth category and returning 
+#' # only aggregate values
+#' Data_6Tribs_5y_Mean <- TADA_FlagDepthCategory(Data_6Tribes_5y, bycategory = "all", 
+#'                                               dailyagg = "avg", 
+#'                                               aggregatedonly = FALSE)
 #'
-TADA_FlagDepthCategory <- function(.data, bycategory = "no", bottomvalue = 2, surfacevalue = 2, dailyagg = "none", aggregatedonly = FALSE, clean = FALSE) {
+TADA_FlagDepthCategory <- function(.data, bycategory = "no", bottomvalue = 2, surfacevalue = 2, 
+                                   dailyagg = "none", aggregatedonly = FALSE, clean = FALSE) {
   # check .data is data.frame
   TADA_CheckType(.data, "data.frame", "Input object")
   # check aggregatedonly is boolean
@@ -109,7 +113,8 @@ TADA_FlagDepthCategory <- function(.data, bycategory = "no", bottomvalue = 2, su
 
   depthcat.list <- c("Surface", "Bottom", "Middle")
 
-  ard.ref <- utils::read.csv(system.file("extdata", "WQXActivityRelativeDepthRef.csv", package = "EPATADA")) %>%
+  ard.ref <- utils::read.csv(system.file("extdata", "WQXActivityRelativeDepthRef.csv", 
+                                         package = "EPATADA")) %>%
     dplyr::rename(
       ARD_Category = TADA.DepthCategory.Flag,
       ActivityRelativeDepthName = Name
@@ -156,18 +161,22 @@ TADA_FlagDepthCategory <- function(.data, bycategory = "no", bottomvalue = 2, su
 
 
   if (depth.count > 0) {
-    print(paste("TADA_FlagDepthCategory: checking data set for depth values. ", depth.count, " results have depth values available.", sep = ""))
+    print(paste("TADA_FlagDepthCategory: checking data set for depth values. ", depth.count, 
+                " results have depth values available.", sep = ""))
 
     print("TADA_FlagDepthCategory: assigning depth categories.")
 
     .data <- .data %>%
-      # set equal to TADA.ResultDepthHeighMeasure.MeasureValue if available, otherwise use TADA.ActivityDepthHeightMeasure.MeasureValue
+      # set equal to TADA.ResultDepthHeighMeasure.MeasureValue if available, otherwise use 
+      # TADA.ActivityDepthHeightMeasure.MeasureValue
       dplyr::mutate(
-        TADA.ConsolidatedDepth = ifelse(!is.na(TADA.ResultDepthHeightMeasure.MeasureValue), TADA.ResultDepthHeightMeasure.MeasureValue,
-          TADA.ActivityDepthHeightMeasure.MeasureValue
+        TADA.ConsolidatedDepth = ifelse(!is.na(TADA.ResultDepthHeightMeasure.MeasureValue), 
+                                        TADA.ResultDepthHeightMeasure.MeasureValue,
+                                        TADA.ActivityDepthHeightMeasure.MeasureValue
         ),
         TADA.ConsolidatedDepth.Unit = ifelse(!is.na(TADA.ResultDepthHeightMeasure.MeasureUnitCode),
-          TADA.ResultDepthHeightMeasure.MeasureUnitCode, TADA.ActivityDepthHeightMeasure.MeasureUnitCode
+          TADA.ResultDepthHeightMeasure.MeasureUnitCode, 
+          TADA.ActivityDepthHeightMeasure.MeasureUnitCode
         ),
         TADA.ConsolidatedDepth = ifelse(TADA.CharacteristicName %in% depth.params,
           TADA.ResultMeasureValue, TADA.ConsolidatedDepth
@@ -182,27 +191,43 @@ TADA_FlagDepthCategory <- function(.data, bycategory = "no", bottomvalue = 2, su
       # determine the number of Depths per group
       dplyr::mutate(
         DepthsPerGroup = length(unique(TADA.ConsolidatedDepth)),
-        # determine bottom value using TADA.ActivityBottomDepthHeightMeasure.MeasureValue or the max depth record for profile data
-        TADA.ConsolidatedDepth.Bottom = ifelse(DepthsPerGroup > 1 & is.na(TADA.ActivityBottomDepthHeightMeasure.MeasureValue), max(TADA.ConsolidatedDepth, na.rm = TRUE), TADA.ActivityBottomDepthHeightMeasure.MeasureValue)
+        # determine bottom value using TADA.ActivityBottomDepthHeightMeasure.MeasureValue or the 
+        # max depth record for profile data
+        TADA.ConsolidatedDepth.Bottom = ifelse(DepthsPerGroup > 1 
+                                               & is.na(
+                                                 TADA.ActivityBottomDepthHeightMeasure.MeasureValue), 
+                                               max(TADA.ConsolidatedDepth, na.rm = TRUE), 
+                                               TADA.ActivityBottomDepthHeightMeasure.MeasureValue)
       ) %>%
       dplyr::ungroup() %>%
       # assign depth categories by using depth information
       dplyr::mutate(TADA.DepthCategory.Flag = dplyr::case_when(
         TADA.ConsolidatedDepth <= surfacevalue ~ "Surface",
-        TADA.ConsolidatedDepth <= TADA.ConsolidatedDepth.Bottom & TADA.ConsolidatedDepth >= TADA.ConsolidatedDepth.Bottom - bottomvalue ~ "Bottom",
-        TADA.ConsolidatedDepth > surfacevalue & TADA.ConsolidatedDepth < TADA.ConsolidatedDepth.Bottom - bottomvalue ~ "Middle"
+        TADA.ConsolidatedDepth <= TADA.ConsolidatedDepth.Bottom & TADA.ConsolidatedDepth >= 
+          TADA.ConsolidatedDepth.Bottom - bottomvalue ~ "Bottom",
+        TADA.ConsolidatedDepth > surfacevalue & TADA.ConsolidatedDepth < 
+          TADA.ConsolidatedDepth.Bottom - bottomvalue ~ "Middle"
       )) %>%
       # assign depth categories that could not be assigned using depth
       dplyr::left_join(ard.ref, by = "ActivityRelativeDepthName") %>%
       dplyr::mutate(
-        TADA.DepthCategory.Flag = ifelse(is.na(TADA.DepthCategory.Flag), ARD_Category, TADA.DepthCategory.Flag),
-        TADA.DepthCategory.Flag = ifelse(is.na(TADA.ActivityDepthHeightMeasure.MeasureValue) & is.na(TADA.ConsolidatedDepth.Bottom) & is.na(TADA.ResultDepthHeightMeasure.MeasureValue) & is.na(TADA.DepthCategory.Flag), "No depth info", TADA.DepthCategory.Flag),
-        TADA.DepthCategory.Flag = ifelse(is.na(TADA.DepthCategory.Flag), "Not enough depth info to determine category", TADA.DepthCategory.Flag)
+        TADA.DepthCategory.Flag = ifelse(is.na(TADA.DepthCategory.Flag), ARD_Category, 
+                                         TADA.DepthCategory.Flag),
+        TADA.DepthCategory.Flag = ifelse(is.na(TADA.ActivityDepthHeightMeasure.MeasureValue) 
+                                         & is.na(TADA.ConsolidatedDepth.Bottom) 
+                                         & is.na(TADA.ResultDepthHeightMeasure.MeasureValue) 
+                                         & is.na(TADA.DepthCategory.Flag), "No depth info", 
+                                         TADA.DepthCategory.Flag),
+        TADA.DepthCategory.Flag = ifelse(is.na(TADA.DepthCategory.Flag), 
+                                         "Not enough depth info to determine category", 
+                                         TADA.DepthCategory.Flag)
       ) %>%
       dplyr::select(-ARD_Category, -DepthsPerGroup)
 
     if (depth.count == 0) {
-      print(paste("TADA_FlagDepthCategory: checking data set for depth values. No results have depth values available, TADA_FlagDepthCategory cannot be used on this data set.", sep = ""))
+      print(paste0("TADA_FlagDepthCategory: checking data set for depth values. No results ",
+                   "have depth values available, TADA_FlagDepthCategory cannot be used on ",
+                   "this data set.", sep = ""))
 
       return(.data)
     }
@@ -218,7 +243,9 @@ TADA_FlagDepthCategory <- function(.data, bycategory = "no", bottomvalue = 2, su
   }
 
   if (bycategory == "all") {
-    print("TADA_FlagDepthCategory: Grouping results by MonitoringLocationIdentifier, OrganizationIdentifier, CharacteristicName, ActivityStartDate, and TADA.DepthCategory.Flag for aggregation by TADA.DepthCategory.Flag.")
+    print(paste0("TADA_FlagDepthCategory: Grouping results by MonitoringLocationIdentifier, ",
+                 "OrganizationIdentifier, CharacteristicName, ActivityStartDate, and ",
+                 "TADA.DepthCategory.Flag for aggregation by TADA.DepthCategory.Flag."))
 
     group.list <- c(
       "MonitoringLocationIdentifier", "OrganizationIdentifier",
@@ -230,7 +257,9 @@ TADA_FlagDepthCategory <- function(.data, bycategory = "no", bottomvalue = 2, su
   }
 
   if (bycategory == "no") {
-    print("TADA_FlagDepthCategory: Grouping results by MonitoringLocationIdentifier, OrganizationIdentifier, CharacteristicName, and ActivityStartDate for aggregation for entire water column.")
+    print(paste0("TADA_FlagDepthCategory: Grouping results by MonitoringLocationIdentifier, ",
+                 "OrganizationIdentifier, CharacteristicName, and ActivityStartDate for ",
+                 "aggregation for entire water column."))
 
     group.list <- c(
       "MonitoringLocationIdentifier", "OrganizationIdentifier",
@@ -241,7 +270,9 @@ TADA_FlagDepthCategory <- function(.data, bycategory = "no", bottomvalue = 2, su
   }
 
   if (bycategory == "surface") {
-    print("TADA_FlagDepthCategory: Grouping results by MonitoringLocationIdentifier, OrganizationIdentifier, CharacteristicName, and ActivityStartDate for aggregation for surface samples only.")
+    print(paste0("TADA_FlagDepthCategory: Grouping results by MonitoringLocationIdentifier, ",
+                 "OrganizationIdentifier, CharacteristicName, and ActivityStartDate for ",
+                 "aggregation for surface samples only."))
 
     group.list <- c(
       "MonitoringLocationIdentifier", "OrganizationIdentifier",
@@ -253,7 +284,9 @@ TADA_FlagDepthCategory <- function(.data, bycategory = "no", bottomvalue = 2, su
   }
 
   if (bycategory == "middle") {
-    print("TADA_FlagDepthCategory: Grouping results by MonitoringLocationIdentifier, OrganizationIdentifier, CharacteristicName, and ActivityStartDate for aggregation for middle samples only.")
+    print(paste0("TADA_FlagDepthCategory: Grouping results by MonitoringLocationIdentifier, ",
+                 "OrganizationIdentifier, CharacteristicName, and ActivityStartDate for ",
+                 "aggregation for middle samples only."))
 
     group.list <- c(
       "MonitoringLocationIdentifier", "OrganizationIdentifier",
@@ -265,7 +298,9 @@ TADA_FlagDepthCategory <- function(.data, bycategory = "no", bottomvalue = 2, su
   }
 
   if (bycategory == "bottom") {
-    print("TADA_FlagDepthCategory: Grouping results by MonitoringLocationIdentifier, OrganizationIdentifier, CharacteristicName, and ActivityStartDate for aggregation for bottom samples only.")
+    print(paste0("TADA_FlagDepthCategory: Grouping results by MonitoringLocationIdentifier, ",
+                 "OrganizationIdentifier, CharacteristicName, and ActivityStartDate for ",
+                 "aggregation for bottom samples only."))
 
     group.list <- c(
       "MonitoringLocationIdentifier", "OrganizationIdentifier",
@@ -283,7 +318,9 @@ TADA_FlagDepthCategory <- function(.data, bycategory = "no", bottomvalue = 2, su
     orig.data <- .data %>%
       dplyr::group_by_at(group.list) %>%
       dplyr::mutate(DepthsByGroup = length(unique(TADA.ConsolidatedDepth))) %>%
-      dplyr::mutate(TADA.DepthProfileAggregation.Flag = ifelse(DepthsByGroup > 1, "No aggregation perfomed", "No aggregation needed")) %>%
+      dplyr::mutate(TADA.DepthProfileAggregation.Flag = ifelse(DepthsByGroup > 1, 
+                                                               "No aggregation perfomed", 
+                                                               "No aggregation needed")) %>%
       dplyr::select(-DepthsByGroup) %>%
       dplyr::ungroup() %>%
       TADA_OrderCols()
@@ -297,18 +334,25 @@ TADA_FlagDepthCategory <- function(.data, bycategory = "no", bottomvalue = 2, su
     }
   }
   if ((dailyagg == "avg")) {
-    print("TADA_FlagDepthCategory: Calculating mean aggregate value with randomly selected metadata.")
+    print(paste0("TADA_FlagDepthCategory: Calculating mean aggregate value with randomly ",
+                 "selected metadata."))
 
     # add TADA.ResultValue.Aggregation.Flag and remove unnecessary columns in original data set
     orig.data <- .data %>%
       dplyr::group_by_at(group.list) %>%
       dplyr::mutate(DepthsByGroup = length(unique(TADA.ConsolidatedDepth))) %>%
       dplyr::mutate(
-        TADA.DepthProfileAggregation.Flag = ifelse(DepthsByGroup > 1, paste("Used in averaging results ", cattype, " but not selected as aggregate value"), "No aggregation needed"),
-        TADA.DepthProfileAggregation.Flag = ifelse(!TADA.DepthCategory.Flag %in% depthcat.list, "No aggregation needed", TADA.DepthProfileAggregation.Flag)
+        TADA.DepthProfileAggregation.Flag = ifelse(DepthsByGroup > 1, 
+                                                   paste("Used in averaging results ", cattype, 
+                                                         " but not selected as aggregate value"), 
+                                                   "No aggregation needed"),
+        TADA.DepthProfileAggregation.Flag = ifelse(!TADA.DepthCategory.Flag %in% depthcat.list, 
+                                                   "No aggregation needed", 
+                                                   TADA.DepthProfileAggregation.Flag)
       )
 
-    # add TADA.ResultValue.Aggregation.Flag, remove necessary columns, calculate mean result value per group, and assign random metadata from group.
+    # add TADA.ResultValue.Aggregation.Flag, remove necessary columns, calculate mean result value 
+    # per group, and assign random metadata from group.
     agg.data <- orig.data %>%
       dplyr::filter(
         DepthsByGroup > 1,
@@ -316,7 +360,11 @@ TADA_FlagDepthCategory <- function(.data, bycategory = "no", bottomvalue = 2, su
       ) %>%
       dplyr::mutate(TADA.ResultMeasureValue1 = mean(TADA.ResultMeasureValue, na.rm = TRUE)) %>%
       dplyr::slice_sample(n = 1) %>%
-      dplyr::mutate(TADA.DepthProfileAggregation.Flag = paste0("Calculated mean aggregate value ", cattype, ", with randomly selected metadata from a row in the aggregate group")) %>%
+      dplyr::mutate(TADA.DepthProfileAggregation.Flag = paste0("Calculated mean aggregate value ", 
+                                                               cattype, 
+                                                               ", with randomly selected ",
+                                                               "metadata from a row in the ",
+                                                               "aggregate group")) %>%
       dplyr::select(-TADA.ResultMeasureValue, -DepthsByGroup) %>%
       dplyr::rename(TADA.ResultMeasureValue = TADA.ResultMeasureValue1) %>%
       dplyr::mutate(ResultIdentifier = paste0("TADA-", ResultIdentifier)) %>%
@@ -348,18 +396,25 @@ TADA_FlagDepthCategory <- function(.data, bycategory = "no", bottomvalue = 2, su
       dplyr::group_by_at(group.list) %>%
       dplyr::mutate(DepthsByGroup = length(unique(TADA.ConsolidatedDepth))) %>%
       dplyr::mutate(
-        TADA.DepthProfileAggregation.Flag = ifelse(DepthsByGroup > 1, paste("Used in minimum aggregation ", cattype, "but not selected"), "No aggregation needed"),
-        TADA.DepthProfileAggregation.Flag = ifelse(!TADA.DepthCategory.Flag %in% depthcat.list, "No aggregation needed", TADA.DepthProfileAggregation.Flag)
+        TADA.DepthProfileAggregation.Flag = ifelse(DepthsByGroup > 1, 
+                                                   paste("Used in minimum aggregation ", cattype, 
+                                                         "but not selected"),
+                                                   "No aggregation needed"),
+        TADA.DepthProfileAggregation.Flag = ifelse(!TADA.DepthCategory.Flag %in% depthcat.list, 
+                                                   "No aggregation needed", 
+                                                   TADA.DepthProfileAggregation.Flag)
       )
 
-    # add TADA.ResultValue.Aggregation.Flag, remove necessary columns, and select minimum result value per group.
+    # add TADA.ResultValue.Aggregation.Flag, remove necessary columns, and select minimum result 
+    # value per group.
     agg.data <- orig.data %>%
       dplyr::filter(
         DepthsByGroup > 1,
         TADA.DepthCategory.Flag %in% depthcat.list
       ) %>%
       dplyr::slice_min(order_by = TADA.ResultMeasureValue, n = 1, with_ties = FALSE) %>%
-      dplyr::mutate(TADA.DepthProfileAggregation.Flag = paste0("Selected as min aggregate value ", cattype)) %>%
+      dplyr::mutate(TADA.DepthProfileAggregation.Flag = paste0("Selected as min aggregate value ", 
+                                                               cattype)) %>%
       dplyr::select(-DepthsByGroup) %>%
       dplyr::ungroup()
 
@@ -398,16 +453,21 @@ TADA_FlagDepthCategory <- function(.data, bycategory = "no", bottomvalue = 2, su
     orig.data <- .data %>%
       dplyr::group_by_at(group.list) %>%
       dplyr::mutate(DepthsByGroup = length(unique(TADA.ConsolidatedDepth))) %>%
-      dplyr::mutate(TADA.DepthProfileAggregation.Flag = ifelse(DepthsByGroup > 1, paste("Used in maximum aggregation ", cattype, "but not selected"), "No aggregation needed"))
+      dplyr::mutate(TADA.DepthProfileAggregation.Flag = ifelse(DepthsByGroup > 1, 
+                                                               paste("Used in maximum aggregation ", 
+                                                                     cattype, "but not selected"), 
+                                                               "No aggregation needed"))
 
-    # add TADA.ResultValue.Aggregation.Flag, remove necessary columns, and select maximum result value per group.
+    # add TADA.ResultValue.Aggregation.Flag, remove necessary columns, and select maximum result 
+    # value per group.
     agg.data <- orig.data %>%
       dplyr::filter(
         DepthsByGroup > 1,
         TADA.DepthCategory.Flag %in% depthcat.list
       ) %>%
       dplyr::slice_max(order_by = TADA.ResultMeasureValue, n = 1, with_ties = FALSE) %>%
-      dplyr::mutate(TADA.DepthProfileAggregation.Flag = paste0("Selected as max aggregate value ", cattype)) %>%
+      dplyr::mutate(TADA.DepthProfileAggregation.Flag = paste0("Selected as max aggregate value ", 
+                                                               cattype)) %>%
       dplyr::mutate(ResultIdentifier = paste0("TADA-", ResultIdentifier)) %>%
       dplyr::select(-DepthsByGroup) %>%
       dplyr::ungroup()
@@ -494,7 +554,8 @@ TADA_FlagDepthCategory <- function(.data, bycategory = "no", bottomvalue = 2, su
 #' data(Data_6Tribes_5y)
 #'
 #' # find depth profile data without showing number of results
-#' Data_6Tribes_5y_DepthProfileID_Nresults <- TADA_IDDepthProfiles(Data_6Tribes_5y, nresults = FALSE)
+#' Data_6Tribes_5y_DepthProfileID_Nresults <- TADA_IDDepthProfiles(Data_6Tribes_5y, 
+#'                                                                 nresults = FALSE)
 #'
 #' # find depth profile data showing number of results
 #' Data_6Tribes_5y_DepthProfileID <- TADA_IDDepthProfiles(Data_6Tribes_5y)
@@ -509,13 +570,15 @@ TADA_IDDepthProfiles <- function(.data, nresults = TRUE, nvalue = 2, aggregates 
   )
 
   if (all(flag.func.cols %in% colnames(.data)) == TRUE) {
-    print("TADA_IDDepthProfiles: Necessary columns from TADA_FlagDepthCategory function are included in the data frame.")
+    print("TADA_IDDepthProfiles: Necessary columns from TADA_FlagDepthCategory function are 
+          included in the data frame.")
 
     .data <- .data
   }
 
   if (any(flag.func.cols %in% colnames(.data)) == FALSE) {
-    print("TADA_IDDepthProfiles: Necessary columns are being added to the data frame using TADA_DepthCatgegory.Flag function.")
+    print("TADA_IDDepthProfiles: Necessary columns are being added to the data frame using 
+          TADA_DepthCatgegory.Flag function.")
 
     .data <- TADA_FlagDepthCategory(.data)
   }
@@ -525,7 +588,9 @@ TADA_IDDepthProfiles <- function(.data, nresults = TRUE, nvalue = 2, aggregates 
   if (aggregates == FALSE) {
     if ("TADA.DepthProfileAggregation.Flag" %in% names(.data) == TRUE) {
       .data <- .data %>%
-        dplyr::filter(TADA.DepthProfileAggregation.Flag != c("Calculated mean aggregate value, with randomly selected metadata from a row in the aggregate group"))
+        dplyr::filter(TADA.DepthProfileAggregation.Flag != c("Calculated mean aggregate value, 
+                                                             with randomly selected metadata from ",
+                                                             "a row in the aggregate group"))
 
       if ("TADA.DepthProfileAggregation.Flag" %in% names(.data) == FALSE) {
         .data <- .data
@@ -543,8 +608,9 @@ TADA_IDDepthProfiles <- function(.data, nresults = TRUE, nvalue = 2, aggregates 
     .data <- .data %>%
       dplyr::select(
         MonitoringLocationIdentifier, MonitoringLocationName, MonitoringLocationTypeName,
-        OrganizationIdentifier, ActivityStartDate, TADA.CharacteristicName, TADA.ComparableDataIdentifier,
-        TADA.ConsolidatedDepth, TADA.ConsolidatedDepth.Unit, TADA.ConsolidatedDepth.Bottom
+        OrganizationIdentifier, ActivityStartDate, TADA.CharacteristicName, 
+        TADA.ComparableDataIdentifier, TADA.ConsolidatedDepth, TADA.ConsolidatedDepth.Unit, 
+        TADA.ConsolidatedDepth.Bottom
       ) %>%
       dplyr::group_by(
         MonitoringLocationIdentifier, OrganizationIdentifier, ActivityStartDate,
@@ -560,7 +626,8 @@ TADA_IDDepthProfiles <- function(.data, nresults = TRUE, nvalue = 2, aggregates 
       dplyr::filter(TADA.NResults >= nvalue | TADA.CharacteristicName %in% depth.params) %>%
       dplyr::ungroup() %>%
       dplyr::group_by(MonitoringLocationIdentifier, OrganizationIdentifier, ActivityStartDate) %>%
-      # check that for results with only a single depth unit (ex: secchi disk depth) that other results are available in group
+      # check that for results with only a single depth unit (ex: secchi disk depth) that other 
+      # results are available in group
       dplyr::mutate(MeanResults = mean(TADA.NResults)) %>%
       dplyr::filter(MeanResults > 1) %>%
       dplyr::mutate(
@@ -568,11 +635,13 @@ TADA_IDDepthProfiles <- function(.data, nresults = TRUE, nvalue = 2, aggregates 
           unique(TADA.CharacteristicsForDepthProfile), ";",
           collapse = ""
         ),
-        TADA.CharacteristicsForDepthProfile = stringr::str_replace_all(paste(sort(unique(unlist(strsplit(TADA.CharacteristicsForDepthProfile, ";", )))), collapse = ";"), " ;", "; ")
+        TADA.CharacteristicsForDepthProfile = 
+          stringr::str_replace_all(paste(sort(unique(unlist(strsplit(
+            TADA.CharacteristicsForDepthProfile, ";", )))), collapse = ";"), " ;", "; ")
       ) %>%
       dplyr::select(
-        MonitoringLocationIdentifier, MonitoringLocationName, MonitoringLocationTypeName, OrganizationIdentifier, ActivityStartDate,
-        TADA.CharacteristicsForDepthProfile
+        MonitoringLocationIdentifier, MonitoringLocationName, MonitoringLocationTypeName, 
+        OrganizationIdentifier, ActivityStartDate, TADA.CharacteristicsForDepthProfile
       ) %>%
       unique()
 
@@ -583,8 +652,9 @@ TADA_IDDepthProfiles <- function(.data, nresults = TRUE, nvalue = 2, aggregates 
     .data <- .data %>%
       dplyr::select(
         MonitoringLocationIdentifier, MonitoringLocationName, MonitoringLocationTypeName,
-        OrganizationIdentifier, ActivityStartDate, TADA.CharacteristicName, TADA.ComparableDataIdentifier,
-        TADA.ConsolidatedDepth, TADA.ConsolidatedDepth.Unit, TADA.ConsolidatedDepth.Bottom
+        OrganizationIdentifier, ActivityStartDate, TADA.CharacteristicName, 
+        TADA.ComparableDataIdentifier, TADA.ConsolidatedDepth, TADA.ConsolidatedDepth.Unit, 
+        TADA.ConsolidatedDepth.Bottom
       ) %>%
       dplyr::group_by(
         MonitoringLocationIdentifier, OrganizationIdentifier, ActivityStartDate,
@@ -594,7 +664,8 @@ TADA_IDDepthProfiles <- function(.data, nresults = TRUE, nvalue = 2, aggregates 
       dplyr::filter(TADA.NResults >= nvalue | TADA.CharacteristicName %in% depth.params) %>%
       dplyr::ungroup() %>%
       dplyr::group_by(MonitoringLocationIdentifier, OrganizationIdentifier, ActivityStartDate) %>%
-      # check that for results with only a single depth unit (ex: secchi disk depth) that other results are available in group
+      # check that for results with only a single depth unit (ex: secchi disk depth) that other 
+      # results are available in group
       dplyr::mutate(MeanResults = mean(TADA.NResults)) %>%
       dplyr::filter(MeanResults > 1) %>%
       dplyr::mutate(
@@ -602,11 +673,13 @@ TADA_IDDepthProfiles <- function(.data, nresults = TRUE, nvalue = 2, aggregates 
           unique(TADA.ComparableDataIdentifier), ";",
           collapse = ""
         ),
-        TADA.CharacteristicsForDepthProfile = stringr::str_replace_all(paste(sort(unique(unlist(strsplit(TADA.CharacteristicsForDepthProfile, ";", )))), collapse = ";"), " ;", "; ")
+        TADA.CharacteristicsForDepthProfile = 
+          stringr::str_replace_all(paste(sort(unique(unlist(strsplit(
+            TADA.CharacteristicsForDepthProfile, ";", )))), collapse = ";"), " ;", "; ")
       ) %>%
       dplyr::select(
-        MonitoringLocationIdentifier, MonitoringLocationName, MonitoringLocationTypeName, OrganizationIdentifier, ActivityStartDate,
-        TADA.CharacteristicsForDepthProfile
+        MonitoringLocationIdentifier, MonitoringLocationName, MonitoringLocationTypeName, 
+        OrganizationIdentifier, ActivityStartDate, TADA.CharacteristicsForDepthProfile
       ) %>%
       unique()
 
@@ -668,7 +741,8 @@ TADA_IDDepthProfiles <- function(.data, nresults = TRUE, nvalue = 2, aggregates 
 #'
 #' # Load example data frame:
 #' data(Data_6Tribes_5y_Harmonized)
-#' # Create a depth profile figure with two parameters for a single monitoring location and date without displaying depth categories
+#' # Create a depth profile figure with two parameters for a single monitoring location and date 
+#' # without displaying depth categories
 #' TADA_DepthProfilePlot(Data_6Tribes_5y_Harmonized,
 #'   groups = c("CONDUCTIVITY_NA_NA_US/CM", "DISSOLVED OXYGEN (DO)_NA_NA_MG/L"),
 #'   location = "REDLAKE_WQX-JOHN",
@@ -688,7 +762,8 @@ TADA_DepthProfilePlot <- function(.data,
     .data <- .data
 
     if (!"TADA.ComparableDataIdentifier" %in% colnames(.data)) {
-      print("TADA.ComparableDataIdentifier column not present in data set. Run TADA_CreateComparableID to create TADA.ComparableDataIdentifier.")
+      print(paste0("TADA.ComparableDataIdentifier column not present in data set. ",
+                   "Run TADA_CreateComparableID to create TADA.ComparableDataIdentifier."))
 
       stop()
     }
@@ -705,13 +780,15 @@ TADA_DepthProfilePlot <- function(.data,
   )
 
   if (all(flag.func.cols %in% colnames(.data)) == TRUE) {
-    print("TADA_DepthProfilePlot: Necessary columns from TADA_FlagDepthCategory function are included in the data frame")
+    print(paste0("TADA_DepthProfilePlot: Necessary columns from TADA_FlagDepthCategory function ",
+                 "are included in the data frame"))
 
     .data <- .data
   }
 
   if (any(flag.func.cols %in% colnames(.data)) == FALSE) {
-    print("TADA_DepthProfilePlot: Running TADA_FlagDepthCategory function to add required columns to data frame")
+    print(paste0("TADA_DepthProfilePlot: Running TADA_FlagDepthCategory function ",
+                 "to add required columns to data frame"))
 
 
     if (bottomvalue == "null" & surfacevalue == "null") {
@@ -722,33 +799,40 @@ TADA_DepthProfilePlot <- function(.data,
 
     if (surfacevalue == "null" & is.numeric(bottomvalue)) {
       .data <- TADA_FlagDepthCategory(.data, surfacevalue = 2, bottomvalue = bottomvalue) %>%
-        dplyr::mutate(TADA.DepthCatgeory.Flag = ifelse(TADA.DepthCategory.Flag %in% c("Surface", "Middle"),
+        dplyr::mutate(TADA.DepthCatgeory.Flag = ifelse(TADA.DepthCategory.Flag %in% 
+                                                         c("Surface", "Middle"),
           NA, TADA.DepthCategory.Flag
         ))
     }
 
     if (bottomvalue == "null" & is.numeric(surfacevalue)) {
       .data <- TADA_FlagDepthCategory(.data, surfacevalue = surfacevalue, bottomvalue = 2) %>%
-        dplyr::mutate(TADA.DepthCatgeory.Flag = ifelse(TADA.DepthCategory.Flag %in% c("Bottom", "Middle"),
+        dplyr::mutate(TADA.DepthCatgeory.Flag = ifelse(TADA.DepthCategory.Flag %in% 
+                                                         c("Bottom", "Middle"),
           NA, TADA.DepthCategory.Flag
         ))
     }
 
     if (is.numeric(bottomvalue) & is.numeric(surfacevalue)) {
-      .data <- TADA_FlagDepthCategory(.data, surfacevalue = surfacevalue, bottomvalue = bottomvalue)
+      .data <- TADA_FlagDepthCategory(.data, surfacevalue = surfacevalue, 
+                                      bottomvalue = bottomvalue)
     }
   }
 
-  # add convert depth unit (this still needs to be added), for now print warning and stop function if units don't match
+  # add convert depth unit (this still needs to be added), for now print warning and stop function 
+  # if units don't match
   .data <- .data %>% dplyr::filter(!is.na(TADA.ConsolidatedDepth))
 
   if (.data$TADA.ConsolidatedDepth.Unit[1] == unit) {
-    print("TADA_DepthProfilePlot: Depth unit in data set matches depth unit specified by user for plot. No conversion necessary.")
+    print(paste0("TADA_DepthProfilePlot: Depth unit in data set matches depth unit specified by ",
+                 "user for plot. No conversion necessary."))
 
     .data <- .data
 
     if (.data$TADA.ConsolidatedDepth.Unit[1] != unit) {
-      stop("TADA_DepthProfilePlot: Depth unit in data set does not match depth unit specified by user for plot. Convert units in data or specify correct unit in TADA_DepthProfilePlot function.")
+      stop(paste0("TADA_DepthProfilePlot: Depth unit in data set does not match depth unit ",
+                  "specified by user for plot. Convert units in data or specify correct unit ",
+                  "in TADA_DepthProfilePlot function."))
     }
   }
 
@@ -758,7 +842,8 @@ TADA_DepthProfilePlot <- function(.data,
 
 
   if (is.null(location)) {
-    print("TADA_DepthProfilePlot: No MonitoringLocationIdentifier selected, a depth profile cannot be generated.")
+    print(paste0("TADA_DepthProfilePlot: No MonitoringLocationIdentifier selected, ",
+                 "a depth profile cannot be generated."))
 
     stop()
 
@@ -774,7 +859,8 @@ TADA_DepthProfilePlot <- function(.data,
   }
 
   if (is.null(activity_date)) {
-    print("TADA_DepthProfilePlot: No ActivityStartDate selected, a depth profile cannot be generated.")
+    print(paste0("TADA_DepthProfilePlot: No ActivityStartDate selected, ",
+                 "a depth profile cannot be generated."))
 
     stop()
 
@@ -798,37 +884,46 @@ TADA_DepthProfilePlot <- function(.data,
       groups.length <- length(groups)
 
       if (groups.length > 0) {
-        if (stringr::str_detect(param.check$TADA.CharacteristicsForDepthProfile, groups[1]) == FALSE) {
-          print("TADA_DepthProfilePlot: First of groups for depth profile plot does not exist in data set.")
+        if (stringr::str_detect(param.check$TADA.CharacteristicsForDepthProfile, 
+                                groups[1]) == FALSE) {
+          print(paste0("TADA_DepthProfilePlot: First of groups for depth profile plot does not ",
+                       "exist in data set."))
         }
 
         stop()
 
-        if (stringr::str_detect(param.check$TADA.CharacteristicsForDepthProfile, groups[1]) == TRUE) {
+        if (stringr::str_detect(param.check$TADA.CharacteristicsForDepthProfile, 
+                                groups[1]) == TRUE) {
           print("TADA:DepthProfilePlot: First of groups for depth profile exists in data set.")
         }
       }
 
       if (groups.length > 1) {
-        if (stringr::str_detect(param.check$TADA.CharacteristicsForDepthProfile, groups[2]) == FALSE) {
-          print("TADA_DepthProfilePlot: Second of groups for depth profile plot does not exist in data set.")
+        if (stringr::str_detect(param.check$TADA.CharacteristicsForDepthProfile, 
+                                groups[2]) == FALSE) {
+          print(paste0("TADA_DepthProfilePlot: Second of groups for depth profile plot does not ",
+                       "exist in data set."))
         }
 
         stop()
 
-        if (stringr::str_detect(param.check$TADA.CharacteristicsForDepthProfile, groups[2]) == TRUE) {
+        if (stringr::str_detect(param.check$TADA.CharacteristicsForDepthProfile, 
+                                groups[2]) == TRUE) {
           print("TADA:DepthProfilePlot: Second of groups for depth profile exists in data set.")
         }
       }
 
       if (groups.length > 2) {
-        if (stringr::str_detect(param.check$TADA.CharacteristicsForDepthProfile, groups[3]) == FALSE) {
-          print("TADA_DepthProfilePlot: Third of groups for depth profile plot does not exist in data set.")
+        if (stringr::str_detect(param.check$TADA.CharacteristicsForDepthProfile, 
+                                groups[3]) == FALSE) {
+          print(paste0("TADA_DepthProfilePlot: Third of groups for depth profile plot does not ",
+                       "exist in data set."))
         }
 
         stop()
 
-        if (stringr::str_detect(param.check$TADA.CharacteristicsForDepthProfile, groups[3]) == TRUE) {
+        if (stringr::str_detect(param.check$TADA.CharacteristicsForDepthProfile, 
+                                groups[3]) == TRUE) {
           print("TADA:DepthProfilePlot: Third of groups for depth profile exists in data set.")
         }
       }
@@ -956,7 +1051,8 @@ TADA_DepthProfilePlot <- function(.data,
       dplyr::ungroup()
 
     if (unique(depth.params.avail$TADA.ConsolidatedDepth.Unit) == fig.depth.unit) {
-      print(paste("TADA_DepthProfilePlot: Any results for", depth.params.string, "match the depth unit selected for the figure."))
+      print(paste("TADA_DepthProfilePlot: Any results for", depth.params.string, 
+                  "match the depth unit selected for the figure."))
 
       depth.params.avail <- depth.params.avail
 
@@ -971,7 +1067,8 @@ TADA_DepthProfilePlot <- function(.data,
 
         result.units <- c("m", "ft", "in", "ft", "in", "m", "in", "m", "ft", "cm", "cm", "cm")
 
-        convert.factor <- c("1", "1", "1", "0.3048", "0.0254", "3.281", "0.083", "39.3701", "12", "0.01", "0.032808", "0.39")
+        convert.factor <- c("1", "1", "1", "0.3048", "0.0254", "3.281", "0.083", "39.3701", 
+                            "12", "0.01", "0.032808", "0.39")
 
         secchi.conversion <- data.frame(result.units, depth.units, convert.factor) %>%
           dplyr::rename(
@@ -1003,8 +1100,13 @@ TADA_DepthProfilePlot <- function(.data,
   # this subset must include all fields included in plot hover below
   plot.data <- profile.data %>%
     dplyr::filter(dplyr::if_any(TADA.ComparableDataIdentifier, ~ .x %in% groups)) %>%
-    dplyr::select(dplyr::all_of(reqcols), "TADA.ComparableDataIdentifier", "ActivityStartDateTime", "MonitoringLocationName", "TADA.ActivityMediaName", "ActivityMediaSubdivisionName", "ActivityRelativeDepthName", "TADA.CharacteristicName", "TADA.MethodSpeciationName", "TADA.ResultSampleFractionText") %>%
-    dplyr::mutate(TADA.ResultMeasure.MeasureUnitCode = ifelse(is.na(TADA.ResultMeasure.MeasureUnitCode),
+    dplyr::select(dplyr::all_of(reqcols), "TADA.ComparableDataIdentifier", 
+                  "ActivityStartDateTime", "MonitoringLocationName", "TADA.ActivityMediaName", 
+                  "ActivityMediaSubdivisionName", "ActivityRelativeDepthName", 
+                  "TADA.CharacteristicName", "TADA.MethodSpeciationName", 
+                  "TADA.ResultSampleFractionText") %>%
+    dplyr::mutate(TADA.ResultMeasure.MeasureUnitCode = ifelse(is.na(
+      TADA.ResultMeasure.MeasureUnitCode),
       "NA", TADA.ResultMeasure.MeasureUnitCode
     ))
 
@@ -1077,15 +1179,18 @@ TADA_DepthProfilePlot <- function(.data,
     l = 50,
     r = 50,
     b = 100,
-    t = (25 + (ceiling(nchar(title) / 50)) * 25), # top margin is variable based on number of lines in title
+    # top margin is variable based on number of lines in title
+    t = (25 + (ceiling(nchar(title) / 50)) * 25), 
     pad = 0
   )
 
   # determine x + y max and range for plotting
-  xmax <- max(plot.data$TADA.ResultMeasureValue, na.rm = TRUE) + 0.5 * max(plot.data$TADA.ResultMeasureValue, na.rm = TRUE)
+  xmax <- max(plot.data$TADA.ResultMeasureValue, na.rm = TRUE) + 
+    0.5 * max(plot.data$TADA.ResultMeasureValue, na.rm = TRUE)
   xrange <- c(0, xmax)
 
-  ymax <- max(plot.data$TADA.ConsolidatedDepth, na.rm = TRUE) + 0.1 * max(plot.data$TADA.ConsolidatedDepth, na.rm = TRUE)
+  ymax <- max(plot.data$TADA.ConsolidatedDepth, na.rm = TRUE) + 
+    0.1 * max(plot.data$TADA.ConsolidatedDepth, na.rm = TRUE)
   yrange <- c(0, ymax)
 
   # set palette
@@ -1131,7 +1236,7 @@ TADA_DepthProfilePlot <- function(.data,
   if (length(groups) >= 1 & !param1$TADA.CharacteristicName[1] %in% depth.params) {
     # config options https://plotly.com/r/configuration-options/
     scatterplot <- scatterplot %>%
-      plotly::config(displaylogo = FALSE) %>% # , displayModeBar = TRUE) # TRUE makes bar always visible
+      plotly::config(displaylogo = FALSE) %>% 
       plotly::add_trace(
         data = param1,
         x = ~TADA.ResultMeasureValue,
@@ -1149,7 +1254,8 @@ TADA_DepthProfilePlot <- function(.data,
         line = list(color = tada.pal[5], width = 2),
         hoverinfo = "text",
         hovertext = paste(
-          "Result:", paste0(param1$TADA.ResultMeasureValue, " ", param1$TADA.ResultMeasure.MeasureUnitCode), "<br>",
+          "Result:", paste0(param1$TADA.ResultMeasureValue, " ", 
+                            param1$TADA.ResultMeasure.MeasureUnitCode), "<br>",
           "Activity Start Date:", param1$ActivityStartDate, "<br>",
           "Activity Start Date Time:", param1$ActivityStartDateTime, "<br>",
           "Depth:", paste0(
@@ -1180,7 +1286,8 @@ TADA_DepthProfilePlot <- function(.data,
         line = list(color = tada.pal[10], dash = "dash"),
         hoverinfo = "text",
         hovertext = paste(
-          "Result:", paste0(param1$TADA.ResultMeasureValue, " ", param3$TADA.ResultMeasure.MeasureUnitCode), "<br>",
+          "Result:", paste0(param1$TADA.ResultMeasureValue, " ", 
+                            param3$TADA.ResultMeasure.MeasureUnitCode), "<br>",
           "Activity Start Date:", param1$ActivityStartDate, "<br>",
           "Activity Start Date Time:", param1$ActivityStartDateTime, "<br>",
           "Depth:", paste0(
@@ -1215,7 +1322,8 @@ TADA_DepthProfilePlot <- function(.data,
         line = list(color = tada.pal[3], width = 2),
         hoverinfo = "text",
         hovertext = paste(
-          "Result:", paste0(param2$TADA.ResultMeasureValue, " ", param2$TADA.ResultMeasure.MeasureUnitCode), "<br>",
+          "Result:", paste0(param2$TADA.ResultMeasureValue, " ", 
+                            param2$TADA.ResultMeasure.MeasureUnitCode), "<br>",
           "Activity Start Date:", param2$ActivityStartDate, "<br>",
           "Activity Start Date Time:", param2$ActivityStartDateTime, "<br>",
           "Depth:", paste0(
@@ -1247,7 +1355,8 @@ TADA_DepthProfilePlot <- function(.data,
         line = list(color = tada.pal[12], dash = "dash"),
         hoverinfo = "text",
         hovertext = ~ paste(
-          "Result:", paste0(param2$TADA.ResultMeasureValue, " ", param2$TADA.ResultMeasure.MeasureUnitCode), "<br>",
+          "Result:", paste0(param2$TADA.ResultMeasureValue, " ", 
+                            param2$TADA.ResultMeasure.MeasureUnitCode), "<br>",
           "Activity Start Date:", param2$ActivityStartDate, "<br>",
           "Activity Start Date Time:", param2$ActivityStartDateTime, "<br>",
           "Depth:", paste0(
@@ -1282,7 +1391,8 @@ TADA_DepthProfilePlot <- function(.data,
         line = list(color = tada.pal[9], width = 2),
         hoverinfo = "text",
         hovertext = paste(
-          "Result:", paste0(param3$TADA.ResultMeasureValue, " ", param2$TADA.ResultMeasure.MeasureUnitCode), "<br>",
+          "Result:", paste0(param3$TADA.ResultMeasureValue, " ", 
+                            param2$TADA.ResultMeasure.MeasureUnitCode), "<br>",
           "Activity Start Date:", param3$ActivityStartDate, "<br>",
           "Activity Start Date Time:", param3$ActivityStartDateTime, "<br>",
           "Depth:", paste0(
@@ -1314,7 +1424,8 @@ TADA_DepthProfilePlot <- function(.data,
         line = list(color = tada.pal[11], dash = "dash"),
         hoverinfo = "text",
         hovertext = paste(
-          "Result:", paste0(param3$TADA.ResultMeasureValue, " ", param3$TADA.ResultMeasure.MeasureUnitCode), "<br>",
+          "Result:", paste0(param3$TADA.ResultMeasureValue, " ", 
+                            param3$TADA.ResultMeasure.MeasureUnitCode), "<br>",
           "Activity Start Date:", param3$ActivityStartDate, "<br>",
           "Activity Start Date Time:", param3$ActivityStartDateTime, "<br>",
           "Depth:", paste0(
@@ -1331,7 +1442,8 @@ TADA_DepthProfilePlot <- function(.data,
 
   # add horizontal lines for depth profile category
   if (depthcat == TRUE & is.null(surfacevalue) & is.null(bottomvalue)) {
-    stop("TADA_DepthProfilePlot: No depth categories can be determined when both surfacevalue and bottomvalue are null. Supply one or both of these values and run the function again.")
+    stop("TADA_DepthProfilePlot: No depth categories can be determined when both surfacevalue and 
+         bottomvalue are null. Supply one or both of these values and run the function again.")
   }
 
   if ((depthcat == TRUE & !is.null(surfacevalue)) | (depthcat == TRUE & !is.null(bottomvalue))) {
@@ -1398,7 +1510,8 @@ TADA_DepthProfilePlot <- function(.data,
           showlegend = FALSE,
           line = list(color = tada.pal[1]),
           hoverinfo = "text",
-          hovertext = paste(round((bot.depth - bottomvalue), digits = 1), fig.depth.unit, sep = " ")
+          hovertext = paste(round((bot.depth - bottomvalue), digits = 1),
+                            fig.depth.unit, sep = " ")
         )
 
 

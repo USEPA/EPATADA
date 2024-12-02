@@ -19,9 +19,14 @@
 #' characteristicName must fall within the Characteristic Group when both are entered.
 #'
 #'
-#' Users can reference the \href{https://www.epa.gov/waterdata/storage-and-retrieval-and-water-quality-exchange-domain-services-and-downloads}{WQX domain tables}
-#' to find allowable values for queries, e.g., reference the WQX domain table to find countycode and statecode: https://cdx.epa.gov/wqx/download/DomainValues/County_CSV.zip
-#' Alternatively, you can use the WQP services to find areas where data is available in the US: https://www.waterqualitydata.us/Codes/countycode
+#' Users can reference the 
+#' \href
+#' {https://www.epa.gov/waterdata/storage-and-retrieval-and-water-quality-exchange-domain-services-and-downloads}
+#' {WQX domain tables}
+#' to find allowable values for queries, e.g., reference the WQX domain table to find countycode 
+#' and statecode: https://cdx.epa.gov/wqx/download/DomainValues/County_CSV.zip
+#' Alternatively, you can use the WQP services to find areas where data is available in the US: 
+#' https://www.waterqualitydata.us/Codes/countycode
 #'
 #' TADA_DataRetrieval automatically runs TADA_AutoClean on the incoming data frame. TADA_AutoClean
 #' is important for categorizing result value and detection limit data, as well as
@@ -33,19 +38,37 @@
 #'
 #' @param startDate Start Date string in the format YYYY-MM-DD, for example, "2020-01-01"
 #' @param endDate End Date string in the format YYYY-MM-DD, for example, "2020-01-01"
-#' @param countrycode Code that identifies a country or ocean (e.g. countrycode = "CA" for Canada, countrycode = "OA" for Atlantic Ocean). See https://www.waterqualitydata.us/Codes/countrycode for options.
-#' @param statecode FIPS state alpha code that identifies a state (e.g. statecode = "DE" for Delaware). See https://www.waterqualitydata.us/Codes/statecode for options.
-#' @param countycode FIPS county name. Note that a state code must also be supplied (e.g. statecode = "AL", countycode = "Chilton"). See https://www.waterqualitydata.us/Codes/countycode for options.
-#' @param huc A numeric code denoting a hydrologic unit. Example: "04030202". Different size hucs can be entered. See https://epa.maps.arcgis.com/home/item.html?id=796992f4588c401fabec7446ecc7a5a3 for a map with HUCS. Click on a HUC to find the associated code.
+#' @param countrycode Code that identifies a country or ocean (e.g. countrycode = "CA" for Canada, 
+#' countrycode = "OA" for Atlantic Ocean). See https://www.waterqualitydata.us/Codes/countrycode 
+#' for options.
+#' @param statecode FIPS state alpha code that identifies a state (e.g. statecode = "DE" for 
+#' Delaware). See https://www.waterqualitydata.us/Codes/statecode for options.
+#' @param countycode FIPS county name. Note that a state code must also be supplied (e.g. statecode 
+#' = "AL", countycode = "Chilton"). See https://www.waterqualitydata.us/Codes/countycode for 
+#' options.
+#' @param huc A numeric code denoting a hydrologic unit. Example: "04030202". Different size hucs 
+#' can be entered. 
+#' See https://epa.maps.arcgis.com/home/item.html?id=796992f4588c401fabec7446ecc7a5a3 for a map 
+#' with HUCS. Click on a HUC to find the associated code.
 #' @param siteid Unique monitoring location identifier.
-#' @param siteType Type of waterbody. See https://www.waterqualitydata.us/Codes/sitetype for options.
-#' @param characteristicName Name of parameter. See https://www.waterqualitydata.us/Codes/characteristicName for options.
-#' @param characteristicType Groups of environmental measurements/parameters. See https://www.waterqualitydata.us/Codes/characteristicType for options.
-#' @param sampleMedia Sampling substrate such as water, air, or sediment. See https://www.waterqualitydata.us/Codes/sampleMedia for options.
-#' @param organization A string of letters and/or numbers (some additional characters also possible) used to signify an organization with data in the Water Quality Portal. See https://www.waterqualitydata.us/Codes/organization for options.
-#' @param project A string of letters and/or numbers (some additional characters also possible) used to signify a project with data in the Water Quality Portal. See https://www.waterqualitydata.us/Codes/project for options.
-#' @param providers Leave blank to include all, or specify "STEWARDS", "STORET" (i.e., WQX), and/or "NWIS". See https://www.waterqualitydata.us/Codes/providers for options.
-#' @param applyautoclean Logical, defaults to TRUE. Applies TADA_AutoClean function on the returned data profile.
+#' @param siteType Type of waterbody. 
+#' See https://www.waterqualitydata.us/Codes/sitetype for options.
+#' @param characteristicName Name of parameter. 
+#' See https://www.waterqualitydata.us/Codes/characteristicName for options.
+#' @param characteristicType Groups of environmental measurements/parameters. 
+#' See https://www.waterqualitydata.us/Codes/characteristicType for options.
+#' @param sampleMedia Sampling substrate such as water, air, or sediment. 
+#' See https://www.waterqualitydata.us/Codes/sampleMedia for options.
+#' @param organization A string of letters and/or numbers (some additional characters also 
+#' possible) used to signify an organization with data in the Water Quality Portal. 
+#' See https://www.waterqualitydata.us/Codes/organization for options.
+#' @param project A string of letters and/or numbers (some additional characters also possible) 
+#' used to signify a project with data in the Water Quality Portal. 
+#' See https://www.waterqualitydata.us/Codes/project for options.
+#' @param providers Leave blank to include all, or specify "STEWARDS", "STORET" (i.e., WQX), and/or 
+#' "NWIS". See https://www.waterqualitydata.us/Codes/providers for options.
+#' @param applyautoclean Logical, defaults to TRUE. Applies TADA_AutoClean function on the returned 
+#' data profile.
 #'
 #' @return TADA-compatible dataframe
 #'
@@ -292,7 +315,9 @@ TADA_DataRetrieval <- function(startDate = "null",
   )
   # check if any results are available
   if ((nrow(results.DR) > 0) == FALSE) {
-    print("Returning empty results dataframe: Your WQP query returned no results (no data available). Try a different query. Removing some of your query filters OR broadening your search area may help.")
+    print(paste("Returning empty results dataframe: Your WQP query returned no results",
+                 " (no data available). Try a different query. Removing some of your query filters",
+                " OR broadening your search area may help."))
     TADAprofile.clean <- results.DR
   } else {
     sites.DR <- dataRetrieval::whatWQPsites(WQPquery)
@@ -438,18 +463,33 @@ TADA_ReadWQPWebServices <- function(webservice) {
 #'
 #' @param startDate Start Date string in the format YYYY-MM-DD, for example, "2020-01-01"
 #' @param endDate End Date string in the format YYYY-MM-DD, for example, "2020-01-01"
-#' @param countrycode Code that identifies a country or ocean (e.g. countrycode = "CA" for Canada, countrycode = "OA" for Atlantic Ocean). See https://www.waterqualitydata.us/Codes/countrycode for options.
-#' @param statecode FIPS state alpha code that identifies a state (e.g. statecode = "DE" for Delaware). See https://www.waterqualitydata.us/Codes/statecode for options.
-#' @param countycode FIPS county name. Note that a state code must also be supplied (e.g. statecode = "AL", countycode = "Chilton"). See https://www.waterqualitydata.us/Codes/countycode for options.
-#' @param huc A numeric code denoting a hydrologic unit. Example: "04030202". Different size hucs can be entered. See https://epa.maps.arcgis.com/home/item.html?id=796992f4588c401fabec7446ecc7a5a3 for a map with HUCS. Click on a HUC to find the associated code.
+#' @param countrycode Code that identifies a country or ocean (e.g. countrycode = "CA" for Canada, 
+#' countrycode = "OA" for Atlantic Ocean). 
+#' See https://www.waterqualitydata.us/Codes/countrycode for options.
+#' @param statecode FIPS state alpha code that identifies a state (e.g. statecode = "DE" 
+#' for Delaware). 
+#' See https://www.waterqualitydata.us/Codes/statecode for options.
+#' @param countycode FIPS county name. Note that a state code must also be supplied (e.g. statecode
+#'  = "AL", countycode = "Chilton"). 
+#'  See https://www.waterqualitydata.us/Codes/countycode for options.
+#' @param huc A numeric code denoting a hydrologic unit. Example: "04030202". Different size hucs 
+#' can be entered. 
+#' See https://epa.maps.arcgis.com/home/item.html?id=796992f4588c401fabec7446ecc7a5a3 for a map 
+#' with HUCS. Click on a HUC to find the associated code.
 #' @param siteid Unique monitoring location identifier.
 #' @param siteType Type of waterbody. See https://www.waterqualitydata.us/Codes/sitetype for options.
-#' @param characteristicName Name of parameter. See https://www.waterqualitydata.us/Codes/characteristicName for options.
-#' @param characteristicType Groups of environmental measurements/parameters. See https://www.waterqualitydata.us/Codes/characteristicType for options.
-#' @param sampleMedia Sampling substrate such as water, air, or sediment. See https://www.waterqualitydata.us/Codes/sampleMedia for options.
-#' @param organization A string of letters and/or numbers (some additional characters also possible) used to signify an organization with data in the Water Quality Portal. See https://www.waterqualitydata.us/Codes/organization for options.
+#' @param characteristicName Name of parameter. 
+#' See https://www.waterqualitydata.us/Codes/characteristicName for options.
+#' @param characteristicType Groups of environmental measurements/parameters. 
+#' See https://www.waterqualitydata.us/Codes/characteristicType for options.
+#' @param sampleMedia Sampling substrate such as water, air, or sediment. 
+#' See https://www.waterqualitydata.us/Codes/sampleMedia for options.
+#' @param organization A string of letters and/or numbers (some additional characters also 
+#' possible) used to signify an organization with data in the Water Quality Portal. 
+#' See https://www.waterqualitydata.us/Codes/organization for options.
 #' @param maxrecs The maximum number of results queried within one call to dataRetrieval.
-#' @param applyautoclean Logical, defaults to FALSE. If TRUE, runs TADA_AutoClean function on the returned data profile.
+#' @param applyautoclean Logical, defaults to FALSE. If TRUE, runs TADA_AutoClean function on the 
+#' returned data profile.
 #'
 #' @return TADA-compatible dataframe
 #'
@@ -458,10 +498,13 @@ TADA_ReadWQPWebServices <- function(webservice) {
 #' @examples
 #' \dontrun{
 #' # takes approx 3 mins to run
-#' tada1 <- TADA_BigDataRetrieval(startDate = "2019-01-01", endDate = "2021-12-31", characteristicName = "Temperature, water", statecode = c("AK", "AL"))
+#' tada1 <- TADA_BigDataRetrieval(startDate = "2019-01-01", endDate = "2021-12-31", 
+#'                                characteristicName = "Temperature, water", 
+#'                                statecode = c("AK", "AL"))
 #'
 #' # takes approx 21 mins
-#' tada2 <- TADA_BigDataRetrieval(startDate = "2016-10-01", endDate = "2022-09-30", statecode = "UT")
+#' tada2 <- TADA_BigDataRetrieval(startDate = "2016-10-01", endDate = "2022-09-30", 
+#'                               statecode = "UT")
 #'
 #' # takes seconds to run
 #' tada3 <- TADA_BigDataRetrieval(huc = "04030202", characteristicName = "Escherichia coli")
@@ -470,7 +513,8 @@ TADA_ReadWQPWebServices <- function(webservice) {
 #' tada4 <- TADA_BigDataRetrieval(startDate = "2004-01-01", countrycode = "CA")
 #'
 #' # takes seconds to run
-#' tada5 <- TADA_BigDataRetrieval(startDate = "2018-01-01", statecode = "AL", countycode = "Chilton")
+#' tada5 <- TADA_BigDataRetrieval(startDate = "2018-01-01", statecode = "AL", 
+#'                               countycode = "Chilton")
 #'
 #' # takes seconds to run
 #' tada6 <- TADA_BigDataRetrieval(organization = "PUEBLOOFTESUQUE")
@@ -605,7 +649,9 @@ TADA_BigDataRetrieval <- function(startDate = "null",
     if (dim(sites)[1] > 0) {
       # function for chunking by records
       make_groups <- function(x, maxrecs) {
-        if (sum(x$tot_n) <= maxrecs | dim(x)[1] == 1) { # WARNING: if there's only one row and it's more than maxrecs, it will try to run the query anyway
+        # WARNING: if there's only one row and it's more than maxrecs, it will try to run the 
+        # query anyway
+        if (sum(x$tot_n) <= maxrecs | dim(x)[1] == 1) { 
           groupings <- x
           groupings$group <- 1
         } else {
@@ -647,10 +693,12 @@ TADA_BigDataRetrieval <- function(startDate = "null",
       if (dim(smallsites)[1] > 0) {
         smallsitesgrp <- make_groups(smallsites, maxrecs)
 
-        print(paste0("Downloading data from sites with fewer than ", maxrecs, " results by grouping them together."))
+        print(paste0("Downloading data from sites with fewer than ", maxrecs, 
+                     " results by grouping them together."))
 
         for (i in 1:max(smallsitesgrp$group)) {
-          site_chunk <- subset(smallsitesgrp$MonitoringLocationIdentifier, smallsitesgrp$group == i)
+          site_chunk <- subset(smallsitesgrp$MonitoringLocationIdentifier, 
+                               smallsitesgrp$group == i)
           joins <- TADA_DataRetrieval(
             startDate = startDate,
             endDate = endDate,
@@ -669,7 +717,8 @@ TADA_BigDataRetrieval <- function(startDate = "null",
       }
 
       if (dim(bigsites)[1] > 0) {
-        print(paste0("Downloading data from sites with greater than ", maxrecs, " results, chunking queries by shorter time intervals..."))
+        print(paste0("Downloading data from sites with greater than ", maxrecs, " results, ",
+                     "chunking queries by shorter time intervals..."))
 
         bsitesvec <- unique(bigsites$MonitoringLocationIdentifier)
 
@@ -713,7 +762,8 @@ TADA_BigDataRetrieval <- function(startDate = "null",
     return(df_summary)
   }
 
-  df <- subset(df, as.Date(df$ActivityStartDate, "%Y-%m-%d") >= startDat & as.Date(df$ActivityStartDate, "%Y-%m-%d") <= endDat)
+  df <- subset(df, as.Date(df$ActivityStartDate, "%Y-%m-%d") >= startDat 
+               & as.Date(df$ActivityStartDate, "%Y-%m-%d") <= endDat)
 
   if (applyautoclean == TRUE) {
     print("Applying TADA_AutoClean function...")
@@ -753,7 +803,9 @@ TADA_BigDataRetrieval <- function(startDate = "null",
 #' projectProfile <- TADA_ReadWQPWebServices("https://www.waterqualitydata.us/data/Project/search?statecode=US%3A09&characteristicType=Nutrient&startDateLo=04-01-2023&startDateHi=11-01-2023&mimeType=csv&zip=yes&providers=NWIS&providers=STEWARDS&providers=STORET")
 #'
 #' # Join all three profiles using TADA_JoinWQPProfiles
-#' TADAProfile <- TADA_JoinWQPProfiles(FullPhysChem = physchemProfile, Sites = stationProfile, Projects = projectProfile)
+#' TADAProfile <- TADA_JoinWQPProfiles(FullPhysChem = physchemProfile, 
+#'                                     Sites = stationProfile, 
+#'                                     Projects = projectProfile)
 #' }
 #'
 TADA_JoinWQPProfiles <- function(FullPhysChem = "null",
@@ -776,7 +828,8 @@ TADA_JoinWQPProfiles <- function(FullPhysChem = "null",
           relationship = "many-to-many"
         ) %>%
         # remove ".x" suffix from column names
-        dplyr::rename_at(dplyr::vars(dplyr::ends_with(".x")), ~ stringr::str_replace(., "\\..$", "")) %>%
+        dplyr::rename_at(dplyr::vars(dplyr::ends_with(".x")), 
+                         ~ stringr::str_replace(., "\\..$", "")) %>%
         # remove columns with ".y" suffix
         dplyr::select_at(dplyr::vars(-dplyr::ends_with(".y")))
     } else {
