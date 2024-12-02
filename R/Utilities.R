@@ -1192,9 +1192,9 @@ TADA_AggregateMeasurements <- function(.data, grouping_cols = c("ActivityStartDa
         dplyr::mutate(TADA.ResultMeasureValue1 = mean(TADA.ResultMeasureValue, na.rm = TRUE)) %>%
         dplyr::slice_sample(n = 1) %>%
         dplyr::mutate(TADA.ResultValueAggregation.Flag = paste0("Selected as ", agg_fun, 
-                                                                " aggregate value, with randomly 
-                                                                selected metadata from a row in the 
-                                                                aggregate group"))
+                                                                " aggregate value, with randomly", 
+                                                                "selected metadata from a row in",
+                                                                "the aggregate group"))
       out <- out %>%
         dplyr::select(-TADA.ResultMeasureValue) %>%
         dplyr::rename(TADA.ResultMeasureValue = TADA.ResultMeasureValue1) %>%
@@ -1204,8 +1204,8 @@ TADA_AggregateMeasurements <- function(.data, grouping_cols = c("ActivityStartDa
 
     if (clean == TRUE) {
       dat <- subset(dat, !dat$TADA.ResultValueAggregation.Flag %in% c(paste0("Used in ", agg_fun, 
-                                                                             " aggregation function 
-                                                                             but not selected")))
+                                                                             " aggregation function", 
+                                                                             "but not selected")))
     }
 
     dat <- TADA_OrderCols(dat)
