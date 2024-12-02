@@ -1,4 +1,10 @@
-test_that("URLs are not broken", {
+# ignore warning
+# file("") only supports open = "w+" and open = "w+b": using the former
+# https://github.com/USEPA/EPATADA/pull/548
+suppressWarnings(
+  test_that("URLs are not broken", {
+  
+  
   # extract urls function
   extract_urls <- function(text) {
     stringr::str_extract_all(text, "http[s]?://[^\\s\\)\\]]+") %>% unlist()
@@ -34,7 +40,8 @@ test_that("URLs are not broken", {
     extract_urls() %>%
     clean_url() %>%
     unique() %>%
-    # problematic URL I can't get a response from using multiple methods (itec) and CRAN because its response is inconsistent, likely due to redirecting to mirrors (HRM 10/28/2024)
+    # problematic URL I can't get a response from using multiple methods (itec) 
+    #and CRAN because its response is inconsistent, likely due to redirecting to mirrors (HRM 10/28/2024)
     setdiff(c(
       # url works (HRM 11/7/24), but does not provide a recognizable response code
       "https://www.itecmembers.org/attains/",
@@ -68,3 +75,4 @@ test_that("URLs are not broken", {
   # verify that there are zero urls with failing response codes
   testthat::expect_equal(n, 0)
 })
+)

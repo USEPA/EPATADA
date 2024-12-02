@@ -302,8 +302,17 @@ TADA_FlagContinuousData <- function(.data, clean = FALSE, flaggedonly = FALSE, t
     rm(within_window)
   }
 
-  flag.data <- cont.data %>%
+  # check if noncont.data is blank. If TRUE, flag.data = cont.data
+  if (nrow(noncont.data) == 0) {
+    print("All data is flagged as continuous in TADA.ContinuousData.Flag column.")
+    flag.data = cont.data
+  }
+  
+  # if noncont.data is NOT blank, flag.data = join of noncont.data with cont.data
+  if (nrow(noncont.data) != 0) {
+    flag.data <- cont.data %>%
     dplyr::full_join(noncont.data, by = c(names(cont.data)))
+  }
 
   # flagged output, all data
   if (clean == FALSE & flaggedonly == FALSE) {
