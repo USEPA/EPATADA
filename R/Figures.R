@@ -691,7 +691,7 @@ TADA_FlaggedSitesMap <- function(.data) {
 #' Field Values Pie Chart
 #'
 #' Function creates a ggplot2 pie chart showing the relative proportions of values in a given 
-#' # field in a TADA dataset.
+#' field in a TADA dataset.
 #'
 #' @param .data TADA dataframe
 #' @param field The field (column) the user would like to see represented in a pie chart.
