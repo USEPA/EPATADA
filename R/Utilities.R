@@ -217,6 +217,11 @@ TADA_AutoClean <- function(.data) {
   TADA_CheckColumns(.data, required_cols)
 
   # execute function after checks are passed
+  
+  # need to specify this or throws error when trying to bind rows. Temporary fix for larger
+  # issue where data structure for all columns should be specified.
+  cols <- names(.data)
+  .data <- .data %>% dplyr::mutate_at(cols, as.character)
 
   # check to make sure columns do not already exist and capitalize fields with known synonyms that
   # only differ in caps

@@ -308,12 +308,6 @@ TADA_DataRetrieval <- function(startDate = "null",
       Projects = projects.DR
     )
 
-    # need to specify this or throws error when trying to bind rows. Temporary fix for larger
-    # issue where data structure for all columns should be specified.
-    cols <- names(TADAprofile)
-
-    TADAprofile <- TADAprofile %>% dplyr::mutate_at(cols, as.character)
-
     # run TADA_AutoClean function
     if (applyautoclean == TRUE) {
       print("Data successfully downloaded. Running TADA_AutoClean function.")
