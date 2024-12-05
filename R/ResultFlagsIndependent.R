@@ -260,11 +260,20 @@ TADA_FlagContinuousData <- function(.data, clean = FALSE, flaggedonly = FALSE, t
 
   # everything not YET in cont dataframe
   noncont.data <- subset(.data, !.data$ResultIdentifier %in% cont.data$ResultIdentifier)
+  
+  # import WQX Activity Type Ref
+  qc.ref <- utils::read.csv(system.file("extdata", "WQXActivityTypeRef.csv", package = "EPATADA")) %>%
+    dplyr::select(Code, TADA.ActivityType.Flag) %>%
+    dplyr::rename(ActivityTypeCode = Code) %>%
+    dplyr::distinct()
 
   # if time field is not NA, find time difference between results
-
   if (length(noncont.data) >= 1) {
     info_match <- noncont.data %>%
+      # Add TADA.ActivityType.Flag
+      dplyr::left_join(qc.ref, by = "ActivityTypeCode") %>%
+      # remove quality control samples
+      dplyr::filter(TADA.ActivityType.Flag == "Non_QC") %>%
       dplyr::group_by(
         TADA.LatitudeMeasure, TADA.LongitudeMeasure,
         OrganizationIdentifier, TADA.ComparableDataIdentifier,
@@ -291,7 +300,7 @@ TADA_FlagContinuousData <- function(.data, clean = FALSE, flaggedonly = FALSE, t
       dplyr::filter(time_diff_lead <= time_difference |
         time_diff_lag <= time_difference)
 
-    rm(info_match)
+    rm(info_match, qc.ref)
 
     # if matches are identified change flag to continuous
     noncont.data <- noncont.data %>%
@@ -302,8 +311,17 @@ TADA_FlagContinuousData <- function(.data, clean = FALSE, flaggedonly = FALSE, t
     rm(within_window)
   }
 
-  flag.data <- cont.data %>%
+  # check if noncont.data is blank. If TRUE, flag.data = cont.data
+  if (nrow(noncont.data) == 0) {
+    print("All data is flagged as continuous in TADA.ContinuousData.Flag column.")
+    flag.data = cont.data
+  }
+  
+  # if noncont.data is NOT blank, flag.data = join of noncont.data with cont.data
+  if (nrow(noncont.data) != 0) {
+    flag.data <- cont.data %>%
     dplyr::full_join(noncont.data, by = c(names(cont.data)))
+  }
 
   # flagged output, all data
   if (clean == FALSE & flaggedonly == FALSE) {
