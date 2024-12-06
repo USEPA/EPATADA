@@ -49,6 +49,7 @@ TADA_CreateParamRef <- function(.data, org_names = NULL, paramRef = NULL, valida
   # ref files to be stored in the Downloads folder location.
   downloads_path <- file.path(Sys.getenv("USERPROFILE"), "Downloads", "myfileRef.xlsx")
   
+  if(validate == FALSE){
   # 304a parameter name and standards are pulled in from the Criteria Search Tool (CST)
   CST_param <- utils::read.csv(system.file("extdata", "TADAPriorityCharUnitRef.csv", package = "EPATADA"))
   
@@ -93,31 +94,35 @@ TADA_CreateParamRef <- function(.data, org_names = NULL, paramRef = NULL, valida
   # Pulls in all unique combinations of TADA.CharacteristicName, TADA.MethodSpeciationName, TADA.ResultSampleFractionText in user's dataframe.
   TADA_param <- dplyr::distinct(.data[,c("TADA.CharacteristicName", "TADA.MethodSpeciationName", "TADA.ResultSampleFractionText")]) %>%
     dplyr::left_join(CST_param, "TADA.CharacteristicName") %>%
-    dplyr::select(TADA.CharacteristicName, TADA.MethodSpeciationName, TADA.ResultSampleFractionText, CST.PollutantName) %>%
+    dplyr::select(TADA.CharacteristicName, TADA.MethodSpeciationName, TADA.ResultSampleFractionText, EPA304A.PollutantName = CST.PollutantName) %>%
     dplyr::arrange(TADA.CharacteristicName) %>%
     uncount(weights = length(org_names)) %>% 
     dplyr::mutate(organization_name = rep(org_names, nrow(.)/length(org_names)))
-    # group_by(TADA.CharacteristicName, TADA.MethodSpeciationName, TADA.ResultSampleFractionText, CST.PollutantName) %>%
+    # group_by(TADA.CharacteristicName, TADA.MethodSpeciationName, TADA.ResultSampleFractionText, EPA304A.PollutantName) %>%
     #dplyr::mutate(organization_name = toString(org_names)) %>%
     #separate_rows(organization_name, sep =", ")
   
   if(is.null(paramRef)){
     CreateParamRef <- TADA_param %>%
       dplyr::mutate(ATTAINS.ParameterName = NA) %>%
-      dplyr::select(TADA.CharacteristicName, TADA.MethodSpeciationName, TADA.ResultSampleFractionText, organization_name, CST.PollutantName, ATTAINS.ParameterName) %>%
+      dplyr::select(TADA.CharacteristicName, TADA.MethodSpeciationName, TADA.ResultSampleFractionText, organization_name, EPA304A.PollutantName, ATTAINS.ParameterName) %>%
       dplyr::arrange(TADA.CharacteristicName)
-    #group_by(TADA.CharacteristicName, TADA.MethodSpeciationName, TADA.ResultSampleFractionText, CST.PollutantName)
+    #group_by(TADA.CharacteristicName, TADA.MethodSpeciationName, TADA.ResultSampleFractionText, EPA304A.PollutantName)
     #filter(if(sum(!is.na(organization_name))) !is.na(organization_name) else T)
   }
   
+  TADA_param$organization_name <- as.character(TADA_param$organization_name)
+  
   if(!is.null(paramRef)){
+    paramRef$organization_name <- as.character(paramRef$organization_name)
+    
     CreateParamRef <- TADA_param %>%
-      dplyr::left_join(paramRef, c("TADA.CharacteristicName", "TADA.MethodSpeciationName", "TADA.ResultSampleFractionText"), relationship = "many-to-many") %>%
-      dplyr::rename(any_of(c(CST.PollutantName = "CST.PollutantName.y", organization_name = "organization_name.y", ATTAINS.ParameterName = "ATTAINS.ParameterName.y"))) %>%
-      dplyr::select(TADA.CharacteristicName, TADA.MethodSpeciationName, TADA.ResultSampleFractionText, organization_name, CST.PollutantName, ATTAINS.ParameterName) %>%
+      dplyr::left_join(paramRef, c("TADA.CharacteristicName", "TADA.MethodSpeciationName", "TADA.ResultSampleFractionText", "organization_name"), relationship = "many-to-many") %>%
+      dplyr::rename(any_of(c(EPA304A.PollutantName = "EPA304A.PollutantName.x", organization_name = "organization_name.x", ATTAINS.ParameterName = "ATTAINS.ParameterName.y"))) %>%
+      dplyr::select(TADA.CharacteristicName, TADA.MethodSpeciationName, TADA.ResultSampleFractionText, organization_name, EPA304A.PollutantName, ATTAINS.ParameterName) %>%
       dplyr::arrange(TADA.CharacteristicName) %>%
       dplyr::filter(organization_name %in% org_names) %>%
-      #group_by(TADA.CharacteristicName, TADA.MethodSpeciationName, TADA.ResultSampleFractionText, CST.PollutantName) %>%
+      #group_by(TADA.CharacteristicName, TADA.MethodSpeciationName, TADA.ResultSampleFractionText, EPA304A.PollutantName) %>%
       #filter(if(sum(!is.na(organization_name))) !is.na(organization_name) else T) %>%
       dplyr::distinct()
   }
@@ -147,56 +152,38 @@ TADA_CreateParamRef <- function(.data, org_names = NULL, paramRef = NULL, valida
   # }
   # 
   # ATTAINS_param <- Reduce(dplyr::full_join, ATTAINS_param)
-  
-  if(validate == FALSE){
-
-    if(is.null(paramRef)){
-      CreateParamRef <- CreateParamRef %>%
-        dplyr::mutate(ATTAINS.ParameterName = NA, ATTAINS.FlagParameterName = "Suspect: No parameter crosswalk provided. Parameter will not be used for assessment")
-    }
-
-    if(!is.null(paramRef)){
-      CreateParamRef <- CreateParamRef %>%
-        #dplyr::left_join(ATTAINS_param, by = c("ATTAINS.ParameterName" = "parameter")) %>%
-        dplyr::mutate(ATTAINS.FlagParameterName = case_when(
-          organization_name == "EPA 304a" & CST.PollutantName != NA ~ "Pass: Will use the EPA 304a recommended standards for this parameter",
-          organization_name == "EPA 304a" & CST.PollutantName != NA ~ "Suspect: No CST.PollutantName found. Please select an appropriate crosswalk if you would like to use the EPA 304a recommended standards for this parameter",
-          is.na(organization_name) & is.na(ATTAINS.ParameterName) ~ "Suspect: No parameter crosswalk provided. Parameter will not be used for assessment",
-          is.na(organization_name) & !is.na(ATTAINS.ParameterName) ~ "Suspect: parameter not listed as a prior cause for this organization",
-          !is.na(organization_name) & !is.na(ATTAINS.ParameterName) ~ "Pass: parameter is listed as prior cause in ATTAINS and will be used for assessments")
-        ) %>%
-        dplyr::select(TADA.CharacteristicName, TADA.MethodSpeciationName, TADA.ResultSampleFractionText, organization_name, CST.PollutantName,	ATTAINS.ParameterName,	ATTAINS.FlagParameterName)
-    }
 
   }
   
   # Re-runs the flagging data after a user has inputted values - will need to be done if a user inputs values in the R environment
-  if( validate == TRUE){
+  if(is.null(paramRef)){
+    CreateParamRef <- CreateParamRef %>%
+      dplyr::mutate(ATTAINS.ParameterName = NA, ATTAINS.FlagParameterName = "Suspect: No parameter crosswalk provided. Parameter will not be used for assessment")
+  }
+  
+  if(!is.null(paramRef)){
+  Flag1 <- paramRef %>%
+    anti_join(ATTAINS_param_all, by = c("ATTAINS.ParameterName" = "parameter", "organization_name")) %>%
+    select(ATTAINS.ParameterName, organization_name) %>%
+    distinct() %>%
+    mutate(ATTAINS.FlagParameterName1 = case_when(
+      ATTAINS.ParameterName == "Parameter not used for assessment" | is.na(ATTAINS.ParameterName) ~ "Suspect: No parameter crosswalk provided. Parameter will not be used for assessment",
+      !is.na(ATTAINS.ParameterName) ~ "Suspect: parameter name is not found as a prior use for this organization")
+    )
     
-    if(is.null(paramRef)){
-      stop("User must provide a paramRef as an argument input in the function TADA_CreateParamRef() if validate = TRUE")
-    }
-    
-    paramRef <- paramRef %>%
-      dplyr::select(TADA.CharacteristicName, TADA.MethodSpeciationName, TADA.ResultSampleFractionText, organization_name, CST.PollutantName,	ATTAINS.ParameterName)
-    # 
-    CreateParamRef <- CreateParamRef %>% 
-      dplyr::left_join(paramRef, by = c("TADA.CharacteristicName", "TADA.MethodSpeciationName", "TADA.ResultSampleFractionText")) %>%
-      dplyr::mutate(ATTAINS.FlagParameterName = case_when(
-        organization_name.y == "EPA 304a" & !is.na(CST.PollutantName.y) ~ "Pass: Will use the EPA 304a recommended standards for this parameter",
-        organization_name.y == "EPA 304a" & is.na(CST.PollutantName.y) ~ "Suspect: No CST.PollutantName found. Please select an appropriate crosswalk if you would like to use the EPA 304a recommended standards for this parameter",
-        is.na(organization_name.y) & is.na(ATTAINS.ParameterName.y) ~ "Suspect: No parameter crosswalk provided. Parameter will not be used for assessment",
-        is.na(organization_name.y) & !is.na(ATTAINS.ParameterName.y) ~ "Suspect: parameter not listed as a prior cause for this organization",
-        !is.na(organization_name.y) & organization_name.y != "EPA 304a" & !is.na(ATTAINS.ParameterName.y) ~ "Pass: parameter is listed as prior cause in ATTAINS and will be used for assessments"
-      )
-      ) %>%
-      dplyr::select(TADA.CharacteristicName, TADA.MethodSpeciationName, TADA.ResultSampleFractionText, organization_name = organization_name.y, CST.PollutantName = CST.PollutantName.y,	ATTAINS.ParameterName = ATTAINS.ParameterName.y,	ATTAINS.FlagParameterName)
+  CreateParamRef <- CreateParamRef %>% 
+    left_join(Flag1, c("ATTAINS.ParameterName", "organization_name")) %>%
+    dplyr::mutate(ATTAINS.FlagParameterName = case_when(
+       !is.na(ATTAINS.FlagParameterName1) ~ ATTAINS.FlagParameterName1, 
+       is.na(ATTAINS.FlagParameterName1) ~ "Pass: parameter is listed as prior cause in ATTAINS and will be used for assessments")
+    ) %>%
+    dplyr::select(TADA.CharacteristicName, TADA.MethodSpeciationName, TADA.ResultSampleFractionText, organization_name, EPA304A.PollutantName,	ATTAINS.ParameterName,	ATTAINS.FlagParameterName)
   }
   
   if(excel == TRUE){
     # Create column names for an empty dataframe
     columns <- c(
-      "TADA.CharacteristicName", "TADA.MethodSpeciationName",	"TADA.ResultSampleFractionText", "CST.PollutantName", "ATTAINS.ParameterName", "organization_name", "ATTAINS.FlagParameterName"
+      "TADA.CharacteristicName", "TADA.MethodSpeciationName",	"TADA.ResultSampleFractionText", "EPA304A.PollutantName", "ATTAINS.ParameterName", "organization_name", "ATTAINS.FlagParameterName"
     )
     
     par <- data.frame(matrix(nrow = 0, ncol = length(columns))) # empty dataframe with just column names
@@ -218,7 +205,7 @@ TADA_CreateParamRef <- function(.data, org_names = NULL, paramRef = NULL, valida
     # Index of ATTAINS allowable values of Entity/Parameter
     writeData(wb, "Index", startCol = 4, x = ATTAINS_param)
     writeData(wb, "Index", startCol = 3, x = data.frame(organization_name = c(unique(ATTAINS_param$organization_name)))) # Should we allow all orgs?
-    writeData(wb, "Index", startCol = 2, x = unique(CST_param$CST.PollutantName)) # Should we allow all orgs?
+    writeData(wb, "Index", startCol = 2, x = unique(CST_param$EPA304A.PollutantName)) # Should we allow all orgs?
     writeData(wb, "Index", startCol = 1, x = data.frame(ATTAINS.ParameterName = c(unique(ATTAINS_param$parameter),"Parameter not used for assessment"))) 
     openxlsx::setColWidths(wb, "CreateParamRef", cols = 1:ncol(par), widths = "auto")
     
@@ -234,9 +221,10 @@ TADA_CreateParamRef <- function(.data, org_names = NULL, paramRef = NULL, valida
     for(i in 1:nrow(TADA_param)){
 
       writeFormula(wb, "CreateParamRef", startCol = 7, startRow = i + 1, array = TRUE,
-                   x = paste0('=IF(F',i+1,'="EPA 304a","Pass: Will use the EPA 304a recommended standards for this parameter",IF(ISNA(MATCH(1,(F',i+1,'=Index!H:H)*(D',i+1,'=Index!E:E),0)),
-                "Suspect: parameter name is not found as a prior use for this organization",
-                "Pass: parameter name is listed as prior cause in ATTAINS for this organization"))')
+                   x = paste0('=IF(OR(F',i+1,'="",F',i+1,'="Parameter not used for assessment"),
+                   "Suspect: no parameter name provided. parameter will not be used for assessment",IF(ISNA(MATCH(1,(F',i+1,'=Index!H:H)*(D',i+1,'=Index!E:E),0)),
+                   "Suspect: parameter name is not found as a prior use for this organization",
+                   "Pass: parameter name is listed as prior cause in ATTAINS for this organization"))')
       )
     }
     
@@ -294,12 +282,16 @@ TADA_CreateParamUseRef <- function(.data, org_names = NULL, paramRef = NULL, val
     print("No organization name provided, users should provide a list of ATTAINS domain organization state or tribal name that pertains to their dataframe. Attempting to pull in organization names found in the TADA data frame.")
   }
   
+  if(sum(!is.na(paramRef$ATTAINS.ParameterName)) == 0 ){
+    stop("No values were found in ATTAINS.ParameterName. Please ensure that you have inputted all field values of interest in the ATTAINS.ParameterName column generated from TADA_CreateParamRef() function")
+  }
+  
   if(sum(is.na(paramRef$ATTAINS.ParameterName)) > 1){
     print("NAs were found in ATTAINS.ParameterName. Please ensure that you have inputted all field values of interest in the ATTAINS.ParameterName column generated from TADA_CreateParamRef() function")
   }
   
-  if(sum(is.na(paramRef$CST.PollutantName)) > 1 && org_names == "EPA304a"){
-    print("NAs were found in CST.PollutantName. Please ensure that you have inputted all field values of interest in the CST.PollutantName column generated from TADA_CreateParamRef() function if you are interested in using the 304a recommended standards")
+  if(sum(is.na(paramRef$EPA304A.PollutantName)) > 1 && org_names == "EPA304a"){
+    print("NAs were found in EPA304A.PollutantName. Please ensure that you have inputted all field values of interest in the EPA304A.PollutantName column generated from TADA_CreateParamRef() function if you are interested in using the 304a recommended standards")
   }
   
   # check to see if user-supplied parameter ref is a df with appropriate columns and filled out.
@@ -342,26 +334,27 @@ TADA_CreateParamUseRef <- function(.data, org_names = NULL, paramRef = NULL, val
     dplyr::ungroup() %>%
     # separate_rows(organization_name, sep = ", ") %>%
     dplyr::left_join(ATTAINS_param, by = c("ATTAINS.ParameterName" = "parameter", "organization_name"), relationship = "many-to-many") %>%
-    dplyr::select(organization_name, CST.PollutantName,	ATTAINS.ParameterName, use_name) %>%
+    dplyr::select(organization_name, EPA304A.PollutantName,	ATTAINS.ParameterName, use_name) %>%
     tidyr::drop_na(ATTAINS.ParameterName) %>%
     dplyr::filter(ATTAINS.ParameterName != "Parameter not used for assessment") %>%
     dplyr::distinct()
   
+  # If users want the EPA304a standards. This pulls in the CST reference file. Extracts the associated EPA304a pollutant names and its use_names.
   if("EPA304a" %in% org_names){
     CST_param <- utils::read.csv(system.file("extdata", "CST.csv", package = "EPATADA")) %>%
-      select(CST.PollutantName = POLLUTANT_NAME, use_name = USE_CLASS_NAME_LOCATION_ETC) %>%
+      select(EPA304A.PollutantName = POLLUTANT_NAME, use_name = USE_CLASS_NAME_LOCATION_ETC) %>%
       mutate(organization_name = "EPA304a")
     
     EPA_param <- CreateParamUseRef %>%
-      left_join(CST_param, c("CST.PollutantName"), relationship = "many-to-many") %>%
-      select(organization_name = organization_name.y,	ATTAINS.ParameterName, CST.PollutantName, use_name = use_name.y) %>%
+      left_join(CST_param, c("EPA304A.PollutantName"), relationship = "many-to-many") %>%
+      select(organization_name = organization_name.y,	ATTAINS.ParameterName, EPA304A.PollutantName, use_name = use_name.y) %>%
       distinct()
     
     CreateParamUseRef <- CreateParamUseRef %>%
       dplyr::ungroup() %>%
-      full_join(EPA_param, c("ATTAINS.ParameterName", "organization_name", "CST.PollutantName", "use_name")) %>%
-      dplyr::select(organization_name, CST.PollutantName,	ATTAINS.ParameterName, use_name)
-  }
+      full_join(EPA_param, c("ATTAINS.ParameterName", "organization_name", "EPA304A.PollutantName", "use_name")) %>%
+      dplyr::select(organization_name, EPA304A.PollutantName,	ATTAINS.ParameterName, use_name)
+    }
   }
   
   # The following below will create an R dataframe in the R environment. Users will have greater flexibility modifying the dataframe in this environment if it is preferred.
@@ -386,7 +379,7 @@ TADA_CreateParamUseRef <- function(.data, org_names = NULL, paramRef = NULL, val
       organization_name == "EPA304a" ~ "Pass: Will use the EPA304a recommended standards for this parameter",
       organization_name != "EPA304a" ~ "Pass: parameter is listed as prior cause in ATTAINS and will be used for assessments")
     ) %>%
-    dplyr::select(organization_name, CST.PollutantName, ATTAINS.ParameterName, use_name, ATTAINS.FlagUseName)
+    dplyr::select(organization_name, EPA304A.PollutantName, ATTAINS.ParameterName, use_name, ATTAINS.FlagUseName)
   
   if(excel == TRUE){
     # Create column names for an empty dataframe
@@ -437,7 +430,6 @@ TADA_CreateParamUseRef <- function(.data, org_names = NULL, paramRef = NULL, val
     wb$worksheets[[3]]$sheetViews <- set_zoom(90)
     
     # Export CreateParamUseRef dataframe into the excel spreadsheet tab
-    writeData(wb, "CreateParamUseRef", startCol = 1, x = CreateParamUseRef, headerStyle = header_st)
     writeData(wb, "CreateParamUseRef", startCol = 1, x = CreateParamUseRef, headerStyle = header_st)
     
     # data validation drop down list created
@@ -509,6 +501,21 @@ TADA_CreateParamUseRef <- function(.data, org_names = NULL, paramRef = NULL, val
 
 TADA_CreateAUIDRef <- function(.data, AUID = NULL, overwrite = FALSE){
   
+  # data <- rATTAINS::assessments(organization_id = "MDE_EASP")
+  # 
+  # use_assessments <- data$use_assessment
+  # use_attainments <- use_assessments %>% unnest(c(use_attainments), names_sep = ".")
+  # use_parameters <- use_attainments %>% unnest(c(parameters), names_sep = ".")
+  # 
+  # use_data <- use_parameters %>%
+  #   dplyr::select(
+  #     organization_identifier, organization_name, organization_type_text,
+  #     use_attainments.use_name, parameters.parameter_name) %>%
+  #   distinct()
+  # 
+  # rm(use_assessments, use_attainments, use_parameters)
+  # 
+  # 
   # If user does not define the path, attempt to pull in the ref files from the default Downloads location.
   downloads_path <- file.path(Sys.getenv("USERPROFILE"), "Downloads", "myfileRef.xlsx")
   # testing out different downloads_path as an argument is needed.
@@ -714,20 +721,20 @@ TADA_DefineMagnitude <- function(.data, ref = "TADA", paramRef = NULL, paramUseR
   wb$worksheets[[5]]$sheetViews <- set_zoom(90)
   
   columns <- c(
-    "CST.PollutantName", "ATTAINS.ParameterName", "organization_name", "use_name", 
+    "EPA304A.PollutantName", "ATTAINS.ParameterName", "organization_name", "use_name", 
     "ATTAINS.WaterType", "AcuteChronic", "BegAssessDate", "EndAssessDate", 
     "Season", "MinSamplePerDuration", "SiteSpecificName", "ExcludeStationReason", 
-    "EquationBased", "StandardValue", "StandardUnit", "StandardLimit"
+    "EquationBased", "StandardValue", "StandardUnit"
   )
   
   DefineMagnitude <- paramRef %>%
-    dplyr::full_join(paramUseRef, by = c("CST.PollutantName", "ATTAINS.ParameterName", "organization_name"), relationship = "many-to-many") %>%
-    dplyr::select("CST.PollutantName", "ATTAINS.ParameterName", "organization_name", "use_name") %>%
+    dplyr::full_join(paramUseRef, by = c("EPA304A.PollutantName", "ATTAINS.ParameterName", "organization_name"), relationship = "many-to-many") %>%
+    dplyr::select("EPA304A.PollutantName", "ATTAINS.ParameterName", "organization_name", "use_name") %>%
     dplyr::bind_cols(
       data.frame(
         ATTAINS.WaterType = as.character(NA), AcuteChronic = as.character(NA), BegAssessDate = as.Date(NA),
         EndAssessDate = as.Date(NA), Season = as.character(NA), MinimumSample = as.numeric(NA), SiteSpecificName = as.character(NA), ExcludeStationReason = as.character(NA),
-        EquationBased = as.character(NA), MagnitudeValue = as.character(NA), MagnitudeUnit = as.character(NA), MagnitudeLimit = as.numeric(NA)
+        EquationBased = as.character(NA), MagnitudeValue = as.character(NA), MagnitudeUnit = as.character(NA)
       )
     ) %>%
     dplyr::filter(ATTAINS.ParameterName != "Parameter not used for assessment") %>%
@@ -735,12 +742,12 @@ TADA_DefineMagnitude <- function(.data, ref = "TADA", paramRef = NULL, paramUseR
     dplyr::arrange(organization_name != "EPA304a", organization_name)
   
   CST_param <- utils::read.csv(system.file("extdata", "CST.csv", package = "EPATADA")) %>%
-    select(CST.PollutantName = POLLUTANT_NAME, use_name = USE_CLASS_NAME_LOCATION_ETC, CRITERIATYPE_ACUTECHRONIC, CRITERION_VALUE, UNIT_NAME) %>%
+    select(EPA304A.PollutantName = POLLUTANT_NAME, use_name = USE_CLASS_NAME_LOCATION_ETC, CRITERIATYPE_ACUTECHRONIC, CRITERION_VALUE, UNIT_NAME) %>%
     mutate(organization_name = "EPA304a")
   
   if("EPA304a" %in% DefineMagnitude$organization_name){
     DefineMagnitude <- DefineMagnitude %>%
-      left_join(CST_param, c("CST.PollutantName", "use_name", "organization_name"), relationship = "many-to-many") %>%
+      left_join(CST_param, c("EPA304A.PollutantName", "use_name", "organization_name"), relationship = "many-to-many") %>%
       mutate(AcuteChronic = CRITERIATYPE_ACUTECHRONIC) %>%
       mutate(MagnitudeValue = CRITERION_VALUE) %>%
       mutate(MagnitudeUnit = UNIT_NAME) %>%
@@ -776,26 +783,25 @@ TADA_DefineMagnitude <- function(.data, ref = "TADA", paramRef = NULL, paramUseR
   writeData(wb, "DefineMagnitude", startCol = 1, x = DefineMagnitude, headerStyle = header_st)
   #writeData(wb, "DefineMagnitude", startCol = 13, startRow = 1, x = StandardValue)
   
-  writeData(wb, "Index", startCol = 8, startRow = 1, x = data.frame(ATTAINS.WaterType = c(unique(.data$MonitoringLocationTypeName), "All Others", "AddWaterTypeHere", "NA"))) # ATTAINS.WaterType
-  writeData(wb, "Index", startCol = 9, startRow = 1, x = data.frame(AcuteChronic = c("Acute", "Chronic", "NA"))) # AcuteChronic
-  writeData(wb, "Index", startCol = 10, startRow = 1, x = data.frame(Season = c("Summer", "Fall", "Spring", "Winter", "NA"))) #Season
+  writeData(wb, "Index", startCol = 9, startRow = 1, x = data.frame(ATTAINS.WaterType = c(unique(.data$MonitoringLocationTypeName), "All Others", "AddWaterTypeHere", "NA"))) # ATTAINS.WaterType
+  writeData(wb, "Index", startCol = 10, startRow = 1, x = data.frame(AcuteChronic = c("Acute", "Chronic", "NA"))) # AcuteChronic
+  writeData(wb, "Index", startCol = 11, startRow = 1, x = data.frame(Season = c("Summer", "Fall", "Spring", "Winter", "NA"))) #Season
   
-  writeData(wb, "Index", startCol = 11, startRow = 1, x = data.frame(SiteSpecificName = c(unique(AUIDRef$SiteSpecificName), "AddSiteNameHere", "NA")))# SiteSpecificName
-  writeData(wb, "Index", startCol = 12, startRow = 1, x = data.frame(ExcludeStationReason = c(unique(AUIDRef$ExcludeStationReason), "NA"))) # ExcludeStationReason
-  writeData(wb, "Index", startCol = 13, startRow = 1, x = data.frame(EquationBased = c("Yes", "No", "NA"))) # EquationBased
+  writeData(wb, "Index", startCol = 12, startRow = 1, x = data.frame(SiteSpecificName = c(unique(AUIDRef$SiteSpecificName), "AddSiteNameHere", "NA")))# SiteSpecificName
+  writeData(wb, "Index", startCol = 13, startRow = 1, x = data.frame(ExcludeStationReason = c(unique(AUIDRef$ExcludeStationReason), "NA"))) # ExcludeStationReason
+  writeData(wb, "Index", startCol = 14, startRow = 1, x = data.frame(EquationBased = c("Yes", "No", "NA"))) # EquationBased
   
-  writeData(wb, "Index", startCol = 14, startRow = 1, x = data.frame(StandardUnit = unique(.data$TADA.ResultMeasure.MeasureUnitCode))) # StandardUnit
-  writeData(wb, "Index", startCol = 15, startRow = 1, x = data.frame(StandardLimit = c("Upper", "Lower", "Range", "NA"))) # StandardLimit
-  
+  writeData(wb, "Index", startCol = 15, startRow = 1, x = data.frame(StandardUnit = unique(.data$TADA.ResultMeasure.MeasureUnitCode))) # StandardUnit
+
   # The list of allowable values for each column in excel tab [DefineMagnitude] will be defined by the [Index] tab
-  suppressWarnings(dataValidation(wb, sheet = "DefineMagnitude", cols = 5, rows = 2:1000, type = "list", value = sprintf("'Index'!$H$2:$H$1000"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE)) # ATTAINS.WaterType
-  suppressWarnings(dataValidation(wb, sheet = "DefineMagnitude", cols = 6, rows = 2:1000, type = "list", value = sprintf("'Index'!$I$2:$I$1000"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE)) # AcuteChronic
-  suppressWarnings(dataValidation(wb, sheet = "DefineMagnitude", cols = 9, rows = 2:1000, type = "list", value = sprintf("'Index'!$J$2:$J$1000"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE)) # Season
-  suppressWarnings(dataValidation(wb, sheet = "DefineMagnitude", cols = 11, rows = 2:1000, type = "list", value = sprintf("'Index'!$K$2:$K$1000"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE)) # SiteSpecificName
-  suppressWarnings(dataValidation(wb, sheet = "DefineMagnitude", cols = 13, rows = 2:1000, type = "list", value = sprintf("'Index'!$L$2:$L$1000"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE)) # ExcludeSiteReason
-  suppressWarnings(dataValidation(wb, sheet = "DefineMagnitude", cols = 14, rows = 2:1000, type = "list", value = sprintf("'Index'!$M$2:$M$1000"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE)) # EquationBased
-  suppressWarnings(dataValidation(wb, sheet = "DefineMagnitude", cols = 15, rows = 2:1000, type = "list", value = sprintf("'Index'!$N$2:$N$1000"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE)) # StandardUnit
-  suppressWarnings(dataValidation(wb, sheet = "DefineMagnitude", cols = 16, rows = 2:1000, type = "list", value = sprintf("'Index'!$O$2:$O$1000"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE)) # StandardLimit
+  suppressWarnings(dataValidation(wb, sheet = "DefineMagnitude", cols = 5, rows = 2:1000, type = "list", value = sprintf("'Index'!$I$2:$I$1000"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE)) # ATTAINS.WaterType
+  suppressWarnings(dataValidation(wb, sheet = "DefineMagnitude", cols = 6, rows = 2:1000, type = "list", value = sprintf("'Index'!$J$2:$J$1000"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE)) # AcuteChronic
+  suppressWarnings(dataValidation(wb, sheet = "DefineMagnitude", cols = 9, rows = 2:1000, type = "list", value = sprintf("'Index'!$K$2:$K$1000"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE)) # Season
+  suppressWarnings(dataValidation(wb, sheet = "DefineMagnitude", cols = 11, rows = 2:1000, type = "list", value = sprintf("'Index'!$L$2:$L$1000"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE)) # SiteSpecificName
+  suppressWarnings(dataValidation(wb, sheet = "DefineMagnitude", cols = 13, rows = 2:1000, type = "list", value = sprintf("'Index'!$M$2:$M$1000"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE)) # ExcludeSiteReason
+  suppressWarnings(dataValidation(wb, sheet = "DefineMagnitude", cols = 14, rows = 2:1000, type = "list", value = sprintf("'Index'!$N$2:$N$1000"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE)) # EquationBased
+  suppressWarnings(dataValidation(wb, sheet = "DefineMagnitude", cols = 15, rows = 2:1000, type = "list", value = sprintf("'Index'!$O$2:$O$1000"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE)) # StandardUnit
+  suppressWarnings(dataValidation(wb, sheet = "DefineMagnitude", cols = 16, rows = 2:1000, type = "list", value = sprintf("'Index'!$P$2:$P$1000"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE)) # StandardLimit
   
   # Conditional Formatting
   conditionalFormatting(wb, "DefineMagnitude",

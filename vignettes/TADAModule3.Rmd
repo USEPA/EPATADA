@@ -322,63 +322,175 @@ the future if needed.
 
 ## `Example with Data_NCTCShepherdstown_HUC12`
 
+**Introduction:**
+
+The goal is to assist states, territory and tribal nations with
+assessment and monitoring of waters against their WQS. The plan is to
+focus on a high level summary of assessments. We will start with
+capturing the magnitude component of criteria to determine impairment
+decisions for a parameter and use. We will also incorporate the ability
+to compare an org's standards with priority characteristics using EPA
+304a standards.
+
+Future functionalities will work to incorporate the Duration and
+Frequency portion of criteria along with monitoring components
+(comparing prior years assessments when possible) of WQS and other
+functionalities such as with handling of equation based standards,
+additional components such as low flow waters, comparing against other
+state's standards when possible, capturing additional details of EPA
+304a standards, and more.
+
+**Creating the 3 Reference Tables**
+
+We will work through an example of creating the three user reference
+tables that will be needed in order to help users with defining the
+criteria magnitude assessments for a parameter and use using the
+Shepherdstown example.
+
+Load the data and run TADA_GetATTAINS on example data frame. This has
+already been done as it does take some time to run.
+
 ```{r}
-# Run TADA_GetATTAINS on example data frame
 test <- TADA_GetATTAINS(Data_NCTCShepherdstown_HUC12)
 Data_NCTC <- as.data.frame(test$TADA_with_ATTAINS)
 unique(Data_NCTC$OrganizationFormalName)
+```
 
-# Filter data frame by TADA.Characteristics
-Data_NCTC2 <- filter(Data_NCTC, TADA.CharacteristicName %in% c("ZINC","Nickel", "PH","TEMPERATURE","NITRATE"))
+Clean, harmonize and perform QAQC on the data frame for assessment.
 
-# Creates a blank template of ATTAINS.ParameterName which needs crosswalk
+```{r}
+Data_NCTC3 <- TADA_RunKeyFlagFunctions(Data_NCTC)
+Data_NCTC4 <- TADA_HarmonizeSynonyms(Data_NCTC3)
+```
+
+Filter data frame by TADA.Characteristics for a few priority
+charactersitics.
+
+```{r}
+Data_NCTC2 <- dplyr::filter(Data_NCTC4, TADA.CharacteristicName %in% c("ZINC","NICKEL", "PH","NITRATE"))
+```
+
+Creates a blank template of ATTAINS.ParameterName which needs crosswalk.
+In this example, the user has not specified any orgs and the output will
+generate duplicate rows for each unique org names found in the TADA data
+frame.
+
+```{r}
 NCTC_ParamRef <- TADA_CreateParamRef(Data_NCTC2, excel = TRUE, overwrite = TRUE)
+```
 
-# Users who have already completed this crosswalk can re-use this reference file in the future.
-downloads_path <- file.path(Sys.getenv("USERPROFILE"), "Downloads", "myfileRef.xlsx")
-NCTC_ParamRef <- openxlsx::read.xlsx(downloads_path, sheet = "CreateParamRef")
+Users should specify the name(s) of their orgs that will be used for
+assessment.
 
+(Note: EPA 304a standards will be specified in the next step, but
+utilizes the CST.PollutantName column. Should we allow users to "modify"
+the CST.PollutantName crosswalk that we have done?)
+
+```{r}
 NCTC_ParamRef2 <- TADA_CreateParamRef(
-  Data_NCTC2,
-  paramRef = NCTC_ParamRef, 
-  excel = FALSE
+  Data_NCTC2, 
+  org_names = c("Maryland"),
+  excel = TRUE, overwrite = TRUE
   )
+```
 
-# Users should specify the name(s) of their orgs that will be used for assessment.
+Users who have already completed this crosswalk can re-use this
+reference file in the future. In this example, we will fill out the
+excel blank template, read it into the R environment, and reuse this
+parameter reference data frame.
+
+```{r}
+# only run the code if you make edits to the excel file
+#downloads_path <- file.path(Sys.getenv("USERPROFILE"), "Downloads", "myfileRef.xlsx")
+#paramRef <- openxlsx::read.xlsx(downloads_path, sheet = "CreateParamRef")
+
 NCTC_ParamRef3 <- TADA_CreateParamRef(
   Data_NCTC2, 
   org_names = c("Maryland"),
-  paramRef = NCTC_ParamRef, 
+  paramRef = ParamRef,
   excel = TRUE, overwrite = TRUE
   )
+```
 
-# Three cases of 
+Users may also include states outside of their spatial region if
+desired. However, the drop-down list will include all prior ATTAINS
+domain value for all orgs that a user selects. Users can also choose to
+only return a data frame in the R environment by using excel = FALSE as
+a function input. Users will be responsible for filling out this
+crosswalk though for state's outside their own orgs
+
+# it does not autopopulate, but the goal is that if states share their criteria and methods, we will now have a way to allow states to compare against other states
+
+```{r}
+NCTC_ParamRef4 <- TADA_CreateParamRef(
+  Data_NCTC2, 
+  org_names = c("Maryland", "Florida"),
+  paramRef = ParamRef, 
+  excel = FALSE
+  )
+```
+
+# Three cases of TADA_CreateParamUseRef().
+
+First example does not specify which orgs to use, and will use the
+parameter reference to determine what orgs to filter by. Since
+NCTC_ParamRef2 only contains the crosswalk information for Maryland it
+only returns parameter and use combinations found in Maryland.
+
+```{r}
 NCTC_ParamUseRef <- TADA_CreateParamUseRef(
   Data_NCTC2, 
-  paramRef = NCTC_ParamRef, 
+  paramRef = ParamRef, 
   excel = TRUE, 
   overwrite = TRUE
   )
+```
 
+User can include the EPA304a standards with the input "org_names", which
+utilizes the CST.PollutantName column created in TADA_CreateParamRef().
+If a user includes additional orgs besides "Maryland" and "EPA304a", it
+will not generate rows for those parameter and use combinations for
+those additional orgs as only Maryland was defined in
+TADA_CreateParamRef().
+
+# Look at NCTC_ParamRef for reference
+
+# should we change the 'org_names' argument to only 'epa304a' in this case? Users should have determined what orgs and parameter names are used in the first step in TADA_CreateParamRef() and can choose to include EPA304a here.
+
+```{r}
 NCTC_ParamUseRef2 <- TADA_CreateParamUseRef(
   Data_NCTC2, 
   org_names = c("EPA304a", "Maryland", "Virginia", "Pennsylvania", "West Virginia"), 
-  paramRef = NCTC_ParamRef2, 
+  paramRef = ParamRef, 
   excel = TRUE, overwrite = TRUE
   )
 
+# User should only run TADA_CreateParamUseRef() which contains the orgs of interest. If there are other orgs that are interested, this should have been defined in TADA_CreateParamRef() in which users will need to be aware of the appropriate parameter name crosswalk (if users share their criteria and methods in the future, this could be more feasible)
 NCTC_ParamUseRef3 <- TADA_CreateParamUseRef(
   Data_NCTC2, 
   org_names = c("EPA304a", "Maryland"), 
   paramRef = NCTC_ParamRef3, 
   excel = TRUE, overwrite = TRUE
   )
+```
 
+```{r}
+NCTC_ParamUseRef4 <- TADA_CreateParamUseRef(
+  Data_NCTC2, 
+  org_names = c("EPA304a", "Maryland","Florida"), 
+  paramRef = NCTC_ParamRef4, 
+  excel = FALSE
+  )
+```
+
+```{r}
 NCTC_AUIDRef <- TADA_CreateAUIDRef(Data_NCTC2, overwrite = TRUE)
+```
 
+```{r}
 NCTC_DefineMagnitude <- TADA_DefineMagnitude(
   .data = Data_NCTC2, 
-  paramRef = NCTC_ParamRef2,
+  paramRef = NCTC_ParamRef3,
   paramUseRef = NCTC_ParamUseRef3, 
   AUIDRef = NCTC_AUIDRef, 
   excel = TRUE,
