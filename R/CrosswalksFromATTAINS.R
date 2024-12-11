@@ -26,14 +26,12 @@
 
 #'
 TADA_GetAssessmentUnitCrosswalk <- function(org_id = NULL) {
-  if (is.null(org_id)) {
-    stop("An organization identifier must be supplied to create a crosswalk.")
-  } else {
-    
-    org.ref <- TADA_GetATTAINSOrgIDsRef()
 
-    if (!org_id %in% org.ref$code) {
-      stop("The organization identifier entered by user is not found in ATTAINS.")
+  org.ref <- TADA_GetATTAINSOrgIDsRef()
+
+if (!org_id %in% org.ref$code) {
+  print(paste0("TADA_GetAssessmentUnitCrosswalk: ",
+        "The organization identifier entered by user is not found in ATTAINS."))
     }
 
     if (org_id %in% org.ref$code) {
@@ -59,7 +57,7 @@ TADA_GetAssessmentUnitCrosswalk <- function(org_id = NULL) {
       rm(au.info)
 
       if (length(au.crosswalk$MonitoringLocationIdentifier > 0)) {
-        print(paste0(
+        print(paste0("TADA_GetAssessmentUnitCrosswalk: ",
           "There are ", nrow(au_crosswalk),
           " MonitoringLocationIdentifiers associated with Assessment Units for ",
           org_id, " in ATTAINS."
@@ -69,11 +67,11 @@ TADA_GetAssessmentUnitCrosswalk <- function(org_id = NULL) {
       }
 
       if (length(au.crosswalk$MonitoringLocationIdentifier) == 0) {
-        stop(paste0(
+       print(paste0("TADA_GetAssessmentUnitCrosswalk: ",
           "No MonitoringLocationIdentifiers were recorded in ATTAINS for ",
           org_id, " Assessment Units."
         ))
       }
     }
   }
-}
+
