@@ -31,9 +31,18 @@ TADA_GetAssessmentUnitCrosswalk <- function(org_id = NULL) {
   } 
   
   if (!is.null(org_id)) {
-    au_info <- rATTAINS::assessment_units(organization_id = org_id)
+    
+    org.ref <- TADA_GetATTAINSOrgIDsRef()
+    
+    if(!org_id %in% org.ref$code) {
+      stop("The organization identifier entered by user is not found in ATTAINS.")
+    }
+    
+    if(org_id %in% org.ref$code) {
+    
+    au.info <- rATTAINS::assessment_units(organization_id = org_id)
 
-    au_crosswalk <- au_info %>%
+    au.crosswalk <- au.info %>%
       tidyr::unnest(monitoring_stations) %>%
       dplyr::select(
         monitoring_location_identifier, monitoring_organization_identifier,
@@ -47,25 +56,25 @@ TADA_GetAssessmentUnitCrosswalk <- function(org_id = NULL) {
         OrganizationIdentifier = monitoring_organization_identifier
       )
 
-    rm(au_info)
+    rm(au.info)
     
-    if (length(au_crosswalk$MonitoringLocationIdentifier > 0)) {
+    if (length(au.crosswalk$MonitoringLocationIdentifier > 0)) {
       print(paste0(
         "There are ", nrow(au_crosswalk),
         " MonitoringLocationIdentifiers associated with Assessment Units for ",
         org_id, " in ATTAINS."
       ))
       
-      return(au_crosswalk)
+      return(au.crosswalk)
     }
 
-    if (length(au_crosswalk$MonitoringLocationIdentifier) == 0) {
+    if (length(au.crosswalk$MonitoringLocationIdentifier) == 0) {
       stop(paste0(
         "No MonitoringLocationIdentifiers were recorded in ATTAINS for ",
         org_id, " Assessment Units."
       ))
     }
-
+}
    
   }
 }
