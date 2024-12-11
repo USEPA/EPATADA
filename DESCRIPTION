@@ -72,7 +72,8 @@ Imports:
     nhdplusTools,
     arcgislayers,
     httr,
-    jsonlite
+    jsonlite,
+    rATTAINS
 Depends: 
     R (>= 3.5.0)
 Suggests:
