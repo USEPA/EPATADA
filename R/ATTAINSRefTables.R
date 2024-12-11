@@ -43,3 +43,14 @@ TADA_GetATTAINSOrgIDsRef <- function() {
   
   ATTAINSOrgIDsRef
 }
+
+# Update  ATTAINS Organization Identifier Reference Table
+# (for internal use only)
+
+TADA_UpdateATTAINSOrgIDsRef <- function() {
+  utils::write.csv(TADA_GetATTAINSOrgIDsRef(), file = "inst/extdata/ATTAINSOrgIDsRef.csv", row.names = FALSE)
+}
+
+
+# Used to store cached Measure Unit Reference Table
+ATTAINSOrgIDsRef_Cached <- NULL
