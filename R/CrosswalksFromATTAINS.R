@@ -28,54 +28,52 @@
 TADA_GetAssessmentUnitCrosswalk <- function(org_id = NULL) {
   if (is.null(org_id)) {
     stop("An organization identifier must be supplied to create a crosswalk.")
-  } 
-  
-  if (!is.null(org_id)) {
+  } else {
     
     org.ref <- TADA_GetATTAINSOrgIDsRef()
-    
-    if(!org_id %in% org.ref$code) {
+
+    if (!org_id %in% org.ref$code) {
       stop("The organization identifier entered by user is not found in ATTAINS.")
     }
-    
-    if(org_id %in% org.ref$code) {
-    
-    au.info <- rATTAINS::assessment_units(organization_id = org_id)
 
-    au.crosswalk <- au.info %>%
-      tidyr::unnest(monitoring_stations) %>%
-      dplyr::select(
-        monitoring_location_identifier, monitoring_organization_identifier,
-        assessment_unit_identifier
-      ) %>%
-      dplyr::filter(!is.na(monitoring_location_identifier)) %>%
-      dplyr::distinct() %>%
-      dplyr::rename(
-        ATTAINS.assessmentunitidentifier = assessment_unit_identifier,
-        MonitoringLocationIdentifier = monitoring_location_identifier,
-        OrganizationIdentifier = monitoring_organization_identifier
-      )
-
-    rm(au.info)
-    
-    if (length(au.crosswalk$MonitoringLocationIdentifier > 0)) {
-      print(paste0(
-        "There are ", nrow(au_crosswalk),
-        " MonitoringLocationIdentifiers associated with Assessment Units for ",
-        org_id, " in ATTAINS."
-      ))
+    if (org_id %in% org.ref$code) {
       
-      return(au.crosswalk)
-    }
+      rm(org.ref)
+      
+      au.info <- rATTAINS::assessment_units(organization_id = org_id)
 
-    if (length(au.crosswalk$MonitoringLocationIdentifier) == 0) {
-      stop(paste0(
-        "No MonitoringLocationIdentifiers were recorded in ATTAINS for ",
-        org_id, " Assessment Units."
-      ))
+      au.crosswalk <- au.info %>%
+        tidyr::unnest(monitoring_stations) %>%
+        dplyr::select(
+          monitoring_location_identifier, monitoring_organization_identifier,
+          assessment_unit_identifier
+        ) %>%
+        dplyr::filter(!is.na(monitoring_location_identifier)) %>%
+        dplyr::distinct() %>%
+        dplyr::rename(
+          ATTAINS.assessmentunitidentifier = assessment_unit_identifier,
+          MonitoringLocationIdentifier = monitoring_location_identifier,
+          OrganizationIdentifier = monitoring_organization_identifier
+        )
+
+      rm(au.info)
+
+      if (length(au.crosswalk$MonitoringLocationIdentifier > 0)) {
+        print(paste0(
+          "There are ", nrow(au_crosswalk),
+          " MonitoringLocationIdentifiers associated with Assessment Units for ",
+          org_id, " in ATTAINS."
+        ))
+
+        return(au.crosswalk)
+      }
+
+      if (length(au.crosswalk$MonitoringLocationIdentifier) == 0) {
+        stop(paste0(
+          "No MonitoringLocationIdentifiers were recorded in ATTAINS for ",
+          org_id, " Assessment Units."
+        ))
+      }
     }
-}
-   
   }
 }
-
