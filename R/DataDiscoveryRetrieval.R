@@ -286,29 +286,34 @@ TADA_DataRetrieval <- function(startDate = "null",
   # Retrieve all 3 profiles
   print("Downloading WQP query results. This may take some time depending upon the query size.")
   print(WQPquery)
+  
   results.DR <- dataRetrieval::readWQPdata(WQPquery,
-    dataProfile = "resultPhysChem",
-    ignore_attributes = TRUE
-  )
+                                           service = "ResultWQX3",
+                                           dataProfile = "fullPhysChem",
+                                           #dataProfile = "resultPhysChem",
+                                           ignore_attributes = TRUE)
   # check if any results are available
   if ((nrow(results.DR) > 0) == FALSE) {
     print("Returning empty results dataframe: Your WQP query returned no results (no data available). Try a different query. Removing some of your query filters OR broadening your search area may help.")
-    TADAprofile.clean <- results.DR
+    TADAprofile <- results.DR
   } else {
-    sites.DR <- dataRetrieval::whatWQPsites(WQPquery)
-
-    projects.DR <- dataRetrieval::readWQPdata(WQPquery,
-      ignore_attributes = TRUE,
-      service = "Project"
-    )
-
-    TADAprofile <- TADA_JoinWQPProfiles(
-      FullPhysChem = results.DR,
-      Sites = sites.DR,
-      Projects = projects.DR
-    )
-
-    # need to specify this or throws error when trying to bind rows. Temporary fix for larger
+    # sites.DR <- dataRetrieval::whatWQPsites(WQPquery)
+    # 
+    # projects.DR <- dataRetrieval::readWQPdata(WQPquery,
+    #   ignore_attributes = TRUE,
+    #   service = "Project"
+    # )
+    # 
+    # TADAprofile <- TADA_JoinWQPProfiles(
+    #   FullPhysChem = results.DR,
+    #   Sites = sites.DR,
+    #   Projects = projects.DR
+    # )
+    
+    TADAprofile <- results.DR
+  # #add new functionality here to change names back to old names
+  
+  # need to specify this or throws error when trying to bind rows. Temporary fix for larger
     # issue where data structure for all columns should be specified.
     cols <- names(TADAprofile)
 
