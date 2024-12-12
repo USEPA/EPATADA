@@ -236,10 +236,13 @@ TADA_FlagContinuousData <- function(.data, clean = FALSE, flaggedonly = FALSE, t
   }
   
   # run TADA_FindQCActivities if it has not already been run
-  if (("TADA.MeasureQualifierCode.Flag" %in% colnames(.data)) == FALSE) {
-    .data <- TADA_FindQCActivities(.data, clean = FALSE, flaggedonly = FALSE)
+  if ("TADA.ActivityType.Flag" %in% colnames(.data)) {
+    .data <- .data
+  } else {
+    # run TADA_FindQCActivities
+    .data <- TADA_FindQCActivities(.data)
   }
-
+  
   # execute function after checks are passed: flag continuous data and make cont.data data frame
 
   # set default flag to "Discrete"
@@ -266,17 +269,18 @@ TADA_FlagContinuousData <- function(.data, clean = FALSE, flaggedonly = FALSE, t
   # everything not YET in cont dataframe
   noncont.data <- subset(.data, !.data$ResultIdentifier %in% cont.data$ResultIdentifier)
   
-  # import WQX Activity Type Ref
-  qc.ref <- utils::read.csv(system.file("extdata", "WQXActivityTypeRef.csv", package = "EPATADA")) %>%
-    dplyr::select(Code, TADA.ActivityType.Flag) %>%
-    dplyr::rename(ActivityTypeCode = Code) %>%
-    dplyr::distinct()
+  # # import WQX Activity Type Ref
+  # qc.ref <- utils::read.csv(system.file("extdata", "WQXActivityTypeRef.csv", package = "EPATADA")) %>%
+  #   dplyr::select(Code, TADA.ActivityType.Flag) %>%
+  #   dplyr::rename(ActivityTypeCode = Code) %>%
+  #   dplyr::distinct()
 
   # if time field is not NA, find time difference between results
   if (length(noncont.data) >= 1) {
     info_match <- noncont.data %>%
-      # Add TADA.ActivityType.Flag
-      dplyr::left_join(qc.ref, by = "ActivityTypeCode") %>%
+      # # Add TADA.ActivityType.Flag
+      # dplyr::left_join(qc.ref, by = "ActivityTypeCode") %>%
+      
       # remove quality control samples
       dplyr::filter(TADA.ActivityType.Flag == "Non_QC") %>%
       dplyr::group_by(
@@ -305,7 +309,7 @@ TADA_FlagContinuousData <- function(.data, clean = FALSE, flaggedonly = FALSE, t
       dplyr::filter(time_diff_lead <= time_difference |
         time_diff_lag <= time_difference)
 
-    rm(info_match, qc.ref)
+    rm(info_match) #, qc.ref)
 
     # if matches are identified change flag to continuous
     noncont.data <- noncont.data %>%

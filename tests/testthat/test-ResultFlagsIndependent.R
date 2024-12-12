@@ -156,3 +156,13 @@ test_that("range flag functions work", {
   expect_no_condition(TADA_FlagBelowThreshold(upper))
   
 })
+
+
+test_that("QC results are not flagged as Continuous", {
+  cont_QC <- TADA_RandomTestingData() %>%
+    TADA_FlagContinuousData %>%
+    dplyr::filter(TADA.ContinuousData.Flag == "Continuous")
+  
+  expect_true(unique(cont_QC$TADA.ActivityType.Flag) == "Non_QC")
+  
+})
