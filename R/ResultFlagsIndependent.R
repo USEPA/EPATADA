@@ -234,6 +234,11 @@ TADA_FlagContinuousData <- function(.data, clean = FALSE, flaggedonly = FALSE, t
     # run TADA_IDCensoredData
     .data <- TADA_IDCensoredData(.data)
   }
+  
+  # run TADA_FindQCActivities if it has not already been run
+  if (("TADA.MeasureQualifierCode.Flag" %in% colnames(.data)) == FALSE) {
+    .data <- TADA_FindQCActivities(.data, clean = FALSE, flaggedonly = FALSE)
+  }
 
   # execute function after checks are passed: flag continuous data and make cont.data data frame
 
