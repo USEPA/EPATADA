@@ -349,7 +349,7 @@ TADA_GetTemplate <- function() {
 #' @param .data A dataframe
 #'
 #' @return Boolean result indicating whether or not the input dataframe contains all of the TADA profile fields.
-#' 
+#'
 #' @export
 #'
 #' @examples
