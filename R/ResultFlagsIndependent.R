@@ -258,8 +258,6 @@ TADA_FlagContinuousData <- function(.data, clean = FALSE, flaggedonly = FALSE, t
       (ActivityTypeCode == "Field Msr/Obs-Portable Data Logger" & !is.na(StatisticalBaseCode)) |
       (ActivityTypeCode == "Field Msr/Obs-Portable Data Logger" & ResultValueTypeName == "Calculated") |
       (ActivityTypeCode == "Field Msr/Obs-Portable Data Logger" & ResultValueTypeName == "Estimated") |
-      # SampleCollectionEquipmentName == "Probe/Sensor" & !is.na(ActivityFileURL) |
-      # (SampleCollectionEquipmentName == "Probe/Sensor" & !is.na(DataLoggerLine)) |
       (SampleCollectionEquipmentName == "Probe/Sensor" & !is.na(ResultTimeBasisText)) |
       (SampleCollectionEquipmentName == "Probe/Sensor" & !is.na(StatisticalBaseCode)) |
       (SampleCollectionEquipmentName == "Probe/Sensor" & ResultValueTypeName == "Calculated") |
@@ -269,17 +267,9 @@ TADA_FlagContinuousData <- function(.data, clean = FALSE, flaggedonly = FALSE, t
   # everything not YET in cont dataframe
   noncont.data <- subset(.data, !.data$ResultIdentifier %in% cont.data$ResultIdentifier)
 
-  # # import WQX Activity Type Ref
-  # qc.ref <- utils::read.csv(system.file("extdata", "WQXActivityTypeRef.csv", package = "EPATADA")) %>%
-  #   dplyr::select(Code, TADA.ActivityType.Flag) %>%
-  #   dplyr::rename(ActivityTypeCode = Code) %>%
-  #   dplyr::distinct()
-
   # if time field is not NA, find time difference between results
   if (length(noncont.data) >= 1) {
     info_match <- noncont.data %>%
-      # # Add TADA.ActivityType.Flag
-      # dplyr::left_join(qc.ref, by = "ActivityTypeCode") %>%
 
       # remove quality control samples
       dplyr::filter(TADA.ActivityType.Flag == "Non_QC") %>%
