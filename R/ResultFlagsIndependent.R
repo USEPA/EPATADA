@@ -317,7 +317,7 @@ TADA_FlagContinuousData <- function(.data, clean = FALSE, flaggedonly = FALSE, t
       dplyr::filter(time_diff_lead <= time_difference |
         time_diff_lag <= time_difference)
 
-    rm(info_match) # , qc.ref)
+    rm(info_match)
 
     # if matches are identified change flag to continuous
     noncont.data <- noncont.data %>%
