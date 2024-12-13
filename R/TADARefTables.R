@@ -1,3 +1,40 @@
+#' ATTAINS Parameter and Use Name by Organization Reference Key
+#'
+#' Function downloads and returns the newest available ATTAINS domain values
+#' reference dataframe summarized by parameter, use and organization.
+#' This dataframe is used in TADA_CreateParamRef() and
+#' TADA_CreateParamUseRef() as the basis for the pulling in prior ATTAINS
+#' parameter names and use name by organization name. This helps to filter
+#' selections of drop down values and creating parameter and use combination
+#' summaries that will need to be defined.
+#'
+#' @return Dataframe of ATTAINS parameter and use name by organization
+#'
+#' @export
+
+TADA_GetATTAINSParamUseOrgRef <- function() {
+  ref <- utils::read.csv(system.file("extdata", "ATTAINSParamUseEntityRef.csv", package = "EPATADA"))
+  return(ref)
+}
+
+#' EPA304a Criteria Search Tool Reference Key
+#'
+#' Function downloads and returns the newest available EPA 304a Criteria Search Tool
+#' reference dataframe. This dataframe is used in TADA_CreateParamRef() and
+#' TADA_CreateParamUseRef() as the basis for the pulling in EPA304a recommended
+#' pollutant name and use_name for assessment under the CWA.
+#'
+#' (Currently only numeric priority characteristic in TADA are the focus.)
+#'
+#' @return Dataframe of EPA304a recommended standards for a pollutant and use name.
+#'
+#' @export
+
+TADA_GetEPA304aRef <- function() {
+  ref <- utils::read.csv(system.file("extdata", "CST.csv", package = "EPATADA"))
+  return(ref)
+}
+
 #' Nutrient Summation Reference Key
 #'
 #' Function downloads and returns the newest available nutrient summation
