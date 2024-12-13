@@ -364,10 +364,10 @@ Data_NCTC4 <- TADA_HarmonizeSynonyms(Data_NCTC3)
 ```
 
 Filter data frame by TADA.Characteristics for a few priority
-charactersitics.
+characteristics.
 
 ```{r}
-Data_NCTC2 <- dplyr::filter(Data_NCTC4, TADA.CharacteristicName %in% c("ZINC","NICKEL", "PH","NITRATE"))
+Data_NCTC2 <- dplyr::filter(Data_NCTC4, TADA.CharacteristicName %in% c("ZINC", "PH","NITRATE"))
 ```
 
 Creates a blank template of ATTAINS.ParameterName which needs crosswalk.
@@ -380,7 +380,8 @@ NCTC_ParamRef <- TADA_CreateParamRef(Data_NCTC2, excel = TRUE, overwrite = TRUE)
 ```
 
 Users should specify the name(s) of their orgs that will be used for
-assessment.
+assessment. This will filter the drop-down list for prior parameter
+names and use names down the line in creating the reference tables.
 
 (Note: EPA 304a standards will be specified in the next step, but
 utilizes the CST.PollutantName column. Should we allow users to "modify"
@@ -397,12 +398,17 @@ NCTC_ParamRef2 <- TADA_CreateParamRef(
 Users who have already completed this crosswalk can re-use this
 reference file in the future. In this example, we will fill out the
 excel blank template, read it into the R environment, and reuse this
-parameter reference data frame.
+parameter reference data frame that we have named "ParamRef".
+
+We also provide an example in which a user modifies this reference table
+directly in the R environment only. If this occurs, user will need to
+run "validate = TRUE" to accurately reflect the flagging of parameter
+names.
 
 ```{r}
 # only run the code if you make edits to the excel file
 #downloads_path <- file.path(Sys.getenv("USERPROFILE"), "Downloads", "myfileRef.xlsx")
-#paramRef <- openxlsx::read.xlsx(downloads_path, sheet = "CreateParamRef")
+#ParamRef <- openxlsx::read.xlsx(downloads_path, sheet = "CreateParamRef")
 
 NCTC_ParamRef3 <- TADA_CreateParamRef(
   Data_NCTC2, 
@@ -410,16 +416,30 @@ NCTC_ParamRef3 <- TADA_CreateParamRef(
   paramRef = ParamRef,
   excel = TRUE, overwrite = TRUE
   )
+
+ParamRef2 <- dplyr::mutate(ParamRef, ATTAINS.ParameterName = case_when(TADA.CharacteristicName == "NITRATE" & !is.na(TADA.MethodSpeciationName)  ~ "NITROGEN, TOTAL"))
+
+NCTC_ParamRef3.1 <- TADA_CreateParamRef(
+  Data_NCTC2, 
+  org_names = c("Maryland"),
+  paramRef = ParamRef2,
+  excel = FALSE,
+  validate = TRUE)
 ```
 
-Users may also include states outside of their spatial region if
-desired. However, the drop-down list will include all prior ATTAINS
-domain value for all orgs that a user selects. Users can also choose to
-only return a data frame in the R environment by using excel = FALSE as
-a function input. Users will be responsible for filling out this
-crosswalk though for state's outside their own orgs
+Users may also include states outside of their spatial region if desired
+depending on a user's interest. Users will be responsible for filling
+out this crosswalk though for state's outside their own orgs. Although,
+future efforts will focus on creating a repository of criteria and
+methods along with crosswalks done from other TADA users (this will
+depend on other org participation). However, the drop-down list will
+include all prior ATTAINS domain value for all orgs that a user selects.
+Users can also choose to only return a data frame in the R environment
+by using excel = FALSE as a function input.
 
-# it does not autopopulate, but the goal is that if states share their criteria and methods, we will now have a way to allow states to compare against other states
+it does not autopopulate, but the goal is that if states share their
+criteria and methods, we will now have a way to allow states to compare
+against other states
 
 ```{r}
 NCTC_ParamRef4 <- TADA_CreateParamRef(
@@ -433,9 +453,10 @@ NCTC_ParamRef4 <- TADA_CreateParamRef(
 # Three cases of TADA_CreateParamUseRef().
 
 First example does not specify which orgs to use, and will use the
-parameter reference to determine what orgs to filter by. Since
-NCTC_ParamRef2 only contains the crosswalk information for Maryland it
-only returns parameter and use combinations found in Maryland.
+filtered orgs in TADA_CreateParamRef to determine what orgs to filter
+by. Since 'ParamRef' only contains the crosswalk information for
+Maryland it only returns parameter and use combinations found in
+Maryland.
 
 ```{r}
 NCTC_ParamUseRef <- TADA_CreateParamUseRef(
@@ -453,9 +474,12 @@ will not generate rows for those parameter and use combinations for
 those additional orgs as only Maryland was defined in
 TADA_CreateParamRef().
 
-# Look at NCTC_ParamRef for reference
+\*Look at ParamRef for reference
 
-# should we change the 'org_names' argument to only 'epa304a' in this case? Users should have determined what orgs and parameter names are used in the first step in TADA_CreateParamRef() and can choose to include EPA304a here.
+should we change the 'org_names' argument to only 'epa304a' in this
+case? Users should have determined what orgs and parameter names are
+used in the first step in TADA_CreateParamRef() and can choose to
+include EPA304a here.
 
 ```{r}
 NCTC_ParamUseRef2 <- TADA_CreateParamUseRef(
@@ -483,9 +507,25 @@ NCTC_ParamUseRef4 <- TADA_CreateParamUseRef(
   )
 ```
 
+Users must review the matching done with TADA_GetATTAINS of monitoring
+sites to AU. If there are site-specific criteria that only applies to
+some monitoring locations within an AU, whether it's an ecoregion, for a
+specific parameter and use, or if there are separate criteria for
+"warm-waters" versus "cold-waters" or "trout-based" versus other species
+based, this should be defined here. Users can further customize specific
+exclusions that pertains to their water quality assessments.
+
 ```{r}
 NCTC_AUIDRef <- TADA_CreateAUIDRef(Data_NCTC2, overwrite = TRUE)
 ```
+
+Users can provide the ParamRef as a R data frame, or users can choose to
+make the edits on the excel spreadsheet file created in the downloads
+folder.
+
+\*If users are only interested in the epa304a standards, we should make
+this function able to run without having to create the 3 reference
+tables.
 
 ```{r}
 NCTC_DefineMagnitude <- TADA_DefineMagnitude(
@@ -498,40 +538,8 @@ NCTC_DefineMagnitude <- TADA_DefineMagnitude(
   )
 ```
 
-Users can provide the ParamRef as a R data frame, or users can choose to
-make the edits on the excel spredsheet file created in the downloads
-folder, or other specified folder path location which can be defined as
-an argument.
-
-The AUIDRef file is a required argument. Users will need to have ran
-this function and make any appropriate edits.
-
-```{r}
-TADA_StandardsRef <- TADA_CreateStandardsRef(TADA_dataframe, ParamRef = TADA_ParamRef, AUIDRef = TADA_AUIDRef, overwrite = TRUE)
-```
-
-```{r}
-TADA_StandardsRef <- TADA_CreateStandardsRef(TADA_dataframe, ParamRef = TADA_ParamRef, AUIDRef = TADA_AUIDRef)
-
-```
-
-## `TADA_CreateAdditionalStandardsRef()`
-
-Users will have the
-
 ```{r}
 
 ```
 
-## `TADA_CreateDurationFreqRef()`
-
-TADA Priority Ref Duration will be used as a default. For all other
-parameters not found as a priority, users will have the option to
-autofill them as either "NA" or "1 discrete observation" as an argument.
-If left as NA, users will fill in the values on their own for their
-organization's WQS requirement.
-
-```{r}
-```
-
-## `TADA_CreateCriteriaRef()`
+## `TADA_DefineCriteriaMethod()`
