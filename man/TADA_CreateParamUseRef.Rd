@@ -8,7 +8,6 @@ TADA_CreateParamUseRef(
   .data,
   org_names = NULL,
   paramRef = NULL,
-  validate = FALSE,
   excel = FALSE,
   overwrite = FALSE
 )
@@ -53,6 +52,8 @@ are listed in the "OrgName" tab. The "code" column contains the organization nam
 should be used for this param. If a user does not provide an org_names argument, the function
 attempts to identify which organization name(s) are found in the dataframe to use as a reference.
 
+NOTE: USERS CAN ADD ON 'EPA304a' AS AN ORG_NAMES INPUT IF THEY ARE INTERESTED IN THE EPA304A STANDARDS
+
 This org_name argument input allows for the drop-down list to reflect prior ATTAINS parameter names
 and ATTAINS use names that were used in prior ATTAINS CWA assessment cycles by your org_name.
 Users are expected to be the subject matter experts to perform the parameter crosswalk for the org_names
@@ -60,8 +61,8 @@ that they have provided in this function.}
 }
 \value{
 A data frame which contains the columns: TADA.ComparableDataIdentifier, organization_name,
-EPA304A.PollutantName, ATTAINS.ParameterName, and ATTAINS.FlagParameterName. Users will need to complete
-the crosswalk between ATTAINS.ParameterName and TADA.ComparableDataIdentifier.
+EPA304A.PollutantName, ATTAINS.ParameterName, and ATTAINS.FlagUseName. Users will need to review
+the crosswalk between ATTAINS.ParameterName, use_name and TADA.ComparableDataIdentifier.
 }
 \description{
 Users will be required to validate the use name crosswalk that applies to their org(s)
@@ -108,10 +109,10 @@ paramRef_UT <- TADA_CreateParamRef(Data_Nutrients_UT, org_names = "Utah", excel 
 paramRef_UT <- TADA_CreateParamRef(Data_Nutrients_UT, org_names = "Utah", excel = TRUE, overwrite = TRUE)
 
 paramRef_UT2 <- dplyr::mutate(paramRef_UT, ATTAINS.ParameterName = case_when(
-    TADA.CharacteristicName == "AMMONIA" ~ "AMMONIA, TOTAL", 
-    TADA.CharacteristicName == "NITRATE" ~ "NITRATE", 
-    TADA.CharacteristicName == "NITROGEN" ~ "NITRATE/NITRITE (NITRITE + NITRATE AS N)" )
-    )
+  TADA.CharacteristicName == "AMMONIA" ~ "AMMONIA, TOTAL",
+  TADA.CharacteristicName == "NITRATE" ~ "NITRATE",
+  TADA.CharacteristicName == "NITROGEN" ~ "NITRATE/NITRITE (NITRITE + NITRATE AS N)"
+))
 paramRef_UT3 <- TADA_CreateParamRef(Data_Nutrients_UT, paramRef = paramRef_UT2, org_names = "Utah", excel = FALSE)
 
 # After running TADA_CreateParamRef() users will provide this as a function input. First example is only for the org Utah

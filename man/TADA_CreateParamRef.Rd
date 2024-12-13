@@ -36,7 +36,6 @@ by organization name.}
 created in the user's downloads folder path.
 In the R console please type in: file.path(Sys.getenv("USERPROFILE"), "Downloads") in File explorer
 if there is trouble locating the file. The file will be named "myfileRef.xlsx".
-
 The excel spreadsheet will highlight the cells in which users should input information. Users may need to
 insert additional rows to capture certain ATTAINS.ParameterName that correspond with multiple TADA.CharacteristicName.
 Example: If your organization defines pH as "pH, High" and "pH, Low" that correspond to the TADA.CharacteristicName 'PH'.}
