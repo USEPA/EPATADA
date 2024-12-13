@@ -290,45 +290,24 @@ TADA_DataRetrieval <- function(startDate = "null",
   results.DR <- dataRetrieval::readWQPdata(WQPquery,
                                            service = "ResultWQX3",
                                            dataProfile = "fullPhysChem",
-                                           #dataProfile = "resultPhysChem",
                                            ignore_attributes = TRUE)
   # check if any results are available
   if ((nrow(results.DR) > 0) == FALSE) {
     print("Returning empty results dataframe: Your WQP query returned no results (no data available). Try a different query. Removing some of your query filters OR broadening your search area may help.")
-    TADAprofile <- results.DR
-  } else {
-    # sites.DR <- dataRetrieval::whatWQPsites(WQPquery)
-    # 
-    # projects.DR <- dataRetrieval::readWQPdata(WQPquery,
-    #   ignore_attributes = TRUE,
-    #   service = "Project"
-    # )
-    # 
-    # TADAprofile <- TADA_JoinWQPProfiles(
-    #   FullPhysChem = results.DR,
-    #   Sites = sites.DR,
-    #   Projects = projects.DR
-    # )
-    
-    TADAprofile <- results.DR
-  # #add new functionality here to change names back to old names
-  
-  # need to specify this or throws error when trying to bind rows. Temporary fix for larger
-    # issue where data structure for all columns should be specified.
-    cols <- names(TADAprofile)
-
-    TADAprofile <- TADAprofile %>% dplyr::mutate_at(cols, as.character)
-
-    # run TADA_AutoClean function
-    if (applyautoclean == TRUE) {
-      print("Data successfully downloaded. Running TADA_AutoClean function.")
-
-      TADAprofile.clean <- TADA_AutoClean(TADAprofile)
+    TADAprofile.clean <- results.DR
     } else {
-      TADAprofile.clean <- TADAprofile
+      TADAprofile <- results.DR
+      
+      # add new functionality here to change names back to old names
+      
+      # run TADA_AutoClean function
+      if (applyautoclean == TRUE) {
+        print("Data successfully downloaded. Running TADA_AutoClean function.")
+        TADAprofile.clean <- TADA_AutoClean(TADAprofile)
+        } else {
+          TADAprofile.clean <- TADAprofile
+        }
     }
-  }
-
   return(TADAprofile.clean)
 }
 
