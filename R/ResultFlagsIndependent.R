@@ -211,7 +211,9 @@ TADA_FlagContinuousData <- function(.data, clean = FALSE, flaggedonly = FALSE, t
     "ResultTimeBasisText",
     "StatisticalBaseCode",
     "ResultValueTypeName",
-    "ResultIdentifier"
+    "ResultIdentifier",
+    "OrganizationIdentifier", 
+    "ActivityRelativeDepthName"
   ))
 
   # check that clean and flaggedonly are not both TRUE
@@ -226,21 +228,35 @@ TADA_FlagContinuousData <- function(.data, clean = FALSE, flaggedonly = FALSE, t
     # run autoclean
     .data <- TADA_AutoClean(.data)
   }
-
-  # run TADA_IDCensoredData if it has not already been run
-  if ("TADA.CensoredData.Flag" %in% colnames(.data)) {
+  
+  if ("TADA.LatitudeMeasure" %in% colnames(.data)) {
     .data <- .data
   } else {
-    # run TADA_IDCensoredData
-    .data <- TADA_IDCensoredData(.data)
+    # run autoclean
+    .data <- TADA_AutoClean(.data)
   }
-
+  
+  if ("TADA.LongitudeMeasure" %in% colnames(.data)) {
+    .data <- .data
+  } else {
+    # run autoclean
+    .data <- TADA_AutoClean(.data)
+  }
+  
   # run TADA_FindQCActivities if it has not already been run
   if ("TADA.ActivityType.Flag" %in% colnames(.data)) {
     .data <- .data
   } else {
     # run TADA_FindQCActivities
     .data <- TADA_FindQCActivities(.data)
+  }
+  
+  # run TADA_CreateComparableID if it has not already been run
+  if ("TADA.ComparableDataIdentifier" %in% colnames(.data)) {
+    .data <- .data
+  } else {
+    # run TADA_CreateComparableID
+    .data <- TADA_CreateComparableID(.data)
   }
 
   # execute function after checks are passed: flag continuous data and make cont.data data frame
@@ -250,18 +266,20 @@ TADA_FlagContinuousData <- function(.data, clean = FALSE, flaggedonly = FALSE, t
 
   # once new 3.0 profiles come out, check for zip files in ActivityFileURL and flag data that populates the DataLoggerLine
   cont.data <- .data %>%
-    dplyr::filter((ActivityTypeCode == "Field Msr/Obs-Continuous Time Series" | # ID cont data with new activity type code from 2023
-      grepl("Continuous", ProjectIdentifier) | # ID cont data by looking for string in project ID
-      grepl("CONTINUOUS", ProjectIdentifier) | # ID cont data by looking for string in project ID
-      (ActivityTypeCode == "Sample-Integrated Time Series" & SampleCollectionEquipmentName == "Probe/Sensor") |
-      (ActivityTypeCode == "Field Msr/Obs-Portable Data Logger" & !is.na(ResultTimeBasisText)) |
-      (ActivityTypeCode == "Field Msr/Obs-Portable Data Logger" & !is.na(StatisticalBaseCode)) |
-      (ActivityTypeCode == "Field Msr/Obs-Portable Data Logger" & ResultValueTypeName == "Calculated") |
-      (ActivityTypeCode == "Field Msr/Obs-Portable Data Logger" & ResultValueTypeName == "Estimated") |
-      (SampleCollectionEquipmentName == "Probe/Sensor" & !is.na(ResultTimeBasisText)) |
-      (SampleCollectionEquipmentName == "Probe/Sensor" & !is.na(StatisticalBaseCode)) |
-      (SampleCollectionEquipmentName == "Probe/Sensor" & ResultValueTypeName == "Calculated") |
-      (SampleCollectionEquipmentName == "Probe/Sensor" & ResultValueTypeName == "Estimated"))) %>%
+    dplyr::filter(TADA.ActivityType.Flag == "Non_QC") %>%
+    dplyr::filter(ActivityTypeCode == "Field Msr/Obs-Continuous Time Series" | # ID cont data with new activity type code from 2023
+        grepl("Continuous", ProjectIdentifier) | # ID cont data by looking for string in project ID
+        grepl("CONTINUOUS", ProjectIdentifier) | # ID cont data by looking for string in project ID
+        (ActivityTypeCode == "Sample-Integrated Time Series" & SampleCollectionEquipmentName == "Probe/Sensor") |
+        (ActivityTypeCode == "Field Msr/Obs-Portable Data Logger" & !is.na(ResultTimeBasisText)) |
+        (ActivityTypeCode == "Field Msr/Obs-Portable Data Logger" & !is.na(StatisticalBaseCode)) |
+        (ActivityTypeCode == "Field Msr/Obs-Portable Data Logger" & ResultValueTypeName == "Calculated") |
+        (ActivityTypeCode == "Field Msr/Obs-Portable Data Logger" & ResultValueTypeName == "Estimated") |
+        (SampleCollectionEquipmentName == "Probe/Sensor" & !is.na(ResultTimeBasisText)) |
+        (SampleCollectionEquipmentName == "Probe/Sensor" & !is.na(StatisticalBaseCode)) |
+        (SampleCollectionEquipmentName == "Probe/Sensor" & ResultValueTypeName == "Calculated") |
+        (SampleCollectionEquipmentName == "Probe/Sensor" & ResultValueTypeName == "Estimated")
+      ) %>%
     dplyr::mutate(TADA.ContinuousData.Flag = "Continuous")
 
   # everything not YET in cont dataframe
