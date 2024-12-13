@@ -131,8 +131,8 @@ use the `package name:: package function` notation to avoid the list of
 
 ```{r, eval = F, results = 'hide'}
 list.of.packages <- c("tidyverse")
-new.packages <- list.of.packages[!(list.of.packages %in% 
-                                     installed.packages()[, "Package"])]
+new.packages <- list.of.packages[!(list.of.packages %in%
+  installed.packages()[, "Package"])]
 if (length(new.packages)) install.packages(new.packages)
 
 library(tidyverse)
@@ -210,11 +210,11 @@ about input parameters and to see several examples.
 ```{r dataretrieval}
 # download example data
 # dataset_0  <- TADA_DataRetrieval(
-#   organization = c("REDLAKE_WQX", 
-#                    "SFNOES_WQX", 
-#                    "PUEBLO_POJOAQUE", 
-#                    "FONDULAC_WQX",   
-#                    "PUEBLOOFTESUQUE", 
+#   organization = c("REDLAKE_WQX",
+#                    "SFNOES_WQX",
+#                    "PUEBLO_POJOAQUE",
+#                    "FONDULAC_WQX",
+#                    "PUEBLOOFTESUQUE",
 #                    "CNENVSER"),
 #   startDate = "2018-01-01",
 #   endDate = "2023-01-01")
@@ -584,10 +584,11 @@ to make non-detect values equal to the provided detection limit? What
 would you need to change in the example below?**
 
 ```{r cens dataset}
-dataset_cens <- TADA_SimpleCensoredMethods(dataset_flags, 
-                                           nd_method = "multiplier", 
-                                           nd_multiplier = 0.5, 
-                                           od_method = "as-is")
+dataset_cens <- TADA_SimpleCensoredMethods(dataset_flags,
+  nd_method = "multiplier",
+  nd_multiplier = 0.5,
+  od_method = "as-is"
+)
 ```
 
 Let's take a look at how the censored data handling function affects the
