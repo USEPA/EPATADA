@@ -577,7 +577,7 @@ TADA_CreateParamUseRef <- function(.data, org_names = NULL, paramRef = NULL, exc
     dplyr::select(TADA.ComparableDataIdentifier, organization_name, EPA304A.PollutantName, ATTAINS.ParameterName, use_name, ATTAINS.FlagUseName)
   
   # remove intermediate objects
-  rm(ATTAINS_param, ATTAINS_param_all, Flag1, Flag2)
+  rm(ATTAINS_param, Flag1, Flag2)
   
   downloads_path <- file.path(Sys.getenv("USERPROFILE"), "Downloads", "myfileRef.xlsx")
   
