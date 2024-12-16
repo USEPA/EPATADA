@@ -25,12 +25,11 @@ names in order to run the function. Users will have two options:
 TADA.CharacteristicName, TADA.MethodSpeciationName, TADA.ResultSampleFractionText, ATTAINS.ParameterName
 \item Supply a paramRef data frame which contains at least these two column names:
 TADA.ComparableDataIdentifier and ATTAINS.ParameterName
-}
-
 Users who are interested in doing an assessment for more than one org_names will need to also include in
 the paramRef data frame which contains an additional column name: 'organization_name'
 in order to determine the proper crosswalk between TADA.ComparableDataIdentifier and ATTAINS.ParameterName
-by organization name.}
+by organization name.
+}}
 
 \item{excel}{A boolean value that returns an excel spreadsheet if excel = TRUE. This spreadsheet is
 created in the user's downloads folder path.
@@ -49,12 +48,7 @@ organization names can be found by downloading the ATTAINS Domains Excel file:
 https://www.epa.gov/system/files/other-files/2023-09/DOMAINS.xlsx. Organization names
 are listed in the "OrgName" tab. The "code" column contains the organization names that
 should be used for this param. If a user does not provide an org_names argument, the function
-attempts to identify which organization name(s) are found in the dataframe to use as a reference.
-
-This org_name argument input allows for the drop-down list to reflect prior ATTAINS parameter names
-and ATTAINS use names that were used in prior ATTAINS CWA assessment cycles by your org_name.
-Users are expected to be the subject matter experts to perform the parameter crosswalk for the org_names
-that they have provided in this function.}
+attempts to identify which organization name(s) are found in the dataframe to use as a reference.}
 }
 \value{
 A data frame which contains the columns: TADA.ComparableDataIdentifier, organization_name,
@@ -103,13 +97,6 @@ priority TADA.CharacteristicName.
 \examples{
 # This creates a blank paramRef template of UT Nutrients data. Users will need to fill this template out.
 paramRef_UT <- TADA_CreateParamRef(Data_Nutrients_UT, org_names = "Utah", excel = FALSE)
-
-# User can also choose to edit the paramRef crosswalk in excel (recommended). They will need to include 
-# the argument (excel = TRUE, overwrite = TRUE) as an input when creating the excel spreadsheet. 
-
-\dontrun {
-paramRef_UT <- TADA_CreateParamRef(Data_Nutrients_UT, org_names = "Utah", excel = TRUE, overwrite = TRUE)
-}
 
 # User can choose to edit the paramRef_UT through the R environment or in the excel spreadsheet. User
 # should be aware that any updates done only in the R environment will not reflect the 'ATTAINS.FlagParameterName 

@@ -47,11 +47,6 @@
 #' should be used for this param. If a user does not provide an org_names argument, the function 
 #' attempts to identify which organization name(s) are found in the dataframe to use as a reference.
 #' 
-#' This org_name argument input allows for the drop-down list to reflect prior ATTAINS parameter names
-#' and ATTAINS use names that were used in prior ATTAINS CWA assessment cycles by your org_name.
-#' Users are expected to be the subject matter experts to perform the parameter crosswalk for the org_names 
-#' that they have provided in this function. 
-#' 
 #' @param excel A boolean value that returns an excel spreadsheet if excel = TRUE. This spreadsheet is 
 #' created in the user's downloads folder path. 
 #' In the R console please type in: file.path(Sys.getenv("USERPROFILE"), "Downloads") in File explorer 
@@ -67,13 +62,11 @@
 #' @param paramRef A data frame which contains a completed crosswalk between TADA_ComparableDataIdentifier
 #' and ATTAINS.ParameterName. Users will need to ensure this crosswalk contains the appropriate column 
 #' names in order to run the function. Users will have two options:
-#' 
 #' 1) Supply a paramRef data frame which contains at least these four column names: 
 #' TADA.CharacteristicName, TADA.MethodSpeciationName, TADA.ResultSampleFractionText, ATTAINS.ParameterName
-#' 
 #' 2) Supply a paramRef data frame which contains at least these two column names:
 #' TADA.ComparableDataIdentifier and ATTAINS.ParameterName 
-#' 
+# 
 #' Users who are interested in doing an assessment for more than one org_names will need to also include in 
 #' the paramRef data frame which contains an additional column name: 'organization_name'
 #' in order to determine the proper crosswalk between TADA.ComparableDataIdentifier and ATTAINS.ParameterName
@@ -88,13 +81,6 @@
 #' @examples
 #' # This creates a blank paramRef template of UT Nutrients data. Users will need to fill this template out.
 #' paramRef_UT <- TADA_CreateParamRef(Data_Nutrients_UT, org_names = "Utah", excel = FALSE)
-#' 
-#' # User can also choose to edit the paramRef crosswalk in excel (recommended). They will need to include 
-#' # the argument (excel = TRUE, overwrite = TRUE) as an input when creating the excel spreadsheet. 
-#' 
-#' \dontrun {
-#' paramRef_UT <- TADA_CreateParamRef(Data_Nutrients_UT, org_names = "Utah", excel = TRUE, overwrite = TRUE)
-#' }
 #' 
 #' # User can choose to edit the paramRef_UT through the R environment or in the excel spreadsheet. User
 #' # should be aware that any updates done only in the R environment will not reflect the 'ATTAINS.FlagParameterName 
@@ -235,6 +221,8 @@ TADA_CreateParamRef <- function(.data, org_names = NULL, paramRef = NULL, excel 
       # filter(if(sum(!is.na(organization_name))) !is.na(organization_name) else T) %>%
       dplyr::distinct()
   }
+  
+  rm(TADA_param)
   
   # Re-runs the flagging data after a user has inputted values - will need to be done if a user only inputs values in the R environment and not in excel.
   if (is.null(paramRef)) {
@@ -449,6 +437,7 @@ TADA_CreateParamRef <- function(.data, org_names = NULL, paramRef = NULL, excel 
 #' # Users can include the EPA304a standards by itself or compared to their org(s)
 #' paramUseRef_UT2 <- TADA_CreateParamUseRef(Data_Nutrients_UT, paramRef = paramRef_UT3, org_names = c("EPA304a", "Utah"), excel = FALSE)
 #' paramUseRef_UT3 <- TADA_CreateParamUseRef(Data_Nutrients_UT, paramRef = paramRef_UT3, org_names = c("EPA304a"), excel = FALSE)
+#' 
 TADA_CreateParamUseRef <- function(.data, org_names = NULL, paramRef = NULL, excel = FALSE, overwrite = FALSE) {
   # overwrite argument should only be used when creating an excel file.
   if (excel == FALSE && overwrite == TRUE) {
