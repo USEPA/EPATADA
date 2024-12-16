@@ -17,6 +17,20 @@ TADA_CreateParamUseRef(
 cleaning, processing, harmonization and filtering functions prior to this step as well as
 provide the geospatial components with Module 2 TADA_GetATTAINS() function.}
 
+\item{org_names}{The ATTAINS organization name must be supplied by the user. A list of
+organization names can be found by downloading the ATTAINS Domains Excel file:
+https://www.epa.gov/system/files/other-files/2023-09/DOMAINS.xlsx. Organization names
+are listed in the "OrgName" tab. The "code" column contains the organization names that
+should be used for this param. If a user does not provide an org_names argument, the function
+attempts to identify which organization name(s) are found in the dataframe to use as a reference.
+
+NOTE: USERS CAN ADD ON 'EPA304a' AS AN ORG_NAMES INPUT IF THEY ARE INTERESTED IN THE EPA304A STANDARDS
+
+This org_name argument input allows for the drop-down list to reflect prior ATTAINS parameter names
+and ATTAINS use names that were used in prior ATTAINS CWA assessment cycles by your org_name.
+Users are expected to be the subject matter experts to perform the parameter crosswalk for the org_names
+that they have provided in this function.}
+
 \item{paramRef}{A data frame which contains a completed crosswalk between TADA_ComparableDataIdentifier
 and ATTAINS.ParameterName. Users will need to ensure this crosswalk contains the appropriate column
 names in order to run the function. Users will have two options:
@@ -44,20 +58,6 @@ Example: If your organization defines pH as "pH, High" and "pH, Low" that corres
 \item{overwrite}{A Boolean value that allows users to not overwrite the excel file
 that is created. This will help prevent a user from overwriting their progress when
 completing the excel spreadsheet.}
-
-\item{org_name}{The ATTAINS organization name must be supplied by the user. A list of
-organization names can be found by downloading the ATTAINS Domains Excel file:
-https://www.epa.gov/system/files/other-files/2023-09/DOMAINS.xlsx. Organization names
-are listed in the "OrgName" tab. The "code" column contains the organization names that
-should be used for this param. If a user does not provide an org_names argument, the function
-attempts to identify which organization name(s) are found in the dataframe to use as a reference.
-
-NOTE: USERS CAN ADD ON 'EPA304a' AS AN ORG_NAMES INPUT IF THEY ARE INTERESTED IN THE EPA304A STANDARDS
-
-This org_name argument input allows for the drop-down list to reflect prior ATTAINS parameter names
-and ATTAINS use names that were used in prior ATTAINS CWA assessment cycles by your org_name.
-Users are expected to be the subject matter experts to perform the parameter crosswalk for the org_names
-that they have provided in this function.}
 }
 \value{
 A data frame which contains the columns: TADA.ComparableDataIdentifier, organization_name,
@@ -106,7 +106,7 @@ while the use_name for any other ATTAINS organization names come from ATTAINS do
 # Users are required to provide a paramRef argument first. See TADA_CreateParamRef() for additional comments.
 paramRef_UT <- TADA_CreateParamRef(Data_Nutrients_UT, org_names = "Utah", excel = FALSE)
 
-paramRef_UT2 <- dplyr::mutate(paramRef_UT, ATTAINS.ParameterName = case_when(
+paramRef_UT2 <- dplyr::mutate(paramRef_UT, ATTAINS.ParameterName = dplyr::case_when(
   TADA.CharacteristicName == "AMMONIA" ~ "AMMONIA, TOTAL",
   TADA.CharacteristicName == "NITRATE" ~ "NITRATE",
   TADA.CharacteristicName == "NITROGEN" ~ "NITRATE/NITRITE (NITRITE + NITRATE AS N)"
