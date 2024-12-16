@@ -130,47 +130,49 @@ TADA_UpdateMonitoringLocationsInATTAINS <- function(org_id = NULL) {
     
     au.info <- rATTAINS::assessment_units(organization_id = org_id)
     
-    # Create Assessment_Units df
-    # need to figure out assessment comments, they are not currently included (discuss w. FG)
-    assessment_units <- au.info %>%
-      dplyr::select(assessment_unit_identifier, assessment_unit_name, state_code,
-                    agency_code, location_description_text, use_class_name) %>%
-      dplyr::rename(ASSESSMENT_UNIT_ID = assessment_unit_identifier,
-                    ASSESSMENT_UNIT_NAME = assessment_unit_name,
-                    ASSESSMENT_UNIT_STATE = state_code,
-                    ASSESSMENT_UNIT_AGENCY = agency_code,
-                    LOCATION_DESCRIPTION = location_description_text,
-                    USE_CLASS_NAME = use_class_name
-                    ) %>%
-      dplyr::mutate(ASSESSMENT_UNIT_COMMENT = "") %>%
-      dplyr::select(ASSESSMENT_UNIT_IDENTIFIER, ASSESSMENT_UNIT_NAME, ASSESSMENT_UNIT_STATE,
-                    ASSESSMENT_UNIT_AGENCY, ASSESSMENT_UNIT_COMMENT, LOCATION_DESCRIPTION,
-                    USE_CLASS_NAME)
-    
-    # Create Water_Types df
-    water_types <- au.info %>%
-      dplyr::select(assessment_unit_identifier, water_type_code, water_size_number,
-                    units_code, size_source_text, size_estimation_method_code,
-                    size_source_scale_text) %>%
-      dplyr::rename(ASSESSMENT_UNIT_ID = assessment_unit_identifier,
-                    WATER_TYPE = water_type_code,
-                    WATER_SIZE = water_size_number,
-                    WATER_UNIT = units_code,
-                    SIZE_SOURCE = size_source_text,
-                    ESTIMATION_METHOD = size_estimation_method_code,
-                    SOURCE_SCALE = size_source_scale_text)
-    
-    # create Locations df
-    locations <- au.info %>%
-      tidyr::unnest(locations)
-      dplyr::select(assessment_unit_identifier,
-                    location_type_code,
-                    organization_identifier,
-                    location_text) %>%
-      dplyr::rename(ASSESSMENT_UNIT_ID = assessment_unit_identifier,
-                    LOCATION_TYPE_CODE = location_type_code,
-                    LOCATION_TYPE_CONTEXT = organization_identifier,
-                    LOCATION_TEXT = location_text)
+    ## Commented out for now as per conversation w/ WR on 12/12/24 (these additional files may
+    ## not be necessary to update the ML/AUIDs in ATTAINS, will need to test in Demo ATTAINS)
+    # # Create Assessment_Units df
+    # # need to figure out assessment comments, they are not currently included (discuss w. FG)
+    # assessment_units <- au.info %>%
+    #   dplyr::select(assessment_unit_identifier, assessment_unit_name, state_code,
+    #                 agency_code, location_description_text, use_class_name) %>%
+    #   dplyr::rename(ASSESSMENT_UNIT_ID = assessment_unit_identifier,
+    #                 ASSESSMENT_UNIT_NAME = assessment_unit_name,
+    #                 ASSESSMENT_UNIT_STATE = state_code,
+    #                 ASSESSMENT_UNIT_AGENCY = agency_code,
+    #                 LOCATION_DESCRIPTION = location_description_text,
+    #                 USE_CLASS_NAME = use_class_name
+    #                 ) %>%
+    #   dplyr::mutate(ASSESSMENT_UNIT_COMMENT = "") %>%
+    #   dplyr::select(ASSESSMENT_UNIT_IDENTIFIER, ASSESSMENT_UNIT_NAME, ASSESSMENT_UNIT_STATE,
+    #                 ASSESSMENT_UNIT_AGENCY, ASSESSMENT_UNIT_COMMENT, LOCATION_DESCRIPTION,
+    #                 USE_CLASS_NAME)
+    # 
+    # # Create Water_Types df
+    # water_types <- au.info %>%
+    #   dplyr::select(assessment_unit_identifier, water_type_code, water_size_number,
+    #                 units_code, size_source_text, size_estimation_method_code,
+    #                 size_source_scale_text) %>%
+    #   dplyr::rename(ASSESSMENT_UNIT_ID = assessment_unit_identifier,
+    #                 WATER_TYPE = water_type_code,
+    #                 WATER_SIZE = water_size_number,
+    #                 WATER_UNIT = units_code,
+    #                 SIZE_SOURCE = size_source_text,
+    #                 ESTIMATION_METHOD = size_estimation_method_code,
+    #                 SOURCE_SCALE = size_source_scale_text)
+    # 
+    # # create Locations df
+    # locations <- au.info %>%
+    #   tidyr::unnest(locations)
+    #   dplyr::select(assessment_unit_identifier,
+    #                 location_type_code,
+    #                 organization_identifier,
+    #                 location_text) %>%
+    #   dplyr::rename(ASSESSMENT_UNIT_ID = assessment_unit_identifier,
+    #                 LOCATION_TYPE_CODE = location_type_code,
+    #                 LOCATION_TYPE_CONTEXT = organization_identifier,
+    #                 LOCATION_TEXT = location_text)
     
     # Monitoring_Stations <- ASSESSMENT_UNIT_ID, MS_ORG_ID, MS_LOCATION_ID, MS_DATA_LINK
     
