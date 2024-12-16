@@ -67,7 +67,7 @@ the crosswalk between ATTAINS.ParameterName, use_name and TADA.ComparableDataIde
 \description{
 Users will be required to validate the use name crosswalk that applies to their org(s)
 for each ATTAIN parameter name and associated use_name to the TADA/WQP characteristic names/
-TADA.ComparableDataIentifier. This crosswalk will need to be done
+TADA.ComparableDataIdentifier. This crosswalk will need to be done
 by determining if the matched 'use_name' from the drop-down excel spreadsheet aligns
 with the corresponding unique list of TADA/WQP Characteristic Names/TADA.ComparableDataIentifier.
 }
@@ -105,8 +105,6 @@ while the use_name for any other ATTAINS organization names come from ATTAINS do
 \examples{
 # Users are required to provide a paramRef argument first. See TADA_CreateParamRef() for additional comments.
 paramRef_UT <- TADA_CreateParamRef(Data_Nutrients_UT, org_names = "Utah", excel = FALSE)
-
-paramRef_UT <- TADA_CreateParamRef(Data_Nutrients_UT, org_names = "Utah", excel = TRUE, overwrite = TRUE)
 
 paramRef_UT2 <- dplyr::mutate(paramRef_UT, ATTAINS.ParameterName = case_when(
   TADA.CharacteristicName == "AMMONIA" ~ "AMMONIA, TOTAL",
