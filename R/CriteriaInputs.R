@@ -143,7 +143,7 @@ TADA_CreateParamRef <- function(.data, org_names = NULL, paramRef = NULL, excel 
           Please ensure that you have ran TADA_GetATTAINS if you did not provide an org_names argument input.")
     print("Users should provide a list of ATTAINS organization state or tribal name that pertains to their assessment.")
     TADA_CheckColumns(.data, "ATTAINS.organizationname")
-    org_names <- unique(na.omit(.data[, "ATTAINS.organizationname"]))
+    org_names <- unique(stats::na.omit(.data[, "ATTAINS.organizationname"]))
   }
   
   org_names <- as.list(org_names)
@@ -641,17 +641,17 @@ TADA_CreateParamUseRef <- function(.data, org_names = NULL, paramRef = NULL, exc
     for (i in 1:nrow(CreateParamUseRef)) {
       openxlsx::conditionalFormatting(wb, "CreateParamUseRef",
                                       cols = 5, rows = 1:i + 1,
-                                      type = "blanks", style = createStyle(bgFill = "#FFC7CE")
+                                      type = "blanks", style = openxlsx::createStyle(bgFill = "#FFC7CE")
       )
       
       openxlsx::conditionalFormatting(wb, "CreateParamUseRef",
                                       cols = 5, rows = 1:i + 1,
-                                      type = "notBlanks", style = createStyle(bgFill = TADA_ColorPalette()[8])
+                                      type = "notBlanks", style = openxlsx::createStyle(bgFill = TADA_ColorPalette()[8])
       )
       
       openxlsx::conditionalFormatting(wb, "CreateParamUseRef",
                                       cols = 5, rows = 1:i + 1,
-                                      type = "contains", rule = c("NA"), style = createStyle(bgFill = "#FFC7CE")
+                                      type = "contains", rule = c("NA"), style = openxlsx::createStyle(bgFill = "#FFC7CE")
       )
       
       openxlsx::writeFormula(wb, "CreateParamUseRef",
@@ -676,3 +676,4 @@ TADA_CreateParamUseRef <- function(.data, org_names = NULL, paramRef = NULL, exc
   }
   return(CreateParamUseRef)
 }
+
