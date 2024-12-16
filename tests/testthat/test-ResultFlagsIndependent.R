@@ -122,6 +122,7 @@ test_that("TADA_FindPotentialDuplicatsMultipleOrgs has non-NA values for each ro
   expect_false(any(is.na(testdat$TADA.ResultSelectedMultipleOrgs)))
 })
 
+
 test_that("WQXcharValRef.rda contains only one row for each unique characteristic/source/unit combination for threshold functions", {
 
   load(file = "inst/extdata/WQXcharValRef.rda")
@@ -131,27 +132,37 @@ test_that("WQXcharValRef.rda contains only one row for each unique characteristi
   find.dups <- unit.ref %>%
     dplyr::filter(Type == "CharacteristicUnit") %>%
     dplyr::group_by(Characteristic, Source, Value.Unit) %>%
-    dplyr::mutate(Min_n = length(unique(Minimum)),
-                  Max_n = length(unique(Maximum))) %>%
+    dplyr::mutate(
+      Min_n = length(unique(Minimum)),
+      Max_n = length(unique(Maximum))
+    ) %>%
     dplyr::filter(Min_n > 1 |
-                    Max_n > 1)
-  
+      Max_n > 1)
+
   expect_true(nrow(find.dups) == 0)
-  })
+})
 
 
 test_that("range flag functions work", {
   # use random data
   upper <- TADA_RandomTestingData()
-  
+
   expect_no_error(TADA_FlagAboveThreshold(upper))
-  expect_no_warning(TADA_FlagAboveThreshold(upper)) 
+  expect_no_warning(TADA_FlagAboveThreshold(upper))
   expect_no_message(TADA_FlagAboveThreshold(upper))
   expect_no_condition(TADA_FlagAboveThreshold(upper))
-  
+
   expect_no_error(TADA_FlagBelowThreshold(upper))
-  expect_no_warning(TADA_FlagBelowThreshold(upper)) 
+  expect_no_warning(TADA_FlagBelowThreshold(upper))
   expect_no_message(TADA_FlagBelowThreshold(upper))
   expect_no_condition(TADA_FlagBelowThreshold(upper))
-  
+})
+
+
+test_that("QC results are not flagged as Continuous", {
+  cont_QC <- TADA_RandomTestingData() %>%
+    TADA_FlagContinuousData() %>%
+    dplyr::filter(TADA.ContinuousData.Flag == "Continuous")
+
+  expect_true(unique(cont_QC$TADA.ActivityType.Flag) == "Non_QC")
 })

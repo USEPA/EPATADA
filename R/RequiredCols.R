@@ -130,6 +130,7 @@ require.cols <- c(
 
   # Result Quality
   "MeasureQualifierCode", # required, could be replaced by TADA.MeasureQualifierCode.Def in future mods
+  "ResultStatusIdentifier",
   "TADA.MeasureQualifierCode.Flag", # generated
   "TADA.MeasureQualifierCode.Def", # generated, could replace MeasureQualifierCode in future mods
   "ResultCommentText",
@@ -181,8 +182,7 @@ require.cols <- c(
   "HUCEightDigitCode",
   "MonitoringLocationIdentifier", # required
   "TADA.MonitoringLocationIdentifier",
-
-  # Groundwater fields
+  # Groundwater fields, used for auto filtering for assessment use case but should not be required to have in TADA template
   "AquiferName", # filter, groundwater
   "AquiferTypeName", # filter
   "LocalAqfrName", # filter, groundwater
@@ -195,6 +195,7 @@ require.cols <- c(
 
 # ordered list of non-essential WQP columns that can be removed from df
 extra.cols <- c(
+  # Others
   "ActivityDepthAltitudeReferencePointText",
   "ActivityEndDate",
   "ActivityEndTime.Time",
@@ -204,7 +205,6 @@ extra.cols <- c(
   "SampleAquifer",
   "ActivityLocation.LatitudeMeasure",
   "ActivityLocation.LongitudeMeasure",
-  "ResultStatusIdentifier",
   "ResultWeightBasisText",
   "ResultTemperatureBasisText",
   "ResultParticleSizeBasisText",
@@ -217,6 +217,7 @@ extra.cols <- c(
   "timeZoneStart", # no longer in default dataRetrieval profile? 11/7/24
   "timeZoneEnd", # no longer in default dataRetrieval profile? 11/7/24
   "ActivityStartTime.TimeZoneCode_offset", # new column from default dataRetrieval profile? 11/7/24
+  "ActivityEndTime.TimeZoneCode_offset", # new column from default dataRetrieval profile? 11/21/24
   "SourceMapScaleNumeric",
   "HorizontalAccuracyMeasure.MeasureValue",
   "HorizontalAccuracyMeasure.MeasureUnitCode",
@@ -348,6 +349,8 @@ TADA_GetTemplate <- function() {
 #' @param .data A dataframe
 #'
 #' @return Boolean result indicating whether or not the input dataframe contains all of the TADA profile fields.
+#'
+#' @export
 #'
 #' @examples
 #' \dontrun{

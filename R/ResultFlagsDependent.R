@@ -804,6 +804,18 @@ TADA_FlagMeasureQualifierCode <- function(.data, clean = FALSE, flaggedonly = FA
   TADA_CheckType(flaggedonly, "logical")
   # check .data has required columns
   TADA_CheckColumns(.data, "MeasureQualifierCode")
+  # check .data MeasureQualifierCode is not all NA. If it is, don't run function and return .data
+  if (all(is.na(.data$MeasureQualifierCode))) {
+    print("Data frame does not include any information (all NA's) in MeasureQualifierCode.")
+
+    .data <- .data %>%
+      dplyr::mutate(TADA.MeasureQualifierCode.Flag = "Pass") %>%
+      dplyr::mutate(TADA.MeasureQualifierCode.Def = "NA - Not Applicable")
+
+    .data <- TADA_OrderCols(.data)
+
+    return(.data)
+  }
 
   # execute function after checks are passed
   # delete existing flag column
