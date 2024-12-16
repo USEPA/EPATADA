@@ -213,7 +213,7 @@ TADA_CreateParamRef <- function(.data, org_names = NULL, paramRef = NULL, excel 
     
     CreateParamRef <- TADA_param %>%
       dplyr::left_join(paramRef, c("TADA.CharacteristicName", "TADA.ComparableDataIdentifier", "organization_name"), relationship = "many-to-many") %>%
-      dplyr::rename(any_of(c(EPA304A.PollutantName = "EPA304A.PollutantName.x", organization_name = "organization_name.x", ATTAINS.ParameterName = "ATTAINS.ParameterName.y"))) %>%
+      dplyr::rename(dplyr::any_of(c(EPA304A.PollutantName = "EPA304A.PollutantName.x", organization_name = "organization_name.x", ATTAINS.ParameterName = "ATTAINS.ParameterName.y"))) %>%
       dplyr::select(TADA.CharacteristicName, TADA.ComparableDataIdentifier, organization_name, EPA304A.PollutantName, ATTAINS.ParameterName) %>%
       dplyr::filter(organization_name %in% org_names) %>%
       dplyr::arrange(organization_name, TADA.CharacteristicName) %>%
@@ -306,12 +306,12 @@ TADA_CreateParamRef <- function(.data, org_names = NULL, paramRef = NULL, excel 
     for (i in 1:nrow(TADA_param)) {
       openxlsx::conditionalFormatting(wb, "CreateParamRef",
                                       cols = 5, rows = 1:i + 1,
-                                      type = "blanks", style = createStyle(bgFill = "#FFC7CE")
+                                      type = "blanks", style = openxlsx::createStyle(bgFill = "#FFC7CE")
       )
       
       openxlsx::conditionalFormatting(wb, "CreateParamRef",
                                       cols = 5, rows = 1:i + 1,
-                                      type = "notBlanks", style = createStyle(bgFill = TADA_ColorPalette()[8])
+                                      type = "notBlanks", style = openxlsx::createStyle(bgFill = TADA_ColorPalette()[8])
       )
     }
     
@@ -491,6 +491,9 @@ TADA_CreateParamUseRef <- function(.data, org_names = NULL, paramRef = NULL, exc
   
   .data <- as.data.frame(.data)
   
+  # Pulls in all domain values of parameter names in ATTAINS. Filtering by state is done in the next steps.
+  ATTAINS_param_all <- utils::read.csv(system.file("extdata", "ATTAINSParamUseEntityRef.csv", package = "EPATADA"))
+  
   if (!is.null(paramRef) & !("TADA.ComparableDataIdentifier" %in% names(paramRef))) {
     paramRef <- paramRef %>%
       dplyr::left_join(.data, c("TADA.CharacteristicName", "TADA.MethodSpeciationName", "TADA.ResultSampleFractionText")) %>%
@@ -511,9 +514,6 @@ TADA_CreateParamUseRef <- function(.data, org_names = NULL, paramRef = NULL, exc
       "One or more organization names entered by user is not found in ATTAINS."
     ))
   }
-  
-  # Pulls in all domain values of parameter names in ATTAINS. Filtering by state is done in the next steps.
-  ATTAINS_param_all <- utils::read.csv(system.file("extdata", "ATTAINSParamUseEntityRef.csv", package = "EPATADA"))
   
   ATTAINS_param <- ATTAINS_param_all %>%
     dplyr::select(organization_name, parameter, use_name) %>%
