@@ -30,6 +30,7 @@ BiologicalIntentName
 CCO
 CNENVSER
 CRS
+CWA
 CalculateTotalNP
 CalculateTotalNitrogen
 CensoredData
@@ -43,6 +44,7 @@ CharacteristicsForDepthProfile
 Chilton
 ComparableDataIdentifier
 ComparableDataIdentifiers
+ComparableDataIentifier
 ConsolidatedDepth
 ConstructionDateText
 ContinuousData
@@ -54,7 +56,10 @@ ConvertSpecialChars
 CountyCode
 CreateComparableID
 CreatePairRef
+CreateParamRef
+CreateParamUseRef
 CreateUnitRef
+CriteriaSearchTool
 DataQuality
 DataRetreival
 DataRetrieval
@@ -88,8 +93,10 @@ FlagDepthCategory
 FlagFraction
 FlagMeasureQualifierCode
 FlagMethod
+FlagParameterName
 FlagResultUnit
 FlagSpeciation
+FlagUseName
 FractionAssumptions
 FullPhysChem
 Geospatial
@@ -151,6 +158,7 @@ Msr
 MultipleOrgDupGroupID
 MultipleOrgDuplicate
 NA's
+NCTC
 NCTCShepherdstown
 ND's
 NHD
@@ -166,6 +174,7 @@ NutrientSummationGroup
 OA
 ORs
 Okabe
+OrgName
 OrganizationFormalName
 OrganizationIdentifier
 OutsideUSA
@@ -175,7 +184,10 @@ PUEBLOOFTESUQUE
 PairReplicates
 PairingGroup
 PairingGroupRank
+ParameterName
+ParameterNames
 Pojoaque
+PollutantName
 ProjectFileUrl
 ProjectName
 QAPP
@@ -228,6 +240,7 @@ ResultWeightBasisText
 RetainRequired
 Rmd
 Rtools
+RunKeyFlagFunctions
 SFNOES
 STORET
 SampleCollectionEquipmentName
@@ -247,6 +260,7 @@ StringB
 SubstituteDeprecatedChars
 SummarizeColumn
 SuspectCoordinates
+Sys
 TADA
 TADADataRetrieval
 TADAGeospatialRefLayers
@@ -259,6 +273,7 @@ TargetUnit
 Tesuque
 UG
 USEPA
+USERPROFILE
 USGS
 USGS's
 Uncomment
@@ -317,6 +332,7 @@ countycode
 cristinamullin
 crs
 csv
+cwa
 dailyagg
 dataProfile
 dataRetrieval
@@ -346,6 +362,7 @@ geospatially
 getFeatureLayer
 getLayer
 getPopup
+getenv
 ggplot
 github
 gitignore
@@ -362,6 +379,7 @@ magrittr
 manys
 mimeType
 mlt
+myfileRef
 nd
 nondetections
 nonstandardized
@@ -372,6 +390,7 @@ orgs
 ousideUSA
 outsideUSA
 param
+paramRef
 params
 pch
 pchIcons
@@ -414,7 +433,9 @@ waterdata
 waterqualitydata
 webserviceurl
 wikipedia
+wqs
 wqx
 writeLayer
 www
+xlsx
 σ
