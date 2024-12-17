@@ -10,10 +10,14 @@ TADA_CheckRequiredFields(.data)
 \item{.data}{A dataframe}
 }
 \value{
-Boolean result, TRUE or FALSE, indicating whether or not the input dataframe contains all of the required fields. If FALSE, an error will be returned that includes the names of all missing columns.
+Boolean result, TRUE or FALSE, indicating whether or not the input dataframe contains all
+of the required fields. If FALSE, an error will be returned that includes the names of all
+missing columns.
 }
 \description{
-This function checks if all fields required to run TADA functions are included in the input dataframe. It is used in the TADA Shiny application to test user supplied files for compatibility with the application.
+This function checks if all fields required to run TADA functions are included in the input
+dataframe. It is used in the TADA Shiny application to test user supplied files for compatibility
+with the application.
 }
 \examples{
 \dontrun{
@@ -26,9 +30,11 @@ physchemProfile <- TADA_ReadWQPWebServices("https://www.waterqualitydata.us/data
 projectProfile <- TADA_ReadWQPWebServices("https://www.waterqualitydata.us/data/Project/search?statecode=US\%3A09&characteristicType=Nutrient&startDateLo=04-01-2023&startDateHi=11-01-2023&mimeType=csv&zip=yes&providers=NWIS&providers=STEWARDS&providers=STORET")
 
 # Join all three profiles using TADA_JoinWQPProfiles
-TADAProfile <- TADA_JoinWQPProfiles(FullPhysChem = physchemProfile, Sites = stationProfile, Projects = projectProfile)
+TADAProfile <- TADA_JoinWQPProfiles(FullPhysChem = physchemProfile, Sites = stationProfile, 
+                                    Projects = projectProfile)
 
-# Run TADA_CheckRequiredFields, returns error message, 'The dataframe does not contain the required fields: ActivityStartDateTime'
+# Run TADA_CheckRequiredFields, returns error message, 
+# 'The dataframe does not contain the required fields: ActivityStartDateTime'
 TADA_CheckRequiredFields(TADAProfile)
 
 # Add missing col
