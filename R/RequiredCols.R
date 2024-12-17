@@ -355,22 +355,33 @@ TADA_GetTemplate <- function() {
 #' \dontrun{
 #' # Find web service URLs for each Profile using WQP User Interface (https://www.waterqualitydata.us/)
 #' # Example WQP URL: https://www.waterqualitydata.us/#statecode=US%3A09&characteristicType=Nutrient&startDateLo=04-01-2023&startDateHi=11-01-2023&mimeType=csv&providers=NWIS&providers=STEWARDS&providers=STORET
-#'
+#' 
 #' # Use TADA_ReadWQPWebServices to load the Station, Project, and Phys-Chem Result profiles
 #' stationProfile <- TADA_ReadWQPWebServices("https://www.waterqualitydata.us/data/Station/search?statecode=US%3A09&characteristicType=Nutrient&startDateLo=04-01-2023&startDateHi=11-01-2023&mimeType=csv&zip=yes&providers=NWIS&providers=STEWARDS&providers=STORET")
 #' physchemProfile <- TADA_ReadWQPWebServices("https://www.waterqualitydata.us/data/Result/search?statecode=US%3A09&characteristicType=Nutrient&startDateLo=04-01-2023&startDateHi=11-01-2023&mimeType=csv&zip=yes&dataProfile=resultPhysChem&providers=NWIS&providers=STEWARDS&providers=STORET")
 #' projectProfile <- TADA_ReadWQPWebServices("https://www.waterqualitydata.us/data/Project/search?statecode=US%3A09&characteristicType=Nutrient&startDateLo=04-01-2023&startDateHi=11-01-2023&mimeType=csv&zip=yes&providers=NWIS&providers=STEWARDS&providers=STORET")
-#'
+#' 
 #' # Join all three profiles using TADA_JoinWQPProfiles
 #' TADAProfile <- TADA_JoinWQPProfiles(FullPhysChem = physchemProfile, Sites = stationProfile, Projects = projectProfile)
-#'
+#' 
 #' # Run TADA_CheckRequiredFields, returns error message, 'The dataframe does not contain the required fields: ActivityStartDateTime'
 #' TADA_CheckRequiredFields(TADAProfile)
 #' 
 #' # Add missing col
-#' TADAProfile$ActivityStartDateTime <- as.POSIXct(paste(TADAProfile$ActivityStartDate, TADAProfile$ActivityStartTime.Time), tz = "UTC")
-#' # re-run check, returns 'TRUE'
-#' TADA_CheckRequiredFields(TADAProfile)
+#' TADAProfile1 <- dataRetrieval:::create_dateTime(df = TADAProfile, 
+#'                                                 date_col = "ActivityStartDate", 
+#'                                                 time_col = "ActivityStartTime.Time",
+#'                                                 tz_col = "ActivityStartTime.TimeZoneCode", 
+#'                                                 tz = "UTC")
+#' 
+#' review_TADAProfile1 = TADAProfile1 %>% dplyr::select(c("ActivityStartDate", 
+#'                                                        "ActivityStartTime.Time", 
+#'                                                        "ActivityStartTime.TimeZoneCode", 
+#'                                                        "ActivityStartDateTime",
+#'                                                        "ActivityStartTime.TimeZoneCode_offset"))
+#' 
+#' # re-run TADA_CheckRequiredFields, returns TRUE
+#' TADA_CheckRequiredFields(TADAProfile1)
 #' }
 #'
 TADA_CheckRequiredFields <- function(.data) {

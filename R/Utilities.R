@@ -274,12 +274,13 @@ TADA_AutoClean <- function(.data) {
   if ("ActivityStartDateTime" %in% colnames(.data)) {
     .data <- .data
   } else {
-    # create ActivityStartDateTime from ActivityStartDate and ActivityStartTime.Time
+    # creates ActivityStartDateTime and ActivityStartTime.TimeZoneCode_offset
     # this is only needed when dataRetrieval is not used to get WQP data
-    # need to edit so the formats are the same -- data retrieval includes "2022-06-08 16:00:00"
-    # vs. this produces "2023-05-11 11:45:00 UTC"
-    .data$ActivityStartDateTime <- as.POSIXct(
-      paste(.data$ActivityStartDate, .data$ActivityStartTime.Time), tz = "UTC")
+    .data <- dataRetrieval:::create_dateTime(df = .data, 
+                                             date_col = "ActivityStartDate", 
+                                             time_col = "ActivityStartTime.Time",
+                                             tz_col = "ActivityStartTime.TimeZoneCode", 
+                                             tz = "UTC")
   }
   
   # Transform "Dissolved oxygen (DO)" characteristic name to "DISSOLVED OXYGEN SATURATION" IF
