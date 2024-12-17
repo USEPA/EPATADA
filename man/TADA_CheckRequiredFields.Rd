@@ -32,9 +32,20 @@ TADAProfile <- TADA_JoinWQPProfiles(FullPhysChem = physchemProfile, Sites = stat
 TADA_CheckRequiredFields(TADAProfile)
 
 # Add missing col
-TADAProfile$ActivityStartDateTime <- as.POSIXct(paste(TADAProfile$ActivityStartDate, TADAProfile$ActivityStartTime.Time), tz = "UTC")
-# re-run check, returns 'TRUE'
-TADA_CheckRequiredFields(TADAProfile)
+TADAProfile1 <- dataRetrieval:::create_dateTime(df = TADAProfile, 
+                                                date_col = "ActivityStartDate", 
+                                                time_col = "ActivityStartTime.Time",
+                                                tz_col = "ActivityStartTime.TimeZoneCode", 
+                                                tz = "UTC")
+
+review_TADAProfile1 = TADAProfile1 \%>\% dplyr::select(c("ActivityStartDate", 
+                                                       "ActivityStartTime.Time", 
+                                                       "ActivityStartTime.TimeZoneCode", 
+                                                       "ActivityStartDateTime",
+                                                       "ActivityStartTime.TimeZoneCode_offset"))
+
+# re-run TADA_CheckRequiredFields, returns TRUE
+TADA_CheckRequiredFields(TADAProfile1)
 }
 
 }
