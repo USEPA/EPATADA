@@ -32,7 +32,9 @@ Random WQP dataset.
 \description{
 Retrieves data for a period of time in the past 20 years using
 TADA_DataRetrieval. This function can be used for testing functions on
-random datasets.
+random datasets. Only random data sets with 10 or more results will be returned.
+If a random dataset has fewer than 10 results, the function will automatically
+create another random WQP query until a df with greater than 10 results is returned.
 }
 \examples{
 \dontrun{
