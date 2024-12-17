@@ -2,7 +2,7 @@
 % Please edit documentation in R/RequiredCols.R
 \name{TADA_CheckRequiredFields}
 \alias{TADA_CheckRequiredFields}
-\title{TADA Module 1 Required Fields Check}
+\title{TADA Required Fields Check}
 \usage{
 TADA_CheckRequiredFields(.data)
 }
@@ -10,11 +10,10 @@ TADA_CheckRequiredFields(.data)
 \item{.data}{A dataframe}
 }
 \value{
-Boolean result indicating whether or not the input dataframe contains all of the TADA profile fields.
+Boolean result, TRUE or FALSE, indicating whether or not the input dataframe contains all of the required fields. If FALSE, an error will be returned that includes the names of all missing columns.
 }
 \description{
-This function checks if all required fields for TADA Module 1 are
-included in the input dataframe.
+This function checks if all fields required to run TADA functions are included in the input dataframe. It is used in the TADA Shiny application to test user supplied files for compatibility with the application.
 }
 \examples{
 \dontrun{
@@ -29,8 +28,13 @@ projectProfile <- TADA_ReadWQPWebServices("https://www.waterqualitydata.us/data/
 # Join all three profiles using TADA_JoinWQPProfiles
 TADAProfile <- TADA_JoinWQPProfiles(FullPhysChem = physchemProfile, Sites = stationProfile, Projects = projectProfile)
 
-# Run TADA_CheckRequiredFields
-CheckRequirements_TADAProfile <- TADA_CheckRequiredFields(TADAProfile)
+# Run TADA_CheckRequiredFields, returns error message, 'The dataframe does not contain the required fields: ActivityStartDateTime'
+TADA_CheckRequiredFields(TADAProfile)
+
+# Add missing col
+TADAProfile$ActivityStartDateTime <- as.POSIXct(paste(TADAProfile$ActivityStartDate, TADAProfile$ActivityStartTime.Time), tz = "UTC")
+# re-run check, returns 'TRUE'
+TADA_CheckRequiredFields(TADAProfile)
 }
 
 }

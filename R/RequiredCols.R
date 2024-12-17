@@ -341,14 +341,13 @@ TADA_GetTemplate <- function() {
 
 
 
-#' TADA Module 1 Required Fields Check
+#' TADA Required Fields Check
 #'
-#' This function checks if all required fields for TADA Module 1 are
-#' included in the input dataframe.
+#' This function checks if all fields required to run TADA functions are included in the input dataframe. It is used in the TADA Shiny application to test user supplied files for compatibility with the application.
 #'
 #' @param .data A dataframe
 #'
-#' @return Boolean result indicating whether or not the input dataframe contains all of the TADA profile fields.
+#' @return Boolean result, TRUE or FALSE, indicating whether or not the input dataframe contains all of the required fields. If FALSE, an error will be returned that includes the names of all missing columns.
 #'
 #' @export
 #'
@@ -365,8 +364,13 @@ TADA_GetTemplate <- function() {
 #' # Join all three profiles using TADA_JoinWQPProfiles
 #' TADAProfile <- TADA_JoinWQPProfiles(FullPhysChem = physchemProfile, Sites = stationProfile, Projects = projectProfile)
 #'
-#' # Run TADA_CheckRequiredFields
-#' CheckRequirements_TADAProfile <- TADA_CheckRequiredFields(TADAProfile)
+#' # Run TADA_CheckRequiredFields, returns error message, 'The dataframe does not contain the required fields: ActivityStartDateTime'
+#' TADA_CheckRequiredFields(TADAProfile)
+#' 
+#' # Add missing col
+#' TADAProfile$ActivityStartDateTime <- as.POSIXct(paste(TADAProfile$ActivityStartDate, TADAProfile$ActivityStartTime.Time), tz = "UTC")
+#' # re-run check, returns 'TRUE'
+#' TADA_CheckRequiredFields(TADAProfile)
 #' }
 #'
 TADA_CheckRequiredFields <- function(.data) {
@@ -380,8 +384,10 @@ TADA_CheckRequiredFields <- function(.data) {
   if (all(require.originals %in% colnames(.data)) == TRUE) {
     TRUE
   } else {
-    stop("The dataframe does not contain the required fields.")
-  }
+    missingcols <- base::setdiff(require.originals, colnames(.data))
+    stop("The dataframe does not contain the required fields: ", 
+               paste(as.character(missingcols), 
+                     collapse = ", "))  }
 }
 
 

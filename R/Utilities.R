@@ -224,7 +224,6 @@ TADA_AutoClean <- function(.data) {
   # execute function after checks are passed
   
 
-
   # check to make sure columns do not already exist and capitalize fields with known synonyms that
   # only differ in caps
   print("TADA_Autoclean: creating TADA-specific columns.")
@@ -272,6 +271,17 @@ TADA_AutoClean <- function(.data) {
     .data$TADA.ResultMeasure.MeasureUnitCode <- toupper(.data$ResultMeasure.MeasureUnitCode)
   }
 
+  if ("ActivityStartDateTime" %in% colnames(.data)) {
+    .data <- .data
+  } else {
+    # create ActivityStartDateTime from ActivityStartDate and ActivityStartTime.Time
+    # this is only needed when dataRetrieval is not used to get WQP data
+    # need to edit so the formats are the same -- data retrieval includes "2022-06-08 16:00:00"
+    # vs. this produces "2023-05-11 11:45:00 UTC"
+    .data$ActivityStartDateTime <- as.POSIXct(
+      paste(.data$ActivityStartDate, .data$ActivityStartTime.Time), tz = "UTC")
+  }
+  
   # Transform "Dissolved oxygen (DO)" characteristic name to "DISSOLVED OXYGEN SATURATION" IF
   # result unit is "%" or "% SATURATN".
   
