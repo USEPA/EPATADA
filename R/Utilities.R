@@ -945,9 +945,11 @@ TADA_GetUniqueNearbySites <- function(.data) {
 #' df <- TADA_RandomTestingData(number_of_days = 5, choose_random_state = TRUE, autoclean = FALSE)
 #' }
 #'
-TADA_RandomTestingData <- function(number_of_days = 1, choose_random_state = FALSE, autoclean = TRUE) {
+TADA_RandomTestingData <- function(number_of_days = 1, choose_random_state = FALSE, 
+                                   autoclean = TRUE) {
   
-  get_random_data <-  function(ndays = number_of_days, state_choice = choose_random_state, ac = autoclean) {
+  get_random_data <-  function(ndays = number_of_days, state_choice = choose_random_state, 
+                               ac = autoclean) {
     # choose a random day within the last 20 years
     twenty_yrs_ago <- Sys.Date() - 20 * 365
     random_start_date <- twenty_yrs_ago + sample(20 * 365, 1)
