@@ -402,7 +402,7 @@ TADA_CheckRequiredFields <- function(.data) {
     TRUE
   } else {
     missingcols <- base::setdiff(require.originals, colnames(.data))
-    stop("The dataframe does not contain the required fields: ", 
+    stop("TADA_CheckRequiredFields: the dataframe does not contain the required fields: ", 
                paste(as.character(missingcols), 
                      collapse = ", "))  }
 }
