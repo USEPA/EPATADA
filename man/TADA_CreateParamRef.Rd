@@ -13,9 +13,9 @@ TADA_CreateParamRef(
 )
 }
 \arguments{
-\item{.data}{A TADA dataframe. Users are expected to have already run the appropriate data
-cleaning, processing, harmonization and filtering functions prior to this step as well as
-provide the geospatial components with Module 2 TADA_GetATTAINS() function.}
+\item{.data}{A TADA dataframe. The user should run all desired data cleaning, processing,
+harmonization, filtering, and addition of geospatial components (via TADA_GetATTAINS) functions
+prior to running TADA_CreateParamRef.}
 
 \item{org_names}{The ATTAINS organization name must be supplied by the user. A list of
 organization names can be found by downloading the ATTAINS Domains Excel file:
@@ -24,95 +24,115 @@ are listed in the "OrgName" tab. The "code" column contains the organization nam
 should be used for this param. If a user does not provide an org_names argument, the function
 attempts to identify which organization name(s) are found in the dataframe to use as a reference.}
 
-\item{paramRef}{A data frame which contains a completed crosswalk between TADA_ComparableDataIdentifier
-and ATTAINS.ParameterName. Users will need to ensure this crosswalk contains the appropriate column
-names in order to run the function. Users will have two options:
+\item{paramRef}{A data frame which contains a completed crosswalk between
+TADA_ComparableDataIdentifier and ATTAINS.ParameterName. Users will need to ensure this crosswalk
+contains the appropriate column names in order to run the function. Users will have two options:
 \enumerate{
 \item Supply a paramRef data frame which contains at least these four column names:
-TADA.CharacteristicName, TADA.MethodSpeciationName, TADA.ResultSampleFractionText, ATTAINS.ParameterName
+TADA.CharacteristicName, TADA.MethodSpeciationName, TADA.ResultSampleFractionText, and
+ATTAINS.ParameterName
 \item Supply a paramRef data frame which contains at least these two column names:
 TADA.ComparableDataIdentifier and ATTAINS.ParameterName
-Users who are interested in doing an assessment for more than one org_names will need to also include in
-the paramRef data frame which contains an additional column name: 'organization_name'
-in order to determine the proper crosswalk between TADA.ComparableDataIdentifier and ATTAINS.ParameterName
-by organization name.
+Users who are interested in doing an assessment for more than one org_names will need to also
+include in the paramRef data frame which contains an additional column name: 'organization_name'
+in order to determine the proper crosswalk between TADA.ComparableDataIdentifier and
+ATTAINS.ParameterName by organization name.
 }}
 
-\item{excel}{A boolean value that returns an excel spreadsheet if excel = TRUE. This spreadsheet is
-created in the user's downloads folder path.
-In the R console please type in: file.path(Sys.getenv("USERPROFILE"), "Downloads") in File explorer
-if there is trouble locating the file. The file will be named "myfileRef.xlsx".
-The excel spreadsheet will highlight the cells in which users should input information. Users may need to
-insert additional rows to capture certain ATTAINS.ParameterName that correspond with multiple TADA.CharacteristicName.
-Example: If your organization defines pH as "pH, High" and "pH, Low" that correspond to the TADA.CharacteristicName 'PH'.}
+\item{excel}{A Boolean value that returns an excel spreadsheet if excel = TRUE. This spreadsheet
+is created in the user's downloads folder path. In the R console please type in:
+file.path(Sys.getenv("USERPROFILE"), "Downloads") in File explorer if there is trouble locating
+the file. The file will be named "myfileRef.xlsx". The excel spreadsheet will highlight the
+cells in which users should input information. Users may need to insert additional rows for
+\enumerate{
+\item ATTAINS.ParameterName that correspond with multiple TADA.ComparableDataIdentifiers
+Example: An org uses "ALUMINUM" for all aluminum related parameter causes, but this
+ATTAINS.parameter name may crosswalk to "ALUMINUM_TOTAL_NA_UG/L" for one designated use and
+"ALUMINUM_DISSOLVED_NA_UG/L"
+or
+\item TADA.ComparableDataIdentifiers which are matched with multiple ATTAINS.ParameterNames.
+Example: An org uses both "pH, HIGH" and "pH, LOW" as ATTAINS.ParameterNames, both crosswalk
+to the TADA.ComparableDataIdentifier "PH_NA_NA_STD UNITS".
+}}
 
 \item{overwrite}{A Boolean value that allows users to not overwrite the excel file
 that is created. This will help prevent a user from overwriting their progress when
 completing the excel spreadsheet.}
 }
 \value{
-A data frame which contains the columns: TADA.ComparableDataIdentifier, organization_name,
-EPA304A.PollutantName, ATTAINS.ParameterName, and ATTAINS.FlagParameterName. Users will need to complete
-the crosswalk between ATTAINS.ParameterName and TADA.ComparableDataIdentifier.
+A data frame which contains the columns: TADA.ComparableDataIdentifier,
+organization_name, EPA304A.PollutantName, ATTAINS.ParameterName, and ATTAINS.FlagParameterName.
+Users will need to complete the crosswalk between ATTAINS.ParameterName and
+TADA.ComparableDataIdentifier.
 }
 \description{
-Users will be required to complete and provide a crosswalk of the appropriate mapping
-between ATTAINS parameter names for their organization with each TADA/WQP characteristic names/
-TADA.ComparableDataIdentifier, found in the user's TADA data frame. This crosswalk allows
-users to select which 'ATTAINS.ParameterName' from the drop-down excel spreadsheet aligns
-with the corresponding unique list of TADA/WQP Characteristic Names/TADA.ComparableDataIdentifier.
+To use TADA functions to compare WQP data with numeric criteria, users are be required to
+provide a crosswalk between ATTAINS parameter names used by their organization and each
+TADA.ComparableDataIdentifier present in the TADA dataframe. This function creates a draft
+crosswalk that can be modififed by users. The default for this function is to generate an
+excel spreadsheet which allows users to select which 'ATTAINS.ParameterName' from the
+drop-down list excel spreadsheet aligns with each TADA.ComparableDataIdentifier.
 }
 \details{
-If an ATTAINS parameter name is not listed as a prior domain value for your org from prior
-ATTAINS assessment cycles, users should consider contacting the ATTAINS team to add this to the domain list.
+If there is no existing ATTAINS parameter name that corresponds with a
+TADA.ComparableDataIdentifier needed for an organization's assessments, users should contact the
+ATTAINS team to inquire about adding the parameter. Users are free to use any ATTAINS parameter
+names found in the ATTAINS parameter domain value list (add link to ref file from HRM crosswalk
+branch), even if the parameter name has not previously been listed as a cause by the
+organization.
+
 Otherwise, users can still proceed by overriding the data validation by value pasting.
 Users will be warned in the ATTAINS.FlagParameterName column if they choose to include an
 ATTAINS.ParameterName that was not named in prior ATTAINS assessment cycles as:
-'Suspect: parameter name is not found as a prior parameter name for this organization'
+'Suspect: parameter name is not found as a prior parameter name for this organization'.
 
-Users who already have a completed dataframe of this parameter crosswalk, that contains the
-required column names from this function, can provide this as a reference for an argument
-input, which would allow users to join this data to the blank output table template
-from this function. From there, users will need to determine if any new TADA parameters
-need to be matched with any ATTAIN parameters based on any missing cell values.
+Users who have already created a parameter crosswalk can provide it as an input to the function.
+Any previous crosswalk decisions the user had made regarding TADA.ComparableDataIdentifiers from
+the original TADA df will be added to the new crosswalk. Users can then identify and fill any
+missing cell values that were either not addressed in the creation of the original crosswalk or
+which pertain to TADA.ComparableDataIdentifiers not included in the original crosswalk.
 
-Users will need to ensure that this crosswalk table they provide contains the appropriate column
-names that are needed in order to run the function. Users will have two options:
+The user-supplied crosswalk table must contain the required columns. Users will have two options:
 \enumerate{
 \item Supply a paramRef data frame which contains at least these four column names:
-TADA.CharacteristicName, TADA.MethodSpeciationName, TADA.ResultSampleFractionText, ATTAINS.ParameterName
+TADA.CharacteristicName, TADA.MethodSpeciationName, TADA.ResultSampleFractionText,
+and ATTAINS.ParameterName.
 \item Supply a paramRef data frame which contains at least these two column names:
-TADA.ComparableDataIdentifier and ATTAINS.ParameterName
+TADA.ComparableDataIdentifier and ATTAINS.ParameterName .
 }
 
-Users who are interested in doing an assessment for more than one org_names will need to also include in
-the paramRef data frame which contains an additional column name: 'organization_name'
-in order to determine the proper crosswalk between TADA.ComparableDataIdentifier and ATTAINS.ParameterName
-by organization name.
+Users who are interested in doing an assessment or comparing criteria for more than organization
+also need to include an additional column name: 'organization_name'. This ensures that
+crosswalk between TADA.ComparableDataIdentifier and ATTAINS.ParameterName are correct for
+each organization.
 
-A crosswalk between TADA.CharacteristicName and EPA 304A pollutant names (sourced from the Criteria Search Tool)
-has been done on the EPATADA internal team. This crosswalk is still in development and only focuses on the
-priority TADA.CharacteristicName.
+A draft crosswalk between TADA.CharacteristicName and EPA 304A pollutant names (sourced from the
+Criteria Search Tool) has been created by the EPATADA team. This crosswalk is still in
+development and only focuses on the TADA priority characteristics (add link to list?).
 }
 \examples{
-# This creates a blank paramRef template of UT Nutrients data. Users will need to fill this template out.
+# This creates a blank paramRef template of UT Nutrients data. Users will need to fill this 
+# template out.
 paramRef_UT <- TADA_CreateParamRef(Data_Nutrients_UT, org_names = "Utah", excel = FALSE)
 
-# User can choose to edit the paramRef_UT through the R environment or in the excel spreadsheet. User
-# should be aware that any updates done only in the R environment will not reflect the 'ATTAINS.FlagParameterName 
-# values correctly. They are recommended to rerun the function with this completed crosswalk to do so if it 
-# is done in the R environment only and not in excel.
+# User can choose to edit the paramRef_UT through the R environment or in the excel spreadsheet. 
+# Users should be aware that any updates done only in the R environment will not reflect the 
+# 'ATTAINS.FlagParameterName' values correctly. They are recommended to rerun the function with 
+# this completed crosswalk to do so if it is done in the R environment only and not in excel.See
+# below for a simple example of this workflow:
+
 paramRef_UT2 <- dplyr::mutate(paramRef_UT, ATTAINS.ParameterName = dplyr::case_when(
     TADA.CharacteristicName == "AMMONIA" ~ "AMMONIA, TOTAL", 
     TADA.CharacteristicName == "NITRATE" ~ "NITRATE", 
     TADA.CharacteristicName == "NITROGEN" ~ "NITRATE/NITRITE (NITRITE + NITRATE AS N)" )
     )
-paramRef_UT3 <- TADA_CreateParamRef(Data_Nutrients_UT, paramRef = paramRef_UT2, org_names = "Utah", excel = FALSE)
+paramRef_UT3 <- TADA_CreateParamRef(Data_Nutrients_UT, paramRef = paramRef_UT2, 
+                                    org_names = "Utah", excel = FALSE)
 
-# Multiple org_names selection is allowed. Users should only provide org_names that pertains to their 
-# assessments for cross walking ATTAINS.ParameterNames to WQP/TADA CharacteristicName.
+# The selectin of multiple org_names is allowed
 Data_NCTCShepherdstown <- TADA_RunKeyFlagFunctions(Data_NCTCShepherdstown_HUC12)
 Data_NCTCShepherdstown2 <- TADA_HarmonizeSynonyms(Data_NCTCShepherdstown)
-paramRef_NCTC <- TADA_CreateParamRef(Data_NCTCShepherdstown2, org_names = c("Maryland", "Virginia", "Pennsylvania"), excel = FALSE)
+paramRef_NCTC <- TADA_CreateParamRef(Data_NCTCShepherdstown2, org_names = 
+                                        c("Maryland", "Virginia", "Pennsylvania"), excel = FALSE)
 
 }

@@ -253,15 +253,16 @@ TADA_CreateParamRef <- function(.data, org_names = NULL, paramRef = NULL, excel 
       dplyr::select(ATTAINS.ParameterName, organization_name) %>%
       dplyr::distinct() %>%
       dplyr::mutate(ATTAINS.FlagParameterName1 = dplyr::case_when(
-        ATTAINS.ParameterName == "Parameter not used for assessment" | is.na(ATTAINS.ParameterName) ~ "Suspect: No parameter crosswalk provided. Parameter will not be used for assessment",
-        !is.na(ATTAINS.ParameterName) ~ "Suspect: parameter name is not found as a prior use for this organization"
+        ATTAINS.ParameterName == "No parameter matched for TADA.ComparableDataIdentifier" | is.na(ATTAINS.ParameterName) ~ "No parameter matched for TADA.ComparableDataIdentifier. Parameter will not be used for assessment",
+        !ATTAINS.ParameterName %in% ATTAINS_param_all$parameter ~ "Parameter name is not included in ATTAINS, contact ATTAINS to add parameter name to Domain List",
+        !ATTAINS.ParameterName %in% ATTAINS_param$parameter ~ "parameter name is not listed as a prior cause in ATTAINS for this organization"
       ))
     
     CreateParamRef <- CreateParamRef %>%
       dplyr::left_join(Flag1, c("ATTAINS.ParameterName", "organization_name")) %>%
       dplyr::mutate(ATTAINS.FlagParameterName = dplyr::case_when(
         !is.na(ATTAINS.FlagParameterName1) ~ ATTAINS.FlagParameterName1,
-        is.na(ATTAINS.FlagParameterName1) ~ "Pass: parameter is listed as prior cause in ATTAINS and will be used for assessments"
+        is.na(ATTAINS.FlagParameterName1) ~ "Parameter name is listed as a prior cause in ATTAINS for this organization"
       )) %>%
       dplyr::select(TADA.CharacteristicName, TADA.ComparableDataIdentifier, organization_name, EPA304A.PollutantName, ATTAINS.ParameterName, ATTAINS.FlagParameterName)
     
@@ -283,6 +284,7 @@ TADA_CreateParamRef <- function(.data, org_names = NULL, paramRef = NULL, excel 
     
     wb <- openxlsx::createWorkbook()
     openxlsx::addWorksheet(wb, "CreateParamRef", visible = TRUE)
+    openxlsx::addWorksheet(wb, "ATTAINSOrgNamesParamRef", visible = TRUE)
     openxlsx::addWorksheet(wb, "Index", visible = FALSE)
     
     # set zoom size
@@ -293,39 +295,43 @@ TADA_CreateParamRef <- function(.data, org_names = NULL, paramRef = NULL, excel 
     header_st <- openxlsx::createStyle(textDecoration = "Bold")
     bodyStyle <- openxlsx::createStyle(wrapText = TRUE)
     
-    # Index of ATTAINS allowable values of Entity/Parameter
-    openxlsx::writeData(wb, "Index", startCol = 4, x = rbind(ATTAINS_param, c(rep("NA", 5))))
-    openxlsx::writeData(wb, "Index", startCol = 3, x = data.frame(organization_name = c(unique(ATTAINS_param$organization_name)))) # Should we allow all orgs?
-    openxlsx::writeData(wb, "Index", startCol = 2, x = unique(CST_param$CST.PollutantName)) # Should we allow all orgs?
-    openxlsx::writeData(wb, "Index", startCol = 1, x = data.frame(ATTAINS.ParameterName = c(unique(ATTAINS_param$parameter), "Parameter does not apply for assessment")))
+    # Index of allowable values for drop-down lists
+    openxlsx::writeData(wb, "Index", startCol = 4, x = rbind(ATTAINS_param_all, c(rep("NA", 5))))
+    openxlsx::writeData(wb, "Index", startCol = 3, x = data.frame(organization_name = c(unique(ATTAINS_param$organization_name))))
+    openxlsx::writeData(wb, "Index", startCol = 2, x = unique(CST_param$CST.PollutantName))
+    openxlsx::writeData(wb, "Index", startCol = 1, x = data.frame(ATTAINS.ParameterName = c(unique(ATTAINS_param$parameter), "No parameter matched for TADA.ComparableDataIdentifier")))
+    # Format column widths in CreateParamRef - for future considerations of formatting
     openxlsx::setColWidths(wb, "CreateParamRef", cols = 1:ncol(par), widths = "auto")
     
     openxlsx::writeData(wb, "CreateParamRef", startCol = 1, x = CreateParamRef, headerStyle = header_st)
+    # Creates a tab that contains the ATTAINS parameter-use filtered by the org_names input.
+    openxlsx::writeData(wb, "ATTAINSOrgNamesParamRef", startCol = 1, x = ATTAINS_param, headerStyle = header_st)
     
     # The list of allowable values for each column in excel tab [CreateParamRef] will be defined by the [Index] tab
     
-    # suppressWarnings(dataValidation(wb, sheet = "CreateParamRef", cols = 1, rows = 2:5000, type = "list", value = sprintf("'Index'!$A$2:$A$5000"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE))
+    # Note: If we make edits to the data validation, please ensure the entire data frame column is being referenced. Ex. the data validation will capture values in tab [Index] column h, for rows 2:50000 for input, value = sprintf("'Index'!$H$2:$H$50000")
     suppressWarnings(openxlsx::dataValidation(wb, sheet = "CreateParamRef", cols = 3, rows = 2:1000, type = "list", value = sprintf("'Index'!$C$2:$C$5000"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE))
     suppressWarnings(openxlsx::dataValidation(wb, sheet = "CreateParamRef", cols = 4, rows = 2:1000, type = "list", value = sprintf("'Index'!$B$2:$B$5000"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE))
-    suppressWarnings(openxlsx::dataValidation(wb, sheet = "CreateParamRef", cols = 5, rows = 2:1000, type = "list", value = sprintf("'Index'!$A$2:$A$5000"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE))
+    suppressWarnings(openxlsx::dataValidation(wb, sheet = "CreateParamRef", cols = 5, rows = 2:1000, type = "list", value = sprintf("'Index'!$H$2:$H$5000"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE))
     
     # remove intermediate object ATTAINS_param
-    rm(ATTAINS_param)
+    rm(ATTAINS_param, ATTAINS_param_all)
     
     for (i in 1:nrow(TADA_param)) {
       openxlsx::writeFormula(wb, "CreateParamRef",
                              startCol = 6, startRow = i + 1, array = TRUE,
-                             x = paste0("=IF(OR(E", i + 1, '="",E', i + 1, '="Parameter not used for assessment"),
-                   "Suspect: no parameter name provided. parameter will not be used for assessment",IF(ISNA(MATCH(1,(E', i + 1, "=Index!H:H)*(C", i + 1, '=Index!E:E),0)),
-                   "Suspect: parameter name is not found as a prior use for this organization",
-                   "Pass: parameter name is listed as prior cause in ATTAINS for this organization"))')
+                             x = paste0("=IF(OR(E", i + 1, '="",E', i + 1, '="No parameter matched for TADA.ComparableDataIdentifier"),
+                   "No parameter matched for TADA.ComparableDataIdentifier. Parameter will not be used for assessment",IF(ISNA(MATCH(1,(E', i + 1, "=Index!H:H)*(C", i + 1, '=Index!E:E),0)),
+                   "Parameter name is not included in ATTAINS, contact ATTAINS to add parameter name to Domain List",IF(ISNA(MATCH(1,(E', i + 1, "=ATTAINSOrgNamesParamRef!E:E)*(C", i + 1, '=ATTAINSOrgNamesParamRef!B:B),0)),
+                   "Parameter name is not listed as a prior cause in ATTAINS for this organization",
+                   "Parameter name is listed as a prior cause in ATTAINS for this organization")))')
       )
     }
     
     for (i in 1:nrow(TADA_param)) {
       openxlsx::conditionalFormatting(wb, "CreateParamRef",
                                       cols = 5, rows = 1:i + 1,
-                                      type = "blanks", style = openxlsx::createStyle(bgFill = "#FFC7CE")
+                                      type = "blanks", style = openxlsx::createStyle(bgFill = TADA_ColorPalette()[13])
       )
       
       openxlsx::conditionalFormatting(wb, "CreateParamRef",
