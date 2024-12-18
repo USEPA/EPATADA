@@ -205,6 +205,11 @@ VATribeUrl <- "https://geopub.epa.gov/arcgis/rest/services/EMEF/Tribal/MapServer
 #' }
 #'
 TADA_AutoClean <- function(.data) {
+  # need to specify this or throws error when trying to bind rows. Temporary fix for larger
+  # issue where data structure for all columns should be specified.
+  cols <- names(.data)
+  .data <- .data %>% dplyr::mutate_at(cols, as.character)
+  
   # check .data is data.frame
   TADA_CheckType(.data, "data.frame", "Input object")
 
@@ -221,6 +226,8 @@ TADA_AutoClean <- function(.data) {
   TADA_CheckColumns(.data, required_cols)
 
   # execute function after checks are passed
+  
+
 
   # check to make sure columns do not already exist and capitalize fields with known synonyms that
   # only differ in caps

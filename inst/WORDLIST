@@ -321,6 +321,7 @@ dailyagg
 dataProfile
 dataRetrieval
 datetimes
+decimaldigits
 depthcat
 devtools
 df
@@ -358,6 +359,7 @@ hucs
 hydrologic
 interoperable
 io
+lessthan
 magrittr
 manys
 mimeType

@@ -807,13 +807,13 @@ TADA_FlagMeasureQualifierCode <- function(.data, clean = FALSE, flaggedonly = FA
   # check .data MeasureQualifierCode is not all NA. If it is, don't run function and return .data
   if (all(is.na(.data$MeasureQualifierCode))) {
     print("Data frame does not include any information (all NA's) in MeasureQualifierCode.")
-    
-    .data = .data %>% 
+
+    .data <- .data %>%
       dplyr::mutate(TADA.MeasureQualifierCode.Flag = "Pass") %>%
       dplyr::mutate(TADA.MeasureQualifierCode.Def = "NA - Not Applicable")
-    
+
     .data <- TADA_OrderCols(.data)
-    
+
     return(.data)
   }
 
