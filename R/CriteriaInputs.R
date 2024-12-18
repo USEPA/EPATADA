@@ -261,6 +261,7 @@ TADA_CreateParamRef <- function(.data, org_names = NULL, paramRef = NULL, excel 
     CreateParamRef <- CreateParamRef %>%
       dplyr::left_join(Flag1, c("ATTAINS.ParameterName", "organization_name")) %>%
       dplyr::mutate(ATTAINS.FlagParameterName = dplyr::case_when(
+        is.na(ATTAINS.ParameterName) ~ "No parameter matched for TADA.ComparableDataIdentifier. Parameter will not be used for assessment",
         !is.na(ATTAINS.FlagParameterName1) ~ ATTAINS.FlagParameterName1,
         is.na(ATTAINS.FlagParameterName1) ~ "Parameter name is listed as a prior cause in ATTAINS for this organization"
       )) %>%
@@ -481,7 +482,11 @@ TADA_CreateParamUseRef <- function(.data, org_names = NULL, paramRef = NULL, exc
   }
   
   if (is.null(org_names)) {
-    print("No organization name provided, users should provide a list of ATTAINS domain organization state or tribal name that pertains to their dataframe. Attempting to pull in organization names found in the TADA data frame.")
+    print("TADA.CreateParamRef: No organization name(s) provided. Attempting to pull in organization names found in the TADA data frame.
+          Please ensure that you have ran TADA_GetATTAINS if you did not provide an org_names argument input.")
+    print("Users should provide a list of ATTAINS organization state or tribal name that pertains to their assessment.")
+    TADA_CheckColumns(.data, "ATTAINS.organizationname")
+    org_names <- unique(stats::na.omit(.data[, "ATTAINS.organizationname"]))
   }
   
   if (sum(!is.na(paramRef$ATTAINS.ParameterName)) == 0) {
@@ -595,6 +600,7 @@ TADA_CreateParamUseRef <- function(.data, org_names = NULL, paramRef = NULL, exc
     dplyr::left_join(Flag2, c("ATTAINS.ParameterName", "use_name", "organization_name")) %>%
     dplyr::left_join(Flag1, c("use_name", "organization_name")) %>%
     dplyr::mutate(ATTAINS.FlagUseName = dplyr::case_when(
+      is.na(use_name) ~ "No use name is provided. Consider choosing an appropriate use_name that applies to this parameter and your org's WQS",
       organization_name == "EPA304a" ~ "Pass: Will use the EPA304a recommended standards for this parameter",
       organization_name != "EPA304a" ~ "Pass: parameter name and use name are listed as prior cause in ATTAINS for this org and will be used for assessments",
       !is.na(ATTAINS.FlagUseName2) ~ ATTAINS.FlagUseName2,

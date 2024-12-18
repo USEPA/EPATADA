@@ -71,15 +71,15 @@ packages that have more recent versions available. If you see this
 prompt, it is recommended to update all of them (enter 1 into the
 console).
 
-```{r install_TADA, eval = F, results = 'hide'}
-remotes::install_github("USEPA/EPATADA",
-  ref = "develop",
-  dependencies = TRUE
-)
-```
+#```{r install_TADA, eval = F, results = 'hide'}
+# remotes::install_github("USEPA/EPATADA",
+#   ref = "develop",
+#   dependencies = TRUE
+# )
+#```
 
 ```{r install_TADA, eval = T, results = 'hide'}
-# hopefully to help with knit and pass the checks, but we want to make sure this chunk does not show up in the final PR, just for development.
+# help with knit and pass the checks, but we want to make sure this chunk does not show up in the final PR, just for development.
 remotes::install_github("USEPA/EPATADA",
   ref = "Create-Module-3-Reference-Tables",
   dependencies = TRUE
@@ -196,52 +196,29 @@ tables that will be needed in order to help users with defining the
 criteria magnitude assessments for a parameter and use using the
 Shepherdstown example.
 
-Load the data and run TADA_GetATTAINS on example data frame. This has
-already been done as it does take some time to run.
-
-```{r}
-test <- TADA_GetATTAINS(Data_NCTCShepherdstown_HUC12)
-Data_NCTC <- as.data.frame(test$TADA_with_ATTAINS)
-unique(Data_NCTC$OrganizationFormalName)
-```
-
 Clean, harmonize and perform QAQC on the data frame for assessment.
 
 ```{r}
-Data_NCTC3 <- TADA_RunKeyFlagFunctions(Data_NCTC)
-Data_NCTC4 <- TADA_HarmonizeSynonyms(Data_NCTC3)
+Data_NCTC <- TADA_RunKeyFlagFunctions(Data_NCTCShepherdstown_HUC12)
+Data_NCTC2 <- TADA_HarmonizeSynonyms(Data_NCTC)
 ```
 
 Filter data frame by TADA.Characteristics for a few priority
 characteristics.
 
 ```{r}
-Data_NCTC2 <- dplyr::filter(Data_NCTC4, TADA.CharacteristicName %in% c("ZINC", "PH","NITRATE"))
+Data_NCTC2 <- dplyr::filter(Data_NCTC2, TADA.CharacteristicName %in% c("ZINC", "PH","NITRATE"))
 ```
 
-Creates a blank template of ATTAINS.ParameterName which needs crosswalk.
-In this example, the user has not specified any orgs and the output will
-generate duplicate rows for each unique org names found in the TADA data
-frame.
-
-```{r}
-NCTC_ParamRef <- TADA_CreateParamRef(
-  Data_NCTC2, 
-  excel = FALSE # comment out 'excel = FALSE' and uncomment excel = TRUE, overwrite = TRUE to run the excel file
-  #excel = TRUE, overwrite = TRUE 
-  )
-```
-
-Users should specify the name(s) of their orgs that will be used for
-assessment. This will filter the drop-down list for prior parameter
-names and use names down the line in creating the reference tables.
+Creates a blank template of ATTAINS.ParameterName which needs crosswalk. Users should specify the name(s) of their orgs that will be used for
+assessment. 
 
 (Note: EPA 304a standards will be specified in the next step, but
 utilizes the CST.PollutantName column. Should we allow users to "modify"
 the CST.PollutantName crosswalk that we have done?)
 
 ```{r}
-NCTC_ParamRef2 <- TADA_CreateParamRef(
+NCTC_ParamRef <- TADA_CreateParamRef(
   Data_NCTC2, 
   org_names = c("Maryland"),
   excel = FALSE # comment out 'excel = FALSE' and uncomment excel = TRUE, overwrite = TRUE to run the excel file
@@ -264,22 +241,24 @@ names.
 #downloads_path <- file.path(Sys.getenv("USERPROFILE"), "Downloads", "myfileRef.xlsx")
 #ParamRef <- openxlsx::read.xlsx(downloads_path, sheet = "CreateParamRef")
 
-NCTC_ParamRef3 <- TADA_CreateParamRef(
+# NCTC_ParamRef3 <- TADA_CreateParamRef(
+#   Data_NCTC2, 
+#   org_names = c("Maryland"),
+#   paramRef = ParamRef,
+#   excel = FALSE # comment out 'excel = FALSE' and uncomment excel = TRUE, overwrite = TRUE to run the excel file
+#   #excel = TRUE, overwrite = TRUE 
+#   )
+
+ParamRef <- dplyr::mutate(NCTC_ParamRef, ATTAINS.ParameterName = dplyr::case_when(TADA.CharacteristicName == "NITRATE" ~ "NITROGEN, TOTAL",
+TADA.CharacteristicName == "PH" ~ "PH",
+TADA.CharacteristicName == "ZINC" ~ "ZINC"
+))
+
+NCTC_ParamRef2 <- TADA_CreateParamRef(
   Data_NCTC2, 
   org_names = c("Maryland"),
   paramRef = ParamRef,
-  excel = FALSE # comment out 'excel = FALSE' and uncomment excel = TRUE, overwrite = TRUE to run the excel file
-  #excel = TRUE, overwrite = TRUE 
-  )
-
-ParamRef2 <- dplyr::mutate(ParamRef, ATTAINS.ParameterName = case_when(TADA.CharacteristicName == "NITRATE" & !is.na(TADA.MethodSpeciationName)  ~ "NITROGEN, TOTAL"))
-
-NCTC_ParamRef3.1 <- TADA_CreateParamRef(
-  Data_NCTC2, 
-  org_names = c("Maryland"),
-  paramRef = ParamRef2,
-  excel = FALSE,
-  validate = TRUE)
+  excel = FALSE)
 ```
 
 Users may also include states outside of their spatial region if desired
@@ -297,7 +276,7 @@ criteria and methods, we will now have a way to allow states to compare
 against other states
 
 ```{r}
-NCTC_ParamRef4 <- TADA_CreateParamRef(
+NCTC_ParamRef3 <- TADA_CreateParamRef(
   Data_NCTC2, 
   org_names = c("Maryland", "Florida"),
   paramRef = ParamRef, 
@@ -316,6 +295,7 @@ Maryland.
 ```{r}
 NCTC_ParamUseRef <- TADA_CreateParamUseRef(
   Data_NCTC2, 
+  org_names = c("Maryland"),
   paramRef = ParamRef, 
   excel = FALSE # comment out 'excel = FALSE' and uncomment excel = TRUE, overwrite = TRUE to run the excel file
   #excel = TRUE, overwrite = TRUE 
@@ -329,12 +309,6 @@ will not generate rows for those parameter and use combinations for
 those additional orgs as only Maryland was defined in
 TADA_CreateParamRef().
 
-\*Look at ParamRef for reference
-
-should we change the 'org_names' argument to only 'epa304a' in this
-case? Users should have determined what orgs and parameter names are
-used in the first step in TADA_CreateParamRef() and can choose to
-include EPA304a here.
 
 ```{r}
 NCTC_ParamUseRef2 <- TADA_CreateParamUseRef(
@@ -349,7 +323,7 @@ NCTC_ParamUseRef2 <- TADA_CreateParamUseRef(
 NCTC_ParamUseRef3 <- TADA_CreateParamUseRef(
   Data_NCTC2, 
   org_names = c("EPA304a", "Maryland"), 
-  paramRef = NCTC_ParamRef3, 
+  paramRef = NCTC_ParamRef2, 
   excel = FALSE # comment out 'excel = FALSE' and uncomment excel = TRUE, overwrite = TRUE to run the excel file
   #excel = TRUE, overwrite = TRUE 
   )
@@ -359,7 +333,7 @@ NCTC_ParamUseRef3 <- TADA_CreateParamUseRef(
 NCTC_ParamUseRef4 <- TADA_CreateParamUseRef(
   Data_NCTC2, 
   org_names = c("EPA304a", "Maryland","Florida"), 
-  paramRef = NCTC_ParamRef4, 
+  paramRef = NCTC_ParamRef3, 
   excel = FALSE
   )
 ```
