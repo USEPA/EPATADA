@@ -26,24 +26,20 @@ attempts to identify which organization name(s) are found in the dataframe to us
 
 \item{paramRef}{A data frame which contains a completed crosswalk between
 TADA_ComparableDataIdentifier and ATTAINS.ParameterName. Users will need to ensure this crosswalk
-contains the appropriate column names in order to run the function. Users will have two options:
-\enumerate{
-\item Supply a paramRef data frame which contains at least these four column names:
-TADA.CharacteristicName, TADA.MethodSpeciationName, TADA.ResultSampleFractionText, and
-ATTAINS.ParameterName
-\item Supply a paramRef data frame which contains at least these two column names:
-TADA.ComparableDataIdentifier and ATTAINS.ParameterName
+contains the appropriate column names in order to run the function. Users will need to ensure that
+they supply a paramRef data frame which contains at least these two column names:
+TADA.ComparableDataIdentifier and ATTAINS.ParameterName.
 Users who are interested in doing an assessment for more than one org_names will need to also
 include in the paramRef data frame which contains an additional column name: 'organization_name'
 in order to determine the proper crosswalk between TADA.ComparableDataIdentifier and
-ATTAINS.ParameterName by organization name.
-}}
+ATTAINS.ParameterName by organization name.}
 
 \item{excel}{A Boolean value that returns an excel spreadsheet if excel = TRUE. This spreadsheet
 is created in the user's downloads folder path. In the R console please type in:
-file.path(Sys.getenv("USERPROFILE"), "Downloads") in File explorer if there is trouble locating
-the file. The file will be named "myfileRef.xlsx". The excel spreadsheet will highlight the
-cells in which users should input information. Users may need to insert additional rows for
+file.path(Sys.getenv("USERPROFILE"), "Downloads") to get the file path
+in File Explorer if there is trouble locating the file. The file will be named "myfileRef.xlsx".
+The excel spreadsheet will highlight the cells in which users should input information.
+Users may need to insert additional rows for:
 \enumerate{
 \item ATTAINS.ParameterName that correspond with multiple TADA.ComparableDataIdentifiers
 Example: An org uses "ALUMINUM" for all aluminum related parameter causes, but this

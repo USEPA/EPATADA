@@ -31,20 +31,15 @@ and ATTAINS use names that were used in prior ATTAINS CWA assessment cycles by y
 Users are expected to be the subject matter experts to perform the parameter crosswalk for the org_names
 that they have provided in this function.}
 
-\item{paramRef}{A data frame which contains a completed crosswalk between TADA_ComparableDataIdentifier
-and ATTAINS.ParameterName. Users will need to ensure this crosswalk contains the appropriate column
-names in order to run the function. Users will have two options:
-\enumerate{
-\item Supply a paramRef data frame which contains at least these four column names:
-TADA.CharacteristicName, TADA.MethodSpeciationName, TADA.ResultSampleFractionText, ATTAINS.ParameterName
-\item Supply a paramRef data frame which contains at least these two column names:
-TADA.ComparableDataIdentifier and ATTAINS.ParameterName
-}
-
-Users who are interested in doing an assessment for more than one org_names will need to also include in
-the paramRef data frame which contains an additional column name: 'organization_name'
-in order to determine the proper crosswalk between TADA.ComparableDataIdentifier and ATTAINS.ParameterName
-by organization name.}
+\item{paramRef}{A data frame which contains a completed crosswalk between
+TADA_ComparableDataIdentifier and ATTAINS.ParameterName. Users will need to ensure this crosswalk
+contains the appropriate column names in order to run the function. Users will need to ensure that
+they supply a paramRef data frame which contains at least these two column names:
+TADA.ComparableDataIdentifier and ATTAINS.ParameterName.
+Users who are interested in doing an assessment for more than one org_names will need to also
+include in the paramRef data frame which contains an additional column name: 'organization_name'
+in order to determine the proper crosswalk between TADA.ComparableDataIdentifier and
+ATTAINS.ParameterName by organization name.}
 
 \item{excel}{A boolean value that returns an excel spreadsheet if excel = TRUE. This spreadsheet is
 created in the user's downloads folder path.

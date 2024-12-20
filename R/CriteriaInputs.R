@@ -55,9 +55,10 @@
 #' 
 #' @param excel A Boolean value that returns an excel spreadsheet if excel = TRUE. This spreadsheet 
 #' is created in the user's downloads folder path. In the R console please type in: 
-#' file.path(Sys.getenv("USERPROFILE"), "Downloads") in File explorer if there is trouble locating 
-#' the file. The file will be named "myfileRef.xlsx". The excel spreadsheet will highlight the 
-#' cells in which users should input information. Users may need to insert additional rows for
+#' file.path(Sys.getenv("USERPROFILE"), "Downloads") to get the file path 
+#' in File Explorer if there is trouble locating the file. The file will be named "myfileRef.xlsx". 
+#' The excel spreadsheet will highlight the cells in which users should input information. 
+#' Users may need to insert additional rows for:
 #' 1) ATTAINS.ParameterName that correspond with multiple TADA.ComparableDataIdentifiers
 #'  Example: An org uses "ALUMINUM" for all aluminum related parameter causes, but this 
 #'  ATTAINS.parameter name may crosswalk to "ALUMINUM_TOTAL_NA_UG/L" for one designated use and
@@ -73,12 +74,9 @@
 #' 
 #' @param paramRef A data frame which contains a completed crosswalk between 
 #' TADA_ComparableDataIdentifier and ATTAINS.ParameterName. Users will need to ensure this crosswalk 
-#' contains the appropriate column names in order to run the function. Users will have two options:
-#' 1) Supply a paramRef data frame which contains at least these four column names: 
-#' TADA.CharacteristicName, TADA.MethodSpeciationName, TADA.ResultSampleFractionText, and 
-#' ATTAINS.ParameterName
-#' 2) Supply a paramRef data frame which contains at least these two column names:
-#' TADA.ComparableDataIdentifier and ATTAINS.ParameterName 
+#' contains the appropriate column names in order to run the function. Users will need to ensure that
+#' they supply a paramRef data frame which contains at least these two column names:
+#' TADA.ComparableDataIdentifier and ATTAINS.ParameterName. 
 # 
 #' Users who are interested in doing an assessment for more than one org_names will need to also 
 #' include in the paramRef data frame which contains an additional column name: 'organization_name'
@@ -253,15 +251,15 @@ TADA_CreateParamRef <- function(.data, org_names = NULL, paramRef = NULL, excel 
       dplyr::select(ATTAINS.ParameterName, organization_name) %>%
       dplyr::distinct() %>%
       dplyr::mutate(ATTAINS.FlagParameterName1 = dplyr::case_when(
-        ATTAINS.ParameterName == "No parameter matched for TADA.ComparableDataIdentifier" | is.na(ATTAINS.ParameterName) ~ "No parameter matched for TADA.ComparableDataIdentifier. Parameter will not be used for assessment",
+        ATTAINS.ParameterName == "No parameter match for TADA.ComparableDataIdentifier" | is.na(ATTAINS.ParameterName) ~ "No parameter crosswalk provided for TADA.ComparableDataIdentifier. Parameter will not be used for assessment",
         !ATTAINS.ParameterName %in% ATTAINS_param_all$parameter ~ "Parameter name is not included in ATTAINS, contact ATTAINS to add parameter name to Domain List",
-        !ATTAINS.ParameterName %in% ATTAINS_param$parameter ~ "parameter name is not listed as a prior cause in ATTAINS for this organization"
+        !ATTAINS.ParameterName %in% ATTAINS_param$parameter ~ "Parameter name is listed as a prior cause in ATTAINS, but not for this organization"
       ))
     
     CreateParamRef <- CreateParamRef %>%
       dplyr::left_join(Flag1, c("ATTAINS.ParameterName", "organization_name")) %>%
       dplyr::mutate(ATTAINS.FlagParameterName = dplyr::case_when(
-        is.na(ATTAINS.ParameterName) ~ "No parameter matched for TADA.ComparableDataIdentifier. Parameter will not be used for assessment",
+        is.na(ATTAINS.ParameterName) ~ "No parameter crosswalk provided for TADA.ComparableDataIdentifier. Parameter will not be used for assessment",
         !is.na(ATTAINS.FlagParameterName1) ~ ATTAINS.FlagParameterName1,
         is.na(ATTAINS.FlagParameterName1) ~ "Parameter name is listed as a prior cause in ATTAINS for this organization"
       )) %>%
@@ -297,10 +295,10 @@ TADA_CreateParamRef <- function(.data, org_names = NULL, paramRef = NULL, excel 
     bodyStyle <- openxlsx::createStyle(wrapText = TRUE)
     
     # Index of allowable values for drop-down lists
-    openxlsx::writeData(wb, "Index", startCol = 4, x = rbind(ATTAINS_param_all, c(rep("NA", 5))))
+    openxlsx::writeData(wb, "Index", startCol = 4, x = rbind(ATTAINS_param_all, c(rep("NA", 3),"No use name match for TADA.ComparableDataIdentifier", "No parameter match for TADA.ComparableDataIdentifier")))
     openxlsx::writeData(wb, "Index", startCol = 3, x = data.frame(organization_name = c(unique(ATTAINS_param$organization_name))))
     openxlsx::writeData(wb, "Index", startCol = 2, x = unique(CST_param$CST.PollutantName))
-    openxlsx::writeData(wb, "Index", startCol = 1, x = data.frame(ATTAINS.ParameterName = c(unique(ATTAINS_param$parameter), "No parameter matched for TADA.ComparableDataIdentifier")))
+    openxlsx::writeData(wb, "Index", startCol = 1, x = data.frame(ATTAINS.ParameterName = c(unique(ATTAINS_param$parameter), "No parameter match for TADA.ComparableDataIdentifier")))
     # Format column widths in CreateParamRef - for future considerations of formatting
     openxlsx::setColWidths(wb, "CreateParamRef", cols = 1:ncol(par), widths = "auto")
     
@@ -321,10 +319,10 @@ TADA_CreateParamRef <- function(.data, org_names = NULL, paramRef = NULL, excel 
     for (i in 1:nrow(TADA_param)) {
       openxlsx::writeFormula(wb, "CreateParamRef",
                              startCol = 6, startRow = i + 1, array = TRUE,
-                             x = paste0("=IF(OR(E", i + 1, '="",E', i + 1, '="No parameter matched for TADA.ComparableDataIdentifier"),
-                   "No parameter matched for TADA.ComparableDataIdentifier. Parameter will not be used for assessment",IF(ISNA(MATCH(1,(E', i + 1, "=Index!H:H)*(C", i + 1, '=Index!E:E),0)),
+                             x = paste0("=IF(OR(E", i + 1, '="",E', i + 1, '="No parameter match for TADA.ComparableDataIdentifier"),
+                   "No parameter crosswalk provided for TADA.ComparableDataIdentifier. Parameter will not be used for assessment",IF(ISNA(MATCH(E', i + 1, ',Index!H:H,0)),
                    "Parameter name is not included in ATTAINS, contact ATTAINS to add parameter name to Domain List",IF(ISNA(MATCH(1,(E', i + 1, "=ATTAINSOrgNamesParamRef!E:E)*(C", i + 1, '=ATTAINSOrgNamesParamRef!B:B),0)),
-                   "Parameter name is not listed as a prior cause in ATTAINS for this organization",
+                   "Parameter name is listed as a prior cause in ATTAINS, but not for this organization",
                    "Parameter name is listed as a prior cause in ATTAINS for this organization")))')
       )
     }
@@ -431,21 +429,17 @@ TADA_CreateParamRef <- function(.data, org_names = NULL, paramRef = NULL, excel 
 #' that is created. This will help prevent a user from overwriting their progress when
 #' completing the excel spreadsheet.
 #'
-#' @param paramRef A data frame which contains a completed crosswalk between TADA_ComparableDataIdentifier
-#' and ATTAINS.ParameterName. Users will need to ensure this crosswalk contains the appropriate column
-#' names in order to run the function. Users will have two options:
-#'
-#' 1) Supply a paramRef data frame which contains at least these four column names:
-#' TADA.CharacteristicName, TADA.MethodSpeciationName, TADA.ResultSampleFractionText, ATTAINS.ParameterName
-#'
-#' 2) Supply a paramRef data frame which contains at least these two column names:
-#' TADA.ComparableDataIdentifier and ATTAINS.ParameterName
-#'
-#' Users who are interested in doing an assessment for more than one org_names will need to also include in
-#' the paramRef data frame which contains an additional column name: 'organization_name'
-#' in order to determine the proper crosswalk between TADA.ComparableDataIdentifier and ATTAINS.ParameterName
-#' by organization name.
-#'
+#' @param paramRef A data frame which contains a completed crosswalk between 
+#' TADA_ComparableDataIdentifier and ATTAINS.ParameterName. Users will need to ensure this crosswalk 
+#' contains the appropriate column names in order to run the function. Users will need to ensure that
+#' they supply a paramRef data frame which contains at least these two column names:
+#' TADA.ComparableDataIdentifier and ATTAINS.ParameterName. 
+# 
+#' Users who are interested in doing an assessment for more than one org_names will need to also 
+#' include in the paramRef data frame which contains an additional column name: 'organization_name'
+#' in order to determine the proper crosswalk between TADA.ComparableDataIdentifier and 
+#' ATTAINS.ParameterName by organization name.
+#' 
 #' @return A data frame which contains the columns: TADA.ComparableDataIdentifier, organization_name,
 #' EPA304A.PollutantName, ATTAINS.ParameterName, and ATTAINS.FlagUseName. Users will need to review
 #' the crosswalk between ATTAINS.ParameterName, use_name and TADA.ComparableDataIdentifier.
