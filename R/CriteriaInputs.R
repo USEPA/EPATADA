@@ -311,7 +311,7 @@ TADA_CreateParamRef <- function(.data, org_names = NULL, paramRef = NULL, excel 
     # Note: If we make edits to the data validation, please ensure the entire data frame column is being referenced. Ex. the data validation will capture values in tab [Index] column h, for rows 2:50000 for input, value = sprintf("'Index'!$H$2:$H$50000")
     suppressWarnings(openxlsx::dataValidation(wb, sheet = "CreateParamRef", cols = 3, rows = 2:1000, type = "list", value = sprintf("'Index'!$C$2:$C$5000"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE))
     suppressWarnings(openxlsx::dataValidation(wb, sheet = "CreateParamRef", cols = 4, rows = 2:1000, type = "list", value = sprintf("'Index'!$B$2:$B$5000"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE))
-    suppressWarnings(openxlsx::dataValidation(wb, sheet = "CreateParamRef", cols = 5, rows = 2:1000, type = "list", value = sprintf("'Index'!$H$2:$H$5000"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE))
+    suppressWarnings(openxlsx::dataValidation(wb, sheet = "CreateParamRef", cols = 5, rows = 2:1000, type = "list", value = sprintf("'Index'!$H$2:$H$50000"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE))
     
     # remove intermediate object ATTAINS_param
     rm(ATTAINS_param, ATTAINS_param_all)
@@ -329,12 +329,12 @@ TADA_CreateParamRef <- function(.data, org_names = NULL, paramRef = NULL, excel 
     
     for (i in 1:nrow(TADA_param)) {
       openxlsx::conditionalFormatting(wb, "CreateParamRef",
-                                      cols = 5, rows = 1:i + 1,
+                                      cols = 5, rows = i + 1,
                                       type = "blanks", style = openxlsx::createStyle(bgFill = TADA_ColorPalette()[13])
       )
       
       openxlsx::conditionalFormatting(wb, "CreateParamRef",
-                                      cols = 5, rows = 1:i + 1,
+                                      cols = 5, rows = i + 1,
                                       type = "notBlanks", style = openxlsx::createStyle(bgFill = TADA_ColorPalette()[8])
       )
     }
@@ -662,30 +662,38 @@ TADA_CreateParamUseRef <- function(.data, org_names = NULL, paramRef = NULL, exc
     # data validation drop down list created
     # suppressWarnings(dataValidation(wb, sheet = "CreateParamUseRef", cols = 1, rows = 2:1000, type = "list", value = sprintf("'Index'!$C$2:$C$5000"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE))
     # suppressWarnings(dataValidation(wb, sheet = "CreateParamUseRef", cols = 2, rows = 2:1000, type = "list", value = sprintf("'Index'!$H$2:$H$5000"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE))
-    suppressWarnings(openxlsx::dataValidation(wb, sheet = "CreateParamUseRef", cols = 5, rows = 2:1000, type = "list", value = sprintf("'Index'!$G$2:$G$5000"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE))
+    suppressWarnings(openxlsx::dataValidation(wb, sheet = "CreateParamUseRef", cols = 5, rows = 2:1000, type = "list", value = sprintf("'Index'!$G$2:$G$50000"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE))
     
     for (i in 1:nrow(CreateParamUseRef)) {
       openxlsx::conditionalFormatting(wb, "CreateParamUseRef",
-                                      cols = 5, rows = 1:i + 1,
+                                      cols = 5, rows = i + 1,
                                       type = "blanks", style = openxlsx::createStyle(bgFill = "#FFC7CE")
       )
       
       openxlsx::conditionalFormatting(wb, "CreateParamUseRef",
-                                      cols = 5, rows = 1:i + 1,
+                                      cols = 5, rows = i + 1,
                                       type = "notBlanks", style = openxlsx::createStyle(bgFill = TADA_ColorPalette()[8])
       )
       
       openxlsx::conditionalFormatting(wb, "CreateParamUseRef",
-                                      cols = 5, rows = 1:i + 1,
+                                      cols = 5, rows = i + 1,
                                       type = "contains", rule = c("NA"), style = openxlsx::createStyle(bgFill = "#FFC7CE")
       )
       
       openxlsx::writeFormula(wb, "CreateParamUseRef",
                              startCol = 6, startRow = i + 1, array = TRUE,
-                             x = paste0("=IF(B", i + 1, '="EPA304a","Pass: Will use the EPA304a recommended standards for this parameter",IF(ISNA(MATCH(1,(E', i + 1, "=Index!G:G)*(B", i + 1, '=Index!E:E),0)),
-                "Suspect: use name is not listed as a prior use for this organization",IF(ISNA(MATCH(1,(D', i + 1, "=Index!H:H)*(E", i + 1, "=Index!G:G)*(B", i + 1, '=Index!E:E),0)),
-                "Suspect: use name is listed as a prior use name in this organization but not for this parameter name",
-                "Pass: parameter name and use name are listed as prior cause in ATTAINS for this org and will be used for assessments")))')
+                             x = paste0("=IF(B", i + 1, '="EPA304a","Will use the EPA304a recommended standards for this parameter. Do not edit EPA304a use_name",IF(ISNA(MATCH(1,(E', i + 1, "=Index!G:G)*(B", i + 1, '=Index!E:E),0)),
+                "Use name is not listed as a prior use for this organization",IF(ISNA(MATCH(1,(D', i + 1, "=Index!H:H)*(E", i + 1, "=Index!G:G)*(B", i + 1, '=Index!E:E),0)),
+                "Use name is listed as a prior use name in this organization but not for this parameter name",
+                "Parameter name and use name are listed as prior cause in ATTAINS for this org and will be used for assessments")))')
+      )
+    }
+    
+    # Separate conditional formatting loop as there are overlapping conditions
+    for (i in 1:nrow(CreateParamUseRef)) {
+      openxlsx::conditionalFormatting(wb, "CreateParamUseRef",
+                                      cols = 5, rows = i + 1,
+                                      type = "expression", rule = paste0('$B',i+1,'=="EPA304a"'), style = openxlsx::createStyle(bgFill = "#FFFFFF", borderColour = "lightgray", border = "TopBottomLeftRight")
       )
     }
     

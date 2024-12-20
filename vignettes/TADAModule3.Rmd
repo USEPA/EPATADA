@@ -71,12 +71,7 @@ packages that have more recent versions available. If you see this
 prompt, it is recommended to update all of them (enter 1 into the
 console).
 
-#```{r install_TADA, eval = F, results = 'hide'}
-# remotes::install_github("USEPA/EPATADA",
-#   ref = "develop",
-#   dependencies = TRUE
-# )
-#```
+\#`{r install_TADA, eval = F, results = 'hide'} # remotes::install_github("USEPA/EPATADA", #   ref = "develop", #   dependencies = TRUE # ) #`
 
 ```{r install_TADA, eval = T, results = 'hide'}
 # help with knit and pass the checks, but we want to make sure this chunk does not show up in the final PR, just for development.
@@ -210,8 +205,9 @@ characteristics.
 Data_NCTC2 <- dplyr::filter(Data_NCTC2, TADA.CharacteristicName %in% c("ZINC", "PH","NITRATE"))
 ```
 
-Creates a blank template of ATTAINS.ParameterName which needs crosswalk. Users should specify the name(s) of their orgs that will be used for
-assessment. 
+Creates a blank template of ATTAINS.ParameterName which needs crosswalk.
+Users should specify the name(s) of their orgs that will be used for
+assessment.
 
 (Note: EPA 304a standards will be specified in the next step, but
 utilizes the CST.PollutantName column. Should we allow users to "modify"
@@ -309,7 +305,6 @@ will not generate rows for those parameter and use combinations for
 those additional orgs as only Maryland was defined in
 TADA_CreateParamRef().
 
-
 ```{r}
 NCTC_ParamUseRef2 <- TADA_CreateParamUseRef(
   Data_NCTC2, 
@@ -339,12 +334,17 @@ NCTC_ParamUseRef4 <- TADA_CreateParamUseRef(
 ```
 
 Users must review the matching done with TADA_GetATTAINS of monitoring
-sites to AU. If there are site-specific criteria that only applies to
-some monitoring locations within an AU, whether it's an ecoregion, for a
-specific parameter and use, or if there are separate criteria for
-"warm-waters" versus "cold-waters" or "trout-based" versus other species
-based, this should be defined here. Users can further customize specific
-exclusions that pertains to their water quality assessments.
+sites to AU. Users may also provide their own AU monitoring sites match
+as a reference table. For any new WQP monitoring sites found in the TADA
+dataframe, users will need to determine the appropriate match.
+
+If there are site-specific criteria that only applies to some monitoring
+locations within an AU, whether it's an ecoregion, for a specific
+parameter and use, or if there are separate criteria for "warm-waters"
+versus "cold-waters" or "trout-based" versus other species based, this
+should be defined here. Users can further customize specific exclusions
+that pertains to their water quality assessments. Users will be
+responsible for
 
 ```{r}
 #NCTC_AUIDRef <- TADA_CreateAUIDRef(Data_NCTC2, overwrite = TRUE)
