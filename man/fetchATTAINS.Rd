@@ -9,13 +9,18 @@ fetchATTAINS(.data, catchments_only = FALSE)
 \arguments{
 \item{.data}{A dataframe developed using \code{TADA_DataRetrieval()} or \code{TADA_MakeSpatial()}.}
 
-\item{catchments_only}{Whether to return just the summarized ATTAINS catchment features, or both the catchments and raw ATTAINS features. TRUE or FALSE.}
+\item{catchments_only}{Whether to return just the summarized ATTAINS catchment features, or both
+the catchments and raw ATTAINS features. TRUE or FALSE.}
 }
 \value{
-Spatial features (ATTAINS_catchments, ATTAINS_points, ATTAINS_lines, and ATTAINS_polygons) that are within the spatial bounding box of water quality observations.
+Spatial features (ATTAINS_catchments, ATTAINS_points, ATTAINS_lines, and
+ATTAINS_polygons) that are within the spatial bounding box of water quality observations.
 }
 \description{
-Fetches ATTAINS features (state- or tribe- or other entity- submitted points, lines, and polygons representing their assessment units; and the EPA snapshot of the associated NHDPlus HR catchments that the state- or tribe- or other entity- submitted features fall within) within a bounding box produced from a set of TADA spatial features.
+Fetches ATTAINS features (state- or tribe- or other entity- submitted points, lines, and polygons
+representing their assessment units; and the EPA snapshot of the associated NHDPlus HR catchments
+that the state- or tribe- or other entity- submitted features fall within) within a bounding box
+produced from a set of TADA spatial features.
 }
 \examples{
 \dontrun{
