@@ -470,11 +470,12 @@ TADA_CreateParamUseRef <- function(.data, org_names = NULL, paramRef = NULL, exc
     stop("argument input excel = FALSE and overwrite = TRUE is an invalid combination. Cannot overwrite the excel generated spreadsheet if a user specifies excel = FALSE")
   }
   
-  # Checks if ref contains a dataframe and necessary columns to proceed.
+  # Checks if paramRef argument contains a dataframe and necessary columns to proceed.
   if (is.null(paramRef)) {
     paramRef <- openxlsx::read.xlsx(downloads_path, sheet = "CreateParamRef")
   }
   
+  # If org_names argument is not provided, this will attempt to pull in org_names from TADA_GetATTAINS.
   if (is.null(org_names)) {
     print("TADA.CreateParamRef: No organization name(s) provided. Attempting to pull in organization names found in the TADA data frame.
           Please ensure that you have ran TADA_GetATTAINS if you did not provide an org_names argument input.")
@@ -483,19 +484,26 @@ TADA_CreateParamUseRef <- function(.data, org_names = NULL, paramRef = NULL, exc
     org_names <- unique(stats::na.omit(.data[, "ATTAINS.organizationname"]))
   }
   
+  # If a user does not fill in ANY values for the crosswalk of ATTAINS.ParameterName. 
+  # Users may want to proceed with only the EPA304a standards crosswalk, therefore we will allow users to proceed in this case.
   if (sum(!is.na(paramRef$ATTAINS.ParameterName)) == 0) {
-    stop("No values were found in ATTAINS.ParameterName. Please ensure that you have inputted all field values of interest in the ATTAINS.ParameterName column generated from TADA_CreateParamRef() function")
+    warning("No values were found in ATTAINS.ParameterName. Please ensure that you have inputted all field values of interest in the ATTAINS.ParameterName column generated from TADA_CreateParamRef() function")
   }
   
+  # If a user leaves at least one values for the crosswalk of ATTAINS.ParameterName blank. 
+  # Users are recommended to select 'No parameter match for this TADA.ComparableDataIdentifier' if 
+  # there is no crosswalk, but leaving it blank will be treated similarly.
   if (sum(is.na(paramRef$ATTAINS.ParameterName)) > 1) {
     print("NAs were found in ATTAINS.ParameterName. Please ensure that you have inputted all field values of interest in the ATTAINS.ParameterName column generated from TADA_CreateParamRef() function")
   }
   
-  if (sum(is.na(paramRef$EPA304A.PollutantName)) > 1 && org_names == "EPA304a") {
-    print("NAs were found in EPA304A.PollutantName. Please ensure that you have inputted all field values of interest in the EPA304A.PollutantName column generated from TADA_CreateParamRef() function if you are interested in using the 304a recommended standards")
-  }
+  # NOTE: For TADA Development: Do we need this? Should users be allowed to modify the EPA304a crosswalk we did?
+  # For the time being I would allow this as an option, but will comment this section out for further discussions.
+  # if (sum(is.na(paramRef$EPA304A.PollutantName)) > 1 && org_names == "EPA304a") {
+  #   print("NAs were found in EPA304A.PollutantName. Please ensure that you have inputted all field values of interest in the EPA304A.PollutantName column generated from TADA_CreateParamRef() function if you are interested in using the 304a recommended standards")
+  # }
   
-  # check to see if user-supplied parameter ref is a df with appropriate columns and filled out.
+  # check to see if user-supplied parameter ref is a df with appropriate columns and is filled out.
   if (!is.null(paramRef) & !is.character(paramRef)) {
     if (!is.data.frame(paramRef)) {
       stop("TADA_CreateParamUseRef: 'paramRef' must be a data frame with either these four columns: TADA.CharacteristicName, TADA.MethodSpeciationName, TADA.ResultSampleFractionText, ATTAINS.ParameterName or these 2 columns: TADA.ComparableDataIdentifier and ATTAINS.ParameterName")
@@ -516,8 +524,8 @@ TADA_CreateParamUseRef <- function(.data, org_names = NULL, paramRef = NULL, exc
   
   .data <- as.data.frame(.data)
   
-  # Pulls in all domain values of parameter names in ATTAINS. Filtering by state is done in the next steps.
-  ATTAINS_param_all <- utils::read.csv(system.file("extdata", "ATTAINSParamUseEntityRef.csv", package = "EPATADA"))
+  # Pulls in all domain values of parameter and use names by orgs in ATTAINS. Filtering by state is done in the next steps.
+  ATTAINS_param_all <- TADA_GetATTAINSParamUseOrgRef()
   
   if (!is.null(paramRef) & !("TADA.ComparableDataIdentifier" %in% names(paramRef))) {
     paramRef <- paramRef %>%
@@ -600,7 +608,8 @@ TADA_CreateParamUseRef <- function(.data, org_names = NULL, paramRef = NULL, exc
       !is.na(ATTAINS.FlagUseName2) ~ ATTAINS.FlagUseName2,
       !is.na(ATTAINS.FlagUseName1) ~ ATTAINS.FlagUseName1,
     )) %>%
-    dplyr::select(TADA.ComparableDataIdentifier, organization_name, EPA304A.PollutantName, ATTAINS.ParameterName, use_name, ATTAINS.FlagUseName)
+    dplyr::mutate(IncludeOrExclude = "Include") %>%
+    dplyr::select(TADA.ComparableDataIdentifier, organization_name, EPA304A.PollutantName, ATTAINS.ParameterName, use_name, IncludeOrExclude, ATTAINS.FlagUseName)
   
   # remove intermediate objects
   rm(ATTAINS_param, Flag1, Flag2)
@@ -647,41 +656,36 @@ TADA_CreateParamUseRef <- function(.data, org_names = NULL, paramRef = NULL, exc
     set_zoom <- function(x) gsub('(?<=zoomScale=")[0-9]+', x, sV, perl = TRUE)
     sV <- wb$worksheets[[2]]$sheetViews
     wb$worksheets[[2]]$sheetViews <- set_zoom(90)
+    sV <- wb$worksheets[[3]]$sheetViews
+    wb$worksheets[[3]]$sheetViews <- set_zoom(90)
+    sV <- wb$worksheets[[4]]$sheetViews
+    wb$worksheets[[4]]$sheetViews <- set_zoom(90)
     # Format column header
     header_st <- openxlsx::createStyle(textDecoration = "Bold")
     # Format Column widths
     openxlsx::setColWidths(wb, "CreateParamUseRef", cols = 1:ncol(CreateParamUseRef), widths = "auto")
-    # set zoom size
-    set_zoom <- function(x) gsub('(?<=zoomScale=")[0-9]+', x, sV, perl = TRUE)
-    sV <- wb$worksheets[[3]]$sheetViews
-    wb$worksheets[[3]]$sheetViews <- set_zoom(90)
-    
+
     # Export CreateParamUseRef dataframe into the excel spreadsheet tab
     openxlsx::writeData(wb, "CreateParamUseRef", startCol = 1, x = CreateParamUseRef, headerStyle = header_st)
     
-    # data validation drop down list created
-    # suppressWarnings(dataValidation(wb, sheet = "CreateParamUseRef", cols = 1, rows = 2:1000, type = "list", value = sprintf("'Index'!$C$2:$C$5000"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE))
-    # suppressWarnings(dataValidation(wb, sheet = "CreateParamUseRef", cols = 2, rows = 2:1000, type = "list", value = sprintf("'Index'!$H$2:$H$5000"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE))
-    suppressWarnings(openxlsx::dataValidation(wb, sheet = "CreateParamUseRef", cols = 5, rows = 2:1000, type = "list", value = sprintf("'Index'!$G$2:$G$50000"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE))
+    # data validation drop down list created below. 
+    # Note: ATTAINSOrgNamesParamRef contains the list of prior param and use cause by org names specific.
+    # Since Use Names are individual to each Organization.  
+    suppressWarnings(openxlsx::dataValidation(wb, sheet = "CreateParamUseRef", cols = 5, rows = 2:1000, type = "list", value = sprintf("'ATTAINSOrgNamesParamRef'!$D$2:$D$50000"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE))
     
     for (i in 1:nrow(CreateParamUseRef)) {
       openxlsx::conditionalFormatting(wb, "CreateParamUseRef",
-                                      cols = 5, rows = i + 1,
-                                      type = "blanks", style = openxlsx::createStyle(bgFill = "#FFC7CE")
+                                      cols = 6, rows = i + 1,
+                                      type = "contains", rule = c("Exclude"), style = openxlsx::createStyle(bgFill = "#FFC7CE")
       )
       
       openxlsx::conditionalFormatting(wb, "CreateParamUseRef",
-                                      cols = 5, rows = i + 1,
-                                      type = "notBlanks", style = openxlsx::createStyle(bgFill = TADA_ColorPalette()[8])
-      )
-      
-      openxlsx::conditionalFormatting(wb, "CreateParamUseRef",
-                                      cols = 5, rows = i + 1,
-                                      type = "contains", rule = c("NA"), style = openxlsx::createStyle(bgFill = "#FFC7CE")
+                                      cols = 6, rows = i + 1,
+                                      type = "contains", rule = c("Include"), style = openxlsx::createStyle(bgFill = TADA_ColorPalette()[8])
       )
       
       openxlsx::writeFormula(wb, "CreateParamUseRef",
-                             startCol = 6, startRow = i + 1, array = TRUE,
+                             startCol = 7, startRow = i + 1, array = TRUE,
                              x = paste0("=IF(B", i + 1, '="EPA304a","Will use the EPA304a recommended standards for this parameter. Do not edit EPA304a use_name",IF(ISNA(MATCH(1,(E', i + 1, "=Index!G:G)*(B", i + 1, '=Index!E:E),0)),
                 "Use name is not listed as a prior use for this organization",IF(ISNA(MATCH(1,(D', i + 1, "=Index!H:H)*(E", i + 1, "=Index!G:G)*(B", i + 1, '=Index!E:E),0)),
                 "Use name is listed as a prior use name in this organization but not for this parameter name",
@@ -689,14 +693,15 @@ TADA_CreateParamUseRef <- function(.data, org_names = NULL, paramRef = NULL, exc
       )
     }
     
-    # Separate conditional formatting loop as there are overlapping conditions
-    for (i in 1:nrow(CreateParamUseRef)) {
-      openxlsx::conditionalFormatting(wb, "CreateParamUseRef",
-                                      cols = 5, rows = i + 1,
-                                      type = "expression", rule = paste0('$B',i+1,'=="EPA304a"'), style = openxlsx::createStyle(bgFill = "#FFFFFF", borderColour = "lightgray", border = "TopBottomLeftRight")
-      )
-    }
+    # Separate conditional formatting loop as there are overlapping conditions ## (may not be needed to be separated based on some further digging. Test and validate this in future).
+    # for (i in 1:nrow(CreateParamUseRef)) {
+    #   openxlsx::conditionalFormatting(wb, "CreateParamUseRef",
+    #                                   cols = 5, rows = i + 1,
+    #                                   type = "expression", rule = paste0('$B',i+1,'=="EPA304a"'), style = openxlsx::createStyle(bgFill = "#FFFFFF", borderColour = "lightgray", border = "TopBottomLeftRight")
+    #   )
+    # }
     
+    # Handles overwriting the excel file. Users may want to keep the excel crosswalk they did and they may forget to save it as a separate file.
     if (overwrite == TRUE) {
       openxlsx::saveWorkbook(wb, downloads_path, overwrite = T)
     }

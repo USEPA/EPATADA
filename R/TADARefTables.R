@@ -1,12 +1,13 @@
 #' ATTAINS Parameter and Use Name by Organization Reference Key
 #'
 #' Function downloads and returns the newest available ATTAINS domain values
-#' reference dataframe summarized by parameter, use and organization.
+#' reference dataframe summarized by parameter and use 
+#' listed as a cause by organizations in previous assessments.
 #' This dataframe is used in TADA_CreateParamRef() and
 #' TADA_CreateParamUseRef() as the basis for the pulling in prior ATTAINS
 #' parameter names and use name by organization name. This helps to filter
-#' selections of drop down values and creating parameter and use combination
-#' summaries that will need to be defined.
+#' selections of drop down values and summarizing impairment decisions for
+#' a parameter and use combination.
 #'
 #' @return Dataframe of ATTAINS parameter and use name by organization
 #'
@@ -24,7 +25,8 @@ TADA_GetATTAINSParamUseOrgRef <- function() {
 #' TADA_CreateParamUseRef() as the basis for the pulling in EPA304a recommended
 #' pollutant name and use_name for assessment under the CWA.
 #'
-#' (Currently only numeric priority characteristic in TADA are the focus.)
+#' (Currently only numeric priority characteristic in TADA are the focus.
+#' This list can be found )
 #'
 #' @return Dataframe of EPA304a recommended standards for a pollutant and use name.
 #'
