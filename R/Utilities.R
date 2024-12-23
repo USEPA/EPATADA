@@ -846,7 +846,7 @@ TADA_FormatDelimitedString <- function(delimited_string, delimiter = ",") {
 #' GroupNearbySites_10m <- TADA_FindNearbySites(Data_Nutrients_UT, dist_buffer = 10)
 #' 
 #'
-TADA_FindNearbySites <- function(.data, dist_buffer = 100) {
+TADA_FindNearbySites <- function(.data, dist_buffer = 100, nhd_res = "Hi") {
   # should additional argument for hi vs med resolution for nhd plus be added?
   # check .data is data.frame
   TADA_CheckType(.data, "data.frame", "Input object")
@@ -869,7 +869,7 @@ TADA_FindNearbySites <- function(.data, dist_buffer = 100) {
   data_sf <- TADA_MakeSpatial(data_unique_mls)
 
   # fetch nhdplus catchment information
-  nhd_catchments <- fetchNHD(data_sf)
+  nhd_catchments <- fetchNHD(data_sf, resolution = nhd_res)
 
   # join catchment data to TADA df, count how many times each catchment is included in df and
   # retain only rows containing catchments which are included more than once in the df
@@ -973,6 +973,27 @@ TADA_FindNearbySites <- function(.data, dist_buffer = 100) {
   if ("ResultIdentifier" %in% names(.data)) {
     .data <- TADA_OrderCols(.data)
   }
+   
+  # use org hierarchy for first round of metadata selection
+   if(is.null(org_hierarchy)) {
+     .data <- .data
+   }
+   
+  # if org hierarchy is supplied by user
+   if(!is.null(org_hierarchy)) {
+     
+     if(!is.vector(org_hierarchy)) {
+       
+       stop("TADA_FindNearbySites: Organization hierarchy must be supplied as a vector.")
+     }
+     
+     all.orgs <- unique(.data$OrganizationIdentifier)
+     
+     missing.orgs <- setdiff(all.orgs, org_hi2)
+     
+     if(length(missing.orgs) > 0) {}
+
+   }
 
   # select and assign metadata randomly for grouped sites when meta_select equals "random"
 
