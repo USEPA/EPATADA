@@ -926,7 +926,9 @@ TADA_GetUniqueNearbySites <- function(.data) {
 #'
 #' Retrieves data for a period of time in the past 20 years using
 #' TADA_DataRetrieval. This function can be used for testing functions on
-#' random datasets.
+#' random datasets. Only random data sets with 10 or more results will be returned.
+#' If a random dataset has fewer than 10 results, the function will automatically
+#' create another random WQP query until a df with greater than 10 results is returned.
 #'
 #' @param number_of_days Numeric. The default is 1, which will query and retrieve
 #' data for a random two-day period (e.g.startDate = "2015-04-21",
@@ -954,20 +956,23 @@ TADA_GetUniqueNearbySites <- function(.data) {
 #' df <- TADA_RandomTestingData(number_of_days = 5, choose_random_state = TRUE, autoclean = FALSE)
 #' }
 #'
-TADA_RandomTestingData <- function(number_of_days = 1, choose_random_state = FALSE, autoclean = TRUE) {
-  while (TRUE) {
+TADA_RandomTestingData <- function(number_of_days = 1, choose_random_state = FALSE, 
+                                   autoclean = TRUE) {
+  
+  get_random_data <-  function(ndays = number_of_days, state_choice = choose_random_state, 
+                               ac = autoclean) {
     # choose a random day within the last 20 years
     twenty_yrs_ago <- Sys.Date() - 20 * 365
     random_start_date <- twenty_yrs_ago + sample(20 * 365, 1)
     # choose a random start date and add any number_of_days (set that as the end date)
-    end_date <- random_start_date + number_of_days
+    end_date <- random_start_date + ndays
 
-    if (choose_random_state == TRUE) {
+    if (state_choice == TRUE) {
       load(system.file("extdata", "statecodes_df.Rdata", package = "EPATADA"))
       state <- sample(statecodes_df$STUSAB, 1)
     }
 
-    if (choose_random_state == FALSE) {
+    if (state_choice == FALSE) {
       state <- "null"
     }
 
@@ -977,7 +982,7 @@ TADA_RandomTestingData <- function(number_of_days = 1, choose_random_state = FAL
       statecode = state
     ))
 
-    if (autoclean == TRUE) {
+    if (ac == TRUE) {
       dat <- TADA_DataRetrieval(
         startDate = as.character(random_start_date),
         endDate = as.character(end_date),
@@ -986,7 +991,7 @@ TADA_RandomTestingData <- function(number_of_days = 1, choose_random_state = FAL
       )
     }
 
-    if (autoclean == FALSE) {
+    if (ac == FALSE) {
       dat <- TADA_DataRetrieval(
         startDate = as.character(random_start_date),
         endDate = as.character(end_date),
@@ -994,11 +999,18 @@ TADA_RandomTestingData <- function(number_of_days = 1, choose_random_state = FAL
         applyautoclean = FALSE
       )
     }
-
-    if (nrow(dat) > 0) {
-      return(dat)
-    }
+    return(dat)
   }
+  
+  verify_random_data <- function() {
+    df <- get_random_data()
+    while(nrow(df) < 10) {
+      df <- get_random_data()
+    }
+    return(df)
+  }
+  
+  verify_random_data()
 }
 
 #' Aggregate multiple result values to a min, max, or mean
