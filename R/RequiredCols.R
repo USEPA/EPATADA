@@ -366,30 +366,30 @@ TADA_GetTemplate <- function() {
 #' projectProfile <- TADA_ReadWQPWebServices("https://www.waterqualitydata.us/data/Project/search?statecode=US%3A09&characteristicType=Nutrient&startDateLo=04-01-2023&startDateHi=11-01-2023&mimeType=csv&zip=yes&providers=NWIS&providers=STEWARDS&providers=STORET")
 #' 
 #' # Join all three profiles using TADA_JoinWQPProfiles
-#' TADAProfile <- TADA_JoinWQPProfiles(FullPhysChem = physchemProfile, Sites = stationProfile, 
+#' TADAProfile <- TADA_JoinWQPProfiles(FullPhysChem = physchemProfile, Sites = stationProfile,
 #'                                     Projects = projectProfile)
 #' 
-#' # Run TADA_CheckRequiredFields, returns error message, 
+#' # Run TADA_CheckRequiredFields, returns error message,
 #' # 'The dataframe does not contain the required fields: ActivityStartDateTime'
 #' TADA_CheckRequiredFields(TADAProfile)
 #' 
 #' # Add missing col
-#' TADAProfile1 <- dataRetrieval:::create_dateTime(df = TADAProfile, 
-#'                                                 date_col = "ActivityStartDate", 
+#' TADAProfile1 <- dataRetrieval:::create_dateTime(df = TADAProfile,
+#'                                                 date_col = "ActivityStartDate",
 #'                                                 time_col = "ActivityStartTime.Time",
-#'                                                 tz_col = "ActivityStartTime.TimeZoneCode", 
+#'                                                 tz_col = "ActivityStartTime.TimeZoneCode",
 #'                                                 tz = "UTC")
 #' 
-#' review_TADAProfile1 = TADAProfile1 %>% dplyr::select(c("ActivityStartDate", 
-#'                                                        "ActivityStartTime.Time", 
-#'                                                        "ActivityStartTime.TimeZoneCode", 
+#' review_TADAProfile1 = TADAProfile1 %>% dplyr::select(c("ActivityStartDate",
+#'                                                        "ActivityStartTime.Time",
+#'                                                        "ActivityStartTime.TimeZoneCode",
 #'                                                        "ActivityStartDateTime",
 #'                                                        "ActivityStartTime.TimeZoneCode_offset"))
 #' 
 #' # re-run TADA_CheckRequiredFields, returns TRUE
 #' TADA_CheckRequiredFields(TADAProfile1)
 #' }
-#'
+#' 
 TADA_CheckRequiredFields <- function(.data) {
   # remove names with TADA. string from require.cols
   require.originals <- Filter(function(x) !any(grepl("TADA.", x)), require.cols)
