@@ -11,10 +11,11 @@ Dataframe of ATTAINS parameter and use name by organization
 }
 \description{
 Function downloads and returns the newest available ATTAINS domain values
-reference dataframe summarized by parameter, use and organization.
+reference dataframe summarized by parameter and use
+listed as a cause by organizations in previous assessments.
 This dataframe is used in TADA_CreateParamRef() and
 TADA_CreateParamUseRef() as the basis for the pulling in prior ATTAINS
 parameter names and use name by organization name. This helps to filter
-selections of drop down values and creating parameter and use combination
-summaries that will need to be defined.
+selections of drop down values and summarizing impairment decisions for
+a parameter and use combination.
 }

@@ -16,5 +16,6 @@ TADA_CreateParamUseRef() as the basis for the pulling in EPA304a recommended
 pollutant name and use_name for assessment under the CWA.
 }
 \details{
-(Currently only numeric priority characteristic in TADA are the focus.)
+(Currently only numeric priority characteristic in TADA are the focus.
+This list can be found )
 }
