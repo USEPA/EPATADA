@@ -837,6 +837,7 @@ TADA_FormatDelimitedString <- function(delimited_string, delimiter = ",") {
 #' 
 #'
 TADA_FindNearbySites <- function(.data, dist_buffer = 100) {
+  # should additional argument for hi vs med resolution for nhd plus be added?
   # check .data is data.frame
   TADA_CheckType(.data, "data.frame", "Input object")
 
@@ -907,29 +908,29 @@ TADA_FindNearbySites <- function(.data, dist_buffer = 100) {
 
   # loop through distance matrix and extract site groups that are within the buffer distance from one another
   find_groups <- function(matrix) {
-    
+
     # create adjacency graph
     adj.graph <- igraph::graph_from_adjacency_matrix(matrix, mode = "undirected", diag = FALSE)
-    
+
     # find connected sites
     comp.results <- igraph::components(adj.graph)
-    
+
     # create site group dfs
     group_sites <- data.frame(
       Site = names(comp.results$membership),
       Group = comp.results$membership,
       row.names = NULL
     )
-    
+
     return(group_sites)
   }
-  
+
   # apply site grouping function to matrix
   site.groups.list <- purrr::map(binary.mats, find_groups)
-  
+
   # create df of all groups
-  combined.group.df <- dplyr::bind_rows(site.groups.list, .id = "Matrix") 
-  
+  combined.group.df <- dplyr::bind_rows(site.groups.list, .id = "Matrix")
+
   # create unique id for each group
   combined.group.df2 <- combined.group.df %>%
     dplyr::group_by(Matrix, Group) %>%
@@ -942,7 +943,7 @@ TADA_FindNearbySites <- function(.data, dist_buffer = 100) {
     dplyr::filter(Count > 1) %>%
     dplyr::mutate(TADA.MonitoringLocationIdentifier.New = paste(Site, collapse = "/")) %>%
     dplyr::ungroup()
-  
+
   # create crosswalk of TADA.MonitoringLocationIdentifer and new TADA.MonitoringLocationIdentifier
   ml.crosswalk <- combined.group.df2 %>%
     dplyr::select(Site, TADA.MonitoringLocationIdentifier.New) %>%
@@ -950,12 +951,12 @@ TADA_FindNearbySites <- function(.data, dist_buffer = 100) {
     dplyr::distinct() %>%
     dplyr::group_by(TADA.MonitoringLocationIdentifier.New) %>%
     dplyr::mutate(TADA.SiteGroup = dplyr::cur_group_id())
-                  
+
 
   # need to fix issues with site groups from .x and .y
    .data <- .data %>%
        dplyr::left_join(ml.crosswalk, by = dplyr::join_by(TADA.MonitoringLocationIdentifier)) %>%
-        dplyr::mutate(TADA.SiteGroup = ifelse(TADA.SiteGroup == "", 
+        dplyr::mutate(TADA.SiteGroup = ifelse(TADA.SiteGroup == "",
                                               "No nearby sites", TADA.SiteGroup))
   }
 
