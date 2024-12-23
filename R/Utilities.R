@@ -786,17 +786,27 @@ TADA_FormatDelimitedString <- function(delimited_string, delimiter = ",") {
 
 #' Identify and group nearby monitoring locations (UNDER ACTIVE DEVELOPMENT)
 #'
-#' This function takes a TADA dataset and creates a distance matrix for all
-#' sites in the dataset. It then uses the buffer input value to determine which
-#' sites are within the buffer and should be identified as part of a nearby site
-#' group.
+#' This function takes a TADA dataset and identifies the NHD catchments that each MonitoringLocation
+#' is in. Within each group of MonitoringLocations in the same catchment, a distance matrix is
+#' created and an adjacency matrix is used to identify groups of nearby sites witin the same
+#' catchment. Groups of nearby sites are given a new TADA.MonitoringLocationIdentifier which is 
+#' created by concatenating the original TADA.MonitoringLocaitonIdentifiers of all sites within
+#' the group. Two additional columns, TADA.SiteGroup and TADA.NearbySites.Flag are added.
+#' TADA.SiteGroup contains a unique numeric value for each group of sites within the same catchment.
+#' TADA.NearbySites.Flag identifies whether or not a result is from a grouped site or not and for
+#' grouped sites identifies how the TADA prefixed metadata columns (TADA.MonitoringLocationName,
+#' TADA.MonitoringLocationTypeName, TADA.LongitudeMeasure, and TADA.LatitueMeasure) were determined.
 #'
 #' @param .data TADA dataframe OR TADA sites dataframe
 #' 
 #' @param dist_buffer Numeric. The maximum distance (in meters) two sites can be
 #'   from one another to be considered "nearby" and grouped together.
 #'   
-#'@param org_hierarchy Vector of organization identifiers that acts as the order in which the 
+#' @param nhd_res Charcter argument to determine whether the NHD catchments used should be high 
+#'  ("Hi") or medium ("Med") res. Default = "Hi" for consistency with other TADA geospatial 
+#'  functions.
+#'   
+#'  @param org_hierarchy Vector of organization identifiers that acts as the order in which the 
 #'   function should select representative metadata for grouped sites based on the organization
 #'   that collected the data. If left blank, the function does not factor organization in to the
 #'   metadata selection process. When a vector is provided, the metadata will first be selected by
