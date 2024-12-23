@@ -139,8 +139,8 @@ This vignette represents functions that require users to:
     determine recommended impairment decisions for each parameter and
     designated use of a water body based on these defined WQS criteria
     conditions for each AU. Users will have two options of either
-    sumarizing individual magnitude excursions or for the full Criteria
-    (Magnitude, Duration and Frequeuncy) associated with each parameter
+    summarizing individual magnitude excursions or for the full Criteria
+    (Magnitude, Duration and Frequency) associated with each parameter
     and use.
 
 The EPA has derived its "national recommended Clean Water Act (CWA)
@@ -267,7 +267,7 @@ include all prior ATTAINS domain value for all orgs that a user selects.
 Users can also choose to only return a data frame in the R environment
 by using excel = FALSE as a function input.
 
-it does not autopopulate, but the goal is that if states share their
+it does not auto-populate, but the goal is that if states share their
 criteria and methods, we will now have a way to allow states to compare
 against other states
 

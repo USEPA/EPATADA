@@ -65,7 +65,7 @@ TADA.ComparableDataIdentifier.
 To use TADA functions to compare WQP data with numeric criteria, users are be required to
 provide a crosswalk between ATTAINS parameter names used by their organization and each
 TADA.ComparableDataIdentifier present in the TADA dataframe. This function creates a draft
-crosswalk that can be modififed by users. The default for this function is to generate an
+crosswalk that can be modified by users. The default for this function is to generate an
 excel spreadsheet which allows users to select which 'ATTAINS.ParameterName' from the
 drop-down list excel spreadsheet aligns with each TADA.ComparableDataIdentifier.
 }
