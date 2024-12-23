@@ -299,7 +299,9 @@ TADA_DataRetrieval <- function(startDate = "null",
       TADAprofile <- results.DR
       
       # add new functionality here to change names back to old names
-      
+      TADAprofile <- TADA_RenameColumns(TADAprofile)
+
+
       # run TADA_AutoClean function
       if (applyautoclean == TRUE) {
         print("Data successfully downloaded. Running TADA_AutoClean function.")

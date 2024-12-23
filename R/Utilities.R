@@ -1676,3 +1676,60 @@ TADA_CharStringRemoveNA <- function(char_string) {
 
   return(labs)
 }
+
+
+#' TADA_RenameColumns
+#' This function renames columns in a data frame pulled from the Water Quality Portal 3.0
+#'  using USGS dataRetrieval function (in development) back to schema names from WQX2.0 (Legacy).
+#'  The purpose of this function is to aid in integrating and updating TADA dependencies
+#'  developed under WQX2.0 to function with WQX3.0.
+#'
+#'  TADA_RenameColumns will be called within the revised TADA_DataRetrieval function.
+#'
+#'  TADA_RenameColumns function calls on EPA web services to grab the documented
+#'  WQX3.0 schema file (schema_outbound_wqx3.0.csv).The file crosswalks WQX3.0 column names
+#'  with equivalent WQX2.0 Legacy column names across profiles (e.g., PhysChem, ActivityMetric) where appropriate.
+#'  The function leverages data.table::setnames() to replace column names
+#'  by specifying 'old' and 'new' vector of names pulled from the crosswalk file.
+#'
+#'
+#' @param .data A data frame queried from the WQP3.0 using dataRetrieval (development)
+#'
+#' @return A data frame with column names changed to WQX2.0 Legacy names to test TADA package compatibility
+#' @export
+#'
+#' @examples TADA_RenameColumns(WQP3.0df)
+TADA_RenameColumns <- function(.data) {
+  ## READ WQX3.0 column name schema from web services
+  wqxnames <- readr::read_csv("https://www.epa.gov/system/files/other-files/2024-07/schema_outbound_wqx3.0.csv")
+  
+  # Collapse related wqx schema variables into a single column based on conditions
+  # And drop columns that aren't in WQX Legacy
+  wqxnames_rev <- wqxnames |>
+    rowwise() |>
+    mutate(legacy = case_when(!is.na(FieldName2.0.PhysChem) ~ FieldName2.0.PhysChem,
+                              is.na(FieldName2.0.PhysChem) & !is.na(FieldName2.0.ActivityMetric) ~ FieldName2.0.ActivityMetric,
+                              is.na(FieldName2.0.PhysChem) & is.na(FieldName2.0.ActivityMetric) & !is.na(FieldName2.0.Project) ~ FieldName2.0.Project,
+                              is.na(FieldName2.0.PhysChem) & is.na(FieldName2.0.ActivityMetric) & is.na(FieldName2.0.Project) & !is.na(FieldName2.0.SamplingActivity) ~ FieldName2.0.SamplingActivity,
+                              is.na(FieldName2.0.PhysChem) & is.na(FieldName2.0.ActivityMetric) & is.na(FieldName2.0.Project) & is.na(FieldName2.0.SamplingActivity) & !is.na(FieldName2.0.Site) ~ FieldName2.0.Site,
+                              is.na(FieldName2.0.PhysChem) & is.na(FieldName2.0.ActivityMetric) & is.na(FieldName2.0.Project) & is.na(FieldName2.0.SamplingActivity) & is.na(FieldName2.0.Site) & !is.na(FieldName2.0.QuantitationLimit) ~ FieldName2.0.QuantitationLimit,
+                              is.na(FieldName2.0.PhysChem) & is.na(FieldName2.0.ActivityMetric) & is.na(FieldName2.0.Project) & is.na(FieldName2.0.SamplingActivity) & is.na(FieldName2.0.Site) & is.na(FieldName2.0.QuantitationLimit) & !is.na(FieldName2.0.Organization) ~ FieldName2.0.Organization,
+                              is.na(FieldName2.0.PhysChem) & is.na(FieldName2.0.ActivityMetric) & is.na(FieldName2.0.Project) & is.na(FieldName2.0.SamplingActivity) & is.na(FieldName2.0.Site) & is.na(FieldName2.0.QuantitationLimit) & is.na(FieldName2.0.Organization) & !is.na(FieldName2.0.PrjMonLocWeighting) ~ FieldName2.0.PrjMonLocWeighting,
+                              is.na(FieldName2.0.PhysChem) & is.na(FieldName2.0.ActivityMetric) & is.na(FieldName2.0.Project) & is.na(FieldName2.0.SamplingActivity) & is.na(FieldName2.0.Site) & is.na(FieldName2.0.QuantitationLimit) & is.na(FieldName2.0.Organization) & is.na(FieldName2.0.PrjMonLocWeighting) & !is.na(FieldName2.0.BiolHabitatMetric) ~ FieldName2.0.BiolHabitatMetric,
+                              is.na(FieldName2.0.PhysChem) & is.na(FieldName2.0.ActivityMetric) & is.na(FieldName2.0.Project) & is.na(FieldName2.0.SamplingActivity) & is.na(FieldName2.0.Site) & is.na(FieldName2.0.QuantitationLimit) & is.na(FieldName2.0.Organization) & is.na(FieldName2.0.PrjMonLocWeighting) & is.na(FieldName2.0.BiolHabitatMetric) & !is.na(FieldName2.0.Biological) ~ FieldName2.0.Biological,
+                              TRUE ~ NA)
+    ) |>
+    filter(!is.na(legacy)) # from 364 column names to 286 - beta version adds 78 names
+  
+  # Create vectors of WQX3.0 and WQX2.0 (Legacy) column names
+  beta_names = wqxnames_rev$FieldName3.0
+  legacy_names = wqxnames_rev$legacy
+  
+  if (length(beta_names) != length(legacy_names)) {
+    stop("`old names` and `new names` must be the same length", call. = FALSE)
+  }
+  df <- data.table::setnames(.data, old = beta_names,
+                             new = legacy_names, skip_absent = TRUE)
+  return(df)
+}
+
