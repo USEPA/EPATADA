@@ -956,12 +956,12 @@ TADA_FindNearbySites <- function(.data, dist_buffer = 100, nhd_res = "Hi") {
     dplyr::rename(TADA.MonitoringLocationIdentifier = Site) %>%
     dplyr::distinct()
 
-  # need to fix issues with site groups from .x and .y
+  # create df of grouped sites
    grouped_sites <- ml.crosswalk %>%
      dplyr::left_join(.data, by = dplyr::join_by(TADA.MonitoringLocationIdentifier)) %>%
-     dplyr::select(TADA.MonitoringLocationIdentifier.New, #TADA.MonitoringLocationIdentifier,
+     dplyr::select(TADA.MonitoringLocationIdentifier.New, TADA.SiteGroup,
                    TADA.MonitoringLocationName, TADA.LatitudeMeasure, TADA.LongitudeMeasure, 
-                   TADA.MonitoringLocationTypeName, ActivityStartDate) %>%
+                   TADA.MonitoringLocationTypeName, ActivityStartDate, OrganizationIdentifier) %>%
      dplyr::distinct()
  
   if (dim(groups)[1] == 0) { # #if no groups, give a TADA.SiteGroup column filled with 
@@ -987,11 +987,32 @@ TADA_FindNearbySites <- function(.data, dist_buffer = 100, nhd_res = "Hi") {
        stop("TADA_FindNearbySites: Organization hierarchy must be supplied as a vector.")
      }
      
+     if(length(org_hierarchy) == 0) {
+       
+       stop("TADA_FindNearbySites: No organization identifiers were supplied.")
+     }
+     
      all.orgs <- unique(.data$OrganizationIdentifier)
      
      missing.orgs <- setdiff(all.orgs, org_hi2)
      
-     if(length(missing.orgs) > 0) {}
+     if(length(missing.orgs) > 0) {
+       print(paste0("TADA_FindNearbySites: ", length(missing.orgs), 
+                    " organization identifiers are missing from org_hierarchy (", 
+                    stringi::stri_replace_last(paste(missing.orgs, collapse = ", "),
+                                               fixed = ", ", " and "), ").",
+                    " Function will continue to run using partial org_hieararchy."))
+     }
+     
+     org.ranks <- as.data.frame(org_hierarchy) %>%
+       dplyr::mutate(OrgRank = dplyr::row_number()) %>%
+       dplyr::rename(OrganizationIdentifier = org_hierarchy)
+     
+    # need to sort and filter by org.rank, only pass rows w/ more than one result from top-ranked
+     #org to meta_select part of function (HRM 12/23/24)
+      grouped_sites2 <- grouped_sites %>%
+       dplyr::left_join(org.ranks, by = dplyr::join_by(OrganizationIdentifier))
+       
 
    }
 
