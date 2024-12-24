@@ -176,12 +176,12 @@ TADA_CreateParamRef <- function(.data, org_names = NULL, paramRef = NULL, excel 
   }
   
   # 304a parameter name and standards are pulled in from the Criteria Search Tool (CST)
-  CST_param <- utils::read.csv(system.file("extdata", "TADAPriorityCharUnitRef.csv", package = "EPATADA"))
+  CST_param <- TADA_GetEPA304aRef()
   
   # Pulls in all unique combinations of TADA.CharacteristicName, TADA.MethodSpeciationName, TADA.ResultSampleFractionText in user's dataframe.
   TADA_param <- dplyr::distinct(.data[, c("TADA.CharacteristicName", "TADA.ComparableDataIdentifier")]) %>%
     dplyr::left_join(CST_param, "TADA.CharacteristicName") %>%
-    dplyr::select(TADA.CharacteristicName, TADA.ComparableDataIdentifier, EPA304A.PollutantName = CST.PollutantName) %>%
+    dplyr::select(TADA.CharacteristicName, TADA.ComparableDataIdentifier, EPA304A.PollutantName = POLLUTANT_NAME) %>%
     dplyr::arrange(TADA.CharacteristicName, TADA.ComparableDataIdentifier) %>%
     tidyr::uncount(weights = length(org_names)) %>%
     dplyr::mutate(organization_name = rep(org_names, nrow(.) / length(org_names)))
@@ -565,7 +565,7 @@ TADA_CreateParamUseRef <- function(.data, org_names = NULL, paramRef = NULL, exc
   
   # If users want the EPA304a standards. This pulls in the CST reference file. Extracts the associated EPA304a pollutant names and its use_names.
   if ("EPA304a" %in% org_names) {
-    CST_param <- utils::read.csv(system.file("extdata", "CST.csv", package = "EPATADA")) %>%
+    CST_param <- TADA_GetEPA304aRef() %>%
       dplyr::select(EPA304A.PollutantName = POLLUTANT_NAME, use_name) %>%
       dplyr::mutate(organization_name = "EPA304a")
     
