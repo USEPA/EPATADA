@@ -68,7 +68,7 @@ TADA.ComparableDataIdentifier(s) found in the TADA dataframe.
 `.
 }
 \details{
-Before running this function, users must runTADA_CreateParamRef() to create the
+Before running this function, users must run TADA_CreateParamRef() to create the
 crosswalk that defines the ATTAINS.ParameterName(s) and use_name(s) needing validation.
 All unique use_names from prior ATTAINS assessment cycle are pulled in using
 TADA_CreateParamUseRef(). If a user has defined multiple TADA.ComparableDataIdentifier matches

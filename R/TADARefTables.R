@@ -19,7 +19,7 @@ TADA_GetATTAINSParamUseOrgRef <- function() {
 }
 
 
-# Used to store cached WQX QAQC Characteristic Validation Reference Table
+# Used to store cached CST EPA304a Reference Table
 EPA304aRef_Cached <- NULL
 
 
@@ -79,7 +79,9 @@ TADA_GetEPA304aRef <- function() {
                   CRITERIATYPEAQUAHUMHLTH, CRITERIATYPEFRESHSALTWATER,
                   CRITERIATYPE_ACUTECHRONIC, CRITERIATYPE_WATERORG
                   )
-    
+  
+  # Remove intermediate variables
+  rm(CST.begin, tada.char.ref, raw.data)  
   
   # Save updated table in cache
   EPA304aRef_Cached <- EPA304aRef

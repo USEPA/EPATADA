@@ -367,7 +367,7 @@ TADA_CreateParamRef <- function(.data, org_names = NULL, paramRef = NULL, excel 
 #' TADA.ComparableDataIdentifier(s) found in the TADA dataframe.
 #' `.
 #'
-#' Before running this function, users must runTADA_CreateParamRef() to create the
+#' Before running this function, users must run TADA_CreateParamRef() to create the
 #' crosswalk that defines the ATTAINS.ParameterName(s) and use_name(s) needing validation.
 #' All unique use_names from prior ATTAINS assessment cycle are pulled in using
 #' TADA_CreateParamUseRef(). If a user has defined multiple TADA.ComparableDataIdentifier matches
@@ -566,7 +566,7 @@ TADA_CreateParamUseRef <- function(.data, org_names = NULL, paramRef = NULL, exc
   # If users want the EPA304a standards. This pulls in the CST reference file. Extracts the associated EPA304a pollutant names and its use_names.
   if ("EPA304a" %in% org_names) {
     CST_param <- utils::read.csv(system.file("extdata", "CST.csv", package = "EPATADA")) %>%
-      dplyr::select(EPA304A.PollutantName = POLLUTANT_NAME, use_name = USE_CLASS_NAME_LOCATION_ETC) %>%
+      dplyr::select(EPA304A.PollutantName = POLLUTANT_NAME, use_name) %>%
       dplyr::mutate(organization_name = "EPA304a")
     
     EPA_param <- CreateParamUseRef %>%
