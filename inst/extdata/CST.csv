@@ -1,421 +1,466 @@
-﻿CRITERION_ID,REGION,ENTITY_ID,ENTITY_NAME,ENTITY_ABBR,POLLUTANT_ID,STD_POLL_ID,CAS_NO,POLLUTANT_NAME,STD_POLLUTANT_NAME,CRITERION_VALUE,UNIT_NAME,UNIT_ID,CRITERIATYPEAQUAHUMHLTH,CRITERIATYPEFRESHSALTWATER,CRITERIATYPE_ACUTECHRONIC,CRITERIATYPE_WATERORG,CRIT_SOURCE_ID,PDFPGNO,USE_CLASS_NAME_LOCATION_ETC_ID,USE_CLASS_NAME_LOCATION_ETC,LAST_ENTRY_IN_DB,EFFECTIVE_DATE
-61785,,20,EPA 304(a) Recommended Criteria,304A,263,263,7664417,ammonia,ammonia,varies - see web page,[no units],103,A,S,,,109,0,4029,Aquatic Life,2020-03-23 12:03:31,2013-08-22
-54722,,20,EPA 304(a) Recommended Criteria,304A,178,178,95943,"1,2,4,5-tetrachlorobenzene","1,2,4,5-tetrachlorobenzene",0.03,µg/l,95,H,,,O,110,,4030,Human Health,2016-09-30 00:09:00,2015-01-01
-54723,,20,EPA 304(a) Recommended Criteria,304A,647,647,127184,tetrachloroethylene,tetrachloroethylene,10,µg/l,95,H,,,W,110,,4030,Human Health,2016-09-30 00:09:00,2015-01-01
-54724,,20,EPA 304(a) Recommended Criteria,304A,647,647,127184,tetrachloroethylene,tetrachloroethylene,29,µg/l,95,H,,,O,110,,4030,Human Health,2016-09-30 00:09:00,2015-01-01
-54725,,20,EPA 304(a) Recommended Criteria,304A,403,403,7440280,thallium,thallium,0.24,µg/l,95,H,,,W,110,,4030,Human Health,2016-09-30 00:09:00,2003-01-01
-54726,,20,EPA 304(a) Recommended Criteria,304A,403,403,7440280,thallium,thallium,0.47,µg/l,95,H,,,O,110,,4030,Human Health,2016-09-30 00:09:00,2003-01-01
-54727,,20,EPA 304(a) Recommended Criteria,304A,648,648,108883,toluene,toluene,57,µg/l,95,H,,,W,110,,4030,Human Health,2016-09-30 00:09:00,2015-01-01
-54728,,20,EPA 304(a) Recommended Criteria,304A,648,648,108883,toluene,toluene,520,µg/l,95,H,,,O,110,,4030,Human Health,2016-09-30 00:09:00,2015-01-01
-54729,,20,EPA 304(a) Recommended Criteria,304A,132,132,8001352,toxaphene,toxaphene,7.0E-4,µg/l,95,H,,,W,110,,4030,Human Health,2016-09-30 00:09:00,2015-01-01
-54730,,20,EPA 304(a) Recommended Criteria,304A,132,132,8001352,toxaphene,toxaphene,7.1E-4,µg/l,95,H,,,O,110,,4030,Human Health,2016-09-30 00:09:00,2015-01-01
-54731,,20,EPA 304(a) Recommended Criteria,304A,197,197,79016,trichloroethylene,trichloroethylene,0.6,µg/l,95,H,,,W,110,,4030,Human Health,2016-09-30 00:09:00,2015-01-01
-54732,,20,EPA 304(a) Recommended Criteria,304A,197,197,79016,trichloroethylene,trichloroethylene,7,µg/l,95,H,,,O,110,,4030,Human Health,2016-09-30 00:09:00,2015-01-01
-54733,,20,EPA 304(a) Recommended Criteria,304A,659,659,95954,"2,4,5-trichlorophenol","2,4,5-trichlorophenol",300,µg/l,95,H,,,W,110,,4030,Human Health,2016-09-30 00:09:00,2015-01-01
-54734,,20,EPA 304(a) Recommended Criteria,304A,659,659,95954,"2,4,5-trichlorophenol","2,4,5-trichlorophenol",600,µg/l,95,H,,,O,110,,4030,Human Health,2016-09-30 00:09:00,2015-01-01
-54974,,20,EPA 304(a) Recommended Criteria,304A,137,137,57125,cyanide,cyanide,5.2,µg/l,95,A,F,C,,109,,4029,Aquatic Life,2016-09-30 00:09:00,1985-01-01
-54975,,20,EPA 304(a) Recommended Criteria,304A,137,137,57125,cyanide,cyanide,1,µg/l,95,A,S,A,,109,,4029,Aquatic Life,2016-09-30 00:09:00,1985-01-01
-54976,,20,EPA 304(a) Recommended Criteria,304A,137,137,57125,cyanide,cyanide,1,µg/l,95,A,S,C,,109,,4029,Aquatic Life,2016-09-30 00:09:00,1985-01-01
-54977,,20,EPA 304(a) Recommended Criteria,304A,16,16,8065483,demeton,demeton,0.1,µg/l,95,A,F,C,,109,,4029,Aquatic Life,2016-09-30 00:09:00,1985-01-01
-54978,,20,EPA 304(a) Recommended Criteria,304A,16,16,8065483,demeton,demeton,0.1,µg/l,95,A,S,C,,109,,4029,Aquatic Life,2016-09-30 00:09:00,1985-01-01
-54979,,20,EPA 304(a) Recommended Criteria,304A,531,531,333415,diazinon,diazinon,0.17,µg/l,95,A,F,A,,109,,4029,Aquatic Life,2016-09-30 00:09:00,2005-01-01
-54980,,20,EPA 304(a) Recommended Criteria,304A,531,531,333415,diazinon,diazinon,0.17,µg/l,95,A,F,C,,109,,4029,Aquatic Life,2016-09-30 00:09:00,2005-01-01
-54981,,20,EPA 304(a) Recommended Criteria,304A,531,531,333415,diazinon,diazinon,0.82,µg/l,95,A,S,A,,109,,4029,Aquatic Life,2016-09-30 00:09:00,2005-01-01
-54982,,20,EPA 304(a) Recommended Criteria,304A,531,531,333415,diazinon,diazinon,0.82,µg/l,95,A,S,C,,109,,4029,Aquatic Life,2016-09-30 00:09:00,2005-01-01
-54983,,20,EPA 304(a) Recommended Criteria,304A,138,138,60571,dieldrin,dieldrin,0.24,µg/l,95,A,F,A,,109,,4029,Aquatic Life,2016-09-30 00:09:00,1995-01-01
-54984,,20,EPA 304(a) Recommended Criteria,304A,138,138,60571,dieldrin,dieldrin,0.056,µg/l,95,A,F,C,,109,,4029,Aquatic Life,2016-09-30 00:09:00,1995-01-01
-54985,,20,EPA 304(a) Recommended Criteria,304A,138,138,60571,dieldrin,dieldrin,0.71,µg/l,95,A,S,A,,109,,4029,Aquatic Life,2016-09-30 00:09:00,1995-01-01
-54986,,20,EPA 304(a) Recommended Criteria,304A,138,138,60571,dieldrin,dieldrin,0.0019,µg/l,95,A,S,C,,109,,4029,Aquatic Life,2016-09-30 00:09:00,1995-01-01
-54987,,20,EPA 304(a) Recommended Criteria,304A,781,781,72208,endrin,endrin,0.086,µg/l,95,A,F,A,,109,,4029,Aquatic Life,2016-09-30 00:09:00,1995-01-01
-54988,,20,EPA 304(a) Recommended Criteria,304A,781,781,72208,endrin,endrin,0.036,µg/l,95,A,F,C,,109,,4029,Aquatic Life,2016-09-30 00:09:00,1995-01-01
-54989,,20,EPA 304(a) Recommended Criteria,304A,781,781,72208,endrin,endrin,0.037,µg/l,95,A,S,A,,109,,4029,Aquatic Life,2016-09-30 00:09:00,1995-01-01
-54990,,20,EPA 304(a) Recommended Criteria,304A,781,781,72208,endrin,endrin,0.0023,µg/l,95,A,S,C,,109,,4029,Aquatic Life,2016-09-30 00:09:00,1995-01-01
-54991,,20,EPA 304(a) Recommended Criteria,304A,165,1041,58899,gamma-bhc (lindane),gamma-hexachlorocyclohexane (hch) (lindane),0.95,µg/l,95,A,F,A,,109,,4029,Aquatic Life,2016-09-30 00:09:00,1995-01-01
-54992,,20,EPA 304(a) Recommended Criteria,304A,165,1041,58899,gamma-bhc (lindane),gamma-hexachlorocyclohexane (hch) (lindane),0.16,µg/l,95,A,S,A,,109,,4029,Aquatic Life,2016-09-30 00:09:00,1995-01-01
-54993,,20,EPA 304(a) Recommended Criteria,304A,791,791,,"gases, total dissolved","gases, total dissolved",NARRATIVE STATEMENT—SEE DOCUMENT C,µg/l,95,A,,,,109,,4029,Aquatic Life,2016-09-30 00:09:00,1986-01-01
-54994,,20,EPA 304(a) Recommended Criteria,304A,282,282,86500,guthion,guthion,0.01,µg/l,95,A,F,C,,109,,4029,Aquatic Life,2016-09-30 00:09:00,1986-01-01
-54995,,20,EPA 304(a) Recommended Criteria,304A,282,282,86500,guthion,guthion,0.01,µg/l,95,A,S,C,,109,,4029,Aquatic Life,2016-09-30 00:09:00,1986-01-01
-54996,,20,EPA 304(a) Recommended Criteria,304A,926,926,,hardness,hardness,NARRATIVE STATEMENT—SEE DOCUMENT,µg/l,95,A,,,,109,,4029,Aquatic Life,2016-09-30 00:09:00,1986-01-01
-54997,,20,EPA 304(a) Recommended Criteria,304A,523,523,76448,heptachlor,heptachlor,0.52,µg/l,95,A,F,A,,109,,4029,Aquatic Life,2016-09-30 00:09:00,1980-01-01
-54998,,20,EPA 304(a) Recommended Criteria,304A,523,523,76448,heptachlor,heptachlor,0.0038,µg/l,95,A,F,C,,109,,4029,Aquatic Life,2016-09-30 00:09:00,1980-01-01
-54999,,20,EPA 304(a) Recommended Criteria,304A,523,523,76448,heptachlor,heptachlor,0.053,µg/l,95,A,S,A,,109,,4029,Aquatic Life,2016-09-30 00:09:00,1980-01-01
-55000,,20,EPA 304(a) Recommended Criteria,304A,523,523,76448,heptachlor,heptachlor,0.0036,µg/l,95,A,S,C,,109,,4029,Aquatic Life,2016-09-30 00:09:00,1980-01-01
-55001,,20,EPA 304(a) Recommended Criteria,304A,406,406,1024573,heptachlor epoxide,heptachlor epoxide,0.52,µg/l,95,A,F,A,,109,,4029,Aquatic Life,2016-09-30 00:09:00,1981-01-01
-55002,,20,EPA 304(a) Recommended Criteria,304A,406,406,1024573,heptachlor epoxide,heptachlor epoxide,0.0038,µg/l,95,A,F,C,,109,,4029,Aquatic Life,2016-09-30 00:09:00,1981-01-01
-55003,,20,EPA 304(a) Recommended Criteria,304A,406,406,1024573,heptachlor epoxide,heptachlor epoxide,0.053,µg/l,95,A,S,A,,109,,4029,Aquatic Life,2016-09-30 00:09:00,1981-01-01
-55004,,20,EPA 304(a) Recommended Criteria,304A,406,406,1024573,heptachlor epoxide,heptachlor epoxide,0.0036,µg/l,95,A,S,C,,109,,4029,Aquatic Life,2016-09-30 00:09:00,1981-01-01
-55005,,20,EPA 304(a) Recommended Criteria,304A,408,408,7439896,iron,iron,1000,µg/l,95,A,F,C,,109,,4029,Aquatic Life,2016-09-30 00:09:00,1986-01-01
-55006,,20,EPA 304(a) Recommended Criteria,304A,267,267,111444,bis(2-chloroethyl) ether,bis(2-chloroethyl) ether,2.2,µg/l,95,H,,,O,110,,4030,Human Health,2016-09-30 00:09:00,2015-01-01
-55007,,20,EPA 304(a) Recommended Criteria,304A,1052,1052,108601,bis(2-chloro-1-methylethyl) ether,bis(2-chloro-1-methylethyl) ether,200,µg/l,95,H,,,W,110,,4030,Human Health,2016-09-30 00:09:00,2015-01-01
-55008,,20,EPA 304(a) Recommended Criteria,304A,1052,1052,108601,bis(2-chloro-1-methylethyl) ether,bis(2-chloro-1-methylethyl) ether,4000,µg/l,95,H,,,O,110,,4030,Human Health,2016-09-30 00:09:00,2015-01-01
-55009,,20,EPA 304(a) Recommended Criteria,304A,519,519,117817,bis(2-ethylhexyl) phthalate,bis(2-ethylhexyl) phthalate,0.32,µg/l,95,H,,,W,110,,4030,Human Health,2016-09-30 00:09:00,2015-01-01
-55010,,20,EPA 304(a) Recommended Criteria,304A,519,519,117817,bis(2-ethylhexyl) phthalate,bis(2-ethylhexyl) phthalate,0.37,µg/l,95,H,,,O,110,,4030,Human Health,2016-09-30 00:09:00,2015-01-01
-55011,,20,EPA 304(a) Recommended Criteria,304A,643,643,75252,bromoform,bromoform,7.0,µg/l,95,H,,,W,110,,4030,Human Health,2016-09-30 00:09:00,2015-01-01
-55012,,20,EPA 304(a) Recommended Criteria,304A,643,643,75252,bromoform,bromoform,120,µg/l,95,H,,,O,110,,4030,Human Health,2016-09-30 00:09:00,2015-01-01
-55013,,20,EPA 304(a) Recommended Criteria,304A,430,430,85687,butylbenzyl phthalate,butylbenzyl phthalate,0.1,µg/l,95,H,,,W,110,,4030,Human Health,2016-09-30 00:09:00,2015-01-01
-55014,,20,EPA 304(a) Recommended Criteria,304A,430,430,85687,butylbenzyl phthalate,butylbenzyl phthalate,0.1,µg/l,95,H,,,O,110,,4030,Human Health,2016-09-30 00:09:00,2015-01-01
-55015,,20,EPA 304(a) Recommended Criteria,304A,774,774,7440439,cadmium,cadmium,See note,µg/l,95,H,,,W,110,,4030,Human Health,2016-09-30 00:09:00,
-55016,,20,EPA 304(a) Recommended Criteria,304A,14,14,56235,carbon tetrachloride,carbon tetrachloride,0.4,µg/l,95,H,,,W,110,,4030,Human Health,2016-09-30 00:09:00,2015-01-01
-55017,,20,EPA 304(a) Recommended Criteria,304A,14,14,56235,carbon tetrachloride,carbon tetrachloride,5,µg/l,95,H,,,O,110,,4030,Human Health,2016-09-30 00:09:00,2015-01-01
-55018,,20,EPA 304(a) Recommended Criteria,304A,133,133,57749,chlordane,chlordane,3.1E-4,µg/l,95,H,,,W,110,,4030,Human Health,2016-09-30 00:09:00,2015-01-01
-55019,,20,EPA 304(a) Recommended Criteria,304A,133,133,57749,chlordane,chlordane,3.2E-4,µg/l,95,H,,,O,110,,4030,Human Health,2016-09-30 00:09:00,2015-01-01
-55020,,20,EPA 304(a) Recommended Criteria,304A,312,662,108907,chlorobenzene,monochlorobenzene,100,µg/l,95,H,,,W,110,,4030,Human Health,2016-09-30 00:09:00,2015-01-01
-55021,,20,EPA 304(a) Recommended Criteria,304A,312,662,108907,chlorobenzene,monochlorobenzene,800,µg/l,95,H,,,O,110,,4030,Human Health,2016-09-30 00:09:00,2015-01-01
-55022,,20,EPA 304(a) Recommended Criteria,304A,922,922,124481,chlorodibromomethane,chlorodibromomethane,0.8,µg/l,95,H,,,W,110,,4030,Human Health,2016-09-30 00:09:00,2015-01-01
-55023,,20,EPA 304(a) Recommended Criteria,304A,922,922,124481,chlorodibromomethane,chlorodibromomethane,21,µg/l,95,H,,,O,110,,4030,Human Health,2016-09-30 00:09:00,2015-01-01
-55024,,20,EPA 304(a) Recommended Criteria,304A,651,305,67663,chloroform,trihalomethanes,60,µg/l,95,H,,,W,110,,4030,Human Health,2016-09-30 00:09:00,2015-01-01
-55025,,20,EPA 304(a) Recommended Criteria,304A,651,305,67663,chloroform,trihalomethanes,2000,µg/l,95,H,,,O,110,,4030,Human Health,2016-09-30 00:09:00,2015-01-01
-55026,,20,EPA 304(a) Recommended Criteria,304A,653,653,94757,"chlorophenoxy herbicide (2,4-d)","chlorophenoxy herbicide (2,4-d)",1300,µg/l,95,H,,,W,110,,4030,Human Health,2016-09-30 00:09:00,2015-01-01
-55027,,20,EPA 304(a) Recommended Criteria,304A,135,135,16065831,chromium (iii),chromium (iii),See note,total,93,H,,,W,110,,4030,Human Health,2016-09-30 00:09:00,
-55028,,20,EPA 304(a) Recommended Criteria,304A,136,136,18540299,chromium (vi),chromium (vi),See note,total,93,H,,,W,110,,4030,Human Health,2016-09-30 00:09:00,
-55029,,20,EPA 304(a) Recommended Criteria,304A,274,274,218019,chrysene,chrysene,0.12,µg/l,95,H,,,W,110,,4030,Human Health,2016-09-30 00:09:00,2015-01-01
-55030,,20,EPA 304(a) Recommended Criteria,304A,274,274,218019,chrysene,chrysene,0.13,µg/l,95,H,,,O,110,,4030,Human Health,2016-09-30 00:09:00,2015-01-01
-55031,,20,EPA 304(a) Recommended Criteria,304A,521,521,7440508,copper,copper,1300,µg/l,95,H,,,W,110,,4030,Human Health,2016-09-30 00:09:00,1992-01-01
-55032,,20,EPA 304(a) Recommended Criteria,304A,137,137,57125,cyanide,cyanide,4,µg/l,95,H,,,W,110,,4030,Human Health,2016-09-30 00:09:00,2015-01-01
-55033,,20,EPA 304(a) Recommended Criteria,304A,137,137,57125,cyanide,cyanide,400,µg/l,95,H,,,O,110,,4030,Human Health,2016-09-30 00:09:00,2015-01-01
-54752,,20,EPA 304(a) Recommended Criteria,304A,1053,1053,608731,hexachlorocyclohexane (hch)-technical,hexachlorocyclohexane (hch)-technical,0.01,µg/l,95,H,,,O,110,,4030,Human Health,2016-09-30 00:09:00,2015-01-01
-54753,,20,EPA 304(a) Recommended Criteria,304A,783,783,77474,hexachlorocyclopentadiene,hexachlorocyclopentadiene,4,µg/l,95,H,,,W,110,,4030,Human Health,2016-09-30 00:09:00,2015-01-01
-54754,,20,EPA 304(a) Recommended Criteria,304A,783,783,77474,hexachlorocyclopentadiene,hexachlorocyclopentadiene,4,µg/l,95,H,,,O,110,,4030,Human Health,2016-09-30 00:09:00,2015-01-01
-54755,,20,EPA 304(a) Recommended Criteria,304A,907,907,959988,alpha-endosulfan,alpha-endosulfan,0.0087,µg/l,95,A,S,C,,109,,4029,Aquatic Life,2016-09-30 00:09:00,1980-01-01
-54756,,20,EPA 304(a) Recommended Criteria,304A,639,639,7429905,aluminum,aluminum,see criteria calculator,[no units],103,A,F,A,,109,0,4029,Aquatic Life,2020-03-23 12:03:21,2018-12-21
-54757,,20,EPA 304(a) Recommended Criteria,304A,639,639,7429905,aluminum,aluminum,see criteria calculator,[no units],103,A,F,C,,109,0,4029,Aquatic Life,2020-03-23 12:03:44,2018-12-21
-54758,,20,EPA 304(a) Recommended Criteria,304A,263,263,7664417,ammonia,ammonia,varies - see web page,[no units],103,A,F,,,109,0,4029,Aquatic Life,2020-03-23 12:03:16,2013-08-22
-54759,,20,EPA 304(a) Recommended Criteria,304A,5,5,7440382,arsenic,arsenic,340,µg/l,95,A,F,A,,109,,4029,Aquatic Life,2016-09-30 00:09:00,1995-01-01
-54760,,20,EPA 304(a) Recommended Criteria,304A,5,5,7440382,arsenic,arsenic,150,µg/l,95,A,F,C,,109,,4029,Aquatic Life,2016-09-30 00:09:00,1995-01-01
-54761,,20,EPA 304(a) Recommended Criteria,304A,5,5,7440382,arsenic,arsenic,69,µg/l,95,A,S,A,,109,,4029,Aquatic Life,2016-09-30 00:09:00,1995-01-01
-54762,,20,EPA 304(a) Recommended Criteria,304A,5,5,7440382,arsenic,arsenic,36,µg/l,95,A,S,C,,109,,4029,Aquatic Life,2016-09-30 00:09:00,1995-01-01
-54763,,20,EPA 304(a) Recommended Criteria,304A,407,407,,bacteria,bacteria,FOR PRIMARY RECREATION AND SHELLFISH USES—SEE DOCUMENT,µg/l,95,A,F,A,,109,,4029,Aquatic Life,2016-09-30 00:09:00,1986-01-01
-54764,,20,EPA 304(a) Recommended Criteria,304A,901,901,33213659,beta-endosulfan,beta-endosulfan,0.22,µg/l,95,A,F,A,,109,,4029,Aquatic Life,2016-09-30 00:09:00,1980-01-01
-54765,,20,EPA 304(a) Recommended Criteria,304A,901,901,33213659,beta-endosulfan,beta-endosulfan,0.056,µg/l,95,A,F,C,,109,,4029,Aquatic Life,2016-09-30 00:09:00,1980-01-01
-54766,,20,EPA 304(a) Recommended Criteria,304A,901,901,33213659,beta-endosulfan,beta-endosulfan,0.034,µg/l,95,A,S,A,,109,,4029,Aquatic Life,2016-09-30 00:09:00,1980-01-01
-54767,,20,EPA 304(a) Recommended Criteria,304A,901,901,33213659,beta-endosulfan,beta-endosulfan,0.0087,µg/l,95,A,S,C,,109,,4029,Aquatic Life,2016-09-30 00:09:00,1980-01-01
-54768,,20,EPA 304(a) Recommended Criteria,304A,928,928,7440428,boron,boron,NARRATIVE STATEMENT—SEE DOCUMENT,µg/l,95,A,,,,109,,4029,Aquatic Life,2016-09-30 00:09:00,1986-01-01
-54769,,20,EPA 304(a) Recommended Criteria,304A,792,792,63252,carbaryl,carbaryl,2.1,no unit name,,A,F,A,,109,,4029,Aquatic Life,2016-09-30 00:09:00,2012-01-01
-54770,,20,EPA 304(a) Recommended Criteria,304A,792,792,63252,carbaryl,carbaryl,2.1,no unit name,,A,F,C,,109,,4029,Aquatic Life,2016-09-30 00:09:00,2012-01-01
-55041,,20,EPA 304(a) Recommended Criteria,304A,10,10,105679,"2,4-dimethylphenol","2,4-dimethylphenol",400,µg/l,95,O,,,,111,,4031,Organoleptic,2016-09-09 00:09:00,
-55042,,20,EPA 304(a) Recommended Criteria,304A,783,783,77474,hexachlorocyclopentadiene,hexachlorocyclopentadiene,1,µg/l,95,O,,,,111,,4031,Organoleptic,2016-09-09 00:09:00,
-55043,,20,EPA 304(a) Recommended Criteria,304A,772,772,98953,nitrobenzene,nitrobenzene,30,µg/l,95,O,,,,111,,4031,Organoleptic,2016-09-09 00:09:00,
-55044,,20,EPA 304(a) Recommended Criteria,304A,20,20,87865,pentachlorophenol,pentachlorophenol,30,µg/l,95,O,,,,111,,4031,Organoleptic,2016-09-09 00:09:00,
-55045,,20,EPA 304(a) Recommended Criteria,304A,657,657,108952,phenol,phenol,300,µg/l,95,O,,,,111,,4031,Organoleptic,2016-09-09 00:09:00,
-55046,,20,EPA 304(a) Recommended Criteria,304A,650,650,7440666,zinc,zinc,5000,µg/l,95,O,,,,111,,4031,Organoleptic,2016-09-09 00:09:00,
-55047,,20,EPA 304(a) Recommended Criteria,304A,11,11,107028,acrolein,acrolein,3,µg/l,95,A,F,A,,109,,4029,Aquatic Life,2016-09-30 00:09:00,2009-01-01
-55048,,20,EPA 304(a) Recommended Criteria,304A,11,11,107028,acrolein,acrolein,3,µg/l,95,A,F,C,,109,,4029,Aquatic Life,2016-09-30 00:09:00,2009-01-01
-55049,,20,EPA 304(a) Recommended Criteria,304A,22,22,,aesthetic qualities,aesthetic qualities,Narrative Statement - See Document,no unit name,,A,,,,109,,4029,Aquatic Life,2016-09-30 00:09:00,1986-01-01
-55050,,20,EPA 304(a) Recommended Criteria,304A,131,131,309002,aldrin,aldrin,3.0,µg/l,95,A,F,A,,109,,4029,Aquatic Life,2016-09-30 00:09:00,1980-01-01
-55051,,20,EPA 304(a) Recommended Criteria,304A,131,131,309002,aldrin,aldrin,1.3,µg/l,95,A,S,A,,109,,4029,Aquatic Life,2016-09-30 00:09:00,1980-01-01
-55052,,20,EPA 304(a) Recommended Criteria,304A,278,278,,alkalinity,alkalinity,20000,µg/l,95,A,F,C,,109,,4029,Aquatic Life,2016-09-30 00:09:00,1986-01-01
-55053,,20,EPA 304(a) Recommended Criteria,304A,907,907,959988,alpha-endosulfan,alpha-endosulfan,0.22,µg/l,95,A,F,A,,109,,4029,Aquatic Life,2016-09-30 00:09:00,1980-01-01
-55054,,20,EPA 304(a) Recommended Criteria,304A,907,907,959988,alpha-endosulfan,alpha-endosulfan,0.056,µg/l,95,A,F,C,,109,,4029,Aquatic Life,2016-09-30 00:09:00,1980-01-01
-55055,,20,EPA 304(a) Recommended Criteria,304A,907,907,959988,alpha-endosulfan,alpha-endosulfan,0.034,µg/l,95,A,S,A,,109,,4029,Aquatic Life,2016-09-30 00:09:00,1980-01-01
-55056,,20,EPA 304(a) Recommended Criteria,304A,276,276,75274,dichlorobromomethane,dichlorobromomethane,0.95,µg/l,95,H,,,W,110,,4030,Human Health,2016-09-30 00:09:00,2015-01-01
-55057,,20,EPA 304(a) Recommended Criteria,304A,276,276,75274,dichlorobromomethane,dichlorobromomethane,27,µg/l,95,H,,,O,110,,4030,Human Health,2016-09-30 00:09:00,2015-01-01
-55058,,20,EPA 304(a) Recommended Criteria,304A,138,138,60571,dieldrin,dieldrin,1.2E-6,µg/l,95,H,,,W,110,,4030,Human Health,2016-09-30 00:09:00,2015-01-01
-55059,,20,EPA 304(a) Recommended Criteria,304A,138,138,60571,dieldrin,dieldrin,1.2E-6,µg/l,95,H,,,O,110,,4030,Human Health,2016-09-30 00:09:00,2015-01-01
-55060,,20,EPA 304(a) Recommended Criteria,304A,139,139,84662,diethyl phthalate,diethyl phthalate,600,µg/l,95,H,,,W,110,,4030,Human Health,2016-09-30 00:09:00,2015-01-01
-55061,,20,EPA 304(a) Recommended Criteria,304A,139,139,84662,diethyl phthalate,diethyl phthalate,600,µg/l,95,H,,,O,110,,4030,Human Health,2016-09-30 00:09:00,2015-01-01
-55062,,20,EPA 304(a) Recommended Criteria,304A,140,140,131113,dimethyl phthalate,dimethyl phthalate,2000,µg/l,95,H,,,W,110,,4030,Human Health,2016-09-30 00:09:00,2015-01-01
-55063,,20,EPA 304(a) Recommended Criteria,304A,140,140,131113,dimethyl phthalate,dimethyl phthalate,2000,µg/l,95,H,,,O,110,,4030,Human Health,2016-09-30 00:09:00,2015-01-01
-55064,,20,EPA 304(a) Recommended Criteria,304A,273,273,7439921,lead,lead,65,µg/l,95,A,F,A,,109,,4029,Aquatic Life,2016-09-30 00:09:00,1980-01-01
-55065,,20,EPA 304(a) Recommended Criteria,304A,273,273,7439921,lead,lead,2.5,µg/l,95,A,F,C,,109,,4029,Aquatic Life,2016-09-30 00:09:00,1980-01-01
-55066,,20,EPA 304(a) Recommended Criteria,304A,273,273,7439921,lead,lead,210,µg/l,95,A,S,A,,109,,4029,Aquatic Life,2016-09-30 00:09:00,1980-01-01
-55067,,20,EPA 304(a) Recommended Criteria,304A,273,273,7439921,lead,lead,8.1,µg/l,95,A,S,C,,109,,4029,Aquatic Life,2016-09-30 00:09:00,1980-01-01
-55092,,20,EPA 304(a) Recommended Criteria,304A,654,654,53703,"dibenz(a,h)anthracene","dibenz(a,h)anthracene",1.2E-4,µg/l,95,H,,,W,110,,4030,Human Health,2016-09-30 00:09:00,2015-01-01
-55093,,20,EPA 304(a) Recommended Criteria,304A,654,654,53703,"dibenz(a,h)anthracene","dibenz(a,h)anthracene",1.3E-4,µg/l,95,H,,,O,110,,4030,Human Health,2016-09-30 00:09:00,2015-01-01
-55094,,20,EPA 304(a) Recommended Criteria,304A,909,909,59507,3-methyl-4-chlorophenol,3-methyl-4-chlorophenol,500,µg/l,95,H,,,W,110,,4030,Human Health,2016-09-30 00:09:00,2015-01-01
-55095,,20,EPA 304(a) Recommended Criteria,304A,909,909,59507,3-methyl-4-chlorophenol,3-methyl-4-chlorophenol,2000,µg/l,95,H,,,O,110,,4030,Human Health,2016-09-30 00:09:00,2015-01-01
-55096,,20,EPA 304(a) Recommended Criteria,304A,1043,1043,72548,"p,p'-dichlorodiphenyldichloroethane (ddd)","p,p'-dichlorodiphenyldichloroethane (ddd)",1.2E-4,µg/l,95,H,,,W,110,,4030,Human Health,2016-09-30 00:09:00,2015-01-01
-55097,,20,EPA 304(a) Recommended Criteria,304A,1043,1043,72548,"p,p'-dichlorodiphenyldichloroethane (ddd)","p,p'-dichlorodiphenyldichloroethane (ddd)",1.2E-4,µg/l,95,H,,,O,110,,4030,Human Health,2016-09-30 00:09:00,2015-01-01
-55098,,20,EPA 304(a) Recommended Criteria,304A,1045,1045,72559,"p,p'-dichlorodiphenyldichloroethylene (dde)","p,p'-dichlorodiphenyldichloroethylene (dde)",1.8E-5,µg/l,95,H,,,W,110,,4030,Human Health,2016-09-30 00:09:00,2015-01-01
-55099,,20,EPA 304(a) Recommended Criteria,304A,1045,1045,72559,"p,p'-dichlorodiphenyldichloroethylene (dde)","p,p'-dichlorodiphenyldichloroethylene (dde)",1.8E-5,µg/l,95,H,,,O,110,,4030,Human Health,2016-09-30 00:09:00,2015-01-01
-55100,,20,EPA 304(a) Recommended Criteria,304A,1046,1046,50293,"p,p'-dichlorodiphenyltrichloroethane (ddt)","p,p'-dichlorodiphenyltrichloroethane (ddt)",3.0E-5,µg/l,95,H,,,W,110,,4030,Human Health,2016-09-30 00:09:00,2015-01-01
-55101,,20,EPA 304(a) Recommended Criteria,304A,1046,1046,50293,"p,p'-dichlorodiphenyltrichloroethane (ddt)","p,p'-dichlorodiphenyltrichloroethane (ddt)",3.0E-5,µg/l,95,H,,,O,110,,4030,Human Health,2016-09-30 00:09:00,2015-01-01
-55102,,20,EPA 304(a) Recommended Criteria,304A,401,401,83329,acenaphthene,acenaphthene,20,µg/l,95,O,,,,111,,4031,Organoleptic,2016-09-09 00:09:00,
-55103,,20,EPA 304(a) Recommended Criteria,304A,149,149,,color,color,See note,µg/l,95,O,,,,111,,4031,Organoleptic,2016-09-09 00:09:00,
-55104,,20,EPA 304(a) Recommended Criteria,304A,408,408,7439896,iron,iron,300,µg/l,95,O,,,,111,,4031,Organoleptic,2016-09-09 00:09:00,
-55105,,20,EPA 304(a) Recommended Criteria,304A,662,662,108907,monochlorobenzene,monochlorobenzene,20,µg/l,95,O,,,,111,,4031,Organoleptic,2016-09-09 00:09:00,
-55106,,20,EPA 304(a) Recommended Criteria,304A,672,672,,tainting substances,tainting substances,See note,µg/l,95,O,,,,111,,4031,Organoleptic,2016-09-09 00:09:00,
-55107,,20,EPA 304(a) Recommended Criteria,304A,915,915,108430,3-chlorophenol,3-chlorophenol,0.1,µg/l,95,O,,,,111,,4031,Organoleptic,2016-09-09 00:09:00,
-55108,,20,EPA 304(a) Recommended Criteria,304A,786,786,106489,4-chlorophenol,4-chlorophenol,0.1,µg/l,95,O,,,,111,,4031,Organoleptic,2016-09-09 00:09:00,
-55109,,20,EPA 304(a) Recommended Criteria,304A,526,526,576249,"2,3-dichlorophenol","2,3-dichlorophenol",0.04,µg/l,95,O,,,,111,,4031,Organoleptic,2016-09-09 00:09:00,
-55110,,20,EPA 304(a) Recommended Criteria,304A,660,660,583788,"2,5-dichlorophenol","2,5-dichlorophenol",0.5,µg/l,95,O,,,,111,,4031,Organoleptic,2016-09-09 00:09:00,
-55111,,20,EPA 304(a) Recommended Criteria,304A,21,21,87650,"2,6-dichlorophenol","2,6-dichlorophenol",0.2,µg/l,95,O,,,,111,,4031,Organoleptic,2016-09-09 00:09:00,
-55112,,20,EPA 304(a) Recommended Criteria,304A,661,661,95772,"3,4-dichlorophenol","3,4-dichlorophenol",0.3,µg/l,95,O,,,,111,,4031,Organoleptic,2016-09-09 00:09:00,
-55113,,20,EPA 304(a) Recommended Criteria,304A,659,659,95954,"2,4,5-trichlorophenol","2,4,5-trichlorophenol",1,µg/l,95,O,,,,111,,4031,Organoleptic,2016-09-09 00:09:00,
-55114,,20,EPA 304(a) Recommended Criteria,304A,400,400,88062,"2,4,6-trichlorophenol","2,4,6-trichlorophenol",2,µg/l,95,O,,,,111,,4031,Organoleptic,2016-09-09 00:09:00,
-55115,,20,EPA 304(a) Recommended Criteria,304A,831,831,58902,"2,3,4,6-tetrachlorophenol","2,3,4,6-tetrachlorophenol",1,µg/l,95,O,,,,111,,4031,Organoleptic,2016-09-09 00:09:00,
-55116,,20,EPA 304(a) Recommended Criteria,304A,785,785,1570645,2-methyl-4-chlorophenol,2-methyl-4-chlorophenol,1800,µg/l,95,O,,,,111,,4031,Organoleptic,2016-09-09 00:09:00,
-55117,,20,EPA 304(a) Recommended Criteria,304A,909,909,59507,3-methyl-4-chlorophenol,3-methyl-4-chlorophenol,3000,µg/l,95,O,,,,111,,4031,Organoleptic,2016-09-09 00:09:00,
-55118,,20,EPA 304(a) Recommended Criteria,304A,146,146,615747,3-methyl-6-chlorophenol,3-methyl-6-chlorophenol,20,µg/l,95,O,,,,111,,4031,Organoleptic,2016-09-09 00:09:00,
-55119,,20,EPA 304(a) Recommended Criteria,304A,270,270,95578,2-chlorophenol,2-chlorophenol,0.1,µg/l,95,O,,,,111,,4031,Organoleptic,2016-09-09 00:09:00,
-55120,,20,EPA 304(a) Recommended Criteria,304A,521,521,7440508,copper,copper,1000,µg/l,95,O,,,,111,,4031,Organoleptic,2016-09-09 00:09:00,
-55121,,20,EPA 304(a) Recommended Criteria,304A,269,269,120832,"2,4-dichlorophenol","2,4-dichlorophenol",0.3,µg/l,95,O,,,,111,,4031,Organoleptic,2016-09-09 00:09:00,
-54771,,20,EPA 304(a) Recommended Criteria,304A,792,792,63252,carbaryl,carbaryl,1.6,no unit name,,A,S,A,,109,,4029,Aquatic Life,2016-09-30 00:09:00,2012-01-01
-54772,,20,EPA 304(a) Recommended Criteria,304A,774,774,7440439,cadmium,cadmium,1.8,µg/l,95,A,F,A,,109,,4029,Aquatic Life,2016-09-30 00:09:00,2016-01-01
-54773,,20,EPA 304(a) Recommended Criteria,304A,774,774,7440439,cadmium,cadmium,0.72,µg/l,95,A,F,C,,109,,4029,Aquatic Life,2016-09-30 00:09:00,2016-01-01
-54774,,20,EPA 304(a) Recommended Criteria,304A,774,774,7440439,cadmium,cadmium,33,µg/l,95,A,S,A,,109,,4029,Aquatic Life,2016-09-30 00:09:00,2016-01-01
-54775,,20,EPA 304(a) Recommended Criteria,304A,774,774,7440439,cadmium,cadmium,7.9,µg/l,95,A,S,C,,109,,4029,Aquatic Life,2016-09-30 00:09:00,2016-01-01
-54776,,20,EPA 304(a) Recommended Criteria,304A,133,133,57749,chlordane,chlordane,2.4,µg/l,95,A,F,A,,109,,4029,Aquatic Life,2016-09-30 00:09:00,1980-01-01
-54777,,20,EPA 304(a) Recommended Criteria,304A,133,133,57749,chlordane,chlordane,0.0043,µg/l,95,A,F,C,,109,,4029,Aquatic Life,2016-09-30 00:09:00,1980-01-01
-54778,,20,EPA 304(a) Recommended Criteria,304A,133,133,57749,chlordane,chlordane,0.09,µg/l,95,A,S,A,,109,,4029,Aquatic Life,2016-09-30 00:09:00,1980-01-01
-54779,,20,EPA 304(a) Recommended Criteria,304A,133,133,57749,chlordane,chlordane,0.0040,µg/l,95,A,S,C,,109,,4029,Aquatic Life,2016-09-30 00:09:00,1980-01-01
-54780,,20,EPA 304(a) Recommended Criteria,304A,908,908,16887006,chloride,chloride,860000,µg/l,95,A,F,A,,109,,4029,Aquatic Life,2016-09-30 00:09:00,1986-01-01
-54781,,20,EPA 304(a) Recommended Criteria,304A,908,908,16887006,chloride,chloride,230000,µg/l,95,A,F,C,,109,,4029,Aquatic Life,2016-09-30 00:09:00,1986-01-01
-54782,,20,EPA 304(a) Recommended Criteria,304A,649,649,75014,vinyl chloride,vinyl chloride,0.022,µg/l,95,H,,,W,110,,4030,Human Health,2016-09-30 00:09:00,2015-01-01
-54783,,20,EPA 304(a) Recommended Criteria,304A,649,649,75014,vinyl chloride,vinyl chloride,1.6,µg/l,95,H,,,O,110,,4030,Human Health,2016-09-30 00:09:00,2015-01-01
-54784,,20,EPA 304(a) Recommended Criteria,304A,650,650,7440666,zinc,zinc,7400,µg/l,95,H,,,W,110,,4030,Human Health,2016-09-30 00:09:00,2002-01-01
-54785,,20,EPA 304(a) Recommended Criteria,304A,650,650,7440666,zinc,zinc,26000,µg/l,95,H,,,O,110,,4030,Human Health,2016-09-30 00:09:00,2002-01-01
-54786,,20,EPA 304(a) Recommended Criteria,304A,148,148,71556,"1,1,1-trichloroethane","1,1,1-trichloroethane",10000,µg/l,95,H,,,W,110,,4030,Human Health,2016-09-30 00:09:00,2015-01-01
-54787,,20,EPA 304(a) Recommended Criteria,304A,396,396,79345,"1,1,2,2-tetrachloroethane","1,1,2,2-tetrachloroethane",0.2,µg/l,95,H,,,W,110,,4030,Human Health,2016-09-30 00:09:00,2015-01-01
-54788,,20,EPA 304(a) Recommended Criteria,304A,396,396,79345,"1,1,2,2-tetrachloroethane","1,1,2,2-tetrachloroethane",3,µg/l,95,H,,,O,110,,4030,Human Health,2016-09-30 00:09:00,2015-01-01
-54789,,20,EPA 304(a) Recommended Criteria,304A,397,397,79005,"1,1,2-trichloroethane","1,1,2-trichloroethane",0.55,µg/l,95,H,,,W,110,,4030,Human Health,2016-09-30 00:09:00,2015-01-01
-54790,,20,EPA 304(a) Recommended Criteria,304A,397,397,79005,"1,1,2-trichloroethane","1,1,2-trichloroethane",8.9,µg/l,95,H,,,O,110,,4030,Human Health,2016-09-30 00:09:00,2015-01-01
-54791,,20,EPA 304(a) Recommended Criteria,304A,902,902,75354,"1,1-dichloroethylene","1,1-dichloroethylene",300,µg/l,95,H,,,W,110,,4030,Human Health,2016-09-30 00:09:00,2015-01-01
-54792,,20,EPA 304(a) Recommended Criteria,304A,401,401,83329,acenaphthene,acenaphthene,70,µg/l,95,H,,,W,110,,4030,Human Health,2016-09-30 00:09:00,2015-01-01
-54793,,20,EPA 304(a) Recommended Criteria,304A,401,401,83329,acenaphthene,acenaphthene,90,µg/l,95,H,,,O,110,,4030,Human Health,2016-09-30 00:09:00,2015-01-01
-54794,,20,EPA 304(a) Recommended Criteria,304A,11,11,107028,acrolein,acrolein,3,µg/l,95,H,,,W,110,,4030,Human Health,2016-09-30 00:09:00,2015-01-01
-54795,,20,EPA 304(a) Recommended Criteria,304A,11,11,107028,acrolein,acrolein,400,µg/l,95,H,,,O,110,,4030,Human Health,2016-09-30 00:09:00,2015-01-01
-54796,,20,EPA 304(a) Recommended Criteria,304A,12,12,107131,acrylonitrile,acrylonitrile,0.061,µg/l,95,H,,,W,110,,4030,Human Health,2016-09-30 00:09:00,2015-01-01
-54797,,20,EPA 304(a) Recommended Criteria,304A,12,12,107131,acrylonitrile,acrylonitrile,7.0,µg/l,95,H,,,O,110,,4030,Human Health,2016-09-30 00:09:00,2015-01-01
-54798,,20,EPA 304(a) Recommended Criteria,304A,131,131,309002,aldrin,aldrin,7.7E-7,µg/l,95,H,,,W,110,,4030,Human Health,2016-09-30 00:09:00,2015-01-01
-54799,,20,EPA 304(a) Recommended Criteria,304A,131,131,309002,aldrin,aldrin,7.7E-7,µg/l,95,H,,,O,110,,4030,Human Health,2016-09-30 00:09:00,2015-01-01
-54800,,20,EPA 304(a) Recommended Criteria,304A,1051,1051,319846,alpha-hexachlorocyclohexane (hch),alpha-hexachlorocyclohexane (hch),3.6E-4,µg/l,95,H,,,W,110,,4030,Human Health,2016-09-30 00:09:00,2015-01-01
-54801,,20,EPA 304(a) Recommended Criteria,304A,1051,1051,319846,alpha-hexachlorocyclohexane (hch),alpha-hexachlorocyclohexane (hch),3.9E-4,µg/l,95,H,,,O,110,,4030,Human Health,2016-09-30 00:09:00,2015-01-01
-54802,,20,EPA 304(a) Recommended Criteria,304A,907,907,959988,alpha-endosulfan,alpha-endosulfan,20,µg/l,95,H,,,W,110,,4030,Human Health,2016-09-30 00:09:00,2015-01-01
-54803,,20,EPA 304(a) Recommended Criteria,304A,907,907,959988,alpha-endosulfan,alpha-endosulfan,30,µg/l,95,H,,,O,110,,4030,Human Health,2016-09-30 00:09:00,2015-01-01
-54804,,20,EPA 304(a) Recommended Criteria,304A,4,4,120127,anthracene,anthracene,300,µg/l,95,H,,,W,110,,4030,Human Health,2016-09-30 00:09:00,2015-01-01
-54805,,20,EPA 304(a) Recommended Criteria,304A,4,4,120127,anthracene,anthracene,400,µg/l,95,H,,,O,110,,4030,Human Health,2016-09-30 00:09:00,2015-01-01
-54806,,20,EPA 304(a) Recommended Criteria,304A,266,266,7440360,antimony,antimony,5.6,µg/l,95,H,,,W,110,,4030,Human Health,2016-09-30 00:09:00,2002-01-01
-54807,,20,EPA 304(a) Recommended Criteria,304A,266,266,7440360,antimony,antimony,640,µg/l,95,H,,,O,110,,4030,Human Health,2016-09-30 00:09:00,2002-01-01
-54677,,20,EPA 304(a) Recommended Criteria,304A,536,536,84742,di-n-butyl phthalate,di-n-butyl phthalate,20,µg/l,95,H,,,W,110,,4030,Human Health,2016-09-30 00:09:00,2015-01-01
-54678,,20,EPA 304(a) Recommended Criteria,304A,536,536,84742,di-n-butyl phthalate,di-n-butyl phthalate,30,µg/l,95,H,,,O,110,,4030,Human Health,2016-09-30 00:09:00,2015-01-01
-54679,,20,EPA 304(a) Recommended Criteria,304A,525,525,25550587,dinitrophenols,dinitrophenols,10,µg/l,95,H,,,W,110,,4030,Human Health,2016-09-30 00:09:00,2015-01-01
-54680,,20,EPA 304(a) Recommended Criteria,304A,525,525,25550587,dinitrophenols,dinitrophenols,1000,µg/l,95,H,,,O,110,,4030,Human Health,2016-09-30 00:09:00,2015-01-01
-54681,,20,EPA 304(a) Recommended Criteria,304A,655,655,1031078,endosulfan sulfate,endosulfan sulfate,20,µg/l,95,H,,,W,110,,4030,Human Health,2016-09-30 00:09:00,2015-01-01
-54682,,20,EPA 304(a) Recommended Criteria,304A,655,655,1031078,endosulfan sulfate,endosulfan sulfate,40,µg/l,95,H,,,O,110,,4030,Human Health,2016-09-30 00:09:00,2015-01-01
-54683,,20,EPA 304(a) Recommended Criteria,304A,781,781,72208,endrin,endrin,0.03,µg/l,95,H,,,W,110,,4030,Human Health,2016-09-30 00:09:00,2015-01-01
-54684,,20,EPA 304(a) Recommended Criteria,304A,781,781,72208,endrin,endrin,0.03,µg/l,95,H,,,O,110,,4030,Human Health,2016-09-30 00:09:00,2015-01-01
-54685,,20,EPA 304(a) Recommended Criteria,304A,522,522,7421934,endrin aldehyde,endrin aldehyde,1,µg/l,95,H,,,W,110,,4030,Human Health,2016-09-30 00:09:00,2015-01-01
-54686,,20,EPA 304(a) Recommended Criteria,304A,522,522,7421934,endrin aldehyde,endrin aldehyde,1,µg/l,95,H,,,O,110,,4030,Human Health,2016-09-30 00:09:00,2015-01-01
-54687,,20,EPA 304(a) Recommended Criteria,304A,709,709,542881,bis(chloromethyl) ether,bis(chloromethyl) ether,1.5E-4,µg/l,95,H,,,W,110,,4030,Human Health,2016-09-30 00:09:00,2015-01-01
-54688,,20,EPA 304(a) Recommended Criteria,304A,709,709,542881,bis(chloromethyl) ether,bis(chloromethyl) ether,0.017,µg/l,95,H,,,O,110,,4030,Human Health,2016-09-30 00:09:00,2015-01-01
-54689,,20,EPA 304(a) Recommended Criteria,304A,141,141,100414,ethylbenzene,ethylbenzene,68,µg/l,95,H,,,W,110,,4030,Human Health,2016-09-30 00:09:00,2015-01-01
-54690,,20,EPA 304(a) Recommended Criteria,304A,141,141,100414,ethylbenzene,ethylbenzene,130,µg/l,95,H,,,O,110,,4030,Human Health,2016-09-30 00:09:00,2015-01-01
-54691,,20,EPA 304(a) Recommended Criteria,304A,913,913,206440,fluoranthene,fluoranthene,20,µg/l,95,H,,,W,110,,4030,Human Health,2016-09-30 00:09:00,2015-01-01
-54692,,20,EPA 304(a) Recommended Criteria,304A,913,913,206440,fluoranthene,fluoranthene,20,µg/l,95,H,,,O,110,,4030,Human Health,2016-09-30 00:09:00,2015-01-01
-54693,,20,EPA 304(a) Recommended Criteria,304A,18,18,86737,fluorene,fluorene,50,µg/l,95,H,,,W,110,1,4030,Human Health,2021-06-14 11:06:51,2002-01-01
-54694,,20,EPA 304(a) Recommended Criteria,304A,18,18,86737,fluorene,fluorene,70,µg/l,95,H,,,O,110,1,4030,Human Health,2021-06-14 11:06:51,2002-01-01
-54695,,20,EPA 304(a) Recommended Criteria,304A,1041,1041,58899,gamma-hexachlorocyclohexane (hch) (lindane),gamma-hexachlorocyclohexane (hch) (lindane),4.2,µg/l,95,H,,,W,110,,4030,Human Health,2016-09-30 00:09:00,2015-01-01
-54696,,20,EPA 304(a) Recommended Criteria,304A,1041,1041,58899,gamma-hexachlorocyclohexane (hch) (lindane),gamma-hexachlorocyclohexane (hch) (lindane),4.4,µg/l,95,H,,,O,110,,4030,Human Health,2016-09-30 00:09:00,2015-01-01
-54697,,20,EPA 304(a) Recommended Criteria,304A,523,523,76448,heptachlor,heptachlor,5.9E-6,µg/l,95,H,,,W,110,,4030,Human Health,2016-09-30 00:09:00,2015-01-01
-54698,,20,EPA 304(a) Recommended Criteria,304A,523,523,76448,heptachlor,heptachlor,5.9E-6,µg/l,95,H,,,O,110,,4030,Human Health,2016-09-30 00:09:00,2015-01-01
-54699,,20,EPA 304(a) Recommended Criteria,304A,406,406,1024573,heptachlor epoxide,heptachlor epoxide,3.2E-5,µg/l,95,H,,,W,110,,4030,Human Health,2016-09-30 00:09:00,2015-01-01
-54700,,20,EPA 304(a) Recommended Criteria,304A,406,406,1024573,heptachlor epoxide,heptachlor epoxide,3.2E-5,µg/l,95,H,,,O,110,,4030,Human Health,2016-09-30 00:09:00,2015-01-01
-54701,,20,EPA 304(a) Recommended Criteria,304A,524,524,118741,hexachlorobenzene,hexachlorobenzene,7.9E-5,µg/l,95,H,,,W,110,,4030,Human Health,2016-09-30 00:09:00,2015-01-01
-54702,,20,EPA 304(a) Recommended Criteria,304A,524,524,118741,hexachlorobenzene,hexachlorobenzene,7.9E-5,µg/l,95,H,,,O,110,,4030,Human Health,2016-09-30 00:09:00,2015-01-01
-54703,,20,EPA 304(a) Recommended Criteria,304A,277,277,87683,hexachlorobutadiene,hexachlorobutadiene,0.01,µg/l,95,H,,,W,110,,4030,Human Health,2016-09-30 00:09:00,2015-01-01
-54704,,20,EPA 304(a) Recommended Criteria,304A,277,277,87683,hexachlorobutadiene,hexachlorobutadiene,0.01,µg/l,95,H,,,O,110,,4030,Human Health,2016-09-30 00:09:00,2015-01-01
-54705,,20,EPA 304(a) Recommended Criteria,304A,1053,1053,608731,hexachlorocyclohexane (hch)-technical,hexachlorocyclohexane (hch)-technical,0.0066,µg/l,95,H,,,W,110,,4030,Human Health,2016-09-30 00:09:00,2015-01-01
-54706,,20,EPA 304(a) Recommended Criteria,304A,159,159,,pathogen and pathogen indicators,pathogen and pathogen indicators,See EPA's 2012 Recreational Water Quality Criteria,µg/l,95,H,,,O,110,,4030,Human Health,2016-09-30 00:09:00,2012-01-01
-54707,,20,EPA 304(a) Recommended Criteria,304A,281,281,608935,pentachlorobenzene,pentachlorobenzene,0.1,µg/l,95,H,,,W,110,,4030,Human Health,2016-09-30 00:09:00,2015-01-01
-54708,,20,EPA 304(a) Recommended Criteria,304A,281,281,608935,pentachlorobenzene,pentachlorobenzene,0.1,µg/l,95,H,,,O,110,,4030,Human Health,2016-09-30 00:09:00,2015-01-01
-54709,,20,EPA 304(a) Recommended Criteria,304A,20,20,87865,pentachlorophenol,pentachlorophenol,0.03,µg/l,95,H,,,W,110,,4030,Human Health,2016-09-30 00:09:00,2015-01-01
-54710,,20,EPA 304(a) Recommended Criteria,304A,20,20,87865,pentachlorophenol,pentachlorophenol,0.04,µg/l,95,H,,,O,110,,4030,Human Health,2016-09-30 00:09:00,2015-01-01
-54711,,20,EPA 304(a) Recommended Criteria,304A,258,258,,pH (acidity/alkalinity),pH (acidity/alkalinity),5-9,no unit name,,H,,,W,110,,4030,Human Health,2016-09-30 00:09:00,1986-01-01
-54712,,20,EPA 304(a) Recommended Criteria,304A,657,657,108952,phenol,phenol,4000,µg/l,95,H,,,W,110,,4030,Human Health,2016-09-30 00:09:00,2015-01-01
-54713,,20,EPA 304(a) Recommended Criteria,304A,657,657,108952,phenol,phenol,300000,µg/l,95,H,,,O,110,,4030,Human Health,2016-09-30 00:09:00,2015-01-01
-54714,,20,EPA 304(a) Recommended Criteria,304A,143,143,1336363,polychlorinated biphenyls (pcbs),polychlorinated biphenyls (pcbs),6.4E-5,µg/l,95,H,,,W,110,,4030,Human Health,2016-09-30 00:09:00,2002-01-01
-54715,,20,EPA 304(a) Recommended Criteria,304A,143,143,1336363,polychlorinated biphenyls (pcbs),polychlorinated biphenyls (pcbs),6.4E-5,µg/l,95,H,,,O,110,,4030,Human Health,2016-09-30 00:09:00,2002-01-01
-54716,,20,EPA 304(a) Recommended Criteria,304A,144,144,129000,pyrene,pyrene,20,µg/l,95,H,,,W,110,,4030,Human Health,2016-09-30 00:09:00,2015-01-01
-54717,,20,EPA 304(a) Recommended Criteria,304A,144,144,129000,pyrene,pyrene,30,µg/l,95,H,,,O,110,,4030,Human Health,2016-09-30 00:09:00,2015-01-01
-54718,,20,EPA 304(a) Recommended Criteria,304A,658,658,7782492,selenium,selenium,170,µg/l,95,H,,,W,110,,4030,Human Health,2016-09-30 00:09:00,2002-01-01
-54719,,20,EPA 304(a) Recommended Criteria,304A,658,658,7782492,selenium,selenium,4200,µg/l,95,H,,,O,110,,4030,Human Health,2016-09-30 00:09:00,2002-01-01
-54720,,20,EPA 304(a) Recommended Criteria,304A,1048,1048,,solids dissolved and salinity,solids dissolved and salinity,250000,µg/l,95,H,,,W,110,,4030,Human Health,2016-09-30 00:09:00,1986-01-01
-54721,,20,EPA 304(a) Recommended Criteria,304A,178,178,95943,"1,2,4,5-tetrachlorobenzene","1,2,4,5-tetrachlorobenzene",0.03,µg/l,95,H,,,W,110,,4030,Human Health,2016-09-30 00:09:00,2015-01-01
-54808,,20,EPA 304(a) Recommended Criteria,304A,5,5,7440382,arsenic,arsenic,0.018,µg/l,95,H,,,W,110,,4030,Human Health,2016-09-30 00:09:00,1992-01-01
-54809,,20,EPA 304(a) Recommended Criteria,304A,5,5,7440382,arsenic,arsenic,0.14,µg/l,95,H,,,O,110,,4030,Human Health,2016-09-30 00:09:00,1992-01-01
-54810,,20,EPA 304(a) Recommended Criteria,304A,641,641,1332214,asbestos,asbestos,7000000,fibers/l,59,H,,,W,110,,4030,Human Health,2016-09-30 00:09:00,1991-01-01
-54811,,20,EPA 304(a) Recommended Criteria,304A,916,916,7440393,barium,barium,1000,µg/l,95,H,,,W,110,,4030,Human Health,2016-09-30 00:09:00,1986-01-01
-54830,,20,EPA 304(a) Recommended Criteria,304A,520,520,7782505,chlorine,chlorine,19,µg/l,95,A,F,A,,109,,4029,Aquatic Life,2016-09-30 00:09:00,1986-01-01
-54831,,20,EPA 304(a) Recommended Criteria,304A,520,520,7782505,chlorine,chlorine,11,µg/l,95,A,F,C,,109,,4029,Aquatic Life,2016-09-30 00:09:00,1986-01-01
-54832,,20,EPA 304(a) Recommended Criteria,304A,520,520,7782505,chlorine,chlorine,13,µg/l,95,A,S,A,,109,,4029,Aquatic Life,2016-09-30 00:09:00,1986-01-01
-54833,,20,EPA 304(a) Recommended Criteria,304A,520,520,7782505,chlorine,chlorine,7.5,µg/l,95,A,S,C,,109,,4029,Aquatic Life,2016-09-30 00:09:00,1986-01-01
-54834,,20,EPA 304(a) Recommended Criteria,304A,911,768,2921882,chloropyrifos,chlorpyrifos,0.083,µg/l,95,A,F,A,,109,,4029,Aquatic Life,2016-09-30 00:09:00,1986-01-01
-54835,,20,EPA 304(a) Recommended Criteria,304A,911,768,2921882,chloropyrifos,chlorpyrifos,0.041,µg/l,95,A,F,C,,109,,4029,Aquatic Life,2016-09-30 00:09:00,1986-01-01
-54836,,20,EPA 304(a) Recommended Criteria,304A,911,768,2921882,chloropyrifos,chlorpyrifos,0.011,µg/l,95,A,S,A,,109,,4029,Aquatic Life,2016-09-30 00:09:00,1986-01-01
-54837,,20,EPA 304(a) Recommended Criteria,304A,911,768,2921882,chloropyrifos,chlorpyrifos,0.0056,µg/l,95,A,S,C,,109,,4029,Aquatic Life,2016-09-30 00:09:00,1986-01-01
-54838,,20,EPA 304(a) Recommended Criteria,304A,135,135,16065831,chromium (iii),chromium (iii),570,µg/l,95,A,F,A,,109,,4029,Aquatic Life,2016-09-30 00:09:00,1995-01-01
-54839,,20,EPA 304(a) Recommended Criteria,304A,135,135,16065831,chromium (iii),chromium (iii),74,µg/l,95,A,F,C,,109,,4029,Aquatic Life,2016-09-30 00:09:00,1995-01-01
-54840,,20,EPA 304(a) Recommended Criteria,304A,136,136,18540299,chromium (vi),chromium (vi),16,µg/l,95,A,F,A,,109,,4029,Aquatic Life,2016-09-30 00:09:00,1995-01-01
-54841,,20,EPA 304(a) Recommended Criteria,304A,136,136,18540299,chromium (vi),chromium (vi),11,µg/l,95,A,F,C,,109,,4029,Aquatic Life,2016-09-30 00:09:00,1995-01-01
-54842,,20,EPA 304(a) Recommended Criteria,304A,136,136,18540299,chromium (vi),chromium (vi),1100,µg/l,95,A,S,A,,109,,4029,Aquatic Life,2016-09-30 00:09:00,1995-01-01
-54843,,20,EPA 304(a) Recommended Criteria,304A,136,136,18540299,chromium (vi),chromium (vi),50,µg/l,95,A,S,C,,109,,4029,Aquatic Life,2016-09-30 00:09:00,1995-01-01
-54844,,20,EPA 304(a) Recommended Criteria,304A,19,19,67721,hexachloroethane,hexachloroethane,0.1,µg/l,95,H,,,W,110,,4030,Human Health,2016-09-30 00:09:00,2015-01-01
-54845,,20,EPA 304(a) Recommended Criteria,304A,19,19,67721,hexachloroethane,hexachloroethane,0.1,µg/l,95,H,,,O,110,,4030,Human Health,2016-09-30 00:09:00,2015-01-01
-54846,,20,EPA 304(a) Recommended Criteria,304A,245,245,193395,"indeno(1,2,3-cd)pyrene","indeno(1,2,3-cd)pyrene",0.0012,µg/l,95,H,,,W,110,,4030,Human Health,2016-09-30 00:09:00,2015-01-01
-54847,,20,EPA 304(a) Recommended Criteria,304A,245,245,193395,"indeno(1,2,3-cd)pyrene","indeno(1,2,3-cd)pyrene",0.0013,µg/l,95,H,,,O,110,,4030,Human Health,2016-09-30 00:09:00,2015-01-01
-54848,,20,EPA 304(a) Recommended Criteria,304A,404,404,78591,isophorone,isophorone,34,µg/l,95,H,,,W,110,,4030,Human Health,2016-09-30 00:09:00,2015-01-01
-54849,,20,EPA 304(a) Recommended Criteria,304A,404,404,78591,isophorone,isophorone,1800,µg/l,95,H,,,O,110,,4030,Human Health,2016-09-30 00:09:00,2015-01-01
-54850,,20,EPA 304(a) Recommended Criteria,304A,527,527,7439965,manganese,manganese,50,µg/l,95,H,,,W,110,,4030,Human Health,2016-09-30 00:09:00,1993-01-01
-54851,,20,EPA 304(a) Recommended Criteria,304A,527,527,7439965,manganese,manganese,100,µg/l,95,H,,,O,110,,4030,Human Health,2016-09-30 00:09:00,1993-01-01
-54852,,20,EPA 304(a) Recommended Criteria,304A,134,134,7439976,mercury,mercury,0.3,mg/kg,66,H,,,O,110,,4030,Human Health,2016-09-30 00:09:00,2001-01-01
-54853,,20,EPA 304(a) Recommended Criteria,304A,920,920,22967926,methylmercury,methylmercury,0.3,mg/kg,66,H,,,O,110,,4030,Human Health,2016-09-30 00:09:00,2001-01-01
-54854,,20,EPA 304(a) Recommended Criteria,304A,528,528,72435,methoxychlor,methoxychlor,0.02,µg/l,95,H,,,W,110,,4030,Human Health,2016-09-30 00:09:00,2015-01-01
-54855,,20,EPA 304(a) Recommended Criteria,304A,788,788,74839,methyl bromide,methyl bromide,100,µg/l,95,H,,,W,110,,4030,Human Health,2016-09-30 00:09:00,2015-01-01
-54856,,20,EPA 304(a) Recommended Criteria,304A,788,788,74839,methyl bromide,methyl bromide,10000,µg/l,95,H,,,O,110,,4030,Human Health,2016-09-30 00:09:00,2015-01-01
-54857,,20,EPA 304(a) Recommended Criteria,304A,771,771,75092,methylene chloride,methylene chloride,20,µg/l,95,H,,,W,110,,4030,Human Health,2016-09-30 00:09:00,2015-01-01
-54858,,20,EPA 304(a) Recommended Criteria,304A,771,771,75092,methylene chloride,methylene chloride,1000,µg/l,95,H,,,O,110,,4030,Human Health,2016-09-30 00:09:00,2015-01-01
-54859,,20,EPA 304(a) Recommended Criteria,304A,264,264,7440020,nickel,nickel,610,µg/l,95,H,,,W,110,,4030,Human Health,2016-09-30 00:09:00,1998-01-01
-54860,,20,EPA 304(a) Recommended Criteria,304A,516,516,71432,benzene,benzene,0.58-2.1,µg/l,95,H,,,W,110,,4030,Human Health,2016-09-30 00:09:00,2015-01-01
-54861,,20,EPA 304(a) Recommended Criteria,304A,516,516,71432,benzene,benzene,16-58,µg/l,95,H,,,O,110,,4030,Human Health,2016-09-30 00:09:00,2015-01-01
-54862,,20,EPA 304(a) Recommended Criteria,304A,6,6,92875,benzidine,benzidine,1.4E-4,µg/l,95,H,,,W,110,,4030,Human Health,2016-09-30 00:09:00,2015-01-01
-54863,,20,EPA 304(a) Recommended Criteria,304A,6,6,92875,benzidine,benzidine,0.011,µg/l,95,H,,,O,110,,4030,Human Health,2016-09-30 00:09:00,2015-01-01
-54864,,20,EPA 304(a) Recommended Criteria,304A,517,517,56553,benzo(a) anthracene,benzo(a) anthracene,0.0012,µg/l,95,H,,,W,110,,4030,Human Health,2016-09-30 00:09:00,2015-01-01
-54865,,20,EPA 304(a) Recommended Criteria,304A,517,517,56553,benzo(a) anthracene,benzo(a) anthracene,0.0013,µg/l,95,H,,,O,110,,4030,Human Health,2016-09-30 00:09:00,2015-01-01
-54866,,20,EPA 304(a) Recommended Criteria,304A,642,642,50328,benzo(a) pyrene,benzo(a) pyrene,1.2E-4,µg/l,95,H,,,W,110,,4030,Human Health,2016-09-30 00:09:00,2015-01-01
-54867,,20,EPA 304(a) Recommended Criteria,304A,642,642,50328,benzo(a) pyrene,benzo(a) pyrene,1.3E-4,µg/l,95,H,,,O,110,,4030,Human Health,2016-09-30 00:09:00,2015-01-01
-54868,,20,EPA 304(a) Recommended Criteria,304A,900,900,205992,benzo(b) fluoranthene,benzo(b) fluoranthene,0.0012,µg/l,95,H,,,W,110,,4030,Human Health,2016-09-30 00:09:00,2015-01-01
-54869,,20,EPA 304(a) Recommended Criteria,304A,902,902,75354,"1,1-dichloroethylene","1,1-dichloroethylene",20000,µg/l,95,H,,,O,110,,4030,Human Health,2016-09-30 00:09:00,2015-01-01
-54870,,20,EPA 304(a) Recommended Criteria,304A,644,644,120821,"1,2,4-trichlorobenzene","1,2,4-trichlorobenzene",0.071,µg/l,95,H,,,W,110,,4030,Human Health,2016-09-30 00:09:00,2015-01-01
-54871,,20,EPA 304(a) Recommended Criteria,304A,644,644,120821,"1,2,4-trichlorobenzene","1,2,4-trichlorobenzene",0.076,µg/l,95,H,,,O,110,,4030,Human Health,2016-09-30 00:09:00,2015-01-01
-54872,,20,EPA 304(a) Recommended Criteria,304A,9,9,95501,"1,2-dichlorobenzene","1,2-dichlorobenzene",1000,µg/l,95,H,,,W,110,,4030,Human Health,2016-09-30 00:09:00,2015-01-01
-54873,,20,EPA 304(a) Recommended Criteria,304A,9,9,95501,"1,2-dichlorobenzene","1,2-dichlorobenzene",3000,µg/l,95,H,,,O,110,,4030,Human Health,2016-09-30 00:09:00,2015-01-01
-54874,,20,EPA 304(a) Recommended Criteria,304A,903,903,107062,"1,2-dichloroethane","1,2-dichloroethane",9.9,µg/l,95,H,,,W,110,,4030,Human Health,2016-09-30 00:09:00,2015-01-01
-54875,,20,EPA 304(a) Recommended Criteria,304A,903,903,107062,"1,2-dichloroethane","1,2-dichloroethane",650,µg/l,95,H,,,O,110,,4030,Human Health,2016-09-30 00:09:00,2015-01-01
-54876,,20,EPA 304(a) Recommended Criteria,304A,398,398,78875,"1,2-dichloropropane","1,2-dichloropropane",0.9,µg/l,95,H,,,W,110,,4030,Human Health,2016-09-30 00:09:00,2015-01-01
-54877,,20,EPA 304(a) Recommended Criteria,304A,398,398,78875,"1,2-dichloropropane","1,2-dichloropropane",31,µg/l,95,H,,,O,110,,4030,Human Health,2016-09-30 00:09:00,2015-01-01
-54878,,20,EPA 304(a) Recommended Criteria,304A,775,775,122667,"1,2-diphenylhydrazine","1,2-diphenylhydrazine",0.03,µg/l,95,H,,,W,110,,4030,Human Health,2016-09-30 00:09:00,2015-01-01
-54879,,20,EPA 304(a) Recommended Criteria,304A,775,775,122667,"1,2-diphenylhydrazine","1,2-diphenylhydrazine",0.2,µg/l,95,H,,,O,110,,4030,Human Health,2016-09-30 00:09:00,2015-01-01
-54880,,20,EPA 304(a) Recommended Criteria,304A,45,45,156605,"trans-1,2-dichloroethylene","trans-1,2-dichloroethylene",100,µg/l,95,H,,,W,110,,4030,Human Health,2016-09-30 00:09:00,2015-01-01
-54881,,20,EPA 304(a) Recommended Criteria,304A,45,45,156605,"trans-1,2-dichloroethylene","trans-1,2-dichloroethylene",4000,µg/l,95,H,,,O,110,,4030,Human Health,2016-09-30 00:09:00,2015-01-01
-54882,,20,EPA 304(a) Recommended Criteria,304A,1047,1047,541731,"1,3-dichlorobenzene","1,3-dichlorobenzene",7,µg/l,95,H,,,W,110,,4030,Human Health,2016-09-30 00:09:00,2015-01-01
-54883,,20,EPA 304(a) Recommended Criteria,304A,1047,1047,541731,"1,3-dichlorobenzene","1,3-dichlorobenzene",10,µg/l,95,H,,,O,110,,4030,Human Health,2016-09-30 00:09:00,2015-01-01
-54884,,20,EPA 304(a) Recommended Criteria,304A,280,280,542756,"1,3-dichloropropene","1,3-dichloropropene",0.27,µg/l,95,H,,,W,110,,4030,Human Health,2016-09-30 00:09:00,2015-01-01
-54885,,20,EPA 304(a) Recommended Criteria,304A,280,280,542756,"1,3-dichloropropene","1,3-dichloropropene",12,µg/l,95,H,,,O,110,,4030,Human Health,2016-09-30 00:09:00,2015-01-01
-54886,,20,EPA 304(a) Recommended Criteria,304A,904,904,106467,"1,4-dichlorobenzene","1,4-dichlorobenzene",300,µg/l,95,H,,,W,110,,4030,Human Health,2016-09-30 00:09:00,2015-01-01
-54887,,20,EPA 304(a) Recommended Criteria,304A,904,904,106467,"1,4-dichlorobenzene","1,4-dichlorobenzene",900,µg/l,95,H,,,O,110,,4030,Human Health,2016-09-30 00:09:00,2015-01-01
-54888,,20,EPA 304(a) Recommended Criteria,304A,917,917,1746016,"2,3,7,8-tcdd (dioxin)","2,3,7,8-tcdd (dioxin)",5.0E-9,µg/l,95,H,,,W,110,,4030,Human Health,2016-09-30 00:09:00,2002-01-01
-54901,,20,EPA 304(a) Recommended Criteria,304A,264,264,7440020,nickel,nickel,4600,µg/l,95,H,,,O,110,,4030,Human Health,2016-09-30 00:09:00,1998-01-01
-54902,,20,EPA 304(a) Recommended Criteria,304A,530,530,14797558,nitrates,nitrates,10000,µg/l,95,H,,,W,110,,4030,Human Health,2016-09-30 00:09:00,1986-01-01
-54903,,20,EPA 304(a) Recommended Criteria,304A,772,772,98953,nitrobenzene,nitrobenzene,10,µg/l,95,H,,,W,110,,4030,Human Health,2016-09-30 00:09:00,2015-01-01
-54904,,20,EPA 304(a) Recommended Criteria,304A,772,772,98953,nitrobenzene,nitrobenzene,600,µg/l,95,H,,,O,110,,4030,Human Health,2016-09-30 00:09:00,2015-01-01
-54905,,20,EPA 304(a) Recommended Criteria,304A,787,787,35576911,nitrosamines,nitrosamines,8.0E-4,µg/l,95,H,,,W,110,,4030,Human Health,2016-09-30 00:09:00,1980-01-01
-54906,,20,EPA 304(a) Recommended Criteria,304A,787,787,35576911,nitrosamines,nitrosamines,1.24,µg/l,95,H,,,O,110,,4030,Human Health,2016-09-30 00:09:00,1980-01-01
-54907,,20,EPA 304(a) Recommended Criteria,304A,711,711,924163,nitrosodibutylamine,nitrosodibutylamine,0.0063,µg/l,95,H,,,W,110,,4030,Human Health,2016-09-30 00:09:00,2002-01-01
-54908,,20,EPA 304(a) Recommended Criteria,304A,711,711,924163,nitrosodibutylamine,nitrosodibutylamine,0.22,µg/l,95,H,,,O,110,,4030,Human Health,2016-09-30 00:09:00,2002-01-01
-54909,,20,EPA 304(a) Recommended Criteria,304A,583,583,55185,nitrosodiethylamine,nitrosodiethylamine,8.0E-4,µg/l,95,H,,,W,110,,4030,Human Health,2016-09-30 00:09:00,2002-01-01
-54910,,20,EPA 304(a) Recommended Criteria,304A,583,583,55185,nitrosodiethylamine,nitrosodiethylamine,1.24,µg/l,95,H,,,O,110,,4030,Human Health,2016-09-30 00:09:00,2002-01-01
-54911,,20,EPA 304(a) Recommended Criteria,304A,478,478,930552,nitrosopyrrolidine,nitrosopyrrolidine,0.016,µg/l,95,H,,,W,110,,4030,Human Health,2016-09-30 00:09:00,2002-01-01
-54912,,20,EPA 304(a) Recommended Criteria,304A,478,478,930552,nitrosopyrrolidine,nitrosopyrrolidine,34,µg/l,95,H,,,O,110,,4030,Human Health,2016-09-30 00:09:00,2002-01-01
-54913,,20,EPA 304(a) Recommended Criteria,304A,640,640,62759,n-nitrosodimethylamine,n-nitrosodimethylamine,6.9E-4,µg/l,95,H,,,W,110,,4030,Human Health,2016-09-30 00:09:00,2002-01-01
-54914,,20,EPA 304(a) Recommended Criteria,304A,640,640,62759,n-nitrosodimethylamine,n-nitrosodimethylamine,3.0,µg/l,95,H,,,O,110,,4030,Human Health,2016-09-30 00:09:00,2002-01-01
-54915,,20,EPA 304(a) Recommended Criteria,304A,265,265,621647,n-nitrosodi-n-propylamine,n-nitrosodi-n-propylamine,0.0050,µg/l,95,H,,,W,110,,4030,Human Health,2016-09-30 00:09:00,2002-01-01
-54916,,20,EPA 304(a) Recommended Criteria,304A,265,265,621647,n-nitrosodi-n-propylamine,n-nitrosodi-n-propylamine,0.51,µg/l,95,H,,,O,110,,4030,Human Health,2016-09-30 00:09:00,2002-01-01
-54917,,20,EPA 304(a) Recommended Criteria,304A,773,773,86306,n-nitrosodiphenylamine,n-nitrosodiphenylamine,3.3,µg/l,95,H,,,W,110,,4030,Human Health,2016-09-30 00:09:00,2002-01-01
-54918,,20,EPA 304(a) Recommended Criteria,304A,773,773,86306,n-nitrosodiphenylamine,n-nitrosodiphenylamine,6.0,µg/l,95,H,,,O,110,,4030,Human Health,2016-09-30 00:09:00,2002-01-01
-54919,,20,EPA 304(a) Recommended Criteria,304A,533,533,,nutrients,nutrients,"See EPA's Ecoregional criteria for Total Phosphorus, Total Nitrogen, Chlorophyll a and Water Clarity (Secchi depth for lakes; turbidity for streams and rivers) (& Level III Ecoregional criteria)",µg/l,95,H,,,W,110,,4030,Human Health,2016-09-30 00:09:00,
-54920,,20,EPA 304(a) Recommended Criteria,304A,533,533,,nutrients,nutrients,"See EPA's Ecoregional criteria for Total Phosphorus, Total Nitrogen, Chlorophyll a and Water Clarity (Secchi depth for lakes; turbidity for streams and rivers) (& Level III Ecoregional criteria)",µg/l,95,H,,,O,110,,4030,Human Health,2016-09-30 00:09:00,
-54921,,20,EPA 304(a) Recommended Criteria,304A,159,159,,pathogen and pathogen indicators,pathogen and pathogen indicators,See EPA's 2012 Recreational Water Quality Criteria,µg/l,95,H,,,W,110,,4030,Human Health,2016-09-30 00:09:00,2012-01-01
-54922,,20,EPA 304(a) Recommended Criteria,304A,149,149,,color,color,NARRATIVE STATEMENT—SEE DOCUMENT,µg/l,95,A,,,,109,,4029,Aquatic Life,2016-09-30 00:09:00,1986-01-01
-54923,,20,EPA 304(a) Recommended Criteria,304A,521,521,7440508,copper,copper,Calculated using the BLM,µg/l,95,A,F,A,,109,,4029,Aquatic Life,2016-09-30 00:09:00,2007-01-01
-54924,,20,EPA 304(a) Recommended Criteria,304A,521,521,7440508,copper,copper,Calculated using the BLM,µg/l,95,A,F,C,,109,,4029,Aquatic Life,2016-09-30 00:09:00,2007-01-01
-54925,,20,EPA 304(a) Recommended Criteria,304A,521,521,7440508,copper,copper,4.8,µg/l,95,A,S,A,,109,,4029,Aquatic Life,2016-09-30 00:09:00,2007-01-01
-54926,,20,EPA 304(a) Recommended Criteria,304A,521,521,7440508,copper,copper,3.1,µg/l,95,A,S,C,,109,,4029,Aquatic Life,2016-09-30 00:09:00,2007-01-01
-54927,,20,EPA 304(a) Recommended Criteria,304A,137,137,57125,cyanide,cyanide,22,µg/l,95,A,F,A,,109,,4029,Aquatic Life,2016-09-30 00:09:00,1985-01-01
-54928,,20,EPA 304(a) Recommended Criteria,304A,917,917,1746016,"2,3,7,8-tcdd (dioxin)","2,3,7,8-tcdd (dioxin)",5.1E-9,µg/l,95,H,,,O,110,,4030,Human Health,2016-09-30 00:09:00,2002-01-01
-54929,,20,EPA 304(a) Recommended Criteria,304A,400,400,88062,"2,4,6-trichlorophenol","2,4,6-trichlorophenol",1.5,µg/l,95,H,,,W,110,,4030,Human Health,2016-09-30 00:09:00,2015-01-01
-54930,,20,EPA 304(a) Recommended Criteria,304A,400,400,88062,"2,4,6-trichlorophenol","2,4,6-trichlorophenol",2.8,µg/l,95,H,,,O,110,,4030,Human Health,2016-09-30 00:09:00,2015-01-01
-54931,,20,EPA 304(a) Recommended Criteria,304A,269,269,120832,"2,4-dichlorophenol","2,4-dichlorophenol",10,µg/l,95,H,,,W,110,,4030,Human Health,2016-09-30 00:09:00,2015-01-01
-54932,,20,EPA 304(a) Recommended Criteria,304A,269,269,120832,"2,4-dichlorophenol","2,4-dichlorophenol",60,µg/l,95,H,,,O,110,,4030,Human Health,2016-09-30 00:09:00,2015-01-01
-54933,,20,EPA 304(a) Recommended Criteria,304A,10,10,105679,"2,4-dimethylphenol","2,4-dimethylphenol",100,µg/l,95,H,,,W,110,,4030,Human Health,2016-09-30 00:09:00,2015-01-01
-54934,,20,EPA 304(a) Recommended Criteria,304A,10,10,105679,"2,4-dimethylphenol","2,4-dimethylphenol",3000,µg/l,95,H,,,O,110,,4030,Human Health,2016-09-30 00:09:00,2015-01-01
-54935,,20,EPA 304(a) Recommended Criteria,304A,776,776,51285,"2,4-dinitrophenol","2,4-dinitrophenol",10,µg/l,95,H,,,W,110,,4030,Human Health,2016-09-30 00:09:00,2015-01-01
-54936,,20,EPA 304(a) Recommended Criteria,304A,776,776,51285,"2,4-dinitrophenol","2,4-dinitrophenol",300,µg/l,95,H,,,O,110,,4030,Human Health,2016-09-30 00:09:00,2015-01-01
-54937,,20,EPA 304(a) Recommended Criteria,304A,777,777,121142,"2,4-dinitrotoluene","2,4-dinitrotoluene",0.049,µg/l,95,H,,,W,110,,4030,Human Health,2016-09-30 00:09:00,2015-01-01
-54938,,20,EPA 304(a) Recommended Criteria,304A,777,777,121142,"2,4-dinitrotoluene","2,4-dinitrotoluene",1.7,µg/l,95,H,,,O,110,,4030,Human Health,2016-09-30 00:09:00,2015-01-01
-54939,,20,EPA 304(a) Recommended Criteria,304A,905,905,91587,2-chloronaphthalene,2-chloronaphthalene,800,µg/l,95,H,,,W,110,,4030,Human Health,2016-09-30 00:09:00,2015-01-01
-54940,,20,EPA 304(a) Recommended Criteria,304A,905,905,91587,2-chloronaphthalene,2-chloronaphthalene,1000,µg/l,95,H,,,O,110,,4030,Human Health,2016-09-30 00:09:00,2015-01-01
-54941,,20,EPA 304(a) Recommended Criteria,304A,270,270,95578,2-chlorophenol,2-chlorophenol,30,µg/l,95,H,,,W,110,,4030,Human Health,2016-09-30 00:09:00,2015-01-01
-54942,,20,EPA 304(a) Recommended Criteria,304A,270,270,95578,2-chlorophenol,2-chlorophenol,800,µg/l,95,H,,,O,110,,4030,Human Health,2016-09-30 00:09:00,2015-01-01
-54943,,20,EPA 304(a) Recommended Criteria,304A,145,145,534521,"2-methyl-4,6-dinitrophenol","2-methyl-4,6-dinitrophenol",2,µg/l,95,H,,,W,110,,4030,Human Health,2016-09-30 00:09:00,2015-01-01
-54944,,20,EPA 304(a) Recommended Criteria,304A,145,145,534521,"2-methyl-4,6-dinitrophenol","2-methyl-4,6-dinitrophenol",30,µg/l,95,H,,,O,110,,4030,Human Health,2016-09-30 00:09:00,2015-01-01
-54945,,20,EPA 304(a) Recommended Criteria,304A,15,15,91941,"3,3'-dichlorobenzidine","3,3'-dichlorobenzidine",0.049,µg/l,95,H,,,W,110,,4030,Human Health,2016-09-30 00:09:00,2015-01-01
-54946,,20,EPA 304(a) Recommended Criteria,304A,15,15,91941,"3,3'-dichlorobenzidine","3,3'-dichlorobenzidine",0.15,µg/l,95,H,,,O,110,,4030,Human Health,2016-09-30 00:09:00,2015-01-01
-54947,,20,EPA 304(a) Recommended Criteria,304A,900,900,205992,benzo(b) fluoranthene,benzo(b) fluoranthene,0.0013,µg/l,95,H,,,O,110,,4030,Human Health,2016-09-30 00:09:00,2015-01-01
-54948,,20,EPA 304(a) Recommended Criteria,304A,393,393,207089,benzo(k) fluoranthene,benzo(k) fluoranthene,0.012,µg/l,95,H,,,W,110,,4030,Human Health,2016-09-30 00:09:00,2015-01-01
-54949,,20,EPA 304(a) Recommended Criteria,304A,393,393,207089,benzo(k) fluoranthene,benzo(k) fluoranthene,0.013,µg/l,95,H,,,O,110,,4030,Human Health,2016-09-30 00:09:00,2015-01-01
-54950,,20,EPA 304(a) Recommended Criteria,304A,7,7,7440417,beryllium,beryllium,See note,µg/l,95,H,,,W,110,,4030,Human Health,2016-09-30 00:09:00,
-54951,,20,EPA 304(a) Recommended Criteria,304A,1050,1050,319857,beta-hexachlorocyclohexane (hch),beta-hexachlorocyclohexane (hch),0.008,µg/l,95,H,,,W,110,,4030,Human Health,2016-09-30 00:09:00,2015-01-01
-54952,,20,EPA 304(a) Recommended Criteria,304A,1050,1050,319857,beta-hexachlorocyclohexane (hch),beta-hexachlorocyclohexane (hch),0.014,µg/l,95,H,,,O,110,,4030,Human Health,2016-09-30 00:09:00,2015-01-01
-54953,,20,EPA 304(a) Recommended Criteria,304A,901,901,33213659,beta-endosulfan,beta-endosulfan,20,µg/l,95,H,,,W,110,,4030,Human Health,2016-09-30 00:09:00,2015-01-01
-54954,,20,EPA 304(a) Recommended Criteria,304A,901,901,33213659,beta-endosulfan,beta-endosulfan,40,µg/l,95,H,,,O,110,,4030,Human Health,2016-09-30 00:09:00,2015-01-01
-54955,,20,EPA 304(a) Recommended Criteria,304A,267,267,111444,bis(2-chloroethyl) ether,bis(2-chloroethyl) ether,0.03,µg/l,95,H,,,W,110,,4030,Human Health,2016-09-30 00:09:00,2015-01-01
-56175,,20,EPA 304(a) Recommended Criteria,304A,918,918,121755,malathion,malathion,0.1,µg/l,95,A,F,C,,109,,4029,Aquatic Life,2016-09-30 00:09:00,1986-01-01
-56176,,20,EPA 304(a) Recommended Criteria,304A,918,918,121755,malathion,malathion,0.1,µg/l,95,A,S,C,,109,,4029,Aquatic Life,2016-09-30 00:09:00,1986-01-01
-56177,,20,EPA 304(a) Recommended Criteria,304A,134,134,7439976,mercury,mercury,1.4,µg/l,95,A,F,A,,109,,4029,Aquatic Life,2016-09-30 00:09:00,1995-01-01
-56178,,20,EPA 304(a) Recommended Criteria,304A,134,134,7439976,mercury,mercury,0.77,µg/l,95,A,F,C,,109,,4029,Aquatic Life,2016-09-30 00:09:00,1995-01-01
-56179,,20,EPA 304(a) Recommended Criteria,304A,134,134,7439976,mercury,mercury,1.8,µg/l,95,A,S,A,,109,,4029,Aquatic Life,2016-09-30 00:09:00,1995-01-01
-56180,,20,EPA 304(a) Recommended Criteria,304A,134,134,7439976,mercury,mercury,0.94,µg/l,95,A,S,C,,109,,4029,Aquatic Life,2016-09-30 00:09:00,1995-01-01
-56181,,20,EPA 304(a) Recommended Criteria,304A,920,920,22967926,methylmercury,methylmercury,1.4,µg/l,95,A,F,A,,109,,4029,Aquatic Life,2016-09-30 00:09:00,1995-01-01
-56182,,20,EPA 304(a) Recommended Criteria,304A,920,920,22967926,methylmercury,methylmercury,0.77,µg/l,95,A,F,C,,109,,4029,Aquatic Life,2016-09-30 00:09:00,1995-01-01
-56183,,20,EPA 304(a) Recommended Criteria,304A,920,920,22967926,methylmercury,methylmercury,1.8,µg/l,95,A,S,A,,109,,4029,Aquatic Life,2016-09-30 00:09:00,1995-01-01
-56184,,20,EPA 304(a) Recommended Criteria,304A,920,920,22967926,methylmercury,methylmercury,0.94,µg/l,95,A,S,C,,109,,4029,Aquatic Life,2016-09-30 00:09:00,1995-01-01
-56185,,20,EPA 304(a) Recommended Criteria,304A,528,528,72435,methoxychlor,methoxychlor,0.03,µg/l,95,A,F,C,,109,,4029,Aquatic Life,2016-09-30 00:09:00,1986-01-01
-56186,,20,EPA 304(a) Recommended Criteria,304A,528,528,72435,methoxychlor,methoxychlor,0.03,µg/l,95,A,S,C,,109,,4029,Aquatic Life,2016-09-30 00:09:00,1986-01-01
-56187,,20,EPA 304(a) Recommended Criteria,304A,529,529,2385855,mirex,mirex,0.0010,µg/l,95,A,F,C,,109,,4029,Aquatic Life,2016-09-30 00:09:00,1986-01-01
-56188,,20,EPA 304(a) Recommended Criteria,304A,529,529,2385855,mirex,mirex,0.0010,µg/l,95,A,S,C,,109,,4029,Aquatic Life,2016-09-30 00:09:00,1986-01-01
-56189,,20,EPA 304(a) Recommended Criteria,304A,264,264,7440020,nickel,nickel,470,µg/l,95,A,F,A,,109,,4029,Aquatic Life,2016-09-30 00:09:00,1995-01-01
-56190,,20,EPA 304(a) Recommended Criteria,304A,264,264,7440020,nickel,nickel,52,µg/l,95,A,F,C,,109,,4029,Aquatic Life,2016-09-30 00:09:00,1995-01-01
-56191,,20,EPA 304(a) Recommended Criteria,304A,264,264,7440020,nickel,nickel,74,µg/l,95,A,S,A,,109,,4029,Aquatic Life,2016-09-30 00:09:00,1995-01-01
-56192,,20,EPA 304(a) Recommended Criteria,304A,264,264,7440020,nickel,nickel,8.2,µg/l,95,A,S,C,,109,,4029,Aquatic Life,2016-09-30 00:09:00,1995-01-01
-56193,,20,EPA 304(a) Recommended Criteria,304A,431,431,84852153,nonylphenol,nonylphenol,28,µg/l,95,A,F,A,,109,,4029,Aquatic Life,2016-09-30 00:09:00,2005-01-01
-56194,,20,EPA 304(a) Recommended Criteria,304A,431,431,84852153,nonylphenol,nonylphenol,6.6,µg/l,95,A,F,C,,109,,4029,Aquatic Life,2016-09-30 00:09:00,2005-01-01
-56195,,20,EPA 304(a) Recommended Criteria,304A,431,431,84852153,nonylphenol,nonylphenol,7,µg/l,95,A,S,A,,109,,4029,Aquatic Life,2016-09-30 00:09:00,2005-01-01
-56196,,20,EPA 304(a) Recommended Criteria,304A,431,431,84852153,nonylphenol,nonylphenol,1.7,µg/l,95,A,S,C,,109,,4029,Aquatic Life,2016-09-30 00:09:00,2005-01-01
-56197,,20,EPA 304(a) Recommended Criteria,304A,533,533,,nutrients,nutrients,"See EPA's Ecoregional criteria for Total Phosphorus, Total Nitrogen, Chlorophyll a and Water Clarity (Secchi depth for lakes; turbidity for streams and rivers) (& Level III Ecoregional criteria)",µg/l,95,A,,,,109,,4029,Aquatic Life,2016-09-30 00:09:00,
-56225,,20,EPA 304(a) Recommended Criteria,304A,158,158,,oil and grease,oil and grease,NARRATIVE STATEMENT—SEE DOCUMENT C,µg/l,95,A,,,,109,,4029,Aquatic Life,2016-09-30 00:09:00,1986-01-01
-56226,,20,EPA 304(a) Recommended Criteria,304A,392,392,7782447,dissolved oxygen,dissolved oxygen,"WARMWATER AND COLDWATER MATRIX—SEE DOCUMENT 
-SALTWATER—SEE DOCUMENT",µg/l,95,A,F,,,109,,4029,Aquatic Life,2020-02-25 12:02:16,1986-01-01
-56227,,20,EPA 304(a) Recommended Criteria,304A,392,392,7782447,dissolved oxygen,dissolved oxygen,"WARMWATER AND COLDWATER MATRIX—SEE DOCUMENT 
-SALTWATER—SEE DOCUMENT",µg/l,95,A,S,,,109,,4029,Aquatic Life,2020-02-25 12:02:16,1986-01-01
-56228,,20,EPA 304(a) Recommended Criteria,304A,410,410,56382,parathion,parathion,0.065,µg/l,95,A,F,A,,109,,4029,Aquatic Life,2016-09-30 00:09:00,1995-01-01
-56229,,20,EPA 304(a) Recommended Criteria,304A,410,410,56382,parathion,parathion,0.013,µg/l,95,A,F,C,,109,,4029,Aquatic Life,2016-09-30 00:09:00,1995-01-01
-56230,,20,EPA 304(a) Recommended Criteria,304A,20,20,87865,pentachlorophenol,pentachlorophenol,19,µg/l,95,A,F,A,,109,,4029,Aquatic Life,2016-09-30 00:09:00,1995-01-01
-56231,,20,EPA 304(a) Recommended Criteria,304A,20,20,87865,pentachlorophenol,pentachlorophenol,15,µg/l,95,A,F,C,,109,,4029,Aquatic Life,2016-09-30 00:09:00,1995-01-01
-56232,,20,EPA 304(a) Recommended Criteria,304A,20,20,87865,pentachlorophenol,pentachlorophenol,13,µg/l,95,A,S,A,,109,,4029,Aquatic Life,2016-09-30 00:09:00,1995-01-01
-56233,,20,EPA 304(a) Recommended Criteria,304A,20,20,87865,pentachlorophenol,pentachlorophenol,7.9,µg/l,95,A,S,C,,109,,4029,Aquatic Life,2016-09-30 00:09:00,1995-01-01
-56234,,20,EPA 304(a) Recommended Criteria,304A,258,258,,pH (acidity/alkalinity),pH (acidity/alkalinity),6.5-9,[no units],103,A,F,C,,109,0,4029,Aquatic Life,2021-02-08 14:02:28,1986-01-01
-56235,,20,EPA 304(a) Recommended Criteria,304A,258,258,,pH (acidity/alkalinity),pH (acidity/alkalinity),6.5-8.5,[no units],103,A,S,C,,109,0,4029,Aquatic Life,2021-02-08 14:02:14,1986-01-01
-56236,,20,EPA 304(a) Recommended Criteria,304A,143,143,1336363,polychlorinated biphenyls (pcbs),polychlorinated biphenyls (pcbs),0.014,µg/l,95,A,F,C,,109,,4029,Aquatic Life,2016-09-30 00:09:00,
-56237,,20,EPA 304(a) Recommended Criteria,304A,143,143,1336363,polychlorinated biphenyls (pcbs),polychlorinated biphenyls (pcbs),0.03,µg/l,95,A,S,C,,109,,4029,Aquatic Life,2016-09-30 00:09:00,
-56238,,20,EPA 304(a) Recommended Criteria,304A,658,658,7782492,selenium,selenium,varies - see web page,[no units],103,A,F,A,,109,0,4029,Aquatic Life,2020-03-23 12:03:03,2016-01-01
-56239,,20,EPA 304(a) Recommended Criteria,304A,658,658,7782492,selenium,selenium,varies - see web page,[no units],103,A,F,C,,109,0,4029,Aquatic Life,2020-03-23 12:03:37,2016-01-01
-56240,,20,EPA 304(a) Recommended Criteria,304A,658,658,7782492,selenium,selenium,290,µg/l,95,A,S,A,,109,,4029,Aquatic Life,2016-09-30 00:09:00,1999-01-01
-56307,,20,EPA 304(a) Recommended Criteria,304A,658,658,7782492,selenium,selenium,71,µg/l,95,A,S,C,,109,,4029,Aquatic Life,2016-09-30 00:09:00,1999-01-01
-56308,,20,EPA 304(a) Recommended Criteria,304A,13,13,7440224,silver,silver,3.2,µg/l,95,A,F,A,,109,,4029,Aquatic Life,2016-09-30 00:09:00,1980-01-01
-56309,,20,EPA 304(a) Recommended Criteria,304A,13,13,7440224,silver,silver,1.9,µg/l,95,A,S,A,,109,,4029,Aquatic Life,2016-09-30 00:09:00,1980-01-01
-56310,,20,EPA 304(a) Recommended Criteria,304A,156,156,,solids suspended and turbidity,solids suspended and turbidity,NARRATIVE STATEMENT—SEE DOCUMENT C,µg/l,95,A,,,,109,,4029,Aquatic Life,2016-09-30 00:09:00,1986-01-01
-56311,,20,EPA 304(a) Recommended Criteria,304A,921,819,7783064,sulfide-hydrogen sulfide,hydrogen sulfide,2.0,µg/l,95,A,F,C,,109,,4029,Aquatic Life,2016-09-30 00:09:00,1986-01-01
-56312,,20,EPA 304(a) Recommended Criteria,304A,921,819,7783064,sulfide-hydrogen sulfide,hydrogen sulfide,2.0,µg/l,95,A,S,C,,109,,4029,Aquatic Life,2016-09-30 00:09:00,1986-01-01
-56313,,20,EPA 304(a) Recommended Criteria,304A,672,672,,tainting substances,tainting substances,NARRATIVE STATEMENT—SEE DOCUMENT,µg/l,95,A,,,,109,,4029,Aquatic Life,2016-09-30 00:09:00,1986-01-01
-56343,,20,EPA 304(a) Recommended Criteria,304A,417,417,,temperature,temperature,SPECIES DEPENDENT CRITERIA—SEE DOCUMENT M,µg/l,95,A,,,,109,,4029,Aquatic Life,2016-09-30 00:09:00,1986-01-01
-56344,,20,EPA 304(a) Recommended Criteria,304A,132,132,8001352,toxaphene,toxaphene,0.73,µg/l,95,A,F,A,,109,,4029,Aquatic Life,2016-09-30 00:09:00,1986-01-01
-56345,,20,EPA 304(a) Recommended Criteria,304A,132,132,8001352,toxaphene,toxaphene,2.0E-4,µg/l,95,A,F,C,,109,,4029,Aquatic Life,2016-09-30 00:09:00,1986-01-01
-56346,,20,EPA 304(a) Recommended Criteria,304A,132,132,8001352,toxaphene,toxaphene,0.21,µg/l,95,A,S,A,,109,,4029,Aquatic Life,2016-09-30 00:09:00,1986-01-01
-56347,,20,EPA 304(a) Recommended Criteria,304A,132,132,8001352,toxaphene,toxaphene,2.0E-4,µg/l,95,A,S,C,,109,,4029,Aquatic Life,2016-09-30 00:09:00,1986-01-01
-56348,,20,EPA 304(a) Recommended Criteria,304A,154,154,688733,tributyltin (tbt),tributyltin (tbt),0.46,µg/l,95,A,F,A,,109,,4029,Aquatic Life,2016-09-30 00:09:00,2004-01-01
-56349,,20,EPA 304(a) Recommended Criteria,304A,154,154,688733,tributyltin (tbt),tributyltin (tbt),0.072,µg/l,95,A,F,C,,109,,4029,Aquatic Life,2016-09-30 00:09:00,2004-01-01
-56350,,20,EPA 304(a) Recommended Criteria,304A,154,154,688733,tributyltin (tbt),tributyltin (tbt),0.42,µg/l,95,A,S,A,,109,,4029,Aquatic Life,2016-09-30 00:09:00,2004-01-01
-56351,,20,EPA 304(a) Recommended Criteria,304A,154,154,688733,tributyltin (tbt),tributyltin (tbt),0.0074,µg/l,95,A,S,C,,109,,4029,Aquatic Life,2016-09-30 00:09:00,2004-01-01
-56352,,20,EPA 304(a) Recommended Criteria,304A,650,650,7440666,zinc,zinc,120,µg/l,95,A,F,A,,109,,4029,Aquatic Life,2016-09-30 00:09:00,1995-01-01
-56353,,20,EPA 304(a) Recommended Criteria,304A,650,650,7440666,zinc,zinc,120,µg/l,95,A,F,C,,109,,4029,Aquatic Life,2016-09-30 00:09:00,1995-01-01
-56354,,20,EPA 304(a) Recommended Criteria,304A,650,650,7440666,zinc,zinc,90,µg/l,95,A,S,A,,109,,4029,Aquatic Life,2016-09-30 00:09:00,1995-01-01
-56355,,20,EPA 304(a) Recommended Criteria,304A,650,650,7440666,zinc,zinc,81,µg/l,95,A,S,C,,109,,4029,Aquatic Life,2016-09-30 00:09:00,1995-01-01
-56356,,20,EPA 304(a) Recommended Criteria,304A,646,1046,50293,"4,4'-ddt and derivatives","p,p'-dichlorodiphenyltrichloroethane (ddt)",1.1,µg/l,95,A,F,A,,109,,4029,Aquatic Life,2016-09-30 00:09:00,1980-01-01
-56357,,20,EPA 304(a) Recommended Criteria,304A,646,1046,50293,"4,4'-ddt and derivatives","p,p'-dichlorodiphenyltrichloroethane (ddt)",0.0010,µg/l,95,A,F,C,,109,,4029,Aquatic Life,2016-09-30 00:09:00,1980-01-01
-56358,,20,EPA 304(a) Recommended Criteria,304A,646,1046,50293,"4,4'-ddt and derivatives","p,p'-dichlorodiphenyltrichloroethane (ddt)",0.13,µg/l,95,A,S,A,,109,,4029,Aquatic Life,2016-09-30 00:09:00,1980-01-01
-56359,,20,EPA 304(a) Recommended Criteria,304A,646,1046,50293,"4,4'-ddt and derivatives","p,p'-dichlorodiphenyltrichloroethane (ddt)",0.0010,µg/l,95,A,S,C,,109,,4029,Aquatic Life,2016-09-30 00:09:00,1980-01-01
-56716,,20,EPA 304(a) Recommended Criteria,304A,148,148,71556,"1,1,1-trichloroethane","1,1,1-trichloroethane",200000,µg/l,95,H,,,O,110,,4030,Human Health,2016-09-30 00:09:00,2015-01-01
-56717,,20,EPA 304(a) Recommended Criteria,304A,653,653,94757,"chlorophenoxy herbicide (2,4-d)","chlorophenoxy herbicide (2,4-d)",12000,µg/l,95,H,,,O,110,,4030,Human Health,2016-09-30 00:09:00,2015-01-01
-56718,,20,EPA 304(a) Recommended Criteria,304A,1054,1054,93721,"chlorophenoxy herbicide (2,4,5-tp) [silvex]","chlorophenoxy herbicide (2,4,5-tp) [silvex]",100,µg/l,95,H,,,W,110,,4030,Human Health,2016-09-30 00:09:00,2015-01-01
-56719,,20,EPA 304(a) Recommended Criteria,304A,1054,1054,93721,"chlorophenoxy herbicide (2,4,5-tp) [silvex]","chlorophenoxy herbicide (2,4,5-tp) [silvex]",400,µg/l,95,H,,,O,110,,4030,Human Health,2016-09-30 00:09:00,2015-01-01
-56720,,20,EPA 304(a) Recommended Criteria,304A,528,528,72435,methoxychlor,methoxychlor,0.02,µg/l,95,H,,,O,110,,4030,Human Health,2016-09-30 00:09:00,2015-01-01
+"POLLUTANT_NAME","organization_name","use_name","CRITERION_VALUE","CRITERIATYPEAQUAHUMHLTH","CRITERIATYPEFRESHSALTWATER","CRITERIATYPE_ACUTECHRONIC","CRITERIATYPE_WATERORG"
+"ammonia","304A","Aquatic Life","varies - see web page","A","S",NA,NA
+"ammonia","304A","Aquatic Life","varies - see web page","A","S",NA,NA
+"ammonia","304A","Aquatic Life","varies - see web page","A","S",NA,NA
+"ammonia","304A","Aquatic Life","varies - see web page","A","S",NA,NA
+"ammonia","304A","Aquatic Life","varies - see web page","A","S",NA,NA
+"1,2,4,5-tetrachlorobenzene","304A","Human Health","0.03","H",NA,NA,"O"
+"tetrachloroethylene","304A","Human Health","10","H",NA,NA,"W"
+"tetrachloroethylene","304A","Human Health","29","H",NA,NA,"O"
+"thallium","304A","Human Health","0.24","H",NA,NA,"W"
+"thallium","304A","Human Health","0.47","H",NA,NA,"O"
+"toluene","304A","Human Health","57","H",NA,NA,"W"
+"toluene","304A","Human Health","520","H",NA,NA,"O"
+"toxaphene","304A","Human Health","7.0E-4","H",NA,NA,"W"
+"toxaphene","304A","Human Health","7.1E-4","H",NA,NA,"O"
+"trichloroethylene","304A","Human Health","0.6","H",NA,NA,"W"
+"trichloroethylene","304A","Human Health","7","H",NA,NA,"O"
+"2,4,5-trichlorophenol","304A","Human Health","300","H",NA,NA,"W"
+"2,4,5-trichlorophenol","304A","Human Health","600","H",NA,NA,"O"
+"cyanide","304A","Aquatic Life","5.2","A","F","C",NA
+"cyanide","304A","Aquatic Life","1","A","S","A",NA
+"cyanide","304A","Aquatic Life","1","A","S","C",NA
+"demeton","304A","Aquatic Life","0.1","A","F","C",NA
+"demeton","304A","Aquatic Life","0.1","A","S","C",NA
+"diazinon","304A","Aquatic Life","0.17","A","F","A",NA
+"diazinon","304A","Aquatic Life","0.17","A","F","C",NA
+"diazinon","304A","Aquatic Life","0.82","A","S","A",NA
+"diazinon","304A","Aquatic Life","0.82","A","S","C",NA
+"dieldrin","304A","Aquatic Life","0.24","A","F","A",NA
+"dieldrin","304A","Aquatic Life","0.056","A","F","C",NA
+"dieldrin","304A","Aquatic Life","0.71","A","S","A",NA
+"dieldrin","304A","Aquatic Life","0.0019","A","S","C",NA
+"endrin","304A","Aquatic Life","0.086","A","F","A",NA
+"endrin","304A","Aquatic Life","0.036","A","F","C",NA
+"endrin","304A","Aquatic Life","0.037","A","S","A",NA
+"endrin","304A","Aquatic Life","0.0023","A","S","C",NA
+"gamma-bhc (lindane)","304A","Aquatic Life","0.95","A","F","A",NA
+"gamma-bhc (lindane)","304A","Aquatic Life","0.16","A","S","A",NA
+"gases, total dissolved","304A","Aquatic Life","NARRATIVE STATEMENT—SEE DOCUMENT C","A",NA,NA,NA
+"guthion","304A","Aquatic Life","0.01","A","F","C",NA
+"guthion","304A","Aquatic Life","0.01","A","S","C",NA
+"hardness","304A","Aquatic Life","NARRATIVE STATEMENT—SEE DOCUMENT","A",NA,NA,NA
+"hardness","304A","Aquatic Life","NARRATIVE STATEMENT—SEE DOCUMENT","A",NA,NA,NA
+"hardness","304A","Aquatic Life","NARRATIVE STATEMENT—SEE DOCUMENT","A",NA,NA,NA
+"hardness","304A","Aquatic Life","NARRATIVE STATEMENT—SEE DOCUMENT","A",NA,NA,NA
+"hardness","304A","Aquatic Life","NARRATIVE STATEMENT—SEE DOCUMENT","A",NA,NA,NA
+"hardness","304A","Aquatic Life","NARRATIVE STATEMENT—SEE DOCUMENT","A",NA,NA,NA
+"hardness","304A","Aquatic Life","NARRATIVE STATEMENT—SEE DOCUMENT","A",NA,NA,NA
+"heptachlor","304A","Aquatic Life","0.52","A","F","A",NA
+"heptachlor","304A","Aquatic Life","0.0038","A","F","C",NA
+"heptachlor","304A","Aquatic Life","0.053","A","S","A",NA
+"heptachlor","304A","Aquatic Life","0.0036","A","S","C",NA
+"heptachlor epoxide","304A","Aquatic Life","0.52","A","F","A",NA
+"heptachlor epoxide","304A","Aquatic Life","0.0038","A","F","C",NA
+"heptachlor epoxide","304A","Aquatic Life","0.053","A","S","A",NA
+"heptachlor epoxide","304A","Aquatic Life","0.0036","A","S","C",NA
+"iron","304A","Aquatic Life","1000","A","F","C",NA
+"bis(2-chloroethyl) ether","304A","Human Health","2.2","H",NA,NA,"O"
+"bis(2-chloro-1-methylethyl) ether","304A","Human Health","200","H",NA,NA,"W"
+"bis(2-chloro-1-methylethyl) ether","304A","Human Health","4000","H",NA,NA,"O"
+"bis(2-ethylhexyl) phthalate","304A","Human Health","0.32","H",NA,NA,"W"
+"bis(2-ethylhexyl) phthalate","304A","Human Health","0.37","H",NA,NA,"O"
+"bromoform","304A","Human Health","7.0","H",NA,NA,"W"
+"bromoform","304A","Human Health","120","H",NA,NA,"O"
+"butylbenzyl phthalate","304A","Human Health","0.1","H",NA,NA,"W"
+"butylbenzyl phthalate","304A","Human Health","0.1","H",NA,NA,"O"
+"cadmium","304A","Human Health","See note","H",NA,NA,"W"
+"carbon tetrachloride","304A","Human Health","0.4","H",NA,NA,"W"
+"carbon tetrachloride","304A","Human Health","5","H",NA,NA,"O"
+"chlordane","304A","Human Health","3.1E-4","H",NA,NA,"W"
+"chlordane","304A","Human Health","3.2E-4","H",NA,NA,"O"
+"chlorobenzene","304A","Human Health","100","H",NA,NA,"W"
+"chlorobenzene","304A","Human Health","800","H",NA,NA,"O"
+"chlorodibromomethane","304A","Human Health","0.8","H",NA,NA,"W"
+"chlorodibromomethane","304A","Human Health","21","H",NA,NA,"O"
+"chloroform","304A","Human Health","60","H",NA,NA,"W"
+"chloroform","304A","Human Health","2000","H",NA,NA,"O"
+"chlorophenoxy herbicide (2,4-d)","304A","Human Health","1300","H",NA,NA,"W"
+"chromium (iii)","304A","Human Health","See note","H",NA,NA,"W"
+"chromium (vi)","304A","Human Health","See note","H",NA,NA,"W"
+"chrysene","304A","Human Health","0.12","H",NA,NA,"W"
+"chrysene","304A","Human Health","0.13","H",NA,NA,"O"
+"copper","304A","Human Health","1300","H",NA,NA,"W"
+"cyanide","304A","Human Health","4","H",NA,NA,"W"
+"cyanide","304A","Human Health","400","H",NA,NA,"O"
+"hexachlorocyclohexane (hch)-technical","304A","Human Health","0.01","H",NA,NA,"O"
+"hexachlorocyclopentadiene","304A","Human Health","4","H",NA,NA,"W"
+"hexachlorocyclopentadiene","304A","Human Health","4","H",NA,NA,"O"
+"alpha-endosulfan","304A","Aquatic Life","0.0087","A","S","C",NA
+"aluminum","304A","Aquatic Life","see criteria calculator","A","F","A",NA
+"aluminum","304A","Aquatic Life","see criteria calculator","A","F","C",NA
+"ammonia","304A","Aquatic Life","varies - see web page","A","F",NA,NA
+"ammonia","304A","Aquatic Life","varies - see web page","A","F",NA,NA
+"ammonia","304A","Aquatic Life","varies - see web page","A","F",NA,NA
+"ammonia","304A","Aquatic Life","varies - see web page","A","F",NA,NA
+"ammonia","304A","Aquatic Life","varies - see web page","A","F",NA,NA
+"arsenic","304A","Aquatic Life","340","A","F","A",NA
+"arsenic","304A","Aquatic Life","150","A","F","C",NA
+"arsenic","304A","Aquatic Life","69","A","S","A",NA
+"arsenic","304A","Aquatic Life","36","A","S","C",NA
+"bacteria","304A","Aquatic Life","FOR PRIMARY RECREATION AND SHELLFISH USES—SEE DOCUMENT","A","F","A",NA
+"beta-endosulfan","304A","Aquatic Life","0.22","A","F","A",NA
+"beta-endosulfan","304A","Aquatic Life","0.056","A","F","C",NA
+"beta-endosulfan","304A","Aquatic Life","0.034","A","S","A",NA
+"beta-endosulfan","304A","Aquatic Life","0.0087","A","S","C",NA
+"boron","304A","Aquatic Life","NARRATIVE STATEMENT—SEE DOCUMENT","A",NA,NA,NA
+"carbaryl","304A","Aquatic Life","2.1","A","F","A",NA
+"carbaryl","304A","Aquatic Life","2.1","A","F","C",NA
+"2,4-dimethylphenol","304A","Organoleptic","400","O",NA,NA,NA
+"hexachlorocyclopentadiene","304A","Organoleptic","1","O",NA,NA,NA
+"nitrobenzene","304A","Organoleptic","30","O",NA,NA,NA
+"pentachlorophenol","304A","Organoleptic","30","O",NA,NA,NA
+"phenol","304A","Organoleptic","300","O",NA,NA,NA
+"zinc","304A","Organoleptic","5000","O",NA,NA,NA
+"acrolein","304A","Aquatic Life","3","A","F","A",NA
+"acrolein","304A","Aquatic Life","3","A","F","C",NA
+"aesthetic qualities","304A","Aquatic Life","Narrative Statement - See Document","A",NA,NA,NA
+"aldrin","304A","Aquatic Life","3.0","A","F","A",NA
+"aldrin","304A","Aquatic Life","1.3","A","S","A",NA
+"alkalinity","304A","Aquatic Life","20000","A","F","C",NA
+"alpha-endosulfan","304A","Aquatic Life","0.22","A","F","A",NA
+"alpha-endosulfan","304A","Aquatic Life","0.056","A","F","C",NA
+"alpha-endosulfan","304A","Aquatic Life","0.034","A","S","A",NA
+"dichlorobromomethane","304A","Human Health","0.95","H",NA,NA,"W"
+"dichlorobromomethane","304A","Human Health","27","H",NA,NA,"O"
+"dieldrin","304A","Human Health","1.2E-6","H",NA,NA,"W"
+"dieldrin","304A","Human Health","1.2E-6","H",NA,NA,"O"
+"diethyl phthalate","304A","Human Health","600","H",NA,NA,"W"
+"diethyl phthalate","304A","Human Health","600","H",NA,NA,"O"
+"dimethyl phthalate","304A","Human Health","2000","H",NA,NA,"W"
+"dimethyl phthalate","304A","Human Health","2000","H",NA,NA,"O"
+"lead","304A","Aquatic Life","65","A","F","A",NA
+"lead","304A","Aquatic Life","2.5","A","F","C",NA
+"lead","304A","Aquatic Life","210","A","S","A",NA
+"lead","304A","Aquatic Life","8.1","A","S","C",NA
+"dibenz(a,h)anthracene","304A","Human Health","1.2E-4","H",NA,NA,"W"
+"dibenz(a,h)anthracene","304A","Human Health","1.3E-4","H",NA,NA,"O"
+"3-methyl-4-chlorophenol","304A","Human Health","500","H",NA,NA,"W"
+"3-methyl-4-chlorophenol","304A","Human Health","2000","H",NA,NA,"O"
+"p,p'-dichlorodiphenyldichloroethane (ddd)","304A","Human Health","1.2E-4","H",NA,NA,"W"
+"p,p'-dichlorodiphenyldichloroethane (ddd)","304A","Human Health","1.2E-4","H",NA,NA,"O"
+"p,p'-dichlorodiphenyldichloroethylene (dde)","304A","Human Health","1.8E-5","H",NA,NA,"W"
+"p,p'-dichlorodiphenyldichloroethylene (dde)","304A","Human Health","1.8E-5","H",NA,NA,"O"
+"p,p'-dichlorodiphenyltrichloroethane (ddt)","304A","Human Health","3.0E-5","H",NA,NA,"W"
+"p,p'-dichlorodiphenyltrichloroethane (ddt)","304A","Human Health","3.0E-5","H",NA,NA,"O"
+"acenaphthene","304A","Organoleptic","20","O",NA,NA,NA
+"color","304A","Organoleptic","See note","O",NA,NA,NA
+"iron","304A","Organoleptic","300","O",NA,NA,NA
+"monochlorobenzene","304A","Organoleptic","20","O",NA,NA,NA
+"tainting substances","304A","Organoleptic","See note","O",NA,NA,NA
+"3-chlorophenol","304A","Organoleptic","0.1","O",NA,NA,NA
+"4-chlorophenol","304A","Organoleptic","0.1","O",NA,NA,NA
+"2,3-dichlorophenol","304A","Organoleptic","0.04","O",NA,NA,NA
+"2,5-dichlorophenol","304A","Organoleptic","0.5","O",NA,NA,NA
+"2,6-dichlorophenol","304A","Organoleptic","0.2","O",NA,NA,NA
+"3,4-dichlorophenol","304A","Organoleptic","0.3","O",NA,NA,NA
+"2,4,5-trichlorophenol","304A","Organoleptic","1","O",NA,NA,NA
+"2,4,6-trichlorophenol","304A","Organoleptic","2","O",NA,NA,NA
+"2,3,4,6-tetrachlorophenol","304A","Organoleptic","1","O",NA,NA,NA
+"2-methyl-4-chlorophenol","304A","Organoleptic","1800","O",NA,NA,NA
+"3-methyl-4-chlorophenol","304A","Organoleptic","3000","O",NA,NA,NA
+"3-methyl-6-chlorophenol","304A","Organoleptic","20","O",NA,NA,NA
+"2-chlorophenol","304A","Organoleptic","0.1","O",NA,NA,NA
+"copper","304A","Organoleptic","1000","O",NA,NA,NA
+"2,4-dichlorophenol","304A","Organoleptic","0.3","O",NA,NA,NA
+"carbaryl","304A","Aquatic Life","1.6","A","S","A",NA
+"cadmium","304A","Aquatic Life","1.8","A","F","A",NA
+"cadmium","304A","Aquatic Life","0.72","A","F","C",NA
+"cadmium","304A","Aquatic Life","33","A","S","A",NA
+"cadmium","304A","Aquatic Life","7.9","A","S","C",NA
+"chlordane","304A","Aquatic Life","2.4","A","F","A",NA
+"chlordane","304A","Aquatic Life","0.0043","A","F","C",NA
+"chlordane","304A","Aquatic Life","0.09","A","S","A",NA
+"chlordane","304A","Aquatic Life","0.0040","A","S","C",NA
+"chloride","304A","Aquatic Life","860000","A","F","A",NA
+"chloride","304A","Aquatic Life","230000","A","F","C",NA
+"vinyl chloride","304A","Human Health","0.022","H",NA,NA,"W"
+"vinyl chloride","304A","Human Health","1.6","H",NA,NA,"O"
+"zinc","304A","Human Health","7400","H",NA,NA,"W"
+"zinc","304A","Human Health","26000","H",NA,NA,"O"
+"1,1,1-trichloroethane","304A","Human Health","10000","H",NA,NA,"W"
+"1,1,2,2-tetrachloroethane","304A","Human Health","0.2","H",NA,NA,"W"
+"1,1,2,2-tetrachloroethane","304A","Human Health","3","H",NA,NA,"O"
+"1,1,2-trichloroethane","304A","Human Health","0.55","H",NA,NA,"W"
+"1,1,2-trichloroethane","304A","Human Health","8.9","H",NA,NA,"O"
+"1,1-dichloroethylene","304A","Human Health","300","H",NA,NA,"W"
+"acenaphthene","304A","Human Health","70","H",NA,NA,"W"
+"acenaphthene","304A","Human Health","90","H",NA,NA,"O"
+"acrolein","304A","Human Health","3","H",NA,NA,"W"
+"acrolein","304A","Human Health","400","H",NA,NA,"O"
+"acrylonitrile","304A","Human Health","0.061","H",NA,NA,"W"
+"acrylonitrile","304A","Human Health","7.0","H",NA,NA,"O"
+"aldrin","304A","Human Health","7.7E-7","H",NA,NA,"W"
+"aldrin","304A","Human Health","7.7E-7","H",NA,NA,"O"
+"alpha-hexachlorocyclohexane (hch)","304A","Human Health","3.6E-4","H",NA,NA,"W"
+"alpha-hexachlorocyclohexane (hch)","304A","Human Health","3.9E-4","H",NA,NA,"O"
+"alpha-endosulfan","304A","Human Health","20","H",NA,NA,"W"
+"alpha-endosulfan","304A","Human Health","30","H",NA,NA,"O"
+"anthracene","304A","Human Health","300","H",NA,NA,"W"
+"anthracene","304A","Human Health","400","H",NA,NA,"O"
+"antimony","304A","Human Health","5.6","H",NA,NA,"W"
+"antimony","304A","Human Health","640","H",NA,NA,"O"
+"di-n-butyl phthalate","304A","Human Health","20","H",NA,NA,"W"
+"di-n-butyl phthalate","304A","Human Health","30","H",NA,NA,"O"
+"dinitrophenols","304A","Human Health","10","H",NA,NA,"W"
+"dinitrophenols","304A","Human Health","1000","H",NA,NA,"O"
+"endosulfan sulfate","304A","Human Health","20","H",NA,NA,"W"
+"endosulfan sulfate","304A","Human Health","40","H",NA,NA,"O"
+"endrin","304A","Human Health","0.03","H",NA,NA,"W"
+"endrin","304A","Human Health","0.03","H",NA,NA,"O"
+"endrin aldehyde","304A","Human Health","1","H",NA,NA,"W"
+"endrin aldehyde","304A","Human Health","1","H",NA,NA,"O"
+"bis(chloromethyl) ether","304A","Human Health","1.5E-4","H",NA,NA,"W"
+"bis(chloromethyl) ether","304A","Human Health","0.017","H",NA,NA,"O"
+"ethylbenzene","304A","Human Health","68","H",NA,NA,"W"
+"ethylbenzene","304A","Human Health","130","H",NA,NA,"O"
+"fluoranthene","304A","Human Health","20","H",NA,NA,"W"
+"fluoranthene","304A","Human Health","20","H",NA,NA,"O"
+"fluorene","304A","Human Health","50","H",NA,NA,"W"
+"fluorene","304A","Human Health","70","H",NA,NA,"O"
+"gamma-hexachlorocyclohexane (hch) (lindane)","304A","Human Health","4.2","H",NA,NA,"W"
+"gamma-hexachlorocyclohexane (hch) (lindane)","304A","Human Health","4.4","H",NA,NA,"O"
+"heptachlor","304A","Human Health","5.9E-6","H",NA,NA,"W"
+"heptachlor","304A","Human Health","5.9E-6","H",NA,NA,"O"
+"heptachlor epoxide","304A","Human Health","3.2E-5","H",NA,NA,"W"
+"heptachlor epoxide","304A","Human Health","3.2E-5","H",NA,NA,"O"
+"hexachlorobenzene","304A","Human Health","7.9E-5","H",NA,NA,"W"
+"hexachlorobenzene","304A","Human Health","7.9E-5","H",NA,NA,"O"
+"hexachlorobutadiene","304A","Human Health","0.01","H",NA,NA,"W"
+"hexachlorobutadiene","304A","Human Health","0.01","H",NA,NA,"O"
+"hexachlorocyclohexane (hch)-technical","304A","Human Health","0.0066","H",NA,NA,"W"
+"pathogen and pathogen indicators","304A","Human Health","See EPA's 2012 Recreational Water Quality Criteria","H",NA,NA,"O"
+"pentachlorobenzene","304A","Human Health","0.1","H",NA,NA,"W"
+"pentachlorobenzene","304A","Human Health","0.1","H",NA,NA,"O"
+"pentachlorophenol","304A","Human Health","0.03","H",NA,NA,"W"
+"pentachlorophenol","304A","Human Health","0.04","H",NA,NA,"O"
+"pH (acidity/alkalinity)","304A","Human Health","5-9","H",NA,NA,"W"
+"phenol","304A","Human Health","4000","H",NA,NA,"W"
+"phenol","304A","Human Health","300000","H",NA,NA,"O"
+"polychlorinated biphenyls (pcbs)","304A","Human Health","6.4E-5","H",NA,NA,"W"
+"polychlorinated biphenyls (pcbs)","304A","Human Health","6.4E-5","H",NA,NA,"O"
+"pyrene","304A","Human Health","20","H",NA,NA,"W"
+"pyrene","304A","Human Health","30","H",NA,NA,"O"
+"selenium","304A","Human Health","170","H",NA,NA,"W"
+"selenium","304A","Human Health","4200","H",NA,NA,"O"
+"solids dissolved and salinity","304A","Human Health","250000","H",NA,NA,"W"
+"1,2,4,5-tetrachlorobenzene","304A","Human Health","0.03","H",NA,NA,"W"
+"arsenic","304A","Human Health","0.018","H",NA,NA,"W"
+"arsenic","304A","Human Health","0.14","H",NA,NA,"O"
+"asbestos","304A","Human Health","7000000","H",NA,NA,"W"
+"barium","304A","Human Health","1000","H",NA,NA,"W"
+"chlorine","304A","Aquatic Life","19","A","F","A",NA
+"chlorine","304A","Aquatic Life","11","A","F","C",NA
+"chlorine","304A","Aquatic Life","13","A","S","A",NA
+"chlorine","304A","Aquatic Life","7.5","A","S","C",NA
+"chloropyrifos","304A","Aquatic Life","0.083","A","F","A",NA
+"chloropyrifos","304A","Aquatic Life","0.041","A","F","C",NA
+"chloropyrifos","304A","Aquatic Life","0.011","A","S","A",NA
+"chloropyrifos","304A","Aquatic Life","0.0056","A","S","C",NA
+"chromium (iii)","304A","Aquatic Life","570","A","F","A",NA
+"chromium (iii)","304A","Aquatic Life","74","A","F","C",NA
+"chromium (vi)","304A","Aquatic Life","16","A","F","A",NA
+"chromium (vi)","304A","Aquatic Life","11","A","F","C",NA
+"chromium (vi)","304A","Aquatic Life","1100","A","S","A",NA
+"chromium (vi)","304A","Aquatic Life","50","A","S","C",NA
+"hexachloroethane","304A","Human Health","0.1","H",NA,NA,"W"
+"hexachloroethane","304A","Human Health","0.1","H",NA,NA,"O"
+"indeno(1,2,3-cd)pyrene","304A","Human Health","0.0012","H",NA,NA,"W"
+"indeno(1,2,3-cd)pyrene","304A","Human Health","0.0013","H",NA,NA,"O"
+"isophorone","304A","Human Health","34","H",NA,NA,"W"
+"isophorone","304A","Human Health","1800","H",NA,NA,"O"
+"manganese","304A","Human Health","50","H",NA,NA,"W"
+"manganese","304A","Human Health","100","H",NA,NA,"O"
+"mercury","304A","Human Health","0.3","H",NA,NA,"O"
+"methylmercury","304A","Human Health","0.3","H",NA,NA,"O"
+"methoxychlor","304A","Human Health","0.02","H",NA,NA,"W"
+"methyl bromide","304A","Human Health","100","H",NA,NA,"W"
+"methyl bromide","304A","Human Health","10000","H",NA,NA,"O"
+"methylene chloride","304A","Human Health","20","H",NA,NA,"W"
+"methylene chloride","304A","Human Health","1000","H",NA,NA,"O"
+"nickel","304A","Human Health","610","H",NA,NA,"W"
+"benzene","304A","Human Health","0.58-2.1","H",NA,NA,"W"
+"benzene","304A","Human Health","16-58","H",NA,NA,"O"
+"benzidine","304A","Human Health","1.4E-4","H",NA,NA,"W"
+"benzidine","304A","Human Health","0.011","H",NA,NA,"O"
+"benzo(a) anthracene","304A","Human Health","0.0012","H",NA,NA,"W"
+"benzo(a) anthracene","304A","Human Health","0.0013","H",NA,NA,"O"
+"benzo(a) pyrene","304A","Human Health","1.2E-4","H",NA,NA,"W"
+"benzo(a) pyrene","304A","Human Health","1.3E-4","H",NA,NA,"O"
+"benzo(b) fluoranthene","304A","Human Health","0.0012","H",NA,NA,"W"
+"1,1-dichloroethylene","304A","Human Health","20000","H",NA,NA,"O"
+"1,2,4-trichlorobenzene","304A","Human Health","0.071","H",NA,NA,"W"
+"1,2,4-trichlorobenzene","304A","Human Health","0.076","H",NA,NA,"O"
+"1,2-dichlorobenzene","304A","Human Health","1000","H",NA,NA,"W"
+"1,2-dichlorobenzene","304A","Human Health","3000","H",NA,NA,"O"
+"1,2-dichloroethane","304A","Human Health","9.9","H",NA,NA,"W"
+"1,2-dichloroethane","304A","Human Health","650","H",NA,NA,"O"
+"1,2-dichloropropane","304A","Human Health","0.9","H",NA,NA,"W"
+"1,2-dichloropropane","304A","Human Health","31","H",NA,NA,"O"
+"1,2-diphenylhydrazine","304A","Human Health","0.03","H",NA,NA,"W"
+"1,2-diphenylhydrazine","304A","Human Health","0.2","H",NA,NA,"O"
+"trans-1,2-dichloroethylene","304A","Human Health","100","H",NA,NA,"W"
+"trans-1,2-dichloroethylene","304A","Human Health","4000","H",NA,NA,"O"
+"1,3-dichlorobenzene","304A","Human Health","7","H",NA,NA,"W"
+"1,3-dichlorobenzene","304A","Human Health","10","H",NA,NA,"O"
+"1,3-dichloropropene","304A","Human Health","0.27","H",NA,NA,"W"
+"1,3-dichloropropene","304A","Human Health","12","H",NA,NA,"O"
+"1,4-dichlorobenzene","304A","Human Health","300","H",NA,NA,"W"
+"1,4-dichlorobenzene","304A","Human Health","900","H",NA,NA,"O"
+"2,3,7,8-tcdd (dioxin)","304A","Human Health","5.0E-9","H",NA,NA,"W"
+"nickel","304A","Human Health","4600","H",NA,NA,"O"
+"nitrates","304A","Human Health","10000","H",NA,NA,"W"
+"nitrobenzene","304A","Human Health","10","H",NA,NA,"W"
+"nitrobenzene","304A","Human Health","600","H",NA,NA,"O"
+"nitrosamines","304A","Human Health","8.0E-4","H",NA,NA,"W"
+"nitrosamines","304A","Human Health","1.24","H",NA,NA,"O"
+"nitrosodibutylamine","304A","Human Health","0.0063","H",NA,NA,"W"
+"nitrosodibutylamine","304A","Human Health","0.22","H",NA,NA,"O"
+"nitrosodiethylamine","304A","Human Health","8.0E-4","H",NA,NA,"W"
+"nitrosodiethylamine","304A","Human Health","1.24","H",NA,NA,"O"
+"nitrosopyrrolidine","304A","Human Health","0.016","H",NA,NA,"W"
+"nitrosopyrrolidine","304A","Human Health","34","H",NA,NA,"O"
+"n-nitrosodimethylamine","304A","Human Health","6.9E-4","H",NA,NA,"W"
+"n-nitrosodimethylamine","304A","Human Health","3.0","H",NA,NA,"O"
+"n-nitrosodi-n-propylamine","304A","Human Health","0.0050","H",NA,NA,"W"
+"n-nitrosodi-n-propylamine","304A","Human Health","0.51","H",NA,NA,"O"
+"n-nitrosodiphenylamine","304A","Human Health","3.3","H",NA,NA,"W"
+"n-nitrosodiphenylamine","304A","Human Health","6.0","H",NA,NA,"O"
+"nutrients","304A","Human Health","See EPA's Ecoregional criteria for Total Phosphorus, Total Nitrogen, Chlorophyll a and Water Clarity (Secchi depth for lakes; turbidity for streams and rivers) (& Level III Ecoregional criteria)","H",NA,NA,"W"
+"nutrients","304A","Human Health","See EPA's Ecoregional criteria for Total Phosphorus, Total Nitrogen, Chlorophyll a and Water Clarity (Secchi depth for lakes; turbidity for streams and rivers) (& Level III Ecoregional criteria)","H",NA,NA,"W"
+"nutrients","304A","Human Health","See EPA's Ecoregional criteria for Total Phosphorus, Total Nitrogen, Chlorophyll a and Water Clarity (Secchi depth for lakes; turbidity for streams and rivers) (& Level III Ecoregional criteria)","H",NA,NA,"W"
+"nutrients","304A","Human Health","See EPA's Ecoregional criteria for Total Phosphorus, Total Nitrogen, Chlorophyll a and Water Clarity (Secchi depth for lakes; turbidity for streams and rivers) (& Level III Ecoregional criteria)","H",NA,NA,"W"
+"nutrients","304A","Human Health","See EPA's Ecoregional criteria for Total Phosphorus, Total Nitrogen, Chlorophyll a and Water Clarity (Secchi depth for lakes; turbidity for streams and rivers) (& Level III Ecoregional criteria)","H",NA,NA,"W"
+"nutrients","304A","Human Health","See EPA's Ecoregional criteria for Total Phosphorus, Total Nitrogen, Chlorophyll a and Water Clarity (Secchi depth for lakes; turbidity for streams and rivers) (& Level III Ecoregional criteria)","H",NA,NA,"W"
+"nutrients","304A","Human Health","See EPA's Ecoregional criteria for Total Phosphorus, Total Nitrogen, Chlorophyll a and Water Clarity (Secchi depth for lakes; turbidity for streams and rivers) (& Level III Ecoregional criteria)","H",NA,NA,"W"
+"nutrients","304A","Human Health","See EPA's Ecoregional criteria for Total Phosphorus, Total Nitrogen, Chlorophyll a and Water Clarity (Secchi depth for lakes; turbidity for streams and rivers) (& Level III Ecoregional criteria)","H",NA,NA,"W"
+"nutrients","304A","Human Health","See EPA's Ecoregional criteria for Total Phosphorus, Total Nitrogen, Chlorophyll a and Water Clarity (Secchi depth for lakes; turbidity for streams and rivers) (& Level III Ecoregional criteria)","H",NA,NA,"W"
+"nutrients","304A","Human Health","See EPA's Ecoregional criteria for Total Phosphorus, Total Nitrogen, Chlorophyll a and Water Clarity (Secchi depth for lakes; turbidity for streams and rivers) (& Level III Ecoregional criteria)","H",NA,NA,"W"
+"nutrients","304A","Human Health","See EPA's Ecoregional criteria for Total Phosphorus, Total Nitrogen, Chlorophyll a and Water Clarity (Secchi depth for lakes; turbidity for streams and rivers) (& Level III Ecoregional criteria)","H",NA,NA,"O"
+"nutrients","304A","Human Health","See EPA's Ecoregional criteria for Total Phosphorus, Total Nitrogen, Chlorophyll a and Water Clarity (Secchi depth for lakes; turbidity for streams and rivers) (& Level III Ecoregional criteria)","H",NA,NA,"O"
+"nutrients","304A","Human Health","See EPA's Ecoregional criteria for Total Phosphorus, Total Nitrogen, Chlorophyll a and Water Clarity (Secchi depth for lakes; turbidity for streams and rivers) (& Level III Ecoregional criteria)","H",NA,NA,"O"
+"nutrients","304A","Human Health","See EPA's Ecoregional criteria for Total Phosphorus, Total Nitrogen, Chlorophyll a and Water Clarity (Secchi depth for lakes; turbidity for streams and rivers) (& Level III Ecoregional criteria)","H",NA,NA,"O"
+"nutrients","304A","Human Health","See EPA's Ecoregional criteria for Total Phosphorus, Total Nitrogen, Chlorophyll a and Water Clarity (Secchi depth for lakes; turbidity for streams and rivers) (& Level III Ecoregional criteria)","H",NA,NA,"O"
+"nutrients","304A","Human Health","See EPA's Ecoregional criteria for Total Phosphorus, Total Nitrogen, Chlorophyll a and Water Clarity (Secchi depth for lakes; turbidity for streams and rivers) (& Level III Ecoregional criteria)","H",NA,NA,"O"
+"nutrients","304A","Human Health","See EPA's Ecoregional criteria for Total Phosphorus, Total Nitrogen, Chlorophyll a and Water Clarity (Secchi depth for lakes; turbidity for streams and rivers) (& Level III Ecoregional criteria)","H",NA,NA,"O"
+"nutrients","304A","Human Health","See EPA's Ecoregional criteria for Total Phosphorus, Total Nitrogen, Chlorophyll a and Water Clarity (Secchi depth for lakes; turbidity for streams and rivers) (& Level III Ecoregional criteria)","H",NA,NA,"O"
+"nutrients","304A","Human Health","See EPA's Ecoregional criteria for Total Phosphorus, Total Nitrogen, Chlorophyll a and Water Clarity (Secchi depth for lakes; turbidity for streams and rivers) (& Level III Ecoregional criteria)","H",NA,NA,"O"
+"nutrients","304A","Human Health","See EPA's Ecoregional criteria for Total Phosphorus, Total Nitrogen, Chlorophyll a and Water Clarity (Secchi depth for lakes; turbidity for streams and rivers) (& Level III Ecoregional criteria)","H",NA,NA,"O"
+"pathogen and pathogen indicators","304A","Human Health","See EPA's 2012 Recreational Water Quality Criteria","H",NA,NA,"W"
+"color","304A","Aquatic Life","NARRATIVE STATEMENT—SEE DOCUMENT","A",NA,NA,NA
+"copper","304A","Aquatic Life","Calculated using the BLM","A","F","A",NA
+"copper","304A","Aquatic Life","Calculated using the BLM","A","F","C",NA
+"copper","304A","Aquatic Life","4.8","A","S","A",NA
+"copper","304A","Aquatic Life","3.1","A","S","C",NA
+"cyanide","304A","Aquatic Life","22","A","F","A",NA
+"2,3,7,8-tcdd (dioxin)","304A","Human Health","5.1E-9","H",NA,NA,"O"
+"2,4,6-trichlorophenol","304A","Human Health","1.5","H",NA,NA,"W"
+"2,4,6-trichlorophenol","304A","Human Health","2.8","H",NA,NA,"O"
+"2,4-dichlorophenol","304A","Human Health","10","H",NA,NA,"W"
+"2,4-dichlorophenol","304A","Human Health","60","H",NA,NA,"O"
+"2,4-dimethylphenol","304A","Human Health","100","H",NA,NA,"W"
+"2,4-dimethylphenol","304A","Human Health","3000","H",NA,NA,"O"
+"2,4-dinitrophenol","304A","Human Health","10","H",NA,NA,"W"
+"2,4-dinitrophenol","304A","Human Health","300","H",NA,NA,"O"
+"2,4-dinitrotoluene","304A","Human Health","0.049","H",NA,NA,"W"
+"2,4-dinitrotoluene","304A","Human Health","1.7","H",NA,NA,"O"
+"2-chloronaphthalene","304A","Human Health","800","H",NA,NA,"W"
+"2-chloronaphthalene","304A","Human Health","1000","H",NA,NA,"O"
+"2-chlorophenol","304A","Human Health","30","H",NA,NA,"W"
+"2-chlorophenol","304A","Human Health","800","H",NA,NA,"O"
+"2-methyl-4,6-dinitrophenol","304A","Human Health","2","H",NA,NA,"W"
+"2-methyl-4,6-dinitrophenol","304A","Human Health","30","H",NA,NA,"O"
+"3,3'-dichlorobenzidine","304A","Human Health","0.049","H",NA,NA,"W"
+"3,3'-dichlorobenzidine","304A","Human Health","0.15","H",NA,NA,"O"
+"benzo(b) fluoranthene","304A","Human Health","0.0013","H",NA,NA,"O"
+"benzo(k) fluoranthene","304A","Human Health","0.012","H",NA,NA,"W"
+"benzo(k) fluoranthene","304A","Human Health","0.013","H",NA,NA,"O"
+"beryllium","304A","Human Health","See note","H",NA,NA,"W"
+"beta-hexachlorocyclohexane (hch)","304A","Human Health","0.008","H",NA,NA,"W"
+"beta-hexachlorocyclohexane (hch)","304A","Human Health","0.014","H",NA,NA,"O"
+"beta-endosulfan","304A","Human Health","20","H",NA,NA,"W"
+"beta-endosulfan","304A","Human Health","40","H",NA,NA,"O"
+"bis(2-chloroethyl) ether","304A","Human Health","0.03","H",NA,NA,"W"
+"malathion","304A","Aquatic Life","0.1","A","F","C",NA
+"malathion","304A","Aquatic Life","0.1","A","S","C",NA
+"mercury","304A","Aquatic Life","1.4","A","F","A",NA
+"mercury","304A","Aquatic Life","0.77","A","F","C",NA
+"mercury","304A","Aquatic Life","1.8","A","S","A",NA
+"mercury","304A","Aquatic Life","0.94","A","S","C",NA
+"methylmercury","304A","Aquatic Life","1.4","A","F","A",NA
+"methylmercury","304A","Aquatic Life","0.77","A","F","C",NA
+"methylmercury","304A","Aquatic Life","1.8","A","S","A",NA
+"methylmercury","304A","Aquatic Life","0.94","A","S","C",NA
+"methoxychlor","304A","Aquatic Life","0.03","A","F","C",NA
+"methoxychlor","304A","Aquatic Life","0.03","A","S","C",NA
+"mirex","304A","Aquatic Life","0.0010","A","F","C",NA
+"mirex","304A","Aquatic Life","0.0010","A","S","C",NA
+"nickel","304A","Aquatic Life","470","A","F","A",NA
+"nickel","304A","Aquatic Life","52","A","F","C",NA
+"nickel","304A","Aquatic Life","74","A","S","A",NA
+"nickel","304A","Aquatic Life","8.2","A","S","C",NA
+"nonylphenol","304A","Aquatic Life","28","A","F","A",NA
+"nonylphenol","304A","Aquatic Life","6.6","A","F","C",NA
+"nonylphenol","304A","Aquatic Life","7","A","S","A",NA
+"nonylphenol","304A","Aquatic Life","1.7","A","S","C",NA
+"nutrients","304A","Aquatic Life","See EPA's Ecoregional criteria for Total Phosphorus, Total Nitrogen, Chlorophyll a and Water Clarity (Secchi depth for lakes; turbidity for streams and rivers) (& Level III Ecoregional criteria)","A",NA,NA,NA
+"nutrients","304A","Aquatic Life","See EPA's Ecoregional criteria for Total Phosphorus, Total Nitrogen, Chlorophyll a and Water Clarity (Secchi depth for lakes; turbidity for streams and rivers) (& Level III Ecoregional criteria)","A",NA,NA,NA
+"nutrients","304A","Aquatic Life","See EPA's Ecoregional criteria for Total Phosphorus, Total Nitrogen, Chlorophyll a and Water Clarity (Secchi depth for lakes; turbidity for streams and rivers) (& Level III Ecoregional criteria)","A",NA,NA,NA
+"nutrients","304A","Aquatic Life","See EPA's Ecoregional criteria for Total Phosphorus, Total Nitrogen, Chlorophyll a and Water Clarity (Secchi depth for lakes; turbidity for streams and rivers) (& Level III Ecoregional criteria)","A",NA,NA,NA
+"nutrients","304A","Aquatic Life","See EPA's Ecoregional criteria for Total Phosphorus, Total Nitrogen, Chlorophyll a and Water Clarity (Secchi depth for lakes; turbidity for streams and rivers) (& Level III Ecoregional criteria)","A",NA,NA,NA
+"nutrients","304A","Aquatic Life","See EPA's Ecoregional criteria for Total Phosphorus, Total Nitrogen, Chlorophyll a and Water Clarity (Secchi depth for lakes; turbidity for streams and rivers) (& Level III Ecoregional criteria)","A",NA,NA,NA
+"nutrients","304A","Aquatic Life","See EPA's Ecoregional criteria for Total Phosphorus, Total Nitrogen, Chlorophyll a and Water Clarity (Secchi depth for lakes; turbidity for streams and rivers) (& Level III Ecoregional criteria)","A",NA,NA,NA
+"nutrients","304A","Aquatic Life","See EPA's Ecoregional criteria for Total Phosphorus, Total Nitrogen, Chlorophyll a and Water Clarity (Secchi depth for lakes; turbidity for streams and rivers) (& Level III Ecoregional criteria)","A",NA,NA,NA
+"nutrients","304A","Aquatic Life","See EPA's Ecoregional criteria for Total Phosphorus, Total Nitrogen, Chlorophyll a and Water Clarity (Secchi depth for lakes; turbidity for streams and rivers) (& Level III Ecoregional criteria)","A",NA,NA,NA
+"nutrients","304A","Aquatic Life","See EPA's Ecoregional criteria for Total Phosphorus, Total Nitrogen, Chlorophyll a and Water Clarity (Secchi depth for lakes; turbidity for streams and rivers) (& Level III Ecoregional criteria)","A",NA,NA,NA
+"oil and grease","304A","Aquatic Life","NARRATIVE STATEMENT—SEE DOCUMENT C","A",NA,NA,NA
+"dissolved oxygen","304A","Aquatic Life","WARMWATER AND COLDWATER MATRIX—SEE DOCUMENT 
+SALTWATER—SEE DOCUMENT","A","F",NA,NA
+"dissolved oxygen","304A","Aquatic Life","WARMWATER AND COLDWATER MATRIX—SEE DOCUMENT 
+SALTWATER—SEE DOCUMENT","A","F",NA,NA
+"dissolved oxygen","304A","Aquatic Life","WARMWATER AND COLDWATER MATRIX—SEE DOCUMENT 
+SALTWATER—SEE DOCUMENT","A","S",NA,NA
+"dissolved oxygen","304A","Aquatic Life","WARMWATER AND COLDWATER MATRIX—SEE DOCUMENT 
+SALTWATER—SEE DOCUMENT","A","S",NA,NA
+"parathion","304A","Aquatic Life","0.065","A","F","A",NA
+"parathion","304A","Aquatic Life","0.013","A","F","C",NA
+"pentachlorophenol","304A","Aquatic Life","19","A","F","A",NA
+"pentachlorophenol","304A","Aquatic Life","15","A","F","C",NA
+"pentachlorophenol","304A","Aquatic Life","13","A","S","A",NA
+"pentachlorophenol","304A","Aquatic Life","7.9","A","S","C",NA
+"pH (acidity/alkalinity)","304A","Aquatic Life","6.5-9","A","F","C",NA
+"pH (acidity/alkalinity)","304A","Aquatic Life","6.5-8.5","A","S","C",NA
+"polychlorinated biphenyls (pcbs)","304A","Aquatic Life","0.014","A","F","C",NA
+"polychlorinated biphenyls (pcbs)","304A","Aquatic Life","0.03","A","S","C",NA
+"selenium","304A","Aquatic Life","varies - see web page","A","F","A",NA
+"selenium","304A","Aquatic Life","varies - see web page","A","F","C",NA
+"selenium","304A","Aquatic Life","290","A","S","A",NA
+"selenium","304A","Aquatic Life","71","A","S","C",NA
+"silver","304A","Aquatic Life","3.2","A","F","A",NA
+"silver","304A","Aquatic Life","1.9","A","S","A",NA
+"solids suspended and turbidity","304A","Aquatic Life","NARRATIVE STATEMENT—SEE DOCUMENT C","A",NA,NA,NA
+"sulfide-hydrogen sulfide","304A","Aquatic Life","2.0","A","F","C",NA
+"sulfide-hydrogen sulfide","304A","Aquatic Life","2.0","A","S","C",NA
+"tainting substances","304A","Aquatic Life","NARRATIVE STATEMENT—SEE DOCUMENT","A",NA,NA,NA
+"temperature","304A","Aquatic Life","SPECIES DEPENDENT CRITERIA—SEE DOCUMENT M","A",NA,NA,NA
+"toxaphene","304A","Aquatic Life","0.73","A","F","A",NA
+"toxaphene","304A","Aquatic Life","2.0E-4","A","F","C",NA
+"toxaphene","304A","Aquatic Life","0.21","A","S","A",NA
+"toxaphene","304A","Aquatic Life","2.0E-4","A","S","C",NA
+"tributyltin (tbt)","304A","Aquatic Life","0.46","A","F","A",NA
+"tributyltin (tbt)","304A","Aquatic Life","0.072","A","F","C",NA
+"tributyltin (tbt)","304A","Aquatic Life","0.42","A","S","A",NA
+"tributyltin (tbt)","304A","Aquatic Life","0.0074","A","S","C",NA
+"zinc","304A","Aquatic Life","120","A","F","A",NA
+"zinc","304A","Aquatic Life","120","A","F","C",NA
+"zinc","304A","Aquatic Life","90","A","S","A",NA
+"zinc","304A","Aquatic Life","81","A","S","C",NA
+"4,4'-ddt and derivatives","304A","Aquatic Life","1.1","A","F","A",NA
+"4,4'-ddt and derivatives","304A","Aquatic Life","0.0010","A","F","C",NA
+"4,4'-ddt and derivatives","304A","Aquatic Life","0.13","A","S","A",NA
+"4,4'-ddt and derivatives","304A","Aquatic Life","0.0010","A","S","C",NA
+"1,1,1-trichloroethane","304A","Human Health","200000","H",NA,NA,"O"
+"chlorophenoxy herbicide (2,4-d)","304A","Human Health","12000","H",NA,NA,"O"
+"chlorophenoxy herbicide (2,4,5-tp) [silvex]","304A","Human Health","100","H",NA,NA,"W"
+"chlorophenoxy herbicide (2,4,5-tp) [silvex]","304A","Human Health","400","H",NA,NA,"O"
+"methoxychlor","304A","Human Health","0.02","H",NA,NA,"O"

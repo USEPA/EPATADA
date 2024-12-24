@@ -18,6 +18,12 @@ TADA_GetATTAINSParamUseOrgRef <- function() {
   return(ref)
 }
 
+
+# Used to store cached WQX QAQC Characteristic Validation Reference Table
+EPA304aRef_Cached <- NULL
+
+
+
 #' EPA304a Criteria Search Tool Reference Key
 #'
 #' Function downloads and returns the newest available EPA 304a Criteria Search Tool
@@ -33,9 +39,65 @@ TADA_GetATTAINSParamUseOrgRef <- function() {
 #' @export
 
 TADA_GetEPA304aRef <- function() {
-  ref <- utils::read.csv(system.file("extdata", "CST.csv", package = "EPATADA"))
-  return(ref)
+  # If there is a cached table available return it
+  if (!is.null(EPA304aRef_Cached)) {
+    return(EPA304aRef_Cached)
+  }
+  
+  # Try to download up-to-date raw data
+  
+  raw.data <- tryCatch(
+    {
+      # read raw xlsx from url
+      openxlsx::read.xlsx("https://cfpub.epa.gov/wqsits/wqcsearch/criteria-search-tool-data.xlsx")
+    },
+    error = function(err) {
+      NULL
+    }
+  )
+  
+  # If the download failed fall back to internal data (and report it)
+  if (is.null(raw.data)) {
+    message("Downloading latest Criteria Search Tool Reference Table failed!")
+    message("Falling back to (possibly outdated) internal file.")
+    return(utils::read.csv(system.file("extdata", "CST.csv", package = "EPATADA")))
+  }
+  
+  # Find the CST row that contains the column name of dataframe - removes extraneous details
+  CST.begin <- as.integer(which(rowSums(is.na(raw.data))==0)[1])
+  colnames(raw.data) <- as.character(raw.data[CST.begin,])
+  # import TADA unit reference for priority characteristics (characteristic specific)
+  tada.char.ref <- utils::read.csv(system.file("extdata", "TADAPriorityCharUnitRef.csv", package = "EPATADA"))
+
+  # Needs further edits
+  EPA304aRef <- raw.data %>%
+    utils::tail(-CST.begin) %>%
+    dplyr::filter(ENTITY_ABBR == "304A") %>%
+    dplyr::left_join(tada.char.ref, by = c("POLLUTANT_NAME" = "CST.PollutantName"), relationship = "many-to-many") %>%
+    dplyr::select(POLLUTANT_NAME, organization_name = ENTITY_ABBR,
+                  use_name = USE_CLASS_NAME_LOCATION_ETC, CRITERION_VALUE,
+                  CRITERIATYPEAQUAHUMHLTH, CRITERIATYPEFRESHSALTWATER,
+                  CRITERIATYPE_ACUTECHRONIC, CRITERIATYPE_WATERORG
+                  )
+    
+  
+  # Save updated table in cache
+  EPA304aRef_Cached <- EPA304aRef
+  
+  EPA304aRef
 }
+
+# Update Criteria Search Tool Reference Table internal file
+# (for internal use only)
+
+TADA_UpdateEPA304aRef <- function() {
+  utils::write.csv(TADA_GetEPA304aRef(), file = "inst/extdata/CST.csv", row.names = FALSE)
+}
+
+
+# Used to store cached Measure Unit Reference Table
+WQXunitRef_Cached <- NULL
+
 
 #' Nutrient Summation Reference Key
 #'
