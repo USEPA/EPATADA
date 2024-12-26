@@ -799,21 +799,21 @@ TADA_FormatDelimitedString <- function(delimited_string, delimiter = ",") {
 #'
 #' This function takes a TADA dataset and identifies the NHD catchments that each MonitoringLocation
 #' is in. Within each group of MonitoringLocations in the same catchment, a distance matrix is
-#' created and an adjacency matrix is used to identify groups of nearby sites witin the same
+#' created and an adjacency matrix is used to identify groups of nearby sites within the same
 #' catchment. Groups of nearby sites are given a new TADA.MonitoringLocationIdentifier which is 
-#' created by concatenating the original TADA.MonitoringLocaitonIdentifiers of all sites within
+#' created by concatenating the original TADA.MonitoringLocationIdentifiers of all sites within
 #' the group. Two additional columns, TADA.SiteGroup and TADA.NearbySites.Flag are added.
 #' TADA.SiteGroup contains a unique numeric value for each group of sites within the same catchment.
 #' TADA.NearbySites.Flag identifies whether or not a result is from a grouped site or not and for
 #' grouped sites identifies how the TADA prefixed metadata columns (TADA.MonitoringLocationName,
-#' TADA.MonitoringLocationTypeName, TADA.LongitudeMeasure, and TADA.LatitueMeasure) were determined.
+#' TADA.MonitoringLocationTypeName, TADA.LongitudeMeasure, and TADA.LatitudeMeasure) were determined.
 #'
 #' @param .data TADA dataframe OR TADA sites dataframe
 #' 
 #' @param dist_buffer Numeric. The maximum distance (in meters) two sites can be
 #'   from one another to be considered "nearby" and grouped together.
 #'   
-#' @param nhd_res Charcter argument to determine whether the NHD catchments used should be high 
+#' @param nhd_res Character argument to determine whether the NHD catchments used should be high 
 #'  ("Hi") or medium ("Med") res. Default = "Hi" for consistency with other TADA geospatial 
 #'  functions.
 #'   
@@ -999,6 +999,7 @@ TADA_FindNearbySites <- function(.data, dist_buffer = 100, nhd_res = "Hi") {
                      TADA.MonitoringLocationName, TADA.LatitidueMeasure,
                      TADA.LongitudeMeasure, TADA.MonitoringLocationTypeName,
                      OrganizationIdentifier) %>%
+       dplyr::distinct() %>%
        dplyr::mutate(OrgRank = 99)
      
      # create blank lists of orgs to facilitate meta data selection
@@ -1044,6 +1045,8 @@ TADA_FindNearbySites <- function(.data, dist_buffer = 100, nhd_res = "Hi") {
                                                fixed = ", ", " and "), ").",
                     " Function will continue to run using partial org_hieararchy."))
      }
+     
+     rm(all.orgs, missing.orgs)
 
      org.ranks <- as.data.frame(org_hierarchy) %>%
        dplyr::mutate(OrgRank = dplyr::row_number()) %>%
@@ -1055,12 +1058,14 @@ TADA_FindNearbySites <- function(.data, dist_buffer = 100, nhd_res = "Hi") {
        dplyr::group_by(TADA.MonitoringLocationIdentifier.New) %>%
         dplyr::slice_min(OrgRank)
       
+      rm(org.ranks)
+      
     # find number of grouped sites by TADA.MonitoringLocationIdentifier.New
     # for dev/internal testing (HRM 12/26/24)
-      n.grouped.sites <- grouped.no.dates %>%
-        dplyr::select(TADA.MonitoringLocationIdentifier.New) %>%
-        dplyr::distinct()
-        nrow()
+      # n.grouped.sites <- grouped.no.dates %>%
+      #   dplyr::select(TADA.MonitoringLocationIdentifier.New) %>%
+      #   dplyr::distinct()
+      #   nrow()
    }
    
    # add org ranks to df of all TADA.MonitoringLocationIdentifier.New
@@ -1116,7 +1121,7 @@ TADA_FindNearbySites <- function(.data, dist_buffer = 100, nhd_res = "Hi") {
                     TADA.MonitoringLocationTypeName.New = TADA.MonitoringLocationTypeName) %>%
       dplyr::mutate(TADA.NearbySites.Flag = "This monitoring location was grouped with other nearby site(s). Metadata were selected randomly")
     
-    
+    rm(random.meta)
 
   }
 
@@ -1170,7 +1175,8 @@ TADA_FindNearbySites <- function(.data, dist_buffer = 100, nhd_res = "Hi") {
                                                    " nearby site(s). Metadata were selected from ",
                                                    "the ", date.choice, " result available."))
 
-  }
+  rm(date.meta)
+    }
 
   if(meta_select == "count") {
 
@@ -1219,6 +1225,8 @@ TADA_FindNearbySites <- function(.data, dist_buffer = 100, nhd_res = "Hi") {
                   -TADA.LatitudeMeasure.New, -TADA.LongitudeMeasure.New,
                   -TADA.MonitoringLocationTypeName.New) %>%
     TADA_OrderCols()
+  
+  rm(select.meta, org.meta2, org.meta.filter2)
 
   if (dim(groups)[1] == 0) {
 
