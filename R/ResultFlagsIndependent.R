@@ -1226,7 +1226,7 @@ TADA_FlagCoordinates <- function(.data,
 #'
 TADA_FindPotentialDuplicatesMultipleOrgs <- function(.data, dist_buffer = 100, org_hierarchy = "none") {
   # from those datapoints, determine which are in adjacent sites
-  if (!"TADA.MonitoringLocationIdentifier" %in% names(.data)) {
+  if (!"TADA.NearbySites.Flag" %in% names(.data)) {
     .data <- TADA_FindNearbySites(.data, dist_buffer = dist_buffer)
   }
 
