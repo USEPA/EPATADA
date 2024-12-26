@@ -13,7 +13,7 @@ TADA_FindNearbySites(.data, dist_buffer = 100)
 be from one another to be considered "nearby" and grouped together.
 The default is 100m.}
 
-\item{nhd_res}{Charcter argument to determine whether the NHD catchments used should be high
+\item{nhd_res}{Character argument to determine whether the NHD catchments used should be high
 ("Hi") or medium ("Med") res. Default = "Hi" for consistency with other TADA geospatial
 functions.
 
@@ -50,14 +50,14 @@ nearby sites together (as the same general location).
 \description{
 This function takes a TADA dataset and identifies the NHD catchments that each MonitoringLocation
 is in. Within each group of MonitoringLocations in the same catchment, a distance matrix is
-created and an adjacency matrix is used to identify groups of nearby sites witin the same
+created and an adjacency matrix is used to identify groups of nearby sites within the same
 catchment. Groups of nearby sites are given a new TADA.MonitoringLocationIdentifier which is
-created by concatenating the original TADA.MonitoringLocaitonIdentifiers of all sites within
+created by concatenating the original TADA.MonitoringLocationIdentifiers of all sites within
 the group. Two additional columns, TADA.SiteGroup and TADA.NearbySites.Flag are added.
 TADA.SiteGroup contains a unique numeric value for each group of sites within the same catchment.
 TADA.NearbySites.Flag identifies whether or not a result is from a grouped site or not and for
 grouped sites identifies how the TADA prefixed metadata columns (TADA.MonitoringLocationName,
-TADA.MonitoringLocationTypeName, TADA.LongitudeMeasure, and TADA.LatitueMeasure) were determined.
+TADA.MonitoringLocationTypeName, TADA.LongitudeMeasure, and TADA.LatitudeMeasure) were determined.
 }
 \examples{
 GroupNearbySites_100m <- TADA_FindNearbySites(Data_Nutrients_UT)

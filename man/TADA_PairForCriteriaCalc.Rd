@@ -30,7 +30,7 @@ which combinations of TADA.CharacteristicName, TADA.ResultMeasure.MeasureUnit,
 TADA.MethodSpeciationName, and TADA.ResultSampleFractionText should be used for hardness, pH,
 temperature, salinity, chloride or other user-defined groups. If no ref is specified, all
 possible combinations for hardness, pH, temperature, salinity and chloride will be used. It is
-highly reccomended that users perform all unit conversion and synonym harmonization before using
+highly recommended that users perform all unit conversion and synonym harmonization before using
 TADA_PairForCriteriaCalc.
 }
 \examples{
