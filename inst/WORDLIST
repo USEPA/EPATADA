@@ -145,8 +145,10 @@ MethodSpeciationName
 MonitoringLocation
 MonitoringLocationIdentifier
 MonitoringLocationIdentifier's
+MonitoringLocationIdentifiers
 MonitoringLocationName
 MonitoringLocationTypeName
+MonitoringLocations
 Msr
 MultipleOrgDupGroupID
 MultipleOrgDuplicate
@@ -156,6 +158,7 @@ ND's
 NHD
 NHDPlus
 NWIS
+NearbySites
 NoResultValue
 NoTargetUnit
 NonStandardized
@@ -172,6 +175,7 @@ OutsideUSA
 OverviewMap
 POJOAQUE
 PUEBLOOFTESUQUE
+PairForCriteriaCalc
 PairReplicates
 PairingGroup
 PairingGroupRank
@@ -238,6 +242,7 @@ Shepherdstown
 SimpleCensoredMethods
 SingleOrgDup
 SingleOrgDupGroupID
+SiteGroup
 Speciation
 SpeciationAssumptions
 SpeciationUnitConversion
@@ -325,7 +330,6 @@ decimaldigits
 depthcat
 devtools
 df
-dlist
 dplyr
 du
 eXchange
