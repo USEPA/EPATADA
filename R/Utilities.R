@@ -844,8 +844,6 @@ TADA_FormatDelimitedString <- function(delimited_string, delimiter = ",") {
 #'  TADA.MonitoringLocationName, TADA.LatitudeMeasure, TADA.LongitudeMeasure, and
 #'  TADA.MonitoringLocationTypeName are added to the input df.
 #'
-#' @return
-#'
 #' @export
 #'
 #' @examples
