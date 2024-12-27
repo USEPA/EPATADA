@@ -178,7 +178,7 @@ TADA_CreateParamRef <- function(.data, org_names = NULL, paramRef = NULL, excel 
   # 304a parameter name and standards are pulled in from the Criteria Search Tool (CST)
   CST_param <- TADA_GetEPA304aRef()
   
-  # Pulls in all unique combinations of TADA.CharacteristicName, TADA.MethodSpeciationName, TADA.ResultSampleFractionText in user's dataframe.
+  # Pulls in all unique combinations of TADA.ComparableDataIdentifier in user's dataframe.
   TADA_param <- dplyr::distinct(.data[, c("TADA.CharacteristicName", "TADA.ComparableDataIdentifier")]) %>%
     dplyr::left_join(CST_param, "TADA.CharacteristicName") %>%
     dplyr::select(TADA.CharacteristicName, TADA.ComparableDataIdentifier, EPA304A.PollutantName = POLLUTANT_NAME) %>%
@@ -263,7 +263,8 @@ TADA_CreateParamRef <- function(.data, org_names = NULL, paramRef = NULL, excel 
         !is.na(ATTAINS.FlagParameterName1) ~ ATTAINS.FlagParameterName1,
         is.na(ATTAINS.FlagParameterName1) ~ "Parameter name is listed as a prior cause in ATTAINS for this organization"
       )) %>%
-      dplyr::select(TADA.CharacteristicName, TADA.ComparableDataIdentifier, organization_name, EPA304A.PollutantName, ATTAINS.ParameterName, ATTAINS.FlagParameterName)
+      dplyr::select(TADA.CharacteristicName, TADA.ComparableDataIdentifier, organization_name, EPA304A.PollutantName, ATTAINS.ParameterName, ATTAINS.FlagParameterName) %>%
+      dplyr::distinct()
     
     # remove intermediate object Flag1
     rm(Flag1)
@@ -282,14 +283,14 @@ TADA_CreateParamRef <- function(.data, org_names = NULL, paramRef = NULL, excel 
     colnames(par) <- columns
     
     wb <- openxlsx::createWorkbook()
-    openxlsx::addWorksheet(wb, "CreateParamRef", visible = TRUE)
     openxlsx::addWorksheet(wb, "ATTAINSOrgNamesParamRef", visible = TRUE)
+    openxlsx::addWorksheet(wb, "CreateParamRef", visible = TRUE)
     openxlsx::addWorksheet(wb, "Index", visible = FALSE)
     
     # set zoom size
     set_zoom <- function(x) gsub('(?<=zoomScale=")[0-9]+', x, sV, perl = TRUE)
-    sV <- wb$worksheets[[1]]$sheetViews
-    wb$worksheets[[1]]$sheetViews <- set_zoom(90)
+    sV <- wb$worksheets[[2]]$sheetViews
+    wb$worksheets[[2]]$sheetViews <- set_zoom(90)
     # Format header and bodystyle
     header_st <- openxlsx::createStyle(textDecoration = "Bold")
     bodyStyle <- openxlsx::createStyle(wrapText = TRUE)
@@ -316,7 +317,7 @@ TADA_CreateParamRef <- function(.data, org_names = NULL, paramRef = NULL, excel 
     # remove intermediate object ATTAINS_param
     rm(ATTAINS_param, ATTAINS_param_all)
     
-    for (i in 1:nrow(TADA_param)) {
+    for (i in 1:nrow(CreateParamRef)) {
       openxlsx::writeFormula(wb, "CreateParamRef",
                              startCol = 6, startRow = i + 1, array = TRUE,
                              x = paste0("=IF(OR(E", i + 1, '="",E', i + 1, '="No parameter match for TADA.ComparableDataIdentifier"),
@@ -325,9 +326,7 @@ TADA_CreateParamRef <- function(.data, org_names = NULL, paramRef = NULL, excel 
                    "Parameter name is listed as a prior cause in ATTAINS, but not for this organization",
                    "Parameter name is listed as a prior cause in ATTAINS for this organization")))')
       )
-    }
-    
-    for (i in 1:nrow(TADA_param)) {
+      
       openxlsx::conditionalFormatting(wb, "CreateParamRef",
                                       cols = 5, rows = i + 1,
                                       type = "blanks", style = openxlsx::createStyle(bgFill = TADA_ColorPalette()[13])
@@ -590,21 +589,21 @@ TADA_CreateParamUseRef <- function(.data, org_names = NULL, paramRef = NULL, exc
     dplyr::anti_join(ATTAINS_param_all, by = c("use_name", "organization_name")) %>%
     dplyr::select(use_name, organization_name) %>%
     dplyr::distinct() %>%
-    dplyr::mutate(ATTAINS.FlagUseName1 = "Suspect: use name is listed as a prior use name in this organization but not for this parameter name")
+    dplyr::mutate(ATTAINS.FlagUseName1 = "use name is listed as a prior use name in this organization but not for this parameter name")
   
   Flag2 <- CreateParamUseRef %>%
     dplyr::anti_join(ATTAINS_param_all, by = c("ATTAINS.ParameterName" = "parameter", "use_name", "organization_name")) %>%
     dplyr::select(use_name, ATTAINS.ParameterName, organization_name) %>%
     dplyr::distinct() %>%
-    dplyr::mutate(ATTAINS.FlagUseName2 = "Suspect: use name is not listed as a prior use for this organization")
+    dplyr::mutate(ATTAINS.FlagUseName2 = "use name is not listed as a prior cause in ATTAINS for this org")
   
   CreateParamUseRef <- CreateParamUseRef %>%
     dplyr::left_join(Flag2, c("ATTAINS.ParameterName", "use_name", "organization_name")) %>%
     dplyr::left_join(Flag1, c("use_name", "organization_name")) %>%
     dplyr::mutate(ATTAINS.FlagUseName = dplyr::case_when(
-      is.na(use_name) ~ "No use name is provided. Consider choosing an appropriate use_name that applies to this parameter and your organization's threshold or criteria",
-      organization_name == "EPA304a" ~ "Pass: Will use the EPA304a recommended standards for this parameter",
-      organization_name != "EPA304a" ~ "Pass: parameter name and use name are listed as prior cause in ATTAINS for this org and will be used for assessments",
+      is.na(use_name) ~ "No use name is provided. Consider choosing an appropriate use_name that applies for assessment",
+      organization_name == "EPA304a" ~ "Will use the EPA304a recommended standards for this parameter. Do not edit EPA304a use_name",
+      organization_name != "EPA304a" ~ "Parameter name and use name are listed as prior cause in ATTAINS for this org and will be used for assessments",
       !is.na(ATTAINS.FlagUseName2) ~ ATTAINS.FlagUseName2,
       !is.na(ATTAINS.FlagUseName1) ~ ATTAINS.FlagUseName1,
     )) %>%
@@ -675,6 +674,11 @@ TADA_CreateParamUseRef <- function(.data, org_names = NULL, paramRef = NULL, exc
     
     for (i in 1:nrow(CreateParamUseRef)) {
       openxlsx::conditionalFormatting(wb, "CreateParamUseRef",
+                                      cols = 5, rows = i + 1,
+                                      type = "blanks", style = openxlsx::createStyle(bgFill = TADA_ColorPalette()[13])
+      )
+      
+      openxlsx::conditionalFormatting(wb, "CreateParamUseRef",
                                       cols = 6, rows = i + 1,
                                       type = "contains", rule = c("Exclude"), style = openxlsx::createStyle(bgFill = "#FFC7CE")
       )
@@ -686,10 +690,14 @@ TADA_CreateParamUseRef <- function(.data, org_names = NULL, paramRef = NULL, exc
       
       openxlsx::writeFormula(wb, "CreateParamUseRef",
                              startCol = 7, startRow = i + 1, array = TRUE,
-                             x = paste0("=IF(B", i + 1, '="EPA304a","Will use the EPA304a recommended standards for this parameter. Do not edit EPA304a use_name",IF(ISNA(MATCH(1,(E', i + 1, "=Index!G:G)*(B", i + 1, '=Index!E:E),0)),
-                "Use name is not listed as a prior use for this organization",IF(ISNA(MATCH(1,(D', i + 1, "=Index!H:H)*(E", i + 1, "=Index!G:G)*(B", i + 1, '=Index!E:E),0)),
-                "Use name is listed as a prior use name in this organization but not for this parameter name",
-                "Parameter name and use name are listed as prior cause in ATTAINS for this org and will be used for assessments")))')
+                             x = paste0("=IF(B", i + 1, '="EPA304a",
+                                "Will use the EPA304a recommended standards for this parameter. Do not edit EPA304a use_name",
+                             IF(ISNA(E,', i +1,'), 
+                                "No use name is provided. Consider choosing an appropriate use_name that applies for assessment",
+                             IF(ISNA(MATCH(1,(E', i + 1, "=Index!G:G)*(B", i + 1, '=Index!E:E),0)),
+                                "Use name is not listed as a prior use for this organization",IF(ISNA(MATCH(1,(D', i + 1, "=Index!H:H)*(E", i + 1, "=Index!G:G)*(B", i + 1, '=Index!E:E),0)),
+                                "Use name is listed as a prior use name in this organization but not for this parameter name",
+                                "Parameter name and use name are listed as prior cause in ATTAINS for this org and will be used for assessments"))))')
       )
     }
     

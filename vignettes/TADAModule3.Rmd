@@ -199,19 +199,31 @@ Data_NCTC2 <- TADA_HarmonizeSynonyms(Data_NCTC)
 ```
 
 Filter data frame by TADA.Characteristics for a few priority
-characteristics.
+characteristics. Do some exploratory data analysis to view the number of
+counts of TADA.ComparableDataIdentifier. Users can reference the domain
+values of parameter names listed as a cause in prior assessment cycles
+with the rATTAINS library function: domain_values.
 
 ```{r}
 Data_NCTC2 <- dplyr::filter(Data_NCTC2, TADA.CharacteristicName %in% c("ZINC", "PH","NITRATE"))
+
+TADA_FieldValuesTable(Data_NCTC2, field = "TADA.ComparableDataIdentifier")
+
+rATTAINS::domain_values(domain_name = "parameters")
 ```
 
-Creates a blank template of ATTAINS.ParameterName which needs crosswalk.
-Users should specify the name(s) of their orgs that will be used for
-assessment.
+To begin the ATTAINS assessment process, you will create a blank
+template of ATTAINS.ParameterName which needs crosswalk to a
+TADA.ComparableDataIdentifier. Users should specify the name(s) of their
+orgs that will be used for assessment.
 
-(Note: EPA 304a standards will be specified in the next step, but
-utilizes the CST.PollutantName column. Should we allow users to "modify"
-the CST.PollutantName crosswalk that we have done?)
+By specifying the name of the organization(s) used, if creating an excel
+spreadsheet (using excel = TRUE) this will create a separate tab in the
+file which contains the parameter names used in prior assessment cycles
+filtered by those organization(s). This will allow users to decide
+whether to continue to use the same parameter names that are org
+specific or to use other parameter names found in the domain list in
+ATTAINS or assist a user to determine if a new parameter name is needed.
 
 ```{r}
 NCTC_ParamRef <- TADA_CreateParamRef(
@@ -245,9 +257,10 @@ names.
 #   #excel = TRUE, overwrite = TRUE 
 #   )
 
-ParamRef <- dplyr::mutate(NCTC_ParamRef, ATTAINS.ParameterName = dplyr::case_when(TADA.CharacteristicName == "NITRATE" ~ "NITROGEN, TOTAL",
+ParamRef <- dplyr::mutate(NCTC_ParamRef, ATTAINS.ParameterName = dplyr::case_when(
 TADA.CharacteristicName == "PH" ~ "PH",
-TADA.CharacteristicName == "ZINC" ~ "ZINC"
+TADA.CharacteristicName == "ZINC" ~ "ZINC",
+TADA.ComparableDataIdentifier == "NITRATE_FILTERED_AS N_MG/L" ~ "NITROGEN, TOTAL"
 ))
 
 NCTC_ParamRef2 <- TADA_CreateParamRef(
@@ -282,11 +295,18 @@ NCTC_ParamRef3 <- TADA_CreateParamRef(
 
 # Three cases of TADA_CreateParamUseRef().
 
-First example does not specify which orgs to use, and will use the
-filtered orgs in TADA_CreateParamRef to determine what orgs to filter
-by. Since 'ParamRef' only contains the crosswalk information for
-Maryland it only returns parameter and use combinations found in
-Maryland.
+First example will pull in all prior use_names for each ATTAINS
+parameter name specific to the defined org_names argument input
+"Maryland". Users will review this list and choose which use_name are
+appropriate to define for assessment. The default is to "Include" all
+use_names that will need a definition for magnitude criteria and
+methodology. If a use_name is not appropriate, users should choose
+"Exclude".
+
+For any ATTAINS parameter name(s) that have not been used by this org in
+prior assessment cycles, users will be responsible for inputting
+additional rows as needed and choosing the appropriate use_name
+applicable to their org under the column 'use_name'.
 
 ```{r}
 NCTC_ParamUseRef <- TADA_CreateParamUseRef(
@@ -329,7 +349,8 @@ NCTC_ParamUseRef4 <- TADA_CreateParamUseRef(
   Data_NCTC2, 
   org_names = c("EPA304a", "Maryland","Florida"), 
   paramRef = NCTC_ParamRef3, 
-  excel = FALSE
+  excel = FALSE # comment out 'excel = FALSE' and uncomment excel = TRUE, overwrite = TRUE to run the excel file
+  #excel = TRUE, overwrite = TRUE 
   )
 ```
 
