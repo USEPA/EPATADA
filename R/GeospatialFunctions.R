@@ -930,7 +930,7 @@ fetchNHD <- function(.data, resolution = "Hi", features = "catchments") {
 #'
 #' @param .data A dataframe created by `TADA_DataRetrieval()` or the sf equivalent made by `TADA_MakeSpatial()`.
 #' @param fill_catchments Whether the user would like to return NHD catchments for WQP observations not associated with an ATTAINS assessment unit (TRUE or FALSE). When fill_catchments = TRUE, the returned list splits observations into two dataframes: WQP observations with ATTAINS catchment data, and WQP observations without ATTAINS catchment data. Defaults to FALSE.
-#' @param resolution If fill_catchments = TRUE, whether to use NHDPlus V2 "Med" catchments or NHDPlus HiRes "Hi" catchments. Default is NHDPlus HiRes ("Hi").
+#' @param resolution If fill_catchments = TRUE, whether to use NHDPlus V2 "Med" catchments or NHDPlus HiRes "Hi" catchments. Default is NHDPlus HiRes ("Hi") because at approximately 80% of state submitted assessment units in ATTAINS were developed based on NHDPlus HiRes.
 #' @param return_sf Whether to return the ATTAINS associated catchments, lines, points, and polygon shapefile objects along with the data frame(s). TRUE (yes, return list) or FALSE (no, do not return). All shapefile features are in WGS84 (crs = 4326). If fill_catchments = TRUE and return_sf = TRUE, the function will additionally return the raw catchment features associated with the observations in TADA_without_ATTAINS in a new shapefile called without_ATTAINS_catchments. Defaults to TRUE.
 #'
 #' @return A modified `TADA_DataRetrieval()` dataframe or list with additional columns associated with the ATTAINS assessment unit data, and, if fill_catchments = TRUE, an additional dataframe of the observations without intersecting ATTAINS features.
