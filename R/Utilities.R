@@ -92,7 +92,8 @@ utils::globalVariables(c(
   "ATTAINS.submissionid", "HorizontalCoordinateReferenceSystemDatumName", 
   "NCount", "NHD.catchmentareasqkm", "NHD.comid", "NHD.nhdplusid", "NHD.resolution", 
   "areasqkm", "assessmentUnitIdentifier", "catchmentareasqkm", "comid", 
-  "featureid", "geometry", "nhdplusid", "waterTypeCode"
+  "featureid", "geometry", "nhdplusid", "waterTypeCode", "TADA.SiteGroup", 
+  "TADA.MonitoringLocationIdentifier.New", "TADA.NearbySites.Flag"
 ))
 
 # global variables for tribal feature layers used in TADA_OverviewMap in Utilities.R
