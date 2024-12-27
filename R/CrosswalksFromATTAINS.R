@@ -75,6 +75,42 @@ if (!org_id %in% org.ref$code) {
     }
 }
 
+#' Get Organization Identifier For All MonitoringLocations (IN ACTIVE DEVELOPMENT)
+#'
+#' This function creates a data frame with two columns to show the organization identifier for each
+#' monitoring location. The user can select whether the monitoring location identifier column 
+#' displays the original WQP 'MonitoringLocation' or the 'TADA.MonitoringLocationIdentifier'.
+#'
+#' @param .data A TADA data frame.
+#' 
+#' @param id Character argument. Determines which monitoring location identifier and organization
+#' identifier from the TADA data frame are displayed. When id = "wqp", 'MonitoringLocation' is used. When id = "tada", 
+#' 'TADA.MonitoringLocationIdentifier" is used. Default is id = "wqp".
+#'
+#'
+#' @return A crosswalk of monitoring locations and organization identifiers.
+#'
+#' @export
+#'
+#' @examples
+#'
+#' \dontrun{
+#'
+#' }
+#' 
+
+TADA_GetMonLocByOrgId <- function(.data, id = "wqp") {
+  
+  if(id = "wqp")
+  .data <- .data %>%
+    dplyr::select(MonitoringLocationIdentifier, OrganizationIdentifier) %>%
+      dplyr::distinct()
+  
+}
+
+#'
+#'
+
 #' Update Monitoring Location Identifiers in ATTAINS
 #'
 #' This function creates the batch upload files needed to update the MonitoringLocations for
@@ -86,6 +122,8 @@ if (!org_id %in% org.ref$code) {
 #' https://www.epa.gov/system/files/other-files/2023-09/DOMAINS.xlsx. Organization identifiers
 #' are listed in the "OrgName" tab. The "code" column contains the organization identifiers that
 #' should be used for this param.
+#' 
+#' @param crosswalk A user-supplied data frame with the columns
 #'
 #'
 #' @return The Assessment Unit csv batch upload files for ATTAINS.
@@ -115,12 +153,14 @@ if (!org_id %in% org.ref$code) {
 # Monitoring_Stations <- ASSESSMENT_UNIT_ID, MS_ORG_ID, MS_LOCATION_ID, MS_DATA_LINK
 
 
-TADA_UpdateMonitoringLocationsInATTAINS <- function(org_id = NULL) {
+TADA_UpdateMonitoringLocationsInATTAINS <- function(org_id = NULL, crosswalk = NULL,
+                                                    replace = FALSE, attains.import = "update") {
+
   
   org.ref <- TADA_GetATTAINSOrgIDsRef()
   
   if (!org_id %in% org.ref$code) {
-    print(paste0("TADA_UpdateMonitoringLocationsInATTAINS: ",
+    stop(paste0("TADA_UpdateMonitoringLocationsInATTAINS: ",
                  "The organization identifier entered by user is not found in ATTAINS."))
   }
   
@@ -129,6 +169,48 @@ TADA_UpdateMonitoringLocationsInATTAINS <- function(org_id = NULL) {
     rm(org.ref)
     
     au.info <- rATTAINS::assessment_units(organization_id = org_id)
+    
+    au.crosswalk <- au.info %>%
+      tidyr::unnest(monitoring_stations) %>%
+      dplyr::select(assessment_unit_identifier, monitoring_organization_identifier,
+                    monitoring_location_identifier, monitoring_data_link_text
+      ) %>%
+      dplyr::filter(!is.na(monitoring_location_identifier)) %>%
+      dplyr::distinct() %>%
+      dplyr::rename(
+        ASSESSMENT_UNIT_ID = assessment_unit_identifier,
+        MS_ORG_ID = monitoring_organization_identifier,
+        MS_LOCATION_ID = monitoring_location_identifier,
+        MONITORING_DATA_LINK_TEXT = monitoring_data_link_text
+      )
+    
+    if (!is.data.frame(crosswalk)) {
+      stop(paste0("TADA_UpdateMonitoringLocationsInATTAINS: ",
+                  "A crosswalk data frame with columns 'ATTAINS.assessmentunit.identifier' and ",
+                  "'MonitoringLocationIdentifier' is required to run this function."))}
+    
+    if(is.data.frame(crosswalk)) {
+      
+      if(!c("ASSESSMENT_UNIT_ID", "MS_ORG_ID", "MS_LOCATION_ID", "MONITORING_DATA_LINK_TEXT") %in%
+         names(crosswalk)) {
+        
+        stop(paste0("TADA_UpdateMonitoringLocationsInATTAINS: ",
+                    "The user-supplied crosswalk data frame does not contain all required columns: ",
+                    "ASSESSMENT_UNIT_ID, MS_ORG_IG, MS_LOCATION_ID, and MONITORING_DATA_LINK_TEXT."))
+      }
+      
+      if(c("ASSESSMENT_UNIT_ID", "MS_ORG_ID", "MS_LOCATION_ID", "MONITORING_DATA_LINK_TEXT") %in%
+         names(crosswalk)){
+        
+        if(replace = TRUE) {
+          
+          update.crosswalk <- au.crosswalk %>%
+            dply
+          
+          
+        }
+      }
+    }
     
     ## Commented out for now as per conversation w/ WR on 12/12/24 (these additional files may
     ## not be necessary to update the ML/AUIDs in ATTAINS, will need to test in Demo ATTAINS)
@@ -176,38 +258,8 @@ TADA_UpdateMonitoringLocationsInATTAINS <- function(org_id = NULL) {
     
     # Monitoring_Stations <- ASSESSMENT_UNIT_ID, MS_ORG_ID, MS_LOCATION_ID, MS_DATA_LINK
     
-    au.crosswalk <- au.info %>%
-      tidyr::unnest(monitoring_stations) %>%
-      dplyr::select(
-        monitoring_location_identifier, monitoring_organization_identifier,
-        assessment_unit_identifier
-      ) %>%
-      dplyr::filter(!is.na(monitoring_location_identifier)) %>%
-      dplyr::distinct() %>%
-      dplyr::rename(
-        ATTAINS.assessmentunitidentifier = assessment_unit_identifier,
-        MonitoringLocationIdentifier = monitoring_location_identifier,
-        OrganizationIdentifier = monitoring_organization_identifier
-      )
-    
-    rm(au.info)
-    
-    if (length(au.crosswalk$MonitoringLocationIdentifier > 0)) {
-      print(paste0("TADA_GetAssessmentUnitCrosswalk: ",
-                   "There are ", nrow(au_crosswalk),
-                   " MonitoringLocationIdentifiers associated with Assessment Units for ",
-                   org_id, " in ATTAINS."
-      ))
-      
-      return(au.crosswalk)
-    }
-    
-    if (length(au.crosswalk$MonitoringLocationIdentifier) == 0) {
-      print(paste0("TADA_GetAssessmentUnitCrosswalk: ",
-                   "No MonitoringLocationIdentifiers were recorded in ATTAINS for ",
-                   org_id, " Assessment Units."
-      ))
-    }
+  
+  
   }
-}
+  }
 
