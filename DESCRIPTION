@@ -73,7 +73,8 @@ Imports:
     arcgislayers,
     httr,
     jsonlite, 
-    openxlsx
+    openxlsx,
+    rATTAINS
 Depends: 
     R (>= 3.5.0)
 Suggests:

@@ -209,21 +209,16 @@ Data_NCTC2 <- dplyr::filter(Data_NCTC2, TADA.CharacteristicName %in% c("ZINC", "
 
 TADA_FieldValuesTable(Data_NCTC2, field = "TADA.ComparableDataIdentifier")
 
-rATTAINS::domain_values(domain_name = "parameters")
+rATTAINS::domain_values(domain_name = "ParameterName")
 ```
 
 To begin the ATTAINS assessment process, you will create a blank
 template of ATTAINS.ParameterName which needs crosswalk to a
-TADA.ComparableDataIdentifier. Users should specify the name(s) of their
-orgs that will be used for assessment.
+TADA.ComparableDataIdentifier. Users should specify the name(s) of their orgs that will be used for assessment.
 
-By specifying the name of the organization(s) used, if creating an excel
-spreadsheet (using excel = TRUE) this will create a separate tab in the
-file which contains the parameter names used in prior assessment cycles
-filtered by those organization(s). This will allow users to decide
-whether to continue to use the same parameter names that are org
-specific or to use other parameter names found in the domain list in
-ATTAINS or assist a user to determine if a new parameter name is needed.
+By specifying the name of the organization(s) used, if creating an excel spreadsheet (using excel = TRUE), this will create a separate tab in the excel file which contains the parameter names used in prior assessment cycles filtered by those organization(s). This will allow users to decide
+whether to continue to use the same ATTAINS parameter names from prior assessments that their org(s) have used in the past, or to use other valid parameter names found in the ATTAINS domain list. 
+If there are no ATTAINS parameter name that properly captures the TADA.ComparableDataIdentifier, users should consider contacting the ATTAINS team first before proceeding.
 
 ```{r}
 NCTC_ParamRef <- TADA_CreateParamRef(
@@ -239,10 +234,8 @@ reference file in the future. In this example, we will fill out the
 excel blank template, read it into the R environment, and reuse this
 parameter reference data frame that we have named "ParamRef".
 
-We also provide an example in which a user modifies this reference table
-directly in the R environment only. If this occurs, user will need to
-run "validate = TRUE" to accurately reflect the flagging of parameter
-names.
+If a user modifies this reference table
+directly in the R environment only and not in the excel file, the user will need to re-run the function using the "ParamRef" file to reflect the flagging of parameter names.
 
 ```{r}
 # only run the code if you make edits to the excel file
