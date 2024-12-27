@@ -197,8 +197,10 @@ TADA.ComparableDataIdentifiers of interest.
 
 ```{r}
 data <- data %>%
-  dplyr::filter(TADA.ComparableDataIdentifier %in% c("TOTAL DISSOLVED SOLIDS_DISSOLVED_NA_UG/L", 
-                                                     "SPECIFIC CONDUCTANCE_TOTAL_NA_US/CM @25C"))
+  dplyr::filter(TADA.ComparableDataIdentifier %in% c(
+    "TOTAL DISSOLVED SOLIDS_DISSOLVED_NA_UG/L",
+    "SPECIFIC CONDUCTANCE_TOTAL_NA_US/CM @25C"
+  ))
 ```
 
 ## Water Chemistry Data Preparation and QC
@@ -463,8 +465,10 @@ TADA_Histogram(
     dplyr::filter(
       ActivityStartDate > "2014-12-31",
       TADA.CharacteristicName == "SPECIFIC CONDUCTANCE",
-      ATTAINS.assessmentunitname == "Animas River (San Juan River to Estes Arroyo)"),
-  id_cols = "TADA.ComparableDataIdentifier")
+      ATTAINS.assessmentunitname == "Animas River (San Juan River to Estes Arroyo)"
+    ),
+  id_cols = "TADA.ComparableDataIdentifier"
+)
 ```
 
 Or we could create a boxplot for a particular characteristic and

@@ -211,7 +211,9 @@ TADA_FlagContinuousData <- function(.data, clean = FALSE, flaggedonly = FALSE, t
     "ResultTimeBasisText",
     "StatisticalBaseCode",
     "ResultValueTypeName",
-    "ResultIdentifier"
+    "ResultIdentifier",
+    "OrganizationIdentifier",
+    "ActivityRelativeDepthName"
   ))
 
   # check that clean and flaggedonly are not both TRUE
@@ -227,12 +229,34 @@ TADA_FlagContinuousData <- function(.data, clean = FALSE, flaggedonly = FALSE, t
     .data <- TADA_AutoClean(.data)
   }
 
-  # run TADA_IDCensoredData if it has not already been run
-  if ("TADA.CensoredData.Flag" %in% colnames(.data)) {
+  if ("TADA.LatitudeMeasure" %in% colnames(.data)) {
     .data <- .data
   } else {
-    # run TADA_IDCensoredData
-    .data <- TADA_IDCensoredData(.data)
+    # run autoclean
+    .data <- TADA_AutoClean(.data)
+  }
+
+  if ("TADA.LongitudeMeasure" %in% colnames(.data)) {
+    .data <- .data
+  } else {
+    # run autoclean
+    .data <- TADA_AutoClean(.data)
+  }
+
+  # run TADA_FindQCActivities if it has not already been run
+  if ("TADA.ActivityType.Flag" %in% colnames(.data)) {
+    .data <- .data
+  } else {
+    # run TADA_FindQCActivities
+    .data <- TADA_FindQCActivities(.data)
+  }
+
+  # run TADA_CreateComparableID if it has not already been run
+  if ("TADA.ComparableDataIdentifier" %in% colnames(.data)) {
+    .data <- .data
+  } else {
+    # run TADA_CreateComparableID
+    .data <- TADA_CreateComparableID(.data)
   }
 
   # execute function after checks are passed: flag continuous data and make cont.data data frame
@@ -242,7 +266,8 @@ TADA_FlagContinuousData <- function(.data, clean = FALSE, flaggedonly = FALSE, t
 
   # once new 3.0 profiles come out, check for zip files in ActivityFileURL and flag data that populates the DataLoggerLine
   cont.data <- .data %>%
-    dplyr::filter((ActivityTypeCode == "Field Msr/Obs-Continuous Time Series" | # ID cont data with new activity type code from 2023
+    dplyr::filter(TADA.ActivityType.Flag == "Non_QC") %>%
+    dplyr::filter(ActivityTypeCode == "Field Msr/Obs-Continuous Time Series" | # ID cont data with new activity type code from 2023
       grepl("Continuous", ProjectIdentifier) | # ID cont data by looking for string in project ID
       grepl("CONTINUOUS", ProjectIdentifier) | # ID cont data by looking for string in project ID
       (ActivityTypeCode == "Sample-Integrated Time Series" & SampleCollectionEquipmentName == "Probe/Sensor") |
@@ -250,28 +275,18 @@ TADA_FlagContinuousData <- function(.data, clean = FALSE, flaggedonly = FALSE, t
       (ActivityTypeCode == "Field Msr/Obs-Portable Data Logger" & !is.na(StatisticalBaseCode)) |
       (ActivityTypeCode == "Field Msr/Obs-Portable Data Logger" & ResultValueTypeName == "Calculated") |
       (ActivityTypeCode == "Field Msr/Obs-Portable Data Logger" & ResultValueTypeName == "Estimated") |
-      # SampleCollectionEquipmentName == "Probe/Sensor" & !is.na(ActivityFileURL) |
-      # (SampleCollectionEquipmentName == "Probe/Sensor" & !is.na(DataLoggerLine)) |
       (SampleCollectionEquipmentName == "Probe/Sensor" & !is.na(ResultTimeBasisText)) |
       (SampleCollectionEquipmentName == "Probe/Sensor" & !is.na(StatisticalBaseCode)) |
       (SampleCollectionEquipmentName == "Probe/Sensor" & ResultValueTypeName == "Calculated") |
-      (SampleCollectionEquipmentName == "Probe/Sensor" & ResultValueTypeName == "Estimated"))) %>%
+      (SampleCollectionEquipmentName == "Probe/Sensor" & ResultValueTypeName == "Estimated")) %>%
     dplyr::mutate(TADA.ContinuousData.Flag = "Continuous")
 
   # everything not YET in cont dataframe
   noncont.data <- subset(.data, !.data$ResultIdentifier %in% cont.data$ResultIdentifier)
-  
-  # import WQX Activity Type Ref
-  qc.ref <- utils::read.csv(system.file("extdata", "WQXActivityTypeRef.csv", package = "EPATADA")) %>%
-    dplyr::select(Code, TADA.ActivityType.Flag) %>%
-    dplyr::rename(ActivityTypeCode = Code) %>%
-    dplyr::distinct()
 
   # if time field is not NA, find time difference between results
   if (length(noncont.data) >= 1) {
     info_match <- noncont.data %>%
-      # Add TADA.ActivityType.Flag
-      dplyr::left_join(qc.ref, by = "ActivityTypeCode") %>%
       # remove quality control samples
       dplyr::filter(TADA.ActivityType.Flag == "Non_QC") %>%
       dplyr::group_by(
@@ -300,7 +315,7 @@ TADA_FlagContinuousData <- function(.data, clean = FALSE, flaggedonly = FALSE, t
       dplyr::filter(time_diff_lead <= time_difference |
         time_diff_lag <= time_difference)
 
-    rm(info_match, qc.ref)
+    rm(info_match)
 
     # if matches are identified change flag to continuous
     noncont.data <- noncont.data %>%
@@ -314,13 +329,13 @@ TADA_FlagContinuousData <- function(.data, clean = FALSE, flaggedonly = FALSE, t
   # check if noncont.data is blank. If TRUE, flag.data = cont.data
   if (nrow(noncont.data) == 0) {
     print("All data is flagged as continuous in TADA.ContinuousData.Flag column.")
-    flag.data = cont.data
+    flag.data <- cont.data
   }
-  
+
   # if noncont.data is NOT blank, flag.data = join of noncont.data with cont.data
   if (nrow(noncont.data) != 0) {
     flag.data <- cont.data %>%
-    dplyr::full_join(noncont.data, by = c(names(cont.data)))
+      dplyr::full_join(noncont.data, by = c(names(cont.data)))
   }
 
   # flagged output, all data
