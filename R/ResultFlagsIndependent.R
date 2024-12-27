@@ -212,7 +212,7 @@ TADA_FlagContinuousData <- function(.data, clean = FALSE, flaggedonly = FALSE, t
     "StatisticalBaseCode",
     "ResultValueTypeName",
     "ResultIdentifier",
-    "OrganizationIdentifier", 
+    "OrganizationIdentifier",
     "ActivityRelativeDepthName"
   ))
 
@@ -228,21 +228,21 @@ TADA_FlagContinuousData <- function(.data, clean = FALSE, flaggedonly = FALSE, t
     # run autoclean
     .data <- TADA_AutoClean(.data)
   }
-  
+
   if ("TADA.LatitudeMeasure" %in% colnames(.data)) {
     .data <- .data
   } else {
     # run autoclean
     .data <- TADA_AutoClean(.data)
   }
-  
+
   if ("TADA.LongitudeMeasure" %in% colnames(.data)) {
     .data <- .data
   } else {
     # run autoclean
     .data <- TADA_AutoClean(.data)
   }
-  
+
   # run TADA_FindQCActivities if it has not already been run
   if ("TADA.ActivityType.Flag" %in% colnames(.data)) {
     .data <- .data
@@ -250,7 +250,7 @@ TADA_FlagContinuousData <- function(.data, clean = FALSE, flaggedonly = FALSE, t
     # run TADA_FindQCActivities
     .data <- TADA_FindQCActivities(.data)
   }
-  
+
   # run TADA_CreateComparableID if it has not already been run
   if ("TADA.ComparableDataIdentifier" %in% colnames(.data)) {
     .data <- .data
@@ -268,18 +268,17 @@ TADA_FlagContinuousData <- function(.data, clean = FALSE, flaggedonly = FALSE, t
   cont.data <- .data %>%
     dplyr::filter(TADA.ActivityType.Flag == "Non_QC") %>%
     dplyr::filter(ActivityTypeCode == "Field Msr/Obs-Continuous Time Series" | # ID cont data with new activity type code from 2023
-        grepl("Continuous", ProjectIdentifier) | # ID cont data by looking for string in project ID
-        grepl("CONTINUOUS", ProjectIdentifier) | # ID cont data by looking for string in project ID
-        (ActivityTypeCode == "Sample-Integrated Time Series" & SampleCollectionEquipmentName == "Probe/Sensor") |
-        (ActivityTypeCode == "Field Msr/Obs-Portable Data Logger" & !is.na(ResultTimeBasisText)) |
-        (ActivityTypeCode == "Field Msr/Obs-Portable Data Logger" & !is.na(StatisticalBaseCode)) |
-        (ActivityTypeCode == "Field Msr/Obs-Portable Data Logger" & ResultValueTypeName == "Calculated") |
-        (ActivityTypeCode == "Field Msr/Obs-Portable Data Logger" & ResultValueTypeName == "Estimated") |
-        (SampleCollectionEquipmentName == "Probe/Sensor" & !is.na(ResultTimeBasisText)) |
-        (SampleCollectionEquipmentName == "Probe/Sensor" & !is.na(StatisticalBaseCode)) |
-        (SampleCollectionEquipmentName == "Probe/Sensor" & ResultValueTypeName == "Calculated") |
-        (SampleCollectionEquipmentName == "Probe/Sensor" & ResultValueTypeName == "Estimated")
-      ) %>%
+      grepl("Continuous", ProjectIdentifier) | # ID cont data by looking for string in project ID
+      grepl("CONTINUOUS", ProjectIdentifier) | # ID cont data by looking for string in project ID
+      (ActivityTypeCode == "Sample-Integrated Time Series" & SampleCollectionEquipmentName == "Probe/Sensor") |
+      (ActivityTypeCode == "Field Msr/Obs-Portable Data Logger" & !is.na(ResultTimeBasisText)) |
+      (ActivityTypeCode == "Field Msr/Obs-Portable Data Logger" & !is.na(StatisticalBaseCode)) |
+      (ActivityTypeCode == "Field Msr/Obs-Portable Data Logger" & ResultValueTypeName == "Calculated") |
+      (ActivityTypeCode == "Field Msr/Obs-Portable Data Logger" & ResultValueTypeName == "Estimated") |
+      (SampleCollectionEquipmentName == "Probe/Sensor" & !is.na(ResultTimeBasisText)) |
+      (SampleCollectionEquipmentName == "Probe/Sensor" & !is.na(StatisticalBaseCode)) |
+      (SampleCollectionEquipmentName == "Probe/Sensor" & ResultValueTypeName == "Calculated") |
+      (SampleCollectionEquipmentName == "Probe/Sensor" & ResultValueTypeName == "Estimated")) %>%
     dplyr::mutate(TADA.ContinuousData.Flag = "Continuous")
 
   # everything not YET in cont dataframe
@@ -288,7 +287,6 @@ TADA_FlagContinuousData <- function(.data, clean = FALSE, flaggedonly = FALSE, t
   # if time field is not NA, find time difference between results
   if (length(noncont.data) >= 1) {
     info_match <- noncont.data %>%
-
       # remove quality control samples
       dplyr::filter(TADA.ActivityType.Flag == "Non_QC") %>%
       dplyr::group_by(
