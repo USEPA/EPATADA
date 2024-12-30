@@ -1,12 +1,24 @@
 ---
 title: "Creating Efficient and Reproducible Water Quality Workflows Using R"
-header: "TADA, dataRetrieval, StreamCatTools, nhdplusTools, hydroloom"
 format:  
   revealjs:
     theme: serif
+  html:
+    fig-width: 8
+    fig-height: 6
+  pdf:
+    fig-width: 7
+    fig-height: 5
 editor: visual
 editor_options: 
     wrap: 72
+execute:
+  echo: true
+  eval: true
+  output: true
+  warning: false
+  error: false
+  include: true
 author:
   - name: "Cristina Mullin"
     orcid: 0000-0002-0615-6087
@@ -52,27 +64,34 @@ Then we will showcase how to bring in other web services and libraries for easy 
 
 Let's dive into Green Bay, WI!
 
-## Set up
+## Install and load
 
-Install the EPATADA R Package from GitHub: https://github.com/USEPA/EPATADA
+Install and load the remotes package.
 
 ```{r}
 if(!"remotes"%in%installed.packages()){
 install.packages("remotes")
 }
 
-remotes::install_github("USEPA/EPATADA", ref = "develop", dependencies = TRUE, force = TRUE)
+library(remotes)
 ```
 
-# Load required packages
+## Load
 
-Load EPATADA
+Install and load the [EPATADA R Package](https://github.com/USEPA/EPATADA) from GitHub.
 
 ```{r}
+remotes::install_github("USEPA/EPATADA", 
+                        ref = "develop", 
+                        dependencies = TRUE, 
+                        force = TRUE)
+
 library(EPATADA)
 ```
 
-Let's time our process
+## It's go time!
+
+Let's time our process.
 
 ```{r}
 # Record start time
@@ -81,10 +100,12 @@ start.time <- Sys.time()
 
 ## Retrieve data from WQP
 
-Use How's My Waterway to find the application HUC code to use to query the WQP: https://mywaterway.epa.gov/community/040302040405/monitoring WATERSHED: City of Green Bay-Fox River (040302040405)
+In this example, we will use EPA's How's My Waterway (HMW) application to find an applicable Hydrologic Unit Code (HUC) for our area of interest - the [Fox River, Green Bay, WI](https://mywaterway.epa.gov/community/040302040405/monitoring). Next, query the WQP using the identified HUC, state abbreviation, and a date range. In this example, we'll start by pulling all data available in the WQP for this area for the last 5 years.
 
-```{r, results = 'hide'}
-GreenBay_FoxRiver <- TADA_DataRetrieval(
+WATERSHED: City of Green Bay-Fox River (040302040405)
+
+```{r}
+GreenBay_FoxRiver <- EPATADA::TADA_DataRetrieval(
   statecode = "WI",
   startDate = "2015-01-01",
   endDate = "2024-12-30",
@@ -95,17 +116,135 @@ GreenBay_FoxRiver <- TADA_DataRetrieval(
 
 ## Wrangle
 
-```{r}
+Now, let's use EPATADA functions to whittle the data down to what is applicable to our analysis.
 
+![](images/Funnel.png)
+
+## Refine area of interest and filter
+
+Visualize
+```{r}
+ATTAINS_data <- TADA_GetATTAINS(GreenBay_FoxRiver)
+ATTAINS_map <- TADA_ViewATTAINS(ATTAINS_data)
+ATTAINS_map
+```
+
+Filter
+```{r}
+# Filter data for specified assessment unit
+
+AUID_data <- ATTAINS_data$TADA_with_ATTAINS %>%
+  dplyr::filter(ATTAINS.assessmentunitidentifier == "IL_I-84")
+
+Analysis_data <- ATTAINS_data$TADA_with_ATTAINS %>%
+  dplyr::filter(ATTAINS.assessmentunitidentifier == "IL_I-84") %>%
+  dplyr::select(-contains("ATTAINS.")) %>%
+  sf::st_drop_geometry() %>%
+  TADA_RetainRequired()
+
+# Create table of monitoring location identifiers
+
+MonitoringLocations <- Analysis_data %>%
+  dplyr::select(MonitoringLocationName, MonitoringLocationIdentifier, OrganizationFormalName) %>%
+  dplyr::distinct()
+
+DT::datatable(MonitoringLocations, fillContainer = TRUE)
+
+# Create pie of results by organization
+Orgs_pie <- TADA_FieldValuesPie(Analysis_data, field = "OrganizationFormalName")
+
+Orgs_pie
+
+# Filter data for specified assessment unit
+
+AUID_data <- ATTAINS_data$TADA_with_ATTAINS %>%
+  dplyr::filter(ATTAINS.assessmentunitidentifier == "IL_I-84")
+
+Analysis_data <- ATTAINS_data$TADA_with_ATTAINS %>%
+  dplyr::filter(ATTAINS.assessmentunitidentifier == "IL_I-84") %>%
+  dplyr::select(-contains("ATTAINS.")) %>%
+  sf::st_drop_geometry() %>%
+  TADA_RetainRequired()
+```
+
+## Quality check
+
+```{r}
+# Flag and remove results
+
+Analysis_data <- Analysis_data %>%
+  TADA_FlagMethod(clean = TRUE) %>%
+  TADA_FlagSpeciation(clean = "both") %>%
+  TADA_FlagResultUnit(clean = "both") %>%
+  TADA_FlagFraction(clean = TRUE) %>%
+  TADA_FlagAboveThreshold(clean = TRUE) %>%
+  TADA_FlagBelowThreshold(clean = TRUE) %>%
+  TADA_FindPotentialDuplicatesSingleOrg() %>%
+  dplyr::filter(TADA.SingleOrgDup.Flag == "Unique") %>%
+  TADA_FindPotentialDuplicatesMultipleOrgs(
+    dist_buffer = 100,
+    org_hierarchy = "none"
+  ) %>%
+  dplyr::filter(TADA.ResultSelectedMultipleOrgs == "Y") %>%
+  TADA_FindQCActivities(clean = TRUE) %>%
+  TADA_FlagMeasureQualifierCode(clean = TRUE)
 ```
 
 ## Harmonize
 
-## Quality check
+```{r}
+Analysis_data <- TADA_SimpleCensoredMethods(Analysis_data,
+  nd_method = "multiplier",
+  nd_multiplier = 0.5,
+  od_method = "as-is",
+  od_multiplier = "null"
+) %>%
+  dplyr::filter(!is.na(TADA.ResultMeasureValue))
+
+UniqueHarmonizationRef <- TADA_GetSynonymRef(Analysis_data)
+
+UniqueHarmonizationRef_edit <- UniqueHarmonizationRef %>%
+  dplyr::mutate(
+    Target.TADA.CharacteristicName = ifelse(TADA.CharacteristicName == "TEMPERATURE, WATER", "TEMPERATURE", TADA.CharacteristicName),
+    Target.TADA.ResultSampleFractionText = ifelse(TADA.CharacteristicName == "PH", NA, Target.TADA.ResultSampleFractionText),
+    HarmonizationGroup = ifelse(TADA.CharacteristicName == "PH", "PH", HarmonizationGroup),
+    HarmonizationGroup = ifelse(Target.TADA.CharacteristicName == "TEMPERATURE", "TEMPERATURE",
+      HarmonizationGroup
+    )
+  )
+
+Harmonized_data <- TADA_HarmonizeSynonyms(Analysis_data,
+  ref = UniqueHarmonizationRef_edit
+)
+```
+
+## Analyze
+
+```{r}
+Harmonized_data <- TADA_CalculateTotalNP(Harmonized_data, daily_agg = "max")
+```
+
+## Filter
+```{r}
+# review unique identifiers
+unique(Harmonized_data$TADA.ComparableDataIdentifier)
+
+# filter for three comparable data identifiers of interest
+Filtered_data <- Harmonized_data %>%
+  dplyr::filter(TADA.ComparableDataIdentifier %in% c("TEMPERATURE_NA_NA_DEG C", "PH_NA_NA_NA", "TOTAL NITROGEN, MIXED FORMS_UNFILTERED_AS N_MG/L"))
+
+# generate stats table
+Filtered_data_stats <- TADA_Stats(Filtered_data)
+
+DT::datatable(Filtered_data_stats, fillContainer = TRUE)
+```
 
 ## Visualize
 
-## Analyze
+```{r}
+# choose two and generate scatterplot
+TADA_TwoCharacteristicScatterplot(Harmonized_data, id_cols = "TADA.ComparableDataIdentifier", groups = c("TEMPERATURE_NA_NA_DEG C", "PH_NA_NA_NA"))
+```
 
 # Ingestion of additional hydrologic, climatic and remote sensing data
 
@@ -190,6 +329,12 @@ For these, we implemented a solution using NHDPlusTools to pull in either NHDPlu
 
 # Conclusion
 
+```{r}
+end.time <- Sys.time()
+
+end.time - start.time
+```
+
 placeholder
 
 Thank you for your attention!
@@ -197,4 +342,5 @@ Thank you for your attention!
 ## Thank you to our workshop contributors!
 
 -   EPA: Cristina Mullin (mullin.cristina\@epa.gov), Hillary Marler, Kenny Wong, Shelly Thawley, Marc Weber, Ryan Hill, Michael Dumelle
+
 -   USGS: Dave Blodgett
