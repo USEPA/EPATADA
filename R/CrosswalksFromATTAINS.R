@@ -241,20 +241,15 @@ TADA_UpdateMonitoringLocationsInATTAINS <- function(org_id = NULL,
 
     # check that crosswalk is a data frame before proceeding
     if(is.data.frame(crosswalk)) {
-
-      # check that required columns are in crosswalk
-      if(!c("ASSESSMENT_UNIT_ID", "MS_LOCATION_ID") %in%
-         names(crosswalk)) {
-
-        # stop function if required columns are not present
-        stop(paste0("TADA_UpdateMonitoringLocationsInATTAINS: ",
-                    "The user-supplied crosswalk data frame does not contain all required columns: ",
-                    "ASSESSMENT_UNIT_ID, MS_LOCATION_ID, and MS_ORG_ID."))
-      }
-
-      # continue function if required columns are present
-      if(c("ASSESSMENT_UNIT_ID", "MS_LOCATION_ID", "MS_ORG_ID") %in%
-         names(crosswalk)){
+      
+      # check crosswalk has all of the required columns
+      expected_cols <- c(
+        "ASSESSMENT_UNIT_ID",
+        "MS_LOCATION_ID",
+        "TADA.ResultMeasureValueDataTypes.Flag"
+      )
+      
+      TADA_CheckColumns(crossawlk, expected_cols)
 
 
         if(replace == FALSE) {
