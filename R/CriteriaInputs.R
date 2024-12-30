@@ -692,7 +692,7 @@ TADA_CreateParamUseRef <- function(.data, org_names = NULL, paramRef = NULL, exc
                              startCol = 7, startRow = i + 1, array = TRUE,
                              x = paste0("=IF(B", i + 1, '="EPA304a",
                                 "Will use the EPA304a recommended standards for this parameter. Do not edit EPA304a use_name",
-                             IF(ISNA(E', i + 1, '), 
+                             IF(ISBLANK(E', i + 1, '), 
                                 "No use name is provided. Consider choosing an appropriate use_name that applies for assessment",
                              IF(ISNA(MATCH(1,(E', i + 1, '=Index!G:G)*(B', i + 1, '=Index!E:E),0)),
                                 "Use name is not listed as a prior use for this organization",IF(ISNA(MATCH(1,(D', i + 1, "=Index!H:H)*(E", i + 1, "=Index!G:G)*(B", i + 1, '=Index!E:E),0)),

@@ -263,19 +263,7 @@ NCTC_ParamRef2 <- TADA_CreateParamRef(
   excel = FALSE)
 ```
 
-Users may also include states outside of their spatial region if desired
-depending on a user's interest. Users will be responsible for filling
-out this crosswalk though for state's outside their own orgs. Although,
-future efforts will focus on creating a repository of criteria and
-methods along with crosswalks done from other TADA users (this will
-depend on other org participation). However, the drop-down list will
-include all prior ATTAINS domain value for all orgs that a user selects.
-Users can also choose to only return a data frame in the R environment
-by using excel = FALSE as a function input.
-
-it does not auto-populate, but the goal is that if states share their
-criteria and methods, we will now have a way to allow states to compare
-against other states
+Users may also include states outside of their spatial region if desired, depending on a user's interest. Users will be responsible for filling out this crosswalk for state(s) that are outside their own orgs. Although, future efforts will focus on creating a repository of criteria and methods along with crosswalks done from other TADA users.
 
 ```{r}
 NCTC_ParamRef3 <- TADA_CreateParamRef(
@@ -290,16 +278,10 @@ NCTC_ParamRef3 <- TADA_CreateParamRef(
 
 First example will pull in all prior use_names for each ATTAINS
 parameter name specific to the defined org_names argument input
-"Maryland". Users will review this list and choose which use_name are
-appropriate to define for assessment. The default is to "Include" all
-use_names that will need a definition for magnitude criteria and
-methodology. If a use_name is not appropriate, users should choose
-"Exclude".
+"Maryland". Users will review this list and choose which use_name are appropriate to define for assessment. The default is "Include" under the "IncludeOrExclude" column. All use_names that will need a definition for magnitude criteria and
+methodology should be labeled as "Include". If a use_name is not appropriate, users should choose "Exclude" for that ATTAINS parameter name and use name.
 
-For any ATTAINS parameter name(s) that have not been used by this org in
-prior assessment cycles, users will be responsible for inputting
-additional rows as needed and choosing the appropriate use_name
-applicable to their org under the column 'use_name'.
+For any ATTAINS parameter name(s) that have not been used by this org in prior assessment cycles, there will be no prior use names associated with them. In this case, users will be responsible for inputtingadditional rows as needed and choosing the appropriate use_nameapplicable to their org under the column 'use_name'. In this example, we can see "PH" was not a prior ATTAINS parameter name for Maryland, thus additional rows should be inputted to reflect what parameter and use combinations are needed to be defined for assessments (disclaimer: this is for demonstration purposes only and does not reflect Maryland's Criteria and Methodologies for PH).
 
 ```{r}
 NCTC_ParamUseRef <- TADA_CreateParamUseRef(
