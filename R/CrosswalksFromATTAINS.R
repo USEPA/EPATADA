@@ -117,13 +117,16 @@ TADA_GetMonLocByOrgId <- function(.data, id = "wqp") {
 
 #' Get Provider Ref for All Organizations (IN ACTIVE DEVELOPMENT)
 #'
-#' This function creates 
+#' This function creates a crosswalk of OrganizationIdentifier and OrganizationFormalName with
+#' ProviderName.
 #'
 #' @return A crosswalk of monitoring locations and organization identifiers.
 #'
 #' @export
 #'
 #' @examples
+#' 
+#' provider.ref <- TADA_GetProviderRef()
 #'
 #' \dontrun{
 #'
@@ -251,7 +254,6 @@ TADA_UpdateMonitoringLocationsInATTAINS <- function(org_id = NULL,
       
       TADA_CheckColumns(crossawlk, expected_cols)
 
-
         if(replace == FALSE) {
           
           # import assessment unit data from ATTAINS web services
@@ -282,7 +284,8 @@ TADA_UpdateMonitoringLocationsInATTAINS <- function(org_id = NULL,
           # combine user supplied and attains crosswalks to create one crosswalk
           # no rows are omitted
           update.crosswalk <- attains.crosswalk %>%
-            rbind(crosswalk) %>%
+            dplyr::full_join(crosswalk, by = dplyr::join_by(ASSESSMENT_UNIT_ID, 
+                                                            MS_ORG_ID, MS_LOCATION_ID)) %>%
             dplyr::distinct()
           
           rm(attains.crosswalk, crosswalk)
@@ -298,7 +301,7 @@ TADA_UpdateMonitoringLocationsInATTAINS <- function(org_id = NULL,
 
         }
 
-        # add Monitoring Location data links if desired
+        # add Monitoring Location data links if data_links is not equal to "none"
 
         if(data_links != "none") {
           
