@@ -105,7 +105,7 @@ In this example, we will use EPA's How's My Waterway (HMW) application to find a
 WATERSHED: City of Green Bay-Fox River (040302040405)
 
 ```{r}
-GreenBay_FoxRiver <- EPATADA::TADA_DataRetrieval(
+GreenBay_FoxRiver <- TADA_DataRetrieval(
   statecode = "WI",
   startDate = "2015-01-01",
   endDate = "2024-12-30",
@@ -122,49 +122,64 @@ Now, let's use EPATADA functions to whittle the data down to what is applicable 
 
 ## Refine area of interest and filter
 
-Visualize
 ```{r}
-ATTAINS_data <- TADA_GetATTAINS(GreenBay_FoxRiver)
-ATTAINS_map <- TADA_ViewATTAINS(ATTAINS_data)
-ATTAINS_map
+# ATTAINS_data <- TADA_GetATTAINS(GreenBay_FoxRiver)
+# ATTAINS_map <- TADA_ViewATTAINS(ATTAINS_data)
+# ATTAINS_map
+# 
+# # Filter data for specified assessment unit
+# 
+# AUID_data <- ATTAINS_data$TADA_with_ATTAINS %>%
+#   dplyr::filter(ATTAINS.assessmentunitidentifier == "WI10008021")
+# 
+# Analysis_data <- ATTAINS_data$TADA_with_ATTAINS %>%
+#   dplyr::filter(ATTAINS.assessmentunitidentifier == "WI10008021") %>%
+#   dplyr::select(-contains("ATTAINS.")) %>%
+#   sf::st_drop_geometry() %>%
+#   TADA_RetainRequired()
+# 
+# # Create table of monitoring location identifiers
+# 
+# MonitoringLocations <- Analysis_data %>%
+#   dplyr::select(MonitoringLocationName, MonitoringLocationIdentifier, OrganizationFormalName) %>%
+#   dplyr::distinct()
+# 
+# DT::datatable(MonitoringLocations, fillContainer = TRUE)
+# 
+# # Filter data for specified assessment unit
+# 
+# AUID_data <- ATTAINS_data$TADA_with_ATTAINS %>%
+#   dplyr::filter(ATTAINS.assessmentunitidentifier == "WI10008021")
+# 
+# Analysis_data <- ATTAINS_data$TADA_with_ATTAINS %>%
+#   dplyr::filter(ATTAINS.assessmentunitidentifier == "WI10008021") %>%
+#   dplyr::select(-contains("ATTAINS.")) %>%
+#   sf::st_drop_geometry() %>%
+#   TADA_RetainRequired()
+# 
+# # Create table of monitoring location identifiers
+# 
+# MonitoringLocations <- Analysis_data %>%
+#   dplyr::select(MonitoringLocationName, MonitoringLocationIdentifier, OrganizationFormalName) %>%
+#   dplyr::distinct()
+# 
+# DT::datatable(MonitoringLocations, fillContainer = TRUE)
+# # Filter data for specified assessment unit
+# 
+# AUID_data <- ATTAINS_data$TADA_with_ATTAINS %>%
+#   dplyr::filter(ATTAINS.assessmentunitidentifier == "WI10008021")
+# 
+# Analysis_data <- ATTAINS_data$TADA_with_ATTAINS %>%
+#   dplyr::filter(ATTAINS.assessmentunitidentifier == "WI10008021") %>%
+#   dplyr::select(-contains("ATTAINS.")) %>%
+#   sf::st_drop_geometry() %>%
+#   TADA_RetainRequired()
 ```
 
-Filter
+## Review organizations
 ```{r}
-# Filter data for specified assessment unit
-
-AUID_data <- ATTAINS_data$TADA_with_ATTAINS %>%
-  dplyr::filter(ATTAINS.assessmentunitidentifier == "IL_I-84")
-
-Analysis_data <- ATTAINS_data$TADA_with_ATTAINS %>%
-  dplyr::filter(ATTAINS.assessmentunitidentifier == "IL_I-84") %>%
-  dplyr::select(-contains("ATTAINS.")) %>%
-  sf::st_drop_geometry() %>%
-  TADA_RetainRequired()
-
-# Create table of monitoring location identifiers
-
-MonitoringLocations <- Analysis_data %>%
-  dplyr::select(MonitoringLocationName, MonitoringLocationIdentifier, OrganizationFormalName) %>%
-  dplyr::distinct()
-
-DT::datatable(MonitoringLocations, fillContainer = TRUE)
-
 # Create pie of results by organization
-Orgs_pie <- TADA_FieldValuesPie(Analysis_data, field = "OrganizationFormalName")
-
-Orgs_pie
-
-# Filter data for specified assessment unit
-
-AUID_data <- ATTAINS_data$TADA_with_ATTAINS %>%
-  dplyr::filter(ATTAINS.assessmentunitidentifier == "IL_I-84")
-
-Analysis_data <- ATTAINS_data$TADA_with_ATTAINS %>%
-  dplyr::filter(ATTAINS.assessmentunitidentifier == "IL_I-84") %>%
-  dplyr::select(-contains("ATTAINS.")) %>%
-  sf::st_drop_geometry() %>%
-  TADA_RetainRequired()
+TADA_FieldValuesPie(GreenBay_FoxRiver, field = "OrganizationFormalName")
 ```
 
 ## Quality check
@@ -172,7 +187,7 @@ Analysis_data <- ATTAINS_data$TADA_with_ATTAINS %>%
 ```{r}
 # Flag and remove results
 
-Analysis_data <- Analysis_data %>%
+Analysis_data <- GreenBay_FoxRiver %>%
   TADA_FlagMethod(clean = TRUE) %>%
   TADA_FlagSpeciation(clean = "both") %>%
   TADA_FlagResultUnit(clean = "both") %>%
@@ -201,21 +216,7 @@ Analysis_data <- TADA_SimpleCensoredMethods(Analysis_data,
 ) %>%
   dplyr::filter(!is.na(TADA.ResultMeasureValue))
 
-UniqueHarmonizationRef <- TADA_GetSynonymRef(Analysis_data)
-
-UniqueHarmonizationRef_edit <- UniqueHarmonizationRef %>%
-  dplyr::mutate(
-    Target.TADA.CharacteristicName = ifelse(TADA.CharacteristicName == "TEMPERATURE, WATER", "TEMPERATURE", TADA.CharacteristicName),
-    Target.TADA.ResultSampleFractionText = ifelse(TADA.CharacteristicName == "PH", NA, Target.TADA.ResultSampleFractionText),
-    HarmonizationGroup = ifelse(TADA.CharacteristicName == "PH", "PH", HarmonizationGroup),
-    HarmonizationGroup = ifelse(Target.TADA.CharacteristicName == "TEMPERATURE", "TEMPERATURE",
-      HarmonizationGroup
-    )
-  )
-
-Harmonized_data <- TADA_HarmonizeSynonyms(Analysis_data,
-  ref = UniqueHarmonizationRef_edit
-)
+Harmonized_data <- TADA_HarmonizeSynonyms(Analysis_data)
 ```
 
 ## Analyze
@@ -231,7 +232,9 @@ unique(Harmonized_data$TADA.ComparableDataIdentifier)
 
 # filter for three comparable data identifiers of interest
 Filtered_data <- Harmonized_data %>%
-  dplyr::filter(TADA.ComparableDataIdentifier %in% c("TEMPERATURE_NA_NA_DEG C", "PH_NA_NA_NA", "TOTAL NITROGEN, MIXED FORMS_UNFILTERED_AS N_MG/L"))
+  dplyr::filter(TADA.ComparableDataIdentifier %in% c("TURBIDITY_NA_NA_NTU", 
+                                                     "TOTAL PHOSPHORUS, MIXED FORMS_UNFILTERED_AS P_UG/L", 
+                                                     "TOTAL NITROGEN, MIXED FORMS_UNFILTERED_AS N_MG/L"))
 
 # generate stats table
 Filtered_data_stats <- TADA_Stats(Filtered_data)
@@ -243,7 +246,7 @@ DT::datatable(Filtered_data_stats, fillContainer = TRUE)
 
 ```{r}
 # choose two and generate scatterplot
-TADA_TwoCharacteristicScatterplot(Harmonized_data, id_cols = "TADA.ComparableDataIdentifier", groups = c("TEMPERATURE_NA_NA_DEG C", "PH_NA_NA_NA"))
+TADA_TwoCharacteristicScatterplot(Harmonized_data, id_cols = "TADA.ComparableDataIdentifier", groups = c("TOTAL PHOSPHORUS, MIXED FORMS_UNFILTERED_AS P_UG/L", "TOTAL NITROGEN, MIXED FORMS_UNFILTERED_AS N_MG/L"))
 ```
 
 # Ingestion of additional hydrologic, climatic and remote sensing data
