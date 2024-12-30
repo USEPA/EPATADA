@@ -304,67 +304,62 @@ TADA_UpdateMonitoringLocationsInATTAINS <- function(org_id = NULL,
         # add Monitoring Location data links if data_links is not equal to "none"
 
         if(data_links != "none") {
-          
+         
+        # get org/provider name ref from TADA ref files 
         provider.ref <- TADA_GetProviderRef() %>%
           dplyr::rename(MS_ORG_ID = OrganizationIdentifier) %>%
           dplyr::mutate(OrgIDForURL = MS_ORG_ID)
-          
         
+        # add additional rows to account for the addition of "_WQX" to many org names for WQP data
         add.orgs <- provider.ref %>%
           dplyr::filter(grepl("_WQX", MS_ORG_ID)) %>%
-          dplyr::rename(OrgIDForURL = MS_ORG_ID) %>%
           dplyr::mutate(MS_ORG_ID = stringr::str_remove_all(OrgIDForURL,
                                                                          "_WQX"))
         
-        
-        update.crosswalk3 <- update.crosswalk %>%
+        # combine provider refs
+        provider.ref <- provder.ref %>%
+          dplyr::bind_rows(add.orgs)
+    
+        # join provider ref df to crosswalk
+        update.crosswalk <- update.crosswalk %>%
           dplyr::left_join(provider.ref, by = dplyr::join_by(MS_ORG_ID))
         
-        matched.crosswalks <- update.crosswalk3 %>%
-          dplyr::filter(!is.na(OrgIDForURL))
-        
-        nomatch.org <- update.crosswalk3 %>%
-          dplyr::filter(is.na(OrgIDForURL)) %>%
-          dplyr::select(-OrgIDForURL, -OrganizationFormalName, -ProviderName) %>%
-          dplyr::left_join(add.orgs) 
-        
-        total <- matched.crosswalks %>%
-          dplyr::bind_rows(nomatch.org) %>%
-          dplyr::distinct()
-        
         # next build the URLS for ms location urls
-        add.urls <- total %>%
+        update.crosswalk <- update.crosswalk %>%
           dplyr::mutate(MONITORING_DATA_LINK_TEXT.New = ifelse(
             is.na(OrgIDForURL), NA,
             paste0("https://www.waterqualitydata.us/provider/", ProviderName,
                    "/", OrgIDForURL, "/", OrgIDForURL, "-", MS_LOCATION_ID, "/")))
         
         # retrieve http response headers from url list
-        headers <- add.urls$MONITORING_DATA_LINK_TEXT.New %>%
+        headers <- update.crosswalk$MONITORING_DATA_LINK_TEXT.New %>%
           purrr::map(~ tryCatch(curlGetHeaders(.x), error = function(e) NA))
         
         # extract response code from first line of header response
-        response_code <- sapply(headers, "[[", 1)
+        response.code <- sapply(headers, "[[", 1)
         
         # create data frame of urls and response codes
-        response.df <- data.frame(add.urls$MONITORING_DATA_LINK_TEXT.New, response_code) %>%
-          dplyr::rename(MONITORING_DATA_LINK_TEXT.New = add.urls.MONITORING_DATA_LINK_TEXT.New) %>%
+        response.df <- data.frame(update.crosswalk$MONITORING_DATA_LINK_TEXT.New, response.code) %>%
+          dplyr::rename(MONITORING_DATA_LINK_TEXT.New = update.crosswalk.MONITORING_DATA_LINK_TEXT.New) %>%
           dplyr::distinct()
         
         # join response codes to add.urls df
-        add.urls2 <- add.urls %>%
+        update.crosswalk <- update.crosswalk %>%
           dplyr::left_join(response.df, by = dplyr::join_by(MONITORING_DATA_LINK_TEXT.New))
         
         if(data_links == "replace") {
-          add.urls3 <- add.urls2 %>%
+          update.crosswalk <- update.crosswalk %>%
             dplyr::mutate(MONITORING_DATA_LINK_TEXT = ifelse(
-              grepl("200", response_code), MONITORING_DATA_LINK_TEXT.New,
+              grepl("200", response.code), MONITORING_DATA_LINK_TEXT.New,
               MONITORING_DATA_LINK_TEXT
-            ))
+            )) %>%
+            dplyr::select(ASSESSMENT_UNIT_ID, MS_ORG_ID, 
+                         MS_LOCATION_ID, MONITORING_DATA_LINK_TEXT) %>%
+            dplyr::distinct()
         }
         
         if(data_links == "update") {
-          add.urls3 <- add.urls2 %>%
+          update.crosswalk <- update.crosswalk %>%
             dplyr::mutate(MONITORING_DATA_LINK_TEXT = ifelse(
               grepl("200", response_code), 
               paste0(MONITORING_DATA_LINK_TEXT, ", ", MONITORING_DATA_LINK_TEXT.New),
@@ -383,15 +378,12 @@ TADA_UpdateMonitoringLocationsInATTAINS <- function(org_id = NULL,
         
         
          
-}
-        
-
-    }}}}
+}}}}
 
 
 
-    ## Commented out for now as per conversation w/ WR on 12/12/24 (these additional files may
-    ## not be necessary to update the ML/AUIDs in ATTAINS, will need to test in Demo ATTAINS)
+    ## Commented out for now as per conversation w/ WR on 12/12/24 (these additional files are
+    ## likely necessary to update the ML/AUIDs in ATTAINS, will need to test in Demo ATTAINS)
     # # Create Assessment_Units df
     # # need to figure out assessment comments, they are not currently included (discuss w. FG)
     # assessment_units <- au.info %>%
