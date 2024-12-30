@@ -1,5 +1,5 @@
 ---
-title: "Efficient and Reproducible Water Quality Analyses Using R"
+title: "Creating Efficient and Reproducible Water Quality Workflows Using R"
 header: "TADA, dataRetrieval, StreamCatTools, nhdplusTools, hydroloom"
 format:  
   revealjs:
@@ -18,52 +18,86 @@ author:
 footer: "EPATADA, dataRetrieval, nhdplusTools, StreamCatTools, hydroloom"
 ---
 
-# Introduction
+# Introduction (10 mins)
 
 ## Quarto
 
 Quarto enables you to weave together content and executable code into a finished presentation. To learn more about Quarto presentations see <https://quarto.org/docs/presentations/>.
 
-## Contributors
+## Introduction
 
--   Cristina Mullin
--   Hillary Marler
--   Kenny Wong
--   Shelly Thawley
--   Dave Blodgett
--   Marc Weber
--   Ryan Hill
--   Michael Dumelle
+This workshop showcases how to integrate several R Packages developed by the U.S. Environmental Protection Agency (EPA) and the United States Geological Survey (USGS), and other fundamental packages to create efficient and reproducible workflows that support water quality programs and research – for example performing watershed or waterbody level analyses such as Clean Water Act Assessments. We will also touch briefly on packages that can assist with building statistical models.
 
 ## Intended audience
 
-Water Quality Portal community, Clean Water Act Assessment community (EPA, States and Tribal Nations), R users, water quality analysts and researchers, geospatial data analysts, USGS and other federal agencies.
+Water Quality eXchange (WQX) and Water Quality Portal (WQP) community, Clean Water Act (CWA) Assessment community (EPA, States and Tribal Nations), water quality and geospatial data analysts, researchers, EPA/USGS and other federal agencies.
 
 ## Agenda
 
-This hands-on workshop showcases how to integrate several R Packages developed by the U.S. Environmental Protection Agency (EPA) and the United States Geological Survey (USGS) and other fundamental packages to create efficient and reproducible workflows that support water quality programs and research – for example performing Clean Water Act Assessments, watershed analyses, and building statistical models.
+This workshop demonstrates potential uses (beyond their original collection purpose) for publicly available water quality data from Water Quality Portal (WQP). To start, participants will learn how to use EPA’s Tools for Automated Data Analysis (TADA) R Package to retrieve, wrangle, harmonize, quality check, visualize and analyze WQP data from multiple organizations.
 
 ## Agenda
 
-It also incorporates secondary use of publicly available water quality data from the Water Quality Portal (WQP) and other web services and libraries for easy ingestion of additional hydrologic, climatic and remote sensing data.
-
-## Agenda
-
-To start, participants will learn how to use EPA’s Tools for Automated Data Analysis (TADA) R Package to retrieve, wrangle, harmonize, quality check, visualize and analyze WQP data. Then it will cover approaches for hydrology and watershed (e.g., Assessment Unit level) analysis and visualization – including use of the StreamCatTools, nhdplusTools and hydroloom R libraries, as well as fundamental geospatial packages such as sf, terra, leaflet and tmap.
+Then we will showcase how to bring in other web services and libraries for easy integration of additional hydrologic (e.g. USGS continuous sensor data), climatic and remote sensing data. While not the focus of this workshop, we plan to briefly touch on packages that can assist with building statistical models. Finally, we will demonstrate as example workflow for performing Assessment Unit (a type of hydrology and watershed level analysis) level analysis and visualization.
 
 ## Packages
 
-- EPA: EPATADA, StreamCatTools
+-   EPA: EPATADA, StreamCatTools
 
-- USGS: dataRetrieval, nhdplusTools, hydroloom
+-   USGS: dataRetrieval, nhdplusTools, hydroloom
 
-- Fundamentals: sf, terra, leaflet and tmap
+-   Fundamental geospatial packages such as sf, terra, leaflet and tmap
 
 # Preparing Water Quality Portal (WQP) data for analysis using EPATADA
 
-## Retrieve
+Let's dive into Green Bay, WI!
+
+## Set up
+
+Install the EPATADA R Package from GitHub: https://github.com/USEPA/EPATADA
+
+```{r}
+if(!"remotes"%in%installed.packages()){
+install.packages("remotes")
+}
+
+remotes::install_github("USEPA/EPATADA", ref = "develop", dependencies = TRUE, force = TRUE)
+```
+
+# Load required packages
+
+Load EPATADA
+
+```{r}
+library(EPATADA)
+```
+
+Let's time our process
+
+```{r}
+# Record start time
+start.time <- Sys.time()
+```
+
+## Retrieve data from WQP
+
+Use How's My Waterway to find the application HUC code to use to query the WQP: https://mywaterway.epa.gov/community/040302040405/monitoring WATERSHED: City of Green Bay-Fox River (040302040405)
+
+```{r, results = 'hide'}
+GreenBay_FoxRiver <- TADA_DataRetrieval(
+  statecode = "WI",
+  startDate = "2015-01-01",
+  endDate = "2024-12-30",
+  huc = c("040302040405"),
+  applyautoclean = TRUE
+)
+```
 
 ## Wrangle
+
+```{r}
+
+```
 
 ## Harmonize
 
@@ -80,7 +114,11 @@ To start, participants will learn how to use EPA’s Tools for Automated Data An
 1.  USGS continuous sensor data
 2.  PRISM climate
 
-# Example Use Case 1: Clean Water Act (CWA) Section 303(d) Assessments
+# Example Use Case 1: Building Statistical Models
+
+placeholder
+
+# Example Use Case 2: Clean Water Act (CWA) Section 303(d) Assessments
 
 ## CWA Assessment Process
 
@@ -121,6 +159,7 @@ One of the first steps in the CWA assessment process is to define Assessment Uni
 -   Certain NHDPlus high res catchments overlap multiple ATTAINS assessment units (state submitted hydrography) which means the sites are assigned to both AUs in the current functions. Another challenge is that the WQP sites are not always accurate (imprecise coordinates). Ideally, each site could be matched with a single assessment unit and not multiple.
 
 ## Challenges with Automated Approach
+
 -   Placeholder: Are there tools to help with these challenges (i.e., QAQC'ing draft TADA site/AU associations)?
     -   Can more sophisticated logic (e.g., maybe flow/rain drop logic or even simply closest AU) be added for areas where multiple assessment units overlap the same high-res catchment (for example at tributaries)?
 
@@ -139,7 +178,7 @@ TADA has included a way to do this using TADA_GetATTAINS() fill_catchments funct
 
 ## Creating new AUs to assess additional areas with TADA::fetchNHD()
 
-For WQP monitoring sites that DO NOT overlap an existing ATTAINS feature (neither ATTAINS NHDPlus high res catchment snap shot or state submitted points/lines/polys), there is nothing to use from ATTAINS because these are areas where there is WQP data but no ATTAINS AU yet. 
+For WQP monitoring sites that DO NOT overlap an existing ATTAINS feature (neither ATTAINS NHDPlus high res catchment snap shot or state submitted points/lines/polys), there is nothing to use from ATTAINS because these are areas where there is WQP data but no ATTAINS AU yet.
 
 ## Creating new AUs to assess additional areas with TADA::fetchNHD()
 
@@ -149,8 +188,13 @@ For these, we implemented a solution using NHDPlusTools to pull in either NHDPlu
 
 -   Do we want to include anything else from StreamCatTools or other packages here to help with new AU delineation?
 
-
-    
-# Example Use Case 2: Building Statistical Models
+# Conclusion
 
 placeholder
+
+Thank you for your attention!
+
+## Thank you to our workshop contributors!
+
+-   EPA: Cristina Mullin (mullin.cristina\@epa.gov), Hillary Marler, Kenny Wong, Shelly Thawley, Marc Weber, Ryan Hill, Michael Dumelle
+-   USGS: Dave Blodgett
