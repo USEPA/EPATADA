@@ -967,7 +967,7 @@ TADA_FindNearbySites <- function(.data, dist_buffer = 100, nhd_res = "Hi") {
       TADA.MonitoringLocationIdentifier.New = paste(Site, collapse = ", "),
       TADA.MonitoringLocationIdentifier.New = paste("[", 
                                                     TADA.MonitoringLocationIdentifier.New, 
-                                                    "]") %>%
+                                                    "]"),
       TADA.SiteGroup = dplyr::cur_group_id()
     ) %>%
     dplyr::ungroup()
