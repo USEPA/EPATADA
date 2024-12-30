@@ -214,8 +214,10 @@ TADA_UpdateProviderRef <- function() {
 #'
 #'
 #'
-TADA_UpdateMonitoringLocationsInATTAINS <- function(org_id = NULL, crosswalk = NULL, attains_replace =
-FALSE, data_links = "update") {
+TADA_UpdateMonitoringLocationsInATTAINS <- function(org_id = NULL, 
+                                                    crosswalk = NULL, 
+                                                    attains_replace = FALSE, 
+                                                    data_links = "update") {
 
   # get list of organization identifiers from ATTAINS
   org.ref <- TADA_GetATTAINSOrgIDsRef()
@@ -231,64 +233,79 @@ FALSE, data_links = "update") {
     # remove intermediate object
     rm(org.ref)
 
-    # import assessment unit data from ATTAINS web services
-    au.data <- rATTAINS::assessment_units(organization_id = org_id)
-
-    # create assessment unit crosswalk from ATTAINS
-    attains.crosswalk <- au.data %>%
-      tidyr::unnest(monitoring_stations) %>%
-      dplyr::select(assessment_unit_identifier, monitoring_organization_identifier,
-                    monitoring_location_identifier, monitoring_data_link_text
-      ) %>%
-      dplyr::filter(!is.na(monitoring_location_identifier)) %>%
-      dplyr::distinct() %>%
-      dplyr::rename(
-        ASSESSMENT_UNIT_ID = assessment_unit_identifier,
-        MS_ORG_ID = monitoring_organization_identifier,
-        MS_LOCATION_ID = monitoring_location_identifier,
-        MONITORING_DATA_LINK_TEXT = monitoring_data_link_text
-      )
-
+    # if the crosswalk is not a data frame, stop the function
     if (!is.data.frame(crosswalk)) {
       stop(paste0("TADA_UpdateMonitoringLocationsInATTAINS: ",
                   "A crosswalk data frame with columns 'ATTAINS.assessmentunit.identifier' and ",
                   "'MonitoringLocationIdentifier' is required to run this function."))}
 
+    # check that crosswalk is a data frame before proceeding
     if(is.data.frame(crosswalk)) {
 
-      if(!c("ASSESSMENT_UNIT_ID", "MS_ORG_ID", "MS_LOCATION_ID", "MONITORING_DATA_LINK_TEXT") %in%
+      # check that required columns are in crosswalk
+      if(!c("ASSESSMENT_UNIT_ID", "MS_LOCATION_ID") %in%
          names(crosswalk)) {
 
+        # stop function if required columns are not present
         stop(paste0("TADA_UpdateMonitoringLocationsInATTAINS: ",
                     "The user-supplied crosswalk data frame does not contain all required columns: ",
-                    "ASSESSMENT_UNIT_ID, MS_ORG_IG, MS_LOCATION_ID, and MONITORING_DATA_LINK_TEXT."))
+                    "ASSESSMENT_UNIT_ID, MS_LOCATION_ID, and MS_ORG_ID."))
       }
 
-      if(c("ASSESSMENT_UNIT_ID", "MS_ORG_ID", "MS_LOCATION_ID", "MONITORING_DATA_LINK_TEXT") %in%
+      # continue function if required columns are present
+      if(c("ASSESSMENT_UNIT_ID", "MS_LOCATION_ID", "MS_ORG_ID") %in%
          names(crosswalk)){
-
-        update.crosswalk <- attains.crosswalk %>%
-          dplyr::filter(ASSESSMENT_UNIT_ID %in% crosswalk$ASSESSMENT_UNIT_ID)
 
 
         if(replace == FALSE) {
+          
+          # import assessment unit data from ATTAINS web services
+          au.data <- rATTAINS::assessment_units(organization_id = org_id)
+          
+          # create assessment unit crosswalk from ATTAINS
+          attains.crosswalk <- au.data %>%
+            tidyr::unnest(monitoring_stations) %>%
+            dplyr::select(assessment_unit_identifier, monitoring_organization_identifier,
+                          monitoring_location_identifier, monitoring_data_link_text
+            ) %>%
+            dplyr::filter(!is.na(monitoring_location_identifier)) %>%
+            dplyr::distinct() %>%
+            dplyr::rename(
+              ASSESSMENT_UNIT_ID = assessment_unit_identifier,
+              MS_ORG_ID = monitoring_organization_identifier,
+              MS_LOCATION_ID = monitoring_location_identifier,
+              MONITORING_DATA_LINK_TEXT = monitoring_data_link_text
+            )
+          
+          rm(au.data)
+          
+          # filter crosswalk from ATTAINS to retain only Assessment Units included in user-supplied 
+          # crosswalk
+          attains.crosswalk <- attains.crosswalk %>%
+            dplyr::filter(ASSESSMENT_UNIT_ID %in% crosswalk$ASSESSMENT_UNIT_ID)
 
-          update.crosswalk2 <- update.crosswalk %>%
-            rbind(attains.crosswalk) %>%
+          # combine user supplied and attains crosswalks to create one crosswalk
+          # no rows are omitted
+          update.crosswalk <- attains.crosswalk %>%
+            rbind(crosswalk) %>%
             dplyr::distinct()
+          
+          rm(attains.crosswalk, crosswalk)
         }
 
-# when replace is true, should existing info for data links be considered/retained?
+      # when replace is true, only rows in user-supplied crosswalk are used
 
         if(replace == TRUE) {
 
-          update.crosswalk2 <- crosswalk
+          update.crosswalk <- crosswalk
+          
+          rm(attains.crosswalk, crosswalk)
 
         }
 
-        # trying to add data links - need to learn more about WQP web services (HRM 12/26/24)
+        # add Monitoring Location data links if desired
 
-        if(!is.null(data_links)) {
+        if(data_links != "none") {
           
         provider.ref <- TADA_GetProviderRef() %>%
           dplyr::rename(MS_ORG_ID = OrganizationIdentifier) %>%
