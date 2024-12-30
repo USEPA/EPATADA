@@ -854,7 +854,7 @@ TADA_FormatDelimitedString <- function(delimited_string, delimiter = ",") {
 #' GroupNearbySites_100m <- TADA_FindNearbySites(Data_Nutrients_UT)
 #' GroupNearbySites_10m <- TADA_FindNearbySites(Data_Nutrients_UT, dist_buffer = 10)
 #'
-TADA_FindNearbySites <- function(.data, dist_buffer = 100, nhd_res = "Hi") {
+TADA_FindNearbySites <- function(.data, dist_buffer = 100, nhd_res = "Hi", org_hierarchy) {
   # check .data is data.frame
   TADA_CheckType(.data, "data.frame", "Input object")
 
@@ -1004,7 +1004,7 @@ TADA_FindNearbySites <- function(.data, dist_buffer = 100, nhd_res = "Hi") {
   }
 
   # use org hierarchy for first round of metadata selection
-  if (is.null(org_hierarchy)) {
+  if (org_hierarchy == "none") {
     # create consistent org rank to facilitate meta data selection (all orgs ranked equally)
     org.ranks.added %>%
       .data() %>%

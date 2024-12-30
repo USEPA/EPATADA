@@ -4,7 +4,7 @@
 \alias{TADA_FindNearbySites}
 \title{Identify and group nearby monitoring locations (UNDER ACTIVE DEVELOPMENT)}
 \usage{
-TADA_FindNearbySites(.data, dist_buffer = 100, nhd_res = "Hi")
+TADA_FindNearbySites(.data, dist_buffer = 100, nhd_res = "Hi", org_hierarchy)
 }
 \arguments{
 \item{.data}{TADA dataframe OR TADA sites dataframe}
