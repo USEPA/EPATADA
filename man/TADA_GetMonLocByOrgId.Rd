@@ -22,7 +22,6 @@ monitoring location. The user can select whether the monitoring location identif
 displays the original WQP 'MonitoringLocation' or the 'TADA.MonitoringLocationIdentifier'.
 }
 \examples{
-
 \dontrun{
 
 }
