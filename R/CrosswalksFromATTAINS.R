@@ -177,16 +177,29 @@ TADA_UpdateProviderRef <- function() {
 #' Assessment Unit profiles in ATTAINS.Users can specify whether all MonitoringLocation records
 #' should be overwritten or if any new MonitoringLocations should be appended to existing records.
 #'
-#' @param org_id The ATTAINS organization identifier must be supplied by the user. A list of
-#' organization identifiers can be found by downloading the ATTAINS Domains Excel file:
-#' https://www.epa.gov/system/files/other-files/2023-09/DOMAINS.xlsx. Organization identifiers
+#' @param org_id Character argument. The ATTAINS organization identifier must be supplied by the 
+#' user. A list of organization identifiers can be found by downloading the ATTAINS Domains Excel 
+#' file: https://www.epa.gov/system/files/other-files/2023-09/DOMAINS.xlsx. Organization identifiers
 #' are listed in the "OrgName" tab. The "code" column contains the organization identifiers that
 #' should be used for this param.
+#' 
+#' @param data_links Character argument. When data_links is equal to "update" or "replace", the
+#' function will build the URL for the Water Quality Portal Data Site page for each Monitoring
+#' Location in the df. It will examine the response codes of the URLs and only retain those with a 
+#' 200 response. When data_links = "update", the url will be added to any existing text in the
+#' MS_DATA_LINK_TEXT column. When data_links = "replace", the url will replace any exisitng test in
+#' the MS_DATA_LINK_TEXT column. When data_links = "none", no URLs will be created or added to the
+#' df. Default is data_links = "update".
+#' 
+#' @param attains_replace Character argument. When attains_replace = FALSE, all Monitoring 
+#' Locations associated with an Assessment Unit in ATTAINS will be retained even if they are not
+#' included in the user supplied crosswalk. When attains_replace = TRUE, Monitoring Locations will
+#' only be retained if they are in the user supplied crosswalk. Default equals FALSE.
+#' 
+#' @param crosswalk A user-supplied data frame with the columns ASSESSMENT_UNIT_ID and 
+#' MS_LOCATION_ID.
 #'
-#' @param crosswalk A user-supplied data frame with the columns
-#'
-#'
-#' @return The Assessment Unit csv batch upload files for ATTAINS.
+#' @return The csv batch upload files for ATTAINS to update Monitoring Locations.
 #'
 #' @export
 #'
@@ -200,23 +213,9 @@ TADA_UpdateProviderRef <- function() {
 
 #'
 #'
-
-# fields that are needed to create bacth upload:
-#  AssessmentUnits <- ASSESSMENT_UNIT_ID, ASSESSMENT_UNIT_NAME, ASSESSMENT_UNIT_STATE, ASSESSMENT_UNIT_AGENCY,
-# ASSESSMENT_UNIT_COMMENT, LOCATION_DESCRIPTION
-
-# Water_Types <- ASSESSMENT_UNIT_ID, WATER_TYPE, WATER_SIZE, WATER_UNIT, SIZE_SOURCE,
-# ESTIMATION_METHOD, SOURCE_SCALE
-
-# Locations <- ASSESSMENT_UNIT_ID, LOCATION_TYPE_CODE, LOCATION_TYPE_CONEXT, LOCATION_TEXT
-
-# Monitoring_Stations <- ASSESSMENT_UNIT_ID, MS_ORG_ID, MS_LOCATION_ID, MS_DATA_LINK
-# 
-# 
-TADA_UpdateMonitoringLocationsInATTAINS <- function(org_id = NULL, crosswalk = NULL, replace =
-FALSE, attains.import = "update",
-                                                    add.link = TRUE) {
-
+#'
+TADA_UpdateMonitoringLocationsInATTAINS <- function(org_id = NULL, crosswalk = NULL, attains_replace =
+FALSE, data_links = "update") {
 
   # get list of organization identifiers from ATTAINS
   org.ref <- TADA_GetATTAINSOrgIDsRef()
@@ -289,6 +288,8 @@ FALSE, attains.import = "update",
 
         # trying to add data links - need to learn more about WQP web services (HRM 12/26/24)
 
+        if(!is.null(data_links)) {
+          
         provider.ref <- TADA_GetProviderRef() %>%
           dplyr::rename(MS_ORG_ID = OrganizationIdentifier) %>%
           dplyr::mutate(OrgIDForURL = MS_ORG_ID)
@@ -313,15 +314,64 @@ FALSE, attains.import = "update",
           dplyr::left_join(add.orgs) 
         
         total <- matched.crosswalks %>%
-          dplyr::bind_rows(nomatch.org)
+          dplyr::bind_rows(nomatch.org) %>%
+          dplyr::distinct()
         
-        # next build the URLS for ms location url
+        # next build the URLS for ms location urls
+        add.urls <- total %>%
+          dplyr::mutate(MONITORING_DATA_LINK_TEXT.New = ifelse(
+            is.na(OrgIDForURL), NA,
+            paste0("https://www.waterqualitydata.us/provider/", ProviderName,
+                   "/", OrgIDForURL, "/", OrgIDForURL, "-", MS_LOCATION_ID, "/")))
+        
+        # retrieve http response headers from url list
+        headers <- add.urls$MONITORING_DATA_LINK_TEXT.New %>%
+          purrr::map(~ tryCatch(curlGetHeaders(.x), error = function(e) NA))
+        
+        # extract response code from first line of header response
+        response_code <- sapply(headers, "[[", 1)
+        
+        # create data frame of urls and response codes
+        response.df <- data.frame(add.urls$MONITORING_DATA_LINK_TEXT.New, response_code) %>%
+          dplyr::rename(MONITORING_DATA_LINK_TEXT.New = add.urls.MONITORING_DATA_LINK_TEXT.New) %>%
+          dplyr::distinct()
+        
+        # join response codes to add.urls df
+        add.urls2 <- add.urls %>%
+          dplyr::left_join(response.df, by = dplyr::join_by(MONITORING_DATA_LINK_TEXT.New))
+        
+        if(data_links == "replace") {
+          add.urls3 <- add.urls2 %>%
+            dplyr::mutate(MONITORING_DATA_LINK_TEXT = ifelse(
+              grepl("200", response_code), MONITORING_DATA_LINK_TEXT.New,
+              MONITORING_DATA_LINK_TEXT
+            ))
+        }
+        
+        if(data_links == "update") {
+          add.urls3 <- add.urls2 %>%
+            dplyr::mutate(MONITORING_DATA_LINK_TEXT = ifelse(
+              grepl("200", response_code), 
+              paste0(MONITORING_DATA_LINK_TEXT, ", ", MONITORING_DATA_LINK_TEXT.New),
+              MONITORING_DATA_LINK_TEXT
+            ),
+            MONITORING_DATA_LINK_TEXT = stringr::str_remove_all(MONITORING_DATA_LINK_TEXT,
+                                                                "NA, ")) %>%
+            tidyr::separate_rows(MONITORING_DATA_LINK_TEXT, sep = ", ") %>%
+            dplyr::group_by(ASSESSMENT_UNIT_ID, MS_ORG_ID, MS_LOCATION_ID) %>%
+            suppressMessages(dplyr::summarise(MONITORING_DATA_LINK_TEXT = paste(unique(
+              MONITORING_DATA_LINK_TEXT), collapse = ", "))) %>%
+            dplyr::select(ASSESSMENT_UNIT_ID, MS_ORG_ID, MS_LOCATION_ID, MONITORING_DATA_LINK_TEXT) %>%
+            dplyr::distinct()
+            
+        }
+        
         
          
-
+}
         
 
-    }
+    }}}}
 
 
 
