@@ -834,15 +834,19 @@ TADA_FormatDelimitedString <- function(delimited_string, delimiter = ",") {
 #'    greatest number of results, and "random" which selects random metadata from the site group.
 #'    The default is meta_select = "random".
 #'
-#' @return Input dataframe with a TADA.MonitoringLocationIdentifier column that
-#'  indicates the nearby site groups each monitoring location belongs to. Grouped
+#' @return Input dataframe with a TADA.SiteGruop column that
+#'  indicates the nearby site group each monitoring location belongs to. Grouped
 #'  sites are concatenated in the TADA.MonitoringLocationIdentifier column
 #'  (e.g. "USGS-10010025","USGS-10010026" enclosed in square brackets []).
 #'  This JSON array is the new TADA monitoring location ID for the grouped sites.
 #'  TADA.MonitoringLocationIdentifier can be leveraged to analyze data from
 #'  nearby sites together (as the same general location). Related metadata, including
 #'  TADA.MonitoringLocationName, TADA.LatitudeMeasure, TADA.LongitudeMeasure, and
-#'  TADA.MonitoringLocationTypeName are added to the input df.
+#'  TADA.MonitoringLocationTypeName are added to the input df. Meta data selection is determined by
+#'  user inputs as users may provide an organization hierarchy to determine which organization's
+#'  metadata should be preferentially selected and further specify whether meta data should be
+#'  selected: randomly, by the oldest or newest sampling date, or by the site with the greatest 
+#'  number of overall results in the TADA df.
 #'
 #' @export
 #'
@@ -851,12 +855,14 @@ TADA_FormatDelimitedString <- function(delimited_string, delimiter = ",") {
 #' GroupNearbySites_10m <- TADA_FindNearbySites(Data_Nutrients_UT, dist_buffer = 10)
 #'
 TADA_FindNearbySites <- function(.data, dist_buffer = 100, nhd_res = "Hi") {
-  # should additional argument for hi vs med resolution for nhd plus be added?
   # check .data is data.frame
   TADA_CheckType(.data, "data.frame", "Input object")
 
   # .data required columns
-  required_cols <- c("TADA.MonitoringLocationIdentifier", "TADA.LongitudeMeasure", "TADA.LatitudeMeasure")
+  required_cols <- c("TADA.MonitoringLocationIdentifier", 
+                     "TADA.LongitudeMeasure", 
+                     "TADA.LatitudeMeasure")
+  
   # check .data has required columns
   TADA_CheckColumns(.data, required_cols)
 
@@ -958,7 +964,10 @@ TADA_FindNearbySites <- function(.data, dist_buffer = 100, nhd_res = "Hi") {
     dplyr::mutate(Count = length(Site)) %>%
     dplyr::filter(Count > 1) %>%
     dplyr::mutate(
-      TADA.MonitoringLocationIdentifier.New = paste(Site, collapse = "/"),
+      TADA.MonitoringLocationIdentifier.New = paste(Site, collapse = ", "),
+      TADA.MonitoringLocationIdentifier.New = paste("[", 
+                                                    TADA.MonitoringLocationIdentifier.New, 
+                                                    "]") %>%
       TADA.SiteGroup = dplyr::cur_group_id()
     ) %>%
     dplyr::ungroup()
@@ -979,7 +988,7 @@ TADA_FindNearbySites <- function(.data, dist_buffer = 100, nhd_res = "Hi") {
     ) %>%
     dplyr::distinct()
 
-  # create a df of unique grouped sites, do not ionclude any actiivty start dates
+  # create a df of unique grouped sites, do not include any activity start dates
   grouped.no.dates <- grouped.sites %>%
     dplyr::select(-ActivityStartDate) %>%
     dplyr::distinct()
@@ -1064,13 +1073,6 @@ TADA_FindNearbySites <- function(.data, dist_buffer = 100, nhd_res = "Hi") {
       dplyr::slice_min(OrgRank)
 
     rm(org.ranks)
-
-    # find number of grouped sites by TADA.MonitoringLocationIdentifier.New
-    # for dev/internal testing (HRM 12/26/24)
-    # n.grouped.sites <- grouped.no.dates %>%
-    #   dplyr::select(TADA.MonitoringLocationIdentifier.New) %>%
-    #   dplyr::distinct()
-    #   nrow()
   }
 
   # add org ranks to df of all TADA.MonitoringLocationIdentifier.New
