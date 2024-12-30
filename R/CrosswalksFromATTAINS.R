@@ -271,7 +271,7 @@ FALSE, data_links = "update") {
           dplyr::filter(ASSESSMENT_UNIT_ID %in% crosswalk$ASSESSMENT_UNIT_ID)
 
 
-        if(replace = FALSE) {
+        if(replace == FALSE) {
 
           update.crosswalk2 <- update.crosswalk %>%
             rbind(attains.crosswalk) %>%
@@ -280,7 +280,7 @@ FALSE, data_links = "update") {
 
 # when replace is true, should existing info for data links be considered/retained?
 
-        if(replace = TRUE) {
+        if(replace == TRUE) {
 
           update.crosswalk2 <- crosswalk
 
@@ -421,8 +421,7 @@ FALSE, data_links = "update") {
 
     # Monitoring_Stations <- ASSESSMENT_UNIT_ID, MS_ORG_ID, MS_LOCATION_ID, MS_DATA_LINK
 
-  }
-}
+
 
 
 
