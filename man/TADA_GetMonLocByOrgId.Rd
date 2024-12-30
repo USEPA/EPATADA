@@ -21,9 +21,3 @@ This function creates a data frame with two columns to show the organization ide
 monitoring location. The user can select whether the monitoring location identifier column
 displays the original WQP 'MonitoringLocation' or the 'TADA.MonitoringLocationIdentifier'.
 }
-\examples{
-\dontrun{
-
-}
-
-}

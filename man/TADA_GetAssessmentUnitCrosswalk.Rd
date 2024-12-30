@@ -23,11 +23,10 @@ Assessment Units in ATTAINS, this function can be used to create a crosswalk of 
 MonitoringLocationIdentifier and Assessment Units.
 }
 \examples{
-# Alaska example
-AK_crosswalk <- TADA_GetAssessmentUnitCrosswalk(org_id = "AKDECWQ")
 
 \dontrun{
-
+# Alaska example
+AK_crosswalk <- TADA_GetAssessmentUnitCrosswalk(org_id = "AKDECWQ")
 }
 
 }

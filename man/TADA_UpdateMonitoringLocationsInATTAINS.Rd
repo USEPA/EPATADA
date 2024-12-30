@@ -43,13 +43,10 @@ Assessment Unit profiles in ATTAINS.Users can specify whether all MonitoringLoca
 should be overwritten or if any new MonitoringLocations should be appended to existing records.
 }
 \examples{
-# Alaska example
-AK_crosswalk <- TADA_GetAssessmentUnitCrosswalk(org_id = "AKDECWQ")
 
 \dontrun{
-
+# Alaska example
+AK_crosswalk <- TADA_GetAssessmentUnitCrosswalk(org_id = "AKDECWQ")
 }
-
-
 
 }

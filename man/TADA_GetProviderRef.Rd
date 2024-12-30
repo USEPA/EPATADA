@@ -15,10 +15,8 @@ ProviderName.
 }
 \examples{
 
-provider.ref <- TADA_GetProviderRef()
-
 \dontrun{
-
+provider.ref <- TADA_GetProviderRef()
 }
 
 }
