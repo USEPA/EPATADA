@@ -250,10 +250,10 @@ TADA_UpdateMonitoringLocationsInATTAINS <- function(org_id = NULL,
       expected_cols <- c(
         "ASSESSMENT_UNIT_ID",
         "MS_LOCATION_ID",
-        "TADA.ResultMeasureValueDataTypes.Flag"
+        "MS_ORG_ID"
       )
 
-      TADA_CheckColumns(crossawlk, expected_cols)
+      TADA_CheckColumns(crosswalk, expected_cols)
 
       if (replace == FALSE) {
         # import assessment unit data from ATTAINS web services
