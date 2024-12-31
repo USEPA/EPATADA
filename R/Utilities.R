@@ -854,7 +854,9 @@ TADA_FormatDelimitedString <- function(delimited_string, delimiter = ",") {
 #' GroupNearbySites_100m <- TADA_FindNearbySites(Data_Nutrients_UT)
 #' GroupNearbySites_10m <- TADA_FindNearbySites(Data_Nutrients_UT, dist_buffer = 10)
 #'
-TADA_FindNearbySites <- function(.data, dist_buffer = 100, nhd_res = "Hi", org_hierarchy) {
+TADA_FindNearbySites <- function(.data, dist_buffer = 100, 
+                                 nhd_res = "Hi", 
+                                 org_hierarchy = "none") {
   # check .data is data.frame
   TADA_CheckType(.data, "data.frame", "Input object")
 
@@ -865,6 +867,8 @@ TADA_FindNearbySites <- function(.data, dist_buffer = 100, nhd_res = "Hi", org_h
   
   # check .data has required columns
   TADA_CheckColumns(.data, required_cols)
+  
+  rm(required_cols)
 
   # retain only necessary columns unique Monitoring Locations
   data_unique_mls <- .data %>%
@@ -880,14 +884,14 @@ TADA_FindNearbySites <- function(.data, dist_buffer = 100, nhd_res = "Hi", org_h
     dplyr::distinct()
 
   # convert to sf object
-  data_sf <- TADA_MakeSpatial(data_unique_mls)
+  data_unique_mls <- TADA_MakeSpatial(data_unique_mls)
 
   # fetch nhdplus catchment information
-  nhd_catchments <- fetchNHD(data_sf, resolution = nhd_res)
+  nhd_catchments <- fetchNHD(data_unique_mls, resolution = nhd_res)
 
   # join catchment data to TADA df, count how many times each catchment is included in df and
   # retain only rows containing catchments which are included more than once in the df
-  data_sf2 <- data_sf %>%
+  data_unique_mls <- data_unique_mls %>%
     sf::st_join(nhd_catchments, left = TRUE) %>%
     dplyr::rename(
       TADA.MonitoringLocationIdentifier = MonitoringLocationIdentifier,
@@ -900,7 +904,7 @@ TADA_FindNearbySites <- function(.data, dist_buffer = 100, nhd_res = "Hi", org_h
     dplyr::ungroup()
 
   # need to split into separate dfs based on nhdplusid group
-  df_nhdgroups_list <- split(data_sf2, data_sf2$NHD.nhdplusid)
+  df_nhdgroups_list <- split(data_unique_mls, data_unique_mls$NHD.nhdplusid)
 
   # prepare dfs for distance matrix
   df_nhdgroups_prep <- df_nhdgroups_list %>%
@@ -910,6 +914,8 @@ TADA_FindNearbySites <- function(.data, dist_buffer = 100, nhd_res = "Hi", org_h
         TADA.LongitudeMeasure,
         TADA.LatitudeMeasure
       ))
+  
+  rm(df_nhdgroups_list)
 
   # create a distance matrix in meters
   dist.mats <- purrr::map(df_nhdgroups_prep, ~ {
@@ -918,14 +924,11 @@ TADA_FindNearbySites <- function(.data, dist_buffer = 100, nhd_res = "Hi", org_h
     rownames(dist.matrix) <- .x$TADA.MonitoringLocationIdentifier
     colnames(dist.matrix) <- .x$TADA.MonitoringLocationIdentifier
 
-    dist.matrix
+    dist.matrix %>% purrr::map(dist.mats, ~ units::drop_units(as.matrix(.x)))
   })
 
-  # remove units class from distance matrix
-  dist.mats2 <- purrr::map(dist.mats, ~ units::drop_units(as.matrix(.x)))
-
   # convert distances to those within buffer (1) and beyond buffer (0)
-  binary.mats <- purrr::map(dist.mats2, function(mat) {
+  binary.mats <- purrr::map(dist.mats, function(mat) {
     bin.mat <- apply(mat, 2, function(x) as.integer(x <= dist_buffer))
     diag(bin.mat) <- 0
     rownames(bin.mat) <- rownames(mat)
@@ -933,6 +936,8 @@ TADA_FindNearbySites <- function(.data, dist_buffer = 100, nhd_res = "Hi", org_h
     #
     return(bin.mat)
   })
+  
+  rm(dist.mats)
 
   # loop through distance matrix and extract site groups
   find_groups <- function(matrix) {
@@ -955,14 +960,12 @@ TADA_FindNearbySites <- function(.data, dist_buffer = 100, nhd_res = "Hi", org_h
   # apply site grouping function to matrix
   site.groups.list <- purrr::map(binary.mats, find_groups)
 
-  # create df of all groups
-  combined.group.df <- dplyr::bind_rows(site.groups.list, .id = "Matrix")
-
-  # create unique id for each group
-  combined.group.df2 <- combined.group.df %>%
+  # create df of all groups and create unique id for each group
+  combined.group.df <- dplyr::bind_rows(site.groups.list, .id = "Matrix") %>%
     dplyr::group_by(Matrix, Group) %>%
     dplyr::mutate(Count = length(Site)) %>%
     dplyr::filter(Count > 1) %>%
+    # create new TADA.MonitoringLocationIdentifier
     dplyr::mutate(
       TADA.MonitoringLocationIdentifier.New = paste(Site, collapse = ", "),
       TADA.MonitoringLocationIdentifier.New = paste("[", 
@@ -971,12 +974,16 @@ TADA_FindNearbySites <- function(.data, dist_buffer = 100, nhd_res = "Hi", org_h
       TADA.SiteGroup = dplyr::cur_group_id()
     ) %>%
     dplyr::ungroup()
+  
+  rm(site.groups.list)
 
   # create crosswalk of TADA.MonitoringLocationIdentifer and new TADA.MonitoringLocationIdentifier
-  ml.crosswalk <- combined.group.df2 %>%
+  ml.crosswalk <- combined.group.df %>%
     dplyr::select(Site, TADA.MonitoringLocationIdentifier.New, TADA.SiteGroup) %>%
     dplyr::rename(TADA.MonitoringLocationIdentifier = Site) %>%
     dplyr::distinct()
+  
+  rm(combined.group.df)
 
   # create df of grouped sites, including all activity start dates for the sites
   grouped.sites <- ml.crosswalk %>%
@@ -998,19 +1005,13 @@ TADA_FindNearbySites <- function(.data, dist_buffer = 100, nhd_res = "Hi", org_h
     print("No nearby sites detected using input buffer distance.")
   }
 
-  # order columns
-  if ("ResultIdentifier" %in% names(.data)) {
-    .data <- TADA_OrderCols(.data)
-  }
-
   # use org hierarchy for first round of metadata selection
   if (org_hierarchy == "none") {
     # create consistent org rank to facilitate meta data selection (all orgs ranked equally)
-    org.ranks.added %>%
-      .data() %>%
+    org.ranks.added <- grouped.no.dates %>%
       dplyr::select(
         TADA.MonitoringLocationIdentifier.New, TADA.SiteGroup,
-        TADA.MonitoringLocationName, TADA.LatitidueMeasure,
+        TADA.MonitoringLocationName, TADA.LatitudeMeasure,
         TADA.LongitudeMeasure, TADA.MonitoringLocationTypeName,
         OrganizationIdentifier
       ) %>%
