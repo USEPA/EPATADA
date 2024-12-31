@@ -13,6 +13,8 @@ Authors@R:
     person(given = "Hillary",
            family = "Marler",
            role = "aut"),
+           email = "marler.hillary@epa.gov",
+           comment = c(ORCID = "0009-0006-0323-1172")
     person(given = "Jacob",
            family = "Greif",
            role = "aut"),
