@@ -981,7 +981,7 @@ TADA_FindNearbySites <- function(.data, dist_buffer = 100,
     # create new TADA.MonitoringLocationIdentifier
     dplyr::mutate(
       TADA.MonitoringLocationIdentifier.New = paste(Site, collapse = ", "),
-      TADA.MonitoringLocationIdentifier.New = paste("[", 
+      TADA.MonitoringLocationIdentifier.New = paste0("[", 
                                                     TADA.MonitoringLocationIdentifier.New, 
                                                     "]"),
       TADA.SiteGroup = dplyr::cur_group_id()
@@ -1281,9 +1281,9 @@ TADA_FindNearbySites <- function(.data, dist_buffer = 100,
   # remove site group from ml.crosswalk
   ml.crosswalk <- ml.crosswalk %>%
     dplyr::select(-TADA.SiteGroup) %>%
-    dplyr::d
+    dplyr::distinct()
 
-  # join selected metadat to TADA df
+  # join selected metadata to TADA df
   .data <- .data %>%
     dplyr::left_join(ml.crosswalk, by = dplyr::join_by(TADA.MonitoringLocationIdentifier)) %>%
     dplyr::left_join(select.meta, by = dplyr::join_by(TADA.MonitoringLocationIdentifier.New)) %>%
@@ -1357,7 +1357,8 @@ TADA_GetUniqueNearbySites <- function(.data) {
                      "LongitudeMeasure", "TADA.LongitudeMeasure", 
                      "LatitudeMeasure", "TADA.LatitudeMeasure",
                      "MonitoringLocationTypeName", "TADA.MonitoringLocationTypeName",
-                     "MonitoringLocationDescriptionText", "TADA.NearbySites.Flag")
+                     "MonitoringLocationDescriptionText", "TADA.NearbySites.Flag",
+                     "TADA.SiteGroup")
   # check .data has required columns
   TADA_CheckColumns(.data, required_cols)
   
