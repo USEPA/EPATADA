@@ -12,9 +12,9 @@ Authors@R:
            comment = c(ORCID = "0000-0002-0615-6087")),
     person(given = "Hillary",
            family = "Marler",
-           role = "aut"),
+           role = "aut",
            email = "marler.hillary@epa.gov",
-           comment = c(ORCID = "0009-0006-0323-1172")
+           comment = c(ORCID = "0009-0006-0323-1172")),
     person(given = "Jacob",
            family = "Greif",
            role = "aut"),
