@@ -207,7 +207,7 @@ TADA_UpdateMonitoringLocationsInATTAINS <- function(org_id = NULL,
                                                     attains_replace = FALSE,
                                                     data_links = "update") {
   # get list of organization identifiers from ATTAINS
-  org.ref <- TADA_GetATTAINSOrgIDsRef()
+  org.ref <- utils::read.csv(system.file("extdata", "ATTAINSOrgIDsRef.csv", package = "EPATADA"))
 
   # stop function if organization identifiers is not found in ATTAINS
   if (!org_id %in% org.ref$code) {
@@ -292,7 +292,9 @@ TADA_UpdateMonitoringLocationsInATTAINS <- function(org_id = NULL,
 
       if (data_links != "none") {
         # get org/provider name ref from TADA ref files
-        provider.ref <- TADA_GetProviderRef() %>%
+        provider.ref <- utils::read.csv(system.file("extdata", "WQXProviderRef.csv", package = "EPATADA")) %>%
+          dplyr::select(OrganizationIdentifier, ProviderName) %>%
+          dplyr::distinct() %>%
           dplyr::rename(MS_ORG_ID = OrganizationIdentifier) %>%
           dplyr::mutate(OrgIDForURL = MS_ORG_ID)
 
