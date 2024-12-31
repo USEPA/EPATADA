@@ -12,6 +12,7 @@ TADA_UpdateAllRefs <- function() {
   TADA_UpdateCharacteristicRef()
   TADA_UpdateMeasureQualifierCodeRef()
   TADA_UpdateMonLocTypeRef()
+  TADA_UpdateEPA304aRef()
 }
 
 # # update tribal layers

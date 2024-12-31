@@ -120,21 +120,19 @@ TADA_CreateParamRef <- function(.data, org_names = NULL, paramRef = NULL, excel 
   # check to see if user-supplied parameter ref is a df with appropriate columns and filled out.
   if (!is.null(paramRef) & !is.character(paramRef)) {
     if (!is.data.frame(paramRef)) {
-      stop("TADA_CreateParamRef: 'paramRef' must be a data frame with either these four columns: TADA.CharacteristicName, TADA.MethodSpeciationName, TADA.ResultSampleFractionText, ATTAINS.ParameterName
-            or with these 2 columns: TADA.ComparableDataIdentifier and ATTAINS.ParameterName")
+      stop("TADA_CreateParamRef: 'paramRef' must be a data frame with these 2 columns: TADA.ComparableDataIdentifier and ATTAINS.ParameterName")
     }
     
     if (is.data.frame(paramRef)) {
       col.names <- c(
-        "TADA.CharacteristicName", "TADA.MethodSpeciationName", "TADA.ResultSampleFractionText", "ATTAINS.ParameterName"
+        "TADA.ComparableDataIdentifier", "ATTAINS.ParameterName"
       )
       
       ref.names <- names(paramRef)
       
-      # Users are required to provide a parameter ref that contains either TADA.CharacteristicName, TADA.MethodSpeciationName, TADA.ResultSampleFractionText, ATTAINS.ParameterName or TADA.ComparableDataIdentifier and ATTAINS.ParameterName
+      # Users are required to provide a parameter ref that contains TADA.ComparableDataIdentifier and ATTAINS.ParameterName
       if (length(setdiff(col.names, ref.names)) > 0 && !("TADA.ComparableDataIdentifier" %in% names(paramRef))) {
-        stop("TADA_CreateParamRef: 'paramRef' must be a data frame with either these four columns: TADA.CharacteristicName, TADA.MethodSpeciationName, TADA.ResultSampleFractionText, ATTAINS.ParameterName
-              or these 2 columns: TADA.ComparableDataIdentifier and ATTAINS.ParameterName")
+        stop("TADA_CreateParamRef: 'paramRef' must be a data frame with either these 2 columns: TADA.ComparableDataIdentifier and ATTAINS.ParameterName")
       }
     }
   }
@@ -176,7 +174,7 @@ TADA_CreateParamRef <- function(.data, org_names = NULL, paramRef = NULL, excel 
   }
   
   # 304a parameter name and standards are pulled in from the Criteria Search Tool (CST)
-  CST_param <- TADA_GetEPA304aRef()
+  CST_param <- utils::read.csv(system.file("extdata", "CST.csv", package = "EPATADA"))
   
   # Pulls in all unique combinations of TADA.ComparableDataIdentifier in user's dataframe.
   TADA_param <- dplyr::distinct(.data[, c("TADA.CharacteristicName", "TADA.ComparableDataIdentifier")]) %>%
@@ -233,8 +231,6 @@ TADA_CreateParamRef <- function(.data, org_names = NULL, paramRef = NULL, excel 
       dplyr::select(TADA.CharacteristicName, TADA.ComparableDataIdentifier, organization_name, EPA304A.PollutantName, ATTAINS.ParameterName) %>%
       dplyr::filter(organization_name %in% org_names) %>%
       dplyr::arrange(organization_name, TADA.CharacteristicName) %>%
-      # group_by(TADA.CharacteristicName, TADA.MethodSpeciationName, TADA.ResultSampleFractionText, EPA304A.PollutantName) %>%
-      # filter(if(sum(!is.na(organization_name))) !is.na(organization_name) else T) %>%
       dplyr::distinct()
   }
   
@@ -317,13 +313,16 @@ TADA_CreateParamRef <- function(.data, org_names = NULL, paramRef = NULL, excel 
     rm(CST_param, ATTAINS_param, ATTAINS_param_all)
     
     for (i in 1:nrow(CreateParamRef)) {
-      openxlsx::writeFormula(wb, "CreateParamRef",
-                             startCol = 6, startRow = i + 1, array = TRUE,
-                             x = paste0("=IF(OR(E", i + 1, '="",E', i + 1, '="No parameter match for TADA.ComparableDataIdentifier"),
-                   "No parameter crosswalk provided for TADA.ComparableDataIdentifier. Parameter will not be used for assessment",IF(ISNA(MATCH(E', i + 1, ',Index!H:H,0)),
-                   "Parameter name is not included in ATTAINS, contact ATTAINS to add parameter name to Domain List",IF(ISNA(MATCH(1,(E', i + 1, "=ATTAINSOrgNamesParamRef!E:E)*(C", i + 1, '=ATTAINSOrgNamesParamRef!B:B),0)),
-                   "Parameter name is listed as a prior cause in ATTAINS, but not for this organization",
-                   "Parameter name is listed as a prior cause in ATTAINS for this organization")))')
+      openxlsx::writeFormula(wb, "CreateParamRef", startCol = 6, startRow = i + 1, array = TRUE,
+        x = paste0(
+        "=IF(OR(E", i + 1, '="",E', i + 1, 
+          '="No parameter match for TADA.ComparableDataIdentifier"),"No parameter crosswalk provided for TADA.ComparableDataIdentifier. Parameter will not be used for assessment",
+        IF(ISNA(MATCH(E', i + 1, ',Index!H:H,0)),
+          "Parameter name is not included in ATTAINS, contact ATTAINS to add parameter name to Domain List",
+        IF(ISNA(MATCH(1,(E', i + 1, "=ATTAINSOrgNamesParamRef!E:E)*(C", i + 1, '=ATTAINSOrgNamesParamRef!B:B),0)),
+          "Parameter name is listed as a prior cause in ATTAINS, but not for this organization",
+          "Parameter name is listed as a prior cause in ATTAINS for this organization")))'
+        )
       )
       
       openxlsx::conditionalFormatting(wb, "CreateParamRef",
@@ -504,18 +503,18 @@ TADA_CreateParamUseRef <- function(.data, org_names = NULL, paramRef = NULL, exc
   # check to see if user-supplied parameter ref is a df with appropriate columns and is filled out.
   if (!is.null(paramRef) & !is.character(paramRef)) {
     if (!is.data.frame(paramRef)) {
-      stop("TADA_CreateParamUseRef: 'paramRef' must be a data frame with either these four columns: TADA.CharacteristicName, TADA.MethodSpeciationName, TADA.ResultSampleFractionText, ATTAINS.ParameterName or these 2 columns: TADA.ComparableDataIdentifier and ATTAINS.ParameterName")
+      stop("TADA_CreateParamUseRef: 'paramuseRef' must be a data frame with these 2 columns: TADA.ComparableDataIdentifier and ATTAINS.ParameterName")
     }
     
     if (is.data.frame(paramRef)) {
       col.names <- c(
-        "TADA.CharacteristicName", "TADA.MethodSpeciationName", "TADA.ResultSampleFractionText", "ATTAINS.ParameterName"
+        "TADA.ComparableDataIdentifier", "ATTAINS.ParameterName"
       )
       
       ref.names <- names(paramRef)
       
       if (length(setdiff(col.names, ref.names)) > 0 && !("TADA.ComparableDataIdentifier" %in% names(paramRef))) {
-        stop("TADA_CreateParamUseRef: 'paramRef' must be a data frame with either these four columns: TADA.CharacteristicName, TADA.MethodSpeciationName, TADA.ResultSampleFractionText, ATTAINS.ParameterName or these 2 columns: TADA.ComparableDataIdentifier and ATTAINS.ParameterName")
+        stop("TADA_CreateParamUseRef: 'paramuseRef' must be a data frame with these 2 columns: TADA.ComparableDataIdentifier and ATTAINS.ParameterName")
       }
     }
   }
@@ -523,7 +522,7 @@ TADA_CreateParamUseRef <- function(.data, org_names = NULL, paramRef = NULL, exc
   .data <- as.data.frame(.data)
   
   # Pulls in all domain values of parameter and use names by orgs in ATTAINS. Filtering by state is done in the next steps.
-  ATTAINS_param_all <- TADA_GetATTAINSParamUseOrgRef()
+  ATTAINS_param_all <- utils::read.csv(system.file("extdata", "ATTAINSParamUseEntityRef.csv", package = "EPATADA"))
   
   if (!is.null(paramRef) & !("TADA.ComparableDataIdentifier" %in% names(paramRef))) {
     paramRef <- paramRef %>%
@@ -531,14 +530,19 @@ TADA_CreateParamUseRef <- function(.data, org_names = NULL, paramRef = NULL, exc
       dplyr::select("TADA.CharacteristicName", "TADA.ComparableDataIdentifier", "organization_name", "EPA304A.PollutantName", "ATTAINS.ParameterName", "ATTAINS.FlagParameterName")
   }
   
-  # If user does not provide org names, then it will attempt to pull in org name from what is found in the data frame
+  # if user doesn't provide an org_names argument, the function extracts the unique org_names from TADA_GetATTAINS().
+  # Users will need to have ran TADA_GetATTAINS() for this option to be allowed. Selection of org_names will filter the drop down lists in future steps of creating the reference tables.
   if (is.null(org_names)) {
+    print("TADA.CreateParamUseRef: No organization name(s) provided. Attempting to pull in organization names found in the TADA data frame.
+          Please ensure that you have ran TADA_GetATTAINS if you did not provide an org_names argument input.")
+    print("Users should provide a list of ATTAINS organization state or tribal name that pertains to their assessment.")
+    TADA_CheckColumns(.data, "ATTAINS.organizationname")
     org_names <- unique(stats::na.omit(.data[, "ATTAINS.organizationname"]))
   }
   
   org_names <- as.list(org_names)
   
-  # Checks if org_names are valid names found in ATTAINS - with the exception of "EPA304a" as that is not an ATTAINS org_names
+  # Checks if org_names are valid names found in ATTAINS - with the exception of "EPA304a" as that is not an ATTAINS org_names.
   if (sum(!org_names[org_names != "EPA304a"] %in% ATTAINS_param_all$organization_name) > 0) {
     warning(paste0(
       "TADA_CreateParamRef: ",
@@ -546,6 +550,7 @@ TADA_CreateParamUseRef <- function(.data, org_names = NULL, paramRef = NULL, exc
     ))
   }
   
+  # Filters the ATTAINS parameter and use names by the org_names in user supplied df.
   ATTAINS_param <- ATTAINS_param_all %>%
     dplyr::select(organization_name, parameter, use_name) %>%
     dplyr::filter(parameter %in% paramRef$ATTAINS.ParameterName) %>%
@@ -554,7 +559,6 @@ TADA_CreateParamUseRef <- function(.data, org_names = NULL, paramRef = NULL, exc
   # Create the parameter-use reference table for validation
   CreateParamUseRef <- paramRef %>%
     dplyr::ungroup() %>%
-    # separate_rows(organization_name, sep = ", ") %>%
     dplyr::left_join(ATTAINS_param, by = c("ATTAINS.ParameterName" = "parameter", "organization_name"), relationship = "many-to-many") %>%
     dplyr::select(TADA.ComparableDataIdentifier, organization_name, EPA304A.PollutantName, ATTAINS.ParameterName, use_name) %>%
     tidyr::drop_na(ATTAINS.ParameterName) %>%
@@ -563,7 +567,7 @@ TADA_CreateParamUseRef <- function(.data, org_names = NULL, paramRef = NULL, exc
   
   # If users want the EPA304a standards. This pulls in the CST reference file. Extracts the associated EPA304a pollutant names and its use_names.
   if ("EPA304a" %in% org_names) {
-    CST_param <- TADA_GetEPA304aRef() %>%
+    CST_param <- utils::read.csv(system.file("extdata", "CST.csv", package = "EPATADA")) %>%
       dplyr::select(EPA304A.PollutantName = POLLUTANT_NAME, use_name) %>%
       dplyr::mutate(organization_name = "EPA304a")
     
@@ -582,8 +586,7 @@ TADA_CreateParamUseRef <- function(.data, org_names = NULL, paramRef = NULL, exc
     
     # remove intermediate object EPA_param
     rm(EPA_param)
-    # remove intermediate columns
-    rm(organization_name.y, use.name.y)
+
   }
   
   # This updates the flagging column. Users who only creates an R dataframe in the R environment will need to ensure they re-run the function with their completed paramRef as an input to reflect this column accurately.
@@ -602,14 +605,15 @@ TADA_CreateParamUseRef <- function(.data, org_names = NULL, paramRef = NULL, exc
   CreateParamUseRef <- CreateParamUseRef %>%
     dplyr::left_join(Flag2, c("ATTAINS.ParameterName", "use_name", "organization_name")) %>%
     dplyr::left_join(Flag1, c("use_name", "organization_name")) %>%
+    dplyr::mutate(IncludeOrExclude = "Include") %>%
     dplyr::mutate(ATTAINS.FlagUseName = dplyr::case_when(
+      IncludeOrExclude == "Exclude" ~  "Parameter and use name does not apply for this TADA.ComparableDataIdentifier. Will exclude from assessment.",
       is.na(use_name) ~ "No use name is provided. Consider choosing an appropriate use_name that applies for assessment",
       organization_name == "EPA304a" ~ "Will use the EPA304a recommended standards for this parameter. Do not edit EPA304a use_name",
       organization_name != "EPA304a" ~ "Parameter name and use name are listed as prior cause in ATTAINS for this org and will be used for assessments",
       !is.na(ATTAINS.FlagUseName2) ~ ATTAINS.FlagUseName2,
       !is.na(ATTAINS.FlagUseName1) ~ ATTAINS.FlagUseName1,
     )) %>%
-    dplyr::mutate(IncludeOrExclude = "Include") %>%
     dplyr::select(TADA.ComparableDataIdentifier, organization_name, EPA304A.PollutantName, ATTAINS.ParameterName, use_name, IncludeOrExclude, ATTAINS.FlagUseName)
   
   # remove intermediate objects
@@ -669,10 +673,14 @@ TADA_CreateParamUseRef <- function(.data, org_names = NULL, paramRef = NULL, exc
     # Export CreateParamUseRef dataframe into the excel spreadsheet tab
     openxlsx::writeData(wb, "CreateParamUseRef", startCol = 1, x = CreateParamUseRef, headerStyle = header_st)
     
+    # Index of allowable values for drop-down lists
+    openxlsx::writeData(wb, "Index", startCol = 2, x = data.frame("IncludeOrExclude" = c("Include", "Exclude")))
+
     # data validation drop down list created below. 
     # Note: ATTAINSOrgNamesParamRef contains the list of prior param and use cause by org names specific.
     # Since Use Names are individual to each Organization.  
     suppressWarnings(openxlsx::dataValidation(wb, sheet = "CreateParamUseRef", cols = 5, rows = 2:1000, type = "list", value = sprintf("'ATTAINSOrgNamesParamRef'!$D$2:$D$50000"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE))
+    suppressWarnings(openxlsx::dataValidation(wb, sheet = "CreateParamUseRef", cols = 6, rows = 2:1000, type = "list", value = sprintf("'Index'!$B$2:$B$5"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE))
     
     for (i in 1:nrow(CreateParamUseRef)) {
       openxlsx::conditionalFormatting(wb, "CreateParamUseRef",
@@ -690,16 +698,18 @@ TADA_CreateParamUseRef <- function(.data, org_names = NULL, paramRef = NULL, exc
                                       type = "contains", rule = c("Include"), style = openxlsx::createStyle(bgFill = TADA_ColorPalette()[8])
       )
       
-      openxlsx::writeFormula(wb, "CreateParamUseRef",
-                             startCol = 7, startRow = i + 1, array = TRUE,
-                             x = paste0("=IF(B", i + 1, '="EPA304a",
-                                "Will use the EPA304a recommended standards for this parameter. Do not edit EPA304a use_name",
-                             IF(ISBLANK(E', i + 1, '), 
-                                "No use name is provided. Consider choosing an appropriate use_name that applies for assessment",
-                             IF(ISNA(MATCH(1,(E', i + 1, '=Index!G:G)*(B', i + 1, '=Index!E:E),0)),
-                                "Use name is not listed as a prior use for this organization",IF(ISNA(MATCH(1,(D', i + 1, "=Index!H:H)*(E", i + 1, "=Index!G:G)*(B", i + 1, '=Index!E:E),0)),
-                                "Use name is listed as a prior use name in this organization but not for this parameter name",
-                                "Parameter name and use name are listed as prior cause in ATTAINS for this org and will be used for assessments"))))')
+      openxlsx::writeFormula(wb, "CreateParamUseRef", startCol = 7, startRow = i + 1, array = TRUE,
+      x = paste0("=IF(B", i + 1, '="EPA304a",
+        "Will use the EPA304a recommended standards for this parameter. Do not edit EPA304a use_name",
+      IF(F,', i + 1, '="Exclude",
+        "Parameter and use name does not apply for this TADA.ComparableDataIdentifier. Will exclude from assessment.",
+      IF(ISBLANK(E', i + 1, '), 
+        "No use name is provided. Consider choosing an appropriate use_name that applies for assessment",
+      IF(ISNA(MATCH(1,(E', i + 1, '=Index!G:G)*(B', i + 1, '=Index!E:E),0)),
+        "Use name is not listed as a prior use for this organization",
+      IF(ISNA(MATCH(1,(D', i + 1, "=Index!H:H)*(E", i + 1, "=Index!G:G)*(B", i + 1, '=Index!E:E),0)),
+        "Use name is listed as a prior use name in this organization but not for this parameter name",
+        "Parameter name and use name are listed as prior cause in ATTAINS for this org and will be used for assessments")))))')
       )
     }
     
