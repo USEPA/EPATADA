@@ -902,6 +902,8 @@ TADA_FindNearbySites <- function(.data, dist_buffer = 100,
     dplyr::mutate(n_id = length(TADA.MonitoringLocationIdentifier)) %>%
     dplyr::filter(n_id > 1) %>%
     dplyr::ungroup()
+  
+  rm(data_unique_mls)
 
   # need to split into separate dfs based on nhdplusid group
   df_nhdgroups_list <- split(data_unique_mls, data_unique_mls$NHD.nhdplusid)
@@ -923,9 +925,12 @@ TADA_FindNearbySites <- function(.data, dist_buffer = 100,
 
     rownames(dist.matrix) <- .x$TADA.MonitoringLocationIdentifier
     colnames(dist.matrix) <- .x$TADA.MonitoringLocationIdentifier
-
-    dist.matrix %>% purrr::map(dist.mats, ~ units::drop_units(as.matrix(.x)))
+    
+    dist.matrix
   })
+  
+  # remove units from distance matrix
+  dist.mats <- purrr::map(dist.mats, ~ units::drop_units(.x))
 
   # convert distances to those within buffer (1) and beyond buffer (0)
   binary.mats <- purrr::map(dist.mats, function(mat) {
@@ -959,6 +964,8 @@ TADA_FindNearbySites <- function(.data, dist_buffer = 100,
 
   # apply site grouping function to matrix
   site.groups.list <- purrr::map(binary.mats, find_groups)
+  
+  rm(find_groups)
 
   # create df of all groups and create unique id for each group
   combined.group.df <- dplyr::bind_rows(site.groups.list, .id = "Matrix") %>%
@@ -1019,10 +1026,10 @@ TADA_FindNearbySites <- function(.data, dist_buffer = 100,
       dplyr::mutate(OrgRank = 99)
 
     # create blank lists of orgs to facilitate meta data selection
-    org.meta2 <- c("")
+    org.meta.list <- c("")
 
     # create df for filtering to facilitate meta data selection
-    org.meta.filter2 <- data.frame(
+    org.meta.filter <- data.frame(
       TADA.MonitoringLocationIdentifier.New = as.character(c(NA)),
       TADA.SiteGroup = as.integer(c(NA)),
       TADA.MonitoringLocationName = as.character(c(NA)),
@@ -1033,7 +1040,7 @@ TADA_FindNearbySites <- function(.data, dist_buffer = 100,
     )
 
     # remove NA row from df for filtering
-    org.meta.filter2 <- org.meta.filter2[-1, ]
+    org.meta.filter <- org.meta.filter[-1, ]
   }
 
   # if org hierarchy is supplied by user
@@ -1078,7 +1085,7 @@ TADA_FindNearbySites <- function(.data, dist_buffer = 100,
 
   # add org ranks to df of all TADA.MonitoringLocationIdentifier.New
   org.ranks.added <- grouped.no.dates %>%
-    dplyr::left_join(grouped.sites2, by = names(grouped.no.dates))
+    dplyr::left_join(org.ranks.added, by = names(grouped.no.dates))
 
   # retain only records w/ a ranked organization identifier
   org.meta <- org.ranks.added %>%
@@ -1093,9 +1100,6 @@ TADA_FindNearbySites <- function(.data, dist_buffer = 100,
     dplyr::ungroup() %>%
     dplyr::select(-OrgRank, -CountSites)
 
-  # determine value to supply for organization identifiers with no rank
-  rank.default <- length(org_hierarchy) + 1
-
   # select and assign metadata randomly for grouped sites when meta_select equals "random"
 
   if (meta_select == "random") {
@@ -1104,7 +1108,7 @@ TADA_FindNearbySites <- function(.data, dist_buffer = 100,
     random.meta <- org.ranks.added %>%
       dplyr::ungroup() %>%
       dplyr::filter(!TADA.MonitoringLocationIdentifier.New %in%
-        org.meta2$TADA.MonitoringLocationIdentifier.New) %>%
+        org.meta.filter$TADA.MonitoringLocationIdentifier.New) %>%
       dplyr::mutate(OrgRank = ifelse(is.na(OrgRank), rank.default, OrgRank)) %>%
       dplyr::group_by(TADA.MonitoringLocationIdentifier.New) %>%
       dplyr::slice_min(OrgRank) %>%
@@ -1116,7 +1120,8 @@ TADA_FindNearbySites <- function(.data, dist_buffer = 100,
       ) %>%
       dplyr::distinct() %>%
       dplyr::group_by(TADA.MonitoringLocationIdentifier.New) %>%
-      dplyr::slice_sample(n = 1)
+      dplyr::slice_sample(n = 1) %>%
+      dplyr::ungroup()
 
 
     # join the metadata filtering results to create a df with all metadat to apply to TADA df by
@@ -1147,45 +1152,41 @@ TADA_FindNearbySites <- function(.data, dist_buffer = 100,
         OrganizationIdentifier
       )) %>%
       dplyr::filter(!TADA.MonitoringLocationIdentifier.New %in%
-        org.meta2$TADA.MonitoringLocationIdentifier.New) %>%
+        org.meta.filter$TADA.MonitoringLocationIdentifier.New) %>%
       dplyr::mutate(OrgRank = ifelse(is.na(OrgRank), rank.default, OrgRank)) %>%
       dplyr::group_by(TADA.MonitoringLocationIdentifier.New)
 
     if (meta_select == "oldest") {
       date.meta <- date.meta %>%
-        dplyr::slice_min(OrgRank)
+        dplyr::slice_min(ActivityStartDate)
 
       date.choice <- "oldest"
     }
 
     if (meta_select == "newest") {
       date.meta <- date.meta %>%
-        dplyr::slice_min(OrgRank)
+        dplyr::slice_max(ActivityStartDate)
 
       date.choice <- "newest"
     }
 
-    date.meta <- date.meta %>%
-      dplyr::select(
-        TADA.MonitoringLocationIdentifier.New, TADA.SiteGroup,
-        TADA.MonitoringLocationName, TADA.LatitudeMeasure, TADA.LongitudeMeasure,
-        TADA.MonitoringLocationTypeName, ActivityStartDate
-      ) %>%
-      dplyr::distinct() %>%
-      dplyr::group_by(TADA.MonitoringLocationIdentifier.New) %>%
-      dplyr::slice_min(ActivityStartDate) %>%
-      dplyr::slice_sample(n = 1) %>%
-      dplyr::select(-ActivityStartDate)
-
-    select.meta <- oldest.meta %>%
-      dplyr::full_join(org.meta.filter, by = names(oldest.meta)) %>%
-      dplyr::select(-OrganizationIdentifier) %>%
+    select.meta <- date.meta %>%
+      dplyr::full_join(org.meta.filter, by = dplyr::join_by(TADA.MonitoringLocationIdentifier.New, 
+                                                            TADA.SiteGroup,
+                                                            TADA.MonitoringLocationName, 
+                                                            TADA.LatitudeMeasure, 
+                                                            TADA.LongitudeMeasure,
+                                                            TADA.MonitoringLocationTypeName, 
+                                                            OrganizationIdentifier)) %>%
+      dplyr::select(-OrganizationIdentifier, -OrgRank, -ActivityStartDate) %>%
       dplyr::rename(
         TADA.MonitoringLocationName.New = TADA.MonitoringLocationName,
         TADA.LatitudeMeasure.New = TADA.LatitudeMeasure,
         TADA.LongitudeMeasure.New = TADA.LongitudeMeasure,
         TADA.MonitoringLocationTypeName.New = TADA.MonitoringLocationTypeName
       ) %>%
+      dplyr::group_by(TADA.SiteGroup) %>%
+      dplyr::slice_sample(n = 1) %>%
       dplyr::mutate(TADA.NearbySites.Flag = paste0(
         "This monitoring location was grouped with other",
         " nearby site(s). Metadata were selected from ",
@@ -1256,7 +1257,7 @@ TADA_FindNearbySites <- function(.data, dist_buffer = 100,
     ) %>%
     TADA_OrderCols()
 
-  rm(select.meta, org.meta2, org.meta.filter2)
+  rm(select.meta, org.meta, org.meta.filter)
 
   if (dim(groups)[1] == 0) {
     print("No nearby sites detected using input buffer distance.")
