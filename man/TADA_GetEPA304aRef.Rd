@@ -10,12 +10,14 @@ TADA_GetEPA304aRef()
 Dataframe of EPA304a recommended standards for a pollutant and use name.
 }
 \description{
-Function downloads and returns the newest available EPA 304a Criteria Search Tool
-reference dataframe. This dataframe is used in TADA_CreateParamRef() and
+Function downloads and returns the newest available Criteria Search Tool and
+associated EPA 304a Criteria pollutant names as a reference dataframe.
+This dataframe is used in TADA_CreateParamRef() and
 TADA_CreateParamUseRef() as the basis for the pulling in EPA304a recommended
 pollutant name and use_name for assessment under the CWA.
 }
 \details{
-(Currently only numeric priority characteristic in TADA are the focus.
-This list can be found )
+Currently only numeric priority characteristic in TADA are the focus.
+This list can be found on the bottom of the web page:
+https://www.epa.gov/wqs-tech/state-specific-water-quality-standards-effective-under-clean-water-act-cwa
 }

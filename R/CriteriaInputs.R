@@ -209,8 +209,7 @@ TADA_CreateParamRef <- function(.data, org_names = NULL, paramRef = NULL, excel 
   n <- nrow(dplyr::distinct(.data[, c("TADA.CharacteristicName", "TADA.ComparableDataIdentifier")]))
   if (n > 100) {
     message(paste0("There are ", n, " unique TADA.ComparableDataIdentifier names in your TADA data frame.
-    This may result in slow runtime for TADA_CreateParamRef() if you are generating an excel spreadsheet.
-    Consider filtering your .data TADA dataframe to a smaller subset of TADA.ComparableDataIdentifier first."))
+    This may result in slow runtime for TADA_CreateParamRef() if you are generating an excel spreadsheet."))
   }
   
   # If no paramRef is provided, the ATTAINS.ParameterName returns a blank column of NA that will need user input.
@@ -314,8 +313,8 @@ TADA_CreateParamRef <- function(.data, org_names = NULL, paramRef = NULL, excel 
     suppressWarnings(openxlsx::dataValidation(wb, sheet = "CreateParamRef", cols = 4, rows = 2:1000, type = "list", value = sprintf("'Index'!$B$2:$B$5000"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE))
     suppressWarnings(openxlsx::dataValidation(wb, sheet = "CreateParamRef", cols = 5, rows = 2:1000, type = "list", value = sprintf("'Index'!$H$2:$H$50000"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE))
     
-    # remove intermediate object ATTAINS_param
-    rm(ATTAINS_param, ATTAINS_param_all)
+    # remove intermediate objects
+    rm(CST_param, ATTAINS_param, ATTAINS_param_all)
     
     for (i in 1:nrow(CreateParamRef)) {
       openxlsx::writeFormula(wb, "CreateParamRef",
@@ -581,7 +580,10 @@ TADA_CreateParamUseRef <- function(.data, org_names = NULL, paramRef = NULL, exc
       dplyr::select(TADA.ComparableDataIdentifier, organization_name, EPA304A.PollutantName, ATTAINS.ParameterName, use_name) %>%
       dplyr::filter(organization_name %in% org_names)
     
+    # remove intermediate object EPA_param
     rm(EPA_param)
+    # remove intermediate columns
+    rm(organization_name.y, use.name.y)
   }
   
   # This updates the flagging column. Users who only creates an R dataframe in the R environment will need to ensure they re-run the function with their completed paramRef as an input to reflect this column accurately.
@@ -680,7 +682,7 @@ TADA_CreateParamUseRef <- function(.data, org_names = NULL, paramRef = NULL, exc
       
       openxlsx::conditionalFormatting(wb, "CreateParamUseRef",
                                       cols = 6, rows = i + 1,
-                                      type = "contains", rule = c("Exclude"), style = openxlsx::createStyle(bgFill = "#FFC7CE")
+                                      type = "contains", rule = c("Exclude"), style = openxlsx::createStyle(bgFill = TADA_ColorPalette()[13])
       )
       
       openxlsx::conditionalFormatting(wb, "CreateParamUseRef",
