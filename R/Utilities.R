@@ -978,8 +978,8 @@ TADA_FindNearbySites <- function(.data, dist_buffer = 100,
   rm(find_groups, binary.mats)
 
   # create df of all groups and create unique id for each group
-  combined.group.df <- dplyr::bind_rows(site.groups.list, .id = "Matrix") %>%
-    dplyr::group_by(Matrix, Group) %>%
+  combined.group.df <- dplyr::bind_rows(site.groups.list) %>%
+    dplyr::group_by(Group) %>%
     dplyr::mutate(Count = length(Site)) %>%
     dplyr::filter(Count > 1) %>%
     # create new TADA.MonitoringLocationIdentifier
