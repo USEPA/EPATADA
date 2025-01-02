@@ -58,8 +58,8 @@ is in. Within each group of MonitoringLocations in the same catchment, a distanc
 created and an adjacency matrix is used to identify groups of nearby sites within the same
 catchment. Groups of nearby sites are given a new TADA.MonitoringLocationIdentifier which is
 created by concatenating the original TADA.MonitoringLocationIdentifiers of all sites within
-the group. Two additional columns, TADA.SiteGroup and TADA.NearbySites.Flag are added.
-TADA.SiteGroup contains a unique numeric value for each group of sites within the same catchment.
+the group. Two additional columns, TADA.NearbySiteGroup and TADA.NearbySites.Flag are added.
+TADA.NearbySiteGroup contains a unique numeric value for each group of sites within the same catchment.
 TADA.NearbySites.Flag identifies whether or not a result is from a grouped site or not and for
 grouped sites identifies how the TADA prefixed metadata columns (TADA.MonitoringLocationName,
 TADA.MonitoringLocationTypeName, TADA.LongitudeMeasure, and TADA.LatitudeMeasure) were determined.

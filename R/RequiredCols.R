@@ -185,7 +185,7 @@ require.cols <- c(
   "MonitoringLocationIdentifier", # required
   "TADA.MonitoringLocationIdentifier",
   "TADA.NearbySite.Flag", # generated,
-  "TADA.SiteGroup", #generated
+  "TADA.NearbySiteGroup", #generated
   
   # Groundwater fields, used for auto filtering for assessment use case but should not be required to have in TADA template
   "AquiferName", # filter, groundwater

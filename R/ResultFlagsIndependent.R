@@ -1233,11 +1233,11 @@ TADA_FindPotentialDuplicatesMultipleOrgs <- function(.data, dist_buffer = 100,
 
   dupsites <- unique(.data[, c("MonitoringLocationIdentifier", "TADA.LatitudeMeasure", 
                                "TADA.LongitudeMeasure", "TADA.MonitoringLocationIdentifier",
-                               "TADA.SiteGroup")])
+                               "TADA.NearbySiteGroup")])
 
   # get rid of results with no site group added - not duplicated spatially
   dupsites <- dupsites %>%
-    dplyr::filter(!is.na(TADA.SiteGroup))
+    dplyr::filter(!is.na(TADA.NearbySiteGroup))
 
   # remove results with no nearby sites get all data that are not NA and round to 2 digits
   dupsprep <- .data %>%
@@ -1245,7 +1245,7 @@ TADA_FindPotentialDuplicatesMultipleOrgs <- function(.data, dist_buffer = 100,
     dplyr::select(
       OrganizationIdentifier, ResultIdentifier, ActivityStartDate, ActivityStartTime.Time,
       TADA.CharacteristicName, ActivityTypeCode, TADA.ResultMeasureValue, 
-      TADA.MonitoringLocationIdentifier, TADA.SiteGroup
+      TADA.MonitoringLocationIdentifier, TADA.NearbySiteGroup
     ) %>%
     dplyr::filter(!is.na(TADA.ResultMeasureValue)) %>%
     dplyr::mutate(roundRV = round(TADA.ResultMeasureValue, digits = 2))
@@ -1257,11 +1257,11 @@ TADA_FindPotentialDuplicatesMultipleOrgs <- function(.data, dist_buffer = 100,
   # organizations that have those same row values, and filter to those summary rows with more than 
   # one organization
   
-  # HRM note 12/31/24 - pick up work here, some issues w/ TADA.SiteGroup
+  # HRM note 12/31/24 - pick up work here, some issues w/ TADA.NearbySiteGroup
   dups_sum <- dupsprep %>%
     dplyr::group_by(ActivityStartDate, ActivityStartTime.Time, TADA.CharacteristicName, 
                     ActivityTypeCode, roundRV, TADA.MonitoringLocationIdentifier,
-                    TADA.SiteGroup) %>%
+                    TADA.NearbySiteGroup) %>%
     dplyr::mutate(numorgs = length(unique(OrganizationIdentifier))) %>%
     dplyr::filter(numorgs > 1) %>%
     # group duplicates
@@ -1279,7 +1279,7 @@ TADA_FindPotentialDuplicatesMultipleOrgs <- function(.data, dist_buffer = 100,
     "ResultIdentifier",
     "TADA.ResultMeasureValue",
     "TADA.MonitoringLocationIdentifier",
-    "TADA.SiteGroup"
+    "TADA.NearbySiteGroup"
   )) %>%
     dplyr::mutate(TADA.MultipleOrgDuplicate = ifelse(is.na(TADA.MultipleOrgDupGroupID), "N", "Y")) %>%
     # remove results that are listed twice (as part of two groups)
