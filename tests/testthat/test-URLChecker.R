@@ -1,7 +1,7 @@
 # ignore warning
 # file("") only supports open = "w+" and open = "w+b": using the former
 # https://github.com/USEPA/EPATADA/pull/548
-#suppressWarnings(
+suppressWarnings(
   test_that("URLs are not broken", {
     # extract urls function
     extract_urls <- function(text) {
@@ -73,4 +73,4 @@
     # verify that there are zero urls with failing response codes
     testthat::expect_equal(n, 0)
   })
-#)
+)
