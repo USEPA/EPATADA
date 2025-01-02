@@ -1,7 +1,7 @@
 ---
 title: "Creating Efficient and Reproducible Water Quality Workflows Using R"
 format:  
-  revealjs:
+  pptx:
     theme: serif
   html:
     fig-width: 8
@@ -177,6 +177,7 @@ Now, let's use EPATADA functions to whittle the data down to what is applicable 
 ```
 
 ## Review organizations
+
 ```{r}
 # Create pie of results by organization
 TADA_FieldValuesPie(GreenBay_FoxRiver, field = "OrganizationFormalName")
@@ -226,6 +227,7 @@ Harmonized_data <- TADA_CalculateTotalNP(Harmonized_data, daily_agg = "max")
 ```
 
 ## Filter
+
 ```{r}
 # review unique identifiers
 unique(Harmonized_data$TADA.ComparableDataIdentifier)
