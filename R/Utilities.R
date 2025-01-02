@@ -1071,7 +1071,7 @@ TADA_FindNearbySites <- function(.data, dist_buffer = 100,
   }
 
   # if org hierarchy is supplied by user
-  if (!is.null(org_hierarchy)) {
+  if (org_hierarchy[1] != "none") {
     
     # create string for flagging
     org.string <- "Metadata were selected by filtering based on the user supplied hierarchy, then by "
