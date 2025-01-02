@@ -1396,14 +1396,18 @@ TADA_FindPotentialDuplicatesSingleOrg <- function(.data) {
   depthcols <- names(.data)[grepl("^TADA.*DepthHeightMeasure.MeasureValue$", names(.data))]
 
   # tack depth columns onto additional grouping columns
-  colss <- c("OrganizationIdentifier", "MonitoringLocationIdentifier", "ActivityStartDate", "ActivityStartTime.Time", "ActivityTypeCode", "TADA.CharacteristicName", "SubjectTaxonomicName", "TADA.ResultSampleFractionText", "TADA.ResultMeasureValue", depthcols)
+  cols <- c("OrganizationIdentifier", "MonitoringLocationIdentifier", "ActivityStartDate", "ActivityStartTime.Time", "ActivityTypeCode", "TADA.CharacteristicName", "SubjectTaxonomicName", "TADA.ResultSampleFractionText", "TADA.ResultMeasureValue", depthcols)
 
   # find where the grouping using the columns above results in more than one result identifier
   dups_sum_org <- .data %>%
-    dplyr::group_by(dplyr::across(tidyselect::any_of(colss))) %>%
-    dplyr::summarise(numres = length(unique(ResultIdentifier))) %>%
+    dplyr::group_by(dplyr::across(tidyselect::any_of(cols))) %>%
+    dplyr::summarise(numres = length(unique(ResultIdentifier)),
+                     .groups = "keep") %>%
     dplyr::filter(numres > 1) %>%
     dplyr::mutate(TADA.SingleOrgDupGroupID = dplyr::cur_group_id())
+  
+  # remove intermediate objects
+  rm(depthcols, cols)
 
   if (dim(dups_sum_org)[1] > 0) {
     # apply to .data and remove numbers column
@@ -1422,7 +1426,16 @@ TADA_FindPotentialDuplicatesSingleOrg <- function(.data) {
     .data$TADA.SingleOrgDup.Flag <- ifelse(.data$ResultIdentifier %in% picks$ResultIdentifier, "Unique", .data$TADA.SingleOrgDup.Flag)
     # flags non-duplicates as passing
     .data$TADA.SingleOrgDup.Flag <- ifelse(.data$TADA.SingleOrgDupGroupID == "Not a duplicate", "Unique", .data$TADA.SingleOrgDup.Flag)
-    print(paste0(dim(dups_sum_org)[1], " groups of potentially duplicated results found in dataset. These have been placed into duplicate groups in the TADA.SingleOrgDupGroupID column and the function randomly selected one result from each group to represent a single, unduplicated value. Selected values are indicated in the TADA.SingleOrgDup.Flag as 'Unique', while duplicates are flagged as 'Duplicate' for easy filtering."))
+    print(paste0("TADA_FindPotentialDuplicatesSingleOrg: ", dim(dups_sum_org)[1], 
+                 " groups of potentially duplicated results found in dataset.",
+                 " These have been placed into duplicate groups in the TADA.SingleOrgDupGroupID ",
+                 "column and the function randomly selected one result from each group to ",
+                 "represent a single, unduplicated value. Selected values are indicated in the ",
+                 "TADA.SingleOrgDup.Flag as 'Unique', while duplicates are flagged as 'Duplicate' ",
+                 "for easy filtering."))
+    
+    # remove intermediate objects
+    rm(dup_rids)
   }
 
   if (dim(dups_sum_org)[1] == 0) {
@@ -1435,7 +1448,13 @@ TADA_FindPotentialDuplicatesSingleOrg <- function(.data) {
     .data$TADA.SingleOrgDup.Flag <- ifelse(.data$TADA.SingleOrgDupGroupID == "Not a duplicate", "Unique", .data$TADA.SingleOrgDup.Flag)
     print("No duplicate results detected. Returning input dataframe with TADA.SingleOrgDup.Flag flag column set to 'Unique'")
   }
-
+  
+  # remove intermediate objects
+  rm(dups_sum_org)
+  
+  # reorder columns
   .data <- TADA_OrderCols(.data)
+  
+  # return TADA df
   return(.data)
 }
