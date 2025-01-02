@@ -152,7 +152,7 @@ TADA_CreateParamRef <- function(.data, org_names = NULL, paramRef = NULL, excel 
   }
   
   # if user doesn't provide an org_names argument, the function extracts the unique org_names from TADA_GetATTAINS().
-  # Users will need to have ran TADA_GetATTAINS() for this option to be allowed. Selection of org_names will filter the drop down lists in future steps of creating the reference tables.
+  # Users will need to have ran TADA_GetATTAINS() for this option to be allowed. Selection of org_names will filter the ATTAINS domain list for parameter and use name by org_names.
   if (is.null(org_names)) {
     print("TADA.CreateParamRef: No organization name(s) provided. Attempting to pull in organization names found in the TADA data frame.
           Please ensure that you have ran TADA_GetATTAINS if you did not provide an org_names argument input.")
@@ -189,13 +189,14 @@ TADA_CreateParamRef <- function(.data, org_names = NULL, paramRef = NULL, excel 
   
   TADA_param$organization_name <- as.character(TADA_param$organization_name)
   
-  # Pulls in all domain values of parameter names in ATTAINS. Filtering by state is done in the next steps.
+  # Pulls in all domain values of parameter names in ATTAINS. Filtering by org_names is done in the next steps.
   ATTAINS_param_all <- utils::read.csv(system.file("extdata", "ATTAINSParamUseEntityRef.csv", package = "EPATADA"))
   
   ATTAINS_param <- ATTAINS_param_all %>%
     dplyr::filter(organization_name %in% org_names) %>%
     dplyr::arrange(parameter)
   
+  # Should we stop or warn users in this step? 
   if (sum(!org_names %in% ATTAINS_param_all$organization_name) > 0) {
     warning(paste0(
       "TADA_CreateParamRef: ",
@@ -215,7 +216,8 @@ TADA_CreateParamRef <- function(.data, org_names = NULL, paramRef = NULL, excel 
     CreateParamRef <- TADA_param %>%
       dplyr::mutate(ATTAINS.ParameterName = NA) %>%
       dplyr::select(TADA.CharacteristicName, TADA.ComparableDataIdentifier, organization_name, EPA304A.PollutantName, ATTAINS.ParameterName) %>%
-      dplyr::arrange(organization_name, TADA.CharacteristicName)
+      dplyr::arrange(organization_name, TADA.CharacteristicName) %>%
+      dplyr::distinct()
     # group_by(TADA.CharacteristicName, TADA.MethodSpeciationName, TADA.ResultSampleFractionText, EPA304A.PollutantName)
     # filter(if(sum(!is.na(organization_name))) !is.na(organization_name) else T)
   }
@@ -736,3 +738,135 @@ TADA_CreateParamUseRef <- function(.data, org_names = NULL, paramRef = NULL, exc
   return(CreateParamUseRef)
 }
 
+
+TADA_CreateAUIDRef <- function(.data, AUID = NULL, overwrite = FALSE, returnSites = c("all","matched-only")){
+  
+  # data <- rATTAINS::assessments(organization_id = "MDE_EASP")
+  # 
+  # use_assessments <- data$use_assessment
+  # use_attainments <- use_assessments %>% unnest(c(use_attainments), names_sep = ".")
+  # use_parameters <- use_attainments %>% unnest(c(parameters), names_sep = ".")
+  # 
+  # use_data <- use_parameters %>%
+  #   dplyr::select(
+  #     organization_identifier, organization_name, organization_type_text,
+  #     use_attainments.use_name, parameters.parameter_name) %>%
+  #   distinct()
+  # 
+  # rm(use_assessments, use_attainments, use_parameters)
+  # 
+  # 
+  # If user does not define the path, attempt to pull in the ref files from the default Downloads location.
+  downloads_path <- file.path(Sys.getenv("USERPROFILE"), "Downloads", "myfileRef.xlsx")
+  # testing out different downloads_path as an argument is needed.
+  if(!is.null(downloads_path)){
+    downloads_path <- downloads_path
+  }
+  
+  library(rATTAINS)
+  
+  if(!is.data.frame(.data)){
+    if (!any(c(
+      "TADA_with_ATTAINS", "ATTAINS_catchments", "ATTAINS_points", "ATTAINS_lines", "ATTAINS_polygons"
+    ) %in% names(.data))) {
+      stop("Your input dataframe was not produced from `TADA_GetATTAINS()` or it was modified. Please create your list of ATTAINS features using `TADA_GetATTAINS(return_sf = TRUE)`")
+    }
+    
+    .data <- .data[["TADA_with_ATTAINS"]]
+  }
+  
+  
+  if(is.null(AUID)){
+    print("Creating AUIDRef dataframe for all unique combinations of AUID found in the TADA dataframe by MonitoringLocationName/MonitoringLocationType/MonitoringLocationId.")
+  }
+  
+  if(!is.null(AUID)){
+    print(paste0("Filtering by AUIDs = ", AUID, ". Creating a dataframe for unique combinations of these AUID by MonitoringLocationName/MonitoringLocationType/MonitoringLocationId."))
+  }
+  
+  wb <- loadWorkbook(wb, downloads_path)
+  
+  tryCatch({
+    addWorksheet(wb, "CreateAUIDRef")
+  },
+  error = function(e){
+    removeWorksheet(wb, "CreateAUIDRef")
+    addWorksheet(wb, "CreateAUIDRef")
+  }
+  )
+  
+  # Filters by AUID if desired, otherwise creates a dataframe of all unique AUID in the TADA dataframe pull
+  CreateAUIDRef <- .data %>%
+    dplyr::filter(if (is.null(AUID)) TRUE 
+                  else ATTAINS.assessmentunitidentifier == AUID
+    ) %>%
+    dplyr::select(
+      c(
+        "ATTAINS.assessmentunitname","ATTAINS.assessmentunitidentifier",
+        "MonitoringLocationIdentifier", "MonitoringLocationName", "MonitoringLocationTypeName", "LongitudeMeasure", "LatitudeMeasure"
+      )
+    ) %>%
+    as.data.frame() %>%
+    # dplyr::select(-geometry) %>%
+    dplyr::distinct(.keep_all = FALSE) %>%
+    dplyr::mutate(IncludeorExcludeStation = "Include") %>%
+    dplyr::mutate(ExcludeStationReason = NA) %>% # Users can customize this for "warm waters", "only trout based waters" etc. 
+    dplyr::mutate(SiteSpecificName = NA) %>%
+    dplyr::arrange(ATTAINS.assessmentunitname,	ATTAINS.assessmentunitidentifier,	MonitoringLocationIdentifier)
+  
+  
+  # Format column header
+  header_st <- createStyle(textDecoration = "Bold")
+  # Format Column widths
+  openxlsx::setColWidths(wb, "CreateAUIDRef", cols = 8:ncol(CreateAUIDRef), widths = "auto")
+  # set zoom size
+  set_zoom <- function(x) gsub('(?<=zoomScale=")[0-9]+', x, sV, perl = TRUE)
+  sV <- wb$worksheets[[4]]$sheetViews
+  wb$worksheets[[4]]$sheetViews <- set_zoom(90)
+  
+  writeData(wb, "CreateAUIDRef", startCol = 1, x = CreateAUIDRef, headerStyle = header_st)
+  # Writes an excel formula for IncludeorExcludeStation column. Will be based on other two column values
+  for(i in 1:nrow(CreateAUIDRef)){
+    writeFormula(wb, "CreateAUIDRef", startCol = 8, startRow = i + 1, x = paste0('=IF(I',i+1,'="","Include","Exclude")'))
+  }
+  # Conditional Formatting
+  conditionalFormatting(wb, "CreateAUIDRef",
+                        cols = 8, rows = 2:(nrow(CreateAUIDRef) + 1),
+                        type = "contains", rule = "Include", style = createStyle(bgFill = TADA_ColorPalette()[9])) # default values or indicates good to go cells.
+  conditionalFormatting(wb, "CreateAUIDRef",
+                        cols = 8, rows = 2:(nrow(CreateAUIDRef) + 1),
+                        type = "contains", rule = "Exclude", style = createStyle(bgFill = TADA_ColorPalette()[8])) # using yellow to indicate modified cell
+  # conditionalFormatting(wb, "CreateAUIDRef",
+  #                       cols = 8, rows = 2:(nrow(CreateAUIDRef) + 1),
+  #                       type = "notContains", rule = c("Exclude","Include"), style = createStyle(bgFill = "red")) # Likely error. Invalid value is possible here.
+  conditionalFormatting(wb, "CreateAUIDRef",
+                        cols = 9:10, rows = 2:(nrow(CreateAUIDRef) + 1),
+                        type = "blanks", style = createStyle(bgFill = TADA_ColorPalette()[9])) # green is default values or indicates good to go cells.
+  conditionalFormatting(wb, "CreateAUIDRef",
+                        cols = 9:10, rows = 2:(nrow(CreateAUIDRef) + 1),
+                        type = "notBlanks", style = createStyle(bgFill = TADA_ColorPalette()[8])) # using yellow to indicate modified cell
+  
+  # Ensures the file is updated with the user's CreateParamUseRef
+  # writeData(wb, "CreateParamUseRef", startCol = 1, x = CreateParamUseRef, headerStyle = header_st)
+  
+  # Saving of the file if overwrite = TRUE or if the file is not found in the defined folder path. If is not saved, a dataframe is still returned.
+  if(!is.null(downloads_path)){
+    #saveWorkbook(wb, "inst/extdata/myfileRef.xlsx", overwrite = F)
+    downloads_path <- downloads_path
+  }
+  
+  if(overwrite == TRUE){
+    saveWorkbook(wb, downloads_path, overwrite = T)
+  }
+  
+  if(overwrite == FALSE){
+    warning("If you would like to replace the file, use overwrite = TRUE argument in TADA_CreateParamRef")
+    saveWorkbook(wb, downloads_path, overwrite = F)
+  }
+  
+  cat("File saved to:", gsub("/","\\\\",downloads_path), "\n")
+  
+  CreateAUIDRef <- openxlsx::read.xlsx(downloads_path, sheet = "CreateAUIDRef")
+  
+  return(CreateAUIDRef)
+}
