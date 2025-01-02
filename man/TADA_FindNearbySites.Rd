@@ -8,7 +8,8 @@ TADA_FindNearbySites(
   .data,
   dist_buffer = 100,
   nhd_res = "Hi",
-  org_hierarchy = "none"
+  org_hierarchy = "none",
+  meta_select = "random"
 )
 }
 \arguments{
