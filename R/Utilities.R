@@ -1721,15 +1721,33 @@ TADA_RenameColumns <- function(.data) {
     ) |>
     filter(!is.na(legacy)) # from 364 column names to 286 - beta version adds 78 names
   
+  # Fix legacy names that do not match TADA template names
+  # Note - this will replace all / and _ with . but there maybe legacy names getting changed that do not have a TADA equivalent - so may need to fix later
+  wqxnames_rev <- wqxnames_rev |> 
+    #mutate(legacy_2 = str_replace_all(legacy, "/|_", "\\.")) |> 
+    distinct(legacy, .keep_all = T) # There are some duplicate variables in crosswalk - may want to change this
+    
   # Create vectors of WQX3.0 and WQX2.0 (Legacy) column names
   beta_names = wqxnames_rev$FieldName3.0
   legacy_names = wqxnames_rev$legacy
   
-  if (length(beta_names) != length(legacy_names)) {
+    if (length(beta_names) != length(legacy_names)) {
     stop("`old names` and `new names` must be the same length", call. = FALSE)
   }
   df <- data.table::setnames(.data, old = beta_names,
-                             new = legacy_names, skip_absent = TRUE)
+                             new = legacy_names, skip_absent = TRUE) 
+  
+  # Replace special characters in column names
+  df <- df |> 
+   rename_with(~ stringr::str_replace_all(., c('_' = '\\.', '/' = '\\.'))) #rename_with(~ stringr::str_replace_all(., pattern = '_', replacement = '\\.'))
+  
+  # Rename columns missing from crosswalk table
+  df <- df |> 
+    rename(DetectionQuantitationLimitMeasure.MeasureValue = DetectionLimit.MeasureA,
+           DetectionQuantitationLimitMeasure.MeasureUnitCode = DetectionLimit.MeasureUnitA)
+  
   return(df)
 }
+
+
 
