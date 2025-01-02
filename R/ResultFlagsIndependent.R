@@ -1249,6 +1249,9 @@ TADA_FindPotentialDuplicatesMultipleOrgs <- function(.data, dist_buffer = 100,
     ) %>%
     dplyr::filter(!is.na(TADA.ResultMeasureValue)) %>%
     dplyr::mutate(roundRV = round(TADA.ResultMeasureValue, digits = 2))
+  
+  # remove intermediate object
+  rm(dupsites)
 
   # group by date, time, characteristic, and rounded result value and determine the number of 
   # organizations that have those same row values, and filter to those summary rows with more than 
@@ -1284,15 +1287,18 @@ TADA_FindPotentialDuplicatesMultipleOrgs <- function(.data, dist_buffer = 100,
     dplyr::slice_sample(n = 1) %>%
     dplyr::ungroup() %>%
     dplyr::select(-roundRV)
-
+  
+# remove intermediate object
+  rm(dups_sum)
 
   # select representative results
   if (dim(dupsdat)[1] > 0) {
     # make a selection of a representative result
-    if (!any(org_hierarchy == "none")) { # if there is an org hierarchy, use that to pick result with lowest rank in hierarchy
+    if (!any(org_hierarchy == "none")) { # if there is an org hierarchy, use that to pick result 
+      # with lowest rank in hierarchy
       data_orgs <- unique(.data$OrganizationIdentifier)
       if (any(!org_hierarchy %in% data_orgs)) {
-        print("One or more organizations in input hierarchy are not present in the input dataset.")
+        print("TADA_FindPotentialDuplicatesMultipleOrgs: One or more organizations in input hierarchy are not present in the input dataset.")
       }
       hierarchy_df <- data.frame("OrganizationIdentifier" = org_hierarchy, "rank" = 1:length(org_hierarchy))
       dupranks <- dupsdat %>%
