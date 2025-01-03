@@ -837,7 +837,7 @@ TADA_FormatDelimitedString <- function(delimited_string, delimiter = ",") {
 #'    greatest number of results, and "random" which selects random metadata from the site group.
 #'    The default is meta_select = "random".
 #'
-#' @return Input dataframe with a TADA.SiteGruop column that
+#' @return Input dataframe with a TADA.SiteGroup column that
 #'  indicates the nearby site group each monitoring location belongs to. Grouped
 #'  sites are concatenated in the TADA.MonitoringLocationIdentifier column
 #'  (e.g. "USGS-10010025","USGS-10010026" enclosed in square brackets []).
