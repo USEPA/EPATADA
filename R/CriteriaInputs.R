@@ -152,7 +152,7 @@ TADA_CreateParamRef <- function(.data, org_names = NULL, paramRef = NULL, excel 
   }
   
   # if user doesn't provide an org_names argument, the function extracts the unique org_names from TADA_GetATTAINS().
-  # Users will need to have ran TADA_GetATTAINS() for this option to be allowed. Selection of org_names will filter the drop down lists in future steps of creating the reference tables.
+  # Users will need to have ran TADA_GetATTAINS() for this option to be allowed. Selection of org_names will filter the ATTAINS domain list for parameter and use name by org_names.
   if (is.null(org_names)) {
     print("TADA.CreateParamRef: No organization name(s) provided. Attempting to pull in organization names found in the TADA data frame.
           Please ensure that you have ran TADA_GetATTAINS if you did not provide an org_names argument input.")
@@ -189,13 +189,14 @@ TADA_CreateParamRef <- function(.data, org_names = NULL, paramRef = NULL, excel 
   
   TADA_param$organization_name <- as.character(TADA_param$organization_name)
   
-  # Pulls in all domain values of parameter names in ATTAINS. Filtering by state is done in the next steps.
+  # Pulls in all domain values of parameter names in ATTAINS. Filtering by org_names is done in the next steps.
   ATTAINS_param_all <- utils::read.csv(system.file("extdata", "ATTAINSParamUseEntityRef.csv", package = "EPATADA"))
   
   ATTAINS_param <- ATTAINS_param_all %>%
     dplyr::filter(organization_name %in% org_names) %>%
     dplyr::arrange(parameter)
   
+  # Should we stop or warn users in this step? 
   if (sum(!org_names %in% ATTAINS_param_all$organization_name) > 0) {
     warning(paste0(
       "TADA_CreateParamRef: ",
@@ -215,7 +216,8 @@ TADA_CreateParamRef <- function(.data, org_names = NULL, paramRef = NULL, excel 
     CreateParamRef <- TADA_param %>%
       dplyr::mutate(ATTAINS.ParameterName = NA) %>%
       dplyr::select(TADA.CharacteristicName, TADA.ComparableDataIdentifier, organization_name, EPA304A.PollutantName, ATTAINS.ParameterName) %>%
-      dplyr::arrange(organization_name, TADA.CharacteristicName)
+      dplyr::arrange(organization_name, TADA.CharacteristicName) %>%
+      dplyr::distinct()
     # group_by(TADA.CharacteristicName, TADA.MethodSpeciationName, TADA.ResultSampleFractionText, EPA304A.PollutantName)
     # filter(if(sum(!is.na(organization_name))) !is.na(organization_name) else T)
   }

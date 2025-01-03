@@ -216,10 +216,10 @@ template of ATTAINS.ParameterName which needs crosswalk to a
 TADA.ComparableDataIdentifier. Users should specify the name(s) of their
 orgs that will be used for assessment.
 
-By specifying the name of the organization(s) used, if creating an excel
+By specifying the name of the ATTAINS organization(s) used, if creating an excel
 spreadsheet (using excel = TRUE), this will create a separate tab in the
 excel file which contains the parameter names used in prior assessment
-cycles filtered by those organization(s). This will allow users to
+cycles filtered by those ATTAINS organization(s). This will allow users to
 decide whether to continue to use the same ATTAINS parameter names from
 prior assessments that their org(s) have used in the past, or to use
 other valid parameter names found in the ATTAINS domain list. If there
@@ -231,7 +231,7 @@ ATTAINS team first before proceeding.
 NCTC_ParamRef <- TADA_CreateParamRef(
   Data_NCTC, 
   org_names = c("Maryland"),
-  excel = FALSE # comment out 'excel = FALSE' and uncomment excel = TRUE, overwrite = TRUE to run the excel file
+  excel = FALSE # comment out this line 'excel = FALSE' and uncomment excel = TRUE, overwrite = TRUE to run the excel file
   #excel = TRUE, overwrite = TRUE 
   )
 ```
@@ -247,9 +247,9 @@ function using the "ParamRef" file to reflect the flagging of parameter
 names.
 
 ```{r}
-# only run the code if you make edits to the excel file
-#downloads_path <- file.path(Sys.getenv("USERPROFILE"), "Downloads", "myfileRef.xlsx")
-#ParamRef <- openxlsx::read.xlsx(downloads_path, sheet = "CreateParamRef")
+# only run the code chunks below if you make edits to the excel file.
+# downloads_path <- file.path(Sys.getenv("USERPROFILE"), "Downloads", "myfileRef.xlsx")
+# ParamRef <- openxlsx::read.xlsx(downloads_path, sheet = "CreateParamRef")
 
 # NCTC_ParamRef3 <- TADA_CreateParamRef(
 #   Data_NCTC, 
@@ -269,12 +269,13 @@ NCTC_ParamRef2 <- TADA_CreateParamRef(
   Data_NCTC, 
   org_names = c("Maryland"),
   paramRef = ParamRef,
-  excel = FALSE)
+  excel = FALSE)# comment out 'excel = FALSE' and uncomment excel = TRUE, overwrite = TRUE to run the excel file
+  # excel = TRUE, overwrite = TRUE) 
 ```
 
 Users may also include states outside of their spatial region if
 desired, depending on a user's interest. Users will be responsible for
-filling out this crosswalk for state(s) that are outside their own orgs.
+filling out this crosswalk for org(s)/state(s) that are outside their own org(s).
 Although, future efforts will focus on creating a repository of criteria
 and methods along with crosswalks done from other TADA users.
 
@@ -301,8 +302,8 @@ ATTAINS parameter name and use name.
 For any ATTAINS parameter name(s) that have not been used by this org in
 prior assessment cycles, there will be no prior use names associated
 with them. In this case, users will be responsible for
-inputtingadditional rows as needed and choosing the appropriate
-use_nameapplicable to their org under the column 'use_name'. In this
+inputting additional rows as needed and choosing the appropriate
+use_name applicable to their org under the column 'use_name'. In this
 example, we can see "PH" was not a prior ATTAINS parameter name for
 Maryland, thus additional rows should be inputted to reflect what
 parameter and use combinations are needed to be defined for assessments
