@@ -908,7 +908,7 @@ TADA_FindNearbySites <- function(.data, dist_buffer = 100,
     dplyr::ungroup()
   
   # remove intermediate object
-  #rm(nhd_catchments)
+  rm(nhd_catchments)
 
   # need to split into separate dfs based on nhdplusid group
   df_nhdgroups_list <- split(data_unique_mls, data_unique_mls$NHD.nhdplusid)
@@ -975,11 +975,14 @@ TADA_FindNearbySites <- function(.data, dist_buffer = 100,
   # apply site grouping function to matrix
   site.groups.list <- purrr::map(binary.mats, find_groups)
   
+  site.groups.list <- purrr::imap(site.groups.list, ~ .x %>%
+                                    dplyr::mutate(df_number = .y))
+  
   rm(find_groups, binary.mats)
 
   # create df of all groups and create unique id for each group
   combined.group.df <- dplyr::bind_rows(site.groups.list) %>%
-    dplyr::group_by(Group) %>%
+    dplyr::group_by(Group, df_number) %>%
     dplyr::mutate(Count = length(Site)) %>%
     dplyr::filter(Count > 1) %>%
     # create new TADA.MonitoringLocationIdentifier
