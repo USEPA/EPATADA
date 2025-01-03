@@ -21,7 +21,7 @@ editor_options:
     wrap: 72
 ---
 
-```{r setup, include=FALSE}
+```{r setup, include = F}
 library(knitr)
 
 knitr::opts_chunk$set(
@@ -36,16 +36,16 @@ knitr::opts_chunk$set(
 Thank you for your interest in Tools for Automated Data Analysis (TADA).
 TADA is an open-source tool set built in the R programming language.
 This [RMarkdown](https://bookdown.org/yihui/rmarkdown/) document walks
-users through how to download the TADA R package from GitHub, access and
-parameterize several important functions, and create basic
+users through how to download the EPATADA R package from GitHub, access
+and parameterize several important functions, and create basic
 visualizations with a sample data set.
 
-**Note: TADA is still under development. New functionality is added
+**Note: EPATADA is still under development. New functionality is added
 weekly, and sometimes we need to make bug fixes in response to tester
 and user feedback. We appreciate your feedback, patience, and interest
 in these helpful tools.**
 
-**If you are interested in contributing to TADA development, more
+**If you are interested in contributing to EPATADA development, more
 information is available at:**
 
 [**Contributing**](https://usepa.github.io/EPATADA/articles/CONTRIBUTING.html)
@@ -55,7 +55,7 @@ information is available at:**
 ## Install and load packages
 
 First, install and load the remotes package specifying the repo. This is
-needed before installing TADA because it is only available on GitHub.
+needed before installing EPATADA because it is only available on GitHub.
 
 ```{r install_remotes, results = 'hide', eval = F}
 install.packages("remotes",
@@ -64,25 +64,29 @@ install.packages("remotes",
 library(remotes)
 ```
 
-Next, install and load TADA using the remotes package. TADA R Package
-dependencies will also be downloaded automatically from CRAN with the
-TADA install. You may be prompted in the console to update dependency
-packages that have more recent versions available. If you see this
-prompt, it is recommended to update all of them (enter 1 into the
-console).
+Next, install and load the EPATADA R Package using the remotes package.
+Dependency packages will also be downloaded automatically from CRAN. You
+may be prompted in the console to update dependencies that have more
+recent versions available. If you see this prompt, it is recommended to
+update all of them (enter 1 into the console).
 
-\#`{r install_TADA, eval = F, results = 'hide'} # remotes::install_github("USEPA/EPATADA", #   ref = "develop", #   dependencies = TRUE # ) #`
-
-```{r install_TADA, eval = T, results = 'hide'}
-# help with knit and pass the checks, but we want to make sure this chunk does not show up in the final PR, just for development.
+```{r install_TADA_dev, eval = T, include = F}
+# help with knit and pass the checks, but we want to make sure this chunk does not show up in the final website, just for development.
 remotes::install_github("USEPA/EPATADA",
   ref = "Create-Module-3-Reference-Tables",
   dependencies = TRUE
 )
 ```
 
-Finally, use the **library()** function to load the TADA R Package into
-your R session.
+```{r install_TADA, eval = F, results = 'hide'}
+remotes::install_github("USEPA/EPATADA",
+  ref = "develop",
+  dependencies = TRUE
+)
+```
+
+Finally, use the **library()** function to load the EPATADA R Package
+into your R session.
 
 ```{r library, results = 'hide'}
 library(EPATADA)
@@ -104,16 +108,14 @@ function in R or RStudio using the following format (example below):
 
 ## WQS Criteria Functions in TADA
 
-Disclaimer:
-
-Use of Module 3 development and tools in the EPATADA package is to
-assist different organization (state, territories and tribal nations) on
-their assessment methods under the CWA. It does not constitute current
-Agency policy or regulation requirements. This tool is not to be solely
-used for decision making process. Module 3 integration of WQS for
-assessments is not a regulation and does not impose legally binding
-requirements on EPA or the States in reporting water conditions under
-biannual reports of the CWA.
+Disclaimer: Use of Module 3 development and tools in the EPATADA package
+is to assist different organization (state, territories and tribal
+nations) on their assessment methods under the CWA. It does not
+constitute current Agency policy or regulation requirements. This tool
+is not to be solely used for decision making process. Module 3
+integration of WQS for assessments is not a regulation and does not
+impose legally binding requirements on EPA or the States in reporting
+water conditions under biannual reports of the CWA.
 
 Criteria is defined as the Magnitude, duration and frequency associated
 with a parameter and designated use.
@@ -164,7 +166,7 @@ There will be
 
 **...**
 
-## Example with Data_NCTCShepherdstown_HUC12
+## Example with Data_WV_Mod1_Output
 
 **Introduction:**
 
@@ -194,20 +196,17 @@ Shepherdstown example.
 Clean, harmonize and perform QAQC on the data frame for assessment.
 
 ```{r}
-Data_NCTC <- TADA_RunKeyFlagFunctions(Data_NCTCShepherdstown_HUC12)
-Data_NCTC2 <- TADA_HarmonizeSynonyms(Data_NCTC)
+Data_NCTC <- Data_WV_Mod1_Output
 ```
 
-Filter data frame by TADA.Characteristics for a few priority
+Filter data frame by TADA.CharacteristicName(s) for a few priority
 characteristics. Do some exploratory data analysis to view the number of
 counts of TADA.ComparableDataIdentifier. Users can reference the domain
 values of parameter names listed as a cause in prior assessment cycles
 with the rATTAINS library function: domain_values.
 
 ```{r}
-Data_NCTC2 <- dplyr::filter(Data_NCTC2, TADA.CharacteristicName %in% c("ZINC", "PH","NITRATE"))
-
-TADA_FieldValuesTable(Data_NCTC2, field = "TADA.ComparableDataIdentifier")
+TADA_FieldValuesTable(Data_NCTC, field = "TADA.ComparableDataIdentifier")
 
 rATTAINS::domain_values(domain_name = "ParameterName")
 ```
@@ -230,7 +229,7 @@ ATTAINS team first before proceeding.
 
 ```{r}
 NCTC_ParamRef <- TADA_CreateParamRef(
-  Data_NCTC2, 
+  Data_NCTC, 
   org_names = c("Maryland"),
   excel = FALSE # comment out 'excel = FALSE' and uncomment excel = TRUE, overwrite = TRUE to run the excel file
   #excel = TRUE, overwrite = TRUE 
@@ -253,7 +252,7 @@ names.
 #ParamRef <- openxlsx::read.xlsx(downloads_path, sheet = "CreateParamRef")
 
 # NCTC_ParamRef3 <- TADA_CreateParamRef(
-#   Data_NCTC2, 
+#   Data_NCTC, 
 #   org_names = c("Maryland"),
 #   paramRef = ParamRef,
 #   excel = FALSE # comment out 'excel = FALSE' and uncomment excel = TRUE, overwrite = TRUE to run the excel file
@@ -267,7 +266,7 @@ TADA.ComparableDataIdentifier == "NITRATE_FILTERED_AS N_MG/L" ~ "NITROGEN, TOTAL
 ))
 
 NCTC_ParamRef2 <- TADA_CreateParamRef(
-  Data_NCTC2, 
+  Data_NCTC, 
   org_names = c("Maryland"),
   paramRef = ParamRef,
   excel = FALSE)
@@ -281,7 +280,7 @@ and methods along with crosswalks done from other TADA users.
 
 ```{r}
 NCTC_ParamRef3 <- TADA_CreateParamRef(
-  Data_NCTC2, 
+  Data_NCTC, 
   org_names = c("Maryland", "Florida"),
   paramRef = ParamRef, 
   excel = FALSE
@@ -312,7 +311,7 @@ reflect Maryland's Criteria and Methodologies for PH).
 
 ```{r}
 NCTC_ParamUseRef <- TADA_CreateParamUseRef(
-  Data_NCTC2, 
+  Data_NCTC, 
   org_names = c("Maryland"),
   paramRef = ParamRef, 
   excel = FALSE # comment out 'excel = FALSE' and uncomment excel = TRUE, overwrite = TRUE to run the excel file
@@ -329,7 +328,7 @@ TADA_CreateParamRef().
 
 ```{r}
 NCTC_ParamUseRef2 <- TADA_CreateParamUseRef(
-  Data_NCTC2, 
+  Data_NCTC, 
   org_names = c("EPA304a", "Maryland", "Virginia", "Pennsylvania", "West Virginia"), 
   paramRef = ParamRef, 
   excel = FALSE # comment out 'excel = FALSE' and uncomment excel = TRUE, overwrite = TRUE to run the excel file
@@ -338,7 +337,7 @@ NCTC_ParamUseRef2 <- TADA_CreateParamUseRef(
 
 # User should only run TADA_CreateParamUseRef() which contains the orgs of interest. If there are other orgs that are interested, this should have been defined in TADA_CreateParamRef() in which users will need to be aware of the appropriate parameter name crosswalk (if users share their criteria and methods in the future, this could be more feasible)
 NCTC_ParamUseRef3 <- TADA_CreateParamUseRef(
-  Data_NCTC2, 
+  Data_NCTC, 
   org_names = c("EPA304a", "Maryland"), 
   paramRef = NCTC_ParamRef2, 
   excel = FALSE # comment out 'excel = FALSE' and uncomment excel = TRUE, overwrite = TRUE to run the excel file
@@ -348,7 +347,7 @@ NCTC_ParamUseRef3 <- TADA_CreateParamUseRef(
 
 ```{r}
 NCTC_ParamUseRef4 <- TADA_CreateParamUseRef(
-  Data_NCTC2, 
+  Data_NCTC, 
   org_names = c("EPA304a", "Maryland","Florida"), 
   paramRef = NCTC_ParamRef3, 
   excel = FALSE # comment out 'excel = FALSE' and uncomment excel = TRUE, overwrite = TRUE to run the excel file
@@ -370,5 +369,5 @@ that pertains to their water quality assessments. Users will be
 responsible for
 
 ```{r}
-#NCTC_AUIDRef <- TADA_CreateAUIDRef(Data_NCTC2, overwrite = TRUE)
+#NCTC_AUIDRef <- TADA_CreateAUIDRef(Data_NCTC, overwrite = TRUE)
 ```

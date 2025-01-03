@@ -48,7 +48,7 @@ rows with "Suspect" or "NonStandardized" characteristic-media-result unit combin
 Default is flaggedonly = FALSE.
 }
 \details{
-The “Not Reviewed” value within "TADA.ResultAboveUpperThreshold.Flag" means
+The “Not Reviewed” value within "TADA.ResultUnit.Flag" means
 that the EPA WQX team has not yet reviewed the combinations
 (see https://cdx.epa.gov/wqx/download/DomainValues/QAQCCharacteristicValidation.CSV).
 The WQX team plans to review and update these new combinations quarterly.
