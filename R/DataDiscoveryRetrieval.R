@@ -54,6 +54,8 @@
 #' @param organization A string of letters and/or numbers (some additional characters also possible) used to signify an organization with data in the Water Quality Portal. See https://www.waterqualitydata.us/Codes/organization for options.
 #' @param project A string of letters and/or numbers (some additional characters also possible) used to signify a project with data in the Water Quality Portal. See https://www.waterqualitydata.us/Codes/project for options.
 #' @param providers Leave blank to include all, or specify "STEWARDS", "STORET" (i.e., WQX), and/or "NWIS". See https://www.waterqualitydata.us/Codes/providers for options.
+#' @param maxrecs Maximum number of records to query at once.
+#' @param ask A logical value indicating whether the user should be asked for approval before downloads begin.
 #' @param applyautoclean Logical, defaults to TRUE. Applies TADA_AutoClean function on the returned data profile. Suggest switching to FALSE for queries that are expected to be large.
 #'
 #' @return TADA-compatible dataframe
@@ -195,6 +197,7 @@ TADA_DataRetrieval <- function(startDate = "null",
                                project = "null",
                                providers = "null",
                                maxrecs = 250000,
+                               ask = TRUE,
                                applyautoclean = TRUE) {
   
   # Check for incomplete or inconsistent inputs:
@@ -432,6 +435,19 @@ TADA_DataRetrieval <- function(startDate = "null",
       dplyr::pull(resultCount) %>%
       sum()
     
+    # Should we proceed with downloads? If ask == TRUE then ask the user.
+    if(ask == TRUE){
+      user_decision <- ask_user(n_records = record_count)
+      
+      # Act on input
+      if(user_decision == "yes") {
+        print("Proceeding with download.")
+      } else {
+        stop("Cancelled by user.", call. = FALSE)
+      }
+    }
+    
+    # Continue now with site count
     site_count <- length(clipped_site_ids)
     
     # Check for either more than 300 sites or more records than max_recs.
@@ -686,6 +702,18 @@ TADA_DataRetrieval <- function(startDate = "null",
     record_count <- query_avail %>%
       dplyr::pull(resultCount) %>%
       sum()
+    
+    # Should we proceed with downloads? If ask == TRUE then ask the user.
+    if(ask == TRUE){
+      user_decision <- ask_user(n_records = record_count)
+      
+      # Act on input
+      if(user_decision == "yes") {
+        print("Proceeding with download.")
+      } else {
+        stop("Cancelled by user.", call. = FALSE)
+      }
+    }
     
     # Check for either more than 300 sites or more records than max_recs.
     # If either is true then we'll approach the pull as a "big data" pull
@@ -1350,6 +1378,39 @@ TADA_JoinWQPProfiles <- function(FullPhysChem = "null",
   }
   
   return(join2)
+}
+
+#' Ask user to approve WQP downloads
+#' 
+#' Once record counts have been retrieved from the Water Quality Portal (WQP) for
+#' a query, this function is used to prompt the user to decide (i.e., "yes"/"no")
+#' whether the download should proceed. The user is also reminded of the limits of
+#' Microsoft Excel for row counts as a comparison.
+#' 
+#' @param n_records A numeric value indicating the number of records that will be downloaded from the WQP if the user decides to proceed.
+ask_user <- function(n_records){
+  
+  # Text to show user
+  user_prompt <- cat(
+    "Your WQP query will return ",
+    n_records,
+    " records.\nFor reference, Microsoft Excel will only display ~one million.\n",
+    "Would you like to continue with the download? [yes/no] ",
+    sep = ""
+  )
+  
+  # Ask user if they want to continue & check for valid response
+  while(TRUE){
+    user_input <- readline(prompt = user_prompt)
+    # Convert response to lower and no whitespace
+    user_input <- tolower(trimws(user_input))
+    if (user_input == "yes" || user_input == "no") {
+      return(user_input)
+    } else {
+      cat("Invalid input. Please enter 'yes' or 'no'.\n")
+    }
+  }
+  
 }
 
 
