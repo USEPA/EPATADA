@@ -409,9 +409,11 @@ TADA_DataRetrieval <- function(startDate = "null",
     input_bbox <- sf::st_bbox(aoi_sf)
     
     # Query info on available data within the bbox
-    bbox_avail <- dataRetrieval::whatWQPdata(
-      WQPquery,
-      bBox = c(input_bbox$xmin, input_bbox$ymin, input_bbox$xmax, input_bbox$ymax)
+    bbox_avail <- suppressMessages(
+      dataRetrieval::whatWQPdata(
+        WQPquery,
+        bBox = c(input_bbox$xmin, input_bbox$ymin, input_bbox$xmax, input_bbox$ymax)
+      )
     )
     
     # Check if any sites are within the aoi
@@ -420,8 +422,10 @@ TADA_DataRetrieval <- function(startDate = "null",
     }
     
     # Reformat returned info as sf
-    bbox_sites_sf <- dataRetrieval::whatWQPsites(
-      siteid = bbox_avail$MonitoringLocationIdentifier
+    bbox_sites_sf <- suppressMessages(
+      dataRetrieval::whatWQPsites(
+        siteid = bbox_avail$MonitoringLocationIdentifier
+      )
     ) %>%
       TADA_MakeSpatial(., crs = 4326)
     
@@ -461,7 +465,7 @@ TADA_DataRetrieval <- function(startDate = "null",
       )
       
       # Use helper function to download large data volume
-      results.DR <- suppressMessages(
+      results.DR <- withCallingHandlers(
         TADA_BigDataHelper(
           record_summary = bbox_avail %>%
             dplyr::select(MonitoringLocationIdentifier, resultCount) %>%
@@ -469,8 +473,10 @@ TADA_DataRetrieval <- function(startDate = "null",
           WQPquery = WQPquery,
           maxrecs = maxrecs,
           maxsites = 300
-        )
+        ),
+        message = function(m) message(m$message)
       )
+      
       
       rm(bbox_avail, bbox_sites_sf)
       gc()
@@ -495,11 +501,13 @@ TADA_DataRetrieval <- function(startDate = "null",
           select(-geometry)
         
         # Get project metadata
-        projects.DR <- dataRetrieval::readWQPdata(
-          siteid = clipped_site_ids,
-          WQPquery,
-          ignore_attributes = TRUE,
-          service = "Project"
+        projects.DR <- suppressMessages(
+          dataRetrieval::readWQPdata(
+            siteid = clipped_site_ids,
+            WQPquery,
+            ignore_attributes = TRUE,
+            service = "Project"
+          )
         )
         
         # Join results, sites, projects
@@ -531,11 +539,13 @@ TADA_DataRetrieval <- function(startDate = "null",
       print(WQPquery)
       
       # Get results
-      results.DR <- dataRetrieval::readWQPdata(
-        siteid = clipped_site_ids,
-        WQPquery,
-        dataProfile = "resultPhysChem",
-        ignore_attributes = TRUE
+      results.DR <- suppressMessages(
+        dataRetrieval::readWQPdata(
+          siteid = clipped_site_ids,
+          WQPquery,
+          dataProfile = "resultPhysChem",
+          ignore_attributes = TRUE
+        )
       )
       
       # Check if any results were returned
@@ -555,11 +565,13 @@ TADA_DataRetrieval <- function(startDate = "null",
           select(-geometry)
         
         # Get project metadata
-        projects.DR <- dataRetrieval::readWQPdata(
-          siteid = clipped_site_ids,
-          WQPquery,
-          ignore_attributes = TRUE,
-          service = "Project"
+        projects.DR <- suppressMessages(
+          dataRetrieval::readWQPdata(
+            siteid = clipped_site_ids,
+            WQPquery,
+            ignore_attributes = TRUE,
+            service = "Project"
+          )
         )
         
         # Join results, sites, projects
@@ -695,7 +707,7 @@ TADA_DataRetrieval <- function(startDate = "null",
     }
     
     # Query info on available data
-    query_avail <- dataRetrieval::whatWQPdata(WQPquery)
+    query_avail <- supressMessages(dataRetrieval::whatWQPdata(WQPquery))
     
     site_count <- length(query_avail$MonitoringLocationIdentifier)
     
@@ -718,7 +730,7 @@ TADA_DataRetrieval <- function(startDate = "null",
     # Check for either more than 300 sites or more records than max_recs.
     # If either is true then we'll approach the pull as a "big data" pull
     if(site_count > 300 | record_count > maxrecs) {
-      warning(
+      message(
         "The number of sites and/or records matched by the query terms is large, so the download may take some time."
       )
       
@@ -737,16 +749,20 @@ TADA_DataRetrieval <- function(startDate = "null",
       gc()
       
       # Get site metadata
-      sites.DR <- dataRetrieval::whatWQPsites(
-        siteid = unique(results.DR$MonitoringLocationIdentifier)
+      sites.DR <- suppressMessages(
+        dataRetrieval::whatWQPsites(
+          siteid = unique(results.DR$MonitoringLocationIdentifier)
+        )
       )
       
       # Get project metadata
-      projects.DR <- dataRetrieval::readWQPdata(
-        siteid = unique(results.DR$MonitoringLocationIdentifier),
-        WQPquery,
-        ignore_attributes = TRUE,
-        service = "Project"
+      projects.DR <- suppressMessages(
+        dataRetrieval::readWQPdata(
+          siteid = unique(results.DR$MonitoringLocationIdentifier),
+          WQPquery,
+          ignore_attributes = TRUE,
+          service = "Project"
+        )
       )
       
       # Join results, sites, projects
@@ -774,9 +790,11 @@ TADA_DataRetrieval <- function(startDate = "null",
       # Retrieve all 3 profiles
       print("Downloading WQP query results. This may take some time depending upon the query size.")
       print(WQPquery)
-      results.DR <- dataRetrieval::readWQPdata(WQPquery,
-                                               dataProfile = "resultPhysChem",
-                                               ignore_attributes = TRUE
+      results.DR <- suppressMessages(
+        dataRetrieval::readWQPdata(WQPquery,
+                                   dataProfile = "resultPhysChem",
+                                   ignore_attributes = TRUE
+        )
       )
       
       # check if any results are available
@@ -784,11 +802,13 @@ TADA_DataRetrieval <- function(startDate = "null",
         print("Returning empty results dataframe: Your WQP query returned no results (no data available). Try a different query. Removing some of your query filters OR broadening your search area may help.")
         TADAprofile.clean <- results.DR
       } else {
-        sites.DR <- dataRetrieval::whatWQPsites(WQPquery)
+        sites.DR <- suppressMessages(dataRetrieval::whatWQPsites(WQPquery))
         
-        projects.DR <- dataRetrieval::readWQPdata(WQPquery,
-                                                  ignore_attributes = TRUE,
-                                                  service = "Project"
+        projects.DR <- suppressMessages(
+          dataRetrieval::readWQPdata(WQPquery,
+                                     ignore_attributes = TRUE,
+                                     service = "Project"
+          )
         )
         
         TADAprofile <- TADA_JoinWQPProfiles(
