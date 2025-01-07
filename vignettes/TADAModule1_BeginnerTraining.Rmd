@@ -90,6 +90,15 @@ remotes::install_github("USEPA/EPATADA",
 # remotes::install_github("USGS-R/dataRetrieval", dependencies=TRUE)
 ```
 
+```{r install_TADA_developer, eval = T, include = F}
+remotes::install_github("USEPA/EPATADA",
+  ref = "Create-Module-3-Reference-Tables",
+  dependencies = TRUE
+)
+
+# remotes::install_github("USGS-R/dataRetrieval", dependencies=TRUE)
+```
+
 Finally, use the **library()** function to load the TADA R Package into
 your R session.
 

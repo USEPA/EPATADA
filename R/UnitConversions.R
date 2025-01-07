@@ -643,7 +643,7 @@ TADA_ConvertResultUnits <- function(.data, ref = "tada", transform = TRUE) {
     # Transform pH units to "STD UNITS"
     if(any(convert.data$CharacteristicName == "pH")) {
       print("TADA_ConvertResultUnits: harmonizing pH units to STD UNITS.")
-      
+
       convert.data <- convert.data %>%
         dplyr::mutate(TADA.ResultMeasure.MeasureUnitCode = dplyr::case_when(
           TADA.CharacteristicName == "PH" & TADA.ResultMeasure.MeasureUnitCode %in% NA ~ as.character("STD UNITS"),
