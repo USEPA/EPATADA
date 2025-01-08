@@ -639,20 +639,6 @@ TADA_ConvertResultUnits <- function(.data, ref = "tada", transform = TRUE) {
     convert.data <- convert.data %>%
       dplyr::select(-tidyselect::any_of(conversion.cols))
 
-
-    # Transform pH units to "STD UNITS"
-    if(any(convert.data$CharacteristicName == "pH")) {
-      print("TADA_ConvertResultUnits: harmonizing pH units to STD UNITS.")
-
-      convert.data <- convert.data %>%
-        dplyr::mutate(TADA.ResultMeasure.MeasureUnitCode = dplyr::case_when(
-          TADA.CharacteristicName == "PH" & TADA.ResultMeasure.MeasureUnitCode %in% NA ~ as.character("STD UNITS"),
-          TADA.CharacteristicName == "PH" & ResultMeasure.MeasureUnitCode %in% NA ~ as.character("STD UNITS"),
-          TADA.CharacteristicName == "PH" & ResultMeasure.MeasureUnitCode == "None" ~ as.character("STD UNITS"),
-          TADA.CharacteristicName == "PH" & ResultMeasure.MeasureUnitCode == "std units" ~ as.character("STD UNITS")
-        ))
-    }
-    
     # Update ID and column ordering
     convert.data <- TADA_CreateComparableID(convert.data)
     convert.data <- TADA_OrderCols(convert.data)

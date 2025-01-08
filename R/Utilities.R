@@ -340,7 +340,23 @@ TADA_AutoClean <- function(.data) {
   # Substitute updated characteristic name for deprecated names
   print("TADA_Autoclean: updating deprecated (i.e. retired) characteristic names.")
   .data <- TADA_SubstituteDeprecatedChars(.data)
-
+  
+  # Transform pH units to "STD UNITS" if "NONE" or "nu"
+  if(any(.data$TADA.CharacteristicName == "PH")) {
+    print("TADA_AutoClean: harmonizing pH units to STD UNITS.")
+    
+    .data <- .data %>%
+      dplyr::mutate(TADA.ResultMeasure.MeasureUnitCode = 
+                      ifelse(TADA.CharacteristicName == "PH" & 
+                               TADA.ResultMeasure.MeasureUnitCode == "NONE"
+                             | ResultMeasure.MeasureUnitCode == "None"
+                             | ResultMeasure.MeasureUnitCode == "nu"
+                             | is.na(ResultMeasure.MeasureUnitCode),
+                             "STD UNITS", TADA.ResultMeasure.MeasureUnitCode
+                      )
+      )
+  }
+  
   # Implement unit harmonization
   print("TADA_Autoclean: harmonizing result and depth units.")
   .data <- suppressWarnings(TADA_ConvertResultUnits(.data, transform = TRUE, ref = "tada"))
@@ -718,7 +734,16 @@ TADA_SubstituteDeprecatedChars <- function(.data) {
 #' @export
 #'
 TADA_CreateComparableID <- function(.data) {
-  TADA_CheckColumns(.data, expected_cols = c("TADA.CharacteristicName", "TADA.ResultSampleFractionText", "TADA.MethodSpeciationName", "TADA.ResultMeasure.MeasureUnitCode"))
+  
+  expected_cols <- c(
+    "TADA.CharacteristicName",
+    "TADA.ResultSampleFractionText",
+    "TADA.MethodSpeciationName",
+    "TADA.ResultMeasure.MeasureUnitCode"
+  )
+
+  TADA_CheckColumns(.data, expected_cols)
+  
   .data$TADA.ComparableDataIdentifier <- paste(.data$TADA.CharacteristicName, .data$TADA.ResultSampleFractionText, .data$TADA.MethodSpeciationName, .data$TADA.ResultMeasure.MeasureUnitCode, sep = "_")
   return(.data)
 }

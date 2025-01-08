@@ -500,10 +500,10 @@ TADA_FlagAboveThreshold <- function(.data, clean = FALSE, flaggedonly = FALSE) {
     -Value,
     -Minimum
   ))
-  
+
   # remove duplicates
   unit.ref <- unique(unit.ref)
-  
+
   # separate out valid ranges from invalid units
   unit.ref <- unit.ref %>%
     dplyr::filter(TADA.WQXVal.Flag == "Pass")
@@ -528,18 +528,20 @@ TADA_FlagAboveThreshold <- function(.data, clean = FALSE, flaggedonly = FALSE) {
       is.na(Maximum) ~ as.character("Not Reviewed"), # in QAQC table, but not yet reviewed
       TRUE ~ as.character("NA - Not Available") # this occurs when the char/unit/media combo is not in the WQX QAQC table at all. USGS data may not be in QAQC table because it does not adhere to the WQX domain tables.
     ))
-  
+
   # # Add different flags for unit issues (ranges also suspect)
   # flag.data <- flag.data %>%
   #   dplyr::mutate(TADA.ResultValueAboveUpperThreshold.Flag = dplyr::case_when(
   #     TADA.WQXVal.Flag == "Suspect" ~ as.character("Suspect: Invalid Unit"), # suspect char/unit combos are also suspect ranges
   #     TADA.WQXVal.Flag == "NonStandardized" ~ as.character("Suspect: NonStandardized Unit")
   #     ))
-  
+
   # remove Maximum and TADA.WQXVal.Flag column from unit.ref
   flag.data <- flag.data %>%
-    dplyr::select(c(-"Maximum", 
-                    -"TADA.WQXVal.Flag"))
+    dplyr::select(c(
+      -"Maximum",
+      -"TADA.WQXVal.Flag"
+    ))
 
   # if no data above WQX threshold is found
   if (any("Suspect" %in%
@@ -690,7 +692,7 @@ TADA_FlagBelowThreshold <- function(.data, clean = FALSE, flaggedonly = FALSE) {
   # remove extraneous columns from unit.ref
   unit.ref <- dplyr::select(unit.ref, c(
     -Type, -Unique.Identifier, -Domain,
-    -Status, 
+    -Status,
     -Note.Recommendation,
     -Conversion.Factor,
     -Conversion.Coefficient,
@@ -704,7 +706,7 @@ TADA_FlagBelowThreshold <- function(.data, clean = FALSE, flaggedonly = FALSE) {
   # separate out valid ranges from invalid units
   unit.ref <- unit.ref %>%
     dplyr::filter(TADA.WQXVal.Flag == "Pass")
-  
+
   check.data <- dplyr::left_join(.data,
     unit.ref,
     by = c(
@@ -732,11 +734,13 @@ TADA_FlagBelowThreshold <- function(.data, clean = FALSE, flaggedonly = FALSE) {
   #     TADA.WQXVal.Flag == "Suspect" ~ as.character("Suspect: Invalid Unit"), # suspect char/unit combos are also suspect ranges
   #     TADA.WQXVal.Flag == "NonStandardized" ~ as.character("Suspect: NonStandardized Unit")
   #     ))
-  
+
   # remove Min column
   flag.data <- flag.data %>%
-    dplyr::select(c(-"Minimum",
-                  -"TADA.WQXVal.Flag"))
+    dplyr::select(c(
+      -"Minimum",
+      -"TADA.WQXVal.Flag"
+    ))
 
   # if no data below WQX lower threshold is found
   if (any("Suspect" %in%
