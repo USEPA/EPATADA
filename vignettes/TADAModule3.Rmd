@@ -358,7 +358,7 @@ add_data <- data.frame("organization_name" = "Maryland" ,"ATTAINS.ParameterName"
 # The output of this will not reflect changes to the ATTAINS.FlagUseName column. To do so, we need to re run TADA_CreateParamUseRef() with paramUseRef = ParamUseRef as an argument.
 ParamUseRef <- NCTC_ParamUseRef3 %>%
   dplyr::left_join(add_data, by = c("organization_name", "ATTAINS.ParameterName"), keep = FALSE) %>% 
-  dplyr::mutate(use_name = coalesce(use_name.x, use_name.y)) %>% 
+  dplyr::mutate(use_name = dplyr::coalesce(use_name.x, use_name.y)) %>% 
   dplyr::select(-c(use_name.x, use_name.y))
 
 # PH will now reflect the changes 
@@ -367,8 +367,8 @@ NCTC_ParamUseRef3.1 <- TADA_CreateParamUseRef(
   paramUseRef = ParamUseRef, # Edits were made to paramUseRef, updates flag column
   org_names = c("EPA304a", "Maryland"), 
   paramRef = NCTC_ParamRef2, 
-  # excel = FALSE # comment out 'excel = FALSE' and uncomment 'excel = TRUE, overwrite = TRUE' to run the excel file
-  excel = TRUE, overwrite = TRUE 
+  excel = FALSE # comment out 'excel = FALSE' and uncomment 'excel = TRUE, overwrite = TRUE' to run the excel file
+  # excel = TRUE, overwrite = TRUE 
   ) 
 ```
 
@@ -389,6 +389,6 @@ responsible for filling out this unique spatial criteria under "ApplyUniqueSpati
 
 In this example below, no ML to AU crosswalk was provided. 
 ```{r}
-NCTC_AUIDRef <- TADA_CreateAURef(Data_NCTC, excel = TRUE, overwrite = TRUE)
+# NCTC_AUIDRef <- TADA_CreateAURef(Data_NCTC, excel = TRUE, overwrite = TRUE)
 # NCTC_AUIDRef <- TADA_CreateAUIDRef(Data_NCTC, overwrite = TRUE)
 ```
