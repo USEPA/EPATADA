@@ -27,7 +27,7 @@ tada_data <- TADA_DataRetrieval(
   applyautoclean = TRUE
 )
 
-nv_attains_features <- fetchATTAINS(tada_data, catchments_only = FALSE)
+nv_attains_features <- EPATADA:::fetchATTAINS(tada_data, catchments_only = FALSE)
 }
 }
 \seealso{

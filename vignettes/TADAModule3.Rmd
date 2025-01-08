@@ -170,7 +170,7 @@ There will be
 
 **Introduction:**
 
-The goal is to assist states, territory and tribal nations with
+The goal is to assist states, territory and tribal nations with CWA
 assessment and monitoring of waters against their WQS. The plan is to
 focus on a high level summary of assessments. We will start with
 capturing the magnitude component of criteria to determine impairment
@@ -216,23 +216,23 @@ template of ATTAINS.ParameterName which needs crosswalk to a
 TADA.ComparableDataIdentifier. Users should specify the name(s) of their
 orgs that will be used for assessment.
 
-By specifying the name of the ATTAINS organization(s) used, if creating an excel
-spreadsheet (using excel = TRUE), this will create a separate tab in the
-excel file which contains the parameter names used in prior assessment
-cycles filtered by those ATTAINS organization(s). This will allow users to
-decide whether to continue to use the same ATTAINS parameter names from
-prior assessments that their org(s) have used in the past, or to use
-other valid parameter names found in the ATTAINS domain list. If there
-are no ATTAINS parameter name that properly captures the
-TADA.ComparableDataIdentifier, users should consider contacting the
-ATTAINS team first before proceeding.
+By specifying the name of the ATTAINS organization(s) used, if creating
+an excel spreadsheet (using excel = TRUE), this will create a separate
+tab in the excel file which contains the parameter names used in prior
+assessment cycles filtered by those ATTAINS organization(s). This will
+allow users to decide whether to continue to use the same ATTAINS
+parameter names from prior assessments that their org(s) have used in
+the past, or to use other valid parameter names found in the ATTAINS
+domain list. If there are no ATTAINS parameter name that properly
+captures the TADA.ComparableDataIdentifier, users should consider
+contacting the ATTAINS team first before proceeding.
 
 ```{r}
 NCTC_ParamRef <- TADA_CreateParamRef(
   Data_NCTC, 
   org_names = c("Maryland"),
-  excel = FALSE # comment out this line 'excel = FALSE' and uncomment excel = TRUE, overwrite = TRUE to run the excel file
-  #excel = TRUE, overwrite = TRUE 
+  # excel = FALSE # comment out 'excel = FALSE' and uncomment 'excel = TRUE, overwrite = TRUE' to run the excel file
+  excel = TRUE, overwrite = TRUE 
   )
 ```
 
@@ -262,22 +262,24 @@ names.
 ParamRef <- dplyr::mutate(NCTC_ParamRef, ATTAINS.ParameterName = dplyr::case_when(
 TADA.CharacteristicName == "PH" ~ "PH",
 TADA.CharacteristicName == "ZINC" ~ "ZINC",
-TADA.ComparableDataIdentifier == "NITRATE_FILTERED_AS N_MG/L" ~ "NITROGEN, TOTAL"
+grepl("NITRATE",TADA.ComparableDataIdentifier) ~ "NITROGEN, TOTAL"
 ))
 
 NCTC_ParamRef2 <- TADA_CreateParamRef(
   Data_NCTC, 
   org_names = c("Maryland"),
   paramRef = ParamRef,
-  excel = FALSE)# comment out 'excel = FALSE' and uncomment excel = TRUE, overwrite = TRUE to run the excel file
-  # excel = TRUE, overwrite = TRUE) 
+    # excel = FALSE # comment out 'excel = FALSE' and uncomment 'excel = TRUE, overwrite = TRUE' to run the excel file
+  excel = TRUE, overwrite = TRUE 
+) 
 ```
 
 Users may also include states outside of their spatial region if
 desired, depending on a user's interest. Users will be responsible for
-filling out this crosswalk for org(s)/state(s) that are outside their own org(s).
-Although, future efforts will focus on creating a repository of criteria
-and methods along with crosswalks done from other TADA users.
+filling out this crosswalk for org(s)/state(s) that are outside their
+own org(s). Although, future efforts will focus on creating a repository
+of criteria and methods along with crosswalks done from other TADA
+users.
 
 ```{r}
 NCTC_ParamRef3 <- TADA_CreateParamRef(
@@ -301,65 +303,81 @@ ATTAINS parameter name and use name.
 
 For any ATTAINS parameter name(s) that have not been used by this org in
 prior assessment cycles, there will be no prior use names associated
-with them. In this case, users will be responsible for
-inputting additional rows as needed and choosing the appropriate
-use_name applicable to their org under the column 'use_name'. In this
-example, we can see "PH" was not a prior ATTAINS parameter name for
-Maryland, thus additional rows should be inputted to reflect what
-parameter and use combinations are needed to be defined for assessments
-(disclaimer: this is for demonstration purposes only and does not
-reflect Maryland's Criteria and Methodologies for PH).
+with them. In this case, users will be responsible for inputting
+additional rows as needed and choosing the appropriate use_name
+applicable to their org under the column 'use_name'. In this example, we
+can see "PH" was not a prior ATTAINS parameter name for Maryland, thus
+additional rows should be inputted to reflect what parameter and use
+combinations are needed to be defined for assessments (disclaimer: this
+is for demonstration purposes only and does not reflect Maryland's
+Criteria and Methodologies for PH).
 
 ```{r}
 NCTC_ParamUseRef <- TADA_CreateParamUseRef(
   Data_NCTC, 
   org_names = c("Maryland"),
   paramRef = ParamRef, 
-  excel = FALSE # comment out 'excel = FALSE' and uncomment excel = TRUE, overwrite = TRUE to run the excel file
-  #excel = TRUE, overwrite = TRUE 
+  # excel = FALSE # comment out 'excel = FALSE' and uncomment 'excel = TRUE, overwrite = TRUE' to run the excel file
+  excel = TRUE, overwrite = TRUE 
   )
 ```
 
 User can include the EPA304a standards with the input "org_names", which
 utilizes the CST.PollutantName column created in TADA_CreateParamRef().
-If a user includes additional orgs besides "Maryland" and "EPA304a", it
+If a user includes additional orgs besides "Maryland" and "EPA304a", see example NCTC_ParamUseRef2 below, it
 will not generate rows for those parameter and use combinations for
-those additional orgs as only Maryland was defined in
-TADA_CreateParamRef().
+those additional orgs ("Virginia", "Pennsylvania", "West Virginia") as only Maryland was defined in
+TADA_CreateParamRef() for paramRef = ParamRef.
 
 ```{r}
 NCTC_ParamUseRef2 <- TADA_CreateParamUseRef(
   Data_NCTC, 
   org_names = c("EPA304a", "Maryland", "Virginia", "Pennsylvania", "West Virginia"), 
   paramRef = ParamRef, 
-  excel = FALSE # comment out 'excel = FALSE' and uncomment excel = TRUE, overwrite = TRUE to run the excel file
-  #excel = TRUE, overwrite = TRUE 
+  # excel = FALSE # comment out 'excel = FALSE' and uncomment 'excel = TRUE, overwrite = TRUE' to run the excel file
+  excel = TRUE, overwrite = TRUE 
   )
 
-# User should only run TADA_CreateParamUseRef() which contains the orgs of interest. If there are other orgs that are interested, this should have been defined in TADA_CreateParamRef() in which users will need to be aware of the appropriate parameter name crosswalk (if users share their criteria and methods in the future, this could be more feasible)
+# User should only run TADA_CreateParamUseRef() which contains the orgs of interest. If there are other orgs that are interested, this should have been defined in TADA_CreateParamRef() for the paramRef argument input in which users will need to be aware of the appropriate parameter name crosswalk (if users share their criteria and methods in the future, this could be more feasible)
 NCTC_ParamUseRef3 <- TADA_CreateParamUseRef(
   Data_NCTC, 
   org_names = c("EPA304a", "Maryland"), 
   paramRef = NCTC_ParamRef2, 
-  excel = FALSE # comment out 'excel = FALSE' and uncomment excel = TRUE, overwrite = TRUE to run the excel file
-  #excel = TRUE, overwrite = TRUE 
+  # excel = FALSE # comment out 'excel = FALSE' and uncomment 'excel = TRUE, overwrite = TRUE' to run the excel file
+  excel = TRUE, overwrite = TRUE 
   )
 ```
 
+In this example, Maryland has decided to use an ATTAINS.ParameterName "PH" as a crosswalk that was not used in prior ATTAINS assessment cycle which results in the use_name column returning a blank value. Maryland will need to specify the use_name(s) that they would like to associate with "PH". In excel, there will be a drop down list of org specific use_names that were used in prior ATTAINS assessments. If no excel file was generated, this is an example workflow of what a user can do to edit the table in the R environment.
+
 ```{r}
-NCTC_ParamUseRef4 <- TADA_CreateParamUseRef(
-  Data_NCTC, 
-  org_names = c("EPA304a", "Maryland","Florida"), 
-  paramRef = NCTC_ParamRef3, 
-  excel = FALSE # comment out 'excel = FALSE' and uncomment excel = TRUE, overwrite = TRUE to run the excel file
-  #excel = TRUE, overwrite = TRUE 
-  )
+add_data <- data.frame("organization_name" = "Maryland" ,"ATTAINS.ParameterName" = rep("PH",3), "use_name" = c("Aquatic Life and Wildlife", "Water Contact Sports",
+"Seasonal Migratory Fish Spawning and Nursery Subcategory"
+))
+
+# The output of this will not reflect changes to the ATTAINS.FlagUseName column. To do so, we need to re run TADA_CreateParamUseRef() with paramUseRef = ParamUseRef as an argument.
+ParamUseRef <- NCTC_ParamUseRef3 %>%
+  dplyr::left_join(add_data, by = c("organization_name", "ATTAINS.ParameterName"), keep = FALSE) %>% 
+  dplyr::mutate(use_name = coalesce(use_name.x, use_name.y)) %>% 
+  dplyr::select(-c(use_name.x, use_name.y))
+
+# PH will now reflect the changes 
+NCTC_ParamUseRef3.1 <- TADA_CreateParamUseRef(
+  Data_NCTC,
+  paramUseRef = ParamUseRef, # Edits were made to paramUseRef, updates flag column
+  org_names = c("EPA304a", "Maryland"), 
+  paramRef = NCTC_ParamRef2, 
+  # excel = FALSE # comment out 'excel = FALSE' and uncomment 'excel = TRUE, overwrite = TRUE' to run the excel file
+  excel = TRUE, overwrite = TRUE 
+  ) 
 ```
 
 Users must review the matching done with TADA_GetATTAINS of monitoring
 sites to AU. Users may also provide their own AU monitoring sites match
 as a reference table. For any new WQP monitoring sites found in the TADA
-dataframe, users will need to determine the appropriate match.
+dataframe, users will need to determine the appropriate match. Users can also
+choose to not provide any sort of ML to AU crosswalk if they are only interested
+in a monitoring location site level analysis of assessments. 
 
 If there are site-specific criteria that only applies to some monitoring
 locations within an AU, whether it's an ecoregion, for a specific
@@ -367,8 +385,9 @@ parameter and use, or if there are separate criteria for "warm-waters"
 versus "cold-waters" or "trout-based" versus other species based, this
 should be defined here. Users can further customize specific exclusions
 that pertains to their water quality assessments. Users will be
-responsible for
+responsible for filling out this unique spatial criteria under "ApplyUniqueSpatialCriteria" column.
 
+In this example below, no ML to AU crosswalk was provided. 
 ```{r}
-#NCTC_AUIDRef <- TADA_CreateAUIDRef(Data_NCTC, overwrite = TRUE)
+NCTC_AUIDRef <- TADA_CreateAURef(Data_NCTC, excel = TRUE, overwrite = TRUE)
 ```

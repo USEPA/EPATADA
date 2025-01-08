@@ -463,7 +463,7 @@ TADA_CreateParamRef <- function(.data, org_names = NULL, paramRef = NULL, excel 
 #' paramUseRef_UT2 <- TADA_CreateParamUseRef(Data_Nutrients_UT, paramRef = paramRef_UT3, org_names = c("EPA304a", "Utah"), excel = FALSE)
 #' paramUseRef_UT3 <- TADA_CreateParamUseRef(Data_Nutrients_UT, paramRef = paramRef_UT3, org_names = c("EPA304a"), excel = FALSE)
 #' 
-TADA_CreateParamUseRef <- function(.data, org_names = NULL, paramRef = NULL, excel = FALSE, overwrite = FALSE) {
+TADA_CreateParamUseRef <- function(.data, org_names = NULL, paramRef = NULL, paramUseRef = NULL, excel = FALSE, overwrite = FALSE) {
   # overwrite argument should only be used when creating an excel file.
   if (excel == FALSE && overwrite == TRUE) {
     stop("argument input excel = FALSE and overwrite = TRUE is an invalid combination. Cannot overwrite the excel generated spreadsheet if a user specifies excel = FALSE")
@@ -521,6 +521,25 @@ TADA_CreateParamUseRef <- function(.data, org_names = NULL, paramRef = NULL, exc
     }
   }
   
+  # check to see if user-supplied parameter-use ref is a df with appropriate columns and is filled out.
+  if (!is.null(paramRef) & !is.character(paramRef)) {
+    if (!is.data.frame(paramRef)) {
+      stop("TADA_CreateParamUseRef: 'paramUseRef' must be a data frame with these 6 columns: TADA.ComparableDataIdentifier, organization_name, EPA304A.PollutantName, ATTAINS.ParameterName, use_name, IncludeOrExclude")
+    }
+    
+    if (is.data.frame(paramUseRef)) {
+      col.names <- c(
+        "TADA.ComparableDataIdentifier", "organization_name", "EPA304A.PollutantName", "ATTAINS.ParameterName", "use_name", "IncludeOrExclude"  
+      )
+      
+      ref.names <- names(paramUseRef)
+      
+      if (length(setdiff(col.names, ref.names)) > 0 && !("TADA.ComparableDataIdentifier" %in% names(paramUseRef))) {
+        stop("TADA_CreateParamUseRef: 'paramUseRef' must be a data frame with these 6 columns: TADA.ComparableDataIdentifier, organization_name, EPA304A.PollutantName, ATTAINS.ParameterName, use_name, IncludeOrExclude")
+      }
+    }
+  }
+  
   .data <- as.data.frame(.data)
   
   # Pulls in all domain values of parameter and use names by orgs in ATTAINS. Filtering by state is done in the next steps.
@@ -535,11 +554,7 @@ TADA_CreateParamUseRef <- function(.data, org_names = NULL, paramRef = NULL, exc
   # if user doesn't provide an org_names argument, the function extracts the unique org_names from TADA_GetATTAINS().
   # Users will need to have ran TADA_GetATTAINS() for this option to be allowed. Selection of org_names will filter the drop down lists in future steps of creating the reference tables.
   if (is.null(org_names)) {
-    print("TADA.CreateParamUseRef: No organization name(s) provided. Attempting to pull in organization names found in the TADA data frame.
-          Please ensure that you have ran TADA_GetATTAINS if you did not provide an org_names argument input.")
-    print("Users should provide a list of ATTAINS organization state or tribal name that pertains to their assessment.")
-    TADA_CheckColumns(.data, "ATTAINS.organizationname")
-    org_names <- unique(stats::na.omit(.data[, "ATTAINS.organizationname"]))
+    stop("TADA.CreateParamUseRef: No organization name(s) provided.")
   }
   
   org_names <- as.list(org_names)
@@ -548,7 +563,15 @@ TADA_CreateParamUseRef <- function(.data, org_names = NULL, paramRef = NULL, exc
   if (sum(!org_names[org_names != "EPA304a"] %in% ATTAINS_param_all$organization_name) > 0) {
     warning(paste0(
       "TADA_CreateParamRef: ",
-      "One or more organization names entered by user is not found in ATTAINS."
+      "One or more organization names entered by user is not found in ATTAINS. "
+    ))
+  }
+  
+  # Checks if org_names are found in the user supplied paramRef argument.
+  if (sum(!org_names[org_names != "EPA304a"] %in% paramRef$organization_name) > 0) {
+    warning(paste0(
+      "TADA_CreateParamRef: ",
+      "One or more organization names entered by user is not found in your paramRef argument input. Excluding those missing organization name(s) from output"
     ))
   }
   
@@ -578,6 +601,7 @@ TADA_CreateParamUseRef <- function(.data, org_names = NULL, paramRef = NULL, exc
       dplyr::select(TADA.ComparableDataIdentifier, organization_name = organization_name.y, ATTAINS.ParameterName, EPA304A.PollutantName, use_name = use_name.y) %>%
       dplyr::distinct()
     
+    # remove intermediate object CST_param
     rm(CST_param)
     
     CreateParamUseRef <- CreateParamUseRef %>%
@@ -589,6 +613,13 @@ TADA_CreateParamUseRef <- function(.data, org_names = NULL, paramRef = NULL, exc
     # remove intermediate object EPA_param
     rm(EPA_param)
 
+  }
+  
+  if (!is.null(paramUseRef)){
+    CreateParamUseRef <- paramUseRef %>%
+      dplyr::left_join(CreateParamUseRef, c("TADA.ComparableDataIdentifier", "ATTAINS.ParameterName", "organization_name", "EPA304A.PollutantName", "use_name")) %>%
+      dplyr::select(TADA.ComparableDataIdentifier, organization_name, EPA304A.PollutantName, ATTAINS.ParameterName, use_name) %>%
+      dplyr::filter(organization_name %in% org_names)
   }
   
   # This updates the flagging column. Users who only creates an R dataframe in the R environment will need to ensure they re-run the function with their completed paramRef as an input to reflect this column accurately.
@@ -703,7 +734,7 @@ TADA_CreateParamUseRef <- function(.data, org_names = NULL, paramRef = NULL, exc
       openxlsx::writeFormula(wb, "CreateParamUseRef", startCol = 7, startRow = i + 1, array = TRUE,
       x = paste0("=IF(B", i + 1, '="EPA304a",
         "Will use the EPA304a recommended standards for this parameter. Do not edit EPA304a use_name",
-      IF(F,', i + 1, '="Exclude",
+      IF(F', i + 1, '="Exclude",
         "Parameter and use name does not apply for this TADA.ComparableDataIdentifier. Will exclude from assessment.",
       IF(ISBLANK(E', i + 1, '), 
         "No use name is provided. Consider choosing an appropriate use_name that applies for assessment",
@@ -761,18 +792,9 @@ TADA_CreateParamUseRef <- function(.data, org_names = NULL, paramRef = NULL, exc
 #' @return A data frame with all the MonitoringLocationIdentifier Sites for a defined AU.
 #' 
 #' @export
-#'
-#' @examples
-#' # Loads dataframe with the example dataframe for Data_Nutrient_UT with TADA_GetATTAINS() ran.
-#' Data_Nutrients_UT_ATTAINS <- load("data.Rda")
-#' 
-#' # Creates a crosswalk for MonitoringLocationName/MonitoringLocationType/MonitoringLocationId for only AU = "UT16020102-053_00"
-#' Data_Nutrients_AU_ref <- TADA_CreateAURef(Data_Nutrients_UT_ATTAINS$TADA_with_ATTAINS, AU = "UT16020102-053_00")
-#' # Creates a crosswalk for MonitoringLocationName/MonitoringLocationType/MonitoringLocationId for all AU found in .data.
-#' Data_Nutrients_AU_ref2 <- TADA_CreateAURef(Data_Nutrients_UT_ATTAINS$TADA_with_ATTAINS)
 #' 
 
-TADA_CreateAURef <- function(.data, AURef = NULL, excel = TRUE, overwrite = FALSE, returnSites = c("all","matched-only")){
+TADA_CreateAURef <- function(.data, AU = NULL, excel = TRUE, overwrite = FALSE, returnSites = c("all","matched-only")){
   
   # data <- rATTAINS::assessments(organization_id = "MDE_EASP")
   # 
@@ -817,17 +839,6 @@ TADA_CreateAURef <- function(.data, AURef = NULL, excel = TRUE, overwrite = FALS
     print(paste0("Filtering by AUs = ", AU, ". Creating a dataframe for unique combinations of MonitoringLocationName/MonitoringLocationType/MonitoringLocationId."))
   }
   
-  wb <- loadWorkbook(wb, downloads_path)
-  
-  tryCatch({
-    addWorksheet(wb, "CreateAURef")
-  },
-  error = function(e){
-    removeWorksheet(wb, "CreateAURef")
-    addWorksheet(wb, "CreateAURef")
-  }
-  )
-  
   # Filters by AU if desired, otherwise creates a dataframe of all unique AU in the TADA dataframe pull
   CreateAURef <- .data %>%
     dplyr::filter(if (is.null(AU)) TRUE 
@@ -866,7 +877,17 @@ TADA_CreateAURef <- function(.data, AURef = NULL, excel = TRUE, overwrite = FALS
   }
   
   if (excel == TRUE) {
-  
+    wb <- openxlsx::loadWorkbook(wb, downloads_path)
+    
+    tryCatch({
+      openxlsx::addWorksheet(wb, "CreateAURef")
+    },
+    error = function(e){
+      openxlsx::removeWorksheet(wb, "CreateAURef")
+      openxlsx::addWorksheet(wb, "CreateAURef")
+    }
+    )
+    
     # Format column header
     header_st <- openxlsx::createStyle(textDecoration = "Bold")
     # Format Column widths
@@ -886,16 +907,16 @@ TADA_CreateAURef <- function(.data, AURef = NULL, excel = TRUE, overwrite = FALS
     # Conditional Formatting
     openxlsx::conditionalFormatting(wb, "CreateAURef",
                           cols = 9, rows = 2:(nrow(CreateAURef) + 1),
-                          type = "contains", rule = "Include", style = createStyle(bgFill = TADA_ColorPalette()[9])) # default values or indicates good to go cells.
+                          type = "contains", rule = "Include", style = openxlsx::createStyle(bgFill = TADA_ColorPalette()[9])) # default values or indicates good to go cells.
     openxlsx::conditionalFormatting(wb, "CreateAURef",
                           cols = 9, rows = 2:(nrow(CreateAURef) + 1),
-                          type = "contains", rule = "Exclude", style = createStyle(bgFill = TADA_ColorPalette()[8])) # using yellow to indicate modified cell
+                          type = "contains", rule = "Exclude", style = openxlsx::createStyle(bgFill = TADA_ColorPalette()[8])) # using yellow to indicate modified cell
     # conditionalFormatting(wb, "CreateAURef",
     #                       cols = 8, rows = 2:(nrow(CreateAURef) + 1),
     #                       type = "notContains", rule = c("Exclude","Include"), style = createStyle(bgFill = "red")) # Likely error. Invalid value is possible here.
     openxlsx::conditionalFormatting(wb, "CreateAURef",
                           cols = 10:12, rows = 2:(nrow(CreateAURef) + 1),
-                          type = "blanks", style = createStyle(bgFill = TADA_ColorPalette()[9])) # green is default values or indicates good to go cells.
+                          type = "blanks", style = openxlsx::createStyle(bgFill = TADA_ColorPalette()[9])) # green is default values or indicates good to go cells.
     openxlsx::conditionalFormatting(wb, "CreateAURef",
                           cols = 10:12, rows = 2:(nrow(CreateAURef) + 1),
                           type = "notBlanks", style = openxlsx::createStyle(bgFill = TADA_ColorPalette()[8])) # using yellow to indicate modified cell

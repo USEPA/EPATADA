@@ -122,31 +122,11 @@ test_that("TADA_FindPotentialDuplicatsMultipleOrgs has non-NA values for each ro
   expect_false(any(is.na(testdat$TADA.ResultSelectedMultipleOrgs)))
 })
 
-# # UNCOMMENT FOR MORE ROBUST TEST ONCE WQX TABLE IS UPDATED 1/3/25 
-# test_that("WQXcharValRef.csv contains only one row for each unique characteristic/media/unit/max/min combination for threshold functions", {
-#   unit.ref <- utils::read.csv(system.file("extdata", "WQXcharValRef.csv", package = "EPATADA")) %>%
-#     dplyr::filter(
-#       Type == "CharacteristicUnit"
-#     )
-# 
-#   find.dups <- unit.ref %>%
-#     dplyr::filter(Type == "CharacteristicUnit") %>%
-#     dplyr::group_by(Characteristic, Source, Value.Unit) %>%
-#     dplyr::mutate(
-#       Min_n = length(unique(Minimum)),
-#       Max_n = length(unique(Maximum))
-#     ) %>%
-#     dplyr::filter(Min_n > 1 |
-#                     Max_n > 1)
-# 
-#   expect_true(nrow(find.dups) == 0)
-# })
-
+# MORE ROBUST TEST FOR WQX VAL TABLE, UPDATED 1/8/25
 test_that("WQXcharValRef.csv contains only one row for each unique characteristic/media/unit/max/min combination for threshold functions", {
   unit.ref <- utils::read.csv(system.file("extdata", "WQXcharValRef.csv", package = "EPATADA")) %>%
     dplyr::filter(
-      Type == "CharacteristicUnit",
-      Status == "Accepted"
+      Type == "CharacteristicUnit"
     )
 
   find.dups <- unit.ref %>%
@@ -161,6 +141,26 @@ test_that("WQXcharValRef.csv contains only one row for each unique characteristi
 
   expect_true(nrow(find.dups) == 0)
 })
+
+# test_that("WQXcharValRef.csv contains only one row for each unique characteristic/media/unit/max/min combination for threshold functions", {
+#   unit.ref <- utils::read.csv(system.file("extdata", "WQXcharValRef.csv", package = "EPATADA")) %>%
+#     dplyr::filter(
+#       Type == "CharacteristicUnit",
+#       Status == "Accepted"
+#     )
+# 
+#   find.dups <- unit.ref %>%
+#     dplyr::filter(Type == "CharacteristicUnit") %>%
+#     dplyr::group_by(Characteristic, Source, Value.Unit) %>%
+#     dplyr::mutate(
+#       Min_n = length(unique(Minimum)),
+#       Max_n = length(unique(Maximum))
+#     ) %>%
+#     dplyr::filter(Min_n > 1 |
+#                     Max_n > 1)
+# 
+#   expect_true(nrow(find.dups) == 0)
+# })
 
 test_that("range flag functions work", {
   # use random data
