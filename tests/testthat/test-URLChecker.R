@@ -69,7 +69,7 @@ suppressWarnings(
 
     # print url and response code for failures
     if (n > 0) {
-    print(df_false)
+      print(df_false)
     }
 
     # verify that there are zero urls with failing response codes

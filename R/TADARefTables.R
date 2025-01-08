@@ -6,7 +6,7 @@ ATTAINSParamUseOrgRef_Cached <- NULL
 #' ATTAINS Parameter and Use Name by Organization Reference Key
 #'
 #' Function downloads and returns the newest available ATTAINS domain values
-#' reference dataframe summarized by parameter and use 
+#' reference dataframe summarized by parameter and use
 #' listed as a cause by organizations in previous assessments.
 #' This dataframe is used in TADA_CreateParamRef() and
 #' TADA_CreateParamUseRef() as the basis for the pulling in prior ATTAINS
@@ -23,54 +23,54 @@ TADA_GetATTAINSParamUseOrgRef <- function() {
   # if (!is.null(ATTAINSParamUseOrgRef_Cached)) {
   #   return(ATTAINSParamUseOrgRef_Cached)
   # }
-  # 
+  #
   # # Try to download up-to-date raw data
-  # 
+  #
   # raw.data <- tryCatch(
   #   {
   #     # reads rATTAINS domain value
   #     org_id <- rATTAINS::domain_values("OrgName")[[3]]
   #     all.data <- list()
-  #     
+  #
   #     for(i in 1:length(org_id)){
   #       all.data[[i]] <- rATTAINS::assessments(organization_id = org_id[i])[[2]]
   #     }
-  #     
+  #
   #     all.data2 <- dplyr::bind_rows(all.data, .id = "column_label")
   #   },
   #   error = function(err) {
   #     NULL
   #   }
   # )
-  # 
+  #
   # # remove intermediate variables
   # rm(org_id, all.data, all.data2)
-  # 
+  #
   # # If the download failed fall back to internal data (and report it)
   # if (is.null(raw.data)) {
   #   message("Downloading latest ATTAINSParamUseOrg Reference Table failed!")
   #   message("Falling back to (possibly outdated) internal file.")
   #   return(utils::read.csv(system.file("extdata", "ATTAINSParamUseEntityRef.csv", package = "EPATADA")))
   # }
-  # 
+  #
   # # Creates and formats the ATTAINSParamUseOrg ref table containing parameters by use name for each org
   # use_attainments <- raw.data %>% tidyr::unnest(c(use_attainments), names_sep = ".")
   # use_parameters <- use_attainments %>% tidyr::unnest(c(parameters), names_sep = ".")
-  #   
+  #
   # ATTAINSParamUseOrgRef <- use_parameters %>%
   #   dplyr::select(organization_identifier, organization_name, organization_type_text,
   #                 use_attainments.use_name, parameters.parameter_name) %>%
   #   dplyr::distinct()
-  # 
+  #
   # # remove intermediate variables
   # rm(use_attainments, use_parameters)
-  # 
-  
+  #
+
   ATTAINSParamUseOrgRef <- utils::read.csv(system.file("extdata", "ATTAINSParamUseEntityRef.csv", package = "EPATADA"))
-  
+
   # Save updated table in cache
   ATTAINSParamUseOrgRef_Cached <- ATTAINSParamUseOrgRef
-  
+
   ATTAINSParamUseOrgRef
 }
 
@@ -92,7 +92,7 @@ EPA304aRef_Cached <- NULL
 #' EPA304a Criteria Search Tool Reference Key
 #'
 #' Function downloads and returns the newest available Criteria Search Tool and
-#' associated EPA 304a Criteria pollutant names as a reference dataframe. 
+#' associated EPA 304a Criteria pollutant names as a reference dataframe.
 #' This dataframe is used in TADA_CreateParamRef() and
 #' TADA_CreateParamUseRef() as the basis for the pulling in EPA304a recommended
 #' pollutant name and use_name for assessment under the CWA.
@@ -110,9 +110,9 @@ TADA_GetEPA304aRef <- function() {
   if (!is.null(EPA304aRef_Cached)) {
     return(EPA304aRef_Cached)
   }
-  
+
   # Try to download up-to-date raw data
-  
+
   raw.data <- tryCatch(
     {
       # read raw xlsx from url
@@ -122,19 +122,19 @@ TADA_GetEPA304aRef <- function() {
       NULL
     }
   )
-  
+
   # If the download failed fall back to internal data (and report it)
   if (is.null(raw.data)) {
     message("Downloading latest Criteria Search Tool Reference Table failed!")
     message("Falling back to (possibly outdated) internal file.")
     return(utils::read.csv(system.file("extdata", "CST.csv", package = "EPATADA")))
   }
-  
+
   # Creates and formats the CST ref table below:
-  
+
   # Find the CST row that contains the column name of dataframe - removes extraneous details
-  CST.begin <- as.integer(which(rowSums(is.na(raw.data))==0)[1])
-  colnames(raw.data) <- as.character(raw.data[CST.begin,])
+  CST.begin <- as.integer(which(rowSums(is.na(raw.data)) == 0)[1])
+  colnames(raw.data) <- as.character(raw.data[CST.begin, ])
   # import TADA unit reference for priority characteristics (characteristic specific)
   tada.char.ref <- utils::read.csv(system.file("extdata", "TADAPriorityCharUnitRef.csv", package = "EPATADA"))
 
@@ -143,18 +143,19 @@ TADA_GetEPA304aRef <- function() {
     utils::tail(-CST.begin) %>%
     dplyr::filter(ENTITY_ABBR == "304A") %>%
     dplyr::left_join(tada.char.ref, by = c("POLLUTANT_NAME" = "CST.PollutantName"), relationship = "many-to-many") %>%
-    dplyr::select(TADA.CharacteristicName, POLLUTANT_NAME, organization_name = ENTITY_ABBR,
-                  use_name = USE_CLASS_NAME_LOCATION_ETC, CRITERION_VALUE,
-                  CRITERIATYPEAQUAHUMHLTH, CRITERIATYPEFRESHSALTWATER,
-                  CRITERIATYPE_ACUTECHRONIC, CRITERIATYPE_WATERORG
-                  )
-  
+    dplyr::select(TADA.CharacteristicName, POLLUTANT_NAME,
+      organization_name = ENTITY_ABBR,
+      use_name = USE_CLASS_NAME_LOCATION_ETC, CRITERION_VALUE,
+      CRITERIATYPEAQUAHUMHLTH, CRITERIATYPEFRESHSALTWATER,
+      CRITERIATYPE_ACUTECHRONIC, CRITERIATYPE_WATERORG
+    )
+
   # Remove intermediate variables
-  rm(CST.begin, tada.char.ref, raw.data)  
-  
+  rm(CST.begin, tada.char.ref, raw.data)
+
   # Save updated table in cache
   EPA304aRef_Cached <- EPA304aRef
-  
+
   EPA304aRef
 }
 

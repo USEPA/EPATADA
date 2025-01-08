@@ -116,6 +116,7 @@ HydrologicCondition
 HydrologicEvent
 IDCensoredData
 IDDepthProfiles
+IncludeOrExclude
 InvalidCoordinates
 InvalidFraction
 InvalidResultUnit
@@ -210,7 +211,6 @@ RStudio
 Rancherias
 ReplicateSampleID
 Repo
-ResultAboveUpperThreshold
 ResultAggregation
 ResultAnalyticalMethod
 ResultCommentText
@@ -224,7 +224,6 @@ ResultMeasureQualifier
 ResultMeasureUnit
 ResultMeasureValue
 ResultMeasureValueDataTypes
-ResultMeasureValues
 ResultParticleSizeBasisText
 ResultSampleFractionText
 ResultSelectedMultipleOrgs
@@ -400,12 +399,12 @@ pcodes
 ph
 plotly
 pre
+rATTAINS
 randombelowlimit
 rda
 readWQPdata
 repo
 reproducibility
-runTADA
 sampleMedia
 secchi
 shp

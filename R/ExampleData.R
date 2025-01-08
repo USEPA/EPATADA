@@ -112,7 +112,7 @@ NULL
 #' Data_WV_Mod1_Output
 #'
 #' See Module 1 Workflow.R script in vignettes folder
-#' This is the final data after running a recommended module 1 workflow. 
+#' This is the final data after running a recommended module 1 workflow.
 #' It can be used as a starting point for Modules 2 or 3.
 #'
 #' @docType data

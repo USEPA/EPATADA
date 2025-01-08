@@ -107,28 +107,32 @@ Criteria Search Tool) has been created by the EPATADA team. This crosswalk is st
 development and only focuses on the TADA priority characteristics (add link to list?).
 }
 \examples{
-# This creates a blank paramRef template of UT Nutrients data. Users will need to fill this 
+# This creates a blank paramRef template of UT Nutrients data. Users will need to fill this
 # template out.
 paramRef_UT <- TADA_CreateParamRef(Data_Nutrients_UT, org_names = "Utah", excel = FALSE)
 
-# User can choose to edit the paramRef_UT through the R environment or in the excel spreadsheet. 
-# Users should be aware that any updates done only in the R environment will not reflect the 
-# 'ATTAINS.FlagParameterName' values correctly. They are recommended to rerun the function with 
+# User can choose to edit the paramRef_UT through the R environment or in the excel spreadsheet.
+# Users should be aware that any updates done only in the R environment will not reflect the
+# 'ATTAINS.FlagParameterName' values correctly. They are recommended to rerun the function with
 # this completed crosswalk to do so if it is done in the R environment only and not in excel.See
 # below for a simple example of this workflow:
 
 paramRef_UT2 <- dplyr::mutate(paramRef_UT, ATTAINS.ParameterName = dplyr::case_when(
-    TADA.CharacteristicName == "AMMONIA" ~ "AMMONIA, TOTAL", 
-    TADA.CharacteristicName == "NITRATE" ~ "NITRATE", 
-    TADA.CharacteristicName == "NITROGEN" ~ "NITRATE/NITRITE (NITRITE + NITRATE AS N)" )
-    )
-paramRef_UT3 <- TADA_CreateParamRef(Data_Nutrients_UT, paramRef = paramRef_UT2, 
-                                    org_names = "Utah", excel = FALSE)
+  TADA.CharacteristicName == "AMMONIA" ~ "AMMONIA, TOTAL",
+  TADA.CharacteristicName == "NITRATE" ~ "NITRATE",
+  TADA.CharacteristicName == "NITROGEN" ~ "NITRATE/NITRITE (NITRITE + NITRATE AS N)"
+))
+paramRef_UT3 <- TADA_CreateParamRef(Data_Nutrients_UT,
+  paramRef = paramRef_UT2,
+  org_names = "Utah", excel = FALSE
+)
 
 # The selectin of multiple org_names is allowed
 Data_NCTCShepherdstown <- TADA_RunKeyFlagFunctions(Data_NCTCShepherdstown_HUC12)
 Data_NCTCShepherdstown2 <- TADA_HarmonizeSynonyms(Data_NCTCShepherdstown)
-paramRef_NCTC <- TADA_CreateParamRef(Data_NCTCShepherdstown2, org_names = 
-                                        c("Maryland", "Virginia", "Pennsylvania"), excel = FALSE)
+paramRef_NCTC <- TADA_CreateParamRef(Data_NCTCShepherdstown2,
+  org_names =
+    c("Maryland", "Virginia", "Pennsylvania"), excel = FALSE
+)
 
 }

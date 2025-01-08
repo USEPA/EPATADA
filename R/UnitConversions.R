@@ -638,7 +638,7 @@ TADA_ConvertResultUnits <- function(.data, ref = "tada", transform = TRUE) {
     # Remove unneccessary conversion columns
     convert.data <- convert.data %>%
       dplyr::select(-tidyselect::any_of(conversion.cols))
-    
+
     # Update ID and column ordering
     convert.data <- TADA_CreateComparableID(convert.data)
     convert.data <- TADA_OrderCols(convert.data)

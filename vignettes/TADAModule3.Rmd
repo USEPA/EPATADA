@@ -229,11 +229,11 @@ ATTAINS team first before proceeding.
 
 ```{r}
 NCTC_ParamRef <- TADA_CreateParamRef(
-  Data_NCTC, 
+  Data_NCTC,
   org_names = c("Maryland"),
   excel = FALSE # comment out this line 'excel = FALSE' and uncomment excel = TRUE, overwrite = TRUE to run the excel file
-  #excel = TRUE, overwrite = TRUE 
-  )
+  # excel = TRUE, overwrite = TRUE
+)
 ```
 
 Users who have already completed this crosswalk can re-use this
@@ -252,25 +252,26 @@ names.
 # ParamRef <- openxlsx::read.xlsx(downloads_path, sheet = "CreateParamRef")
 
 # NCTC_ParamRef3 <- TADA_CreateParamRef(
-#   Data_NCTC, 
+#   Data_NCTC,
 #   org_names = c("Maryland"),
 #   paramRef = ParamRef,
 #   excel = FALSE # comment out 'excel = FALSE' and uncomment excel = TRUE, overwrite = TRUE to run the excel file
-#   #excel = TRUE, overwrite = TRUE 
+#   #excel = TRUE, overwrite = TRUE
 #   )
 
 ParamRef <- dplyr::mutate(NCTC_ParamRef, ATTAINS.ParameterName = dplyr::case_when(
-TADA.CharacteristicName == "PH" ~ "PH",
-TADA.CharacteristicName == "ZINC" ~ "ZINC",
-TADA.ComparableDataIdentifier == "NITRATE_FILTERED_AS N_MG/L" ~ "NITROGEN, TOTAL"
+  TADA.CharacteristicName == "PH" ~ "PH",
+  TADA.CharacteristicName == "ZINC" ~ "ZINC",
+  TADA.ComparableDataIdentifier == "NITRATE_FILTERED_AS N_MG/L" ~ "NITROGEN, TOTAL"
 ))
 
 NCTC_ParamRef2 <- TADA_CreateParamRef(
-  Data_NCTC, 
+  Data_NCTC,
   org_names = c("Maryland"),
   paramRef = ParamRef,
-  excel = FALSE)# comment out 'excel = FALSE' and uncomment excel = TRUE, overwrite = TRUE to run the excel file
-  # excel = TRUE, overwrite = TRUE) 
+  excel = FALSE
+) # comment out 'excel = FALSE' and uncomment excel = TRUE, overwrite = TRUE to run the excel file
+# excel = TRUE, overwrite = TRUE)
 ```
 
 Users may also include states outside of their spatial region if
@@ -281,11 +282,11 @@ and methods along with crosswalks done from other TADA users.
 
 ```{r}
 NCTC_ParamRef3 <- TADA_CreateParamRef(
-  Data_NCTC, 
+  Data_NCTC,
   org_names = c("Maryland", "Florida"),
-  paramRef = ParamRef, 
+  paramRef = ParamRef,
   excel = FALSE
-  )
+)
 ```
 
 # Three cases of TADA_CreateParamUseRef().
@@ -312,12 +313,12 @@ reflect Maryland's Criteria and Methodologies for PH).
 
 ```{r}
 NCTC_ParamUseRef <- TADA_CreateParamUseRef(
-  Data_NCTC, 
+  Data_NCTC,
   org_names = c("Maryland"),
-  paramRef = ParamRef, 
+  paramRef = ParamRef,
   excel = FALSE # comment out 'excel = FALSE' and uncomment excel = TRUE, overwrite = TRUE to run the excel file
-  #excel = TRUE, overwrite = TRUE 
-  )
+  # excel = TRUE, overwrite = TRUE
+)
 ```
 
 User can include the EPA304a standards with the input "org_names", which
@@ -329,31 +330,31 @@ TADA_CreateParamRef().
 
 ```{r}
 NCTC_ParamUseRef2 <- TADA_CreateParamUseRef(
-  Data_NCTC, 
-  org_names = c("EPA304a", "Maryland", "Virginia", "Pennsylvania", "West Virginia"), 
-  paramRef = ParamRef, 
+  Data_NCTC,
+  org_names = c("EPA304a", "Maryland", "Virginia", "Pennsylvania", "West Virginia"),
+  paramRef = ParamRef,
   excel = FALSE # comment out 'excel = FALSE' and uncomment excel = TRUE, overwrite = TRUE to run the excel file
-  #excel = TRUE, overwrite = TRUE 
-  )
+  # excel = TRUE, overwrite = TRUE
+)
 
 # User should only run TADA_CreateParamUseRef() which contains the orgs of interest. If there are other orgs that are interested, this should have been defined in TADA_CreateParamRef() in which users will need to be aware of the appropriate parameter name crosswalk (if users share their criteria and methods in the future, this could be more feasible)
 NCTC_ParamUseRef3 <- TADA_CreateParamUseRef(
-  Data_NCTC, 
-  org_names = c("EPA304a", "Maryland"), 
-  paramRef = NCTC_ParamRef2, 
+  Data_NCTC,
+  org_names = c("EPA304a", "Maryland"),
+  paramRef = NCTC_ParamRef2,
   excel = FALSE # comment out 'excel = FALSE' and uncomment excel = TRUE, overwrite = TRUE to run the excel file
-  #excel = TRUE, overwrite = TRUE 
-  )
+  # excel = TRUE, overwrite = TRUE
+)
 ```
 
 ```{r}
 NCTC_ParamUseRef4 <- TADA_CreateParamUseRef(
-  Data_NCTC, 
-  org_names = c("EPA304a", "Maryland","Florida"), 
-  paramRef = NCTC_ParamRef3, 
+  Data_NCTC,
+  org_names = c("EPA304a", "Maryland", "Florida"),
+  paramRef = NCTC_ParamRef3,
   excel = FALSE # comment out 'excel = FALSE' and uncomment excel = TRUE, overwrite = TRUE to run the excel file
-  #excel = TRUE, overwrite = TRUE 
-  )
+  # excel = TRUE, overwrite = TRUE
+)
 ```
 
 Users must review the matching done with TADA_GetATTAINS of monitoring
@@ -370,5 +371,5 @@ that pertains to their water quality assessments. Users will be
 responsible for
 
 ```{r}
-#NCTC_AUIDRef <- TADA_CreateAUIDRef(Data_NCTC, overwrite = TRUE)
+# NCTC_AUIDRef <- TADA_CreateAUIDRef(Data_NCTC, overwrite = TRUE)
 ```
