@@ -146,7 +146,7 @@ TADA_GetEPA304aRef <- function() {
     dplyr::select(TADA.CharacteristicName, POLLUTANT_NAME, organization_name = ENTITY_ABBR,
                   use_name = USE_CLASS_NAME_LOCATION_ETC, CRITERION_VALUE,
                   CRITERIATYPEAQUAHUMHLTH, CRITERIATYPEFRESHSALTWATER,
-                  CRITERIATYPE_ACUTECHRONIC, CRITERIATYPE_WATERORG
+                  CRITERIATYPE_ACUTECHRONIC, CRITERIATYPE_WATERORG, UNIT_NAME
                   )
   
   # Remove intermediate variables
