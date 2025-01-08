@@ -130,7 +130,7 @@ TADA_MakeSpatial <- function(.data, crs = 4326) {
 #'   applyautoclean = TRUE
 #' )
 #'
-#' nv_attains_features <- fetchATTAINS(tada_data, catchments_only = FALSE)
+#' nv_attains_features <- EPATADA:::fetchATTAINS(tada_data, catchments_only = FALSE)
 #' }
 fetchATTAINS <- function(.data, catchments_only = FALSE) {
   sf::sf_use_s2(FALSE)
