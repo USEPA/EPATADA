@@ -962,6 +962,8 @@ TADA_BigDataHelper <- function(record_summary, WQPquery, maxrecs = 250000, maxsi
              " results by grouping them together.")
     )
     
+    small_prog_bar <- txtProgressBar(min = 0, max = sum(smallsites$tot_n), style = 3)
+    
     # Download the data for each group
     for (i in 1:max(smallsitesgrp$group)) {
       small_site_chunk <- subset(smallsitesgrp$MonitoringLocationIdentifier,
