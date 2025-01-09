@@ -967,11 +967,13 @@ TADA_BigDataHelper <- function(record_summary, WQPquery, maxrecs = 250000, maxsi
       small_site_chunk <- subset(smallsitesgrp$MonitoringLocationIdentifier,
                                  smallsitesgrp$group == i)
       # Query result data
-      results_small <- dataRetrieval::readWQPdata(
-        siteid = small_site_chunk,
-        WQPquery,
-        dataProfile = "resultPhysChem",
-        ignore_attributes = TRUE
+      results_small <- suppressMessages(
+        dataRetrieval::readWQPdata(
+          siteid = small_site_chunk,
+          WQPquery,
+          dataProfile = "resultPhysChem",
+          ignore_attributes = TRUE
+        )
       ) %>%
         dplyr::mutate(across(everything(), as.character))
       
@@ -979,41 +981,56 @@ TADA_BigDataHelper <- function(record_summary, WQPquery, maxrecs = 250000, maxsi
       if (dim(results_small)[1] > 0) {
         df_small <- dplyr::bind_rows(df_small, results_small)
       }
+      
+      # Update progress
+      setTxtProgressBar(pb = small_prog_bar, value = nrow(df_small))
     }
+    # Close progress bar when complete
+    close(small_prog_bar)
     
     rm(smallsites, smallsitesgrp)
     gc()
+  }
+  
+  # Large sites (>= maxrecs) next:
+  if (dim(bigsites)[1] > 0) {
+    print(
+      paste0("Downloading data from sites with greater than ",
+             maxrecs,
+             " results, chunking queries by site.")
+    )
     
-    # Large sites (>= maxrecs) next:
-    if (dim(bigsites)[1] > 0) {
-      print(
-        paste0("Downloading data from sites with greater than ",
-               maxrecs,
-               " results, chunking queries by site.")
-      )
-      
-      # Unique site IDs
-      bsitesvec <- unique(bigsites$MonitoringLocationIdentifier)
-      
-      # For each site
-      for (i in 1:length(bsitesvec)) {
-        # Download each site's data individually
-        results_big <- dataRetrieval::readWQPdata(
+    big_prog_bar <- txtProgressBar(min = 0, max = sum(bigsites$tot_n), style = 3)
+    
+    # Unique site IDs
+    bsitesvec <- unique(bigsites$MonitoringLocationIdentifier)
+    
+    # For each site
+    for (i in 1:length(bsitesvec)) {
+      # Download each site's data individually
+      results_big <- suppressMessages(
+        dataRetrieval::readWQPdata(
           siteid = bsitesvec[i],
           WQPquery,
           dataProfile = "resultPhysChem",
           ignore_attributes = TRUE
-        ) %>%
-          dplyr::mutate(across(everything(), as.character))
-        
-        if (dim(results_big)[1] > 0) {
-          df_big <- dplyr::bind_rows(df_big, results_big)
-        }
+        )
+      )%>%
+        dplyr::mutate(across(everything(), as.character))
+      
+      if (dim(results_big)[1] > 0) {
+        df_big <- dplyr::bind_rows(df_big, results_big)
       }
+      # Update progress
+      setTxtProgressBar(pb = big_prog_bar, value = nrow(df_big))
     }
+    # Close progress bar when complete
+    close(big_prog_bar)
+    
     rm(bigsites)
     gc()
   }
+  
   
   df_out <- bind_rows(df_small, df_big)
   
