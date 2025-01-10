@@ -99,14 +99,22 @@ the console to update dependency packages that have more recent versions
 available. If you see this prompt, it is recommended to update all of
 them (enter 1 into the console).
 
-The most stable branch for TADA right now is the develop
-branch. Contributors generally create their own branches based on
-develop, make some improvements, and then submit a pull request to be
-reviewed by the TADA Team. Once approved, updates are then merged into
-the develop branch. However, you are welcome to download any branch
-you'd like using the `ref` input in `install_github` (see code chunk
-below). This functionality is mainly only useful to TADA package
+The most stable branch for TADA right now is the develop branch.
+Contributors generally create their own branches based on develop, make
+some improvements, and then submit a pull request to be reviewed by the
+TADA Team. Once approved, updates are then merged into the develop
+branch. However, you are welcome to download any branch you'd like using
+the `ref` input in `install_github` (see code chunk below). This
+functionality is mainly only useful to TADA package
 developers/contributors.
+
+```{r install_TADA_dev, eval = T, include = F}
+# help with knit and pass the checks, but we want to make sure this chunk does not show up in the final website, just for development.
+remotes::install_github("USEPA/EPATADA",
+  ref = "Create-Module-3-Reference-Tables",
+  dependencies = TRUE
+)
+```
 
 ```{r install_TADA, eval = F, results = 'hide'}
 remotes::install_github("USEPA/EPATADA",
@@ -122,7 +130,7 @@ session.
 library(EPATADA)
 ```
 
-It's that easy! 
+It's that easy!
 
 The following code block ensures the additional packages needed to run
 the code in this RMarkdown document are loaded. However, users may also
@@ -176,12 +184,12 @@ template <- TADA_GetTemplate() # download template to working directory
 exampledata_Nutrients_UT <- Data_Nutrients_UT
 ```
 
-`TADA_DataRetrieval` is built upon USGS's `dataRetrieval::readWQPdata` and 
-`dataRetrieval::whatWQPsites` functions within the dataRetrieval package, 
-which uses web service calls to bring WQP data into the R environment. 
-Additionally, `TADA_DataRetrieval` performs some basic quality control checks 
-via `TADA_AutoClean` on the data using new TADA-specific columns to preserve
-the original data frame:
+`TADA_DataRetrieval` is built upon USGS's `dataRetrieval::readWQPdata`
+and `dataRetrieval::whatWQPsites` functions within the dataRetrieval
+package, which uses web service calls to bring WQP data into the R
+environment. Additionally, `TADA_DataRetrieval` performs some basic
+quality control checks via `TADA_AutoClean` on the data using new
+TADA-specific columns to preserve the original data frame:
 
 -   Converts key character columns to ALL CAPS for easier harmonization
     and validation.
@@ -232,14 +240,14 @@ data. This ensures that all important quality control columns are
 included in the data frame.
 
 **Note:** USGS and EPA are working together to create WQP 3.0 data
-profiles. Once released (coming in 2025), one data profile will contain the 
-columns critical to TADA, removing the need to combine profiles in this first
-step. This will simplify the steps needed to upload a custom or WQP 
-GUI-downloaded data frame into the R package. However, column names are 
-changing in the new WQP 3.0 data profiles. This may impact TADA package users 
-usage of the `TADA_DataRetrieval` function in their workflows. The WQP and 
-TADA teams are available to assist with cross walking the old to new column
-names when the time comes.
+profiles. Once released (coming in 2025), one data profile will contain
+the columns critical to TADA, removing the need to combine profiles in
+this first step. This will simplify the steps needed to upload a custom
+or WQP GUI-downloaded data frame into the R package. However, column
+names are changing in the new WQP 3.0 data profiles. This may impact
+TADA package users usage of the `TADA_DataRetrieval` function in their
+workflows. The WQP and TADA teams are available to assist with cross
+walking the old to new column names when the time comes.
 
 ## Initial data review
 
@@ -700,7 +708,7 @@ characteristic groups.
 
 ```{r select comp id}
 # Look at a histogram, boxplot, and stats for TADA.ComparableDataIdentifier(s) of your choice.
-comp_data_id <- "PH_NA_NA_NONE"
+comp_data_id <- "PH_NA_NA_STD UNITS"
 
 plot_data <- subset(dataset_cens, dataset_cens$TADA.ComparableDataIdentifier %in% comp_data_id)
 ```
