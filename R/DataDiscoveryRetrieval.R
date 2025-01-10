@@ -707,7 +707,7 @@ TADA_DataRetrieval <- function(startDate = "null",
     }
     
     # Query info on available data
-    query_avail <- supressMessages(dataRetrieval::whatWQPdata(WQPquery))
+    query_avail <- suppressMessages(dataRetrieval::whatWQPdata(WQPquery))
     
     site_count <- length(query_avail$MonitoringLocationIdentifier)
     
@@ -1034,7 +1034,7 @@ TADA_BigDataHelper <- function(record_summary, WQPquery, maxrecs = 250000, maxsi
   }
   
   
-  df_out <- bind_rows(df_small, df_big)
+  df_out <- dplyr::bind_rows(df_small, df_big)
   
   return(df_out)
 }
