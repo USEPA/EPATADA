@@ -1699,3 +1699,92 @@ TADA_CharStringRemoveNA <- function(char_string) {
 
   return(labs)
 }
+
+#' Import Expert Query National Extract
+#'
+#' Returns data frame of user-specified Expert Query National Extracts for use in TADA functions.
+#' National extracts can and more information about Expert Query can be found here:
+#' https://owapps.epa.gov/expertquery/national-downloads
+#' 
+#' @param profile Character argument. Specifies which Expert Query National Extract should be
+#' imported. Options are "actions", "assessments", "au", "auml", "catchment", "sources", and
+#' "tmdl". The default is NULL, which means no extract will be returned.
+#'
+#' @return A data frame containing the user-specified national extract.
+#'
+#' @export
+#'
+#' @examples
+#' actions <- TADA_EQExtract(profile = "tmdl")
+#' 
+TADA_EQExtract <- function(profile = NULL) {
+  
+  if(is.null(profile)) {
+    stop("TADA_EQExtract: Function requires user to select Expert Query Profile to return.")
+  }
+  
+  if(is.null(profile) & 
+     !profile %in% c("actions", "assessments", "au", "auml", "catchment", "sources", "tmdl")) {
+    stop("TADA_EQExtract: Function requires user to select Expert Query Profile to return.")
+  }
+  
+  eq.page <- rvest::read_html_live("https://owapps.epa.gov/expertquery/national-downloads")
+  
+  # need to find fix for errors in data.frame, arguements imply differing number of rows
+  eq.urls <- data.frame(
+    label = rvest::html_text(rvest::html_nodes(eq.page, "a")),
+    url = rvest::html_attr(rvest::html_nodes(eq.page, "a"), "href")
+  )
+  
+  if(profile == "actions") {
+    extract <- "Actions ProfileExit EPA's Website"
+    
+    csv.file <- "actions.csv"
+  }
+  
+  if(profile == "assessments") {
+    extract <- "Assessments ProfileExit EPA's Website"
+    
+    csv.file <- "assessments.csv"
+  }
+  
+  if(profile == "au") {
+    extract <- "Assessment Units ProfileExit EPA's Website"
+    
+    csv.file <- "assessment_units.csv"
+  }
+  
+  if(profile == "auml") {
+    extract <- "Assessment Units with Monitoring Locations ProfileExit EPA's Website"
+    
+    csv.file <- "assessment_units_monitoring_locations.csv"
+  }
+  
+  if(profile == "catchment") {
+    extract <- "Catchment Correspondence ProfileExit EPA's Website"
+    
+    csv.file <- "catchment_correspondence.csv"
+  }
+  
+  if(profile == "sources") {
+    extract <- "Sources ProfileExit EPA's Website"
+    
+    csv.file <- "sources.csv"
+  }
+  
+  if(profile == "tmdl") {
+    extract <- "Total Maximum Daily Load ProfileExit EPA's Website"
+    
+    csv.file <- "tmdl.csv"
+  }
+  
+  profile.url <- eq.urls %>%
+    dplyr::filter(label == extract) %>%
+    dplyr::select(url) %>%
+    dplyr::pull()
+  
+  df <- suppressWarnings(readr::read_csv(archive::archive_read(
+    profile.url, file = 1)))
+  
+  return(df)
+}
