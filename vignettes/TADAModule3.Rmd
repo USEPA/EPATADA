@@ -1,5 +1,5 @@
 ---
-title: "TADA Module 3a: Associating WQP Characteristics with Applicable ATTAINS Parameters and Uses"
+title: "TADA Module 3: Associating WQP Characteristics with Applicable ATTAINS Parameters and Uses"
 format: html
 editor: visual
 author: "TADA Team"
@@ -108,11 +108,12 @@ function in R or RStudio using the following format (example below):
 
 ## Module 3a Functions in TADA
 
-Disclaimer: While the EPATADA package aims to assist different organizations 
-(state, territories and tribal nations) with their Clean Water Act assessment 
-process, it does not constitute current EPA policy or regulatory requirements.
-This tool is not to be solely used for an organizations decision making process 
-and use of EPATADA is not required.
+Disclaimer: While the EPATADA package aims to assist different
+organizations (state, territories and tribal nations) with their Clean
+Water Act assessment process, it does not constitute current EPA policy
+or regulatory requirements. This tool is not to be solely used for an
+organizations decision making process and use of EPATADA is not
+required.
 
 ## Introduction
 
@@ -202,15 +203,15 @@ Data_NCTC <- Data_WV_Mod1_Output
 
 Filter data frame by TADA.CharacteristicName(s) for a few priority
 characteristics. Do some exploratory data analysis to view the number of
-counts of TADA.ComparableDataIdentifier. 
+counts of TADA.ComparableDataIdentifier.
 
 ```{r}
 TADA_FieldValuesTable(Data_NCTC, field = "TADA.ComparableDataIdentifier")
 ```
 
-Users can reference the domain
-values of parameter names listed as a cause in prior assessment cycles
-with the rATTAINS library function: domain_values.
+Users can reference the domain values of parameter names listed as a
+cause in prior assessment cycles with the rATTAINS library function:
+domain_values.
 
 ```{r}
 rATTAINS::domain_values(domain_name = "ParameterName")
@@ -218,8 +219,8 @@ rATTAINS::domain_values(domain_name = "ParameterName")
 
 To begin the ATTAINS assessment process, you will create a blank
 template of 'ATTAINS.ParameterName' which needs crosswalk to a
-'TADA.ComparableDataIdentifier'. Users should specify the name(s) of their
-orgs that will be used for assessment.
+'TADA.ComparableDataIdentifier'. Users should specify the name(s) of
+their orgs that will be used for assessment.
 
 By specifying the name of the ATTAINS organization(s) used, if creating
 an excel spreadsheet (using excel = TRUE), this will create a separate
@@ -239,21 +240,21 @@ NCTC_ParamRef <- TADA_CreateParamRef(
   excel = FALSE, # change to TRUE to download excel file
   overwrite = FALSE
 )
-NCTC_ParamRef
+EPATADA::TADA_CSVExport(ref = NCTC_ParamRef)
 ```
 
 Users who have already completed this crosswalk can re-use this
-reference file in the future. 
+reference file in the future.
 
-Users that need to fill out the blank template can do so either:
-1) within the Excel file (downloaded using excel = TRUE), or 
-2) directly in the R environment.
+Users that need to fill out the blank template can do so either: 1)
+within the Excel file (downloaded using excel = TRUE), or 2) directly in
+the R environment.
 
-In the example below, we will modify the reference table called 'ParamRef' 
-directly in the R environment and not in the excel file. We can then re-run
-the function using the updated 'ParamRef' file to reflect the ATTAINS validation
-(flagging) of parameter names. See updated ATTAINS.FlagParameterName column 
-in NCTC_ParamRef2.
+In the example below, we will modify the reference table called
+'ParamRef' directly in the R environment and not in the excel file. We
+can then re-run the function using the updated 'ParamRef' file to
+reflect the ATTAINS validation (flagging) of parameter names. See
+updated ATTAINS.FlagParameterName column in NCTC_ParamRef2.
 
 ```{r}
 # only run the code chunks below if you make edits to the excel file.
@@ -273,10 +274,7 @@ TADA.CharacteristicName == "PH" ~ "PH",
 TADA.ComparableDataIdentifier == "ZINC_TOTAL_NA_UG/L" ~ "ZINC",
 grepl("NITRATE", TADA.ComparableDataIdentifier) ~ "NITROGEN, TOTAL"
 ))
-
-DT::datatable(ParamRef, extensions = 'FixedColumns', options = list(
-  dom = 't', scrollX = TRUE, scrollCollapse = TRUE)) %>% 
-  DT::formatStyle( columns = colnames(ParamRef), 'fontSize' = '80%')
+TADA_CSVExport(ref = ParamRef)
 
 NCTC_ParamRef2 <- TADA_CreateParamRef(
   Data_NCTC,
@@ -285,9 +283,7 @@ NCTC_ParamRef2 <- TADA_CreateParamRef(
   excel = FALSE
 ) # comment out 'excel = FALSE' and uncomment excel = TRUE, overwrite = TRUE to run the excel file
 # excel = TRUE, overwrite = TRUE)
-DT::datatable(NCTC_ParamRef2, extensions = 'FixedColumns', options = list(
-  dom = 't', scrollX = TRUE, scrollCollapse = TRUE)) %>% 
-  DT::formatStyle( columns = colnames(NCTC_ParamRef2), 'fontSize' = '80%')
+TADA_CSVExport(ref = NCTC_ParamRef2)
 ```
 
 Users may also include states outside of their spatial region if
@@ -304,9 +300,7 @@ NCTC_ParamRef3 <- TADA_CreateParamRef(
   paramRef = ParamRef,
   excel = FALSE
 )
-DT::datatable(NCTC_ParamRef3, extensions = 'FixedColumns', options = list(
-  dom = 't', scrollX = TRUE, scrollCollapse = TRUE)) %>% 
-  DT::formatStyle( columns = colnames(NCTC_ParamRef3), 'fontSize' = '80%')
+TADA_CSVExport(ref = NCTC_ParamRef3)
 ```
 
 # Three cases of TADA_CreateParamUseRef().
@@ -339,9 +333,7 @@ NCTC_ParamUseRef <- TADA_CreateParamUseRef(
   excel = FALSE # comment out 'excel = FALSE' and uncomment excel = TRUE, overwrite = TRUE to run the excel file
   # excel = TRUE, overwrite = TRUE
 )
-DT::datatable(NCTC_ParamUseRef, extensions = 'FixedColumns', options = list(
-  dom = 't', scrollX = TRUE, scrollCollapse = TRUE)) %>% 
-  DT::formatStyle( columns = colnames(NCTC_ParamUseRef), 'fontSize' = '80%')
+TADA_CSVExport(ref = NCTC_ParamUseRef)
 ```
 
 User can include the EPA304a standards with the input "org_names", which
@@ -360,9 +352,7 @@ NCTC_ParamUseRef2 <- TADA_CreateParamUseRef(
   excel = FALSE # comment out 'excel = FALSE' and uncomment excel = TRUE, overwrite = TRUE to run the excel file
   # excel = TRUE, overwrite = TRUE
 )
-DT::datatable(NCTC_ParamUseRef2, extensions = 'FixedColumns', options = list(
-  dom = 't', scrollX = TRUE, scrollCollapse = TRUE)) %>% 
-  DT::formatStyle( columns = colnames(NCTC_ParamUseRef2), 'fontSize' = '80%')
+TADA_CSVExport(ref = NCTC_ParamUseRef2)
 
 # User should only run TADA_CreateParamUseRef() which contains the orgs of interest. If there are other orgs that are interested, this should have been defined in TADA_CreateParamRef() for the paramRef argument input in which users will need to be aware of the appropriate parameter name crosswalk (if users share their criteria and methods in the future, this could be more feasible)
 NCTC_ParamUseRef3 <- TADA_CreateParamUseRef(
@@ -372,9 +362,7 @@ NCTC_ParamUseRef3 <- TADA_CreateParamUseRef(
   excel = FALSE # comment out 'excel = FALSE' and uncomment excel = TRUE, overwrite = TRUE to run the excel file
   # excel = TRUE, overwrite = TRUE
 )
-DT::datatable(NCTC_ParamUseRef3, extensions = 'FixedColumns', options = list(
-  dom = 't', scrollX = TRUE, scrollCollapse = TRUE)) %>% 
-  DT::formatStyle( columns = colnames(NCTC_ParamUseRef3), 'fontSize' = '80%')
+TADA_CSVExport(ref = NCTC_ParamUseRef3)
 ```
 
 In this example, Maryland has decided to use an ATTAINS.ParameterName
@@ -398,9 +386,7 @@ ParamUseRef <- NCTC_ParamUseRef3 %>%
   dplyr::select(-c(use_name.x, use_name.y))
 
 # User now has a saved dataframe which can be used to reflect any updates of Parameter-use ref in the future.
-DT::datatable(ParamUseRef, extensions = 'FixedColumns', options = list(
-  dom = 't', scrollX = TRUE, scrollCollapse = TRUE)) %>% 
-  DT::formatStyle( columns = colnames(ParamUseRef), 'fontSize' = '80%')
+TADA_CSVExport(ref = ParamUseRef)
 
 # PH will now reflect the changes 
 NCTC_ParamUseRef3.1 <- TADA_CreateParamUseRef(
@@ -411,9 +397,7 @@ NCTC_ParamUseRef3.1 <- TADA_CreateParamUseRef(
   excel = FALSE # comment out 'excel = FALSE' and uncomment 'excel = TRUE, overwrite = TRUE' to run the excel file
   # excel = TRUE, overwrite = TRUE 
   ) 
-DT::datatable(NCTC_ParamUseRef3.1, extensions = 'FixedColumns', options = list(
-  dom = 't', scrollX = TRUE, scrollCollapse = TRUE)) %>% 
-  DT::formatStyle( columns = colnames(NCTC_ParamUseRef3.1), 'fontSize' = '80%')
+TADA_CSVExport(ref = NCTC_ParamUseRef3.1)
 ```
 
 Users must review the matching done with TADA_GetATTAINS of monitoring

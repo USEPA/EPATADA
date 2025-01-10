@@ -775,171 +775,204 @@ TADA_CreateParamUseRef <- function(.data, org_names = NULL, paramRef = NULL, par
   return(CreateParamUseRef)
 }
 
+# #' 
+# #' Assessment Unit and MonitoringLocationName/MonitoringLocationType/MonitoringLocationId Crosswalk
+# #' 
+# #' This function will pull in all MonitoringLocationName/MonitoringLocationType/MonitoringLocationId
+# #' for AU(s) from a TADA dataframe with ATTAINS data. This function requires users to have already
+# #' ran TADA_GetATTAINS(). Users are able to specify which AU(S) to pull in from this ref file
+# #' when creating the final CriteriaRef file to be compatible with an organization's WQS assessments.
+# #' 
+# #' Users are expected to modify this AU ref file with the appropriate AU and
+# #' MonitoringLocationName/MonitoringLocationType/MonitoringLocationId crosswalk
+# #' for the current Assessment cycle. Users can decide to "Include or Exclude" a MonitoringLocation
+# #' within an AU if desired. This can be used if a MoniotringLocation would still like to be
+# #' crosswalk to the AU but may only be applicable for certain parameters.
+# #' 
+# #' @param .data A TADA dataframe with TADA_GetATTAINS() geospatial function ran.
+# #' 
+# #' @param AU Character argument. Users can specify which AU they are interested in
+# #' defining WQS criteria for. If this argument is left as NULL, then all unique AU
+# #' records will be displayed in this ref file for users to define.
+# #' 
+# #' @return A data frame with all the MonitoringLocationIdentifier Sites for a defined AU.
+# #' 
+# #' @export
+# #' 
+# 
 
-#' #' Assessment Unit and MonitoringLocationName/MonitoringLocationType/MonitoringLocationId Crosswalk
-#' #'
-#' #' This function will pull in all MonitoringLocationName/MonitoringLocationType/MonitoringLocationId
-#' #' for AU(s) from a TADA dataframe with ATTAINS data. This function requires users to have already
-#' #' ran TADA_GetATTAINS(). Users are able to specify which AU(S) to pull in from this ref file
-#' #' when creating the final CriteriaRef file to be compatible with an organization's WQS assessments.
-#' #'
-#' #' Users are expected to modify this AU ref file with the appropriate AU and
-#' #' MonitoringLocationName/MonitoringLocationType/MonitoringLocationId crosswalk
-#' #' for the current Assessment cycle. Users can decide to "Include or Exclude" a MonitoringLocation
-#' #' within an AU if desired. This can be used if a MoniotringLocation would still like to be
-#' #' crosswalk to the AU but may only be applicable for certain parameters.
-#' #'
-#' #' @param .data A TADA dataframe with TADA_GetATTAINS() geospatial function ran.
-#' #'
-#' #' @param AU Character argument. Users can specify which AU they are interested in
-#' #' defining WQS criteria for. If this argument is left as NULL, then all unique AU
-#' #' records will be displayed in this ref file for users to define.
-#' #'
-#' #' @return A data frame with all the MonitoringLocationIdentifier Sites for a defined AU.
-#' #'
-#' #' @export
-#' #'
-#' 
-#' TADA_CreateAURef <- function(.data, AU = NULL, excel = TRUE, overwrite = FALSE, returnSites = c("all","matched-only")){
-#' 
-#'   # data <- rATTAINS::assessments(organization_id = "MDE_EASP")
-#'   #
-#'   # use_assessments <- data$use_assessment
-#'   # use_attainments <- use_assessments %>% unnest(c(use_attainments), names_sep = ".")
-#'   # use_parameters <- use_attainments %>% unnest(c(parameters), names_sep = ".")
-#'   #
-#'   # use_data <- use_parameters %>%
-#'   #   dplyr::select(
-#'   #     organization_identifier, organization_name, organization_type_text,
-#'   #     use_attainments.use_name, parameters.parameter_name) %>%
-#'   #   distinct()
-#'   #
-#'   # rm(use_assessments, use_attainments, use_parameters)
-#'   #
-#'   #
-#'   # If user does not define the path, attempt to pull in the ref files from the default Downloads location.
-#'   downloads_path <- file.path(Sys.getenv("USERPROFILE"), "Downloads", "myfileRef.xlsx")
-#'   # testing out different downloads_path as an argument is needed.
-#'   if(!is.null(downloads_path)){
-#'     downloads_path <- downloads_path
-#'   }
-#' 
-#'   library(rATTAINS)
-#' 
-#'   if(!is.data.frame(.data)){
-#'     if (!any(c(
-#'       "TADA_with_ATTAINS", "ATTAINS_catchments", "ATTAINS_points", "ATTAINS_lines", "ATTAINS_polygons"
-#'     ) %in% names(.data))) {
-#'       stop("Your input dataframe was not produced from `TADA_GetATTAINS()` or it was modified. Please create your list of ATTAINS features using `TADA_GetATTAINS(return_sf = TRUE)`")
-#'     }
-#' 
-#'     .data <- .data[["TADA_with_ATTAINS"]]
-#'   }
-#' 
-#' 
-#'   if(is.null(AU)){
-#'     print("Creating AURef dataframe for all unique combinations of AU found in the TADA dataframe by MonitoringLocationName/MonitoringLocationType/MonitoringLocationId.")
-#'   }
-#' 
-#'   if(!is.null(AU)){
-#'     print(paste0("Filtering by AUs = ", AU, ". Creating a dataframe for unique combinations of MonitoringLocationName/MonitoringLocationType/MonitoringLocationId."))
-#'   }
-#' 
-#'   # Filters by AU if desired, otherwise creates a dataframe of all unique AU in the TADA dataframe pull
-#'   CreateAURef <- .data %>%
-#'     dplyr::filter(if (is.null(AU)) TRUE
-#'                   else ATTAINS.assessmentunitidentifier == AU
-#'     ) %>%
-#'     dplyr::select(tidyr::any_of(c(
-#'       "ATTAINS.assessmentunitname","ATTAINS.assessmentunitidentifier",
-#'       "MonitoringLocationIdentifier", "MonitoringLocationName", "MonitoringLocationTypeName", "ATTAINS.WaterType", "LongitudeMeasure", "LatitudeMeasure"
-#'     ))
-#'     ) %>%
-#'     as.data.frame() %>%
-#'     sf::st_drop_geometry() %>%
-#'     dplyr::distinct(.keep_all = FALSE) %>%
-#'     dplyr::mutate(IncludeOrExclude = "Include") %>%
-#'     dplyr::mutate(ExcludeStationReason = NA) %>% # Users can customize this for "warm waters", "only trout based waters" etc.
-#'     dplyr::mutate(ApplyUniqueSpatialCriteria = NA) %>%
-#'     dplyr::arrange(
-#'       #ATTAINS.assessmentunitname,	ATTAINS.assessmentunitidentifier,
-#'       MonitoringLocationIdentifier
-#'     )
-#' 
-#'   if(!"ATTAINS.assessmentunitidentifier" %in% colnames(CreateAURef)){
-#'     print(paste0("No Monitoring Location to Assessment Unit crosswalk provided. Consider providing this crosswalk if you would like to summarize assessments on an Assessment Unit level."))
-#' 
-#'     CreateAURef <- CreateAURef %>%
-#'       dplyr::mutate(ATTAINS.assessmentunitname = NA) %>%
-#'       dplyr::mutate(ATTAINS.assessmentunitidentifier = NA) %>%
-#'       dplyr::mutate(ATTAINS.WaterType = NA) %>%
-#'         dplyr::select(tidyr::any_of(c(
-#'           "ATTAINS.assessmentunitname","ATTAINS.assessmentunitidentifier",
-#'           "MonitoringLocationIdentifier", "MonitoringLocationName", "MonitoringLocationTypeName", "ATTAINS.WaterType", "LongitudeMeasure", "LatitudeMeasure",
-#'           "IncludeOrExclude", "ExcludeStationReason", "ApplyUniqueSpatialCriteria"
-#'         ))
-#'         )
-#' 
-#'   }
-#' 
-#'   if (excel == TRUE) {
-#'     wb <- openxlsx::loadWorkbook(wb, downloads_path)
-#' 
-#'     tryCatch({
-#'       openxlsx::addWorksheet(wb, "CreateAURef")
-#'     },
-#'     error = function(e){
-#'       openxlsx::removeWorksheet(wb, "CreateAURef")
-#'       openxlsx::addWorksheet(wb, "CreateAURef")
-#'     }
-#'     )
-#' 
-#'     # Format column header
-#'     header_st <- openxlsx::createStyle(textDecoration = "Bold")
-#'     # Format Column widths
-#'     openxlsx::setColWidths(wb, "CreateAURef", cols = 8:ncol(CreateAURef), widths = "auto")
-#'     # set zoom size
-#'     set_zoom <- function(x) gsub('(?<=zoomScale=")[0-9]+', x, sV, perl = TRUE)
-#'     sV <- wb$worksheets[[4]]$sheetViews
-#'     wb$worksheets[[4]]$sheetViews <- set_zoom(90)
-#' 
-#'     # writes CreateAURef dataframe
-#'     openxlsx::writeData(wb, "CreateAURef", startCol = 1, x = CreateAURef, headerStyle = header_st)
-#' 
-#'     # data validation drop down list created below.
-#'     suppressWarnings(openxlsx::dataValidation(wb, sheet = "CreateAURef", cols = 9, rows = 2:1000, type = "list", value = sprintf("'Index'!$B$2:$B$5"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE))
-#' 
-#' 
-#'     # Conditional Formatting
-#'     openxlsx::conditionalFormatting(wb, "CreateAURef",
-#'                           cols = 9, rows = 2:(nrow(CreateAURef) + 1),
-#'                           type = "contains", rule = "Include", style = openxlsx::createStyle(bgFill = TADA_ColorPalette()[9])) # default values or indicates good to go cells.
-#'     openxlsx::conditionalFormatting(wb, "CreateAURef",
-#'                           cols = 9, rows = 2:(nrow(CreateAURef) + 1),
-#'                           type = "contains", rule = "Exclude", style = openxlsx::createStyle(bgFill = TADA_ColorPalette()[8])) # using yellow to indicate modified cell
-#'     # conditionalFormatting(wb, "CreateAURef",
-#'     #                       cols = 8, rows = 2:(nrow(CreateAURef) + 1),
-#'     #                       type = "notContains", rule = c("Exclude","Include"), style = createStyle(bgFill = "red")) # Likely error. Invalid value is possible here.
-#'     openxlsx::conditionalFormatting(wb, "CreateAURef",
-#'                           cols = 10:12, rows = 2:(nrow(CreateAURef) + 1),
-#'                           type = "blanks", style = openxlsx::createStyle(bgFill = TADA_ColorPalette()[9])) # green is default values or indicates good to go cells.
-#'     openxlsx::conditionalFormatting(wb, "CreateAURef",
-#'                           cols = 10:12, rows = 2:(nrow(CreateAURef) + 1),
-#'                           type = "notBlanks", style = openxlsx::createStyle(bgFill = TADA_ColorPalette()[8])) # using yellow to indicate modified cell
-#' 
-#'     if(overwrite == TRUE){
-#'       openxlsx::saveWorkbook(wb, downloads_path, overwrite = T)
-#'     }
-#' 
-#'     if(overwrite == FALSE){
-#'       warning("If you would like to replace the file, use overwrite = TRUE argument in TADA_CreateParamRef")
-#'       openxlsx::saveWorkbook(wb, downloads_path, overwrite = F)
-#'     }
-#' 
-#'     cat("File saved to:", gsub("/","\\\\",downloads_path), "\n")
-#' 
-#'     CreateAURef <- openxlsx::read.xlsx(downloads_path, sheet = "CreateAURef")
-#'   }
-#' 
-#'   return(CreateAURef)
-#' }
+# TADA_CreateAURef <- function(.data, AU = NULL, excel = TRUE, overwrite = FALSE, returnSites = c("all","matched-only")){
+# 
+#   # data <- rATTAINS::assessments(organization_id = "MDE_EASP")
+#   #
+#   # use_assessments <- data$use_assessment
+#   # use_attainments <- use_assessments %>% unnest(c(use_attainments), names_sep = ".")
+#   # use_parameters <- use_attainments %>% unnest(c(parameters), names_sep = ".")
+#   #
+#   # use_data <- use_parameters %>%
+#   #   dplyr::select(
+#   #     organization_identifier, organization_name, organization_type_text,
+#   #     use_attainments.use_name, parameters.parameter_name) %>%
+#   #   distinct()
+#   #
+#   # rm(use_assessments, use_attainments, use_parameters)
+#   #
+#   #
+#   # If user does not define the path, attempt to pull in the ref files from the default Downloads location.
+#   downloads_path <- file.path(Sys.getenv("USERPROFILE"), "Downloads", "myfileRef.xlsx")
+#   # testing out different downloads_path as an argument is needed.
+#   if(!is.null(downloads_path)){
+#     downloads_path <- downloads_path
+#   }
+# 
+#   library(rATTAINS)
+# 
+#   if(!is.data.frame(.data)){
+#     if (!any(c(
+#       "TADA_with_ATTAINS", "ATTAINS_catchments", "ATTAINS_points", "ATTAINS_lines", "ATTAINS_polygons"
+#     ) %in% names(.data))) {
+#       stop("Your input dataframe was not produced from `TADA_GetATTAINS()` or it was modified. Please create your list of ATTAINS features using `TADA_GetATTAINS(return_sf = TRUE)`")
+#     }
+# 
+#     .data <- .data[["TADA_with_ATTAINS"]]
+#   }
+# 
+# 
+#   if(is.null(AU)){
+#     print("Creating AURef dataframe for all unique combinations of AU found in the TADA dataframe by MonitoringLocationName/MonitoringLocationType/MonitoringLocationId.")
+#   }
+# 
+#   if(!is.null(AU)){
+#     print(paste0("Filtering by AUs = ", AU, ". Creating a dataframe for unique combinations of MonitoringLocationName/MonitoringLocationType/MonitoringLocationId."))
+#   }
+# 
+#   # Filters by AU if desired, otherwise creates a dataframe of all unique AU in the TADA dataframe pull
+#   CreateAURef <- .data %>%
+#     dplyr::filter(if (is.null(AU)) TRUE
+#                   else ATTAINS.assessmentunitidentifier == AU
+#     ) %>%
+#     dplyr::select(tidyr::any_of(c(
+#       "ATTAINS.assessmentunitname","ATTAINS.assessmentunitidentifier",
+#       "MonitoringLocationIdentifier", "MonitoringLocationName", "MonitoringLocationTypeName", "ATTAINS.WaterType", "LongitudeMeasure", "LatitudeMeasure"
+#     ))
+#     ) %>%
+#     as.data.frame() %>%
+#     sf::st_drop_geometry() %>%
+#     dplyr::distinct(.keep_all = FALSE) %>%
+#     dplyr::mutate(IncludeOrExclude = "Include") %>%
+#     dplyr::mutate(ExcludeStationReason = NA) %>% # Users can customize this for "warm waters", "only trout based waters" etc.
+#     dplyr::mutate(ApplyUniqueSpatialCriteria = NA) %>%
+#     dplyr::arrange(
+#       #ATTAINS.assessmentunitname,	ATTAINS.assessmentunitidentifier,
+#       MonitoringLocationIdentifier
+#     )
+# 
+#   if(!"ATTAINS.assessmentunitidentifier" %in% colnames(CreateAURef)){
+#     print(paste0("No Monitoring Location to Assessment Unit crosswalk provided. Consider providing this crosswalk if you would like to summarize assessments on an Assessment Unit level."))
+# 
+#     CreateAURef <- CreateAURef %>%
+#       dplyr::mutate(ATTAINS.assessmentunitname = NA) %>%
+#       dplyr::mutate(ATTAINS.assessmentunitidentifier = NA) %>%
+#       dplyr::mutate(ATTAINS.WaterType = NA) %>%
+#         dplyr::select(tidyr::any_of(c(
+#           "ATTAINS.assessmentunitname","ATTAINS.assessmentunitidentifier",
+#           "MonitoringLocationIdentifier", "MonitoringLocationName", "MonitoringLocationTypeName", "ATTAINS.WaterType", "LongitudeMeasure", "LatitudeMeasure",
+#           "IncludeOrExclude", "ExcludeStationReason", "ApplyUniqueSpatialCriteria"
+#         ))
+#         )
+# 
+#   }
+# 
+#   if (excel == TRUE) {
+#     wb <- openxlsx::loadWorkbook(wb, downloads_path)
+# 
+#     tryCatch({
+#       openxlsx::addWorksheet(wb, "CreateAURef")
+#     },
+#     error = function(e){
+#       openxlsx::removeWorksheet(wb, "CreateAURef")
+#       openxlsx::addWorksheet(wb, "CreateAURef")
+#     }
+#     )
+# 
+#     # Format column header
+#     header_st <- openxlsx::createStyle(textDecoration = "Bold")
+#     # Format Column widths
+#     openxlsx::setColWidths(wb, "CreateAURef", cols = 8:ncol(CreateAURef), widths = "auto")
+#     # set zoom size
+#     set_zoom <- function(x) gsub('(?<=zoomScale=")[0-9]+', x, sV, perl = TRUE)
+#     sV <- wb$worksheets[[4]]$sheetViews
+#     wb$worksheets[[4]]$sheetViews <- set_zoom(90)
+# 
+#     # writes CreateAURef dataframe
+#     openxlsx::writeData(wb, "CreateAURef", startCol = 1, x = CreateAURef, headerStyle = header_st)
+# 
+#     # data validation drop down list created below.
+#     suppressWarnings(openxlsx::dataValidation(wb, sheet = "CreateAURef", cols = 9, rows = 2:1000, type = "list", value = sprintf("'Index'!$B$2:$B$5"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE))
+# 
+# 
+#     # Conditional Formatting
+#     openxlsx::conditionalFormatting(wb, "CreateAURef",
+#                           cols = 9, rows = 2:(nrow(CreateAURef) + 1),
+#                           type = "contains", rule = "Include", style = openxlsx::createStyle(bgFill = TADA_ColorPalette()[9])) # default values or indicates good to go cells.
+#     openxlsx::conditionalFormatting(wb, "CreateAURef",
+#                           cols = 9, rows = 2:(nrow(CreateAURef) + 1),
+#                           type = "contains", rule = "Exclude", style = openxlsx::createStyle(bgFill = TADA_ColorPalette()[8])) # using yellow to indicate modified cell
+#     # conditionalFormatting(wb, "CreateAURef",
+#     #                       cols = 8, rows = 2:(nrow(CreateAURef) + 1),
+#     #                       type = "notContains", rule = c("Exclude","Include"), style = createStyle(bgFill = "red")) # Likely error. Invalid value is possible here.
+#     openxlsx::conditionalFormatting(wb, "CreateAURef",
+#                           cols = 10:12, rows = 2:(nrow(CreateAURef) + 1),
+#                           type = "blanks", style = openxlsx::createStyle(bgFill = TADA_ColorPalette()[9])) # green is default values or indicates good to go cells.
+#     openxlsx::conditionalFormatting(wb, "CreateAURef",
+#                           cols = 10:12, rows = 2:(nrow(CreateAURef) + 1),
+#                           type = "notBlanks", style = openxlsx::createStyle(bgFill = TADA_ColorPalette()[8])) # using yellow to indicate modified cell
+# 
+#     if(overwrite == TRUE){
+#       openxlsx::saveWorkbook(wb, downloads_path, overwrite = T)
+#     }
+# 
+#     if(overwrite == FALSE){
+#       warning("If you would like to replace the file, use overwrite = TRUE argument in TADA_CreateParamRef")
+#       openxlsx::saveWorkbook(wb, downloads_path, overwrite = F)
+#     }
+# 
+#     cat("File saved to:", gsub("/","\\\\",downloads_path), "\n")
+# 
+#     CreateAURef <- openxlsx::read.xlsx(downloads_path, sheet = "CreateAURef")
+#   }
+# 
+#   return(CreateAURef)
+# }
+
+#' Create downloadable dataframes
+#'
+#' This function will create a dataframe output that can download csv, xlsx or pdf.
+#'
+#' @param ref A data frame
+#'
+#'
+#' @return A data frame with csv download option
+#'
+#' @export
+#'
+
+TADA_CSVExport <- function(ref = NULL){
+  if(is.null(ref)){
+    print("No dataframe provided. Please enter a dataframe to return")
+  }
+  
+  data <-DT::datatable(ref, extensions = c('Buttons', 'FixedColumns'), 
+                options = list(paging = TRUE,
+                               dom = 'Bfrtip',
+                               autoWidth = TRUE,
+                               pageLength = 5,
+                               scrollX = TRUE,
+                               scrollCollapse = TRUE,
+                               buttons = c('copy','csv', 'excel', 'pdf')
+                               #fixedColumns = list(leftColumns = 1
+                ), class = 'display') %>% 
+          DT::formatStyle(columns = colnames(ref), 'fontSize' = '80%')
+  
+  return(data)
+}
