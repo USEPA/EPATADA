@@ -7,11 +7,14 @@
 TADA_DataRetrieval(
   startDate = "null",
   endDate = "null",
+  aoi_sf = NULL,
   countrycode = "null",
   countycode = "null",
   huc = "null",
   siteid = "null",
   siteType = "null",
+  tribal_area_type = "null",
+  tribe_name_parcel = "null",
   characteristicName = "null",
   characteristicType = "null",
   sampleMedia = "null",
@@ -19,6 +22,7 @@ TADA_DataRetrieval(
   organization = "null",
   project = "null",
   providers = "null",
+  maxrecs = 250000,
   applyautoclean = TRUE
 )
 }
@@ -26,6 +30,8 @@ TADA_DataRetrieval(
 \item{startDate}{Start Date string in the format YYYY-MM-DD, for example, "2020-01-01"}
 
 \item{endDate}{End Date string in the format YYYY-MM-DD, for example, "2020-01-01"}
+
+\item{aoi_sf}{An sf object to use for a query area of interest}
 
 \item{countrycode}{Code that identifies a country or ocean (e.g. countrycode = "CA" for Canada, countrycode = "OA" for Atlantic Ocean). See https://www.waterqualitydata.us/Codes/countrycode for options.}
 
@@ -36,6 +42,10 @@ TADA_DataRetrieval(
 \item{siteid}{Unique monitoring location identifier.}
 
 \item{siteType}{Type of waterbody. See https://www.waterqualitydata.us/Codes/sitetype for options.}
+
+\item{tribal_area_type}{One of the six tribal spatial layers: "Alaska Native Allotments", "Alaska Native Villages",  "American Indian Reservations", "Off-reservation Trust Lands", "Oklahoma Tribal Statistical Areas", or "Virginia Federally Recognized Tribes".}
+
+\item{tribe_name_parcel}{The name of a tribe corresponding to an entry in the TRIBE_NAME field of the specified tribal_area_type. OR if the type is Alaska Native Allotments" then the corresponding PARCEL_NO.}
 
 \item{characteristicName}{Name of parameter. See https://www.waterqualitydata.us/Codes/characteristicName for options.}
 
@@ -51,7 +61,7 @@ TADA_DataRetrieval(
 
 \item{providers}{Leave blank to include all, or specify "STEWARDS", "STORET" (i.e., WQX), and/or "NWIS". See https://www.waterqualitydata.us/Codes/providers for options.}
 
-\item{applyautoclean}{Logical, defaults to TRUE. Applies TADA_AutoClean function on the returned data profile.}
+\item{applyautoclean}{Logical, defaults to TRUE. Applies TADA_AutoClean function on the returned data profile. Suggest switching to FALSE for queries that are expected to be large.}
 }
 \value{
 TADA-compatible dataframe
@@ -62,7 +72,9 @@ dataframe. Note that the inputs (e.g. project, organization, siteType) with the
 exceptions of endDate and startDate match the web service call format from the
 online WQP GUI. endDate and startDate match the format suggested in USGS's
 dataRetrieval package (endDate = "YYYY-MM-DD"), which is a more familiar date
-format for R users than the WQP GUI's endDateHi = "MM-DD-YYYY".
+format for R users than the WQP GUI's endDateHi = "MM-DD-YYYY". aoi_sf,
+tribal_area_type, and tribe_name_parcel do not have corresponding inputs in
+the web service.
 }
 \details{
 Multiple fields are queried together using AND logic, but multiple values within
@@ -76,6 +88,11 @@ of the query fields.
 characteristicName and Characteristic Group also work as an AND, therefore the
 characteristicName must fall within the Characteristic Group when both are entered.
 
+aoi_sf cannot be used with tribal_area_type. If countrycode, countycode, huc,
+siteid, or statecode are used with aoi_sf or tribal_area_type they will be ignored
+under the assumption that the sf object or tribal location are the intended
+area of interest.
+
 Users can reference the \href{https://www.epa.gov/waterdata/storage-and-retrieval-and-water-quality-exchange-domain-services-and-downloads}{WQX domain tables}
 to find allowable values for queries, e.g., reference the WQX domain table to find countycode and statecode: https://cdx.epa.gov/wqx/download/DomainValues/County_CSV.zip
 Alternatively, you can use the WQP services to find areas where data is available in the US: https://www.waterqualitydata.us/Codes/countycode
@@ -87,6 +104,12 @@ harmonizing key columns used in TADA. See ?TADA_AutoClean for more information.
 Note: TADA_DataRetrieval (by leveraging dataRetrieval),  automatically converts
 the date times to UTC. It also automatically converts the data to dates,
 datetimes, numerics based on a standard algorithm. See: ?dataRetrieval::readWQPdata
+}
+\note{
+Alaska Native Villages and Virginia Federally Recognized Tribes are point
+geometries in the Map Service, not polygons. At the time of this writing they
+do not return any data when used for WQP bbox queries and so are set to return
+errors when used with this function.
 }
 \examples{
 \dontrun{
