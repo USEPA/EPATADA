@@ -26,12 +26,16 @@ Moreover, if return_sf = TRUE, this function will additionally return the raw AT
 }
 \description{
 Link catchment-based ATTAINS assessment unit data (EPA snapshot of NHDPlus HR catchments associated with entity submitted assessment unit features - points, lines, and polygons) to Water Quality Portal observations, often imported via \code{TADA_DataRetrieval()}. This function returns the objects that can be mapped in \code{TADA_ViewATTAINS()}. Check out the
-TADAModule2.Rmd for an example workflow.
+TADAModule2.Rmd for an example workflow. Note that approximately 80\% of state submitted assessment units in ATTAINS were developed based on high res NHDPlus, so we are using that as the default.
 }
 \details{
+The ATTAINS snapshot of NHDPlus HR catchments is not available for areas that do not have existing Assessment Units in ATTAINS. For these areas where there are WQP sites, but no existing ATTAINS assessment units, a user can choose to associate the WQP sites with NHDPlus catchments available from the USGS nhdplusTools package (USGS snapshot) using the optional function param 'fill_catchments'. In theory, if desired by the user, these high res catchments could be created as new assessment unit polygons in ATTAINS (that process is outside of TADA).
+
 Adds one new column to input dataframe, 'index', which identifies rows that are the same observation but are linked to multiple ATTAINS assessment units. It is possible for a single TADA WQP observation to have multiple ATTAINS assessment units linked to it and subsequently more than one row of data.
 
 If TADA_MakeSpatial has not yet been run, this function runs it which also adds another new column to the input dataframe, 'geometry', which allows for mapping and additional geospatial capabilities.
+
+Please review the output of this function carefully, especially waterbody intersections and lake/ocean coasts where imprecise WQP monitoring location coordinates can be problematic. Note that many WQP locations will not fall within the bounds of NHDPlus (estuaries, oceans). Manual adjustments and quality control checks are strongly encouraged. WQP monitoring location metadata may also be helpful for matching waterbody names with ATTAINS waterbody names instead of relying solely on the geospatial location (lat/long).
 }
 \examples{
 \dontrun{
