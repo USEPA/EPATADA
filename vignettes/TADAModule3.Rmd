@@ -324,9 +324,10 @@ NCTC_ParamUseRef <- TADA_CreateParamUseRef(
 
 User can include the EPA304a standards with the input "org_names", which
 utilizes the CST.PollutantName column created in TADA_CreateParamRef().
-If a user includes additional orgs besides "Maryland" and "EPA304a", see example NCTC_ParamUseRef2 below, it
-will not generate rows for those parameter and use combinations for
-those additional orgs ("Virginia", "Pennsylvania", "West Virginia") as only Maryland was defined in
+If a user includes additional orgs besides "Maryland" and "EPA304a", see
+example NCTC_ParamUseRef2 below, it will not generate rows for those
+parameter and use combinations for those additional orgs ("Virginia",
+"Pennsylvania", "West Virginia") as only Maryland was defined in
 TADA_CreateParamRef() for paramRef = ParamRef.
 
 ```{r}
@@ -348,7 +349,14 @@ NCTC_ParamUseRef3 <- TADA_CreateParamUseRef(
 )
 ```
 
-In this example, Maryland has decided to use an ATTAINS.ParameterName "PH" as a crosswalk that was not used in prior ATTAINS assessment cycle which results in the use_name column returning a blank value. Maryland will need to specify the use_name(s) that they would like to associate with "PH". In excel, there will be a drop down list of org specific use_names that were used in prior ATTAINS assessments. If no excel file was generated, this is an example workflow of what a user can do to edit the table in the R environment.
+In this example, Maryland has decided to use an ATTAINS.ParameterName
+"PH" as a crosswalk that was not used in prior ATTAINS assessment cycle
+which results in the use_name column returning a blank value. Maryland
+will need to specify the use_name(s) that they would like to associate
+with "PH". In excel, there will be a drop down list of org specific
+use_names that were used in prior ATTAINS assessments. If no excel file
+was generated, this is an example workflow of what a user can do to edit
+the table in the R environment.
 
 ```{r}
 add_data <- data.frame("organization_name" = "Maryland" ,"ATTAINS.ParameterName" = rep("PH",3), "use_name" = c("Aquatic Life and Wildlife", "Water Contact Sports",
@@ -375,9 +383,10 @@ NCTC_ParamUseRef3.1 <- TADA_CreateParamUseRef(
 Users must review the matching done with TADA_GetATTAINS of monitoring
 sites to AU. Users may also provide their own AU monitoring sites match
 as a reference table. For any new WQP monitoring sites found in the TADA
-dataframe, users will need to determine the appropriate match. Users can also
-choose to not provide any sort of ML to AU crosswalk if they are only interested
-in a monitoring location site level analysis of assessments. 
+dataframe, users will need to determine the appropriate match. Users can
+also choose to not provide any sort of ML to AU crosswalk if they are
+only interested in a monitoring location site level analysis of
+assessments.
 
 If there are site-specific criteria that only applies to some monitoring
 locations within an AU, whether it's an ecoregion, for a specific
@@ -385,9 +394,11 @@ parameter and use, or if there are separate criteria for "warm-waters"
 versus "cold-waters" or "trout-based" versus other species based, this
 should be defined here. Users can further customize specific exclusions
 that pertains to their water quality assessments. Users will be
-responsible for filling out this unique spatial criteria under "ApplyUniqueSpatialCriteria" column.
+responsible for filling out this unique spatial criteria under
+"ApplyUniqueSpatialCriteria" column.
 
-In this example below, no ML to AU crosswalk was provided. 
+In this example below, no ML to AU crosswalk was provided.
+
 ```{r}
 # NCTC_AUIDRef <- TADA_CreateAURef(Data_NCTC, excel = TRUE, overwrite = TRUE)
 # NCTC_AUIDRef <- TADA_CreateAUIDRef(Data_NCTC, overwrite = TRUE)

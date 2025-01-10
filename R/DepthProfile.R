@@ -625,7 +625,7 @@ TADA_IDDepthProfiles <- function(.data, nresults = TRUE, nvalue = 2, aggregates 
 #'   TADA_ConvertDepthUnits.
 #'
 #' @param groups A vector of two identifiers from the TADA.ComparableDataIdentifier column.
-#' For example, the groups could be 'DISSOLVED OXYGEN (DO)_NA_NA_UG/L' and 'PH_NA_NA_NA'.
+#' For example, the groups could be 'DISSOLVED OXYGEN (DO)_NA_NA_UG/L' and 'PH_NA_NA_STD UNITS'.
 #' These groups will be specific to your data frame. The TADA_IDDepthProfiles can be
 #' used to identify available groups.
 #'
@@ -661,7 +661,7 @@ TADA_IDDepthProfiles <- function(.data, nresults = TRUE, nvalue = 2, aggregates 
 #' data(Data_6Tribes_5y_Harmonized)
 #' # Create a depth profile figure with three parameters for a single monitoring location and date
 #' TADA_DepthProfilePlot(Data_6Tribes_5y_Harmonized,
-#'   groups = c("TEMPERATURE_NA_NA_DEG C", "PH_NA_NA_NA", "DEPTH, SECCHI DISK DEPTH_NA_NA_M"),
+#'   groups = c("TEMPERATURE_NA_NA_DEG C", "PH_NA_NA_STD UNITS", "DEPTH, SECCHI DISK DEPTH_NA_NA_M"),
 #'   location = "REDLAKE_WQX-ANKE",
 #'   activity_date = "2018-10-04"
 #' )
