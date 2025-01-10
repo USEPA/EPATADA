@@ -497,7 +497,7 @@ TADA_DataRetrieval <- function(startDate = "null",
         
         # Get site metadata
         sites.DR <- clipped_sites_sf %>%
-          as_tibble() %>%
+          dplyr::as_tibble() %>%
           dplyr::select(-geometry)
         
         # Get project metadata
@@ -561,7 +561,7 @@ TADA_DataRetrieval <- function(startDate = "null",
         
         # Get site metadata
         sites.DR <- clipped_sites_sf %>%
-          as_tibble() %>%
+          dplyr::as_tibble() %>%
           dplyr::select(-geometry)
         
         # Get project metadata
