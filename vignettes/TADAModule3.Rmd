@@ -160,7 +160,6 @@ the appropriate crosswalk tables for each step of the process. While
 efforts have been made to reduce manual inputs, initial workflow may
 require much additions and removals during each step.
 
-
 **Additional Description:**
 
 **...**
@@ -192,11 +191,11 @@ tables that will be needed in order to help users with defining the
 criteria magnitude assessments for a parameter and use using the
 Shepherdstown example.
 
-Clean, harmonize and perform QAQC on the data frame for assessment. 
-See Module 1 Workflow.R script for more information on the steps
-on creating this example data frame with TADA flagging, harmonization
-and autoclean processes.
-This is the final data after running a recommended module 1 workflow.
+Clean, harmonize and perform QAQC on the data frame for assessment. See
+Module 1 Workflow.R script for more information on the steps on creating
+this example data frame with TADA flagging, harmonization and autoclean
+processes. This is the final data after running a recommended module 1
+workflow.
 
 ```{r}
 Data_NCTC <- Data_WV_Mod1_Output
@@ -237,6 +236,7 @@ NCTC_ParamRef <- TADA_CreateParamRef(
   excel = FALSE # comment out this line 'excel = FALSE' and uncomment excel = TRUE, overwrite = TRUE to run the excel file
   # excel = TRUE, overwrite = TRUE
 )
+NCTC_ParamRef
 ```
 
 Users who have already completed this crosswalk can re-use this
@@ -268,6 +268,10 @@ TADA.ComparableDataIdentifier == "ZINC_TOTAL_NA_UG/L" ~ "ZINC",
 grepl("NITRATE", TADA.ComparableDataIdentifier) ~ "NITROGEN, TOTAL"
 ))
 
+DT::datatable(ParamRef, extensions = 'FixedColumns', options = list(
+  dom = 't', scrollX = TRUE, scrollCollapse = TRUE)) %>% 
+  DT::formatStyle( columns = colnames(ParamRef), 'fontSize' = '80%')
+
 NCTC_ParamRef2 <- TADA_CreateParamRef(
   Data_NCTC,
   org_names = c("Maryland"),
@@ -275,6 +279,9 @@ NCTC_ParamRef2 <- TADA_CreateParamRef(
   excel = FALSE
 ) # comment out 'excel = FALSE' and uncomment excel = TRUE, overwrite = TRUE to run the excel file
 # excel = TRUE, overwrite = TRUE)
+DT::datatable(NCTC_ParamRef2, extensions = 'FixedColumns', options = list(
+  dom = 't', scrollX = TRUE, scrollCollapse = TRUE)) %>% 
+  DT::formatStyle( columns = colnames(NCTC_ParamRef2), 'fontSize' = '80%')
 ```
 
 Users may also include states outside of their spatial region if
@@ -291,6 +298,9 @@ NCTC_ParamRef3 <- TADA_CreateParamRef(
   paramRef = ParamRef,
   excel = FALSE
 )
+DT::datatable(NCTC_ParamRef3, extensions = 'FixedColumns', options = list(
+  dom = 't', scrollX = TRUE, scrollCollapse = TRUE)) %>% 
+  DT::formatStyle( columns = colnames(NCTC_ParamRef3), 'fontSize' = '80%')
 ```
 
 # Three cases of TADA_CreateParamUseRef().
@@ -323,15 +333,18 @@ NCTC_ParamUseRef <- TADA_CreateParamUseRef(
   excel = FALSE # comment out 'excel = FALSE' and uncomment excel = TRUE, overwrite = TRUE to run the excel file
   # excel = TRUE, overwrite = TRUE
 )
+DT::datatable(NCTC_ParamUseRef, extensions = 'FixedColumns', options = list(
+  dom = 't', scrollX = TRUE, scrollCollapse = TRUE)) %>% 
+  DT::formatStyle( columns = colnames(NCTC_ParamUseRef), 'fontSize' = '80%')
 ```
 
 User can include the EPA304a standards with the input "org_names", which
-utilizes the EPA304a.PollutantName column created in TADA_CreateParamRef().
-If a user includes additional orgs besides "Maryland" and "EPA304a", see
-example NCTC_ParamUseRef2 below, it will not generate rows for those
-parameter and use combinations for those additional orgs ("Virginia",
-"Pennsylvania", "West Virginia") as only Maryland was defined in
-TADA_CreateParamRef() for paramRef = ParamRef.
+utilizes the EPA304a.PollutantName column created in
+TADA_CreateParamRef(). If a user includes additional orgs besides
+"Maryland" and "EPA304a", see example NCTC_ParamUseRef2 below, it will
+not generate rows for those parameter and use combinations for those
+additional orgs ("Virginia", "Pennsylvania", "West Virginia") as only
+Maryland was defined in TADA_CreateParamRef() for paramRef = ParamRef.
 
 ```{r}
 NCTC_ParamUseRef2 <- TADA_CreateParamUseRef(
@@ -341,6 +354,9 @@ NCTC_ParamUseRef2 <- TADA_CreateParamUseRef(
   excel = FALSE # comment out 'excel = FALSE' and uncomment excel = TRUE, overwrite = TRUE to run the excel file
   # excel = TRUE, overwrite = TRUE
 )
+DT::datatable(NCTC_ParamUseRef2, extensions = 'FixedColumns', options = list(
+  dom = 't', scrollX = TRUE, scrollCollapse = TRUE)) %>% 
+  DT::formatStyle( columns = colnames(NCTC_ParamUseRef2), 'fontSize' = '80%')
 
 # User should only run TADA_CreateParamUseRef() which contains the orgs of interest. If there are other orgs that are interested, this should have been defined in TADA_CreateParamRef() for the paramRef argument input in which users will need to be aware of the appropriate parameter name crosswalk (if users share their criteria and methods in the future, this could be more feasible)
 NCTC_ParamUseRef3 <- TADA_CreateParamUseRef(
@@ -350,6 +366,9 @@ NCTC_ParamUseRef3 <- TADA_CreateParamUseRef(
   excel = FALSE # comment out 'excel = FALSE' and uncomment excel = TRUE, overwrite = TRUE to run the excel file
   # excel = TRUE, overwrite = TRUE
 )
+DT::datatable(NCTC_ParamUseRef3, extensions = 'FixedColumns', options = list(
+  dom = 't', scrollX = TRUE, scrollCollapse = TRUE)) %>% 
+  DT::formatStyle( columns = colnames(NCTC_ParamUseRef3), 'fontSize' = '80%')
 ```
 
 In this example, Maryland has decided to use an ATTAINS.ParameterName
@@ -361,7 +380,7 @@ use_names that were used in prior ATTAINS assessments. If no excel file
 was generated, this is an example workflow of what a user can do to edit
 the table in the R environment.
 
-```{r}
+```{r paged.print=TRUE}
 add_data <- data.frame("organization_name" = "Maryland" ,"ATTAINS.ParameterName" = rep("PH",3), "use_name" = c("Aquatic Life and Wildlife", "Water Contact Sports",
 "Seasonal Migratory Fish Spawning and Nursery Subcategory"
 ))
@@ -372,6 +391,11 @@ ParamUseRef <- NCTC_ParamUseRef3 %>%
   dplyr::mutate(use_name = dplyr::coalesce(use_name.x, use_name.y)) %>% 
   dplyr::select(-c(use_name.x, use_name.y))
 
+# User now has a saved dataframe which can be used to reflect any updates of Parameter-use ref in the future.
+DT::datatable(ParamUseRef, extensions = 'FixedColumns', options = list(
+  dom = 't', scrollX = TRUE, scrollCollapse = TRUE)) %>% 
+  DT::formatStyle( columns = colnames(ParamUseRef), 'fontSize' = '80%')
+
 # PH will now reflect the changes 
 NCTC_ParamUseRef3.1 <- TADA_CreateParamUseRef(
   Data_NCTC,
@@ -381,6 +405,9 @@ NCTC_ParamUseRef3.1 <- TADA_CreateParamUseRef(
   excel = FALSE # comment out 'excel = FALSE' and uncomment 'excel = TRUE, overwrite = TRUE' to run the excel file
   # excel = TRUE, overwrite = TRUE 
   ) 
+DT::datatable(NCTC_ParamUseRef3.1, extensions = 'FixedColumns', options = list(
+  dom = 't', scrollX = TRUE, scrollCollapse = TRUE)) %>% 
+  DT::formatStyle( columns = colnames(NCTC_ParamUseRef3.1), 'fontSize' = '80%')
 ```
 
 Users must review the matching done with TADA_GetATTAINS of monitoring
@@ -403,6 +430,7 @@ responsible for filling out this unique spatial criteria under
 In this example below, no ML to AU crosswalk was provided.
 
 ```{r}
-# NCTC_AUIDRef <- TADA_CreateAURef(Data_NCTC, excel = TRUE, overwrite = TRUE)
+# NCTC_AURef <- TADA_CreateAURef(Data_NCTC, excel = FALSE)
+# tidyr::as_tibble(NCTC_AURef)
 # NCTC_AUIDRef <- TADA_CreateAUIDRef(Data_NCTC, overwrite = TRUE)
 ```
