@@ -443,6 +443,9 @@ TADA_CreateParamRef <- function(.data, org_names = NULL, paramRef = NULL, excel 
 #' include in the paramRef data frame which contains an additional column name: 'organization_name'
 #' in order to determine the proper crosswalk between TADA.ComparableDataIdentifier and
 #' ATTAINS.ParameterName by organization name.
+#' 
+#' @param paramUseRef A data frame which contains a completed crosswalk of org specific
+#' domain value of use_name by ATTAINS.ParameterName. 
 #'
 #' @return A data frame which contains the columns: TADA.ComparableDataIdentifier, organization_name,
 #' EPA304A.PollutantName, ATTAINS.ParameterName, and ATTAINS.FlagUseName. Users will need to review
