@@ -1,5 +1,5 @@
 ---
-title: "TADA Module 3: Integration of Common Water Quality Standards (WQS) Criteria"
+title: "TADA Module 3a: Associating WQP Characteristics with Applicable ATTAINS Parameters and Uses"
 format: html
 editor: visual
 author: "TADA Team"
@@ -12,9 +12,9 @@ output:
     fig_width: 8
 vignette: >
   %\VignetteEncoding{UTF-8}
-  %\VignetteIndexEntry{TADA Module 3: Integration of Common Water Quality Standards (WQS) Criteria}
+  %\VignetteIndexEntry{TADA Module 3: Associating WQP Characteristics with Applicable ATTAINS Parameters and Uses}
   %\VignetteEngine{knitr::rmarkdown}
-description: An overview of TADA Module 3 functions and a recommended workflow.
+description: The first of multiple vignettes (under development) showcasing TADA Module 3 functions and a recommended workflow.
 editor_options:
   chunk_output_type: console
   markdown:
@@ -71,7 +71,7 @@ recent versions available. If you see this prompt, it is recommended to
 update all of them (enter 1 into the console).
 
 ```{r install_TADA_dev, eval = T, include = F}
-# help with knit and pass the checks, but we want to make sure this chunk does not show up in the final website, just for development.
+# helps with development (knit and checks), this chunk should not appear on website
 remotes::install_github("USEPA/EPATADA",
   ref = "Create-Module-3-Reference-Tables",
   dependencies = TRUE
@@ -106,16 +106,15 @@ function in R or RStudio using the following format (example below):
 ?TADA_DataRetrieval
 ```
 
-## WQS Criteria Functions in TADA
+## Module 3a Functions in TADA
 
-Disclaimer: Use of Module 3 development and tools in the EPATADA package
-is to assist different organization (state, territories and tribal
-nations) on their assessment methods under the CWA. It does not
-constitute current Agency policy or regulation requirements. This tool
-is not to be solely used for decision making process. Module 3
-integration of WQS for assessments is not a regulation and does not
-impose legally binding requirements on EPA or the States in reporting
-water conditions under biannual reports of the CWA.
+Disclaimer: While the EPATADA package aims to assist different organizations 
+(state, territories and tribal nations) with their Clean Water Act assessment 
+process, it does not constitute current EPA policy or regulatory requirements.
+This tool is not to be solely used for an organizations decision making process 
+and use of EPATADA is not required.
+
+## Introduction
 
 Criteria is defined as the Magnitude, duration and frequency associated
 with a parameter and designated use.
@@ -186,7 +185,7 @@ additional components such as low flow waters, comparing against other
 state's standards when possible, capturing additional details of EPA
 304a standards, and more.
 
-**Creating the 3 Reference Tables**
+**Creating ATTAINS Parameter and Use Reference Tables**
 
 We will work through an example of creating the three user reference
 tables that will be needed in order to help users with defining the
@@ -201,19 +200,23 @@ Data_NCTC <- Data_WV_Mod1_Output
 
 Filter data frame by TADA.CharacteristicName(s) for a few priority
 characteristics. Do some exploratory data analysis to view the number of
-counts of TADA.ComparableDataIdentifier. Users can reference the domain
+counts of TADA.ComparableDataIdentifier. 
+
+```{r}
+TADA_FieldValuesTable(Data_NCTC, field = "TADA.ComparableDataIdentifier")
+```
+
+Users can reference the domain
 values of parameter names listed as a cause in prior assessment cycles
 with the rATTAINS library function: domain_values.
 
 ```{r}
-TADA_FieldValuesTable(Data_NCTC, field = "TADA.ComparableDataIdentifier")
-
 rATTAINS::domain_values(domain_name = "ParameterName")
 ```
 
 To begin the ATTAINS assessment process, you will create a blank
-template of ATTAINS.ParameterName which needs crosswalk to a
-TADA.ComparableDataIdentifier. Users should specify the name(s) of their
+template of 'ATTAINS.ParameterName' which needs crosswalk to a
+'TADA.ComparableDataIdentifier'. Users should specify the name(s) of their
 orgs that will be used for assessment.
 
 By specifying the name of the ATTAINS organization(s) used, if creating
@@ -231,20 +234,23 @@ contacting the ATTAINS team first before proceeding.
 NCTC_ParamRef <- TADA_CreateParamRef(
   Data_NCTC,
   org_names = c("Maryland"),
-  excel = FALSE # comment out this line 'excel = FALSE' and uncomment excel = TRUE, overwrite = TRUE to run the excel file
-  # excel = TRUE, overwrite = TRUE
+  excel = FALSE, # change to TRUE to download excel file
+  overwrite = FALSE
 )
 ```
 
 Users who have already completed this crosswalk can re-use this
-reference file in the future. In this example, we will fill out the
-excel blank template, read it into the R environment, and reuse this
-parameter reference data frame that we have named "ParamRef".
+reference file in the future. 
 
-If a user modifies this reference table directly in the R environment
-only and not in the excel file, the user will need to re-run the
-function using the "ParamRef" file to reflect the flagging of parameter
-names.
+Users that need to fill out the blank template can do so either:
+1) within the Excel file (downloaded using excel = TRUE), or 
+2) directly in the R environment.
+
+In the example below, we will modify the reference table called 'ParamRef' 
+directly in the R environment and not in the excel file. We can then re-run
+the function using the updated 'ParamRef' file to reflect the ATTAINS validation
+(flagging) of parameter names. See updated ATTAINS.FlagParameterName column 
+in NCTC_ParamRef2.
 
 ```{r}
 # only run the code chunks below if you make edits to the excel file.
