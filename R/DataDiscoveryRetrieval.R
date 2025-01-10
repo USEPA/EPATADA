@@ -498,7 +498,7 @@ TADA_DataRetrieval <- function(startDate = "null",
         # Get site metadata
         sites.DR <- clipped_sites_sf %>%
           as_tibble() %>%
-          select(-geometry)
+          dplyr::select(-geometry)
         
         # Get project metadata
         projects.DR <- suppressMessages(
@@ -562,7 +562,7 @@ TADA_DataRetrieval <- function(startDate = "null",
         # Get site metadata
         sites.DR <- clipped_sites_sf %>%
           as_tibble() %>%
-          select(-geometry)
+          dplyr::select(-geometry)
         
         # Get project metadata
         projects.DR <- suppressMessages(
