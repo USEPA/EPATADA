@@ -42,6 +42,9 @@ include in the paramRef data frame which contains an additional column name: 'or
 in order to determine the proper crosswalk between TADA.ComparableDataIdentifier and
 ATTAINS.ParameterName by organization name.}
 
+\item{paramUseRef}{A data frame which contains a completed crosswalk of org specific
+domain value of use_name by ATTAINS.ParameterName.}
+
 \item{excel}{A boolean value that returns an excel spreadsheet if excel = TRUE. This spreadsheet is
 created in the user's downloads folder path.
 In the R console please type in: file.path(Sys.getenv("USERPROFILE"), "Downloads") in File explorer
