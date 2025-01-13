@@ -96,7 +96,7 @@ utils::globalVariables(c(
   "TADA.MonitoringLocationIdentifier.New", "TADA.NearbySites.Flag",  "CountSites", "Group",
   "Matrix", "n_id", "OrgRank", "rank.default", "Site", "TADA.LatitudeMeasure.New",
   "TADA.LongitudeMeasure.New", "TADA.MonitoringLocationName.New",
-  "TADA.MonitoringLocationTypeName.New"
+  "TADA.MonitoringLocationTypeName.New", "df_number"
 ))
 
 # global variables for tribal feature layers used in TADA_OverviewMap in Utilities.R
@@ -905,7 +905,8 @@ TADA_FindNearbySites <- function(.data, dist_buffer = 100,
     dplyr::group_by(NHD.nhdplusid) %>%
     dplyr::mutate(n_id = length(TADA.MonitoringLocationIdentifier)) %>%
     dplyr::filter(n_id > 1) %>%
-    dplyr::ungroup()
+    dplyr::ungroup() %>%
+    dplyr::filter(!is.na(NHD.nhdplusid))
   
   # remove intermediate object
   rm(nhd_catchments)

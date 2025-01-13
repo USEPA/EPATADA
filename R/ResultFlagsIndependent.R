@@ -1256,8 +1256,6 @@ TADA_FindPotentialDuplicatesMultipleOrgs <- function(.data, dist_buffer = 100,
   # group by date, time, characteristic, and rounded result value and determine the number of 
   # organizations that have those same row values, and filter to those summary rows with more than 
   # one organization
-  
-  # HRM note 12/31/24 - pick up work here, some issues w/ TADA.NearbySiteGroup
   dups_sum <- dupsprep %>%
     dplyr::group_by(ActivityStartDate, ActivityStartTime.Time, TADA.CharacteristicName, 
                     ActivityTypeCode, roundRV, TADA.MonitoringLocationIdentifier,
