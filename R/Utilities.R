@@ -1715,7 +1715,7 @@ TADA_CharStringRemoveNA <- function(char_string) {
 #' @export
 #'
 #' @examples
-#' actions <- TADA_EQExtract(profile = "tmdl")
+#' tmdls <- TADA_EQExtract(profile = "tmdl")
 #' 
 TADA_EQExtract <- function(profile = NULL) {
   
@@ -1728,14 +1728,22 @@ TADA_EQExtract <- function(profile = NULL) {
     stop("TADA_EQExtract: Function requires user to select Expert Query Profile to return.")
   }
   
+  # read expert query national download page, including js elements
   eq.page <- rvest::read_html_live("https://owapps.epa.gov/expertquery/national-downloads")
   
-  # need to find fix for errors in data.frame, arguements imply differing number of rows
-  eq.urls <- data.frame(
-    label = rvest::html_text(rvest::html_nodes(eq.page, "a")),
-    url = rvest::html_attr(rvest::html_nodes(eq.page, "a"), "href")
-  )
+  # create vector of labels
+  labels <- rvest::html_text(rvest::html_nodes(eq.page, "a"))
+  # replace empty labels with NA
+  labels[labels == ""] <- NA
   
+  # create vector of urls
+  urls <- rvest::html_attr(rvest::html_nodes(eq.page, "a"), "href")
+    
+  # create df of labels and urls
+  eq.urls <- data.frame(label = labels, url = urls)
+    
+  
+  # select profile based on user selection
   if(profile == "actions") {
     extract <- "Actions ProfileExit EPA's Website"
     
@@ -1778,11 +1786,13 @@ TADA_EQExtract <- function(profile = NULL) {
     csv.file <- "tmdl.csv"
   }
   
+  # select url to download
   profile.url <- eq.urls %>%
     dplyr::filter(label == extract) %>%
     dplyr::select(url) %>%
     dplyr::pull()
   
+  # download and unzip csv for extract
   df <- suppressWarnings(readr::read_csv(archive::archive_read(
     profile.url, file = 1)))
   
