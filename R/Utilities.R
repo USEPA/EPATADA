@@ -1728,21 +1728,13 @@ TADA_EQExtract <- function(profile = NULL) {
     stop("TADA_EQExtract: Function requires user to select Expert Query Profile to return.")
   }
   
-  # open chromote session and set default timeout in milliseconds
-   session <- chromote::ChromoteSession$new()
-   session$set_default_timeout(60000)
-  
   # read expert query national download page, including js elements
-  eq.page <- rvest::read_html_live("https://owapps.epa.gov/expertquery/national-downloads",
-                                   chromote_session = session) 
-  
-  # close chromote session
-  session$close
+  eq.page <- rvest::read_html_live("https://owapps.epa.gov/expertquery/national-downloads") 
   
   # create vector of labels
   labels <- rvest::html_text(rvest::html_nodes(eq.page, "a"))
   # replace empty labels with NA
-  labels[labels == ""] <- NA
+  labels[labels == ""] <- "NA"
   
   # create vector of urls
   urls <- rvest::html_attr(rvest::html_nodes(eq.page, "a"), "href")
@@ -1807,7 +1799,7 @@ TADA_EQExtract <- function(profile = NULL) {
     profile.url, file = 1)))
   
   # remove intermediate objects
-  rm(eq_urls, profile.url)
+  rm(eq.urls, profile.url)
   
   return(df)
 }
