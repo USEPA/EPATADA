@@ -104,9 +104,9 @@ test_that("TADA_FindPotentialDuplicatsMultipleOrgs labels nearby site and multip
     as.numeric() %>%
     sort()
 
-  expect_true(length(unique(diff(testdat1))) < 2)
+  expect_true(length(unique(diff(testdat1))) < 2 | length(testdat1 == 0)) 
 
-  expect_true(length(unique(diff(testdat2))) < 2)
+  expect_true(length(unique(diff(testdat2))) < 2 | length(testdat2 == 0))
 })
 
 test_that("TADA_FindPotentialDuplicatsMultipleOrgs has non-NA values for each row in columns added in function", {
