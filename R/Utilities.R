@@ -1728,8 +1728,16 @@ TADA_EQExtract <- function(profile = NULL) {
     stop("TADA_EQExtract: Function requires user to select Expert Query Profile to return.")
   }
   
+  # open chromote session and set default timeout in milliseconds
+   session <- chromote::ChromoteSession$new()
+   session$set_default_timeout(60000)
+  
   # read expert query national download page, including js elements
-  eq.page <- rvest::read_html_live("https://owapps.epa.gov/expertquery/national-downloads")
+  eq.page <- rvest::read_html_live("https://owapps.epa.gov/expertquery/national-downloads",
+                                   chromote_session = session) 
+  
+  # close chromote session
+  session$close
   
   # create vector of labels
   labels <- rvest::html_text(rvest::html_nodes(eq.page, "a"))
@@ -1741,7 +1749,9 @@ TADA_EQExtract <- function(profile = NULL) {
     
   # create df of labels and urls
   eq.urls <- data.frame(label = labels, url = urls)
-    
+  
+  # remove intermediate objects
+  rm(eq.page, labels, urls)
   
   # select profile based on user selection
   if(profile == "actions") {
@@ -1795,6 +1805,9 @@ TADA_EQExtract <- function(profile = NULL) {
   # download and unzip csv for extract
   df <- suppressWarnings(readr::read_csv(archive::archive_read(
     profile.url, file = 1)))
+  
+  # remove intermediate objects
+  rm(eq_urls, profile.url)
   
   return(df)
 }
