@@ -72,9 +72,21 @@ for TADA package installation instructions.)
 We'll also record the start time for our analysis, beginning after
 loading packages.
 
+```{r install_TADA_dev, eval = T, include = F}
+
+# help with knit and pass the checks, but we want to make sure this chunk does not  show up in the final website, just for development. 
+
+remotes::install_github("USEPA/EPATADA", ref = "482-create-tadamonitoringlocationidentifier-in-tada_autoclean", dependencies = TRUE )
+
+```
+
+```{r install_TADA, eval = F, results = 'hide'}
+remotes::install_github("USEPA/EPATADA", ref = "develop", dependencies = TRUE )
+
+```
+
 ```{r library, results = 'hide'}
-# Load required packages
-library(EPATADA)
+# Load other packages
 library(dplyr)
 library(yaml)
 library(lwgeom)
