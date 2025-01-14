@@ -74,7 +74,9 @@ Imports:
     nhdplusTools,
     arcgislayers,
     httr,
-    jsonlite
+    jsonlite,
+    units,
+    igraph
 Depends: 
     R (>= 3.5.0)
 Suggests:
@@ -92,8 +94,7 @@ Suggests:
     pkgdown,
     spelling,
     htmltools,
-    yaml,
-    igraph
+    yaml
 VignetteBuilder: knitr, rmarkdown
 Language: en-US
 Config/testthat/edition: 3
