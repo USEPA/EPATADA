@@ -256,6 +256,7 @@ test_that("TADA_DataRetrieval", {
   ) %in% names(randomstate)))
 })
 
+# test data set that will fail is RI 2020-05-13 - 2020-05-16
 test_that("TADA_DataRetrieval", {
   randomstate2 <- TADA_RandomTestingData(number_of_days = 3, choose_random_state = TRUE)
 
