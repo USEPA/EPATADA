@@ -184,25 +184,25 @@ additional components such as low flow waters, comparing against other
 state's standards when possible, capturing additional details of EPA
 304a standards, and more.
 
-**Creating ATTAINS Parameter and Use Reference Tables**
+**TADA_CreateParamRef()**
 
-We will work through an example of creating the three user reference
-tables that will be needed in order to help users with defining the
-criteria magnitude assessments for a parameter and use using the
-Shepherdstown example.
+We will work through an example of creating the three user reference,
+beginning with TADA_CreateParamRef(). These three crosswalk tables will
+be required in order to generate the criteria/magnitude assessments for
+a parameter and use for a water.
 
-Clean, harmonize and perform QAQC on the data frame for assessment. See
-Module 1 Workflow.R script for more information on the steps on creating
-this example data frame with TADA flagging, harmonization and autoclean
-processes. This is the final data after running a recommended module 1
-workflow.
+Users are expected to have ran the necessary data cleaning,
+harmonization, removal of suspect results, and other QAQC processes on
+the data frame for assessment. See Module 1 Workflow.R script for more
+information on the steps on creating this example data frame with TADA
+flagging, harmonization and autoclean processes. This is the final
+dataset after running a recommended module 1 workflow.
 
 ```{r}
 Data_NCTC <- Data_WV_Mod1_Output
 ```
 
-Filter data frame by TADA.CharacteristicName(s) for a few priority
-characteristics. Do some exploratory data analysis to view the number of
+We will perform some exploratory data analysis to view the number of
 counts of TADA.ComparableDataIdentifier.
 
 ```{r}
@@ -213,25 +213,26 @@ Users can reference the domain values of parameter names listed as a
 cause in prior assessment cycles with the rATTAINS library function:
 domain_values.
 
-```{r}
+```{r, eval = FALSE}
 rATTAINS::domain_values(domain_name = "ParameterName")
 ```
 
-To begin the ATTAINS assessment process, you will create a blank
-template of 'ATTAINS.ParameterName' which needs crosswalk to a
+To begin the ATTAINS assessment process, users will create a blank
+template of 'ATTAINS.ParameterName' which needs a crosswalk to a
 'TADA.ComparableDataIdentifier'. Users should specify the name(s) of
-their orgs that will be used for assessment.
+their org(s) that will be used for assessment.
 
 By specifying the name of the ATTAINS organization(s) used, if creating
 an excel spreadsheet (using excel = TRUE), this will create a separate
-tab in the excel file which contains the parameter names used in prior
-assessment cycles filtered by those ATTAINS organization(s). This will
-allow users to decide whether to continue to use the same ATTAINS
-parameter names from prior assessments that their org(s) have used in
-the past, or to use other valid parameter names found in the ATTAINS
-domain list. If there are no ATTAINS parameter name that properly
-captures the TADA.ComparableDataIdentifier, users should consider
-contacting the ATTAINS team first before proceeding.
+tab [ATTAINSOrgNamesParamRef] in the excel file which contains the
+parameter names used in prior assessment cycles filtered by those
+ATTAINS organization(s). This will allow users to decide whether to
+continue to use the same ATTAINS parameter names from prior assessments
+that their org(s) have used in the past, or to use other valid parameter
+names found in the ATTAINS domain list. If there are no ATTAINS
+parameter name that properly captures the TADA.ComparableDataIdentifier,
+users should consider contacting the ATTAINS team first before
+proceeding.
 
 ```{r}
 NCTC_ParamRef <- TADA_CreateParamRef(
@@ -318,12 +319,13 @@ For any ATTAINS parameter name(s) that have not been used by this org in
 prior assessment cycles, there will be no prior use names associated
 with them. In this case, users will be responsible for inputting
 additional rows as needed and choosing the appropriate use_name
-applicable to their org under the column 'use_name'. In this example, we
-can see "PH" was not a prior ATTAINS parameter name for Maryland, thus
-additional rows should be inputted to reflect what parameter and use
-combinations are needed to be defined for assessments (disclaimer: this
-is for demonstration purposes only and does not reflect Maryland's
-Criteria and Methodologies for PH).
+applicable to their org under the column 'use_name'.
+
+For example, we can see "PH" was not a prior ATTAINS parameter name for
+Maryland, thus additional rows should be inputted to reflect what
+parameter and use combinations are needed to be defined for assessments
+(disclaimer: this is for demonstration purposes only and does not
+reflect Maryland's Criteria and Methodologies for PH).
 
 ```{r}
 NCTC_ParamUseRef <- TADA_CreateParamUseRef(
@@ -359,20 +361,22 @@ NCTC_ParamUseRef3 <- TADA_CreateParamUseRef(
   Data_NCTC,
   org_names = c("EPA304a", "Maryland"),
   paramRef = NCTC_ParamRef2,
-  excel = FALSE # comment out 'excel = FALSE' and uncomment excel = TRUE, overwrite = TRUE to run the excel file
-  # excel = TRUE, overwrite = TRUE
+  #excel = FALSE # comment out 'excel = FALSE' and uncomment excel = TRUE, overwrite = TRUE to run the excel file
+   excel = TRUE, overwrite = TRUE
 )
 TADA_CSVExport(ref = NCTC_ParamUseRef3)
 ```
 
-In this example, Maryland has decided to use an ATTAINS.ParameterName
-"PH" as a crosswalk that was not used in prior ATTAINS assessment cycle
-which results in the use_name column returning a blank value. Maryland
-will need to specify the use_name(s) that they would like to associate
-with "PH". In excel, there will be a drop down list of org specific
-use_names that were used in prior ATTAINS assessments. If no excel file
-was generated, this is an example workflow of what a user can do to edit
-the table in the R environment.
+In this example, **Maryland** has decided to use an
+ATTAINS.ParameterName "PH" as a crosswalk for
+TADA.ComparableDataIdentifier 'PH_NA_NA_STD UNITS' which was not used in
+prior ATTAINS assessment cycle for **Maryland**. This results in the
+'use_name' column returning a blank value for ATTAINS.ParameterName
+"PH". Maryland will need to specify the use_name(s) that they would like
+to associate with "PH". In excel, there will be a drop down list of org
+specific use_names that were used in prior ATTAINS assessments. If no
+excel file was generated, this is an example workflow of what a user can
+do to edit the table in the R environment.
 
 ```{r paged.print=TRUE}
 add_data <- data.frame("organization_name" = "Maryland" ,"ATTAINS.ParameterName" = rep("PH",3), "use_name" = c("Aquatic Life and Wildlife", "Water Contact Sports",
@@ -422,5 +426,5 @@ In this example below, no ML to AU crosswalk was provided.
 ```{r}
 # NCTC_AURef <- TADA_CreateAURef(Data_NCTC, excel = FALSE)
 # tidyr::as_tibble(NCTC_AURef)
-# NCTC_AUIDRef <- TADA_CreateAUIDRef(Data_NCTC, overwrite = TRUE)
+# NCTC_AURef <- TADA_CreateAURef(Data_NCTC, excel = TRUE, overwrite = TRUE)
 ```
