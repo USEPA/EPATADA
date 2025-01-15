@@ -908,7 +908,7 @@ TADA_FindNearbySites <- function(.data, dist_buffer = 100,
     dplyr::ungroup() %>%
     dplyr::filter(!is.na(NHD.nhdplusid))
   
-  if (nrow(data_unique_mls == 0)) { # #if no groups, give a TADA.NearbySiteGroup column filled with
+  if (nrow(data_unique_mls) == 0) { # #if no groups, give a TADA.NearbySiteGroup column filled with
     # "No nearby sites"
     print("TADA_FindNearbySites: No nearby sites detected using input buffer distance. Columns for TADA.NearbySitesFlag and TADA.NearbySiteGroup added for tracking purposes.")
     
