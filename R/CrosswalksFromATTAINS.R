@@ -50,14 +50,19 @@ TADA_GetAssessmentUnitCrosswalk <- function(org_id = NULL) {
         ATTAINS.assessmentunitidentifier = assessment_unit_identifier,
         MonitoringLocationIdentifier = monitoring_location_identifier,
         OrganizationIdentifier = monitoring_organization_identifier
-      )
+      ) %>%
+      # paste org_id in front of MLs from the specified org if they are missing from ATTAINS
+      dplyr::mutate(MonitoringLocationIdentifier = ifelse((OrganizationIdentifier == org_id & 
+                                                             stringr::str_detect(MonitoringLocationIdentifier, org_id, negate = TRUE)),
+                                                          paste0(org_id, "-", MonitoringLocationIdentifier),
+                                                          MonitoringLocationIdentifier))
 
     rm(au.info)
 
     if (length(au.crosswalk$MonitoringLocationIdentifier > 0)) {
       print(paste0(
         "TADA_GetAssessmentUnitCrosswalk: ",
-        "There are ", nrow(au_crosswalk),
+        "There are ", nrow(au.crosswalk),
         " MonitoringLocationIdentifiers associated with Assessment Units for ",
         org_id, " in ATTAINS."
       ))
