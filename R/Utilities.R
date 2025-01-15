@@ -908,6 +908,24 @@ TADA_FindNearbySites <- function(.data, dist_buffer = 100,
     dplyr::ungroup() %>%
     dplyr::filter(!is.na(NHD.nhdplusid))
   
+  if (nrow(data_unique_mls == 0)) { # #if no groups, give a TADA.NearbySiteGroup column filled with
+    # "No nearby sites"
+    print("TADA_FindNearbySites: No nearby sites detected using input buffer distance. Columns for TADA.NearbySitesFlag and TADA.NearbySiteGroup added for tracking purposes.")
+    
+    .data <- .data %>%
+      dplyr::mutate(
+        TADA.NearbySites.Flag = "No nearby sites detected using input buffer distance.",
+        TADA.NearbySiteGroup = NA
+      )
+    
+    rm(data_unique_mls, nhd_catchments)
+    
+    return(.data)
+  }
+  
+  # check to see if any site groups are found
+  if(nrow(data_unique_mls) > 1) { 
+  
   # remove intermediate object
   rm(nhd_catchments)
 
@@ -980,9 +998,6 @@ TADA_FindNearbySites <- function(.data, dist_buffer = 100,
                                     dplyr::mutate(df_number = .y))
   
   rm(find_groups, binary.mats)
-  
-  # check to see if any site groups are found
-  if(length(site.groups.list) > 0) { 
 
   # create df of all groups and create unique id for each group
   combined.group.df <- dplyr::bind_rows(site.groups.list) %>%
@@ -1328,19 +1343,6 @@ TADA_FindNearbySites <- function(.data, dist_buffer = 100,
   # return TADA df with added columns for tracking
   return(.data)
   }
-
-  if (length(site.groups.list == 0)) { # #if no groups, give a TADA.NearbySiteGroup column filled with
-    # "No nearby sites"
-    print("TADA_FindNearbySites: No nearby sites detected using input buffer distance. Columns for TADA.NearbySitesFlag and TADA.NearbySiteGroup added for tracking purposes.")
-      
-      .data <- .data %>%
-        dplyr::mutate(
-          TADA.NearbySites.Flag = "No nearby sites detected using input buffer distance.",
-          TADA.NearbySiteGroup = NA
-        )
-      
-      return(.data)
-    }
 }
 
 
