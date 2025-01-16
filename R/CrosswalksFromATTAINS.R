@@ -195,7 +195,9 @@ TADA_UpdateProviderRef <- function() {
 #' only be retained if they are in the user supplied crosswalk. Default equals FALSE.
 #'
 #' @param crosswalk A user-supplied data frame with the columns ASSESSMENT_UNIT_ID and
-#' MS_LOCATION_ID.
+#' MS_LOCATION_ID.When crosswalk = NULL, the crosswalk will be downloaded from ATTAINS.This allows
+#' users to add URL for the Water Quality Portal Data Site page to Monitoring Locations where
+#' possible without updating other information in ATTAINS.
 #'
 #' @return The csv batch upload files for ATTAINS to update Monitoring Locations.
 #'
@@ -221,17 +223,25 @@ TADA_UpdateMonitoringLocationsInATTAINS <- function(org_id = NULL,
       "The organization identifier entered by user is not found in ATTAINS."
     ))
   }
+  
+  if(is.null(crosswalk) & attains_replace == TRUE) {
+    stop(pasteo("TADA_UpdateMonitoringLocationsInATTAINS: ",
+                "in order to replace MonitoringLocations stored in ATTAINS ",
+                "(with attains_replace = TRUE), user must provide a ",
+                "MonitoringLocation/AssessmentUnitcrosswalk."))
+  }
 
   if (org_id %in% org.ref$code) {
     # remove intermediate object
     rm(org.ref)
-
-    # if the crosswalk is not a data frame, stop the function
-    if (!is.data.frame(crosswalk)) {
+    
+     # if the crosswalk is not a data frame, stop the function
+    if (!is.data.frame(crosswalk) & !is.null(crosswalk)) {
       stop(paste0(
         "TADA_UpdateMonitoringLocationsInATTAINS: ",
         "A crosswalk data frame with columns 'ATTAINS.assessmentunit.identifier' and ",
-        "'MonitoringLocationIdentifier' is required to run this function."
+        "'MonitoringLocationIdentifier' or setting crosswalk = NULL is required to run ",
+        "this function."
       ))
     }
 
@@ -247,27 +257,17 @@ TADA_UpdateMonitoringLocationsInATTAINS <- function(org_id = NULL,
       TADA_CheckColumns(crosswalk, expected_cols)
 
       if (replace == FALSE) {
-        # import assessment unit data from ATTAINS web services
-        au.data <- rATTAINS::assessment_units(organization_id = org_id)
-
         # create assessment unit crosswalk from ATTAINS
-        attains.crosswalk <- au.data %>%
-          tidyr::unnest(monitoring_stations) %>%
-          dplyr::select(
-            assessment_unit_identifier, monitoring_organization_identifier,
-            monitoring_location_identifier, monitoring_data_link_text
-          ) %>%
-          dplyr::filter(!is.na(monitoring_location_identifier)) %>%
-          dplyr::distinct() %>%
-          dplyr::rename(
-            ASSESSMENT_UNIT_ID = assessment_unit_identifier,
-            MS_ORG_ID = monitoring_organization_identifier,
-            MS_LOCATION_ID = monitoring_location_identifier,
-            MONITORING_DATA_LINK_TEXT = monitoring_data_link_text
-          )
+        attains.crosswalk <- TADA_GetAssessmentUnitCrosswalk()
+        
+        if(is.null(crosswalk)) {
+          update.crosswalk <- attains.crosswalk
+          
+          rm(attains.crosswalk)
+        }
+        
 
-        rm(au.data)
-
+        if(!is.null(crosswalk)) {
         # filter crosswalk from ATTAINS to retain only Assessment Units included in user-supplied
         # crosswalk
         attains.crosswalk <- attains.crosswalk %>%
@@ -283,6 +283,7 @@ TADA_UpdateMonitoringLocationsInATTAINS <- function(org_id = NULL,
           dplyr::distinct()
 
         rm(attains.crosswalk, crosswalk)
+        }
       }
 
       # when replace is true, only rows in user-supplied crosswalk are used
