@@ -1799,7 +1799,7 @@ TADA_EQExtract <- function(profile = NULL) {
   
   # download and unzip csv for extract
   df <- suppressWarnings(readr::read_csv(archive::archive_read(
-    profile.url, file = 1)))
+    url, file = 1)))
   
   # remove intermediate objects
   rm(url, latest.json, base.url, folder.num, date.print)
