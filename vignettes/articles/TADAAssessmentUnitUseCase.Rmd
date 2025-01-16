@@ -86,7 +86,8 @@ remotes::install_github("USEPA/EPATADA", ref = "develop", dependencies = TRUE )
 ```
 
 ```{r library, results = 'hide'}
-# Load other packages
+# Load packages
+library(EPATADA)
 library(dplyr)
 library(yaml)
 library(lwgeom)
@@ -143,7 +144,7 @@ used to harmonize these synonyms.
 ```{r TADA_DataRetrieval}
 # Import data from WQP
 
-data <- TADA_DataRetrieval(
+data <- EPATADA::TADA_DataRetrieval(
   statecode = "IL",
   startDate = "2010-01-01",
   endDate = "2020-12-31",
