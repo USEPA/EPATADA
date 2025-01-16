@@ -1728,78 +1728,81 @@ TADA_EQExtract <- function(profile = NULL) {
     stop("TADA_EQExtract: Function requires user to select Expert Query Profile to return.")
   }
   
-  # read expert query national download page, including js elements
-  eq.page <- rvest::read_html_live("https://owapps.epa.gov/expertquery/national-downloads") 
+  base.url <- "https://cg-7343d0e5-571f-451f-971f-8aaaf971df7e.s3-us-gov-west-1.amazonaws.com/national-downloads/"
   
-  # create vector of labels
-  labels <- rvest::html_text(rvest::html_nodes(eq.page, "a"))
-  # replace empty labels with NA
-  labels[labels == ""] <- "NA"
-  
-  # create vector of urls
-  urls <- rvest::html_attr(rvest::html_nodes(eq.page, "a"), "href")
-    
-  # create df of labels and urls
-  eq.urls <- data.frame(label = labels, url = urls)
-  
-  # remove intermediate objects
-  rm(eq.page, labels, urls)
+  latest.json <- jsonlite::fromJSON(paste0(base.url, "latest.json"))
+ 
+  folder.num <- latest.json$julian
+ 
+  date.print <- format(lubridate::as_datetime(folder.num), "%B %d, %Y")
   
   # select profile based on user selection
+  # when json is updated, date.print will be determined for each profile below label
   if(profile == "actions") {
-    extract <- "Actions ProfileExit EPA's Website"
     
-    csv.file <- "actions.csv"
+    url <- paste0(base.url, folder.num, "/actions.csv.zip")
+    
+    label <- "Actions Profile"
+    
   }
   
   if(profile == "assessments") {
-    extract <- "Assessments ProfileExit EPA's Website"
+   
+     url <- paste0(base.url, folder.num, "/assessments.csv.zip")
+     
+     label <- "Assessments Profile"
     
-    csv.file <- "assessments.csv"
   }
   
   if(profile == "au") {
-    extract <- "Assessment Units ProfileExit EPA's Website"
     
-    csv.file <- "assessment_units.csv"
+    url <- paste0(base.url, folder.num, "/assessment_units.csv.zip")
+    
+    label <- "Assessment Units Profile"
+    
   }
   
   if(profile == "auml") {
-    extract <- "Assessment Units with Monitoring Locations ProfileExit EPA's Website"
     
-    csv.file <- "assessment_units_monitoring_locations.csv"
+    url <- paste0(base.url, folder.num, "/assessment_units_monitoring_locations.csv.zip")
+    
+    label <- "Assessment Units with Monitoring Locations Profile"
+    
   }
   
   if(profile == "catchment") {
-    extract <- "Catchment Correspondence ProfileExit EPA's Website"
     
-    csv.file <- "catchment_correspondence.csv"
+    url <- paste0(base.url, folder.num, "/catchment_correspondence.csv.zip")
+    
+    label <- "Catchment Correspondance Profile"
+    
   }
   
   if(profile == "sources") {
-    extract <- "Sources ProfileExit EPA's Website"
     
-    csv.file <- "sources.csv"
+    url <- paste0(base.url, folder.num, "/sources.csv.zip")
+    
+    label <- "Sources Profile"
+    
   }
   
   if(profile == "tmdl") {
-    extract <- "Total Maximum Daily Load ProfileExit EPA's Website"
     
-    csv.file <- "tmdl.csv"
+    url <- paste0(base.url, folder.num, "/tmdl.csv.zip")
+    
+    label <- "Total Maximum Daily Load Profile"
+    
   }
-  
-  # select url to download
-  profile.url <- eq.urls %>%
-    dplyr::filter(label == extract) %>%
-    dplyr::select(url) %>%
-    dplyr::pull()
+ 
+ print(paste0("TADA_EQExtract: ", label, " (Expert Query National Extract) " , 
+              "was last updated on ", date.print, "." ))
   
   # download and unzip csv for extract
   df <- suppressWarnings(readr::read_csv(archive::archive_read(
     profile.url, file = 1)))
   
   # remove intermediate objects
-  rm(eq.urls, profile.url)
+  rm(url, latest.json, base.url, folder.num, date.print)
   
   return(df)
 }
