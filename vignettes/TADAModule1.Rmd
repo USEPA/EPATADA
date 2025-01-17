@@ -93,7 +93,7 @@ package functions. It joins three WQP profiles: Site, Sample Results
 data in the Characteristic, Speciation, Fraction, and Unit fields to
 uppercase and addresses result values that include special characters.
 
-This function uses the same inputs as the dataRetrieval `readWQPdata`
+This function accepts the same inputs as the dataRetrieval `readWQPdata`
 function. `readWQPdata` does not restrict the characteristics pulled
 from [Water Quality Portal (WQP)](https://www.waterqualitydata.us/).
 
@@ -123,6 +123,16 @@ Data retrieval filters include:
 -   huc
 
 -   characteristicType
+
+In addition to these filters, TADA_DataRetrieval accepts additional
+geospatial-related filters that are not included in the dataRetrieval
+`readWQPdata` function:
+
+-   aoi_sf
+
+-   tribal_area_type
+
+-   tribe_name_parcel
 
 The default TADA_DataRetrieval function automatically runs the
 **TADA_AutoClean** function. In this example, we will set
@@ -158,6 +168,15 @@ Tips:
     number. Site IDs that only include a number are only unique
     identifiers for monitoring locations within USGS NWIS or EPA's WQX
     databases separately.
+
+3.  The aoi_sf and tribal arguments are meant to be used on their own.
+    For example, if both an aoi_sf argument and tribal information are
+    provided an error is returned because it's unclear what the priority
+    location should be for the query. Similarly, aoi_sf and
+    tribal_area_type are not meant to be used with location-related
+    filters (e.g., statecode, siteid). In these instances a warning is
+    returned but the query proceeds by using only the aoi_sf or
+    tribal_area_type information.
 
 Additional resources:
 
@@ -201,7 +220,7 @@ du Lac Band), 5) Pueblo of Tesuque, and 6) The Chickasaw Nation
 We will move forward with this example in the remainder of the vignette.
 
 ```{r TADA_DataRetrieval}
-TADAProfile <- TADA_DataRetrieval(organization = c("REDLAKE_WQX", "SFNOES_WQX", "PUEBLO_POJOAQUE", "FONDULAC_WQX", "PUEBLOOFTESUQUE", "CNENVSER"), startDate = "2018-01-01", endDate = "2019-01-01", applyautoclean = FALSE)
+TADAProfile <- TADA_DataRetrieval(organization = c("REDLAKE_WQX", "SFNOES_WQX", "PUEBLO_POJOAQUE", "FONDULAC_WQX", "PUEBLOOFTESUQUE", "CNENVSER"), startDate = "2018-01-01", endDate = "2019-01-01", applyautoclean = FALSE, ask = FALSE)
 ```
 
 ## USGS dataRetrieval

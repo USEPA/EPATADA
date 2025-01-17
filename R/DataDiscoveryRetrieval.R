@@ -205,7 +205,7 @@ TADA_DataRetrieval <- function(startDate = "null",
   # If both an sf object and tribe information are provided it's unclear what
   # the priority should be for the query
   if( !is.null(aoi_sf) &
-      ( (tribal_area_type != "null") | (tribe_name_parcel != "null") ) ){
+      any( (tribal_area_type != "null") | (tribe_name_parcel != "null") )){
     stop(
       paste0(
         "Both sf data and tribal information have been provided. ",
@@ -245,7 +245,7 @@ TADA_DataRetrieval <- function(startDate = "null",
   }
   
   # Insufficient tribal info provided
-  if( (tribal_area_type == "null") & (tribe_name_parcel != "null") ){
+  if( (tribal_area_type == "null") & all(tribe_name_parcel != "null") ){
     stop("A tribal_area_type is required if tribe_name_parcel is provided.")
   }
   
@@ -365,15 +365,15 @@ TADA_DataRetrieval <- function(startDate = "null",
       ){
         
         # Get the relevant url
-        aoi_sf <- filter(map_service_urls,
-                         tribal_area == tribal_area_type)$url %>%
+        aoi_sf <- dplyr::filter(map_service_urls,
+                                tribal_area == tribal_area_type)$url %>%
           # Pull data
           arcgislayers::arc_open() %>%
           # Return sf
           arcgislayers::arc_select() %>%
           # If a value provided, then filter
-          {if ((tribe_name_parcel != "null") & (tribe_name_parcel != "null")) {
-            filter(., TRIBE_NAME %in% tribe_name_parcel)
+          {if (all(tribe_name_parcel != "null") ) {
+            dplyr::filter(., TRIBE_NAME %in% tribe_name_parcel)
           } else {
             .
           }}
@@ -381,12 +381,12 @@ TADA_DataRetrieval <- function(startDate = "null",
         # Otherwise filter by PARCEL_NO (Note that values in this col are not unique)
       } else if(tribal_area_type == "Alaska Native Allotments"){
         
-        aoi_sf <- filter(map_service_urls,
-                         tribal_area == tribal_area_type)$url %>%
+        aoi_sf <- dplyr::filter(map_service_urls,
+                                tribal_area == tribal_area_type)$url %>%
           arcgislayers::arc_open() %>%
           arcgislayers::arc_select() %>%
-          {if ((tribe_name_parcel != "null") & (tribe_name_parcel != "null")) {
-            filter(., PARCEL_NO %in% tribe_name_parcel)
+          {if (all(tribe_name_parcel != "null")) {
+            dplyr::filter(., PARCEL_NO %in% tribe_name_parcel)
           } else {
             .
           }}
@@ -440,7 +440,10 @@ TADA_DataRetrieval <- function(startDate = "null",
       stop("No monitoring sites were returned within your area of interest (no data available).")
     }
     
-    quiet_bbox_sites <- quiet_whatWQPdata(
+    
+    quiet_whatWQPsites <- purrr::quietly(dataRetrieval::whatWQPsites)
+    
+    quiet_bbox_sites <- quiet_whatWQPsites(
       siteid = bbox_avail$MonitoringLocationIdentifier
     )
     
@@ -882,6 +885,81 @@ TADA_DataRetrieval <- function(startDate = "null",
   }
 }
 
+#' Access options available for querying tribal spatial data with `TADA_DataRetrieval()`.
+#' 
+#' @description
+#' This function provides access to [six layer datasets](https://geopub.epa.gov/arcgis/rest/services/EMEF/Tribal/MapServer)
+#' containing spatial data related to tribal lands: "Alaska Native Allotments",
+#' "Alaska Native Villages", "American Indian Reservations", "Off-reservation Trust Lands",
+#' "Oklahoma Tribal Statistical Areas", and "Virginia Federally Recognized Tribes".
+#' These datasets are used by `TADA_DataRetrieval()` when retrieving spatial data
+#' for tribal lands specified by the user. 
+#' 
+#' The purpose of `TADA_TribalOptions()` is to allow the user to review the available
+#' data in those datasets and identify the records they would like to query with
+#' `TADA_DataRetrieval()`.
+#' 
+#' An interactive map of the six layer datasets is available on ArcGIS Online Map
+#' Viewer here: https://www.arcgis.com/apps/mapviewer/index.html?url=https://geopub.epa.gov/arcgis/rest/services/EMEF/Tribal/MapServer&source=sd
+#' 
+#' @param tribal_area_type A character string. Must be one of the six tribal
+#' spatial layers: "Alaska Native Allotments", "Alaska Native Villages", 
+#' "American Indian Reservations", "Off-reservation Trust Lands",
+#' "Oklahoma Tribal Statistical Areas", or "Virginia Federally Recognized Tribes".
+#' 
+#' @param return_sf Logical. Should the function return the dataset as an `sf`
+#' object (TRUE) or a data frame (FALSE)? Defaults to FALSE.
+#' 
+#' @returns A data frame or `sf` object containing the specified layer from the EPA
+#' Map Service.
+#' 
+#' @note
+#' Alaska Native Villages and Virginia Federally Recognized Tribes are point
+#' geometries in the Map Service, not polygons. At the time of this writing they
+#' do not return any data when used for WQP bbox queries.
+#' 
+#' @export
+#' 
+#' @seealso [TADA_DataRetrieval()]
+#' 
+
+TADA_TribalOptions <- function(tribal_area_type, return_sf = FALSE){
+  
+  # Make a reference table for tribal area type + url matching
+  map_service_urls <- tibble::tribble(
+    ~tribal_area,                            ~url,
+    "Alaska Native Allotments",              "https://geopub.epa.gov/arcgis/rest/services/EMEF/Tribal/MapServer/0",
+    "Alaska Native Villages",                "https://geopub.epa.gov/arcgis/rest/services/EMEF/Tribal/MapServer/1",
+    "American Indian Reservations",          "https://geopub.epa.gov/arcgis/rest/services/EMEF/Tribal/MapServer/2",
+    "Off-reservation Trust Lands",           "https://geopub.epa.gov/arcgis/rest/services/EMEF/Tribal/MapServer/3",
+    "Oklahoma Tribal Statistical Areas",     "https://geopub.epa.gov/arcgis/rest/services/EMEF/Tribal/MapServer/4",
+    "Virginia Federally Recognized Tribes",  "https://geopub.epa.gov/arcgis/rest/services/EMEF/Tribal/MapServer/5"
+  )
+  
+  # Confirm usable string provided
+  if( !(tribal_area_type %in% map_service_urls$tribal_area) ){
+    stop("tribal_area_type must match one of the six tribal spatial layer names.")
+  }
+  
+  # Query Map Service
+  tribal_area_sf <- dplyr::filter(map_service_urls,
+                                  tribal_area == tribal_area_type)$url %>%
+    arcgislayers::arc_open() %>%
+    # Return sf
+    arcgislayers::arc_select() %>%
+    sf::st_make_valid()
+  
+  # Convert to df if needed, export
+  if(return_sf == FALSE){
+    return(
+      as.data.frame(tribal_area_sf) %>%
+        sf::st_drop_geometry()
+    )
+  } else {
+    return(tribal_area_sf)
+  }
+  
+}
 
 #' Read in WQP data using the Water Quality Portal (WQP) web services
 #'
