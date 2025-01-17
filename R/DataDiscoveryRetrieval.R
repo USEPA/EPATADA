@@ -249,14 +249,14 @@ TADA_DataRetrieval <- function(startDate = "null",
     stop("A tribal_area_type is required if tribe_name_parcel is provided.")
   }
   
-  # Set query parameters
-  WQPquery <- list()
-  
   # If an sf object OR tribal info are provided they will be the basis of the query
   # (The tribal data handling uses sf objects as well)
   if( (!is.null(aoi_sf) & inherits(aoi_sf, "sf")) | (tribal_area_type != "null") ){
     
     # Build the non-sf part of the query:
+    
+    # Set query parameters
+    WQPquery <- list()
     
     # StartDate
     if (length(startDate) > 1) {
@@ -409,25 +409,55 @@ TADA_DataRetrieval <- function(startDate = "null",
     input_bbox <- sf::st_bbox(aoi_sf)
     
     # Query info on available data within the bbox
-    bbox_avail <- suppressMessages(
-      dataRetrieval::whatWQPdata(
-        WQPquery,
-        bBox = c(input_bbox$xmin, input_bbox$ymin, input_bbox$xmax, input_bbox$ymax)
-      )
+    # Don't want to print every message that's returned by WQP
+    quiet_whatWQPdata <- purrr::quietly(dataRetrieval::whatWQPdata)
+    
+    # Try getting WQP info
+    quiet_bbox_avail <- quiet_whatWQPdata(
+      WQPquery,
+      bBox = c(input_bbox$xmin, input_bbox$ymin, input_bbox$xmax, input_bbox$ymax)
     )
+    
+    # Alert & stop if an http error was received
+    if(is.null(quiet_bbox_avail$result)){
+      
+      stop_message <- quiet_bbox_avail$messages %>%
+        grep(pattern = "failed|HTTP", x = ., ignore.case = FALSE, value = TRUE) %>%
+        paste("\n", ., collapse = "") %>%
+        paste("The WQP request returned a NULL with the following message(s): \n",
+              .,
+              collapse = "\n")
+      
+      stop(stop_message)
+      
+    }
+    
+    # Use result only
+    bbox_avail <- quiet_bbox_avail$result
     
     # Check if any sites are within the aoi
     if ( (nrow(bbox_avail) > 0 ) == FALSE) {
       stop("No monitoring sites were returned within your area of interest (no data available).")
     }
     
+    quiet_bbox_sites <- quiet_whatWQPdata(
+      siteid = bbox_avail$MonitoringLocationIdentifier
+    )
+    
+    if(is.null(quiet_bbox_sites$result)){
+      
+      stop_message <- quiet_bbox_sites$messages %>%
+        grep(pattern = "failed|HTTP", x = ., ignore.case = FALSE, value = TRUE) %>%
+        paste("\n", ., collapse = "") %>%
+        paste("The WQP request returned a NULL with the following message(s): \n",
+              .,
+              collapse = "\n")      
+      stop(stop_message)
+      
+    }
+    
     # Reformat returned info as sf
-    bbox_sites_sf <- suppressMessages(
-      dataRetrieval::whatWQPsites(
-        siteid = bbox_avail$MonitoringLocationIdentifier
-      )
-    ) %>%
-      TADA_MakeSpatial(., crs = 4326)
+    bbox_sites_sf <- TADA_MakeSpatial(quiet_bbox_sites$result, crs = 4326)
     
     # Subset sites to only within shapefile and get IDs
     clipped_sites_sf <- bbox_sites_sf[aoi_sf, ]
@@ -516,7 +546,7 @@ TADA_DataRetrieval <- function(startDate = "null",
           Sites = sites.DR,
           Projects = projects.DR
         ) %>% dplyr::mutate(
-          across(tidyselect::everything(), as.character)
+          dplyr::across(tidyselect::everything(), as.character)
         )
         
         # run TADA_AutoClean function
@@ -580,7 +610,7 @@ TADA_DataRetrieval <- function(startDate = "null",
           Sites = sites.DR,
           Projects = projects.DR
         ) %>% dplyr::mutate(
-          across(tidyselect::everything(), as.character)
+          dplyr::across(tidyselect::everything(), as.character)
         )
         
         # Run TADA_AutoClean function
@@ -707,7 +737,25 @@ TADA_DataRetrieval <- function(startDate = "null",
     }
     
     # Query info on available data
-    query_avail <- suppressMessages(dataRetrieval::whatWQPdata(WQPquery))
+    # Don't want to print every message that's returned by WQP
+    quiet_whatWQPdata <- purrr::quietly(dataRetrieval::whatWQPdata)
+    
+    quiet_query_avail <- quiet_whatWQPdata(WQPquery)
+    
+    if(is.null(quiet_query_avail$result)){
+      
+      stop_message <- quiet_query_avail$messages %>%
+        grep(pattern = "failed|HTTP", x = ., ignore.case = FALSE, value = TRUE) %>%
+        paste("\n", ., collapse = "") %>%
+        paste("The WQP request returned a NULL with the following message(s): \n",
+              .,
+              collapse = "\n")
+      
+      stop(stop_message)
+      
+    }
+    
+    query_avail <- quiet_query_avail$result
     
     site_count <- length(query_avail$MonitoringLocationIdentifier)
     
@@ -771,7 +819,7 @@ TADA_DataRetrieval <- function(startDate = "null",
         Sites = sites.DR,
         Projects = projects.DR
       ) %>% dplyr::mutate(
-        across(tidyselect::everything(), as.character)
+        dplyr::across(tidyselect::everything(), as.character)
       )
       
       # run TADA_AutoClean function
@@ -816,7 +864,7 @@ TADA_DataRetrieval <- function(startDate = "null",
           Sites = sites.DR,
           Projects = projects.DR
         ) %>% dplyr::mutate(
-          across(tidyselect::everything(), as.character)
+          dplyr::across(tidyselect::everything(), as.character)
         )
         
         # run TADA_AutoClean function
@@ -977,7 +1025,7 @@ TADA_BigDataHelper <- function(record_summary, WQPquery, maxrecs = 250000, maxsi
           ignore_attributes = TRUE
         )
       ) %>%
-        dplyr::mutate(across(everything(), as.character))
+        dplyr::mutate(dplyr::across(everything(), as.character))
       
       # If data is returned, stack with what's already been retrieved
       if (dim(results_small)[1] > 0) {
@@ -1018,7 +1066,7 @@ TADA_BigDataHelper <- function(record_summary, WQPquery, maxrecs = 250000, maxsi
           ignore_attributes = TRUE
         )
       )%>%
-        dplyr::mutate(across(everything(), as.character))
+        dplyr::mutate(dplyr::across(everything(), as.character))
       
       if (dim(results_big)[1] > 0) {
         df_big <- dplyr::bind_rows(df_big, results_big)
