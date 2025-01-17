@@ -73,7 +73,7 @@ update all of them (enter 1 into the console).
 ```{r install_TADA_dev, eval = T, include = F}
 # helps with development (knit and checks), this chunk should not appear on website
 remotes::install_github("USEPA/EPATADA",
-  ref = "Create-Module-3-Reference-Tables",
+  ref = "Create-Module-3-AURef",
   dependencies = TRUE
 )
 ```
