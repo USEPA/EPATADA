@@ -1715,7 +1715,7 @@ TADA_CharStringRemoveNA <- function(char_string) {
 #' @export
 #'
 #' @examples
-#' tmdls <- TADA_EQExtract(profile = "tmdl")
+#' assessments <- TADA_EQExtract(profile = "assessments")
 #' 
 TADA_EQExtract <- function(profile = NULL) {
   
@@ -1740,7 +1740,7 @@ TADA_EQExtract <- function(profile = NULL) {
   # when json is updated, date.print will be determined for each profile below label
   if(profile == "actions") {
     
-    url <- paste0(base.url, folder.num, "/actions.csv.zip")
+    file <- "actions.csv.zip"
     
     label <- "Actions Profile"
     
@@ -1748,15 +1748,15 @@ TADA_EQExtract <- function(profile = NULL) {
   
   if(profile == "assessments") {
    
-     url <- paste0(base.url, folder.num, "/assessments.csv.zip")
+    file <- "assessments.csv"
      
-     label <- "Assessments Profile"
+    label <- "Assessments Profile"
     
   }
   
   if(profile == "au") {
     
-    url <- paste0(base.url, folder.num, "/assessment_units.csv.zip")
+    file <- "assessment_units.csv"
     
     label <- "Assessment Units Profile"
     
@@ -1764,7 +1764,7 @@ TADA_EQExtract <- function(profile = NULL) {
   
   if(profile == "auml") {
     
-    url <- paste0(base.url, folder.num, "/assessment_units_monitoring_locations.csv.zip")
+    file <- "assessment_units_monitoring_locations.csv"
     
     label <- "Assessment Units with Monitoring Locations Profile"
     
@@ -1772,7 +1772,7 @@ TADA_EQExtract <- function(profile = NULL) {
   
   if(profile == "catchment") {
     
-    url <- paste0(base.url, folder.num, "/catchment_correspondence.csv.zip")
+    file <- "catchment_correspondence.csv"
     
     label <- "Catchment Correspondance Profile"
     
@@ -1780,7 +1780,7 @@ TADA_EQExtract <- function(profile = NULL) {
   
   if(profile == "sources") {
     
-    url <- paste0(base.url, folder.num, "/sources.csv.zip")
+    file <- "sources.csv"
     
     label <- "Sources Profile"
     
@@ -1788,7 +1788,7 @@ TADA_EQExtract <- function(profile = NULL) {
   
   if(profile == "tmdl") {
     
-    url <- paste0(base.url, folder.num, "/tmdl.csv.zip")
+    file <- "tmdl.csv"
     
     label <- "Total Maximum Daily Load Profile"
     
@@ -1797,12 +1797,39 @@ TADA_EQExtract <- function(profile = NULL) {
  print(paste0("TADA_EQExtract: ", label, " (Expert Query National Extract) " , 
               "was last updated on ", date.print, "." ))
   
-  # download and unzip csv for extract
-  df <- suppressWarnings(readr::read_csv(archive::archive_read(
-    url, file = 1)))
+ url <- paste0(base.url, folder.num, "/", file, ".zip")
+ 
+ # set up tempfile
+ temp <- tempfile(fileext = ".zip")
+ 
+ # increase timeout (for large files)
+ options(timeout = 1200)
+ 
+ # download zipped file
+ httr::GET(url, httr::write_disk(temp, overwrite = TRUE), httr::progress())
+ 
+ starttime <- Sys.time()
+ 
+ utils::download.file(url, temp, method = "curl", mode = "wb")
+ 
+ end.time <- Sys.time()
+ 
+ end.time - starttime
+ 
+ download.file(url, temp)
+ 
+ # unzip file
+ unzip.file <- utils::unzip(temp, exdir = tempdir())
+ 
+ csv.file <- unzip[grep("\\.csv$", unzip.file)]
+ 
+ df <- read.csv(csv.file)
+ 
+ unlink(temp)
+ unlink(unzip.file)
   
   # remove intermediate objects
-  rm(url, latest.json, base.url, folder.num, date.print)
+  rm(url, latest.json, base.url, folder.num, date.print, url)
   
   return(df)
 }
