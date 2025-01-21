@@ -1717,6 +1717,8 @@ TADA_CharStringRemoveNA <- function(char_string) {
 #' @examples
 #' assessments <- TADA_EQExtract(profile = "assessments")
 #' 
+#' aus_monloc <- TADA_EQExtract(profile = "auml")
+#' 
 TADA_EQExtract <- function(profile = NULL) {
   
   if(is.null(profile)) {
@@ -1808,13 +1810,7 @@ TADA_EQExtract <- function(profile = NULL) {
  # download zipped file
  httr::GET(url, httr::write_disk(temp, overwrite = TRUE), httr::progress())
  
- starttime <- Sys.time()
- 
  utils::download.file(url, temp, method = "curl", mode = "wb")
- 
- end.time <- Sys.time()
- 
- end.time - starttime
  
  download.file(url, temp)
  
@@ -1832,4 +1828,62 @@ TADA_EQExtract <- function(profile = NULL) {
   rm(url, latest.json, base.url, folder.num, date.print, url)
   
   return(df)
+}
+
+
+# Used to store cached EQ Assessments Reference Table
+EQAssessments_Cached <- NULL
+
+#' Open Expert Query National Extract for Assessments
+#'
+#' Downloads and returns data frame of Expert Query National Extracts for Assessments.
+#' National extracts can and more information about Expert Query can be found here:
+#' https://owapps.epa.gov/expertquery/national-downloads
+#' 
+#' @return A data frame containing the assessments national extract.
+#'
+#' @export
+#'
+#' @examples
+#' assessments <- TADA_EQExtract(profile = "assessments")
+#' 
+#' 
+TADA_GetEQAssessments <- function() {
+  # If there is a cached table available return it
+  if (!is.null(EQAssessments_Cached)) {
+    return(EQAssessments_Cached)
+  }
+  
+  # Try to download up-to-date raw data
+  
+  raw.data <- tryCatch(
+    {
+      TADA_EQExtract("assessments")
+    },
+    error = function(err) {
+      NULL
+    }
+  )
+  
+  # If the download failed fall back to internal data (and report it)
+  if (is.null(raw.data)) {
+    message("Downloading latest Expert Query Assessments National Extract failed!")
+    message("Falling back to (possibly outdated) internal file.")
+    return(utils::read.csv(system.file("extdata", "WQXcharValRef.csv", package = "EPATADA")))
+  }
+  
+  # Save updated table in cache
+  EQAssessments_Cached <- EQAssessments
+  
+  EQAssessments
+  
+}
+
+# Update Characteristic Validation Reference Table internal file
+# (for internal use only)
+
+TADA_UpdateEQAssessments <- function() {
+  raw.data <- TADA_EQExtract("assessments")
+  
+  save(raw.data, file = "inst/extdata/EQAssessments.RData")
 }
