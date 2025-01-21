@@ -254,7 +254,7 @@ TADA_CreateParamRef <- function(.data, org_names = NULL, paramRef = NULL, excel 
       dplyr::mutate(ATTAINS.FlagParameterName1 = dplyr::case_when(
         ATTAINS.ParameterName == "No parameter match for TADA.ComparableDataIdentifier" | is.na(ATTAINS.ParameterName) ~ "No parameter crosswalk provided for TADA.ComparableDataIdentifier. Parameter will not be used for assessment",
         !ATTAINS.ParameterName %in% ATTAINS_param_all$parameter ~ "Parameter name is not included in ATTAINS, contact ATTAINS to add parameter name to Domain List",
-        !ATTAINS.ParameterName %in% ATTAINS_param$parameter ~ "Parameter name is listed as a prior cause in ATTAINS, but not for this organization"
+        !TRUE ~ "Parameter name is listed as a prior cause in ATTAINS, but not for this organization"
       ))
 
     CreateParamRef <- CreateParamRef %>%
