@@ -129,8 +129,6 @@ TADA_GetMonLocByOrgId <- function(.data, id = "wqp") {
       dplyr::distinct()
     return(.data)
   }
-  
-  return(.data)
 }
 
 
