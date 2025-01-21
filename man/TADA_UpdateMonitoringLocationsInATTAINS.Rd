@@ -47,7 +47,7 @@ should be overwritten or if any new MonitoringLocations should be appended to ex
 \examples{
 \dontrun{
 # Alaska example
-AK_crosswalk <- TADA_GetAssessmentUnitCrosswalk(org_id = "AKDECWQ")
+AK_crosswalk <- TADA_GetATTAINSAUSiteCrosswalk(org_id = "AKDECWQ")
 }
 
 }

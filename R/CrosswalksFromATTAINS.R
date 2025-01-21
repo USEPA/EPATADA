@@ -25,21 +25,21 @@
 #' @examples
 #' \dontrun{
 #' # Alaska example
-#' AK_crosswalk <- TADA_GetAssessmentUnitCrosswalk(org_id = "AKDECWQ")
+#' AK_crosswalk <- TADA_GetATTAINSAUSiteCrosswalk(org_id = "AKDECWQ")
 #' 
 #' # Pueblo of Tesuque example
-#' PUEBLOOFTESUQUE_crosswalk <- TADA_GetAssessmentUnitCrosswalk(org_id = "PUEBLOOFTESUQUE")
+#' PUEBLOOFTESUQUE_crosswalk <- TADA_GetATTAINSAUSiteCrosswalk(org_id = "PUEBLOOFTESUQUE")
 #' 
 #' # Arizona example, returns blank dataframe as of 1/21/25
-#' AZ_crosswalk <- TADA_GetAssessmentUnitCrosswalk(org_id = "21ARIZ")
+#' AZ_crosswalk <- TADA_GetATTAINSAUSiteCrosswalk(org_id = "21ARIZ")
 #' }
 #'
-TADA_GetAssessmentUnitCrosswalk <- function(org_id = NULL) {
+TADA_GetATTAINSAUSiteCrosswalk <- function(org_id = NULL) {
   org.ref <- TADA_GetATTAINSOrgIDsRef()
 
   if (!org_id %in% org.ref$code) {
     print(paste0(
-      "TADA_GetAssessmentUnitCrosswalk: ",
+      "TADA_GetATTAINSAUSiteCrosswalk: ",
       "The organization identifier entered by user is not found in ATTAINS."
     ))
   }
@@ -72,7 +72,7 @@ TADA_GetAssessmentUnitCrosswalk <- function(org_id = NULL) {
 
     if (length(au.crosswalk$MonitoringLocationIdentifier > 0)) {
       print(paste0(
-        "TADA_GetAssessmentUnitCrosswalk: ",
+        "TADA_GetATTAINSAUSiteCrosswalk: ",
         "There are ", nrow(au.crosswalk),
         " WQP MonitoringLocationIdentifiers associated with Assessment Units for ",
         org_id, " in ATTAINS."
@@ -83,7 +83,7 @@ TADA_GetAssessmentUnitCrosswalk <- function(org_id = NULL) {
 
     if (length(au.crosswalk$MonitoringLocationIdentifier) == 0) {
       print(paste0(
-        "TADA_GetAssessmentUnitCrosswalk: ",
+        "TADA_GetATTAINSAUSiteCrosswalk: ",
         "No MonitoringLocationIdentifiers were recorded in ATTAINS for ",
         org_id, " Assessment Units."
       ))
@@ -185,7 +185,7 @@ TADA_UpdateProviderRef <- function() {
 #' @examples
 #' \dontrun{
 #' # Alaska example
-#' AK_crosswalk <- TADA_GetAssessmentUnitCrosswalk(org_id = "AKDECWQ")
+#' AK_crosswalk <- TADA_GetATTAINSAUSiteCrosswalk(org_id = "AKDECWQ")
 #' }
 #'
 TADA_UpdateMonitoringLocationsInATTAINS <- function(org_id = NULL,
@@ -237,7 +237,7 @@ TADA_UpdateMonitoringLocationsInATTAINS <- function(org_id = NULL,
 
       if (replace == FALSE) {
         # create assessment unit crosswalk from ATTAINS
-        attains.crosswalk <- TADA_GetAssessmentUnitCrosswalk()
+        attains.crosswalk <- TADA_GetATTAINSAUSiteCrosswalk()
         
         if(is.null(crosswalk)) {
           update.crosswalk <- attains.crosswalk
