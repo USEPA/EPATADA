@@ -92,11 +92,12 @@ TADA_GetATTAINSAUSiteCrosswalk <- function(org_id = NULL) {
   }
 }
 
+WQXProviderRef_Cached <- NULL
 
 #' Get Provider Ref for All Organizations (IN ACTIVE DEVELOPMENT)
 #'
-#' This function creates a crosswalk of OrganizationIdentifier and OrganizationFormalName with
-#' ProviderName.
+#' This function creates a crosswalk of WQP OrganizationIdentifier and 
+#' WQP OrganizationFormalName with ProviderName.
 #'
 #' @return A crosswalk of monitoring locations and organization identifiers.
 #'
@@ -150,23 +151,27 @@ TADA_UpdateProviderRef <- function() {
 
 #' Update Monitoring Location Identifiers in ATTAINS
 #'
-#' This function creates the batch upload files needed to update the MonitoringLocations for
-#' Assessment Unit profiles in ATTAINS.Users can specify whether all MonitoringLocation records
-#' should be overwritten or if any new MonitoringLocations should be appended to existing records.
+#' This function creates the batch upload files needed to update the 
+#' Monitoring Location Identifiers in ATTAINS Assessment Unit profiles. Users
+#' can specify whether all records should be overwritten or if new 
+#' Monitoring Location Identifiers should be appended to existing records.
 #'
-#' @param org_id Character argument. The ATTAINS organization identifier must be supplied by the
-#' user. A list of organization identifiers can be found by downloading the ATTAINS Domains Excel
-#' file: https://www.epa.gov/system/files/other-files/2023-09/DOMAINS.xlsx. Organization identifiers
-#' are listed in the "OrgName" tab. The "code" column contains the organization identifiers that
-#' should be used for this param.
+#' @param org_id Character argument. The ATTAINS organization identifier must  
+#' be supplied by the user. A list of organization identifiers can be found by
+#' downloading the ATTAINS Domains Excel file: 
+#' https://www.epa.gov/system/files/other-files/2023-09/DOMAINS.xlsx. 
+#' Organization identifiers are listed in the "OrgName" tab. The "code" column
+#' contains the organization identifiers that should be used for this param.
 #'
-#' @param data_links Character argument. When data_links is equal to "update" or "replace", the
-#' function will build the URL for the Water Quality Portal Data Site page for each Monitoring
-#' Location in the df. It will examine the response codes of the URLs and only retain those with a
-#' 200 response. When data_links = "update", the url will be added to any existing text in the
-#' MS_DATA_LINK_TEXT column. When data_links = "replace", the url will replace any exisitng test in
-#' the MS_DATA_LINK_TEXT column. When data_links = "none", no URLs will be created or added to the
-#' df. Default is data_links = "update".
+#' @param data_links Character argument. When data_links is equal to "update" 
+#' or "replace", the function will build the URL for the Water Quality Portal 
+#' Data Site page for each Monitoring Location in the df. It will examine the 
+#' response codes of the URLs and only retain those with a 200 response, which 
+#' indicates they are valid urls. When data_links = "update", the url will be 
+#' added to any existing text in the MS_DATA_LINK_TEXT column. When 
+#' data_links = "replace", the url will replace any existing text in the
+#' MS_DATA_LINK_TEXT column. When data_links = "none", no URLs will be created
+#' or added to the df. Default is data_links = "update".
 #'
 #' @param attains_replace Character argument. When attains_replace = FALSE, all Monitoring
 #' Locations associated with an Assessment Unit in ATTAINS will be retained even if they are not

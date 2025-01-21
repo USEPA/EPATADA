@@ -10,8 +10,8 @@ TADA_GetProviderRef()
 A crosswalk of monitoring locations and organization identifiers.
 }
 \description{
-This function creates a crosswalk of OrganizationIdentifier and OrganizationFormalName with
-ProviderName.
+This function creates a crosswalk of WQP OrganizationIdentifier and
+WQP OrganizationFormalName with ProviderName.
 }
 \examples{
 \dontrun{

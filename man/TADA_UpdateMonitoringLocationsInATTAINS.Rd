@@ -12,11 +12,12 @@ TADA_UpdateMonitoringLocationsInATTAINS(
 )
 }
 \arguments{
-\item{org_id}{Character argument. The ATTAINS organization identifier must be supplied by the
-user. A list of organization identifiers can be found by downloading the ATTAINS Domains Excel
-file: https://www.epa.gov/system/files/other-files/2023-09/DOMAINS.xlsx. Organization identifiers
-are listed in the "OrgName" tab. The "code" column contains the organization identifiers that
-should be used for this param.}
+\item{org_id}{Character argument. The ATTAINS organization identifier must
+be supplied by the user. A list of organization identifiers can be found by
+downloading the ATTAINS Domains Excel file:
+https://www.epa.gov/system/files/other-files/2023-09/DOMAINS.xlsx.
+Organization identifiers are listed in the "OrgName" tab. The "code" column
+contains the organization identifiers that should be used for this param.}
 
 \item{crosswalk}{A user-supplied dataframe with the columns ASSESSMENT_UNIT_ID and
 MS_LOCATION_ID.When crosswalk = NULL, the crosswalk will be downloaded from ATTAINS.This allows
@@ -28,21 +29,24 @@ Locations associated with an Assessment Unit in ATTAINS will be retained even if
 included in the user supplied crosswalk. When attains_replace = TRUE, Monitoring Locations will
 only be retained if they are in the user supplied crosswalk. Default equals FALSE.}
 
-\item{data_links}{Character argument. When data_links is equal to "update" or "replace", the
-function will build the URL for the Water Quality Portal Data Site page for each Monitoring
-Location in the df. It will examine the response codes of the URLs and only retain those with a
-200 response. When data_links = "update", the url will be added to any existing text in the
-MS_DATA_LINK_TEXT column. When data_links = "replace", the url will replace any exisitng test in
-the MS_DATA_LINK_TEXT column. When data_links = "none", no URLs will be created or added to the
-df. Default is data_links = "update".}
+\item{data_links}{Character argument. When data_links is equal to "update"
+or "replace", the function will build the URL for the Water Quality Portal
+Data Site page for each Monitoring Location in the df. It will examine the
+response codes of the URLs and only retain those with a 200 response, which
+indicates they are valid urls. When data_links = "update", the url will be
+added to any existing text in the MS_DATA_LINK_TEXT column. When
+data_links = "replace", the url will replace any existing text in the
+MS_DATA_LINK_TEXT column. When data_links = "none", no URLs will be created
+or added to the df. Default is data_links = "update".}
 }
 \value{
 The csv batch upload files for ATTAINS to update Monitoring Locations.
 }
 \description{
-This function creates the batch upload files needed to update the MonitoringLocations for
-Assessment Unit profiles in ATTAINS.Users can specify whether all MonitoringLocation records
-should be overwritten or if any new MonitoringLocations should be appended to existing records.
+This function creates the batch upload files needed to update the
+Monitoring Location Identifiers in ATTAINS Assessment Unit profiles. Users
+can specify whether all records should be overwritten or if new
+Monitoring Location Identifiers should be appended to existing records.
 }
 \examples{
 \dontrun{
