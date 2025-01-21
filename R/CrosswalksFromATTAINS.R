@@ -235,20 +235,24 @@ TADA_UpdateMonitoringLocationsInATTAINS <- function(org_id = NULL,
 
       TADA_CheckColumns(crosswalk, expected_cols)
 
-      if (replace == FALSE) {
+      if (attains_replace == FALSE) {
         # create assessment unit crosswalk from ATTAINS
-        attains.crosswalk <- TADA_GetATTAINSAUSiteCrosswalk()
-        
+        attains.crosswalk <- TADA_GetATTAINSAUSiteCrosswalk(org_id = org_id)
+
         if(is.null(crosswalk)) {
           update.crosswalk <- attains.crosswalk
           
           rm(attains.crosswalk)
         }
-        
 
         if(!is.null(crosswalk)) {
         # filter crosswalk from ATTAINS to retain only Assessment Units included in user-supplied
         # crosswalk
+        attains.crosswalk <- dplyr::rename(attains.crosswalk,  
+                                           ASSESSMENT_UNIT_ID = ATTAINS.assessmentunitidentifier,
+                                           MS_ORG_ID = OrganizationIdentifier, 
+                                           MS_LOCATION_ID = MonitoringLocationIdentifier)  
+          
         attains.crosswalk <- attains.crosswalk %>%
           dplyr::filter(ASSESSMENT_UNIT_ID %in% crosswalk$ASSESSMENT_UNIT_ID)
 
@@ -267,7 +271,7 @@ TADA_UpdateMonitoringLocationsInATTAINS <- function(org_id = NULL,
 
       # when replace is true, only rows in user-supplied crosswalk are used
 
-      if (replace == TRUE) {
+      if (attains_replace == TRUE) {
         update.crosswalk <- crosswalk
 
         rm(attains.crosswalk, crosswalk)
@@ -292,7 +296,7 @@ TADA_UpdateMonitoringLocationsInATTAINS <- function(org_id = NULL,
           ))
 
         # combine provider refs
-        provider.ref <- provder.ref %>%
+        provider.ref <- provider.ref %>%
           dplyr::bind_rows(add.orgs)
 
         # join provider ref df to crosswalk
@@ -342,7 +346,7 @@ TADA_UpdateMonitoringLocationsInATTAINS <- function(org_id = NULL,
           update.crosswalk <- update.crosswalk %>%
             dplyr::mutate(
               MONITORING_DATA_LINK_TEXT = ifelse(
-                grepl("200", response_code),
+                grepl("200", response.code),
                 paste0(MONITORING_DATA_LINK_TEXT, ", ", MONITORING_DATA_LINK_TEXT.New),
                 MONITORING_DATA_LINK_TEXT
               ),
