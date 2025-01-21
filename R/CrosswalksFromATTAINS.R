@@ -92,46 +92,6 @@ TADA_GetAssessmentUnitCrosswalk <- function(org_id = NULL) {
   }
 }
 
-#' Get WQP Organization Identifier For Each WQP Monitoring Location Identifier
-#'
-#' This function creates a dataframe with two columns to show the organization 
-#' identifier for each monitoring location. The user can select whether the 
-#' monitoring location identifier column displays the original WQP 
-#' 'MonitoringLocationIdentifier' or the 'TADA.MonitoringLocationIdentifier'.
-#'
-#' @param .data A TADA dataframe.
-#'
-#' @param id Character argument. Determines which monitoring location identifier
-#' and organization identifier from the TADA dataframe to display. When 
-#' id = "wqp", 'MonitoringLocationIdentifier' is used. When id = "tada", 
-#' 'TADA.MonitoringLocationIdentifier" is used. Default is id = "wqp".
-#'
-#'
-#' @return A crosswalk dataframe of monitoring location identifiers and organization identifiers. The default is id = "wqp".
-#' 
-#' @export
-#'
-#' @examples
-#' data(Data_6Tribes_5y)
-#' OrgSite_Crosswalk = TADA_GetMonLocByOrgId(Data_6Tribes_5y)
-#' 
-TADA_GetMonLocByOrgId <- function(.data, id = "wqp") {
-  if (id == "wqp") {
-    .data <- .data %>%
-      dplyr::select(MonitoringLocationIdentifier, OrganizationIdentifier) %>%
-      dplyr::distinct()
-    return(.data)
-  }
-
-  if (id == "tada") {
-    .data <- .data %>%
-      dplyr::select(TADA.MonitoringLocationIdentifier, OrganizationIdentifier) %>%
-      dplyr::distinct()
-    return(.data)
-  }
-}
-
-
 
 #' Get Provider Ref for All Organizations (IN ACTIVE DEVELOPMENT)
 #'

@@ -1704,3 +1704,64 @@ TADA_CharStringRemoveNA <- function(char_string) {
 
   return(labs)
 }
+
+
+
+#' Get WQP Organization Identifier For Each WQP Monitoring Location Identifier
+#'
+#' This function creates a dataframe with two columns to show the organization 
+#' identifier for each monitoring location. The user can select whether the 
+#' monitoring location identifier column displays the original WQP 
+#' 'MonitoringLocationIdentifier' or the 'TADA.MonitoringLocationIdentifier'.
+#'
+#' @param .data A TADA dataframe.
+#'
+#' @param id Character argument. Determines which monitoring location identifier
+#' and organization identifier from the TADA dataframe to display. When 
+#' id = "wqp", 'MonitoringLocationIdentifier' is used. When id = "tada", 
+#' 'TADA.MonitoringLocationIdentifier" is used. Default is id = "wqp".
+#'
+#'
+#' @return A crosswalk dataframe of monitoring location identifiers and organization identifiers.
+#' 
+#' @export
+#'
+#' @examples
+#' data(Data_6Tribes_5y)
+#' orgsite_crosswalk_originalwqp = TADA_GetMonLocByOrgId(Data_6Tribes_5y, id = "wqp")
+#' orgsite_crosswalk_tada = TADA_GetMonLocByOrgId(Data_6Tribes_5y, id = "tada")
+#' 
+TADA_GetMonLocByOrgId <- function(.data, id = "wqp") {
+  
+  # check .data is dataframe
+  TADA_CheckType(.data, "data.frame", "Input object")
+  
+  if (id == "wqp") {
+    # .data required columns
+    required_cols <- c("MonitoringLocationIdentifier", 
+                       "OrganizationIdentifier")
+    
+    # check .data has required columns
+    TADA_CheckColumns(.data, required_cols)
+    
+    .data <- .data %>%
+      dplyr::select(MonitoringLocationIdentifier, OrganizationIdentifier) %>%
+      dplyr::distinct()
+    return(.data)
+  }
+  
+  if (id == "tada") {
+    # .data required columns
+    required_cols <- c("TADA.MonitoringLocationIdentifier", 
+                       "MonitoringLocationIdentifier", 
+                       "OrganizationIdentifier")
+    
+    # check .data has required columns
+    TADA_CheckColumns(.data, required_cols)
+    
+    .data <- .data %>%
+      dplyr::select(TADA.MonitoringLocationIdentifier, OrganizationIdentifier) %>%
+      dplyr::distinct()
+    return(.data)
+  }
+}
