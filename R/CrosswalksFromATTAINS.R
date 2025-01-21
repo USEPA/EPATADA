@@ -94,14 +94,14 @@ TADA_GetAssessmentUnitCrosswalk <- function(org_id = NULL) {
 
 #' Get Organization Identifier For All MonitoringLocations (IN ACTIVE DEVELOPMENT)
 #'
-#' This function creates a data frame with two columns to show the organization identifier for each
+#' This function creates a dataframe with two columns to show the organization identifier for each
 #' monitoring location. The user can select whether the monitoring location identifier column
 #' displays the original WQP 'MonitoringLocation' or the 'TADA.MonitoringLocationIdentifier'.
 #'
-#' @param .data A TADA data frame.
+#' @param .data A TADA dataframe.
 #'
 #' @param id Character argument. Determines which monitoring location identifier and organization
-#' identifier from the TADA data frame are displayed. When id = "wqp", 'MonitoringLocation' is used. When id = "tada",
+#' identifier from the TADA dataframe are displayed. When id = "wqp", 'MonitoringLocation' is used. When id = "tada",
 #' 'TADA.MonitoringLocationIdentifier" is used. Default is id = "wqp".
 #'
 #'
@@ -206,7 +206,7 @@ TADA_UpdateProviderRef <- function() {
 #' included in the user supplied crosswalk. When attains_replace = TRUE, Monitoring Locations will
 #' only be retained if they are in the user supplied crosswalk. Default equals FALSE.
 #'
-#' @param crosswalk A user-supplied data frame with the columns ASSESSMENT_UNIT_ID and
+#' @param crosswalk A user-supplied dataframe with the columns ASSESSMENT_UNIT_ID and
 #' MS_LOCATION_ID.When crosswalk = NULL, the crosswalk will be downloaded from ATTAINS.This allows
 #' users to add URL for the Water Quality Portal Data Site page to Monitoring Locations where
 #' possible without updating other information in ATTAINS.
@@ -247,17 +247,17 @@ TADA_UpdateMonitoringLocationsInATTAINS <- function(org_id = NULL,
     # remove intermediate object
     rm(org.ref)
     
-     # if the crosswalk is not a data frame, stop the function
+     # if the crosswalk is not a dataframe, stop the function
     if (!is.data.frame(crosswalk) & !is.null(crosswalk)) {
       stop(paste0(
         "TADA_UpdateMonitoringLocationsInATTAINS: ",
-        "A crosswalk data frame with columns 'ATTAINS.assessmentunit.identifier' and ",
+        "A crosswalk dataframe with columns 'ATTAINS.assessmentunit.identifier' and ",
         "'MonitoringLocationIdentifier' or setting crosswalk = NULL is required to run ",
         "this function."
       ))
     }
 
-    # check that crosswalk is a data frame before proceeding
+    # check that crosswalk is a dataframe before proceeding
     if (is.data.frame(crosswalk)) {
       # check crosswalk has all of the required columns
       expected_cols <- c(
@@ -349,7 +349,7 @@ TADA_UpdateMonitoringLocationsInATTAINS <- function(org_id = NULL,
         # extract response code from first line of header response
         response.code <- sapply(headers, "[[", 1)
 
-        # create data frame of urls and response codes
+        # create dataframe of urls and response codes
         response.df <- data.frame(update.crosswalk$MONITORING_DATA_LINK_TEXT.New, response.code) %>%
           dplyr::rename(MONITORING_DATA_LINK_TEXT.New = update.crosswalk.MONITORING_DATA_LINK_TEXT.New) %>%
           dplyr::distinct()
