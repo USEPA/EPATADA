@@ -19,7 +19,9 @@ are listed in the "OrgName" tab. The "code" column contains the organization ide
 should be used for this param.}
 
 \item{crosswalk}{A user-supplied data frame with the columns ASSESSMENT_UNIT_ID and
-MS_LOCATION_ID.}
+MS_LOCATION_ID.When crosswalk = NULL, the crosswalk will be downloaded from ATTAINS.This allows
+users to add URL for the Water Quality Portal Data Site page to Monitoring Locations where
+possible without updating other information in ATTAINS.}
 
 \item{attains_replace}{Character argument. When attains_replace = FALSE, all Monitoring
 Locations associated with an Assessment Unit in ATTAINS will be retained even if they are not
@@ -43,7 +45,6 @@ Assessment Unit profiles in ATTAINS.Users can specify whether all MonitoringLoca
 should be overwritten or if any new MonitoringLocations should be appended to existing records.
 }
 \examples{
-
 \dontrun{
 # Alaska example
 AK_crosswalk <- TADA_GetAssessmentUnitCrosswalk(org_id = "AKDECWQ")

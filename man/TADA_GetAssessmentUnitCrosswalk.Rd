@@ -2,7 +2,7 @@
 % Please edit documentation in R/CrosswalksFromATTAINS.R
 \name{TADA_GetAssessmentUnitCrosswalk}
 \alias{TADA_GetAssessmentUnitCrosswalk}
-\title{Get MonitoringLocationIdentifier and ATTAINS.assessmentunitidentifier Crosswalk}
+\title{Get WQP/WQX MonitoringLocationIdentifier and ATTAINS.assessmentunitidentifier Crosswalk from ATTAINS}
 \usage{
 TADA_GetAssessmentUnitCrosswalk(org_id = NULL)
 }
@@ -16,17 +16,29 @@ should be used for this param.}
 \value{
 A dataframe with three columns, ATTAINS.assessmentunitidentifier,
 MonitoringLocationIdentiifer, and OrganizationIdentifier is returned.
+This is the crosswalk between WQP/WQX MonitoringLocationIdentifiers and
+Assessment Units that the state or tribal organization submitted to ATTAINS.
 }
 \description{
+Tribes and States who participate in electronic reporting of water quality conditions
+through EPA ATTAINS may also submit a crosswalk of WQX/WQP
+MonitoringLocationIdentifiers associated with their Assessment Units to ATTAINS.
 If the organization has recorded MonitoringLocationIdentifiers associated with their
 Assessment Units in ATTAINS, this function can be used to create a crosswalk of known
-MonitoringLocationIdentifier and Assessment Units.
+MonitoringLocationIdentifiers and Assessment Units. All tribal nations record this
+crosswalk in ATTAINS but only a few states. If a state has not supplied this
+crosswalk to ATTAINS, the function will return a blank dataframe.
 }
 \examples{
-
 \dontrun{
 # Alaska example
 AK_crosswalk <- TADA_GetAssessmentUnitCrosswalk(org_id = "AKDECWQ")
+
+# Pueblo of Tesuque example
+PUEBLOOFTESUQUE_crosswalk <- TADA_GetAssessmentUnitCrosswalk(org_id = "PUEBLOOFTESUQUE")
+
+# Arizona example, returns blank dataframe as of 1/21/25
+AZ_crosswalk <- TADA_GetAssessmentUnitCrosswalk(org_id = "21ARIZ")
 }
 
 }

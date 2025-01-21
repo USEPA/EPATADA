@@ -14,7 +14,6 @@ This function creates a crosswalk of OrganizationIdentifier and OrganizationForm
 ProviderName.
 }
 \examples{
-
 \dontrun{
 provider.ref <- TADA_GetProviderRef()
 }

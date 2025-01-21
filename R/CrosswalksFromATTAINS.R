@@ -1,8 +1,13 @@
-#' Get MonitoringLocationIdentifier and ATTAINS.assessmentunitidentifier Crosswalk
+#' Get WQP/WQX MonitoringLocationIdentifier and ATTAINS.assessmentunitidentifier Crosswalk from ATTAINS
 #'
+#' Tribes and States who participate in electronic reporting of water quality conditions
+#' through EPA ATTAINS may also submit a crosswalk of WQX/WQP 
+#' MonitoringLocationIdentifiers associated with their Assessment Units to ATTAINS. 
 #' If the organization has recorded MonitoringLocationIdentifiers associated with their
 #' Assessment Units in ATTAINS, this function can be used to create a crosswalk of known
-#' MonitoringLocationIdentifier and Assessment Units.
+#' MonitoringLocationIdentifiers and Assessment Units. All tribal nations record this 
+#' crosswalk in ATTAINS but only a few states. If a state has not supplied this 
+#' crosswalk to ATTAINS, the function will return a blank dataframe.
 #'
 #' @param org_id The ATTAINS organization identifier must be supplied by the user. A list of
 #' organization identifiers can be found by downloading the ATTAINS Domains Excel file:
@@ -10,9 +15,10 @@
 #' are listed in the "OrgName" tab. The "code" column contains the organization identifiers that
 #' should be used for this param.
 #'
-#'
 #' @return A dataframe with three columns, ATTAINS.assessmentunitidentifier,
-#' MonitoringLocationIdentiifer, and OrganizationIdentifier is returned.
+#' MonitoringLocationIdentiifer, and OrganizationIdentifier is returned. 
+#' This is the crosswalk between WQP/WQX MonitoringLocationIdentifiers and 
+#' Assessment Units that the state or tribal organization submitted to ATTAINS.
 #'
 #' @export
 #'
@@ -20,8 +26,13 @@
 #' \dontrun{
 #' # Alaska example
 #' AK_crosswalk <- TADA_GetAssessmentUnitCrosswalk(org_id = "AKDECWQ")
+#' 
+#' # Pueblo of Tesuque example
+#' PUEBLOOFTESUQUE_crosswalk <- TADA_GetAssessmentUnitCrosswalk(org_id = "PUEBLOOFTESUQUE")
+#' 
+#' # Arizona example, returns blank dataframe as of 1/21/25
+#' AZ_crosswalk <- TADA_GetAssessmentUnitCrosswalk(org_id = "21ARIZ")
 #' }
-
 #'
 TADA_GetAssessmentUnitCrosswalk <- function(org_id = NULL) {
   org.ref <- TADA_GetATTAINSOrgIDsRef()
@@ -63,7 +74,7 @@ TADA_GetAssessmentUnitCrosswalk <- function(org_id = NULL) {
       print(paste0(
         "TADA_GetAssessmentUnitCrosswalk: ",
         "There are ", nrow(au.crosswalk),
-        " MonitoringLocationIdentifiers associated with Assessment Units for ",
+        " WQX/WQP MonitoringLocationIdentifiers associated with Assessment Units for ",
         org_id, " in ATTAINS."
       ))
 
@@ -76,6 +87,7 @@ TADA_GetAssessmentUnitCrosswalk <- function(org_id = NULL) {
         "No MonitoringLocationIdentifiers were recorded in ATTAINS for ",
         org_id, " Assessment Units."
       ))
+      return(au.crosswalk)
     }
   }
 }
