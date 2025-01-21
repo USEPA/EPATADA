@@ -106,18 +106,19 @@ function in R or RStudio using the following format (example below):
 ?TADA_DataRetrieval
 ```
 
-## Module 3a Functions in TADA
+## Module 3 Functions in TADA
 
-Disclaimer: While the EPATADA package aims to assist different
-organizations (state, territories and tribal nations) with their Clean
-Water Act assessment process, it does not constitute current EPA policy
-or regulatory requirements. This tool is not to be solely used for an
-organizations decision making process and use of EPATADA is not
-required.
+Disclaimer: The EPATADA Module 3 functions were designed to: (1) assist
+users with associating Water Quality Portal monitoring locations with
+assessment units and designated uses from ATTAINS and (2) compare Water
+Quality Portal results with numeric water quality criteria. EPATADA
+functions do not constitute current EPA policy or regulatory
+requirements. Organizations may choose to use EPATADA as a a tool in
+their decision making processes. Use of EPATADA is not required.
 
 ## Introduction
 
-Criteria is defined as the Magnitude, duration and frequency associated
+Criteria are defined as the Magnitude, duration and frequency associated
 with a parameter and designated use.
 
 -   Magnitude is defined as the limiting concentration not to be
@@ -127,38 +128,42 @@ with a parameter and designated use.
     aggregated.
 
 -   Frequency is defined as the percent or number of times in which a
-    magnitude can be exceeded during a time frame.
+    magnitude can be exceeded during the specified duration.
 
-This vignette represents functions that require users to:
+This vignette provides an overview of functions that assist users with:
 
--   Perform a parameter crosswalk between ATTAINS parameter names and
-    WQP/TADA parameter names, define the parameter and designated use of
-    a water body associated with each state and participating tribe's
-    WQS criteria, and define the geospatial components to match WQP
-    monitoring sites to an Assessment Unit.
+-   Matching WQP monitoring locations to ATTAINS assessment units by
+    leveraging ATTAINS geospatial web services.
 
--   Define the Criteria and Methodologies used for assessments and
-    determine recommended impairment decisions for each parameter and
-    designated use of a water body based on these defined WQS criteria
-    conditions for each AU. Users will have two options of either
-    summarizing individual magnitude excursions or for the full Criteria
-    (Magnitude, Duration and Frequency) associated with each parameter
-    and use.
+-   Creating a parameter crosswalk between ATTAINS parameter names and
+    WQP/TADA parameter names.
 
-The EPA has derived its "national recommended Clean Water Act (CWA)
-304(a) criteria". Using data from the Criteria Search Tool (CST), the
-TADA team has developed initial efforts to incorporate these metrics as
-the standards that can be used to determine magnitude excursions and
-full criteria exceedance for a parameter and use.
+-   Defining the designated uses of each ATTAINS assessment unit
+    represented in the user's TADA data set.
 
-However, the EPA304a standards do not account for more each
-state-specific or site-specific conditions in which each state may
-derive its own criteria. The functions in Module 3 TADA aims to be
-flexible to capture these criteria conditions specific to each state or
-tribal nation's definition. Users will be required to modify and review
-the appropriate crosswalk tables for each step of the process. While
-efforts have been made to reduce manual inputs, initial workflow may
-require much additions and removals during each step.
+-   Assigning the parameters which correspond with each unique
+    assessment unit/designated use/parameter combination.
+
+-   Defining the numeric water quality criteria and methodology used for
+    each unique combination of assessment unit, designated use, and
+    parameter.
+
+-   Summarizing results by either: (1) individual magnitude excursions
+    or (2) full Criteria (Magnitude, Duration and Frequency) associated
+    with each parameter and use.
+
+Module 3 functions are designed with the flexibility for users from
+states, tribes, or territories to input organization-specific or
+site-specific criteria as defined in their own numeric water quality
+critieria or methdogologies. While TADA functions autoamte some of this
+process, users must review and modify the crosswalk tables generated in
+each step of the process to ensure their accuracy. The TADA team has
+also incorporated national recommended Clean Water Act (CWA) 304(a)
+numeric criteria for optional use in Module 3 functions by leveraging
+data from the Criteria Search Tool (CST). This allows users to test the
+new functions using 304(a) criteria and allows users to easily compare
+results when comparing WQP results to 304(a) criteria vs. their own
+organization's criteria.
 
 **Additional Description:**
 
