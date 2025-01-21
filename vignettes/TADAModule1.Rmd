@@ -708,7 +708,7 @@ To start, review the list of common fields used for filtering, and the
 number of unique values in each field using the **TADA_FieldCounts**
 function.
 
-This function returns counts for you entire data frame for each of the
+This function returns counts for you entire dataframe for each of the
 following fields (if populated, columns that are populated only with
 NA's are not included in the output):
 
@@ -1293,7 +1293,7 @@ Now we can review the "TADA" prefixed columns we have added to the data
 set. If we are satisfied with the conversions, filtering, flagging, etc.
 and the resulting "TADA" columns, we can use the **TADA_RetainRequired**
 function to remove any columns that are not required or used as filters
-in the TADA workflow. This reduces the size of the data frame.
+in the TADA workflow. This reduces the size of the dataframe.
 
 ```{r retainrequired}
 TADAProfileClean7 <- TADA_RetainRequired(TADAProfileClean6)

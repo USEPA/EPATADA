@@ -460,7 +460,7 @@ TADA_CheckType <- function(arg, type, paramName) {
 #' Check Columns
 #'
 #' This function checks if the expected column names are in the dataframe. It is
-#' used at the beginning of TADA functions to ensure the input data frame is
+#' used at the beginning of TADA functions to ensure the input dataframe is
 #' suitable (i.e. is either the full physical/chemical results profile
 #' downloaded from WQP or the TADA profile template downloaded from the EPA TADA
 #' webpage.)
@@ -654,7 +654,7 @@ TADA_ConvertSpecialChars <- function(.data, col, percent.ave = TRUE) {
 #' in TADA_BigDataRetrieval. Therefore, deprecated characteristic names are
 #' harmonized to the new name automatically upon data retrieval.
 #' TADA_SubstituteDeprecatedChars can also be used by itself on a user supplied
-#' dataset that is in the WQX/WQP format, if desired. This solution works for both
+#' dataset that is in the WQX format, if desired. This solution works for both
 #' EPA WQX and USGS NWIS provided data.
 #'
 #' Enter ?TADA_GetCharacteristicRef() to review a list of all WQX characteristics, the including
@@ -844,7 +844,7 @@ TADA_FindNearbySites <- function(.data, dist_buffer = 100) {
     dat$MonitoringLocationIdentifier <- colnames(dist.mat1) # give df site names along with counts
     sites <- dat$MonitoringLocationIdentifier[dat$Count == 1] # filter to sites within buffer
     sites1 <- sites[!sites %in% fsite] # get site list within buffer that does not include focal site
-    if (length(sites1) > 0) { # if this list is greater than 0, combine sites within buffer into data frame
+    if (length(sites1) > 0) { # if this list is greater than 0, combine sites within buffer into dataframe
       df <- data.frame(MonitoringLocationIdentifier = sites, TADA.MonitoringLocationIdentifier = paste0(sites, collapse = ","))
       df[c("TADA.MonitoringLocationIdentifier")] <- lapply(df[c("TADA.MonitoringLocationIdentifier")], TADA_FormatDelimitedString)
       groups <- plyr::rbind.fill(groups, df)
@@ -1474,13 +1474,13 @@ TADA_addPoints <- function(map, layerfilepath, layergroup, layername, bbox = NUL
 
 #' Create Characteristic/MeasureUnitCode/MethodSpeciation Ref
 #'
-#' Creates data frame of unique combinations of TADA.CharacteristicName,
+#' Creates dataframe of unique combinations of TADA.CharacteristicName,
 #' TADA.ResultMeasure.MeasureUnitCode, ResultMeasure.MeasureUnitCode, and
-#' TADA.MethodSpeciationName in a TADA data frame.
+#' TADA.MethodSpeciationName in a TADA dataframe.
 #'
-#' @param .data A TADA data frame.
+#' @param .data A TADA dataframe.
 #'
-#' @return A data frame with unique combinations of TADA.CharacteristicName,
+#' @return A dataframe with unique combinations of TADA.CharacteristicName,
 #' TADA.ResultMeasure.MeasureUnitCode, ResultMeasure.MeasureUnitCode, and
 #' TADA.MethodSpeciationName
 #'
@@ -1506,7 +1506,7 @@ TADA_UniqueCharUnitSpeciation <- function(.data) {
     .data <- .data
   }
 
-  # Create df of unique codes and characteristic names(from TADA.CharacteristicName and TADA.ResultMeasure.MeasureUnitCode) in TADA data frame
+  # Create df of unique codes and characteristic names(from TADA.CharacteristicName and TADA.ResultMeasure.MeasureUnitCode) in TADA dataframe
   data.units.result <- .data %>%
     dplyr::select(
       TADA.CharacteristicName, TADA.ResultMeasure.MeasureUnitCode,
@@ -1515,7 +1515,7 @@ TADA_UniqueCharUnitSpeciation <- function(.data) {
     dplyr::filter(!is.na(TADA.ResultMeasure.MeasureUnitCode)) %>%
     dplyr::distinct()
 
-  # Create df of unique codes and characteristic names(from TADA.CharacteristicName and TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode) in TADA data frame
+  # Create df of unique codes and characteristic names(from TADA.CharacteristicName and TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode) in TADA dataframe
   data.units.det <- .data %>%
     dplyr::select(
       TADA.CharacteristicName, TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode,

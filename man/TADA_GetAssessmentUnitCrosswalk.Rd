@@ -21,7 +21,7 @@ Assessment Units that the state or tribal organization submitted to ATTAINS.
 }
 \description{
 Tribes and States who participate in electronic reporting of water quality conditions
-through EPA ATTAINS may also submit a crosswalk of WQX/WQP
+through EPA ATTAINS may also submit a crosswalk of WQP
 MonitoringLocationIdentifiers associated with their Assessment Units to ATTAINS.
 If the organization has recorded MonitoringLocationIdentifiers associated with their
 Assessment Units in ATTAINS, this function can be used to create a crosswalk of known

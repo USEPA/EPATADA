@@ -1,7 +1,7 @@
 #' Get WQP/WQX MonitoringLocationIdentifier and ATTAINS.assessmentunitidentifier Crosswalk from ATTAINS
 #'
 #' Tribes and States who participate in electronic reporting of water quality conditions
-#' through EPA ATTAINS may also submit a crosswalk of WQX/WQP 
+#' through EPA ATTAINS may also submit a crosswalk of WQP 
 #' MonitoringLocationIdentifiers associated with their Assessment Units to ATTAINS. 
 #' If the organization has recorded MonitoringLocationIdentifiers associated with their
 #' Assessment Units in ATTAINS, this function can be used to create a crosswalk of known
@@ -74,7 +74,7 @@ TADA_GetAssessmentUnitCrosswalk <- function(org_id = NULL) {
       print(paste0(
         "TADA_GetAssessmentUnitCrosswalk: ",
         "There are ", nrow(au.crosswalk),
-        " WQX/WQP MonitoringLocationIdentifiers associated with Assessment Units for ",
+        " WQP MonitoringLocationIdentifiers associated with Assessment Units for ",
         org_id, " in ATTAINS."
       ))
 
@@ -92,35 +92,42 @@ TADA_GetAssessmentUnitCrosswalk <- function(org_id = NULL) {
   }
 }
 
-#' Get Organization Identifier For All MonitoringLocations (IN ACTIVE DEVELOPMENT)
+#' Get WQP Organization Identifier For Each WQP Monitoring Location Identifier
 #'
-#' This function creates a dataframe with two columns to show the organization identifier for each
-#' monitoring location. The user can select whether the monitoring location identifier column
-#' displays the original WQP 'MonitoringLocation' or the 'TADA.MonitoringLocationIdentifier'.
+#' This function creates a dataframe with two columns to show the organization 
+#' identifier for each monitoring location. The user can select whether the 
+#' monitoring location identifier column displays the original WQP 
+#' 'MonitoringLocationIdentifier' or the 'TADA.MonitoringLocationIdentifier'.
 #'
 #' @param .data A TADA dataframe.
 #'
-#' @param id Character argument. Determines which monitoring location identifier and organization
-#' identifier from the TADA dataframe are displayed. When id = "wqp", 'MonitoringLocation' is used. When id = "tada",
+#' @param id Character argument. Determines which monitoring location identifier
+#' and organization identifier from the TADA dataframe to display. When 
+#' id = "wqp", 'MonitoringLocationIdentifier' is used. When id = "tada", 
 #' 'TADA.MonitoringLocationIdentifier" is used. Default is id = "wqp".
 #'
 #'
-#' @return A crosswalk of monitoring locations and organization identifiers.
-#'
+#' @return A crosswalk dataframe of monitoring location identifiers and organization identifiers. The default is id = "wqp".
+#' 
 #' @export
 #'
-
+#' @examples
+#' data(Data_6Tribes_5y)
+#' OrgSite_Crosswalk = TADA_GetMonLocByOrgId(Data_6Tribes_5y)
+#' 
 TADA_GetMonLocByOrgId <- function(.data, id = "wqp") {
   if (id == "wqp") {
     .data <- .data %>%
       dplyr::select(MonitoringLocationIdentifier, OrganizationIdentifier) %>%
       dplyr::distinct()
+    return(.data)
   }
 
   if (id == "tada") {
     .data <- .data %>%
       dplyr::select(TADA.MonitoringLocationIdentifier, OrganizationIdentifier) %>%
       dplyr::distinct()
+    return(.data)
   }
 }
 
@@ -237,7 +244,7 @@ TADA_UpdateMonitoringLocationsInATTAINS <- function(org_id = NULL,
   }
   
   if(is.null(crosswalk) & attains_replace == TRUE) {
-    stop(pasteo("TADA_UpdateMonitoringLocationsInATTAINS: ",
+    stop(paste0("TADA_UpdateMonitoringLocationsInATTAINS: ",
                 "in order to replace MonitoringLocations stored in ATTAINS ",
                 "(with attains_replace = TRUE), user must provide a ",
                 "MonitoringLocation/AssessmentUnitcrosswalk."))

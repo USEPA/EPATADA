@@ -2,22 +2,29 @@
 % Please edit documentation in R/CrosswalksFromATTAINS.R
 \name{TADA_GetMonLocByOrgId}
 \alias{TADA_GetMonLocByOrgId}
-\title{Get Organization Identifier For All MonitoringLocations (IN ACTIVE DEVELOPMENT)}
+\title{Get WQP Organization Identifier For Each WQP Monitoring Location Identifier}
 \usage{
 TADA_GetMonLocByOrgId(.data, id = "wqp")
 }
 \arguments{
 \item{.data}{A TADA dataframe.}
 
-\item{id}{Character argument. Determines which monitoring location identifier and organization
-identifier from the TADA dataframe are displayed. When id = "wqp", 'MonitoringLocation' is used. When id = "tada",
+\item{id}{Character argument. Determines which monitoring location identifier
+and organization identifier from the TADA dataframe to display. When
+id = "wqp", 'MonitoringLocationIdentifier' is used. When id = "tada",
 'TADA.MonitoringLocationIdentifier" is used. Default is id = "wqp".}
 }
 \value{
-A crosswalk of monitoring locations and organization identifiers.
+A crosswalk dataframe of monitoring location identifiers and organization identifiers. The default is id = "wqp".
 }
 \description{
-This function creates a dataframe with two columns to show the organization identifier for each
-monitoring location. The user can select whether the monitoring location identifier column
-displays the original WQP 'MonitoringLocation' or the 'TADA.MonitoringLocationIdentifier'.
+This function creates a dataframe with two columns to show the organization
+identifier for each monitoring location. The user can select whether the
+monitoring location identifier column displays the original WQP
+'MonitoringLocationIdentifier' or the 'TADA.MonitoringLocationIdentifier'.
+}
+\examples{
+data(Data_6Tribes_5y)
+OrgSite_Crosswalk = TADA_GetMonLocByOrgId(Data_6Tribes_5y)
+
 }

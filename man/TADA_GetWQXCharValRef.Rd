@@ -12,7 +12,7 @@ Updated sysdata.rda with updated WQXcharValRef object
 \description{
 Function downloads and returns the newest available (cleaned)
 raw Water Quality Exchange (WQX) QAQC Characteristic
-Validation reference table. The WQXcharValRef data frame
+Validation reference table. The WQXcharValRef dataframe
 contains information for four functions: InvalidFraction, InvalidResultUnit,
 InvalidSpeciation, and UncommonAnalyticalMethodID.
 }

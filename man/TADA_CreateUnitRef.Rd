@@ -2,7 +2,7 @@
 % Please edit documentation in R/UnitConversions.R
 \name{TADA_CreateUnitRef}
 \alias{TADA_CreateUnitRef}
-\title{Generate A Data Frame of Units and Target by Characteristic Name}
+\title{Generate A DataFrame of Units and Target by Characteristic Name}
 \usage{
 TADA_CreateUnitRef(.data, print.message = TRUE)
 }
@@ -25,7 +25,7 @@ TADA.CharacteristicName/ResultMeasure.MeasureUnitCode combinations in the
 initial TADA dataframe.
 }
 \description{
-This function generates a data frame listing all unique characteristic (by CharacteristicName)
+This function generates a dataframe listing all unique characteristic (by CharacteristicName)
 and unit (by TADA.ResultMeasure.MeasureUnitCode) pairs present in the dataset. Where
 possible, the function fills in the columns for target unit, and conversion factor.
 Users can edit it and use it as an input for TADA_ConvertResultUnits to
@@ -40,15 +40,15 @@ TADA.MethodSpeciationName in TADA_ConvertResultUnits.
 }
 \details{
 The columns created by TADA_AutoClean are required to run this function. If
-they are not present in the data frame, TADA_AutoClean is automatically run
-before the unit reference data frame is created.
+they are not present in the dataframe, TADA_AutoClean is automatically run
+before the unit reference dataframe is created.
 }
 \examples{
 
 # Load example dataset:
 data(Data_Nutrients_UT)
 
-# Create a unit reference data frame
+# Create a unit reference dataframe
 UT_UnitRef <- TADA_CreateUnitRef(Data_Nutrients_UT)
 
 }
