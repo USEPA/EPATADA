@@ -2,7 +2,7 @@
 % Please edit documentation in R/CriteriaComparison.R
 \name{TADA_CreatePairRef}
 \alias{TADA_CreatePairRef}
-\title{Create Reference Data Frame to Pair Characteristic Results For Use in Numeric Criteria Equations (UNDER ACTIVE DEVELOPMENT)}
+\title{Create Reference Dataframe to Pair Characteristic Results For Use in Numeric Criteria Equations (UNDER ACTIVE DEVELOPMENT)}
 \usage{
 TADA_CreatePairRef(
   .data,
@@ -17,31 +17,31 @@ TADA_CreatePairRef(
 \arguments{
 \item{.data}{TADA dataframe}
 
-\item{ph}{Boolean argument. When ph = TRUE, pH is included in this reference data frame. When
-ph = FALSE, pH is not included in the reference data frame.}
+\item{ph}{Boolean argument. When ph = TRUE, pH is included in this reference dataframe. When
+ph = FALSE, pH is not included in the reference dataframe.}
 
 \item{hardness}{Boolean argument. When hardness = TRUE, hardness is included in this reference
-data frame. When hardness = FALSE, hardness is not included in the reference data frame.}
+dataframe. When hardness = FALSE, hardness is not included in the reference dataframe.}
 
 \item{temp}{Boolean argument. When temp = TRUE, water temperature is included in this reference
-data frame. When temp = FALSE, water temperature is not included in the reference data frame.}
+dataframe. When temp = FALSE, water temperature is not included in the reference dataframe.}
 
 \item{chloride}{Boolean argument. When chloride = TRUE, salinity is included in this reference
-data frame. When chloride = FALSE, chloride is not included in the reference data frame.}
+dataframe. When chloride = FALSE, chloride is not included in the reference dataframe.}
 
 \item{salinity}{Boolean argument. When salinity = TRUE, salinity is included in this reference
-data frame. When salinity = FALSE, salinity is not included in the reference data frame.}
+dataframe. When salinity = FALSE, salinity is not included in the reference dataframe.}
 
-\item{other_char}{Character argument. The user provides a data frame TADA.CharacteristicNames and
+\item{other_char}{Character argument. The user provides a dataframe TADA.CharacteristicNames and
 the pairing group they belong to. #Needs more details.}
 }
 \value{
-A data frame with six columns, TADA.CharacteristicName, TADA.ResultMeasure.MeasureUnitCode,
+A dataframe with six columns, TADA.CharacteristicName, TADA.ResultMeasure.MeasureUnitCode,
 TADA.MethodSpeciationName, TADA.ResultSampleFractionText, TADA.PairingGroup, and
 TADA.PairingGroupRank.
 }
 \description{
-This function creates a data frame that shows all combinations of TADA.CharacteristicName,
+This function creates a dataframe that shows all combinations of TADA.CharacteristicName,
 TADA.CharacteristicName, TADA.ResultMeasure.MeasureUnitCode, TADA.MethodSpeciationName,
 and TADA.ResultSampleFractionText for commonly paired characteristics (such as pH, temperature,
 hardness, salinity, and chloride).

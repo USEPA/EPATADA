@@ -15,14 +15,14 @@ TADA_PairForCriteriaCalc(.data, ref = "null", hours_range = 4)
 and the result.}
 }
 \value{
-A TADA data frame with six additional columns added for each pairing group specified
+A TADA dataframe with six additional columns added for each pairing group specified
 in the pairing ref.
 }
 \description{
 This function pairs TADA results with results from specified characteristics from the same
 MonitoringLocation within a user-specified time window to facilitate the calculation of numeric
 criteria. The columns created by TADA_AutoClean are required to run this function. If they are not
-present in the data frame, the function will stop and print an error message.
+present in the dataframe, the function will stop and print an error message.
 }
 \details{
 Users can provide a pairing reference file (can be created using TADA_CreatePairRef) to specify

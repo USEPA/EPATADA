@@ -7,17 +7,17 @@
 TADA_GetMonLocByOrgId(.data, id = "wqp")
 }
 \arguments{
-\item{.data}{A TADA data frame.}
+\item{.data}{A TADA dataframe.}
 
 \item{id}{Character argument. Determines which monitoring location identifier and organization
-identifier from the TADA data frame are displayed. When id = "wqp", 'MonitoringLocation' is used. When id = "tada",
+identifier from the TADA dataframe are displayed. When id = "wqp", 'MonitoringLocation' is used. When id = "tada",
 'TADA.MonitoringLocationIdentifier" is used. Default is id = "wqp".}
 }
 \value{
 A crosswalk of monitoring locations and organization identifiers.
 }
 \description{
-This function creates a data frame with two columns to show the organization identifier for each
+This function creates a dataframe with two columns to show the organization identifier for each
 monitoring location. The user can select whether the monitoring location identifier column
 displays the original WQP 'MonitoringLocation' or the 'TADA.MonitoringLocationIdentifier'.
 }

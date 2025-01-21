@@ -18,7 +18,7 @@ file: https://www.epa.gov/system/files/other-files/2023-09/DOMAINS.xlsx. Organiz
 are listed in the "OrgName" tab. The "code" column contains the organization identifiers that
 should be used for this param.}
 
-\item{crosswalk}{A user-supplied data frame with the columns ASSESSMENT_UNIT_ID and
+\item{crosswalk}{A user-supplied dataframe with the columns ASSESSMENT_UNIT_ID and
 MS_LOCATION_ID.When crosswalk = NULL, the crosswalk will be downloaded from ATTAINS.This allows
 users to add URL for the Water Quality Portal Data Site page to Monitoring Locations where
 possible without updating other information in ATTAINS.}
