@@ -69,31 +69,6 @@ TADA_DefineMagnitude <- function(.data, ref = "TADA", paramRef = NULL, paramUseR
   #   print("NAs were found in column ApplyUniqueSpatialCriteria for your AUIDRef. Please ensure that you have inputted all field values of interest in the ApplyUniqueSpatialCriteria column that defines your organization's unique site-specific mapping criteria")
   # }
   
-  wb <- openxlsx::loadWorkbook(wb, downloads_path)
-  tryCatch({
-    openxlsx::addWorksheet(wb, "DefineMagnitude")
-  },
-  error = function(e){
-    openxlsx::removeWorksheet(wb, "DefineMagnitude")
-    openxlsx::addWorksheet(wb, "DefineMagnitude")
-  }
-  )
-  
-  # Format column header
-  header_st <- openxlsx::createStyle(textDecoration = "Bold")
-  # set zoom size
-  set_zoom <- function(x) gsub('(?<=zoomScale=")[0-9]+', x, sV, perl = TRUE)
-  sV <- wb$worksheets[[6]]$sheetViews
-  wb$worksheets[[6]]$sheetViews <- set_zoom(90)
-  
-  columns <- c(
-    "TADA.ComparableDataIdentifier", "EPA304A.PollutantName", "ATTAINS.ParameterName", 
-    "organization_name", "use_name", "MonitoringLocationTypeName",
-    "ATTAINS.WaterType", "AcuteChronic", "SaltFresh", "BegAssessDate", "EndAssessDate", 
-    "Season", "MinSamplePerDuration", "ApplyUniqueSpatialCriteria", 
-    "EquationBased", "MagnitudeValueLower", "MagnitudeValueUpper", "MagnitudeUnit"
-  )
-  
   DefineMagnitude <- paramRef %>%
     dplyr::full_join(paramUseRef, by = c("TADA.ComparableDataIdentifier", "EPA304A.PollutantName", "ATTAINS.ParameterName", "organization_name"), relationship = "many-to-many") %>%
     dplyr::select("TADA.ComparableDataIdentifier", "EPA304A.PollutantName", "ATTAINS.ParameterName", "organization_name", "use_name") %>%
@@ -121,7 +96,7 @@ TADA_DefineMagnitude <- function(.data, ref = "TADA", paramRef = NULL, paramUseR
       dplyr::mutate(SaltFresh = CRITERIATYPEFRESHSALTWATER) %>%
       dplyr::mutate(MagnitudeValueLower = dplyr::if_else(
         stringr::str_detect(CRITERION_VALUE,"-"), stringr::str_extract(CRITERION_VALUE,"[^-]+"),
-                      CRITERION_VALUE)) %>%
+        CRITERION_VALUE)) %>%
       dplyr::mutate(MagnitudeValueUpper = dplyr::if_else(
         stringr::str_detect(CRITERION_VALUE,"-"), stringr::str_split(CRITERION_VALUE, "-", simplify = TRUE)[,2],
         "")) %>%
@@ -148,61 +123,88 @@ TADA_DefineMagnitude <- function(.data, ref = "TADA", paramRef = NULL, paramUseR
     dplyr::select(TADA.ResultMeasure.MeasureUnitCode) %>%
     dplyr::rename(MagnitudeUnit = TADA.ResultMeasure.MeasureUnitCode)
   
-  # Format column header
-  header_st <- openxlsx::createStyle(textDecoration = "Bold")
-  # Format Column widths
-  openxlsx::setColWidths(wb, "DefineMagnitude", cols = 1:ncol(DefineMagnitude), widths = "auto")
-  openxlsx::setColWidths(wb, sheet = "DefineMagnitude", cols = 1:5, widths = 20)
+  if(excel == TRUE){
+    wb <- openxlsx::loadWorkbook(wb, downloads_path)
+    tryCatch({
+      openxlsx::addWorksheet(wb, "DefineMagnitude")
+    },
+    error = function(e){
+      openxlsx::removeWorksheet(wb, "DefineMagnitude")
+      openxlsx::addWorksheet(wb, "DefineMagnitude")
+    }
+    )
+    
+    # Format column header
+    header_st <- openxlsx::createStyle(textDecoration = "Bold")
+    # set zoom size
+    set_zoom <- function(x) gsub('(?<=zoomScale=")[0-9]+', x, sV, perl = TRUE)
+    sV <- wb$worksheets[[6]]$sheetViews
+    wb$worksheets[[6]]$sheetViews <- set_zoom(90)
+    
+    columns <- c(
+      "TADA.ComparableDataIdentifier", "EPA304A.PollutantName", "ATTAINS.ParameterName", 
+      "organization_name", "use_name", "MonitoringLocationTypeName",
+      "ATTAINS.WaterType", "AcuteChronic", "SaltFresh", "BegAssessDate", "EndAssessDate", 
+      "Season", "MinSamplePerDuration", "ApplyUniqueSpatialCriteria", 
+      "EquationBased", "MagnitudeValueLower", "MagnitudeValueUpper", "MagnitudeUnit"
+    )
+    
+    # Format column header
+    header_st <- openxlsx::createStyle(textDecoration = "Bold")
+    # Format Column widths
+    openxlsx::setColWidths(wb, "DefineMagnitude", cols = 1:ncol(DefineMagnitude), widths = "auto")
+    openxlsx::setColWidths(wb, sheet = "DefineMagnitude", cols = 1:5, widths = 20)
+    
+    # Write column names in the excel spreadsheet under the tab [DefineMagnitude]
+    #writeData(wb, "DefineMagnitude", startCol = 1, x = par, headerStyle = header_st)
+    # Export DefineMagnitude dataframe into the excel spreadsheet tab
+    openxlsx::writeData(wb, "DefineMagnitude", startCol = 1, x = DefineMagnitude, headerStyle = header_st)
+    #writeData(wb, "DefineMagnitude", startCol = 13, startRow = 1, x = MagnitudeValue)
+    
+    openxlsx::writeData(wb, "Index", startCol = 9, startRow = 1, x = data.frame(MonitoringLocationTypeName = c(unique(.data$MonitoringLocationTypeName), "All", "NA"))) # WQP MonitoringTypeLocationName
+    
+    openxlsx::writeData(wb, "Index", startCol = 10, startRow = 1, x = data.frame(ATTAINS.WaterType = c(unique(AUIDRef$ATTAINS.WaterType), "All", "NA"))) # ATTAINS.WaterType
+    openxlsx::writeData(wb, "Index", startCol = 11, startRow = 1, x = data.frame(AcuteChronic = c("A", "C", "NA"))) # AcuteChronic
+    openxlsx::writeData(wb, "Index", startCol = 12, startRow = 1, x = data.frame(AcuteChronic = c("S", "F", "NA"))) # SaltFresh
+    
+    openxlsx::writeData(wb, "Index", startCol = 13, startRow = 1, x = data.frame(Season = c("Summer", "Fall", "Spring", "Winter", "NA"))) #Season
+    
+    openxlsx::writeData(wb, "Index", startCol = 14, startRow = 1, x = data.frame(ApplyUniqueSpatialCriteria = c(unique(AUIDRef$ApplyUniqueSpatialCriteria), "NA")))# ApplyUniqueSpatialCriteria
+    openxlsx::writeData(wb, "Index", startCol = 15, startRow = 1, x = data.frame(EquationBased = c("Yes", "No", "NA"))) # EquationBased
+    
+    openxlsx::writeData(wb, "Index", startCol = 16, startRow = 1, x = data.frame(MagnitudeUnit = unique(.data$TADA.ResultMeasure.MeasureUnitCode))) # MagnitudeUnit
+    
+    # The list of allowable values for each column in excel tab [DefineMagnitude] will be defined by the [Index] tab
+    suppressWarnings(openxlsx::dataValidation(wb, sheet = "DefineMagnitude", cols = 6, rows = 2:1000, type = "list", value = sprintf("'Index'!$I$2:$I$1000"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE)) # WQP MonitoringTypeLocationName
+    suppressWarnings(openxlsx::dataValidation(wb, sheet = "DefineMagnitude", cols = 7, rows = 2:1000, type = "list", value = sprintf("'Index'!$J$2:$J$1000"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE)) # ATTAINS.WaterType
+    suppressWarnings(openxlsx::dataValidation(wb, sheet = "DefineMagnitude", cols = 8, rows = 2:1000, type = "list", value = sprintf("'Index'!$K$2:$K$1000"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE)) # AcuteChronic
+    suppressWarnings(openxlsx::dataValidation(wb, sheet = "DefineMagnitude", cols = 9, rows = 2:1000, type = "list", value = sprintf("'Index'!$L$2:$L$1000"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE)) # SaltFresh
+    suppressWarnings(openxlsx::dataValidation(wb, sheet = "DefineMagnitude", cols = 12, rows = 2:1000, type = "list", value = sprintf("'Index'!$M$2:$M$1000"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE)) # Season
+    suppressWarnings(openxlsx::dataValidation(wb, sheet = "DefineMagnitude", cols = 14, rows = 2:1000, type = "list", value = sprintf("'Index'!$N$2:$N$1000"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE)) # ApplyUniqueSpatialCriteria
+    suppressWarnings(openxlsx::dataValidation(wb, sheet = "DefineMagnitude", cols = 15, rows = 2:1000, type = "list", value = sprintf("'Index'!$O$2:$O$1000"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE)) # EquationBased
+    suppressWarnings(openxlsx::dataValidation(wb, sheet = "DefineMagnitude", cols = 18, rows = 2:1000, type = "list", value = sprintf("'Index'!$P$2:$P$1000"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE)) # MagnitudeUnit
   
-  # Write column names in the excel spreadsheet under the tab [DefineMagnitude]
-  #writeData(wb, "DefineMagnitude", startCol = 1, x = par, headerStyle = header_st)
-  # Export DefineMagnitude dataframe into the excel spreadsheet tab
-  openxlsx::writeData(wb, "DefineMagnitude", startCol = 1, x = DefineMagnitude, headerStyle = header_st)
-  #writeData(wb, "DefineMagnitude", startCol = 13, startRow = 1, x = MagnitudeValue)
-  
-  openxlsx::writeData(wb, "Index", startCol = 9, startRow = 1, x = data.frame(MonitoringLocationTypeName = c(unique(.data$MonitoringLocationTypeName), "All", "NA"))) # WQP MonitoringTypeLocationName
-  
-  openxlsx::writeData(wb, "Index", startCol = 10, startRow = 1, x = data.frame(ATTAINS.WaterType = c(unique(AUIDRef$ATTAINS.WaterType), "All", "NA"))) # ATTAINS.WaterType
-  openxlsx::writeData(wb, "Index", startCol = 11, startRow = 1, x = data.frame(AcuteChronic = c("A", "C", "NA"))) # AcuteChronic
-  openxlsx::writeData(wb, "Index", startCol = 12, startRow = 1, x = data.frame(AcuteChronic = c("S", "F", "NA"))) # SaltFresh
-  
-  openxlsx::writeData(wb, "Index", startCol = 13, startRow = 1, x = data.frame(Season = c("Summer", "Fall", "Spring", "Winter", "NA"))) #Season
-  
-  openxlsx::writeData(wb, "Index", startCol = 14, startRow = 1, x = data.frame(ApplyUniqueSpatialCriteria = c(unique(AUIDRef$ApplyUniqueSpatialCriteria), "NA")))# ApplyUniqueSpatialCriteria
-  openxlsx::writeData(wb, "Index", startCol = 15, startRow = 1, x = data.frame(EquationBased = c("Yes", "No", "NA"))) # EquationBased
-  
-  openxlsx::writeData(wb, "Index", startCol = 16, startRow = 1, x = data.frame(MagnitudeUnit = unique(.data$TADA.ResultMeasure.MeasureUnitCode))) # MagnitudeUnit
-  
-  # The list of allowable values for each column in excel tab [DefineMagnitude] will be defined by the [Index] tab
-  suppressWarnings(openxlsx::dataValidation(wb, sheet = "DefineMagnitude", cols = 6, rows = 2:1000, type = "list", value = sprintf("'Index'!$I$2:$I$1000"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE)) # WQP MonitoringTypeLocationName
-  suppressWarnings(openxlsx::dataValidation(wb, sheet = "DefineMagnitude", cols = 7, rows = 2:1000, type = "list", value = sprintf("'Index'!$J$2:$J$1000"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE)) # ATTAINS.WaterType
-  suppressWarnings(openxlsx::dataValidation(wb, sheet = "DefineMagnitude", cols = 8, rows = 2:1000, type = "list", value = sprintf("'Index'!$K$2:$K$1000"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE)) # AcuteChronic
-  suppressWarnings(openxlsx::dataValidation(wb, sheet = "DefineMagnitude", cols = 9, rows = 2:1000, type = "list", value = sprintf("'Index'!$L$2:$L$1000"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE)) # SaltFresh
-  suppressWarnings(openxlsx::dataValidation(wb, sheet = "DefineMagnitude", cols = 12, rows = 2:1000, type = "list", value = sprintf("'Index'!$M$2:$M$1000"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE)) # Season
-  suppressWarnings(openxlsx::dataValidation(wb, sheet = "DefineMagnitude", cols = 14, rows = 2:1000, type = "list", value = sprintf("'Index'!$N$2:$N$1000"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE)) # ApplyUniqueSpatialCriteria
-  suppressWarnings(openxlsx::dataValidation(wb, sheet = "DefineMagnitude", cols = 15, rows = 2:1000, type = "list", value = sprintf("'Index'!$O$2:$O$1000"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE)) # EquationBased
-  suppressWarnings(openxlsx::dataValidation(wb, sheet = "DefineMagnitude", cols = 18, rows = 2:1000, type = "list", value = sprintf("'Index'!$P$2:$P$1000"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE)) # MagnitudeUnit
-
-  # Conditional Formatting
-  openxlsx::freezePane(wb, "DefineMagnitude", firstActiveRow = 2, firstActiveCol = 6)
-  openxlsx::conditionalFormatting(wb, "DefineMagnitude",
-                                  cols = 5:18, rows = 2:(nrow(DefineMagnitude) + 1),
-                                  type = "notBlanks", style = openxlsx::createStyle(bgFill = TADA_ColorPalette()[8])) # default values or indicates good to go cells.
-  openxlsx::conditionalFormatting(wb, "DefineMagnitude",
-                                  cols = 5:18, rows = 2:(nrow(DefineMagnitude) + 1),
-                                  type = "blanks", style = openxlsx::createStyle(bgFill = TADA_ColorPalette()[13])) # modified cells.
-  
-  # Saving of the file if overwrite = TRUE or if the file is not found in the defined folder path. If is not saved, a dataframe is still returned.
-  if(overwrite == TRUE){
-    openxlsx::saveWorkbook(wb, downloads_path, overwrite = T)
+    # Conditional Formatting
+    openxlsx::freezePane(wb, "DefineMagnitude", firstActiveRow = 2, firstActiveCol = 6)
+    openxlsx::conditionalFormatting(wb, "DefineMagnitude",
+                                    cols = 5:18, rows = 2:(nrow(DefineMagnitude) + 1),
+                                    type = "notBlanks", style = openxlsx::createStyle(bgFill = TADA_ColorPalette()[8])) # default values or indicates good to go cells.
+    openxlsx::conditionalFormatting(wb, "DefineMagnitude",
+                                    cols = 5:18, rows = 2:(nrow(DefineMagnitude) + 1),
+                                    type = "blanks", style = openxlsx::createStyle(bgFill = TADA_ColorPalette()[13])) # modified cells.
+    
+    # Saving of the file if overwrite = TRUE or if the file is not found in the defined folder path. If is not saved, a dataframe is still returned.
+    if(overwrite == TRUE){
+      openxlsx::saveWorkbook(wb, downloads_path, overwrite = T)
+    }
+    
+    if(overwrite == FALSE){
+      warning("If you would like to replace the file, use overwrite = TRUE argument in TADA_CreateParamRef")
+      openxlsx::saveWorkbook(wb, downloads_path, overwrite = F)
+    }
+    
+    cat("File saved to:", gsub("/","\\\\",downloads_path), "\n")
   }
-  
-  if(overwrite == FALSE){
-    warning("If you would like to replace the file, use overwrite = TRUE argument in TADA_CreateParamRef")
-    openxlsx::saveWorkbook(wb, downloads_path, overwrite = F)
-  }
-  
-  cat("File saved to:", gsub("/","\\\\",downloads_path), "\n")
   
   return(DefineMagnitude)
 }
