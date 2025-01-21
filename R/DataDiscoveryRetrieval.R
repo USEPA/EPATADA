@@ -54,7 +54,7 @@
 #' @param organization A string of letters and/or numbers (some additional characters also possible) used to signify an organization with data in the Water Quality Portal. See https://www.waterqualitydata.us/Codes/organization for options.
 #' @param project A string of letters and/or numbers (some additional characters also possible) used to signify a project with data in the Water Quality Portal. See https://www.waterqualitydata.us/Codes/project for options.
 #' @param providers Leave blank to include all, or specify "STEWARDS", "STORET" (i.e., WQX), and/or "NWIS". See https://www.waterqualitydata.us/Codes/providers for options.
-#' @param maxrecs Maximum number of records to query at once.
+#' @param maxrecs Maximum number of records to query at once (i.e., without breaking into smaller queries).
 #' @param ask A logical value indicating whether the user should be asked for approval before downloads begin.
 #' @param applyautoclean Logical, defaults to TRUE. Applies TADA_AutoClean function on the returned data profile. Suggest switching to FALSE for queries that are expected to be large.
 #'
