@@ -24,8 +24,8 @@ monitoring location identifier column displays the original WQP
 'MonitoringLocationIdentifier' or the 'TADA.MonitoringLocationIdentifier'.
 }
 \examples{
-data(Data_6Tribes_5y)
-orgsite_crosswalk_originalwqp = TADA_GetMonLocByOrgId(Data_6Tribes_5y, id = "wqp")
-orgsite_crosswalk_tada = TADA_GetMonLocByOrgId(Data_6Tribes_5y, id = "tada")
+data(Data_6Tribes_5y_Harmonized)
+orgsite_crosswalk_originalwqp = TADA_GetMonLocByOrgId(Data_6Tribes_5y_Harmonized, id = "wqp")
+orgsite_crosswalk_tada = TADA_GetMonLocByOrgId(Data_6Tribes_5y_Harmonized, id = "tada")
 
 }
