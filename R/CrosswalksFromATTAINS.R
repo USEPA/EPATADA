@@ -94,12 +94,13 @@ TADA_GetATTAINSAUSiteCrosswalk <- function(org_id = NULL) {
 
 WQXProviderRef_Cached <- NULL
 
-#' Get Provider Ref for All Organizations (IN ACTIVE DEVELOPMENT)
+#' Get Organization and Provider Reference Table for All Organizations in WQP (IN ACTIVE DEVELOPMENT)
 #'
-#' This function creates a crosswalk of WQP OrganizationIdentifier and 
-#' WQP OrganizationFormalName with ProviderName.
+#' This function creates a crosswalk of all WQP OrganizationIdentifiers, 
+#' OrganizationFormalNames, and ProviderNames.
 #'
-#' @return A crosswalk of monitoring locations and organization identifiers.
+#' @return A crosswalk dataframe including the following columns: 
+#' OrganizationIdentifier, OrganizationFormalName, ProviderName.
 #'
 #' @export
 #'
@@ -129,7 +130,7 @@ TADA_GetProviderRef <- function() {
 
   # If the download failed fall back to internal data (and report it)
   if (is.null(raw.data)) {
-    message("Downloading latest Organization and Provider Reference Table failed!")
+    message("Downloading latest WQP Organization and Provider Reference Table failed!")
     message("Falling back to (possibly outdated) internal file.")
     return(utils::read.csv(system.file("extdata", "WQXProviderRef.csv", package = "EPATADA")))
   }
@@ -173,10 +174,11 @@ TADA_UpdateProviderRef <- function() {
 #' MS_DATA_LINK_TEXT column. When data_links = "none", no URLs will be created
 #' or added to the df. Default is data_links = "update".
 #'
-#' @param attains_replace Character argument. When attains_replace = FALSE, all Monitoring
-#' Locations associated with an Assessment Unit in ATTAINS will be retained even if they are not
-#' included in the user supplied crosswalk. When attains_replace = TRUE, Monitoring Locations will
-#' only be retained if they are in the user supplied crosswalk. Default equals FALSE.
+#' @param attains_replace Character argument. When attains_replace = FALSE, all 
+#' Monitoring Location Identifiers associated with an Assessment Unit in ATTAINS
+#' will be retained even if they are not included in the user supplied crosswalk.
+#' When attains_replace = TRUE, Monitoring Location Identifiers will only be 
+#' retained if they are in the user supplied crosswalk. Default equals FALSE.
 #'
 #' @param crosswalk A user-supplied dataframe with the columns ASSESSMENT_UNIT_ID and
 #' MS_LOCATION_ID.When crosswalk = NULL, the crosswalk will be downloaded from ATTAINS.This allows
@@ -190,7 +192,7 @@ TADA_UpdateProviderRef <- function() {
 #' @examples
 #' \dontrun{
 #' # Alaska example
-#' AK_crosswalk <- TADA_GetATTAINSAUSiteCrosswalk(org_id = "AKDECWQ")
+#' AK_batchAUupload <- TADA_UpdateMonitoringLocationsInATTAINS(org_id = "AKDECWQ", crosswalk = NULL, attains_replace = FALSE, data_links = "update")
 #' }
 #'
 TADA_UpdateMonitoringLocationsInATTAINS <- function(org_id = NULL,

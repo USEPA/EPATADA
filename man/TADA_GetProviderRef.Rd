@@ -2,16 +2,17 @@
 % Please edit documentation in R/CrosswalksFromATTAINS.R
 \name{TADA_GetProviderRef}
 \alias{TADA_GetProviderRef}
-\title{Get Provider Ref for All Organizations (IN ACTIVE DEVELOPMENT)}
+\title{Get Organization and Provider Reference Table for All Organizations in WQP (IN ACTIVE DEVELOPMENT)}
 \usage{
 TADA_GetProviderRef()
 }
 \value{
-A crosswalk of monitoring locations and organization identifiers.
+A crosswalk dataframe including the following columns:
+OrganizationIdentifier, OrganizationFormalName, ProviderName.
 }
 \description{
-This function creates a crosswalk of WQP OrganizationIdentifier and
-WQP OrganizationFormalName with ProviderName.
+This function creates a crosswalk of all WQP OrganizationIdentifiers,
+OrganizationFormalNames, and ProviderNames.
 }
 \examples{
 \dontrun{

@@ -24,10 +24,11 @@ MS_LOCATION_ID.When crosswalk = NULL, the crosswalk will be downloaded from ATTA
 users to add URL for the Water Quality Portal Data Site page to Monitoring Locations where
 possible without updating other information in ATTAINS.}
 
-\item{attains_replace}{Character argument. When attains_replace = FALSE, all Monitoring
-Locations associated with an Assessment Unit in ATTAINS will be retained even if they are not
-included in the user supplied crosswalk. When attains_replace = TRUE, Monitoring Locations will
-only be retained if they are in the user supplied crosswalk. Default equals FALSE.}
+\item{attains_replace}{Character argument. When attains_replace = FALSE, all
+Monitoring Location Identifiers associated with an Assessment Unit in ATTAINS
+will be retained even if they are not included in the user supplied crosswalk.
+When attains_replace = TRUE, Monitoring Location Identifiers will only be
+retained if they are in the user supplied crosswalk. Default equals FALSE.}
 
 \item{data_links}{Character argument. When data_links is equal to "update"
 or "replace", the function will build the URL for the Water Quality Portal
@@ -51,7 +52,7 @@ Monitoring Location Identifiers should be appended to existing records.
 \examples{
 \dontrun{
 # Alaska example
-AK_crosswalk <- TADA_GetATTAINSAUSiteCrosswalk(org_id = "AKDECWQ")
+AK_batchAUupload <- TADA_UpdateMonitoringLocationsInATTAINS(org_id = "AKDECWQ", crosswalk = NULL, attains_replace = FALSE, data_links = "update")
 }
 
 }
