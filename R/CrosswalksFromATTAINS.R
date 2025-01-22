@@ -85,7 +85,7 @@ TADA_GetATTAINSAUSiteCrosswalk <- function(org_id = NULL) {
       print(paste0(
         "TADA_GetATTAINSAUSiteCrosswalk: ",
         "No MonitoringLocationIdentifiers were recorded in ATTAINS for ",
-        org_id, " Assessment Units."
+        org_id, " Assessment Units.", "No crosswalk can be returned."
       ))
       
       rm(au.crosswalk)
