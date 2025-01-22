@@ -964,7 +964,8 @@ TADA_RandomTestingData <- function(number_of_days = 1, choose_random_state = FAL
         startDate = as.character(random_start_date),
         endDate = as.character(end_date),
         statecode = state,
-        applyautoclean = TRUE
+        applyautoclean = TRUE,
+        ask = FALSE
       )
     }
 
@@ -973,7 +974,8 @@ TADA_RandomTestingData <- function(number_of_days = 1, choose_random_state = FAL
         startDate = as.character(random_start_date),
         endDate = as.character(end_date),
         statecode = state,
-        applyautoclean = FALSE
+        applyautoclean = FALSE,
+        ask = FALSE
       )
     }
 

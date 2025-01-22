@@ -269,7 +269,7 @@ as a query filter. We can match the output of the two short examples above like 
 
 ```{r TADA_DataRetrieval_spatial}
 TADAProfile_spatial <- TADA_DataRetrieval(
-  aoi_sf = tigris::native_areas() %>% filter(NAMELSAD == "Pueblo of Pojoaque"),
+  aoi_sf = tigris::native_areas() %>% dplyr::filter(NAMELSAD == "Pueblo of Pojoaque"),
   startDate = "2018-01-01",
   endDate = "2019-01-01",
   applyautoclean = FALSE,
@@ -322,13 +322,13 @@ examples below can take multiple HOURS to run. The total run time
 depends on your query inputs.
 
 ```{r BigdataRetrieval, eval = FALSE, results = 'hide'}
-# AK_AL_WaterTemp <- TADA_BigDataRetrieval(startDate = "2000-01-01", endDate = "2022-12-31", characteristicName = "Temperature, water", statecode = c("AK","AL"))
+# AK_AL_WaterTemp <- TADA_DataRetrieval(startDate = "2000-01-01", endDate = "2022-12-31", characteristicName = "Temperature, water", statecode = c("AK","AL"))
 
-# AllWaterTemp <- TADA_BigDataRetrieval(characteristicName = "Temperature, water")
+# AllWaterTemp <- TADA_DataRetrieval(characteristicName = "Temperature, water")
 
-# AllPhosphorus <- TADA_BigDataRetrieval(characteristicName = "Phosphorus")
+# AllPhosphorus <- TADA_DataRetrieval(characteristicName = "Phosphorus")
 
-# AllCT <- TADA_BigDataRetrieval(statecode = "CT")
+# AllCT <- TADA_DataRetrieval(statecode = "CT")
 ```
 
 ## Filter data based on media type

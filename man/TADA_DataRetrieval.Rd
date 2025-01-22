@@ -23,6 +23,7 @@ TADA_DataRetrieval(
   project = "null",
   providers = "null",
   maxrecs = 250000,
+  ask = TRUE,
   applyautoclean = TRUE
 )
 }
@@ -60,6 +61,10 @@ TADA_DataRetrieval(
 \item{project}{A string of letters and/or numbers (some additional characters also possible) used to signify a project with data in the Water Quality Portal. See https://www.waterqualitydata.us/Codes/project for options.}
 
 \item{providers}{Leave blank to include all, or specify "STEWARDS", "STORET" (i.e., WQX), and/or "NWIS". See https://www.waterqualitydata.us/Codes/providers for options.}
+
+\item{maxrecs}{Maximum number of records to query at once (i.e., without breaking into smaller queries).}
+
+\item{ask}{A logical value indicating whether the user should be asked for approval before downloads begin.}
 
 \item{applyautoclean}{Logical, defaults to TRUE. Applies TADA_AutoClean function on the returned data profile. Suggest switching to FALSE for queries that are expected to be large.}
 }
