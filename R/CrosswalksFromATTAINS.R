@@ -1,13 +1,13 @@
-#' Get WQP/WQX MonitoringLocationIdentifier and ATTAINS.assessmentunitidentifier Crosswalk from ATTAINS
+#' Get WQP/WQX MonitoringLocationIdentifier and ATTAINS.assessmentunitidentifier Crosswalk 
+#' from ATTAINS
 #'
 #' Tribes and States who participate in electronic reporting of water quality conditions
-#' through EPA ATTAINS may also submit a crosswalk of WQP 
-#' MonitoringLocationIdentifiers associated with their Assessment Units to ATTAINS. 
-#' If the organization has recorded MonitoringLocationIdentifiers associated with their
-#' Assessment Units in ATTAINS, this function can be used to create a crosswalk of known
-#' MonitoringLocationIdentifiers and Assessment Units. All tribal nations record this 
-#' crosswalk in ATTAINS but only a few states. If a state has not supplied this 
-#' crosswalk to ATTAINS, the function will return a blank dataframe.
+#' through EPA ATTAINS may also submit a crosswalk of WQP MonitoringLocationIdentifiers associated 
+#' with their Assessment Units to ATTAINS. If the organization has recorded 
+#' MonitoringLocationIdentifiers associated with their Assessment Units in ATTAINS, this function 
+#' can be used to create a crosswalk of known MonitoringLocationIdentifiers and Assessment Units. 
+#' All tribal nations record this crosswalk in ATTAINS but only a few states. If a state has not 
+#' supplied this crosswalk to ATTAINS, the function not return a data frame.
 #'
 #' @param org_id The ATTAINS organization identifier must be supplied by the user. A list of
 #' organization identifiers can be found by downloading the ATTAINS Domains Excel file:
@@ -87,7 +87,8 @@ TADA_GetATTAINSAUSiteCrosswalk <- function(org_id = NULL) {
         "No MonitoringLocationIdentifiers were recorded in ATTAINS for ",
         org_id, " Assessment Units."
       ))
-      return(au.crosswalk)
+      
+      rm(au.crosswalk)
     }
   }
 }
