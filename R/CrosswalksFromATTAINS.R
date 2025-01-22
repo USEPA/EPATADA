@@ -85,7 +85,7 @@ TADA_GetATTAINSAUSiteCrosswalk <- function(org_id = NULL) {
       print(paste0(
         "TADA_GetATTAINSAUSiteCrosswalk: ",
         "No MonitoringLocationIdentifiers were recorded in ATTAINS for ",
-        org_id, " Assessment Units.", "No crosswalk can be returned."
+        org_id, " Assessment Units.", " No crosswalk can be returned."
       ))
       
       rm(au.crosswalk)
@@ -193,7 +193,8 @@ TADA_UpdateProviderRef <- function() {
 #' @examples
 #' \dontrun{
 #' # Alaska example
-#' AK_batchAUupload <- TADA_UpdateMonitoringLocationsInATTAINS(org_id = "AKDECWQ", crosswalk = NULL, attains_replace = FALSE, data_links = "update")
+#' AK_batchAUupload <- TADA_UpdateMonitoringLocationsInATTAINS(org_id = "AKDECWQ", crosswalk = NULL, 
+#'                                                attains_replace = FALSE, data_links = "update")
 #' }
 #'
 TADA_UpdateMonitoringLocationsInATTAINS <- function(org_id = NULL,
@@ -242,13 +243,18 @@ TADA_UpdateMonitoringLocationsInATTAINS <- function(org_id = NULL,
       )
 
       TADA_CheckColumns(crosswalk, expected_cols)
+    }
 
       if (attains_replace == FALSE) {
         # create assessment unit crosswalk from ATTAINS
-        attains.crosswalk <- TADA_GetATTAINSAUSiteCrosswalk(org_id = org_id)
+        attains.crosswalk <- TADA_GetATTAINSAUSiteCrosswalk(org_id = org_id) %>%
+          dplyr::rename(ASSESSMENT_UNIT_ID = ATTAINS.assessmentunitidentifier,
+                        MS_ORG_ID = OrganizationIdentifier, 
+                        MS_LOCATION_ID = MonitoringLocationIdentifier) 
 
         if(is.null(crosswalk)) {
           update.crosswalk <- attains.crosswalk
+            
           
           rm(attains.crosswalk)
         }
@@ -256,10 +262,6 @@ TADA_UpdateMonitoringLocationsInATTAINS <- function(org_id = NULL,
         if(!is.null(crosswalk)) {
         # filter crosswalk from ATTAINS to retain only Assessment Units included in user-supplied
         # crosswalk
-        attains.crosswalk <- dplyr::rename(attains.crosswalk,  
-                                           ASSESSMENT_UNIT_ID = ATTAINS.assessmentunitidentifier,
-                                           MS_ORG_ID = OrganizationIdentifier, 
-                                           MS_LOCATION_ID = MonitoringLocationIdentifier)  
           
         attains.crosswalk <- attains.crosswalk %>%
           dplyr::filter(ASSESSMENT_UNIT_ID %in% crosswalk$ASSESSMENT_UNIT_ID)
@@ -336,6 +338,7 @@ TADA_UpdateMonitoringLocationsInATTAINS <- function(org_id = NULL,
         # join response codes to add.urls df
         update.crosswalk <- update.crosswalk %>%
           dplyr::left_join(response.df, by = dplyr::join_by(MONITORING_DATA_LINK_TEXT.New))
+      }
 
         if (data_links == "replace") {
           update.crosswalk <- update.crosswalk %>%
@@ -372,8 +375,6 @@ TADA_UpdateMonitoringLocationsInATTAINS <- function(org_id = NULL,
             dplyr::distinct()
         }
       }
-    }
-  }
   return(update.crosswalk)
 }
 
