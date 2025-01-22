@@ -95,10 +95,10 @@ TADA_GetATTAINSAUSiteCrosswalk <- function(org_id = NULL) {
 
 WQXProviderRef_Cached <- NULL
 
-#' Get Organization and Provider Reference Table for All Organizations in WQP (IN ACTIVE DEVELOPMENT)
+#' Get Organization and Provider Reference Table (IN ACTIVE DEVELOPMENT)
 #'
-#' This function creates a crosswalk of all WQP OrganizationIdentifiers, 
-#' OrganizationFormalNames, and ProviderNames.
+#' This function creates a crosswalk of all OrganizationIdentifiers, 
+#' OrganizationFormalNames, and ProviderNames in the Water Quality Portal (WQP).
 #'
 #' @return A crosswalk dataframe including the following columns: 
 #' OrganizationIdentifier, OrganizationFormalName, ProviderName.
@@ -151,12 +151,12 @@ TADA_UpdateProviderRef <- function() {
 }
 
 
-#' Update Monitoring Location Identifiers in ATTAINS
+#' Add or Update Monitoring Location Identifiers in ATTAINS
 #'
-#' This function creates the batch upload files needed to update the 
+#' This function creates the batch upload files needed to add or update  
 #' Monitoring Location Identifiers in ATTAINS Assessment Unit profiles. Users
-#' can specify whether all records should be overwritten or if new 
-#' Monitoring Location Identifiers should be appended to existing records.
+#' can specify whether all records should be overwritten (replaced) or if new 
+#' Monitoring Location Identifiers should be appended (added) to existing records.
 #'
 #' @param org_id Character argument. The ATTAINS organization identifier must  
 #' be supplied by the user. A list of organization identifiers can be found by
@@ -165,15 +165,15 @@ TADA_UpdateProviderRef <- function() {
 #' Organization identifiers are listed in the "OrgName" tab. The "code" column
 #' contains the organization identifiers that should be used for this param.
 #'
-#' @param data_links Character argument. When data_links is equal to "update" 
+#' @param wqp_data_links Character argument. When wqp_data_links is equal to "add" 
 #' or "replace", the function will build the URL for the Water Quality Portal 
-#' Data Site page for each Monitoring Location in the df. It will examine the 
-#' response codes of the URLs and only retain those with a 200 response, which 
-#' indicates they are valid urls. When data_links = "update", the url will be 
-#' added to any existing text in the MS_DATA_LINK_TEXT column. When 
-#' data_links = "replace", the url will replace any existing text in the
-#' MS_DATA_LINK_TEXT column. When data_links = "none", no URLs will be created
-#' or added to the df. Default is data_links = "update".
+#' Data Site page for each Monitoring Location Identifier in the data frame. It will 
+#' examine the response code of each URL and only retain those with a 
+#' 200 response, which indicates the URL is valid. When wqp_data_links = "add", 
+#' the URL will be added to any existing text in the MS_DATA_LINK_TEXT column. 
+#' When wqp_data_links = "replace", the URL will replace any existing text in the
+#' MS_DATA_LINK_TEXT column. When wqp_data_links = "none", no URLs will be created
+#' or added to the returned data frame. Default is wqp_data_links = "add".
 #'
 #' @param attains_replace Character argument. When attains_replace = FALSE, all 
 #' Monitoring Location Identifiers associated with an Assessment Unit in ATTAINS
@@ -181,25 +181,26 @@ TADA_UpdateProviderRef <- function() {
 #' When attains_replace = TRUE, Monitoring Location Identifiers will only be 
 #' retained if they are in the user supplied crosswalk. Default equals FALSE.
 #'
-#' @param crosswalk A user-supplied dataframe with the columns ASSESSMENT_UNIT_ID and
-#' MS_LOCATION_ID.When crosswalk = NULL, the crosswalk will be downloaded from ATTAINS.This allows
-#' users to add URL for the Water Quality Portal Data Site page to Monitoring Locations where
-#' possible without updating other information in ATTAINS.
+#' @param crosswalk A user-supplied dataframe with the columns ASSESSMENT_UNIT_ID
+#' and MS_LOCATION_ID. When crosswalk = NULL, the crosswalk will be downloaded 
+#' from ATTAINS. This allows users to add URLs for the Water Quality Portal Data 
+#' Site pages to the ATTAINS Assessment Unit profile where possible without 
+#' updating other information in ATTAINS.
 #'
-#' @return The csv batch upload files for ATTAINS to update Monitoring Locations.
+#' @return The csv batch upload files for ATTAINS to add or update Monitoring Locations.
 #'
 #' @export
 #'
 #' @examples
 #' \dontrun{
 #' # Alaska example
-#' AK_batchAUupload <- TADA_UpdateMonitoringLocationsInATTAINS(org_id = "AKDECWQ", crosswalk = NULL, attains_replace = FALSE, data_links = "update")
+#' AK_batchAUupload <- TADA_UpdateMonitoringLocationsInATTAINS(org_id = "AKDECWQ", crosswalk = NULL, attains_replace = FALSE, wqp_data_links = "add")
 #' }
 #'
 TADA_UpdateMonitoringLocationsInATTAINS <- function(org_id = NULL,
                                                     crosswalk = NULL,
                                                     attains_replace = FALSE,
-                                                    data_links = "update") {
+                                                    wqp_data_links = "add") {
   # get list of organization identifiers from ATTAINS
   org.ref <- utils::read.csv(system.file("extdata", "ATTAINSOrgIDsRef.csv", package = "EPATADA"))
 
@@ -285,9 +286,9 @@ TADA_UpdateMonitoringLocationsInATTAINS <- function(org_id = NULL,
         rm(attains.crosswalk, crosswalk)
       }
 
-      # add Monitoring Location data links if data_links is not equal to "none"
+      # add Monitoring Location data links if wqp_data_links is not equal to "none"
 
-      if (data_links != "none") {
+      if (wqp_data_links != "none") {
         # get org/provider name ref from TADA ref files
         provider.ref <- utils::read.csv(system.file("extdata", "WQXProviderRef.csv", package = "EPATADA")) %>%
           dplyr::select(OrganizationIdentifier, ProviderName) %>%
@@ -337,7 +338,7 @@ TADA_UpdateMonitoringLocationsInATTAINS <- function(org_id = NULL,
         update.crosswalk <- update.crosswalk %>%
           dplyr::left_join(response.df, by = dplyr::join_by(MONITORING_DATA_LINK_TEXT.New))
 
-        if (data_links == "replace") {
+        if (wqp_data_links == "replace") {
           update.crosswalk <- update.crosswalk %>%
             dplyr::mutate(MONITORING_DATA_LINK_TEXT = ifelse(
               grepl("200", response.code), MONITORING_DATA_LINK_TEXT.New,
@@ -350,7 +351,7 @@ TADA_UpdateMonitoringLocationsInATTAINS <- function(org_id = NULL,
             dplyr::distinct()
         }
 
-        if (data_links == "update") {
+        if (wqp_data_links == "add") {
           update.crosswalk <- update.crosswalk %>%
             dplyr::mutate(
               MONITORING_DATA_LINK_TEXT = ifelse(
@@ -422,5 +423,4 @@ TADA_UpdateMonitoringLocationsInATTAINS <- function(org_id = NULL,
 #                 LOCATION_TYPE_CODE = location_type_code,
 #                 LOCATION_TYPE_CONTEXT = organization_identifier,
 #                 LOCATION_TEXT = location_text)
-
 # Monitoring_Stations <- ASSESSMENT_UNIT_ID, MS_ORG_ID, MS_LOCATION_ID, MS_DATA_LINK

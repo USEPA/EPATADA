@@ -2,13 +2,13 @@
 % Please edit documentation in R/CrosswalksFromATTAINS.R
 \name{TADA_UpdateMonitoringLocationsInATTAINS}
 \alias{TADA_UpdateMonitoringLocationsInATTAINS}
-\title{Update Monitoring Location Identifiers in ATTAINS}
+\title{Add or Update Monitoring Location Identifiers in ATTAINS}
 \usage{
 TADA_UpdateMonitoringLocationsInATTAINS(
   org_id = NULL,
   crosswalk = NULL,
   attains_replace = FALSE,
-  data_links = "update"
+  wqp_data_links = "add"
 )
 }
 \arguments{
@@ -19,10 +19,11 @@ https://www.epa.gov/system/files/other-files/2023-09/DOMAINS.xlsx.
 Organization identifiers are listed in the "OrgName" tab. The "code" column
 contains the organization identifiers that should be used for this param.}
 
-\item{crosswalk}{A user-supplied dataframe with the columns ASSESSMENT_UNIT_ID and
-MS_LOCATION_ID.When crosswalk = NULL, the crosswalk will be downloaded from ATTAINS.This allows
-users to add URL for the Water Quality Portal Data Site page to Monitoring Locations where
-possible without updating other information in ATTAINS.}
+\item{crosswalk}{A user-supplied dataframe with the columns ASSESSMENT_UNIT_ID
+and MS_LOCATION_ID. When crosswalk = NULL, the crosswalk will be downloaded
+from ATTAINS. This allows users to add URLs for the Water Quality Portal Data
+Site pages to the ATTAINS Assessment Unit profile where possible without
+updating other information in ATTAINS.}
 
 \item{attains_replace}{Character argument. When attains_replace = FALSE, all
 Monitoring Location Identifiers associated with an Assessment Unit in ATTAINS
@@ -30,29 +31,29 @@ will be retained even if they are not included in the user supplied crosswalk.
 When attains_replace = TRUE, Monitoring Location Identifiers will only be
 retained if they are in the user supplied crosswalk. Default equals FALSE.}
 
-\item{data_links}{Character argument. When data_links is equal to "update"
+\item{wqp_data_links}{Character argument. When wqp_data_links is equal to "add"
 or "replace", the function will build the URL for the Water Quality Portal
-Data Site page for each Monitoring Location in the df. It will examine the
-response codes of the URLs and only retain those with a 200 response, which
-indicates they are valid urls. When data_links = "update", the url will be
-added to any existing text in the MS_DATA_LINK_TEXT column. When
-data_links = "replace", the url will replace any existing text in the
-MS_DATA_LINK_TEXT column. When data_links = "none", no URLs will be created
-or added to the df. Default is data_links = "update".}
+Data Site page for each Monitoring Location Identifier in the data frame. It will
+examine the response code of each URL and only retain those with a
+200 response, which indicates the URL is valid. When wqp_data_links = "add",
+the URL will be added to any existing text in the MS_DATA_LINK_TEXT column.
+When wqp_data_links = "replace", the URL will replace any existing text in the
+MS_DATA_LINK_TEXT column. When wqp_data_links = "none", no URLs will be created
+or added to the returned data frame. Default is wqp_data_links = "add".}
 }
 \value{
-The csv batch upload files for ATTAINS to update Monitoring Locations.
+The csv batch upload files for ATTAINS to add or update Monitoring Locations.
 }
 \description{
-This function creates the batch upload files needed to update the
+This function creates the batch upload files needed to add or update
 Monitoring Location Identifiers in ATTAINS Assessment Unit profiles. Users
-can specify whether all records should be overwritten or if new
-Monitoring Location Identifiers should be appended to existing records.
+can specify whether all records should be overwritten (replaced) or if new
+Monitoring Location Identifiers should be appended (added) to existing records.
 }
 \examples{
 \dontrun{
 # Alaska example
-AK_batchAUupload <- TADA_UpdateMonitoringLocationsInATTAINS(org_id = "AKDECWQ", crosswalk = NULL, attains_replace = FALSE, data_links = "update")
+AK_batchAUupload <- TADA_UpdateMonitoringLocationsInATTAINS(org_id = "AKDECWQ", crosswalk = NULL, attains_replace = FALSE, wqp_data_links = "add")
 }
 
 }
