@@ -418,7 +418,7 @@ test_that("TADA_DataRetrieval", {
 # test_that("Reg&BigdataRetrieval", {
 #   # big <- TADA_BigDataRetrieval(characteristicName = "Algae, substrate rock/bank cover (choice list)", sampleMedia = "Water", siteType = "Stream", startDate = "2020-01-01", applyautoclean = FALSE)
 #   reg <- TADA_DataRetrieval(characteristicName = "Algae, substrate rock/bank cover (choice list)", sampleMedia = "Water", siteType = "Stream", startDate = "2020-01-01", applyautoclean = FALSE, ask = FALSE)
-# 
+#
 #   expect_equal(nrow(big), nrow(reg))
 # })
 
@@ -428,7 +428,7 @@ test_that("TADA_DataRetrieval", {
 #   endDate <- "2021-09-30"
 #   # big <- TADA_BigDataRetrieval(startDate = startDate, endDate = endDate, huc = c("04030202", "04030201"), characteristicName = "Escherichia coli", siteType = "Stream")
 #   logic <- min(big$ActivityStartDate) >= as.Date(startDate, format = "%Y-%m-%d") & max(big$ActivityStartDate) <= as.Date(endDate, format = "%Y-%m-%d")
-# 
+#
 #   expect_true(logic)
 # })
 
