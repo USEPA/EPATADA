@@ -302,6 +302,10 @@ For these, we implemented a solution using NHDPlusTools to pull in either NHDPlu
 
 -   Do we want to include anything else from StreamCatTools or other packages here to help with new AU delineation?
 
+# Contribute
+
+Contribute to TADA in a way that helps elevate work you have already done, broadens the user base of the tool, or improves the tools.
+
 # Conclusion
 
 ```{r}
