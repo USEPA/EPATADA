@@ -73,24 +73,26 @@
 #' # example for WI
 #' tada1 <- TADA_DataRetrieval(
 #'   statecode = "WI", countycode = "Dane",
-#'   characteristicName = "Phosphorus"
+#'   characteristicName = "Phosphorus",
+#'   ask = FALSE
 #' )
 #'
 #' # example for UT
 #' tada2 <- TADA_DataRetrieval(
 #'   statecode = "UT",
-#'   characteristicName = c("Ammonia", "Nitrate", "Nitrogen")
+#'   characteristicName = c("Ammonia", "Nitrate", "Nitrogen"),
+#'   ask = FALSE
 #' )
 #'
 #' # example for SC
-#' tada3 <- TADA_DataRetrieval(statecode = "SC", countycode = "Abbeville")
+#' tada3 <- TADA_DataRetrieval(statecode = "SC", countycode = "Abbeville", ask = FALSE)
 #'
 #' # example for CT
-#' tada4 <- TADA_DataRetrieval(statecode = "CT", startDate = "2020-10-01")
+#' tada4 <- TADA_DataRetrieval(statecode = "CT", startDate = "2020-10-01", ask = FALSE)
 #'
 #'
 #' # note that countycode queries require a statecode (see example below)
-#' tada5 <- TADA_DataRetrieval(countycode = "US:02:020")
+#' tada5 <- TADA_DataRetrieval(countycode = "US:02:020", ask = FALSE)
 #'
 #' # example for NM
 #' tada6 <- TADA_DataRetrieval(
@@ -100,11 +102,12 @@
 #'     "Nitrate",
 #'     "Nitrogen"
 #'   ),
-#'   startDate = "2020-05-01"
+#'   startDate = "2020-05-01",
+#'   ask = FALSE
 #' )
 #'
 #' # example for AK project
-#' tada7 <- TADA_DataRetrieval(project = "Anchorage Bacteria 20-21")
+#' tada7 <- TADA_DataRetrieval(project = "Anchorage Bacteria 20-21", ask = FALSE)
 #'
 #' # another example for AK
 #' tada8 <- TADA_DataRetrieval(
@@ -117,7 +120,8 @@
 #'     "Nitrate",
 #'     "Nitrogen"
 #'   ),
-#'   startDate = "2018-05-01"
+#'   startDate = "2018-05-01",
+#'   ask = FALSE
 #' )
 #'
 #' # example for tribes
@@ -160,7 +164,8 @@
 #'   "CHOCNATWQX",
 #'   "WNENVDPT_WQX",
 #'   "PUEBLO_POJOAQUE"
-#' ))
+#' ),
+#' ask = FALSE)
 #'
 #' # query only NWIS data for a 10 year period in CT
 #' tada10 <- TADA_DataRetrieval(
@@ -169,13 +174,15 @@
 #'   sampleMedia = c("Water", "water"),
 #'   statecode = "CT", # consider downloading only 1 state at a time
 #'   providers = "NWIS",
-#'   applyautoclean = FALSE
+#'   applyautoclean = FALSE,
+#'   ask = FALSE
 #' )
 #'
 #' # query by country code (e.g. Canada, countrycode = "CA")
 #' tada11 <- TADA_DataRetrieval(
 #'   startDate = "2015-01-01",
-#'   countrycode = "CA"
+#'   countrycode = "CA",
+#'   ask = FALSE
 #' )
 #' }
 #'

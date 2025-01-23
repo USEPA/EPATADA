@@ -26,7 +26,8 @@ tada_data <- TADA_DataRetrieval(
   endDate = "1990-01-15",
   characteristicName = "pH",
   statecode = "CO",
-  applyautoclean = TRUE
+  applyautoclean = TRUE,
+  ask = FALSE
 )
 
 nhd_data <- fetchNHD(.data = tada_data, resolution = "Hi", features = c("catchments", "waterbodies", "flowlines"))

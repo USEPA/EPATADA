@@ -55,7 +55,7 @@ attachment at the activity level.
 }
 \examples{
 \dontrun{
-all_data <- TADA_DataRetrieval(project = c("Continuous LC1", "MA_Continuous", "Anchorage Bacteria 20-21"))
+all_data <- TADA_DataRetrieval(project = c("Continuous LC1", "MA_Continuous", "Anchorage Bacteria 20-21"), ask = FALSE)
 
 # Flag continuous data in new column titled "TADA.ContinuousData.Flag"
 all_data_flags <- TADA_FlagContinuousData(all_data, clean = FALSE)

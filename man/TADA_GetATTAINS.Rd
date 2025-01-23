@@ -40,7 +40,8 @@ tada_data <- TADA_DataRetrieval(
   endDate = "2018-07-31",
   characteristicName = "pH",
   statecode = "IL",
-  applyautoclean = TRUE
+  applyautoclean = TRUE,
+  ask = FALSE
 )
 
 # note: these example ATTAINS data retrieval queries below may take a long time (10+ minutes) to run

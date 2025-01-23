@@ -207,7 +207,8 @@ TADA_CreatePairRef <- function(.data, ph = TRUE, hardness = TRUE, temp = TRUE,
 #' AL_df <- TADA_DataRetrieval(
 #'   startDate = "2010-11-30",
 #'   endDate = "2010-12-01",
-#'   statecode = "AL"
+#'   statecode = "AL",
+#'   ask = FALSE
 #' )
 #'
 #' AL_PairRef <- TADA_PairForCriteriaCalc(AL_df)

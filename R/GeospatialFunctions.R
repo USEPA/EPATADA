@@ -20,7 +20,8 @@
 #'   characteristicName = "pH",
 #'   statecode = "SC",
 #'   countycode = "Abbeville",
-#'   applyautoclean = TRUE
+#'   applyautoclean = TRUE,
+#'   ask = FALSE
 #' )
 #'
 #' # make `tada_not_spatial` an sf object, projected in crs = 4269 (NAD83)
@@ -127,7 +128,8 @@ TADA_MakeSpatial <- function(.data, crs = 4326) {
 #'   endDate = "1995-12-31",
 #'   characteristicName = "pH",
 #'   statecode = "NV",
-#'   applyautoclean = TRUE
+#'   applyautoclean = TRUE,
+#'   ask = FALSE
 #' )
 #'
 #' nv_attains_features <- fetchATTAINS(tada_data, catchments_only = FALSE)
@@ -476,7 +478,8 @@ fetchATTAINS <- function(.data, catchments_only = FALSE) {
 #'   endDate = "1990-01-15",
 #'   characteristicName = "pH",
 #'   statecode = "CO",
-#'   applyautoclean = TRUE
+#'   applyautoclean = TRUE,
+#'   ask = FALSE
 #' )
 #'
 #' nhd_data <- fetchNHD(.data = tada_data, resolution = "Hi", features = c("catchments", "waterbodies", "flowlines"))
@@ -949,7 +952,8 @@ fetchNHD <- function(.data, resolution = "Hi", features = "catchments") {
 #'   endDate = "2018-07-31",
 #'   characteristicName = "pH",
 #'   statecode = "IL",
-#'   applyautoclean = TRUE
+#'   applyautoclean = TRUE,
+#'   ask = FALSE
 #' )
 #'
 #' # note: these example ATTAINS data retrieval queries below may take a long time (10+ minutes) to run
@@ -1373,7 +1377,8 @@ TADA_GetATTAINS <- function(.data, fill_catchments = FALSE, resolution = "Hi", r
 #'   endDate = "1995-12-31",
 #'   characteristicName = "pH",
 #'   statecode = "NV",
-#'   applyautoclean = TRUE
+#'   applyautoclean = TRUE,
+#'   ask = FALSE
 #' )
 #'
 #' attains_data <- TADA_GetATTAINS(tada_data, return_sf = TRUE)
