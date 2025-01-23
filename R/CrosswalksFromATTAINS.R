@@ -7,7 +7,7 @@
 #' MonitoringLocationIdentifiers associated with their Assessment Units in ATTAINS, this function 
 #' can be used to create a crosswalk of known MonitoringLocationIdentifiers and Assessment Units. 
 #' All tribal nations record this crosswalk in ATTAINS but only a few states. If a state has not 
-#' supplied this crosswalk to ATTAINS, the function not return a data frame.
+#' supplied Monitoring Location information to ATTAINS, the function does not return a data frame.
 #'
 #' @param org_id The ATTAINS organization identifier must be supplied by the user. A list of
 #' organization identifiers can be found by downloading the ATTAINS Domains Excel file:
@@ -194,8 +194,10 @@ TADA_UpdateProviderRef <- function() {
 #' @examples
 #' \dontrun{
 #' # Alaska example
-#' AK_batchAUupload <- TADA_UpdateMonitoringLocationsInATTAINS(org_id = "AKDECWQ", crosswalk = NULL, 
-#'                                                attains_replace = FALSE, data_links = "update")
+#' AK_batchAUupload <- TADA_UpdateMonitoringLocationsInATTAINS(org_id = "AKDECWQ", 
+#'                                                crosswalk = NULL, 
+#'                                                attains_replace = FALSE, 
+#'                                                wqp_data_links = "replace")
 #'
 TADA_UpdateMonitoringLocationsInATTAINS <- function(org_id = NULL,
                                                     crosswalk = NULL,
@@ -308,6 +310,9 @@ TADA_UpdateMonitoringLocationsInATTAINS <- function(org_id = NULL,
         # combine provider refs
         provider.ref <- provider.ref %>%
           dplyr::bind_rows(add.orgs)
+        
+        # remove intermediate object
+        rm(add.orgs)
 
         # join provider ref df to crosswalk
         update.crosswalk <- update.crosswalk %>%
@@ -319,19 +324,45 @@ TADA_UpdateMonitoringLocationsInATTAINS <- function(org_id = NULL,
             is.na(OrgIDForURL), NA,
             paste0(
               "https://www.waterqualitydata.us/provider/", ProviderName,
-              "/", OrgIDForURL, "/", OrgIDForURL, "-", MS_LOCATION_ID, "/"
+              "/", OrgIDForURL, "/", MS_LOCATION_ID, "/"
             )
-          ))
-
+          ),
+          MONITORING_DATA_LINK_TEXT.New = stringr::str_replace_all(
+            MONITORING_DATA_LINK_TEXT.New, " ", "%")
+          )
+        
+        # create df of urls to check
+        urls.to.check <- update.crosswalk %>%
+          dplyr::filter(!is.na(MONITORING_DATA_LINK_TEXT.New))
+        
         # retrieve http response headers from url list
-        headers <- update.crosswalk$MONITORING_DATA_LINK_TEXT.New %>%
+        headers <- urls.to.check %>%
+          dplyr::mutate(
+            Status_check = purrr::map_chr(
+              MONITORING_DATA_LINK_TEXT.New,
+              ~ if (is.na(.x)) {
+                "NA in URL"
+              } else {
+              tryCatch(
+                {
+                  headers <- curlGetHeaders(.x, verbose = FALSE)
+                  headers[1]
+                },
+                error = function(e) NA
+              )
+              }
+            )
+          )
+        
+        # retrieve http response headers from url list
+        headers <- urls.to.check$MONITORING_DATA_LINK_TEXT.New %>%
           purrr::map(~ tryCatch(curlGetHeaders(.x), error = function(e) NA))
 
         # extract response code from first line of header response
         response.code <- sapply(headers, "[[", 1)
 
         # create dataframe of urls and response codes
-        response.df <- data.frame(update.crosswalk$MONITORING_DATA_LINK_TEXT.New, response.code) %>%
+        response.df <- data.frame(urls.to.check, response.code) %>%
           dplyr::rename(MONITORING_DATA_LINK_TEXT.New = update.crosswalk.MONITORING_DATA_LINK_TEXT.New) %>%
           dplyr::distinct()
 
