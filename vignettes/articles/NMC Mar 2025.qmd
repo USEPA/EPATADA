@@ -29,7 +29,7 @@ authors:
     affiliation: EPA
   - name: "Kenny Wong"
     affiliation: ORISE at EPA
-footer: "EPATADA, dataRetrieval, nhdplusTools, StreamCatTools, hydroloom, sf, terra, leaflet and tmap"
+footer: "EPATADA, dataRetrieval, nhdplusTools, StreamCatTools, hydroloom, spsurvey, spmodel, SSN2, sf, terra, leaflet and tmap"
 ---
 
 # (5 mins) Introduction
@@ -62,7 +62,7 @@ Next, we will showcase how to bring in other web services and libraries for easy
 
 -   Fundamental geospatial packages such as sf, terra, leaflet and tmap
 
-# (15 mins) Preparing Water Quality Portal (WQP) data for analysis using EPATADA
+# (20 mins) Preparing Water Quality Portal (WQP) data for analysis using EPATADA
 
 Let's dive into Green Bay, WI!
 
@@ -92,6 +92,7 @@ library(EPATADA)
 ```
 
 ## Load required libraries
+
 ```{r, include = F, eval = T}
 library(devtools)
 load_all()
@@ -141,16 +142,19 @@ GreenBay_FoxRiver <- dplyr::filter(GreenBay_FoxRiver, TADA.SingleOrgDup.Flag == 
 ```
 
 ## Autoclean
+
 ```{r}
 GreenBay_FoxRiver <- TADA_AutoClean(GreenBay_FoxRiver)
 ```
 
 ## Handle censored results
+
 ```{r}
 GreenBay_FoxRiver <- TADA_SimpleCensoredMethods(GreenBay_FoxRiver, nd_method = "multiplier", nd_multiplier = 0.5, od_method = "as-is", od_multiplier = "null")
 ```
 
 ## Two organizations sometimes submit the same exact data to WQP. Let's flag and remove any duplicates from multiple organizations
+
 ```{r}
 # GreenBay_FoxRiver <- TADA_FindPotentialDuplicatesMultipleOrgs(GreenBay_FoxRiver)
 # 
@@ -158,6 +162,7 @@ GreenBay_FoxRiver <- TADA_SimpleCensoredMethods(GreenBay_FoxRiver, nd_method = "
 ```
 
 ## Filter out any remaining irrelevant data, NA's and empty columns
+
 ```{r}
 # unique(GreenBay_FoxRiver$TADA.ResultMeasureValueDataTypes.Flag)
 # 
@@ -172,11 +177,13 @@ GreenBay_FoxRiver <- TADA_SimpleCensoredMethods(GreenBay_FoxRiver, nd_method = "
 ```
 
 ## Flag and remove QAQC samples and suspect results
+
 ```{r}
 GreenBay_FoxRiver <- TADA_RunKeyFlagFunctions(GreenBay_FoxRiver, clean = TRUE)
 ```
 
 ## Flag results above and below threshold, but do not remove them
+
 ```{r}
 GreenBay_FoxRiver <- TADA_FlagAboveThreshold(GreenBay_FoxRiver, clean = FALSE, flaggedonly = FALSE)
 
@@ -184,6 +191,7 @@ GreenBay_FoxRiver <- TADA_FlagBelowThreshold(GreenBay_FoxRiver, clean = FALSE, f
 ```
 
 ## Harmonize synonyms across characteristic, fraction, and speciation
+
 ```{r}
 GreenBay_FoxRiver <- TADA_HarmonizeSynonyms(GreenBay_FoxRiver)
 ```
@@ -201,6 +209,7 @@ GreenBay_FoxRiver_Counts <- TADA_FieldValuesTable(GreenBay_FoxRiver, field = "TA
 ```
 
 ## Filter dataframe to focus on frequently monitored charactersitics
+
 ```{r}
 GreenBay_FoxRiver_Subset <- GreenBay_FoxRiver %>%
   dplyr::filter(TADA.ComparableDataIdentifier %in%
@@ -212,12 +221,14 @@ GreenBay_FoxRiver_Subset <- GreenBay_FoxRiver %>%
 ```
 
 ## Review organizations for subset
+
 ```{r}
 # Create pie of results by organization
 TADA_FieldValuesPie(GreenBay_FoxRiver_Subset, field = "OrganizationFormalName")
 ```
 
 ## Generate stats table
+
 ```{r}
 GreenBay_FoxRiver_Subset_Stats <- TADA_Stats(GreenBay_FoxRiver_Subset)
 
@@ -234,14 +245,16 @@ TADA_TwoCharacteristicScatterplot(GreenBay_FoxRiver_Subset, id_cols = "TADA.Comp
 
 ## Combine hydrologic, climatic and remote sensing data with WQP data
 
+Placeholder for integration of other data sources (presenter TBD)
+
 1.  USGS continuous sensor data
 2.  PRISM climate
 
 # (15 mins) Example Use Case 1: Building Statistical Models
 
-placeholder
+placeholder for spsurvey, spmodel, SSN2 (Michael)
 
-# (15 mins) Example Use Case 2: Clean Water Act (CWA) Section 303(d) Assessments Part A
+# (30 mins) Example Use Case 2: Clean Water Act (CWA) Section 303(d) Assessments Part A
 
 TADA_MakeSpatial(), TADA_GetATTAINS(), TADA_ViewATTAINS()
 
@@ -275,7 +288,6 @@ One of the first steps in the CWA assessment process is to define Assessment Uni
 
 -   Assessment Units: state or tribal waterbody geospatial features
     -   These may be lines, areas or points
-    
 -   Water Quality Portal Monitoring Locations
     -   These are points
 
@@ -310,7 +322,7 @@ GreenBay_FoxRiver = TADA_FlagCoordinates(GreenBay_FoxRiver, clean_outsideUSA = "
 
 Finally, some waterbodies have data available in the WQP or from other sources, but there are no existing Assessment Units in ATTAINS for them. In the next section, we will share a way to create AU's using NHDPlus high resolution catchments.
 
-# (15 mins) Example Use Case 2: Clean Water Act (CWA) Section 303(d) Assessments Part B
+# Example Use Case 2: Clean Water Act (CWA) Section 303(d) Assessments Part B
 
 nhdplusTools, TADA::fetchNHD(), TADA_GetATTAINS(), TADA_ViewATTAINS()
 
@@ -332,9 +344,13 @@ For these, we implemented a solution using NHDPlusTools to pull in either NHDPlu
 
 ## Creating new AUs to assess additional areas
 
--   Placeholder: Do we want to include anything else here from StreamCatTools or other packages to help with new AU delineation?
+-   Placeholder: Do we want to include anything else here from StreamCatTools, nhdplustools, hydroloom, or other packages to help with new AU delineation?
 
-# Conclusion (5 mins)
+# (15 mins) Visualizing Water Quality Issues
+
+-   Placeholder: Now that we have data assigned to watershed/waterbodies (Assessment Units). Do we want to showcase how to visualize wq issues for a few characteristics of interest on a map?
+
+# (5 mins) Conclusion
 
 ```{r}
 end.time <- Sys.time()
