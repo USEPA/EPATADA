@@ -13,18 +13,26 @@ execute:
   warning: false
   error: false
   include: true
-# author:
-#   - name: "Cristina Mullin"
-#     orcid: 0000-0002-0615-6087
-#     email: mullin.cristina@epa.gov
-#     affiliation: 
-#       - name: Office of Water, Water Data Integration Branch, Environmental Protection Agency
-#         city: Washington, D.C., United States
-#         url: https://www.epa.gov/waterdata/TADA
+authors: 
+  - name: "Cristina Mullin"
+    orcid: 0000-0002-0615-6087
+    affiliation: EPA
+  - name: "Marc Weber"
+    affiliation: EPA
+  - name: "Dave Blodgett"
+    affiliation: USGS
+  - name: "Hillary Marler"
+    affiliation: EPA
+  - name: "Michael Dumelle"
+    affiliation: EPA
+  - name: "Shelly Thawley"
+    affiliation: EPA
+  - name: "Kenny Wong"
+    affiliation: ORISE at EPA
 footer: "EPATADA, dataRetrieval, nhdplusTools, StreamCatTools, hydroloom, sf, terra, leaflet and tmap"
 ---
 
-# Introduction (10 mins)
+# (5 mins) Introduction
 
 ## Quarto
 
@@ -32,7 +40,7 @@ Quarto enables you to weave together content and executable code into a finished
 
 ## Introduction
 
-This workshop showcases how to integrate several R Packages developed by the U.S. Environmental Protection Agency (EPA) and the United States Geological Survey (USGS), and other fundamental packages to create efficient and reproducible workflows that support water quality programs and research – for example performing watershed or waterbody level analyses such as Clean Water Act Assessments. We will also touch briefly on packages that can assist with building statistical models.
+This workshop showcases how to integrate several R Packages developed by the U.S. Environmental Protection Agency (EPA) and the U.S. Geological Survey (USGS), and other fundamental packages to create efficient and reproducible workflows that support water quality programs and research – for example performing watershed or waterbody level analyses such as Clean Water Act Assessments. We will also touch briefly on packages that can assist with building statistical models.
 
 ## Intended audience
 
@@ -44,7 +52,7 @@ This workshop demonstrates potential uses (beyond their original collection purp
 
 ## Agenda
 
-Next, we will showcase how to bring in other web services and libraries for easy integration of additional hydrologic (e.g. USGS continuous sensor data), climatic and remote sensing data. While not the focus of this workshop, we then plan to briefly touch on packages that can assist with building statistical models. Finally, we will demonstrate as example workflow for performing Assessment Unit (a type of hydrology and watershed level analysis) level analysis and visualization.
+Next, we will showcase how to bring in other web services and libraries for easy integration of additional hydrologic (e.g. USGS continuous sensor data), climatic and remote sensing data. We then plan to briefly touch on packages that can assist with building statistical models. Finally, we will demonstrate an example workflow for analyzing water quality by Assessment Unit's, which are state or tribal nation defined watershed or waterbody areas used for CWA assessments and reporting water quality conditions to EPA and the public.
 
 ## Packages
 
@@ -54,7 +62,7 @@ Next, we will showcase how to bring in other web services and libraries for easy
 
 -   Fundamental geospatial packages such as sf, terra, leaflet and tmap
 
-# Preparing Water Quality Portal (WQP) data for analysis using EPATADA
+# (15 mins) Preparing Water Quality Portal (WQP) data for analysis using EPATADA
 
 Let's dive into Green Bay, WI!
 
@@ -62,7 +70,7 @@ Let's dive into Green Bay, WI!
 
 Install and load the remotes package.
 
-```{r}
+```{r, eval = F}
 if(!"remotes"%in%installed.packages()){
 install.packages("remotes")
 }
@@ -70,17 +78,23 @@ install.packages("remotes")
 library(remotes)
 ```
 
-## Load
+## Install and load TADA
 
 Install and load the [EPATADA R Package](https://github.com/USEPA/EPATADA) from GitHub.
 
-```{r}
+```{r, eval = F}
 remotes::install_github("USEPA/EPATADA", 
                         ref = "develop", 
                         dependencies = TRUE, 
                         force = TRUE)
 
 library(EPATADA)
+```
+
+## Load required libraries
+```{r, include = F, eval = T}
+library(devtools)
+load_all()
 ```
 
 ## It's go time!
@@ -92,7 +106,11 @@ Let's time our process.
 start.time <- Sys.time()
 ```
 
-## Retrieve data from WQP
+## TADA Module 1: Water Quality Portal Data Discovery and Cleaning
+
+Additional functions and a more detailed example workflow is available here: https://usepa.github.io/EPATADA/articles/TADAModule1.html
+
+## Retrieve data from the WQP
 
 In this example, we will use EPA's How's My Waterway (HMW) application to find an applicable Hydrologic Unit Code (HUC) for our area of interest - the [Fox River, Green Bay, WI](https://mywaterway.epa.gov/community/040302040405/monitoring). Next, let's query the WQP using the identified HUC, state abbreviation, and a date range. In this example, we'll start by pulling all data available in the WQP for this HUC 12 for the last 5 years.
 
@@ -114,13 +132,6 @@ Now, let's use EPATADA functions to review, visualize, and whittle the returned 
 
 ![](images/Funnel.png)
 
-## Review organizations
-
-```{r}
-# Create pie of results by organization
-TADA_FieldValuesPie(GreenBay_FoxRiver, field = "OrganizationFormalName")
-```
-
 ## Flag and remove duplicate results from single organization
 
 ```{r}
@@ -139,14 +150,14 @@ GreenBay_FoxRiver <- TADA_AutoClean(GreenBay_FoxRiver)
 GreenBay_FoxRiver <- TADA_SimpleCensoredMethods(GreenBay_FoxRiver, nd_method = "multiplier", nd_multiplier = 0.5, od_method = "as-is", od_multiplier = "null")
 ```
 
-## Flag and remove duplicates from multiple organizations. Two organizations sometimes submit the same exact data to WQP. 
+## Two organizations sometimes submit the same exact data to WQP. Let's flag and remove any duplicates from multiple organizations
 ```{r}
 # GreenBay_FoxRiver <- TADA_FindPotentialDuplicatesMultipleOrgs(GreenBay_FoxRiver)
 # 
 # GreenBay_FoxRiver <- dplyr::filter(GreenBay_FoxRiver, TADA.ResultSelectedMultipleOrgs == "Y")
 ```
 
-## Filter out any remaining irrelevant data, NA's and empty cols
+## Filter out any remaining irrelevant data, NA's and empty columns
 ```{r}
 # unique(GreenBay_FoxRiver$TADA.ResultMeasureValueDataTypes.Flag)
 # 
@@ -165,14 +176,14 @@ GreenBay_FoxRiver <- TADA_SimpleCensoredMethods(GreenBay_FoxRiver, nd_method = "
 GreenBay_FoxRiver <- TADA_RunKeyFlagFunctions(GreenBay_FoxRiver, clean = TRUE)
 ```
 
-## Flag results above and below threshold but do not remove
+## Flag results above and below threshold, but do not remove them
 ```{r}
 GreenBay_FoxRiver <- TADA_FlagAboveThreshold(GreenBay_FoxRiver, clean = FALSE, flaggedonly = FALSE)
 
 GreenBay_FoxRiver <- TADA_FlagBelowThreshold(GreenBay_FoxRiver, clean = FALSE, flaggedonly = FALSE)
 ```
 
-## Harmonize synonyms
+## Harmonize synonyms across characteristic, fraction, and speciation
 ```{r}
 GreenBay_FoxRiver <- TADA_HarmonizeSynonyms(GreenBay_FoxRiver)
 ```
@@ -189,13 +200,21 @@ GreenBay_FoxRiver <- TADA_CalculateTotalNP(GreenBay_FoxRiver, daily_agg = "max")
 GreenBay_FoxRiver_Counts <- TADA_FieldValuesTable(GreenBay_FoxRiver, field = "TADA.ComparableDataIdentifier")
 ```
 
-## Subset and generate statistics for results of interest
+## Filter dataframe to focus on frequently monitored charactersitics
 ```{r}
 GreenBay_FoxRiver_Subset <- GreenBay_FoxRiver %>%
   dplyr::filter(TADA.ComparableDataIdentifier %in%
-      c("TOTAL PHOSPHORUS, MIXED FORMS_UNFILTERED_AS P_UG/L", 
-      "TOTAL NITROGEN, MIXED FORMS_UNFILTERED_AS N_MG/L", 
+      c("SPECIFIC CONDUCTANCE_NA_NA_US/CM", 
+      "PH_NA_NA_NA", 
+      "TOTAL NITROGEN, MIXED FORMS_UNFILTERED_AS N_MG/L",
+      "TOTAL PHOSPHORUS, MIXED FORMS_UNFILTERED_AS P_UG/L",
       "DISSOLVED OXYGEN (DO)_NA_NA_MG/L"))
+```
+
+## Review organizations for subset
+```{r}
+# Create pie of results by organization
+TADA_FieldValuesPie(GreenBay_FoxRiver_Subset, field = "OrganizationFormalName")
 ```
 
 ## Generate stats table
@@ -208,23 +227,27 @@ DT::datatable(GreenBay_FoxRiver_Subset_Stats, fillContainer = TRUE)
 ## Generate Scatterplot
 
 ```{r}
-TADA_TwoCharacteristicScatterplot(GreenBay_FoxRiver_Subset, id_cols = "TADA.ComparableDataIdentifier", groups = c("TOTAL PHOSPHORUS, MIXED FORMS_UNFILTERED_AS P_UG/L", 
-      "TOTAL NITROGEN, MIXED FORMS_UNFILTERED_AS N_MG/L", 
-      "DISSOLVED OXYGEN (DO)_NA_NA_MG/L"))
+TADA_TwoCharacteristicScatterplot(GreenBay_FoxRiver_Subset, id_cols = "TADA.ComparableDataIdentifier",  groups = c("TOTAL PHOSPHORUS, MIXED FORMS_UNFILTERED_AS P_UG/L", "TOTAL NITROGEN, MIXED FORMS_UNFILTERED_AS N_MG/L"))
 ```
 
-# Ingestion of additional hydrologic, climatic and remote sensing data
+# (15 mins) Ingestion of additional hydrologic, climatic and remote sensing data
 
 ## Combine hydrologic, climatic and remote sensing data with WQP data
 
 1.  USGS continuous sensor data
 2.  PRISM climate
 
-# Example Use Case 1: Building Statistical Models
+# (15 mins) Example Use Case 1: Building Statistical Models
 
 placeholder
 
-# Example Use Case 2: Clean Water Act (CWA) Section 303(d) Assessments
+# (15 mins) Example Use Case 2: Clean Water Act (CWA) Section 303(d) Assessments Part A
+
+TADA_MakeSpatial(), TADA_GetATTAINS(), TADA_ViewATTAINS()
+
+## TADA Module 2: Geospatial Functions
+
+Additional functions and a more detailed example workflow is available here: https://usepa.github.io/EPATADA/articles/TADAModule2.html
 
 ## CWA Assessment Process
 
@@ -261,6 +284,14 @@ One of the first steps in the CWA assessment process is to define Assessment Uni
 -   Automates matching of WQP monitoring locations with ATTAINS assessment units that fall within (intersect) the same NHDPlus catchment ([details](https://usepa.github.io/EPATADA/articles/TADAModule2.html))
 -   The function uses high resolution NHDPlus catchments by default because 80% of state submitted assessment units in ATTAINS were developed based on high res NHD; users can select med-res if applicable to their use case
 
+```{r}
+TADA_OverviewMap(GreenBay_FoxRiver)
+
+GreenBay_FoxRiver = TADA_FlagCoordinates(GreenBay_FoxRiver, clean_outsideUSA = "change sign", clean_imprecise = FALSE)
+
+# WQP_with_ATTAINS_filled <- TADA_GetATTAINS(GreenBay_FoxRiver, fill_catchments = FALSE, return_sf = TRUE)
+```
+
 ## Challenges with Automated Approach (too detailed, remove this section?)
 
 -   Certain NHDPlus high res catchments overlap multiple ATTAINS assessment units (state submitted hydrography) which means the sites are assigned to both AUs in the current functions. Another challenge is that the WQP sites are not always accurate (imprecise coordinates). Ideally, each site could be matched with a single assessment unit and not multiple.
@@ -277,25 +308,41 @@ One of the first steps in the CWA assessment process is to define Assessment Uni
 
 ## Using all available data
 
-Finally, some waterbodies have data available in the WQP or from other sources, but there are no existing Assessment Units in ATTAINS for them. In the next section, we will share a way to create create AU's using NHDPlus high resolution catchments.
+Finally, some waterbodies have data available in the WQP or from other sources, but there are no existing Assessment Units in ATTAINS for them. In the next section, we will share a way to create AU's using NHDPlus high resolution catchments.
 
-## Creating new AUs to assess additional areas (leveraging USGS's nhdplusTools)
+# (15 mins) Example Use Case 2: Clean Water Act (CWA) Section 303(d) Assessments Part B
+
+nhdplusTools, TADA::fetchNHD(), TADA_GetATTAINS(), TADA_ViewATTAINS()
+
+## Creating new AUs to assess additional areas (leveraging USGS's nhdplusTools and TADA geospatial functions)
 
 TADA has included a way to do this using TADA_GetATTAINS() fill_catchments function input. This is included for exploratory purposes only. In theory, states and tribal nations could use the high res catchments as new assessment unit polygons to assess additional areas where there is WQP data but no Assessment Unit yet in ATTAINS, but that process is outside of TADA.
 
-## Creating new AUs to assess additional areas with TADA::fetchNHD()
+## Creating new AUs to assess additional areas
 
 For WQP monitoring sites that DO NOT overlap an existing ATTAINS feature (neither ATTAINS NHDPlus high res catchment snap shot or state submitted points/lines/polys), there is nothing to use from ATTAINS because these are areas where there is WQP data but no ATTAINS Assessment Unit yet.
 
-## Creating new AUs to assess additional areas with TADA::fetchNHD()
+## Creating new AUs to assess additional areas
 
 For these, we implemented a solution using NHDPlusTools to pull in either NHDPlus high res or med res catchments (user can choose, but high res is the default) and match those with the WQP sites & create new IDs (essentially creating new AUs that are the catchments that intersect these WQP sites).
 
-## Creating new AUs to assess additional areas with TADA::fetchNHD()
+```{r}
+# WQP_with_ATTAINS_filled <- TADA_GetATTAINS(GreenBay_FoxRiver, fill_catchments = TRUE, return_sf = TRUE)
+```
+
+## Creating new AUs to assess additional areas
 
 -   Placeholder: Do we want to include anything else here from StreamCatTools or other packages to help with new AU delineation?
 
-# Contribute
+# Conclusion (5 mins)
+
+```{r}
+end.time <- Sys.time()
+
+end.time - start.time
+```
+
+## Contribute
 
 Note: TADA is still under development. New functionality is added weekly, and sometimes we need to make bug fixes in response to tester and user feedback. We appreciate your feedback, patience, and interest in these helpful tools.
 
@@ -307,18 +354,10 @@ We welcome collaboration with external partners.
 
 Contribute to EPATADA in a way that helps elevate work you have already done, broadens the user base of the package, or improves the resource!
 
-# Conclusion
-
-```{r}
-end.time <- Sys.time()
-
-end.time - start.time
-```
-
-Thank you for your attention!
-
 ## Thank you to our workshop contributors!
 
 -   EPA: Cristina Mullin (mullin.cristina\@epa.gov), Marc Weber, Hillary Marler, Kenny Wong, Michael Dumelle, Shelly Thawley
 
 -   USGS: Dave Blodgett
+
+## Thank you for your attention!
