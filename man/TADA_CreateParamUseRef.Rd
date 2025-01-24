@@ -6,7 +6,7 @@
 \usage{
 TADA_CreateParamUseRef(
   .data,
-  org_names = NULL,
+  org_id = NULL,
   paramRef = NULL,
   paramUseRef = NULL,
   excel = FALSE,
@@ -18,18 +18,18 @@ TADA_CreateParamUseRef(
 cleaning, processing, harmonization and filtering functions prior to this step as well as
 provide the geospatial components with Module 2 TADA_GetATTAINS() function.}
 
-\item{org_names}{The ATTAINS organization name must be supplied by the user. A list of
-organization names can be found by downloading the ATTAINS Domains Excel file:
-https://www.epa.gov/system/files/other-files/2023-09/DOMAINS.xlsx. Organization names
-are listed in the "OrgName" tab. The "code" column contains the organization names that
-should be used for this param. If a user does not provide an org_names argument, the function
-attempts to identify which organization name(s) are found in the dataframe to use as a reference.
+\item{org_id}{The ATTAINS organization identifier must be supplied by the user. A list of
+organization identifiers can be found by downloading the ATTAINS Domains Excel file:
+https://www.epa.gov/system/files/other-files/2023-09/DOMAINS.xlsx. organization identifiers
+are listed in the "OrgName" tab. The "code" column contains the organization identifiers that
+should be used for this param. If a user does not provide an org_id argument, the function
+attempts to identify which organization identifier(s) are found in the dataframe to use as a reference.
 
-NOTE: USERS CAN ADD ON 'EPA304a' AS AN ORG_NAMES INPUT IF THEY ARE INTERESTED IN THE EPA304A STANDARDS
+NOTE: USERS CAN ADD ON 'EPA304a' AS AN org_id INPUT IF THEY ARE INTERESTED IN THE EPA304A STANDARDS
 
 This org_name argument input allows for the drop-down list to reflect prior ATTAINS parameter names
 and ATTAINS use names that were used in prior ATTAINS CWA assessment cycles by your org_name.
-Users are expected to be the subject matter experts to perform the parameter crosswalk for the org_names
+Users are expected to be the subject matter experts to perform the parameter crosswalk for the org_id
 that they have provided in this function.}
 
 \item{paramRef}{A data frame which contains a completed crosswalk between
@@ -37,10 +37,10 @@ TADA_ComparableDataIdentifier and ATTAINS.ParameterName. Users will need to ensu
 contains the appropriate column names in order to run the function. Users will need to ensure that
 they supply a paramRef data frame which contains at least these two column names:
 TADA.ComparableDataIdentifier and ATTAINS.ParameterName.
-Users who are interested in doing an assessment for more than one org_names will need to also
-include in the paramRef data frame which contains an additional column name: 'organization_name'
+Users who are interested in doing an assessment for more than one org_id will need to also
+include in the paramRef data frame which contains an additional column name: 'organization_identifier'
 in order to determine the proper crosswalk between TADA.ComparableDataIdentifier and
-ATTAINS.ParameterName by organization name.}
+ATTAINS.ParameterName by organization identifier.}
 
 \item{paramUseRef}{A data frame which contains a completed crosswalk of org specific
 domain value of use_name by ATTAINS.ParameterName.}
@@ -59,7 +59,7 @@ that is created. This will help prevent a user from overwriting their progress w
 completing the excel spreadsheet.}
 }
 \value{
-A data frame which contains the columns: TADA.ComparableDataIdentifier, organization_name,
+A data frame which contains the columns: TADA.ComparableDataIdentifier, organization_identifier,
 EPA304A.PollutantName, ATTAINS.ParameterName, and ATTAINS.FlagUseName. Users will need to review
 the crosswalk between ATTAINS.ParameterName, use_name and TADA.ComparableDataIdentifier.
 }
@@ -89,35 +89,35 @@ ATTAINS use name that was not named in prior ATTAINS assessment cycles as:
 'Suspect: use name is not found as a prior use name for this organization' or
 'Suspect: use name is not found as a prior use name for this parameter'
 
-Users will have the flexibility to include the EPA304a standards by including this string in the org_names
+Users will have the flexibility to include the EPA304a standards by including this string in the org_id
 function argument. Users who only want the EPA304a standards would input as an argument input:
 
-org_names = "EPA304a"
+org_id = "EPA304a"
 
 Users who want both their orgs and EPA304a standards would input a character vector that contains both:
 
-org_names = c("EPA304a", "Utah")
+org_id = c("EPA304a", "UTAHDWQ")
 
 The use_name for EPA304a standards are matched from the CriteriaSearchTool:
 (CST) https://www.epa.gov/wqs-tech/state-specific-water-quality-standards-effective-under-clean-water-act-cwa
-while the use_name for any other ATTAINS organization names come from ATTAINS domain value for use_name.
+while the use_name for any other ATTAINS organization identifiers come from ATTAINS domain value for use_name.
 }
 \examples{
 # Users are required to provide a paramRef argument first. See TADA_CreateParamRef() for additional comments.
-paramRef_UT <- TADA_CreateParamRef(Data_Nutrients_UT, org_names = "Utah", excel = FALSE)
+paramRef_UT <- TADA_CreateParamRef(Data_Nutrients_UT, org_id = "UTAHDWQ", excel = FALSE)
 
 paramRef_UT2 <- dplyr::mutate(paramRef_UT, ATTAINS.ParameterName = dplyr::case_when(
   TADA.CharacteristicName == "AMMONIA" ~ "AMMONIA, TOTAL",
   TADA.CharacteristicName == "NITRATE" ~ "NITRATE",
   TADA.CharacteristicName == "NITROGEN" ~ "NITRATE/NITRITE (NITRITE + NITRATE AS N)"
 ))
-paramRef_UT3 <- TADA_CreateParamRef(Data_Nutrients_UT, paramRef = paramRef_UT2, org_names = "Utah", excel = FALSE)
+paramRef_UT3 <- TADA_CreateParamRef(Data_Nutrients_UT, paramRef = paramRef_UT2, org_id = "UTAHDWQ", excel = FALSE)
 
-# After running TADA_CreateParamRef() users will provide this as a function input. First example is only for the org Utah
-paramUseRef_UT <- TADA_CreateParamUseRef(Data_Nutrients_UT, paramRef = paramRef_UT3, org_names = c("Utah"), excel = FALSE)
+# After running TADA_CreateParamRef() users will provide this as a function input. First example is only for the org UTAHDWQ
+paramUseRef_UT <- TADA_CreateParamUseRef(Data_Nutrients_UT, paramRef = paramRef_UT3, org_id = c("UTAHDWQ"), excel = FALSE)
 
 # Users can include the EPA304a standards by itself or compared to their org(s)
-paramUseRef_UT2 <- TADA_CreateParamUseRef(Data_Nutrients_UT, paramRef = paramRef_UT3, org_names = c("EPA304a", "Utah"), excel = FALSE)
-paramUseRef_UT3 <- TADA_CreateParamUseRef(Data_Nutrients_UT, paramRef = paramRef_UT3, org_names = c("EPA304a"), excel = FALSE)
+paramUseRef_UT2 <- TADA_CreateParamUseRef(Data_Nutrients_UT, paramRef = paramRef_UT3, org_id = c("EPA304a", "UTAHDWQ"), excel = FALSE)
+paramUseRef_UT3 <- TADA_CreateParamUseRef(Data_Nutrients_UT, paramRef = paramRef_UT3, org_id = c("EPA304a"), excel = FALSE)
 
 }

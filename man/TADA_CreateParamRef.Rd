@@ -6,7 +6,7 @@
 \usage{
 TADA_CreateParamRef(
   .data,
-  org_names = NULL,
+  org_id = NULL,
   paramRef = NULL,
   excel = TRUE,
   overwrite = FALSE
@@ -17,22 +17,22 @@ TADA_CreateParamRef(
 harmonization, filtering, and addition of geospatial components (via TADA_GetATTAINS) functions
 prior to running TADA_CreateParamRef.}
 
-\item{org_names}{The ATTAINS organization name must be supplied by the user. A list of
-organization names can be found by downloading the ATTAINS Domains Excel file:
-https://www.epa.gov/system/files/other-files/2023-09/DOMAINS.xlsx. Organization names
-are listed in the "OrgName" tab. The "code" column contains the organization names that
-should be used for this param. If a user does not provide an org_names argument, the function
-attempts to identify which organization name(s) are found in the dataframe to use as a reference.}
+\item{org_id}{The ATTAINS organization identifier must be supplied by the user. A list of
+organization identifiers can be found by downloading the ATTAINS Domains Excel file:
+https://www.epa.gov/system/files/other-files/2023-09/DOMAINS.xlsx. organization identifiers
+are listed in the "OrgName" tab. The "code" column contains the organization identifiers that
+should be used for this param. If a user does not provide an org_id argument, the function
+attempts to identify which organization identifier(s) are found in the dataframe to use as a reference.}
 
 \item{paramRef}{A data frame which contains a completed crosswalk between
 TADA_ComparableDataIdentifier and ATTAINS.ParameterName. Users will need to ensure this crosswalk
 contains the appropriate column names in order to run the function. Users will need to ensure that
 they supply a paramRef data frame which contains at least these two column names:
 TADA.ComparableDataIdentifier and ATTAINS.ParameterName.
-Users who are interested in doing an assessment for more than one org_names will need to also
-include in the paramRef data frame which contains an additional column name: 'organization_name'
+Users who are interested in doing an assessment for more than one org_id will need to also
+include in the paramRef data frame which contains an additional column name: 'organization_identifier'
 in order to determine the proper crosswalk between TADA.ComparableDataIdentifier and
-ATTAINS.ParameterName by organization name.}
+ATTAINS.ParameterName by organization identifier.}
 
 \item{excel}{A Boolean value that returns an excel spreadsheet if excel = TRUE. This spreadsheet
 is created in the user's downloads folder path. In the R console please type in:
@@ -57,7 +57,7 @@ completing the excel spreadsheet.}
 }
 \value{
 A data frame which contains the columns: TADA.ComparableDataIdentifier,
-organization_name, EPA304A.PollutantName, ATTAINS.ParameterName, and ATTAINS.FlagParameterName.
+organization_identifier, EPA304A.PollutantName, ATTAINS.ParameterName, and ATTAINS.FlagParameterName.
 Users will need to complete the crosswalk between ATTAINS.ParameterName and
 TADA.ComparableDataIdentifier.
 }
@@ -98,7 +98,7 @@ TADA.ComparableDataIdentifier and ATTAINS.ParameterName .
 }
 
 Users who are interested in doing an assessment or comparing criteria for more than organization
-also need to include an additional column name: 'organization_name'. This ensures that
+also need to include an additional column name: 'organization_identifier'. This ensures that
 crosswalk between TADA.ComparableDataIdentifier and ATTAINS.ParameterName are correct for
 each organization.
 
@@ -109,7 +109,7 @@ development and only focuses on the TADA priority characteristics (add link to l
 \examples{
 # This creates a blank paramRef template of UT Nutrients data. Users will need to fill this
 # template out.
-paramRef_UT <- TADA_CreateParamRef(Data_Nutrients_UT, org_names = "Utah", excel = FALSE)
+paramRef_UT <- TADA_CreateParamRef(Data_Nutrients_UT, org_id = "UTAHDWQ", excel = FALSE)
 
 # User can choose to edit the paramRef_UT through the R environment or in the excel spreadsheet.
 # Users should be aware that any updates done only in the R environment will not reflect the
@@ -124,15 +124,15 @@ paramRef_UT2 <- dplyr::mutate(paramRef_UT, ATTAINS.ParameterName = dplyr::case_w
 ))
 paramRef_UT3 <- TADA_CreateParamRef(Data_Nutrients_UT,
   paramRef = paramRef_UT2,
-  org_names = "Utah", excel = FALSE
+  org_id = "UTAHDWQ", excel = FALSE
 )
 
-# The selectin of multiple org_names is allowed
+# The selectin of multiple org_id is allowed
 Data_NCTCShepherdstown <- TADA_RunKeyFlagFunctions(Data_NCTCShepherdstown_HUC12)
 Data_NCTCShepherdstown2 <- TADA_HarmonizeSynonyms(Data_NCTCShepherdstown)
 paramRef_NCTC <- TADA_CreateParamRef(Data_NCTCShepherdstown2,
-  org_names =
-    c("Maryland", "Virginia", "Pennsylvania"), excel = FALSE
+  org_id =
+    c("MDE_EASP", "21VASWCB", "21PA"), excel = FALSE
 )
 
 }
