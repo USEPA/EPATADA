@@ -908,7 +908,7 @@ TADA_UpdateMonLocTypeRef <- function() {
 
 WQPProviderRef_Cached <- NULL
 
-#' Get Organization and Provider Reference Table (IN ACTIVE DEVELOPMENT)
+#' Get Organization and Provider Reference Table
 #'
 #' This function creates a crosswalk of all OrganizationIdentifiers, 
 #' OrganizationFormalNames, and ProviderNames in the Water Quality Portal (WQP).
