@@ -53,14 +53,15 @@ TADA_GetATTAINSAUSiteCrosswalk <- function(org_id = NULL) {
       tidyr::unnest(monitoring_stations) %>%
       dplyr::select(
         monitoring_location_identifier, monitoring_organization_identifier,
-        assessment_unit_identifier
+        assessment_unit_identifier, monitoring_data_link_text
       ) %>%
       dplyr::filter(!is.na(monitoring_location_identifier)) %>%
       dplyr::distinct() %>%
       dplyr::rename(
         ATTAINS.assessmentunitidentifier = assessment_unit_identifier,
         MonitoringLocationIdentifier = monitoring_location_identifier,
-        OrganizationIdentifier = monitoring_organization_identifier
+        OrganizationIdentifier = monitoring_organization_identifier,
+        MonitoringDataLinkText = monitoring_data_link_text
       ) %>%
       # paste org_id in front of MLs from the specified org if they are missing from ATTAINS
       dplyr::mutate(MonitoringLocationIdentifier = ifelse((OrganizationIdentifier == org_id & 
@@ -128,6 +129,8 @@ TADA_GetProviderRef <- function() {
       NULL
     }
   )
+  
+  # need to remove providers w/ no sites on date site pages
 
   # If the download failed fall back to internal data (and report it)
   if (is.null(raw.data)) {
@@ -252,7 +255,8 @@ TADA_UpdateMonitoringLocationsInATTAINS <- function(org_id = NULL,
         attains.crosswalk <- TADA_GetATTAINSAUSiteCrosswalk(org_id = org_id) %>%
           dplyr::rename(ASSESSMENT_UNIT_ID = ATTAINS.assessmentunitidentifier,
                         MS_ORG_ID = OrganizationIdentifier, 
-                        MS_LOCATION_ID = MonitoringLocationIdentifier) 
+                        MS_LOCATION_ID = MonitoringLocationIdentifier,
+                        MONITORING_DATA_LINK_TEXT = MonitoringDataLinkText) 
 
         if(is.null(crosswalk)) {
           update.crosswalk <- attains.crosswalk
@@ -322,37 +326,16 @@ TADA_UpdateMonitoringLocationsInATTAINS <- function(org_id = NULL,
         update.crosswalk <- update.crosswalk %>%
           dplyr::mutate(MONITORING_DATA_LINK_TEXT.New = ifelse(
             is.na(OrgIDForURL), NA,
-            paste0(
+            URLencode(paste0(
               "https://www.waterqualitydata.us/provider/", ProviderName,
               "/", OrgIDForURL, "/", MS_LOCATION_ID, "/"
+            ))
             )
-          ),
-          MONITORING_DATA_LINK_TEXT.New = stringr::str_replace_all(
-            MONITORING_DATA_LINK_TEXT.New, " ", "%")
           )
         
         # create df of urls to check
         urls.to.check <- update.crosswalk %>%
           dplyr::filter(!is.na(MONITORING_DATA_LINK_TEXT.New))
-        
-        # retrieve http response headers from url list
-        headers <- urls.to.check %>%
-          dplyr::mutate(
-            Status_check = purrr::map_chr(
-              MONITORING_DATA_LINK_TEXT.New,
-              ~ if (is.na(.x)) {
-                "NA in URL"
-              } else {
-              tryCatch(
-                {
-                  headers <- curlGetHeaders(.x, verbose = FALSE)
-                  headers[1]
-                },
-                error = function(e) NA
-              )
-              }
-            )
-          )
         
         # retrieve http response headers from url list
         headers <- urls.to.check$MONITORING_DATA_LINK_TEXT.New %>%
@@ -363,12 +346,11 @@ TADA_UpdateMonitoringLocationsInATTAINS <- function(org_id = NULL,
 
         # create dataframe of urls and response codes
         response.df <- data.frame(urls.to.check, response.code) %>%
-          dplyr::rename(MONITORING_DATA_LINK_TEXT.New = update.crosswalk.MONITORING_DATA_LINK_TEXT.New) %>%
           dplyr::distinct()
 
         # join response codes to add.urls df
         update.crosswalk <- update.crosswalk %>%
-          dplyr::left_join(response.df, by = dplyr::join_by(MONITORING_DATA_LINK_TEXT.New))
+          dplyr::left_join(response.df, by = names(update.crosswalk))
       }
 
         if (wqp_data_links == "replace") {
@@ -389,7 +371,7 @@ TADA_UpdateMonitoringLocationsInATTAINS <- function(org_id = NULL,
             dplyr::mutate(
               MONITORING_DATA_LINK_TEXT = ifelse(
                 grepl("200", response.code),
-                paste0(MONITORING_DATA_LINK_TEXT, ", ", MONITORING_DATA_LINK_TEXT.New),
+                paste0(MONITORING_DATA_LINK_TEXT, "; ", MONITORING_DATA_LINK_TEXT.New),
                 MONITORING_DATA_LINK_TEXT
               ),
               MONITORING_DATA_LINK_TEXT = stringr::str_remove_all(
@@ -405,8 +387,8 @@ TADA_UpdateMonitoringLocationsInATTAINS <- function(org_id = NULL,
             dplyr::select(ASSESSMENT_UNIT_ID, MS_ORG_ID, MS_LOCATION_ID, MONITORING_DATA_LINK_TEXT) %>%
             dplyr::distinct()
         }
+    return(update.crosswalk)
       }
-  return(update.crosswalk)
 }
 
 
