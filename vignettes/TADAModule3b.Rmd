@@ -1,0 +1,184 @@
+---
+title: "TADA Module 3b: Defining Criteria (Magnitude Only) and Summarizing Individual Excursions"
+format: html
+editor: visual
+author: "TADA Team"
+date: "`r Sys.Date()`"
+output: 
+  rmarkdown::html_vignette:
+    toc: true
+    fig_caption: yes
+    fig_height: 8
+    fig_width: 8
+vignette: >
+  %\VignetteEncoding{UTF-8}
+  %\VignetteIndexEntry{TADA Module 3: Associating WQP Characteristics with Applicable ATTAINS Parameters and Uses}
+  %\VignetteEngine{knitr::rmarkdown}
+description: The first of multiple vignettes (under development) showcasing TADA Module 3 functions and a recommended workflow.
+editor_options:
+  chunk_output_type: console
+  markdown:
+    wrap: 72
+---
+
+```{r setup, include = F}
+library(knitr)
+
+knitr::opts_chunk$set(
+  echo = TRUE,
+  warning = FALSE,
+  message = FALSE
+)
+```
+
+## Welcome!
+
+Thank you for your interest in Tools for Automated Data Analysis (TADA).
+TADA is an open-source tool set built in the R programming language.
+This [RMarkdown](https://bookdown.org/yihui/rmarkdown/) document walks
+users through how to download the EPATADA R package from GitHub, access
+and parameterize several important functions, and create basic
+visualizations with a sample data set.
+
+**Note: EPATADA is still under development. New functionality is added
+weekly, and sometimes we need to make bug fixes in response to tester
+and user feedback. We appreciate your feedback, patience, and interest
+in these helpful tools.**
+
+**If you are interested in contributing to EPATADA development, more
+information is available at:**
+
+[**Contributing**](https://usepa.github.io/EPATADA/articles/CONTRIBUTING.html)
+
+**We welcome collaboration with external partners.**
+
+## Install and load packages
+
+First, install and load the remotes package specifying the repo. This is
+needed before installing EPATADA because it is only available on GitHub.
+
+```{r install_remotes, results = 'hide', eval = F}
+install.packages("remotes",
+  repos = "http://cran.us.r-project.org"
+)
+library(remotes)
+```
+
+Next, install and load the EPATADA R Package using the remotes package.
+Dependency packages will also be downloaded automatically from CRAN. You
+may be prompted in the console to update dependencies that have more
+recent versions available. If you see this prompt, it is recommended to
+update all of them (enter 1 into the console).
+
+```{r install_TADA_dev, eval = T, include = F}
+# helps with development (knit and checks), this chunk should not appear on website
+remotes::install_github("USEPA/EPATADA",
+  ref = "Create-Module-3-AURef",
+  dependencies = TRUE
+)
+```
+
+```{r install_TADA, eval = F, results = 'hide'}
+remotes::install_github("USEPA/EPATADA",
+  ref = "develop",
+  dependencies = TRUE
+)
+```
+
+Finally, use the **library()** function to load the EPATADA R Package
+into your R session.
+
+```{r library, results = 'hide'}
+library(EPATADA)
+```
+
+## Help pages
+
+All TADA R package functions have their own individual help pages,
+listed on the [Function
+reference](https://usepa.github.io/EPATADA/reference/index.html) page on
+the GitHub site. Users can also access the help page for a given
+function in R or RStudio using the following format (example below):
+`?[name of TADA function]`
+
+```{r help_pages, eval = F}
+# Access help page for TADA_DataRetrieval
+?TADA_DataRetrieval
+```
+
+## Module 3 Functions in TADA
+
+Disclaimer: The EPATADA Module 3 functions were designed to: (1) assist
+users with associating Water Quality Portal monitoring locations with
+assessment units and designated uses from ATTAINS and (2) compare Water
+Quality Portal results with numeric water quality criteria. EPATADA
+functions do not constitute current EPA policy or regulatory
+requirements. Organizations may choose to use EPATADA as a a tool in
+their decision making processes. Use of EPATADA is not required.
+
+## Introduction
+
+Please see "TADA Module 3a: Associating WQP Characteristics with Applicable ATTAINS Parameters and Uses" 
+on information on creating the necessary crosswalk tables prior to this step.
+
+Once a user has completed the necessary crosswalk tables, they can proceed to defining their organization's
+criteria and methods for a parameter and use. The EPA304a standards, if a user has chosen to include, will
+be autopopulated. Users are able to modify these methods as desire.
+
+We will start off by loading in the 3 user created reference files that were created during
+the TADA module 3a vignette.
+
+```{r}
+Data_NCTC <- Data_WV_Mod1_Output
+ParamRef <- dplyr::mutate(NCTC_ParamRef, ATTAINS.ParameterName = dplyr::case_when(
+TADA.CharacteristicName == "PH" ~ "PH",
+TADA.ComparableDataIdentifier == "ZINC_TOTAL_NA_UG/L" ~ "ZINC",
+grepl("NITRATE", TADA.ComparableDataIdentifier) ~ "NITROGEN, TOTAL"
+))
+TADA_CSVExport(ref = ParamRef)
+
+NCTC_ParamRef2 <- TADA_CreateParamRef(
+  Data_NCTC,
+  org_id = c("MDE_EASP"),
+  paramRef = ParamRef,
+  excel = FALSE,
+  # excel = TRUE, overwrite = TRUE
+)
+
+add_data <- data.frame("organization_identifier" = "MDE_EASP" ,"ATTAINS.ParameterName" = rep("PH",3), "use_name" = c("Aquatic Life and Wildlife", "Water Contact Sports",
+"Seasonal Migratory Fish Spawning and Nursery Subcategory"
+))
+
+# The output of this will not reflect changes to the ATTAINS.FlagUseName column. To do so, we need to re run TADA_CreateParamUseRef() with paramUseRef = ParamUseRef as an argument.
+ParamUseRef <- NCTC_ParamUseRef3 %>%
+  dplyr::left_join(add_data, by = c("organization_identifier", "ATTAINS.ParameterName"), keep = FALSE) %>% 
+  dplyr::mutate(use_name = dplyr::coalesce(use_name.x, use_name.y)) %>% 
+  dplyr::select(-c(use_name.x, use_name.y))
+
+# PH will now reflect the changes 
+NCTC_ParamUseRef3.1 <- TADA_CreateParamUseRef(
+  Data_NCTC,
+  paramUseRef = ParamUseRef, # Edits were made to paramUseRef, updates flag column
+  org_id = c("EPA304a", "MDE_EASP"), 
+  paramRef = NCTC_ParamRef2, 
+  excel = FALSE # comment out 'excel = FALSE' and uncomment 'excel = TRUE, overwrite = TRUE' to run the excel file
+  # excel = TRUE, overwrite = TRUE 
+  ) 
+
+NCTC_AURef <- TADA_CreateAURef(Data_NCTC, excel = TRUE, overwrite = TRUE)
+```
+
+# Defining Criteria - Magnitude Methodology
+Next, users will use the reference tables in order to define the associated methods for each parameter and use
+combination that they have defined. 
+
+```{r}
+NCTC_magnitude <- TADA_DefineMagnitude(
+  Data_NCTC, 
+  paramRef = NCTC_ParamRef2, 
+  paramUseRef = NCTC_ParamUseRef3.1, 
+  AUIDRef = NCTC_AURef, 
+  excel = TRUE, overwrite = TRUE
+  )
+```
+
