@@ -261,7 +261,7 @@ TADA_DataRetrieval <- function(startDate = "null",
   }
   
   # Insufficient tribal info provided:
-  # Type but no parcel
+  # Type but no name or parcel
   if ((tribal_area_type != "null") & all(tribe_name_parcel == "null")) {
     stop("A tribe_name_parcel is required if tribal_area_type is provided.")
   }
@@ -412,7 +412,7 @@ TADA_DataRetrieval <- function(startDate = "null",
         stop("Tribal area type or tribal name parcel not recognized. Refer to TADA_TribalOptions() for query options.")
       }
     }
-    
+
     # Check and/or fix geometry
     aoi_sf <- sf::st_make_valid(aoi_sf)
     
@@ -457,7 +457,6 @@ TADA_DataRetrieval <- function(startDate = "null",
       stop("No monitoring sites were returned within your area of interest (no data available).")
     }
     
-    
     quiet_whatWQPsites <- purrr::quietly(dataRetrieval::whatWQPsites)
     
     quiet_bbox_sites <- quiet_whatWQPsites(
@@ -482,6 +481,11 @@ TADA_DataRetrieval <- function(startDate = "null",
     clipped_sites_sf <- bbox_sites_sf[aoi_sf, ]
     
     clipped_site_ids <- clipped_sites_sf$MonitoringLocationIdentifier
+    
+    # Check if any sites are within the clip
+    if ((length(clipped_site_ids) > 0) == FALSE) {
+      stop("No monitoring sites were returned within your area of interest (no data available).")
+    }
     
     record_count <- bbox_avail %>%
       dplyr::filter(MonitoringLocationIdentifier %in% clipped_site_ids) %>%
@@ -837,7 +841,7 @@ TADA_DataRetrieval <- function(startDate = "null",
         dplyr::across(tidyselect::everything(), as.character)
       )
       
-      # run TADA_AutoClean function
+      # Run TADA_AutoClean function
       if (applyautoclean == TRUE) {
         print("Data successfully downloaded. Running TADA_AutoClean function.")
         
@@ -860,7 +864,7 @@ TADA_DataRetrieval <- function(startDate = "null",
         )
       )
       
-      # check if any results are available
+      # Check if any results are available
       if ((nrow(results.DR) > 0) == FALSE) {
         print("Returning empty results dataframe: Your WQP query returned no results (no data available). Try a different query. Removing some of your query filters OR broadening your search area may help.")
         TADAprofile.clean <- results.DR
