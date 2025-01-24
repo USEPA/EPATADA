@@ -22,6 +22,10 @@ This function creates a dataframe with two columns to show the organization
 identifier for each monitoring location. The user can select whether the
 monitoring location identifier column displays the original WQP
 'MonitoringLocationIdentifier' or the 'TADA.MonitoringLocationIdentifier'.
+When 'TADA.MonitoringLocationIdentifier' is selected (with id = "tada"), there
+may be fewer rows in the resulting data set than when 'MonitoringLocationIdentifier"
+is selected (with id = "wqp") due to grouping of nearby sites as a result of applying
+TADA functions such as TADA_FindNearbySites or TADA_FindPotentialDuplicatesMultipleOrgs.
 }
 \examples{
 data(Data_6Tribes_5y_Harmonized)
