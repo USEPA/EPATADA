@@ -7,7 +7,7 @@
 #' MonitoringLocationIdentifiers associated with their Assessment Units in ATTAINS, this function 
 #' can be used to create a crosswalk of known MonitoringLocationIdentifiers and Assessment Units. 
 #' All tribal nations record this crosswalk in ATTAINS but only a few states. If a state has not 
-#' supplied Monitoring Location information to ATTAINS, the function does not return a data frame.
+#' supplied Monitoring Location information to ATTAINS, the function will not return a data frame.
 #'
 #' @param org_id The ATTAINS organization identifier must be supplied by the user. A list of
 #' organization identifiers can be found by downloading the ATTAINS Domains Excel file:
@@ -94,66 +94,6 @@ TADA_GetATTAINSAUSiteCrosswalk <- function(org_id = NULL) {
   }
 }
 
-WQPProviderRef_Cached <- NULL
-
-#' Get Organization and Provider Reference Table (IN ACTIVE DEVELOPMENT)
-#'
-#' This function creates a crosswalk of all OrganizationIdentifiers, 
-#' OrganizationFormalNames, and ProviderNames in the Water Quality Portal (WQP).
-#'
-#' @return A crosswalk dataframe including the following columns: 
-#' OrganizationIdentifier, OrganizationFormalName, ProviderName.
-#'
-#' @export
-#'
-#' @examples
-#' \dontrun{
-#' provider.ref <- TADA_GetProviderRef()
-#' }
-#'
-TADA_GetWQPOrgProviderRef <- function() {
-  # If there is a cached table available return it
-  if (!is.null(WQXProviderRef_Cached)) {
-    return(WQXProviderRef_Cached)
-  }
-
-  # Try to download up-to-date raw data
-  raw.data <- tryCatch(
-    {
-      # read raw csv from url
-      utils::read.csv(url("https://www.waterqualitydata.us/data/Organization/search?mimeType=csv&zip=no")) %>%
-        dplyr::select(OrganizationIdentifier, OrganizationFormalName, ProviderName) %>%
-        dplyr::distinct()
-    },
-    error = function(err) {
-      NULL
-    }
-  )
-  
-  # need to remove providers w/ no sites on date site pages
-
-  # If the download failed fall back to internal data (and report it)
-  if (is.null(raw.data)) {
-    message("Downloading latest WQP Organization and Provider Reference Table failed!")
-    message("Falling back to (possibly outdated) internal file.")
-    return(utils::read.csv(system.file("extdata", "WQXProviderRef.csv", package = "EPATADA")))
-  }
-
-  # Save updated table in cache
-  WQPProviderRef <- raw.data
-
-  WQPProviderRef_Cached <- WQPProviderRef
-
-  WQPProviderRef
-}
-
-# Update Characteristic Reference Table internal file (for internal use only)
-
-TADA_UpdateWQPOrgProviderRef <- function() {
-  utils::write.csv(TADA_GetWQPOrgProviderRef(), file = "inst/extdata/WQXProviderRef.csv", row.names = FALSE)
-}
-
-
 #' Add or Update Monitoring Location Identifiers in ATTAINS
 #'
 #' This function creates the batch upload files needed to add or update  
@@ -179,10 +119,9 @@ TADA_UpdateWQPOrgProviderRef <- function() {
 #' or added to the returned data frame. Default is wqp_data_links = "add".
 #'
 #' @param attains_replace Character argument. When attains_replace = FALSE, all 
-#' Monitoring Location Identifiers associated with an Assessment Unit in ATTAINS
-#' will be retained even if they are not included in the user supplied crosswalk.
-#' When attains_replace = TRUE, Monitoring Location Identifiers will only be 
-#' retained if they are in the user supplied crosswalk. Default equals FALSE.
+#' Monitoring Location Identifiers in the user supplied crosswalk will be appended to the
+#' existing ATTAINS crosswalk. When attains_replace = TRUE, Monitoring Location Identifiers 
+#' will only be retained if they are in the user supplied crosswalk. Default equals FALSE.
 #'
 #' @param crosswalk A user-supplied dataframe with the columns ASSESSMENT_UNIT_ID
 #' and MS_LOCATION_ID. When crosswalk = NULL, the crosswalk will be downloaded 
@@ -201,6 +140,7 @@ TADA_UpdateWQPOrgProviderRef <- function() {
 #'                                                crosswalk = NULL, 
 #'                                                attains_replace = FALSE, 
 #'                                                wqp_data_links = "replace")
+#'                                                }
 #'
 TADA_UpdateMonitoringLocationsInATTAINS <- function(org_id = NULL,
                                                     crosswalk = NULL,

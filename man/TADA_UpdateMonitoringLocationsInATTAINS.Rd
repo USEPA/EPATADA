@@ -26,10 +26,9 @@ Site pages to the ATTAINS Assessment Unit profile where possible without
 updating other information in ATTAINS.}
 
 \item{attains_replace}{Character argument. When attains_replace = FALSE, all
-Monitoring Location Identifiers associated with an Assessment Unit in ATTAINS
-will be retained even if they are not included in the user supplied crosswalk.
-When attains_replace = TRUE, Monitoring Location Identifiers will only be
-retained if they are in the user supplied crosswalk. Default equals FALSE.}
+Monitoring Location Identifiers in the user supplied crosswalk will be appended to the
+existing ATTAINS crosswalk. When attains_replace = TRUE, Monitoring Location Identifiers
+will only be retained if they are in the user supplied crosswalk. Default equals FALSE.}
 
 \item{wqp_data_links}{Character argument. When wqp_data_links is equal to "add"
 or "replace", the function will build the URL for the Water Quality Portal
@@ -53,7 +52,10 @@ Monitoring Location Identifiers should be appended (added) to existing records.
 \examples{
 \dontrun{
 # Alaska example
-AK_batchAUupload <- TADA_UpdateMonitoringLocationsInATTAINS(org_id = "AKDECWQ", crosswalk = NULL, attains_replace = FALSE, wqp_data_links = "add")
-}
+AK_batchAUupload <- TADA_UpdateMonitoringLocationsInATTAINS(org_id = "AKDECWQ", 
+                                               crosswalk = NULL, 
+                                               attains_replace = FALSE, 
+                                               wqp_data_links = "replace")
+                                               }
 
 }

@@ -27,7 +27,7 @@ with their Assessment Units to ATTAINS. If the organization has recorded
 MonitoringLocationIdentifiers associated with their Assessment Units in ATTAINS, this function
 can be used to create a crosswalk of known MonitoringLocationIdentifiers and Assessment Units.
 All tribal nations record this crosswalk in ATTAINS but only a few states. If a state has not
-supplied this crosswalk to ATTAINS, the function not return a data frame.
+supplied Monitoring Location information to ATTAINS, the function will not return a data frame.
 }
 \examples{
 \dontrun{
