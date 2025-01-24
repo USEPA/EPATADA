@@ -905,3 +905,63 @@ TADA_UpdateMonLocTypeRef <- function() {
     row.names = FALSE
   )
 }
+
+WQPProviderRef_Cached <- NULL
+
+#' Get Organization and Provider Reference Table (IN ACTIVE DEVELOPMENT)
+#'
+#' This function creates a crosswalk of all OrganizationIdentifiers, 
+#' OrganizationFormalNames, and ProviderNames in the Water Quality Portal (WQP).
+#'
+#' @return A crosswalk dataframe including the following columns: 
+#' OrganizationIdentifier, OrganizationFormalName, ProviderName.
+#'
+#' @export
+#'
+#' @examples
+#' \dontrun{
+#' provider.ref <- TADA_GetProviderRef()
+#' }
+#'
+TADA_GetWQPOrgProviderRef <- function() {
+  # If there is a cached table available return it
+  if (!is.null(WQXProviderRef_Cached)) {
+    return(WQXProviderRef_Cached)
+  }
+  
+  # Try to download up-to-date raw data
+  raw.data <- tryCatch(
+    {
+      # read raw csv from url
+      utils::read.csv(url("https://www.waterqualitydata.us/data/Organization/search?mimeType=csv&zip=no")) %>%
+        dplyr::select(OrganizationIdentifier, OrganizationFormalName, ProviderName) %>%
+        dplyr::distinct()
+    },
+    error = function(err) {
+      NULL
+    }
+  )
+  
+  # need to remove providers w/ no sites on date site pages
+  
+  # If the download failed fall back to internal data (and report it)
+  if (is.null(raw.data)) {
+    message("Downloading latest WQP Organization and Provider Reference Table failed!")
+    message("Falling back to (possibly outdated) internal file.")
+    return(utils::read.csv(system.file("extdata", "WQXProviderRef.csv", package = "EPATADA")))
+  }
+  
+  # Save updated table in cache
+  WQPProviderRef <- raw.data
+  
+  WQPProviderRef_Cached <- WQPProviderRef
+  
+  WQPProviderRef
+}
+
+# Update Characteristic Reference Table internal file (for internal use only)
+
+TADA_UpdateWQPOrgProviderRef <- function() {
+  utils::write.csv(TADA_GetWQPOrgProviderRef(), file = "inst/extdata/WQXProviderRef.csv", row.names = FALSE)
+}
+

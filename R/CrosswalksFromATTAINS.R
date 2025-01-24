@@ -94,7 +94,7 @@ TADA_GetATTAINSAUSiteCrosswalk <- function(org_id = NULL) {
   }
 }
 
-WQXProviderRef_Cached <- NULL
+WQPProviderRef_Cached <- NULL
 
 #' Get Organization and Provider Reference Table (IN ACTIVE DEVELOPMENT)
 #'
@@ -111,7 +111,7 @@ WQXProviderRef_Cached <- NULL
 #' provider.ref <- TADA_GetProviderRef()
 #' }
 #'
-TADA_GetProviderRef <- function() {
+TADA_GetWQPOrgProviderRef <- function() {
   # If there is a cached table available return it
   if (!is.null(WQXProviderRef_Cached)) {
     return(WQXProviderRef_Cached)
@@ -140,17 +140,17 @@ TADA_GetProviderRef <- function() {
   }
 
   # Save updated table in cache
-  WQXProviderRef <- raw.data
+  WQPProviderRef <- raw.data
 
-  WQXProviderRef_Cached <- WQXProviderRef
+  WQPProviderRef_Cached <- WQPProviderRef
 
-  WQXProviderRef
+  WQPProviderRef
 }
 
 # Update Characteristic Reference Table internal file (for internal use only)
 
-TADA_UpdateProviderRef <- function() {
-  utils::write.csv(TADA_GetProviderRef(), file = "inst/extdata/WQXProviderRef.csv", row.names = FALSE)
+TADA_UpdateWQPOrgProviderRef <- function() {
+  utils::write.csv(TADA_GetWQPOrgProviderRef(), file = "inst/extdata/WQXProviderRef.csv", row.names = FALSE)
 }
 
 
