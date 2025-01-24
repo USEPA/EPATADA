@@ -133,7 +133,7 @@ with a parameter and designated use.
 This vignette provides an overview of functions that assist users with:
 
 -   Matching WQP monitoring locations to ATTAINS assessment units by
-    leveraging ATTAINS geospatial web services.
+    leveraging ATTAINS web services.
 
 -   Creating a parameter crosswalk between ATTAINS parameter names and
     WQP/TADA parameter names.
@@ -155,7 +155,7 @@ This vignette provides an overview of functions that assist users with:
 Module 3 functions are designed with the flexibility for users from
 states, tribes, or territories to input organization-specific or
 site-specific criteria as defined in their own numeric water quality
-critieria or methdogologies. While TADA functions autoamte some of this
+critieria or methdogologies. While TADA functions automate some of this
 process, users must review and modify the crosswalk tables generated in
 each step of the process to ensure their accuracy. The TADA team has
 also incorporated national recommended Clean Water Act (CWA) 304(a)
@@ -167,7 +167,13 @@ organization's criteria.
 
 **Additional Description:**
 
-**...**
+This vignette is the first of several series in Module 3. This vignette
+will focus on assisting users to create the crosswalk reference tables
+that are needed prior to defining and capturing your organization's
+criteria and methodologies. We will start the example by going through
+an example data frame that has gone through data cleaning, wrangling,
+harmonization, handling of censored data and other Module 1 TADA
+functions.
 
 ## Example with Data_WV_Mod1_Output
 
@@ -208,8 +214,7 @@ data from the ATTAINS public web services
 (<https://github.com/mps9506/rATTAINS>).
 
 ```{r, eval = FALSE}
-# can this be made easier to read? set up as DT?
-rATTAINS::domain_values(domain_name = "ParameterName")
+TADA_CSVExport(rATTAINS::domain_values(domain_name = "ParameterName"))
 ```
 
 As the ATTAINS parameters are more general than the
@@ -246,7 +251,7 @@ should contact the ATTAINS team (attains\@epa.gov) for assistance.
 # create parameter reference table
 NCTC_ParamRef <- TADA_CreateParamRef(
   Data_NCTC,
-  org_names = c("Maryland"),
+  org_id = c("MDE_EASP"),
   excel = FALSE, # change to TRUE to download excel file
   overwrite = FALSE
 )
@@ -263,10 +268,10 @@ TADA_CreateParamRef using the modified parameter reference table as the
 input for "paramRef". This will update the ATTAINS.FlagParameterName
 column in the parameter reference table (see NCTC_ParamRef2 in example
 below). This column provides information about whether or not the
-organization specified in the "organization_name" column has listed this
-parameter as a cause in prior assessment cycles. It also flags rows
-where the TADA.ComparableDataIdentifier as not been assigned an ATTAINS
-parameter name.
+organization specified in the "organization_identifier" column has
+listed this parameter as a cause in prior assessment cycles. It also
+flags rows where the TADA.ComparableDataIdentifier as not been assigned
+an ATTAINS parameter name.
 
 ```{r}
 # only run the code chunks below if you make edits to the excel file.
@@ -275,7 +280,7 @@ parameter name.
 
 # NCTC_ParamRef3 <- TADA_CreateParamRef(
 #   Data_NCTC,
-#   org_names = c("Maryland"),
+#   org_names = c("MDE_EASP"),
 #   paramRef = ParamRef,
 #   excel = FALSE # comment out 'excel = FALSE' and uncomment excel = TRUE, overwrite = TRUE to run the excel file
 #   #excel = TRUE, overwrite = TRUE
@@ -290,7 +295,7 @@ TADA_CSVExport(ref = ParamRef)
 
 NCTC_ParamRef2 <- TADA_CreateParamRef(
   Data_NCTC,
-  org_names = c("Maryland"),
+  org_id = c("MDE_EASP"),
   paramRef = ParamRef,
   excel = FALSE
 ) # comment out 'excel = FALSE' and uncomment excel = TRUE, overwrite = TRUE to run the excel file
@@ -316,15 +321,15 @@ additional rows as needed and choosing the appropriate use_name
 applicable to their org under the column 'use_name'.
 
 For example, we can see "PH" was not a prior ATTAINS parameter name for
-Maryland, thus additional rows should be inputted to reflect what
+MDE_EASP, thus additional rows should be inputted to reflect what
 parameter and use combinations are needed to be defined for assessments
 (disclaimer: this is for demonstration purposes only and does not
-reflect Maryland's Criteria and Methodologies for PH).
+reflect MDE_EASP's Criteria and Methodologies for PH).
 
 ```{r}
 NCTC_ParamUseRef <- TADA_CreateParamUseRef(
   Data_NCTC,
-  org_names = c("Maryland"),
+  org_id = c("MDE_EASP"),
   paramRef = ParamRef,
   excel = FALSE # comment out 'excel = FALSE' and uncomment excel = TRUE, overwrite = TRUE to run the excel file
   # excel = TRUE, overwrite = TRUE
@@ -335,15 +340,16 @@ TADA_CSVExport(ref = NCTC_ParamUseRef)
 User can include the EPA304a standards with the input "org_names", which
 utilizes the EPA304a.PollutantName column created in
 TADA_CreateParamRef(). If a user includes additional orgs besides
-"Maryland" and "EPA304a", see example NCTC_ParamUseRef2 below, it will
+"MDE_EASP" and "EPA304a", see example NCTC_ParamUseRef2 below, it will
 not generate rows for those parameter and use combinations for those
-additional orgs ("Virginia", "Pennsylvania", "West Virginia") as only
-Maryland was defined in TADA_CreateParamRef() for paramRef = ParamRef.
+additional orgs ("21VASWCB" (Virginia), "21PA"(Pennsylvania), WVDEP
+(West Virginia)) as only MDE_EASP (Maryland) was defined in
+TADA_CreateParamRef() for paramRef = ParamRef.
 
 ```{r}
 NCTC_ParamUseRef2 <- TADA_CreateParamUseRef(
   Data_NCTC,
-  org_names = c("EPA304a", "Maryland", "Virginia", "Pennsylvania", "West Virginia"),
+  org_id = c("EPA304a", "MDE_EASP", "21VASWCB", "21PA", "WVDEP"),
   paramRef = ParamRef,
   excel = FALSE # comment out 'excel = FALSE' and uncomment excel = TRUE, overwrite = TRUE to run the excel file
   # excel = TRUE, overwrite = TRUE
@@ -353,7 +359,7 @@ TADA_CSVExport(ref = NCTC_ParamUseRef2)
 # User should only run TADA_CreateParamUseRef() which contains the orgs of interest. If there are other orgs that are interested, this should have been defined in TADA_CreateParamRef() for the paramRef argument input in which users will need to be aware of the appropriate parameter name crosswalk (if users share their criteria and methods in the future, this could be more feasible)
 NCTC_ParamUseRef3 <- TADA_CreateParamUseRef(
   Data_NCTC,
-  org_names = c("EPA304a", "Maryland"),
+  org_id = c("EPA304a", "MDE_EASP"),
   paramRef = NCTC_ParamRef2,
   excel = FALSE # comment out 'excel = FALSE' and uncomment excel = TRUE, overwrite = TRUE to run the excel file
   # excel = TRUE, overwrite = TRUE
@@ -366,20 +372,20 @@ ATTAINS.ParameterName "PH" as a crosswalk for
 TADA.ComparableDataIdentifier 'PH_NA_NA_STD UNITS' which was not used in
 prior ATTAINS assessment cycle for **Maryland**. This results in the
 'use_name' column returning a blank value for ATTAINS.ParameterName
-"PH". Maryland will need to specify the use_name(s) that they would like
+"PH". MDE_EASP will need to specify the use_name(s) that they would like
 to associate with "PH". In excel, there will be a drop down list of org
 specific use_names that were used in prior ATTAINS assessments. If no
 excel file was generated, this is an example workflow of what a user can
 do to edit the table in the R environment.
 
 ```{r paged.print=TRUE}
-add_data <- data.frame("organization_name" = "Maryland" ,"ATTAINS.ParameterName" = rep("PH",3), "use_name" = c("Aquatic Life and Wildlife", "Water Contact Sports",
+add_data <- data.frame("organization_identifier" = "MDE_EASP" ,"ATTAINS.ParameterName" = rep("PH",3), "use_name" = c("Aquatic Life and Wildlife", "Water Contact Sports",
 "Seasonal Migratory Fish Spawning and Nursery Subcategory"
 ))
 
 # The output of this will not reflect changes to the ATTAINS.FlagUseName column. To do so, we need to re run TADA_CreateParamUseRef() with paramUseRef = ParamUseRef as an argument.
 ParamUseRef <- NCTC_ParamUseRef3 %>%
-  dplyr::left_join(add_data, by = c("organization_name", "ATTAINS.ParameterName"), keep = FALSE) %>% 
+  dplyr::left_join(add_data, by = c("organization_identifier", "ATTAINS.ParameterName"), keep = FALSE) %>% 
   dplyr::mutate(use_name = dplyr::coalesce(use_name.x, use_name.y)) %>% 
   dplyr::select(-c(use_name.x, use_name.y))
 
@@ -390,7 +396,7 @@ TADA_CSVExport(ref = ParamUseRef)
 NCTC_ParamUseRef3.1 <- TADA_CreateParamUseRef(
   Data_NCTC,
   paramUseRef = ParamUseRef, # Edits were made to paramUseRef, updates flag column
-  org_names = c("EPA304a", "Maryland"), 
+  org_id = c("EPA304a", "MDE_EASP"), 
   paramRef = NCTC_ParamRef2, 
   excel = FALSE # comment out 'excel = FALSE' and uncomment 'excel = TRUE, overwrite = TRUE' to run the excel file
   # excel = TRUE, overwrite = TRUE 
