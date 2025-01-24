@@ -46,8 +46,8 @@
 #' @param huc A numeric code denoting a hydrologic unit. Example: "04030202". Different size hucs can be entered. See https://epa.maps.arcgis.com/home/item.html?id=796992f4588c401fabec7446ecc7a5a3 for a map with HUCS. Click on a HUC to find the associated code.
 #' @param siteid Unique monitoring location identifier.
 #' @param siteType Type of waterbody. See https://www.waterqualitydata.us/Codes/sitetype for options.
-#' @param tribal_area_type One of the six tribal spatial layers: "Alaska Native Allotments", "Alaska Native Villages",  "American Indian Reservations", "Off-reservation Trust Lands", "Oklahoma Tribal Statistical Areas", or "Virginia Federally Recognized Tribes".
-#' @param tribe_name_parcel The name of a tribe corresponding to an entry in the TRIBE_NAME field of the specified tribal_area_type. OR if the type is Alaska Native Allotments" then the corresponding PARCEL_NO.
+#' @param tribal_area_type One of four tribal spatial layers: "Alaska Native Allotments", "American Indian Reservations", "Off-reservation Trust Lands", or "Oklahoma Tribal Statistical Areas". More info in TADA_TribalOptions(). Note that "Alaska Native Villages" and "Virginia Federally Recognized Tribes" layers will not return a successful query.
+#' @param tribe_name_parcel The name of a tribe corresponding to an entry in the TRIBE_NAME field of the specified tribal_area_type. OR if the type is "Alaska Native Allotments" then the corresponding PARCEL_NO. More info in TADA_TribalOptions().
 #' @param characteristicName Name of parameter. See https://www.waterqualitydata.us/Codes/characteristicName for options.
 #' @param characteristicType Groups of environmental measurements/parameters. See https://www.waterqualitydata.us/Codes/characteristicType for options.
 #' @param sampleMedia Sampling substrate such as water, air, or sediment. See https://www.waterqualitydata.us/Codes/sampleMedia for options.
@@ -254,7 +254,12 @@ TADA_DataRetrieval <- function(startDate = "null",
     )
   }
 
-  # Insufficient tribal info provided
+  # Insufficient tribal info provided:
+  # Type but no parcel
+  if ((tribal_area_type != "null") & all(tribe_name_parcel == "null")) {
+    stop("A tribe_name_parcel is required if tribal_area_type is provided.")
+  }
+  # Parcel but no type
   if ((tribal_area_type == "null") & all(tribe_name_parcel != "null")) {
     stop("A tribal_area_type is required if tribe_name_parcel is provided.")
   }
@@ -423,6 +428,8 @@ TADA_DataRetrieval <- function(startDate = "null",
     quiet_whatWQPdata <- purrr::quietly(dataRetrieval::whatWQPdata)
 
     # Try getting WQP info
+    message("Checking what data is available. This may take a moment.")
+    
     quiet_bbox_avail <- quiet_whatWQPdata(
       WQPquery,
       bBox = c(input_bbox$xmin, input_bbox$ymin, input_bbox$xmax, input_bbox$ymax)
@@ -743,6 +750,8 @@ TADA_DataRetrieval <- function(startDate = "null",
     }
 
     # Query info on available data
+    message("Checking what data is available. This may take a moment.")
+    
     # Don't want to print every message that's returned by WQP
     quiet_whatWQPdata <- purrr::quietly(dataRetrieval::whatWQPdata)
 
