@@ -339,7 +339,7 @@ TADA_DataRetrieval <- function(startDate = "null",
     # If tribe info is provided then grab the corresponding sf object:
     if (tribal_area_type != "null") {
       # Make a reference table for tribal area type + url matching
-      # (options that don't return results are commented out for now)
+      # (options that don't return results are commented out)
       map_service_urls <- tibble::tribble(
         ~tribal_area,                            ~url,
         "Alaska Native Allotments",              "https://geopub.epa.gov/arcgis/rest/services/EMEF/Tribal/MapServer/0",
@@ -364,11 +364,9 @@ TADA_DataRetrieval <- function(startDate = "null",
 
       # These area types allow filtering by TRIBE_NAME (unique within each type)
       if (tribal_area_type %in% c(
-        # "Alaska Native Villages",
         "American Indian Reservations",
         "Off-reservation Trust Lands",
-        "Oklahoma Tribal Statistical Areas" # ,
-        # "Virginia Federally Recognized Tribes"
+        "Oklahoma Tribal Statistical Areas" 
       )
       ) {
         # Get the relevant url
@@ -405,7 +403,7 @@ TADA_DataRetrieval <- function(startDate = "null",
             }
           }
       } else {
-        stop("Tribal area type not recognized. Refer to TADA_TribalOptions() for query options.")
+        stop("Tribal area type or tribal name parcel not recognized. Refer to TADA_TribalOptions() for query options.")
       }
     }
 
@@ -957,7 +955,7 @@ TADA_TribalOptions <- function(tribal_area_type, return_sf = FALSE) {
   # Convert to df if needed, export
   if (return_sf == FALSE) {
     return(
-      as.data.frame(tribal_area_sf) %>%
+      tribal_area_sf %>%
         sf::st_drop_geometry()
     )
   } else {
