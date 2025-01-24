@@ -236,8 +236,9 @@ TADA_UpdateMonitoringLocationsInATTAINS <- function(org_id = NULL,
       # add Monitoring Location data links if wqp_data_links is not equal to "none"
 
       if (wqp_data_links != "none") {
-        # get org/provider name ref from TADA ref files
-        provider.ref <- utils::read.csv(system.file("extdata", "WQXProviderRef.csv", package = "EPATADA")) %>%
+        # get org/provider name ref 
+        
+        provider.ref <- TADA_GetWQPOrgProviderRef() %>%
           dplyr::select(OrganizationIdentifier, ProviderName) %>%
           dplyr::distinct() %>%
           dplyr::rename(MS_ORG_ID = OrganizationIdentifier) %>%

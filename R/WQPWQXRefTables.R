@@ -925,8 +925,8 @@ WQPProviderRef_Cached <- NULL
 #'
 TADA_GetWQPOrgProviderRef <- function() {
   # If there is a cached table available return it
-  if (!is.null(WQXProviderRef_Cached)) {
-    return(WQXProviderRef_Cached)
+  if (!is.null(WQPProviderRef_Cached)) {
+    return(WQPProviderRef_Cached)
   }
   
   # Try to download up-to-date raw data
