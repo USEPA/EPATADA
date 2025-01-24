@@ -47,7 +47,7 @@
 #' @param siteid Unique monitoring location identifier.
 #' @param siteType Type of waterbody. See https://www.waterqualitydata.us/Codes/sitetype for options.
 #' @param tribal_area_type One of four tribal spatial layers: "Alaska Native Allotments", "American Indian Reservations", "Off-reservation Trust Lands", or "Oklahoma Tribal Statistical Areas". More info in TADA_TribalOptions(). Note that "Alaska Native Villages" and "Virginia Federally Recognized Tribes" layers will not return a successful query.
-#' @param tribe_name_parcel The name of a tribe corresponding to an entry in the TRIBE_NAME field of the specified tribal_area_type. OR if the type is "Alaska Native Allotments" then the corresponding PARCEL_NO. More info in TADA_TribalOptions().
+#' @param tribe_name_parcel The name of one or more tribes corresponding to entries in the TRIBE_NAME field of the specified tribal_area_type. OR if the type is "Alaska Native Allotments" then the corresponding PARCEL_NO. More info in TADA_TribalOptions().
 #' @param characteristicName Name of parameter. See https://www.waterqualitydata.us/Codes/characteristicName for options.
 #' @param characteristicType Groups of environmental measurements/parameters. See https://www.waterqualitydata.us/Codes/characteristicType for options.
 #' @param sampleMedia Sampling substrate such as water, air, or sediment. See https://www.waterqualitydata.us/Codes/sampleMedia for options.
@@ -206,6 +206,12 @@ TADA_DataRetrieval <- function(startDate = "null",
                                maxrecs = 250000,
                                ask = TRUE,
                                applyautoclean = TRUE) {
+  
+  # Require one tribal area type:
+  if (length(tribal_area_type == "null") >1) {
+    stop("The tribal_area_type argument only accepts a single value, but multiple have been provided.")
+  }
+  
   # Check for incomplete or inconsistent inputs:
 
   # If both an sf object and tribe information are provided it's unclear what
@@ -263,7 +269,7 @@ TADA_DataRetrieval <- function(startDate = "null",
   if ((tribal_area_type == "null") & all(tribe_name_parcel != "null")) {
     stop("A tribal_area_type is required if tribe_name_parcel is provided.")
   }
-
+  
   # If an sf object OR tribal info are provided they will be the basis of the query
   # (The tribal data handling uses sf objects as well)
   if ((!is.null(aoi_sf) & inherits(aoi_sf, "sf")) | (tribal_area_type != "null")) {
