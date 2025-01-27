@@ -108,3 +108,16 @@ NULL
 #' @usage data(Data_R5_TADAPackageDemo)
 #' @format A data frame with 6569 rows and 123 variables
 NULL
+
+#' Data_WV_Mod1_Output
+#'
+#' See Module 1 Workflow.R script in vignettes folder
+#' This is the final data after running a recommended module 1 workflow.
+#' It can be used as a starting point for Modules 2 or 3.
+#'
+#' @docType data
+#' @keywords data frame
+#' @name Data_WV_Mod1_Output
+#' @usage data(Data_WV_Mod1_Output)
+#' @format A data frame with 84 rows and 161 variables
+NULL

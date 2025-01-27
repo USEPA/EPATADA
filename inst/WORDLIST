@@ -30,6 +30,7 @@ BiologicalIntentName
 CCO
 CNENVSER
 CRS
+CWA
 CalculateTotalNP
 CalculateTotalNitrogen
 CensoredData
@@ -54,9 +55,11 @@ ConvertSpecialChars
 CountyCode
 CreateComparableID
 CreatePairRef
+CreateParamRef
+CreateParamUseRef
 CreateUnitRef
+CriteriaSearchTool
 DataQuality
-DataRetreival
 DataRetrieval
 DataTypes
 DepthCategory
@@ -88,8 +91,10 @@ FlagDepthCategory
 FlagFraction
 FlagMeasureQualifierCode
 FlagMethod
+FlagParameterName
 FlagResultUnit
 FlagSpeciation
+FlagUseName
 FractionAssumptions
 FullPhysChem
 Geospatial
@@ -99,6 +104,7 @@ GetNutrientSummationRef
 GetSynonymRef
 Github
 HMW
+HRM
 HUC
 HUCS
 HUCs
@@ -110,6 +116,7 @@ HydrologicCondition
 HydrologicEvent
 IDCensoredData
 IDDepthProfiles
+IncludeOrExclude
 InvalidCoordinates
 InvalidFraction
 InvalidResultUnit
@@ -166,6 +173,7 @@ NutrientSummationGroup
 OA
 ORs
 Okabe
+OrgName
 OrganizationFormalName
 OrganizationIdentifier
 OutsideUSA
@@ -175,7 +183,11 @@ PUEBLOOFTESUQUE
 PairReplicates
 PairingGroup
 PairingGroupRank
+ParamRef
+ParameterName
+ParameterNames
 Pojoaque
+PollutantName
 ProjectFileUrl
 ProjectName
 QAPP
@@ -199,7 +211,6 @@ RStudio
 Rancherias
 ReplicateSampleID
 Repo
-ResultAboveUpperThreshold
 ResultAggregation
 ResultAnalyticalMethod
 ResultCommentText
@@ -213,7 +224,6 @@ ResultMeasureQualifier
 ResultMeasureUnit
 ResultMeasureValue
 ResultMeasureValueDataTypes
-ResultMeasureValues
 ResultParticleSizeBasisText
 ResultSampleFractionText
 ResultSelectedMultipleOrgs
@@ -247,6 +257,7 @@ StringB
 SubstituteDeprecatedChars
 SummarizeColumn
 SuspectCoordinates
+Sys
 TADA
 TADADataRetrieval
 TADAGeospatialRefLayers
@@ -259,6 +270,7 @@ TargetUnit
 Tesuque
 UG
 USEPA
+USERPROFILE
 USGS
 USGS's
 Uncomment
@@ -272,6 +284,7 @@ ViewATTAINS
 WGS
 WQC
 WQP
+WQS
 WQX
 WQX's
 WQXActivityTypeRef
@@ -317,6 +330,7 @@ countycode
 cristinamullin
 crs
 csv
+cwa
 dailyagg
 dataProfile
 dataRetrieval
@@ -329,6 +343,7 @@ dplyr
 du
 eXchange
 ecc
+ecoregion
 ecoregions
 endDate
 endDateHi
@@ -347,6 +362,7 @@ geospatially
 getFeatureLayer
 getLayer
 getPopup
+getenv
 ggplot
 github
 gitignore
@@ -363,16 +379,19 @@ magrittr
 manys
 mimeType
 mlt
+myfileRef
 nd
 nondetections
 nonstandardized
 np
 nresults
 od
+org's
 orgs
 ousideUSA
 outsideUSA
 param
+paramRef
 params
 pch
 pchIcons
@@ -380,6 +399,7 @@ pcodes
 ph
 plotly
 pre
+rATTAINS
 randombelowlimit
 rda
 readWQPdata
@@ -415,7 +435,9 @@ waterdata
 waterqualitydata
 webserviceurl
 wikipedia
+wqs
 wqx
 writeLayer
 www
+xlsx
 σ

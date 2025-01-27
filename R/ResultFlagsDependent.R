@@ -5,7 +5,7 @@
 #' combinations are removed. Default is clean = TRUE. When flaggedonly = TRUE, only
 #' Suspect characteristic-fraction combinations are returned. Default is flaggedonly = FALSE.
 #'
-#' #' The “Not Reviewed” value within "TADA.ResultAboveUpperThreshold.Flag" means
+#' The “Not Reviewed” value within "TADA.SampleFraction.Flag" means
 #' that the EPA WQX team has not yet reviewed the combinations
 #' (see https://cdx.epa.gov/wqx/download/DomainValues/QAQCCharacteristicValidation.CSV).
 #' The WQX team plans to review and update these new combinations quarterly.
@@ -129,7 +129,7 @@ TADA_FlagFraction <- function(.data, clean = TRUE, flaggedonly = FALSE) {
 #' rows with "Suspect" or "NonStandardized" characteristic-method speciation combinations.
 #' Default is flaggedonly = FALSE.
 #'
-#' The “Not Reviewed” value within "TADA.ResultAboveUpperThreshold.Flag" means
+#' The “Not Reviewed” value within "TADA.MethodSpeciation.Flag" means
 #' that the EPA WQX team has not yet reviewed the combinations
 #' (see https://cdx.epa.gov/wqx/download/DomainValues/QAQCCharacteristicValidation.CSV).
 #' The WQX team plans to review and update these new combinations quarterly.
@@ -296,7 +296,7 @@ TADA_FlagSpeciation <- function(.data, clean = c("suspect_only", "nonstandardize
 #' rows with "Suspect" or "NonStandardized" characteristic-media-result unit combinations.
 #' Default is flaggedonly = FALSE.
 #'
-#' The “Not Reviewed” value within "TADA.ResultAboveUpperThreshold.Flag" means
+#' The “Not Reviewed” value within "TADA.ResultUnit.Flag" means
 #' that the EPA WQX team has not yet reviewed the combinations
 #' (see https://cdx.epa.gov/wqx/download/DomainValues/QAQCCharacteristicValidation.CSV).
 #' The WQX team plans to review and update these new combinations quarterly.
@@ -410,6 +410,18 @@ TADA_FlagResultUnit <- function(.data, clean = c("suspect_only", "nonstandardize
   # check.data below should not be needed anymore with flagging consistency update, but will keep in if logic changes or is actually needed. 10/7/2024 KW
   check.data["TADA.ResultUnit.Flag"][is.na(check.data["TADA.ResultUnit.Flag"])] <- "Not Reviewed"
 
+  # Flag additional combinations that are invalid regardless of media type (and media type was left blank - NWIS only issue)
+  if(any(check.data$TADA.CharacteristicName == "PH")) {
+    check.data <- check.data %>%
+      dplyr::mutate(TADA.ResultUnit.Flag = 
+                      ifelse(TADA.CharacteristicName == "PH" & 
+                               is.na(TADA.ActivityMediaName) &
+                               TADA.ResultMeasure.MeasureUnitCode == "MOLE/L"
+                             | TADA.ResultMeasure.MeasureUnitCode == "MMOL/L",
+                             "Suspect", TADA.ResultUnit.Flag)
+      )
+    }
+  
   # if all rows are "Pass", return input with flag column
   if (any(c("NonStandardized", "Suspect", "Not Reviewed") %in%
     unique(check.data$TADA.ResultUnit.Flag)) == FALSE) {

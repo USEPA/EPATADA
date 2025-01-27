@@ -57,16 +57,16 @@ the flag column will be deleted and regenerated.
 }
 \examples{
 # Load example dataset:
-data(Data_Nutrients_UT)
+data(Data_NCTCShepherdstown_HUC12)
 
 # Remove data that is below the lower WQX threshold from the dataframe:
-WQXLowerThreshold_clean <- TADA_FlagBelowThreshold(Data_Nutrients_UT, clean = TRUE)
+WQXLowerThreshold_clean <- TADA_FlagBelowThreshold(Data_NCTCShepherdstown_HUC12, clean = TRUE)
 
 # Flag, but do not remove, data that is below the lower WQX threshold in
 # new column titled "TADA.ResultValueBelowLowerThreshold.Flag":
-WQXLowerThreshold_flags <- TADA_FlagBelowThreshold(Data_Nutrients_UT, clean = FALSE)
+WQXLowerThreshold_flags <- TADA_FlagBelowThreshold(Data_NCTCShepherdstown_HUC12, clean = FALSE)
 
 # Show only data that is below the lower WQX threshold:
-WQXLowerThreshold_flagsonly <- TADA_FlagBelowThreshold(Data_Nutrients_UT, clean = FALSE, flaggedonly = TRUE)
+WQXLowerThreshold_flagsonly <- TADA_FlagBelowThreshold(Data_NCTCShepherdstown_HUC12, clean = FALSE, flaggedonly = TRUE)
 
 }

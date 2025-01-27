@@ -33,7 +33,7 @@ combinations are removed. Default is clean = TRUE. When flaggedonly = TRUE, only
 Suspect characteristic-fraction combinations are returned. Default is flaggedonly = FALSE.
 }
 \details{
-#' The “Not Reviewed” value within "TADA.ResultAboveUpperThreshold.Flag" means
+The “Not Reviewed” value within "TADA.SampleFraction.Flag" means
 that the EPA WQX team has not yet reviewed the combinations
 (see https://cdx.epa.gov/wqx/download/DomainValues/QAQCCharacteristicValidation.CSV).
 The WQX team plans to review and update these new combinations quarterly.

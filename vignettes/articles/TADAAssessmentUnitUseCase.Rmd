@@ -492,7 +492,7 @@ unique(Harmonized_data$TADA.ComparableDataIdentifier)
 
 # filter for three comparable data identifiers of interest
 Filtered_data <- Harmonized_data %>%
-  dplyr::filter(TADA.ComparableDataIdentifier %in% c("TEMPERATURE_NA_NA_DEG C", "PH_NA_NA_NA", "TOTAL NITROGEN, MIXED FORMS_UNFILTERED_AS N_MG/L"))
+  dplyr::filter(TADA.ComparableDataIdentifier %in% c("TEMPERATURE_NA_NA_DEG C", "PH_NA_NA_STD UNITS", "TOTAL NITROGEN, MIXED FORMS_UNFILTERED_AS N_MG/L"))
 
 # generate stats table
 Filtered_data_stats <- TADA_Stats(Filtered_data)
@@ -508,7 +508,7 @@ temperature to begin visualizing the data, using
 
 ```{r two param scatterplot}
 # choose two and generate scatterplot
-TADA_TwoCharacteristicScatterplot(Harmonized_data, id_cols = "TADA.ComparableDataIdentifier", groups = c("TEMPERATURE_NA_NA_DEG C", "PH_NA_NA_NA"))
+TADA_TwoCharacteristicScatterplot(Harmonized_data, id_cols = "TADA.ComparableDataIdentifier", groups = c("TEMPERATURE_NA_NA_DEG C", "PH_NA_NA_STD UNITS"))
 ```
 
 Let's focus on just one characteristic, pH. We can filter the data frame
@@ -524,7 +524,7 @@ are not a default option in `TADA_Scatterplot` but can be added via the
 ```{r ph analysis and visualization}
 # comparison to standard for ph
 pH_Standard <- Filtered_data %>%
-  dplyr::filter(TADA.ComparableDataIdentifier == "PH_NA_NA_NA") %>%
+  dplyr::filter(TADA.ComparableDataIdentifier == "PH_NA_NA_STD UNITS") %>%
   dplyr::mutate(MeetsStandard = ifelse(TADA.ResultMeasureValue >= 6.5 & TADA.ResultMeasureValue <= 9, "Yes", "No"))
 
 

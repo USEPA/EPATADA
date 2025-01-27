@@ -72,7 +72,10 @@ Imports:
     nhdplusTools,
     arcgislayers,
     httr,
-    jsonlite
+    jsonlite, 
+    openxlsx,
+    rATTAINS,
+    DT
 Depends: 
     R (>= 3.5.0)
 Suggests:

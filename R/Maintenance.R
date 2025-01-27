@@ -12,6 +12,7 @@ TADA_UpdateAllRefs <- function() {
   TADA_UpdateCharacteristicRef()
   TADA_UpdateMeasureQualifierCodeRef()
   TADA_UpdateMonLocTypeRef()
+  TADA_UpdateEPA304aRef()
 }
 
 # # update tribal layers
@@ -132,6 +133,97 @@ TADA_UpdateExampleData <- function() {
   # save(Data_R5_TADAPackageDemo, file = "data/Data_R5_TADAPackageDemo.rda")
   usethis::use_data(Data_R5_TADAPackageDemo, internal = FALSE, overwrite = TRUE, compress = "xz", version = 3, ascii = FALSE)
   rm(Data_R5_TADAPackageDemo)
+  
+  # MODULE 3 VIGNETTE EXAMPLE DATA
+  # Get data
+  Data_WV <- TADA_DataRetrieval(
+    startDate = "2020-03-14",
+    huc = "02070004",
+    applyautoclean = FALSE)
+  
+  # Remove non-surface water media
+  # OPTIONAL
+  Data_WV_2 <- TADA_AnalysisDataFilter(
+    Data_WV,
+    clean = TRUE,
+    surface_water = TRUE,
+    ground_water = FALSE,
+    sediment = FALSE)
+  
+  # Remove single org duplicates
+  # REQUIRED
+  Data_WV_3 <- TADA_FindPotentialDuplicatesSingleOrg(
+    Data_WV_2)
+  
+  Data_WV_4 <- dplyr::filter(
+    Data_WV_3,
+    TADA.SingleOrgDup.Flag == "Unique")
+  
+  # Run autoclean
+  # REQUIRED
+  Data_WV_5 <- TADA_AutoClean(Data_WV_4)
+  
+  # Prepare censored results
+  # REQUIRED
+  Data_WV_6 <- TADA_SimpleCensoredMethods(
+    Data_WV_5,
+    nd_method = "multiplier",
+    nd_multiplier = 0.5,
+    od_method = "as-is",
+    od_multiplier = "null")
+  
+  # Remove multiple org duplicates
+  # OPTIONAL
+  Data_WV_7 <- TADA_FindPotentialDuplicatesMultipleOrgs(
+    Data_WV_6)
+  
+  Data_WV_8 <- dplyr::filter(
+    Data_WV_7,
+    TADA.ResultSelectedMultipleOrgs == "Y")
+  
+  # Filter out remaining irrelevant data, NA's and empty cols
+  # REQUIRED
+  unique(Data_WV_8$TADA.ResultMeasureValueDataTypes.Flag)
+  sum(is.na(Data_WV_8$TADA.ResultMeasureValue))
+  Data_WV_9 = TADA_AutoFilter(Data_WV_8)
+  unique(Data_WV_9$TADA.ResultMeasureValueDataTypes.Flag)
+  sum(is.na(Data_WV_9$TADA.ResultMeasureValue))
+  
+  # Remove results with QC issues
+  # REQUIRED
+  Data_WV_10 <- TADA_RunKeyFlagFunctions(
+    Data_WV_9,
+    clean = TRUE)
+  
+  # CM note for team discussion: Should results with NA units be dealt with now as well within TADA_AutoFilter? 
+  
+  # Flag above and below threshold. Do not remove
+  # OPTIONAL
+  Data_WV_11 <- TADA_FlagAboveThreshold(Data_WV_10, clean = FALSE, flaggedonly = FALSE)
+  Data_WV_12 <- TADA_FlagBelowThreshold(Data_WV_11, clean = FALSE, flaggedonly = FALSE)
+  
+  # Harmonize synonyms
+  # OPTIONAL
+  Data_WV_13 <- TADA_HarmonizeSynonyms(Data_WV_12)
+  
+  # Review
+  Data_WV_14 <- dplyr::filter(Data_WV_13, TADA.CharacteristicName %in% c("ZINC", "PH","NITRATE"))
+  
+  TADA_FieldValuesTable(Data_WV_14, field = "TADA.ComparableDataIdentifier")
+  
+  # Save example data
+  Data_WV_Mod1_Output <- Data_WV_14
+  
+  print("Data_WV_Mod1_Output:")
+  print(dim(Data_WV_Mod1_Output))
+  
+  usethis::use_data(Data_WV_Mod1_Output,
+                    internal = FALSE,
+                    overwrite = TRUE,
+                    compress = "xz",
+                    version = 3,
+                    ascii = FALSE)
+  rm(Data_WV_Mod1_Output)
 }
 
 ###########################################################
