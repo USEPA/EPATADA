@@ -134,6 +134,9 @@ geospatial-related filters that are not included in the dataRetrieval
 
 -   tribe_name_parcel
 
+The TADA_TribalOptions function can be used to narrow down options for
+use with tribe_name_parcel. See ?TADA_TribalOptions for more info.
+
 The default TADA_DataRetrieval function automatically runs the
 **TADA_AutoClean** function. In this example, we will set
 **TADA_AutoClean = FALSE** and run it as a separate step in the work
@@ -266,7 +269,8 @@ all.equal(data.frame(TADAProfile_single), data.frame(TADAProfile_tribal))
 
 Additionally, the aoi_sf argument can be used to provide an sf spatial
 object as a query filter. We can match the output of the two short
-examples above like so:
+examples above, using tigris::native_areas to acquire Census Bureau
+spatial data:
 
 ```{r TADA_DataRetrieval_spatial}
 TADAProfile_spatial <- TADA_DataRetrieval(

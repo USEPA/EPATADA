@@ -84,13 +84,14 @@ Suggests:
     tidyverse,
     knitr,
     testthat,
-    testthis, 
+    testthis,
     usethis,
     devtools,
     pkgdown,
     spelling,
     htmltools,
-    yaml
+    yaml,
+    tigris
 VignetteBuilder: knitr, rmarkdown
 Language: en-US
 Config/testthat/edition: 3
