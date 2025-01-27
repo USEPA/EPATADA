@@ -108,16 +108,12 @@ TADA_EQExtract <- function(profile = NULL) {
   # download zipped file
   httr::GET(url, httr::write_disk(temp, overwrite = TRUE), httr::progress())
   
-  #utils::download.file(url, temp, method = "curl", mode = "wb")
-  
-  #download.file(url, temp)
-  
   # unzip file
   unzipped.file <- utils::unzip(temp, exdir = tempdir())
   
-  csv.file <- unzip[grep("\\.csv$", unzipped.file)]
+  csv.file <- unzipped.file[grep("\\.csv$", unzipped.file, ignore.case = TRUE)]
   
-  df <- read.csv(csv.file)
+  df <- data.table::fread(csv.file)
   
   unlink(temp)
   unlink(unzip.file)
