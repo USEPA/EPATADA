@@ -125,7 +125,7 @@ TADA_EQExtractRetrieval <- function(profile = NULL) {
   unlink(unzipped.file)
   
   # remove intermediate objects
-  rm(url, latest.json, base.url, folder.num, date.print, url, label, file, temp, 
+  rm(url, latest.json, base.url, folder.num, date.print,  label, file, temp, 
      unzipped.file, csv.file)
   
   return(df)
