@@ -159,15 +159,13 @@ TADA_GetATTAINSAUSiteCrosswalk <- function(org_id = NULL) {
 #'   "AK_M_1021109_013", "AK_M_1021109_013",
 #'   "AK_M_1021109_013"
 #' )
-#' }
-
+#' 
 #' # example organization identifiers
 #' MS_ORG_ID <- c("AKDECWQ", "AKDECWQ", "AKDECWQ", "AKDECWQ", "AKDECWQ")
-
+#' 
 #' # example assessment units
 #' MS_LOCATION_ID <- c("ExampleSite1", "ExampleSite2", "ExampleSite3",
 #'                        "ExampleSite4", "ExampleSite5")
-
 #' # example urls
 #' MONITORING_DATA_LINK_TEXT <- c("https://www.waterqualitydata.us/provider/STORET/AKDECWQ/",
 #'                               "https://www.waterqualitydata.us/provider/STORET/AKDECWQ/",
@@ -183,7 +181,6 @@ TADA_GetATTAINSAUSiteCrosswalk <- function(org_id = NULL) {
 #'                                                crosswalk = ex.user.cw,
 #'                                                attains_replace = FALSE,
 #'                                                wqp_data_links = "none")
-
 #'
 #'
 #' }

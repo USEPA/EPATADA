@@ -58,39 +58,45 @@ Monitoring Location Identifiers should be appended (added) to existing records.
 \examples{
 \dontrun{
 # Alaska example to updated data links with no user supplied crosswalk
-AK_adddatalinks <- TADA_UpdateMonitoringLocationsInATTAINS(org_id = "AKDECWQ", 
-                                               crosswalk = NULL, 
-                                               attains_replace = FALSE, 
-                                               wqp_data_links = "replace")
+AK_adddatalinks <- TADA_UpdateMonitoringLocationsInATTAINS(
+  org_id = "AKDECWQ",
+  crosswalk = NULL,
+  attains_replace = FALSE,
+  wqp_data_links = "replace"
+)
 
 # Alaska example using a user supplied crosswalk to update entries in ATTAINS by appending
 # user supplied information to ATTAINS crosswalk
 
 # example monitoring location identifiers
-MS_LOCATION_ID <- c("AK_M_1021211_000", "K_M_1021008_000",
-                   "AK_M_1021109_013", "AK_M_1021109_013", 
-                   "AK_M_1021109_013")
+ASSESSMENT_UNIT_ID <- c(
+  "AK_M_1021211_000", "AK_M_1021008_000",
+  "AK_M_1021109_013", "AK_M_1021109_013",
+  "AK_M_1021109_013"
+)
+
 # example organization identifiers
 MS_ORG_ID <- c("AKDECWQ", "AKDECWQ", "AKDECWQ", "AKDECWQ", "AKDECWQ")
+
 # example assessment units
-ASSESSMENT_UNIT_ID <- c("ExampleSite1", "ExampleSite2", "ExampleSite3",
+MS_LOCATION_ID <- c("ExampleSite1", "ExampleSite2", "ExampleSite3",
                        "ExampleSite4", "ExampleSite5")
 # example urls
-MONITORING_DATA_LINK_TEXT <- c("https://www.waterqualitydata.us/provider/STORET/AKDECWQ/", 
-                              "https://www.waterqualitydata.us/provider/STORET/AKDECWQ/", 
-                              "https://www.waterqualitydata.us/provider/STORET/AKDECWQ/", 
-                              "https://www.waterqualitydata.us/provider/STORET/AKDECWQ/", 
+MONITORING_DATA_LINK_TEXT <- c("https://www.waterqualitydata.us/provider/STORET/AKDECWQ/",
+                              "https://www.waterqualitydata.us/provider/STORET/AKDECWQ/",
+                              "https://www.waterqualitydata.us/provider/STORET/AKDECWQ/",
+                              "https://www.waterqualitydata.us/provider/STORET/AKDECWQ/",
                               "https://www.waterqualitydata.us/provider/STORET/AKDECWQ/")
-                              
+
 # create example crosswalk data frame
-ex.user.cw <- data.frame(MS_LOCATION_ID, MS_ORG_ID, ASSESSMENT_UNIT_ID, 
+ex.user.cw <- data.frame(MS_LOCATION_ID, MS_ORG_ID, ASSESSMENT_UNIT_ID,
                          MONITORING_DATA_LINK_TEXT)
 
-AK_appenduserdata <- TADA_UpdateMonitoringLocationsInATTAINS(org_id = "AKDECWQ", 
-                                               crosswalk = ex.user.cw, 
-                                               attains_replace = FALSE, 
+AK_appenduserdata <- TADA_UpdateMonitoringLocationsInATTAINS(org_id = "AKDECWQ",
+                                               crosswalk = ex.user.cw,
+                                               attains_replace = FALSE,
                                                wqp_data_links = "none")
-                              
+
 
 }
 
