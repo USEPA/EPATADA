@@ -264,8 +264,9 @@ TADAProfile_tribal <- TADA_DataRetrieval(
 all.equal(data.frame(TADAProfile_single), data.frame(TADAProfile_tribal))
 ```
 
-Additionally, the aoi_sf argument can be used to provide an sf spatial object
-as a query filter. We can match the output of the two short examples above like so:
+Additionally, the aoi_sf argument can be used to provide an sf spatial
+object as a query filter. We can match the output of the two short
+examples above like so:
 
 ```{r TADA_DataRetrieval_spatial}
 TADAProfile_spatial <- TADA_DataRetrieval(
@@ -279,11 +280,11 @@ TADAProfile_spatial <- TADA_DataRetrieval(
 all.equal(data.frame(TADAProfile_single), data.frame(TADAProfile_spatial))
 ```
 
-**Note**: In this example the output data is identical from these three input
-methods. However, in some instances this may not be the case. This is because
-the tribal_area_type method is based on spatial data and so spatial boundaries
-must be taken into account when comparing query results. The same applies when
-using aoi_sf results.
+**Note**: In this example the output data is identical from these three
+input methods. However, in some instances this may not be the case. This
+is because the tribal_area_type method is based on spatial data and so
+spatial boundaries must be taken into account when comparing query
+results. The same applies when using aoi_sf results.
 
 ## USGS dataRetrieval
 
@@ -301,10 +302,11 @@ as part of the data retrieval process.
 ## Big Data Queries
 
 If you need to download a large amount of data from across a large area,
-the TADA_DataRetrieval function now handles this automatically. Whereas in the
-past there was a second function (TADA_BigDataRetrieval) to do this, the
-standard TADA_DataRetrieval function now checks the number of results in each
-query and uses similar methods as TADA_BigDataRetrieval when necessary.
+the TADA_DataRetrieval function now handles this automatically. Whereas
+in the past there was a second function (TADA_BigDataRetrieval) to do
+this, the standard TADA_DataRetrieval function now checks the number of
+results in each query and uses similar methods as TADA_BigDataRetrieval
+when necessary.
 
 The function does multiple synchronous data calls to the WQP
 (waterqualitydata.us). It uses the WQP summary service to limit the
@@ -312,14 +314,14 @@ sites downloaded to only those with relevant data. It pulls back data
 from set number of stations at a time and then joins the data back
 together to produce a single TADA compatible dataframe as the output.
 
-TADA_DataRetrieval now also prompts the user (when ask = TRUE) to confirm that
-they want to download the dataset. As part of this prompt the expected number
-of rows of data are provided to help in making the decision. As the downloads
-occur, a progress bar is shown as well.
+TADA_DataRetrieval now also prompts the user (when ask = TRUE) to
+confirm that they want to download the dataset. As part of this prompt
+the expected number of rows of data are provided to help in making the
+decision. As the downloads occur, a progress bar is shown as well.
 
-See ?TADA_DataRetrieval for more details. WARNING, some of the
-examples below can take multiple HOURS to run. The total run time
-depends on your query inputs.
+See ?TADA_DataRetrieval for more details. WARNING, some of the examples
+below can take multiple HOURS to run. The total run time depends on your
+query inputs.
 
 ```{r BigdataRetrieval, eval = FALSE, results = 'hide'}
 # AK_AL_WaterTemp <- TADA_DataRetrieval(startDate = "2000-01-01", endDate = "2022-12-31", characteristicName = "Temperature, water", statecode = c("AK","AL"))

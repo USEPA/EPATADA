@@ -270,6 +270,12 @@ TADA_DataRetrieval <- function(startDate = "null",
     stop("A tribal_area_type is required if tribe_name_parcel is provided.")
   }
   
+  # Before proceeding make quiet wrappers for dataRetrieval functions for later
+  # use in if/else processes
+  quiet_whatWQPsites <- purrr::quietly(dataRetrieval::whatWQPsites)
+  quiet_whatWQPdata <- purrr::quietly(dataRetrieval::whatWQPdata)
+  quiet_readWQPdata <- purrr::quietly(dataRetrieval::readWQPdata)
+  
   # If an sf object OR tribal info are provided they will be the basis of the query
   # (The tribal data handling uses sf objects as well)
   if ((!is.null(aoi_sf) & inherits(aoi_sf, "sf")) | (tribal_area_type != "null")) {
@@ -412,7 +418,7 @@ TADA_DataRetrieval <- function(startDate = "null",
         stop("Tribal area type or tribal name parcel not recognized. Refer to TADA_TribalOptions() for query options.")
       }
     }
-
+    
     # Check and/or fix geometry
     aoi_sf <- sf::st_make_valid(aoi_sf)
     
@@ -425,12 +431,11 @@ TADA_DataRetrieval <- function(startDate = "null",
     input_bbox <- sf::st_bbox(aoi_sf)
     
     # Query info on available data within the bbox
-    # Don't want to print every message that's returned by WQP
-    quiet_whatWQPdata <- purrr::quietly(dataRetrieval::whatWQPdata)
     
     # Try getting WQP info
     message("Checking what data is available. This may take a moment.")
     
+    # Don't want to print every message that's returned by WQP
     quiet_bbox_avail <- quiet_whatWQPdata(
       WQPquery,
       bBox = c(input_bbox$xmin, input_bbox$ymin, input_bbox$xmax, input_bbox$ymax)
@@ -456,8 +461,6 @@ TADA_DataRetrieval <- function(startDate = "null",
     if ((nrow(bbox_avail) > 0) == FALSE) {
       stop("No monitoring sites were returned within your area of interest (no data available).")
     }
-    
-    quiet_whatWQPsites <- purrr::quietly(dataRetrieval::whatWQPsites)
     
     quiet_bbox_sites <- quiet_whatWQPsites(
       siteid = bbox_avail$MonitoringLocationIdentifier
@@ -553,14 +556,26 @@ TADA_DataRetrieval <- function(startDate = "null",
           dplyr::select(-geometry)
         
         # Get project metadata
-        projects.DR <- suppressMessages(
-          dataRetrieval::readWQPdata(
-            siteid = clipped_site_ids,
-            WQPquery,
-            ignore_attributes = TRUE,
-            service = "Project"
-          )
+        quiet_projects.DR <- quiet_readWQPdata(
+          siteid = clipped_site_ids,
+          WQPquery,
+          ignore_attributes = TRUE,
+          service = "Project"
         )
+        
+        if (is.null(quiet_projects.DR$result)) {
+          stop_message <- quiet_projects.DR$messages %>%
+            grep(pattern = "failed|HTTP", x = ., ignore.case = FALSE, value = TRUE) %>%
+            paste("\n", ., collapse = "") %>%
+            paste("The WQP request returned a NULL with the following message(s): \n",
+                  .,
+                  collapse = "\n"
+            )
+          
+          stop(stop_message)
+        }
+        
+        projects.DR <- quiet_projects.DR$result
         
         # Join results, sites, projects
         TADAprofile <- TADA_JoinWQPProfiles(
@@ -615,14 +630,26 @@ TADA_DataRetrieval <- function(startDate = "null",
           dplyr::select(-geometry)
         
         # Get project metadata
-        projects.DR <- suppressMessages(
-          dataRetrieval::readWQPdata(
-            siteid = clipped_site_ids,
-            WQPquery,
-            ignore_attributes = TRUE,
-            service = "Project"
-          )
+        quiet_projects.DR <- quiet_readWQPdata(
+          siteid = clipped_site_ids,
+          WQPquery,
+          ignore_attributes = TRUE,
+          service = "Project"
         )
+        
+        if (is.null(quiet_projects.DR$result)) {
+          stop_message <- quiet_projects.DR$messages %>%
+            grep(pattern = "failed|HTTP", x = ., ignore.case = FALSE, value = TRUE) %>%
+            paste("\n", ., collapse = "") %>%
+            paste("The WQP request returned a NULL with the following message(s): \n",
+                  .,
+                  collapse = "\n"
+            )
+          
+          stop(stop_message)
+        }
+        
+        projects.DR <- quiet_projects.DR$result
         
         # Join results, sites, projects
         TADAprofile <- TADA_JoinWQPProfiles(
@@ -758,8 +785,6 @@ TADA_DataRetrieval <- function(startDate = "null",
     message("Checking what data is available. This may take a moment.")
     
     # Don't want to print every message that's returned by WQP
-    quiet_whatWQPdata <- purrr::quietly(dataRetrieval::whatWQPdata)
-    
     quiet_query_avail <- quiet_whatWQPdata(WQPquery)
     
     if (is.null(quiet_query_avail$result)) {
@@ -816,21 +841,43 @@ TADA_DataRetrieval <- function(startDate = "null",
       gc()
       
       # Get site metadata
-      sites.DR <- suppressMessages(
-        dataRetrieval::whatWQPsites(
-          siteid = unique(results.DR$MonitoringLocationIdentifier)
-        )
-      )
+      quiet_sites.DR <- quiet_whatWQPsites(siteid = unique(results.DR$MonitoringLocationIdentifier))
+      
+      if (is.null(quiet_sites.DR$result)) {
+        stop_message <- quiet_sites.DR$messages %>%
+          grep(pattern = "failed|HTTP", x = ., ignore.case = FALSE, value = TRUE) %>%
+          paste("\n", ., collapse = "") %>%
+          paste("The WQP request returned a NULL with the following message(s): \n",
+                .,
+                collapse = "\n"
+          )
+        
+        stop(stop_message)
+      }
+      
+      sites.DR <- quiet_sites.DR$result
       
       # Get project metadata
-      projects.DR <- suppressMessages(
-        dataRetrieval::readWQPdata(
-          siteid = unique(results.DR$MonitoringLocationIdentifier),
-          WQPquery,
-          ignore_attributes = TRUE,
-          service = "Project"
-        )
+      quiet_projects.DR <- quiet_readWQPdata(
+        siteid = unique(results.DR$MonitoringLocationIdentifier),
+        WQPquery,
+        ignore_attributes = TRUE,
+        service = "Project"
       )
+      
+      if (is.null(quiet_projects.DR$result)) {
+        stop_message <- quiet_projects.DR$messages %>%
+          grep(pattern = "failed|HTTP", x = ., ignore.case = FALSE, value = TRUE) %>%
+          paste("\n", ., collapse = "") %>%
+          paste("The WQP request returned a NULL with the following message(s): \n",
+                .,
+                collapse = "\n"
+          )
+        
+        stop(stop_message)
+      }
+      
+      projects.DR <- quiet_projects.DR$result
       
       # Join results, sites, projects
       TADAprofile <- TADA_JoinWQPProfiles(
