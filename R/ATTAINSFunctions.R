@@ -13,11 +13,11 @@
 #' @export
 #'
 #' @examples
-#' assessments <- TADA_EQExtract(profile = "assessments")
+#' assessments <- EQExtractRetrieval(profile = "assessments")
 #' 
-#' aus_monloc <- TADA_EQExtract(profile = "auml")
+#' aus_monloc <- EQExtractRetrieval(profile = "auml")
 #' 
-TADA_EQExtract <- function(profile = NULL) {
+TADA_EQExtractRetrieval <- function(profile = NULL) {
   
   if(is.null(profile)) {
     stop("TADA_EQExtract: Function requires user to select Expert Query Profile to return.")
@@ -170,7 +170,7 @@ TADA_GetEQAssessments <- function() {
   if (is.null(raw.data)) {
     message("Downloading latest Expert Query Assessments National Extract failed!")
     message("Falling back to (possibly outdated) internal file.")
-    return(utils::read.csv(system.file("extdata", "WQXcharValRef.csv", package = "EPATADA")))
+    return(utils::read.csv(system.file("extdata", "EQAssessments.RData", package = "EPATADA")))
   }
   
   # Save updated table in cache
