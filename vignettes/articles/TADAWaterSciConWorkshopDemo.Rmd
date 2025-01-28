@@ -558,7 +558,7 @@ characteristics.
 We could change or add additional characteristics to our analysis. We
 could even write additional custom functions or even use functions from
 other packages as needed for more complex standards, evaluate trends, or
-answer other questions using a TADA data frame.
+answer other questions using a TADA dataframe.
 
 The code chunk below displays the elapsed time it took to run the code
 chunks and create this document, providing an example of how

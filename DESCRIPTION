@@ -76,7 +76,8 @@ Imports:
     httr,
     jsonlite,
     units,
-    igraph
+    igraph,
+    rATTAINS
 Depends: 
     R (>= 3.5.0)
 Suggests:
@@ -99,6 +100,6 @@ VignetteBuilder: knitr, rmarkdown
 Language: en-US
 Config/testthat/edition: 3
 Config/testthat/load-all: list(export_all = FALSE, helpers = FALSE)
-URL: https://usepa.github.io/EPATADA/, https://github.com/USEPA/EPATADA
+URL: https://usepa.github.io/EPATADA/, https://github.com/USEPA/EPATADA, usepa.github.io/EPATADA
 LazyData: true
 LazyDataCompression: xz

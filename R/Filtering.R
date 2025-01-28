@@ -218,7 +218,7 @@ TADA_FieldValuesTable <- function(.data, field = "null", characteristicName = "n
 #' removal (TADA.UseForAnalysis.Flag = "No") and flags surface water results
 #' for use in analysis (TADA.UseForAnalysis.Flag = "Yes"). If desired, a user
 #' can change the function input to clean = TRUE, and then the function will
-#' filter the data frame to remove rows that are not going to be used in analyses,
+#' filter the dataframe to remove rows that are not going to be used in analyses,
 #' and retain only the media types selected by the user.Setting clean = TRUE, means
 #' that all results not flagged for use in the analysis workflow will be removed
 #' and the TADA.UseForAnalysis.Flag column will not be added.
@@ -241,20 +241,20 @@ TADA_FieldValuesTable <- function(.data, field = "null", characteristicName = "n
 #' Results flagged "Yes" are identified as usable for further analysis. Default = FALSE.
 #'
 #' @param surface_water Boolean argument; specifies whether surface water
-#' results should be flagged or removed in the returned data frame. Default is
+#' results should be flagged or removed in the returned dataframe. Default is
 #' surface_water = TRUE, surface water results are identified as usable for analysis.
 #'
 #' @param ground_water Boolean argument; specifies whether ground water
-#' results should be flagged or removed in the returned data frame. Default is
+#' results should be flagged or removed in the returned dataframe. Default is
 #' ground_water = FALSE, ground water results are identified as not usable for analysis.
 #'
 #' @param sediment Boolean argument; specifies whether sediment results should
-#' be flagged or removed in the returned data frame. Default is sediment = FALSE,
+#' be flagged or removed in the returned dataframe. Default is sediment = FALSE,
 #' sediment results are identified as not usable for analysis.
 #'
-#' @return If clean = TRUE, returns the data frame with only the media types
+#' @return If clean = TRUE, returns the dataframe with only the media types
 #' selected as usable (set to TRUE in function input) by the user.
-#' If clean = FALSE, returns the data frame and an additional column,
+#' If clean = FALSE, returns the dataframe and an additional column,
 #' TADA.UseForAnalysis.Flag, indicating the media type (as determined by this function)
 #' and which results should be included or excluded from assessments based on user input.
 #'
@@ -268,7 +268,7 @@ TADA_FieldValuesTable <- function(.data, field = "null", characteristicName = "n
 #'   surface_water = TRUE, ground_water = FALSE, sediment = FALSE
 #' )
 #'
-#' # Returns data frame with ONLY surface water results identified as usable and adds
+#' # Returns dataframe with ONLY surface water results identified as usable and adds
 #' # TADA.UseForAnalysis.Flag column.
 #' Data_6Tribes_Assessment2 <- TADA_AnalysisDataFilter(Data_6Tribes_5y_Harmonized,
 #'   clean = FALSE,

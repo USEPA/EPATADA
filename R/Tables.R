@@ -4,7 +4,7 @@
 #' Function to summarize the number of sites and records downloaded from the
 #' WQP for each unique column group.
 #'
-#' @param .data TADA data frame containing the data downloaded from the WQP, where
+#' @param .data TADA dataframe containing the data downloaded from the WQP, where
 #' each row represents a unique data record.
 #' @param col A text string name of the column the user would like summarized.
 #'
@@ -46,14 +46,14 @@ TADA_SummarizeColumn <- function(.data, col = "TADA.CharacteristicName") {
 #' limit types) and methods include Maximum Likelihood Estimation, Robust ROS
 #' and Kaplan Meier.
 #'
-#' @param .data TADA data frame containing the data downloaded from the WQP,
-#'   where each row represents a unique data record. Data frame must include the
+#' @param .data TADA dataframe containing the data downloaded from the WQP,
+#'   where each row represents a unique data record. Dataframe must include the
 #'   columns 'TADA.ResultMeasureValue', 'TADA.ResultMeasure.MeasureUnitCode',
 #'   'TADA.ResultSampleFractionText', 'TADA.MethodSpeciationName',
 #'   'TADA.ComparableDataIdentifier', 'TADA.CensoredData.Flag',
 #'   'DetectionQuantitationLimitTypeName', and 'TADA.MonitoringLocationIdentifier' to
 #'   run this function. The 'TADA.ComparableDataIdentifier' can be added to the
-#'   data frame by running the function TADA_CreateComparableID().
+#'   dataframe by running the function TADA_CreateComparableID().
 #'
 #' @param group_cols This function automatically uses
 #'   'TADA.ComparableDataIdentifier' as a grouping column. However, the user may

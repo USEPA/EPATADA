@@ -11,7 +11,7 @@ TADA_GroupedScatterplot(
 )
 }
 \arguments{
-\item{.data}{TADA data frame where each row represents a unique record. Data frame must include
+\item{.data}{TADA dataframe where each row represents a unique record. Dataframe must include
 the columns 'TADA.ComparableDataIdentifier', 'TADA.ResultMeasureValue',
 'TADA.ResultMeasure.MeasureUnitCode', 'ActivityStartDate', 'ActivityStartDateTime',
 'ActivityStartDateTime', 'TADA.MonitoringLocationName', 'TADA.ActivityMediaName',

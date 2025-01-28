@@ -1,7 +1,7 @@
 # Lists are used within TADA_OrderCols, TADA_GetTemplate, TADA_CheckRequiredFields,
 # TADA_AutoFilter, TADA_RetainRequired
 
-# ordered list of TADA workflow required columns to be retained in data frame
+# ordered list of TADA workflow required columns to be retained in dataframe
 require.cols <- c(
   # Sample/Measurement Type (e.g. QC or Not)
   "ActivityTypeCode", # required
@@ -493,7 +493,7 @@ TADA_AutoFilter <- function(.data) {
   # any required columns with all NA values will be excluded from the list of columns to remove.
   remove.cols <- setdiff(na.cols, require.cols)
 
-  # remove not required columns containing all NA values from data frame.
+  # remove not required columns containing all NA values from dataframe.
   .data <- .data %>%
     dplyr::select(-dplyr::contains(remove.cols))
 
@@ -509,11 +509,11 @@ TADA_AutoFilter <- function(.data) {
   # create character string for list of removed columns
   remove.paste <- stringi::stri_replace_last_fixed(paste(as.character(remove.cols), collapse = ", ", sep = ""), ", ", " and ")
 
-  # print list of columns removed from data frame
+  # print list of columns removed from dataframe
   if (length(remove.cols) > 0) {
     print(paste0("The following column(s) were removed as they contained only NAs: ", remove.paste, "."))
   } else {
-    print("All columns contained some non-NA values and were retained in the data frame.")
+    print("All columns contained some non-NA values and were retained in the dataframe.")
   }
 
   # remove columns that are not required for TADA workflow
@@ -579,7 +579,7 @@ TADA_RetainRequired <- function(.data) {
   # create a character string listing all removed columns
   remove.paste <- stringi::stri_replace_last_fixed(paste(as.character(remove.cols), collapse = ", ", sep = ""), ", ", " and ")
 
-  # retain only columns identified as required or for filtering in the data frame
+  # retain only columns identified as required or for filtering in the dataframe
   .data <- .data %>%
     dplyr::select(dplyr::contains(keep.cols))
 
