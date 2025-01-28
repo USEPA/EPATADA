@@ -130,6 +130,7 @@ require.cols <- c(
 
   # Result Quality
   "MeasureQualifierCode", # required, could be replaced by TADA.MeasureQualifierCode.Def in future mods
+  "ResultStatusIdentifier",
   "TADA.MeasureQualifierCode.Flag", # generated
   "TADA.MeasureQualifierCode.Def", # generated, could replace MeasureQualifierCode in future mods
   "ResultCommentText",
@@ -181,8 +182,7 @@ require.cols <- c(
   "HUCEightDigitCode",
   "MonitoringLocationIdentifier", # required
   "TADA.MonitoringLocationIdentifier",
-
-  # Groundwater fields
+  # Groundwater fields, used for auto filtering for assessment use case but should not be required to have in TADA template
   "AquiferName", # filter, groundwater
   "AquiferTypeName", # filter
   "LocalAqfrName", # filter, groundwater
@@ -195,6 +195,7 @@ require.cols <- c(
 
 # ordered list of non-essential WQP columns that can be removed from df
 extra.cols <- c(
+  # Others
   "ActivityDepthAltitudeReferencePointText",
   "ActivityEndDate",
   "ActivityEndTime.Time",
@@ -204,7 +205,6 @@ extra.cols <- c(
   "SampleAquifer",
   "ActivityLocation.LatitudeMeasure",
   "ActivityLocation.LongitudeMeasure",
-  "ResultStatusIdentifier",
   "ResultWeightBasisText",
   "ResultTemperatureBasisText",
   "ResultParticleSizeBasisText",
@@ -217,6 +217,7 @@ extra.cols <- c(
   "timeZoneStart", # no longer in default dataRetrieval profile? 11/7/24
   "timeZoneEnd", # no longer in default dataRetrieval profile? 11/7/24
   "ActivityStartTime.TimeZoneCode_offset", # new column from default dataRetrieval profile? 11/7/24
+  "ActivityEndTime.TimeZoneCode_offset", # new column from default dataRetrieval profile? 11/21/24
   "SourceMapScaleNumeric",
   "HorizontalAccuracyMeasure.MeasureValue",
   "HorizontalAccuracyMeasure.MeasureUnitCode",
@@ -340,14 +341,19 @@ TADA_GetTemplate <- function() {
 
 
 
-#' TADA Module 1 Required Fields Check
+#' TADA Required Fields Check
 #'
-#' This function checks if all required fields for TADA Module 1 are
-#' included in the input dataframe.
+#' This function checks if all fields required to run TADA functions are included in the input
+#' dataframe. It is used in the TADA Shiny application to test user supplied files for compatibility
+#' with the application.
 #'
 #' @param .data A dataframe
 #'
-#' @return Boolean result indicating whether or not the input dataframe contains all of the TADA profile fields.
+#' @return Boolean result, TRUE or FALSE, indicating whether or not the input dataframe contains all
+#' of the required fields. If FALSE, an error will be returned that includes the names of all
+#' missing columns.
+#'
+#' @export
 #'
 #' @examples
 #' \dontrun{
@@ -360,10 +366,34 @@ TADA_GetTemplate <- function() {
 #' projectProfile <- TADA_ReadWQPWebServices("https://www.waterqualitydata.us/data/Project/search?statecode=US%3A09&characteristicType=Nutrient&startDateLo=04-01-2023&startDateHi=11-01-2023&mimeType=csv&zip=yes&providers=NWIS&providers=STEWARDS&providers=STORET")
 #'
 #' # Join all three profiles using TADA_JoinWQPProfiles
-#' TADAProfile <- TADA_JoinWQPProfiles(FullPhysChem = physchemProfile, Sites = stationProfile, Projects = projectProfile)
+#' TADAProfile <- TADA_JoinWQPProfiles(
+#'   FullPhysChem = physchemProfile, Sites = stationProfile,
+#'   Projects = projectProfile
+#' )
 #'
-#' # Run TADA_CheckRequiredFields
-#' CheckRequirements_TADAProfile <- TADA_CheckRequiredFields(TADAProfile)
+#' # Run TADA_CheckRequiredFields, returns error message,
+#' # 'The dataframe does not contain the required fields: ActivityStartDateTime'
+#' TADA_CheckRequiredFields(TADAProfile)
+#'
+#' # Add missing col
+#' TADAProfile1 <- dataRetrieval:::create_dateTime(
+#'   df = TADAProfile,
+#'   date_col = "ActivityStartDate",
+#'   time_col = "ActivityStartTime.Time",
+#'   tz_col = "ActivityStartTime.TimeZoneCode",
+#'   tz = "UTC"
+#' )
+#'
+#' review_TADAProfile1 <- TADAProfile1 %>% dplyr::select(c(
+#'   "ActivityStartDate",
+#'   "ActivityStartTime.Time",
+#'   "ActivityStartTime.TimeZoneCode",
+#'   "ActivityStartDateTime",
+#'   "ActivityStartTime.TimeZoneCode_offset"
+#' ))
+#'
+#' # re-run TADA_CheckRequiredFields, returns TRUE
+#' TADA_CheckRequiredFields(TADAProfile1)
 #' }
 #'
 TADA_CheckRequiredFields <- function(.data) {
@@ -377,7 +407,13 @@ TADA_CheckRequiredFields <- function(.data) {
   if (all(require.originals %in% colnames(.data)) == TRUE) {
     TRUE
   } else {
-    stop("The dataframe does not contain the required fields.")
+    missingcols <- base::setdiff(require.originals, colnames(.data))
+    stop(
+      "TADA_CheckRequiredFields: the dataframe does not contain the required fields: ",
+      paste(as.character(missingcols),
+        collapse = ", "
+      )
+    )
   }
 }
 

@@ -12,8 +12,12 @@ TADA_UpdateAllRefs <- function() {
   TADA_UpdateCharacteristicRef()
   TADA_UpdateMeasureQualifierCodeRef()
   TADA_UpdateMonLocTypeRef()
-  TADA_UpdateTribalLayers()
 }
+
+# # update tribal layers
+# TADA_UpdateTribalLayers()
+
+###########################################################
 
 ## FUNCTION TO UPDATE EXAMPLE DATA
 
@@ -130,6 +134,8 @@ TADA_UpdateExampleData <- function() {
   rm(Data_R5_TADAPackageDemo)
 }
 
+###########################################################
+
 ## Find char-frac-spec-unit combos not present in TADA HarmonizationTemplate.
 ## Add new combinations when found to the HarmonizationTemplate.csv and
 ## NPsummation_key.csv (if relevant to TN or TP summation).
@@ -148,6 +154,7 @@ TADA_UpdateExampleData <- function() {
 #   return(new_combos)
 # }
 
+###########################################################
 
 # TADA_OvernightTesting
 #
@@ -209,6 +216,7 @@ TADA_UpdateExampleData <- function() {
 #
 #   }
 
+###########################################################
 
 # # Run styler to style code
 # # https://style.tidyverse.org/
@@ -216,12 +224,16 @@ TADA_UpdateExampleData <- function() {
 # # Run the following with defaults
 # library(styler)
 # style_pkg()
-#
+
+###########################################################
+
 # # Run devtools check and test
 # devtools::check()
 # devtools::check(manual = TRUE, remote = TRUE, incoming = TRUE) # more robust test for releases (includes broken link check)
 # devtools::test()
-#
+
+###########################################################
+
 # # spell check
 # library(spelling)
 # spelling::spell_check_package(
@@ -231,6 +243,8 @@ TADA_UpdateExampleData <- function() {
 # # run to update spelling word list
 # spelling::get_wordlist()
 # spelling::update_wordlist()
+
+###########################################################
 
 # # Find Broken Links if test-URLChecker.R fails
 # # Run the code below:
@@ -290,14 +304,16 @@ TADA_UpdateExampleData <- function() {
 #                   !grepl("301", response_code) &
 #                   !grepl("302", response_code))
 #
-# # Review the output of df_false.
-# # More information about http response codes can be found here:
-# # [Mozilla Developer HTTP response status codes] (https://developer.mozilla.org/en-US/docs/Web/HTTP/Status)
-# # Replace the broken links with functional ones or remove if no acceptable substitute is available.
-# # Rerun code above to verify that df_false contains zero rows.
+# Review the output of df_false.
+# More information about http response codes can be found here:
+# [Mozilla Developer HTTP response status codes] (https://developer.mozilla.org/en-US/docs/Web/HTTP/Status)
+# Replace the broken links with functional ones or remove if no acceptable substitute is available.
+# Rerun code above to verify that df_false contains zero rows.
+
+
+###########################################################
 
 # # Find Characteristic/Source/Value.Unit Combinations in "WQXcharValRef.csv" with more than one row
-
 # # open unit.ref
 # unit.ref <- utils::read.csv(system.file("extdata", "WQXcharValRef.csv", package = "EPATADA")) %>%
 #   dplyr::filter(
@@ -322,3 +338,4 @@ TADA_UpdateExampleData <- function() {
 #
 # # review csv and send to WQX team to update the validation table
 #
+###########################################################
