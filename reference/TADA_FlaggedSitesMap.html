@@ -57,15 +57,15 @@
 
 
 <dl><dt id="arg--data">.data<a class="anchor" aria-label="anchor" href="#arg--data"></a></dt>
-<dd><p>TADA data frame containing the data downloaded from the WQP, where
-each row represents a unique data record. Data frame must include the columns
+<dd><p>TADA dataframe containing the data downloaded from the WQP, where
+each row represents a unique data record. Dataframe must include the columns
 'MonitoringLocationIdentifier','MonitoringLocationName','TADA.LatitudeMeasure',
 and 'TADA.LongitudeMeasure' to run this function.</p></dd>
 
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p>A leaflet map that shows all sites in the data frame that contain
+    <p>A leaflet map that shows all sites in the dataframe that contain
 flagged data in the form of:</p><ol><li><p>imprecise coordinates - latitudes and/or longitudes that contain fewer
 then 3 decimal places.</p></li>
 <li><p>outside USA - coordinates that fall outside the bounds of the USA.</p></li>
@@ -76,7 +76,7 @@ a threshold distance (defaulting to 100 m) from each other.</p></li>
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span> <span class="co"># \dontrun{</span></span></span>
-<span class="r-in"><span><span class="co"># Load example data frame:</span></span></span>
+<span class="r-in"><span><span class="co"># Load example dataframe:</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">Data_Nutrients_UT</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">Data_NCTCShepherdstown_HUC12</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">Data_6Tribes_5y_Harmonized</span><span class="op">)</span></span></span>

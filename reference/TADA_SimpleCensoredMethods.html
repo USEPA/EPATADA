@@ -3,11 +3,11 @@
 before applying simple tools for non-detect and over-detect data handling, including filling
 in the values as-is, X times the detection limit, or a random number between 0
 and the LOWER detection limit. These methods do NOT depend upon censored data frequency
-in the data frame."><meta property="og:description" content="This function determines if detection limit type and detection condition are parsimonious
+in the dataframe."><meta property="og:description" content="This function determines if detection limit type and detection condition are parsimonious
 before applying simple tools for non-detect and over-detect data handling, including filling
 in the values as-is, X times the detection limit, or a random number between 0
 and the LOWER detection limit. These methods do NOT depend upon censored data frequency
-in the data frame."></head><body>
+in the dataframe."></head><body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
 
 
@@ -56,7 +56,7 @@ in the data frame."></head><body>
 before applying simple tools for non-detect and over-detect data handling, including filling
 in the values as-is, X times the detection limit, or a random number between 0
 and the LOWER detection limit. These methods do NOT depend upon censored data frequency
-in the data frame.</p>
+in the dataframe.</p>
     </div>
 
     <div class="section level2">
@@ -113,7 +113,7 @@ information.</p>
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># Load example data frame:</span></span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># Load example dataframe:</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">Data_Nutrients_UT</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="co"># Check for agreement between detection condition and detection limit type,</span></span></span>
 <span class="r-in"><span><span class="co"># and in instances where the measurement is non-detect, set the result value</span></span></span>
@@ -125,7 +125,7 @@ information.</p>
 <span class="r-in"><span>  od_method <span class="op">=</span> <span class="st">"as-is"</span>,</span></span>
 <span class="r-in"><span>  od_multiplier <span class="op">=</span> <span class="st">"null"</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "TADA_IDCensoredData: There are 12 results in your data frame that are missing ResultDetectionConditionText. TADA requires BOTH ResultDetectionConditionText and DetectionQuantitationLimitTypeName fields to be populated in order to categorize censored data."</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "TADA_IDCensoredData: There are 12 results in your dataframe that are missing ResultDetectionConditionText. TADA requires BOTH ResultDetectionConditionText and DetectionQuantitationLimitTypeName fields to be populated in order to categorize censored data."</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Check for agreement between detection condition and detection limit type, and in instances where the measurement is non-detect, set the result value to a random value between 0 and the detection limit value. For over-detect measurements, retain the detection limit value as the result value as-is.</span></span></span>
 <span class="r-in"><span><span class="va">Data_Nutrients_UT_CensoredFlag</span> <span class="op">&lt;-</span> <span class="fu">TADA_SimpleCensoredMethods</span><span class="op">(</span><span class="va">Data_Nutrients_UT</span>,</span></span>
@@ -134,7 +134,7 @@ information.</p>
 <span class="r-in"><span>  od_method <span class="op">=</span> <span class="st">"as-is"</span>,</span></span>
 <span class="r-in"><span>  od_multiplier <span class="op">=</span> <span class="st">"null"</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "TADA_IDCensoredData: There are 12 results in your data frame that are missing ResultDetectionConditionText. TADA requires BOTH ResultDetectionConditionText and DetectionQuantitationLimitTypeName fields to be populated in order to categorize censored data."</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "TADA_IDCensoredData: There are 12 results in your dataframe that are missing ResultDetectionConditionText. TADA requires BOTH ResultDetectionConditionText and DetectionQuantitationLimitTypeName fields to be populated in order to categorize censored data."</span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
     </div>

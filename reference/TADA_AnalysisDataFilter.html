@@ -4,7 +4,7 @@ column which flags any data that are NOT surface water results for
 removal (TADA.UseForAnalysis.Flag = "No") and flags surface water results
 for use in analysis (TADA.UseForAnalysis.Flag = "Yes"). If desired, a user
 can change the function input to clean = TRUE, and then the function will
-filter the data frame to remove rows that are not going to be used in analyses,
+filter the dataframe to remove rows that are not going to be used in analyses,
 and retain only the media types selected by the user.Setting clean = TRUE, means
 that all results not flagged for use in the analysis workflow will be removed
 and the TADA.UseForAnalysis.Flag column will not be added.'><meta property="og:description" content='With default settings (clean = FALSE), this function creates a TADA.UseForAnalysis.Flag
@@ -12,7 +12,7 @@ column which flags any data that are NOT surface water results for
 removal (TADA.UseForAnalysis.Flag = "No") and flags surface water results
 for use in analysis (TADA.UseForAnalysis.Flag = "Yes"). If desired, a user
 can change the function input to clean = TRUE, and then the function will
-filter the data frame to remove rows that are not going to be used in analyses,
+filter the dataframe to remove rows that are not going to be used in analyses,
 and retain only the media types selected by the user.Setting clean = TRUE, means
 that all results not flagged for use in the analysis workflow will be removed
 and the TADA.UseForAnalysis.Flag column will not be added.'></head><body>
@@ -65,7 +65,7 @@ column which flags any data that are NOT surface water results for
 removal (TADA.UseForAnalysis.Flag = "No") and flags surface water results
 for use in analysis (TADA.UseForAnalysis.Flag = "Yes"). If desired, a user
 can change the function input to clean = TRUE, and then the function will
-filter the data frame to remove rows that are not going to be used in analyses,
+filter the dataframe to remove rows that are not going to be used in analyses,
 and retain only the media types selected by the user.Setting clean = TRUE, means
 that all results not flagged for use in the analysis workflow will be removed
 and the TADA.UseForAnalysis.Flag column will not be added.</p>
@@ -99,27 +99,27 @@ Results flagged "Yes" are identified as usable for further analysis. Default = F
 
 <dt id="arg-surface-water">surface_water<a class="anchor" aria-label="anchor" href="#arg-surface-water"></a></dt>
 <dd><p>Boolean argument; specifies whether surface water
-results should be flagged or removed in the returned data frame. Default is
+results should be flagged or removed in the returned dataframe. Default is
 surface_water = TRUE, surface water results are identified as usable for analysis.</p></dd>
 
 
 <dt id="arg-ground-water">ground_water<a class="anchor" aria-label="anchor" href="#arg-ground-water"></a></dt>
 <dd><p>Boolean argument; specifies whether ground water
-results should be flagged or removed in the returned data frame. Default is
+results should be flagged or removed in the returned dataframe. Default is
 ground_water = FALSE, ground water results are identified as not usable for analysis.</p></dd>
 
 
 <dt id="arg-sediment">sediment<a class="anchor" aria-label="anchor" href="#arg-sediment"></a></dt>
 <dd><p>Boolean argument; specifies whether sediment results should
-be flagged or removed in the returned data frame. Default is sediment = FALSE,
+be flagged or removed in the returned dataframe. Default is sediment = FALSE,
 sediment results are identified as not usable for analysis.</p></dd>
 
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p>If clean = TRUE, returns the data frame with only the media types
+    <p>If clean = TRUE, returns the dataframe with only the media types
 selected as usable (set to TRUE in function input) by the user.
-If clean = FALSE, returns the data frame and an additional column,
+If clean = FALSE, returns the dataframe and an additional column,
 TADA.UseForAnalysis.Flag, indicating the media type (as determined by this function)
 and which results should be included or excluded from assessments based on user input.</p>
     </div>
@@ -150,7 +150,7 @@ and the TADA.UseForAnalysis.Flag column will not be added.</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] "TADA_AnalysisDataFilter: Flagging sediment results to exclude from assessments."</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] "TADA_AnalysisDataFilter: Removing results flagged for exclusion from assessments."</span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># Returns data frame with ONLY surface water results identified as usable and adds</span></span></span>
+<span class="r-in"><span><span class="co"># Returns dataframe with ONLY surface water results identified as usable and adds</span></span></span>
 <span class="r-in"><span><span class="co"># TADA.UseForAnalysis.Flag column.</span></span></span>
 <span class="r-in"><span><span class="va">Data_6Tribes_Assessment2</span> <span class="op">&lt;-</span> <span class="fu">TADA_AnalysisDataFilter</span><span class="op">(</span><span class="va">Data_6Tribes_5y_Harmonized</span>,</span></span>
 <span class="r-in"><span>  clean <span class="op">=</span> <span class="cn">FALSE</span>,</span></span>
