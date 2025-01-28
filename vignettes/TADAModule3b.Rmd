@@ -118,15 +118,18 @@ their decision making processes. Use of EPATADA is not required.
 
 ## Introduction
 
-Please see "TADA Module 3a: Associating WQP Characteristics with Applicable ATTAINS Parameters and Uses" 
-on information on creating the necessary crosswalk tables prior to this step.
+Please see "TADA Module 3a: Associating WQP Characteristics with
+Applicable ATTAINS Parameters and Uses" on information on creating the
+necessary crosswalk tables prior to this step.
 
-Once a user has completed the necessary crosswalk tables, they can proceed to defining their organization's
-criteria and methods for a parameter and use. The EPA304a standards, if a user has chosen to include, will
-be autopopulated. Users are able to modify these methods as desire.
+Once a user has completed the necessary crosswalk tables, they can
+proceed to defining their organization's criteria and methods for a
+parameter and use. The EPA304a standards, if a user has chosen to
+include, will be autopopulated. Users are able to modify these methods
+as desire.
 
-We will start off by loading in the 3 user created reference files that were created during
-the TADA module 3a vignette.
+We will start off by loading in the 3 user created reference files that
+were created during the TADA module 3a vignette.
 
 ```{r}
 Data_NCTC <- Data_WV_Mod1_Output
@@ -169,8 +172,10 @@ NCTC_AURef <- TADA_CreateAURef(Data_NCTC, excel = TRUE, overwrite = TRUE)
 ```
 
 # Defining Criteria - Magnitude Methodology
-Next, users will use the reference tables in order to define the associated methods for each parameter and use
-combination that they have defined. 
+
+Next, users will use the reference tables in order to define the
+associated methods for each parameter and use combination that they have
+defined.
 
 ```{r}
 NCTC_magnitude <- TADA_DefineMagnitude(
@@ -180,5 +185,18 @@ NCTC_magnitude <- TADA_DefineMagnitude(
   AUIDRef = NCTC_AURef, 
   excel = TRUE, overwrite = TRUE
   )
+```
+
+# Summarize Magnitude Excursions
+
+Based on the parameter and use methodology for assessment, we will determine
+the number of individual excursions for each based on the defined magnitudes.
+
+```{r}
+NCTC_Excusions <- TADA_MagnitudeSummary(
+  Data_NCTC,
+  StandardsRef = NCTC_magnitude,
+  overwrite = TRUE
+)
 ```
 
