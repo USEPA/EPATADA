@@ -171,7 +171,7 @@ TADA_FlagMethod <- function(.data, clean = TRUE, flaggedonly = FALSE) {
 #'
 #' @examples
 #' \dontrun{
-#' all_data <- TADA_DataRetrieval(project = c("Continuous LC1", "MA_Continuous", "Anchorage Bacteria 20-21"))
+#' all_data <- TADA_DataRetrieval(project = c("Continuous LC1", "MA_Continuous", "Anchorage Bacteria 20-21"), ask = FALSE)
 #'
 #' # Flag continuous data in new column titled "TADA.ContinuousData.Flag"
 #' all_data_flags <- TADA_FlagContinuousData(all_data, clean = FALSE)
@@ -1184,7 +1184,7 @@ TADA_FlagCoordinates <- function(.data,
 #' @examples
 #' \dontrun{
 #' # Load dataset
-#' dat <- TADA_DataRetrieval(startDate = "2022-09-01", endDate = "2023-05-01", statecode = "PA", sampleMedia = "Water")
+#' dat <- TADA_DataRetrieval(startDate = "2022-09-01", endDate = "2023-05-01", statecode = "PA", sampleMedia = "Water", ask = FALSE)
 #' unique(dat$OrganizationIdentifier)
 #' # If duplicates across organizations exist, pick the result belonging to "21PA_WQX" if available.
 #' dat1 <- TADA_FindPotentialDuplicatesMultipleOrgs(dat, dist_buffer = 100, org_hierarchy = c("21PA_WQX"))

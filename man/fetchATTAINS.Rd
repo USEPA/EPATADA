@@ -24,7 +24,8 @@ tada_data <- TADA_DataRetrieval(
   endDate = "1995-12-31",
   characteristicName = "pH",
   statecode = "NV",
-  applyautoclean = TRUE
+  applyautoclean = TRUE,
+  ask = FALSE
 )
 
 nv_attains_features <- fetchATTAINS(tada_data, catchments_only = FALSE)

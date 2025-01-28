@@ -23,6 +23,7 @@ TADA_DataRetrieval(
   project = "null",
   providers = "null",
   maxrecs = 250000,
+  ask = TRUE,
   applyautoclean = TRUE
 )
 }
@@ -43,9 +44,9 @@ TADA_DataRetrieval(
 
 \item{siteType}{Type of waterbody. See https://www.waterqualitydata.us/Codes/sitetype for options.}
 
-\item{tribal_area_type}{One of the six tribal spatial layers: "Alaska Native Allotments", "Alaska Native Villages",  "American Indian Reservations", "Off-reservation Trust Lands", "Oklahoma Tribal Statistical Areas", or "Virginia Federally Recognized Tribes".}
+\item{tribal_area_type}{One of four tribal spatial layers: "Alaska Native Allotments", "American Indian Reservations", "Off-reservation Trust Lands", or "Oklahoma Tribal Statistical Areas". More info in TADA_TribalOptions(). Note that "Alaska Native Villages" and "Virginia Federally Recognized Tribes" layers will not return a successful query.}
 
-\item{tribe_name_parcel}{The name of a tribe corresponding to an entry in the TRIBE_NAME field of the specified tribal_area_type. OR if the type is Alaska Native Allotments" then the corresponding PARCEL_NO.}
+\item{tribe_name_parcel}{The name of one or more tribes corresponding to entries in the TRIBE_NAME field of the specified tribal_area_type. OR if the type is "Alaska Native Allotments" then the corresponding PARCEL_NO. More info in TADA_TribalOptions().}
 
 \item{characteristicName}{Name of parameter. See https://www.waterqualitydata.us/Codes/characteristicName for options.}
 
@@ -60,6 +61,10 @@ TADA_DataRetrieval(
 \item{project}{A string of letters and/or numbers (some additional characters also possible) used to signify a project with data in the Water Quality Portal. See https://www.waterqualitydata.us/Codes/project for options.}
 
 \item{providers}{Leave blank to include all, or specify "STEWARDS", "STORET" (i.e., WQX), and/or "NWIS". See https://www.waterqualitydata.us/Codes/providers for options.}
+
+\item{maxrecs}{Maximum number of records to query at once (i.e., without breaking into smaller queries).}
+
+\item{ask}{A logical value indicating whether the user should be asked for approval before downloads begin.}
 
 \item{applyautoclean}{Logical, defaults to TRUE. Applies TADA_AutoClean function on the returned data profile. Suggest switching to FALSE for queries that are expected to be large.}
 }
@@ -116,24 +121,26 @@ errors when used with this function.
 # example for WI
 tada1 <- TADA_DataRetrieval(
   statecode = "WI", countycode = "Dane",
-  characteristicName = "Phosphorus"
+  characteristicName = "Phosphorus",
+  ask = FALSE
 )
 
 # example for UT
 tada2 <- TADA_DataRetrieval(
   statecode = "UT",
-  characteristicName = c("Ammonia", "Nitrate", "Nitrogen")
+  characteristicName = c("Ammonia", "Nitrate", "Nitrogen"),
+  ask = FALSE
 )
 
 # example for SC
-tada3 <- TADA_DataRetrieval(statecode = "SC", countycode = "Abbeville")
+tada3 <- TADA_DataRetrieval(statecode = "SC", countycode = "Abbeville", ask = FALSE)
 
 # example for CT
-tada4 <- TADA_DataRetrieval(statecode = "CT", startDate = "2020-10-01")
+tada4 <- TADA_DataRetrieval(statecode = "CT", startDate = "2020-10-01", ask = FALSE)
 
 
 # note that countycode queries require a statecode (see example below)
-tada5 <- TADA_DataRetrieval(countycode = "US:02:020")
+tada5 <- TADA_DataRetrieval(countycode = "US:02:020", ask = FALSE)
 
 # example for NM
 tada6 <- TADA_DataRetrieval(
@@ -143,11 +150,12 @@ tada6 <- TADA_DataRetrieval(
     "Nitrate",
     "Nitrogen"
   ),
-  startDate = "2020-05-01"
+  startDate = "2020-05-01",
+  ask = FALSE
 )
 
 # example for AK project
-tada7 <- TADA_DataRetrieval(project = "Anchorage Bacteria 20-21")
+tada7 <- TADA_DataRetrieval(project = "Anchorage Bacteria 20-21", ask = FALSE)
 
 # another example for AK
 tada8 <- TADA_DataRetrieval(
@@ -160,7 +168,8 @@ tada8 <- TADA_DataRetrieval(
     "Nitrate",
     "Nitrogen"
   ),
-  startDate = "2018-05-01"
+  startDate = "2018-05-01",
+  ask = FALSE
 )
 
 # example for tribes
@@ -203,7 +212,8 @@ tada9 <- TADA_DataRetrieval(organization = c(
   "CHOCNATWQX",
   "WNENVDPT_WQX",
   "PUEBLO_POJOAQUE"
-))
+),
+ask = FALSE)
 
 # query only NWIS data for a 10 year period in CT
 tada10 <- TADA_DataRetrieval(
@@ -212,13 +222,15 @@ tada10 <- TADA_DataRetrieval(
   sampleMedia = c("Water", "water"),
   statecode = "CT", # consider downloading only 1 state at a time
   providers = "NWIS",
-  applyautoclean = FALSE
+  applyautoclean = FALSE,
+  ask = FALSE
 )
 
 # query by country code (e.g. Canada, countrycode = "CA")
 tada11 <- TADA_DataRetrieval(
   startDate = "2015-01-01",
-  countrycode = "CA"
+  countrycode = "CA",
+  ask = FALSE
 )
 }
 

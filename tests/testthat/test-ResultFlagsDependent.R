@@ -1,7 +1,7 @@
 test_that("No NA's in dependent flag columns", {
   today <- Sys.Date()
   twoago <- as.character(today - 2 * 365)
-  testdat <- TADA_DataRetrieval(statecode = "UT", startDate = twoago, characteristicName = c("Nitrate", "Copper"), sampleMedia = "Water")
+  testdat <- TADA_DataRetrieval(statecode = "UT", startDate = twoago, characteristicName = c("Nitrate", "Copper"), sampleMedia = "Water", ask = FALSE)
   testdat <- TADA_ConvertResultUnits(testdat, transform = TRUE)
 
   testdat <- suppressWarnings(TADA_FlagFraction(testdat, clean = FALSE, flaggedonly = FALSE))

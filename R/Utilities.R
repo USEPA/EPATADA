@@ -627,7 +627,7 @@ TADA_ConvertSpecialChars <- function(.data, col, percent.ave = TRUE) {
 #' This function uses the WQX Characteristic domain table to substitute
 #' deprecated (i.e. retired and/or suspect) Characteristic Names with the new
 #' name in the TADA.CharacteristicName column. TADA_SubstituteDeprecatedChars is
-#' run within TADA_AutoClean, which runs within TADA_DataRetreival and (if autoclean = TRUE)
+#' run within TADA_AutoClean, which runs within TADA_DataRetrieval and (if autoclean = TRUE)
 #' in TADA_BigDataRetrieval. Therefore, deprecated characteristic names are
 #' harmonized to the new name automatically upon data retrieval.
 #' TADA_SubstituteDeprecatedChars can also be used by itself on a user supplied
@@ -648,7 +648,7 @@ TADA_ConvertSpecialChars <- function(.data, col, percent.ave = TRUE) {
 #' @examples
 #' \dontrun{
 #' # download nutrient data in MT from 2022 and set autoclean = FALSE
-#' df <- TADA_DataRetrieval(startDate = "2022-01-01", endDate = "2022-12-31", characteristicType = "Nutrient", statecode = "MT", applyautoclean = FALSE)
+#' df <- TADA_DataRetrieval(startDate = "2022-01-01", endDate = "2022-12-31", characteristicType = "Nutrient", statecode = "MT", applyautoclean = FALSE, ask = FALSE)
 #' df2 <- TADA_SubstituteDeprecatedChars(df)
 #' # in this example, "Inorganic nitrogen (nitrate and nitrite)" is a USGS NWIS characteristic that is
 #' # deprecated and "Phosphate-phosphorus***retired***use Total Phosphorus, mixed forms" is a deprecated WQX
@@ -657,7 +657,7 @@ TADA_ConvertSpecialChars <- function(.data, col, percent.ave = TRUE) {
 #' unique(df2$CharacteristicName)
 #' unique(df2$TADA.CharacteristicName)
 #'
-#' df3 <- TADA_DataRetrieval(startDate = "2022-01-01", endDate = "2022-12-31", characteristicType = "Nutrient", statecode = "WY", applyautoclean = FALSE)
+#' df3 <- TADA_DataRetrieval(startDate = "2022-01-01", endDate = "2022-12-31", characteristicType = "Nutrient", statecode = "WY", applyautoclean = FALSE, ask = FALSE)
 #' df4 <- TADA_SubstituteDeprecatedChars(df3)
 #' unique(df4$CharacteristicName)
 #' unique(df4$TADA.CharacteristicName)
@@ -964,7 +964,8 @@ TADA_RandomTestingData <- function(number_of_days = 1, choose_random_state = FAL
         startDate = as.character(random_start_date),
         endDate = as.character(end_date),
         statecode = state,
-        applyautoclean = TRUE
+        applyautoclean = TRUE,
+        ask = FALSE
       )
     }
 
@@ -973,7 +974,8 @@ TADA_RandomTestingData <- function(number_of_days = 1, choose_random_state = FAL
         startDate = as.character(random_start_date),
         endDate = as.character(end_date),
         statecode = state,
-        applyautoclean = FALSE
+        applyautoclean = FALSE,
+        ask = FALSE
       )
     }
 

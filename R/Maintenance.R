@@ -304,7 +304,7 @@ TADA_UpdateExampleData <- function() {
 #     Type == "CharacteristicUnit",
 #     Status == "Accepted"
 #   )
-# 
+#
 # # find Characteristic/Source/Value.Unit combinations with more than one row
 # find.dups <- unit.ref %>%
 #   dplyr::filter(Type == "CharacteristicUnit") %>%
@@ -313,14 +313,12 @@ TADA_UpdateExampleData <- function() {
 #                 Max_n = length(unique(Maximum))) %>%
 #   dplyr::filter(Min_n > 1 |
 #                   Max_n > 1)
-# 
+#
 # # create download path
 # download.path <- file.path(Sys.getenv("USERPROFILE"), "Downloads", "WQXcharValRef_multiples.csv")
-# 
+#
 # # create csv to send to WQX team and save in test results folder
 # readr::write_csv(find.dups, download.path)
 #
 # # review csv and send to WQX team to update the validation table
 #
-
-

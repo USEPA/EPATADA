@@ -93,7 +93,7 @@ package functions. It joins three WQP profiles: Site, Sample Results
 data in the Characteristic, Speciation, Fraction, and Unit fields to
 uppercase and addresses result values that include special characters.
 
-This function uses the same inputs as the dataRetrieval `readWQPdata`
+This function accepts the same inputs as the dataRetrieval `readWQPdata`
 function. `readWQPdata` does not restrict the characteristics pulled
 from [Water Quality Portal (WQP)](https://www.waterqualitydata.us/).
 
@@ -123,6 +123,19 @@ Data retrieval filters include:
 -   huc
 
 -   characteristicType
+
+In addition to these filters, TADA_DataRetrieval accepts additional
+geospatial-related filters that are not included in the dataRetrieval
+`readWQPdata` function:
+
+-   aoi_sf
+
+-   tribal_area_type
+
+-   tribe_name_parcel
+
+The TADA_TribalOptions function can be used to narrow down options for
+use with tribe_name_parcel. See ?TADA_TribalOptions for more info.
 
 The default TADA_DataRetrieval function automatically runs the
 **TADA_AutoClean** function. In this example, we will set
@@ -159,6 +172,15 @@ Tips:
     identifiers for monitoring locations within USGS NWIS or EPA's WQX
     databases separately.
 
+3.  The aoi_sf and tribal arguments are meant to be used on their own.
+    For example, if both an aoi_sf argument and tribal information are
+    provided an error is returned because it's unclear what the priority
+    location should be for the query. Similarly, aoi_sf and
+    tribal_area_type are not meant to be used with location-related
+    filters (e.g., statecode, siteid). In these instances a warning is
+    returned but the query proceeds by using only the aoi_sf or
+    tribal_area_type information.
+
 Additional resources:
 
 -   Review function documentation by entering the following code into
@@ -177,7 +199,7 @@ Additional resources:
     Tutorial](https://waterdata.usgs.gov/blog/dataretrieval/)
 
 Use the code below to download data from the WQP using
-TADA_DataRetrieval. Edit the code chuck below to define your own WQP
+TADA_DataRetrieval. Edit the code chunk below to define your own WQP
 query inputs.
 
 Downloads using TADA_DataRetrieval will have the same columns each time,
@@ -198,11 +220,75 @@ This example includes monitoring data collected from Jan 2018 to Jan
 & Fox Nation, 3) Pueblo of Pojoaque, 4) Minnesota Chippewa Tribe (Fond
 du Lac Band), 5) Pueblo of Tesuque, and 6) The Chickasaw Nation
 
+```{r TADA_DataRetrieval}
+TADAProfile <- TADA_DataRetrieval(organization = c("REDLAKE_WQX", "SFNOES_WQX", "PUEBLO_POJOAQUE", "FONDULAC_WQX", "PUEBLOOFTESUQUE", "CNENVSER"), startDate = "2018-01-01", endDate = "2019-01-01", applyautoclean = FALSE, ask = FALSE)
+```
+
 We will move forward with this example in the remainder of the vignette.
 
-```{r TADA_DataRetrieval}
-TADAProfile <- TADA_DataRetrieval(organization = c("REDLAKE_WQX", "SFNOES_WQX", "PUEBLO_POJOAQUE", "FONDULAC_WQX", "PUEBLOOFTESUQUE", "CNENVSER"), startDate = "2018-01-01", endDate = "2019-01-01", applyautoclean = FALSE)
+We will first use a subset of this example to demonstrate using new
+TADA_DataRetrieval options that allow for **spatial** or
+**tribe-specific** queries:
+
+Focusing just on the "PUEBLO_POJOAQUE" organization, rerun the example
+above:
+
+```{r TADA_DataRetrieval_single}
+TADAProfile_single <- TADA_DataRetrieval(
+  organization = "PUEBLO_POJOAQUE",
+  startDate = "2018-01-01",
+  endDate = "2019-01-01",
+  applyautoclean = FALSE,
+  ask = FALSE
+)
 ```
+
+The same results can now be obtained using a combination of the
+tribal_area_type and tribe_name_parcel arguments. Both must be used
+together. The tribal_area_type argument indicates which one of the [six
+layer
+datasets](https://geopub.epa.gov/arcgis/rest/services/EMEF/Tribal/MapServer)
+of tribal land data to query within. tribe_name_parcel is the specific
+name of the tribal land of interest as listed in the layer. (Running
+TADA_TribalOptions("American Indian Reservations") could be used here to
+determine the correct spelling for this argument, as listed in the
+TRIBE_NAME column.)
+
+```{r TADA_DataRetrieval_tribal}
+TADAProfile_tribal <- TADA_DataRetrieval(
+  tribal_area_type = "American Indian Reservations",
+  tribe_name_parcel = "Pueblo of Pojoaque, New Mexico",
+  startDate = "2018-01-01",
+  endDate = "2019-01-01",
+  applyautoclean = FALSE,
+  ask = FALSE
+)
+# After removing attribute metadata they are equivalent:
+all.equal(data.frame(TADAProfile_single), data.frame(TADAProfile_tribal))
+```
+
+Additionally, the aoi_sf argument can be used to provide an sf spatial
+object as a query filter. We can match the output of the two short
+examples above, using tigris::native_areas to acquire Census Bureau
+spatial data:
+
+```{r TADA_DataRetrieval_spatial}
+TADAProfile_spatial <- TADA_DataRetrieval(
+  aoi_sf = tigris::native_areas() %>% dplyr::filter(NAMELSAD == "Pueblo of Pojoaque"),
+  startDate = "2018-01-01",
+  endDate = "2019-01-01",
+  applyautoclean = FALSE,
+  ask = FALSE
+)
+
+all.equal(data.frame(TADAProfile_single), data.frame(TADAProfile_spatial))
+```
+
+**Note**: In this example the output data is identical from these three
+input methods. However, in some instances this may not be the case. This
+is because the tribal_area_type method is based on spatial data and so
+spatial boundaries must be taken into account when comparing query
+results. The same applies when using aoi_sf results.
 
 ## USGS dataRetrieval
 
@@ -217,30 +303,38 @@ as part of the data retrieval process.
 # dataRetrieval_example <- dataRetrieval::readWQPdata(organization = c("REDLAKE_WQX", "SFNOES_WQX", "PUEBLO_POJOAQUE", "FONDULAC_WQX", "PUEBLOOFTESUQUE", "CNENVSER"), startDate = "2018-01-01", endDate = "2019-01-01", ignore_attributes = TRUE)
 ```
 
-## TADA_BigDataRetrieval
+## Big Data Queries
 
 If you need to download a large amount of data from across a large area,
-and the TADA_DataRetrieval function is not working due to WQP timeout
-issues, then the **TADA_BigDataRetrieval** function may work better.
+the TADA_DataRetrieval function now handles this automatically. Whereas
+in the past there was a second function (TADA_BigDataRetrieval) to do
+this, the standard TADA_DataRetrieval function now checks the number of
+results in each query and uses similar methods as TADA_BigDataRetrieval
+when necessary.
 
-This function does multiple synchronous data calls to the WQP
+The function does multiple synchronous data calls to the WQP
 (waterqualitydata.us). It uses the WQP summary service to limit the
 sites downloaded to only those with relevant data. It pulls back data
 from set number of stations at a time and then joins the data back
 together to produce a single TADA compatible dataframe as the output.
 
-See ?TADA_BigDataRetrieval for more details. WARNING, some of the
-examples below can take multiple HOURS to run. The total run time
-depends on your query inputs.
+TADA_DataRetrieval now also prompts the user (when ask = TRUE) to
+confirm that they want to download the dataset. As part of this prompt
+the expected number of rows of data are provided to help in making the
+decision. As the downloads occur, a progress bar is shown as well.
+
+See ?TADA_DataRetrieval for more details. WARNING, some of the examples
+below can take multiple HOURS to run. The total run time depends on your
+query inputs.
 
 ```{r BigdataRetrieval, eval = FALSE, results = 'hide'}
-# AK_AL_WaterTemp <- TADA_BigDataRetrieval(startDate = "2000-01-01", endDate = "2022-12-31", characteristicName = "Temperature, water", statecode = c("AK","AL"))
+# AK_AL_WaterTemp <- TADA_DataRetrieval(startDate = "2000-01-01", endDate = "2022-12-31", characteristicName = "Temperature, water", statecode = c("AK","AL"))
 
-# AllWaterTemp <- TADA_BigDataRetrieval(characteristicName = "Temperature, water")
+# AllWaterTemp <- TADA_DataRetrieval(characteristicName = "Temperature, water")
 
-# AllPhosphorus <- TADA_BigDataRetrieval(characteristicName = "Phosphorus")
+# AllPhosphorus <- TADA_DataRetrieval(characteristicName = "Phosphorus")
 
-# AllCT <- TADA_BigDataRetrieval(statecode = "CT")
+# AllCT <- TADA_DataRetrieval(statecode = "CT")
 ```
 
 ## Filter data based on media type

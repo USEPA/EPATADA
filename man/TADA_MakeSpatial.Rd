@@ -27,7 +27,8 @@ tada_not_spatial <- TADA_DataRetrieval(
   characteristicName = "pH",
   statecode = "SC",
   countycode = "Abbeville",
-  applyautoclean = TRUE
+  applyautoclean = TRUE,
+  ask = FALSE
 )
 
 # make `tada_not_spatial` an sf object, projected in crs = 4269 (NAD83)
