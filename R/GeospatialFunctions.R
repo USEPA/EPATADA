@@ -479,8 +479,10 @@ fetchATTAINS <- function(.data, catchments_only = FALSE) {
 #'   applyautoclean = TRUE
 #' )
 #'
-#' nhd_data <- fetchNHD(.data = tada_data, resolution = "Hi", features = c("catchments", "waterbodies", "flowlines"))
+#' nhd_data <- fetchNHD(.data = tada_data, resolution = "Hi", 
+#' features = c("catchments", "waterbodies", "flowlines"))
 #' }
+#' 
 fetchNHD <- function(.data, resolution = "Hi", features = "catchments") {
   suppressMessages(suppressWarnings({
     # sf::sf_use_s2(TRUE)

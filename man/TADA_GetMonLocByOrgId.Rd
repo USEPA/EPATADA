@@ -15,21 +15,26 @@ id = "wqp", 'MonitoringLocationIdentifier' is used. When id = "tada",
 'TADA.MonitoringLocationIdentifier" is used. Default is id = "wqp".}
 }
 \value{
-A crosswalk dataframe of monitoring location identifiers and organization identifiers.
+A crosswalk dataframe of monitoring location identifiers and
+organization identifiers.
 }
 \description{
 This function creates a dataframe with two columns to show the organization
 identifier for each monitoring location. The user can select whether the
 monitoring location identifier column displays the original WQP
 'MonitoringLocationIdentifier' or the 'TADA.MonitoringLocationIdentifier'.
-When 'TADA.MonitoringLocationIdentifier' is selected (with id = "tada"), there
-may be fewer rows in the resulting data set than when 'MonitoringLocationIdentifier"
-is selected (with id = "wqp") due to grouping of nearby sites as a result of applying
-TADA functions such as TADA_FindNearbySites or TADA_FindPotentialDuplicatesMultipleOrgs.
+When 'TADA.MonitoringLocationIdentifier' is selected (with id = "tada"),
+there may be fewer rows in the resulting data set than when
+'MonitoringLocationIdentifier" is selected (with id = "wqp"). This may
+occur if other EPATADA package functions have already been run, such as
+TADA_FindNearbySites or TADA_FindPotentialDuplicatesMultipleOrgs, because
+these functions group sites that are nearby or duplicates of each other.
 }
 \examples{
 data(Data_6Tribes_5y_Harmonized)
-orgsite_crosswalk_originalwqp = TADA_GetMonLocByOrgId(Data_6Tribes_5y_Harmonized, id = "wqp")
-orgsite_crosswalk_tada = TADA_GetMonLocByOrgId(Data_6Tribes_5y_Harmonized, id = "tada")
+orgsite_crosswalk_originalwqp = TADA_GetMonLocByOrgId(
+Data_6Tribes_5y_Harmonized, id = "wqp")
+orgsite_crosswalk_tada = TADA_GetMonLocByOrgId(Data_6Tribes_5y_Harmonized,
+id = "tada")
 
 }

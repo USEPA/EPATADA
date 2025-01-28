@@ -2,17 +2,18 @@
 % Please edit documentation in R/CrosswalksFromATTAINS.R
 \name{TADA_GetATTAINSAUSiteCrosswalk}
 \alias{TADA_GetATTAINSAUSiteCrosswalk}
-\title{Get WQP/WQX MonitoringLocationIdentifier and ATTAINS.assessmentunitidentifier Crosswalk
-from ATTAINS}
+\title{Get WQP/WQX MonitoringLocationIdentifier and ATTAINS.assessmentunitidentifier
+Crosswalk from ATTAINS}
 \usage{
 TADA_GetATTAINSAUSiteCrosswalk(org_id = NULL)
 }
 \arguments{
-\item{org_id}{The ATTAINS organization identifier must be supplied by the user. A list of
-organization identifiers can be found by downloading the ATTAINS Domains Excel file:
-https://www.epa.gov/system/files/other-files/2023-09/DOMAINS.xlsx. Organization identifiers
-are listed in the "OrgName" tab. The "code" column contains the organization identifiers that
-should be used for this param.}
+\item{org_id}{The ATTAINS organization identifier must be supplied by the
+user. A list of organization identifiers can be found by downloading the
+ATTAINS Domains Excel file:
+https://www.epa.gov/system/files/other-files/2023-09/DOMAINS.xlsx.
+Organization identifiers are listed in the "OrgName" tab. The "code" column
+contains the organization identifiers that should be used for this param.}
 }
 \value{
 A dataframe with three columns, ATTAINS.assessmentunitidentifier,
@@ -21,13 +22,15 @@ This is the crosswalk between WQP/WQX MonitoringLocationIdentifiers and
 Assessment Units that the state or tribal organization submitted to ATTAINS.
 }
 \description{
-Tribes and States who participate in electronic reporting of water quality conditions
-through EPA ATTAINS may also submit a crosswalk of WQP MonitoringLocationIdentifiers associated
-with their Assessment Units to ATTAINS. If the organization has recorded
-MonitoringLocationIdentifiers associated with their Assessment Units in ATTAINS, this function
-can be used to create a crosswalk of known MonitoringLocationIdentifiers and Assessment Units.
-All tribal nations record this crosswalk in ATTAINS but only a few states. If a state has not
-supplied Monitoring Location information to ATTAINS, the function will not return a data frame.
+Tribes and States who participate in electronic reporting of water quality
+conditions through EPA ATTAINS may also submit a crosswalk of WQP
+MonitoringLocationIdentifiers associated with their Assessment Units to
+ATTAINS. If the organization has recorded MonitoringLocationIdentifiers
+associated with their Assessment Units in ATTAINS, this function can be used
+to create a crosswalk of known MonitoringLocationIdentifiers and Assessment
+Units. All tribal nations record this crosswalk in ATTAINS but only a few
+states. If a state has not supplied Monitoring Location information to
+ATTAINS, the function will not return a data frame.
 }
 \examples{
 \dontrun{
@@ -35,7 +38,8 @@ supplied Monitoring Location information to ATTAINS, the function will not retur
 AK_crosswalk <- TADA_GetATTAINSAUSiteCrosswalk(org_id = "AKDECWQ")
 
 # Pueblo of Tesuque example
-PUEBLOOFTESUQUE_crosswalk <- TADA_GetATTAINSAUSiteCrosswalk(org_id = "PUEBLOOFTESUQUE")
+PUEBLOOFTESUQUE_crosswalk <- TADA_GetATTAINSAUSiteCrosswalk(
+org_id = "PUEBLOOFTESUQUE")
 
 # Arizona example, returns blank dataframe as of 1/21/25
 AZ_crosswalk <- TADA_GetATTAINSAUSiteCrosswalk(org_id = "21ARIZ")
