@@ -7,14 +7,14 @@
 TADA_Stats(.data, group_cols = c("TADA.ComparableDataIdentifier"))
 }
 \arguments{
-\item{.data}{TADA data frame containing the data downloaded from the WQP,
-where each row represents a unique data record. Data frame must include the
+\item{.data}{TADA dataframe containing the data downloaded from the WQP,
+where each row represents a unique data record. Dataframe must include the
 columns 'TADA.ResultMeasureValue', 'TADA.ResultMeasure.MeasureUnitCode',
 'TADA.ResultSampleFractionText', 'TADA.MethodSpeciationName',
 'TADA.ComparableDataIdentifier', 'TADA.CensoredData.Flag',
 'DetectionQuantitationLimitTypeName', and 'MonitoringLocationIdentifier' to
 run this function. The 'TADA.ComparableDataIdentifier' can be added to the
-data frame by running the function TADA_CreateComparableID().}
+dataframe by running the function TADA_CreateComparableID().}
 
 \item{group_cols}{This function automatically uses
 'TADA.ComparableDataIdentifier' as a grouping column. However, the user may

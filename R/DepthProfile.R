@@ -68,13 +68,13 @@
 #' multiple WQC columns where users may input depth information. If a daily_agg = "avg",
 #' "min", or "max", aggregated values will be identified in the TADA.ResultAggregation.Flag
 #' column. In the case of daily_agg = "avg", additional rows to display averages will be
-#' added to the data frame. They can be identified by the prefix ("TADA-") of
+#' added to the dataframe. They can be identified by the prefix ("TADA-") of
 #' their result identifiers.
 #'
 #' @export
 #'
 #' @examples
-#' # Load data frame
+#' # Load dataframe
 #' data(Data_6Tribes_5y)
 #'
 #' # assign TADA.DepthCategory.Flag with no aggregation
@@ -109,7 +109,7 @@ TADA_FlagDepthCategory <- function(.data, bycategory = "no", bottomvalue = 2, su
 
   depthcat.list <- c("Surface", "Bottom", "Middle")
 
-  ard.ref <- utils::read.csv(system.file("extdata", "WQXActivityRelativeDepthRef.csv", package = "EPATADA")) %>%
+  ard.ref <- utils::read.csv(system.file("extdata", "TADAActivityRelativeDepthRef.csv", package = "EPATADA")) %>%
     dplyr::rename(
       ARD_Category = TADA.DepthCategory.Flag,
       ActivityRelativeDepthName = Name
@@ -444,10 +444,10 @@ TADA_FlagDepthCategory <- function(.data, bycategory = "no", bottomvalue = 2, su
 
 #' TADA_IDDepthProfiles
 #'
-#' This function identifies depth profiles within a data frame to assist the user in
+#' This function identifies depth profiles within a dataframe to assist the user in
 #' selecting params for TADA_DepthProfilePlot. A TADA compatible data set is required.
 #' If TADA_FlagDepthCategory has not yet been run, it will be run as part of this
-#' function. The output data frame is grouped by MonitoringLocationIdentifier,
+#' function. The output dataframe is grouped by MonitoringLocationIdentifier,
 #' OrganizationIdentifier, and ActivityStartDate.
 #'
 #' A new column, TADA.CharacteristicsForDepthProfile, is created which lists the
@@ -490,7 +490,7 @@ TADA_FlagDepthCategory <- function(.data, bycategory = "no", bottomvalue = 2, su
 #' @export
 #'
 #' @examples
-#' # Load data frame
+#' # Load dataframe
 #' data(Data_6Tribes_5y)
 #'
 #' # find depth profile data without showing number of results
@@ -509,13 +509,13 @@ TADA_IDDepthProfiles <- function(.data, nresults = TRUE, nvalue = 2, aggregates 
   )
 
   if (all(flag.func.cols %in% colnames(.data)) == TRUE) {
-    print("TADA_IDDepthProfiles: Necessary columns from TADA_FlagDepthCategory function are included in the data frame.")
+    print("TADA_IDDepthProfiles: Necessary columns from TADA_FlagDepthCategory function are included in the dataframe.")
 
     .data <- .data
   }
 
   if (any(flag.func.cols %in% colnames(.data)) == FALSE) {
-    print("TADA_IDDepthProfiles: Necessary columns are being added to the data frame using TADA_DepthCatgegory.Flag function.")
+    print("TADA_IDDepthProfiles: Necessary columns are being added to the dataframe using TADA_DepthCatgegory.Flag function.")
 
     .data <- TADA_FlagDepthCategory(.data)
   }
@@ -616,9 +616,9 @@ TADA_IDDepthProfiles <- function(.data, nresults = TRUE, nvalue = 2, aggregates 
 
 #' Create A Three-Characteristic Depth Profile
 #'
-#' @param .data TADA data frame containing the data downloaded from the WQP,
+#' @param .data TADA dataframe containing the data downloaded from the WQP,
 #'   where each row represents a unique data record. TADA_FlagDepthCategory
-#'   has been run as data frame must include the columns TADA.DepthCategory.Flag,
+#'   has been run as dataframe must include the columns TADA.DepthCategory.Flag,
 #'   TADA.ResultDepthHeightMeasure.MeasureUnitCode, TADA.ActivityDepthHeightMeasure.MeasureUnitCode,
 #'   and TADA.ActivityDepthHeightMeasure.MeasureValue. Units for all depth fields
 #'   must be the same. This can be accomplished using TADA_AutoClean() or
@@ -626,7 +626,7 @@ TADA_IDDepthProfiles <- function(.data, nresults = TRUE, nvalue = 2, aggregates 
 #'
 #' @param groups A vector of two identifiers from the TADA.ComparableDataIdentifier column.
 #' For example, the groups could be 'DISSOLVED OXYGEN (DO)_NA_NA_UG/L' and 'PH_NA_NA_NA'.
-#' These groups will be specific to your data frame. The TADA_IDDepthProfiles can be
+#' These groups will be specific to your dataframe. The TADA_IDDepthProfiles can be
 #' used to identify available groups.
 #'
 #' @param location A single MonitoringLocationIdentifier to plot the depth profile.
@@ -657,7 +657,7 @@ TADA_IDDepthProfiles <- function(.data, nresults = TRUE, nvalue = 2, aggregates 
 #' @export
 #'
 #' @examples
-#' # Load example data frame:
+#' # Load example dataframe:
 #' data(Data_6Tribes_5y_Harmonized)
 #' # Create a depth profile figure with three parameters for a single monitoring location and date
 #' TADA_DepthProfilePlot(Data_6Tribes_5y_Harmonized,
@@ -666,7 +666,7 @@ TADA_IDDepthProfiles <- function(.data, nresults = TRUE, nvalue = 2, aggregates 
 #'   activity_date = "2018-10-04"
 #' )
 #'
-#' # Load example data frame:
+#' # Load example dataframe:
 #' data(Data_6Tribes_5y_Harmonized)
 #' # Create a depth profile figure with two parameters for a single monitoring location and date without displaying depth categories
 #' TADA_DepthProfilePlot(Data_6Tribes_5y_Harmonized,
@@ -705,13 +705,13 @@ TADA_DepthProfilePlot <- function(.data,
   )
 
   if (all(flag.func.cols %in% colnames(.data)) == TRUE) {
-    print("TADA_DepthProfilePlot: Necessary columns from TADA_FlagDepthCategory function are included in the data frame")
+    print("TADA_DepthProfilePlot: Necessary columns from TADA_FlagDepthCategory function are included in the dataframe")
 
     .data <- .data
   }
 
   if (any(flag.func.cols %in% colnames(.data)) == FALSE) {
-    print("TADA_DepthProfilePlot: Running TADA_FlagDepthCategory function to add required columns to data frame")
+    print("TADA_DepthProfilePlot: Running TADA_FlagDepthCategory function to add required columns to dataframe")
 
 
     if (bottomvalue == "null" & surfacevalue == "null") {

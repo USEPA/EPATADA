@@ -25,7 +25,8 @@ quiet <- function(x) {
 
 # write global variables. Gets rid of global variable NOTE in check:
 utils::globalVariables(c(
-  "TADA.ResultValueAboveUpperThreshold.Flag", "ActivityIdentifier", "ActivityMediaName",
+  "TADA.ResultValueAboveUpperThreshold.Flag", "ActivityIdentifier", 
+  "ActivityMediaName",
   "ActivityStartDate", "TADA.ResultValueBelowUpperThreshold.Flag",
   "TADA.ResultValueBelowLowerThreshold.Flag", "CharacteristicName",
   "Conversion.Factor", "Count", "Description", "FieldName", "FieldValue",
@@ -36,14 +37,18 @@ utils::globalVariables(c(
   "QAPPApprovalAgencyName", "QAPPApprovedIndicator",
   "ResultDetectionConditionText", "ResultMeasureValue",
   "SamplingDesignTypeCode", "Source", "Status", "TADA.ContinuousData.Flag",
-  "TADA.SuspectCoordinates.Flag", "TADA.PotentialDupRowIDs.Flag", "TADA.QAPPDocAvailable",
+  "TADA.SuspectCoordinates.Flag", "TADA.PotentialDupRowIDs.Flag", 
+  "TADA.QAPPDocAvailable",
   "Target.Unit", "Type", "Value.Unit", "TADA.AnalyticalMethod.Flag",
   "TADA.MethodSpeciation.Flag", "TADA.ResultUnit.Flag",
   "TADA.SampleFraction.Flag", "YearSummarized", "where", "TADA.CharacteristicName",
   "ResultIdentifier", "TADA.ResultMeasureValue", "n_sites",
-  "n_records", "statecodes_df", "STUSAB", "ActivityStartTime.Time", "numorgs", "dup_id",
-  "LatitudeMeasure", "TADA.ResultMeasureValueDataTypes.Flag", "Name", "TADA.Detection_Type",
-  "DetectionQuantitationLimitTypeName", "TADA.Limit_Type", "multiplier", "summ", "cf",
+  "n_records", "statecodes_df", "STUSAB", "ActivityStartTime.Time", "numorgs", 
+  "dup_id",
+  "LatitudeMeasure", "TADA.ResultMeasureValueDataTypes.Flag", "Name", 
+  "TADA.Detection_Type",
+  "DetectionQuantitationLimitTypeName", "TADA.Limit_Type", "multiplier", "summ",
+  "cf",
   "LongitudeMeasure", "TADA.CensoredData.Flag", "Censored_Count",
   "Status2", "ActivityTypeCode", "SampleCollectionEquipmentName",
   "ResultTimeBasisText", "StatisticalBaseCode", "ResultValueTypeName",
@@ -56,15 +61,21 @@ utils::globalVariables(c(
   "TADA.ResultMeasureValue1", "TADA.ResultSampleFractionText",
   "TADA.MethodSpeciationName", "TADA.ResultMeasure.MeasureUnitCode",
   "TADA.ActivityMediaName", "TADA.NutrientSummationGroup",
-  "SummationName", "SummationRank", "SummationFractionNotes", "SummationSpeciationNotes",
+  "SummationName", "SummationRank", "SummationFractionNotes", 
+  "SummationSpeciationNotes",
   "SummationSpeciationConversionFactor", "SummationNote", "NutrientGroup",
-  "Target.Speciation", "TADA.NearbySiteGroups", "numres", "TADA.SingleOrgDupGroupID",
-  "TADA.MeasureQualifierCode.Flag", "TADA.MeasureQualifierCode.Def", "MeasureQualifierCode",
-  "value", "Flag_Column", "Data_NCTCShepherdstown_HUC12", "ActivityStartDateTime",
-  "TADA.MultipleOrgDupGroupID", "TADA.WQXVal.Flag", "Concat", ".", "MeasureQualifierCode.Split",
+  "Target.Speciation", "TADA.NearbySiteGroups", "numres", 
+  "TADA.SingleOrgDupGroupID",
+  "TADA.MeasureQualifierCode.Flag", "TADA.MeasureQualifierCode.Def", "
+  MeasureQualifierCode",
+  "value", "Flag_Column", "Data_NCTCShepherdstown_HUC12",
+  "ActivityStartDateTime",
+  "TADA.MultipleOrgDupGroupID", "TADA.WQXVal.Flag", "Concat", ".", 
+  "MeasureQualifierCode.Split",
   "TADA.Media.Flag", "ML.Media.Flag", "TADA.UseForAnalysis.Flag",
   "Unique.Identifier", "Domain", "Note.Recommendation", "Conversion.Coefficient",
-  "Conversion.Coefficient", "Last.Change.Date", "Value", "Minimum", "Unique.Identifier",
+  "Conversion.Coefficient", "Last.Change.Date", "Value", "Minimum", 
+  "Unique.Identifier",
   "Domain", "ResultMeasure.MeasureUnitCode", "Comb", "CombList",
   "TADA.Target.ResultMeasure.MeasureUnitCode", "TADA.WQXUnitConversionFactor",
   "TADA.WQXUnitConversionCoefficient", "TADA.Target.MethodSpeciationName",
@@ -91,7 +102,12 @@ utils::globalVariables(c(
   "ATTAINS.submissionid", "HorizontalCoordinateReferenceSystemDatumName", 
   "NCount", "NHD.catchmentareasqkm", "NHD.comid", "NHD.nhdplusid", "NHD.resolution", 
   "areasqkm", "assessmentUnitIdentifier", "catchmentareasqkm", "comid", 
-  "featureid", "geometry", "nhdplusid", "waterTypeCode"
+  "featureid", "geometry", "nhdplusid", "waterTypeCode", "ASSESSMENT_UNIT_ID",
+  "assessment_unit_identifier", "au_crosswalk", "monitoring_data_link_text",
+  "MONITORING_DATA_LINK_TEXT", "MONITORING_DATA_LINK_TEXT.New", "monitoring_location_identifier",
+  "monitoring_organization_identifier", "monitoring_stations", "MS_LOCATION_ID", "MS_ORG_ID",
+  "OrgIDForURL", "provder.ref", "ProviderName", "response_code", 
+  "update.crosswalk.MONITORING_DATA_LINK_TEXT.New"
 ))
 
 # global variables for tribal feature layers used in TADA_OverviewMap in Utilities.R
@@ -455,7 +471,7 @@ TADA_CheckType <- function(arg, type, paramName) {
 #' Check Columns
 #'
 #' This function checks if the expected column names are in the dataframe. It is
-#' used at the beginning of TADA functions to ensure the input data frame is
+#' used at the beginning of TADA functions to ensure the input dataframe is
 #' suitable (i.e. is either the full physical/chemical results profile
 #' downloaded from WQP or the TADA profile template downloaded from the EPA TADA
 #' webpage.)
@@ -649,7 +665,7 @@ TADA_ConvertSpecialChars <- function(.data, col, percent.ave = TRUE) {
 #' in TADA_BigDataRetrieval. Therefore, deprecated characteristic names are
 #' harmonized to the new name automatically upon data retrieval.
 #' TADA_SubstituteDeprecatedChars can also be used by itself on a user supplied
-#' dataset that is in the WQX/WQP format, if desired. This solution works for both
+#' dataset that is in the WQX format, if desired. This solution works for both
 #' EPA WQX and USGS NWIS provided data.
 #'
 #' Enter ?TADA_GetCharacteristicRef() to review a list of all WQX characteristics, the including
@@ -839,7 +855,7 @@ TADA_FindNearbySites <- function(.data, dist_buffer = 100) {
     dat$MonitoringLocationIdentifier <- colnames(dist.mat1) # give df site names along with counts
     sites <- dat$MonitoringLocationIdentifier[dat$Count == 1] # filter to sites within buffer
     sites1 <- sites[!sites %in% fsite] # get site list within buffer that does not include focal site
-    if (length(sites1) > 0) { # if this list is greater than 0, combine sites within buffer into data frame
+    if (length(sites1) > 0) { # if this list is greater than 0, combine sites within buffer into dataframe
       df <- data.frame(MonitoringLocationIdentifier = sites, TADA.MonitoringLocationIdentifier = paste0(sites, collapse = ","))
       df[c("TADA.MonitoringLocationIdentifier")] <- lapply(df[c("TADA.MonitoringLocationIdentifier")], TADA_FormatDelimitedString)
       groups <- plyr::rbind.fill(groups, df)
@@ -1172,7 +1188,11 @@ TADA_RunKeyFlagFunctions <- function(.data, remove_na = TRUE, clean = TRUE) {
 #' # Load example dataset
 #' data(Data_6Tribes_5y)
 #' # Get the bounding box of the data
-#' bbox <- sf::st_bbox(c(xmin = min(Data_6Tribes_5y$TADA.LongitudeMeasure), ymin = min(Data_6Tribes_5y$TADA.LatitudeMeasure), xmax = max(Data_6Tribes_5y$TADA.LongitudeMeasure), ymax = max(Data_6Tribes_5y$TADA.LatitudeMeasure)), crs = sf::st_crs(Data_6Tribes_5y))
+#' bbox <- sf::st_bbox(c(xmin = min(Data_6Tribes_5y$TADA.LongitudeMeasure), 
+#' ymin = min(Data_6Tribes_5y$TADA.LatitudeMeasure), 
+#' xmax = max(Data_6Tribes_5y$TADA.LongitudeMeasure), 
+#' ymax = max(Data_6Tribes_5y$TADA.LatitudeMeasure)), 
+#' crs = sf::st_crs(Data_6Tribes_5y))
 #' # Get a string containing the JSON of the bounding box
 #' getBboxJson(bbox)
 #' }
@@ -1278,7 +1298,8 @@ getFeatureLayer <- function(url, bbox = NULL) {
 #'
 #' @examples
 #' \dontrun{
-#' # Get the Oklahoma Tribal Statistical Areas feature layer and write local file to inst/extdata/OKTribe.shp
+#' # Get the Oklahoma Tribal Statistical Areas feature layer and write
+#' # local file to inst/extdata/OKTribe.shp
 #' OKTribeUrl <- "https://geopub.epa.gov/arcgis/rest/services/EMEF/Tribal/MapServer/4/query"
 #' writeLayer(OKTribeUrl, "inst/extdata/OKTribe.shp")
 #' }
@@ -1311,8 +1332,14 @@ writeLayer <- function(url, layerfilepath) {
 #' # Load example dataset
 #' data(Data_6Tribes_5y_Harmonized)
 #' # Get the bounding box of the data
-#' bbox <- sf::st_bbox(c(xmin = min(Data_6Tribes_5y_Harmonized$TADA.LongitudeMeasure), ymin = min(Data_6Tribes_5y_Harmonized$TADA.LatitudeMeasure), xmax = max(Data_6Tribes_5y_Harmonized$TADA.LongitudeMeasure), ymax = max(Data_6Tribes_5y_Harmonized$TADA.LatitudeMeasure)), crs = sf::st_crs(Data_6Tribes_5y_Harmonized))
-#' # Get the American Indian Reservations feature layer, filtered by the bounding box for the Data_6Tribes_5y_Harmonized example dataset
+#' bbox <- sf::st_bbox(c(xmin = min(
+#' Data_6Tribes_5y_Harmonized$TADA.LongitudeMeasure), 
+#' ymin = min(Data_6Tribes_5y_Harmonized$TADA.LatitudeMeasure), 
+#' xmax = max(Data_6Tribes_5y_Harmonized$TADA.LongitudeMeasure), 
+#' ymax = max(Data_6Tribes_5y_Harmonized$TADA.LatitudeMeasure)), 
+#' crs = sf::st_crs(Data_6Tribes_5y_Harmonized))
+#' # Get the American Indian Reservations feature layer, filtered by the 
+#' # bounding box for the Data_6Tribes_5y_Harmonized example dataset
 #' layerfilepath <- "extdata/AmericanIndian.shp"
 #' getLayer(layerfilepath, bbox)
 #' }
@@ -1469,13 +1496,13 @@ TADA_addPoints <- function(map, layerfilepath, layergroup, layername, bbox = NUL
 
 #' Create Characteristic/MeasureUnitCode/MethodSpeciation Ref
 #'
-#' Creates data frame of unique combinations of TADA.CharacteristicName,
+#' Creates dataframe of unique combinations of TADA.CharacteristicName,
 #' TADA.ResultMeasure.MeasureUnitCode, ResultMeasure.MeasureUnitCode, and
-#' TADA.MethodSpeciationName in a TADA data frame.
+#' TADA.MethodSpeciationName in a TADA dataframe.
 #'
-#' @param .data A TADA data frame.
+#' @param .data A TADA dataframe.
 #'
-#' @return A data frame with unique combinations of TADA.CharacteristicName,
+#' @return A dataframe with unique combinations of TADA.CharacteristicName,
 #' TADA.ResultMeasure.MeasureUnitCode, ResultMeasure.MeasureUnitCode, and
 #' TADA.MethodSpeciationName
 #'
@@ -1501,7 +1528,7 @@ TADA_UniqueCharUnitSpeciation <- function(.data) {
     .data <- .data
   }
 
-  # Create df of unique codes and characteristic names(from TADA.CharacteristicName and TADA.ResultMeasure.MeasureUnitCode) in TADA data frame
+  # Create df of unique codes and characteristic names(from TADA.CharacteristicName and TADA.ResultMeasure.MeasureUnitCode) in TADA dataframe
   data.units.result <- .data %>%
     dplyr::select(
       TADA.CharacteristicName, TADA.ResultMeasure.MeasureUnitCode,
@@ -1510,7 +1537,7 @@ TADA_UniqueCharUnitSpeciation <- function(.data) {
     dplyr::filter(!is.na(TADA.ResultMeasure.MeasureUnitCode)) %>%
     dplyr::distinct()
 
-  # Create df of unique codes and characteristic names(from TADA.CharacteristicName and TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode) in TADA data frame
+  # Create df of unique codes and characteristic names(from TADA.CharacteristicName and TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode) in TADA dataframe
   data.units.det <- .data %>%
     dplyr::select(
       TADA.CharacteristicName, TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode,
@@ -1698,4 +1725,75 @@ TADA_CharStringRemoveNA <- function(char_string) {
   }
 
   return(labs)
+}
+
+
+
+#' Get WQP Organization Identifier For Each WQP Monitoring Location Identifier
+#'
+#' This function creates a dataframe with two columns to show the organization 
+#' identifier for each monitoring location. The user can select whether the 
+#' monitoring location identifier column displays the original WQP 
+#' 'MonitoringLocationIdentifier' or the 'TADA.MonitoringLocationIdentifier'.
+#' When 'TADA.MonitoringLocationIdentifier' is selected (with id = "tada"), 
+#' there may be fewer rows in the resulting data set than when 
+#' 'MonitoringLocationIdentifier" is selected (with id = "wqp"). This may 
+#' occur if other EPATADA package functions have already been run, such as 
+#' TADA_FindNearbySites or TADA_FindPotentialDuplicatesMultipleOrgs, because 
+#' these functions group sites that are nearby or duplicates of each other. 
+#'
+#' @param .data A TADA dataframe.
+#'
+#' @param id Character argument. Determines which monitoring location identifier
+#' and organization identifier from the TADA dataframe to display. When 
+#' id = "wqp", 'MonitoringLocationIdentifier' is used. When id = "tada", 
+#' 'TADA.MonitoringLocationIdentifier" is used. Default is id = "wqp".
+#'
+#'
+#' @return A crosswalk dataframe of monitoring location identifiers and 
+#' organization identifiers.
+#' 
+#' @export
+#'
+#' @examples
+#' data(Data_6Tribes_5y_Harmonized)
+#' orgsite_crosswalk_originalwqp = TADA_GetMonLocByOrgId(
+#' Data_6Tribes_5y_Harmonized, id = "wqp")
+#' orgsite_crosswalk_tada = TADA_GetMonLocByOrgId(Data_6Tribes_5y_Harmonized,
+#' id = "tada")
+#' 
+TADA_GetMonLocByOrgId <- function(.data, id = "wqp") {
+  
+  # check .data is dataframe
+  TADA_CheckType(.data, "data.frame", "Input object")
+  
+  if (id == "wqp") {
+    # .data required columns
+    required_cols <- c("MonitoringLocationIdentifier", 
+                       "OrganizationIdentifier")
+    
+    # check .data has required columns
+    TADA_CheckColumns(.data, required_cols)
+    
+    .data <- .data %>%
+      dplyr::select(MonitoringLocationIdentifier, OrganizationIdentifier) %>%
+      dplyr::distinct()
+    return(.data)
+  }
+  
+  if (id == "tada") {
+    # .data required columns
+    required_cols <- c("TADA.MonitoringLocationIdentifier", 
+                       "MonitoringLocationIdentifier", 
+                       "OrganizationIdentifier")
+    
+    # check .data has required columns
+    TADA_CheckColumns(.data, required_cols)
+    
+    .data <- .data %>%
+      dplyr::select(TADA.MonitoringLocationIdentifier, 
+                    OrganizationIdentifier) %>%
+      dplyr::distinct()
+    return(.data)
+  }
 }

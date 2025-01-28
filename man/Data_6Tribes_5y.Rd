@@ -5,7 +5,7 @@
 \alias{Data_6Tribes_5y}
 \title{Data_6Tribes_5y}
 \format{
-A data frame with 134050 rows and 149 variables
+A dataframe with 134050 rows and 149 variables
 }
 \usage{
 data(Data_6Tribes_5y)
@@ -33,5 +33,4 @@ by six organizations:
 \item The Chickasaw Nation
 }
 }
-\keyword{data}
-\keyword{frame}
+\keyword{dataframe}

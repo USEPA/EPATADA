@@ -7,12 +7,12 @@
 TADA_Scatterplot(.data, id_cols = c("TADA.ComparableDataIdentifier"))
 }
 \arguments{
-\item{.data}{TADA data frame containing the data downloaded from the
-WQP, where each row represents a unique data record. Data frame must
+\item{.data}{TADA dataframe containing the data downloaded from the
+WQP, where each row represents a unique data record. Dataframe must
 include the columns 'TADA.ComparableDataIdentifier',
 'TADA.ResultMeasureValue', and 'TADA.ResultMeasure.MeasureUnitCode' to run
 this function. The 'TADA.ComparableDataIdentifier' column is added to the
-data frame automatically when WQP data is retrieved using TADADataRetrieval.
+dataframe automatically when WQP data is retrieved using TADADataRetrieval.
 This TADA.ComparableDataIdentifier can be updated to harmonize synonyms
 by running the function TADA_HarmonizeSynonyms(). You can also include
 additional grouping columns in the id_cols input if desired. If more than

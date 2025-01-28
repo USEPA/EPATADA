@@ -7,18 +7,18 @@
 TADA_Histogram(.data, id_cols = c("TADA.ComparableDataIdentifier"))
 }
 \arguments{
-\item{.data}{TADA data frame containing the data downloaded from the
-WQP, where each row represents a unique data record. Data frame must
+\item{.data}{TADA dataframe containing the data downloaded from the
+WQP, where each row represents a unique data record. Dataframe must
 include the columns 'TADA.ComparableDataIdentifier',
 'TADA.ResultMeasureValue', and 'TADA.ResultMeasure.MeasureUnitCode' to run
 this function. 'TADA.ComparableDataIdentifier' can be added to the data
 frame by running the function TADA_HarmonizeSynonyms(). The user can include
 additional grouping columns in the id_cols input. If more than one group
-exists in the data frame (i.e. two or more unique comparable data
+exists in the dataframe (i.e. two or more unique comparable data
 identifiers), the function creates a list of plots, where each list element
 name is a unique group identifier.}
 
-\item{id_cols}{The column(S) in the data frame used to identify the unique groups
+\item{id_cols}{The column(S) in the dataframe used to identify the unique groups
 to be plotted. Defaults to 'TADA.ComparableDataIdentifier'.}
 }
 \value{
@@ -29,14 +29,14 @@ for each data group.
 Create Histogram(s)
 }
 \examples{
-# Load example data frame:
+# Load example dataframe:
 data(Data_6Tribes_5y_Harmonized)
 
 # Create a histogram for each comparable data group (TADA.ComparableDataIdentifier)
-# in the input data frame:
+# in the input dataframe:
 TADA_Histogram(Data_6Tribes_5y_Harmonized, id_cols = "TADA.ComparableDataIdentifier")
 
-# Create a single histogram using defaults. The input data frame in this example
+# Create a single histogram using defaults. The input dataframe in this example
 # is filtered so it includes only one TADA.ComparableDataIdentifier
 df <- dplyr::filter(Data_6Tribes_5y_Harmonized, TADA.ComparableDataIdentifier == "TOTAL PHOSPHORUS, MIXED FORMS_UNFILTERED_AS P_UG/L")
 TADA_Histogram(df, id_cols = "TADA.ComparableDataIdentifier")
@@ -44,7 +44,7 @@ TADA_Histogram(df, id_cols = "TADA.ComparableDataIdentifier")
 # Create multiple histograms with additional grouping columns and view the first
 # plot in list. In this example, we will group by both TADA.ComparableDataIdentifier
 # and MonitoringLocationTypeName (e.g. stream, reservoir, canal, etc.)
-# Load example data frame:
+# Load example dataframe:
 data(Data_Nutrients_UT)
 Histogram_output <- TADA_Histogram(Data_Nutrients_UT, id_cols = c("TADA.ComparableDataIdentifier", "MonitoringLocationTypeName"))
 # This example generates 32 histograms

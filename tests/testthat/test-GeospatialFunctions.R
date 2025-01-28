@@ -27,7 +27,7 @@ testthat::test_that(
 )
 
 testthat::test_that(
-  desc = "The CRS in the test data frame is the same as the input",
+  desc = "The CRS in the test dataframe is the same as the input",
   code = {
     test_df1 <- TADA_MakeSpatial(.data = TADA_dataframe, crs = 4326)
     test_df2 <- TADA_MakeSpatial(.data = TADA_dataframe, crs = 4269)
@@ -38,7 +38,7 @@ testthat::test_that(
 )
 
 testthat::test_that(
-  desc = "The geometry types in the data frame are points",
+  desc = "The geometry types in the dataframe are points",
   code = {
     test_df <- TADA_MakeSpatial(.data = TADA_dataframe)
     geometry_types <- sf::st_geometry_type(test_df)
@@ -48,7 +48,7 @@ testthat::test_that(
 )
 
 testthat::test_that(
-  desc = "The number of rows are the same between TADA_dataframe and the output data frame of TADA_MakeSpatial",
+  desc = "The number of rows are the same between TADA_dataframe and the output dataframe of TADA_MakeSpatial",
   code = {
     test_df <- TADA_MakeSpatial(.data = TADA_dataframe)
     expect_true(nrow(TADA_dataframe) == nrow(test_df))
@@ -56,7 +56,7 @@ testthat::test_that(
 )
 
 testthat::test_that(
-  desc = "The columns between TADA_dataframe and the output data frame of TADA_MakeSpatial are identical (sans 'geometry')",
+  desc = "The columns between TADA_dataframe and the output dataframe of TADA_MakeSpatial are identical (sans 'geometry')",
   code = {
     test_df <- TADA_MakeSpatial(.data = TADA_dataframe)
     expect_true(all(names(TADA_dataframe) == names(test_df)[names(test_df) != "geometry"]))
@@ -64,7 +64,7 @@ testthat::test_that(
 )
 
 testthat::test_that(
-  desc = "The structures of the TADA_dataframe and the output data frame of TADA_MakeSpatial are identical (sans 'geometry')",
+  desc = "The structures of the TADA_dataframe and the output dataframe of TADA_MakeSpatial are identical (sans 'geometry')",
   code = {
     test_df <- TADA_MakeSpatial(.data = TADA_dataframe)
     expect_true(identical(str(TADA_dataframe), str(test_df[names(test_df) != "geometry"])))
