@@ -434,7 +434,7 @@ TADA_DataRetrieval <- function(startDate = "null",
     # Query info on available data within the bbox
 
     # Try getting WQP info
-    message("Checking what data is available. This may take a moment.")
+    message("Checking for available data. This may take a moment.")
 
     # Don't want to print every message that's returned by WQP
     quiet_bbox_avail <- quiet_whatWQPdata(
