@@ -66,7 +66,7 @@ and TADA.ConsolidatedDepth.Unit. The consolidated depth fields are created by re
 multiple WQC columns where users may input depth information. If a daily_agg = "avg",
 "min", or "max", aggregated values will be identified in the TADA.ResultAggregation.Flag
 column. In the case of daily_agg = "avg", additional rows to display averages will be
-added to the dataframe. They can be identified by the prefix ("TADA-") of
+added to the data frame. They can be identified by the prefix ("TADA-") of
 their result identifiers.
 }
 \description{
@@ -86,7 +86,7 @@ the daily aggregation occurs over each depth category (surface, middle, or botto
 or for the entire depth profile.
 }
 \examples{
-# Load dataframe
+# Load data frame
 data(Data_6Tribes_5y)
 
 # assign TADA.DepthCategory.Flag with no aggregation
