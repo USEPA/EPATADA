@@ -20,8 +20,8 @@ National extracts can and more information about Expert Query can be found here:
 https://owapps.epa.gov/expertquery/national-downloads
 }
 \examples{
-assessments <- EQExtractRetrieval(profile = "assessments")
+assessments <- TADA_EQExtractRetrieval(profile = "assessments")
 
-aus_monloc <- EQExtractRetrieval(profile = "auml")
+aus_monloc <- TADA_EQExtractRetrieval(profile = "auml")
 
 }

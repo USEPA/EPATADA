@@ -13,9 +13,9 @@
 #' @export
 #'
 #' @examples
-#' assessments <- EQExtractRetrieval(profile = "assessments")
+#' assessments <- TADA_EQExtractRetrieval(profile = "assessments")
 #'
-#' aus_monloc <- EQExtractRetrieval(profile = "auml")
+#' aus_monloc <- TADA_EQExtractRetrieval(profile = "auml")
 #'
 TADA_EQExtractRetrieval <- function(profile = NULL) {
   if (is.null(profile)) {
@@ -80,7 +80,7 @@ TADA_EQExtractRetrieval <- function(profile = NULL) {
   }
 
   print(paste0(
-    "TADA_EQExtract: downloading", label, " (Expert Query National Extract) .",
+    "TADA_EQExtract: downloading ", label, " (Expert Query National Extract).",
     " It was last updated on ", date.print, "."
   ))
 
@@ -93,7 +93,11 @@ TADA_EQExtractRetrieval <- function(profile = NULL) {
   options(timeout = 1200)
 
   # download zipped file
-  suppressMessages(httr::GET(url, httr::write_disk(temp, overwrite = TRUE), httr::progress()))
+ httr::GET(url, httr::write_disk(temp, overwrite = TRUE))
+ 
+ print(paste0(
+   "TADA_EQExtract: unzipping ", label, " (Expert Query National Extract)."
+ ))
 
   # unzip file
   unzipped.file <- utils::unzip(temp, exdir = tempdir())
@@ -102,12 +106,13 @@ TADA_EQExtractRetrieval <- function(profile = NULL) {
   csv.file <- unzipped.file[grep("\\.csv$", unzipped.file, ignore.case = TRUE)]
 
   print(paste0(
-    "TADA_EQExtract: ", "opening ", label, " (Expert Query National Extract) csv",
+    "TADA_EQExtract: ", "opening ", label, " (Expert Query National Extract).",
     "."
   ))
 
   # open large csv file
-  suppressMessages(df <- data.table::fread(csv.file))
+  # can add verbose = FALSE, if we want to remove the progress bar here
+  df <- data.table::fread(csv.file)
 
   unlink(temp)
 
