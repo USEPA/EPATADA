@@ -449,6 +449,7 @@ TADA_DataRetrieval <- function(startDate = "null",
         paste("\n", ., collapse = "") %>%
         paste("The WQP request returned a NULL with the following message(s): \n",
           .,
+          "The bounding box is likely too large for this process. Reduce your area of interest and try again.",
           collapse = "\n"
         )
 
