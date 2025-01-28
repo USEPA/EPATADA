@@ -1879,11 +1879,4 @@ TADA_GetEQAssessments <- function() {
   
 }
 
-# Update Characteristic Validation Reference Table internal file
-# (for internal use only)
 
-TADA_UpdateEQAssessments <- function() {
-  raw.data <- TADA_EQExtract("assessments")
-  
-  save(raw.data, file = "inst/extdata/EQAssessments.RData")
-}
