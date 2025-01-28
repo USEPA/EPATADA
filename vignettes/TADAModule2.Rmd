@@ -269,7 +269,7 @@ observations stored in a list along with the TADA dataframe.
 
 Now, let's select specific columns from the `TADA_with_ATTAINS`
 dataframe, and create a new dataframe with ONLY the unique combinations
-of WQP MonitoringLocationIdentifier's and ATTAINS Assessment Unit
+of WQP MonitoringLocationIdentifiers and ATTAINS Assessment Unit
 Identifiers.
 
 ```{r}

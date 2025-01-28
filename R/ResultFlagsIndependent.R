@@ -259,7 +259,7 @@ TADA_FlagContinuousData <- function(.data, clean = FALSE, flaggedonly = FALSE, t
     .data <- TADA_CreateComparableID(.data)
   }
 
-  # execute function after checks are passed: flag continuous data and make cont.data data frame
+  # execute function after checks are passed: flag continuous data and make cont.data dataframe
 
   # set default flag to "Discrete"
   .data$TADA.ContinuousData.Flag <- "Discrete"
@@ -991,7 +991,7 @@ TADA_FindQAPPDoc <- function(.data, clean = FALSE) {
 
   # execute function after checks are passed
   # flag data where QAPP document url is provided
-  # make QAPPdoc.data data frame
+  # make QAPPdoc.data dataframe
   QAPPdoc.data <- dplyr::filter(.data, grepl("/", ProjectFileUrl))
   NQAPPdoc.data <- subset(.data, !.data$ResultIdentifier %in% QAPPdoc.data$ResultIdentifier)
 

@@ -22,7 +22,7 @@
 #' to find allowable values for queries, e.g., reference the WQX domain table to find countycode and statecode: https://cdx.epa.gov/wqx/download/DomainValues/County_CSV.zip
 #' Alternatively, you can use the WQP services to find areas where data is available in the US: https://www.waterqualitydata.us/Codes/countycode
 #'
-#' TADA_DataRetrieval automatically runs TADA_AutoClean on the incoming data frame. TADA_AutoClean
+#' TADA_DataRetrieval automatically runs TADA_AutoClean on the incoming dataframe. TADA_AutoClean
 #' is important for categorizing result value and detection limit data, as well as
 #' harmonizing key columns used in TADA. See ?TADA_AutoClean for more information.
 #'
@@ -412,10 +412,10 @@ TADA_ReadWQPWebServices <- function(webservice) {
 #' Using this function, you will be able to download all data available from all
 #' sites in the contiguous United States available for the time period,
 #' characteristicName, and siteType requested. Computer memory may limit the
-#' size of data frames that your R console will be able to hold in one session.
+#' size of dataframes that your R console will be able to hold in one session.
 #' Function requires a characteristicName, siteType, statecode, huc, or start/
 #' end date input. The recommendation is to be as specific as you can with your
-#' large data call. The function allows the user to run TADA_AutoClean on the data frame,
+#' large data call. The function allows the user to run TADA_AutoClean on the dataframe,
 #' but this is not the default as checking large dataframes for exact duplicate
 #' rows can be time consuming and is better performed on its own once the query is
 #' completed.

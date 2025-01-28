@@ -637,14 +637,14 @@ TADA_FindQCActivities <- function(.data, clean = FALSE, flaggedonly = FALSE) {
 #' The time_difference can be as large as the user would like, but parent-replicate pairs will only be
 #' identified if they were collected on the same date.
 #'
-#' @return This function adds one column to the original data frame: 'TADA.ReplicateSampleID'.
+#' @return This function adds one column to the original dataframe: 'TADA.ReplicateSampleID'.
 #' 'TADA.ReplicateSampleID' contains the 'ResultIdentifier' value from the replicate sample
 #' if a parent sample match is identified. Both the replicate sample and the parent sample
 #' will have the same 'ResultIdentifier' code in this column, marking them as a pair.
 #' If a sample was identified as a replicate sample in the 'TADA.ActivityType.Flag'
-#' column but does not have an associated parent sample in the data frame, the 'TADA.ReplicateSampleID'
+#' column but does not have an associated parent sample in the dataframe, the 'TADA.ReplicateSampleID'
 #' column will contain the flag 'Orphan'. If more than one parent or replicate sample is identified
-#' in the data frame, the 'TADA.ReplicateSampleID' column for all samples will contain the
+#' in the dataframe, the 'TADA.ReplicateSampleID' column for all samples will contain the
 #' 'ResultIdentifier' value from one of the replicate samples marking them as a grouping.
 #'
 #' @export
@@ -692,11 +692,11 @@ TADA_PairReplicates <- function(.data, type = c("QC_replicate"), time_difference
   # execute function after checks are passed
   if ("QC_replicate" %in% type) {
     if (nrow(dplyr::filter(.data, .data$TADA.ActivityType.Flag == "QC_replicate")) == 0) {
-      stop("Function not executed because no replicates found in data frame.")
+      stop("Function not executed because no replicates found in dataframe.")
     }
   } else {
     if (nrow(dplyr::filter(.data, .data$ActivityTypeCode %in% type)) == 0) {
-      stop(paste0("Function not executed because no replicates of type '", type, "' found in data frame."))
+      stop(paste0("Function not executed because no replicates of type '", type, "' found in dataframe."))
     }
   }
   # check type is character
@@ -818,7 +818,7 @@ TADA_FlagMeasureQualifierCode <- function(.data, clean = FALSE, flaggedonly = FA
   TADA_CheckColumns(.data, "MeasureQualifierCode")
   # check .data MeasureQualifierCode is not all NA. If it is, don't run function and return .data
   if (all(is.na(.data$MeasureQualifierCode))) {
-    print("Data frame does not include any information (all NA's) in MeasureQualifierCode.")
+    print("Dataframe does not include any information (all NA's) in MeasureQualifierCode.")
 
     .data <- .data %>%
       dplyr::mutate(TADA.MeasureQualifierCode.Flag = "Pass") %>%

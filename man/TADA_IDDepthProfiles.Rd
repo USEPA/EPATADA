@@ -41,10 +41,10 @@ param, TADA.CharacteristicsForDepthProfile may or may not contain the number
 of results for each characteristic.
 }
 \description{
-This function identifies depth profiles within a data frame to assist the user in
+This function identifies depth profiles within a dataframe to assist the user in
 selecting params for TADA_DepthProfilePlot. A TADA compatible data set is required.
 If TADA_FlagDepthCategory has not yet been run, it will be run as part of this
-function. The output data frame is grouped by MonitoringLocationIdentifier,
+function. The output dataframe is grouped by MonitoringLocationIdentifier,
 OrganizationIdentifier, and ActivityStartDate.
 }
 \details{
@@ -54,7 +54,7 @@ users can specify whether characteristic names should be followed by the number
 of results available for the characteristic in parentheses.
 }
 \examples{
-# Load data frame
+# Load dataframe
 data(Data_6Tribes_5y)
 
 # find depth profile data without showing number of results

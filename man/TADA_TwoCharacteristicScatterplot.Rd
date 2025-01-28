@@ -11,8 +11,8 @@ TADA_TwoCharacteristicScatterplot(
 )
 }
 \arguments{
-\item{.data}{TADA data frame containing the data downloaded from the WQP,
-where each row represents a unique data record. Data frame must include the
+\item{.data}{TADA dataframe containing the data downloaded from the WQP,
+where each row represents a unique data record. Dataframe must include the
 columns 'TADA.ComparableDataIdentifier', 'TADA.ResultMeasureValue', and 'TADA.ResultMeasure.MeasureUnitCode'
 to run this function.}
 
