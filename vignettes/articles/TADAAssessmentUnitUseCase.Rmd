@@ -281,7 +281,7 @@ latedate <- max(Analysis_data$ActivityStartDate)
 
 We can see that there are `r nmls` monitoring locations from `r norgs`
 organizations with results from `r earlydate` to `r latedate`. There are
-`r nres` results in the data frame.
+`r nres` results in the dataframe.
 
 ## Water Chemistry Data Preparation and QC
 
@@ -511,7 +511,7 @@ temperature to begin visualizing the data, using
 TADA_TwoCharacteristicScatterplot(Harmonized_data, id_cols = "TADA.ComparableDataIdentifier", groups = c("TEMPERATURE_NA_NA_DEG C", "PH_NA_NA_NA"))
 ```
 
-Let's focus on just one characteristic, pH. We can filter the data frame
+Let's focus on just one characteristic, pH. We can filter the dataframe
 to retain only pH samples. We can also add a column to indicate whether
 each result falls within the water quality standard range for pH (6.5 -
 9). From this pH-only frame we can create a table with just a few
@@ -695,7 +695,7 @@ temperature results to deg F for analysis.
 Or we could change or add additional characteristics to our analysis. We
 could even write additional custom functions or even use functions from
 other packages as needed for more complex standards, evaluate trends, or
-answer other questions using a TADA data frame.
+answer other questions using a TADA dataframe.
 
 The code chunk below displays the elapsed time it took to run the code
 chunks and create this document, providing an example of how

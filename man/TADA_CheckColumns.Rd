@@ -13,7 +13,7 @@ TADA_CheckColumns(.data, expected_cols)
 }
 \description{
 This function checks if the expected column names are in the dataframe. It is
-used at the beginning of TADA functions to ensure the input data frame is
+used at the beginning of TADA functions to ensure the input dataframe is
 suitable (i.e. is either the full physical/chemical results profile
 downloaded from WQP or the TADA profile template downloaded from the EPA TADA
 webpage.)

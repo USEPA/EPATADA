@@ -102,7 +102,7 @@ Users can reference the \href{https://www.epa.gov/waterdata/storage-and-retrieva
 to find allowable values for queries, e.g., reference the WQX domain table to find countycode and statecode: https://cdx.epa.gov/wqx/download/DomainValues/County_CSV.zip
 Alternatively, you can use the WQP services to find areas where data is available in the US: https://www.waterqualitydata.us/Codes/countycode
 
-TADA_DataRetrieval automatically runs TADA_AutoClean on the incoming data frame. TADA_AutoClean
+TADA_DataRetrieval automatically runs TADA_AutoClean on the incoming dataframe. TADA_AutoClean
 is important for categorizing result value and detection limit data, as well as
 harmonizing key columns used in TADA. See ?TADA_AutoClean for more information.
 

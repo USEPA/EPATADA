@@ -7,7 +7,7 @@
 TADA_ViewATTAINS(.data)
 }
 \arguments{
-\item{.data}{A list containing a data frame and ATTAINS shapefile objects created by \code{TADA_GetATTAINS()} with the return_sf argument set to TRUE.}
+\item{.data}{A list containing a dataframe and ATTAINS shapefile objects created by \code{TADA_GetATTAINS()} with the return_sf argument set to TRUE.}
 }
 \value{
 A leaflet map visualizing the TADA water quality observations and the linked ATTAINS assessment units. All maps are in WGS84.

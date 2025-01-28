@@ -30,8 +30,10 @@ tada_data <- TADA_DataRetrieval(
   ask = FALSE
 )
 
-nhd_data <- fetchNHD(.data = tada_data, resolution = "Hi", features = c("catchments", "waterbodies", "flowlines"))
+nhd_data <- fetchNHD(.data = tada_data, resolution = "Hi", 
+features = c("catchments", "waterbodies", "flowlines"))
 }
+
 }
 \seealso{
 \code{\link[=TADA_DataRetrieval]{TADA_DataRetrieval()}}
