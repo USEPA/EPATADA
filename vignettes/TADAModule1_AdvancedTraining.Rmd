@@ -51,10 +51,10 @@ available for anyone to download and edit to their specific needs. This
 document ([learn more about
 RMarkdown](https://bookdown.org/yihui/rmarkdown/)) walks through how to
 download the TADA R package from GitHub, access and parameterize several
-important functions with a sample data frame, and create basic
+important functions with a sample dataframe, and create basic
 visualizations. The workflow is similar to a funnel: at each decision
-point, data that fail QC checks are removed from the core data frame and
-placed in a separate data frame, while data that pass are carried into
+point, data that fail QC checks are removed from the core dataframe and
+placed in a separate dataframe, while data that pass are carried into
 the next step. At the end of the QC checks, the user should be confident
 that their data are properly documented and applicable to the analysis
 at hand.
@@ -99,22 +99,14 @@ the console to update dependency packages that have more recent versions
 available. If you see this prompt, it is recommended to update all of
 them (enter 1 into the console).
 
-The most stable branch for TADA right now is the develop branch.
-Contributors generally create their own branches based on develop, make
-some improvements, and then submit a pull request to be reviewed by the
-TADA Team. Once approved, updates are then merged into the develop
-branch. However, you are welcome to download any branch you'd like using
-the `ref` input in `install_github` (see code chunk below). This
-functionality is mainly only useful to TADA package
+The most stable branch for TADA right now is the develop
+branch. Contributors generally create their own branches based on
+develop, make some improvements, and then submit a pull request to be
+reviewed by the TADA Team. Once approved, updates are then merged into
+the develop branch. However, you are welcome to download any branch
+you'd like using the `ref` input in `install_github` (see code chunk
+below). This functionality is mainly only useful to TADA package
 developers/contributors.
-
-```{r install_TADA_dev, eval = T, include = F}
-# help with knit and pass the checks, but we want to make sure this chunk does not show up in the final website, just for development.
-remotes::install_github("USEPA/EPATADA",
-  ref = "Create-Module-3-Reference-Tables",
-  dependencies = TRUE
-)
-```
 
 ```{r install_TADA, eval = F, results = 'hide'}
 remotes::install_github("USEPA/EPATADA",
@@ -130,7 +122,7 @@ session.
 library(EPATADA)
 ```
 
-It's that easy!
+It's that easy! 
 
 The following code block ensures the additional packages needed to run
 the code in this RMarkdown document are loaded. However, users may also
@@ -162,34 +154,34 @@ function in R or RStudio using the following format (example below):
 ## Upload data
 
 Now let's start using the TADA R package functions. The first step is to
-bring a data frame into the R environment. TADA is designed to work with
+bring a dataframe into the R environment. TADA is designed to work with
 [Water Quality Portal](https://www.waterqualitydata.us/) (WQP) data.
 This means that all of its functions will look for WQP column names and
 create new TADA-specific columns based on these elements. Users may
-upload their own custom data frame into R for use with TADA by ensuring
+upload their own custom dataframe into R for use with TADA by ensuring
 their column names and data formats (e.g. numeric, character) align with
 WQP profiles.
 
 If you are interested in reviewing the column headers and formats
 required to run TADA, use the function below, which saves an example
 spreadsheet to the user's working directory. You can also take a look at
-an example data frame, like `Data_Nutrients_UT` to get an idea of the
+an example dataframe, like `Data_Nutrients_UT` to get an idea of the
 data structure and format.
 
 ```{r template}
 getwd() # find your working directory
 template <- TADA_GetTemplate() # download template to working directory
 
-# review example data frame
+# review example dataframe
 exampledata_Nutrients_UT <- Data_Nutrients_UT
 ```
 
-`TADA_DataRetrieval` is built upon USGS's `dataRetrieval::readWQPdata`
-and `dataRetrieval::whatWQPsites` functions within the dataRetrieval
-package, which uses web service calls to bring WQP data into the R
-environment. Additionally, `TADA_DataRetrieval` performs some basic
-quality control checks via `TADA_AutoClean` on the data using new
-TADA-specific columns to preserve the original data frame:
+`TADA_DataRetrieval` is built upon USGS's `dataRetrieval::readWQPdata` and 
+`dataRetrieval::whatWQPsites` functions within the dataRetrieval package, 
+which uses web service calls to bring WQP data into the R environment. 
+Additionally, `TADA_DataRetrieval` performs some basic quality control checks 
+via `TADA_AutoClean` on the data using new TADA-specific columns to preserve
+the original dataframe:
 
 -   Converts key character columns to ALL CAPS for easier harmonization
     and validation.
@@ -227,7 +219,7 @@ about input parameters and to see several examples.
 #   startDate = "2018-01-01",
 #   endDate = "2023-01-01")
 
-# For brevity, we'll skip pinging the WQP and instead load the example data frame:
+# For brevity, we'll skip pinging the WQP and instead load the example dataframe:
 dataset_0 <- Data_6Tribes_5y
 
 # Let's take a look at all of the TADA-created columns:
@@ -237,17 +229,17 @@ names(dataset_0)[grepl("TADA.", names(dataset_0))]
 Currently, the `TADA_DataRetrieval` function combines three WQP data
 profiles: Sample Results (Physical/Chemical), Site data, and Project
 data. This ensures that all important quality control columns are
-included in the data frame.
+included in the dataframe.
 
 **Note:** USGS and EPA are working together to create WQP 3.0 data
-profiles. Once released (coming in 2025), one data profile will contain
-the columns critical to TADA, removing the need to combine profiles in
-this first step. This will simplify the steps needed to upload a custom
-or WQP GUI-downloaded data frame into the R package. However, column
-names are changing in the new WQP 3.0 data profiles. This may impact
-TADA package users usage of the `TADA_DataRetrieval` function in their
-workflows. The WQP and TADA teams are available to assist with cross
-walking the old to new column names when the time comes.
+profiles. Once released (coming in 2025), one data profile will contain the 
+columns critical to TADA, removing the need to combine profiles in this first
+step. This will simplify the steps needed to upload a custom or WQP 
+GUI-downloaded dataframe into the R package. However, column names are 
+changing in the new WQP 3.0 data profiles. This may impact TADA package users 
+usage of the `TADA_DataRetrieval` function in their workflows. The WQP and 
+TADA teams are available to assist with cross walking the old to new column
+names when the time comes.
 
 ## Initial data review
 
@@ -255,9 +247,9 @@ Now that we've pulled the data into the R session, let's take a look at
 it. Note that any column names with the "TADA." prefix were generated
 from the `TADA_DataRetrieval` function.
 
-First, always good to take a look at the data frame dimensions.
+First, always good to take a look at the dataframe dimensions.
 
-**Question 1: What are the dimensions of your data frame?**
+**Question 1: What are the dimensions of your dataframe?**
 
 ```{r dim}
 dim(dataset_0) # returns x and of x (as the numbers of rows and columns respectively)
@@ -267,9 +259,9 @@ Before we start filtering and flagging our data, let's create a function
 (`dimCheck`) that performs dimension checks between the results that
 pass each filter or QC flag check (and are retained) and those that do
 not (and are removed). These dimension checks ensure that the total
-number of rows in the original input data frame (`all_result_num`) equal
+number of rows in the original input dataframe (`all_result_num`) equal
 the the total number of rows added up between the passing (`pass_data`)
-and removed (`fail_data`) data frames.
+and removed (`fail_data`) dataframes.
 
 ```{r dimcheck}
 # defining a dimension check function that compares removed and retained data dimensions against the initial data input
@@ -279,18 +271,18 @@ dimCheck <- function(all_result_num, pass_data, fail_data, checkName) {
 
   # always good to do a dimension check
   if (!all_result_num == final_result_num) {
-    print(paste0("Help! Results do not add up between data frame and removed after ", checkName, " check."))
+    print(paste0("Help! Results do not add up between dataframe and removed after ", checkName, " check."))
   } else {
     print(paste0("Good to go. Zero results created or destroyed in ", checkName, " check."))
   }
 }
 
-# let's first get the total number of rows in the data frame.
+# let's first get the total number of rows in the dataframe.
 all_result_num <- dim(dataset_0)[1]
 ```
 
 Next, we can use the `TADA_FieldCounts()` function to see how many
-unique values are contained within each column of the data frame. The
+unique values are contained within each column of the dataframe. The
 function can either return all column counts, most, or just the key
 columns. We'll try the input with `display = "key"` and
 `display = "all"`. Enter `?TADA_FieldCounts()` into the console for more
@@ -312,7 +304,7 @@ all_counts
 ```
 
 **Question 3: How many unique 'TADA.ActivityMediaName' values exist in
-your data frame? Are there any media types that are not water?**
+your dataframe? Are there any media types that are not water?**
 
 TADA is currently designed to accommodate water data from the WQP. Let's
 ensure that we remove all non-water data first.
@@ -323,12 +315,12 @@ removed <- dataset_0 %>%
   dplyr::filter(!TADA.ActivityMediaName %in% c("WATER")) %>%
   dplyr::mutate(TADA.RemovalReason = "Activity media is not water.")
 
-# what other media types exist in data frame?
+# what other media types exist in dataframe?
 unique(removed$TADA.ActivityMediaName)
 ```
 
 ```{r water only}
-# clean data frame containing only water
+# clean dataframe containing only water
 dataset <- dataset_0 %>% dplyr::filter(TADA.ActivityMediaName %in% c("WATER"))
 
 dimCheck(all_result_num, dataset, removed, checkName = "Activity Media")
@@ -366,7 +358,7 @@ preparation.
 
 First, we can run `TADA_IDCensoredData` to fill in as many NA/missing
 values as possible. We can use `TADA_FieldValuesPie` to view the
-censored data flags identified in the data frame and their relative
+censored data flags identified in the dataframe and their relative
 frequency. `TADA_IDCensoredData` sorts result values into detection
 limit categories (e.g. non-detect, over-detect) based on populated
 values in the ResultDetectionConditionText and
@@ -436,7 +428,7 @@ dimension check on the data set.
 # filter data set to include allowable data types
 dataset <- dataset %>% dplyr::filter(dataset$TADA.ResultMeasureValueDataTypes.Flag %in% c("Numeric", "Less Than", "Greater Than", "Approximate Value", "Percentage", "Comma-Separated Numeric", "Numeric Range - Averaged", "Result Value/Unit Copied from Detection Limit"))
 
-# create data frame to includ all removed results
+# create dataframe to includ all removed results
 removed <- plyr::rbind.fill(removed, incompatible_datatype)
 
 # dimension check
@@ -445,9 +437,9 @@ dimCheck(all_result_num, dataset, removed, checkName = "Result Format")
 
 ## Data flagging
 
-We've taken a quick look at the raw data frame and split off some data
+We've taken a quick look at the raw dataframe and split off some data
 that are not compatible with TADA, now let's run through some quality
-control checks. The most important ones to run to ensure your data frame
+control checks. The most important ones to run to ensure your dataframe
 is ready for subsequent steps are `TADA_FlagFraction()`,
 `TADA_FlagSpeciation()`, `TADA_FlagResultUnit()`, and
 `TADA_FindQCActivities()`. With the exception of
@@ -504,7 +496,7 @@ Any results flagged as "Suspect" are recognized in the QAQC Validation
 Table as having some data quality issue. "NonStandardized" means that
 the format has not been fully vetted or processed, while "Pass" confirms
 that the characteristic combination is widely recognized as correctly
-formatted. Let's add any suspect results to the removed data frame for
+formatted. Let's add any suspect results to the removed dataframe for
 later review.
 
 **Note: if you find any errors in the QAQC Validation Table, please
@@ -519,7 +511,7 @@ problem_flagged <- dataset_flags %>%
 
 dataset_flags <- dataset_flags %>% dplyr::filter(!ResultIdentifier %in% problem_flagged$ResultIdentifier)
 
-# create data frame of removed results
+# create dataframe of removed results
 removed <- plyr::rbind.fill(removed, problem_flagged)
 
 # remove df no longer needed
@@ -575,7 +567,7 @@ brainstorming/developing.
 ## Censored data handling
 
 We have already identified, flagged, and in some cases removed
-problematic detection limit data from our data frame, but that doesn't
+problematic detection limit data from our dataframe, but that doesn't
 keep them from being difficult. Because we do not know the result value
 with adequate precision, water quality data users often set non-detect
 values to some number below the reported detection limit. TADA contains
@@ -635,10 +627,10 @@ Memo](https://www.epa.gov/sites/default/files/2016-05/documents/tech_notes_10_ju
 
 ## Data exploration
 
-How are you feeling about your test data frame? Does it seem ready for
+How are you feeling about your test dataframe? Does it seem ready for
 the next step(s) in your analyses? There's probably a lot more you'd
 like to look at/filter out before you're ready to say: QC complete.
-Let's first check out characteristics in the data frame using `dplyr`
+Let's first check out characteristics in the dataframe using `dplyr`
 functions and pipes.
 
 ```{r cens summary}
@@ -708,7 +700,7 @@ characteristic groups.
 
 ```{r select comp id}
 # Look at a histogram, boxplot, and stats for TADA.ComparableDataIdentifier(s) of your choice.
-comp_data_id <- "PH_NA_NA_STD UNITS"
+comp_data_id <- "PH_NA_NA_NONE"
 
 plot_data <- subset(dataset_cens, dataset_cens$TADA.ComparableDataIdentifier %in% comp_data_id)
 ```

@@ -4,30 +4,32 @@
 \alias{TADA_RunKeyFlagFunctions}
 \title{Run key flagging functions}
 \usage{
-TADA_RunKeyFlagFunctions(.data, clean = TRUE)
+TADA_RunKeyFlagFunctions(.data, remove_na = TRUE, clean = TRUE)
 }
 \arguments{
-\item{.data}{A TADA dataframe.}
+\item{.data}{A TADA dataframe}
 
-\item{clean}{Boolean. Determines whether to keep the Suspect rows in the dataframe following each
+\item{remove_na}{Boolean, Determines whether to keep TADA.ResultMeasureValues that are NA.
+Defaults to TRUE.}
+
+\item{clean}{Boolean. Determines whether to keep the Suspect rows in the dataset following each
 flagging function. Defaults to TRUE.}
 }
 \value{
-A TADA dataframe with the following flagging columns: TADA.ResultUnit.Flag,
-TADA.SampleFraction.Flag, TADA.MethodSpeciation.Flag and TADA.MeasureQualifierCode.Flag.
+A TADA dataframe with the following flagging columns:TADA.ResultUnit.Flag,
+TADA.MethodSpeciation.Flag, TADA.SampleFraction.Flag, and TADA.ActivityType.Flag
 }
 \description{
-This is a shortcut function to run important flagging functions on a TADA
-dataframe. See ?function documentation for TADA_FlagResultUnit, TADA_FlagFraction,
-TADA_FlagSpeciation and TADA_FlagMeasureQualifierCode for more information.
+This is a shortcut function to run all of the most important flagging functions on a TADA
+dataset. See ?function documentation for TADA_FlagResultUnit, TADA_FlagFraction,
+TADA_FindQCActivities, and TADA_FlagSpeciation for more information.
 }
 \examples{
 # Load example dataset
 data(Data_6Tribes_5y)
-
 # Run flagging functions, keeping all rows
-Data_6Tribes_5y_ALL <- TADA_RunKeyFlagFunctions(Data_6Tribes_5y, clean = FALSE)
+Data_6Tribes_5y_ALL <- TADA_RunKeyFlagFunctions(Data_6Tribes_5y, remove_na = FALSE, clean = FALSE)
 
-# Run flagging functions, removing suspect rows
-Data_6Tribes_5y_CLEAN <- TADA_RunKeyFlagFunctions(Data_6Tribes_5y, clean = TRUE)
+# Run flagging functions, removing NA's and Suspect rows
+Data_6Tribes_5y_CLEAN <- TADA_RunKeyFlagFunctions(Data_6Tribes_5y, remove_na = TRUE, clean = TRUE)
 }

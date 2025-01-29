@@ -5,7 +5,7 @@
 \alias{Data_R5_TADAPackageDemo}
 \title{Data_R5_TADAPackageDemo}
 \format{
-A data frame with 6569 rows and 123 variables
+A dataframe with 6569 rows and 123 variables
 }
 \usage{
 data(Data_R5_TADAPackageDemo)
@@ -28,5 +28,4 @@ project = "null",
 applyautoclean = FALSE
 )
 }
-\keyword{data}
-\keyword{frame}
+\keyword{dataframe}

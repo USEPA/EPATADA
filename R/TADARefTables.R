@@ -199,7 +199,7 @@ TADA_GetNutrientSummationRef <- function() {
 #' combinations (i.e. user has already run TADA_FlagFraction, TADA_FlagSpeciation, TADA_FlagResultUnit,
 #' etc.).
 #'
-#' @param .data TADA dataframe. If a data frame is not provided, the function will return the default internal reference table.
+#' @param .data TADA dataframe. If a dataframe is not provided, the function will return the default internal reference table.
 #'
 #' @return Synonym Reference Table unique to the input dataframe
 #'

@@ -436,7 +436,7 @@ information and examples.
 ## Summarize by Characteristic
 
 **TADA_SummarizeColumn** summarizes the data set based on a user
-specified column and returns a data frame displaying the number of sites
+specified column and returns a dataframe displaying the number of sites
 and number of records for each unique value in the specified column.
 This example uses *TADA.CharacteristicName*.
 
@@ -538,7 +538,7 @@ Quality Portal (WQP). Let's start by looking at the submitting
 organizations for this data set and their relative contributions.
 
 ```{r Organizations}
-# Create data frame with result counts by organization
+# Create dataframe with result counts by organization
 FieldValues_Orgs <- TADA_FieldValuesTable(R5ProfileClean3, field = "OrganizationFormalName")
 ```
 
@@ -604,7 +604,7 @@ To start, review the list of common fields used for filtering, and the
 number of unique values in each field using the **TADA_FieldCounts**
 function.
 
-This function returns counts for you the entire data frame for each of
+This function returns counts for you the entire dataframe for each of
 the following fields (if populated, columns that are populated only with
 NA's are not included in the output):
 
@@ -1079,7 +1079,7 @@ unit, speciation, and fraction combination) using **TADA_Histogram** and
 plots if their input dataset has more than one unique comparable data
 group.
 
-First, filter the data frame to include only "DISSOLVED OXYGEN
+First, filter the dataframe to include only "DISSOLVED OXYGEN
 (DO)\_NA_NA_MG/L"
 
 ```{r filter_dataframe}
@@ -1103,7 +1103,7 @@ Generate interactive box plot.
 TADA_Boxplot(R5ProfileCleanDO, id_cols = "TADA.ComparableDataIdentifier")
 ```
 
-Generate a new data frame with only the daily max dissolved oxygen
+Generate a new dataframe with only the daily max dissolved oxygen
 values.
 
 ```{r DO_filtered}
@@ -1130,7 +1130,7 @@ Now we can review the "TADA" prefixed columns we have added to the data
 set. If we are satisfied with the conversions, filtering, flagging, etc.
 and the resulting "TADA" columns, we can use the **TADA_RetainRequired**
 function to remove any columns that are not required or used as filters
-in the TADA workflow. This reduces the size of the data frame.
+in the TADA workflow. This reduces the size of the dataframe.
 
 ```{r retainrequired}
 R5ProfileClean9 <- TADA_RetainRequired(R5ProfileClean8)

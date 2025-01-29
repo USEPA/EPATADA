@@ -5,7 +5,7 @@
 \alias{Data_NCTCShepherdstown_HUC12}
 \title{Data_NCTCShepherdstown_HUC12}
 \format{
-A data frame with 39236 rows and 151 variables
+A dataframe with 39236 rows and 151 variables
 }
 \usage{
 data(Data_NCTCShepherdstown_HUC12)
@@ -28,5 +28,4 @@ project = "null",
 applyautoclean = TRUE
 )
 }
-\keyword{data}
-\keyword{frame}
+\keyword{dataframe}

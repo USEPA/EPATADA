@@ -13,6 +13,8 @@ TADA_UpdateAllRefs <- function() {
   TADA_UpdateMeasureQualifierCodeRef()
   TADA_UpdateMonLocTypeRef()
   TADA_UpdateEPA304aRef()
+  TADA_UpdateWQPOrgProviderRef()
+  TADA_UpdateATTAINSOrgIDsRef()
 }
 
 # # update tribal layers
@@ -387,7 +389,7 @@ TADA_UpdateExampleData <- function() {
 # # extract response code from first line of header response
 # response_code <- sapply(headers, "[[", 1)
 #
-# # create data frame of urls and response codes
+# # create dataframe of urls and response codes
 # df <- data.frame(urls, response_code)
 #
 # # filter for any response codes that are not successful or redirect responses

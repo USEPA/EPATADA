@@ -1,6 +1,6 @@
-#' Generate A Data Frame of Units and Target by Characteristic Name
+#' Generate A DataFrame of Units and Target by Characteristic Name
 #'
-#' This function generates a data frame listing all unique characteristic (by CharacteristicName)
+#' This function generates a dataframe listing all unique characteristic (by CharacteristicName)
 #' and unit (by TADA.ResultMeasure.MeasureUnitCode) pairs present in the dataset. Where
 #' possible, the function fills in the columns for target unit, and conversion factor.
 #' Users can edit it and use it as an input for TADA_ConvertResultUnits to
@@ -14,8 +14,8 @@
 #' TADA.MethodSpeciationName in TADA_ConvertResultUnits.
 #'
 #' The columns created by TADA_AutoClean are required to run this function. If
-#' they are not present in the data frame, TADA_AutoClean is automatically run
-#' before the unit reference data frame is created.
+#' they are not present in the dataframe, TADA_AutoClean is automatically run
+#' before the unit reference dataframe is created.
 #'
 #' @param .data TADA dataframe
 #'
@@ -39,11 +39,11 @@
 #' # Load example dataset:
 #' data(Data_Nutrients_UT)
 #'
-#' # Create a unit reference data frame
+#' # Create a unit reference dataframe
 #' UT_UnitRef <- TADA_CreateUnitRef(Data_Nutrients_UT)
 #'
 TADA_CreateUnitRef <- function(.data, print.message = TRUE) {
-  # create data frame of unique combinations
+  # create dataframe of unique combinations
   data.units <- TADA_UniqueCharUnitSpeciation(.data)
 
   # remove method speciation from data.units
@@ -264,10 +264,10 @@ TADA_CreateUnitRef <- function(.data, print.message = TRUE) {
 #' FALSE: "TADA.WQXUnitConversionFactor", "TADA.Target.ResultMeasure.MeasureUnitCode",
 #' "TADA.SpeciationUnitConversion", and "TADA.WQXResultUnitConversion.
 #'
-#' @param ref Optional character argument in which a user can specify a data frame
-#' by name. Data frame must contain the columns CharacteristicName, Unit, and TargetUnit.
-#' TADA_CreateUnitRef() can be used to help create this data frame. There are two
-#' options that do not require the user to supply a data frame, "tada" and "wqx".
+#' @param ref Optional character argument in which a user can specify a dataframe
+#' by name. Dataframe must contain the columns CharacteristicName, Unit, and TargetUnit.
+#' TADA_CreateUnitRef() can be used to help create this dataframe. There are two
+#' options that do not require the user to supply a dataframe, "tada" and "wqx".
 #' When ref = "wqx" all unit conversion will be based on the WQX unit reference
 #' which applies targets at the unit level.
 #' When ref = "tada" all unit conversion will be based on TADA priority characteristic
@@ -415,10 +415,10 @@ TADA_ConvertResultUnits <- function(.data, ref = "tada", transform = TRUE) {
     )
 
     if (all(expected_ref_cols %in% colnames(ref)) == FALSE) {
-      stop("The reference data frame does not contain all fields required for TADA_ConvertResultUnits. Use TADA_CreateUnitRef with the TADA data frame to create an editable unit reference table with all required columns.")
+      stop("The reference dataframe does not contain all fields required for TADA_ConvertResultUnits. Use TADA_CreateUnitRef with the TADA dataframe to create an editable unit reference table with all required columns.")
 
       if (all(expected_ref_cols %in% colnames(ref)) == TRUE) {
-        print("The reference data frame contains all fields required for TADA_ConvertResultUnits.")
+        print("The reference dataframe contains all fields required for TADA_ConvertResultUnits.")
       }
     }
 
@@ -427,7 +427,7 @@ TADA_ConvertResultUnits <- function(.data, ref = "tada", transform = TRUE) {
       dplyr::left_join(usgs.spec, by = dplyr::join_by(ResultMeasure.MeasureUnitCode)) %>%
       dplyr::distinct()
 
-    # create message to inform users if user-supplied unit reference contains all combinations present in TADA data frame
+    # create message to inform users if user-supplied unit reference contains all combinations present in TADA dataframe
     # create list of unique characteristic and unit combinations in data
     tada.list <- TADA_CreateUnitRef(.data) %>%
       dplyr::select(TADA.CharacteristicName, TADA.ResultMeasure.MeasureUnitCode) %>%
@@ -454,15 +454,15 @@ TADA_ConvertResultUnits <- function(.data, ref = "tada", transform = TRUE) {
         dplyr::distinct() %>%
         stringi::stri_replace_last(fixed = ",", " and")
 
-      print(paste("TADA_ConvertResultUnits: The following CharacteristicName and ResultMeasure.MeasureUnitCode combinations are not included in the user-supplied unit reference data frame: ",
+      print(paste("TADA_ConvertResultUnits: The following CharacteristicName and ResultMeasure.MeasureUnitCode combinations are not included in the user-supplied unit reference dataframe: ",
         compare.list,
-        ". Consider revising the user-supplied unit reference data frame and running TADA_ConvertResultUnits again.",
+        ". Consider revising the user-supplied unit reference dataframe and running TADA_ConvertResultUnits again.",
         sep = ""
       ))
     }
   }
 
-  # if user did not provide a data frame
+  # if user did not provide a dataframe
   if (!is.data.frame(ref)) {
     # if no unit reference df was provided by user or user input was "tada"
     if (ref == "tada") {

@@ -66,7 +66,7 @@ TADA_MakeSpatial <- function(.data, crs = 4326) {
     # Check the CRS column for NA or "UNKWN" and warn user if any are found
     if (any(is.na(.data$HorizontalCoordinateReferenceSystemDatumName)) ||
       any(.data$HorizontalCoordinateReferenceSystemDatumName %in% c("UNKWN", "Unknown", "OTHER"))) {
-      print(paste0("Your WQP data frame contains observations without a listed coordinate reference system (CRS). For these, we have assigned CRS ", crs, "."))
+      print(paste0("Your WQP dataframe contains observations without a listed coordinate reference system (CRS). For these, we have assigned CRS ", crs, "."))
     }
     # join our CRS reference table to our original WQP dataframe:
     sf <- .data %>%
@@ -479,8 +479,10 @@ fetchATTAINS <- function(.data, catchments_only = FALSE) {
 #'   applyautoclean = TRUE
 #' )
 #'
-#' nhd_data <- fetchNHD(.data = tada_data, resolution = "Hi", features = c("catchments", "waterbodies", "flowlines"))
+#' nhd_data <- fetchNHD(.data = tada_data, resolution = "Hi", 
+#' features = c("catchments", "waterbodies", "flowlines"))
 #' }
+#' 
 fetchNHD <- function(.data, resolution = "Hi", features = "catchments") {
   suppressMessages(suppressWarnings({
     # sf::sf_use_s2(TRUE)
@@ -935,7 +937,7 @@ fetchNHD <- function(.data, resolution = "Hi", features = "catchments") {
 #' @param .data A dataframe created by `TADA_DataRetrieval()` or the sf equivalent made by `TADA_MakeSpatial()`.
 #' @param fill_catchments Whether the user would like to return NHD catchments for WQP observations not associated with an ATTAINS assessment unit (TRUE or FALSE). When fill_catchments = TRUE, the returned list splits observations into two dataframes: WQP observations with ATTAINS catchment data, and WQP observations without ATTAINS catchment data. Defaults to FALSE.
 #' @param resolution If fill_catchments = TRUE, whether to use NHDPlus V2 "Med" catchments or NHDPlus HiRes "Hi" catchments. Default is NHDPlus HiRes ("Hi").
-#' @param return_sf Whether to return the ATTAINS associated catchments, lines, points, and polygon shapefile objects along with the data frame(s). TRUE (yes, return list) or FALSE (no, do not return). All shapefile features are in WGS84 (crs = 4326). If fill_catchments = TRUE and return_sf = TRUE, the function will additionally return the raw catchment features associated with the observations in TADA_without_ATTAINS in a new shapefile called without_ATTAINS_catchments. Defaults to TRUE.
+#' @param return_sf Whether to return the ATTAINS associated catchments, lines, points, and polygon shapefile objects along with the dataframe(s). TRUE (yes, return list) or FALSE (no, do not return). All shapefile features are in WGS84 (crs = 4326). If fill_catchments = TRUE and return_sf = TRUE, the function will additionally return the raw catchment features associated with the observations in TADA_without_ATTAINS in a new shapefile called without_ATTAINS_catchments. Defaults to TRUE.
 #'
 #' @return A modified `TADA_DataRetrieval()` dataframe or list with additional columns associated with the ATTAINS assessment unit data, and, if fill_catchments = TRUE, an additional dataframe of the observations without intersecting ATTAINS features.
 #' Moreover, if return_sf = TRUE, this function will additionally return the raw ATTAINS and catchment shapefile features associated with those observations.
@@ -1096,7 +1098,7 @@ TADA_GetATTAINS <- function(.data, fill_catchments = FALSE, resolution = "Hi", r
       dplyr::bind_cols(col_val_list) %>%
       tibble::rowid_to_column(var = "index")
 
-    print("There are no ATTAINS catchments associated with these WQP observations. Returning an empty data frame for `TADA_with_ATTAINS`.")
+    print("There are no ATTAINS catchments associated with these WQP observations. Returning an empty dataframe for `TADA_with_ATTAINS`.")
 
     if (fill_catchments == FALSE) {
       # If there are no intersecting ATTAINS catchments, fill_catchments = FALSE, and return_sf = TRUE, return empty sf features with the
@@ -1361,7 +1363,7 @@ TADA_GetATTAINS <- function(.data, fill_catchments = FALSE, resolution = "Hi", r
 #' with `return_sf = TRUE`. Check out the
 #' TADAModule2.Rmd for an example workflow.
 #'
-#' @param .data A list containing a data frame and ATTAINS shapefile objects created by `TADA_GetATTAINS()` with the return_sf argument set to TRUE.
+#' @param .data A list containing a dataframe and ATTAINS shapefile objects created by `TADA_GetATTAINS()` with the return_sf argument set to TRUE.
 #'
 #' @return A leaflet map visualizing the TADA water quality observations and the linked ATTAINS assessment units. All maps are in WGS84.
 #'
