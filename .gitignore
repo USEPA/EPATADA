@@ -24,5 +24,5 @@ _snaps
 
 testing_log.txt
 
-# test data from AK
-AK_EPATADA_troubleshooting
+# HRM API Key for testing EQ functions
+APIKey.R
