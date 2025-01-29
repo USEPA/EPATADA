@@ -82,6 +82,7 @@ TADA_DefineMagnitude <- function(.data, ref = "TADA", paramRef = NULL, paramUseR
       )
     ) %>%
     dplyr::filter(ATTAINS.ParameterName != "Parameter not used for assessment") %>%
+    dplyr::filter(IncludeOrEclude == "Include") %>%
     dplyr::distinct() %>%
     dplyr::arrange(organization_identifier != "EPA304a", organization_identifier)
   
