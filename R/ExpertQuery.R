@@ -3,6 +3,10 @@
 response <- httr::GET("https://api.epa.gov/expertquery/api/attains/assessments?")
 data <- httr::content(response, "parsed")
 
+
+
+
+
 # variables for querying
 
 alternateListingIdentifier <- "string"
