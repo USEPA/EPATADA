@@ -88,14 +88,9 @@ the original TADA df will be added to the new crosswalk. Users can then identify
 missing cell values that were either not addressed in the creation of the original crosswalk or
 which pertain to TADA.ComparableDataIdentifiers not included in the original crosswalk.
 
-The user-supplied crosswalk table must contain the required columns. Users will have two options:
-\enumerate{
-\item Supply a paramRef data frame which contains at least these four column names:
-TADA.CharacteristicName, TADA.MethodSpeciationName, TADA.ResultSampleFractionText,
-and ATTAINS.ParameterName.
-\item Supply a paramRef data frame which contains at least these two column names:
-TADA.ComparableDataIdentifier and ATTAINS.ParameterName .
-}
+The user-supplied crosswalk table must contain the required columns. Users will need to
+provide a paramRef data frame which contains at least these two column names:
+TADA.ComparableDataIdentifier and ATTAINS.ParameterName.
 
 Users who are interested in doing an assessment or comparing criteria for more than organization
 also need to include an additional column name: 'organization_identifier'. This ensures that
@@ -104,7 +99,9 @@ each organization.
 
 A draft crosswalk between TADA.CharacteristicName and EPA 304A pollutant names (sourced from the
 Criteria Search Tool) has been created by the EPATADA team. This crosswalk is still in
-development and only focuses on the TADA priority characteristics (add link to list?).
+development and only focuses on the TADA priority characteristics.
+Please run the following below in the R environment to view current crosswalks:
+'utils::read.csv(system.file("extdata", "TADAPriorityCharUnitRef.csv", package = "EPATADA"))'.
 }
 \examples{
 # This creates a blank paramRef template of UT Nutrients data. Users will need to fill this

@@ -287,9 +287,9 @@ an ATTAINS parameter name.
 #   )
 
 ParamRef <- dplyr::mutate(NCTC_ParamRef, ATTAINS.ParameterName = dplyr::case_when(
-TADA.CharacteristicName == "PH" ~ "PH",
-TADA.ComparableDataIdentifier == "ZINC_TOTAL_NA_UG/L" ~ "ZINC",
-grepl("NITRATE", TADA.ComparableDataIdentifier) ~ "NITROGEN, TOTAL"
+  TADA.CharacteristicName == "PH" ~ "PH",
+  TADA.ComparableDataIdentifier == "ZINC_TOTAL_NA_UG/L" ~ "ZINC",
+  grepl("NITRATE", TADA.ComparableDataIdentifier) ~ "NITROGEN, TOTAL"
 ))
 TADA_CSVExport(ref = ParamRef)
 
@@ -379,28 +379,29 @@ excel file was generated, this is an example workflow of what a user can
 do to edit the table in the R environment.
 
 ```{r paged.print=TRUE}
-add_data <- data.frame("organization_identifier" = "MDE_EASP" ,"ATTAINS.ParameterName" = rep("PH",3), "use_name" = c("Aquatic Life and Wildlife", "Water Contact Sports",
-"Seasonal Migratory Fish Spawning and Nursery Subcategory"
+add_data <- data.frame("organization_identifier" = "MDE_EASP", "ATTAINS.ParameterName" = rep("PH", 3), "use_name" = c(
+  "Aquatic Life and Wildlife", "Water Contact Sports",
+  "Seasonal Migratory Fish Spawning and Nursery Subcategory"
 ))
 
 # The output of this will not reflect changes to the ATTAINS.FlagUseName column. To do so, we need to re run TADA_CreateParamUseRef() with paramUseRef = ParamUseRef as an argument.
 ParamUseRef <- NCTC_ParamUseRef3 %>%
-  dplyr::left_join(add_data, by = c("organization_identifier", "ATTAINS.ParameterName"), keep = FALSE) %>% 
-  dplyr::mutate(use_name = dplyr::coalesce(use_name.x, use_name.y)) %>% 
+  dplyr::left_join(add_data, by = c("organization_identifier", "ATTAINS.ParameterName"), keep = FALSE) %>%
+  dplyr::mutate(use_name = dplyr::coalesce(use_name.x, use_name.y)) %>%
   dplyr::select(-c(use_name.x, use_name.y))
 
 # User now has a saved dataframe which can be used to reflect any updates of Parameter-use ref in the future.
 TADA_CSVExport(ref = ParamUseRef)
 
-# PH will now reflect the changes 
+# PH will now reflect the changes
 NCTC_ParamUseRef3.1 <- TADA_CreateParamUseRef(
   Data_NCTC,
   paramUseRef = ParamUseRef, # Edits were made to paramUseRef, updates flag column
-  org_id = c("EPA304a", "MDE_EASP"), 
-  paramRef = NCTC_ParamRef2, 
+  org_id = c("EPA304a", "MDE_EASP"),
+  paramRef = NCTC_ParamRef2,
   excel = FALSE # comment out 'excel = FALSE' and uncomment 'excel = TRUE, overwrite = TRUE' to run the excel file
-  # excel = TRUE, overwrite = TRUE 
-  ) 
+  # excel = TRUE, overwrite = TRUE
+)
 TADA_CSVExport(ref = NCTC_ParamUseRef3.1)
 ```
 

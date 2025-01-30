@@ -2,19 +2,19 @@
 #' Crosswalk from ATTAINS
 #'
 #' Tribes and States who participate in electronic reporting of water quality
-#' conditions through EPA ATTAINS may also submit a crosswalk of WQP 
-#' MonitoringLocationIdentifiers associated with their Assessment Units to 
-#' ATTAINS. If the organization has recorded MonitoringLocationIdentifiers 
+#' conditions through EPA ATTAINS may also submit a crosswalk of WQP
+#' MonitoringLocationIdentifiers associated with their Assessment Units to
+#' ATTAINS. If the organization has recorded MonitoringLocationIdentifiers
 #' associated with their Assessment Units in ATTAINS, this function can be used
 #' to create a crosswalk of known MonitoringLocationIdentifiers and Assessment
-#' Units. All tribal nations record this crosswalk in ATTAINS but only a few 
-#' states. If a state has not supplied Monitoring Location information to 
+#' Units. All tribal nations record this crosswalk in ATTAINS but only a few
+#' states. If a state has not supplied Monitoring Location information to
 #' ATTAINS, the function will not return a data frame.
 #'
-#' @param org_id The ATTAINS organization identifier must be supplied by the 
-#' user. A list of organization identifiers can be found by downloading the 
-#' ATTAINS Domains Excel file: 
-#' https://www.epa.gov/system/files/other-files/2023-09/DOMAINS.xlsx. 
+#' @param org_id The ATTAINS organization identifier must be supplied by the
+#' user. A list of organization identifiers can be found by downloading the
+#' ATTAINS Domains Excel file:
+#' https://www.epa.gov/system/files/other-files/2023-09/DOMAINS.xlsx.
 #' Organization identifiers are listed in the "OrgName" tab. The "code" column
 #' contains the organization identifiers that should be used for this param.
 #'
@@ -32,7 +32,8 @@
 #'
 #' # Pueblo of Tesuque example
 #' PUEBLOOFTESUQUE_crosswalk <- TADA_GetATTAINSAUSiteCrosswalk(
-#' org_id = "PUEBLOOFTESUQUE")
+#'   org_id = "PUEBLOOFTESUQUE"
+#' )
 #'
 #' # Arizona example, returns blank dataframe as of 1/21/25
 #' AZ_crosswalk <- TADA_GetATTAINSAUSiteCrosswalk(org_id = "21ARIZ")
@@ -68,12 +69,13 @@ TADA_GetATTAINSAUSiteCrosswalk <- function(org_id = NULL) {
         MonitoringDataLinkText = monitoring_data_link_text
       ) %>%
       # paste org_id in front of MLs from the specified org if they are missing
-      #from ATTAINS
+      # from ATTAINS
       dplyr::mutate(MonitoringLocationIdentifier = ifelse((
         OrganizationIdentifier == org_id &
-          stringr::str_detect(MonitoringLocationIdentifier, 
-                              org_id, 
-                              negate = TRUE)),
+          stringr::str_detect(MonitoringLocationIdentifier,
+            org_id,
+            negate = TRUE
+          )),
       paste0(org_id, "-", MonitoringLocationIdentifier),
       MonitoringLocationIdentifier
       ))
@@ -108,7 +110,7 @@ TADA_GetATTAINSAUSiteCrosswalk <- function(org_id = NULL) {
 #' This function creates the batch upload files needed to add or update
 #' Monitoring Location Identifiers in ATTAINS Assessment Unit profiles. Users
 #' can specify whether all records should be overwritten (replaced) or if new
-#' Monitoring Location Identifiers should be appended (added) to existing 
+#' Monitoring Location Identifiers should be appended (added) to existing
 #' records.
 #'
 #' @param org_id Character argument. The ATTAINS organization identifier must
@@ -118,39 +120,39 @@ TADA_GetATTAINSAUSiteCrosswalk <- function(org_id = NULL) {
 #' Organization identifiers are listed in the "OrgName" tab. The "code" column
 #' contains the organization identifiers that should be used for this param.
 #'
-#' @param wqp_data_links Character argument. When wqp_data_links is equal to 
-#' "add" or "replace", the function will build the URL for the Water Quality 
-#' Portal Data Site page for each Monitoring Location Identifier in the data 
-#' frame. It will examine the response code of each URL and only retain those 
-#' with a 200 response, which indicates the URL is valid. When 
-#' wqp_data_links = "add", the URL will be added to any existing text in the 
-#' MS_DATA_LINK_TEXT column. When wqp_data_links = "replace", the URL will 
-#' replace any existing text in the MS_DATA_LINK_TEXT column. When 
-#' wqp_data_links = "none", no URLs will be created or added to the returned 
+#' @param wqp_data_links Character argument. When wqp_data_links is equal to
+#' "add" or "replace", the function will build the URL for the Water Quality
+#' Portal Data Site page for each Monitoring Location Identifier in the data
+#' frame. It will examine the response code of each URL and only retain those
+#' with a 200 response, which indicates the URL is valid. When
+#' wqp_data_links = "add", the URL will be added to any existing text in the
+#' MS_DATA_LINK_TEXT column. When wqp_data_links = "replace", the URL will
+#' replace any existing text in the MS_DATA_LINK_TEXT column. When
+#' wqp_data_links = "none", no URLs will be created or added to the returned
 #' data frame. Default is wqp_data_links = "add".
 #'
 #' @param attains_replace Character argument. When attains_replace = FALSE, all
-#' Monitoring Location Identifiers in the user supplied crosswalk will be 
-#' appended to the existing ATTAINS crosswalk. When attains_replace = TRUE, 
-#' Monitoring Location Identifiers will only be retained if they are in the 
+#' Monitoring Location Identifiers in the user supplied crosswalk will be
+#' appended to the existing ATTAINS crosswalk. When attains_replace = TRUE,
+#' Monitoring Location Identifiers will only be retained if they are in the
 #' user supplied crosswalk. Default equals FALSE.
 #'
-#' @param crosswalk A user-supplied dataframe with the columns 
+#' @param crosswalk A user-supplied dataframe with the columns
 #' ASSESSMENT_UNIT_ID, MS_LOCATION_ID, MS_ORG_ID, and MONITORING_DATA_LINK_TEXT
-#' is required. The ASSESSMENT_UNIT_ID and MS_LOCATION_ID must be filled out 
-#' in order to use this function. The additional columns, 
-#' MONITORING_DATA_LINK_TEXT, containing a single URL or "; " separated URLs 
-#' linking to information about the Monitoring Location, and MS_ORG_ID, 
-#' containing the WQP organization identifier for the Monitoring Location can 
-#' be left blank and the function will still run. Data link URLS to WQP site 
-#' pages cannot be automatically generated by this function unless the 
-#' MS_ORG_ID column is populated with the WQP OrganizationIdentifier. When 
+#' is required. The ASSESSMENT_UNIT_ID and MS_LOCATION_ID must be filled out
+#' in order to use this function. The additional columns,
+#' MONITORING_DATA_LINK_TEXT, containing a single URL or "; " separated URLs
+#' linking to information about the Monitoring Location, and MS_ORG_ID,
+#' containing the WQP organization identifier for the Monitoring Location can
+#' be left blank and the function will still run. Data link URLS to WQP site
+#' pages cannot be automatically generated by this function unless the
+#' MS_ORG_ID column is populated with the WQP OrganizationIdentifier. When
 #' crosswalk = NULL, the crosswalk will be downloaded from ATTAINS. This allows
 #' users to add URLs for the Water Quality Portal Data Site pages to the ATTAINS
 #' Assessment Unit profile where possible without updating other information
 #' in ATTAINS.
 #'
-#' @return The csv batch upload files for ATTAINS to add or update 
+#' @return The csv batch upload files for ATTAINS to add or update
 #' Monitoring Locations.
 #'
 #' @export
@@ -165,7 +167,7 @@ TADA_GetATTAINSAUSiteCrosswalk <- function(org_id = NULL) {
 #'   wqp_data_links = "replace"
 #' )
 #'
-#' # Alaska example using a user supplied crosswalk to update entries in 
+#' # Alaska example using a user supplied crosswalk to update entries in
 #' # ATTAINS by appending user supplied information to ATTAINS crosswalk
 #'
 #' # example monitoring location identifiers
@@ -174,31 +176,36 @@ TADA_GetATTAINSAUSiteCrosswalk <- function(org_id = NULL) {
 #'   "AK_M_1021109_013", "AK_M_1021109_013",
 #'   "AK_M_1021109_013"
 #' )
-#' 
+#'
 #' # example organization identifiers
 #' MS_ORG_ID <- c("AKDECWQ", "AKDECWQ", "AKDECWQ", "AKDECWQ", "AKDECWQ")
-#' 
+#'
 #' # example assessment units
-#' MS_LOCATION_ID <- c("ExampleSite1", "ExampleSite2", "ExampleSite3",
-#'                        "ExampleSite4", "ExampleSite5")
+#' MS_LOCATION_ID <- c(
+#'   "ExampleSite1", "ExampleSite2", "ExampleSite3",
+#'   "ExampleSite4", "ExampleSite5"
+#' )
 #' # example urls
 #' MONITORING_DATA_LINK_TEXT <- c(
-#' "https://www.waterqualitydata.us/provider/STORET/AKDECWQ/",
-#' "https://www.waterqualitydata.us/provider/STORET/AKDECWQ/",
-#' "https://www.waterqualitydata.us/provider/STORET/AKDECWQ/",
-#' "https://www.waterqualitydata.us/provider/STORET/AKDECWQ/",
-#' "https://www.waterqualitydata.us/provider/STORET/AKDECWQ/")
+#'   "https://www.waterqualitydata.us/provider/STORET/AKDECWQ/",
+#'   "https://www.waterqualitydata.us/provider/STORET/AKDECWQ/",
+#'   "https://www.waterqualitydata.us/provider/STORET/AKDECWQ/",
+#'   "https://www.waterqualitydata.us/provider/STORET/AKDECWQ/",
+#'   "https://www.waterqualitydata.us/provider/STORET/AKDECWQ/"
+#' )
 #'
 #' # create example crosswalk data frame
-#' ex.user.cw <- data.frame(MS_LOCATION_ID, MS_ORG_ID, ASSESSMENT_UNIT_ID,
-#'                          MONITORING_DATA_LINK_TEXT)
+#' ex.user.cw <- data.frame(
+#'   MS_LOCATION_ID, MS_ORG_ID, ASSESSMENT_UNIT_ID,
+#'   MONITORING_DATA_LINK_TEXT
+#' )
 #'
 #' AK_appenduserdata <- TADA_UpdateMonitoringLocationsInATTAINS(
-#' org_id = "AKDECWQ", 
-#' crosswalk = ex.user.cw, 
-#' attains_replace = FALSE, 
-#' wqp_data_links = "none")
-#'
+#'   org_id = "AKDECWQ",
+#'   crosswalk = ex.user.cw,
+#'   attains_replace = FALSE,
+#'   wqp_data_links = "none"
+#' )
 #' }
 #'
 TADA_UpdateMonitoringLocationsInATTAINS <- function(org_id = NULL,
@@ -206,8 +213,9 @@ TADA_UpdateMonitoringLocationsInATTAINS <- function(org_id = NULL,
                                                     attains_replace = FALSE,
                                                     wqp_data_links = "add") {
   # get list of organization identifiers from ATTAINS
-  org.ref <- utils::read.csv(system.file("extdata", "ATTAINSOrgIDsRef.csv", 
-                                         package = "EPATADA"))
+  org.ref <- utils::read.csv(system.file("extdata", "ATTAINSOrgIDsRef.csv",
+    package = "EPATADA"
+  ))
 
   # stop function if organization identifiers is not found in ATTAINS
   if (!org_id %in% org.ref$code) {
@@ -373,8 +381,10 @@ TADA_UpdateMonitoringLocationsInATTAINS <- function(org_id = NULL,
         dplyr::mutate(
           MONITORING_DATA_LINK_TEXT = ifelse(
             grepl("200", response.code),
-            paste0(MONITORING_DATA_LINK_TEXT, "; ", 
-                   MONITORING_DATA_LINK_TEXT.New),
+            paste0(
+              MONITORING_DATA_LINK_TEXT, "; ",
+              MONITORING_DATA_LINK_TEXT.New
+            ),
             MONITORING_DATA_LINK_TEXT
           ),
           MONITORING_DATA_LINK_TEXT = stringr::str_remove_all(
@@ -384,14 +394,20 @@ TADA_UpdateMonitoringLocationsInATTAINS <- function(org_id = NULL,
         ) %>%
         tidyr::separate_rows(MONITORING_DATA_LINK_TEXT, sep = ", ") %>%
         dplyr::group_by(ASSESSMENT_UNIT_ID, MS_ORG_ID, MS_LOCATION_ID) %>%
-        suppressMessages(dplyr::summarise(MONITORING_DATA_LINK_TEXT = 
-                                            paste(
-                                              unique(
-                                                MONITORING_DATA_LINK_TEXT),
-                                              collapse = ", "))) %>%
-        dplyr::select(ASSESSMENT_UNIT_ID, 
-                      MS_ORG_ID, MS_LOCATION_ID, 
-                      MONITORING_DATA_LINK_TEXT) %>%
+        suppressMessages(dplyr::summarise(
+          MONITORING_DATA_LINK_TEXT =
+            paste(
+              unique(
+                MONITORING_DATA_LINK_TEXT
+              ),
+              collapse = ", "
+            )
+        )) %>%
+        dplyr::select(
+          ASSESSMENT_UNIT_ID,
+          MS_ORG_ID, MS_LOCATION_ID,
+          MONITORING_DATA_LINK_TEXT
+        ) %>%
         dplyr::distinct()
     }
     return(update.crosswalk)
