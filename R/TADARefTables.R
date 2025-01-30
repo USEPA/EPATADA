@@ -98,8 +98,9 @@ EPA304aRef_Cached <- NULL
 #' pollutant name and use_name for assessment under the CWA.
 #'
 #' Currently only numeric priority characteristic in TADA are the focus.
-#' This list can be found on the bottom of the web page:
-#' https://www.epa.gov/wqs-tech/state-specific-water-quality-standards-effective-under-clean-water-act-cwa
+#' For a list of characteristics that have a crosswalk between the CST and
+#' TADA.CharacteristicName, please run the following below in the R environment:
+#' 'utils::read.csv(system.file("extdata", "TADAPriorityCharUnitRef.csv", package = "EPATADA"))'
 #'
 #' @return Dataframe of EPA304a recommended standards for a pollutant and use name.
 #'
@@ -143,11 +144,12 @@ TADA_GetEPA304aRef <- function() {
     utils::tail(-CST.begin) %>%
     dplyr::filter(ENTITY_ABBR == "304A") %>%
     dplyr::left_join(tada.char.ref, by = c("POLLUTANT_NAME" = "CST.PollutantName"), relationship = "many-to-many") %>%
-    dplyr::select(TADA.CharacteristicName, POLLUTANT_NAME, organization_identifier = ENTITY_ABBR,
-                  use_name = USE_CLASS_NAME_LOCATION_ETC, CRITERION_VALUE,
-                  CRITERIATYPEAQUAHUMHLTH, CRITERIATYPEFRESHSALTWATER,
-                  CRITERIATYPE_ACUTECHRONIC, CRITERIATYPE_WATERORG, UNIT_NAME
-                  )
+    dplyr::select(TADA.CharacteristicName, POLLUTANT_NAME,
+      organization_identifier = ENTITY_ABBR,
+      use_name = USE_CLASS_NAME_LOCATION_ETC, CRITERION_VALUE,
+      CRITERIATYPEAQUAHUMHLTH, CRITERIATYPEFRESHSALTWATER,
+      CRITERIATYPE_ACUTECHRONIC, CRITERIATYPE_WATERORG, UNIT_NAME
+    )
 
   # Remove intermediate variables
   rm(CST.begin, tada.char.ref, raw.data)

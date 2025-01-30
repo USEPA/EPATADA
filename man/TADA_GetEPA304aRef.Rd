@@ -18,6 +18,7 @@ pollutant name and use_name for assessment under the CWA.
 }
 \details{
 Currently only numeric priority characteristic in TADA are the focus.
-This list can be found on the bottom of the web page:
-https://www.epa.gov/wqs-tech/state-specific-water-quality-standards-effective-under-clean-water-act-cwa
+For a list of characteristics that have a crosswalk between the CST and
+TADA.CharacteristicName, please run the following below in the R environment:
+'utils::read.csv(system.file("extdata", "TADAPriorityCharUnitRef.csv", package = "EPATADA"))'
 }

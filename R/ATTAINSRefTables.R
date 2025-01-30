@@ -15,32 +15,32 @@ TADA_GetATTAINSOrgIDsRef <- function() {
   if (!is.null(ATTAINSOrgIDsRef_Cached)) {
     return(ATTAINSOrgIDsRef_Cached)
   }
-  
+
   # Try to download up-to-date raw data
-  
+
   raw.data <- tryCatch(
     {
       # get data from ATTAINS
-    rATTAINS::domain_values(domain_name = "OrgName")
+      rATTAINS::domain_values(domain_name = "OrgName")
     },
     error = function(err) {
       NULL
     }
   )
-  
+
   # If the download failed fall back to internal data (and report it)
   if (is.null(raw.data)) {
     message("Downloading latest ATTAINS Organization Reference Table failed!")
     message("Falling back to (possibly outdated) internal file.")
     return(utils::read.csv(system.file("extdata", "ATTAINSOrgIDsRef.csv", package = "EPATADA")))
   }
-  
+
   ATTAINSOrgIDsRef <- raw.data %>%
     dplyr::distinct()
-  
+
   # Save updated table in cache
   ATTAINSOrgIDsRef_Cached <- ATTAINSOrgIDsRef
-  
+
   ATTAINSOrgIDsRef
 }
 
