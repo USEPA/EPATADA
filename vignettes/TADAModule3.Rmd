@@ -113,12 +113,12 @@ users with associating Water Quality Portal monitoring locations with
 assessment units and designated uses from ATTAINS and (2) compare Water
 Quality Portal results with numeric water quality criteria. EPATADA
 functions do not constitute current EPA policy or regulatory
-requirements. Organizations may choose to use EPATADA as a a tool in
-their decision making processes. Use of EPATADA is not required.
+requirements. Organizations may optionally choose to use EPATADA as a a
+tool in their decision making processes. Use of EPATADA is not required.
 
 ## Introduction
 
-Criteria are defined as the Magnitude, duration and frequency associated
+Criteria are defined as the magnitude, duration and frequency associated
 with a parameter and designated use.
 
 -   Magnitude is defined as the limiting concentration not to be
@@ -187,8 +187,7 @@ example represents the recommended workflow for Module 3.
 The necessary data cleaning, harmonization, removal of suspect results,
 and other QAQC processes must be completed by users before utilizing
 Module 3 functions. The example TADA data frame used in this vignette
-has already been through this process. See Module 1 Workflow.R script to
-review how this example data frame was prepared.
+has already been through this process.
 
 ```{r}
 # import example data set (output of Module 1 Workflow)
@@ -197,10 +196,10 @@ Data_NCTC <- Data_WV_Mod1_Output
 
 ## TADA_CreateParamRef() Basics
 
-Before, creating the parameter reference table, we will perform some
-exploratory data analysis to understand the components involve in
-TADA_CreateParamRef. First, let's view the number of counts of
-TADA.ComparableDataIdentifier.
+Before creating the WQP/TADA and ATTAINS parameter crosswalk table
+(TADA_CreateParamRef), let's review the unique characteristic, fraction
+and speciation combinations (TADA.ComparableDataIdentifier) and how many
+results are available for each within the example data set (Data_NCTC).
 
 ```{r}
 # create table with counts of TADA.ComparableDataIdentifiers
