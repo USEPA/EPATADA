@@ -93,7 +93,8 @@ Suggests:
     pkgdown,
     spelling,
     htmltools,
-    yaml
+    yaml, 
+    quarto
 VignetteBuilder: knitr, rmarkdown
 Language: en-US
 Config/testthat/edition: 3
