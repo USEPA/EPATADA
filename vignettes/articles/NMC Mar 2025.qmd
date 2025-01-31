@@ -156,23 +156,23 @@ GreenBay_FoxRiver <- TADA_SimpleCensoredMethods(GreenBay_FoxRiver, nd_method = "
 ## Two organizations sometimes submit the same exact data to WQP. Let's flag and remove any duplicates from multiple organizations
 
 ```{r}
-# GreenBay_FoxRiver <- TADA_FindPotentialDuplicatesMultipleOrgs(GreenBay_FoxRiver)
-# 
-# GreenBay_FoxRiver <- dplyr::filter(GreenBay_FoxRiver, TADA.ResultSelectedMultipleOrgs == "Y")
+GreenBay_FoxRiver <- TADA_FindPotentialDuplicatesMultipleOrgs(GreenBay_FoxRiver)
+
+GreenBay_FoxRiver <- dplyr::filter(GreenBay_FoxRiver, TADA.ResultSelectedMultipleOrgs == "Y")
 ```
 
 ## Filter out any remaining irrelevant data, NA's and empty columns
 
 ```{r}
-# unique(GreenBay_FoxRiver$TADA.ResultMeasureValueDataTypes.Flag)
-# 
-# sum(is.na(GreenBay_FoxRiver$TADA.ResultMeasureValue))
-# 
-# GreenBay_FoxRiver = TADA_AutoFilter(GreenBay_FoxRiver)
-# 
-# unique(GreenBay_FoxRiver$TADA.ResultMeasureValueDataTypes.Flag)
-# 
-# sum(is.na(GreenBay_FoxRiver$TADA.ResultMeasureValue))
+unique(GreenBay_FoxRiver$TADA.ResultMeasureValueDataTypes.Flag)
+
+sum(is.na(GreenBay_FoxRiver$TADA.ResultMeasureValue))
+
+GreenBay_FoxRiver = TADA_AutoFilter(GreenBay_FoxRiver)
+
+unique(GreenBay_FoxRiver$TADA.ResultMeasureValueDataTypes.Flag)
+
+sum(is.na(GreenBay_FoxRiver$TADA.ResultMeasureValue))
 # CM note for team discussion: Should results with NA units be dealt with now as well within TADA_AutoFilter?
 ```
 
