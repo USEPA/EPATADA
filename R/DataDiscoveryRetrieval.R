@@ -26,8 +26,10 @@
 #' area of interest.
 #'
 #' Users can reference the \href{https://www.epa.gov/waterdata/storage-and-retrieval-and-water-quality-exchange-domain-services-and-downloads}{WQX domain tables}
-#' to find allowable values for queries, e.g., reference the WQX domain table to find countycode and statecode: https://cdx.epa.gov/wqx/download/DomainValues/County_CSV.zip
-#' Alternatively, you can use the WQP services to find areas where data is available in the US: https://www.waterqualitydata.us/Codes/countycode
+#' to find allowable values for queries, e.g., reference the WQX domain table to find countycode 
+#' and statecode: https://cdx.epa.gov/wqx/download/DomainValues/County_CSV.zip
+#' Alternatively, you can use the WQP services to find areas where data is available in the US: 
+#' https://www.waterqualitydata.us/Codes/countycode
 #'
 #' TADA_DataRetrieval automatically runs TADA_AutoClean on the incoming dataframe. TADA_AutoClean
 #' is important for categorizing result value and detection limit data, as well as
@@ -1179,7 +1181,7 @@ TADA_BigDataHelper <- function(record_summary, WQPquery, maxrecs = 250000, maxsi
       }
 
       # Update progress
-      setTxtProgressBar(pb = small_prog_bar, value = nrow(df_small))
+      utils::setTxtProgressBar(pb = small_prog_bar, value = nrow(df_small))
     }
     # Close progress bar when complete
     close(small_prog_bar)
@@ -1220,7 +1222,7 @@ TADA_BigDataHelper <- function(record_summary, WQPquery, maxrecs = 250000, maxsi
         df_big <- dplyr::bind_rows(df_big, results_big)
       }
       # Update progress
-      setTxtProgressBar(pb = big_prog_bar, value = nrow(df_big))
+      utils::setTxtProgressBar(pb = big_prog_bar, value = nrow(df_big))
     }
     # Close progress bar when complete
     close(big_prog_bar)
