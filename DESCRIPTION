@@ -73,7 +73,8 @@ Imports:
     arcgislayers,
     httr,
     jsonlite,
-    rATTAINS
+    rATTAINS,
+    MESS
 Depends: 
     R (>= 3.5.0)
 Suggests:
