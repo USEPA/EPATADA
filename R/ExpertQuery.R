@@ -104,9 +104,11 @@ EQ_Assessments <- function(region = NULL, statecode = c("AK", "CA"), org_type = 
     params.df <- formals(EQ_Assessments) %>%
     as.list() %>%
     tibble::enframe(name = "param", value = "value") %>%
-    as.data.frame()
+    as.data.frame() 
+    
+    # still have problems with language str values from formals
+    
 
-  
   # create list of params with non-null values to be included in request body
   params.body <- params.df %>%
     dplyr::mutate(value = ifelse(param == "report_cycle" & value == "any",
