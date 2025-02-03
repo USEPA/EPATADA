@@ -42,23 +42,48 @@
 #' @param startDate Start Date string in the format YYYY-MM-DD, for example, "2020-01-01"
 #' @param endDate End Date string in the format YYYY-MM-DD, for example, "2020-01-01"
 #' @param aoi_sf An sf object to use for a query area of interest
-#' @param countrycode Code that identifies a country or ocean (e.g. countrycode = "CA" for Canada, countrycode = "OA" for Atlantic Ocean). See https://www.waterqualitydata.us/Codes/countrycode for options.
-#' @param statecode FIPS state alpha code that identifies a state (e.g. statecode = "DE" for Delaware). See https://www.waterqualitydata.us/Codes/statecode for options.
-#' @param countycode FIPS county name. Note that a state code must also be supplied (e.g. statecode = "AL", countycode = "Chilton"). See https://www.waterqualitydata.us/Codes/countycode for options.
-#' @param huc A numeric code denoting a hydrologic unit. Example: "04030202". Different size hucs can be entered. See https://epa.maps.arcgis.com/home/item.html?id=796992f4588c401fabec7446ecc7a5a3 for a map with HUCS. Click on a HUC to find the associated code.
+#' @param countrycode Code that identifies a country or ocean (e.g. countrycode = "CA" for Canada, 
+#'        countrycode = "OA" for Atlantic Ocean). 
+#'        See https://www.waterqualitydata.us/Codes/countrycode for options.
+#' @param statecode FIPS state alpha code that identifies a state (e.g. statecode = "DE" for 
+#'        Delaware). See https://www.waterqualitydata.us/Codes/statecode for options.
+#' @param countycode FIPS county name. Note that a state code must also be supplied (e.g. 
+#'        statecode = "AL", countycode = "Chilton"). 
+#'        See https://www.waterqualitydata.us/Codes/countycode for options.
+#' @param huc A numeric code denoting a hydrologic unit. Example: "04030202". Different size hucs 
+#'        can be entered. 
+#'        See https://epa.maps.arcgis.com/home/item.html?id=796992f4588c401fabec7446ecc7a5a3 for a 
+#'        map with HUCS. Click on a HUC to find the associated code.
 #' @param siteid Unique monitoring location identifier.
-#' @param siteType Type of waterbody. See https://www.waterqualitydata.us/Codes/sitetype for options.
-#' @param tribal_area_type One of four tribal spatial layers: "Alaska Native Allotments", "American Indian Reservations", "Off-reservation Trust Lands", or "Oklahoma Tribal Statistical Areas". More info in TADA_TribalOptions(). Note that "Alaska Native Villages" and "Virginia Federally Recognized Tribes" layers will not return a successful query.
-#' @param tribe_name_parcel The name of one or more tribes corresponding to entries in the TRIBE_NAME field of the specified tribal_area_type. OR if the type is "Alaska Native Allotments" then the corresponding PARCEL_NO. More info in TADA_TribalOptions().
-#' @param characteristicName Name of parameter. See https://www.waterqualitydata.us/Codes/characteristicName for options.
-#' @param characteristicType Groups of environmental measurements/parameters. See https://www.waterqualitydata.us/Codes/characteristicType for options.
-#' @param sampleMedia Sampling substrate such as water, air, or sediment. See https://www.waterqualitydata.us/Codes/sampleMedia for options.
-#' @param organization A string of letters and/or numbers (some additional characters also possible) used to signify an organization with data in the Water Quality Portal. See https://www.waterqualitydata.us/Codes/organization for options.
-#' @param project A string of letters and/or numbers (some additional characters also possible) used to signify a project with data in the Water Quality Portal. See https://www.waterqualitydata.us/Codes/project for options.
-#' @param providers Leave blank to include all, or specify "STEWARDS", "STORET" (i.e., WQX), and/or "NWIS". See https://www.waterqualitydata.us/Codes/providers for options.
-#' @param maxrecs Maximum number of records to query at once (i.e., without breaking into smaller queries).
-#' @param ask A logical value indicating whether the user should be asked for approval before downloads begin.
-#' @param applyautoclean Logical, defaults to TRUE. Applies TADA_AutoClean function on the returned data profile. Suggest switching to FALSE for queries that are expected to be large.
+#' @param siteType Type of waterbody. See https://www.waterqualitydata.us/Codes/sitetype for 
+#'        options.
+#' @param tribal_area_type One of four tribal spatial layers: "Alaska Native Allotments", 
+#'        "American Indian Reservations", "Off-reservation Trust Lands", or "Oklahoma Tribal 
+#'        Statistical Areas". More info in TADA_TribalOptions(). Note that "Alaska Native Villages" 
+#'        and "Virginia Federally Recognized Tribes" layers will not return a successful query.
+#' @param tribe_name_parcel The name of one or more tribes corresponding to entries in the 
+#'        TRIBE_NAME field of the specified tribal_area_type. OR if the type is "Alaska Native 
+#'        Allotments" then the corresponding PARCEL_NO. More info in TADA_TribalOptions().
+#' @param characteristicName Name of parameter. 
+#'        See https://www.waterqualitydata.us/Codes/characteristicName for options.
+#' @param characteristicType Groups of environmental measurements/parameters. 
+#'        See https://www.waterqualitydata.us/Codes/characteristicType for options.
+#' @param sampleMedia Sampling substrate such as water, air, or sediment. 
+#'        See https://www.waterqualitydata.us/Codes/sampleMedia for options.
+#' @param organization A string of letters and/or numbers (some additional characters also possible) 
+#'        used to signify an organization with data in the Water Quality Portal. 
+#'        See https://www.waterqualitydata.us/Codes/organization for options.
+#' @param project A string of letters and/or numbers (some additional characters also possible) used 
+#'        to signify a project with data in the Water Quality Portal. 
+#'        See https://www.waterqualitydata.us/Codes/project for options.
+#' @param providers Leave blank to include all, or specify "STEWARDS", "STORET" (i.e., WQX), and/or 
+#'        "NWIS". See https://www.waterqualitydata.us/Codes/providers for options.
+#' @param maxrecs Maximum number of records to query at once (i.e., without breaking into smaller 
+#'        queries).
+#' @param ask A logical value indicating whether the user should be asked for approval before 
+#'        downloads begin.
+#' @param applyautoclean Logical, defaults to TRUE. Applies TADA_AutoClean function on the returned 
+#'        data profile. Suggest switching to FALSE for queries that are expected to be large.
 #'
 #' @return TADA-compatible dataframe
 #'
