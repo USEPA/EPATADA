@@ -108,7 +108,7 @@ utils::globalVariables(c(
   "monitoring_organization_identifier", "monitoring_stations", "MS_LOCATION_ID", "MS_ORG_ID",
   "OrgIDForURL", "provder.ref", "ProviderName", "response_code", 
   "update.crosswalk.MONITORING_DATA_LINK_TEXT.New", "resultCount", "MeasureQualifierCode",
-  "URLencode", "tribal_area", "MonitoringDataLinkText", "PARCEL_NO", "TRIBE_NAME"
+  "tribal_area", "MonitoringDataLinkText", "PARCEL_NO", "TRIBE_NAME"
 ))
 
 # global variables for tribal feature layers used in TADA_OverviewMap in Utilities.R

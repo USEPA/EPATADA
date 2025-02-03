@@ -329,7 +329,7 @@ TADA_UpdateMonitoringLocationsInATTAINS <- function(org_id = NULL,
       update.crosswalk <- update.crosswalk %>%
         dplyr::mutate(MONITORING_DATA_LINK_TEXT.New = ifelse(
           is.na(OrgIDForURL), NA,
-          URLencode(paste0(
+          utils::URLencode(paste0(
             "https://www.waterqualitydata.us/provider/", ProviderName,
             "/", OrgIDForURL, "/", MS_LOCATION_ID, "/"
           ))

@@ -165,3 +165,4 @@ test_that("QC results are not flagged as Continuous", {
     dplyr::filter(TADA.ContinuousData.Flag == "Continuous")
 
   expect_true(unique(cont_QC$TADA.ActivityType.Flag) == "Non_QC")
+})
