@@ -97,7 +97,10 @@ EQ_Assessments <- function(region = NULL, statecode = NULL, org_type = NULL, org
                            loc_desc = NULL, size_source = NULL, source_scale = NULL,
                            water_size = NULL, size_units = NULL, api_key = NULL)  {
 
-  # 
+  # check for api key
+  if(is.null(api_key)) {
+    stop("EQ_Assessments: An api key is required to access EQ web services.")
+  }
   
   # import crosswalk ref file
   params.cw <- utils::read.csv(file = "inst/extdata/EQParamsCrosswalk.csv")
@@ -124,7 +127,8 @@ EQ_Assessments <- function(region = NULL, statecode = NULL, org_type = NULL, org
   params.body <- params.df %>%
     dplyr::mutate(value = ifelse(param == "report_cycle" & value == "any",
                                  -1, value)) %>%
-    dplyr::filter(!value %in% c("NULL", "latest")) %>%
+    dplyr::filter(!value %in% c("NULL", "latest"),
+                  param != "api_key") %>%
     dplyr::left_join(params.cw, by = dplyr::join_by(param)) %>%
     dplyr::mutate(value = gsub('c\\(|\\)|"', '', value)) %>%
     tidyr::separate_rows(value, sep = ',\\s*') %>%
@@ -150,31 +154,58 @@ EQ_Assessments <- function(region = NULL, statecode = NULL, org_type = NULL, org
   )
     
   
+  # remove intermediate objects
+  rm(params.body)
+  
+  # setup body for finding row count of query
+  count.setup <- paste0(
+    '{"filters":{',
+    params.body, '}}'
+  )
+  
+  # get row count of query
+  rowres <- httr::POST(url = "https://api.epa.gov/expertquery/api/attains/assessments/count", httr::add_headers(.headers=headers.setup), body = count.setup)
+  
+  rowcont <- httr::content(rowres, as = "parsed", encoding = "UTF-8")
+  
+  # stop function if row count exceeds one million
+  if(rowcont$count > rowcont$maxCount) {
+    stop(paste0("EQ_Assessments: The current query exceeds the maximum query size of ",
+                format(rowcont$maxCount, big.mark = ","), " rows.",
+                "Please refine the search or use the Expert Query National Extract."))
+  }
+  
+  # if row count is less than one million, print message with row count and continue
+  if(rowcont$count > rowcont$maxCount) {
+    print(paste0("EQ_Assesments: The current query will return ",
+                 format(rowcont$count, big.mark = ","), " rows."))
+  }
+  
+  # remove intermediate objects
+  rm(count.setup, rowres, rowcont)
+
   # set up body for POST including filters, options, and columns
   body.setup <- paste0(
     '{"filters":{',
     params.body, '},',
     '"options":{"format":"csv"},',
     '"columns":["objectId","region","state","organizationType",',
-        '"organizationId","organizationName","waterType","reportingCycle",',
-        '"cycleLastAssessed","assessmentUnitId","assessmentUnitName","assessmentUnitStatus",',
-        ' "overallStatus","epaIrCategory","stateIrCategory","useGroup","useName","useClassName",',
-        '"useSupport","useIrCategory","useStateIrCategory","monitoringStartDate",',
-        '"monitoringEndDate","assessmentDate","assessmentTypes","assessmentMethods",',
-        '"assessmentBasis","parameterGroup","parameterName","parameterStatus",',
-        '"parameterAttainment","parameterIrCategory","parameterStateIrCategory",',
-        '"delisted","delistedReason","pollutantIndicator","cycleFirstListed",',
-        '"alternateListingIdentifier","vision303dPriority","cwa303dPriorityRanking",',
-        '"cycleScheduledForTmdl","cycleExpectedToAttain","consentDecreeCycle","cycleId",',
-        '"seasonStartDate","seasonEndDate","associatedActionId","associatedActionName",',
-        '"associatedActionType","associatedActionStatus","associatedActionAgency",',
-        '"locationDescription","sizeSource","sourceScale","waterSize","waterSizeUnits"]}'
-    )
+    '"organizationId","organizationName","waterType","reportingCycle",',
+    '"cycleLastAssessed","assessmentUnitId","assessmentUnitName","assessmentUnitStatus",',
+    ' "overallStatus","epaIrCategory","stateIrCategory","useGroup","useName","useClassName",',
+    '"useSupport","useIrCategory","useStateIrCategory","monitoringStartDate",',
+    '"monitoringEndDate","assessmentDate","assessmentTypes","assessmentMethods",',
+    '"assessmentBasis","parameterGroup","parameterName","parameterStatus",',
+    '"parameterAttainment","parameterIrCategory","parameterStateIrCategory",',
+    '"delisted","delistedReason","pollutantIndicator","cycleFirstListed",',
+    '"alternateListingIdentifier","vision303dPriority","cwa303dPriorityRanking",',
+    '"cycleScheduledForTmdl","cycleExpectedToAttain","consentDecreeCycle","cycleId",',
+    '"seasonStartDate","seasonEndDate","associatedActionId","associatedActionName",',
+    '"associatedActionType","associatedActionStatus","associatedActionAgency",',
+    '"locationDescription","sizeSource","sourceScale","waterSize","waterSizeUnits"]}'
+  )
   
-  # remove intermediate objects
-  rm(params.body)
-  
-  res <- httr::POST(url = "https://api.epa.gov/expertquery/api/attains/assessments", httr::add_headers(headers=headers.setup), body = body.setup)
+  res <- httr::POST(url = "https://api.epa.gov/expertquery/api/attains/assessments", httr::add_headers(.headers=headers.setup), body = body.setup)
   
   df <- httr::content(res, as = "parsed", encoding = "UTF-8")
   
