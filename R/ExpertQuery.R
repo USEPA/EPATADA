@@ -144,7 +144,7 @@ EQ_Assessments <- function(region = NULL, statecode = NULL, org_type = NULL, org
     dplyr::pull()
   
   # remove intermediate objects
-  #rm(params.cw, params.df)
+  rm(params.cw, params.df)
   
   # create headers for POST
   headers.setup <- c(
@@ -152,10 +152,6 @@ EQ_Assessments <- function(region = NULL, statecode = NULL, org_type = NULL, org
     `Content-Type` = "application/json",
     Accept = "application/json"
   )
-    
-  
-  # remove intermediate objects
-  rm(params.body)
   
   # setup body for finding row count of query
   count.setup <- paste0(
@@ -169,14 +165,14 @@ EQ_Assessments <- function(region = NULL, statecode = NULL, org_type = NULL, org
   rowcont <- httr::content(rowres, as = "parsed", encoding = "UTF-8")
   
   # stop function if row count exceeds one million
-  if(rowcont$count > rowcont$maxCount) {
+  if(isTRUE(rowcont$count > rowcont$maxCount)) {
     stop(paste0("EQ_Assessments: The current query exceeds the maximum query size of ",
                 format(rowcont$maxCount, big.mark = ","), " rows.",
                 "Please refine the search or use the Expert Query National Extract."))
   }
   
   # if row count is less than one million, print message with row count and continue
-  if(rowcont$count > rowcont$maxCount) {
+  if(isTRUE(rowcont$count < rowcont$maxCount)) {
     print(paste0("EQ_Assesments: The current query will return ",
                  format(rowcont$count, big.mark = ","), " rows."))
   }
@@ -205,12 +201,15 @@ EQ_Assessments <- function(region = NULL, statecode = NULL, org_type = NULL, org
     '"locationDescription","sizeSource","sourceScale","waterSize","waterSizeUnits"]}'
   )
   
+  # remove intermediate objects
+  rm(params.body)
+  
   res <- httr::POST(url = "https://api.epa.gov/expertquery/api/attains/assessments", httr::add_headers(.headers=headers.setup), body = body.setup)
   
   df <- httr::content(res, as = "parsed", encoding = "UTF-8")
   
   # remove intermediate objects
-  #rm(headers.setup, body.setup, res)
+  rm(headers.setup, body.setup, res)
   
   return(df)
 }
