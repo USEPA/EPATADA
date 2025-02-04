@@ -34,22 +34,14 @@ knitr::opts_chunk$set(
 ## Welcome!
 
 Thank you for your interest in Tools for Automated Data Analysis (TADA).
-TADA is an open-source tool set built in the R programming language.
-This [RMarkdown](https://bookdown.org/yihui/rmarkdown/) document walks
-users through how to download the EPATADA R package from GitHub, access
-and parameterize several important functions, and create basic
-visualizations with a sample data set.
-
-**Note: EPATADA is still under development. New functionality is added
-weekly, and sometimes we need to make bug fixes in response to user feedback. We appreciate your feedback, patience, and interest
-in these helpful tools.**
-
-**If you are interested in contributing to EPATADA development, more
-information is available at:**
-
-[**Contributing**](https://usepa.github.io/EPATADA/articles/CONTRIBUTING.html)
-
-**We welcome collaboration with external partners.**
+TADA is an open-source tool set built in the R programming language. The
+EPATADA R Package is still under development. New functionality is added
+weekly, and sometimes we need to make bug fixes in response to user
+feedback. We appreciate your feedback, patience, and interest in these
+helpful tools. If you are interested in contributing to EPATADA
+development, more information is available
+[here](https://usepa.github.io/EPATADA/articles/CONTRIBUTING.html). We
+welcome collaboration with external partners!
 
 ## Install and load packages
 
@@ -105,27 +97,43 @@ function in R or RStudio using the following format (example below):
 
 ## Introduction to TADA Module 3
 
-**Additional Description:**
+This [RMarkdown](https://bookdown.org/yihui/rmarkdown/) document walks
+users through how to create crosswalk reference tables that are needed
+prior to defining and capturing their organization's criteria and
+methodologies. It is the first of several vignettes that are being
+developed as part of TADA Module 3.
 
-This vignette is the first of several series in Module 3. This vignette
-will focus on assisting users with creating the crosswalk reference tables that are needed prior to defining and capturing their organization's criteria and methodologies. 
+Specifically, this vignette provides an overview of two functions that
+can assist users with:
 
-Specifically, this vignette provides an overview of two functions that assist users with:
+-   Creating a crosswalk reference table between ATTAINS parameter names
+    and WQP/TADA characteristic names.
 
--   Creating a crosswalk reference table between ATTAINS parameter     names and WQP/TADA characteristic names.
+-   Creating a crosswalk reference table of all unique combinations of
+    ATTAINS uses and and parameters.
 
--   Creating a crosswalk reference table of all unique combinations of ATTAINS uses and and parameters.
-
-These Module 3 functions are being designed with the flexibility for users from states, tribes, or territories to input organization-specific or site-specific criteria as defined in their own numeric water quality criteria or methodologies. While TADA functions automate some of this process, users must review and modify the crosswalk tables generated in each step of the process to ensure their accuracy. The TADA team has also incorporated national recommended Clean Water Act (CWA) 304(a) numeric criteria for optional use in Module 3 functions by leveraging data from the Criteria Search Tool (CST). This allows users to test the new functions using 304(a) criteria and allows users to easily compare results when comparing WQP results to 304(a) criteria vs. their own organization's criteria.
-
-We will start the example by going through an example data frame that has gone through data cleaning, wrangling, harmonization, handling of censored data and other Module 1 TADA functions.
+These Module 3 functions are being designed with the flexibility for
+users from states, tribes, or territories to input organization-specific
+information. While TADA functions help generate these crosswalks, users
+must review and modify the tables generated in each step of the process
+to ensure their accuracy. Additionally, the TADA team has also
+incorporated national recommended Clean Water Act (CWA) 304(a) numeric
+criteria for optional use in Module 3 functions by leveraging data from
+the [Criteria Search Tool
+(CST)](https://www.epa.gov/wqs-tech/state-specific-water-quality-standards-effective-under-clean-water-act-cwa).
+In the next vignette, TADAModule3_PartB , which is coming soon, this
+will allow users to analyze their data against the 304(a) criteria; and
+to easily compare results when when using 304(a) criteria vs. their own
+organization's criteria.
 
 ## Example data from WQP
 
-Data cleaning, harmonization, and removal of suspect results,
-and other QAQC processes must be completed by users before utilizing
-Module 3 functions. The example TADA data frame used in this vignette
-has already been through this process.
+Let's start with an example data frame that has gone through data
+cleaning, wrangling, harmonization, handling of censored data, removal
+of suspect results, and other important TADA Module 1 functions. This
+process should be completed by users before utilizing Module 3
+functions. The example TADA data frame used in this vignette
+(Data_WV_Mod1_Output) has already been through this process.
 
 ```{r}
 # import example data set (output of Module 1 Workflow)
@@ -133,7 +141,10 @@ Data_NCTC <- Data_WV_Mod1_Output
 ```
 
 Using an example data set from Maryland, we will work through an example
-of creating two TADA Module 3 reference tables (TADA_CreateParamRef and TADA_CreateParamUseRef) that are needed before we can start assigning applicable criteria and methodologies information for a specific ATTAINS organization.
+of creating two TADA Module 3 reference tables (TADA_CreateParamRef and
+TADA_CreateParamUseRef) that are needed before we can start assigning
+applicable criteria and methodologies information for a specific ATTAINS
+organization.
 
 ## TADA_CreateParamRef() Basics
 
@@ -253,14 +264,29 @@ TADA_CSVExport(ref = NCTC_ParamRef2)
 
 # TADA_CreateParamUseRef() Basics
 
-Our first example will pull in all prior ATTAINS uses (use_names) and  parameter names (ATTAINS.ParameterName) specific to the specified ATTAINS organization (defined by the org_names  function argument for TADA_CreateParamUseRef), which in this case is "MDE_EASP" (Maryland). Users will review the output and choose which use_name's are applicable to their analysis. The default functionality is to "Include" all ATTAINS use_names (see the "IncludeOrExclude" column). Later in the data analysis process, users will be asked to define criteria and methodologies that is applicable to each ATTAINS use_name and parameter name labeled as "Include". If a
-use_name is not applicable, users should choose "Exclude" for that
-ATTAINS parameter name and use name.
+Our first example will pull in all prior ATTAINS uses (use_names) and
+parameter names (ATTAINS.ParameterName) specific to the specified
+ATTAINS organization (defined by the org_names function argument for
+TADA_CreateParamUseRef), which in this case is "MDE_EASP" (Maryland).
+Users will review the output and choose which use_name's are applicable
+to their analysis. The default functionality is to "Include" all ATTAINS
+use_names (see the "IncludeOrExclude" column). Later in the data
+analysis process, users will be asked to define criteria and
+methodologies that is applicable to each ATTAINS use_name and parameter
+name labeled as "Include". If a use_name is not applicable, users should
+choose "Exclude" for that ATTAINS parameter name and use name.
 
-For any ATTAINS parameter name(s) that have not been used by this organization in prior assessment cycles, there will be no prior use names associated with them. In this case, users will be responsible for manually assigning the appropriate use_name applicable to their org under the column 'use_name', and for inputting additional rows as needed if the parameter applies to multiples uses.
+For any ATTAINS parameter name(s) that have not been used by this
+organization in prior assessment cycles, there will be no prior use
+names associated with them. In this case, users will be responsible for
+manually assigning the appropriate use_name applicable to their org
+under the column 'use_name', and for inputting additional rows as needed
+if the parameter applies to multiples uses.
 
-In the example below, we can see "PH" was not a prior ATTAINS parameter name for MDE_EASP (see ATTAINS.FlagUseName column in NCTC_ParamUseRef). If desired, a user can manually assign this parameter to any applicable uses
-(disclaimer: this is for demonstration purposes only and does not
+In the example below, we can see "PH" was not a prior ATTAINS parameter
+name for MDE_EASP (see ATTAINS.FlagUseName column in NCTC_ParamUseRef).
+If desired, a user can manually assign this parameter to any applicable
+uses (disclaimer: this is for demonstration purposes only and does not
 reflect MDE_EASP's process).
 
 ```{r}
@@ -272,9 +298,17 @@ NCTC_ParamUseRef <- TADA_CreateParamUseRef(
 TADA_CSVExport(ref = NCTC_ParamUseRef)
 ```
 
-Users may also choose to include the EPA304a recommended water quality criteria within the function input "org_names". This option utilizes the EPA304a.PollutantName column created in TADA_CreateParamRef(). If a user includes additional organizations beyond "MDE_EASP" and "EPA304a", like in the example NCTC_ParamUseRef2 below, it will not generate rows for the parameter and use combinations for those additional orgs ("21VASWCB" (Virginia), "21PA"(Pennsylvania), WVDEP
-(West Virginia)) because only MDE_EASP (Maryland) was defined in
-TADA_CreateParamRef() for paramRef = ParamRef. If you would like to include other organizations here, you must first fill out the TADA_CreateParamRef() for all organizations of interest.
+Users may also choose to include the EPA304a recommended water quality
+criteria within the function input "org_names". This option utilizes the
+EPA304a.PollutantName column created in TADA_CreateParamRef(). If a user
+includes additional organizations beyond "MDE_EASP" and "EPA304a", like
+in the example NCTC_ParamUseRef2 below, it will not generate rows for
+the parameter and use combinations for those additional orgs ("21VASWCB"
+(Virginia), "21PA"(Pennsylvania), WVDEP (West Virginia)) because only
+MDE_EASP (Maryland) was defined in TADA_CreateParamRef() for paramRef =
+ParamRef. If you would like to include other organizations here, you
+must first fill out the TADA_CreateParamRef() for all organizations of
+interest.
 
 ```{r}
 NCTC_ParamUseRef2 <- TADA_CreateParamUseRef(
@@ -286,9 +320,14 @@ NCTC_ParamUseRef2 <- TADA_CreateParamUseRef(
 TADA_CSVExport(ref = NCTC_ParamUseRef2)
 ```
 
-Instead, users should create a parameter and use reference table, TADA_CreateParamUseRef(), for the same organizations included in the parameter name crosswalk, TADA_CreateParamRef(). While aspects of this process are partially automated, both crosswalks must be manually reviewed, adjusted, and finalized by the user of these functions. 
+Instead, users should create a parameter and use reference table,
+TADA_CreateParamUseRef(), for the same organizations included in the
+parameter name crosswalk, TADA_CreateParamRef(). While aspects of this
+process are partially automated, both crosswalks must be manually
+reviewed, adjusted, and finalized by the user of these functions.
 
-Users may choose to voluntarily share their reference tables for their organization with the TADA Team so that others can use it in the future.
+Users may choose to voluntarily share their reference tables for their
+organization with the TADA Team so that others can use it in the future.
 
 ```{r}
 NCTC_ParamUseRef3 <- TADA_CreateParamUseRef(
@@ -300,7 +339,16 @@ NCTC_ParamUseRef3 <- TADA_CreateParamUseRef(
 TADA_CSVExport(ref = NCTC_ParamUseRef3)
 ```
 
-In this example, we designate that the ATTAINS.ParameterName "PH" is equivalent to the TADA.ComparableDataIdentifier 'PH_NA_NA_STD UNITS', which was not used in prior ATTAINS assessment cycles for **Maryland**. This results in the 'use_name' column returning a blank value for ATTAINS.ParameterName "PH". Therefore, we need to specify the use_name(s) that we would like to associate with "PH" for this organization. In excel, there will be a drop down list of organization ("MDE_EASP") specific use_names that were used in prior ATTAINS assessments. If no excel file is generated, this is an example workflow of how a user can edit the table in the R environment.
+In this example, we designate that the ATTAINS.ParameterName "PH" is
+equivalent to the TADA.ComparableDataIdentifier 'PH_NA_NA_STD UNITS',
+which was not used in prior ATTAINS assessment cycles for **Maryland**.
+This results in the 'use_name' column returning a blank value for
+ATTAINS.ParameterName "PH". Therefore, we need to specify the
+use_name(s) that we would like to associate with "PH" for this
+organization. In excel, there will be a drop down list of organization
+("MDE_EASP") specific use_names that were used in prior ATTAINS
+assessments. If no excel file is generated, this is an example workflow
+of how a user can edit the table in the R environment.
 
 ```{r paged.print=TRUE}
 add_data <- data.frame("organization_identifier" = "MDE_EASP", "ATTAINS.ParameterName" = rep("PH", 3), "use_name" = c(
@@ -329,11 +377,16 @@ TADA_CSVExport(ref = NCTC_ParamUseRef3.1)
 ```
 
 ## Next steps
-    
-Stay tuned! Future vignettes aim to assist with next steps in the analysis process, including:
 
--   Defining the water quality criteria and methodologies used for each unique combination of ATTAINS assessment unit, use, and parameter.
+Stay tuned! Future vignettes aim to assist with next steps in the
+analysis process, including:
+
+-   Defining the water quality criteria and methodologies used for each
+    unique combination of ATTAINS assessment unit, use, and parameter.
 
 -   Summarizing results by: (1) individual magnitude excursions.
 
-Disclaimer: The EPATADA Module 3 functions are under active development. EPATADA functions do not constitute current EPA recommendations, policy or regulatory requirements. Organizations may optionally choose to use EPATADA as a a tool in their process. Use of EPATADA is not required.
+Disclaimer: The EPATADA Module 3 functions are under active development.
+EPATADA functions do not constitute current EPA recommendations, policy
+or regulatory requirements. Organizations may optionally choose to use
+EPATADA as a a tool in their process. Use of EPATADA is not required.
