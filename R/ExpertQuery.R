@@ -78,7 +78,7 @@
 #'
 #' @export
 #'
-EQ_Assessments <- function(region = NULL, statecode = c("AK", "CA"), org_type = NULL, org_id = NULL,
+EQ_Assessments <- function(region = NULL, statecode = NULL, org_type = NULL, org_id = NULL,
                            org_name = NULL, water_type = NULL, report_cycle = "latest",
                            last_cycle_start = NULL, last_cycle_end = NULL, auid = NULL,
                            au_name = NULL, au_status = "A",  overall_status = NULL,
@@ -97,6 +97,8 @@ EQ_Assessments <- function(region = NULL, statecode = c("AK", "CA"), org_type = 
                            loc_desc = NULL, size_source = NULL, source_scale = NULL,
                            water_size = NULL, size_units = NULL, api_key = NULL)  {
 
+  # 
+  
   # import crosswalk ref file
   params.cw <- utils::read.csv(file = "inst/extdata/EQParamsCrosswalk.csv")
 
@@ -106,41 +108,80 @@ EQ_Assessments <- function(region = NULL, statecode = c("AK", "CA"), org_type = 
     tibble::enframe(name = "param", value = "value") %>%
     as.data.frame() 
     
-    # still have problems with language str values from formals
-    
+    # change language to character in value column
+    params.df$value <- sapply(params.df$value, function(x) {
+      if (is.language(x)) {
+        deparse(x)
+      } else if (is.logical(x) || is.numeric(x)) {
+        as.character(x)
+      } else {
+        x
+      }
+    }
+    )
 
-  # create list of params with non-null values to be included in request body
+  # create param filters for POST
   params.body <- params.df %>%
     dplyr::mutate(value = ifelse(param == "report_cycle" & value == "any",
                                  -1, value)) %>%
     dplyr::filter(!value %in% c("NULL", "latest")) %>%
-    dplyr::left_join(params.cw, by = dplyr::join_by(param))
+    dplyr::left_join(params.cw, by = dplyr::join_by(param)) %>%
+    dplyr::mutate(value = gsub('c\\(|\\)|"', '', value)) %>%
+    tidyr::separate_rows(value, sep = ',\\s*') %>%
+    dplyr::mutate(value = paste0('"', value, '"')) %>%
+    dplyr::group_by(eq_name) %>%
+    dplyr::mutate(value = paste0(value, collapse = ",")) %>%
+    dplyr::distinct() %>%
+    dplyr::mutate(value = paste0('"', eq_name, '":', "[", value, "]")) %>%
+    dplyr::ungroup() %>%
+    dplyr::mutate(value = paste0(value, collapse = ",")) %>%
+    dplyr::select(value) %>%
+    dplyr::distinct() %>%
+    dplyr::pull()
   
-  # set up filters
-  filter.setup <- params.body %>%
-    dplyr::mutate(value = paste0('"', value, '"'))
+  # remove intermediate objects
+  #rm(params.cw, params.df)
+  
+  # create headers for POST
+  headers.setup <- c(
+    `X-Api-Key` = api_key,
+    `Content-Type` = "application/json",
+    Accept = "application/json"
+  )
     
-    
-    paste0('"', params.body$eq_name[1], '":', '[', params.body$value, ']')
   
+  # set up body for POST including filters, options, and columns
+  body.setup <- paste0(
+    '{"filters":{',
+    params.body, '},',
+    '"options":{"format":"csv"},',
+    '"columns":["objectId","region","state","organizationType",',
+        '"organizationId","organizationName","waterType","reportingCycle",',
+        '"cycleLastAssessed","assessmentUnitId","assessmentUnitName","assessmentUnitStatus",',
+        ' "overallStatus","epaIrCategory","stateIrCategory","useGroup","useName","useClassName",',
+        '"useSupport","useIrCategory","useStateIrCategory","monitoringStartDate",',
+        '"monitoringEndDate","assessmentDate","assessmentTypes","assessmentMethods",',
+        '"assessmentBasis","parameterGroup","parameterName","parameterStatus",',
+        '"parameterAttainment","parameterIrCategory","parameterStateIrCategory",',
+        '"delisted","delistedReason","pollutantIndicator","cycleFirstListed",',
+        '"alternateListingIdentifier","vision303dPriority","cwa303dPriorityRanking",',
+        '"cycleScheduledForTmdl","cycleExpectedToAttain","consentDecreeCycle","cycleId",',
+        '"seasonStartDate","seasonEndDate","associatedActionId","associatedActionName",',
+        '"associatedActionType","associatedActionStatus","associatedActionAgency",',
+        '"locationDescription","sizeSource","sourceScale","waterSize","waterSizeUnits"]}'
+    )
   
-
-# headers <- c(
-#   `X-Api-Key` = api_key,
-#   `Content-Type` = "application/json",
-#   Accept = "application/json"
+  # remove intermediate objects
+  rm(params.body)
+  
+  res <- httr::POST(url = "https://api.epa.gov/expertquery/api/attains/assessments", httr::add_headers(headers=headers.setup), body = body.setup)
+  
+  df <- httr::content(res, as = "parsed", encoding = "UTF-8")
+  
+  # remove intermediate objects
+  #rm(headers.setup, body.setup, res)
+  
+  return(df)
 }
 
 
-# post_setup <- function()
-#
- data <- '{"filters":{"assessmentUnitStatus":["A"],"organizationId":["AKDECWQ"],"state":["AK"]},"options":{"format":"csv"},"columns":["objectId","region","state","organizationType","organizationId","organizationName","waterType","reportingCycle","cycleLastAssessed","assessmentUnitId","assessmentUnitName","assessmentUnitStatus","overallStatus","epaIrCategory","stateIrCategory","useGroup","useName","useClassName","useSupport","useIrCategory","useStateIrCategory","monitoringStartDate","monitoringEndDate","assessmentDate","assessmentTypes","assessmentMethods","assessmentBasis","parameterGroup","parameterName","parameterStatus","parameterAttainment","parameterIrCategory","parameterStateIrCategory","delisted","delistedReason","pollutantIndicator","cycleFirstListed","alternateListingIdentifier","vision303dPriority","cwa303dPriorityRanking","cycleScheduledForTmdl","cycleExpectedToAttain","consentDecreeCycle","cycleId","seasonStartDate","seasonEndDate","associatedActionId","associatedActionName","associatedActionType","associatedActionStatus","associatedActionAgency","locationDescription","sizeSource","sourceScale","waterSize","waterSizeUnits"]}'
-#
-# res <- httr::POST(url = "https://api.epa.gov/expertquery/api/attains/assessments", httr::add_headers(.headers=headers), body = data)
-#
-# df <- httr::content(res, as = "text", encoding = "UTF-8")
-
-
-
-
-#statecode = "AK"

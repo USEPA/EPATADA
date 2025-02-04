@@ -6,8 +6,8 @@ org_id,organizationId
 org_name,organizationName
 water_type,waterType
 report_cycle,reportingCycle
-last_cycle_start,cycleLastAssessed
-last_cycle_end,cycleLastAssessed
+last_cycle_start,cycleLastAssessedLo
+last_cycle_end,cycleLastAssessedHi
 auid,assessmentUnitId
 au_name,assessmentUnitName
 au_status,assessmentUnitStatus
