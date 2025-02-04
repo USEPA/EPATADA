@@ -41,8 +41,7 @@ and parameterize several important functions, and create basic
 visualizations with a sample data set.
 
 **Note: EPATADA is still under development. New functionality is added
-weekly, and sometimes we need to make bug fixes in response to tester
-and user feedback. We appreciate your feedback, patience, and interest
+weekly, and sometimes we need to make bug fixes in response to user feedback. We appreciate your feedback, patience, and interest
 in these helpful tools.**
 
 **If you are interested in contributing to EPATADA development, more
@@ -92,8 +91,6 @@ into your R session.
 library(EPATADA)
 ```
 
-## Help pages
-
 All TADA R package functions have their own individual help pages,
 listed on the [Function
 reference](https://usepa.github.io/EPATADA/reference/index.html) page on
@@ -106,68 +103,24 @@ function in R or RStudio using the following format (example below):
 ?TADA_DataRetrieval
 ```
 
-## Module 3 Functions in TADA
-
-Disclaimer: The EPATADA Module 3 functions are under active development. They are being designed to: (1) assist
-users with associating Water Quality Portal characteristics with
-applicable ATTAINS and EPA 304(a) parameters and uses, and to (2) compare Water Quality Portal results with numeric water quality thresholds or criteria (magnitude component only). EPATADA functions do not constitute current EPA policy or regulatory requirements. While organizations may optionally choose to use EPATADA as a a tool in their assessment process, use of EPATADA is not required.
-
-## Introduction
-
-Criteria are defined as the magnitude, duration and frequency associated
-with a parameter and designated use. At this time, this tool aims to assist
-only with comparing results against the magnitude component of criteria.
-
--   Magnitude is defined as the limiting concentration not to be
-    exceeded.
-
--   Duration is the period/length of time in which observations are
-    aggregated.
-
--   Frequency is defined as the percent or number of times in which a
-    magnitude can be exceeded during the specified duration.
-
-This vignette provides an overview of two functions that assist users with:
-
--   Creating a crosswalk between ATTAINS parameter names and
-    WQP/TADA characteristic names.
-
--   Creating a crosswalk of all unique combinations of assessment units, uses, and parameters.
-    
-Future vignettes aim to assist with next steps in the analysis process, including:
-
--   Defining the numeric water quality criteria and methodology used for
-    each unique combination of assessment unit, designated use, and
-    parameter.
-
--   Summarizing results by either: (1) individual magnitude excursions
-    or (2) full Criteria (Magnitude, Duration and Frequency) associated
-    with each parameter and use.
-
-Module 3 functions are being designed with the flexibility for users from
-states, tribes, or territories to input organization-specific or
-site-specific criteria as defined in their own numeric water quality
-criteria or methodologies. While TADA functions automate some of this
-process, users must review and modify the crosswalk tables generated in
-each step of the process to ensure their accuracy. The TADA team has
-also incorporated national recommended Clean Water Act (CWA) 304(a)
-numeric criteria for optional use in Module 3 functions by leveraging
-data from the Criteria Search Tool (CST). This allows users to test the
-new functions using 304(a) criteria and allows users to easily compare
-results when comparing WQP results to 304(a) criteria vs. their own
-organization's criteria.
+## Introduction to TADA Module 3
 
 **Additional Description:**
 
 This vignette is the first of several series in Module 3. This vignette
-will focus on assisting users with creating the crosswalk reference tables
-that are needed prior to defining and capturing their organization's
-criteria and methodologies. We will start the example by going through
-an example data frame that has gone through data cleaning, wrangling,
-harmonization, handling of censored data and other Module 1 TADA
-functions.
+will focus on assisting users with creating the crosswalk reference tables that are needed prior to defining and capturing their organization's criteria and methodologies. 
 
-## Example with Data_WV_Mod1_Output
+Specifically, this vignette provides an overview of two functions that assist users with:
+
+-   Creating a crosswalk reference table between ATTAINS parameter     names and WQP/TADA characteristic names.
+
+-   Creating a crosswalk reference table of all unique combinations of ATTAINS uses and and parameters.
+
+These Module 3 functions are being designed with the flexibility for users from states, tribes, or territories to input organization-specific or site-specific criteria as defined in their own numeric water quality criteria or methodologies. While TADA functions automate some of this process, users must review and modify the crosswalk tables generated in each step of the process to ensure their accuracy. The TADA team has also incorporated national recommended Clean Water Act (CWA) 304(a) numeric criteria for optional use in Module 3 functions by leveraging data from the Criteria Search Tool (CST). This allows users to test the new functions using 304(a) criteria and allows users to easily compare results when comparing WQP results to 304(a) criteria vs. their own organization's criteria.
+
+We will start the example by going through an example data frame that has gone through data cleaning, wrangling, harmonization, handling of censored data and other Module 1 TADA functions.
+
+## Example data from WQP
 
 Data cleaning, harmonization, and removal of suspect results,
 and other QAQC processes must be completed by users before utilizing
@@ -298,7 +251,7 @@ NCTC_ParamRef2 <- TADA_CreateParamRef(
 TADA_CSVExport(ref = NCTC_ParamRef2)
 ```
 
-# Three example use cases for TADA_CreateParamUseRef().
+# TADA_CreateParamUseRef() Basics
 
 Our first example will pull in all prior ATTAINS uses (use_names) and  parameter names (ATTAINS.ParameterName) specific to the specified ATTAINS organization (defined by the org_names  function argument for TADA_CreateParamUseRef), which in this case is "MDE_EASP" (Maryland). Users will review the output and choose which use_name's are applicable to their analysis. The default functionality is to "Include" all ATTAINS use_names (see the "IncludeOrExclude" column). Later in the data analysis process, users will be asked to define criteria and methodologies that is applicable to each ATTAINS use_name and parameter name labeled as "Include". If a
 use_name is not applicable, users should choose "Exclude" for that
@@ -374,3 +327,13 @@ NCTC_ParamUseRef3.1 <- TADA_CreateParamUseRef(
 )
 TADA_CSVExport(ref = NCTC_ParamUseRef3.1)
 ```
+
+## Next steps
+    
+Stay tuned! Future vignettes aim to assist with next steps in the analysis process, including:
+
+-   Defining the water quality criteria and methodologies used for each unique combination of ATTAINS assessment unit, use, and parameter.
+
+-   Summarizing results by: (1) individual magnitude excursions.
+
+Disclaimer: The EPATADA Module 3 functions are under active development. EPATADA functions do not constitute current EPA recommendations, policy or regulatory requirements. Organizations may optionally choose to use EPATADA as a a tool in their process. Use of EPATADA is not required.

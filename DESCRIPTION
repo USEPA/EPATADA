@@ -79,7 +79,7 @@ Imports:
 Depends: 
     R (>= 3.5.0)
 Suggests:
-    lwgeom
+    lwgeom,
     RColorBrewer,
     rmarkdown,
     readr,
