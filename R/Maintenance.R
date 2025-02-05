@@ -235,6 +235,20 @@ TADA_UpdateExampleData <- function() {
     ascii = FALSE
   )
   rm(Data_WV_Mod1_Output)
+  
+  # Generate TADA_GETATTAINS() MODULE 3 VIGNETTE EXAMPLE DATA .rda
+  Data_WV_Mod1_Output_GetATTAINS <- TADA_GetATTAINS(
+    Data_WV_Mod1_Output
+  )
+  print("Data_WV_Mod1_Output_GetATTAINS")
+  print(dim(Data_WV_Mod1_Output_GetATTAINS))
+  # save(Data_WV_Mod1_Output_GetATTAINS, file = "data/DData_WV_Mod1_Output_GetATTAINS.rda")
+  usethis::use_data(Data_WV_Mod1_Output_GetATTAINS,
+                    internal = FALSE, overwrite = TRUE,
+                    compress = "xz", version = 3, ascii = FALSE
+  )
+  rm(Data_WV_Mod1_Output_GetATTAINS)
+  
 }
 
 ###########################################################

@@ -39,7 +39,8 @@ AK_crosswalk <- TADA_GetATTAINSAUSiteCrosswalk(org_id = "AKDECWQ")
 
 # Pueblo of Tesuque example
 PUEBLOOFTESUQUE_crosswalk <- TADA_GetATTAINSAUSiteCrosswalk(
-org_id = "PUEBLOOFTESUQUE")
+  org_id = "PUEBLOOFTESUQUE"
+)
 
 # Arizona example, returns blank dataframe as of 1/21/25
 AZ_crosswalk <- TADA_GetATTAINSAUSiteCrosswalk(org_id = "21ARIZ")

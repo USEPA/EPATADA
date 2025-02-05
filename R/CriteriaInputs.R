@@ -371,7 +371,7 @@ TADA_CreateParamRef <- function(.data, org_id = NULL, paramRef = NULL, excel = T
 #' Before running this function, users must run TADA_CreateParamRef() to create the
 #' crosswalk that defines the ATTAINS.ParameterName(s) and use_name(s) needing validation.
 #' All unique use_names from prior ATTAINS assessment cycle are pulled in using
-#' TADA_CreateParamUseRef(). If a user has defined multiple TADA.ComparableDataIdentifier matches
+#' TADA_CreateUseParamRef(). If a user has defined multiple TADA.ComparableDataIdentifier matches
 #' to an ATTAINS.ParameterName, they will need to define whether every TADA.ComparableDataIdentifier
 #' matches to an associated use_name. If certain parameter and use combinations only apply to
 #' certain TADA.ComparableDataIdentifier, users will need to select 'NA' or leave it as blank to
@@ -444,7 +444,7 @@ TADA_CreateParamRef <- function(.data, org_id = NULL, paramRef = NULL, excel = T
 #' in order to determine the proper crosswalk between TADA.ComparableDataIdentifier and
 #' ATTAINS.ParameterName by organization identifier.
 #'
-#' @param paramUseRef A data frame which contains a completed crosswalk of org specific
+#' @param UseParamRef A data frame which contains a completed crosswalk of org specific
 #' domain value of use_name by ATTAINS.ParameterName.
 #'
 #' @return A data frame which contains the columns: TADA.ComparableDataIdentifier, organization_identifier,
@@ -465,13 +465,13 @@ TADA_CreateParamRef <- function(.data, org_id = NULL, paramRef = NULL, excel = T
 #' paramRef_UT3 <- TADA_CreateParamRef(Data_Nutrients_UT, paramRef = paramRef_UT2, org_id = "UTAHDWQ", excel = FALSE)
 #'
 #' # After running TADA_CreateParamRef() users will provide this as a function input. First example is only for the org UTAHDWQ
-#' paramUseRef_UT <- TADA_CreateParamUseRef(Data_Nutrients_UT, paramRef = paramRef_UT3, org_id = c("UTAHDWQ"), excel = FALSE)
+#' UseParamRef_UT <- TADA_CreateUseParamRef(Data_Nutrients_UT, paramRef = paramRef_UT3, org_id = c("UTAHDWQ"), excel = FALSE)
 #'
 #' # Users can include the EPA304a standards by itself or compared to their org(s)
-#' paramUseRef_UT2 <- TADA_CreateParamUseRef(Data_Nutrients_UT, paramRef = paramRef_UT3, org_id = c("EPA304a", "UTAHDWQ"), excel = FALSE)
-#' paramUseRef_UT3 <- TADA_CreateParamUseRef(Data_Nutrients_UT, paramRef = paramRef_UT3, org_id = c("EPA304a"), excel = FALSE)
+#' UseParamRef_UT2 <- TADA_CreateUseParamRef(Data_Nutrients_UT, paramRef = paramRef_UT3, org_id = c("EPA304a", "UTAHDWQ"), excel = FALSE)
+#' UseParamRef_UT3 <- TADA_CreateUseParamRef(Data_Nutrients_UT, paramRef = paramRef_UT3, org_id = c("EPA304a"), excel = FALSE)
 #'
-TADA_CreateParamUseRef <- function(.data, org_id = NULL, paramRef = NULL, paramUseRef = NULL, excel = FALSE, overwrite = FALSE) {
+TADA_CreateUseParamRef <- function(.data, org_id = NULL, paramRef = NULL, UseParamRef = NULL, excel = FALSE, overwrite = FALSE) {
   # overwrite argument should only be used when creating an excel file.
   if (excel == FALSE && overwrite == TRUE) {
     stop("argument input excel = FALSE and overwrite = TRUE is an invalid combination. Cannot overwrite the excel generated spreadsheet if a user specifies excel = FALSE")
@@ -513,7 +513,7 @@ TADA_CreateParamUseRef <- function(.data, org_id = NULL, paramRef = NULL, paramU
   # check to see if user-supplied parameter ref is a df with appropriate columns and is filled out.
   if (!is.null(paramRef) & !is.character(paramRef)) {
     if (!is.data.frame(paramRef)) {
-      stop("TADA_CreateParamUseRef: 'paramuseRef' must be a data frame with these 2 columns: TADA.ComparableDataIdentifier and ATTAINS.ParameterName")
+      stop("TADA_CreateUseParamRef: 'UseParamRef' must be a data frame with these 2 columns: TADA.ComparableDataIdentifier and ATTAINS.ParameterName")
     }
 
     if (is.data.frame(paramRef)) {
@@ -524,7 +524,7 @@ TADA_CreateParamUseRef <- function(.data, org_id = NULL, paramRef = NULL, paramU
       ref.names <- names(paramRef)
 
       if (length(setdiff(col.names, ref.names)) > 0 && !("TADA.ComparableDataIdentifier" %in% names(paramRef))) {
-        stop("TADA_CreateParamUseRef: 'paramuseRef' must be a data frame with these 2 columns: TADA.ComparableDataIdentifier and ATTAINS.ParameterName")
+        stop("TADA_CreateUseParamRef: 'UseParamRef' must be a data frame with these 2 columns: TADA.ComparableDataIdentifier and ATTAINS.ParameterName")
       }
     }
   }
@@ -532,18 +532,18 @@ TADA_CreateParamUseRef <- function(.data, org_id = NULL, paramRef = NULL, paramU
   # check to see if user-supplied parameter-use ref is a df with appropriate columns and is filled out.
   if (!is.null(paramRef) & !is.character(paramRef)) {
     if (!is.data.frame(paramRef)) {
-      stop("TADA_CreateParamUseRef: 'paramUseRef' must be a data frame with these 6 columns: TADA.ComparableDataIdentifier, organization_identifier, EPA304A.PollutantName, ATTAINS.ParameterName, use_name, IncludeOrExclude")
+      stop("TADA_CreateUseParamRef: 'UseParamRef' must be a data frame with these 6 columns: TADA.ComparableDataIdentifier, organization_identifier, EPA304A.PollutantName, ATTAINS.ParameterName, use_name, IncludeOrExclude")
     }
 
-    if (is.data.frame(paramUseRef)) {
+    if (is.data.frame(UseParamRef)) {
       col.names <- c(
         "TADA.ComparableDataIdentifier", "organization_identifier", "EPA304A.PollutantName", "ATTAINS.ParameterName", "use_name", "IncludeOrExclude"
       )
 
-      ref.names <- names(paramUseRef)
+      ref.names <- names(UseParamRef)
 
-      if (length(setdiff(col.names, ref.names)) > 0 && !("TADA.ComparableDataIdentifier" %in% names(paramUseRef))) {
-        stop("TADA_CreateParamUseRef: 'paramUseRef' must be a data frame with these 6 columns: TADA.ComparableDataIdentifier, organization_identifier, EPA304A.PollutantName, ATTAINS.ParameterName, use_name, IncludeOrExclude")
+      if (length(setdiff(col.names, ref.names)) > 0 && !("TADA.ComparableDataIdentifier" %in% names(UseParamRef))) {
+        stop("TADA_CreateUseParamRef: 'UseParamRef' must be a data frame with these 6 columns: TADA.ComparableDataIdentifier, organization_identifier, EPA304A.PollutantName, ATTAINS.ParameterName, use_name, IncludeOrExclude")
       }
     }
   }
@@ -562,7 +562,7 @@ TADA_CreateParamUseRef <- function(.data, org_id = NULL, paramRef = NULL, paramU
   # if user doesn't provide an org_id argument, the function extracts the unique org_id from TADA_GetATTAINS().
   # Users will need to have ran TADA_GetATTAINS() for this option to be allowed. Selection of org_id will filter the drop down lists in future steps of creating the reference tables.
   if (is.null(org_id)) {
-    stop("TADA.CreateParamUseRef: No organization identifier(s) provided.")
+    stop("TADA.CreateUseParamRef: No organization identifier(s) provided.")
   }
 
   org_id <- as.list(org_id)
@@ -590,7 +590,7 @@ TADA_CreateParamUseRef <- function(.data, org_id = NULL, paramRef = NULL, paramU
     dplyr::filter(organization_identifier %in% org_id)
 
   # Create the parameter-use reference table for validation
-  CreateParamUseRef <- paramRef %>%
+  CreateUseParamRef <- paramRef %>%
     dplyr::ungroup() %>%
     dplyr::left_join(ATTAINS_param, by = c("ATTAINS.ParameterName" = "parameter", "organization_identifier"), relationship = "many-to-many") %>%
     dplyr::select(TADA.ComparableDataIdentifier, organization_identifier, EPA304A.PollutantName, ATTAINS.ParameterName, use_name) %>%
@@ -604,7 +604,7 @@ TADA_CreateParamUseRef <- function(.data, org_id = NULL, paramRef = NULL, paramU
       dplyr::select(EPA304A.PollutantName = POLLUTANT_NAME, use_name) %>%
       dplyr::mutate(organization_identifier = "EPA304a")
 
-    EPA_param <- CreateParamUseRef %>%
+    EPA_param <- CreateUseParamRef %>%
       dplyr::left_join(CST_param, c("EPA304A.PollutantName"), relationship = "many-to-many") %>%
       dplyr::select(TADA.ComparableDataIdentifier, organization_identifier = organization_identifier.y, ATTAINS.ParameterName, EPA304A.PollutantName, use_name = use_name.y) %>%
       dplyr::distinct()
@@ -612,7 +612,7 @@ TADA_CreateParamUseRef <- function(.data, org_id = NULL, paramRef = NULL, paramU
     # remove intermediate object CST_param
     rm(CST_param)
 
-    CreateParamUseRef <- CreateParamUseRef %>%
+    CreateUseParamRef <- CreateUseParamRef %>%
       dplyr::ungroup() %>%
       dplyr::full_join(EPA_param, c("TADA.ComparableDataIdentifier", "ATTAINS.ParameterName", "organization_identifier", "EPA304A.PollutantName", "use_name")) %>%
       dplyr::select(TADA.ComparableDataIdentifier, organization_identifier, EPA304A.PollutantName, ATTAINS.ParameterName, use_name) %>%
@@ -622,28 +622,28 @@ TADA_CreateParamUseRef <- function(.data, org_id = NULL, paramRef = NULL, paramU
     rm(EPA_param)
   }
 
-  # If a user provide a paramUseRef argument, this will
-  if (!is.null(paramUseRef)) {
-    CreateParamUseRef <- paramUseRef %>%
-      dplyr::left_join(CreateParamUseRef, c("TADA.ComparableDataIdentifier", "ATTAINS.ParameterName", "organization_identifier", "EPA304A.PollutantName", "use_name")) %>%
+  # If a user provide a UseParamRef argument, this will
+  if (!is.null(UseParamRef)) {
+    CreateUseParamRef <- UseParamRef %>%
+      dplyr::left_join(CreateUseParamRef, c("TADA.ComparableDataIdentifier", "ATTAINS.ParameterName", "organization_identifier", "EPA304A.PollutantName", "use_name")) %>%
       dplyr::select(TADA.ComparableDataIdentifier, organization_identifier, EPA304A.PollutantName, ATTAINS.ParameterName, use_name) %>%
       dplyr::filter(organization_identifier %in% org_id)
   }
 
   # This updates the flagging column. Users who only creates an R dataframe in the R environment will need to ensure they re-run the function with their completed paramRef as an input to reflect this column accurately.
-  Flag1 <- CreateParamUseRef %>%
+  Flag1 <- CreateUseParamRef %>%
     dplyr::anti_join(ATTAINS_param_all, by = c("use_name", "organization_identifier")) %>%
     dplyr::select(use_name, organization_identifier) %>%
     dplyr::distinct() %>%
     dplyr::mutate(ATTAINS.FlagUseName1 = "Use name is listed as a prior cause in this organization, but not for this parameter name")
 
-  Flag2 <- CreateParamUseRef %>%
+  Flag2 <- CreateUseParamRef %>%
     dplyr::anti_join(ATTAINS_param_all, by = c("ATTAINS.ParameterName" = "parameter", "use_name", "organization_identifier")) %>%
     dplyr::select(use_name, ATTAINS.ParameterName, organization_identifier) %>%
     dplyr::distinct() %>%
     dplyr::mutate(ATTAINS.FlagUseName2 = "Use name is not listed as a prior cause in ATTAINS for this organization")
 
-  CreateParamUseRef <- CreateParamUseRef %>%
+  CreateUseParamRef <- CreateUseParamRef %>%
     dplyr::left_join(Flag2, c("ATTAINS.ParameterName", "use_name", "organization_identifier")) %>%
     dplyr::left_join(Flag1, c("use_name", "organization_identifier")) %>%
     dplyr::mutate(IncludeOrExclude = "Include") %>%
@@ -673,18 +673,18 @@ TADA_CreateParamUseRef <- function(.data, org_id = NULL, paramRef = NULL, paramU
 
     wb <- openxlsx::loadWorkbook(wb, downloads_path)
 
-    # If a user chooses to rerun the TADA_CreateParamUseRef() function, the sheet will already exist and error.
+    # If a user chooses to rerun the TADA_CreateUseParamRef() function, the sheet will already exist and error.
     tryCatch(
       {
-        openxlsx::addWorksheet(wb, "CreateParamUseRef")
+        openxlsx::addWorksheet(wb, "CreateUseParamRef")
       },
       error = function(e) {
-        openxlsx::removeWorksheet(wb, "CreateParamUseRef")
-        openxlsx::addWorksheet(wb, "CreateParamUseRef")
+        openxlsx::removeWorksheet(wb, "CreateUseParamRef")
+        openxlsx::addWorksheet(wb, "CreateUseParamRef")
       }
     )
 
-    # If a user performs TADA_CreateParamRef() with excel = FALSE, but decides to perform TADA_CreateParamUseRef() with excel = TRUE,
+    # If a user performs TADA_CreateParamRef() with excel = FALSE, but decides to perform TADA_CreateUseParamRef() with excel = TRUE,
     # and if the file already exists, we need to consider how to display the excel tab for [CreateParamRef] to ensure it does not display
     # non-matching dataframe crosswalk to avoid confusion.
     # excel_paramRef <- openxlsx::read.xlsx(downloads_path, sheet = "CreateParamRef")[,c("TADA.CharacteristicName", "TADA.ComparableDataIdentifier", "ATTAINS.ParameterName", "organization_identifier")]
@@ -694,7 +694,7 @@ TADA_CreateParamUseRef <- function(.data, org_id = NULL, paramRef = NULL, paramU
     #   excel_paramRef[,c("TADA.CharacteristicName", "TADA.ComparableDataIdentifier", "ATTAINS.ParameterName", "organization_identifier")]))
     #   !=nrow(excel_paramRef)){
     #     if(nrow(excel_paramRef)!=nrow(paramRef)){
-    #       warning("Your user-supplied paramRef table does not match the parameter reference table in excel sheet [CreateParamRef]. This may have occured if you have previously ran TADA_CreateParamRef() with excel = TRUE on a previous dataframe and proceeded with running TADA_CreateParamRef() with excel = FALSE and TADACreateParamUseRef() with excel = TRUE")
+    #       warning("Your user-supplied paramRef table does not match the parameter reference table in excel sheet [CreateParamRef]. This may have occured if you have previously ran TADA_CreateParamRef() with excel = TRUE on a previous dataframe and proceeded with running TADA_CreateParamRef() with excel = FALSE and TADACreateUseParamRef() with excel = TRUE")
     #     }
     # }
 
@@ -709,10 +709,10 @@ TADA_CreateParamUseRef <- function(.data, org_id = NULL, paramRef = NULL, paramU
     # Format column header
     header_st <- openxlsx::createStyle(textDecoration = "Bold")
     # Format Column widths
-    openxlsx::setColWidths(wb, "CreateParamUseRef", cols = 1:ncol(CreateParamUseRef), widths = "auto")
+    openxlsx::setColWidths(wb, "CreateUseParamRef", cols = 1:ncol(CreateUseParamRef), widths = "auto")
 
-    # Export CreateParamUseRef dataframe into the excel spreadsheet tab
-    openxlsx::writeData(wb, "CreateParamUseRef", startCol = 1, x = CreateParamUseRef, headerStyle = header_st)
+    # Export CreateUseParamRef dataframe into the excel spreadsheet tab
+    openxlsx::writeData(wb, "CreateUseParamRef", startCol = 1, x = CreateUseParamRef, headerStyle = header_st)
 
     # Index of allowable values for drop-down lists
     openxlsx::writeData(wb, "Index", startCol = 2, x = data.frame("IncludeOrExclude" = c("Include", "Exclude")))
@@ -720,26 +720,26 @@ TADA_CreateParamUseRef <- function(.data, org_id = NULL, paramRef = NULL, paramU
     # data validation drop down list created below.
     # Note: ATTAINSOrgNamesParamRef contains the list of prior param and use cause by org names specific.
     # Since Use Names are individual to each Organization.
-    suppressWarnings(openxlsx::dataValidation(wb, sheet = "CreateParamUseRef", cols = 5, rows = 2:1000, type = "list", value = sprintf("'ATTAINSOrgNamesParamRef'!$D$2:$D$50000"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE))
-    suppressWarnings(openxlsx::dataValidation(wb, sheet = "CreateParamUseRef", cols = 6, rows = 2:1000, type = "list", value = sprintf("'Index'!$B$2:$B$5"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE))
+    suppressWarnings(openxlsx::dataValidation(wb, sheet = "CreateUseParamRef", cols = 5, rows = 2:1000, type = "list", value = sprintf("'ATTAINSOrgNamesParamRef'!$D$2:$D$50000"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE))
+    suppressWarnings(openxlsx::dataValidation(wb, sheet = "CreateUseParamRef", cols = 6, rows = 2:1000, type = "list", value = sprintf("'Index'!$B$2:$B$5"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE))
 
-    for (i in 1:nrow(CreateParamUseRef)) {
-      openxlsx::conditionalFormatting(wb, "CreateParamUseRef",
+    for (i in 1:nrow(CreateUseParamRef)) {
+      openxlsx::conditionalFormatting(wb, "CreateUseParamRef",
         cols = 5, rows = i + 1,
         type = "blanks", style = openxlsx::createStyle(bgFill = TADA_ColorPalette()[13])
       )
 
-      openxlsx::conditionalFormatting(wb, "CreateParamUseRef",
+      openxlsx::conditionalFormatting(wb, "CreateUseParamRef",
         cols = 6, rows = i + 1,
         type = "contains", rule = c("Exclude"), style = openxlsx::createStyle(bgFill = TADA_ColorPalette()[13])
       )
 
-      openxlsx::conditionalFormatting(wb, "CreateParamUseRef",
+      openxlsx::conditionalFormatting(wb, "CreateUseParamRef",
         cols = 6, rows = i + 1,
         type = "contains", rule = c("Include"), style = openxlsx::createStyle(bgFill = TADA_ColorPalette()[8])
       )
 
-      openxlsx::writeFormula(wb, "CreateParamUseRef",
+      openxlsx::writeFormula(wb, "CreateUseParamRef",
         startCol = 7, startRow = i + 1, array = TRUE,
         x = paste0("=IF(B", i + 1, '="EPA304a",
         "Will use the EPA304a recommended standards for this parameter. Do not edit EPA304a use_name",
@@ -756,8 +756,8 @@ TADA_CreateParamUseRef <- function(.data, org_id = NULL, paramRef = NULL, paramU
     }
 
     # Separate conditional formatting loop as there are overlapping conditions ## (may not be needed to be separated based on some further digging. Test and validate this in future).
-    # for (i in 1:nrow(CreateParamUseRef)) {
-    #   openxlsx::conditionalFormatting(wb, "CreateParamUseRef",
+    # for (i in 1:nrow(CreateUseParamRef)) {
+    #   openxlsx::conditionalFormatting(wb, "CreateUseParamRef",
     #                                   cols = 5, rows = i + 1,
     #                                   type = "expression", rule = paste0('$B',i+1,'=="EPA304a"'), style = openxlsx::createStyle(bgFill = "#FFFFFF", borderColour = "lightgray", border = "TopBottomLeftRight")
     #   )
@@ -769,27 +769,37 @@ TADA_CreateParamUseRef <- function(.data, org_id = NULL, paramRef = NULL, paramU
     }
 
     if (overwrite == FALSE) {
-      warning("If you would like to replace [CreateParamUseRef], use overwrite = TRUE argument in TADA_CreateParamUseRef")
+      warning("If you would like to replace [CreateUseParamRef], use overwrite = TRUE argument in TADA_CreateUseParamRef")
       openxlsx::saveWorkbook(wb, downloads_path, overwrite = F)
     }
 
     cat("File saved to:", gsub("/", "\\\\", downloads_path), "\n")
   }
-  return(CreateParamUseRef)
+  return(CreateUseParamRef)
 }
 
-#' Assessment Unit and MonitoringLocationName/MonitoringLocationType/MonitoringLocationId Crosswalk
+#' Match Monitoring Location Sites to Assessment Units and Apply Unique Site Criteria
 #'
-#' This function will pull in all MonitoringLocationName/MonitoringLocationType/MonitoringLocationId
-#' for AU(s) from a TADA dataframe with ATTAINS data. This function requires users to have already
-#' ran TADA_GetATTAINS(). Users are able to specify which AU(S) to pull in from this ref file
-#' when creating the final CriteriaRef file to be compatible with an organization's WQS assessments.
-#'
-#' Users are expected to modify this AU ref file with the appropriate AU and
-#' MonitoringLocationName/MonitoringLocationType/MonitoringLocationId crosswalk
-#' for the current Assessment cycle. Users can decide to "Include or Exclude" a MonitoringLocation
-#' within an AU if desired. This can be used if a MoniotringLocation would still like to be
-#' crosswalk to the AU but may only be applicable for certain parameters.
+#' This function will pull in all unique MonitoringLocationName, MonitoringLocationType, 
+#' and MonitoringLocationIdentifier from the TADA dataframe. Users are not required
+#' to provide a crosswalk between WQP Monitoring locations and Assessment units 
+#' if they are only interested in summarizing assessments on a monitoring location level.
+#' 
+#' Users should utilize TADA Module 2 tools to assist in their monitoring location
+#' to assessment unit crosswalk prior to this step. 
+#' Users can choose to submit a TADA dataframe that contains
+#' the concatenated columns from TADA_GetATTAINS and will utilize the crosswalk of
+#' monitoring locations to assessment units performed in this function (please check out 
+#' the TADAModule2.Rmd for an example workflow for TADA_GetATTAINS.)
+#' 
+#' Users may also submit their own monitoring location to assessment unit crosswalk
+#' reference file which contains the appropriate column names as an argument input. This
+#' reference file will be prioritized as a crosswalk 
+#' 
+#' Users are expected to modify this AU ref table with the appropriate AU and
+#' MonitoringLocationName, MonitoringLocationType, and MonitoringLocationId crosswalk
+#' for the current Assessment cycle. Users will decide to "Include" or "Exclude" 
+#' a MonitoringLocation in the "IncludeOrExclude" column. for an AU.
 #'
 #' @param .data A TADA dataframe with TADA_GetATTAINS() geospatial function ran.
 #'
@@ -802,32 +812,17 @@ TADA_CreateParamUseRef <- function(.data, org_id = NULL, paramRef = NULL, paramU
 #' @export
 #'
 
-TADA_CreateAURef <- function(.data, AU = NULL, excel = TRUE, overwrite = FALSE, returnSites = c("all","matched-only")){
-  .data <- data.frame(.data)
-  # data <- rATTAINS::assessments(organization_id = "MDE_EASP")
-  #
-  # use_assessments <- data$use_assessment
-  # use_attainments <- use_assessments %>% tidyr::unnest(c(use_attainments), names_sep = ".")
-  # use_parameters <- use_attainments %>% unnest(c(parameters), names_sep = ".")
-  #
-  # use_data <- use_parameters %>%
-  #   dplyr::select(
-  #     organization_identifier, organization_name, organization_type_text,
-  #     use_attainments.use_name, parameters.parameter_name) %>%
-  #   distinct()
-  #
-  # rm(use_assessments, use_attainments, use_parameters)
-  #
-  #
-  # If user does not define the path, attempt to pull in the ref files from the default Downloads location.
+TADA_CreateAURef <- function(.data, AURef = NULL, AU = NULL, excel = TRUE, overwrite = FALSE, returnSites = c("all", "matched-only")){
+  
+  # default Downloads file location.
   downloads_path <- file.path(Sys.getenv("USERPROFILE"), "Downloads", "myfileRef.xlsx")
   # testing out different downloads_path as an argument is needed.
   if(!is.null(downloads_path)){
     downloads_path <- downloads_path
   }
   
-  library(rATTAINS)
-  
+  # This allows a user to provide the mod 2 function TADA_GetATTAINS() as the .data data frame. In this case,
+  # the ML to AU crosswalk will be generated from TADA_GetATTAINS(). 
   if(!is.data.frame(.data)){
     if (!any(c(
       "TADA_with_ATTAINS", "ATTAINS_catchments", "ATTAINS_points", "ATTAINS_lines", "ATTAINS_polygons"
@@ -836,8 +831,8 @@ TADA_CreateAURef <- function(.data, AU = NULL, excel = TRUE, overwrite = FALSE, 
     }
     
     .data <- .data[["TADA_with_ATTAINS"]]
+    .data <- as.data.frame(.data)
   }
-  
   
   if(is.null(AU)){
     print("Creating AURef dataframe for all unique combinations of AU found in the TADA dataframe by MonitoringLocationName/MonitoringLocationType/MonitoringLocationId.")
@@ -867,6 +862,38 @@ TADA_CreateAURef <- function(.data, AU = NULL, excel = TRUE, overwrite = FALSE, 
       #ATTAINS.assessmentunitname,	ATTAINS.assessmentunitidentifier,
       MonitoringLocationIdentifier
     )
+  
+  # If a user provides their own ML to AU crosswalk, the final crosswalk table will reflect this output
+  # check to see if user-supplied parameter-use ref is a df with appropriate columns and is filled out.
+  if (!is.null(AURef) & !is.character(AURef)) {
+    if (!is.data.frame(AURef)) {
+      stop("TADA_CreateAURef: 'AURef' must be a data frame with these 11 columns: 
+           ATTAINS.assessmentunitname, ATTAINS.assessmentunitidentifier, MonitoringLocationIdentifier, 
+           MonitoringLocationName, MonitoringLocationTypeName, ATTAINS.waterTypeCode, LongitudeMeasure, 
+           LatitudeMeasure, IncludeOrExclude, ExcludeStationReason, ApplyUniqueSpatialCriteria"  
+           )
+    }
+    
+    if (is.data.frame(AURef)) {
+      col.names <- c(
+        "ATTAINS.assessmentunitname", "ATTAINS.assessmentunitidentifier", "MonitoringLocationIdentifier", 
+        "MonitoringLocationName", "MonitoringLocationTypeName", "ATTAINS.waterTypeCode", "LongitudeMeasure", 
+        "LatitudeMeasure", "IncludeOrExclude", "ExcludeStationReason", "ApplyUniqueSpatialCriteria"
+      )
+      
+      ref.names <- names(AURef)
+      
+      if (length(setdiff(col.names, ref.names)) > 0 && !("TADA.ComparableDataIdentifier" %in% names(AURef))) {
+        stop("TADA_CreateAURef: 'AURef' must be a data frame with these 11 columns: 
+           ATTAINS.assessmentunitname, ATTAINS.assessmentunitidentifier, MonitoringLocationIdentifier, 
+           MonitoringLocationName, MonitoringLocationTypeName, ATTAINS.waterTypeCode, LongitudeMeasure, 
+           LatitudeMeasure, IncludeOrExclude, ExcludeStationReason, ApplyUniqueSpatialCriteria"  
+        )
+      }
+    }
+    
+    CreateAURef <- AURef
+  }
   
   if(!"ATTAINS.assessmentunitidentifier" %in% colnames(CreateAURef)){
     print(paste0("No Monitoring Location to Assessment Unit crosswalk provided. Consider providing this crosswalk if you would like to summarize assessments on an Assessment Unit level."))
@@ -902,8 +929,8 @@ TADA_CreateAURef <- function(.data, AU = NULL, excel = TRUE, overwrite = FALSE, 
     openxlsx::setColWidths(wb, "CreateAURef", cols = 8:ncol(CreateAURef), widths = "auto")
     # set zoom size
     set_zoom <- function(x) gsub('(?<=zoomScale=")[0-9]+', x, sV, perl = TRUE)
-    sV <- wb$worksheets[[4]]$sheetViews
-    wb$worksheets[[4]]$sheetViews <- set_zoom(90)
+    sV <- wb$worksheets[[5]]$sheetViews
+    wb$worksheets[[5]]$sheetViews <- set_zoom(90)
     
     # writes CreateAURef dataframe
     openxlsx::writeData(wb, "CreateAURef", startCol = 1, x = CreateAURef, headerStyle = header_st)
@@ -948,9 +975,12 @@ TADA_CreateAURef <- function(.data, AU = NULL, excel = TRUE, overwrite = FALSE, 
 
 
 
-#' Assessment Unit and MonitoringLocationName/MonitoringLocationType/MonitoringLocationId Crosswalk
+#' Assessment Unit and Use Name Crosswalk
 #'
-#' This function will pull in all MonitoringLocationName/MonitoringLocationType/MonitoringLocationId
+#' This function will pull in all prior use names associated with an organization identifier
+#' from prior ATTAINS cycles. If a user has included the EPA304a recommended standards
+#' for assessment summaries, then 
+#' 
 #' for AU(s) from a TADA dataframe with ATTAINS data. This function requires users to have already
 #' ran TADA_GetATTAINS(). Users are able to specify which AU(S) to pull in from this ref file
 #' when creating the final CriteriaRef file to be compatible with an organization's WQS assessments.
@@ -973,6 +1003,13 @@ TADA_CreateAURef <- function(.data, AU = NULL, excel = TRUE, overwrite = FALSE, 
 #'
 
 TADA_CreateUseAURef <- function(.data, AUtoMLRef = NULL, org_id = NULL, excel = TRUE, overwrite = FALSE){
+  # default Downloads file location.
+  downloads_path <- file.path(Sys.getenv("USERPROFILE"), "Downloads", "myfileRef.xlsx")
+  # testing out different downloads_path as an argument is needed.
+  if(!is.null(downloads_path)){
+    downloads_path <- downloads_path
+  }
+  
   .data <- data.frame(.data)
   
   # Pulls in all domain values of parameter and use names by orgs in ATTAINS. Filtering by state is done in the next steps.
@@ -989,7 +1026,7 @@ TADA_CreateUseAURef <- function(.data, AUtoMLRef = NULL, org_id = NULL, excel = 
   # if user doesn't provide an org_id argument, the function extracts the unique org_id from TADA_GetATTAINS().
   # Users will need to have ran TADA_GetATTAINS() for this option to be allowed. Selection of org_id will filter the drop down lists in future steps of creating the reference tables.
   if (is.null(org_id)) {
-    stop("TADA.CreateParamUseRef: No organization identifier(s) provided.")
+    stop("TADA.CreateUseParamRef: No organization identifier(s) provided.")
   }
   
   # Handle later, if multiple org_id are used, create a loop when calling rATTAINS (or if we use EQ National extract, no loop needed)
@@ -1048,7 +1085,7 @@ TADA_CreateUseAURef <- function(.data, AUtoMLRef = NULL, org_id = NULL, excel = 
     # Format column header
     header_st <- openxlsx::createStyle(textDecoration = "Bold")
     # Format Column widths
-    openxlsx::setColWidths(wb, "CreateUseAURef", cols = 8:ncol(CreateUseAURef), widths = "auto")
+    openxlsx::setColWidths(wb, "CreateUseAURef", cols = 1:ncol(CreateUseAURef), widths = "auto")
     # set zoom size
     set_zoom <- function(x) gsub('(?<=zoomScale=")[0-9]+', x, sV, perl = TRUE)
     sV <- wb$worksheets[[6]]$sheetViews
@@ -1060,13 +1097,12 @@ TADA_CreateUseAURef <- function(.data, AUtoMLRef = NULL, org_id = NULL, excel = 
     # data validation drop down list created below.
     suppressWarnings(openxlsx::dataValidation(wb, sheet = "CreateUseAURef", cols = 9, rows = 2:1000, type = "list", value = sprintf("'Index'!$B$2:$B$5"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE))
     
-    
     # Conditional Formatting
     openxlsx::conditionalFormatting(wb, "CreateUseAURef",
-                                    cols = 9, rows = 2:(nrow(CreateUseAURef) + 1),
+                                    cols = 5, rows = 2:(nrow(CreateUseAURef) + 1),
                                     type = "contains", rule = "Include", style = openxlsx::createStyle(bgFill = TADA_ColorPalette()[9])) # default values or indicates good to go cells.
     openxlsx::conditionalFormatting(wb, "CreateUseAURef",
-                                    cols = 9, rows = 2:(nrow(CreateUseAURef) + 1),
+                                    cols = 5, rows = 2:(nrow(CreateUseAURef) + 1),
                                     type = "contains", rule = "Exclude", style = openxlsx::createStyle(bgFill = TADA_ColorPalette()[8])) # using yellow to indicate modified cell
     
     if(overwrite == TRUE){

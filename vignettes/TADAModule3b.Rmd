@@ -152,16 +152,16 @@ add_data <- data.frame("organization_identifier" = "MDE_EASP" ,"ATTAINS.Paramete
 "Seasonal Migratory Fish Spawning and Nursery Subcategory"
 ))
 
-# The output of this will not reflect changes to the ATTAINS.FlagUseName column. To do so, we need to re run TADA_CreateParamUseRef() with paramUseRef = ParamUseRef as an argument.
-ParamUseRef <- NCTC_ParamUseRef3 %>%
+# The output of this will not reflect changes to the ATTAINS.FlagUseName column. To do so, we need to re run TADA_CreateUseParamRef() with UseParamRef = UseParamRef as an argument.
+UseParamRef <- NCTC_UseParamRef3 %>%
   dplyr::left_join(add_data, by = c("organization_identifier", "ATTAINS.ParameterName"), keep = FALSE) %>% 
   dplyr::mutate(use_name = dplyr::coalesce(use_name.x, use_name.y)) %>% 
   dplyr::select(-c(use_name.x, use_name.y))
 
 # PH will now reflect the changes 
-NCTC_ParamUseRef3.1 <- TADA_CreateParamUseRef(
+NCTC_UseParamRef3.1 <- TADA_CreateUseParamRef(
   Data_NCTC,
-  paramUseRef = ParamUseRef, # Edits were made to paramUseRef, updates flag column
+  UseParamRef = UseParamRef, # Edits were made to UseParamRef, updates flag column
   org_id = c("EPA304a", "MDE_EASP"), 
   paramRef = NCTC_ParamRef2, 
   excel = FALSE # comment out 'excel = FALSE' and uncomment 'excel = TRUE, overwrite = TRUE' to run the excel file
@@ -180,23 +180,34 @@ defined.
 ```{r}
 NCTC_magnitude <- TADA_DefineMagnitude(
   Data_NCTC, 
-  paramRef = NCTC_ParamRef2, 
-  paramUseRef = NCTC_ParamUseRef3.1, 
-  AUIDRef = NCTC_AURef, 
+  paramRef = NCTC_ParamRef_Final, 
+  UseParamRef = NCTC_UseParamRef_Final, 
+  AURef = NCTC_AURef_final, 
   excel = TRUE, overwrite = TRUE
   )
 ```
 
 # Summarize Magnitude Excursions
 
-Based on the parameter and use methodology for assessment, we will determine
-the number of individual excursions for each based on the defined magnitudes.
+Based on the parameter and use methodology for assessment, we will
+determine the number of individual excursions for each based on the
+defined magnitudes.
 
 ```{r}
-NCTC_Excusions <- TADA_MagnitudeSummary(
+NCTC_UseAURef <- TADA_CreateUseAURef(Data_NCTC, AUtoMLRef = AURef, org_id = "MDE_EASP", excel = TRUE, overwrite = TRUE)
+
+
+NCTC_Excursions <- TADA_MagnitudeSummary(
   Data_NCTC,
+  #UseAURef = NCTC_UseAURef,
+  StandardsRef = NCTC_magnitude,
+  overwrite = TRUE
+)
+
+NCTC_Excursions2 <- TADA_MagnitudeSummary(
+  Data_NCTC,
+  UseAURef = NCTC_UseAURef,
   StandardsRef = NCTC_magnitude,
   overwrite = TRUE
 )
 ```
-
