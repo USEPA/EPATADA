@@ -1,8 +1,8 @@
 ﻿param,eq_name,actions,action_documents,assessments,assessment_units,assessment_units_mls,catchment_correspondence,sources,tmdl
-aa_act_agency,associatedActionAgency,no,no,yes,no,no,no,no,no
-aa_act_status,associatedActionStatus,no,no,yes,no,no,no,no,no
-aa_act_type,associatedActionName,no,no,yes,no,no,no,no,no
-aa_id,associatedActionId,no,no,yes,no,no,no,no,no
+act_agency,associatedActionAgency,no,no,yes,no,no,no,no,no
+act_status,associatedActionStatus,no,no,yes,no,no,no,no,no
+act_type,associatedActionName,no,no,yes,no,no,no,no,no
+act_id,associatedActionId,no,no,yes,no,no,no,no,no
 act_agency,actionAgency,yes,no,no,no,no,no,no,yes
 act_id,actionID,yes,yes,no,no,no,no,no,yes
 act_name,actionName,yes,yes,no,no,no,no,no,yes

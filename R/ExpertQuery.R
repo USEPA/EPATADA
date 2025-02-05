@@ -3,63 +3,61 @@
 #' Return assessments data from Expert Query.
 #'
 #' @param api_key required https://owapps.epa.gov/expertquery/api-key-signup
-#' @param region EPA region
-#' @param statecode Two character state code
-#' @param org_type
-#' @param org_id ATTAINS organization identifier. More than one can be supplied.Notes on when to use
-#' National Extract needed.
-#' @param org_name
-#' @param water_type
-#' @param report_cycle reporting cycle
-#' @param last_cycle_start cycle last assessed
-#' @param last_cycle_end
-#' @param auid
-#' @param au_name
-#' @param au_status Assessment unit status.Options are "Active", "Historical", "Retired", or "All".
-#' More than one status can be specified (in a list).
-#' @param overall_status
-#' @param epa_ir_cat
-#' @param state_ir_cat
-#' @param use_group
-#' @param use_name
-#' @param use_class Use class name
-#' @param use_support
-#' @param use_ir_cat
-#' @param use_state_ir_cat
-#' @param mon_start_date
-#' @param mon_end_date
-#' @param assess_date
-#' @param assess_types
+#' @param act_agency
+#' @param act_status          
+#' @param act_type
+#' @param act_id              
+#' @param alt_list_id         
+#' @param assess_basis        
+#' @param assess_date        
 #' @param assess_methods
-#' @param assess_basis
-#' @param param_group
-#' @param param_name
-#' @param param_status
-#' @param param_attain
-#' @param param_ir_cat
-#' @param param_state_ir_cat
-#' @param delisted
+#' @param assess_types
+#' @param au_name
+#' @param au_status
+#' @param auid
+#' @param cd_cycle
+#' @param cwa
+#' @param cycle_first
+#' @param cycle_id
 #' @param delist_reason
-#' @param pollut_ind pollutant indicator
-#' @param cycle_first cycle first listed
-#' @param alt_list_id
-#' @param vis vision 303 d priority
-#' @param cwa cwa 303d priority ranking
-#' @param tmdl_cycle cycleScheduledForTmdl
-#' @param expect_attain_cycle cycleExpectedToAttain
-#' @param cd_cycle consentDecreeCycle
-#' @param cycle_id cycleId
-#' @param seas_start_date
+#' @param delisted
+#' @param epa_ir_cat
+#' @param expect_attain_cycle 
+#' @param last_cycle_end
+#' @param last_cycle_start    
+#' @param loc_desc
+#' @param mon_end_date        
+#' @param mon_start_date
+#' @param org_id
+#' @param org_name
+#' @param org_type
+#' @param overall_status
+#' @param param_attain
+#' @param param_group
+#' @param param_ir_cat
+#' @param param_name
+#' @param param_state_ir_cat  
+#' @param param_status
+#' @param pollut_ind
+#' @param region
+#' @param report_cycle
 #' @param seas_end_date
-#' @param aa_id associatedActionId
-#' @param aa_act_type associatedActionType
-#' @param aa_act_status associatedActionStatus
-#' @param aa_act_agency associatedActionAgency
-#' @param loc_desc locationDescription
+#' @param seas_start_date
 #' @param size_source
-#' @param source_scale
-#' @param water_size
 #' @param size_units
+#' @param source_scale
+#' @param state_ir_cat
+#' @param statecode
+#' @param tmdl_cycle
+#' @param use_class
+#' @param use_group
+#' @param use_ir_cat
+#' @param use_name
+#' @param use_state_ir_cat
+#' @param use_suppor"         
+#' @param vis                 
+#' @param water_size          
+#' @param water_type 
 #'
 #' @return A data frame of ATTAINS assessments served via Expert Query webservices including the
 #' columns "objectId", "region", "state", "organizationType", "organizationId", "organizationName",
@@ -78,24 +76,23 @@
 #'
 #' @export
 #'
-EQ_Assessments <- function(region = NULL, statecode = NULL, org_type = NULL, org_id = NULL,
-                           org_name = NULL, water_type = NULL, report_cycle = "latest",
-                           last_cycle_start = NULL, last_cycle_end = NULL, auid = NULL,
-                           au_name = NULL, au_status = "A",  overall_status = NULL,
-                           epa_ir_cat = NULL, state_ir_cat = NULL, use_group = NULL,
-                           use_name = NULL, use_class = NULL, use_support = NULL,
-                           use_ir_cat = NULL, use_state_ir_cat = NULL, mon_start_date = NULL,
-                           mon_end_date = NULL, assess_date = NULL, assess_types = NULL,
-                           assess_methods = NULL, assess_basis = NULL, param_group = NULL,
-                           param_name = NULL, param_status = NULL, param_attain = NULL,
-                           param_ir_cat = NULL, param_state_ir_cat = NULL, delisted = NULL,
-                           delist_reason = NULL, pollut_ind = NULL, cycle_first = NULL,
-                           alt_list_id = NULL, vis = NULL, cwa = NULL, tmdl_cycle = NULL,
-                           expect_attain_cycle = NULL, cd_cycle = NULL, cycle_id = NULL,
-                           seas_start_date = NULL, seas_end_date = NULL, aa_id = NULL,
-                           aa_act_type = NULL, aa_act_status = NULL, aa_act_agency = NULL,
-                           loc_desc = NULL, size_source = NULL, source_scale = NULL,
-                           water_size = NULL, size_units = NULL, api_key = NULL)  {
+EQ_Assessments <- function(api_key = NULL, act_agency = NULL, act_status = NULL, act_type = NULL,
+                           act_id = NULL, alt_list_id = NULL, assess_basis = NULL, 
+                           assess_date = NULL, assess_methods = NULL, assess_types = NULL,
+                           au_name = NULL, au_status = "A", auid = NULL, cd_cycle = NULL,
+                           cwa = NULL, cycle_first = NULL, cycle_id = NULL, delist_reason = NULL,
+                           delisted = NULL, epa_ir_cat = NULL, expect_attain_cycle = NULL,
+                           last_cycle_end = NULL, last_cycle_start = NULL, loc_desc = NULL,
+                           mon_end_date = NULL, mon_start_date = NULL, org_id = NULL,
+                           org_name = NULL, org_type = NULL, overall_status = NULL,
+                           param_attain = NULL, param_group = NULL, param_ir_cat = NULL,
+                           param_name = NULL, param_state_ir_cat = NULL, param_status = NULL,
+                           pollut_ind = NULL, region = NULL, report_cycle = "latest",
+                           seas_end_date = NULL, seas_start_date = NULL, size_source = NULL,
+                           size_units = NULL, source_scale = NULL, state_ir_cat = NULL,
+                           statecode = NULL, tmdl_cycle = NULL, use_class = NULL, use_group = NULL,
+                           use_ir_cat = NULL, use_name = NULL, use_state_ir_cat = NULL,
+                           use_support = NULL, vis = NULL, water_size = NULL, water_type = NULL) {
   
   # check for api key
   if(is.null(api_key)) {
@@ -143,6 +140,7 @@ EQ_Assessments <- function(region = NULL, statecode = NULL, org_type = NULL, org
 #'
 #' Return assessment units data from Expert Query.
 #'
+#' @param api_key
 #' @param au_name
 #' @param au_status
 #' @param au_id
@@ -154,7 +152,6 @@ EQ_Assessments <- function(region = NULL, statecode = NULL, org_type = NULL, org
 #' @param statecode
 #' @param use_class
 #' @param water_type
-#' @param api_key
 #'
 #' @return A data frame of ATTAINS assessment units served via Expert Query webservices including 
 #' the columns "objectId", "region", "state", "organizationType", "organizationId", 
