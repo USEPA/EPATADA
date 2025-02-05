@@ -138,3 +138,74 @@ EQ_Assessments <- function(region = NULL, statecode = NULL, org_type = NULL, org
   
   return(query.df)
 }
+
+#' Expert Query Assessment Units
+#'
+#' Return assessment units data from Expert Query.
+#'
+#' @param au_name
+#' @param au_status
+#' @param au_id
+#' @param cycle_id
+#' @param loc_txt
+#' @param loc_type
+#' @param region
+#' @param report_cyle
+#' @param statecode
+#' @param use_class
+#' @param water_type
+#' @param api_key
+#'
+#' @return A data frame of ATTAINS assessment units served via Expert Query webservices including 
+#' the columns "objectId", "region", "state", "organizationType", "organizationId", 
+#' "organizationName", "waterType", "reportingCycle", "assessmentUnitId", "assessmentUnitName",
+#' "assessmentUnitStatus", "useClassName", "cycleId", "locationDescription", "sizeSource", 
+#' "sourceScale", "waterSize", and "waterSizeUnits".
+#'
+#' @export
+#'
+EQ_AssessmentUnits <- function(au_name = NULL, au_status = "A", auid = NULL, cycle_id = NULL,
+                               loc_txt = NULL, loc_type = NULL, region = NULL, report_cycle = NULL,
+                               statecode = NULL, use_class = NULL, api_key = NULL)  {
+  
+  # check for api key
+  if(is.null(api_key)) {
+    stop("EQ_AssessmentUnits: An api key is required to access EQ web services.")
+  }
+  
+  # get param crosswalk for building query
+  params.cw <- EQ_ExtractParams(extract = "aus")
+  
+  # get default params from EQ_Assessments
+  default.params <- EQ_DefaultParams(EQ_AssessmentUnits) %>%
+    # format for building body
+    EQ_FormatParams()
+  
+  # create df of user entered params
+  user.params <- as.list(match.call()[-1]) %>%
+    tibble::enframe(name = "param", value = "value") %>%
+    as.data.frame() %>%
+    # format for building body
+    EQ_FormatParams()
+  
+  # compare default and user params to build df of all params and values for body
+  params.df <- EQ_CompareParams(default = default.params, user = user.params)
+  
+  # remove intermediate objects
+  rm(user.params, default.params)
+  
+  # create post bodies
+  post.bodies <- EQ_CreateBody(.data = params.df, crosswalk = params.cw)
+  
+  # create post headers
+  post.headers <- EQ_CreateHeader(key = api_key)
+  
+  # query EQ (check number of rows before download, stop if it exceeds max rows)
+  query.df <- EQ_PostAndContent(headers = post.headers, 
+                                body.list = post.bodies, 
+                                extract = "aus")
+  
+  rm(params.cw, params.df, post.bodies, post.headers)
+  
+  return(query.df)
+}

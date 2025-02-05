@@ -201,6 +201,17 @@ EQ_CompareParams <- function(default, user) {
       extract == "tmdl" ~ extract
     )
     
+    function.url.name <- dplyr::case_when(
+      extract == "actions" ~ "EQ_Actions",
+      extract == "act_docs" ~ "EQ_ActionDocuments",
+      extract == "assessments" ~ "EQ_Assessments",
+      extract == "aus" ~ "EQ_AssessmentUnits",
+      extract == "au_mls" ~ "EQ_AUsMLs",
+      extract == "catch_corr" ~ "EQ_CatchCorr",
+      extract == "sources" ~ "EQ_Sources",
+      extract == "tmdl" ~ "EQ_TMDL"
+    )
+    
     query.url <- paste0(base.url, extract.url.name)
     
     
@@ -212,14 +223,16 @@ EQ_CompareParams <- function(default, user) {
     
     # stop function if row count exceeds one million
     if(isTRUE(row.n$count > row.n$maxCount)) {
-      stop(paste0("EQ_Assessments: The current query exceeds the maximum query size of ",
+      stop(paste0(function.url.name, 
+                  ": The current query exceeds the maximum query size of ",
                   format(row.n$maxCount, big.mark = ","), " rows.",
                   "Please refine the search or use the Expert Query National Extract."))
     }
     
     # if row count is less than one million, print message with row count and continue
     if(isTRUE(row.n$count < row.n$maxCount)) {
-      print(paste0("EQ_Assesments: The current query will return ",
+      print(paste0(function.url.name,
+                   ": The current query will return ",
                    format(row.n$count, big.mark = ","), " rows."))
     }
     
@@ -233,7 +246,7 @@ EQ_CompareParams <- function(default, user) {
     query.df <- suppressWarnings(httr::content(query.res, as = "parsed", encoding = "UTF-8"))
     
     # remove intermediate objects
-    rm(headers, base.url, extract.url.name, query.url, body.list)
+    rm(headers, base.url, extract.url.name, function.url.name, query.url, body.list)
     
     return(query.df)
   }
