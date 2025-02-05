@@ -102,4 +102,4 @@ Config/testthat/load-all: list(export_all = FALSE, helpers = FALSE)
 URL: https://usepa.github.io/EPATADA/, https://github.com/USEPA/EPATADA
 LazyData: true
 LazyDataCompression: xz
-Config/Needs/website: quarto
+Config/Needs/website: quarto, rmarkdown
