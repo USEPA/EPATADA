@@ -18,7 +18,7 @@ EQ_ExtractParams <- function(extract = NULL)  {
     extract == "assessments" ~ extract,
     extract == "aus" ~ "assessment_units",
     extract == "au_mls" ~ "assessment_units_mls",
-    extract == "catch_corr" ~ "catchment_correspondance",
+    extract == "catch_corr" ~ "catchment_correspondence",
     extract == "sources" ~ extract,
     extract == "tmdl" ~ extract
   )
@@ -252,7 +252,7 @@ EQ_CompareParams <- function(default, user) {
       extract == "assessments" ~ extract,
       extract == "aus" ~ "assessmentUnits",
       extract == "au_mls" ~ "assessmentUnitsMonitoringLocations",
-      extract == "catch_corr" ~ "catchmentCorrespondance",
+      extract == "catch_corr" ~ "catchmentCorrespondence",
       extract == "sources" ~ extract,
       extract == "tmdl" ~ extract
     )
