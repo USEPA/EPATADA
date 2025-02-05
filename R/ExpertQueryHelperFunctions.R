@@ -116,7 +116,7 @@ EQ_CompareParams <- function(default, user) {
   
   
   
-  EQ_CreateBody <- function(.data, crosswalk) {
+  EQ_CreateBody <- function(.data, crosswalk, extract) {
    
     # create param filters for POST
     params.body <- .data %>%
@@ -144,25 +144,81 @@ EQ_CompareParams <- function(default, user) {
       params.body, '}}'
     )
     
+    # select columns for POST based on extract
+    extract.cols <- dplyr::case_when(
+      extract == "actions" ~ paste0('"columns":["objectId","region","state","organizationType",',
+                                    '"organizationId","organizationName","waterType",',
+                                    '"parameterGroup","parameter","actionType","actionId",',
+                                    '"actionName","actionAgency","inIndianCountry",',
+                                    '"includeInMeasure","completionDate","assessmentUnitId",',
+                                    '"assessmentUnitName","fiscalYearEstablished",',
+                                    '"locationDescription","waterSize","waterSizeUnits",',
+                                    '"planSummaryLink"]}'),
+      extract == "act_docs" ~ paste0('"columns":["objectId","actionDocumentType",',
+                                     '"actionDocumentUrl","actionId","actionName",',
+                                     '"actionType","completionDate","documentDesc",',
+                                     '"documentFileName","documentFileTypeName","documentKey",',
+                                     '"documentName","documentQuery","organizationType",',
+                                     '"organizationId","organizationName","region",',
+                                     '"state","tmdlDate"]}'),
+      extract == "assessments" ~ paste0('"columns":["objectId","region","state","organizationType",',
+                                        '"organizationId","organizationName","waterType","reportingCycle",',
+                                        '"cycleLastAssessed","assessmentUnitId","assessmentUnitName","assessmentUnitStatus",',
+                                        ' "overallStatus","epaIrCategory","stateIrCategory","useGroup","useName","useClassName",',
+                                        '"useSupport","useIrCategory","useStateIrCategory","monitoringStartDate",',
+                                        '"monitoringEndDate","assessmentDate","assessmentTypes","assessmentMethods",',
+                                        '"assessmentBasis","parameterGroup","parameterName","parameterStatus",',
+                                        '"parameterAttainment","parameterIrCategory","parameterStateIrCategory",',
+                                        '"delisted","delistedReason","pollutantIndicator","cycleFirstListed",',
+                                        '"alternateListingIdentifier","vision303dPriority","cwa303dPriorityRanking",',
+                                        '"cycleScheduledForTmdl","cycleExpectedToAttain","consentDecreeCycle","cycleId",',
+                                        '"seasonStartDate","seasonEndDate","associatedActionId","associatedActionName",',
+                                        '"associatedActionType","associatedActionStatus","associatedActionAgency",',
+                                        '"locationDescription","sizeSource","sourceScale","waterSize","waterSizeUnits"]}'),
+      extract == "aus" ~ paste0('"columns":["objectId","region","state","organizationType",',
+                                '"organizationId","organizationName","waterType",',
+                                '"locationTypeCode","locationText","useClassName",',
+                                '"assessmentUnitId","assessmentUnitName","assessmentUnitStatus",',
+                                '"reportingCycle","cycleId","locationDescription","sizeSource",',
+                                '"sourceScale","waterSize","waterSizeUnits"]}'),
+      extract == "au_mls" ~ paste0('"columns":["objectId","region","state","organizationType",',
+                                   '"organizationId","organizationName","waterType",',
+                                   '"useClassName","monitoringLocationId",',
+                                   '"monitoringLocationOrgId","assessmentUnitId",',
+                                   '"assessmentUnitName","assessmentUnitStatus",',
+                                   '"reportingCycle","cycleId","locationDescription",',
+                                   '"monitoringLocationDataLink","sizeSource","sourceScale",',
+                                   '"waterSize","waterSizeUnits"]}'),
+      extract == "catch_corr" ~ paste0('"columns":["objectId","region","state",',
+                                       '"organizationType","organizationId","organizationName",',
+                                       '"assessmentUnitId","assessmentUnitName",',
+                                       '"catchmentNhdPlusId","reportingCycle","cycleId"]}'),
+      extract == "sources" ~ paste0('"columns":["objectId","region","state","organizationType",',
+                                    '"organizationId","organizationName","waterType",',
+                                    '"assessmentUnitId","assessmentUnitName","reportingCycle",',
+                                    '"overallStatus","epaIrCategory","stateIrCategory",',
+                                    '"parameterGroup","causeName","sourceName","confirmed",',
+                                    '"cycleId","locationDescription","waterSize",',
+                                    '"waterSizeUnits"]}'),
+      extract == "tmdl" ~ paste0('"columns":["objectId","region","state","organizationType",',
+                                 '"organizationId","organizationName","waterType",',
+                                 '"pollutantGroup","pollutant","addressedParameterGroup",',
+                                 '"addressedParameter","sourceType","npdesIdentifier",',
+                                 '"otherIdentifier","actionId","actionName","actionAgency",',
+                                 '"inIndianCountry","explicitMarginOfSafety",',
+                                 '"implicitMarginOfSafety","includeInMeasure","completionDate",',
+                                 '"tmdlDate","fiscalYearEstablished","assessmentUnitId",',
+                                 '"assessmentUnitName","loadAllocation","loadAllocationUnits",',
+                                 '"locationDescription","tmdlEndpoint","waterSize",',
+                                 '"waterSizeUnits","wasteLoadAllocation","planSummaryLink"]}')
+    )
+    
     # set up body for POST including filters, options, and columns
     body.setup <- paste0(
       '{"filters":{',
       params.body, '},',
       '"options":{"format":"csv"},',
-      '"columns":["objectId","region","state","organizationType",',
-      '"organizationId","organizationName","waterType","reportingCycle",',
-      '"cycleLastAssessed","assessmentUnitId","assessmentUnitName","assessmentUnitStatus",',
-      ' "overallStatus","epaIrCategory","stateIrCategory","useGroup","useName","useClassName",',
-      '"useSupport","useIrCategory","useStateIrCategory","monitoringStartDate",',
-      '"monitoringEndDate","assessmentDate","assessmentTypes","assessmentMethods",',
-      '"assessmentBasis","parameterGroup","parameterName","parameterStatus",',
-      '"parameterAttainment","parameterIrCategory","parameterStateIrCategory",',
-      '"delisted","delistedReason","pollutantIndicator","cycleFirstListed",',
-      '"alternateListingIdentifier","vision303dPriority","cwa303dPriorityRanking",',
-      '"cycleScheduledForTmdl","cycleExpectedToAttain","consentDecreeCycle","cycleId",',
-      '"seasonStartDate","seasonEndDate","associatedActionId","associatedActionName",',
-      '"associatedActionType","associatedActionStatus","associatedActionAgency",',
-      '"locationDescription","sizeSource","sourceScale","waterSize","waterSizeUnits"]}'
+      extract.cols
     )
     
     post.bodies <- list(count.setup, body.setup)

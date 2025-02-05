@@ -1,3 +1,167 @@
+#' Expert Query Actions
+#'
+#' Return actions data from Expert Query.
+#'
+#' @param api_key
+#' @param act_agency      
+#' @param act_id
+#' @param act_name
+#' @param act_type
+#' @param au_name
+#' @param auid
+#' @param comp_date_end
+#' @param comp_date_start 
+#' @param fisc_year_end
+#' @param fisc_year_start
+#' @param in_meas
+#' @param indian_country
+#' @param obj_id
+#' @param org_id
+#' @param org_name
+#' @param org_type
+#' @param param_group
+#' @param region
+#' @param statecode
+#' @param water_type
+#'
+#' @return A data frame of ATTAINS actions served via Expert Query webservices including 
+#' the columns "objectId", "region", "state", "organizationType", "organizationId",  
+#' "organizationName", "waterType", "assessmentUnitId", "assessmentUnitName", "parameterGroup", 
+#' "locationDescription", "waterSize", and "waterSizeUnits".
+#'
+#' @export
+#'
+EQ_Actions <- function(api_key = NULL, act_agency = NULL, act_id = NULL, act_name = NULL, 
+                       act_type = NULL, au_name = NULL, auid = NULL, comp_date_end = NULL,
+                       comp_date_start = NULL, fisc_year_end = NULL, fisc_year_start = NULL,
+                       in_meas = NULL, indian_country = NULL, obj_id = NULL, org_id = NULL,
+                       org_name = NULL, org_type = NULL, param = NULL, param_group = NULL,
+                       region = NULL, statecode = NULL, water_type = NULL)  {
+  
+  # check for api key
+  if(is.null(api_key)) {
+    stop("EQ_Actions: An api key is required to access EQ web services.")
+  }
+  
+  # get param crosswalk for building query
+  params.cw <- EQ_ExtractParams(extract = "actions")
+  
+  # get default params from EQ_Assessments
+  default.params <- EQ_DefaultParams(EQ_Actions) %>%
+    # format for building body
+    EQ_FormatParams()
+  
+  # create df of user entered params
+  user.params <- as.list(match.call()[-1]) %>%
+    tibble::enframe(name = "param", value = "value") %>%
+    as.data.frame() %>%
+    # format for building body
+    EQ_FormatParams()
+  
+  # compare default and user params to build df of all params and values for body
+  params.df <- EQ_CompareParams(default = default.params, user = user.params)
+  
+  # remove intermediate objects
+  rm(user.params, default.params)
+  
+  # create post bodies
+  post.bodies <- EQ_CreateBody(.data = params.df, crosswalk = params.cw)
+  
+  # create post headers
+  post.headers <- EQ_CreateHeader(key = api_key)
+  
+  # query EQ (check number of rows before download, stop if it exceeds max rows)
+  query.df <- EQ_PostAndContent(headers = post.headers, 
+                                body.list = post.bodies, 
+                                extract = "actions")
+  
+  rm(params.cw, params.df, post.bodies, post.headers)
+  
+  return(query.df)
+}
+
+#' Expert Query Actions Documents
+#'
+#' Return actions documents data from Expert Query.
+#'
+#' @param api_key
+#' @param act_id
+#' @param act_name
+#' @param act_type
+#' @param comp_date_end
+#' @param comp_date_start
+#' @param doc_file_name
+#' @param doc_key
+#' @param doc_name
+#' @param doc_query
+#' @param doc_type
+#' @param doc_url
+#' @param file_type
+#' @param fisc_year_start
+#' @param obj_id 
+#' @param org_id
+#' @param org_name
+#' @param region
+#' @param statecode
+#' @param tmdl_date_end
+#' @param tmdl_date_start
+#'
+#' @return A data frame of ATTAINS actions served via Expert Query webservices including 
+#' the columns "objectId", "organizationName", "organizationType", "region", "state", "tmdlDate",'
+#' "documentDesc", "documentFileName", "documentFileTypeName", "documentKey", "documentName",
+#' and "actionDocumentType".
+#'
+#' @export
+#'
+EQ_ActionsDocuments <- function(api_key = NULL, act_id = NULL, act_name = NULL, act_type = NULL,
+                                comp_date_end = NULL, comp_date_start = NULL, doc_file_name = NULL,
+                                doc_key = NULL, doc_name = NULL, doc_query = NULL, doc_type = NULL, 
+                                doc_url = NULL, file_type = NULL, fisc_year_start = NULL, 
+                                obj_id = NULL, org_id = NULL, org_name = NULL, region = NULL, 
+                                statecode = NULL, tmdl_date_end = NULL, tmdl_date_start = NULL) {
+  
+  # check for api key
+  if(is.null(api_key)) {
+    stop("EQ_ActionsDocuments: An api key is required to access EQ web services.")
+  }
+  
+  # get param crosswalk for building query
+  params.cw <- EQ_ExtractParams(extract = "act_docs")
+  
+  # get default params from EQ_Assessments
+  default.params <- EQ_DefaultParams(EQ_ActionsDocuments) %>%
+    # format for building body
+    EQ_FormatParams()
+  
+  # create df of user entered params
+  user.params <- as.list(match.call()[-1]) %>%
+    tibble::enframe(name = "param", value = "value") %>%
+    as.data.frame() %>%
+    # format for building body
+    EQ_FormatParams()
+  
+  # compare default and user params to build df of all params and values for body
+  params.df <- EQ_CompareParams(default = default.params, user = user.params)
+  
+  # remove intermediate objects
+  rm(user.params, default.params)
+  
+  # create post bodies
+  post.bodies <- EQ_CreateBody(.data = params.df, crosswalk = params.cw, extract = "act_docs")
+  
+  # create post headers
+  post.headers <- EQ_CreateHeader(key = api_key)
+  
+  # query EQ (check number of rows before download, stop if it exceeds max rows)
+  query.df <- EQ_PostAndContent(headers = post.headers, 
+                                body.list = post.bodies, 
+                                extract = "act_docs")
+  
+  rm(params.cw, params.df, post.bodies, post.headers)
+  
+  return(query.df)
+}
+
 #' Expert Query Assessments
 #'
 #' Return assessments data from Expert Query.
@@ -154,16 +318,16 @@ EQ_Assessments <- function(api_key = NULL, act_agency = NULL, act_status = NULL,
 #' @param water_type
 #'
 #' @return A data frame of ATTAINS assessment units served via Expert Query webservices including 
-#' the columns "objectId", "region", "state", "organizationType", "organizationId", 
-#' "organizationName", "waterType", "reportingCycle", "assessmentUnitId", "assessmentUnitName",
-#' "assessmentUnitStatus", "useClassName", "cycleId", "locationDescription", "sizeSource", 
-#' "sourceScale", "waterSize", and "waterSizeUnits".
+#' the columns "region", "state", "organizationType", "organizationId", "organizationName",
+#' "waterType", "locationTypeCode", "locationText", "useClassName", "assessmentUnitId",
+#' "assessmentUnitName", "assessmentUnitStatus", "reportingCycle", "cycleId", 
+#' "locationDescription", "sizeSource", "sourceScale", "waterSize", and "waterSizeUnits".
 #'
 #' @export
 #'
-EQ_AssessmentUnits <- function(au_name = NULL, au_status = "A", auid = NULL, cycle_id = NULL,
-                               loc_txt = NULL, loc_type = NULL, region = NULL, report_cycle = NULL,
-                               statecode = NULL, use_class = NULL, api_key = NULL)  {
+EQ_AssessmentUnits <- function(api_key = NULL, au_name = NULL, au_status = "A", auid = NULL, 
+                               cycle_id = NULL, loc_txt = NULL, loc_type = NULL, region = NULL, 
+                               report_cycle = NULL, statecode = NULL, use_class = NULL)  {
   
   # check for api key
   if(is.null(api_key)) {
