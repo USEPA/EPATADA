@@ -109,7 +109,7 @@ NULL
 #' @format A dataframe with 6569 rows and 123 variables
 NULL
 
-#' Data_WV_Mod1_Output
+#' Data_HUC8_02070004_Mod1Output
 #'
 #' See Module 1 Workflow.R script in vignettes folder
 #' This is the final data after running a recommended module 1 workflow.
@@ -117,7 +117,7 @@ NULL
 #'
 #' @docType data
 #' @keywords data frame
-#' @name Data_WV_Mod1_Output
-#' @usage data(Data_WV_Mod1_Output)
+#' @name Data_HUC8_02070004_Mod1Output
+#' @usage data(Data_HUC8_02070004_Mod1Output)
 #' @format A data frame with 84 rows and 161 variables
 NULL

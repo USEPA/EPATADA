@@ -222,19 +222,19 @@ TADA_UpdateExampleData <- function() {
   TADA_FieldValuesTable(Data_WV_14, field = "TADA.ComparableDataIdentifier")
 
   # Save example data
-  Data_WV_Mod1_Output <- Data_WV_14
+  Data_HUC8_02070004_Mod1Output <- Data_WV_14
 
-  print("Data_WV_Mod1_Output:")
-  print(dim(Data_WV_Mod1_Output))
+  print("Data_HUC8_02070004_Mod1Output:")
+  print(dim(Data_HUC8_02070004_Mod1Output))
 
-  usethis::use_data(Data_WV_Mod1_Output,
+  usethis::use_data(Data_HUC8_02070004_Mod1Output,
     internal = FALSE,
     overwrite = TRUE,
     compress = "xz",
     version = 3,
     ascii = FALSE
   )
-  rm(Data_WV_Mod1_Output)
+  rm(Data_HUC8_02070004_Mod1Output)
 }
 
 ###########################################################

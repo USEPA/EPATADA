@@ -98,19 +98,18 @@ function in R or RStudio using the following format (example below):
 # Introduction to TADA Module 3
 
 This [RMarkdown](https://bookdown.org/yihui/rmarkdown/) document walks
-users through how to create crosswalk reference tables that are needed
-prior to defining and capturing their organization's criteria and
+users through how to create WQP and ATTAINS data crosswalks that are needed prior to defining and capturing organization specific criteria and
 methodologies. It is the first of several vignettes that are being
 developed as part of TADA Module 3.
 
 Specifically, this vignette provides an overview of two functions that
 can assist users with:
 
--   Creating a crosswalk reference table between ATTAINS parameter names
+-   Creating a crosswalk (reference table) between ATTAINS parameter names
     and WQP/TADA characteristic names.
 
--   Creating a crosswalk reference table of all unique combinations of
-    ATTAINS uses and and parameters.
+-   Creating a crosswalk (reference table) of all unique combinations of
+    ATTAINS uses and and parameters applicable to ATTAINS Assessment          Units of interest.
 
 These Module 3 functions are being designed with the flexibility for
 users from states, tribes, or territories to input organization-specific
@@ -119,7 +118,7 @@ must review and modify the tables generated in each step of the process
 to ensure their accuracy. Additionally, the TADA team has also
 incorporated national recommended Clean Water Act (CWA) 304(a) numeric
 criteria for optional use in Module 3 functions by leveraging data from
-the [Criteria Search Tool
+EPA's [Criteria Search Tool
 (CST)](https://www.epa.gov/wqs-tech/state-specific-water-quality-standards-effective-under-clean-water-act-cwa).
 In the next vignette, TADAModule3_PartB , which is coming soon, this
 will allow users to analyze their data against the 304(a) criteria; and
@@ -133,24 +132,20 @@ cleaning, wrangling, harmonization, handling of censored data, removal
 of suspect results, and other important TADA Module 1 functions. This
 process should be completed by users before utilizing Module 3
 functions. The example TADA data frame used in this vignette
-(Data_WV_Mod1_Output) has already been through this process.
+(Data_HUC8_02070004_Mod1Output) has already been through this process.
 
 ```{r}
 # import example data set (output of Module 1 Workflow)
-Data_NCTC <- Data_WV_Mod1_Output
+Data_NCTC <- Data_HUC8_02070004_Mod1Output
 ```
 
-Using an example data set from Maryland, we will work through an example
-of creating two TADA Module 3 reference tables (TADA_CreateParamRef and
-TADA_CreateParamUseRef) that are needed before we can start assigning
-applicable criteria and methodologies information for a specific ATTAINS
-organization.
+This example includes results from from multiple states. In the following sections, for demonstration purposes, we will focus only on Maryland. The remained of this vignette will walk through how to fill out two crosswalk tables (TADA_CreateParamRef and TADA_CreateParamUseRef) that are needed before we can start assigning applicable criteria and methodologies information for this specific ATTAINS organization (Maryland).
 
 # TADA_CreateParamRef() Basics
 
-Before creating the WQP/TADA and ATTAINS parameter crosswalk table
+A crosswalk between WQX/WQP/TADA characteristics and ATTAINS parameters is needed before we can integrate information from these two data systems. Before creating the WQP/TADA and ATTAINS parameter crosswalk table
 (TADA_CreateParamRef), let's review the unique characteristic, fraction
-and speciation combinations (TADA.ComparableDataIdentifier) and how many
+and speciation combinations from the example data frame (TADA.ComparableDataIdentifier) and how many
 results are available for each within the example data set (Data_NCTC).
 
 ```{r}
@@ -373,7 +368,7 @@ NCTC_ParamUseRef3.1 <- TADA_CreateParamUseRef(
   paramRef = NCTC_ParamRef2,
   excel = FALSE
 )
-TADA_CSVExport(NCTC_ParamUseRef3.1)
+TADA_TableExport(NCTC_ParamUseRef3.1)
 ```
 
 # Next steps
