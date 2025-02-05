@@ -78,7 +78,7 @@
 #'
 #' @export
 #'
-EQ_Assessments <- function(..., default.params = list(region = NULL, statecode = NULL, org_type = NULL, org_id = NULL,
+EQ_Assessments <- function(region = NULL, statecode = NULL, org_type = NULL, org_id = NULL,
                            org_name = NULL, water_type = NULL, report_cycle = "latest",
                            last_cycle_start = NULL, last_cycle_end = NULL, auid = NULL,
                            au_name = NULL, au_status = "A",  overall_status = NULL,
@@ -95,56 +95,44 @@ EQ_Assessments <- function(..., default.params = list(region = NULL, statecode =
                            seas_start_date = NULL, seas_end_date = NULL, aa_id = NULL,
                            aa_act_type = NULL, aa_act_status = NULL, aa_act_agency = NULL,
                            loc_desc = NULL, size_source = NULL, source_scale = NULL,
-                           water_size = NULL, size_units = NULL, api_key = NULL))  {
+                           water_size = NULL, size_units = NULL, api_key = NULL)  {
   
   # check for api key
   if(is.null(api_key)) {
     stop("EQ_Assessments: An api key is required to access EQ web services.")
   }
 
+  # get param crosswalk for building query
   params.cw <- EQ_ExtractParams(extract = "assessments")
   
-  params.default <- EQ_FormatParams(EQ_Assessments) %>%
-    as.list()
+  # get default params from EQ_Assessments
+  default.params <- EQ_DefaultParams(EQ_Assessments) %>%
+    # format for building body
+    EQ_FormatParams()
   
+  # create df of user entered params
+  user.params <- as.list(match.call()[-1]) %>%
+    tibble::enframe(name = "param", value = "value") %>%
+    as.data.frame() %>%
+    # format for building body
+    EQ_FormatParams()
   
- #  # create df of function formals
- # default.params <- formals(EQ_Assessments) %>%
- #    dplyr::slice_tail(n = 1)
- #  
- #  # change language to character in value column
- #  params.df$value <- sapply(params.df$value, function(x) {
- #    if (is.language(x)) {
- #      deparse(x)
- #    } else if (is.logical(x) || is.numeric(x)) {
- #      as.character(x)
- #    } else {
- #      x
- #    }
- #  }
- #  )
- #  
+  # compare default and user params to build df of all params and values for body
+  params.df <- EQ_CompareParams(default = default.params, user = user.params)
   
-  # create df of function match.calls
-  user.params <- list(...)
+  # remove intermediate objects
+  rm(user.params, default.params)
   
-  combined.params <- defaults <- default.params
+  # create post bodies
+  post.bodies <- EQ_CreateBody(.data = params.df, crosswalk = params.cw)
   
-  combined.params[names(user.params)] <- user.params
-  
-  extra.params <- user.params[!names(user.params) %in% names(default.params)]
-  
-  combined.params <- c(combined.params, extra.params)
-  
-  params.df <- tibble::enframe(combined.params, name = "param", value = "value")
-  
-  params.df <- EQ_FormatParams(params.df)
-  
-  post.bodies <- EQ_CreateBody(params.df)
-  
+  # create post headers
   post.headers <- EQ_CreateHeader(key = api_key)
   
-  query.df <- EQ_PostAndContent(headers = post.headers, body = post.bodies, extract = "assessments")
+  # query EQ (check number of rows before download, stop if it exceeds max rows)
+  query.df <- EQ_PostAndContent(headers = post.headers, 
+                                body.list = post.bodies, 
+                                extract = "assessments")
   
   rm(params.cw, params.df, post.bodies, post.headers)
   
