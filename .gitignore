@@ -31,3 +31,4 @@ AK_EPATADA_troubleshooting
 inst/doc
 vignettes/*.html
 vignettes/*.R
+**/.quarto/

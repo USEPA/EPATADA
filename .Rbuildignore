@@ -9,3 +9,5 @@ readme.html
 .gitignore
 ^articles
 ^vignettes/articles$
+^vignettes/articles/\.quarto$
+^vignettes/articles/*_files$
