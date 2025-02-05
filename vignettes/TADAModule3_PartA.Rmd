@@ -31,7 +31,7 @@ knitr::opts_chunk$set(
 )
 ```
 
-## Welcome!
+# Welcome!
 
 Thank you for your interest in Tools for Automated Data Analysis (TADA).
 TADA is an open-source tool set built in the R programming language. The
@@ -43,7 +43,7 @@ development, more information is available
 [here](https://usepa.github.io/EPATADA/articles/CONTRIBUTING.html). We
 welcome collaboration with external partners!
 
-## Install and load packages
+# Install and load packages
 
 First, install and load the remotes package specifying the repo. This is
 needed before installing EPATADA because it is only available on GitHub.
@@ -95,7 +95,7 @@ function in R or RStudio using the following format (example below):
 ?TADA_DataRetrieval
 ```
 
-## Introduction to TADA Module 3
+# Introduction to TADA Module 3
 
 This [RMarkdown](https://bookdown.org/yihui/rmarkdown/) document walks
 users through how to create crosswalk reference tables that are needed
@@ -126,7 +126,7 @@ will allow users to analyze their data against the 304(a) criteria; and
 to easily compare results when when using 304(a) criteria vs. their own
 organization's criteria.
 
-## Example data from WQP
+# Example data from WQP
 
 Let's start with an example data frame that has gone through data
 cleaning, wrangling, harmonization, handling of censored data, removal
@@ -146,7 +146,7 @@ TADA_CreateParamUseRef) that are needed before we can start assigning
 applicable criteria and methodologies information for a specific ATTAINS
 organization.
 
-## TADA_CreateParamRef() Basics
+# TADA_CreateParamRef() Basics
 
 Before creating the WQP/TADA and ATTAINS parameter crosswalk table
 (TADA_CreateParamRef), let's review the unique characteristic, fraction
@@ -376,7 +376,7 @@ NCTC_ParamUseRef3.1 <- TADA_CreateParamUseRef(
 TADA_CSVExport(ref = NCTC_ParamUseRef3.1)
 ```
 
-## Next steps
+# Next steps
 
 Stay tuned! Future vignettes aim to assist with next steps in the
 analysis process, including:

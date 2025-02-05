@@ -56,7 +56,7 @@ Next, we will showcase how to bring in other web services and libraries for easy
 
 ## Packages
 
--   EPA: EPATADA, StreamCatTools
+-   EPA: EPATADA, StreamCatTools, spsurvey, spmodel, SSN2
 
 -   USGS: dataRetrieval, nhdplusTools, hydroloom
 
@@ -227,6 +227,8 @@ GreenBay_FoxRiver_Subset <- GreenBay_FoxRiver %>%
 TADA_FieldValuesPie(GreenBay_FoxRiver_Subset, field = "OrganizationFormalName")
 ```
 
+## (5 mins) EPATADA Visualizations
+
 ## Generate stats table
 
 ```{r}
@@ -235,10 +237,18 @@ GreenBay_FoxRiver_Subset_Stats <- TADA_Stats(GreenBay_FoxRiver_Subset)
 DT::datatable(GreenBay_FoxRiver_Subset_Stats, fillContainer = TRUE)
 ```
 
-## Generate Scatterplot
+## Generate scatterplot
 
 ```{r}
 TADA_TwoCharacteristicScatterplot(GreenBay_FoxRiver_Subset, id_cols = "TADA.ComparableDataIdentifier",  groups = c("TOTAL PHOSPHORUS, MIXED FORMS_UNFILTERED_AS P_UG/L", "TOTAL NITROGEN, MIXED FORMS_UNFILTERED_AS N_MG/L"))
+```
+
+```{r}
+TADA_OverviewMap(GreenBay_FoxRiver)
+
+GreenBay_FoxRiver = TADA_FlagCoordinates(GreenBay_FoxRiver, clean_outsideUSA = "change sign", clean_imprecise = FALSE)
+
+# WQP_with_ATTAINS_filled <- TADA_GetATTAINS(GreenBay_FoxRiver, fill_catchments = FALSE, return_sf = TRUE)
 ```
 
 # (15 mins) Ingestion of additional hydrologic, climatic and remote sensing data
@@ -295,14 +305,6 @@ One of the first steps in the CWA assessment process is to define Assessment Uni
 
 -   Automates matching of WQP monitoring locations with ATTAINS assessment units that fall within (intersect) the same NHDPlus catchment ([details](https://usepa.github.io/EPATADA/articles/TADAModule2.html))
 -   The function uses high resolution NHDPlus catchments by default because 80% of state submitted assessment units in ATTAINS were developed based on high res NHD; users can select med-res if applicable to their use case
-
-```{r}
-TADA_OverviewMap(GreenBay_FoxRiver)
-
-GreenBay_FoxRiver = TADA_FlagCoordinates(GreenBay_FoxRiver, clean_outsideUSA = "change sign", clean_imprecise = FALSE)
-
-# WQP_with_ATTAINS_filled <- TADA_GetATTAINS(GreenBay_FoxRiver, fill_catchments = FALSE, return_sf = TRUE)
-```
 
 ## Challenges with Automated Approach (too detailed, remove this section?)
 
