@@ -65,7 +65,7 @@ EQ_Actions <- function(api_key = NULL, act_agency = NULL, act_id = NULL, act_nam
   rm(user.params, default.params)
   
   # create post bodies
-  post.bodies <- EQ_CreateBody(.data = params.df, crosswalk = params.cw)
+  post.bodies <- EQ_CreateBody(.data = params.df, crosswalk = params.cw, extract = "actions")
   
   # create post headers
   post.headers <- EQ_CreateHeader(key = api_key)
@@ -285,7 +285,7 @@ EQ_Assessments <- function(api_key = NULL, act_agency = NULL, act_status = NULL,
   rm(user.params, default.params)
   
   # create post bodies
-  post.bodies <- EQ_CreateBody(.data = params.df, crosswalk = params.cw)
+  post.bodies <- EQ_CreateBody(.data = params.df, crosswalk = params.cw, extract = "assessments")
   
   # create post headers
   post.headers <- EQ_CreateHeader(key = api_key)
@@ -356,7 +356,7 @@ EQ_AssessmentUnits <- function(api_key = NULL, au_name = NULL, au_status = "A", 
   rm(user.params, default.params)
   
   # create post bodies
-  post.bodies <- EQ_CreateBody(.data = params.df, crosswalk = params.cw)
+  post.bodies <- EQ_CreateBody(.data = params.df, crosswalk = params.cw, extract = "aus")
   
   # create post headers
   post.headers <- EQ_CreateHeader(key = api_key)
