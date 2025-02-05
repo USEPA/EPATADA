@@ -169,7 +169,7 @@ data from the ATTAINS public web services
 rATTAINS::domain_values()
 
 # return ATTAINS parameter domain values
-TADA_CSVExport(rATTAINS::domain_values(domain_name = "ParameterName"))
+TADA_TableExport(rATTAINS::domain_values(domain_name = "ParameterName"))
 ```
 
 As the ATTAINS parameters are more general than the
@@ -204,7 +204,7 @@ should contact the ATTAINS team (attains\@epa.gov) for assistance.
 
 ```{r}
 # return ATTAINS organization domain values
-TADA_CSVExport(rATTAINS::domain_values(domain_name = "OrgName"))
+TADA_TableExport(rATTAINS::domain_values(domain_name = "OrgName"))
 
 # create TADA parameter reference table for specified organization
 NCTC_ParamRef <- TADA_CreateParamRef(
@@ -215,7 +215,7 @@ NCTC_ParamRef <- TADA_CreateParamRef(
 )
 
 # export TADA parameter reference table as csv
-EPATADA::TADA_CSVExport(ref = NCTC_ParamRef)
+TADA_TableExport(NCTC_ParamRef)
 ```
 
 Once the parameter reference table has been reviewed and modified, it
@@ -250,7 +250,7 @@ ParamRef <- dplyr::mutate(NCTC_ParamRef, ATTAINS.ParameterName = dplyr::case_whe
   TADA.ComparableDataIdentifier == "ZINC_TOTAL_NA_UG/L" ~ "ZINC",
   grepl("NITRATE", TADA.ComparableDataIdentifier) ~ "NITROGEN, TOTAL"
 ))
-TADA_CSVExport(ref = ParamRef)
+TADA_TableExport(ParamRef)
 
 NCTC_ParamRef2 <- TADA_CreateParamRef(
   Data_NCTC,
@@ -259,7 +259,7 @@ NCTC_ParamRef2 <- TADA_CreateParamRef(
   excel = FALSE
 ) # comment out 'excel = FALSE' and uncomment excel = TRUE, overwrite = TRUE to run the excel file
 # excel = TRUE, overwrite = TRUE)
-TADA_CSVExport(ref = NCTC_ParamRef2)
+TADA_TableExport(NCTC_ParamRef2)
 ```
 
 # TADA_CreateParamUseRef() Basics
@@ -295,7 +295,7 @@ NCTC_ParamUseRef <- TADA_CreateParamUseRef(
   org_id = c("MDE_EASP"),
   paramRef = ParamRef,
   excel = FALSE)
-TADA_CSVExport(ref = NCTC_ParamUseRef)
+TADA_TableExport(NCTC_ParamUseRef)
 ```
 
 Users may also choose to include the EPA304a recommended water quality
@@ -317,7 +317,7 @@ NCTC_ParamUseRef2 <- TADA_CreateParamUseRef(
   paramRef = ParamRef,
   excel = FALSE
 )
-TADA_CSVExport(ref = NCTC_ParamUseRef2)
+TADA_TableExport(NCTC_ParamUseRef2)
 ```
 
 Instead, users should create a parameter and use reference table,
@@ -336,7 +336,7 @@ NCTC_ParamUseRef3 <- TADA_CreateParamUseRef(
   paramRef = NCTC_ParamRef2,
   excel = FALSE
 )
-TADA_CSVExport(ref = NCTC_ParamUseRef3)
+TADA_TableExport(NCTC_ParamUseRef3)
 ```
 
 In this example, we designate that the ATTAINS.ParameterName "PH" is
@@ -363,7 +363,7 @@ ParamUseRef <- NCTC_ParamUseRef3 %>%
   dplyr::select(-c(use_name.x, use_name.y))
 
 # User now has a saved dataframe which can be used to reflect any updates of Parameter-use ref in the future.
-TADA_CSVExport(ref = ParamUseRef)
+TADA_TableExport(ParamUseRef)
 
 # PH will now reflect the changes
 NCTC_ParamUseRef3.1 <- TADA_CreateParamUseRef(
@@ -373,7 +373,7 @@ NCTC_ParamUseRef3.1 <- TADA_CreateParamUseRef(
   paramRef = NCTC_ParamRef2,
   excel = FALSE
 )
-TADA_CSVExport(ref = NCTC_ParamUseRef3.1)
+TADA_CSVExport(NCTC_ParamUseRef3.1)
 ```
 
 # Next steps
