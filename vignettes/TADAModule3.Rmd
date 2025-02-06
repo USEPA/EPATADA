@@ -402,7 +402,7 @@ NCTC_UseParamRef_Final <- TADA_CreateUseParamRef(
   excel = FALSE # comment out 'excel = FALSE' and uncomment 'excel = TRUE, overwrite = TRUE' to run the excel file
   # excel = TRUE, overwrite = TRUE
 )
-TADA_CSVExport(ref = NCTC_UseParamRef3.1)
+TADA_CSVExport(ref = NCTC_UseParamRef_Final)
 ```
 
 Users must review the matching done with TADA_GetATTAINS of monitoring
