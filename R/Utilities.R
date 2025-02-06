@@ -112,7 +112,7 @@ utils::globalVariables(c(
   "CRITERIATYPEAQUAHUMHLTH", "CRITERIATYPEFRESHSALTWATER", "CRITERIATYPE_ACUTECHRONIC", 
   "CRITERIATYPE_WATERORG", "ENTITY_ABBR", "POLLUTANT_NAME", "USE_CLASS_NAME_LOCATION_ETC",
   "EPA304A.PollutantName", "IncludeOrExclude", "organization_identifier", "parameter", "use_name",
-  "organization_identifier.y", "use_name.y",
+  "organization_identifier.y", "use_name.y", "UNIT_NAME",
   "MeasureQualifierCode", "TADA.SingleOrgDup.Flag", "MonitoringDataLinkText", "URLencode"
 ))
 
