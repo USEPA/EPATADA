@@ -527,7 +527,7 @@ TADA_UpdateMonitoringLocationsInATTAINS <- function(org_id = NULL,
 #'
 #' @examples
 #' # This creates a blank paramRef template of UT Nutrients data. 
-#' Users will need to fill this template out.
+#' # Users will need to fill this template out.
 #' paramRef_UT <- TADA_CreateParamRef(
 #'   Data_Nutrients_UT, org_id = "UTAHDWQ", excel = FALSE 
 #' )
