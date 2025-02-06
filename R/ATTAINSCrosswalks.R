@@ -428,9 +428,9 @@ TADA_UpdateMonitoringLocationsInATTAINS <- function(org_id = NULL,
 #' If there is no existing ATTAINS parameter name that corresponds with a
 #' TADA.ComparableDataIdentifier needed for an organization's assessments, users should contact the
 #' ATTAINS team to inquire about adding the parameter. Users are free to use any ATTAINS parameter
-#' names found in the ATTAINS parameter domain value list (add link to ref file from HRM crosswalk
-#' branch), even if the parameter name has not previously been listed as a cause by the
-#' organization.
+#' names found in the ATTAINS parameter domain value list, even if the parameter name has not previously been listed as a cause by the
+#' organization. A list of ATTAINS parameter names can be found by downloading the ATTAINS Domains Excel file:
+#' https://www.epa.gov/system/files/other-files/2023-09/DOMAINS.xlsx. 
 #'
 #' Otherwise, users can still proceed by overriding the data validation by value pasting.
 #' Users will be warned in the ATTAINS.FlagParameterName column if they choose to include an
