@@ -1,12 +1,7 @@
 ---
 title: "Creating Efficient and Reproducible Water Quality Workflows Using R"
-format:
-  html:
-    minimal: true 
-    embed-resources: true
-editor: visual
-editor_options: 
-    wrap: 72
+date: '`r Sys.Date()`'
+output: ioslides_presentation
 execute:
   echo: true
   eval: true
@@ -33,11 +28,11 @@ authors:
 footer: "EPATADA, dataRetrieval, nhdplusTools, StreamCatTools, hydroloom, spsurvey, spmodel, SSN2"
 ---
 
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+```
+
 # (5 mins) Introduction
-
-## Quarto
-
-Quarto enables you to weave together content and executable code into a finished presentation. To learn more about Quarto presentations see <https://quarto.org/docs/presentations/>.
 
 ## Introduction
 
@@ -69,7 +64,7 @@ Next, we will showcase how to bring in other web services and libraries for easy
 
 Let's dive into Green Bay, WI!
 
-### Install and load EPATADA
+## Install and load EPATADA
 
 Install and load the remotes package.
 
@@ -104,11 +99,11 @@ It's go time! Let's time our process.
 start.time <- Sys.time()
 ```
 
-### Intro to TADA Module 1: Water Quality Portal Data Discovery and Cleaning
+## Intro to TADA Module 1: Water Quality Portal Data Discovery and Cleaning
 
 This is an abbreviated intoduction to key TADA Module 1 WQP Data Discovery and Cleaning functions. Additional functions and a more detailed example workflow is available [here](https://usepa.github.io/EPATADA/articles/TADAModule1.html).
 
-### Retrieve data from the WQP
+## Retrieve data from the WQP
 
 In this example, we will use EPA's How's My Waterway (HMW) application to find an applicable Hydrologic Unit Code (HUC) for our area of interest - the [Fox River, Green Bay, WI](https://mywaterway.epa.gov/community/040302040405/monitoring). Next, let's query the WQP using the identified HUC, state abbreviation, and a date range. In this example, we'll start by pulling all data available in the WQP for this HUC 12 for the last 5 years.
 
@@ -124,13 +119,13 @@ GreenBay_FoxRiver <- TADA_DataRetrieval(
 )
 ```
 
-### Wrangle
+## Wrangle
 
 Now, let's use EPATADA functions to review, visualize, and whittle the returned WQP data down to include only results that are applicable to our water quality analysis and area of interest.
 
 ![](images/Funnel.png)
 
-### Flag and remove duplicate results from a single organization
+## Flag and remove duplicate results from a single organization
 
 ```{r}
 GreenBay_FoxRiver <- TADA_FindPotentialDuplicatesSingleOrg(GreenBay_FoxRiver)
@@ -138,19 +133,19 @@ GreenBay_FoxRiver <- TADA_FindPotentialDuplicatesSingleOrg(GreenBay_FoxRiver)
 GreenBay_FoxRiver <- dplyr::filter(GreenBay_FoxRiver, TADA.SingleOrgDup.Flag == "Unique")
 ```
 
-### Autoclean
+## Autoclean
 
 ```{r}
 GreenBay_FoxRiver <- TADA_AutoClean(GreenBay_FoxRiver)
 ```
 
-### Handle censored results
+## Handle censored results
 
 ```{r}
 GreenBay_FoxRiver <- TADA_SimpleCensoredMethods(GreenBay_FoxRiver, nd_method = "multiplier", nd_multiplier = 0.5, od_method = "as-is", od_multiplier = "null")
 ```
 
-### Flag and remove duplicates from multiple organizations
+## Flag and remove duplicates from multiple organizations
 
 Two organizations sometimes submit the same exact data to WQP.
 
@@ -160,7 +155,7 @@ GreenBay_FoxRiver <- TADA_FindPotentialDuplicatesMultipleOrgs(GreenBay_FoxRiver)
 GreenBay_FoxRiver <- dplyr::filter(GreenBay_FoxRiver, TADA.ResultSelectedMultipleOrgs == "Y")
 ```
 
-### Filter out any remaining irrelevant data, NA's and empty columns
+## Filter out any remaining irrelevant data, NA's and empty columns
 
 ```{r}
 unique(GreenBay_FoxRiver$TADA.ResultMeasureValueDataTypes.Flag)
@@ -175,13 +170,13 @@ sum(is.na(GreenBay_FoxRiver$TADA.ResultMeasureValue))
 # CM note for team discussion: Should results with NA units be dealt with now as well within TADA_AutoFilter?
 ```
 
-### Flag and remove QAQC samples and suspect results
+## Flag and remove QAQC samples and suspect results
 
 ```{r}
 GreenBay_FoxRiver <- TADA_RunKeyFlagFunctions(GreenBay_FoxRiver, clean = TRUE)
 ```
 
-### Flag results above and below threshold, but do not remove them
+## Flag results above and below threshold, but do not remove them
 
 ```{r}
 GreenBay_FoxRiver <- TADA_FlagAboveThreshold(GreenBay_FoxRiver, clean = FALSE, flaggedonly = FALSE)
@@ -189,25 +184,25 @@ GreenBay_FoxRiver <- TADA_FlagAboveThreshold(GreenBay_FoxRiver, clean = FALSE, f
 GreenBay_FoxRiver <- TADA_FlagBelowThreshold(GreenBay_FoxRiver, clean = FALSE, flaggedonly = FALSE)
 ```
 
-### Harmonize synonyms across characteristic, fraction, and speciation
+## Harmonize synonyms across characteristic, fraction, and speciation
 
 ```{r}
 GreenBay_FoxRiver <- TADA_HarmonizeSynonyms(GreenBay_FoxRiver)
 ```
 
-### Calculate Total N and Total P from various species and fractions
+## Calculate Total N and Total P from various species and fractions
 
 ```{r}
 GreenBay_FoxRiver <- TADA_CalculateTotalNP(GreenBay_FoxRiver, daily_agg = "max")
 ```
 
-### Review unique characteristic, fraction, and species combinations
+## Review unique characteristic, fraction, and species combinations
 
 ```{r}
 GreenBay_FoxRiver_Counts <- TADA_FieldValuesTable(GreenBay_FoxRiver, field = "TADA.ComparableDataIdentifier")
 ```
 
-### Filter to focus on frequently monitored characteristics in example data
+## Filter to focus on frequently monitored characteristics in example data
 
 ```{r}
 GreenBay_FoxRiver_Subset <- GreenBay_FoxRiver %>%
@@ -219,16 +214,16 @@ GreenBay_FoxRiver_Subset <- GreenBay_FoxRiver %>%
       "DISSOLVED OXYGEN (DO)_NA_NA_MG/L"))
 ```
 
-### Review organizations for subset
+## Review organizations for subset
 
 ```{r}
 # Create pie of results by organization
 TADA_FieldValuesPie(GreenBay_FoxRiver_Subset, field = "OrganizationFormalName")
 ```
 
-### EPATADA Visualizations
+## EPATADA Visualizations
 
-#### Generate stats table
+## Generate stats table
 
 ```{r}
 GreenBay_FoxRiver_Subset_Stats <- TADA_Stats(GreenBay_FoxRiver_Subset)
@@ -236,13 +231,13 @@ GreenBay_FoxRiver_Subset_Stats <- TADA_Stats(GreenBay_FoxRiver_Subset)
 DT::datatable(GreenBay_FoxRiver_Subset_Stats, fillContainer = TRUE)
 ```
 
-#### Generate scatterplot
+## Generate scatterplot
 
 ```{r}
 TADA_TwoCharacteristicScatterplot(GreenBay_FoxRiver_Subset, id_cols = "TADA.ComparableDataIdentifier",  groups = c("TOTAL PHOSPHORUS, MIXED FORMS_UNFILTERED_AS P_UG/L", "TOTAL NITROGEN, MIXED FORMS_UNFILTERED_AS N_MG/L"))
 ```
 
-#### Generate map
+## Generate map
 
 ```{r}
 TADA_OverviewMap(GreenBay_FoxRiver)
