@@ -1,7 +1,8 @@
 ---
 title: "Creating Efficient and Reproducible Water Quality Workflows Using R"
-format:  
-  revealjs:
+format:
+  html:
+    minimal: true 
     embed-resources: true
 editor: visual
 editor_options: 
@@ -62,7 +63,7 @@ Next, we will showcase how to bring in other web services and libraries for easy
 
 -   Fundamental geospatial packages such as sf, terra, leaflet and tmap
 
-# (30 mins) Preparing Data for Analysis 
+# (30 mins) Preparing Data for Analysis
 
 ## (15 mins) Preparing Water Quality Portal (WQP) data for analysis using EPATADA
 
