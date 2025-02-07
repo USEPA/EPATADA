@@ -835,21 +835,19 @@ TADA_CreateAURef <- function(.data, AURef = NULL, AU = NULL, excel = TRUE, overw
   }
   
   if(is.null(AU)){
-    print("Creating AURef dataframe for all unique combinations of AU found in the TADA dataframe by MonitoringLocationName/MonitoringLocationType/MonitoringLocationId.")
+    print("Creating AURef dataframe for all unique combinations of AU found in the TADA dataframe by Monitoring Location.")
   }
   
   if(!is.null(AU)){
-    print(paste0("Filtering by AUs = ", AU, ". Creating a dataframe for unique combinations of MonitoringLocationName/MonitoringLocationType/MonitoringLocationId."))
+    print(paste0("Filtering by AUs = ", AU, ". Creating a dataframe for all unique combinations of Monitoring Location."))
   }
   
   # Filters by AU if desired, otherwise creates a dataframe of all unique AU in the TADA dataframe pull
   CreateAURef <- .data %>%
-    dplyr::filter(if (is.null(AU)) TRUE
-                  else ATTAINS.assessmentunitidentifier == AU
-    ) %>%
     dplyr::select(tidyr::any_of(c(
       "ATTAINS.assessmentunitname","ATTAINS.assessmentunitidentifier",
-      "MonitoringLocationIdentifier", "MonitoringLocationName", "MonitoringLocationTypeName", "ATTAINS.waterTypeCode", "LongitudeMeasure", "LatitudeMeasure"
+      "MonitoringLocationIdentifier", "MonitoringLocationName", "MonitoringLocationTypeName", 
+      "ATTAINS.waterTypeCode", "LongitudeMeasure", "LatitudeMeasure"
     ))
     ) %>%
     as.data.frame() %>%
@@ -907,9 +905,12 @@ TADA_CreateAURef <- function(.data, AURef = NULL, AU = NULL, excel = TRUE, overw
         "MonitoringLocationIdentifier", "MonitoringLocationName", "MonitoringLocationTypeName", "ATTAINS.waterTypeCode", "LongitudeMeasure", "LatitudeMeasure",
         "IncludeOrExclude", "ExcludeStationReason", "ApplyUniqueSpatialCriteria"
       ))
-      )
-    
+    )
   }
+  
+  dplyr::filter(if (is.null(AU)) TRUE
+                else ATTAINS.assessmentunitidentifier %in% AU
+  ) %>%
   
   if (excel == TRUE) {
     wb <- openxlsx::loadWorkbook(wb, downloads_path)

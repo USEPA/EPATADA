@@ -118,7 +118,7 @@ their decision making processes. Use of EPATADA is not required.
 
 ## Introduction
 
-Criteria are defined as the Magnitude, duration and frequency associated
+Criteria are defined as the magnitude, duration and frequency associated
 with a parameter and designated use.
 
 -   Magnitude is defined as the limiting concentration not to be
@@ -155,7 +155,7 @@ This vignette provides an overview of functions that assist users with:
 Module 3 functions are designed with the flexibility for users from
 states, tribes, or territories to input organization-specific or
 site-specific criteria as defined in their own numeric water quality
-critieria or methdogologies. While TADA functions automate some of this
+criteria or methodologies. While TADA functions automate some of this
 process, users must review and modify the crosswalk tables generated in
 each step of the process to ensure their accuracy. The TADA team has
 also incorporated national recommended Clean Water Act (CWA) 304(a)
@@ -177,18 +177,20 @@ functions.
 
 ## Example with Data_WV_Mod1_Output
 
-Using an example data set from Maryland, we will work through an example
-of creating the three TADA Module 3 reference tables that facilitate the
-association of WQP monitoring locations with assessment units/designated
-uses and the comparison of WQP results with the numeric criteria
-associated with the relevant assessment unit/designated use. This
-example represents the recommended workflow for Module 3.
+Using an example data set for HUC code '02070004', we will focus on a
+sample workflow with Maryland in creating the TADA Module 3 reference
+tables. We will facilitate the association of WQP monitoring locations
+with assessment units/designated uses. These reference tables will be
+necessary for creating and defining the comparison of WQP characteristic
+results with the numeric criteria associated with the relevant
+assessment unit/designated use.
 
-The necessary data cleaning, harmonization, removal of suspect results,
-and other QAQC processes must be completed by users before utilizing
-Module 3 functions. The example TADA data frame used in this vignette
-has already been through this process. See Module 1 Workflow.R script to
-review how this example data frame was prepared.
+The necessary data cleaning, harmonization, handling of censored data,
+removal of suspect results, and other QAQC processes must be completed
+by users before utilizing Module 3 functions. The example TADA data
+frame used in this vignette has already been through this process. See
+Module 1 Workflow.R script to review how this example data frame was
+prepared.
 
 ```{r}
 # import example data set (output of Module 1 Workflow)
@@ -214,7 +216,7 @@ data from the ATTAINS public web services
 (<https://github.com/mps9506/rATTAINS>).
 
 ```{r, eval = FALSE}
-TADA_CSVExport(rATTAINS::domain_values(domain_name = "ParameterName"))
+# TADA_CSVExport(rATTAINS::domain_values(domain_name = "ParameterName"))
 ```
 
 As the ATTAINS parameters are more general than the
@@ -262,16 +264,17 @@ EPATADA::TADA_CSVExport(ref = NCTC_ParamRef)
 Once the parameter reference table has been reviewed and modified, it
 can be saved and reused for analysis of future TADA data frames.
 
-The code chunk below demonstrates how the paramter rerefence table can
-be modififed in R. Once modifcations are complete, we can re-run
-TADA_CreateParamRef using the modified parameter reference table as the
-input for "paramRef". This will update the ATTAINS.FlagParameterName
-column in the parameter reference table (see NCTC_ParamRef2 in example
-below). This column provides information about whether or not the
-organization specified in the "organization_identifier" column has
-listed this parameter as a cause in prior assessment cycles. It also
-flags rows where the TADA.ComparableDataIdentifier as not been assigned
-an ATTAINS parameter name.
+The code chunk below demonstrates how the parameter reference table can
+be modified in R. Once modifications are complete, we can re-run
+TADA_CreateParamRef() using the modified parameter reference table as
+the input for "paramRef". This will update the
+'ATTAINS.FlagParameterName' column in the parameter reference table (see
+NCTC_ParamRef2 in example below). This column provides information about
+whether or not the organization specified in the
+"organization_identifier" column has listed this parameter as a cause in
+prior assessment cycles. It also flags rows where the
+TADA.ComparableDataIdentifier as not been assigned an ATTAINS parameter
+name.
 
 ```{r}
 # only run the code chunks below if you make edits to the excel file.
@@ -300,10 +303,10 @@ NCTC_ParamRef_Final <- TADA_CreateParamRef(
   excel = FALSE
 ) # comment out 'excel = FALSE' and uncomment excel = TRUE, overwrite = TRUE to run the excel file
 # excel = TRUE, overwrite = TRUE)
-TADA_CSVExport(ref = NCTC_ParamRef2)
+TADA_CSVExport(ref = NCTC_ParamRef_Final)
 ```
 
-# Three cases of TADA_CreateUseParamRef().
+## TADA_CreateUseParamRef().
 
 First example will pull in all prior use_names for each ATTAINS
 parameter name specific to the defined org_names argument input
@@ -350,7 +353,7 @@ TADA_CreateParamRef() for paramRef = ParamRef.
 NCTC_UseParamRef2 <- TADA_CreateUseParamRef(
   Data_NCTC,
   org_id = c("EPA304a", "MDE_EASP", "21VASWCB", "21PA", "WVDEP"),
-  paramRef = ParamRef,
+  paramRef = NCTC_ParamRef_Final,
   excel = FALSE # comment out 'excel = FALSE' and uncomment excel = TRUE, overwrite = TRUE to run the excel file
   # excel = TRUE, overwrite = TRUE
 )
@@ -360,7 +363,7 @@ TADA_CSVExport(ref = NCTC_UseParamRef2)
 NCTC_UseParamRef3 <- TADA_CreateUseParamRef(
   Data_NCTC,
   org_id = c("EPA304a", "MDE_EASP"),
-  paramRef = NCTC_ParamRef2,
+  paramRef = NCTC_ParamRef_Final,
   excel = FALSE # comment out 'excel = FALSE' and uncomment excel = TRUE, overwrite = TRUE to run the excel file
   # excel = TRUE, overwrite = TRUE
 )
@@ -379,14 +382,20 @@ excel file was generated, this is an example workflow of what a user can
 do to edit the table in the R environment.
 
 ```{r paged.print=TRUE}
-add_data <- data.frame("organization_identifier" = "MDE_EASP", "ATTAINS.ParameterName" = rep("PH", 3), "use_name" = c(
-  "Aquatic Life and Wildlife", "Water Contact Sports",
-  "Seasonal Migratory Fish Spawning and Nursery Subcategory"
-))
+add_data <- data.frame(
+  "organization_identifier" = "MDE_EASP", "ATTAINS.ParameterName" = rep("PH", 3),
+  "use_name" = c(
+    "Aquatic Life and Wildlife", "Water Contact Sports",
+    "Seasonal Migratory Fish Spawning and Nursery Subcategory"
+    ))
 
 # The output of this will not reflect changes to the ATTAINS.FlagUseName column. To do so, we need to re run TADA_CreateUseParamRef() with UseParamRef = UseParamRef as an argument.
 UseParamRef <- NCTC_UseParamRef3 %>%
-  dplyr::left_join(add_data, by = c("organization_identifier", "ATTAINS.ParameterName"), keep = FALSE) %>%
+  dplyr::left_join(
+    add_data, 
+    by = c("organization_identifier", "ATTAINS.ParameterName"), 
+    keep = FALSE
+    ) %>%
   dplyr::mutate(use_name = dplyr::coalesce(use_name.x, use_name.y)) %>%
   dplyr::select(-c(use_name.x, use_name.y))
 
@@ -405,53 +414,113 @@ NCTC_UseParamRef_Final <- TADA_CreateUseParamRef(
 TADA_CSVExport(ref = NCTC_UseParamRef_Final)
 ```
 
-Users must review the matching done with TADA_GetATTAINS of monitoring
-sites to AU. Users may also provide their own AU monitoring sites match
-as a reference table. For any new WQP monitoring sites found in the TADA
-dataframe, users will need to determine the appropriate match. Users can
-also choose to not provide any sort of ML to AU crosswalk if they are
-only interested in a monitoring location site level analysis of
-assessments.
+## TADA_CreateUseAURef()
 
-If there are site-specific criteria that only applies to some monitoring
-locations within an AU, whether it's an ecoregion, for a specific
-parameter and use, or if there are separate criteria for "warm-waters"
-versus "cold-waters" or "trout-based" versus other species based, this
-should be defined here. Users can further customize specific exclusions
-that pertains to their water quality assessments. Users will be
+Users should have ran TADA Module 2 functions to assist with matching
+WQP Monitoring Location sites to ATTAINS Assessment Units. Users are
+responsible for ensuring that their spatial region is properly capturing
+only the Assessment Units of interest relevant to their organization.
+
+**Users will only need to provide this AU and Use Name reference table,
+which pulls in prior use names associated with an ATTAINS Assessment
+Unit, if they are interested in summarizing criteria and methodology
+summaries of a parameter and use by Assessment Unit as well.**
+
+If a user is only interested in summarizing criteria and methodologies
+of a parameter and use on a monitoring location, they are not required
+to run TADA_CreateUseAURef() as there are no use name to AU to define in
+this scenario.
+
+In this example below, a user has created their final ML to AU crosswalk
+(see Module 2b vignette for more information on user support in this
+crosswalk). If there are unique site-specific criteria that only applies
+to some monitoring locations within an AU, whether it's an ecoregion,
+for a specific parameter and use, or if there are separate criteria for
+"warm-waters" versus "cold-waters" or "trout-based" versus other species
+based, this should be defined in NCTC_AURef_Final. Users will be
 responsible for filling out this unique spatial criteria under
 "ApplyUniqueSpatialCriteria" column.
 
-In this example below, no ML to AU crosswalk was provided.
-
 ```{r}
-# User will make the decision whether they would like to provide a ML to AU crosswalk. If monitoring location level is all that is desired, they can run the first function with no AURef. If they want to use TADA_GetATTAINS() output as the crosswalk, they can provide that as the .data dataframe. User can also provide their own custom crosswalk that has all the required column names.
-NCTC_AURef <- TADA_CreateAURef(Data_NCTC,
-                               excel = FALSE)
-
-#Load example dataframe that already has TADA_GetATTAINS() ran.
-Data_NCTC_GetATTAINS <- Data_WV_Mod1_Output_GetATTAINS
-
 # The users .data dataframe has TADA_GetATTAINS crosswalk that will now be used.
-NCTC_AURef2 <- TADA_CreateAURef(Data_NCTC_GetATTAINS,
-                               excel = FALSE)
-# User has provided a final crosswalk customized as AURef. In this case, it does not matter whether Data_NCTC or Data_NCTC_GetATTAINS is used. AURef in this example, assumes
-## We may need to consider handling new AU or new ML that has been included in the dataframe that users may need to review? Or should this all assume that users have reviewed this process prior?
-NCTC_AURef_final <- TADA_CreateAURef(Data_NCTC, AURef = AURef,
-                               excel = TRUE, overwrite = TRUE)
+NCTC_AURef_GetATTAINS <- TADA_CreateAURef(
+  Data_NCTC_GetATTAINS,
+  excel = FALSE
+  )
 ```
 
 Users should note that if their initial data retrieval pull covered a
 larger spatial area than their spatial region of interest, they should
 filter the data frame to only contain the Assessment units that they
-desire in this step. Users should do this before running
-TADA_CreateAURef().
+desire in this step. In this example, Maryland has filtered their
+spatial data to only represent their organization's region on interest,
+as their initial data pull of a HUC code captured other regions.
 
-Users can also choose to do this filter during TADA_CreateUseAURef()
-where they can provide their org_id to filter this (should this be done
-during TADA_CreateAURef()?)
+```{r}
+AURef_User_Supplied <- dplyr::filter(NCTC_AURef_GetATTAINS, grepl('MD', ATTAINS.assessmentunitidentifier))
+
+NCTC_AURef_Final <- TADA_CreateAURef(
+  Data_NCTC,
+  AURef = AURef_User_Supplied,
+  excel = FALSE
+  )
+```
+
+<!-- Move to Mod 2 workflow for ML to AU matching process -->
+
+<!-- ```{r} -->
+
+<!-- # User will make the decision whether they would like to provide a ML to AU crosswalk. If monitoring location level is all that is desired, they can run the first function with no AURef. If they want to use TADA_GetATTAINS() output as the crosswalk, they can provide that as the .data dataframe. User can also provide their own custom crosswalk that has all the required column names. -->
+
+<!-- NCTC_AURef <- TADA_CreateAURef(Data_NCTC, -->
+
+<!--                                excel = FALSE) -->
+
+<!-- # Load example dataframe that already has TADA_GetATTAINS() ran. -->
+
+<!-- # Example dataframe contains larger spatial area, filter by desired organization for Maryland. -->
+
+<!-- Data_NCTC_GetATTAINS <- Data_WV_Mod1_Output_GetATTAINS -->
+
+<!-- # The users .data dataframe has TADA_GetATTAINS crosswalk that will now be used. -->
+
+<!-- NCTC_AURef2 <- TADA_CreateAURef( -->
+
+<!--   Data_NCTC_GetATTAINS, -->
+
+<!--   excel = FALSE -->
+
+<!--   ) -->
+
+<!-- # User has provided their own crosswalk customized. In this case, it does not matter whether Data_NCTC or Data_NCTC_GetATTAINS is used.  -->
+
+<!-- AURef_User_Supplied <- dplyr::filter(NCTC_AURef2, grepl('MD', ATTAINS.assessmentunitidentifier)) -->
+
+<!-- ## We may need to consider handling new AU or new ML that has been included in the dataframe that users may need to review? Or should this all assume that users have reviewed this process prior? -->
+
+<!-- NCTC_AURef_final <- TADA_CreateAURef( -->
+
+<!--   Data_NCTC, -->
+
+<!--   AURef = AURef_User_Supplied, -->
+
+<!--   excel = FALSE -->
+
+<!--   ) -->
+
+<!-- ``` -->
+
+Users can now pull in all prior use_names associated for an ATTAINS
+Assessment Unit. **Note: CURRENTLY we are utilizing ATTAINS Assessment
+webservices. This will NOT include any uses related to new or otherwise
+previously unassessed AUs even if they exist in ATTAINS.**
 
 ```{r}
 # Currently, this uses rATTAINS to pull in all prior use name associated with this org_id.
-NCTC_UseAURef <- TADA_CreateUseAURef(Data_NCTC, org_id = "MDE_EASP", AUtoMLRef = NCTC_AURef_final, excel = TRUE, overwrite = TRUE)
+NCTC_UseAURef <- TADA_CreateUseAURef(
+  Data_NCTC, 
+  org_id = "MDE_EASP", 
+  AUtoMLRef = NCTC_AURef_Final, 
+  excel = TRUE, overwrite = TRUE
+  )
 ```

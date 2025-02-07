@@ -294,7 +294,7 @@ TADA_MagnitudeSummary <- function(.data, StandardsRef = NULL, UseAURef = NULL, o
         ApplyUniqueSpatialCriteria, # Will depend on the user's crosswalk of ML to this criteria for filtering.
       ), as.factor)
     ) %>%
-    dplyr::right_join(temp_AU, by = c("TADA.ComparableDataIdentifier"), relationship = "many-to-many") %>%
+    dplyr::left_join(temp_AU, by = c("TADA.ComparableDataIdentifier"), relationship = "many-to-many") %>%
     dplyr::distinct() %>%
     dplyr::mutate(across(MagnitudeValueLower, as.numeric)) %>%
     dplyr::group_by(.[,c("TADA.ComparableDataIdentifier", "EPA304A.PollutantName", "ATTAINS.ParameterName", 
@@ -316,7 +316,11 @@ TADA_MagnitudeSummary <- function(.data, StandardsRef = NULL, UseAURef = NULL, o
     UseParamAU <- UseAURef %>%
       dplyr::right_join(UseParamRef, by = c("use_name", "organization_identifier"), relationship = "many-to-many") %>%
       dplyr::filter(!(!organization_identifier %in% c("EPA304a") & is.na(ATTAINS.assessmentunitidentifier))) %>%
-      dplyr::select(organization_identifier, ATTAINS.assessmentunitidentifier, ATTAINS.assessmentunitname, ATTAINS.ParameterName, use_name)
+      dplyr::select(
+        organization_identifier, ATTAINS.assessmentunitidentifier, 
+        ATTAINS.assessmentunitname, TADA.ComparableDataIdentifier, 
+        EPA304A.PollutantName, ATTAINS.ParameterName, use_name
+        )
     
     UseParamAU2 <- UseParamAU %>%
       dplyr::group_by(ATTAINS.ParameterName, ATTAINS.assessmentunitidentifier, ATTAINS.assessmentunitname) %>% 

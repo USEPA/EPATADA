@@ -185,6 +185,9 @@ NCTC_magnitude <- TADA_DefineMagnitude(
   AURef = NCTC_AURef_final, 
   excel = TRUE, overwrite = TRUE
   )
+# If user makes update in excel file
+downloads_path <- file.path(Sys.getenv("USERPROFILE"), "Downloads", "myfileRef.xlsx")
+NCTC_magnitude_Final <- openxlsx::read.xlsx(downloads_path, sheet = "DefineMagnitude")
 ```
 
 # Summarize Magnitude Excursions
@@ -200,14 +203,14 @@ NCTC_UseAURef <- TADA_CreateUseAURef(Data_NCTC, AUtoMLRef = AURef, org_id = "MDE
 NCTC_Excursions <- TADA_MagnitudeSummary(
   Data_NCTC,
   #UseAURef = NCTC_UseAURef,
-  StandardsRef = NCTC_magnitude,
+  StandardsRef = NCTC_magnitude_Final,
   overwrite = TRUE
 )
 
 NCTC_Excursions2 <- TADA_MagnitudeSummary(
   Data_NCTC,
   UseAURef = NCTC_UseAURef,
-  StandardsRef = NCTC_magnitude,
+  StandardsRef = NCTC_magnitude_Final,
   overwrite = TRUE
 )
 ```
