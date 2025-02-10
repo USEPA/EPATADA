@@ -98,8 +98,9 @@ function in R or RStudio using the following format (example below):
 # Introduction to TADA Module 3
 
 This [RMarkdown](https://bookdown.org/yihui/rmarkdown/) document walks
-users through how to create WQP and ATTAINS data crosswalks that are needed prior to defining and capturing organization specific criteria and
-methodologies. It is the first of several vignettes that are being
+users through how to create WQP and ATTAINS data crosswalks that are
+needed prior to defining and capturing organization specific criteria
+and methodologies. It is the first of several vignettes that are being
 developed as part of TADA Module 3.
 
 Specifically, this vignette provides an overview of two functions that
@@ -140,14 +141,23 @@ functions. The example TADA data frame used in this vignette
 Data_NCTC <- Data_HUC8_02070004_Mod1Output
 ```
 
-This example includes results from from multiple states. In the following sections, for demonstration purposes, we will focus only on Maryland. The remainder of this vignette will walk through how to fill out two crosswalk tables (TADA_CreateParamRef and TADA_CreateParamUseRef) that are needed before we can start assigning applicable criteria and methodologies information for this specific ATTAINS organization (Maryland).
+This example includes results from from multiple states. In the
+following sections, for demonstration purposes, we will focus only on
+Maryland. The remainder of this vignette will walk through how to fill
+out two crosswalk tables (TADA_CreateParamRef and
+TADA_CreateParamUseRef) that are needed before we can start assigning
+applicable criteria and methodologies information for this specific
+ATTAINS organization (Maryland).
 
 # TADA_CreateParamRef() Basics
 
-A crosswalk between WQX/WQP/TADA characteristics and ATTAINS parameters is needed before we can integrate information from these two data systems. Before creating the WQP/TADA and ATTAINS parameter crosswalk table
-(TADA_CreateParamRef), let's review the unique characteristic, fraction
-and speciation combinations from the example data frame (TADA.ComparableDataIdentifier) and how many
-results are available for each within the example data set (Data_NCTC).
+A crosswalk between WQX/WQP/TADA characteristics and ATTAINS parameters
+is needed before we can integrate information from these two data
+systems. Before creating the WQP/TADA and ATTAINS parameter crosswalk
+table (TADA_CreateParamRef), let's review the unique characteristic,
+fraction and speciation combinations from the example data frame
+(TADA.ComparableDataIdentifier) and how many results are available for
+each within the example data set (Data_NCTC).
 
 ```{r}
 # create table with counts of TADA.ComparableDataIdentifiers
