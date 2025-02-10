@@ -1,7 +1,7 @@
 # Used to store cached CST EPA304a Reference Table
-EPA304aRef_Cached <- NULL
+EPACSTRef_Cached <- NULL
 
-#' Get EPA Criteria Search Tool Data for TADA Reference Table
+#' Get EPA Criteria Search Tool (CST) Data
 #'
 #' Function downloads and returns the newest available Criteria Search Tool and
 #' associated EPA 304a Criteria pollutant names as a reference dataframe.
@@ -12,17 +12,19 @@ EPA304aRef_Cached <- NULL
 #' Currently only characteristics identified by the TADA Working Group as 
 #' priorities are included in the TADA crosswalk of WQP/TADA characteristics 
 #' and CST pollutant names. Run the following code in the console to 
-#' review priority characteristics:
+#' review the crosswalk:
 #' 'utils::read.csv(system.file("extdata", "TADAPriorityCharUnitRef.csv", package = "EPATADA"))'
 #'
-#' @return Dataframe of EPA304a recommended criteria for a pollutant and use name.
+#' @return Dataframe of EPA304a recommended criteria from EPA's Criteria Search 
+#' Tool (CST) for a pollutant and use name.
 #'
 #' @export
+#' 
 
-TADA_GetEPA304aRef <- function() {
+TADA_GetEPACSTRef <- function() {
   # If there is a cached table available return it
-  if (!is.null(EPA304aRef_Cached)) {
-    return(EPA304aRef_Cached)
+  if (!is.null(EPACSTRef_Cached)) {
+    return(EPACSTRef_Cached)
   }
   
   # Try to download up-to-date raw data
@@ -49,11 +51,12 @@ TADA_GetEPA304aRef <- function() {
   # Find the CST row that contains the column name of dataframe - removes extraneous details
   CST.begin <- as.integer(which(rowSums(is.na(raw.data)) == 0)[1])
   colnames(raw.data) <- as.character(raw.data[CST.begin, ])
+  
   # import TADA unit reference for priority characteristics (characteristic specific)
   tada.char.ref <- utils::read.csv(system.file("extdata", "TADAPriorityCharUnitRef.csv", package = "EPATADA"))
   
   # Pulls in column names that will be used as a reference table
-  EPA304aRef <- raw.data %>%
+  EPACSTRef <- raw.data %>%
     utils::tail(-CST.begin) %>%
     dplyr::filter(ENTITY_ABBR == "304A") %>%
     dplyr::left_join(tada.char.ref, by = c("POLLUTANT_NAME" = "CST.PollutantName"), relationship = "many-to-many") %>%
@@ -68,14 +71,14 @@ TADA_GetEPA304aRef <- function() {
   rm(CST.begin, tada.char.ref, raw.data)
   
   # Save updated table in cache
-  EPA304aRef_Cached <- EPA304aRef
+  EPACSTRef_Cached <- EPACSTRef
   
-  EPA304aRef
+  EPACSTRef
 }
 
 # Update Criteria Search Tool Reference Table internal file
 # (for internal use only)
 
-TADA_UpdateEPA304aRef <- function() {
-  utils::write.csv(TADA_GetEPA304aRef(), file = "inst/extdata/CST.csv", row.names = FALSE)
+TADA_UpdateEPACSTRef <- function() {
+  utils::write.csv(TADA_GetEPACSTRef(), file = "inst/extdata/CST.csv", row.names = FALSE)
 }
