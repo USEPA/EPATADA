@@ -1,22 +1,21 @@
 # Used to store cached CST EPA304a Reference Table
 EPA304aRef_Cached <- NULL
 
-
-
-#' EPA304a Criteria Search Tool Reference Key
+#' Get EPA Criteria Search Tool Data for TADA Reference Table
 #'
 #' Function downloads and returns the newest available Criteria Search Tool and
 #' associated EPA 304a Criteria pollutant names as a reference dataframe.
 #' This dataframe is used in TADA_CreateParamRef() and
 #' TADA_CreateParamUseRef() as the basis for the pulling in EPA304a recommended
-#' pollutant name and use_name for assessment under the CWA.
+#' pollutant names and use names.
 #'
-#' Currently only numeric priority characteristic in TADA are the focus.
-#' For a list of characteristics that have a crosswalk between the CST and
-#' TADA.CharacteristicName, please run the following below in the R environment:
+#' Currently only characteristics identified by the TADA Working Group as 
+#' priorities are included in the TADA crosswalk of WQP/TADA characteristics 
+#' and CST pollutant names. Run the following code in the console to 
+#' review priority characteristics:
 #' 'utils::read.csv(system.file("extdata", "TADAPriorityCharUnitRef.csv", package = "EPATADA"))'
 #'
-#' @return Dataframe of EPA304a recommended standards for a pollutant and use name.
+#' @return Dataframe of EPA304a recommended criteria for a pollutant and use name.
 #'
 #' @export
 

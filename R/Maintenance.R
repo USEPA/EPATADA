@@ -17,10 +17,8 @@ TADA_UpdateAllRefs <- function() {
   TADA_UpdateATTAINSOrgIDsRef()
   TADA_UpdateATTAINSParamUseOrgRef()
   TADA_UpdateEPA304aRef()
+  TADA_UpdateTribalLayers()
 }
-
-# # update tribal layers
-# TADA_UpdateTribalLayers()
 
 ###########################################################
 

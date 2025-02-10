@@ -62,17 +62,17 @@ ATTAINSParamUseOrgRef_Cached <- NULL
 #' ATTAINS Parameter and Use Name by Organization Reference Key
 #'
 #' Function downloads and returns the newest available ATTAINS domain values
-#' reference dataframe summarized by parameter and use
-#' listed as a cause by organizations in previous assessments.
+#' reference dataframe which includes all parameters and uses
+#' listed as a cause by ATTAINS organizations in previous assessments.
 #' This dataframe is used in TADA_CreateParamRef() and
 #' TADA_CreateParamUseRef() as the basis for the pulling in prior ATTAINS
-#' parameter names and use name by organization name. This helps to filter
-#' selections of drop down values and summarizing impairment decisions for
-#' a parameter and use combination.
+#' parameter names and use names by organization name. This helps to filter
+#' selections in the Excel drop down menu.
 #'
-#' @return Dataframe of ATTAINS parameter and use name by organization
+#' @return Dataframe including ATTAINS parameters and uses for each organization.
 #'
 #' @export
+#' 
 
 TADA_GetATTAINSParamUseOrgRef <- function() {
   # # If there is a cached table available return it
