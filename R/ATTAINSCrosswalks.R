@@ -1,3 +1,113 @@
+#' Get Monitoring Location Identifier and Assessment Unit Identifier
+#' Crosswalk from ATTAINS
+#'
+#' Tribes and States who participate in electronic reporting of water quality
+#' conditions through EPA ATTAINS may optionally submit a crosswalk of WQP
+#' monitoring location identifiers associated with their assessment units to
+#' ATTAINS. If an organization has recorded this information in ATTAINS, 
+#' this function can be used to get the ATTAINS user submitted crosswalk of 
+#' known monitoring location identifiers and assessment units. As of 2025, all 
+#' tribal nations record this information in ATTAINS but only a few states. 
+#'
+#' @param org_id The ATTAINS organization identifier must be supplied by the
+#' user. A list of organization identifiers can be found by downloading the
+#' ATTAINS Domains Excel file:
+#' https://www.epa.gov/system/files/other-files/2023-09/DOMAINS.xlsx.
+#' Organization identifiers are listed in the "OrgName" tab. The "code" column
+#' contains the organization identifiers that should be used for this param.
+#'
+#' @return A dataframe with four columns, MonitoringLocationIdentifier, 
+#' OrganizationIdentifier, ATTAINS.assessmentunitidentifier, and 
+#' MonitoringDataLinkText is returned. This is the crosswalk between monitoring
+#' location identifiers and assessment units that the state or tribal 
+#' organization submitted to ATTAINS (optional). If an ATTAINS organization 
+#' has not submitted this information in ATTAINS, the function will not return 
+#' a dataframe.
+#'
+#' @export
+#'
+#' @examples
+#' \dontrun{
+#' # Alaska example
+#' AK_crosswalk <- TADA_GetATTAINSAUSiteCrosswalk(org_id = "AKDECWQ")
+#'
+#' # Pueblo of Tesuque example
+#' PUEBLOOFTESUQUE_crosswalk <- TADA_GetATTAINSAUSiteCrosswalk(
+#'   org_id = "PUEBLOOFTESUQUE"
+#' )
+#'
+#' # Arizona example, returns blank dataframe as of 1/21/25
+#' AZ_crosswalk <- TADA_GetATTAINSAUSiteCrosswalk(org_id = "21ARIZ")
+#' }
+#'
+TADA_GetATTAINSAUSiteCrosswalk <- function(org_id = NULL) {
+  org.ref <- TADA_GetATTAINSOrgIDsRef()
+  
+  if (!org_id %in% org.ref$code) {
+    print(paste0(
+      "TADA_GetATTAINSAUSiteCrosswalk: ",
+      "The organization identifier entered by user is not found in ATTAINS."
+    ))
+  }
+  
+  if (org_id %in% org.ref$code) {
+    rm(org.ref)
+    
+    au.info <- rATTAINS::assessment_units(organization_id = org_id)
+    
+    au.crosswalk <- au.info %>%
+      tidyr::unnest(monitoring_stations) %>%
+      dplyr::select(
+        monitoring_location_identifier, monitoring_organization_identifier,
+        assessment_unit_identifier, monitoring_data_link_text
+      ) %>%
+      dplyr::filter(!is.na(monitoring_location_identifier)) %>%
+      dplyr::distinct() %>%
+      dplyr::rename(
+        ATTAINS.assessmentunitidentifier = assessment_unit_identifier,
+        MonitoringLocationIdentifier = monitoring_location_identifier,
+        OrganizationIdentifier = monitoring_organization_identifier,
+        MonitoringDataLinkText = monitoring_data_link_text
+      ) %>%
+      # paste org_id in front of MLs from the specified org if they are missing
+      # from ATTAINS
+      dplyr::mutate(MonitoringLocationIdentifier = ifelse((
+        OrganizationIdentifier == org_id &
+          stringr::str_detect(MonitoringLocationIdentifier,
+                              org_id,
+                              negate = TRUE
+          )),
+        paste0(org_id, "-", MonitoringLocationIdentifier),
+        MonitoringLocationIdentifier
+      ))
+    
+    rm(au.info)
+    
+    if (length(au.crosswalk$MonitoringLocationIdentifier > 0)) {
+      print(paste0(
+        "TADA_GetATTAINSAUSiteCrosswalk: ",
+        "There are ", nrow(au.crosswalk),
+        " monitoring location identifiers associated with assessment units for ",
+        org_id, " in ATTAINS."
+      ))
+      
+      return(au.crosswalk)
+    }
+    
+    if (length(au.crosswalk$MonitoringLocationIdentifier) == 0) {
+      print(paste0(
+        "TADA_GetATTAINSAUSiteCrosswalk: ",
+        "No monitoring location identifiers were recorded in ATTAINS for ",
+        org_id, " assessment units.", " No crosswalk can be returned."
+      ))
+      
+      rm(au.crosswalk)
+    }
+  }
+}
+
+
+
 #' Create or Update Monitoring Location Identifier and Assessment Unit Identifier
 #' Crosswalk in ATTAINS
 #'
@@ -318,8 +428,8 @@ TADA_UpdateMonitoringLocationsInATTAINS <- function(org_id = NULL,
 
 
 
-#' Create or Update ATTAINS Parameter Name, TADA/WQP Parameter Name, 
-#' and EPA Criteria Search Tool (CST) Crosswalk
+#' Create or Update ATTAINS, TADA/WQP/WQX, and EPA Criteria Search Tool (CST) 
+#' Parameter Name Crosswalk
 #'
 #' Use this function to help generate a crosswalk between each 
 #' ATTAINS.ParameterName used by a specific state or tribal nation and each 
@@ -427,10 +537,14 @@ TADA_UpdateMonitoringLocationsInATTAINS <- function(org_id = NULL,
 #' @examples
 #' # This creates a blank paramRef template of UT Nutrients data. 
 #' # Users will need to fill this template out.
+#' # Uncomment example below to generate Excel file 
+#' # (we recommended working on this in Excel):
+#' # TADA_CreateParamRef(Data_Nutrients_UT, org_id = "UTAHDWQ", excel = TRUE)
+#' # Example below generates the same output as a dataframe
 #' paramRef_UT <- TADA_CreateParamRef(
 #'   Data_Nutrients_UT, org_id = "UTAHDWQ", excel = FALSE 
 #' )
-#' # User can choose to edit the paramRef_UT through the R environment or in 
+#' # Users can choose to edit the paramRef_UT through the R environment or in 
 #' # the excel spreadsheet. Users should be aware that any updates done only 
 #' # in the R environment will not reflect the 'ATTAINS.FlagParameterName' values 
 #' # correctly. If completed in R, we recommend users rerun this function 
@@ -825,14 +939,19 @@ TADA_CreateParamRef <- function(.data, org_id = NULL, paramRef = NULL, excel = T
   return(CreateParamRef)
 }
 
-#' ATTAINS Parameter Name and Use Name crosswalk
+
+
+#' Create or Update ATTAINS Parameter and Use crosswalk
 #'
-#' Users will be required to validate the use name crosswalk for each 
-#' combination of ATTAIN parameter name and associated use_name that applies 
-#' to their org(s) with its associated TADA.ComparableDataIdentifier(s). 
-#' This can be accomplished by determining which 'use_name'(s) from the 
-#' drop-down menu in the excel spreadsheet generated by this function correspond 
-#' to the TADA.ComparableDataIdentifier(s) found in the TADA dataframe.
+#' This function generates a crosswalk of all parameters and uses applicable 
+#' to the selected organization(s) in ATTAINS. Users should review and validate
+#' each ATTAINS.ParameterName and associated use_name combination. 
+#' As part of this review process, users should check to make sure each
+#' 'use_name' from the drop-down menu in the excel spreadsheet generated by this
+#' function accurately corresponds to the correct TADA.ComparableDataIdentifier
+#' and ATTAINS.ParameterName found in the TADA dataframe. This function should be 
+#' run after creating a parameter (ATTAINS.ParameterName and 
+#' TADA.ComparableDataIdentifier) crosswalk. 
 #'
 #' Before running this function, users must run TADA_CreateParamRef() to 
 #' create the crosswalk that defines the ATTAINS.ParameterName(s) and 
@@ -935,6 +1054,8 @@ TADA_CreateParamRef <- function(.data, org_id = NULL, paramRef = NULL, excel = T
 #' and ATTAINS.FlagUseName. Users will need to review the crosswalk between 
 #' ATTAINS.ParameterName, use_name and TADA.ComparableDataIdentifier.
 #'
+#' @seealso [TADA_CreateParamRef()]
+#' 
 #' @export
 #'
 #' @examples

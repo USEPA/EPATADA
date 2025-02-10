@@ -2,8 +2,8 @@
 % Please edit documentation in R/ATTAINSCrosswalks.R
 \name{TADA_CreateParamRef}
 \alias{TADA_CreateParamRef}
-\title{Create or Update ATTAINS Parameter Name, TADA/WQP Parameter Name,
-and EPA Criteria Search Tool (CST) Crosswalk}
+\title{Create or Update ATTAINS, TADA/WQP/WQX, and EPA Criteria Search Tool (CST)
+Parameter Name Crosswalk}
 \usage{
 TADA_CreateParamRef(
   .data,
@@ -123,10 +123,14 @@ ATTAINS assessment cycles.
 \examples{
 # This creates a blank paramRef template of UT Nutrients data. 
 # Users will need to fill this template out.
+# Uncomment example below to generate Excel file 
+# (we recommended working on this in Excel):
+# TADA_CreateParamRef(Data_Nutrients_UT, org_id = "UTAHDWQ", excel = TRUE)
+# Example below generates the same output as a dataframe
 paramRef_UT <- TADA_CreateParamRef(
   Data_Nutrients_UT, org_id = "UTAHDWQ", excel = FALSE 
 )
-# User can choose to edit the paramRef_UT through the R environment or in 
+# Users can choose to edit the paramRef_UT through the R environment or in 
 # the excel spreadsheet. Users should be aware that any updates done only 
 # in the R environment will not reflect the 'ATTAINS.FlagParameterName' values 
 # correctly. If completed in R, we recommend users rerun this function 
