@@ -32,5 +32,4 @@ group.
 GroupNearbySites_100m <- TADA_FindNearbySites(Data_Nutrients_UT)
 GroupNearbySites_10m <- TADA_FindNearbySites(Data_Nutrients_UT, dist_buffer = 10)
 
-
 }

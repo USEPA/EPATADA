@@ -18,7 +18,6 @@
 #' characteristicName and Characteristic Group also work as an AND, therefore the
 #' characteristicName must fall within the Characteristic Group when both are entered.
 #'
-#'
 #' Users can reference the \href{https://www.epa.gov/waterdata/storage-and-retrieval-and-water-quality-exchange-domain-services-and-downloads}{WQX domain tables}
 #' to find allowable values for queries, e.g., reference the WQX domain table to find countycode and statecode: https://cdx.epa.gov/wqx/download/DomainValues/County_CSV.zip
 #' Alternatively, you can use the WQP services to find areas where data is available in the US: https://www.waterqualitydata.us/Codes/countycode
@@ -27,7 +26,7 @@
 #' is important for categorizing result value and detection limit data, as well as
 #' harmonizing key columns used in TADA. See ?TADA_AutoClean for more information.
 #'
-#' Note: TADA_DataRetrieval (by leveraging dataRetrieval),  automatically converts
+#' Note: TADA_DataRetrieval (by leveraging dataRetrieval), automatically converts
 #' the date times to UTC. It also automatically converts the data to dates,
 #' datetimes, numerics based on a standard algorithm. See: ?dataRetrieval::readWQPdata
 #'

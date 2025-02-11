@@ -68,7 +68,9 @@ suppressWarnings(
     n <- nrow(df_false)
 
     # print url and response code for failures
-    print(df_false)
+    if (n > 0) {
+      print(df_false)
+    }
 
     # verify that there are zero urls with failing response codes
     testthat::expect_equal(n, 0)
