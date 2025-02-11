@@ -72,7 +72,7 @@ ATTAINSParamUseOrgRef_Cached <- NULL
 #' @return Dataframe including ATTAINS parameters and uses for each organization.
 #'
 #' @export
-#' 
+#'
 
 TADA_GetATTAINSParamUseOrgRef <- function() {
   # # If there is a cached table available return it
@@ -121,12 +121,12 @@ TADA_GetATTAINSParamUseOrgRef <- function() {
   # # remove intermediate variables
   # rm(use_attainments, use_parameters)
   #
-  
+
   ATTAINSParamUseOrgRef <- utils::read.csv(system.file("extdata", "ATTAINSParamUseEntityRef.csv", package = "EPATADA"))
-  
+
   # Save updated table in cache
   ATTAINSParamUseOrgRef_Cached <- ATTAINSParamUseOrgRef
-  
+
   ATTAINSParamUseOrgRef
 }
 

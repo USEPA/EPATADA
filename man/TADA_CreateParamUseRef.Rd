@@ -122,32 +122,37 @@ criteria are included from the CST. All other use_name(s) are specific to an
 ATTAINS organization and come from the ATTAINS domain value for use_name.
 }
 \examples{
-# Users are required to provide a paramRef argument first. 
-# See TADA_CreateParamRef() for additional comments.
+# First, generate and fill out a parameter crosswalk (see TADA_CreateParamRef()):
 paramRef_UT <- TADA_CreateParamRef(Data_Nutrients_UT, org_id = "UTAHDWQ", excel = FALSE)
-
 paramRef_UT2 <- dplyr::mutate(paramRef_UT, ATTAINS.ParameterName = dplyr::case_when(
   TADA.CharacteristicName == "AMMONIA" ~ "AMMONIA, TOTAL",
   TADA.CharacteristicName == "NITRATE" ~ "NITRATE",
   TADA.CharacteristicName == "NITROGEN" ~ "NITRATE/NITRITE (NITRITE + NITRATE AS N)"
 ))
 paramRef_UT3 <- TADA_CreateParamRef(
-  Data_Nutrients_UT, paramRef = paramRef_UT2, org_id = "UTAHDWQ", excel = FALSE)
+  Data_Nutrients_UT,
+  paramRef = paramRef_UT2, org_id = "UTAHDWQ", excel = FALSE
+)
 
-# After running TADA_CreateParamRef() users will provide this as a function input. 
+# Next, enter the crosswalk generated above as the paramRef function input
+# for TADA_CreateParamUseRef():
 paramUseRef_UT <- TADA_CreateParamUseRef(
-  Data_Nutrients_UT, paramRef = paramRef_UT3, org_id = c("UTAHDWQ"), excel = FALSE)
+  Data_Nutrients_UT,
+  paramRef = paramRef_UT3, org_id = c("UTAHDWQ"), excel = FALSE
+)
 
-# Users can include the EPA304a standards by itself or compared to their org(s)
+# Users can include the EPA304a criteria by itself or in addition to their org(s)
 paramUseRef_UT2 <- TADA_CreateParamUseRef(
-  Data_Nutrients_UT, 
-  paramRef = paramRef_UT3, 
-  org_id = c("EPA304a", "UTAHDWQ"), excel = FALSE)
-  
+  Data_Nutrients_UT,
+  paramRef = paramRef_UT3,
+  org_id = c("EPA304a", "UTAHDWQ"), excel = FALSE
+)
+
 paramUseRef_UT3 <- TADA_CreateParamUseRef(
-  Data_Nutrients_UT, 
-  paramRef = paramRef_UT3, 
-  org_id = c("EPA304a"), excel = FALSE)
+  Data_Nutrients_UT,
+  paramRef = paramRef_UT3,
+  org_id = c("EPA304a"), excel = FALSE
+)
 
 }
 \seealso{

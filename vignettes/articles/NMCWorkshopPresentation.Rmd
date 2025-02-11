@@ -69,8 +69,8 @@ Let's dive into Green Bay, WI!
 Install and load the remotes package.
 
 ```{r, eval = F}
-if(!"remotes"%in%installed.packages()){
-install.packages("remotes")
+if (!"remotes" %in% installed.packages()) {
+  install.packages("remotes")
 }
 
 library(remotes)
@@ -79,10 +79,11 @@ library(remotes)
 Install and load the [EPATADA R Package](https://github.com/USEPA/EPATADA) from GitHub.
 
 ```{r, eval = F}
-remotes::install_github("USEPA/EPATADA", 
-                        ref = "develop", 
-                        dependencies = TRUE, 
-                        force = TRUE)
+remotes::install_github("USEPA/EPATADA",
+  ref = "develop",
+  dependencies = TRUE,
+  force = TRUE
+)
 
 library(EPATADA)
 ```
@@ -162,7 +163,7 @@ unique(GreenBay_FoxRiver$TADA.ResultMeasureValueDataTypes.Flag)
 
 sum(is.na(GreenBay_FoxRiver$TADA.ResultMeasureValue))
 
-GreenBay_FoxRiver = TADA_AutoFilter(GreenBay_FoxRiver)
+GreenBay_FoxRiver <- TADA_AutoFilter(GreenBay_FoxRiver)
 
 unique(GreenBay_FoxRiver$TADA.ResultMeasureValueDataTypes.Flag)
 
@@ -207,11 +208,13 @@ GreenBay_FoxRiver_Counts <- TADA_FieldValuesTable(GreenBay_FoxRiver, field = "TA
 ```{r}
 GreenBay_FoxRiver_Subset <- GreenBay_FoxRiver %>%
   dplyr::filter(TADA.ComparableDataIdentifier %in%
-      c("SPECIFIC CONDUCTANCE_NA_NA_US/CM", 
-      "PH_NA_NA_NA", 
+    c(
+      "SPECIFIC CONDUCTANCE_NA_NA_US/CM",
+      "PH_NA_NA_NA",
       "TOTAL NITROGEN, MIXED FORMS_UNFILTERED_AS N_MG/L",
       "TOTAL PHOSPHORUS, MIXED FORMS_UNFILTERED_AS P_UG/L",
-      "DISSOLVED OXYGEN (DO)_NA_NA_MG/L"))
+      "DISSOLVED OXYGEN (DO)_NA_NA_MG/L"
+    ))
 ```
 
 ## Review organizations for subset
@@ -234,7 +237,7 @@ DT::datatable(GreenBay_FoxRiver_Subset_Stats, fillContainer = TRUE)
 ## Generate scatterplot
 
 ```{r}
-TADA_TwoCharacteristicScatterplot(GreenBay_FoxRiver_Subset, id_cols = "TADA.ComparableDataIdentifier",  groups = c("TOTAL PHOSPHORUS, MIXED FORMS_UNFILTERED_AS P_UG/L", "TOTAL NITROGEN, MIXED FORMS_UNFILTERED_AS N_MG/L"))
+TADA_TwoCharacteristicScatterplot(GreenBay_FoxRiver_Subset, id_cols = "TADA.ComparableDataIdentifier", groups = c("TOTAL PHOSPHORUS, MIXED FORMS_UNFILTERED_AS P_UG/L", "TOTAL NITROGEN, MIXED FORMS_UNFILTERED_AS N_MG/L"))
 ```
 
 ## Generate map
@@ -242,7 +245,7 @@ TADA_TwoCharacteristicScatterplot(GreenBay_FoxRiver_Subset, id_cols = "TADA.Comp
 ```{r}
 TADA_OverviewMap(GreenBay_FoxRiver)
 
-GreenBay_FoxRiver = TADA_FlagCoordinates(GreenBay_FoxRiver, clean_outsideUSA = "change sign", clean_imprecise = FALSE)
+GreenBay_FoxRiver <- TADA_FlagCoordinates(GreenBay_FoxRiver, clean_outsideUSA = "change sign", clean_imprecise = FALSE)
 
 # WQP_with_ATTAINS_filled <- TADA_GetATTAINS(GreenBay_FoxRiver, fill_catchments = FALSE, return_sf = TRUE)
 ```

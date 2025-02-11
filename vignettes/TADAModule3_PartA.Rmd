@@ -300,7 +300,8 @@ NCTC_ParamUseRef <- TADA_CreateParamUseRef(
   Data_NCTC,
   org_id = c("MDE_EASP"),
   paramRef = ParamRef,
-  excel = FALSE)
+  excel = FALSE
+)
 TADA_TableExport(NCTC_ParamUseRef)
 ```
 

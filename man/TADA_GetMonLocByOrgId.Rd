@@ -32,9 +32,12 @@ these functions group sites that are nearby or duplicates of each other.
 }
 \examples{
 data(Data_6Tribes_5y_Harmonized)
-orgsite_crosswalk_originalwqp = TADA_GetMonLocByOrgId(
-Data_6Tribes_5y_Harmonized, id = "wqp")
-orgsite_crosswalk_tada = TADA_GetMonLocByOrgId(Data_6Tribes_5y_Harmonized,
-id = "tada")
+orgsite_crosswalk_originalwqp <- TADA_GetMonLocByOrgId(
+  Data_6Tribes_5y_Harmonized,
+  id = "wqp"
+)
+orgsite_crosswalk_tada <- TADA_GetMonLocByOrgId(Data_6Tribes_5y_Harmonized,
+  id = "tada"
+)
 
 }

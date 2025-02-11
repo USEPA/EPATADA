@@ -121,19 +121,20 @@ ATTAINS.ParameterName that was not used by the selected organization in prior
 ATTAINS assessment cycles.
 }
 \examples{
-# This creates a blank paramRef template of UT Nutrients data. 
+# This creates a blank paramRef template of UT Nutrients data.
 # Users will need to fill this template out.
-# Uncomment example below to generate Excel file 
+# Uncomment example below to generate Excel file
 # (we recommended working on this in Excel):
 # TADA_CreateParamRef(Data_Nutrients_UT, org_id = "UTAHDWQ", excel = TRUE)
 # Example below generates the same output as a dataframe
 paramRef_UT <- TADA_CreateParamRef(
-  Data_Nutrients_UT, org_id = "UTAHDWQ", excel = FALSE 
+  Data_Nutrients_UT,
+  org_id = "UTAHDWQ", excel = FALSE
 )
-# Users can choose to edit the paramRef_UT through the R environment or in 
-# the excel spreadsheet. Users should be aware that any updates done only 
-# in the R environment will not reflect the 'ATTAINS.FlagParameterName' values 
-# correctly. If completed in R, we recommend users rerun this function 
+# Users can choose to edit the paramRef_UT through the R environment or in
+# the excel spreadsheet. Users should be aware that any updates done only
+# in the R environment will not reflect the 'ATTAINS.FlagParameterName' values
+# correctly. If completed in R, we recommend users rerun this function
 # to update the 'ATTAINS.FlagParameterName'.
 # See below for a simple example of this workflow:
 
@@ -150,7 +151,7 @@ paramRef_UT3 <- TADA_CreateParamRef(Data_Nutrients_UT,
 )
 
 # Example where multiple org_id's are selected
-# First, run key flag functions and harmonize synonyms across 
+# First, run key flag functions and harmonize synonyms across
 # characteristic, fraction, and speciation columns
 Data_NCTCShepherdstown <- TADA_RunKeyFlagFunctions(Data_NCTCShepherdstown_HUC12)
 Data_NCTCShepherdstown2 <- TADA_HarmonizeSynonyms(Data_NCTCShepherdstown)
