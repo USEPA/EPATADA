@@ -11,10 +11,10 @@ TADA_TwoCharacteristicScatterplot(
 )
 }
 \arguments{
-\item{.data}{TADA data frame containing the data downloaded from the WQP,
-where each row represents a unique data record. Data frame must include the
-columns 'TADA.ComparableDataIdentifier', 'TADA.ResultMeasureValue', and
-'TADA.ResultMeasure.MeasureUnitCode' to run this function.}
+\item{.data}{TADA dataframe containing the data downloaded from the WQP,
+where each row represents a unique data record. Dataframe must include the
+columns 'TADA.ComparableDataIdentifier', 'TADA.ResultMeasureValue', and 'TADA.ResultMeasure.MeasureUnitCode'
+to run this function.}
 
 \item{id_cols}{The column in the dataset used to identify the unique groups to
 be plotted. Defaults to 'TADA.ComparableDataIdentifier', which should be
@@ -26,9 +26,9 @@ organization, etc.)}
 
 \item{groups}{A vector of two identifiers from the id_cols column. For
 example, if the id_cols is 'TADA.ComparableDataIdentifier', the groups could
-be 'DISSOLVED OXYGEN (DO)_NA_NA_UG/L' and 'PH_NA_NA_NA'. These groups will
-be specific to your dataset. If the id_cols is 'TADA.MonitoringLocationName',
-the groups could be 'UPPER RED LAKE: WEST' and 'UPPER RED LAKE: WEST-CENTRAL'.}
+be 'DISSOLVED OXYGEN (DO)_NA_NA_UG/L' and 'PH_NA_NA_STD UNITS'. These groups will
+be specific to your dataset. If the id_cols is 'MonitoringLocationName',
+the groups could be 'Upper Red Lake: West' and 'Upper Red Lake: West-Central'.}
 }
 \value{
 A single plotly scatterplot figure with one x-axis (Date/Time) and a

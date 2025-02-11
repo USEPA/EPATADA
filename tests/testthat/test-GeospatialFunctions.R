@@ -98,7 +98,7 @@ testthat::test_that(
   desc = "fetchATTAINS handles valid input data",
   code = {
     valid_data <- sf::st_sf(geometry = sf::st_sfc(sf::st_point(c(0, 0))), crs = 4326)
-    result <- fetchATTAINS(.data = valid_data)
+    result <- EPATADA:::fetchATTAINS(.data = valid_data)
     expect_false(is.null(result))
   }
 )

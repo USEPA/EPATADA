@@ -42,7 +42,7 @@ column is appended. When clean = TRUE and and flaggedonly = TRUE, the function
 is not executed and an error message is returned. Defaults are clean = FALSE
 and flaggedonly = FALSE.
 
-This function will add the column "TADA.ResultAboveUpperThreshold.Flag" which
+This function will add the column "TADA.ResultValueAboveUpperThreshold.Flag" which
 will be populated with the values: "Pass", "Suspect", "Not Reviewed", or
 "NA - Not Available". The “Not Reviewed” value means that the EPA WQX team
 has not yet reviewed the range yet for the characteristic and unit combination combination
@@ -57,16 +57,16 @@ the flag column will be deleted and regenerated.
 }
 \examples{
 # Load example dataset:
-data(Data_Nutrients_UT)
+data(Data_NCTCShepherdstown_HUC12)
 
 # Remove data that is above the upper WQX threshold from dataframe:
-WQXUpperThreshold_clean <- TADA_FlagAboveThreshold(Data_Nutrients_UT, clean = TRUE)
+WQXUpperThreshold_clean <- TADA_FlagAboveThreshold(Data_NCTCShepherdstown_HUC12, clean = TRUE)
 
 # Flag, but do not remove, data that is above the upper WQX threshold in
 # new column titled "TADA.ResultValueAboveUpperThreshold.Flag":
-WQXUpperThreshold_flags <- TADA_FlagAboveThreshold(Data_Nutrients_UT, clean = FALSE)
+WQXUpperThreshold_flags <- TADA_FlagAboveThreshold(Data_NCTCShepherdstown_HUC12, clean = FALSE)
 
 # Show only data flagged as above the upper WQX threshold:
-WQXUpperThreshold_flagsonly <- TADA_FlagAboveThreshold(Data_Nutrients_UT, clean = FALSE, flaggedonly = TRUE)
+WQXUpperThreshold_flagsonly <- TADA_FlagAboveThreshold(Data_NCTCShepherdstown_HUC12, clean = FALSE, flaggedonly = TRUE)
 
 }

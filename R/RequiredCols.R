@@ -541,6 +541,7 @@ TADA_AutoFilter <- function(.data) {
 }
 
 
+
 #' TADA_RetainRequired
 #'
 #' This function removes all duplicate columns where TADA has created a new column with a TADA prefix.

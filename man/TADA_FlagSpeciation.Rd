@@ -47,7 +47,7 @@ rows with "Suspect" or "NonStandardized" characteristic-method speciation combin
 Default is flaggedonly = FALSE.
 }
 \details{
-The “Not Reviewed” value within "TADA.ResultAboveUpperThreshold.Flag" means
+The “Not Reviewed” value within "TADA.MethodSpeciation.Flag" means
 that the EPA WQX team has not yet reviewed the combinations
 (see https://cdx.epa.gov/wqx/download/DomainValues/QAQCCharacteristicValidation.CSV).
 The WQX team plans to review and update these new combinations quarterly.
