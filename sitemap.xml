@@ -7,6 +7,7 @@
 <url><loc>usepa.github.io/EPATADA/articles/TADAModule1_AdvancedTraining.html</loc></url>
 <url><loc>usepa.github.io/EPATADA/articles/TADAModule1_BeginnerTraining.html</loc></url>
 <url><loc>usepa.github.io/EPATADA/articles/TADAModule2.html</loc></url>
+<url><loc>usepa.github.io/EPATADA/articles/TADAModule3_PartA.html</loc></url>
 <url><loc>usepa.github.io/EPATADA/articles/TADAWaterSciConWorkshopDemo.html</loc></url>
 <url><loc>usepa.github.io/EPATADA/articles/WQXValidationService.html</loc></url>
 <url><loc>usepa.github.io/EPATADA/articles/index.html</loc></url>
@@ -14,6 +15,7 @@
 <url><loc>usepa.github.io/EPATADA/index.html</loc></url>
 <url><loc>usepa.github.io/EPATADA/reference/Data_6Tribes_5y.html</loc></url>
 <url><loc>usepa.github.io/EPATADA/reference/Data_6Tribes_5y_Harmonized.html</loc></url>
+<url><loc>usepa.github.io/EPATADA/reference/Data_HUC8_02070004_Mod1Output.html</loc></url>
 <url><loc>usepa.github.io/EPATADA/reference/Data_NCTCShepherdstown_HUC12.html</loc></url>
 <url><loc>usepa.github.io/EPATADA/reference/Data_Nutrients_UT.html</loc></url>
 <url><loc>usepa.github.io/EPATADA/reference/Data_R5_TADAPackageDemo.html</loc></url>
@@ -34,6 +36,8 @@
 <url><loc>usepa.github.io/EPATADA/reference/TADA_ConvertSpecialChars.html</loc></url>
 <url><loc>usepa.github.io/EPATADA/reference/TADA_CreateComparableID.html</loc></url>
 <url><loc>usepa.github.io/EPATADA/reference/TADA_CreatePairRef.html</loc></url>
+<url><loc>usepa.github.io/EPATADA/reference/TADA_CreateParamRef.html</loc></url>
+<url><loc>usepa.github.io/EPATADA/reference/TADA_CreateParamUseRef.html</loc></url>
 <url><loc>usepa.github.io/EPATADA/reference/TADA_CreateUnitRef.html</loc></url>
 <url><loc>usepa.github.io/EPATADA/reference/TADA_DataRetrieval.html</loc></url>
 <url><loc>usepa.github.io/EPATADA/reference/TADA_DecimalPlaces.html</loc></url>
@@ -62,10 +66,12 @@
 <url><loc>usepa.github.io/EPATADA/reference/TADA_GetATTAINS.html</loc></url>
 <url><loc>usepa.github.io/EPATADA/reference/TADA_GetATTAINSAUSiteCrosswalk.html</loc></url>
 <url><loc>usepa.github.io/EPATADA/reference/TADA_GetATTAINSOrgIDsRef.html</loc></url>
+<url><loc>usepa.github.io/EPATADA/reference/TADA_GetATTAINSParamUseOrgRef.html</loc></url>
 <url><loc>usepa.github.io/EPATADA/reference/TADA_GetActivityTypeRef.html</loc></url>
 <url><loc>usepa.github.io/EPATADA/reference/TADA_GetCharacteristicRef.html</loc></url>
 <url><loc>usepa.github.io/EPATADA/reference/TADA_GetDetCondRef.html</loc></url>
 <url><loc>usepa.github.io/EPATADA/reference/TADA_GetDetLimitRef.html</loc></url>
+<url><loc>usepa.github.io/EPATADA/reference/TADA_GetEPACSTRef.html</loc></url>
 <url><loc>usepa.github.io/EPATADA/reference/TADA_GetMeasureQualifierCodeRef.html</loc></url>
 <url><loc>usepa.github.io/EPATADA/reference/TADA_GetMeasureUnitRef.html</loc></url>
 <url><loc>usepa.github.io/EPATADA/reference/TADA_GetMonLocByOrgId.html</loc></url>
@@ -98,6 +104,7 @@
 <url><loc>usepa.github.io/EPATADA/reference/TADA_Stats.html</loc></url>
 <url><loc>usepa.github.io/EPATADA/reference/TADA_SubstituteDeprecatedChars.html</loc></url>
 <url><loc>usepa.github.io/EPATADA/reference/TADA_SummarizeColumn.html</loc></url>
+<url><loc>usepa.github.io/EPATADA/reference/TADA_TableExport.html</loc></url>
 <url><loc>usepa.github.io/EPATADA/reference/TADA_TwoCharacteristicScatterplot.html</loc></url>
 <url><loc>usepa.github.io/EPATADA/reference/TADA_UniqueCharUnitSpeciation.html</loc></url>
 <url><loc>usepa.github.io/EPATADA/reference/TADA_UpdateAllRefs.html</loc></url>

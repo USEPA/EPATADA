@@ -5,11 +5,21 @@ be run after other data cleaning, QA/QC, and harmonization steps are
 completed using other TADA package functions, or manually. Specifically, .
 this function removes rows with "Text" and "NA - Not Available"
 in the TADA.ResultMeasureValueDataTypes.Flag column, or NA in the
+TADA.ResultMeasureValue column.
+This function removes rows where the result value is not numeric to
+prepare a dataframe for quantitative analyses. This function can be run
+after TADA_AutoClean. It removes rows with "Text" and "NA - Not Available"
+in the TADA.ResultMeasureValueDataTypes.Flag column, or NA in the
 TADA.ResultMeasureValue column.'><meta property="og:description" content='This function removes rows where the result value is not numeric to
 prepare a dataframe for quantitative analyses. Ideally, this function should
 be run after other data cleaning, QA/QC, and harmonization steps are
 completed using other TADA package functions, or manually. Specifically, .
 this function removes rows with "Text" and "NA - Not Available"
+in the TADA.ResultMeasureValueDataTypes.Flag column, or NA in the
+TADA.ResultMeasureValue column.
+This function removes rows where the result value is not numeric to
+prepare a dataframe for quantitative analyses. This function can be run
+after TADA_AutoClean. It removes rows with "Text" and "NA - Not Available"
 in the TADA.ResultMeasureValueDataTypes.Flag column, or NA in the
 TADA.ResultMeasureValue column.'></head><body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
@@ -36,6 +46,7 @@ TADA.ResultMeasureValue column.'></head><body>
     <li><a class="dropdown-item" href="../articles/TADAModule1_BeginnerTraining.html">TADA Module 1: Training for Beginner R Users</a></li>
     <li><a class="dropdown-item" href="../articles/TADAModule1.html">TADA Module 1: Water Quality Portal Data Discovery and Cleaning</a></li>
     <li><a class="dropdown-item" href="../articles/TADAModule2.html">TADA Module 2: Geospatial Functions</a></li>
+    <li><a class="dropdown-item" href="../articles/TADAModule3_PartA.html">TADA Module 3: Associating WQP Characteristics with Applicable ATTAINS and EPA 304(a) Parameters and Uses</a></li>
     <li><a class="dropdown-item" href="../articles/TADAWaterSciConWorkshopDemo.html">TADA: WaterSciCon Workshop Demo</a></li>
     <li><a class="dropdown-item" href="../articles/WQXValidationService.html">WQX QAQC Service User Guide</a></li>
   </ul></li>
@@ -51,7 +62,7 @@ TADA.ResultMeasureValue column.'></head><body>
   <main id="main" class="col-md-9"><div class="page-header">
 
       <h1>AutoFilter</h1>
-      <small class="dont-index">Source: <a href="https://github.com/USEPA/EPATADA/blob/develop/R/RequiredCols.R" class="external-link"><code>R/RequiredCols.R</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/USEPA/EPATADA/blob/develop/R/RequiredCols.R" class="external-link"><code>R/RequiredCols.R</code></a>, <a href="https://github.com/USEPA/EPATADA/blob/develop/R/Utilities.R" class="external-link"><code>R/Utilities.R</code></a></small>
       <div class="d-none name"><code>TADA_AutoFilter.Rd</code></div>
     </div>
 
@@ -63,11 +74,18 @@ completed using other TADA package functions, or manually. Specifically, .
 this function removes rows with "Text" and "NA - Not Available"
 in the TADA.ResultMeasureValueDataTypes.Flag column, or NA in the
 TADA.ResultMeasureValue column.</p>
+<p>This function removes rows where the result value is not numeric to
+prepare a dataframe for quantitative analyses. This function can be run
+after TADA_AutoClean. It removes rows with "Text" and "NA - Not Available"
+in the TADA.ResultMeasureValueDataTypes.Flag column, or NA in the
+TADA.ResultMeasureValue column.</p>
     </div>
 
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">TADA_AutoFilter</span><span class="op">(</span><span class="va">.data</span><span class="op">)</span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">TADA_AutoFilter</span><span class="op">(</span><span class="va">.data</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu">TADA_AutoFilter</span><span class="op">(</span><span class="va">.data</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div class="section level2">
@@ -75,18 +93,23 @@ TADA.ResultMeasureValue column.</p>
 
 
 <dl><dt id="arg--data">.data<a class="anchor" aria-label="anchor" href="#arg--data"></a></dt>
-<dd><p>TADA dataframe OR TADA sites dataframe</p></dd>
+<dd><p>TADA dataframe</p></dd>
 
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
     <p>.data with rows removed where result values are not quantitative (NA or text),
 or the results have other issues that are not dealt with elsewhere.</p>
+<p>.data with rows removed where result values are not quantitative (NA or text),
+or the results have other issues that are not dealt with elsewhere.</p>
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
     <p>This function also removes any columns not required for TADA workflow where
 all values are equal to NA.It also provides a warning message identifying
+any TADA required columns containing only NA values.</p>
+<p>This function also removes any columns not required for TADA workflow where
+all values are equal to NA. It also provides a warning message identifying
 any TADA required columns containing only NA values.</p>
     </div>
 
@@ -97,6 +120,21 @@ any TADA required columns containing only NA values.</p>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Remove all:</span></span></span>
 <span class="r-in"><span><span class="va">TADA_filtered</span> <span class="op">&lt;-</span> <span class="fu">TADA_AutoFilter</span><span class="op">(</span><span class="va">Data_Nutrients_UT</span><span class="op">)</span></span></span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Censored data should be handled prior to running this function. See ?TADA_SimpleCensoredMethods and ?TADA_IDCensoredData.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "Quality control samples have been removed or were not present in the input dataframe. Returning dataframe with TADA.ActivityType.Flag column for tracking."</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "TADA_Autofilter: removing columns not required for TADA workflow if they contain only NAs."</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "The following column(s) were removed as they contained only NAs: ActivityDepthAltitudeReferencePointText, ActivityEndDate, ActivityEndTime.Time, ActivityEndTime.TimeZoneCode, SampleAquifer, ResultWeightBasisText, ResultTemperatureBasisText, ResultParticleSizeBasisText, BinaryObjectFileName, BinaryObjectFileTypeCode, LabSamplePreparationUrl and ProjectMonitoringLocationWeightingUrl."</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "TADA_Autofilter: checking required columns for non-NA values."</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "TADA Required column(s) SubjectTaxonomicName, SampleTissueAnatomyName, ResultDepthHeightMeasure.MeasureValue, TADA.ResultDepthHeightMeasure.MeasureValue, ResultDepthHeightMeasure.MeasureUnitCode, TADA.ResultDepthHeightMeasure.MeasureUnitCode, ResultDepthAltitudeReferencePointText, ResultTimeBasisText, StatisticalBaseCode, ResultFileUrl, ResultAnalyticalMethod.MethodUrl, DataQuality.PrecisionValue, DataQuality.BiasValue, DataQuality.ConfidenceIntervalValue, DataQuality.UpperConfidenceLimitValue, DataQuality.LowerConfidenceLimitValue, ProjectFileUrl, QAPPApprovalAgencyName and LocalAqfrName contain only NA values. This may impact other TADA functions."</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "Function removed 3386 results. These results are either text or NA and cannot be plotted or represent quality control activities (not routine samples or measurements)."</span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Load example dataset:</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">Data_Nutrients_UT</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Remove all:</span></span></span>
+<span class="r-in"><span><span class="va">TADA_filtered</span> <span class="op">&lt;-</span> <span class="fu">TADA_AutoFilter</span><span class="op">(</span><span class="va">Data_Nutrients_UT</span><span class="op">)</span></span></span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Censored data should be handled prior to running this function. See ?TADA_SimpleCensoredMethods and ?TADA_IDCensoredData.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "Quality control samples have been removed or were not present in the input dataframe. Returning dataframe with TADA.ActivityType.Flag column for tracking."</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] "TADA_Autofilter: removing columns not required for TADA workflow if they contain only NAs."</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] "The following column(s) were removed as they contained only NAs: ActivityDepthAltitudeReferencePointText, ActivityEndDate, ActivityEndTime.Time, ActivityEndTime.TimeZoneCode, SampleAquifer, ResultWeightBasisText, ResultTemperatureBasisText, ResultParticleSizeBasisText, BinaryObjectFileName, BinaryObjectFileTypeCode, LabSamplePreparationUrl and ProjectMonitoringLocationWeightingUrl."</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] "TADA_Autofilter: checking required columns for non-NA values."</span>
