@@ -16,7 +16,6 @@ TADA_UpdateAllRefs <- function() {
   TADA_UpdateWQPOrgProviderRef()
   TADA_UpdateATTAINSOrgIDsRef()
   TADA_UpdateATTAINSParamUseOrgRef()
-  TADA_UpdateEPA304aRef()
   TADA_UpdateTribalLayers()
 }
 
