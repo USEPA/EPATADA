@@ -19,7 +19,6 @@ Aliesha
 AnalysisDataFilter
 AnalyticalMethod
 Animas
-ApplyUniqueSpatialCriteria
 AquiferName
 ArcGIS
 AssemblageSampledName
@@ -32,6 +31,7 @@ BiologicalIntentName
 CCO
 CNENVSER
 CRS
+CSTtoATTAINSParamCrosswalk
 CWA
 CalculateTotalNP
 CalculateTotalNitrogen
@@ -62,7 +62,6 @@ CreatePairRef
 CreateParamRef
 CreateParamUseRef
 CreateUnitRef
-CriteriaSearchTool
 DataFrame
 DataQuality
 DataRetrieval
@@ -111,7 +110,6 @@ GetNutrientSummationRef
 GetSynonymRef
 Github
 HMW
-HRM
 HUC
 HUCS
 HUCs
@@ -157,10 +155,10 @@ MethodQualifierCodes
 MethodQualifierTypeName
 MethodSpeciation
 MethodSpeciationName
+MonitoringDataLinkText
 MonitoringLocation
 MonitoringLocationIdentifier
 MonitoringLocationIdentifiers
-MonitoringLocationIdentiifer
 MonitoringLocationName
 MonitoringLocationTypeName
 Msr
@@ -199,6 +197,7 @@ ParamRef
 ParamUseRef
 ParameterName
 ParameterNames
+PartB
 Pojoaque
 PollutantName
 ProjectFileUrl
@@ -239,6 +238,7 @@ ResultMeasureQualifier
 ResultMeasureUnit
 ResultMeasureValue
 ResultMeasureValueDataTypes
+ResultMeasureValues
 ResultParticleSizeBasisText
 ResultSampleFractionText
 ResultSelectedMultipleOrgs
@@ -278,6 +278,7 @@ TADADataRetrieval
 TADAGeospatialRefLayers
 TADAModule
 TADAPackageDemo
+TADAPriorityCharUnitRef
 TADAProfile
 TADAShiny
 TMDL
@@ -346,7 +347,7 @@ cleanNA
 countrycode
 countycode
 cristinamullin
-critieria
+crosswalked
 crs
 csv
 cwa
@@ -362,7 +363,6 @@ dplyr
 du
 eXchange
 ecc
-ecoregion
 ecoregions
 endDate
 endDateHi
@@ -396,11 +396,8 @@ io
 lessthan
 magrittr
 manys
-methdogologies
 mimeType
 mlt
-modifcations
-modififed
 myfileRef
 nd
 nhdplusTools
@@ -415,7 +412,6 @@ outsideUSA
 param
 paramRef
 params
-paramter
 pch
 pchIcons
 pcodes
@@ -428,7 +424,6 @@ rda
 readWQPdata
 repo
 reproducibility
-rerefence
 sampleMedia
 secchi
 shp

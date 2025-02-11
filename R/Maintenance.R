@@ -336,7 +336,7 @@ TADA_UpdateExampleData <- function() {
 # devtools::test()
 
 ###########################################################
-
+ 
 # # spell check
 # library(spelling)
 # spelling::spell_check_package(
