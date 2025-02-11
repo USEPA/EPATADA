@@ -73,7 +73,7 @@ Imports:
     arcgislayers,
     httr,
     rATTAINS,
-    MESS
+    MESS,
     jsonlite, 
     openxlsx,
     rATTAINS,
