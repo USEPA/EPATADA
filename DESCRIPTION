@@ -72,14 +72,16 @@ Imports:
     nhdplusTools,
     arcgislayers,
     httr,
-    jsonlite,
     rATTAINS,
     MESS
+    jsonlite, 
+    openxlsx,
+    rATTAINS,
+    DT
 Depends: 
     R (>= 3.5.0)
 Suggests:
     lwgeom,
-    DT,
     RColorBrewer,
     rmarkdown,
     readr,
@@ -92,12 +94,14 @@ Suggests:
     pkgdown,
     spelling,
     htmltools,
-    yaml,
-    tigris
+    tigris,
+    yaml, 
+    remotes
 VignetteBuilder: knitr, rmarkdown
 Language: en-US
 Config/testthat/edition: 3
 Config/testthat/load-all: list(export_all = FALSE, helpers = FALSE)
-URL: https://usepa.github.io/EPATADA/, https://github.com/USEPA/EPATADA, usepa.github.io/EPATADA
+URL: https://usepa.github.io/EPATADA/, https://github.com/USEPA/EPATADA
 LazyData: true
 LazyDataCompression: xz
+Config/Needs/website: rmarkdown

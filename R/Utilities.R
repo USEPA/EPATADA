@@ -25,7 +25,7 @@ quiet <- function(x) {
 
 # write global variables. Gets rid of global variable NOTE in check:
 utils::globalVariables(c(
-  "TADA.ResultValueAboveUpperThreshold.Flag", "ActivityIdentifier", 
+  "TADA.ResultValueAboveUpperThreshold.Flag", "ActivityIdentifier",
   "ActivityMediaName",
   "ActivityStartDate", "TADA.ResultValueBelowUpperThreshold.Flag",
   "TADA.ResultValueBelowLowerThreshold.Flag", "CharacteristicName",
@@ -37,15 +37,15 @@ utils::globalVariables(c(
   "QAPPApprovalAgencyName", "QAPPApprovedIndicator",
   "ResultDetectionConditionText", "ResultMeasureValue",
   "SamplingDesignTypeCode", "Source", "Status", "TADA.ContinuousData.Flag",
-  "TADA.SuspectCoordinates.Flag", "TADA.PotentialDupRowIDs.Flag", 
+  "TADA.SuspectCoordinates.Flag", "TADA.PotentialDupRowIDs.Flag",
   "TADA.QAPPDocAvailable",
   "Target.Unit", "Type", "Value.Unit", "TADA.AnalyticalMethod.Flag",
   "TADA.MethodSpeciation.Flag", "TADA.ResultUnit.Flag",
   "TADA.SampleFraction.Flag", "YearSummarized", "where", "TADA.CharacteristicName",
   "ResultIdentifier", "TADA.ResultMeasureValue", "n_sites",
-  "n_records", "statecodes_df", "STUSAB", "ActivityStartTime.Time", "numorgs", 
+  "n_records", "statecodes_df", "STUSAB", "ActivityStartTime.Time", "numorgs",
   "dup_id",
-  "LatitudeMeasure", "TADA.ResultMeasureValueDataTypes.Flag", "Name", 
+  "LatitudeMeasure", "TADA.ResultMeasureValueDataTypes.Flag", "Name",
   "TADA.Detection_Type",
   "DetectionQuantitationLimitTypeName", "TADA.Limit_Type", "multiplier", "summ",
   "cf",
@@ -61,20 +61,20 @@ utils::globalVariables(c(
   "TADA.ResultMeasureValue1", "TADA.ResultSampleFractionText",
   "TADA.MethodSpeciationName", "TADA.ResultMeasure.MeasureUnitCode",
   "TADA.ActivityMediaName", "TADA.NutrientSummationGroup",
-  "SummationName", "SummationRank", "SummationFractionNotes", 
+  "SummationName", "SummationRank", "SummationFractionNotes",
   "SummationSpeciationNotes",
   "SummationSpeciationConversionFactor", "SummationNote", "NutrientGroup",
-  "Target.Speciation", "TADA.NearbySiteGroups", "numres", 
+  "Target.Speciation", "TADA.NearbySiteGroups", "numres",
   "TADA.SingleOrgDupGroupID",
   "TADA.MeasureQualifierCode.Flag", "TADA.MeasureQualifierCode.Def", "
   MeasureQualifierCode",
   "value", "Flag_Column", "Data_NCTCShepherdstown_HUC12",
   "ActivityStartDateTime",
-  "TADA.MultipleOrgDupGroupID", "TADA.WQXVal.Flag", "Concat", ".", 
+  "TADA.MultipleOrgDupGroupID", "TADA.WQXVal.Flag", "Concat", ".",
   "MeasureQualifierCode.Split",
   "TADA.Media.Flag", "ML.Media.Flag", "TADA.UseForAnalysis.Flag",
   "Unique.Identifier", "Domain", "Note.Recommendation", "Conversion.Coefficient",
-  "Conversion.Coefficient", "Last.Change.Date", "Value", "Minimum", 
+  "Conversion.Coefficient", "Last.Change.Date", "Value", "Minimum",
   "Unique.Identifier",
   "Domain", "ResultMeasure.MeasureUnitCode", "Comb", "CombList",
   "TADA.Target.ResultMeasure.MeasureUnitCode", "TADA.WQXUnitConversionFactor",
@@ -99,16 +99,23 @@ utils::globalVariables(c(
   "TADA.MonitoringLocationIdentifier", "StringA", "StringB", "MeasureUnitCode.match",
   "TADA.ActivityTopDepthHeightMeasure.MeasureValue", "group_id", "time_diff_lead", "time_diff_lag",
   "NResults", "missing.group", "TADA.PairingGroup", "TADA.PairingGroup.Rank", "timediff",
-  "ATTAINS.submissionid", "HorizontalCoordinateReferenceSystemDatumName", 
-  "NCount", "NHD.catchmentareasqkm", "NHD.comid", "NHD.nhdplusid", "NHD.resolution", 
-  "areasqkm", "assessmentUnitIdentifier", "catchmentareasqkm", "comid", 
+  "ATTAINS.submissionid", "HorizontalCoordinateReferenceSystemDatumName",
+  "NCount", "NHD.catchmentareasqkm", "NHD.comid", "NHD.nhdplusid", "NHD.resolution",
+  "areasqkm", "assessmentUnitIdentifier", "catchmentareasqkm", "comid",
   "featureid", "geometry", "nhdplusid", "waterTypeCode", "ASSESSMENT_UNIT_ID",
   "assessment_unit_identifier", "au_crosswalk", "monitoring_data_link_text",
   "MONITORING_DATA_LINK_TEXT", "MONITORING_DATA_LINK_TEXT.New", "monitoring_location_identifier",
-  "monitoring_organization_identifier", "monitoring_stations", "MS_LOCATION_ID", "MS_ORG_ID",
-  "OrgIDForURL", "provder.ref", "ProviderName", "response_code", 
-  "update.crosswalk.MONITORING_DATA_LINK_TEXT.New", "resultCount", "MeasureQualifierCode",
-  "tribal_area", "MonitoringDataLinkText", "PARCEL_NO", "TRIBE_NAME"
+  "monitoring_organization_identifier", "monitoring_stations", "MS_LOCATION_ID", "MS_ORG_ID", "resultCount", 
+  "tribal_area", "PARCEL_NO", "TRIBE_NAME", 
+  "OrgIDForURL", "provder.ref", "ProviderName", "response_code",
+  "update.crosswalk.MONITORING_DATA_LINK_TEXT.New",
+  "ATTAINS.FlagParameterName", "ATTAINS.FlagUseName", "ATTAINS.ParameterName", "CRITERION_VALUE",
+  "CRITERIATYPEAQUAHUMHLTH", "CRITERIATYPEFRESHSALTWATER", "CRITERIATYPE_ACUTECHRONIC",
+  "CRITERIATYPE_WATERORG", "ENTITY_ABBR", "POLLUTANT_NAME", "USE_CLASS_NAME_LOCATION_ETC",
+  "EPA304A.PollutantName", "IncludeOrExclude", "organization_identifier", "parameter", "use_name",
+  "organization_identifier.y", "use_name.y", "UNIT_NAME",
+  "MeasureQualifierCode", "TADA.SingleOrgDup.Flag", "MonitoringDataLinkText", "URLencode",
+  "TADA_UpdateEPA304aRef"
 ))
 
 # global variables for tribal feature layers used in TADA_OverviewMap in Utilities.R
@@ -118,6 +125,7 @@ AmericanIndianUrl <- "https://geopub.epa.gov/arcgis/rest/services/EMEF/Tribal/Ma
 OffReservationUrl <- "https://geopub.epa.gov/arcgis/rest/services/EMEF/Tribal/MapServer/3/query"
 OKTribeUrl <- "https://geopub.epa.gov/arcgis/rest/services/EMEF/Tribal/MapServer/4/query"
 VATribeUrl <- "https://geopub.epa.gov/arcgis/rest/services/EMEF/Tribal/MapServer/5/query"
+
 
 #' TADA_AutoClean
 #'
@@ -201,9 +209,9 @@ VATribeUrl <- "https://geopub.epa.gov/arcgis/rest/services/EMEF/Tribal/MapServer
 #' \dontrun{
 #' # Find web service URLs for each Profile using WQP User Interface:
 #' # https://www.waterqualitydata.us/
-#' 
-#' # Example WQP URL: 
-#' https://www.waterqualitydata.us/#statecode=US%3A09&characteristicType=Nutrient&startDateLo=04-01-2023&startDateHi=11-01-2023&mimeType=csv&providers=NWIS&providers=STEWARDS&providers=STORET
+#'
+#' # Example WQP URL:
+#' # https://www.waterqualitydata.us/#statecode=US%3A09&characteristicType=Nutrient&startDateLo=04-01-2023&startDateHi=11-01-2023&mimeType=csv&providers=NWIS&providers=STEWARDS&providers=STORET
 #'
 #' # Use TADA_ReadWQPWebServices to load the Station, Project, and Phys-Chem Result profiles
 #' stationProfile <- TADA_ReadWQPWebServices("https://www.waterqualitydata.us/data/Station/search?statecode=US%3A09&characteristicType=Nutrient&startDateLo=04-01-2023&startDateHi=11-01-2023&mimeType=csv&zip=yes&providers=NWIS&providers=STEWARDS&providers=STORET")
@@ -222,7 +230,7 @@ TADA_AutoClean <- function(.data) {
   # issue where data structure for all columns should be specified.
   cols <- names(.data)
   .data <- .data %>% dplyr::mutate_at(cols, as.character)
-  
+
   # check .data is data.frame
   TADA_CheckType(.data, "data.frame", "Input object")
 
@@ -239,7 +247,7 @@ TADA_AutoClean <- function(.data) {
   TADA_CheckColumns(.data, required_cols)
 
   # execute function after checks are passed
-  
+
 
   # check to make sure columns do not already exist and capitalize fields with known synonyms that
   # only differ in caps
@@ -293,43 +301,44 @@ TADA_AutoClean <- function(.data) {
   } else {
     # creates ActivityStartDateTime and ActivityStartTime.TimeZoneCode_offset
     # this is only needed when dataRetrieval is not used to get WQP data
-    .data <- dataRetrieval:::create_dateTime(df = .data, 
-                                             date_col = "ActivityStartDate", 
-                                             time_col = "ActivityStartTime.Time",
-                                             tz_col = "ActivityStartTime.TimeZoneCode", 
-                                             tz = "UTC")
+    .data <- dataRetrieval:::create_dateTime(
+      df = .data,
+      date_col = "ActivityStartDate",
+      time_col = "ActivityStartTime.Time",
+      tz_col = "ActivityStartTime.TimeZoneCode",
+      tz = "UTC"
+    )
   }
-  
+
   # Transform "Dissolved oxygen (DO)" characteristic name to "DISSOLVED OXYGEN SATURATION" IF
   # result unit is "%" or "% SATURATN".
-  
-  if(any(.data$CharacteristicName == "Dissolved oxygen (DO)")) {
 
-  print("TADA_Autoclean: harmonizing dissolved oxygen characterisic name to DISSOLVED OXYGEN SATURATION if unit is % or % SATURATN.")
+  if (any(.data$CharacteristicName == "Dissolved oxygen (DO)")) {
+    print("TADA_Autoclean: harmonizing dissolved oxygen characterisic name to DISSOLVED OXYGEN SATURATION if unit is % or % SATURATN.")
 
-  do.units <- c("%", "% SATURATN")
+    do.units <- c("%", "% SATURATN")
 
-  do.data <- .data %>%
-    dplyr::filter((CharacteristicName == "Dissolved oxygen (DO)") & ResultMeasure.MeasureUnitCode %in% do.units) %>%
-    dplyr::mutate(
-      TADA.CharacteristicName = "DISSOLVED OXYGEN SATURATION",
-      TADA.ResultMeasure.MeasureUnitCode = "%"
-    )
+    do.data <- .data %>%
+      dplyr::filter((CharacteristicName == "Dissolved oxygen (DO)") & ResultMeasure.MeasureUnitCode %in% do.units) %>%
+      dplyr::mutate(
+        TADA.CharacteristicName = "DISSOLVED OXYGEN SATURATION",
+        TADA.ResultMeasure.MeasureUnitCode = "%"
+      )
 
-  do.list <- do.data %>%
-    dplyr::select(ResultIdentifier) %>%
-    dplyr::pull()
+    do.list <- do.data %>%
+      dplyr::select(ResultIdentifier) %>%
+      dplyr::pull()
 
-  other.data <- .data %>%
-    dplyr::filter(!ResultIdentifier %in% do.list)
+    other.data <- .data %>%
+      dplyr::filter(!ResultIdentifier %in% do.list)
 
-  do.full.join <- colnames(.data)
+    do.full.join <- colnames(.data)
 
-  .data <- do.data %>%
-    dplyr::full_join(other.data, by = do.full.join) %>%
-    dplyr::arrange(ResultIdentifier)
+    .data <- do.data %>%
+      dplyr::full_join(other.data, by = do.full.join) %>%
+      dplyr::arrange(ResultIdentifier)
 
-  rm(do.units, do.list, do.data, other.data, do.full.join)
+    rm(do.units, do.list, do.data, other.data, do.full.join)
   }
 
   # Remove complex biological data. Un-comment after new WQX 3.0 Profiles are released. May not be needed if implemented via WQP UI/services.
@@ -768,10 +777,10 @@ TADA_CreateComparableID <- function(.data) {
 #' This utility function takes a delimited string of entities, and a delimiter (which defaults to a comma)
 #' and returns a new string in the WQX 3.0 format of c("StringA","StringB")
 #'
-#' @param delimited_string Character argument. Should be a string delimited by the character 
+#' @param delimited_string Character argument. Should be a string delimited by the character
 #'    passed in the delimiter parameter.
-#'    
-#' @param delimiter Character argument The character used to delimit the string passed in 
+#'
+#' @param delimiter Character argument The character used to delimit the string passed in
 #'    delimited_string. Defaults to a comma.
 #'
 #' @return String.
@@ -779,7 +788,7 @@ TADA_CreateComparableID <- function(.data) {
 #' @export
 #'
 TADA_FormatDelimitedString <- function(delimited_string, delimiter = ",") {
-  esc_chars = c("|", "^", "&", ".", "!", "?", "\\", "*", "-", "+", ">", "<")
+  esc_chars <- c("|", "^", "&", ".", "!", "?", "\\", "*", "-", "+", ">", "<")
   if (delimiter %in% esc_chars) {
     delimiter <- paste0("\\", delimiter)
   }
@@ -795,48 +804,47 @@ TADA_FormatDelimitedString <- function(delimited_string, delimiter = ",") {
 #' group.
 #'
 #' @param .data TADA dataframe OR TADA sites dataframe
-#' @param dist_buffer Numeric. The maximum distance (in meters) two sites can 
+#' @param dist_buffer Numeric. The maximum distance (in meters) two sites can
 #' be from one another to be considered "nearby" and grouped together.
-#' The default is 100m. 
+#' The default is 100m.
 #'
-#' @return Input dataframe with a TADA.MonitoringLocationIdentifier column that 
-#' indicates the nearby site groups each monitoring location belongs to. Grouped 
-#' sites are concatenated in the TADA.MonitoringLocationIdentifier column 
-#' (e.g. "USGS-10010025","USGS-10010026" enclosed in square brackets []). 
+#' @return Input dataframe with a TADA.MonitoringLocationIdentifier column that
+#' indicates the nearby site groups each monitoring location belongs to. Grouped
+#' sites are concatenated in the TADA.MonitoringLocationIdentifier column
+#' (e.g. "USGS-10010025","USGS-10010026" enclosed in square brackets []).
 #' This JSON array is the new TADA monitoring location ID for the grouped sites.
-#' TADA.MonitoringLocationIdentifier can be leveraged to analyze data from 
+#' TADA.MonitoringLocationIdentifier can be leveraged to analyze data from
 #' nearby sites together (as the same general location).
 #'
 #' @export
-#' 
+#'
 #' @examples
 #' GroupNearbySites_100m <- TADA_FindNearbySites(Data_Nutrients_UT)
 #' GroupNearbySites_10m <- TADA_FindNearbySites(Data_Nutrients_UT, dist_buffer = 10)
-#' 
 #'
 TADA_FindNearbySites <- function(.data, dist_buffer = 100) {
   # check .data is data.frame
   TADA_CheckType(.data, "data.frame", "Input object")
-  
+
   # .data required columns
   required_cols <- c("MonitoringLocationIdentifier", "TADA.LongitudeMeasure", "TADA.LatitudeMeasure")
   # check .data has required columns
   TADA_CheckColumns(.data, required_cols)
-  
+
   # create spatial dataset based on sites
   data_sf <- unique(.data[, c("MonitoringLocationIdentifier", "TADA.LongitudeMeasure", "TADA.LatitudeMeasure")])
   # convert to sf object
   data_sf <- sf::st_as_sf(data_sf,
-                          coords = c("TADA.LongitudeMeasure", "TADA.LatitudeMeasure"),
-                          # Change to your CRS
-                          crs = "+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs"
+    coords = c("TADA.LongitudeMeasure", "TADA.LatitudeMeasure"),
+    # Change to your CRS
+    crs = "+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs"
   )
   # create a distance matrix in meters
   dist.mat <- data.frame(sf::st_distance(data_sf)) # Great Circle distance since in lat/lon
-  
+
   row.names(dist.mat) <- data_sf$MonitoringLocationIdentifier
   colnames(dist.mat) <- data_sf$MonitoringLocationIdentifier
-  
+
   # convert distances to those within buffer (1) and beyond buffer (0)
   dist.mat1 <- apply(dist.mat, c(1, 2), function(x) {
     if (x <= dist_buffer) {
@@ -845,10 +853,10 @@ TADA_FindNearbySites <- function(.data, dist_buffer = 100) {
       x <- 0
     }
   })
-  
+
   # create empty dataframe for groups
   groups <- data.frame()
-  
+
   # loop through distance matrix and extract site groups that are within the buffer distance from one another
   for (i in 1:dim(dist.mat1)[1]) {
     fsite <- rownames(dist.mat1)[i] # focal site
@@ -862,49 +870,49 @@ TADA_FindNearbySites <- function(.data, dist_buffer = 100) {
       groups <- plyr::rbind.fill(groups, df)
     }
   }
-  
+
   # get unique groups (since represented multiple times for each site looped through, above)
   groups <- unique(groups)
-  
+
   if (dim(groups)[1] > 0) { # if there are groups of nearby sites...
     # create group ID's for easier understanding
     # grp <- data.frame(TADA.SiteGroup = unique(groups$TADA.SiteGroup), TADA.SiteGroupID = paste0("Group_", 1:length(unique(groups$TADA.SiteGroup))))
     # groups <- merge(groups, grp, all.x = TRUE)
     # groups <- unique(groups[, !names(groups) %in% c("TADA.SiteGroup")])
-    
+
     # find any sites within multiple groups
     summ_sites <- groups %>%
       dplyr::group_by(MonitoringLocationIdentifier) %>%
       dplyr::mutate(GroupCount = 1:length(MonitoringLocationIdentifier))
-    
+
     # pivot wider if a site belongs to multiple groups
     groups_wide <- merge(groups, summ_sites, all.x = TRUE)
     groups_wide <- tidyr::pivot_wider(groups_wide, id_cols = "MonitoringLocationIdentifier", names_from = "GroupCount", names_prefix = "TADA.MonitoringLocationIdentifier", values_from = "TADA.MonitoringLocationIdentifier")
     # merge data to site groupings
     .data <- merge(.data, groups_wide, all.x = TRUE)
-    
+
     # concatenate and move site id cols to right place
     grpcols <- names(.data)[grepl("TADA.MonitoringLocationIdentifier", names(.data))]
-    
+
     .data <- .data %>% tidyr::unite(col = TADA.MonitoringLocationIdentifier, dplyr::all_of(grpcols), sep = ", ", na.rm = TRUE)
   }
-  
+
   if (!"TADA.MonitoringLocationIdentifier" %in% colnames(.data)) {
     .data$TADA.MonitoringLocationIdentifier <- NA
   }
-  
-  .data <- .data %>% 
-    dplyr::mutate(TADA.MonitoringLocationIdentifier = ifelse(TADA.MonitoringLocationIdentifier == "", MonitoringLocationIdentifier, TADA.MonitoringLocationIdentifier))   
-  
+
+  .data <- .data %>%
+    dplyr::mutate(TADA.MonitoringLocationIdentifier = ifelse(TADA.MonitoringLocationIdentifier == "", MonitoringLocationIdentifier, TADA.MonitoringLocationIdentifier))
+
   if (dim(groups)[1] == 0) { # #if no groups, give a TADA.MonitoringLocationIdentifier column filled with NA
     print("No nearby sites detected using input buffer distance.")
   }
-  
+
   # order columns
   if ("ResultIdentifier" %in% names(.data)) {
     .data <- TADA_OrderCols(.data)
   }
-  
+
   return(.data)
 }
 
@@ -916,7 +924,7 @@ TADA_FindNearbySites <- function(.data, dist_buffer = 100) {
 #' TADA.MonitoringLocationIdentifier, TADA.LongitudeMeasure, and TADA.LatitudeMeasure,
 #' filtered for only those stations that have a nearby station.
 #'
-#' @param .data TADA dataframe 
+#' @param .data TADA dataframe
 #'
 #' @return New dataframe with unique values for MonitoringLocationIdentifier,
 #' TADA.MonitoringLocationIdentifier, TADA.LongitudeMeasure, and TADA.LatitudeMeasure
@@ -926,15 +934,15 @@ TADA_FindNearbySites <- function(.data, dist_buffer = 100) {
 TADA_GetUniqueNearbySites <- function(.data) {
   # check .data is data.frame
   TADA_CheckType(.data, "data.frame", "Input object")
-  
+
   # .data required columns
   required_cols <- c("MonitoringLocationIdentifier", "TADA.MonitoringLocationIdentifier", "TADA.LongitudeMeasure", "TADA.LatitudeMeasure")
   # check .data has required columns
   TADA_CheckColumns(.data, required_cols)
-  
+
   .data <- .data[c("MonitoringLocationIdentifier", "MonitoringLocationName", "MonitoringLocationTypeName", "MonitoringLocationDescriptionText", "TADA.MonitoringLocationIdentifier", "TADA.LongitudeMeasure", "TADA.LatitudeMeasure")]
   .data <- unique(dplyr::filter(.data, grepl(",", TADA.MonitoringLocationIdentifier)))
-  
+
   return(.data)
 }
 
@@ -973,11 +981,10 @@ TADA_GetUniqueNearbySites <- function(.data) {
 #' df <- TADA_RandomTestingData(number_of_days = 5, choose_random_state = TRUE, autoclean = FALSE)
 #' }
 #'
-TADA_RandomTestingData <- function(number_of_days = 1, choose_random_state = FALSE, 
+TADA_RandomTestingData <- function(number_of_days = 1, choose_random_state = FALSE,
                                    autoclean = TRUE) {
-  
-  get_random_data <-  function(ndays = number_of_days, state_choice = choose_random_state, 
-                               ac = autoclean) {
+  get_random_data <- function(ndays = number_of_days, state_choice = choose_random_state,
+                              ac = autoclean) {
     # choose a random day within the last 20 years
     twenty_yrs_ago <- Sys.Date() - 20 * 365
     random_start_date <- twenty_yrs_ago + sample(20 * 365, 1)
@@ -1020,15 +1027,15 @@ TADA_RandomTestingData <- function(number_of_days = 1, choose_random_state = FAL
     }
     return(dat)
   }
-  
+
   verify_random_data <- function() {
     df <- get_random_data()
-    while(nrow(df) < 10) {
+    while (nrow(df) < 10) {
       df <- get_random_data()
     }
     return(df)
   }
-  
+
   verify_random_data()
 }
 
@@ -1063,19 +1070,25 @@ TADA_RandomTestingData <- function(number_of_days = 1, choose_random_state = FAL
 #' data(Data_6Tribes_5y)
 #' # Select maximum value per day, site, comparable data identifier, result detection condition,
 #' # and activity type code. Clean all non-maximum measurements from grouped data.
-#' Data_6Tribes_5y_agg <- TADA_AggregateMeasurements(Data_6Tribes_5y, 
-#'     grouping_cols = c("ActivityStartDate", "MonitoringLocationIdentifier", 
-#'                       "TADA.ComparableDataIdentifier", "ResultDetectionConditionText",
-#'                       "ActivityTypeCode"),
-#'     agg_fun = "max", clean = TRUE)
+#' Data_6Tribes_5y_agg <- TADA_AggregateMeasurements(Data_6Tribes_5y,
+#'   grouping_cols = c(
+#'     "ActivityStartDate", "MonitoringLocationIdentifier",
+#'     "TADA.ComparableDataIdentifier", "ResultDetectionConditionText",
+#'     "ActivityTypeCode"
+#'   ),
+#'   agg_fun = "max", clean = TRUE
+#' )
 #'
 #' # Calculate a mean value per day, site, comparable data identifier, result detection condition,
 #' # and activity type code. Keep all measurements used to calculate mean measurement.
 #' Data_6Tribes_5y_agg <- TADA_AggregateMeasurements(Data_6Tribes_5y,
-#'   grouping_cols = c("ActivityStartDate", "MonitoringLocationIdentifier", 
-#'                   "TADA.ComparableDataIdentifier", "ResultDetectionConditionText",
-#'                   "ActivityTypeCode"), 
-#'   agg_fun = "mean", clean = FALSE)
+#'   grouping_cols = c(
+#'     "ActivityStartDate", "MonitoringLocationIdentifier",
+#'     "TADA.ComparableDataIdentifier", "ResultDetectionConditionText",
+#'     "ActivityTypeCode"
+#'   ),
+#'   agg_fun = "mean", clean = FALSE
+#' )
 TADA_AggregateMeasurements <- function(.data, grouping_cols = c("ActivityStartDate", "MonitoringLocationIdentifier", "TADA.ComparableDataIdentifier", "ResultDetectionConditionText", "ActivityTypeCode"), agg_fun = c("max", "min", "mean"), clean = TRUE) {
   TADA_CheckColumns(.data, grouping_cols)
   agg_fun <- match.arg(agg_fun)
@@ -1191,11 +1204,15 @@ TADA_RunKeyFlagFunctions <- function(.data, remove_na = TRUE, clean = TRUE) {
 #' # Load example dataset
 #' data(Data_6Tribes_5y)
 #' # Get the bounding box of the data
-#' bbox <- sf::st_bbox(c(xmin = min(Data_6Tribes_5y$TADA.LongitudeMeasure), 
-#' ymin = min(Data_6Tribes_5y$TADA.LatitudeMeasure), 
-#' xmax = max(Data_6Tribes_5y$TADA.LongitudeMeasure), 
-#' ymax = max(Data_6Tribes_5y$TADA.LatitudeMeasure)), 
-#' crs = sf::st_crs(Data_6Tribes_5y))
+#' bbox <- sf::st_bbox(
+#'   c(
+#'     xmin = min(Data_6Tribes_5y$TADA.LongitudeMeasure),
+#'     ymin = min(Data_6Tribes_5y$TADA.LatitudeMeasure),
+#'     xmax = max(Data_6Tribes_5y$TADA.LongitudeMeasure),
+#'     ymax = max(Data_6Tribes_5y$TADA.LatitudeMeasure)
+#'   ),
+#'   crs = sf::st_crs(Data_6Tribes_5y)
+#' )
 #' # Get a string containing the JSON of the bounding box
 #' getBboxJson(bbox)
 #' }
@@ -1335,13 +1352,18 @@ writeLayer <- function(url, layerfilepath) {
 #' # Load example dataset
 #' data(Data_6Tribes_5y_Harmonized)
 #' # Get the bounding box of the data
-#' bbox <- sf::st_bbox(c(xmin = min(
-#' Data_6Tribes_5y_Harmonized$TADA.LongitudeMeasure), 
-#' ymin = min(Data_6Tribes_5y_Harmonized$TADA.LatitudeMeasure), 
-#' xmax = max(Data_6Tribes_5y_Harmonized$TADA.LongitudeMeasure), 
-#' ymax = max(Data_6Tribes_5y_Harmonized$TADA.LatitudeMeasure)), 
-#' crs = sf::st_crs(Data_6Tribes_5y_Harmonized))
-#' # Get the American Indian Reservations feature layer, filtered by the 
+#' bbox <- sf::st_bbox(
+#'   c(
+#'     xmin = min(
+#'       Data_6Tribes_5y_Harmonized$TADA.LongitudeMeasure
+#'     ),
+#'     ymin = min(Data_6Tribes_5y_Harmonized$TADA.LatitudeMeasure),
+#'     xmax = max(Data_6Tribes_5y_Harmonized$TADA.LongitudeMeasure),
+#'     ymax = max(Data_6Tribes_5y_Harmonized$TADA.LatitudeMeasure)
+#'   ),
+#'   crs = sf::st_crs(Data_6Tribes_5y_Harmonized)
+#' )
+#' # Get the American Indian Reservations feature layer, filtered by the
 #' # bounding box for the Data_6Tribes_5y_Harmonized example dataset
 #' layerfilepath <- "extdata/AmericanIndian.shp"
 #' getLayer(layerfilepath, bbox)
@@ -1546,7 +1568,7 @@ TADA_UniqueCharUnitSpeciation <- function(.data) {
       TADA.CharacteristicName, TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode,
       DetectionQuantitationLimitMeasure.MeasureUnitCode, TADA.MethodSpeciationName
     ) %>%
-     dplyr::filter(!is.na(TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode)) %>%
+    dplyr::filter(!is.na(TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode)) %>%
     dplyr::distinct() %>%
     dplyr::rename(
       TADA.ResultMeasure.MeasureUnitCode = TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode,
@@ -1565,16 +1587,16 @@ TADA_UniqueCharUnitSpeciation <- function(.data) {
     dplyr::filter(!is.na(TADA.ResultMeasure.MeasureUnitCode) |
       is.na(TADA.ResultMeasure.MeasureUnitCode) & NCode == 1) %>%
     dplyr::select(-NCode)
-  
+
   return(data.units)
 }
 
 
 #' Create Color Palette For Use in Graphs and Maps
 #'
-#' Creates a consistent color palette for use in TADA visualizations. Consistent 
-#' color pairings can be utilized by setting col_pair = TRUE, in which each row 
-#' consists of two values for color outlines and fills. Currently, the palette 
+#' Creates a consistent color palette for use in TADA visualizations. Consistent
+#' color pairings can be utilized by setting col_pair = TRUE, in which each row
+#' consists of two values for color outlines and fills. Currently, the palette
 #' is utilizing the "Okabe-Ito" palette from base R via the palette.colors
 #' function. The palette includes 9 colors by default. However, additional colors
 #' can be added to the palette as needed as more complex visualization functions
@@ -1599,20 +1621,20 @@ TADA_ColorPalette <- function(col_pair = FALSE) {
     "#005258", "#A1A522", "#F0E442", "#66A281", "#1E6F98",
     "#4F5900", "#813B00", "#CD758F", "#B686A1", "#999999"
   )
-  
+
   # Defines two color columns to be used as the color pairings in a dataframe
   col1 <- c()
   col2 <- c()
   col_combo <- data.frame()
-    
+
   # Each row defines the pairing of colors to be used if col_pair is TRUE
-  if(col_pair == TRUE){
+  if (col_pair == TRUE) {
     col1 <- c(pal[5], pal[3], pal[7], pal[14])
     col2 <- c(pal[10], pal[12], pal[11], pal[2])
     col_combo <- data.frame(col1, col2)
     pal <- col_combo
   }
-  
+
   return(pal)
 }
 
@@ -1659,30 +1681,29 @@ TADA_ViewColorPalette <- function(col_pair = FALSE) {
 
   col_combo <- TADA_ColorPalette(col_pair = TRUE)
 
-  if(col_pair == TRUE){
-  swatch <- list()
-  # Create a 2 x nrow/2 plotting matrix, can handle additional color pairings, in one view, if more are added in the future.
-  graphics::par(mfrow = c(2, nrow(col_combo)/2))
-  # create list of label colors for pairs
-  label_colors <- rep("black", 2)
+  if (col_pair == TRUE) {
+    swatch <- list()
+    # Create a 2 x nrow/2 plotting matrix, can handle additional color pairings, in one view, if more are added in the future.
+    graphics::par(mfrow = c(2, nrow(col_combo) / 2))
+    # create list of label colors for pairs
+    label_colors <- rep("black", 2)
 
-    for(i in 1:nrow(col_combo)){
-
+    for (i in 1:nrow(col_combo)) {
       one_swatch <- graphics::plot(1,
         type = "n", xlab = "", ylab = "", xlim = c(0.5, 2.5), ylim = c(0, 1),
         main = paste0("TADA Palette Pair ", i), axes = FALSE
       )
-      rect(1:2 - 0.5, 0, 2 + 0.5, 1, col = as.character(col_combo[i,]), border = NA)
-      #text(x = 1:2, y = 0.5 - 0.2, labels = 1:2, pos = 3, col = label_colors, cex = 0.75)
-      text(x = 1:2 + 0.25, y = 0.5, labels = col_combo[i,], pos = 2, col = label_colors, cex = 0.7)
+      rect(1:2 - 0.5, 0, 2 + 0.5, 1, col = as.character(col_combo[i, ]), border = NA)
+      # text(x = 1:2, y = 0.5 - 0.2, labels = 1:2, pos = 3, col = label_colors, cex = 0.75)
+      text(x = 1:2 + 0.25, y = 0.5, labels = col_combo[i, ], pos = 2, col = label_colors, cex = 0.7)
 
       swatch[[i]] <- one_swatch
     }
   }
-  
-  graphics::par(mfrow=c(1,1))
+
+  graphics::par(mfrow = c(1, 1))
   swatch <- grDevices::recordPlot()
-  
+
   return(swatch)
 }
 
@@ -1732,71 +1753,258 @@ TADA_CharStringRemoveNA <- function(char_string) {
 
 
 
+#' TADA_AutoFilter
+#'
+#' This function removes rows where the result value is not numeric to
+#' prepare a dataframe for quantitative analyses. This function can be run
+#' after TADA_AutoClean. It removes rows with "Text" and "NA - Not Available"
+#' in the TADA.ResultMeasureValueDataTypes.Flag column, or NA in the
+#' TADA.ResultMeasureValue column.
+#'
+#' This function also removes any columns not required for TADA workflow where
+#' all values are equal to NA. It also provides a warning message identifying
+#' any TADA required columns containing only NA values.
+#'
+#' @param .data TADA dataframe
+#'
+#' @return .data with rows removed where result values are not quantitative (NA or text),
+#' or the results have other issues that are not dealt with elsewhere.
+#'
+#' @export
+#'
+#' @examples
+#' # Load example dataset:
+#' data(Data_Nutrients_UT)
+#'
+#' # Remove all:
+#' TADA_filtered <- TADA_AutoFilter(Data_Nutrients_UT)
+#'
+TADA_AutoFilter <- function(.data) {
+  # check .data is data.frame
+  TADA_CheckType(.data, "data.frame", "Input object")
+
+  TADA_CheckColumns(.data, c(
+    "ActivityTypeCode", "MeasureQualifierCode", "ActivityTypeCode"
+  ))
+
+  # keep track of starting and ending number of rows
+  start <- dim(.data)[1]
+
+  if ("TADA.ResultMeasureValueDataTypes.Flag" %in% colnames(.data)) {
+    .data <- .data
+  } else {
+    # run TADA_AutoClean
+    .data <- TADA_AutoClean(.data)
+  }
+
+  if ("TADA.ActivityType.Flag" %in% colnames(.data)) {
+    .data <- .data
+  } else {
+    # create TADA.ActivityType.Flag
+    .data <- TADA_FindQCActivities(.data)
+  }
+
+  if ("TADA.CensoredData.Flag" %in% colnames(.data)) {
+    .data <- .data
+  } else {
+    # create TADA.CensoredData.Flag
+    warning("Censored data should be handled prior to running this function. See ?TADA_SimpleCensoredMethods and ?TADA_IDCensoredData.")
+  }
+
+  if ("TADA.MeasureQualifierCode.Flag" %in% colnames(.data)) {
+    .data <- .data
+  } else {
+    # run TADA_FindQCActivities
+    .data <- TADA_FindQCActivities(.data,
+      clean = TRUE,
+      flaggedonly = FALSE
+    )
+  }
+
+  # remove text, NAs and QC results
+  .data <- dplyr::filter(
+    .data,
+    TADA.ResultMeasureValueDataTypes.Flag != "Text" &
+      TADA.ResultMeasureValueDataTypes.Flag != "NA - Not Available" &
+      !is.na(TADA.ResultMeasureValue)
+  )
+
+  # Remove complex biological data? May not be needed if implemented via WQP UI/services.
+  # .data = dplyr::filter(.data, BiologicalIntentName != "TISSUE" | "TOXICITY" | is.na(TADA.BiologicalIntentName) == TRUE)
+
+  # remove columns that are not required for TADA workflow
+  print("TADA_Autofilter: removing columns not required for TADA workflow if they contain only NAs.")
+
+  # create list of columns containing all NA values.
+  na.cols <- .data %>%
+    purrr::keep(~ all(is.na(.x))) %>%
+    names()
+
+  # create list of columns to be removed by comparing columns containing all NA values to required columns.
+  # any required columns with all NA values will be excluded from the list of columns to remove.
+  remove.cols <- setdiff(na.cols, require.cols)
+
+  # remove not required columns containing all NA values from data frame.
+  .data <- .data %>%
+    dplyr::select(-dplyr::contains(remove.cols))
+
+  # check to make sure required columns contain some data that is not NA
+  req.check <- intersect(require.cols, na.cols)
+
+  # create character string for list of required columns containing only NAs
+  req.paste <- stringi::stri_replace_last_fixed(paste(as.character(req.check), collapse = ", ", sep = ""), ", ", " and ")
+
+  # remove column name lists
+  rm(na.cols)
+
+  # create character string for list of removed columns
+  remove.paste <- stringi::stri_replace_last_fixed(paste(as.character(remove.cols), collapse = ", ", sep = ""), ", ", " and ")
+
+  # print list of columns removed from data frame
+  if (length(remove.cols) > 0) {
+    print(paste0("The following column(s) were removed as they contained only NAs: ", remove.paste, "."))
+  } else {
+    print("All columns contained some non-NA values and were retained in the data frame.")
+  }
+
+  # remove columns that are not required for TADA workflow
+  print("TADA_Autofilter: checking required columns for non-NA values.")
+
+  # if some required columns contain only NA values print a warning message.
+  if (length(req.check) > 0) {
+    print(paste0("TADA Required column(s) ", req.paste, " contain only NA values. This may impact other TADA functions."))
+  } else {
+    print("All TADA Required columns contain some non-NA values.")
+  }
+
+  # remove intermediate objects
+  rm(req.paste, remove.cols, remove.paste, req.check)
+
+  end <- dim(.data)[1]
+
+  # print number of results removed
+  if (!start == end) {
+    net <- start - end
+    print(paste0("Function removed ", net, " results. These results are either text or NA and cannot be plotted or represent quality control activities (not routine samples or measurements)."))
+  }
+
+  return(.data)
+}
+
+
 #' Get WQP Organization Identifier For Each WQP Monitoring Location Identifier
 #'
-#' This function creates a dataframe with two columns to show the organization 
-#' identifier for each monitoring location. The user can select whether the 
-#' monitoring location identifier column displays the original WQP 
+#' This function creates a dataframe with two columns to show the organization
+#' identifier for each monitoring location. The user can select whether the
+#' monitoring location identifier column displays the original WQP
 #' 'MonitoringLocationIdentifier' or the 'TADA.MonitoringLocationIdentifier'.
-#' When 'TADA.MonitoringLocationIdentifier' is selected (with id = "tada"), 
-#' there may be fewer rows in the resulting data set than when 
-#' 'MonitoringLocationIdentifier" is selected (with id = "wqp"). This may 
-#' occur if other EPATADA package functions have already been run, such as 
-#' TADA_FindNearbySites or TADA_FindPotentialDuplicatesMultipleOrgs, because 
-#' these functions group sites that are nearby or duplicates of each other. 
+#' When 'TADA.MonitoringLocationIdentifier' is selected (with id = "tada"),
+#' there may be fewer rows in the resulting data set than when
+#' 'MonitoringLocationIdentifier" is selected (with id = "wqp"). This may
+#' occur if other EPATADA package functions have already been run, such as
+#' TADA_FindNearbySites or TADA_FindPotentialDuplicatesMultipleOrgs, because
+#' these functions group sites that are nearby or duplicates of each other.
 #'
 #' @param .data A TADA dataframe.
 #'
 #' @param id Character argument. Determines which monitoring location identifier
-#' and organization identifier from the TADA dataframe to display. When 
-#' id = "wqp", 'MonitoringLocationIdentifier' is used. When id = "tada", 
+#' and organization identifier from the TADA dataframe to display. When
+#' id = "wqp", 'MonitoringLocationIdentifier' is used. When id = "tada",
 #' 'TADA.MonitoringLocationIdentifier" is used. Default is id = "wqp".
 #'
 #'
-#' @return A crosswalk dataframe of monitoring location identifiers and 
+#' @return A crosswalk dataframe of monitoring location identifiers and
 #' organization identifiers.
-#' 
+#'
 #' @export
 #'
 #' @examples
 #' data(Data_6Tribes_5y_Harmonized)
-#' orgsite_crosswalk_originalwqp = TADA_GetMonLocByOrgId(
-#' Data_6Tribes_5y_Harmonized, id = "wqp")
-#' orgsite_crosswalk_tada = TADA_GetMonLocByOrgId(Data_6Tribes_5y_Harmonized,
-#' id = "tada")
-#' 
+#' orgsite_crosswalk_originalwqp <- TADA_GetMonLocByOrgId(
+#'   Data_6Tribes_5y_Harmonized,
+#'   id = "wqp"
+#' )
+#' orgsite_crosswalk_tada <- TADA_GetMonLocByOrgId(Data_6Tribes_5y_Harmonized,
+#'   id = "tada"
+#' )
+#'
 TADA_GetMonLocByOrgId <- function(.data, id = "wqp") {
-  
   # check .data is dataframe
   TADA_CheckType(.data, "data.frame", "Input object")
-  
+
   if (id == "wqp") {
     # .data required columns
-    required_cols <- c("MonitoringLocationIdentifier", 
-                       "OrganizationIdentifier")
-    
+    required_cols <- c(
+      "MonitoringLocationIdentifier",
+      "OrganizationIdentifier"
+    )
+
     # check .data has required columns
     TADA_CheckColumns(.data, required_cols)
-    
+
     .data <- .data %>%
       dplyr::select(MonitoringLocationIdentifier, OrganizationIdentifier) %>%
       dplyr::distinct()
     return(.data)
   }
-  
+
   if (id == "tada") {
     # .data required columns
-    required_cols <- c("TADA.MonitoringLocationIdentifier", 
-                       "MonitoringLocationIdentifier", 
-                       "OrganizationIdentifier")
-    
+    required_cols <- c(
+      "TADA.MonitoringLocationIdentifier",
+      "MonitoringLocationIdentifier",
+      "OrganizationIdentifier"
+    )
+
     # check .data has required columns
     TADA_CheckColumns(.data, required_cols)
-    
+
     .data <- .data %>%
-      dplyr::select(TADA.MonitoringLocationIdentifier, 
-                    OrganizationIdentifier) %>%
+      dplyr::select(
+        TADA.MonitoringLocationIdentifier,
+        OrganizationIdentifier
+      ) %>%
       dplyr::distinct()
     return(.data)
   }
+}
+
+
+#' Create downloadable table
+#'
+#' This function creates a data table that can be downloaded as a .csv, .xlsx or .pdf.
+#'
+#' @param .data A data frame
+#'
+#' @return A data table with multiple download options (.csv, .xlsx or .pdf).
+#'
+#' @export
+#'
+#' @examples
+#' \dontrun{
+#' # return ATTAINS parameter domain values
+#' TADA_TableExport(rATTAINS::domain_values(domain_name = "ParameterName"))
+#' }
+#'
+TADA_TableExport <- function(.data = NULL) {
+  if (is.null(.data)) {
+    print("No dataframe provided. Please enter a dataframe to return")
+  }
+
+  data <- DT::datatable(.data,
+    extensions = c("Buttons", "FixedColumns"),
+    options = list(
+      paging = TRUE,
+      dom = "Bfrtip",
+      autoWidth = TRUE,
+      pageLength = 5,
+      scrollX = TRUE,
+      scrollCollapse = TRUE,
+      buttons = c("copy", "csv", "excel", "pdf")
+      # fixedColumns = list(leftColumns = 1
+    ), class = "display"
+  ) %>%
+    DT::formatStyle(columns = colnames(.data), "fontSize" = "80%")
+
+  return(data)
 }

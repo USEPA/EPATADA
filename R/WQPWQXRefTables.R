@@ -910,10 +910,10 @@ WQPProviderRef_Cached <- NULL
 
 #' Get Organization and Provider Reference Table
 #'
-#' This function creates a crosswalk of all OrganizationIdentifiers, 
+#' This function creates a crosswalk of all OrganizationIdentifiers,
 #' OrganizationFormalNames, and ProviderNames in the Water Quality Portal (WQP).
 #'
-#' @return A crosswalk dataframe including the following columns: 
+#' @return A crosswalk dataframe including the following columns:
 #' OrganizationIdentifier, OrganizationFormalName, ProviderName.
 #'
 #' @export
@@ -928,7 +928,7 @@ TADA_GetWQPOrgProviderRef <- function() {
   if (!is.null(WQPProviderRef_Cached)) {
     return(WQPProviderRef_Cached)
   }
-  
+
   # Try to download up-to-date raw data
   raw.data <- tryCatch(
     {
@@ -941,21 +941,21 @@ TADA_GetWQPOrgProviderRef <- function() {
       NULL
     }
   )
-  
+
   # need to remove providers w/ no sites on date site pages
-  
+
   # If the download failed fall back to internal data (and report it)
   if (is.null(raw.data)) {
     message("Downloading latest WQP Organization and Provider Reference Table failed!")
     message("Falling back to (possibly outdated) internal file.")
     return(utils::read.csv(system.file("extdata", "WQXProviderRef.csv", package = "EPATADA")))
   }
-  
+
   # Save updated table in cache
   WQPProviderRef <- raw.data
-  
+
   WQPProviderRef_Cached <- WQPProviderRef
-  
+
   WQPProviderRef
 }
 
@@ -964,4 +964,3 @@ TADA_GetWQPOrgProviderRef <- function() {
 TADA_UpdateWQPOrgProviderRef <- function() {
   utils::write.csv(TADA_GetWQPOrgProviderRef(), file = "inst/extdata/WQXProviderRef.csv", row.names = FALSE)
 }
-

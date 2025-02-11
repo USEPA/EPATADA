@@ -14,17 +14,20 @@ test_function.R
 # Session Data files
 .RData
 .RDataTmp
-
 .Rdata
 .httr-oauth
 .DS_Store
 
 #
 _snaps
-
+/doc/
+/Meta/
 testing_log.txt
 
 # test data from AK
 AK_EPATADA_troubleshooting
-/doc/
-/Meta/
+
+# built and rendered vignettes aren't tracked
+inst/doc
+vignettes/*.html
+vignettes/*.R

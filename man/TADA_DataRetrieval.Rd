@@ -133,7 +133,7 @@ TADA_DataRetrieval automatically runs TADA_AutoClean on the incoming dataframe. 
 is important for categorizing result value and detection limit data, as well as
 harmonizing key columns used in TADA. See ?TADA_AutoClean for more information.
 
-Note: TADA_DataRetrieval (by leveraging dataRetrieval),  automatically converts
+Note: TADA_DataRetrieval (by leveraging dataRetrieval), automatically converts
 the date times to UTC. It also automatically converts the data to dates,
 datetimes, numerics based on a standard algorithm. See: ?dataRetrieval::readWQPdata
 }

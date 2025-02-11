@@ -740,9 +740,22 @@ console:
 ```{r FindPotentialDuplicates}
 TADAProfileClean3 <- TADA_FindPotentialDuplicatesSingleOrg(TADAProfileClean3)
 
-TADAProfileClean3 <- TADA_FindPotentialDuplicatesMultipleOrgs(TADAProfileClean3,
+# filter to keep only unique rows using TADA.SingleOrgDup.Flag
+TADAProfileClean3 <- dplyr::filter(
+  TADAProfileClean3,
+  TADA.SingleOrgDup.Flag == "Unique"
+)
+
+TADAProfileClean3 <- TADA_FindPotentialDuplicatesMultipleOrgs(
+  TADAProfileClean3,
   dist_buffer = 100,
   org_hierarchy = "none"
+)
+
+# filter to keep only unique rows using TADA.ResultSelectedMultipleOrgs
+TADAProfileClean3 <- dplyr::filter(
+  TADAProfileClean3,
+  TADA.ResultSelectedMultipleOrgs == "Y"
 )
 ```
 
