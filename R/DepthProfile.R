@@ -83,7 +83,8 @@
 #' # assign TADA.DepthCategory.Flag and determine average values by depth category and returning only aggregate values
 #' Data_6Tribs_5y_Mean <- TADA_FlagDepthCategory(Data_6Tribes_5y, bycategory = "all", dailyagg = "avg", aggregatedonly = FALSE)
 #'
-TADA_FlagDepthCategory <- function(.data, bycategory = "no", bottomvalue = 2, surfacevalue = 2, dailyagg = "none", aggregatedonly = FALSE, clean = FALSE) {
+TADA_FlagDepthCategory <- function(.data, bycategory = "no", bottomvalue = 2, surfacevalue = 2, 
+                                   dailyagg = "none", aggregatedonly = FALSE, clean = FALSE) {
   # check .data is data.frame
   TADA_CheckType(.data, "data.frame", "Input object")
   # check aggregatedonly is boolean
@@ -109,7 +110,7 @@ TADA_FlagDepthCategory <- function(.data, bycategory = "no", bottomvalue = 2, su
 
   depthcat.list <- c("Surface", "Bottom", "Middle")
 
-  ard.ref <- utils::read.csv(system.file("extdata", "WQXActivityRelativeDepthRef.csv", package = "EPATADA")) %>%
+  ard.ref <- utils::read.csv(system.file("extdata", "TADAActivityRelativeDepthRef.csv", package = "EPATADA")) %>%
     dplyr::rename(
       ARD_Category = TADA.DepthCategory.Flag,
       ActivityRelativeDepthName = Name
