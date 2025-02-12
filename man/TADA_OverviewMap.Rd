@@ -4,23 +4,17 @@
 \alias{TADA_OverviewMap}
 \title{Create Overview Map}
 \usage{
-TADA_OverviewMap(.data, identifier = "tada")
+TADA_OverviewMap(.data)
 }
 \arguments{
-\item{.data}{TADA data frame containing the data downloaded from the WQP, where
-each row represents a unique data record. Data frame must include the columns
-'TADA.MonitoringLocationIdentifier','TADA.MonitoringLocationName','TADA.LatitudeMeasure',
+\item{.data}{TADA dataframe containing the data downloaded from the WQP, where
+each row represents a unique data record. Dataframe must include the columns
+'MonitoringLocationIdentifier','MonitoringLocationName','TADA.LatitudeMeasure',
 'TADA.LongitudeMeasure', 'ResultIdentifier', 'ActivityStartDate', 'TADA.CharacteristicName',
 and 'OrganizationIdentifier' to run this function.}
-
-\item{identifier}{A character argument to select whether the TADA.MonitoringLocationIdentifier
-(which may included grouped sites is TADA_FindNearbySites has been run) or the original WQP
-MonitoringLocationIdentifier and associated coordinates are used for mapping. Identifier equals
-"tada" is the default and will used the TADA prefixed monitoring location columns. Identifier
-equals "wqp" will use the originals.}
 }
 \value{
-A leaflet map that shows all sites in the data frame, where larger point sizes
+A leaflet map that shows all sites in the dataframe, where larger point sizes
 indicate more results collected at a site, and darker point colors indicate more
 characteristics measured at that site. Users can click on points on the map to see
 a pop-up window with exact counts for measurements (i.e. number of rows),
@@ -31,7 +25,7 @@ Create Overview Map
 }
 \examples{
 \dontrun{
-# Load example data frame:
+# Load example dataframe:
 data(Data_Nutrients_UT)
 data(Data_NCTCShepherdstown_HUC12)
 data(Data_6Tribes_5y_Harmonized)

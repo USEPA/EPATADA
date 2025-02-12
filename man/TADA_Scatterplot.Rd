@@ -7,12 +7,12 @@
 TADA_Scatterplot(.data, id_cols = c("TADA.ComparableDataIdentifier"))
 }
 \arguments{
-\item{.data}{TADA data frame containing the data downloaded from the
-WQP, where each row represents a unique data record. Data frame must
+\item{.data}{TADA dataframe containing the data downloaded from the
+WQP, where each row represents a unique data record. Dataframe must
 include the columns 'TADA.ComparableDataIdentifier',
 'TADA.ResultMeasureValue', and 'TADA.ResultMeasure.MeasureUnitCode' to run
 this function. The 'TADA.ComparableDataIdentifier' column is added to the
-data frame automatically when WQP data is retrieved using TADADataRetrieval.
+dataframe automatically when WQP data is retrieved using TADADataRetrieval.
 This TADA.ComparableDataIdentifier can be updated to harmonize synonyms
 by running the function TADA_HarmonizeSynonyms(). You can also include
 additional grouping columns in the id_cols input if desired. If more than
@@ -43,14 +43,14 @@ TADA_Scatterplot(Data_6Tribes_5y_Harmonized, id_cols = "TADA.ComparableDataIdent
 df <- dplyr::filter(Data_6Tribes_5y_Harmonized, TADA.ComparableDataIdentifier == "TOTAL PHOSPHORUS, MIXED FORMS_UNFILTERED_AS P_UG/L")
 TADA_Scatterplot(df, id_cols = "TADA.ComparableDataIdentifier")
 # Creates a scatterplot for each monitoring location
-TADA_Scatterplot(df, id_cols = c("TADA.ComparableDataIdentifier", "TADA.MonitoringLocationName"))
+TADA_Scatterplot(df, id_cols = c("TADA.ComparableDataIdentifier", "MonitoringLocationName"))
 
 # Create multiple scatterplots with additional grouping columns and view the first
 # plot in list. In this example, we will group by both TADA.ComparableDataIdentifier
-# and TADA.MonitoringLocationTypeName (e.g. stream, reservoir, canal, etc.)
+# and MonitoringLocationTypeName (e.g. stream, reservoir, canal, etc.)
 # Load example dataset:
 data(Data_Nutrients_UT)
-Scatterplot_output <- TADA_Scatterplot(Data_Nutrients_UT, id_cols = c("TADA.ComparableDataIdentifier", "TADA.MonitoringLocationTypeName"))
+Scatterplot_output <- TADA_Scatterplot(Data_Nutrients_UT, id_cols = c("TADA.ComparableDataIdentifier", "MonitoringLocationTypeName"))
 # This example generates 47 scatterplots
 Scatterplot_output[[10]]
 Scatterplot_output[[25]]

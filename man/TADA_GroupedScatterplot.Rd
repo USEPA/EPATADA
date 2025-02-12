@@ -6,15 +6,15 @@
 \usage{
 TADA_GroupedScatterplot(
   .data,
-  group_col = "TADA.MonitoringLocationName",
+  group_col = "MonitoringLocationName",
   groups = NULL
 )
 }
 \arguments{
-\item{.data}{TADA data frame where each row represents a unique record. Data frame must include
+\item{.data}{TADA dataframe where each row represents a unique record. Dataframe must include
 the columns 'TADA.ComparableDataIdentifier', 'TADA.ResultMeasureValue',
 'TADA.ResultMeasure.MeasureUnitCode', 'ActivityStartDate', 'ActivityStartDateTime',
-'ActivityStartDateTime', 'TADA.MonitoringLocationName', 'TADA.ActivityMediaName',
+'ActivityStartDateTime', 'MonitoringLocationName', 'TADA.ActivityMediaName',
 'ActivityMediaSubdivisionName', 'TADA.ResultDepthHeightMeasure.MeasureValue',
 'TADA.ResultDepthHeightMeasure.MeasureValue', 'TADA.ResultDepthHeightMeasure.MeasureUnitCode',
 'ActivityRelativeDepthName', 'TADA.ActivityDepthHeightMeasure.MeasureValue',
@@ -23,15 +23,15 @@ the columns 'TADA.ComparableDataIdentifier', 'TADA.ResultMeasureValue',
 and TADA.ActivityBottomDepthHeightMeasure.MeasureUnitCode to run this function.}
 
 \item{group_col}{The column in the dataset used to identify the groups
-plotted. Defaults to TADA.MonitoringLocationName. This input is flexible, and allows for the use of
+plotted. Defaults to MonitoringLocationName. This input is flexible, and allows for the use of
 other identifiers such as StateCode, CountyCode or user-created groups based on concatenation
 of other variables (e.g. characteristic name, site type, site name, year, organization, etc.)}
 
 \item{groups}{A vector of up to four identifiers from the id_cols column
 to specify the groups that will be plotted for a TADA.ComparableDataIdentifier.
 These groups will be specific to your dataset. For example, in the example data set
-Data_6Tribes_5y_Harmonized if group_col is 'TADA.MonitoringLocationName', the groups could be
-'UPPER RED LAKE: WEST', 'UPPER RED LAKE: WEST-CENTRAL', and 'UPPER RED LAKE: EAST CENTRAL'.}
+Data_6Tribes_5y_Harmonized if group_col is 'MonitoringLocationName', the groups could be
+'Upper Red Lake: West', 'Upper Red Lake: West-Central', and 'Upper Red Lake: East Central'.}
 }
 \value{
 A plotly scatterplot(s) figure with one x-axis (Date/Time) and a
@@ -60,9 +60,9 @@ data(Data_6Tribes_5y_Harmonized)
 # Filter the example data so it includes only one TADA.ComparableDataIdentifier
 df <- dplyr::filter(Data_6Tribes_5y_Harmonized, TADA.ComparableDataIdentifier \%in\% c("TOTAL PHOSPHORUS, MIXED FORMS_UNFILTERED_AS P_UG/L"))
 # Creates a scatterplot of the three specified sites of interest in the same plot.
-TADA_GroupedScatterplot(df, group_col = "TADA.MonitoringLocationName", groups = c("UPPER RED LAKE: WEST", "UPPER RED LAKE: WEST-CENTRAL", "UPPER RED LAKE: EAST CENTRAL"))
+TADA_GroupedScatterplot(df, group_col = "MonitoringLocationName", groups = c("Upper Red Lake: West", "Upper Red Lake: West-Central", "Upper Red Lake: East Central"))
 
-# If no groups are selected, return the 4 groups (by TADA.MonitoringLocationName) with the greatest number of results
-TADA_GroupedScatterplot(df, group_col = "TADA.MonitoringLocationName")
+# If no groups are selected, return the 4 groups (by MonitoringLocationName) with the greatest number of results
+TADA_GroupedScatterplot(df, group_col = "MonitoringLocationName")
 
 }
