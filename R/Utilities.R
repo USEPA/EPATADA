@@ -2166,3 +2166,26 @@ TADA_CharStringRemoveNA <- function(char_string) {
 
   return(labs)
 }
+
+TADA_TableExport <- function(.data = NULL) {
+  if (is.null(.data)) {
+    print("No dataframe provided. Please enter a dataframe to return")
+  }
+  
+  data <- DT::datatable(.data,
+                        extensions = c("Buttons", "FixedColumns"),
+                        options = list(
+                          paging = TRUE,
+                          dom = "Bfrtip",
+                          autoWidth = TRUE,
+                          pageLength = 5,
+                          scrollX = TRUE,
+                          scrollCollapse = TRUE,
+                          buttons = c("copy", "csv", "excel", "pdf")
+                          # fixedColumns = list(leftColumns = 1
+                        ), class = "display"
+  ) %>%
+    DT::formatStyle(columns = colnames(.data), "fontSize" = "80%")
+  
+  return(data)
+}
