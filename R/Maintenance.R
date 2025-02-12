@@ -12,7 +12,7 @@ TADA_UpdateAllRefs <- function() {
   TADA_UpdateCharacteristicRef()
   TADA_UpdateMeasureQualifierCodeRef()
   TADA_UpdateMonLocTypeRef()
-  TADA_UpdateEPA304aRef()
+  TADA_UpdateEPACSTRef()
   TADA_UpdateWQPOrgProviderRef()
   TADA_UpdateATTAINSOrgIDsRef()
   TADA_UpdateATTAINSParamUseOrgRef()
