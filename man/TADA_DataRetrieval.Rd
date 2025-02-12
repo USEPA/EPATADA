@@ -32,7 +32,8 @@ TADA_DataRetrieval(
 
 \item{endDate}{End Date string in the format YYYY-MM-DD, for example, "2020-01-01"}
 
-\item{aoi_sf}{An sf object to use for a query area of interest}
+\item{aoi_sf}{An sf object to use for a query area of interest. If using a local shapefile,
+sf::read_sf can be used to read in a user provided shapefile.}
 
 \item{countrycode}{Code that identifies a country or ocean (e.g. countrycode = "CA" for Canada,
 countrycode = "OA" for Atlantic Ocean).
@@ -59,7 +60,8 @@ and "Virginia Federally Recognized Tribes" layers will not return a successful q
 
 \item{tribe_name_parcel}{The name of one or more tribes corresponding to entries in the
 TRIBE_NAME field of the specified tribal_area_type. OR if the type is "Alaska Native
-Allotments" then the corresponding PARCEL_NO. More info in TADA_TribalOptions().}
+Allotments" then the corresponding PARCEL_NO. If a tribal_area_type is selected,
+tribal_name_parcel is required. More info in TADA_TribalOptions().}
 
 \item{characteristicName}{Name of parameter.
 See https://www.waterqualitydata.us/Codes/characteristicName for options.}
