@@ -150,6 +150,18 @@
 #'   countrycode = "CA",
 #'   ask = FALSE
 #' )
+#' 
+#' # query by shapefile for Navajo Nation
+#' 
+#' navajo_sf <- sf::read_sf("inst/extdata/AmericanIndian.shp") %>%
+#'  dplyr::filter(NAME == "Navajo Nation")
+#'   
+#' tada7 <- TADA_DataRetrieval(
+#'   aoi_sf = navajo_sf,
+#'   startDate = "2023-01-01",
+#'   endDate = "2023-12-31",
+#'   ask = FALSE
+#') 
 #' }
 #'
 TADA_DataRetrieval <- function(startDate = "null",
