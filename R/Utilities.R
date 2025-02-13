@@ -2167,6 +2167,22 @@ TADA_CharStringRemoveNA <- function(char_string) {
   return(labs)
 }
 
+#' Create downloadable table
+#'
+#' This function creates a data table that can be downloaded as a .csv, .xlsx or .pdf.
+#'
+#' @param .data A data frame
+#'
+#' @return A data table with multiple download options (.csv, .xlsx or .pdf).
+#'
+#' @export
+#'
+#' @examples
+#' \dontrun{
+#' # return ATTAINS parameter domain values
+#' TADA_TableExport(rATTAINS::domain_values(domain_name = "ParameterName"))
+#' }
+#'
 TADA_TableExport <- function(.data = NULL) {
   if (is.null(.data)) {
     print("No dataframe provided. Please enter a dataframe to return")
