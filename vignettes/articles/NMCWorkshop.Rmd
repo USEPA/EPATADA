@@ -1,6 +1,6 @@
 ---
 title: "Creating Efficient and Reproducible Water Quality Workflows Using R"
-output: ioslides_presentation
+output: slidy_presentation
 date: '`r Sys.Date()`'
 author: "TADA Team"
 ---
@@ -11,7 +11,7 @@ knitr::opts_chunk$set(echo = FALSE)
 
 # DRAFT WORKSHOP PRESENTATION
 
-# (5 mins) Introduction
+## (5 mins) Introduction
 
 This workshop showcases how to integrate several R Packages developed by the U.S. Environmental Protection Agency (EPA) and the U.S. Geological Survey (USGS) to create efficient and reproducible workflows that support water quality programs and research. For example, performing watershed or waterbody level analyses such as Clean Water Act Assessments.
 
