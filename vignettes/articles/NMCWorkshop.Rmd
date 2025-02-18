@@ -25,7 +25,7 @@ This workshop demonstrates potential uses (beyond their original collection purp
 
 ## Agenda
 
-Next, we will showcase how to bring in other web services and libraries for easy integration of additional hydrologic data including USGS continuous sensor data (using the NLDI via DR?) and geospatial data (using StreamCat). We then plan to touch briefly on packages that can assist with building statistical models. Finally, we will demonstrate an example workflow for analyzing water quality by Assessment Unit's, which are state or tribal nation defined watershed or waterbody areas used for CWA assessments and reporting water quality conditions to EPA and the public.
+Next, we will showcase how to bring in other web services and libraries for easy integration of additional hydrologic data including USGS continuous sensor data (using the NLDI via DR?) and geospatial data (using StreamCat). We then plan to touch briefly on packages that can assist with building statistical models. Finally, we will demonstrate an example workflow for analyzing water quality by Assessment Units, which are state or tribal nation defined watershed or waterbody areas used for CWA assessments and reporting water quality conditions to EPA and the public.
 
 ## Packages
 
@@ -33,7 +33,7 @@ Next, we will showcase how to bring in other web services and libraries for easy
 
 -   USGS: dataRetrieval/NLDI, nhdplusTools, hydroloom
 
--   Fundamental geospatial packages such as sf, terra, leaflet and tmap
+-   Fundamental geospatial packages: sf, terra, leaflet and tmap
 
 # (30 mins) Retrieving and Preparing Data for Analysis
 
@@ -82,7 +82,7 @@ This is an abbreviated introduction to key TADA Module 1 WQP Data Discovery and 
 
 ## Retrieve data from the WQP
 
-In this example, we will first use EPA's How's My Waterway (HMW) application to find an applicable Hydrologic Unit Code (HUC) for our area of interest - the [Fox River, Green Bay, WI](https://mywaterway.epa.gov/community/040302040405/monitoring). Next, let's query the WQP using the identified HUC, state abbreviation, and a date range. In this example, we'll start by pulling all data available in the WQP for this HUC 12 for the last 5 years.
+In this example, we will first use EPA's How's My Waterway (HMW) application to find an applicable Hydrologic Unit Code (HUC) for our area of interest - the [Fox River, Green Bay, WI](https://mywaterway.epa.gov/community/040302040405/monitoring). Next, let's query the WQP using the identified HUC, state abbreviation, and a date range. In this example, we'll start by pulling all data available in the WQP for this HUC 12 in Wisconsin for the last 5 years.
 
 WATERSHED: City of Green Bay-Fox River (040302040405)
 
@@ -179,6 +179,8 @@ GreenBay_FoxRiver <- TADA_CalculateTotalNP(GreenBay_FoxRiver, daily_agg = "max")
 
 ```{r}
 GreenBay_FoxRiver_Counts <- TADA_FieldValuesTable(GreenBay_FoxRiver, field = "TADA.ComparableDataIdentifier")
+
+DT::datatable(GreenBay_FoxRiver_Counts, fillContainer = TRUE)
 ```
 
 ## Filter to focus on frequently monitored characteristics in example data
