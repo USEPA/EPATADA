@@ -96,7 +96,16 @@ utils::globalVariables(c(
   "TADA.MonitoringLocationIdentifier.New", "TADA.NearbySites.Flag",  "CountSites", "Group",
   "Matrix", "n_id", "OrgRank", "rank.default", "Site", "TADA.LatitudeMeasure.New",
   "TADA.LongitudeMeasure.New", "TADA.MonitoringLocationName.New",
-  "TADA.MonitoringLocationTypeName.New", "df_number"
+  "TADA.MonitoringLocationTypeName.New", "df_number", "ASSESSMENT_UNIT_ID", 
+  "ATTAINS.FlagParameterName", "ATTAINS.FlagUseName", "ATTAINS.ParameterName",
+  "CRITERIATYPEAQUAHUMHLTH", "CRITERIATYPEFRESHSALTWATER", "CRITERIATYPE_ACUTECHRONIC",
+  "CRITERIATYPE_WATERORG", "CRITERION_VALUE", "ENTITY_ABBR", "EPA304A.PollutantName",
+  "IncludeOrExclude"," MONITORING_DATA_LINK_TEXT", "MONITORING_DATA_LINK_TEXT.New",
+  "MS_LOCATION_ID", "MS_ORG_ID", "MonitoringDataLinkText", "OrgIDForURL", "POLLUTANT_NAME",
+  "ProviderName", "TADA.SingleOrgDup.Flag", "UNIT_NAME", "URLencode", "USE_CLASS_NAME_LOCATION_ETC",
+  "assessment_unit_identifier", "monitoring_data_link_text", "monitoring_location_identifier",
+  "monitoring_organization_identifier", "monitoring_stations", "organization_identifier",
+  "organization_identifier.y", "parameter", "use_name", "use_name.y"
 ))
 
 # global variables for tribal feature layers used in TADA_OverviewMap in Utilities.R
