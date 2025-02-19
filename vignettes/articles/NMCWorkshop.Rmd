@@ -79,7 +79,7 @@ install.packages("remotes")
 library(remotes)
 ```
 
-Install and load the [EPATADA R Package](https://github.com/USEPA/EPATADA) from GitHub.
+Install and load the [EPATADA R Package](https://github.com/USEPA/EPATADA) and example data for this workshop from GitHub.
 
 ```{r}
 remotes::install_github("USEPA/EPATADA", 
@@ -87,7 +87,10 @@ remotes::install_github("USEPA/EPATADA",
                         dependencies = TRUE, 
                         force = TRUE)
 
+remotes::install_github("mhweber/NMC-Workshop-Data")
+
 library(EPATADA)
+library(NMC-Workshop-Data)
 ```
 
 It's go time! Let's time our process.
@@ -108,13 +111,15 @@ In this example, we will first use EPA's How's My Waterway (HMW) application to 
 WATERSHED: City of Green Bay-Fox River (040302040405)
 
 ```{r}
-GreenBay_FoxRiver <- TADA_DataRetrieval(
-  statecode = "WI",
-  startDate = "2015-01-01",
-  endDate = "2024-12-30",
-  huc = c("040302040405"),
-  applyautoclean = TRUE
-)
+# GreenBay_FoxRiver <- TADA_DataRetrieval(
+#   statecode = "WI",
+#   startDate = "2015-01-01",
+#   endDate = "2024-12-30",
+#   huc = c("040302040405"),
+#   applyautoclean = TRUE
+# )
+
+data(GreenBay_FoxRiver)
 ```
 
 ## Wrangle
