@@ -2,7 +2,33 @@
 title: "Creating Efficient and Reproducible Water Quality Workflows Using R"
 output: slidy_presentation
 date: '`r Sys.Date()`'
-author: "TADA Team"
+editor: visual
+editor_options: 
+    wrap: 72
+execute:
+  echo: true
+  eval: true
+  output: true
+  warning: false
+  error: false
+  include: true
+authors: 
+  - name: "Cristina Mullin"
+    orcid: 0000-0002-0615-6087
+    affiliation: EPA
+  - name: "Marc Weber"
+    affiliation: EPA
+  - name: "Dave Blodgett"
+    affiliation: USGS
+  - name: "Hillary Marler"
+    affiliation: EPA
+  - name: "Michael Dumelle"
+    affiliation: EPA
+  - name: "Shelly Thawley"
+    affiliation: EPA
+  - name: "Kenny Wong"
+    affiliation: ORISE at EPA
+footer: "EPATADA, dataRetrieval, nhdplusTools, StreamCatTools, hydroloom, spsurvey, spmodel, SSN2, sf, prism, terra, leaflet and tmap"
 ---
 
 ```{r setup, include=FALSE}
@@ -55,18 +81,13 @@ library(remotes)
 
 Install and load the [EPATADA R Package](https://github.com/USEPA/EPATADA) from GitHub.
 
-```{r, eval = F}
+```{r}
 remotes::install_github("USEPA/EPATADA", 
                         ref = "develop", 
                         dependencies = TRUE, 
                         force = TRUE)
 
 library(EPATADA)
-```
-
-```{r, include = F, eval = T}
-library(devtools)
-load_all()
 ```
 
 It's go time! Let's time our process.
@@ -228,16 +249,48 @@ GreenBay_FoxRiver = TADA_FlagCoordinates(GreenBay_FoxRiver, clean_outsideUSA = "
 
 ## (15 mins) Ingestion of additional hydrologic data using NLDI and Streamcat
 
-## Combine additional data with WQP data
+We create a unique identifier based on shared lat lon values and filter to just the 26 unique locations
+```{r}
+GreenBay_FoxRiver_sf$latlon <- paste0(GreenBay_FoxRiver_sf$TADA.LongitudeMeasure, GreenBay_FoxRiver_sf$TADA.LatitudeMeasure)
 
-Placeholder for integration of other data sources (presenter TBD)
+GreenBay_FoxRiver_sf <- GreenBay_FoxRiver_sf |> 
+  dplyr::group_by(latlon) |> 
+  dplyr::mutate(loc_id = dplyr::cur_group_id())
 
-1.  USGS continuous sensor data
-2.  StreamCat
+GreenBay_FoxRiver_sf_locs <- GreenBay_FoxRiver_sf |>
+  dplyr::filter(!duplicated(loc_id))
+```
+
+## Access NHDPlus COMIDs for sites
+
+We use `StreamCatTools` function `sc_get_comid` (which uses `nhdplusTools`) to get the comid for each location
+```{r}
+GreenBay_FoxRiver_sf_locs$COMID <- sc_get_comid(GreenBay_FoxRiver_sf_locs)
+```
 
 # (5 mins) Example Use Case 1: Building Statistical Models
 
-placeholder for spsurvey, spmodel, SSN2 slides (Michael)
+## Spatial Dependence
+
+* For spatial data, nearby observations tend to be more similar than distant observations
+* This phenomena is called *spatial dependence* and can be built into statistical models
+* The benefits of incorporating spatial dependence are *significant* and include:
+
+    * More realistic characterization of ecological drivers
+    * More precise predictions at unobserved locations
+
+## The `spmodel` R package
+
+* The `spmodel` R package makes spatial models accessible via straightforward extensions to common modeling functions like `lm()` and `glm()`
+* Spatial dependence is based on Euclidean (straight-line) distance
+* Learn more at [https://usepa.github.io/spmodel/](https://usepa.github.io/spmodel/)
+
+## The `SSN2` R package
+
+* Like `spmodel`, `SSN2` extends common modeling functions like `lm()` and `glm()`
+* Spatial dependence is based on stream network distance (flow-connected, flow-unconnected)
+* `SSN2` is an updated version of `SSN` (`SSN` has been archived)
+* Learn more at [https://usepa.github.io/SSN2/](https://usepa.github.io/SSN2/)
 
 # (30 mins) Example Use Case 2: Clean Water Act (CWA) Section 303(d) Assessments Part A
 
