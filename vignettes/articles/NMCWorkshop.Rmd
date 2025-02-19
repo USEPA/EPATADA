@@ -161,13 +161,11 @@ unique(GreenBay_FoxRiver$TADA.ResultMeasureValueDataTypes.Flag)
 sum(is.na(GreenBay_FoxRiver$TADA.ResultMeasureValue))
 
 GreenBay_FoxRiver = TADA_AutoFilter(GreenBay_FoxRiver)
+# CM note for TADA team discussion: Should results with NA units be dealt with here or in the TADA unit conversions function? These have not yet been addressed
 
 unique(GreenBay_FoxRiver$TADA.ResultMeasureValueDataTypes.Flag)
 
 sum(is.na(GreenBay_FoxRiver$TADA.ResultMeasureValue))
-# CM note for team discussion: Should results with NA units be dealt with now as well within TADA_AutoFilter?
-
-sum(is.na(GreenBay_FoxRiver$TADA.LattitudeMeasure))
 ```
 
 ## Flag and remove QAQC samples and suspect results
@@ -242,14 +240,25 @@ TADA_TwoCharacteristicScatterplot(GreenBay_FoxRiver_Subset, id_cols = "TADA.Comp
 ## Generate map
 
 ```{r}
-TADA_OverviewMap(GreenBay_FoxRiver)
+TADA_OverviewMap(GreenBay_FoxRiver_Subset)
 
-GreenBay_FoxRiver = TADA_FlagCoordinates(GreenBay_FoxRiver, clean_outsideUSA = "change sign", clean_imprecise = FALSE)
+GreenBay_FoxRiver = TADA_FlagCoordinates(GreenBay_FoxRiver_Subset, clean_outsideUSA = "change sign", clean_imprecise = FALSE)
+
+# CM note for TADA team discussion: Should results with NA lat/long be addressed within TADA_FlagCoordinates? For example, this df has NA lons from USGS that must be addressed before TADA_MakeSpatial can be run... 
+# sum(is.na(GreenBay_FoxRiver$LongitudeMeasure))
+GreenBay_FoxRiver_Subset <- GreenBay_FoxRiver_Subset[!is.na(GreenBay_FoxRiver_Subset$LongitudeMeasure),]
 ```
 
-## (15 mins) Ingestion of additional hydrologic data using NLDI and Streamcat
+## (15-30 mins) Ingestion of additional hydrologic data using NLDI and Streamcat
+
+## Make spatial
+
+```{r}
+GreenBay_FoxRiver_sf = TADA_MakeSpatial(GreenBay_FoxRiver_Subset)
+```
 
 We create a unique identifier based on shared lat lon values and filter to just the 26 unique locations
+
 ```{r}
 GreenBay_FoxRiver_sf$latlon <- paste0(GreenBay_FoxRiver_sf$TADA.LongitudeMeasure, GreenBay_FoxRiver_sf$TADA.LatitudeMeasure)
 
@@ -264,33 +273,38 @@ GreenBay_FoxRiver_sf_locs <- GreenBay_FoxRiver_sf |>
 ## Access NHDPlus COMIDs for sites
 
 We use `StreamCatTools` function `sc_get_comid` (which uses `nhdplusTools`) to get the comid for each location
+
 ```{r}
 GreenBay_FoxRiver_sf_locs$COMID <- sc_get_comid(GreenBay_FoxRiver_sf_locs)
 ```
+
+## Placeholder for dataRetrieval/NLDI, nhdplusTools, hydroloom (Dave)
 
 # (5 mins) Example Use Case 1: Building Statistical Models
 
 ## Spatial Dependence
 
-* For spatial data, nearby observations tend to be more similar than distant observations
-* This phenomena is called *spatial dependence* and can be built into statistical models
-* The benefits of incorporating spatial dependence are *significant* and include:
+-   For spatial data, nearby observations tend to be more similar than distant observations
 
-    * More realistic characterization of ecological drivers
-    * More precise predictions at unobserved locations
+-   This phenomena is called *spatial dependence* and can be built into statistical models
+
+-   The benefits of incorporating spatial dependence are *significant* and include:
+
+    -   More realistic characterization of ecological drivers
+    -   More precise predictions at unobserved locations
 
 ## The `spmodel` R package
 
-* The `spmodel` R package makes spatial models accessible via straightforward extensions to common modeling functions like `lm()` and `glm()`
-* Spatial dependence is based on Euclidean (straight-line) distance
-* Learn more at [https://usepa.github.io/spmodel/](https://usepa.github.io/spmodel/)
+-   The `spmodel` R package makes spatial models accessible via straightforward extensions to common modeling functions like `lm()` and `glm()`
+-   Spatial dependence is based on Euclidean (straight-line) distance
+-   Learn more at <https://usepa.github.io/spmodel/>
 
 ## The `SSN2` R package
 
-* Like `spmodel`, `SSN2` extends common modeling functions like `lm()` and `glm()`
-* Spatial dependence is based on stream network distance (flow-connected, flow-unconnected)
-* `SSN2` is an updated version of `SSN` (`SSN` has been archived)
-* Learn more at [https://usepa.github.io/SSN2/](https://usepa.github.io/SSN2/)
+-   Like `spmodel`, `SSN2` extends common modeling functions like `lm()` and `glm()`
+-   Spatial dependence is based on stream network distance (flow-connected, flow-unconnected)
+-   `SSN2` is an updated version of `SSN` (`SSN` has been archived)
+-   Learn more at <https://usepa.github.io/SSN2/>
 
 # (30 mins) Example Use Case 2: Clean Water Act (CWA) Section 303(d) Assessments Part A
 
