@@ -47,7 +47,7 @@ Water Quality eXchange (WQX) and Water Quality Portal (WQP) community, Clean Wat
 
 ## Agenda
 
-This workshop demonstrates potential uses (beyond their original collection purpose) for publicly available water quality data from Water Quality Portal (WQP). To start, participants will learn how to use EPA’s Tools for Automated Data Analysis (TADA) R Package to retrieve, wrangle, harmonize, quality check, visualize and analyze WQP data from multiple organizations.
+This workshop demonstrates potential uses (beyond their original collection purpose) for publicly available water quality data from Water Quality Portal (WQP). To start, participants will learn how to use EPA's Tools for Automated Data Analysis (TADA) R Package to retrieve, wrangle, harmonize, quality check, visualize and analyze WQP data from multiple organizations.
 
 ## Agenda
 
@@ -119,7 +119,7 @@ WATERSHED: City of Green Bay-Fox River (040302040405)
 #   applyautoclean = TRUE
 # )
 
-data(GreenBay_FoxRiver)
+GreenBay_FoxRiver <- NMCWorkshopData::GreenBay_FoxRiver
 ```
 
 ## Wrangle
@@ -165,7 +165,7 @@ unique(GreenBay_FoxRiver$TADA.ResultMeasureValueDataTypes.Flag)
 
 sum(is.na(GreenBay_FoxRiver$TADA.ResultMeasureValue))
 
-GreenBay_FoxRiver = TADA_AutoFilter(GreenBay_FoxRiver)
+GreenBay_FoxRiver <- TADA_AutoFilter(GreenBay_FoxRiver)
 # CM note for TADA team discussion: Should results with NA units be dealt with here or in the TADA unit conversions function? These have not yet been addressed
 
 unique(GreenBay_FoxRiver$TADA.ResultMeasureValueDataTypes.Flag)
@@ -354,8 +354,12 @@ One of the first steps in the CWA assessment process is to define Assessment Uni
 -   The function uses high resolution NHDPlus catchments by default because 80% of state submitted assessment units in ATTAINS were developed based on high res NHD; users can select med-res if applicable to their use case
 
 ```{r}
-# WQP_withATTAINSonly <- TADA_GetATTAINS(GreenBay_FoxRiver, fill_catchments = FALSE, return_sf = TRUE)
+# WQP_with_ATTAINSonly <- TADA_GetATTAINS(GreenBay_FoxRiver_Subset, fill_catchments = FALSE, return_sf = TRUE)
 ```
+
+## TADA_ViewATTAINS()
+
+-   Allows for viewing the
 
 ## Challenges with Automated Approach
 
