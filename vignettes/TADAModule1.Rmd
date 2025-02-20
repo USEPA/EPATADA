@@ -56,7 +56,7 @@ First, install and load the remotes package specifying the repo. This is
 needed before installing TADA because it is only available on GitHub
 (not CRAN).
 
-```{r install_remotes, results = 'hide', eval = F}
+```{r install_remotes, results = 'hide'}
 install.packages("remotes",
   repos = "http://cran.us.r-project.org"
 )
@@ -75,6 +75,13 @@ remotes::install_github("USEPA/EPATADA",
   dependencies = TRUE
 )
 # remotes::install_github("USGS-R/dataRetrieval", dependencies=TRUE)
+```
+
+```{r dev_install, results = 'hide', include = F}
+remotes::install_github("USEPA/EPATADA",
+  ref = "tada_dr_updates_tada_team",
+  dependencies = TRUE
+)
 ```
 
 Finally, use the **library()** function to load the TADA R Package into
@@ -319,7 +326,7 @@ are sampling with the tribal boundary. This is one great benefit of this
 query option! There is additional data available that may be useful but
 is missed if only the organization query filter is used.
 
-```{r TADA_DataRetrieval_tribal}
+```{r TADA_DataRetrieval_tribal_2}
 TADAProfile_single_2 <- TADA_DataRetrieval(
   organization = "REDLAKE_WQX",
   startDate = "2018-01-01",
@@ -336,9 +343,6 @@ TADAProfile_tribal_2 <- TADA_DataRetrieval(
   applyautoclean = FALSE,
   ask = FALSE
 )
-
-# They are not equivalent:
-all.equal(data.frame(TADAProfile_single_2), data.frame(TADAProfile_tribal_2))
 
 # Review unique organizations
 unique(TADAProfile_single_2$OrganizationFormalName)
