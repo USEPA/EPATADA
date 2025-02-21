@@ -3,7 +3,7 @@ title: "TADA Module 2: Geospatial Functions"
 format: html
 editor: visual
 author: "TADA Team"
-date: "2025-02-20"
+date: "`r Sys.Date()`"
 output: 
   rmarkdown::html_vignette:
     toc: true
@@ -21,7 +21,15 @@ editor_options:
     wrap: 72
 ---
 
+```{r setup, include = F}
+library(knitr)
 
+knitr::opts_chunk$set(
+  echo = TRUE,
+  warning = FALSE,
+  message = FALSE
+)
+```
 
 ## Welcome!
 
@@ -49,8 +57,7 @@ information is available at:**
 First, install and load the remotes package specifying the repo. This is
 needed before installing TADA because it is only available on GitHub.
 
-
-``` r
+```{r install_remotes, results = 'hide', eval = F}
 install.packages("remotes",
   repos = "http://cran.us.r-project.org"
 )
@@ -64,8 +71,7 @@ packages that have more recent versions available. If you see this
 prompt, it is recommended to update all of them (enter 1 into the
 console).
 
-
-``` r
+```{r install_TADA, eval = F, results = 'hide'}
 remotes::install_github("USEPA/EPATADA",
   ref = "develop",
   dependencies = TRUE
@@ -75,8 +81,7 @@ remotes::install_github("USEPA/EPATADA",
 Finally, use the **library()** function to load the TADA R Package into
 your R session.
 
-
-``` r
+```{r, results = 'hide'}
 library(EPATADA)
 ```
 
@@ -89,8 +94,7 @@ the GitHub website. Users can also access the help page for a given
 function in R or RStudio using the following format (example below):
 `?[name of TADA function]`
 
-
-``` r
+```{r help_pages, eval = F}
 # Access help page for TADA_DataRetrieval
 ?TADA_DataRetrieval
 ```
@@ -144,8 +148,7 @@ dataframe must have - at a minimum - WQP observation coordinates in
 
 First, we will need to pull in some TADA Water Quality Portal Data:
 
-
-``` r
+```{r}
 # pH data in Larimer County, Colorado for the year 2020.
 TADA_dataframe <- TADA_DataRetrieval(
   startDate = "2020-01-01",
@@ -157,44 +160,12 @@ TADA_dataframe <- TADA_DataRetrieval(
 )
 ```
 
-```
-## [1] "Downloading WQP query results. This may take some time depending upon the query size."
-## $startDate
-## [1] "2020-01-01"
-## 
-## $countycode
-## [1] "US:08:069"
-## 
-## $characteristicName
-## [1] "pH"
-## 
-## $endDate
-## [1] "2020-12-31"
-## 
-## [1] "Data successfully downloaded. Running TADA_AutoClean function."
-## [1] "TADA_Autoclean: creating TADA-specific columns."
-## [1] "TADA_Autoclean: handling special characters and coverting TADA.ResultMeasureValue and TADA.DetectionQuantitationLimitMeasure.MeasureValue value fields to numeric."
-## [1] "TADA_Autoclean: converting TADA.LatitudeMeasure and TADA.LongitudeMeasure fields to numeric."
-## [1] "TADA_Autoclean: harmonizing synonymous unit names (m and meters) to m."
-## [1] "TADA_Autoclean: updating deprecated (i.e. retired) characteristic names."
-## [1] "No deprecated characteristic names found in dataset."
-## [1] "TADA_Autoclean: harmonizing result and depth units."
-## [1] "TADA_Autoclean: creating TADA.ComparableDataIdentifier field for use when generating visualizations and analyses."
-## [1] "NOTE: This version of the TADA package is designed to work with numeric data with media name: 'WATER'. TADA_AutoClean does not currently remove (filter) data with non-water media types. If desired, the user must make this specification on their own outside of package functions. Example: dplyr::filter(.data, TADA.ActivityMediaName == 'WATER')"
-```
-
 Now, we can make the water quality data spatial by running
 `TADA_MakeSpatial()`:
 
-
-``` r
+```{r}
 # default CRS is WGS84 (4326)
 TADA_spatial <- TADA_MakeSpatial(.data = TADA_dataframe, crs = 4326)
-```
-
-```
-## [1] "Transforming your data into a spatial object."
-## [1] "Your WQP dataframe contains observations without a listed coordinate reference system (CRS). For these, we have assigned CRS 4326."
 ```
 
 This new spatial object is identical to the original TADA dataframe, but
@@ -203,8 +174,7 @@ geospatial capabilities. Enter `?TADA_MakeSpatial` into the console to
 review another example of this function in use and additional
 information.
 
-
-``` r
+```{r}
 leaflet::leaflet() %>%
   leaflet::addProviderTiles("Esri.WorldTopoMap",
     group = "World topo",
@@ -232,10 +202,6 @@ leaflet::leaflet() %>%
       TADA_spatial$MonitoringLocationName
     )
   )
-```
-
-```
-## Error in path.expand(path): invalid 'path' argument
 ```
 
 ## `TADA_GetATTAINS()`
@@ -274,18 +240,9 @@ Using either our original `TADA_dataframe` *or* the geospatial version
 `TADA_spatial`, we can pull in the ATTAINS catchment features that
 intersect our observations:
 
-
-``` r
+```{r}
 TADA_with_ATTAINS <- TADA_GetATTAINS(.data = TADA_dataframe, return_sf = FALSE)
-```
 
-```
-## [1] "Transforming your data into a spatial object."
-## [1] "Your WQP dataframe contains observations without a listed coordinate reference system (CRS). For these, we have assigned CRS 4326."
-## [1] "Depending on your data's observation count and its spatial range, the ATTAINS pull may take a while."
-```
-
-``` r
 # Can also be performed on the spatial data:
 # TADA_with_ATTAINS <- TADA_GetATTAINS(.data = TADA_spatial, return_sf = FALSE)
 ```
@@ -299,18 +256,9 @@ the original TADA dataframe, we can deduce that some Water Quality
 Portal observations fall within an NHD catchment that contains more than
 one ATTAINS assessment unit.
 
-
-``` r
+```{r}
 TADA_with_ATTAINS_list <- TADA_GetATTAINS(.data = TADA_dataframe, return_sf = TRUE)
-```
 
-```
-## [1] "Transforming your data into a spatial object."
-## [1] "Your WQP dataframe contains observations without a listed coordinate reference system (CRS). For these, we have assigned CRS 4326."
-## [1] "Depending on your data's observation count and its spatial range, the ATTAINS pull may take a while."
-```
-
-``` r
 # Can also be performed on the spatial data:
 # TADA_with_ATTAINS_list <- TADA_GetATTAINS(.data = TADA_spatial, return_sf = TRUE)
 ```
@@ -325,8 +273,7 @@ dataframe, and create a new dataframe with ONLY the unique combinations
 of WQP MonitoringLocationIdentifiers and ATTAINS Assessment Unit
 Identifiers.
 
-
-``` r
+```{r}
 TADA_with_ATTAINS_subset <- TADA_with_ATTAINS %>%
   dplyr::select(
     "LongitudeMeasure", "TADA.LongitudeMeasure",
@@ -349,15 +296,8 @@ WQP observations have NAs where there should be ATTAINS information. In
 these instances, the user can optionally fill in catchment information
 from the NHD by entering `fill_catchments = TRUE`:
 
-
-``` r
+```{r}
 TADA_with_ATTAINS_filled <- TADA_GetATTAINS(TADA_dataframe, fill_catchments = TRUE, return_sf = TRUE)
-```
-
-```
-## [1] "Transforming your data into a spatial object."
-## [1] "Your WQP dataframe contains observations without a listed coordinate reference system (CRS). For these, we have assigned CRS 4326."
-## [1] "Depending on your data's observation count and its spatial range, the ATTAINS pull may take a while."
 ```
 
 When `fill_catchments = TRUE`, the returned list splits observations
@@ -406,25 +346,15 @@ Let's view the data associated with our `TADA_with_ATTAINS_list` object!
 Enter `?TADA_ViewATTAINS` into the console to review another example
 query and additional information.
 
-
-``` r
+```{r, fig.height=7}
 TADA_ViewATTAINS(.data = TADA_with_ATTAINS_list)
-```
-
-```
-## Error in path.expand(path): invalid 'path' argument
 ```
 
 When `fill_catchments = TRUE`, `TADA_ViewATTAINS()` will also map the
 `without_ATTAINS_catchments`:
 
-
-``` r
+```{r, fig.height=7}
 TADA_ViewATTAINS(.data = TADA_with_ATTAINS_filled)
-```
-
-```
-## Error in path.expand(path): invalid 'path' argument
 ```
 
 Enter `?TADA_ViewATTAINS` into the console to review another example of
