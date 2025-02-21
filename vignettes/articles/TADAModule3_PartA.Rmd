@@ -3,7 +3,7 @@ title: "TADA Module 3: Associating WQP Characteristics with Applicable ATTAINS a
 format: html
 editor: visual
 author: "TADA Team"
-date: "2025-02-20"
+date: "`r Sys.Date()`"
 output: 
   rmarkdown::html_vignette:
     toc: true
@@ -20,6 +20,16 @@ editor_options:
   markdown:
     wrap: 72
 ---
+
+```{r setup, include = F}
+library(knitr)
+
+knitr::opts_chunk$set(
+  echo = TRUE,
+  warning = FALSE,
+  message = FALSE
+)
+```
 
 # Welcome!
 
@@ -38,7 +48,7 @@ welcome collaboration with external partners!
 First, install and load the remotes package specifying the repo. This is
 needed before installing EPATADA because it is only available on GitHub.
 
-``` r
+```{r install_remotes, results = 'hide', eval = F}
 install.packages("remotes",
   repos = "http://cran.us.r-project.org"
 )
@@ -51,7 +61,15 @@ may be prompted in the console to update dependencies that have more
 recent versions available. If you see this prompt, it is recommended to
 update all of them (enter 1 into the console).
 
-``` r
+```{r install_TADA_dev, eval = T, include = F}
+# helps with development (knit and checks), this chunk should not appear on website
+remotes::install_github("USEPA/EPATADA",
+  ref = "Create-Module-3-Reference-Tables",
+  dependencies = TRUE
+)
+```
+
+```{r install_TADA, eval = F, results = 'hide'}
 remotes::install_github("USEPA/EPATADA",
   ref = "develop",
   dependencies = TRUE
@@ -61,7 +79,7 @@ remotes::install_github("USEPA/EPATADA",
 Finally, use the **library()** function to load the EPATADA R Package
 into your R session.
 
-``` r
+```{r library, results = 'hide'}
 library(EPATADA)
 ```
 
@@ -72,7 +90,7 @@ the GitHub site. Users can also access the help page for a given
 function in R or RStudio using the following format (example below):
 `?[name of TADA function]`
 
-``` r
+```{r help_pages, eval = F}
 # Access help page for TADA_DataRetrieval
 ?TADA_DataRetrieval
 ```
@@ -118,7 +136,7 @@ process should be completed by users before utilizing Module 3
 functions. The example TADA data frame used in this vignette
 (Data_HUC8_02070004_Mod1Output) has already been through this process.
 
-``` r
+```{r}
 # import example data set (output of Module 1 Workflow)
 Data_NCTC <- Data_HUC8_02070004_Mod1Output
 ```
@@ -141,19 +159,9 @@ fraction and speciation combinations from the example data frame
 (TADA.ComparableDataIdentifier) and how many results are available for
 each within the example data set (Data_NCTC).
 
-``` r
+```{r}
 # create table with counts of TADA.ComparableDataIdentifiers
 TADA_FieldValuesTable(Data_NCTC, field = "TADA.ComparableDataIdentifier")
-```
-
-```         
-##                          Value Count
-## 1                  PH_NA_NA_NA    45
-## 2   NITRATE_FILTERED_AS N_MG/L    26
-## 3           PH_NA_NA_STD UNITS    13
-## 4       ZINC_DISSOLVED_NA_UG/L     5
-## 5           ZINC_TOTAL_NA_UG/L     2
-## 6 NITRATE_UNFILTERED_AS N_MG/L     1
 ```
 
 We can also review the domain values of parameter names listed as causes
@@ -162,7 +170,8 @@ function from rATTAINS, which provides functions for downloading tidy
 data from the ATTAINS public web services
 (<https://github.com/mps9506/rATTAINS>).
 
-``` r
+```{r, eval = FALSE}
+
 # return ATTAINS parameter domain values
 TADA_TableExport(rATTAINS::domain_values(domain_name = "ParameterName"))
 ```
@@ -197,16 +206,10 @@ names from the entire ATTAINS domain list. If there is not a suitable
 ATTAINS parameter name to match a TADA.ComparableDataIdentifier, users
 should contact the ATTAINS team (attains\@epa.gov) for assistance.
 
-``` r
+```{r}
 # return ATTAINS organization domain values
 TADA_TableExport(rATTAINS::domain_values(domain_name = "OrgName"))
-```
 
-```         
-## Error in path.expand(path): invalid 'path' argument
-```
-
-``` r
 # create TADA parameter reference table for specified organization
 NCTC_ParamRef <- TADA_CreateParamRef(
   Data_NCTC,
@@ -217,10 +220,6 @@ NCTC_ParamRef <- TADA_CreateParamRef(
 
 # export TADA parameter reference table as csv
 TADA_TableExport(NCTC_ParamRef)
-```
-
-```         
-## Error in path.expand(path): invalid 'path' argument
 ```
 
 Once the parameter reference table has been reviewed and modified, it
@@ -237,7 +236,7 @@ listed this parameter as a cause in prior assessment cycles. It also
 flags rows where the TADA.ComparableDataIdentifier as not been assigned
 an ATTAINS parameter name.
 
-``` r
+```{r}
 # only run the code chunks below if you make edits to the excel file.
 # downloads_path <- file.path(Sys.getenv("USERPROFILE"), "Downloads", "myfileRef.xlsx")
 # ParamRef <- openxlsx::read.xlsx(downloads_path, sheet = "CreateParamRef")
@@ -256,13 +255,7 @@ ParamRef <- dplyr::mutate(NCTC_ParamRef, ATTAINS.ParameterName = dplyr::case_whe
   grepl("NITRATE", TADA.ComparableDataIdentifier) ~ "NITROGEN, TOTAL"
 ))
 TADA_TableExport(ParamRef)
-```
 
-```         
-## Error in path.expand(path): invalid 'path' argument
-```
-
-``` r
 NCTC_ParamRef2 <- TADA_CreateParamRef(
   Data_NCTC,
   org_id = c("MDE_EASP"),
@@ -271,10 +264,6 @@ NCTC_ParamRef2 <- TADA_CreateParamRef(
 ) # comment out 'excel = FALSE' and uncomment excel = TRUE, overwrite = TRUE to run the excel file
 # excel = TRUE, overwrite = TRUE)
 TADA_TableExport(NCTC_ParamRef2)
-```
-
-```         
-## Error in path.expand(path): invalid 'path' argument
 ```
 
 # TADA_CreateParamUseRef() Basics
@@ -304,7 +293,7 @@ If desired, a user can manually assign this parameter to any applicable
 uses (disclaimer: this is for demonstration purposes only and does not
 reflect MDE_EASP's process).
 
-``` r
+```{r}
 NCTC_ParamUseRef <- TADA_CreateParamUseRef(
   Data_NCTC,
   org_id = c("MDE_EASP"),
@@ -312,10 +301,6 @@ NCTC_ParamUseRef <- TADA_CreateParamUseRef(
   excel = FALSE
 )
 TADA_TableExport(NCTC_ParamUseRef)
-```
-
-```         
-## Error in path.expand(path): invalid 'path' argument
 ```
 
 Users may also choose to include the EPA304a recommended water quality
@@ -330,7 +315,7 @@ ParamRef. If you would like to include other organizations here, you
 must first fill out the TADA_CreateParamRef() for all organizations of
 interest.
 
-``` r
+```{r}
 NCTC_ParamUseRef2 <- TADA_CreateParamUseRef(
   Data_NCTC,
   org_id = c("EPA304a", "MDE_EASP", "21VASWCB", "21PA", "WVDEP"),
@@ -338,10 +323,6 @@ NCTC_ParamUseRef2 <- TADA_CreateParamUseRef(
   excel = FALSE
 )
 TADA_TableExport(NCTC_ParamUseRef2)
-```
-
-```         
-## Error in path.expand(path): invalid 'path' argument
 ```
 
 Instead, users should create a parameter and use reference table,
@@ -353,7 +334,7 @@ reviewed, adjusted, and finalized by the user of these functions.
 Users may choose to voluntarily share their reference tables for their
 organization with the TADA Team so that others can use it in the future.
 
-``` r
+```{r}
 NCTC_ParamUseRef3 <- TADA_CreateParamUseRef(
   Data_NCTC,
   org_id = c("EPA304a", "MDE_EASP"),
@@ -361,10 +342,6 @@ NCTC_ParamUseRef3 <- TADA_CreateParamUseRef(
   excel = FALSE
 )
 TADA_TableExport(NCTC_ParamUseRef3)
-```
-
-```         
-## Error in path.expand(path): invalid 'path' argument
 ```
 
 In this example, we designate that the ATTAINS.ParameterName "PH" is
@@ -378,7 +355,7 @@ organization. In excel, there will be a drop down list of organization
 assessments. If no excel file is generated, this is an example workflow
 of how a user can edit the table in the R environment.
 
-``` r
+```{r paged.print=TRUE}
 add_data <- data.frame("organization_identifier" = "MDE_EASP", "ATTAINS.ParameterName" = rep("PH", 3), "use_name" = c(
   "Aquatic Life and Wildlife", "Water Contact Sports",
   "Seasonal Migratory Fish Spawning and Nursery Subcategory"
@@ -392,13 +369,7 @@ ParamUseRef <- NCTC_ParamUseRef3 %>%
 
 # User now has a saved dataframe which can be used to reflect any updates of Parameter-use ref in the future.
 TADA_TableExport(ParamUseRef)
-```
 
-```         
-## Error in path.expand(path): invalid 'path' argument
-```
-
-``` r
 # PH will now reflect the changes
 NCTC_ParamUseRef3.1 <- TADA_CreateParamUseRef(
   Data_NCTC,
@@ -408,10 +379,6 @@ NCTC_ParamUseRef3.1 <- TADA_CreateParamUseRef(
   excel = FALSE
 )
 TADA_TableExport(NCTC_ParamUseRef3.1)
-```
-
-```         
-## Error in path.expand(path): invalid 'path' argument
 ```
 
 # Next steps

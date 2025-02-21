@@ -130,7 +130,8 @@ data <- TADA_DataRetrieval(
   statecode = "NM",
   huc = c("140801050505", "140801041006"),
   characteristicType = "Physical",
-  applyautoclean = TRUE
+  applyautoclean = TRUE,
+  ask = FALSE
 )
 ```
 

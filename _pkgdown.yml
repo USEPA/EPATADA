@@ -2,3 +2,8 @@ url: "usepa.github.io/EPATADA/"
 template:
   bootstrap: 5
   bootswatch: yeti
+articles:
+  article-one: vignettes/articles/TADAModule1_BeginnerTraining.html
+  article-two: vignettes/articles/TADAModule1_AdvancedTraining.html
+  article-three: vignettes/articles/TADAModule2.html
+  article-four: vignettes/articles/TADAModule3_PartA.html
