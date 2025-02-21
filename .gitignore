@@ -29,5 +29,4 @@ AK_EPATADA_troubleshooting
 
 # built and rendered vignettes aren't tracked
 inst/doc
-vignettes/*.html
 vignettes/*.R
