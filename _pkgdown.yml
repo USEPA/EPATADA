@@ -3,9 +3,9 @@ template:
   bootstrap: 5
   bootswatch: yeti
 articles: 
-  - "vignettes/articles/TADAModule1_BeginnerTraining.html"
-  - "vignettes/articles/TADAModule1_AdvancedTraining.html"
-  - "vignettes/articles/TADAModule2.html"
-  - "vignettes/articles/TADAModule3_PartA.html"
-  - "vignettes/articles/TADAAssessmentUnitUseCase.html"
-  - "vignettes/articles/TADAWaterSciConWorkshopDemo.html"
+  - "inst/articles/TADAModule1_BeginnerTraining.html"
+  - "inst/articles/TADAModule1_AdvancedTraining.html"
+  - "inst/articles/TADAModule2.html"
+  - "inst/articles/TADAModule3_PartA.html"
+  - "inst/articles/TADAAssessmentUnitUseCase.html"
+  - "inst/articles/TADAWaterSciConWorkshopDemo.html"
