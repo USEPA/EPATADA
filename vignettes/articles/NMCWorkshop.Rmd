@@ -94,11 +94,17 @@ install.packages("StreamCatTools")
 # If needed, uncomment below to install StreamCatTools from GitHub
 # remotes::install_github("USEPA/StreamCatTools")
 
+# Included in EPATADA
+# if(!"nhdplusTools"%in%installed.packages()){
+# install.packages("nhdplusTools")
+# }
+
 remotes::install_github("mhweber/NMC-Workshop-Data")
 
 library(EPATADA)
 library(StreamCatTools)
 library(NMCWorkshopData)
+# library(nhdplusTools)
 ```
 
 It's go time! Let's time our process.
