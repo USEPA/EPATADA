@@ -1,10 +1,12 @@
 ---
 title: "Creating Efficient and Reproducible Water Quality Workflows Using R"
-output: slidy_presentation
-date: '`r Sys.Date()`'
+output:
+  ioslides_presentation: default
+  slidy_presentation: default
+date: "`r Sys.Date()`"
 editor: visual
-editor_options: 
-    wrap: 72
+editor_options:
+  wrap: 72
 execute:
   echo: true
   eval: true
@@ -12,23 +14,24 @@ execute:
   warning: false
   error: false
   include: true
-authors: 
-  - name: "Cristina Mullin"
-    orcid: 0000-0002-0615-6087
-    affiliation: EPA
-  - name: "Marc Weber"
-    affiliation: EPA
-  - name: "Dave Blodgett"
-    affiliation: USGS
-  - name: "Hillary Marler"
-    affiliation: EPA
-  - name: "Michael Dumelle"
-    affiliation: EPA
-  - name: "Shelly Thawley"
-    affiliation: EPA
-  - name: "Kenny Wong"
-    affiliation: ORISE at EPA
-footer: "EPATADA, dataRetrieval, nhdplusTools, StreamCatTools, hydroloom, spsurvey, spmodel, SSN2, sf, prism, terra, leaflet and tmap"
+authors:
+- name: Cristina Mullin
+  orcid: "0000-0002-0615-6087"
+  affiliation: EPA
+- name: Marc Weber
+  affiliation: EPA
+- name: Dave Blodgett
+  affiliation: USGS
+- name: Hillary Marler
+  affiliation: EPA
+- name: Michael Dumelle
+  affiliation: EPA
+- name: Shelly Thawley
+  affiliation: EPA
+- name: Kenny Wong
+  affiliation: ORISE at EPA
+footer: EPATADA, dataRetrieval, nhdplusTools, StreamCatTools, hydroloom, spsurvey,
+  spmodel, SSN2, sf, prism, terra, leaflet and tmap
 ---
 
 ```{r setup, include=FALSE}
@@ -87,10 +90,10 @@ remotes::install_github("USEPA/EPATADA",
                         dependencies = TRUE, 
                         force = TRUE)
 
-remotes::install_github("mhweber/NMC-Workshop-Data")
+# remotes::install_github("mhweber/NMC-Workshop-Data",force = TRUE)
 
 library(EPATADA)
-library(NMC-Workshop-Data)
+library(NMCWorkshopData)
 ```
 
 It's go time! Let's time our process.
@@ -280,6 +283,7 @@ GreenBay_FoxRiver_sf_locs <- GreenBay_FoxRiver_sf |>
 We use `StreamCatTools` function `sc_get_comid` (which uses `nhdplusTools`) to get the comid for each location
 
 ```{r}
+library(StreamCatTools)
 GreenBay_FoxRiver_sf_locs$COMID <- sc_get_comid(GreenBay_FoxRiver_sf_locs)
 ```
 
