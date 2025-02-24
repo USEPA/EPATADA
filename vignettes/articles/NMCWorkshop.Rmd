@@ -1,8 +1,6 @@
 ---
 title: "Creating Efficient and Reproducible Water Quality Workflows Using R"
-output:
-  ioslides_presentation: default
-  slidy_presentation: default
+output: slidy_presentation
 date: "`r Sys.Date()`"
 editor: visual
 editor_options:
@@ -14,6 +12,7 @@ execute:
   warning: false
   error: false
   include: true
+  code_folding: true
 authors: 
   - name: "Hillary Marler"
     affiliation: EPA
@@ -84,18 +83,17 @@ library(remotes)
 Install and load the [EPATADA R Package](https://github.com/USEPA/EPATADA), StreamCatTools, and example data (NMC-Workshop-Data) for this workshop from GitHub.
 
 ```{r}
-remotes::install_github("USEPA/EPATADA", 
-                        ref = "develop", 
-                        dependencies = TRUE, 
-                        force = TRUE)
-
+if(!"EPATADA"%in%installed.packages()){
+  remotes::install_github("USEPA/EPATADA", 
+                        ref = "develop",                      dependencies = TRUE,  force = TRUE)
+}
 
 if(!"StreamCatTools"%in%installed.packages()){
 install.packages("StreamCatTools")
 }
 
-if(!"NMCWorkshopData"%in%installed.packages()){}
-remotes::install_github("mhweber/NMC-Workshop-Data")
+if(!"NMCWorkshopData"%in%installed.packages()){
+  remotes::install_github("mhweber/NMC-Workshop-Data")
 }
 library(EPATADA)
 library(StreamCatTools)
@@ -299,7 +297,6 @@ outlet <- dplyr::filter(nhdplus_data$NHDFlowline_Network, hydroseq == min(hydros
 
 nhdplusTools::plot_nhdplus(bbox = sf::st_bbox(outlet))
 plot(sf::st_transform(sf::st_geometry(GreenBay_FoxRiver_sf_locs), 3857), add = TRUE)
->>>>>>> a89b099e66e246881f3daa1c3114f7704d50fafe
 ```
 
 ## dataRetrieval/NLDI, nhdplusTools, hydroloom (Dave Blodgett)
@@ -374,6 +371,37 @@ plot(sf::st_transform(sf::st_geometry(GreenBay_FoxRiver_sf_locs), 3857), add = T
 ```
 
 There's much much more where that came from. See the pkgdown sites for [nhdplusTools](https://doi-usgs.github.io/nhdplusTools/) and [hydroloom](https://doi-usgs.github.io/hydroloom/index.html) for more!
+
+## Accessing watershed information for sites  (Marc Weber)
+
+### Discover what StreamCat metrics we might want to use
+Will draft here
+
+### Discover land cover of waterhsheds for sites
+We'll pull in all the NLCD categories at the local catchment level for each location
+```{r}
+library(ggplot2)
+GB_FR_NLCD <- sc_nlcd(year='2019', aoi='cat', comid=GreenBay_FoxRiver_sf_locs$COMID)
+
+
+GB_FR_Urb <- GB_FR_NLCD |> 
+  dplyr::mutate(Pct_Urbanized = pcturbop2019cat+pcturbmd2019cat+pcturblo2019cat+pcturbhi2019cat) |> 
+  dplyr::select(comid,Pct_Urbanized)
+GB_FR_Urb
+```
+
+### Visualize urbanization for local catchment for each location
+```{r}
+ggplot(GB_FR_Urb, aes(x=Pct_Urbanized)) + 
+  geom_density()
+```
+
+### Pull in data for modeling using `StreamCatTools`
+Now we'll just demonstrate pulling in watershed data that we might use in a modeling exercise as spatial covariates
+```{r}
+ws_data <- sc_get_data(metric='fert,nsurp,nani,manure,IWI', aoi='cat,ws', comid=GreenBay_FoxRiver_sf_locs$COMID)
+```
+
 
 # (5 mins) Example Use Case 1: Building Statistical Models
 
