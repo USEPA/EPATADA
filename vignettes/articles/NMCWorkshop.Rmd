@@ -13,6 +13,8 @@ execute:
   error: false
   include: true
 authors: 
+  - name: "Hillary Marler"
+    affiliation: EPA
   - name: "Cristina Mullin"
     orcid: 0000-0002-0615-6087
     affiliation: EPA
@@ -20,8 +22,6 @@ authors:
     affiliation: EPA
   - name: "Dave Blodgett"
     affiliation: USGS
-  - name: "Hillary Marler"
-    affiliation: EPA
   - name: "Michael Dumelle"
     affiliation: EPA
   - name: "Shelly Thawley"
@@ -79,7 +79,7 @@ install.packages("remotes")
 library(remotes)
 ```
 
-Install and load the [EPATADA R Package](https://github.com/USEPA/EPATADA) and example data for this workshop from GitHub.
+Install and load the [EPATADA R Package](https://github.com/USEPA/EPATADA), StreamCatTools, and example data (NMC-Workshop-Data) for this workshop from GitHub.
 
 ```{r}
 remotes::install_github("USEPA/EPATADA", 
@@ -87,10 +87,18 @@ remotes::install_github("USEPA/EPATADA",
                         dependencies = TRUE, 
                         force = TRUE)
 
+if(!"StreamCatTools"%in%installed.packages()){
+install.packages("StreamCatTools")
+}
+
+# If needed, uncomment below to install StreamCatTools from GitHub
+# remotes::install_github("USEPA/StreamCatTools")
+
 remotes::install_github("mhweber/NMC-Workshop-Data")
 
 library(EPATADA)
-library(NMC-Workshop-Data)
+library(StreamCatTools)
+library(NMCWorkshopData)
 ```
 
 It's go time! Let's time our process.
@@ -280,7 +288,7 @@ GreenBay_FoxRiver_sf_locs <- GreenBay_FoxRiver_sf |>
 We use `StreamCatTools` function `sc_get_comid` (which uses `nhdplusTools`) to get the comid for each location
 
 ```{r}
-GreenBay_FoxRiver_sf_locs$COMID <- sc_get_comid(GreenBay_FoxRiver_sf_locs)
+GreenBay_FoxRiver_sf_locs$COMID <- StreamCatTools::sc_get_comid(GreenBay_FoxRiver_sf_locs)
 ```
 
 ## Placeholder for dataRetrieval/NLDI, nhdplusTools, hydroloom (Dave)
@@ -354,7 +362,7 @@ One of the first steps in the CWA assessment process is to define Assessment Uni
 -   The function uses high resolution NHDPlus catchments by default because 80% of state submitted assessment units in ATTAINS were developed based on high res NHD; users can select med-res if applicable to their use case
 
 ```{r}
-# WQP_with_ATTAINSonly <- TADA_GetATTAINS(GreenBay_FoxRiver_Subset, fill_catchments = FALSE, return_sf = TRUE)
+WQP_with_ATTAINSonly <- TADA_GetATTAINS(GreenBay_FoxRiver_Subset, fill_catchments = FALSE, return_sf = TRUE)
 ```
 
 ## TADA_ViewATTAINS()
@@ -386,7 +394,7 @@ For WQP monitoring sites that DO NOT overlap an existing ATTAINS feature (neithe
 For these, we implemented a solution using NHDPlusTools to pull in either NHDPlus high res or med res catchments (user can choose, but high res is the default) and match those with the WQP sites & create new IDs (essentially creating new AUs that are the catchments that intersect these WQP sites).
 
 ```{r}
-# WQP_withATTAINSandNHDPluscatchments <- TADA_GetATTAINS(GreenBay_FoxRiver, fill_catchments = TRUE, return_sf = TRUE)
+WQP_withATTAINSandNHDPluscatchments <- TADA_GetATTAINS(GreenBay_FoxRiver_Subset, fill_catchments = TRUE, return_sf = TRUE)
 ```
 
 # (15 mins) Visualizing Water Quality Issues
