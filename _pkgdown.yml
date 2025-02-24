@@ -3,9 +3,15 @@ template:
   bootstrap: 5
   bootswatch: yeti
 articles: 
-  - "inst/articles/TADAModule1_BeginnerTraining.html"
-  - "inst/articles/TADAModule1_AdvancedTraining.html"
-  - "inst/articles/TADAModule2.html"
-  - "inst/articles/TADAModule3_PartA.html"
-  - "inst/articles/TADAAssessmentUnitUseCase.html"
-  - "inst/articles/TADAWaterSciConWorkshopDemo.html"
+  - title: TADA Module 1 Beginner Training
+    contents: "inst/articles/TADAModule1_BeginnerTraining.html"
+  - title: TADA Module 1 Advanced Training
+    contents: "inst/articles/TADAModule1_AdvancedTraining.html"
+  - title: TADA Module 2
+    contents: "inst/articles/TADAModule2.html"
+  - title: TADA Module 3 Part A
+    contents: "inst/articles/TADAModule3_PartA.html"
+  - title: TADA Assessment Unit Use Case
+    contents: "inst/articles/TADAAssessmentUnitUseCase.html"
+  - title: TADA WaterSciCon Workshop Demo
+    contents: "inst/articles/TADAWaterSciConWorkshopDemo.html"
