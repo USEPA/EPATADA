@@ -2,10 +2,10 @@ url: "usepa.github.io/EPATADA/"
 template:
   bootstrap: 5
   bootswatch: yeti
-articles:
-  article-one: vignettes/articles/TADAModule1_BeginnerTraining.html
-  article-two: vignettes/articles/TADAModule1_AdvancedTraining.html
-  article-three: vignettes/articles/TADAModule2.html
-  article-four: vignettes/articles/TADAModule3_PartA.html
-  article-five: vignettes/articles/TADAAssessmentUnitUseCase.html
-  article-six: vignettes/articles/TADAWaterSciConWorkshopDemo.html
+articles: 
+  - "vignettes/articles/TADAModule1_BeginnerTraining.html"
+  - "vignettes/articles/TADAModule1_AdvancedTraining.html"
+  - "vignettes/articles/TADAModule2.html"
+  - "vignettes/articles/TADAModule3_PartA.html"
+  - "vignettes/articles/TADAAssessmentUnitUseCase.html"
+  - "vignettes/articles/TADAWaterSciConWorkshopDemo.html"
