@@ -95,9 +95,13 @@ install.packages("StreamCatTools")
 if(!"NMCWorkshopData"%in%installed.packages()){
   remotes::install_github("mhweber/NMC-Workshop-Data")
 }
+if(!"nhdplusTools"%in%installed.packages()){
+install.packages("nhdplusTools")
+}
 library(EPATADA)
 library(StreamCatTools)
 library(NMCWorkshopData)
+library(nhdplusTools)
 ```
 
 It's go time! Let's time our process.
