@@ -14,24 +14,23 @@ execute:
   warning: false
   error: false
   include: true
-authors:
-- name: Cristina Mullin
-  orcid: "0000-0002-0615-6087"
-  affiliation: EPA
-- name: Marc Weber
-  affiliation: EPA
-- name: Dave Blodgett
-  affiliation: USGS
-- name: Hillary Marler
-  affiliation: EPA
-- name: Michael Dumelle
-  affiliation: EPA
-- name: Shelly Thawley
-  affiliation: EPA
-- name: Kenny Wong
-  affiliation: ORISE at EPA
-footer: EPATADA, dataRetrieval, nhdplusTools, StreamCatTools, hydroloom, spsurvey,
-  spmodel, SSN2, sf, prism, terra, leaflet and tmap
+authors: 
+  - name: "Hillary Marler"
+    affiliation: EPA
+  - name: "Cristina Mullin"
+    orcid: 0000-0002-0615-6087
+    affiliation: EPA
+  - name: "Marc Weber"
+    affiliation: EPA
+  - name: "Dave Blodgett"
+    affiliation: USGS
+  - name: "Michael Dumelle"
+    affiliation: EPA
+  - name: "Shelly Thawley"
+    affiliation: EPA
+  - name: "Kenny Wong"
+    affiliation: ORISE at EPA
+footer: "EPATADA, dataRetrieval, nhdplusTools, StreamCatTools, hydroloom, spsurvey, spmodel, SSN2, sf, prism, terra, leaflet and tmap"
 ---
 
 ```{r setup, include=FALSE}
@@ -82,7 +81,7 @@ install.packages("remotes")
 library(remotes)
 ```
 
-Install and load the [EPATADA R Package](https://github.com/USEPA/EPATADA) and example data for this workshop from GitHub.
+Install and load the [EPATADA R Package](https://github.com/USEPA/EPATADA), StreamCatTools, and example data (NMC-Workshop-Data) for this workshop from GitHub.
 
 ```{r}
 remotes::install_github("USEPA/EPATADA", 
@@ -90,9 +89,16 @@ remotes::install_github("USEPA/EPATADA",
                         dependencies = TRUE, 
                         force = TRUE)
 
-# remotes::install_github("mhweber/NMC-Workshop-Data",force = TRUE)
 
+if(!"StreamCatTools"%in%installed.packages()){
+install.packages("StreamCatTools")
+}
+
+if(!"NMCWorkshopData"%in%installed.packages()){}
+remotes::install_github("mhweber/NMC-Workshop-Data")
+}
 library(EPATADA)
+library(StreamCatTools)
 library(NMCWorkshopData)
 ```
 
@@ -280,14 +286,94 @@ GreenBay_FoxRiver_sf_locs <- GreenBay_FoxRiver_sf |>
 
 ## Access NHDPlus COMIDs for sites
 
-We use `StreamCatTools` function `sc_get_comid` (which uses `nhdplusTools`) to get the comid for each location
+We use `StreamCatTools` function `sc_get_comid` (which uses an `nhdplusTools` web service client) to get the comid for each location.
 
 ```{r}
 library(StreamCatTools)
-GreenBay_FoxRiver_sf_locs$COMID <- sc_get_comid(GreenBay_FoxRiver_sf_locs)
+
+GreenBay_FoxRiver_sf_locs$COMID <- as.integer(strsplit(StreamCatTools::sc_get_comid(GreenBay_FoxRiver_sf_locs), split = ",")[[1]])
+
+nhdplus_data <- nhdplusTools::subset_nhdplus(GreenBay_FoxRiver_sf_locs$COMID, nhdplus_data = "download")
+
+outlet <- dplyr::filter(nhdplus_data$NHDFlowline_Network, hydroseq == min(hydroseq)) 
+
+nhdplusTools::plot_nhdplus(bbox = sf::st_bbox(outlet))
+plot(sf::st_transform(sf::st_geometry(GreenBay_FoxRiver_sf_locs), 3857), add = TRUE)
+>>>>>>> a89b099e66e246881f3daa1c3114f7704d50fafe
 ```
 
-## Placeholder for dataRetrieval/NLDI, nhdplusTools, hydroloom (Dave)
+## dataRetrieval/NLDI, nhdplusTools, hydroloom (Dave Blodgett)
+
+Do a network navigation and get NHDPlus for our data. Note that the network navigation only includes flowline geometry. `nhdplusTools` subsets all of the NHDPlus.
+
+```{r}
+all_network <- dataRetrieval::findNLDI(comid = outlet$comid, nav = "UT", distance_km = 500)
+
+# we could select only comids on network
+if(FALSE) # don't run this one
+  nhdplus_data <- nhdplusTools::subset_nhdplus(comids = as.integer(all_network$UT_flowlines$nhdplus_comid), nhdplus_data = "download", flowline_only = FALSE)
+
+
+# or we could just get everything in the bbox to be sure we get non-network stuff too!
+nhdplus_data <- nhdplusTools::subset_nhdplus(
+  bbox = sf::st_bbox(all_network$UT_flowlines), 
+  nhdplus_data = "download", 
+  flowline_only = FALSE)
+
+# see ?nhdplusTools::subset_nhdplus for lots more options!
+
+sapply(nhdplus_data, nrow)
+
+sapply(nhdplus_data, names)
+```
+
+### Addressing sites to the network:
+
+There are two forms of hydrographic addresses: catchment indexing and linear referencing. The former is established with a point in polygon analysis. The latter is more nuanced. The following block shows how to establish both with the data we just retrieved.
+
+Note that hydroloom is compatible with nhdplus and other attribute systems. See [hydroloom documentation for more!](https://doi-usgs.github.io/hydroloom/articles/hydroloom.html)
+
+```{r}
+GreenBay_FoxRiver_sf_locs <- sf::st_join(
+  GreenBay_FoxRiver_sf_locs, 
+  hydroloom::st_compatibalize(dplyr::select(nhdplus_data$CatchmentSP, featureid),
+                              GreenBay_FoxRiver_sf_locs))
+
+# NOTE that featureid and comid are the same!!
+all(GreenBay_FoxRiver_sf_locs$COMID == GreenBay_FoxRiver_sf_locs$featureid)
+
+(linear_references <- hydroloom::index_points_to_lines(
+  nhdplus_data$NHDFlowline_Network,
+  GreenBay_FoxRiver_sf_locs))
+
+GreenBay_FoxRiver_sf_locs <- dplyr::bind_cols(GreenBay_FoxRiver_sf_locs, linear_references)
+```
+
+We can take this one step further by indexing points to waterbodies! The return here tells us what waterbody our locations are near or within. For on-network waterbodies, it will also include the outlet flowling for each waterbody.
+
+```{r}
+all_wb <- dplyr::bind_rows(dplyr::select(nhdplus_data$NHDWaterbody, wbid = comid),
+                           dplyr::select(nhdplus_data$NHDArea, wbid = comid))
+
+(waterbody_indexes <- hydroloom::index_points_to_waterbodies(
+  sf::st_transform(all_wb, 5070), 
+  GreenBay_FoxRiver_sf_locs, 
+  flines = nhdplus_data$NHDFlowline_Network, 
+  search_radius = units::as_units(1000, "m")))
+```
+
+```{r}
+par(mar=c(0,0,0,0))
+nhdplusTools::plot_nhdplus(bbox = sf::st_bbox(GreenBay_FoxRiver_sf), 
+                           cache_data = tempfile(fileext = ".rds"))
+plot(sf::st_transform(all_wb[all_wb$wbid %in% waterbody_indexes$near_wbid,], 
+                      3857),
+     add = TRUE, 
+     col = "darkblue", border = NA)
+plot(sf::st_transform(sf::st_geometry(GreenBay_FoxRiver_sf_locs), 3857), add = TRUE, col = "white")
+```
+
+There's much much more where that came from. See the pkgdown sites for [nhdplusTools](https://doi-usgs.github.io/nhdplusTools/) and [hydroloom](https://doi-usgs.github.io/hydroloom/index.html) for more!
 
 # (5 mins) Example Use Case 1: Building Statistical Models
 
@@ -358,7 +444,7 @@ One of the first steps in the CWA assessment process is to define Assessment Uni
 -   The function uses high resolution NHDPlus catchments by default because 80% of state submitted assessment units in ATTAINS were developed based on high res NHD; users can select med-res if applicable to their use case
 
 ```{r}
-# WQP_with_ATTAINSonly <- TADA_GetATTAINS(GreenBay_FoxRiver_Subset, fill_catchments = FALSE, return_sf = TRUE)
+WQP_with_ATTAINSonly <- TADA_GetATTAINS(GreenBay_FoxRiver_Subset, fill_catchments = FALSE, return_sf = TRUE)
 ```
 
 ## TADA_ViewATTAINS()
@@ -390,7 +476,7 @@ For WQP monitoring sites that DO NOT overlap an existing ATTAINS feature (neithe
 For these, we implemented a solution using NHDPlusTools to pull in either NHDPlus high res or med res catchments (user can choose, but high res is the default) and match those with the WQP sites & create new IDs (essentially creating new AUs that are the catchments that intersect these WQP sites).
 
 ```{r}
-# WQP_withATTAINSandNHDPluscatchments <- TADA_GetATTAINS(GreenBay_FoxRiver, fill_catchments = TRUE, return_sf = TRUE)
+WQP_withATTAINSandNHDPluscatchments <- TADA_GetATTAINS(GreenBay_FoxRiver_Subset, fill_catchments = TRUE, return_sf = TRUE)
 ```
 
 # (15 mins) Visualizing Water Quality Issues
