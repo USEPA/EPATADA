@@ -24,9 +24,6 @@ _snaps
 /Meta/
 testing_log.txt
 
-# test data from AK
-AK_EPATADA_troubleshooting
-
 # built and rendered vignettes aren't tracked
 inst/doc
-vignettes/*.R
+#vignettes/*.R
