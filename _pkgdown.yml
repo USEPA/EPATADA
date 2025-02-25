@@ -4,14 +4,12 @@ template:
   bootswatch: yeti
 articles: 
   - title: TADA Module 1 Beginner Training
-    contents: TADAModule1_BeginnerTraining.html
+    contents: inst/articles/TADAModule1AdvancedTraining.html
   - title: TADA Module 1 Advanced Training
-    contents: TADAModule1_AdvancedTraining.html
+    contents: inst/articles/TADAModule1BeginnerTraining.html
   - title: TADA Module 2
-    contents: TADAModule2.html
+    contents: inst/articles/TADAModule2.html"
   - title: TADA Module 3 Part A
-    contents: TADAModule3_PartA.html
-  - title: TADA Assessment Unit Use Case
-    contents: TADAAssessmentUnitUseCase.html
+    contents: inst/articles/TADAModule3PartA.html
   - title: TADA WaterSciCon Workshop Demo
-    contents: TADAWaterSciConWorkshopDemo.html
+    contents: inst/articles/TADAWaterSciConWorkshopDemo.html

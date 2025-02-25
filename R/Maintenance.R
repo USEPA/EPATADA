@@ -444,7 +444,7 @@ TADA_UpdateExampleData <- function() {
 # # Precompile articles for pkdown site,  should be run after any updates to articles or updates to 
 # # functions that may impact articles
 # 
-# rmarkdown::render("vignettes/articles/TADAAssessmentUnitUseCase.Rmd", 
+# rmarkdown::render("vignettes/articles/_TADAAssessmentUnitUseCase.Rmd",
 #                   output_format = "html_document")
 # 
 # rmarkdown::render("vignettes/articles/TADAModule1_AdvancedTraining.Rmd", 
