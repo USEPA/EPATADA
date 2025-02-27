@@ -1,4 +1,4 @@
-## Welcome to TADA: Tools for Automated Data Analysis!
+## Welcome to EPATADA: Tools for Automated Data Analysis!
 
 [![](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://lifecycle.r-lib.org/articles/stages.html#experimental)
 
@@ -44,6 +44,12 @@ install.packages("remotes")
 remotes::install_github("USEPA/TADAShiny", ref = "develop", dependencies = TRUE, force = TRUE)
 
 TADAShiny::run_app()
+```
+
+### Recommended Citation:
+
+```         
+Mullin, C.A., Marler, H., Greif, J., Hinman, E., Wong, K., Willi, K., Brousil, M., 2025, EPATADA: Tools for Automated Data Analysis, https://usepa.github.io/EPATADA/
 ```
 
 ## Water Quality Portal
