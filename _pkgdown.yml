@@ -2,14 +2,3 @@ url: "usepa.github.io/EPATADA/"
 template:
   bootstrap: 5
   bootswatch: yeti
-articles: 
-  - title: TADA Module 1 Beginner Training
-    contents: inst/articles/TADAModule1AdvancedTraining.html
-  - title: TADA Module 1 Advanced Training
-    contents: inst/articles/TADAModule1BeginnerTraining.html
-  - title: TADA Module 2
-    contents: inst/articles/TADAModule2.html"
-  - title: TADA Module 3 Part A
-    contents: inst/articles/TADAModule3PartA.html
-  - title: TADA WaterSciCon Workshop Demo
-    contents: inst/articles/TADAWaterSciConWorkshopDemo.html
