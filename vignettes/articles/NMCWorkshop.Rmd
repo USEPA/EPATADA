@@ -89,14 +89,14 @@ if(!"EPATADA"%in%installed.packages()){
 }
 
 if(!"StreamCatTools"%in%installed.packages()){
-install.packages("StreamCatTools")
+  remotes::install_github('USEPA/StreamCatTools')
 }
 
 if(!"NMCWorkshopData"%in%installed.packages()){
   remotes::install_github("mhweber/NMC-Workshop-Data")
 }
 if(!"nhdplusTools"%in%installed.packages()){
-install.packages("nhdplusTools")
+  remotes::install.packages("nhdplusTools")
 }
 library(EPATADA)
 library(StreamCatTools)
@@ -273,7 +273,7 @@ GreenBay_FoxRiver_Subset <- GreenBay_FoxRiver_Subset[!is.na(GreenBay_FoxRiver_Su
 GreenBay_FoxRiver_sf = TADA_MakeSpatial(GreenBay_FoxRiver_Subset)
 ```
 
-We create a unique identifier based on shared lat lon values and filter to just the 26 unique locations
+We create a unique identifier based on shared lat long values and filter to just the 26 unique locations
 
 ```{r}
 GreenBay_FoxRiver_sf$latlon <- paste0(GreenBay_FoxRiver_sf$TADA.LongitudeMeasure, GreenBay_FoxRiver_sf$TADA.LatitudeMeasure)
@@ -376,13 +376,16 @@ plot(sf::st_transform(sf::st_geometry(GreenBay_FoxRiver_sf_locs), 3857), add = T
 
 There's much much more where that came from. See the pkgdown sites for [nhdplusTools](https://doi-usgs.github.io/nhdplusTools/) and [hydroloom](https://doi-usgs.github.io/hydroloom/index.html) for more!
 
-## Accessing watershed information for sites  (Marc Weber)
+## Accessing watershed information for sites (Marc Weber)
 
 ### Discover what StreamCat metrics we might want to use
+
 Will draft here
 
 ### Discover land cover of waterhsheds for sites
+
 We'll pull in all the NLCD categories at the local catchment level for each location
+
 ```{r}
 library(ggplot2)
 GB_FR_NLCD <- sc_nlcd(year='2019', aoi='cat', comid=GreenBay_FoxRiver_sf_locs$COMID)
@@ -395,17 +398,19 @@ GB_FR_Urb
 ```
 
 ### Visualize urbanization for local catchment for each location
+
 ```{r}
 ggplot(GB_FR_Urb, aes(x=Pct_Urbanized)) + 
   geom_density()
 ```
 
 ### Pull in data for modeling using `StreamCatTools`
+
 Now we'll just demonstrate pulling in watershed data that we might use in a modeling exercise as spatial covariates
+
 ```{r}
 ws_data <- sc_get_data(metric='fert,nsurp,nani,manure,IWI', aoi='cat,ws', comid=GreenBay_FoxRiver_sf_locs$COMID)
 ```
-
 
 # (5 mins) Example Use Case 1: Building Statistical Models
 
