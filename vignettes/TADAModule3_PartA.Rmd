@@ -64,7 +64,7 @@ update all of them (enter 1 into the console).
 ```{r install_TADA_dev, eval = T, include = F}
 # helps with development (knit and checks), this chunk should not appear on website
 remotes::install_github("USEPA/EPATADA",
-  ref = "Create-Module-3-Reference-Tables",
+  ref = "NMC-Workshop-Draft",
   dependencies = TRUE
 )
 ```
@@ -170,7 +170,7 @@ function from rATTAINS, which provides functions for downloading tidy
 data from the ATTAINS public web services
 (<https://github.com/mps9506/rATTAINS>).
 
-```{r, eval = FALSE}
+```{r, eval = FALSE, echo = FALSE}
 # return ATTAINS domain names
 rATTAINS::domain_values()
 
@@ -216,8 +216,9 @@ TADA_TableExport(rATTAINS::domain_values(domain_name = "OrgName"))
 NCTC_ParamRef <- TADA_CreateParamRef(
   Data_NCTC,
   org_id = c("MDE_EASP"), # Maryland
-  excel = FALSE, # change to TRUE to download excel file
-  overwrite = FALSE
+  excel = FALSE # change to TRUE to download excel file
+  # uncomment excel = TRUE, overwrite = TRUE to run the excel file
+  # excel = TRUE, overwrite = TRUE
 )
 
 # export TADA parameter reference table as csv
@@ -240,15 +241,17 @@ an ATTAINS parameter name.
 
 ```{r}
 # only run the code chunks below if you make edits to the excel file.
+
 # downloads_path <- file.path(Sys.getenv("USERPROFILE"), "Downloads", "myfileRef.xlsx")
 # ParamRef <- openxlsx::read.xlsx(downloads_path, sheet = "CreateParamRef")
 
-# NCTC_ParamRef3 <- TADA_CreateParamRef(
+# NCTC_ParamRef2 <- TADA_CreateParamRef(
 #   Data_NCTC,
 #   org_names = c("MDE_EASP"),
 #   paramRef = ParamRef,
-#   excel = FALSE # comment out 'excel = FALSE' and uncomment excel = TRUE, overwrite = TRUE to run the excel file
-#   #excel = TRUE, overwrite = TRUE
+#   excel = FALSE
+#   # uncomment excel = TRUE, overwrite = TRUE to run the excel file
+#   # excel = TRUE, overwrite = TRUE
 #   )
 
 ParamRef <- dplyr::mutate(NCTC_ParamRef, ATTAINS.ParameterName = dplyr::case_when(
@@ -256,16 +259,16 @@ ParamRef <- dplyr::mutate(NCTC_ParamRef, ATTAINS.ParameterName = dplyr::case_whe
   TADA.ComparableDataIdentifier == "ZINC_TOTAL_NA_UG/L" ~ "ZINC",
   grepl("NITRATE", TADA.ComparableDataIdentifier) ~ "NITROGEN, TOTAL"
 ))
-TADA_TableExport(ParamRef)
 
-NCTC_ParamRef2 <- TADA_CreateParamRef(
+NCTC_ParamRef_Final <- TADA_CreateParamRef(
   Data_NCTC,
   org_id = c("MDE_EASP"),
   paramRef = ParamRef,
   excel = FALSE
-) # comment out 'excel = FALSE' and uncomment excel = TRUE, overwrite = TRUE to run the excel file
-# excel = TRUE, overwrite = TRUE)
-TADA_TableExport(NCTC_ParamRef2)
+  # uncomment excel = TRUE, overwrite = TRUE to run the excel file
+  #excel = TRUE, overwrite = TRUE
+)
+TADA_TableExport(NCTC_ParamRef_Final)
 ```
 
 # TADA_CreateParamUseRef() Basics
@@ -299,8 +302,10 @@ reflect MDE_EASP's process).
 NCTC_ParamUseRef <- TADA_CreateParamUseRef(
   Data_NCTC,
   org_id = c("MDE_EASP"),
-  paramRef = ParamRef,
+  paramRef = NCTC_ParamRef_Final,
   excel = FALSE
+  # uncomment excel = TRUE, overwrite = TRUE to run the excel file
+  # excel = TRUE, overwrite = TRUE
 )
 TADA_TableExport(NCTC_ParamUseRef)
 ```
@@ -321,8 +326,10 @@ interest.
 NCTC_ParamUseRef2 <- TADA_CreateParamUseRef(
   Data_NCTC,
   org_id = c("EPA304a", "MDE_EASP", "21VASWCB", "21PA", "WVDEP"),
-  paramRef = ParamRef,
+  paramRef = NCTC_ParamRef_Final,
   excel = FALSE
+  # uncomment excel = TRUE, overwrite = TRUE to run the excel file
+  # excel = TRUE, overwrite = TRUE
 )
 TADA_TableExport(NCTC_ParamUseRef2)
 ```
@@ -340,7 +347,7 @@ organization with the TADA Team so that others can use it in the future.
 NCTC_ParamUseRef3 <- TADA_CreateParamUseRef(
   Data_NCTC,
   org_id = c("EPA304a", "MDE_EASP"),
-  paramRef = NCTC_ParamRef2,
+  paramRef = NCTC_ParamRef_Final,
   excel = FALSE
 )
 TADA_TableExport(NCTC_ParamUseRef3)
@@ -358,9 +365,12 @@ assessments. If no excel file is generated, this is an example workflow
 of how a user can edit the table in the R environment.
 
 ```{r paged.print=TRUE}
-add_data <- data.frame("organization_identifier" = "MDE_EASP", "ATTAINS.ParameterName" = rep("PH", 3), "use_name" = c(
-  "Aquatic Life and Wildlife", "Water Contact Sports",
-  "Seasonal Migratory Fish Spawning and Nursery Subcategory"
+add_data <- data.frame(
+  "organization_identifier" = "MDE_EASP", 
+  "ATTAINS.ParameterName" = rep("PH", 3), 
+  "use_name" = c(
+    "Aquatic Life and Wildlife", "Water Contact Sports",
+    "Seasonal Migratory Fish Spawning and Nursery Subcategory"
 ))
 
 # The output of this will not reflect changes to the ATTAINS.FlagUseName column. To do so, we need to re run TADA_CreateParamUseRef() with paramUseRef = ParamUseRef as an argument.
@@ -373,14 +383,15 @@ ParamUseRef <- NCTC_ParamUseRef3 %>%
 TADA_TableExport(ParamUseRef)
 
 # PH will now reflect the changes
-NCTC_ParamUseRef3.1 <- TADA_CreateParamUseRef(
+NCTC_ParamUseRef_Final <- TADA_CreateParamUseRef(
   Data_NCTC,
   paramUseRef = ParamUseRef, # Edits were made to paramUseRef, updates flag column
   org_id = c("EPA304a", "MDE_EASP"),
-  paramRef = NCTC_ParamRef2,
-  excel = FALSE
+  paramRef = NCTC_ParamRef_Final,
+  # excel = FALSE
+  excel = TRUE, overwrite = TRUE
 )
-TADA_TableExport(NCTC_ParamUseRef3.1)
+TADA_TableExport(NCTC_ParamUseRef_Final)
 ```
 
 # Next steps

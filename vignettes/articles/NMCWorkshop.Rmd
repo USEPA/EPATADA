@@ -50,8 +50,6 @@ Water Quality eXchange (WQX) and Water Quality Portal (WQP) community, Clean Wat
 
 This workshop demonstrates potential uses (beyond their original collection purpose) for publicly available water quality data from Water Quality Portal (WQP). To start, participants will learn how to use EPA's Tools for Automated Data Analysis (TADA) R Package to retrieve, wrangle, harmonize, quality check, visualize and analyze WQP data from multiple organizations.
 
-## Agenda
-
 Next, we will showcase how to bring in other web services and libraries for easy integration of additional hydrologic data including USGS continuous sensor data (using the NLDI via DR?) and geospatial data (using StreamCat). We then plan to touch briefly on packages that can assist with building statistical models. Finally, we will demonstrate an example workflow for analyzing water quality by Assessment Units, which are state or tribal nation defined watershed or waterbody areas used for CWA assessments and reporting water quality conditions to EPA and the public.
 
 ## Packages
@@ -84,8 +82,12 @@ Install and load the [EPATADA R Package](https://github.com/USEPA/EPATADA), Stre
 
 ```{r}
 if(!"EPATADA"%in%installed.packages()){
-  remotes::install_github("USEPA/EPATADA", 
-                        ref = "develop",                      dependencies = TRUE,  force = TRUE)
+  remotes::install_github(
+    "USEPA/EPATADA",
+    ref = "develop",
+    dependencies = TRUE,
+    force = TRUE
+    )
 }
 
 if(!"StreamCatTools"%in%installed.packages()){
