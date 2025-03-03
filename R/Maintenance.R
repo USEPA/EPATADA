@@ -12,7 +12,7 @@ TADA_UpdateAllRefs <- function() {
   TADA_UpdateCharacteristicRef()
   TADA_UpdateMeasureQualifierCodeRef()
   TADA_UpdateMonLocTypeRef()
-  TADA_UpdateEPA304aRef()
+  TADA_UpdateEPACSTRef()
   TADA_UpdateWQPOrgProviderRef()
   TADA_UpdateATTAINSOrgIDsRef()
   TADA_UpdateATTAINSParamUseOrgRef()
@@ -29,7 +29,8 @@ TADA_UpdateExampleData <- function() {
     statecode = "UT",
     characteristicName = c("Ammonia", "Nitrate", "Nitrogen"),
     startDate = "2020-10-01",
-    endDate = "2022-09-30"
+    endDate = "2022-09-30",
+    ask = FALSE
   )
   print("Data_Nutrients_UT")
   print(dim(Data_Nutrients_UT))
@@ -51,7 +52,8 @@ TADA_UpdateExampleData <- function() {
       "CNENVSER"
     ),
     startDate = "2018-01-01",
-    endDate = "2023-01-01"
+    endDate = "2023-01-01",
+    ask = FALSE
   )
   print("Data_6Tribes_5y:")
   print(dim(Data_6Tribes_5y))
@@ -105,7 +107,8 @@ TADA_UpdateExampleData <- function() {
     statecode = "null",
     organization = "null",
     project = "null",
-    applyautoclean = TRUE
+    applyautoclean = TRUE,
+    ask = FALSE
   )
   print("Data_NCTCShepherdstown_HUC12:")
   print(dim(Data_NCTCShepherdstown_HUC12))
@@ -127,7 +130,8 @@ TADA_UpdateExampleData <- function() {
     statecode = c("IL", "IN", "MI", "MN", "OH", "WI"),
     organization = "null",
     project = "null",
-    applyautoclean = FALSE
+    applyautoclean = FALSE,
+    ask = FALSE
   )
   print("Data_R5_TADAPackageDemo:")
   print(dim(Data_R5_TADAPackageDemo))
@@ -140,7 +144,8 @@ TADA_UpdateExampleData <- function() {
   Data_WV <- TADA_DataRetrieval(
     startDate = "2020-03-14",
     huc = "02070004",
-    applyautoclean = FALSE
+    applyautoclean = FALSE,
+    ask = FALSE
   )
 
   # Remove non-surface water media

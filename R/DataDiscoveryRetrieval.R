@@ -82,8 +82,8 @@
 #'        "NWIS". See https://www.waterqualitydata.us/Codes/providers for options.
 #' @param maxrecs Maximum number of records to query at once (i.e., without breaking into smaller 
 #'        queries).
-#' @param ask A logical value indicating whether the user should be asked for approval before 
-#'        downloads begin.
+#' @param ask A logical value (TRUE or FALSE) indicating whether the user should be asked for approval before 
+#'        downloads begin. Defaults to TRUE.
 #' @param applyautoclean Logical, defaults to TRUE. Applies TADA_AutoClean function on the returned 
 #'        data profile. Suggest switching to FALSE for queries that are expected to be large.
 #'

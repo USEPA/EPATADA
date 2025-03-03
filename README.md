@@ -49,7 +49,7 @@ TADAShiny::run_app()
 ### Recommended Citation:
 
 ```         
-Mullin, C.A., Marler, H., Greif, J., Hinman, E., Wong, K., Willi, K., Brousil, M., 2025, EPATADA: Tools for Automated Data Analysis, https://usepa.github.io/EPATADA/
+Mullin, C.A., Marler, H., Greif, J., Hinman, E., Wong, K., Healy, K., Willi, K., Brousil, M., Bousquin, J., 2025, EPATADA: Tools for Automated Data Analysis, https://usepa.github.io/EPATADA/
 ```
 
 ## Water Quality Portal
