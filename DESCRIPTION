@@ -95,6 +95,8 @@ Suggests:
     yaml, 
     remotes,
     StreamCatTools
+Remotes:
+    mygithub/StreamCatTools
 VignetteBuilder: knitr, rmarkdown
 Language: en-US
 Config/testthat/edition: 3

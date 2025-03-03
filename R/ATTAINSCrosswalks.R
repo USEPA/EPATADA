@@ -1330,7 +1330,8 @@ TADA_CreateParamUseRef <- function(.data, org_id = NULL, paramRef = NULL,
       dplyr::filter(organization_identifier %in% org_id)
   }
 
-  # This updates the flagging column. Users who only creates an R dataframe in the R environment will need to ensure they re-run the function with their completed paramRef as an input to reflect this column accurately.
+  # This updates the flagging column. Users who only creates an R dataframe in the R environment will need to 
+  # ensure they re-run the function with their completed paramRef as an input to reflect this column accurately.
   Flag1 <- CreateParamUseRef %>%
     dplyr::anti_join(
       ATTAINS_param_all,
@@ -1420,7 +1421,7 @@ TADA_CreateParamUseRef <- function(.data, org_id = NULL, paramRef = NULL,
 
     # set zoom size
     set_zoom <- function(x) gsub('(?<=zoomScale=")[0-9]+', x, sV, perl = TRUE)
-    n_sheets <- length(wb$sheets)
+    n_sheets <- length(wb$worksheets)
     for(i in 1:n_sheets){
       sV <- wb$worksheets[[i]]$sheetViews
       wb$worksheets[[i]]$sheetViews <- set_zoom(90)

@@ -216,7 +216,7 @@ should contact the ATTAINS team (attains\@epa.gov) for assistance.
 NCTC_ParamRef <- TADA_CreateParamRef(
   Data_NCTC,
   org_id = c("MDE_EASP"), # Maryland
-  excel = FALSE # change to TRUE to download excel file
+  excel = FALSE 
   # uncomment excel = TRUE, overwrite = TRUE to run the excel file
   # excel = TRUE, overwrite = TRUE
 )
@@ -255,7 +255,7 @@ an ATTAINS parameter name.
 #   )
 
 ParamRef <- dplyr::mutate(NCTC_ParamRef, ATTAINS.ParameterName = dplyr::case_when(
-  TADA.CharacteristicName == "PH" ~ "PH",
+  grepl("PH", TADA.ComparableDataIdentifier) ~ "PH",
   TADA.ComparableDataIdentifier == "ZINC_TOTAL_NA_UG/L" ~ "ZINC",
   grepl("NITRATE", TADA.ComparableDataIdentifier) ~ "NITROGEN, TOTAL"
 ))
@@ -388,8 +388,9 @@ NCTC_ParamUseRef_Final <- TADA_CreateParamUseRef(
   paramUseRef = ParamUseRef, # Edits were made to paramUseRef, updates flag column
   org_id = c("EPA304a", "MDE_EASP"),
   paramRef = NCTC_ParamRef_Final,
-  # excel = FALSE
-  excel = TRUE, overwrite = TRUE
+  excel = FALSE
+  # uncomment excel = TRUE, overwrite = TRUE to run the excel file
+  # excel = TRUE, overwrite = TRUE
 )
 TADA_TableExport(NCTC_ParamUseRef_Final)
 ```
