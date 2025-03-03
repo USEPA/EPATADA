@@ -340,7 +340,7 @@ TADA_UpdateExampleData <- function() {
 # devtools::test()
 
 ###########################################################
- 
+
 # # spell check
 # library(spelling)
 # spelling::spell_check_package(
@@ -446,27 +446,23 @@ TADA_UpdateExampleData <- function() {
 # # review csv and send to WQX team to update the validation table
 #
 ###########################################################
-# # Precompile articles for pkdown site,  should be run after any updates to articles or updates to 
+# # Precompile articles for pkdown site,  should be run after any updates to articles or updates to
 # # functions that may impact articles
-# 
+#
 # rmarkdown::render("vignettes/articles/_TADAAssessmentUnitUseCase.Rmd",
 #                   output_format = "html_document")
-# 
-# rmarkdown::render("vignettes/articles/TADAModule1_AdvancedTraining.Rmd", 
+#
+# rmarkdown::render("vignettes/articles/TADAModule1_AdvancedTraining.Rmd",
 #                   output_format = "html_document")
-# 
-# rmarkdown::render("vignettes/articles/TADAModule1_BeginnerTraining.Rmd", 
+#
+# rmarkdown::render("vignettes/articles/TADAModule1_BeginnerTraining.Rmd",
 #                   output_format = "html_document")
-# 
-# rmarkdown::render("vignettes/articles/TADAModule2.Rmd", 
+#
+# rmarkdown::render("vignettes/articles/TADAModule2.Rmd",
 #                   output_format = "html_document")
-# 
-# rmarkdown::render("vignettes/articles/TADAModule3_PartA.Rmd", 
+#
+# rmarkdown::render("vignettes/articles/TADAModule3_PartA.Rmd",
 #                   output_format = "html_document")
-# 
-# rmarkdown::render("vignettes/articles/TADAWaterSciConWorkshopDemo.Rmd", 
+#
+# rmarkdown::render("vignettes/articles/TADAWaterSciConWorkshopDemo.Rmd",
 #                   output_format = "html_document")
-
-
-
-

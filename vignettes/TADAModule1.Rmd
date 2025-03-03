@@ -398,11 +398,11 @@ query inputs.
 
 ```{r BigdataRetrieval, eval = FALSE, results = 'hide'}
 # AK_AL_WaterTemp <- TADA_DataRetrieval(startDate = "2000-01-01", endDate = "2022-12-31", characteristicName = "Temperature, water", statecode = c("AK","AL"))
-# 
+#
 # AllWaterTemp <- TADA_DataRetrieval(characteristicName = "Temperature, water")
-# 
+#
 # AllPhosphorus <- TADA_DataRetrieval(characteristicName = "Phosphorus")
-# 
+#
 # AllCT <- TADA_DataRetrieval(statecode = "CT")
 ```
 

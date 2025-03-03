@@ -175,7 +175,6 @@ test_that("range flag functions work", {
   expect_no_warning(TADA_FlagBelowThreshold(upper))
   expect_no_message(TADA_FlagBelowThreshold(upper))
   expect_no_condition(TADA_FlagBelowThreshold(upper))
-
 })
 
 

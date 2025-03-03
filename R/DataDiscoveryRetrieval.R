@@ -26,9 +26,9 @@
 #' area of interest.
 #'
 #' Users can reference the \href{https://www.epa.gov/waterdata/storage-and-retrieval-and-water-quality-exchange-domain-services-and-downloads}{WQX domain tables}
-#' to find allowable values for queries, e.g., reference the WQX domain table to find countycode 
+#' to find allowable values for queries, e.g., reference the WQX domain table to find countycode
 #' and statecode: https://cdx.epa.gov/wqx/download/DomainValues/County_CSV.zip
-#' Alternatively, you can use the WQP services to find areas where data is available in the US: 
+#' Alternatively, you can use the WQP services to find areas where data is available in the US:
 #' https://www.waterqualitydata.us/Codes/countycode
 #'
 #' TADA_DataRetrieval automatically runs TADA_AutoClean on the incoming dataframe. TADA_AutoClean
@@ -43,48 +43,48 @@
 #' @param endDate End Date string in the format YYYY-MM-DD, for example, "2020-01-01"
 #' @param aoi_sf An sf object to use for a query area of interest. If using a local shapefile,
 #'        sf::read_sf can be used to read in a user provided shapefile.
-#' @param countrycode Code that identifies a country or ocean (e.g. countrycode = "CA" for Canada, 
-#'        countrycode = "OA" for Atlantic Ocean). 
+#' @param countrycode Code that identifies a country or ocean (e.g. countrycode = "CA" for Canada,
+#'        countrycode = "OA" for Atlantic Ocean).
 #'        See https://www.waterqualitydata.us/Codes/countrycode for options.
-#' @param statecode FIPS state alpha code that identifies a state (e.g. statecode = "DE" for 
+#' @param statecode FIPS state alpha code that identifies a state (e.g. statecode = "DE" for
 #'        Delaware). See https://www.waterqualitydata.us/Codes/statecode for options.
-#' @param countycode FIPS county name. Note that a state code must also be supplied (e.g. 
-#'        statecode = "AL", countycode = "Chilton"). 
+#' @param countycode FIPS county name. Note that a state code must also be supplied (e.g.
+#'        statecode = "AL", countycode = "Chilton").
 #'        See https://www.waterqualitydata.us/Codes/countycode for options.
-#' @param huc A numeric code denoting a hydrologic unit. Example: "04030202". Different size hucs 
-#'        can be entered. 
-#'        See https://epa.maps.arcgis.com/home/item.html?id=796992f4588c401fabec7446ecc7a5a3 for a 
+#' @param huc A numeric code denoting a hydrologic unit. Example: "04030202". Different size hucs
+#'        can be entered.
+#'        See https://epa.maps.arcgis.com/home/item.html?id=796992f4588c401fabec7446ecc7a5a3 for a
 #'        map with HUCS. Click on a HUC to find the associated code.
 #' @param siteid Unique monitoring location identifier.
-#' @param siteType Type of waterbody. See https://www.waterqualitydata.us/Codes/sitetype for 
+#' @param siteType Type of waterbody. See https://www.waterqualitydata.us/Codes/sitetype for
 #'        options.
-#' @param tribal_area_type One of four tribal spatial layers: "Alaska Native Allotments", 
-#'        "American Indian Reservations", "Off-reservation Trust Lands", or "Oklahoma Tribal 
-#'        Statistical Areas". More info in TADA_TribalOptions(). Note that "Alaska Native Villages" 
+#' @param tribal_area_type One of four tribal spatial layers: "Alaska Native Allotments",
+#'        "American Indian Reservations", "Off-reservation Trust Lands", or "Oklahoma Tribal
+#'        Statistical Areas". More info in TADA_TribalOptions(). Note that "Alaska Native Villages"
 #'        and "Virginia Federally Recognized Tribes" layers will not return a successful query.
-#' @param tribe_name_parcel The name of one or more tribes corresponding to entries in the 
-#'        TRIBE_NAME field of the specified tribal_area_type. OR if the type is "Alaska Native 
-#'        Allotments" then the corresponding PARCEL_NO. If a tribal_area_type is selected, 
+#' @param tribe_name_parcel The name of one or more tribes corresponding to entries in the
+#'        TRIBE_NAME field of the specified tribal_area_type. OR if the type is "Alaska Native
+#'        Allotments" then the corresponding PARCEL_NO. If a tribal_area_type is selected,
 #'        tribal_name_parcel is required. More info in TADA_TribalOptions().
-#' @param characteristicName Name of parameter. 
+#' @param characteristicName Name of parameter.
 #'        See https://www.waterqualitydata.us/Codes/characteristicName for options.
-#' @param characteristicType Groups of environmental measurements/parameters. 
+#' @param characteristicType Groups of environmental measurements/parameters.
 #'        See https://www.waterqualitydata.us/Codes/characteristicType for options.
-#' @param sampleMedia Sampling substrate such as water, air, or sediment. 
+#' @param sampleMedia Sampling substrate such as water, air, or sediment.
 #'        See https://www.waterqualitydata.us/Codes/sampleMedia for options.
-#' @param organization A string of letters and/or numbers (some additional characters also possible) 
-#'        used to signify an organization with data in the Water Quality Portal. 
+#' @param organization A string of letters and/or numbers (some additional characters also possible)
+#'        used to signify an organization with data in the Water Quality Portal.
 #'        See https://www.waterqualitydata.us/Codes/organization for options.
-#' @param project A string of letters and/or numbers (some additional characters also possible) used 
-#'        to signify a project with data in the Water Quality Portal. 
+#' @param project A string of letters and/or numbers (some additional characters also possible) used
+#'        to signify a project with data in the Water Quality Portal.
 #'        See https://www.waterqualitydata.us/Codes/project for options.
-#' @param providers Leave blank to include all, or specify "STEWARDS", "STORET" (i.e., WQX), and/or 
+#' @param providers Leave blank to include all, or specify "STEWARDS", "STORET" (i.e., WQX), and/or
 #'        "NWIS". See https://www.waterqualitydata.us/Codes/providers for options.
-#' @param maxrecs Maximum number of records to query at once (i.e., without breaking into smaller 
+#' @param maxrecs Maximum number of records to query at once (i.e., without breaking into smaller
 #'        queries).
-#' @param ask A logical value (TRUE or FALSE) indicating whether the user should be asked for approval before 
+#' @param ask A logical value (TRUE or FALSE) indicating whether the user should be asked for approval before
 #'        downloads begin. Defaults to TRUE.
-#' @param applyautoclean Logical, defaults to TRUE. Applies TADA_AutoClean function on the returned 
+#' @param applyautoclean Logical, defaults to TRUE. Applies TADA_AutoClean function on the returned
 #'        data profile. Suggest switching to FALSE for queries that are expected to be large.
 #'
 #' @return TADA-compatible dataframe
@@ -99,7 +99,7 @@
 #'
 #' @examples
 #' \dontrun{
-#' 
+#'
 #' # example for a single characteristic from one county
 #' tada1 <- TADA_DataRetrieval(
 #'   statecode = "WI", countycode = "Dane",
@@ -125,12 +125,12 @@
 #'
 #' # example using tribal_area_type and tribe_name_parcel to query
 #' tada4 <- TADA_DataRetrieval(
-#' tribal_area_type = "American Indian Reservations",
-#' tribe_name_parcel = "Pueblo of Pojoaque, New Mexico",
-#' startDate = "2018-01-01",
-#' endDate = "2019-01-01",
-#' applyautoclean = FALSE,
-#' ask = FALSE
+#'   tribal_area_type = "American Indian Reservations",
+#'   tribe_name_parcel = "Pueblo of Pojoaque, New Mexico",
+#'   startDate = "2018-01-01",
+#'   endDate = "2019-01-01",
+#'   applyautoclean = FALSE,
+#'   ask = FALSE
 #' )
 #'
 #' # query only NWIS data for a 10 year period in CT
@@ -145,23 +145,23 @@
 #' )
 #'
 #' # query by country code (e.g. Canada, countrycode = "CA")
-#' tada6<- TADA_DataRetrieval(
+#' tada6 <- TADA_DataRetrieval(
 #'   startDate = "2015-01-01",
 #'   countrycode = "CA",
 #'   ask = FALSE
 #' )
-#' 
+#'
 #' # query by shapefile for Navajo Nation
-#' 
+#'
 #' navajo_sf <- sf::read_sf("inst/extdata/AmericanIndian.shp") %>%
-#'  dplyr::filter(NAME == "Navajo Nation")
-#'   
+#'   dplyr::filter(NAME == "Navajo Nation")
+#'
 #' tada7 <- TADA_DataRetrieval(
 #'   aoi_sf = navajo_sf,
 #'   startDate = "2023-01-01",
 #'   endDate = "2023-12-31",
 #'   ask = FALSE
-#') 
+#' )
 #' }
 #'
 TADA_DataRetrieval <- function(startDate = "null",
