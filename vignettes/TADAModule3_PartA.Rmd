@@ -176,6 +176,9 @@ rATTAINS::domain_values()
 
 # return ATTAINS parameter domain values
 TADA_TableExport(rATTAINS::domain_values(domain_name = "ParameterName"))
+
+# return ATTAINS organization domain values
+TADA_TableExport(rATTAINS::domain_values(domain_name = "OrgName"))
 ```
 
 As the ATTAINS parameters are more general than the
@@ -209,9 +212,6 @@ ATTAINS parameter name to match a TADA.ComparableDataIdentifier, users
 should contact the ATTAINS team (attains\@epa.gov) for assistance.
 
 ```{r}
-# return ATTAINS organization domain values
-TADA_TableExport(rATTAINS::domain_values(domain_name = "OrgName"))
-
 # create TADA parameter reference table for specified organization
 NCTC_ParamRef <- TADA_CreateParamRef(
   Data_NCTC,

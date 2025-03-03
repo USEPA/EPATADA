@@ -706,10 +706,10 @@ TADA_CreateParamRef <- function(.data, org_id = NULL, paramRef = NULL, excel = T
     CreateParamRef <- TADA_param %>%
       dplyr::mutate(ATTAINS.ParameterName = NA) %>%
       dplyr::select(
-        TADA.CharacteristicName, TADA.ComparableDataIdentifier, organization_identifier,
+        TADA.ComparableDataIdentifier, organization_identifier,
         EPA304A.PollutantName, ATTAINS.ParameterName
       ) %>%
-      dplyr::arrange(organization_identifier, TADA.CharacteristicName) %>%
+      dplyr::arrange(organization_identifier) %>%
       dplyr::distinct()
   }
 
