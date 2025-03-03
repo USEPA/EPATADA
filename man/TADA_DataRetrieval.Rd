@@ -173,12 +173,12 @@ tada3 <- TADA_DataRetrieval(project = "Anchorage Bacteria 20-21", ask = FALSE)
 
 # example using tribal_area_type and tribe_name_parcel to query
 tada4 <- TADA_DataRetrieval(
-tribal_area_type = "American Indian Reservations",
-tribe_name_parcel = "Pueblo of Pojoaque, New Mexico",
-startDate = "2018-01-01",
-endDate = "2019-01-01",
-applyautoclean = FALSE,
-ask = FALSE
+  tribal_area_type = "American Indian Reservations",
+  tribe_name_parcel = "Pueblo of Pojoaque, New Mexico",
+  startDate = "2018-01-01",
+  endDate = "2019-01-01",
+  applyautoclean = FALSE,
+  ask = FALSE
 )
 
 # query only NWIS data for a 10 year period in CT
@@ -193,7 +193,7 @@ tada5 <- TADA_DataRetrieval(
 )
 
 # query by country code (e.g. Canada, countrycode = "CA")
-tada6<- TADA_DataRetrieval(
+tada6 <- TADA_DataRetrieval(
   startDate = "2015-01-01",
   countrycode = "CA",
   ask = FALSE
@@ -202,14 +202,14 @@ tada6<- TADA_DataRetrieval(
 # query by shapefile for Navajo Nation
 
 navajo_sf <- sf::read_sf("inst/extdata/AmericanIndian.shp") \%>\%
- dplyr::filter(NAME == "Navajo Nation")
-  
+  dplyr::filter(NAME == "Navajo Nation")
+
 tada7 <- TADA_DataRetrieval(
   aoi_sf = navajo_sf,
   startDate = "2023-01-01",
   endDate = "2023-12-31",
   ask = FALSE
-) 
+)
 }
 
 }
