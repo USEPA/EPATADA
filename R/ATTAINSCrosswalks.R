@@ -1323,6 +1323,7 @@ TADA_CreateParamUseRef <- function(.data, org_id = NULL, paramRef = NULL,
           "organization_identifier", "EPA304A.PollutantName", "use_name"
         )
       ) %>%
+      dplyr::arrange(use_name) %>%
       dplyr::select(
         TADA.ComparableDataIdentifier, organization_identifier,
         EPA304A.PollutantName, ATTAINS.ParameterName, use_name
@@ -1370,6 +1371,7 @@ TADA_CreateParamUseRef <- function(.data, org_id = NULL, paramRef = NULL,
       !is.na(ATTAINS.FlagUseName2) ~ ATTAINS.FlagUseName2,
       !is.na(ATTAINS.FlagUseName1) ~ ATTAINS.FlagUseName1,
     )) %>%
+    dplyr::arrange(use_name) %>%
     dplyr::select(
       TADA.ComparableDataIdentifier, organization_identifier, EPA304A.PollutantName,
       ATTAINS.ParameterName, use_name, IncludeOrExclude, ATTAINS.FlagUseName

@@ -75,7 +75,6 @@ Imports:
     jsonlite, 
     openxlsx,
     rATTAINS,
-    DT,
     StreamCatTools
 Depends: 
     R (>= 3.5.0)
@@ -94,9 +93,9 @@ Suggests:
     spelling,
     htmltools,
     yaml, 
-    remotes
+    remotes,
+    DT
 Remotes:
-    USEPA/EPATADA
     USEPA/StreamCatTools
 VignetteBuilder: knitr, rmarkdown
 Language: en-US
