@@ -6,6 +6,7 @@ Authors@R:
   c(person(given = "Cristina",
            family = "Mullin",
            role = c("aut", "cre"),
+           email = "mullin.cristina@epa.gov",
            comment = c(ORCID = "0000-0002-0615-6087")),
     person(given = "Hillary",
            family = "Marler",
