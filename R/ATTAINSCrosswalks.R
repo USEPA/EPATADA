@@ -867,7 +867,7 @@ TADA_CreateParamRef <- function(.data, org_id = NULL, paramRef = NULL, excel = T
       openxlsx::dataValidation(
         wb,
         sheet = "CreateParamRef",
-        cols = 3, rows = 2:1000,
+        cols = 2, rows = 2:1000,
         type = "list",
         value = sprintf("'Index'!$C$2:$C$5000"),
         allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE
@@ -878,7 +878,7 @@ TADA_CreateParamRef <- function(.data, org_id = NULL, paramRef = NULL, excel = T
       openxlsx::dataValidation(
         wb,
         sheet = "CreateParamRef",
-        cols = 4, rows = 2:1000,
+        cols = 3, rows = 2:1000,
         type = "list",
         value = sprintf("'Index'!$B$2:$B$5000"),
         allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE
@@ -889,7 +889,7 @@ TADA_CreateParamRef <- function(.data, org_id = NULL, paramRef = NULL, excel = T
       openxlsx::dataValidation(
         wb,
         sheet = "CreateParamRef",
-        cols = 5, rows = 2:1000,
+        cols = 4, rows = 2:1000,
         type = "list",
         value = sprintf("'Index'!$H$2:$H$50000"),
         allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE
@@ -902,15 +902,15 @@ TADA_CreateParamRef <- function(.data, org_id = NULL, paramRef = NULL, excel = T
     for (i in 1:nrow(CreateParamRef)) {
       openxlsx::writeFormula(
         wb, "CreateParamRef",
-        startCol = 6,
+        startCol = 5,
         startRow = i + 1,
         array = TRUE,
         x = paste0(
-          "=IF(OR(E", i + 1, '="",E', i + 1,
+          "=IF(OR(D", i + 1, '="",D', i + 1,
           '="No parameter match for TADA.ComparableDataIdentifier"),"No parameter crosswalk provided for TADA.ComparableDataIdentifier. Parameter will not be used for assessment",
-          IF(ISNA(MATCH(E', i + 1, ',Index!H:H,0)),
+          IF(ISNA(MATCH(D', i + 1, ',Index!H:H,0)),
             "Parameter name is not included in ATTAINS, contact ATTAINS to add parameter name to Domain List",
-          IF(ISNA(MATCH(1,(E', i + 1, "=ATTAINSOrgNamesParamRef!E:E)*(C", i + 1, '=ATTAINSOrgNamesParamRef!A:A),0)),
+          IF(ISNA(MATCH(1,(D', i + 1, "=ATTAINSOrgNamesParamRef!E:E)*(B", i + 1, '=ATTAINSOrgNamesParamRef!A:A),0)),
             "Parameter name is listed as a prior cause in ATTAINS, but not for this organization",
             "Parameter name is listed as a prior cause in ATTAINS for this organization")))'
         )
@@ -918,7 +918,7 @@ TADA_CreateParamRef <- function(.data, org_id = NULL, paramRef = NULL, excel = T
 
       openxlsx::conditionalFormatting(
         wb, "CreateParamRef",
-        cols = 5,
+        cols = 4,
         rows = i + 1,
         type = "blanks",
         style = openxlsx::createStyle(bgFill = TADA_ColorPalette()[13])
@@ -926,7 +926,7 @@ TADA_CreateParamRef <- function(.data, org_id = NULL, paramRef = NULL, excel = T
 
       openxlsx::conditionalFormatting(
         wb, "CreateParamRef",
-        cols = 5,
+        cols = 4,
         rows = i + 1,
         type = "notBlanks",
         style = openxlsx::createStyle(bgFill = TADA_ColorPalette()[8])
