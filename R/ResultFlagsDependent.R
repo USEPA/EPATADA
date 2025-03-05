@@ -332,27 +332,34 @@ TADA_FlagSpeciation <- function(.data, clean = c("suspect_only", "nonstandardize
 #' # Load example dataset:
 #' data(Data_Nutrients_UT)
 #'
-#' # Remove data with Suspect characteristic-media-result unit combinations from dataframe,
-#' # but retain "NonStandardized" combinations flagged in new column 'TADA.ResultUnit.Flag':
+#' # Remove data with Suspect characteristic-media-result unit combinations 
+#' # from dataframe, but retain "NonStandardized" combinations flagged in new 
+#' # column 'TADA.ResultUnit.Flag':
 #' SuspectUnit_clean <- TADA_FlagResultUnit(Data_Nutrients_UT)
 #'
-#' # Remove data with "NonStandardized" characteristic-media-result unit combinations
-#' # from dataframe but retain Suspect combinations flagged in new column 'TADA.ResultUnit.Flag:
-#' NonstandardUnit_clean <- TADA_FlagResultUnit(Data_Nutrients_UT, clean = "nonstandardized_only")
+#' # Remove data with "NonStandardized" characteristic-media-result unit 
+#' # combinations from dataframe but retain Suspect combinations flagged in 
+#' # new column 'TADA.ResultUnit.Flag:
+#' NonstandardUnit_clean <- TADA_FlagResultUnit(Data_Nutrients_UT, 
+#' clean = "nonstandardized_only")
 #'
-#' # Remove both Suspect and "NonStandardized" characteristic-media-result unit combinations
-#' # from dataframe:
+#' # Remove both Suspect and "NonStandardized" characteristic-media-result 
+#' # unit combinations from dataframe:
 #' ResultUnit_clean <- TADA_FlagResultUnit(Data_Nutrients_UT, clean = "both")
 #'
-#' # Flag, but do not remove, data with Suspect or "NonStandardized" characteristic-media-result unit
-#' # combinations in new column titled "TADA.ResultUnit.Flag":
+#' # Flag, but do not remove, data with Suspect or "NonStandardized" 
+#' # characteristic-media-result unit combinations in new column titled 
+#' #"TADA.ResultUnit.Flag":
 #' SuspectUnit_flags <- TADA_FlagResultUnit(Data_Nutrients_UT, clean = "none")
 #'
 #' # Show only Suspect characteristic-media-result unit combinations:
-#' SuspectUnit_flaggedonly <- TADA_FlagResultUnit(Data_Nutrients_UT, clean = "nonstandardized_only", flaggedonly = TRUE)
+#' SuspectUnit_flaggedonly <- TADA_FlagResultUnit(Data_Nutrients_UT, 
+#' clean = "nonstandardized_only", flaggedonly = TRUE)
 #'
 #' # Show only "NonStandardized" characteristic-media-result unit combinations:
-#' NonstandardUnit_flaggedonly <- TADA_FlagResultUnit(Data_Nutrients_UT, clean = "suspect_only", flaggedonly = TRUE)
+#' NonstandardUnit_flaggedonly <- TADA_FlagResultUnit(Data_Nutrients_UT, 
+#' clean = "suspect_only", flaggedonly = TRUE)
+#' 
 TADA_FlagResultUnit <- function(.data, clean = c("suspect_only", "nonstandardized_only", "both", "none"), flaggedonly = FALSE) {
   # check .data is data.frame
   TADA_CheckType(.data, "data.frame", "Input object")

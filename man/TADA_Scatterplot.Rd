@@ -50,7 +50,8 @@ TADA_Scatterplot(df, id_cols = c("TADA.ComparableDataIdentifier", "MonitoringLoc
 # and MonitoringLocationTypeName (e.g. stream, reservoir, canal, etc.)
 # Load example dataset:
 data(Data_Nutrients_UT)
-Scatterplot_output <- TADA_Scatterplot(Data_Nutrients_UT, id_cols = c("TADA.ComparableDataIdentifier", "MonitoringLocationTypeName"))
+Scatterplot_output <- TADA_Scatterplot(Data_Nutrients_UT, 
+id_cols = c("TADA.ComparableDataIdentifier", "MonitoringLocationTypeName"))
 # This example generates 47 scatterplots
 Scatterplot_output[[10]]
 Scatterplot_output[[25]]

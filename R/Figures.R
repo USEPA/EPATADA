@@ -769,7 +769,8 @@ TADA_FieldValuesPie <- function(.data, field = "null", characteristicName = "nul
 #' # and MonitoringLocationTypeName (e.g. stream, reservoir, canal, etc.)
 #' # Load example dataset:
 #' data(Data_Nutrients_UT)
-#' Scatterplot_output <- TADA_Scatterplot(Data_Nutrients_UT, id_cols = c("TADA.ComparableDataIdentifier", "MonitoringLocationTypeName"))
+#' Scatterplot_output <- TADA_Scatterplot(Data_Nutrients_UT, 
+#' id_cols = c("TADA.ComparableDataIdentifier", "MonitoringLocationTypeName"))
 #' # This example generates 47 scatterplots
 #' Scatterplot_output[[10]]
 #' Scatterplot_output[[25]]
@@ -929,7 +930,10 @@ TADA_Scatterplot <- function(.data, id_cols = c("TADA.ComparableDataIdentifier")
 #' # Load example dataset:
 #' data(Data_Nutrients_UT)
 #' # Create a single scatterplot with two specified groups from TADA.ComparableDataIdentifier
-#' TADA_TwoCharacteristicScatterplot(Data_Nutrients_UT, id_cols = "TADA.ComparableDataIdentifier", groups = c("AMMONIA_UNFILTERED_AS N_MG/L", "NITRATE_UNFILTERED_AS N_MG/L"))
+#' TADA_TwoCharacteristicScatterplot(Data_Nutrients_UT, 
+#' id_cols = "TADA.ComparableDataIdentifier", 
+#' groups = c("AMMONIA_UNFILTERED_AS N_MG/L", 
+#' "NITRATE_UNFILTERED_AS N_MG/L"))
 #'
 #' # Load example dataset:
 #' data(Data_6Tribes_5y_Harmonized)

@@ -270,7 +270,7 @@ TADA_TribalOptions("American Indian Reservations") could be used here to
 determine the correct spelling for this argument, "Pueblo of Pojoaque,
 New Mexico", as listed in the TRIBE_NAME column.
 
-```{r TADA_DataRetrieval_tribal}
+```{r TADA_DataRetrieval_tribal, eval = F}
 # Review TRIBE_NAME column to get name format for the TADA_DataRetrieval tribe_name_parcel function input
 TRIBE_NAME <- TADA_TribalOptions("American Indian Reservations")
 
@@ -297,7 +297,7 @@ object as a query filter. We can match the output of the two short
 Pueblo of Pojoaque examples above, using tigris::native_areas to acquire
 Census Bureau spatial data:
 
-```{r TADA_DataRetrieval_spatial}
+```{r TADA_DataRetrieval_spatial, eval = F}
 TADAProfile_spatial <- TADA_DataRetrieval(
   aoi_sf = tigris::native_areas() %>% dplyr::filter(NAMELSAD == "Pueblo of Pojoaque"),
   startDate = "2018-01-01",
@@ -326,7 +326,7 @@ are sampling with the tribal boundary. This is one great benefit of this
 query option! There is additional data available that may be useful but
 is missed if only the organization query filter is used.
 
-```{r TADA_DataRetrieval_tribal_2}
+```{r TADA_DataRetrieval_tribal_2, eval = F}
 TADAProfile_single_2 <- TADA_DataRetrieval(
   organization = "REDLAKE_WQX",
   startDate = "2018-01-01",

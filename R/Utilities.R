@@ -691,16 +691,23 @@ TADA_ConvertSpecialChars <- function(.data, col, percent.ave = TRUE) {
 #' @examples
 #' \dontrun{
 #' # download nutrient data in MT from 2022 and set autoclean = FALSE
-#' df <- TADA_DataRetrieval(startDate = "2022-01-01", endDate = "2022-12-31", characteristicType = "Nutrient", statecode = "MT", applyautoclean = FALSE, ask = FALSE)
+#' df <- TADA_DataRetrieval(startDate = "2022-01-01", 
+#' endDate = "2022-12-31", 
+#' characteristicType = "Nutrient", 
+#' statecode = "MT", 
+#' applyautoclean = FALSE, ask = FALSE)
 #' df2 <- TADA_SubstituteDeprecatedChars(df)
-#' # in this example, "Inorganic nitrogen (nitrate and nitrite)" is a USGS NWIS characteristic that is
-#' # deprecated and "Phosphate-phosphorus***retired***use Total Phosphorus, mixed forms" is a deprecated WQX
-#' # name. Both are are transformed to their new names.
+#' # in this example, "Inorganic nitrogen (nitrate and nitrite)" is a USGS NWIS
+#' # characteristic that is deprecated and 
+#' # "Phosphate-phosphorus***retired***use Total Phosphorus, mixed forms" 
+#' # is a deprecated WQX name. Both are are transformed to their new names.
 #' # review characteristic names before and after transformation
 #' unique(df2$CharacteristicName)
 #' unique(df2$TADA.CharacteristicName)
 #'
-#' df3 <- TADA_DataRetrieval(startDate = "2022-01-01", endDate = "2022-12-31", characteristicType = "Nutrient", statecode = "WY", applyautoclean = FALSE, ask = FALSE)
+#' df3 <- TADA_DataRetrieval(startDate = "2022-01-01", endDate = "2022-12-31", 
+#' characteristicType = "Nutrient", statecode = "WY", applyautoclean = FALSE, 
+#' ask = FALSE)
 #' df4 <- TADA_SubstituteDeprecatedChars(df3)
 #' unique(df4$CharacteristicName)
 #' unique(df4$TADA.CharacteristicName)
@@ -1488,7 +1495,8 @@ TADA_addPolys <- function(map, layerfilepath, layergroup, layername, bbox = NULL
 #'   leaflet::addProviderTiles("Esri.WorldTopoMap", group = "World topo") %>%
 #'   leaflet::addMapPane("featurelayers", zIndex = 300)
 #' # Add the Virginia Federally Recognized Tribes feature layer to the map
-#' lmap <- TADA_addPoints(lmap, "extdata/VATribe.shp", "Tribes", "Virginia Federally Recognized Tribes")
+#' lmap <- TADA_addPoints(lmap, "extdata/VATribe.shp", 
+#' "Tribes", "Virginia Federally Recognized Tribes")
 #' lmap
 #' }
 #'

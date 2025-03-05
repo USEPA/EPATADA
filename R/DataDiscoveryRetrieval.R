@@ -1236,7 +1236,8 @@ TADA_BigDataHelper <- function(record_summary, WQPquery, maxrecs = 250000, maxsi
 #' projectProfile <- TADA_ReadWQPWebServices("https://www.waterqualitydata.us/data/Project/search?statecode=US%3A09&characteristicType=Nutrient&startDateLo=04-01-2023&startDateHi=11-01-2023&mimeType=csv&zip=yes&providers=NWIS&providers=STEWARDS&providers=STORET")
 #'
 #' # Join all three profiles using TADA_JoinWQPProfiles
-#' TADAProfile <- TADA_JoinWQPProfiles(FullPhysChem = physchemProfile, Sites = stationProfile, Projects = projectProfile)
+#' TADAProfile <- TADA_JoinWQPProfiles(FullPhysChem = physchemProfile, 
+#' Sites = stationProfile, Projects = projectProfile)
 #' }
 #'
 TADA_JoinWQPProfiles <- function(FullPhysChem = "null",
