@@ -50,6 +50,8 @@ groups = c("AMMONIA_UNFILTERED_AS N_MG/L",
 # Load example dataset:
 data(Data_6Tribes_5y_Harmonized)
 # Create a single scatterplot with two specified groups from TADA.ComparableDataIdentifier
-TADA_TwoCharacteristicScatterplot(Data_6Tribes_5y_Harmonized, id_cols = "TADA.ComparableDataIdentifier", groups = c("TEMPERATURE_NA_NA_DEG C", "PH_NA_NA_NA"))
+TADA_TwoCharacteristicScatterplot(Data_6Tribes_5y_Harmonized, 
+id_cols = "TADA.ComparableDataIdentifier", 
+groups = c("TEMPERATURE_NA_NA_DEG C", "PH_NA_NA_NA"))
 
 }

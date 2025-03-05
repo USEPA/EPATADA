@@ -3,20 +3,23 @@
 #' This function creates a new column, TADA.DepthCategory.Flag with values: "No
 #' depth info", "Surface", "Bottom", and
 #' "Middle" when multiple depths are available.
-#' Categories are: less than 2m (or user specified value) depth = "Surface", from
-#' bottom up to 2m (or user specified value) from bottom = "Bottom", and all depths
-#' in between the Surface and Bottom are assigned to the "Middle" category.
+#' Categories are: less than 2m (or user specified value) depth = "Surface", 
+#' from bottom up to 2m (or user specified value) from bottom = "Bottom", and 
+#' all depths in between the Surface and Bottom are assigned to the "Middle" 
+#' category.
 #'
 #' When more than one result is available for a MonitoringLocationIdentifier,
 #' ActivityStartDate, OrganizationIdentifier, and TADA.CharacteristicName, the
-#' user can choose a single result value (average, max, or min value) to use for that
-#' day and location. If results vary with depth, the user may also define whether
-#' the daily aggregation occurs over each depth category (surface, middle, or bottom)
-#' or for the entire depth profile.
+#' user can choose a single result value (average, max, or min value) to use 
+#' for that day and location. If results vary with depth, the user may also 
+#' define whether the daily aggregation occurs over each depth category 
+#' (surface, middle, or bottom) or for the entire depth profile.
 #'
 #' @param .data TADA dataframe which must include the columns
-#' TADA.ActivityDepthHeightMeasure.MeasureValue, TADA.ResultDepthHeightMeasure.MeasureValue,
-#' TADA.ActivityBottomDepthHeightMeasure.MeasureValue, and ActivityRelativeDepthName.
+#' TADA.ActivityDepthHeightMeasure.MeasureValue, 
+#' TADA.ResultDepthHeightMeasure.MeasureValue,
+#' TADA.ActivityBottomDepthHeightMeasure.MeasureValue, and 
+#' ActivityRelativeDepthName.
 #'
 #' @param dailyagg Character argument; with options "none", "avg", "min", or
 #' "max". The default is dailyagg = "none". When dailyagg = "none", all results
@@ -80,8 +83,10 @@
 #' # assign TADA.DepthCategory.Flag with no aggregation
 #' Data_6Tribs_5y_DepthCat <- TADA_FlagDepthCategory(Data_6Tribes_5y)
 #'
-#' # assign TADA.DepthCategory.Flag and determine average values by depth category and returning only aggregate values
-#' Data_6Tribs_5y_Mean <- TADA_FlagDepthCategory(Data_6Tribes_5y, bycategory = "all", dailyagg = "avg", aggregatedonly = FALSE)
+#' # assign TADA.DepthCategory.Flag and determine average values by depth 
+#' # category and returning only aggregate values
+#' Data_6Tribs_5y_Mean <- TADA_FlagDepthCategory(Data_6Tribes_5y, 
+#' bycategory = "all", dailyagg = "avg", aggregatedonly = FALSE)
 #'
 TADA_FlagDepthCategory <- function(.data, bycategory = "no", bottomvalue = 2, surfacevalue = 2, dailyagg = "none", aggregatedonly = FALSE, clean = FALSE) {
   # check .data is data.frame
@@ -494,7 +499,8 @@ TADA_FlagDepthCategory <- function(.data, bycategory = "no", bottomvalue = 2, su
 #' data(Data_6Tribes_5y)
 #'
 #' # find depth profile data without showing number of results
-#' Data_6Tribes_5y_DepthProfileID_Nresults <- TADA_IDDepthProfiles(Data_6Tribes_5y, nresults = FALSE)
+#' Data_6Tribes_5y_DepthProfileID_Nresults <- 
+#' TADA_IDDepthProfiles(Data_6Tribes_5y, nresults = FALSE)
 #'
 #' # find depth profile data showing number of results
 #' Data_6Tribes_5y_DepthProfileID <- TADA_IDDepthProfiles(Data_6Tribes_5y)
@@ -659,16 +665,19 @@ TADA_IDDepthProfiles <- function(.data, nresults = TRUE, nvalue = 2, aggregates 
 #' @examples
 #' # Load example dataframe:
 #' data(Data_6Tribes_5y_Harmonized)
-#' # Create a depth profile figure with three parameters for a single monitoring location and date
+#' # Create a depth profile figure with three parameters for a single 
+#' # monitoring location and date
 #' TADA_DepthProfilePlot(Data_6Tribes_5y_Harmonized,
-#'   groups = c("TEMPERATURE_NA_NA_DEG C", "PH_NA_NA_STD UNITS", "DEPTH, SECCHI DISK DEPTH_NA_NA_M"),
+#'   groups = c("TEMPERATURE_NA_NA_DEG C", "PH_NA_NA_STD UNITS", 
+#'   "DEPTH, SECCHI DISK DEPTH_NA_NA_M"),
 #'   location = "REDLAKE_WQX-ANKE",
 #'   activity_date = "2018-10-04"
 #' )
 #'
 #' # Load example dataframe:
 #' data(Data_6Tribes_5y_Harmonized)
-#' # Create a depth profile figure with two parameters for a single monitoring location and date without displaying depth categories
+#' # Create a depth profile figure with two parameters for a single monitoring
+#' # location and date without displaying depth categories
 #' TADA_DepthProfilePlot(Data_6Tribes_5y_Harmonized,
 #'   groups = c("CONDUCTIVITY_NA_NA_US/CM", "DISSOLVED OXYGEN (DO)_NA_NA_MG/L"),
 #'   location = "REDLAKE_WQX-JOHN",

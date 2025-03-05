@@ -35,7 +35,9 @@ Create Boxplot(s)
 # Load example dataframe:
 data(Data_6Tribes_5y_Harmonized)
 # Filter data down to a single TADA.ComparableDataIdentifier
-df <- dplyr::filter(Data_6Tribes_5y_Harmonized, TADA.ComparableDataIdentifier == "TOTAL PHOSPHORUS, MIXED FORMS_UNFILTERED_AS P_UG/L")
+df <- dplyr::filter(Data_6Tribes_5y_Harmonized, 
+TADA.ComparableDataIdentifier == 
+"TOTAL PHOSPHORUS, MIXED FORMS_UNFILTERED_AS P_UG/L")
 # Generate single boxplot
 TADA_Boxplot(df, id_cols = "TADA.ComparableDataIdentifier")
 

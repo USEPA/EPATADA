@@ -73,17 +73,18 @@ their result identifiers.
 This function creates a new column, TADA.DepthCategory.Flag with values: "No
 depth info", "Surface", "Bottom", and
 "Middle" when multiple depths are available.
-Categories are: less than 2m (or user specified value) depth = "Surface", from
-bottom up to 2m (or user specified value) from bottom = "Bottom", and all depths
-in between the Surface and Bottom are assigned to the "Middle" category.
+Categories are: less than 2m (or user specified value) depth = "Surface",
+from bottom up to 2m (or user specified value) from bottom = "Bottom", and
+all depths in between the Surface and Bottom are assigned to the "Middle"
+category.
 }
 \details{
 When more than one result is available for a MonitoringLocationIdentifier,
 ActivityStartDate, OrganizationIdentifier, and TADA.CharacteristicName, the
-user can choose a single result value (average, max, or min value) to use for that
-day and location. If results vary with depth, the user may also define whether
-the daily aggregation occurs over each depth category (surface, middle, or bottom)
-or for the entire depth profile.
+user can choose a single result value (average, max, or min value) to use
+for that day and location. If results vary with depth, the user may also
+define whether the daily aggregation occurs over each depth category
+(surface, middle, or bottom) or for the entire depth profile.
 }
 \examples{
 # Load dataframe
@@ -92,7 +93,9 @@ data(Data_6Tribes_5y)
 # assign TADA.DepthCategory.Flag with no aggregation
 Data_6Tribs_5y_DepthCat <- TADA_FlagDepthCategory(Data_6Tribes_5y)
 
-# assign TADA.DepthCategory.Flag and determine average values by depth category and returning only aggregate values
-Data_6Tribs_5y_Mean <- TADA_FlagDepthCategory(Data_6Tribes_5y, bycategory = "all", dailyagg = "avg", aggregatedonly = FALSE)
+# assign TADA.DepthCategory.Flag and determine average values by depth 
+# category and returning only aggregate values
+Data_6Tribs_5y_Mean <- TADA_FlagDepthCategory(Data_6Tribes_5y, 
+bycategory = "all", dailyagg = "avg", aggregatedonly = FALSE)
 
 }
