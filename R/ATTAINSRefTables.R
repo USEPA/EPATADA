@@ -65,7 +65,7 @@ ATTAINSParamUseOrgRef_Cached <- NULL
 #' reference dataframe which includes all parameters and uses
 #' listed as a cause by ATTAINS organizations in previous assessments.
 #' This dataframe is used in TADA_CreateParamRef() and
-#' TADA_CreateParamUseRef() as the basis for the pulling in prior ATTAINS
+#' TADA_CreateUseParamRef() as the basis for the pulling in prior ATTAINS
 #' parameter names and use names by organization name. This helps to filter
 #' selections in the Excel drop down menu.
 #'

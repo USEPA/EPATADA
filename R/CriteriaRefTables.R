@@ -6,7 +6,7 @@ EPACSTRef_Cached <- NULL
 #' Function downloads and returns the newest available Criteria Search Tool and
 #' associated EPA 304a Criteria pollutant names as a reference dataframe.
 #' This dataframe is used in TADA_CreateParamRef() and
-#' TADA_CreateParamUseRef() as the basis for the pulling in EPA304a recommended
+#' TADA_CreateUseParamRef() as the basis for the pulling in EPA304a recommended
 #' pollutant names and use names.
 #'
 #' Currently only characteristics identified by the TADA Working Group as

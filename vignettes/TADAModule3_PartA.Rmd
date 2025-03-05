@@ -145,7 +145,7 @@ This example includes results from from multiple states. In the
 following sections, for demonstration purposes, we will focus only on
 Maryland. The remainder of this vignette will walk through how to fill
 out two crosswalk tables (TADA_CreateParamRef and
-TADA_CreateParamUseRef) that are needed before we can start assigning
+TADA_CreateUseParamRef) that are needed before we can start assigning
 applicable criteria and methodologies information for this specific
 ATTAINS organization (Maryland).
 
@@ -271,12 +271,12 @@ NCTC_ParamRef_Final <- TADA_CreateParamRef(
 TADA_TableExport(NCTC_ParamRef_Final)
 ```
 
-# TADA_CreateParamUseRef() Basics
+# TADA_CreateUseParamRef() Basics
 
 Our first example will pull in all prior ATTAINS uses (use_names) and
 parameter names (ATTAINS.ParameterName) specific to the specified
 ATTAINS organization (defined by the org_names function argument for
-TADA_CreateParamUseRef), which in this case is "MDE_EASP" (Maryland).
+TADA_CreateUseParamRef), which in this case is "MDE_EASP" (Maryland).
 Users will review the output and choose which use_name's are applicable
 to their analysis. The default functionality is to "Include" all ATTAINS
 use_names (see the "IncludeOrExclude" column). Later in the data
@@ -299,7 +299,7 @@ uses (disclaimer: this is for demonstration purposes only and does not
 reflect MDE_EASP's process).
 
 ```{r}
-NCTC_ParamUseRef <- TADA_CreateParamUseRef(
+NCTC_ParamUseRef <- TADA_CreateUseParamRef(
   Data_NCTC,
   org_id = c("MDE_EASP"),
   paramRef = NCTC_ParamRef_Final,
@@ -323,7 +323,7 @@ must first fill out the TADA_CreateParamRef() for all organizations of
 interest.
 
 ```{r}
-NCTC_ParamUseRef2 <- TADA_CreateParamUseRef(
+NCTC_ParamUseRef2 <- TADA_CreateUseParamRef(
   Data_NCTC,
   org_id = c("EPA304a", "MDE_EASP", "21VASWCB", "21PA", "WVDEP"),
   paramRef = NCTC_ParamRef_Final,
@@ -335,7 +335,7 @@ TADA_TableExport(NCTC_ParamUseRef2)
 ```
 
 Instead, users should create a parameter and use reference table,
-TADA_CreateParamUseRef(), for the same organizations included in the
+TADA_CreateUseParamRef(), for the same organizations included in the
 parameter name crosswalk, TADA_CreateParamRef(). While aspects of this
 process are partially automated, both crosswalks must be manually
 reviewed, adjusted, and finalized by the user of these functions.
@@ -344,7 +344,7 @@ Users may choose to voluntarily share their reference tables for their
 organization with the TADA Team so that others can use it in the future.
 
 ```{r}
-NCTC_ParamUseRef3 <- TADA_CreateParamUseRef(
+NCTC_ParamUseRef3 <- TADA_CreateUseParamRef(
   Data_NCTC,
   org_id = c("EPA304a", "MDE_EASP"),
   paramRef = NCTC_ParamRef_Final,
@@ -373,7 +373,7 @@ add_data <- data.frame(
     "Seasonal Migratory Fish Spawning and Nursery Subcategory"
 ))
 
-# The output of this will not reflect changes to the ATTAINS.FlagUseName column. To do so, we need to re run TADA_CreateParamUseRef() with paramUseRef = ParamUseRef as an argument.
+# The output of this will not reflect changes to the ATTAINS.FlagUseName column. To do so, we need to re run TADA_CreateUseParamRef() with paramUseRef = ParamUseRef as an argument.
 ParamUseRef <- NCTC_ParamUseRef3 %>%
   dplyr::left_join(add_data, by = c("organization_identifier", "ATTAINS.ParameterName"), keep = FALSE) %>%
   dplyr::mutate(use_name = dplyr::coalesce(use_name.x, use_name.y)) %>%
@@ -383,7 +383,7 @@ ParamUseRef <- NCTC_ParamUseRef3 %>%
 TADA_TableExport(ParamUseRef)
 
 # PH will now reflect the changes
-NCTC_ParamUseRef_Final <- TADA_CreateParamUseRef(
+NCTC_ParamUseRef_Final <- TADA_CreateUseParamRef(
   Data_NCTC,
   paramUseRef = ParamUseRef, # Edits were made to paramUseRef, updates flag column
   org_id = c("EPA304a", "MDE_EASP"),
