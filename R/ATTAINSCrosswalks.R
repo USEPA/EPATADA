@@ -1112,13 +1112,15 @@ TADA_CreateUseParamRef <- function(.data, org_id = NULL, paramRef = NULL,
 
   # Checks if paramRef argument contains a dataframe and necessary columns to proceed.
   if (is.null(paramRef)) {
-    paramRef <- openxlsx::read.xlsx(downloads_path, sheet = "CreateParamRef")
+    stop(paste0(
+      "TADA.CreateUseParamRef: No paramRef argument provided."
+    ))
   }
 
   # If org_id argument is not provided, this will attempt to pull in org_id from TADA_GetATTAINS.
   if (is.null(org_id)) {
     print(paste0(
-      "TADA.CreateParamRef: No organization identifier(s) provided.",
+      "TADA.CreateUseParamRef: No organization identifier(s) provided.",
       "Attempting to pull in organization identifiers found in the TADA data frame.",
       "Please ensure that you have ran TADA_GetATTAINS if you did not provide an org_id argument input."
     ))
@@ -1272,7 +1274,7 @@ TADA_CreateUseParamRef <- function(.data, org_id = NULL, paramRef = NULL,
       EPA304A.PollutantName, ATTAINS.ParameterName, use_name
     ) %>%
     tidyr::drop_na(ATTAINS.ParameterName) %>%
-    dplyr::filter(ATTAINS.ParameterName != "Parameter not used for analysis") %>%
+    dplyr::filter(ATTAINS.ParameterName != "No parameter match for TADA.ComparableDataIdentifier") %>%
     dplyr::distinct()
 
   # If users want the EPA304a criteria. This pulls in the CST reference file.
