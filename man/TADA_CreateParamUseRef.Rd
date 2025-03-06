@@ -21,7 +21,7 @@ prior to running TADA_CreateParamRef.}
 \item{org_id}{The ATTAINS organization identifier must be supplied by the
 user. A list of organization identifiers can be found by downloading
 the ATTAINS Domains Excel file:
-https://www.epa.gov/system/files/other-files/2023-09/DOMAINS.xlsx.
+https://www.epa.gov/system/files/other-files/2025-02/domains_2025-02-25.xlsx.
 organization identifiers are listed in the "OrgName" tab.
 The "code" column contains the organization identifiers that
 should be used for this param. If a user does not provide an org_id argument,

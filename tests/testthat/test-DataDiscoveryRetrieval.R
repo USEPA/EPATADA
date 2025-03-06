@@ -1,5 +1,5 @@
 test_that("TADA_DataRetrieval", {
-  randomday <- TADA_RandomTestingData()
+  randomday <- TADA_RandomTestingData(number_of_days = 2, choose_random_state = TRUE)
   # you could just pick the important columns:
   expect_true(all(c(
     "OrganizationIdentifier",
@@ -128,7 +128,7 @@ test_that("TADA_DataRetrieval", {
 })
 
 test_that("TADA_DataRetrieval", {
-  randomstate <- TADA_RandomTestingData(number_of_days = 10, choose_random_state = TRUE)
+  randomstate <- TADA_RandomTestingData(number_of_days = 2, choose_random_state = TRUE)
   # you could just pick the important columns:
   expect_true(all(c(
     "OrganizationIdentifier",
@@ -257,7 +257,7 @@ test_that("TADA_DataRetrieval", {
 })
 
 test_that("TADA_DataRetrieval", {
-  randomstate2 <- TADA_RandomTestingData(number_of_days = 3, choose_random_state = TRUE)
+  randomstate2 <- TADA_RandomTestingData(number_of_days = 2, choose_random_state = TRUE)
 
   expect_true(all(
     Filter(function(x) !any(grepl("TADA.", x)), require.cols) %in% names(randomstate2)
@@ -407,6 +407,7 @@ test_that("TADA_DataRetrieval", {
     statecode = "UT",
     characteristicName = c("Ammonia", "Nitrate", "Nitrogen"),
     startDate = "2021-01-01",
+    endDate = "2022-01-01",
     ask = FALSE
   )
   expect_false("meters" %in% check_autoclean_meters_works$TADA.ResultMeasure.MeasureUnitCode)

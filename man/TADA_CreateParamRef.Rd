@@ -21,7 +21,7 @@ censored data prior to running TADA_CreateParamRef.}
 \item{org_id}{The ATTAINS organization identifier must be supplied by the
 user. A list of organization identifiers can be found by downloading
 the ATTAINS Domains Excel file:
-https://www.epa.gov/system/files/other-files/2023-09/DOMAINS.xlsx.
+https://www.epa.gov/system/files/other-files/2025-02/domains_2025-02-25.xlsx.
 Organization identifiers are listed in the "OrgName" tab.
 The "code" column contains the organization identifiers that
 should be used for this parameter. If a user supplied crosswalk is entered
@@ -113,7 +113,7 @@ value list, even if the parameter name  has not previously
 been listed as a cause by the specific organization in the
 past. The full list of ATTAINS parameter names can be found by downloading
 the ATTAINS Domains Excel file:
-https://www.epa.gov/system/files/other-files/2023-09/DOMAINS.xlsx.
+https://www.epa.gov/system/files/other-files/2025-02/domains_2025-02-25.xlsx.
 In the meantime, users can proceed by overriding the data validation in Excel
 by value pasting. In that case, users will be warned in the
 ATTAINS.FlagParameterName column that they choose to include an
