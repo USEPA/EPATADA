@@ -93,9 +93,10 @@ data(Data_6Tribes_5y)
 # assign TADA.DepthCategory.Flag with no aggregation
 Data_6Tribs_5y_DepthCat <- TADA_FlagDepthCategory(Data_6Tribes_5y)
 
-# assign TADA.DepthCategory.Flag and determine average values by depth 
+# assign TADA.DepthCategory.Flag and determine average values by depth
 # category and returning only aggregate values
-Data_6Tribs_5y_Mean <- TADA_FlagDepthCategory(Data_6Tribes_5y, 
-bycategory = "all", dailyagg = "avg", aggregatedonly = FALSE)
+Data_6Tribs_5y_Mean <- TADA_FlagDepthCategory(Data_6Tribes_5y,
+  bycategory = "all", dailyagg = "avg", aggregatedonly = FALSE
+)
 
 }

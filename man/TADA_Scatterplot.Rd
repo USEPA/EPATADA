@@ -40,9 +40,11 @@ TADA_Scatterplot(Data_6Tribes_5y_Harmonized, id_cols = "TADA.ComparableDataIdent
 
 # Create a single scatterplot using defaults. The input dataframe in this
 # example is filtered so it includes only one TADA.ComparableDataIdentifier
-df <- dplyr::filter(Data_6Tribes_5y_Harmonized, 
-TADA.ComparableDataIdentifier == 
-"TOTAL PHOSPHORUS, MIXED FORMS_UNFILTERED_AS P_UG/L")
+df <- dplyr::filter(
+  Data_6Tribes_5y_Harmonized,
+  TADA.ComparableDataIdentifier ==
+    "TOTAL PHOSPHORUS, MIXED FORMS_UNFILTERED_AS P_UG/L"
+)
 TADA_Scatterplot(df, id_cols = "TADA.ComparableDataIdentifier")
 # Creates a scatterplot for each monitoring location
 TADA_Scatterplot(df, id_cols = c("TADA.ComparableDataIdentifier", "MonitoringLocationName"))
@@ -52,8 +54,9 @@ TADA_Scatterplot(df, id_cols = c("TADA.ComparableDataIdentifier", "MonitoringLoc
 # and MonitoringLocationTypeName (e.g. stream, reservoir, canal, etc.)
 # Load example dataset:
 data(Data_Nutrients_UT)
-Scatterplot_output <- TADA_Scatterplot(Data_Nutrients_UT, 
-id_cols = c("TADA.ComparableDataIdentifier", "MonitoringLocationTypeName"))
+Scatterplot_output <- TADA_Scatterplot(Data_Nutrients_UT,
+  id_cols = c("TADA.ComparableDataIdentifier", "MonitoringLocationTypeName")
+)
 # This example generates 47 scatterplots
 Scatterplot_output[[10]]
 Scatterplot_output[[25]]

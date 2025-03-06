@@ -38,9 +38,11 @@ TADA_Histogram(Data_6Tribes_5y_Harmonized, id_cols = "TADA.ComparableDataIdentif
 
 # Create a single histogram using defaults. The input dataframe in this example
 # is filtered so it includes only one TADA.ComparableDataIdentifier
-df <- dplyr::filter(Data_6Tribes_5y_Harmonized, 
-TADA.ComparableDataIdentifier == 
-"TOTAL PHOSPHORUS, MIXED FORMS_UNFILTERED_AS P_UG/L")
+df <- dplyr::filter(
+  Data_6Tribes_5y_Harmonized,
+  TADA.ComparableDataIdentifier ==
+    "TOTAL PHOSPHORUS, MIXED FORMS_UNFILTERED_AS P_UG/L"
+)
 TADA_Histogram(df, id_cols = "TADA.ComparableDataIdentifier")
 
 # Create multiple histograms with additional grouping columns and view the first

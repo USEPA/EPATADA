@@ -61,11 +61,13 @@ Create A Three-Characteristic Depth Profile
 \examples{
 # Load example dataframe:
 data(Data_6Tribes_5y_Harmonized)
-# Create a depth profile figure with three parameters for a single 
+# Create a depth profile figure with three parameters for a single
 # monitoring location and date
 TADA_DepthProfilePlot(Data_6Tribes_5y_Harmonized,
-  groups = c("TEMPERATURE_NA_NA_DEG C", "PH_NA_NA_STD UNITS", 
-  "DEPTH, SECCHI DISK DEPTH_NA_NA_M"),
+  groups = c(
+    "TEMPERATURE_NA_NA_DEG C", "PH_NA_NA_STD UNITS",
+    "DEPTH, SECCHI DISK DEPTH_NA_NA_M"
+  ),
   location = "REDLAKE_WQX-ANKE",
   activity_date = "2018-10-04"
 )
