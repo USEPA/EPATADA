@@ -26,9 +26,11 @@
 #' # Load example dataframe:
 #' data(Data_6Tribes_5y_Harmonized)
 #' # Filter data down to a single TADA.ComparableDataIdentifier
-#' df <- dplyr::filter(Data_6Tribes_5y_Harmonized, 
-#' TADA.ComparableDataIdentifier == 
-#' "TOTAL PHOSPHORUS, MIXED FORMS_UNFILTERED_AS P_UG/L")
+#' df <- dplyr::filter(
+#'   Data_6Tribes_5y_Harmonized,
+#'   TADA.ComparableDataIdentifier ==
+#'     "TOTAL PHOSPHORUS, MIXED FORMS_UNFILTERED_AS P_UG/L"
+#' )
 #' # Generate single boxplot
 #' TADA_Boxplot(df, id_cols = "TADA.ComparableDataIdentifier")
 #'
@@ -213,9 +215,11 @@ TADA_Boxplot <- function(.data, id_cols = c("TADA.ComparableDataIdentifier")) {
 #'
 #' # Create a single histogram using defaults. The input dataframe in this example
 #' # is filtered so it includes only one TADA.ComparableDataIdentifier
-#' df <- dplyr::filter(Data_6Tribes_5y_Harmonized, 
-#' TADA.ComparableDataIdentifier == 
-#' "TOTAL PHOSPHORUS, MIXED FORMS_UNFILTERED_AS P_UG/L")
+#' df <- dplyr::filter(
+#'   Data_6Tribes_5y_Harmonized,
+#'   TADA.ComparableDataIdentifier ==
+#'     "TOTAL PHOSPHORUS, MIXED FORMS_UNFILTERED_AS P_UG/L"
+#' )
 #' TADA_Histogram(df, id_cols = "TADA.ComparableDataIdentifier")
 #'
 #' # Create multiple histograms with additional grouping columns and view the first
@@ -763,9 +767,11 @@ TADA_FieldValuesPie <- function(.data, field = "null", characteristicName = "nul
 #'
 #' # Create a single scatterplot using defaults. The input dataframe in this
 #' # example is filtered so it includes only one TADA.ComparableDataIdentifier
-#' df <- dplyr::filter(Data_6Tribes_5y_Harmonized, 
-#' TADA.ComparableDataIdentifier == 
-#' "TOTAL PHOSPHORUS, MIXED FORMS_UNFILTERED_AS P_UG/L")
+#' df <- dplyr::filter(
+#'   Data_6Tribes_5y_Harmonized,
+#'   TADA.ComparableDataIdentifier ==
+#'     "TOTAL PHOSPHORUS, MIXED FORMS_UNFILTERED_AS P_UG/L"
+#' )
 #' TADA_Scatterplot(df, id_cols = "TADA.ComparableDataIdentifier")
 #' # Creates a scatterplot for each monitoring location
 #' TADA_Scatterplot(df, id_cols = c("TADA.ComparableDataIdentifier", "MonitoringLocationName"))
@@ -775,8 +781,9 @@ TADA_FieldValuesPie <- function(.data, field = "null", characteristicName = "nul
 #' # and MonitoringLocationTypeName (e.g. stream, reservoir, canal, etc.)
 #' # Load example dataset:
 #' data(Data_Nutrients_UT)
-#' Scatterplot_output <- TADA_Scatterplot(Data_Nutrients_UT, 
-#' id_cols = c("TADA.ComparableDataIdentifier", "MonitoringLocationTypeName"))
+#' Scatterplot_output <- TADA_Scatterplot(Data_Nutrients_UT,
+#'   id_cols = c("TADA.ComparableDataIdentifier", "MonitoringLocationTypeName")
+#' )
 #' # This example generates 47 scatterplots
 #' Scatterplot_output[[10]]
 #' Scatterplot_output[[25]]
@@ -936,17 +943,21 @@ TADA_Scatterplot <- function(.data, id_cols = c("TADA.ComparableDataIdentifier")
 #' # Load example dataset:
 #' data(Data_Nutrients_UT)
 #' # Create a single scatterplot with two specified groups from TADA.ComparableDataIdentifier
-#' TADA_TwoCharacteristicScatterplot(Data_Nutrients_UT, 
-#' id_cols = "TADA.ComparableDataIdentifier", 
-#' groups = c("AMMONIA_UNFILTERED_AS N_MG/L", 
-#' "NITRATE_UNFILTERED_AS N_MG/L"))
+#' TADA_TwoCharacteristicScatterplot(Data_Nutrients_UT,
+#'   id_cols = "TADA.ComparableDataIdentifier",
+#'   groups = c(
+#'     "AMMONIA_UNFILTERED_AS N_MG/L",
+#'     "NITRATE_UNFILTERED_AS N_MG/L"
+#'   )
+#' )
 #'
 #' # Load example dataset:
 #' data(Data_6Tribes_5y_Harmonized)
 #' # Create a single scatterplot with two specified groups from TADA.ComparableDataIdentifier
-#' TADA_TwoCharacteristicScatterplot(Data_6Tribes_5y_Harmonized, 
-#' id_cols = "TADA.ComparableDataIdentifier", 
-#' groups = c("TEMPERATURE_NA_NA_DEG C", "PH_NA_NA_NA"))
+#' TADA_TwoCharacteristicScatterplot(Data_6Tribes_5y_Harmonized,
+#'   id_cols = "TADA.ComparableDataIdentifier",
+#'   groups = c("TEMPERATURE_NA_NA_DEG C", "PH_NA_NA_NA")
+#' )
 #'
 TADA_TwoCharacteristicScatterplot <- function(.data, id_cols = "TADA.ComparableDataIdentifier", groups) {
   # check .data is data.frame

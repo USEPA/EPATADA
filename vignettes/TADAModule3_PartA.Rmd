@@ -171,7 +171,6 @@ data from the ATTAINS public web services
 (<https://github.com/mps9506/rATTAINS>).
 
 ```{r, eval = FALSE}
-
 # return ATTAINS parameter domain values
 TADA_TableExport(rATTAINS::domain_values(domain_name = "ParameterName"))
 ```

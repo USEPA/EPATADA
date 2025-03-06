@@ -51,7 +51,7 @@ test_that("WQXcharValRef.csv contains only one row for each unique characteristi
     dplyr::filter(
       Type == "CharacteristicUnit"
     )
-  
+
   find.dups <- unit.ref %>%
     dplyr::filter(Type == "CharacteristicUnit") %>%
     dplyr::group_by(Characteristic, Source, Value.Unit) %>%
@@ -60,8 +60,8 @@ test_that("WQXcharValRef.csv contains only one row for each unique characteristi
       Max_n = length(unique(Maximum))
     ) %>%
     dplyr::filter(Min_n > 1 |
-                    Max_n > 1)
-  
+      Max_n > 1)
+
   expect_true(nrow(find.dups) == 0)
 })
 
