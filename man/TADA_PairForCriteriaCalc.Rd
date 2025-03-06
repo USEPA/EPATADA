@@ -32,7 +32,7 @@ temperature, salinity, chloride or other user-defined groups. If no ref is speci
 combinations for hardness, pH, temperature, salinity and chloride will be used.
 }
 \examples{
-
+\dontrun{
 AL_df <- TADA_DataRetrieval(
   startDate = "2010-11-30",
   endDate = "2010-12-01",
@@ -41,5 +41,6 @@ AL_df <- TADA_DataRetrieval(
 )
 
 AL_PairRef <- TADA_PairForCriteriaCalc(AL_df)
+}
 
 }

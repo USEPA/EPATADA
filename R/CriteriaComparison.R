@@ -202,8 +202,8 @@ TADA_CreatePairRef <- function(.data, ph = TRUE, hardness = TRUE, temp = TRUE,
 #' in the pairing ref.
 #' @export
 #'
-#' @examples
-#'
+#' @examples 
+#' \dontrun{
 #' AL_df <- TADA_DataRetrieval(
 #'   startDate = "2010-11-30",
 #'   endDate = "2010-12-01",
@@ -212,7 +212,8 @@ TADA_CreatePairRef <- function(.data, ph = TRUE, hardness = TRUE, temp = TRUE,
 #' )
 #'
 #' AL_PairRef <- TADA_PairForCriteriaCalc(AL_df)
-#'
+#' }
+#' 
 TADA_PairForCriteriaCalc <- function(.data, ref = "null", hours_range = 4) {
   # check to see if user-supplied ref is a df
   if (!is.character(ref)) {
