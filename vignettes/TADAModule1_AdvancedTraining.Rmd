@@ -619,7 +619,7 @@ estimate detection limit values, check out the `?TADA_Stats` function,
 which accepts user-defined data groupings (or defaults to
 TADA.ComparableDataIdentifier to determine measurement count, location
 count, censored data stats, min, max, and percentile stats, and suggests
-non-detect estimatiom methods based on the number of results, % of data
+non-detect estimation methods based on the number of results, % of data
 frame censored, and number of censoring levels (detection limits). The
 decision tree used in the function was outlined in a [National Nonpoint
 Source Tech

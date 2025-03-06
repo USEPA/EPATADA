@@ -175,10 +175,8 @@ data from the ATTAINS public web services
 TADA_TableExport(rATTAINS::domain_values(domain_name = "ParameterName"))
 ```
 
-As the ATTAINS parameters are more general than the
-TADA.ComparableDataIdenitfiers, it is not possible at this time to
-completely automate the assignment of TADA.ComparableIentifiers to
-ATTAINS parameters. TADA_CreateParamRef() creates a template which
+As the ATTAINS Parameter Names are more general than the
+TADA Comparable Data Identifiers, it is not possible at this time to automate the crosswalk. TADA_CreateParamRef() creates a template which
 includes all TADA.ComparableDataIdentifiers from the TADA data frame and
 provides a blank column, "ATTAINS.ParameterName" for users to input the
 corresponding ATTAINS parameter name. The function automatically pairs
