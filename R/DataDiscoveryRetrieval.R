@@ -1363,3 +1363,88 @@ make_groups <- function(x, maxrecs) {
   }
   return(groupings)
 }
+
+
+#' Create ActivityStartDateTime column
+#'
+#' Copy of internal dataRetrieval create_dateTime function 3/7/2025
+#' https://github.com/DOI-USGS/dataRetrieval/blob/main/R/importWQP.R#L223
+#' offsetLibrary is a dataframe saved in sysdata.rda
+#' You can see where and how it gets called here:
+#' https://github.com/DOI-USGS/dataRetrieval/blob/main/R/importWQP.R#L160
+#'
+#' @param .data TADA dataframe
+#' @param date_col date column
+#' @param time_col time column
+#' @param tz_col time zone column
+#' @param tz time zone
+#' 
+#' @examples
+#' \dontrun{
+#' # Find web service URLs for each Profile using WQP User Interface (https://www.waterqualitydata.us/)
+#' # Example WQP URL: https://www.waterqualitydata.us/#statecode=US%3A09&characteristicType=Nutrient&startDateLo=04-01-2023&startDateHi=11-01-2023&mimeType=csv&providers=NWIS&providers=STEWARDS&providers=STORET
+#'
+#' # Use TADA_ReadWQPWebServices to load the Station, Project, and Phys-Chem Result profiles
+#' stationProfile <- TADA_ReadWQPWebServices("https://www.waterqualitydata.us/data/Station/search?statecode=US%3A09&characteristicType=Nutrient&startDateLo=04-01-2023&startDateHi=11-01-2023&mimeType=csv&zip=yes&providers=NWIS&providers=STEWARDS&providers=STORET")
+#' physchemProfile <- TADA_ReadWQPWebServices("https://www.waterqualitydata.us/data/Result/search?statecode=US%3A09&characteristicType=Nutrient&startDateLo=04-01-2023&startDateHi=11-01-2023&mimeType=csv&zip=yes&dataProfile=resultPhysChem&providers=NWIS&providers=STEWARDS&providers=STORET")
+#' projectProfile <- TADA_ReadWQPWebServices("https://www.waterqualitydata.us/data/Project/search?statecode=US%3A09&characteristicType=Nutrient&startDateLo=04-01-2023&startDateHi=11-01-2023&mimeType=csv&zip=yes&providers=NWIS&providers=STEWARDS&providers=STORET")
+#'
+#' # Join all three profiles using TADA_JoinWQPProfiles
+#' TADAProfile <- TADA_JoinWQPProfiles(
+#'   FullPhysChem = physchemProfile, Sites = stationProfile,
+#'   Projects = projectProfile
+#' )
+#'
+#' # Run TADA_CheckRequiredFields, returns error message,
+#' # 'The dataframe does not contain the required fields: ActivityStartDateTime'
+#' TADA_CheckRequiredFields(TADAProfile)
+#'
+#' # Add missing col
+#' TADAProfile1 <- TADA_CreateDateTime(
+#'   .data = TADAProfile,
+#'   date_col = "ActivityStartDate",
+#'   time_col = "ActivityStartTime.Time",
+#'   tz_col = "ActivityStartTime.TimeZoneCode",
+#'   tz = "UTC"
+#' )
+#' 
+#' # Re-run TADA_CheckRequiredFields, no longer returns error message
+#' TADA_CheckRequiredFields(TADAProfile1)
+#' }
+#' 
+TADA_CreateDateTime <- function(.data, date_col, time_col, tz_col, tz){
+  offsetLibrary <- data.frame(
+    offset = c(5, 4, 6, 5, 7, 6, 8, 7, 9, 8, 10, 10, 0, 0, 0, 0),
+    code = c("EST", "EDT", "CST", "CDT", "MST", "MDT", "PST", "PDT",
+             "AKST", "AKDT", "HAST", "HST", "UTC", "", NA, "GMT")
+  )
+  
+  # Difference in behavior between NWIS and WQP
+  offsetLibrary$offset[is.na(offsetLibrary$code)] <- NA
+  original_order <- names(.data)
+  
+  .data <- merge(
+    x = .data,
+    y = offsetLibrary,
+    by.x = tz_col,
+    by.y = "code",
+    all.x = TRUE
+  )
+  
+  .data$dateTime <- paste(.data[[date_col]], .data[[time_col]])
+  .data$dateTime <- lubridate::fast_strptime(
+    .data$dateTime,
+    "%Y-%m-%d %H:%M:%S"
+  ) + 60 * 60 * .data$offset
+  
+  attr(.data$dateTime, "tzone") <- tz
+  
+  .data[[date_col]] <- suppressWarnings(as.Date(lubridate::parse_date_time(.data[[date_col]], c("Ymd", "mdY"))))
+  
+  .data <- .data[, c(original_order, "offset", "dateTime")]
+  
+  names(.data)[names(.data) == "offset"] <- paste0(tz_col, "_offset")
+  names(.data)[names(.data) == "dateTime"] <- paste0(date_col, "Time")
+  
+  return(.data)
+}
