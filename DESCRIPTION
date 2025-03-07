@@ -75,6 +75,8 @@ Imports:
     openxlsx,
     rATTAINS,
     DT
+Remotes: 
+    github::DOI-USGS/dataRetrieval
 Depends: 
     R (>= 3.5.0)
 Suggests:
