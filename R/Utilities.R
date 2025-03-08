@@ -304,7 +304,7 @@ TADA_AutoClean <- function(.data) {
     # creates ActivityStartDateTime and ActivityStartTime.TimeZoneCode_offset
     # this is only needed when dataRetrieval is not used to get WQP data
     .data <- TADA_CreateDateTime(
-      df = .data,
+      .data = .data,
       date_col = "ActivityStartDate",
       time_col = "ActivityStartTime.Time",
       tz_col = "ActivityStartTime.TimeZoneCode",

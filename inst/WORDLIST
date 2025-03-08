@@ -58,6 +58,7 @@ CreatePairRef
 CreateParamRef
 CreateParamUseRef
 CreateUnitRef
+DOI
 DataFrame
 DataQuality
 DataRetrieval
@@ -338,6 +339,7 @@ cwa
 dailyagg
 dataProfile
 dataRetrieval
+dateTime
 datetimes
 decimaldigits
 depthcat
@@ -372,6 +374,7 @@ https
 huc
 hucs
 hydrologic
+importWQP
 interoperable
 io
 lessthan
@@ -389,6 +392,7 @@ nonstandardized
 np
 nresults
 od
+offsetLibrary
 orgs
 ousideUSA
 outsideUSA

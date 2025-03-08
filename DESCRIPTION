@@ -73,7 +73,8 @@ Imports:
     jsonlite, 
     openxlsx,
     rATTAINS,
-    DT
+    DT,
+    dataRetrieval
 Remotes: 
     github::DOI-USGS/dataRetrieval
 Depends: 

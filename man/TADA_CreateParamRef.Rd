@@ -121,6 +121,7 @@ ATTAINS.ParameterName that was not used by the selected organization in prior
 ATTAINS assessment cycles.
 }
 \examples{
+\dontrun{
 # This creates a blank paramRef template of UT Nutrients data.
 # Users will need to fill this template out.
 # Uncomment example below to generate Excel file
@@ -139,10 +140,12 @@ paramRef_UT <- TADA_CreateParamRef(
 # See below for a simple example of this workflow:
 
 # Manually add ATTAINS parameters to crosswalk using R
-paramRef_UT2 <- dplyr::mutate(paramRef_UT, ATTAINS.ParameterName = dplyr::case_when(
+paramRef_UT2 <- dplyr::mutate(paramRef_UT, ATTAINS.ParameterName = 
+dplyr::case_when(
   TADA.CharacteristicName == "AMMONIA" ~ "AMMONIA, TOTAL",
   TADA.CharacteristicName == "NITRATE" ~ "NITRATE",
-  TADA.CharacteristicName == "NITROGEN" ~ "NITRATE/NITRITE (NITRITE + NITRATE AS N)"
+  TADA.CharacteristicName == 
+  "NITROGEN" ~ "NITRATE/NITRITE (NITRITE + NITRATE AS N)"
 ))
 # Update the 'ATTAINS.FlagParameterName' values
 paramRef_UT3 <- TADA_CreateParamRef(Data_Nutrients_UT,
@@ -153,12 +156,14 @@ paramRef_UT3 <- TADA_CreateParamRef(Data_Nutrients_UT,
 # Example where multiple org_id's are selected
 # First, run key flag functions and harmonize synonyms across
 # characteristic, fraction, and speciation columns
-Data_NCTCShepherdstown <- TADA_RunKeyFlagFunctions(Data_NCTCShepherdstown_HUC12)
+Data_NCTCShepherdstown <- 
+TADA_RunKeyFlagFunctions(Data_NCTCShepherdstown_HUC12)
 Data_NCTCShepherdstown2 <- TADA_HarmonizeSynonyms(Data_NCTCShepherdstown)
 # Create ATTAINS parameter crosswalk for MD, VA, and PA
 paramRef_NCTC <- TADA_CreateParamRef(Data_NCTCShepherdstown2,
   org_id =
     c("MDE_EASP", "21VASWCB", "21PA"), excel = FALSE
 )
+}
 
 }

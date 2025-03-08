@@ -59,6 +59,7 @@ depthcat argument.
 Create A Three-Characteristic Depth Profile
 }
 \examples{
+\dontrun{
 # Load example dataframe:
 data(Data_6Tribes_5y_Harmonized)
 # Create a depth profile figure with three parameters for a single
@@ -82,4 +83,6 @@ TADA_DepthProfilePlot(Data_6Tribes_5y_Harmonized,
   activity_date = "2018-07-31",
   depthcat = FALSE
 )
+}
+
 }

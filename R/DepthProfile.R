@@ -664,6 +664,7 @@ TADA_IDDepthProfiles <- function(.data, nresults = TRUE, nvalue = 2, aggregates 
 #' @export
 #'
 #' @examples
+#' \dontrun{
 #' # Load example dataframe:
 #' data(Data_6Tribes_5y_Harmonized)
 #' # Create a depth profile figure with three parameters for a single
@@ -687,6 +688,8 @@ TADA_IDDepthProfiles <- function(.data, nresults = TRUE, nvalue = 2, aggregates 
 #'   activity_date = "2018-07-31",
 #'   depthcat = FALSE
 #' )
+#' }
+#' 
 TADA_DepthProfilePlot <- function(.data,
                                   groups = NULL,
                                   location = NULL,
