@@ -78,9 +78,8 @@ Imports:
     openxlsx,
     rATTAINS,
     DT,
-    dataRetrieval
-Remotes: 
-    github::DOI-USGS/dataRetrieval
+    dataRetrieval,
+    StreamCatTools
 Depends: 
     R (>= 3.5.0)
 Suggests:
@@ -99,7 +98,11 @@ Suggests:
     htmltools,
     tigris,
     yaml, 
-    remotes
+    remotes,
+    DT
+Remotes:
+    USEPA/StreamCatTools,
+    DOI-USGS/dataRetrieval
 VignetteBuilder: knitr, rmarkdown
 Language: en-US
 Config/testthat/edition: 3
