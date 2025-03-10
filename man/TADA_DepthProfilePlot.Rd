@@ -16,9 +16,9 @@ TADA_DepthProfilePlot(
 )
 }
 \arguments{
-\item{.data}{TADA dataframe containing the data downloaded from the WQP,
+\item{.data}{TADA data frame containing the data downloaded from the WQP,
 where each row represents a unique data record. TADA_FlagDepthCategory
-has been run as dataframe must include the columns TADA.DepthCategory.Flag,
+has been run as data frame must include the columns TADA.DepthCategory.Flag,
 TADA.ResultDepthHeightMeasure.MeasureUnitCode, TADA.ActivityDepthHeightMeasure.MeasureUnitCode,
 and TADA.ActivityDepthHeightMeasure.MeasureValue. Units for all depth fields
 must be the same. This can be accomplished using TADA_AutoClean() or
@@ -26,11 +26,11 @@ TADA_ConvertDepthUnits.}
 
 \item{groups}{A vector of two identifiers from the TADA.ComparableDataIdentifier column.
 For example, the groups could be 'DISSOLVED OXYGEN (DO)_NA_NA_UG/L' and 'PH_NA_NA_NA'.
-These groups will be specific to your dataframe. The TADA_IDDepthProfiles can be
+These groups will be specific to your data frame. The TADA_IDDepthProfiles can be
 used to identify available groups.}
 
-\item{location}{A single MonitoringLocationIdentifier to plot the depth profile.
-A MonitoringLocationIdentifier must be entered or an error will be returned and
+\item{location}{A single TADA.MonitoringLocationIdentifier to plot the depth profile.
+A TADA.MonitoringLocationIdentifier must be entered or an error will be returned and
 no depth profile will be created.}
 
 \item{activity_date}{The date the depth profile results were collected.}
@@ -52,7 +52,7 @@ depth units should be used for the plot. Default is "m".}
 }
 \value{
 A depth profile plot displaying up to three parameters for a single
-MonitoringLocationIdentifier. Displaying depth categories is optional with the
+TADA.MonitoringLocationIdentifier. Displaying depth categories is optional with the
 depthcat argument.
 }
 \description{
@@ -73,7 +73,7 @@ TADA_DepthProfilePlot(Data_6Tribes_5y_Harmonized,
   activity_date = "2018-10-04"
 )
 
-# Load example dataframe:
+# Load example data frame:
 data(Data_6Tribes_5y_Harmonized)
 # Create a depth profile figure with two parameters for a single monitoring
 # location and date without displaying depth categories

@@ -22,7 +22,7 @@ TADA_DataRetrieval(
   organization = "null",
   project = "null",
   providers = "null",
-  maxrecs = 250000,
+  maxrecs = 350000,
   ask = TRUE,
   applyautoclean = TRUE
 )

@@ -140,12 +140,12 @@ paramRef_UT <- TADA_CreateParamRef(
 # See below for a simple example of this workflow:
 
 # Manually add ATTAINS parameters to crosswalk using R
-paramRef_UT2 <- dplyr::mutate(paramRef_UT, ATTAINS.ParameterName = 
-dplyr::case_when(
-  TADA.CharacteristicName == "AMMONIA" ~ "AMMONIA, TOTAL",
-  TADA.CharacteristicName == "NITRATE" ~ "NITRATE",
-  TADA.CharacteristicName == 
-  "NITROGEN" ~ "NITRATE/NITRITE (NITRITE + NITRATE AS N)"
+paramRef_UT2 <- dplyr::mutate(paramRef_UT, 
+ATTAINS.ParameterName = dplyr::case_when(
+  grepl("AMMONIA", TADA.ComparableDataIdentifier) ~ "AMMONIA, TOTAL",
+  grepl("NITRATE", TADA.ComparableDataIdentifier) ~ "NITRATE",
+  grepl("NITROGEN", TADA.ComparableDataIdentifier) ~ 
+  "NITRATE/NITRITE (NITRITE + NITRATE AS N)"
 ))
 # Update the 'ATTAINS.FlagParameterName' values
 paramRef_UT3 <- TADA_CreateParamRef(Data_Nutrients_UT,
