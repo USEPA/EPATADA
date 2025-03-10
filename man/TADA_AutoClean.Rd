@@ -38,6 +38,9 @@ TADA.ActivityBottomDepthHeightMeasure.MeasureValueDataTypes.Flag	(character)
 TADA.ActivityBottomDepthHeightMeasure.MeasureUnitCode (character)
 TADA.LatitudeMeasure	(numeric)
 TADA.LongitudeMeasure (numeric)
+TADA.MonitoringLocationIdentifier (character)
+TADA.MonitoringLocationName (character)
+TADA.MonitoringLocationTypeName (character)
 
 Please note that the number of TADA-specific depth columns in the returned
 dataframe depends upon the number of depth columns with one or more results
@@ -91,8 +94,8 @@ alone function but is primarily used by the TADA_dataRetrieval function.
 # Find web service URLs for each Profile using WQP User Interface:
 # https://www.waterqualitydata.us/
 
-# Example WQP URL:
-# https://www.waterqualitydata.us/#statecode=US\%3A09&characteristicType=Nutrient&startDateLo=04-01-2023&startDateHi=11-01-2023&mimeType=csv&providers=NWIS&providers=STEWARDS&providers=STORET
+# Example WQP URL: 
+https://www.waterqualitydata.us/#statecode=US\%3A09&characteristicType=Nutrient&startDateLo=04-01-2023&startDateHi=11-01-2023&mimeType=csv&providers=NWIS&providers=STEWARDS&providers=STORET
 
 # Use TADA_ReadWQPWebServices to load the Station, Project, and Phys-Chem Result profiles
 stationProfile <- TADA_ReadWQPWebServices("https://www.waterqualitydata.us/data/Station/search?statecode=US\%3A09&characteristicType=Nutrient&startDateLo=04-01-2023&startDateHi=11-01-2023&mimeType=csv&zip=yes&providers=NWIS&providers=STEWARDS&providers=STORET")

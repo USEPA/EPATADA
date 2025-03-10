@@ -9,7 +9,8 @@ TADA_MakeSpatial(.data, crs = 4326)
 \arguments{
 \item{.data}{A dataframe created by \code{TADA_DataRetrieval()}.}
 
-\item{crs}{The coordinate reference system (CRS) you would like the returned point features to be in. The default is CRS 4326 (WGS84).}
+\item{crs}{The coordinate reference system (CRS) you would like the returned point features to
+be in. The default is CRS 4326 (WGS84).}
 }
 \value{
 The original TADA Water Quality Portal dataframe but as geospatial sf point objects.
@@ -18,7 +19,8 @@ The original TADA Water Quality Portal dataframe but as geospatial sf point obje
 Transform a Water Quality Portal dataframe into a geospatial sf object.
 }
 \details{
-Adds one new column to input dataframe, 'geometry', which allows for mapping and additional geospatial capabilities. Check out the TADAModule2.Rmd for an example workflow.
+Adds one new column to input dataframe, 'geometry', which allows for mapping and additional
+geospatial capabilities. Check out the TADAModule2.Rmd for an example workflow.
 }
 \examples{
 \dontrun{

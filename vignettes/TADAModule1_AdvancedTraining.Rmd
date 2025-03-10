@@ -110,7 +110,7 @@ developers/contributors.
 
 ```{r install_TADA, eval = F, results = 'hide'}
 remotes::install_github("USEPA/EPATADA",
-  ref = "develop",
+  ref = "482-create-tadamonitoringlocationidentifier-in-tada_autoclean",
   dependencies = TRUE
 )
 ```
@@ -637,7 +637,7 @@ functions and pipes.
 # get table of characteristics with number of results, sites, and organizations
 dataset_cens_summary <- dataset_cens %>%
   dplyr::group_by(TADA.CharacteristicName) %>%
-  dplyr::summarise(Result_Count = length(ResultIdentifier), Site_Count = length(unique(MonitoringLocationIdentifier)), Org_Count = length(unique(OrganizationIdentifier))) %>%
+  dplyr::summarise(Result_Count = length(ResultIdentifier), Site_Count = length(unique(TADA.MonitoringLocationIdentifier)), Org_Count = length(unique(OrganizationIdentifier))) %>%
   dplyr::arrange(desc(Result_Count))
 ```
 
@@ -667,7 +667,7 @@ upon your program's goals and methods, you might want to filter out some
 of the types you see.
 
 ```{r location pie}
-TADA_FieldValuesPie(dataset_cens, field = "MonitoringLocationTypeName")
+TADA_FieldValuesPie(dataset_cens, field = "TADA.MonitoringLocationTypeName")
 ```
 
 One of the next big steps is data harmonization: translating and

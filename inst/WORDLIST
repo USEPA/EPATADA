@@ -150,6 +150,7 @@ MonitoringLocation
 MonitoringLocationIdentifier
 MonitoringLocationName
 MonitoringLocationTypeName
+MonitoringLocations
 Msr
 MultipleOrgDupGroupID
 MultipleOrgDuplicate
@@ -160,6 +161,8 @@ ND's
 NHD
 NHDPlus
 NWIS
+NearbySiteGroup
+NearbySites
 NoResultValue
 NoTargetUnit
 NonStandardized
@@ -179,6 +182,7 @@ OutsideUSA
 OverviewMap
 POJOAQUE
 PUEBLOOFTESUQUE
+PairForCriteriaCalc
 PairReplicates
 PairingGroup
 PairingGroupRank
@@ -251,6 +255,7 @@ Shepherdstown
 SimpleCensoredMethods
 SingleOrgDup
 SingleOrgDupGroupID
+SiteGroup
 Speciation
 SpeciationAssumptions
 SpeciationUnitConversion

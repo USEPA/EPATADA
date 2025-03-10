@@ -43,12 +43,12 @@ will still be determined.}
 "max". The default is dailyagg = "none". When dailyagg = "none", all results
 will be retained. When dailyagg == "avg", the mean value in each group of
 results (as determined by the depth category) will be identified or calculated for each
-MonitoringLocation, ActivityDate, Organization ID, and TADA.CharacteristicName combination.
+TADA.MonitoringLocation, ActivityDate, Organization ID, and TADA.CharacteristicName combination.
 When dailyagg == "min" or when dailyagg == "max", the min or max
 value in each group of results (as determined by the depth category) will
-be identified or calculated for each MonitoringLocation, ActivityDate, and TADA.CharacteristicName
-combination. An additional column, TADA.DepthProfileAggregation.Flag will be added
-to describe aggregation.}
+be identified or calculated for each TADA.MonitoringLocation, ActivityDate, and
+TADA.CharacteristicName combination. An additional column, TADA.DepthProfileAggregation.Flag will
+be added to describe aggregation.}
 
 \item{aggregatedonly}{Boolean argument with options "TRUE" or "FALSE". The
 default is aggregatedonly = "FALSE" which means that all results are returned.
@@ -66,7 +66,7 @@ and TADA.ConsolidatedDepth.Unit. The consolidated depth fields are created by re
 multiple WQC columns where users may input depth information. If a daily_agg = "avg",
 "min", or "max", aggregated values will be identified in the TADA.ResultAggregation.Flag
 column. In the case of daily_agg = "avg", additional rows to display averages will be
-added to the dataframe. They can be identified by the prefix ("TADA-") of
+added to the data frame. They can be identified by the prefix ("TADA-") of
 their result identifiers.
 }
 \description{
@@ -79,7 +79,7 @@ all depths in between the Surface and Bottom are assigned to the "Middle"
 category.
 }
 \details{
-When more than one result is available for a MonitoringLocationIdentifier,
+When more than one result is available for a TADA.MonitoringLocationIdentifier,
 ActivityStartDate, OrganizationIdentifier, and TADA.CharacteristicName, the
 user can choose a single result value (average, max, or min value) to use
 for that day and location. If results vary with depth, the user may also
@@ -87,7 +87,7 @@ define whether the daily aggregation occurs over each depth category
 (surface, middle, or bottom) or for the entire depth profile.
 }
 \examples{
-# Load dataframe
+# Load data frame
 data(Data_6Tribes_5y)
 
 # assign TADA.DepthCategory.Flag with no aggregation

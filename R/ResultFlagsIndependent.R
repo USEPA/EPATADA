@@ -1250,31 +1250,42 @@ TADA_FlagCoordinates <- function(.data,
 #' table(dat1$TADA.ResultSelectedMultipleOrgs)
 #' }
 #'
-TADA_FindPotentialDuplicatesMultipleOrgs <- function(.data, dist_buffer = 100, org_hierarchy = "none") {
+TADA_FindPotentialDuplicatesMultipleOrgs <- function(.data, dist_buffer = 100, 
+                                                     org_hierarchy = "none") {
   # from those datapoints, determine which are in adjacent sites
-  if (!"TADA.MonitoringLocationIdentifier" %in% names(.data)) {
+  if (!"TADA.NearbySites.Flag" %in% names(.data)) {
     .data <- TADA_FindNearbySites(.data, dist_buffer = dist_buffer)
   }
 
-  dupsites <- unique(.data[, c("MonitoringLocationIdentifier", "TADA.LatitudeMeasure", "TADA.LongitudeMeasure", "TADA.MonitoringLocationIdentifier")])
+  dupsites <- unique(.data[, c("MonitoringLocationIdentifier", "TADA.LatitudeMeasure", 
+                               "TADA.LongitudeMeasure", "TADA.MonitoringLocationIdentifier",
+                               "TADA.NearbySiteGroup")])
 
   # get rid of results with no site group added - not duplicated spatially
-  dupsites <- subset(dupsites, !dupsites$TADA.MonitoringLocationIdentifier %in% c("No nearby sites")) %>%
-    tidyr::separate_rows(TADA.MonitoringLocationIdentifier, sep = ",")
+  dupsites <- dupsites %>%
+    dplyr::filter(!is.na(TADA.NearbySiteGroup))
 
   # remove results with no nearby sites get all data that are not NA and round to 2 digits
   dupsprep <- .data %>%
     dplyr::filter(MonitoringLocationIdentifier %in% dupsites$MonitoringLocationIdentifier) %>%
     dplyr::select(
       OrganizationIdentifier, ResultIdentifier, ActivityStartDate, ActivityStartTime.Time,
-      TADA.CharacteristicName, ActivityTypeCode, TADA.ResultMeasureValue, TADA.MonitoringLocationIdentifier
+      TADA.CharacteristicName, ActivityTypeCode, TADA.ResultMeasureValue, 
+      TADA.MonitoringLocationIdentifier, TADA.NearbySiteGroup
     ) %>%
     dplyr::filter(!is.na(TADA.ResultMeasureValue)) %>%
     dplyr::mutate(roundRV = round(TADA.ResultMeasureValue, digits = 2))
+  
+  # remove intermediate object
+  rm(dupsites)
 
-  # group by date, time, characteristic, and rounded result value and determine the number of organizations that have those same row values, and filter to those summary rows with more than one organization
+  # group by date, time, characteristic, and rounded result value and determine the number of 
+  # organizations that have those same row values, and filter to those summary rows with more than 
+  # one organization
   dups_sum <- dupsprep %>%
-    dplyr::group_by(ActivityStartDate, ActivityStartTime.Time, TADA.CharacteristicName, ActivityTypeCode, roundRV, TADA.MonitoringLocationIdentifier) %>%
+    dplyr::group_by(ActivityStartDate, ActivityStartTime.Time, TADA.CharacteristicName, 
+                    ActivityTypeCode, roundRV, TADA.MonitoringLocationIdentifier,
+                    TADA.NearbySiteGroup) %>%
     dplyr::mutate(numorgs = length(unique(OrganizationIdentifier))) %>%
     dplyr::filter(numorgs > 1) %>%
     # group duplicates
@@ -1291,7 +1302,8 @@ TADA_FindPotentialDuplicatesMultipleOrgs <- function(.data, dist_buffer = 100, o
     "OrganizationIdentifier",
     "ResultIdentifier",
     "TADA.ResultMeasureValue",
-    "TADA.MonitoringLocationIdentifier"
+    "TADA.MonitoringLocationIdentifier",
+    "TADA.NearbySiteGroup"
   )) %>%
     dplyr::mutate(TADA.MultipleOrgDuplicate = ifelse(is.na(TADA.MultipleOrgDupGroupID), "N", "Y")) %>%
     # remove results that are listed twice (as part of two groups)
@@ -1299,15 +1311,18 @@ TADA_FindPotentialDuplicatesMultipleOrgs <- function(.data, dist_buffer = 100, o
     dplyr::slice_sample(n = 1) %>%
     dplyr::ungroup() %>%
     dplyr::select(-roundRV)
-
+  
+# remove intermediate object
+  rm(dups_sum)
 
   # select representative results
   if (dim(dupsdat)[1] > 0) {
     # make a selection of a representative result
-    if (!any(org_hierarchy == "none")) { # if there is an org hierarchy, use that to pick result with lowest rank in hierarchy
+    if (!any(org_hierarchy == "none")) { # if there is an org hierarchy, use that to pick result 
+      # with lowest rank in hierarchy
       data_orgs <- unique(.data$OrganizationIdentifier)
       if (any(!org_hierarchy %in% data_orgs)) {
-        print("One or more organizations in input hierarchy are not present in the input dataset.")
+        print("TADA_FindPotentialDuplicatesMultipleOrgs: One or more organizations in input hierarchy are not present in the input dataset.")
       }
       hierarchy_df <- data.frame("OrganizationIdentifier" = org_hierarchy, "rank" = 1:length(org_hierarchy))
       dupranks <- dupsdat %>%
@@ -1405,14 +1420,18 @@ TADA_FindPotentialDuplicatesSingleOrg <- function(.data) {
   depthcols <- names(.data)[grepl("^TADA.*DepthHeightMeasure.MeasureValue$", names(.data))]
 
   # tack depth columns onto additional grouping columns
-  colss <- c("OrganizationIdentifier", "MonitoringLocationIdentifier", "ActivityStartDate", "ActivityStartTime.Time", "ActivityTypeCode", "TADA.CharacteristicName", "SubjectTaxonomicName", "TADA.ResultSampleFractionText", "TADA.ResultMeasureValue", depthcols)
+  cols <- c("OrganizationIdentifier", "MonitoringLocationIdentifier", "ActivityStartDate", "ActivityStartTime.Time", "ActivityTypeCode", "TADA.CharacteristicName", "SubjectTaxonomicName", "TADA.ResultSampleFractionText", "TADA.ResultMeasureValue", depthcols)
 
   # find where the grouping using the columns above results in more than one result identifier
   dups_sum_org <- .data %>%
-    dplyr::group_by(dplyr::across(tidyselect::any_of(colss))) %>%
-    dplyr::summarise(numres = length(unique(ResultIdentifier))) %>%
+    dplyr::group_by(dplyr::across(tidyselect::any_of(cols))) %>%
+    dplyr::summarise(numres = length(unique(ResultIdentifier)),
+                     .groups = "keep") %>%
     dplyr::filter(numres > 1) %>%
     dplyr::mutate(TADA.SingleOrgDupGroupID = dplyr::cur_group_id())
+  
+  # remove intermediate objects
+  rm(depthcols, cols)
 
   if (dim(dups_sum_org)[1] > 0) {
     # apply to .data and remove numbers column
@@ -1431,7 +1450,16 @@ TADA_FindPotentialDuplicatesSingleOrg <- function(.data) {
     .data$TADA.SingleOrgDup.Flag <- ifelse(.data$ResultIdentifier %in% picks$ResultIdentifier, "Unique", .data$TADA.SingleOrgDup.Flag)
     # flags non-duplicates as passing
     .data$TADA.SingleOrgDup.Flag <- ifelse(.data$TADA.SingleOrgDupGroupID == "Not a duplicate", "Unique", .data$TADA.SingleOrgDup.Flag)
-    print(paste0(dim(dups_sum_org)[1], " groups of potentially duplicated results found in dataset. These have been placed into duplicate groups in the TADA.SingleOrgDupGroupID column and the function randomly selected one result from each group to represent a single, unduplicated value. Selected values are indicated in the TADA.SingleOrgDup.Flag as 'Unique', while duplicates are flagged as 'Duplicate' for easy filtering."))
+    print(paste0("TADA_FindPotentialDuplicatesSingleOrg: ", dim(dups_sum_org)[1], 
+                 " groups of potentially duplicated results found in dataset.",
+                 " These have been placed into duplicate groups in the TADA.SingleOrgDupGroupID ",
+                 "column and the function randomly selected one result from each group to ",
+                 "represent a single, unduplicated value. Selected values are indicated in the ",
+                 "TADA.SingleOrgDup.Flag as 'Unique', while duplicates are flagged as 'Duplicate' ",
+                 "for easy filtering."))
+    
+    # remove intermediate objects
+    rm(dup_rids)
   }
 
   if (dim(dups_sum_org)[1] == 0) {
@@ -1444,7 +1472,13 @@ TADA_FindPotentialDuplicatesSingleOrg <- function(.data) {
     .data$TADA.SingleOrgDup.Flag <- ifelse(.data$TADA.SingleOrgDupGroupID == "Not a duplicate", "Unique", .data$TADA.SingleOrgDup.Flag)
     print("No duplicate results detected. Returning input dataframe with TADA.SingleOrgDup.Flag flag column set to 'Unique'")
   }
-
+  
+  # remove intermediate objects
+  rm(dups_sum_org)
+  
+  # reorder columns
   .data <- TADA_OrderCols(.data)
+  
+  # return TADA df
   return(.data)
 }

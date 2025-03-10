@@ -7,17 +7,17 @@
 TADA_UniqueCharUnitSpeciation(.data)
 }
 \arguments{
-\item{.data}{A TADA dataframe.}
+\item{.data}{A TADA data frame.}
 }
 \value{
-A dataframe with unique combinations of TADA.CharacteristicName,
+A data frame with unique combinations of TADA.CharacteristicName,
 TADA.ResultMeasure.MeasureUnitCode, ResultMeasure.MeasureUnitCode, and
 TADA.MethodSpeciationName
 }
 \description{
-Creates dataframe of unique combinations of TADA.CharacteristicName,
+Creates data frame of unique combinations of TADA.CharacteristicName,
 TADA.ResultMeasure.MeasureUnitCode, ResultMeasure.MeasureUnitCode, and
-TADA.MethodSpeciationName in a TADA dataframe.
+TADA.MethodSpeciationName in a TADA data frame.
 }
 \examples{
 UniqueCharUnitSpecExample <- TADA_UniqueCharUnitSpeciation(Data_NCTCShepherdstown_HUC12)

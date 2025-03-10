@@ -241,7 +241,7 @@ TADA_HarmonizeSynonyms <- function(.data, ref, np_speciation = TRUE) {
 #' @param .data TADA dataframe, ideally harmonized using TADA_HarmonizeSynonyms.
 #'   If user wants to consider grouping N or P subspecies across multiple
 #'   organizations, user should have run TADA_FindNearbySites and grouped all
-#'   nearby sites to one common MonitoringLocationIdentifier,
+#'   nearby sites to one common TADA.MonitoringLocationIdentifier,
 #'   TADA.LatitudeMeasure, TADA.LongitudeMeasure, etc.
 #' @param sum_ref Optional. A custom summation reference dataframe the user has
 #'   loaded into the R environment. Dataframe must have same columns as default
@@ -275,7 +275,7 @@ TADA_CalculateTotalNP <- function(.data, sum_ref, daily_agg = c("max", "min", "m
     "TADA.ResultMeasure.MeasureUnitCode",
     "TADA.ResultMeasureValue",
     "ActivityStartDate",
-    "MonitoringLocationIdentifier",
+    "TADA.MonitoringLocationIdentifier",
     "ActivityTypeCode"
   )
   TADA_CheckColumns(.data, expected_cols = req_cols)
@@ -301,7 +301,7 @@ TADA_CalculateTotalNP <- function(.data, sum_ref, daily_agg = c("max", "min", "m
     "ActivityStartDate",
     # "ActivityStartDateTime", #does not make sense to include for daily agg
     "ActivityRelativeDepthName",
-    "MonitoringLocationIdentifier",
+    "TADA.MonitoringLocationIdentifier",
     "MonitoringLocationName",
     "TADA.LongitudeMeasure",
     "TADA.LatitudeMeasure",
@@ -325,7 +325,7 @@ TADA_CalculateTotalNP <- function(.data, sum_ref, daily_agg = c("max", "min", "m
     thecols <- grpcols[!grpcols %in% c("TADA.ComparableDataIdentifier")]
 
     # # find nearby sites
-    # nearsites = unique(sum_dat[,c("MonitoringLocationIdentifier","TADA.LatitudeMeasure","TADA.LongitudeMeasure")])
+    # nearsites = unique(sum_dat[,c("TADA.MonitoringLocationIdentifier","TADA.LatitudeMeasure","TADA.LongitudeMeasure")])
     # nearsites = TADA_FindNearbySites(nearsites)
     # nearsites = subset(nearsites, !nearsites$TADA.NearbySiteGroups%in%c("No nearby sites"))
 

@@ -1,31 +1,31 @@
-#' Create Reference Dataframe to Pair Characteristic Results For Use in Numeric Criteria Equations (UNDER ACTIVE DEVELOPMENT)
+#' Create Reference Data Frame to Pair Characteristic Results For Use in Numeric Criteria Equations (UNDER ACTIVE DEVELOPMENT)
 #'
-#' This function creates a dataframe that shows all combinations of TADA.CharacteristicName,
+#' This function creates a data frame that shows all combinations of TADA.CharacteristicName,
 #' TADA.CharacteristicName, TADA.ResultMeasure.MeasureUnitCode, TADA.MethodSpeciationName,
 #' and TADA.ResultSampleFractionText for commonly paired characteristics (such as pH, temperature,
 #' hardness, salinity, and chloride).
 #'
 #' @param .data TADA dataframe
 #'
-#' @param ph Boolean argument. When ph = TRUE, pH is included in this reference dataframe. When
-#' ph = FALSE, pH is not included in the reference dataframe.
+#' @param ph Boolean argument. When ph = TRUE, pH is included in this reference data frame. When
+#' ph = FALSE, pH is not included in the reference data frame.
 #'
 #' @param hardness Boolean argument. When hardness = TRUE, hardness is included in this reference
-#' dataframe. When hardness = FALSE, hardness is not included in the reference dataframe.
+#' data frame. When hardness = FALSE, hardness is not included in the reference data frame.
 #'
 #' @param temp Boolean argument. When temp = TRUE, water temperature is included in this reference
-#' dataframe. When temp = FALSE, water temperature is not included in the reference dataframe.
+#' data frame. When temp = FALSE, water temperature is not included in the reference data frame.
 #'
 #' @param salinity Boolean argument. When salinity = TRUE, salinity is included in this reference
-#' dataframe. When salinity = FALSE, salinity is not included in the reference dataframe.
+#' data frame. When salinity = FALSE, salinity is not included in the reference data frame.
 #'
 #' @param chloride Boolean argument. When chloride = TRUE, salinity is included in this reference
-#' dataframe. When chloride = FALSE, chloride is not included in the reference dataframe.
+#' data frame. When chloride = FALSE, chloride is not included in the reference data frame.
 #'
-#' @param other_char Character argument. The user provides a dataframe TADA.CharacteristicNames and
+#' @param other_char Character argument. The user provides a data frame TADA.CharacteristicNames and
 #' the pairing group they belong to. #Needs more details.
 #
-#' @return A dataframe with six columns, TADA.CharacteristicName, TADA.ResultMeasure.MeasureUnitCode,
+#' @return A data frame with six columns, TADA.CharacteristicName, TADA.ResultMeasure.MeasureUnitCode,
 #' TADA.MethodSpeciationName, TADA.ResultSampleFractionText, TADA.PairingGroup, and
 #' TADA.PairingGroupRank.
 #'
@@ -40,7 +40,7 @@
 #'
 TADA_CreatePairRef <- function(.data, ph = TRUE, hardness = TRUE, temp = TRUE,
                                chloride = TRUE, salinity = TRUE, other_char = "null") {
-  # create dataframe to store pair refs
+  # create data frame to store pair refs
   pair.ref <- data.frame(matrix(ncol = 6, nrow = 0))
 
   # name columns in pair.ref df
@@ -155,7 +155,7 @@ TADA_CreatePairRef <- function(.data, ph = TRUE, hardness = TRUE, temp = TRUE,
   }
 
   if (!is.data.frame(other_char) & other_char != "null") {
-    stop("TADA_CreatePairRef: 'other_char' must be a dataframe with three columns. The first column
+    stop("TADA_CreatePairRef: 'other_char' must be a data frame with three columns. The first column
            contains TADA.CharacteristicName, the second column contains TADA.PairingGroup, and the
            third column contains TADA.PairingGroup.Rank")
   }
@@ -172,7 +172,7 @@ TADA_CreatePairRef <- function(.data, ph = TRUE, hardness = TRUE, temp = TRUE,
   # check to see if there are any rows in pair.ref
 
   if (nrow(pair.ref) == 0) {
-    stop("None of the specified pairing characteristics were found in the TADA dataframe.")
+    stop("None of the specified pairing characteristics were found in the TADA data frame.")
   }
 
   return(pair.ref)
@@ -181,15 +181,17 @@ TADA_CreatePairRef <- function(.data, ph = TRUE, hardness = TRUE, temp = TRUE,
 #' Pair Results for Numeric Criteria Calculation (UNDER ACTIVE DEVELOPMENT)
 #'
 #' This function pairs TADA results with results from specified characteristics from the same
-#' MonitoringLocation within a user-specified time window to facilitate the calculation of numeric
-#' criteria. The columns created by TADA_AutoClean are required to run this function. If they are not
-#' present in the dataframe, the function will stop and print an error message.
+#' TADA.MonitoringLocation within a user-specified time window to facilitate the calculation of 
+#' numeric criteria. The columns created by TADA_AutoClean are required to run this function. If 
+#' they are not present in the data frame, the function will stop and print an error message.
 #'
 #' Users can provide a pairing reference file (can be created using TADA_CreatePairRef) to specify
 #' which combinations of TADA.CharacteristicName, TADA.ResultMeasure.MeasureUnit,
 #' TADA.MethodSpeciationName, and TADA.ResultSampleFractionText should be used for hardness, pH,
-#' temperature, salinity, chloride or other user-defined groups. If no ref is specified, all possible
-#' combinations for hardness, pH, temperature, salinity and chloride will be used.
+#' temperature, salinity, chloride or other user-defined groups. If no ref is specified, all 
+#' possible combinations for hardness, pH, temperature, salinity and chloride will be used. It is
+#' highly recommended that users perform all unit conversion and synonym harmonization before using
+#' TADA_PairForCriteriaCalc.
 #'
 #' @param .data TADA dataframe
 #'
@@ -198,7 +200,7 @@ TADA_CreatePairRef <- function(.data, ph = TRUE, hardness = TRUE, temp = TRUE,
 #' @param hours_range Numeric argument. The time difference allowed between the paired characteristic
 #' and the result.
 #
-#' @return A TADA dataframe with six additional columns added for each pairing group specified
+#' @return A TADA data frame with six additional columns added for each pairing group specified
 #' in the pairing ref.
 #' @export
 #'
@@ -218,7 +220,7 @@ TADA_PairForCriteriaCalc <- function(.data, ref = "null", hours_range = 4) {
   # check to see if user-supplied ref is a df
   if (!is.character(ref)) {
     if (!is.data.frame(ref)) {
-      stop("TADA_PairForCriteriaCalc: 'ref' must be a dataframe with six columns: TADA.CharacteristicName,
+      stop("TADA_PairForCriteriaCalc: 'ref' must be a data frame with six columns: TADA.CharacteristicName,
          TADA.ResultMeasure.MeasureUnitCode, TADA.MethodSpeciationName, TADA.ResultSampleFractionText,
          TADA.PairingGroup.Rank, and TADA.PairingGroup.")
     }
@@ -233,7 +235,7 @@ TADA_PairForCriteriaCalc <- function(.data, ref = "null", hours_range = 4) {
       ref.names <- names(ref)
 
       if (length(setdiff(col.names, ref.names)) > 0) {
-        stop("TADA_PairForCriteriaCalc: 'ref' must be a dataframe with six columns: TADA.CharacteristicName,
+        stop("TADA_PairForCriteriaCalc: 'ref' must be a data frame with six columns: TADA.CharacteristicName,
          TADA.ResultMeasure.MeasureUnitCode, TADA.MethodSpeciationName, TADA.ResultSampleFractionText,
          TADA.PairingGroup.Rank, and TADA.PairingGroup.")
       }
@@ -279,7 +281,7 @@ TADA_PairForCriteriaCalc <- function(.data, ref = "null", hours_range = 4) {
       ) %>%
       dplyr::select(
         TADA.CharacteristicName, TADA.ResultMeasureValue, TADA.ResultMeasure.MeasureUnitCode,
-        ActivityIdentifier, MonitoringLocationIdentifier, ActivityStartDateTime,
+        ActivityIdentifier, TADA.MonitoringLocationIdentifier, ActivityStartDateTime,
         TADA.ResultSampleFractionText, TADA.MethodSpeciationName
       ) %>%
       dplyr::left_join(ref.subset,
@@ -337,11 +339,11 @@ TADA_PairForCriteriaCalc <- function(.data, ref = "null", hours_range = 4) {
       dplyr::filter(
         !ResultIdentifier %in% pair.activityid$ResultIdentifier,
         !is.na(ActivityStartDateTime),
-        MonitoringLocationIdentifier %in% pair.subset$MonitoringLocationIdentifier
+        TADA.MonitoringLocationIdentifier %in% pair.subset$TADA.MonitoringLocationIdentifier
       ) %>%
       dplyr::left_join(pair.subset2,
         relationship = "many-to-many",
-        by = dplyr::join_by(MonitoringLocationIdentifier)
+        by = dplyr::join_by(TADA.MonitoringLocationIdentifier)
       ) %>%
       dplyr::group_by(ResultIdentifier) %>%
       # Figure out fastest time comparison method - needs to be absolute time comparison

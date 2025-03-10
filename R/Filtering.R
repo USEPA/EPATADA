@@ -44,7 +44,7 @@ TADA_FieldCounts <- function(.data, display = c("key", "most", "all"), character
       "ActivityMediaSubdivisionName",
       "ActivityCommentText",
       "ResultCommentText",
-      "MonitoringLocationTypeName",
+      "TADA.MonitoringLocationTypeName",
       "StateCode",
       "OrganizationFormalName",
       "TADA.CharacteristicName",
@@ -79,8 +79,10 @@ TADA_FieldCounts <- function(.data, display = c("key", "most", "all"), character
       "ActivityRelativeDepthName",
       "ProjectIdentifier",
       "ProjectName",
+      "TADA.MonitoringLocationIdentifier",
       "MonitoringLocationIdentifier",
       "MonitoringLocationName",
+      "MonitoringLocationTypeName",
       "ActivityCommentText",
       "SampleAquifer",
       "HydrologicCondition",
@@ -112,7 +114,6 @@ TADA_FieldCounts <- function(.data, display = c("key", "most", "all"), character
       "ResultDetectionQuantitationLimitUrl",
       "DetectionQuantitationLimitTypeName",
       "ProviderName",
-      "MonitoringLocationTypeName",
       "MonitoringLocationDescriptionText",
       "HUCEightDigitCode",
       "HorizontalCollectionMethodName",
@@ -191,10 +192,14 @@ TADA_FieldValuesTable <- function(.data, field = "null", characteristicName = "n
   if (!field %in% names(.data)) {
     stop("Field input does not exist in dataset. Please populate the 'field' argument with a valid field name. Enter ?TADA_FieldValuesTable in console for more information.")
   }
+  
+  # change NAs to "NA" (character string)
+  .data[[field]][is.na(.data[[field]])] <- "NA"
 
   # filter to characteristic if provided
   if (!characteristicName %in% c("null")) {
-    .data <- subset(.data, .data$TADA.CharacteristicName %in% c(characteristicName))
+    .data <- .data %>%
+      dplyr::filter(TADA.CharacteristicName %in% characteristicName)
     if (dim(.data)[1] < 1) {
       stop("Characteristic name(s) provided are not contained within the input dataset. Note that TADA converts characteristic names to ALL CAPS for easier harmonization.")
     }
@@ -284,11 +289,9 @@ TADA_AnalysisDataFilter <- function(.data,
   # import MonitoringLocationTypeNames and TADA.Media.Flags
   sw.sitetypes <- utils::read.csv(system.file("extdata", "WQXMonitoringLocationTypeNameRef.csv", package = "EPATADA")) %>%
     dplyr::select(Name, TADA.Media.Flag) %>%
-    dplyr::rename(
-      ML.Media.Flag = TADA.Media.Flag,
-      MonitoringLocationTypeName = Name
-    )
-
+    dplyr::rename(ML.Media.Flag = TADA.Media.Flag) %>%
+    dplyr::mutate(MonitoringLocationTypeName = toupper(Name)) %>%
+    dplyr::select(-Name)
 
   # add TADA.Media.Flag column
   .data <- .data %>%
@@ -306,7 +309,7 @@ TADA_AnalysisDataFilter <- function(.data,
       ActivityMediaSubdivisionName == "Surface Water" ~ "Surface Water",
       !ActivityMediaName %in% c("WATER", "Water", "water") ~ ActivityMediaName
     )) %>%
-    # add TADA.Media.Flag for additional rows based on MonitoringLocationTypeName
+    # add TADA.Media.Flag for additional rows based on TADA.MonitoringLocationTypeName
     dplyr::left_join(sw.sitetypes, by = "MonitoringLocationTypeName") %>%
     dplyr::mutate(
       TADA.Media.Flag = ifelse(is.na(TADA.Media.Flag),

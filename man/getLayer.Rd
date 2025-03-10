@@ -24,19 +24,8 @@ getLayer is used within TADA_addPolys and TADA_addPoints
 # Load example dataset
 data(Data_6Tribes_5y_Harmonized)
 # Get the bounding box of the data
-bbox <- sf::st_bbox(
-  c(
-    xmin = min(
-      Data_6Tribes_5y_Harmonized$TADA.LongitudeMeasure
-    ),
-    ymin = min(Data_6Tribes_5y_Harmonized$TADA.LatitudeMeasure),
-    xmax = max(Data_6Tribes_5y_Harmonized$TADA.LongitudeMeasure),
-    ymax = max(Data_6Tribes_5y_Harmonized$TADA.LatitudeMeasure)
-  ),
-  crs = sf::st_crs(Data_6Tribes_5y_Harmonized)
-)
-# Get the American Indian Reservations feature layer, filtered by the
-# bounding box for the Data_6Tribes_5y_Harmonized example dataset
+bbox <- sf::st_bbox(c(xmin = min(Data_6Tribes_5y_Harmonized$TADA.LongitudeMeasure), ymin = min(Data_6Tribes_5y_Harmonized$TADA.LatitudeMeasure), xmax = max(Data_6Tribes_5y_Harmonized$TADA.LongitudeMeasure), ymax = max(Data_6Tribes_5y_Harmonized$TADA.LatitudeMeasure)), crs = sf::st_crs(Data_6Tribes_5y_Harmonized))
+# Get the American Indian Reservations feature layer, filtered by the bounding box for the Data_6Tribes_5y_Harmonized example dataset
 layerfilepath <- "extdata/AmericanIndian.shp"
 getLayer(layerfilepath, bbox)
 }

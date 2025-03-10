@@ -7,17 +7,24 @@
 fetchNHD(.data, resolution = "Hi", features = "catchments")
 }
 \arguments{
-\item{.data}{A dataframe created by \code{TADA_DataRetrieval()} or the geospatial equivalent made by \code{TADA_MakeSpatial()}.}
+\item{.data}{A dataframe created by \code{TADA_DataRetrieval()} or the geospatial equivalent made by
+\code{TADA_MakeSpatial()}.}
 
-\item{resolution}{Whether to download the NHDPlus HiRes resolution ("Hi") or medium NHDPlus V2 resolution ("Med") version of the National Hydrography Dataset (NHD). Default is "Hi".}
+\item{resolution}{Whether to download the NHDPlus HiRes resolution ("Hi") or medium NHDPlus V2
+resolution ("Med") version of the National Hydrography Dataset (NHD). Default is "Hi".}
 
-\item{features}{Which NHD features to return: "catchments", "flowlines", "waterbodies", or any combination.}
+\item{features}{Which NHD features to return: "catchments", "flowlines", "waterbodies", or any
+combination.}
 }
 \value{
-A list containing all selected NHD features associated with the WQP observations of interest. Or, if a single feature type is selected, a single geospatial object instead of a list. Default is "catchments" only.
+A list containing all selected NHD features associated with the WQP observations of
+interest. Or, if a single feature type is selected, a single geospatial object instead of a list.
+Default is "catchments" only.
 }
 \description{
-Fetches NHD features from either the high resolution or medium resolution version of the National Hydrography Dataset (NHD) that intersect catchments containing TADA Water Quality Portal observations.
+Fetches NHD features from either the high resolution or medium resolution version of the National
+Hydrography Dataset (NHD) that intersect catchments containing TADA Water Quality Portal
+observations.
 }
 \examples{
 \dontrun{

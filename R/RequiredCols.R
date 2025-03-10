@@ -171,7 +171,9 @@ require.cols <- c(
   "StateCode",
   "CountyCode",
   "MonitoringLocationName", # required
+  "TADA.MonitoringLocationName", # generated
   "MonitoringLocationTypeName",
+  "TADA.MonitoringLocationTypeName", #generated
   "MonitoringLocationDescriptionText",
   "LatitudeMeasure",
   "TADA.LatitudeMeasure", # generated
@@ -182,6 +184,9 @@ require.cols <- c(
   "HUCEightDigitCode",
   "MonitoringLocationIdentifier", # required
   "TADA.MonitoringLocationIdentifier",
+  "TADA.NearbySites.Flag", # generated,
+  "TADA.NearbySiteGroup", #generated
+  
   # Groundwater fields, used for auto filtering for assessment use case but should not be required to have in TADA template
   "AquiferName", # filter, groundwater
   "AquiferTypeName", # filter
