@@ -102,7 +102,7 @@ Suggests:
     DT
 Remotes:
     USEPA/StreamCatTools,
-    DOI-USGS/dataRetrieval
+    DOI-USGS/dataRetrieval/develop
 VignetteBuilder: knitr, rmarkdown
 Language: en-US
 Config/testthat/edition: 3
